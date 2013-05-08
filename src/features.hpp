@@ -138,7 +138,7 @@ using std::bitset;
 #define LIFE_MAGIC_FOCUS_FEAT		  //любимая_магия: жизнь
 */
 
-/* MAX_FEATS определяется в structs.h */
+// MAX_FEATS определяется в structs.h
 
 #define UNUSED_FTYPE	-1
 #define NORMAL_FTYPE	0
@@ -157,7 +157,7 @@ const int feat_slot_for_remort[NUM_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4,5 };
 // Максимально доступное на морте количество не-врожденных способностей
 #define MAX_ACC_FEAT(ch)	((int) 1+(LVL_IMMORT-1)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 
-/* Поля изменений для способностей (кроме AFFECT_FTYPE, для них используются стардартные поля APPLY) */
+// Поля изменений для способностей (кроме AFFECT_FTYPE, для них используются стардартные поля APPLY)
 #define FEAT_TIMER 1
 #define FEAT_SKILL 2
 

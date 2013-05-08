@@ -76,11 +76,11 @@ namespace
 long long clan_level_exp [MAX_CLANLEVEL+1] =
 {
 	0LL,
-	100000000LL, /* 1 level, should be achieved fast, 100M imho is possible*/
-	1000000000LL, /* 1bilion. OMG. */
-	5000000000LL, /* 5bilions. */
-	15000000000LL, /* 15billions. */
-	1000000000000LL /* BIG NUMBER. */
+	100000000LL, // 1 level, should be achieved fast, 100M imho is possible//
+	1000000000LL, // 1bilion. OMG. //
+	5000000000LL, // 5bilions. //
+	15000000000LL, // 15billions. //
+	1000000000000LL // BIG NUMBER. //
 };
 
 // vnum кланового сундука
@@ -1479,9 +1479,7 @@ void Clan::HouseLeave(CHAR_DATA * ch)
 		remove_member(it);
 }
 
-/**
-* hcontrol outcast имя - отписывание любого персонажа от дружины, кроме воеводы.
-*/
+// * hcontrol outcast имя - отписывание любого персонажа от дружины, кроме воеводы.
 void Clan::hcon_outcast(CHAR_DATA *ch, std::string &buffer)
 {
 	std::string name;
@@ -2055,9 +2053,7 @@ const char *HCONTROL_FORMAT =
 	"        hcontrol exphitory <число месяцев>\r\n";
 
 
-/**
-* hcontrol title - изменение аббревиатуры клана в титуле персонажа.
-*/
+// * hcontrol title - изменение аббревиатуры клана в титуле персонажа.
 void Clan::hcontrol_title(CHAR_DATA *ch, std::string &text)
 {
 	std::string buffer;
@@ -2096,9 +2092,7 @@ void Clan::hcontrol_title(CHAR_DATA *ch, std::string &text)
 	send_to_char("Сделано.\r\n", ch);
 }
 
-/**
-* hcontrol rank - изменение кланового звания персонажа в титуле.
-*/
+// * hcontrol rank - изменение кланового звания персонажа в титуле.
 void Clan::hcontrol_rank(CHAR_DATA *ch, std::string &text)
 {
 	std::string buffer;
@@ -2552,9 +2546,7 @@ bool check_online_state(long uid)
 	return false;
 }
 
-/**
-* Распечатка пкл/дрл с учетом режима 'пкфортмат'.
-*/
+// * Распечатка пкл/дрл с учетом режима 'пкфортмат'.
 void print_pkl(CHAR_DATA *ch, std::ostringstream &stream, ClanPkList::const_iterator &it)
 {
 	static char timeBuf[11];
@@ -3184,9 +3176,7 @@ void Clan::TaxManage(CHAR_DATA * ch, std::string & arg)
 	}
 }
 
-/**
-* Запись сообщения дружины в файл и поле клана.
-*/
+// * Запись сообщения дружины в файл и поле клана.
 void Clan::write_mod(const std::string &arg)
 {
 	std::string abbrev = this->get_abbrev();
@@ -3208,9 +3198,7 @@ void Clan::write_mod(const std::string &arg)
 	mod_text = arg;
 }
 
-/**
-* Распечатка сообщения дружины чару при входе.
-*/
+// * Распечатка сообщения дружины чару при входе.
 void Clan::print_mod(CHAR_DATA *ch) const
 {
 	if (!mod_text.empty())
@@ -3220,9 +3208,7 @@ void Clan::print_mod(CHAR_DATA *ch) const
 	}
 }
 
-/**
-* Загрузка сообщения дружины.
-*/
+// * Загрузка сообщения дружины.
 void Clan::load_mod()
 {
 	std::string abbrev = this->get_file_abbrev();
@@ -5328,9 +5314,7 @@ int Clan::GetOutRent()
 	return this->out_rent;
 }
 
-/**
-* Удаление чара из клана, клан берется не через поля чара, а ищем по всем кланам
-*/
+// * Удаление чара из клана, клан берется не через поля чара, а ищем по всем кланам
 void Clan::remove_from_clan(long unique)
 {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
@@ -5349,9 +5333,6 @@ int Clan::GetMemberExpPersent(CHAR_DATA *ch)
 	return CLAN(ch) ? CLAN_MEMBER(ch)->exp_persent : 0;
 }
 
-/**
-*
-*/
 void Clan::init_chest_rnum()
 {
 	CLAN_CHEST_RNUM = real_object(CLAN_CHEST_VNUM);
@@ -5781,9 +5762,7 @@ bool ClanSystem::show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch)
 	return 1;
 }
 
-/**
- * Расчет суточной ренты хранилища ингров.
- */
+// * Расчет суточной ренты хранилища ингров.
 int Clan::ingr_chest_tax()
 {
 	if (!ingr_chest_active())
@@ -5811,9 +5790,7 @@ int Clan::ingr_chest_tax()
 	return cost;
 }
 
-/**
- * Очистка хранилища ингров при нулевом клан-банке.
- */
+// * Очистка хранилища ингров при нулевом клан-банке.
 void Clan::purge_ingr_chest()
 {
 	if (!ingr_chest_active())
@@ -5943,9 +5920,7 @@ namespace ClanSystem
 
 bool need_update_xhelp = false;
 
-/**
- * Генерация справки 'сайтыдружин'.
- */
+// * Генерация справки 'сайтыдружин'.
 void init_xhelp()
 {
 	std::vector<std::string> key_list;
@@ -5991,9 +5966,7 @@ void init_xhelp()
 	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
 }
 
-/**
- * При любом изменении нужно релоадить всю справку, чтобы чистить старые страницы.
- */
+// * При любом изменении нужно релоадить всю справку, чтобы чистить старые страницы.
 void check_update_xhelp()
 {
 	if (need_update_xhelp)

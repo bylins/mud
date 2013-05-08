@@ -30,7 +30,7 @@
 #include "char.hpp"
 #include "room.hpp"
 
-/* Externals */
+// Externals
 ACMD(do_say);
 ACMD(do_sense);
 extern CHAR_DATA *character_list;
@@ -42,7 +42,7 @@ extern struct player_index_element *player_table;
 extern int top_of_p_table;
 int attack_best(CHAR_DATA * ch, CHAR_DATA * vict);
 
-/* local functions */
+// local functions
 void bfs_enqueue(room_rnum room, int dir);
 void bfs_dequeue(void);
 void bfs_clear_queue(void);
@@ -58,7 +58,7 @@ struct bfs_queue_struct
 #define EDGE_ZONE   1
 #define EDGE_WORLD  2
 
-/* Utility macros */
+// Utility macros
 #define MARK(room)	(SET_BIT(ROOM_FLAGS(room, ROOM_BFS_MARK), ROOM_BFS_MARK))
 #define UNMARK(room)	(REMOVE_BIT(ROOM_FLAGS(room, ROOM_BFS_MARK), ROOM_BFS_MARK))
 #define IS_MARKED(room)	(ROOM_FLAGGED(room, ROOM_BFS_MARK))
@@ -172,9 +172,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 }
 
 
-/********************************************************
-* Functions and Commands which use the above functions. *
-********************************************************/
+// * Functions and Commands which use the above functions. *
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 {
 	int percent, dir;
@@ -184,13 +182,13 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 		return BFS_ERROR;
 	}
 
-	/* 101 is a complete failure, no matter what the proficiency. */
+	// 101 is a complete failure, no matter what the proficiency.
 	percent = number(0, skill_info[skill_no].max_percent);
 
 	if (percent > calculate_skill(ch, skill_no, skill_info[skill_no].max_percent, victim))
 	{
 		int tries = 10;
-		/* Find a random direction. :) */
+		// Find a random direction. :)
 		do
 		{
 			dir = number(0, NUM_OF_DIRS - 1);
@@ -199,7 +197,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 		return dir;
 	}
 
-	/* They passed the skill check. */
+	// They passed the skill check.
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
@@ -208,7 +206,7 @@ ACMD(do_sense)
 	CHAR_DATA *vict;
 	int dir;
 
-	/* The character must have the track skill. */
+	// The character must have the track skill.
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_SENSE))
 	{
 		send_to_char("Но вы не знаете как.\r\n", ch);
@@ -231,14 +229,14 @@ ACMD(do_sense)
 		send_to_char("Кого вы хотите найти?\r\n", ch);
 		return;
 	}
-	/* The person can't see the victim. */
+	// The person can't see the victim.
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
 	{
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
 	}
 
-	/* We can't track the victim. */
+	// We can't track the victim.
 //  if (AFF_FLAGGED(vict, AFF_NOTRACK))
 //     {send_to_char("Вы не чувствуете его присутствия.\r\n", ch);
 //      return;
@@ -257,7 +255,7 @@ ACMD(do_sense)
 	case BFS_NO_PATH:
 		strcpy(buf, "Ваши чувства молчат.");
 		break;
-	default:		/* Success! */
+	default:		// Success!
 		improove_skill(ch, SKILL_SENSE, TRUE, vict);
 		sprintf(buf, "Чувство подсказало вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
 		break;
@@ -282,17 +280,17 @@ int age_track(CHAR_DATA * ch, int time, int calc_track)
 
 	if (calc_track >= number(1, 50))
 	{
-		if (time & 0x03)	/* 2 */
+		if (time & 0x03)	// 2 
 			when = 0;
-		else if (time & 0x1F)	/* 5 */
+		else if (time & 0x1F)	// 5 
 			when = 1;
-		else if (time & 0x3FF)	/* 10 */
+		else if (time & 0x3FF)	// 10 
 			when = 2;
-		else if (time & 0x7FFF)	/* 15 */
+		else if (time & 0x7FFF)	// 15 
 			when = 3;
-		else if (time & 0xFFFFF)	/* 20 */
+		else if (time & 0xFFFFF)	// 20 
 			when = 4;
-		else if (time & 0x3FFFFFF)	/* 26 */
+		else if (time & 0x3FFFFFF)	// 26 
 			when = 5;
 		else
 			when = 6;
@@ -310,7 +308,7 @@ ACMD(do_track)
 	int found = FALSE, c, calc_track = 0, track_t, i;
 	char name[MAX_INPUT_LENGTH];
 
-	/* The character must have the track skill. */
+	// The character must have the track skill. 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_TRACK))
 	{
 		send_to_char("Но вы не знаете как.\r\n", ch);
@@ -330,7 +328,7 @@ ACMD(do_track)
 	act("Похоже, $n кого-то выслеживает.", FALSE, ch, 0, 0, TO_ROOM);
 	one_argument(argument, arg);
 
-	/* No argument - show all */
+	// No argument - show all 
 	if (!*arg)
 	{
 		for (track = world[IN_ROOM(ch)]->track; track; track = track->next)
@@ -373,7 +371,7 @@ ACMD(do_track)
 		return;
 	}
 
-	/* found victim */
+	// found victim 
 	for (track = world[IN_ROOM(ch)]->track; track; track = track->next)
 	{
 		*name = '\0';

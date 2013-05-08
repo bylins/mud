@@ -52,7 +52,7 @@ const int LIQ_POISON_DATURA = 28;
 // терминатор
 const int NUM_LIQ_TYPES = 29;
 
-/* LIQ_x */
+// LIQ_x
 const char *drinks[] = { "воды",
 						 "пива",
 						 "вина",
@@ -85,7 +85,7 @@ const char *drinks[] = { "воды",
 						 "\n"
 					   };
 
-/* one-word alias for each drink */
+// one-word alias for each drink
 const char *drinknames[] = { "водой",
 							 "пивом",
 							 "вином",
@@ -118,7 +118,7 @@ const char *drinknames[] = { "водой",
 							 "\n"
 						   };
 
-/* effect of drinks on DRUNK, FULL, THIRST -- see values.doc */
+// effect of drinks on DRUNK, FULL, THIRST -- see values.doc
 const int drink_aff[][3] = { {0, 1, 10},	// вода
 	{2, 2, 3},			// пиво
 	{5, 2, 2},			// вино
@@ -150,7 +150,7 @@ const int drink_aff[][3] = { {0, 1, 10},	// вода
 	{0, 0, 0}			// настойка дурмана
 };
 
-/* color of the various drinks */
+// color of the various drinks
 const char *color_liquid[] = { "прозрачной",
 							   "коричневой",
 							   "бордовой",
@@ -217,7 +217,7 @@ ACMD(do_drink)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
+	if (IS_NPC(ch))		// Cannot use GET_COND() on mobs.
 		return;
 
 	if (!*arg)
@@ -347,11 +347,11 @@ ACMD(do_drink)
 		send_to_char(buf, ch);
 	}
 
-	/* You can't subtract more than the object weighs */
+	// You can't subtract more than the object weighs
 	weight = MIN(amount, GET_OBJ_WEIGHT(temp));
 
 	if (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)
-		weight_change_object(temp, -weight);	/* Subtract amount */
+		weight_change_object(temp, -weight);	// Subtract amount
 
 	
 	if ((GET_DRUNK_STATE(ch) < MAX_COND_VALUE && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK)) 
@@ -393,7 +393,7 @@ ACMD(do_drink)
 					&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
 		{
 			send_to_char("Винные пары ударили вам в голову.\r\n", ch);
-			/***** Decrease AC ******/
+			// **** Decrease AC ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -20;
@@ -401,7 +401,7 @@ ACMD(do_drink)
 			af.bitvector = AFF_DRUNKED;
 			af.battleflag = 0;
 			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
-			/***** Decrease HR ******/
+			// **** Decrease HR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -2;
@@ -409,7 +409,7 @@ ACMD(do_drink)
 			af.bitvector = AFF_DRUNKED;
 			af.battleflag = 0;
 			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
-			/***** Increase DR ******/
+			// **** Increase DR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = (GET_LEVEL(ch) + 4) / 5;
@@ -420,7 +420,7 @@ ACMD(do_drink)
 		}
 	}
 
-	if (GET_OBJ_VAL(temp, 3) && !IS_GOD(ch))  	/* The shit was poisoned ! */
+	if (GET_OBJ_VAL(temp, 3) && !IS_GOD(ch))  	// The shit was poisoned ! //
 	{
 		send_to_char("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
@@ -441,10 +441,10 @@ ACMD(do_drink)
 		ch->Poisoner = 0;
 	}
 
-	/* empty the container, and no longer poison. 999 - whole fountain */
+	// empty the container, and no longer poison. 999 - whole fountain //
 	if (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN || GET_OBJ_VAL(temp, 1) != 999)
 		GET_OBJ_VAL(temp, 1) -= amount;
-	if (!GET_OBJ_VAL(temp, 1))  	/* The last bit */
+	if (!GET_OBJ_VAL(temp, 1))  	// The last bit //
 	{
 		GET_OBJ_VAL(temp, 2) = 0;
 		GET_OBJ_VAL(temp, 3) = 0;
@@ -462,7 +462,7 @@ ACMD(do_drunkoff)
 	int amount, weight, prob, percent, duration;
 	int on_ground = 0;
 
-	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
+	if (IS_NPC(ch))		// Cannot use GET_COND() on mobs. //
 		return;
 
 	if (ch->get_fighting())
@@ -562,9 +562,9 @@ ACMD(do_drunkoff)
 	prob = train_skill(ch, SKILL_DRUNKOFF, skill_info[SKILL_DRUNKOFF].max_percent, 0);
 	amount = MIN(amount, GET_OBJ_VAL(obj, 1));
 	weight = MIN(amount, GET_OBJ_WEIGHT(obj));
-	weight_change_object(obj, -weight);	/* Subtract amount */
+	weight_change_object(obj, -weight);	// Subtract amount //
 	GET_OBJ_VAL(obj, 1) -= amount;
-	if (!GET_OBJ_VAL(obj, 1))  	/* The last bit */
+	if (!GET_OBJ_VAL(obj, 1))  	// The last bit //
 	{
 		GET_OBJ_VAL(obj, 2) = 0;
 		GET_OBJ_VAL(obj, 3) = 0;
@@ -635,7 +635,7 @@ ACMD(do_pour)
 
 	if (subcmd == SCMD_POUR)
 	{
-		if (!*arg1)  	/* No arguments */
+		if (!*arg1)  	// No arguments //
 		{
 			send_to_char("Откуда переливаем?\r\n", ch);
 			return;
@@ -653,7 +653,7 @@ ACMD(do_pour)
 	}
 	if (subcmd == SCMD_FILL)
 	{
-		if (!*arg1)  	/* no arguments */
+		if (!*arg1)  	// no arguments //
 		{
 			send_to_char("Что и из чего вы хотели бы наполнить?\r\n", ch);
 			return;
@@ -668,7 +668,7 @@ ACMD(do_pour)
 			act("Вы не можете наполнить $o3!", FALSE, ch, to_obj, 0, TO_CHAR);
 			return;
 		}
-		if (!*arg2)  	/* no 2nd argument */
+		if (!*arg2)  	// no 2nd argument //
 		{
 			act("Из чего вы планируете наполнить $o3?", FALSE, ch, to_obj, 0, TO_CHAR);
 			return;
@@ -690,7 +690,7 @@ ACMD(do_pour)
 		act("Пусто.", FALSE, ch, from_obj, 0, TO_CHAR);
 		return;
 	}
-	if (subcmd == SCMD_POUR)  	/* pour */
+	if (subcmd == SCMD_POUR)  	// pour //
 	{
 		if (!*arg2)
 		{
@@ -702,7 +702,7 @@ ACMD(do_pour)
 			act("$n опустошил$g $o3.", TRUE, ch, from_obj, 0, TO_ROOM);
 			act("Вы опустошили $o3.", FALSE, ch, from_obj, 0, TO_CHAR);
 
-			weight_change_object(from_obj, -GET_OBJ_VAL(from_obj, 1));	/* Empty */
+			weight_change_object(from_obj, -GET_OBJ_VAL(from_obj, 1));	// Empty //
 
 			GET_OBJ_VAL(from_obj, 1) = 0;
 			GET_OBJ_VAL(from_obj, 2) = 0;
@@ -751,21 +751,21 @@ ACMD(do_pour)
 			send_to_char(buf, ch);
 			if (GET_OBJ_VAL(to_obj, 1) == 0)
 			{
-				/* определение названия зелья по содержащемуся заклинанию */
+				// определение названия зелья по содержащемуся заклинанию //
 				switch (GET_OBJ_VAL(from_obj, 1))
 				{
-					/* восстановление (красное) */
+					// восстановление (красное) //
 				case SPELL_REFRESH:
 				case SPELL_GROUP_REFRESH:
 					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_RED;
 					name_to_drinkcon(to_obj, LIQ_POTION_RED);
 					break;
-					/* насыщение (синее) */
+					// насыщение (синее) //
 				case SPELL_FULL:
 					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_BLUE;
 					name_to_drinkcon(to_obj, LIQ_POTION_BLUE);
 					break;
-					/* детекты (белое) */
+					// детекты (белое) //
 				case SPELL_DETECT_INVIS:
 				case SPELL_DETECT_MAGIC:
 				case SPELL_DETECT_POISON:
@@ -775,14 +775,14 @@ ACMD(do_pour)
 					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_WHITE;
 					name_to_drinkcon(to_obj, LIQ_POTION_WHITE);
 					break;
-					/* защитные (золотистое) */
+					// защитные (золотистое) //
 				case SPELL_ARMOR:
 				case SPELL_GROUP_ARMOR:
 				case SPELL_CLOUDLY:
 					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_GOLD;
 					name_to_drinkcon(to_obj, LIQ_POTION_GOLD);
 					break;
-					/* восстанавливающие здоровье (черное) */
+					// восстанавливающие здоровье (черное) //
 				case SPELL_CURE_CRITIC:
 				case SPELL_CURE_LIGHT:
 				case SPELL_HEAL:
@@ -791,7 +791,7 @@ ACMD(do_pour)
 					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_BLACK;
 					name_to_drinkcon(to_obj, LIQ_POTION_BLACK);
 					break;
-					/* снимающее вредные аффекты (серое) */
+					// снимающее вредные аффекты (серое) //
 				case SPELL_CURE_BLIND:
 				case SPELL_REMOVE_CURSE:
 				case SPELL_REMOVE_HOLD:
@@ -802,7 +802,7 @@ ACMD(do_pour)
 					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_GREY;
 					name_to_drinkcon(to_obj, LIQ_POTION_GREY);
 					break;
-					/* прочие полезности (фиолетовое) */
+					// прочие полезности (фиолетовое) //
 				case SPELL_INVISIBLE:
 				case SPELL_GROUP_INVISIBLE:
 				case SPELL_STRENGTH:
@@ -830,10 +830,10 @@ ACMD(do_pour)
 					break;
 				default:
 					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION;
-					name_to_drinkcon(to_obj, LIQ_POTION);	/* добавляем новый синоним */
+					name_to_drinkcon(to_obj, LIQ_POTION);	// добавляем новый синоним //
 				}
 			}
-			GET_OBJ_SKILL(to_obj) = GET_OBJ_VNUM(from_obj);	/* помещаем vnum зелья в поле skill */
+			GET_OBJ_SKILL(to_obj) = GET_OBJ_VNUM(from_obj);	// помещаем vnum зелья в поле skill //
 			weight_change_object(to_obj, 1);
 			GET_OBJ_VAL(to_obj, 1)++;
 			extract_obj(from_obj);
@@ -872,14 +872,14 @@ ACMD(do_pour)
 		act("$n наполнил$g $o3 из $O1.", TRUE, ch, to_obj, from_obj, TO_ROOM);
 	}
 
-	/* копируем тип жидкости */
+	// копируем тип жидкости //
 	GET_OBJ_VAL(to_obj, 2) = GET_OBJ_VAL(from_obj, 2);
 
-	/* New alias */
+	// New alias //
 	if (GET_OBJ_VAL(to_obj, 1) == 0)
 		name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
 
-	/* Then how much to pour */
+	// Then how much to pour //
 	if (GET_OBJ_TYPE(from_obj) != ITEM_FOUNTAIN || GET_OBJ_VAL(from_obj, 1) != 999)
 		GET_OBJ_VAL(from_obj, 1) -= (amount = (GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1)));
 	else
@@ -887,10 +887,10 @@ ACMD(do_pour)
 
 	GET_OBJ_VAL(to_obj, 1) = GET_OBJ_VAL(to_obj, 0);
 
-	/* Then the poison boogie */
+	// Then the poison boogie //
 	GET_OBJ_VAL(to_obj, 3) = (GET_OBJ_VAL(to_obj, 3) || GET_OBJ_VAL(from_obj, 3));
 
-	if (GET_OBJ_VAL(from_obj, 1) <= 0)  	/* There was too little */
+	if (GET_OBJ_VAL(from_obj, 1) <= 0)  	// There was too little //
 	{
 		GET_OBJ_VAL(to_obj, 1) += GET_OBJ_VAL(from_obj, 1);
 		amount += GET_OBJ_VAL(from_obj, 1);
@@ -900,10 +900,10 @@ ACMD(do_pour)
 		name_from_drinkcon(from_obj);
 	}
 
-	/* And the weight boogie */
+	// And the weight boogie //
 	if (GET_OBJ_TYPE(from_obj) != ITEM_FOUNTAIN)
 		weight_change_object(from_obj, -amount);
-	weight_change_object(to_obj, amount);	/* Add weight */
+	weight_change_object(to_obj, amount);	// Add weight //
 }
 
 size_t find_liquid_name(char * name)

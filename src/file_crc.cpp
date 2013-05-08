@@ -41,9 +41,7 @@ std::string message;
 // флажок необходимости записи файла чексумм
 bool need_save = false;
 
-/**
-* Вывод сообщения в сислог, иммлог и лог show crc.
-*/
+// * Вывод сообщения в сислог, иммлог и лог show crc.
 void add_message(const char *text, ...)
 {
 	if (!text) return;
@@ -58,9 +56,7 @@ void add_message(const char *text, ...)
 	message += out + std::string("\r\n");
 }
 
-/**
-* Подсчет crc для строки.
-*/
+// * Подсчет crc для строки.
 boost::uint32_t calculate_str_crc(const std::string &text)
 {
 	boost::crc_32_type crc;
@@ -68,9 +64,7 @@ boost::uint32_t calculate_str_crc(const std::string &text)
 	return crc();
 }
 
-/**
-* Подсчет crc для файла.
-*/
+// * Подсчет crc для файла.
 boost::uint32_t calculate_file_crc(const char *name)
 {
 	std::ifstream in(name, std::ios::binary);
@@ -82,9 +76,7 @@ boost::uint32_t calculate_file_crc(const char *name)
 	return calculate_str_crc(t_out.str());
 }
 
-/**
-* Загрузка глобального списка crc.
-*/
+// * Загрузка глобального списка crc.
 void load()
 {
 	const char *file_name = LIB_PLRSTUFF"crc.lst";
@@ -297,9 +289,7 @@ void check_crc(const char *filename, int mode, long uid)
 		need_save = true;
 }
 
-/**
-* Вывод лога событий имму по show crc.
-*/
+// * Вывод лога событий имму по show crc.
 void show(CHAR_DATA *ch)
 {
 	if (message.empty())

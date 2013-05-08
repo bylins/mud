@@ -98,7 +98,7 @@ private:
 	int _pos, i;
 };
 
-/* Поиск номера способности по имени */
+// Поиск номера способности по имени
 int find_feat_num(char *name)
 {
 	int index, ok;
@@ -109,7 +109,7 @@ int find_feat_num(char *name)
 		if (is_abbrev(name, feat_info[index].name))
 			return (index);
 		ok = TRUE;
-		/* It won't be changed, but other uses of this function elsewhere may. */
+		// It won't be changed, but other uses of this function elsewhere may.
 		temp = any_one_arg(feat_info[index].name, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok)
@@ -126,7 +126,7 @@ int find_feat_num(char *name)
 	return (-1);
 }
 
-/* Инициализация способности заданными значениями */
+// Инициализация способности заданными значениями
 void feato(int feat, const char *name, int type, bool can_up_slot, aff_array app)
 {
 	int i, j;
@@ -146,7 +146,7 @@ void feato(int feat, const char *name, int type, bool can_up_slot, aff_array app
 	}
 }
 
-/* Инициализация для unused features */
+// Инициализация для unused features
 void unused_feat(int feat)
 {
 	int i, j;
@@ -171,7 +171,7 @@ void unused_feat(int feat)
 	}
 }
 
-/* Инициализация массива структур способностей */
+// Инициализация массива структур способностей
 void assign_feats(void)
 {
 	int i;
@@ -556,7 +556,7 @@ void assign_feats(void)
 	*/
 }
 
-/* Может ли персонаж использовать способность? Проверка по уровню, ремортам, параметрам персонажа, требованиям. */
+// Может ли персонаж использовать способность? Проверка по уровню, ремортам, параметрам персонажа, требованиям.
 bool can_use_feat(CHAR_DATA *ch, int feat)
 {
 	if (!HAVE_FEAT(ch, feat))
@@ -614,7 +614,7 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 	return TRUE;
 }
 
-/* Может ли персонаж изучить эту способность? */
+// Может ли персонаж изучить эту способность?
 bool can_get_feat(CHAR_DATA *ch, int feat)
 {
 	int i, count = 0;
@@ -625,16 +625,16 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
 	}
-	/* Доступность по классу, реморту. */
+	// Доступность по классу, реморту.
 	if ((!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat)) ||
 			(GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))
 		return FALSE;
 
-	/* Наличие свободных слотов */
+	// Наличие свободных слотов
 	if (!find_feat_slot(ch, feat))
 		return FALSE;
 
-	/* Специальные требования для изучения */
+	// Специальные требования для изучения
 	switch (feat)
 	{
 	case PARRY_ARROW_FEAT:
@@ -773,7 +773,7 @@ bool find_feat_slot(CHAR_DATA *ch, int feat)
 	return FALSE;
 }
 
-/* Возвращает значение значение модификатора из поля location структуры affected */
+// Возвращает значение значение модификатора из поля location структуры affected
 int feature_mod(int feat, int location)
 {
 	int i;
@@ -832,7 +832,7 @@ void check_berserk(CHAR_DATA * ch)
 	}
 }
 
-/* Легкая поступь */
+// Легкая поступь
 ACMD(do_lightwalk)
 {
 	AFFECT_DATA af;
@@ -894,7 +894,7 @@ ACMD(do_fit)
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
 
-	/*отключено пока для не-иммов*/
+	//отключено пока для не-иммов
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 	{
 		send_to_char("Вы не можете этого.", ch);
@@ -1006,7 +1006,7 @@ ACMD(do_fit)
 
 int slot_for_char(CHAR_DATA * ch, int i);
 #define SpINFO spell_info[spellnum]
-/* Вложить закл в клона */
+// Вложить закл в клона
 ACMD(do_spell_capable)
 {
 	AFFECT_DATA af;
@@ -1180,17 +1180,6 @@ ACMD(do_spell_capable)
 */
 }
 
-/*
-Обработка спец приемов оружием.
-
-ACMD(do_blow)
-{
-
-
-
-}
-*/
-
 ACMD(do_relocate)
 {
 	struct timed_type timed;
@@ -1226,17 +1215,17 @@ ACMD(do_relocate)
 		return;
 	}
 
-	/* Если левел жертвы больше чем перемещяющегося - фейл */
+	// Если левел жертвы больше чем перемещяющегося - фейл
 	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim))
 	{
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
 
-	/* Для иммов обязательные для перемещения условия не существенны */
+	// Для иммов обязательные для перемещения условия не существенны
 	if (!IS_GOD(ch))
 	{
-		/* Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT */
+		// Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT
 		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT))
 		{
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
@@ -1315,9 +1304,7 @@ ACMD(do_relocate)
 	greet_memory_mtrigger(ch);
 }
 
-/**
- * Выставление чару расовых способностей.
- */
+// * Выставление чару расовых способностей.
 void set_race_feats(CHAR_DATA *ch)
 {
 	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int)GET_KIN(ch),(int)GET_RACE(ch));

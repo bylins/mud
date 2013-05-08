@@ -34,7 +34,7 @@ struct HitData
 		diceroll = number(100, 2099) / 100;
 	};
 
-	/** hit */
+	// hit
 	void init(CHAR_DATA *ch, CHAR_DATA *victim);
 	void calc_base_hr(CHAR_DATA *ch);
 	void calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim);
@@ -47,13 +47,13 @@ struct HitData
 	void check_weap_feats(CHAR_DATA *ch);
 	double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim);
 
-	/** extdamage */
+	// extdamage
 	int extdamage(CHAR_DATA *ch, CHAR_DATA *victim);
 	void try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim);
 	void try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim);
 	void compute_critical(CHAR_DATA *ch, CHAR_DATA *victim);
 
-	/** init() */
+	// init()
 	// 1 - атака правой или двумя руками (RIGHT_WEAPON),
 	// 2 - атака левой рукой (LEFT_WEAPON)
 	int weapon;
@@ -81,7 +81,7 @@ struct HitData
 	// позиция жертвы на начало атаки
 	int victim_start_pos;
 
-	/** высчитывается по мере сил */
+	// высчитывается по мере сил
 	// ац жертвы для расчета попадания
 	int victim_ac;
 	// хитролы атакующего для расчета попадания
@@ -95,17 +95,17 @@ struct HitData
 	std::bitset<HIT_TYPE_FLAGS_NUM> flags;
 };
 
-/** fight.cpp */
+// fight.cpp
 
 int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim);
 void set_battle_pos(CHAR_DATA * ch);
 
-/** fight_hit.cpp */
+// fight_hit.cpp
 
 int calc_leadership(CHAR_DATA * ch);
 void exthit(CHAR_DATA * ch, int type, int weapon);
 
-/** fight_stuff.cpp */
+// fight_stuff.cpp
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam);
 void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef);

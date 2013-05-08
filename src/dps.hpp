@@ -54,9 +54,7 @@ private:
 
 typedef std::list<DpsNode> CharmListType;
 
-/**
-* Обертся на DpsNode со списком чармисов (для плеера).
-*/
+// * Обертся на DpsNode со списком чармисов (для плеера).
 class PlayerDpsNode : public DpsNode
 {
 public:
@@ -74,9 +72,7 @@ private:
 
 typedef std::map<long /* id */, PlayerDpsNode> GroupListType;
 
-/**
-* Внешний интефейс, видимый в Player.
-*/
+// * Внешний интефейс, видимый в Player.
 class Dps
 {
 public:

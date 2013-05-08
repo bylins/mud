@@ -69,11 +69,9 @@ void asciiflag_conv(const char *flag, void *value);
 room_data *get_room(char *name);
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
-/*
- * Local functions.
- */
+// * Local functions.
 
-/* attaches mob's name and vnum to msg and sends it to script_log */
+// attaches mob's name and vnum to msg and sends it to script_log
 void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
@@ -82,17 +80,15 @@ void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
 	script_log(buf, type);
 }
 
-/*
-** macro to determine if a mob is permitted to use these commands
-*/
+// * macro to determine if a mob is permitted to use these commands
 #define MOB_OR_IMPL(ch) \
         (IS_NPC(ch) && (!(ch)->desc || GET_LEVEL((ch)->desc->original)>=LVL_IMPL))
 
 
 
-/* mob commands */
+// mob commands
 
-/* prints the argument to all the rooms aroud the mobile */
+// prints the argument to all the rooms aroud the mobile
 ACMD(do_masound)
 {
 	if (!MOB_OR_IMPL(ch))
@@ -128,7 +124,7 @@ ACMD(do_masound)
 }
 
 
-/* lets the mobile kill any player or mobile without murder*/
+// lets the mobile kill any player or mobile without murder
 ACMD(do_mkill)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -260,7 +256,7 @@ ACMD(do_mjunk)
 }
 
 
-/* prints the message to everyone in the room other than the mob and victim */
+// prints the message to everyone in the room other than the mob and victim
 ACMD(do_mechoaround)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -313,7 +309,7 @@ ACMD(do_mechoaround)
 }
 
 
-/* sends the message to only the victim */
+// sends the message to only the victim
 ACMD(do_msend)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -366,7 +362,7 @@ ACMD(do_msend)
 }
 
 
-/* prints the message to the room at large */
+// prints the message to the room at large
 ACMD(do_mecho)
 {
 	char *p;
@@ -546,7 +542,7 @@ ACMD(do_mpurge)
 }
 
 
-/* lets the mobile goto any location it wishes that is not private */
+// lets the mobile goto any location it wishes that is not private
 ACMD(do_mgoto)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -585,7 +581,7 @@ ACMD(do_mgoto)
 }
 
 
-/* lets the mobile do a command at another location. Very useful */
+// lets the mobile do a command at another location. Very useful
 ACMD(do_mat)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -624,10 +620,8 @@ ACMD(do_mat)
 	command_interpreter(ch, argument);
 	reloc_target = -1;
 
-	/*
-	 * See if 'ch' still exists before continuing!
-	 * Handles 'at XXXX quit' case.
-	 */
+	 // See if 'ch' still exists before continuing!
+	 // Handles 'at XXXX quit' case.
 	if (IN_ROOM(ch) == location)
 	{
 		char_from_room(ch);
@@ -842,7 +836,7 @@ ACMD(do_mforce)
 }
 
 
-/* increases the target's exp */
+// increases the target's exp
 ACMD(do_mexp)
 {
 	CHAR_DATA *victim;
@@ -891,7 +885,7 @@ ACMD(do_mexp)
 }
 
 
-/* increases the target's gold */
+// increases the target's gold
 ACMD(do_mgold)
 {
 	CHAR_DATA *victim;
@@ -951,7 +945,7 @@ ACMD(do_mgold)
 	}
 }
 
-/* place someone into the mob's memory list */
+// place someone into the mob's memory list
 ACMD(do_mremember)
 {
 	CHAR_DATA *victim;
@@ -994,7 +988,7 @@ ACMD(do_mremember)
 		return;
 	}
 
-	/* create a structure and add it to the list */
+	// create a structure and add it to the list
 	CREATE(mem, struct script_memory, 1);
 	if (!SCRIPT_MEM(ch))
 		SCRIPT_MEM(ch) = mem;
@@ -1006,7 +1000,7 @@ ACMD(do_mremember)
 		tmpmem->next = mem;
 	}
 
-	/* fill in the structure */
+	// fill in the structure
 	mem->id = GET_ID(victim);
 	if (argument && *argument)
 	{
@@ -1015,7 +1009,7 @@ ACMD(do_mremember)
 }
 
 
-/* remove someone from the list */
+// remove someone from the list
 ACMD(do_mforget)
 {
 	CHAR_DATA *victim;
@@ -1088,13 +1082,13 @@ ACMD(do_mforget)
 }
 
 
-/* transform into a different mobile */
+// transform into a different mobile
 ACMD(do_mtransform)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *m;
 	OBJ_DATA *obj[NUM_WEARS];
-	int keep_hp = 1;	/* new mob keeps the old mob's hp/max hp/exp */
+	int keep_hp = 1;	// new mob keeps the old mob's hp/max hp/exp
 	int pos;
 
 	if (!MOB_OR_IMPL(ch))
@@ -1149,7 +1143,7 @@ ACMD(do_mtransform)
 				obj[pos] = NULL;
 		}
 
-		/* put the mob in the same room as ch so extract will work */
+		// put the mob in the same room as ch so extract will work
 		char_to_room(m, IN_ROOM(ch));
 
 // Обмен содержимым
@@ -1280,7 +1274,7 @@ ACMD(do_mdoor)
 
 	exit = rm->dir_option[dir];
 
-	/* purge exit */
+	// purge exit
 	if (fd == 0)
 	{
 		if (exit)
@@ -1308,20 +1302,20 @@ ACMD(do_mdoor)
 
 		switch (fd)
 		{
-		case 1:	/* description */
+		case 1:	// description 
 			if (exit->general_description)
 				free(exit->general_description);
 			CREATE(exit->general_description, char, strlen(value) + 3);
 			strcpy(exit->general_description, value);
 			strcat(exit->general_description, "\r\n");
 			break;
-		case 2:	/* flags       */
+		case 2:	// flags       
 			asciiflag_conv(value, &exit->exit_info);
 			break;
-		case 3:	/* key         */
+		case 3:	// key         
 			exit->key = atoi(value);
 			break;
-		case 4:	/* name        */
+		case 4:	// name        
 			if (exit->keyword)
 				free(exit->keyword);
 			if (exit->vkeyword)
@@ -1341,13 +1335,13 @@ ACMD(do_mdoor)
 //			CREATE(exit->keyword, char, strlen(value) + 1);
 //			strcpy(exit->keyword, value);
 			break;
-		case 5:	/* room        */
+		case 5:	// room        
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
 				exit->to_room = to_room;
 			else
 				mob_log(ch, "mdoor: invalid door target");
 			break;
-		case 6:	/* lock - сложность замка         */
+		case 6:	// lock - сложность замка         
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))
 				exit->lock_complexity = lock;
@@ -1358,7 +1352,7 @@ ACMD(do_mdoor)
 	}
 }
 
-/* increases spells & skills */
+// increases spells & skills 
 const char *skill_name(int num);
 const char *spell_name(int num);
 int find_skill_num(const char *name);

@@ -22,15 +22,11 @@
 #include "dg_scripts.h"
 #include "comm.h"
 
-/*
-** define statics
-*/
+// * define statics
 static struct event_info *event_list = NULL;
 
 
-/*
-** Add an event to the current list
-*/
+// * Add an event to the current list
 struct event_info *add_event(int time, EVENT(*func), void *info)
 {
 	struct event_info *this_data, *prev, *curr;
@@ -40,7 +36,7 @@ struct event_info *add_event(int time, EVENT(*func), void *info)
 	this_data->func = func;
 	this_data->info = info;
 
-	/* sort the event into the list in next-to-fire order */
+	// sort the event into the list in next-to-fire order
 	if (event_list == NULL)
 		event_list = this_data;
 	else if (this_data->time_remaining <= event_list->time_remaining)
@@ -80,7 +76,7 @@ void remove_event(struct event_info *event)
 		while (curr && (curr->next != event))
 			curr = curr->next;
 		if (!curr)
-			return;	/* failed to find it */
+			return;	// failed to find it
 		curr->next = curr->next->next;
 	}
 	free(event);

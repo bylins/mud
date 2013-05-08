@@ -39,13 +39,13 @@
 // Вывод сообщений о неверных управляющих конструкциях DGScript
 #define	DG_CODE_ANALYZE
 
-/* external vars from triggers.cpp */
+// external vars from triggers.cpp
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 const char *attach_name[] = { "mob", "obj", "room", "unknown!!!" };
 
 int last_trig_vnum=0;
 
-/* other external vars */
+// other external vars
 
 extern CHAR_DATA *character_list;
 extern CHAR_DATA *combat_list;
@@ -63,7 +63,7 @@ const char *spell_name(int num);
 
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 
-/* external functions */
+// external functions
 int ext_search_block(const char *arg, const char **list, int exact);
 room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 void free_varlist(struct trig_var_data *vd);
@@ -86,7 +86,7 @@ ACMD(do_restore);
 ACMD(do_mpurge);
 ACMD(do_mjunk);
 
-/* function protos from this file */
+// function protos from this file
 void extract_value(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 int trgvar_in_room(int vnum);
@@ -163,7 +163,7 @@ struct trig_var_data *worlds_vars;
 int reloc_target = -1;
 TRIG_DATA *cur_trig = NULL;
 
-TRIG_DATA *trigger_list = NULL;	/* all attached triggers */
+TRIG_DATA *trigger_list = NULL;	// all attached triggers
 
 int trgvar_in_room(int vnum)
 {
@@ -239,9 +239,7 @@ OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name)
 	return NULL;
 }
 
-/************************************************************
- * return number of object in world
- ************************************************************/
+// * return number of object in world
 const char * get_objs_in_world(OBJ_DATA * obj)
 {
 	int i;
@@ -257,9 +255,7 @@ const char * get_objs_in_world(OBJ_DATA * obj)
 	return retval;
 }
 
-/************************************************************
- * return number of obj|mob in world by vnum
- ************************************************************/
+// * return number of obj|mob in world by vnum
 int gcount_char_vnum(long n)
 {
 	int count = 0;
@@ -296,13 +292,11 @@ int count_obj_vnum(long n)
 	return (obj_index[i].number + obj_index[i].stored);
 }
 
-
-
 /************************************************************
  * search by number routines
  ************************************************************/
 
-/* return object with UID n */
+// return object with UID n
 OBJ_DATA *find_obj(long n)
 {
 	OBJ_DATA *i;
@@ -312,7 +306,7 @@ OBJ_DATA *find_obj(long n)
 	return NULL;
 }
 
-/* return room with UID n */
+// return room with UID n
 room_data *find_room(long n)
 {
 	n = real_room(n - ROOM_ID_BASE);
@@ -353,9 +347,7 @@ int find_char_vnum(long n, int num = 0)
 	return -1;
 }
 
-/**
-* Аналогично find_char_vnum, только для объектов.
-*/
+// * Аналогично find_char_vnum, только для объектов.
 int find_obj_vnum(long n, int num = 0)
 {
 	OBJ_DATA *i;
@@ -378,7 +370,7 @@ int find_obj_vnum(long n, int num = 0)
 	return -1;
 }
 
-/* return room with VNUM n */
+// return room with VNUM n
 // Внимание! Для комнаты UID = ROOM_ID_BASE+VNUM, т.к.
 // RNUM может быть независимо изменен с помощью OLC
 int find_room_vnum(long n)
@@ -397,7 +389,7 @@ int find_room_uid(long n)
  * generic searches based only on name
  ************************************************************/
 
-/* search the entire world for a char, and return a pointer */
+// search the entire world for a char, and return a pointer
 CHAR_DATA *get_char(char *name, int vnum)
 {
 	CHAR_DATA *i;
@@ -425,7 +417,7 @@ CHAR_DATA *get_char(char *name, int vnum)
 }
 
 
-/* returns the object in the world with name name, or NULL if not found */
+// returns the object in the world with name name, or NULL if not found
 OBJ_DATA *get_obj(char *name, int vnum)
 {
 	long id;
@@ -449,7 +441,7 @@ OBJ_DATA *get_obj(char *name, int vnum)
 }
 
 
-/* finds room by with name.  returns NULL if not found */
+// finds room by with name.  returns NULL if not found
 room_data *get_room(char *name)
 {
 	int nr;
@@ -594,7 +586,7 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 }
 
 
-/* returns obj with name */
+// returns obj with name
 OBJ_DATA *get_obj_by_room(room_data * room, char *name)
 {
 	OBJ_DATA *obj;
@@ -629,7 +621,7 @@ OBJ_DATA *get_obj_by_room(room_data * room, char *name)
 }
 
 
-/* returns obj with name */
+// returns obj with name 
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 {
 	OBJ_DATA *obj;
@@ -665,7 +657,7 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 }
 
 
-/* checks every PLUSE_SCRIPT for random triggers */
+// checks every PLUSE_SCRIPT for random triggers 
 void script_trigger_check(void)
 {
 	CHAR_DATA *ch;
@@ -718,7 +710,7 @@ void script_trigger_check(void)
 	}
 }
 
-/* проверка каждый час на триги изменении времени */
+// проверка каждый час на триги изменении времени 
 void script_timechange_trigger_check(const int time)
 {
 	CHAR_DATA *ch;
@@ -836,7 +828,7 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 }
 
 
-/* find the name of what the uid points to */
+// find the name of what the uid points to 
 void find_uid_name(char *uid, char *name)
 {
 	CHAR_DATA *ch;
@@ -851,7 +843,7 @@ void find_uid_name(char *uid, char *name)
 }
 
 
-/* general function to display stats on script sc */
+// general function to display stats on script sc 
 void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 {
 	struct trig_var_data *tv;
@@ -1066,7 +1058,7 @@ ACMD(do_attach)
 	{
 		if ((victim = get_char_vis(ch, targ_name, FIND_CHAR_WORLD)))
 		{
-			//if (IS_NPC(victim))  	/* have a valid mob, now get trigger */
+			//if (IS_NPC(victim))  	// have a valid mob, now get trigger
 			{
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn)))
@@ -1090,7 +1082,7 @@ ACMD(do_attach)
 	}
 	else if (is_abbrev(arg, "otr"))
 	{
-		if ((object = get_obj_vis(ch, targ_name)))  	/* have a valid obj, now get trigger */
+		if ((object = get_obj_vis(ch, targ_name)))  	// have a valid obj, now get trigger
 		{
 			rn = real_trigger(tn);
 			if ((rn >= 0) && (trig = read_trigger(rn)))
@@ -1114,7 +1106,7 @@ ACMD(do_attach)
 	{
 		if (isdigit(*targ_name) && !strchr(targ_name, '.'))
 		{
-			if ((room = find_target_room(ch, targ_name, 0)) != NOWHERE)  	/* have a valid room, now get trigger */
+			if ((room = find_target_room(ch, targ_name, 0)) != NOWHERE)  	// have a valid room, now get trigger
 			{
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn)))
@@ -1179,9 +1171,9 @@ int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr)
 					break;
 		}
 
-		/* this isn't clean... */
-		/* a numeric value will match if it's position OR vnum */
-		/* is found. originally the number was position-only */
+		// this isn't clean... 
+		// a numeric value will match if it's position OR vnum 
+		// is found. originally the number was position-only 
 		else if (++n >= num)
 			break;
 		else if (trig_index[i->nr]->vnum == num)
@@ -1197,13 +1189,13 @@ int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr)
 			j->next = i->next;
 			extract_trigger(i);
 		}
-		/* this was the first trigger */
+		// this was the first trigger 
 		else
 		{
 			TRIGGERS(sc) = i->next;
 			extract_trigger(i);
 		}
-		/* update the script type bitvector */
+		// update the script type bitvector 
 		SCRIPT_TYPES(sc) = 0;
 		for (i = TRIGGERS(sc); i; i = i->next)
 			SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(i);
@@ -1239,7 +1231,7 @@ ACMD(do_detach)
 			send_to_char("This room does not have any triggers.\r\n", ch);
 		else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
 		{
-			free_script(SCRIPT(room));	// без комментариев
+			free_script(SCRIPT(room));
 			SCRIPT(room) = NULL;
 			send_to_char("All triggers removed from room.\r\n", ch);
 		}
@@ -1248,7 +1240,7 @@ ACMD(do_detach)
 			send_to_char("Trigger removed.\r\n", ch);
 			if (!TRIGGERS(SCRIPT(room)))
 			{
-				free_script(SCRIPT(room));	// без комментариев
+				free_script(SCRIPT(room));
 				SCRIPT(room) = NULL;
 			}
 		}
@@ -1296,7 +1288,7 @@ ACMD(do_detach)
 				send_to_char("That mob doesn't have any triggers.\r\n", ch);
 			else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
 			{
-				free_script(SCRIPT(victim));	// без комментариев
+				free_script(SCRIPT(victim));
 				SCRIPT(victim) = NULL;
 				sprintf(buf, "All triggers removed from %s.\r\n", GET_SHORT(victim));
 				send_to_char(buf, ch);
@@ -1306,7 +1298,7 @@ ACMD(do_detach)
 				send_to_char("Trigger removed.\r\n", ch);
 				if (!TRIGGERS(SCRIPT(victim)))
 				{
-					free_script(SCRIPT(victim));	// без комментариев
+					free_script(SCRIPT(victim));
 					SCRIPT(victim) = NULL;
 				}
 			}
@@ -1319,7 +1311,7 @@ ACMD(do_detach)
 				send_to_char("That object doesn't have any triggers.\r\n", ch);
 			else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
 			{
-				free_script(SCRIPT(object));	// без комментариев
+				free_script(SCRIPT(object));
 				SCRIPT(object) = NULL;
 				sprintf(buf, "All triggers removed from %s.\r\n",
 						object->short_description ? object->short_description : object->aliases);
@@ -1330,7 +1322,7 @@ ACMD(do_detach)
 				send_to_char("Trigger removed.\r\n", ch);
 				if (!TRIGGERS(SCRIPT(object)))
 				{
-					free_script(SCRIPT(object));	// без комментариев
+					free_script(SCRIPT(object));
 					SCRIPT(object) = NULL;
 				}
 			}
@@ -1342,7 +1334,7 @@ ACMD(do_detach)
 }
 
 
-/* frees memory associated with var */
+// frees memory associated with var 
 void free_var_el(struct trig_var_data *var)
 {
 	free(var->name);
@@ -1462,7 +1454,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id)
 }
 
 
-/* Изменение указанной целочисленной константы */
+// * Изменение указанной целочисленной константы
 long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 {
 	int tmpval;
@@ -1480,7 +1472,7 @@ long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 	return val;
 }
 
-/* Изменение указанного флага */
+// Изменение указанного флага
 void gm_flag(char *subfield, const char **list, FLAG_DATA & val, char *res)
 {
 	long flag;
@@ -1519,21 +1511,21 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 	if (!vd || !vd->name || !vd->value)
 		return FALSE;
 
-	if (!str_cmp(field, "strlen"))  	/* strlen    */
+	if (!str_cmp(field, "strlen"))  	// strlen    
 	{
 		sprintf(str, "%d", strlen(vd->value));
 		return TRUE;
 	}
-	else if (!str_cmp(field, "trim"))  	/* trim      */
+	else if (!str_cmp(field, "trim"))  	// trim      
 	{
-		/* trim whitespace from ends */
+		// trim whitespace from ends 
 		p = vd->value;
 		p2 = vd->value + strlen(vd->value) - 1;
 		while (*p && a_isspace(*p))
 			p++;
 		while ((p >= p2) && a_isspace(*p2))
 			p2--;
-		if (p > p2)  	/* nothing left */
+		if (p > p2)  	// nothing left 
 		{
 			*str = '\0';
 			return TRUE;
@@ -1543,7 +1535,7 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 		*str = '\0';
 		return TRUE;
 	}
-	else if (!str_cmp(field, "contains"))  	/* contains  */
+	else if (!str_cmp(field, "contains"))  	// contains  
 	{
 		if (str_str(vd->value, subfield))
 			sprintf(str, "1");
@@ -1551,7 +1543,7 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 			sprintf(str, "0");
 		return TRUE;
 	}
-	else if (!str_cmp(field, "car"))  	/* car       */
+	else if (!str_cmp(field, "car"))  	// car       
 	{
 		char *car = vd->value;
 		while (*car && !a_isspace(*car))
@@ -1559,13 +1551,13 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 		*str = '\0';
 		return TRUE;
 	}
-	else if (!str_cmp(field, "cdr"))  	/* cdr       */
+	else if (!str_cmp(field, "cdr"))  	// cdr       
 	{
 		char *cdr = vd->value;
 		while (*cdr && !a_isspace(*cdr))
-			cdr++;	/* skip 1st field */
+			cdr++;	// skip 1st field 
 		while (*cdr && a_isspace(*cdr))
-			cdr++;	/* skip to next */
+			cdr++;	// skip to next 
 		while (*cdr)
 			*str++ = *cdr++;
 		*str = '\0';
@@ -1598,12 +1590,12 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 		}
 		return TRUE;
 	}
-	else if (!str_cmp(field, "mudcommand"))  	/* find the mud command returned from this text */
+	else if (!str_cmp(field, "mudcommand"))  	// find the mud command returned from this text 
 	{
-		/* NOTE: you may need to replace "cmd_info" with "complete_cmd_info", */
-		/* depending on what patches you've got applied.                      */
+		// NOTE: you may need to replace "cmd_info" with "complete_cmd_info", 
+		// depending on what patches you've got applied.                      
 		extern const struct command_info cmd_info[];
-		/* on older source bases:    extern struct command_info *cmd_info; */
+		// on older source bases:    extern struct command_info *cmd_info; 
 		int length, cmd;
 		for (length = strlen(vd->value), cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
 			if (!strncmp(cmd_info[cmd].command, vd->value, length))
@@ -1622,7 +1614,7 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 //WorM: добавил для работы can_get_spell
 //extern int slot_for_char(CHAR_DATA * ch, int slot_num);
 //#define SpINFO spell_info[num]
-/* sets str to be the value of var.field */
+// sets str to be the value of var.field 
 void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					  int type, char *var, char *field, char *subfield, char *str)
 {
@@ -1654,7 +1646,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	if (!subfield)
 		subfield = '\0';	// Чтобы проверок меньше было
 
-	/* X.global() will have a NULL trig */
+	// X.global() will have a NULL trig 
 	if (trig)
 		vd = find_var_cntx(&GET_TRIG_VARS(trig), var, 0);
 	if (!vd)
@@ -2065,7 +2057,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		{
 			if (text_processed(field, subfield, vd, str))
 				return;
-			else if (!str_cmp(field, "global"))  	/* get global of something else */
+			else if (!str_cmp(field, "global"))  	// get global of something else 
 			{
 				if (IS_NPC(c) && c->script)
 				{
@@ -3280,7 +3272,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 }
 
 
-/* substitutes any variables into line and returns it as buf */
+// substitutes any variables into line and returns it as buf
 void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const char *line, char *buf)
 {
 	char tmp[MAX_INPUT_LENGTH], repl_str[MAX_INPUT_LENGTH], *var, *field, *p;
@@ -3310,7 +3302,7 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 
 		*buf = '\0';
 
-		/* double % */
+		// double %
 		if (*p && (*(++p) == '%') && (left > 0))
 		{
 			*(buf++) = *(p++);
@@ -3375,7 +3367,7 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 }
 
 
-/* returns 1 if string is all digits, else 0 */
+// returns 1 if string is all digits, else 0
 int is_num(char *num)
 {
 	while (*num && (isdigit(*num) || *num == '-'))
@@ -3388,13 +3380,13 @@ int is_num(char *num)
 }
 
 
-/* evaluates 'lhs op rhs', and copies to result */
+// evaluates 'lhs op rhs', and copies to result
 void eval_op(const char *op, char *lhs, char *rhs, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig)
 {
 	char *p = 0;
 	int n;
 
-	/* strip off extra spaces at begin and end */
+	// strip off extra spaces at begin and end
 	while (*lhs && a_isspace(*lhs))
 		lhs++;
 	while (*rhs && a_isspace(*rhs))
@@ -3406,7 +3398,7 @@ void eval_op(const char *op, char *lhs, char *rhs, char *result, void *go, SCRIP
 	for (--p; (p >= rhs) && a_isspace(*p); *p-- = '\0');
 
 
-	/* find the op, and figure out the value */
+	// find the op, and figure out the value
 	if (!strcmp("||", op))
 	{
 		if ((!*lhs || (*lhs == '0')) && (!*rhs || (*rhs == '0')))
@@ -3523,7 +3515,7 @@ char *matching_paren(char *p)
 }
 
 
-/* evaluates line, and returns answer in result */
+// evaluates line, and returns answer in result
 void eval_expr(char *line, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type)
 {
 	char expr[MAX_INPUT_LENGTH], *p;
@@ -3615,7 +3607,7 @@ int eval_lhs_op_rhs(char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_D
 }
 
 
-/* returns 1 if next iteration, else 0 */
+// returns 1 if next iteration, else 0
 int process_foreach(char *cond, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type)
 /*++
       cond - строка параметров цикла. Для комнады "foreach i .." cond = "i .."
@@ -3727,7 +3719,7 @@ foreach i <список>
 	return 1;
 }
 
-/* returns 1 if cond is true, else 0 */
+// returns 1 if cond is true, else 0
 int process_if(char *cond, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type)
 {
 	char result[MAX_INPUT_LENGTH], *p;
@@ -3907,7 +3899,7 @@ struct cmdlist_element *find_case(TRIG_DATA * trig,
 }
 
 
-/* processes any 'wait' commands in a trigger */
+// processes any 'wait' commands in a trigger
 void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, struct cmdlist_element *cl)
 {
 	char *arg;
@@ -3936,21 +3928,21 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, struct cmdlis
 		sprintf(buf2, "wait w/o an arg: '%s'", cl->cmd);
 		trig_log(trig, buf2);
 	}
-	else if (!strn_cmp(arg, "until ", 6))  	/* valid forms of time are 14:30 and 1430 */
+	else if (!strn_cmp(arg, "until ", 6))  	// valid forms of time are 14:30 and 1430
 	{
 		if (sscanf(arg, "until %ld:%ld", &hr, &min) == 2)
 			min += (hr * 60);
 		else
 			min = (hr % 100) + ((hr / 100) * 60);
 
-		/* calculate the pulse of the day of "until" time */
+		// calculate the pulse of the day of "until" time
 		ntime = (min * SECS_PER_MUD_HOUR * PASSES_PER_SEC) / 60;
 
-		/* calculate pulse of day of current time */
+		// calculate pulse of day of current time
 		time = (dg_global_pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)) +
 			   (time_info.hours * SECS_PER_MUD_HOUR * PASSES_PER_SEC);
 
-		if (time >= ntime)	/* adjust for next day */
+		if (time >= ntime)	// adjust for next day
 			time = (SECS_PER_MUD_DAY * PASSES_PER_SEC) - time + ntime;
 		else
 			time = ntime - time;
@@ -3981,7 +3973,7 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, struct cmdlis
 }
 
 
-/* processes a script set command */
+// processes a script set command
 void process_set(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH], *value;
@@ -4000,7 +3992,7 @@ void process_set(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
 }
 
-/* processes a script eval command */
+// processes a script eval command
 void process_eval(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH];
@@ -4022,7 +4014,7 @@ void process_eval(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *
 }
 
 
-/* script attaching a trigger to something */
+// script attaching a trigger to something
 void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], trignum_s[MAX_INPUT_LENGTH];
@@ -4050,7 +4042,7 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 		return;
 	}
 
-	/* parse and locate the id specified */
+	// parse and locate the id specified
 	eval_expr(id_p, result, go, sc, trig, type);
 
 	c = get_char(id_p);
@@ -4069,7 +4061,7 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 		}
 	}
 
-	/* locate and load the trigger specified */
+	// locate and load the trigger specified
 	trignum = real_trigger(atoi(trignum_s));
 	if (trignum >=0 && (((c) && trig_index[trignum]->proto->attach_type != MOB_TRIGGER) ||
 		((o) && trig_index[trignum]->proto->attach_type != OBJ_TRIGGER) ||
@@ -4116,7 +4108,7 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 }
 
 
-/* script detaching a trigger from something */
+// script detaching a trigger from something
 TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], trignum_s[MAX_INPUT_LENGTH];
@@ -4144,7 +4136,7 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 		return retval;
 	}
 
-	/* parse and locate the id specified */
+	// parse and locate the id specified
 	eval_expr(id_p, result, go, sc, trig, type);
 
 	c = get_char(id_p);
@@ -4169,7 +4161,7 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 		{
 			if (!TRIGGERS(SCRIPT(c)))
 			{
-				free_script(SCRIPT(c));	// без комментариев
+				free_script(SCRIPT(c));
 				SCRIPT(c) = NULL;
 			}
 		}
@@ -4182,7 +4174,7 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 		{
 			if (!TRIGGERS(SCRIPT(o)))
 			{
-				free_script(SCRIPT(o));	// без комментариев
+				free_script(SCRIPT(o));
 				SCRIPT(o) = NULL;
 			}
 		}
@@ -4195,7 +4187,7 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 		{
 			if (!TRIGGERS(SCRIPT(r)))
 			{
-				free_script(SCRIPT(r));	// без комментариев
+				free_script(SCRIPT(r));
 				SCRIPT(r) = NULL;
 			}
 		}
@@ -4239,7 +4231,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 		return (FALSE);
 	}
 
-	/* parse and locate the id specified */
+	// parse and locate the id specified
 	eval_expr(id_p, result, go, *sc, *trig, type);
 
 	c = get_char(id_p);
@@ -4312,7 +4304,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 		return (FALSE);
 
 
-	/* copy variables */
+	// copy variables
 	if (*trig && runtrig)
 		for (vd = GET_TRIG_VARS(*trig); vd; vd = vd->next)
 		{
@@ -4381,7 +4373,7 @@ ROOM_DATA *dg_room_of_obj(OBJ_DATA * obj)
 }
 
 
-/* create a UID variable from the id number */
+// create a UID variable from the id number
 void makeuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
@@ -4546,9 +4538,7 @@ void charuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
 }
 
-/**
-* Поиск мобов для calcuidall_var.
-*/
+// * Поиск мобов для calcuidall_var.
 bool find_all_char_vnum(long n, char *str)
 {
 	int count = 0;
@@ -4563,9 +4553,7 @@ bool find_all_char_vnum(long n, char *str)
 	return count ? true : false;
 }
 
-/**
-* Поиск предметов для calcuidall_var.
-*/
+// * Поиск предметов для calcuidall_var.
 bool find_all_obj_vnum(long n, char *str)
 {
 	int count = 0;
@@ -4580,9 +4568,7 @@ bool find_all_obj_vnum(long n, char *str)
 	return count ? true : false;
 }
 
-/**
-* Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 25ти вхождений).
-*/
+// * Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 25ти вхождений).
 void calcuidall_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
@@ -4716,7 +4702,7 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 		return;
 	}
 
-	/* find the locally owned variable */
+	// find the locally owned variable
 	vd = find_var_cntx(&GET_TRIG_VARS(trig), var, 0);
 	if (!vd)
 		vd = find_var_cntx(&(sc->global_vars), var, sc->context);
@@ -4728,7 +4714,7 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 		return;
 	}
 
-	/* find the target script from the uid number */
+	// find the target script from the uid number
 	uid = atoi(buf2 + 1);
 	if (uid <= 0)
 	{
@@ -4737,8 +4723,8 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 		return;
 	}
 
-	/* for all but PC's, context comes from the existing context. */
-	/* for PC's, context is 0 (global) */
+	// for all but PC's, context comes from the existing context.
+	// for PC's, context is 0 (global)
 //  context = vd->context;
 // Контекст можно брать как vd->context или sc->context
 // Если брать vd->context, то теряем контекст при переносе локальной переменной
@@ -4771,7 +4757,7 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	}
 
 	if (sc_remote == NULL)
-		return;		/* no script to assign */
+		return;		// no script to assign
 
 	add_var_cntx(&(sc_remote->global_vars), vd->name, vd->value, context);
 }
@@ -4805,7 +4791,7 @@ ACMD(do_vdelete)
 	}
 
 
-	/* find the target script from the uid number */
+	// find the target script from the uid number
 	uid = atoi(buf2 + 1);
 	if (uid <= 0)
 	{
@@ -4840,7 +4826,7 @@ ACMD(do_vdelete)
 		return;
 	}
 
-	/* find the global */
+	// find the global
 	if (remove_var_cntx(&(sc_remote->global_vars), var, 0))
 	{
 		send_to_char("Deleted.\r\n", ch);
@@ -4883,7 +4869,7 @@ void process_rdelete(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	}
 
 
-	/* find the target script from the uid number */
+	// find the target script from the uid number
 	uid = atoi(buf2 + 1);
 	if (uid <= 0)
 	{
@@ -4915,18 +4901,16 @@ void process_rdelete(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	}
 
 	if (sc_remote == NULL)
-		return;		/* no script to delete a trigger from */
+		return;		// no script to delete a trigger from
 	if (sc_remote->global_vars == NULL)
-		return;		/* no script globals */
+		return;		// no script globals
 
-	/* find the global */
+	// find the global
 	remove_var_cntx(&(sc_remote->global_vars), var, sc->context);
 }
 
 
-/*
- * makes a local variable into a global variable
- */
+// * makes a local variable into a global variable
 void process_global(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd, long id)
 {
 	struct trig_var_data *vd;
@@ -4957,9 +4941,7 @@ void process_global(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd, long id)
 }
 
 
-/*
- * makes a local variable into a world variable
- */
+// * makes a local variable into a world variable
 void process_worlds(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd, long id)
 {
 	struct trig_var_data *vd;
@@ -4992,7 +4974,7 @@ void process_worlds(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd, long id)
 
 
 
-/* set the current context for a script */
+// set the current context for a script
 void process_context(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], *var;
@@ -5042,8 +5024,8 @@ void extract_value(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 
 int dg_owner_purged;
 
-/*  This is the core driver for scripts. */
-/* define this if you want measure time of you scripts*/
+//  This is the core driver for scripts.
+//  define this if you want measure time of you scripts
 #define TIMED_SCRIPT
 
 #ifdef TIMED_SCRIPT
@@ -5131,7 +5113,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	for (cl = (mode == TRIG_NEW) ? trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig); cl = cl ? cl->next : cl)  	//log("Drive go <%s>",cl->cmd);
 	{
 		for (p = cl->cmd; !stop && trig && *p && a_isspace(*p); p++);
-		if (*p == '*')	/* comment */
+		if (*p == '*')	// comment
 			continue;
 		else if (!strn_cmp(p, "if ", 3))
 		{
@@ -5214,7 +5196,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		{
 			cl = find_done(trig, cl);
 		}
-		else if (!strn_cmp("case", p, 4))  	/* Do nothing, this allows multiple cases to a single instance */
+		else if (!strn_cmp("case", p, 4))  	// Do nothing, this allows multiple cases to a single instance
 		{
 		}
 		else
@@ -5222,7 +5204,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			var_subst(go, sc, trig, type, p, cmd);
 			if (!strn_cmp(cmd, "eval ", 5))
 				process_eval(go, sc, trig, type, cmd);
-			else if (!strn_cmp(cmd, "nop ", 4));	/* nop: do nothing */
+			else if (!strn_cmp(cmd, "nop ", 4));	// nop: do nothing
 			else if (!strn_cmp(cmd, "extract ", 8))
 				extract_value(sc, trig, cmd);
 			else if (!strn_cmp(cmd, "makeuid ", 8))
@@ -5441,7 +5423,7 @@ ACMD(do_tstat)
 		send_to_char("Usage: tstat <vnum>\r\n", ch);
 }
 
-/* read a line in from a file, return the number of chars read */
+// read a line in from a file, return the number of chars read
 int fgetline(FILE * file, char *p)
 {
 	int count = 0;
@@ -5464,7 +5446,7 @@ int fgetline(FILE * file, char *p)
 }
 
 
-/* load in a character's saved variables */
+// load in a character's saved variables
 void read_saved_vars(CHAR_DATA * ch)
 {
 	FILE *file;
@@ -5474,18 +5456,18 @@ void read_saved_vars(CHAR_DATA * ch)
 	char varname[32], *v;
 	char context_str[16], *c;
 
-	/* create the space for the script structure which holds the vars */
+	// create the space for the script structure which holds the vars
 	CREATE(SCRIPT(ch), SCRIPT_DATA, 1);
 
-	/* find the file that holds the saved variables and open it */
+	// find the file that holds the saved variables and open it 
 	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);
 	file = fopen(fn, "r");
 
-	/* if we failed to open the file, return */
+	// if we failed to open the file, return 
 	if (!file)
 		return;
 
-	/* walk through each line in the file parsing variables */
+	// walk through each line in the file parsing variables 
 	do
 	{
 		if (fgetline(file, input_line) > 0)
@@ -5509,41 +5491,41 @@ void read_saved_vars(CHAR_DATA * ch)
 	}
 	while (!feof(file));
 
-	/* close the file and return */
+	// close the file and return 
 	fclose(file);
 }
 
-/* save a characters variables out to disk */
+// save a characters variables out to disk 
 void save_char_vars(CHAR_DATA * ch)
 {
 	FILE *file;
 	char fn[127];
 	struct trig_var_data *vars;
 
-	/* immediate return if no script (and therefore no variables) structure */
-	/* has been created. this will happen when the player is logging in */
+	// immediate return if no script (and therefore no variables) structure 
+	// has been created. this will happen when the player is logging in 
 	if (SCRIPT(ch) == NULL)
 		return;
 
-	/* we should never be called for an NPC, but just in case... */
+	// we should never be called for an NPC, but just in case... 
 	if (IS_NPC(ch))
 		return;
 
 	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);
 	std::remove(fn);
 
-	/* make sure this char has global variables to save */
+	// make sure this char has global variables to save 
 	if (ch->script->global_vars == NULL)
 		return;
 	vars = ch->script->global_vars;
 
 	file = fopen(fn, "wt");
 
-	/* note that currently, context will always be zero. this may change */
-	/* in the future */
+	// note that currently, context will always be zero. this may change 
+	// in the future 
 	while (vars)
 	{
-		if (*vars->name != '-')	/* don't save if it begins with - */
+		if (*vars->name != '-')	// don't save if it begins with - 
 			fprintf(file, "%s %ld %s\n", vars->name, vars->context, vars->value);
 		vars = vars->next;
 	}

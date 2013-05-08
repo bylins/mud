@@ -21,7 +21,7 @@
 // Максимальный уровень мобов
 const int MAX_MOB_LEVEL = 50;
 
-/* arbitrary constants used by index_boot() (must be unique) */
+// arbitrary constants used by index_boot() (must be unique) 
 #define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.
 
 #define MIN_ZONE_LEVEL	1
@@ -109,29 +109,29 @@ enum SetStuffMode
 #define SUF_PURGE_DEPOT "purge"
 
 #if defined(CIRCLE_AMIGA)
-#define FASTBOOT_FILE   "/.fastboot"	/* autorun: boot without sleep  */
-#define KILLSCRIPT_FILE "/.killscript"	/* autorun: shut mud down       */
-#define PAUSE_FILE      "/pause"	/* autorun: don't restart mud   */
+#define FASTBOOT_FILE   "/.fastboot"	// autorun: boot without sleep  
+#define KILLSCRIPT_FILE "/.killscript"	// autorun: shut mud down       
+#define PAUSE_FILE      "/pause"	// autorun: don't restart mud   
 #elif defined(CIRCLE_MACINTOSH)
-#define FASTBOOT_FILE	"::.fastboot"	/* autorun: boot without sleep  */
-#define KILLSCRIPT_FILE	"::.killscript"	/* autorun: shut mud down       */
-#define PAUSE_FILE	"::pause"	/* autorun: don't restart mud   */
+#define FASTBOOT_FILE	"::.fastboot"	// autorun: boot without sleep  
+#define KILLSCRIPT_FILE	"::.killscript"	// autorun: shut mud down       
+#define PAUSE_FILE	"::pause"	// autorun: don't restart mud   
 #else
-#define FASTBOOT_FILE   "../.fastboot"	/* autorun: boot without sleep  */
-#define KILLSCRIPT_FILE "../.killscript"	/* autorun: shut mud down       */
-#define PAUSE_FILE      "../pause"	/* autorun: don't restart mud   */
+#define FASTBOOT_FILE   "../.fastboot"	// autorun: boot without sleep  
+#define KILLSCRIPT_FILE "../.killscript"	// autorun: shut mud down       
+#define PAUSE_FILE      "../pause"	// autorun: don't restart mud   
 #endif
 
-/* names of various files and directories */
-#define INDEX_FILE	"index"	/* index of world files         */
-#define MINDEX_FILE	"index.mini"	/* ... and for mini-mud-mode    */
-#define WLD_PREFIX	LIB_WORLD"wld"SLASH	/* room definitions     */
-#define MOB_PREFIX	LIB_WORLD"mob"SLASH	/* monster prototypes   */
-#define OBJ_PREFIX	LIB_WORLD"obj"SLASH	/* object prototypes    */
-#define ZON_PREFIX	LIB_WORLD"zon"SLASH	/* zon defs & command tables */
-#define SHP_PREFIX	LIB_WORLD"shp"SLASH	/* shop definitions     */
-#define TRG_PREFIX	LIB_WORLD"trg"SLASH	/* shop definitions     */
-#define HLP_PREFIX	LIB_TEXT"help"SLASH	/* for HELP <keyword>   */
+// names of various files and directories 
+#define INDEX_FILE	"index"	// index of world files         
+#define MINDEX_FILE	"index.mini"	// ... and for mini-mud-mode    
+#define WLD_PREFIX	LIB_WORLD"wld"SLASH	// room definitions     
+#define MOB_PREFIX	LIB_WORLD"mob"SLASH	// monster prototypes   
+#define OBJ_PREFIX	LIB_WORLD"obj"SLASH	// object prototypes    
+#define ZON_PREFIX	LIB_WORLD"zon"SLASH	// zon defs & command tables 
+#define SHP_PREFIX	LIB_WORLD"shp"SLASH	// shop definitions     
+#define TRG_PREFIX	LIB_WORLD"trg"SLASH	// shop definitions     
+#define HLP_PREFIX	LIB_TEXT"help"SLASH	// for HELP <keyword>   
 #define SOC_PREFIX	LIB_MISC
 #define PLAYER_F_PREFIX LIB_PLRS""LIB_F
 #define PLAYER_K_PREFIX LIB_PLRS""LIB_K
@@ -139,45 +139,45 @@ enum SetStuffMode
 #define PLAYER_U_PREFIX LIB_PLRS""LIB_U
 #define PLAYER_Z_PREFIX LIB_PLRS""LIB_Z
 
-#define CREDITS_FILE	LIB_TEXT"credits"	/* for the 'credits' command   */
-#define MOTD_FILE       LIB_TEXT"motd"	/* messages of the day / mortal        */
-#define RULES_FILE      LIB_TEXT"rules"	/* rules for immort        */
-#define GREETINGS_FILE	LIB_TEXT"greetings"	/* The opening screen.  */
-#define HELP_PAGE_FILE	LIB_TEXT_HELP"screen"	/* for HELP <CR>        */
-#define INFO_FILE       LIB_TEXT"info"	/* for INFO             */
-#define IMMLIST_FILE	LIB_TEXT"immlist"	/* for IMMLIST          */
-#define BACKGROUND_FILE	LIB_TEXT"background"	/* for the background story */
-#define POLICIES_FILE	LIB_TEXT"policies"	/* player policies/rules     */
-#define HANDBOOK_FILE	LIB_TEXT"handbook"	/* handbook for new immorts  */
-#define NAME_RULES_FILE LIB_TEXT"namerules" /* rules of character's names */
+#define CREDITS_FILE	LIB_TEXT"credits"	// for the 'credits' command   
+#define MOTD_FILE       LIB_TEXT"motd"	// messages of the day / mortal        
+#define RULES_FILE      LIB_TEXT"rules"	// rules for immort        
+#define GREETINGS_FILE	LIB_TEXT"greetings"	// The opening screen.  
+#define HELP_PAGE_FILE	LIB_TEXT_HELP"screen"	// for HELP <CR>        
+#define INFO_FILE       LIB_TEXT"info"	// for INFO             
+#define IMMLIST_FILE	LIB_TEXT"immlist"	// for IMMLIST          
+#define BACKGROUND_FILE	LIB_TEXT"background"	// for the background story 
+#define POLICIES_FILE	LIB_TEXT"policies"	// player policies/rules     
+#define HANDBOOK_FILE	LIB_TEXT"handbook"	// handbook for new immorts  
+#define NAME_RULES_FILE LIB_TEXT"namerules" // rules of character's names 
 
-#define PROXY_FILE	    LIB_MISC"proxy"	/* register proxy list  */
-#define IDEA_FILE	    LIB_MISC"ideas"	/* for the 'idea'-command       */
-#define TYPO_FILE	    LIB_MISC"typos"	/*         'typo'               */
-#define BUG_FILE	    LIB_MISC"bugs"	/*         'bug'                */
-#define MESS_FILE           LIB_MISC"messages"	/* damage messages              */
-#define SOCMESS_FILE        LIB_MISC"socials"	/* messgs for social acts       */
-#define XNAME_FILE          LIB_MISC"xnames"	/* invalid name substrings      */
+#define PROXY_FILE	    LIB_MISC"proxy"	// register proxy list  
+#define IDEA_FILE	    LIB_MISC"ideas"	// for the 'idea'-command       
+#define TYPO_FILE	    LIB_MISC"typos"	//         'typo'               
+#define BUG_FILE	    LIB_MISC"bugs"	//         'bug'                
+#define MESS_FILE           LIB_MISC"messages"	// damage messages              
+#define SOCMESS_FILE        LIB_MISC"socials"	// messgs for social acts       
+#define XNAME_FILE          LIB_MISC"xnames"	// invalid name substrings      
 #define ANAME_FILE      LIB_MISC"apr_name" // одобренные имена
 #define DNAME_FILE      LIB_MISC"dis_name" // запрещенные имена
 #define NNAME_FILE      LIB_MISC"new_name" // ждущие одобрения
 
-#define MAIL_FILE	    LIB_ETC"plrmail"	/* for the mudmail system       */
-#define BAN_FILE	    LIB_ETC"badsites"	/* for the siteban system       */
-#define PROXY_BAN_FILE	    LIB_ETC"badproxy"	/* for the siteban system       */
+#define MAIL_FILE	    LIB_ETC"plrmail"	// for the mudmail system       
+#define BAN_FILE	    LIB_ETC"badsites"	// for the siteban system       
+#define PROXY_BAN_FILE	    LIB_ETC"badproxy"	// for the siteban system       
 
-#define WHOLIST_FILE        LIB_STAT"wholist.html"	/* for the stat system      */
+#define WHOLIST_FILE        LIB_STAT"wholist.html"	// for the stat system      
 
-/*Dead load (dl_load) options*/
+//Dead load (dl_load) options
 #define DL_ORDINARY    0
 #define DL_PROGRESSION 1
 #define DL_SKIN        2
 
-/* room manage functions */
+// room manage functions 
 void room_copy(ROOM_DATA * dst, ROOM_DATA * src);
 void room_free(ROOM_DATA * room);
 
-/* public procedures in db.cpp */
+// public procedures in db.cpp 
 void tag_argument(char *argument, char *tag);
 void boot_db(void);
 void free_db(void);
@@ -220,19 +220,19 @@ const OBJ_DATA* read_object_mirror(obj_vnum nr, int type = VIRTUAL);
 int vnum_object(char *searchname, CHAR_DATA * ch);
 int vnum_flag(char *searchname, CHAR_DATA * ch);
 
-/* structure for the reset commands */
+// structure for the reset commands 
 struct reset_com
 {
-	char command;		/* current command                      */
+	char command;		// current command                      
 
-	int if_flag;		/* 4 modes of command execution         */
-	int arg1;		/*                                      */
-	int arg2;		/* Arguments to the command             */
-	int arg3;		/*                                      */
+	int if_flag;		// 4 modes of command execution         
+	int arg1;		//                                      
+	int arg2;		// Arguments to the command             
+	int arg3;		//                                      
 	int arg4;
-	int line;		/* line number this command appears on  */
-	char *sarg1;		/* string argument                      */
-	char *sarg2;		/* string argument                      */
+	int line;		// line number this command appears on  
+	char *sarg1;		// string argument                      
+	char *sarg2;		// string argument                      
 
 	/*
 	 *  Commands:              *
@@ -249,24 +249,24 @@ struct reset_com
 
 
 
-/* zone definition structure. for the 'zone-table'   */
+// zone definition structure. for the 'zone-table'   
 struct zone_data
 {
-	char *name;		/* name of this zone                  */
+	char *name;		// name of this zone                  
 	// автор, дата...
 	char *comment;
 //MZ.load
-	int level;	/* level of this zone (is used in ingredient loading)	*/
-	int type;	/* the surface type of this zone (is used in ingredient loading)	*/
+	int level;	// level of this zone (is used in ingredient loading)	
+	int type;	// the surface type of this zone (is used in ingredient loading)	
 //-MZ.load
 
-	int lifespan;		/* how long between resets (minutes)  */
-	int age;		/* current age of this zone (minutes) */
-	room_vnum top;		/* upper limit for rooms in this zone */
+	int lifespan;		// how long between resets (minutes)  
+	int age;		// current age of this zone (minutes) 
+	room_vnum top;		// upper limit for rooms in this zone 
 
-	int reset_mode;		/* conditions for reset (see below)   */
-	zone_vnum number;	/* virtual number of this zone        */
-	struct reset_com *cmd;	/* command table for reset            */
+	int reset_mode;		// conditions for reset (see below)   
+	zone_vnum number;	// virtual number of this zone        
+	struct reset_com *cmd;	// command table for reset            
 
 	/*
 	 * Reset mode:
@@ -282,9 +282,9 @@ struct zone_data
 	bool *typeB_flag;	// флаги, были ли сброшены зоны типа В
 	int under_construction;	// зона в процессе тестирования
 	bool locked;
-	bool reset_idle;	/* очищать ли зону, в которой никто не бывал */
-	bool used;		/* был ли кто-то в зоне после очистки */
-	unsigned long long activity;	/* параметр активности игроков в зоне */
+	bool reset_idle;	// очищать ли зону, в которой никто не бывал 
+	bool used;		// был ли кто-то в зоне после очистки 
+	unsigned long long activity;	// параметр активности игроков в зоне 
 	// <= 1 - обычная зона (соло), >= 2 - зона для группы из указанного кол-ва человек
 	int group;
 	// средний уровень мобов в зоне
@@ -293,16 +293,16 @@ struct zone_data
 
 extern zone_data *zone_table;
 
-/* for queueing zones for update   */
+// for queueing zones for update   
 struct reset_q_element
 {
-	zone_rnum zone_to_reset;	/* ref to zone_data */
+	zone_rnum zone_to_reset;	// ref to zone_data 
 	struct reset_q_element *next;
 };
 
 
 
-/* structure for the update queue     */
+// structure for the update queue     
 struct reset_q_type
 {
 	struct reset_q_element *head;
@@ -390,7 +390,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 
 //-Polud
 
-/* global buffering system */
+// global buffering system 
 
 #ifdef __DB_C__
 char buf[MAX_STRING_LENGTH];
@@ -412,12 +412,12 @@ extern char const *NOPERSON;
 extern char const *NOEFFECT;
 #endif
 
-/* external variables */
+// external variables 
 
 extern const int sunrise[][2];
 extern const int Reverse[];
 
-/* external vars */
+// external vars 
 extern CHAR_DATA *combat_list;
 
 #include <vector>

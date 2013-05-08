@@ -8,7 +8,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-/* Реализация ингредиентной магии */
+// Реализация ингредиентной магии
 
 #include "conf.h"
 #include "sysdep.h"
@@ -51,7 +51,7 @@ int top_imtypes = -1;		// Последний номер типа ИМ
 im_recipe *imrecipes = NULL;	// Список зарегестрированных рецептов
 int top_imrecipes = -1;		// Последний номер рецепта ИМ
 
-/* Поиск типа по имени name. mode=0-только элементарные,1-все подряд */
+// Поиск типа по имени name. mode=0-только элементарные,1-все подряд
 int im_get_type_by_name(char *name, int mode)
 {
 	int i;
@@ -484,7 +484,7 @@ void im_cleanup_recipe(im_recipe * r)
 	}
 }
 
-/* Инициализация подсистемы ингредиентной магии */
+// Инициализация подсистемы ингредиентной магии
 void init_im(void)
 {
 	FILE *im_file;
@@ -1210,9 +1210,7 @@ ACMD(do_rset)
 
 	argument = one_argument(argument, name);
 
-	/*
-	 * No arguments. print an informative text.
-	 */
+	// * No arguments. print an informative text.
 	if (!*name)
 	{
 		send_to_char("Формат: rset <игрок> '<рецепт>' <значение>\r\n", ch);
@@ -1240,7 +1238,7 @@ ACMD(do_rset)
 	}
 	skip_spaces(&argument);
 
-	/* If there is no chars in argument */
+	// If there is no chars in argument
 	if (!*argument)
 	{
 		send_to_char("Пропущено название рецепта.\r\n", ch);
@@ -1251,7 +1249,7 @@ ACMD(do_rset)
 		send_to_char("Рецепт надо заключить в символы : ''\r\n", ch);
 		return;
 	}
-	/* Locate the last quote and lowercase the magic words (if any) */
+	// Locate the last quote and lowercase the magic words (if any)
 
 	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++)
 		argument[qend] = LOWER(argument[qend]);
@@ -1271,7 +1269,7 @@ ACMD(do_rset)
 		send_to_char("Неизвестный рецепт.\r\n", ch);
 		return;
 	}
-	argument += qend + 1;	/* skip to next parameter */
+	argument += qend + 1;	// skip to next parameter
 	argument = one_argument(argument, buf);
 
 	if (!*buf)

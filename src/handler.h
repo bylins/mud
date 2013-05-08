@@ -27,10 +27,10 @@ int awake_others(CHAR_DATA * ch);
 
 void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
 
-/* Resistance calculate */
+// Resistance calculate //
 int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
 
-/* handling the affected-structures */
+// handling the affected-structures //
 void affect_total(CHAR_DATA * ch);
 void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool add);
 void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * af);
@@ -46,7 +46,7 @@ void timed_to_char(CHAR_DATA * ch, struct timed_type *timed);
 void timed_from_char(CHAR_DATA * ch, struct timed_type *timed);
 int timed_by_skill(CHAR_DATA * ch, int skill);
 
-/* Обработка аффектов комнат*/
+// Обработка аффектов комнат//
 void affect_room_total(ROOM_DATA * room);
 void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv, bool add);
 void affect_to_room(ROOM_DATA * room, AFFECT_DATA * af);
@@ -57,7 +57,7 @@ AFFECT_DATA *room_affected_by_spell(ROOM_DATA * room, int type);
 void affect_room_join_fspell(ROOM_DATA *room, AFFECT_DATA * af);
 void affect_room_join(ROOM_DATA * room, AFFECT_DATA * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 
-/* utility */
+// utility //
 char *money_desc(int amount, int padis);
 OBJ_DATA *create_money(int amount);
 int isname(const char *str, const char *namelist);
@@ -66,7 +66,7 @@ char *fname(const char *namelist);
 int get_number(char **name);
 int get_number(std::string &name);
 
-/* ******** objects *********** */
+// ******** objects *********** //
 bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two);
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch);
 void obj_from_char(OBJ_DATA * object);
@@ -91,7 +91,7 @@ void object_list_new_owner(OBJ_DATA * list, CHAR_DATA * ch);
 
 void extract_obj(OBJ_DATA * obj);
 
-/* ******* characters ********* */
+// ******* characters ********* //
 
 CHAR_DATA *get_char_room(char *name, room_rnum room);
 CHAR_DATA *get_char_num(mob_rnum nr);
@@ -101,7 +101,7 @@ void char_from_room(CHAR_DATA * ch);
 void char_to_room(CHAR_DATA * ch, room_rnum room);
 void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset = 0);
 
-/* find if character can see */
+// find if character can see //
 CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name);
 CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name);
 CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom);
@@ -119,7 +119,7 @@ OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * eq
 OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DATA * equipment[], int *j);
 
 
-/* find all dots */
+// find all dots //
 
 int find_all_dots(char *arg);
 
@@ -128,7 +128,7 @@ int find_all_dots(char *arg);
 #define FIND_ALLDOT	2
 
 
-/* Generic Find */
+// Generic Find //
 
 int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** tar_ch, OBJ_DATA ** tar_obj);
 
@@ -144,7 +144,7 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 #define CRASH_DELETE_OLD   (1 << 0)
 #define CRASH_DELETE_NEW   (1 << 1)
 
-/* prototypes from crash save system */
+// prototypes from crash save system //
 int Crash_get_filename(char *orig_name, char *filename);
 int Crash_delete_files(int index);
 int Crash_delete_crashfile(CHAR_DATA * ch);
@@ -159,7 +159,7 @@ bool stop_follower(CHAR_DATA * ch, int mode);
 void forget(CHAR_DATA * ch, CHAR_DATA * victim);
 void remember(CHAR_DATA * ch, CHAR_DATA * victim);
 
-/* townportal */
+// townportal //
 char *find_portal_by_vnum(int vnum);
 int level_portal_by_vnum(int vnum);
 int find_portal_by_word(char *wrd);
@@ -168,7 +168,7 @@ int has_char_portal(CHAR_DATA * ch, int vnum);
 void check_portals(CHAR_DATA * ch);
 struct portals_list_type *get_portal(int vnum, char *wrd);
 
-/* charm */
+// charm //
 
 #define MAXPRICE 9999999
 
@@ -185,7 +185,7 @@ float calc_cha_for_hire(CHAR_DATA * victim);
 int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim);
 
 
-/* mem queue */
+// mem queue //
 void MemQ_init(CHAR_DATA * ch);
 void MemQ_flush(CHAR_DATA * ch);
 int MemQ_learn(CHAR_DATA * ch);

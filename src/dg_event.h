@@ -18,21 +18,15 @@
 #ifndef _DG_EVENT_H_
 #define _DG_EVENT_H_
 
-/*
-** how often will heartbeat() call our event function?
-*/
+// * how often will heartbeat() call our event function?
 #define PULSE_DG_EVENT 1
 
 
-/*
-** macro used to prototype the callback function for an event
-*/
+// * macro used to prototype the callback function for an event
 #define EVENT(function) void (function)(void *info)
 
 
-/*
-** define event related structures
-*/
+// * define event related structures
 struct event_info
 {
 	int time_remaining;
@@ -42,9 +36,7 @@ struct event_info
 };
 
 
-/*
-** prototype event functions
-*/
+// * prototype event functions
 struct event_info *add_event(int time, EVENT(*func), void *info);
 void remove_event(struct event_info *event);
 void process_events(void);

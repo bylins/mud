@@ -37,12 +37,12 @@ extern const char *dirs[];
 #endif
 
 
-/* external functions from scripts.cpp */
+// external functions from scripts.cpp
 extern int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 char *matching_quote(char *p);
 
 
-/* mob trigger types */
+// mob trigger types
 const char *trig_types[] = { "Global",
 							 "Random",
 							 "Command",
@@ -73,7 +73,7 @@ const char *trig_types[] = { "Global",
 						   };
 
 
-/* obj trigger types */
+// obj trigger types
 const char *otrig_types[] = { "Global",
 							  "Random",
 							  "Command",
@@ -104,7 +104,7 @@ const char *otrig_types[] = { "Global",
 							};
 
 
-/* wld trigger types */
+// wld trigger types
 const char *wtrig_types[] = { "Global",
 							  "Random",
 							  "Command",
@@ -135,14 +135,10 @@ const char *wtrig_types[] = { "Global",
 							};
 
 
-/*
- *  General functions used by several triggers
- */
+// * General functions used by several triggers
 
 
-/*
- * Copy first phrase into first_arg, returns rest of string
- */
+// * Copy first phrase into first_arg, returns rest of string
 char *one_phrase(char *arg, char *first_arg)
 {
 	skip_spaces(&arg);
@@ -188,9 +184,9 @@ int is_substring(char *sub, char *string)
 		int len = strlen(string);
 		int sublen = strlen(sub);
 
-		/* check front */
+		// check front
 		if ((s == string || a_isspace(*(s - 1)) || ispunct(*(s - 1))) &&
-				/* check end */
+				// check end
 				((s + sublen == string + len) || a_isspace(s[sublen]) || ispunct(s[sublen])))
 			return 1;
 	}
@@ -222,9 +218,7 @@ int word_check(char *str, char *wordlist)
 
 
 
-/*
- *  mob triggers
- */
+// *  mob triggers
 
 void random_mtrigger(CHAR_DATA * ch)
 {
@@ -280,20 +274,20 @@ void greet_memory_mtrigger(CHAR_DATA * actor)
 		if (!SCRIPT_MEM(ch) || !AWAKE(ch) || ch->get_fighting() || (ch == actor) || !CAN_START_MTRIG(ch))
 			continue;
 
-		/* find memory line with command only */
+		// find memory line with command only
 		for (mem = SCRIPT_MEM(ch); mem && SCRIPT_MEM(ch); mem = mem->next)
 		{
 			if (GET_ID(actor) != mem->id)
 				continue;
 			if (mem->cmd)
 			{
-				command_interpreter(ch, mem->cmd);	/* no script */
+				command_interpreter(ch, mem->cmd);	// no script
 				command_performed = 1;
 				break;
 			}
 		}
 
-		/* if a command was not performed execute the memory script */
+		// if a command was not performed execute the memory script
 		if (mem && !command_performed)
 		{
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
@@ -308,7 +302,7 @@ void greet_memory_mtrigger(CHAR_DATA * actor)
 			}
 		}
 
-		/* delete the memory */
+		// delete the memory
 		if (mem)
 		{
 			if (SCRIPT_MEM(ch) == mem)
@@ -412,7 +406,7 @@ void entry_memory_mtrigger(CHAR_DATA * ch)
 							}
 						}
 					}
-					/* delete the memory */
+					// delete the memory
 					if (SCRIPT_MEM(ch) == mem)
 					{
 						SCRIPT_MEM(ch) = mem->next;
@@ -428,7 +422,7 @@ void entry_memory_mtrigger(CHAR_DATA * ch)
 						free(mem->cmd);
 					free(mem);
 				}
-			}	/* for (mem =..... */
+			}	// for (mem =.....
 		}
 	}
 }
@@ -937,9 +931,7 @@ void timechange_mtrigger(CHAR_DATA * ch, const int time)
 	}
 }
 
-/*
- *  object triggers
- */
+// *  object triggers
 
 void random_otrigger(OBJ_DATA * obj)
 {
@@ -998,7 +990,7 @@ int get_otrigger(OBJ_DATA * obj, CHAR_DATA * actor)
 }
 
 
-/* checks for command trigger on specific object. assumes obj has cmd trig */
+// checks for command trigger on specific object. assumes obj has cmd trig
 int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int type)
 {
 	TRIG_DATA *t;
@@ -1302,9 +1294,7 @@ int timechange_otrigger(OBJ_DATA * obj, const int time)
 }
 
 
-/*
- *  world triggers
- */
+// *  world triggers
 
 void reset_wtrigger(ROOM_DATA * room)
 {

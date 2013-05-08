@@ -21,9 +21,7 @@ const unsigned MAX_DPS_CHARMICE = 5;
 boost::format dps_stat_format(" %25s |  %15d | %5d |  %5d | %11d |\r\n");
 boost::format dps_group_stat_format(" %25s |  %8d | %5.1f%% | %5d |  %5d | %11d |\r\n");
 
-/**
-* Добавление эффективной дамаги и овер-дамаги.
-*/
+// * Добавление эффективной дамаги и овер-дамаги.
 void DpsNode::add_dmg(int dmg, int over_dmg)
 {
 	if (dmg >= 0 && over_dmg >= 0)
@@ -50,9 +48,7 @@ void DpsNode::set_name(const char *name)
 	}
 }
 
-/**
-* Расчет дамаги в раунд.
-*/
+// * Расчет дамаги в раунд.
 int DpsNode::get_stat() const
 {
 	if (rounds_)
@@ -77,9 +73,7 @@ const std::string & DpsNode::get_name() const
 	return name_;
 }
 
-/**
-* Используется для идентификации в списках как чармисов, так и чаров.
-*/
+// * Используется для идентификации в списках как чармисов, так и чаров.
 long DpsNode::get_id() const
 {
 	return id_;
@@ -150,9 +144,7 @@ void Dps::end_round(int type, CHAR_DATA *ch)
 	}
 }
 
-/**
-* Очистка себя или группы.
-*/
+// * Очистка себя или группы.
 void Dps::clear(int type)
 {
 	switch (type)
@@ -179,9 +171,7 @@ void Dps::clear(int type)
 	}
 }
 
-/**
-* Для сортировки вывода по нанесенной дамаге.
-*/
+// * Для сортировки вывода по нанесенной дамаге.
 struct sort_node
 {
 	sort_node(std::string in_name, int in_dps, unsigned in_round_dmg, unsigned in_over_dmg)
@@ -352,9 +342,7 @@ void Dps::end_group_charm_round(CHAR_DATA *ch)
 	}
 }
 
-/**
-* Чтобы не морочить голову в dps_copy, заменяем только груп.статистику.
-*/
+// * Чтобы не морочить голову в dps_copy, заменяем только груп.статистику.
 Dps & Dps::operator= (const Dps &copy)
 {
 	if (this != &copy)
@@ -433,9 +421,7 @@ void PlayerDpsNode::end_charm_round(CHAR_DATA *ch)
 	}
 }
 
-/**
-* Чармисы в персональной статистике выводятся без сортировки.
-*/
+// * Чармисы в персональной статистике выводятся без сортировки.
 std::string PlayerDpsNode::print_charm_stats() const
 {
 	std::ostringstream text;
@@ -450,9 +436,7 @@ std::string PlayerDpsNode::print_charm_stats() const
 	return text.str();
 }
 
-/**
-* Распечатка групповой статистики живых чармисов по данному игроку.
-*/
+// * Распечатка групповой статистики живых чармисов по данному игроку.
 void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const
 {
 	std::ostringstream text;
@@ -477,9 +461,7 @@ void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const
 // PlayerDpsNode
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
-* Подсчет дамаги за предыдущий раунд, дергается в начале раунда и по окончанию боя.
-*/
+// * Подсчет дамаги за предыдущий раунд, дергается в начале раунда и по окончанию боя.
 void check_round(CHAR_DATA *ch)
 {
 	if (!IS_NPC(ch))

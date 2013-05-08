@@ -43,9 +43,7 @@ int PERS_CHEST_RNUM = -1;
 // максимальное кол-во шмоток в персональном хранилище (волхвам * 2)
 const unsigned int MAX_PERS_SLOTS = 25;
 
-/**
-* Для оффлайнового списка шмоток в хранилище.
-*/
+// * Для оффлайнового списка шмоток в хранилище.
 class OfflineNode
 {
 public:
@@ -115,9 +113,7 @@ public:
 typedef std::map<long, CharNode> DepotListType; // уид чара, инфа
 DepotListType depot_list; // список личных хранилищ
 
-/**
-* Капитально расширенная версия сислога для хранилищ.
-*/
+// * Капитально расширенная версия сислога для хранилищ.
 void depot_log(const char *format, ...)
 {
 	return;
@@ -155,9 +151,6 @@ PurgedListType purged_list;
 
 bool need_save_purged_list = false;
 
-/**
-*
-*/
 void save_purged_list()
 {
 	if (!need_save_purged_list) return;
@@ -175,9 +168,6 @@ void save_purged_list()
 	need_save_purged_list = false;
 }
 
-/**
-*
-*/
 void load_purge_list()
 {
 	const char *filename = LIB_DEPOT"purge.db";
@@ -195,9 +185,6 @@ void load_purge_list()
 		purged_list[uid] = date;
 }
 
-/**
-*
-*/
 std::string generate_purged_filename(long uid)
 {
 	std::string name = GetNameByUnique(uid);
@@ -284,9 +271,6 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 	return out.str();
 }
 
-/**
-*
-*/
 void add_purged_message(long uid, int obj_vnum, unsigned int obj_uid)
 {
 	std::string name = generate_purged_filename(uid);
@@ -311,9 +295,6 @@ void add_purged_message(long uid, int obj_vnum, unsigned int obj_uid)
 	file << generate_purged_text(uid, obj_vnum, obj_uid);
 }
 
-/**
-*
-*/
 void delete_purged_entry(long uid)
 {
 	PurgedListType::iterator it = purged_list.find(uid);
@@ -331,9 +312,6 @@ void delete_purged_entry(long uid)
 	}
 }
 
-/**
-*
-*/
 void show_purged_message(CHAR_DATA *ch)
 {
 	PurgedListType::iterator it = purged_list.find(GET_UNIQUE(ch));
@@ -361,9 +339,6 @@ void show_purged_message(CHAR_DATA *ch)
 	}
 }
 
-/**
-*
-*/
 void clear_old_purged_entry()
 {
 	time_t today = time(0);
@@ -384,9 +359,6 @@ void clear_old_purged_entry()
 	}
 }
 
-/**
-*
-*/
 void init_purged_list()
 {
 	load_purge_list();
@@ -397,9 +369,7 @@ void init_purged_list()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
-* Удаление файла персонального хранилища (шмотки отдельного чара).
-*/
+// * Удаление файла персонального хранилища (шмотки отдельного чара).
 void remove_pers_file(const std::string &name)
 {
 	if (name.empty()) return;
@@ -432,9 +402,7 @@ void remove_char_entry(long uid, CharNode &node)
 	remove_pers_file(node.name);
 }
 
-/**
-* Инициализация рнумов сундуков. Лоад файла с оффлайн информацией по предметам.
-*/
+// * Инициализация рнумов сундуков. Лоад файла с оффлайн информацией по предметам.
 void init_depot()
 {
 	depot_log("init_depot start");
@@ -549,9 +517,7 @@ void init_depot()
 	depot_log("init_depot end");
 }
 
-/**
-* Загрузка самих хранилищ в банки делается после инита хранилищ и резета зон, потому как мобов надо.
-*/
+// * Загрузка самих хранилищ в банки делается после инита хранилищ и резета зон, потому как мобов надо.
 void load_chests()
 {
 	for (CHAR_DATA *ch = character_list; ch; ch = ch->next)
@@ -565,9 +531,7 @@ void load_chests()
 	}
 }
 
-/**
-* Добавление цены ренты с порверкой на валидность и переполнение.
-*/
+// * Добавление цены ренты с порверкой на валидность и переполнение.
 void CharNode::add_cost_per_day(int amount)
 {
 	if (amount < 0 || amount > 50000)
@@ -582,17 +546,13 @@ void CharNode::add_cost_per_day(int amount)
 		cost_per_day += amount;
 }
 
-/**
-* Версия add_cost_per_day(int amount) для принятия *OBJ_DATA.
-*/
+// * Версия add_cost_per_day(int amount) для принятия *OBJ_DATA.
 void CharNode::add_cost_per_day(OBJ_DATA *obj)
 {
 	add_cost_per_day(get_object_low_rent(obj));
 }
 
-/**
-* Для удобства в save_timedata(), запись строки с параметрами шмотки.
-*/
+// * Для удобства в save_timedata(), запись строки с параметрами шмотки.
 void write_objlist_timedata(const ObjListType &cont, std::stringstream &out)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
@@ -602,9 +562,7 @@ void write_objlist_timedata(const ObjListType &cont, std::stringstream &out)
 	}
 }
 
-/**
-* Сохранение всех списков в общий файл с тайм-инфой шмоток (в том числе таймеров из онлайн списка).
-*/
+// * Сохранение всех списков в общий файл с тайм-инфой шмоток (в том числе таймеров из онлайн списка).
 void save_timedata()
 {
 	// на случай падения мада во время прохода по списку
@@ -644,9 +602,7 @@ void save_timedata()
 	file.close();
 }
 
-/**
-* Запись файла со шмотом (полная версия записи).
-*/
+// * Запись файла со шмотом (полная версия записи).
 void write_obj_file(const std::string &name, int file_type, const ObjListType &cont)
 {
 	// генерим имя файла
@@ -688,9 +644,7 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 	file.close();
 }
 
-/**
-* Сохранение персонального хранилища конкретного плеера в файл. Обнуление флага сейва.
-*/
+// * Сохранение персонального хранилища конкретного плеера в файл. Обнуление флага сейва.
 void CharNode::save_online_objs()
 {
 	if (need_save)
@@ -703,18 +657,14 @@ void CharNode::save_online_objs()
 	}
 }
 
-/**
-* Сохранение всех ждущих этого онлайновых списков предметов в файлы.
-*/
+// * Сохранение всех ждущих этого онлайновых списков предметов в файлы.
 void save_all_online_objs()
 {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
 		it->second.save_online_objs();
 }
 
-/**
- * Сохранение файла хранилища из системы синхронизации.
- */
+// * Сохранение файла хранилища из системы синхронизации.
 void save_char_by_uid(int uid)
 {
 	DepotListType::iterator it = depot_list.find(uid);
@@ -724,9 +674,7 @@ void save_char_by_uid(int uid)
 	}
 }
 
-/**
-* Апдейт таймеров в онлайн списках с оповещением о пурже, если чар онлайн и расчетом общей ренты.
-*/
+// * Апдейт таймеров в онлайн списках с оповещением о пурже, если чар онлайн и расчетом общей ренты.
 void CharNode::update_online_item()
 {
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end();)
@@ -780,9 +728,7 @@ bool CharNode::removal_period_cost()
 	return (money < 0) ? true : false;
 }
 
-/**
-* Апдейт таймеров на всех шмотках, удаление при нулевых таймерах (с оповещением).
-*/
+// * Апдейт таймеров на всех шмотках, удаление при нулевых таймерах (с оповещением).
 void update_timers()
 {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end();)
@@ -809,9 +755,7 @@ void update_timers()
 	}
 }
 
-/**
-* Апдейт таймеров в оффлайн списках с расчетом общей ренты.
-*/
+// * Апдейт таймеров в оффлайн списках с расчетом общей ренты.
 void CharNode::update_offline_item(long uid)
 {
 	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end();)
@@ -878,9 +822,7 @@ bool is_depot(OBJ_DATA *obj)
 		return true;
 }
 
-/**
-* Распечатка отдельного предмета при осмотре хранилища.
-*/
+// * Распечатка отдельного предмета при осмотре хранилища.
 void print_obj(std::stringstream &out, OBJ_DATA *obj, int count, CHAR_DATA *ch)
 {
 	out << obj->short_description;
@@ -891,9 +833,7 @@ void print_obj(std::stringstream &out, OBJ_DATA *obj, int count, CHAR_DATA *ch)
 	<< desc_count(get_object_low_rent(obj), WHAT_MONEYa) << "]\r\n";
 }
 
-/**
-* Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
-*/
+// * Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
 unsigned int get_max_pers_slots(CHAR_DATA *ch)
 {
 	if (can_use_feat(ch, THRIFTY_FEAT))
@@ -982,9 +922,7 @@ DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 	return it;
 }
 
-/**
-* Выводим персональное хранилище вместо просмотра контейнера.
-*/
+// * Выводим персональное хранилище вместо просмотра контейнера.
 void show_depot(CHAR_DATA *ch)
 {
 	if (IS_NPC(ch)) return;
@@ -1067,9 +1005,7 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 	return 1;
 }
 
-/**
-* Кладем шмотку в хранилище (мобов посылаем лесом), деньги автоматом на счет в банке.
-*/
+// * Кладем шмотку в хранилище (мобов посылаем лесом), деньги автоматом на счет в банке.
 bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	if (IS_NPC(ch)) return 0;
@@ -1132,9 +1068,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 	return 1;
 }
 
-/**
-* Взятие чего-то из персонального хранилища.
-*/
+// * Взятие чего-то из персонального хранилища.
 void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 {
 	if (IS_NPC(vict)) return;
@@ -1161,9 +1095,7 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 	it->second.take_item(vict, arg, howmany);
 }
 
-/**
-* Берем шмотку из хранилища.
-*/
+// * Берем шмотку из хранилища.
 void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHAR_DATA *vict)
 {
 	depot_log("remove_item %s: %s %d %d", name.c_str(), (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
@@ -1178,9 +1110,7 @@ void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHA
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 }
 
-/**
-* Поиск шмотки в контейнере (со всякими точками), удаляем ее тут же.
-*/
+// * Поиск шмотки в контейнере (со всякими точками), удаляем ее тут же.
 bool CharNode::obj_from_obj_list(char *name, CHAR_DATA *vict)
 {
 	char tmpname[MAX_INPUT_LENGTH];
@@ -1203,9 +1133,7 @@ bool CharNode::obj_from_obj_list(char *name, CHAR_DATA *vict)
 	return false;
 }
 
-/**
-* Поиск шмотки в хранилище и ее взятие.
-*/
+// * Поиск шмотки в хранилище и ее взятие.
 void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 {
 	ObjListType &cont = pers_online;
@@ -1391,9 +1319,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 	reset_cost_per_day();
 }
 
-/**
-* Вход чара в игру - снятие за хранилище, пурж шмоток, оповещение о кол-ве снятых денег, перевод списков в онлайн.
-*/
+// * Вход чара в игру - снятие за хранилище, пурж шмоток, оповещение о кол-ве снятых денег, перевод списков в онлайн.
 void enter_char(CHAR_DATA *ch)
 {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
@@ -1430,9 +1356,7 @@ void enter_char(CHAR_DATA *ch)
 	}
 }
 
-/**
-* Перевод онлайн списка в оффлайн.
-*/
+// * Перевод онлайн списка в оффлайн.
 void CharNode::online_to_offline(ObjListType &cont)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
@@ -1455,9 +1379,7 @@ void CharNode::online_to_offline(ObjListType &cont)
 	cont.clear();
 }
 
-/**
-* Пересчет рнумов шмоток в хранилищах в случае добавления новых через олц.
-*/
+// * Пересчет рнумов шмоток в хранилищах в случае добавления новых через олц.
 void renumber_obj_rnum(int rnum)
 {
 	depot_log("renumber_obj_rnum");
@@ -1489,9 +1411,7 @@ void exit_char(CHAR_DATA *ch)
 	}
 }
 
-/**
-* Релоад шмоток чара на случай отката.
-*/
+// * Релоад шмоток чара на случай отката.
 void reload_char(long uid, CHAR_DATA *ch)
 {
 	DepotListType::iterator it = create_depot(uid);
@@ -1579,9 +1499,7 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 	return num;
 }
 
-/**
-* Обновление полей объектов при изменении их прототипа через олц.
-*/
+// * Обновление полей объектов при изменении их прототипа через олц.
 void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto)
 {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
@@ -1594,9 +1512,7 @@ void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto)
 	}
 }
 
-/**
-* Обработка ренейма персонажа.
-*/
+// * Обработка ренейма персонажа.
 void rename_char(CHAR_DATA *ch)
 {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
@@ -1606,9 +1522,7 @@ void rename_char(CHAR_DATA *ch)
 	}
 }
 
-/**
-* Поиск цели для каста локейта.
-*/
+// * Поиск цели для каста локейта.
 OBJ_DATA * locate_object(const char *str)
 {
 	for (DepotListType::const_iterator i = depot_list.begin(); i != depot_list.end(); ++i)
@@ -1624,9 +1538,7 @@ OBJ_DATA * locate_object(const char *str)
 	return 0;
 }
 
-/**
-* Добавление денег чару, находящемуся оффлайн при переводе кун (типа временное решение).
-*/
+// * Добавление денег чару, находящемуся оффлайн при переводе кун (типа временное решение).
 void add_offline_money(long uid, int money)
 {
 	DepotListType::iterator it = depot_list.find(uid);
@@ -1636,9 +1548,7 @@ void add_offline_money(long uid, int money)
 	}
 }
 
-/**
- * Поиск в хранилище внума из списка vnum_list.
- */
+// * Поиск в хранилище внума из списка vnum_list.
 bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list)
 {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
@@ -1656,9 +1566,7 @@ bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list)
 	return false;
 }
 
-/**
- * Запрет на ренту при наличии единственной сетины в хранилище с сообщением от рент-кипера.
- */
+// * Запрет на ренту при наличии единственной сетины в хранилище с сообщением от рент-кипера.
 int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep)
 {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
@@ -1680,9 +1588,7 @@ int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep)
 	return 0;
 }
 
-/**
- * Проверка при ребуте на сныканые одинокие фулл-сетины.
- */
+// * Проверка при ребуте на сныканые одинокие фулл-сетины.
 void check_rented(int uid)
 {
 	DepotListType::iterator it = depot_list.find(uid);

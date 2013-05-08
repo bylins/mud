@@ -32,15 +32,15 @@ extern TRIG_DATA *trigger_list;
 
 void trig_data_free(TRIG_DATA * this_data);
 
-/* return memory used by a trigger */
+// return memory used by a trigger 
 void free_trigger(TRIG_DATA * trig)
 {
-	/* threw this in for minor consistance in names with the rest of circle */
+	// threw this in for minor consistance in names with the rest of circle 
 	trig_data_free(trig);
 }
 
 
-/* remove a single trigger from a mob/obj/room */
+// remove a single trigger from a mob/obj/room 
 void extract_trigger(TRIG_DATA * trig)
 {
 	TRIG_DATA *temp;
@@ -55,13 +55,13 @@ void extract_trigger(TRIG_DATA * trig)
 
 	trig_index[trig->nr]->number--;
 
-	/* walk the trigger list and remove this one */
+	// walk the trigger list and remove this one 
 	REMOVE_FROM_LIST(trig, trigger_list, next_in_world);
 
 	free_trigger(trig);
 }
 
-/* remove all triggers from a mob/obj/room */
+// remove all triggers from a mob/obj/room 
 void extract_script(SCRIPT_DATA * sc)
 {
 	TRIG_DATA *trig, *next_trig;
@@ -74,7 +74,7 @@ void extract_script(SCRIPT_DATA * sc)
 	TRIGGERS(sc) = NULL;
 }
 
-/* erase the script memory of a mob */
+// erase the script memory of a mob 
 void extract_script_mem(struct script_memory *sc)
 {
 	struct script_memory *next;
@@ -88,7 +88,7 @@ void extract_script_mem(struct script_memory *sc)
 	}
 }
 
-/* perhaps not the best place for this, but I didn't want a new file */
+// perhaps not the best place for this, but I didn't want a new file 
 const char * skill_percent(CHAR_DATA * ch, char *skill)
 {
 	static char retval[256];

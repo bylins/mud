@@ -107,7 +107,7 @@ int compute_armor_class(CHAR_DATA * ch)
 		armorclass -= (240 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
 	}
 
-	/* Gorrah: штраф к КЗ от применения умения "железный ветер" */
+	// Gorrah: штраф к КЗ от применения умения "железный ветер"
 	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
 		armorclass += ch->get_skill(SKILL_IRON_WIND) / 2;
 
@@ -856,9 +856,7 @@ bool check_mighthit_weapon(CHAR_DATA *ch)
 	return false;
 }
 
-/**
-* При надуве выше х 1.5 в пк есть 1% того, что весь надув слетит одним ударом.
-*/
+// * При надуве выше х 1.5 в пк есть 1% того, что весь надув слетит одним ударом.
 void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (((!IS_NPC(ch) && ch != victim) || (ch->master && !IS_NPC(ch->master) && ch->master != victim))
@@ -1319,25 +1317,23 @@ int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
 	return dam_critic;
 }
 
-/**
-* Умножение дамаги при стабе.
-*/
+// * Умножение дамаги при стабе.
 int backstab_mult(int level)
 {
 	if (level <= 0)
-		return 1;	/* level 0 */
+		return 1;	// level 0 //
 	else if (level <= 5)
-		return 2;	/* level 1 - 5 */
+		return 2;	// level 1 - 5 //
 	else if (level <= 10)
-		return 3;	/* level 6 - 10 */
+		return 3;	// level 6 - 10 //
 	else if (level <= 15)
-		return 4;	/* level 11 - 15 */
+		return 4;	// level 11 - 15 //
 	else if (level <= 20)
-		return 5;	/* level 16 - 20 */
+		return 5;	// level 16 - 20 //
 	else if (level <= 25)
-		return 6;	/* level 21 - 25 */
+		return 6;	// level 21 - 25 //
 	else if (level <= 30)
-		return 7;	/* level 26 - 30 */
+		return 7;	// level 26 - 30 //
 	else
 		return 10;
 }
@@ -1351,9 +1347,7 @@ int calculate_crit_backstab_percent(CHAR_DATA *ch)
 	return static_cast<int>(ch->get_skill(SKILL_BACKSTAB)/11.0 + (GET_REAL_DEX(ch) - 20) / (GET_REAL_DEX(ch) / 30.0));
 }
 
-/**
-* Расчет множителя крит.стаба (по игрокам только для татей).
-*/
+// * Расчет множителя крит.стаба (по игрокам только для татей).
 double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	double bs_coeff = 1;
@@ -1384,9 +1378,7 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 	return bs_coeff;
 }
 
-/**
- * Может ли персонаж блокировать атаки автоматом (вообще в данный момент, без учета лагов).
- */
+// * Может ли персонаж блокировать атаки автоматом (вообще в данный момент, без учета лагов).
 bool can_auto_block(CHAR_DATA *ch)
 {
 	if (GET_EQ(ch, WEAR_SHIELD) && GET_AF_BATTLE(ch, EAF_AWAKE) && GET_AF_BATTLE(ch, EAF_AUTOBLOCK))
@@ -1395,9 +1387,7 @@ bool can_auto_block(CHAR_DATA *ch)
 		return false;
 }
 
-/**
- * Проверка на фит "любимое оружие".
- */
+// * Проверка на фит "любимое оружие".
 void HitData::check_weap_feats(CHAR_DATA *ch)
 {
 	switch (weap_skill)
@@ -1475,9 +1465,7 @@ void HitData::check_weap_feats(CHAR_DATA *ch)
 	}
 }
 
-/**
-* Захват.
-*/
+// * Захват.
 void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam)
 {
 	if (vict->get_touching() == ch
@@ -1771,7 +1759,7 @@ void appear(CHAR_DATA * ch)
 	}
 }
 
-/* message for doing damage with a weapon */
+// message for doing damage with a weapon
 void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
 {
 	char *buf;
@@ -1785,66 +1773,66 @@ void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
 	} dam_weapons[] =
 	{
 
-		/* use #w for singular (i.e. "slash") and #W for plural (i.e. "slashes") */
+		// use #w for singular (i.e. "slash") and #W for plural (i.e. "slashes")
 
 		{
-			"$n попытал$u #W $N3, но промахнул$u.",	/* 0: 0      0 */
+			"$n попытал$u #W $N3, но промахнул$u.",	// 0: 0      0 //
 			"Вы попытались #W $N3, но промахнулись.",
 			"$n попытал$u #W вас, но промахнул$u."
 		}, {
-			"$n легонько #w$g $N3.",	/*  1..5 1 */
+			"$n легонько #w$g $N3.",	//  1..5 1 //
 			"Вы легонько #wи $N3.",
 			"$n легонько #w$g вас."
 		}, {
-			"$n слегка #w$g $N3.",	/*  6..11  2 */
+			"$n слегка #w$g $N3.",	//  6..11  2 //
 			"Вы слегка #wи $N3.",
 			"$n слегка #w$g вас."
 		}, {
-			"$n #w$g $N3.",	/*  12..18   3 */
+			"$n #w$g $N3.",	//  12..18   3 //
 			"Вы #wи $N3.",
 			"$n #w$g вас."
 		}, {
-			"$n #w$g $N3.",	/* 19..26  4 */
+			"$n #w$g $N3.",	// 19..26  4 //
 			"Вы #wи $N3.",
 			"$n #w$g вас."
 		}, {
-			"$n сильно #w$g $N3.",	/* 27..35  5 */
+			"$n сильно #w$g $N3.",	// 27..35  5 //
 			"Вы сильно #wи $N3.",
 			"$n сильно #w$g вас."
 		}, {
-			"$n очень сильно #w$g $N3.",	/*  36..45 6  */
+			"$n очень сильно #w$g $N3.",	//  36..45 6  //
 			"Вы очень сильно #wи $N3.",
 			"$n очень сильно #w$g вас."
 		}, {
-			"$n чрезвычайно сильно #w$g $N3.",	/*  46..55  7 */
+			"$n чрезвычайно сильно #w$g $N3.",	//  46..55  7 //
 			"Вы чрезвычайно сильно #wи $N3.",
 			"$n чрезвычайно сильно #w$g вас."
 		}, {
-			"$n БОЛЬНО #w$g $N3.",	/*  56..96   8 */
+			"$n БОЛЬНО #w$g $N3.",	//  56..96   8 //
 			"Вы БОЛЬНО #wи $N3.",
 			"$n БОЛЬНО #w$g вас."
 		}, {
-			"$n ОЧЕНЬ БОЛЬНО #w$g $N3.",	/*    97..136  9  */
+			"$n ОЧЕНЬ БОЛЬНО #w$g $N3.",	//    97..136  9  //
 			"Вы ОЧЕНЬ БОЛЬНО #wи $N3.",
 			"$n ОЧЕНЬ БОЛЬНО #w$g вас."
 		}, {
-			"$n ЧРЕЗВЫЧАЙНО БОЛЬНО #w$g $N3.",	/*   137..176  10 */
+			"$n ЧРЕЗВЫЧАЙНО БОЛЬНО #w$g $N3.",	//   137..176  10 //
 			"Вы ЧРЕЗВЫЧАЙНО БОЛЬНО #wи $N3.",
 			"$n ЧРЕЗВЫЧАЙНО БОЛЬНО #w$g вас."
 		}, {
-			"$n НЕВЫНОСИМО БОЛЬНО #w$g $N3.",	/*    177..216  11 */
+			"$n НЕВЫНОСИМО БОЛЬНО #w$g $N3.",	//    177..216  11 //
 			"Вы НЕВЫНОСИМО БОЛЬНО #wи $N3.",
 			"$n НЕВЫНОСИМО БОЛЬНО #w$g вас."
 		}, {
-			"$n УЖАСНО #w$g $N3.",	/*    217..256  13 */
+			"$n УЖАСНО #w$g $N3.",	//    217..256  13 //
 			"Вы УЖАСНО #wи $N3.",
 			"$n УЖАСНО #w$g вас."
 		}, {
-			"$n УБИЙСТВЕННО #w$g $N3.",	/*    257..296  15 */
+			"$n УБИЙСТВЕННО #w$g $N3.",	//    257..296  15 //
 			"Вы УБИЙСТВЕННО #wи $N3.",
 			"$n УБИЙСТВЕННО #w$g вас."
 		}, {
-			"$n СМЕРТЕЛЬНО #w$g $N3.",	/* 297+  16 */
+			"$n СМЕРТЕЛЬНО #w$g $N3.",	// 297+  16 //
 			"Вы СМЕРТЕЛЬНО #wи $N3.",
 			"$n СМЕРТЕЛЬНО #w$g вас."
 		}
@@ -1852,7 +1840,7 @@ void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
 
 
 	if (w_type >= TYPE_HIT && w_type < TYPE_MAGIC)
-		w_type -= TYPE_HIT;	/* Change to base of table with text */
+		w_type -= TYPE_HIT;	// Change to base of table with text //
 	else
 		w_type = TYPE_HIT;
 
@@ -1887,13 +1875,13 @@ void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
 	else
 		msgnum = 14;
 
-	/* damage message to onlookers */
+	// damage message to onlookers //
 
 	buf = replace_string(dam_weapons[msgnum].to_room,
 						 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
 	act(buf, FALSE, ch, NULL, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 
-	/* damage message to damager */
+	// damage message to damager //
 	if (dam)
 		send_to_char("&Y&q", ch);
 	else
@@ -1903,7 +1891,7 @@ void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
 	act(buf, FALSE, ch, NULL, victim, TO_CHAR);
 	send_to_char("&Q&n", ch);
 
-	/* damage message to damagee */
+	// damage message to damagee //
 	/*if (dam)
 		send_to_char(CCIRED(victim, C_CMP), victim);
 	else
@@ -2002,8 +1990,8 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	int shield_num = number(0, shields.size() - 1);
 	
-	/* Проверка на крит, если крит.удар и рандом выпал
-	не на ледяной щит, дамага НЕ уменьшается (Купала) */
+	// Проверка на крит, если крит.удар и рандом выпал
+	// не на ледяной щит, дамага НЕ уменьшается (Купала)
 	if (flags[CRIT_HIT] && (shields[shield_num] != ICESHIELD))
 		return false;
 
@@ -2126,8 +2114,8 @@ bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 
 void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	/* Блочить мессагу крита при ледяном щите вроде нелогично,
-	так что добавил отдельные сообщения для ледяного щита (Купала) */
+	// Блочить мессагу крита при ледяном щите вроде нелогично,
+	// так что добавил отдельные сообщения для ледяного щита (Купала)
 	if (!AFF_FLAGGED(victim, AFF_ICESHIELD))
 		sprintf(buf, "&B&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
 		PERS(victim, ch, 3));
@@ -2142,7 +2130,7 @@ void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim)
 		sprintf(buf, "&r&qМеткое попадание %s утонуло в ледяной пелене вашего щита.&Q&n\r\n",
 		PERS(ch, victim, 1));
 	send_to_char(buf, victim);
-	/* Закомментил чтобы не спамило, сделать потом в виде режима */
+	// Закомментил чтобы не спамило, сделать потом в виде режима
 	//act("Меткое попадание $N1 заставило $n3 пошатнуться.", TRUE, victim, 0, ch, TO_NOTVICT);
 }
 
@@ -2336,7 +2324,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
 			GET_NAME(victim), GET_ROOM_VNUM(IN_ROOM(victim)), GET_NAME(ch));
 		die(victim, NULL);
-		return 0;	/* -je, 7/7/92 */
+		return 0;	// -je, 7/7/92
 	}
 
 	// первая такая проверка идет в hit перед ломанием пушек
@@ -2365,10 +2353,10 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			dam *= 2;
 	}
 
-	/** запоминание мобами обидчиков и жертв */
+	// запоминание мобами обидчиков и жертв
 	update_mob_memory(ch, victim);
 
-	/** атакер и жертва становятся видимыми */
+	// атакер и жертва становятся видимыми
 	appear(ch);
 	appear(victim);
 
@@ -2401,7 +2389,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		return (0);
 	}
 
-	/** санка/призма для физ и маг урона */
+	// санка/призма для физ и маг урона
 	if (dam >= 2)
 	{
 		if (AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !flags[IGNORE_PRISM])
@@ -2420,7 +2408,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	/** учет положения атакующего и жертвы */
+	// ** учет положения атакующего и жертвы
 	// Include a damage multiplier if victim isn't ready to fight:
 	// Position sitting  1.5 x normal
 	// Position resting  2.0 x normal
@@ -2447,7 +2435,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		dam += dam * (POS_FIGHTING - victim_start_pos) / 4;
 	}
 
-	/** прочие множители */
+	// прочие множители
 
 	// изменение физ урона по холду
 	if (GET_MOB_HOLD(victim) && dmg_type == PHYS_DMG)
@@ -2522,14 +2510,14 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	dam = MAX(0, MIN(dam, MAX_HITS));
 
-	/** расчет бэтл-экспы для чаров */
+	// расчет бэтл-экспы для чаров
 	gain_battle_exp(ch, victim, dam);
 
 	// real_dam так же идет в обратку от огн.щита
 	int real_dam = dam;
 	int over_dam = 0;
 
-	/** собственно нанесение дамага */
+	// собственно нанесение дамага
 	if (dam > GET_HIT(victim) + 11)
 	{
 		real_dam = GET_HIT(victim) + 11;
@@ -2537,20 +2525,20 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	GET_HIT(victim) -= dam;
 
-	/** запись в дметр фактического и овер дамага */
+	// запись в дметр фактического и овер дамага
 	update_dps_stats(ch, real_dam, over_dam);
 
-	/** попытка спасти жертву через ангела */
+	// попытка спасти жертву через ангела
 	try_angel_sacrifice(ch, victim);
 
-	/** обновление позиции после удара и ангела */
+	// обновление позиции после удара и ангела
 	update_pos(victim);
 
-	/** сбивание надува черноков */
+	//* сбивание надува черноков //
 	if (spell_num != SPELL_POISON && dam > 0)
 		try_remove_extrahits(ch, victim);
 
-	/** сообщения о крит ударах */
+	//* сообщения о крит ударах //
 	if (dam && flags[CRIT_HIT] && !dam_critic && spell_num != SPELL_POISON)
 	{
 		send_critical_message(ch, victim);
@@ -2567,7 +2555,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	// * dam_message. Otherwise, always send a dam_message.
 	// log("[DAMAGE] Attack message...");
 
-	/** сообщения об ударах */
+	//* сообщения об ударах //
 	if (skill_num >= 0 || spell_num >= 0 || hit_type < 0)
 	{
 		// скилл, спелл, необычный дамаг
@@ -2587,7 +2575,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	//******** Use send_to_char -- act() doesn't send message if you are DEAD.
+	///******* Use send_to_char -- act() doesn't send message if you are DEAD.
 	char_dam_message(dam, ch, victim, flags[NO_FLEE]);
 
 	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.
@@ -2603,14 +2591,14 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		stop_fighting(victim, GET_POS(victim) <= POS_DEAD);
 	}
 
-	/** жертва умирает */
+	//* жертва умирает //
 	if (GET_POS(victim) == POS_DEAD)
 	{
 		process_death(ch, victim);
 		return -1;
 	}
 
-	/** обратка от огненного щита */
+	//* обратка от огненного щита //
 	if (fs_damage
 		&& victim->get_fighting()
 		&& GET_POS(victim) > POS_STUNNED
@@ -2814,7 +2802,7 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (dam < 0)
 		dam = 0;
 
-	/** богатырский молот */
+	//* богатырский молот //
 	// в эти условия ничего добавлять не надо, иначе EAF_MIGHTHIT не снимется
 	// с моба по ходу боя, если он не может по каким-то причинам смолотить
 	if (GET_AF_BATTLE(ch, EAF_MIGHTHIT) && GET_WAIT(ch) <= 0)
@@ -2825,7 +2813,7 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 			try_mighthit_dam(ch, victim);
 		}
 	}
-	/** оглушить */
+	//* оглушить //
 	// аналогично молоту, все доп условия добавляются внутри
 	else if (GET_AF_BATTLE(ch, EAF_STUPOR) && GET_WAIT(ch) <= 0)
 	{
@@ -2840,7 +2828,7 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 			try_stupor_dam(ch, victim);
 		}
 	}
-	/** яды со скила отравить */
+	//* яды со скила отравить //
 	else if (!MOB_FLAGGED(victim, MOB_PROTECT)
 		&& dam
 		&& wielded
@@ -2849,7 +2837,7 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		try_weap_poison(ch, victim, wielded->timed_spell.is_spell_poisoned());
 	}
-	/** травящий ядом моб */
+	//* травящий ядом моб //
 	else if (dam
 		&& IS_NPC(ch)
 		&& NPC_FLAGGED(ch, NPC_POISON)
@@ -2861,7 +2849,7 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		poison_victim(ch, victim, MAX(1, GET_LEVEL(ch) - GET_LEVEL(victim)) * 10);
 	}
-	/** точный стиль */
+	//* точный стиль //
 	else if (dam && flags[CRIT_HIT] && dam_critic)
 	{
 		compute_critical(ch, victim);
@@ -2887,7 +2875,7 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
  */
 void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	/* Find weapon for attack number weapon */
+	// Find weapon for attack number weapon //
 	if (weapon == 1)
 	{
 		if (!(wielded = GET_EQ(ch, WEAR_WIELD)))
@@ -2914,7 +2902,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	weap_skill_is = train_skill(ch, weap_skill, skill_info[weap_skill].max_percent, victim);
 
-	/** обработка SKILL_NOPARRYHIT */
+	//* обработка SKILL_NOPARRYHIT //
 	if (skill_num == TYPE_UNDEFINED && ch->get_skill(SKILL_NOPARRYHIT))
 	{
 		int tmp_skill = train_skill(ch, SKILL_NOPARRYHIT,
@@ -3061,7 +3049,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 		dam -= 5;
 	}
 
-	/* Учет мощной и прицельной атаки */
+	// Учет мощной и прицельной атаки
 	if (PRF_FLAGGED(ch, PRF_POWERATTACK) && can_use_feat(ch, POWER_ATTACK_FEAT))
 	{
 		calc_thaco += 2;
@@ -3095,7 +3083,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 	}
 	calc_thaco -= GET_REAL_HR(ch);
 
-	/* Использование ловкости вместо силы для попадания */
+	// Использование ловкости вместо силы для попадания
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
 	{
 		if (wielded && GET_OBJ_WEIGHT(wielded) > 20)
@@ -3217,9 +3205,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 		calc_thaco -= 4 + 8 + (weap_skill_is - 160) / 5;
 }
 
-/**
- * Версия calc_rand_hr для показа по 'счет', без рандомов и статов жертвы.
- */
+// * Версия calc_rand_hr для показа по 'счет', без рандомов и статов жертвы.
 void HitData::calc_stat_hr(CHAR_DATA *ch)
 {
 	// штраф в размере 1 хитролла за каждые
@@ -3263,9 +3249,7 @@ void HitData::calc_stat_hr(CHAR_DATA *ch)
 		calc_thaco -= 4 + 8 + (ch->get_skill(weap_skill) - 160) / 5;
 }
 
-/**
- * Подсчет армор класса жертвы.
- */
+// * Подсчет армор класса жертвы.
 void HitData::calc_ac(CHAR_DATA *victim)
 {
 	// Calculate the raw armor including magic armor.  Lower AC is better.
@@ -3282,14 +3266,12 @@ void HitData::calc_ac(CHAR_DATA *victim)
 		victim_ac += 4;
 }
 
-/**
- * Обработка защитных скиллов: захват, уклон, веер, блок.
- */
+// * Обработка защитных скиллов: захват, уклон, веер, блок.
 void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (!hit_no_parry)
 	{
-		/**** обработаем ситуацию ЗАХВАТ */
+		// обработаем ситуацию ЗАХВАТ
 		for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people; vict && dam >= 0;
 			vict = vict->next_in_room)
 		{
@@ -3306,7 +3288,7 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& GET_MOB_HOLD(victim) == 0
 		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 7) / 8)
 	{
-		/**** Обработаем команду   УКЛОНИТЬСЯ */
+		// Обработаем команду   УКЛОНИТЬСЯ
 		hit_deviate(ch, victim, &dam);
 	}
 	else
@@ -3320,7 +3302,7 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0)
 	{
-		/**** обработаем команду  ПАРИРОВАТЬ */
+		// обработаем команду  ПАРИРОВАТЬ
 		hit_parry(ch, victim, weap_skill, hit_type, &dam);
 	}
 	else
@@ -3335,7 +3317,7 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0)
 	{
-		/**** обработаем команду  ВЕЕРНАЯ ЗАЩИТА */
+		// обработаем команду  ВЕЕРНАЯ ЗАЩИТА
 		hit_multyparry(ch, victim, weap_skill, hit_type, &dam);
 	}
 	else
@@ -3349,7 +3331,7 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& GET_MOB_HOLD(victim) == 0
 		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 8) / 9)
 	{
-		/**** Обработаем команду   БЛОКИРОВАТЬ */
+		// Обработаем команду   БЛОКИРОВАТЬ
 		hit_block(ch, victim, &dam);
 	}
 }
@@ -3380,9 +3362,7 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 	dam += MAX(1, damroll);
 }
 
-/**
- * Добавление дамага от голых рук и молота.
- */
+// * Добавление дамага от голых рук и молота.
 void HitData::add_hand_damage(CHAR_DATA *ch)
 {
 	if (AFF_FLAGGED(ch, AFF_STONEHAND))
@@ -3413,20 +3393,18 @@ void HitData::add_hand_damage(CHAR_DATA *ch)
 	}
 }
 
-/**
- * Расчет шанса на критический удар (не точкой).
- */
+// * Расчет шанса на критический удар (не точкой).
 void HitData::calc_crit_chance(CHAR_DATA *ch)
 {
 	dam_critic = 0;
 	int calc_critic = 0;
 
-	/* Маги, волхвы и не-купеческие чармисы не умеют критать */
+	// Маги, волхвы и не-купеческие чармисы не умеют критать //
 	if ((!IS_NPC(ch) && !IS_MAGIC_USER(ch) && !IS_DRUID(ch))
 		|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, AFF_CHARM) && !AFF_FLAGGED(ch, AFF_HELPER))))
 	{
 		calc_critic = MIN(ch->get_skill(weap_skill), 70);
-		/* Мастерские фиты по оружию удваивают шанс критического попадания */
+		// Мастерские фиты по оружию удваивают шанс критического попадания //
 		for (int i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
 		{
 			if ((ubyte) feat_info[i].affected[0].location == weap_skill && can_use_feat(ch, i))
@@ -3487,7 +3465,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			victim->purged() ? "purged" : "true", __FILE__, __LINE__);
 		return;
 	}
-	/* Do some sanity checking, in case someone flees, etc. */
+	// Do some sanity checking, in case someone flees, etc.
 	if (IN_ROOM(ch) != IN_ROOM(victim) || IN_ROOM(ch) == NOWHERE)
 	{
 		if (ch->get_fighting() && ch->get_fighting() == victim)
@@ -3496,7 +3474,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		return;
 	}
-	/* Stand awarness mobs */
+	// Stand awarness mobs
 	if (CAN_SEE(victim, ch)
 		&& !victim->get_fighting()
 		&& ((IS_NPC(victim) && (GET_HIT(victim) < GET_MAX_HIT(victim)
@@ -3507,7 +3485,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		set_battle_pos(victim);
 	}
 
-	/** старт инициализации полей для удара */
+	// старт инициализации полей для удара
 	HitData hit_params;
 	//конвертация скиллов, которые предполагают вызов hit()
 	//c тип_андеф, в тип_андеф.
@@ -3515,7 +3493,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	hit_params.weapon = weapon;
 	hit_params.init(ch, victim);
 
-	/**  дополнительный маг. дамаг независимо от попадания физ. атаки */
+	//  дополнительный маг. дамаг независимо от попадания физ. атаки
 	if (AFF_FLAGGED(ch, AFF_CLOUD_OF_ARROWS) && hit_params.skill_num < 0
 		&& (ch->get_fighting()
 		|| (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR))))
@@ -3528,7 +3506,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	/** вычисление хитролов/ац */
+	// вычисление хитролов/ац
 	hit_params.calc_base_hr(ch);
 	hit_params.calc_rand_hr(ch, victim);
 	hit_params.calc_ac(victim);
@@ -3536,7 +3514,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	const int victim_lvl_miss = victim->get_level() + victim->get_remort();
 	const int ch_lvl_miss = ch->get_level() + ch->get_remort();
 
-	/** собсно выяснение попали или нет */
+	// собсно выяснение попали или нет
 	if (victim_lvl_miss - ch_lvl_miss <= 5
 		|| (!IS_NPC(ch) && !IS_NPC(victim)))
 	{
@@ -3587,7 +3565,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 
-	/** обработка по факту попадания */
+	// обработка по факту попадания
 	hit_params.dam += GET_REAL_DR(ch);
 	hit_params.dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
@@ -3607,7 +3585,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		hit_params.dam += dice(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
 	}
 
-	/** оружие/руки и модификаторы урона скилов, с ними связанных */
+	// оружие/руки и модификаторы урона скилов, с ними связанных
 	if (hit_params.wielded && GET_OBJ_TYPE(hit_params.wielded) == ITEM_WEAPON)
 	{
 		hit_params.add_weapon_damage(ch);
@@ -3632,7 +3610,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		hit_params.add_hand_damage(ch);
 	}
 
-	/* Gorrah: бонус к повреждениям от умения "железный ветер" */
+	// Gorrah: бонус к повреждениям от умения "железный ветер"
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
 		hit_params.dam += ch->get_skill(SKILL_IRON_WIND) / 10;
 
@@ -3664,7 +3642,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	/** расчет критических ударов */
+	// расчет критических ударов
 	hit_params.calc_crit_chance(ch);
 
 	if (hit_params.skill_num == SKILL_BACKSTAB)
@@ -3734,7 +3712,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	/* обнуляем флаги, если у нападающего есть лаг */
+	// обнуляем флаги, если у нападающего есть лаг
 	if ((GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT))
 		&& GET_WAIT(ch) > 0)
 	{
@@ -3742,10 +3720,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		CLR_AF_BATTLE(ch, EAF_MIGHTHIT);
 	}
 
-	/** обработка защитных скилов (захват, уклон, парир, веер, блок) */
+	// обработка защитных скилов (захват, уклон, парир, веер, блок)
 	hit_params.check_defense_skills(ch, victim);
 
-	/** итоговый дамаг */
+	// итоговый дамаг
 	int made_dam = hit_params.extdamage(ch, victim);
 	
 	//Обнуление лага, когда виктим убит с применением
@@ -3754,7 +3732,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (CHECK_WAIT(ch) && made_dam == -1 && (type == SKILL_STUPOR || type == SKILL_MIGHTHIT))
 			GET_WAIT(ch) = 0;
 
-	/* check if the victim has a hitprcnt trigger */
+	// check if the victim has a hitprcnt trigger
 	if (made_dam != -1)
 	{
 		// victim is not dead after hit
@@ -3762,7 +3740,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 }
 
-/**** This function realize second shot for bows *******/
+//**** This function realize second shot for bows ******
 void exthit(CHAR_DATA * ch, int type, int weapon)
 {
 	if (!ch || ch->purged())
@@ -3803,9 +3781,9 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 			{
 				for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
 				{
-					if (IS_IMMORTAL(tch))	/* immortal    */
+					if (IS_IMMORTAL(tch))	// immortal
 						continue;
-					if (IN_ROOM(ch) == NOWHERE ||	/* Something killed in process ... */
+					if (IN_ROOM(ch) == NOWHERE ||	// Something killed in process ...
 							IN_ROOM(tch) == NOWHERE)
 						continue;
 					if (tch != ch && !same_group(ch, tch))
@@ -3833,7 +3811,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 			&& GET_OBJ_SKILL(wielded) == SKILL_BOWS
 			&& GET_EQ(ch, WEAR_BOTHS))
 	{
-		/* Лук в обеих руках - юзаем доп. или двойной выстрел */
+		// Лук в обеих руках - юзаем доп. или двойной выстрел
 		if (can_use_feat(ch, DOUBLESHOT_FEAT) && !ch->get_skill(SKILL_ADDSHOT)
 				&& MIN(850, 200 + ch->get_skill(SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000))
 		{

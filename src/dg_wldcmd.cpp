@@ -54,13 +54,13 @@ struct wld_command_info
 };
 
 
-/* do_wsend */
+// do_wsend
 #define SCMD_WSEND        0
 #define SCMD_WECHOAROUND  1
 
 
 
-/* attaches room vnum to msg and sends it to script_log */
+// attaches room vnum to msg and sends it to script_log
 void wld_log(room_data * room, const char *msg, const int type = 0)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
@@ -70,10 +70,10 @@ void wld_log(room_data * room, const char *msg, const int type = 0)
 }
 
 
-/* sends str to room */
+// sends str to room
 void act_to_room(char *str, room_data * room)
 {
-	/* no one is in the room */
+	// no one is in the room
 	if (!room->people)
 		return;
 
@@ -88,9 +88,9 @@ void act_to_room(char *str, room_data * room)
 
 
 
-/* World commands */
+// World commands
 
-/* prints the argument to all the rooms aroud the room */
+// prints the argument to all the rooms aroud the room
 WCMD(do_wasound)
 {
 	int door;
@@ -243,7 +243,7 @@ WCMD(do_wdoor)
 
 	exit = rm->dir_option[dir];
 
-	/* purge exit */
+	// purge exit
 	if (fd == 0)
 	{
 		if (exit)
@@ -271,20 +271,20 @@ WCMD(do_wdoor)
 
 		switch (fd)
 		{
-		case 1:	/* description */
+		case 1:	// description //
 			if (exit->general_description)
 				free(exit->general_description);
 			CREATE(exit->general_description, char, strlen(value) + 3);
 			strcpy(exit->general_description, value);
 			strcat(exit->general_description, "\r\n");
 			break;
-		case 2:	/* flags       */
+		case 2:	// flags       //
 			asciiflag_conv(value, &exit->exit_info);
 			break;
-		case 3:	/* key         */
+		case 3:	// key         //
 			exit->key = atoi(value);
 			break;
-		case 4:	/* name        */
+		case 4:	// name        //
 			if (exit->keyword)
 				free(exit->keyword);
 			if (exit->vkeyword)
@@ -304,13 +304,13 @@ WCMD(do_wdoor)
 //			CREATE(exit->keyword, char, strlen(value) + 1);
 //			strcpy(exit->keyword, value);
 			break;
-		case 5:	/* room        */
+		case 5:	// room        //
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
 				exit->to_room = to_room;
 			else
 				wld_log(room, "wdoor: invalid door target");
 			break;
-		case 6:	/* lock - сложность замка         */
+		case 6:	// lock - сложность замка         //
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))
 				exit->lock_complexity = lock;
@@ -447,7 +447,7 @@ WCMD(do_wforce)
 }
 
 
-/* increases the target's exp */
+// increases the target's exp //
 WCMD(do_wexp)
 {
 	CHAR_DATA *ch;
@@ -472,7 +472,7 @@ WCMD(do_wexp)
 
 
 
-/* purge all objects an npcs in room, or specified object or mob */
+// purge all objects an npcs in room, or specified object or mob //
 WCMD(do_wpurge)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -529,7 +529,7 @@ WCMD(do_wpurge)
 }
 
 
-/* loads a mobile or object into the room */
+// loads a mobile or object into the room //
 WCMD(do_wload)
 {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
@@ -572,7 +572,7 @@ WCMD(do_wload)
 		wld_log(room, "wload: bad type");
 }
 
-/* increases spells & skills */
+// increases spells & skills //
 const char *skill_name(int num);
 const char *spell_name(int num);
 int find_skill_num(const char *name);
@@ -986,7 +986,7 @@ WCMD(do_wportal)
 
 const struct wld_command_info wld_cmd_info[] =
 {
-	{"RESERVED", 0, 0},	/* this must be first -- for specprocs */
+	{"RESERVED", 0, 0},	// this must be first -- for specprocs
 
 	{"wasound", do_wasound, 0},
 	{"wdoor", do_wdoor, 0},
@@ -1008,13 +1008,11 @@ const struct wld_command_info wld_cmd_info[] =
 	{"wskilladd", do_wskilladd, 0},
 	{"wspellitem", do_wspellitem, 0},
 	{"wportal", do_wportal, 0},
-	{"\n", 0, 0}		/* this must be last */
+	{"\n", 0, 0}		// this must be last
 };
 
 
-/*
- *  This is the command interpreter used by rooms, called by script_driver.
- */
+// *  This is the command interpreter used by rooms, called by script_driver.
 void wld_command_interpreter(room_data * room, char *argument)
 {
 	int cmd, length;
@@ -1022,14 +1020,14 @@ void wld_command_interpreter(room_data * room, char *argument)
 
 	skip_spaces(&argument);
 
-	/* just drop to next line for hitting CR */
+	// just drop to next line for hitting CR
 	if (!*argument)
 		return;
 
 	line = any_one_arg(argument, arg);
 
 
-	/* find the command */
+	// find the command
 	for (length = strlen(arg), cmd = 0; *wld_cmd_info[cmd].command != '\n'; cmd++)
 		if (!strncmp(wld_cmd_info[cmd].command, arg, length))
 			break;

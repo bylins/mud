@@ -21,16 +21,16 @@
 
 extern DESCRIPTOR_DATA *descriptor_list;
 
-/* same as any_one_arg except that it stops at punctuation */
+// same as any_one_arg except that it stops at punctuation 
 char *any_one_name(char *argument, char *first_arg)
 {
 	char *arg;
 
-	/* Find first non blank */
+	// Find first non blank 
 	while (a_isspace(*argument))
 		argument++;
 
-	/* Find length of first word */
+	// Find length of first word 
 	/*
 	 * Тут нужно что-то делать!!!
 	 * Библиотечная функция ispunct() неправильно работает для русского языка
@@ -130,7 +130,7 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets)
 	CHAR_DATA *to;
 	OBJ_DATA *obj;
 	int i, tmp;
-	int to_sleeping = 0;	/* mainly for windows compiles */
+	int to_sleeping = 0;	// mainly for windows compiles 
 
 	if (!arg)
 		return;
@@ -146,7 +146,7 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets)
 		case '^':
 		case '}':
 		case '*':
-			/* get CHAR_DATA and move to next token */
+			// get CHAR_DATA and move to next token 
 			type[i] = *p;
 			*s = '\0';
 			p = any_one_name(++p, name);
@@ -155,7 +155,7 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets)
 			break;
 
 		case '`':
-			/* get OBJ_DATA, move to next token */
+			// get OBJ_DATA, move to next token 
 			type[i] = *p;
 			*s = '\0';
 			p = any_one_name(++p, name);

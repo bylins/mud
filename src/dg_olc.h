@@ -19,7 +19,7 @@
 
 #include "dg_scripts.h"
 
-/* prototype exported functions from dg_olc.cpp */
+// prototype exported functions from dg_olc.cpp
 //void script_copy(void *dst, void *src, int type);
 void script_save_to_disk(FILE * fp, void *item, int type);
 //void dg_olc_script_free(DESCRIPTOR_DATA *d);
@@ -30,17 +30,15 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg);
 void proto_script_copy(struct trig_proto_list **pdst, struct trig_proto_list *src);
 void proto_script_free(struct trig_proto_list *src);
 
-/* define the largest set of commands for as trigger */
-#define MAX_CMD_LENGTH 16384	/* 16k should be plenty and then some */
+// define the largest set of commands for as trigger
+#define MAX_CMD_LENGTH 16384	// 16k should be plenty and then some
 
 
 
 #define NUM_TRIG_TYPE_FLAGS		26
 
 
-/*
- * Submodes of TRIGEDIT connectedness.
- */
+// * Submodes of TRIGEDIT connectedness.
 #define TRIGEDIT_MAIN_MENU              0
 #define TRIGEDIT_TRIGTYPE               1
 #define TRIGEDIT_CONFIRM_SAVESTRING	2
@@ -59,8 +57,8 @@ void proto_script_free(struct trig_proto_list *src);
 #define SCRIPT_DEL_TRIGGER		2
 
 
-#define OLC_SCRIPT_EDIT_MODE(d)	((d)->olc->script_mode)	/* parse input mode */
-#define OLC_SCRIPT(d)           ((d)->olc->script)	/* script editing   */
-#define OLC_ITEM_TYPE(d)	((d)->olc->item_type)	/* mob/obj/room     */
+#define OLC_SCRIPT_EDIT_MODE(d)	((d)->olc->script_mode)	// parse input mode
+#define OLC_SCRIPT(d)           ((d)->olc->script)	// script editing
+#define OLC_ITEM_TYPE(d)	((d)->olc->item_type)	// mob/obj/room
 
 #endif

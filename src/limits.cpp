@@ -78,34 +78,34 @@ int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 
 int mag_manacost(CHAR_DATA * ch, int spellnum);
 
-/* local functions */
+// local functions
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
 int level_exp(CHAR_DATA * ch, int level);
-void update_char_objects(CHAR_DATA * ch);	/* handler.cpp */
+void update_char_objects(CHAR_DATA * ch);	// handler.cpp
 // Delete this, if you delete overflow fix in beat_points_update below.
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 
-/* When age < 20 return the value p0 */
-/* When age in 20..29 calculate the line between p1 & p2 */
-/* When age in 30..34 calculate the line between p2 & p3 */
-/* When age in 35..49 calculate the line between p3 & p4 */
-/* When age in 50..74 calculate the line between p4 & p5 */
-/* When age >= 75 return the value p6 */
+// When age < 20 return the value p0 //
+// When age in 20..29 calculate the line between p1 & p2 //
+// When age in 30..34 calculate the line between p2 & p3 //
+// When age in 35..49 calculate the line between p3 & p4 //
+// When age in 50..74 calculate the line between p4 & p5 //
+// When age >= 75 return the value p6 //
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 {
 
 	if (age < 20)
-		return (p0);	/* < 20   */
+		return (p0);	// < 20   //
 	else if (age <= 29)
-		return (int)(p1 + (((age - 20) * (p2 - p1)) / 10));	/* 20..29 */
+		return (int)(p1 + (((age - 20) * (p2 - p1)) / 10));	// 20..29 //
 	else if (age <= 34)
-		return (int)(p2 + (((age - 30) * (p3 - p2)) / 5));	/* 30..34 */
+		return (int)(p2 + (((age - 30) * (p3 - p2)) / 5));	// 30..34 //
 	else if (age <= 49)
-		return (int)(p3 + (((age - 35) * (p4 - p3)) / 15));	/* 35..59 */
+		return (int)(p3 + (((age - 35) * (p4 - p3)) / 15));	// 35..59 //
 	else if (age <= 74)
-		return (int)(p4 + (((age - 50) * (p5 - p4)) / 25));	/* 50..74 */
+		return (int)(p4 + (((age - 50) * (p5 - p4)) / 25));	// 50..74 //
 	else
-		return (p6);	/* >= 80 */
+		return (p6);	// >= 80 //
 }
 
 void handle_recall_spells(CHAR_DATA* ch)
@@ -165,7 +165,7 @@ void handle_recall_spells(CHAR_DATA* ch)
  * the HMV gain per tick, and _not_ the HMV maximums.
  */
 
-/* manapoint gain pr. game hour */
+// manapoint gain pr. game hour
 int mana_gain(CHAR_DATA * ch)
 {
 	int gain = 0, restore = int_app[GET_REAL_INT(ch)].mana_per_tic, percent = 100;
@@ -187,10 +187,10 @@ int mana_gain(CHAR_DATA * ch)
 		else
 			gain = mana_gain_cs[GET_REAL_INT(ch)];
 
-		/* Room specification    */
+		// Room specification
 		if (LIKE_ROOM(ch))
 			percent += 25;
-		/* Weather specification */
+		// Weather specification
 		if (average_day_temp() < -20)
 			percent -= 10;
 		else if (average_day_temp() < -10)
@@ -203,10 +203,10 @@ int mana_gain(CHAR_DATA * ch)
 	if (AFF_FLAGGED(ch, AFF_DEAFNESS))
 		percent += 15;
 
-	/* Skill/Spell calculations */
+	// Skill/Spell calculations
 
 
-	/* Position calculations    */
+	// Position calculations
 	if (ch->get_fighting())
 		percent -= 90;
 	else
@@ -266,7 +266,7 @@ int mana_gain(CHAR_DATA * ch)
 }
 
 
-/* Hitpoint gain pr. game hour */
+// Hitpoint gain pr. game hour
 int hit_gain(CHAR_DATA * ch)
 {
 	int gain = 0, restore = MAX(10, GET_REAL_CON(ch) * 3 / 2), percent = 100;
@@ -280,10 +280,10 @@ int hit_gain(CHAR_DATA * ch)
 		gain =
 			graf(age(ch)->year, restore - 3, restore, restore, restore - 2,
 				 restore - 3, restore - 5, restore - 7);
-		/* Room specification    */
+		// Room specification    //
 		if (LIKE_ROOM(ch))
 			percent += 25;
-		/* Weather specification */
+		// Weather specification //
 		if (average_day_temp() < -20)
 			percent -= 15;
 		else if (average_day_temp() < -10)
@@ -293,9 +293,9 @@ int hit_gain(CHAR_DATA * ch)
 	if (world[IN_ROOM(ch)]->fires)
 		percent += MAX(50, 10 + world[IN_ROOM(ch)]->fires * 5);
 
-	/* Skill/Spell calculations */
+	// Skill/Spell calculations //
 
-	/* Position calculations    */
+	// Position calculations    //
 	switch (GET_POS(ch))
 	{
 	case POS_SLEEPING:
@@ -335,7 +335,7 @@ int hit_gain(CHAR_DATA * ch)
 
 
 
-/* move gain pr. game hour */
+// move gain pr. game hour //
 int move_gain(CHAR_DATA * ch)
 {
 	int gain = 0, restore = GET_REAL_CON(ch) / 2, percent = 100;
@@ -349,10 +349,10 @@ int move_gain(CHAR_DATA * ch)
 		gain =
 			graf(age(ch)->year, 15 + restore, 20 + restore, 25 + restore,
 				 20 + restore, 16 + restore, 12 + restore, 8 + restore);
-		/* Room specification    */
+		// Room specification    //
 		if (LIKE_ROOM(ch))
 			percent += 25;
-		/* Weather specification */
+		// Weather specification //
 		if (average_day_temp() < -20)
 			percent -= 10;
 		else if (average_day_temp() < -10)
@@ -362,12 +362,12 @@ int move_gain(CHAR_DATA * ch)
 	if (world[IN_ROOM(ch)]->fires)
 		percent += MAX(50, 10 + world[IN_ROOM(ch)]->fires * 5);
 
-	/* Class/Level calculations */
+	// Class/Level calculations //
 
-	/* Skill/Spell calculations */
+	// Skill/Spell calculations //
 
 
-	/* Position calculations    */
+	// Position calculations    //
 	switch (GET_POS(ch))
 	{
 	case POS_SLEEPING:
@@ -662,7 +662,7 @@ void beat_points_update(int pulse)
 	if (!UPDATE_PC_ON_BEAT)
 		return;
 
-	/* only for PC's */
+	// only for PC's
 	for (i = character_list; i; i = next_char)
 	{
 		next_char = i->next;
@@ -812,7 +812,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 
 	if (gain > 0 && GET_LEVEL(ch) < LVL_IMMORT)
 	{
-		gain = MIN(max_exp_gain_pc(ch), gain);	/* put a cap on the max gain per kill */
+		gain = MIN(max_exp_gain_pc(ch), gain);	// put a cap on the max gain per kill
 		ch->set_exp(ch->get_exp() + gain);
 		if (GET_EXP(ch) >= level_exp(ch, LVL_IMMORT))
 		{
@@ -845,7 +845,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 	}
 	else if (gain < 0 && GET_LEVEL(ch) < LVL_IMMORT)
 	{
-		gain = MAX(-max_exp_loss_pc(ch), gain);	/* Cap max exp lost per death */
+		gain = MAX(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
 		ch->set_exp(ch->get_exp() + gain);
 		if (CLAN(ch))
 		{
@@ -922,7 +922,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 		else if (gain < 0)
 		{
 // Pereplut: глупый участок кода.
-//			gain = MAX(-max_exp_loss_pc(ch), gain);	/* Cap max exp lost per death */
+//			gain = MAX(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
 //			GET_EXP(ch) += gain;
 //			if (GET_EXP(ch) < 0)
 //				GET_EXP(ch) = 0;
@@ -1067,7 +1067,7 @@ void check_idling(CHAR_DATA * ch)
 
 
 
-/* Update PCs, NPCs, and objects */
+// Update PCs, NPCs, and objects
 #define NO_DESTROY(obj) ((obj)->carried_by   || \
                          (obj)->worn_by      || \
                          (obj)->in_obj       || \
@@ -1076,7 +1076,7 @@ void check_idling(CHAR_DATA * ch)
 	                 obj->in_room == NOWHERE || \
 			 (OBJ_FLAGGED(obj, ITEM_NODECAY) && !ROOM_FLAGGED(obj->in_room, ROOM_DEATH)))
 #define NO_TIMER(obj)   (GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN)
-/* || OBJ_FLAGGED(obj, ITEM_NODECAY)) */
+// || OBJ_FLAGGED(obj, ITEM_NODECAY))
 
 int up_obj_where(OBJ_DATA * obj)
 {
@@ -1258,9 +1258,7 @@ void exchange_point_update()
 
 }
 
-/**
-* Оповещение о дикее шмотки из храна в клан-канал.
-*/
+// * Оповещение о дикее шмотки из храна в клан-канал.
 void clan_chest_invoice(OBJ_DATA *j)
 {
 	const int room = GET_ROOM_VNUM(j->in_obj->in_room);
@@ -1306,9 +1304,7 @@ void clan_chest_invoice(OBJ_DATA *j)
 	}
 }
 
-/**
-* Дикей шмоток в клан-хране.
-*/
+// * Дикей шмоток в клан-хране.
 void clan_chest_point_update(OBJ_DATA *j)
 {
 	if (j->get_timer() > 0)
@@ -1328,7 +1324,7 @@ void clan_chest_point_update(OBJ_DATA *j)
 	}
 }
 
-/* симуляция телла чармиса при дикее стафа по таймеру */
+// симуляция телла чармиса при дикее стафа по таймеру
 /* параметр where определяет положение вещи:
    0: руки или инвентарь
    1: экипа
@@ -1337,7 +1333,7 @@ void clan_chest_point_update(OBJ_DATA *j)
 void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 {
 	char buf[MAX_STRING_LENGTH];
-	char buf1[128]; /* ну не лепить же сюда malloc */
+	char buf1[128]; // ну не лепить же сюда malloc
 
 	if (!charmee->master)
 		return;
@@ -1349,7 +1345,7 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 	else if (where == 2 && obj->in_obj)
 		snprintf(buf1, 128, "в %s", obj->in_obj->PNames[5]);
 	else
-		sprintf(buf1, "непонятно где"); /* для дебага -- сюда выполнение доходить не должно */
+		sprintf(buf1, "непонятно где"); // для дебага -- сюда выполнение доходить не должно
 
 	/*
 	   реализация телла не самая красивая, но ничего более подходящего придумать не удается:
@@ -1373,7 +1369,7 @@ void obj_point_update()
 
 	for (j = object_list; j; j = next_thing)
 	{
-		next_thing = j->next;	/* Next in object list */
+		next_thing = j->next;	// Next in object list
 
 		// смотрим клан-сундуки
 		if (j->in_obj && Clan::is_clan_chest(j->in_obj))
@@ -1415,8 +1411,8 @@ void obj_point_update()
 			}
 		}
 
-		/* If this is a corpse */
-		if (IS_CORPSE(j))  	/* timer count down */
+		// If this is a corpse
+		if (IS_CORPSE(j))  	// timer count down
 		{
 			if (j->get_timer() > 0)
 			{
@@ -1426,7 +1422,7 @@ void obj_point_update()
 			{
 				for (jj = j->contains; jj; jj = next_thing2)
 				{
-					next_thing2 = jj->next_content;	/* Next in inventory */
+					next_thing2 = jj->next_content;	// Next in inventory
 					obj_from_obj(jj);
 					if (j->in_obj)
 						obj_to_obj(jj, j->in_obj);
@@ -1443,7 +1439,7 @@ void obj_point_update()
 					}
 				}
 				// Добавлено Ладником
-//              next_thing = j->next; /* пурж по obj_to_room я убрал, но пускай на всякий случай */
+//              next_thing = j->next; // пурж по obj_to_room я убрал, но пускай на всякий случай
 				// Конец Ладник
 				if (j->carried_by)
 				{
@@ -1466,8 +1462,8 @@ void obj_point_update()
 				extract_obj(j);
 			}
 		}
-		/* If the timer is set, count it down and at 0, try the trigger */
-		/* note to .rej hand-patchers: make this last in your point-update() */
+		// If the timer is set, count it down and at 0, try the trigger
+		// note to .rej hand-patchers: make this last in your point-update()
 		else
 		{
 			if (SCRIPT_CHECK(j, OTRIG_TIMER))
@@ -1498,7 +1494,7 @@ void obj_point_update()
 					|| (j->get_timer() <= 0 && !NO_TIMER(j))
 					|| (GET_OBJ_DESTROY(j) == 0 && !NO_DESTROY(j))))
 			{
-				/**** рассыпание объекта */
+				// *** рассыпание объекта
 				for (jj = j->contains; jj; jj = next_thing2)
 				{
 					next_thing2 = jj->next_content;
@@ -1520,7 +1516,7 @@ void obj_point_update()
 					}
 				}
 				// Добавлено Ладником
-//              next_thing = j->next; /* пурж по obj_to_room я убрал, но пускай на всякий случай */
+//              next_thing = j->next; // пурж по obj_to_room я убрал, но пускай на всякий случай
 				// Конец Ладник
 				if (j->worn_by)
 				{
@@ -1565,7 +1561,7 @@ void obj_point_update()
 					obj_from_room(j);
 				}
 				else if (j->in_obj) {
-					/* если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем */
+					// если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем
 					CHAR_DATA *cont_owner = NULL;
 					if (j->in_obj->carried_by)
 						cont_owner = j->in_obj->carried_by;
@@ -1592,7 +1588,7 @@ void obj_point_update()
 				if (!j)
 					continue;
 
-				/* decay poision && other affects */
+				// decay poision && other affects
 				for (count = 0; count < MAX_OBJ_AFFECT; count++)
 				{
 					if (j->affected[count].location == APPLY_POISON)
@@ -1609,10 +1605,10 @@ void obj_point_update()
 		}
 	}
 
-	/* Тонущие, падающие, и сыпящиеся обьекты. */
+	// Тонущие, падающие, и сыпящиеся обьекты.
 	for (j = object_list; j; j = next_thing)
 	{
-		next_thing = j->next;	/* Next in object list */
+		next_thing = j->next;	// Next in object list
 		if (j->contains)
 		{
 			cont = TRUE;
@@ -1650,7 +1646,7 @@ void point_update(void)
 		real_spell[MAX_SPELLS - spellnum] = buffer_mem[count];
 		for (; count < MAX_SPELLS; buffer_mem[count] = buffer_mem[count + 1], count++);
 	}
-	/* characters */
+	// characters
 	for (i = character_list; i; i = next_char)
 	{
 		next_char = i->next;
@@ -1681,7 +1677,7 @@ void point_update(void)
 				gain_condition(i, THIRST, -1);
 
 		}
-		if (GET_POS(i) >= POS_STUNNED)  	/* Restore hitpoints */
+		if (GET_POS(i) >= POS_STUNNED)  	// Restore hitpoints
 		{
 			if (IS_NPC(i) || !UPDATE_PC_ON_BEAT)
 			{
@@ -1819,7 +1815,7 @@ void point_update(void)
 }
 
 void repop_decay(zone_rnum zone)
-{				/* рассыпание обьектов ITEM_REPOP_DECAY */
+{				// рассыпание обьектов ITEM_REPOP_DECAY
 	OBJ_DATA *j, *next_thing;
 	int cont = FALSE;
 	zone_vnum obj_zone_num, zone_num;
@@ -1827,7 +1823,7 @@ void repop_decay(zone_rnum zone)
 	zone_num = zone_table[zone].number;
 	for (j = object_list; j; j = next_thing)
 	{
-		next_thing = j->next;	/* Next in object list */
+		next_thing = j->next;	// Next in object list
 		if (j->contains)
 		{
 			cont = TRUE;

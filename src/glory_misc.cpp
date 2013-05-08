@@ -37,9 +37,7 @@ typedef std::multimap<time_t /* время */, GloryLogPtr> GloryLogType;
 // лог манипуляций со славой
 GloryLogType glory_log;
 
-/**
-* Загрузка лога славы.
-*/
+// * Загрузка лога славы.
 void load_log()
 {
 	const char *glory_file = "../log/glory.log";
@@ -97,9 +95,7 @@ void load_log()
 	}
 }
 
-/**
-* Сохранение лога славы.
-*/
+// * Сохранение лога славы.
 void save_log()
 {
 	std::stringstream out;
@@ -118,9 +114,7 @@ void save_log()
 	file.close();
 }
 
-/**
-* Добавление записи в лог славы (время, тип, кол-во, строка из кармы).
-*/
+// * Добавление записи в лог славы (время, тип, кол-во, строка из кармы).
 void add_log(int type, int num, std::string punish, std::string reason, CHAR_DATA *vict)
 {
 	if (!vict || !GET_NAME(vict)) return;
@@ -183,9 +177,7 @@ void show_log(CHAR_DATA *ch , char const * const value)
 	page_string(ch->desc, out.str());
 }
 
-/**
-* Суммарное кол-во стартовых статов у чара (должно совпадать с SUM_ALL_STATS)
-*/
+// * Суммарное кол-во стартовых статов у чара (должно совпадать с SUM_ALL_STATS)
 int start_stats_count(CHAR_DATA *ch)
 {
 	int count = 0;
@@ -302,9 +294,7 @@ bool check_stats(CHAR_DATA *ch)
 	return 1;
 }
 
-/**
-* Пересчет статов чара на основании стартовых статов, ремортов и славы.
-*/
+// * Пересчет статов чара на основании стартовых статов, ремортов и славы.
 void recalculate_stats(CHAR_DATA *ch)
 {
 	// стартовые статы

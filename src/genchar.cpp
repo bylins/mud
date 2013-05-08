@@ -33,39 +33,39 @@ const char *genchar_help =
 	"закончить генерацию и войти в игру.\r\n";
 
 int max_stats[][6] =
-	/* Str Dex Int Wis Con Cha */
-{ {14, 13, 24, 25, 15, 10},	/* Лекарь */
-	{14, 12, 25, 23, 13, 16},	/* Колдун */
-	{19, 25, 12, 12, 17, 16},	/* Вор */
-	{25, 11, 15, 15, 25, 10},	/* Богатырь */
-	{22, 24, 14, 14, 17, 12},	/* Наемник */
-	{23, 17, 14, 14, 23, 12},	/* Дружинник */
-	{14, 12, 25, 23, 13, 16},	/* Кудесник */
-	{14, 12, 25, 23, 13, 16},	/* Волшебник */
-	{15, 13, 25, 23, 14, 12},	/* Чернокнижник */
-	{22, 13, 16, 19, 18, 17},	/* Витязь */
-	{25, 21, 16, 16, 18, 16},	/* Охотник */
-	{25, 17, 13, 15, 20, 16},	/* Кузнец */
-	{21, 17, 14, 13, 20, 17},	/* Купец */
-	{18, 12, 24, 18, 15, 12}	/* Волхв */
+	// Str Dex Int Wis Con Cha
+{ {14, 13, 24, 25, 15, 10},	// Лекарь //
+	{14, 12, 25, 23, 13, 16},	// Колдун //
+	{19, 25, 12, 12, 17, 16},	// Вор //
+	{25, 11, 15, 15, 25, 10},	// Богатырь //
+	{22, 24, 14, 14, 17, 12},	// Наемник //
+	{23, 17, 14, 14, 23, 12},	// Дружинник //
+	{14, 12, 25, 23, 13, 16},	// Кудесник //
+	{14, 12, 25, 23, 13, 16},	// Волшебник //
+	{15, 13, 25, 23, 14, 12},	// Чернокнижник //
+	{22, 13, 16, 19, 18, 17},	// Витязь //
+	{25, 21, 16, 16, 18, 16},	// Охотник //
+	{25, 17, 13, 15, 20, 16},	// Кузнец //
+	{21, 17, 14, 13, 20, 17},	// Купец //
+	{18, 12, 24, 18, 15, 12}	// Волхв //
 };
 
 int min_stats[][6] =
-	/* Str Dex Int Wis Con Cha */
-{ {11, 10, 19, 20, 12, 10},	/* Лекарь */
-	{10,  9, 20, 18, 10, 13},	/* Колдун */
-	{16, 22,  9,  9, 14, 13},	/* Вор */
-	{21,  8, 11, 11, 22, 10},	/* Богатырь */
-	{17, 19, 11, 11, 14, 12},	/* Наемник */
-	{20, 14, 10, 10, 17, 12},	/* Дружинник */
-	{10,  9, 20, 18, 10, 13},	/* Кудесник */
-	{10,  9, 20, 18, 10, 13},	/* Волшебник */
-	{ 9,  9, 20, 20, 11, 10},	/* Чернокнижник */
-	{19, 10, 12, 15, 14, 13},	/* Витязь */
-	{19, 15, 11, 11, 14, 11},	/* Охотник */
-	{20, 14, 10, 11, 14, 12},	/* Кузнец */
-	{18, 14, 10, 10, 14, 13},	/* Купец */
-	{15, 10, 19, 15, 12, 12}	/* Волхв */
+	// Str Dex Int Wis Con Cha //
+{ {11, 10, 19, 20, 12, 10},	// Лекарь //
+	{10,  9, 20, 18, 10, 13},	// Колдун //
+	{16, 22,  9,  9, 14, 13},	// Вор //
+	{21,  8, 11, 11, 22, 10},	// Богатырь //
+	{17, 19, 11, 11, 14, 12},	// Наемник //
+	{20, 14, 10, 10, 17, 12},	// Дружинник //
+	{10,  9, 20, 18, 10, 13},	// Кудесник //
+	{10,  9, 20, 18, 10, 13},	// Волшебник //
+	{ 9,  9, 20, 20, 11, 10},	// Чернокнижник //
+	{19, 10, 12, 15, 14, 13},	// Витязь //
+	{19, 15, 11, 11, 14, 11},	// Охотник //
+	{20, 14, 10, 11, 14, 12},	// Кузнец //
+	{18, 14, 10, 10, 14, 13},	// Купец //
+	{15, 10, 19, 15, 12, 12}	// Волхв //
 };
 
 void genchar_disp_menu(CHAR_DATA * ch)
@@ -197,7 +197,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}		// 92/88 roll 6/4
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_wis(ch->get_wis() + 2);
 		ch->set_int(ch->get_int() + 1);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
@@ -222,7 +222,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}		// 92/87 roll 9/5
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_wis(ch->get_wis() + 1);
 		ch->set_int(ch->get_int() + 2);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 180);
@@ -245,7 +245,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}	// 96/84
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_con(ch->get_con() + 1);
 		ch->set_int(ch->get_int() + 2);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 180);
@@ -268,7 +268,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}	// 96/88
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_dex(ch->get_dex() + 2);
 		ch->set_cha(ch->get_cha()+ 1);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
@@ -291,7 +291,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}		// 92/87 roll 8/5
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_str(ch->get_str() + 1);
 		ch->set_con(ch->get_con() + 2);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(165, 180) : number(170, 200);
@@ -314,7 +314,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}	// 95/89
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_str(ch->get_str() + 1);
 		ch->set_con(ch->get_con() + 1);
 		ch->set_dex(ch->get_dex() + 1);
@@ -338,7 +338,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}		// 92/87 roll 8/5
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_str(ch->get_str() + 1);
 		ch->set_dex(ch->get_dex() + 1);
 		ch->set_con(ch->get_con() + 1);
@@ -362,7 +362,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}		// 92/87 roll 11/5
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_str(ch->get_str() + 1);
 		ch->set_cha(ch->get_cha() + 1);
 		ch->set_wis(ch->get_wis() + 1);
@@ -387,7 +387,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}		// 92/85 roll 10/7
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_str(ch->get_str() + 1);
 		ch->set_dex(ch->get_dex() + 2);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
@@ -410,7 +410,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}		// 92/85 roll 11/7
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_str(ch->get_str() + 2);
 		ch->set_cha(ch->get_cha() + 1);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(160, 180) : number(170, 200);
@@ -433,7 +433,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}		// 92/87 roll 9/5
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_con(ch->get_con() + 2);
 		ch->set_cha(ch->get_cha() + 1);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 190);
@@ -456,7 +456,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		}		// 92/89 roll 5/3
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
-		/* ADD SPECIFIC STATS */
+		// ADD SPECIFIC STATS
 		ch->set_str(ch->get_str() + 1);
 		ch->set_int(ch->get_int() + 2);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);

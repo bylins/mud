@@ -84,7 +84,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 }
 
-/* 29.11.09 Увеличиваем счетчики рипов (с) Василиса */
+// 29.11.09 Увеличиваем счетчики рипов (с) Василиса
 //edited by WorM
 void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 {
@@ -174,7 +174,7 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 	}
 }
 //end by WorM
-/*конец правки (с) Василиса */
+//конец правки (с) Василиса
 
 void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 {
@@ -245,9 +245,9 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 			send_to_char(buf, ch);
 		}
 
-		/* Вычисляем замакс по мобам */
-		/* Решил немножко переделать, чтобы короче получилось,         */
-		/* кроме того, исправил ошибку с присутствием лидера в комнате */
+		// Вычисляем замакс по мобам
+		// Решил немножко переделать, чтобы короче получилось,
+		// кроме того, исправил ошибку с присутствием лидера в комнате
 		if (IS_NPC(ch) && killer)
 		{
 			process_mobmax(ch, killer);
@@ -263,9 +263,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 	raw_kill(ch, killer);
 }
 
-/**
-* Снятие аффектов с чара при смерти/уходе в дт.
-*/
+// * Снятие аффектов с чара при смерти/уходе в дт.
 void reset_affects(CHAR_DATA *ch)
 {
 	AFFECT_DATA *af, *naf;
@@ -496,7 +494,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	{
 		forget_all_spells(ch);
 		clear_mobs_memory(ch);
-		/* Если убит в бою - то может выйти из игры */
+		// Если убит в бою - то может выйти из игры
 		RENTABLE(ch) = 0;
 		AGRESSOR(ch) = 0;
 		AGRO(ch) = 0;
@@ -582,7 +580,7 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 	return (exp);
 }
 
-/* When ch kills victim */
+// When ch kills victim
 void change_alignment(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	/*
@@ -781,9 +779,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 	}
 }
 
-/* Alterate equipment
- *
- */
+// * Alterate equipment
 void alterate_object(OBJ_DATA * obj, int dam, int chance)
 {
 	if (!obj)
@@ -875,7 +871,7 @@ char *replace_string(const char *str, const char *weapon_singular, const char *w
 			*(cp++) = *str;
 
 		*cp = 0;
-	}			/* For */
+	}			// For
 
 	return (buf);
 }
@@ -943,7 +939,7 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 			send_to_char("Вы мертвы! Нам очень жаль...\r\n", victim);
 		}
 		break;
-	default:		/* >= POSITION SLEEPING */
+	default:		// >= POSITION SLEEPING
 		if (dam > (GET_REAL_MAX_HIT(victim) / 4))
 			send_to_char("Это действительно БОЛЬНО!\r\n", victim);
 

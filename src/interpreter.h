@@ -57,11 +57,10 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum);
 int find_name(const char *name);
 
 char *delete_doubledollar(char *string);
-/** Cоответствие классов и религий (Кард)*/
+// Cоответствие классов и религий (Кард)
 extern const int class_religion[];
-/****/
 
-/* for compatibility with 2.20: */
+// for compatibility with 2.20:
 #define argument_interpreter(a, b, c) two_arguments(a, b, c)
 
 
@@ -110,7 +109,7 @@ struct alias_data
  *   subcommands are independent from function to function.
  */
 
-/* directions */
+// directions
 #define SCMD_NORTH   1
 #define SCMD_EAST 2
 #define SCMD_SOUTH   3
@@ -118,7 +117,7 @@ struct alias_data
 #define SCMD_UP      5
 #define SCMD_DOWN 6
 
-/* do_gen_ps */
+// do_gen_ps
 #define SCMD_INFO       0
 #define SCMD_HANDBOOK   1
 #define SCMD_CREDITS    2
@@ -132,7 +131,7 @@ struct alias_data
 #define SCMD_CLEAR     10
 #define SCMD_WHOAMI    11
 
-/* do_gen_tog */
+// do_gen_tog
 #define SCMD_NOSUMMON   0
 #define SCMD_NOHASSLE   1
 #define SCMD_BRIEF      2
@@ -182,7 +181,7 @@ struct alias_data
 #define SCMD_REMEMBER      46
 #define SCMD_NOTIFY_EXCH   47
 
-/* do_wizutil */
+// do_wizutil
 #define SCMD_REROLL     0
 #define SCMD_NOTITLE    1
 #define SCMD_SQUELCH    2
@@ -195,100 +194,100 @@ struct alias_data
 #define SCMD_DUMB       9
 #define SCMD_UNREGISTER 10
 
-/* do_spec_com */
+// do_spec_com
 #define SCMD_WHISPER 0
 #define SCMD_ASK  1
 
-/* do_gen_com */
+// do_gen_com
 #define SCMD_HOLLER  0
 #define SCMD_SHOUT   1
 #define SCMD_GOSSIP  2
 #define SCMD_AUCTION 3
 
-/* do_shutdown */
+// do_shutdown
 #define SCMD_SHUTDOW 0
 #define SCMD_SHUTDOWN   1
 
-/* do_quit */
+// do_quit 
 #define SCMD_QUI  0
 #define SCMD_QUIT 1
 
-/* do_date */
+// do_date 
 #define SCMD_DATE 0
 #define SCMD_UPTIME  1
 
 
-/* do_commands */
+// do_commands 
 #define SCMD_COMMANDS   0
 #define SCMD_SOCIALS 1
 #define SCMD_WIZHELP 2
 
-/* do_fit */
+// do_fit 
 #define SCMD_DO_ADAPT 0
 #define SCMD_MAKE_OVER 1
 
-/*  do helpee */
+//  do helpee 
 #define SCMD_BUYHELPEE  0
 #define SCMD_FREEHELPEE 1
 
-/* do_drop */
+// do_drop 
 #define SCMD_DROP 0
 #define SCMD_JUNK 1
 #define SCMD_DONATE  2
 
-/* do_pray */
+// do_pray 
 #define SCMD_PRAY   0
 
-/* do_gen_write */
+// do_gen_write 
 #define SCMD_BUG  0
 #define SCMD_TYPO 1
 #define SCMD_IDEA 2
 
-/* do_look */
+// do_look 
 #define SCMD_LOOK    0
 #define SCMD_READ    1
 #define SCMD_LOOK_HIDE 2
 
-/* do_pour */
+// do_pour 
 #define SCMD_POUR 0
 #define SCMD_FILL 1
 
-/* do_poof */
+// do_poof 
 #define SCMD_POOFIN  0
 #define SCMD_POOFOUT 1
 
-/* do_hit */
+// do_hit 
 #define SCMD_HIT  0
 #define SCMD_MURDER  1
 
-/* do_eat */
+// do_eat 
 #define SCMD_EAT  0
 #define SCMD_TASTE   1
 #define SCMD_DRINK   2
 #define SCMD_SIP  3
 #define SCMD_DEVOUR 4
 
-/* do_use */
+// do_use 
 #define SCMD_USE  0
 #define SCMD_QUAFF   1
 #define SCMD_RECITE  2
 
-/* do_echo */
+// do_echo 
 #define SCMD_ECHO 0
 #define SCMD_EMOTE   1
 
-/* do_gen_door */
+// do_gen_door 
 #define SCMD_OPEN       0
 #define SCMD_CLOSE      1
 #define SCMD_UNLOCK     2
 #define SCMD_LOCK       3
 #define SCMD_PICK       4
 
-/* do_mixture */
+// do_mixture 
 #define SCMD_ITEMS      0
 #define SCMD_RUNES      1
 
-/*. do_olc .*/
+//. do_olc .
 #define SCMD_OLC_REDIT  0
 #define SCMD_OLC_OEDIT  1
 #define SCMD_OLC_ZEDIT  2
@@ -299,21 +298,21 @@ struct alias_data
 
 #define SCMD_RECIPE        1
 
-/*. do_liblist .*/
+//. do_liblist .
 #define SCMD_OLIST      0
 #define SCMD_MLIST      1
 #define SCMD_RLIST      2
 #define SCMD_ZLIST      3
 
-/* do_wake*/
+// do_wake
 #define SCMD_WAKE 0
 #define SCMD_WAKEUP  1
 
-/* do_hchannel */
+// do_hchannel 
 #define SCMD_CHANNEL 0
 #define SCMD_ACHANNEL 1
 
-/* do_restore*/
+// do_restore
 #define SCMD_RESTORE_GOD 0
 #define SCMD_RESTORE_TRIGGER 1
 
@@ -350,9 +349,7 @@ template<class T>T one_argument(T argument, char *first_arg)
 	return (argument);
 }
 
-/**
-* same as one_argument except that it doesn't ignore fill words
-*/
+// * same as one_argument except that it doesn't ignore fill words
 template<class T> T any_one_arg(T argument, char *first_arg)
 {
 	if (!argument)
@@ -417,12 +414,12 @@ template<class T> T one_word(T argument, char *first_arg)
 */
 template<class T> T two_arguments(T argument, char *first_arg, char *second_arg)
 {
-	return (one_argument(one_argument(argument, first_arg), second_arg));	/* :-) */
+	return (one_argument(one_argument(argument, first_arg), second_arg));
 }
 
 template<class T> T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg)
 {
-	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));	/* :-) */
+	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));
 }
 
 // константы для спам-контроля команды кто

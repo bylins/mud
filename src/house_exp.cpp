@@ -28,17 +28,13 @@ const unsigned MAX_CHEST_LOG = 5000;
 
 } // namespace
 
-/**
-* Добавление экспы во временный буффер.
-*/
+// * Добавление экспы во временный буффер.
 void ClanExp::add_temp(int exp)
 {
 	buffer_exp_ += exp;
 }
 
-/**
-* Добавление ноды в список экспы и выталкивание старой записи.
-*/
+// * Добавление ноды в список экспы и выталкивание старой записи.
 void ClanExp::add_chunk()
 {
 	list_.push_back(buffer_exp_);
@@ -50,17 +46,13 @@ void ClanExp::add_chunk()
 	update_total_exp();
 }
 
-/**
-* Общее кол-во экспы в списке.
-*/
+// * Общее кол-во экспы в списке.
 long long ClanExp::get_exp() const
 {
 	return total_exp_;
 }
 
-/**
-* Сохранение списка и буффера в отдельный файл клана (по аббревиатуре).
-*/
+// * Сохранение списка и буффера в отдельный файл клана (по аббревиатуре).
 void ClanExp::save(const std::string &abbrev) const
 {
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".exp";
@@ -79,9 +71,7 @@ void ClanExp::save(const std::string &abbrev) const
 	file << out.rdbuf();
 }
 
-/**
-* Загрузка списка экспы и буффера конкретного клана (по аббревиатуре).
-*/
+// * Загрузка списка экспы и буффера конкретного клана (по аббревиатуре).
 void ClanExp::load(const std::string &abbrev)
 {
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".exp";
@@ -113,9 +103,7 @@ void ClanExp::update_total_exp()
 	}
 }
 
-/**
-* Добавление ноды (раз в час).
-*/
+// * Добавление ноды (раз в час).
 void update_clan_exp()
 {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
@@ -124,9 +112,7 @@ void update_clan_exp()
 	}
 }
 
-/**
-* Сохранение списков (раз в час и на ребуте).
-*/
+// * Сохранение списков (раз в час и на ребуте).
 void save_clan_exp()
 {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)

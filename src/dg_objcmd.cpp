@@ -52,13 +52,13 @@ struct obj_command_info
 };
 
 
-/* do_osend */
+// do_osend 
 #define SCMD_OSEND         0
 #define SCMD_OECHOAROUND   1
 
 
 
-/* attaches object name and vnum to msg and sends it to script_log */
+// attaches object name and vnum to msg and sends it to script_log 
 void obj_log(OBJ_DATA * obj, const char *msg, const int type = 0)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
@@ -68,7 +68,7 @@ void obj_log(OBJ_DATA * obj, const char *msg, const int type = 0)
 }
 
 
-/* returns the real room number that the object or object's carrier is in */
+// returns the real room number that the object or object's carrier is in 
 int obj_room(OBJ_DATA * obj)
 {
 	if (obj->in_room != NOWHERE)
@@ -84,7 +84,7 @@ int obj_room(OBJ_DATA * obj)
 }
 
 
-/* returns the real room number, or NOWHERE if not found or invalid */
+// returns the real room number, or NOWHERE if not found or invalid 
 int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 {
 	int tmp;
@@ -116,7 +116,7 @@ int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 	else
 		return NOWHERE;
 
-	/* a room has been found.  Check for permission */
+	// a room has been found.  Check for permission 
 	if (ROOM_FLAGGED(location, ROOM_GODROOM) ||
 #ifdef ROOM_IMPROOM
 			ROOM_FLAGGED(location, ROOM_IMPROOM) ||
@@ -129,7 +129,7 @@ int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 
 
 
-/* Object commands */
+// Object commands 
 
 OCMD(do_oecho)
 {
@@ -226,7 +226,7 @@ OCMD(do_osend)
 		obj_log(obj, "no target found for osend");
 }
 
-/* increases the target's exp */
+// increases the target's exp 
 OCMD(do_oexp)
 {
 	CHAR_DATA *ch;
@@ -250,7 +250,7 @@ OCMD(do_oexp)
 }
 
 
-/* set the object's timer value */
+// set the object's timer value 
 OCMD(do_otimer)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -268,9 +268,9 @@ OCMD(do_otimer)
 }
 
 
-/* transform into a different object */
-/* note: this shouldn't be used with containers unless both objects */
-/* are containers! */
+// transform into a different object 
+// note: this shouldn't be used with containers unless both objects 
+// are containers! 
 OCMD(do_otransform)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -354,7 +354,7 @@ OCMD(do_otransform)
 }
 
 
-/* purge all objects an npcs in room, or specified object or mob */
+// purge all objects an npcs in room, or specified object or mob 
 OCMD(do_opurge)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -654,7 +654,7 @@ OCMD(do_odoor)
 
 	exit = rm->dir_option[dir];
 
-	/* purge exit */
+	// purge exit
 	if (fd == 0)
 	{
 		if (exit)
@@ -682,20 +682,20 @@ OCMD(do_odoor)
 
 		switch (fd)
 		{
-		case 1:	/* description */
+		case 1:	// description 
 			if (exit->general_description)
 				free(exit->general_description);
 			CREATE(exit->general_description, char, strlen(value) + 3);
 			strcpy(exit->general_description, value);
 			strcat(exit->general_description, "\r\n");
 			break;
-		case 2:	/* flags       */
+		case 2:	// flags       
 			asciiflag_conv(value, &exit->exit_info);
 			break;
-		case 3:	/* key         */
+		case 3:	// key         
 			exit->key = atoi(value);
 			break;
-		case 4:	/* name        */
+		case 4:	// name        
 			if (exit->keyword)
 				free(exit->keyword);
 			if (exit->vkeyword)
@@ -715,13 +715,13 @@ OCMD(do_odoor)
 //			CREATE(exit->keyword, char, strlen(value) + 1);
 //			strcpy(exit->keyword, value);
 			break;
-		case 5:	/* room        */
+		case 5:	// room        
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
 				exit->to_room = to_room;
 			else
 				obj_log(obj, "odoor: invalid door target");
 			break;
-		case 6:	/* lock - сложность замка         */
+		case 6:	// lock - сложность замка         
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))
 				exit->lock_complexity = lock;
@@ -1040,7 +1040,7 @@ OCMD(do_ospellitem)
 
 const struct obj_command_info obj_cmd_info[] =
 {
-	{"RESERVED", 0, 0},	/* this must be first -- for specprocs */
+	{"RESERVED", 0, 0},	// this must be first -- for specprocs
 
 	{"oecho", do_oecho, 0},
 	{"oechoaround", do_osend, SCMD_OECHOAROUND},
@@ -1062,14 +1062,12 @@ const struct obj_command_info obj_cmd_info[] =
 	{"oskilladd", do_oskilladd, 0},
 	{"ospellitem", do_ospellitem, 0},
 
-	{"\n", 0, 0}		/* this must be last */
+	{"\n", 0, 0}		// this must be last
 };
 
 
 
-/*
- *  This is the command interpreter used by objects, called by script_driver.
- */
+// *  This is the command interpreter used by objects, called by script_driver.
 void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 {
 	int cmd, length;
@@ -1077,14 +1075,14 @@ void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 
 	skip_spaces(&argument);
 
-	/* just drop to next line for hitting CR */
+	// just drop to next line for hitting CR
 	if (!*argument)
 		return;
 
 	line = any_one_arg(argument, arg);
 
 
-	/* find the command */
+	// find the command
 	for (length = strlen(arg), cmd = 0; *obj_cmd_info[cmd].command != '\n'; cmd++)
 		if (!strncmp(obj_cmd_info[cmd].command, arg, length))
 			break;

@@ -128,9 +128,7 @@ void transfer_log(const char *format, ...)
 	fclose(file);
 }
 
-/**
-* Аналог бывшего макроса GET_GLORY().
-*/
+// * Аналог бывшего макроса GET_GLORY().
 int get_glory(long uid)
 {
 	int glory = 0;
@@ -142,9 +140,7 @@ int get_glory(long uid)
 	return glory;
 }
 
-/**
-* Добавление славы чару, создание новой записи при необходимости, уведомление, если чар онлайн.
-*/
+// * Добавление славы чару, создание новой записи при необходимости, уведомление, если чар онлайн.
 void add_glory(long uid, int amount)
 {
 	if (uid <= 0 || amount <= 0)
@@ -189,9 +185,7 @@ int stat_multi(int stat)
 	return multi;
 }
 
-/**
-* Распечатка 'слава информация'.
-*/
+// * Распечатка 'слава информация'.
 void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 {
 	*buf = '\0';
@@ -213,9 +207,7 @@ void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 	return;
 }
 
-/**
-* Показ свободной и вложенной славы у чара (glory имя).
-*/
+// * Показ свободной и вложенной славы у чара (glory имя).
 void print_to_god(CHAR_DATA *ch, CHAR_DATA *god)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
@@ -318,9 +310,7 @@ std::string olc_print_stat(CHAR_DATA *ch, int stat)
 		% CCNRM(ch, C_NRM));
 }
 
-/**
-* Распечатка олц меню.
-*/
+// * Распечатка олц меню.
 void spend_glory_menu(CHAR_DATA *ch)
 {
 	std::ostringstream out;
@@ -1062,9 +1052,7 @@ void set_stats(CHAR_DATA *ch)
 	}
 }
 
-/**
- * Количество вложенных статов (только из числа 6 основных).
- */
+// * Количество вложенных статов (только из числа 6 основных).
 int main_stats_count(CHAR_DATA *ch)
 {
 	GloryListType::iterator i = glory_list.find(GET_UNIQUE(ch));
@@ -1092,9 +1080,7 @@ int main_stats_count(CHAR_DATA *ch)
 	return count;
 }
 
-/**
-* Вывод инфы в show stats.
-*/
+// * Вывод инфы в show stats.
 void show_stats(CHAR_DATA *ch)
 {
 	int free_glory = 0, spend_glory = 0;

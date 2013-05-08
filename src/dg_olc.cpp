@@ -26,7 +26,7 @@
 #include "char.hpp"
 #include "room.hpp"
 
-/* declare externally defined globals */
+// declare externally defined globals
 extern INDEX_DATA **trig_index;
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -36,7 +36,7 @@ extern struct zone_data *zone_table;
 
 void free_script(SCRIPT_DATA * sc);
 
-/* prototype externally defined functions */
+// prototype externally defined functions
 void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void free_varlist(struct trig_var_data *vd);
 
@@ -46,7 +46,7 @@ void trigedit_create_index(int znum, const char *type);
 char * indent_trigger(char * cmd , int * level);
 
 #if 0
-/* copy an entire script from one holder (mob/obj/room) to another */
+// copy an entire script from one holder (mob/obj/room) to another
 void script_copy(void *dst, void *src, int type)
 /*++
    Копирование скрипта в составе:
@@ -61,7 +61,7 @@ void script_copy(void *dst, void *src, int type)
 	SCRIPT_DATA **s_dst;
 	TRIG_DATA *t_src, **pt_dst;
 
-	/* find the scripts of the source and destination */
+	// find the scripts of the source and destination
 	switch (type)
 	{
 	case MOB_TRIGGER:
@@ -87,13 +87,13 @@ void script_copy(void *dst, void *src, int type)
 		return;
 	}
 
-	/* make sure the dst doesnt already have a script       */
-	/* if it does, delete it                                */
+	// make sure the dst doesnt already have a script
+	// if it does, delete it
 	// free_script именно УДАЛЯЕТ со всеми потрохами
 	free_script(s_dst[0]);
 	CREATE(s_dst[0], SCRIPT_DATA, 1);
 
-	/* copy the scrip data */
+	// copy the scrip data
 	s_dst[0]->types = s_src->types;
 	s_dst[0]->context = 0;
 
@@ -109,8 +109,8 @@ void script_copy(void *dst, void *src, int type)
 }
 #endif
 
-/* called when a mob or object is being saved to disk, so its script can */
-/* be saved */
+// called when a mob or object is being saved to disk, so its script can
+// be saved
 void script_save_to_disk(FILE * fp, void *item, int type)
 {
 	struct trig_proto_list *t;
@@ -153,13 +153,13 @@ void trigedit_setup_new(DESCRIPTOR_DATA * d)
 	trig->name = str_dup("new trigger");
 	trig->trigger_type = MTRIG_GREET;
 
-	/* cmdlist will be a large char string until the trigger is saved */
+	// cmdlist will be a large char string until the trigger is saved
 	CREATE(OLC_STORAGE(d), char, MAX_CMD_LENGTH);
 	strcpy(OLC_STORAGE(d), "say My trigger commandlist is not complete!\r\n");
 	trig->narg = 100;
 
 	OLC_TRIG(d) = trig;
-	OLC_VAL(d) = 0;		/* Has changed flag. (It hasn't so far, we just made it.) */
+	OLC_VAL(d) = 0;		// Has changed flag. (It hasn't so far, we just made it.)
 
 	trigedit_disp_menu(d);
 }
@@ -174,7 +174,7 @@ void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num)
 
 	trig_data_copy(trig, trig_index[rtrg_num]->proto);
 
-	/* convert cmdlist to a char string */
+	// convert cmdlist to a char string
 	c = trig->cmdlist;
 	CREATE(OLC_STORAGE(d), char, MAX_CMD_LENGTH);
 	strcpy(OLC_STORAGE(d), "");
@@ -185,11 +185,11 @@ void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num)
 		strcat(OLC_STORAGE(d), "\r\n");
 		c = c->next;
 	}
-	/* now trig->cmdlist is something to pass to the text editor */
-	/* it will be converted back to a real cmdlist_element list later */
+	// now trig->cmdlist is something to pass to the text editor
+	// it will be converted back to a real cmdlist_element list later
 
 	OLC_TRIG(d) = trig;
-	OLC_VAL(d) = 0;		/* Has changed flag. (It hasn't so far, we just made it.) */
+	OLC_VAL(d) = 0;		// Has changed flag. (It hasn't so far, we just made it.)
 
 	trigedit_disp_menu(d);
 }
@@ -223,14 +223,14 @@ void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 			"[H[J"
 #endif
-			"Trigger Editor [%s%d%s]\r\n\r\n" "%s1)%s Name         : %s%s\r\n" "%s2)%s Intended for : %s%s\r\n" "%s3)%s Trigger types: %s%s\r\n" "%s4)%s Numberic Arg : %s%d\r\n" "%s5)%s Arguments    : %s%s\r\n" "%s6)%s Commands:\r\n%s&S%s&s\r\n" "%sQ)%s Quit\r\n" "Enter Choice :", grn, OLC_NUM(d), nrm,	/* vnum on the title line */
-			grn, nrm, yel, GET_TRIG_NAME(trig),	/* name                   */
-			grn, nrm, yel, attach_type,	/* attach type            */
-			grn, nrm, yel, trgtypes,	/* greet/drop/etc         */
-			grn, nrm, yel, trig->narg,	/* numeric arg            */
-			grn, nrm, yel, trig->arglist ? trig->arglist : "",	/* strict arg             */
-			grn, nrm, cyn, OLC_STORAGE(d),	/* the command list       */
-			grn, nrm);	/* quit colors            */
+			"Trigger Editor [%s%d%s]\r\n\r\n" "%s1)%s Name         : %s%s\r\n" "%s2)%s Intended for : %s%s\r\n" "%s3)%s Trigger types: %s%s\r\n" "%s4)%s Numberic Arg : %s%d\r\n" "%s5)%s Arguments    : %s%s\r\n" "%s6)%s Commands:\r\n%s&S%s&s\r\n" "%sQ)%s Quit\r\n" "Enter Choice :", grn, OLC_NUM(d), nrm,	// vnum on the title line
+			grn, nrm, yel, GET_TRIG_NAME(trig),	// name                   
+			grn, nrm, yel, attach_type,	// attach type            
+			grn, nrm, yel, trgtypes,	// greet/drop/etc         
+			grn, nrm, yel, trig->narg,	// numeric arg            
+			grn, nrm, yel, trig->arglist ? trig->arglist : "",	// strict arg             
+			grn, nrm, cyn, OLC_STORAGE(d),	// the command list       
+			grn, nrm);	// quit colors            
 
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
@@ -280,7 +280,7 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		switch (tolower(*arg))
 		{
 		case 'q':
-			if (OLC_VAL(d))  	/* Anything been changed? */
+			if (OLC_VAL(d))  	// Anything been changed? 
 			{
 				if (!GET_TRIG_TYPE(OLC_TRIG(d)))
 				{
@@ -341,11 +341,11 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			sprintf(buf, "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
 			olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
 			mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-			/* fall through */
+			// fall through 
 		case 'n':
 			cleanup_olc(d, CLEANUP_ALL);
 			return;
-		case 'a':	/* abort quitting */
+		case 'a':	// abort quitting 
 			break;
 		default:
 			send_to_char("Invalid choice!\r\n", d->character);
@@ -397,9 +397,7 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	trigedit_disp_menu(d);
 }
 
-/*
-** print out the letter codes pertaining to the bits set in 'data'
-*/
+// * print out the letter codes pertaining to the bits set in 'data'
 void sprintbyts(int data, char *dest)
 {
 	int i;
@@ -417,7 +415,7 @@ void sprintbyts(int data, char *dest)
 }
 
 
-/* save the zone's triggers to internal memory and to disk */
+// save the zone's triggers to internal memory and to disk
 void trigedit_save(DESCRIPTOR_DATA * d)
 {
 	int trig_rnum, i;
@@ -437,7 +435,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	char logbuf[MAX_INPUT_LENGTH];
 
 
-	/* Recompile the command list from the new script */
+	// Recompile the command list from the new script
 	s = OLC_STORAGE(d);
 	olc_log("%s start trig %d:\n%s", GET_NAME(d->character), OLC_NUM(d), OLC_STORAGE(d));
 
@@ -472,10 +470,10 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 			free(proto->arglist);	// Опять же, не люблю вызовов free(NULL);
 		free(proto->name);
 
-		/* make the prorotype look like what we have */
+		// make the prorotype look like what we have
 		trig_data_copy(proto, trig);
 
-		/* go through the mud and replace existing triggers         */
+		// go through the mud and replace existing triggers
 
 		live_trig = trigger_list;
 		while (live_trig)
@@ -513,7 +511,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	}
 	else
 	{
-		/* this is a new trigger */
+		// this is a new trigger
 		CREATE(new_index, INDEX_DATA *, top_of_trigt + 2);
 
 		for (i = 0; i < top_of_trigt; i++)
@@ -570,14 +568,12 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 		trig_index = new_index;
 		top_of_trigt++;
 
-		/* HERE IT HAS TO GO THROUGH AND FIX ALL SCRIPTS/TRIGS OF HIGHER RNUM */
+		// HERE IT HAS TO GO THROUGH AND FIX ALL SCRIPTS/TRIGS OF HIGHER RNUM
 		for (live_trig = trigger_list; live_trig; live_trig = live_trig->next_in_world)
 			if (GET_TRIG_RNUM(live_trig) > trig_rnum)
 				GET_TRIG_RNUM(live_trig)++;
 
-		/*
-		 * Update other trigs being edited.
-		 */
+		// * Update other trigs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next)
 			if (dsc->connected == CON_TRIGEDIT)
 				if (GET_TRIG_RNUM(OLC_TRIG(dsc)) >= trig_rnum)
@@ -585,12 +581,12 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 
 	}
 
-	/* now write the trigger out to disk, along with the rest of the  */
-	/* triggers for this zone, of course                              */
-	/* note: we write this to disk NOW instead of letting the builder */
-	/* have control because if we lose this after having assigned a   */
-	/* new trigger to an item, we will get SYSERR's upton reboot that */
-	/* could make things hard to debug.                               */
+	// now write the trigger out to disk, along with the rest of the  //
+	// triggers for this zone, of course                              //
+	// note: we write this to disk NOW instead of letting the builder //
+	// have control because if we lose this after having assigned a   //
+	// new trigger to an item, we will get SYSERR's upton reboot that //
+	// could make things hard to debug.                               //
 
 	zone = zone_table[OLC_ZNUM(d)].number;
 	top = zone_table[OLC_ZNUM(d)].top;
@@ -629,7 +625,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 					"unknown trigger", trig->attach_type, bitBuf,
 					GET_TRIG_NARG(trig), GET_TRIG_ARG(trig) ? GET_TRIG_ARG(trig) : "");
 
-			/* Build the text for the script */
+			// Build the text for the script
 			int lev = 0;
 			strcpy(buf, "");
 			for (cmd = trig->cmdlist; cmd; cmd = cmd->next)
@@ -703,10 +699,8 @@ void trigedit_create_index(int znum, const char *type)
 		return;
 	}
 
-	/*
-	 * Index contents must be in order: search through the old file for the
-	 * right place, insert the new file, then copy the rest over.
-	 */
+	// Index contents must be in order: search through the old file for the
+	// right place, insert the new file, then copy the rest over.
 	sprintf(buf1, "%d.%s", znum, type);
 	while (get_line(oldfile, buf))
 	{
@@ -732,9 +726,7 @@ void trigedit_create_index(int znum, const char *type)
 	fclose(newfile);
 	fclose(oldfile);
 
-	/*
-	 * Out with the old, in with the new.
-	 */
+	// * Out with the old, in with the new.
 	remove(old_name);
 	rename(new_name, old_name);
 }
@@ -750,9 +742,7 @@ void trigedit_create_index(int znum, const char *type)
 
 
 void dg_olc_script_free(DESCRIPTOR_DATA * d)
-/*++
-   Удаление прототипа в OLC_SCRIPT
---*/
+//   Удаление прототипа в OLC_SCRIPT
 {
 	proto_script_free(OLC_SCRIPT(d));
 	OLC_SCRIPT(d) = NULL;
@@ -760,9 +750,7 @@ void dg_olc_script_free(DESCRIPTOR_DATA * d)
 
 
 void dg_olc_script_copy(DESCRIPTOR_DATA * d)
-/*++
-   Создание копии прототипа скрипта для текщего редактируемого моба/объекта/комнаты
---*/
+//   Создание копии прототипа скрипта для текщего редактируемого моба/объекта/комнаты
 {
 	struct trig_proto_list *origscript;
 
@@ -783,12 +771,12 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 	struct trig_proto_list *editscript;
 	int i = 0;
 
-	/* make sure our input parser gets used */
+	// make sure our input parser gets used
 	OLC_MODE(d) = OLC_SCRIPT_EDIT;
 	OLC_SCRIPT_EDIT_MODE(d) = SCRIPT_MAIN_MENU;
 
 
-#if defined(CLEAR_SCREEN)	/* done wierd to compile with the vararg send() */
+#if defined(CLEAR_SCREEN)	// done wierd to compile with the vararg send()
 #define FMT    "[H[J     Script Editor\r\n\r\n     Trigger List:\r\n"
 #else
 #define FMT    "     Script Editor\r\n\r\n     Trigger List:\r\n"
@@ -877,10 +865,10 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 
 		if (pos <= 0)
-			break;	/* this aborts a new trigger entry */
+			break;	// this aborts a new trigger entry 
 
 		if (vnum == 0)
-			break;	/* this aborts a new trigger entry */
+			break;	// this aborts a new trigger entry 
 
 		if (real_trigger(vnum) < 0)
 		{
@@ -889,7 +877,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return 1;
 		}
 
-		/* add the new info in position */
+		// add the new info in position 
 		currtrig = OLC_SCRIPT(d);
 		CREATE(trig, struct trig_proto_list, 1);
 		trig->vnum = vnum;
@@ -929,7 +917,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 		currtrig = OLC_SCRIPT(d);
 		while (--pos && currtrig)
 			currtrig = currtrig->next;
-		/* now curtrig points one before the target */
+		// now curtrig points one before the target 
 		if (currtrig && currtrig->next)
 		{
 			OLC_VAL(d)++;

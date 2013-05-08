@@ -100,7 +100,7 @@ extern struct show_struct show_fields[];
 extern BanList *ban;
 extern char *name_rules;
 
-/* external functions */
+// external functions
 void do_start(CHAR_DATA * ch, int newbie);
 int parse_class(char arg);
 int parse_class_vik(char arg);
@@ -126,7 +126,7 @@ extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameAdd(CHAR_DATA * ch, bool save = 1);
 extern void check_max_hp(CHAR_DATA *ch);
 
-/* local functions */
+// local functions
 int perform_dupe_check(DESCRIPTOR_DATA * d);
 struct alias_data *find_alias(struct alias_data *alias_list, char *str);
 void free_alias(struct alias_data *a);
@@ -135,7 +135,7 @@ int perform_alias(DESCRIPTOR_DATA * d, char *orig);
 int reserved_word(const char *argument);
 int _parse_name(char *arg, char *name);
 void add_logon_record(DESCRIPTOR_DATA * d);
-/* prototypes for all do_x functions. */
+// prototypes for all do_x functions.
 int find_action(char *cmd);
 int do_social(CHAR_DATA * ch, char *argument);
 void single_god_invoice(CHAR_DATA* ch);
@@ -339,7 +339,7 @@ ACMD(do_relocate);
 ACMD(do_strangle);
 ACMD(do_custom_label);
 
-/* DG Script ACMD's */
+// DG Script ACMD's
 ACMD(do_attach);
 ACMD(do_detach);
 ACMD(do_tlist);
@@ -425,9 +425,9 @@ ACMD(do_shops_list);
 
 cpp_extern const struct command_info cmd_info[] =
 {
-	{"RESERVED", 0, 0, 0, 0},	/* this must be first -- for specprocs */
+	{"RESERVED", 0, 0, 0, 0},	// this must be first -- for specprocs
 
-	/* directions must come before other commands but after RESERVED */
+	// directions must come before other commands but after RESERVED
 	{"север", POS_STANDING, do_move, 0, SCMD_NORTH, -2},
 	{"восток", POS_STANDING, do_move, 0, SCMD_EAST, -2},
 	{"юг", POS_STANDING, do_move, 0, SCMD_SOUTH, -2},
@@ -630,7 +630,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"передать", POS_STANDING, do_givehorse, 0, 0, -1},
 	{"перевести", POS_STANDING, do_not_here, 1, 0, -1},
 	{"переместиться", POS_STANDING, do_relocate, 1, 0, 0},
-	/*//python_off {"послать", POS_DEAD, do_email, LVL_IMPL, 0, 0},*/
+	//python_off {"послать", POS_DEAD, do_email, LVL_IMPL, 0, 0},
 	{"перевоплотитьс", POS_STANDING, do_remort, 0, 0, -1},
 	{"перевоплотиться", POS_STANDING, do_remort, 0, 1, -1},
 	{"перелить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
@@ -758,7 +758,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 	{"ярость", POS_RESTING, do_courage, 0, 0, -1},
 
-	/* God commands for listing */
+	// God commands for listing
 	{"мсписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST},
 	{"осписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST},
 	{"ксписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST},
@@ -810,7 +810,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"devour", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
 	{"echo", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, 0},
 	{"emote", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
-	/*//python_off {"email", POS_DEAD, do_email, LVL_IMPL, 0, 0},*/
+	//python_off {"email", POS_DEAD, do_email, LVL_IMPL, 0, 0},
 	{"enter", POS_STANDING, do_enter, 0, 0, -2},
 	{"equipment", POS_SLEEPING, do_equipment, 0, 0, 0},
 	{"examine", POS_RESTING, do_examine, 0, 0, 500},
@@ -900,7 +900,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"proxy", POS_DEAD, do_proxy, LVL_GRGOD, 0, 0},
 	{"purge", POS_DEAD, do_purge, LVL_GOD, 0, 0},
 	{"put", POS_RESTING, do_put, 0, 0, 500},
-	/*//python_off {"python", POS_DEAD, do_console, LVL_GOD, 0, 0},*/
+	//python_off {"python", POS_DEAD, do_console, LVL_GOD, 0, 0},
 	{"quaff", POS_RESTING, do_use, 0, SCMD_QUAFF, 500},
 	{"qui", POS_SLEEPING, do_quit, 0, 0, 0},
 	{"quit", POS_SLEEPING, do_quit, 0, SCMD_QUIT, -1},
@@ -1003,25 +1003,25 @@ cpp_extern const struct command_info cmd_info[] =
 	{"zone", POS_RESTING, do_zone, 0, 0, 0},
 	{"zreset", POS_DEAD, do_zreset, LVL_GRGOD, 0, 0},
 
-	/* test command for gods */
+	// test command for gods
 	{"godtest", POS_DEAD, do_godtest, LVL_IMPL, 0, 0},
 	{"armor", POS_DEAD, do_print_armor, LVL_IMPL, 0, 0},
 
-	/* Команды крафтинга - для тестига пока уровня имма */
+	// Команды крафтинга - для тестига пока уровня имма
 	{"mrlist", POS_DEAD, do_list_make, LVL_BUILDER, 0, 0},
 	{"mredit", POS_DEAD, do_edit_make, LVL_BUILDER, 0, 0},
 	{"шить", POS_STANDING, do_make_item, 0, MAKE_WEAR, 0},
 	{"выковать", POS_STANDING, do_make_item, 0, MAKE_METALL, 0},
 	{"смастерить", POS_STANDING, do_make_item, 0, MAKE_CRAFT, 0},
 
-	/* God commands for listing */
+	// God commands for listing
 	{"mlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST},
 	{"olist", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST},
 	{"rlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST},
 	{"zlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST},
 
 
-	/* DG trigger commands */
+	// DG trigger commands
 	{"attach", POS_DEAD, do_attach, LVL_IMPL, 0, 0},
 	{"detach", POS_DEAD, do_detach, LVL_IMPL, 0, 0},
 	{"tlist", POS_DEAD, do_tlist, LVL_GRGOD, 0, 0},
@@ -1054,7 +1054,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
 
 	{"\n", 0, 0, 0, 0}
-};				/* this must be last */
+};				// this must be last
 
 
 const char *dir_fill[] = { "in",
@@ -1148,7 +1148,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	int cmd, length, social = FALSE, hardcopy = FALSE;
 	char *line;
 
-	/* just drop to next line for hitting CR */
+	// just drop to next line for hitting CR
 	CHECK_AGRO(ch) = 0;
 	skip_spaces(&argument);
 
@@ -1188,7 +1188,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 
 	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_STOPFIGHT) && !AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)))
 	{
-		int cont;	/* continue the command checks */
+		int cont;	// continue the command checks
 		cont = command_wtrigger(ch, arg, line);
 		if (!cont)
 			cont += command_mtrigger(ch, arg, line);
@@ -1205,7 +1205,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	//python_off if (scripting::execute_player_command(ch, arg, line))
 		//python_off return;
 
-	/* otherwise, find the command */
+	// otherwise, find the command
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
 	{
 		if (hardcopy)
@@ -1310,16 +1310,16 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	}
 }
 
-/**************************************************************************
- * Routines to handle aliasing                                             *
-  **************************************************************************/
+// ************************************************************************
+// * Routines to handle aliasing                                          *
+// ************************************************************************
 
 
 struct alias_data *find_alias(struct alias_data *alias_list, char *str)
 {
 	while (alias_list != NULL)
 	{
-		if (*str == *alias_list->alias)	/* hey, every little bit counts :-) */
+		if (*str == *alias_list->alias)	// hey, every little bit counts :-)
 			if (!strcmp(str, alias_list->alias))
 				return (alias_list);
 
@@ -1340,7 +1340,7 @@ void free_alias(struct alias_data *a)
 }
 
 
-/* The interface to the outside world: do_alias */
+// The interface to the outside world: do_alias
 ACMD(do_alias)
 {
 	char *repl;
@@ -1351,7 +1351,7 @@ ACMD(do_alias)
 
 	repl = any_one_arg(argument, arg);
 
-	if (!*arg)  		/* no argument specified -- list currently defined aliases */
+	if (!*arg)  		// no argument specified -- list currently defined aliases
 	{
 		send_to_char("Определены следующие алиасы:\r\n", ch);
 		if ((a = GET_ALIASES(ch)) == NULL)
@@ -1366,15 +1366,15 @@ ACMD(do_alias)
 			}
 		}
 	}
-	else  		/* otherwise, add or remove aliases */
+	else  		// otherwise, add or remove aliases
 	{
-		/* is this an alias we've already defined? */
+		// is this an alias we've already defined?
 		if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL)
 		{
 			REMOVE_FROM_LIST(a, GET_ALIASES(ch), next);
 			free_alias(a);
 		}
-		/* if no replacement string is specified, assume we want to delete */
+		// if no replacement string is specified, assume we want to delete
 		if (!*repl)
 		{
 			if (a == NULL)
@@ -1382,7 +1382,7 @@ ACMD(do_alias)
 			else
 				send_to_char("Алиас успешно удален.\r\n", ch);
 		}
-		else  	/* otherwise, either add or redefine an alias */
+		else  	// otherwise, either add or redefine an alias
 		{
 			if (!str_cmp(arg, "alias"))
 			{
@@ -1418,7 +1418,7 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
 	char *tokens[NUM_TOKENS], *temp, *write_point;
 	int num_of_tokens = 0, num;
 
-	/* First, parse the original string */
+	// First, parse the original string
 	temp = strtok(strcpy(buf2, orig), " ");
 	while (temp != NULL && num_of_tokens < NUM_TOKENS)
 	{
@@ -1426,11 +1426,11 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
 		temp = strtok(NULL, " ");
 	}
 
-	/* initialize */
+	// initialize
 	write_point = buf;
 	temp_queue.head = temp_queue.tail = NULL;
 
-	/* now parse the alias */
+	// now parse the alias
 	for (temp = a->replacement; *temp; temp++)
 	{
 		if (*temp == ALIAS_SEP_CHAR)
@@ -1453,7 +1453,7 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
 				strcpy(write_point, orig);
 				write_point += strlen(orig);
 			}
-			else if ((*(write_point++) = *temp) == '$')	/* redouble $ for act safety */
+			else if ((*(write_point++) = *temp) == '$')	// redouble $ for act safety
 				*(write_point++) = '$';
 		}
 		else
@@ -1464,7 +1464,7 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
 	buf[MAX_INPUT_LENGTH - 1] = '\0';
 	write_to_q(buf, &temp_queue, 1);
 
-	/* push our temp_queue on to the _front_ of the input queue */
+	// push our temp_queue on to the _front_ of the input queue
 	if (input_q->head == NULL)
 		*input_q = temp_queue;
 	else
@@ -1488,22 +1488,22 @@ int perform_alias(DESCRIPTOR_DATA * d, char *orig)
 	char first_arg[MAX_INPUT_LENGTH], *ptr;
 	struct alias_data *a, *tmp;
 
-	/* Mobs don't have alaises. */
+	// Mobs don't have alaises. //
 	if (IS_NPC(d->character))
 		return (0);
 
-	/* bail out immediately if the guy doesn't have any aliases */
+	// bail out immediately if the guy doesn't have any aliases //
 	if ((tmp = GET_ALIASES(d->character)) == NULL)
 		return (0);
 
-	/* find the alias we're supposed to match */
+	// find the alias we're supposed to match //
 	ptr = any_one_arg(orig, first_arg);
 
-	/* bail out if it's null */
+	// bail out if it's null //
 	if (!*first_arg)
 		return (0);
 
-	/* if the first arg is not an alias, return without doing anything */
+	// if the first arg is not an alias, return without doing anything //
 	if ((a = find_alias(tmp, first_arg)) == NULL)
 		return (0);
 
@@ -1521,9 +1521,9 @@ int perform_alias(DESCRIPTOR_DATA * d, char *orig)
 
 
 
-/***************************************************************************
- * Various other parsing utilities                                         *
- **************************************************************************/
+// ***************************************************************************
+// * Various other parsing utilities                                         *
+// ***************************************************************************
 
 /*
  * searches an array of strings for a target string.  "exact" can be
@@ -1544,8 +1544,7 @@ int search_block(const char *arg, const char **list, int exact)
 	else
 	{
 		if (!l)
-			l = 1;	/* Avoid "" to match the first available
-				 * string */
+			l = 1;	// Avoid "" to match the first available string
 		for (i = 0; **(list + i) != '\n'; i++)
 			if (!strn_cmp(arg, *(list + i), l))
 				return (i);
@@ -1568,8 +1567,7 @@ int search_block(const std::string &arg, const char **list, int exact)
 	else
 	{
 		if (!l)
-			l = 1;	/* Avoid "" to match the first available
-				 * string */
+			l = 1;	// Avoid "" to match the first available string
 		for (i = 0; **(list + i) != '\n'; i++)
 			if (!strn_cmp(arg, *(list + i), l))
 				return (i);
@@ -1602,18 +1600,18 @@ char *delete_doubledollar(char *string)
 {
 	char *read, *write;
 
-	/* If the string has no dollar signs, return immediately */
+	// If the string has no dollar signs, return immediately //
 	if ((write = strchr(string, '$')) == NULL)
 		return (string);
 
-	/* Start from the location of the first dollar sign */
+	// Start from the location of the first dollar sign //
 	read = write;
 
 
-	while (*read)		/* Until we reach the end of the string... */
-		if ((*(write++) = *(read++)) == '$')	/* copy one char */
+	while (*read)		// Until we reach the end of the string... //
+		if ((*(write++) = *(read++)) == '$')	// copy one char //
 			if (*read == '$')
-				read++;	/* skip if we saw 2 $'s in a row */
+				read++;	// skip if we saw 2 $'s in a row //
 
 	*write = '\0';
 
@@ -1655,7 +1653,7 @@ int is_abbrev(const char *arg1, const char *arg2)
 		return (0);
 }
 
-/* return first space-delimited token in arg1; remainder of string in arg2 */
+// return first space-delimited token in arg1; remainder of string in arg2 //
 void half_chop(char const *string, char *arg1, char *arg2)
 {
 	char tmpname[MAX_INPUT_LENGTH];
@@ -1665,7 +1663,7 @@ void half_chop(char const *string, char *arg1, char *arg2)
 	strl_cpy(arg2, tmpname, MAX_INPUT_LENGTH);
 }
 
-/* Used in specprocs, mostly.  (Exactly) matches "command" to cmd number */
+// Used in specprocs, mostly.  (Exactly) matches "command" to cmd number //
 int find_command(const char *command)
 {
 	int cmd;
@@ -1677,7 +1675,7 @@ int find_command(const char *command)
 	return (-1);
 }
 
-/* int fnum - номер найденного в комнате спешиал-моба, для обработки нескольких спешиал-мобов в одной комнате */
+// int fnum - номер найденного в комнате спешиал-моба, для обработки нескольких спешиал-мобов в одной комнате //
 int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 {
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
@@ -1693,7 +1691,7 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 	register CHAR_DATA *k;
 	int j;
 
-	/* special in room? */
+	// special in room? //
 	if (GET_ROOM_SPEC(ch->in_room) != NULL)
 		if (GET_ROOM_SPEC(ch->in_room)(ch, world[ch->in_room], cmd, arg))
 		{
@@ -1701,7 +1699,7 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 			return (1);
 		}
 
-	/* special in equipment list? */
+	// special in equipment list? //
 	for (j = 0; j < NUM_WEARS; j++)
 		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != NULL)
 			if (GET_OBJ_SPEC(GET_EQ(ch, j))(ch, GET_EQ(ch, j), cmd, arg))
@@ -1710,7 +1708,7 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 				return (1);
 			}
 
-	/* special in inventory? */
+	// special in inventory? //
 	for (i = ch->carrying; i; i = i->next_content)
 		if (GET_OBJ_SPEC(i) != NULL)
 			if (GET_OBJ_SPEC(i)(ch, i, cmd, arg))
@@ -1719,7 +1717,7 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 				return (1);
 			}
 
-	/* special in mobile present? */
+	// special in mobile present? //
 //Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру
 	int specialNum = 1; //если номер не указан - по умолчанию берется первый
 	for (k = world[ch->in_room]->people; k; k = k->next_in_room)
@@ -1734,7 +1732,7 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 		}
 	}
 
-	/* special in object present? */
+	// special in object present? //
 	for (i = world[ch->in_room]->contents; i; i = i->next_content)
 	{
 		if (GET_OBJ_SPEC(i) != NULL)
@@ -1752,12 +1750,12 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 
 
 
-/* *************************************************************************
-*  Stuff for controlling the non-playing sockets (get name, pwd etc)       *
-************************************************************************* */
+// **************************************************************************
+// *  Stuff for controlling the non-playing sockets (get name, pwd etc)     *
+// **************************************************************************
 
 
-/* locate entry in p_table with entry->name == name. -1 mrks failed search */
+// locate entry in p_table with entry->name == name. -1 mrks failed search
 int find_name(const char *name)
 {
 	int i;
@@ -1775,7 +1773,7 @@ int _parse_name(char *arg, char *name)
 {
 	int i;
 
-	/* skip whitespaces */
+	// skip whitespaces
 	for (i = 0; (*name = (i ? LOWER(*arg) : UPPER(*arg))); arg++, i++, name++)
 		if (*arg == 'ё' || *arg == 'Ё' || !a_isalpha(*arg) || *arg > 0)
 			return (1);
@@ -1794,7 +1792,7 @@ int parse_exist_name(char *arg, char *name)
 {
 	int i;
 
-	/* skip whitespaces */
+	// skip whitespaces
 	for (i = 0; (*name = (i ? LOWER(*arg) : UPPER(*arg))); arg++, i++, name++)
 		if (!a_isalpha(*arg) || *arg > 0)
 			return (1);
@@ -1832,7 +1830,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 		if (k == d)
 			continue;
 
-		if (k->original && (GET_IDNUM(k->original) == id))  	/* switched char */
+		if (k->original && (GET_IDNUM(k->original) == id))  	// switched char
 		{
 			if (str_cmp(d->host, k->host))
 			{
@@ -1897,15 +1895,15 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 		if (GET_IDNUM(ch) != id)
 			continue;
 
-		/* ignore chars with descriptors (already handled by above step) */
+		// ignore chars with descriptors (already handled by above step) //
 		if (ch->desc)
 			continue;
 
-		/* don't extract the target char we've found one already */
+		// don't extract the target char we've found one already //
 		if (ch == target)
 			continue;
 
-		/* we don't already have a target and found a candidate for switching */
+		// we don't already have a target and found a candidate for switching //
 		if (!target)
 		{
 			target = ch;
@@ -1913,20 +1911,20 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 			continue;
 		}
 
-		/* we've found a duplicate - blow him away, dumping his eq in limbo. */
+		// we've found a duplicate - blow him away, dumping his eq in limbo. //
 		if (ch->in_room != NOWHERE)
 			char_from_room(ch);
 		char_to_room(ch, STRANGE_ROOM);
 		extract_char(ch, FALSE);
 	}
 
-	/* no target for swicthing into was found - allow login to continue */
+	// no target for swicthing into was found - allow login to continue //
 	if (!target)
 		return (0);
 
-	/* Okay, we've found a target.  Connect d to target. */
+	// Okay, we've found a target.  Connect d to target. //
 
-	delete d->character;	/* get rid of the old char */
+	delete d->character;	// get rid of the old char //
 	d->character = target;
 	d->character->desc = d;
 	d->original = NULL;
@@ -2116,9 +2114,7 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 	log("Exit logon list");
 }
 
-/**
- * Проверка на доступные религии конкретной профе (из текущей генерации чара).
- */
+// * Проверка на доступные религии конкретной профе (из текущей генерации чара).
 void check_religion(CHAR_DATA *ch)
 {
 	if (class_religion[ch->get_class()] == RELIGION_POLY && GET_RELIGION(ch) != RELIGION_POLY)
@@ -2229,7 +2225,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			load_room = NOWHERE;
 	}
 
-	/* If char was saved with NOWHERE, or real_room above failed... */
+	// If char was saved with NOWHERE, or real_room above failed...
 	if (load_room == NOWHERE)
 	{
 		if (GET_LEVEL(d->character) >= LVL_IMMORT)
@@ -2266,7 +2262,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	Glory::check_freeze(d->character);
 	Clan::clan_invoice(d->character, true);
 
-	/*Чистим стили если не знаем их */
+	// Чистим стили если не знаем их
 	if (IS_SET(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL)
 			&& !d->character->get_skill(SKILL_PUNCTUAL))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL);
@@ -2291,11 +2287,11 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			&& !can_use_feat(d->character, GREAT_AIMING_ATTACK_FEAT))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
 
-	/* Gorrah: сбрасываем флаг от скилла, если он каким-то чудом засэйвился */
+	// Gorrah: сбрасываем флаг от скилла, если он каким-то чудом засэйвился
 	if (IS_SET(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND);
 
-	/* Check & remove/add natural, race & unavailable features*/
+	// Check & remove/add natural, race & unavailable features
 	for (int i = 1; i < MAX_FEATS; i++)
 	{
 		if(HAVE_FEAT(d->character,i) && !can_get_feat(d->character,i))
@@ -2319,10 +2315,10 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	REMOVE_BIT(AFF_FLAGS(d->character, AFF_GROUP), AFF_GROUP);
 	REMOVE_BIT(AFF_FLAGS(d->character, AFF_HORSE), AFF_HORSE);
 
-	/* изменяем порталы */
+	// изменяем порталы
 	check_portals(d->character);
 
-	/* with the copyover patch, this next line goes in enter_player_game() */
+	// with the copyover patch, this next line goes in enter_player_game()
 	GET_ID(d->character) = GET_IDNUM(d->character);
 	GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
 	d->character->set_last_logon(time(0));
@@ -2333,7 +2329,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	d->character->set_who_last(time(0));
 	d->character->save_char();
 	act("$n вступил$g в игру.", TRUE, d->character, 0, 0, TO_ROOM);
-	/* with the copyover patch, this next line goes in enter_player_game() */
+	// with the copyover patch, this next line goes in enter_player_game()
 	read_saved_vars(d->character);
 	greet_mtrigger(d->character, -1);
 	greet_otrigger(d->character, -1);
@@ -2389,7 +2385,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 {
 	int load_result;
 
-	/* Password was correct. */
+	// Password was correct.
 	load_result = GET_BAD_PWS(d->character);
 	GET_BAD_PWS(d->character) = 0;
 	d->bad_pws = 0;
@@ -2411,7 +2407,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		return;
 	}
 
-	/* check and make sure no other copies of this player are logged in */
+	// check and make sure no other copies of this player are logged in
 	if (perform_dupe_check(d))
 	{
 		Clan::SetClanData(d->character);
@@ -2457,7 +2453,7 @@ void CreateChar(DESCRIPTOR_DATA * d)
 	d->character->desc = d;
 }
 
-/* deal with newcomers and other non-playing sockets */
+// deal with newcomers and other non-playing sockets
 void nanny(DESCRIPTOR_DATA * d, char *arg)
 {
 	char buf[MAX_STRING_LENGTH];
@@ -2468,7 +2464,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 	switch (STATE(d))
 	{
-		/*. OLC states . */
+		//. OLC states .
 	case CON_OEDIT:
 		oedit_parse(d, arg);
 		break;
@@ -2508,7 +2504,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	//python_off case CON_CONSOLE:
 		//python_off d->console->push(arg);
 		//python_off break;
-		/*. End of OLC states . */
+		//. End of OLC states .
 
 	case CON_GET_KEYTABLE:
 		if (strlen(arg) > 0)
@@ -2523,7 +2519,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		SEND_TO_Q(GREETINGS, d);
 		STATE(d) = CON_GET_NAME;
 		break;
-	case CON_GET_NAME:	/* wait for input of name */
+	case CON_GET_NAME:	// wait for input of name
 		if (d->character == NULL)
 			CreateChar(d);
 		if (!*arg)
@@ -2595,11 +2591,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			if ((player_i = load_char(tmp_name, d->character)) > -1)
 			{
 				d->character->set_pfilepos(player_i);
-				if (PLR_FLAGGED(d->character, PLR_DELETED))  	/* We get a false positive from the original deleted character. */
+				if (PLR_FLAGGED(d->character, PLR_DELETED))  	// We get a false positive from the original deleted character.
 				{
 					delete d->character;
 					d->character = 0;
-					/* Check for multiple creations... */
+					// Check for multiple creations...
 					if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name))
 					{
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
@@ -2614,7 +2610,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					SEND_TO_Q(buf, d);
 					STATE(d) = CON_NAME_CNFRM;
 				}
-				else  	/* undo it just in case they are set */
+				else  	// undo it just in case they are set
 				{
 					if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, PRF_CODERINFO))
 					{
@@ -2633,11 +2629,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					STATE(d) = CON_PASSWORD;
 				}
 			}
-			else  	/* player unknown -- make new character */
+			else  	// player unknown -- make new character
 			{
 
 
-				/* Check for multiple creations of a character. */
+				// Check for multiple creations of a character.
 				if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name))
 				{
 					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
@@ -2661,7 +2657,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			}
 		}
 		break;
-	case CON_NAME_CNFRM:	/* wait for conf. of new name    */
+	case CON_NAME_CNFRM:	// wait for conf. of new name
 		if (UPPER(*arg) == 'Y' || UPPER(*arg) == 'Д')
 		{
 			if (ban->is_banned(d->host) >= BanList::BAN_NEW)
@@ -2803,7 +2799,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ]? ", d);
 		STATE(d) = CON_QSEX;
 		return;
-	case CON_PASSWORD:	/* get pwd for known player      */
+	case CON_PASSWORD:	// get pwd for known player
 		/*
 		 * To really prevent duping correctly, the player's record should
 		 * be reloaded from disk at this point (after the password has been
@@ -2826,7 +2822,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 				GET_BAD_PWS(d->character)++;
 				d->character->save_char();
-				if (++(d->bad_pws) >= max_bad_pws)  	/* 3 strikes and you're out. */
+				if (++(d->bad_pws) >= max_bad_pws)  	// 3 strikes and you're out.
 				{
 					SEND_TO_Q("Неверный пароль... Отсоединяемся.\r\n", d);
 					STATE(d) = CON_CLOSE;
@@ -2901,7 +2897,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 		break;
 
-	case CON_QSEX:		/* query sex of new user         */
+	case CON_QSEX:		// query sex of new user
 		if (pre_help(d->character, arg))
 		{
 			SEND_TO_Q("\r\nВаш пол [ М(M)/Ж(F) ]? ", d);
@@ -2929,7 +2925,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		STATE(d) = CON_NAME2;
 		return;
 
-	case CON_QKIN:		/* query rass      */
+	case CON_QKIN:		// query rass
 		if (pre_help(d->character, arg))
 		{
             SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
@@ -2964,7 +2960,7 @@ Sventovit
 		STATE(d) = CON_QCLASS;
 		break;
 
-	case CON_RELIGION:	/* query religion of new user      */
+	case CON_RELIGION:	// query religion of new user
 		if (pre_help(d->character, arg))
 		{
 			SEND_TO_Q(religion_menu, d);
@@ -3078,7 +3074,7 @@ Sventovit
 		STATE(d) = CON_RELIGION;
 		break;
 
-	case CON_RACE:		/* query race      */
+	case CON_RACE:		// query race
 		if (pre_help(d->character, arg))
 		{
 			SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
@@ -3131,7 +3127,7 @@ Sventovit
 			genchar_disp_menu(d->character);
 			break;
 		default:
-			/* Все. Генерация закончена */
+			// Все. Генерация закончена
 			SEND_TO_Q(color_menu, d);
 			SEND_TO_Q("\r\nРежим :", d);
 			STATE(d) = CON_COLOR;
@@ -3188,7 +3184,7 @@ Sventovit
 
 
 
-		/* Now GET_NAME() will work properly. */
+		// Now GET_NAME() will work properly.
 		init_char(d->character);
 		strncpy(GET_EMAIL(d->character), arg, 127);
 		*(GET_EMAIL(d->character) + 127) = '\0';
@@ -3218,7 +3214,7 @@ Sventovit
 		//mudlog(buf, NRM, LVL_IMMORT, SYSLOG, TRUE);
 		break;
 
-	case CON_RMOTD:	/* read CR after printing motd   */
+	case CON_RMOTD:	// read CR after printing motd
 		if (!check_dupes_email(d))
 		{
 			STATE(d) = CON_CLOSE;
@@ -3229,7 +3225,7 @@ Sventovit
 		// STATE(d) = CON_MENU;
 		break;
 
-	case CON_MENU:		/* get selection from main menu  */
+	case CON_MENU:		// get selection from main menu
 		switch (*arg)
 		{
 		case '0':
@@ -3575,7 +3571,7 @@ Sventovit
 	default:
 		log("SYSERR: Nanny: illegal state of con'ness (%d) for '%s'; closing connection.",
 			STATE(d), d->character ? GET_NAME(d->character) : "<unknown>");
-		STATE(d) = CON_DISCONNECT;	/* Safest to do. */
+		STATE(d) = CON_DISCONNECT;	// Safest to do.
 		break;
 	}
 }
@@ -3792,18 +3788,14 @@ std::string ExpFormat(long long exp)
 		return (prefix + boost::lexical_cast<std::string>(exp / 1000000000LL) + " млрд");
 }
 
-/**
-* Конвертация входной строки в нижний регистр
-*/
+// * Конвертация входной строки в нижний регистр
 void lower_convert(std::string& text)
 {
 	for (std::string::iterator it = text.begin(); it != text.end(); ++it)
 		*it = LOWER(*it);
 }
 
-/**
-* Конвертация входной строки в нижний регистр
-*/
+// * Конвертация входной строки в нижний регистр
 void lower_convert(char* text)
 {
 	while (*text)
@@ -3813,9 +3805,7 @@ void lower_convert(char* text)
 	}
 }
 
-/**
-* Конвертация имени в нижний регистр + первый сивмол в верхний (для единообразного поиска в контейнерах)
-*/
+// * Конвертация имени в нижний регистр + первый сивмол в верхний (для единообразного поиска в контейнерах)
 void name_convert(std::string& text)
 {
 	if (!text.empty())
@@ -3825,18 +3815,14 @@ void name_convert(std::string& text)
 	}
 }
 
-/**
-* Генерация списка неодобренных титулов и имен и вывод их имму
-*/
+// * Генерация списка неодобренных титулов и имен и вывод их имму
 void single_god_invoice(CHAR_DATA* ch)
 {
 	TitleSystem::show_title_list(ch);
 	NewNameShow(ch);
 }
 
-/**
-* Поиск незанятых иммов онлайн для вывода им неодобренных титулов и имен раз в 5 минут
-*/
+// * Поиск незанятых иммов онлайн для вывода им неодобренных титулов и имен раз в 5 минут
 void god_work_invoice()
 {
 	for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next)
@@ -3844,9 +3830,7 @@ void god_work_invoice()
 			single_god_invoice(d->character);
 }
 
-/**
-* Вывод оповещений о новых сообщениях на досках, письмах, (неодобренных имен и титулов для иммов) при логине и релогине
-*/
+// * Вывод оповещений о новых сообщениях на досках, письмах, (неодобренных имен и титулов для иммов) при логине и релогине
 void login_change_invoice(CHAR_DATA* ch)
 {
 	Board::LoginInfo(ch);

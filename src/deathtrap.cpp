@@ -34,9 +34,7 @@ void remove_items(CHAR_DATA *ch);
 
 } // namespace DeathTrap
 
-/**
-* Инициализация списка при загрузке мада или редактирования комнат в олц
-*/
+// * Инициализация списка при загрузке мада или редактирования комнат в олц
 void DeathTrap::load()
 {
 	// на случай релоада, свапать смысла нету
@@ -67,9 +65,7 @@ void DeathTrap::remove(ROOM_DATA* room)
 	room_list.remove(room);
 }
 
-/**
- * Проверка активности дт, дергается каждые 2 секунды в хеарбите.
- */
+// * Проверка активности дт, дергается каждые 2 секунды в хеарбите.
 void DeathTrap::activity()
 {
 	CHAR_DATA *ch, *next;
@@ -142,9 +138,7 @@ ROOM_DATA * get_from_room(ROOM_DATA* to_room)
 
 } // namespace OneWayPortal
 
-/**
-* Логирование в отдельный файл уходов в дт для интересу и мб статистики.
-*/
+// * Логирование в отдельный файл уходов в дт для интересу и мб статистики.
 void DeathTrap::log_death_trap(CHAR_DATA * ch)
 {
 	const char *filename = "../log/death_trap.log";
@@ -288,9 +282,7 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 }
 */
 
-/**
-* Попадание в обычное дт.
-*/
+// * Попадание в обычное дт.
 int DeathTrap::check_death_trap(CHAR_DATA * ch)
 {
 	if (IN_ROOM(ch) != NOWHERE && !PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -313,10 +305,10 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 				return TRUE;
 			}
 			death_cry(ch);
-/*29.11.09 Для счета количество рипов (с) Василиса */
+//29.11.09 Для счета количество рипов (с) Василиса
 			GET_RIP_DT(ch)= GET_RIP_DT(ch)+1;
             GET_RIP_DTTHIS(ch)= GET_RIP_DTTHIS(ch)+1;
-/*конец правки (с) Василиса*/
+//конец правки (с) Василиса
 			corpse = make_corpse(ch);
 			if (corpse != NULL)
 			{
@@ -330,9 +322,6 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 	return (FALSE);
 }
 
-/**
-*
-*/
 bool DeathTrap::is_slow_dt(int rnum)
 {
 	if (ROOM_FLAGGED(rnum, ROOM_SLOWDEATH) || ROOM_FLAGGED(rnum, ROOM_ICEDEATH))

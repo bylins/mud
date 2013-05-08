@@ -35,8 +35,8 @@
 #include "sets_drop.hpp"
 #include "olc.h"
 
-/* Structures */
-CHAR_DATA *combat_list = NULL;	/* head of l-list of fighting chars */
+// Structures
+CHAR_DATA *combat_list = NULL;	// head of l-list of fighting chars
 CHAR_DATA *next_combat_list = NULL;
 
 extern CHAR_DATA *character_list;
@@ -45,7 +45,7 @@ extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
 extern CHAR_DATA *mob_proto;
 
-/* External procedures */
+// External procedures
 // ACMD(do_assist);
 void battle_affect_update(CHAR_DATA * ch);
 void go_throw(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -91,7 +91,7 @@ void go_autoassist(CHAR_DATA * ch)
 }
 */
 
-/* The Fight related routines */
+// The Fight related routines
 
 void update_pos(CHAR_DATA * victim)
 {
@@ -177,7 +177,7 @@ void restore_battle_pos(CHAR_DATA * ch)
 		GET_POS(ch) = POS_SLEEPING;
 }
 
-/* start one char fighting another (yes, it is horrible, I know... )  */
+// start one char fighting another (yes, it is horrible, I know... ) 
 void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	if (ch == vict)
@@ -239,7 +239,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 		}
 	}
 
-	/* Set combat style */
+	// Set combat style
 	if (!AFF_FLAGGED(ch, AFF_COURAGE) && !AFF_FLAGGED(ch, AFF_DRUNKED) && !AFF_FLAGGED(ch, AFF_ABSTINENT))
 	{
 		if (PRF_FLAGGED(ch, PRF_PUNCTUAL))
@@ -257,7 +257,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 //  check_killer(ch, vict);
 }
 
-/* remove a char from the list of fighting chars */
+// remove a char from the list of fighting chars
 void stop_fighting(CHAR_DATA * ch, int switch_others)
 {
 	CHAR_DATA *temp, *found;
@@ -284,7 +284,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	handle_affects(params);
 	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
 	// send_to_gods(buf);
-	/**** switch others *****/
+	//*** switch others ***
 
 	if (switch_others != 2)
 	{
@@ -316,7 +316,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 
 		update_pos(ch);
 
-		/* проверка скилла "железный ветер" - снимаем флаг по окончанию боя */
+		// проверка скилла "железный ветер" - снимаем флаг по окончанию боя
 		if ((ch->get_fighting() == NULL) && IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
 		{
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
@@ -1224,7 +1224,7 @@ void using_mob_skills(CHAR_DATA *ch)
 		{
 			sk_use = 0;
 			int i = 0;
-			/* Цель выбираем по рандому */
+			// Цель выбираем по рандому
 			for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people;
 				vict; vict = vict->next_in_room)
 			{
@@ -1247,7 +1247,7 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 			}
-			/* Метаем */
+			// Метаем
 			if (caster)
 			{
 				go_throw(ch, caster);
@@ -1574,18 +1574,18 @@ void process_npc_attack(CHAR_DATA *ch)
 	}
 	else if (!AFF_FLAGGED(ch, AFF_CHARM))
 	{
-		/** применение скилов */
+		//* применение скилов
 		using_mob_skills(ch);
 	}
 
 	if (!ch->get_fighting() || IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
 		return;
 
-	/***** удар основным оружием или рукой */
+	//**** удар основным оружием или рукой
 	if (!AFF_FLAGGED(ch, AFF_STOPRIGHT))
 		exthit(ch, TYPE_UNDEFINED, RIGHT_WEAPON);
 
-	/***** экстраатаки */
+	//**** экстраатаки
 	for (int i = 1; i <= ch->mob_specials.ExtraAttack; i++)
 	{
 		if (AFF_FLAGGED(ch, AFF_STOPFIGHT)
@@ -1610,7 +1610,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		CLR_AF_BATTLE(ch, EAF_STAND);
 	}
 
-	/** каст заклинания */
+	//* каст заклинания
 	if (ch->get_cast_spell() && GET_WAIT(ch) <= 0)
 	{
 		if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
@@ -1641,7 +1641,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	if (GET_AF_BATTLE(ch, EAF_MULTYPARRY))
 		return;
 
-	/** применение экстра атаки */
+	//* применение экстра атаки
 	if (ch->get_extra_victim()
 		&& GET_WAIT(ch) <= 0
 		&& using_extra_attack(ch))
@@ -1657,7 +1657,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	if (!ch->get_fighting() || IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
 		return;
 
-	/***** удар основным оружием или рукой */
+	//**** удар основным оружием или рукой
 	if (GET_AF_BATTLE(ch, EAF_FIRST))
 	{
 		if (!AFF_FLAGGED(ch, AFF_STOPRIGHT)
@@ -1681,7 +1681,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		}
 	}
 
-	/***** удар вторым оружием если оно есть и умение позволяет */
+	//**** удар вторым оружием если оно есть и умение позволяет
 	if (GET_EQ(ch, WEAR_HOLD)
 		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ITEM_WEAPON
 		&& GET_AF_BATTLE(ch, EAF_SECOND)
@@ -1698,7 +1698,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
-	/***** удар второй рукой если она свободна и умение позволяет */
+	//**** удар второй рукой если она свободна и умение позволяет
 	else if (!GET_EQ(ch, WEAR_HOLD)
 		&& !GET_EQ(ch, WEAR_LIGHT)
 		&& !GET_EQ(ch, WEAR_SHIELD)
@@ -1719,9 +1719,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	try_angel_rescue(ch);
 }
 
-/**
- * \return false - чар не участвует в расчете инициативы
- */
+// * \return false - чар не участвует в расчете инициативы
 bool stuff_before_round(CHAR_DATA *ch)
 {
 	// Initialize initiative
@@ -1788,17 +1786,15 @@ bool stuff_before_round(CHAR_DATA *ch)
 	return true;
 }
 
-/**
- * Обработка текущих боев, дергается каждые 2 секунды.
- */
+// * Обработка текущих боев, дергается каждые 2 секунды.
 void perform_violence()
 {
 	int max_init = 0, min_init = 100;
 
-	/** суммон хелперов */
+	//* суммон хелперов
 	check_mob_helpers();
 
-	/** действия до раунда и расчет инициативы */
+	//* действия до раунда и расчет инициативы
 	for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list)
 	{
 		next_combat_list = ch->next_fighting;
@@ -1813,7 +1809,7 @@ void perform_violence()
 		min_init = MIN(min_init, initiative);
 	}
 
-	/** обработка раунда по очередности инициативы */
+	//* обработка раунда по очередности инициативы
 	for (int initiative = max_init; initiative >= min_init; initiative--)
 	{
 		for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list)
@@ -1837,7 +1833,7 @@ void perform_violence()
 			{
 				continue;
 			}
-			/** выполнение атак в раунде */
+			//* выполнение атак в раунде
 			if (IS_NPC(ch))
 			{
 				process_npc_attack(ch);
@@ -1849,7 +1845,7 @@ void perform_violence()
 		}
 	}
 
-	/** обновление аффектов и лагов после раунда */
+	//* обновление аффектов и лагов после раунда
 	update_round_affs();
 }
 

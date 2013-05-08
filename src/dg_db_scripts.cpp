@@ -177,7 +177,7 @@ TRIG_DATA *read_trigger(int nr)
 }
 
 
-/* release memory allocated for a variable list */
+// release memory allocated for a variable list
 void free_varlist(struct trig_var_data *vd)
 {
 	struct trig_var_data *i, *j;
@@ -195,7 +195,7 @@ void free_varlist(struct trig_var_data *vd)
 }
 
 
-/* release memory allocated for a script */
+// release memory allocated for a script
 void free_script(SCRIPT_DATA * sc)
 {
 	if (sc == NULL)
@@ -245,7 +245,7 @@ void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg)
 
 void trig_data_free(TRIG_DATA * this_data)
 {
-	/*    struct cmdlist_element *i, *j;*/
+	//    struct cmdlist_element *i, *j;
 
 	free(this_data->name);
 
@@ -277,7 +277,7 @@ void trig_data_free(TRIG_DATA * this_data)
 	free(this_data);
 }
 
-/* for mobs and rooms: */
+// for mobs and rooms:
 void dg_read_trigger(FILE * fp, void *proto, int type)
 {
 	char line[256];
@@ -290,7 +290,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	get_line(fp, line);
 	count = sscanf(line, "%s %d", junk, &vnum);
 
-	if (count != 2)  	/* should do a better job of making this message */
+	if (count != 2)  	// should do a better job of making this message
 	{
 		log("SYSERR: Error assigning trigger!");
 		return;
@@ -367,7 +367,7 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 
 	count = sscanf(line, "%s %d", junk, &vnum);
 
-	if (count != 2)  	/* should do a better job of making this message */
+	if (count != 2)  	// should do a better job of making this message
 	{
 		log("SYSERR: Error assigning trigger!");
 		return;

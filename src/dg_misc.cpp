@@ -24,10 +24,10 @@
 #include "char.hpp"
 #include "room.hpp"
 
-/* copied from spell_parser.c: */
+// copied from spell_parser.c:
 #define SINFO spell_info[spellnum]
 
-/* external vars */
+// external vars
 extern INDEX_DATA **trig_index;
 
 extern const char *item_types[];
@@ -148,14 +148,14 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 }
 
 
-/* cast a spell; can be called by mobiles, objects and rooms, and no   */
-/* level check is required. Note that mobs should generally use the    */
-/* normal 'cast' command (which must be patched to allow mobs to cast  */
-/* spells) as the spell system is designed to have a character caster, */
-/* and this cast routine may overlook certain issues.                  */
-/* LIMITATION: a target MUST exist for the spell unless the spell is   */
-/* set to TAR_IGNORE. Also, group spells are not permitted             */
-/* code borrowed from do_cast() */
+// cast a spell; can be called by mobiles, objects and rooms, and no   
+// level check is required. Note that mobs should generally use the    
+// normal 'cast' command (which must be patched to allow mobs to cast  
+// spells) as the spell system is designed to have a character caster, 
+// and this cast routine may overlook certain issues.                  
+// LIMITATION: a target MUST exist for the spell unless the spell is   
+// set to TAR_IGNORE. Also, group spells are not permitted             
+// code borrowed from do_cast() 
 void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
 	CHAR_DATA *caster = NULL;
@@ -164,7 +164,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 	int spellnum, target = 0;
 
 
-	/* need to get the caster or the room of the temporary caster */
+	// need to get the caster or the room of the temporary caster 
 	switch (type)
 	{
 	case MOB_TRIGGER:
@@ -186,7 +186,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 		return;
 	}
 
-	/* get: blank, spell name, target name */
+	// get: blank, spell name, target name 
 	s = strtok(cmd, "'");
 	if (s == NULL)
 	{
@@ -203,7 +203,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 	}
 	t = strtok(NULL, "\0");
 
-	/* spellnum = search_block(s, spells, 0); */
+	// spellnum = search_block(s, spells, 0); 
 	spellnum = find_spell_num(s);
 	if ((spellnum < 1) || (spellnum > MAX_SPELLS))
 	{
@@ -227,8 +227,8 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 			trig_log(trig, "dg_cast: Cannot load the caster mob!");
 			return;
 		}
-		/* set the caster's name to that of the object, or the gods.... */
-		/* take select pieces from char_to_room(); */
+		// set the caster's name to that of the object, or the gods.... 
+		// take select pieces from char_to_room(); 
 		if (type == OBJ_TRIGGER)
 		{
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->PNames[1]);
@@ -261,7 +261,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 		IN_ROOM(caster) = real_room(caster_room->number);
 	}
 
-	/* Find the target */
+	// Find the target 
 	if (t != NULL)
 		one_argument(t, arg);
 	else
@@ -304,11 +304,11 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 }
 
 
-/* modify an affection on the target. affections can be of the AFF_x  */
-/* variety or APPLY_x type. APPLY_x's have an integer value for them  */
-/* while AFF_x's have boolean values. In any case, the duration MUST  */
-/* be non-zero.                                                       */
-/* usage:  apply <target> <property> <spell> <value> <duration>
+/* modify an affection on the target. affections can be of the AFF_x
+   variety or APPLY_x type. APPLY_x's have an integer value for them
+   while AFF_x's have boolean values. In any case, the duration MUST
+   be non-zero.
+   usage:  apply <target> <property> <spell> <value> <duration>
    if duration < 1 - function removes affect */
 #define APPLY_TYPE	1
 #define AFFECT_TYPE	2
@@ -316,7 +316,7 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 {
 	CHAR_DATA *ch = NULL;
 	int value = 0, duration = 0, battle = 0;
-	char junk[MAX_INPUT_LENGTH];	/* will be set to "dg_affect" */
+	char junk[MAX_INPUT_LENGTH];	// will be set to "dg_affect"
 	char charname[MAX_INPUT_LENGTH], property[MAX_INPUT_LENGTH];
 	char value_p[MAX_INPUT_LENGTH], duration_p[MAX_INPUT_LENGTH];
 	char battle_p[MAX_INPUT_LENGTH];
@@ -332,7 +332,7 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	half_chop(cmd, value_p, cmd);
 	half_chop(cmd, duration_p, battle_p);
 
-	/* make sure all parameters are present */
+	// make sure all parameters are present
 	if (!*charname || !*property || !*value_p || !*duration_p)
 	{
 		sprintf(buf2, "dg_affect usage: <target> <property> <spell> <value> <duration>");
@@ -340,7 +340,7 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 		return;
 	}
 
-	/* заменяем '_' на ' ' в названии заклинания и аффекта */
+	// заменяем '_' на ' ' в названии заклинания и аффекта
 	for (i = 0; spell[i]; i++)
 		if (spell[i] == '_')
 			spell[i] = ' ';
@@ -358,27 +358,27 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 		return;
 	}
 
-	/* find the property -- first search apply_types */
+	// find the property -- first search apply_types
 	if ((index = search_block(property, apply_types, FALSE)) != -1)
 		type = APPLY_TYPE;
 	else
 	{
-		/* search affect_types now */
+		//search affect_types now
 		if ((index = ext_search_block(property, affected_bits, FALSE)) != 0)
 			type = AFFECT_TYPE;
 	}
 
-	if (!type)  		/* property not found */
+	if (!type)  		// property not found
 	{
 		sprintf(buf2, "dg_affect: unknown property '%s'!", property);
 		trig_log(trig, buf2);
 		return;
 	}
 
-	/* locate spell */
+	// locate spell
 	index_s = find_spell_num(spell);
 
-	/* spell not found */
+	// spell not found
 	if (index_s <= 0)
 	{
 		sprintf(buf2, "dg_affect: unknown spell '%s'!", spell);
@@ -387,7 +387,7 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	}
 
 
-	/* locate the target */
+	// locate the target
 	ch = get_char(charname);
 	if (!ch)
 	{
@@ -398,7 +398,7 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 
 	if (duration > 0)
 	{
-		/* add the affect */
+		// add the affect
 		af.type = index_s;
 		af.duration = duration;
 		af.modifier = value;
@@ -417,9 +417,9 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	}
 	else
 	{
-		/* remove affect */
+		// remove affect
 		affect_from_char(ch, index_s);
-		/* trig_log(trig, "dg_affect: affect removed from char");
-		Вроде не критично уже видеть все снятия аффектов */ 
+		// trig_log(trig, "dg_affect: affect removed from char");
+		//Вроде не критично уже видеть все снятия аффектов
 	}
 }

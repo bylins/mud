@@ -97,9 +97,7 @@ const int MAX_GLORY_TIMER = 267840; // таймер вложенной славы (в минутах)
 const int DISPLACE_TIMER = 20160; // таймер на переклдывание вложенной славы между статами (в минутах)
 GloryListType glory_list; // общий список славы на чарах, в том числе влитой в статы
 
-/**
-* Копирование всех полей, чтобы не морочить голову с копированием указателей.
-*/
+// * Копирование всех полей, чтобы не морочить голову с копированием указателей.
 GloryNode & GloryNode::operator= (const GloryNode &t)
 {
 	free_glory = t.free_glory;
@@ -120,9 +118,7 @@ GloryNode & GloryNode::operator= (const GloryNode &t)
 	return *this;
 }
 
-/**
-* Копирование ноды с влитым статом от k с проверкой на макс_стат.
-*/
+// * Копирование ноды с влитым статом от k с проверкой на макс_стат.
 void GloryNode::copy_stat(const GloryTimePtr k)
 {
 	if (spend_glory < MAX_STATS_BY_GLORY)
@@ -135,9 +131,7 @@ void GloryNode::copy_stat(const GloryTimePtr k)
 	}
 }
 
-/**
-* Копирование свободной и влитой (по возможности) славы от k.
-*/
+// * Копирование свободной и влитой (по возможности) славы от k.
 void GloryNode::copy_glory(const GloryNodePtr k)
 {
 	free_glory += k->free_glory;
@@ -147,9 +141,7 @@ void GloryNode::copy_glory(const GloryNodePtr k)
 	}
 }
 
-/**
-* Загрузка общего списка славы, проверка на валидность чара, славы, сверка мд5 файла.
-*/
+// * Загрузка общего списка славы, проверка на валидность чара, славы, сверка мд5 файла.
 void load_glory()
 {
 	const char *glory_file = LIB_PLRSTUFF"glory.lst";
@@ -287,9 +279,7 @@ void load_glory()
 	}
 }
 
-/**
-* Сохранение общего списка славы, запись мд5 файла.
-*/
+// * Сохранение общего списка славы, запись мд5 файла.
 void save_glory()
 {
 	long all_sum = 0;
@@ -321,9 +311,7 @@ void save_glory()
 	file.close();
 }
 
-/**
-* Аналог бывшего макроса GET_GLORY().
-*/
+// * Аналог бывшего макроса GET_GLORY().
 int get_glory(long uid)
 {
 	int glory = 0;
@@ -333,9 +321,7 @@ int get_glory(long uid)
 	return glory;
 }
 
-/**
-* Добавление славы чару, создание новой записи при необходимости, уведомление, если чар онлайн.
-*/
+// * Добавление славы чару, создание новой записи при необходимости, уведомление, если чар онлайн.
 void add_glory(long uid, int amount)
 {
 	if (uid <= 0 || amount <= 0) return;
@@ -391,9 +377,7 @@ int remove_glory(long uid, int amount)
 	return real_removed;
 }
 
-/**
-* Просто, чтобы не дублировать в разных местах одно и тоже.
-*/
+// * Просто, чтобы не дублировать в разных местах одно и тоже.
 void print_denial_message(CHAR_DATA *ch, int denial)
 {
 	send_to_char(ch, "Вы не сможете изменить уже вложенные очки славы (%s).\r\n", time_format(denial).c_str());
@@ -497,9 +481,7 @@ bool parse_remove_stat(CHAR_DATA *ch, int stat)
 	return 1;
 }
 
-/**
-* Добавление стата в олц, проверка на свободные записи с включенным таймером, чтобы учесть перекладывание первым.
-*/
+// * Добавление стата в олц, проверка на свободные записи с включенным таймером, чтобы учесть перекладывание первым.
 void parse_add_stat(CHAR_DATA *ch, int stat)
 {
 	// в любом случае стат добавится
@@ -547,9 +529,7 @@ void parse_add_stat(CHAR_DATA *ch, int stat)
 	ch->desc->glory->olc_node->timers.push_front(temp_timer);
 }
 
-/**
-* Парс олц меню 'слава'.
-*/
+// * Парс олц меню 'слава'.
 bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 {
 	switch (*arg)
@@ -741,9 +721,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 	return 0;
 }
 
-/**
-* Распечатка олц меню.
-*/
+// * Распечатка олц меню.
 void spend_glory_menu(CHAR_DATA *ch)
 {
 	std::ostringstream out;
@@ -825,9 +803,7 @@ void spend_glory_menu(CHAR_DATA *ch)
 	send_to_char(out.str(), ch);
 }
 
-/**
-* Распечатка 'слава информация'.
-*/
+// * Распечатка 'слава информация'.
 void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 {
 	std::ostringstream out;
@@ -862,9 +838,7 @@ void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 	return;
 }
 
-/**
-* Команда 'слава' - вложение имеющейся у игрока славы в статы без участия иммов.
-*/
+// * Команда 'слава' - вложение имеющейся у игрока славы в статы без участия иммов.
 ACMD(do_spend_glory)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
@@ -953,9 +927,7 @@ ACMD(do_spend_glory)
 	spend_glory_menu(ch);
 }
 
-/**
-* Удаление статов у чара, если он онлайн.
-*/
+// * Удаление статов у чара, если он онлайн.
 void remove_stat_online(long uid, int stat, int glory)
 {
 	DESCRIPTOR_DATA *d = DescByUID(uid);
@@ -987,9 +959,7 @@ void remove_stat_online(long uid, int stat, int glory)
 	}
 }
 
-/**
-* Тикание таймеров славы и запрета перекладывания, снятие просроченной славы с чара онлайн.
-*/
+// * Тикание таймеров славы и запрета перекладывания, снятие просроченной славы с чара онлайн.
 void timers_update()
 {
 	for (GloryListType::iterator it = glory_list.begin(); it != glory_list.end(); ++it)
@@ -1251,9 +1221,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	}
 }
 
-/**
-* Показ свободной и вложенной славы у чара (glory имя).
-*/
+// * Показ свободной и вложенной славы у чара (glory имя).
 void show_glory(CHAR_DATA *ch, CHAR_DATA *god)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
@@ -1268,9 +1236,7 @@ void show_glory(CHAR_DATA *ch, CHAR_DATA *god)
 	return;
 }
 
-/**
-* Вывод инфы в show stats.
-*/
+// * Вывод инфы в show stats.
 void show_stats(CHAR_DATA *ch)
 {
 	int free_glory = 0, spend_glory = 0;
@@ -1282,9 +1248,7 @@ void show_stats(CHAR_DATA *ch)
 	send_to_char(ch, "  Слава: вложено %d, свободно %d, всего %d\r\n", spend_glory, free_glory, free_glory + spend_glory);
 }
 
-/**
-* Распечатка топа славы. У иммов дополнительно печатается список чаров, не вошедших в топ (hide).
-*/
+// * Распечатка топа славы. У иммов дополнительно печатается список чаров, не вошедших в топ (hide).
 void print_glory_top(CHAR_DATA *ch)
 {
 	std::stringstream out;
@@ -1325,9 +1289,7 @@ void print_glory_top(CHAR_DATA *ch)
 	}
 }
 
-/**
-* Вкдючение/выключение показа чара в топе славы (glory hide on|off).
-*/
+// * Вкдючение/выключение показа чара в топе славы (glory hide on|off).
 void hide_char(CHAR_DATA *vict, CHAR_DATA *god, char const * const mode)
 {
 	if (!mode || !*mode) return;
@@ -1352,9 +1314,7 @@ void hide_char(CHAR_DATA *vict, CHAR_DATA *god, char const * const mode)
 		send_to_char(god, "Некорректный параметр %s, hide может быть только on или off.\r\n", mode);
 }
 
-/**
-* Остановка таймеров на вложенной славе.
-*/
+// * Остановка таймеров на вложенной славе.
 void set_freeze(long uid)
 {
 	GloryListType::iterator it = glory_list.find(uid);
@@ -1363,9 +1323,7 @@ void set_freeze(long uid)
 	save_glory();
 }
 
-/**
-* Включение таймеров на вложенной славе.
-*/
+// * Включение таймеров на вложенной славе.
 void remove_freeze(long uid)
 {
 	GloryListType::iterator it = glory_list.find(uid);
@@ -1374,9 +1332,7 @@ void remove_freeze(long uid)
 	save_glory();
 }
 
-/**
-* Во избежание разного рода недоразумений с фризом таймеров - проверяем эту тему при входе в игру.
-*/
+// * Во избежание разного рода недоразумений с фризом таймеров - проверяем эту тему при входе в игру.
 void check_freeze(CHAR_DATA *ch)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
