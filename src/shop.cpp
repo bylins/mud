@@ -12,9 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-/***
- * The entire shop rewrite for Circle 3.0 was done by Jeff Fink.  Thanks Jeff!
- ***/
+// * The entire shop rewrite for Circle 3.0 was done by Jeff Fink.  Thanks Jeff!
 #define __SHOP_C__
 
 #include "conf.h"
@@ -38,7 +36,7 @@
 
 extern TIME_INFO_DATA time_info;
 
-/* Forward/External function declarations */
+// Forward/External function declarations
 ACMD(do_tell);
 ACMD(do_echo);
 ACMD(do_say);
@@ -51,12 +49,12 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 void clear_mob_charm(CHAR_DATA *mob);
 
-/* Local variables */
+// Local variables
 SHOP_DATA *shop_index;
 int top_shop = -1;
 int cmd_say, cmd_tell, cmd_emote, cmd_slap, cmd_puke;
 
-/* local functions */
+// local functions
 int read_type_list(FILE * shop_f, struct shop_buy_data *list, int new_format, int max);
 int read_list(FILE * shop_f, struct shop_buy_data *list, int new_format, int max, int type);
 void shopping_list(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr);
@@ -100,7 +98,7 @@ void read_line(FILE * shop_f, const char *string, void *data);
 #define SCMD_REPAIR 1
 #define SCMD_VALUE  2
 
-/* config arrays */
+// config arrays
 const char *operator_str[] = { "[({",
 							   "])}",
 							   "|+",
@@ -108,11 +106,11 @@ const char *operator_str[] = { "[({",
 							   "^'"
 							 };
 
-/* Constant list for printing out who we sell to */
-const char *trade_letters[] = { "Христиане",	/* First, the alignment based ones */
+// Constant list for printing out who we sell to
+const char *trade_letters[] = { "Христиане",	// First, the alignment based ones
 								"Язычники",
 								"Neutral",
-								"Маги",			/* Then the class based ones */
+								"Маги",			// Then the class based ones
 								"Клерики",
 								"Воры",
 								"Воины",
@@ -262,7 +260,7 @@ void evaluate_operation(struct stack_data *ops, struct stack_data *vals)
 	{
 		int val1 = pop(vals), val2 = pop(vals);
 
-		/* Compiler would previously short-circuit these. */
+		// Compiler would previously short-circuit these.
 		if (oper == OPER_AND)
 			push(vals, val1 && val2);
 		else if (oper == OPER_OR)
@@ -288,7 +286,7 @@ int evaluate_expression(OBJ_DATA * obj, char *expr)
 	char *ptr, *end, name[200];
 	int temp, index, value = 0, bank = 0, bit = 0;
 
-	if (!expr || !*expr)	/* Allows opening ( first. */
+	if (!expr || !*expr)	// Allows opening ( first.
 		return (TRUE);
 
 	ops.len = vals.len = 0;
@@ -720,7 +718,7 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	{
 		bought++;
 
-		/* Test if producing shop ! */
+		// Test if producing shop !
 		if (shop_producing(obj, shop_nr))
 		{
 			obj = read_object(GET_OBJ_RNUM(obj), REAL);
@@ -776,14 +774,14 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 		do_tell(keeper, buf, cmd_tell, 0);
 	}
 
-	/* if (!IS_GOD(ch)) */
+	// if (!IS_GOD(ch))
 	//keeper->add_gold(goldamt); // commented by WorM (Видолюб) 25.07.2010 бабки то у нас в магазах бесконечные,
 	                             // собсно есть чит с чармисами торгашами
 
 	sprintf(buf, "$n купил$g %s.", times_message(obj /* ch->carrying */ , 0, bought, 3));
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);
 
-	/* sprintf(buf, shop_index[shop_nr].message_buy, GET_NAME(ch), goldamt); */
+	// sprintf(buf, shop_index[shop_nr].message_buy, GET_NAME(ch), goldamt);
 	write_buf(buf, shop_index[shop_nr].message_buy, GET_NAME(ch), goldamt, WHAT_MONEYu);
 	do_tell(keeper, buf, cmd_tell, 0);
 
@@ -831,7 +829,7 @@ OBJ_DATA *get_selling_item(CHAR_DATA * ch, OBJ_DATA * obj, CHAR_DATA * keeper, i
 		sprintf(buf, "%s! В %s что-то лежит", GET_NAME(ch), obj->PNames[5]);
 		break;
 	default:
-		log("SYSERR: Illegal return value of %d from trade_with() (%s)", result, __FILE__);	/* Someone might rename it... */
+		log("SYSERR: Illegal return value of %d from trade_with() (%s)", result, __FILE__);	// Someone might rename it...
 		sprintf(buf, "%s! An error has occurred.", GET_NAME(ch));
 		break;
 	}
@@ -875,7 +873,7 @@ OBJ_DATA *get_selling_obj(CHAR_DATA * ch, char *name, CHAR_DATA * keeper, int sh
 		sprintf(buf, "%s! В %s что-то лежит", GET_NAME(ch), obj->PNames[5]);
 		break;
 	default:
-		log("SYSERR: Illegal return value of %d from trade_with() (%s)", result, __FILE__);	/* Someone might rename it... */
+		log("SYSERR: Illegal return value of %d from trade_with() (%s)", result, __FILE__);	// Someone might rename it...
 		sprintf(buf, "%s! An error has occurred.", GET_NAME(ch));
 		break;
 	}
@@ -930,7 +928,7 @@ OBJ_DATA *slide_obj(OBJ_DATA * obj, CHAR_DATA * keeper, int shop_nr)
 	if (SHOP_SORT(shop_nr) < IS_CARRYING_N(keeper))
 		sort_keeper_objs(keeper, shop_nr);
 
-	/* Extract the object if it is identical to one produced */
+	// Extract the object if it is identical to one produced
 	if (shop_producing(obj, shop_nr) || trade_with(obj, shop_nr, MODE_TRADE) != OBJECT_OK)
 	{
 		temp = GET_OBJ_RNUM(obj);
@@ -1027,7 +1025,7 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 	sprintf(buf, "$n продал$g %s.", times_message(obj, 0, sold, 3));
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);
 
-	/*  sprintf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt); */
+	//  sprintf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt);
 	write_buf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt, WHAT_MONEYa);
 	do_tell(keeper, buf, cmd_tell, 0);
 
@@ -1626,14 +1624,12 @@ char *list_object(OBJ_DATA * obj, int cnt, int index, int shop_nr)
 		sprintf(buf2, "%5d       ", cnt);
 	sprintf(buf, " %2d)  %s", index, buf2);
 
-	/* Compile object name and information */
+	// Compile object name and information
 	strcpy(buf3, obj->short_description);
-	/*
-	   if ((GET_OBJ_TYPE(obj) == ITEM_DRINKCON) && (GET_OBJ_VAL(obj, 1)))
-	   sprintf(END_OF(buf3), "  %s", drinks[GET_OBJ_VAL(obj, 2)]);
-	 */
-	/* FUTURE: */
-	/* Add glow/hum/etc */
+	// if ((GET_OBJ_TYPE(obj) == ITEM_DRINKCON) && (GET_OBJ_VAL(obj, 1)))
+	// sprintf(END_OF(buf3), "  %s", drinks[GET_OBJ_VAL(obj, 2)]);
+	// FUTURE:
+	// Add glow/hum/etc
 
 	if ((GET_OBJ_TYPE(obj) == ITEM_WAND) || (GET_OBJ_TYPE(obj) == ITEM_STAFF))
 		if (GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1))
@@ -1727,7 +1723,7 @@ SPECIAL(shop_keeper)
 	if (shop_nr > top_shop)
 		return (FALSE);
 
-	/* Check secondary function */
+	// Check secondary function
 	// по идее проверка на shop_keeper тут хоть как нужна, иначе
 	// есть вариант вызывать самого себя до потери сознания
 	if (SHOP_FUNC(shop_nr) && SHOP_FUNC(shop_nr) != shop_keeper)
@@ -1741,7 +1737,7 @@ SPECIAL(shop_keeper)
 	if (keeper == ch)
 	{
 		if (cmd)
-			SHOP_SORT(shop_nr) = 0;	/* Safety in case "drop all" */
+			SHOP_SORT(shop_nr) = 0;	// Safety in case "drop all"
 		return (FALSE);
 	}
 	if (!ok_shop_room(shop_nr, GET_ROOM_VNUM(IN_ROOM(ch))))
@@ -1773,12 +1769,12 @@ SPECIAL(shop_keeper)
 		shopping_buy(argument, ch, keeper, shop_nr);
 		return (TRUE);
 	}
-	else if (CMD_IS("sell") || CMD_IS("продать"))  	/* shopping_sell(argument, ch, keeper, shop_nr); */
+	else if (CMD_IS("sell") || CMD_IS("продать"))  	// shopping_sell(argument, ch, keeper, shop_nr);
 	{
 		do_multi(SCMD_SELL, argument, ch, keeper, shop_nr);
 		return (TRUE);
 	}
-	else if (CMD_IS("value") || CMD_IS("оценить"))  	/* shopping_value(argument, ch, keeper, shop_nr); */
+	else if (CMD_IS("value") || CMD_IS("оценить"))  	// shopping_value(argument, ch, keeper, shop_nr);
 	{
 		do_multi(SCMD_VALUE, argument, ch, keeper, shop_nr);
 		return (TRUE);
@@ -1970,13 +1966,13 @@ void boot_the_shops(FILE * shop_f, char *filename, int rec_count)
 	while (!done)
 	{
 		buf = fread_string(shop_f, buf2);
-		if (*buf == '#')  	/* New shop */
+		if (*buf == '#')  	// New shop //
 		{
 			use_change = 0;
 			sscanf(buf, "#%d %c\n", &temp, &use_change);
 			sprintf(buf2, "shop #%d in shop file %s", temp, filename);
 			log("Shop %d %s", temp, use_change ? "(extend)" : "");
-			free(buf);	/* Plug memory leak! */
+			free(buf);	// Plug memory leak! //
 			top_shop++;
 			if (!top_shop)
 				CREATE(shop_index, SHOP_DATA, rec_count);
@@ -2061,11 +2057,11 @@ void boot_the_shops(FILE * shop_f, char *filename, int rec_count)
 		}
 		else
 		{
-			if (*buf == '$')	/* EOF */
+			if (*buf == '$')	// EOF //
 				done = TRUE;
-			else if (strstr(buf, VERSION3_TAG))	/* New format marker */
+			else if (strstr(buf, VERSION3_TAG))	// New format marker //
 				new_format = 1;
-			free(buf);	/* Plug memory leak! */
+			free(buf);	// Plug memory leak! //
 		}
 	}
 }

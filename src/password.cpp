@@ -24,9 +24,7 @@ const char *BAD_PASSWORD = "Пароль должен быть от 8 до 50 символов и не должен б
 const unsigned int MIN_PWD_LENGTH = 8;
 const unsigned int MAX_PWD_LENGTH = 50;
 
-/**
-* Генерация хэша с более-менее рандомным сальтом
-*/
+// * Генерация хэша с более-менее рандомным сальтом
 std::string generate_md5_hash(const std::string &pwd)
 {
 	char key[14];

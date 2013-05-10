@@ -434,8 +434,7 @@ void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 	return;
 }
 
-/*Пришлось дублировать функцию для суммона, чтобы спасти душиков, т.е
-я удалил проверку на душиков*/
+// * Пришлось дублировать функцию для суммона, чтобы спасти душиков, т.е я удалил проверку на душиков
 int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
 	struct PK_Memory_type *pk;
@@ -646,7 +645,7 @@ void aura(CHAR_DATA * ch, int lvl, CHAR_DATA * victim, char *s)
 	}
 }
 
-/* Печать списка пк */
+// Печать списка пк
 void pk_list_sprintf(CHAR_DATA * ch, char *buff)
 {
 	struct PK_Memory_type *pk;

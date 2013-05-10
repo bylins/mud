@@ -29,18 +29,14 @@
 #include "sets_drop.hpp"
 #include "fight.h"
 
-/*
- * Set this to 1 for debugging logs in medit_save_internally.
- */
+// * Set this to 1 for debugging logs in medit_save_internally.
 #if 0
 #define DEBUG
 #endif
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- * External variable declarations.
- */
+// * External variable declarations.
 
 extern INDEX_DATA *mob_index;
 extern CHAR_DATA *mob_proto;
@@ -64,11 +60,9 @@ SPECIAL(shop_keeper);
 SPECIAL(receptionist);
 void clear_mob_charm(CHAR_DATA *mob);
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- * Handy internal macros.
- */
+// * Handy internal macros.
 
 //#define GET_NDD(mob) ((mob)->mob_specials.damnodice)
 //#define GET_SDD(mob) ((mob)->mob_specials.damsizedice)
@@ -83,11 +77,9 @@ void clear_mob_charm(CHAR_DATA *mob);
 #define GET_MPROG_TYPE(mob)	(mob_index[(mob)->nr].progtypes)
 #endif
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- * Function prototypes.
- */
+// * Function prototypes.
 void medit_setup(DESCRIPTOR_DATA * d, int rmob_num);
 
 void medit_mobile_init(CHAR_DATA * mob);
@@ -113,10 +105,8 @@ const char *medit_get_mprog_type(struct mob_prog_data *mprog);
 #endif
 
 
+//   Инициализация моба по-умолчанию
 void medit_mobile_init(CHAR_DATA * mob)
-/*++
-   Инициализация моба по-умолчанию
---*/
 {
 	int i;
 
@@ -306,7 +296,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 
 }
 
-//***********************************************************************
+// ***********************************************************************
 
 void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 /*++
@@ -377,10 +367,10 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 	OLC_MOB(d) = mob;
 	OLC_ITEM_TYPE(d) = MOB_TRIGGER;
 	medit_disp_menu(d);
-	OLC_VAL(d) = 0;		/* Has changed flag. (It hasn't so far, we just made it.) */
+	OLC_VAL(d) = 0;		// Has changed flag. (It hasn't so far, we just made it.)
 }
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
 #define ZCMD zone_table[zone].cmd[cmd_no]
 
@@ -452,9 +442,9 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 
 		for (rmob_num = 0; rmob_num <= top_of_mobt; rmob_num++)
 		{
-			if (!found)  	/* Is this the place? */
+			if (!found)  	// Is this the place?
 			{
-				if (mob_index[rmob_num].vnum > OLC_NUM(d))  	/* Yep, stick it here. */
+				if (mob_index[rmob_num].vnum > OLC_NUM(d))  	// Yep, stick it here.
 				{
 					found = TRUE;
 #if defined(DEBUG)
@@ -471,13 +461,13 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 					--rmob_num;
 					continue;
 				}
-				else  	/* Nope, copy over as normal. */
+				else  	// Nope, copy over as normal.
 				{
 					new_index[rmob_num] = mob_index[rmob_num];
 					new_proto[rmob_num] = mob_proto[rmob_num];
 				}
 			}
-			else  	/* We've already found it, copy the rest over. */
+			else  	// We've already found it, copy the rest over.
 			{
 				new_index[rmob_num + 1] = mob_index[rmob_num];
 				new_proto[rmob_num + 1] = mob_proto[rmob_num];
@@ -489,7 +479,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 				"rmob_num: %d, top_of_mobt: %d, array size: 0-%d (%d)\n",
 				rmob_num, top_of_mobt, top_of_mobt + 1, top_of_mobt + 2);
 #endif
-		if (!found)  	/* Still not found, must add it to the top of the table. */
+		if (!found)  	// Still not found, must add it to the top of the table.
 		{
 #if defined(DEBUG)
 			fprintf(stderr, "Append.\n");
@@ -504,7 +494,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			new_index[rmob_num].zone = real_zone(OLC_NUM(d));
 		}
 
-		/* Replace tables. */
+		// Replace tables.
 #if defined(DEBUG)
 		fprintf(stderr, "Attempted free.\n");
 #endif
@@ -522,15 +512,15 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 // Оновная проблема - перенумерация всех существующих RNUM
 
 // 1. Увеличение RNUM существующих в мире мобов
-		/* Update live mobile rnums. */
-		/* new_mob_num - индекс, куда вставлен новый моб */
-		/* Для всех существующих мобов с RNUM>=new_mob_num нужно увеличить RNUM */
+		// Update live mobile rnums. //
+		// new_mob_num - индекс, куда вставлен новый моб //
+		// Для всех существующих мобов с RNUM>=new_mob_num нужно увеличить RNUM //
 		for (live_mob = character_list; live_mob; live_mob = live_mob->next)
 			if (GET_MOB_RNUM(live_mob) >= new_mob_num)
 				GET_MOB_RNUM(live_mob)++;
 
 // 2. Изменение параметров команд zon-файлов
-		/* Update zone table. */
+		// Update zone table. //
 		for (zone = 0; zone <= top_of_zone_table; zone++)
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
 				if (ZCMD.command == 'M' || ZCMD.command == 'Q')
@@ -546,16 +536,14 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 						ZCMD.arg3++;
 				}
 // 3. Владельцы магазинов
-		/* Update shop keepers. */
+		// Update shop keepers. //
 		if (shop_index)
 			for (shop = 0; shop <= top_shop; shop++)
 				if (SHOP_KEEPER(shop) >= new_mob_num)
 					SHOP_KEEPER(shop)++;
 
 // 4. Другие редактируемые мобы
-		/*
-		 * Update keepers in shops being edited and other mobs being edited.
-		 */
+		// * Update keepers in shops being edited and other mobs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next)
 			if (dsc->connected == CON_SEDIT)
 			{
@@ -595,7 +583,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_MOB);
 }
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
 /*
  * Save ALL mobiles for a zone to their .mob file, mobs are all
@@ -623,9 +611,7 @@ void medit_save_to_disk(int zone_num)
 		return;
 	}
 
-	/*
-	 * Seach the database for mobs in this zone and save them.
-	 */
+	// * Seach the database for mobs in this zone and save them.
 	for (i = zone * 100; i <= top; i++)
 	{
 		if ((rmob_num = real_mobile(i)) != -1)
@@ -639,9 +625,7 @@ void medit_save_to_disk(int zone_num)
 			mob = (mob_proto + rmob_num);
 			mob->set_normal_morph();
 
-			/*
-			 * Clean up strings.
-			 */
+			// * Clean up strings.
 			strcpy(buf1, not_null(GET_LDESC(mob), "неопределен"));
 			strip_string(buf1);
 			strcpy(buf2, not_null(GET_DDESC(mob), "undefined"));
@@ -677,9 +661,7 @@ void medit_save_to_disk(int zone_num)
 					GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob),
 					GET_POS(mob), GET_DEFAULT_POS(mob), GET_SEX(mob));
 
-			/*
-			 * Deal with Extra stats in case they are there.
-			 */
+			// * Deal with Extra stats in case they are there.
 			sum = 0;
 			for (n = 0; n < SAVING_COUNT; n++)
 				sum += GET_SAVE(mob, n);
@@ -769,9 +751,7 @@ void medit_save_to_disk(int zone_num)
 			for (helper = GET_HELPER(mob); helper; helper = helper->next_helper)
 				fprintf(mob_file, "Helper: %d\n", helper->mob_vnum);
 
-			/*
-			 * XXX: Add E-mob handlers here.
-			 */
+			// * XXX: Add E-mob handlers here.
 
 			fprintf(mob_file, "E\n");
 
@@ -791,9 +771,7 @@ void medit_save_to_disk(int zone_num)
 				}
 			}
 #if defined(OASIS_MPROG)
-			/*
-			 * Write out the MobProgs.
-			 */
+			// * Write out the MobProgs.
 			mob_prog = GET_MPROG(mob);
 			while (mob_prog)
 			{
@@ -811,22 +789,18 @@ void medit_save_to_disk(int zone_num)
 	fprintf(mob_file, "$\n");
 	fclose(mob_file);
 	sprintf(buf2, "%s/%d.mob", MOB_PREFIX, zone);
-	/*
-	 * We're fubar'd if we crash between the two lines below.
-	 */
+	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(fname, buf2);
 
 	olc_remove_from_save_list(zone_table[zone_num].number, OLC_SAVE_MOB);
 }
 
-/**************************************************************************
- Menu functions
- **************************************************************************/
+// **************************************************************************
+// * Menu functions                                                         *
+// **************************************************************************
 
-/*
- * Display positions. (sitting, standing, etc)
- */
+// * Display positions. (sitting, standing, etc)
 void medit_disp_positions(DESCRIPTOR_DATA * d)
 {
 	int i;
@@ -844,11 +818,9 @@ void medit_disp_positions(DESCRIPTOR_DATA * d)
 	send_to_char("Выберите положение : ", d->character);
 }
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- *  Display add parameters - added by Adept
- */
+// *  Display add parameters - added by Adept
 void medit_disp_add_parameters(DESCRIPTOR_DATA * d)
 {
 	get_char_cols(d->character);
@@ -881,11 +853,9 @@ void medit_disp_add_parameters(DESCRIPTOR_DATA * d)
 	send_to_char("Введите номер и величину параметра (0 - конец) : ", d->character);
 }
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- *  Display resistances - added by Adept
- */
+// *  Display resistances - added by Adept
 void medit_disp_resistances(DESCRIPTOR_DATA * d)
 {
 	int i;
@@ -904,11 +874,9 @@ void medit_disp_resistances(DESCRIPTOR_DATA * d)
 
 }
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- *  Display saves - added by Adept
- */
+// *  Display saves - added by Adept
 void medit_disp_saves(DESCRIPTOR_DATA * d)
 {
 	int i;
@@ -927,13 +895,11 @@ void medit_disp_saves(DESCRIPTOR_DATA * d)
 
 }
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
 
 #if defined(OASIS_MPROG)
-/*
- * Get the type of MobProg.
- */
+// * Get the type of MobProg.
 const char *medit_get_mprog_type(struct mob_prog_data *mprog)
 {
 	switch (mprog->type)
@@ -966,11 +932,9 @@ const char *medit_get_mprog_type(struct mob_prog_data *mprog)
 	return ">ERROR_PROG";
 }
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- * Display the MobProgs.
- */
+// * Display the MobProgs.
 void medit_disp_mprog(DESCRIPTOR_DATA * d)
 {
 	struct mob_prog_data *mprog = OLC_MPROGL(d);
@@ -996,11 +960,9 @@ void medit_disp_mprog(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = MEDIT_MPROG;
 }
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- * Change the MobProgs.
- */
+// * Change the MobProgs.
 void medit_change_mprog(DESCRIPTOR_DATA * d)
 {
 #if defined(CLEAR_SCREEN)
@@ -1019,11 +981,9 @@ void medit_change_mprog(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = MEDIT_CHANGE_MPROG;
 }
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- * Change the MobProg type.
- */
+// * Change the MobProg type.
 void medit_disp_mprog_types(DESCRIPTOR_DATA * d)
 {
 	int i;
@@ -1043,11 +1003,9 @@ void medit_disp_mprog_types(DESCRIPTOR_DATA * d)
 }
 #endif
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- * Display the gender of the mobile.
- */
+// * Display the gender of the mobile.
 void medit_disp_sex(DESCRIPTOR_DATA * d)
 {
 	int i;
@@ -1066,10 +1024,8 @@ void medit_disp_sex(DESCRIPTOR_DATA * d)
 }
 
 //Added by Adept
-/*-------------------------------------------------------------------*/
-/*
- * Display the class of the mobile.
- */
+//-------------------------------------------------------------------
+// * Display the class of the mobile.
 void medit_disp_class(DESCRIPTOR_DATA * d)
 {
 	int i;
@@ -1087,10 +1043,8 @@ void medit_disp_class(DESCRIPTOR_DATA * d)
 	send_to_char("Выберите класс моба : ", d->character);
 }
 
-/*-------------------------------------------------------------------*/
-/*
- *  Display features - added by Gorrah
- */
+//-------------------------------------------------------------------
+// *  Display features - added by Gorrah
 void medit_disp_features(DESCRIPTOR_DATA * d)
 {
 	int columns = 0, counter;
@@ -1113,10 +1067,10 @@ void medit_disp_features(DESCRIPTOR_DATA * d)
 	}
 	send_to_char("\r\nУкажите номер способности. (0 - конец) : ", d->character);
 }
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
 // Конец изменений Gorrah'ом
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
 //Polud npc race menu
 void medit_disp_race(DESCRIPTOR_DATA * d)
@@ -1137,9 +1091,7 @@ void medit_disp_race(DESCRIPTOR_DATA * d)
 }
 //-Polud
 
-/*
- * Display attack types menu.
- */
+// * Display attack types menu.
 void medit_disp_attack_types(DESCRIPTOR_DATA * d)
 {
 	int i;
@@ -1156,7 +1108,7 @@ void medit_disp_attack_types(DESCRIPTOR_DATA * d)
 	send_to_char("Выберите тип удара : ", d->character);
 }
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 void medit_disp_helpers(DESCRIPTOR_DATA * d)
 {
 	int columns = 0;
@@ -1228,9 +1180,7 @@ void medit_disp_spells(DESCRIPTOR_DATA * d)
 
 
 
-/*
- * Display mob-flags menu.
- */
+// * Display mob-flags menu.
 void medit_disp_mob_flags(DESCRIPTOR_DATA * d)
 {
 	int columns = 0, plane = 0, counter;
@@ -1292,11 +1242,9 @@ void medit_disp_npc_flags(DESCRIPTOR_DATA * d)
 }
 
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- * Display affection flags menu.
- */
+// * Display affection flags menu.
 void medit_disp_aff_flags(DESCRIPTOR_DATA * d)
 {
 	int columns = 0, plane = 0, counter;
@@ -1329,11 +1277,9 @@ void medit_disp_aff_flags(DESCRIPTOR_DATA * d)
 }
 
 
-/*-------------------------------------------------------------------*/
+//-------------------------------------------------------------------
 
-/*
- * Display main menu.
- */
+// * Display main menu.
 void medit_disp_menu(DESCRIPTOR_DATA * d)
 {
 	int i;
@@ -1464,7 +1410,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = MEDIT_MAIN_MENU;
 }
 
-/* Display on_death load object list*/
+// Display on_death load object list
 void disp_dl_list(DESCRIPTOR_DATA * d)
 {
 	// Список загружаемых посмертно объектов:
@@ -1527,9 +1473,9 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 }
 
 
-/************************************************************************
- *			The GARGANTAUN event handler			*
- ************************************************************************/
+// ************************************************************************
+// *      The GARGANTAUN event handler                                    *
+// ************************************************************************
 
 void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
@@ -1547,11 +1493,9 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	switch (OLC_MODE(d))
 	{
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_CONFIRM_SAVESTRING:
-		/*
-		 * Ensure mob has MOB_ISNPC set or things will go pair shaped.
-		 */
+		// * Ensure mob has MOB_ISNPC set or things will go pair shaped.
 		SET_BIT(MOB_FLAGS(OLC_MOB(d), MOB_ISNPC), MOB_ISNPC);
 		switch (*arg)
 		{
@@ -1559,17 +1503,13 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'Y':
 		case 'д':
 		case 'Д':
-			/*
-			 * Save the mob in memory and to disk.
-			 */
+			// * Save the mob in memory and to disk.
 			send_to_char("Saving mobile to memory.\r\n", d->character);
 			medit_save_internally(d);
 			sprintf(buf, "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
 			olc_log("%s edit mob %d", GET_NAME(d->character), OLC_NUM(d));
 			mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-			/*
-			 * Do NOT free strings! Just the mob structure.
-			 */
+			// * Do NOT free strings! Just the mob structure.
 			cleanup_olc(d, CLEANUP_STRUCTS);
 			send_to_char("Mob saved to memory.\r\n", d->character);
 			break;
@@ -1586,14 +1526,14 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		return;
 
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_MAIN_MENU:
 		i = 0;
 		switch (*arg)
 		{
 		case 'q':
 		case 'Q':
-			if (OLC_VAL(d))  	/* Anything been changed? */
+			if (OLC_VAL(d))  	// Anything been changed?
 			{
 				send_to_char("Вы желаете сохранить изменения моба? (y/n): ", d->character);
 				OLC_MODE(d) = MEDIT_CONFIRM_SAVESTRING;
@@ -1902,20 +1842,20 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case OLC_SCRIPT_EDIT:
 		if (dg_script_edit_parse(d, arg))
 			return;
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_RACE:
 		GET_RACE(OLC_MOB(d)) = MAX(NPC_RACE_BASIC, MIN(NPC_RACE_LAST - 1, atoi(arg) + NPC_RACE_BASIC));
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_CLASS:
 		OLC_MOB(d)->set_class(MAX(CLASS_BASIC_NPC, MIN(CLASS_LAST_NPC - 1, atoi(arg) + CLASS_BASIC_NPC)));
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_FEATURES:
 		number = atoi(arg);
 		if (number == 0)
@@ -1930,7 +1870,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		medit_disp_features(d);
 		return;
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_RESISTANCES:
 		number = atoi(arg);
 		if (number == 0)
@@ -1944,7 +1884,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		medit_disp_resistances(d);
 		return;
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_ADD_PARAMETERS:
 		number = atoi(arg);
 		if (number == 0)
@@ -1989,7 +1929,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		medit_disp_add_parameters(d);
 		return;
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_SAVES:
 		number = atoi(arg);
 		if (number == 0)
@@ -2003,48 +1943,48 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		medit_disp_saves(d);
 		return;
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_ALIAS:
 		OLC_MOB(d)->set_pc_name(not_null(arg, "неопределен"));
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_PAD0:
 		if (GET_PAD(OLC_MOB(d), 0))
 			free(GET_PAD(OLC_MOB(d), 0));
 		GET_PAD(OLC_MOB(d), 0) = str_dup(not_null(arg, "кто-то"));
 		OLC_MOB(d)->set_npc_name(not_null(arg, "кто-то"));
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_PAD1:
 		if (GET_PAD(OLC_MOB(d), 1))
 			free(GET_PAD(OLC_MOB(d), 1));
 		GET_PAD(OLC_MOB(d), 1) = str_dup(not_null(arg, "кого-то"));
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_PAD2:
 		if (GET_PAD(OLC_MOB(d), 2))
 			free(GET_PAD(OLC_MOB(d), 2));
 		GET_PAD(OLC_MOB(d), 2) = str_dup(not_null(arg, "кому-то"));
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_PAD3:
 		if (GET_PAD(OLC_MOB(d), 3))
 			free(GET_PAD(OLC_MOB(d), 3));
 		GET_PAD(OLC_MOB(d), 3) = str_dup(not_null(arg, "кого-то"));
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_PAD4:
 		if (GET_PAD(OLC_MOB(d), 4))
 			free(GET_PAD(OLC_MOB(d), 4));
 		GET_PAD(OLC_MOB(d), 4) = str_dup(not_null(arg, "кем-то"));
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_PAD5:
 		if (GET_PAD(OLC_MOB(d), 5))
 			free(GET_PAD(OLC_MOB(d), 5));
 		GET_PAD(OLC_MOB(d), 5) = str_dup(not_null(arg, "о ком-то"));
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_L_DESC:
 		if (GET_LDESC(OLC_MOB(d)))
 			free(GET_LDESC(OLC_MOB(d)));
@@ -2057,26 +1997,22 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else
 			GET_LDESC(OLC_MOB(d)) = str_dup("неопределен\r\n");
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_D_DESC:
-		/*
-		 * We should never get here.
-		 */
+		// * We should never get here.
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: medit_parse(): Reached D_DESC case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		send_to_char("Опаньки...\r\n", d->character);
 		break;
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 #if defined(OASIS_MPROG)
 	case MEDIT_MPROG_COMLIST:
-		/*
-		 * We should never get here, but if we do, bail out.
-		 */
+		// * We should never get here, but if we do, bail out.
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: medit_parse(): Reached MPROG_COMLIST case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		break;
 #endif
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_MOB_FLAGS:
 		number = planebit(arg, &plane, &bit);
 		if (number < 0)
@@ -2093,7 +2029,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_NPC_FLAGS:
 		number = planebit(arg, &plane, &bit);
 		if (number < 0)
@@ -2109,7 +2045,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			medit_disp_npc_flags(d);
 			return;
 		}
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 	case MEDIT_AFF_FLAGS:
 		number = planebit(arg, &plane, &bit);
 		if (number < 0)
@@ -2125,7 +2061,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			medit_disp_aff_flags(d);
 			return;
 		}
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 #if defined(OASIS_MPROG)
 	case MEDIT_MPROG:
 		if ((i = atoi(arg)) == 0)
@@ -2193,9 +2129,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else if (i == 3)
 		{
 			send_to_char("Введите новую mob prog команду:\r\n", d->character);
-			/*
-			 * Pass control to modify.c for typing.
-			 */
+			// * Pass control to modify.c for typing.
 			OLC_MODE(d) = MEDIT_MPROG_COMLIST;
 			d->backstr = NULL;
 			if (OLC_MPROG(d)->comlist)
@@ -2213,11 +2147,9 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 #endif
 
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 
-		/*
-		 * Numerical responses.
-		 */
+		// * Numerical responses.
 
 #if defined(OASIS_MPROG)
 		/*
@@ -2546,18 +2478,16 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			disp_dl_list(d);
 
 			return;
-			/*-------------------------------------------------------------------*/
+			//-------------------------------------------------------------------
 		default:
-			/*
-			 * We should never get here.
-			 */
+			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
 			mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 			send_to_char("Oops...\r\n", d->character);
 			break;
 
 		}
-		/*-------------------------------------------------------------------*/
+		//-------------------------------------------------------------------
 
 		/*
 		 * END OF CASE
@@ -2568,6 +2498,4 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		OLC_VAL(d) = 1;
 		medit_disp_menu(d);
 	}
-	/*
-	 * End of medit_parse(), thank god.
-	 */
+	// * End of medit_parse(), thank god.

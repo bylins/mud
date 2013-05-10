@@ -25,9 +25,9 @@
 #define CAST_ITEMS  5
 #define CAST_RUNES  6
 
-/********************************
- Spells type.
-********************************/
+// *******************************
+// * Spells type                 *
+// *******************************
 
 #define MTYPE_NEUTRAL		(1 << 0)
 #define MTYPE_AGGRESSIVE	(1 << 1)
@@ -36,9 +36,9 @@
 #define MTYPE_WATER	(1 << 3)
 #define MTYPE_EARTH	(1 << 4)*/
 
-/********************************
- Spells class.
-********************************/
+// *******************************
+// * Spells class                *
+// *******************************
 
 #define STYPE_NEUTRAL	0
 #define STYPE_AIR	1
@@ -62,7 +62,7 @@
 #define MAG_CREATIONS		(1 << 9)
 #define MAG_MANUAL	    	(1 << 10)
 #define MAG_WARCRY		(1 << 11)
-/* А чего это тут дырка Ж) */
+// А чего это тут дырка Ж)
 #define NPC_DAMAGE_PC           (1 << 16)
 #define NPC_DAMAGE_PC_MINHP     (1 << 17)
 #define NPC_AFFECT_PC           (1 << 18)
@@ -72,14 +72,14 @@
 #define NPC_UNAFFECT_NPC_CASTER (1 << 22)
 #define NPC_DUMMY               (1 << 23)
 #define MAG_ROOM	        (1 << 24)
-/* Данный флаг используется для указания где
-    чар может находиться чтобы аффекты от закла продолжали действовать*/
-#define MAG_CASTER_INROOM       (1 << 25) /* Аффект от этого спелла действует пока кастер в комнате */
-#define MAG_CASTER_INWORLD      (1 << 26) /* висит пока кастер в мире */
-#define MAG_CASTER_ANYWHERE     (1 << 27) /* висит пока не упадет сам */
-#define MAG_CASTER_INWORLD_DELAY     (1 << 28) /* висит пока кастер в мире, плюс таймер после ухода кастера*/
+// Данный флаг используется для указания где
+// чар может находиться чтобы аффекты от закла продолжали действовать
+#define MAG_CASTER_INROOM       (1 << 25) // Аффект от этого спелла действует пока кастер в комнате //
+#define MAG_CASTER_INWORLD      (1 << 26) // висит пока кастер в мире //
+#define MAG_CASTER_ANYWHERE     (1 << 27) // висит пока не упадет сам //
+#define MAG_CASTER_INWORLD_DELAY     (1 << 28) // висит пока кастер в мире, плюс таймер после ухода кастера//
 #define NPC_CALCULATE           (0xff << 16)
-/***** Extra attack bit flags */
+// *** Extra attack bit flags //
 #define EAF_PARRY       (1 << 0)
 #define EAF_BLOCK       (1 << 1)
 #define EAF_TOUCH       (1 << 2)
@@ -103,9 +103,9 @@
 #define EAF_FIRST_POISON (1 << 21) // отравление цели первый раз за бой
 
 #define TYPE_UNDEFINED              -1
-#define SPELL_RESERVED_DBC          0	/* SKILL NUMBER ZERO -- RESERVED */
+#define SPELL_RESERVED_DBC          0	// SKILL NUMBER ZERO -- RESERVED //
 
-/* PLAYER SPELLS TYPES */
+// PLAYER SPELLS TYPES //
 #define   SPELL_KNOW   (1 << 0)
 #define   SPELL_TEMP   (1 << 1)
 #define   SPELL_POTION (1 << 2)
@@ -134,61 +134,61 @@
 #define   MI_LEVEL8      (1 << 11)
 #define   MI_LEVEL16     (1 << 12)
 
-/* PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS */
+// PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS //
 
-#define SPELL_ARMOR                   1	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_TELEPORT                2	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_BLESS                   3	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_BLINDNESS               4	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_BURNING_HANDS           5	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CALL_LIGHTNING          6	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CHARM                   7	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CHILL_TOUCH             8	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CLONE                   9	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_COLOR_SPRAY            10	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CONTROL_WEATHER        11	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CREATE_FOOD            12	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CREATE_WATER           13	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CURE_BLIND             14	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CURE_CRITIC            15	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CURE_LIGHT             16	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_CURSE                  17	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_DETECT_ALIGN           18	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_DETECT_INVIS           19	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_DETECT_MAGIC           20	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_DETECT_POISON          21	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_DISPEL_EVIL            22	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_EARTHQUAKE             23	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_ENCHANT_WEAPON         24	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_ENERGY_DRAIN           25	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_FIREBALL               26	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_HARM                   27	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_HEAL                   28	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_INVISIBLE              29	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_LIGHTNING_BOLT         30	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_LOCATE_OBJECT          31	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_MAGIC_MISSILE          32	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_POISON                 33	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_PROT_FROM_EVIL         34	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_REMOVE_CURSE           35	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_SANCTUARY              36	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_SHOCKING_GRASP         37	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_SLEEP                  38	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_STRENGTH               39	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_SUMMON                 40	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_PATRONAGE              41	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_WORD_OF_RECALL         42	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_REMOVE_POISON          43	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_SENSE_LIFE             44	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_ANIMATE_DEAD	     45	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_DISPEL_GOOD	     46	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_GROUP_ARMOR	     47	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_GROUP_HEAL	     48	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_GROUP_RECALL	     49	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_INFRAVISION	     50	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_WATERWALK		     51	/* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_ARMOR                   1	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_TELEPORT                2	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_BLESS                   3	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_BLINDNESS               4	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_BURNING_HANDS           5	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CALL_LIGHTNING          6	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CHARM                   7	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CHILL_TOUCH             8	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CLONE                   9	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_COLOR_SPRAY            10	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CONTROL_WEATHER        11	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CREATE_FOOD            12	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CREATE_WATER           13	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CURE_BLIND             14	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CURE_CRITIC            15	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CURE_LIGHT             16	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_CURSE                  17	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_DETECT_ALIGN           18	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_DETECT_INVIS           19	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_DETECT_MAGIC           20	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_DETECT_POISON          21	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_DISPEL_EVIL            22	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_EARTHQUAKE             23	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_ENCHANT_WEAPON         24	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_ENERGY_DRAIN           25	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_FIREBALL               26	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_HARM                   27	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_HEAL                   28	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_INVISIBLE              29	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_LIGHTNING_BOLT         30	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_LOCATE_OBJECT          31	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_MAGIC_MISSILE          32	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_POISON                 33	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_PROT_FROM_EVIL         34	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_REMOVE_CURSE           35	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_SANCTUARY              36	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_SHOCKING_GRASP         37	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_SLEEP                  38	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_STRENGTH               39	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_SUMMON                 40	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_PATRONAGE              41	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_WORD_OF_RECALL         42	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_REMOVE_POISON          43	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_SENSE_LIFE             44	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_ANIMATE_DEAD	     45	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_DISPEL_GOOD	     46	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_GROUP_ARMOR	     47	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_GROUP_HEAL	     48	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_GROUP_RECALL	     49	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_INFRAVISION	     50	// Reserved Skill[] DO NOT CHANGE //
+#define SPELL_WATERWALK		     51	// Reserved Skill[] DO NOT CHANGE //
 
-/* Insert new spells here, up to MAX_SPELLS */
+// Insert new spells here, up to MAX_SPELLS //
 #define SPELL_CURE_SERIOUS       52
 #define SPELL_GROUP_STRENGTH     53
 #define SPELL_HOLD               54
@@ -294,19 +294,19 @@
 #define SPELL_SONICWAVE          	153
 #define SPELL_HOLYSTRIKE         	154
 #define SPELL_ANGEL              	155
-#define SPELL_MASS_FEAR 	 	156	/* Added by Niker */
+#define SPELL_MASS_FEAR 	 	156	// Added by Niker //
 #define SPELL_FASCINATION 		157
 #define SPELL_CRYING			158
-#define SPELL_OBLIVION			159	/* Забвение. Dalim */
-#define SPELL_BURDEN_OF_TIME		160	/* Бремя времени. Dalim */
+#define SPELL_OBLIVION			159	// Забвение. Dalim //
+#define SPELL_BURDEN_OF_TIME		160	// Бремя времени. Dalim //
 #define SPELL_GROUP_REFRESH		161
-#define SPELL_PEACEFUL			162	/* Усмирение. dzMUDiST */
+#define SPELL_PEACEFUL			162	// Усмирение. dzMUDiST //
 #define SPELL_MAGICBATTLE               163
 #define SPELL_BERSERK            	164
 #define SPELL_STONEBONES            	165
-#define SPELL_ROOM_LIGHT		166	/* Закл освящения комнаты */
-#define SPELL_POISONED_FOG		167	/* Закл отравленного тумана */
-#define SPELL_THUNDERSTORM		168	/* Закл отравленного тумана */
+#define SPELL_ROOM_LIGHT		166	// Закл освящения комнаты //
+#define SPELL_POISONED_FOG		167	// Закл отравленного тумана //
+#define SPELL_THUNDERSTORM		168	// Закл отравленного тумана //
 #define SPELL_LIGHT_WALK		169
 #define SPELL_FAILURE			170
 #define SPELL_CLANPRAY			171
@@ -356,13 +356,13 @@
 #define SPELL_FROST_BREATH           354
 #define SPELL_ACID_BREATH            355
 #define SPELL_LIGHTNING_BREATH       356
-#define SPELL_QUEST		     357	/* Spell for dg_affect using */
+#define SPELL_QUEST		     357	// Spell for dg_affect using
 
 #define TOP_SPELL_DEFINE	     399
-/* NEW NPC/OBJECT SPELLS can be inserted here up to 299 */
+// NEW NPC/OBJECT SPELLS can be inserted here up to 299
 
 
-/* WEAPON ATTACK TYPES */
+// WEAPON ATTACK TYPES
 
 #define TYPE_HIT                     400
 /*
@@ -383,7 +383,7 @@
 #define TYPE_PICK                    415
 */
 #define TYPE_MAGIC                   420
-/* new attack types can be added here - up to TYPE_SUFFERING */
+// new attack types can be added here - up to TYPE_SUFFERING
 #define TYPE_ROOMDEATH			498
 #define TYPE_WATERDEATH			497
 #define TYPE_SUFFERING			499
@@ -393,29 +393,29 @@
 #define SAVING_STABILITY  2
 #define SAVING_REFLEX     3
 #define SAVING_COUNT      4
-#define SAVING_NONE	5 /*Внимание! Элемента массива с этим номером НЕТ! Исп. в кач-ве заглушки для нефейлящихся спеллов.*/
+#define SAVING_NONE	5 //Внимание! Элемента массива с этим номером НЕТ! Исп. в кач-ве заглушки для нефейлящихся спеллов.
 
 #define TAR_IGNORE      (1 << 0)
 #define TAR_CHAR_ROOM   (1 << 1)
 #define TAR_CHAR_WORLD  (1 << 2) // не ищет мобов при касте чарами (призвать/переместиться/переход)
 #define TAR_FIGHT_SELF  (1 << 3)
 #define TAR_FIGHT_VICT  (1 << 4)
-#define TAR_SELF_ONLY   (1 << 5)	/* Only a check, use with i.e. TAR_CHAR_ROOM */
-#define TAR_NOT_SELF   	(1 << 6)	/* Only a check, use with i.e. TAR_CHAR_ROOM */
+#define TAR_SELF_ONLY   (1 << 5)	// Only a check, use with i.e. TAR_CHAR_ROOM //
+#define TAR_NOT_SELF   	(1 << 6)	// Only a check, use with i.e. TAR_CHAR_ROOM //
 #define TAR_OBJ_INV     (1 << 7)
 #define TAR_OBJ_ROOM    (1 << 8)
 #define TAR_OBJ_WORLD   (1 << 9)
 #define TAR_OBJ_EQUIP	(1 << 10)
-#define TAR_ROOM_THIS	(1 << 11) /* Цель комната в которой сидит чар*/
-#define TAR_ROOM_DIR	(1 << 12) /* Цель комната в каком-то направлении от чара*/
-#define TAR_ROOM_WORLD	(1 << 13) /* Цель какая-то комната в мире*/
+#define TAR_ROOM_THIS	(1 << 11) // Цель комната в которой сидит чар//
+#define TAR_ROOM_DIR	(1 << 12) // Цель комната в каком-то направлении от чара//
+#define TAR_ROOM_WORLD	(1 << 13) // Цель какая-то комната в мире//
 
 struct spell_info_type
 {
-	byte min_position;	/* Position for caster   */
-	int mana_min;		/* Min amount of mana used by a spell (highest lev) */
-	int mana_max;		/* Max amount of mana used by a spell (lowest lev) */
-	int mana_change;	/* Change in mana used by spell from lev to lev */
+	byte min_position;	// Position for caster   //
+	int mana_min;		// Min amount of mana used by a spell (highest lev) //
+	int mana_max;		// Max amount of mana used by a spell (lowest lev) //
+	int mana_change;	// Change in mana used by spell from lev to lev //
 	int min_remort[NUM_CLASSES][NUM_KIN];
 	int min_level[NUM_CLASSES][NUM_KIN];
 	int slot_forc[NUM_CLASSES][NUM_KIN];
@@ -423,7 +423,7 @@ struct spell_info_type
 	long danger;
 	long routines;
 	byte violent;
-	int targets;		/* See below for use with TAR_XXX  */
+	int targets;		// See below for use with TAR_XXX  //
 	byte spell_class;
 	const char *name;
 	const char *syn;
@@ -433,7 +433,7 @@ struct spell_info_type
 
 struct skill_info_type
 {
-	byte min_position;	/* Position for caster */
+	byte min_position;	// Position for caster //
 	int min_remort[NUM_CLASSES][NUM_KIN];
 	int min_level[NUM_CLASSES][NUM_KIN];
 	int level_decrement[NUM_CLASSES][NUM_KIN];
@@ -483,7 +483,7 @@ struct spell_create_type
 #define SPELL_TYPE_SCROLL  4
 
 
-/* Attacktypes with grammar */
+// Attacktypes with grammar
 
 struct attack_hit_type
 {
@@ -525,7 +525,7 @@ ASPELL(spell_holystrike);
 ASPELL(skill_identify);
 ASPELL(spell_angel);
 
-/* basic magic calling functions */
+// basic magic calling functions
 
 int find_skill_num(const char *name);
 
@@ -561,20 +561,20 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troo
 
 namespace RoomSpells {
 
-/* список всех обкстованных комнат */
+// список всех обкстованных комнат //
 extern std::list<ROOM_DATA*> aff_room_list;
-/* Показываем комнаты под аффектами */
+// Показываем комнаты под аффектами //
 void ShowRooms(CHAR_DATA *ch);
-/* Обработка таймеров аффектов на комнатах */
+// Обработка таймеров аффектов на комнатах //
 void room_affect_update(void);
-/* Применение заклинания к комнате */
+// Применение заклинания к комнате //
 int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
-/* Поиск первой комнаты с аффектом от spellnum и кастером с идом Id */
+// Поиск первой комнаты с аффектом от spellnum и кастером с идом Id //
 ROOM_DATA * find_affected_roomt(long id, int spellnum);
 
 } // RoomSpells
 
-/* other prototypes */
+// other prototypes //
 void mspell_remort(char *name , int spell, int kin , int chclass, int remort);
 void mspell_level(char *name , int spell, int kin , int chclass, int level);
 void mspell_slot(char *name , int spell, int kin , int chclass, int slot);

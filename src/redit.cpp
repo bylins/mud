@@ -25,16 +25,14 @@
 #include "room.hpp"
 #include "house.h"
 
-/* List each room saved, was used for debugging. */
+// List each room saved, was used for debugging.
 #if 0
 #define REDIT_LIST	1
 #endif
 
-/*------------------------------------------------------------------------*/
+//------------------------------------------------------------------------
 
-/*
- * External data structures.
- */
+// * External data structures.
 extern CHAR_DATA *character_list;
 
 extern vector < OBJ_DATA * >obj_proto;
@@ -51,12 +49,10 @@ extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
 extern DESCRIPTOR_DATA *descriptor_list;
 
-/*------------------------------------------------------------------------*/
+//------------------------------------------------------------------------
 void tascii(int *pointer, int num_planes, char *ascii);
 int planebit(char *str, int *plane, int *bit);
-/*
- * Function Prototypes
- */
+// * Function Prototypes
 void redit_setup(DESCRIPTOR_DATA * d, int real_num);
 
 void room_copy(ROOM_DATA * dst, ROOM_DATA * src);
@@ -103,14 +99,12 @@ void redit_setup(DESCRIPTOR_DATA * d, int real_num)
 	OLC_VAL(d) = 0;
 }
 
-/*------------------------------------------------------------------------*/
+//------------------------------------------------------------------------
 
 #define ZCMD (zone_table[zone].cmd[cmd_no])
 
+// * Сохранить новую комнату в памяти
 void redit_save_internally(DESCRIPTOR_DATA * d)
-/*++
-   Сохранить новую комнату в памяти
---*/
 {
 	int j, room_num, zone, cmd_no;
 	CHAR_DATA *temp_ch;
@@ -120,9 +114,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 	room_num = real_room(OLC_ROOM(d)->number);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
 	OLC_ROOM(d)->description_num = RoomDescription::add_desc(OLC_ROOM(d)->temp_description);
-	/*
-	 * Room exists: move contents over then free and replace it.
-	 */
+	// * Room exists: move contents over then free and replace it.
 	if (room_num != NOWHERE)
 	{
 		log("[REdit] Save room to mem %d", room_num);
@@ -204,9 +196,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 					break;
 				}
 
-		/*
-		 * Update load rooms, to fix creeping load room problem.
-		 */
+		// * Update load rooms, to fix creeping load room problem.
 		if (room_num <= r_mortal_start_room)
 			r_mortal_start_room++;
 		if (room_num <= r_immort_start_room)
@@ -240,9 +230,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 						W_EXIT(i, j)->to_room++;
 		}
 
-		/*
-		 * Update any rooms being edited.
-		 */
+		// * Update any rooms being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next)
 			if (dsc->connected == CON_REDIT)
 				for (j = 0; j < NUM_OF_DIRS; j++)
@@ -265,7 +253,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_ROOM);
 }
 
-/*------------------------------------------------------------------------*/
+//------------------------------------------------------------------------
 
 void redit_save_to_disk(int zone_num)
 {
@@ -299,31 +287,23 @@ void redit_save_to_disk(int zone_num)
 			log(buf1);
 #endif
 
-			/*
-			 * Remove the '\r\n' sequences from description.
-			 */
+			// * Remove the '\r\n' sequences from description.
 			strcpy(buf1, RoomDescription::show_desc(room->description_num).c_str());
 			strip_string(buf1);
 
-			/*
-			 * Forget making a buffer, lets just write the thing now.
-			 */
+			// * Forget making a buffer, lets just write the thing now.
 			*buf2 = '\0';
 			tascii(&room->room_flags.flags[0], 4, buf2);
 			fprintf(fp, "#%d\n%s~\n%s~\n%d %s %d\n", counter,
 					room->name ? room->name : "неопределено", buf1,
 					zone_table[room->zone].number, buf2, room->sector_type);
 
-			/*
-			 * Handle exits.
-			 */
+			// * Handle exits.
 			for (counter2 = 0; counter2 < NUM_OF_DIRS; counter2++)
 			{
 				if (room->dir_option[counter2])
 				{
-					/*
-					 * Again, strip out the garbage.
-					 */
+					// * Again, strip out the garbage.
 					if (room->dir_option[counter2]->general_description)
 					{
 						strcpy(buf1, room->dir_option[counter2]->general_description);
@@ -332,9 +312,7 @@ void redit_save_to_disk(int zone_num)
 					else
 						*buf1 = 0;
 
-					/*
-					 * Check for keywords.
-					 */
+					// * Check for keywords.
 					if (room->dir_option[counter2]->keyword)
 						strcpy(buf2, room->dir_option[counter2]->keyword);
 					// алиас в винительном падеже пишется сюда же через ;
@@ -349,9 +327,7 @@ void redit_save_to_disk(int zone_num)
 					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_CLOSED);
 					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_LOCKED);
 					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_BROKEN);
-					/*
-					 * Ok, now wrote output to file.
-					 */
+					// * Ok, now wrote output to file.
 					fprintf(fp, "D%d\n%s~\n%s~\n%d %d %d %d\n",
 							counter2, buf1, buf2,
 							room->dir_option[counter2]->exit_info, room->dir_option[counter2]->key,
@@ -360,9 +336,7 @@ void redit_save_to_disk(int zone_num)
 							room->dir_option[counter2]->lock_complexity);
 				}
 			}
-			/*
-			 * Home straight, just deal with extra descriptions.
-			 */
+			// * Home straight, just deal with extra descriptions.
 			if (room->ex_description)
 			{
 				for (ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next)
@@ -377,15 +351,11 @@ void redit_save_to_disk(int zone_num)
 			im_inglist_save_to_disk(fp, room->ing_list);
 		}
 	}
-	/*
-	 * Write final line and close.
-	 */
+	// * Write final line and close.
 	fprintf(fp, "$\n$\n");
 	fclose(fp);
 	sprintf(buf2, "%s/%d.wld", WLD_PREFIX, zone_table[zone_num].number);
-	/*
-	 * We're fubar'd if we crash between the two lines below.
-	 */
+	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(buf, buf2);
 
@@ -393,13 +363,11 @@ void redit_save_to_disk(int zone_num)
 }
 
 
-/**************************************************************************
- Menu functions
- **************************************************************************/
+// *************************************************************************
+// * Menu functions                                                        *
+// *************************************************************************
 
-/*
- * For extra descriptions.
- */
+// * For extra descriptions.
 void redit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 {
 	EXTRA_DESCR_DATA *extra_desc = OLC_DESC(d);
@@ -421,23 +389,17 @@ void redit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = REDIT_EXTRADESC_MENU;
 }
 
-/*
- * For exits.
- */
+// * For exits.
 void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 {
-	/*
-	 * if exit doesn't exist, alloc/create it
-	 */
+	// * if exit doesn't exist, alloc/create it
 	if (!OLC_EXIT(d))
 	{
 		CREATE(OLC_EXIT(d), EXIT_DATA, 1);
 		OLC_EXIT(d)->to_room = NOWHERE;
 	}
 
-	/*
-	 * Weird door handling!
-	 */
+	// * Weird door handling!
 	if (IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR))
 	{
 		strcpy(buf2, "Дверь ");
@@ -477,9 +439,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = REDIT_EXIT_MENU;
 }
 
-/*
- * For exit flags.
- */
+// * For exit flags.
 void redit_disp_exit_flag_menu(DESCRIPTOR_DATA * d)
 {
 	get_char_cols(d->character);
@@ -499,9 +459,7 @@ void redit_disp_exit_flag_menu(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character);
 }
 
-/*
- * For room flags.
- */
+// * For room flags.
 void redit_disp_flag_menu(DESCRIPTOR_DATA * d)
 {
 	int counter, columns = 0, plane = 0;
@@ -534,9 +492,7 @@ void redit_disp_flag_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = REDIT_FLAGS;
 }
 
-/*
- * For sector type.
- */
+// * For sector type.
 void redit_disp_sector_menu(DESCRIPTOR_DATA * d)
 {
 	int counter, columns = 0;
@@ -554,9 +510,7 @@ void redit_disp_sector_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = REDIT_SECTOR;
 }
 
-/*
- * The main menu.
- */
+// * The main menu.
 void redit_disp_menu(DESCRIPTOR_DATA * d)
 {
 	ROOM_DATA *room;
@@ -613,9 +567,9 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = REDIT_MAIN_MENU;
 }
 
-/**************************************************************************
-  The main loop
- **************************************************************************/
+// *************************************************************************
+// *  The main loop                                                        *
+// *************************************************************************
 
 void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
@@ -634,9 +588,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			sprintf(buf, "OLC: %s edits room %d.", GET_NAME(d->character), OLC_NUM(d));
 			olc_log("%s edit room %d", GET_NAME(d->character), OLC_NUM(d));
 			mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-			/*
-			 * Do NOT free strings! Just the room structure.
-			 */
+			// * Do NOT free strings! Just the room structure.
 			cleanup_olc(d, CLEANUP_STRUCTS);
 			send_to_char("Room saved to memory.\r\n", d->character);
 			break;
@@ -644,9 +596,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'N':
 		case 'н':
 		case 'Н':
-			/*
-			 * Free everything up, including strings, etc.
-			 */
+			// * Free everything up, including strings, etc.
 			cleanup_olc(d, CLEANUP_ALL);
 			break;
 		default:
@@ -660,7 +610,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case 'q':
 		case 'Q':
-			if (OLC_VAL(d))  	/* Something has been modified. */
+			if (OLC_VAL(d))  	// Something has been modified.
 			{
 				send_to_char("Вы желаете сохранить комнату в памяти? : ", d->character);
 				OLC_MODE(d) = REDIT_CONFIRM_SAVESTRING;
@@ -722,9 +672,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 'b':
 		case 'B':
-			/*
-			 * If the extra description doesn't exist.
-			 */
+			// * If the extra description doesn't exist.
 			if (!OLC_ROOM(d)->ex_description)
 			{
 				CREATE(OLC_ROOM(d)->ex_description, EXTRA_DESCR_DATA, 1);
@@ -767,9 +715,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case REDIT_DESC:
-		/*
-		 * We will NEVER get here, we hope.
-		 */
+		// * We will NEVER get here, we hope.
 		mudlog("SYSERR: Reached REDIT_DESC case in parse_redit", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		break;
 
@@ -783,9 +729,8 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else if (number == 0)
 			break;
 		else
-		{		/*
-				 * Toggle the bit.
-				 */
+		{
+			// * Toggle the bit.
 			TOGGLE_BIT(OLC_ROOM(d)->room_flags.flags[plane], (1 << bit));
 			redit_disp_flag_menu(d);
 		}
@@ -839,9 +784,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = REDIT_EXIT_DOORFLAGS;
 			return;
 		case '6':
-			/*
-			 * Delete an exit.
-			 */
+			// * Delete an exit.
 			if (OLC_EXIT(d)->keyword)
 				free(OLC_EXIT(d)->keyword);
 			if (OLC_EXIT(d)->vkeyword)
@@ -877,13 +820,9 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		redit_disp_exit_menu(d);
 		return;
 
-		/*
-		 * We should NEVER get here, hopefully.
-		 */
-		/*
-				mudlog("SYSERR: Reached REDIT_EXIT_DESC case in parse_redit", BRF, LVL_BUILDER, SYSLOG, TRUE);
-				break;
-		*/
+		// * We should NEVER get here, hopefully.
+		// mudlog("SYSERR: Reached REDIT_EXIT_DESC case in parse_redit", BRF, LVL_BUILDER, SYSLOG, TRUE);
+		// break;
 	case REDIT_EXIT_KEYWORD:
 		if (OLC_EXIT(d)->keyword)
 			free(OLC_EXIT(d)->keyword);
@@ -970,10 +909,9 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		switch ((number = atoi(arg)))
 		{
 		case 0:
-		{	/*
-		 * If something got left out, delete the extra description
-		 * when backing out to the menu.
-		 */
+		{
+		// * If something got left out, delete the extra description
+		// * when backing out to the menu.
 			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
 			{
 				EXTRA_DESCR_DATA **tmp_desc;
@@ -983,9 +921,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				if (OLC_DESC(d)->description)
 					free(OLC_DESC(d)->description);
 
-				/*
-				 * Clean up pointers.
-				 */
+				// * Clean up pointers.
 				for (tmp_desc = &(OLC_ROOM(d)->ex_description); *tmp_desc;
 						tmp_desc = &((*tmp_desc)->next))
 					if (*tmp_desc == OLC_DESC(d))
@@ -1030,9 +966,8 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				if (OLC_DESC(d)->next)
 					OLC_DESC(d) = OLC_DESC(d)->next;
 				else
-				{	/*
-					 * Make new extra description and attach at end.
-					 */
+				{
+					// * Make new extra description and attach at end.
 					CREATE(new_extra, EXTRA_DESCR_DATA, 1);
 					OLC_DESC(d)->next = new_extra;
 					OLC_DESC(d) = new_extra;
@@ -1053,15 +988,11 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	default:
-		/*
-		 * We should never get here.
-		 */
+		// * We should never get here.
 		mudlog("SYSERR: Reached default case in parse_redit", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		break;
 	}
-	/*
-	 * If we get this far, something has been changed.
-	 */
+	// * If we get this far, something has been changed.
 	OLC_VAL(d) = 1;
 	redit_disp_menu(d);
 }

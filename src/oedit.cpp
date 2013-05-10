@@ -32,11 +32,9 @@
 #include "constants.h"
 #include "sets_drop.hpp"
 
-/*------------------------------------------------------------------------*/
+//------------------------------------------------------------------------
 
-/*
- * External variable declarations.
- */
+// * External variable declarations.
 
 extern vector < OBJ_DATA * >obj_proto;
 extern INDEX_DATA *obj_index;
@@ -62,14 +60,12 @@ extern int top_imrecipes;
 
 int real_zone(int number);
 
-/*------------------------------------------------------------------------*/
+//------------------------------------------------------------------------
 
-/*
- * Handy macros.
- */
+// * Handy macros.
 #define S_PRODUCT(s, i) ((s)->producing[(i)])
 
-/*------------------------------------------------------------------------*/
+//------------------------------------------------------------------------
 void oedit_setup(DESCRIPTOR_DATA * d, int real_num);
 
 void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
@@ -97,9 +93,9 @@ void oedit_disp_receipts_menu(DESCRIPTOR_DATA * d);
 void oedit_disp_feats_menu(DESCRIPTOR_DATA * d);
 void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA* d);
 
-/*------------------------------------------------------------------------*\
-  Utility and exported functions
-\*------------------------------------------------------------------------*/
+// ------------------------------------------------------------------------
+//  Utility and exported functions
+// ------------------------------------------------------------------------
 
 void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 /*++
@@ -256,9 +252,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	OLC_VAL(d) = 0;
 }
 
-/**
-* Пересчет рнумов объектов (больше нигде не меняются).
-*/
+// * Пересчет рнумов объектов (больше нигде не меняются).
 void renumber_obj_rnum(int rnum)
 {
 	for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
@@ -279,9 +273,7 @@ void renumber_obj_rnum(int rnum)
 	SetsDrop::renumber_obj_rnum(rnum);
 }
 
-/**
-* Обновление данных у конкретной шмотки (для update_online_objects).
-*/
+// * Обновление данных у конкретной шмотки (для update_online_objects).
 extern bool is_potion(OBJ_DATA *obj);
 void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 {
@@ -333,9 +325,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 //	ObjectAlias::add(obj);
 }
 
-/**
-* Обновление полей объектов при изменении их прототипа через олц.
-*/
+// * Обновление полей объектов при изменении их прототипа через олц.
 void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
 {
 	for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
@@ -347,7 +337,7 @@ void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
 	Parcel::olc_update_from_proto(robj_num, olc_proto);
 }
 
-/*------------------------------------------------------------------------*/
+//------------------------------------------------------------------------
 
 #define ZCMD zone_table[zone].cmd[cmd_no]
 
@@ -361,9 +351,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
 	ObjSystem::init_ilvl(OLC_OBJ(d));
 
-	/*
-	 * Write object to internal tables.
-	 */
+	// * Write object to internal tables.
 	if (robj_num >= 0)
 	{	/*
 				 * We need to run through each and every object currently in the
@@ -389,19 +377,16 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		// прототипов
 	}
 	else
-	{		/*
-				 * It's a new object, we must build new tables to contain it.
-				 */
+	{
+		// It's a new object, we must build new tables to contain it.
 		log("[OEdit] Save mem new %d(%d/%d)", OLC_NUM(d), (top_of_objt + 2), sizeof(OBJ_DATA));
 
 		CREATE(new_obj_index, INDEX_DATA, top_of_objt + 2);
 
-		/*
-		 * Start counting through both tables.
-		 */
-		for (i = 0; i <= top_of_objt; i++)  	/* If we haven't found it. */
+		// * Start counting through both tables.
+		for (i = 0; i <= top_of_objt; i++)  	// If we haven't found it.
 		{
-			if (!found)  	/* Check if current virtual is bigger than our virtual number. */
+			if (!found)  	// Check if current virtual is bigger than our virtual number.
 			{
 				if (obj_index[i].vnum > OLC_NUM(d))
 				{
@@ -420,15 +405,13 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 					--i;
 					continue;
 				}
-				else		/*
-						 * Just copy from old to new, no number change.
-						 */
+				else
+					// Just copy from old to new, no number change.
 					new_obj_index[i] = obj_index[i];
 			}
 			else
-			{	/*
-					 * We HAVE already found it, therefore copy to object + 1
-					 */
+			{
+				// * We HAVE already found it, therefore copy to object + 1
 				new_obj_index[i + 1] = obj_index[i];
 				obj_proto[i + 1]->item_number = i + 1;
 			}
@@ -445,9 +428,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 			new_obj_index[i].zone = real_zone(OLC_NUM(d));
 		}
 
-		/*
-		 * Free and replace old table.
-		 */
+		// * Free and replace old table.
 		free(obj_index);
 		obj_index = new_obj_index;
 		top_of_objt++;
@@ -456,10 +437,10 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 
 // ПЕРЕИНДЕКСАЦИЯ по всей программе
 
-		/* Renumber live objects */
+		// Renumber live objects
 		renumber_obj_rnum(robj_num);
 
-		/* Renumber zone table. */
+		// Renumber zone table.
 		for (zone = 0; zone <= top_of_zone_table; zone++)
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
 				switch (ZCMD.command)
@@ -480,13 +461,13 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 					break;
 				}
 
-		/* Renumber shop produce. */
+		// Renumber shop produce.
 		for (shop = 0; shop < top_shop; shop++)
 			for (i = 0; SHOP_PRODUCT(shop, i) != -1; i++)
 				if (SHOP_PRODUCT(shop, i) >= robj_num)
 					SHOP_PRODUCT(shop, i)++;
 
-		/* Renumber produce in shops being edited. */
+		// Renumber produce in shops being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next)
 			if (dsc->connected == CON_SEDIT)
 				for (i = 0; S_PRODUCT(OLC_SHOP(dsc), i) != -1; i++)
@@ -498,7 +479,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_OBJ);
 }
 
-/*------------------------------------------------------------------------*/
+//------------------------------------------------------------------------
 void tascii(int *pointer, int num_planes, char *ascii)
 {
 	int i, c, found;
@@ -531,9 +512,7 @@ void oedit_save_to_disk(int zone_num)
 		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		return;
 	}
-	/*
-	 * Start running through all objects in this zone.
-	 */
+	// * Start running through all objects in this zone.
 	for (counter = zone_table[zone_num].number * 100; counter <= zone_table[zone_num].top; counter++)
 	{
 		if ((realcounter = real_object(counter)) >= 0)
@@ -599,15 +578,12 @@ void oedit_save_to_disk(int zone_num)
 				fprintf(fp, "R %d\n", obj->get_manual_mort_req());
 			}
 
-			/*
-			 * Do we have extra descriptions?
-			 */
-			if (obj->ex_description)  	/* Yes, save them too. */
+			// * Do we have extra descriptions?
+			if (obj->ex_description)  	// Yes, save them too.
 			{
 				for (ex_desc = obj->ex_description; ex_desc; ex_desc = ex_desc->next)
-				{	/*
-													 * Sanity check to prevent nasty protection faults.
-													 */
+				{
+					// * Sanity check to prevent nasty protection faults.
 					if (!*ex_desc->keyword || !*ex_desc->description)
 					{
 						mudlog
@@ -620,9 +596,7 @@ void oedit_save_to_disk(int zone_num)
 					fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc->keyword, buf1);
 				}
 			}
-			/*
-			 * Do we have affects?
-			 */
+			// * Do we have affects?
 			for (counter2 = 0; counter2 < MAX_OBJ_AFFECT; counter2++)
 				if (obj->affected[counter2].location && obj->affected[counter2].modifier)
 					fprintf(fp, "A\n"
@@ -638,28 +612,22 @@ void oedit_save_to_disk(int zone_num)
 		}
 	}
 
-	/*
-	 * Write the final line, close the file.
-	 */
+	// * Write the final line, close the file.
 	fprintf(fp, "$\n$\n");
 	fclose(fp);
 	sprintf(buf2, "%s/%d.obj", OBJ_PREFIX, zone_table[zone_num].number);
-	/*
-	 * We're fubar'd if we crash between the two lines below.
-	 */
+	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(buf, buf2);
 
 	olc_remove_from_save_list(zone_table[zone_num].number, OLC_SAVE_OBJ);
 }
 
-/**************************************************************************
- Menu functions
- **************************************************************************/
+// **************************************************************************
+// * Menu functions                                                         *
+// **************************************************************************
 
-/*
- * For container flags.
- */
+// * For container flags.
 void oedit_disp_container_flags_menu(DESCRIPTOR_DATA * d)
 {
 	get_char_cols(d->character);
@@ -677,9 +645,7 @@ void oedit_disp_container_flags_menu(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character);
 }
 
-/*
- * For extra descriptions.
- */
+// * For extra descriptions.
 void oedit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 {
 	EXTRA_DESCR_DATA *extra_desc = OLC_DESC(d);
@@ -704,9 +670,7 @@ void oedit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = OEDIT_EXTRADESC_MENU;
 }
 
-/*
- * Ask for *which* apply to edit.
- */
+// * Ask for *which* apply to edit.
 void oedit_disp_prompt_apply_menu(DESCRIPTOR_DATA * d)
 {
 	int counter;
@@ -734,9 +698,7 @@ void oedit_disp_prompt_apply_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = OEDIT_PROMPT_APPLY;
 }
 
-/*
- * Ask for liquid type.
- */
+// * Ask for liquid type.
 void oedit_liquid_type(DESCRIPTOR_DATA * d)
 {
 	int counter, columns = 0;
@@ -756,9 +718,7 @@ void oedit_liquid_type(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = OEDIT_VALUE_3;
 }
 
-/*
- * The actual apply to set.
- */
+// * The actual apply to set.
 void oedit_disp_apply_menu(DESCRIPTOR_DATA * d)
 {
 	int counter, columns = 0;
@@ -777,9 +737,7 @@ void oedit_disp_apply_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = OEDIT_APPLY;
 }
 
-/*
- * Weapon type.
- */
+// * Weapon type.
 void oedit_disp_weapon_menu(DESCRIPTOR_DATA * d)
 {
 	int counter, columns = 0;
@@ -797,9 +755,7 @@ void oedit_disp_weapon_menu(DESCRIPTOR_DATA * d)
 	send_to_char("\r\nВыберите тип удара (0 - выход): ", d->character);
 }
 
-/*
- * Spell type.
- */
+// * Spell type.
 void oedit_disp_spells_menu(DESCRIPTOR_DATA * d)
 {
 	int counter, columns = 0;
@@ -903,18 +859,14 @@ void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA* d)
 	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character);
 }
 
-/*
- * Object value #1
- */
+// * Object value #1
 void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 {
 	OLC_MODE(d) = OEDIT_VALUE_1;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d)))
 	{
 	case ITEM_LIGHT:
-		/*
-		 * values 0 and 1 are unused.. jump to 2
-		 */
+		// * values 0 and 1 are unused.. jump to 2
 		oedit_disp_val3_menu(d);
 		break;
 	case ITEM_SCROLL:
@@ -924,9 +876,7 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Уровень заклинания : ", d->character);
 		break;
 	case ITEM_WEAPON:
-		/*
-		 * This doesn't seem to be used if I remember right.
-		 */
+		// * This doesn't seem to be used if I remember right.
 		send_to_char("Модификатор попадания : ", d->character);
 		break;
 	case ITEM_ARMOR:
@@ -949,9 +899,7 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Сколько кун содержит : ", d->character);
 		break;
 	case ITEM_NOTE:
-		/*
-		 * This is supposed to be language, but it's unused.
-		 */
+		// * This is supposed to be language, but it's unused.
 		break;
 	case ITEM_BOOK:
 //		send_to_char("Тип книги (0-закл, 1-ум, 2-ум+, 3-рецепт, 4-фит): ", d->character);
@@ -985,9 +933,7 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 	}
 }
 
-/*
- * Object value #2
- */
+// * Object value #2
 void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 {
 	OLC_MODE(d) = OEDIT_VALUE_2;
@@ -1011,15 +957,11 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Изменяет броню на : ", d->character);
 		break;
 	case ITEM_FOOD:
-		/*
-		 * Values 2 and 3 are unused, jump to 4...Odd.
-		 */
+		// * Values 2 and 3 are unused, jump to 4...Odd.
 		oedit_disp_val4_menu(d);
 		break;
 	case ITEM_CONTAINER:
-		/*
-		 * These are flags, needs a bit of special handling.
-		 */
+		// * These are flags, needs a bit of special handling.
 		oedit_disp_container_flags_menu(d);
 		break;
 	case ITEM_DRINKCON:
@@ -1061,9 +1003,7 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 	}
 }
 
-/*
- * Object value #3
- */
+// * Object value #3
 void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 {
 	OLC_MODE(d) = OEDIT_VALUE_3;
@@ -1115,9 +1055,7 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 	}
 }
 
-/*
- * Object value #4
- */
+// * Object value #4
 void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 {
 	OLC_MODE(d) = OEDIT_VALUE_4;
@@ -1166,9 +1104,7 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 	}
 }
 
-/*
- * Object type.
- */
+// * Object type.
 void oedit_disp_type_menu(DESCRIPTOR_DATA * d)
 {
 	int counter, columns = 0;
@@ -1186,9 +1122,7 @@ void oedit_disp_type_menu(DESCRIPTOR_DATA * d)
 	send_to_char("\r\nВыберите тип предмета : ", d->character);
 }
 
-/*
- * Object extra flags.
- */
+// * Object extra flags.
 void oedit_disp_extra_menu(DESCRIPTOR_DATA * d)
 {
 	int counter, columns = 0, plane = 0;
@@ -1313,9 +1247,7 @@ void oedit_disp_affects_menu(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character);
 }
 
-/*
- * Object wear flags.
- */
+// * Object wear flags.
 void oedit_disp_wear_menu(DESCRIPTOR_DATA * d)
 {
 	int counter, columns = 0;
@@ -1418,9 +1350,7 @@ void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 }
 
 
-/*
- * Display main menu.
- */
+// * Display main menu.
 void oedit_disp_menu(DESCRIPTOR_DATA * d)
 {
 	OBJ_DATA *obj;
@@ -1458,9 +1388,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, not_null(obj->description, NULL),
 			grn, yel, not_null(obj->action_description, "<not set>\r\n"),
 			grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
-	/*
-	 * Send first half.
-	 */
+	// * Send first half.
 	send_to_char(buf, d->character);
 
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf1);
@@ -1513,9 +1441,9 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = OEDIT_MAIN_MENU;
 }
 
-/***************************************************************************
- main loop (of sorts).. basically interpreter throws all input to here
- ***************************************************************************/
+// ***************************************************************************
+// * main loop (of sorts).. basically interpreter throws all input to here   *
+// ***************************************************************************
 int planebit(char *str, int *plane, int *bit)
 {
 	if (!str || !*str)
@@ -1570,14 +1498,12 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case OEDIT_MAIN_MENU:
-		/*
-		 * Throw us out to whichever edit mode based on user input.
-		 */
+		// * Throw us out to whichever edit mode based on user input.
 		switch (*arg)
 		{
 		case 'q':
 		case 'Q':
-			if (OLC_VAL(d))  	/* Something has been modified. */
+			if (OLC_VAL(d))  	// Something has been modified.
 			{
 				send_to_char("Вы хотите сохранить этот предмет? : ", d->character);
 				OLC_MODE(d) = OEDIT_CONFIRM_SAVESTRING;
@@ -1715,9 +1641,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 'o':
 		case 'O':
-			/*
-			 * Clear any old values
-			 */
+			// * Clear any old values
 			GET_OBJ_VAL(OLC_OBJ(d), 0) = 0;
 			GET_OBJ_VAL(OLC_OBJ(d), 1) = 0;
 			GET_OBJ_VAL(OLC_OBJ(d), 2) = 0;
@@ -1735,9 +1659,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 't':
 		case 'T':
-			/*
-			 * If extra descriptions don't exist.
-			 */
+			// * If extra descriptions don't exist.
 			if (!OLC_OBJ(d)->ex_description)
 			{
 				CREATE(OLC_OBJ(d)->ex_description, EXTRA_DESCR_DATA, 1);
@@ -1772,9 +1694,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		}
 		return;
-		/*
-		 * end of OEDIT_MAIN_MENU
-		 */
+		// * end of OEDIT_MAIN_MENU
 
 	case OLC_SCRIPT_EDIT:
 		if (dg_script_edit_parse(d, arg))
@@ -1872,7 +1792,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			oedit_disp_wear_menu(d);
 			return;
 		}
-		else if (number == 0)	/* Quit. */
+		else if (number == 0)	// Quit.
 			break;
 		else
 		{
@@ -2036,10 +1956,8 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_VALUE_1:
-		/*
-		 * Lucky, I don't need to check any of these for out of range values.
-		 * Hmm, I'm not so sure - Rv
-		 */
+		// * Lucky, I don't need to check any of these for out of range values.
+		// * Hmm, I'm not so sure - Rv
 		number = atoi(arg);
 
 		if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_BOOK && (number < 0 || number > 4))
@@ -2048,18 +1966,14 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			oedit_disp_val1_menu(d);
 			return;
 		}
-		/*
-		 * proceed to menu 2
-		 */
+		// * proceed to menu 2
 		GET_OBJ_VAL(OLC_OBJ(d), 0) = number;
 		OLC_VAL(d) = 1;
 		oedit_disp_val2_menu(d);
 		return;
 
 	case OEDIT_VALUE_2:
-		/*
-		 * Here, I do need to check for out of range values.
-		 */
+		// * Here, I do need to check for out of range values.
 		number = atoi(arg);
 		switch (GET_OBJ_TYPE(OLC_OBJ(d)))
 		{
@@ -2074,10 +1988,8 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 			return;
 		case ITEM_CONTAINER:
-			/*
-			 * Needs some special handling since we are dealing with flag values
-			 * here.
-			 */
+			// Needs some special handling since we are dealing with flag values
+			// here.
 			if (number < 0 || number > 4)
 				oedit_disp_container_flags_menu(d);
 			else if (number != 0)
@@ -2152,9 +2064,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case OEDIT_VALUE_3:
 		number = atoi(arg);
-		/*
-		 * Quick'n'easy error checking.
-		 */
+		// * Quick'n'easy error checking.
 		switch (GET_OBJ_TYPE(OLC_OBJ(d)))
 		{
 		case ITEM_SCROLL:
@@ -2293,9 +2203,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				if (OLC_DESC(d)->description)
 					free(OLC_DESC(d)->description);
 
-				/*
-				 * Clean up pointers
-				 */
+				// * Clean up pointers
 				for (tmp_desc = &(OLC_OBJ(d)->ex_description); *tmp_desc;
 						tmp_desc = &((*tmp_desc)->next))
 				{
@@ -2330,25 +2238,21 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 
 		case 3:
-			/*
-			 * Only go to the next description if this one is finished.
-			 */
+			// * Only go to the next description if this one is finished.
 			if (OLC_DESC(d)->keyword && OLC_DESC(d)->description)
 			{
 				EXTRA_DESCR_DATA *new_extra;
 
 				if (OLC_DESC(d)->next)
 					OLC_DESC(d) = OLC_DESC(d)->next;
-				else  	/* Make new extra description and attach at end. */
+				else  	// Make new extra description and attach at end.
 				{
 					CREATE(new_extra, EXTRA_DESCR_DATA, 1);
 					OLC_DESC(d)->next = new_extra;
 					OLC_DESC(d) = OLC_DESC(d)->next;
 				}
 			}
-			/*
-			 * No break - drop into default case.
-			 */
+			// * No break - drop into default case.
 		default:
 			oedit_disp_extradesc_menu(d);
 			return;
@@ -2379,9 +2283,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	}
 
-	/*
-	 * If we get here, we have changed something.
-	 */
+	// * If we get here, we have changed something.
 	OLC_VAL(d) = 1;
 	oedit_disp_menu(d);
 }

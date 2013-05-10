@@ -35,7 +35,7 @@
 #include "magic.h"
 #include "fight.h"
 
-/*   external vars  */
+//   external vars
 
 extern CHAR_DATA *character_list;
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -45,7 +45,7 @@ extern TIME_INFO_DATA time_info;
 extern struct spell_create_type spell_create[];
 extern int guild_info[][3];
 
-/* extern functions */
+// extern functions
 ACMD(do_drop);
 ACMD(do_gen_door);
 ACMD(do_say);
@@ -59,7 +59,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum);
 int has_key(CHAR_DATA * ch, obj_vnum key);
 int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
 
-/* local functions */
+// local functions
 char *how_good(CHAR_DATA * ch, int percent);
 int feat_slot_lvl(int remort, int slot_for_remort, int slot);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
@@ -83,9 +83,9 @@ SPECIAL(pet_shops);
 SPECIAL(bank);
 
 
-/* ********************************************************************
-*  Special procedures for mobiles                                     *
-******************************************************************** */
+// ********************************************************************
+// *  Special procedures for mobiles                                  *
+// ********************************************************************
 
 char *how_good(CHAR_DATA * ch, int percent)
 {
@@ -143,12 +143,12 @@ const char *prac_types[] = { "spell",
 							 "skill"
 						   };
 
-#define LEARNED_LEVEL	0	/* % known which is considered "learned" */
-#define MAX_PER_PRAC	1	/* max percent gain in skill per practice */
-#define MIN_PER_PRAC	2	/* min percent gain in skill per practice */
-#define PRAC_TYPE	3	/* should it say 'spell' or 'skill'?     */
+#define LEARNED_LEVEL	0	// % known which is considered "learned" //
+#define MAX_PER_PRAC	1	// max percent gain in skill per practice //
+#define MIN_PER_PRAC	2	// min percent gain in skill per practice //
+#define PRAC_TYPE	3	// should it say 'spell' or 'skill'?     //
 
-/* actual prac_params are in class.cpp */
+// actual prac_params are in class.cpp //
 extern int prac_params[4][NUM_CLASSES];
 
 #define LEARNED(ch) (prac_params[LEARNED_LEVEL][(int)GET_CLASS(ch)])
@@ -264,7 +264,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 		return;
 	}
 
-/* ====================================================== */
+// ======================================================
 
 	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
 
@@ -350,8 +350,8 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 				}
 				if (!sfound)
 				{
-					/* Если способность не врожденная и под нее нет слота - удаляем нафик
-						чтобы можно было менять слоты на лету и чтобы не читерили :) */
+					// Если способность не врожденная и под нее нет слота - удаляем нафик
+					//	чтобы можно было менять слоты на лету и чтобы не читерили :)
 					sprintf(msg, "WARNING: Unset out of slots feature '%s' for character '%s'!",
 							feat_info[sortpos].name, GET_NAME(ch));
 					mudlog(msg, BRF, LVL_IMPL, SYSLOG, TRUE);
@@ -419,7 +419,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 			}
 			sprintf(buf + strlen(buf), "%-20s %s\r\n",
 					skill_info[sortpos].name, how_good(ch, ch->get_skill(sortpos)));
-			strcat(buf2, buf);	/* The above, ^ should always be safe to do. */
+			strcat(buf2, buf);	// The above, ^ should always be safe to do.
 			i++;
 		}
 	}
@@ -536,8 +536,8 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 			}
 			if (slots[i])
 				gcount += sprintf(buf2 + gcount, "%s", names[i]);
-			/*          else
-			             gcount += sprintf(buf2+gcount,"\n\rПусто.");*/
+			//else
+			//gcount += sprintf(buf2+gcount,"\n\rПусто.");
 		}
 	}
 	else
@@ -558,19 +558,19 @@ struct guild_learn_type
 struct guild_mono_type
 {
 	guild_mono_type() : races(0), classes(0), religion(0), alignment(0), learn_info(0) {};
-	int races;		/* bitvector */
-	int classes;		/* bitvector */
-	int religion;		/* bitvector */
-	int alignment;		/* bitvector */
+	int races;		// bitvector //
+	int classes;		// bitvector //
+	int religion;		// bitvector //
+	int alignment;		// bitvector //
 	struct guild_learn_type *learn_info;
 };
 
 struct guild_poly_type
 {
-	int races;		/* bitvector */
-	int classes;		/* bitvector */
-	int religion;		/* bitvector */
-	int alignment;		/* bitvector */
+	int races;		// bitvector //
+	int classes;		// bitvector //
+	int religion;		// bitvector //
+	int alignment;		// bitvector //
 	int feat_no;
 	int skill_no;
 	int spell_no;
@@ -2246,7 +2246,7 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 		act("Вы обнаружили руку $n1 в своем кармане.", FALSE, ch, 0, victim, TO_VICT);
 		act("$n пытал$u обокрасть $N1.", TRUE, ch, 0, victim, TO_NOTVICT);
 	}
-	else  		/* Steal some gold coins          */
+	else  		// Steal some gold coins
 	{
 		gold = (int)((victim->get_gold() * number(1, 10)) / 100);
 		if (gold > 0)
@@ -2254,7 +2254,7 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 			ch->add_gold(gold);
 			victim->remove_gold(gold);
 		}
-		/* Steal something from equipment */
+		// Steal something from equipment
 		if (calculate_skill(ch, SKILL_STEAL, 100, victim) >= number(1, 100) - (AWAKE(victim) ? 100 : 0))
 		{
 			for (obj = victim->carrying; obj; obj = obj->next_content)
@@ -2514,9 +2514,9 @@ SPECIAL(mayor)
 }
 #endif
 
-/* ********************************************************************
-*  General special procedures for mobiles                             *
-******************************************************************** */
+// ********************************************************************
+// *  General special procedures for mobiles                          *
+// ********************************************************************
 
 
 
@@ -2566,16 +2566,16 @@ SPECIAL(magic_user)
 	if (cmd || GET_POS(ch) != POS_FIGHTING)
 		return (FALSE);
 
-	/* pseudo-randomly choose someone in the room who is fighting me */
+	// pseudo-randomly choose someone in the room who is fighting me //
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 		if (vict->get_fighting() == ch && !number(0, 4))
 			break;
 
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
+	// if I didn't pick any of those, then just slam the guy I'm fighting //
 	if (vict == NULL && IN_ROOM(ch->get_fighting()) == IN_ROOM(ch))
 		vict = ch->get_fighting();
 
-	/* Hm...didn't pick anyone...I'll wait a round. */
+	// Hm...didn't pick anyone...I'll wait a round. //
 	if (vict == NULL)
 		return (TRUE);
 
@@ -2632,9 +2632,9 @@ SPECIAL(magic_user)
 }
 
 
-/* ********************************************************************
-*  Special procedures for mobiles                                      *
-******************************************************************** */
+// ********************************************************************
+// *  Special procedures for mobiles                                  *
+// ********************************************************************
 
 SPECIAL(guild_guard)
 {
@@ -2820,20 +2820,20 @@ SPECIAL(pet_shops)
 		if (*pet_name)
 		{
 			sprintf(buf, "%s %s", pet->get_pc_name(), pet_name);
-			/* free(pet->get_pc_name()); don't free the prototype! */
+			// free(pet->get_pc_name()); don't free the prototype!
 			pet->set_pc_name(buf);
 
 			sprintf(buf,
 					"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
 					pet->player_data.description, pet_name);
-			/* free(pet->player_data.description); don't free the prototype! */
+			// free(pet->player_data.description); don't free the prototype!
 			pet->player_data.description = str_dup(buf);
 		}
 		char_to_room(pet, ch->in_room);
 		add_follower(pet, ch);
 		load_mtrigger(pet);
 
-		/* Be certain that pets can't get/carry/use/wield/wear items */
+		// Be certain that pets can't get/carry/use/wield/wear items
 		IS_CARRYING_W(pet) = 1000;
 		IS_CARRYING_N(pet) = 100;
 
@@ -2842,7 +2842,7 @@ SPECIAL(pet_shops)
 
 		return (1);
 	}
-	/* All commands except list and buy */
+	// All commands except list and buy
 	return (0);
 }
 
@@ -2864,9 +2864,9 @@ CHAR_DATA *get_player_of_name(const char *name)
 }
 
 
-/* ********************************************************************
-*  Special procedures for objects                                     *
-******************************************************************** */
+// ********************************************************************
+// *  Special procedures for objects                                  *
+// ********************************************************************
 
 
 SPECIAL(bank)

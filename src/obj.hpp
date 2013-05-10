@@ -13,25 +13,25 @@
 #include "sysdep.h"
 #include "structs.h"
 
-/* object flags; used in obj_data */
+// object flags; used in obj_data //
 #define NUM_OBJ_VAL_POSITIONS 4
 
 struct obj_flag_data
 {
 	boost::array<int, NUM_OBJ_VAL_POSITIONS> value;
-	int type_flag;		/* Type of item               */
+	int type_flag;		// Type of item               //
 	int
-	wear_flags;		/* Where you can wear it     */
-	FLAG_DATA extra_flags;	/* If it hums, glows, etc.      */
+	wear_flags;		// Where you can wear it     //
+	FLAG_DATA extra_flags;	// If it hums, glows, etc.      //
 	int
-	weight;		/* Weigt what else              */
+	weight;		// Weigt what else              //
 	int
-	cost;			/* Value when sold (gp.)        */
+	cost;			// Value when sold (gp.)        //
 	int
-	cost_per_day_on;	/* Rent to keep pr. real day if wear       */
+	cost_per_day_on;	// Rent to keep pr. real day if wear       //
 	int
-	cost_per_day_off;	/* Rent to keep pr. real day if in inv     */
-	FLAG_DATA bitvector;	/* To set chars bits            */
+	cost_per_day_off;	// Rent to keep pr. real day if in inv     //
+	FLAG_DATA bitvector;	// To set chars bits            //
 
 	FLAG_DATA affects;
 	FLAG_DATA anti_flag;
@@ -57,15 +57,15 @@ struct obj_flag_data
 	int
 	Obj_zone;
 	int
-	Obj_maker;		/* Unique number for object crafters */
+	Obj_maker;		// Unique number for object crafters //
 	int
-	Obj_parent;		/* Vnum for object parent */
+	Obj_parent;		// Vnum for object parent //
 };
 
 struct obj_affected_type
 {
-	int location;		/* Which ability to change (APPLY_XXX) */
-	int modifier;		/* How much it changes by              */
+	int location;		// Which ability to change (APPLY_XXX) //
+	int modifier;		// How much it changes by              //
 
 	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
 
@@ -101,9 +101,7 @@ public:
 		return !skills.empty();
 	}
 
-	/**
-	 * @warning Предполагается, что __out_skills.empty() == true.
-	 */
+	// * @warning Предполагается, что __out_skills.empty() == true.
 	void get_skills(std::map<int, int>& __skills) const
 	{
 		__skills.insert(skills.begin(), skills.end());
@@ -283,9 +281,7 @@ typedef std::map< int, set_info > id_to_set_info_map;
 
 extern std::vector < OBJ_DATA * >obj_proto;
 
-/**
-* Временное заклинание на предмете (одно).
-*/
+// * Временное заклинание на предмете (одно).
 class TimedSpell
 {
 public:
@@ -362,39 +358,39 @@ struct obj_data
 	~obj_data();
 
 	unsigned int uid;
-	obj_vnum item_number;	/* Where in data-base            */
-	room_rnum in_room;	/* In what room -1 when conta/carr */
+	obj_vnum item_number;	// Where in data-base            //
+	room_rnum in_room;	// In what room -1 when conta/carr //
 
-	struct obj_flag_data obj_flags;		/* Object information       */
-	boost::array<obj_affected_type, MAX_OBJ_AFFECT> affected;	/* affects */
+	struct obj_flag_data obj_flags;		// Object information       //
+	boost::array<obj_affected_type, MAX_OBJ_AFFECT> affected;	// affects //
 
-	char *aliases;		/* Title of object :get etc.        */
-	char *description;	/* When in room                     */
-	char *short_description;	/* when worn/carry/in cont.         */
-	char *action_description;	/* What to write when used          */
-	EXTRA_DESCR_DATA *ex_description;	/* extra descriptions     */
-	CHAR_DATA *carried_by;	/* Carried by :NULL in room/conta   */
-	CHAR_DATA *worn_by;	/* Worn by?              */
+	char *aliases;		// Title of object :get etc.        //
+	char *description;	// When in room                     //
+	char *short_description;	// when worn/carry/in cont.         //
+	char *action_description;	// What to write when used          //
+	EXTRA_DESCR_DATA *ex_description;	// extra descriptions     //
+	CHAR_DATA *carried_by;	// Carried by :NULL in room/conta   //
+	CHAR_DATA *worn_by;	// Worn by?              //
 
-	struct custom_label *custom_label;		/* наносимая чаром метка */
+	struct custom_label *custom_label;		// наносимая чаром метка //
 
 	short int
-	worn_on;		/* Worn where?          */
+	worn_on;		// Worn where?          //
 
-	OBJ_DATA *in_obj;	/* In what object NULL when none    */
-	OBJ_DATA *contains;	/* Contains objects                 */
+	OBJ_DATA *in_obj;	// In what object NULL when none    //
+	OBJ_DATA *contains;	// Contains objects                 //
 
-	long id;			/* used by DG triggers              */
-	struct trig_proto_list *proto_script;	/* list of default triggers  */
-	struct script_data *script;	/* script info for the object       */
+	long id;			// used by DG triggers              //
+	struct trig_proto_list *proto_script;	// list of default triggers  //
+	struct script_data *script;	// script info for the object       //
 
-	OBJ_DATA *next_content;	/* For 'contains' lists             */
-	OBJ_DATA *next;		/* For the object list              */
+	OBJ_DATA *next_content;	// For 'contains' lists             //
+	OBJ_DATA *next;		// For the object list              //
 	int
 	room_was_in;
 	boost::array<char *, 6> PNames;
 	int
-	max_in_world;		/* max in world             */
+	max_in_world;		// max in world             //
 
 	TimedSpell timed_spell;    // временный обкаст
 	std::vector<AcquiredAffects> acquired_affects;

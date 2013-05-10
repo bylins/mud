@@ -11,7 +11,7 @@
 #include "sysdep.h"
 #include "structs.h"
 
-/* these factors should be unique integers */
+// these factors should be unique integers
 #define RENT_FACTOR 	1
 #define CRYO_FACTOR 	4
 

@@ -53,7 +53,7 @@ SPECIAL(shop_keeper);
 
 void assign_kings_castle(void);
 
-/* local functions */
+// local functions
 void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
@@ -62,7 +62,7 @@ void ASSIGNMOB(mob_vnum mob, SPECIAL(fname));
 void ASSIGNOBJ(obj_vnum obj, SPECIAL(fname));
 void clear_mob_charm(CHAR_DATA *mob);
 
-/* functions to perform assignments */
+// functions to perform assignments
 
 void ASSIGNMOB(mob_vnum mob, SPECIAL(fname))
 {
@@ -115,9 +115,9 @@ void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info)
 }
 
 
-/* ********************************************************************
-*  Assignments                                                        *
-******************************************************************** */
+// ********************************************************************
+// *  Assignments                                                     *
+// ******************************************************************** 
 
 /**
 * Спешиалы на мобов сюда писать не нужно, пишите в lib/misc/specials.lst,
@@ -126,23 +126,23 @@ void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info)
 */
 void assign_mobiles(void)
 {
-	/* HOTEL */
+	// HOTEL //
 	ASSIGNMOB(106, receptionist);
 	ASSIGNMOB(4022, receptionist);
 
-	/* POSTMASTER */
+	// POSTMASTER //
 	ASSIGNMOB(4002, postmaster);
 
-	/* BANK */
+	// BANK //
 	ASSIGNMOB(4001, bank);
 
-	/* HORSEKEEPER */
+	// HORSEKEEPER //
 	ASSIGNMOB(4023, horse_keeper);
 }
 
 
 
-/* assign special procedures to objects */
+// assign special procedures to objects //
 void assign_objects(void)
 {
 	ASSIGNOBJ(GODGENERAL_BOARD_OBJ, Board::Special);
@@ -154,7 +154,7 @@ void assign_objects(void)
 
 
 
-/* assign special procedures to rooms */
+// assign special procedures to rooms //
 void assign_rooms(void)
 {
 	room_rnum i;
@@ -236,9 +236,7 @@ void init_spec_procs(void)
 	return;
 }
 
-/**
- * Снятие нежелательных флагов у рентеров и продавцов.
- */
+// * Снятие нежелательных флагов у рентеров и продавцов.
 void clear_mob_charm(CHAR_DATA *mob)
 {
 	if (mob && !mob->purged())

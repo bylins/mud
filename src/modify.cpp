@@ -46,9 +46,9 @@ void show_string(DESCRIPTOR_DATA * d, char *input);
 #define PARSE_EDIT        7
 
 extern const char *MENU;
-extern const char *unused_spellname;	/* spell_parser.cpp */
+extern const char *unused_spellname;	// spell_parser.cpp
 
-/* local functions */
+// local functions
 void smash_tilde(char *str);
 ACMD(do_skillset);
 char *next_page(char *str, CHAR_DATA * ch);
@@ -67,7 +67,7 @@ const char *string_fields[] =
 };
 
 
-/* maximum length for text field x+1 */
+// maximum length for text field x+1
 int length[] =
 {
 	15,
@@ -78,9 +78,9 @@ int length[] =
 };
 
 
-/* ************************************************************************
-*  modification of malloc'ed strings                                      *
-************************************************************************ */
+// ************************************************************************
+// *  modification of malloc'ed strings                                   *
+// ************************************************************************
 
 /*
  * Put '#if 1' here to erase ~, or roll your own method.  A common idea
@@ -122,9 +122,7 @@ void string_write(DESCRIPTOR_DATA * d, char **writeto, size_t len, long mailto, 
 }
 
 
-/*
- * Handle some editor commands.
- */
+// * Handle some editor commands.
 void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 {
 	int indent = 0, rep_all = 0, flags = 0, replaced;
@@ -293,10 +291,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 		break;
 	case PARSE_LIST_NORM:
-		/*
-		 * Note: Rv's buf, buf1, buf2, and arg variables are defined to 32k so
-		 * they are probly ok for what to do here.
-		 */
+		// * Note: Rv's buf, buf1, buf2, and arg variables are defined to 32k so
+		// * they are probly ok for what to do here.
 		*buf = '\0';
 		if (*string != '\0')
 			switch (sscanf(string, " %d - %d ", &line_low, &line_high))
@@ -359,19 +355,15 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 		else
 			strcat(buf, t);
-		/*
-		 * This is kind of annoying...but some people like it.
-		 */
+		// * This is kind of annoying...but some people like it.
 #if 0
 		sprintf(buf, "%s\r\nПоказано строк - %d.\r\n", buf, total_len);
 #endif
 		page_string(d, buf, TRUE);
 		break;
 	case PARSE_LIST_NUM:
-		/*
-		 * Note: Rv's buf, buf1, buf2, and arg variables are defined to 32k so
-		 * they are probly ok for what to do here.
-		 */
+		// * Note: Rv's buf, buf1, buf2, and arg variables are defined to 32k so
+		// * they are probly ok for what to do here.
 		*buf = '\0';
 		if (*string != '\0')
 			switch (sscanf(string, " %d - %d ", &line_low, &line_high))
@@ -438,9 +430,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 		else if (t)
 			strcat(buf, t);
-		/*
-		 * This is kind of annoying .. seeing as the lines are numbered.
-		 */
+		// * This is kind of annoying .. seeing as the lines are numbered.
 #if 0
 		sprintf(buf, "%s\r\nПросмотрено строк - %d.\r\n", buf, total_len);
 #endif
@@ -521,42 +511,30 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			return;
 		}
 		if (line_low > 0)
-		{	/*
-					 * Loop through the text counting \\n characters until we get to the line/
-					 */
+		{	// Loop through the text counting \\n characters until we get to the line/
 			while (s && (i < line_low))
 				if ((s = strchr(s, '\n')) != NULL)
 				{
 					i++;
 					s++;
 				}
-			/*
-			 * Make sure that there was a THAT line in the text.
-			 */
+			// * Make sure that there was a THAT line in the text.
 			if ((i < line_low) || (s == NULL))
 			{
 				SEND_TO_Q("Строка вне диапазона - прервано.\r\n", d);
 				return;
 			}
-			/*
-			 * If s is the same as *d->str that means I'm at the beginning of the
-			 * message text and I don't need to put that into the changed buffer.
-			 */
+			// If s is the same as *d->str that means I'm at the beginning of the
+			// message text and I don't need to put that into the changed buffer.
 			if (s != *d->str)
-			{	/*
-						 * First things first .. we get this part into the buffer.
-						 */
+			{	// First things first .. we get this part into the buffer.
 				temp = *s;
 				*s = '\0';
-				/*
-				 * Put the first 'good' half of the text into storage.
-				 */
+				// Put the first 'good' half of the text into storage.
 				strcat(buf, *d->str);
 				*s = temp;
 			}
-			/*
-			 * Put the new 'good' line into place.
-			 */
+			// Put the new 'good' line into place.
 			strcat(buf, buf2);
 			if ((s = strchr(s, '\n')) != NULL)
 			{	/*
@@ -565,22 +543,16 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 								 * AFTER the line we want edited
 								 */
 				s++;
-				/*
-				 * Now put the last 'good' half of buffer into storage.
-				 */
+				// * Now put the last 'good' half of buffer into storage.
 				strcat(buf, s);
 			}
-			/*
-			 * Check for buffer overflow.
-			 */
+			// * Check for buffer overflow.
 			if (strlen(buf) > d->max_str)
 			{
 				SEND_TO_Q("Превышение максимального размера буфера - прервано.\r\n", d);
 				return;
 			}
-			/*
-			 * Change the size of the REAL buffer to fit the new text.
-			 */
+			// * Change the size of the REAL buffer to fit the new text.
 			RECREATE(*d->str, char, strlen(buf) + 3);
 			strcpy(*d->str, buf);
 			SEND_TO_Q("Строка изменена.\r\n", d);
@@ -602,22 +574,22 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 
 
-/* Add user input to the 'current' string (as defined by d->str) */
+// Add user input to the 'current' string (as defined by d->str) //
 void string_add(DESCRIPTOR_DATA * d, char *str)
 {
 	int terminator = 0, action = 0;
 	register int i = 2, j = 0;
 	char actions[MAX_INPUT_LENGTH];
 
-	/* determine if this is the terminal string, and truncate if so */
-	/* changed to only accept '@' at the beginning of line - J. Elson 1/17/94 */
-	/* Changed to accept '/<letter>' style editing commands - instead */
-	/*   of solitary '@' to end. - M. Scott 10/15/96 */
+	// determine if this is the terminal string, and truncate if so //
+	// changed to only accept '@' at the beginning of line - J. Elson 1/17/94 //
+	// Changed to accept '/<letter>' style editing commands - instead //
+	//   of solitary '@' to end. - M. Scott 10/15/96 //
 
 	delete_doubledollar(str);
 
 #if 0
-	/* Removed old handling of '@' character, put #if 1 to re-enable it. */
+	// Removed old handling of '@' character, put #if 1 to re-enable it. //
 	if ((terminator = (*str == '@')))
 		* str = '\0';
 #endif
@@ -643,7 +615,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		switch (str[1])
 		{
 		case 'a':
-			terminator = 2;	/* Working on an abort message, */
+			terminator = 2;	// Working on an abort message, //
 			break;
 		case 'c':
 			if (*(d->str))
@@ -710,8 +682,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			CREATE(*d->str, char, d->max_str);
 			strcpy(*d->str, str);
 
-			/* Changed this to NOT abort out.. just give warning. */
-			/* terminator = 1;                                    */
+			// Changed this to NOT abort out.. just give warning. //
+			// terminator = 1;                                    //
 		}
 		else if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80)
 		{
@@ -734,25 +706,23 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			str[80 - 3] = '\0';
 		}
 
-		if (strlen(str) + strlen(*d->str) + 3 > d->max_str)  	/* \r\n\0 */
+		if (strlen(str) + strlen(*d->str) + 3 > d->max_str)  	// \r\n\0 //
 		{
 			//log("[SA] 1.1");
 			send_to_char(d->character, "Слишком длинное послание > %d симв. Последняя строка проигнорирована.\r\n", d->max_str - 3);
 			action = TRUE;
-			/* terminator = 1; */
+			// terminator = 1; //
 		}
 		else  	//log("[SA] 1.2");
 		{
-			RECREATE(*d->str, char, strlen(*d->str) + strlen(str) + 3);	/* \r\n\0 */
+			RECREATE(*d->str, char, strlen(*d->str) + strlen(str) + 3);	// \r\n\0
 			strcat(*d->str, str);
 		}
 		//log("[SA] 1f");
 	}
 
 	if (terminator)
-	{	/*
-				 * OLC Edits
-				 */
+	{	// OLC Edits
 		extern void oedit_disp_menu(DESCRIPTOR_DATA * d);
 		extern void oedit_disp_extradesc_menu(DESCRIPTOR_DATA * d);
 		extern void redit_disp_menu(DESCRIPTOR_DATA * d);
@@ -779,9 +749,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		}
 #endif
 
-		/*
-		 * Here we check for the abort option and reset the pointers.
-		 */
+		// * Here we check for the abort option and reset the pointers.
 		if ((terminator == 2) && ((STATE(d) == CON_REDIT) || (STATE(d) == CON_MEDIT) || (STATE(d) == CON_OEDIT) || (STATE(d) == CON_TRIGEDIT) || (STATE(d) == CON_EXDESC)))  	//log("[SA] 2s");
 		{
 			if (*(d->str))
@@ -796,10 +764,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			d->str = NULL;
 			//log("[SA] 2f");
 		}
-		/*
-		 * This fix causes the editor to NULL out empty messages -- M. Scott
-		 * Fixed to fix the fix for empty fixed messages. -- gg
-		 */
+		// * This fix causes the editor to NULL out empty messages -- M. Scott
+		// * Fixed to fix the fix for empty fixed messages. -- gg
 		else if ((d->str) && (*d->str) && (**d->str == '\0'))  	//log("[SA] 3s");
 		{
 			free(*d->str);
@@ -1025,9 +991,9 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 	//log("[SA] Stop");
 }
 
-/* **********************************************************************
-* Set of character features
-*********************************************************************** */
+// ***********************************************************************
+// * Set of character features                                           *
+// ***********************************************************************
 
 ACMD(do_featset)
 {
@@ -1038,13 +1004,13 @@ ACMD(do_featset)
 
 	argument = one_argument(argument, name);
 
-	if (!*name)  		/* no arguments. print an informative text */
+	if (!*name)  		// no arguments. print an informative text //
 	{
 		send_to_char("Формат: featset <игрок> '<способность>' <значение>\r\n", ch);
 		strcpy(help, "Возможные способности:\r\n");
 		for (qend = 0, i = 0; i < MAX_FEATS; i++)
 		{
-			if (feat_info[i].type == UNUSED_FTYPE)	/* This is valid. */
+			if (feat_info[i].type == UNUSED_FTYPE)	// This is valid. //
 				continue;
 			sprintf(help + strlen(help), "%30s", feat_info[i].name);
 			if (qend++ % 3 == 2)
@@ -1067,7 +1033,7 @@ ACMD(do_featset)
 	}
 	skip_spaces(&argument);
 
-	/* If there is no chars in argument */
+	// If there is no chars in argument //
 	if (!*argument)
 	{
 		send_to_char("Пропущено название способности.\r\n", ch);
@@ -1078,7 +1044,7 @@ ACMD(do_featset)
 		send_to_char("Название способности надо заключить в символы : ''\r\n", ch);
 		return;
 	}
-	/* Locate the last quote and lowercase the magic words (if any) */
+	// Locate the last quote and lowercase the magic words (if any) //
 
 	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++)
 		argument[qend] = LOWER(argument[qend]);
@@ -1097,7 +1063,7 @@ ACMD(do_featset)
 		return;
 	}
 
-	argument += qend + 1;	/* skip to next parameter */
+	argument += qend + 1;	// skip to next parameter //
 	argument = one_argument(argument, buf);
 
 	if (!*buf)
@@ -1137,9 +1103,9 @@ ACMD(do_featset)
 	send_to_char(buf2, ch);
 }
 
-/* **********************************************************************
-*  Modification of character skills                                     *
-********************************************************************** */
+// **********************************************************************
+// *  Modification of character skills                                  *
+// **********************************************************************
 
 ACMD(do_skillset)
 {
@@ -1150,16 +1116,14 @@ ACMD(do_skillset)
 
 	argument = one_argument(argument, name);
 
-	/*
-	 * No arguments. print an informative text.
-	 */
-	if (!*name)  		/* no arguments. print an informative text */
+	// * No arguments. print an informative text.
+	if (!*name)  		// no arguments. print an informative text
 	{
 		send_to_char("Формат: skillset <игрок> '<умение/заклинание>' <значение>\r\n", ch);
 		strcpy(help, "Возможные умения:\r\n");
 		for (qend = 0, i = 0; i <= TOP_SPELL_DEFINE; i++)
 		{
-			if (spell_info[i].name == unused_spellname)	/* This is valid. */
+			if (spell_info[i].name == unused_spellname)	// This is valid.
 				continue;
 			sprintf(help + strlen(help), "%18s", spell_info[i].name);
 			if (qend++ % 4 == 3)
@@ -1182,7 +1146,7 @@ ACMD(do_skillset)
 	}
 	skip_spaces(&argument);
 
-	/* If there is no chars in argument */
+	// If there is no chars in argument
 	if (!*argument)
 	{
 		send_to_char("Пропущено название умения.\r\n", ch);
@@ -1193,7 +1157,7 @@ ACMD(do_skillset)
 		send_to_char("Умение надо заключить в символы : ''\r\n", ch);
 		return;
 	}
-	/* Locate the last quote and lowercase the magic words (if any) */
+	// Locate the last quote and lowercase the magic words (if any)
 
 	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++)
 		argument[qend] = LOWER(argument[qend]);
@@ -1214,7 +1178,7 @@ ACMD(do_skillset)
 		send_to_char("Неизвестное умение/заклинание.\r\n", ch);
 		return;
 	}
-	argument += qend + 1;	/* skip to next parameter */
+	argument += qend + 1;	// skip to next parameter
 	argument = one_argument(argument, buf);
 
 	if (!*buf)
@@ -1239,10 +1203,8 @@ ACMD(do_skillset)
 		return;
 	}
 
-	/*
-	 * find_skill_num() guarantees a valid spell_info[] index, or -1, and we
-	 * checked for the -1 above so we are safe here.
-	 */
+	// * find_skill_num() guarantees a valid spell_info[] index, or -1, and we
+	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
@@ -1266,24 +1228,23 @@ ACMD(do_skillset)
 *
 *********************************************************************/
 
-/* Traverse down the string until the begining of the next page has been
- * reached.  Return NULL if this is the last page of the string.
- */
+// * Traverse down the string until the begining of the next page has been
+// * reached.  Return NULL if this is the last page of the string.
 char *next_page(char *str, CHAR_DATA * ch)
 {
 	int col = 1, line = 1, spec_code = FALSE;
 	const char *color;
 
-	for (;; str++)  	/* If end of string, return NULL. */
+	for (;; str++)  	// If end of string, return NULL. //
 	{
 		if (*str == '\0')
 			return (NULL);
 
-		/* If we're at the start of the next page, return this fact. */
+		// If we're at the start of the next page, return this fact. //
 		else if (STRING_WIDTH(ch) && line > STRING_WIDTH(ch))
 			return (str);
 
-		/* Check for the begining of an ANSI color code block. */
+		// Check for the begining of an ANSI color code block. //
 		else if (*str == '$' && !strncmp(str + 1, "COLOR", 5))
 		{
 			if (!ch)
@@ -1348,22 +1309,21 @@ char *next_page(char *str, CHAR_DATA * ch)
 		else if (*str == '\x1B' && !spec_code)
 			spec_code = TRUE;
 
-		/* Check for the end of an ANSI color code block. */
+		// Check for the end of an ANSI color code block. //
 		else if (*str == 'm' && spec_code)
 			spec_code = FALSE;
 
-		/* Check for everything else. */
-		else if (!spec_code)  	/* Carriage return puts us in column one. */
+		// Check for everything else. //
+		else if (!spec_code)  	// Carriage return puts us in column one. //
 		{
 			if (*str == '\r')
 				col = 1;
-			/* Newline puts us on the next line. */
+			// Newline puts us on the next line. //
 			else if (*str == '\n')
 				line++;
 
-			/* We need to check here and see if we are over the page width,
-			 * and if so, compensate by going to the begining of the next line.
-			 */
+			// * We need to check here and see if we are over the page width,
+			// * and if so, compensate by going to the begining of the next line.
 			else if (STRING_LENGTH(ch) && col++ > STRING_LENGTH(ch))
 			{
 				col = 1;
@@ -1374,7 +1334,7 @@ char *next_page(char *str, CHAR_DATA * ch)
 }
 
 
-/* Function that returns the number of pages in the string. */
+// Function that returns the number of pages in the string.
 int count_pages(char *str, CHAR_DATA * ch)
 {
 	int pages;
@@ -1401,7 +1361,7 @@ void paginate_string(char *str, DESCRIPTOR_DATA * d)
 	d->showstr_page = 0;
 }
 
-/* The call that gets the paging ball rolling... */
+// The call that gets the paging ball rolling...
 void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 {
 	if (!d)
@@ -1438,7 +1398,7 @@ void page_string(DESCRIPTOR_DATA * d, std::string buf)
 	free(str);
 }
 
-/* The call that displays the next page. */
+// The call that displays the next page.
 void show_string(DESCRIPTOR_DATA * d, char *input)
 {
 	char buffer[MAX_STRING_LENGTH];
@@ -1446,7 +1406,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 
 	any_one_arg(input, buf);
 
-	/* Q is for quit. :) */
+	//* Q is for quit. :)
 	if (LOWER(*buf) == 'q' || LOWER(*buf) == 'к')
 	{
 		free(d->showstr_vector);
@@ -1458,21 +1418,18 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 		}
 		return;
 	}
-	/* R is for refresh, so back up one page internally so we can display
-	 * it again.
-	 */
+	// R is for refresh, so back up one page internally so we can display
+	// it again.
 	else if (LOWER(*buf) == 'r' || LOWER(*buf) == 'п')
 		d->showstr_page = MAX(0, d->showstr_page - 1);
 
-	/* B is for back, so back up two pages internally so we can display the
-	 * correct page here.
-	 */
+	// B is for back, so back up two pages internally so we can display the
+	// correct page here.
 	else if (LOWER(*buf) == 'b' || LOWER(*buf) == 'н')
 		d->showstr_page = MAX(0, d->showstr_page - 2);
 
-	/* Feature to 'goto' a page.  Just type the number of the page and you
-	 * are there!
-	 */
+	// Feature to 'goto' a page.  Just type the number of the page and you
+	// are there!
 	else if (isdigit(*buf))
 		d->showstr_page = MAX(0, MIN(atoi(buf) - 1, d->showstr_count - 1));
 
@@ -1481,9 +1438,8 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 		send_to_char("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character);
 		return;
 	}
-	/* If we're displaying the last page, just send it to the character, and
-	 * then free up the space we used.
-	 */
+	// If we're displaying the last page, just send it to the character, and
+	// then free up the space we used.
 	if (d->showstr_page + 1 >= d->showstr_count)
 	{
 		send_to_char(d->showstr_vector[d->showstr_page], d->character);
@@ -1495,7 +1451,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 			d->showstr_head = NULL;
 		}
 	}
-	/* Or if we have more to show.... */
+	// Or if we have more to show....
 	else
 	{
 		diff = d->showstr_vector[d->showstr_page + 1] - d->showstr_vector[d->showstr_page];

@@ -49,13 +49,13 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern int top_of_p_table;
 
-/* local functions */
+// local functions
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void prune_crlf(char *txt);
 int valid_email(const char *address);
 
-/* external functions */
+// external functions
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
 
@@ -90,7 +90,7 @@ char AltToLat[] =
 const char *ACTNULL = "<NULL>";
 
 
-/* return char with UID n */
+// return char with UID n
 CHAR_DATA *find_char(long n)
 {
 	CHAR_DATA *ch;
@@ -118,7 +118,7 @@ char * CAP(char *txt)
 	return (txt);
 }
 
-/* Create and append to dinamyc length string - Alez */
+// Create and append to dinamyc length string - Alez
 char *str_add(char *dst, const char *src)
 {
 	if (dst == NULL)
@@ -134,7 +134,7 @@ char *str_add(char *dst, const char *src)
 	return dst;
 }
 
-/* Create a duplicate of a string */
+// Create a duplicate of a string
 char *str_dup(const char *source)
 {
 	char *new_z = NULL;
@@ -147,9 +147,7 @@ char *str_dup(const char *source)
 	return (strcpy(new_z, ""));
 }
 
-/*
- * Strips \r\n from end of string.
- */
+// * Strips \r\n from end of string.
 void prune_crlf(char *txt)
 {
 	int i = strlen(txt) - 1;
@@ -177,7 +175,7 @@ int str_cmp(const char *arg1, const char *arg2)
 
 	for (i = 0; arg1[i] || arg2[i]; i++)
 		if ((chk = LOWER(arg1[i]) - LOWER(arg2[i])) != 0)
-			return (chk);	/* not equal */
+			return (chk);	// not equal
 
 	return (0);
 }
@@ -194,7 +192,7 @@ int str_cmp(const std::string &arg1, const char *arg2)
 
 	for (i = 0; i != arg1.length() && *arg2; i++, arg2++)
 		if ((chk = LOWER(arg1[i]) - LOWER(*arg2)) != 0)
-			return (chk);	/* not equal */
+			return (chk);	// not equal
 
 	if (i == arg1.length() && !*arg2)
 		return (0);
@@ -217,7 +215,7 @@ int str_cmp(const char *arg1, const std::string &arg2)
 
 	for (i = 0; *arg1 && i != arg2.length(); i++, arg1++)
 		if ((chk = LOWER(*arg1) - LOWER(arg2[i])) != 0)
-			return (chk);	/* not equal */
+			return (chk);	// not equal
 
 	if (!*arg1 && i == arg2.length())
 		return (0);
@@ -234,7 +232,7 @@ int str_cmp(const std::string &arg1, const std::string &arg2)
 
 	for (i = 0; i != arg1.length() && i != arg2.length(); i++)
 		if ((chk = LOWER(arg1[i]) - LOWER(arg2[i])) != 0)
-			return (chk);	/* not equal */
+			return (chk);	// not equal
 
 	if (arg1.length() == arg2.length())
 		return (0);
@@ -264,7 +262,7 @@ int strn_cmp(const char *arg1, const char *arg2, int n)
 
 	for (i = 0; (arg1[i] || arg2[i]) && (n > 0); i++, n--)
 		if ((chk = LOWER(arg1[i]) - LOWER(arg2[i])) != 0)
-			return (chk);	/* not equal */
+			return (chk);	// not equal
 
 	return (0);
 }
@@ -281,7 +279,7 @@ int strn_cmp(const std::string &arg1, const char *arg2, int n)
 
 	for (i = 0; i != arg1.length() && *arg2 && (n > 0); i++, arg2++, n--)
 		if ((chk = LOWER(arg1[i]) - LOWER(*arg2)) != 0)
-			return (chk);	/* not equal */
+			return (chk);	// not equal
 
 	if (i == arg1.length() && (!*arg2 || n == 0))
 		return (0);
@@ -304,7 +302,7 @@ int strn_cmp(const char *arg1, const std::string &arg2, int n)
 
 	for (i = 0; *arg1 && i != arg2.length() && (n > 0); i++, arg1++, n--)
 		if ((chk = LOWER(*arg1) - LOWER(arg2[i])) != 0)
-			return (chk);	/* not equal */
+			return (chk);	// not equal
 
 	if (!*arg1 && (i == arg2.length() || n == 0))
 		return (0);
@@ -321,7 +319,7 @@ int strn_cmp(const std::string &arg1, const std::string &arg2, int n)
 
 	for (i = 0; i != arg1.length() && i != arg2.length() && (n > 0); i++, n--)
 		if ((chk = LOWER(arg1[i]) - LOWER(arg2[i])) != 0)
-			return (chk);	/* not equal */
+			return (chk);	// not equal
 
 	if (arg1.length() == arg2.length() || (n == 0))
 		return (0);
@@ -335,9 +333,7 @@ int strn_cmp(const std::string &arg1, const std::string &arg2, int n)
 // дескрипторы открытых файлов логов для сброса буфера при креше
 std::list<FILE *> opened_files;
 
-/**
-* Чтобы не дублировать создание даты в каждом виде лога.
-*/
+// * Чтобы не дублировать создание даты в каждом виде лога.
 void write_time(FILE *file)
 {
 	char time_buf[20];
@@ -346,9 +342,7 @@ void write_time(FILE *file)
 	fprintf(file, "%s :: ", time_buf);
 }
 
-/**
-* Так, потестить...
-*/
+// * Так, потестить...
 void write_test_time(FILE *file)
 {
 	char time_buf[20];
@@ -463,9 +457,6 @@ void imm_log(const char *format, ...)
 	fclose(file);
 }
 
-/**
-*
-*/
 void temp_log(const char *format, ...)
 {
 	const char *filename = "../log/trig.log";
@@ -542,7 +533,7 @@ void ip_log(const char *ip)
 	fclose(iplog);
 }
 
-/* the "touch" command, essentially. */
+// the "touch" command, essentially.
 int touch(const char *path)
 {
 	FILE *fl;
@@ -571,7 +562,7 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 	DESCRIPTOR_DATA *i;
 
 	if (str == NULL)
-		return;		/* eh, oh well. */
+		return;		// eh, oh well.
 	if (channel < 0 || channel >= NLOG)
 		return;
 	if (file)
@@ -586,7 +577,7 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 	sprintf(tmpbuf, "[ %s ]\r\n", str);
 	for (i = descriptor_list; i; i = i->next)
 	{
-		if (STATE(i) != CON_PLAYING || IS_NPC(i->character))	/* switch */
+		if (STATE(i) != CON_PLAYING || IS_NPC(i->character))	// switch
 			continue;
 		if (GET_LOGS(i->character)[channel] < type && type != DEF)
 			continue;
@@ -728,7 +719,7 @@ void sprinttype(int type, const char *names[], char *result)
 }
 
 
-/* Calculate the REAL time passed over the last t2-t1 centuries (secs) */
+// * Calculate the REAL time passed over the last t2-t1 centuries (secs)
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1)
 {
 	long secs;
@@ -736,11 +727,11 @@ TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1)
 
 	secs = (long)(t2 - t1);
 
-	now.hours = (secs / SECS_PER_REAL_HOUR) % 24;	/* 0..23 hours */
+	now.hours = (secs / SECS_PER_REAL_HOUR) % 24;	// 0..23 hours //
 	secs -= SECS_PER_REAL_HOUR * now.hours;
 
-	now.day = (secs / SECS_PER_REAL_DAY);	/* 0..34 days  */
-	/* secs -= SECS_PER_REAL_DAY * now.day; - Not used. */
+	now.day = (secs / SECS_PER_REAL_DAY);	// 0..34 days  //
+	// secs -= SECS_PER_REAL_DAY * now.day; - Not used. //
 
 	now.month = -1;
 	now.year = -1;
@@ -750,7 +741,7 @@ TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1)
 
 
 
-/* Calculate the MUD time passed over the last t2-t1 centuries (secs) */
+// Calculate the MUD time passed over the last t2-t1 centuries (secs) //
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1)
 {
 	long secs;
@@ -758,16 +749,16 @@ TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1)
 
 	secs = (long)(t2 - t1);
 
-	now.hours = (secs / (SECS_PER_MUD_HOUR * TIME_KOEFF)) % HOURS_PER_DAY;	/* 0..23 hours */
+	now.hours = (secs / (SECS_PER_MUD_HOUR * TIME_KOEFF)) % HOURS_PER_DAY;	// 0..23 hours //
 	secs -= SECS_PER_MUD_HOUR * TIME_KOEFF * now.hours;
 
-	now.day = (secs / (SECS_PER_MUD_DAY * TIME_KOEFF)) % DAYS_PER_MONTH;	/* 0..29 days  */
+	now.day = (secs / (SECS_PER_MUD_DAY * TIME_KOEFF)) % DAYS_PER_MONTH;	// 0..29 days  //
 	secs -= SECS_PER_MUD_DAY * TIME_KOEFF * now.day;
 
-	now.month = (secs / (SECS_PER_MUD_MONTH * TIME_KOEFF)) % MONTHS_PER_YEAR;	/* 0..11 months */
+	now.month = (secs / (SECS_PER_MUD_MONTH * TIME_KOEFF)) % MONTHS_PER_YEAR;	// 0..11 months //
 	secs -= SECS_PER_MUD_MONTH * TIME_KOEFF * now.month;
 
-	now.year = (secs / (SECS_PER_MUD_YEAR * TIME_KOEFF));	/* 0..XX? years */
+	now.year = (secs / (SECS_PER_MUD_YEAR * TIME_KOEFF));	// 0..XX? years //
 
 	return (&now);
 }
@@ -780,14 +771,14 @@ TIME_INFO_DATA *age(CHAR_DATA * ch)
 
 	player_age = *mud_time_passed(time(0), ch->player_data.time.birth);
 
-	player_age.year += 17;	/* All players start at 17 */
+	player_age.year += 17;	// All players start at 17 //
 
 	return (&player_age);
 }
 
 
-/* Check if making CH follow VICTIM will create an illegal */
-/* Follow "Loop/circle"                                    */
+// Check if making CH follow VICTIM will create an illegal //
+// Follow "Loop/circle"                                    //
 bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	CHAR_DATA *k;
@@ -873,8 +864,8 @@ void check_horse(CHAR_DATA * ch)
 }
 
 
-/* Called when stop following persons, or stopping charm */
-/* This will NOT do if a character quits/dies!!          */
+// Called when stop following persons, or stopping charm //
+// This will NOT do if a character quits/dies!!          //
 // При возврате 1 использовать ch нельзя, т.к. прошли через extract_char
 // TODO: по всем вызовам не проходил, может еще где-то коряво вызывается, кроме передачи скакунов -- Krodo
 // при персонаже на входе - пуржить не должно полюбому, если начнет, как минимум в change_leader будут глюки
@@ -910,14 +901,14 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	//log("[Stop follower] Remove from followers list");
 	if (!ch->master->followers)
 		log("[Stop follower] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->master));
-	else if (ch->master->followers->follower == ch)  	/* Head of follower-list? */
+	else if (ch->master->followers->follower == ch)  	// Head of follower-list?
 	{
 		k = ch->master->followers;
 		if (!(ch->master->followers = k->next) && !ch->master->master)
 			REMOVE_BIT(AFF_FLAGS(ch->master, AFF_GROUP), AFF_GROUP);
 		free(k);
 	}
-	else  		/* locate follower who is not head of list */
+	else  		// locate follower who is not head of list
 	{
 		for (k = ch->master->followers; k->next && k->next->follower != ch; k = k->next);
 		if (!k->next)
@@ -1010,7 +1001,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 
 
 
-/* Called when a character that follows/is followed dies */
+// * Called when a character that follows/is followed dies
 bool die_follower(CHAR_DATA * ch)
 {
 	struct follow_type *j, *k = ch->followers;
@@ -1233,7 +1224,7 @@ void core_dump_real(const char *who, int line)
 	log("SYSERR: Assertion failed at %s:%d!", who, line);
 
 #if defined(CIRCLE_UNIX)
-	/* These would be duplicated otherwise... */
+	// These would be duplicated otherwise...
 	fflush(stdout);
 	fflush(stderr);
 	for (int i = 0; i < NLOG; ++i)
@@ -1292,11 +1283,11 @@ void koi_to_alt(char *str, int size)
 	for (; size > 0; *str = KtoA(*str), size--, str++);
 }
 
-/* string manipulation fucntion originally by Darren Wilson */
-/* (wilson@shark.cc.cc.ca.us) improved and bug fixed by Chris (zero@cnw.com) */
-/* completely re-written again by M. Scott 10/15/96 (scottm@workcommn.net), */
-/* substitute appearances of 'pattern' with 'replacement' in string */
-/* and return the # of replacements */
+// string manipulation fucntion originally by Darren Wilson //
+// (wilson@shark.cc.cc.ca.us) improved and bug fixed by Chris (zero@cnw.com) //
+// completely re-written again by M. Scott 10/15/96 (scottm@workcommn.net), //
+// substitute appearances of 'pattern' with 'replacement' in string //
+// and return the # of replacements //
 int replace_str(char **string, char *pattern, char *replacement, int rep_all, int max_size)
 {
 	char *replace_buffer = NULL;
@@ -1357,13 +1348,13 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 }
 
 
-/* re-formats message type formatted char * */
-/* (for strings edited with d->str) (mostly olc and mail)     */
+// re-formats message type formatted char * //
+// (for strings edited with d->str) (mostly olc and mail)     //
 void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 {
 	int total_chars, cap_next = TRUE, cap_next_next = FALSE;
 	char *flow, *start = NULL, temp;
-	/* warning: do not edit messages with max_str's of over this value */
+	// warning: do not edit messages with max_str's of over this value //
 	char formated[MAX_STRING_LENGTH];
 
 	flow = *ptr_string;
@@ -1404,7 +1395,7 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 				cap_next = TRUE;
 			}
 
-			/* this is so that if we stopped on a sentance .. we move off the sentance delim. */
+			// this is so that if we stopped on a sentance .. we move off the sentance delim. //
 			while ((*flow == '.') || (*flow == '!') || (*flow == '?'))
 			{
 				cap_next_next = TRUE;
@@ -1619,7 +1610,7 @@ int is_post(room_rnum room)
 }
 
 // Форматирование вывода в соответствии с форматом act-a
-/* output act format*/
+// output act format//
 char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj)
 {
 	const char *i = NULL;
@@ -1878,9 +1869,8 @@ int roundup(float fl)
 		return (int)fl;
 }
 
-/* Функция проверяет может ли ch нести предмет obj и загружает предмет
-   в инвентарь игрока или в комнату, где игрок находится */
-
+// Функция проверяет может ли ch нести предмет obj и загружает предмет
+// в инвентарь игрока или в комнату, где игрок находится
 void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 {
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
@@ -1958,14 +1948,14 @@ int valid_email(const char *address)
 	string addr = address;
 	string::size_type dog_pos = 0, pos = 0;
 
-	/* Наличие запрещенных символов или кириллицы */
+	// Наличие запрещенных символов или кириллицы //
 	if (addr.find_first_of(special_symbols) != string::npos)
 		return 0;
 	size = 	addr.size();
 	for (i = 0; i < size; i++)
 		if (addr[i] <= ' ' || addr[i] >= 127)
 			return 0;
-	/* Собака должна быть только одна и на второй и далее позиции */
+	// Собака должна быть только одна и на второй и далее позиции //
 	while ((pos = addr.find_first_of('@', pos)) != string::npos)
 	{
 		dog_pos = pos;
@@ -1974,11 +1964,11 @@ int valid_email(const char *address)
 	}
 	if (count != 1 || dog_pos == 0)
 		return 0;
-	/* Проверяем правильность синтаксиса домена */
-	/* В доменной части должно быть как минимум 4 символа, считая собаку */
+	// Проверяем правильность синтаксиса домена //
+	// В доменной части должно быть как минимум 4 символа, считая собаку //
 	if (size - dog_pos <= 3)
 		return 0;
-	/* Точка отсутствует, расположена сразу после собаки, или на последнем месте */
+	// Точка отсутствует, расположена сразу после собаки, или на последнем месте //
 	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == string::npos)
 		return 0;
 
@@ -2044,16 +2034,14 @@ std::string time_format(int in_timer, int flag)
 	return out.str();
 }
 
-/**
-* Для обрезания точек в карме при сете славы.
-*/
+// * Для обрезания точек в карме при сете славы.
 void skip_dots(char **string)
 {
 	for (; **string && (strchr(" .", **string) != NULL); (*string)++);
 }
 
-/* Return pointer to first occurrence in string ct in */
-/* cs, or NULL if not present.  Case insensitive */
+// Return pointer to first occurrence in string ct in
+// cs, or NULL if not present.  Case insensitive
 char *str_str(char *cs, const char *ct)
 {
 	char *s;
@@ -2084,7 +2072,7 @@ char *str_str(char *cs, const char *ct)
 	return NULL;
 }
 
-/* remove ^M's from file output */
+// remove ^M's from file output
 void kill_ems(char *str)
 {
 	char *ptr1, *ptr2, *tmp;
@@ -2102,9 +2090,7 @@ void kill_ems(char *str)
 	*ptr2 = '\0';
 }
 
-/**
-* Вырезание и перемещение в word одного слова из str (a_isalnum).
-*/
+// * Вырезание и перемещение в word одного слова из str (a_isalnum).
 void cut_one_word(std::string &str, std::string &word)
 {
 	if (str.empty())
@@ -2161,7 +2147,7 @@ size_t strl_cpy(char *dst, const char *src, size_t siz)
 	const char *s = src;
 	size_t n = siz;
 
-	/* Copy as many bytes as will fit */
+	// Copy as many bytes as will fit
 	if (n != 0)
 	{
 		while (--n != 0)
@@ -2171,16 +2157,16 @@ size_t strl_cpy(char *dst, const char *src, size_t siz)
 		}
 	}
 
-	/* Not enough room in dst, add NUL and traverse rest of src */
+	// Not enough room in dst, add NUL and traverse rest of src
 	if (n == 0)
 	{
 		if (siz != 0)
-			*d = '\0';		/* NUL-terminate dst */
+			*d = '\0';		// NUL-terminate dst
 		while (*s++)
 			;
 	}
 
-	return(s - src - 1);	/* count does not include NUL */
+	return(s - src - 1);	// count does not include NUL
 }
 
 /**
@@ -2758,9 +2744,7 @@ const unsigned BIG_SET_ITEMS = 8;
 // для проверок при попытке ренты
 std::set<int> vnum_list;
 
-/**
- * Заполнение списка фулл-сетов для последующих сверок.
- */
+// * Заполнение списка фулл-сетов для последующих сверок.
 void init_set_list()
 {
 	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
@@ -2779,9 +2763,7 @@ void init_set_list()
 	}
 }
 
-/**
- * Удаление инфы от последнего сверявшегося чара.
- */
+// * Удаление инфы от последнего сверявшегося чара.
 void reset_set_list()
 {
 	for (std::vector<SetNode>::iterator i = set_list.begin(),
@@ -2791,9 +2773,7 @@ void reset_set_list()
 	}
 }
 
-/**
- * Проверка шмотки на принадлежность к сетам из set_list.
- */
+// * Проверка шмотки на принадлежность к сетам из set_list.
 void check_item(int vnum)
 {
 	for (std::vector<SetNode>::iterator i = set_list.begin(),
@@ -2807,9 +2787,7 @@ void check_item(int vnum)
 	}
 }
 
-/**
- * Обнуление таймера шмотки в ренте или перс.хране.
- */
+// * Обнуление таймера шмотки в ренте или перс.хране.
 void delete_item(int pt_num, int vnum)
 {
 	bool need_save = false;
@@ -2846,9 +2824,7 @@ void delete_item(int pt_num, int vnum)
 	Depot::delete_set_item(player_table[pt_num].unique, vnum);
 }
 
-/**
- * Проверка при ребуте всех рент и перс.хранилищ чаров.
- */
+// * Проверка при ребуте всех рент и перс.хранилищ чаров.
 void check_rented()
 {
 	init_set_list();
@@ -2921,9 +2897,7 @@ bool find_set_item(OBJ_DATA *obj)
 	return false;
 }
 
-/**
- * Генерация списка сетин из того же набора, что и vnum (исключая ее саму).
- */
+// * Генерация списка сетин из того же набора, что и vnum (исключая ее саму).
 void init_vnum_list(int vnum)
 {
 	vnum_list.clear();

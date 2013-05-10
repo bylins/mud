@@ -23,7 +23,6 @@
 надо что-то сделать при снятии обкаста - check_spell_remove()
 если надо постоянный обкаст - ставим таймер на -1 в timed_spell.add()
 надо проверить есть ли каст на шмотке - timed_spell.check_spell(spell_num)
-
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,10 +57,6 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 		{
 			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
 		}
-		/*if (!OBJ_FLAGGED(proto, ITEM_SWIMMING))
-		{
-			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
-		} Ввиду того, что полет более не дает этого флага */
 		break;
 	}
 	} // switch
@@ -89,9 +84,7 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 
 }
 
-/**
- * Распечатка строки с заклинанием и таймером при осмотре шмотки.
- */
+// * Распечатка строки с заклинанием и таймером при осмотре шмотки.
 std::string print_spell_str(CHAR_DATA *ch, int spell, int timer)
 {
 	if (spell < 0 || spell >= LAST_USED_SPELL)
@@ -182,9 +175,7 @@ void TimedSpell::add(OBJ_DATA *obj, int spell, int time)
 	spell_list_[spell] = time;
 }
 
-/**
-* Вывод оставшегося времени яда на пушке при осмотре.
-*/
+// * Вывод оставшегося времени яда на пушке при осмотре.
 std::string TimedSpell::diag_to_char(CHAR_DATA *ch)
 {
 	if (spell_list_.empty())
@@ -218,17 +209,13 @@ int TimedSpell::is_spell_poisoned() const
 	return -1;
 }
 
-/**
-* Для сейва обкаста.
-*/
+// * Для сейва обкаста.
 bool TimedSpell::empty() const
 {
 	return spell_list_.empty();
 }
 
-/**
-* Сохранение строки в файл.
-*/
+// * Сохранение строки в файл.
 std::string TimedSpell::print() const
 {
 	std::stringstream out;
@@ -244,9 +231,7 @@ std::string TimedSpell::print() const
 	return out.str();
 }
 
-/**
- * Поиск заклинания по spell_num.
- */
+// * Поиск заклинания по spell_num.
 bool TimedSpell::check_spell(int spell) const
 {
 	std::map<int, int>::const_iterator i = spell_list_.find(spell);

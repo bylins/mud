@@ -17,24 +17,24 @@
 #ifndef _MAIL_H_
 #define _MAIL_H_
 
-/******* MUD MAIL SYSTEM HEADER FILE **********************
- ***     written by Jeremy Elson (jelson@circlemud.org) ***
- *********************************************************/
+// ******* MUD MAIL SYSTEM HEADER FILE **********************
+// ***     written by Jeremy Elson (jelson@circlemud.org) ***
+// **********************************************************
 
-/* INSTALLATION INSTRUCTIONS in MAIL.cpp */
+// INSTALLATION INSTRUCTIONS in MAIL.cpp
 
-/* You can modify the following constants to fit your own MUD.  */
+// You can modify the following constants to fit your own MUD.
 
-/* minimum level a player must be to send mail	*/
+// minimum level a player must be to send mail
 #define MIN_MAIL_LEVEL 2
 
-/* # of gold coins required to send mail	*/
+// # of gold coins required to send mail
 #define STAMP_PRICE 50
 
-/* Maximum size of mail in bytes (arbitrary)	*/
+// Maximum size of mail in bytes (arbitrary)
 #define MAX_MAIL_SIZE 4096
 
-/* size of mail file allocation blocks		*/
+// size of mail file allocation blocks
 #define BLOCK_SIZE 100
 
 /*
@@ -49,9 +49,9 @@
  * BLOCK_SIZE.
  */
 
-/* USER CHANGABLE DEFINES ABOVE **
-***************************************************************************
-**   DON'T TOUCH DEFINES BELOW  */
+// USER CHANGABLE DEFINES ABOVE **
+// ******************************
+// DON'T TOUCH DEFINES BELOW ***
 
 int scan_file(void);
 int has_mail(long recipient);
@@ -71,34 +71,34 @@ char *read_delete(long recipient);
 
 struct header_data_type
 {
-	long next_block;	/* if header block, link to next block  */
-	long from;		/* idnum of the mail's sender           */
-	long to;		/* idnum of mail's recipient            */
-	time_t mail_time;	/* when was the letter mailed?          */
+	long next_block;	// if header block, link to next block  //
+	long from;		// idnum of the mail's sender           //
+	long to;		// idnum of mail's recipient            //
+	time_t mail_time;	// when was the letter mailed?          //
 };
 
-/* size of the data part of a header block */
+// size of the data part of a header block //
 #define HEADER_BLOCK_DATASIZE \
 	(BLOCK_SIZE - sizeof(long) - sizeof(struct header_data_type) - sizeof(char))
 
-/* size of the data part of a data block */
+// size of the data part of a data block //
 #define DATA_BLOCK_DATASIZE (BLOCK_SIZE - sizeof(long) - sizeof(char))
 
-/* note that an extra space is allowed in all string fields for the
-   terminating null character.  */
+// note that an extra space is allowed in all string fields for the
+// terminating null character.
 
 struct header_block_type_d
 {
-	long block_type;	/* is this a header or data block?      */
-	struct header_data_type header_data;	/* other header data            */
-	char txt[HEADER_BLOCK_DATASIZE + 1];	/* actual text plus 1 for null    */
+	long block_type;	// is this a header or data block?      //
+	struct header_data_type header_data;	// other header data            //
+	char txt[HEADER_BLOCK_DATASIZE + 1];	// actual text plus 1 for null    //
 };
 
 struct data_block_type_d
 {
-	long block_type;	/* -1 if header block, -2 if last data block
-				   in mail, otherwise a link to the next */
-	char txt[DATA_BLOCK_DATASIZE + 1];	/* actual text plus 1 for null      */
+	long block_type;	// -1 if header block, -2 if last data block
+						// in mail, otherwise a link to the next
+	char txt[DATA_BLOCK_DATASIZE + 1];	// actual text plus 1 for null      //
 };
 
 typedef struct header_block_type_d header_block_type;
@@ -114,9 +114,9 @@ typedef struct position_list_type_d position_list_type;
 
 struct mail_index_type_d
 {
-	long recipient;		/* who is this mail for?        */
-	position_list_type *list_start;	/* list of mail positions       */
-	struct mail_index_type_d *next;	/* link to next one             */
+	long recipient;		// who is this mail for?        //
+	position_list_type *list_start;	// list of mail positions       //
+	struct mail_index_type_d *next;	// link to next one             //
 };
 
 typedef struct mail_index_type_d mail_index_type;

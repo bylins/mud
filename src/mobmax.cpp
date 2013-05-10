@@ -27,9 +27,7 @@ VnumToLevelType vnum_to_level;
 
 } // namespace
 
-/**
-* Иним массив кол-ва мобов каждого левела и мап соответствий внумов и левелов.
-*/
+// * Иним массив кол-ва мобов каждого левела и мап соответствий внумов и левелов.
 void MobMax::init()
 {
 	for (int i = 0; i <= top_of_mobt; ++i)
@@ -59,9 +57,7 @@ void MobMax::init()
 	}
 }
 
-/**
-* Возвращает левел указанного vnum моба или -1, если такого нет.
-*/
+// * Возвращает левел указанного vnum моба или -1, если такого нет.
 int MobMax::get_level_by_vnum(int vnum)
 {
 	VnumToLevelType::const_iterator it = vnum_to_level.find(vnum);
@@ -96,9 +92,7 @@ void MobMax::refresh(int level)
 	}
 }
 
-/**
-* Добавление замакса по мобу vnum, левела level. count для случая сета замакса иммом.
-*/
+// * Добавление замакса по мобу vnum, левела level. count для случая сета замакса иммом.
 void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level)
 {
 	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
@@ -117,9 +111,7 @@ void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level)
 	refresh(level);
 }
 
-/**
-* Версия add без лишних расчетов для инита во время загрузки персонажа.
-*/
+// * Версия add без лишних расчетов для инита во время загрузки персонажа.
 void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
 {
 	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
@@ -128,9 +120,7 @@ void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
 	mobmax_.push_front(tmp_data);
 }
 
-/**
-* Удаление замакса по указанному мобу vnum.
-*/
+// * Удаление замакса по указанному мобу vnum.
 void MobMax::remove(int vnum)
 {
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
@@ -141,9 +131,7 @@ void MobMax::remove(int vnum)
 		mobmax_.erase(it);
 }
 
-/**
-* Возвращает кол-во убитых мобов данного vnum.
-*/
+// * Возвращает кол-во убитых мобов данного vnum.
 int MobMax::get_kill_count(int vnum) const
 {
 	MobMaxType::const_iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
@@ -155,9 +143,7 @@ int MobMax::get_kill_count(int vnum) const
 	return 0;
 }
 
-/**
-* Сохранение в плеер-файл.
-*/
+// * Сохранение в плеер-файл.
 void MobMax::save(FILE *saved) const
 {
 	fprintf(saved, "Mobs:\n");
@@ -166,9 +152,7 @@ void MobMax::save(FILE *saved) const
 	fprintf(saved, "~\n");
 }
 
-/**
-* Для очистки всех замаксов при реморте.
-*/
+// * Для очистки всех замаксов при реморте.
 void MobMax::clear()
 {
 	mobmax_.clear();

@@ -77,9 +77,7 @@ double NormalRand::NormalDistributionNumber(double mean, double sigma)
 
 // править везде вызовы, чтобы занести эти две функции в неймспейс меня чет обломало
 
-/**
-* Генерация рандомного числа в диапазоне от from до to.
-*/
+// * Генерация рандомного числа в диапазоне от from до to.
 int number(int from, int to)
 {
 	if (from > to)
@@ -92,9 +90,7 @@ int number(int from, int to)
 	return Random::rnd.number(from, to);
 }
 
-/**
-* Аналог кидания кубиков.
-*/
+// * Аналог кидания кубиков.
 int dice(int number, int size)
 {
 	int sum = 0;

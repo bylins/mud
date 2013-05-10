@@ -67,9 +67,7 @@ DESCRIPTOR_DATA* send_result_message(long unique, bool action);
 
 } // namespace TitleSystem
 
-/**
-* Команда титул, title. ACMD(do_title), для игроков и для иммов все одной командой.
-*/
+// * Команда титул, title. ACMD(do_title), для игроков и для иммов все одной командой.
 void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch)) return;
@@ -367,9 +365,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 	return TITLE_CANT_FIND_CHAR;
 }
 
-/**
-* Вывод иммам титулов, ждущих одобрения
-*/
+// * Вывод иммам титулов, ждущих одобрения
 void TitleSystem::show_title_list(CHAR_DATA* ch)
 {
 	if (title_list.empty()) return;
@@ -382,9 +378,7 @@ void TitleSystem::show_title_list(CHAR_DATA* ch)
 	send_to_char(out.str(), ch);
 }
 
-/**
-* Распечатка титула игрока имму для одобрения (без цветовой раскраски)
-*/
+// * Распечатка титула игрока имму для одобрения (без цветовой раскраски)
 std::string TitleSystem::print_title_string(const std::string& name, const std::string& pre_title, const std::string& title)
 {
 	std::stringstream out;
@@ -397,9 +391,7 @@ std::string TitleSystem::print_title_string(const std::string& name, const std::
 	return out.str();
 }
 
-/**
-* Распечатка титула игроку, как оно будет видно в игре с учетом цвета пк
-*/
+// * Распечатка титула игроку, как оно будет видно в игре с учетом цвета пк
 std::string TitleSystem::print_title_string(CHAR_DATA* ch, const std::string& pre_title, const std::string& title)
 {
 	std::stringstream out;
@@ -430,9 +422,7 @@ void TitleSystem::set_player_title(CHAR_DATA* ch, const std::string& pre_title, 
 	GET_TITLE(ch) = str_dup(out.str().c_str());
 }
 
-/**
-* Для распечатки разных подсказок имму и игроку
-*/
+// * Для распечатки разных подсказок имму и игроку
 const char* TitleSystem::print_help_string(CHAR_DATA* ch)
 {
 	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE))
@@ -441,9 +431,7 @@ const char* TitleSystem::print_help_string(CHAR_DATA* ch)
 	return MORTAL_DO_TITLE_FORMAT;
 }
 
-/**
-* Сохранение списка титулов на одобрение
-*/
+// * Сохранение списка титулов на одобрение
 void TitleSystem::save_title_list()
 {
 	std::ofstream file(TITLE_FILE);
@@ -457,9 +445,7 @@ void TitleSystem::save_title_list()
 	file.close();
 }
 
-/**
-* Загрузка списка титулов на одобрение, заодно осуществляет релоад через reload title
-*/
+// * Загрузка списка титулов на одобрение, заодно осуществляет релоад через reload title
 void TitleSystem::load_title_list()
 {
 	title_list.clear();
@@ -512,9 +498,7 @@ std::string TitleSystem::print_agree_string(bool new_petition)
 	return out.str();
 }
 
-/**
-* Обработка пустого вызова команды титул
-*/
+// * Обработка пустого вызова команды титул
 void TitleSystem::do_title_empty(CHAR_DATA* ch)
 {
 	if ((IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) && !title_list.empty())

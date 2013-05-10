@@ -156,7 +156,7 @@ void another_hour(int mode)
 		//script_timechange_trigger_check(28);//ночь
 	}
 
-	if (time_info.hours >= HOURS_PER_DAY)  	/* Changed by HHS due to bug ??? */
+	if (time_info.hours >= HOURS_PER_DAY)  	// Changed by HHS due to bug ???
 	{
 		time_info.hours = 0;
 		time_info.day++;

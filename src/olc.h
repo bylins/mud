@@ -11,31 +11,23 @@
 #ifndef _OLC_H_
 #define _OLC_H_
 
-/*
- * If you don't want a short explanation of each field in your zone files,
- * change the number below to a 0 instead of a 1.
- */
+// * If you don't want a short explanation of each field in your zone files,
+// * change the number below to a 0 instead of a 1.
 #if 0
 #define ZEDIT_HELP_IN_FILE
 #endif
 
-/*
- * If you want to clear the screen before certain Oasis menus, set to 1.
- */
+// * If you want to clear the screen before certain Oasis menus, set to 1.
 #if 0
 #define CLEAR_SCREEN	1
 #endif
 
-/*
- * Set this to 1 to enable MobProg support.
- */
+// * Set this to 1 to enable MobProg support.
 #if 0
 #define OASIS_MPROG	1
 #endif
 
-/*
- * Macros, defines, structs and globals for the OLC suite.
- */
+// * Macros, defines, structs and globals for the OLC suite.
 
 #define NUM_PLANES          4
 
@@ -57,25 +49,19 @@
 #define NUM_SHOP_FLAGS 		2
 #define NUM_TRADERS 		11
 
-/*
- * Define this to how many MobProg scripts you have.
- */
+// * Define this to how many MobProg scripts you have.
 #define NUM_PROGS		12
 
 //#define LVL_BUILDER           LVL_GOD
 
-/*
- * Utilities exported from olc.c.
- */
+// * Utilities exported from olc.c.
 void strip_string(char *);
 void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type);
 void get_char_cols(CHAR_DATA * ch);
 void olc_add_to_save_list(int zone, byte type);
 void olc_remove_from_save_list(int zone, byte type);
 
-/*
- * OLC structures.
- */
+// * OLC structures.
 
 typedef struct t_zcmd
 {
@@ -117,7 +103,7 @@ struct olc_data
 	int trigger_position;
 	int item_type;
 	struct trig_proto_list *script;
-	char *storage;		/* for holding commands etc.. */
+	char *storage;		// for holding commands etc..
 };
 
 struct olc_save_info
@@ -127,58 +113,46 @@ struct olc_save_info
 	struct olc_save_info *next;
 };
 
-/*
- * Exported globals.
- */
+// * Exported globals.
 extern const char *nrm, *grn, *cyn, *yel, *iyel, *ired;
 extern struct olc_save_info *olc_save_list;
 
-/*
- * Descriptor access macros.
- */
-#define OLC_MODE(d) 	((d)->olc->mode)	/* Parse input mode.    */
-#define OLC_NUM(d) 	((d)->olc->number)	/* Room/Obj VNUM.       */
-#define OLC_VAL(d) 	((d)->olc->value)	/* Scratch variable.    */
-#define OLC_ZNUM(d) 	((d)->olc->zone_num)	/* Real zone number.    */
-#define OLC_ROOM(d) 	((d)->olc->room)	/* Room structure.      */
-#define OLC_OBJ(d) 	((d)->olc->obj)	/* Object structure.    */
-#define OLC_ZONE(d)     ((d)->olc->zone)	/* Zone structure.      */
-#define OLC_MOB(d)	((d)->olc->mob)	/* Mob structure.       */
-#define OLC_SHOP(d) 	((d)->olc->shop)	/* Shop structure.      */
-#define OLC_DESC(d) 	((d)->olc->desc)	/* Extra description.   */
-#define OLC_MREC(d)     ((d)->olc->mrec)	/* Make recept field    */
+// * Descriptor access macros.
+#define OLC_MODE(d) 	((d)->olc->mode)	// Parse input mode.    //
+#define OLC_NUM(d) 	((d)->olc->number)	// Room/Obj VNUM.       //
+#define OLC_VAL(d) 	((d)->olc->value)	// Scratch variable.    //
+#define OLC_ZNUM(d) 	((d)->olc->zone_num)	// Real zone number.    //
+#define OLC_ROOM(d) 	((d)->olc->room)	// Room structure.      //
+#define OLC_OBJ(d) 	((d)->olc->obj)	// Object structure.    //
+#define OLC_ZONE(d)     ((d)->olc->zone)	// Zone structure.      //
+#define OLC_MOB(d)	((d)->olc->mob)	// Mob structure.       //
+#define OLC_SHOP(d) 	((d)->olc->shop)	// Shop structure.      //
+#define OLC_DESC(d) 	((d)->olc->desc)	// Extra description.   //
+#define OLC_MREC(d)     ((d)->olc->mrec)	// Make recept field    //
 #ifdef OASIS_MPROG
-#define OLC_MPROG(d)	((d)->olc->mprog)	/* Temporary MobProg.   */
-#define OLC_MPROGL(d)	((d)->olc->mprogl)	/* MobProg list.        */
-#define OLC_MTOTAL(d)	((d)->olc->total_mprogs)	/* Total mprog number.  */
+#define OLC_MPROG(d)	((d)->olc->mprog)	// Temporary MobProg.   //
+#define OLC_MPROGL(d)	((d)->olc->mprogl)	// MobProg list.        //
+#define OLC_MTOTAL(d)	((d)->olc->total_mprogs)	// Total mprog number.  //
 #endif
-#define OLC_TRIG(d)     ((d)->olc->trig)	/* Trigger structure.   */
-#define OLC_STORAGE(d)  ((d)->olc->storage)	/* For command storage  */
+#define OLC_TRIG(d)     ((d)->olc->trig)	// Trigger structure.   //
+#define OLC_STORAGE(d)  ((d)->olc->storage)	// For command storage  //
 
-/*
- * Other macros.
- */
+// * Other macros.
 #define OLC_EXIT(d)	(OLC_ROOM(d)->dir_option[OLC_VAL(d)])
 #define GET_OLC_ZONE(c)	((c)->player_specials->saved.olc_zone)
 
-/*
- * Cleanup types.
- */
-#define CLEANUP_ALL		(byte)	1	/* Free the whole lot.  */
-#define CLEANUP_STRUCTS 	(byte)	2	/* Don't free strings.  */
+// * Cleanup types.
+#define CLEANUP_ALL		(byte)	1	// Free the whole lot.
+#define CLEANUP_STRUCTS 	(byte)	2	// Don't free strings.
 
-/*
- * Add/Remove save list types.
- */
+// * Add/Remove save list types.
 #define OLC_SAVE_ROOM		(byte)	0
 #define OLC_SAVE_OBJ		(byte)	1
 #define OLC_SAVE_ZONE		(byte)	2
 #define OLC_SAVE_MOB		(byte)	3
 #define OLC_SAVE_SHOP		(byte)	4
 
-/*
- * Submodes of OEDIT connectedness.
- */
+// * Submodes of OEDIT connectedness.
 #define OEDIT_MAIN_MENU              	1
 #define OEDIT_EDIT_NAMELIST          	2
 #define OEDIT_PAD0	              	3
@@ -221,9 +195,7 @@ extern struct olc_save_info *olc_save_list;
 #define OEDIT_MIWVALUE			40
 #define OEDIT_SKILLS					41
 #define OEDIT_MORT_REQ					42
-/*
- * Submodes of REDIT connectedness.
- */
+// * Submodes of REDIT connectedness.
 #define REDIT_MAIN_MENU 		1
 #define REDIT_NAME 			2
 #define REDIT_DESC 			3
@@ -243,9 +215,7 @@ extern struct olc_save_info *olc_save_list;
 #define	REDIT_ING				17
 #define REDIT_LOCK_COMPLEXITY	18
 
-/*
- * Submodes of ZEDIT connectedness.
- */
+// * Submodes of ZEDIT connectedness.
 #define ZEDIT_MAIN_MENU          0
 #define ZEDIT_DELETE_ENTRY       1
 #define ZEDIT_NEW_ENTRY          2
@@ -272,9 +242,7 @@ extern struct olc_save_info *olc_save_list;
 #define ZEDIT_ZONE_COMMENT       27
 #define ZEDIT_ZONE_GROUP         28
 
-/*
- * Submodes of MEDIT connectedness.
- */
+// * Submodes of MEDIT connectedness.
 #define MEDIT_MAIN_MENU			0
 #define MEDIT_ALIAS			1
 #define MEDIT_PAD0			2
@@ -293,9 +261,7 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_DLIST_MENU		15
 #define MEDIT_DLIST_ADD			16
 #define MEDIT_DLIST_DEL			17
-/*
- * Numerical responses.
- */
+// * Numerical responses.
 #define MEDIT_NUMERICAL_RESPONSE	20
 #define MEDIT_SEX			24
 #define MEDIT_HITROLL		        25
@@ -348,7 +314,7 @@ extern struct olc_save_info *olc_save_list;
 
 #define MEDIT_RACE			66
 
-/* Medit additional parameters */
+// Medit additional parameters
 
 #define MEDIT_HPREG			1
 #define MEDIT_ARMOUR			2
@@ -362,9 +328,7 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_PR			10
 #define NUM_ADD_PARAMETERS		10
 
-/*
- * Submodes of SEDIT connectedness.
- */
+// * Submodes of SEDIT connectedness.
 #define SEDIT_MAIN_MENU            	0
 #define SEDIT_CONFIRM_SAVESTRING	1
 #define SEDIT_NOITEM1			2
@@ -380,9 +344,7 @@ extern struct olc_save_info *olc_save_list;
 #define SEDIT_NAMELIST			14
 #define SEDIT_CHANGELIST_MENU   15
 #define SEDIT_CHANGELIST		16
-/*
- * Numerical responses.
- */
+// * Numerical responses.
 #define SEDIT_NUMERICAL_RESPONSE	20
 #define SEDIT_OPEN1			    21
 #define SEDIT_OPEN2			    22
@@ -403,9 +365,7 @@ extern struct olc_save_info *olc_save_list;
 #define SEDIT_DELETE_CHANGETYPE 38
 #define SEDIT_CHANGETYPE_MENU   39
 
-/*
- * Limit information.
- */
+// * Limit information.
 #define MAX_ROOM_NAME	75
 #define MAX_MOB_NAME	50
 #define MAX_OBJ_NAME	50

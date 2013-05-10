@@ -19,10 +19,10 @@
 #include <boost/shared_ptr.hpp>
 #include "pugixml.hpp"
 
-/* PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM */
-#define SKILL_THAC0                 0	/* Internal */
-#define SKILL_PROTECT               1 /**** Protect grouppers    */
-#define SKILL_TOUCH                 2 /**** Touch attacker       */
+// PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM //
+#define SKILL_THAC0                 0	// Internal //
+#define SKILL_PROTECT               1 // *** Protect grouppers    //
+#define SKILL_TOUCH                 2 // *** Touch attacker       //
 #define SKILL_SHIT                  3
 #define SKILL_MIGHTHIT              4
 #define SKILL_STUPOR                5
@@ -51,24 +51,24 @@
 #define SKILL_CREATEBOW             33
 // и че тут?
 #define SKILL_THROW                 130
-#define SKILL_BACKSTAB              131	/* Reserved Skill[] DO NOT CHANGE */
-#define SKILL_BASH                  132	/* Reserved Skill[] DO NOT CHANGE */
-#define SKILL_HIDE                  133	/* Reserved Skill[] DO NOT CHANGE */
-#define SKILL_KICK                  134	/* Reserved Skill[] DO NOT CHANGE */
-#define SKILL_PICK_LOCK             135	/* Reserved Skill[] DO NOT CHANGE */
-#define SKILL_PUNCH                 136	/* Reserved Skill[] DO NOT CHANGE */
-#define SKILL_RESCUE                137	/* Reserved Skill[] DO NOT CHANGE */
-#define SKILL_SNEAK                 138	/* Reserved Skill[] DO NOT CHANGE */
-#define SKILL_STEAL                 139	/* Reserved Skill[] DO NOT CHANGE */
-#define SKILL_TRACK                 140	/* Reserved Skill[] DO NOT CHANGE */
-#define SKILL_CLUBS                 141	/**** Weapon is club, etc    */
-#define SKILL_AXES                  142	/**** Weapon is axe, etc     */
-#define SKILL_LONGS                 143	/**** Weapon is long blades  */
-#define SKILL_SHORTS                144	/**** Weapon is short blades */
-#define SKILL_NONSTANDART           145	/**** Weapon is non-standart */
-#define SKILL_BOTHHANDS             146	/**** Weapon in both hands   */
-#define SKILL_PICK                  147	/**** Weapon is pick         */
-#define SKILL_SPADES                148	/**** Weapon is spades       */
+#define SKILL_BACKSTAB              131	// Reserved Skill[] DO NOT CHANGE //
+#define SKILL_BASH                  132	// Reserved Skill[] DO NOT CHANGE //
+#define SKILL_HIDE                  133	// Reserved Skill[] DO NOT CHANGE //
+#define SKILL_KICK                  134	// Reserved Skill[] DO NOT CHANGE //
+#define SKILL_PICK_LOCK             135	// Reserved Skill[] DO NOT CHANGE //
+#define SKILL_PUNCH                 136	// Reserved Skill[] DO NOT CHANGE //
+#define SKILL_RESCUE                137	// Reserved Skill[] DO NOT CHANGE //
+#define SKILL_SNEAK                 138	// Reserved Skill[] DO NOT CHANGE //
+#define SKILL_STEAL                 139	// Reserved Skill[] DO NOT CHANGE //
+#define SKILL_TRACK                 140	// Reserved Skill[] DO NOT CHANGE //
+#define SKILL_CLUBS                 141	// *** Weapon is club, etc    //
+#define SKILL_AXES                  142	// *** Weapon is axe, etc     //
+#define SKILL_LONGS                 143	// *** Weapon is long blades  //
+#define SKILL_SHORTS                144	// *** Weapon is short blades //
+#define SKILL_NONSTANDART           145	// *** Weapon is non-standart //
+#define SKILL_BOTHHANDS             146	// *** Weapon in both hands   //
+#define SKILL_PICK                  147	// *** Weapon is pick         //
+#define SKILL_SPADES                148	// *** Weapon is spades       //
 #define SKILL_SATTACK               149
 #define SKILL_DISARM                150
 #define SKILL_PARRY                 151

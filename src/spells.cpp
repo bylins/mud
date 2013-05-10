@@ -77,11 +77,9 @@ int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim);
 void pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim);
 
 int what_sky = SKY_CLOUDLESS;
-/*
- * Special spells appear below.
- */
+// * Special spells appear below.
 
-/* Функция определяет возможность изучения спелла из книги или в гильдии */
+// Функция определяет возможность изучения спелла из книги или в гильдии
 bool can_get_spell(CHAR_DATA *ch, int spellnum)
 {
 	if ((MIN_CAST_LEV(spell_info[spellnum], ch) > GET_LEVEL(ch) || MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch) ||
@@ -95,7 +93,7 @@ ASPELL(spell_create_water)
 	int water;
 	if (ch == NULL || (obj == NULL && victim == NULL))
 		return;
-	/* level = MAX(MIN(level, LVL_IMPL), 1);       - not used */
+	// level = MAX(MIN(level, LVL_IMPL), 1);       - not used
 
 	if (obj && GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
 	{
@@ -139,9 +137,7 @@ ASPELL(spell_create_water)
 #define MAX_NEWBIE_ZONE  79
 #define MAX_SUMMON_TRIES 2000
 
-/*
- Поиск комнаты для перемещающего заклинания
-*/
+// Поиск комнаты для перемещающего заклинания
 int get_teleport_target_room(CHAR_DATA * ch,	// ch - кого перемещают
 							 int rnum_start,	// rnum_start - первая комната диапазона
 							 int rnum_stop	// rnum_stop - последняя комната диапазона
@@ -299,38 +295,38 @@ ASPELL(spell_relocate)
 	if (victim == NULL)
 		return;
 
-	/* Если левел жертвы больше чем перемещяющегося - фейл */
+	// Если левел жертвы больше чем перемещяющегося - фейл
 	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	/* Для иммов обязательные для перемещения условия не существенны */
+	// Для иммов обязательные для перемещения условия не существенны
 	if (!IS_GOD(ch))
 	{
-		/* Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT */
+		// Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT
 		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT))
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 		//Polud убираем все это, поскольку теперь за релокейт без режима и не в группе вешается агроБД
-		///* Перемещаться можно только с отключенным "режимом призыв" */
+		// Перемещаться можно только с отключенным "режимом призыв"
 		//if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
 		//{
 		//	send_to_char("При применении заклинания требуется отключить \"режим призыв\"!\r\n", ch);
 		//	send_to_char(SUMMON_FAIL, ch);
 		//	return;
 		//}
-		///* Перемещаться нельзя состоя в группе (т.к. пента на согрупника и суммон идут без режима) */
+		// Перемещаться нельзя состоя в группе (т.к. пента на согрупника и суммон идут без режима)
 		//if (AFF_FLAGGED(ch, AFF_GROUP))
 		//{
 		//	send_to_char("При применении заклинания нельзя состоять в группе!\r\n", ch);
 		//	send_to_char(SUMMON_FAIL, ch);
 		//	return;
 		//}
-		///* Во избежания абьюза с заследованием а потом погрупливанием после перемещения и юзанием переместившегося как маяка */
+		// Во избежания абьюза с заследованием а потом погрупливанием после перемещения и юзанием переместившегося как маяка
 		//if (ch->master)
 		//{
 		//	send_to_char(SUMMON_FAIL, ch);
@@ -389,7 +385,7 @@ ASPELL(spell_relocate)
 		pkPortal(ch);
 	}
 	look_at_room(ch, 0);
-	/* Прыжок на чара в БД удваивает лаг */
+	// Прыжок на чара в БД удваивает лаг
 	if (RENTABLE(victim))
 	{
 		WAIT_STATE(ch, 4 * PULSE_VIOLENCE);
@@ -479,12 +475,12 @@ ASPELL(spell_portal)
 			pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT;
 
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, GF_GODSCURSE)
-			/* раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
-			   или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE */
+			// раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
+			// или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE
 			   || pkPortal || ((!IS_NPC(victim) || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, PRF_SUMMONABLE))
 			|| same_group(ch, victim))
 	{
-		/* Если пента по мести - то считаем постановку пенты попыткой ее реализовать */
+		// Если пента по мести - то считаем постановку пенты попыткой ее реализовать
 		// после 3ех попыток реализаци (3ех пент) -- месть исчезает
 		if (pkPortal) pk_increment_revenge(ch, victim);
 
@@ -702,13 +698,13 @@ ASPELL(spell_townportal)
 			return;
 		}
 
-		/* Если мы открываем врата из комнаты с камнем, то они не работают */
+		// Если мы открываем врата из комнаты с камнем, то они не работают //
 		if (find_portal_by_vnum(GET_ROOM_VNUM(IN_ROOM(ch))))
 		{
 			send_to_char("Камень рядом с вами мешает вашей магии.\r\n", ch);
 			return;
 		}
-		/* Если в комнате есть метка-"камень" то врата ставить нельзя */
+		// Если в комнате есть метка-"камень" то врата ставить нельзя //
 		if (room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL))
 		{
 			send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
@@ -721,7 +717,7 @@ ASPELL(spell_townportal)
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, ch, 0, 0, TO_ROOM);
 			return;
 		}
-		/* Открываем пентаграмму в комнату rnum */
+		// Открываем пентаграмму в комнату rnum //
 		improove_skill(ch, SKILL_TOWNPORTAL, 1, NULL);
 		ROOM_DATA* from_room = world[IN_ROOM(ch)];
 		from_room->portal_room = real_room(port->vnum);
@@ -742,7 +738,7 @@ ASPELL(spell_townportal)
 		return;
 	}
 
-	/* выдаем список мест */
+	// выдаем список мест //
 	gcount = sprintf(buf2 + gcount, "Вам доступны следующие врата:\r\n");
 	for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next)
 	{
@@ -993,25 +989,25 @@ ASPELL(spell_charm)
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else
 	{
-//    /* Проверяем - можем ли мы зачармить моба с уровнем victim */
+//    Проверяем - можем ли мы зачармить моба с уровнем victim
 //    if (charm_points(ch) < used_charm_points(ch)
 //                            + on_charm_points(victim)) {
 //       send_to_char("Вам не под силу управлять такой боевой мощью.\r\n", ch);
 		if (!check_charmee(ch, victim, SPELL_CHARM))
 			return;
 //    }
-		/* Левая проверка */
+		// Левая проверка
 		if (victim->master)
 		{
 			if (stop_follower(victim, SF_MASTERDIE))
 				return;
 		}
-//    /* Загружаем моба CHARM_MOB_VNUM+уровень victim */
+//    Загружаем моба CHARM_MOB_VNUM+уровень victim
 //    if (!(victim = charm_mob(victim))) {
 //      send_to_char("ОШИБКА! Запомните какого моба вы хотели зачармить и сообщите богам.\r\n",ch);
 //      return;
 //    }
-//    /* -------- */
+//    // --------
 
 		affect_from_char(victim, SPELL_CHARM);
 		add_follower(victim, ch);

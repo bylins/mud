@@ -73,9 +73,7 @@ void free_custom_label(struct custom_label *custom_label) {
 	}
 }
 
-/**
- * См. Character::zero_init()
- */
+// * См. Character::zero_init()
 void obj_data::zero_init()
 {
 	uid = 0;
@@ -115,9 +113,7 @@ void obj_data::zero_init()
 	}
 }
 
-/**
- * См. Character::purge()
- */
+// * См. Character::purge()
 void obj_data::purge(bool destructor)
 {
 	if (purged_)
@@ -274,9 +270,7 @@ int obj_data::get_skill(int skill_num) const
 	}
 }
 
-/**
- * @warning Предполагается, что __out_skills.empty() == true.
- */
+// * @warning Предполагается, что __out_skills.empty() == true.
 void obj_data::get_skills(std::map<int, int>& out_skills) const
 {
 	if (skills)
@@ -445,9 +439,7 @@ bool is_armor_type(const OBJ_DATA *obj)
 	return false;
 }
 
-/**
-* См. CharacterSystem::release_purged_list()
-*/
+// * См. CharacterSystem::release_purged_list()
 void release_purged_list()
 {
 	for (PurgedObjList::iterator i = purged_obj_list.begin();

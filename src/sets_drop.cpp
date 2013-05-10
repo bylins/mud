@@ -123,9 +123,7 @@ struct HelpNode
 // список соответствий алиасов сетов для справки
 std::vector<HelpNode> help_list;
 
-/**
- * Инициализация списка сетов на лоад.
- */
+// * Инициализация списка сетов на лоад.
 void init_obj_list()
 {
 	pugi::xml_document doc;
@@ -270,9 +268,7 @@ void init_obj_list()
 	}
 }
 
-/**
- * Лоад статистики по убийствам мобов с делением на размер группы.
- */
+// * Лоад статистики по убийствам мобов с делением на размер группы.
 void init_mob_stat()
 {
 	pugi::xml_document doc;
@@ -421,9 +417,7 @@ void init_mob_name_list()
 	}
 }
 
-/**
- * Инится у зоны: тип
- */
+// * Инится у зоны: тип
 void init_zone_type()
 {
 	for (std::list<ZoneNode>::iterator i = mob_name_list.begin(),
@@ -454,9 +448,7 @@ void init_zone_type()
 	}
 }
 
-/**
- * Инится у моба: тип
- */
+// * Инится у моба: тип
 void init_mob_type()
 {
 	for (std::list<ZoneNode>::iterator i = mob_name_list.begin(),
@@ -612,9 +604,7 @@ void filter_extra_mobs(int total, int type)
 	}
 }
 
-/**
- * Разделение общего списка мобов на групп- и соло- списки.
- */
+// * Разделение общего списка мобов на групп- и соло- списки.
 void split_mob_name_list()
 {
 	int total_group_mobs = 0, total_solo_mobs = 0;
@@ -694,9 +684,7 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 	return chance;
 }
 
-/**
- * Генерация финальной таблицы дропа с мобов.
- */
+// * Генерация финальной таблицы дропа с мобов.
 void init_drop_table(int type)
 {
 	std::list<ZoneNode> &mob_list = (type == GROUP_MOB) ? group_mob_list : solo_mob_list;
@@ -766,9 +754,7 @@ void add_to_help_table(const std::vector<std::string> &key_list, const std::stri
 	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
 }
 
-/**
- * Генерация сообщения в справку.
- */
+// * Генерация сообщения в справку.
 void init_xhelp()
 {
 	std::stringstream out;
@@ -1053,9 +1039,7 @@ void show_stats(CHAR_DATA *ch)
 	send_to_char(ch, "  Мобов в статистике для сетов: %d\r\n", mob_stat.size());
 }
 
-/**
- * \return рнум шмотки или -1 если дропать нечего
- */
+// * \return рнум шмотки или -1 если дропать нечего
 int check_mob(int mob_rnum)
 {
 	std::map<int, DropNode>::iterator it = drop_list.find(mob_rnum);
@@ -1176,9 +1160,7 @@ std::string print_mobstat_name(int mob_vnum)
 	return name;
 }
 
-/**
- * show mobstat
- */
+// * show mobstat
 void show_zone_stat(CHAR_DATA *ch, int zone_vnum)
 {
 	std::stringstream out;

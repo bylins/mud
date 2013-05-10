@@ -17,7 +17,7 @@
 #ifndef _SYSDEP_H_
 #define _SYSDEP_H_
 
-/**************************************************************************/
+//************************************************************************
 
 /*
  * If you are porting CircleMUD to a new (untested) platform and you find
@@ -37,9 +37,9 @@
  * See running.doc for details.
  */
 
-/* #define POSIX_NONBLOCK_BROKEN */
+// #define POSIX_NONBLOCK_BROKEN
 
-/**************************************************************************/
+//**************************************************************************
 
 /*
  * The Circle code prototypes library functions to avoid compiler warnings.
@@ -62,18 +62,18 @@
  * See running.doc for details.
  */
 
-/* #define NO_LIBRARY_PROTOTYPES */
+// #define NO_LIBRARY_PROTOTYPES
 
-/************************************************************************/
-/*** Do not change anything below this line *****************************/
-/************************************************************************/
+//************************************************************************
+//*** Do not change anything below this line *****************************
+//************************************************************************
 
 /*
  * Set up various machine-specific things based on the values determined
  * from configure and conf.h.
  */
 
-/* Standard C headers  *************************************************/
+// Standard C headers  *************************************************
 
 #include <stdio.h>
 #include <ctype.h>
@@ -91,7 +91,7 @@
 #if     (defined (STDC_HEADERS) || defined (__GNU_LIBRARY__))
 #include <stdlib.h>
 
-#else				/* No standard headers.  */
+#else				// No standard headers.
 
 #ifdef  HAVE_MEMORY_H
 #include <memory.h>
@@ -102,9 +102,9 @@ extern void free();
 
 extern void abort(), exit();
 
-#endif				/* Standard headers.  */
+#endif				// Standard headers.
 
-/* POSIX compliance  *************************************************/
+// POSIX compliance  *************************************************
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -118,22 +118,22 @@ extern void abort(), exit();
 # include <unistd.h>
 #endif
 
-/* Now, we #define POSIX if we have a POSIX system. */
+// Now, we #define POSIX if we have a POSIX system.
 
 #ifdef HAVE_UNISTD_H
-/* Ultrix's unistd.h always defines _POSIX_VERSION, but you only get
-   POSIX.1 behavior with `cc -YPOSIX', which predefines POSIX itself!  */
+// Ultrix's unistd.h always defines _POSIX_VERSION, but you only get
+// POSIX.1 behavior with `cc -YPOSIX', which predefines POSIX itself!
 #if defined (_POSIX_VERSION) && !defined (ultrix)
 #define POSIX
 #endif
 
-/* Some systems define _POSIX_VERSION but are not really POSIX.1.  */
+// Some systems define _POSIX_VERSION but are not really POSIX.1.
 #if (defined (butterfly) || defined (__arm) || \
      (defined (__mips) && defined (_SYSTYPE_SVR3)) || \
      (defined (sequent) && defined (i386)))
 #undef POSIX
 #endif
-#endif				/* HAVE_UNISTD_H */
+#endif				// HAVE_UNISTD_H
 
 #if !defined (POSIX) && defined (_AIX) && defined (_POSIX_SOURCE)
 #define POSIX
@@ -144,10 +144,10 @@ extern void abort(), exit();
 #endif
 
 
-/* Header files *******************************************************/
+// Header files ******************************************************
 
 
-/* Header files common to all source files */
+// Header files common to all source files
 
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
@@ -161,7 +161,7 @@ extern void abort(), exit();
 #include <net/errno.h>
 #endif
 
-/* Macintosh */
+// Macintosh
 #ifdef HAVE_SYS_ERRNO_H
 #include <sys/errno.h>
 #endif
@@ -191,14 +191,14 @@ extern void abort(), exit();
 #include <zlib.h>
 #endif
 
-/* Header files only used in comm.cpp and some of the utils */
+// Header files only used in comm.cpp and some of the utils
 
 #if defined(__COMM_C__) || defined(CIRCLE_UTIL)
 
 #ifndef HAVE_STRUCT_IN_ADDR
 struct in_addr
 {
-	unsigned long int s_addr;	/* for inet_addr, etc. */
+	unsigned long int s_addr;	// for inet_addr, etc.
 }
 #endif
 #ifdef HAVE_SYS_SELECT_H
@@ -234,46 +234,44 @@ struct in_addr
 #  include <signal.h>
 #  undef _POSIX_C_SOURCE
 # else
-#  include <signal.h>		/* GNU libc 6 already defines _POSIX_C_SOURCE. */
+#  include <signal.h>		// GNU libc 6 already defines _POSIX_C_SOURCE.
 # endif
 #endif
 #ifdef HAVE_SYS_UIO_H
 # include <sys/uio.h>
 #endif
-#endif				/* __COMM_C__ && CIRCLE_UNIX */
-/* Header files that are only used in act.other.cpp */
+#endif				// __COMM_C__ && CIRCLE_UNIX
+// Header files that are only used in act.other.cpp
 #ifdef __ACT_OTHER_C__
 #ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
 #endif
-#endif				/* __ACT_OTHER_C__ */
-/* Basic system dependencies *******************************************/
+#endif				// __ACT_OTHER_C__ //
+// Basic system dependencies ******************************************
 #if !defined(__GNUC__)
-#define __attribute__(x)	/* nothing */
+#define __attribute__(x)	// nothing //
 #endif
 #if defined(__MWERKS__)
-# define isascii(c)	(a_isascii(c))	/* So easy to have, but ... */
+# define isascii(c)	(a_isascii(c))	// So easy to have, but ... //
 #endif
-/* Socket/header miscellany. */
-#if defined(CIRCLE_WINDOWS)	/* Definitions for Win32 */
-# if !defined(__BORLANDC__) && !defined(LCC_WIN32)	/* MSVC */
+// Socket/header miscellany. //
+#if defined(CIRCLE_WINDOWS)	// Definitions for Win32 //
+# if !defined(__BORLANDC__) && !defined(LCC_WIN32)	// MSVC //
 #  define chdir _chdir
 # endif
-# if defined(__BORLANDC__)	/* Silence warnings we don't care about. */
-#  pragma warn -par		/* to turn off >parameter< 'ident' is never used. */
-#  pragma warn -pia		/* to turn off possibly incorrect assignment. 'if (!(x=a))' */
-#  pragma warn -sig		/* to turn off conversion may lose significant digits. */
+# if defined(__BORLANDC__)	// Silence warnings we don't care about. //
+#  pragma warn -par		// to turn off >parameter< 'ident' is never used. //
+#  pragma warn -pia		// to turn off possibly incorrect assignment. 'if (!(x=a))' //
+#  pragma warn -sig		// to turn off conversion may lose significant digits. //
 # endif
-# ifndef _WINSOCK2API_		/* Winsock1 and Winsock 2 conflict. */
+# ifndef _WINSOCK2API_		// Winsock1 and Winsock 2 conflict. //
 #  include <winsock.h>
 # endif
-# ifndef FD_SETSIZE		/* MSVC 6 is reported to have 64. */
+# ifndef FD_SETSIZE		// MSVC 6 is reported to have 64. //
 #  define FD_SETSIZE		1024
 # endif
 #elif defined(CIRCLE_VMS)
-/*
- * Necessary Definitions For DEC C With DEC C Sockets Under OpenVMS.
- */
+// * Necessary Definitions For DEC C With DEC C Sockets Under OpenVMS.
 # if defined(DECC)
 #  include <stdio.h>
 #  include <time.h>
@@ -283,7 +281,7 @@ struct in_addr
 #elif !defined(CIRCLE_MACINTOSH) && !defined(CIRCLE_UNIX) && !defined(CIRCLE_ACORN)
 # error "You forgot to include conf.h or do not have a valid system define."
 #endif
-/* SOCKET -- must be after the winsock.h #include. */
+// SOCKET -- must be after the winsock.h #include.
 #ifdef CIRCLE_WINDOWS
 # define CLOSE_SOCKET(sock)	closesocket(sock)
 typedef SOCKET socket_t;
@@ -292,13 +290,13 @@ typedef SOCKET socket_t;
 typedef int socket_t;
 #endif
 
-#if defined(__cplusplus)	/* C++ */
+#if defined(__cplusplus)	// C++
 #define cpp_extern	extern
-#else				/* C */
-#define cpp_extern		/* Nothing */
+#else				// C
+#define cpp_extern		// Nothing
 #endif
 
-/* Guess if we have the getrlimit()/setrlimit() functions */
+// Guess if we have the getrlimit()/setrlimit() functions
 #if defined(RLIMIT_NOFILE) || defined (RLIMIT_OFILE)
 #define HAS_RLIMIT
 #if !defined (RLIMIT_NOFILE)
@@ -307,18 +305,18 @@ typedef int socket_t;
 #endif
 
 
-/* Make sure we have STDERR_FILENO */
+// Make sure we have STDERR_FILENO
 #ifndef STDERR_FILENO
 #define STDERR_FILENO 2
 #endif
 
-/* Make sure we have STDOUT_FILENO too. */
+// Make sure we have STDOUT_FILENO too.
 #ifndef STDOUT_FILENO
 #define STDOUT_FILENO 1
 #endif
 
 
-/* Function prototypes ************************************************/
+// Function prototypes ************************************************
 
 /*
  * For reasons that perplex me, the header files of many OS's do not contain
@@ -461,7 +459,7 @@ int unlink(const char *path);
 int remove(const char *path);
 #endif
 
-/* Function prototypes that are only used in comm.cpp and some of the utils */
+// Function prototypes that are only used in comm.cpp and some of the utils
 
 #if defined(__COMM_C__) || defined(CIRCLE_UTIL)
 
@@ -565,9 +563,9 @@ int socket(int domain, int type, int protocol);
 ssize_t write(int fildes, const void *buf, size_t nbyte);
 #endif
 
-#endif				/* __COMM_C__ */
+#endif				// __COMM_C__
 
 
-#endif				/* NO_LIBRARY_PROTOTYPES */
+#endif				// NO_LIBRARY_PROTOTYPES
 
 #endif

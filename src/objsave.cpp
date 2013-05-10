@@ -1,5 +1,5 @@
 /* ************************************************************************
-*   File: objsave.cpp                                     Part of Bylins    *
+*   File: objsave.cpp                                     Part of Bylins  *
 *  Usage: loading/saving player objects for rent and crash-save           *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
@@ -8,9 +8,7 @@
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
 
-/*
- * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
- */
+// * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
 #include <sstream>
 #include <boost/algorithm/string.hpp>
@@ -50,7 +48,7 @@ extern int top_of_p_table;
 extern int rent_file_timeout, crash_file_timeout;
 extern int free_crashrent_period;
 extern int free_rent;
-//extern int max_obj_save;      /* change in config.cpp */
+//extern int max_obj_save;      // change in config.cpp
 extern long last_rent_check;
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
@@ -60,7 +58,7 @@ extern room_rnum r_unreg_start_room;
 #define RENTCODE(number) ((player_table+number)->timer->rent.rentcode)
 #define GET_INDEX(ch) (get_ptable_by_name(GET_NAME(ch)))
 
-/* Extern functions */
+// Extern functions
 ACMD(do_tell);
 SPECIAL(receptionist);
 SPECIAL(cryogenicist);
@@ -71,7 +69,7 @@ int min_rent_cost(CHAR_DATA * ch);
 void asciiflag_conv(const char *flag, void *value);
 void tascii(int *pointer, int num_planes, char *ascii);
 
-/* local functions */
+// local functions
 void Crash_extract_norent_eq(CHAR_DATA * ch);
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location);
 int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj);
@@ -100,7 +98,7 @@ int Crash_calc_charmee_items(CHAR_DATA *ch);
 #define END_LINES '~'
 #define COM_CHAR  '*'
 
-/* Rent codes */
+// Rent codes
 enum
 {
 	RENT_UNDEF,    // не используется
@@ -558,14 +556,14 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				
 				object->acquired_affects.push_back(tmp_aff);
 			}
-			else if (!strcmp(read_line, "Clbl")) /* текст метки */
+			else if (!strcmp(read_line, "Clbl")) // текст метки
 			{
 				*error = 58;
 				if (!object->custom_label)
 					object->custom_label = init_custom_label();
 				object->custom_label->label_text = str_dup(buffer);
 			}
-			else if (!strcmp(read_line, "ClID")) /* id чара */
+			else if (!strcmp(read_line, "ClID")) // id чара
 			{
 				*error = 59;
 				if (!object->custom_label)
@@ -580,7 +578,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							break;
 						}
 			}
-			else if (!strcmp(read_line, "ClCl")) /* аббревиатура клана */
+			else if (!strcmp(read_line, "ClCl")) // аббревиатура клана
 			{
 				*error = 60;
 				if (!object->custom_label)
@@ -1342,13 +1340,12 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 			location = LOC_INVENTORY;
 		}
 
-		if (location > 0)  	/* Wearable. */
+		if (location > 0)  	// Wearable.
 		{
 			if (!GET_EQ(ch, j))
-			{	/*
-						 * Check the characters's alignment to prevent them from being
-						 * zapped through the auto-equipping.
-						 */
+			{
+				// Check the characters's alignment to prevent them from being
+				// zapped through the auto-equipping.
 				if (invalid_align(ch, obj) || invalid_anti_class(ch, obj) || invalid_no_class(ch, obj) || NamedStuff::check_named(ch, obj, 0))
 					location = LOC_INVENTORY;
 				else
@@ -1357,7 +1354,7 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 //					log("Equipped with %s %d", (obj)->short_description, j);
 				}
 			}
-			else  	/* Oops, saved a player with double equipment? */
+			else  	// Oops, saved a player with double equipment?
 			{
 				char aeq[128];
 				sprintf(aeq,
@@ -1368,7 +1365,7 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 			}
 		}
 	}
-	if (location <= 0)	/* Inventory */
+	if (location <= 0)	// Inventory
 		obj_to_char(obj, ch);
 	return (location);
 }
@@ -1396,7 +1393,7 @@ int Crash_delete_files(int index)
 
 	strcpy(name, player_table[index].name);
 
-	/*удаляем файл описания объектов */
+	//удаляем файл описания объектов
 	if (!get_filename(name, filename, TEXT_CRASH_FILE))
 	{
 		log("SYSERR: Error deleting objects file for %s - unable to resolve file name.", name);
@@ -1406,14 +1403,14 @@ int Crash_delete_files(int index)
 	{
 		if (!(fl = fopen(filename, "rb")))
 		{
-			if (errno != ENOENT)	/* if it fails but NOT because of no file */
+			if (errno != ENOENT)	// if it fails but NOT because of no file
 				log("SYSERR: Error deleting objects file %s (1): %s", filename, strerror(errno));
 			retcode = FALSE;
 		}
 		else
 		{
 			fclose(fl);
-			/* if it fails, NOT because of no file */
+			// if it fails, NOT because of no file
 			if (remove(filename) < 0 && errno != ENOENT)
 			{
 				log("SYSERR: Error deleting objects file %s (2): %s", filename, strerror(errno));
@@ -1423,7 +1420,7 @@ int Crash_delete_files(int index)
 		}
 	}
 
-	/*удаляем файл таймеров */
+	//удаляем файл таймеров
 	if (!get_filename(name, filename, TIME_CRASH_FILE))
 	{
 		log("SYSERR: Error deleting timer file for %s - unable to resolve file name.", name);
@@ -1433,14 +1430,14 @@ int Crash_delete_files(int index)
 	{
 		if (!(fl = fopen(filename, "rb")))
 		{
-			if (errno != ENOENT)	/* if it fails but NOT because of no file */
+			if (errno != ENOENT)	// if it fails but NOT because of no file
 				log("SYSERR: deleting timer file %s (1): %s", filename, strerror(errno));
 			retcode = FALSE;
 		}
 		else
 		{
 			fclose(fl);
-			/* if it fails, NOT because of no file */
+			// if it fails, NOT because of no file
 			if (remove(filename) < 0 && errno != ENOENT)
 			{
 				log("SYSERR: deleting timer file %s (2): %s", filename, strerror(errno));
@@ -1453,7 +1450,7 @@ int Crash_delete_files(int index)
 	return (retcode);
 }
 
-/********* Timer utils: create, read, write, list, timer_objects *********/
+// ********* Timer utils: create, read, write, list, timer_objects *********
 
 void Crash_clear_objects(int index)
 {
@@ -1659,7 +1656,7 @@ void Crash_timer_obj(int index, long time)
 	rentcode = SAVEINFO(index)->rent.rentcode;
 	timer_dec = time - SAVEINFO(index)->rent.time;
 
-	/*удаляем просроченные файлы ренты */
+	//удаляем просроченные файлы ренты
 	if (rentcode == RENT_RENTED && timer_dec > rent_file_timeout * SECS_PER_REAL_DAY)
 	{
 		Crash_clear_objects(index);
@@ -1690,7 +1687,7 @@ void Crash_timer_obj(int index, long time)
 
 	timer_dec = (timer_dec / SECS_PER_MUD_HOUR) + (timer_dec % SECS_PER_MUD_HOUR ? 1 : 0);
 
-	/*уменьшаем таймеры */
+	//уменьшаем таймеры
 	nitems = player_table[index].timer->rent.nitems;
 //  log("[TO] Checking items for %s (%d items, rented time %dmin):",
 //      name, nitems, timer_dec);
@@ -1718,7 +1715,7 @@ void Crash_timer_obj(int index, long time)
 
 //  log("Objects (%d), Deleted (%d)+(%d).", nitems, ideleted, idelete);
 
-	/*если появились новые просроченные объекты, обновляем файл таймеров */
+	//если появились новые просроченные объекты, обновляем файл таймеров
 	if (idelete)
 		if (!Crash_write_timer(index))
 		{
@@ -1841,7 +1838,7 @@ struct container_list_type
 };
 
 // разобраться с возвращаемым значением
-/*******************  load_char_objects ********************/
+// *******************  load_char_objects ********************
 int Crash_load(CHAR_DATA * ch)
 {
 	FILE *fl;
@@ -1894,7 +1891,7 @@ int Crash_load(CHAR_DATA * ch)
 	}
 	mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 
-	/*Деньги за постой */
+	//Деньги за постой
 	num_of_days = (float)(time(0) - SAVEINFO(index)->rent.time) / SECS_PER_REAL_DAY;
 	sprintf(buf, "%s was %1.2f days in rent.", GET_NAME(ch), num_of_days);
 	mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -1913,7 +1910,7 @@ int Crash_load(CHAR_DATA * ch)
 		ch->player_specials->saved.HiredCost=0;
 	}
 	// end by WorM
-  	/* Бесплатная рента, если выйти в течение 2 часов после ребута или креша */
+  	// Бесплатная рента, если выйти в течение 2 часов после ребута или креша
   	if ((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED)
 		&& SAVEINFO(index)->rent.time + free_crashrent_period * SECS_PER_REAL_HOUR > time(0))
 	{
@@ -1966,7 +1963,7 @@ int Crash_load(CHAR_DATA * ch)
 		ch->remove_both_gold(cost);
 	}
 
-	/*Чтение описаний объектов в буфер */
+	//Чтение описаний объектов в буфер
 	if (!get_filename(GET_NAME(ch), fname, TEXT_CRASH_FILE) || !(fl = fopen(fname, "r+b")))
 	{
 		send_to_char("\r\n** Нет файла описания вещей **\r\n"
@@ -2011,7 +2008,7 @@ int Crash_load(CHAR_DATA * ch)
 	if (!strn_cmp(readdata, "@", 1))
 		need_convert_character_objects = 1;
 
-	/*Создание объектов */
+	//Создание объектов
 	long timer_dec = time(0) - SAVEINFO(index)->rent.time;
 	timer_dec = (timer_dec / SECS_PER_MUD_HOUR) + (timer_dec % SECS_PER_MUD_HOUR ? 1 : 0);
 
@@ -2061,7 +2058,7 @@ int Crash_load(CHAR_DATA * ch)
 			break;
 		}
 
-		/*Check timers */
+		//Check timers
 		if (SAVEINFO(index)->time[fsize].timer > 0
 				&& (rnum = real_object(SAVEINFO(index)->time[fsize].vnum)) >= 0)
 		{
@@ -2190,7 +2187,7 @@ int Crash_load(CHAR_DATA * ch)
 	*/
 }
 
-/********** Some util functions for objects save... **********/
+// ********** Some util functions for objects save... **********
 
 void Crash_restore_weight(OBJ_DATA * obj)
 {
@@ -2391,7 +2388,7 @@ void crash_save_and_restore_weight(std::stringstream &write_buffer, int iplayer,
 }
 
 
-/********************* save_char_objects ********************************/
+// ********************* save_char_objects ********************************
 int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 {
 	char fname[MAX_STRING_LENGTH];
@@ -2408,7 +2405,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		return FALSE;
 	}
 
-	/** удаление !рент предметов */
+	// удаление !рент предметов
 	if (savetype != RENT_CRASH)
 	{
 		Crash_extract_norent_eq(ch);
@@ -2420,7 +2417,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		Crash_extract_norent_charmee(ch);
 	}
 
-	/** подсчет количества предметов */
+	// подсчет количества предметов
 	for (j = 0; j < NUM_WEARS; j++)
 	{
 		num += Crash_calcitems(GET_EQ(ch, j));
@@ -2443,7 +2440,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		return FALSE;
 	}
 
-	/** цена ренты */
+	// цена ренты
 	cost = Crash_calculate_rent(ch->carrying);
 	for (j = 0; j < NUM_WEARS; j++)
 	{
@@ -2454,7 +2451,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		cost += Crash_calculate_charmee_rent(ch);
 	}
 
-	/** чаевые */
+	// чаевые
 	if (min_rent_cost(ch) > 0)
 		cost += MAX(0, min_rent_cost(ch));
 	else
@@ -2558,7 +2555,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	return TRUE;
 }
 
-/*some dummy functions*/
+//some dummy functions
 
 void Crash_crashsave(CHAR_DATA * ch)
 {
@@ -2585,9 +2582,9 @@ int Crash_cryosave(CHAR_DATA * ch, int cost)
 	return save_char_objects(ch, RENT_TIMEDOUT, cost);
 }
 
-/**************************************************************************
- * Routines used for the receptionist                                     *
- **************************************************************************/
+// **************************************************************************
+// * Routines used for the receptionist                                     *
+// **************************************************************************
 
 void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost)
 {
@@ -2967,7 +2964,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 			sprintf(buf, "%s has rented (%d/day, %ld tot.)",
 					GET_NAME(ch), cost, ch->get_gold() + ch->get_bank());
 		}
-		else  	/* cryo */
+		else  	// cryo
 		{
 			act("$n запер$q ваши вещи в сундук и повел$g в тесную каморку.\r\n"
 				"Белый призрак появился в комнате, обдав вас холодом...\r\n"
@@ -3060,9 +3057,7 @@ void Crash_save_all(void)
 	}
 }
 
-/**
- * Сейв при плановом ребуте/остановке с таймером != 0.
- */
+// * Сейв при плановом ребуте/остановке с таймером != 0.
 void Crash_save_all_rent(void)
 {
 	// shapirus: проходим не по списку дескрипторов,

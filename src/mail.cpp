@@ -12,11 +12,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-/******* MUD MAIL SYSTEM MAIN FILE ***************************************
-
-Written by Jeremy Elson (jelson@circlemud.org)
-
-*************************************************************************/
+//******* MUD MAIL SYSTEM MAIN FILE ***************************************
+// Written by Jeremy Elson (jelson@circlemud.org)
+//*************************************************************************
 
 #include "conf.h"
 #include "sysdep.h"
@@ -43,11 +41,11 @@ extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
 int find_name(const char *name);
 
-mail_index_type *mail_index = NULL;	/* list of recs in the mail file  */
-position_list_type *free_list = NULL;	/* list of free positions in file */
-long file_end_pos = 0;		/* length of file */
+mail_index_type *mail_index = NULL;	// list of recs in the mail file
+position_list_type *free_list = NULL;	// list of free positions in file
+long file_end_pos = 0;		// length of file
 
-/* local functions */
+// local functions
 void push_free_list(long pos);
 long pop_free_list(void);
 mail_index_type *find_char_in_index(long searchee);
@@ -55,7 +53,7 @@ void write_to_file(void *buf, int size, long filepos);
 void read_from_file(void *buf, int size, long filepos);
 void index_mail(long id_to_index, long pos);
 
-/* -------------------------------------------------------------------------- */
+// --------------------------------------------------------------------------
 
 /*
  * void push_free_list(long #1)
@@ -88,19 +86,17 @@ long pop_free_list(void)
 	position_list_type *old_pos;
 	long return_value;
 
-	/*
-	 * If we don't have any free blocks, we append to the file.
-	 */
+	// * If we don't have any free blocks, we append to the file.
 	if ((old_pos = free_list) == NULL)
 		return (file_end_pos);
 
-	/* Save the offset of the free block. */
+	// Save the offset of the free block.
 	return_value = free_list->position;
-	/* Remove this block from the free list. */
+	// Remove this block from the free list.
 	free_list = old_pos->next;
-	/* Get rid of the memory the node took. */
+	// Get rid of the memory the node took.
 	free(old_pos);
-	/* Give back the free offset. */
+	// Give back the free offset.
 	return (return_value);
 }
 
@@ -154,7 +150,7 @@ void write_to_file(void *buf, int size, long filepos)
 	fseek(mail_file, filepos, SEEK_SET);
 	fwrite(buf, size, 1, mail_file);
 
-	/* find end of file */
+	// find end of file
 	fseek(mail_file, 0L, SEEK_END);
 	file_end_pos = ftell(mail_file);
 	fclose(mail_file);
@@ -204,17 +200,17 @@ void index_mail(long id_to_index, long pos)
 		log("SYSERR: Mail system -- non-fatal error #4. (id_to_index == %ld)", id_to_index);
 		return;
 	}
-	if (!(new_index = find_char_in_index(id_to_index)))  	/* name not already in index.. add it */
+	if (!(new_index = find_char_in_index(id_to_index)))  	// name not already in index.. add it
 	{
 		CREATE(new_index, mail_index_type, 1);
 		new_index->recipient = id_to_index;
 		new_index->list_start = NULL;
 
-		/* add to front of list */
+		// add to front of list
 		new_index->next = mail_index;
 		mail_index = new_index;
 	}
-	/* now, add this position to front of position list */
+	// now, add this position to front of position list
 	CREATE(new_position, position_list_type, 1);
 	new_position->position = pos;
 	new_position->next = new_index->list_start;
@@ -264,7 +260,7 @@ int scan_file(void)
 	}
 	log("   Mail file read -- %d messages.", total_messages);
 	return (1);
-}				/* end of scan_file */
+}				// end of scan_file
 
 
 /*
@@ -310,7 +306,7 @@ void store_mail(long to, long from, char *message_pointer)
 		log("SYSERR: Mail system -- non-fatal error #5. (from == %ld, to == %ld)", from, to);
 		return;
 	}
-	memset((char *) &header, 0, sizeof(header));	/* clear the record */
+	memset((char *) &header, 0, sizeof(header));	// clear the record
 	header.block_type = HEADER_BLOCK;
 	header.header_data.next_block = LAST_BLOCK;
 	header.header_data.from = from;
@@ -319,27 +315,25 @@ void store_mail(long to, long from, char *message_pointer)
 	strncpy(header.txt, msg_txt, HEADER_BLOCK_DATASIZE);
 	header.txt[HEADER_BLOCK_DATASIZE] = '\0';
 
-	target_address = pop_free_list();	/* find next free block */
-	index_mail(to, target_address);	/* add it to mail index in memory */
+	target_address = pop_free_list();	// find next free block
+	index_mail(to, target_address);	// add it to mail index in memory
 	write_to_file(&header, BLOCK_SIZE, target_address);
 
 	if (strlen(msg_txt) <= HEADER_BLOCK_DATASIZE)
-		return;		/* that was the whole message */
+		return;		// that was the whole message
 
 	bytes_written = HEADER_BLOCK_DATASIZE;
-	msg_txt += HEADER_BLOCK_DATASIZE;	/* move pointer to next bit of text */
+	msg_txt += HEADER_BLOCK_DATASIZE;	// move pointer to next bit of text
 
-	/*
-	 * find the next block address, then rewrite the header to reflect where
-	 * the next block is.
-	 */
+	// * find the next block address, then rewrite the header to reflect where
+	// * the next block is.
 	last_address = target_address;
 	target_address = pop_free_list();
 	header.header_data.next_block = target_address;
 	write_to_file(&header, BLOCK_SIZE, last_address);
 
-	/* now write the current data block */
-	memset((char *) &data, 0, sizeof(data));	/* clear the record */
+	// now write the current data block
+	memset((char *) &data, 0, sizeof(data));	// clear the record
 	data.block_type = LAST_BLOCK;
 	strncpy(data.txt, msg_txt, DATA_BLOCK_DATASIZE);
 	data.txt[DATA_BLOCK_DATASIZE] = '\0';
@@ -364,11 +358,11 @@ void store_mail(long to, long from, char *message_pointer)
 		last_address = target_address;
 		target_address = pop_free_list();
 
-		/* rewrite the previous block to link it to the next */
+		// rewrite the previous block to link it to the next
 		data.block_type = target_address;
 		write_to_file(&data, BLOCK_SIZE, last_address);
 
-		/* now write the next block, assuming it's the last.  */
+		// now write the next block, assuming it's the last.
 		data.block_type = LAST_BLOCK;
 		strncpy(data.txt, msg_txt, DATA_BLOCK_DATASIZE);
 		data.txt[DATA_BLOCK_DATASIZE] = '\0';
@@ -377,7 +371,7 @@ void store_mail(long to, long from, char *message_pointer)
 		bytes_written += strlen(data.txt);
 		msg_txt += strlen(data.txt);
 	}
-}				/* store mail */
+}				// store mail
 
 
 /*
@@ -413,25 +407,25 @@ char *read_delete(long recipient)
 		log("SYSERR: Mail system -- non-fatal error #8. (invalid position pointer %p)", position_pointer);
 		return (NULL);
 	}
-	if (!(position_pointer->next))  	/* just 1 entry in list. */
+	if (!(position_pointer->next))  	// just 1 entry in list.
 	{
 		mail_address = position_pointer->position;
 		free(position_pointer);
 
-		/* now free up the actual name entry */
-		if (mail_index == mail_pointer)  	/* name is 1st in list */
+		// now free up the actual name entry
+		if (mail_index == mail_pointer)  	// name is 1st in list
 		{
 			mail_index = mail_pointer->next;
 			free(mail_pointer);
 		}
-		else  	/* find entry before the one we're going to del */
+		else  	// find entry before the one we're going to del
 		{
 			for (prev_mail = mail_index; prev_mail->next != mail_pointer; prev_mail = prev_mail->next);
 			prev_mail->next = mail_pointer->next;
 			free(mail_pointer);
 		}
 	}
-	else  		/* move to next-to-last record */
+	else  		// move to next-to-last record
 	{
 		while (position_pointer->next->next)
 			position_pointer = position_pointer->next;
@@ -440,7 +434,7 @@ char *read_delete(long recipient)
 		position_pointer->next = NULL;
 	}
 
-	/* ok, now lets do some readin'! */
+	// ok, now lets do some readin'! //
 	read_from_file(&header, BLOCK_SIZE, mail_address);
 
 	if (header.block_type != HEADER_BLOCK)
@@ -467,7 +461,7 @@ char *read_delete(long recipient)
 	message[string_size - 1] = '\0';
 	following_block = header.header_data.next_block;
 
-	/* mark the block as deleted */
+	// mark the block as deleted //
 	header.block_type = DELETED_BLOCK;
 	write_to_file(&header, BLOCK_SIZE, mail_address);
 	push_free_list(mail_address);
@@ -491,15 +485,15 @@ char *read_delete(long recipient)
 }
 
 
-/****************************************************************
-* Below is the spec_proc for a postmaster using the above       *
-* routines.  Written by Jeremy Elson (jelson@circlemud.org) *
-****************************************************************/
+//****************************************************************
+//* Below is the spec_proc for a postmaster using the above      *
+//* routines.  Written by Jeremy Elson (jelson@circlemud.org)    *
+//****************************************************************
 
 SPECIAL(postmaster)
 {
 	if (!ch->desc || IS_NPC(ch))
-		return (0);	/* so mobs don't get caught here */
+		return (0);	// so mobs don't get caught here
 
 	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")
 			|| CMD_IS("почта") || CMD_IS("получить") || CMD_IS("отправить")
@@ -560,7 +554,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 	}
 	arg = one_argument(arg, buf);
 
-	if (!*buf)  		/* you'll get no argument from me! */
+	if (!*buf)  		// you'll get no argument from me!
 	{
 		act("$n сказал$g вам, 'Вы не указали адресата!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
@@ -614,9 +608,9 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
 	ch->remove_gold(cost);
-	SET_BIT(PLR_FLAGS(ch, PLR_MAILING), PLR_MAILING);	/* string_write() sets writing. */
+	SET_BIT(PLR_FLAGS(ch, PLR_MAILING), PLR_MAILING);	// string_write() sets writing.
 
-	/* Start writing! */
+	// Start writing!
 	CREATE(write, char *, 1);
 	string_write(ch->desc, write, MAX_MAIL_SIZE, recipient, NULL);
 }

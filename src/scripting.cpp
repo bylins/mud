@@ -1703,8 +1703,8 @@ void scripting::init()
 	initconstants();
 	//add "scripts" to python module path
 	import("sys").attr("path").attr("insert")(0, "scripts");
-	/*object main_module = import("__main__");
-	object main_namespace = main_module.attr("__dict__");*/
+	//object main_module = import("__main__");
+	//object main_namespace = main_module.attr("__dict__");
 	import("console");
 	import("smtplib");
 	} catch(error_already_set const &)

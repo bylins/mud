@@ -731,9 +731,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 //	send_to_char("В корзине " + boost::lexical_cast<string>((*shop)->waste.size()) + " элементов\r\n", ch);
 }
 
-/**
- * Симуляция телла продавца.
- */
+// * Симуляция телла продавца.
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 {
 	if (AFF_FLAGGED(ch, AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
@@ -1495,9 +1493,7 @@ void renumber_obj_rnum(int rnum)
 
 } // namespace ShopExt
 
-/**
- * Лоад странствующих продавцов в каждой ренте.
- */
+// * Лоад странствующих продавцов в каждой ренте.
 void town_shop_keepers()
 {
 	// список уже оработанных зон, чтобы не грузить двух и более торгашей в одну

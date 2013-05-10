@@ -26,7 +26,7 @@
 using std::string;
 using std::list;
 
-/* external declarations and prototypes **********************************/
+// external declarations and prototypes *********************************
 
 #define not_null(ptr, str) (ptr && *ptr) ? ptr : str ? str : "undefined"
 extern struct weather_data weather_info;
@@ -39,7 +39,7 @@ extern char AltToLat[];
 
 //#define log        basic_mud_log
 
-/* public functions in utils.cpp */
+// public functions in utils.cpp
 CHAR_DATA *find_char(long n);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
@@ -106,7 +106,7 @@ extern const char *ACTNULL;
 #define ONE_DAY      24*60
 #define SEVEN_DAYS   7*24*60
 
-/* undefine MAX and MIN so that our functions are used instead */
+// undefine MAX and MIN so that our functions are used instead
 #ifdef MAX
 #undef MAX
 #endif
@@ -145,17 +145,17 @@ char * CAP(char *txt);
 #define AtoK(c) ((ubyte)(c) < 128 ? (c) : AltToKoi[(ubyte)(c)-128])
 #define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
 
-/* in magic.cpp */
+// in magic.cpp //
 bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim);
 
-/* in act.informative.cpp */
+// in act.informative.cpp //
 void look_at_room(CHAR_DATA * ch, int mode);
 
-/* in act.movmement.cpp */
+// in act.movmement.cpp //
 int do_simple_move(CHAR_DATA * ch, int dir, int following, CHAR_DATA * leader);
 int perform_move(CHAR_DATA * ch, int dir, int following, int checkmob, CHAR_DATA * leader);
 
-/* in limits.cpp */
+// in limits.cpp //
 int mana_gain(CHAR_DATA * ch);
 int hit_gain(CHAR_DATA * ch);
 int move_gain(CHAR_DATA * ch);
@@ -170,9 +170,9 @@ void exchange_point_update();
 void obj_point_update();
 void update_pos(CHAR_DATA * victim);
 
-/* various constants *****************************************************/
+// various constants ****************************************************
 
-/* defines for mudlog() */
+// defines for mudlog() //
 #define OFF 0
 #define CMP 1
 #define BRF 2
@@ -180,7 +180,7 @@ void update_pos(CHAR_DATA * victim);
 #define LGH 4
 #define DEF 5
 
-/* get_filename() */
+// get_filename() //
 #define ALIAS_FILE        1
 #define SCRIPT_VARS_FILE  2
 #define PLAYERS_FILE      3
@@ -190,7 +190,7 @@ void update_pos(CHAR_DATA * victim);
 #define SHARE_DEPOT_FILE  7
 #define PURGE_DEPOT_FILE  8
 
-/* breadth-first searching */
+// breadth-first searching //
 #define BFS_ERROR        -1
 #define BFS_ALREADY_THERE  -2
 #define BFS_NO_PATH         -3
@@ -199,7 +199,7 @@ void update_pos(CHAR_DATA * victim);
  * XXX: These constants should be configurable. See act.informative.c
  * and utils.cpp for other places to change.
  */
-/* mud-life time */
+// mud-life time
 #define HOURS_PER_DAY          24
 #define DAYS_PER_MONTH         30
 #define MONTHS_PER_YEAR        12
@@ -221,7 +221,7 @@ void update_pos(CHAR_DATA * victim);
 #define WEEK_CYCLE               7
 #define POLY_WEEK_CYCLE          9
 
-/* real-life time (remember Real Life?) */
+// real-life time (remember Real Life?)
 #define SECS_PER_REAL_MIN  60
 #define SECS_PER_REAL_HOUR (60*SECS_PER_REAL_MIN)
 #define SECS_PER_REAL_DAY  (24*SECS_PER_REAL_HOUR)
@@ -247,7 +247,7 @@ extern SPECIAL(bank);
 #define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == postmaster)
 #define IS_BANKKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == bank)
 
-/* string utils **********************************************************/
+// string utils *********************************************************
 
 
 #define YESNO(a) ((a) ? "YES" : "NO")
@@ -260,7 +260,7 @@ extern SPECIAL(bank);
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
 #define IF_STR(st) ((st) ? (st) : "\0")
 
-/* memory utils **********************************************************/
+// memory utils *********************************************************
 
 
 #define CREATE(result, type, number)  do {\
@@ -298,7 +298,7 @@ extern SPECIAL(bank);
    }              \
 
 
-/* basic bitvector utils *************************************************/
+// basic bitvector utils ************************************************
 
 
 #define IS_SET(flag,bit)  ((flag & 0x3FFFFFFF) & (bit))
@@ -314,7 +314,7 @@ extern SPECIAL(bank);
  * example.  If you really couldn't care less, change this to a '#if 0'.
  */
 #if 0
-/* Subtle bug in the '#var', but works well for now. */
+// Subtle bug in the '#var', but works well for now.
 #define CHECK_PLAYER_SPECIAL(ch, var) \
    (*(((ch)->player_specials == &dummy_mob) ? (log("SYSERR: Mob using '"#var"' at %s:%d.", __FILE__, __LINE__), &(var)) : &(var)))
 #else
@@ -332,7 +332,7 @@ extern SPECIAL(bank);
 #define DESC_FLAGS(d)   ((d)->options)
 #define SPELL_ROUTINES(spl) (spell_info[spl].routines)
 
-/* See http://www.circlemud.org/~greerga/todo.009 to eliminate MOB_ISNPC. */
+// See http://www.circlemud.org/~greerga/todo.009 to eliminate MOB_ISNPC.
 #define IS_NPC(ch)           (IS_SET(MOB_FLAGS(ch, MOB_ISNPC), MOB_ISNPC))
 #define IS_MOB(ch)          (IS_NPC(ch) && GET_MOB_RNUM(ch) >= 0)
 
@@ -352,14 +352,14 @@ extern SPECIAL(bank);
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 #define IS_FLY(ch)                   (AFF_FLAGGED(ch,AFF_FLY))
 
-/* IS_AFFECTED for backwards compatibility */
+// IS_AFFECTED for backwards compatibility
 #define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, skill))
 
 #define PLR_TOG_CHK(ch,flag) ((TOGGLE_BIT(PLR_FLAGS(ch, flag), (flag))) & (flag))
 #define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch, flag), (flag))) & (flag))
 
 
-/* room utils ************************************************************/
+// room utils ***********************************************************
 
 
 #define SECT(room)   (world[(room)]->sector_type)
@@ -424,7 +424,7 @@ extern SPECIAL(bank);
    ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->number : NOWHERE))
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : NULL)
 
-/* char utils ************************************************************/
+// char utils ***********************************************************
 #define IS_MANA_CASTER(ch) (GET_CLASS(ch)==CLASS_DRUID)
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
@@ -435,7 +435,7 @@ extern SPECIAL(bank);
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
 #define GET_MAX_MANA(ch)      MIN(9998,mana[MIN(50, (int) GET_REAL_WIS(ch))]+GET_REMORT(ch)*500)
-/*#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1]) */
+//#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1])
 #define GET_MANA_COST(ch,spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
 #define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
@@ -454,7 +454,7 @@ extern SPECIAL(bank);
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GET_LEVEL(ch)/3)+GET_REMORT(ch))
 
-/**** Adding by me */
+// *** Adding by me
 #define GET_AF_BATTLE(ch,flag) (IS_SET(GET_FLAG((ch)->BattleAffects, flag),flag))
 #define SET_AF_BATTLE(ch,flag) (SET_BIT(GET_FLAG((ch)->BattleAffects,flag),flag))
 #define CLR_AF_BATTLE(ch,flag) (REMOVE_BIT(GET_FLAG((ch)->BattleAffects, flag),flag))
@@ -470,7 +470,7 @@ extern SPECIAL(bank);
 #define CLR_GOD_FLAG(ch,flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define GET_UNIQUE(ch)         ((ch)->get_uid())
 #define LAST_LOGON(ch)         ((ch)->get_last_logon())
-/*структуры для подсчета количества рипов на морте (с) Василиса */
+//структуры для подсчета количества рипов на морте (с) Василиса
 #define GET_RIP_ARENA(ch)      ((ch)->player_specials->saved.Rip_arena)
 #define GET_RIP_PK(ch)         ((ch)->player_specials->saved.Rip_pk)
 #define GET_RIP_MOB(ch)        ((ch)->player_specials->saved.Rip_mob)
@@ -490,7 +490,7 @@ extern SPECIAL(bank);
 #define GET_EXP_MOBTHIS(ch)    ((ch)->player_specials->saved.Exp_mob_this)
 #define GET_EXP_OTHERTHIS(ch)  ((ch)->player_specials->saved.Exp_other_this)
 #define GET_EXP_DTTHIS(ch)     ((ch)->player_specials->saved.Exp_dt_this)
-/*конец правки (с) Василиса*/
+//конец правки (с) Василиса
 
 #define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
 #define NAME_ID_GOD(ch)  ((ch)->player_specials->saved.NameIDGod)
@@ -500,10 +500,7 @@ extern SPECIAL(bank);
 //Polud
 #define NOTIFY_EXCH_PRICE(ch)  ((ch)->player_specials->saved.ntfyExchangePrice)
 
-/*
- * I wonder if this definition of GET_REAL_LEVEL should be the definition
- * of GET_LEVEL?  JE
- */
+// * I wonder if this definition of GET_REAL_LEVEL should be the definition of GET_LEVEL?  JE
 #define GET_REAL_LEVEL(ch) \
    (ch->desc && ch->desc->original ? GET_LEVEL(ch->desc->original) : \
     GET_LEVEL(ch))
@@ -592,12 +589,12 @@ extern SPECIAL(bank);
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
 
-/*Макросы доступа к полям параметров комнат*/
+// Макросы доступа к полям параметров комнат
 #define GET_ROOM_BASE_POISON(room) ((room)->base_property.poison)
 #define GET_ROOM_ADD_POISON(room) ((room)->add_property.poison)
 #define GET_ROOM_POISON(room) (GET_ROOM_BASE_POISON(room)+GET_ROOM_ADD_POISON(room))
 
-/* Получение кубиков урона - работает только для мобов! */
+// Получение кубиков урона - работает только для мобов!
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)
 #define GET_SDD(ch) ((ch)->mob_specials.damsizedice)
 
@@ -885,7 +882,7 @@ extern SPECIAL(bank);
 #define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
 #define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
 
-/* These three deprecated. */
+// These three deprecated
 #define WAIT_STATE(ch, cycle) if (GET_WAIT_STATE(ch)<(cycle)) { do { GET_WAIT_STATE(ch) = (cycle); } while(0);}
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->wait > 0)
@@ -893,18 +890,18 @@ extern SPECIAL(bank);
 #define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
 #define GET_MOB_HOLD(ch)      (AFF_FLAGGED((ch),AFF_HOLD) ? 1 : 0)
 #define GET_MOB_SIELENCE(ch)  (AFF_FLAGGED((ch),AFF_SIELENCE) ? 1 : 0)
-/* New, preferred macro. */
+// New, preferred macro
 #define GET_WAIT_STATE(ch)    ((ch)->wait)
 #define GET_PUNCTUAL_WAIT_STATE(ch)    ((ch)->punctual_wait)
 
 
-/* descriptor-based utils ************************************************/
+// descriptor-based utils ***********************************************
 
-/* Hrm, not many.  We should make more. -gg 3/4/99 */
+// Hrm, not many.  We should make more. -gg 3/4/99
 #define STATE(d)  ((d)->connected)
 
 
-/* object utils **********************************************************/
+// object utils *********************************************************
 #define GET_OBJ_UID(obj)	((obj)->uid)
 
 #define GET_OBJ_ALIAS(obj)      ((obj)->aliases)
@@ -992,7 +989,7 @@ extern SPECIAL(bank);
 	CHECK_CUSTOM_LABEL_CORE(obj, ch)                                                            \
 	))
 
-/* compound utilities and other macros **********************************/
+// compound utilities and other macros *********************************
 
 /*
  * Used to compute CircleMUD version. To see if the code running is newer
@@ -1012,7 +1009,7 @@ extern SPECIAL(bank);
 #define OYOU(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
 
 
-/* Various macros building up to CAN_SEE */
+// Various macros building up to CAN_SEE
 #define MAY_SEE(sub,obj) (!AFF_FLAGGED((sub),AFF_BLIND) && \
                           (!IS_DARK(IN_ROOM(sub)) || AFF_FLAGGED((sub),AFF_INFRAVISION)) && \
            (!AFF_FLAGGED((obj),AFF_INVISIBLE) || AFF_FLAGGED((sub),AFF_DETECT_INVIS)))
@@ -1058,12 +1055,12 @@ extern SPECIAL(bank);
 
 #define SELF(sub, obj)  ((sub) == (obj))
 
-/* Can subject see character "obj"? */
+// Can subject see character "obj"?
 #define CAN_SEE(sub, obj) (SELF(sub, obj) || \
    ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
     IMM_CAN_SEE(sub, obj)))
 
-/* Can subject see character "obj" without light */
+// Can subject see character "obj" without light
 #define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && \
                                      INVIS_OK(sub,obj) \
                 )
@@ -1076,13 +1073,13 @@ extern SPECIAL(bank);
          IMM_CAN_SEE_CHAR(sub, obj)))
 
 
-/* End of CAN_SEE */
+// End of CAN_SEE
 
 
 #define INVIS_OK_OBJ(sub, obj) \
   (!IS_OBJ_STAT((obj), ITEM_INVISIBLE) || AFF_FLAGGED((sub), AFF_DETECT_INVIS))
 
-/* Is anyone carrying this object and if so, are they visible? */
+// Is anyone carrying this object and if so, are they visible?
 
 #define CAN_SEE_OBJ_CARRIER(sub, obj) \
   ((!obj->carried_by || CAN_SEE(sub, obj->carried_by)) && \
@@ -1220,7 +1217,7 @@ bool is_rent(room_rnum room);
 
 int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min, int max);
 
-/* Modifier functions */
+// Modifier functions
 int day_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value);
 int weather_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value);
 int complex_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value);
@@ -1232,7 +1229,7 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 bool CAN_CARRY_OBJ(CHAR_DATA *ch, OBJ_DATA *obj);
 bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
 
-/* PADS for something ****************************************************/
+// PADS for something ***************************************************
 const char * desc_count(long how_many, int of_what);
 #define WHAT_DAY	0
 #define WHAT_HOUR	1
@@ -1265,7 +1262,7 @@ const char * desc_count(long how_many, int of_what);
 #define WHAT_GULP	28
 
 #undef AW_HIDE // конфликтует с winuser.h
-/* some awaking cases */
+// some awaking cases
 #define AW_HIDE       (1 << 0)
 #define AW_INVIS      (1 << 1)
 #define AW_CAMOUFLAGE (1 << 2)
@@ -1288,10 +1285,10 @@ std::string time_format(int timer, int flag = 0);
 int count_colors(const char * str);
 char* colored_name(const char * str, int len, const bool left_align = false);
 
-/* OS compatibility ******************************************************/
+// OS compatibility *****************************************************
 
 
-/* there could be some strange OS which doesn't have NULL... */
+// there could be some strange OS which doesn't have NULL...
 #ifndef NULL
 #define NULL (void *)0
 #endif
@@ -1304,7 +1301,7 @@ char* colored_name(const char * str, int len, const bool left_align = false);
 #define TRUE  (!FALSE)
 #endif
 
-/* defines for fseek */
+// defines for fseek
 #ifndef SEEK_SET
 #define SEEK_SET  0
 #define SEEK_CUR  1

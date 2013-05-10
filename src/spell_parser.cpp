@@ -54,7 +54,7 @@ extern int what_sky;
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
-/* local functions */
+// local functions
 void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj);
 void spello(int spl, const char *name, const char *syn, int max_mana, int min_mana, int mana_change,
 			int minpos, int targets, int violent, int routines, int danger, int remort, int spell_class);
@@ -127,7 +127,7 @@ struct syllable syls[] =
 };
 
 
-const char *unused_spellname = "!UNUSED!";	/* So we can get &unused_spellname */
+const char *unused_spellname = "!UNUSED!";	// So we can get &unused_spellname
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1519,24 +1519,17 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
-		/*
-		   wis_is = MAGIC_SLOT_VALUES[(int) GET_LEVEL(ch)][slot_num];
-		 */
+		//wis_is = MAGIC_SLOT_VALUES[(int) GET_LEVEL(ch)][slot_num];
 		wis_is = MAG_SLOTS[(int) GET_LEVEL(ch) - 1][slot_num];
 		break;
 	case CLASS_NECROMANCER:
-		/*
-		   wis_is = MAGIC_SLOT_VALUES[(int) GET_LEVEL(ch)][slot_num];
-		 */
+		//wis_is = MAGIC_SLOT_VALUES[(int) GET_LEVEL(ch)][slot_num];
 		wis_is = NECROMANCER_SLOTS[(int) GET_LEVEL(ch) - 1][slot_num];
 		break;
 	case CLASS_CLERIC:
-		/*
-		   if ((wis_is = CLERIC_SLOT_VALUES[(int) GET_LEVEL(ch)][slot_num]))
-		   {for (i = 1; i <= GET_REAL_INT(ch); i++)
-		   wis_is += IS_SET(wis_app[i].spell_additional, 1 << slot_num);
-		   }
-		 */
+		//if ((wis_is = CLERIC_SLOT_VALUES[(int) GET_LEVEL(ch)][slot_num]))
+		//	for (i = 1; i <= GET_REAL_INT(ch); i++)
+		//		wis_is += IS_SET(wis_app[i].spell_additional, 1 << slot_num);
 		if (GET_LEVEL(ch) >= MIN_CL_LEVEL && slot_num < MAX_CL_SLOT && GET_REAL_WIS(ch) >= MIN_CL_WIS)
 		{
 			wis_block = MIN(MAX_CL_WIS, GET_REAL_WIS(ch)) - MIN_CL_WIS;
@@ -1547,12 +1540,9 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 		}
 		break;
 	case CLASS_PALADINE:
-		/*
-		   if ((wis_is = PALADINE_SLOT_VALUES[(int) GET_LEVEL(ch)][slot_num]))
-		   {for (i = 1; i <= GET_REAL_INT(ch); i++)
-		   wis_is += IS_SET(wis_app[i].spell_additional, 1 << slot_num);
-		   }
-		 */
+		//if ((wis_is = PALADINE_SLOT_VALUES[(int) GET_LEVEL(ch)][slot_num]))
+		//	for (i = 1; i <= GET_REAL_INT(ch); i++)
+		//		wis_is += IS_SET(wis_app[i].spell_additional, 1 << slot_num);
 		if (GET_LEVEL(ch) >= MIN_PA_LEVEL && slot_num < MAX_PA_SLOT && GET_REAL_WIS(ch) >= MIN_PA_WIS)
 		{
 			wis_block = MIN(MAX_PA_WIS, GET_REAL_WIS(ch)) - MIN_PA_WIS;
@@ -1562,20 +1552,19 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 			wis_is = PALADINE_SLOTS[wis_block + wis_line][slot_num];
 		}
 		break;
-		/*
-		   case CLASS_RANGER :
-		   if ((wis_is = RANGER_SLOT_VALUES[(int) GET_LEVEL(ch)][slot_num]))
-		   {for (i = 1; i <= GET_REAL_INT(ch); i++)
-		   wis_is += IS_SET(wis_app[i].spell_additional, 1 << slot_num);
-		   }
-		   break;
-		 */
+	/*
+	case CLASS_RANGER :
+		if ((wis_is = RANGER_SLOT_VALUES[(int) GET_LEVEL(ch)][slot_num]))
+			for (i = 1; i <= GET_REAL_INT(ch); i++)
+				wis_is += IS_SET(wis_app[i].spell_additional, 1 << slot_num);
+		break;
+	*/
 	case CLASS_MERCHANT:
 		if (slot_num < MAX_ME_SLOT)
 			wis_is = MERCHANT_SLOTS[(int) GET_LEVEL(ch) - 1][slot_num];
 		break;
 	}
-	if (wis_is == -1) return 0; /*Go here if no magic for char*/
+	if (wis_is == -1) return 0; //Go here if no magic for char
 	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + ch->get_obj_slot(slot_num) + GET_REMORT(ch)) : 0);
 }
 
@@ -1629,7 +1618,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 		return mana_cost;
 	};
 	return 9999;
-	/*#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1]) */
+	//#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1])
 	/*
 	   if (GET_LEVEL(ch) <= SpINFO.min_level[(int) GET_CLASS(ch)])
 	   return SpINFO.mana_max;
@@ -1684,7 +1673,7 @@ void spell_prefix(int spellnum, const char **say_to_self, const char **say_to_ot
 	}
 }
 
-/* say_spell erodes buf, buf1, buf2 */
+// say_spell erodes buf, buf1, buf2
 void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 {
 	char lbuf[256];
@@ -1696,7 +1685,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
 
-	/* Say phrase ? */
+	// Say phrase ?
     if (IS_NPC(ch))
     {
         switch (GET_RACE(ch))
@@ -1759,7 +1748,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 				}
 			}
 		}
-		/* i.e., we didn't find a match in syls[] */
+		// i.e., we didn't find a match in syls[]
 		if (!*syls[j].org)
 		{
 			log("No entry in syllable table for substring of '%s'", lbuf);
@@ -1812,7 +1801,6 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
  * a valid spell/skill number.  A typical for() loop would not need to use
  * this because you can guarantee > 0 and <= TOP_SPELL_DEFINE.
  */
-
 const char *feat_name(int num)
 {
 	if (num > 0 && num < MAX_FEATS)
@@ -1855,7 +1843,7 @@ int find_skill_num(const char *name)
 			return (index);
 
 		ok = TRUE;
-		/* It won't be changed, but other uses of this function elsewhere may. */
+		// It won't be changed, but other uses of this function elsewhere may.
 		temp = any_one_arg(skill_info[index].name, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok)
@@ -1892,7 +1880,7 @@ int find_spell_num(char *name)
 		if (is_abbrev(name, realname))
 			return (index);
 		ok = TRUE;
-		/* It won't be changed, but other uses of this function elsewhere may. */
+		// It won't be changed, but other uses of this function elsewhere may.
 		temp = any_one_arg(realname, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok)
@@ -1931,7 +1919,7 @@ int find_spell_num(const std::string& name)
 		if (CompareParam(name, realname))
 			return (index);
 		ok = TRUE;
-		/* It won't be changed, but other uses of this function elsewhere may. */
+		// It won't be changed, but other uses of this function elsewhere may.
 		temp = any_one_arg(realname, first);
 		tok_iter = tok.begin();
 		while (*first && tok_iter != tok.end() && ok)
@@ -1966,7 +1954,7 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 	int ignore;
 	CHAR_DATA *ch_vict;
 
-	/*  More than 33 level - may cast always */
+	//  More than 33 level - may cast always
 	if (IS_GRGOD(caster))
 		return TRUE;
 
@@ -2028,7 +2016,7 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 
 	// check_pkill вызвать не могу, т.к. имя жертвы безвозвратно утеряно
 
-	/* Ура! Можно */
+	// Ура! Можно
 	return (TRUE);
 }
 
@@ -2043,7 +2031,7 @@ int check_mobile_list(CHAR_DATA * ch)
 	return (FALSE);
 }
 
-/* Реакция на каст */
+// Реакция на каст
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 {
 	// Если оказались под своим заклом то не реагируем на него.
@@ -2138,7 +2126,7 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 		return 0;
 	}
 
-	/* determine the type of saving throw */
+	// determine the type of saving throw
 	switch (casttype)
 	{
 	case CAST_STAFF:
@@ -2380,7 +2368,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 			return TRUE;
 		}
 	}
-	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */
+	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
 	if (IS_SET(SpINFO.routines, MAG_WARCRY))
 		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
@@ -2496,7 +2484,7 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 			return TRUE;
 		}
 	}
-	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */
+	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
 	if (IS_SET(SpINFO.routines, MAG_WARCRY))
 		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
@@ -2599,7 +2587,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 
 		if (tch)
 		{
-			if (IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, MAG_AREAS | MAG_MASSES))  	/* Wands with area spells don't need to be pointed. */
+			if (IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, MAG_AREAS | MAG_MASSES))  	// Wands with area spells don't need to be pointed.
 			{
 				if (obj->action_description)
 					act(obj->action_description, FALSE, ch, obj, tch, TO_CHAR);
@@ -2798,8 +2786,8 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		return (0);
 	}
 
-	/* add by Pereplut: если цель уйдет из клетки в случае кастинга в бою (с лагом) - то
-	   не будет кастоваться на соседние клетки, в случае если закл не глобальный */
+	// add by Pereplut: если цель уйдет из клетки в случае кастинга в бою (с лагом) - то
+	// не будет кастоваться на соседние клетки, в случае если закл не глобальный
 	if (tch && ch && IN_ROOM(tch) != IN_ROOM(ch))
 	{
 		if (!IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
@@ -2815,8 +2803,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			return (0);
 		} */
 
-	/* Начало изменений.
-	   (с) Дмитрий ака dzMUDiST ака Кудояр */
+	// Начало изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
 
 // Может-ли кастер зачитать заклинание если на нем эфект !смирение!?
 // Далее идет код _аналогичный_ коду функции may_cast_here()
@@ -2861,8 +2848,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			}
 		}
 	}
-	/* Конец изменений.
-	   (с) Дмитрий ака dzMUDiST ака Кудояр */
+	// Конец изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
 
 	if (!ch->get_fighting() && !IS_NPC(ch))
 	{
@@ -2875,7 +2861,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			send_to_char(buf, ch);
 		}
 	}
-	/*Комнату тут в say_spell не обрабатываем - будет сказал "что-то"*/
+	// Комнату тут в say_spell не обрабатываем - будет сказал "что-то"
 	say_spell(ch, spellnum, tch, tobj);
 	if (GET_SPELL_MEM(ch, spell_subst) > 0)
 		GET_SPELL_MEM(ch, spell_subst)--;
@@ -2972,7 +2958,7 @@ ACMD(do_cast)
 		return;
 	}
 
-	/* get: blank, spell name, target name */
+	// get: blank, spell name, target name
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
@@ -2996,14 +2982,14 @@ ACMD(do_cast)
 		return;
 	}
 
-	/* Unknown spell */
+	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
-	/* Caster is lower than spell level */
+	// Caster is lower than spell level
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
 			GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
 			(GET_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch)))
@@ -3022,7 +3008,7 @@ ACMD(do_cast)
 		}
 	}
 
-	/* Caster havn't slot  */
+	// Caster havn't slot
 	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch))
 	{
 		if (can_use_feat(ch, SPELL_SUBSTITUTE_FEAT)
@@ -3053,7 +3039,7 @@ ACMD(do_cast)
 		}
 	}
 
-	/* Find the target */
+	// Find the target
 	if (t != NULL)
 		one_argument(t, arg);
 	else
@@ -3073,7 +3059,7 @@ ACMD(do_cast)
 		return;
 	}
 
-	/* You throws the dice and you takes your chances.. 101% is total failure */
+	// You throws the dice and you takes your chances.. 101% is total failure
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->set_cast(0, 0, 0, 0, 0);
 
@@ -3095,7 +3081,7 @@ ACMD(do_cast)
 		if (!tch || !skill_message(0, ch, tch, spellnum))
 			send_to_char("Вы не смогли сосредоточиться!\r\n", ch);
 	}
-	else  		/* cast spell returns 1 on success; subtract mana & set waitstate */
+	else  		// cast spell returns 1 on success; subtract mana & set waitstate
 	{
 		if (ch->get_fighting() && !IS_IMPL(ch))
 		{
@@ -3172,7 +3158,7 @@ ACMD(do_warcry)
 
 	spellnum = find_spell_num(wc_name);
 
-	/* Unknown warcry */
+	// Unknown warcry
 	if (spellnum < 1 || spellnum > MAX_SPELLS || ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change)
 	{
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
@@ -3261,7 +3247,7 @@ ACMD(do_mixture)
 	char *s, *t;
 	int spellnum, target = 0;
 
-	/* get: blank, spell name, target name */
+	// get: blank, spell name, target name
 	s = strtok(argument, "'*!");
 	if (!s)
 	{
@@ -3281,14 +3267,14 @@ ACMD(do_mixture)
 
 	spellnum = find_spell_num(s);
 
-	/* Unknown spell */
+	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
 		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
 
-	/* Caster does not know this recipe */
+	// Caster does not know this recipe
 	if (((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_ITEMS)
 			&& subcmd == SCMD_ITEMS)
 			|| (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_RUNES)
@@ -3310,7 +3296,7 @@ ACMD(do_mixture)
 		return;
 	}
 
-	/* Find the target */
+	// Find the target
 	if (t != NULL)
 		one_argument(t, arg);
 	else
@@ -3361,7 +3347,7 @@ ACMD(do_mixture)
 		}
 	}
 
-	/* You throws the dice and you takes your chances.. 101% is total failure */
+	// You throws the dice and you takes your chances.. 101% is total failure
 
 	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, TRUE, tch))
 	{
@@ -3377,7 +3363,7 @@ ACMD(do_mixture)
 			}
 
 		}
-		else  	/* call magic returns 1 on success; set waitstate */
+		else  	// call magic returns 1 on success; set waitstate
 		{
 			if (call_magic(ch, tch, tobj, world[IN_ROOM(ch)], spellnum, GET_LEVEL(ch),
 						   subcmd == SCMD_ITEMS ? CAST_ITEMS : CAST_RUNES) >= 0)
@@ -3398,7 +3384,7 @@ ACMD(do_create)
 	if (IS_NPC(ch))
 		return;
 
-	/* get: blank, spell name, target name */
+	// get: blank, spell name, target name
 	argument = one_argument(argument, arg);
 
 	if (!*arg)
@@ -3464,14 +3450,14 @@ ACMD(do_create)
 
 	spellnum = find_spell_num(s);
 
-	/* Unknown spell */
+	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
 		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
 
-	/* Caster is don't know this recipe */
+	// Caster is don't know this recipe
 	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), itemnum) && !IS_IMMORTAL(ch))
 	{
 		send_to_char("Было бы неплохо прежде всего выучить этот состав.\r\n", ch);
@@ -3545,7 +3531,7 @@ ACMD(do_learn)
 	if (IS_NPC(ch))
 		return;
 
-	/* get: blank, spell name, target name */
+	// get: blank, spell name, target name
 	one_argument(argument, arg);
 
 	if (!*arg)
@@ -3923,7 +3909,7 @@ ACMD(do_remember)
 	char *s;
 	int spellnum;
 
-	/* get: blank, spell name, target name */
+	// get: blank, spell name, target name
 	if (!argument || !(*argument))
 	{
 		show_wizdom(ch, 0x07);
@@ -3953,7 +3939,7 @@ ACMD(do_remember)
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
-	/* Caster is lower than spell level */
+	// Caster is lower than spell level
 	if (GET_LEVEL(ch) < MIN_CAST_LEV(SpINFO, ch)
 			||  GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 			||    slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
@@ -4015,7 +4001,7 @@ ACMD(do_forget)
 		}
 		return;
 	}
-	/* get: blank, spell name, target name */
+	// get: blank, spell name, target name
 	if (IS_IMMORTAL(ch))
 	{
 		send_to_char("Господи, тебе лень набрать skillset?\r\n", ch);
@@ -4034,7 +4020,7 @@ ACMD(do_forget)
 		return;
 	}
 	spellnum = find_spell_num(s);
-	/* Unknown spell */
+	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
@@ -4210,7 +4196,7 @@ void mspell_slot(char *name, int spell, int kin , int chclass, int slot)
 }
 
 
-/* Assign the spells on boot up */
+// Assign the spells on boot up
 void
 spello(int spl, const char *name, const char *syn,
 	   int max_mana, int min_mana, int mana_change,
@@ -4365,7 +4351,7 @@ void mag_assign_spells(void)
 {
 	int i;
 
-	/* Do not change the loop below. */
+	// Do not change the loop below.
 	for (i = 0; i <= TOP_SPELL_DEFINE; i++)
 	{
 		unused_spell(i);
@@ -4376,7 +4362,7 @@ void mag_assign_spells(void)
 	}
 
 
-	/* Do not change the loop above. */
+	// Do not change the loop above.
 
 //1
 	spello(SPELL_ARMOR, "защита", "armor", 40, 30, 1,
@@ -4950,7 +4936,7 @@ void mag_assign_spells(void)
 	spello(SPELL_BURDEN_OF_TIME, "бремя времени", "burden time", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 4, STYPE_DARK);
 //161
-	spello(SPELL_GROUP_REFRESH, "групповое восстановление", "group refresh",	/*Added by Adept */
+	spello(SPELL_GROUP_REFRESH, "групповое восстановление", "group refresh",	//Added by Adept
 		   160, 140, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 30, STYPE_LIFE);
 
 //162
@@ -5056,7 +5042,7 @@ void mag_assign_spells(void)
 	spello(SPELL_RUNE_LABEL, "рунная метка", "rune label", 50, 35, 1,
 		POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INWORLD_DELAY, 0, STYPE_LIGHT);
 
-	/* NON-castable spells should appear below here. */
+	// NON-castable spells should appear below here.
 
 // 189
 	spello(SPELL_ACONITUM_POISON, "яд аконита", "aconitum poison",

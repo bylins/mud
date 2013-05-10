@@ -24,18 +24,14 @@
 #include "char.hpp"
 #include "room.hpp"
 
-/*
- * External data structures.
- */
+// * External data structures.
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 
 extern struct zone_data *zone_table;
 extern DESCRIPTOR_DATA *descriptor_list;
 
-/*
- * External functions.
- */
+// * External functions.
 void zedit_setup(DESCRIPTOR_DATA * d, int room_num);
 void zedit_save_to_disk(int zone);
 int zedit_new_zone(CHAR_DATA * ch, int new_zone);
@@ -111,7 +107,7 @@ olc_data::olc_data()
 
 }
 
-/*------------------------------------------------------------*/
+//------------------------------------------------------------
 
 /*
  * Exported ACMD do_olc function.
@@ -126,9 +122,7 @@ ACMD(do_olc)
 	bool lock = 0, unlock = 0;
 	DESCRIPTOR_DATA *d;
 
-	/*
-	 * No screwing around as a mobile.
-	 */
+	// * No screwing around as a mobile.
 	if (IS_NPC(ch))
 		return;
 
@@ -138,11 +132,9 @@ ACMD(do_olc)
 		return;
 	}
 
-	/*
-	 * Parse any arguments.
-	 */
+	// * Parse any arguments.
 	two_arguments(argument, buf1, buf2);
-	if (!*buf1)  		/* No argument given. */
+	if (!*buf1)  		// No argument given.
 	{
 		switch (subcmd)
 		{
@@ -201,15 +193,11 @@ ACMD(do_olc)
 			return;
 		}
 	}
-	/*
-	 * If a numeric argument was given, get it.
-	 */
+	// * If a numeric argument was given, get it.
 	if (number == -1)
 		number = atoi(buf1);
 
-	/*
-	 * Check that whatever it is isn't already being edited.
-	 */
+	// * Check that whatever it is isn't already being edited.
 	for (d = descriptor_list; d; d = d->next)
 		if (d->connected == olc_scmd_info[subcmd].con_type)
 			if (d->olc && OLC_NUM(d) == number)
@@ -228,14 +216,10 @@ ACMD(do_olc)
 		return;
 	}
 
-	/*
-	 * Give descriptor an OLC struct.
-	 */
+	// * Give descriptor an OLC struct.
 	d->olc = new olc_data;
 
-	/*
-	 * Find the zone.
-	 */
+	// * Find the zone.
 	if ((OLC_ZNUM(d) = real_zone(number)) == -1)
 	{
 		send_to_char("Звыняйтэ, такойи зоны нэмае.\r\n", ch);
@@ -273,9 +257,7 @@ ACMD(do_olc)
 		return;
 	}
 
-	/*
-	 * Everyone but IMPLs can only edit zones they have been assigned.
-	 */
+	// * Everyone but IMPLs can only edit zones they have been assigned.
 	if (GET_OLC_ZONE(ch) && (zone_table[OLC_ZNUM(d)].number != GET_OLC_ZONE(ch)))
 	{
 		send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
@@ -337,9 +319,7 @@ ACMD(do_olc)
 	}
 	OLC_NUM(d) = number;
 
-	/*
-	 * Steal player's descriptor start up subcommands.
-	 */
+	// * Steal player's descriptor start up subcommands.
 	switch (subcmd)
 	{
 	case SCMD_OLC_TRIGEDIT:
@@ -395,9 +375,9 @@ ACMD(do_olc)
 	SET_BIT(PLR_FLAGS(ch, PLR_WRITING), PLR_WRITING);
 }
 
-/*------------------------------------------------------------*\
- Internal utilities
-\*------------------------------------------------------------*/
+// ------------------------------------------------------------
+// Internal utilities
+// ------------------------------------------------------------
 
 void olc_saveinfo(CHAR_DATA * ch)
 {
@@ -434,21 +414,16 @@ counter,(zone_table[counter].number * 100), zone_table[counter].top);
  }
 */
 
-/*------------------------------------------------------------*\
- Exported utilities
-\*------------------------------------------------------------*/
+// ------------------------------------------------------------
+// Exported utilities
+// ------------------------------------------------------------
 
-/*
- * Add an entry to the 'to be saved' list.
- */
-
+// * Add an entry to the 'to be saved' list.
 void olc_add_to_save_list(int zone, byte type)
 {
 	struct olc_save_info *lnew;
 
-	/*
-	 * Return if it's already in the list.
-	 */
+	// * Return if it's already in the list.
 	for (lnew = olc_save_list; lnew; lnew = lnew->next)
 		if ((lnew->zone == zone) && (lnew->type == type))
 			return;
@@ -460,13 +435,7 @@ void olc_add_to_save_list(int zone, byte type)
 	olc_save_list = lnew;
 }
 
-
-
-
-/*
- * Remove an entry from the 'to be saved' list.
- */
-
+// * Remove an entry from the 'to be saved' list.
 void olc_remove_from_save_list(int zone, byte type)
 {
 	struct olc_save_info **entry;
@@ -480,14 +449,12 @@ void olc_remove_from_save_list(int zone, byte type)
 			free(temp);
 			return;
 		}
-
 }
 
 /*
 * Set the colour string pointers for that which this char will
 * see at color level NRM.  Changing the entries here will change
-* the colour scheme throughout the OLC.
-*/
+* the colour scheme throughout the OLC. */
 void get_char_cols(CHAR_DATA * ch)
 {
 	nrm = CCNRM(ch, C_NRM);
@@ -524,7 +491,6 @@ void strip_string(char *buffer)
  * attatched to a descriptor, sets all flags back to how they
  * should be.
  */
-
 void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 {
 	if (d->olc)
@@ -560,7 +526,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			case CLEANUP_STRUCTS:
 				delete OLC_ROOM(d);	// удаляет только оболочку
 				break;
-			default:	/* The caller has screwed up. */
+			default:	// The caller has screwed up.
 				break;
 			}
 		}
@@ -573,7 +539,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 				medit_mobile_free(OLC_MOB(d));	// удаляет все содержимое
 				delete OLC_MOB(d);	// удаляет только оболочку
 				break;
-			default:	/* The caller has screwed up. */
+			default:	// The caller has screwed up.
 				break;
 			}
 		}
@@ -586,7 +552,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 				oedit_object_free(OLC_OBJ(d));	// удаляет все содержимое
 				delete OLC_OBJ(d);	// удаляет только оболочку
 				break;
-			default:	/* The caller has screwed up. */
+			default:	// The caller has screwed up.
 				break;
 			}
 		}
@@ -599,14 +565,10 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			free(OLC_ZONE(d));
 		}
 
-		/*
-		 * Check for a shop.
-		 */
+		// Check for a shop.
 		if (OLC_SHOP(d))
 		{
-			/*
-			 * free_shop doesn't perform sanity checks, we must be careful here.
-			 */
+			// * free_shop doesn't perform sanity checks, we must be careful here.
 			switch (cleanup_type)
 			{
 			case CLEANUP_ALL:
@@ -615,14 +577,12 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			case CLEANUP_STRUCTS:
 				free(OLC_SHOP(d));
 				break;
-			default:	/* The caller has screwed up. */
+			default:	// The caller has screwed up.
 				break;
 			}
 		}
 
-		/*
-		 * Restore descriptor playing status.
-		 */
+		// Restore descriptor playing status.
 		if (d->character)
 		{
 			REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);

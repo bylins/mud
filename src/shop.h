@@ -29,30 +29,30 @@ struct shop_buy_data
 
 struct shop_data
 {
-	room_vnum vnum;		/* Virtual number of this shop         */
-	obj_vnum *producing;	/* Which item to produce (virtual)      */
-	float profit_buy;	/* Factor to multiply cost with         */
-	float profit_sell;	/* Factor to multiply cost with         */
-	float profit_change;	/* Factor to multiple cost with     */
-	struct shop_buy_data *type;	/* Which items to trade                        */
-	struct shop_buy_data *change;	/* Which items to change           */
-	char *no_such_item1;	/* Message if keeper hasn't got an item */
-	char *no_such_item2;	/* Message if player hasn't got an item */
-	char *missing_cash1;	/* Message if keeper hasn't got cash    */
-	char *missing_cash2;	/* Message if player hasn't got cash    */
-	char *do_not_buy;	/* If keeper dosn't buy such things     */
-	char *message_buy;	/* Message when player buys item        */
-	char *message_sell;	/* Message when player sells item       */
-	int temper1;		/* How does keeper react if no money */
-	bitvector_t bitvector;	/* Can attack? Use bank? Cast here?     */
-	mob_rnum keeper;	/* The mobile who owns the shop (rnum) */
-	int with_who;		/* Who does the shop trade with? */
-	room_rnum *in_room;	/* Where is the shop?                     */
-	int open1, open2;	/* When does the shop open?               */
-	int close1, close2;	/* When does the shop close?      */
-	int bankAccount;	/* Store all gold over 15000 (disabled) */
-	int lastsort;		/* How many items are sorted in inven?      */
-	SPECIAL(*func);	/* Secondary spec_proc for shopkeeper       */
+	room_vnum vnum;		// Virtual number of this shop         //
+	obj_vnum *producing;	// Which item to produce (virtual)      //
+	float profit_buy;	// Factor to multiply cost with         //
+	float profit_sell;	// Factor to multiply cost with         //
+	float profit_change;	// Factor to multiple cost with     //
+	struct shop_buy_data *type;	// Which items to trade                        //
+	struct shop_buy_data *change;	// Which items to change           //
+	char *no_such_item1;	// Message if keeper hasn't got an item //
+	char *no_such_item2;	// Message if player hasn't got an item //
+	char *missing_cash1;	// Message if keeper hasn't got cash    //
+	char *missing_cash2;	// Message if player hasn't got cash    //
+	char *do_not_buy;	// If keeper dosn't buy such things     //
+	char *message_buy;	// Message when player buys item        //
+	char *message_sell;	// Message when player sells item       //
+	int temper1;		// How does keeper react if no money //
+	bitvector_t bitvector;	// Can attack? Use bank? Cast here?     //
+	mob_rnum keeper;	// The mobile who owns the shop (rnum) //
+	int with_who;		// Who does the shop trade with? //
+	room_rnum *in_room;	// Where is the shop?                     //
+	int open1, open2;	// When does the shop open?               //
+	int close1, close2;	// When does the shop close?      //
+	int bankAccount;	// Store all gold over 15000 (disabled) //
+	int lastsort;		// How many items are sorted in inven?      //
+	SPECIAL(*func);	// Secondary spec_proc for shopkeeper       //
 };
 
 #define MODE_TRADE        0
@@ -62,18 +62,18 @@ struct shop_data
 #define OPER_CHANGE_VALUE 0
 #define OPER_CHANGE_DONE  1
 
-#define MAX_TRADE	    5	/* List maximums for compatibility      */
-#define MAX_PROD	    5	/*      with shops before v3.0          */
-#define VERSION3_TAG	"v3.0"	/* The file has v3.0 shops in it!       */
-#define MAX_SHOP_OBJ	100	/* "Soft" maximum for list maximums     */
+#define MAX_TRADE	    5	// List maximums for compatibility      //
+#define MAX_PROD	    5	//      with shops before v3.0          //
+#define VERSION3_TAG	"v3.0"	// The file has v3.0 shops in it!       //
+#define MAX_SHOP_OBJ	100	// "Soft" maximum for list maximums     //
 
 
-/* Pretty general macros that could be used elsewhere */
+// Pretty general macros that could be used elsewhere //
 #define GET_OBJ_NUM(obj)	(obj->item_number)
 #define END_OF(buffer)		((buffer) + strlen((buffer)))
 
 
-/* Possible states for objects trying to be sold */
+// Possible states for objects trying to be sold //
 #define OBJECT_DEAD		0
 #define OBJECT_NOTOK	1
 #define OBJECT_OK		2
@@ -81,13 +81,13 @@ struct shop_data
 #define OBJECT_NOTEMPTY 4
 
 
-/* Types of lists to read */
+// Types of lists to read //
 #define LIST_PRODUCE		0
 #define LIST_TRADE		1
 #define LIST_ROOM		2
 
 
-/* Whom will we not trade with (bitvector for SHOP_TRADE_WITH()) */
+// Whom will we not trade with (bitvector for SHOP_TRADE_WITH()) //
 #define TRADE_NOMONO		(1 << 0)
 #define TRADE_NOPOLY		(1 << 1)
 #define TRADE_NONEUTRAL		(1 << 2)
@@ -114,7 +114,7 @@ struct stack_data
 #define S_LEN(stack)		((stack)->len)
 
 
-/* Which expression type we are now parsing */
+// Which expression type we are now parsing //
 #define OPER_OPEN_PAREN		0
 #define OPER_CLOSE_PAREN	1
 #define OPER_OR			2

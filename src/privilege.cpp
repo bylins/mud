@@ -152,9 +152,7 @@ void insert_command(const std::string &command, int fill_mode, int other_flags)
 	}
 }
 
-/**
-* Добавление иммам и демигодам списка команд по умолчанию из групп default и default_demigod.
-*/
+// * Добавление иммам и демигодам списка команд по умолчанию из групп default и default_demigod.
 void insert_default_command(long uid)
 {
 	std::map<std::string, std::string>::const_iterator it;
@@ -212,9 +210,7 @@ void parse_command_line(const std::string &commands, int other_flags)
 	}
 }
 
-/**
-* Лоад и релоад файла привилегий (reload privilege) с последующим проставлением блокнотов иммам.
-*/
+// * Лоад и релоад файла привилегий (reload privilege) с последующим проставлением блокнотов иммам.
 void load()
 {
 	std::ifstream file(PRIVILEGE_FILE);
@@ -291,9 +287,7 @@ bool god_list_check(const std::string &name, long unique)
 	return 0;
 }
 
-/**
-* Создание и лоад/релоад блокнотов иммам.
-*/
+// * Создание и лоад/релоад блокнотов иммам.
 void load_god_boards()
 {
 	Board::clear_god_boards();

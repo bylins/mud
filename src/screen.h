@@ -39,7 +39,7 @@
 
 #define KNUL  ""
 
-/* conditional color.  pass it a pointer to a char_data and a color level. */
+// conditional color.  pass it a pointer to a char_data and a color level.
 #define C_OFF	0
 #define C_SPR	1
 #define C_NRM	2

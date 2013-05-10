@@ -45,7 +45,7 @@ using std::bitset;
  * You are supposed to compare this with the macro CIRCLEMUD_VERSION()
  * in utils.h.  See there for usage.
  */
-#define _CIRCLEMUD   0x030010	/* Major/Minor/Patchlevel - MMmmPP */
+#define _CIRCLEMUD   0x030010	// Major/Minor/Patchlevel - MMmmPP
 
 /*
  * If you want equipment to be automatically equipped to the same place
@@ -55,14 +55,12 @@ using std::bitset;
  * for CircleMUD 3.0 to be complete but we refuse to break binary file
  * compatibility.
  */
-#define USE_AUTOEQ   1		/* TRUE/FALSE aren't defined yet. */
+#define USE_AUTOEQ   1		// TRUE/FALSE aren't defined yet.
 
 #define MAX_DEST         50
 
 
-/*
- * Structure types.
- */
+// * Structure types.
 /*
 typedef struct area_data      AREA_DATA;
 typedef struct ban_data    BAN_DATA;
@@ -83,7 +81,7 @@ typedef struct reset_data     RESET_DATA;
 
 typedef struct weather_data      WEATHER_DATA;*/
 
-/* done */
+// done
 typedef struct flag_data FLAG_DATA;
 typedef struct shop_data SHOP_DATA;
 typedef struct room_data ROOM_DATA;
@@ -100,19 +98,19 @@ typedef class Character CHAR_DATA;
 typedef struct obj_data OBJ_DATA;
 typedef struct trig_data TRIG_DATA;
 
-/* preamble *************************************************************/
+// preamble ************************************************************
 
-#define NOHOUSE    -1		/* nil reference for non house  */
-#define NOWHERE    0		/* nil reference for room-database  */
-#define NOTHING      -1		/* nil reference for objects     */
-#define NOBODY    -1		/* nil reference for mobiles     */
+#define NOHOUSE    -1		// nil reference for non house
+#define NOWHERE    0		// nil reference for room-database
+#define NOTHING      -1		// nil reference for objects
+#define NOBODY    -1		// nil reference for mobiles
 
 #define SPECIAL(name) \
    int (name)(CHAR_DATA *ch, void *me, int cmd, char *argument)
 
-/* misc editor defines **************************************************/
+// misc editor defines *************************************************
 
-/* format modes for format_text */
+// format modes for format_text
 #define FORMAT_INDENT      (1 << 0)
 
 #define KT_ALT        1
@@ -123,11 +121,11 @@ typedef struct trig_data TRIG_DATA;
 #define KT_LAST       6
 #define KT_SELECTMENU 255
 
-/* room-related defines *************************************************/
+// room-related defines ************************************************
 
 #define HOLES_TIME 1
 
-/* The cardinal directions: used as index to room_data.dir_option[] */
+// The cardinal directions: used as index to room_data.dir_option[]
 #define NORTH          0
 #define EAST           1
 #define SOUTH          2
@@ -136,24 +134,24 @@ typedef struct trig_data TRIG_DATA;
 #define DOWN           5
 
 
-/* Room flags: used in room_data.room_flags */
-/* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
-#define ROOM_DARK    (1 << 0)	/* Dark         */
-#define ROOM_DEATH      (1 << 1)	/* Death trap      */
-#define ROOM_NOMOB      (1 << 2)	/* MOBs not allowed      */
-#define ROOM_INDOORS    (1 << 3)	/* Indoors         */
-#define ROOM_PEACEFUL      (1 << 4)	/* Violence not allowed  */
-#define ROOM_SOUNDPROOF    (1 << 5)	/* Shouts, gossip blocked   */
-#define ROOM_NOTRACK    (1 << 6)	/* Track won't go through   */
-#define ROOM_NOMAGIC    (1 << 7)	/* Magic not allowed     */
-#define ROOM_TUNNEL         (1 << 8)	/* room for only 1 pers */
-#define ROOM_NOTELEPORTIN   (1 << 9)	/* В комнату не попасть телепортацией */
-#define ROOM_GODROOM    (1 << 10)	/* LVL_GOD+ only allowed */
-#define ROOM_HOUSE          (1 << 11)	/* (R) Room is a house  */
-#define ROOM_HOUSE_CRASH   (1 << 12)	/* (R) House needs saving   */
-#define ROOM_ATRIUM         (1 << 13)	/* (R) The door to a house */
-#define ROOM_OLC         (1 << 14)	/* (R) Modifyable/!compress   */
-#define ROOM_BFS_MARK      (1 << 15)	/* (R) breath-first srch mrk   */
+// Room flags: used in room_data.room_flags //
+// WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
+#define ROOM_DARK    (1 << 0)	// Dark         //
+#define ROOM_DEATH      (1 << 1)	// Death trap      //
+#define ROOM_NOMOB      (1 << 2)	// MOBs not allowed      //
+#define ROOM_INDOORS    (1 << 3)	// Indoors         //
+#define ROOM_PEACEFUL      (1 << 4)	// Violence not allowed  //
+#define ROOM_SOUNDPROOF    (1 << 5)	// Shouts, gossip blocked   //
+#define ROOM_NOTRACK    (1 << 6)	// Track won't go through   //
+#define ROOM_NOMAGIC    (1 << 7)	// Magic not allowed     //
+#define ROOM_TUNNEL         (1 << 8)	// room for only 1 pers //
+#define ROOM_NOTELEPORTIN   (1 << 9)	// В комнату не попасть телепортацией //
+#define ROOM_GODROOM    (1 << 10)	// LVL_GOD+ only allowed //
+#define ROOM_HOUSE          (1 << 11)	// (R) Room is a house  //
+#define ROOM_HOUSE_CRASH   (1 << 12)	// (R) House needs saving   //
+#define ROOM_ATRIUM         (1 << 13)	// (R) The door to a house //
+#define ROOM_OLC         (1 << 14)	// (R) Modifyable/!compress   //
+#define ROOM_BFS_MARK      (1 << 15)	// (R) breath-first srch mrk   //
 #define ROOM_MAGE           (1 << 16)
 #define ROOM_CLERIC         (1 << 17)
 #define ROOM_THIEF          (1 << 18)
@@ -170,7 +168,7 @@ typedef struct trig_data TRIG_DATA;
 #define ROOM_ARENA          (1 << 29)
 
 #define ROOM_NOSUMMON       (INT_ONE | (1 << 0))
-#define ROOM_NOTELEPORTOUT  (INT_ONE | (1 << 1))	/* Из комнаты не выбраться телепортацией */
+#define ROOM_NOTELEPORTOUT  (INT_ONE | (1 << 1))	// Из комнаты не выбраться телепортацией //
 #define ROOM_NOHORSE        (INT_ONE | (1 << 2))
 #define ROOM_NOWEATHER      (INT_ONE | (1 << 3))
 #define ROOM_SLOWDEATH      (INT_ONE | (1 << 4))
@@ -185,17 +183,17 @@ typedef struct trig_data TRIG_DATA;
 #define ROOM_VIKINGI        (INT_TWO|(1<<2))
 #define ROOM_STEPNYAKI      (INT_TWO|(1<<3))
 
-/* Флаги комнатных аффектов НЕ сохраняются в файлах и возникают только от заклов */
-#define AFF_ROOM_LIGHT       (1 << 0) /* Аффект освещения комнаты  - SPELL_ROOM_LIGHT */
-#define AFF_ROOM_FOG         (2 << 0) /* Комната затуманена для SPELL_POISONED_FOG */
-#define AFF_ROOM_RUNE_LABEL	 (4 << 0) /* Комната помечена SPELL_MAGIC_LABEL */
-#define AFF_ROOM_FORBIDDEN	 (8 << 0) /* Комната помечена SPELL_FORBIDDEN */
+// Флаги комнатных аффектов НЕ сохраняются в файлах и возникают только от заклов //
+#define AFF_ROOM_LIGHT       (1 << 0) // Аффект освещения комнаты  - SPELL_ROOM_LIGHT //
+#define AFF_ROOM_FOG         (2 << 0) // Комната затуманена для SPELL_POISONED_FOG //
+#define AFF_ROOM_RUNE_LABEL	 (4 << 0) // Комната помечена SPELL_MAGIC_LABEL //
+#define AFF_ROOM_FORBIDDEN	 (8 << 0) // Комната помечена SPELL_FORBIDDEN //
 
-/* Exit info: used in room_data.dir_option.exit_info */
-#define EX_ISDOOR    (1 << 0)	/* Exit is a door     */
-#define EX_CLOSED    (1 << 1)	/* The door is closed */
-#define EX_LOCKED    (1 << 2)	/* The door is locked */
-#define EX_PICKPROOF    (1 << 3)	/* Lock can't be picked  */
+// Exit info: used in room_data.dir_option.exit_info //
+#define EX_ISDOOR    (1 << 0)	// Exit is a door     //
+#define EX_CLOSED    (1 << 1)	// The door is closed //
+#define EX_LOCKED    (1 << 2)	// The door is locked //
+#define EX_PICKPROOF    (1 << 3)	// Lock can't be picked  //
 #define EX_HIDDEN       (1 << 4)
 #define EX_BROKEN       (1 << 5) //Polud замок двери сломан
 
@@ -204,24 +202,24 @@ typedef struct trig_data TRIG_DATA;
 #define AF_PULSEDEC  (1 << 2)
 #define AF_SAME_TIME (1 << 3) // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
 
-/* Sector types: used in room_data.sector_type */
-#define SECT_INSIDE          0	/* Indoors        */
-#define SECT_CITY            1	/* In a city         */
-#define SECT_FIELD           2	/* In a field     */
-#define SECT_FOREST          3	/* In a forest    */
-#define SECT_HILLS           4	/* In the hills      */
-#define SECT_MOUNTAIN        5	/* On a mountain     */
-#define SECT_WATER_SWIM      6	/* Swimmable water      */
-#define SECT_WATER_NOSWIM    7	/* Water - need a boat  */
-#define SECT_FLYING          8	/* Wheee!         */
-#define SECT_UNDERWATER      9	/* Underwater     */
+// Sector types: used in room_data.sector_type //
+#define SECT_INSIDE          0	// Indoors        //
+#define SECT_CITY            1	// In a city         //
+#define SECT_FIELD           2	// In a field     //
+#define SECT_FOREST          3	// In a forest    //
+#define SECT_HILLS           4	// In the hills      //
+#define SECT_MOUNTAIN        5	// On a mountain     //
+#define SECT_WATER_SWIM      6	// Swimmable water      //
+#define SECT_WATER_NOSWIM    7	// Water - need a boat  //
+#define SECT_FLYING          8	// Wheee!         //
+#define SECT_UNDERWATER      9	// Underwater     //
 #define SECT_SECRET          10
 #define SECT_STONEROAD       11
 #define SECT_ROAD            12
 #define SECT_WILDROAD        13
 // надо не забывать менять NUM_ROOM_SECTORS в olc.h
 
-/* Added values for weather changes */
+// Added values for weather changes //
 #define SECT_FIELD_SNOW      20
 #define SECT_FIELD_RAIN      21
 #define SECT_FOREST_SNOW     22
@@ -249,10 +247,10 @@ typedef struct trig_data TRIG_DATA;
 
 #define MAX_REMORT            50
 
-/* char and mob-related defines *****************************************/
+// char and mob-related defines ***************************************
 
-#define NUM_CLASSES    14	/* This must be the number of classes!! */
-/* PC classes */
+#define NUM_CLASSES    14	// This must be the number of classes!! //
+// PC classes //
 #define CLASS_UNDEFINED     -1
 #define CLASS_CLERIC         0
 #define CLASS_BATTLEMAGE     1
@@ -289,22 +287,20 @@ typedef struct trig_data TRIG_DATA;
 #define MASK_MAGES        (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER)
 #define MASK_CASTER       (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER | MASK_CLERIC | MASK_DRUID)
 
-/* PC religions */
+// PC religions //
 #define RELIGION_POLY    0
 #define RELIGION_MONO    1
 
 #define MASK_RELIGION_POLY        (1 << RELIGION_POLY)
 #define MASK_RELIGION_MONO        (1 << RELIGION_MONO)
 
-/* PC races */
-/*
-* Все расы персонажей-игроков теперь описываются в playerraces.xml
-*/
+// PC races //
+// * Все расы персонажей-игроков теперь описываются в playerraces.xml
 
-/*PC Kin*/
+// PC Kin
 #define NUM_KIN            3
 
-/* NPC classes */
+// NPC classes
 #define CLASS_BASIC_NPC    100
 //#define CLASS_UNDEAD       101 к классам не относится, перенесено в расы (типы) мобов
 //#define CLASS_HUMAN        102
@@ -314,7 +310,7 @@ typedef struct trig_data TRIG_DATA;
 #define CLASS_NPC_BATLEMAGE 106
 #define CLASS_LAST_NPC     107
 
-/* NPC races */
+// NPC races
 #define NPC_RACE_BASIC			100
 #define NPC_RACE_HUMAN			101
 #define NPC_RACE_HUMAN_ANIMAL	102
@@ -332,7 +328,7 @@ typedef struct trig_data TRIG_DATA;
 #define NPC_RACE_MAGIC_CREATURE	114
 #define NPC_RACE_LAST			115
 
-/* Sex */
+// Sex
 #define SEX_NEUTRAL         0
 #define SEX_MALE            1
 #define SEX_FEMALE          2
@@ -345,70 +341,70 @@ typedef struct trig_data TRIG_DATA;
 #define MASK_SEX_FEMALE   (1 << SEX_FEMALE)
 #define MASK_SEX_POLY     (1 << SEX_POLY)
 
-/* GODs FLAGS */
+// GODs FLAGS
 #define GF_GODSLIKE   (1 << 0)
 #define GF_GODSCURSE  (1 << 1)
 #define GF_HIGHGOD    (1 << 2)
 #define GF_REMORT     (1 << 3)
-#define GF_DEMIGOD    (1 << 4)	/* Морталы с привилегиями богов */
-#define GF_PERSLOG    (1 << 5)	/* Ведением отдельного лога команд персонажа */
+#define GF_DEMIGOD    (1 << 4)	// Морталы с привилегиями богов //
+#define GF_PERSLOG    (1 << 5)	// Ведением отдельного лога команд персонажа //
 
-/* Positions */
-#define POS_DEAD       0	/* dead        */
-#define POS_MORTALLYW  1	/* mortally wounded  */
-#define POS_INCAP      2	/* incapacitated  */
-#define POS_STUNNED    3	/* stunned     */
-#define POS_SLEEPING   4	/* sleeping    */
-#define POS_RESTING    5	/* resting     */
-#define POS_SITTING    6	/* sitting     */
-#define POS_FIGHTING   7	/* fighting    */
-#define POS_STANDING   8	/* standing    */
+// Positions
+#define POS_DEAD       0	// dead        //
+#define POS_MORTALLYW  1	// mortally wounded  //
+#define POS_INCAP      2	// incapacitated  //
+#define POS_STUNNED    3	// stunned     //
+#define POS_SLEEPING   4	// sleeping    //
+#define POS_RESTING    5	// resting     //
+#define POS_SITTING    6	// sitting     //
+#define POS_FIGHTING   7	// fighting    //
+#define POS_STANDING   8	// standing    //
 
 
-/* Player flags: used by char_data.char_specials.act */
-#define PLR_KILLER	(1 << 0)	/* Player is a player-killer     */
-#define PLR_THIEF	(1 << 1)	/* Player is a player-thief      */
-#define PLR_FROZEN	(1 << 2)	/* Player is frozen        */
-#define PLR_DONTSET	(1 << 3)	/* Don't EVER set (ISNPC bit)  */
-#define PLR_WRITING	(1 << 4)	/* Player writing (board/mail/olc)  */
-#define PLR_MAILING	(1 << 5)	/* Player is writing mail     */
-#define PLR_CRASH	(1 << 6)	/* Player needs to be crash-saved   */
-#define PLR_SITEOK	(1 << 7)	/* Player has been site-cleared  */
-#define PLR_MUTE	(1 << 8)	/* Player not allowed to shout/goss/auct  */
-#define PLR_NOTITLE	(1 << 9)	/* Player not allowed to set title  */
-#define PLR_DELETED	(1 << 10)	/* Player deleted - space reusable  */
-#define PLR_LOADROOM	(1 << 11)	/* Player uses nonstandard loadroom  (не используется) */
+// Player flags: used by char_data.char_specials.act
+#define PLR_KILLER	(1 << 0)	// Player is a player-killer     //
+#define PLR_THIEF	(1 << 1)	// Player is a player-thief      //
+#define PLR_FROZEN	(1 << 2)	// Player is frozen        //
+#define PLR_DONTSET	(1 << 3)	// Don't EVER set (ISNPC bit)  //
+#define PLR_WRITING	(1 << 4)	// Player writing (board/mail/olc)  //
+#define PLR_MAILING	(1 << 5)	// Player is writing mail     //
+#define PLR_CRASH	(1 << 6)	// Player needs to be crash-saved   //
+#define PLR_SITEOK	(1 << 7)	// Player has been site-cleared  //
+#define PLR_MUTE	(1 << 8)	// Player not allowed to shout/goss/auct  //
+#define PLR_NOTITLE	(1 << 9)	// Player not allowed to set title  //
+#define PLR_DELETED	(1 << 10)	// Player deleted - space reusable  //
+#define PLR_LOADROOM	(1 << 11)	// Player uses nonstandard loadroom  (не используется) //
 // свободно
-#define PLR_NODELETE	(1 << 13)	/* Player shouldn't be deleted */
-#define PLR_INVSTART	(1 << 14)	/* Player should enter game wizinvis */
-#define PLR_CRYO	(1 << 15)	/* Player is cryo-saved (purge prog)   */
-#define PLR_HELLED	(1 << 16)	/* Player is in Hell */
-#define PLR_NAMED	(1 << 17)	/* Player is in Names Room */
+#define PLR_NODELETE	(1 << 13)	// Player shouldn't be deleted //
+#define PLR_INVSTART	(1 << 14)	// Player should enter game wizinvis //
+#define PLR_CRYO	(1 << 15)	// Player is cryo-saved (purge prog)   //
+#define PLR_HELLED	(1 << 16)	// Player is in Hell //
+#define PLR_NAMED	(1 << 17)	// Player is in Names Room //
 #define PLR_REGISTERED	(1 << 18)
-#define PLR_DUMB	(1 << 19)	/* Player is not allowed to tell/emote/social */
-#define PLR_DELETE	(1 << 28)	/* RESERVED - ONLY INTERNALLY */
-#define PLR_FREE	(1 << 29)	/* RESERVED - ONLY INTERBALLY */
+#define PLR_DUMB	(1 << 19)	// Player is not allowed to tell/emote/social //
+#define PLR_DELETE	(1 << 28)	// RESERVED - ONLY INTERNALLY //
+#define PLR_FREE	(1 << 29)	// RESERVED - ONLY INTERBALLY //
 
 
-/* Mobile flags: used by char_data.char_specials.act */
-#define MOB_SPEC             (1 << 0)	/* Mob has a callable spec-proc  */
-#define MOB_SENTINEL         (1 << 1)	/* Mob should not move     */
-#define MOB_SCAVENGER        (1 << 2)	/* Mob picks up stuff on the ground */
-#define MOB_ISNPC            (1 << 3)	/* (R) Automatically set on all Mobs   */
-#define MOB_AWARE      (1 << 4)	/* Mob can't be backstabbed      */
-#define MOB_AGGRESSIVE       (1 << 5)	/* Mob hits players in the room  */
-#define MOB_STAY_ZONE        (1 << 6)	/* Mob shouldn't wander out of zone */
-#define MOB_WIMPY            (1 << 7)	/* Mob flees if severely injured */
-#define MOB_AGGR_DAY      (1 << 8)	/* */
-#define MOB_AGGR_NIGHT       (1 << 9)	/* */
-#define MOB_AGGR_FULLMOON    (1 << 10)	/* */
-#define MOB_MEMORY        (1 << 11)	/* remember attackers if attacked   */
-#define MOB_HELPER        (1 << 12)	/* attack PCs fighting other NPCs   */
-#define MOB_NOCHARM       (1 << 13)	/* Mob can't be charmed    */
-#define MOB_NOSUMMON      (1 << 14)	/* Mob can't be summoned      */
-#define MOB_NOSLEEP       (1 << 15)	/* Mob can't be slept      */
-#define MOB_NOBASH        (1 << 16)	/* Mob can't be bashed (e.g. trees) */
-#define MOB_NOBLIND       (1 << 17)	/* Mob can't be blinded    */
+// Mobile flags: used by char_data.char_specials.act
+#define MOB_SPEC             (1 << 0)	// Mob has a callable spec-proc  //
+#define MOB_SENTINEL         (1 << 1)	// Mob should not move     //
+#define MOB_SCAVENGER        (1 << 2)	// Mob picks up stuff on the ground //
+#define MOB_ISNPC            (1 << 3)	// (R) Automatically set on all Mobs   //
+#define MOB_AWARE      (1 << 4)	// Mob can't be backstabbed      //
+#define MOB_AGGRESSIVE       (1 << 5)	// Mob hits players in the room  //
+#define MOB_STAY_ZONE        (1 << 6)	// Mob shouldn't wander out of zone //
+#define MOB_WIMPY            (1 << 7)	// Mob flees if severely injured //
+#define MOB_AGGR_DAY      (1 << 8)	// //
+#define MOB_AGGR_NIGHT       (1 << 9)	// //
+#define MOB_AGGR_FULLMOON    (1 << 10)	// //
+#define MOB_MEMORY        (1 << 11)	// remember attackers if attacked   //
+#define MOB_HELPER        (1 << 12)	// attack PCs fighting other NPCs   //
+#define MOB_NOCHARM       (1 << 13)	// Mob can't be charmed    //
+#define MOB_NOSUMMON      (1 << 14)	// Mob can't be summoned      //
+#define MOB_NOSLEEP       (1 << 15)	// Mob can't be slept      //
+#define MOB_NOBASH        (1 << 16)	// Mob can't be bashed (e.g. trees) //
+#define MOB_NOBLIND       (1 << 17)	// Mob can't be blinded    //
 #define MOB_MOUNTING         (1 << 18)
 #define MOB_NOHOLD           (1 << 19)
 #define MOB_NOSIELENCE       (1 << 20)
@@ -419,8 +415,8 @@ typedef struct trig_data TRIG_DATA;
 #define MOB_CORPSE           (1 << 25)
 #define MOB_LOOTER           (1 << 26)
 #define MOB_PROTECT          (1 << 27)
-#define MOB_DELETE           (1 << 28)	/* RESERVED - ONLY INTERNALLY */
-#define MOB_FREE             (1 << 29)	/* RESERVED - ONLY INTERBALLY */
+#define MOB_DELETE           (1 << 28)	// RESERVED - ONLY INTERNALLY //
+#define MOB_FREE             (1 << 29)	// RESERVED - ONLY INTERBALLY //
 
 #define MOB_SWIMMING         (INT_ONE | (1 << 0))
 #define MOB_FLYING           (INT_ONE | (1 << 1))
@@ -460,7 +456,7 @@ typedef struct trig_data TRIG_DATA;
 #define MOB_OPENDOOR      (INT_TWO | (1 << 10))
 #define MOB_IGNORNOMOB    (INT_TWO | (1 << 11))
 #define MOB_IGNORPEACE    (INT_TWO | (1 << 12))
-#define MOB_RESURRECTED   (INT_TWO | (1 << 13))	/* поднят через !поднять труп! или !оживить труп! Ставится только програмно*/
+#define MOB_RESURRECTED   (INT_TWO | (1 << 13))	// поднят через !поднять труп! или !оживить труп! Ставится только програмно//
 #define MOB_RUSICH         (INT_TWO | (1 << 14))
 #define MOB_VIKING         (INT_TWO | (1 << 15))
 #define MOB_STEPNYAK       (INT_TWO | (1 << 16))
@@ -496,32 +492,32 @@ typedef struct trig_data TRIG_DATA;
 #define NPC_ARMORING      (INT_ONE | (1 << 2))
 #define NPC_USELIGHT      (INT_ONE | (1 << 3))
 
-/* Descriptor flags */
-#define DESC_CANZLIB (1 << 0)	/* Client says compression capable.   */
+// Descriptor flags //
+#define DESC_CANZLIB (1 << 0)	// Client says compression capable.   //
 
-/* Preference flags: used by char_data.player_specials.pref */
-#define PRF_BRIEF       (1 << 0)	/* Room descs won't normally be shown */
-#define PRF_COMPACT     (1 << 1)	/* No extra CRLF pair before prompts  */
-#define PRF_NOHOLLER     (1 << 2)	/* Не слышит команду "орать"   */
-#define PRF_NOTELL       (1 << 3)	/* Не слышит команду "сказать" */
-#define PRF_DISPHP       (1 << 4)	/* Display hit points in prompt   */
-#define PRF_DISPMANA (1 << 5)	/* Display mana points in prompt   */
-#define PRF_DISPMOVE (1 << 6)	/* Display move points in prompt   */
-#define PRF_AUTOEXIT (1 << 7)	/* Display exits in a room      */
-#define PRF_NOHASSLE (1 << 8)	/* Aggr mobs won't attack    */
-#define PRF_SUMMONABLE  (1 << 9)	/* Can be summoned         */
-#define PRF_QUEST         (1 << 10)	/* On quest                       */
-#define PRF_NOREPEAT (1 << 11)	/* No repetition of comm commands  */
-#define PRF_HOLYLIGHT   (1 << 12)	/* Can see in dark        */
-#define PRF_COLOR_1      (1 << 13)	/* Color (low bit)       */
-#define PRF_COLOR_2      (1 << 14)	/* Color (high bit)         */
-#define PRF_NOWIZ     (1 << 15)	/* Can't hear wizline       */
-#define PRF_LOG1      (1 << 16)	/* On-line System Log (low bit)   */
-#define PRF_LOG2      (1 << 17)	/* On-line System Log (high bit)  */
-#define PRF_NOAUCT       (1 << 18)	/* Can't hear auction channel     */
-#define PRF_NOGOSS       (1 << 19)	/* Не слышит команду "болтать" */
-#define PRF_DISPFIGHT   (1 << 20)	/* Видит свое состояние в бою      */
-#define PRF_ROOMFLAGS   (1 << 21)	/* Can see room flags (ROOM_x)  */
+// Preference flags: used by char_data.player_specials.pref //
+#define PRF_BRIEF       (1 << 0)	// Room descs won't normally be shown //
+#define PRF_COMPACT     (1 << 1)	// No extra CRLF pair before prompts  //
+#define PRF_NOHOLLER     (1 << 2)	// Не слышит команду "орать"   //
+#define PRF_NOTELL       (1 << 3)	// Не слышит команду "сказать" //
+#define PRF_DISPHP       (1 << 4)	// Display hit points in prompt   //
+#define PRF_DISPMANA (1 << 5)	// Display mana points in prompt   //
+#define PRF_DISPMOVE (1 << 6)	// Display move points in prompt   //
+#define PRF_AUTOEXIT (1 << 7)	// Display exits in a room      //
+#define PRF_NOHASSLE (1 << 8)	// Aggr mobs won't attack    //
+#define PRF_SUMMONABLE  (1 << 9)	// Can be summoned         //
+#define PRF_QUEST         (1 << 10)	// On quest                       //
+#define PRF_NOREPEAT (1 << 11)	// No repetition of comm commands  //
+#define PRF_HOLYLIGHT   (1 << 12)	// Can see in dark        //
+#define PRF_COLOR_1      (1 << 13)	// Color (low bit)       //
+#define PRF_COLOR_2      (1 << 14)	// Color (high bit)         //
+#define PRF_NOWIZ     (1 << 15)	// Can't hear wizline       //
+#define PRF_LOG1      (1 << 16)	// On-line System Log (low bit)   //
+#define PRF_LOG2      (1 << 17)	// On-line System Log (high bit)  //
+#define PRF_NOAUCT       (1 << 18)	// Can't hear auction channel     //
+#define PRF_NOGOSS       (1 << 19)	// Не слышит команду "болтать" //
+#define PRF_DISPFIGHT   (1 << 20)	// Видит свое состояние в бою      //
+#define PRF_ROOMFLAGS   (1 << 21)	// Can see room flags (ROOM_x)  //
 #define PRF_DISPEXP     (1 << 22)
 #define PRF_DISPEXITS   (1 << 23)
 #define PRF_DISPLEVEL   (1 << 24)
@@ -530,24 +526,24 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_PUNCTUAL    (1 << 27)
 #define PRF_AWAKE       (1 << 28)
 #define PRF_CODERINFO   (1 << 29)
-#define PRF_AUTOZLIB (1 << 30)	/* Automatically do compression.   */
+#define PRF_AUTOZLIB (1 << 30)	// Automatically do compression.   //
 
 #define PRF_AUTOMEM     (INT_ONE | 1 << 0)
-#define PRF_NOSHOUT     (INT_ONE | 1 << 1)	/* Не слышит команду "кричать"  */
-#define PRF_GOAHEAD     (INT_ONE | 1 << 2)	/* Добавление IAC GA после промпта */
-#define PRF_SHOWGROUP   (INT_ONE | 1 << 3)	/* Показ полного состава группы */
-#define PRF_AUTOASSIST  (INT_ONE | 1 << 4)	/* Автоматическое вступление в бой */
-#define PRF_AUTOLOOT    (INT_ONE | 1 << 5)	/* Autoloot */
-#define PRF_AUTOSPLIT   (INT_ONE | 1 << 6)	/* Autosplit */
-#define PRF_AUTOMONEY   (INT_ONE | 1 << 7)	/* Automoney */
-#define PRF_NOARENA     (INT_ONE | 1 << 8)	/* Не слышит арену */
-#define PRF_NOEXCHANGE  (INT_ONE | 1 << 9)	/* Не слышит базар */
-#define PRF_NOCLONES	(INT_ONE | 1 << 10)	/* Не видит в группе чужих клонов */
-#define PRF_NOINVISTELL	(INT_ONE | 1 << 11)	/* Не хочет, чтобы телял "кто-то" */
-#define PRF_POWERATTACK	(INT_ONE | 1 << 12)	/* мощная атака */
-#define PRF_GREATPOWERATTACK  (INT_ONE | 1 << 13) /* улучшеная мощная атака */
-#define PRF_AIMINGATTACK      (INT_ONE | 1 << 14) /* прицельная атака */
-#define PRF_GREATAIMINGATTACK (INT_ONE | 1 << 15) /* улучшеная прицельная атака */
+#define PRF_NOSHOUT     (INT_ONE | 1 << 1)	// Не слышит команду "кричать"  //
+#define PRF_GOAHEAD     (INT_ONE | 1 << 2)	// Добавление IAC GA после промпта //
+#define PRF_SHOWGROUP   (INT_ONE | 1 << 3)	// Показ полного состава группы //
+#define PRF_AUTOASSIST  (INT_ONE | 1 << 4)	// Автоматическое вступление в бой //
+#define PRF_AUTOLOOT    (INT_ONE | 1 << 5)	// Autoloot //
+#define PRF_AUTOSPLIT   (INT_ONE | 1 << 6)	// Autosplit //
+#define PRF_AUTOMONEY   (INT_ONE | 1 << 7)	// Automoney //
+#define PRF_NOARENA     (INT_ONE | 1 << 8)	// Не слышит арену //
+#define PRF_NOEXCHANGE  (INT_ONE | 1 << 9)	// Не слышит базар //
+#define PRF_NOCLONES	(INT_ONE | 1 << 10)	// Не видит в группе чужих клонов //
+#define PRF_NOINVISTELL	(INT_ONE | 1 << 11)	// Не хочет, чтобы телял "кто-то" //
+#define PRF_POWERATTACK	(INT_ONE | 1 << 12)	// мощная атака //
+#define PRF_GREATPOWERATTACK  (INT_ONE | 1 << 13) // улучшеная мощная атака //
+#define PRF_AIMINGATTACK      (INT_ONE | 1 << 14) // прицельная атака //
+#define PRF_GREATAIMINGATTACK (INT_ONE | 1 << 15) // улучшеная прицельная атака //
 #define PRF_NEWS_MODE   (INT_ONE | 1 << 16) // вариант чтения новостей мада и дружины
 #define PRF_BOARD_MODE  (INT_ONE | 1 << 17) // уведомления о новых мессагах на досках
 #define PRF_DECAY_MODE  (INT_ONE | 1 << 18) // канал хранилища, рассыпание шмота
@@ -566,36 +562,36 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_IGVA_PRONA	(INT_TWO | 1 << 0)  // для стоп-списка оффтоп
 #define PRF_EXECUTOR	(INT_TWO | 1 << 1)  // палач
 
-/* Affect bits: used in char_data.char_specials.saved.affected_by */
-/* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
-#define AFF_BLIND             (1 << 0)	/* (R) Char is blind    */
-#define AFF_INVISIBLE         (1 << 1)	/* Char is invisible    */
-#define AFF_DETECT_ALIGN      (1 << 2)	/* Char is sensitive to align */
-#define AFF_DETECT_INVIS      (1 << 3)	/* Char can see invis chars  */
-#define AFF_DETECT_MAGIC      (1 << 4)	/* Char is sensitive to magic */
-#define AFF_SENSE_LIFE        (1 << 5)	/* Char can sense hidden life */
-#define AFF_WATERWALK         (1 << 6)	/* Char can walk on water  */
-#define AFF_SANCTUARY         (1 << 7)	/* Char protected by sanct.   */
-#define AFF_GROUP             (1 << 8)	/* (R) Char is grouped  */
-#define AFF_CURSE             (1 << 9)	/* Char is cursed    */
-#define AFF_INFRAVISION       (1 << 10)	/* Char can see in dark */
-#define AFF_POISON            (1 << 11)	/* (R) Char is poisoned */
-#define AFF_PROTECT_EVIL      (1 << 12)	/* Char protected from evil  */
-#define AFF_PROTECT_GOOD      (1 << 13)	/* Char protected from good  */
-#define AFF_SLEEP             (1 << 14)	/* (R) Char magically asleep  */
-#define AFF_NOTRACK        (1 << 15)	/* Char can't be tracked   */
-#define AFF_TETHERED       (1 << 16)	/* Room for future expansion  */
-#define AFF_BLESS       (1 << 17)	/* Room for future expansion  */
-#define AFF_SNEAK             (1 << 18)	/* Char can move quietly   */
-#define AFF_HIDE              (1 << 19)	/* Char is hidden    */
-#define AFF_COURAGE           (1 << 20)	/* Room for future expansion  */
-#define AFF_CHARM             (1 << 21)	/* Char is charmed      */
+// Affect bits: used in char_data.char_specials.saved.affected_by //
+// WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
+#define AFF_BLIND             (1 << 0)	// (R) Char is blind    //
+#define AFF_INVISIBLE         (1 << 1)	// Char is invisible    //
+#define AFF_DETECT_ALIGN      (1 << 2)	// Char is sensitive to align //
+#define AFF_DETECT_INVIS      (1 << 3)	// Char can see invis chars  //
+#define AFF_DETECT_MAGIC      (1 << 4)	// Char is sensitive to magic //
+#define AFF_SENSE_LIFE        (1 << 5)	// Char can sense hidden life //
+#define AFF_WATERWALK         (1 << 6)	// Char can walk on water  //
+#define AFF_SANCTUARY         (1 << 7)	// Char protected by sanct.   //
+#define AFF_GROUP             (1 << 8)	// (R) Char is grouped  //
+#define AFF_CURSE             (1 << 9)	// Char is cursed    //
+#define AFF_INFRAVISION       (1 << 10)	// Char can see in dark //
+#define AFF_POISON            (1 << 11)	// (R) Char is poisoned //
+#define AFF_PROTECT_EVIL      (1 << 12)	// Char protected from evil  //
+#define AFF_PROTECT_GOOD      (1 << 13)	// Char protected from good  //
+#define AFF_SLEEP             (1 << 14)	// (R) Char magically asleep  //
+#define AFF_NOTRACK        (1 << 15)	// Char can't be tracked   //
+#define AFF_TETHERED       (1 << 16)	// Room for future expansion  //
+#define AFF_BLESS       (1 << 17)	// Room for future expansion  //
+#define AFF_SNEAK             (1 << 18)	// Char can move quietly   //
+#define AFF_HIDE              (1 << 19)	// Char is hidden    //
+#define AFF_COURAGE           (1 << 20)	// Room for future expansion  //
+#define AFF_CHARM             (1 << 21)	// Char is charmed      //
 #define AFF_HOLD              (1 << 22)
 #define AFF_FLY               (1 << 23)
 #define AFF_SIELENCE          (1 << 24)
 #define AFF_AWARNESS          (1 << 25)
 #define AFF_BLINK             (1 << 26)
-#define AFF_HORSE             (1 << 27)	/* NPC - is horse, PC - is horsed */
+#define AFF_HORSE             (1 << 27)	// NPC - is horse, PC - is horsed //
 #define AFF_NOFLEE            (1 << 28)
 #define AFF_SINGLELIGHT       (1 << 29)
 
@@ -664,32 +660,32 @@ typedef struct trig_data TRIG_DATA;
 #define IGNORE_EMOTE	(1 << 10)
 #define IGNORE_OFFTOP	(1 << 11)
 
-/* Modes of connectedness: used by descriptor_data.state */
-/*ОБЕЗАТЕЛЬНО ДОБАВИТЬ В connected_types[]!!!!*/
-#define CON_PLAYING       0	/* Playing - Nominal state */
-#define CON_CLOSE      1	/* Disconnecting     */
-#define CON_GET_NAME  2		/* By what name ..?     */
-#define CON_NAME_CNFRM   3	/* Did I get that right, x?   */
-#define CON_PASSWORD  4		/* Password:         */
-#define CON_NEWPASSWD    5	/* Give me a password for x   */
-#define CON_CNFPASSWD    6	/* Please retype password: */
-#define CON_QSEX       7	/* Sex?           */
-#define CON_QCLASS        8	/* Class?         */
-#define CON_RMOTD      9	/* PRESS RETURN after MOTD */
-#define CON_MENU       10	/* Your choice: (main menu)   */
-#define CON_EXDESC        11	/* Enter a new description:   */
-#define CON_CHPWD_GETOLD 12	/* Changing passwd: get old   */
-#define CON_CHPWD_GETNEW 13	/* Changing passwd: get new   */
-#define CON_CHPWD_VRFY   14	/* Verify new password     */
-#define CON_DELCNF1       15	/* Delete confirmation 1   */
-#define CON_DELCNF2       16	/* Delete confirmation 2   */
-#define CON_DISCONNECT   17	/* In-game disconnection   */
-#define CON_OEDIT        18	/*. OLC mode - object edit     . */
-#define CON_REDIT        19	/*. OLC mode - room edit       . */
-#define CON_ZEDIT        20	/*. OLC mode - zone info edit  . */
-#define CON_MEDIT        21	/*. OLC mode - mobile edit     . */
-#define CON_SEDIT        22	/*. OLC mode - shop edit       . */
-#define CON_TRIGEDIT     23	/*. OLC mode - trigger edit    . */
+// Modes of connectedness: used by descriptor_data.state //
+//ОБЕЗАТЕЛЬНО ДОБАВИТЬ В connected_types[]!!!!//
+#define CON_PLAYING       0	// Playing - Nominal state //
+#define CON_CLOSE      1	// Disconnecting     //
+#define CON_GET_NAME  2		// By what name ..?     //
+#define CON_NAME_CNFRM   3	// Did I get that right, x?   //
+#define CON_PASSWORD  4		// Password:         //
+#define CON_NEWPASSWD    5	// Give me a password for x   //
+#define CON_CNFPASSWD    6	// Please retype password: //
+#define CON_QSEX       7	// Sex?           //
+#define CON_QCLASS        8	// Class?         //
+#define CON_RMOTD      9	// PRESS RETURN after MOTD //
+#define CON_MENU       10	// Your choice: (main menu)   //
+#define CON_EXDESC        11	// Enter a new description:   //
+#define CON_CHPWD_GETOLD 12	// Changing passwd: get old   //
+#define CON_CHPWD_GETNEW 13	// Changing passwd: get new   //
+#define CON_CHPWD_VRFY   14	// Verify new password     //
+#define CON_DELCNF1       15	// Delete confirmation 1   //
+#define CON_DELCNF2       16	// Delete confirmation 2   //
+#define CON_DISCONNECT   17	// In-game disconnection   //
+#define CON_OEDIT        18	//. OLC mode - object edit     . //
+#define CON_REDIT        19	//. OLC mode - room edit       . //
+#define CON_ZEDIT        20	//. OLC mode - zone info edit  . //
+#define CON_MEDIT        21	//. OLC mode - mobile edit     . //
+#define CON_SEDIT        22	//. OLC mode - shop edit       . //
+#define CON_TRIGEDIT     23	//. OLC mode - trigger edit    . //
 #define CON_NAME2        24
 #define CON_NAME3        25
 #define CON_NAME4        26
@@ -701,7 +697,7 @@ typedef struct trig_data TRIG_DATA;
 #define CON_GET_KEYTABLE 32
 #define CON_GET_EMAIL    33
 #define CON_ROLL_STATS   34
-#define CON_MREDIT       35	/* OLC mode - make recept edit */
+#define CON_MREDIT       35	// OLC mode - make recept edit //
 #define CON_QKIN         36
 #define CON_QCLASSV      37
 #define CON_QCLASSS      38
@@ -722,9 +718,9 @@ typedef struct trig_data TRIG_DATA;
 #define CON_CONSOLE      53 // Интерактивная скриптовая консоль
 // не забываем отражать новые состояния в connected_types -- Krodo
 
-/* Character equipment positions: used as index for char_data.equipment[] */
-/* NOTE: Don't confuse these constants with the ITEM_ bitvectors
-   which control the valid places you can wear a piece of equipment */
+// Character equipment positions: used as index for char_data.equipment[] //
+// NOTE: Don't confuse these constants with the ITEM_ bitvectors
+//       which control the valid places you can wear a piece of equipment
 #define WEAR_LIGHT      0
 #define WEAR_FINGER_R   1
 #define WEAR_FINGER_L   2
@@ -744,40 +740,40 @@ typedef struct trig_data TRIG_DATA;
 #define WEAR_WIELD     16
 #define WEAR_HOLD      17
 #define WEAR_BOTHS     18
-#define NUM_WEARS      19	/* This must be the # of eq positions!! */
+#define NUM_WEARS      19	// This must be the # of eq positions!! //
 
 
-/* object-related defines ********************************************/
+// object-related defines ******************************************* //
 
 
-/* Item types: used by obj_data.obj_flags.type_flag */
-#define ITEM_LIGHT      1	/* Item is a light source  */
-#define ITEM_SCROLL     2	/* Item is a scroll     */
-#define ITEM_WAND       3	/* Item is a wand    */
-#define ITEM_STAFF      4	/* Item is a staff      */
-#define ITEM_WEAPON     5	/* Item is a weapon     */
-#define ITEM_FIREWEAPON 6	/* Unimplemented     */
-#define ITEM_MISSILE    7	/* Unimplemented     */
-#define ITEM_TREASURE   8	/* Item is a treasure, not gold  */
-#define ITEM_ARMOR      9	/* Item is armor     */
-#define ITEM_POTION    10	/* Item is a potion     */
-#define ITEM_WORN      11	/* Unimplemented     */
-#define ITEM_OTHER     12	/* Misc object       */
-#define ITEM_TRASH     13	/* Trash - shopkeeps won't buy   */
-#define ITEM_TRAP      14	/* Unimplemented     */
-#define ITEM_CONTAINER 15	/* Item is a container     */
-#define ITEM_NOTE      16	/* Item is note      */
-#define ITEM_DRINKCON  17	/* Item is a drink container  */
-#define ITEM_KEY       18	/* Item is a key     */
-#define ITEM_FOOD      19	/* Item is food         */
-#define ITEM_MONEY     20	/* Item is money (gold)    */
-#define ITEM_PEN       21	/* Item is a pen     */
-#define ITEM_BOAT      22	/* Item is a boat    */
-#define ITEM_FOUNTAIN  23	/* Item is a fountain      */
-#define ITEM_BOOK      24	/* Item is book */
-#define ITEM_INGRADIENT 25	/* Item is magical ingradient */
-#define ITEM_MING      26	/* Магический ингредиент */
-#define ITEM_MATERIAL  27	/* Материал для крафтовых умений */
+// Item types: used by obj_data.obj_flags.type_flag //
+#define ITEM_LIGHT      1	// Item is a light source  //
+#define ITEM_SCROLL     2	// Item is a scroll     //
+#define ITEM_WAND       3	// Item is a wand    //
+#define ITEM_STAFF      4	// Item is a staff      //
+#define ITEM_WEAPON     5	// Item is a weapon     //
+#define ITEM_FIREWEAPON 6	// Unimplemented     //
+#define ITEM_MISSILE    7	// Unimplemented     //
+#define ITEM_TREASURE   8	// Item is a treasure, not gold  //
+#define ITEM_ARMOR      9	// Item is armor     //
+#define ITEM_POTION    10	// Item is a potion     //
+#define ITEM_WORN      11	// Unimplemented     //
+#define ITEM_OTHER     12	// Misc object       //
+#define ITEM_TRASH     13	// Trash - shopkeeps won't buy   //
+#define ITEM_TRAP      14	// Unimplemented     //
+#define ITEM_CONTAINER 15	// Item is a container     //
+#define ITEM_NOTE      16	// Item is note      //
+#define ITEM_DRINKCON  17	// Item is a drink container  //
+#define ITEM_KEY       18	// Item is a key     //
+#define ITEM_FOOD      19	// Item is food         //
+#define ITEM_MONEY     20	// Item is money (gold)    //
+#define ITEM_PEN       21	// Item is a pen     //
+#define ITEM_BOAT      22	// Item is a boat    //
+#define ITEM_FOUNTAIN  23	// Item is a fountain      //
+#define ITEM_BOOK      24	// Item is book //
+#define ITEM_INGRADIENT 25	// Item is magical ingradient //
+#define ITEM_MING      26	// Магический ингредиент //
+#define ITEM_MATERIAL  27	// Материал для крафтовых умений //
 #define ITEM_BANDAGE   28  	// бинты для перевязки
 #define ITEM_ARMOR_LIGHT  29 	// легкий тип брони
 #define ITEM_ARMOR_MEDIAN 30 	// средний тип брони
@@ -785,48 +781,48 @@ typedef struct trig_data TRIG_DATA;
 #define ITEM_ENCHANT      32	// зачарование предмета
 
 // +newbook.patch (Alisher)
-/* Типы магических книг */
-#define BOOK_SPELL		0	/* Книга заклинания */
-#define BOOK_SKILL		1	/* Книга умения */
-#define BOOK_UPGRD		2	/* Увеличение умения */
-#define BOOK_RECPT		3	/* Книга рецепта */
-#define BOOK_FEAT			4	/* Книга способности (feats) */
+// Типы магических книг //
+#define BOOK_SPELL		0	// Книга заклинания //
+#define BOOK_SKILL		1	// Книга умения //
+#define BOOK_UPGRD		2	// Увеличение умения //
+#define BOOK_RECPT		3	// Книга рецепта //
+#define BOOK_FEAT			4	// Книга способности (feats) //
 // -newbook.patch (Alisher)
 
 
-/* Take/Wear flags: used by obj_data.obj_flags.wear_flags */
-#define ITEM_WEAR_TAKE     (1 << 0)	/* Item can be takes      */
-#define ITEM_WEAR_FINGER   (1 << 1)	/* Can be worn on finger  */
-#define ITEM_WEAR_NECK     (1 << 2)	/* Can be worn around neck   */
-#define ITEM_WEAR_BODY     (1 << 3)	/* Can be worn on body    */
-#define ITEM_WEAR_HEAD     (1 << 4)	/* Can be worn on head    */
-#define ITEM_WEAR_LEGS     (1 << 5)	/* Can be worn on legs */
-#define ITEM_WEAR_FEET     (1 << 6)	/* Can be worn on feet */
-#define ITEM_WEAR_HANDS    (1 << 7)	/* Can be worn on hands   */
-#define ITEM_WEAR_ARMS     (1 << 8)	/* Can be worn on arms */
-#define ITEM_WEAR_SHIELD   (1 << 9)	/* Can be used as a shield   */
-#define ITEM_WEAR_ABOUT    (1 << 10)	/* Can be worn about body    */
-#define ITEM_WEAR_WAIST    (1 << 11)	/* Can be worn around waist  */
-#define ITEM_WEAR_WRIST    (1 << 12)	/* Can be worn on wrist   */
-#define ITEM_WEAR_WIELD    (1 << 13)	/* Can be wielded      */
-#define ITEM_WEAR_HOLD     (1 << 14)	/* Can be held      */
+// Take/Wear flags: used by obj_data.obj_flags.wear_flags //
+#define ITEM_WEAR_TAKE     (1 << 0)	// Item can be takes      //
+#define ITEM_WEAR_FINGER   (1 << 1)	// Can be worn on finger  //
+#define ITEM_WEAR_NECK     (1 << 2)	// Can be worn around neck   //
+#define ITEM_WEAR_BODY     (1 << 3)	// Can be worn on body    //
+#define ITEM_WEAR_HEAD     (1 << 4)	// Can be worn on head    //
+#define ITEM_WEAR_LEGS     (1 << 5)	// Can be worn on legs //
+#define ITEM_WEAR_FEET     (1 << 6)	// Can be worn on feet //
+#define ITEM_WEAR_HANDS    (1 << 7)	// Can be worn on hands   //
+#define ITEM_WEAR_ARMS     (1 << 8)	// Can be worn on arms //
+#define ITEM_WEAR_SHIELD   (1 << 9)	// Can be used as a shield   //
+#define ITEM_WEAR_ABOUT    (1 << 10)	// Can be worn about body    //
+#define ITEM_WEAR_WAIST    (1 << 11)	// Can be worn around waist  //
+#define ITEM_WEAR_WRIST    (1 << 12)	// Can be worn on wrist   //
+#define ITEM_WEAR_WIELD    (1 << 13)	// Can be wielded      //
+#define ITEM_WEAR_HOLD     (1 << 14)	// Can be held      //
 #define ITEM_WEAR_BOTHS     (1 << 15)
 
 
-/* Extra object flags: used by obj_data.obj_flags.extra_flags */
-#define ITEM_GLOW          (1 << 0)	/* Item is glowing      */
-#define ITEM_HUM           (1 << 1)	/* Item is humming      */
-#define ITEM_NORENT        (1 << 2)	/* Item cannot be rented   */
-#define ITEM_NODONATE      (1 << 3)	/* Item cannot be donated  */
-#define ITEM_NOINVIS    (1 << 4)	/* Item cannot be made invis  */
-#define ITEM_INVISIBLE     (1 << 5)	/* Item is invisible    */
-#define ITEM_MAGIC         (1 << 6)	/* Item is magical      */
-#define ITEM_NODROP        (1 << 7)	/* Item is cursed: can't drop */
-#define ITEM_BLESS         (1 << 8)	/* Item is blessed      */
-#define ITEM_NOSELL        (1 << 9)	/* Not usable by good people  */
-#define ITEM_DECAY         (1 << 10)	/* Not usable by evil people  */
-#define ITEM_ZONEDECAY     (1 << 11)	/* Not usable by neutral people  */
-#define ITEM_NODISARM      (1 << 12)	/* Not usable by mages     */
+// Extra object flags: used by obj_data.obj_flags.extra_flags //
+#define ITEM_GLOW          (1 << 0)	// Item is glowing      //
+#define ITEM_HUM           (1 << 1)	// Item is humming      //
+#define ITEM_NORENT        (1 << 2)	// Item cannot be rented   //
+#define ITEM_NODONATE      (1 << 3)	// Item cannot be donated  //
+#define ITEM_NOINVIS    (1 << 4)	// Item cannot be made invis  //
+#define ITEM_INVISIBLE     (1 << 5)	// Item is invisible    //
+#define ITEM_MAGIC         (1 << 6)	// Item is magical      //
+#define ITEM_NODROP        (1 << 7)	// Item is cursed: can't drop //
+#define ITEM_BLESS         (1 << 8)	// Item is blessed      //
+#define ITEM_NOSELL        (1 << 9)	// Not usable by good people  //
+#define ITEM_DECAY         (1 << 10)	// Not usable by evil people  //
+#define ITEM_ZONEDECAY     (1 << 11)	// Not usable by neutral people  //
+#define ITEM_NODISARM      (1 << 12)	// Not usable by mages     //
 #define ITEM_NODECAY       (1 << 13)
 #define ITEM_POISONED      (1 << 14)
 #define ITEM_SHARPEN       (1 << 15)
@@ -842,15 +838,15 @@ typedef struct trig_data TRIG_DATA;
 #define ITEM_FLYING        (1 << 25)
 #define ITEM_THROWING      (1 << 26)
 #define ITEM_TICKTIMER     (1 << 27)
-#define ITEM_FIRE          (1 << 28)	/* ...горит                   */
-#define ITEM_REPOP_DECAY   (1 << 29)	/* рассыпется при репопе зоны */
-#define ITEM_NOLOCATE      (INT_ONE | (1 << 0))	/* нельзя отлокейтить */
-#define ITEM_TIMEDLVL      (INT_ONE | (1 << 1))	/* для маг.предметов уровень уменьшается со временем */
-#define ITEM_NOALTER       (INT_ONE | (1 << 2))	/* свойства предмета не могут быть изменены магией */
-#define ITEM_WITH1SLOT     (INT_ONE | (1 << 3))	/* в предмет можно вплавить 1 камень */
-#define ITEM_WITH2SLOTS    (INT_ONE | (1 << 4))	/* в предмет можно вплавить 2 камня */
-#define ITEM_WITH3SLOTS    (INT_ONE | (1 << 5))	/* в предмет можно вплавить 3 камня (овер) */
-#define ITEM_SETSTUFF      (INT_ONE | (1 << 6)) /* Item is set object */
+#define ITEM_FIRE          (1 << 28)	// ...горит                   //
+#define ITEM_REPOP_DECAY   (1 << 29)	// рассыпется при репопе зоны //
+#define ITEM_NOLOCATE      (INT_ONE | (1 << 0))	// нельзя отлокейтить //
+#define ITEM_TIMEDLVL      (INT_ONE | (1 << 1))	// для маг.предметов уровень уменьшается со временем //
+#define ITEM_NOALTER       (INT_ONE | (1 << 2))	// свойства предмета не могут быть изменены магией //
+#define ITEM_WITH1SLOT     (INT_ONE | (1 << 3))	// в предмет можно вплавить 1 камень //
+#define ITEM_WITH2SLOTS    (INT_ONE | (1 << 4))	// в предмет можно вплавить 2 камня //
+#define ITEM_WITH3SLOTS    (INT_ONE | (1 << 5))	// в предмет можно вплавить 3 камня (овер) //
+#define ITEM_SETSTUFF      (INT_ONE | (1 << 6)) // Item is set object //
 #define ITEM_NO_FAIL       (INT_ONE | (1 << 7)) // не фейлится при изучении (в случае книги)
 #define ITEM_NAMED         (INT_ONE | (1 << 8)) // именной предмет
 #define ITEM_BLOODY        (INT_ONE | (1 << 9)) // окровавленная вещь (снятая с трупа)
@@ -878,8 +874,8 @@ typedef struct trig_data TRIG_DATA;
 #define ITEM_NO_NECROMANCER   (1 << 17)
 
 #define ITEM_NO_KILLER     (INT_ONE | 1 << 0)
-#define ITEM_NO_COLORED    (INT_ONE | 1 << 1)	/* нельзя цветным */
-/*#define ITEM_NO_KILLERONLY (INT_ONE | 1 << 2)*/ /* только для душиков */
+#define ITEM_NO_COLORED    (INT_ONE | 1 << 1)	// нельзя цветным //
+//#define ITEM_NO_KILLERONLY (INT_ONE | 1 << 2)// // только для душиков //
 
 #define ITEM_NO_SEVERANE   (INT_TWO | 1 << 0)
 #define ITEM_NO_POLANE     (INT_TWO | 1 << 1)
@@ -927,8 +923,8 @@ typedef struct trig_data TRIG_DATA;
 #define ITEM_AN_NECROMANCER   (1 << 17)
 
 #define ITEM_AN_KILLER     (INT_ONE | (1 << 0))
-#define ITEM_AN_COLORED    (INT_ONE | (1 << 1))	/* нельзя цветным */
-/*#define ITEM_AN_KILLERONLY (INT_ONE | (1 << 2))*/ /* только для душиков */
+#define ITEM_AN_COLORED    (INT_ONE | (1 << 1))	// нельзя цветным //
+//#define ITEM_AN_KILLERONLY (INT_ONE | (1 << 2))// // только для душиков //
 
 #define ITEM_AN_SEVERANE   (INT_TWO | 1 << 0)
 #define ITEM_AN_POLANE     (INT_TWO | 1 << 1)
@@ -956,32 +952,32 @@ typedef struct trig_data TRIG_DATA;
 #define ITEM_AN_STEPNYAKI   (INT_THREE | 1 << 1)
 #define ITEM_AN_VIKINGI     (INT_THREE | 1 << 2)
 
-/* Modifier constants used with obj affects ('A' fields) */
-#define APPLY_NONE              0	/* No effect         */
-#define APPLY_STR               1	/* Apply to strength    */
-#define APPLY_DEX               2	/* Apply to dexterity      */
-#define APPLY_INT               3	/* Apply to constitution   */
-#define APPLY_WIS               4	/* Apply to wisdom      */
-#define APPLY_CON               5	/* Apply to constitution   */
-#define APPLY_CHA		6	/* Apply to charisma    */
-#define APPLY_CLASS             7	/* Reserved       */
-#define APPLY_LEVEL             8	/* Reserved       */
-#define APPLY_AGE               9	/* Apply to age         */
-#define APPLY_CHAR_WEIGHT      10	/* Apply to weight      */
-#define APPLY_CHAR_HEIGHT      11	/* Apply to height      */
-#define APPLY_MANAREG          12	/* Apply to max mana    */
-#define APPLY_HIT              13	/* Apply to max hit points */
-#define APPLY_MOVE             14	/* Apply to max move points   */
-#define APPLY_GOLD             15	/* Reserved       */
-#define APPLY_EXP              16	/* Reserved       */
-#define APPLY_AC               17	/* Apply to Armor Class    */
-#define APPLY_HITROLL          18	/* Apply to hitroll     */
-#define APPLY_DAMROLL          19	/* Apply to damage roll    */
-#define APPLY_SAVING_WILL      20	/* Apply to save throw: paralz   */
-#define APPLY_RESIST_FIRE      21	/* Apply to RESIST throw: fire  */
-#define APPLY_RESIST_AIR       22	/* Apply to RESIST throw: air   */
-#define APPLY_SAVING_CRITICAL  23	/* Apply to save throw: breath   */
-#define APPLY_SAVING_STABILITY 24	/* Apply to save throw: spells   */
+// Modifier constants used with obj affects ('A' fields) //
+#define APPLY_NONE              0	// No effect         //
+#define APPLY_STR               1	// Apply to strength    //
+#define APPLY_DEX               2	// Apply to dexterity      //
+#define APPLY_INT               3	// Apply to constitution   //
+#define APPLY_WIS               4	// Apply to wisdom      //
+#define APPLY_CON               5	// Apply to constitution   //
+#define APPLY_CHA		6	// Apply to charisma    //
+#define APPLY_CLASS             7	// Reserved       //
+#define APPLY_LEVEL             8	// Reserved       //
+#define APPLY_AGE               9	// Apply to age         //
+#define APPLY_CHAR_WEIGHT      10	// Apply to weight      //
+#define APPLY_CHAR_HEIGHT      11	// Apply to height      //
+#define APPLY_MANAREG          12	// Apply to max mana    //
+#define APPLY_HIT              13	// Apply to max hit points //
+#define APPLY_MOVE             14	// Apply to max move points   //
+#define APPLY_GOLD             15	// Reserved       //
+#define APPLY_EXP              16	// Reserved       //
+#define APPLY_AC               17	// Apply to Armor Class    //
+#define APPLY_HITROLL          18	// Apply to hitroll     //
+#define APPLY_DAMROLL          19	// Apply to damage roll    //
+#define APPLY_SAVING_WILL      20	// Apply to save throw: paralz   //
+#define APPLY_RESIST_FIRE      21	// Apply to RESIST throw: fire  //
+#define APPLY_RESIST_AIR       22	// Apply to RESIST throw: air   //
+#define APPLY_SAVING_CRITICAL  23	// Apply to save throw: breath   //
+#define APPLY_SAVING_STABILITY 24	// Apply to save throw: spells   //
 #define APPLY_HITREG           25
 #define APPLY_MOVEREG          26
 #define APPLY_C1               27
@@ -1003,13 +999,13 @@ typedef struct trig_data TRIG_DATA;
 #define APPLY_RELIGION         43
 #define APPLY_ABSORBE          44
 #define APPLY_LIKES	       45
-#define APPLY_RESIST_WATER     46	/* Apply to RESIST throw: water  */
-#define APPLY_RESIST_EARTH     47	/* Apply to RESIST throw: earth  */
-#define APPLY_RESIST_VITALITY  48	/* Apply to RESIST throw: light, dark, critical damage  */
-#define APPLY_RESIST_MIND      49	/* Apply to RESIST throw: mind magic  */
-#define APPLY_RESIST_IMMUNITY  50	/* Apply to RESIST throw: poison, disease etc.  */
-#define APPLY_AR	           51	/* Apply to Magic affect resist */
-#define APPLY_MR	           52	/* Apply to Magic damage resist */
+#define APPLY_RESIST_WATER     46	// Apply to RESIST throw: water  //
+#define APPLY_RESIST_EARTH     47	// Apply to RESIST throw: earth  //
+#define APPLY_RESIST_VITALITY  48	// Apply to RESIST throw: light, dark, critical damage  //
+#define APPLY_RESIST_MIND      49	// Apply to RESIST throw: mind magic  //
+#define APPLY_RESIST_IMMUNITY  50	// Apply to RESIST throw: poison, disease etc.  //
+#define APPLY_AR	           51	// Apply to Magic affect resist //
+#define APPLY_MR	           52	// Apply to Magic damage resist //
 #define APPLY_ACONITUM_POISON  53
 #define APPLY_SCOPOLIA_POISON  54
 #define APPLY_BELENA_POISON    55
@@ -1017,10 +1013,10 @@ typedef struct trig_data TRIG_DATA;
 #define APPLY_HIT_GLORY        57
 #define NUM_APPLIES	           58
 
-/* APPLY - эффекты для комнат */
+// APPLY - эффекты для комнат //
 #define APPLY_ROOM_NONE        0
-#define APPLY_ROOM_POISON      1 	/* Изменяет в комнате уровень ядности */
-#define APPLY_ROOM_FLAME       2 	/* Изменяет в комнате уровень огня (для потомков) */
+#define APPLY_ROOM_POISON      1 	// Изменяет в комнате уровень ядности //
+#define APPLY_ROOM_FLAME       2 	// Изменяет в комнате уровень огня (для потомков) //
 #define NUM_ROOM_APPLIES       3
 
 #define MAT_NONE               0
@@ -1047,28 +1043,28 @@ typedef struct trig_data TRIG_DATA;
 #define TRACK_NPC              (1 << 0)
 #define TRACK_HIDE             (1 << 1)
 
-/* Container flags - value[1] */
-#define CONT_CLOSEABLE      (1 << 0)	/* Container can be closed */
-#define CONT_PICKPROOF      (1 << 1)	/* Container is pickproof  */
-#define CONT_CLOSED         (1 << 2)	/* Container is closed     */
-#define CONT_LOCKED         (1 << 3)	/* Container is locked     */
-#define CONT_BROKEN         (1 << 4)	/* Container is locked     */
+// Container flags - value[1] //
+#define CONT_CLOSEABLE      (1 << 0)	// Container can be closed //
+#define CONT_PICKPROOF      (1 << 1)	// Container is pickproof  //
+#define CONT_CLOSED         (1 << 2)	// Container is closed     //
+#define CONT_LOCKED         (1 << 3)	// Container is locked     //
+#define CONT_BROKEN         (1 << 4)	// Container is locked     //
 
-/* other miscellaneous defines *******************************************/
+// other miscellaneous defines ****************************************** //
 
 enum { DRUNK, FULL, THIRST};
 
-/* Sun state for weather_data */
+// Sun state for weather_data //
 #define SUN_DARK  0
 #define SUN_RISE  1
 #define SUN_LIGHT 2
 #define SUN_SET      3
 
-/* Moon change type */
+// Moon change type //
 #define MOON_INCREASE 0
 #define MOON_DECREASE 1
 
-/* Sky conditions for weather_data */
+// Sky conditions for weather_data //
 #define SKY_CLOUDLESS   0
 #define SKY_CLOUDY       1
 #define SKY_RAINING      2
@@ -1080,7 +1076,7 @@ enum { DRUNK, FULL, THIRST};
 // для избежания повторных записей моба в списки SetsDrop
 #define EXTRA_GRP_KILL_COUNT (1 << 3)
 
-/* other #defined constants **********************************************/
+// other #defined constants ********************************************* //
 
 /*
  * **DO**NOT** blindly change the number of levels in your MUD merely by
@@ -1098,35 +1094,35 @@ enum { DRUNK, FULL, THIRST};
 #define LVL_GOD      32
 #define LVL_IMMORT   31
 
-/* Level of the 'freeze' command */
+// Level of the 'freeze' command //
 #define LVL_FREEZE   LVL_GRGOD
 
-#define NUM_OF_DIRS  6		/* number of directions in a room (nsewud) */
-#define MAGIC_NUMBER (0x06)	/* Arbitrary number that won't be in a string */
+#define NUM_OF_DIRS  6		// number of directions in a room (nsewud) //
+#define MAGIC_NUMBER (0x06)	// Arbitrary number that won't be in a string //
 
-#define OPT_USEC  40000	/* 25 passes per second */
+#define OPT_USEC  40000	// 25 passes per second //
 #define PASSES_PER_SEC  (1000000 / OPT_USEC)
 #define RL_SEC    * PASSES_PER_SEC
 
 #define PULSE_ZONE      (1 RL_SEC)
 #define PULSE_MOBILE    (10 RL_SEC)
 #define PULSE_VIOLENCE  (2 RL_SEC)
-#define ZONES_RESET	1	/* number of zones to reset at one time */
+#define ZONES_RESET	1	// number of zones to reset at one time //
 #define PULSE_LOGROTATE (10 RL_SEC)
 
-/* Variables for the output buffering system */
-#define MAX_SOCK_BUF            (24 * 1024)	/* Size of kernel's sock buf   */
-#define MAX_PROMPT_LENGTH       256	/* Max length of prompt        */
-#define GARBAGE_SPACE         32	/* Space for **OVERFLOW** etc  */
-#define SMALL_BUFSIZE         1024	/* Static output buffer size   */
-/* Max amount of output that can be buffered */
+// Variables for the output buffering system //
+#define MAX_SOCK_BUF            (24 * 1024)	// Size of kernel's sock buf   //
+#define MAX_PROMPT_LENGTH       256	// Max length of prompt        //
+#define GARBAGE_SPACE         32	// Space for **OVERFLOW** etc  //
+#define SMALL_BUFSIZE         1024	// Static output buffer size   //
+// Max amount of output that can be buffered //
 #define LARGE_BUFSIZE            (MAX_SOCK_BUF - GARBAGE_SPACE - MAX_PROMPT_LENGTH)
 
-#define HISTORY_SIZE          5	/* Keep last 5 commands. */
+#define HISTORY_SIZE          5	// Keep last 5 commands. //
 #define MAX_STRING_LENGTH     16384
 #define MAX_EXTEND_LENGTH     0xFFFF
-#define MAX_INPUT_LENGTH      256	/* Max length per *line* of input */
-#define MAX_RAW_INPUT_LENGTH  512	/* Max size of *raw* input */
+#define MAX_INPUT_LENGTH      256	// Max length per *line* of input //
+#define MAX_RAW_INPUT_LENGTH  512	// Max size of *raw* input //
 #define MAX_MESSAGES          600
 #define MAX_NAME_LENGTH       20
 #define MIN_NAME_LENGTH       4
@@ -1136,19 +1132,19 @@ enum { DRUNK, FULL, THIRST};
 #define MAX_AFFECT            32
 #define MAX_OBJ_AFFECT        6
 #define MAX_TIMED_SKILLS      16
-#define MAX_FEATS             128 /* Максимальное количество фитов */
-#define MAX_TIMED_FEATS       16 /* Макс. количество фитов с таймером */
-#define MAX_HITS              32000 /* Максимальное количество хитов и дамага */
-/* Количество запомненных предложений для воззваний */
+#define MAX_FEATS             128 // Максимальное количество фитов //
+#define MAX_TIMED_FEATS       16 // Макс. количество фитов с таймером //
+#define MAX_HITS              32000 // Максимальное количество хитов и дамага //
+// Количество запомненных предложений для воззваний //
 #define MAX_REMEMBER_PRAY     20
-/* Количество запомненных предложений для эфира */
+// Количество запомненных предложений для эфира //
 #define MAX_REMEMBER_GOSSIP   15
 // планка на кол-во денег у чара на руках и в банке (раздельно)
 const long MAX_MONEY_KEPT = 1000000000;
 
-/**********************************************************************
-* Structures                                                          *
-**********************************************************************/
+// *********************************************************************
+// * Structures                                                        *
+// *********************************************************************
 
 
 typedef signed char
@@ -1159,37 +1155,37 @@ typedef short int
 sh_int;
 typedef short int
 ush_int;
-#if !defined(__cplusplus)	/* Anyone know a portable method? */
+#if !defined(__cplusplus)	// Anyone know a portable method?
 typedef char
 bool;
 #endif
 
-#if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	/* Hm, sysdep.h? */
+#if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	// Hm, sysdep.h?
 typedef char
 byte;
 #endif
 
 typedef int
-room_vnum;			/* A room's vnum type */
+room_vnum;			// A room's vnum type //
 typedef int
-obj_vnum;			/* An object's vnum type */
+obj_vnum;			// An object's vnum type //
 typedef int
-mob_vnum;			/* A mob's vnum type */
+mob_vnum;			// A mob's vnum type //
 typedef int
-zone_vnum;			/* A virtual zone number.  */
+zone_vnum;			// A virtual zone number.  //
 
 typedef int
-room_rnum;			/* A room's real (internal) number type */
+room_rnum;			// A room's real (internal) number type //
 typedef int
-obj_rnum;			/* An object's real (internal) num type */
+obj_rnum;			// An object's real (internal) num type //
 typedef int
-mob_rnum;			/* A mobile's real (internal) num type */
+mob_rnum;			// A mobile's real (internal) num type //
 typedef int
-zone_rnum;			/* A zone's real (array index) number. */
+zone_rnum;			// A zone's real (array index) number. //
 
 
-/************* WARNING **********************************************/
-/* This structure describe new bitvector structure                  */
+// ************ WARNING ******************************************* //
+// This structure describe new bitvector structure                  //
 typedef long int
 bitvector_t;
 struct flag_data
@@ -1284,15 +1280,15 @@ operator>=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
 			*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
 }
 
-/* Extra description: used in objects, mobiles, and rooms */
+// Extra description: used in objects, mobiles, and rooms //
 struct extra_descr_data
 {
-	char *keyword;		/* Keyword in look/examine          */
-	char *description;	/* What to see                      */
-	EXTRA_DESCR_DATA *next;	/* Next in list                     */
+	char *keyword;		// Keyword in look/examine          //
+	char *description;	// What to see                      //
+	EXTRA_DESCR_DATA *next;	// Next in list                     //
 };
 
-/* header block for rent files.  BEWARE: Changing it will ruin rent files  */
+// header block for rent files.  BEWARE: Changing it will ruin rent files  //
 struct save_rent_info
 {
 	save_rent_info() : time(0), rentcode(0), net_cost_per_diem(0), gold(0), account(0), nitems(0), oitems(0),
@@ -1325,13 +1321,13 @@ struct save_info
 	std::vector<save_time_info> time;
 };
 
-/* ======================================================================= */
+// =======================================================================
 
 
-/* char-related structures ************************************************/
+// char-related structures ***********************************************
 
 
-/* memory structure for characters */
+// memory structure for characters //
 struct memory_rec_struct
 {
 	long
@@ -1345,8 +1341,8 @@ typedef struct memory_rec_struct
 			memory_rec;
 
 
-/* This structure is purely intended to be an easy way to transfer */
-/* and return information about time (real or mudwise).            */
+// This structure is purely intended to be an easy way to transfer //
+// and return information about time (real or mudwise).            //
 struct time_info_data
 {
 	int
@@ -1380,7 +1376,7 @@ struct punish_data
 	long godid;
 };
 
-/* An affect structure. */
+// An affect structure. //
 class IAffectHandler;
 struct affect_data
 {
@@ -1388,40 +1384,40 @@ struct affect_data
 		battleflag(0), bitvector(0), caster_id(0), must_handled(0),
 		apply_time(0), next(0) {};
 
-	sh_int type;		/* The type of spell that caused this      */
-	sh_int duration;	/* For how long its effects will last      */
-	int modifier;		/* This is added to apropriate ability     */
-	int location;		/* Tells which ability to change(APPLY_XXX) */
+	sh_int type;		// The type of spell that caused this      //
+	sh_int duration;	// For how long its effects will last      //
+	int modifier;		// This is added to apropriate ability     //
+	int location;		// Tells which ability to change(APPLY_XXX) //
 	long
-	battleflag;	   /**** SUCH AS HOLD,SIELENCE etc **/
+	battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
 	long
-	bitvector;		/* Tells which bits to set (AFF_XXX) */
+	bitvector;		// Tells which bits to set (AFF_XXX) //
 	long
-	caster_id; /*Unique caster ID */
+	caster_id; //Unique caster ID //
 	bool
-	must_handled; /* Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) */
+	must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
 	sh_int
-	apply_time; /* Указывает сколько аффект висит (пока используется только в комнатах) */
+	apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
 	AFFECT_DATA *next;
 	boost::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 };
 
 struct timed_type
 {
-	ubyte skill;		/* Number of used skill/spell */
-	ubyte time;		/* Time for next using        */
+	ubyte skill;		// Number of used skill/spell //
+	ubyte time;		// Time for next using        //
 	struct timed_type *next;
 };
 
 
-/* Structure used for chars following other chars */
+// Structure used for chars following other chars //
 struct follow_type
 {
 	CHAR_DATA *follower;
 	struct follow_type *next;
 };
 
-/* Structure used for tracking a mob */
+// Structure used for tracking a mob //
 struct track_info
 {
 	int
@@ -1432,7 +1428,7 @@ struct track_info
 	dirs;
 };
 
-/* Structure used for helpers */
+// Structure used for helpers //
 struct helper_data_type
 {
 	int
@@ -1440,7 +1436,7 @@ struct helper_data_type
 	struct helper_data_type *next_helper;
 };
 
-/* Structure used for on_dead object loading */
+// Structure used for on_dead object loading //
 struct load_data
 {
 	int
@@ -1463,7 +1459,7 @@ struct spell_mem_queue_item
 	struct spell_mem_queue_item *link;
 };
 
-/* descriptor-related structures ******************************************/
+// descriptor-related structures ****************************************
 
 struct txt_block
 {
@@ -1508,58 +1504,58 @@ namespace scripting
 
 struct descriptor_data
 {
-	socket_t descriptor;	/* file descriptor for socket    */
+	socket_t descriptor;	// file descriptor for socket    //
 	char
-	host[HOST_LENGTH + 1];	/* hostname          */
-	byte bad_pws;		/* number of bad pw attemps this login */
-	byte idle_tics;		/* tics idle at password prompt     */
+	host[HOST_LENGTH + 1];	// hostname          //
+	byte bad_pws;		// number of bad pw attemps this login //
+	byte idle_tics;		// tics idle at password prompt     //
 	int
-	connected;		/* mode of 'connectedness'    */
+	connected;		// mode of 'connectedness'    //
 	int
-	desc_num;		/* unique num assigned to desc      */
+	desc_num;		// unique num assigned to desc      //
 	time_t input_time;
-	time_t login_time;	/* when the person connected     */
-	char *showstr_head;	/* for keeping track of an internal str   */
-	char **showstr_vector;	/* for paging through texts      */
+	time_t login_time;	// when the person connected     //
+	char *showstr_head;	// for keeping track of an internal str   //
+	char **showstr_vector;	// for paging through texts      //
 	int
-	showstr_count;		/* number of pages to page through  */
+	showstr_count;		// number of pages to page through  //
 	int
-	showstr_page;		/* which page are we currently showing?   */
-	char **str;		/* for the modify-str system     */
-	size_t max_str;		/*      -        */
-	char *backstr;		/* added for handling abort buffers */
+	showstr_page;		// which page are we currently showing?   //
+	char **str;		// for the modify-str system     //
+	size_t max_str;		//      -        //
+	char *backstr;		// added for handling abort buffers //
 	long
-	mail_to;		/* name for mail system       */
+	mail_to;		// name for mail system       //
 	int
-	has_prompt;		/* is the user at a prompt?             */
+	has_prompt;		// is the user at a prompt?             //
 	char
-	inbuf[MAX_RAW_INPUT_LENGTH];	/* buffer for raw input    */
+	inbuf[MAX_RAW_INPUT_LENGTH];	// buffer for raw input    //
 	char
-	last_input[MAX_INPUT_LENGTH];	/* the last input       */
+	last_input[MAX_INPUT_LENGTH];	// the last input       //
 	char
-	small_outbuf[SMALL_BUFSIZE];	/* standard output buffer      */
-	char *output;		/* ptr to the current output buffer */
-	char **history;		/* History of commands, for ! mostly.  */
+	small_outbuf[SMALL_BUFSIZE];	// standard output buffer      //
+	char *output;		// ptr to the current output buffer //
+	char **history;		// History of commands, for ! mostly.  //
 	int
-	history_pos;		/* Circular array position.      */
+	history_pos;		// Circular array position.      //
 	int
-	bufptr;		/* ptr to end of current output     */
+	bufptr;		// ptr to end of current output     //
 	int
-	bufspace;		/* space left in the output buffer  */
-	struct txt_block *large_outbuf;	/* ptr to large buffer, if we need it */
+	bufspace;		// space left in the output buffer  //
+	struct txt_block *large_outbuf;	// ptr to large buffer, if we need it //
 	struct txt_q
-				input;			/* q of unprocessed input     */
-	CHAR_DATA *character;	/* linked to char       */
-	CHAR_DATA *original;	/* original char if switched     */
-	DESCRIPTOR_DATA *snooping;	/* Who is this char snooping  */
-	DESCRIPTOR_DATA *snoop_by;	/* And who is snooping this char */
-	DESCRIPTOR_DATA *next;	/* link to next descriptor     */
-	struct olc_data *olc;	/*. OLC info - defined in olc.h   . */
+				input;			// q of unprocessed input     //
+	CHAR_DATA *character;	// linked to char       //
+	CHAR_DATA *original;	// original char if switched     //
+	DESCRIPTOR_DATA *snooping;	// Who is this char snooping  //
+	DESCRIPTOR_DATA *snoop_by;	// And who is snooping this char //
+	DESCRIPTOR_DATA *next;	// link to next descriptor     //
+	struct olc_data *olc;	//. OLC info - defined in olc.h   . //
 	ubyte keytable;
 	int
-	options;		/* descriptor flags       */
+	options;		// descriptor flags       //
 #if defined(HAVE_ZLIB)
-	z_stream *deflate;	/* compression engine        */
+	z_stream *deflate;	// compression engine        //
 	int
 	mccp_version;
 #endif
@@ -1581,46 +1577,46 @@ struct descriptor_data
 };
 
 
-/* other miscellaneous structures ***************************************/
+// other miscellaneous structures **************************************
 
 
 struct msg_type
 {
-	char *attacker_msg;	/* message to attacker */
-	char *victim_msg;	/* message to victim   */
-	char *room_msg;		/* message to room     */
+	char *attacker_msg;	// message to attacker //
+	char *victim_msg;	// message to victim   //
+	char *room_msg;		// message to room     //
 };
 
 
 struct message_type
 {
 	struct msg_type
-				die_msg;		/* messages when death        */
+				die_msg;		// messages when death        //
 	struct msg_type
-				miss_msg;		/* messages when miss         */
+				miss_msg;		// messages when miss         //
 	struct msg_type
-				hit_msg;		/* messages when hit       */
+				hit_msg;		// messages when hit       //
 	struct msg_type
-				god_msg;		/* messages when hit on god      */
-	struct message_type *next;	/* to next messages of this kind.   */
+				god_msg;		// messages when hit on god      //
+	struct message_type *next;	// to next messages of this kind.   //
 };
 
 
 struct message_list
 {
 	int
-	a_type;		/* Attack type          */
+	a_type;		// Attack type          //
 	int
-	number_of_attacks;	/* How many attack messages to chose from. */
-	struct message_type *msg;	/* List of messages.       */
+	number_of_attacks;	// How many attack messages to chose from. //
+	struct message_type *msg;	// List of messages.       //
 };
 
 //MZ.load
 struct zone_type
 {
-	char *name;			/* type name */
-	int ingr_qty;		/* quantity of ingredient types */
-	int *ingr_types;	/* types of ingredients, which are loaded in zones of this type */
+	char *name;			// type name //
+	int ingr_qty;		// quantity of ingredient types //
+	int *ingr_types;	// types of ingredients, which are loaded in zones of this type //
 };
 //-MZ.load
 
@@ -1654,28 +1650,28 @@ struct dex_app_type
 struct str_app_type
 {
 	int
-	tohit;			/* To Hit (THAC0) Bonus/Penalty        */
+	tohit;			// To Hit (THAC0) Bonus/Penalty        //
 	int
-	todam;			/* Damage Bonus/Penalty                */
+	todam;			// Damage Bonus/Penalty                //
 	int
-	carry_w;		/* Maximum weight that can be carrried */
+	carry_w;		// Maximum weight that can be carrried //
 	int
-	wield_w;		/* Maximum weight that can be wielded  */
+	wield_w;		// Maximum weight that can be wielded  //
 	int
-	hold_w;		/* MAXIMUM WEIGHT THAT CAN BE HELDED   */
+	hold_w;		// MAXIMUM WEIGHT THAT CAN BE HELDED   //
 };
 
 
 struct wis_app_type
 {
 	int
-	spell_additional;	/* bitvector */
+	spell_additional;	// bitvector //
 	int
-	max_learn_l20;		/* MAX SKILL on LEVEL 20        */
+	max_learn_l20;		// MAX SKILL on LEVEL 20        //
 	int
-	spell_success;		/* spell using success          */
+	spell_success;		// spell using success          //
 	int
-	char_savings;		/* saving spells (damage)       */
+	char_savings;		// saving spells (damage)       //
 	int
 	max_skills;
 };
@@ -1684,17 +1680,17 @@ struct wis_app_type
 struct int_app_type
 {
 	int
-	spell_aknowlege;	/* chance to know spell               */
+	spell_aknowlege;	// chance to know spell               //
 	int
-	to_skilluse;		/* ADD CHANSE FOR USING SKILL         */
+	to_skilluse;		// ADD CHANSE FOR USING SKILL         //
 	int
 	mana_per_tic;
 	int
-	spell_success;		/*  max count of spell on 1s level    */
+	spell_success;		//  max count of spell on 1s level    //
 	int
-	improove;		/* chance to improove skill           */
+	improove;		// chance to improove skill           //
 	int
-	observation;		/* chance to use SKILL_AWAKE/CRITICAL */
+	observation;		// chance to use SKILL_AWAKE/CRITICAL //
 };
 
 struct con_app_type
@@ -1704,7 +1700,7 @@ struct con_app_type
 	int
 	ressurection;
 	int
-	affect_saving;		/* saving spells (affects)  */
+	affect_saving;		// saving spells (affects)  //
 	int
 	poison_saving;
 	int
@@ -1728,9 +1724,9 @@ struct cha_app_type
 struct size_app_type
 {
 	int
-	ac;			/* ADD VALUE FOR AC           */
+	ac;			// ADD VALUE FOR AC           //
 	int
-	interpolate;		/* ADD VALUE FOR SOME SKILLS  */
+	interpolate;		// ADD VALUE FOR SOME SKILLS  //
 	int
 	initiative;
 	int
@@ -1781,40 +1777,40 @@ struct race_app_type
 struct weather_data
 {
 	int
-	hours_go;		/* Time life from reboot */
+	hours_go;		// Time life from reboot //
 
 	int
-	pressure;		/* How is the pressure ( Mb )            */
+	pressure;		// How is the pressure ( Mb )            //
 	int
-	press_last_day;	/* Average pressure last day             */
+	press_last_day;	// Average pressure last day             //
 	int
-	press_last_week;	/* Average pressure last week            */
+	press_last_week;	// Average pressure last week            //
 
 	int
-	temperature;		/* How is the temperature (C)            */
+	temperature;		// How is the temperature (C)            //
 	int
-	temp_last_day;		/* Average temperature last day          */
+	temp_last_day;		// Average temperature last day          //
 	int
-	temp_last_week;	/* Average temperature last week         */
+	temp_last_week;	// Average temperature last week         //
 
 	int
-	rainlevel;		/* Level of water from rains             */
+	rainlevel;		// Level of water from rains             //
 	int
-	snowlevel;		/* Level of snow                         */
+	snowlevel;		// Level of snow                         //
 	int
-	icelevel;		/* Level of ice                          */
+	icelevel;		// Level of ice                          //
 
 	int
-	weather_type;		/* bitvector - some values for month     */
+	weather_type;		// bitvector - some values for month     //
 
 	int
-	change;		/* How fast and what way does it change. */
+	change;		// How fast and what way does it change. //
 	int
-	sky;			/* How is the sky.   */
+	sky;			// How is the sky.   //
 	int
-	sunlight;		/* And how much sun. */
+	sunlight;		// And how much sun. //
 	int
-	moon_day;		/* And how much moon */
+	moon_day;		// And how much moon //
 	int
 	season;
 	int
@@ -1842,44 +1838,44 @@ struct title_type
 };
 
 
-/* element in monster and object index-tables   */
+// element in monster and object index-tables   //
 struct index_data
 {
 	int
-	vnum;			/* virtual number of this mob/obj       */
+	vnum;			// virtual number of this mob/obj       //
 	int
-	number;		/* number of existing units of this mob/obj */
+	number;		// number of existing units of this mob/obj //
 	int
-	stored;		/* number of things in rent file            */
+	stored;		// number of things in rent file            //
 	SPECIAL(*func);
 
-	char *farg;		/* string argument for special function     */
-	struct trig_data *proto;	/* for triggers... the trigger     */
+	char *farg;		// string argument for special function     //
+	struct trig_data *proto;	// for triggers... the trigger     //
 	int
-	zone;			/* mob/obj zone rnum */
+	zone;			// mob/obj zone rnum //
 };
 
-/* linked list for mob/object prototype trigger lists */
+// linked list for mob/object prototype trigger lists //
 struct trig_proto_list
 {
 	int
-	vnum;			/* vnum of the trigger   */
-	struct trig_proto_list *next;	/* next trigger          */
+	vnum;			// vnum of the trigger   //
+	struct trig_proto_list *next;	// next trigger          //
 };
 
-struct social_messg  		/* No argument was supplied */
+struct social_messg  		// No argument was supplied //
 {
 	int
 	ch_min_pos, ch_max_pos, vict_min_pos, vict_max_pos;
 	char *char_no_arg;
 	char *others_no_arg;
 
-	/* An argument was there, and a victim was found */
-	char *char_found;	/* if NULL, read no further, ignore args */
+	// An argument was there, and a victim was found //
+	char *char_found;	// if NULL, read no further, ignore args //
 	char *others_found;
 	char *vict_found;
 
-	/* An argument was there, but no victim was found */
+	// An argument was there, but no victim was found //
 	char *not_found;
 };
 
@@ -1924,30 +1920,30 @@ struct pray_affect_type
 struct pclean_criteria_data
 {
 	int
-	level;			/* max уровень для этого временного лимита */
+	level;			// max уровень для этого временного лимита //
 	int
-	days;			/* временной лимит в днях        */
+	days;			// временной лимит в днях        //
 };
 
-/* Структрура для описания проталов для спела townportal */
+// Структрура для описания проталов для спела townportal //
 struct portals_list_type
 {
-	char *wrd;		/* кодовое слово */
+	char *wrd;		// кодовое слово //
 	int
-	vnum;			/* vnum комнаты для портала (раньше был rnum, но зачем тут rnum?) */
+	vnum;			// vnum комнаты для портала (раньше был rnum, но зачем тут rnum?) //
 	int
-	level;			/* минимальный уровень для запоминания портала */
+	level;			// минимальный уровень для запоминания портала //
 	struct portals_list_type *next_portal;
 };
 
 struct char_portal_type
 {
 	int
-	vnum;			/* vnum комнаты для портала */
+	vnum;			// vnum комнаты для портала //
 	struct char_portal_type *next;
 };
 
-/* Структуры для act.wizard.cpp */
+// Структуры для act.wizard.cpp //
 
 struct show_struct
 {
@@ -2013,5 +2009,5 @@ typedef map <int, mob_guardian> guardian_type;
 
 //-Polud
 
-#endif /* __STRUCTS_H__ */
+#endif // __STRUCTS_H__ //
 

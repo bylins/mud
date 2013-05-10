@@ -32,9 +32,6 @@ enum { NORMAL_FLAG, RUNNING_FLAG, MIN_TIME_FLAG, TOTAL_FLAG };
 typedef std::list<std::pair<long, time_t> > UidListType;
 UidListType offtop_list;
 
-/**
-*
-*/
 void add_to_list(UidListType &list, long uid)
 {
 	list.push_front(std::make_pair(uid, time(0)));
@@ -44,9 +41,6 @@ void add_to_list(UidListType &list, long uid)
 	}
 };
 
-/**
-*
-*/
 int check_list(const UidListType &list, long uid)
 {
 	int total = 0, running = 0;
@@ -83,9 +77,6 @@ int check_list(const UidListType &list, long uid)
 	return NORMAL_FLAG;
 };
 
-/**
-*
-*/
 int add_message(int mode, long uid)
 {
 	switch(mode)
@@ -116,9 +107,6 @@ int add_message(int mode, long uid)
 namespace SpamSystem
 {
 
-/**
-*
-*/
 bool check(CHAR_DATA *ch, int mode)
 {
 	int flag = add_message(mode, GET_UNIQUE(ch));

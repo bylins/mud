@@ -21,9 +21,7 @@ extern int interpolate(int min_value, int pulse);
 namespace
 {
 
-/**
-* Наложение ядов с пушек, аффект стакается до трех раз.
-*/
+// * Наложение ядов с пушек, аффект стакается до трех раз.
 bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA *af)
 {
 	AFFECT_DATA *hjp;
@@ -58,9 +56,7 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA *af)
 	return true;
 }
 
-/**
-* Отравление с пушек.
-*/
+// * Отравление с пушек.
 bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 {
 	if (GET_AF_BATTLE(ch, EAF_POISONED))
@@ -190,9 +186,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	return false;
 }
 
-/**
-* Крит при отравлении с пушек.
-*/
+// * Крит при отравлении с пушек.
 void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 {
 	int percent = number(1, skill_info[SKILL_POISONED].max_percent * 3);
@@ -308,36 +302,34 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 
 } // namespace
 
-/**
-* Отравление с заклинания 'яд'.
-*/
+// * Отравление с заклинания 'яд'.
 void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 {
 	AFFECT_DATA af[4];
 	int i;
 
-	/* change strength */
+	// change strength
 	af[0].type = SPELL_POISON;
 	af[0].location = APPLY_STR;
 	af[0].duration = pc_duration(vict, 0, MAX(2, GET_LEVEL(ch) - GET_LEVEL(vict)), 2, 0, 1);
 	af[0].modifier = -MIN(2, (modifier + 29) / 40);
 	af[0].bitvector = AFF_POISON;
 	af[0].battleflag = AF_SAME_TIME;
-	/* change damroll */
+	// change damroll
 	af[1].type = SPELL_POISON;
 	af[1].location = APPLY_DAMROLL;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -MIN(2, (modifier + 29) / 30);
 	af[1].bitvector = AFF_POISON;
 	af[1].battleflag = AF_SAME_TIME;
-	/* change hitroll */
+	// change hitroll
 	af[2].type = SPELL_POISON;
 	af[2].location = APPLY_HITROLL;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -MIN(2, (modifier + 19) / 20);
 	af[2].bitvector = AFF_POISON;
 	af[2].battleflag = AF_SAME_TIME;
-	/* change poison level */
+	// change poison level
 	af[3].type = SPELL_POISON;
 	af[3].location = APPLY_POISON;
 	af[3].duration = af[0].duration;
@@ -355,9 +347,7 @@ void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 	act(buf, false, ch, 0, vict, TO_VICT);
 }
 
-/**
-* Попытка травануть с пушки при ударе.
-*/
+// * Попытка травануть с пушки при ударе.
 void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 {
 	if (spell_num < 0)
@@ -410,9 +400,7 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	}
 }
 
-/**
-* Проверка типа жидкости на яд для нанесения на пушку.
-*/
+// * Проверка типа жидкости на яд для нанесения на пушку.
 bool poison_in_vessel(int liquid_num)
 {
 	if (liquid_num == LIQ_POISON_ACONITUM
@@ -425,9 +413,7 @@ bool poison_in_vessel(int liquid_num)
 	return false;
 }
 
-/**
-* Сет яда на пушку в зависимости от типа жидкости.
-*/
+// * Сет яда на пушку в зависимости от типа жидкости.
 void set_weap_poison(OBJ_DATA *weapon, int liquid_num)
 {
 	const int poison_timer = 30;
@@ -443,9 +429,7 @@ void set_weap_poison(OBJ_DATA *weapon, int liquid_num)
 		log("SYSERROR: liquid_num == %d (%s %s %d)", liquid_num, __FILE__, __func__, __LINE__);
 }
 
-/**
-* Вывод имени яда по номеру его заклинания (для осмотра пушек).
-*/
+// * Вывод имени яда по номеру его заклинания (для осмотра пушек).
 std::string get_poison_by_spell(int spell)
 {
 	switch (spell)
@@ -462,9 +446,7 @@ std::string get_poison_by_spell(int spell)
 	return "";
 }
 
-/**
-* Проверка, является ли заклинание ядом.
-*/
+// * Проверка, является ли заклинание ядом.
 bool check_poison(int spell)
 {
 	switch (spell)

@@ -34,9 +34,7 @@ int obj_serial_num = 0;
 namespace CharacterAlias
 {
 
-/**
-* См ObjectAlias::add()
-*/
+// * См ObjectAlias::add()
 void add(CHAR_DATA *ch)
 {
 	if (!GET_NAME(ch)) return;
@@ -66,9 +64,7 @@ void add(CHAR_DATA *ch)
 	}
 }
 
-/**
-* См ObjectAlias::remove()
-*/
+// * См ObjectAlias::remove()
 void remove(CHAR_DATA *ch)
 {
 	for (CharListType::iterator it = char_list.begin(); it != char_list.end(); /* empty */)
@@ -90,9 +86,7 @@ void remove(CHAR_DATA *ch)
 	}
 }
 
-/**
-* См ObjectAlias::search_by_word()
-*/
+// * См ObjectAlias::search_by_word()
 CHAR_DATA * search_by_word(const char *name, const std::string &search_word)
 {
 	CHAR_DATA *ch = 0;
@@ -124,9 +118,7 @@ CHAR_DATA * search_by_word(const char *name, const std::string &search_word)
 	return ch;
 }
 
-/**
-* См ObjectAlias::get_by_name()
-*/
+// * См ObjectAlias::get_by_name()
 CHAR_DATA * get_by_name(const char *str)
 {
 	if (!str || !*str)
@@ -183,9 +175,7 @@ void add(OBJ_DATA *obj)
 	}
 }
 
-/**
-* Удаление предмета из всех полей мапа.
-*/
+// * Удаление предмета из всех полей мапа.
 void remove(OBJ_DATA *obj)
 {
 	for (ObjListType::iterator it = obj_list.begin(); it != obj_list.end(); /* empty */)
@@ -244,9 +234,7 @@ OBJ_DATA * search_by_word(const char *name, const std::string &search_word)
 	return obj;
 }
 
-/**
-* \return последний (технически первый в object_list) предмет или 0 по его алиасу.
-*/
+// * \return последний (технически первый в object_list) предмет или 0 по его алиасу.
 OBJ_DATA * get_by_name(const char *str)
 {
 	if (!str || !*str)

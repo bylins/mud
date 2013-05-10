@@ -405,7 +405,7 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		return;
 	}
 
-	/* одобряем или нет */
+	// одобряем или нет
 	int lev = NAME_GOD(vict);
 	if (lev > 1000)
 		lev = lev - 1000;

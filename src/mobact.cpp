@@ -31,7 +31,7 @@
 #include "shop_ext.hpp"
 #include "fight.h"
 
-/* external structs */
+// external structs
 extern CHAR_DATA *character_list;
 extern INDEX_DATA *mob_index;
 extern int no_specials;
@@ -72,7 +72,7 @@ extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict);
 extern bool is_room_forbidden(ROOM_DATA*room);
 
-/* local functions */
+// local functions
 void mobile_activity(int activity_level, int missed_pulses);
 void clearMemory(CHAR_DATA * ch);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
@@ -343,10 +343,8 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if (IS_CASTER(vict) &&
 				(!caster || GET_CASTER(caster) * GET_REAL_CHA(vict) < GET_CASTER(vict) * GET_REAL_CHA(caster)))
 			caster = vict;
-		/*
-		   sprintf(buf,"%s here !",GET_NAME(vict));
-		   act(buf,FALSE,ch,0,0,TO_ROOM);
-		 */
+		//   sprintf(buf,"%s here !",GET_NAME(vict));
+		//   act(buf,FALSE,ch,0,0,TO_ROOM);
 	}
 
 	if (GET_REAL_INT(ch) < 5 + number(1, 6))
@@ -507,14 +505,14 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 	CHAR_DATA *next_vict, *victim;
 	int mode = check_sneak ? SKIP_SNEAKING : 0;
 
-	/****************  Horde */
+	// ****************  Horde
 	if (MOB_FLAGGED(ch, MOB_HORDE))
 	{
 		perform_best_horde_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE);
 		return;
 	}
 
-	/****************  Aggressive Mobs */
+	// ****************  Aggressive Mobs
 	if (extra_aggressive(ch, NULL))
 	{
 		perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
@@ -527,7 +525,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 		return;
 	}
 
-	/*****************  Mob Memory      */
+	// *****************  Mob Memory
 	if (MOB_FLAGGED(ch, MOB_MEMORY) && MEMORY(ch))
 	{
 		victim = NULL;
@@ -601,7 +599,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 		}
 	}
 
-	/****************  Helper Mobs     */
+	// ****************  Helper Mobs
 	if (MOB_FLAGGED(ch, MOB_HELPER))
 	{
 		perform_best_mob_attack(ch, mode | KILL_FIGHTING | CHECK_HITS);
@@ -835,7 +833,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		if (ch->get_fighting() || GET_WAIT(ch) > 0)
 			continue;
 
-		/* Scavenger (picking up objects) */
+		// Scavenger (picking up objects)
 		// От одного до трех предметов за раз
 		i = number(1, 3);
 		while (i)
@@ -852,7 +850,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			//Не уверен, что рассмотрены все случаи, когда нужно снимать флаги с моба
 			//Реализация для лута и воровства
 			int grab_stuff = FALSE;
-			/* Looting the corpses            */
+			// Looting the corpses
 
 			grab_stuff += npc_loot(ch);
 			grab_stuff += npc_steal(ch);
@@ -958,7 +956,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		if (door == BFS_ERROR)
 			door = number(0, 18);
 
-		/* Mob Movement */
+		// Mob Movement
 		if (!MOB_FLAGGED(ch, MOB_SENTINEL)
 				&& GET_POS(ch) == POS_STANDING
 				&& (door >= 0 && door < NUM_OF_DIRS)
@@ -984,7 +982,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		npc_light(ch);
 
-		/*****************  Mob Memory      */
+		// *****************  Mob Memory
 		if (MOB_FLAGGED(ch, MOB_MEMORY) &&
 				MEMORY(ch) && GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch, AFF_BLIND) && !ch->get_fighting())
 		{
@@ -1017,19 +1015,19 @@ void mobile_activity(int activity_level, int missed_pulses)
 					}
 		}
 
-		/* Add new mobile actions here */
+		// Add new mobile actions here
 
 		if (was_in != IN_ROOM(ch))
 		{
 			do_aggressive_room(ch, FALSE);
 		}
-	}			/* end for() */
+	}			// end for()
 }
 
-/* Mob Memory Routines */
-/* 11.07.2002 - у зачармленных мобов не работает механизм памяти на время чарма */
+// Mob Memory Routines
+// 11.07.2002 - у зачармленных мобов не работает механизм памяти на время чарма
 
-/* make ch remember victim */
+// make ch remember victim
 void remember(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	struct timed_type timed;
@@ -1067,12 +1065,12 @@ void remember(CHAR_DATA * ch, CHAR_DATA * victim)
 }
 
 
-/* make ch forget victim */
+// make ch forget victim
 void forget(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	memory_rec *curr, *prev = NULL;
 
-	/* Момент спорный, но думаю, что так правильнее */
+	// Момент спорный, но думаю, что так правильнее
 	if (AFF_FLAGGED(ch, AFF_CHARM))
 		return;
 
@@ -1086,7 +1084,7 @@ void forget(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 
 	if (!curr)
-		return;		/* person wasn't there at all. */
+		return;		// person wasn't there at all.
 
 	if (curr == MEMORY(ch))
 		MEMORY(ch) = curr->next;
@@ -1097,9 +1095,9 @@ void forget(CHAR_DATA * ch, CHAR_DATA * victim)
 }
 
 
-/* erase ch's memory */
-/* Можно заметить, что функция вызывается только при extract char/mob */
-/* Удаляется все подряд */
+// erase ch's memory
+// Можно заметить, что функция вызывается только при extract char/mob
+// Удаляется все подряд
 void clearMemory(CHAR_DATA * ch)
 {
 	memory_rec *curr, *next;

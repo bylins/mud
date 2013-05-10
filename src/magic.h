@@ -14,8 +14,8 @@
 #ifndef _MAGIC_H_
 #define _MAGIC_H_
 
-/* These mobiles do not exist. */
-#define MOB_DOUBLE        3000 /*внум прототипа для клона*/
+// These mobiles do not exist.
+#define MOB_DOUBLE        3000 //внум прототипа для клона
 #define MOB_SKELETON      3001
 #define MOB_ZOMBIE        3002
 #define MOB_BONEDOG       3003
@@ -25,7 +25,7 @@
 #define MOB_KEEPER        104
 #define MOB_FIREKEEPER    105
 
-#define MAX_SPELL_AFFECTS 5	/* change if more needed */
+#define MAX_SPELL_AFFECTS 5	// change if more needed
 
 //таймеры для спеллов, которые должны тикать, только если кастер помер или вышел
 #define TIME_SPELL_RUNE_LABEL 300
