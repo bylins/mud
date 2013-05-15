@@ -241,6 +241,12 @@ ACMD(do_drink)
 		send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
 		return;
 	}
+	//Сообщение на случай попытки проглотить ингры
+	if (GET_OBJ_TYPE(temp) == ITEM_MING)
+	{
+		send_to_char("Не можешь приготовить - покупай готовое!\r\n", ch);
+		return;
+	}
 	if ((GET_OBJ_TYPE(temp) != ITEM_DRINKCON) && (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN))
 	{
 		send_to_char("Не стоит. Козлят и так много!\r\n", ch);

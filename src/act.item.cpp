@@ -1461,6 +1461,14 @@ ACMD(do_eat)
 		send_to_char(buf, ch);
 		return;
 	}
+
+	//Сообщение на случай попытки проглотить ингры
+	if (GET_OBJ_TYPE(food) == ITEM_MING)
+	{
+		send_to_char("Не можешь приготовить - покупай готовое!\r\n", ch);
+		return;
+	}
+
 	if (subcmd == SCMD_TASTE && ((GET_OBJ_TYPE(food) == ITEM_DRINKCON) || (GET_OBJ_TYPE(food) == ITEM_FOUNTAIN)))
 	{
 		do_drink(ch, argument, 0, SCMD_SIP);
