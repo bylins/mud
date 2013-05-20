@@ -1689,6 +1689,9 @@ void boot_db(void)
 	log("Booting setstuff table.");
 	obj_data::init_set_table();
 
+	log("Init item levels.");
+	ObjSystem::init_item_levels();
+
 	log("Loading help entries.");
 	index_boot(DB_BOOT_HLP);
 
@@ -1860,9 +1863,6 @@ void boot_db(void)
 
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
-
-	log("Init item levels.");
-	ObjSystem::init_item_levels();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
