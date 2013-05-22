@@ -43,6 +43,12 @@ enum
 	IGNORE_FSHIELD,
 	// дамаг идет от магического зеркала или звукового барьера
 	MAGIC_REFLECT,
+	// жертва имеет огненный щит
+	VICTIM_FIRE_SHIELD,
+	// жертва имеет воздушный щит
+	VICTIM_AIR_SHIELD,
+	// жертва имеет ледяной щит
+	VICTIM_ICE_SHIELD,
 
 	// кол-во флагов
 	HIT_TYPE_FLAGS_NUM
@@ -148,16 +154,18 @@ public:
 	int victim_start_pos;
 
 private:
-	// инит всех полей дефолтными значениями дя конструкторов
+	// инит всех полей дефолтными значениями для конструкторов
 	void zero_init();
 	// инит msg_num, ch_start_pos, victim_start_pos
 	// дергается в начале process, когда все уже заполнено
 	void post_init(CHAR_DATA *ch, CHAR_DATA *victim);
+	void post_init_shields(CHAR_DATA *victim);
 	// process()
 	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
 	void armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
 	bool dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim);
 	void process_death(CHAR_DATA *ch, CHAR_DATA *victim);
+	void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	// обратный дамаг от огненного щита
 	bool fs_damage;

@@ -988,6 +988,53 @@ void test_self_hitroll(CHAR_DATA *ch)
 		hit.calc_thaco * -1, hit2.calc_thaco * -1, hit.victim_ac);
 }
 
+/**
+ * Разный инит щитов у мобов и чаров.
+ * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
+ */
+void Damage::post_init_shields(CHAR_DATA *victim)
+{
+	if (IS_NPC(victim))
+	{
+		if (AFF_FLAGGED(victim, AFF_FIRESHIELD))
+			flags.set(VICTIM_FIRE_SHIELD);
+		if (AFF_FLAGGED(victim, AFF_ICESHIELD))
+			flags.set(VICTIM_ICE_SHIELD);
+		if (AFF_FLAGGED(victim, AFF_AIRSHIELD))
+			flags.set(VICTIM_AIR_SHIELD);
+	}
+	else
+	{
+		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
+		std::vector<int> shields;
+
+		if (AFF_FLAGGED(victim, AFF_FIRESHIELD))
+			shields.push_back(FIRESHIELD);
+		if (AFF_FLAGGED(victim, AFF_AIRSHIELD))
+			shields.push_back(AIRSHIELD);
+		if (AFF_FLAGGED(victim, AFF_ICESHIELD))
+			shields.push_back(ICESHIELD);
+
+		if (shields.empty())
+			return;
+
+		int shield_num = number(0, shields.size() - 1);
+
+		if (shields[shield_num] == FIRESHIELD)
+		{
+			flags.set(VICTIM_FIRE_SHIELD);
+		}
+		else if (shields[shield_num] == AIRSHIELD)
+		{
+			flags.set(VICTIM_AIR_SHIELD);
+		}
+		else if (shields[shield_num] == ICESHIELD)
+		{
+			flags.set(VICTIM_ICE_SHIELD);
+		}
+	}
+}
+
 void Damage::post_init(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (msg_num == -1)
@@ -1009,6 +1056,7 @@ void Damage::post_init(CHAR_DATA *ch, CHAR_DATA *victim)
 			msg_num = TYPE_HIT;
 		}
 	}
+
 	if (ch_start_pos == -1)
 	{
 		ch_start_pos = GET_POS(ch);
@@ -1017,6 +1065,8 @@ void Damage::post_init(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		victim_start_pos = GET_POS(victim);
 	}
+
+	post_init_shields(victim);
 }
 
 void Damage::zero_init()

@@ -1955,6 +1955,7 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim)
 
 bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 {
+	// защита богов
 	if (dam && AFF_FLAGGED(victim, AFF_SHIELD))
 	{
 		if (skill_num == SKILL_BASH)
@@ -1975,27 +1976,8 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		return false;
 	}
 
-	enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
-	std::vector<int> shields;
-
-	if (AFF_FLAGGED(victim, AFF_FIRESHIELD))
-		shields.push_back(FIRESHIELD);
-	if (AFF_FLAGGED(victim, AFF_ICESHIELD))
-		shields.push_back(ICESHIELD);
-	if (AFF_FLAGGED(victim, AFF_AIRSHIELD))
-		shields.push_back(AIRSHIELD);
-
-	if (shields.empty())
-		return false;
-
-	int shield_num = number(0, shields.size() - 1);
-	
-	// Проверка на крит, если крит.удар и рандом выпал
-	// не на ледяной щит, дамага НЕ уменьшается (Купала)
-	if (flags[CRIT_HIT] && (shields[shield_num] != ICESHIELD))
-		return false;
-
-	if (shields[shield_num] == FIRESHIELD)
+	// обработка щитов, см Damage::post_init_shields()
+	if (flags[VICTIM_FIRE_SHIELD] && !flags[CRIT_HIT])
 	{
 		if (dmg_type == PHYS_DMG && !flags[IGNORE_FSHIELD])
 		{
@@ -2010,7 +1992,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 		dam -= (dam * number(30, 50) / 100);
 	}
-	else if (shields[shield_num] == ICESHIELD)
+	if (dam > 0 && flags[VICTIM_ICE_SHIELD] && !flags[CRIT_HIT])
 	{
 		act("Ледяной щит принял часть удара на себя.", FALSE, ch, 0, victim, TO_VICT);
 		act("Ледяной щит вокруг $N1 смягчил ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
@@ -2018,7 +2000,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 		dam -= (dam * number(30, 50) / 100);
 	}
-	else if (shields[shield_num] == AIRSHIELD)
+	if (dam > 0 && flags[VICTIM_AIR_SHIELD] && !flags[CRIT_HIT])
 	{
 		act("Воздушный щит смягчил удар $n1.", FALSE, ch, 0, victim, TO_VICT);
 		act("Воздушный щит вокруг $N1 ослабил ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
@@ -2058,7 +2040,7 @@ void Damage::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 		else if (flags[CRIT_HIT]
 			&& (GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
 			&& !AFF_FLAGGED(victim, AFF_PRISMATICAURA)
-			&& !AFF_FLAGGED(victim, AFF_ICESHIELD))
+			&& !flags[VICTIM_ICE_SHIELD])
 		{
 			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2));
 		}
@@ -2112,18 +2094,18 @@ bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 	return false;
 }
 
-void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim)
+void Damage::send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	// Блочить мессагу крита при ледяном щите вроде нелогично,
 	// так что добавил отдельные сообщения для ледяного щита (Купала)
-	if (!AFF_FLAGGED(victim, AFF_ICESHIELD))
+	if (!flags[VICTIM_ICE_SHIELD])
 		sprintf(buf, "&B&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
 		PERS(victim, ch, 3));
 	else
 		sprintf(buf, "&B&qВаше меткое попадание утонуло в ледяной пелене щита %s.&Q&n\r\n",
 		PERS(victim, ch, 1));
 	send_to_char(buf, ch);
-	if (!AFF_FLAGGED(victim, AFF_ICESHIELD))
+	if (!flags[VICTIM_ICE_SHIELD])
 		sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
 		PERS(ch, victim, 1));
 	else
@@ -2429,7 +2411,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	// на жертве есть воздушный щит
 	// атака - каст моба (в mage_damage увеличение дамага от позиции было только у колдунов)
 	if (victim_start_pos < POS_FIGHTING
-		&& !AFF_FLAGGED(victim, AFF_AIRSHIELD)
+		&& !flags[VICTIM_AIR_SHIELD]
 		&& !(dmg_type == MAGE_DMG && IS_NPC(ch)))
 	{
 		dam += dam * (POS_FIGHTING - victim_start_pos) / 4;
@@ -3725,7 +3707,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	// итоговый дамаг
 	int made_dam = hit_params.extdamage(ch, victim);
-	
+
 	//Обнуление лага, когда виктим убит с применением
 	//оглушить или молотить. Чтобы все это было похоже на
 	//действие скиллов экстраатак(пнуть, сбить и т.д.)
