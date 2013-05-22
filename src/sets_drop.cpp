@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <algorithm>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -102,12 +103,15 @@ std::list<ZoneNode> solo_mob_list;
 
 struct DropNode
 {
-	DropNode() : obj_rnum(0), chance(0) {};
+	DropNode() : obj_rnum(0), chance(0), solo(false) {};
 	// рнум сетины
 	int obj_rnum;
 	// шанс дропа (проценты * 10), chance из 1000
 	int chance;
+	// из соло или груп моб листа эта сетина (для генерации справки)
+	bool solo;
 };
+
 // финальный список дропа по мобам (mob_rnum)
 std::map<int, DropNode> drop_list;
 
@@ -714,6 +718,7 @@ void init_drop_table(int type)
 		DropNode tmp_node;
 		tmp_node.obj_rnum = obj_rnum;
 		tmp_node.chance = calc_drop_chance(l, obj_rnum);
+		tmp_node.solo = (type == GROUP_MOB) ? false : true;
 
 		drop_list.insert(std::make_pair(l->rnum, tmp_node));
 
@@ -754,38 +759,92 @@ void add_to_help_table(const std::vector<std::string> &key_list, const std::stri
 	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
 }
 
-// * Генерация сообщения в справку.
+/**
+ * Распечатка конкретного сета на основе ранее сформированного HelpNode.
+ * С делением вывода на соло и груп сетины.
+ */
+std::string print_current_set(const HelpNode &node)
+{
+	std::stringstream solo_obj_names;
+	std::vector<std::string> solo_mob_list;
+	std::stringstream group_out;
+	group_out.precision(1);
+	int names_delim = -1;
+
+	for (std::set<int>::const_iterator l = node.vnum_list.begin(),
+		lend = node.vnum_list.end(); l != lend; ++l)
+	{
+		for (std::map<int, DropNode>::iterator k = drop_list.begin(),
+				kend = drop_list.end(); k != kend; ++k)
+		{
+			if (obj_index[k->second.obj_rnum].vnum == *l)
+			{
+				if (k->second.solo == true)
+				{
+					if (names_delim == 1)
+					{
+						names_delim = 0;
+						solo_obj_names << "\r\n   ";
+					}
+					else if (names_delim == 0)
+					{
+						names_delim = 1;
+						solo_obj_names << ", ";
+					}
+					else
+					{
+						names_delim = 0;
+						solo_obj_names << "   ";
+					}
+					solo_obj_names << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0);
+
+					std::stringstream solo_out;
+					solo_out.precision(1);
+					solo_out << "    - " << mob_proto[k->first].get_name()
+						<< " (" << zone_table[mob_index[k->first].zone].name << ")"
+						<< " - " << std::fixed << k->second.chance / 10.0 << "%\r\n";
+					solo_mob_list.push_back(solo_out.str());
+				}
+				else
+				{
+					group_out << "   " << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0)
+						<< " - " << mob_proto[k->first].get_name()
+						<< " (" << zone_table[mob_index[k->first].zone].name << ")"
+						<< " - " << std::fixed << k->second.chance / 10.0 << "%\r\n";
+				}
+				break;
+			}
+		}
+	}
+
+	std::srand(std::time(0));
+	std::random_shuffle(solo_mob_list.begin(), solo_mob_list.end());
+
+	std::stringstream out;
+	out << node.title << "\r\n";
+	out << solo_obj_names.str() << "\r\n";
+	for (std::vector<std::string>::const_iterator i = solo_mob_list.begin(),
+		iend = solo_mob_list.end(); i != iend; ++i)
+	{
+		out << *i;
+	}
+	out << group_out.str();
+
+	return out.str();
+}
+
+/**
+ * Генерация 'справка сеты'.
+ */
 void init_xhelp()
 {
 	std::stringstream out;
 	out << "Наборы предметов, участвующие в системе автоматического выпадения:\r\n";
 
-	for (id_to_set_info_map::const_iterator it = obj_data::set_table.begin(),
-		iend = obj_data::set_table.end(); it != iend; ++it)
+	for (std::vector<HelpNode>::const_iterator i = help_list.begin(),
+		iend = help_list.end(); i != iend; ++i)
 	{
-		bool print_set_name = true;
-		for (set_info::const_iterator obj = it->second.begin(),
-			iend = it->second.end(); obj != iend; ++obj)
-		{
-			for (std::map<int, DropNode>::iterator k = drop_list.begin(),
-					kend = drop_list.end(); k != kend; ++k)
-			{
-				if (obj_index[k->second.obj_rnum].vnum == obj->first)
-				{
-					if (print_set_name)
-					{
-						out << "\r\n" << it->second.get_name().c_str() << "\r\n";
-						print_set_name = false;
-					}
-					out.precision(1);
-					out << "   " << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0)
-						<< " - " << mob_proto[k->first].get_name()
-						<< " (" << zone_table[mob_index[k->first].zone].name << ")"
-						<< " - " << std::fixed << k->second.chance / 10.0 << "%\r\n";
-					break;
-				}
-			}
-		}
+		out << "\r\n" << print_current_set(*i);
 	}
 
 	std::vector<std::string> help_list;
@@ -795,35 +854,18 @@ void init_xhelp()
 	add_to_help_table(help_list, out.str());
 }
 
+/**
+ * Генерация справки по каждому набору отдельно.
+ */
 void init_xhelp_full()
 {
 	for (std::vector<HelpNode>::const_iterator i = help_list.begin(),
 		iend = help_list.end(); i != iend; ++i)
 	{
-		std::stringstream out;
-		out << i->title << "\r\n";
-
-		for (std::set<int>::const_iterator l = i->vnum_list.begin(),
-			lend = i->vnum_list.end(); l != lend; ++l)
-		{
-			for (std::map<int, DropNode>::iterator k = drop_list.begin(),
-					kend = drop_list.end(); k != kend; ++k)
-			{
-				if (obj_index[k->second.obj_rnum].vnum == *l)
-				{
-					out.precision(1);
-					out << "   " << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0)
-						<< " - " << mob_proto[k->first].get_name()
-						<< " (" << zone_table[mob_index[k->first].zone].name << ")"
-						<< " - " << std::fixed << k->second.chance / 10.0 << "%\r\n";
-					break;
-				}
-			}
-		}
-
+		std::string text = print_current_set(*i);
 		std::vector<std::string> str_list;
 		boost::split(str_list, i->alias_list, boost::is_any_of(", "));
-		add_to_help_table(str_list, out.str());
+		add_to_help_table(str_list, text);
 	}
 }
 
@@ -900,9 +942,18 @@ bool load_drop_table()
 			return false;
 		}
 
+		std::string solo = xmlparse_str(item_node, "solo");
+		if (solo.empty())
+		{
+			snprintf(buf, sizeof(buf), "...bad item attributes (solo=empty)");
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			return false;
+		}
+
 		DropNode tmp_node;
 		tmp_node.obj_rnum = obj_rnum;
 		tmp_node.chance = chance;
+		tmp_node.solo = solo == "true" ? true : false;
 		drop_list.insert(std::make_pair(mob_rnum, tmp_node));
 	}
 	return true;
@@ -927,6 +978,7 @@ void save_drop_table()
 		mob_node.append_attribute("vnum") = obj_index[i->second.obj_rnum].vnum;
 		mob_node.append_attribute("mob") = mob_index[i->first].vnum;
 		mob_node.append_attribute("chance") = i->second.chance;
+		mob_node.append_attribute("solo") = i->second.solo ? "true" : "false";
 	}
 
 	doc.save_file(DROP_TABLE_FILE);
