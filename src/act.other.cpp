@@ -1452,7 +1452,7 @@ ACMD(do_report)
 	else if (AFF_FLAGGED(ch, AFF_CHARM))
 	{
 		AFFECT_DATA *aff;
-		int loyalty;
+		int loyalty = 0;
 		for (aff = ch->affected; aff; aff = aff->next)
 			if (aff->type == SPELL_CHARM)
 			{

@@ -3859,7 +3859,7 @@ void login_change_invoice(CHAR_DATA* ch)
 // возвращает истину, если спамконтроль сработал и игроку придется подождать
 bool who_spamcontrol(CHAR_DATA *ch, unsigned short int mode = WHO_LISTALL)
 {
-	int mana, cost, last;
+	int cost = 0;
 	time_t ctime;
 
 	if (IS_IMMORTAL(ch))
@@ -3880,8 +3880,8 @@ bool who_spamcontrol(CHAR_DATA *ch, unsigned short int mode = WHO_LISTALL)
 			break;
 	}
 
-	mana = ch->get_who_mana();
-	last = ch->get_who_last();
+	int mana = ch->get_who_mana();
+	int last = ch->get_who_last();
 
 #ifdef WHO_DEBUG
 	send_to_char(boost::str(boost::format("\r\nСпам-контроль:\r\n  было маны: %u, расход: %u\r\n") % ch->get_who_mana() % cost).c_str(), ch);
