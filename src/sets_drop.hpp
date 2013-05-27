@@ -10,7 +10,7 @@
 namespace SetsDrop
 {
 
-// период сохранения списков мобов (минуты)
+// период сохранения списков мобов и таблицы дропа (минуты)
 const int SAVE_PERIOD = 27;
 // лоад списков при старте мада
 void init();
@@ -36,6 +36,8 @@ void save_mob_stat();
 void show_zone_stat(CHAR_DATA *ch, int zone_vnum);
 // печать таймера резета таблицы дропа перед страницей справки
 void print_timer_str(CHAR_DATA *ch);
+// сейв текущей таблицы дропа и шансов
+void save_drop_table();
 
 } // namespace SetsDrop
 

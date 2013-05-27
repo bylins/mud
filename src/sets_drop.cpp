@@ -46,7 +46,9 @@ const int MAX_GROUP_SIZE = 12;
 const char *MOB_STAT_FILE = LIB_PLRSTUFF"mob_stat.xml";
 const char *DROP_TABLE_FILE = LIB_PLRSTUFF"sets_drop.xml";
 // сброс таблицы лоада каждый х часов
-const int RESET_TIMER = 70;
+const int RESET_TIMER = 35;
+// базовый шанс дропа соло сетин *10
+const int DEFAULT_SOLO_CHANCE = 30;
 // сообщение игрокам при резете таблицы дропа
 const char *RESET_MESSAGE =
 	"Внезапно мир содрогнулся, день поменялся с ночью, земля с небом\r\n"
@@ -56,6 +58,8 @@ enum { SOLO_MOB, GROUP_MOB, SOLO_ZONE, GROUP_ZONE };
 
 // время следующего сброса таблицы
 time_t next_reset_time = 0;
+// флаг для сейва таблицы дропа по таймеру
+bool need_save_drop_table = false;
 
 // список груп-сетин на лоад (vnum)
 std::list<int> group_obj_list;
@@ -101,36 +105,40 @@ std::list<ZoneNode> group_mob_list;
 // временный список мобов на лоад соло-сетин
 std::list<ZoneNode> solo_mob_list;
 
+struct HelpNode
+{
+	// список алиасов
+	std::string alias_list;
+	// полное имя сета
+	std::string title;
+	// списки предметов по типам дропа
+	std::set<int> solo_list_1;
+	std::set<int> solo_list_2;
+	std::set<int> group_list;
+};
+// список сетов для справки
+std::vector<HelpNode> help_list;
+
 struct DropNode
 {
-	DropNode() : obj_rnum(0), chance(0), solo(false), kills_count(0), can_drop(false) {};
+	DropNode() : obj_rnum(0), obj_vnum(0), chance(0), solo(false), can_drop(false) {};
 	// рнум сетины
 	int obj_rnum;
+	// внум сетины
+	int obj_vnum;
 	// шанс дропа (проценты * 10), chance из 1000
 	int chance;
 	// из соло или груп моб листа эта сетина (для генерации справки)
 	bool solo;
-	// счетчик убийств соответствующего моба
-	int kills_count;
 	// false = убийства в момент, когда шмотка = макс в мире
 	// true = убийства в момент, когда шмотка может дропнуться
 	bool can_drop;
+	// список мобов залинкованных с этой соло-сетиной через справку
+	std::set<int /* mob rnum */> link_mob_list;
 };
 
 // финальный список дропа по мобам (mob_rnum)
 std::map<int, DropNode> drop_list;
-
-struct HelpNode
-{
-	// список алиасов для справки
-	std::string alias_list;
-	// полное имя сета для текста справки
-	std::string title;
-	// список предметов
-	std::set<int> vnum_list;
-};
-// список соответствий алиасов сетов для справки
-std::vector<HelpNode> help_list;
 
 // * Инициализация списка сетов на лоад.
 void init_obj_list()
@@ -171,6 +179,8 @@ void init_obj_list()
 			continue;
 		}
 
+		std::set<int> tmp_solo_list;
+
 		if (type == "manual")
 		{
 			for (pugi::xml_node obj_node = set_node.child("obj");
@@ -199,13 +209,16 @@ void init_obj_list()
 				if (list_type == "solo")
 				{
 					solo_obj_list.push_back(obj_vnum);
+					// предварительный соло список, который
+					// дальше может быть поделен еще на два
+					tmp_solo_list.insert(obj_vnum);
 				}
 				else
 				{
 					group_obj_list.push_back(obj_vnum);
+					// груп список инится сразу
+					node.group_list.insert(obj_vnum);
 				}
-				// список сетин для справки
-				node.vnum_list.insert(obj_vnum);
 				// имя сета
 				if (node.title.empty())
 				{
@@ -247,8 +260,6 @@ void init_obj_list()
 						// берется последний (максимальный) в списке активатор
 						set_sort_list.insert(
 							std::make_pair(k->second.rbegin()->first, obj_vnum));
-						// список сетин для справки
-						node.vnum_list.insert(obj_vnum);
 						// имя сета
 						if (node.title.empty())
 						{
@@ -265,13 +276,37 @@ void init_obj_list()
 				if (num < total_num / 2)
 				{
 					solo_obj_list.push_back(i->second);
+					tmp_solo_list.insert(i->second);
 				}
 				else
 				{
 					group_obj_list.push_back(i->second);
+					node.group_list.insert(i->second);
 				}
 			}
 		}
+		// деление соло списка на два, если требуется
+		if (tmp_solo_list.size() > 4)
+		{
+			int num = 0, total_num = tmp_solo_list.size();
+			for (std::set<int>::const_iterator i = tmp_solo_list.begin(),
+				iend = tmp_solo_list.end(); i != iend; ++i, ++num)
+			{
+				if (num < total_num / 2)
+				{
+					node.solo_list_1.insert(*i);
+				}
+				else
+				{
+					node.solo_list_2.insert(*i);
+				}
+			}
+		}
+		else
+		{
+			node.solo_list_1 = tmp_solo_list;
+		}
+
 		// список алиасов и сетин для справки
 		help_list.push_back(node);
 	}
@@ -679,9 +714,10 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 	else
 	{
 		// 2.6% .. 3.4% / 38 ... 28
-		int mob_lvl = mob_proto[mob->rnum].get_level();
-		int lvl_mod = MIN(MAX(0, mob_lvl - MIN_SOLO_MOB_LVL), 6);
-		chance = (26 + lvl_mod * 1.45) / mob->miw;
+//		int mob_lvl = mob_proto[mob->rnum].get_level();
+//		int lvl_mod = MIN(MAX(0, mob_lvl - MIN_SOLO_MOB_LVL), 6);
+//		chance = (26 + lvl_mod * 1.45) / mob->miw;
+		chance = DEFAULT_SOLO_CHANCE;
 		// мини сеты в соло увеличенный шанс на дроп
 		const OBJ_DATA *obj = obj_proto[obj_rnum];
 		if (!SetSystem::is_big_set(obj))
@@ -723,6 +759,7 @@ void init_drop_table(int type)
 
 		DropNode tmp_node;
 		tmp_node.obj_rnum = obj_rnum;
+		tmp_node.obj_vnum = *it;
 		tmp_node.chance = calc_drop_chance(l, obj_rnum);
 		tmp_node.solo = (type == GROUP_MOB) ? false : true;
 
@@ -766,6 +803,88 @@ void add_to_help_table(const std::vector<std::string> &key_list, const std::stri
 }
 
 /**
+ * Помимо генерации текста для справки здесь теперь инится
+ * DropNode::link_mob_list, т.к. место удобное.
+ */
+std::string print_solo_list(const std::set<int> &node)
+{
+	if (node.empty()) return "";
+
+	std::stringstream out;
+	std::stringstream solo_obj_names;
+	std::vector<std::string> solo_mob_list;
+	int new_line = -1;
+
+	// инит рнумов залинкованных мобов
+	std::set<int> tmp_link_mob_list;
+	for (std::set<int>::const_iterator l = node.begin(),
+		lend = node.end(); l != lend; ++l)
+	{
+		for (std::map<int, DropNode>::iterator k = drop_list.begin(),
+				kend = drop_list.end(); k != kend; ++k)
+		{
+			if (k->second.obj_vnum == *l)
+			{
+				tmp_link_mob_list.insert(k->first);
+			}
+		}
+	}
+
+	for (std::set<int>::const_iterator l = node.begin(),
+		lend = node.end(); l != lend; ++l)
+	{
+		for (std::map<int, DropNode>::iterator k = drop_list.begin(),
+				kend = drop_list.end(); k != kend; ++k)
+		{
+			if (k->second.obj_vnum == *l)
+			{
+				if (new_line == -1)
+				{
+					solo_obj_names << "   ";
+					new_line = 0;
+				}
+				else if (new_line == 0)
+				{
+					solo_obj_names << ", ";
+					new_line = 1;
+				}
+				else if (new_line == 1)
+				{
+					solo_obj_names << "\r\n   ";
+					new_line = 0;
+				}
+				solo_obj_names << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0);
+				std::stringstream solo_out;
+				solo_out.precision(1);
+				solo_out << "    - " << mob_proto[k->first].get_name()
+					<< " (" << zone_table[mob_index[k->first].zone].name << ")"
+					<< " - " << std::fixed << k->second.chance / 10.0 << "%\r\n";
+				solo_mob_list.push_back(solo_out.str());
+				// линкованные мобы
+				k->second.link_mob_list = tmp_link_mob_list;
+				// удаляем себя из списка
+				std::set<int>::iterator m = k->second.link_mob_list.find(k->second.obj_vnum);
+				if (m != k->second.link_mob_list.end())
+				{
+					k->second.link_mob_list.erase(m);
+				}
+			}
+		}
+	}
+
+	std::srand(std::time(0));
+	std::random_shuffle(solo_mob_list.begin(), solo_mob_list.end());
+	out << solo_obj_names.str() << "\r\n";
+	for (std::vector<std::string>::const_iterator i = solo_mob_list.begin(),
+		iend = solo_mob_list.end(); i != iend; ++i)
+	{
+		out << *i;
+	}
+
+	return out.str();
+}
+
+/**
  * Распечатка конкретного сета на основе ранее сформированного HelpNode.
  * С делением вывода на соло и груп сетины.
  */
@@ -775,8 +894,11 @@ std::string print_current_set(const HelpNode &node)
 	out << node.title << "\r\n";
 	out.precision(1);
 
-	for (std::set<int>::const_iterator l = node.vnum_list.begin(),
-		lend = node.vnum_list.end(); l != lend; ++l)
+	out << print_solo_list(node.solo_list_1);
+	out << print_solo_list(node.solo_list_2);
+
+	for (std::set<int>::const_iterator l = node.group_list.begin(),
+		lend = node.group_list.end(); l != lend; ++l)
 	{
 		for (std::map<int, DropNode>::iterator k = drop_list.begin(),
 				kend = drop_list.end(); k != kend; ++k)
@@ -786,7 +908,7 @@ std::string print_current_set(const HelpNode &node)
 				out << "   " << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0)
 					<< " - " << mob_proto[k->first].get_name()
 					<< " (" << zone_table[mob_index[k->first].zone].name << ")"
-					<< " - " << std::fixed << k->second.kills_count << "/" << 1000 / k->second.chance << "\r\n";
+					<< " - " << std::fixed << k->second.chance / 10.0 << "%\r\n";
 				break;
 			}
 		}
@@ -912,15 +1034,6 @@ bool load_drop_table()
 			return false;
 		}
 
-		const int kills_count = xmlparse_int(item_node, "kills_count");
-		if (kills_count < 0)
-		{
-			snprintf(buf, sizeof(buf),
-				"...bad item attributes (kills_count=%d)", kills_count);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-			return false;
-		}
-
 		std::string can_drop = xmlparse_str(item_node, "can_drop");
 		if (can_drop.empty())
 		{
@@ -931,9 +1044,9 @@ bool load_drop_table()
 
 		DropNode tmp_node;
 		tmp_node.obj_rnum = obj_rnum;
+		tmp_node.obj_vnum = obj_vnum;
 		tmp_node.chance = chance;
 		tmp_node.solo = solo == "true" ? true : false;
-		tmp_node.kills_count = kills_count;
 		tmp_node.can_drop = can_drop == "true" ? true : false;
 
 		drop_list.insert(std::make_pair(mob_rnum, tmp_node));
@@ -943,11 +1056,12 @@ bool load_drop_table()
 
 void save_drop_table()
 {
+	if (!need_save_drop_table) return;
+
 	pugi::xml_document doc;
 	doc.append_child().set_name("drop_list");
 	pugi::xml_node node_list = doc.child("drop_list");
 
-	next_reset_time = time(0) + 60 * 60 * RESET_TIMER;
 	pugi::xml_node time_node = node_list.append_child();
 	time_node.set_name("time");
 	time_node.append_attribute("reset") = boost::lexical_cast<std::string>(next_reset_time).c_str();
@@ -961,11 +1075,12 @@ void save_drop_table()
 		mob_node.append_attribute("mob") = mob_index[i->first].vnum;
 		mob_node.append_attribute("chance") = i->second.chance;
 		mob_node.append_attribute("solo") = i->second.solo ? "true" : "false";
-		mob_node.append_attribute("kills_count") = i->second.kills_count;
 		mob_node.append_attribute("can_drop") = i->second.can_drop ? "true" : "false";
 	}
 
 	doc.save_file(DROP_TABLE_FILE);
+
+	need_save_drop_table = false;
 }
 
 void clear_zone_stat(int zone_vnum)
@@ -983,18 +1098,6 @@ void clear_zone_stat(int zone_vnum)
 		}
 	}
 	save_mob_stat();
-}
-
-void init_drop_system()
-{
-	init_mob_name_list();
-	init_zone_type();
-	init_mob_type();
-	filter_dupe_names();
-	split_mob_name_list();
-	init_drop_table(SOLO_MOB);
-	init_drop_table(GROUP_MOB);
-	save_drop_table();
 }
 
 void reload_by_timer()
@@ -1016,6 +1119,22 @@ void message_for_players()
 				CCNRM(i->character, C_NRM));
 		}
 	}
+}
+
+void init_drop_system()
+{
+	init_mob_name_list();
+	init_zone_type();
+	init_mob_type();
+	filter_dupe_names();
+	split_mob_name_list();
+
+	init_drop_table(SOLO_MOB);
+	init_drop_table(GROUP_MOB);
+
+	next_reset_time = time(0) + 60 * 60 * RESET_TIMER;
+	need_save_drop_table = true;
+	save_drop_table();
 }
 
 /**
@@ -1075,6 +1194,22 @@ void show_stats(CHAR_DATA *ch)
 	send_to_char(ch, "  Мобов в статистике для сетов: %d\r\n", mob_stat.size());
 }
 
+/**
+ * Обнуление шансов мобов соло сетин, связанных по справке
+ */
+void linked_zero_init(const std::set<int> &mob_list)
+{
+	for (std::set<int>::const_iterator i = mob_list.begin(),
+		iend = mob_list.end(); i != iend; ++i)
+	{
+		std::map<int, DropNode>::iterator k = drop_list.find(*i);
+		if (k != drop_list.end())
+		{
+			k->second.chance = DEFAULT_SOLO_CHANCE;
+		}
+	}
+}
+
 // * \return рнум шмотки или -1 если дропать нечего
 int check_mob(int mob_rnum)
 {
@@ -1083,54 +1218,54 @@ int check_mob(int mob_rnum)
 	std::map<int, DropNode>::iterator it = drop_list.find(mob_rnum);
 	if (it != drop_list.end() && it->second.chance > 0)
 	{
-		int num = obj_index[it->second.obj_rnum].stored
-			+ obj_index[it->second.obj_rnum].number;
+		const int num = obj_index[it->second.obj_rnum].stored + obj_index[it->second.obj_rnum].number;
+
+		// груп сетины по старой системе
+		if (!it->second.solo
+			&& num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum])
+			&& number(0, 1000) <= it->second.chance)
+		{
+			return it->second.obj_rnum;
+		}
+
+		const int pct = 10 + mob_proto[mob_rnum].get_level() - MIN_SOLO_MOB_LVL;
 
 		if (num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum]))
 		{
 			if (it->second.can_drop == false)
 			{
 				// если шмотка в лоаде, но счетчик не был на дроп
-				// обнуляем счетчик киллов до текущего и помечаем его на дроп
-				it->second.kills_count = 1;
+				// обнуляем шансы до базовых и помечаем на дроп
+				// + обнуляем всех связанных по справке мобов
+				it->second.chance = DEFAULT_SOLO_CHANCE;
 				it->second.can_drop = true;
+				linked_zero_init(it->second.link_mob_list);
 			}
-			else
+			// шмотка в лоаде и счетчик на дроп
+			// увеличиваем шансы от базового процента на 10% + 1% за каждый уровень выше 25
+			it->second.chance += it->second.chance / 100.0 * pct;
+			// собственно проверка на лоад
+			if (number(0, 1000) <= it->second.chance)
 			{
-				// если шмотка в лоаде и счетчик на дроп
-				// просто увеличиваем счетчик
-				it->second.kills_count += 1;
-			}
-			// собственно проверка кол-ва убийств на лоад
-			if (1000 / it->second.chance <= it->second.kills_count)
-			{
-				it->second.kills_count = 0;
-				it->second.can_drop = false;
+				// если шмоток две и более в мире - вторую нашару не дропаем
+				it->second.chance = DEFAULT_SOLO_CHANCE;
 				rnum = it->second.obj_rnum;
 			}
 		}
 		else
 		{
-			if (it->second.can_drop == true)
+			it->second.can_drop = false;
+			// шмотка не в лоаде и счетчик не на дроп
+			// увеличиваем шансы как на дропе с проверкой переполнения
+			it->second.chance += it->second.chance / 100.0 * pct;
+			if (it->second.chance > 1000)
 			{
-				// если шмотка не в лоаде, но счетчик был на дроп
-				// обнуляем счетчик до текущего и помечаем его не на дроп
-				it->second.kills_count = 1;
-				it->second.can_drop = false;
-			}
-			else
-			{
-				// если шмотка не в лоаде и счетчик не на дроп
-				// просто увеличиваем счетчик
-				it->second.kills_count += 1;
-				// переполнение счетчика вхолостую
-				if (1000 / it->second.chance <= it->second.kills_count)
-				{
-					it->second.kills_count = 0;
-				}
+				it->second.chance = DEFAULT_SOLO_CHANCE;
 			}
 		}
-		save_drop_table();
+
+		need_save_drop_table = true;
+		// TODO: да, это тупо...
 		go_boot_xhelp();
 	}
 
@@ -1165,10 +1300,7 @@ void renumber_obj_rnum(const int rnum, const int mob_rnum)
 		{
 			if (it->first >= mob_rnum)
 			{
-				DropNode tmp_node;
-				tmp_node.obj_rnum = it->second.obj_rnum;
-				tmp_node.chance = it->second.chance;
-				tmp_list.insert(std::make_pair(it->first + 1, tmp_node));
+				tmp_list.insert(std::make_pair(it->first + 1, it->second));
 			}
 			else
 			{
