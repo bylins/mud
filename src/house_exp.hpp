@@ -67,6 +67,7 @@ public:
 private:
 	typedef std::map<std::string /* месяц.год */, long long /* экспа*/> HistoryExpListType;
 	HistoryExpListType list_;
+	long long calc_exp_history() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

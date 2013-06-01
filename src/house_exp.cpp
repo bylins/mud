@@ -326,18 +326,14 @@ long long ClanExpHistory::get(int month) const
 	return exp;
 }
 
-/**
- * В данный момент смотрится два последних полных календарных месяца.
- * Чтобы месяцы были дейсвительно полными - история экспы должна включать в себя
- * как минимум 4 элемента (возможно неполный месяц + 2 месяца + текущий неполный).
- * В расчет идут соответственно второй и третий месяцы с конца списка.
-*/
-bool ClanExpHistory::need_destroy() const
+//
+// В данный момент смотрится два последних полных календарных месяца.
+// Чтобы месяцы были дейсвительно полными - история экспы должна включать в себя
+// как минимум 4 элемента (возможно неполный месяц + 2 месяца + текущий неполный).
+// В расчет идут соответственно второй и третий месяцы с конца списка.
+//
+long long ClanExpHistory::calc_exp_history() const
 {
-	if (list_.size() < 4)
-	{
-		return false;
-	}
 	long long exp = 0;
 	int count = 1;
 	for (HistoryExpListType::const_reverse_iterator i = list_.rbegin(), iend = list_.rend(); i != iend; ++i, ++count)
@@ -351,7 +347,16 @@ bool ClanExpHistory::need_destroy() const
 			exp += i->second;
 		}
 	}
-	return exp < MIN_EXP_HISTORY ? true : false;
+	return exp;
+}
+
+bool ClanExpHistory::need_destroy() const
+{
+	if (list_.size() < 4)
+	{
+		return false;
+	}
+	return calc_exp_history() < MIN_EXP_HISTORY ? true : false;
 }
 
 void ClanExpHistory::show(CHAR_DATA *ch) const
@@ -367,7 +372,9 @@ void ClanExpHistory::show(CHAR_DATA *ch) const
 		}
 	}
 	send_to_char(ch, "Напоминаем, что в системе автоматической очистки неактивных кланов учитывается\r\n"
-			"опыт, набранный за два последних ПОЛНЫХ календарных месяца ( >= %s в сумме).\r\n", thousands_sep(MIN_EXP_HISTORY).c_str());
+			"опыт, набранный за два последних ПОЛНЫХ календарных месяца ( >= %s в сумме);\r\n"
+			"сейчас он составляет %s.\r\n", thousands_sep(MIN_EXP_HISTORY).c_str(),
+			                             thousands_sep(calc_exp_history()).c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
