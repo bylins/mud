@@ -73,7 +73,6 @@
 extern ACMD(do_echo);
 extern int do_social(CHAR_DATA * ch, char *argument);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
-extern void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH]);
 extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
