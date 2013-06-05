@@ -73,6 +73,7 @@
 extern ACMD(do_echo);
 extern int do_social(CHAR_DATA * ch, char *argument);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
+extern void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH]);
 extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -1343,6 +1344,13 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		tell += std::string(item_types[GET_OBJ_TYPE(ident_obj)])+"\r\n";
 		tell += std::string(diag_weapon_to_char(ident_obj, TRUE));
 		tell += std::string(diag_timer_to_char(ident_obj));
+		if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+		{
+			sprintf(buf, "Материал : ");
+			sprinttype(ident_obj->obj_flags.Obj_mater, material_name, buf+strlen(buf));
+			sprintf(buf+strlen(buf), ".\r\n");
+			tell += std::string(buf);
+		}
 		tell_to_char(keeper, ch, tell.c_str());
 		if (invalid_anti_class(ch, ident_obj) || invalid_unique(ch, ident_obj) || NamedStuff::check_named(ch, ident_obj, 0))
 		{

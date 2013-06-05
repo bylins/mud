@@ -514,14 +514,10 @@ int exchange_information(CHAR_DATA * ch, char *arg)
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	};
+	strcat(buf, diag_weapon_to_char(GET_EXCHANGE_ITEM(item), TRUE));
 	strcat(buf, diag_timer_to_char(GET_EXCHANGE_ITEM(item)));
-	strcpy(buf2, diag_weapon_to_char(GET_EXCHANGE_ITEM(item), TRUE));
 	obj_info(ch, GET_EXCHANGE_ITEM(item), buf);
-	if (*buf2)
-	{
-		strcat(buf, buf2);
-		strcat(buf, "\n");
-	};
+	strcat(buf, "\n");
 	if (invalid_anti_class(ch, GET_EXCHANGE_ITEM(item)) || invalid_unique(ch, GET_EXCHANGE_ITEM(item)) || NamedStuff::check_named(ch, GET_EXCHANGE_ITEM(item), 0))
 	{
 		sprintf(buf2, "Эта вещь вам недоступна!");

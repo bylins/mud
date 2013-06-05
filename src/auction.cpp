@@ -444,14 +444,10 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			strcat(buf, buf2);
 			strcat(buf, "\n");
 		};
+		strcat(buf, diag_weapon_to_char(obj, TRUE));
 		strcat(buf, diag_timer_to_char(obj));
-		strcpy(buf2, diag_weapon_to_char(obj, TRUE));
 		obj_info(ch, obj, buf);
-		if (*buf2)
-		{
-			strcat(buf, buf2);
-			strcat(buf, "\n");
-		};
+		strcat(buf, "\n");
 		if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj) || NamedStuff::check_named(ch, obj, 0))
 		{
 			sprintf(buf2, "Эта вещь вам недоступна!");

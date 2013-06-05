@@ -598,6 +598,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"одеть", POS_RESTING, do_wear, 0, 0, 500},
 	{"опознать", POS_RESTING, do_ident, 0, 0, 500},
 	{"опохмелиться", POS_RESTING, do_drunkoff, 0, 0, -1},
+	{"опечатк", POS_DEAD, do_quit, 0, 0, 0},
 	{"опечатка", POS_DEAD, report_on_board, 0, MISPRINT_BOARD, 0},
 	{"опустить", POS_RESTING, do_put, 0, 0, 500},
 	{"орать", POS_RESTING, do_gen_comm, 1, SCMD_HOLLER, -1},
@@ -622,6 +623,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"очки", POS_DEAD, do_score, 0, 0, 0},
 	{"очепятки", POS_DEAD, DoBoard, 1, MISPRINT_BOARD, 0},
 	{"очистить", POS_DEAD, do_not_here, 0, SCMD_CLEAR, -1},
+	{"ошибк", POS_DEAD, do_quit, 0, 0, 0},
 	{"ошибка", POS_DEAD, report_on_board, 0, ERROR_BOARD, 0},
 
 	{"парировать", POS_FIGHTING, do_parry, 0, 0, -1},
