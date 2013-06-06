@@ -994,7 +994,7 @@ void test_self_hitroll(CHAR_DATA *ch)
  */
 void Damage::post_init_shields(CHAR_DATA *victim)
 {
-	if (IS_NPC(victim))
+	if (IS_NPC(victim) && !IS_CHARMICE(victim))
 	{
 		if (AFF_FLAGGED(victim, AFF_FIRESHIELD))
 			flags.set(VICTIM_FIRE_SHIELD);
