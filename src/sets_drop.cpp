@@ -49,6 +49,8 @@ const char *DROP_TABLE_FILE = LIB_PLRSTUFF"sets_drop.xml";
 const int RESET_TIMER = 35;
 // базовый шанс дропа соло сетин *10
 const int DEFAULT_SOLO_CHANCE = 30;
+// базовый шанс дропа мини сетин *10
+const int DEFAULT_MINI_CHANCE = 50;
 // сообщение игрокам при резете таблицы дропа
 const char *RESET_MESSAGE =
 	"Внезапно мир содрогнулся, день поменялся с ночью, земля с небом\r\n"
@@ -121,7 +123,7 @@ std::vector<HelpNode> help_list;
 
 struct DropNode
 {
-	DropNode() : obj_rnum(0), obj_vnum(0), chance(0), solo(false), can_drop(false) {};
+	DropNode() : obj_rnum(0), obj_vnum(0), chance(0), solo(false), can_drop(false), is_big_set(false) {};
 	// рнум сетины
 	int obj_rnum;
 	// внум сетины
@@ -133,8 +135,12 @@ struct DropNode
 	// false = убийства в момент, когда шмотка = макс в мире
 	// true = убийства в момент, когда шмотка может дропнуться
 	bool can_drop;
+	// для мини-сетов при калькуляции шансов дропа (инится только для solo сетин)
+	bool is_big_set;
 	// список мобов залинкованных с этой соло-сетиной через справку
 	std::set<int /* mob rnum */> link_mob_list;
+
+	void reset_chance() { chance = is_big_set ? DEFAULT_SOLO_CHANCE : DEFAULT_MINI_CHANCE; };
 };
 
 // финальный список дропа по мобам (mob_rnum)
@@ -722,8 +728,7 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 		const OBJ_DATA *obj = obj_proto[obj_rnum];
 		if (!SetSystem::is_big_set(obj))
 		{
-			// 22 .. 16
-			chance *= 1.7;
+			chance = DEFAULT_MINI_CHANCE;
 		}
 	}
 
@@ -762,6 +767,9 @@ void init_drop_table(int type)
 		tmp_node.obj_vnum = *it;
 		tmp_node.chance = calc_drop_chance(l, obj_rnum);
 		tmp_node.solo = (type == GROUP_MOB) ? false : true;
+		// пока копи-паст с calc_drop_chance()
+		const OBJ_DATA *obj = obj_proto[obj_rnum];
+		tmp_node.is_big_set = SetSystem::is_big_set(obj);
 
 		drop_list.insert(std::make_pair(l->rnum, tmp_node));
 
@@ -1205,9 +1213,29 @@ void linked_zero_init(const std::set<int> &mob_list)
 		std::map<int, DropNode>::iterator k = drop_list.find(*i);
 		if (k != drop_list.end())
 		{
-			k->second.chance = DEFAULT_SOLO_CHANCE;
+			k->second.reset_chance();
 		}
 	}
+}
+
+/**
+ * Подсчет кол-ва залинкованных соло шмоток в лоаде.
+ */
+int linked_count(const std::set<int> &mob_list)
+{
+	int count = 0;
+
+	for (std::set<int>::const_iterator i = mob_list.begin(),
+		iend = mob_list.end(); i != iend; ++i)
+	{
+		std::map<int, DropNode>::iterator k = drop_list.find(*i);
+		if (k != drop_list.end() && k->second.can_drop)
+		{
+			++count;
+		}
+	}
+
+	return count;
 }
 
 // * \return рнум шмотки или -1 если дропать нечего
@@ -1221,14 +1249,15 @@ int check_mob(int mob_rnum)
 		const int num = obj_index[it->second.obj_rnum].stored + obj_index[it->second.obj_rnum].number;
 
 		// груп сетины по старой системе
-		if (!it->second.solo
-			&& num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum])
-			&& number(0, 1000) <= it->second.chance)
+		if (!it->second.solo)
 		{
-			return it->second.obj_rnum;
+			if (num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum])
+				&& number(0, 1000) <= it->second.chance)
+			{
+				rnum = it->second.obj_rnum;
+			}
+			return rnum;
 		}
-
-		const int pct = 10 + mob_proto[mob_rnum].get_level() - MIN_SOLO_MOB_LVL;
 
 		if (num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum]))
 		{
@@ -1237,18 +1266,19 @@ int check_mob(int mob_rnum)
 				// если шмотка в лоаде, но счетчик не был на дроп
 				// обнуляем шансы до базовых и помечаем на дроп
 				// + обнуляем всех связанных по справке мобов
-				it->second.chance = DEFAULT_SOLO_CHANCE;
+				it->second.reset_chance();
 				it->second.can_drop = true;
 				linked_zero_init(it->second.link_mob_list);
 			}
 			// шмотка в лоаде и счетчик на дроп
-			// увеличиваем шансы от базового процента на 10% + 1% за каждый уровень выше 25
-			it->second.chance += it->second.chance / 100.0 * pct;
+			// +0.3% если шмотка одна, -0.1% за каждую доп залинкованную шмотку
+			// +0% если все 4 шмотки в лоаде
+			it->second.chance += MAX(0, 3 - linked_count(it->second.link_mob_list));
 			// собственно проверка на лоад
 			if (number(0, 1000) <= it->second.chance)
 			{
 				// если шмоток две и более в мире - вторую нашару не дропаем
-				it->second.chance = DEFAULT_SOLO_CHANCE;
+				it->second.reset_chance();
 				rnum = it->second.obj_rnum;
 			}
 		}
@@ -1257,10 +1287,10 @@ int check_mob(int mob_rnum)
 			it->second.can_drop = false;
 			// шмотка не в лоаде и счетчик не на дроп
 			// увеличиваем шансы как на дропе с проверкой переполнения
-			it->second.chance += it->second.chance / 100.0 * pct;
+			it->second.chance += MAX(0, 3 - linked_count(it->second.link_mob_list));
 			if (it->second.chance > 1000)
 			{
-				it->second.chance = DEFAULT_SOLO_CHANCE;
+				it->second.reset_chance();
 			}
 		}
 
