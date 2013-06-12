@@ -5,11 +5,11 @@ act.comm.o: act.comm.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  house.h house_exp.hpp room.hpp spam.hpp
 act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h \
- handler.h db.h spells.h skills.h fight.h screen.h constants.h pk.h \
- dg_scripts.h mail.h im.h house.h house_exp.hpp char.hpp player_i.hpp \
- morph.hpp remember.hpp description.h privilege.hpp depot.hpp glory.hpp \
- random.hpp char_player.hpp quested.hpp mobmax.hpp dps.hpp parcel.hpp \
- liquid.hpp modify.h room.hpp glory_const.hpp player_races.hpp corpse.hpp \
+ handler.h db.h spells.h skills.h fight.h char.hpp player_i.hpp morph.hpp \
+ screen.h constants.h pk.h dg_scripts.h mail.h im.h house.h house_exp.hpp \
+ remember.hpp description.h privilege.hpp depot.hpp glory.hpp random.hpp \
+ char_player.hpp quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp \
+ modify.h room.hpp glory_const.hpp player_races.hpp corpse.hpp \
  sets_drop.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h handler.h db.h \
@@ -42,9 +42,9 @@ act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h \
  pk.h im.h top.h ban.hpp diskio.h description.h title.hpp password.hpp \
  privilege.hpp depot.hpp glory.hpp genchar.h file_crc.hpp char_player.hpp \
  quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp modify.h room.hpp \
- glory_misc.hpp glory_const.hpp shop_ext.hpp celebrates.hpp \
- player_races.hpp birth_places.hpp corpse.hpp sets_drop.hpp \
- fight.h
+ glory_misc.hpp glory_const.hpp shop_ext.hpp dictionary.hpp \
+ celebrates.hpp player_races.hpp birth_places.hpp corpse.hpp \
+ sets_drop.hpp fight.h
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp interpreter.h db.h char.hpp player_i.hpp \
  morph.hpp comm.h
@@ -68,7 +68,7 @@ comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  deathtrap.hpp title.hpp depot.hpp glory.hpp file_crc.hpp char_player.hpp \
  quested.hpp mobmax.hpp dps.hpp parcel.hpp pk.h spells.h skills.h \
  corpse.hpp room.hpp glory_misc.hpp glory_const.hpp celebrates.hpp \
- shop_ext.hpp sets_drop.hpp fight.h
+ shop_ext.hpp dictionary.hpp sets_drop.hpp fight.h
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp constants.h char.hpp \
  player_i.hpp morph.hpp comm.h birth_places.hpp
@@ -89,11 +89,11 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  genchar.h random.hpp file_crc.hpp skills.h char_player.hpp quested.hpp \
  mobmax.hpp dps.hpp parcel.hpp liquid.hpp corpse.hpp name_list.hpp \
  modify.h room.hpp glory_const.hpp glory_misc.hpp shop_ext.hpp \
- named_stuff.hpp celebrates.hpp player_races.hpp birth_places.hpp \
- sets_drop.hpp fight.h
+ dictionary.hpp named_stuff.hpp celebrates.hpp player_races.hpp \
+ birth_places.hpp sets_drop.hpp fight.h
 fight.o: fight.cpp fight.h conf.h sysdep.h structs.h utils.h features.hpp \
- obj.hpp pugixml.hpp pugiconfig.hpp fight_local.hpp AffectHandler.hpp \
- char.hpp player_i.hpp morph.hpp comm.h handler.h interpreter.h db.h \
+ obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp morph.hpp \
+ comm.h fight_local.hpp AffectHandler.hpp handler.h interpreter.h db.h \
  spells.h screen.h constants.h dg_scripts.h im.h skills.h random.hpp \
  char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp magic.h \
  room.hpp genchar.h sets_drop.hpp olc.h
@@ -133,7 +133,7 @@ limits.o: limits.cpp conf.h sysdep.h structs.h utils.h features.hpp \
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp comm.h spells.h skills.h handler.h db.h \
  interpreter.h screen.h constants.h dg_scripts.h pk.h magic.h fight.h \
- deathtrap.hpp random.hpp char.hpp player_i.hpp morph.hpp poison.hpp \
+ char.hpp player_i.hpp morph.hpp deathtrap.hpp random.hpp poison.hpp \
  modify.h room.hpp AffectHandler.hpp
 mail.o: mail.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp comm.h db.h interpreter.h handler.h mail.h \
@@ -143,7 +143,7 @@ mobact.o: mobact.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp db.h comm.h interpreter.h handler.h \
  spells.h skills.h constants.h pk.h random.hpp char.hpp player_i.hpp \
  morph.hpp house.h house_exp.hpp remember.hpp room.hpp shop_ext.hpp \
- fight.h
+ dictionary.hpp fight.h
 modify.o: modify.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp interpreter.h handler.h db.h comm.h \
  spells.h mail.h boards.h screen.h olc.h house.h house_exp.hpp char.hpp \
@@ -151,17 +151,18 @@ modify.o: modify.cpp conf.h sysdep.h structs.h utils.h features.hpp \
 objsave.o: objsave.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
  pugixml.hpp pugiconfig.hpp interpreter.h utils.h features.hpp obj.hpp \
  spells.h screen.h house.h house_exp.hpp char.hpp player_i.hpp morph.hpp \
- remember.hpp im.h depot.hpp liquid.hpp file_crc.hpp room.hpp mail.h \
- dg_scripts.h objsave.h
+ remember.hpp im.h depot.hpp liquid.hpp file_crc.hpp named_stuff.hpp \
+ room.hpp mail.h dg_scripts.h objsave.h
 olc.o: olc.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h db.h olc.h \
  dg_olc.h dg_scripts.h screen.h item.creation.hpp im.h privilege.hpp \
  char.hpp player_i.hpp morph.hpp room.hpp
-random.o: random.cpp conf.h random.hpp sysdep.h
+random.o: random.cpp conf.h random.hpp sysdep.h utils.h features.hpp \
+ obj.hpp structs.h pugixml.hpp pugiconfig.hpp
 shop.o: shop.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
  pugixml.hpp pugiconfig.hpp interpreter.h utils.h features.hpp obj.hpp \
- shop.h dg_scripts.h constants.h char.hpp player_i.hpp morph.hpp modify.h \
- room.hpp pk.h
+ shop.h dg_scripts.h constants.h named_stuff.hpp char.hpp player_i.hpp \
+ morph.hpp modify.h room.hpp pk.h
 spec_assign.o: spec_assign.cpp conf.h sysdep.h structs.h db.h pugixml.hpp \
  pugiconfig.hpp constants.h interpreter.h utils.h features.hpp obj.hpp \
  house.h house_exp.hpp char.hpp player_i.hpp morph.hpp comm.h \
@@ -201,8 +202,8 @@ oedit.o: oedit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp db.h shop.h olc.h \
  dg_olc.h dg_scripts.h im.h depot.hpp char.hpp player_i.hpp morph.hpp \
  house.h interpreter.h house_exp.hpp remember.hpp skills.h parcel.hpp \
- liquid.hpp name_list.hpp corpse.hpp shop_ext.hpp constants.h \
- sets_drop.hpp
+ liquid.hpp name_list.hpp corpse.hpp shop_ext.hpp dictionary.hpp \
+ constants.h sets_drop.hpp
 zedit.o: zedit.cpp conf.h sysdep.h structs.h comm.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp db.h olc.h dg_scripts.h char.hpp \
  player_i.hpp morph.hpp room.hpp
@@ -277,7 +278,7 @@ names.o: names.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
 auction.o: auction.cpp conf.h sysdep.h structs.h screen.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h \
  handler.h db.h auction.h constants.h char.hpp player_i.hpp morph.hpp \
- room.hpp pk.h
+ room.hpp named_stuff.hpp pk.h
 item.creation.o: item.creation.cpp conf.h sysdep.h structs.h screen.h \
  spells.h skills.h pugixml.hpp pugiconfig.hpp constants.h utils.h \
  features.hpp obj.hpp comm.h interpreter.h handler.h db.h olc.h im.h \
@@ -291,7 +292,7 @@ exchange.o: exchange.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h handler.h db.h \
  screen.h exchange.h im.h constants.h skills.h char.hpp player_i.hpp \
  morph.hpp char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp \
- modify.h room.hpp mail.h objsave.h pk.h
+ named_stuff.hpp modify.h room.hpp mail.h objsave.h pk.h
 top.o: top.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp interpreter.h comm.h screen.h top.h glory.hpp \
  char.hpp player_i.hpp morph.hpp
@@ -321,7 +322,7 @@ depot.o: depot.cpp depot.hpp conf.h sysdep.h structs.h db.h pugixml.hpp \
  pugiconfig.hpp handler.h utils.h features.hpp obj.hpp comm.h auction.h \
  exchange.h interpreter.h screen.h char.hpp player_i.hpp morph.hpp \
  name_list.hpp char_player.hpp quested.hpp mobmax.hpp remember.hpp \
- dps.hpp modify.h objsave.h room.hpp
+ dps.hpp modify.h objsave.h room.hpp house.h house_exp.hpp
 glory.o: glory.cpp conf.h glory.hpp sysdep.h structs.h interpreter.h \
  utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp db.h comm.h \
  password.hpp genchar.h screen.h top.h char.hpp player_i.hpp morph.hpp \
@@ -402,10 +403,11 @@ glory_misc.o: glory_misc.cpp glory_misc.hpp conf.h sysdep.h structs.h \
  comm.h db.h screen.h char_player.hpp quested.hpp mobmax.hpp remember.hpp \
  dps.hpp modify.h
 shop_ext.o: shop_ext.cpp pugixml.hpp pugiconfig.hpp shop_ext.hpp conf.h \
- sysdep.h interpreter.h utils.h features.hpp obj.hpp structs.h char.hpp \
- player_i.hpp morph.hpp comm.h db.h shop.h handler.h constants.h \
- dg_scripts.h room.hpp glory.hpp glory_const.hpp screen.h house.h \
- house_exp.hpp remember.hpp modify.h liquid.hpp
+ sysdep.h interpreter.h utils.h features.hpp obj.hpp structs.h \
+ dictionary.hpp char.hpp player_i.hpp morph.hpp comm.h db.h shop.h \
+ handler.h constants.h dg_scripts.h room.hpp glory.hpp glory_const.hpp \
+ named_stuff.hpp screen.h house.h house_exp.hpp remember.hpp modify.h \
+ liquid.hpp
 named_stuff.o: named_stuff.cpp pugixml.hpp pugiconfig.hpp named_stuff.hpp \
  conf.h sysdep.h interpreter.h utils.h features.hpp obj.hpp structs.h \
  screen.h char.hpp player_i.hpp morph.hpp comm.h db.h handler.h house.h \
@@ -427,19 +429,22 @@ sets_drop.o: sets_drop.cpp sets_drop.hpp conf.h sysdep.h structs.h db.h \
  player_i.hpp morph.hpp comm.h handler.h dg_scripts.h im.h room.hpp \
  modify.h house.h interpreter.h house_exp.hpp remember.hpp screen.h
 fight_hit.o: fight_hit.cpp fight.h conf.h sysdep.h structs.h utils.h \
- features.hpp obj.hpp pugixml.hpp pugiconfig.hpp fight_local.hpp \
- AffectHandler.hpp char.hpp player_i.hpp morph.hpp comm.h skills.h \
- constants.h spells.h handler.h db.h room.hpp screen.h interpreter.h \
- dg_scripts.h pk.h dps.hpp house_exp.hpp poison.hpp
+ features.hpp obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp \
+ morph.hpp comm.h fight_local.hpp AffectHandler.hpp skills.h constants.h \
+ spells.h handler.h db.h room.hpp screen.h interpreter.h dg_scripts.h \
+ pk.h dps.hpp house_exp.hpp poison.hpp
 fight_stuff.o: fight_stuff.cpp fight.h conf.h sysdep.h structs.h utils.h \
- features.hpp obj.hpp pugixml.hpp pugiconfig.hpp fight_local.hpp \
- AffectHandler.hpp char.hpp player_i.hpp morph.hpp comm.h skills.h \
- handler.h db.h room.hpp spells.h dg_scripts.h corpse.hpp house.h \
- interpreter.h house_exp.hpp remember.hpp pk.h stuff.hpp double_map.hpp \
- sets_drop.hpp top.h constants.h screen.h magic.h
+ features.hpp obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp \
+ morph.hpp comm.h fight_local.hpp AffectHandler.hpp skills.h handler.h \
+ db.h room.hpp spells.h dg_scripts.h corpse.hpp house.h interpreter.h \
+ house_exp.hpp remember.hpp pk.h stuff.hpp double_map.hpp sets_drop.hpp \
+ top.h constants.h screen.h magic.h
 version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp
 objsave_ext.o: objsave_ext.cpp objsave.h conf.h sysdep.h structs.h \
  house.h utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp db.h \
  interpreter.h house_exp.hpp char.hpp player_i.hpp morph.hpp comm.h \
  remember.hpp depot.hpp parcel.hpp
+dictionary.o: dictionary.cpp dictionary.hpp shop_ext.hpp conf.h sysdep.h \
+ interpreter.h utils.h features.hpp obj.hpp structs.h pugixml.hpp \
+ pugiconfig.hpp

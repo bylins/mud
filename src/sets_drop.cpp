@@ -837,9 +837,6 @@ void init_drop_table(int type)
 		tmp_node.obj_vnum = *it;
 		tmp_node.chance = calc_drop_chance(l, obj_rnum);
 		tmp_node.solo = (type == GROUP_MOB) ? false : true;
-		// пока копи-паст с calc_drop_chance()
-		const OBJ_DATA *obj = obj_proto[obj_rnum];
-		tmp_node.is_big_set = SetSystem::is_big_set(obj);
 
 		drop_list.insert(std::make_pair(l->rnum, tmp_node));
 
@@ -880,19 +877,8 @@ void add_to_help_table(const std::vector<std::string> &key_list, const std::stri
 	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
 }
 
-/**
- * Помимо генерации текста для справки здесь теперь инится
- * DropNode::linked_mobs, т.к. место удобное.
- */
-std::string print_solo_list(const std::set<int> &node)
+void init_linked_mobs(const std::set<int> &node)
 {
-	if (node.empty()) return "";
-
-	std::stringstream out;
-	std::stringstream solo_obj_names;
-	std::vector<std::string> solo_mob_list;
-	int new_line = -1;
-
 	// инит рнумов залинкованных мобов
 	Linked tmp_linked_mobs;
 	for (std::set<int>::const_iterator l = node.begin(),
@@ -907,6 +893,48 @@ std::string print_solo_list(const std::set<int> &node)
 			}
 		}
 	}
+	// суем сформированный список каждому мобу из этого же списка,
+	// но уже в рабочий DropNode
+	for (std::set<int>::const_iterator l = node.begin(),
+		lend = node.end(); l != lend; ++l)
+	{
+		for (std::map<int, DropNode>::iterator k = drop_list.begin(),
+				kend = drop_list.end(); k != kend; ++k)
+		{
+			if (k->second.obj_vnum == *l)
+			{
+				k->second.linked_mobs = tmp_linked_mobs;
+			}
+		}
+	}
+}
+
+void init_link_system()
+{
+	// инит DropNode::linked_mobs
+	for (std::vector<HelpNode>::const_iterator i = help_list.begin(),
+		iend = help_list.end(); i != iend; ++i)
+	{
+		init_linked_mobs(i->solo_list_1);
+		init_linked_mobs(i->solo_list_2);
+	}
+	// инит DropNode::is_big_set
+	for (std::map<int, DropNode>::iterator k = drop_list.begin(),
+		kend = drop_list.end(); k != kend; ++k)
+	{
+		const OBJ_DATA *obj = obj_proto[k->second.obj_rnum];
+		k->second.is_big_set = SetSystem::is_big_set(obj);
+	}
+}
+
+std::string print_solo_list(const std::set<int> &node)
+{
+	if (node.empty()) return "";
+
+	std::stringstream out;
+	std::stringstream solo_obj_names;
+	std::vector<std::string> solo_mob_list;
+	int new_line = -1;
 
 	for (std::set<int>::const_iterator l = node.begin(),
 		lend = node.end(); l != lend; ++l)
@@ -938,8 +966,6 @@ std::string print_solo_list(const std::set<int> &node)
 					<< " (" << zone_table[mob_index[k->first].zone].name << ")"
 					<< " - " << std::fixed << k->second.chance / 10.0 << "%\r\n";
 				solo_mob_list.push_back(solo_out.str());
-				// линкованные мобы
-				k->second.linked_mobs = tmp_linked_mobs;
 			}
 		}
 	}
@@ -1231,7 +1257,7 @@ void reload(int zone_vnum)
 
 	init_obj_list();
 	init_drop_system();
-
+	init_link_system();
 	// справку надо полностью срелоадить
 	// init_xhelp() и init_xhelp_full() вызовется там же
 	go_boot_xhelp();
@@ -1257,6 +1283,7 @@ void init()
 		init_drop_system();
 	}
 
+	init_link_system();
 	init_xhelp();
 	init_xhelp_full();
 }
