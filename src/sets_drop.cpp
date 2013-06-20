@@ -49,8 +49,8 @@ const char *DROP_TABLE_FILE = LIB_PLRSTUFF"sets_drop.xml";
 const int RESET_TIMER = 35;
 // базовый шанс дропа соло сетин *10
 const int DEFAULT_SOLO_CHANCE = 30;
-// базовый шанс дропа мини сетин *10
-const int DEFAULT_MINI_CHANCE = 50;
+// повышенный шанс для мини-сетов относительно фул-сетов
+const double MINI_SET_MULT = 1.5;
 // сообщение игрокам при резете таблицы дропа
 const char *RESET_MESSAGE =
 	"Внезапно мир содрогнулся, день поменялся с ночью, земля с небом\r\n"
@@ -154,7 +154,7 @@ struct DropNode
 	// линкованные через справку соло-мобы
 	Linked linked_mobs;
 
-	void reset_chance() { chance = is_big_set ? DEFAULT_SOLO_CHANCE : DEFAULT_MINI_CHANCE; };
+	void reset_chance() { chance = is_big_set ? DEFAULT_SOLO_CHANCE : DEFAULT_SOLO_CHANCE * MINI_SET_MULT; };
 };
 
 // финальный список дропа по мобам (mob_rnum)
@@ -790,16 +790,18 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 	else
 	{
 		// 2.6% .. 3.4% / 38 ... 28
-//		int mob_lvl = mob_proto[mob->rnum].get_level();
-//		int lvl_mod = MIN(MAX(0, mob_lvl - MIN_SOLO_MOB_LVL), 6);
-//		chance = (26 + lvl_mod * 1.45) / mob->miw;
+/*		int mob_lvl = mob_proto[mob->rnum].get_level();
+		int lvl_mod = MIN(MAX(0, mob_lvl - MIN_SOLO_MOB_LVL), 6);
+		chance = (26 + lvl_mod * 1.45) / mob->miw;
+*/
 		chance = DEFAULT_SOLO_CHANCE;
-		// мини сеты в соло увеличенный шанс на дроп
-		const OBJ_DATA *obj = obj_proto[obj_rnum];
-		if (!SetSystem::is_big_set(obj))
-		{
-			chance = DEFAULT_MINI_CHANCE;
-		}
+	}
+
+	// мини сеты увеличенный шанс на дроп
+	const OBJ_DATA *obj = obj_proto[obj_rnum];
+	if (!SetSystem::is_big_set(obj))
+	{
+		chance *= MINI_SET_MULT;
 	}
 
 	return chance;
