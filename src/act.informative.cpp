@@ -3022,9 +3022,9 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	if (GET_COND(ch, FULL) == 0)
-		sprintf(buf + strlen(buf), " || %sГолоден: &Rугу :(%s    |", CCNRM(ch, C_NRM), CCCYN(ch, C_NRM));
+		sprintf(buf + strlen(buf), " || %sГолоден: %sугу :(%s    |", CCNRM(ch, C_NRM), CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
 	else
-		sprintf(buf + strlen(buf), " || %sГолоден: &gнет%s       |", CCNRM(ch, C_NRM), CCCYN(ch, C_NRM));
+		sprintf(buf + strlen(buf), " || %sГолоден: %sнет%s       |", CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	if (IS_MANA_CASTER(ch))
 		sprintf(buf + strlen(buf),
@@ -3042,12 +3042,12 @@ void print_do_score_all(CHAR_DATA *ch)
 
 	if (GET_COND(ch, THIRST) == 0)
 		sprintf(buf + strlen(buf),
-				" || %sЖажда: &Rналивай!%s    |",
-				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM));
+				" || %sЖажда: %sналивай!%s    |",
+				CCNRM(ch, C_NRM), CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
 	else
 		sprintf(buf + strlen(buf),
-				" || %sЖажда: &gнет%s         |",
-				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM));
+				" || %sЖажда: %sнет%s         |",
+				CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	if (IS_MANA_CASTER(ch))
 		sprintf(buf + strlen(buf),
