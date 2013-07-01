@@ -52,13 +52,11 @@
 #include "player_races.hpp"
 #include "corpse.hpp"
 #include "sets_drop.hpp"
+#include "help.hpp"
 
 using std::string;
 
 // extern variables
-extern int top_of_helpt;
-extern struct help_index_element *help_table;
-extern char *help;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *character_list;
 extern OBJ_DATA *object_list;
@@ -108,7 +106,6 @@ ACMD(do_inventory);
 ACMD(do_equipment);
 ACMD(do_time);
 ACMD(do_weather);
-ACMD(do_help);
 ACMD(do_who);
 ACMD(do_who_new);
 ACMD(do_users);
@@ -2689,37 +2686,37 @@ const char *class_name[] = { "лекарь",
 
 const char *ac_text[] =
 {
-	"&WВы защищены как БОГ",	//  -30 
-	"&WВы защищены как БОГ",	//  -29 
-	"&WВы защищены как БОГ",	//  -28 
-	"&gВы защищены почти как БОГ",	//  -27 
-	"&gВы защищены почти как БОГ",	//  -26 
-	"&gВы защищены почти как БОГ",	//  -25 
-	"&gНаилучшая защита",	//  -24 
-	"&gНаилучшая защита",	//  -23 
-	"&gНаилучшая защита",	//  -22 
-	"&gВеликолепная защита",	//  -21 
-	"&gВеликолепная защита",	//  -20 
-	"&gВеликолепная защита",	//  -19 
-	"&gОтличная защита",	//  -18 
-	"&gОтличная защита",	//  -17 
-	"&gОтличная защита",	//  -16 
-	"&GОчень хорошая защита",	//  -15 
-	"&GОчень хорошая защита",	//  -14 
-	"&GОчень хорошая защита",	//  -13 
-	"&GВесьма хорошая защита",	//  -12 
-	"&GВесьма хорошая защита",	//  -11 
-	"&GВесьма хорошая защита",	//  -10 
-	"&GХорошая защита",	//   -9 
-	"&GХорошая защита",	//   -8 
-	"&GХорошая защита",	//   -7 
-	"&GНеплохая защита",	//   -6 
-	"&GНеплохая защита",	//   -5 
-	"&GНеплохая защита",	//   -4 
-	"&YЗащита чуть выше среднего",	//   -3 
-	"&YЗащита чуть выше среднего",	//   -2 
-	"&YЗащита чуть выше среднего",	//   -1 
-	"&YСредняя защита",	//    0 
+	"&WВы защищены как БОГ",	//  -30
+	"&WВы защищены как БОГ",	//  -29
+	"&WВы защищены как БОГ",	//  -28
+	"&gВы защищены почти как БОГ",	//  -27
+	"&gВы защищены почти как БОГ",	//  -26
+	"&gВы защищены почти как БОГ",	//  -25
+	"&gНаилучшая защита",	//  -24
+	"&gНаилучшая защита",	//  -23
+	"&gНаилучшая защита",	//  -22
+	"&gВеликолепная защита",	//  -21
+	"&gВеликолепная защита",	//  -20
+	"&gВеликолепная защита",	//  -19
+	"&gОтличная защита",	//  -18
+	"&gОтличная защита",	//  -17
+	"&gОтличная защита",	//  -16
+	"&GОчень хорошая защита",	//  -15
+	"&GОчень хорошая защита",	//  -14
+	"&GОчень хорошая защита",	//  -13
+	"&GВесьма хорошая защита",	//  -12
+	"&GВесьма хорошая защита",	//  -11
+	"&GВесьма хорошая защита",	//  -10
+	"&GХорошая защита",	//   -9
+	"&GХорошая защита",	//   -8
+	"&GХорошая защита",	//   -7
+	"&GНеплохая защита",	//   -6
+	"&GНеплохая защита",	//   -5
+	"&GНеплохая защита",	//   -4
+	"&YЗащита чуть выше среднего",	//   -3
+	"&YЗащита чуть выше среднего",	//   -2
+	"&YЗащита чуть выше среднего",	//   -1
+	"&YСредняя защита",	//    0
 	"&YЗащита чуть ниже среднего",
 	"&YСлабая защита",
 	"&RСлабая защита",
@@ -3903,249 +3900,6 @@ ACMD(do_weather)
 				weather_info.weather_type, world[IN_ROOM(ch)]->weather.weather_type);
 		send_to_char(buf, ch);
 	}
-}
-
-/* отключено в виду расширения возможностей обычной команды "справка".
-ACMD(do_index)
-{
-	int i;
-	int row = 0;
-	int minlen;
-	int trust_level = 0;
-	if (!ch->desc)
-		return;
-
-	*buf = '\0';
-
-	skip_spaces(&argument);
-
-	if (!*argument) {
-		send_to_char("Использование: разделы <буква|фраза>\r\n", ch);
-		return;
-	}
-
-	minlen = strlen(argument);
-
-	// Персонажам с флагом gf_demigod позволяется
-	// читать справку до уровня LVL_IMMORT включительно
-	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
-		trust_level = LVL_IMMORT;
-	else
-		trust_level = GET_LEVEL(ch);;
-
-	for (i = 0; i < top_of_helpt; i++) {
-		if (!strn_cmp(argument, help_table[i].keyword, minlen) && trust_level >= help_table[i].min_level) {
-			row++;
-			sprintf(buf + strlen(buf), "|%-23.23s |", help_table[i].keyword);
-			if ((row % 3) == 0)
-				strcat(buf, "\r\n");
-		}
-	}
-	if (row > 0) {
-		send_to_char("Найдены следующие разделы справки:\r\n", ch);
-		if ((row % 3) != 0)
-			strcat(buf, "\r\n");
-	} else
-		send_to_char("Разделы не найдены.\r\n", ch);
-
-	if (ch->desc)
-		page_string(ch->desc, buf, 1);
-
-}*/
-
-ACMD(do_help)
-{
-	if (!ch->desc)
-	{
-		return;
-	}
-
-	skip_spaces(&argument);
-
-	// печатаем экран справки если нет аргументов
-	if (!*argument)
-	{
-		page_string(ch->desc, help, 0);
-		return;
-	}
-	else if (!str_cmp(argument, "групповыезоны") || !str_cmp(argument, "групповые зоны"))
-	{
-		std::string out;
-		for (int rnum = 0, i = 1; rnum <= top_of_zone_table; ++rnum)
-		{
-			const int group = zone_table[rnum].group;
-			if (group > 1)
-			{
-				snprintf(buf, MAX_STRING_LENGTH, "  %2d - %s (гр. %d+).\r\n",
-						i, zone_table[rnum].name, group);
-				out += buf;
-				++i;
-			}
-		}
-		send_to_char(out.c_str(), ch);
-		return;
-	}
-
-	int bin_search_direct  = 0; // будет показывать направление для бинарного поиска
-	int bin_search_bottom  = 0; // нижняя граница бинарного поиска
-	int bin_search_top  = 0; // верхняя граница бинарного оиска
-	int mid  = 0; // середина списка
-
-	int minlen  = 0; // длинна аргумента
-	int strong  = 0; // строгий поиск
-	int topic_num  = 0; // индекс раздела, указываемый в кач-ве аргумента
-	int trust_level = 0; // для запрета юзания справки определенными левелами
-	int topic_count = 0; // кол-во найденных топиков ( >1 -- выводится список ключ. слов)
-	int topic_need = 0;  // ссылка на нужный топик
-
-	char *space_pos; // указатель на пробел в строке
-
-	//залочка на случай крешей и прочих багов
-//        send_to_char("Справка временно недоступна.\r\n", ch);
-//        return;
-
-	// если таблица справки пуста
-	if (!help_table)
-	{
-		send_to_char("Помощь недоступна.\r\n", ch);
-		return;
-	}
-
-	// подготовка к бинарному поиску
-	bin_search_bottom = 0;
-	bin_search_top = top_of_helpt;
-
-	// trust_level справки для демигодов - LVL_IMMORT
-	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
-		trust_level = LVL_IMMORT;
-	else
-		trust_level = GET_LEVEL(ch);;
-
-	// Получаем topic_num для индексации топика
-	sscanf(argument, "%d.%s", &topic_num, argument);
-
-	// Обрезаем пробелы
-	if ((space_pos = strchr(argument, ' ')))
-		* (space_pos) = '\0';
-
-	// если последний символ аргумента '!' -- включаем строгий поиск
-	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!')
-	{
-		strong = TRUE;
-		*(argument + strlen(argument) - 1) = '\0';
-	}
-
-	// длинна строкового аргумента
-	minlen = strlen(argument);
-
-	// бинарный поиск начинается
-	for (;;)
-	{
-		mid = (bin_search_bottom + bin_search_top) / 2;
-		if (bin_search_bottom > bin_search_top)
-		{
-			// НЕ НАЙДЕНО
-			sprintf(buf1, "%s uses command HELP: %s (not found)", GET_NAME(ch), argument);
-			mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
-			sprintf(buf, "&WПо вашему запросу '&w%s&W' ничего не было найдено.&n\r\n", argument);
-			sprintf(buf + strlen(buf), "\r\n\r\n&cИнформация:&n\r\nЕсли применять команду \"справка\" без параметров, будут отображены основные команды,\r\nособенно необходимые новичкам. Кроме того полезно ознакомиться с разделом &CНОВИЧОК&n.\r\n\r\nСправочная система позволяет использовать в запросе индексацию разделов и использовать строгий поиск.\r\n\r\n&cПримеры:&n\r\n\t\"справка 3.защита\"\r\n\t\"справка 4.защита\"\r\n\t\"справка защитаоттьмы\"\r\n\t\"справка защита!\"\r\n\t\"справка 3.защита!\"\r\n\r\nСм. также: &CИСПОЛЬЗОВАНИЕСПРАВКИ&n\r\n");
-			send_to_char(buf, ch);
-			return;
-		}
-		else if (!(bin_search_direct = strn_cmp(argument, help_table[mid].keyword, minlen)))
-		{
-			// перемещаемся на 1ый подпадающий под аргумент топик справки
-			while (mid > 0)
-			{
-				if (!strn_cmp(argument, help_table[mid - 1].keyword, minlen))
-					mid--;
-				else
-					break;
-			}
-
-			// Перемещаемся по списку слов подпадающих под условие, если левел позволяет,
-			// записываем их в список + увеличиваем счетчик.
-			sprintf(buf, "&WПо вашему запросу '&w%s&W' найдены следующие разделы справки:&n\r\n\r\n", argument);
-			while (mid <= top_of_helpt && help_table[mid].keyword != NULL && !strn_cmp(argument, help_table[mid].keyword, minlen))
-			{
-				if (trust_level >= help_table[mid].min_level && (int)strlen(help_table[mid].keyword) >= minlen)
-				{
-					// строгий поиск
-					if (strong && *(help_table[mid].keyword + minlen))
-					{
-						mid++;
-						continue;
-					}
-					// если нашли одно и тоже но с разными алиасами то нефик выводить список
-					if (topic_need && !str_cmp(help_table[topic_need].entry, help_table[mid].entry))
-					{
-						mid++;
-						continue;
-					}
-					// если будет найден лишь 1 топик
-					if (!topic_need)
-						topic_need = mid;
-					// если используется индексация
-					topic_count++;
-					if (topic_num > 1)
-					{
-						topic_num --;
-					}
-					else if (topic_num == 1)
-					{
-						topic_count = 1;
-						topic_need = mid;
-						break;
-					}
-					// разбивка по 3 слова в столбик
-					sprintf(buf + strlen(buf), "|&C%-23.23s &n|", help_table[mid].keyword);
-					if ((topic_count % 3) == 0)
-						strcat(buf, "\r\n");
-				}
-				mid++;
-				//фикс креша при нахождении последнего раздела в списке
-				if(mid >= top_of_helpt)
-					break;
-			}
-			sprintf(buf + strlen(buf), "\r\n\r\nДля получения справки по интересующему разделу, введите его название полностью,\r\nлибо воспользуйтесь индексацией или строгим поиском.\r\n\r\n&cПримеры:&n\r\n\t\"справка 3.защита\"\r\n\t\"справка 4.защита\"\r\n\t\"справка защитаоттьмы\"\r\n\t\"справка защита!\"\r\n\t\"справка 3.защита!\"\r\n\r\nСм. также: &CИСПОЛЬЗОВАНИЕСПРАВКИ&n\r\n");
-			mid--;
-			if (topic_count > 1)
-			{
-				sprintf(buf1, "%s uses command HELP: %s (list)", GET_NAME(ch), argument);
-				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
-				page_string(ch->desc, buf, 1);
-				return;
-			}
-			else if (topic_count == 1)
-			{
-				if (help_table[topic_need].sets_drop_page)
-				{
-					SetsDrop::print_timer_str(ch);
-				}
-				else
-				{
-					sprintf(buf1, "%s uses command HELP: %s (read)", GET_NAME(ch), argument);
-					mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
-				}
-				page_string(ch->desc, help_table[topic_need].entry, 0);
-				return;
-			}
-			else
-			{
-				bin_search_top = 0;
-			}
-		}
-		else
-		{
-			// Перед следующей итерацией поиска
-			if (bin_search_direct > 0)
-				bin_search_bottom = mid + 1;
-			else
-				bin_search_top = mid - 1;
-		}
-
-	}
-
 }
 
 #define IMM_WHO_FORMAT \

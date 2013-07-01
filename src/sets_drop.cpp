@@ -25,11 +25,7 @@
 #include "modify.h"
 #include "house.h"
 #include "screen.h"
-
-extern int top_of_helpt;
-extern struct help_index_element *help_table;
-extern int hsort(const void *a, const void *b);
-extern void go_boot_xhelp(void);
+#include "help.hpp"
 
 namespace SetsDrop
 {
@@ -850,35 +846,6 @@ void init_drop_table(int type)
 	mob_list.clear();
 }
 
-void add_to_help_table(const std::vector<std::string> &key_list, const std::string &text)
-{
-	if (key_list.empty() || text.empty())
-	{
-		snprintf(buf, sizeof(buf), "add_to_help_table error: key_list or text empty");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
-	}
-
-	int num = key_list.size();
-	RECREATE(help_table, struct help_index_element, top_of_helpt + num + 1);
-
-	struct help_index_element el;
-	el.min_level = 0;
-	el.duplicate = 0;
-	el.entry = str_dup(text.c_str());
-	el.sets_drop_page = true;
-
-	for (std::vector<std::string>::const_iterator i = key_list.begin(),
-		iend = key_list.end(); i != iend; ++i)
-	{
-		el.keyword = str_dup((*i).c_str());
-		help_table[++top_of_helpt] = el;
-		++el.duplicate;
-	}
-	// немного избыточно в цикле, но зато все в одном месте
-	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
-}
-
 void init_linked_mobs(const std::set<int> &node)
 {
 	// инит рнумов залинкованных мобов
@@ -1031,11 +998,9 @@ void init_xhelp()
 		out << "\r\n" << print_current_set(*i);
 	}
 
-	std::vector<std::string> help_list;
-	help_list.push_back("сеты");
-	help_list.push_back("сэты");
-	help_list.push_back("наборыпредметов");
-	add_to_help_table(help_list, out.str());
+	HelpSystem::add_sets("сеты", out.str());
+	HelpSystem::add_sets("сэты", out.str());
+	HelpSystem::add_sets("наборыпредметов", out.str());
 }
 
 /**
@@ -1049,7 +1014,11 @@ void init_xhelp_full()
 		std::string text = print_current_set(*i);
 		std::vector<std::string> str_list;
 		boost::split(str_list, i->alias_list, boost::is_any_of(", "));
-		add_to_help_table(str_list, text);
+		for (std::vector<std::string>::const_iterator k = str_list.begin(),
+			kend = str_list.end(); k != kend; ++k)
+		{
+			HelpSystem::add_sets(*k, text);
+		}
 	}
 }
 
@@ -1260,9 +1229,8 @@ void reload(int zone_vnum)
 	init_obj_list();
 	init_drop_system();
 	init_link_system();
-	// справку надо полностью срелоадить
-	// init_xhelp() и init_xhelp_full() вызовется там же
-	go_boot_xhelp();
+
+	HelpSystem::reload(HelpSystem::DYNAMIC);
 
 	message_for_players();
 }
@@ -1286,8 +1254,6 @@ void init()
 	}
 
 	init_link_system();
-	init_xhelp();
-	init_xhelp_full();
 }
 
 void show_stats(CHAR_DATA *ch)
@@ -1348,8 +1314,7 @@ int check_mob(int mob_rnum)
 		}
 
 		need_save_drop_table = true;
-		// TODO: да, это тупо...
-		go_boot_xhelp();
+		HelpSystem::reload(HelpSystem::DYNAMIC);
 	}
 
 	return rnum;

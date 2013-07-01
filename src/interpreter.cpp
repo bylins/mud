@@ -57,6 +57,7 @@
 //python_off #include "scripting.hpp"
 #include "player_races.hpp"
 #include "birth_places.hpp"
+#include "help.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -213,11 +214,9 @@ ACMD(do_goto);
 ACMD(do_grab);
 ACMD(do_group);
 ACMD(do_gsay);
-ACMD(do_help);
 ACMD(do_hide);
 ACMD(do_hit);
 ACMD(do_info);
-ACMD(do_index);
 ACMD(do_inspect);
 ACMD(do_insult);
 ACMD(do_inventory);

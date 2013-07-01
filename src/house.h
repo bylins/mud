@@ -355,8 +355,6 @@ void save_ingr_chests();
 bool show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch);
 void save_chest_log();
 
-// обновление справки сайтов дружин раз в минуту, если были какие-то изменения
-void check_update_xhelp();
 // первичная генерация справки сайтов дружин
 void init_xhelp();
 

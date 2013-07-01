@@ -14,6 +14,7 @@
 #include "dg_scripts.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "help.hpp"
 
 /*
  * Turn on zedit debugging.  Please mail log results to greerga@van.ml.org
@@ -450,7 +451,11 @@ void zedit_save_internally(DESCRIPTOR_DATA * d)
 			CREATE(zone_table[OLC_ZNUM(d)].typeB_flag, bool, zone_table[OLC_ZNUM(d)].typeB_count);
 		zone_table[OLC_ZNUM(d)].under_construction = OLC_ZONE(d)->under_construction;
 		zone_table[OLC_ZNUM(d)].locked = OLC_ZONE(d)->locked;
-		zone_table[OLC_ZNUM(d)].group = OLC_ZONE(d)->group;
+		if (zone_table[OLC_ZNUM(d)].group != OLC_ZONE(d)->group)
+		{
+			HelpSystem::need_update = true;
+			zone_table[OLC_ZNUM(d)].group = OLC_ZONE(d)->group;
+		}
 	}
 
 	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_ZONE);

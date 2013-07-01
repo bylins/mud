@@ -72,6 +72,7 @@
 #include "pugixml.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
+#include "help.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -101,62 +102,59 @@ INDEX_DATA **trig_index;	// index table for triggers
 int top_of_trigt = 0;		// top of trigger index table
 long max_id = MOBOBJ_ID_BASE;	// for unique mob/obj id's
 
-INDEX_DATA *mob_index;		// index table for mobile file   
-CHAR_DATA *mob_proto;		// prototypes for mobs           
-mob_rnum top_of_mobt = 0;	// top of mobile index table     
+INDEX_DATA *mob_index;		// index table for mobile file
+CHAR_DATA *mob_proto;		// prototypes for mobs
+mob_rnum top_of_mobt = 0;	// top of mobile index table
 
 int global_uid = 0;
 
-OBJ_DATA *object_list = NULL;	// global linked list of objs    
-INDEX_DATA *obj_index;		// index table for object file   
-//OBJ_DATA *obj_proto;		// prototypes for objs           
+OBJ_DATA *object_list = NULL;	// global linked list of objs
+INDEX_DATA *obj_index;		// index table for object file
+//OBJ_DATA *obj_proto;		// prototypes for objs
 vector < OBJ_DATA * >obj_proto;
-obj_rnum top_of_objt = 0;	// top of object index table     
+obj_rnum top_of_objt = 0;	// top of object index table
 
-struct zone_data *zone_table;	// zone table                    
-zone_rnum top_of_zone_table = 0;	// top element of zone tab       
-struct message_list fight_messages[MAX_MESSAGES];	// fighting messages     
+struct zone_data *zone_table;	// zone table
+zone_rnum top_of_zone_table = 0;	// top element of zone tab
+struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
 
-struct player_index_element *player_table = NULL;	// index to plr file     
-FILE *player_fl = NULL;		// file desc of player file      
-int top_of_p_table = 0;		// ref to top of table           
-int top_of_p_file = 0;		// ref of size of p file         
-long top_idnum = 0;		// highest idnum in use          
+struct player_index_element *player_table = NULL;	// index to plr file
+FILE *player_fl = NULL;		// file desc of player file
+int top_of_p_table = 0;		// ref to top of table
+int top_of_p_file = 0;		// ref of size of p file
+long top_idnum = 0;		// highest idnum in use
 
-int no_mail = 0;		// mail disabled?                
-int mini_mud = 0;		// mini-mud mode?                
-time_t boot_time = 0;		// time of mud boot              
-int circle_restrict = 0;	// level of game restriction     
-room_rnum r_mortal_start_room;	// rnum of mortal start room     
-room_rnum r_immort_start_room;	// rnum of immort start room     
-room_rnum r_frozen_start_room;	// rnum of frozen start room     
+int no_mail = 0;		// mail disabled?
+int mini_mud = 0;		// mini-mud mode?
+time_t boot_time = 0;		// time of mud boot
+int circle_restrict = 0;	// level of game restriction
+room_rnum r_mortal_start_room;	// rnum of mortal start room
+room_rnum r_immort_start_room;	// rnum of immort start room
+room_rnum r_frozen_start_room;	// rnum of frozen start room
 room_rnum r_helled_start_room;
 room_rnum r_named_start_room;
 room_rnum r_unreg_start_room;
 
-char *credits = NULL;		// game credits                  
-char *motd = NULL;		// message of the day - mortals  
-char *rules = NULL;		// rules for immorts             
-char *GREETINGS = NULL;		// opening credits screen        
-char *help = NULL;		// help screen                   
-char *info = NULL;		// info page                     
-char *immlist = NULL;		// list of peon gods             
-char *background = NULL;	// background story              
-char *handbook = NULL;		// handbook for new immortals    
-char *policies = NULL;		// policies page                 
-char *name_rules = NULL;		// rules of character's names    
+char *credits = NULL;		// game credits
+char *motd = NULL;		// message of the day - mortals
+char *rules = NULL;		// rules for immorts
+char *GREETINGS = NULL;		// opening credits screen
+char *help = NULL;		// help screen
+char *info = NULL;		// info page
+char *immlist = NULL;		// list of peon gods
+char *background = NULL;	// background story
+char *handbook = NULL;		// handbook for new immortals
+char *policies = NULL;		// policies page
+char *name_rules = NULL;		// rules of character's names
 
-struct help_index_element *help_table = 0;	// the help table        
-int top_of_helpt = 0;		// top of help index table       
-
-TIME_INFO_DATA time_info;	// the infomation about the time    
-struct weather_data weather_info;	// the infomation about the weather 
-struct player_special_data dummy_mob;	// dummy spec area for mobs     
-struct reset_q_type reset_q;	// queue of zones to be reset    
+TIME_INFO_DATA time_info;	// the infomation about the time
+struct weather_data weather_info;	// the infomation about the weather
+struct player_special_data dummy_mob;	// dummy spec area for mobs
+struct reset_q_type reset_q;	// queue of zones to be reset
 
 const FLAG_DATA clear_flags = { {0, 0, 0, 0} };
 
-struct portals_list_type *portals_list;	// Список проталов для townportal 
+struct portals_list_type *portals_list;	// Список проталов для townportal
 int now_entrycount = FALSE;
 extern int reboot_uptime;
 
@@ -167,7 +165,7 @@ guardian_type guardian_list;
 class insert_wanted_gem iwg;
 //-Polos.insert_wanted_gem
 
-// local functions 
+// local functions
 void SaveGlobalUID(void);
 void LoadGlobalUID(void);
 bool check_object_spell_number(OBJ_DATA * obj, unsigned val);
@@ -222,19 +220,18 @@ void init_zone_types();
 void load_guardians();
 pugi::xml_node XMLLoad(const string *PathToFile, const string *MainTag, const string *ErrorStr); // Базовая функция загрузки XML конфигов
 
-// external functions 
+// external functions
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages(void);
 void weather_and_time(int mode);
 void mag_assign_spells(void);
 void boot_social_messages(void);
-void update_obj_file(void);	// In objsave.cpp 
+void update_obj_file(void);	// In objsave.cpp
 void sort_commands(void);
 void Read_Invalid_List(void);
 void boot_the_shops(FILE * shop_f, char *filename, int rec_count);
 int find_name(const char *name);
-int hsort(const void *a, const void *b);
 int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
 int Crash_read_timer(int index, int temp);
@@ -249,7 +246,7 @@ void calc_easter(void);
 void do_start(CHAR_DATA * ch, int newbie);
 int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 extern void tascii(int *pointer, int num_planes, char *ascii);
-extern void repop_decay(zone_rnum zone);	// рассыпание обьектов ITEM_REPOP_DECAY 
+extern void repop_decay(zone_rnum zone);	// рассыпание обьектов ITEM_REPOP_DECAY
 int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);
 extern void NewNameRemove(CHAR_DATA * ch);
@@ -260,7 +257,7 @@ extern char *fread_action(FILE * fl, int nr);
 void load_mobraces();
 //-polud
 
-// external vars 
+// external vars
 extern int no_specials;
 extern int scheck;
 extern room_vnum mortal_start_room;
@@ -281,7 +278,7 @@ extern void LoadProxyList();
 
 #define READ_SIZE 256
 
-// Separate a 4-character id tag from the data it precedes 
+// Separate a 4-character id tag from the data it precedes
 void tag_argument(char *argument, char *tag)
 {
 	char *tmp = argument, *ttag = tag, *wrt = argument;
@@ -338,27 +335,6 @@ void go_boot_socials(void)
 	index_boot(DB_BOOT_SOCIAL);
 
 
-}
-
-void go_boot_xhelp(void)
-{
-	int i;
-	if (help_table)
-	{
-		for (i = 0; i <= top_of_helpt; i++)
-		{
-			if (help_table[i].keyword)
-				free(help_table[i].keyword);
-			if (help_table[i].entry && !help_table[i].duplicate)
-				free(help_table[i].entry);
-		}
-		free(help_table);
-	}
-	top_of_helpt = 0;
-	index_boot(DB_BOOT_HLP);
-	SetsDrop::init_xhelp();
-	SetsDrop::init_xhelp_full();
-	ClanSystem::init_xhelp();
 }
 
 void load_sheduled_reboot()
@@ -487,7 +463,7 @@ ACMD(do_reboot)
 		file_to_string_alloc(HANDBOOK_FILE, &handbook);
 		file_to_string_alloc(BACKGROUND_FILE, &background);
 		file_to_string_alloc(NAME_RULES_FILE, &name_rules);
-		go_boot_xhelp();
+		HelpSystem::reload_all();
 		go_boot_socials();
 		init_im();
 		init_zone_types();
@@ -538,7 +514,9 @@ ACMD(do_reboot)
 			prune_crlf(GREETINGS);
 	}
 	else if (!str_cmp(arg, "xhelp"))
-		go_boot_xhelp();
+	{
+		HelpSystem::reload_all();
+	}
 	else if (!str_cmp(arg, "socials"))
 		go_boot_socials();
 	else if (!str_cmp(arg, "schedule"))
@@ -1864,6 +1842,9 @@ void boot_db(void)
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
 
+	// справка должна иниться после всего того, что может в нее что-то добавить
+	HelpSystem::reload_all();
+
 	boot_time = time(0);
 	log("Boot db -- DONE.");
 }
@@ -2198,9 +2179,6 @@ void index_boot(int mode)
 		log("   %d zones, %d bytes.", rec_count, size[0]);
 		break;
 	case DB_BOOT_HLP:
-		CREATE(help_table, struct help_index_element, rec_count);
-		size[0] = sizeof(struct help_index_element) * rec_count;
-		log("   %d entries, %d bytes.", rec_count, size[0]);
 		break;
 	case DB_BOOT_SOCIAL:
 		CREATE(soc_mess_list, struct social_messg, top_of_socialm + 1);
@@ -2254,12 +2232,6 @@ void index_boot(int mode)
 	fclose(index);
 	// Create virtual room for zone
 
-	// sort the help index
-	if (mode == DB_BOOT_HLP)
-	{
-		qsort(help_table, top_of_helpt, sizeof(struct help_index_element), hsort);
-		top_of_helpt--;
-	}
 	// sort the social index
 	if (mode == DB_BOOT_SOCIAL)
 	{
@@ -4111,7 +4083,6 @@ void get_one_line(FILE * fl, char *buf)
 	buf[strlen(buf) - 1] = '\0';	// take off the trailing \n
 }
 
-
 void load_help(FILE * fl)
 {
 #if defined(CIRCLE_MACINTOSH)
@@ -4120,7 +4091,6 @@ void load_help(FILE * fl)
 	char key[READ_SIZE + 1], next_key[READ_SIZE + 1], entry[32384];
 #endif
 	char line[READ_SIZE + 1], *scan;
-	struct help_index_element el;
 
 	// get the first keyword line
 	get_one_line(fl, key);
@@ -4134,21 +4104,19 @@ void load_help(FILE * fl)
 			get_one_line(fl, line);
 		}
 		// Assign read level
-		el.min_level = 0;
+		int min_level = 0;
 		if ((*line == '#') && (*(line + 1) != 0))
-			el.min_level = atoi((line + 1));
-
-		el.min_level = MAX(0, MIN(el.min_level, LVL_IMPL));
-
+		{
+			min_level = atoi((line + 1));
+		}
+		min_level = MAX(0, MIN(min_level, LVL_IMPL));
 		// now, add the entry to the index with each keyword on the keyword line
-		el.duplicate = 0;
-		el.entry = str_dup(entry);
+		std::string entry_str(entry);
 		scan = one_word(key, next_key);
 		while (*next_key)
 		{
-			el.keyword = str_dup(next_key);
-			help_table[top_of_helpt++] = el;
-			el.duplicate++;
+			std::string key_str(next_key);
+			HelpSystem::add(key_str, entry_str, min_level, HelpSystem::STATIC);
 			scan = one_word(scan, next_key);
 		}
 
@@ -4156,18 +4124,6 @@ void load_help(FILE * fl)
 		get_one_line(fl, key);
 	}
 }
-
-
-int hsort(const void *a, const void *b)
-{
-	const struct help_index_element *a1, *b1;
-
-	a1 = (const struct help_index_element *) a;
-	b1 = (const struct help_index_element *) b;
-
-	return (str_cmp(a1->keyword, b1->keyword));
-}
-
 
 int csort(const void *a, const void *b)
 {
@@ -5633,7 +5589,7 @@ int get_zone_rooms(int zone_nr, int *start, int *stop)
 }
 
 
-// for use in reset_zone; return TRUE if zone 'nr' is free of PC's 
+// for use in reset_zone; return TRUE if zone 'nr' is free of PC's
 int is_empty(zone_rnum zone_nr)
 {
 	DESCRIPTOR_DATA *i;
@@ -6791,7 +6747,7 @@ void entrycount(char *name)
 		// персонаж загружается неполностью
 		if (load_char(name, short_ch, 1) > -1)
 		{
-			// если чар удален или им долго не входили, то не создаем для него запись 
+			// если чар удален или им долго не входили, то не создаем для него запись
 			if (!must_be_deleted(short_ch))
 			{
 				deleted = 0;

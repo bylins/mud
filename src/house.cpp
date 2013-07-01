@@ -33,6 +33,7 @@
 #include "objsave.h"
 #include "handler.h"
 #include "named_stuff.hpp"
+#include "help.hpp"
 
 using namespace ClanSystem;
 
@@ -54,11 +55,6 @@ extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode,
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern char const *class_abbrevs[];
-// для генерации справки сайтыдружин
-extern int top_of_helpt;
-extern struct help_index_element *help_table;
-extern int hsort(const void *a, const void *b);
-extern void go_boot_xhelp(void);
 
 void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
 {
@@ -724,14 +720,7 @@ void Clan::ClanLoad()
 
 	if (reload)
 	{
-		go_boot_xhelp();
-	}
-	else
-	{
-		// релоадить всю справку при старте мада имх черевато, потому что
-		// не известно в каком там порядке будут иниться системы и корректно ли
-		// будет обновлена эта самая справка в том или ином случае
-		ClanSystem::init_xhelp();
+		HelpSystem::reload(HelpSystem::DYNAMIC);
 	}
 
 	// на случай релоада кланов для выставления изменений игрокам онлайн
@@ -5919,18 +5908,9 @@ void ClanSystem::save_chest_log()
 namespace ClanSystem
 {
 
-bool need_update_xhelp = false;
-
 // * Генерация справки 'сайтыдружин'.
 void init_xhelp()
 {
-	std::vector<std::string> key_list;
-	key_list.push_back("САЙТЫДРУЖИН");
-	key_list.push_back("CLANSITES");
-	key_list.push_back("INTERNETLINKS");
-
-	RECREATE(help_table, struct help_index_element, top_of_helpt + key_list.size() + 1);
-
 	std::stringstream out;
 	out << "  В данном разделе приведены адреса сайтов,  принадлежащим той или иной дружине.\r\n"
 		"Как  правило,  на  подобных  сайтах  вы  можете  ознакомиться с уставом дружины,\r\n"
@@ -5952,29 +5932,9 @@ void init_xhelp()
 		<< "  Сайт истории мада МПМ Былины:$COLORc mudhistory.nm.ru$COLORn\r\n"
 		<< "\r\nСм. также:$COLORC ДРУЖИНЫ $COLORn\r\n";
 
-	struct help_index_element el;
-	el.min_level = 0;
-	el.duplicate = 0;
-	el.entry = str_dup(out.str().c_str());
-
-	for (std::vector<std::string>::const_iterator i = key_list.begin(),
-		iend = key_list.end(); i != iend; ++i)
-	{
-		el.keyword = str_dup((*i).c_str());
-		help_table[++top_of_helpt] = el;
-		++el.duplicate;
-	}
-	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
-}
-
-// * При любом изменении нужно релоадить всю справку, чтобы чистить старые страницы.
-void check_update_xhelp()
-{
-	if (need_update_xhelp)
-	{
-		go_boot_xhelp();
-		need_update_xhelp = false;
-	}
+	HelpSystem::add("САЙТЫДРУЖИН", out.str(), 0, HelpSystem::DYNAMIC);
+	HelpSystem::add("CLANSITES", out.str(), 0, HelpSystem::DYNAMIC);
+	HelpSystem::add("INTERNETLINKS", out.str(), 0, HelpSystem::DYNAMIC);
 }
 
 } // ClanSystem
@@ -5998,17 +5958,20 @@ void Clan::house_web_url(CHAR_DATA *ch, std::string &buffer)
 	if (url.empty())
 	{
 		send_to_char("Адрес сайта вашей дружины удален.\r\n"
-			"Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
+				"Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
 		this->web_url_.clear();
 	}
 	else
 	{
 		this->web_url_ = url;
 		send_to_char("Адрес сайта вашей дружины установлен.\r\n"
-			"Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
+				"Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
+
+		snprintf(buf, sizeof(buf), "%s sets new clan website: %s", GET_NAME(ch), url.c_str());
+		mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
 	}
 
-	ClanSystem::need_update_xhelp = true;
+	HelpSystem::need_update = true;
 }
 
 // для использования с кланами (в "клан лог", сообщениях хранилища и т.д.):

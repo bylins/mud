@@ -30,8 +30,9 @@
 #define __COMM_C__
 
 #include <locale.h>
-#include "conf.h"
 #include <sys/stat.h>
+#include <boost/format.hpp>
+#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -67,7 +68,7 @@
 #include "shop_ext.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
-#include <boost/format.hpp>
+#include "help.hpp"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -143,8 +144,6 @@ extern int nameserver_is_slow;	// see config.cpp
 extern int auto_save;		// see config.cpp
 extern int autosave_time;	// see config.cpp
 extern int mana[];
-
-extern char *help;
 extern struct zone_data *zone_table;
 extern const char *save_info_msg[];	// In olc.cpp
 extern CHAR_DATA *character_list;
@@ -1556,10 +1555,10 @@ inline void heartbeat(const int missed_pulses)
 
 // раз в минуту >> /////////////////////////////////////////////////////////////
 
-	// проверка необходимости обновления справки сайтыдружин
+	// проверка необходимости обновления динамической справки
 	if (!((pulse + 31) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		ClanSystem::check_update_xhelp();
+		HelpSystem::check_update_dynamic();
 	}
 
 	// обновление таблицы дропа сетов
