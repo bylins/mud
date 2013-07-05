@@ -450,6 +450,6 @@ dictionary.o: dictionary.cpp dictionary.hpp shop_ext.hpp conf.h sysdep.h \
 help.o: help.cpp help.hpp conf.h sysdep.h interpreter.h utils.h \
  features.hpp obj.hpp structs.h pugixml.hpp pugiconfig.hpp db.h modify.h \
  house.h house_exp.hpp char.hpp player_i.hpp morph.hpp comm.h \
- remember.hpp sets_drop.hpp handler.h
+ remember.hpp sets_drop.hpp handler.h screen.h spells.h
 version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp

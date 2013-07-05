@@ -463,7 +463,6 @@ ACMD(do_reboot)
 		file_to_string_alloc(HANDBOOK_FILE, &handbook);
 		file_to_string_alloc(BACKGROUND_FILE, &background);
 		file_to_string_alloc(NAME_RULES_FILE, &name_rules);
-		HelpSystem::reload_all();
 		go_boot_socials();
 		init_im();
 		init_zone_types();
@@ -477,6 +476,7 @@ ACMD(do_reboot)
 		OfftopSystem::init();
 		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 		Celebrates::load();
+		HelpSystem::reload_all();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -487,7 +487,10 @@ ACMD(do_reboot)
 	else if (!str_cmp(arg, "oloadtable"))
 		oload_table.init();
 	else if (!str_cmp(arg, "setstuff"))
+	{
 		obj_data::init_set_table();
+		HelpSystem::reload(HelpSystem::STATIC);
+	}
 	else if (!str_cmp(arg, "immlist"))
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
 	else if (!str_cmp(arg, "credits"))
@@ -1066,6 +1069,18 @@ void obj_data::init_set_table()
 
 				mode = SETSTUFF_AFCN;
 			}
+			else if (tag == "Alis")
+			{
+				if (mode != SETSTUFF_ALIS)
+				{
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				snum->second.set_alias(cppstr);
+				mode = SETSTUFF_VNUM;
+			}
 			else
 			{
 				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
@@ -1188,7 +1203,7 @@ void obj_data::init_set_table()
 				}
 
 				snum->second.set_name(cppstr);
-				mode = SETSTUFF_VNUM;
+				mode = SETSTUFF_ALIS;
 			}
 			else
 			{
@@ -1308,8 +1323,12 @@ void obj_data::init_set_table()
 		case 'V':
 			if (tag == "Vnum")
 			{
-				if (mode != SETSTUFF_VNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS &&
-						mode != SETSTUFF_AFCN)
+				if (mode != SETSTUFF_ALIS
+					&& mode != SETSTUFF_VNUM
+					&& mode != SETSTUFF_OQTY
+					&& mode != SETSTUFF_AMSG
+					&& mode != SETSTUFF_AFFS
+					&& mode != SETSTUFF_AFCN)
 				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);

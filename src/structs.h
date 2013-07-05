@@ -1188,18 +1188,28 @@ zone_rnum;			// A zone's real (array index) number. //
 // This structure describe new bitvector structure                  //
 typedef long int
 bitvector_t;
-struct flag_data
-{
-	int flags[4];
-};
-
-extern const FLAG_DATA clear_flags;
 
 #define INT_ZERRO (0 << 30)
 #define INT_ONE   (1 << 30)
 #define INT_TWO   (2 << 30)
 #define INT_THREE (3 << 30)
 #define GET_FLAG(value,flag) (value.flags[((unsigned long)flag) >> 30])
+
+struct flag_data
+{
+	flag_data& operator+= (const flag_data &from)
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			flags[i] |= from.flags[i];
+		}
+		return *this;
+	}
+
+	int flags[4];
+};
+
+extern const FLAG_DATA clear_flags;
 
 class unique_bit_flag_data : public flag_data
 {

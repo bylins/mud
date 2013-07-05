@@ -256,6 +256,7 @@ typedef std::map< unsigned int, class_to_act_map > qty_to_camap_map;
 class set_info : public std::map< obj_vnum, qty_to_camap_map >
 {
 	std::string name;
+	std::string alias;
 public:
 	typedef std::map< obj_vnum, qty_to_camap_map > ovnum_to_qamap_map;
 
@@ -274,6 +275,16 @@ public:
 	{
 		name = __name;
 		return *this;
+	}
+
+	const std::string& get_alias() const
+	{
+		return alias;
+	}
+
+	void set_alias(const std::string & _alias)
+	{
+		alias = _alias;
 	}
 };
 

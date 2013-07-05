@@ -1327,6 +1327,33 @@ void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect)
 	send_to_char(buf, ch);
 }
 
+std::string print_obj_affects(const obj_affected_type &affect)
+{
+	sprinttype(affect.location, apply_types, buf2);
+	bool negative = false;
+	for (int j = 0; *apply_negative[j] != '\n'; j++)
+	{
+		if (!str_cmp(buf2, apply_negative[j]))
+		{
+			negative = true;
+			break;
+		}
+	}
+	if (!negative && affect.modifier < 0)
+	{
+		negative = true;
+	}
+	else if (negative && affect.modifier < 0)
+	{
+		negative = false;
+	}
+	sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
+			KCYN, buf2, KNRM,
+			KCYN, negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), KNRM);
+
+	return std::string(buf);
+}
+
 void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 {
 	int i, found, drndice = 0, drsdice = 0, j;
