@@ -42,7 +42,7 @@ const int MAX_GROUP_SIZE = 12;
 const char *MOB_STAT_FILE = LIB_PLRSTUFF"mob_stat.xml";
 const char *DROP_TABLE_FILE = LIB_PLRSTUFF"sets_drop.xml";
 // сброс таблицы лоада каждые х часов
-const int RESET_TIMER = 45;
+const int RESET_TIMER = 35;
 // базовый шанс дропа соло сетин *10
 const int DEFAULT_SOLO_CHANCE = 30;
 // повышенный шанс для мини-сетов относительно фул-сетов
@@ -1296,7 +1296,7 @@ int check_mob(int mob_rnum)
 		{
 			it->second.chance += MAX(0, drop_mod);
 			// собственно проверка на лоад
-			if (number(0, 1000) <= it->second.chance)
+			if (it->second.chance >= 120 || number(0, 1000) <= it->second.chance)
 			{
 				// если шмоток две и более в мире - вторую нашару не дропаем
 				it->second.reset_chance();
