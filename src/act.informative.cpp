@@ -1982,26 +1982,6 @@ void print_map(CHAR_DATA *ch)
 
 } // namespace
 
-ACMD(do_map)
-{
-	if (!ch->desc)
-	{
-		return;
-	}
-	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT))
-	{
-		send_to_char("Слишком темно...\r\n", ch);
-		return;
-	}
-	else if (AFF_FLAGGED(ch, AFF_BLIND))
-	{
-		send_to_char("Вы все еще слепы...\r\n", ch);
-		return;
-	}
-
-	print_map(ch);
-}
-
 void look_at_room(CHAR_DATA * ch, int ignore_brief)
 {
 	if (!ch->desc)
@@ -5594,6 +5574,13 @@ ACMD(do_toggle)
 
 ACMD(do_zone)
 {
+	if (ch->desc
+		&& !(IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT))
+		&& !AFF_FLAGGED(ch, AFF_BLIND))
+	{
+		print_map(ch);
+	}
+
 	const int group = zone_table[world[ch->in_room]->zone].group;
 	if (group > 1)
 	{
