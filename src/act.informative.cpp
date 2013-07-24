@@ -1803,21 +1803,21 @@ enum
 
 const char *signs[] =
 {
-	"&K - ",
-	"&C-=-",
-	"&G---",
-	"&K:",
-	"&C/",
-	"&G|",
-	"&K^",
-	"&C^",
+	"&K - &n",
+	"&C-=-&n",
+	"&G---&n",
+	"&K:&n",
+	"&C/&n",
+	"&G|&n",
+	"&K^&n",
+	"&C^&n",
 	" ",
-	"&Kv",
-	"&Cv",
+	"&Kv&n",
+	"&Cv&n",
 	" ",
-	"&c@",
-	"&C>",
-	"&K~"
+	"&c@&n",
+	"&C>&n",
+	"&K~&n"
 };
 
 std::map<int /* room vnum */, int /* min depth */> check_dupe;
@@ -1929,11 +1929,6 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 
 void print_map(CHAR_DATA *ch)
 {
-	if (!PRF_FLAGGED(ch, PRF_DRAW_MAP))
-	{
-		return;
-	}
-
 	for (int i = 0; i < MAX_LINES; ++i)
 	{
 		for (int k = 0; k < MAX_LENGHT; ++k)
@@ -1977,7 +1972,7 @@ void print_map(CHAR_DATA *ch)
 		}
 		if (print)
 		{
-			out << tmp_out.str() << "\r\n";
+			out << ":" << tmp_out.str() << "\r\n";
 		}
 	}
 
@@ -1986,6 +1981,26 @@ void print_map(CHAR_DATA *ch)
 }
 
 } // namespace
+
+ACMD(do_map)
+{
+	if (!ch->desc)
+	{
+		return;
+	}
+	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT))
+	{
+		send_to_char("Слишком темно...\r\n", ch);
+		return;
+	}
+	else if (AFF_FLAGGED(ch, AFF_BLIND))
+	{
+		send_to_char("Вы все еще слепы...\r\n", ch);
+		return;
+	}
+
+	print_map(ch);
+}
 
 void look_at_room(CHAR_DATA * ch, int ignore_brief)
 {
@@ -2007,7 +2022,11 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		return;
 	}
 
-	print_map(ch);
+	if (PRF_FLAGGED(ch, PRF_DRAW_MAP))
+	{
+		print_map(ch);
+	}
+
 	send_to_char(CCICYN(ch, C_NRM), ch);
 
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))

@@ -405,6 +405,7 @@ ACMD(do_morph);
 ACMD(do_morphset);
 //python_off ACMD(do_console);
 ACMD(do_shops_list);
+ACMD(do_map);
 
 /* This is the Master Command List(tm).
 
@@ -548,6 +549,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 	{"колдовать", POS_SITTING, do_cast, 1, 0, -1},
 	{"казна", POS_RESTING, do_not_here, 1, 0, 0},
+	{"карта", POS_RESTING, do_map, 0, 0, 0},
 	{"клан", POS_RESTING, DoHouse, 0, 0, 0},
 	{"клич", POS_FIGHTING, do_warcry, 1, 0, -1},
 	{"кодер", POS_DEAD, DoBoard, 1, GODCODE_BOARD, -1},
@@ -872,6 +874,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"look", POS_RESTING, do_look, 0, SCMD_LOOK, 200},
 	{"lock", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
 	{"mail", POS_STANDING, do_not_here, 1, 0, -1},
+	{"map", POS_RESTING, do_map, 0, 0, 0},
 	{"mode", POS_DEAD, do_mode, 0, 0, 0},
 	{"mshout", POS_RESTING, do_mobshout, 0, 0, -1},
 	{"motd", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
