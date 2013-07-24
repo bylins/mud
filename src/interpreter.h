@@ -180,6 +180,7 @@ struct alias_data
 #define SCMD_NOINGR_MODE   45
 #define SCMD_REMEMBER      46
 #define SCMD_NOTIFY_EXCH   47
+#define SCMD_DRAW_MAP      48
 
 // do_wizutil
 #define SCMD_REROLL     0
@@ -208,82 +209,82 @@ struct alias_data
 #define SCMD_SHUTDOW 0
 #define SCMD_SHUTDOWN   1
 
-// do_quit 
+// do_quit
 #define SCMD_QUI  0
 #define SCMD_QUIT 1
 
-// do_date 
+// do_date
 #define SCMD_DATE 0
 #define SCMD_UPTIME  1
 
 
-// do_commands 
+// do_commands
 #define SCMD_COMMANDS   0
 #define SCMD_SOCIALS 1
 #define SCMD_WIZHELP 2
 
-// do_fit 
+// do_fit
 #define SCMD_DO_ADAPT 0
 #define SCMD_MAKE_OVER 1
 
-//  do helpee 
+//  do helpee
 #define SCMD_BUYHELPEE  0
 #define SCMD_FREEHELPEE 1
 
-// do_drop 
+// do_drop
 #define SCMD_DROP 0
 #define SCMD_JUNK 1
 #define SCMD_DONATE  2
 
-// do_pray 
+// do_pray
 #define SCMD_PRAY   0
 
-// do_gen_write 
+// do_gen_write
 #define SCMD_BUG  0
 #define SCMD_TYPO 1
 #define SCMD_IDEA 2
 
-// do_look 
+// do_look
 #define SCMD_LOOK    0
 #define SCMD_READ    1
 #define SCMD_LOOK_HIDE 2
 
-// do_pour 
+// do_pour
 #define SCMD_POUR 0
 #define SCMD_FILL 1
 
-// do_poof 
+// do_poof
 #define SCMD_POOFIN  0
 #define SCMD_POOFOUT 1
 
-// do_hit 
+// do_hit
 #define SCMD_HIT  0
 #define SCMD_MURDER  1
 
-// do_eat 
+// do_eat
 #define SCMD_EAT  0
 #define SCMD_TASTE   1
 #define SCMD_DRINK   2
 #define SCMD_SIP  3
 #define SCMD_DEVOUR 4
 
-// do_use 
+// do_use
 #define SCMD_USE  0
 #define SCMD_QUAFF   1
 #define SCMD_RECITE  2
 
-// do_echo 
+// do_echo
 #define SCMD_ECHO 0
 #define SCMD_EMOTE   1
 
-// do_gen_door 
+// do_gen_door
 #define SCMD_OPEN       0
 #define SCMD_CLOSE      1
 #define SCMD_UNLOCK     2
 #define SCMD_LOCK       3
 #define SCMD_PICK       4
 
-// do_mixture 
+// do_mixture
 #define SCMD_ITEMS      0
 #define SCMD_RUNES      1
 
@@ -308,7 +309,7 @@ struct alias_data
 #define SCMD_WAKE 0
 #define SCMD_WAKEUP  1
 
-// do_hchannel 
+// do_hchannel
 #define SCMD_CHANNEL 0
 #define SCMD_ACHANNEL 1
 

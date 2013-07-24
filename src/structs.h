@@ -554,13 +554,14 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_PKFORMAT_MODE (INT_ONE | 1 << 23) // формат пкл/дрл
 #define PRF_WORKMATE_MODE (INT_ONE | 1 << 24) // показ входов/выходов соклановцев
 #define PRF_OFFTOP_MODE (INT_ONE | 1 << 25) // вкл/выкл канала оффтопа
-#define PRF_ANTIDC_MODE (INT_ONE | 1 << 26) // режим защиты от зисконекта в бою
+#define PRF_ANTIDC_MODE (INT_ONE | 1 << 26) // режим защиты от дисконекта в бою
 #define PRF_NOINGR_MODE (INT_ONE | 1 << 27) // не показывать продажу/покупку ингров в канале базара
 #define PRF_NOINGR_LOOT (INT_ONE | 1 << 28) // не лутить ингры в режиме автограбежа
 #define PRF_DISP_TIMED     (INT_ONE | 1 << 29) // показ задержек для характерных профам умений и способностей
 
 #define PRF_IGVA_PRONA	(INT_TWO | 1 << 0)  // для стоп-списка оффтоп
 #define PRF_EXECUTOR	(INT_TWO | 1 << 1)  // палач
+#define PRF_DRAW_MAP	(INT_TWO | 1 << 2)  // отрисовка карты при осмотре клетки
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //

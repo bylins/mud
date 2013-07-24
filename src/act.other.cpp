@@ -2040,6 +2040,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "ингредиенты", "ingredient",
 							   "вспомнить", "remember",
 							   "уведомления", "notify",
+							   "карта", "map",
 							   "\n"
 							 };
 
@@ -2098,7 +2099,8 @@ struct gen_tog_param_type
 		0, SCMD_ANTIDC_MODE}, {
 		0, SCMD_NOINGR_MODE}, {
 		0, SCMD_REMEMBER}, {
-		0, SCMD_NOTIFY_EXCH}
+		0, SCMD_NOTIFY_EXCH}, {
+		0, SCMD_DRAW_MAP}
 };
 
 ACMD(do_mode)
@@ -2338,7 +2340,8 @@ ACMD(do_gen_tog)
 		 "Показ покупок и продаж ингредиентов в режиме базара включен.\r\n"},
 		{"", ""}, 		// SCMD_REMEMBER
 		{"", ""},		//SCMD_NOTIFY_EXCH
-
+		{"Показ карты окрестностей при перемещении отключен.\r\n",
+		 "Вы будете видеть карту окрестностей при перемещении.\r\n"}
 	};
 
 
@@ -2517,6 +2520,9 @@ ACMD(do_gen_tog)
 		setNotifyEchange(ch, argument);
 		return;
 	}
+	case SCMD_DRAW_MAP:
+		result = PRF_TOG_CHK(ch, PRF_DRAW_MAP);
+		break;
 	default:
 		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);
 		return;

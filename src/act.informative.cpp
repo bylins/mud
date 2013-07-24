@@ -1712,6 +1712,281 @@ void show_extend_room(const char * const description, CHAR_DATA * ch)
 	send_to_char("\r\n", ch);
 }
 
+namespace
+{
+
+// размер поля для отрисовка
+const int MAX_LINES = 25;
+const int MAX_LENGHT = 50;
+// глубина рекурсии по комнатам
+const int MAX_DEPTH_ROOMS = 5;
+
+// поле для отрисовки
+int screen[MAX_LINES][MAX_LENGHT];
+// копия поля для хранения глубины текущей отрисовки по нужным координатам
+// используется для случаев наезжания комнат друг на друга, в этом случае
+// ближняя затирает более дальнюю и все остальные после нее
+int depths[MAX_LINES][MAX_LENGHT];
+
+// отрисовка символа на поле по координатам
+void put_on_screen(int y, int x, int num, int depth)
+{
+	if (y >= MAX_LINES || x >= MAX_LENGHT)
+	{
+		log("SYSERROR: %d;%d (%s %s %d)", y, x, __FILE__, __func__, __LINE__);
+		return;
+	}
+	if (depths[y][x] == -1)
+	{
+		// поле было чистое
+		screen[y][x] = num;
+		depths[y][x] = depth;
+	}
+	else if (depths[y][x] > depth)
+	{
+		// уже что-то было отрисовано
+		if (screen[y][x] == num)
+		{
+			// если тот же самый символ,
+			// то надо обновить глубину на случай последующих затираний
+			depths[y][x] = depth;
+		}
+		else
+		{
+			// другой символ и меньшая глубина
+			// затираем все символы этой и далее глубины
+			// и поверх рисуем текущий символ
+			const int hide_num = depths[y][x];
+			for (int i = 0; i < MAX_LINES; ++i)
+			{
+				for (int k = 0; k < MAX_LENGHT; ++k)
+				{
+					if (depths[i][k] >= hide_num)
+					{
+						screen[i][k] = -1;
+						depths[i][k] = -1;
+					}
+				}
+			}
+			screen[y][x] = num;
+			depths[y][x] = depth;
+		}
+	}
+}
+
+enum
+{
+	// свободный проход
+	SCREEN_Y_OPEN,
+	// закрытая дверь
+	SCREEN_Y_DOOR,
+	// нет прохода
+	SCREEN_Y_WALL,
+	SCREEN_X_OPEN,
+	SCREEN_X_DOOR,
+	SCREEN_X_WALL,
+	SCREEN_UP_OPEN,
+	SCREEN_UP_DOOR,
+	SCREEN_UP_WALL,
+	SCREEN_DOWN_OPEN,
+	SCREEN_DOWN_DOOR,
+	SCREEN_DOWN_WALL,
+	// текущая клетка персонажа
+	SCREEN_CHAR,
+	// переход в другую зону
+	SCREEN_NEW_ZONE,
+	// мирная комната
+	SCREEN_PEACE,
+	// всегда в конце
+	SCREEN_TOTAL
+};
+
+const char *signs[] =
+{
+	"&K - ",
+	"&C-=-",
+	"&G---",
+	"&K:",
+	"&C/",
+	"&G|",
+	"&K^",
+	"&C^",
+	" ",
+	"&Kv",
+	"&Cv",
+	" ",
+	"&c@",
+	"&C>",
+	"&K~"
+};
+
+std::map<int /* room vnum */, int /* min depth */> check_dupe;
+
+void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x)
+{
+	// чтобы не ходить по комнатам вторично, но с проверкой на глубину
+	std::map<int, int>::iterator i = check_dupe.find(room->number);
+	if (i != check_dupe.end())
+	{
+		if (i->second <= cur_depth)
+		{
+			return;
+		}
+		else
+		{
+			i->second = cur_depth;
+		}
+	}
+	else
+	{
+		check_dupe.insert(std::make_pair(room->number, cur_depth));
+	}
+
+	if (world[ch->in_room] == room)
+	{
+		put_on_screen(y, x, SCREEN_CHAR, cur_depth);
+	}
+	else if (IS_SET(GET_FLAG(room->room_flags, ROOM_PEACEFUL), ROOM_PEACEFUL))
+	{
+		put_on_screen(y, x, SCREEN_PEACE, cur_depth);
+	}
+
+	for (int i = 0; i < NUM_OF_DIRS; ++i)
+	{
+		int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
+		switch(i)
+		{
+		case NORTH:
+			cur_y -= 1;
+			cur_x -= 1;
+			next_y -= 2;
+			cur_sign = SCREEN_Y_OPEN;
+			break;
+		case EAST:
+			cur_x += 2;
+			next_x += 4;
+			cur_sign = SCREEN_X_OPEN;
+			break;
+		case SOUTH:
+			cur_y += 1;
+			cur_x -= 1;
+			next_y += 2;
+			cur_sign = SCREEN_Y_OPEN;
+			break;
+		case WEST:
+			cur_x -= 2;
+			next_x -= 4;
+			cur_sign = SCREEN_X_OPEN;
+			break;
+		case UP:
+			cur_x += 1;
+			cur_sign = SCREEN_UP_OPEN;
+			break;
+		case DOWN:
+			cur_x -= 1;
+			cur_sign = SCREEN_DOWN_OPEN;
+			break;
+		default:
+			log("SYSERROR: i=%d (%s %s %d)", i, __FILE__, __func__, __LINE__);
+			return;
+		}
+
+		if (room->dir_option[i]
+			&& room->dir_option[i]->to_room != NOWHERE
+			&& !EXIT_FLAGGED(room->dir_option[i], EX_HIDDEN))
+		{
+			const ROOM_DATA *next_room = world[room->dir_option[i]->to_room];
+
+			if (next_room->zone != world[ch->in_room]->zone)
+			{
+				put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
+			}
+			// отрисовка выхода
+			if (EXIT_FLAGGED(room->dir_option[i], EX_CLOSED))
+			{
+				put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
+			}
+			else
+			{
+				put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
+			}
+			// проход по следующей в глубину комнате
+			if (cur_sign != SCREEN_UP_OPEN
+				&& cur_sign != SCREEN_DOWN_OPEN
+				&& cur_depth < MAX_DEPTH_ROOMS
+				&& !EXIT_FLAGGED(room->dir_option[i], EX_CLOSED)
+				&& next_room->zone == world[ch->in_room]->zone)
+			{
+				draw_room(ch, next_room, cur_depth + 1, next_y, next_x);
+			}
+		}
+		else
+		{
+			put_on_screen(cur_y, cur_x, cur_sign + 2, cur_depth);
+		}
+	}
+}
+
+void print_map(CHAR_DATA *ch)
+{
+	if (!PRF_FLAGGED(ch, PRF_DRAW_MAP))
+	{
+		return;
+	}
+
+	for (int i = 0; i < MAX_LINES; ++i)
+	{
+		for (int k = 0; k < MAX_LENGHT; ++k)
+		{
+			screen[i][k] = -1;
+			depths[i][k] = -1;
+		}
+	}
+	check_dupe.clear();
+
+	draw_room(ch, world[ch->in_room], 1, MAX_LINES/2, MAX_LENGHT/2);
+
+	std::stringstream out;
+	out << "\r\n";
+
+	for (int i = 0; i < MAX_LINES; ++i)
+	{
+		std::stringstream tmp_out;
+		bool print = false;
+		for (int k = 0; k < MAX_LENGHT; ++k)
+		{
+			if (screen[i][k] > -1 && screen[i][k] < SCREEN_TOTAL)
+			{
+				print = true;
+				tmp_out << signs[screen[i][k]];
+				switch (screen[i][k])
+				{
+				// север/юг занимает 3 символа и изначально ставится
+				// на 1 символ левее нужного поля
+				case SCREEN_Y_OPEN:
+				case SCREEN_Y_DOOR:
+				case SCREEN_Y_WALL:
+					k += 2;
+					break;
+				}
+			}
+			else
+			{
+				tmp_out << " ";
+			}
+		}
+		if (print)
+		{
+			out << tmp_out.str() << "\r\n";
+		}
+	}
+
+	out << "\r\n";
+	send_to_char(out.str(), ch);
+}
+
+} // namespace
+
 void look_at_room(CHAR_DATA * ch, int ignore_brief)
 {
 	if (!ch->desc)
@@ -1728,7 +2003,11 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		return;
 	}
 	else if (GET_POS(ch) < POS_SLEEPING)
+	{
 		return;
+	}
+
+	print_map(ch);
 	send_to_char(CCICYN(ch, C_NRM), ch);
 
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))
@@ -5282,10 +5561,15 @@ ACMD(do_toggle)
 			ONOFF(PRF_FLAGGED(ch, PRF_NOINGR_MODE)),
 			ch->remember_get_num());
 	send_to_char(buf, ch);
-	if (NOTIFY_EXCH_PRICE(ch)>0)
-			sprintf(buf,  " Уведомления   : %-3ld \r\n", NOTIFY_EXCH_PRICE(ch));
+	if (NOTIFY_EXCH_PRICE(ch) > 0)
+	{
+		sprintf(buf,  " Уведомления   : %-3ld \r\n", NOTIFY_EXCH_PRICE(ch));
+	}
 	else
-			sprintf(buf,  " Уведомления   : %-3s \r\n", "Нет");
+	{
+		sprintf(buf,  " Уведомления   : %-3s \r\n", "Нет");
+	}
+	sprintf(buf + strlen(buf), " Карта         : %-3s \r\n", ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)));
 	send_to_char(buf, ch);
 }
 
