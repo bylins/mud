@@ -41,8 +41,8 @@ const int MAX_SOLO_MOB_LVL = 31;
 const int MAX_GROUP_SIZE = 12;
 const char *MOB_STAT_FILE = LIB_PLRSTUFF"mob_stat.xml";
 const char *DROP_TABLE_FILE = LIB_PLRSTUFF"sets_drop.xml";
-// сброс таблицы лоада каждый х часов
-const int RESET_TIMER = 35;
+// сброс таблицы лоада каждые х часов
+const int RESET_TIMER = 45;
 // базовый шанс дропа соло сетин *10
 const int DEFAULT_SOLO_CHANCE = 30;
 // повышенный шанс для мини-сетов относительно фул-сетов
