@@ -1013,7 +1013,7 @@ void init_xhelp_full()
 	{
 		std::string text = print_current_set(*i);
 		std::vector<std::string> str_list;
-		boost::split(str_list, i->alias_list, boost::is_any_of(", "));
+		boost::split(str_list, i->alias_list, boost::is_any_of(", "), boost::token_compress_on);
 		for (std::vector<std::string>::const_iterator k = str_list.begin(),
 			kend = str_list.end(); k != kend; ++k)
 		{

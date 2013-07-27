@@ -251,7 +251,7 @@ void Character::purge(bool destructor)
 			REMOVE_FROM_LIST(this->helpers, this->helpers, next_helper);
 	}
 	else if ((i = GET_MOB_RNUM(this)) >= 0)
-	{	// otherwise, free strings only if the string is not pointing at proto 
+	{	// otherwise, free strings only if the string is not pointing at proto
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_PAD(this, j)
 					&& (this->player_data.PNames[j] != mob_proto[i].player_data.PNames[j]))
@@ -387,7 +387,7 @@ void Character::purge(bool destructor)
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
-int Character::get_skill(int skill_num)
+int Character::get_skill(int skill_num) const
 {
 	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
 	if (AFF_FLAGGED(this, AFF_SKILLS_REDUCE))
@@ -398,7 +398,7 @@ int Character::get_skill(int skill_num)
 }
 
 // * Скилл со шмоток.
-int Character::get_equipped_skill(int skill_num)
+int Character::get_equipped_skill(int skill_num) const
 {
 	int skill = 0;
 
@@ -432,7 +432,7 @@ int Character::get_inborn_skill(int skill_num)
 	return 0;
 }
 
-int Character::get_trained_skill(int skill_num)
+int Character::get_trained_skill(int skill_num) const
 {
 	if (Privilege::check_skills(this))
 	{
@@ -472,7 +472,7 @@ void Character::clear_skills()
 	skills.clear();
 }
 
-int Character::get_skills_count()
+int Character::get_skills_count() const
 {
 	return skills.size();
 }

@@ -350,7 +350,7 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 * \param flag - список флагов в начале файла, кол-во FLAGS_NUM
 * \return 0 - не нашли, 1 - нашли
 */
-bool check_flag(CHAR_DATA *ch, int flag)
+bool check_flag(const CHAR_DATA *ch, int flag)
 {
 	if (flag >= FLAGS_NUM || flag < 0) return false;
 	bool result = false;
@@ -368,7 +368,7 @@ bool check_flag(CHAR_DATA *ch, int flag)
 * Группа skills без ограничений. Группа arena только призыв, пента и слово возврата и только на клетках арены.
 * У морталов и 34х проверка не производится.
 */
-bool check_spells(CHAR_DATA *ch, int spellnum)
+bool check_spells(const CHAR_DATA *ch, int spellnum)
 {
 	// флаг use_skills - везде и что угодно
 	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
@@ -385,7 +385,7 @@ bool check_spells(CHAR_DATA *ch, int spellnum)
 * У морталов, мобов и 34х проверка не производится.
 * \return 0 - не может использовать скиллы, 1 - может
 */
-bool check_skills(CHAR_DATA *ch)
+bool check_skills(const CHAR_DATA *ch)
 {
 	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;

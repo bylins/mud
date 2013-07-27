@@ -58,6 +58,7 @@
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "help.hpp"
+#include "map.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -548,6 +549,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 	{"колдовать", POS_SITTING, do_cast, 1, 0, -1},
 	{"казна", POS_RESTING, do_not_here, 1, 0, 0},
+	{"карта", POS_RESTING, do_map, 0, 0, 0},
 	{"клан", POS_RESTING, DoHouse, 0, 0, 0},
 	{"клич", POS_FIGHTING, do_warcry, 1, 0, -1},
 	{"кодер", POS_DEAD, DoBoard, 1, GODCODE_BOARD, -1},
@@ -871,6 +873,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"load", POS_DEAD, do_load, LVL_BUILDER, 0, 0},
 	{"look", POS_RESTING, do_look, 0, SCMD_LOOK, 200},
 	{"lock", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
+	{"map", POS_RESTING, do_map, 0, 0, 0},
 	{"mail", POS_STANDING, do_not_here, 1, 0, -1},
 	{"mode", POS_DEAD, do_mode, 0, 0, 0},
 	{"mshout", POS_RESTING, do_mobshout, 0, 0, -1},
@@ -2336,20 +2339,28 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	greet_otrigger(d->character, -1);
 	greet_memory_mtrigger(d->character);
 	STATE(d) = CON_PLAYING;
-	if (GET_LEVEL(d->character) == 0)
+
+	const bool noob = GET_LEVEL(d->character) <= 0 ? true : false;
+	if (noob)
 	{
+		SET_BIT(PRF_FLAGS(d->character, PRF_DRAW_MAP), PRF_DRAW_MAP);
 		do_start(d->character, TRUE);
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character);
-		send_to_char
-		("Воспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n", d->character);
 	}
+
 	sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
 	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 	look_at_room(d->character, 0);
 	d->has_prompt = 0;
 	login_change_invoice(d->character);
 	check_light(d->character, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
+
+	if (noob)
+	{
+		send_to_char("\r\nВоспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n", d->character);
+		send_to_char("Включен режим автоматического показа карты, для отключения наберите 'режим карта'.\r\n", d->character);
+	}
 }
 
 //По кругу проверяем корректность параметров
@@ -2501,6 +2512,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_NAMED_STUFF:
 		if (!NamedStuff::parse_nedit_menu(d->character, arg))
 			NamedStuff::nedit_menu(d->character);
+		break;
+	case CON_MAP_MENU:
+		d->map_options->parse_menu(d->character, arg);
 		break;
 	//python_off case CON_CONSOLE:
 		//python_off d->console->push(arg);

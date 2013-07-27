@@ -15,6 +15,7 @@
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
 
+#include "conf.h"
 #include <vector>
 #include <list>
 #include <bitset>
@@ -24,7 +25,6 @@
 #include <iterator>
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
-#include "conf.h"
 
 using std::map;
 using std::iterator;
@@ -702,6 +702,7 @@ typedef struct trig_data TRIG_DATA;
 #define CON_QKIN         36
 #define CON_QCLASSV      37
 #define CON_QCLASSS      38
+#define CON_MAP_MENU     39
 //#define CON_RACES        39 Это остаток от Поренутовских недорас, убрал ибо не надо стало
 //#define CON_RACEV        40 Номера режимов можно потом заюзать
 #define CON_COLOR        41
@@ -1513,6 +1514,11 @@ namespace scripting
 	class Console;
 }
 
+namespace MapSystem
+{
+	class Options;
+}
+
 struct descriptor_data
 {
 	socket_t descriptor;	// file descriptor for socket    //
@@ -1578,13 +1584,13 @@ struct descriptor_data
 	bool registered_email; // чтобы не шарить каждую секунду по списку мыл
 	FILE *pers_log; // чтобы не открывать файл на каждую команду чара при персональном логе
 	boost::shared_ptr<class Glory::spend_glory> glory; // вливание славы
-	// вливание славы2
-	boost::shared_ptr<GloryConst::glory_olc> glory_const;
+	boost::shared_ptr<GloryConst::glory_olc> glory_const; // вливание славы2
 	boost::shared_ptr<NamedStuff::stuff_node> named_obj;	// редактируемая именная шмотка
 	boost::shared_ptr<scripting::Console> console;	// Скриптовая консоль
 	unsigned long cur_vnum;					// текущий внум именной шмотки
 	unsigned long old_vnum;					// старый внум именной шмотки
     short CharBirthPlace;                   // ID точки входа в игру для новых чаров, тупо, но что поделать
+    boost::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
 };
 
 

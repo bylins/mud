@@ -17,6 +17,7 @@
 #include "char.hpp"
 #include "dps.hpp"
 #include "morph.hpp"
+#include "map.hpp"
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
@@ -95,6 +96,11 @@ public:
 	bool is_active() const;
 	void set_motion(bool flag);
 
+	void map_olc();
+	void map_olc_save();
+	bool check_map_option(int num) const;
+	void do_map(const char *arg);
+
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
@@ -125,6 +131,8 @@ private:
 	std::bitset<TOTAL_DISPOSABLE_NUM> disposable_flags_;
 	// false, если чар помечен как неактивный через check_idling и пока не двинется с места
 	bool motion_;
+	// опции отрисовки режима карты
+	MapSystem::Options map_options_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

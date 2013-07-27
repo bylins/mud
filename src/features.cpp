@@ -39,7 +39,7 @@ struct feat_info_type feat_info[MAX_FEATS];
 void unused_feat(int feat);
 void assign_feats(void);
 int find_feat_num(char *name);
-bool can_use_feat(CHAR_DATA *ch, int feat);
+bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
 bool find_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
@@ -557,7 +557,7 @@ void assign_feats(void)
 }
 
 // Может ли персонаж использовать способность? Проверка по уровню, ремортам, параметрам персонажа, требованиям.
-bool can_use_feat(CHAR_DATA *ch, int feat)
+bool can_use_feat(const CHAR_DATA *ch, int feat)
 {
 	if (!HAVE_FEAT(ch, feat))
 		return FALSE;

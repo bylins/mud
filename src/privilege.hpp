@@ -17,9 +17,9 @@ void load();
 bool god_list_check(const std::string &name, long unique);
 void load_god_boards();
 bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode);
-bool check_flag(CHAR_DATA *ch, int flag);
-bool check_spells(CHAR_DATA *ch, int spellnum);
-bool check_skills(CHAR_DATA *ch);
+bool check_flag(const CHAR_DATA *ch, int flag);
+bool check_spells(const CHAR_DATA *ch, int spellnum);
+bool check_skills(const CHAR_DATA *ch);
 
 extern const int BOARDS;
 extern const int USE_SKILLS;

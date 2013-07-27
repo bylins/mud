@@ -85,6 +85,11 @@ public:
 	virtual bool is_active() const { return false; };
 	virtual void set_motion(bool flag) {};
 
+	virtual void map_olc() {};
+	virtual void map_olc_save() {};
+	virtual bool check_map_option(int num) const { return false; };
+	virtual void do_map(const char *arg) {};
+
 protected:
 	PlayerI() {};
 	virtual ~PlayerI() {};

@@ -3520,7 +3520,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			|| STATE(d) == CON_SPEND_GLORY
 			|| STATE(d) == CON_WRITE_MOD
 			|| STATE(d) == CON_GLORY_CONST
-			|| STATE(d) == CON_NAMED_STUFF)
+			|| STATE(d) == CON_NAMED_STUFF
+			|| STATE(d) == CON_MAP_MENU)
 		{
 			STATE(d) = CON_PLAYING;
 		}
@@ -3587,6 +3588,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	d->clan_olc.reset();
 	d->clan_invite.reset();
 	d->glory.reset();
+	d->map_options.reset();
 
 	if (d->pers_log)
 	{

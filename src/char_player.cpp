@@ -741,6 +741,8 @@ void Player::save_char()
 	save_pkills(this, saved);
 	morphs_save(this, saved);
 
+	fprintf(saved, "Map : %s\n", map_options_.bit_list_.to_string().c_str());
+
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
 
@@ -1382,6 +1384,12 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				GET_MEM_COMPLETED(this) = num;
 				GET_MEM_TOTAL(this) = num2;
 			}
+			else if (!strcmp(tag, "Map "))
+			{
+				std::string str(line);
+				std::bitset<MapSystem::TOTAL_MAP_OPTIONS> tmp(str);
+				map_options_.bit_list_ = tmp;
+			}
 			else if (!strcmp(tag, "Move"))
 			{
 				sscanf(line, "%d/%d", &num, &num2);
@@ -1406,7 +1414,6 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				morphs_load(this, string(line));
 			}
 			break;
-
 		case 'N':
 			if (!strcmp(tag, "NmI "))
 				GET_PAD(this, 0) = str_dup(line);
@@ -1816,4 +1823,30 @@ bool Player::is_active() const
 void Player::set_motion(bool flag)
 {
 	motion_ = flag;
+}
+
+void Player::map_olc()
+{
+	boost::shared_ptr<MapSystem::Options> tmp(new MapSystem::Options);
+	this->desc->map_options = tmp;
+
+	*(this->desc->map_options) = map_options_;
+
+	STATE(this->desc) = CON_MAP_MENU;
+	this->desc->map_options->olc_menu(this);
+}
+
+void Player::map_olc_save()
+{
+	map_options_ = *(this->desc->map_options);
+}
+
+bool Player::check_map_option(int num) const
+{
+	return map_options_.bit_list_.test(num);
+}
+
+void Player::do_map(const char *arg)
+{
+	map_options_.text_olc(this, arg);
 }

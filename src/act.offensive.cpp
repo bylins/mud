@@ -86,6 +86,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 	victim = try_protect(victim, ch);
 
+	bool message = false;
 	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
 	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD || STATE(victim->desc) == CON_WRITE_MOD))
 	{
@@ -102,27 +103,39 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 			free(victim->desc->backstr);
 		victim->desc->backstr = NULL;
 		victim->desc->str = NULL;
-		send_to_char(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
+		message = true;
 	}
 	else if (victim->desc && (STATE(victim->desc) == CON_CLANEDIT))
 	{
 		// аналогично, если жерва правит свою дружину в олц
 		victim->desc->clan_olc.reset();
 		STATE(victim->desc) = CON_PLAYING;
-		send_to_char(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
+		message = true;
 	}
 	else if (victim->desc && (STATE(victim->desc) == CON_SPEND_GLORY))
 	{
 		// или вливает-переливает славу
 		victim->desc->glory.reset();
 		STATE(victim->desc) = CON_PLAYING;
-		send_to_char(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
+		message = true;
 	}
 	else if (victim->desc && (STATE(victim->desc) == CON_GLORY_CONST))
 	{
 		// или вливает-переливает славу
 		victim->desc->glory_const.reset();
 		STATE(victim->desc) = CON_PLAYING;
+		message = true;
+	}
+	else if (victim->desc && (STATE(victim->desc) == CON_MAP_MENU))
+	{
+		// или ковыряет опции карты
+		victim->desc->map_options.reset();
+		STATE(victim->desc) = CON_PLAYING;
+		message = true;
+	}
+
+	if (message)
+	{
 		send_to_char(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
 	}
 

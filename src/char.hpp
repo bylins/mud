@@ -299,13 +299,12 @@ public:
 	friend void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src);
 
-	int get_skill(int skill_num);
 	void set_skill(int skill_num, int percent);
 	void clear_skills();
-	int get_skills_count();
-
-	int get_equipped_skill(int skill_num);
-	int get_trained_skill(int skill_num);
+	int get_skill(int skill_num) const;
+	int get_skills_count() const;
+	int get_equipped_skill(int skill_num) const;
+	int get_trained_skill(int skill_num) const;
 
 	int get_obj_slot(int slot_num);
 	void add_obj_slot(int slot_num, int count);

@@ -165,7 +165,7 @@ extern struct feat_info_type feat_info[MAX_FEATS];
 
 int find_feat_num(char *name);
 void assign_feats(void);
-bool can_use_feat(CHAR_DATA *ch, int feat);
+bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
 bool find_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
