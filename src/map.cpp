@@ -555,8 +555,8 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 			}
 			// существа
 			if (cur_depth == 1
-				&& (ch->check_map_option(MAP_MODE_MOBS)
-					|| ch->check_map_option(MAP_MODE_PLAYERS)))
+				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
+				&& (ch->check_map_option(MAP_MODE_MOBS) || ch->check_map_option(MAP_MODE_PLAYERS)))
 			{
 				// в случае вверх/вниз next_y/x = y/x, рисуется относительно
 				// координат чара, со смещением, чтобы писать около полей v и ^
@@ -578,6 +578,7 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 			}
 			// предметы
 			if (cur_depth == 1
+				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
 				&& (ch->check_map_option(MAP_MODE_MOBS_CORPSES)
 					|| ch->check_map_option(MAP_MODE_PLAYER_CORPSES)
 					|| ch->check_map_option(MAP_MODE_INGREDIENTS)
@@ -600,7 +601,7 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 			// проход по следующей в глубину комнате
 			if (i != UP && i != DOWN
 				&& cur_depth < MAX_DEPTH_ROOMS
-				&& !EXIT_FLAGGED(room->dir_option[i], EX_CLOSED)
+				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
 				&& next_room->zone == world[ch->in_room]->zone
 				&& mode_allow(ch, cur_depth))
 			{
