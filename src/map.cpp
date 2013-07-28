@@ -8,6 +8,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>
+#include "boost/multi_array.hpp"
 
 #include "map.hpp"
 #include "utils.h"
@@ -38,11 +39,13 @@ const int MAX_LENGHT = 50;
 const int MAX_DEPTH_ROOMS = 5;
 
 // поле для отрисовки
-int screen[MAX_LINES][MAX_LENGHT];
+//int screen[MAX_LINES][MAX_LENGHT];
+boost::multi_array<int, 2> screen(boost::extents[MAX_LINES][MAX_LENGHT]);
 // копия поля для хранения глубины текущей отрисовки по нужным координатам
 // используется для случаев наезжания комнат друг на друга, в этом случае
 // ближняя затирает более дальнюю и все остальные после нее
-int depths[MAX_LINES][MAX_LENGHT];
+//int depths[MAX_LINES][MAX_LENGHT];
+boost::multi_array<int, 2> depths(boost::extents[MAX_LINES][MAX_LENGHT]);
 
 enum
 {
@@ -691,6 +694,12 @@ void print_map(CHAR_DATA *ch)
 			end_line = i;
 			break;
 		}
+	}
+
+	if (start_line == -1 || char_line == -1)
+	{
+		log("assert print_map start_line=%d, char_line=%d", start_line, char_line);
+		return;
 	}
 
 	std::string out;
