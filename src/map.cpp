@@ -2,6 +2,7 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "conf.h"
 #include <map>
 #include <sstream>
 #include <iomanip>
@@ -299,6 +300,10 @@ void draw_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x)
 		int cnt = 0;
 		for (CHAR_DATA *tch = world[room_rnum]->people; tch; tch = tch->next_in_room)
 		{
+			if (tch == ch)
+			{
+				continue;
+			}
 			if (IS_NPC(tch) && !ch->check_map_option(MAP_MODE_MOBS))
 			{
 				continue;
@@ -463,6 +468,14 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 	if (world[ch->in_room] == room)
 	{
 		put_on_screen(y, x, SCREEN_CHAR, cur_depth);
+		if (ch->check_map_option(MAP_MODE_MOBS_CURR_ROOM))
+		{
+			draw_mobs(ch, ch->in_room, y, x);
+		}
+		if (ch->check_map_option(MAP_MODE_OBJS_CURR_ROOM))
+		{
+			draw_objs(ch, ch->in_room, y, x);
+		}
 	}
 	else if (IS_SET(GET_FLAG(room->room_flags, ROOM_PEACEFUL), ROOM_PEACEFUL))
 	{
@@ -898,8 +911,27 @@ void Options::olc_menu(CHAR_DATA *ch)
 			else
 				out << "[ ] все мобы со спец. функциями\r\n\r\n";
 			break;
+		case MAP_MODE_MOBS_CURR_ROOM:
+			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
+			if (bit_list_[MAP_MODE_MOBS_CURR_ROOM])
+				out << "[x] существа (п. 1-2) в комнате с персонажем\r\n";
+			else
+				out << "[ ] существа (п. 1-2) в комнате с персонажем\r\n";
+			break;
+		case MAP_MODE_OBJS_CURR_ROOM:
+			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
+			if (bit_list_[MAP_MODE_OBJS_CURR_ROOM])
+				out << "[x] объекты (п. 3-6) в комнате с персонажем\r\n\r\n";
+			else
+				out << "[ ] объекты (п. 3-6) в комнате с персонажем\r\n\r\n";
+			break;
 		}
 	}
+
+	out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM)
+		<< ") включить все\r\n";
+	out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM)
+		<< ") выключить все\r\n\r\n";
 
 	out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM)
 		<< ") Выйти без сохранения\r\n";
@@ -929,12 +961,26 @@ void Options::parse_menu(CHAR_DATA *ch, const char *arg)
 	}
 	else if (num == TOTAL_MAP_OPTIONS)
 	{
+		bit_list_.reset();
+		bit_list_.flip();
+		bit_list_.reset(MAP_MODE_1_DEPTH);
+		bit_list_.reset(MAP_MODE_2_DEPTH);
+		bit_list_.reset(MAP_MODE_DEPTH_FIXED);
+		olc_menu(ch);
+	}
+	else if (num == TOTAL_MAP_OPTIONS + 1)
+	{
+		bit_list_.reset();
+		olc_menu(ch);
+	}
+	else if (num == TOTAL_MAP_OPTIONS + 2)
+	{
 		ch->desc->map_options.reset();
 		STATE(ch->desc) = CON_PLAYING;
 		send_to_char("Редактирование отменено.\r\n", ch);
 		return;
 	}
-	else if (num == TOTAL_MAP_OPTIONS + 1)
+	else if (num == TOTAL_MAP_OPTIONS + 3)
 	{
 		ch->map_olc_save();
 		ch->desc->map_options.reset();
@@ -956,18 +1002,17 @@ const char *message =
 "   &Wкарта редактировать|опции|меню&n - управление отображаемой на карте информацией (интерактивное меню)\r\n"
 "   &Wкарта включить|выключить&n\r\n"
 "      все, мобы, игроки, трупы мобов, трупы игроков, ингредиенты, другие предметы, комнаты 1, комнаты 2\r\n"
-"      фиксировать высоту, магазин, рента, почта, банк, базар, лошадь, учитель, все специальные\r\n"
+"      фиксировать высоту, магазин, рента, почта, банк, базар, лошадь, учитель, все специальные, мобы в комнате,\r\n"
+"      предметы в комнате\r\n"
 "      - управляет опциями карты при показе по команде или при активном режиме\r\n"
-"   &Wкарта показать &n\r\n"
-"      все, мобы, игроки, трупы мобов, трупы игроков, ингредиенты, другие предметы, комнаты 1, комнаты 2\r\n"
-"      фиксировать высоту, магазин, рента, почта, банк, базар, лошадь, учитель, все специальные\r\n"
+"   &Wкарта показать (все теже опции из предыдущего пункта) &n\r\n"
 "      - однократно показывает карту с выбранными опциями, не изменяя настроек\r\n"
 "   &Wкарта справка|помощь&n - вывод данной справки\r\n";
 
 bool parse_text_olc(CHAR_DATA *ch, const std::string &str, std::bitset<TOTAL_MAP_OPTIONS> &bits, bool flag)
 {
 	std::vector<std::string> str_list;
-	boost::split(str_list, str, boost::is_any_of(", "), boost::token_compress_on);
+	boost::split(str_list, str, boost::is_any_of(","), boost::token_compress_on);
 	bool error = false;
 
 	for (std::vector<std::string>::const_iterator k = str_list.begin(),
@@ -1052,6 +1097,14 @@ bool parse_text_olc(CHAR_DATA *ch, const std::string &str, std::bitset<TOTAL_MAP
 		else if (isname(*k, "все специальные"))
 		{
 			bits[MAP_MODE_MOB_SPEC_ALL] = flag;
+		}
+		else if (isname(*k, "мобы в комнате"))
+		{
+			bits[MAP_MODE_MOBS_CURR_ROOM] = flag;
+		}
+		else if (isname(*k, "предметы в комнате"))
+		{
+			bits[MAP_MODE_OBJS_CURR_ROOM] = flag;
 		}
 		else
 		{
