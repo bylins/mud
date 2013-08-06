@@ -1591,6 +1591,7 @@ struct descriptor_data
 	unsigned long old_vnum;					// старый внум именной шмотки
     short CharBirthPlace;                   // ID точки входа в игру для новых чаров, тупо, но что поделать
     boost::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
+    bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
 };
 
 

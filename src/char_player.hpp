@@ -5,10 +5,11 @@
 #ifndef CHAR_PLAYER_HPP_INCLUDED
 #define CHAR_PLAYER_HPP_INCLUDED
 
+#include "conf.h"
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
-#include "conf.h"
+
 #include "sysdep.h"
 #include "structs.h"
 #include "quested.hpp"
@@ -98,8 +99,10 @@ public:
 
 	void map_olc();
 	void map_olc_save();
-	bool check_map_option(int num) const;
-	void do_map(const char *arg);
+	bool map_check_option(int num) const;
+	void map_print_to_snooper(CHAR_DATA *imm);
+	void map_text_olc(const char *arg);
+	const MapSystem::Options & get_map_options() const;
 
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)

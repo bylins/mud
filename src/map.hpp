@@ -43,7 +43,7 @@ enum
 	TOTAL_MAP_OPTIONS
 };
 
-void print_map(CHAR_DATA *ch);
+void print_map(CHAR_DATA *ch, CHAR_DATA *imm = 0);
 void do_command(CHAR_DATA *ch, const std::string &arg);
 
 struct Options

@@ -26,6 +26,7 @@
 #include "fight.h"
 
 std::string PlayerI::empty_const_str;
+MapSystem::Options PlayerI::empty_map_options;
 
 namespace
 {

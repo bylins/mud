@@ -1736,6 +1736,10 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	{
 		MapSystem::print_map(ch);
 	}
+	if (ch->desc->snoop_by && ch->desc->snoop_by->snoop_with_map && ch->desc->snoop_by->character)
+	{
+		ch->map_print_to_snooper(ch->desc->snoop_by->character);
+	}
 
 	send_to_char(CCICYN(ch, C_NRM), ch);
 

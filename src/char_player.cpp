@@ -2,9 +2,11 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "conf.h"
 #include <sstream>
 #include <bitset>
 #include <boost/lexical_cast.hpp>
+
 #include "char_player.hpp"
 #include "utils.h"
 #include "db.h"
@@ -1841,12 +1843,27 @@ void Player::map_olc_save()
 	map_options_ = *(this->desc->map_options);
 }
 
-bool Player::check_map_option(int num) const
+bool Player::map_check_option(int num) const
 {
 	return map_options_.bit_list_.test(num);
 }
 
-void Player::do_map(const char *arg)
+void Player::map_text_olc(const char *arg)
 {
 	map_options_.text_olc(this, arg);
+}
+
+const MapSystem::Options & Player::get_map_options() const
+{
+	return map_options_;
+}
+
+void Player::map_print_to_snooper(CHAR_DATA *imm)
+{
+	MapSystem::Options tmp;
+	tmp = map_options_;
+	map_options_ = imm->get_map_options();
+	// подменяем флаги карты на снуперские перед распечаткой ему карты
+	MapSystem::print_map(this, imm);
+	map_options_ = tmp;
 }

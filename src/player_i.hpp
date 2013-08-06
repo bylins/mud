@@ -5,10 +5,11 @@
 #ifndef PLAYER_I_HPP_INCLUDED
 #define PLAYER_I_HPP_INCLUDED
 
-#include <string>
 #include "conf.h"
+#include <string>
 #include "sysdep.h"
 #include "structs.h"
+#include "map.hpp"
 
 namespace DpsSystem
 {
@@ -87,8 +88,10 @@ public:
 
 	virtual void map_olc() {};
 	virtual void map_olc_save() {};
-	virtual bool check_map_option(int num) const { return false; };
-	virtual void do_map(const char *arg) {};
+	virtual bool map_check_option(int num) const { return false; };
+	virtual void map_print_to_snooper(CHAR_DATA *imm) {};
+	virtual void map_text_olc(const char *arg) {};
+	virtual const MapSystem::Options & get_map_options() const { return empty_map_options; };
 
 protected:
 	PlayerI() {};
@@ -96,6 +99,7 @@ protected:
 
 private:
 	static std::string empty_const_str;
+	static MapSystem::Options empty_map_options;
 };
 
 #endif // PLAYER_I_HPP_INCLUDED

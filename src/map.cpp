@@ -304,11 +304,11 @@ void draw_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x)
 			{
 				continue;
 			}
-			if (IS_NPC(tch) && !ch->check_map_option(MAP_MODE_MOBS))
+			if (IS_NPC(tch) && !ch->map_check_option(MAP_MODE_MOBS))
 			{
 				continue;
 			}
-			if (!IS_NPC(tch) && !ch->check_map_option(MAP_MODE_PLAYERS))
+			if (!IS_NPC(tch) && !ch->map_check_option(MAP_MODE_PLAYERS))
 			{
 				continue;
 			}
@@ -343,24 +343,24 @@ void draw_objs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x)
 		for (OBJ_DATA *obj = world[room_rnum]->contents; obj; obj = obj->next_content)
 		{
 			if (IS_CORPSE(obj) && GET_OBJ_VAL(obj, 2) >= 0
-				&& !ch->check_map_option(MAP_MODE_MOBS_CORPSES))
+				&& !ch->map_check_option(MAP_MODE_MOBS_CORPSES))
 			{
 				continue;
 			}
 			if (IS_CORPSE(obj) && GET_OBJ_VAL(obj, 2) < 0
-				&& !ch->check_map_option(MAP_MODE_PLAYER_CORPSES))
+				&& !ch->map_check_option(MAP_MODE_PLAYER_CORPSES))
 			{
 				continue;
 			}
 			if ((GET_OBJ_TYPE(obj) == ITEM_INGRADIENT || GET_OBJ_TYPE(obj) == ITEM_MING)
-				&& !ch->check_map_option(MAP_MODE_INGREDIENTS))
+				&& !ch->map_check_option(MAP_MODE_INGREDIENTS))
 			{
 				continue;
 			}
 			if (!IS_CORPSE(obj)
 				&& GET_OBJ_TYPE(obj) != ITEM_INGRADIENT
 				&& GET_OBJ_TYPE(obj) != ITEM_MING
-				&& !ch->check_map_option(MAP_MODE_OTHER_OBJECTS))
+				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS))
 			{
 				continue;
 			}
@@ -382,7 +382,7 @@ void draw_objs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x)
 
 void drow_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, int cur_depth)
 {
-	bool all = ch->check_map_option(MAP_MODE_MOB_SPEC_ALL) ? true : false;
+	bool all = ch->map_check_option(MAP_MODE_MOB_SPEC_ALL) ? true : false;
 
 	for (CHAR_DATA *tch = world[room_rnum]->people; tch; tch = tch->next_in_room)
 	{
@@ -390,37 +390,37 @@ void drow_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, 
 		if (func)
 		{
 			if ((func == shop_keeper || func == ShopExt::shop_ext)
-				&& (all || ch->check_map_option(MAP_MODE_MOB_SPEC_SHOP)))
+				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_SHOP)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_SHOP, cur_depth);
 			}
 			if (func == receptionist
-				&& (all || ch->check_map_option(MAP_MODE_MOB_SPEC_RENT)))
+				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_RENT)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_RENT, cur_depth);
 			}
 			if (func == postmaster
-				&& (all || ch->check_map_option(MAP_MODE_MOB_SPEC_MAIL)))
+				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_MAIL)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_MAIL, cur_depth);
 			}
 			if (func == bank
-				&& (all || ch->check_map_option(MAP_MODE_MOB_SPEC_BANK)))
+				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_BANK)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_BANK, cur_depth);
 			}
 			if (func == exchange
-				&& (all || ch->check_map_option(MAP_MODE_MOB_SPEC_EXCH)))
+				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_EXCH)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_EXCH, cur_depth);
 			}
 			if (func == horse_keeper
-				&& (all || ch->check_map_option(MAP_MODE_MOB_SPEC_HORSE)))
+				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_HORSE)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_HORSE, cur_depth);
 			}
 			if ((func == guild_mono || func == guild_poly)
-				&& (all || ch->check_map_option(MAP_MODE_MOB_SPEC_TEACH)))
+				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TEACH)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TEACH, cur_depth);
 			}
@@ -430,14 +430,14 @@ void drow_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, 
 
 bool mode_allow(const CHAR_DATA *ch, int cur_depth)
 {
-	if (ch->check_map_option(MAP_MODE_1_DEPTH)
-		&& !ch->check_map_option(MAP_MODE_2_DEPTH)
+	if (ch->map_check_option(MAP_MODE_1_DEPTH)
+		&& !ch->map_check_option(MAP_MODE_2_DEPTH)
 		&& cur_depth > 1)
 	{
 		return false;
 	}
 
-	if (ch->check_map_option(MAP_MODE_2_DEPTH) && cur_depth > 2)
+	if (ch->map_check_option(MAP_MODE_2_DEPTH) && cur_depth > 2)
 	{
 		return false;
 	}
@@ -468,11 +468,11 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 	if (world[ch->in_room] == room)
 	{
 		put_on_screen(y, x, SCREEN_CHAR, cur_depth);
-		if (ch->check_map_option(MAP_MODE_MOBS_CURR_ROOM))
+		if (ch->map_check_option(MAP_MODE_MOBS_CURR_ROOM))
 		{
 			draw_mobs(ch, ch->in_room, y, x);
 		}
-		if (ch->check_map_option(MAP_MODE_OBJS_CURR_ROOM))
+		if (ch->map_check_option(MAP_MODE_OBJS_CURR_ROOM))
 		{
 			draw_objs(ch, ch->in_room, y, x);
 		}
@@ -572,7 +572,7 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 			// существа
 			if (cur_depth == 1
 				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
-				&& (ch->check_map_option(MAP_MODE_MOBS) || ch->check_map_option(MAP_MODE_PLAYERS)))
+				&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS)))
 			{
 				// в случае вверх/вниз next_y/x = y/x, рисуется относительно
 				// координат чара, со смещением, чтобы писать около полей v и ^
@@ -595,10 +595,10 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 			// предметы
 			if (cur_depth == 1
 				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
-				&& (ch->check_map_option(MAP_MODE_MOBS_CORPSES)
-					|| ch->check_map_option(MAP_MODE_PLAYER_CORPSES)
-					|| ch->check_map_option(MAP_MODE_INGREDIENTS)
-					|| ch->check_map_option(MAP_MODE_OTHER_OBJECTS)))
+				&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
+					|| ch->map_check_option(MAP_MODE_PLAYER_CORPSES)
+					|| ch->map_check_option(MAP_MODE_INGREDIENTS)
+					|| ch->map_check_option(MAP_MODE_OTHER_OBJECTS)))
 			{
 				if (cur_sign == SCREEN_UP_OPEN)
 				{
@@ -631,7 +631,8 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 	}
 }
 
-void print_map(CHAR_DATA *ch)
+// imm по дефолту = 0, если нет, то распечатанная карта засылается ему
+void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 {
 	for (int i = 0; i < MAX_LINES; ++i)
 	{
@@ -721,13 +722,13 @@ void print_map(CHAR_DATA *ch)
 	bool fixed_1 = false;
 	bool fixed_2 = false;
 
-	if (ch->check_map_option(MAP_MODE_DEPTH_FIXED))
+	if (ch->map_check_option(MAP_MODE_DEPTH_FIXED))
 	{
-		if (ch->check_map_option(MAP_MODE_1_DEPTH))
+		if (ch->map_check_option(MAP_MODE_1_DEPTH))
 		{
 			fixed_1 = true;
 		}
-		if (ch->check_map_option(MAP_MODE_2_DEPTH))
+		if (ch->map_check_option(MAP_MODE_2_DEPTH))
 		{
 			fixed_1 = false;
 			fixed_2 = true;
@@ -779,7 +780,15 @@ void print_map(CHAR_DATA *ch)
 	}
 
 	out += "\r\n";
-	send_to_char(out, ch);
+
+	if (imm)
+	{
+		send_to_char(out, imm);
+	}
+	else
+	{
+		send_to_char(out, ch);
+	}
 }
 
 void Options::olc_menu(CHAR_DATA *ch)
@@ -858,51 +867,51 @@ void Options::olc_menu(CHAR_DATA *ch)
 		case MAP_MODE_MOB_SPEC_SHOP:
 			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
 			if (bit_list_[MAP_MODE_MOB_SPEC_SHOP])
-				out << "[x] продавцы (магазины)\r\n";
+				out << "[x] продавцы (магазины, $)\r\n";
 			else
-				out << "[ ] продавцы (магазины)\r\n";
+				out << "[ ] продавцы (магазины, $)\r\n";
 			break;
 		case MAP_MODE_MOB_SPEC_RENT:
 			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
 			if (bit_list_[MAP_MODE_MOB_SPEC_RENT])
-				out << "[x] рентеры (постой)\r\n";
+				out << "[x] рентеры (постой, R)\r\n";
 			else
-				out << "[ ] рентеры (постой)\r\n";
+				out << "[ ] рентеры (постой, R)\r\n";
 			break;
 		case MAP_MODE_MOB_SPEC_MAIL:
 			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
 			if (bit_list_[MAP_MODE_MOB_SPEC_MAIL])
-				out << "[x] ямщики (почта)\r\n";
+				out << "[x] ямщики (почта, M)\r\n";
 			else
-				out << "[ ] ямщики (почта)\r\n";
+				out << "[ ] ямщики (почта, M)\r\n";
 			break;
 		case MAP_MODE_MOB_SPEC_BANK:
 			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
 			if (bit_list_[MAP_MODE_MOB_SPEC_BANK])
-				out << "[x] банкиры (лежня)\r\n";
+				out << "[x] банкиры (лежня, B)\r\n";
 			else
-				out << "[ ] банкиры (лежня)\r\n";
+				out << "[ ] банкиры (лежня, B)\r\n";
 			break;
 		case MAP_MODE_MOB_SPEC_EXCH:
 			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
 			if (bit_list_[MAP_MODE_MOB_SPEC_EXCH])
-				out << "[x] зазывалы (базар)\r\n";
+				out << "[x] зазывалы (базар, E)\r\n";
 			else
-				out << "[ ] зазывалы (базар)\r\n";
+				out << "[ ] зазывалы (базар, E)\r\n";
 			break;
 		case MAP_MODE_MOB_SPEC_HORSE:
 			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
 			if (bit_list_[MAP_MODE_MOB_SPEC_HORSE])
-				out << "[x] конюхи (конюшня)\r\n";
+				out << "[x] конюхи (конюшня, H)\r\n";
 			else
-				out << "[ ] конюхи (конюшня)\r\n";
+				out << "[ ] конюхи (конюшня, H)\r\n";
 			break;
 		case MAP_MODE_MOB_SPEC_TEACH:
 			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
 			if (bit_list_[MAP_MODE_MOB_SPEC_TEACH])
-				out << "[x] учителя (любые)\r\n";
+				out << "[x] учителя (любые, T)\r\n";
 			else
-				out << "[ ] учителя (любые)\r\n";
+				out << "[ ] учителя (любые, T)\r\n";
 			break;
 		case MAP_MODE_MOB_SPEC_ALL:
 			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
@@ -1188,6 +1197,6 @@ ACMD(do_map)
 	}
 	else
 	{
-		ch->do_map(argument);
+		ch->map_text_olc(argument);
 	}
 }

@@ -2282,7 +2282,7 @@ ACMD(do_snoop)
 	if (!ch->desc)
 		return;
 
-	one_argument(argument, arg);
+	argument = one_argument(argument, arg);
 
 	if (!*arg)
 		stop_snooping(ch);
@@ -2294,7 +2294,7 @@ ACMD(do_snoop)
 		stop_snooping(ch);
 	else if (victim->desc->snooping == ch->desc)
 		send_to_char("Вы уже подслушиваете.\r\n", ch);
-	else if (victim->desc->snoop_by)
+	else if (victim->desc->snoop_by && victim->desc->snoop_by != ch->desc)
 		send_to_char("Дык его уже кто-то из богов подслушивает.\r\n", ch);
 //	else if (!can_snoop(ch, victim))
 //		send_to_char("Дружина данного персонажа находится в состоянии войны с вашей дружиной.\r\n", ch);
@@ -2304,14 +2304,26 @@ ACMD(do_snoop)
 			tch = victim->desc->original;
 		else
 			tch = victim;
-		int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
-		int victim_level = PRF_FLAGGED(tch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(tch);
+
+		const int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
+		const int victim_level = PRF_FLAGGED(tch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(tch);
+
 		if (victim_level >= god_level)
 		{
 			send_to_char("Вы не можете.\r\n", ch);
 			return;
 		}
 		send_to_char(OK, ch);
+
+		ch->desc->snoop_with_map = false;
+		if (god_level >= LVL_IMPL && argument && *argument)
+		{
+			skip_spaces(&argument);
+			if (isname(argument, "map") || isname(argument, "карта"))
+			{
+				ch->desc->snoop_with_map = true;
+			}
+		}
 
 		if (ch->desc->snooping)
 			ch->desc->snooping->snoop_by = NULL;
@@ -4235,8 +4247,8 @@ ACMD(do_show)
 				&& ((CAN_SEE(ch, d->character) && GET_LEVEL(ch) >= GET_LEVEL(d->character))
 					|| PRF_FLAGGED(ch, PRF_CODERINFO)))
 			{
-				sprintf(buf + strlen(buf), "%-10s - подслушивается %s.\r\n",
-					GET_NAME(d->snooping->character), GET_PAD(d->character, 4));
+				sprintf(buf + strlen(buf), "%-10s - подслушивается %s (map %s).\r\n",
+					GET_NAME(d->snooping->character), GET_PAD(d->character, 4), d->snoop_with_map ? "on" : "off");
 			}
 		}
 		send_to_char(*buf ? buf : "Никто не подслушивается.\r\n", ch);
