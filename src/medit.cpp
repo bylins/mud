@@ -14,7 +14,6 @@
 #include "spells.h"
 #include "utils.h"
 #include "db.h"
-#include "shop.h"
 #include "olc.h"
 #include "handler.h"
 #include "dg_olc.h"
@@ -44,8 +43,6 @@ extern CHAR_DATA *character_list;
 extern mob_rnum top_of_mobt;
 extern struct zone_data *zone_table;
 extern struct player_special_data dummy_mob;
-extern int top_shop;
-extern SHOP_DATA *shop_index;
 extern DESCRIPTOR_DATA *descriptor_list;
 #if defined(OASIS_MPROG)
 extern const char *mobprog_types[];
@@ -56,7 +53,6 @@ int planebit(char *str, int *plane, int *bit);
 
 int real_zone(int number);
 
-SPECIAL(shop_keeper);
 SPECIAL(receptionist);
 void clear_mob_charm(CHAR_DATA *mob);
 
@@ -385,7 +381,7 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 */
 void medit_save_internally(DESCRIPTOR_DATA * d)
 {
-	int rmob_num, found = 0, new_mob_num = 0, zone, cmd_no, shop, j;
+	int rmob_num, found = 0, new_mob_num = 0, zone, cmd_no, j;
 	CHAR_DATA *new_proto;
 	INDEX_DATA *new_index;
 	CHAR_DATA *live_mob;
@@ -407,8 +403,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		medit_mobile_free(OLC_MOB(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
 
-		if (mob_index[rmob_num].func == shop_keeper
-			|| mob_index[rmob_num].func == receptionist)
+		if (mob_index[rmob_num].func == receptionist)
 		{
 			clear_mob_charm(&mob_proto[rmob_num]);
 		}
@@ -535,26 +530,17 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 					if (ZCMD.arg3 >= new_mob_num)
 						ZCMD.arg3++;
 				}
-// 3. Владельцы магазинов
-		// Update shop keepers. //
-		if (shop_index)
-			for (shop = 0; shop <= top_shop; shop++)
-				if (SHOP_KEEPER(shop) >= new_mob_num)
-					SHOP_KEEPER(shop)++;
 
 // 4. Другие редактируемые мобы
 		// * Update keepers in shops being edited and other mobs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next)
-			if (dsc->connected == CON_SEDIT)
-			{
-				if (S_KEEPER(OLC_SHOP(dsc)) >= new_mob_num)
-					S_KEEPER(OLC_SHOP(dsc))++;
-			}
-			else if (dsc->connected == CON_MEDIT)
+		{
+			if (dsc->connected == CON_MEDIT)
 			{
 				if (GET_MOB_RNUM(OLC_MOB(dsc)) >= new_mob_num)
 					GET_MOB_RNUM(OLC_MOB(dsc))++;
 			}
+		}
 // 5. Информация о выслеживании
 		for (j = FIRST_ROOM; j <= top_of_world; j++)
 		{

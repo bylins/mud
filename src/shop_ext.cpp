@@ -15,7 +15,6 @@
 #include "char.hpp"
 #include "db.h"
 #include "comm.h"
-#include "shop.h"
 #include "handler.h"
 #include "constants.h"
 #include "dg_scripts.h"
@@ -28,9 +27,6 @@
 #include "modify.h"
 #include "liquid.hpp"
 #include "utils.h"
-
-
-
 
 /*
 Пример конфига (plrstuff/shop/test.xml):
@@ -87,6 +83,7 @@ long get_sell_price(OBJ_DATA * obj);
 
 const int IDENTIFY_COST = 110;
 int spent_today = 0;
+const char *MSG_NO_STEAL_HERE = "$n, грязн$w воришка, чеши отседова!";
 
 struct item_desc_node
 {
@@ -1394,6 +1391,29 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		extract_obj(tmp_obj);
 }
 
+int get_spent_today()
+{
+	return spent_today;
+}
+
+void renumber_obj_rnum(int rnum)
+{
+	for (ShopListType::iterator i = shop_list.begin(); i != shop_list.end(); ++i)
+	{
+		for (ItemListType::iterator k = (*i)->item_list.begin(); k != (*i)->item_list.end(); ++k)
+		{
+			if ((*k)->rnum >= rnum)
+			{
+				(*k)->rnum += 1;
+			}
+		}
+	}
+}
+
+} // namespace ShopExt
+
+using namespace ShopExt;
+
 SPECIAL(shop_ext)
 {
 	if (!ch->desc || IS_NPC(ch))
@@ -1478,27 +1498,6 @@ SPECIAL(shop_ext)
 
 	return 0;
 }
-
-int get_spent_today()
-{
-	return spent_today;
-}
-
-void renumber_obj_rnum(int rnum)
-{
-	for (ShopListType::iterator i = shop_list.begin(); i != shop_list.end(); ++i)
-	{
-		for (ItemListType::iterator k = (*i)->item_list.begin(); k != (*i)->item_list.end(); ++k)
-		{
-			if ((*k)->rnum >= rnum)
-			{
-				(*k)->rnum += 1;
-			}
-		}
-	}
-}
-
-} // namespace ShopExt
 
 // * Лоад странствующих продавцов в каждой ренте.
 void town_shop_keepers()

@@ -40,7 +40,6 @@ extern SPECIAL(guild_poly);
 extern guardian_type guardian_list;
 extern struct zone_data * zone_table;
 extern bool check_mighthit_weapon(CHAR_DATA *ch);
-SPECIAL(shop_keeper);
 
 ACMD(do_get);
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -627,8 +626,7 @@ void do_aggressive_room(CHAR_DATA *ch, int check_sneak)
 }
 
 /**
- * Проверка на наличие в комнате мобов с таким же спешиалом,
- * что и входящий (с магазинами случай входа shop_ext к shop_keeper).
+ * Проверка на наличие в комнате мобов с таким же спешиалом, что и входящий.
  * \param ch - входящий моб
  * \return true - можно войти, false - нельзя
  */
@@ -641,9 +639,7 @@ bool allow_enter(ROOM_DATA *room, CHAR_DATA *ch)
 
 	for (CHAR_DATA *vict = room->people; vict; vict = vict->next_in_room)
 	{
-		if (IS_NPC(vict)
-			&& (GET_MOB_SPEC(vict) == GET_MOB_SPEC(ch)
-				|| (GET_MOB_SPEC(vict) == shop_keeper && GET_MOB_SPEC(ch) == ShopExt::shop_ext)))
+		if (IS_NPC(vict) && GET_MOB_SPEC(vict) == GET_MOB_SPEC(ch))
 		{
 			return false;
 		}

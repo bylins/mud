@@ -49,7 +49,6 @@ SPECIAL(snake);
 SPECIAL(thief);
 SPECIAL(magic_user);
 SPECIAL(bank);
-SPECIAL(shop_keeper);
 
 void assign_kings_castle(void);
 
@@ -117,7 +116,7 @@ void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info)
 
 // ********************************************************************
 // *  Assignments                                                     *
-// ******************************************************************** 
+// ********************************************************************
 
 /**
 * Спешиалы на мобов сюда писать не нужно, пишите в lib/misc/specials.lst,

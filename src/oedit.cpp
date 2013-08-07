@@ -15,7 +15,6 @@
 #include "spells.h"
 #include "utils.h"
 #include "db.h"
-#include "shop.h"
 #include "olc.h"
 #include "dg_olc.h"
 #include "im.h"
@@ -41,8 +40,6 @@ extern INDEX_DATA *obj_index;
 extern OBJ_DATA *object_list;
 extern obj_rnum top_of_objt;
 extern struct zone_data *zone_table;
-extern SHOP_DATA *shop_index;
-extern int top_shop;
 extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];
@@ -343,9 +340,8 @@ void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
 
 void oedit_save_internally(DESCRIPTOR_DATA * d)
 {
-	int i, shop, robj_num, found = FALSE, zone, cmd_no;
+	int i, robj_num, found = FALSE, zone, cmd_no;
 	INDEX_DATA *new_obj_index;
-	DESCRIPTOR_DATA *dsc;
 
 //  robj_num = real_object(OLC_NUM(d));
 	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
@@ -442,7 +438,9 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 
 		// Renumber zone table.
 		for (zone = 0; zone <= top_of_zone_table; zone++)
+		{
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
+			{
 				switch (ZCMD.command)
 				{
 				case 'P':
@@ -460,20 +458,8 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 						ZCMD.arg2++;
 					break;
 				}
-
-		// Renumber shop produce.
-		for (shop = 0; shop < top_shop; shop++)
-			for (i = 0; SHOP_PRODUCT(shop, i) != -1; i++)
-				if (SHOP_PRODUCT(shop, i) >= robj_num)
-					SHOP_PRODUCT(shop, i)++;
-
-		// Renumber produce in shops being edited.
-		for (dsc = descriptor_list; dsc; dsc = dsc->next)
-			if (dsc->connected == CON_SEDIT)
-				for (i = 0; S_PRODUCT(OLC_SHOP(dsc), i) != -1; i++)
-					if (S_PRODUCT(OLC_SHOP(dsc), i) >= robj_num)
-						S_PRODUCT(OLC_SHOP(dsc), i)++;
-
+			}
+		}
 	}
 
 	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_OBJ);

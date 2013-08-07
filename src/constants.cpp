@@ -588,7 +588,6 @@ const char *connected_types[] = { "В игре",
 								  "Room edit",
 								  "Zone edit",
 								  "Mobile edit",
-								  "Shop edit",
 								  "Trigger edit",
 								  "Get name2",
 								  "Get name3",
@@ -605,8 +604,7 @@ const char *connected_types[] = { "В игре",
 								  "Select kin",
 								  "Select class vik",
 								  "Select class step",
-								  "Select race step",
-								  "Select race vik",
+								  "map olc",
 								  "Select color",
 								  "Board message edit",
 								  "House edit",
@@ -1786,7 +1784,7 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	// 0
 		"К вам вернулась способность нормально сражаться.",
 		"Неистовство оставило вас.",
 		"!stone bones!",               // 165
-		"Колдовской свет угас.",          // SPELL_ROOM_LIGHT - строка при снятии аффекта  
+		"Колдовской свет угас.",          // SPELL_ROOM_LIGHT - строка при снятии аффекта
 		"Порыв ветра развеял ядовитый туман.",   // SPELL_POISONED_FOG - строка при снятии аффекта
 		"Ветер прогнал грозовые тучи.",		 // SPELL_THUNDERSTORM - строка при снятии аффекта
 		"Ваши следы вновь стали заметны.",
@@ -2327,17 +2325,17 @@ int rev_dir[] =
 
 int movement_loss[] =
 {
-	1,			// Inside    
-	1,			// City      
-	2,			// Field     
-	3,			// Forest    
-	4,			// Hills     
-	6,			// Mountains 
-	4,			// Swimming  
+	1,			// Inside
+	1,			// City
+	2,			// Field
+	3,			// Forest
+	4,			// Hills
+	6,			// Mountains
+	4,			// Swimming
 	1,			// Unswimable
-	1,			// Flying    
+	1,			// Flying
 	5,			// Underwater
-	1,			// Secret    
+	1,			// Secret
 	1, // Мощеная дорога
 	2, // Утоптанная дорога
 	4, // Разбитая дорога

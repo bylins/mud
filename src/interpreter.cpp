@@ -116,7 +116,6 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void redit_parse(DESCRIPTOR_DATA * d, char *arg);
 void zedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void medit_parse(DESCRIPTOR_DATA * d, char *arg);
-void sedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void trigedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void Crash_timer_obj(int index, long timer_dec);
 int find_social(char *name);
@@ -932,7 +931,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"say", POS_RESTING, do_say, 0, 0, -1},
 	{"scan", POS_RESTING, do_sides, 0, 0, 500},
 	{"score", POS_DEAD, do_score, 0, 0, 0},
-	{"sedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_SEDIT},
 	{"sell", POS_STANDING, do_not_here, 0, 0, -1},
 	{"send", POS_SLEEPING, do_send, LVL_GRGOD, 0, 0},
 	{"sense", POS_STANDING, do_sense, 0, 0, 500},
@@ -2488,9 +2486,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_MEDIT:
 		medit_parse(d, arg);
-		break;
-	case CON_SEDIT:
-		sedit_parse(d, arg);
 		break;
 	case CON_TRIGEDIT:
 		trigedit_parse(d, arg);

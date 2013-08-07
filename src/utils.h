@@ -14,14 +14,14 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+#include "conf.h"
 #include <string>
 #include <list>
 #include <map>
 #include <new>
-#include "conf.h"
+
 #include "features.hpp"
 #include "pugixml.hpp"
-
 
 using std::string;
 using std::list;
@@ -241,8 +241,9 @@ void update_pos(CHAR_DATA * victim);
 extern SPECIAL(receptionist);
 extern SPECIAL(postmaster);
 extern SPECIAL(bank);
+extern SPECIAL(shop_ext);
 
-#define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_keeper)
+#define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
 #define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == postmaster)
 #define IS_BANKKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == bank)

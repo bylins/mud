@@ -89,7 +89,6 @@ struct olc_data
 	ROOM_DATA *room;
 	OBJ_DATA *obj;
 	struct zone_data *zone;
-	struct shop_data *shop;
 	EXTRA_DESCR_DATA *desc;
 
 	MakeRecept *mrec;
@@ -150,7 +149,6 @@ extern struct olc_save_info *olc_save_list;
 #define OLC_SAVE_OBJ		(byte)	1
 #define OLC_SAVE_ZONE		(byte)	2
 #define OLC_SAVE_MOB		(byte)	3
-#define OLC_SAVE_SHOP		(byte)	4
 
 // * Submodes of OEDIT connectedness.
 #define OEDIT_MAIN_MENU              	1

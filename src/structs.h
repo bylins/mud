@@ -83,7 +83,6 @@ typedef struct weather_data      WEATHER_DATA;*/
 
 // done
 typedef struct flag_data FLAG_DATA;
-typedef struct shop_data SHOP_DATA;
 typedef struct room_data ROOM_DATA;
 typedef struct index_data INDEX_DATA;
 typedef struct script_data SCRIPT_DATA;
@@ -663,61 +662,58 @@ typedef struct trig_data TRIG_DATA;
 
 // Modes of connectedness: used by descriptor_data.state //
 //ОБЕЗАТЕЛЬНО ДОБАВИТЬ В connected_types[]!!!!//
-#define CON_PLAYING       0	// Playing - Nominal state //
-#define CON_CLOSE      1	// Disconnecting     //
-#define CON_GET_NAME  2		// By what name ..?     //
-#define CON_NAME_CNFRM   3	// Did I get that right, x?   //
-#define CON_PASSWORD  4		// Password:         //
-#define CON_NEWPASSWD    5	// Give me a password for x   //
-#define CON_CNFPASSWD    6	// Please retype password: //
-#define CON_QSEX       7	// Sex?           //
-#define CON_QCLASS        8	// Class?         //
-#define CON_RMOTD      9	// PRESS RETURN after MOTD //
-#define CON_MENU       10	// Your choice: (main menu)   //
-#define CON_EXDESC        11	// Enter a new description:   //
-#define CON_CHPWD_GETOLD 12	// Changing passwd: get old   //
-#define CON_CHPWD_GETNEW 13	// Changing passwd: get new   //
-#define CON_CHPWD_VRFY   14	// Verify new password     //
-#define CON_DELCNF1       15	// Delete confirmation 1   //
-#define CON_DELCNF2       16	// Delete confirmation 2   //
-#define CON_DISCONNECT   17	// In-game disconnection   //
-#define CON_OEDIT        18	//. OLC mode - object edit     . //
-#define CON_REDIT        19	//. OLC mode - room edit       . //
-#define CON_ZEDIT        20	//. OLC mode - zone info edit  . //
-#define CON_MEDIT        21	//. OLC mode - mobile edit     . //
-#define CON_SEDIT        22	//. OLC mode - shop edit       . //
-#define CON_TRIGEDIT     23	//. OLC mode - trigger edit    . //
-#define CON_NAME2        24
-#define CON_NAME3        25
-#define CON_NAME4        26
-#define CON_NAME5        27
-#define CON_NAME6        28
-#define CON_RELIGION     29
-#define CON_RACE        30
-#define CON_LOWS         31
-#define CON_GET_KEYTABLE 32
-#define CON_GET_EMAIL    33
-#define CON_ROLL_STATS   34
-#define CON_MREDIT       35	// OLC mode - make recept edit //
-#define CON_QKIN         36
-#define CON_QCLASSV      37
-#define CON_QCLASSS      38
-#define CON_MAP_MENU     39
-//#define CON_RACES        39 Это остаток от Поренутовских недорас, убрал ибо не надо стало
-//#define CON_RACEV        40 Номера режимов можно потом заюзать
-#define CON_COLOR        41
-#define CON_WRITEBOARD   42 // написание на доску
-#define CON_CLANEDIT     43 // команда house
-#define CON_NEW_CHAR     44
-#define CON_SPEND_GLORY  45 // вливание славы через команду у чара
-#define CON_RESET_STATS  46 // реролл статов при входе в игру
-#define CON_BIRTHPLACE   47 // выбираем где начать игру
-#define CON_WRITE_MOD    48 // пишет клановое сообщение дня
-#define CON_GLORY_CONST  49 // вливает славу2
-#define CON_NAMED_STUFF  50 // редактирует именной стаф
-#define CON_RESET_KIN    51 // выбор расы после смены/удаления оной (или иного способа испоганивания значения)
-#define CON_RESET_RACE   52 // выбор РОДА посла смены/сброса оного
-#define CON_CONSOLE      53 // Интерактивная скриптовая консоль
+#define CON_PLAYING       0 // Playing - Nominal state //
+#define CON_CLOSE         1 // Disconnecting     //
+#define CON_GET_NAME      2 // By what name ..?     //
+#define CON_NAME_CNFRM    3 // Did I get that right, x?   //
+#define CON_PASSWORD      4 // Password:         //
+#define CON_NEWPASSWD     5 // Give me a password for x   //
+#define CON_CNFPASSWD     6 // Please retype password: //
+#define CON_QSEX          7 // Sex?           //
+#define CON_QCLASS        8 // Class?         //
+#define CON_RMOTD         9 // PRESS RETURN after MOTD //
+#define CON_MENU         10 // Your choice: (main menu)   //
+#define CON_EXDESC       11 // Enter a new description:   //
+#define CON_CHPWD_GETOLD 12 // Changing passwd: get old   //
+#define CON_CHPWD_GETNEW 13 // Changing passwd: get new   //
+#define CON_CHPWD_VRFY   14 // Verify new password     //
+#define CON_DELCNF1      15 // Delete confirmation 1   //
+#define CON_DELCNF2      16 // Delete confirmation 2   //
+#define CON_DISCONNECT   17 // In-game disconnection   //
+#define CON_OEDIT        18 //. OLC mode - object edit     . //
+#define CON_REDIT        19 //. OLC mode - room edit       . //
+#define CON_ZEDIT        20 //. OLC mode - zone info edit  . //
+#define CON_MEDIT        21 //. OLC mode - mobile edit     . //
+#define CON_TRIGEDIT     22 //. OLC mode - trigger edit    . //
+#define CON_NAME2        23
+#define CON_NAME3        24
+#define CON_NAME4        25
+#define CON_NAME5        26
+#define CON_NAME6        27
+#define CON_RELIGION     28
+#define CON_RACE         29
+#define CON_LOWS         30
+#define CON_GET_KEYTABLE 31
+#define CON_GET_EMAIL    32
+#define CON_ROLL_STATS   33
+#define CON_MREDIT       34 // OLC mode - make recept edit //
+#define CON_QKIN         35
+#define CON_QCLASSV      36
+#define CON_QCLASSS      37
+#define CON_MAP_MENU     38
+#define CON_COLOR        39
+#define CON_WRITEBOARD   40 // написание на доску
+#define CON_CLANEDIT     41 // команда house
+#define CON_NEW_CHAR     42
+#define CON_SPEND_GLORY  43 // вливание славы через команду у чара
+#define CON_RESET_STATS  44 // реролл статов при входе в игру
+#define CON_BIRTHPLACE   45 // выбираем где начать игру
+#define CON_WRITE_MOD    46 // пишет клановое сообщение дня
+#define CON_GLORY_CONST  47 // вливает славу2
+#define CON_NAMED_STUFF  48 // редактирует именной стаф
+#define CON_RESET_KIN    49 // выбор расы после смены/удаления оной (или иного способа испоганивания значения)
+#define CON_RESET_RACE   50 // выбор РОДА посла смены/сброса оного
+#define CON_CONSOLE      51 // Интерактивная скриптовая консоль
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //

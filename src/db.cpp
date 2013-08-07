@@ -183,7 +183,6 @@ void load_help(FILE * fl);
 void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
-void assign_the_shopkeepers(void);
 void init_spec_procs(void);
 void build_player_index(void);
 int is_empty(zone_rnum zone_nr);
@@ -230,7 +229,6 @@ void boot_social_messages(void);
 void update_obj_file(void);	// In objsave.cpp
 void sort_commands(void);
 void Read_Invalid_List(void);
-void boot_the_shops(FILE * shop_f, char *filename, int rec_count);
 int find_name(const char *name);
 int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
@@ -695,12 +693,6 @@ void boot_world(void)
 
 	log("Renumbering Mob_zone.");
 	renum_mob_zone();
-
-	if (!no_specials)
-	{
-		log("Loading shops.");
-		index_boot(DB_BOOT_SHP);
-	}
 }
 
 //MZ.load
@@ -1711,8 +1703,6 @@ void boot_db(void)
 	{
 		log("   Mobiles.");
 		assign_mobiles();
-		log("   Shopkeepers.");
-		assign_the_shopkeepers();
 		log("   Objects.");
 		assign_objects();
 		log("   Rooms.");
@@ -2089,9 +2079,6 @@ void index_boot(int mode)
 	case DB_BOOT_ZON:
 		prefix = ZON_PREFIX;
 		break;
-	case DB_BOOT_SHP:
-		prefix = SHP_PREFIX;
-		break;
 	case DB_BOOT_HLP:
 		prefix = HLP_PREFIX;
 		break;
@@ -2156,8 +2143,6 @@ void index_boot(int mode)
 	// Exit if 0 records, unless this is shops
 	if (!rec_count)
 	{
-		if (mode == DB_BOOT_SHP)
-			return;
 		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix, index_filename);
 		exit(1);
 	}
@@ -2235,9 +2220,6 @@ void index_boot(int mode)
 			 * "point-the-gun-at-your-own-foot" type of race.
 			 */
 			load_help(db_file);
-			break;
-		case DB_BOOT_SHP:
-			boot_the_shops(db_file, buf2, rec_count);
 			break;
 		case DB_BOOT_SOCIAL:
 			load_socials(db_file);

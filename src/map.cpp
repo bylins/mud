@@ -20,8 +20,7 @@
 #include "handler.h"
 #include "shop_ext.hpp"
 
-SPECIAL(shop_keeper);
-SPECIAL(ShopExt::shop_ext);
+SPECIAL(shop_ext);
 SPECIAL(receptionist);
 SPECIAL(postmaster);
 SPECIAL(bank);
@@ -389,7 +388,7 @@ void drow_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, 
 		SPECIAL(*func) = GET_MOB_SPEC(tch);
 		if (func)
 		{
-			if ((func == shop_keeper || func == ShopExt::shop_ext)
+			if (func == shop_ext
 				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_SHOP)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_SHOP, cur_depth);

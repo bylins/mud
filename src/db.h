@@ -31,10 +31,9 @@ const int MAX_MOB_LEVEL = 50;
 #define DB_BOOT_MOB	1
 #define DB_BOOT_OBJ	2
 #define DB_BOOT_ZON	3
-#define DB_BOOT_SHP	4
-#define DB_BOOT_HLP	5
-#define DB_BOOT_TRG	6
-#define DB_BOOT_SOCIAL 7
+#define DB_BOOT_HLP	4
+#define DB_BOOT_TRG	5
+#define DB_BOOT_SOCIAL 6
 
 #define DL_LOAD_ANYWAY     0
 #define DL_LOAD_IFLAST     1
@@ -130,7 +129,6 @@ enum SetStuffMode
 #define MOB_PREFIX	LIB_WORLD"mob"SLASH	// monster prototypes
 #define OBJ_PREFIX	LIB_WORLD"obj"SLASH	// object prototypes
 #define ZON_PREFIX	LIB_WORLD"zon"SLASH	// zon defs & command tables
-#define SHP_PREFIX	LIB_WORLD"shp"SLASH	// shop definitions
 #define TRG_PREFIX	LIB_WORLD"trg"SLASH	// shop definitions
 #define HLP_PREFIX	LIB_TEXT"help"SLASH	// for HELP <keyword>
 #define SOC_PREFIX	LIB_MISC

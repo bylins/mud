@@ -14,7 +14,6 @@
 namespace ShopExt
 {
 
-SPECIAL(shop_ext);
 ACMD(do_shops_list);
 void load(bool reload);
 int get_spent_today();
@@ -23,6 +22,7 @@ void update_timers();
 
 } // namespace ShopExt
 
+SPECIAL(shop_ext);
 void town_shop_keepers();
 void fill_shop_dictionary(DictionaryType &dic);
 

@@ -257,7 +257,6 @@ void weather_and_time(int mode);
 void redit_save_to_disk(int zone_num);
 void oedit_save_to_disk(int zone_num);
 void medit_save_to_disk(int zone_num);
-void sedit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
 void hour_update();
 int real_zone(int number);
@@ -661,9 +660,6 @@ void init_game(ush_int port)
 					break;
 				case OLC_SAVE_ZONE:
 					zedit_save_to_disk(rznum);
-					break;
-				case OLC_SAVE_SHOP:
-					sedit_save_to_disk(rznum);
 					break;
 				default:
 					log("Unexpected olc_save_list->type");
@@ -3493,7 +3489,6 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	case CON_REDIT:
 	case CON_ZEDIT:
 	case CON_MEDIT:
-	case CON_SEDIT:
 	case CON_TRIGEDIT:
 		cleanup_olc(d, CLEANUP_ALL);
 	default:

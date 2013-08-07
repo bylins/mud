@@ -22,7 +22,6 @@
 int extra_aco(int class_num, int level);
 void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 int thaco(int class_num, int level);
-int ok_damage_shopkeeper(CHAR_DATA * ch, CHAR_DATA * victim);
 void npc_groupbattle(CHAR_DATA * ch);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
@@ -2313,10 +2312,6 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (dam >= 0 && damage_mtrigger(ch, victim))
 		return 0;
 
-	// Shopkeeper protection
-	if (!ok_damage_shopkeeper(ch, victim))
-		return 0;
-
 	// No fight mobiles
 	if ((IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT))
 		|| (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT)))
@@ -3608,9 +3603,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	// at least 1 hp damage min per hit
 	hit_params.dam = MAX(1, hit_params.dam);
 
-	// Shopkeeper protection
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
-	if (damage_mtrigger(ch, victim) || !ok_damage_shopkeeper(ch, victim))
+	if (damage_mtrigger(ch, victim))
 	{
 		return;
 	}

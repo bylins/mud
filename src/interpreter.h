@@ -293,9 +293,8 @@ struct alias_data
 #define SCMD_OLC_OEDIT  1
 #define SCMD_OLC_ZEDIT  2
 #define SCMD_OLC_MEDIT  3
-#define SCMD_OLC_SEDIT  4
-#define SCMD_OLC_TRIGEDIT  5
-#define SCMD_OLC_SAVEINFO  6
+#define SCMD_OLC_TRIGEDIT  4
+#define SCMD_OLC_SAVEINFO  5
 
 #define SCMD_RECIPE        1
 

@@ -15,7 +15,6 @@
 #include "db.h"
 #include "interpreter.h"
 #include "utils.h"
-#include "shop.h"
 #include "spells.h"
 #include "skills.h"
 #include "screen.h"
@@ -272,7 +271,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			victim_modi -= GET_REAL_CON(vict);
 		}
 		break;
-	case SKILL_HIDE:	//спрятаться 
+	case SKILL_HIDE:	//спрятаться
 		percent =
 			skill_is + dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
@@ -298,7 +297,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
-	case SKILL_KICK:	//пнуть 
+	case SKILL_KICK:	//пнуть
 		victim_sav = SAVING_STABILITY;
 		percent = skill_is +
 				  dex_bonus(GET_REAL_DEX(ch)) +
@@ -311,18 +310,18 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 				victim_modi -= calculate_awake_mod(ch, vict);
 		}
 		break;
-	case SKILL_PICK_LOCK:	//pick lock 
+	case SKILL_PICK_LOCK:	//pick lock
 		percent = skill_is + dex_bonus(GET_REAL_DEX(ch))
 				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 		break;
-	case SKILL_PUNCH:	//punch 
+	case SKILL_PUNCH:	//punch
 		percent = skill_is;
 		break;
-	case SKILL_RESCUE:	//спасти 
+	case SKILL_RESCUE:	//спасти
 		percent = skill_is + dex_bonus(GET_REAL_DEX(ch));
 		victim_modi = 100;
 		break;
-	case SKILL_SNEAK:	//sneak 
+	case SKILL_SNEAK:	//sneak
 		percent = skill_is + dex_bonus(GET_REAL_DEX(ch))
 				  + (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
 
@@ -344,7 +343,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			}
 		}
 		break;
-	case SKILL_STEAL:	//steal 
+	case SKILL_STEAL:	//steal
 		percent = skill_is + dex_bonus(GET_REAL_DEX(ch))
 				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
@@ -366,7 +365,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			}
 		}
 		break;
-	case SKILL_TRACK:	//выследить 
+	case SKILL_TRACK:	//выследить
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
 				  + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
@@ -410,7 +409,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		}
 		break;
 	case SKILL_MULTYPARRY:
-	case SKILL_PARRY:	//парировать 
+	case SKILL_PARRY:	//парировать
 		percent = skill_is + dex_bonus(GET_REAL_DEX(ch));
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
 			percent += ch->get_skill(SKILL_AWAKE);
@@ -428,7 +427,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		victim_modi = 100;
 		break;
 
-	case SKILL_BLOCK:	//закрыться щитом 
+	case SKILL_BLOCK:	//закрыться щитом
 	{
 		// по 10 бонусом со щита (21-30) и дексы (21-50)
 		int shield_mod = GET_EQ(ch, WEAR_SHIELD) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
@@ -438,7 +437,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	}
 
-	case SKILL_TOUCH:	//захватить противника 
+	case SKILL_TOUCH:	//захватить противника
 		percent =
 			skill_is + dex_bonus(GET_REAL_DEX(ch)) +
 			size_app[GET_POS_SIZE(vict)].interpolate;
@@ -450,7 +449,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		}
 		break;
 
-	case SKILL_PROTECT:	//прикрыть грудью 
+	case SKILL_PROTECT:	//прикрыть грудью
 		percent =
 			skill_is + dex_bonus(GET_REAL_DEX(ch)) +
 			size_app[GET_POS_SIZE(ch)].interpolate;
@@ -458,26 +457,26 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		victim_modi = 100;
 		break;
 
-	case SKILL_BOWS:	//луки 
+	case SKILL_BOWS:	//луки
 		percent = skill_is + dex_bonus(GET_REAL_DEX(ch));
 		break;
-	case SKILL_BOTHHANDS:	//двуручники 
-	case SKILL_LONGS:	//длинные лезвия 
-	case SKILL_SPADES:	//копья и пики 
-	case SKILL_SHORTS:	//короткие лезвия 
-	case SKILL_CLUBS:	//палицы и дубины 
-	case SKILL_PICK:	//проникающее 
-	case SKILL_NONSTANDART:	//разнообразное оружие 
-	case SKILL_AXES:	//секиры 
+	case SKILL_BOTHHANDS:	//двуручники
+	case SKILL_LONGS:	//длинные лезвия
+	case SKILL_SPADES:	//копья и пики
+	case SKILL_SHORTS:	//короткие лезвия
+	case SKILL_CLUBS:	//палицы и дубины
+	case SKILL_PICK:	//проникающее
+	case SKILL_NONSTANDART:	//разнообразное оружие
+	case SKILL_AXES:	//секиры
 		percent = skill_is;
 		break;
-	case SKILL_SATTACK:	//атака второй рукой 
+	case SKILL_SATTACK:	//атака второй рукой
 		percent = skill_is;
 		break;
-	case SKILL_LOOKING:	//приглядеться 
+	case SKILL_LOOKING:	//приглядеться
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation;
 		break;
-	case SKILL_HEARING:	//прислушаться 
+	case SKILL_HEARING:	//прислушаться
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation;
 		break;
 	case SKILL_DISARM:

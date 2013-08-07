@@ -47,6 +47,7 @@
 #include "remember.hpp"
 #include "room.hpp"
 #include "objsave.h"
+#include "shop_ext.hpp"
 
 using std::ifstream;
 using std::fstream;
@@ -74,7 +75,6 @@ void appear(CHAR_DATA * ch);
 void write_aliases(CHAR_DATA * ch);
 void perform_immort_vis(CHAR_DATA * ch);
 int have_mind(CHAR_DATA * ch);
-SPECIAL(shop_keeper);
 ACMD(do_gen_comm);
 int Crash_delete_file(char *name, int mask);
 int HaveMind(CHAR_DATA * ch);
@@ -543,7 +543,8 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		percent = MAX(percent - 50, 0);
 
 	// NO NO With Imp's and Shopkeepers, and if player thieving is not allowed
-	if ((IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_MOB_SPEC(vict) == shop_keeper) && !IS_IMPL(ch))
+	if ((IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_MOB_SPEC(vict) == shop_ext)
+		&& !IS_IMPL(ch))
 	{
 		send_to_char("Вы постеснялись красть у такого хорошего человека.\r\n", ch);
 		return;

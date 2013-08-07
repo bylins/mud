@@ -43,9 +43,6 @@ void oedit_setup(DESCRIPTOR_DATA * d, int robj_num);
 void oedit_save_to_disk(int zone);
 void sedit_setup_new(DESCRIPTOR_DATA * d);
 void sedit_setup_existing(DESCRIPTOR_DATA * d, int robj_num);
-void sedit_save_to_disk(int zone);
-int real_shop(int vnum);
-void free_shop(SHOP_DATA * shop);
 void room_free(ROOM_DATA * room);
 void medit_mobile_free(CHAR_DATA * mob);
 void oedit_object_free(OBJ_DATA * obj);
@@ -69,13 +66,12 @@ struct olc_scmd_data
 	int con_type;
 };
 
-struct olc_scmd_data olc_scmd_info[6] =
+struct olc_scmd_data olc_scmd_info[5] =
 {
 	{"room", CON_REDIT},
 	{"object", CON_OEDIT},
 	{"room", CON_ZEDIT},
 	{"mobile", CON_MEDIT},
-	{"shop", CON_SEDIT},
 	{"trigger", CON_TRIGEDIT}
 };
 
@@ -90,7 +86,6 @@ olc_data::olc_data()
 	room(0),
 	obj(0),
 	zone(0),
-	shop(0),
 	desc(0),
 	mrec(0),
 #if defined(OASIS_MPROG)
@@ -145,7 +140,6 @@ ACMD(do_olc)
 		case SCMD_OLC_TRIGEDIT:
 		case SCMD_OLC_OEDIT:
 		case SCMD_OLC_MEDIT:
-		case SCMD_OLC_SEDIT:
 			sprintf(buf, "Укажите %s VNUM для редактирования.\r\n", olc_scmd_info[subcmd].text);
 			send_to_char(buf, ch);
 			return;
@@ -275,9 +269,6 @@ ACMD(do_olc)
 		case SCMD_OLC_ZEDIT:
 			type = "zone";
 			break;
-		case SCMD_OLC_SEDIT:
-			type = "shop";
-			break;
 		case SCMD_OLC_MEDIT:
 			type = "mobile";
 			break;
@@ -309,9 +300,6 @@ ACMD(do_olc)
 			break;
 		case SCMD_OLC_MEDIT:
 			medit_save_to_disk(OLC_ZNUM(d));
-			break;
-		case SCMD_OLC_SEDIT:
-			sedit_save_to_disk(OLC_ZNUM(d));
 			break;
 		}
 		delete d->olc;
@@ -359,15 +347,6 @@ ACMD(do_olc)
 		else
 			oedit_setup(d, -1);
 		STATE(d) = CON_OEDIT;
-		break;
-	case SCMD_OLC_SEDIT:
-		if ((real_num = real_shop(number)) >= 0)
-			sedit_setup_existing(d, real_num);
-		else  		//send_to_char("Отключено.\r\n",ch);
-		{
-			sedit_setup_new(d);
-		}
-		STATE(d) = CON_SEDIT;
 		break;
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
@@ -563,23 +542,6 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			free(OLC_ZONE(d)->name);
 			zedit_delete_cmdlist((pzcmd) OLC_ZONE(d)->cmd);
 			free(OLC_ZONE(d));
-		}
-
-		// Check for a shop.
-		if (OLC_SHOP(d))
-		{
-			// * free_shop doesn't perform sanity checks, we must be careful here.
-			switch (cleanup_type)
-			{
-			case CLEANUP_ALL:
-				free_shop(OLC_SHOP(d));
-				break;
-			case CLEANUP_STRUCTS:
-				free(OLC_SHOP(d));
-				break;
-			default:	// The caller has screwed up.
-				break;
-			}
 		}
 
 		// Restore descriptor playing status.

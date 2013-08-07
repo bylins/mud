@@ -2171,17 +2171,6 @@ void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
 	fprintf(fp, "$\n");
 	fclose(fp);
 
-	// * Create the shop file.
-	sprintf(buf, "%s/%d.shp", SHP_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w")))
-	{
-		mudlog("SYSERR: OLC: Can't write new shop file", BRF, LVL_IMPL, SYSLOG, TRUE);
-		send_to_char("Не могу создать файл магазинов новой зоны.\r\n", ch);
-		return;
-	}
-	fprintf(fp, "$~\n");
-	fclose(fp);
-
 	// * Create the trigger file.
 	sprintf(buf, "%s/%d.trg", TRG_PREFIX, vzone_num);
 	if (!(fp = fopen(buf, "w")))
@@ -2281,9 +2270,6 @@ void zedit_create_index(int znum, char *type)
 		break;
 	case 'm':
 		prefix = MOB_PREFIX;
-		break;
-	case 's':
-		prefix = SHP_PREFIX;
 		break;
 	case 't':
 		prefix = TRG_PREFIX;

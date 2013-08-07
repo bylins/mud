@@ -103,7 +103,6 @@ extern bool CompareBits(FLAG_DATA flags, const char *names[], int affect);
 
 // extern functions
 int level_exp(CHAR_DATA * ch, int level);
-void show_shops(CHAR_DATA * ch, char *value);
 void hcontrol_list_houses(CHAR_DATA * ch);
 void appear(CHAR_DATA * ch);
 void reset_zone(zone_rnum zone);
@@ -3952,7 +3951,6 @@ struct show_struct show_fields[] =
 	{"errors", LVL_IMPL},	// 5
 	{"death", LVL_GOD},
 	{"godrooms", LVL_GOD},
-	{"shops", LVL_IMMORT},
 	{"snoop", LVL_GRGOD},
 	{"linkdrop", LVL_GRGOD},	// 10
 	{"punishment", LVL_IMMORT},
@@ -4232,9 +4230,6 @@ ACMD(do_show)
 		page_string(ch->desc, buf, TRUE);
 		break;
 	case 8:
-		show_shops(ch, value);
-		break;
-	case 9:
 		*buf = '\0';
 		send_to_char("Система негласного контроля:\r\n", ch);
 		send_to_char("----------------------------\r\n", ch);
@@ -4253,7 +4248,7 @@ ACMD(do_show)
 		}
 		send_to_char(*buf ? buf : "Никто не подслушивается.\r\n", ch);
 		break;		// snoop
-	case 10:		// show linkdrop
+	case 9:		// show linkdrop
 		send_to_char("  Список игроков в состоянии 'link drop'\r\n", ch);
 		sprintf(buf, "%-50s%-16s   %s\r\n", "   Имя", "Комната", "Бездействие (тики)");
 		send_to_char(buf, ch);
@@ -4270,7 +4265,7 @@ ACMD(do_show)
 		sprintf(buf, "Всего - %d\r\n", i);
 		send_to_char(buf, ch);
 		break;
-	case 11:		// show punishment
+	case 10:		// show punishment
 		send_to_char("  Список наказанных игроков.\r\n", ch);
 		for (d = descriptor_list; d; d = d->next)
 		{
@@ -4321,7 +4316,7 @@ ACMD(do_show)
 			}
 		}
 		break;
-	case 12:		// show paths
+	case 11:		// show paths
 
 		if (self)
 		{
@@ -4351,10 +4346,10 @@ ACMD(do_show)
 		page_string(ch->desc, buf, TRUE);
 
 		break;
-	case 13:		// show loadrooms
+	case 12:		// show loadrooms
 
 		break;
-	case 14:		// show skills
+	case 13:		// show skills
 		if (!*value)
 		{
 			send_to_char("Уточните имя.\r\n", ch);
@@ -4367,7 +4362,7 @@ ACMD(do_show)
 		}
 		list_skills(vict, ch);
 		break;
-	case 15:		// show spells
+	case 14:		// show spells
 		if (!*value)
 		{
 			send_to_char("Уточните имя.\r\n", ch);
@@ -4380,7 +4375,7 @@ ACMD(do_show)
 		}
 		list_spells(vict, ch, FALSE);
 		break;
-	case 16:		//Show ban. Далим.
+	case 15:		//Show ban. Далим.
 		if (!*value)
 		{
 			ban->ShowBannedIp(BanList::SORT_BY_DATE, ch);
@@ -4388,7 +4383,7 @@ ACMD(do_show)
 		}
 		ban->ShowBannedIpByMask(BanList::SORT_BY_DATE, ch, value);
 		break;
-	case 17:		// show features
+	case 16:		// show features
 		if (!*value)
 		{
 			send_to_char("Уточните имя.\r\n", ch);
@@ -4401,25 +4396,25 @@ ACMD(do_show)
 		}
 		list_feats(vict, ch, FALSE);
 		break;
-	case 18:		// show glory
+	case 17:		// show glory
 		GloryMisc::show_log(ch, value);
 		break;
-	case 19:		// show crc
+	case 18:		// show crc
 		FileCRC::show(ch);
 		break;
-	case 20:		// show affected rooms
+	case 19:		// show affected rooms
 		RoomSpells::ShowRooms(ch);
 		break;
-	case 21: // money
+	case 20: // money
 		MoneyDropStat::print(ch);
 		break;
-	case 22: // expgain
+	case 21: // expgain
 		ZoneExpStat::print_gain(ch);
 		break;
-	case 23: // runes
+	case 22: // runes
 		print_rune_stats(ch);
 		break;
-	case 24: // mobstat
+	case 23: // mobstat
 	{
 		if (*value && is_number(value))
 		{
