@@ -9,11 +9,15 @@
 #include <string>
 #include "sysdep.h"
 #include "structs.h"
-#include "map.hpp"
 
 namespace DpsSystem
 {
 	class Dps;
+}
+
+namespace MapSystem
+{
+	class Options;
 }
 
 extern room_rnum r_helled_start_room;
@@ -91,7 +95,7 @@ public:
 	virtual bool map_check_option(int num) const { return false; };
 	virtual void map_print_to_snooper(CHAR_DATA *imm) {};
 	virtual void map_text_olc(const char *arg) {};
-	virtual const MapSystem::Options & get_map_options() const { return empty_map_options; };
+	virtual const MapSystem::Options * get_map_options() const { return &empty_map_options; };
 
 protected:
 	PlayerI() {};

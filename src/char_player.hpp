@@ -102,7 +102,7 @@ public:
 	bool map_check_option(int num) const;
 	void map_print_to_snooper(CHAR_DATA *imm);
 	void map_text_olc(const char *arg);
-	const MapSystem::Options & get_map_options() const;
+	const MapSystem::Options * get_map_options() const;
 
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)

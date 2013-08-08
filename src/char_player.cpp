@@ -1853,16 +1853,16 @@ void Player::map_text_olc(const char *arg)
 	map_options_.text_olc(this, arg);
 }
 
-const MapSystem::Options & Player::get_map_options() const
+const MapSystem::Options * Player::get_map_options() const
 {
-	return map_options_;
+	return &map_options_;
 }
 
 void Player::map_print_to_snooper(CHAR_DATA *imm)
 {
 	MapSystem::Options tmp;
 	tmp = map_options_;
-	map_options_ = imm->get_map_options();
+	map_options_ = *(imm->get_map_options());
 	// подменяем флаги карты на снуперские перед распечаткой ему карты
 	MapSystem::print_map(this, imm);
 	map_options_ = tmp;

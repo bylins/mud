@@ -1466,7 +1466,7 @@ ACMD(do_eat)
 		do_drink(ch, argument, 0, SCMD_SIP);
 		return;
 	}
-	
+
 	if (!IS_GOD(ch))
 	{
 		if (GET_OBJ_TYPE(food) == ITEM_MING) //Сообщение на случай попытки проглотить ингры
@@ -2190,7 +2190,7 @@ ACMD(do_upgrade)
 	min_mod = ch->get_trained_skill(SKILL_UPGRADE) / 50;
 	//С мортами все меньший уровень требуется для макс. заточки
 	max_mod = MAX(1,MIN(5,(GET_LEVEL(ch) + 5 + GET_REMORT(ch) / 4) / 6));
-	
+
 	if (IS_IMMORTAL(ch))
 	{
 		add_hr = 10;
@@ -2209,7 +2209,7 @@ ACMD(do_upgrade)
 	}
 	else
 		act("И вроде бы неплохо в итоге получилось.", FALSE, ch, obj, 0, TO_CHAR);
-	
+
 	obj->affected[0].location = APPLY_HITROLL;
 	obj->affected[0].modifier = add_hr;
 
@@ -2401,7 +2401,6 @@ ACMD(do_fire)
 
 ACMD(do_extinguish)
 {
-    AFFECT_DATA *aff;
     CHAR_DATA *caster;
     int tp, lag = 0;
     const char *targets[] = { "костер",
@@ -2443,10 +2442,10 @@ ACMD(do_extinguish)
         }
         break;
     case 1:
-        if ((aff = room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL))
-            && (AFF_FLAGGED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)))
+		AFFECT_DATA *aff = room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL);
+		if (aff && (AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
+				|| IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)))
         {
-            affect_room_remove(world[IN_ROOM(ch)], aff);
             send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
             act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
             if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
@@ -2461,6 +2460,7 @@ ACMD(do_extinguish)
                     send_to_char(buf, caster);
                 }
             }
+            affect_room_remove(world[IN_ROOM(ch)], aff);
             lag = 3;
         }
         else
