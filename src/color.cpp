@@ -16,7 +16,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
+#include "structs.h"
 
 #define CNRM  "\x1B[0;0m"
 #define CBLK  "\x1B[0;30m"
