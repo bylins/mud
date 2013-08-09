@@ -194,7 +194,7 @@ int proc_color(char *inbuf, int colour)
 	register int j = 0, p = 0;
 	int k, max, c = 0, tmp = 0, nc = 0; // normal colour CNRM by default
 	bool show_all = false;
-	char out_buf[32768];
+	char out_buf[MAX_SOCK_BUF * 2];
 
 	if (inbuf == NULL)
 		return -1;
