@@ -12,10 +12,10 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "conf.h"
 #include <sstream>
 #include <iomanip>
-
-#include "conf.h"
+#include <boost/format.hpp>
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -3942,6 +3942,30 @@ void print_zone_enters_to_buf(char *bufptr, zone_rnum zone)
 		sprintf(bufptr, "%sВходов в зону не обнаружено.\r\n", bufptr);
 }
 
+void print_mob_bosses(CHAR_DATA *ch)
+{
+	std::stringstream out;
+	for (int i = 0, cnt=0; i <= top_of_mobt; ++i)
+	{
+		if (mob_proto[i].get_role(MOB_ROLE_BOSS))
+		{
+			std::string zone_name_str = zone_table[mob_index[i].zone].name ?
+				zone_table[mob_index[i].zone].name  : "EMPTY" ;
+
+			out << boost::format("   %3d. %31s [%6d] %31s\r\n")
+				% ++cnt
+				% (mob_proto[i].get_name_str().size() > 31
+					? mob_proto[i].get_name_str().substr(0, 31)
+					: mob_proto[i].get_name_str())
+				% GET_MOB_VNUM(mob_proto + i)
+				% (zone_name_str.size() > 31
+					? zone_name_str.substr(0, 31)
+					: zone_name_str);
+		}
+	}
+	page_string(ch->desc, out.str());
+}
+
 struct show_struct show_fields[] =
 {
 	{"nothing", 0},		// 0
@@ -3953,21 +3977,22 @@ struct show_struct show_fields[] =
 	{"death", LVL_GOD},
 	{"godrooms", LVL_GOD},
 	{"snoop", LVL_GRGOD},
-	{"linkdrop", LVL_GRGOD},	// 10
-	{"punishment", LVL_IMMORT},
+	{"linkdrop", LVL_GRGOD},
+	{"punishment", LVL_IMMORT}, // 10
 	{"paths", LVL_GRGOD},
 	{"loadrooms", LVL_GRGOD},
 	{"skills", LVL_IMPL},
-	{"spells", LVL_IMPL},	// 15
-	{"ban", LVL_IMMORT},
+	{"spells", LVL_IMPL},
+	{"ban", LVL_IMMORT}, // 15
 	{"features", LVL_IMPL},
 	{"glory", LVL_IMPL},
 	{"crc", LVL_IMMORT},
-	{"affectedrooms", LVL_IMMORT}, // 20
-	{"money", LVL_IMPL},
+	{"affectedrooms", LVL_IMMORT},
+	{"money", LVL_IMPL}, // 20
 	{"expgain", LVL_IMPL},
 	{"runes", LVL_IMPL},
 	{"mobstat", LVL_IMPL},
+	{"bosses", LVL_IMPL},
 	{"\n", 0}
 };
 
@@ -4427,6 +4452,9 @@ ACMD(do_show)
 		}
 		break;
 	}
+	case 24: // bosses
+		print_mob_bosses(ch);
+		break;
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);
 		break;
