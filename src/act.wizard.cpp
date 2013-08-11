@@ -16,6 +16,8 @@
 #include <sstream>
 #include <iomanip>
 #include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -5394,13 +5396,199 @@ ACMD(do_set)
 
 }
 
+SPECIAL(shop_ext);
+SPECIAL(receptionist);
+SPECIAL(postmaster);
+SPECIAL(bank);
+SPECIAL(exchange);
+SPECIAL(horse_keeper);
+SPECIAL(guild_mono);
+SPECIAL(guild_poly);
+
+namespace Mlist
+{
+
+std::string print_race(CHAR_DATA *mob)
+{
+	std::string out;
+	if (GET_RACE(mob) >= 0 && GET_RACE(mob) < NPC_RACE_LAST)
+	{
+		out += npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC];
+	}
+	else
+	{
+		out += "UNDEF";
+	}
+	return out;
+}
+
+std::string print_role(CHAR_DATA *mob)
+{
+	std::string out;
+	if (mob->get_role_bits().any())
+	{
+		print_bitset(mob->get_role_bits(), npc_role_types, ",", out);
+	}
+	else
+	{
+		out += "---";
+	}
+	return out;
+}
+
+std::string print_script(CHAR_DATA *mob, const std::string &key)
+{
+	std::string out;
+
+	bool print_name = false;
+	if (key == "scriptname" || key == "triggername")
+	{
+		print_name = true;
+	}
+
+	if (mob_proto[GET_MOB_RNUM(mob)].proto_script)
+	{
+		bool first = true;
+		for (trig_proto_list *trg_proto = mob_proto[GET_MOB_RNUM(mob)].proto_script;
+			trg_proto; trg_proto = trg_proto->next)
+		{
+			const int trg_rnum = real_trigger(trg_proto->vnum);
+			if (trg_rnum >= 0)
+			{
+				if (!first)
+				{
+					out += ", ";
+				}
+				else
+				{
+					first = false;
+				}
+				out += boost::lexical_cast<std::string>(trig_index[trg_rnum]->vnum);
+				if (print_name)
+				{
+					out += "(";
+					out += GET_TRIG_NAME(trig_index[trg_rnum]->proto)
+						? GET_TRIG_NAME(trig_index[trg_rnum]->proto)
+						: "null";
+					out += ")";
+				}
+			}
+		}
+	}
+	else
+	{
+		out += "---";
+	}
+
+	return out;
+}
+
+std::string print_special(CHAR_DATA *mob)
+{
+	std::string out;
+
+	if (mob_index[GET_MOB_RNUM(mob)].func)
+	{
+		SPECIAL(*func) = mob_index[GET_MOB_RNUM(mob)].func;
+		if (func == shop_ext)
+			out += "shop";
+		else if (func == receptionist)
+			out += "rent";
+		else if (func == postmaster)
+			out += "mail";
+		else if (func == bank)
+			out += "bank";
+		else if (func == exchange)
+			out += "exchange";
+		else if (func == horse_keeper)
+			out += "horse";
+		else if (func == guild_mono)
+			out += "teacher (mono)";
+		else if (func == guild_poly)
+			out += "teacher (poly)";
+	}
+	else
+	{
+		out += "---";
+	}
+
+	return out;
+}
+
+
+std::string print_flag(CHAR_DATA *ch, CHAR_DATA *mob, const std::string &options)
+{
+	std::vector<std::string> option_list;
+	boost::split(option_list, options, boost::is_any_of(", "), boost::token_compress_on);
+
+	std::string out;
+	for (std::vector<std::string>::const_iterator i = option_list.begin(),
+		iend = option_list.end(); i != iend; ++i)
+	{
+		if (isname(*i, "race"))
+		{
+			out += boost::str(boost::format(" [раса: %s%s%s ]")
+				% CCCYN(ch, C_NRM) % print_race(mob) % CCNRM(ch, C_NRM));
+		}
+		else if (isname(*i, "role"))
+		{
+			out += boost::str(boost::format(" [роли: %s%s%s ]")
+				% CCCYN(ch, C_NRM) % print_role(mob) % CCNRM(ch, C_NRM));
+		}
+		else if (isname(*i, "script trigger scriptname triggername"))
+		{
+			out += boost::str(boost::format(" [скрипты: %s%s%s ]")
+				% CCCYN(ch, C_NRM) % print_script(mob, *i) % CCNRM(ch, C_NRM));
+		}
+		else if (isname(*i, "special"))
+		{
+			out += boost::str(boost::format(" [спец-проц: %s%s%s ]")
+				% CCCYN(ch, C_NRM) % print_special(mob) % CCNRM(ch, C_NRM));
+		}
+	}
+
+	return out;
+}
+
+void print(CHAR_DATA *ch, int first, int last, const std::string &options)
+{
+	std::stringstream out;
+	out << "Список мобов от " << first << " до " << last << "\r\n";
+	int cnt = 0;
+	for (int i = 0; i <= top_of_mobt; ++i)
+	{
+		if (mob_index[i].vnum >= first && mob_index[i].vnum <= last)
+		{
+			out << boost::format("%5d. %45s [%6d] [%2d]%s\r\n")
+				% ++cnt
+				% (mob_proto[i].get_name_str().size() > 45
+					? mob_proto[i].get_name_str().substr(0, 45)
+					: mob_proto[i].get_name_str())
+				% mob_index[i].vnum
+				% mob_proto[i].get_level()
+				% print_flag(ch, mob_proto + i, options);
+		}
+	}
+
+	if (cnt == 0)
+	{
+		send_to_char("Нет мобов в этом промежутке.\r\n", ch);
+	}
+	else
+	{
+		page_string(ch->desc, out.str());
+	}
+}
+
+} // namespace Mlist
+
 ACMD(do_liblist)
 {
 
 	int first, last, nr, found = 0;
 	char bf[MAX_EXTEND_LENGTH];
 
-	two_arguments(argument, buf, buf2);
+	argument = two_arguments(argument, buf, buf2);
 
 	if (!*buf || (!*buf2 && (subcmd == SCMD_ZLIST)))
 	{
@@ -5426,8 +5614,10 @@ ACMD(do_liblist)
 		return;
 	}
 	first = atoi(buf);
-	if (*buf2)
+	if (*buf2 && isdigit(buf2[0]))
+	{
 		last = atoi(buf2);
+	}
 	else
 	{
 		first *= 100;
@@ -5485,16 +5675,16 @@ ACMD(do_liblist)
 		}
 		break;
 	case SCMD_MLIST:
-		sprintf(bf, "Список мобов от %d до %d\r\n", first, last);
-		for (nr = 0; nr <= top_of_mobt; nr++)
+	{
+		std::string option;
+		if (*buf2 && !isdigit(buf2[0]))
 		{
-			if (mob_index[nr].vnum >= first && mob_index[nr].vnum <= last)
-			{
-				sprintf(bf, "%s%5d. [%5d] %2d %s\r\n", bf, ++found,
-						mob_index[nr].vnum, mob_proto[nr].get_level(), mob_proto[nr].get_npc_name());
-			}
+			option = buf2;
 		}
-		break;
+		option += argument;
+		Mlist::print(ch, first, last, option);
+		return;
+	}
 	case SCMD_ZLIST:
 		sprintf(bf, "Список зон от %d до %d\r\n(флаги, номер, резет, уровень/средний уровень мобов, группа, имя)\r\n", first, last);
 		for (nr = 0; nr <= top_of_zone_table && (zone_table[nr].number <= last); nr++)
@@ -5528,9 +5718,6 @@ ACMD(do_liblist)
 			break;
 		case SCMD_OLIST:
 			send_to_char("Нет объектов в этом промежутке.\r\n", ch);
-			break;
-		case SCMD_MLIST:
-			send_to_char("Нет мобов в этом промежутке.\r\n", ch);
 			break;
 		case SCMD_ZLIST:
 			send_to_char("Нет зон в этом промежутке.\r\n", ch);
