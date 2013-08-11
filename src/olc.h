@@ -295,7 +295,7 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_EXTRA			55
 #define MEDIT_SPEED			56
 #define MEDIT_LIKE			57
-#define MEDIT_CLASS                     58
+#define MEDIT_ROLE                     58
 #define MEDIT_RESISTANCES		59
 #define MEDIT_SAVES			60
 #define MEDIT_ADD_PARAMETERS		61

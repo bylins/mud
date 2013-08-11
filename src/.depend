@@ -250,7 +250,7 @@ dg_wldcmd.o: dg_wldcmd.cpp conf.h sysdep.h structs.h screen.h \
 dg_olc.o: dg_olc.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp comm.h db.h olc.h dg_olc.h \
  dg_scripts.h dg_event.h char.hpp player_i.hpp morph.hpp room.hpp
-color.o: color.cpp conf.h sysdep.h
+color.o: color.cpp conf.h sysdep.h structs.h
 pk.o: pk.cpp conf.h sysdep.h structs.h constants.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp comm.h db.h handler.h interpreter.h \
  screen.h pk.h char.hpp player_i.hpp morph.hpp room.hpp house.h \

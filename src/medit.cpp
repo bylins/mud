@@ -8,6 +8,8 @@
  ************************************************************************/
 
 #include "conf.h"
+#include <sstream>
+#include <boost/format.hpp>
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
@@ -736,6 +738,10 @@ void medit_save_to_disk(int zone_num)
 			}
 			for (helper = GET_HELPER(mob); helper; helper = helper->next_helper)
 				fprintf(mob_file, "Helper: %d\n", helper->mob_vnum);
+			if (mob->get_role_bits().any())
+			{
+				fprintf(mob_file, "Role: %s\n", mob->get_role_bits().to_string().c_str());
+			}
 
 			// * XXX: Add E-mob handlers here.
 
@@ -1009,24 +1015,25 @@ void medit_disp_sex(DESCRIPTOR_DATA * d)
 	send_to_char("Выберите пол : ", d->character);
 }
 
-//Added by Adept
-//-------------------------------------------------------------------
-// * Display the class of the mobile.
-void medit_disp_class(DESCRIPTOR_DATA * d)
+void medit_disp_role(DESCRIPTOR_DATA * d)
 {
-	int i;
-
 	get_char_cols(d->character);
 
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 0; i < CLASS_LAST_NPC - 101; i++)
+
+	std::string out;
+	for (int i = 1; i <= MOB_ROLE_TOTAL_NUM && *npc_role_types[i - 1] != '\n'; ++i)
 	{
-		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, npc_class_types[i]);
-		send_to_char(buf, d->character);
+		out += boost::str(boost::format("%s%2d%s) %s\r\n") % grn % i % nrm % npc_role_types[i - 1]);
 	}
-	send_to_char("Выберите класс моба : ", d->character);
+	out += "Текущие флаги : ";
+	out += cyn;
+	print_bitset(OLC_MOB(d)->get_role_bits(), npc_role_types, ",", out, true);
+	out += nrm;
+	out += "\r\nВыберите роли моба (0 - выход) : ";
+	send_to_char(out, d->character);
 }
 
 //-------------------------------------------------------------------
@@ -1342,6 +1349,17 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		for (i = 0; i < mob->mob_specials.dest_count; i++)
 			sprintf(buf2 + strlen(buf2), "%d,", mob->mob_specials.dest[i]);
 	*(buf2 + strlen(buf2) - 1) = '\0';
+
+	std::string roles_str;
+	if (mob->get_role_bits().any())
+	{
+		print_bitset(mob->get_role_bits(), npc_role_types, ",", roles_str);
+	}
+	else
+	{
+		roles_str += "нет";
+	}
+
 	sprintf(buf, "%sW%s) Флаги   (NPC) : %s%s\r\n"
 #if defined(OASIS_MPROG)
 			"%sX%s) Mob Progs  : %s%s\r\n"
@@ -1357,7 +1375,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			"%sН%s) Шансы использования умений: [%s%4d%s]\r\n"
 			"%sО%s) Ингредиенты: %s%s\r\n"
 			"%sП%s) Загружаемые объекты: %s%s\r\n"
-			"%sР%s) Класс моба: %s%s\r\n"
+			"%sР%s) Роли моба: %s%s\r\n"
 			"%sС%s) Резисты:\r\n"
 			"%sТ%s) Спас-броски:\r\n"
 			"%sУ%s) Дополнительные параметры:\r\n"
@@ -1384,7 +1402,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, mob->mob_specials.LikeWork, nrm,
 			grn, nrm, cyn, mob->ing_list ? "Есть" : "Нет",
 			grn, nrm, cyn, mob->dl_list ? "Есть" : "Нет",
-			grn, nrm, cyn, npc_class_types[GET_CLASS(mob) - CLASS_BASIC_NPC],
+			grn, nrm, cyn, roles_str.c_str(),
 			grn, nrm,
 			grn, nrm,
 			grn, nrm,
@@ -1788,8 +1806,8 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		case 'р':
 		case 'Р':
-			OLC_MODE(d) = MEDIT_CLASS;
-			medit_disp_class(d);
+			OLC_MODE(d) = MEDIT_ROLE;
+			medit_disp_role(d);
 			return;
 		case 'с':
 		case 'С':
@@ -1838,10 +1856,18 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		GET_RACE(OLC_MOB(d)) = MAX(NPC_RACE_BASIC, MIN(NPC_RACE_LAST - 1, atoi(arg) + NPC_RACE_BASIC));
 		break;
 		//-------------------------------------------------------------------
-	case MEDIT_CLASS:
-		OLC_MOB(d)->set_class(MAX(CLASS_BASIC_NPC, MIN(CLASS_LAST_NPC - 1, atoi(arg) + CLASS_BASIC_NPC)));
+	case MEDIT_ROLE:
+	{
+		int num = atoi(arg);
+		if (num != 0)
+		{
+			OLC_MOB(d)->set_role(num - 1, !OLC_MOB(d)->get_role(num - 1));
+			medit_disp_role(d);
+			return;
+		}
 		break;
 		//-------------------------------------------------------------------
+	}
 	case MEDIT_FEATURES:
 		number = atoi(arg);
 		if (number == 0)

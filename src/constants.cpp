@@ -2260,14 +2260,19 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	// 0
 };
 
 
-const char *npc_class_types[] = { "Обычный",
-								  "Нежить",
-								  "Человек",
-								  "Животное",
-								  "Герой-воин",
-								  "Герой-маг",
-								  "\n"
-								};
+const char *npc_role_types[] =
+{
+	"босс",
+	"адд",
+	"танк",
+	"мели-дамагер",
+	"лучник",
+	"тать",
+	"маг-дамагер",
+	"маг-суппорт",
+	"хилер",
+	"\n"
+};
 
 //Polud new mob races. (26/01/2009)
 const char *npc_race_types[] = { "Обычный",

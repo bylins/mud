@@ -1665,25 +1665,27 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		sprintf(buf, "L-Des: %s", (k->player_data.description ? k->player_data.description : "<Нет>\r\n"));
 	send_to_char(buf, ch);
 
-	if (IS_NPC(k))
-		send_to_char("Племя: -- ", ch);
-	else
+	if (!IS_NPC(k))
 	{
-		sprintf(buf, "Племя: %s Род: %s ", string(PlayerRace::GetKinNameByNum(GET_KIN(k),GET_SEX(k))).c_str(), k->get_race_name().c_str());
+		sprinttype(k->get_class(), pc_class_types, buf2);
+		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
+			string(PlayerRace::GetKinNameByNum(GET_KIN(k),GET_SEX(k))).c_str(),
+			k->get_race_name().c_str(), buf2);
 		send_to_char(buf, ch);
 	}
-
-	if (IS_NPC(k))  	// Use GET_CLASS() macro?
-	{
-		strcpy(buf, "Тип монстра: ");
-		sprinttype(k->get_class() - CLASS_BASIC_NPC, npc_class_types, buf2);
-	}
 	else
 	{
-		strcpy(buf, "Профессия: ");
-		sprinttype(k->get_class(), pc_class_types, buf2);
+		std::string str;
+		if (k->get_role_bits().any())
+		{
+			print_bitset(k->get_role_bits(), npc_role_types, ",", str);
+		}
+		else
+		{
+			str += "нет";
+		}
+		send_to_char(ch, "Роли NPC: %s%s%s", CCCYN(ch, C_NRM), str.c_str(), CCNRM(ch, C_NRM));
 	}
-	strcat(buf, buf2);
 
 	char tmp_buf[256];
 	if (k->get_zone_group() > 1)
@@ -1696,11 +1698,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		tmp_buf[0] = '\0';
 	}
 
-	sprintf(buf2, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
+	sprintf(buf, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
 			CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
 			GET_EXP(k), CCNRM(ch, C_NRM), tmp_buf, GET_ALIGNMENT(k));
 
-	strcat(buf, buf2);
 	send_to_char(buf, ch);
 
 	if (!IS_NPC(k))

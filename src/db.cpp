@@ -3158,6 +3158,16 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 		GET_HELPER(mob_proto + i) = helper;
 	}
 
+	CASE("Role")
+	{
+		if (value && *value)
+		{
+			std::string str(value);
+			std::bitset<MOB_ROLE_TOTAL_NUM> tmp(str);
+			mob_proto[i].role_ = tmp;
+		}
+	}
+
 	if (!matched)
 	{
 		log("SYSERR: Warning: unrecognized espec keyword %s in mob #%d", keyword, nr);

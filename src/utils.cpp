@@ -718,7 +718,6 @@ void sprinttype(int type, const char *names[], char *result)
 		strcpy(result, "UNDEF");
 }
 
-
 // * Calculate the REAL time passed over the last t2-t1 centuries (secs)
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1)
 {

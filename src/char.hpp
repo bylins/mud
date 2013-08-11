@@ -281,6 +281,20 @@ struct player_special_data
 	struct board_data *board; // последние прочитанные мессаги на досках
 };
 
+enum
+{
+	MOB_ROLE_BOSS,
+	MOB_ROLE_MINION,
+	MOB_ROLE_TANK,
+	MOB_ROLE_MELEE_DMG,
+	MOB_ROLE_ARCHER,
+	MOB_ROLE_ROGUE,
+	MOB_ROLE_MAGE_DMG,
+	MOB_ROLE_MAGE_BUFF,
+	MOB_ROLE_HEALER,
+	MOB_ROLE_TOTAL_NUM
+};
+
 class Player;
 typedef boost::shared_ptr<Player> PlayerPtr;
 typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
@@ -298,6 +312,7 @@ public:
 	friend void save_char(CHAR_DATA *ch);
 	friend void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src);
+	friend void interpret_espec(const char *keyword, const char *value, int i, int nr);
 
 	void set_skill(int skill_num, int percent);
 	void clear_skills();
@@ -489,6 +504,10 @@ public:
 	unsigned int get_who_mana();
 	time_t get_who_last();
 
+	bool get_role(int num) const;
+	void set_role(int num, bool flag);
+	const std::bitset<MOB_ROLE_TOTAL_NUM> & get_role_bits() const;
+
 private:
 	std::string clan_for_title();
 	std::string only_title_noclan();
@@ -561,6 +580,9 @@ private:
 	std::list<string> morphs_;
 	//текущая форма
 	MorphPtr current_morph_;
+	// аналог класса у моба
+	std::bitset<MOB_ROLE_TOTAL_NUM> role_;
+
 // старое
 public:
 	mob_rnum nr;		// Mob's rnum

@@ -1607,3 +1607,24 @@ std::vector<long> Character::GetMorphAffects()
 //-Polud
 //===================================
 
+bool Character::get_role(int num) const
+{
+	if (num >= 0 && num < MOB_ROLE_TOTAL_NUM)
+	{
+		return role_[num];
+	}
+	return false;
+}
+
+void Character::set_role(int num, bool flag)
+{
+	if (num >= 0 && num < MOB_ROLE_TOTAL_NUM)
+	{
+		role_[num] = flag;
+	}
+}
+
+const std::bitset<MOB_ROLE_TOTAL_NUM> & Character::get_role_bits() const
+{
+	return role_;
+}
