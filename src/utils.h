@@ -17,14 +17,10 @@
 #include "conf.h"
 #include <string>
 #include <list>
-#include <map>
 #include <new>
-#include <boost/lexical_cast.hpp>
+//#include <boost/lexical_cast.hpp>
 #include "features.hpp"
 #include "pugixml.hpp"
-
-using std::string;
-using std::list;
 
 // external declarations and prototypes *********************************
 
@@ -1530,7 +1526,7 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 // names - список строк с названиями битов
 // div - разделитель между битами при распечатке
 // str - строка, куда печаются имена битов (добавлением в конец)
-// print_num - печать номера бита рядом с его именем (для олц, счет битов начинается с 1)
+// print_num - печать номер бита рядом с его именем (для олц, счет битов начинается с 1)
 template<class T> void print_bitset(const T &bits, const char *names[], const char *div, std::string &str, bool print_num = false)
 {
 	unsigned max_num = 0;
@@ -1538,8 +1534,9 @@ template<class T> void print_bitset(const T &bits, const char *names[], const ch
 	{
 		max_num++;
 	}
-
+	char tmp_buf[10];
 	bool first = true;
+
 	for (unsigned i = 0; i < bits.size(); ++i)
 	{
 		if (bits[i] == true)
@@ -1555,7 +1552,9 @@ template<class T> void print_bitset(const T &bits, const char *names[], const ch
 
 			if (print_num)
 			{
-				str += boost::lexical_cast<std::string>(i + 1) + ":";
+				snprintf(tmp_buf, sizeof(tmp_buf), "%d:", i + 1);
+				str += tmp_buf;
+				//str += boost::lexical_cast<std::string>(i + 1) + ":";
 			}
 
 			if (i < max_num)
