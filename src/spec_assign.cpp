@@ -49,6 +49,7 @@ SPECIAL(snake);
 SPECIAL(thief);
 SPECIAL(magic_user);
 SPECIAL(bank);
+SPECIAL(torc);
 
 void assign_kings_castle(void);
 
@@ -207,10 +208,10 @@ void init_spec_procs(void)
 				ASSIGNMOB(i, bank);
 			else if (!str_cmp(line2, "horse"))
 				ASSIGNMOB(i, horse_keeper);
-//++F@N
 			else if (!str_cmp(line2, "exchange"))
 				ASSIGNMOB(i, exchange);
-//--F@N
+			else if (!str_cmp(line2, "torc"))
+				ASSIGNMOB(i, torc);
 			else
 				log("Unknown mobile %d assignment type - %s...", i, line2);
 		}

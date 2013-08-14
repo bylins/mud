@@ -1257,6 +1257,14 @@ const char * desc_count(long how_many, int of_what);
 #define WHAT_PEOPLE	26
 #define WHAT_STR	27
 #define WHAT_GULP	28
+#define WHAT_TORC	29
+#define WHAT_TGOLD		30
+#define WHAT_TSILVER	31
+#define WHAT_TBRONZE	32
+#define WHAT_TORCu		33
+#define WHAT_TGOLDu		34
+#define WHAT_TSILVERu	35
+#define WHAT_TBRONZEu	36
 
 #undef AW_HIDE // конфликтует с winuser.h
 // some awaking cases
@@ -1484,6 +1492,8 @@ void print_log();
 std::string thousands_sep(long long n);
 int xmlparse_int(pugi::xml_node &node, const char *text);
 std::string xmlparse_str(pugi::xml_node &node, const char *text);
+std::string xmlparse_child_value_str(pugi::xml_node &node, const char *text);
+int xmlparse_child_value_int(pugi::xml_node &node, const char *text);
 
 enum { STR_TO_HIT, STR_TO_DAM, STR_CARRY_W, STR_WIELD_W, STR_HOLD_W, STR_BOTH_W, STR_SHIELD_W };
 enum { WIS_MAX_LEARN_L20, WIS_SPELL_SUCCESS, WIS_MAX_SKILLS, WIS_FAILS };

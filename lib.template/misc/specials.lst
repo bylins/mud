@@ -16,3 +16,5 @@ mob 4023 horse
 ;доски обьявлений
 obj 250 board
 
+;гривны
+;mob 4000 torc

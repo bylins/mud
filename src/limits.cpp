@@ -43,6 +43,7 @@
 #include "birth_places.hpp"
 #include "objsave.h"
 #include "fight.h"
+#include "ext_money.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -111,7 +112,7 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 void handle_recall_spells(CHAR_DATA* ch)
 {
 	AFFECT_DATA* aff = NULL;
-	for(AFFECT_DATA* af = ch->affected; af; af = af->next) 
+	for(AFFECT_DATA* af = ch->affected; af; af = af->next)
 		if (af->type == SPELL_RECALL_SPELLS)
 		{
 			aff = af;
@@ -128,10 +129,10 @@ void handle_recall_spells(CHAR_DATA* ch)
 
 		bool found_spells = false;
 		struct spell_mem_queue_item *next = NULL, *prev=NULL, *i = ch->MemQueue.queue;
-		while (i) 
+		while (i)
 		{
 			next = i->link;
-			if (spell_info[i->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore) 
+			if (spell_info[i->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore)
 			{
 				if (!found_spells)
 				{
@@ -818,10 +819,17 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 		{
 			if (!GET_GOD_FLAG(ch, GF_REMORT) && GET_REMORT(ch) < MAX_REMORT)
 			{
-				sprintf(buf,
-						"%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
+				if (Remort::can_remort_now(ch))
+				{
+					send_to_char(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 						CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
+				}
+				else
+				{
+					send_to_char(ch,
+						"%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
+						"%s%s\r\n", CCIGRN(ch, C_NRM), Remort::WHERE_TO_REMORT_STR.c_str(), CCNRM(ch, C_NRM));
+				}
 				SET_GOD_FLAG(ch, GF_REMORT);
 			}
 		}
@@ -869,11 +877,16 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 		}
 	}
-	if ((GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1) &&
-			GET_GOD_FLAG(ch, GF_REMORT) && gain && (GET_LEVEL(ch) < LVL_IMMORT))
+	if ((GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1)
+		&& GET_GOD_FLAG(ch, GF_REMORT)
+		&& gain
+		&& (GET_LEVEL(ch) < LVL_IMMORT))
 	{
-		sprintf(buf, "%sВы потеряли право на перевоплощение!%s\r\n", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
+		if (Remort::can_remort_now(ch))
+		{
+			send_to_char(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
+				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		}
 		CLR_GOD_FLAG(ch, GF_REMORT);
 	}
 

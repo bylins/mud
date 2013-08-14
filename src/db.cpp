@@ -14,12 +14,11 @@
 
 #define __DB_C__
 
+#include "conf.h"
 #include <sstream>
 #include <string>
 #include <boost/algorithm/string.hpp>
 #include <cmath>
-
-#include "conf.h"
 #include "sys/stat.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -73,6 +72,7 @@
 #include "sets_drop.hpp"
 #include "fight.h"
 #include "help.hpp"
+#include "ext_money.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -475,6 +475,7 @@ ACMD(do_reboot)
 		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 		Celebrates::load();
 		HelpSystem::reload_all();
+		Remort::init();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -591,6 +592,10 @@ ACMD(do_reboot)
 		{
 			SetsDrop::reload();
 		}
+	}
+	else if (!str_cmp(arg, "remort"))
+	{
+		Remort::init();
 	}
 	else
 	{
@@ -1850,6 +1855,9 @@ void boot_db(void)
 
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
+
+	log("Load remort.xml");
+	Remort::init();
 
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	HelpSystem::reload_all();
@@ -6356,10 +6364,16 @@ ACMD(do_remort)
 		send_to_char("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
-//  if (!GET_GOD_FLAG(ch, GF_REMORT))
 	if (GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1)
 	{
 		send_to_char("ЧАВО???\r\n", ch);
+		return;
+	}
+	if (GET_REMORT(ch) >= ExtMoney::SILVER_MORT_NUM && !PRF_FLAGGED(ch, PRF_CAN_REMORT))
+	{
+		send_to_char(
+			"Для получения права на перевоплощение посетите глашатая в Корсуни или Торжке\r\n"
+			"и подтвердите свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n", ch);
 		return;
 	}
 	if (RENTABLE(ch))
@@ -6494,10 +6508,15 @@ ACMD(do_remort)
 	SET_BIT(PLR_FLAGS(ch, PLR_NODELETE), PLR_NODELETE);
 	remove_rune_label(ch);
 
+	// сброс всего, связанного с гривнами
+	REMOVE_BIT(PRF_FLAGS(ch, PRF_CAN_REMORT), PRF_CAN_REMORT);
+	ch->set_ext_money(ExtMoney::TORC_GOLD, 0);
+	ch->set_ext_money(ExtMoney::TORC_SILVER, 0);
+	ch->set_ext_money(ExtMoney::TORC_BRONZE, 0);
+
 	act("$n вступил$g в игру.", TRUE, ch, 0, 0, TO_ROOM);
 	act("Вы перевоплотились! Желаем удачи!", FALSE, ch, 0, 0, TO_CHAR);
 }
-
 
 // returns the real number of the room with given virtual number
 room_rnum real_room(room_vnum vnum)

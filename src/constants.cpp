@@ -449,6 +449,8 @@ const char *preference_bits[] = { "краткий",
 								  "\n",
 								  "!оффтоп",
 								  "ПАЛАЧ",
+								  "реж.карта",
+								  "может реморт",
 								  "\n"
 								};
 
@@ -618,6 +620,7 @@ const char *connected_types[] = { "В игре",
                                   "Select new kin",
                                   "Select new race",
 								  "Interactive console",
+								  "обмен гривен",
 								  "\n"
 								};
 
@@ -3048,4 +3051,15 @@ struct attack_hit_type attack_hit_text[] =
 	{"*", "*"},
 	{"*", "*"},
 	{"*", "*"}
+};
+
+const char *godslike_bits[] =
+{
+	"GF_GODSLIKE",
+	"GF_GODSCURSE",
+	"GF_HIGHGOD",
+	"GF_REMORT",
+	"GF_DEMIGOD",
+	"GF_PERSLOG",
+	"\n"
 };

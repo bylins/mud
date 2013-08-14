@@ -97,6 +97,9 @@ public:
 	virtual void map_text_olc(const char *arg) {};
 	virtual const MapSystem::Options * get_map_options() const { return &empty_map_options; };
 
+	virtual int get_ext_money(unsigned type) const { return 0; };
+	virtual void set_ext_money(unsigned type, int num, bool write_log = true) {};
+
 protected:
 	PlayerI() {};
 	virtual ~PlayerI() {};

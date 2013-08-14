@@ -59,6 +59,7 @@
 #include "birth_places.hpp"
 #include "help.hpp"
 #include "map.hpp"
+#include "ext_money.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -593,6 +594,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"обернуться", POS_STANDING, do_morph, 0, 0, -1},
 	{"облачить", POS_RESTING, do_wear, 0, 0, 500},
 	{"обмен", POS_STANDING, do_not_here, 0, 0, 0},
+	{"обменять", POS_STANDING, do_not_here, 0, 0, 0},
 	{"оглядеться", POS_RESTING, do_sides, 0, 0, 0},
 	{"оглушить", POS_FIGHTING, do_stupor, 0, 0, -1},
 	{"одеть", POS_RESTING, do_wear, 0, 0, 500},
@@ -658,6 +660,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"постой", POS_STANDING, do_not_here, 1, 0, -1},
 	{"почта", POS_STANDING, do_not_here, 1, 0, -1},
 	{"появиться", POS_RESTING, do_visible, 1, 0, -1},
+	{"пожертвовать", POS_STANDING, do_not_here, 1, 0, -1},
 	{"правила", POS_DEAD, do_gen_ps, 0, SCMD_POLICIES, 0},
 	{"предложение", POS_STANDING, do_not_here, 1, 0, 500},
 	{"приказ", POS_RESTING, do_order, 1, 0, -1},
@@ -2510,6 +2513,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_MAP_MENU:
 		d->map_options->parse_menu(d->character, arg);
+		break;
+	case CON_TORC_EXCH:
+		ExtMoney::torc_exch_parse(d->character, arg);
 		break;
 	//python_off case CON_CONSOLE:
 		//python_off d->console->push(arg);

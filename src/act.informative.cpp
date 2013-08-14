@@ -3149,14 +3149,30 @@ void print_do_score_all(CHAR_DATA *ch)
 			sprintf(buf + strlen(buf), " || Вы отдаете своей дружине %3d%% опыта                                             ||\r\n", value);
 		}
 	}
+	////////////////////////////////////////////////////////////////////////////
+	std::stringstream tmp_out;
+	tmp_out << "Наградные гривны: "
+		<< CCIYEL(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_GOLD) << "з "
+		<< CCWHT(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_SILVER) << "с "
+		<< CCYEL(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_BRONZE) << "б";
 
-	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
+	if (COLOR_LEV(ch) < C_NRM)
+	{
 		sprintf(buf + strlen(buf),
-				" || Вы можете быть призваны.                                                        ||\r\n");
+			" %s|| %-24s %54s %s||\r\n",
+			CCCYN(ch, C_NRM),
+			(PRF_FLAGGED(ch, PRF_SUMMONABLE) ? "Вы можете быть призваны." : "Вы защищены от призыва."),
+			tmp_out.str().c_str(), CCCYN(ch, C_NRM));
+	}
 	else
+	{
 		sprintf(buf + strlen(buf),
-				" || Вы защищены от призыва.                                                         ||\r\n");
-
+			" %s|| %-24s %75s %s||\r\n",
+			CCCYN(ch, C_NRM),
+			(PRF_FLAGGED(ch, PRF_SUMMONABLE) ? "Вы можете быть призваны." : "Вы защищены от призыва."),
+			tmp_out.str().c_str(), CCCYN(ch, C_NRM));
+	}
+	////////////////////////////////////////////////////////////////////////////
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL)
 	{
 		sprintf(buf + strlen(buf),

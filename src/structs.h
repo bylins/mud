@@ -30,6 +30,20 @@ using std::map;
 using std::iterator;
 using std::string;
 
+namespace ExtMoney
+{
+
+// золотые гривны
+const unsigned TORC_GOLD = 0;
+// серебряные гривны
+const unsigned TORC_SILVER = 1;
+// бронзовые гривны
+const unsigned TORC_BRONZE = 2;
+// терминатор всегда в конце
+const unsigned TOTAL_TYPES = 3;
+
+} // namespace ExtMoney
+
 #define MAX_ALIAS_LENGTH 100
 //-Polos.insert_wanted_gem
 
@@ -561,6 +575,8 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_IGVA_PRONA	(INT_TWO | 1 << 0)  // для стоп-списка оффтоп
 #define PRF_EXECUTOR	(INT_TWO | 1 << 1)  // палач
 #define PRF_DRAW_MAP	(INT_TWO | 1 << 2)  // отрисовка карты при осмотре клетки
+#define PRF_CAN_REMORT	(INT_TWO | 1 << 3)  // разрешение на реморт через жертвование гривн
+// при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
@@ -714,6 +730,7 @@ typedef struct trig_data TRIG_DATA;
 #define CON_RESET_KIN    49 // выбор расы после смены/удаления оной (или иного способа испоганивания значения)
 #define CON_RESET_RACE   50 // выбор РОДА посла смены/сброса оного
 #define CON_CONSOLE      51 // Интерактивная скриптовая консоль
+#define CON_TORC_EXCH    52 // обмен гривен
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
@@ -1588,6 +1605,7 @@ struct descriptor_data
     short CharBirthPlace;                   // ID точки входа в игру для новых чаров, тупо, но что поделать
     boost::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
     bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
+    boost::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
 };
 
 

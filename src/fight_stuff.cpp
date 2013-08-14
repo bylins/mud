@@ -19,6 +19,7 @@
 #include "constants.h"
 #include "screen.h"
 #include "magic.h"
+#include "ext_money.hpp"
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -602,10 +603,20 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		&& !IS_NPC(ch)
 		&& !IS_IMMORTAL(ch)
 		&& IS_NPC(victim)
+		&& !IS_CHARMICE(victim)
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
 	{
 		SetsDrop::add_mob_stat(victim, members);
 		SET_BIT(EXTRA_FLAGS(victim, EXTRA_GRP_KILL_COUNT), EXTRA_GRP_KILL_COUNT);
+	}
+
+	if (!IS_NPC(ch)
+		&& IS_NPC(victim)
+		&& !IS_CHARMICE(victim)
+		&& victim->get_role(MOB_ROLE_BOSS)
+		&& GET_GOD_FLAG(ch, GF_REMORT))
+	{
+		ExtMoney::gain_torc(ch, victim, members);
 	}
 
 // Странно, но для NPC эта функция тоже должна работать

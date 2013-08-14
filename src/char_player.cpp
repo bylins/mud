@@ -6,7 +6,6 @@
 #include <sstream>
 #include <bitset>
 #include <boost/lexical_cast.hpp>
-
 #include "char_player.hpp"
 #include "utils.h"
 #include "db.h"
@@ -28,6 +27,7 @@
 #include "player_races.hpp"
 #include "morph.hpp"
 #include "features.hpp"
+#include "screen.h"
 
 void tascii(int *pointer, int num_planes, char *ascii);
 int level_exp(CHAR_DATA * ch, int level);
@@ -41,8 +41,16 @@ Player::Player()
 	motion_(true)
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
+	{
 		start_stats_.at(i) = 0;
+	}
+
 	set_morph(NormalMorph::GetNormalMorph(this));
+
+	for (unsigned i = 0; i < ExtMoney::TOTAL_TYPES; ++i)
+	{
+		ext_money_[i] = 0;
+	}
 }
 
 int Player::get_pfilepos() const
@@ -744,6 +752,10 @@ void Player::save_char()
 	morphs_save(this, saved);
 
 	fprintf(saved, "Map : %s\n", map_options_.bit_list_.to_string().c_str());
+
+	fprintf(saved, "TrcG: %d\n", ext_money_[ExtMoney::TORC_GOLD]);
+	fprintf(saved, "TrcS: %d\n", ext_money_[ExtMoney::TORC_SILVER]);
+	fprintf(saved, "TrcB: %d\n", ext_money_[ExtMoney::TORC_BRONZE]);
 
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
@@ -1713,6 +1725,12 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				GET_COND(this, THIRST) = num;
 			else if (!strcmp(tag, "Titl"))
 				GET_TITLE(this) = str_dup(line);
+			else if (!strcmp(tag, "TrcG"))
+				set_ext_money(ExtMoney::TORC_GOLD, num, false);
+			else if (!strcmp(tag, "TrcS"))
+				set_ext_money(ExtMoney::TORC_SILVER, num, false);
+			else if (!strcmp(tag, "TrcB"))
+				set_ext_money(ExtMoney::TORC_BRONZE, num, false);
 			break;
 
 		case 'W':
@@ -1866,4 +1884,31 @@ void Player::map_print_to_snooper(CHAR_DATA *imm)
 	// подменяем флаги карты на снуперские перед распечаткой ему карты
 	MapSystem::print_map(this, imm);
 	map_options_ = tmp;
+}
+
+int Player::get_ext_money(unsigned type) const
+{
+	if (type >= 0 && type < ext_money_.size())
+	{
+		return ext_money_[type];
+	}
+	return 0;
+}
+
+void Player::set_ext_money(unsigned type, int num, bool write_log)
+{
+	if (num < 0 && num > MAX_MONEY_KEPT)
+	{
+		return;
+	}
+	if (type >= 0 && type < ext_money_.size())
+	{
+		const int diff = num - ext_money_[type];
+		if (diff != 0 && write_log)
+		{
+			log("ExtMoney: %s type=%u%s%d (=%d)",
+				get_name(), type, (diff > 0 ? " +" : " "), diff, num);
+		}
+		ext_money_[type] = num;
+	}
 }

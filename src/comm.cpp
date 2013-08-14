@@ -3516,7 +3516,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			|| STATE(d) == CON_WRITE_MOD
 			|| STATE(d) == CON_GLORY_CONST
 			|| STATE(d) == CON_NAMED_STUFF
-			|| STATE(d) == CON_MAP_MENU)
+			|| STATE(d) == CON_MAP_MENU
+			|| STATE(d) == CON_TORC_EXCH)
 		{
 			STATE(d) = CON_PLAYING;
 		}

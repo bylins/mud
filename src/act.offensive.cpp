@@ -133,6 +133,12 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 		STATE(victim->desc) = CON_PLAYING;
 		message = true;
 	}
+	else if (victim->desc && (STATE(victim->desc) == CON_TORC_EXCH))
+	{
+		// или меняет гривны (чистить особо и нечего)
+		STATE(victim->desc) = CON_PLAYING;
+		message = true;
+	}
 
 	if (message)
 	{

@@ -1724,8 +1724,11 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 				buf1, buf2, k->player_data.time.played / 3600, ((k->player_data.time.played % 3600) / 60), age(k)->year);
 		send_to_char(buf, ch);
 
-		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld)",
-			GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold());
+		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d",
+			GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
+			k->get_ext_money(ExtMoney::TORC_GOLD),
+			k->get_ext_money(ExtMoney::TORC_SILVER),
+			k->get_ext_money(ExtMoney::TORC_BRONZE));
 
 		//. Display OLC zone for immorts .
 		if (GET_LEVEL(k) >= LVL_IMMORT)
@@ -1833,12 +1836,19 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	else
 	{
 		sprintbits(k->char_specials.saved.act, player_bits, buf2, ",");
-		sprintf(buf, "PLR: %s%s%s%s\r\n", CCCYN(ch, C_NRM), buf2, (IS_IMPL(ch) && GET_GOD_FLAG(k, GF_PERSLOG)
-				? ",PERSLOG ON" : ""), CCNRM(ch, C_NRM));
+		sprintf(buf, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
+
 		sprintbits(k->player_specials->saved.pref, preference_bits, buf2, ",");
 		sprintf(buf, "PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
+
+		if (IS_IMPL(ch))
+		{
+			sprintbitwd(k->player_specials->saved.GodsLike, godslike_bits, buf2, ",");
+			sprintf(buf, "GFL: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+			send_to_char(buf, ch);
+		}
 	}
 
 	if (IS_MOB(k))

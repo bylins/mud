@@ -104,6 +104,9 @@ public:
 	void map_text_olc(const char *arg);
 	const MapSystem::Options * get_map_options() const;
 
+	int get_ext_money(unsigned type) const;
+	void set_ext_money(unsigned type, int num, bool write_log = true);
+
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
@@ -136,6 +139,8 @@ private:
 	bool motion_;
 	// опции отрисовки режима карты
 	MapSystem::Options map_options_;
+	// доп. валюты (гривны)
+	boost::array<int, ExtMoney::TOTAL_TYPES> ext_money_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED
