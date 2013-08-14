@@ -10,7 +10,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>
 #include "boost/multi_array.hpp"
-
+#include <boost/format.hpp>
 #include "map.hpp"
 #include "utils.h"
 #include "screen.h"
@@ -28,6 +28,7 @@ SPECIAL(exchange);
 SPECIAL(horse_keeper);
 SPECIAL(guild_mono);
 SPECIAL(guild_poly);
+SPECIAL(torc);
 
 namespace MapSystem
 {
@@ -121,6 +122,7 @@ enum
 	SCREEN_MOB_SPEC_HORSE,
 	SCREEN_MOB_SPEC_TEACH,
 	SCREEN_MOB_SPEC_EXCH,
+	SCREEN_MOB_SPEC_TORC,
 	// клетка в которой можно утонуть
 	SCREEN_WATER,
 	// можно умереть без полета
@@ -196,8 +198,9 @@ const char *signs[] =
 	"&WH&n",
 	"&WT&n",
 	"&WE&n",
+	"&WG&n",
 	"&C,&n",
-	"&C`&n",
+	"&C`&n"
 };
 
 std::map<int /* room vnum */, int /* min depth */> check_dupe;
@@ -393,35 +396,40 @@ void drow_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, 
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_SHOP, cur_depth);
 			}
-			if (func == receptionist
+			else if (func == receptionist
 				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_RENT)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_RENT, cur_depth);
 			}
-			if (func == postmaster
+			else if (func == postmaster
 				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_MAIL)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_MAIL, cur_depth);
 			}
-			if (func == bank
+			else if (func == bank
 				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_BANK)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_BANK, cur_depth);
 			}
-			if (func == exchange
+			else if (func == exchange
 				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_EXCH)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_EXCH, cur_depth);
 			}
-			if (func == horse_keeper
+			else if (func == horse_keeper
 				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_HORSE)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_HORSE, cur_depth);
 			}
-			if ((func == guild_mono || func == guild_poly)
+			else if ((func == guild_mono || func == guild_poly)
 				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TEACH)))
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TEACH, cur_depth);
+			}
+			else if (func == torc
+				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TORC)))
+			{
+				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TORC, cur_depth);
 			}
 		}
 	}
@@ -794,6 +802,8 @@ void Options::olc_menu(CHAR_DATA *ch)
 {
 	std::stringstream out;
 	out << "Доступно для отображения на карте:\r\n";
+	boost::format menu1("%s%2d%s) %s %-30s");
+	boost::format menu2("   %s%2d%s) %s %-30s\r\n");
 
 	int cnt = 0;
 	for (int i = 0; i < TOTAL_MAP_OPTIONS; ++i)
@@ -801,137 +811,104 @@ void Options::olc_menu(CHAR_DATA *ch)
 		switch (i)
 		{
 		case MAP_MODE_MOBS:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOBS])
-				out << "[x] существа кроме игроков (мобы)\r\n";
-			else
-				out << "[ ] существа кроме игроков (мобы)\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOBS] ? "[x]" : "[ ]")
+				% "существа кроме игроков (мобы)";
 			break;
 		case MAP_MODE_PLAYERS:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_PLAYERS])
-				out << "[x] другие игроки\r\n\r\n";
-			else
-				out << "[ ] другие игроки\r\n\r\n";
+			out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_PLAYERS] ? "[x]" : "[ ]")
+				% "другие игроки";
 			break;
 		case MAP_MODE_MOBS_CORPSES:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOBS_CORPSES])
-				out << "[x] трупы существ (кроме игроков)\r\n";
-			else
-				out << "[ ] трупы существ (кроме игроков)\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOBS_CORPSES] ? "[x]" : "[ ]")
+				% "трупы существ (кроме игроков)";
 			break;
 		case MAP_MODE_PLAYER_CORPSES:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_PLAYER_CORPSES])
-				out << "[x] трупы игроков\r\n";
-			else
-				out << "[ ] трупы игроков\r\n";
+			out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_PLAYER_CORPSES] ? "[x]" : "[ ]")
+				% "трупы игроков";
 			break;
 		case MAP_MODE_INGREDIENTS:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_INGREDIENTS])
-				out << "[x] ингредиенты\r\n";
-			else
-				out << "[ ] ингредиенты\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_INGREDIENTS] ? "[x]" : "[ ]")
+				% "ингредиенты";
 			break;
 		case MAP_MODE_OTHER_OBJECTS:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_OTHER_OBJECTS])
-				out << "[x] другие предметы\r\n\r\n";
-			else
-				out << "[ ] другие предметы\r\n\r\n";
+			out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_OTHER_OBJECTS] ? "[x]" : "[ ]")
+				% "другие предметы\r\n";
 			break;
 		case MAP_MODE_1_DEPTH:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_1_DEPTH])
-				out << "[x] только прилегающие комнаты\r\n";
-			else
-				out << "[ ] только прилегающие комнаты\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_1_DEPTH] ? "[x]" : "[ ]")
+				% "только прилегающие комнаты";
 			break;
 		case MAP_MODE_2_DEPTH:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_2_DEPTH])
-				out << "[x] прилегающие комнаты + 1\r\n";
-			else
-				out << "[ ] прилегающие комнаты + 1\r\n";
+			out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_2_DEPTH] ? "[x]" : "[ ]")
+				% "прилегающие комнаты + 1";
 			break;
 		case MAP_MODE_DEPTH_FIXED:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_DEPTH_FIXED])
-				out << "[x] фиксировать высоту карты прилегающих комнат\r\n\r\n";
-			else
-				out << "[ ] фиксировать высоту карты прилегающих комнат\r\n\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_DEPTH_FIXED] ? "[x]" : "[ ]")
+				% "фиксировать высоту карты прилегающих комнат\r\n\r\n";
 			break;
 		case MAP_MODE_MOB_SPEC_SHOP:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOB_SPEC_SHOP])
-				out << "[x] продавцы (магазины, $)\r\n";
-			else
-				out << "[ ] продавцы (магазины, $)\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOB_SPEC_SHOP] ? "[x]" : "[ ]")
+				% "продавцы (магазины, $)";
 			break;
 		case MAP_MODE_MOB_SPEC_RENT:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOB_SPEC_RENT])
-				out << "[x] рентеры (постой, R)\r\n";
-			else
-				out << "[ ] рентеры (постой, R)\r\n";
+			out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOB_SPEC_RENT] ? "[x]" : "[ ]")
+				% "рентеры (постой, R)";
 			break;
 		case MAP_MODE_MOB_SPEC_MAIL:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOB_SPEC_MAIL])
-				out << "[x] ямщики (почта, M)\r\n";
-			else
-				out << "[ ] ямщики (почта, M)\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOB_SPEC_MAIL] ? "[x]" : "[ ]")
+				% "ямщики (почта, M)";
 			break;
 		case MAP_MODE_MOB_SPEC_BANK:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOB_SPEC_BANK])
-				out << "[x] банкиры (лежня, B)\r\n";
-			else
-				out << "[ ] банкиры (лежня, B)\r\n";
+			out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOB_SPEC_BANK] ? "[x]" : "[ ]")
+				% "банкиры (лежня, B)";
 			break;
 		case MAP_MODE_MOB_SPEC_EXCH:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOB_SPEC_EXCH])
-				out << "[x] зазывалы (базар, E)\r\n";
-			else
-				out << "[ ] зазывалы (базар, E)\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOB_SPEC_EXCH] ? "[x]" : "[ ]")
+				% "зазывалы (базар, E)";
 			break;
 		case MAP_MODE_MOB_SPEC_HORSE:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOB_SPEC_HORSE])
-				out << "[x] конюхи (конюшня, H)\r\n";
-			else
-				out << "[ ] конюхи (конюшня, H)\r\n";
+			out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOB_SPEC_HORSE] ? "[x]" : "[ ]")
+				% "конюхи (конюшня, H)";
 			break;
 		case MAP_MODE_MOB_SPEC_TEACH:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOB_SPEC_TEACH])
-				out << "[x] учителя (любые, T)\r\n";
-			else
-				out << "[ ] учителя (любые, T)\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOB_SPEC_EXCH] ? "[x]" : "[ ]")
+				% "учителя (любые, T)";
+			break;
+		case MAP_MODE_MOB_SPEC_TORC:
+			out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOB_SPEC_TORC] ? "[x]" : "[ ]")
+				% "глашатаи (гривны, G)";
 			break;
 		case MAP_MODE_MOB_SPEC_ALL:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOB_SPEC_ALL])
-				out << "[x] все мобы со спец. функциями\r\n\r\n";
-			else
-				out << "[ ] все мобы со спец. функциями\r\n\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOB_SPEC_ALL] ? "[x]" : "[ ]")
+				% "все мобы со спец. функциями\r\n\r\n";
 			break;
 		case MAP_MODE_MOBS_CURR_ROOM:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_MOBS_CURR_ROOM])
-				out << "[x] существа (п. 1-2) в комнате с персонажем\r\n";
-			else
-				out << "[ ] существа (п. 1-2) в комнате с персонажем\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_MOBS_CURR_ROOM] ? "[x]" : "[ ]")
+				% "существа (п. 1-2) в комнате с персонажем\r\n";
 			break;
 		case MAP_MODE_OBJS_CURR_ROOM:
-			out << CCGRN(ch, C_NRM) << std::setw(2) << ++cnt << CCNRM(ch, C_NRM) << ") ";
-			if (bit_list_[MAP_MODE_OBJS_CURR_ROOM])
-				out << "[x] объекты (п. 3-6) в комнате с персонажем\r\n\r\n";
-			else
-				out << "[ ] объекты (п. 3-6) в комнате с персонажем\r\n\r\n";
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_OBJS_CURR_ROOM] ? "[x]" : "[ ]")
+				% "объекты (п. 3-6) в комнате с персонажем\r\n\r\n";
 			break;
 		}
 	}
@@ -1010,8 +987,8 @@ const char *message =
 "   &Wкарта редактировать|опции|меню&n - управление отображаемой на карте информацией (интерактивное меню)\r\n"
 "   &Wкарта включить|выключить&n\r\n"
 "      все, мобы, игроки, трупы мобов, трупы игроков, ингредиенты, другие предметы, комнаты 1, комнаты 2\r\n"
-"      фиксировать высоту, магазин, рента, почта, банк, базар, лошадь, учитель, все специальные, мобы в комнате,\r\n"
-"      предметы в комнате\r\n"
+"      фиксировать высоту, магазин, рента, почта, банк, базар, лошадь, учитель, глашатай, все специальные\r\n"
+"      мобы в комнате, предметы в комнате\r\n"
 "      - управляет опциями карты при показе по команде или при активном режиме\r\n"
 "   &Wкарта показать (все теже опции из предыдущего пункта) &n\r\n"
 "      - однократно показывает карту с выбранными опциями, не изменяя настроек\r\n"
@@ -1101,6 +1078,10 @@ bool parse_text_olc(CHAR_DATA *ch, const std::string &str, std::bitset<TOTAL_MAP
 		else if (isname(*k, "учитель"))
 		{
 			bits[MAP_MODE_MOB_SPEC_TEACH] = flag;
+		}
+		else if (isname(*k, "глашатай"))
+		{
+			bits[MAP_MODE_MOB_SPEC_TORC] = flag;
 		}
 		else if (isname(*k, "все специальные"))
 		{
