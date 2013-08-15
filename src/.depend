@@ -453,6 +453,6 @@ map.o: map.cpp conf.h map.hpp sysdep.h structs.h char.hpp player_i.hpp \
  mobmax.hpp remember.hpp dps.hpp handler.h shop_ext.hpp dictionary.hpp
 ext_money.o: ext_money.cpp conf.h ext_money.hpp sysdep.h structs.h \
  char.hpp player_i.hpp morph.hpp comm.h screen.h db.h pugixml.hpp \
- pugiconfig.hpp utils.h features.hpp obj.hpp interpreter.h
+ pugiconfig.hpp utils.h features.hpp obj.hpp interpreter.h room.hpp
 version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp

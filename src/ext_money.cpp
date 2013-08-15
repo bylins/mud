@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "interpreter.h"
 #include "pugixml.hpp"
+#include "room.hpp"
 
 namespace
 {
@@ -406,9 +407,48 @@ void gain_torc_process(CHAR_DATA *ch, unsigned type, int drop, int members)
 	ch->set_ext_money(TORC_BRONZE, bronze + ch->get_ext_money(TORC_BRONZE));
 }
 
+// проверка на случай нескольких физических боссов,
+// которые логически являются одной группой, предотвращающая лишний дроп гривен
+bool has_connected_bosses(CHAR_DATA *ch)
+{
+	// если в комнате есть другие живые боссы
+	for (CHAR_DATA *i = world[IN_ROOM(ch)]->people;
+		i; i = i->next_in_room)
+	{
+		if (i != ch && IS_NPC(i) && !IS_CHARMICE(i) && i->get_role(MOB_ROLE_BOSS))
+		{
+			return true;
+		}
+	}
+	// если у данного моба есть живые последователи-боссы
+	for (follow_type *i = ch->followers; i; i = i->next)
+	{
+		if (i->follower != ch
+			&& IS_NPC(i->follower)
+			&& !IS_CHARMICE(i->follower)
+			&& i->follower->master == ch
+			&& i->follower->get_role(MOB_ROLE_BOSS))
+		{
+			return true;
+		}
+	}
+	// если он сам следует за каким-то боссом
+	if (ch->master && ch->master->get_role(MOB_ROLE_BOSS))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 // вычисление сколько и каких гривен давать за босса
 void gain_torc(CHAR_DATA *ch, CHAR_DATA *victim, int members)
 {
+	if (has_connected_bosses(victim))
+	{
+		return;
+	}
+
 	const int zone_lvl = zone_table[mob_index[GET_MOB_RNUM(victim)].zone].mob_level;
 
 	if (zone_lvl >= GOLD_DROP_LVL)

@@ -235,13 +235,13 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 {
 	if (IN_ROOM(ch) == NOWHERE)
 		return;
-	
+
 	/*if (IS_IMMORTAL(ch))
 	{
 		sprintf(buf,"%d %d %d (%d)\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
 		send_to_char(buf,ch);
 	}*/
-	
+
 	// In equipment
 	if (is_wear_light(ch))
 	{
@@ -265,7 +265,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 		if (was_single == LIGHT_YES)
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light - koef);
 	}
-	
+
 	// Holylight affect
 	if (AFF_FLAGGED(ch, AFF_HOLYLIGHT))
 	{
@@ -277,13 +277,13 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 		if (was_holylight == LIGHT_YES)
 			world[ch->in_room]->glight = MAX(0, world[ch->in_room]->glight - koef);
 	}
-	
+
 	/*if (IS_IMMORTAL(ch))
 	{
 		sprintf(buf,"holydark was %d\r\n",was_holydark);
 		send_to_char(buf,ch);
 	}*/
-	
+
 	// Holydark affect
 	if (AFF_FLAGGED(ch, AFF_HOLYDARK))  	// if (IS_IMMORTAL(ch))
 	{
@@ -2696,6 +2696,48 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 	}
 }
 
+namespace
+{
+
+void change_npc_leader(CHAR_DATA *ch)
+{
+	std::vector<CHAR_DATA *> tmp_list;
+
+	for (follow_type *i = ch->followers; i; i = i->next)
+	{
+		if (IS_NPC(i->follower)
+			&& !IS_CHARMICE(i->follower)
+			&& i->follower->master == ch)
+		{
+			tmp_list.push_back(i->follower);
+		}
+	}
+	if (tmp_list.empty())
+	{
+		return;
+	}
+
+	CHAR_DATA *leader = 0;
+	for (std::vector<CHAR_DATA *>::const_iterator i = tmp_list.begin(),
+		iend = tmp_list.end(); i != iend; ++i)
+	{
+		if (stop_follower(*i, SF_SILENCE))
+		{
+			continue;
+		}
+		if (!leader)
+		{
+			leader = *i;
+		}
+		else
+		{
+			add_follower(*i, leader, true);
+		}
+	}
+}
+
+} // namespace
+
 /**
 * Extract a ch completely from the world, and leave his stuff behind
 * \param zone_reset - 0 обычный пурж когда угодно (по умолчанию), 1 - пурж при резете зоны
@@ -2778,6 +2820,11 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	{
 		log("[Extract char] Change group leader");
 		change_leader(ch, 0);
+	}
+	else if (IS_NPC(ch) && !IS_CHARMICE(ch) && !ch->master && ch->followers)
+	{
+		log("[Extract char] Changing NPC leader");
+		change_npc_leader(ch);
 	}
 
 	log("[Extract char] Die followers");
