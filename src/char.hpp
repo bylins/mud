@@ -295,6 +295,21 @@ enum
 	MOB_ROLE_TOTAL_NUM
 };
 
+struct attacker_node
+{
+	attacker_node() : damage(0), rounds(0) {};
+	// влитый дамаг
+	int damage;
+	// кол-во раундов в бою
+	int rounds;
+};
+
+enum
+{
+	ATTACKER_DAMAGE,
+	ATTACKER_ROUNDS
+};
+
 class Player;
 typedef boost::shared_ptr<Player> PlayerPtr;
 typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
@@ -508,11 +523,18 @@ public:
 	void set_role(int num, bool flag);
 	const std::bitset<MOB_ROLE_TOTAL_NUM> & get_role_bits() const;
 
+	void add_attacker(CHAR_DATA *ch, unsigned type, int num);
+	int get_attacker(CHAR_DATA *ch, unsigned type) const;
+	std::pair<int /* uid */, int /* rounds */> get_max_damager_in_room() const;
+
+	void inc_restore_timer(int num);
+
 private:
 	std::string clan_for_title();
 	std::string only_title_noclan();
 	void check_fighting_list();
 	void zero_init();
+	void restore_mob();
 
 	CharSkillsType skills;  // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
@@ -582,6 +604,11 @@ private:
 	MorphPtr current_morph_;
 	// аналог класса у моба
 	std::bitset<MOB_ROLE_TOTAL_NUM> role_;
+	// список атакующих (и им сочувствующих) моба
+	std::map<int /*uid*/, attacker_node> attackers_;
+	// таймер (в секундах), включающийся по окончанию боя
+	// через который происходит сброс списка атакующих и рефреш моба
+	int restore_timer_;
 
 // старое
 public:
@@ -650,6 +677,7 @@ namespace CharacterSystem
 {
 
 void release_purged_list();
+void restore_mobs();
 
 } // namespace CharacterSystem
 

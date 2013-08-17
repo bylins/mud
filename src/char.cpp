@@ -132,6 +132,7 @@ void Character::zero_init()
 	int_add_ = 0;
 	cha_ = 0;
 	cha_add_ = 0;
+	restore_timer_ = 0;
 	// char_data
 	nr = NOBODY;
 	in_room = 0;
@@ -1627,4 +1628,134 @@ void Character::set_role(int num, bool flag)
 const std::bitset<MOB_ROLE_TOTAL_NUM> & Character::get_role_bits() const
 {
 	return role_;
+}
+
+// добавляет указанного ch чара в список атакующих с параметром type
+// или обновляет его данные в этом списке
+void Character::add_attacker(CHAR_DATA *ch, unsigned type, int num)
+{
+	if (!IS_NPC(this) || IS_NPC(ch))
+	{
+		return;
+	}
+
+	int uid = ch->get_uid();
+	if (IS_CHARMICE(ch) && ch->master)
+	{
+		uid = ch->master->get_uid();
+	}
+
+	std::map<int, attacker_node>::iterator i = attackers_.find(uid);
+	if (i != attackers_.end())
+	{
+		switch(type)
+		{
+		case ATTACKER_DAMAGE:
+			i->second.damage += num;
+			break;
+		case ATTACKER_ROUNDS:
+			i->second.rounds += num;
+			break;
+		}
+	}
+	else
+	{
+		attacker_node tmp_node;
+		switch(type)
+		{
+		case ATTACKER_DAMAGE:
+			tmp_node.damage = num;
+			break;
+		case ATTACKER_ROUNDS:
+			tmp_node.rounds = num;
+			break;
+		}
+		attackers_.insert(std::make_pair(uid, tmp_node));
+	}
+}
+
+// возвращает количественный параметр по флагу type указанного ch чара
+// из списка атакующих данного моба
+int Character::get_attacker(CHAR_DATA *ch, unsigned type) const
+{
+	if (!IS_NPC(this) || IS_NPC(ch))
+	{
+		return -1;
+	}
+	std::map<int, attacker_node>::const_iterator i = attackers_.find(ch->get_uid());
+	if (i != attackers_.end())
+	{
+		switch(type)
+		{
+		case ATTACKER_DAMAGE:
+			return i->second.damage;
+		case ATTACKER_ROUNDS:
+			return i->second.rounds;
+		}
+	}
+	return -1;
+}
+
+// поиск в списке атакующих нанесшего максимальный урон, который при этом
+// находится в данный момент в этой же комнате с мобом и онлайн
+std::pair<int /* uid */, int /* rounds */> Character::get_max_damager_in_room() const
+{
+	std::pair<int, int> damager (-1, 0);
+
+	if (!IS_NPC(this))
+	{
+		return damager;
+	}
+	int max_dmg = 0;
+	for (CHAR_DATA *i = world[this->in_room]->people;
+		i; i = i->next_in_room)
+	{
+		if (!IS_NPC(i) && i->desc)
+		{
+			std::map<int, attacker_node>::const_iterator it = attackers_.find(i->get_uid());
+			if (it != attackers_.end())
+			{
+				if (it->second.damage > max_dmg)
+				{
+					max_dmg = it->second.damage;
+					damager.first = it->first;
+					damager.second = it->second.rounds;
+				}
+			}
+		}
+	}
+
+	return damager;
+}
+
+// обновление моба вне боя по прошествии MOB_RESTORE_TIMER секунд
+void Character::restore_mob()
+{
+	restore_timer_ = 0;
+	attackers_.clear();
+
+	GET_HIT(this) = GET_REAL_MAX_HIT(this);
+	GET_MOVE(this) = GET_REAL_MAX_MOVE(this);
+	update_pos(this);
+
+	for (int i = 0; i < MAX_SPELLS; ++i)
+	{
+		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], i);
+	}
+	GET_CASTER(this) = GET_CASTER(&mob_proto[GET_MOB_RNUM(this)]);
+}
+
+// инкремент и проверка таймера на рестор моба,
+// который находится вне боя и до этого был кем-то бит
+// (т.к. имеет не нулевой список атакеров)
+void Character::inc_restore_timer(int num)
+{
+	if (!attackers_.empty() && !get_fighting())
+	{
+		restore_timer_ += num;
+		if (restore_timer_ > num)
+		{
+			restore_mob();
+		}
+	}
 }

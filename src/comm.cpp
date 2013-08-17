@@ -1468,12 +1468,10 @@ inline void heartbeat(const int missed_pulses)
 		print_rune_log();
 	}
 
-
 	if (!((pulse + 57) % (60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
 		SetsDrop::save_mob_stat();
 	}
-
 	if (!((pulse + 52) % (60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
 		SetsDrop::save_drop_table();

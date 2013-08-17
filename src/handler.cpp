@@ -42,6 +42,7 @@
 #include "named_stuff.hpp"
 #include "glory_const.hpp"
 #include "fight.h"
+#include "ext_money.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -2814,6 +2815,12 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		OBJ_DATA *obj = ch->carrying;
 		obj_from_char(obj);
 		drop_obj_on_zreset(ch, obj, 1, zone_reset);
+	}
+
+	if(IS_NPC(ch))
+	{
+		// дроп гривен до изменений последователей за мобом
+		ExtMoney::drop_torc(ch);
 	}
 
 	if (!IS_NPC(ch) && !ch->master && ch->followers && AFF_FLAGGED(ch, AFF_GROUP))

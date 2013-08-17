@@ -2504,6 +2504,11 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	// запись в дметр фактического и овер дамага
 	update_dps_stats(ch, real_dam, over_dam);
+	// запись дамага в список атакеров
+	if (IS_NPC(victim))
+	{
+		victim->add_attacker(ch, ATTACKER_DAMAGE, real_dam);
+	}
 
 	// попытка спасти жертву через ангела
 	try_angel_sacrifice(ch, victim);

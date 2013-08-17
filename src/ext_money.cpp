@@ -444,11 +444,6 @@ bool has_connected_bosses(CHAR_DATA *ch)
 // вычисление сколько и каких гривен давать за босса
 void gain_torc(CHAR_DATA *ch, CHAR_DATA *victim, int members)
 {
-	if (has_connected_bosses(victim))
-	{
-		return;
-	}
-
 	const int zone_lvl = zone_table[mob_index[GET_MOB_RNUM(victim)].zone].mob_level;
 
 	if (zone_lvl >= GOLD_DROP_LVL)
@@ -468,6 +463,62 @@ void gain_torc(CHAR_DATA *ch, CHAR_DATA *victim, int members)
 		const int add = zone_lvl - BRONZE_DROP_LVL;
 		const int drop = BRONZE_DROP_AMOUNT + add * BRONZE_DROP_AMOUNT_ADD_PER_LVL;
 		gain_torc_process(ch, TORC_BRONZE, drop, members);
+	}
+}
+
+void drop_torc(CHAR_DATA *mob)
+{
+	if (!mob->get_role(MOB_ROLE_BOSS)
+		|| has_connected_bosses(mob))
+	{
+		return;
+	}
+
+	log("[Extract char] Checking for torc drop.");
+
+	std::pair<int /* uid */, int /* rounds */> damager = mob->get_max_damager_in_room();
+	DESCRIPTOR_DATA *d = 0;
+	if (damager.first > 0)
+	{
+		d = DescByUID(damager.first);
+	}
+	if (!d)
+	{
+		return;
+	}
+
+	CHAR_DATA *leader = (d->character->master && AFF_FLAGGED(d->character, AFF_GROUP))
+		? d->character->master : d->character;
+
+	int members = 1;
+	for (follow_type *f = leader->followers; f; f = f->next)
+	{
+		if (AFF_FLAGGED(f->follower, AFF_GROUP)
+			&& f->follower->in_room == IN_ROOM(mob)
+			&& !IS_NPC(f->follower))
+		{
+			++members;
+		}
+	}
+
+	if (IN_ROOM(leader) == IN_ROOM(mob)
+		&& GET_GOD_FLAG(leader, GF_REMORT)
+		&& (GET_UNIQUE(leader) == damager.first
+			|| mob->get_attacker(leader, ATTACKER_ROUNDS) >= damager.second / 2))
+	{
+		gain_torc(leader, mob, members);
+	}
+
+	for (follow_type *f = leader->followers; f; f = f->next)
+	{
+		if (AFF_FLAGGED(f->follower, AFF_GROUP)
+			&& f->follower->in_room == IN_ROOM(mob)
+			&& !IS_NPC(f->follower)
+			&& GET_GOD_FLAG(f->follower, GF_REMORT)
+			&& mob->get_attacker(f->follower, ATTACKER_ROUNDS) >= damager.second / 2)
+		{
+			gain_torc(f->follower, mob, members);
+		}
 	}
 }
 
@@ -627,7 +678,7 @@ SPECIAL(torc)
 			}
 		}
 	}
-	if (CMD_IS("жертвовать") || CMD_IS("пожертвовать"))
+	if (CMD_IS("жертвовать"))
 	{
 		// от чара ничего не требуется
 		if (GET_REMORT(ch) < SILVER_MORT_NUM)

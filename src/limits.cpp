@@ -1662,6 +1662,10 @@ void point_update(void)
 	// characters
 	for (i = character_list; i; i = next_char)
 	{
+		if (IS_NPC(i))
+		{
+			i->inc_restore_timer(SECS_PER_MUD_HOUR);
+		}
 		next_char = i->next;
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		   то он снова должен валиться в сон */

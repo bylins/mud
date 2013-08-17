@@ -20,7 +20,7 @@ extern int GOLD_MORT_NUM;
 void torc_exch_menu(CHAR_DATA *ch);
 void torc_exch_parse(CHAR_DATA *ch, const char *arg);
 
-void gain_torc(CHAR_DATA *ch, CHAR_DATA *victim, int members);
+void drop_torc(CHAR_DATA *mob);
 
 } // namespace ExtMoney
 

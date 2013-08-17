@@ -109,7 +109,7 @@ handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
  auction.h house.h house_exp.hpp char.hpp player_i.hpp morph.hpp \
  remember.hpp exchange.h char_player.hpp quested.hpp mobmax.hpp dps.hpp \
  map.hpp liquid.hpp magic.h poison.hpp name_list.hpp room.hpp \
- named_stuff.hpp fight.h
+ named_stuff.hpp fight.h ext_money.hpp
 house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp db.h interpreter.h house_exp.hpp \
  char.hpp player_i.hpp morph.hpp comm.h remember.hpp handler.h pk.h \
@@ -435,7 +435,7 @@ fight_stuff.o: fight_stuff.cpp fight.h conf.h sysdep.h structs.h utils.h \
  morph.hpp comm.h fight_local.hpp AffectHandler.hpp skills.h handler.h \
  db.h room.hpp spells.h dg_scripts.h corpse.hpp house.h interpreter.h \
  house_exp.hpp remember.hpp pk.h stuff.hpp double_map.hpp sets_drop.hpp \
- top.h constants.h screen.h magic.h ext_money.hpp
+ top.h constants.h screen.h magic.h
 objsave_ext.o: objsave_ext.cpp objsave.h conf.h sysdep.h structs.h \
  house.h utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp db.h \
  interpreter.h house_exp.hpp char.hpp player_i.hpp morph.hpp comm.h \

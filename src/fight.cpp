@@ -177,7 +177,7 @@ void restore_battle_pos(CHAR_DATA * ch)
 		GET_POS(ch) = POS_SLEEPING;
 }
 
-// start one char fighting another (yes, it is horrible, I know... ) 
+// start one char fighting another (yes, it is horrible, I know... )
 void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	if (ch == vict)
@@ -1440,6 +1440,18 @@ void using_mob_skills(CHAR_DATA *ch)
 	}
 }
 
+void add_attackers_round(CHAR_DATA *ch)
+{
+	for (CHAR_DATA *i = world[ch->in_room]->people;
+		i; i = i->next_in_room)
+	{
+		if (!IS_NPC(i) && i->desc)
+		{
+			ch->add_attacker(i, ATTACKER_ROUNDS, 1);
+		}
+	}
+}
+
 void update_round_affs()
 {
 	for (CHAR_DATA *ch = combat_list; ch; ch = ch->next_fighting)
@@ -1476,6 +1488,11 @@ void update_round_affs()
 		}
 
 		battle_affect_update(ch);
+
+		if (IS_NPC(ch) && !IS_CHARMICE(ch))
+		{
+			add_attackers_round(ch);
+		}
 	}
 }
 
