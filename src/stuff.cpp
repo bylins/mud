@@ -129,11 +129,11 @@ obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info>& it)
 
 void generate_book_upgrd(OBJ_DATA *obj)
 {
-	const int skills_count = 10;
+	const int skills_count = 11;
 	boost::array<int, skills_count> skill_list = { {
 			SKILL_BACKSTAB, SKILL_PUNCTUAL, SKILL_BASH, SKILL_MIGHTHIT,
 			SKILL_STUPOR, SKILL_ADDSHOT, SKILL_AWAKE, SKILL_NOPARRYHIT,
-			SKILL_IRON_WIND, SKILL_WARCRY} };
+			SKILL_WARCRY, SKILL_IRON_WIND, SKILL_STRANGLE} };
 
 	GET_OBJ_VAL(obj, 1) = skill_list[number(0, skills_count - 1)];
 	std::string book_name = skill_name(GET_OBJ_VAL(obj, 1));
