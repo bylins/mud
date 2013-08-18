@@ -17,7 +17,7 @@ struct exit_data
 	char *vkeyword;		// алиас двери в винительном падеже для открывания/закрывания
 
 	byte exit_info;	// Exit info             //
-	byte lock_complexity; //Polud сложность замка
+	ubyte lock_complexity; //Polud сложность замка
 	obj_vnum key;		// Key's number (-1 for no key) //
 	room_rnum to_room;	// Where direction leads (NOWHERE) //
 };
