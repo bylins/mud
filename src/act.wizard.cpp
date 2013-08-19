@@ -61,6 +61,7 @@
 #include "pugixml.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
+#include "ext_money.hpp"
 
 // external vars
 extern bool need_warn;
@@ -3954,29 +3955,57 @@ void print_zone_enters_to_buf(char *bufptr, zone_rnum zone)
 		sprintf(bufptr, "%sВходов в зону не обнаружено.\r\n", bufptr);
 }
 
-void print_mob_bosses(CHAR_DATA *ch)
+namespace
 {
-	std::stringstream out;
-	for (int i = 0, cnt=0; i <= top_of_mobt; ++i)
+
+bool sort_by_zone_mob_level(int rnum1, int rnum2)
+{
+	return !(zone_table[mob_index[rnum1].zone].mob_level < zone_table[mob_index[rnum2].zone].mob_level);
+}
+
+void print_mob_bosses(CHAR_DATA *ch, bool lvl_sort)
+{
+	std::vector<int> tmp_list;
+	for (int i = 0; i <= top_of_mobt; ++i)
 	{
 		if (mob_proto[i].get_role(MOB_ROLE_BOSS))
 		{
-			std::string zone_name_str = zone_table[mob_index[i].zone].name ?
-				zone_table[mob_index[i].zone].name  : "EMPTY" ;
-
-			out << boost::format("   %3d. %31s [%6d] %31s\r\n")
-				% ++cnt
-				% (mob_proto[i].get_name_str().size() > 31
-					? mob_proto[i].get_name_str().substr(0, 31)
-					: mob_proto[i].get_name_str())
-				% GET_MOB_VNUM(mob_proto + i)
-				% (zone_name_str.size() > 31
-					? zone_name_str.substr(0, 31)
-					: zone_name_str);
+			tmp_list.push_back(i);
 		}
 	}
-	page_string(ch->desc, out.str());
+	if (lvl_sort)
+	{
+		std::sort(tmp_list.begin(), tmp_list.end(), sort_by_zone_mob_level);
+	}
+
+	int cnt = 0;
+	std::string out(
+		"                          имя моба [ср.уровень мобов в зоне][vnum моба] имя зоны\r\n"
+		"--------------------------------------------------------------------------------\r\n");
+
+	for (std::vector<int>::const_iterator i = tmp_list.begin(),
+		iend = tmp_list.end(); i != iend; ++i)
+	{
+		const int mob_rnum = *i;
+		std::string zone_name_str = zone_table[mob_index[mob_rnum].zone].name ?
+			zone_table[mob_index[mob_rnum].zone].name  : "EMPTY" ;
+
+		out += boost::str(boost::format("%3d %31s [%2d][%6d] %31s\r\n")
+			% ++cnt
+			% (mob_proto[mob_rnum].get_name_str().size() > 31
+				? mob_proto[mob_rnum].get_name_str().substr(0, 31)
+				: mob_proto[mob_rnum].get_name_str())
+			% zone_table[mob_index[mob_rnum].zone].mob_level
+			% GET_MOB_VNUM(mob_proto + mob_rnum)
+			% (zone_name_str.size() > 31
+				? zone_name_str.substr(0, 31)
+				: zone_name_str));
+	}
+
+	page_string(ch->desc, out);
 }
+
+} // namespace
 
 struct show_struct show_fields[] =
 {
@@ -4005,6 +4034,7 @@ struct show_struct show_fields[] =
 	{"runes", LVL_IMPL},
 	{"mobstat", LVL_IMPL},
 	{"bosses", LVL_IMPL},
+	{"remort", LVL_IMPL}, // 25
 	{"\n", 0}
 };
 
@@ -4465,7 +4495,17 @@ ACMD(do_show)
 		break;
 	}
 	case 24: // bosses
-		print_mob_bosses(ch);
+		if (*value && !strcmp(value, "-l"))
+		{
+			print_mob_bosses(ch, true);
+		}
+		else
+		{
+			print_mob_bosses(ch, false);
+		}
+		break;
+	case 25: // remort
+		Remort::show_config(ch);
 		break;
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);

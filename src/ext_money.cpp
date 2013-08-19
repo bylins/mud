@@ -595,6 +595,33 @@ bool can_remort_now(CHAR_DATA *ch)
 	return false;
 }
 
+void show_config(CHAR_DATA *ch)
+{
+	std::stringstream out;
+	out << "&SТекущие значения основных параметров:\r\n"
+		<< "WHERE_TO_REMORT_STR = " << WHERE_TO_REMORT_STR << "\r\n"
+		<< "BRONZE_MORT_NUM = " << BRONZE_MORT_NUM << "\r\n"
+		<< "SILVER_MORT_NUM = " << SILVER_MORT_NUM << "\r\n"
+		<< "GOLD_MORT_NUM = " << GOLD_MORT_NUM << "\r\n"
+		<< "BRONZE_MORT_REQ = " << BRONZE_MORT_REQ << "\r\n"
+		<< "SILVER_MORT_REQ = " << SILVER_MORT_REQ << "\r\n"
+		<< "GOLD_MORT_REQ = " << GOLD_MORT_REQ << "\r\n"
+		<< "BRONZE_MORT_REQ_ADD_PER_MORT = " << BRONZE_MORT_REQ_ADD_PER_MORT << "\r\n"
+		<< "SILVER_MORT_REQ_ADD_PER_MORT = " << SILVER_MORT_REQ_ADD_PER_MORT << "\r\n"
+		<< "GOLD_MORT_REQ_ADD_PER_MORT = " << GOLD_MORT_REQ_ADD_PER_MORT << "\r\n"
+		<< "TORC_EXCH_RATE = " << TORC_EXCH_RATE << "\r\n"
+		<< "BRONZE_DROP_LVL = " << BRONZE_DROP_LVL << "\r\n"
+		<< "BRONZE_DROP_AMOUNT = " << BRONZE_DROP_AMOUNT << "\r\n"
+		<< "BRONZE_DROP_AMOUNT_ADD_PER_LVL = " << BRONZE_DROP_AMOUNT_ADD_PER_LVL << "\r\n"
+		<< "SILVER_DROP_LVL = " << SILVER_DROP_LVL << "\r\n"
+		<< "SILVER_DROP_AMOUNT = " << SILVER_DROP_AMOUNT << "\r\n"
+		<< "SILVER_DROP_AMOUNT_ADD_PER_LVL = " << SILVER_DROP_AMOUNT_ADD_PER_LVL << "\r\n"
+		<< "GOLD_DROP_LVL = " << GOLD_DROP_LVL << "\r\n"
+		<< "GOLD_DROP_AMOUNT = " << GOLD_DROP_AMOUNT << "\r\n"
+		<< "GOLD_DROP_AMOUNT_ADD_PER_LVL = " << GOLD_DROP_AMOUNT_ADD_PER_LVL << "\r\n&s";
+	send_to_char(out.str(), ch);
+}
+
 } // namespace Remort
 
 using namespace Remort;

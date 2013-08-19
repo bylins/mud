@@ -31,6 +31,7 @@ extern std::string WHERE_TO_REMORT_STR;
 
 bool can_remort_now(CHAR_DATA *ch);
 void init();
+void show_config(CHAR_DATA *ch);
 
 } // namespace Remort
 
