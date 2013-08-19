@@ -385,6 +385,13 @@ void gain_torc_process(CHAR_DATA *ch, unsigned type, int drop, int members)
 	{
 		drop = drop * TORC_EXCH_RATE;
 	}
+
+	// если ли вообще что дропать
+	if (drop < members)
+	{
+		return;
+	}
+
 	// после этого уже применяем штрафы
 	if (members > 1)
 	{

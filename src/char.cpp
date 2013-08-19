@@ -1693,7 +1693,7 @@ int Character::get_attacker(CHAR_DATA *ch, unsigned type) const
 			return i->second.rounds;
 		}
 	}
-	return -1;
+	return 0;
 }
 
 // поиск в списке атакующих нанесшего максимальный урон, который при этом

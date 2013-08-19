@@ -45,7 +45,7 @@ act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h \
  quested.hpp mobmax.hpp dps.hpp map.hpp parcel.hpp liquid.hpp modify.h \
  room.hpp glory_misc.hpp glory_const.hpp shop_ext.hpp dictionary.hpp \
  celebrates.hpp player_races.hpp birth_places.hpp corpse.hpp \
- sets_drop.hpp fight.h
+ sets_drop.hpp fight.h ext_money.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp interpreter.h db.h char.hpp player_i.hpp \
  morph.hpp comm.h
