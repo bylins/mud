@@ -1,26 +1,43 @@
 <?xml version="1.0" encoding="koi8-r"?>
+<!--
+	WHERE_TO_REMORT_STR - сообщение при наборе макс экспы;
+	x_MORT_NUM - начиная с какого морта требовать гривны вида x;
+	x_MORT_REQ - сколько гривен требовать при реморте за базовое (MORT_NUM)
+		кол-во мортов;
+	x_MORT_REQ_ADD_PER_MORT - сколько добавлять гривен к требованиям за
+		каждый морт сверх базового;
+	TORC_EXCH_RATE - курс обмена между всеми соседними гривнами вверх/вниз;
+	x_DROP_LVL - минимальный средний уровень мобов в зоне для дропа гривн x;
+	x_DROP_AMOUNT - кол-во гривен в зонах базового (GOLD_DROP_LVL) уровня;
+	x_DROP_AMOUNT_ADD_PER_LVL - кол-во добавляемых гривен за каждый уровень
+		выше базового;
+-->
 <remort>
 	<WHERE_TO_REMORT_STR>Обратитесь к глашатаю в Корсуни или Торжке для получения права на перевоплощение!</WHERE_TO_REMORT_STR>
 
 	<BRONZE_MORT_NUM>90</BRONZE_MORT_NUM>
-	<SILVER_MORT_NUM>80</SILVER_MORT_NUM>
-	<GOLD_MORT_NUM>70</GOLD_MORT_NUM>
-
 	<BRONZE_MORT_REQ>1234</BRONZE_MORT_REQ>
+	<BRONZE_MORT_REQ_ADD_PER_MORT>123</BRONZE_MORT_REQ_ADD_PER_MORT>
+
+	<SILVER_MORT_NUM>80</SILVER_MORT_NUM>
 	<SILVER_MORT_REQ>1234</SILVER_MORT_REQ>
+	<SILVER_MORT_REQ_ADD_PER_MORT>123</SILVER_MORT_REQ_ADD_PER_MORT>
+
+	<GOLD_MORT_NUM>70</GOLD_MORT_NUM>
 	<GOLD_MORT_REQ>1234</GOLD_MORT_REQ>
+	<GOLD_MORT_REQ_ADD_PER_MORT>123</GOLD_MORT_REQ_ADD_PER_MORT>
 
 	<TORC_EXCH_RATE>100</TORC_EXCH_RATE>
 
-	<GOLD_DROP_LVL>90</GOLD_DROP_LVL>
-	<GOLD_DROP_AMOUNT>1</GOLD_DROP_AMOUNT>
-	<GOLD_DROP_AMOUNT_ADD_PER_LVL>1</GOLD_DROP_AMOUNT_ADD_PER_LVL>
+	<BRONZE_DROP_LVL>70</BRONZE_DROP_LVL>
+	<BRONZE_DROP_AMOUNT>1</BRONZE_DROP_AMOUNT>
+	<BRONZE_DROP_AMOUNT_ADD_PER_LVL>1</BRONZE_DROP_AMOUNT_ADD_PER_LVL>
 
 	<SILVER_DROP_LVL>80</SILVER_DROP_LVL>
 	<SILVER_DROP_AMOUNT>1</SILVER_DROP_AMOUNT>
 	<SILVER_DROP_AMOUNT_ADD_PER_LVL>1</SILVER_DROP_AMOUNT_ADD_PER_LVL>
 
-	<BRONZE_DROP_LVL>70</BRONZE_DROP_LVL>
-	<BRONZE_DROP_AMOUNT>1</BRONZE_DROP_AMOUNT>
-	<BRONZE_DROP_AMOUNT_ADD_PER_LVL>1</BRONZE_DROP_AMOUNT_ADD_PER_LVL>
+	<GOLD_DROP_LVL>90</GOLD_DROP_LVL>
+	<GOLD_DROP_AMOUNT>1</GOLD_DROP_AMOUNT>
+	<GOLD_DROP_AMOUNT_ADD_PER_LVL>1</GOLD_DROP_AMOUNT_ADD_PER_LVL>
 </remort>

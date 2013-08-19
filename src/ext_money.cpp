@@ -20,6 +20,7 @@ namespace
 
 int get_message_num(unsigned type);
 int get_message_num_u(unsigned type);
+int calc_torc_req(int rmrt);
 
 } // namespace
 
@@ -32,6 +33,10 @@ int TORC_EXCH_RATE = 999;
 int BRONZE_MORT_REQ = 999;
 int SILVER_MORT_REQ = 999;
 int GOLD_MORT_REQ = 999;
+// сколько добавлять к требованиям за каждый морт сверху
+int BRONZE_MORT_REQ_ADD_PER_MORT = 999;
+int SILVER_MORT_REQ_ADD_PER_MORT = 999;
+int GOLD_MORT_REQ_ADD_PER_MORT = 999;
 // с какого морта требуются какие гривны
 int BRONZE_MORT_NUM = 999;
 int SILVER_MORT_NUM = 999;
@@ -561,23 +566,29 @@ void init()
 	SILVER_MORT_REQ = xmlparse_child_value_int(main_node, "SILVER_MORT_REQ");
 	GOLD_MORT_REQ = xmlparse_child_value_int(main_node, "GOLD_MORT_REQ");
 
+	BRONZE_MORT_REQ_ADD_PER_MORT = xmlparse_child_value_int(main_node, "BRONZE_MORT_REQ_ADD_PER_MORT");
+	SILVER_MORT_REQ_ADD_PER_MORT = xmlparse_child_value_int(main_node, "SILVER_MORT_REQ_ADD_PER_MORT");
+	GOLD_MORT_REQ_ADD_PER_MORT = xmlparse_child_value_int(main_node, "GOLD_MORT_REQ_ADD_PER_MORT");
+
 	TORC_EXCH_RATE = xmlparse_child_value_int(main_node, "TORC_EXCH_RATE");
+
+	BRONZE_DROP_LVL = xmlparse_child_value_int(main_node, "BRONZE_DROP_LVL");
+	BRONZE_DROP_AMOUNT = xmlparse_child_value_int(main_node, "BRONZE_DROP_AMOUNT");
+	BRONZE_DROP_AMOUNT_ADD_PER_LVL = xmlparse_child_value_int(main_node, "BRONZE_DROP_AMOUNT_ADD_PER_LVL");
+
+	SILVER_DROP_LVL = xmlparse_child_value_int(main_node, "SILVER_DROP_LVL");
+	SILVER_DROP_AMOUNT = xmlparse_child_value_int(main_node, "SILVER_DROP_AMOUNT");
+	SILVER_DROP_AMOUNT_ADD_PER_LVL = xmlparse_child_value_int(main_node, "SILVER_DROP_AMOUNT_ADD_PER_LVL");
 
 	GOLD_DROP_LVL = xmlparse_child_value_int(main_node, "GOLD_DROP_LVL");
 	GOLD_DROP_AMOUNT = xmlparse_child_value_int(main_node, "GOLD_DROP_AMOUNT");
 	GOLD_DROP_AMOUNT_ADD_PER_LVL = xmlparse_child_value_int(main_node, "GOLD_DROP_AMOUNT_ADD_PER_LVL");
-	SILVER_DROP_LVL = xmlparse_child_value_int(main_node, "SILVER_DROP_LVL");
-	SILVER_DROP_AMOUNT = xmlparse_child_value_int(main_node, "SILVER_DROP_AMOUNT");
-	SILVER_DROP_AMOUNT_ADD_PER_LVL = xmlparse_child_value_int(main_node, "SILVER_DROP_AMOUNT_ADD_PER_LVL");
-	BRONZE_DROP_LVL = xmlparse_child_value_int(main_node, "BRONZE_DROP_LVL");
-	BRONZE_DROP_AMOUNT = xmlparse_child_value_int(main_node, "BRONZE_DROP_AMOUNT");
-	BRONZE_DROP_AMOUNT_ADD_PER_LVL = xmlparse_child_value_int(main_node, "BRONZE_DROP_AMOUNT_ADD_PER_LVL");
 }
 
 bool can_remort_now(CHAR_DATA *ch)
 {
 	if (PRF_FLAGGED(ch, PRF_CAN_REMORT)
-		|| GET_REMORT(ch) < SILVER_MORT_NUM)
+		|| calc_torc_req(GET_REMORT(ch)) <= 0)
 	{
 		return true;
 	}
@@ -634,6 +645,20 @@ void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_
 		add_text);
 }
 
+int calc_torc_req(int rmrt)
+{
+	int total = 0;
+	if (rmrt >= GOLD_MORT_NUM)
+	{
+		total = GOLD_MORT_REQ + (rmrt - GOLD_MORT_NUM) * GOLD_MORT_REQ_ADD_PER_MORT;
+	}
+	else if (rmrt >= SILVER_MORT_NUM)
+	{
+		total = SILVER_MORT_REQ + (rmrt - SILVER_MORT_NUM) * SILVER_MORT_REQ_ADD_PER_MORT;
+	}
+	return total;
+}
+
 } // namespace
 
 SPECIAL(torc)
@@ -665,15 +690,13 @@ SPECIAL(torc)
 			// чар еще не жертвовал, от него нужны золотые гривны
 			if (GET_REMORT(ch) >= GOLD_MORT_NUM)
 			{
-				int total_req = GOLD_MORT_REQ * (GET_REMORT(ch) - GOLD_MORT_NUM + 1);
-				message_low_torc(ch, TORC_GOLD, total_req, " (команда 'жертвовать').");
+				message_low_torc(ch, TORC_GOLD, calc_torc_req(GET_REMORT(ch)), " (команда 'жертвовать').");
 				return 1;
 			}
 			// чар еще не жертвовал, от него нужны серебряные гривны
 			if (GET_REMORT(ch) >= SILVER_MORT_NUM)
 			{
-				int total_req = SILVER_MORT_REQ * (GET_REMORT(ch) - SILVER_MORT_NUM + 1);
-				message_low_torc(ch, TORC_SILVER, total_req, " (команда 'жертвовать').");
+				message_low_torc(ch, TORC_SILVER,  calc_torc_req(GET_REMORT(ch)), " (команда 'жертвовать').");
 				return 1;
 			}
 		}
@@ -681,7 +704,7 @@ SPECIAL(torc)
 	if (CMD_IS("жертвовать"))
 	{
 		// от чара ничего не требуется
-		if (GET_REMORT(ch) < SILVER_MORT_NUM)
+		if (calc_torc_req(GET_REMORT(ch)) <= 0)
 		{
 			send_to_char(
 				"Вам не нужно подтверждать свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
@@ -707,7 +730,7 @@ SPECIAL(torc)
 		bool result = false;
 		if (GET_REMORT(ch) >= GOLD_MORT_NUM)
 		{
-			int total_req = GOLD_MORT_REQ * (GET_REMORT(ch) - GOLD_MORT_NUM + 1);
+			const int total_req = calc_torc_req(GET_REMORT(ch));
 			if (ch->get_ext_money(TORC_GOLD) >= total_req)
 			{
 				result = true;
@@ -720,7 +743,7 @@ SPECIAL(torc)
 		}
 		else if (GET_REMORT(ch) >= SILVER_MORT_NUM)
 		{
-			int total_req = SILVER_MORT_REQ * (GET_REMORT(ch) - SILVER_MORT_NUM + 1);
+			const int total_req = calc_torc_req(GET_REMORT(ch));
 			if (ch->get_ext_money(TORC_SILVER) >= total_req)
 			{
 				result = true;
