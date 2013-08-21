@@ -273,6 +273,7 @@ extern const char *pc_class_types[];
 extern char *house_rank[];
 extern struct pclean_criteria_data pclean_criteria[];
 extern void LoadProxyList();
+extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 
 #define READ_SIZE 256
 
@@ -6508,11 +6509,16 @@ ACMD(do_remort)
 	SET_BIT(PLR_FLAGS(ch, PLR_NODELETE), PLR_NODELETE);
 	remove_rune_label(ch);
 
-	// сброс всего, связанного с гривнами
+	// сброс всего, связанного с гривнами (замакс сохраняем)
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_CAN_REMORT), PRF_CAN_REMORT);
 	ch->set_ext_money(ExtMoney::TORC_GOLD, 0);
 	ch->set_ext_money(ExtMoney::TORC_SILVER, 0);
 	ch->set_ext_money(ExtMoney::TORC_BRONZE, 0);
+
+	snprintf(buf, sizeof(buf),
+		"remort from %d to %d", ch->get_remort() - 1, ch->get_remort());
+	snprintf(buf2, sizeof(buf2), "dest=%d", place_of_destination);
+	add_karma(ch, buf, buf2);
 
 	act("$n вступил$g в игру.", TRUE, ch, 0, 0, TO_ROOM);
 	act("Вы перевоплотились! Желаем удачи!", FALSE, ch, 0, 0, TO_CHAR);

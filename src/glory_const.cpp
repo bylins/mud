@@ -25,7 +25,7 @@
 #include "char_player.hpp"
 #include "glory_misc.hpp"
 
-extern void add_karma(CHAR_DATA * ch, char const * punish , const char * reason);
+extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 extern void check_max_hp(CHAR_DATA *ch);
 
 namespace GloryConst
@@ -947,7 +947,7 @@ void load()
 			perror(buf);
 			return;
 		}
-	} 
+	}
 	for (pugi::xml_node node = char_list.child("char"); node; node = node.next_sibling("char"))
 	{
 		long uid = boost::lexical_cast<long>(node.attribute("uid").value());
@@ -1108,7 +1108,7 @@ void apply_modifiers(CHAR_DATA *ch)
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it==glory_list.end())
 		return;
-	
+
 	for (std::map<int, int>::const_iterator i = it->second->stats.begin(); i != it->second->stats.end(); ++i)
 	{
 		int location = 0;

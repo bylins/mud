@@ -21,7 +21,7 @@
 #include "modify.h"
 #include "glory_misc.hpp"
 
-extern void add_karma(CHAR_DATA * ch, char const * punish , const char * reason);
+extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 extern void check_max_hp(CHAR_DATA *ch);
 
 namespace Glory

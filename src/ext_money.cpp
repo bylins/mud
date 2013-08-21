@@ -550,10 +550,10 @@ int calc_drop_torc(int zone_lvl, int members)
 		return 0;
 	}
 
-	// после этого уже применяем делитель группы и 10% бонус
+	// после этого уже применяем делитель группы
 	if (members > 1)
 	{
-		drop = (drop / members) + (drop / 10);
+		drop = drop / members;
 	}
 
 	return drop;
@@ -842,7 +842,8 @@ int calc_torc_daily(int rmrt)
 
 	if (torc_req.type < TOTAL_TYPES)
 	{
-		num = torc_req.amount;
+		num = type_list[torc_req.type].MORT_REQ;
+
 		if (torc_req.type == TORC_GOLD)
 		{
 			num = num * TORC_EXCH_RATE * TORC_EXCH_RATE;

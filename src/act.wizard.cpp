@@ -183,7 +183,7 @@ ACMD(do_godtest);
 extern const char *deaf_social;
 
 // Adds karma string to KARMA
-void add_karma(CHAR_DATA * ch, char const * punish , const char * reason)
+void add_karma(CHAR_DATA * ch, const char * punish , const char * reason)
 {
 	if (reason && (reason[0] != '.'))
 	{
@@ -1725,6 +1725,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 				buf1, buf2, k->player_data.time.played / 3600, ((k->player_data.time.played % 3600) / 60), age(k)->year);
 		send_to_char(buf, ch);
 
+		k->add_today_torc(0);
 		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %s",
 			GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
 			k->get_ext_money(ExtMoney::TORC_GOLD),
