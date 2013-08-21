@@ -672,7 +672,7 @@ void drop_torc(CHAR_DATA *mob)
 		return;
 	}
 
-	log("[Extract char] Checking for torc drop.");
+	log("[Extract char] Checking %s for ExtMoney.", mob->get_name());
 
 	std::pair<int /* uid */, int /* rounds */> damager = mob->get_max_damager_in_room();
 	DESCRIPTOR_DATA *d = 0;
@@ -725,6 +725,18 @@ void drop_torc(CHAR_DATA *mob)
 			gain_torc(f->follower, drop);
 		}
 	}
+}
+
+void player_drop_log(CHAR_DATA *ch, unsigned type, int diff)
+{
+	int total_bronze = ch->get_ext_money(TORC_BRONZE);
+	total_bronze += ch->get_ext_money(TORC_SILVER) * TORC_EXCH_RATE;
+	total_bronze += ch->get_ext_money(TORC_GOLD) * TORC_EXCH_RATE * TORC_EXCH_RATE;
+
+	log("ExtMoney: %s%s%d%s, sum=%d",
+		ch->get_name(), (diff > 0 ? " +" : " "), diff,
+		((type == TORC_GOLD) ? "g" : (type == TORC_SILVER) ? "s" : "b"),
+		total_bronze);
 }
 
 } // namespace ExtMoney

@@ -337,7 +337,7 @@ char_player.o: char_player.cpp conf.h char_player.hpp sysdep.h structs.h \
  comm.h dps.hpp map.hpp interpreter.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp db.h dg_scripts.h handler.h boards.h \
  file_crc.hpp spells.h constants.h skills.h im.h olc.h pk.h diskio.h \
- genchar.h AffectHandler.hpp player_races.hpp screen.h
+ genchar.h AffectHandler.hpp player_races.hpp screen.h ext_money.hpp
 quested.o: quested.cpp quested.hpp conf.h sysdep.h structs.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp \
  morph.hpp comm.h

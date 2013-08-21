@@ -19,6 +19,8 @@ void torc_exch_parse(CHAR_DATA *ch, const char *arg);
 void drop_torc(CHAR_DATA *mob);
 std::string draw_daily_limit(CHAR_DATA *ch, bool imm_stat = false);
 
+void player_drop_log(CHAR_DATA *ch, unsigned type, int num);
+
 } // namespace ExtMoney
 
 namespace Remort

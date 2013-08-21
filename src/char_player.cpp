@@ -29,6 +29,7 @@
 #include "morph.hpp"
 #include "features.hpp"
 #include "screen.h"
+#include "ext_money.hpp"
 
 void tascii(int *pointer, int num_planes, char *ascii);
 int level_exp(CHAR_DATA * ch, int level);
@@ -1928,12 +1929,11 @@ void Player::set_ext_money(unsigned type, int num, bool write_log)
 	if (type >= 0 && type < ext_money_.size())
 	{
 		const int diff = num - ext_money_[type];
+		ext_money_[type] = num;
 		if (diff != 0 && write_log)
 		{
-			log("ExtMoney: %s type=%u%s%d (=%d)",
-				get_name(), type, (diff > 0 ? " +" : " "), diff, num);
+			ExtMoney::player_drop_log(this, type, diff);
 		}
-		ext_money_[type] = num;
 	}
 }
 
