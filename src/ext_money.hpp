@@ -13,14 +13,11 @@
 namespace ExtMoney
 {
 
-extern int BRONZE_MORT_NUM;
-extern int SILVER_MORT_NUM;
-extern int GOLD_MORT_NUM;
-
 void torc_exch_menu(CHAR_DATA *ch);
 void torc_exch_parse(CHAR_DATA *ch, const char *arg);
 
 void drop_torc(CHAR_DATA *mob);
+std::string draw_daily_limit(CHAR_DATA *ch, bool imm_stat = false);
 
 } // namespace ExtMoney
 
@@ -32,6 +29,7 @@ extern std::string WHERE_TO_REMORT_STR;
 bool can_remort_now(CHAR_DATA *ch);
 void init();
 void show_config(CHAR_DATA *ch);
+bool need_torc(CHAR_DATA *ch);
 
 } // namespace Remort
 

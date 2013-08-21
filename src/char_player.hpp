@@ -9,7 +9,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
-
+#include <boost/cstdint.hpp>
 #include "sysdep.h"
 #include "structs.h"
 #include "quested.hpp"
@@ -106,6 +106,8 @@ public:
 
 	int get_ext_money(unsigned type) const;
 	void set_ext_money(unsigned type, int num, bool write_log = true);
+	int get_today_torc();
+	void add_today_torc(int num);
 
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
@@ -141,6 +143,8 @@ private:
 	MapSystem::Options map_options_;
 	// доп. валюты (гривны)
 	boost::array<int, ExtMoney::TOTAL_TYPES> ext_money_;
+	// сколько гривн, в пересчете на бронзу, сегодня уже собрано
+	std::pair<boost::uint8_t /* day 1-31 */, int> today_torc_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

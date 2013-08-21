@@ -1725,11 +1725,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 				buf1, buf2, k->player_data.time.played / 3600, ((k->player_data.time.played % 3600) / 60), age(k)->year);
 		send_to_char(buf, ch);
 
-		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d",
+		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %s",
 			GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
 			k->get_ext_money(ExtMoney::TORC_GOLD),
 			k->get_ext_money(ExtMoney::TORC_SILVER),
-			k->get_ext_money(ExtMoney::TORC_BRONZE));
+			k->get_ext_money(ExtMoney::TORC_BRONZE),
+			ExtMoney::draw_daily_limit(k, true).c_str());
 
 		//. Display OLC zone for immorts .
 		if (GET_LEVEL(k) >= LVL_IMMORT)

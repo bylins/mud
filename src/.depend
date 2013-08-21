@@ -10,7 +10,7 @@ act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
  remember.hpp description.h privilege.hpp depot.hpp glory.hpp random.hpp \
  char_player.hpp quested.hpp mobmax.hpp dps.hpp map.hpp parcel.hpp \
  liquid.hpp modify.h room.hpp glory_const.hpp player_races.hpp corpse.hpp \
- sets_drop.hpp help.hpp
+ sets_drop.hpp help.hpp ext_money.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h handler.h db.h \
  spells.h skills.h constants.h dg_scripts.h house.h house_exp.hpp \

@@ -6369,11 +6369,11 @@ ACMD(do_remort)
 		send_to_char("ЧАВО???\r\n", ch);
 		return;
 	}
-	if (GET_REMORT(ch) >= ExtMoney::SILVER_MORT_NUM && !PRF_FLAGGED(ch, PRF_CAN_REMORT))
+	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, PRF_CAN_REMORT))
 	{
-		send_to_char(
-			"Для получения права на перевоплощение посетите глашатая в Корсуни или Торжке\r\n"
-			"и подтвердите свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n", ch);
+		send_to_char(ch,
+			"Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
+			"%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str(), ch);
 		return;
 	}
 	if (RENTABLE(ch))

@@ -53,6 +53,7 @@
 #include "sets_drop.hpp"
 #include "help.hpp"
 #include "map.hpp"
+#include "ext_money.hpp"
 
 using std::string;
 
@@ -3151,10 +3152,13 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 	////////////////////////////////////////////////////////////////////////////
 	std::stringstream tmp_out;
+	// обнуление дневного лимита, если уже сменились сутки
+	ch->add_today_torc(0);
 	tmp_out << "Наградные гривны: "
 		<< CCIYEL(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_GOLD) << "з "
 		<< CCWHT(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_SILVER) << "с "
-		<< CCYEL(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_BRONZE) << "б";
+		<< CCYEL(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_BRONZE) << "б"
+		<< CCCYN(ch, C_NRM) << " " << ExtMoney::draw_daily_limit(ch);
 
 	if (COLOR_LEV(ch) < C_NRM)
 	{
@@ -3167,7 +3171,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	else
 	{
 		sprintf(buf + strlen(buf),
-			" %s|| %-24s %75s %s||\r\n",
+			" %s|| %-24s %82s %s||\r\n",
 			CCCYN(ch, C_NRM),
 			(PRF_FLAGGED(ch, PRF_SUMMONABLE) ? "Вы можете быть призваны." : "Вы защищены от призыва."),
 			tmp_out.str().c_str(), CCCYN(ch, C_NRM));

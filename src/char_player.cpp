@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "conf.h"
+#include <ctime>
 #include <sstream>
 #include <bitset>
 #include <boost/lexical_cast.hpp>
@@ -31,6 +32,22 @@
 
 void tascii(int *pointer, int num_planes, char *ascii);
 int level_exp(CHAR_DATA * ch, int level);
+
+namespace
+{
+
+boost::uint8_t get_day_today()
+{
+	time_t rawtime;
+	struct tm *timeinfo;
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	return timeinfo->tm_mday;
+}
+
+} // namespace
 
 Player::Player()
 	:
@@ -756,6 +773,7 @@ void Player::save_char()
 	fprintf(saved, "TrcG: %d\n", ext_money_[ExtMoney::TORC_GOLD]);
 	fprintf(saved, "TrcS: %d\n", ext_money_[ExtMoney::TORC_SILVER]);
 	fprintf(saved, "TrcB: %d\n", ext_money_[ExtMoney::TORC_BRONZE]);
+	fprintf(saved, "TrcL: %d %d\n", today_torc_.first, today_torc_.second);
 
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
@@ -1731,6 +1749,12 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				set_ext_money(ExtMoney::TORC_SILVER, num, false);
 			else if (!strcmp(tag, "TrcB"))
 				set_ext_money(ExtMoney::TORC_BRONZE, num, false);
+			else if (!strcmp(tag, "TrcL"))
+			{
+				sscanf(line, "%d %d", &num, &num2);
+				today_torc_.first = num;
+				today_torc_.second = num2;
+			}
 			break;
 
 		case 'W':
@@ -1897,7 +1921,7 @@ int Player::get_ext_money(unsigned type) const
 
 void Player::set_ext_money(unsigned type, int num, bool write_log)
 {
-	if (num < 0 && num > MAX_MONEY_KEPT)
+	if (num < 0 || num > MAX_MONEY_KEPT)
 	{
 		return;
 	}
@@ -1910,5 +1934,31 @@ void Player::set_ext_money(unsigned type, int num, bool write_log)
 				get_name(), type, (diff > 0 ? " +" : " "), diff, num);
 		}
 		ext_money_[type] = num;
+	}
+}
+
+int Player::get_today_torc()
+{
+	boost::uint8_t day = get_day_today();
+	if (today_torc_.first != day)
+	{
+		today_torc_.first = day;
+		today_torc_.second = 0;
+	}
+
+	return today_torc_.second;
+}
+
+void Player::add_today_torc(int num)
+{
+	boost::uint8_t day = get_day_today();
+	if (today_torc_.first == day)
+	{
+		today_torc_.second += num;
+	}
+	else
+	{
+		today_torc_.first = day;
+		today_torc_.second = num;
 	}
 }

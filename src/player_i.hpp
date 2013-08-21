@@ -100,6 +100,9 @@ public:
 	virtual int get_ext_money(unsigned type) const { return 0; };
 	virtual void set_ext_money(unsigned type, int num, bool write_log = true) {};
 
+	virtual int get_today_torc() { return 0; };
+	virtual void add_today_torc(int num) {};
+
 protected:
 	PlayerI() {};
 	virtual ~PlayerI() {};
