@@ -926,16 +926,19 @@ void donat_torc(CHAR_DATA *ch, const std::string &mob_name, unsigned type, int a
 // дергается как при нехватке гривен, так и при попытке реморта без пожертвований
 void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_text)
 {
-	send_to_char(ch,
-		"Для подтверждения права на перевоплощение вы должны пожертвовать %d %s %s.\r\n"
-		"У вас в данный момент %d %s %s%s\r\n",
-		amount,
-		desc_count(amount, type_list[type].DESC_MESSAGE_U_NUM),
-		desc_count(amount, WHAT_TORC),
-		ch->get_ext_money(type),
-		desc_count(ch->get_ext_money(type), type_list[type].DESC_MESSAGE_NUM),
-		desc_count(ch->get_ext_money(type), WHAT_TORC),
-		add_text);
+	if (type < TOTAL_TYPES)
+	{
+		send_to_char(ch,
+			"Для подтверждения права на перевоплощение вы должны пожертвовать %d %s %s.\r\n"
+			"У вас в данный момент %d %s %s%s\r\n",
+			amount,
+			desc_count(amount, type_list[type].DESC_MESSAGE_U_NUM),
+			desc_count(amount, WHAT_TORC),
+			ch->get_ext_money(type),
+			desc_count(ch->get_ext_money(type), type_list[type].DESC_MESSAGE_NUM),
+			desc_count(ch->get_ext_money(type), WHAT_TORC),
+			add_text);
+	}
 }
 
 } // namespace
