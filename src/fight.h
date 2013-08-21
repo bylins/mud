@@ -168,7 +168,7 @@ private:
 	void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	// обратный дамаг от огненного щита
-	bool fs_damage;
+	int fs_damage;
 };
 
 // fight.cpp

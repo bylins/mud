@@ -1074,7 +1074,7 @@ void Damage::zero_init()
 {
 	dam = 0;
 	dam_critic = 0;
-	fs_damage = false;
+	fs_damage = 0;
 	dmg_type = -1;
 	skill_num = -1;
 	spell_num = -1;

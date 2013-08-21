@@ -3483,7 +3483,6 @@ int calc_boss_value(CHAR_DATA *mob, int num)
 	if (mob->get_role(MOB_ROLE_BOSS))
 	{
 		num += num * 25 / 100;
-		return num;
 	}
 	return num;
 }
