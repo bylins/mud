@@ -3478,6 +3478,16 @@ int test_levels[] = {
 
 } // namespace
 
+int calc_boss_value(CHAR_DATA *mob, int num)
+{
+	if (mob->get_role(MOB_ROLE_BOSS))
+	{
+		num += num * 25 / 100;
+		return num;
+	}
+	return num;
+}
+
 void set_test_data(CHAR_DATA *mob)
 {
 	if (!mob)
@@ -3511,7 +3521,9 @@ void set_test_data(CHAR_DATA *mob)
 	if (mob->get_level() > 30)
 	{
 		// -10..-86
-		const int min_save = -(10 + 4 * (mob->get_level() - 31));
+		int min_save = -(10 + 4 * (mob->get_level() - 31));
+		min_save = calc_boss_value(mob, min_save);
+
 		for (int i = 0; i < 4; ++i)
 		{
 			if (GET_SAVE(mob, i) > min_save)
@@ -3521,7 +3533,9 @@ void set_test_data(CHAR_DATA *mob)
 			}
 		}
 		// 20..77
-		const int min_cast = 20 + 3 * (mob->get_level() - 31);
+		int min_cast = 20 + 3 * (mob->get_level() - 31);
+		min_cast = calc_boss_value(mob, min_cast);
+
 		if (GET_CAST_SUCCESS(mob) < min_cast)
 		{
 			//log("test4: %s - %d -> %d", mob->get_name(), GET_CAST_SUCCESS(mob), min_cast);
@@ -3530,7 +3544,7 @@ void set_test_data(CHAR_DATA *mob)
 	}
 
 	// поглощение пока принудительно всем
-	GET_ABSORBE(mob) = mob->get_level();
+	GET_ABSORBE(mob) = calc_boss_value(mob, mob->get_level());
 }
 
 void parse_mobile(FILE * mob_f, int nr)
