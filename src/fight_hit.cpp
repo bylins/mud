@@ -2007,13 +2007,13 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		if (dmg_type == PHYS_DMG && !flags[IGNORE_FSHIELD])
 		{
-			int pct = 30;
+			int pct = 15;
 			if (IS_NPC(victim) && !IS_CHARMICE(victim))
 			{
-				pct += 10;
+				pct += 5;
 				if (victim->get_role(MOB_ROLE_BOSS))
 				{
-					pct += 10;
+					pct += 5;
 				}
 			}
 			fs_damage = dam * pct / 100;
