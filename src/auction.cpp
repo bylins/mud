@@ -69,13 +69,13 @@ void showlots(CHAR_DATA * ch)
 	char tmpbuf[MAX_INPUT_LENGTH];
 
 	CHAR_DATA *sch;
-	CHAR_DATA *bch;
+	//CHAR_DATA *bch;
 	OBJ_DATA *obj;
 
 	for (i = 0; i < MAX_AUCTION_LOT; i++)
 	{
 		sch = GET_LOT(i)->seller;
-		bch = GET_LOT(i)->buyer;
+		//bch = GET_LOT(i)->buyer;
 		obj = GET_LOT(i)->item;
 
 		if (!sch || !obj)
@@ -484,19 +484,19 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			send_to_char("Лот пуст.\r\n", ch);
 			return false;
 		}
-		
+
 		if (GET_LOT(lot)->seller == ch || GET_LOT(lot)->seller_unique == GET_UNIQUE(ch))
 		{
 			send_to_char("Но это же ваш лот!\r\n", ch);
 			return false;
 		}
-		
+
 		if (GET_LEVEL(GET_LOT(lot)->seller) >= LVL_IMMORT)
 		{
 			send_to_char("Неисповедимы пути божественные.\r\n", ch);
 			return false;
 		}
-		
+
 		iobj = GET_LOT(lot)->item;
 
 		if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)

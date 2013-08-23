@@ -2491,7 +2491,7 @@ ACMD(do_townportal)
 ACMD(do_turn_undead)
 {
 	int percent, dam = 0;
-	int i, sum, max_level;
+	int sum, max_level;
 	struct timed_type timed;
 	vector<CHAR_DATA*> ch_list;
 	CHAR_DATA *ch_vict;
@@ -2521,7 +2521,7 @@ ACMD(do_turn_undead)
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 //Составляем список всех персов в комнате и выкидываем дружественных и не-нежить
-	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
+	for (ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
 	{
 		if (IS_IMMORTAL(ch_vict))
 			continue;

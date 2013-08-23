@@ -1092,7 +1092,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 {
 	char buffer[MAX_STRING_LENGTH];
 	EXCHANGE_ITEM_DATA *item = NULL;
-	char *d;
+	//char *d;
 
 	*error = 1;
 	// Станем на начало предмета
@@ -1142,7 +1142,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 			return (item);
 
 	*error = 0;
-	d = *data;
+	//d = *data;
 	GET_EXCHANGE_ITEM(item) = read_one_object_new(data, error);
 	if (*error)
 		*error = 9;

@@ -738,9 +738,9 @@ ACMD(do_make_item)
 	MakeReceptList *canlist;
 	MakeRecept *trec;
 	char tmpbuf[MAX_INPUT_LENGTH];
-	int i, used_skill;
+	int i;
 
-	used_skill = subcmd;
+	//int used_skill = subcmd;
 	argument = one_argument(argument, tmpbuf);
 	canlist = new MakeReceptList;
 
@@ -1755,7 +1755,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		ingr_cnt++;
 	}
 
-	int stat_bonus;
+	//int stat_bonus;
 
 	// Делаем всякие доп проверки для различных умений.
 	switch (skill)
@@ -1782,7 +1782,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		dam = 70;
 		// Бонус сила
-		stat_bonus = number(0, GET_REAL_STR(ch));
+		//stat_bonus = number(0, GET_REAL_STR(ch));
 
 		break;
 
@@ -1799,7 +1799,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		itemtag = "На $o5 видна метка 'Смастерил$g $n'.";
 
 		// Бонус ловкость
-		stat_bonus = number(0, GET_REAL_DEX(ch));
+		//stat_bonus = number(0, GET_REAL_DEX(ch));
 
 		dam = 40;
 
@@ -1818,7 +1818,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		itemtag = "На $o5 вы заметили бирку 'Сшил$g $n'.";
 
 		// Бонус тело , не спрашивайте почему :))
-		stat_bonus = number(0, GET_REAL_CON(ch));
+		//stat_bonus = number(0, GET_REAL_CON(ch));
 
 		dam = 30;
 
@@ -1838,7 +1838,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		// Бонус харя
 
-		stat_bonus = number(0, GET_REAL_CHA(ch));
+		//stat_bonus = number(0, GET_REAL_CHA(ch));
 
 		dam = 30;
 
@@ -1859,7 +1859,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		// Бонус ум.
 
-		stat_bonus = number(0, GET_REAL_INT(ch));
+		//stat_bonus = number(0, GET_REAL_INT(ch));
 
 		dam = 70;
 
@@ -1880,7 +1880,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		itemtag = "На $o1 вы заметили бирку 'Сварено $n4'";
 
 		// Бонус мудра
-		stat_bonus = number(0, GET_REAL_WIS(ch));
+		//stat_bonus = number(0, GET_REAL_WIS(ch));
 
 		dam = 40;
 

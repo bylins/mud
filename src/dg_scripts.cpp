@@ -621,7 +621,7 @@ OBJ_DATA *get_obj_by_room(room_data * room, char *name)
 }
 
 
-// returns obj with name 
+// returns obj with name
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 {
 	OBJ_DATA *obj;
@@ -657,7 +657,7 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 }
 
 
-// checks every PLUSE_SCRIPT for random triggers 
+// checks every PLUSE_SCRIPT for random triggers
 void script_trigger_check(void)
 {
 	CHAR_DATA *ch;
@@ -710,7 +710,7 @@ void script_trigger_check(void)
 	}
 }
 
-// проверка каждый час на триги изменении времени 
+// проверка каждый час на триги изменении времени
 void script_timechange_trigger_check(const int time)
 {
 	CHAR_DATA *ch;
@@ -828,7 +828,7 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 }
 
 
-// find the name of what the uid points to 
+// find the name of what the uid points to
 void find_uid_name(char *uid, char *name)
 {
 	CHAR_DATA *ch;
@@ -843,7 +843,7 @@ void find_uid_name(char *uid, char *name)
 }
 
 
-// general function to display stats on script sc 
+// general function to display stats on script sc
 void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 {
 	struct trig_var_data *tv;
@@ -1171,9 +1171,9 @@ int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr)
 					break;
 		}
 
-		// this isn't clean... 
-		// a numeric value will match if it's position OR vnum 
-		// is found. originally the number was position-only 
+		// this isn't clean...
+		// a numeric value will match if it's position OR vnum
+		// is found. originally the number was position-only
 		else if (++n >= num)
 			break;
 		else if (trig_index[i->nr]->vnum == num)
@@ -1189,13 +1189,13 @@ int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr)
 			j->next = i->next;
 			extract_trigger(i);
 		}
-		// this was the first trigger 
+		// this was the first trigger
 		else
 		{
 			TRIGGERS(sc) = i->next;
 			extract_trigger(i);
 		}
-		// update the script type bitvector 
+		// update the script type bitvector
 		SCRIPT_TYPES(sc) = 0;
 		for (i = TRIGGERS(sc); i; i = i->next)
 			SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(i);
@@ -1334,7 +1334,7 @@ ACMD(do_detach)
 }
 
 
-// frees memory associated with var 
+// frees memory associated with var
 void free_var_el(struct trig_var_data *var)
 {
 	free(var->name);
@@ -1511,21 +1511,21 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 	if (!vd || !vd->name || !vd->value)
 		return FALSE;
 
-	if (!str_cmp(field, "strlen"))  	// strlen    
+	if (!str_cmp(field, "strlen"))  	// strlen
 	{
 		sprintf(str, "%d", strlen(vd->value));
 		return TRUE;
 	}
-	else if (!str_cmp(field, "trim"))  	// trim      
+	else if (!str_cmp(field, "trim"))  	// trim
 	{
-		// trim whitespace from ends 
+		// trim whitespace from ends
 		p = vd->value;
 		p2 = vd->value + strlen(vd->value) - 1;
 		while (*p && a_isspace(*p))
 			p++;
 		while ((p >= p2) && a_isspace(*p2))
 			p2--;
-		if (p > p2)  	// nothing left 
+		if (p > p2)  	// nothing left
 		{
 			*str = '\0';
 			return TRUE;
@@ -1535,7 +1535,7 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 		*str = '\0';
 		return TRUE;
 	}
-	else if (!str_cmp(field, "contains"))  	// contains  
+	else if (!str_cmp(field, "contains"))  	// contains
 	{
 		if (str_str(vd->value, subfield))
 			sprintf(str, "1");
@@ -1543,7 +1543,7 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 			sprintf(str, "0");
 		return TRUE;
 	}
-	else if (!str_cmp(field, "car"))  	// car       
+	else if (!str_cmp(field, "car"))  	// car
 	{
 		char *car = vd->value;
 		while (*car && !a_isspace(*car))
@@ -1551,13 +1551,13 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 		*str = '\0';
 		return TRUE;
 	}
-	else if (!str_cmp(field, "cdr"))  	// cdr       
+	else if (!str_cmp(field, "cdr"))  	// cdr
 	{
 		char *cdr = vd->value;
 		while (*cdr && !a_isspace(*cdr))
-			cdr++;	// skip 1st field 
+			cdr++;	// skip 1st field
 		while (*cdr && a_isspace(*cdr))
-			cdr++;	// skip to next 
+			cdr++;	// skip to next
 		while (*cdr)
 			*str++ = *cdr++;
 		*str = '\0';
@@ -1590,12 +1590,12 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 		}
 		return TRUE;
 	}
-	else if (!str_cmp(field, "mudcommand"))  	// find the mud command returned from this text 
+	else if (!str_cmp(field, "mudcommand"))  	// find the mud command returned from this text
 	{
-		// NOTE: you may need to replace "cmd_info" with "complete_cmd_info", 
-		// depending on what patches you've got applied.                      
+		// NOTE: you may need to replace "cmd_info" with "complete_cmd_info",
+		// depending on what patches you've got applied.
 		extern const struct command_info cmd_info[];
-		// on older source bases:    extern struct command_info *cmd_info; 
+		// on older source bases:    extern struct command_info *cmd_info;
 		int length, cmd;
 		for (length = strlen(vd->value), cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
 			if (!strncmp(cmd_info[cmd].command, vd->value, length))
@@ -1614,7 +1614,7 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 //WorM: добавил для работы can_get_spell
 //extern int slot_for_char(CHAR_DATA * ch, int slot_num);
 //#define SpINFO spell_info[num]
-// sets str to be the value of var.field 
+// sets str to be the value of var.field
 void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					  int type, char *var, char *field, char *subfield, char *str)
 {
@@ -1646,7 +1646,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	if (!subfield)
 		subfield = '\0';	// Чтобы проверок меньше было
 
-	// X.global() will have a NULL trig 
+	// X.global() will have a NULL trig
 	if (trig)
 		vd = find_var_cntx(&GET_TRIG_VARS(trig), var, 0);
 	if (!vd)
@@ -2057,7 +2057,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		{
 			if (text_processed(field, subfield, vd, str))
 				return;
-			else if (!str_cmp(field, "global"))  	// get global of something else 
+			else if (!str_cmp(field, "global"))  	// get global of something else
 			{
 				if (IS_NPC(c) && c->script)
 				{
@@ -4206,7 +4206,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	char arg[MAX_INPUT_LENGTH], trignum_s[MAX_INPUT_LENGTH], *name, *cname;
 	char result[MAX_INPUT_LENGTH], *id_p;
 	TRIG_DATA *runtrig = NULL;
-	SCRIPT_DATA *runsc = NULL;
+//	SCRIPT_DATA *runsc = NULL;
 	struct trig_var_data *vd;
 	CHAR_DATA *c = NULL;
 	OBJ_DATA *o = NULL;
@@ -4253,21 +4253,21 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	if (c && SCRIPT(c))
 	{
 		runtrig = TRIGGERS(SCRIPT(c));
-		runsc = SCRIPT(c);
+		//runsc = SCRIPT(c);
 		trgtype = MOB_TRIGGER;
 		trggo = (void *) c;
 	}
 	else if (o && SCRIPT(o))
 	{
 		runtrig = TRIGGERS(SCRIPT(o));
-		runsc = SCRIPT(o);
+		//runsc = SCRIPT(o);
 		trgtype = OBJ_TRIGGER;
 		trggo = (void *) o;
 	}
 	else if (r && SCRIPT(r))
 	{
 		runtrig = TRIGGERS(SCRIPT(r));
-		runsc = SCRIPT(r);
+		//runsc = SCRIPT(r);
 		trgtype = WLD_TRIGGER;
 		trggo = (void *) r;
 	};
@@ -4482,7 +4482,7 @@ void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 
 /*
  * Поиск чаров с записью в переменную UID-а в случае онлайна человека
- * Возвращает в указанную переменную UID первого PC, с именем которого 
+ * Возвращает в указанную переменную UID первого PC, с именем которого
  * совпадает аргумент
  */
 void charuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
@@ -4524,8 +4524,8 @@ void charuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 		if (IN_ROOM(tch) != NOWHERE)
 			result = GET_ID(tch);
 	}
-	
-	
+
+
 	if (result <= -1)
 	{
 		sprintf(buf2, "charuid target not found, name: '%s'",who);
@@ -4772,7 +4772,7 @@ ACMD(do_vdelete)
 //  struct trig_var_data *vd, *vd_prev=NULL;
 	SCRIPT_DATA *sc_remote = NULL;
 	char *var, *uid_p;
-	long uid, context;
+	long uid; //, context;
 	room_data *room;
 	CHAR_DATA *mob;
 	OBJ_DATA *obj;
@@ -4807,8 +4807,8 @@ ACMD(do_vdelete)
 	else if ((mob = get_char(buf2)))
 	{
 		sc_remote = SCRIPT(mob);
-		if (!IS_NPC(mob))
-			context = 0;
+//		if (!IS_NPC(mob))
+//			context = 0;
 	}
 	else if ((obj = get_obj(buf2)))
 	{
@@ -4847,7 +4847,7 @@ void process_rdelete(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	SCRIPT_DATA *sc_remote = NULL;
 	char *line, *var, *uid_p;
 	char arg[MAX_INPUT_LENGTH];
-	long uid, context;
+	long uid; //, context;
 	room_data *room;
 	CHAR_DATA *mob;
 	OBJ_DATA *obj;
@@ -4886,8 +4886,8 @@ void process_rdelete(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	else if ((mob = get_char(buf2)))
 	{
 		sc_remote = SCRIPT(mob);
-		if (!IS_NPC(mob))
-			context = 0;
+//		if (!IS_NPC(mob))
+//			context = 0;
 	}
 	else if ((obj = get_obj(buf2)))
 	{
@@ -5459,15 +5459,15 @@ void read_saved_vars(CHAR_DATA * ch)
 	// create the space for the script structure which holds the vars
 	CREATE(SCRIPT(ch), SCRIPT_DATA, 1);
 
-	// find the file that holds the saved variables and open it 
+	// find the file that holds the saved variables and open it
 	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);
 	file = fopen(fn, "r");
 
-	// if we failed to open the file, return 
+	// if we failed to open the file, return
 	if (!file)
 		return;
 
-	// walk through each line in the file parsing variables 
+	// walk through each line in the file parsing variables
 	do
 	{
 		if (fgetline(file, input_line) > 0)
@@ -5491,41 +5491,41 @@ void read_saved_vars(CHAR_DATA * ch)
 	}
 	while (!feof(file));
 
-	// close the file and return 
+	// close the file and return
 	fclose(file);
 }
 
-// save a characters variables out to disk 
+// save a characters variables out to disk
 void save_char_vars(CHAR_DATA * ch)
 {
 	FILE *file;
 	char fn[127];
 	struct trig_var_data *vars;
 
-	// immediate return if no script (and therefore no variables) structure 
-	// has been created. this will happen when the player is logging in 
+	// immediate return if no script (and therefore no variables) structure
+	// has been created. this will happen when the player is logging in
 	if (SCRIPT(ch) == NULL)
 		return;
 
-	// we should never be called for an NPC, but just in case... 
+	// we should never be called for an NPC, but just in case...
 	if (IS_NPC(ch))
 		return;
 
 	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);
 	std::remove(fn);
 
-	// make sure this char has global variables to save 
+	// make sure this char has global variables to save
 	if (ch->script->global_vars == NULL)
 		return;
 	vars = ch->script->global_vars;
 
 	file = fopen(fn, "wt");
 
-	// note that currently, context will always be zero. this may change 
-	// in the future 
+	// note that currently, context will always be zero. this may change
+	// in the future
 	while (vars)
 	{
-		if (*vars->name != '-')	// don't save if it begins with - 
+		if (*vars->name != '-')	// don't save if it begins with -
 			fprintf(file, "%s %ld %s\n", vars->name, vars->context, vars->value);
 		vars = vars->next;
 	}

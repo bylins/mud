@@ -749,7 +749,7 @@ ACMD(do_mark)
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
 
-	int cont_dotmode, found = 0, mode;
+	int cont_dotmode, found = 0;
 	OBJ_DATA *cont;
 	CHAR_DATA *tmp_char;
 
@@ -764,7 +764,7 @@ ACMD(do_mark)
 		cont_dotmode = find_all_dots(arg1);
 		if (cont_dotmode == FIND_INDIV)
 		{
-			mode = generic_find(arg1, FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP, ch, &tmp_char, &cont);
+			generic_find(arg1, FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP, ch, &tmp_char, &cont);
 			if (!cont)
 			{
 				sprintf(buf, "У вас нет '%s'.\r\n", arg1);

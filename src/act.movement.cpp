@@ -581,10 +581,10 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	struct track_data *track;
 	room_rnum was_in, go_to;
 	int need_movement, i, ndir = -1, nm, invis = 0, use_horse = 0, is_horse = 0, direction = 0;
-	int IsFlee = dir & 0x80, mob_rnum = -1, odir;
+	int IsFlee = dir & 0x80, mob_rnum = -1;
 	CHAR_DATA *vict, *horse = NULL;
 
-	odir = dir = dir & 0x7f;
+	dir = dir & 0x7f;
 
 	if (!(need_movement = legal_dir(ch, dir, need_specials_check, TRUE)))
 		return (FALSE);
@@ -1366,7 +1366,7 @@ ACMD(do_gen_door)
 				break;
 			case -5: //מונעבקילרמן מבתקבלי הקוער גות ץכבתבמיס מבנעבקלומיס
 				sprintf(buf, "קÙ ־ֵ ׳ִֹֹװֵ Úִֵ׃״ '%s'.\r\n", type);
-				send_to_char(buf, ch); 
+				send_to_char(buf, ch);
 				break;
 			}
 			return;

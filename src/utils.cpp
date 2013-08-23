@@ -1616,7 +1616,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 	char *buf, *lbuf;
 	ubyte padis;
 	int stopbyte;
-	CHAR_DATA *dg_victim = NULL;
+//	CHAR_DATA *dg_victim = NULL;
 
 	buf = (char *) malloc(MAX_STRING_LENGTH);
 	lbuf = buf;
@@ -1646,7 +1646,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					padis = *(++orig) - '0';
 					CHECK_NULL(vict_obj, GET_PAD((const CHAR_DATA *) vict_obj, padis));
 				}
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'm':
@@ -1657,7 +1657,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = HMHR((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, OMHR(obj));
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 's':
@@ -1668,7 +1668,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = HSHR((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, OSHR(obj));
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'e':
@@ -1679,7 +1679,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = HSSH((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, OSSH(obj));
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'o':
@@ -1704,7 +1704,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					CHECK_NULL(vict_obj,
 							   OBJ_PAD((const OBJ_DATA *) vict_obj, padis > 5 ? 0 : padis));
 				}
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 				/*            case 'p':
@@ -1739,7 +1739,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = GET_CH_SUF_6((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, GET_OBJ_SUF_6(obj));
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'g':
@@ -1750,7 +1750,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = GET_CH_SUF_1((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, GET_OBJ_SUF_1(obj));
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'y':
@@ -1761,7 +1761,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = GET_CH_SUF_5((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, GET_OBJ_SUF_5(obj));
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'u':
@@ -1772,7 +1772,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = GET_CH_SUF_2((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, GET_OBJ_SUF_2(obj));
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'w':
@@ -1783,7 +1783,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = GET_CH_SUF_3((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, GET_OBJ_SUF_3(obj));
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'q':
@@ -1794,7 +1794,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = GET_CH_SUF_4((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
-				dg_victim = (CHAR_DATA *) vict_obj;
+				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 //Polud Добавил склонение местоимения ваш(е,а,и)
 			case 'z':
@@ -2074,9 +2074,8 @@ char *str_str(char *cs, const char *ct)
 // remove ^M's from file output
 void kill_ems(char *str)
 {
-	char *ptr1, *ptr2, *tmp;
+	char *ptr1, *ptr2;
 
-	tmp = str;
 	ptr1 = str;
 	ptr2 = str;
 

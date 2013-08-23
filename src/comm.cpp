@@ -1332,7 +1332,7 @@ inline void heartbeat(const int missed_pulses)
 	static int mins_since_crashsave = 0, pulse = 0;
 //	static int lr_firstrun = 1;
 	int uptime_minutes = 0;
-	long check_at = 0, save_start = 0;
+	long check_at = 0;
 //	static struct tm syslog_o;
 //	struct tm *syslog_n;
 //	static long syslog_pos = 0;
@@ -1694,7 +1694,7 @@ inline void heartbeat(const int missed_pulses)
 				last_rent_check = check_at;
 			if (((check_at - last_rent_check) / 60))  	//log("Crash rent time...");
 			{
-				save_start = time(NULL);
+				//long save_start = time(NULL);
 				Crash_rent_time((check_at - last_rent_check) / 60);
 				//log("Saving rent timer time = %ld(s)",time(NULL) - save_start);
 				last_rent_check = time(NULL) - (check_at - last_rent_check) % 60;

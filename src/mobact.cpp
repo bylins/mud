@@ -652,8 +652,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 {
 	CHAR_DATA *ch, *next_ch, *vict, *first, *victim;
 	EXIT_DATA *rdata = NULL;
-	int door, found, max, start_battle, was_in, kw, activity_lev, std_lev, i,
-	ch_activity, tmp_speed;
+	int door, found, max, was_in, kw, activity_lev, std_lev, i, ch_activity;
 	memory_rec *names;
 
 	std_lev = activity_level % PULSE_MOBILE;
@@ -688,12 +687,12 @@ void mobile_activity(int activity_level, int missed_pulses)
 		if (ch->mob_specials.speed <= 0)
 		{
 			activity_lev = std_lev;
-			tmp_speed = PULSE_MOBILE;
+//			tmp_speed = PULSE_MOBILE;
 		}
 		else
 		{
 			activity_lev = activity_level % (ch->mob_specials.speed RL_SEC);
-			tmp_speed = ch->mob_specials.speed RL_SEC;
+//			tmp_speed = ch->mob_specials.speed RL_SEC;
 		}
 
 		ch_activity = GET_ACTIVITY(ch);
@@ -706,8 +705,6 @@ void mobile_activity(int activity_level, int missed_pulses)
 		if (ch_activity != activity_lev ||
 				(was_in = IN_ROOM(ch)) == NOWHERE || GET_ROOM_VNUM(IN_ROOM(ch)) % 100 == 99)
 			continue;
-
-		start_battle = FALSE;
 
 		// Examine call for special procedure
 		if (MOB_FLAGGED(ch, MOB_SPEC) && !no_specials)

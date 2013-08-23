@@ -2049,7 +2049,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 {
 	OBJ_DATA *obj = NULL;
 	CHAR_DATA *dummy = NULL;
-	char *what, whatp[MAX_INPUT_LENGTH], where[MAX_INPUT_LENGTH];
+	char whatp[MAX_INPUT_LENGTH], where[MAX_INPUT_LENGTH];
 	int amt, bits;
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP;
 
@@ -2057,7 +2057,6 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 		send_to_char("Смотреть во что?\r\n", ch);
 	else
 		half_chop(arg, whatp, where);
-	what = whatp;
 
 	if (isname(where, "земля комната room ground"))
 		where_bits = FIND_OBJ_ROOM;

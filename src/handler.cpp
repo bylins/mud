@@ -2315,7 +2315,7 @@ const int script_destroy_timer = 1; // * !!! Never set less than ONE * //
 */
 bool obj_to_room(OBJ_DATA * object, room_rnum room)
 {
-	int sect = 0;
+//	int sect = 0;
 	if (!object || room < FIRST_ROOM || room > top_of_world)
 	{
 		log("SYSERR: Illegal value(s) passed to obj_to_room. (Room #%d/%d, obj %p)",
@@ -2331,7 +2331,7 @@ bool obj_to_room(OBJ_DATA * object, room_rnum room)
 		object->worn_by = NULL;
 		if (ROOM_FLAGGED(room, ROOM_NOITEM))
 			SET_BIT(GET_OBJ_EXTRA(object, ITEM_DECAY), ITEM_DECAY);
-		sect = real_sector(room);
+//		sect = real_sector(room);
 //      if (ROOM_FLAGGED(room, ROOM_HOUSE))
 //         SET_BIT(ROOM_FLAGS(room, ROOM_HOUSE_CRASH), ROOM_HOUSE_CRASH);
 //      if (object->proto_script || object->script)

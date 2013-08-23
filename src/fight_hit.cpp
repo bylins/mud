@@ -2622,7 +2622,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& GET_POS(victim) > POS_STUNNED
 		&& IN_ROOM(victim) != NOWHERE)
 	{
-		Damage dmg(SpellDmg(SPELL_FIRE_SHIELD), fs_damage, MAGE_DMG);
+		Damage dmg(SpellDmg(SPELL_FIRE_SHIELD), fs_damage, UNDEF_DMG);
 		dmg.flags.set(NO_FLEE);
 		dmg.flags.set(MAGIC_REFLECT);
 		dmg.process(victim, ch);

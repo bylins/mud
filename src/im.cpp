@@ -1772,9 +1772,9 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd)
 	req = imrecipes[rs->rid].require;
 	while (*req != -1)
 	{
-		int ktype, osk;
+		int ktype;
 		ktype = *req++;
-		osk = *req++ & 0xFFFF;
+		//int osk = *req++ & 0xFFFF;
 		++i;
 		sprintf(name, "%s%d%s) %s%s%s\r\n", CCIGRN(ch, C_NRM), i,
 				CCNRM(ch, C_NRM), CCIYEL(ch, C_NRM), imtypes[ktype].name, CCNRM(ch, C_NRM));

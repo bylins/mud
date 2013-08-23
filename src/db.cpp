@@ -5935,20 +5935,18 @@ int load_char(const char *name, CHAR_DATA * char_element, bool reboot)
  */
 int create_entry(const char *name)
 {
-	int i, pos, found = TRUE;
+	int i, pos;
 
 	if (top_of_p_table == -1)  	// no table
 	{
 		CREATE(player_table, struct player_index_element, 1);
 		pos = top_of_p_table = 0;
-		found = FALSE;
 	}
 	else if ((pos = get_ptable_by_name(name)) == -1)  	// new name
 	{
 		i = ++top_of_p_table + 1;
 		RECREATE(player_table, struct player_index_element, i);
 		pos = top_of_p_table;
-		found = FALSE;
 	}
 
 	CREATE(player_table[pos].name, char, strlen(name) + 1);
