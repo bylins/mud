@@ -2002,6 +2002,32 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		return false;
 	}
 
+	// отражение части маг дамага от зеркала
+	if (AFF_FLAGGED(victim, AFF_MAGICGLASS) && dmg_type == MAGE_DMG)
+	{
+		int pct = 6;
+		if (IS_NPC(victim) && !IS_CHARMICE(victim))
+		{
+			pct += 2;
+			if (victim->get_role(MOB_ROLE_BOSS))
+			{
+				pct += 2;
+			}
+		}
+		// дамаг обратки
+		const int mg_damage = dam * pct / 100;
+		if (mg_damage > 0
+			&& victim->get_fighting()
+			&& GET_POS(victim) > POS_STUNNED
+			&& IN_ROOM(victim) != NOWHERE)
+		{
+			Damage dmg(SpellDmg(SPELL_MAGICGLASS), mg_damage, UNDEF_DMG);
+			dmg.flags.set(NO_FLEE);
+			dmg.flags.set(MAGIC_REFLECT);
+			dmg.process(victim, ch);
+		}
+	}
+
 	// обработка щитов, см Damage::post_init_shields()
 	if (flags[VICTIM_FIRE_SHIELD] && !flags[CRIT_HIT])
 	{
@@ -2616,7 +2642,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		return -1;
 	}
 
-	//* обратка от огненного щита //
+	// обратка от огненного щита
 	if (fs_damage > 0
 		&& victim->get_fighting()
 		&& GET_POS(victim) > POS_STUNNED
