@@ -1723,8 +1723,7 @@ ACMD(do_cook)
 void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd)
 {
 	char name[MAX_STRING_LENGTH];
-	int *req;
-	int i, qend, rcpt = -1;
+	int qend, rcpt = -1;
 	im_rskill *rs;
 
 	// Определяем, что за рецепт пытаемся варить
@@ -1768,16 +1767,10 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd)
 	send_to_char("Вам потребуется :\r\n", ch);
 
 	// Этап 1. Основные компоненты
-	i = 0;
-	req = imrecipes[rs->rid].require;
-	while (*req != -1)
+	for (int i = 1, *req = imrecipes[rs->rid].require; *req != -1; req += 2, ++i)
 	{
-		int ktype;
-		ktype = *req++;
-		int osk = *req++ & 0xFFFF;
-		++i;
 		sprintf(name, "%s%d%s) %s%s%s\r\n", CCIGRN(ch, C_NRM), i,
-				CCNRM(ch, C_NRM), CCIYEL(ch, C_NRM), imtypes[ktype].name, CCNRM(ch, C_NRM));
+			CCNRM(ch, C_NRM), CCIYEL(ch, C_NRM), imtypes[*req].name, CCNRM(ch, C_NRM));
 		send_to_char(name, ch);
 	}
 	sprintf(name, "для приготовления отвара '%s'\r\n", imrecipes[rs->rid].name);
