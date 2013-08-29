@@ -17,7 +17,7 @@ namespace DpsSystem
 
 namespace MapSystem
 {
-	class Options;
+	struct Options;
 }
 
 extern room_rnum r_helled_start_room;

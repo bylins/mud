@@ -1529,7 +1529,7 @@ namespace scripting
 
 namespace MapSystem
 {
-	class Options;
+	struct Options;
 }
 
 struct descriptor_data
