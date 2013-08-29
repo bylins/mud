@@ -31,7 +31,7 @@
 
 3. Клонируем репозиторий (предполагается, что меркуриал уже установлен):
 
-	hg clone https://bitbucket.org/Posvist/mud/
+	hg clone https://bitbucket.org/bylins/mud/
 
 4. Создаем чистый проект, идем в Project->Add existing Item и добавляем все файлы из mud\\src\\.
 
@@ -70,7 +70,7 @@
 
 3. Запускаем cygwin, далее в командной строке пишем дословно:
 
-        hg clone https://bitbucket.org/Posvist/mud/
+        hg clone https://bitbucket.org/bylins/mud/
 После чего у вас должна создаться директория mud в которой будет последний код (mud/src). Для обновления кода в будущем всего этого повторять не надо, достаточно будет запустить cygwin, зайти в эту директорию mud ("``cd mud``") и набрать "``hg pull -u``". Физически все это будет лежать в ..\\cygwin\\home\\ваше-имя\\mud\\.
 
     Если видим сообщения типа:
@@ -86,7 +86,7 @@
 	* и приводим его в соответствующий описанию ниже вид:
 
             [paths]
-            default = https://bitbucket.org/Posvist/mud``
+            default = https://bitbucket.org/bylins/mud``
 
             [hostfingerprints]
             bitbucket.org = XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
@@ -106,7 +106,7 @@
 
 2. Зарегистрируйтесь в системе Bitbucket(Sing up).
 
-3. Пройдите по адресу: [https://bitbucket.org/Posvist/mud/fork][4].
+3. Пройдите по адресу: [https://bitbucket.org/bylins/mud/fork][4].
 
 4. Ничего здесь не меняем, а в самом низу нажимаем “Fork repository”.
 
@@ -165,7 +165,7 @@
 	
 	* запускаете Cygwin.
 	* cd fork/mud
-	* hg pull -r default https://bitbucket.org/Posvist/mud
+	* hg pull -r default https://bitbucket.org/bylins/mud
 	* hg update
 	* hg push
 
@@ -212,7 +212,7 @@
 
 3. Достаем исходники из репозитория:
 # cd ~
-# hg clone https://bitbucket.org/Posvist/mud
+# hg clone https://bitbucket.org/bylins/mud
 В результате чего появится папка ~/mud
 
 4. Ставим более свежую, чем в репозиториях, версию Boost-а (>=1.49)
@@ -245,4 +245,4 @@
 [1]: http://www.mud.ru/?coder
 [2]: http://www.cygwin.com/setup.exe
 [3]: https://bitbucket.org.
-[4]: https://bitbucket.org/Posvist/mud/fork
+[4]: https://bitbucket.org/bylins/mud/fork
