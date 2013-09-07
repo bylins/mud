@@ -307,15 +307,15 @@ int mccp_end(DESCRIPTOR_DATA * t, int ver);
 
 #define TELOPT_COMPRESS        85
 #define TELOPT_COMPRESS2       86
-const char compress_will[] = { IAC, WILL, TELOPT_COMPRESS2,
-							   IAC, WILL, TELOPT_COMPRESS, '\0'
+const char compress_will[] = { (char)IAC, (char)WILL, (char)TELOPT_COMPRESS2,
+							   (char)IAC, (char)WILL, (char)TELOPT_COMPRESS, '\0'
 							 };
-const char compress_start_v1[] = { IAC, SB, TELOPT_COMPRESS, WILL, SE, '\0' };
-const char compress_start_v2[] = { IAC, SB, TELOPT_COMPRESS2, IAC, SE, '\0' };
+const char compress_start_v1[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS, (char)WILL, (char)SE, '\0' };
+const char compress_start_v2[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS2, (char)IAC, (char)SE, '\0' };
 
 #endif
 
-const char str_goahead[] = { IAC, GA, 0 };
+const char str_goahead[] = { (char)IAC, (char)GA, 0 };
 
 
 /***********************************************************************
