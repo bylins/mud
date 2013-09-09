@@ -18,3 +18,6 @@ obj 250 board
 
 ;гривны
 ;mob 4000 torc
+
+;кладовщики
+;mob 4056 outfit
