@@ -1891,6 +1891,14 @@ bool Player::map_check_option(int num) const
 	return map_options_.bit_list_.test(num);
 }
 
+void Player::map_set_option(unsigned num)
+{
+	if (num < map_options_.bit_list_.size())
+	{
+		map_options_.bit_list_.set(num);
+	}
+}
+
 void Player::map_text_olc(const char *arg)
 {
 	map_options_.text_olc(this, arg);

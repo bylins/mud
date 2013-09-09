@@ -60,6 +60,7 @@
 #include "help.hpp"
 #include "map.hpp"
 #include "ext_money.hpp"
+#include "noob.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -2340,10 +2341,14 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	greet_memory_mtrigger(d->character);
 	STATE(d) = CON_PLAYING;
 
-	const bool noob = GET_LEVEL(d->character) <= 0 ? true : false;
-	if (noob)
+	const bool new_char = GET_LEVEL(d->character) <= 0 ? true : false;
+	if (new_char)
 	{
 		SET_BIT(PRF_FLAGS(d->character, PRF_DRAW_MAP), PRF_DRAW_MAP);
+		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
+		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
+		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
+		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_TEACH);
 		do_start(d->character, TRUE);
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character);
@@ -2356,11 +2361,18 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	login_change_invoice(d->character);
 	check_light(d->character, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
 
-	if (noob)
+	if (new_char)
 	{
-		send_to_char("\r\nВоспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n", d->character);
-		send_to_char("Включен режим автоматического показа карты, для отключения наберите 'режим карта'.\r\n", d->character);
+		send_to_char(
+			"\r\nВоспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n",
+			d->character);
+		send_to_char(
+			"Включен режим автоматического показа карты, наберите 'справка карта' для ознакомления.\r\n"
+			"Если вы заблудились и не можете самостоятельно найти дорогу назад - прочтите 'справка возврат'.\r\n",
+			d->character);
 	}
+
+	Noob::check_help_message(d->character);
 }
 
 //По кругу проверяем корректность параметров
@@ -3125,7 +3137,6 @@ Sventovit
 					  "Подумайте еще разок, и выберите:", d);
 			return;
 		}
-        d->CharBirthPlace = load_result; //Запоминаем точку входа
 		GET_LOADROOM(d->character) = calc_loadroom(d->character, load_result);
 //		sprintf(buf, "\r\nВаша загрузочная комната: %5d\r\n", GET_LOADROOM(d->character));
 //		SEND_TO_Q(buf, d);

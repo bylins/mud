@@ -185,6 +185,10 @@ unsigned long int number_of_bytes_written = 0;
 
 int reboot_uptime = DEFAULT_REBOOT_UPTIME;	// uptime until reboot in minutes
 
+const int SYSLOG = 0;
+const int ERRLOG = 1;
+const int IMLOG = 2;
+
 log_info logs[NLOG] =
 {
 	{NULL, "syslog", "σιστενξωκ"},

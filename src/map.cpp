@@ -19,6 +19,7 @@
 #include "char_player.hpp"
 #include "handler.h"
 #include "shop_ext.hpp"
+#include "noob.hpp"
 
 SPECIAL(shop_ext);
 SPECIAL(receptionist);
@@ -29,6 +30,7 @@ SPECIAL(horse_keeper);
 SPECIAL(guild_mono);
 SPECIAL(guild_poly);
 SPECIAL(torc);
+SPECIAL(Noob::outfit);
 
 namespace MapSystem
 {
@@ -127,6 +129,8 @@ enum
 	SCREEN_WATER,
 	// можно умереть без полета
 	SCREEN_FLYING,
+	// кладовщики для показа нубам
+	SCREEN_MOB_SPEC_OUTFIT,
 	// всегда в конце
 	SCREEN_TOTAL
 };
@@ -200,7 +204,8 @@ const char *signs[] =
 	"&WE&n",
 	"&WG&n",
 	"&C,&n",
-	"&C`&n"
+	"&C`&n",
+	"&WO&n"
 };
 
 std::map<int /* room vnum */, int /* min depth */> check_dupe;
@@ -431,6 +436,10 @@ void drow_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, 
 			{
 				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TORC, cur_depth);
 			}
+			else if (func == Noob::outfit && (Noob::is_noob(ch)))
+			{
+				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_OUTFIT, cur_depth);
+			}
 		}
 	}
 }
@@ -533,6 +542,24 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 			&& room->dir_option[i]->to_room != NOWHERE
 			&& (!EXIT_FLAGGED(room->dir_option[i], EX_HIDDEN) || IS_IMMORTAL(ch)))
 		{
+			// отрисовка выхода
+			if (EXIT_FLAGGED(room->dir_option[i], EX_CLOSED))
+			{
+				put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
+			}
+			else if (EXIT_FLAGGED(room->dir_option[i], EX_HIDDEN))
+			{
+				put_on_screen(cur_y, cur_x, cur_sign + 2, cur_depth);
+			}
+			else
+			{
+				put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
+			}
+			// за двери закрытые смотрят только иммы
+			if (EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) && !IS_IMMORTAL(ch))
+			{
+				continue;
+			}
 			// здесь важна очередность, что первое отрисовалось - то и будет
 			const ROOM_DATA *next_room = world[room->dir_option[i]->to_room];
 			// дт иммам и нубам с 0 мортов
@@ -562,19 +589,6 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 				}
 				// моб со спешиалом
 				drow_spec_mobs(ch, room->dir_option[i]->to_room, next_y, next_x, cur_depth);
-			}
-			// отрисовка выхода
-			if (EXIT_FLAGGED(room->dir_option[i], EX_CLOSED))
-			{
-				put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
-			}
-			else if (EXIT_FLAGGED(room->dir_option[i], EX_HIDDEN))
-			{
-				put_on_screen(cur_y, cur_x, cur_sign + 2, cur_depth);
-			}
-			else
-			{
-				put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
 			}
 			// существа
 			if (cur_depth == 1
@@ -620,7 +634,6 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 					draw_objs(ch, room->dir_option[i]->to_room, next_y, next_x);
 				}
 			}
-
 			// проход по следующей в глубину комнате
 			if (i != UP && i != DOWN
 				&& cur_depth < MAX_DEPTH_ROOMS
@@ -887,7 +900,7 @@ void Options::olc_menu(CHAR_DATA *ch)
 			break;
 		case MAP_MODE_MOB_SPEC_TEACH:
 			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-				% (bit_list_[MAP_MODE_MOB_SPEC_EXCH] ? "[x]" : "[ ]")
+				% (bit_list_[MAP_MODE_MOB_SPEC_TEACH] ? "[x]" : "[ ]")
 				% "учителя (любые, T)";
 			break;
 		case MAP_MODE_MOB_SPEC_TORC:

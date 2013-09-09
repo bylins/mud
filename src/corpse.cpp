@@ -16,6 +16,7 @@
 #include "pugixml.hpp"
 #include "modify.h"
 #include "house.h"
+#include "parse.hpp"
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
@@ -69,10 +70,10 @@ void init()
     }
 	for (pugi::xml_node node = node_list.child("drop"); node; node = node.next_sibling("drop"))
 	{
-		int obj_vnum = xmlparse_int(node, "obj_vnum");
-		int mob_lvl = xmlparse_int(node, "mob_lvl");
-		int max_mob_lvl = xmlparse_int(node, "max_mob_lvl");
-		int chance = xmlparse_int(node, "chance");
+		int obj_vnum = Parse::attr_int(node, "obj_vnum");
+		int mob_lvl = Parse::attr_int(node, "mob_lvl");
+		int max_mob_lvl = Parse::attr_int(node, "max_mob_lvl");
+		int chance = Parse::attr_int(node, "chance");
 
 		if (obj_vnum == -1 || mob_lvl <= 0 || chance <= 0 || max_mob_lvl < 0)
 		{
@@ -105,7 +106,7 @@ void init()
 			// список шмоток с единым дропом
 			for (pugi::xml_node item = node.child("obj"); item; item = item.next_sibling("obj"))
 			{
-				int item_vnum = xmlparse_int(item, "vnum");
+				int item_vnum = Parse::attr_int(item, "vnum");
 				if (item_vnum <= 0)
 				{
 					snprintf(buf, MAX_STRING_LENGTH,

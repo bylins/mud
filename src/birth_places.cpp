@@ -12,6 +12,8 @@
 #include "birth_places.hpp"
 #include "pugixml.hpp"
 
+const char *DEFAULT_RENT_HELP = "Попроси нашего кладовщика помочь тебе с экипировкой и припасами.";
+
 BirthPlaceListType BirthPlace::BirthPlaceList;
 
 //Создаем новую точку входа и заполняем ее поля значениями из файлда
@@ -27,6 +29,7 @@ void BirthPlace::LoadBirthPlace(pugi::xml_node BirthPlaceNode)
     TmpBirthPlace->_MenuStr = BirthPlaceNode.child("menustring").child_value();
     CurNode = BirthPlaceNode.child("room");
     TmpBirthPlace->_LoadRoom = CurNode.attribute("vnum").as_int();
+    TmpBirthPlace->_RentHelp = BirthPlaceNode.child("renthelp").child_value();
 
 	//Парсим список предметов
 	CurNode = BirthPlaceNode.child("items");
@@ -128,7 +131,7 @@ short BirthPlace::ParseSelect(char *arg)
     return BIRTH_PLACE_UNDEFINED;
 };
 
-// Проверка налияия точки входа с указанным ID
+// Проверка наличия точки входа с указанным ID
 bool BirthPlace::CheckId(short Id)
 {
     BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
@@ -138,3 +141,24 @@ bool BirthPlace::CheckId(short Id)
     return false;
 };
 
+int BirthPlace::GetIdByRoom(int room_vnum)
+{
+    for (auto i = BirthPlaceList.begin(); i != BirthPlaceList.end(); ++i)
+	{
+        if ((*i)->LoadRoom() / 100 == room_vnum / 100)
+		{
+			return (*i)->Id();
+		}
+	}
+	return -1;
+}
+
+std::string BirthPlace::GetRentHelp(short Id)
+{
+    BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
+    if (BPPtr != NULL && !BPPtr->RentHelp().empty())
+    {
+        return BPPtr->RentHelp();
+    }
+    return DEFAULT_RENT_HELP;
+}

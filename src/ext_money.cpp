@@ -14,6 +14,7 @@
 #include "interpreter.h"
 #include "pugixml.hpp"
 #include "room.hpp"
+#include "parse.hpp"
 
 using namespace ExtMoney;
 using namespace Remort;
@@ -764,32 +765,32 @@ void init()
 		return;
     }
 
-	WHERE_TO_REMORT_STR = xmlparse_child_value_str(main_node, "WHERE_TO_REMORT_STR");
-	TORC_EXCH_RATE = xmlparse_child_value_int(main_node, "TORC_EXCH_RATE");
+	WHERE_TO_REMORT_STR = Parse::child_value_str(main_node, "WHERE_TO_REMORT_STR");
+	TORC_EXCH_RATE = Parse::child_value_int(main_node, "TORC_EXCH_RATE");
 
-	type_list[TORC_GOLD].MORT_NUM = xmlparse_child_value_int(main_node, "GOLD_MORT_NUM");
-	type_list[TORC_GOLD].MORT_REQ = xmlparse_child_value_int(main_node, "GOLD_MORT_REQ");
-	type_list[TORC_GOLD].MORT_REQ_ADD_PER_MORT = xmlparse_child_value_int(main_node, "GOLD_MORT_REQ_ADD_PER_MORT");
-	type_list[TORC_GOLD].DROP_LVL = xmlparse_child_value_int(main_node, "GOLD_DROP_LVL");
-	type_list[TORC_GOLD].DROP_AMOUNT = xmlparse_child_value_int(main_node, "GOLD_DROP_AMOUNT");
-	type_list[TORC_GOLD].DROP_AMOUNT_ADD_PER_LVL = xmlparse_child_value_int(main_node, "GOLD_DROP_AMOUNT_ADD_PER_LVL");
-	type_list[TORC_GOLD].MINIMUM_DAYS = xmlparse_child_value_int(main_node, "GOLD_MINIMUM_DAYS");
+	type_list[TORC_GOLD].MORT_NUM = Parse::child_value_int(main_node, "GOLD_MORT_NUM");
+	type_list[TORC_GOLD].MORT_REQ = Parse::child_value_int(main_node, "GOLD_MORT_REQ");
+	type_list[TORC_GOLD].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "GOLD_MORT_REQ_ADD_PER_MORT");
+	type_list[TORC_GOLD].DROP_LVL = Parse::child_value_int(main_node, "GOLD_DROP_LVL");
+	type_list[TORC_GOLD].DROP_AMOUNT = Parse::child_value_int(main_node, "GOLD_DROP_AMOUNT");
+	type_list[TORC_GOLD].DROP_AMOUNT_ADD_PER_LVL = Parse::child_value_int(main_node, "GOLD_DROP_AMOUNT_ADD_PER_LVL");
+	type_list[TORC_GOLD].MINIMUM_DAYS = Parse::child_value_int(main_node, "GOLD_MINIMUM_DAYS");
 
-	type_list[TORC_SILVER].MORT_NUM = xmlparse_child_value_int(main_node, "SILVER_MORT_NUM");
-	type_list[TORC_SILVER].MORT_REQ = xmlparse_child_value_int(main_node, "SILVER_MORT_REQ");
-	type_list[TORC_SILVER].MORT_REQ_ADD_PER_MORT = xmlparse_child_value_int(main_node, "SILVER_MORT_REQ_ADD_PER_MORT");
-	type_list[TORC_SILVER].DROP_LVL = xmlparse_child_value_int(main_node, "SILVER_DROP_LVL");
-	type_list[TORC_SILVER].DROP_AMOUNT = xmlparse_child_value_int(main_node, "SILVER_DROP_AMOUNT");
-	type_list[TORC_SILVER].DROP_AMOUNT_ADD_PER_LVL = xmlparse_child_value_int(main_node, "SILVER_DROP_AMOUNT_ADD_PER_LVL");
-	type_list[TORC_SILVER].MINIMUM_DAYS = xmlparse_child_value_int(main_node, "SILVER_MINIMUM_DAYS");
+	type_list[TORC_SILVER].MORT_NUM = Parse::child_value_int(main_node, "SILVER_MORT_NUM");
+	type_list[TORC_SILVER].MORT_REQ = Parse::child_value_int(main_node, "SILVER_MORT_REQ");
+	type_list[TORC_SILVER].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "SILVER_MORT_REQ_ADD_PER_MORT");
+	type_list[TORC_SILVER].DROP_LVL = Parse::child_value_int(main_node, "SILVER_DROP_LVL");
+	type_list[TORC_SILVER].DROP_AMOUNT = Parse::child_value_int(main_node, "SILVER_DROP_AMOUNT");
+	type_list[TORC_SILVER].DROP_AMOUNT_ADD_PER_LVL = Parse::child_value_int(main_node, "SILVER_DROP_AMOUNT_ADD_PER_LVL");
+	type_list[TORC_SILVER].MINIMUM_DAYS = Parse::child_value_int(main_node, "SILVER_MINIMUM_DAYS");
 
-	type_list[TORC_BRONZE].MORT_NUM = xmlparse_child_value_int(main_node, "BRONZE_MORT_NUM");
-	type_list[TORC_BRONZE].MORT_REQ = xmlparse_child_value_int(main_node, "BRONZE_MORT_REQ");
-	type_list[TORC_BRONZE].MORT_REQ_ADD_PER_MORT = xmlparse_child_value_int(main_node, "BRONZE_MORT_REQ_ADD_PER_MORT");
-	type_list[TORC_BRONZE].DROP_LVL = xmlparse_child_value_int(main_node, "BRONZE_DROP_LVL");
-	type_list[TORC_BRONZE].DROP_AMOUNT = xmlparse_child_value_int(main_node, "BRONZE_DROP_AMOUNT");
-	type_list[TORC_BRONZE].DROP_AMOUNT_ADD_PER_LVL = xmlparse_child_value_int(main_node, "BRONZE_DROP_AMOUNT_ADD_PER_LVL");
-	type_list[TORC_BRONZE].MINIMUM_DAYS = xmlparse_child_value_int(main_node, "BRONZE_MINIMUM_DAYS");
+	type_list[TORC_BRONZE].MORT_NUM = Parse::child_value_int(main_node, "BRONZE_MORT_NUM");
+	type_list[TORC_BRONZE].MORT_REQ = Parse::child_value_int(main_node, "BRONZE_MORT_REQ");
+	type_list[TORC_BRONZE].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "BRONZE_MORT_REQ_ADD_PER_MORT");
+	type_list[TORC_BRONZE].DROP_LVL = Parse::child_value_int(main_node, "BRONZE_DROP_LVL");
+	type_list[TORC_BRONZE].DROP_AMOUNT = Parse::child_value_int(main_node, "BRONZE_DROP_AMOUNT");
+	type_list[TORC_BRONZE].DROP_AMOUNT_ADD_PER_LVL = Parse::child_value_int(main_node, "BRONZE_DROP_AMOUNT_ADD_PER_LVL");
+	type_list[TORC_BRONZE].MINIMUM_DAYS = Parse::child_value_int(main_node, "BRONZE_MINIMUM_DAYS");
 
 	// не из конфига, но инится заодно со всеми
 	type_list[TORC_GOLD].DESC_MESSAGE_NUM = WHAT_TGOLD;

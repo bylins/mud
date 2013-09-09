@@ -18,7 +18,7 @@
 #include <cmath>
 #include <iomanip>
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
+#include <sstream>
 #include <boost/bind.hpp>
 #include "conf.h"
 #include "sysdep.h"
@@ -2402,86 +2402,6 @@ std::string thousands_sep(long long n)
 	return buffer;
 }
 
-int xmlparse_int(pugi::xml_node &node, const char *text)
-{
-	int result = -1;
-
-	pugi::xml_attribute attr = node.attribute(text);
-	if (!attr)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-	}
-	else
-	{
-		try
-		{
-			result = boost::lexical_cast<int>(attr.value());
-		}
-		catch(...)
-		{
-			snprintf(buf, MAX_STRING_LENGTH, "...%s lexical_cast fail", text);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		}
-	}
-	return result;
-}
-
-std::string xmlparse_str(pugi::xml_node &node, const char *text)
-{
-	pugi::xml_attribute attr = node.attribute(text);
-	if (!attr)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-	}
-	else
-	{
-		return attr.value();
-	}
-	return "";
-}
-
-std::string xmlparse_child_value_str(pugi::xml_node &node, const char *text)
-{
-	pugi::xml_node child_node = node.child(text);
-	if (!child_node)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-	}
-	else
-	{
-		return child_node.child_value();
-	}
-	return "";
-}
-
-int xmlparse_child_value_int(pugi::xml_node &node, const char *text)
-{
-	int result = -1;
-
-	pugi::xml_node child_node = node.child(text);
-	if (!child_node)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-	}
-	else
-	{
-		try
-		{
-			result = boost::lexical_cast<int>(child_node.child_value());
-		}
-		catch(...)
-		{
-			snprintf(buf, MAX_STRING_LENGTH, "...%s lexical_cast fail", text);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		}
-	}
-	return result;
-}
-
 int str_bonus(int str, int type)
 {
 	int bonus = 0;
@@ -3023,3 +2943,15 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 } // namespace SetSystem
 
 ////////////////////////////////////////////////////////////////////////////////
+
+// Симуляция телла от моба
+void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
+{
+	if (AFF_FLAGGED(ch, AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
+		return;
+	char local_buf[MAX_INPUT_LENGTH];
+	snprintf(local_buf, MAX_INPUT_LENGTH,
+		"%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
+	send_to_char(ch, "%s%s%s\r\n",
+		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
+}

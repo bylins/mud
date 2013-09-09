@@ -40,7 +40,7 @@
 #include "char_player.hpp"
 #include "named_stuff.hpp"
 #include "player_races.hpp"
-#include "birth_places.hpp"
+#include "noob.hpp"
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -52,8 +52,6 @@ struct skillvariables_insgem insgem_vars;
 // 14 проф, 0-14 мортов
 // grouping[class][remorts]
 int grouping[NUM_CLASSES][MAX_REMORT+1];
-
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 
 // local functions
 int parse_class(char arg);
@@ -1958,135 +1956,30 @@ int extra_damroll(int class_num, int level)
 // Some initializations for characters, including initial skills
 void do_start(CHAR_DATA * ch, int newbie)
 {
-	OBJ_DATA *obj;
-	int i;
-    std::vector<int> ItemList;
-
 	ch->set_level(1);
 	ch->set_exp(1);
-
-	if (newbie && GET_CLASS(ch) == CLASS_DRUID)
-		for (i = 1; i <= MAX_SPELLS; i++)
-			GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
-
 	ch->points.max_hit = 10;
-
-	obj = read_object(START_BOTTLE, VIRTUAL);
-	if (obj)
-		obj_to_char(obj, ch);
-	obj = read_object(START_BREAD, VIRTUAL);
-	if (obj)
-		obj_to_char(obj, ch);
-	obj = read_object(START_BREAD, VIRTUAL);
-	if (obj)
-		obj_to_char(obj, ch);
-	obj = read_object(START_SCROLL, VIRTUAL);
-	if (obj)
-		obj_to_char(obj, ch);
-	obj = read_object(START_LIGHT, VIRTUAL);
-	if (obj)
-		obj_to_char(obj, ch);
 	ch->set_skill(SKILL_DRUNKOFF, 10);
 
-    // Подгружаем предметы в зависимости от точки входа в игру
-    ItemList = BirthPlace::GetItemList(ch->desc->CharBirthPlace);
-    for (std::vector<int>::iterator it = ItemList.begin();it != ItemList.end();++it)
-    {
-        obj = read_object((*it), VIRTUAL);
-        if (!OBJ_FLAGGED(obj, ITEM_NOSELL))
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
-        if (!OBJ_FLAGGED(obj, ITEM_DECAY))
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
-        if (obj)
-            obj_to_char(obj, ch);
-    };
-
-	switch (GET_CLASS(ch))
+	if (newbie && GET_CLASS(ch) == CLASS_DRUID)
 	{
-	case CLASS_BATTLEMAGE:
-	case CLASS_DEFENDERMAGE:
-	case CLASS_CHARMMAGE:
-	case CLASS_NECROMANCER:
-		obj = read_object(START_KNIFE, VIRTUAL);
-		if (obj)
-			equip_char(ch, obj, WEAR_WIELD);
-		ch->set_skill(SKILL_SATTACK, 10);
-		break;
-
-	case CLASS_DRUID:
-		obj = read_object(START_ERUNE, VIRTUAL);
-		if (obj)
-			obj_to_char(obj, ch);
-		obj = read_object(START_WRUNE, VIRTUAL);
-		if (obj)
-			obj_to_char(obj, ch);
-		obj = read_object(START_ARUNE, VIRTUAL);
-		if (obj)
-			obj_to_char(obj, ch);
-		obj = read_object(START_FRUNE, VIRTUAL);
-		if (obj)
-			obj_to_char(obj, ch);
-		break;
-
-	case CLASS_CLERIC:
-		obj = read_object(START_CLUB, VIRTUAL);
-		if (obj)
-			equip_char(ch, obj, WEAR_WIELD);
-		ch->set_skill(SKILL_SATTACK, 50);
-		break;
-
-	case CLASS_THIEF:
-	case CLASS_ASSASINE:
-	case CLASS_MERCHANT:
-		obj = read_object(START_KNIFE, VIRTUAL);
-		if (obj)
-			equip_char(ch, obj, WEAR_WIELD);
-		ch->set_skill(SKILL_SATTACK, 75);
-		break;
-
-	case CLASS_WARRIOR:
-		obj = read_object(START_SWORD, VIRTUAL);
-		if (obj)
-			equip_char(ch, obj, WEAR_WIELD);
-		obj = read_object(START_ARMOR, VIRTUAL);
-		if (obj)
-			equip_char(ch, obj, WEAR_BODY);
-		ch->set_skill(SKILL_SATTACK, 95);
-		ch->set_skill(SKILL_HORSE, 10);
-		break;
-
-	case CLASS_GUARD:
-	case CLASS_PALADINE:
-			ch->set_skill(SKILL_HORSE, 10);
-	case CLASS_SMITH:
-		obj = read_object(START_SWORD, VIRTUAL);
-		if (obj)
-			equip_char(ch, obj, WEAR_WIELD);
-		obj = read_object(START_ARMOR, VIRTUAL);
-		if (obj)
-			equip_char(ch, obj, WEAR_BODY);
-		ch->set_skill(SKILL_SATTACK, 95);
-		break;
-
-	case CLASS_RANGER:
-		obj = read_object(START_BOW, VIRTUAL);
-		if (obj)
-			equip_char(ch, obj, WEAR_BOTHS);
-		obj = read_object(START_ARMOR, VIRTUAL);
-		if (obj)
-			equip_char(ch, obj, WEAR_BODY);
-		ch->set_skill(SKILL_SATTACK, 95);
-		ch->set_skill(SKILL_HORSE, 10);
-		break;
-
+		for (int i = 1; i <= MAX_SPELLS; i++)
+		{
+			GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
+		}
 	}
 
-	switch (GET_RELIGION(ch))
+	std::vector<int> outfit_list(Noob::get_start_outfit(ch));
+	for (auto i = outfit_list.begin(); i != outfit_list.end(); ++i)
 	{
-	case RELIGION_POLY:
-		break;
-	case RELIGION_MONO:
-		break;
+        OBJ_DATA *obj = read_object(*i, VIRTUAL);
+        if (obj)
+		{
+			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
+			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
+            obj_to_char(obj, ch);
+            Noob::equip_start_outfit(ch, obj);
+		}
 	}
 
 	advance_level(ch);

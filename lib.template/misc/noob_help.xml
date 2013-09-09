@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<noob_help>
+	<!-- кого мы в коде (и тригах через %actor.is_noob%)
+		считаем нубом (0 мортов подразумевается), уровень включительно -->
+	<noob max_lvl="14" />
+
+	<!-- стаф для всех проф -->
+	<all_classes>
+		<!-- холщовый мешок -->
+		<obj vnum="2189" />
+		<!-- фляга -->
+		<obj vnum="2182" />
+		<!-- свечка -->
+		<obj vnum="2186" />
+		<!-- каравай -->
+		<obj vnum="2005" />
+		<!-- луковица -->
+		<obj vnum="2049" />
+	</all_classes>
+
+	<!-- волхв -->
+	<class id="CLASS_DRUID">
+		<!-- руны -->
+		<obj vnum="222" />
+		<obj vnum="223" />
+		<obj vnum="224" />
+		<obj vnum="225" />
+		<!-- дубина/портки -->
+		<obj vnum="2212" />
+		<obj vnum="2102" />
+		<obj vnum="2102" />
+		<obj vnum="2102" />
+	</class>
+
+	<!-- лекарь -->
+	<class id="CLASS_CLERIC">
+		<!-- дубина/портки -->
+		<obj vnum="2212" />
+		<obj vnum="2102" />
+	</class>
+
+	<!-- чернокнижник -->
+	<class id="CLASS_NECROMANCER">
+		<!-- дубина/портки -->
+		<obj vnum="2212" />
+		<obj vnum="2102" />
+	</class>
+
+	<!-- тать -->
+	<class id="CLASS_THIEF">
+		<!-- кинжал(проник)/портки -->
+		<obj vnum="2214" />
+		<obj vnum="2102" />
+	</class>
+
+	<!-- наемник -->
+	<class id="CLASS_ASSASINE">
+		<!-- кинжал(проник)/портки -->
+		<obj vnum="2214" />
+		<obj vnum="2102" />
+	</class>
+
+	<!-- купец -->
+	<class id="CLASS_MERCHANT">
+		<!-- кинжал(проник)/портки -->
+		<obj vnum="2214" />
+		<obj vnum="2102" />
+	</class>
+
+	<!-- кудесник -->
+	<class id="CLASS_CHARMMAGE">
+		<!-- нож(короткое)/портки -->
+		<obj vnum="2208" />
+		<obj vnum="2102" />
+	</class>
+
+	<!-- волшебник -->
+	<class id="CLASS_DEFENDERMAGE">
+		<!-- нож(короткое)/портки -->
+		<obj vnum="2208" />
+		<obj vnum="2102" />
+	</class>
+
+	<!-- колдун -->
+	<class id="CLASS_BATTLEMAGE">
+		<!-- нож(короткое)/портки -->
+		<obj vnum="2208" />
+		<obj vnum="2102" />
+	</class>
+
+	<!-- богатырь -->
+	<class id="CLASS_WARRIOR">
+		<!-- доспех/перчи/поножи -->
+		<obj vnum="2116" />
+		<obj vnum="2120" />
+		<obj vnum="2118" />
+	</class>
+
+	<!-- дружинник -->
+	<class id="CLASS_GUARD">
+		<!-- шлем/доспех/меч/поножи -->
+		<obj vnum="2117" />
+		<obj vnum="2116" />
+		<obj vnum="2202" />
+		<obj vnum="2118" />
+	</class>
+
+	<!-- витязь -->
+	<class id="CLASS_PALADINE">
+		<!-- доспех/меч/поножи -->
+		<obj vnum="2116" />
+		<obj vnum="2202" />
+		<obj vnum="2118" />
+	</class>
+
+	<!-- охотник -->
+	<class id="CLASS_RANGER">
+		<!-- куртка/лук/портки -->
+		<obj vnum="2100" />
+		<obj vnum="2210" />
+		<obj vnum="2102" />
+	</class>
+
+	<!-- кузнец -->
+	<class id="CLASS_SMITH">
+		<!-- доспех/секира/поножи -->
+		<obj vnum="2116" />
+		<obj vnum="2216" />
+		<obj vnum="2118" />
+	</class>
+</noob_help>

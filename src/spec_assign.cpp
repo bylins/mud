@@ -23,6 +23,7 @@
 #include "boards.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "noob.hpp"
 
 extern int dts_are_dumps;
 extern int mini_mud;
@@ -50,6 +51,7 @@ SPECIAL(thief);
 SPECIAL(magic_user);
 SPECIAL(bank);
 SPECIAL(torc);
+SPECIAL(Noob::outfit);
 
 void assign_kings_castle(void);
 
@@ -212,6 +214,8 @@ void init_spec_procs(void)
 				ASSIGNMOB(i, exchange);
 			else if (!str_cmp(line2, "torc"))
 				ASSIGNMOB(i, torc);
+			else if (!str_cmp(line2, "outfit"))
+				ASSIGNMOB(i, Noob::outfit);
 			else
 				log("Unknown mobile %d assignment type - %s...", i, line2);
 		}

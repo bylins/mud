@@ -73,6 +73,8 @@
 #include "fight.h"
 #include "help.hpp"
 #include "ext_money.hpp"
+#include "noob.hpp"
+#include "parse.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -477,6 +479,7 @@ ACMD(do_reboot)
 		Celebrates::load();
 		HelpSystem::reload_all();
 		Remort::init();
+		Noob::init();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -594,9 +597,13 @@ ACMD(do_reboot)
 			SetsDrop::reload();
 		}
 	}
-	else if (!str_cmp(arg, "remort"))
+	else if (!str_cmp(arg, "remort.xml"))
 	{
 		Remort::init();
+	}
+	else if (!str_cmp(arg, "noob_help.xml"))
+	{
+		Noob::init();
 	}
 	else
 	{
@@ -1600,9 +1607,9 @@ void load_messages(void)
 // body of the booting system
 void boot_db(void)
 {
-	zone_rnum i;
-
 	log("Boot db -- BEGIN.");
+
+	zone_rnum i;
 	struct stat st;
 
 	#define MKDIR(dir) if (stat((dir), &st) != 0) \
@@ -1629,6 +1636,9 @@ void boot_db(void)
 
 	#undef MKLETTERS
 	#undef MKDIR
+
+	log("Init TextId list.");
+	TextId::init();
 
 	log("Resetting the game time:");
 	reset_time();
@@ -1859,6 +1869,9 @@ void boot_db(void)
 
 	log("Load remort.xml");
 	Remort::init();
+
+	log("Load noob_help.xml");
+	Noob::init();
 
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	HelpSystem::reload_all();

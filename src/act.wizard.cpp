@@ -62,6 +62,7 @@
 #include "sets_drop.hpp"
 #include "fight.h"
 #include "ext_money.hpp"
+#include "noob.hpp"
 
 // external vars
 extern bool need_warn;
@@ -5558,6 +5559,10 @@ std::string print_special(CHAR_DATA *mob)
 			out += "teacher (mono)";
 		else if (func == guild_poly)
 			out += "teacher (poly)";
+		else if (func == torc)
+			out += "torc";
+		else if (func == Noob::outfit)
+			out += "outfit";
 	}
 	else
 	{

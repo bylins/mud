@@ -757,9 +757,6 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 				  trained_skill) > 0
 			 && trained_skill < MAX_EXP_RMRT_PERCENT(ch)))
 	{
-		int how_many = ch->get_skills_count();
-		how_many += (im_get_char_rskill_count(ch) + 1) >> 1;
-
 		// Success - multy by 2
 		prob = success ? 20000 : 15000;
 
@@ -769,11 +766,8 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 			div += (skill_info[skill_no].k_improove[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] / 100);
 
 		prob /= (MAX(1, div));
-
-		if ((diff = how_many - wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS)) < 0)
-			prob += (5 * diff);
-		else
-			prob += (10 * diff);
+		// вариант бонуса мудрости без штрафов за кол-во умений
+		prob -= 5 * wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS);
 		prob += number(1, trained_skill * 5);
 
 		skill_is = number(1, MAX(1, prob));

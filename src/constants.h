@@ -108,24 +108,11 @@ extern struct zone_type * zone_types;
 
 extern int HORSE_VNUM;
 extern int HORSE_COST;
-extern int START_SWORD;
-extern int START_CLUB;
-extern int START_KNIFE;
 extern int START_BREAD;
-extern int START_SCROLL;
 extern int CREATE_LIGHT;
-extern int START_LIGHT;
-extern int START_ARMOR;
-extern int START_BOTTLE;
-extern int START_BOW;
-extern int START_WRUNE;
-extern int START_ARUNE;
-extern int START_ERUNE;
-extern int START_FRUNE;
 
 /* Номер моба-чармиса 0го уровня. Для лоада берется моб с этим номером +
    уровень жертвы. Т.е таких мобов должно быть до 250го есои максимальный
    уровень моба 50 */
 #define CHARM_MOB_VNUM 200
 #endif
-

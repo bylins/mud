@@ -22,23 +22,10 @@
 
 const char *circlemud_version = "CircleMUD, version 3.00 beta patchlevel 16";
 
-
 int HORSE_VNUM = 4014;
 int HORSE_COST = 100;
-int START_SWORD = 112;
-int START_CLUB = 121;
-int START_KNIFE = 122;
-int START_SCROLL = 115;
 int START_BREAD = 125;
 int CREATE_LIGHT = 126;
-int START_LIGHT = 127;
-int START_ARMOR = 113;
-int START_BOTTLE = 114;
-int START_BOW = 109;
-int START_WRUNE = 693;
-int START_ERUNE = 692;
-int START_ARUNE = 695;
-int START_FRUNE = 694;
 
 //Experience multiplication coefficients
 double exp_coefficients[] =

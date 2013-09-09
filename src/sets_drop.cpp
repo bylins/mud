@@ -26,6 +26,7 @@
 #include "house.h"
 #include "screen.h"
 #include "help.hpp"
+#include "parse.hpp"
 
 namespace SetsDrop
 {
@@ -234,7 +235,7 @@ void init_obj_list()
 	{
 		HelpNode node;
 
-		node.alias_list = xmlparse_str(set_node, "help_alias");
+		node.alias_list = Parse::attr_str(set_node, "help_alias");
 		if (node.alias_list.empty())
 		{
 			mudlog("...bad set attributes (empty help_alias)",
@@ -242,7 +243,7 @@ void init_obj_list()
 			continue;
 		}
 
-		std::string type = xmlparse_str(set_node, "type");
+		std::string type = Parse::attr_str(set_node, "type");
 		if (type.empty() || (type != "auto" && type != "manual"))
 		{
 			snprintf(buf, sizeof(buf),
@@ -258,7 +259,7 @@ void init_obj_list()
 			for (pugi::xml_node obj_node = set_node.child("obj");
 				obj_node; obj_node = obj_node.next_sibling("obj"))
 			{
-				const int obj_vnum = xmlparse_int(obj_node, "vnum");
+				const int obj_vnum = Parse::attr_int(obj_node, "vnum");
 				if (real_object(obj_vnum) < 0)
 				{
 					snprintf(buf, sizeof(buf),
@@ -267,7 +268,7 @@ void init_obj_list()
 					continue;
 				}
 
-				std::string list_type = xmlparse_str(obj_node, "list");
+				std::string list_type = Parse::attr_str(obj_node, "list");
 				if (list_type.empty()
 					|| (list_type != "solo" && list_type != "group"))
 				{
@@ -314,7 +315,7 @@ void init_obj_list()
 			for (pugi::xml_node obj_node = set_node.child("obj");
 				obj_node; obj_node = obj_node.next_sibling("obj"))
 			{
-				const int obj_vnum = xmlparse_int(obj_node, "vnum");
+				const int obj_vnum = Parse::attr_int(obj_node, "vnum");
 				if (real_object(obj_vnum) < 0)
 				{
 					snprintf(buf, sizeof(buf),
@@ -404,7 +405,7 @@ void init_mob_stat()
     }
 	for (pugi::xml_node mob_node = node_list.child("mob"); mob_node; mob_node = mob_node.next_sibling("mob"))
 	{
-		int mob_vnum = xmlparse_int(mob_node, "vnum");
+		int mob_vnum = Parse::attr_int(mob_node, "vnum");
 		if (real_mobile(mob_vnum) < 0)
 		{
 			snprintf(buf, MAX_STRING_LENGTH, "...bad mob attributes (vnum=%d)", mob_vnum);
@@ -1042,7 +1043,7 @@ bool load_drop_table()
     }
 
 	pugi::xml_node time_node = node_list.child("time");
-	std::string timer = xmlparse_str(time_node, "reset");
+	std::string timer = Parse::attr_str(time_node, "reset");
 	if (!timer.empty())
 	{
 		try
@@ -1066,7 +1067,7 @@ bool load_drop_table()
 	for (pugi::xml_node item_node = node_list.child("item"); item_node;
 		item_node = item_node.next_sibling("item"))
 	{
-		const int obj_vnum = xmlparse_int(item_node, "vnum");
+		const int obj_vnum = Parse::attr_int(item_node, "vnum");
 		const int obj_rnum = real_object(obj_vnum);
 		if (obj_vnum <= 0 || obj_rnum < 0)
 		{
@@ -1076,7 +1077,7 @@ bool load_drop_table()
 			return false;
 		}
 
-		const int mob_vnum = xmlparse_int(item_node, "mob");
+		const int mob_vnum = Parse::attr_int(item_node, "mob");
 		const int mob_rnum = real_mobile(mob_vnum);
 		if (mob_vnum <= 0 || mob_rnum < 0)
 		{
@@ -1086,7 +1087,7 @@ bool load_drop_table()
 			return false;
 		}
 
-		const int chance = xmlparse_int(item_node, "chance");
+		const int chance = Parse::attr_int(item_node, "chance");
 		if (chance < 0)
 		{
 			snprintf(buf, sizeof(buf),
@@ -1095,7 +1096,7 @@ bool load_drop_table()
 			return false;
 		}
 
-		std::string solo = xmlparse_str(item_node, "solo");
+		std::string solo = Parse::attr_str(item_node, "solo");
 		if (solo.empty())
 		{
 			snprintf(buf, sizeof(buf), "...bad item attributes (solo=empty)");
@@ -1103,7 +1104,7 @@ bool load_drop_table()
 			return false;
 		}
 
-		std::string can_drop = xmlparse_str(item_node, "can_drop");
+		std::string can_drop = Parse::attr_str(item_node, "can_drop");
 		if (can_drop.empty())
 		{
 			snprintf(buf, sizeof(buf), "...bad item attributes (can_drop=empty)");

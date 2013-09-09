@@ -10,7 +10,6 @@
 #include <boost/format.hpp>
 #include <boost/array.hpp>
 #include "pugixml.hpp"
-
 #include "shop_ext.hpp"
 #include "char.hpp"
 #include "db.h"
@@ -27,6 +26,7 @@
 #include "modify.h"
 #include "liquid.hpp"
 #include "utils.h"
+#include "parse.hpp"
 
 /*
 Пример конфига (plrstuff/shop/test.xml):
@@ -228,7 +228,7 @@ void load_item_desc()
 		for (pugi::xml_node item = item_template.child("item"); item; item = item.next_sibling("item"))
 		{
 
-			int item_vnum = xmlparse_int(item, "vnum");
+			int item_vnum = Parse::attr_int(item, "vnum");
 			if (item_vnum <= 0)
 			{
 					snprintf(buf, MAX_STRING_LENGTH,
@@ -339,8 +339,8 @@ void load(bool reload)
 
 		for (pugi::xml_node item = itemSet.child("item"); item; item = item.next_sibling("item"))
 		{
-			int item_vnum = xmlparse_int(item, "vnum");
-			int price = xmlparse_int(item, "price");
+			int item_vnum = Parse::attr_int(item, "vnum");
+			int price = Parse::attr_int(item, "price");
 			if (item_vnum < 0 || price < 0)
 			{
 				snprintf(buf, MAX_STRING_LENGTH,
@@ -379,7 +379,7 @@ void load(bool reload)
 
 		for (pugi::xml_node mob = node.child("mob"); mob; mob=mob.next_sibling("mob"))
 		{
-			int mob_vnum = xmlparse_int(mob, "mob_vnum");
+			int mob_vnum = Parse::attr_int(mob, "mob_vnum");
 			std::string templateId = mob.attribute("template").value();
 			if (mob_vnum < 0)
 			{
@@ -414,8 +414,8 @@ void load(bool reload)
 		// и список его продукции
 		for (pugi::xml_node item = node.child("item"); item; item = item.next_sibling("item"))
 		{
-			int item_vnum = xmlparse_int(item, "vnum");
-			int price = xmlparse_int(item, "price");
+			int item_vnum = Parse::attr_int(item, "vnum");
+			int price = Parse::attr_int(item, "price");
 			std::string items_template = item.attribute("template").value();
 			if (item_vnum < 0 || price < 0)
 			{
@@ -726,19 +726,6 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 	}
 	page_string(ch->desc, out);
 //	send_to_char("В корзине " + boost::lexical_cast<string>((*shop)->waste.size()) + " элементов\r\n", ch);
-}
-
-// * Симуляция телла продавца.
-void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
-{
-	if (AFF_FLAGGED(ch, AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
-		return;
-	char local_buf[MAX_INPUT_LENGTH];
-// ррррррыч
-	snprintf(local_buf, MAX_INPUT_LENGTH,
-		"%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
-	send_to_char(ch, "%s%s%s\r\n",
-		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
 
 void remove_from_waste(ShopListType::const_iterator &shop, OBJ_DATA *obj)

@@ -31,6 +31,7 @@
 #include "named_stuff.hpp"
 #include "spells.h"
 #include "skills.h"
+#include "noob.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -2827,6 +2828,18 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 				return;
 			}
+			else if (!str_cmp(field, "is_noob"))
+			{
+				if (Noob::is_noob(c))
+					strcpy(str, "1");
+				else
+					strcpy(str, "0");
+			}
+			else if (!str_cmp(field, "noob_outfit"))
+			{
+				std::string vnum_str = Noob::print_start_outfit(c);
+				snprintf(str, MAX_INPUT_LENGTH, "%s", vnum_str.c_str());
+			}
 			else
 			{
 				if (SCRIPT(c))
@@ -5284,7 +5297,9 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				}
 			}
 			else if (!strn_cmp(cmd, "version", 7))
+			{
 				mudlog(DG_SCRIPT_VERSION, BRF, LVL_BUILDER, SYSLOG, TRUE);
+			}
 			else
 			{
 //Polud Вывел обработку mpurge и mjunk из command_interpreter.

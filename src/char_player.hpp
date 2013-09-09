@@ -100,6 +100,7 @@ public:
 	void map_olc();
 	void map_olc_save();
 	bool map_check_option(int num) const;
+	void map_set_option(unsigned num);
 	void map_print_to_snooper(CHAR_DATA *imm);
 	void map_text_olc(const char *arg);
 	const MapSystem::Options * get_map_options() const;

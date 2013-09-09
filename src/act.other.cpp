@@ -48,6 +48,7 @@
 #include "room.hpp"
 #include "objsave.h"
 #include "shop_ext.hpp"
+#include "noob.hpp"
 
 using std::ifstream;
 using std::fstream;
@@ -2674,8 +2675,6 @@ ACMD(do_pray)
 	}
 }
 
-#define FREE_RECALL_LEVEL 3
-
 ACMD(do_recall)
 {
 	if (IS_NPC(ch))
@@ -2684,35 +2683,39 @@ ACMD(do_recall)
 		return;
 	}
 
-	if (real_room(GET_LOADROOM(ch)) == NOWHERE || ch->in_room == NOWHERE)
+	const int rent_room = real_room(GET_LOADROOM(ch));
+	if (rent_room == NOWHERE || ch->in_room == NOWHERE)
 	{
 		send_to_char("Вам некуда возвращаться!\r\n", ch);
 		return;
 	}
-	if (SECT(ch->in_room) != SECT_SECRET &&
-			!ROOM_FLAGGED(ch->in_room, ROOM_DEATH) &&
-			!ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL) &&
-			!ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN) &&
-			!ROOM_FLAGGED(ch->in_room, ROOM_SLOWDEATH) &&
-			!ROOM_FLAGGED(ch->in_room, ROOM_ICEDEATH) &&
-			(!ROOM_FLAGGED(ch->in_room, ROOM_GODROOM) || IS_IMMORTAL(ch)) &&
-			Clan::MayEnter(ch, ch->in_room, HCE_PORTAL))
+
+	if (!IS_IMMORTAL(ch)
+		&& (SECT(ch->in_room) == SECT_SECRET
+			|| ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
+			|| ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
+			|| ROOM_FLAGGED(ch->in_room, ROOM_SLOWDEATH)
+			|| ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL)
+			|| ROOM_FLAGGED(ch->in_room, ROOM_NORELOCATEIN)
+			|| ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)
+			|| ROOM_FLAGGED(ch->in_room, ROOM_ICEDEATH)
+			|| ROOM_FLAGGED(ch->in_room, ROOM_GODROOM)
+			|| !Clan::MayEnter(ch, ch->in_room, HCE_PORTAL)
+			|| !Clan::MayEnter(ch, rent_room, HCE_PORTAL)))
 	{
 		send_to_char("У вас не получилось вернуться!\r\n", ch);
 		return;
 	}
 
 	send_to_char("Вам очень захотелось оказаться подальше от этого места!\r\n", ch);
-	if (((GET_LEVEL(ch) <= FREE_RECALL_LEVEL)
-			&& (world[ch->in_room]->number > 300)) || IS_GOD(ch))
+	if (IS_GOD(ch) || Noob::is_noob(ch))
 	{
-		if (ch->in_room != real_room(GET_LOADROOM(ch)))
+		if (ch->in_room != rent_room)
 		{
-			send_to_char
-			("Вы почувствовали, как чья-то огромная рука подхватила вас и куда-то унесла!\r\n", ch);
+			send_to_char("Вы почувствовали, как чья-то огромная рука подхватила вас и куда-то унесла!\r\n", ch);
 			act("$n поднял$a глаза к небу и внезапно исчез$q!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			char_from_room(ch);
-			char_to_room(ch, real_room(GET_LOADROOM(ch)));
+			char_to_room(ch, rent_room);
 			look_at_room(ch, 0);
 			act("$n внезапно появил$u в центре комнаты!", TRUE, ch, 0, 0, TO_ROOM);
 		}

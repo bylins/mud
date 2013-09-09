@@ -79,9 +79,10 @@ struct log_info_tag
 };
 typedef struct log_info_tag log_info;
 
-#define		SYSLOG		0
-#define		ERRLOG		1
-#define		IMLOG		2
+extern const int SYSLOG;
+extern const int ERRLOG;
+extern const int IMLOG;
+
 extern log_info logs[NLOG];
 
 extern unsigned long cmd_cnt;

@@ -55,7 +55,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	spam.o AffectHandler.o glory_const.o pugixml.o morph.o glory_misc.o \
 	shop_ext.o named_stuff.o birth_places.o player_races.o celebrates.o cache.o \
 	sets_drop.o fight_hit.o fight_stuff.o objsave_ext.o dictionary.o help.o \
-	map.o ext_money.o version.o
+	map.o ext_money.o noob.o parse.o version.o
 	
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
@@ -76,7 +76,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	glory_const.cpp pugixml.cpp glory_misc.cpp shop_ext.cpp named_stuff.cpp \
 	celebrates.cpp birth_places.cpp player_races.cpp morph.cpp cache.cpp \
 	sets_drop.cpp fight_hit.cpp fight_stuff.cpp objsave_ext.cpp dictionary.cpp \
-	help.cpp map.cpp ext_money.cpp version.cpp
+	help.cpp map.cpp ext_money.cpp noob.cpp parse.cpp version.cpp
 
 default: circle
 
@@ -99,7 +99,7 @@ clean:
 	rm -f *.o
 
 depend:
-	$(CC) $(SEARCHPATH) -MM $(CXREF_FILES) > .depend
+	$(CC) $(SEARCHPATH) -std=gnu++0x -MM $(CXREF_FILES) > .depend
 	@echo "Done building dependencies."
 
 testdepend:

@@ -37,6 +37,8 @@ public:
     static std::string ShowMenu(std::vector<int> BPList);   // Получение меню выбора точек одной строкой
     static short ParseSelect(char *arg);                    // Поиск точки по текстовому вводу и описанию (description)
     static bool CheckId(short Id);                          // Проверка наличия точки с указанным ID
+    static int GetIdByRoom(int room_vnum);                  // Выяснение ID через текущую комнату
+    static std::string GetRentHelp(short Id);               // Фраза рентера нубу после смерти по ID
 
     // Доступ к свойствам класса.
     // Не особенно нужно, но пусть будет
@@ -46,6 +48,7 @@ public:
     std::string MenuStr() {return this->_MenuStr;}
     int LoadRoom() {return this->_LoadRoom;}
     std::vector<int> ItemsList() const {return this->_ItemsList;}
+    std::string RentHelp() {return this->_RentHelp;}
 
 private:
     short _Id;                                  // Идентификатор - целое число
@@ -54,8 +57,9 @@ private:
     std::string _MenuStr;                       // Название в меню
     int _LoadRoom;                              // Номер комнаты входа
     std::vector<int> _ItemsList;                // Список предметов, которые дополнительно выдаются на руки в этой точке
-    static BirthPlaceListType BirthPlaceList;   // Список точек входа в игру новых персонажей
+    std::string _RentHelp;                      // Фраза, выдаваемая нубу мобом-рентером при выходе на ренту после смерти
 
+    static BirthPlaceListType BirthPlaceList;   // Список точек входа в игру новых персонажей
     static void LoadBirthPlace(pugi::xml_node BirthPlaceNode);  // Парсинг описания одной точки входа
     static BirthPlacePtr GetBirthPlaceById(short Id);           // Получение ссылки на точку хода по ее ID
 };

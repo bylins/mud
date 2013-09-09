@@ -32,8 +32,7 @@ extern char WinToKoi[];
 extern char KoiToWin[];
 extern char KoiToWin2[];
 extern char AltToLat[];
-
-//#define log        basic_mud_log
+extern const int SYSLOG;
 
 // public functions in utils.cpp
 CHAR_DATA *find_char(long n);
@@ -87,6 +86,7 @@ void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 int get_real_dr(CHAR_DATA *ch);
 long GetAffectNumByName(std::string);
+void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
 
 extern std::list<FILE *> opened_files;
 
@@ -1490,10 +1490,6 @@ void print_log();
 } // ZoneExpStat
 
 std::string thousands_sep(long long n);
-int xmlparse_int(pugi::xml_node &node, const char *text);
-std::string xmlparse_str(pugi::xml_node &node, const char *text);
-std::string xmlparse_child_value_str(pugi::xml_node &node, const char *text);
-int xmlparse_child_value_int(pugi::xml_node &node, const char *text);
 
 enum { STR_TO_HIT, STR_TO_DAM, STR_CARRY_W, STR_WIELD_W, STR_HOLD_W, STR_BOTH_W, STR_SHIELD_W };
 enum { WIS_MAX_LEARN_L20, WIS_SPELL_SUCCESS, WIS_MAX_SKILLS, WIS_FAILS };

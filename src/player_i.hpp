@@ -93,6 +93,7 @@ public:
 	virtual void map_olc() {};
 	virtual void map_olc_save() {};
 	virtual bool map_check_option(int num) const { return false; };
+	virtual void map_set_option(unsigned num) {};
 	virtual void map_print_to_snooper(CHAR_DATA *imm) {};
 	virtual void map_text_olc(const char *arg) {};
 	virtual const MapSystem::Options * get_map_options() const { return &empty_map_options; };
