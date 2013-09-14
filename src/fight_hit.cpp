@@ -79,13 +79,13 @@ int armor_class_limit(CHAR_DATA * ch)
 		break;
 	case CLASS_CLERIC:
 	case CLASS_DRUID:
-		return -150;
+		return -170;
 		break;
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
 	case CLASS_NECROMANCER:
-		return -100;
+		return -150;
 		break;
 	}
 	return -300;
@@ -97,7 +97,13 @@ int compute_armor_class(CHAR_DATA * ch)
 
 	if (AWAKE(ch))
 	{
-		armorclass -= dex_ac_bonus(GET_REAL_DEX(ch)) * 10;
+		int high_stat = GET_REAL_DEX(ch);
+		// у игроков для ац берется макс стат: ловкость или 3/4 инты
+		if (!IS_NPC(ch))
+		{
+			high_stat = std::max(high_stat, GET_REAL_INT(ch) * 3 / 4);
+		}
+		armorclass -= dex_ac_bonus(high_stat) * 10;
 		armorclass += extra_aco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
 	};
 
