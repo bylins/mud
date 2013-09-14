@@ -791,7 +791,12 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 			CCYEL(ch, C_NRM), GET_TRIG_NAME(trig), CCNRM(ch, C_NRM),
 			CCGRN(ch, C_NRM), GET_TRIG_VNUM(trig), CCNRM(ch, C_NRM), GET_TRIG_RNUM(trig));
 
-	if (trig->attach_type == OBJ_TRIGGER)
+	if (trig->attach_type == MOB_TRIGGER)
+	{
+		send_to_char("Trigger Intended Assignment: Mobiles\r\n", ch);
+		sprintbit(GET_TRIG_TYPE(trig), trig_types, buf);
+	}
+	else if (trig->attach_type == OBJ_TRIGGER)
 	{
 		send_to_char("Trigger Intended Assignment: Objects\r\n", ch);
 		sprintbit(GET_TRIG_TYPE(trig), otrig_types, buf);
@@ -803,8 +808,8 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 	}
 	else
 	{
-		send_to_char("Trigger Intended Assignment: Mobiles\r\n", ch);
-		sprintbit(GET_TRIG_TYPE(trig), trig_types, buf);
+		send_to_char(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
+			 static_cast<int>(trig->attach_type));
 	}
 
 	sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
@@ -877,7 +882,12 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 				CCGRN(ch, C_NRM), GET_TRIG_VNUM(t), CCNRM(ch, C_NRM), GET_TRIG_RNUM(t));
 		send_to_char(buf, ch);
 
-		if (t->attach_type == OBJ_TRIGGER)
+		if (t->attach_type == MOB_TRIGGER)
+		{
+			send_to_char("  Trigger Intended Assignment: Mobiles\r\n", ch);
+			sprintbit(GET_TRIG_TYPE(t), trig_types, buf1);
+		}
+		else if (t->attach_type == OBJ_TRIGGER)
 		{
 			send_to_char("  Trigger Intended Assignment: Objects\r\n", ch);
 			sprintbit(GET_TRIG_TYPE(t), otrig_types, buf1);
@@ -889,8 +899,8 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 		}
 		else
 		{
-			send_to_char("  Trigger Intended Assignment: Mobiles\r\n", ch);
-			sprintbit(GET_TRIG_TYPE(t), trig_types, buf1);
+			send_to_char(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
+				 static_cast<int>(t->attach_type));
 		}
 
 		sprintf(buf, "  Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",

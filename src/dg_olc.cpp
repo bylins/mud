@@ -203,7 +203,12 @@ void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 
 	get_char_cols(d->character);
 
-	if (trig->attach_type == OBJ_TRIGGER)
+	if (trig->attach_type == MOB_TRIGGER)
+	{
+		attach_type = "Mobiles";
+		sprintbit(GET_TRIG_TYPE(trig), trig_types, trgtypes);
+	}
+	else if (trig->attach_type == OBJ_TRIGGER)
 	{
 		attach_type = "Objects";
 		sprintbit(GET_TRIG_TYPE(trig), otrig_types, trgtypes);
@@ -215,22 +220,30 @@ void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 	}
 	else
 	{
-		attach_type = "Mobiles";
-		sprintbit(GET_TRIG_TYPE(trig), trig_types, trgtypes);
+		attach_type = "undefined";
+		trgtypes[0] = '\0';
 	}
 
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
 			"[H[J"
 #endif
-			"Trigger Editor [%s%d%s]\r\n\r\n" "%s1)%s Name         : %s%s\r\n" "%s2)%s Intended for : %s%s\r\n" "%s3)%s Trigger types: %s%s\r\n" "%s4)%s Numberic Arg : %s%d\r\n" "%s5)%s Arguments    : %s%s\r\n" "%s6)%s Commands:\r\n%s&S%s&s\r\n" "%sQ)%s Quit\r\n" "Enter Choice :", grn, OLC_NUM(d), nrm,	// vnum on the title line
-			grn, nrm, yel, GET_TRIG_NAME(trig),	// name                   
-			grn, nrm, yel, attach_type,	// attach type            
-			grn, nrm, yel, trgtypes,	// greet/drop/etc         
-			grn, nrm, yel, trig->narg,	// numeric arg            
-			grn, nrm, yel, trig->arglist ? trig->arglist : "",	// strict arg             
-			grn, nrm, cyn, OLC_STORAGE(d),	// the command list       
-			grn, nrm);	// quit colors            
+			"Trigger Editor [%s%d%s]\r\n\r\n"
+			"%s1)%s Name         : %s%s\r\n"
+			"%s2)%s Intended for : %s%s\r\n"
+			"%s3)%s Trigger types: %s%s\r\n"
+			"%s4)%s Numberic Arg : %s%d\r\n"
+			"%s5)%s Arguments    : %s%s\r\n"
+			"%s6)%s Commands:\r\n%s&S%s&s\r\n"
+			"%sQ)%s Quit\r\n" "Enter Choice :",
+			grn, OLC_NUM(d), nrm,	// vnum on the title line
+			grn, nrm, yel, GET_TRIG_NAME(trig),	// name
+			grn, nrm, yel, attach_type,	// attach type
+			grn, nrm, yel, trgtypes,	// greet/drop/etc
+			grn, nrm, yel, trig->narg,	// numeric arg
+			grn, nrm, yel, trig->arglist ? trig->arglist : "",	// strict arg
+			grn, nrm, cyn, OLC_STORAGE(d),	// the command list
+			grn, nrm);	// quit colors
 
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
@@ -280,7 +293,7 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		switch (tolower(*arg))
 		{
 		case 'q':
-			if (OLC_VAL(d))  	// Anything been changed? 
+			if (OLC_VAL(d))  	// Anything been changed?
 			{
 				if (!GET_TRIG_TYPE(OLC_TRIG(d)))
 				{
@@ -341,11 +354,11 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			sprintf(buf, "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
 			olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
 			mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-			// fall through 
+			// fall through
 		case 'n':
 			cleanup_olc(d, CLEANUP_ALL);
 			return;
-		case 'a':	// abort quitting 
+		case 'a':	// abort quitting
 			break;
 		default:
 			send_to_char("Invalid choice!\r\n", d->character);
@@ -865,10 +878,10 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 
 		if (pos <= 0)
-			break;	// this aborts a new trigger entry 
+			break;	// this aborts a new trigger entry
 
 		if (vnum == 0)
-			break;	// this aborts a new trigger entry 
+			break;	// this aborts a new trigger entry
 
 		if (real_trigger(vnum) < 0)
 		{
@@ -877,7 +890,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return 1;
 		}
 
-		// add the new info in position 
+		// add the new info in position
 		currtrig = OLC_SCRIPT(d);
 		CREATE(trig, struct trig_proto_list, 1);
 		trig->vnum = vnum;
@@ -917,7 +930,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 		currtrig = OLC_SCRIPT(d);
 		while (--pos && currtrig)
 			currtrig = currtrig->next;
-		// now curtrig points one before the target 
+		// now curtrig points one before the target
 		if (currtrig && currtrig->next)
 		{
 			OLC_VAL(d)++;

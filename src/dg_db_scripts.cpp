@@ -428,8 +428,9 @@ void assign_triggers(void *i, int type)
 			{
 				if (trig_index[rnum]->proto->attach_type != MOB_TRIGGER)
 				{
-					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %s, for mob #%d",
-							trg_proto->vnum, attach_name[(int)trig_index[rnum]->proto->attach_type], mob_index[mob->nr].vnum);
+					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for mob #%d",
+						trg_proto->vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						mob_index[mob->nr].vnum);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else
@@ -458,8 +459,9 @@ void assign_triggers(void *i, int type)
 			{
 				if (trig_index[rnum]->proto->attach_type != OBJ_TRIGGER)
 				{
-					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type:%s, for obj #%d",
-							trg_proto->vnum, attach_name[(int)trig_index[rnum]->proto->attach_type], obj_index[obj->item_number].vnum);
+					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for obj #%d",
+						trg_proto->vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						obj_index[obj->item_number].vnum);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else
@@ -488,8 +490,9 @@ void assign_triggers(void *i, int type)
 			{
 				if (trig_index[rnum]->proto->attach_type != WLD_TRIGGER)
 				{
-					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type:%s, for room #%d",
-							trg_proto->vnum, attach_name[(int)trig_index[rnum]->proto->attach_type], room->number);
+					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for room #%d",
+						trg_proto->vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						room->number);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else
