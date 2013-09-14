@@ -1982,6 +1982,34 @@ void do_start(CHAR_DATA * ch, int newbie)
 		}
 	}
 
+	switch (GET_CLASS(ch))
+	{
+	case CLASS_BATTLEMAGE:
+	case CLASS_DEFENDERMAGE:
+	case CLASS_CHARMMAGE:
+	case CLASS_NECROMANCER:
+		ch->set_skill(SKILL_SATTACK, 10);
+		break;
+	case CLASS_DRUID:
+		break;
+	case CLASS_CLERIC:
+		ch->set_skill(SKILL_SATTACK, 50);
+		break;
+	case CLASS_THIEF:
+	case CLASS_ASSASINE:
+	case CLASS_MERCHANT:
+		ch->set_skill(SKILL_SATTACK, 75);
+		break;
+	case CLASS_GUARD:
+	case CLASS_PALADINE:
+	case CLASS_WARRIOR:
+	case CLASS_RANGER:
+		ch->set_skill(SKILL_HORSE, 10);
+	case CLASS_SMITH:
+		ch->set_skill(SKILL_SATTACK, 95);
+		break;
+ 	}
+
 	advance_level(ch);
 	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_LEVEL(ch));
 	mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
