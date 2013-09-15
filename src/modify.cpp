@@ -33,6 +33,7 @@
 #include "char.hpp"
 #include "skills.h"
 #include "modify.h"
+#include "genchar.h"
 
 void show_string(DESCRIPTOR_DATA * d, char *input);
 
@@ -1416,6 +1417,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 			free(d->showstr_head);
 			d->showstr_head = NULL;
 		}
+		print_con_prompt(d);
 		return;
 	}
 	// R is for refresh, so back up one page internally so we can display
@@ -1450,6 +1452,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 			free(d->showstr_head);
 			d->showstr_head = NULL;
 		}
+		print_con_prompt(d);
 	}
 	// Or if we have more to show....
 	else
@@ -1461,5 +1464,24 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 		buffer[diff] = '\0';
 		send_to_char(buffer, d->character);
 		d->showstr_page++;
+	}
+}
+
+///
+/// Печать какого-то адекватного текущему STATE() промпта
+/// Нужен для многостраничной справки при генерации/перегенерации чара, чтобы
+/// 1) не печатать ничего между страницами
+/// 2) после последней страницы не ждать втихую нажатия от игрока, а вывести меню текущего CON_STATE
+/// 3) напечатать тоже самое при выходе из пролистывания через Q/К
+///
+void print_con_prompt(DESCRIPTOR_DATA *d)
+{
+	if (d->showstr_count)
+	{
+		return;
+	}
+	if (STATE(d) == CON_RESET_STATS)
+	{
+		genchar_disp_menu(d->character);
 	}
 }

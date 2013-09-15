@@ -240,7 +240,7 @@ bool check_stats(CHAR_DATA *ch)
 		return 1;
 	}
 
-	int have_stats = ch->get_inborn_str() + ch->get_inborn_dex() + ch->get_inborn_int() + ch->get_inborn_wis() 
+	int have_stats = ch->get_inborn_str() + ch->get_inborn_dex() + ch->get_inborn_int() + ch->get_inborn_wis()
 		+ ch->get_inborn_con() + ch->get_inborn_cha();
 
 	// чар со старым роллом статов или после попыток поправить статы в файле
@@ -248,18 +248,7 @@ bool check_stats(CHAR_DATA *ch)
 	{
 		snprintf(buf, MAX_STRING_LENGTH, "\r\n%sВаши параметры за вычетом перевоплощений:\r\n"
 			"Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
-			"Если вы долго отсутствовали в игре, то изменения, касающиеся стартовых параметров были следующие:%s\r\n"
-			"\r\n"
-			"\tДобавлено ограничение на максимальный класс защиты:\r\n"
-			"\tВоры, наемники и дружинники - -250\r\n"
-			"\tКупцы, богатыри, витязи, охотники, кузнецы - -200\r\n"
-			"\tЛекари, волхвы - -150\r\n"
-			"\tКудесники, чернокнижники, колдуны, волшебники - -100\r\n"
-			"\r\n"
-			"\tТелосложение: изменились коэффициенты профессий и максимальное родное тело (50) в расчетах при\r\n"
-			"\tполучении уровня, поэтому изменены границы стартового телосложения у некоторых профессий,\r\n"
-			"\tв целом это увеличивает кол-во жизней персонажа тем сильнее, чем больше у него было ремортов.\r\n"
-			"\r\n",
+			"Просим вас заново распределить основные параметры персонажа.%s\r\n",
 			CCIGRN(ch, C_SPR),
 			ch->get_inborn_str() - GET_REMORT(ch),
 			ch->get_inborn_dex() - GET_REMORT(ch),
@@ -279,9 +268,6 @@ bool check_stats(CHAR_DATA *ch)
 		ch->set_con(MIN_CON(ch));
 		ch->set_cha(MIN_CHA(ch));
 
-		snprintf(buf, MAX_STRING_LENGTH, "%sПросим вас заново распределить основные параметры персонажа.%s\r\n",
-			CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
-		SEND_TO_Q(buf, ch->desc);
 		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", ch->desc);
 		STATE(ch->desc) = CON_RESET_STATS;
 		return 0;

@@ -83,7 +83,7 @@ void genchar_disp_menu(CHAR_DATA * ch)
 			"\r\n"
 			"  Можно добавить: %3d \r\n"
 			"\r\n"
-			"  П) Помощь\r\n",
+			"  П) Помощь (для доп. информации наберите 'справка характеристики')\r\n",
 			ch->get_inborn_str(), MIN_STR(ch), MAX_STR(ch),
 			ch->get_inborn_dex(), MIN_DEX(ch), MAX_DEX(ch),
 			ch->get_inborn_int(), MIN_INT(ch), MAX_INT(ch),

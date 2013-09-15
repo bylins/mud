@@ -150,7 +150,8 @@ mobact.o: mobact.cpp conf.h sysdep.h structs.h utils.h features.hpp \
 modify.o: modify.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp interpreter.h handler.h db.h comm.h \
  spells.h mail.h boards.h screen.h olc.h house.h house_exp.hpp char.hpp \
- player_i.hpp morph.hpp remember.hpp privilege.hpp skills.h modify.h
+ player_i.hpp morph.hpp remember.hpp privilege.hpp skills.h modify.h \
+ genchar.h
 objsave.o: objsave.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
  pugixml.hpp pugiconfig.hpp interpreter.h utils.h features.hpp obj.hpp \
  spells.h screen.h house.h house_exp.hpp char.hpp player_i.hpp morph.hpp \
@@ -239,7 +240,7 @@ dg_scripts.o: dg_scripts.cpp conf.h sysdep.h structs.h dg_scripts.h \
  interpreter.h handler.h dg_event.h db.h screen.h house.h house_exp.hpp \
  char.hpp player_i.hpp morph.hpp remember.hpp constants.h top.h \
  char_player.hpp quested.hpp mobmax.hpp dps.hpp map.hpp name_list.hpp \
- modify.h room.hpp named_stuff.hpp spells.h skills.h noob.hpp
+ modify.h room.hpp named_stuff.hpp spells.h skills.h noob.hpp genchar.h
 dg_triggers.o: dg_triggers.cpp conf.h sysdep.h structs.h dg_scripts.h \
  utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h \
  interpreter.h handler.h db.h olc.h char.hpp player_i.hpp morph.hpp \

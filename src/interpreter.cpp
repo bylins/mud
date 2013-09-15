@@ -3147,6 +3147,12 @@ Sventovit
         break;
 
 	case CON_ROLL_STATS:
+		if (pre_help(d->character, arg))
+		{
+			genchar_disp_menu(d->character);
+			STATE(d) = CON_ROLL_STATS;
+			return;
+		}
 		switch (genchar_parse(d->character, arg))
 		{
 		case GENCHAR_CONTINUE:
@@ -3529,6 +3535,10 @@ Sventovit
 		break;
 
 	case CON_RESET_STATS:
+		if (pre_help(d->character, arg))
+		{
+			return;
+		}
 		switch (genchar_parse(d->character, arg))
 		{
 		case GENCHAR_CONTINUE:
