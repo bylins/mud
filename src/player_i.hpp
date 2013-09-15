@@ -104,6 +104,9 @@ public:
 	virtual int get_today_torc() { return 0; };
 	virtual void add_today_torc(int num) {};
 
+	virtual int get_reset_stats_cnt() const { return 0; };
+	virtual void inc_reset_stats_cnt() {};
+
 protected:
 	PlayerI() {};
 	virtual ~PlayerI() {};

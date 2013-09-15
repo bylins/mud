@@ -56,7 +56,8 @@ Player::Player()
 	was_in_room_(NOWHERE),
 	from_room_(0),
 	answer_id_(NOBODY),
-	motion_(true)
+	motion_(true),
+	reset_stats_cnt_(0)
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 	{
@@ -775,6 +776,11 @@ void Player::save_char()
 	fprintf(saved, "TrcS: %d\n", ext_money_[ExtMoney::TORC_SILVER]);
 	fprintf(saved, "TrcB: %d\n", ext_money_[ExtMoney::TORC_BRONZE]);
 	fprintf(saved, "TrcL: %d %d\n", today_torc_.first, today_torc_.second);
+
+	if (get_reset_stats_cnt() > 0)
+	{
+		fprintf(saved, "Scnt: %d\n", get_reset_stats_cnt());
+	}
 
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
@@ -1737,6 +1743,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				this->set_start_stat(G_CON, lnum);
 			else if (!strcmp(tag, "St05"))
 				this->set_start_stat(G_CHA, lnum);
+			else if (!strcmp(tag, "Scnt"))
+				this->reset_stats_cnt_ = num;
 			break;
 
 		case 'T':
@@ -1969,4 +1977,14 @@ void Player::add_today_torc(int num)
 		today_torc_.first = day;
 		today_torc_.second = num;
 	}
+}
+
+int Player::get_reset_stats_cnt() const
+{
+	return reset_stats_cnt_;
+}
+
+void Player::inc_reset_stats_cnt()
+{
+	++reset_stats_cnt_;
 }

@@ -110,6 +110,9 @@ public:
 	int get_today_torc();
 	void add_today_torc(int num);
 
+	int get_reset_stats_cnt() const;
+	void inc_reset_stats_cnt();
+
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
@@ -146,6 +149,8 @@ private:
 	boost::array<int, ExtMoney::TOTAL_TYPES> ext_money_;
 	// сколько гривн, в пересчете на бронзу, сегодня уже собрано
 	std::pair<boost::uint8_t /* day 1-31 */, int> today_torc_;
+	// кол-во сбросов стартовых параметров через меню
+	int reset_stats_cnt_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

@@ -32,6 +32,9 @@ namespace Remort
 
 const char *CONFIG_FILE = LIB_MISC"remort.xml";
 std::string WHERE_TO_REMORT_STR;
+int RESET_STATS_PRICE = 1000000000;
+int RESET_STATS_PRICE_ADD = 1000000000;
+int RESET_STATS_PRICE_MAX = 1000000000;
 
 void init();
 bool can_remort_now(CHAR_DATA *ch);
@@ -799,6 +802,14 @@ void init()
 	type_list[TORC_GOLD].DESC_MESSAGE_U_NUM = WHAT_TGOLDu;
 	type_list[TORC_SILVER].DESC_MESSAGE_U_NUM = WHAT_TSILVERu;
 	type_list[TORC_BRONZE].DESC_MESSAGE_U_NUM = WHAT_TBRONZEu;
+
+	pugi::xml_node cur_node = Parse::get_child(main_node, "reset_stats");
+	if (cur_node)
+	{
+		RESET_STATS_PRICE = Parse::attr_int(cur_node, "price");
+		RESET_STATS_PRICE_ADD = Parse::attr_int(cur_node, "price_add");
+		RESET_STATS_PRICE_MAX = Parse::attr_int(cur_node, "max_price");
+	}
 }
 
 // проверка, мешает ли что-то чару уйти в реморт
@@ -885,6 +896,15 @@ bool need_torc(CHAR_DATA *ch)
 	}
 
 	return false;
+}
+
+///
+/// \return стоимость очередного сброса стартовых характеристик через меню
+///
+int reset_stats_price(CHAR_DATA *ch)
+{
+	int price = RESET_STATS_PRICE + ch->get_reset_stats_cnt() * RESET_STATS_PRICE_ADD;
+	return std::min(price, RESET_STATS_PRICE_MAX);
 }
 
 } // namespace Remort

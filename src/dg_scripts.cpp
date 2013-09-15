@@ -44,7 +44,6 @@
 // external vars from triggers.cpp
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 const char *attach_name[] = { "mob", "obj", "room", "unknown!!!" };
-extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 
 int last_trig_vnum=0;
 
@@ -2851,22 +2850,6 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				std::string vnum_str = Noob::print_start_outfit(c);
 				snprintf(str, MAX_INPUT_LENGTH, "%s", vnum_str.c_str());
-			}
-			else if (!str_cmp(field, "reset"))
-			{
-				if (*subfield && !str_cmp(subfield, "stats"))
-				{
-					// вобщем-то этого достаточно, чтобы при след входе в игру
-					// чара попросили заново раскинуть статы
-					c->set_start_stat(G_STR, 0);
-					snprintf(buf, sizeof(buf), "trig_vnum=%d", trig_index[trig->nr]->vnum);
-					add_karma(c, "reseted start stats", buf);
-					c->save_char();
-					// для верности иммам и в сислог еще
-					snprintf(buf, sizeof(buf), "%s reseted start stats (trig_vnum=%d)",
-						c->get_name(), trig_index[trig->nr]->vnum);
-					mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
-				}
 			}
 			else
 			{

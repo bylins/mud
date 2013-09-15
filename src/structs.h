@@ -731,6 +731,7 @@ typedef struct trig_data TRIG_DATA;
 #define CON_RESET_RACE   50 // выбор РОДА посла смены/сброса оного
 #define CON_CONSOLE      51 // Интерактивная скриптовая консоль
 #define CON_TORC_EXCH    52 // обмен гривен
+#define CON_MENU_STATS   53 // оплата сброса стартовых статов из главного меню
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //

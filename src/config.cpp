@@ -278,6 +278,7 @@ const char *MENU = "\r\n"
 				   "3) Узнать историю.\r\n"
 				   "4) Изменить пароль.\r\n"
 				   "5) Удалить персонажа.\r\n"
+				   "6) Изменить параметры персонажа.\r\n"
 				   "\r\n"
 				   "   Чего ваша душа желает? ";
 
@@ -338,6 +339,6 @@ void boost::assertion_failed_msg(char const * expr, char const * msg, char const
 {
 	log("Assert: expr='%s', msg='%s', funct='%s', file='%s', line=%ld",
 		expr, msg, function, file, line);
-} 
+}
 #endif
 #endif

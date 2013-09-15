@@ -18,6 +18,7 @@
 #include <sstream>
 #include <string>
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 #include <cmath>
 #include "sys/stat.h"
 #include "sysdep.h"
@@ -610,6 +611,10 @@ ACMD(do_reboot)
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
 	}
+
+	std::string str = boost::str(boost::format("%s reload %s.")
+		% ch->get_name() % arg);
+	mudlog(str.c_str(), NRM, LVL_IMMORT, SYSLOG, TRUE);
 
 	send_to_char(OK, ch);
 }

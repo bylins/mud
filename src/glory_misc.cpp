@@ -268,7 +268,7 @@ bool check_stats(CHAR_DATA *ch)
 		ch->set_con(MIN_CON(ch));
 		ch->set_cha(MIN_CHA(ch));
 
-		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", ch->desc);
+		genchar_disp_menu(ch);
 		STATE(ch->desc) = CON_RESET_STATS;
 		return 0;
 	}
