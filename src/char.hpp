@@ -7,6 +7,7 @@
 
 #include <bitset>
 #include <map>
+#include <unordered_map>
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include "conf.h"
@@ -604,9 +605,9 @@ private:
 	MorphPtr current_morph_;
 	// аналог класса у моба
 	std::bitset<MOB_ROLE_TOTAL_NUM> role_;
-	// список атакующих (и им сочувствующих) моба
-	std::map<int /*uid*/, attacker_node> attackers_;
-	// таймер (в секундах), включающийся по окончанию боя
+	// для боссов: список атакующих (и им сочувствующих), uid->atacker
+	std::unordered_map<int, attacker_node> attackers_;
+	// для боссов: таймер (в секундах), включающийся по окончанию боя
 	// через который происходит сброс списка атакующих и рефреш моба
 	int restore_timer_;
 
