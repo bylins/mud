@@ -27,7 +27,6 @@ namespace Remort
 {
 
 extern std::string WHERE_TO_REMORT_STR;
-int reset_stats_price(CHAR_DATA *ch);
 
 bool can_remort_now(CHAR_DATA *ch);
 void init();

@@ -43,9 +43,4 @@
 	<GOLD_DROP_LVL>90</GOLD_DROP_LVL>
 	<GOLD_DROP_AMOUNT>1</GOLD_DROP_AMOUNT>
 	<GOLD_DROP_AMOUNT_ADD_PER_LVL>1</GOLD_DROP_AMOUNT_ADD_PER_LVL>
-
-	<!-- price - стоимость резета стартовых статов через меню
-		price_add - добавка за каждый последующий резет
-		max_price - до скольки можно гнать стоимость резета -->
-	<reset_stats price="500000" price_add="100000" max_price="1500000" />
 </remort>

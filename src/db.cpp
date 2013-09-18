@@ -76,6 +76,7 @@
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "parse.hpp"
+#include "reset_stats.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -481,6 +482,7 @@ ACMD(do_reboot)
 		HelpSystem::reload_all();
 		Remort::init();
 		Noob::init();
+		ResetStats::init();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -605,6 +607,10 @@ ACMD(do_reboot)
 	else if (!str_cmp(arg, "noob_help.xml"))
 	{
 		Noob::init();
+	}
+	else if (!str_cmp(arg, "reset_stats.xml"))
+	{
+		ResetStats::init();
 	}
 	else
 	{
@@ -1877,6 +1883,9 @@ void boot_db(void)
 
 	log("Load noob_help.xml");
 	Noob::init();
+
+	log("Load reset_stats.xml");
+	ResetStats::init();
 
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	HelpSystem::reload_all();

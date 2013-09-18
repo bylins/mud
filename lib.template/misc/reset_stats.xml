@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+	price - стоимость резета характеристики через меню
+	price_add - добавка за каждый последующий резет
+	max_price - до скольки можно гнать стоимость резета
+-->
+<reset_stats>
+	<!-- основные 6 статов -->
+	<main_stats price="500000" price_add="100000" max_price="1500000" />
+	<!-- род -->
+	<race price="250000" price_add="50000" max_price="750000" />
+</reset_stats>

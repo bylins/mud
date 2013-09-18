@@ -5,8 +5,9 @@
 #ifndef CHAR_PLAYER_HPP_INCLUDED
 #define CHAR_PLAYER_HPP_INCLUDED
 
-#include "conf.h"
 #include <string>
+#include <array>
+#include "conf.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include <boost/cstdint.hpp>
@@ -110,8 +111,8 @@ public:
 	int get_today_torc();
 	void add_today_torc(int num);
 
-	int get_reset_stats_cnt() const;
-	void inc_reset_stats_cnt();
+	int get_reset_stats_cnt(ResetStats::Type type) const;
+	void inc_reset_stats_cnt(ResetStats::Type type);
 
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
@@ -149,8 +150,8 @@ private:
 	boost::array<int, ExtMoney::TOTAL_TYPES> ext_money_;
 	// сколько гривн, в пересчете на бронзу, сегодня уже собрано
 	std::pair<boost::uint8_t /* day 1-31 */, int> today_torc_;
-	// кол-во сбросов стартовых параметров через меню
-	int reset_stats_cnt_;
+	// кол-во сбросов характеристик через меню
+	std::array<int, ResetStats::Type::TOTAL_NUM> reset_stats_cnt_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

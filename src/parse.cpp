@@ -145,7 +145,7 @@ int cast_to_int(const char *text)
 	catch(...)
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
-			"...%s lexical_cast<int> fail (value='%s')", text, text);
+			"...lexical_cast<int> fail (value='%s')", text);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 	}
 

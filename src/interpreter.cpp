@@ -60,6 +60,7 @@
 #include "map.hpp"
 #include "ext_money.hpp"
 #include "noob.hpp"
+#include "reset_stats.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -127,7 +128,6 @@ extern int CheckProxy(DESCRIPTOR_DATA * ch);
 extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameAdd(CHAR_DATA * ch, bool save = 1);
 extern void check_max_hp(CHAR_DATA *ch);
-extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 
 // local functions
 int perform_dupe_check(DESCRIPTOR_DATA * d);
@@ -2477,24 +2477,6 @@ void CreateChar(DESCRIPTOR_DATA * d)
 	d->character->desc = d;
 }
 
-///
-/// Подготовка чара на резет стартовых статов:
-/// снятие денег, логирование, запись в карму
-///
-void reset_start_stats(CHAR_DATA *ch, int price)
-{
-	ch->remove_both_gold(price);
-	ch->set_start_stat(G_STR, 0);
-	ch->inc_reset_stats_cnt();
-	std::string str = boost::str(boost::format("price=%d") % price);
-	add_karma(ch, "reseted start stats", str.c_str());
-	ch->save_char();
-
-	str = boost::str(boost::format("%s reseted start stats (price=%d)")
-		% ch->get_name() % price);
-	mudlog(str.c_str(), NRM, LVL_BUILDER, SYSLOG, TRUE);
-}
-
 // deal with newcomers and other non-playing sockets
 void nanny(DESCRIPTOR_DATA * d, char *arg)
 {
@@ -3369,22 +3351,12 @@ Sventovit
 				SEND_TO_Q("\r\nВам это ни к чему...\r\n", d);
 				SEND_TO_Q(MENU, d);
 				STATE(d) = CON_MENU;
-				break;
 			}
-
-			std::string str = boost::str(boost::format
-				("%sВ случае потери связи процедуру можно будет продолжить при следующем входе в игру.%s\r\n\r\n")
-				% CCIGRN(d->character, C_SPR) % CCNRM(d->character, C_SPR));
-			SEND_TO_Q(str.c_str(), d);
-
-			str = boost::str(boost::format(
-				"1) оплатить %d %s и начать перераспределение стартовых характеристик.\r\n"
-				"2) отменить и вернуться в главное меню\r\n"
-				"\r\nВаш выбор:")
-				% Remort::reset_stats_price(d->character)
-				% desc_count(Remort::reset_stats_price(d->character), WHAT_MONEYa));
-			SEND_TO_Q(str.c_str(), d);
-			STATE(d) = CON_MENU_STATS;
+			else
+			{
+				ResetStats::print_menu(d);
+				STATE(d) = CON_MENU_STATS;
+			}
 			break;
 		}
 		default:
@@ -3649,35 +3621,7 @@ Sventovit
         break;
 
 	case CON_MENU_STATS:
-		switch (*arg)
-		{
-		case '1':
-		{
-			const int price = Remort::reset_stats_price(d->character);
-			if (d->character->get_total_gold() < price)
-			{
-				SEND_TO_Q("\r\nУ вас нет такой суммы!\r\n", d);
-				SEND_TO_Q(MENU, d);
-				STATE(d) = CON_MENU;
-			}
-			else
-			{
-				reset_start_stats(d->character, price);
-				if (ValidateStats(d))
-				{
-					SEND_TO_Q("Произошла какая-то ошибка, сообщите богам!\r\n", d);
-					SEND_TO_Q(MENU, d);
-					STATE(d) = CON_MENU;
-				}
-			}
-			break;
-		}
-		default:
-			SEND_TO_Q("Изменение параметров персонажа было отменено.\r\n", d);
-			SEND_TO_Q(MENU, d);
-			STATE(d) = CON_MENU;
-			break;
-		}
+		ResetStats::parse_menu(d, arg);
 		break;
 
 	default:

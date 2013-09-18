@@ -9,6 +9,7 @@
 #include <string>
 #include "sysdep.h"
 #include "structs.h"
+#include "reset_stats.hpp"
 
 namespace DpsSystem
 {
@@ -104,8 +105,8 @@ public:
 	virtual int get_today_torc() { return 0; };
 	virtual void add_today_torc(int num) {};
 
-	virtual int get_reset_stats_cnt() const { return 0; };
-	virtual void inc_reset_stats_cnt() {};
+	virtual int get_reset_stats_cnt(ResetStats::Type type) const { return 0; };
+	virtual void inc_reset_stats_cnt(ResetStats::Type type) {};
 
 protected:
 	PlayerI() {};

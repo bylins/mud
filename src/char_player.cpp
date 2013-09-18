@@ -56,8 +56,7 @@ Player::Player()
 	was_in_room_(NOWHERE),
 	from_room_(0),
 	answer_id_(NOBODY),
-	motion_(true),
-	reset_stats_cnt_(0)
+	motion_(true)
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 	{
@@ -66,9 +65,14 @@ Player::Player()
 
 	set_morph(NormalMorph::GetNormalMorph(this));
 
-	for (unsigned i = 0; i < ExtMoney::TOTAL_TYPES; ++i)
+	for (unsigned i = 0; i < ext_money_.size(); ++i)
 	{
 		ext_money_[i] = 0;
+	}
+
+	for (unsigned i = 0; i < reset_stats_cnt_.size(); ++i)
+	{
+		reset_stats_cnt_.at(i) = 0;
 	}
 }
 
@@ -777,9 +781,13 @@ void Player::save_char()
 	fprintf(saved, "TrcB: %d\n", ext_money_[ExtMoney::TORC_BRONZE]);
 	fprintf(saved, "TrcL: %d %d\n", today_torc_.first, today_torc_.second);
 
-	if (get_reset_stats_cnt() > 0)
+	if (get_reset_stats_cnt(ResetStats::Type::MAIN_STATS) > 0)
 	{
-		fprintf(saved, "Scnt: %d\n", get_reset_stats_cnt());
+		fprintf(saved, "CntS: %d\n", get_reset_stats_cnt(ResetStats::Type::MAIN_STATS));
+	}
+	if (get_reset_stats_cnt(ResetStats::Type::RACE) > 0)
+	{
+		fprintf(saved, "CntR: %d\n", get_reset_stats_cnt(ResetStats::Type::RACE));
 	}
 
 	fclose(saved);
@@ -1240,6 +1248,10 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				this->set_cha(num);
 			else if (!strcmp(tag, "Con "))
 				this->set_con(num);
+			else if (!strcmp(tag, "CntS"))
+				this->reset_stats_cnt_[ResetStats::Type::MAIN_STATS] = num;
+			else if (!strcmp(tag, "CntR"))
+				this->reset_stats_cnt_[ResetStats::Type::RACE] = num;
 			break;
 
 		case 'D':
@@ -1743,8 +1755,6 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				this->set_start_stat(G_CON, lnum);
 			else if (!strcmp(tag, "St05"))
 				this->set_start_stat(G_CHA, lnum);
-			else if (!strcmp(tag, "Scnt"))
-				this->reset_stats_cnt_ = num;
 			break;
 
 		case 'T':
@@ -1979,12 +1989,12 @@ void Player::add_today_torc(int num)
 	}
 }
 
-int Player::get_reset_stats_cnt() const
+int Player::get_reset_stats_cnt(ResetStats::Type type) const
 {
-	return reset_stats_cnt_;
+	return reset_stats_cnt_.at(type);
 }
 
-void Player::inc_reset_stats_cnt()
+void Player::inc_reset_stats_cnt(ResetStats::Type type)
 {
-	++reset_stats_cnt_;
+	reset_stats_cnt_.at(type) += 1;
 }

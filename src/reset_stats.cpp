@@ -1,0 +1,220 @@
+// Copyright (c) 2013 Krodo
+// Part of Bylins http://www.mud.ru
+
+#include <string>
+#include <array>
+#include <algorithm>
+#include "conf.h"
+#include <boost/format.hpp>
+#include "reset_stats.hpp"
+#include "genchar.h"
+#include "db.h"
+#include "screen.h"
+#include "parse.hpp"
+#include "char.hpp"
+
+extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
+extern bool ValidateStats(DESCRIPTOR_DATA * d);
+
+namespace ResetStats
+{
+
+const char *CONFIG_FILE = LIB_MISC"reset_stats.xml";
+
+// для списка reset_prices
+struct price_node
+{
+	price_node(int b_price, int a_price, int m_price, const std::string &text)
+		: base_price(b_price), add_price(a_price), max_price(m_price),
+		log_text(text) {};
+
+	int base_price;
+	int add_price;
+	int max_price;
+	// название сбрасываемой характеристики для сислога/кармы
+	std::string log_text;
+};
+
+// список цен для разных типов резета характеристик чара (из CONFIG_FILE)
+std::array<price_node, Type::TOTAL_NUM> reset_prices =
+{{
+	{ 100000000, 1000000, 1000000000, "main stats" },
+	{ 110000000, 1100000, 1100000000, "race" }
+}};
+
+///
+/// Парс отдельной записи в CONFIG_FILE из init()
+///
+void parse_prices(const pugi::xml_node &cur_node, Type type)
+{
+	if (cur_node)
+	{
+		reset_prices.at(type).base_price = Parse::attr_int(cur_node, "price");
+		reset_prices.at(type).add_price = Parse::attr_int(cur_node, "price_add");
+		reset_prices.at(type).max_price = Parse::attr_int(cur_node, "max_price");
+	}
+}
+
+///
+/// Лоад/релоад CONFIG_FILE, релоадится через 'reload <имя файла>'
+///
+void init()
+{
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
+	if (!result)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+
+    pugi::xml_node main_node = doc.child("reset_stats");
+    if (!main_node)
+    {
+		snprintf(buf, MAX_STRING_LENGTH, "...<reset_stats> read fail");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+    }
+
+	pugi::xml_node cur_node = Parse::get_child(main_node, "main_stats");
+	parse_prices(cur_node, Type::MAIN_STATS);
+
+	cur_node = Parse::get_child(main_node, "race");
+	parse_prices(cur_node, Type::RACE);
+}
+
+///
+/// \return стоимость очередного сброса характеристик type через меню
+///
+int calc_price(CHAR_DATA *ch, Type type)
+{
+	int price = reset_prices[type].base_price
+		+ ch->get_reset_stats_cnt(type) * reset_prices[type].add_price;
+	return std::min(price, reset_prices[type].max_price);
+}
+
+///
+/// Подготовка чара на резет характеристик type:
+/// снятие денег, логирование, запись в карму
+///
+void reset_stats(CHAR_DATA *ch, Type type, int price)
+{
+	switch (type)
+	{
+	case Type::MAIN_STATS:
+		ch->set_start_stat(G_STR, 0);
+		break;
+	case Type::RACE:
+		ch->set_race(99);
+		break;
+	default:
+		mudlog("SYSERROR: reset_stats() switch", NRM, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+
+	ch->inc_reset_stats_cnt(type);
+	ch->save_char();
+}
+
+///
+/// Распечатка меню сброса характеристик
+///
+void print_menu(DESCRIPTOR_DATA *d)
+{
+	const int stats_price = calc_price(d->character, Type::MAIN_STATS);
+	const int race_price = calc_price(d->character, Type::RACE);
+
+	std::string str = boost::str(boost::format(
+		"%sВ случае потери связи процедуру можно будет продолжить при следующем входе в игру.%s\r\n\r\n"
+		"1) оплатить %d %s и начать перераспределение стартовых характеристик.\r\n"
+		"2) оплатить %d %s и перейти к выбору рода.\r\n"
+		"3) отменить и вернуться в главное меню\r\n"
+		"\r\nВаш выбор:")
+		% CCIGRN(d->character, C_SPR) % CCNRM(d->character, C_SPR)
+		% stats_price % desc_count(stats_price, WHAT_MONEYa)
+		% race_price % desc_count(race_price, WHAT_MONEYa));
+	SEND_TO_Q(str.c_str(), d);
+}
+
+///
+/// Обработка конкретного типа сброса характеристик из меню
+///
+void process(DESCRIPTOR_DATA *d, Type type)
+{
+	CHAR_DATA *ch = d->character;
+	const int price = calc_price(ch, type);
+
+	if (ch->get_total_gold() < price)
+	{
+		SEND_TO_Q("\r\nУ вас нет такой суммы!\r\n", d);
+		SEND_TO_Q(MENU, d);
+		STATE(d) = CON_MENU;
+	}
+	else
+	{
+		char buf_[MAX_INPUT_LENGTH];
+		// собственно попытка сброса с последующей проверкой на результат
+		reset_stats(ch, type, price);
+		if (ValidateStats(d))
+		{
+			// если мы попали сюда, значит чара не вывело на переброс статов
+			SEND_TO_Q("Произошла какая-то ошибка, сообщите богам!\r\n", d);
+			SEND_TO_Q(MENU, d);
+			STATE(d) = CON_MENU;
+			snprintf(buf_, sizeof(buf_), "%s failed to change %s",
+				d->character->get_name(), reset_prices.at(type).log_text.c_str());
+			mudlog(buf_, NRM, LVL_IMMORT, SYSLOG, TRUE);
+		}
+		else
+		{
+			// здесь чар уже получил менюшку с перебросами статов
+			snprintf(buf_, sizeof(buf_), "changed %s, price=%d",
+				reset_prices.at(type).log_text.c_str(), price);
+			add_karma(ch, buf_, "auto");
+
+			ch->remove_both_gold(price);
+			ch->save_char();
+
+			snprintf(buf_, sizeof(buf_), "%s changed %s, price=%d",
+				ch->get_name(), reset_prices.at(type).log_text.c_str(), price);
+			mudlog(buf_, NRM, LVL_BUILDER, SYSLOG, TRUE);
+		}
+	}
+}
+
+///
+/// Обработка нажатий в меню сброса характеристик для выбора типа
+/// \return false = выбрали отмену или что-то левое
+///         true = был выбран и запущен какой-то пункт меню
+///
+void parse_menu(DESCRIPTOR_DATA *d, const char *arg)
+{
+	bool result = false;
+
+	if (arg && isdigit(*arg))
+	{
+		const int num = atoi(arg);
+
+		switch (num)
+		{
+		case 1:
+			process(d, Type::MAIN_STATS);
+			result = true;
+			break;
+		case 2:
+			process(d, Type::RACE);
+			result = true;
+			break;
+		}
+	}
+
+	if (!result)
+	{
+		SEND_TO_Q("Изменение параметров персонажа было отменено.\r\n", d);
+		SEND_TO_Q(MENU, d);
+		STATE(d) = CON_MENU;
+	}
+}
+
+} // namespace ResetStats
