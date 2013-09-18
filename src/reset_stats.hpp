@@ -19,6 +19,7 @@ enum Type
 {
 	MAIN_STATS,
 	RACE,
+	FEATS,
 	TOTAL_NUM
 };
 

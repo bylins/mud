@@ -2090,14 +2090,7 @@ void advance_level(CHAR_DATA * ch)
 	ch->points.max_move += MAX(1, add_move);
 
 	// Set natural & race features
-	for (i = 1; i < MAX_FEATS; i++)
-	{
-		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
-		{
-			SET_FEAT(ch, i);
-		}
-	}
-	set_race_feats(ch);
+	set_natural_feats(ch);
 
 	if (IS_IMMORTAL(ch))
 	{

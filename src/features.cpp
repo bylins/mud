@@ -1305,7 +1305,8 @@ ACMD(do_relocate)
 }
 
 // * Выставление чару расовых способностей.
-void set_race_feats(CHAR_DATA *ch)
+/// \param flag по дефолту true
+void set_race_feats(CHAR_DATA *ch, bool flag)
 {
 	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int)GET_KIN(ch),(int)GET_RACE(ch));
 	for (std::vector<int>::iterator i = feat_list.begin(),
@@ -1313,7 +1314,31 @@ void set_race_feats(CHAR_DATA *ch)
 	{
 		if (can_get_feat(ch, *i))
 		{
-			SET_FEAT(ch, *i);
+			if (flag)
+				SET_FEAT(ch, *i);
+			else
+				UNSET_FEAT(ch, *i);
 		}
 	}
+}
+
+void set_class_feats(CHAR_DATA *ch)
+{
+	for (int i = 1; i < MAX_FEATS; ++i)
+	{
+		if (can_get_feat(ch, i)
+			&& feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+		{
+			SET_FEAT(ch, i);
+		}
+	}
+}
+
+///
+/// Сет чару всех доступных врожденных способностей.
+///
+void set_natural_feats(CHAR_DATA *ch)
+{
+	set_class_feats(ch);
+	set_race_feats(ch);
 }

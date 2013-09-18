@@ -789,6 +789,10 @@ void Player::save_char()
 	{
 		fprintf(saved, "CntR: %d\n", get_reset_stats_cnt(ResetStats::Type::RACE));
 	}
+	if (get_reset_stats_cnt(ResetStats::Type::FEATS) > 0)
+	{
+		fprintf(saved, "CntF: %d\n", get_reset_stats_cnt(ResetStats::Type::FEATS));
+	}
 
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
@@ -1252,6 +1256,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				this->reset_stats_cnt_[ResetStats::Type::MAIN_STATS] = num;
 			else if (!strcmp(tag, "CntR"))
 				this->reset_stats_cnt_[ResetStats::Type::RACE] = num;
+			else if (!strcmp(tag, "CntF"))
+				this->reset_stats_cnt_[ResetStats::Type::FEATS] = num;
 			break;
 
 		case 'D':
@@ -1808,15 +1814,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	}
 
 	// Set natural & race features - added by Gorrah
-	for (i = 1; i < MAX_FEATS; i++)
-	{
-		if (can_get_feat(this, i)
-			&& feat_info[i].natural_classfeat[(int) GET_CLASS(this)][(int) GET_KIN(this)])
-		{
-			SET_FEAT(this, i);
-		}
-	}
-	set_race_feats(this);
+	set_natural_feats(this);
 
 	if (IS_GRGOD(this))
 	{

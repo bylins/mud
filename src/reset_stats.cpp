@@ -12,9 +12,12 @@
 #include "screen.h"
 #include "parse.hpp"
 #include "char.hpp"
+#include "features.hpp"
 
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 extern bool ValidateStats(DESCRIPTOR_DATA * d);
+extern int check_dupes_email(DESCRIPTOR_DATA * d);
+extern void do_entergame(DESCRIPTOR_DATA * d);
 
 namespace ResetStats
 {
@@ -39,7 +42,8 @@ struct price_node
 std::array<price_node, Type::TOTAL_NUM> reset_prices =
 {{
 	{ 100000000, 1000000, 1000000000, "main stats" },
-	{ 110000000, 1100000, 1100000000, "race" }
+	{ 110000000, 1100000, 1100000000, "race" },
+	{ 120000000, 1200000, 1200000000, "feats" }
 }};
 
 ///
@@ -82,6 +86,9 @@ void init()
 
 	cur_node = Parse::get_child(main_node, "race");
 	parse_prices(cur_node, Type::RACE);
+
+	cur_node = Parse::get_child(main_node, "feats");
+	parse_prices(cur_node, Type::FEATS);
 }
 
 ///
@@ -98,7 +105,7 @@ int calc_price(CHAR_DATA *ch, Type type)
 /// Подготовка чара на резет характеристик type:
 /// снятие денег, логирование, запись в карму
 ///
-void reset_stats(CHAR_DATA *ch, Type type, int price)
+void reset_stats(CHAR_DATA *ch, Type type)
 {
 	switch (type)
 	{
@@ -106,7 +113,14 @@ void reset_stats(CHAR_DATA *ch, Type type, int price)
 		ch->set_start_stat(G_STR, 0);
 		break;
 	case Type::RACE:
+		// убираем способности текущего рода
+		set_race_feats(ch, false);
+		// и потом уже выводим на ValidateStats
 		ch->set_race(99);
+		break;
+	case Type::FEATS:
+		ch->real_abils.Feats.reset();
+		set_natural_feats(ch);
 		break;
 	default:
 		mudlog("SYSERROR: reset_stats() switch", NRM, LVL_IMMORT, SYSLOG, TRUE);
@@ -124,16 +138,19 @@ void print_menu(DESCRIPTOR_DATA *d)
 {
 	const int stats_price = calc_price(d->character, Type::MAIN_STATS);
 	const int race_price = calc_price(d->character, Type::RACE);
+	const int feats_price = calc_price(d->character, Type::FEATS);
 
 	std::string str = boost::str(boost::format(
 		"%sВ случае потери связи процедуру можно будет продолжить при следующем входе в игру.%s\r\n\r\n"
 		"1) оплатить %d %s и начать перераспределение стартовых характеристик.\r\n"
 		"2) оплатить %d %s и перейти к выбору рода.\r\n"
-		"3) отменить и вернуться в главное меню\r\n"
+		"3) оплатить %d %s и сбросить способности (кроме врожденных).\r\n"
+		"4) отменить и вернуться в главное меню\r\n"
 		"\r\nВаш выбор:")
 		% CCIGRN(d->character, C_SPR) % CCNRM(d->character, C_SPR)
 		% stats_price % desc_count(stats_price, WHAT_MONEYa)
-		% race_price % desc_count(race_price, WHAT_MONEYa));
+		% race_price % desc_count(race_price, WHAT_MONEYa)
+		% feats_price % desc_count(feats_price, WHAT_MONEYa));
 	SEND_TO_Q(str.c_str(), d);
 }
 
@@ -154,11 +171,13 @@ void process(DESCRIPTOR_DATA *d, Type type)
 	else
 	{
 		char buf_[MAX_INPUT_LENGTH];
-		// собственно попытка сброса с последующей проверкой на результат
-		reset_stats(ch, type, price);
-		if (ValidateStats(d))
+		reset_stats(ch, type);
+
+		if ((type == Type::MAIN_STATS || type == Type::RACE)
+			&& ValidateStats(d))
 		{
 			// если мы попали сюда, значит чара не вывело на переброс статов
+			// после проверки в ValidateStats()
 			SEND_TO_Q("Произошла какая-то ошибка, сообщите богам!\r\n", d);
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;
@@ -168,7 +187,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 		}
 		else
 		{
-			// здесь чар уже получил менюшку с перебросами статов
+			// в любом другом случае изменения можно считать состояшимися
 			snprintf(buf_, sizeof(buf_), "changed %s, price=%d",
 				reset_prices.at(type).log_text.c_str(), price);
 			add_karma(ch, buf_, "auto");
@@ -179,6 +198,20 @@ void process(DESCRIPTOR_DATA *d, Type type)
 			snprintf(buf_, sizeof(buf_), "%s changed %s, price=%d",
 				ch->get_name(), reset_prices.at(type).log_text.c_str(), price);
 			mudlog(buf_, NRM, LVL_BUILDER, SYSLOG, TRUE);
+		}
+
+		// при сбросе не через ValidateStats нужно отправлять чара дальше в игру
+		if (type == Type::FEATS)
+		{
+			const char *message = "\r\nИзменение характеристик выполнено!\r\n";
+			if (!check_dupes_email(d))
+			{
+				SEND_TO_Q(message, d);
+				STATE(d) = CON_CLOSE;
+				return;
+			}
+			do_entergame(d);
+			SEND_TO_Q(message, d);
 		}
 	}
 }
@@ -204,6 +237,10 @@ void parse_menu(DESCRIPTOR_DATA *d, const char *arg)
 			break;
 		case 2:
 			process(d, Type::RACE);
+			result = true;
+			break;
+		case 3:
+			process(d, Type::FEATS);
 			result = true;
 			break;
 		}

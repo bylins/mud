@@ -170,7 +170,8 @@ bool can_get_feat(CHAR_DATA *ch, int feat);
 bool find_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
-void set_race_feats(CHAR_DATA *ch);
+void set_race_feats(CHAR_DATA *ch, bool flag = true);
+void set_natural_feats(CHAR_DATA *ch);
 
 struct feat_info_type
 {

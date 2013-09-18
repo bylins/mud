@@ -3616,6 +3616,7 @@ Sventovit
 		GET_RACE(d->character) = load_result;
         if (!ValidateStats(d))
             return;
+		// способности нового рода проставятся дальше в do_entergame
         SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
         STATE(d) = CON_RMOTD;
         break;
