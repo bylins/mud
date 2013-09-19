@@ -278,9 +278,19 @@ int hit_gain(CHAR_DATA * ch)
 	{
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
-		gain =
-			graf(age(ch)->year, restore - 3, restore, restore, restore - 2,
-				 restore - 3, restore - 5, restore - 7);
+
+		if (!AFF_FLAGGED(ch, AFF_NOOB_REGEN))
+		{
+			gain = graf(age(ch)->year, restore - 3, restore, restore, restore - 2,
+				restore - 3, restore - 5, restore - 7);
+		}
+		else
+		{
+			const double base_hp = std::max(1, PlayerSystem::con_total_hp(ch));
+			const double rest_time = 80 + 10 * GET_LEVEL(ch);
+			gain = base_hp / rest_time * 60;
+		}
+
 		// Room specification    //
 		if (LIKE_ROOM(ch))
 			percent += 25;

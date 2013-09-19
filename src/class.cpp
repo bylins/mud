@@ -2029,11 +2029,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 // * При входе в игру, левеле/делевеле, добавлении/удалении славы.
 void check_max_hp(CHAR_DATA *ch)
 {
-	int ch_class = GET_CLASS(ch);
-	double add_hp_per_level = class_app[ch_class].base_con
-		+ (ch->get_con() - class_app[ch_class].base_con)
-		* class_app[ch_class].koef_con / 100.0 + 3;
-	GET_MAX_HIT(ch) = 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
+	GET_MAX_HIT(ch) = PlayerSystem::con_natural_hp(ch);
 }
 
 // * Обработка событий при левел-апе.

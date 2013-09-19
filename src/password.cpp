@@ -27,6 +27,9 @@ const unsigned int MAX_PWD_LENGTH = 50;
 // * Генерация хэша с более-менее рандомным сальтом
 std::string generate_md5_hash(const std::string &pwd)
 {
+#ifdef NOCRYPT
+	return pwd;
+#else
 	char key[14];
 	key[0] = '$';
 	key[1] = '1';
@@ -46,6 +49,7 @@ std::string generate_md5_hash(const std::string &pwd)
 	key[12] = '$';
 	key[13] = '\0';
 	return CRYPT(pwd.c_str(), key);
+#endif
 }
 
 /**

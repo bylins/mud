@@ -154,4 +154,13 @@ private:
 	std::array<int, ResetStats::Type::TOTAL_NUM> reset_stats_cnt_;
 };
 
+namespace PlayerSystem
+{
+
+int con_natural_hp(CHAR_DATA *ch);
+int con_add_hp(CHAR_DATA *ch);
+int con_total_hp(CHAR_DATA *ch);
+
+} // namespace PlayerSystem
+
 #endif // CHAR_PLAYER_HPP_INCLUDED

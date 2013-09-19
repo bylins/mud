@@ -3046,9 +3046,9 @@ void print_do_score_all(CHAR_DATA *ch)
 
 	sprintf(buf + strlen(buf),
 			" %sСтойкость:    %3d %s|"
-			" %s          %4d %s||\r\n",
+			" %s  %+4d%% (%+4d) %s||\r\n",
 			CCGRN(ch, C_NRM), GET_REAL_CON(ch) - GET_SAVE(ch, SAVING_STABILITY), CCCYN(ch, C_NRM),
-			CCRED(ch, C_NRM), GET_HITREG(ch), CCCYN(ch, C_NRM)
+			CCRED(ch, C_NRM), GET_HITREG(ch), hit_gain(ch), CCCYN(ch, C_NRM)
 		   );
 
 	if (GET_COND(ch, THIRST) == 0)
@@ -3089,9 +3089,9 @@ void print_do_score_all(CHAR_DATA *ch)
 
 	sprintf(buf + strlen(buf),
 			" %sУдача:       %4d %s|"
-			" %s          %4d %s||\r\n",
+			" %s  %+4d%% (%+4d) %s||\r\n",
 			CCGRN(ch, C_NRM), ch->calc_morale(), CCCYN(ch, C_NRM),
-			CCRED(ch, C_NRM), GET_MOVEREG(ch), CCCYN(ch, C_NRM));
+			CCRED(ch, C_NRM), GET_MOVEREG(ch), move_gain(ch), CCCYN(ch, C_NRM));
 
 	sprintf(buf + strlen(buf),
 			" ||                    |                       |"

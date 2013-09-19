@@ -114,7 +114,7 @@ handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
  auction.h house.h house_exp.hpp char.hpp player_i.hpp reset_stats.hpp \
  morph.hpp remember.hpp exchange.h char_player.hpp quested.hpp mobmax.hpp \
  dps.hpp map.hpp liquid.hpp magic.h poison.hpp name_list.hpp room.hpp \
- named_stuff.hpp fight.h ext_money.hpp
+ named_stuff.hpp fight.h ext_money.hpp noob.hpp
 house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp db.h interpreter.h house_exp.hpp \
  char.hpp player_i.hpp reset_stats.hpp morph.hpp comm.h remember.hpp \

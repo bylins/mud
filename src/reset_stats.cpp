@@ -218,8 +218,6 @@ void process(DESCRIPTOR_DATA *d, Type type)
 
 ///
 /// Обработка нажатий в меню сброса характеристик для выбора типа
-/// \return false = выбрали отмену или что-то левое
-///         true = был выбран и запущен какой-то пункт меню
 ///
 void parse_menu(DESCRIPTOR_DATA *d, const char *arg)
 {

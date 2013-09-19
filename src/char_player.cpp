@@ -1996,3 +1996,35 @@ void Player::inc_reset_stats_cnt(ResetStats::Type type)
 {
 	reset_stats_cnt_.at(type) += 1;
 }
+
+namespace PlayerSystem
+{
+
+///
+/// \return кол-во хп, втыкаемых чару от родного тела
+///
+int con_natural_hp(CHAR_DATA *ch)
+{
+	double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
+		+ (ch->get_con() - class_app[GET_CLASS(ch)].base_con)
+		* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
+	return 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
+}
+
+///
+/// \return кол-во хп, втыкаемых чару от добавленного шмотом/аффектами тела
+///
+int con_add_hp(CHAR_DATA *ch)
+{
+	return class_app[(int) GET_CLASS(ch)].koef_con * GET_CON_ADD(ch) * GET_LEVEL(ch) / 100;
+}
+
+///
+/// \return кол-во хп, втыкаемых чару от общего кол-ва тела
+///
+int con_total_hp(CHAR_DATA *ch)
+{
+	return con_natural_hp(ch) + con_add_hp(ch);
+}
+
+} // namespace PlayerSystem

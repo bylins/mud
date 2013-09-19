@@ -228,7 +228,7 @@ std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, int Sex)
     //sprintf(out_str, "Число рас %d %d", KinNum, RaceNum);
     //return out_str; //PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
     PlayerKinPtr KinPtr;
-	if ((KinNum > KIN_UNDEFINED) && (KinNum < PlayerRace::PlayerKinList.size()))
+	if ((KinNum > KIN_UNDEFINED) && (static_cast<unsigned>(KinNum) < PlayerRace::PlayerKinList.size()))
     {
         KinPtr = PlayerRace::PlayerKinList[KinNum];
         for (PlayerRaceListType::iterator it =  KinPtr->PlayerRaceList.begin();it != KinPtr->PlayerRaceList.end();++it)
@@ -282,7 +282,7 @@ int PlayerRace::CheckRace(int KinNum, char *arg)
         (RaceNum > PlayerRace::PlayerKinList[KinNum]->PlayerRaceList.size()) ||
         !PlayerKinList[KinNum]->PlayerRaceList[RaceNum-1]->_Enabled)
         return RACE_UNDEFINED;
-	if ((KinNum > RACE_UNDEFINED) && (KinNum < PlayerRace::PlayerKinList.size()))
+	if ((KinNum > RACE_UNDEFINED) && (static_cast<unsigned>(KinNum) < PlayerRace::PlayerKinList.size()))
         return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum-1]->_RaceNum;
 
     return RACE_UNDEFINED;
@@ -303,7 +303,7 @@ int PlayerRace::CheckKin(char *arg)
 {
     int KinNum = atoi(arg);
     if (!KinNum || (KinNum < 1) ||
-        (KinNum > PlayerRace::PlayerKinList.size()) ||
+        (static_cast<unsigned>(KinNum) > PlayerRace::PlayerKinList.size()) ||
         !PlayerRace::PlayerKinList[KinNum-1]->Enabled)
         return KIN_UNDEFINED;
 
@@ -324,9 +324,9 @@ int PlayerRace::CheckBirthPlace(int Kin, int Race, char *arg)
 {
     int BirthPlaceNum = atoi(arg);
     if (BirthPlaceNum &&
-        ((Kin > RACE_UNDEFINED) && (Kin < PlayerRace::PlayerKinList.size())) &&
-        (Race > RACE_UNDEFINED) && (Race < PlayerRace::PlayerKinList[Kin]->PlayerRaceList.size()) &&
-        ((BirthPlaceNum > 0) && (BirthPlaceNum <= PlayerRace::PlayerKinList[Kin]->PlayerRaceList[Race]->_RaceBirthPlaceList.size())))
+        ((Kin > RACE_UNDEFINED) && (static_cast<unsigned>(Kin) < PlayerRace::PlayerKinList.size())) &&
+        (Race > RACE_UNDEFINED) && (static_cast<unsigned>(Race) < PlayerRace::PlayerKinList[Kin]->PlayerRaceList.size()) &&
+        ((BirthPlaceNum > 0) && (static_cast<unsigned>(BirthPlaceNum) <= PlayerRace::PlayerKinList[Kin]->PlayerRaceList[Race]->_RaceBirthPlaceList.size())))
         return PlayerRace::PlayerKinList[Kin]->PlayerRaceList[Race]->_RaceBirthPlaceList[BirthPlaceNum-1];
 
     return RACE_UNDEFINED;

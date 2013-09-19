@@ -43,6 +43,7 @@
 #include "glory_const.hpp"
 #include "fight.h"
 #include "ext_money.hpp"
+#include "noob.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -522,17 +523,6 @@ void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv,
 	}			// switch
 }
 
-
-int char_saved_aff[] = { AFF_GROUP,
-						 AFF_HORSE,
-						 0
-					   };
-
-int char_stealth_aff[] = { AFF_HIDE,
-						   AFF_SNEAK,
-						   AFF_CAMOUFLAGE,
-						   0
-						 };
 // Тут осуществляется апдейт аффектов влияющих на комнату
 void affect_room_total(ROOM_DATA * room)
 {
@@ -551,6 +541,34 @@ void affect_room_total(ROOM_DATA * room)
 	for (af = room->affected; af; af = af->next)
 		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
 
+}
+
+int char_saved_aff[] =
+{
+	AFF_GROUP,
+	AFF_HORSE,
+	0
+};
+
+int char_stealth_aff[] =
+{
+	AFF_HIDE,
+	AFF_SNEAK,
+	AFF_CAMOUFLAGE,
+	0
+};
+
+///
+/// Сет чару аффектов, которые должны висеть постоянно (через affect_total)
+///
+void apply_natural_affects(CHAR_DATA *ch)
+{
+	if (GET_REMORT(ch) <= 0 && !IS_IMMORTAL(ch))
+	{
+		affect_modify(ch, APPLY_HITREG, 50, AFF_NOOB_REGEN, TRUE);
+		affect_modify(ch, APPLY_MOVEREG, 100, AFF_NOOB_REGEN, TRUE);
+		affect_modify(ch, APPLY_MANAREG, 100, AFF_NOOB_REGEN, TRUE);
+	}
 }
 
 // This updates a character by subtracting everything he is affected by
@@ -578,9 +596,15 @@ void affect_total(CHAR_DATA * ch)
 		saved = ch->char_specials.saved.affected_by;
 		ch->char_specials.saved.affected_by = clear_flags;
 		for (i = 0; (j = char_saved_aff[i]); i++)
+		{
 			if (IS_SET(GET_FLAG(saved, j), j))
+			{
 				SET_BIT(AFF_FLAGS(ch, j), j);
+			}
+		}
 	}
+
+	apply_natural_affects(ch);
 
 	// Restore values for NPC - added by Adept
 	if (IS_NPC(ch))
@@ -676,11 +700,13 @@ void affect_total(CHAR_DATA * ch)
 			break;
 		}
 		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
-		GET_HITREG(ch) += ((int) GET_LEVEL(ch) + 4) / 5 * 10;
+		if (!AFF_FLAGGED(ch, AFF_NOOB_REGEN))
+		{
+			GET_HITREG(ch) += ((int) GET_LEVEL(ch) + 4) / 5 * 10;
+		}
 		if (GET_CON_ADD(ch))
 		{
-			i = class_app[(int) GET_CLASS(ch)].koef_con * GET_CON_ADD(ch) * GET_LEVEL(ch) / 100;
-			GET_HIT_ADD(ch) += i;
+			GET_HIT_ADD(ch) += PlayerSystem::con_add_hp(ch);
 			if ((i = GET_MAX_HIT(ch) + GET_HIT_ADD(ch)) < 1)
 				GET_HIT_ADD(ch) -= (i - 1);
 		}
