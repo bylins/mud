@@ -2043,6 +2043,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "вспомнить", "remember",
 							   "уведомления", "notify",
 							   "карта", "map",
+							   "вход в зону", "enter zone",
 							   "\n"
 							 };
 
@@ -2102,7 +2103,8 @@ struct gen_tog_param_type
 		0, SCMD_NOINGR_MODE}, {
 		0, SCMD_REMEMBER}, {
 		0, SCMD_NOTIFY_EXCH}, {
-		0, SCMD_DRAW_MAP}
+		0, SCMD_DRAW_MAP}, {
+		0, SCMD_ENTER_ZONE}
 };
 
 ACMD(do_mode)
@@ -2343,7 +2345,9 @@ ACMD(do_gen_tog)
 		{"", ""}, 		// SCMD_REMEMBER
 		{"", ""},		//SCMD_NOTIFY_EXCH
 		{"Показ карты окрестностей при перемещении отключен.\r\n",
-		 "Вы будете видеть карту окрестностей при перемещении.\r\n"}
+		 "Вы будете видеть карту окрестностей при перемещении.\r\n"},
+		{"Показ информации при входе в новую зону отключен.\r\n",
+		 "Вы будете видеть информации при входе в новую зону.\r\n"}
 	};
 
 
@@ -2524,6 +2528,9 @@ ACMD(do_gen_tog)
 	}
 	case SCMD_DRAW_MAP:
 		result = PRF_TOG_CHK(ch, PRF_DRAW_MAP);
+		break;
+	case SCMD_ENTER_ZONE:
+		result = PRF_TOG_CHK(ch, PRF_ENTER_ZONE);
 		break;
 	default:
 		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);

@@ -1713,6 +1713,46 @@ void show_extend_room(const char * const description, CHAR_DATA * ch)
 	send_to_char("\r\n", ch);
 }
 
+bool put_delim(std::stringstream &out, bool delim)
+{
+	if (!delim)
+	{
+		out << " (";
+	}
+	else
+	{
+		out << ", ";
+	}
+	return true;
+}
+
+void print_zone_info(CHAR_DATA *ch)
+{
+	zone_data *zone = &zone_table[world[ch->in_room]->zone];
+	std::stringstream out;
+	out << "\r\n" << zone->name;
+
+	bool delim = false;
+	if (!zone->is_town)
+	{
+		delim = put_delim(out, delim);
+		out << "средний уровень: " << zone->mob_level;
+	}
+	if (zone->group > 1)
+	{
+		delim = put_delim(out, delim);
+		out << "групповая на " << zone->group
+			<< " " << desc_count(zone->group, WHAT_PEOPLE);
+	}
+	if (delim)
+	{
+		out << ")";
+	}
+	out << ".\r\n";
+
+	send_to_char(out.str(), ch);
+}
+
 void look_at_room(CHAR_DATA * ch, int ignore_brief)
 {
 	if (!ch->desc)
@@ -1864,6 +1904,14 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char("&R&q", ch);
 	list_char_to_char(world[ch->in_room]->people, ch);
 	send_to_char("&Q&n", ch);
+
+	// вход в новую зону
+	if (zone_table[world[ch->get_from_room()]->zone].number
+		!= zone_table[world[ch->in_room]->zone].number
+		&& PRF_FLAGGED(ch, PRF_ENTER_ZONE))
+	{
+		print_zone_info(ch);
+	}
 }
 
 int get_pick_chance(int skill_pick, int lock_complexity)
@@ -5323,7 +5371,12 @@ ACMD(do_toggle)
 	{
 		sprintf(buf,  " Уведомления   : %-3s \r\n", "Нет");
 	}
-	sprintf(buf + strlen(buf), " Карта         : %-3s \r\n", ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)));
+	send_to_char(buf, ch);
+	sprintf(buf,
+		" Карта         : %-3s     "
+		" Вход в зону   : %-3s \r\n",
+		ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)),
+		ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)));
 	send_to_char(buf, ch);
 }
 
@@ -5336,17 +5389,13 @@ ACMD(do_zone)
 		MapSystem::print_map(ch);
 	}
 
-	const int group = zone_table[world[ch->in_room]->zone].group;
-	if (group > 1)
+	print_zone_info(ch);
+
+	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+		&& zone_table[world[ch->in_room]->zone].comment)
 	{
-		send_to_char(ch, "%s (групповая на %d %s).\r\n",
-				zone_table[world[ch->in_room]->zone].name, group, desc_count(group, WHAT_PEOPLE));
-	}
-	else
-	{
-		send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].name);
-		if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && zone_table[world[ch->in_room]->zone].comment)
-			send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].comment);
+		send_to_char(ch, "Комментарий: %s.\r\n",
+			zone_table[world[ch->in_room]->zone].comment);
 	}
 }
 

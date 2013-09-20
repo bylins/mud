@@ -576,6 +576,7 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_EXECUTOR	(INT_TWO | 1 << 1)  // палач
 #define PRF_DRAW_MAP	(INT_TWO | 1 << 2)  // отрисовка карты при осмотре клетки
 #define PRF_CAN_REMORT	(INT_TWO | 1 << 3)  // разрешение на реморт через жертвование гривн
+#define PRF_ENTER_ZONE	(INT_TWO | 1 << 4)  // вывод названия/среднего уровня при входе в зону
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //

@@ -604,8 +604,6 @@ void affect_total(CHAR_DATA * ch)
 		}
 	}
 
-	apply_natural_affects(ch);
-
 	// Restore values for NPC - added by Adept
 	if (IS_NPC(ch))
 	{
@@ -663,6 +661,7 @@ void affect_total(CHAR_DATA * ch)
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
 			affect_modify(ch, APPLY_HIT, GET_LEVEL(ch) * 2, 0, TRUE);
 		GloryConst::apply_modifiers(ch);
+		apply_natural_affects(ch);
 	}
 
 	// move affect modifiers

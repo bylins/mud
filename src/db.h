@@ -288,6 +288,8 @@ struct zone_data
 	int group;
 	// средний уровень мобов в зоне
 	int mob_level;
+	// является ли зона городом
+	bool is_town;
 };
 
 extern zone_data *zone_table;

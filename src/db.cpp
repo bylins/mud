@@ -1442,13 +1442,51 @@ void set_zone_mob_level()
 		int level = 0, count = 0;
 		for (int nr = 0; nr <= top_of_mobt; ++nr)
 		{
-			if (mob_index[nr].vnum >= zone_table[i].number * 100 && mob_index[nr].vnum <= zone_table[i].number * 100 + 99)
+			if (mob_index[nr].vnum >= zone_table[i].number * 100
+				&& mob_index[nr].vnum <= zone_table[i].number * 100 + 99)
 			{
 				level += mob_proto[nr].get_level();
 				++count;
 			}
 		}
 		zone_table[i].mob_level = count ? level/count : 0;
+	}
+}
+
+void set_zone_town()
+{
+	for (int i = 0; i <= top_of_zone_table; ++i)
+	{
+		zone_table[i].is_town = false;
+		int rnum_start = 0, rnum_end = 0;
+		if (!get_zone_rooms(i, &rnum_start, &rnum_end))
+		{
+			continue;
+		}
+		bool rent_flag = false, bank_flag = false, post_flag = false;
+		// зона считается городом, если в ней есть рентер, банкир и почтовик
+		for (int k = rnum_start; k <= rnum_end; ++k)
+		{
+			for (CHAR_DATA *ch = world[k]->people; ch; ch = ch->next_in_room)
+			{
+				if (IS_RENTKEEPER(ch))
+				{
+					rent_flag = true;
+				}
+				else if (IS_BANKKEEPER(ch))
+				{
+					bank_flag = true;
+				}
+				else if (IS_POSTKEEPER(ch))
+				{
+					post_flag = true;
+				}
+			}
+		}
+		if (rent_flag && bank_flag && post_flag)
+		{
+			zone_table[i].is_town = true;
+		}
 	}
 }
 
@@ -1863,11 +1901,14 @@ void boot_db(void)
 	ShopExt::load(false);
 	log("load shop_ext list stop.");
 
-	log("Init town shop_keepers.");
-	town_shop_keepers();
-
 	log("Set zone average mob_level.");
 	set_zone_mob_level();
+
+	log("Set zone town.");
+	set_zone_town();
+
+	log("Init town shop_keepers.");
+	town_shop_keepers();
 
 //	log("Init stop list for snoop.");
 //	init_snoop_stop_list();
