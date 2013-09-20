@@ -31,6 +31,7 @@ SPECIAL(guild_mono);
 SPECIAL(guild_poly);
 SPECIAL(torc);
 SPECIAL(Noob::outfit);
+extern int has_boat(CHAR_DATA *ch);
 
 namespace MapSystem
 {
@@ -131,6 +132,10 @@ enum
 	SCREEN_FLYING,
 	// кладовщики для показа нубам
 	SCREEN_MOB_SPEC_OUTFIT,
+	// SCREEN_WATER красным, если персонаж без дышки
+	SCREEN_WATER_RED,
+	// SCREEN_FLYING красным, если персонаж без полета
+	SCREEN_FLYING_RED,
 	// всегда в конце
 	SCREEN_TOTAL
 };
@@ -205,7 +210,9 @@ const char *signs[] =
 	"&WG&n",
 	"&C,&n",
 	"&C`&n",
-	"&WO&n"
+	"&WO&n",
+	"&R,&n",
+	"&R`&n"
 };
 
 std::map<int /* room vnum */, int /* min depth */> check_dupe;
@@ -275,6 +282,8 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 		case SCREEN_DEATH_TRAP:
 		case SCREEN_WATER:
 		case SCREEN_FLYING:
+		case SCREEN_WATER_RED:
+		case SCREEN_FLYING_RED:
 			put_on_screen(next_y - 1, next_x + 1, sign_num, depth);
 			return;
 		}
@@ -286,6 +295,8 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 		case SCREEN_DEATH_TRAP:
 		case SCREEN_WATER:
 		case SCREEN_FLYING:
+		case SCREEN_WATER_RED:
+		case SCREEN_FLYING_RED:
 			put_on_screen(next_y + 1, next_x - 1, sign_num, depth);
 			return;
 		}
@@ -461,7 +472,7 @@ bool mode_allow(const CHAR_DATA *ch, int cur_depth)
 	return true;
 }
 
-void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x)
+void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x)
 {
 	// чтобы не ходить по комнатам вторично, но с проверкой на глубину
 	std::map<int, int>::iterator i = check_dupe.find(room->number);
@@ -569,15 +580,40 @@ void draw_room(const CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y,
 				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 			}
 			// можно утонуть
-			if (next_room->sector_type == SECT_WATER_NOSWIM
-				|| next_room->sector_type == SECT_UNDERWATER)
+			if (next_room->sector_type == SECT_WATER_NOSWIM)
 			{
-				check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
+				if (!has_boat(ch))
+				{
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
+				}
+				else
+				{
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
+				}
+			}
+			// можно задохнуться
+			if (next_room->sector_type == SECT_UNDERWATER)
+			{
+				if (!AFF_FLAGGED(ch, AFF_WATERBREATH))
+				{
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
+				}
+				else
+				{
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
+				}
 			}
 			// Флай-дт
 			if (next_room->sector_type == SECT_FLYING)
 			{
-				check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING, cur_depth, i);
+				if (!AFF_FLAGGED(ch, AFF_FLY))
+				{
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING_RED, cur_depth, i);
+				}
+				else
+				{
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING, cur_depth, i);
+				}
 			}
 			// знаки в центре клетки, не рисующиеся для выходов вверх/вниз
 			if (i != UP && i != DOWN)
