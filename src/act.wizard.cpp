@@ -104,6 +104,7 @@ extern int reboot_uptime;
 extern BanList *ban;
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern bool CompareBits(FLAG_DATA flags, const char *names[], int affect);
+ACMD(do_recall);
 
 // extern functions
 int level_exp(CHAR_DATA * ch, int level);
@@ -2412,9 +2413,11 @@ ACMD(do_return)
 		ch->desc->character->desc = ch->desc;
 		ch->desc = NULL;
 	}
+	else
+	{
+		do_recall(ch, argument, cmd, subcmd);
+	}
 }
-
-
 
 ACMD(do_load)
 {
