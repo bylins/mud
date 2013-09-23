@@ -806,16 +806,18 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				redit_disp_extradesc_menu(d);
 				break;
 			}
-			// добавление сообщения на доску
 		}
 		else if (STATE(d) == CON_WRITEBOARD)
 		{
-			if (terminator == 1 && *d->str)
+			// добавление сообщения на доску
+			if (terminator == 1 && *d->str && !d->board.expired())
 			{
+				auto board = d->board.lock();
 				d->message->date = time(0);
 				d->message->text = *(d->str);
 				// для новостных отступов ну и вообще мож все так сейвить, посмотрим
-				if (d->board->GetType() == NEWS_BOARD || d->board->GetType() == GODNEWS_BOARD)
+				if (board->GetType() == Boards::NEWS_BOARD
+					|| board->GetType() == Boards::GODNEWS_BOARD)
 				{
 					StringReplace(d->message->text, '\n', "\n   ");
 					// вообще надо это в той функции все учесть, но пока влом
@@ -823,44 +825,13 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 					d->message->text.insert(0, "   ");
 					d->message->text += '\n';
 				}
-				// чтобы реагировать на добавление/удаление клановых/персональных досок во время написания
-				if (d->board)
-				{
-					// в случае полной доски делетим первую месагу
-					if (d->board->GetType() != NEWS_BOARD && d->board->GetType() != GODNEWS_BOARD && d->board->messages.size() >= MAX_BOARD_MESSAGES)
-						d->board->messages.erase(d->board->messages.begin());
-					DESCRIPTOR_DATA *f;
-					std::string name = PRF_FLAGGED(d->character, PRF_CODERINFO) ? d->message->author : GET_PAD(d->character, 1);
-					std::string buffer = "Новое сообщение в разделе '" + d->board->GetName() + "' от " + name + ", тема: " + d->message->subject + "\r\n";
-					// оповещаем соклановцев
-					if (d->board->GetType() == CLAN_BOARD || d->board->GetType() == CLANNEWS_BOARD)
-					{
-						for (f = descriptor_list; f; f = f->next)
-							if (f->character && STATE(f) == CON_PLAYING && CLAN(f->character) && CLAN(f->character)->GetRent() == d->board->GetClanRent() && PRF_FLAGGED(f->character, PRF_BOARD_MODE))
-								send_to_char(buffer.c_str(), f->character);
-						// оповещаем весь мад кто с правами чтения
-					}
-					else if (d->board->GetType() != PERS_BOARD)
-					{
-						for (f = descriptor_list; f; f = f->next)
-							if (f->character && STATE(f) == CON_PLAYING && (d->board->Access(f->character) != 2) && (d->board->Access(f->character) != 0) && PRF_FLAGGED(f->character, PRF_BOARD_MODE))
-								send_to_char(buffer.c_str(), f->character);
-					}
-					d->message->num = 0;
-					d->board->messages.push_back(d->message);
-					int count = 0;
-					for (MessageListType::reverse_iterator it = d->board->messages.rbegin(); it != d->board->messages.rend(); ++it)
-						(*it)->num = count++;
-					d->board->SetLastRead(GET_UNIQUE(d->character));
-					d->board->Save();
-					SEND_TO_Q("Спасибо за ваши излияния души, послание сохранено.\r\n", d);
-				}
-				else
-					SEND_TO_Q("Ошибочка вышла...\r\n", d);
+				board->add_message(d->message);
+				SEND_TO_Q("Спасибо за ваши излияния души, послание сохранено.\r\n", d);
 			}
 			else
-				SEND_TO_Q("Сообщение прервано.\r\n", d);
-
+			{
+				SEND_TO_Q("Редактирование прервано.\r\n", d);
+			}
 			d->message.reset();
 			d->board.reset();
 			if (*(d->str))

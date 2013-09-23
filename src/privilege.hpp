@@ -28,6 +28,7 @@ extern const int KRODER;
 extern const int FULLZEDIT;
 extern const int TITLE;
 extern const int MISPRINT;
+extern const int SUGGEST;
 
 } // namespace Privilege
 

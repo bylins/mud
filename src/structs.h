@@ -15,7 +15,6 @@
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
 
-#include "conf.h"
 #include <vector>
 #include <list>
 #include <bitset>
@@ -23,6 +22,8 @@
 #include <fstream>
 #include <map>
 #include <iterator>
+#include <memory>
+#include "conf.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 
@@ -577,6 +578,7 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_DRAW_MAP	(INT_TWO | 1 << 2)  // отрисовка карты при осмотре клетки
 #define PRF_CAN_REMORT	(INT_TWO | 1 << 3)  // разрешение на реморт через жертвование гривн
 #define PRF_ENTER_ZONE	(INT_TWO | 1 << 4)  // вывод названия/среднего уровня при входе в зону
+#define PRF_MISPRINT	(INT_TWO | 1 << 5)  // показ непрочитанных сообщений на доске опечаток при входе
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
@@ -1535,6 +1537,8 @@ namespace MapSystem
 	struct Options;
 }
 
+class Board;
+
 struct descriptor_data
 {
 	socket_t descriptor;	// file descriptor for socket    //
@@ -1592,9 +1596,9 @@ struct descriptor_data
 	int
 	mccp_version;
 #endif
-	unsigned long ip;	// ип адрес в виде числа для внутреннего пользования
-	boost::shared_ptr<class Board> board;       // редактируемая доска
-	boost::shared_ptr<struct Message> message;  // редактируемое сообщение
+	unsigned long ip; // ип адрес в виде числа для внутреннего пользования
+	std::weak_ptr<Board> board; // редактируемая доска
+	boost::shared_ptr<struct Message> message; // редактируемое сообщение
 	boost::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
 	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
 	bool registered_email; // чтобы не шарить каждую секунду по списку мыл

@@ -278,8 +278,6 @@ struct player_special_data
 	// TODO: однозначно переписать
 	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
 	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
-
-	struct board_data *board; // последние прочитанные мессаги на досках
 };
 
 enum

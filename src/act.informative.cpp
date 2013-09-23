@@ -5277,13 +5277,15 @@ ACMD(do_toggle)
 				" Флаги комнат  : %-3s \r\n"
 				" Частный режим : %-3s     "
 				" Замедление    : %-3s     "
-				" Кодер         : %-3s \r\n",
+				" Кодер         : %-3s \r\n"
+				" Опечатки      : %-3s \r\n",
 				ONOFF(PRF_FLAGGED(ch, PRF_NOHASSLE)),
 				ONOFF(PRF_FLAGGED(ch, PRF_HOLYLIGHT)),
 				ONOFF(PRF_FLAGGED(ch, PRF_ROOMFLAGS)),
 				ONOFF(PRF_FLAGGED(ch, PRF_NOWIZ)),
 				ONOFF(nameserver_is_slow),
-				ONOFF(PRF_FLAGGED(ch, PRF_CODERINFO)));
+				ONOFF(PRF_FLAGGED(ch, PRF_CODERINFO)),
+				ONOFF(PRF_FLAGGED(ch, PRF_MISPRINT)));
 		send_to_char(buf, ch);
 	}
 

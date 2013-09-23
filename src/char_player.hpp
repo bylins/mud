@@ -20,6 +20,8 @@
 #include "dps.hpp"
 #include "morph.hpp"
 #include "map.hpp"
+#include "reset_stats.hpp"
+#include "boards.h"
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
@@ -114,6 +116,9 @@ public:
 	int get_reset_stats_cnt(ResetStats::Type type) const;
 	void inc_reset_stats_cnt(ResetStats::Type type);
 
+	time_t get_board_date(Boards::BoardTypes type) const;
+	void set_board_date(Boards::BoardTypes type, time_t date);
+
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
@@ -152,6 +157,8 @@ private:
 	std::pair<boost::uint8_t /* day 1-31 */, int> today_torc_;
 	// кол-во сбросов характеристик через меню
 	std::array<int, ResetStats::Type::TOTAL_NUM> reset_stats_cnt_;
+	// временнЫе отметки о прочитанных сообщениях на досках
+	std::array<time_t, Boards::TYPES_NUM> board_date_;
 };
 
 namespace PlayerSystem

@@ -5,11 +5,10 @@
 #ifndef PLAYER_I_HPP_INCLUDED
 #define PLAYER_I_HPP_INCLUDED
 
-#include "conf.h"
 #include <string>
+#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "reset_stats.hpp"
 
 namespace DpsSystem
 {
@@ -19,6 +18,16 @@ namespace DpsSystem
 namespace MapSystem
 {
 	struct Options;
+}
+
+namespace ResetStats
+{
+	enum Type : int;
+}
+
+namespace Boards
+{
+	enum BoardTypes: int;
 }
 
 extern room_rnum r_helled_start_room;
@@ -107,6 +116,9 @@ public:
 
 	virtual int get_reset_stats_cnt(ResetStats::Type type) const { return 0; };
 	virtual void inc_reset_stats_cnt(ResetStats::Type type) {};
+
+	virtual time_t get_board_date(Boards::BoardTypes type) const { return 0; };
+	virtual void set_board_date(Boards::BoardTypes type, time_t date) {};
 
 protected:
 	PlayerI() {};

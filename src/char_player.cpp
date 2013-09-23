@@ -74,6 +74,10 @@ Player::Player()
 	{
 		reset_stats_cnt_.at(i) = 0;
 	}
+
+	// чтобы не вываливать новому игроку все мессаги на досках как непрочитанные
+	const time_t now = time(0);
+	board_date_.fill(now);
 }
 
 int Player::get_pfilepos() const
@@ -592,9 +596,10 @@ void Player::save_char()
 
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(this));
 
-	if (GET_BOARD(this))
-		for (int i = 0; i < BOARD_TOTAL; ++i)
-			fprintf(saved, "Br%02d: %ld\n", i + 1, static_cast<long int>(GET_BOARD_DATE(this, i)));
+	for (unsigned i = 0; i < board_date_.size(); ++i)
+	{
+		fprintf(saved, "Br%02d: %llu\n", i + 1, static_cast<unsigned long long>(board_date_.at(i)));
+	}
 
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 		fprintf(saved, "St%02d: %i\n", i, this->get_start_stat(i));
@@ -1146,12 +1151,6 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	this->set_who_mana(WHO_MANA_MAX);
 	this->set_who_last(time(0));
 
-	GET_BOARD(this) = new(struct board_data);
-	// здесь можно указать дату, с которой пойдет отсчет новых сообщений,
-	// например, чтобы не пугать игрока 200+ новостями при первом запуске системы
-	for (int i = 0; i < BOARD_TOTAL; ++i)
-		GET_BOARD_DATE(this, i) = 1143706650;
-
 	while (fbgetline(fl, line))
 	{
 		tag_argument(line, tag);
@@ -1215,33 +1214,35 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				set_bank(lnum, false);
 			}
 			else if (!strcmp(tag, "Br01"))
-				GET_BOARD_DATE(this, GENERAL_BOARD) = lnum;
+				set_board_date(Boards::GENERAL_BOARD, llnum);
 			else if (!strcmp(tag, "Br02"))
-				GET_BOARD_DATE(this, NEWS_BOARD) = lnum;
+				set_board_date(Boards::NEWS_BOARD, llnum);
 			else if (!strcmp(tag, "Br03"))
-				GET_BOARD_DATE(this, IDEA_BOARD) = lnum;
+				set_board_date(Boards::IDEA_BOARD, llnum);
 			else if (!strcmp(tag, "Br04"))
-				GET_BOARD_DATE(this, ERROR_BOARD) = lnum;
+				set_board_date(Boards::ERROR_BOARD, llnum);
 			else if (!strcmp(tag, "Br05"))
-				GET_BOARD_DATE(this, GODNEWS_BOARD) = lnum;
+				set_board_date(Boards::GODNEWS_BOARD, llnum);
 			else if (!strcmp(tag, "Br06"))
-				GET_BOARD_DATE(this, GODGENERAL_BOARD) = lnum;
+				set_board_date(Boards::GODGENERAL_BOARD, llnum);
 			else if (!strcmp(tag, "Br07"))
-				GET_BOARD_DATE(this, GODBUILD_BOARD) = lnum;
+				set_board_date(Boards::GODBUILD_BOARD, llnum);
 			else if (!strcmp(tag, "Br08"))
-				GET_BOARD_DATE(this, GODCODE_BOARD) = lnum;
+				set_board_date(Boards::GODCODE_BOARD, llnum);
 			else if (!strcmp(tag, "Br09"))
-				GET_BOARD_DATE(this, GODPUNISH_BOARD) = lnum;
+				set_board_date(Boards::GODPUNISH_BOARD, llnum);
 			else if (!strcmp(tag, "Br10"))
-				GET_BOARD_DATE(this, PERS_BOARD) = lnum;
+				set_board_date(Boards::PERS_BOARD, llnum);
 			else if (!strcmp(tag, "Br11"))
-				GET_BOARD_DATE(this, CLAN_BOARD) = lnum;
+				set_board_date(Boards::CLAN_BOARD, llnum);
 			else if (!strcmp(tag, "Br12"))
-				GET_BOARD_DATE(this, CLANNEWS_BOARD) = lnum;
+				set_board_date(Boards::CLANNEWS_BOARD, llnum);
 			else if (!strcmp(tag, "Br13"))
-				GET_BOARD_DATE(this, NOTICE_BOARD) = lnum;
+				set_board_date(Boards::NOTICE_BOARD, llnum);
 			else if (!strcmp(tag, "Br14"))
-				GET_BOARD_DATE(this, MISPRINT_BOARD) = lnum;
+				set_board_date(Boards::MISPRINT_BOARD, llnum);
+			else if (!strcmp(tag, "Br15"))
+				set_board_date(Boards::SUGGEST_BOARD, llnum);
 
 			else if (!strcmp(tag, "Brth"))
 				this->player_data.time.birth = lnum;
@@ -1995,6 +1996,16 @@ int Player::get_reset_stats_cnt(ResetStats::Type type) const
 void Player::inc_reset_stats_cnt(ResetStats::Type type)
 {
 	reset_stats_cnt_.at(type) += 1;
+}
+
+time_t Player::get_board_date(Boards::BoardTypes type) const
+{
+	return board_date_.at(type);
+}
+
+void Player::set_board_date(Boards::BoardTypes type, time_t date)
+{
+	board_date_.at(type) = date;
 }
 
 namespace PlayerSystem

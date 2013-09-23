@@ -125,54 +125,6 @@ void check_rank(std::string &rank)
 	lower_convert(rank);
 }
 
-void delete_board_message(const std::string &name, int vnum)
-{
-	BoardListType::const_iterator board;
-	for (board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board)
-	{
-		if ((*board)->GetType() == GODBUILD_BOARD)
-		{
-			break;
-		}
-	}
-	if (Board::BoardList.end() == board)
-	{
-		log("SYSERROR: can't find builder board (%s:%d)", __FILE__, __LINE__);
-		return;
-	}
-
-	MessagePtr temp_message(new Message);
-	temp_message->author = "Сервер";
-	temp_message->subject = "неактивная дружина";
-	temp_message->text = boost::str(boost::format(
-			"Дружина %1% была автоматически удалена.\r\n"
-			"Номер зоны: %2%\r\n") % name % vnum);
-	temp_message->date = time(0);
-	// чтобы при релоаде не убилось
-	temp_message->unique = 1;
-	temp_message->level = 1;
-
-	// если кланов сразу несколько, чтобы время написания разделялось
-	MessageListType::reverse_iterator i = (*board)->messages.rbegin();
-	if (i != (*board)->messages.rend() && (*i)->date >= temp_message->date)
-	{
-		temp_message->date = (*i)->date + 1;
-	}
-
-	if ((*board)->messages.size() >= MAX_BOARD_MESSAGES)
-	{
-		(*board)->messages.erase((*board)->messages.begin());
-	}
-
-	(*board)->messages.push_back(temp_message);
-	int count = 0;
-	for (MessageListType::reverse_iterator it = (*board)->messages.rbegin(); it != (*board)->messages.rend(); ++it)
-	{
-		(*it)->num = count++;
-	}
-	(*board)->Save();
-}
-
 } // namespace
 
 inline bool Clan::SortRank::operator()(const CHAR_DATA * ch1, const CHAR_DATA * ch2)
@@ -607,7 +559,7 @@ void Clan::ClanLoad()
 				tempClan->bank = 0;
 				tempClan->save_clan_file(filename);
 			}
-			delete_board_message(tempClan->abbrev, tempClan->rent/100);
+			Boards::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
 			log("Clan deleted: %s", filename.c_str());
 			continue;
 		}

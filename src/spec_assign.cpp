@@ -147,11 +147,11 @@ void assign_mobiles(void)
 // assign special procedures to objects //
 void assign_objects(void)
 {
-	ASSIGNOBJ(GODGENERAL_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(GENERAL_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(GODCODE_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(GODPUNISH_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(GODBUILD_BOARD_OBJ, Board::Special);
+	ASSIGNOBJ(Boards::GODGENERAL_BOARD_OBJ, Board::Special);
+	ASSIGNOBJ(Boards::GENERAL_BOARD_OBJ, Board::Special);
+	ASSIGNOBJ(Boards::GODCODE_BOARD_OBJ, Board::Special);
+	ASSIGNOBJ(Boards::GODPUNISH_BOARD_OBJ, Board::Special);
+	ASSIGNOBJ(Boards::GODBUILD_BOARD_OBJ, Board::Special);
 }
 
 

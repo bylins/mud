@@ -691,8 +691,6 @@ extern SPECIAL(shop_ext);
 #define CLAN(ch)              CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->clan))
 #define CLAN_MEMBER(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->clan_member))
 #define GET_CLAN_STATUS(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->clanStatus))
-#define GET_BOARD(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->board))
-#define GET_BOARD_DATE(ch, i) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->board->board_date[i]))
 
 #define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[i])
 #define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[i])

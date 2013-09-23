@@ -14,7 +14,7 @@
 namespace ResetStats
 {
 
-enum Type
+enum Type : int
 {
 	MAIN_STATS,
 	RACE,

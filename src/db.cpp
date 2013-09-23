@@ -42,7 +42,6 @@
 #include "ban.hpp"
 #include "item.creation.hpp"
 #include "features.hpp"
-#include "boards.h"
 #include "description.h"
 #include "deathtrap.hpp"
 #include "title.hpp"
@@ -6420,11 +6419,6 @@ void init_char(CHAR_DATA * ch)
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 25;
 	NOTIFY_EXCH_PRICE(ch) = 0;
-
-	GET_BOARD(ch) = new(struct board_data);
-	// новому игроку вываливать все новости/мессаги на доске как непроченные не имеет смысла
-	for (int i = 0; i < BOARD_TOTAL; ++i)
-		GET_BOARD_DATE(ch, i) = time(0);
 
 	ch->save_char();
 }

@@ -55,8 +55,10 @@ const int FULLZEDIT = 4;
 const int TITLE = 5;
 // чтение/удаление доски опечаток, ставился по наличию группы olc
 const int MISPRINT = 6;
+// чтение/удаление доски придумок
+const int SUGGEST = 7;
 // количество флагов
-const int FLAGS_NUM = 7;
+const int FLAGS_NUM = 8;
 
 typedef std::set<std::string> PrivListType;
 
@@ -108,6 +110,8 @@ void parse_flags(const std::string &command)
 		tmp_god.flags.set(TITLE);
 	else if (command == "olc")
 		tmp_god.flags.set(MISPRINT);
+	else if (command == "suggest")
+		tmp_god.flags.set(SUGGEST);
 }
 
 /**

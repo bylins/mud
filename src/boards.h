@@ -1,14 +1,13 @@
-/* ****************************************************************************
-* File: boards.h                                               Part of Bylins *
-* Usage: Header file for bulletin boards                                      *
-* (c) 2005 Krodo                                                              *
-******************************************************************************/
+// Copyright (c) 2005 Krodo
+// Part of Bylins http://www.mud.ru
 
 #ifndef _BOARDS_H_
 #define _BOARDS_H_
 
 #include <string>
 #include <vector>
+#include <bitset>
+#include <memory>
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include "conf.h"
@@ -18,47 +17,62 @@
 #include "db.h"
 #include "interpreter.h"
 
+namespace Boards
+{
 
-extern const int MAX_MESSAGE_LENGTH;
-extern const int MIN_WRITE_LEVEL;
-extern const unsigned int MAX_BOARD_MESSAGES;
+// возможные типы доступа к доскам
+enum Access
+{
+	ACCESS_CAN_SEE,    // видно в списке по 'доски' и попытках обратиться к доске
+	ACCESS_CAN_READ,   // можно листать и читать сообщения
+	ACCESS_CAN_WRITE,  // можно писать сообщения
+	ACCESS_FULL,       // можно удалять чужие сообщения
+	ACCESS_NUM         // кол-во флагов
+};
 
 // типы досок
-extern const int GENERAL_BOARD;
-extern const int NEWS_BOARD;
-extern const int IDEA_BOARD;
-extern const int ERROR_BOARD;
-extern const int GODNEWS_BOARD;
-extern const int GODGENERAL_BOARD;
-extern const int GODBUILD_BOARD;
-extern const int GODCODE_BOARD;
-extern const int GODPUNISH_BOARD;
-extern const int PERS_BOARD;
-extern const int CLAN_BOARD;
-extern const int CLANNEWS_BOARD;
-extern const int NOTICE_BOARD;
-extern const int MISPRINT_BOARD;
-const int BOARD_TOTAL = 14;
+enum BoardTypes: int
+{
+	GENERAL_BOARD,    // общая
+	NEWS_BOARD,       // новости
+	IDEA_BOARD,       // идеи
+	ERROR_BOARD,      // баги (ошибка)
+	GODNEWS_BOARD,    // новости (только для иммов)
+	GODGENERAL_BOARD, // общая (только для иммов)
+	GODBUILD_BOARD,   // билдеры (только для иммов)
+	GODCODE_BOARD,    // кодеры (только для иммов)
+	GODPUNISH_BOARD,  // наказания (только для иммов)
+	PERS_BOARD,       // персональная (только для иммов)
+	CLAN_BOARD,       // клановая
+	CLANNEWS_BOARD,   // клановые новости
+	NOTICE_BOARD,     // анонсы
+	MISPRINT_BOARD,   // очепятки (опечатка)
+	SUGGEST_BOARD,    // придумки (мысль)
+	TYPES_NUM         // кол-во досок
+};
 
-// предметы, на которые вешаем спешиалы для старого способа работы с досками
-#define GODGENERAL_BOARD_OBJ 250
-#define GENERAL_BOARD_OBJ    251
-#define GODCODE_BOARD_OBJ    253
-#define GODPUNISH_BOARD_OBJ  257
-#define GODBUILD_BOARD_OBJ   259
+extern const int GODGENERAL_BOARD_OBJ;
+extern const int GENERAL_BOARD_OBJ;
+extern const int GODCODE_BOARD_OBJ;
+extern const int GODPUNISH_BOARD_OBJ;
+extern const int GODBUILD_BOARD_OBJ;
+extern const unsigned MAX_BOARD_MESSAGES;
+extern const unsigned MAX_REPORT_MESSAGES;
+extern const char *OVERFLOW_MESSAGE;
+
+bool can_see(CHAR_DATA *ch, const Board &board);
+bool can_read(CHAR_DATA *ch, const Board &board);
+bool can_write(CHAR_DATA *ch, const Board &board);
+bool full_access(CHAR_DATA *ch, const Board &board);
+void clan_delete_message(const std::string &name, int vnum);
+void new_message_notify(const Board &board);
+
+} // namespace BoardSystem
 
 ACMD(report_on_board);
 
-typedef boost::shared_ptr<Board> BoardPtr;
-typedef std::vector<BoardPtr> BoardListType;
 typedef boost::shared_ptr<struct Message> MessagePtr;
 typedef std::vector<MessagePtr> MessageListType;
-
-// даты последних прочтенных мессаг на досках
-struct board_data
-{
-	boost::array<time_t, BOARD_TOTAL> board_date;
-};
 
 // отдельное сообщение
 struct Message
@@ -75,32 +89,32 @@ struct Message
 	std::string text;    // текст сообщения
 };
 
-// доски... наследование нафик
 class Board
 {
 public:
-	static BoardListType BoardList; // список досок
+	Board(Boards::BoardTypes in_type)
+		: type(in_type), lastWrite(0), clanRent(0), persUnique(0) {};
+
 	MessageListType messages; // список сообщений
 
-	Board();
-	int Access(CHAR_DATA * ch);
-	int GetType()
-	{
-		return this->type;
-	};
-	int GetClanRent()
-	{
-		return this->clanRent;
-	};
-	std::string & GetName()
-	{
-		return this->name;
-	};
-	void SetLastRead(long unique)
-	{
-		this->lastWrite = unique;
-	};
+	Boards::BoardTypes GetType() const;
+	int GetClanRent() const;
+	const std::string & GetName() const;
+
+	long get_lastwrite() const;
+	void set_lastwrite(long unique);
+
 	void Save();
+	void add_message(MessagePtr msg);
+	void new_message_notify() const;
+
+	std::bitset<Boards::ACCESS_NUM> get_access(CHAR_DATA *ch) const;
+	void do_list(CHAR_DATA *ch) const;
+	bool is_special() const;
+	time_t last_message_date() const;
+
+	const std::string & get_alias() const;
+
 	static void BoardInit();
 	static void ClanInit();
 	static void clear_god_boards();
@@ -108,14 +122,13 @@ public:
 	static void reload_all();
 	static SPECIAL(Special);
 	static void LoginInfo(CHAR_DATA * ch);
-	bool can_write(CHAR_DATA *ch);
 
 	friend ACMD(DoBoard);
 	friend ACMD(DoBoardList);
 	friend ACMD(report_on_board);
 
 private:
-	int type;                 // тип доски
+	Boards::BoardTypes type;  // тип доски
 	std::string name;         // имя доски
 	std::string desc;         // описание доски
 	long lastWrite;           // уид последнего писавшего (до ребута)
@@ -123,10 +136,13 @@ private:
 	int persUnique;           // уид (для персональной доски)
 	std::string persName;     // имя (для персональной доски)
 	std::string file;         // имя файла для сейва/лоада
+	std::string alias_;        // однострочные алиасы для спец.досок
 
 	void Load();
+
 	static void ShowMessage(CHAR_DATA * ch, MessagePtr message);
-	static void create_board(int type, const std::string &name, const std::string &desc, const std::string &file);
+	static void create_board(Boards::BoardTypes type, const std::string &name,
+		const std::string &desc, const std::string &file);
 };
 
 #endif

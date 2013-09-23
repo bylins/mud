@@ -360,10 +360,6 @@ void Character::purge(bool destructor)
 		}
 		LOGON_LIST(this) = NULL;
 
-		if (GET_BOARD(this))
-			delete GET_BOARD(this);
-		GET_BOARD(this) = 0;
-
 		free(this->player_specials);
 		this->player_specials = NULL;	// чтобы словить ACCESS VIOLATION !!!
 		if (IS_NPC(this))
