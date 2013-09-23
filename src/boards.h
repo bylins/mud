@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 #include <bitset>
-#include <memory>
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include "conf.h"

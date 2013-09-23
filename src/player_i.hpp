@@ -1,4 +1,3 @@
-// $RCSfile$     $Date$     $Revision$
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
@@ -9,6 +8,10 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
+// GCC 4.4
+#include "reset_stats.hpp"
+#include "boards.h"
+// GCC 4.4
 
 namespace DpsSystem
 {
@@ -20,6 +23,8 @@ namespace MapSystem
 	struct Options;
 }
 
+// GCC 4.4
+/*
 namespace ResetStats
 {
 	enum Type : int;
@@ -29,6 +34,8 @@ namespace Boards
 {
 	enum BoardTypes: int;
 }
+*/
+// GCC 4.4
 
 extern room_rnum r_helled_start_room;
 

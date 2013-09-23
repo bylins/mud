@@ -4,12 +4,12 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <memory>
 #include "conf.h"
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
+#include <boost/make_shared.hpp>
 #include "house.h"
 #include "screen.h"
 #include "comm.h"
@@ -24,7 +24,7 @@ namespace Boards
 {
 
 // общий список досок
-std::vector<std::shared_ptr<Board>> board_list;
+std::vector<boost::shared_ptr<Board>> board_list;
 // предметы, на которые вешаем спешиалы для старого способа работы с досками
 const int GODGENERAL_BOARD_OBJ = 250;
 const int GENERAL_BOARD_OBJ = 251;
@@ -96,7 +96,7 @@ using namespace Boards;
 
 void Board::create_board(BoardTypes type, const std::string &name, const std::string &desc, const std::string &file)
 {
-	std::shared_ptr<Board> board = std::make_shared<Board>(type);
+	boost::shared_ptr<Board> board = boost::make_shared<Board>(type);
 	board->name = name;
 	board->desc = desc;
 	board->file = file;
@@ -150,7 +150,7 @@ void Board::ClanInit()
 		std::string name = (*clan)->GetAbbrev();
 		CreateFileName(name);
 		// делаем клановую доску
-		std::shared_ptr<Board> board = std::make_shared<Board>(CLAN_BOARD);
+		boost::shared_ptr<Board> board = boost::make_shared<Board>(CLAN_BOARD);
 		board->name = "ДрВече";
 		board->desc = "Основной раздел Дружины ";
 		board->desc += (*clan)->GetAbbrev();
@@ -159,7 +159,7 @@ void Board::ClanInit()
 		board->Load();
 		board_list.push_back(board);
 		// делаем клановые новости
-		board = std::make_shared<Board>(CLANNEWS_BOARD);
+		board = boost::make_shared<Board>(CLANNEWS_BOARD);
 		board->name = "ДрНовости";
 		board->desc = "Новости Дружины ";
 		board->desc += (*clan)->GetAbbrev();
@@ -182,7 +182,7 @@ void Board::clear_god_boards()
 // втыкаем блокнот имму
 void Board::init_god_board(long uid, std::string name)
 {
-	std::shared_ptr<Board> board = std::make_shared<Board>(PERS_BOARD);
+	boost::shared_ptr<Board> board = boost::make_shared<Board>(PERS_BOARD);
 	board->name = "Блокнот";
 	board->desc = "Ваш раздел для заметок";
 	board->persUnique = uid;
@@ -376,7 +376,7 @@ ACMD(DoBoard)
 		return;
 	}
 
-	std::vector<std::shared_ptr<Board>>::const_iterator board_it;
+	std::vector<boost::shared_ptr<Board>>::const_iterator board_it;
 	for (board_it = board_list.begin(); board_it != board_list.end(); ++board_it)
 	{
 		if ((*board_it)->type == subcmd && can_see(ch, **board_it))

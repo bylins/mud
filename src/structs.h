@@ -22,9 +22,9 @@
 #include <fstream>
 #include <map>
 #include <iterator>
-#include <memory>
 #include "conf.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 #include <boost/array.hpp>
 
 using std::map;
@@ -1597,7 +1597,7 @@ struct descriptor_data
 	mccp_version;
 #endif
 	unsigned long ip; // ип адрес в виде числа для внутреннего пользования
-	std::weak_ptr<Board> board; // редактируемая доска
+	boost::weak_ptr<Board> board; // редактируемая доска
 	boost::shared_ptr<struct Message> message; // редактируемое сообщение
 	boost::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
 	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
