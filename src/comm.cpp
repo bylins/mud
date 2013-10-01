@@ -4259,6 +4259,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 {
 	CHAR_DATA *to;
 	int to_sleeping, check_deaf, check_nodeaf, stopcount, to_arena=0, arena_room_rnum;
+	int to_brief_shields = 0, to_no_brief_shields = 0;
 
 	if (!str || !*str)
 		return;
@@ -4277,6 +4278,10 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	 * do not change it to something else.  In short, it is a hack.
 	 */
 
+	if ((to_no_brief_shields = (type & TO_NO_BRIEF_SHIELDS)))
+		type &= ~TO_NO_BRIEF_SHIELDS;
+	if ((to_brief_shields = (type & TO_BRIEF_SHIELDS)))
+		type &= ~TO_BRIEF_SHIELDS;
 	if ((to_arena = (type & TO_ARENA_LISTEN)))
 		type &= ~TO_ARENA_LISTEN;
 	// check if TO_SLEEP is there, and remove it if it is.
@@ -4289,21 +4294,31 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 
 	if (type == TO_CHAR)
 	{
-		if (ch &&
-				SENDOK(ch) &&
-				IN_ROOM(ch) != NOWHERE &&
-				(!check_deaf || !AFF_FLAGGED(ch, AFF_DEAFNESS)) && (!check_nodeaf || AFF_FLAGGED(ch, AFF_DEAFNESS)))
+		if (ch
+			&& SENDOK(ch)
+			&& IN_ROOM(ch) != NOWHERE
+			&& (!check_deaf || !AFF_FLAGGED(ch, AFF_DEAFNESS))
+			&& (!check_nodeaf || AFF_FLAGGED(ch, AFF_DEAFNESS))
+			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
+			&& (!to_no_brief_shields || !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)))
+		{
 			perform_act(str, ch, obj, vict_obj, ch);
+		}
 		return;
 	}
 
 	if (type == TO_VICT)
 	{
-		if ((to = (CHAR_DATA *) vict_obj) != NULL &&
-				SENDOK(to) &&
-				IN_ROOM(to) != NOWHERE &&
-				(!check_deaf || !AFF_FLAGGED(to, AFF_DEAFNESS)) && (!check_nodeaf || AFF_FLAGGED(to, AFF_DEAFNESS)))
+		if ((to = (CHAR_DATA *) vict_obj) != NULL
+			&& SENDOK(to)
+			&& IN_ROOM(to) != NOWHERE
+			&& (!check_deaf || !AFF_FLAGGED(to, AFF_DEAFNESS))
+			&& (!check_nodeaf || AFF_FLAGGED(to, AFF_DEAFNESS))
+			&& (!to_brief_shields || PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
+			&& (!to_no_brief_shields || !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS)))
+		{
 			perform_act(str, ch, obj, vict_obj, to);
+		}
 		return;
 	}
 	// ASSUMPTION: at this point we know type must be TO_NOTVICT or TO_ROOM
@@ -4336,6 +4351,10 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 			if (check_deaf && AFF_FLAGGED(to, AFF_DEAFNESS))
 				continue;
 			if (check_nodeaf && !AFF_FLAGGED(to, AFF_DEAFNESS))
+				continue;
+			if (to_brief_shields && !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
+				continue;
+			if (to_no_brief_shields && PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 				continue;
 			if (type == TO_ROOM_HIDE && !AFF_FLAGGED(to, AFF_SENSE_LIFE) && (IS_NPC(to) || !PRF_FLAGGED(to, PRF_HOLYLIGHT)))
 				continue;

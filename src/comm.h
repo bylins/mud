@@ -46,10 +46,12 @@ unsigned long get_ip(const char *addr);
 #define TO_NOTVICT	3
 #define TO_CHAR		4
 #define TO_ROOM_HIDE    5	// В комнату, но только тем, кто чувствует жизнь
-#define CHECK_NODEAF    32	// посылать только глухим
-#define CHECK_DEAF      64	// не посылать глухим
-#define TO_SLEEP	128	// to char, even if sleeping
-#define TO_ARENA_LISTEN	512	// не отсылать сообщение с арены слушателям, чтоб не спамить передвижениями и тп
+#define CHECK_NODEAF        32   // посылать только глухим
+#define CHECK_DEAF          64   // не посылать глухим
+#define TO_SLEEP            128  // to char, even if sleeping
+#define TO_ARENA_LISTEN     512  // не отсылать сообщение с арены слушателям, чтоб не спамить передвижениями и тп
+#define TO_BRIEF_SHIELDS    1024 // отсылать только тем, у кого включен режим PRF_BRIEF_SHIELDS
+#define TO_NO_BRIEF_SHIELDS 2048 // отсылать только тем, у кого нет режима PRF_BRIEF_SHIELDS
 
 // I/O functions
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);

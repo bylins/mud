@@ -1792,10 +1792,10 @@ void appear(CHAR_DATA * ch)
 }
 
 // message for doing damage with a weapon
-void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
+void Damage::dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const
 {
-	char *buf;
-	int msgnum;
+	int dam_msgnum;
+	int w_type = msg_num;
 
 	static struct dam_weapon_type
 	{
@@ -1877,64 +1877,88 @@ void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
 		w_type = TYPE_HIT;
 
 	if (dam == 0)
-		msgnum = 0;
+		dam_msgnum = 0;
 	else if (dam <= 5)
-		msgnum = 1;
+		dam_msgnum = 1;
 	else if (dam <= 11)
-		msgnum = 2;
+		dam_msgnum = 2;
 	else if (dam <= 18)
-		msgnum = 3;
+		dam_msgnum = 3;
 	else if (dam <= 26)
-		msgnum = 4;
+		dam_msgnum = 4;
 	else if (dam <= 35)
-		msgnum = 5;
+		dam_msgnum = 5;
 	else if (dam <= 45)
-		msgnum = 6;
+		dam_msgnum = 6;
 	else if (dam <= 56)
-		msgnum = 7;
+		dam_msgnum = 7;
 	else if (dam <= 96)
-		msgnum = 8;
+		dam_msgnum = 8;
 	else if (dam <= 136)
-		msgnum = 9;
+		dam_msgnum = 9;
 	else if (dam <= 176)
-		msgnum = 10;
+		dam_msgnum = 10;
 	else if (dam <= 216)
-		msgnum = 11;
+		dam_msgnum = 11;
 	else if (dam <= 256)
-		msgnum = 12;
+		dam_msgnum = 12;
 	else if (dam <= 296)
-		msgnum = 13;
+		dam_msgnum = 13;
 	else
-		msgnum = 14;
+		dam_msgnum = 14;
 
-	// damage message to onlookers //
-
-	buf = replace_string(dam_weapons[msgnum].to_room,
-						 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
-	act(buf, FALSE, ch, NULL, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-
-	// damage message to damager //
-	if (dam)
-		send_to_char("&Y&q", ch);
+	// damage message to onlookers
+	char *buf_ptr = replace_string(dam_weapons[dam_msgnum].to_room,
+		attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
+	if (brief_shields_.empty())
+	{
+		act(buf_ptr, FALSE, ch, NULL, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+	}
 	else
-		send_to_char("&y&q", ch);
-	buf = replace_string(dam_weapons[msgnum].to_char,
-						 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
-	act(buf, FALSE, ch, NULL, victim, TO_CHAR);
+	{
+		char buf_[MAX_INPUT_LENGTH];
+		snprintf(buf_, sizeof(buf_), "%s%s", buf_ptr, brief_shields_.c_str());
+		act(buf_, FALSE, ch, NULL, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_BRIEF_SHIELDS);
+		act(buf_ptr, FALSE, ch, NULL, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
+	}
+
+	// damage message to damager
+	send_to_char(ch, "%s", dam ? "&Y&q" : "&y&q");
+	if (!brief_shields_.empty() && PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
+	{
+		char buf_[MAX_INPUT_LENGTH];
+		snprintf(buf_, sizeof(buf_), "%s%s",
+			replace_string(dam_weapons[dam_msgnum].to_char,
+				attack_hit_text[w_type].singular, attack_hit_text[w_type].plural),
+			brief_shields_.c_str());
+		act(buf_, FALSE, ch, NULL, victim, TO_CHAR);
+	}
+	else
+	{
+		buf_ptr = replace_string(dam_weapons[dam_msgnum].to_char,
+			attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
+		act(buf_ptr, FALSE, ch, NULL, victim, TO_CHAR);
+	}
 	send_to_char("&Q&n", ch);
 
-	// damage message to damagee //
-	/*if (dam)
-		send_to_char(CCIRED(victim, C_CMP), victim);
-	else
-		send_to_char(CCIRED(victim, C_CMP), victim);*/
+	// damage message to damagee
 	send_to_char("&R&q", victim);
-	buf = replace_string(dam_weapons[msgnum].to_victim,
-						 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
-	act(buf, FALSE, ch, NULL, victim, TO_VICT | TO_SLEEP);
+	if (!brief_shields_.empty() && PRF_FLAGGED(victim, PRF_BRIEF_SHIELDS))
+	{
+		char buf_[MAX_INPUT_LENGTH];
+		snprintf(buf_, sizeof(buf_), "%s%s",
+			replace_string(dam_weapons[dam_msgnum].to_victim,
+				attack_hit_text[w_type].singular, attack_hit_text[w_type].plural),
+			brief_shields_.c_str());
+		act(buf_, FALSE, ch, NULL, victim, TO_VICT | TO_SLEEP);
+	}
+	else
+	{
+		buf_ptr = replace_string(dam_weapons[dam_msgnum].to_victim,
+			attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
+		act(buf_ptr, FALSE, ch, NULL, victim, TO_VICT | TO_SLEEP);
+	}
 	send_to_char("&Q&n", victim);
-//  sprintf(buf,"Нанесенные повреждения - %d\n",dam);
-//  send_to_char(buf,ch);
 }
 
 // запоминание.
@@ -2027,6 +2051,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			&& GET_POS(victim) > POS_STUNNED
 			&& IN_ROOM(victim) != NOWHERE)
 		{
+			flags.set(DRAW_BRIEF_MAG_MIRROR);
 			Damage dmg(SpellDmg(SPELL_MAGICGLASS), mg_damage, UNDEF_DMG);
 			dmg.flags.set(NO_FLEE);
 			dmg.flags.set(MAGIC_REFLECT);
@@ -2052,27 +2077,36 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 		else
 		{
-			act("Огненный щит принял часть повреждений на себя.", FALSE, ch, 0, victim, TO_VICT);
-			act("Огненный щит вокруг $N1 ослабил вашу атаку.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Огненный щит вокруг $N1 ослабил вашу атаку.",
+				FALSE, ch, 0, victim, TO_CHAR | TO_NO_BRIEF_SHIELDS);
+			act("Огненный щит принял часть повреждений на себя.",
+				FALSE, ch, 0, victim, TO_VICT | TO_NO_BRIEF_SHIELDS);
 			act("Огненный щит вокруг $N1 ослабил атаку $n1.",
-				TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
 		}
+		flags.set(DRAW_BRIEF_FIRE_SHIELD);
 		dam -= (dam * number(30, 50) / 100);
 	}
 	if (dam > 0 && flags[VICTIM_ICE_SHIELD] && !flags[CRIT_HIT])
 	{
-		act("Ледяной щит принял часть удара на себя.", FALSE, ch, 0, victim, TO_VICT);
-		act("Ледяной щит вокруг $N1 смягчил ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+		flags.set(DRAW_BRIEF_ICE_SHIELD);
+		act("Ледяной щит вокруг $N1 смягчил ваш удар.",
+			FALSE, ch, 0, victim, TO_CHAR | TO_NO_BRIEF_SHIELDS);
+		act("Ледяной щит принял часть удара на себя.",
+			FALSE, ch, 0, victim, TO_VICT | TO_NO_BRIEF_SHIELDS);
 		act("Ледяной щит вокруг $N1 смягчил удар $n1.",
-			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
 		dam -= (dam * number(30, 50) / 100);
 	}
 	if (dam > 0 && flags[VICTIM_AIR_SHIELD] && !flags[CRIT_HIT])
 	{
-		act("Воздушный щит смягчил удар $n1.", FALSE, ch, 0, victim, TO_VICT);
-		act("Воздушный щит вокруг $N1 ослабил ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+		flags.set(DRAW_BRIEF_AIR_SHIELD);
+		act("Воздушный щит вокруг $N1 ослабил ваш удар.",
+			FALSE, ch, 0, victim, TO_CHAR | TO_NO_BRIEF_SHIELDS);
+		act("Воздушный щит смягчил удар $n1.",
+			FALSE, ch, 0, victim, TO_VICT | TO_NO_BRIEF_SHIELDS);
 		act("Воздушный щит вокруг $N1 ослабил удар $n1.",
-			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
 		dam -= (dam * number(30, 50) / 100);
 	}
 
@@ -2605,23 +2639,38 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	// * dam_message. Otherwise, always send a dam_message.
 	// log("[DAMAGE] Attack message...");
 
+	// инит Damage::brief_shields_
+	if (flags.test(DRAW_BRIEF_FIRE_SHIELD)
+		|| flags.test(DRAW_BRIEF_AIR_SHIELD)
+		|| flags.test(DRAW_BRIEF_ICE_SHIELD)
+		|| flags.test(DRAW_BRIEF_MAG_MIRROR))
+	{
+		char buf_[MAX_INPUT_LENGTH];
+		snprintf(buf_, sizeof(buf_), "&n (%s%s%s%s)",
+			flags.test(DRAW_BRIEF_FIRE_SHIELD) ? "&R*&n" : "",
+			flags.test(DRAW_BRIEF_AIR_SHIELD) ? "&C*&n" : "",
+			flags.test(DRAW_BRIEF_ICE_SHIELD) ? "&W*&n" : "",
+			flags.test(DRAW_BRIEF_MAG_MIRROR) ? "&M*&n" : "");
+		brief_shields_ = buf_;
+	}
+
 	//* сообщения об ударах //
 	if (skill_num >= 0 || spell_num >= 0 || hit_type < 0)
 	{
 		// скилл, спелл, необычный дамаг
-		skill_message(dam, ch, victim, msg_num);
+		skill_message(dam, ch, victim, msg_num, brief_shields_);
 	}
 	else
 	{
 		// простой удар рукой/оружием
 		if (GET_POS(victim) == POS_DEAD || dam == 0)
 		{
-			if (!skill_message(dam, ch, victim, msg_num))
-				dam_message(dam, ch, victim, msg_num);
+			if (!skill_message(dam, ch, victim, msg_num,  brief_shields_))
+				dam_message(ch, victim);
 		}
 		else
 		{
-			dam_message(dam, ch, victim, msg_num);
+			dam_message(ch, victim);
 		}
 	}
 

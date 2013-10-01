@@ -105,7 +105,7 @@
 // не забываем указывать максимальный номер скилла
 #define MAX_SKILL_NUM               181
 
-int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype);
+int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add = "");
 
 int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict);
 void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victim);

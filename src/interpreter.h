@@ -183,6 +183,7 @@ struct alias_data
 #define SCMD_DRAW_MAP      48
 #define SCMD_ENTER_ZONE    49
 #define SCMD_MISPRINT      50
+#define SCMD_BRIEF_SHIELDS 51
 
 // do_wizutil
 #define SCMD_REROLL     0
@@ -240,11 +241,6 @@ struct alias_data
 
 // do_pray
 #define SCMD_PRAY   0
-
-// do_gen_write
-#define SCMD_BUG  0
-#define SCMD_TYPO 1
-#define SCMD_IDEA 2
 
 // do_look
 #define SCMD_LOOK    0

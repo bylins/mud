@@ -49,6 +49,14 @@ enum
 	VICTIM_AIR_SHIELD,
 	// жертва имеет ледяной щит
 	VICTIM_ICE_SHIELD,
+	// было отражение от огненного щита в кратком режиме
+	DRAW_BRIEF_FIRE_SHIELD,
+	// было отражение от воздушного щита в кратком режиме
+	DRAW_BRIEF_AIR_SHIELD,
+	// было отражение от ледяного щита в кратком режиме
+	DRAW_BRIEF_ICE_SHIELD,
+	// была обратка от маг. зеркала
+	DRAW_BRIEF_MAG_MIRROR,
 
 	// кол-во флагов
 	HIT_TYPE_FLAGS_NUM
@@ -166,9 +174,13 @@ private:
 	bool dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim);
 	void process_death(CHAR_DATA *ch, CHAR_DATA *victim);
 	void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim);
+	void dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const;
 
 	// обратный дамаг от огненного щита
 	int fs_damage;
+	// строка для краткого режима щитов, дописывается после ударов и прочего
+	// если во flags были соответствующие флаги
+	std::string brief_shields_;
 };
 
 // fight.cpp

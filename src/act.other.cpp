@@ -103,7 +103,6 @@ ACMD(do_split);
 ACMD(do_use);
 ACMD(do_wimpy);
 ACMD(do_display);
-ACMD(do_gen_write);
 ACMD(do_gen_tog);
 ACMD(do_courage);
 ACMD(do_toggle);
@@ -1925,75 +1924,6 @@ ACMD(do_display)
 	send_to_char(OK, ch);
 }
 
-
-
-ACMD(do_gen_write)
-{
-	FILE *fl;
-	char *tmp, buf[MAX_STRING_LENGTH];
-	const char *filename;
-	struct stat fbuf;
-	time_t ct;
-
-	switch (subcmd)
-	{
-	case SCMD_BUG:
-		filename = BUG_FILE;
-		break;
-	case SCMD_TYPO:
-		filename = TYPO_FILE;
-		break;
-	case SCMD_IDEA:
-		filename = IDEA_FILE;
-		break;
-	default:
-		return;
-	}
-
-	ct = time(0);
-	tmp = asctime(localtime(&ct));
-
-	if (IS_NPC(ch))
-	{
-		send_to_char("То, что вас посетило, оставьте при себе. Плиз-з-з.\r\n", ch);
-		return;
-	}
-
-	skip_spaces(&argument);
-	delete_doubledollar(argument);
-
-	if (!*argument)
-	{
-		send_to_char("Это какая то ошибка...\r\n", ch);
-		return;
-	}
-	sprintf(buf, "%s %s: %s", GET_NAME(ch), CMD_NAME, argument);
-	mudlog(buf, CMP, LVL_GRGOD, SYSLOG, FALSE);
-
-	if (stat(filename, &fbuf) < 0)
-	{
-		perror("SYSERR: Can't stat() file");
-		return;
-	}
-	if (fbuf.st_size >= max_filesize)
-	{
-		send_to_char
-		("Да, набросали всего столько, что файл переполнен. Напомните об этом богам!\r\n", ch);
-		return;
-	}
-	if (!(fl = fopen(filename, "a")))
-	{
-		perror("SYSERR: do_gen_write");
-		send_to_char("Не смог открыть файл. Просто не смог :(.\r\n", ch);
-		return;
-	}
-	fprintf(fl, "%-8s (%6.6s) [%5d] %s\n", GET_NAME(ch), (tmp + 4), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
-	fclose(fl);
-	send_to_char("Записали. Заранее благодарны.\r\n" "                        Боги.\r\n", ch);
-}
-
-
-
 #define TOG_OFF 0
 #define TOG_ON  1
 const char *gen_tog_type[] = { "автовыходы", "autoexits",
@@ -2045,6 +1975,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "карта", "map",
 							   "вход в зону", "enter zone",
 							   "опечатки", "misprint",
+							   "магщиты", "mageshields",
 							   "\n"
 							 };
 
@@ -2106,7 +2037,8 @@ struct gen_tog_param_type
 		0, SCMD_NOTIFY_EXCH}, {
 		0, SCMD_DRAW_MAP}, {
 		0, SCMD_ENTER_ZONE}, {
-		LVL_GOD, SCMD_MISPRINT}
+		LVL_GOD, SCMD_MISPRINT}, {
+		0, SCMD_BRIEF_SHIELDS}
 };
 
 ACMD(do_mode)
@@ -2351,7 +2283,9 @@ ACMD(do_gen_tog)
 		{"Показ информации при входе в новую зону отключен.\r\n",
 		 "Вы будете видеть информации при входе в новую зону.\r\n"},
 		{"Показ уведомлений доски опечаток отключен.\r\n",
-		 "Вы будете видеть уведомления доски опечаток.\r\n"}
+		 "Вы будете видеть уведомления доски опечаток.\r\n"},
+		{"Показ сообщений при срабатывании магических щитов: полный.\r\n",
+		 "Показ сообщений при срабатывании магических щитов: краткий.\r\n"}
 	};
 
 
@@ -2538,6 +2472,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_MISPRINT:
 		result = PRF_TOG_CHK(ch, PRF_MISPRINT);
+		break;
+	case SCMD_BRIEF_SHIELDS:
+		result = PRF_TOG_CHK(ch, PRF_BRIEF_SHIELDS);
 		break;
 	default:
 		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);

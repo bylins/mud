@@ -56,12 +56,153 @@ static const char *kick_type[] =
 	"СМЕРТЕЛЬНО " // 297+
 };
 
-int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
+struct brief_shields
 {
-	int i, j, nr, weap_i;
+	brief_shields(CHAR_DATA* ch_, CHAR_DATA* vict_, OBJ_DATA* weap_, std::string add_)
+		: ch(ch_), vict(vict_), weap(weap_), add(add_), reflect(false ) {};
+
+	void act_to_char(const char *msg)
+	{
+		if (!reflect || (reflect && !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)))
+		{
+			if (!add.empty() && PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
+			{
+				act_add(msg, TO_CHAR);
+			}
+			else
+			{
+				act_no_add(msg, TO_CHAR);
+			}
+		}
+	}
+	void act_to_vict(const char *msg)
+	{
+		if (!reflect || (reflect && !PRF_FLAGGED(vict, PRF_BRIEF_SHIELDS)))
+		{
+			if (!add.empty() && PRF_FLAGGED(vict, PRF_BRIEF_SHIELDS))
+			{
+				act_add(msg, TO_VICT | TO_SLEEP);
+			}
+			else
+			{
+				act_no_add(msg, TO_VICT | TO_SLEEP);
+			}
+		}
+	}
+	void act_to_room(const char *msg)
+	{
+		if (add.empty())
+		{
+			if (reflect)
+			{
+				act_no_add(msg, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
+			}
+			else
+			{
+				act_no_add(msg, TO_NOTVICT | TO_ARENA_LISTEN);
+			}
+		}
+		else
+		{
+			act_no_add(msg, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
+			if (!reflect)
+			{
+				act_add(msg, TO_NOTVICT | TO_ARENA_LISTEN | TO_BRIEF_SHIELDS);
+			}
+		}
+	}
+
+	CHAR_DATA* ch;
+	CHAR_DATA* vict;
+	OBJ_DATA* weap;
+	std::string add;
+	// флаг отражаемого дамага, который надо глушить в режиме PRF_BRIEF_SHIELDS
+	bool reflect;
+
+private:
+	void act_no_add(const char *msg, int type)
+	{
+		act(msg, FALSE, ch, weap, vict, type);
+	}
+	void act_add(const char *msg, int type)
+	{
+		char buf_[MAX_INPUT_LENGTH];
+		snprintf(buf_, sizeof(buf_), "%s%s", msg, add.c_str());
+		act(buf_, FALSE, ch, weap, vict, type);
+	}
+};
+
+OBJ_DATA* init_weap(CHAR_DATA *ch, int dam, int attacktype)
+{
+	OBJ_DATA* weap = 0;
+	int weap_i = 0;
+
+	switch (attacktype)
+	{
+	case SKILL_BACKSTAB + TYPE_HIT:
+		if (!(weap = GET_EQ(ch, WEAR_WIELD))
+				&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
+			weap = obj_proto[weap_i];
+		break;
+	case SKILL_THROW + TYPE_HIT:
+		if (!(weap = GET_EQ(ch, WEAR_WIELD))
+				&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
+			weap = obj_proto[weap_i];
+		break;
+	case SKILL_BASH + TYPE_HIT:
+		if (!(weap = GET_EQ(ch, WEAR_SHIELD))
+				&& (weap_i = real_object(DUMMY_SHIELD)) >= 0)
+			weap = obj_proto[weap_i];
+		break;
+	case SKILL_KICK + TYPE_HIT:
+		// weap - текст силы удара
+		if (dam <= 5)
+			weap = (OBJ_DATA *) kick_type[0];
+		else if (dam <= 11)
+			weap = (OBJ_DATA *) kick_type[1];
+		else if (dam <= 26)
+			weap = (OBJ_DATA *) kick_type[2];
+		else if (dam <= 35)
+			weap = (OBJ_DATA *) kick_type[3];
+		else if (dam <= 45)
+			weap = (OBJ_DATA *) kick_type[4];
+		else if (dam <= 56)
+			weap = (OBJ_DATA *) kick_type[5];
+		else if (dam <= 96)
+			weap = (OBJ_DATA *) kick_type[6];
+		else if (dam <= 136)
+			weap = (OBJ_DATA *) kick_type[7];
+		else if (dam <= 176)
+			weap = (OBJ_DATA *) kick_type[8];
+		else if (dam <= 216)
+			weap = (OBJ_DATA *) kick_type[9];
+		else if (dam <= 256)
+			weap = (OBJ_DATA *) kick_type[10];
+		else if (dam <= 296)
+			weap = (OBJ_DATA *) kick_type[11];
+		else
+			weap = (OBJ_DATA *) kick_type[12];
+		break;
+	case TYPE_HIT:
+		weap = 0;
+		break;
+	default:
+		if (!weap && (weap_i = real_object(DUMMY_WEAPON)) >= 0)
+			weap = obj_proto[weap_i];
+	}
+
+	return weap;
+}
+
+///
+/// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)
+///
+int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add)
+{
+	int i, j, nr;
 	struct message_type *msg;
-	OBJ_DATA *weap = GET_EQ(ch, WEAR_WIELD) ? GET_EQ(ch, WEAR_WIELD) : GET_EQ(ch,
-					 WEAR_BOTHS);
+	OBJ_DATA *weap = GET_EQ(ch, WEAR_WIELD) ?
+		GET_EQ(ch, WEAR_WIELD) : GET_EQ(ch, WEAR_BOTHS);
 
 	// log("[SKILL MESSAGE] Message for skill %d",attacktype);
 	for (i = 0; i < MAX_MESSAGES; i++)
@@ -73,58 +214,12 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 			for (j = 1, msg = fight_messages[i].msg; (j < nr) && msg; j++)
 				msg = msg->next;
 
-			switch (attacktype)
+			weap = init_weap(ch, dam, attacktype);
+			brief_shields brief(ch, vict, weap, add);
+			if (attacktype == SPELL_FIRE_SHIELD
+				|| attacktype == SPELL_MAGICGLASS)
 			{
-			case SKILL_BACKSTAB + TYPE_HIT:
-				if (!(weap = GET_EQ(ch, WEAR_WIELD))
-						&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
-					weap = obj_proto[weap_i];
-				break;
-			case SKILL_THROW + TYPE_HIT:
-				if (!(weap = GET_EQ(ch, WEAR_WIELD))
-						&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
-					weap = obj_proto[weap_i];
-				break;
-			case SKILL_BASH + TYPE_HIT:
-				if (!(weap = GET_EQ(ch, WEAR_SHIELD))
-						&& (weap_i = real_object(DUMMY_SHIELD)) >= 0)
-					weap = obj_proto[weap_i];
-				break;
-			case SKILL_KICK + TYPE_HIT:
-				// weap - текст силы удара
-				if (dam <= 5)
-					weap = (OBJ_DATA *) kick_type[0];
-				else if (dam <= 11)
-					weap = (OBJ_DATA *) kick_type[1];
-				else if (dam <= 26)
-					weap = (OBJ_DATA *) kick_type[2];
-				else if (dam <= 35)
-					weap = (OBJ_DATA *) kick_type[3];
-				else if (dam <= 45)
-					weap = (OBJ_DATA *) kick_type[4];
-				else if (dam <= 56)
-					weap = (OBJ_DATA *) kick_type[5];
-				else if (dam <= 96)
-					weap = (OBJ_DATA *) kick_type[6];
-				else if (dam <= 136)
-					weap = (OBJ_DATA *) kick_type[7];
-				else if (dam <= 176)
-					weap = (OBJ_DATA *) kick_type[8];
-				else if (dam <= 216)
-					weap = (OBJ_DATA *) kick_type[9];
-				else if (dam <= 256)
-					weap = (OBJ_DATA *) kick_type[10];
-				else if (dam <= 296)
-					weap = (OBJ_DATA *) kick_type[11];
-				else
-					weap = (OBJ_DATA *) kick_type[12];
-				break;
-			case TYPE_HIT:
-				weap = NULL;
-				break;
-			default:
-				if (!weap && (weap_i = real_object(DUMMY_WEAPON)) >= 0)
-					weap = obj_proto[weap_i];
+				brief.reflect = true;
 			}
 
 			if (!IS_NPC(vict) && (GET_LEVEL(vict) >= LVL_IMMORT))
@@ -141,42 +236,41 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 					send_to_char("&y&q", ch);
 					break;
 				}
-				act(msg->god_msg.attacker_msg, FALSE, ch, weap, vict,
-					TO_CHAR);
+				// ch
+				brief.act_to_char(msg->god_msg.attacker_msg);
 				send_to_char("&Q&n", ch);
-
-				act(msg->god_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT);
-				act(msg->god_msg.room_msg, FALSE, ch, weap, vict,
-					TO_NOTVICT | TO_ARENA_LISTEN);
+				// victim
+				brief.act_to_vict(msg->god_msg.victim_msg);
+				// room
+				brief.act_to_room(msg->god_msg.room_msg);
 			}
 			else if (dam != 0)
 			{
 				if (GET_POS(vict) == POS_DEAD)
 				{
+					// ch
 					send_to_char("&Y&q", ch);
-					act(msg->die_msg.attacker_msg, FALSE, ch, weap, vict,
-						TO_CHAR);
+					brief.act_to_char(msg->die_msg.attacker_msg);
 					send_to_char("&Q&n", ch);
-
+					// vict
 					send_to_char("&R&q", vict);
-					act(msg->die_msg.victim_msg, FALSE, ch, weap, vict,
-						TO_VICT | TO_SLEEP);
+					brief.act_to_vict(msg->die_msg.victim_msg);
 					send_to_char("&Q&n", vict);
-					act(msg->die_msg.room_msg, FALSE, ch, weap, vict,
-						TO_NOTVICT | TO_ARENA_LISTEN);
+					// room
+					brief.act_to_room(msg->die_msg.room_msg);
 				}
 				else
 				{
+					// ch
 					send_to_char("&Y&q", ch);
-					act(msg->hit_msg.attacker_msg, FALSE, ch, weap, vict,
-						TO_CHAR);
+					brief.act_to_char(msg->hit_msg.attacker_msg);
 					send_to_char("&Q&n", ch);
+					// vict
 					send_to_char("&R&q", vict);
-					act(msg->hit_msg.victim_msg, FALSE, ch, weap, vict,
-						TO_VICT | TO_SLEEP);
+					brief.act_to_vict(msg->hit_msg.victim_msg);
 					send_to_char("&Q&n", vict);
-					act(msg->hit_msg.room_msg, FALSE, ch, weap, vict,
-						TO_NOTVICT | TO_ARENA_LISTEN);
+					// room
+					brief.act_to_room(msg->hit_msg.room_msg);
 				}
 			}
 			else if (ch != vict)  	// Dam == 0
@@ -193,17 +287,15 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 					send_to_char("&y&q", ch);
 					break;
 				}
-				act(msg->miss_msg.attacker_msg, FALSE, ch, weap, vict,
-					TO_CHAR);
+				//ch
+				brief.act_to_char(msg->miss_msg.attacker_msg);
 				send_to_char("&Q&n", ch);
-
+				// vict
 				send_to_char("&r&q", vict);
-				act(msg->miss_msg.victim_msg, FALSE, ch, weap, vict,
-					TO_VICT | TO_SLEEP);
+				brief.act_to_vict(msg->miss_msg.victim_msg);
 				send_to_char("&Q&n", vict);
-
-				act(msg->miss_msg.room_msg, FALSE, ch, weap, vict,
-					TO_NOTVICT | TO_ARENA_LISTEN);
+				// room
+				brief.act_to_room(msg->miss_msg.room_msg);
 			}
 			return (1);
 		}

@@ -573,12 +573,13 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_NOINGR_LOOT (INT_ONE | 1 << 28) // не лутить ингры в режиме автограбежа
 #define PRF_DISP_TIMED     (INT_ONE | 1 << 29) // показ задержек для характерных профам умений и способностей
 
-#define PRF_IGVA_PRONA	(INT_TWO | 1 << 0)  // для стоп-списка оффтоп
-#define PRF_EXECUTOR	(INT_TWO | 1 << 1)  // палач
-#define PRF_DRAW_MAP	(INT_TWO | 1 << 2)  // отрисовка карты при осмотре клетки
-#define PRF_CAN_REMORT	(INT_TWO | 1 << 3)  // разрешение на реморт через жертвование гривн
-#define PRF_ENTER_ZONE	(INT_TWO | 1 << 4)  // вывод названия/среднего уровня при входе в зону
-#define PRF_MISPRINT	(INT_TWO | 1 << 5)  // показ непрочитанных сообщений на доске опечаток при входе
+#define PRF_IGVA_PRONA    (INT_TWO | 1 << 0)  // для стоп-списка оффтоп
+#define PRF_EXECUTOR      (INT_TWO | 1 << 1)  // палач
+#define PRF_DRAW_MAP      (INT_TWO | 1 << 2)  // отрисовка карты при осмотре клетки
+#define PRF_CAN_REMORT    (INT_TWO | 1 << 3)  // разрешение на реморт через жертвование гривн
+#define PRF_ENTER_ZONE    (INT_TWO | 1 << 4)  // вывод названия/среднего уровня при входе в зону
+#define PRF_MISPRINT      (INT_TWO | 1 << 5)  // показ непрочитанных сообщений на доске опечаток при входе
+#define PRF_BRIEF_SHIELDS (INT_TWO | 1 << 6)  // краткий режим сообщений при срабатывании маг.щитов
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //

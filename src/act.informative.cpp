@@ -5376,9 +5376,11 @@ ACMD(do_toggle)
 	send_to_char(buf, ch);
 	sprintf(buf,
 		" Карта         : %-3s     "
-		" Вход в зону   : %-3s \r\n",
+		" Вход в зону   : %-3s     "
+		" Магщиты (вид) : %s\r\n",
 		ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)),
-		ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)));
+		ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)),
+		(PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS) ? "краткий" : "полный"));
 	send_to_char(buf, ch);
 }
 

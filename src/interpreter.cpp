@@ -207,7 +207,6 @@ ACMD(do_gen_comm);
 ACMD(do_mobshout);
 ACMD(do_gen_door);
 ACMD(do_gen_ps);
-ACMD(do_gen_write);
 ACMD(do_get);
 ACMD(do_give);
 ACMD(do_givehorse);
