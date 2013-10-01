@@ -363,17 +363,17 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Cost"))
 			{
 				*error = 34;
-				GET_OBJ_COST(object) = atoi(buffer);
+				object->set_cost(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Rent"))
 			{
 				*error = 35;
-				GET_OBJ_RENT(object) = atoi(buffer);
+				object->set_rent(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "RntQ"))
 			{
 				*error = 36;
-				GET_OBJ_RENTEQ(object) = atoi(buffer);
+				object->set_rent_eq(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Ownr"))
 			{
@@ -553,7 +553,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 						break;
 					}
 				}
-				
+
 				object->acquired_affects.push_back(tmp_aff);
 			}
 			else if (!strcmp(read_line, "Clbl")) // текст метки
@@ -732,9 +732,9 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer) || sscanf(buffer, "%d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
 		return (object);
 	GET_OBJ_WEIGHT(object) = t[0];
-	GET_OBJ_COST(object) = t[1];
-	GET_OBJ_RENT(object) = t[2];
-	GET_OBJ_RENTEQ(object) = t[3];
+	object->set_cost(t[1]);
+	object->set_rent(t[2]);
+	object->set_rent_eq(t[3]);
 
 	*error = 15;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, "%d %d", t, t + 1) != 2)

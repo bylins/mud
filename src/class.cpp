@@ -1977,6 +1977,9 @@ void do_start(CHAR_DATA * ch, int newbie)
 		{
 			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
 			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
+			obj->set_cost(0);
+			obj->set_rent(0);
+			obj->set_rent_eq(0);
             obj_to_char(obj, ch);
             Noob::equip_start_outfit(ch, obj);
 		}

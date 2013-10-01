@@ -25,12 +25,6 @@ struct obj_flag_data
 	FLAG_DATA extra_flags;	// If it hums, glows, etc.      //
 	int
 	weight;		// Weigt what else              //
-	int
-	cost;			// Value when sold (gp.)        //
-	int
-	cost_per_day_on;	// Rent to keep pr. real day if wear       //
-	int
-	cost_per_day_off;	// Rent to keep pr. real day if in inv     //
 	FLAG_DATA bitvector;	// To set chars bits            //
 
 	FLAG_DATA affects;
@@ -434,6 +428,13 @@ struct obj_data
 	void set_manual_mort_req(int);
 	int get_mort_req() const;
 
+	int get_cost() const;
+	void set_cost(int x);
+	int get_rent() const;
+	void set_rent(int x);
+	int get_rent_eq() const;
+	void set_rent_eq(int x);
+
 private:
 	void zero_init();
 	// если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
@@ -448,6 +449,12 @@ private:
 	bool purged_;
 	// расчетный уровень шмотки, не сохраняется
 	unsigned ilevel_;
+	// цена шмотки при продаже
+	int cost_;
+	// стоимость ренты, если надета
+	int cost_per_day_on_;
+	// стоимость ренты, если в инве
+	int cost_per_day_off_;
 };
 
 namespace ObjSystem

@@ -161,7 +161,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			}
 		}
 		if (OBJ_FLAGGED(obj, ITEM_DECAY) ||
-				OBJ_FLAGGED(obj, ITEM_NODROP) || obj->obj_flags.cost <= 0 || obj->obj_flags.Obj_owner > 0)
+				OBJ_FLAGGED(obj, ITEM_NODROP) || GET_OBJ_COST(obj) <= 0 || obj->obj_flags.Obj_owner > 0)
 		{
 			send_to_char("Этот предмет не предназначен для аукциона.\r\n", ch);
 			return false;

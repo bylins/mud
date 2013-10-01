@@ -3883,9 +3883,9 @@ char *parse_object(FILE * obj_f, int nr)
 		exit(1);
 	}
 	tobj->obj_flags.weight = t[0];
-	tobj->obj_flags.cost = t[1];
-	tobj->obj_flags.cost_per_day_off = t[2];
-	tobj->obj_flags.cost_per_day_on = t[3];
+	tobj->set_cost(t[1]);
+	tobj->set_rent(t[2]);
+	tobj->set_rent_eq(t[3]);
 
 	// check to make sure that weight of containers exceeds curr. quantity
 	if (tobj->obj_flags.type_flag == ITEM_DRINKCON || tobj->obj_flags.type_flag == ITEM_FOUNTAIN)

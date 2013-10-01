@@ -1825,11 +1825,11 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_COST:
-		GET_OBJ_COST(OLC_OBJ(d)) = atoi(arg);
+		OLC_OBJ(d)->set_cost(atoi(arg));
 		break;
 
 	case OEDIT_COSTPERDAY:
-		GET_OBJ_RENT(OLC_OBJ(d)) = atoi(arg);
+		OLC_OBJ(d)->set_rent(atoi(arg));
 		break;
 
 	case OEDIT_MAXVALUE:
@@ -1873,7 +1873,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_COSTPERDAYEQ:
-		GET_OBJ_RENTEQ(OLC_OBJ(d)) = atoi(arg);
+		OLC_OBJ(d)->set_rent_eq(atoi(arg));
 		break;
 
 	case OEDIT_TIMER:

@@ -306,7 +306,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 		(skin)->affected[k].modifier = effect;
 		k++;
 	}
-	GET_OBJ_COST(skin) = GET_LEVEL(mob) * number(2, MAX(3, 3 * k));
+	skin->set_cost(GET_LEVEL(mob) * number(2, MAX(3, 3 * k)));
 	GET_OBJ_VAL(skin, 2) = (int)(1 + (GET_WEIGHT(mob) + GET_SIZE(mob)) / 20);
 
 	return skin;

@@ -278,7 +278,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
 	GET_OBJ_VAL(corpse, 3) = 1;	// corpse identifier
 	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch);
-	GET_OBJ_RENT(corpse) = 100000;
+	corpse->set_rent(100000);
 	corpse->set_timer(max_pc_corpse_time * 2);
 	CREATE(exdesc, EXTRA_DESCR_DATA, 1);
 	exdesc->keyword = str_dup(corpse->PNames[0]);	// косметика
@@ -332,7 +332,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	GET_OBJ_VAL(corpse, 0) = 0;	// You can't store stuff in a corpse
 	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
 	GET_OBJ_VAL(corpse, 3) = 1;	// corpse identifier
-	GET_OBJ_RENT(corpse) = 100000;
+	corpse->set_rent(100000);
 
 	if (IS_NPC(ch))
 	{

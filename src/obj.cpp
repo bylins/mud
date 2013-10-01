@@ -102,6 +102,9 @@ void obj_data::zero_init()
 	manual_mort_req_ = -1;
 	purged_ = false;
 	ilevel_ = 0;
+	cost_ = 0;
+	cost_per_day_on_ = 0;
+	cost_per_day_off_ = 0;
 
 	custom_label = NULL;
 
@@ -343,6 +346,45 @@ int obj_data::get_mort_req() const
 		return 9;
 	}
 	return 0;
+}
+
+int obj_data::get_cost() const
+{
+	return cost_;
+}
+
+void obj_data::set_cost(int x)
+{
+	if (x >= 0)
+	{
+		cost_ = x;
+	}
+}
+
+int obj_data::get_rent() const
+{
+	return cost_per_day_off_;
+}
+
+void obj_data::set_rent(int x)
+{
+	if (x >= 0)
+	{
+		cost_per_day_off_ = x;
+	}
+}
+
+int obj_data::get_rent_eq() const
+{
+	return cost_per_day_on_;
+}
+
+void obj_data::set_rent_eq(int x)
+{
+	if (x >= 0)
+	{
+		cost_per_day_on_ = x;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

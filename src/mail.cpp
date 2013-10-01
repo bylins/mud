@@ -664,8 +664,8 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 		GET_OBJ_TYPE(obj) = ITEM_NOTE;
 		GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE | ITEM_WEAR_HOLD;
 		GET_OBJ_WEIGHT(obj) = 1;
-		GET_OBJ_COST(obj) = 30;
-		GET_OBJ_RENT(obj) = 10;
+		obj->set_cost(30);
+		obj->set_rent(10);
 		obj->set_timer(24 * 60);
 		obj->action_description = read_delete(GET_IDNUM(ch));
 

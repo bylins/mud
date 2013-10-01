@@ -3137,6 +3137,42 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						strcpy(str, "1");
 				}
 			}
+			else if (!str_cmp(field, "cost"))
+			{
+				if (*subfield && isdigit(*subfield))
+				{
+					skip_spaces(&subfield);
+					o->set_cost(atoi(subfield));
+				}
+				else
+				{
+					sprintf(str, "%d", GET_OBJ_COST(o));
+				}
+			}
+			else if (!str_cmp(field, "rent"))
+			{
+				if (*subfield && isdigit(*subfield))
+				{
+					skip_spaces(&subfield);
+					o->set_rent(atoi(subfield));
+				}
+				else
+				{
+					sprintf(str, "%d", GET_OBJ_RENT(o));
+				}
+			}
+			else if (!str_cmp(field, "rent_eq"))
+			{
+				if (*subfield && isdigit(*subfield))
+				{
+					skip_spaces(&subfield);
+					o->set_rent_eq(atoi(subfield));
+				}
+				else
+				{
+					sprintf(str, "%d", GET_OBJ_RENTEQ(o));
+				}
+			}
 			else //get global var. obj.varname
 			{
 				if (SCRIPT(o))

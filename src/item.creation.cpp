@@ -866,7 +866,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 	else
 	{
 		GET_OBJ_WEIGHT(tobj) = MIN(weight, created_item[obj_type].max_weight);
-		GET_OBJ_COST(tobj) = 2 * GET_OBJ_COST(obj) / 3;
+		tobj->set_cost(2 * GET_OBJ_COST(obj) / 3);
 		GET_OBJ_OWNER(tobj) = GET_UNIQUE(ch);
 
 // ковка объектов со слотами.
@@ -1184,7 +1184,7 @@ ACMD(do_transform_weapon)
 		{
 			if (proto[i] && proto[i] != obj)
 			{
-				GET_OBJ_COST(obj) += GET_OBJ_COST(proto[i]);
+				obj->set_cost(GET_OBJ_COST(obj) + GET_OBJ_COST(proto[i]));
 				extract_obj(proto[i]);
 			}
 		}
@@ -1219,7 +1219,7 @@ ACMD(do_transform_weapon)
 			if (proto[i])
 			{
 				GET_OBJ_WEIGHT(proto[0]) += GET_OBJ_WEIGHT(proto[i]);
-				GET_OBJ_COST(proto[0]) += GET_OBJ_COST(proto[i]);
+				proto[0]->set_cost(GET_OBJ_COST(proto[0]) + GET_OBJ_COST(proto[i]));
 				extract_obj(proto[i]);
 			}
 		go_create_weapon(ch, proto[0], obj_type, SKILL_CREATEBOW);

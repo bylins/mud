@@ -238,7 +238,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 
 	if (send_buffer.empty())
 		send_buffer += "Адресат: " + name + ", отправлено:\r\n";
-		
+
 	snprintf(buf, sizeof(buf), "%s%s%s\r\n", CCWHT(ch, C_NRM), GET_OBJ_PNAME(obj, 0), CCNRM(ch, C_NRM));
 	send_buffer += buf;
 
@@ -517,9 +517,9 @@ OBJ_DATA * create_parcel()
 	GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
 	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
 	GET_OBJ_WEIGHT(obj) = 1;
-	GET_OBJ_COST(obj) = 1;
-	GET_OBJ_RENT(obj) = 1;
-	GET_OBJ_RENTEQ(obj) = 1;
+	obj->set_cost(1);
+	obj->set_rent(1);
+	obj->set_rent_eq(1);
 	obj->set_timer(24 * 60);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
