@@ -7,7 +7,10 @@
 *  $Revision$                	                                 *
 ************************************************************************ */
 
+#include <string>
 #include "conf.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim_all.hpp>
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -38,7 +41,6 @@ struct feat_info_type feat_info[MAX_FEATS];
 
 void unused_feat(int feat);
 void assign_feats(void);
-int find_feat_num(char *name);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
 bool find_feat_slot(CHAR_DATA *ch, int feat);
@@ -98,19 +100,29 @@ private:
 	int _pos, i;
 };
 
-// Поиск номера способности по имени
-int find_feat_num(char *name)
+///
+/// Поиск номера способности по имени
+/// \param alias = false
+/// true для поиска при вводе имени способности игроком у учителей
+///
+int find_feat_num(const char *name, bool alias)
 {
-	int index, ok;
+	int ok;
 	char const *temp, *temp2;
 	char first[256], first2[256];
-	for (index = 1; index < MAX_FEATS; index++)
+	for (int index = 1; index < MAX_FEATS; index++)
 	{
-		if (is_abbrev(name, feat_info[index].name))
+		const char* feat_name = alias ?
+			feat_info[index].alias.c_str() : feat_info[index].name;
+
+		if (is_abbrev(name, feat_name))
+		{
 			return (index);
+		}
+
 		ok = TRUE;
 		// It won't be changed, but other uses of this function elsewhere may.
-		temp = any_one_arg(feat_info[index].name, first);
+		temp = any_one_arg(feat_name, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok)
 		{
@@ -136,7 +148,14 @@ void feato(int feat, const char *name, int type, bool can_up_slot, aff_array app
 			feat_info[feat].min_remort[i][j] = 0;
 			feat_info[feat].slot[i][j] = 0;
 		}
-	feat_info[feat].name = name;
+	if (name)
+	{
+		feat_info[feat].name = name;
+		std::string alias(name);
+		std::replace_if(alias.begin(), alias.end(), boost::is_any_of("_:"), ' ');
+		boost::trim_all(alias);
+		feat_info[feat].alias = alias;
+	}
 	feat_info[feat].type = type;
 	feat_info[feat].up_slot = can_up_slot;
 	for (i = 0; i < MAX_FEAT_AFFECT; i++)

@@ -163,7 +163,7 @@ const int feat_slot_for_remort[NUM_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4,5 };
 
 extern struct feat_info_type feat_info[MAX_FEATS];
 
-int find_feat_num(char *name);
+int find_feat_num(const char *name, bool alias = false);
 void assign_feats(void);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
@@ -183,7 +183,7 @@ struct feat_info_type
 	int type;
 	bool up_slot;
 	const char *name;
-
+	std::string alias;
 };
 
 #endif // __FEATURES_HPP__

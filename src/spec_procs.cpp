@@ -12,7 +12,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <string>
 #include "conf.h"
+#include <boost/algorithm/string.hpp>
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -1277,7 +1279,14 @@ SPECIAL(guild_poly)
 			else return (1);
 		}
 
-		if (((skill_no = find_feat_num(argument)) > 0 && skill_no < MAX_FEATS))
+		skill_no = find_feat_num(argument);
+		if (skill_no < 0 || skill_no >= MAX_FEATS)
+		{
+			std::string str(argument);
+			std::replace_if(str.begin(), str.end(), boost::is_any_of("_:"), ' ');
+			skill_no = find_feat_num(str.c_str(), true);
+		}
+		if (skill_no > 0 && skill_no < MAX_FEATS)
 		{
 			for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->feat_no >= 0; i++)
 			{
