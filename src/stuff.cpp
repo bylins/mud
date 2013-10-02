@@ -273,11 +273,6 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 
 	if (!setload)
 	{
-		for (CHAR_DATA *tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
-		{
-			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n",
-					CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
-		}
 		switch (GET_OBJ_VNUM(o))
 		{
 		case GlobalDrop::BOOK_UPGRD_VNUM:
@@ -288,6 +283,14 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 		case GlobalDrop::WARR3_ENCHANT_VNUM:
 			generate_warrior_enchant(o);
 			break;
+		}
+	}
+	else
+	{
+		for (CHAR_DATA *tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+		{
+			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n",
+				CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
 		}
 	}
 
@@ -325,7 +328,7 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch)
 	const int rnum = SetsDrop::check_mob(GET_MOB_RNUM(ch));
 	if (rnum > 0)
 	{
-		obj_to_corpse(corpse, ch, rnum, false);
+		obj_to_corpse(corpse, ch, rnum, true);
 	}
 
 	if (GlobalDrop::check_mob(corpse, ch))
@@ -347,7 +350,7 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch)
 	{
 		if (v[i] >= 0)
 		{
-			obj_to_corpse(corpse, ch, v[i], true);
+			obj_to_corpse(corpse, ch, v[i], false);
 		}
 	}
 }
