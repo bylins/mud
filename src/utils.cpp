@@ -2955,3 +2955,21 @@ void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 	send_to_char(ch, "%s%s%s\r\n",
 		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
+
+int can_carry_n(CHAR_DATA* ch)
+{
+	int n = 5 + GET_REAL_DEX(ch) / 2 + GET_LEVEL(ch) / 2;
+	if (HAVE_FEAT(ch, JUGGLER_FEAT))
+	{
+		n += GET_LEVEL(ch) / 2;
+		if (GET_CLASS(ch) == CLASS_DRUID)
+		{
+			n += 5;
+		}
+	}
+	if (GET_CLASS(ch) == CLASS_DRUID)
+	{
+		n += 5;
+	}
+	return std::max(n, 1);
+}

@@ -1498,6 +1498,7 @@ int dex_ac_bonus(int dex);
 int calc_str_req(int weight, int type);
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
 int wis_bonus(int stat, int type);
+int can_carry_n(CHAR_DATA* ch);
 
 namespace SetSystem
 {
@@ -1510,8 +1511,7 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 } // namespace SetSystem
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
-#define CAN_CARRY_N(ch) (5 + (GET_REAL_DEX(ch) >> 1) + (GET_LEVEL(ch) >> 1) \
-			 + (HAVE_FEAT(ch, JUGGLER_FEAT) ? (GET_LEVEL(ch) >> 1) : 0))
+#define CAN_CARRY_N(ch) (can_carry_n(ch))
 
 #define OK_BOTH(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
                           str_bonus(GET_REAL_STR(ch), STR_WIELD_W) + str_bonus(GET_REAL_STR(ch), STR_HOLD_W))
