@@ -29,10 +29,12 @@
 
 #define __COMM_C__
 
+#include <string>
 #include <locale.h>
 #include <sys/stat.h>
-#include <boost/format.hpp>
 #include "conf.h"
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -4358,14 +4360,14 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 				continue;
 			if (type == TO_ROOM_HIDE && !AFF_FLAGGED(to, AFF_SENSE_LIFE) && (IS_NPC(to) || !PRF_FLAGGED(to, PRF_HOLYLIGHT)))
 				continue;
-			if ((type == TO_ROOM_HIDE) && (PRF_FLAGGED(to, PRF_HOLYLIGHT)))
+			if (type == TO_ROOM_HIDE && PRF_FLAGGED(to, PRF_HOLYLIGHT))
 			{
 				std::string buffer = str;
-				unsigned index = 0;
-				if (!IS_MALE(ch) && ((index = buffer.find("ся", 0))>=0))
-					buffer.replace(index, 2, GET_CH_SUF_2(ch));
-				if ((index = buffer.find("Кто-то", 0)) >= 0 )
-					buffer.replace(index, 6, GET_PAD(ch,0));
+				if (!IS_MALE(ch))
+				{
+					boost::replace_first(buffer, "ся", GET_CH_SUF_2(ch));
+				}
+				boost::replace_first(buffer, "Кто-то", GET_PAD(ch, 0));
 				perform_act(buffer.c_str(), ch, obj, vict_obj, to);
 			}
 			else

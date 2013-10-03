@@ -768,14 +768,16 @@ void Character::set_npc_name(const char *name)
 
 const char* Character::get_pad(unsigned pad) const
 {
-	if (pad < 6 && pad >= 0)
+	if (pad < player_data.PNames.size())
+	{
 		return player_data.PNames[pad];
-	else return NULL;
+	}
+	return 0;
 }
 
 void Character::set_pad(unsigned pad, const char* s)
 {
-	if (pad >= 6 || pad < 0)
+	if (pad >= player_data.PNames.size())
 	{
 		return;
 	}
@@ -948,8 +950,10 @@ ubyte Character::get_religion() const
 
 void Character::set_religion(const ubyte v)
 {
-	if (v>=0 && v < 2)
+	if (v < 2)
+	{
 		player_data.Religion = v;
+	}
 }
 
 ubyte Character::get_kin() const
@@ -959,8 +963,10 @@ ubyte Character::get_kin() const
 
 void Character::set_kin(const ubyte v)
 {
-	if (v>=0 && v < NUM_KIN)
+	if (v < NUM_KIN)
+	{
 		player_data.Kin = v;
+	}
 }
 
 ubyte Character::get_race() const

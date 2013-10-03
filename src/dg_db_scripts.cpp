@@ -13,6 +13,7 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
+#include <algorithm>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -48,7 +49,7 @@ char * indent_trigger(char * cmd , int * level)
 {
 	// Удаляем впереди идущие пробелы.
 	char * ptr, * tmp;
-	if (level < 0) level = 0;
+	*level = std::max(0, *level);
 
 	int currlev, nextlev;
 	currlev = nextlev = *level;

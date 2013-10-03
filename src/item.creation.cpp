@@ -85,7 +85,7 @@ const struct make_skill_type make_skills[] =
 	{"сшить одежду", "одежда", SKILL_MAKE_WEAR},
 	{"смастерить диковину", "артеф.", SKILL_MAKE_JEWEL},
 //  { "сварить отвар","варево", SKILL_MAKE_POTION },
-	{"\n", 0}		// Терминатор
+	{"\n", 0, 0}		// Терминатор
 };
 
 const char *create_weapon_quality[] = { "RESERVED",

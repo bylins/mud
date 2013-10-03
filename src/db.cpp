@@ -4563,21 +4563,22 @@ OBJ_DATA *create_obj(const char *alias)
  */
 const OBJ_DATA* read_object_mirror(obj_vnum nr, int type)
 {
-	unsigned i;
+	unsigned i = nr;
 	if (type == VIRTUAL)
 	{
-		if ((i = real_object(nr)) < 0)
+		const int rnum = real_object(nr);
+		if (rnum < 0)
 		{
 			log("Object (V) %d does not exist in database.", nr);
 			return 0;
-		};
-	}
-	else
-	{
-		i = nr;
+		}
+		else
+		{
+			i = rnum;
+		}
 	}
 
-	if (i < 0 || i > obj_proto.size())
+	if (i > obj_proto.size())
 	{
 		return 0;
 	}

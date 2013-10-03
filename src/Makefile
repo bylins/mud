@@ -30,7 +30,7 @@ endif
 CFLAGS = -std=gnu++0x -m32 -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
-TESTCFLAGS = -std=gnu++0x -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH $(EXTRA_CFLAGS)
+TESTCFLAGS = -std=gnu++0x -Wall -Wextra -Wno-unused-parameter -m32 -ggdb3 -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH $(EXTRA_CFLAGS)
 DEBUGFLAGS = -m32 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 FASTTEST   = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3 $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 #SEARCHPATH = -I /usr/include/python2.6

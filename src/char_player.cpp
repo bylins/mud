@@ -635,13 +635,13 @@ void Player::save_char()
 		fprintf(saved, "PUnr: %ld %d %ld %s~\n", UNREG_DURATION(this), GET_UNREG_LEV(this), UNREG_GODID(this), UNREG_REASON(this));
 
 
-	if (KARMA(this) > 0)
+	if (KARMA(this))
 	{
 		strcpy(buf, KARMA(this));
 		kill_ems(buf);
 		fprintf(saved, "Karm:\n%s~\n", buf);
 	}
-	if (LOGON_LIST(this) > 0)
+	if (LOGON_LIST(this))
 	{
 		log("Saving logon list.");
 		struct logon_data * next_log = LOGON_LIST(this);
@@ -1938,7 +1938,7 @@ void Player::map_print_to_snooper(CHAR_DATA *imm)
 
 int Player::get_ext_money(unsigned type) const
 {
-	if (type >= 0 && type < ext_money_.size())
+	if (type < ext_money_.size())
 	{
 		return ext_money_[type];
 	}
@@ -1951,7 +1951,7 @@ void Player::set_ext_money(unsigned type, int num, bool write_log)
 	{
 		return;
 	}
-	if (type >= 0 && type < ext_money_.size())
+	if (type < ext_money_.size())
 	{
 		const int diff = num - ext_money_[type];
 		ext_money_[type] = num;

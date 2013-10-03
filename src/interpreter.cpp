@@ -425,7 +425,7 @@ ACMD(do_shops_list);
 
 cpp_extern const struct command_info cmd_info[] =
 {
-	{"RESERVED", 0, 0, 0, 0},	// this must be first -- for specprocs
+	{"RESERVED", 0, 0, 0, 0, 0},	// this must be first -- for specprocs
 
 	// directions must come before other commands but after RESERVED
 	{"север", POS_STANDING, do_move, 0, SCMD_NORTH, -2},
@@ -765,11 +765,11 @@ cpp_extern const struct command_info cmd_info[] =
 	{"ярость", POS_RESTING, do_courage, 0, 0, -1},
 
 	// God commands for listing
-	{"мсписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST},
-	{"осписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST},
-	{"ксписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST},
-	{"зсписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST},
-	{"исписок", POS_DEAD, do_imlist, LVL_IMPL, 0},
+	{"мсписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST, 0},
+	{"осписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST, 0},
+	{"ксписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST, 0},
+	{"зсписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST, 0},
+	{"исписок", POS_DEAD, do_imlist, LVL_IMPL, 0, 0},
 
 	{"'", POS_RESTING, do_say, 0, 0, -1},
 	{":", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
@@ -785,7 +785,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"balance", POS_STANDING, do_not_here, 1, 0, -1},
 	{"ban", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
 	{"bash", POS_FIGHTING, do_bash, 1, 0, -1},
-	{"beep", POS_DEAD, do_beep, LVL_IMMORT, 0},
+	{"beep", POS_DEAD, do_beep, LVL_IMMORT, 0, 0},
 	{"block", POS_FIGHTING, do_block, 0, 0, -1},
 	{"bug", POS_DEAD, report_on_board, 0, Boards::ERROR_BOARD, 0},
 	{"buy", POS_STANDING, do_not_here, 0, 0, -1},
@@ -830,7 +830,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"flee", POS_FIGHTING, do_flee, 1, 0, -1},
 	{"follow", POS_RESTING, do_follow, 0, 0, -1},
 	{"force", POS_SLEEPING, do_force, LVL_GRGOD, 0, 0},
-	{"forcetime", POS_DEAD, do_forcetime, LVL_IMPL, 0},
+	{"forcetime", POS_DEAD, do_forcetime, LVL_IMPL, 0, 0},
 	{"freeze", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
 	{"gecho", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
 	{"get", POS_RESTING, do_get, 0, 0, 500},
@@ -883,15 +883,15 @@ cpp_extern const struct command_info cmd_info[] =
 	{"motd", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
 	{"murder", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
 	{"mute", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_MUTE, 0},
-	{"medit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_MEDIT},
+	{"medit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_MEDIT, 0},
 	{"name", POS_DEAD, do_wizutil, LVL_GOD, SCMD_NAME, 0},
 	{"nedit", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_EDIT, 0}, //Именной стаф редактирование
 	{"news", POS_DEAD, DoBoard, 1, Boards::NEWS_BOARD, -1},
 	{"nlist", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_LIST, 0}, //Именной стаф список
 	{"notitle", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_NOTITLE, 0},
-	{"oedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_OEDIT},
+	{"oedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_OEDIT, 0},
 	{"offer", POS_STANDING, do_not_here, 1, 0, 0},
-	{"olc", POS_DEAD, do_olc, LVL_GOD, SCMD_OLC_SAVEINFO},
+	{"olc", POS_DEAD, do_olc, LVL_GOD, SCMD_OLC_SAVEINFO, 0},
 	{"open", POS_SITTING, do_gen_door, 0, SCMD_OPEN, 500},
 	{"order", POS_RESTING, do_order, 1, 0, -1},
 	{"page", POS_DEAD, do_page, LVL_GOD, 0, 0},
@@ -915,7 +915,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"receive", POS_STANDING, do_not_here, 1, 0, -1},
 	{"recipes", POS_RESTING, do_recipes, 0, 0, 0},
 	{"recite", POS_RESTING, do_use, 0, SCMD_RECITE, 500},
-	{"redit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_REDIT},
+	{"redit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_REDIT, 0},
 	{"register", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_REGISTER, 0},
 	{"unregister", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_UNREGISTER, 0},
 	{"reload", POS_DEAD, do_reboot, LVL_IMPL, 0, 0},
@@ -923,7 +923,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"rent", POS_STANDING, do_not_here, 1, 0, -1},
 	{"reply", POS_RESTING, do_reply, 0, 0, -1},
 	{"report", POS_RESTING, do_report, 0, 0, -1},
-	{"reroll", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_REROLL},
+	{"reroll", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_REROLL, 0},
 	{"rescue", POS_FIGHTING, do_rescue, 1, 0, -1},
 	{"rest", POS_RESTING, do_rest, 0, 0, -1},
 	{"restore", POS_DEAD, do_restore, LVL_GRGOD, SCMD_RESTORE_GOD, 0},
@@ -973,7 +973,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"touch", POS_FIGHTING, do_touch, 0, 0, -1},
 	{"track", POS_STANDING, do_track, 0, 0, -1},
 	{"transfer", POS_STANDING, do_not_here, 1, 0, -1},
-	{"trigedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_TRIGEDIT},
+	{"trigedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_TRIGEDIT, 0},
 	{"turn undead", POS_RESTING, do_turn_undead, 0, 0, -1},
 	{"typo", POS_DEAD, report_on_board, 0, Boards::MISPRINT_BOARD, 0},
 	{"unaffect", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_UNAFFECT, 0},
@@ -1006,7 +1006,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"wiznet", POS_DEAD, do_wiznet, LVL_IMMORT, 0, 0},
 	{"wizat", POS_DEAD, do_at, LVL_GRGOD, 0, 0},
 	{"write", POS_STANDING, do_write, 1, 0, -1},
-	{"zedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_ZEDIT},
+	{"zedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_ZEDIT, 0},
 	{"zone", POS_RESTING, do_zone, 0, 0, 0},
 	{"zreset", POS_DEAD, do_zreset, LVL_GRGOD, 0, 0},
 
@@ -1022,10 +1022,10 @@ cpp_extern const struct command_info cmd_info[] =
 	{"смастерить", POS_STANDING, do_make_item, 0, MAKE_CRAFT, 0},
 
 	// God commands for listing
-	{"mlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST},
-	{"olist", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST},
-	{"rlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST},
-	{"zlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST},
+	{"mlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST, 0},
+	{"olist", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST, 0},
+	{"rlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST, 0},
+	{"zlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST, 0},
 
 
 	// DG trigger commands
@@ -1060,7 +1060,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mspellitem", POS_DEAD, do_mspellitem, -1, 0, -1},
 	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
 
-	{"\n", 0, 0, 0, 0}
+	{"\n", 0, 0, 0, 0, 0}
 };				// this must be last
 
 
