@@ -95,8 +95,8 @@ std::string to_str(IdType type, int num)
 ///
 void TextIdNode::add(int num, std::string str)
 {
-	num_to_str.insert( {{ num, str }} );
-	str_to_num.insert( {{ str, num }} );
+	num_to_str.insert(std::make_pair(num, str));
+	str_to_num.insert(std::make_pair(str, num));
 }
 
 ///

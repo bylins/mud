@@ -27,10 +27,6 @@ const char *CONFIG_FILE = LIB_MISC"reset_stats.xml";
 // для списка reset_prices
 struct price_node
 {
-	price_node(int b_price, int a_price, int m_price, const std::string &text)
-		: base_price(b_price), add_price(a_price), max_price(m_price),
-		log_text(text) {};
-
 	int base_price;
 	int add_price;
 	int max_price;

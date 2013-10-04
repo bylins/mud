@@ -1725,10 +1725,10 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			if (percent == 0) // TODO: такого не должно быть?
 				continue;
 
-			sprintf(buf, "   %s%s%s%s%s%d%s%s\r\n",
+			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
 					CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
 					CCCYN(ch, C_NRM),
-					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), "\%", CCNRM(ch, C_NRM));
+					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 	}
@@ -2084,10 +2084,10 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			if (percent == 0) // TODO: такого не должно быть?
 				continue;
 
-			sprintf(buf, "   %s%s%s%s%s%d%s%s\r\n",
+			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
 					CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
 					CCCYN(ch, C_NRM),
-					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), "\%", CCNRM(ch, C_NRM));
+					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 	}

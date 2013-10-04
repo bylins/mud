@@ -983,7 +983,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		*buf = '\0';
 		*buf2 = '\0';
 		//Временно убираем флаг !окровавлен! с вещи, чтобы он не сохранялся
-		bool blooded = IS_OBJ_STAT(object, ITEM_BLOODY);
+		bool blooded = IS_OBJ_STAT(object, ITEM_BLOODY) != 0;
 		if (blooded)
 			REMOVE_BIT(GET_OBJ_EXTRA(object, ITEM_BLOODY), ITEM_BLOODY);
 		tascii((int *) &GET_OBJ_EXTRA(object, 0), 4, buf);

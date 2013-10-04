@@ -4,6 +4,7 @@
 #include "conf.h"
 #include <array>
 #include <vector>
+#include <sstream>
 #include <boost/lambda/lambda.hpp>
 #include "noob.hpp"
 #include "structs.h"

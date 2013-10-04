@@ -42,6 +42,8 @@
 #define mkdir(str, int) _mkdir(str)
 #undef max
 #define max max
+#undef min
+#define min min
 
 #define ssize_t int
 #define socklen_t int

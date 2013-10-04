@@ -392,7 +392,7 @@ void obj_data::set_rent_eq(int x)
 namespace
 {
 
-const float SQRT_MOD = 1.7095;
+const float SQRT_MOD = 1.7095f;
 const int AFF_SHIELD_MOD = 30;
 const int AFF_BLINK_MOD = 10;
 
