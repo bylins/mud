@@ -167,6 +167,7 @@ namespace PlayerSystem
 int con_natural_hp(CHAR_DATA *ch);
 int con_add_hp(CHAR_DATA *ch);
 int con_total_hp(CHAR_DATA *ch);
+unsigned weight_dex_penalty(CHAR_DATA* ch);
 
 } // namespace PlayerSystem
 

@@ -2038,4 +2038,26 @@ int con_total_hp(CHAR_DATA *ch)
 	return con_natural_hp(ch) + con_add_hp(ch);
 }
 
+///
+/// \return величина минуса к дексе в случае перегруза (case -> проценты от макс)
+///
+unsigned weight_dex_penalty(CHAR_DATA* ch)
+{
+	int n = 0;
+	switch (IS_CARRYING_W(ch) * 10 / MAX(1, CAN_CARRY_W(ch)))
+	{
+	case 10:
+	case 9:
+	case 8:
+		n = 2;
+		break;
+	case 7:
+	case 6:
+	case 5:
+		n = 1;
+		break;
+	}
+	return n;
+}
+
 } // namespace PlayerSystem

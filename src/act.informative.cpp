@@ -3133,19 +3133,31 @@ void print_do_score_all(CHAR_DATA *ch)
 					CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 	}
 	else
+	{
 		strcat(buf, " ||                    |                       |");
-
+	}
 	sprintf(buf + strlen(buf),
 			" %sУдача:       %4d %s|"
 			" %s  %+4d%% (%+4d) %s||\r\n",
 			CCGRN(ch, C_NRM), ch->calc_morale(), CCCYN(ch, C_NRM),
 			CCRED(ch, C_NRM), GET_MOVEREG(ch), move_gain(ch), CCCYN(ch, C_NRM));
 
+	const unsigned wdex = PlayerSystem::weight_dex_penalty(ch);
+	if (wdex == 0)
+	{
+		strcat(buf, " ||                    |                       |");
+	}
+	else
+	{
+		sprintf(buf + strlen(buf),
+			" || %sПерегружен.%s        |                       |",
+			wdex == 1 ? CCIYEL(ch, C_NRM) : CCIRED(ch, C_NRM),
+			CCCYN(ch, C_NRM));
+	}
 	sprintf(buf + strlen(buf),
-			" ||                    |                       |"
-			" %sИнициатива:  %4d %s|                ||\r\n"
-			" -------------------------------------------------------------------------------------\r\n",
-			CCGRN(ch, C_NRM), GET_INITIATIVE(ch), CCCYN(ch, C_NRM));
+		" %sИнициатива:  %4d %s|                ||\r\n"
+		" -------------------------------------------------------------------------------------\r\n",
+		CCGRN(ch, C_NRM), GET_INITIATIVE(ch), CCCYN(ch, C_NRM));
 
 	if (has_horse(ch, FALSE))
 	{

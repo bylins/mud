@@ -685,18 +685,10 @@ void affect_total(CHAR_DATA * ch)
 		}
 
 		// Apply other PC modifiers
-		switch (IS_CARRYING_W(ch) * 10 / MAX(1, CAN_CARRY_W(ch)))
+		const unsigned wdex = PlayerSystem::weight_dex_penalty(ch);
+		if (wdex != 0)
 		{
-		case 10:
-		case 9:
-		case 8:
-			ch->set_dex_add(ch->get_dex_add() - 2);
-			break;
-		case 7:
-		case 6:
-		case 5:
-			ch->set_dex_add(ch->get_dex_add() - 1);
-			break;
+			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
 		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
 		if (!AFF_FLAGGED(ch, AFF_NOOB_REGEN))
