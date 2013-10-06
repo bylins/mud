@@ -275,6 +275,7 @@ void reset_affects(CHAR_DATA *ch)
 			affect_remove(ch, af);
 	}
 
+	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
 	affect_total(ch);
 }
 

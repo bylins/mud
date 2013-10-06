@@ -1129,7 +1129,7 @@ ACMD(do_spell_capable)
 	}
 
 	act("Вы принялись зачаровывать $N3.", FALSE, ch, 0, follower, TO_CHAR);
-	act("$n принял$u делать какие-то пасы и что-то бормотать в сторону $N3.", FALSE, ch, 0, follower, TO_ROOM);
+	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", FALSE, ch, 0, follower, TO_ROOM);
 
 	GET_SPELL_MEM(ch, spellnum)--;
 	//if (!GET_SPELL_MEM(ch, spellnum))

@@ -1746,7 +1746,7 @@ ACMD(DoClanList)
 	{
 		buffer2 << clanFormat % 1 % (*clan)->abbrev % (*clan)->owner % (*clan)->name;
 		for (std::vector < CHAR_DATA * >::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
-			buffer2 << memberFormat % (*clan)->ranks[CLAN_MEMBER(*it)->rank_num]
+			buffer2 << memberFormat % (IS_MALE(*it) ? (*clan)->ranks[CLAN_MEMBER(*it)->rank_num] : (*clan)->ranks_female[CLAN_MEMBER(*it)->rank_num])
 			% CCPK(ch, C_NRM, *it) % (*it)->noclan_title()
 			% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
 			% (PLR_FLAGGED(*it, PLR_KILLER) ? "(ДУШЕГУБ)" : "")
@@ -3180,7 +3180,7 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 
 	if (CompareParam(buffer2, "баланс") || CompareParam(buffer2, "balance"))
 	{
-		send_to_char(ch, "На счету вашей дружины ровно %ld %s.\r\n", CLAN(ch)->bank, desc_count(CLAN(ch)->bank, WHAT_MONEYu));
+		send_to_char(ch, "На счету вашей дружины ровно %ld %s.\r\n", CLAN(ch)->bank, desc_count(CLAN(ch)->bank, WHAT_MONEYa));
 		return 1;
 
 	}

@@ -437,16 +437,23 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				*error = 46;
 				CREATE(new_descr, EXTRA_DESCR_DATA, 1);
 				new_descr->keyword = str_dup(buffer);
-				if (!get_buf_lines(data, buffer))
+				if (!strcmp(new_descr->keyword, "None"))
 				{
-					free(new_descr->keyword);
-					free(new_descr);
-					*error = 47;
-					return (object);
+					object->ex_description = NULL;
 				}
-				new_descr->description = str_dup(buffer);
-				new_descr->next = object->ex_description;
-				object->ex_description = new_descr;
+				else
+				{
+					if (!get_buf_lines(data, buffer))
+					{
+						free(new_descr->keyword);
+						free(new_descr);
+						*error = 47;
+						return (object);
+					}
+					new_descr->description = str_dup(buffer);
+					new_descr->next = object->ex_description;
+					object->ex_description = new_descr;
+				}
 			}
 			else if (!strcmp(read_line, "Ouid"))
 			{
@@ -1074,6 +1081,11 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			}
 			out << "Edes: " << (descr->keyword ? descr->keyword : "") << "~\n"
 				<< (descr->description ? descr->description : "") << "~\n";
+		}
+		// Если у прототипа есть описание, а у сохраняемой вещи - нет, сохраняем None
+		if (!object->ex_description && proto->ex_description)
+		{
+			out << "Edes: None~\n";
 		}
 
 		// требования по мортам
