@@ -347,8 +347,11 @@ template<class T>T one_argument(T argument, char *first_arg)
 	return (argument);
 }
 
-// * same as one_argument except that it doesn't ignore fill words
-template<class T> T any_one_arg(T argument, char *first_arg)
+///
+/// same as one_argument except that it doesn't ignore fill words
+/// как бы декларируем, что first_arg должен быть не менее MAX_INPUT_LENGTH
+///
+template<class T> T any_one_arg(T argument, char* first_arg)
 {
 	if (!argument)
 	{
@@ -357,15 +360,17 @@ template<class T> T any_one_arg(T argument, char *first_arg)
 	}
 	skip_spaces(&argument);
 
-	while (*argument && !a_isspace(*argument))
+	unsigned num = 0;
+	while (*argument && !a_isspace(*argument) && num < MAX_INPUT_LENGTH - 1)
 	{
-		*(first_arg++) = a_lcc(*argument);
-		argument++;
+		*first_arg = a_lcc(*argument);
+		++first_arg;
+		++argument;
+		++num;
 	}
-
 	*first_arg = '\0';
 
-	return (argument);
+	return argument;
 }
 
 /**

@@ -108,7 +108,6 @@ ACMD(do_equipment);
 ACMD(do_time);
 ACMD(do_weather);
 ACMD(do_who);
-ACMD(do_who_new);
 ACMD(do_users);
 ACMD(do_gen_ps);
 void perform_mortal_where(CHAR_DATA * ch, char *arg);
@@ -3209,8 +3208,10 @@ void print_do_score_all(CHAR_DATA *ch)
 			sprintf(buf + strlen(buf), " || Вы отдаете своей дружине %3d%% опыта                                             ||\r\n", value);
 		}
 	}
+/*
 	////////////////////////////////////////////////////////////////////////////
 	std::stringstream tmp_out;
+
 	// обнуление дневного лимита, если уже сменились сутки
 	ch->add_today_torc(0);
 	tmp_out << "Наградные гривны: "
@@ -3236,6 +3237,14 @@ void print_do_score_all(CHAR_DATA *ch)
 			tmp_out.str().c_str(), CCCYN(ch, C_NRM));
 	}
 	////////////////////////////////////////////////////////////////////////////
+*/
+	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
+		sprintf(buf + strlen(buf),
+				" || Вы можете быть призваны.                                                        ||\r\n");
+	else
+		sprintf(buf + strlen(buf),
+				" || Вы защищены от призыва.                                                         ||\r\n");
+
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL)
 	{
 		sprintf(buf + strlen(buf),
@@ -3995,35 +4004,27 @@ ACMD(do_weather)
 	}
 }
 
-#define IMM_WHO_FORMAT \
-"Формат: кто [минуров[-максуров]] [-n имя] [-c профлист] [-s] [-r] [-z] [-h] [-b|-и]\r\n"
+namespace
+{
 
-#define MORT_WHO_FORMAT \
-"Формат: кто [имя] [-?]\r\n"
+const char* IMM_WHO_FORMAT =
+"Формат: кто [минуров[-максуров]] [-n имя] [-c профлист] [-s] [-r] [-z] [-h] [-b|-и]\r\n";
+
+const char* MORT_WHO_FORMAT = "Формат: кто [имя] [-?]\r\n";
+
+} // namespace
 
 ACMD(do_who)
 {
-//  DESCRIPTOR_DATA *d;
-	CHAR_DATA *tch;
 	char name_search[MAX_INPUT_LENGTH];
 	name_search[0] = '\0';
 
-	// Строки содержащие имена
-	char *imms = NULL;
-	char *morts = NULL;
-	char *demigods = NULL;
-	char *buffer = NULL;
-
-	char mode;
-	size_t i;
 	// Флаги для опций
-	int low = 0, high = LVL_IMPL, localwho = 0;
-	int showclass = 0, short_list = 0, num_can_see = 0;
-	int who_room = 0, imms_num = 0, morts_num = 0, demigods_num = 0;
-	int showname = 0;
-
-	char name_who[MAX_STRING_LENGTH];
-	name_who[0] = '\0';
+	int low = 0, high = LVL_IMPL;
+	int showclass = 0, num_can_see = 0;
+	int imms_num = 0, morts_num = 0, demigods_num = 0;
+	bool localwho = false, short_list = false;
+	bool who_room = false, showname = false;
 
 	skip_spaces(&argument);
 	strcpy(buf, argument);
@@ -4046,23 +4047,23 @@ ACMD(do_who)
 		}
 		else if (*arg == '-')
 		{
-			mode = *(arg + 1);	// just in case; we destroy arg in the switch
+			char mode = *(arg + 1);	// just in case; we destroy arg in the switch
 			switch (mode)
 			{
 			case 'b':
 			case 'и':
 				if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD) || PRF_FLAGGED(ch, PRF_CODERINFO))
-					showname = 1;
+					showname = true;
 				strcpy(buf, buf1);
 				break;
 			case 'z':
 				if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-					localwho = 1;
+					localwho = true;
 				strcpy(buf, buf1);
 				break;
 			case 's':
 				if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-					short_list = 1;
+					short_list = true;
 				strcpy(buf, buf1);
 				break;
 			case 'l':
@@ -4075,15 +4076,19 @@ ACMD(do_who)
 				break;
 			case 'r':
 				if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-					who_room = 1;
+					who_room = true;
 				strcpy(buf, buf1);
 				break;
 			case 'c':
 
 				half_chop(buf1, arg, buf);
 				if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-					for (i = 0; i < strlen(arg); i++)
+				{
+					for (size_t i = 0; i < strlen(arg); i++)
+					{
 						showclass |= find_class_bitvector(arg[i]);
+					}
+				}
 				break;
 			case 'h':
 			case '?':
@@ -4106,17 +4111,19 @@ ACMD(do_who)
 	if (who_spamcontrol(ch, strlen(name_search) ? WHO_LISTNAME : WHO_LISTALL))
 		return;
 
-	// Первоначальное заполнение строк imms, morts, demigods
+	// Строки содержащие имена
 	sprintf(buf, "%sБОГИ%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
-	imms = str_add(imms, buf);
+	std::string imms(buf);
+
 	sprintf(buf, "%sПривилегированные%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-	demigods = str_add(demigods, buf);
+	std::string demigods(buf);
+
 	sprintf(buf, "%sИгроки%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-	morts = str_add(morts, buf);
+	std::string morts(buf);
 
 	int all = 0;
 
-	for (tch = character_list; tch; tch = tch->next)
+	for (CHAR_DATA* tch = character_list; tch; tch = tch->next)
 	{
 		if (IS_NPC(tch))
 			continue;
@@ -4146,22 +4153,24 @@ ACMD(do_who)
 		*buf = '\0';
 		num_can_see++;
 
-		*name_who = '\0';
-		if (!short_list)
-			sprintf(name_who, "%s%s%s", CCPK(ch, C_NRM, tch), tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
-		else
-			sprintf(name_who, "%s%s%s", CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
-
 		if (short_list)
 		{
+			char tmp[MAX_INPUT_LENGTH];
+			snprintf(tmp, sizeof(tmp), "%s%s%s",
+				CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
 			if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+			{
 				sprintf(buf, "%s[%2d %s %s] %-30s%s",
-						IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
-						GET_LEVEL(tch), KIN_ABBR(tch), CLASS_ABBR(tch), name_who, IS_GOD(tch) ? CCNRM(ch, C_SPR) : "");
+					IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
+					GET_LEVEL(tch), KIN_ABBR(tch), CLASS_ABBR(tch),
+					tmp, IS_GOD(tch) ? CCNRM(ch, C_SPR) : "");
+			}
 			else
+			{
 				sprintf(buf, "%s%-30s%s",
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
-						name_who, IS_IMMORTAL(tch) ? CCNRM(ch, C_SPR) : "");
+					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
+					tmp, IS_IMMORTAL(tch) ? CCNRM(ch, C_SPR) : "");
+			}
 		}
 		else
 		{
@@ -4227,23 +4236,28 @@ ACMD(do_who)
 		if (IS_IMMORTAL(tch))
 		{
 			imms_num++;
-			imms = str_add(imms, buf);
+			imms += buf;
 			if (!short_list || !(imms_num % 4))
-				imms = str_add(imms, "\r\n");
+			{
+				imms += "\r\n";
+			}
 		}
-		else if (GET_GOD_FLAG(tch, GF_DEMIGOD) && (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)))
+		else if (GET_GOD_FLAG(tch, GF_DEMIGOD)
+			&& (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)))
 		{
 			demigods_num++;
-			demigods = str_add(demigods, buf);
+			demigods += buf;
 			if (!short_list || !(demigods_num % 4))
-				demigods = str_add(demigods, "\r\n");
+			{
+				demigods += "\r\n";
+			}
 		}
 		else
 		{
 			morts_num++;
-			morts = str_add(morts, buf);
+			morts += buf;
 			if (!short_list || !(morts_num % 4))
-				morts = str_add(morts, "\r\n");
+				morts += "\r\n";
 		}
 	}			// end of for
 
@@ -4254,219 +4268,54 @@ ACMD(do_who)
 		return;
 	}
 
-	if (short_list)
+	std::string out;
+
+	if (imms_num > 0)
 	{
-		if (imms_num > 0)
-			buffer = str_add(buffer, imms);
-		if (demigods_num > 0)
-		{
-			buffer = str_add(buffer, "\r\n");
-			buffer = str_add(buffer, demigods);
-		}
-		if (morts_num > 0)
-		{
-			buffer = str_add(buffer, "\r\n");
-			buffer = str_add(buffer, morts);
-		}
+		out += imms;
 	}
-	else
+	if (demigods_num > 0)
 	{
-		if (imms_num > 0)
-			buffer = str_add(buffer, imms);
-		if (demigods_num > 0)
-			buffer = str_add(buffer, demigods);
-		if (morts_num > 0)
-			buffer = str_add(buffer, morts);
+		if (short_list)
+		{
+			out += "\r\n";
+		}
+		out += demigods;
+	}
+	if (morts_num > 0)
+	{
+		if (short_list)
+		{
+			out += "\r\n";
+		}
+		out += morts;
 	}
 
-	buffer = str_add(buffer, "\r\nВсего:");
+	out += "\r\nВсего:";
 	if (imms_num)
 	{
 		sprintf(buf, " бессмертных %d", imms_num);
-		buffer = str_add(buffer, buf);
+		out += buf;
 	}
 	if (demigods_num)
 	{
 		sprintf(buf, " привилегированных %d", demigods_num);
-		buffer = str_add(buffer, buf);
+		out += buf;
 	}
 	if (all && morts_num)
 	{
 		sprintf(buf, " смертных %d (видимых %d)", all, morts_num);
-		buffer = str_add(buffer, buf);
+		out += buf;
 	}
 	else if (morts_num)
 	{
 		sprintf(buf, " смертных %d", morts_num);
-		buffer = str_add(buffer, buf);
+		out += buf;
 	}
 
-	buffer = str_add(buffer, ".\r\n");
-	page_string(ch->desc, buffer, 1);
-	free(buffer);
-	free(imms);
-	free(demigods);
-	free(morts);
+	out += ".\r\n";
+	page_string(ch->desc, out);
 }
-
-ACMD(do_who_new)
-{
-//  if (!GET_GOD_FLAG(ch,GF_DEMIGOD) && !IS_IMMORTAL(ch))
-//  {
-//    send_to_char("Чаво? \n",ch);
-//    return;
-//  }
-	CHAR_DATA *tch;
-
-//	char name_search[MAX_INPUT_LENGTH] = "\0";
-	//imms[MAX_STRING_LENGTH],
-	//morts[MAX_STRING_LENGTH];
-	char *imms = NULL;
-	char *morts = NULL;
-	char *buffer = NULL;
-
-	int low = 0, high = LVL_IMPL;
-	int num_can_see = 0;
-	int imms_num = 0, morts_num = 0;
-// Добавлено Дажьбогом
-	char name_who[MAX_STRING_LENGTH];
-	name_who[0] = '\0';
-	skip_spaces(&argument);
-	strcpy(buf, argument);
-//	name_search[0] = '\0';
-
-	half_chop(buf, arg, buf1);
-	strcpy(buf, buf1);
-	sprintf(buf, "%sБОГИ%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
-	imms = str_add(imms, buf);
-	sprintf(buf, "%sИгроки%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-	morts = str_add(morts, buf);
-
-	for (tch = character_list; tch; tch = tch->next)
-	{
-		if (IS_NPC(tch))
-			continue;
-
-		if (!HERE(tch))
-			continue;
-
-		if (!CAN_SEE_CHAR(ch, tch) || GET_LEVEL(tch) < low || GET_LEVEL(tch) > high)
-			continue;
-		if (!(!NAME_GOD(tch) && GET_LEVEL(tch) <= NAME_LEVEL))
-			continue;
-		*buf = '\0';
-		num_can_see++;
-
-// Добавлено Дажьбогом
-		*name_who = '\0';
-		sprintf(name_who, "%s%s%s", CCPK(ch, C_NRM, tch), tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
-
-
-//      {
-		if (IS_IMPL(ch))
-			sprintf(buf, "%s[%2d %s %s(%3d)] %s%s%s%s",
-					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
-					GET_LEVEL(tch),
-					KIN_ABBR(tch),
-					CLASS_ABBR(tch),
-					tch->get_pfilepos(),
-					CCPK(ch, C_NRM, tch),
-					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
-		else
-			sprintf(buf, "%s %s%s%s",
-					CCPK(ch, C_NRM, tch),
-					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
-
-		if (GET_INVIS_LEV(tch))
-			sprintf(buf + strlen(buf), " (i%d)", GET_INVIS_LEV(tch));
-		else if (AFF_FLAGGED(tch, AFF_INVISIBLE))
-			sprintf(buf + strlen(buf), " (невидим%s)", GET_CH_SUF_6(tch));
-		if (AFF_FLAGGED(tch, AFF_HIDE))
-			strcat(buf, " (прячется)");
-		if (AFF_FLAGGED(tch, AFF_CAMOUFLAGE))
-			strcat(buf, " (маскируется)");
-
-		if (PLR_FLAGGED(tch, PLR_MAILING))
-			strcat(buf, " (отправляет письмо)");
-		else if (PLR_FLAGGED(tch, PLR_WRITING))
-			strcat(buf, " (пишет)");
-
-		if (PRF_FLAGGED(tch, PRF_NOHOLLER))
-			sprintf(buf + strlen(buf), " (глух%s)", GET_CH_SUF_1(tch));
-		if (PRF_FLAGGED(tch, PRF_NOTELL))
-			sprintf(buf + strlen(buf), " (занят%s)", GET_CH_SUF_6(tch));
-		if (PLR_FLAGGED(tch, PLR_MUTE))
-			sprintf(buf + strlen(buf), " (молчит)");
-		if (PLR_FLAGGED(tch, PLR_DUMB))
-			sprintf(buf + strlen(buf), " (нем%s)", GET_CH_SUF_6(tch));
-		if (PLR_FLAGGED(tch, PLR_KILLER) == PLR_KILLER)
-			sprintf(buf + strlen(buf), "&R (ДУШЕГУБ)&n");
-		if (!NAME_GOD(tch)
-				&& GET_LEVEL(tch) <= NAME_LEVEL)
-		{
-			sprintf(buf + strlen(buf), " &W!НЕ ОДОБРЕНО!&n");
-			sprintf(buf + strlen(buf),
-					"\r\nПадежи: %s/%s/%s/%s/%s/%s  E-mail: &S%s&s\r\n",
-					GET_PAD(tch, 0), GET_PAD(tch, 1), GET_PAD(tch,
-							2),
-					GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5), GET_EMAIL(tch));
-		}
-		if (IS_IMMORTAL(tch))
-			strcat(buf, CCNRM(ch, C_SPR));
-		//}                     // endif shortlist
-
-		if (IS_IMMORTAL(tch))
-		{
-			imms_num++;
-			imms = str_add(imms, buf);
-			//if (!short_list || !(imms_num % 4)) //Ann: ne ponyatno poka
-			//imms = str_add (imms, "\r\n");
-		}
-		else
-		{
-			morts_num++;
-			morts = str_add(morts, buf);
-			//if (!short_list || !(morts_num % 4)) //Ann: .
-			//morts = str_add (morts, "\r\n");
-		}
-	}			// end of for
-
-	//send_to_char ("do_who_new end for", ch);
-	if (morts_num + imms_num == 0)
-	{
-		send_to_char("\r\nВы никого не видите.\r\n", ch);
-		// !!!
-		return;
-	}
-
-
-	if (imms_num > 0)
-		buffer = str_add(buffer, imms);
-	if (morts_num > 0)
-		buffer = str_add(buffer, morts);
-
-	buffer = str_add(buffer, "\r\nВсего видимых:");
-
-	if (imms_num)
-	{
-		// sprintf(buf+strlen(buf)," бессмертных %d",imms_num);
-		sprintf(buf, " бессмертных %d", imms_num);
-		buffer = str_add(buffer, buf);
-	}
-	if (morts_num)
-	{
-		// sprintf(buf+strlen(buf)," смертных %d",morts_num);
-		sprintf(buf, " смертных %d", morts_num);
-		buffer = str_add(buffer, buf);
-	}
-
-	buffer = str_add(buffer, ".\r\n");
-	page_string(ch->desc, buffer, 1);
-	free(buffer);
-	free(imms);
-	free(morts);
-}
-
 
 ACMD(do_statistic)
 {

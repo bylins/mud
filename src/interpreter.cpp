@@ -306,7 +306,6 @@ ACMD(do_wear);
 ACMD(do_weather);
 ACMD(do_where);
 ACMD(do_who);
-ACMD(do_who_new);
 ACMD(do_wield);
 ACMD(do_wimpy);
 ACMD(do_wizlock);
@@ -560,7 +559,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"кричать", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
 	{"кто", POS_RESTING, do_who, 0, 0, 0},
 	{"ктодружина", POS_RESTING, DoWhoClan, 0, 0, 0},
-	{"ктои", POS_RESTING, do_who_new, LVL_IMMORT, 0, 0},
 	{"ктоя", POS_DEAD, do_gen_ps, 0, SCMD_WHOAMI, 0},
 	{"купить", POS_STANDING, do_not_here, 0, 0, -1},
 
@@ -996,7 +994,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"whirl", POS_FIGHTING, do_iron_wind, 0, 0, -1},
 	{"whisper", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
 	{"who", POS_RESTING, do_who, 0, 0, 0},
-	{"whob", POS_RESTING, do_who_new, LVL_IMMORT, 0, 0},
 	{"whoami", POS_DEAD, do_gen_ps, 0, SCMD_WHOAMI, 0},
 	{"wield", POS_RESTING, do_wield, 0, 0, 500},
 	{"wimpy", POS_DEAD, do_wimpy, 0, 0, 0},
@@ -1661,13 +1658,11 @@ int is_abbrev(const char *arg1, const char *arg2)
 }
 
 // return first space-delimited token in arg1; remainder of string in arg2 //
-void half_chop(char const *string, char *arg1, char *arg2)
+void half_chop(const char* string, char* arg1, char* arg2)
 {
-	char tmpname[MAX_INPUT_LENGTH];
-	char const *temp = any_one_arg(string, arg1);
+	const char* temp = any_one_arg(string, arg1);
 	skip_spaces(&temp);
-	strl_cpy(tmpname, temp, MAX_INPUT_LENGTH);
-	strl_cpy(arg2, tmpname, MAX_INPUT_LENGTH);
+	strl_cpy(arg2, temp, MAX_INPUT_LENGTH);
 }
 
 // Used in specprocs, mostly.  (Exactly) matches "command" to cmd number //
