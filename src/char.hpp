@@ -1,16 +1,17 @@
-// $RCSfile$     $Date$     $Revision$
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
 #ifndef CHAR_HPP_INCLUDED
 #define CHAR_HPP_INCLUDED
 
+#include "conf.h"
 #include <bitset>
 #include <map>
 #include <unordered_map>
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
-#include "conf.h"
+#include <boost/dynamic_bitset.hpp>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "player_i.hpp"
@@ -518,9 +519,10 @@ public:
 	unsigned int get_who_mana();
 	time_t get_who_last();
 
-	bool get_role(int num) const;
-	void set_role(int num, bool flag);
-	const std::bitset<MOB_ROLE_TOTAL_NUM> & get_role_bits() const;
+	/// роли (mob only)
+	bool get_role(unsigned num) const;
+	void set_role(unsigned num, bool flag);
+	const boost::dynamic_bitset<>& get_role_bits() const;
 
 	void add_attacker(CHAR_DATA *ch, unsigned type, int num);
 	int get_attacker(CHAR_DATA *ch, unsigned type) const;
@@ -602,7 +604,7 @@ private:
 	//текущая форма
 	MorphPtr current_morph_;
 	// аналог класса у моба
-	std::bitset<MOB_ROLE_TOTAL_NUM> role_;
+	boost::dynamic_bitset<> role_;
 	// для боссов: список атакующих (и им сочувствующих), uid->atacker
 	std::unordered_map<int, attacker_node> attackers_;
 	// для боссов: таймер (в секундах), включающийся по окончанию боя

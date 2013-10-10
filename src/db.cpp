@@ -15,12 +15,14 @@
 #define __DB_C__
 
 #include "conf.h"
+#include "sys/stat.h"
 #include <sstream>
 #include <string>
+#include <cmath>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
-#include <cmath>
-#include "sys/stat.h"
+#include <boost/dynamic_bitset.hpp>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -3240,7 +3242,8 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 		if (value && *value)
 		{
 			std::string str(value);
-			std::bitset<MOB_ROLE_TOTAL_NUM> tmp(str);
+			boost::dynamic_bitset<> tmp(str);
+			tmp.resize(mob_proto[i].role_.size());
 			mob_proto[i].role_ = tmp;
 		}
 	}

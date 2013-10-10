@@ -2973,3 +2973,47 @@ int can_carry_n(CHAR_DATA* ch)
 	}
 	return std::max(n, 1);
 }
+
+// аналог sprintbitwd и производных
+// names - список строк с названиями битов
+// div - разделитель между битами при распечатке
+// str - строка, куда печаются имена битов (добавлением в конец)
+// print_num - печать номер бита рядом с его именем
+// (для олц, счет битов начинается с 1), по дефолту = false
+void print_bitset(const boost::dynamic_bitset<>& bits,
+	const std::vector<const char*>& names, const char* div,
+	std::string& str, bool print_num)
+{
+	char tmp_buf[10];
+	bool first = true;
+
+	for (unsigned i = 0; i < bits.size(); ++i)
+	{
+		if (bits.test(i) == true)
+		{
+			if (!first)
+			{
+				str += div;
+			}
+			else
+			{
+				first = false;
+			}
+
+			if (print_num)
+			{
+				snprintf(tmp_buf, sizeof(tmp_buf), "%d:", i + 1);
+				str += tmp_buf;
+			}
+
+			if (i < names.size())
+			{
+				str += names[i];
+			}
+			else
+			{
+				str += "UNDEF";
+			}
+		}
+	}
+}

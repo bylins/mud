@@ -740,7 +740,9 @@ void medit_save_to_disk(int zone_num)
 				fprintf(mob_file, "Helper: %d\n", helper->mob_vnum);
 			if (mob->get_role_bits().any())
 			{
-				fprintf(mob_file, "Role: %s\n", mob->get_role_bits().to_string().c_str());
+				std::string tmp;
+				boost::to_string(mob->get_role_bits(), tmp);
+				fprintf(mob_file, "Role: %s\n", tmp.c_str());
 			}
 
 			// * XXX: Add E-mob handlers here.
@@ -1015,7 +1017,7 @@ void medit_disp_sex(DESCRIPTOR_DATA * d)
 	send_to_char("Выберите пол : ", d->character);
 }
 
-void medit_disp_role(DESCRIPTOR_DATA * d)
+void medit_disp_role(DESCRIPTOR_DATA* d)
 {
 	get_char_cols(d->character);
 
@@ -1024,15 +1026,25 @@ void medit_disp_role(DESCRIPTOR_DATA * d)
 #endif
 
 	std::string out;
-	for (int i = 1; i <= MOB_ROLE_TOTAL_NUM && *npc_role_types[i - 1] != '\n'; ++i)
+	char tmp[MAX_INPUT_LENGTH];
+	auto& bits = OLC_MOB(d)->get_role_bits();
+
+	for (unsigned i = 0; i < bits.size(); ++i)
 	{
-		out += boost::str(boost::format("%s%2d%s) %s\r\n") % grn % i % nrm % npc_role_types[i - 1]);
+		snprintf(tmp, sizeof(tmp), "%s%2u%s) %s\r\n",
+			grn, i + 1, nrm,
+			i < npc_role_types.size() ? npc_role_types.at(i) : "UNDEF");
+		out += tmp;
 	}
-	out += "Текущие флаги : ";
-	out += cyn;
-	print_bitset(OLC_MOB(d)->get_role_bits(), npc_role_types, ",", out, true);
-	out += nrm;
-	out += "\r\nВыберите роли моба (0 - выход) : ";
+
+	snprintf(tmp, sizeof(tmp), "Текущие флаги : %s", cyn);
+	out += tmp;
+
+	print_bitset(bits, npc_role_types, ",", out, true);
+
+	snprintf(tmp, sizeof(tmp), "%s\r\nВыберите роли моба (0 - выход) : ", nrm);
+	out += tmp;
+
 	send_to_char(out, d->character);
 }
 

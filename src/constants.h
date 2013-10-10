@@ -12,6 +12,12 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
+#include "conf.h"
+#include <vector>
+
+#include "sysdep.h"
+#include "structs.h"
+
 extern const char *circlemud_version;
 extern const char *dirs[];
 extern const char *DirsFrom[];
@@ -40,7 +46,7 @@ extern const char *material_type[];
 extern const char *container_bits[];
 extern const char *fullness[];
 extern const char *spell_wear_off_msg[];
-extern const char *npc_role_types[];
+extern const std::vector<const char*> npc_role_types;
 extern const char *npc_race_types[];
 extern const char *places_of_birth[];
 extern const char *weekdays[];

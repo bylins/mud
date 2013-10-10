@@ -18,7 +18,7 @@
 #include <string>
 #include <list>
 #include <new>
-//#include <boost/lexical_cast.hpp>
+#include <boost/dynamic_bitset.hpp>
 #include "features.hpp"
 #include "pugixml.hpp"
 
@@ -1525,52 +1525,7 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 #define OK_SHIELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
                           (2 * str_bonus(GET_REAL_STR(ch), STR_HOLD_W)))
 
-// аналог sprintbitwd и производных
-// bits - std::bitset<>
-// names - список строк с названиями битов
-// div - разделитель между битами при распечатке
-// str - строка, куда печаются имена битов (добавлением в конец)
-// print_num - печать номер бита рядом с его именем (для олц, счет битов начинается с 1)
-template<class T> void print_bitset(const T &bits, const char *names[], const char *div, std::string &str, bool print_num = false)
-{
-	unsigned max_num = 0;
-	while (*names[max_num] != '\n')
-	{
-		max_num++;
-	}
-	char tmp_buf[10];
-	bool first = true;
-
-	for (unsigned i = 0; i < bits.size(); ++i)
-	{
-		if (bits[i] == true)
-		{
-			if (!first)
-			{
-				str += div;
-			}
-			else
-			{
-				first = false;
-			}
-
-			if (print_num)
-			{
-				snprintf(tmp_buf, sizeof(tmp_buf), "%d:", i + 1);
-				str += tmp_buf;
-				//str += boost::lexical_cast<std::string>(i + 1) + ":";
-			}
-
-			if (i < max_num)
-			{
-				str += names[i];
-			}
-			else
-			{
-				str += "UNDEF";
-			}
-		}
-	}
-}
+void print_bitset(const boost::dynamic_bitset<>& bits, const std::vector<const char*>& names,
+	const char* div, std::string& str, bool print_num = false);
 
 #endif // _UTILS_H_

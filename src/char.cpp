@@ -84,6 +84,7 @@ void release_purged_list()
 ////////////////////////////////////////////////////////////////////////////////
 
 Character::Character()
+	: role_(MOB_ROLE_TOTAL_NUM)
 {
 	this->zero_init();
 	current_morph_ = NormalMorph::GetNormalMorph(this);
@@ -132,6 +133,8 @@ void Character::zero_init()
 	int_add_ = 0;
 	cha_ = 0;
 	cha_add_ = 0;
+	role_.reset();
+	attackers_.clear();
 	restore_timer_ = 0;
 	// char_data
 	nr = NOBODY;
@@ -1610,24 +1613,33 @@ std::vector<long> Character::GetMorphAffects()
 //-Polud
 //===================================
 
-bool Character::get_role(int num) const
+bool Character::get_role(unsigned num) const
 {
-	if (num >= 0 && num < MOB_ROLE_TOTAL_NUM)
+	bool result = false;
+	if (num < role_.size())
 	{
-		return role_[num];
+		result = role_.test(num);
 	}
-	return false;
+	else
+	{
+		log("SYSERROR: num=%u (%s:%d)", num, __FILE__, __LINE__);
+	}
+	return result;
 }
 
-void Character::set_role(int num, bool flag)
+void Character::set_role(unsigned num, bool flag)
 {
-	if (num >= 0 && num < MOB_ROLE_TOTAL_NUM)
+	if (num < role_.size())
 	{
-		role_[num] = flag;
+		role_.set(num, flag);
+	}
+	else
+	{
+		log("SYSERROR: num=%u (%s:%d)", num, __FILE__, __LINE__);
 	}
 }
 
-const std::bitset<MOB_ROLE_TOTAL_NUM> & Character::get_role_bits() const
+const boost::dynamic_bitset<>& Character::get_role_bits() const
 {
 	return role_;
 }

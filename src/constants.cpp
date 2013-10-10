@@ -12,9 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "constants.h"
 #include "spells.h"
 #include "skills.h"
 #include "interpreter.h"	// alias_data
@@ -2254,8 +2252,10 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	// 0
 	 "\n"} // SPELL_RECALL_SPELLS
 };
 
+namespace
+{
 
-const char *npc_role_types[] =
+const char* tmp_npc_race_types[] =
 {
 	"босс",
 	"адд",
@@ -2265,9 +2265,14 @@ const char *npc_role_types[] =
 	"тать",
 	"маг-дамагер",
 	"маг-суппорт",
-	"хилер",
-	"\n"
+	"хилер"
 };
+
+} //namespace
+
+// MSVS 2012 c++11 suck
+const std::vector<const char*> npc_role_types(tmp_npc_race_types,
+	tmp_npc_race_types + sizeof(tmp_npc_race_types) / sizeof(const char*));
 
 //Polud new mob races. (26/01/2009)
 const char *npc_race_types[] = { "Обычный",
