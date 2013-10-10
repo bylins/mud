@@ -59,6 +59,8 @@ extern const unsigned MAX_BOARD_MESSAGES;
 extern const unsigned MAX_REPORT_MESSAGES;
 extern const char *OVERFLOW_MESSAGE;
 
+extern std::string dg_script_text;
+
 bool can_see(CHAR_DATA *ch, const Board &board);
 bool can_read(CHAR_DATA *ch, const Board &board);
 bool can_write(CHAR_DATA *ch, const Board &board);

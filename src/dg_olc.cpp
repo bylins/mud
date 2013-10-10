@@ -648,7 +648,11 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 				strcat(buf, cmd->cmd);
 				strcat(buf, "\n");
 			}
-
+			if (lev > 0)
+			{
+				send_to_char(d->character,
+					"WARNING: Positive indent-level on trigger #%d end.\r\n", i);
+			}
 
 			if (!buf[0])
 				strcpy(buf, "* Empty script");

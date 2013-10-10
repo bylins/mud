@@ -40,6 +40,7 @@ const unsigned int MAX_BOARD_MESSAGES = 200;
 // максимальное кол-во сообщений на спец.досках
 const unsigned int MAX_REPORT_MESSAGES = 999;
 const char *OVERFLOW_MESSAGE = "Да, набросали всего столько, что файл переполнен. Напомните об этом богам!\r\n";
+std::string dg_script_text;
 
 void set_last_read(CHAR_DATA *ch, BoardTypes type, time_t date)
 {
@@ -90,6 +91,41 @@ void message_no_read(CHAR_DATA *ch, const Board &board)
 	send_to_char(out, ch);
 }
 
+void add_server_message(const std::string& subj, const std::string& text)
+{
+	auto board_it = std::find_if(
+		Boards::board_list.begin(),
+		Boards::board_list.end(),
+		boost::bind(&Board::GetType, _1) == Boards::GODBUILD_BOARD);
+
+	if (Boards::board_list.end() == board_it)
+	{
+		log("SYSERROR: can't find builder board (%s:%d)", __FILE__, __LINE__);
+		return;
+	}
+
+	MessagePtr temp_message(new Message);
+	temp_message->author = "Сервер";
+	temp_message->subject = subj;
+	temp_message->text = text;
+	temp_message->date = time(0);
+	// чтобы при релоаде не убилось
+	temp_message->unique = 1;
+	temp_message->level = 1;
+
+	(*board_it)->add_message(temp_message);
+}
+
+void dg_script_message()
+{
+	if (!dg_script_text.empty())
+	{
+		const std::string subj = "отступы в скриптах";
+		add_server_message(subj, dg_script_text);
+		dg_script_text.clear();
+	}
+}
+
 } // namespace BoardSystem
 
 using namespace Boards;
@@ -133,6 +169,8 @@ void Board::BoardInit()
 	create_board(NOTICE_BOARD, "Анонсы", "Сообщения от администрации", ETC_BOARD"notice.board");
 	create_board(MISPRINT_BOARD, "Очепятки", "Опечатки в игровых локациях", ETC_BOARD"misprint.board");
 	create_board(SUGGEST_BOARD, "Придумки", "Для идей в приватном режиме", ETC_BOARD"suggest.board");
+
+	dg_script_message();
 }
 
 // лоад/релоад клановых досок
@@ -1205,30 +1243,11 @@ bool full_access(CHAR_DATA *ch, const Board &board)
 
 void clan_delete_message(const std::string &name, int vnum)
 {
-	auto board_it = std::find_if(
-		Boards::board_list.begin(),
-		Boards::board_list.end(),
-		boost::bind(&Board::GetType, _1) == Boards::GODBUILD_BOARD);
-
-	if (Boards::board_list.end() == board_it)
-	{
-		log("SYSERROR: can't find builder board (%s:%d)", __FILE__, __LINE__);
-		return;
-	}
-	Board &board = **board_it;
-
-	MessagePtr temp_message(new Message);
-	temp_message->author = "Сервер";
-	temp_message->subject = "неактивная дружина";
-	temp_message->text = boost::str(boost::format(
+	const std::string subj = "неактивная дружина";
+	const std::string text = boost::str(boost::format(
 		"Дружина %1% была автоматически удалена.\r\n"
 		"Номер зоны: %2%\r\n") % name % vnum);
-	temp_message->date = time(0);
-	// чтобы при релоаде не убилось
-	temp_message->unique = 1;
-	temp_message->level = 1;
-
-	board.add_message(temp_message);
+	add_server_message(subj, text);
 }
 
 } // namespace Boards

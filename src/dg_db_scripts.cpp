@@ -31,6 +31,7 @@
 #include "interpreter.h"
 #include "room.hpp"
 #include "magic.h"
+#include "boards.h"
 
 void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void trig_data_free(TRIG_DATA * this_data);
@@ -45,11 +46,17 @@ extern void asciiflag_conv(const char *flag, void *value);
 
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 
-char * indent_trigger(char * cmd , int * level)
+char* indent_trigger(char* cmd , int* level)
 {
 	// Удаляем впереди идущие пробелы.
+	static int switch_lvl = -1;
 	char * ptr, * tmp;
+
 	*level = std::max(0, *level);
+	if (*level == 0)
+	{
+		switch_lvl = -1;
+	}
 
 	int currlev, nextlev;
 	currlev = nextlev = *level;
@@ -60,20 +67,41 @@ char * indent_trigger(char * cmd , int * level)
 	skip_spaces(&ptr);
 
 	// ptr содержит строку без первых пробелов.
-	if (!strn_cmp("case ", ptr , 5) || !strn_cmp("if ", ptr , 3) ||
-			!strn_cmp("while ", ptr , 6) || !strn_cmp("switch ", ptr, 7) ||
-			!strn_cmp("foreach ", ptr, 8) || !strn_cmp("default", ptr , 7))
+	if (!strn_cmp("switch ", ptr, 7))
+	{
+		switch_lvl = currlev;
+		++nextlev;
+	}
+	else if (!strn_cmp("case ", ptr , 5))
+	{
+		currlev = switch_lvl + 1;
+		nextlev = switch_lvl + 2;
+	}
+	else if (!strn_cmp("if ", ptr , 3) || !strn_cmp("while ", ptr , 6)
+		|| !strn_cmp("foreach ", ptr, 8) || !strn_cmp("default", ptr , 7))
 	{
 		// Увеличиваем уровень вложения
 		nextlev++;
 	}
-	if (!strn_cmp("elseif ", ptr, 7) || !strn_cmp("else", ptr, 4))
+	else if (!strn_cmp("elseif ", ptr, 7) || !strn_cmp("else", ptr, 4))
 	{
 		currlev--;
 	}
+	else if (!strn_cmp("done", ptr, 4))
+	{
+		if (switch_lvl >= 0)
+		{
+			nextlev = currlev = switch_lvl;
+			switch_lvl = -1;
+		}
+		else
+		{
+			nextlev--;
+			currlev--;
+		}
+	}
 	else if (!strn_cmp("else", ptr, 4) || !strn_cmp("else", ptr, 4) ||
-			 !strn_cmp("break", ptr, 5) || !strn_cmp("done", ptr, 4) ||
-			 !strn_cmp("end", ptr, 3))
+			 !strn_cmp("break", ptr, 5) || !strn_cmp("end", ptr, 3))
 	{
 		nextlev--;
 		currlev--;
@@ -147,7 +175,14 @@ void parse_trigger(FILE * trig_f, int nr)
 		cle->cmd = str_dup(s);
 		cle->cmd = indent_trigger(cle->cmd, &indlev);
 	}
-	if (indlev > 0) log("Positive indent-level on trigger #%d end.", nr);
+	if (indlev > 0)
+	{
+		char tmp[MAX_INPUT_LENGTH];
+		snprintf(tmp, sizeof(tmp),
+			"Positive indent-level on trigger #%d end.", nr);
+		log(tmp);
+		Boards::dg_script_text += tmp + std::string("\r\n");
+	}
 
 	free(cmds);
 

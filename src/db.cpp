@@ -1799,11 +1799,12 @@ void boot_db(void)
 	// последовательность лоада кланов/досок не менять
 	log("Booting boards");
 	Board::BoardInit();
-	log("Load named stuff");
-	// загрузка списка именных вещей
-	NamedStuff::load();
 	log("Booting clans");
 	Clan::ClanLoad();
+
+	// загрузка списка именных вещей
+	log("Load named stuff");
+	NamedStuff::load();
 
 	log("Booting basic values");
 	init_basic_values();
