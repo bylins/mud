@@ -4124,10 +4124,10 @@ bool CompareBits(FLAG_DATA flags, const char *names[], int affect)
 	{
 		int nr = 0, fail = 0;
 		bitvector_t bitvector = flags.flags[i] | (i << 30);
-		if ((unsigned long) bitvector < (unsigned long) INT_ONE);
-		else if ((unsigned long) bitvector < (unsigned long) INT_TWO)
+		if (bitvector < static_cast<uint32_t>(INT_ONE));
+		else if (bitvector < static_cast<uint32_t>(INT_TWO))
 			fail = 1;
-		else if ((unsigned long) bitvector < (unsigned long) INT_THREE)
+		else if (bitvector < static_cast<uint32_t>(INT_THREE))
 			fail = 2;
 		else
 			fail = 3;

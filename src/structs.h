@@ -15,6 +15,7 @@
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
 
+#include "conf.h"
 #include <vector>
 #include <list>
 #include <bitset>
@@ -22,7 +23,7 @@
 #include <fstream>
 #include <map>
 #include <iterator>
-#include "conf.h"
+#include <cstdint>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <boost/array.hpp>
@@ -376,28 +377,29 @@ typedef struct trig_data TRIG_DATA;
 
 
 // Player flags: used by char_data.char_specials.act
-#define PLR_KILLER	(1 << 0)	// Player is a player-killer     //
-#define PLR_THIEF	(1 << 1)	// Player is a player-thief      //
-#define PLR_FROZEN	(1 << 2)	// Player is frozen        //
-#define PLR_DONTSET	(1 << 3)	// Don't EVER set (ISNPC bit)  //
-#define PLR_WRITING	(1 << 4)	// Player writing (board/mail/olc)  //
-#define PLR_MAILING	(1 << 5)	// Player is writing mail     //
-#define PLR_CRASH	(1 << 6)	// Player needs to be crash-saved   //
-#define PLR_SITEOK	(1 << 7)	// Player has been site-cleared  //
-#define PLR_MUTE	(1 << 8)	// Player not allowed to shout/goss/auct  //
-#define PLR_NOTITLE	(1 << 9)	// Player not allowed to set title  //
-#define PLR_DELETED	(1 << 10)	// Player deleted - space reusable  //
-#define PLR_LOADROOM	(1 << 11)	// Player uses nonstandard loadroom  (не используется) //
+#define PLR_KILLER       (1 << 0)	// Player is a player-killer     //
+#define PLR_THIEF        (1 << 1)	// Player is a player-thief      //
+#define PLR_FROZEN       (1 << 2)	// Player is frozen        //
+#define PLR_DONTSET      (1 << 3)	// Don't EVER set (ISNPC bit)  //
+#define PLR_WRITING      (1 << 4)	// Player writing (board/mail/olc)  //
+#define PLR_MAILING      (1 << 5)	// Player is writing mail     //
+#define PLR_CRASH        (1 << 6)	// Player needs to be crash-saved   //
+#define PLR_SITEOK       (1 << 7)	// Player has been site-cleared  //
+#define PLR_MUTE         (1 << 8)	// Player not allowed to shout/goss/auct  //
+#define PLR_NOTITLE      (1 << 9)	// Player not allowed to set title  //
+#define PLR_DELETED      (1 << 10)	// Player deleted - space reusable  //
+#define PLR_LOADROOM     (1 << 11)	// Player uses nonstandard loadroom  (не используется) //
 // свободно
-#define PLR_NODELETE	(1 << 13)	// Player shouldn't be deleted //
-#define PLR_INVSTART	(1 << 14)	// Player should enter game wizinvis //
-#define PLR_CRYO	(1 << 15)	// Player is cryo-saved (purge prog)   //
-#define PLR_HELLED	(1 << 16)	// Player is in Hell //
-#define PLR_NAMED	(1 << 17)	// Player is in Names Room //
-#define PLR_REGISTERED	(1 << 18)
-#define PLR_DUMB	(1 << 19)	// Player is not allowed to tell/emote/social //
-#define PLR_DELETE	(1 << 28)	// RESERVED - ONLY INTERNALLY //
-#define PLR_FREE	(1 << 29)	// RESERVED - ONLY INTERBALLY //
+#define PLR_NODELETE     (1 << 13)	// Player shouldn't be deleted //
+#define PLR_INVSTART     (1 << 14)	// Player should enter game wizinvis //
+#define PLR_CRYO         (1 << 15)	// Player is cryo-saved (purge prog)   //
+#define PLR_HELLED       (1 << 16)	// Player is in Hell //
+#define PLR_NAMED        (1 << 17)	// Player is in Names Room //
+#define PLR_REGISTERED   (1 << 18)
+#define PLR_DUMB         (1 << 19)	// Player is not allowed to tell/emote/social //
+// свободно
+#define PLR_DELETE       (1 << 28)	// RESERVED - ONLY INTERNALLY (MOB_DELETE) //
+#define PLR_FREE         (1 << 29)	// RESERVED - ONLY INTERBALLY (MOB_FREE)//
 
 
 // Mobile flags: used by char_data.char_specials.act
@@ -540,7 +542,6 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_PUNCTUAL    (1 << 27)
 #define PRF_AWAKE       (1 << 28)
 #define PRF_CODERINFO   (1 << 29)
-#define PRF_AUTOZLIB (1 << 30)	// Automatically do compression.   //
 
 #define PRF_AUTOMEM     (INT_ONE | 1 << 0)
 #define PRF_NOSHOUT     (INT_ONE | 1 << 1)	// Не слышит команду "кричать"  //
@@ -1207,14 +1208,13 @@ zone_rnum;			// A zone's real (array index) number. //
 
 // ************ WARNING ******************************************* //
 // This structure describe new bitvector structure                  //
-typedef long int
-bitvector_t;
+typedef uint32_t bitvector_t;
 
 #define INT_ZERRO (0 << 30)
 #define INT_ONE   (1 << 30)
 #define INT_TWO   (2 << 30)
 #define INT_THREE (3 << 30)
-#define GET_FLAG(value,flag) (value.flags[((unsigned long)flag) >> 30])
+#define GET_FLAG(value,flag) (value.flags[(static_cast<uint32_t>(flag)) >> 30])
 
 struct flag_data
 {
@@ -1227,7 +1227,7 @@ struct flag_data
 		return *this;
 	}
 
-	int flags[4];
+	uint32_t flags[4];
 };
 
 extern const FLAG_DATA clear_flags;
@@ -1246,11 +1246,11 @@ public:
 	}
 
 	unique_bit_flag_data&
-	set_plane(int __plane)
+	set_plane(uint32_t __plane)
 	{
-		int num = (unsigned long)__plane < (unsigned long)INT_ONE   ? 0 :
-				  (unsigned long)__plane < (unsigned long)INT_TWO   ? 1 :
-				  (unsigned long)__plane < (unsigned long)INT_THREE ? 2 : 3;
+		int num = __plane < static_cast<uint32_t>(INT_ONE)   ? 0 :
+				  __plane < static_cast<uint32_t>(INT_TWO)   ? 1 :
+				  __plane < static_cast<uint32_t>(INT_THREE) ? 2 : 3;
 		*(flags + num) |= 0x3FFFFFFF & __plane;
 		return *this;
 	}
@@ -1322,28 +1322,30 @@ struct extra_descr_data
 // header block for rent files.  BEWARE: Changing it will ruin rent files  //
 struct save_rent_info
 {
-	save_rent_info() : time(0), rentcode(0), net_cost_per_diem(0), gold(0), account(0), nitems(0), oitems(0),
-			spare1(0), spare2(0), spare3(0), spare4(0), spare5(0), spare6(0), spare7(0) {};
-	int time;
-	int rentcode;
-	int net_cost_per_diem;
-	int gold;
-	int account;
-	int nitems;
-	int oitems;
-	int spare1;
-	int spare2;
-	int spare3;
-	int spare4;
-	int spare5;
-	int spare6;
-	int spare7;
+	save_rent_info() : time(0), rentcode(0), net_cost_per_diem(0), gold(0),
+		account(0), nitems(0), oitems(0), spare1(0), spare2(0), spare3(0),
+		spare4(0), spare5(0), spare6(0), spare7(0) {};
+
+	int32_t time;
+	int32_t rentcode;
+	int32_t net_cost_per_diem;
+	int32_t gold;
+	int32_t account;
+	int32_t nitems;
+	int32_t oitems;
+	int32_t spare1;
+	int32_t spare2;
+	int32_t spare3;
+	int32_t spare4;
+	int32_t spare5;
+	int32_t spare6;
+	int32_t spare7;
 };
 
 struct save_time_info
 {
-	int vnum;
-	int timer;
+	int32_t vnum;
+	int32_t timer;
 };
 
 struct save_info

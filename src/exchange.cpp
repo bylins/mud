@@ -36,7 +36,6 @@
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int get_buf_line(char **source, char *target);
 extern int get_buf_lines(char **source, char *target);
-extern void tascii(int *pointer, int num_planes, char *ascii);
 extern void asciiflag_conv(const char *flag, void *value);
 
 extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);

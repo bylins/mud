@@ -31,7 +31,6 @@
 #include "screen.h"
 #include "ext_money.hpp"
 
-void tascii(int *pointer, int num_planes, char *ascii);
 int level_exp(CHAR_DATA * ch, int level);
 
 namespace
@@ -63,7 +62,13 @@ Player::Player()
 		start_stats_.at(i) = 0;
 	}
 
-	set_morph(NormalMorph::GetNormalMorph(this));
+	// на 64 битном центосе с оптимизацией - падает или прямо здесь,
+	// или в деструкторе чар-даты на делете самого класса в недрах шареда
+	// при сборке без оптимизаций - не падает
+	// и я не очень в теме, чем этот инит отличается от инита в чар-дате,
+	// с учетом того, что здесь у нас абсолютно пустой плеер и внутри set_morph
+	// на деле инит ровно тоже самое, может на перспективу это все было
+	//set_morph(NormalMorph::GetNormalMorph(this));
 
 	for (unsigned i = 0; i < ext_money_.size(); ++i)
 	{

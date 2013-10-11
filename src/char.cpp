@@ -1451,7 +1451,7 @@ std::string Character::get_title()
 {
 	if (!this->player_data.title) return string();
 	string tmp = string(this->player_data.title);
-	unsigned pos = tmp.find('/');
+	size_t pos = tmp.find('/');
 	if (pos == string::npos)
 		return string();
 	tmp = tmp.substr(0, pos);
@@ -1467,7 +1467,7 @@ std::string Character::get_pretitle()
 {
 	if (!this->player_data.title) return string();
 	string tmp = string(this->player_data.title);
-	unsigned pos = tmp.find('/');
+	size_t pos = tmp.find('/');
 	if (pos == string::npos)
 		return string();
 	tmp = tmp.substr(0, pos);

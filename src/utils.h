@@ -1525,7 +1525,9 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 #define OK_SHIELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
                           (2 * str_bonus(GET_REAL_STR(ch), STR_HOLD_W)))
 
-void print_bitset(const boost::dynamic_bitset<>& bits, const std::vector<const char*>& names,
-	const char* div, std::string& str, bool print_num = false);
+void print_bitset(const boost::dynamic_bitset<>& bits,
+	const std::vector<const char*>& names, const char* div,
+	std::string& str, bool print_num = false);
+void tascii(const uint32_t* pointer, int num_planes, char* ascii);
 
 #endif // _UTILS_H_

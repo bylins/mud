@@ -375,7 +375,8 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 	else
 	{
 		// It's a new object, we must build new tables to contain it.
-		log("[OEdit] Save mem new %d(%d/%d)", OLC_NUM(d), (top_of_objt + 2), sizeof(OBJ_DATA));
+		log("[OEdit] Save mem new %d(%d/%lu)",
+			OLC_NUM(d), (top_of_objt + 2), static_cast<unsigned long>(sizeof(OBJ_DATA)));
 
 		CREATE(new_obj_index, INDEX_DATA, top_of_objt + 2);
 
@@ -466,24 +467,6 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 }
 
 //------------------------------------------------------------------------
-void tascii(int *pointer, int num_planes, char *ascii)
-{
-	int i, c, found;
-
-	for (i = 0, found = FALSE; i < num_planes; i++)
-	{
-		for (c = 0; c < 30; c++)
-			if (*(pointer + i) & (1 << c))
-			{
-				found = TRUE;
-				sprintf(ascii + strlen(ascii), "%c%d", c < 26 ? c + 'a' : c - 26 + 'A', i);
-			}
-	}
-	if (!found)
-		strcat(ascii, "0 ");
-	else
-		strcat(ascii, " ");
-}
 
 void oedit_save_to_disk(int zone_num)
 {
@@ -511,9 +494,9 @@ void oedit_save_to_disk(int zone_num)
 			else
 				*buf1 = '\0';
 			*buf2 = '\0';
-			tascii((int *) &GET_OBJ_AFFECTS(obj), 4, buf2);
-			tascii((int *) &GET_OBJ_ANTI(obj), 4, buf2);
-			tascii((int *) &GET_OBJ_NO(obj), 4, buf2);
+			tascii(&GET_FLAG(GET_OBJ_AFFECTS(obj), 0), 4, buf2);
+			tascii(&GET_FLAG(GET_OBJ_ANTI(obj), 0), 4, buf2);
+			tascii(&GET_FLAG(GET_OBJ_NO(obj), 0), 4, buf2);
 			sprintf(buf2 + strlen(buf2), "\n%d ", GET_OBJ_TYPE(obj));
 			tascii(&GET_OBJ_EXTRA(obj, 0), 4, buf2);
 			tascii(&GET_OBJ_WEAR(obj), 1, buf2);

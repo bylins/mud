@@ -29,12 +29,13 @@
 
 #define __COMM_C__
 
+#include "conf.h"
 #include <string>
 #include <locale.h>
 #include <sys/stat.h>
-#include "conf.h"
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -989,9 +990,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		else if (events[i].events & !EPOLLOUT &!EPOLLIN) // тут ловим все события, имеющие флаги кроме in и out
 		{
 			// надо будет помониторить сислог на предмет этих сообщений
-			std::string msg = boost::str(boost::format("EPOLL: Got event %d in %s() at %s:%d")
-			                             % events[i].events % __func__ % __FILE__ % __LINE__);
-			log(msg.c_str());
+			char tmp[MAX_INPUT_LENGTH];
+			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in %s() at %s:%d",
+				static_cast<unsigned>(events[i].events),
+				__func__, __FILE__, __LINE__);
+			log(tmp);
 		}
 #else
 	// Poll (without blocking) for new input, output, and exceptions

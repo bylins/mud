@@ -50,7 +50,6 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern const char *mobprog_types[];
 #endif
 
-void tascii(int *pointer, int num_planes, char *ascii);
 int planebit(char *str, int *plane, int *bit);
 
 int real_zone(int number);
@@ -719,7 +718,7 @@ void medit_save_to_disk(int zone_num)
 			if (GET_WEIGHT(mob))
 				fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
 			strcpy(buf1, "Special_Bitvector: ");
-			tascii(&mob->mob_specials.npc_flags.flags[0], 4, buf1);
+			tascii(&NPC_FLAGS(mob, 0), 4, buf1);
 			fprintf(mob_file, "%s\n", buf1);
 			for (c = 1; c < MAX_FEATS; c++)
 			{

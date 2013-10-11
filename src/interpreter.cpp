@@ -3818,7 +3818,7 @@ void ReadEndString(std::ifstream &file)
 // замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
 void StringReplace(std::string & buffer, char s, std::string d)
 {
-	for (unsigned index = 0; index = buffer.find(s, index), index != std::string::npos;)
+	for (size_t index = 0; index = buffer.find(s, index), index != std::string::npos;)
 	{
 		buffer.replace(index, 1, d);
 		index += d.length();

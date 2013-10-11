@@ -248,7 +248,6 @@ void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int c
 void calc_easter(void);
 void do_start(CHAR_DATA * ch, int newbie);
 int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
-extern void tascii(int *pointer, int num_planes, char *ascii);
 extern void repop_decay(zone_rnum zone);	// рассыпание обьектов ITEM_REPOP_DECAY
 int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);

@@ -15,7 +15,6 @@
 #include "constants.h"
 
 extern void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
-extern void tascii(int *pointer, int num_planes, char *ascii);
 
 id_to_set_info_map obj_data::set_table;
 
@@ -787,15 +786,15 @@ std::string AcquiredAffects::print_to_file() const
 	}
 
 	*buf = '\0';
-	tascii((int *) &affects_flags_, 4, buf);
+	tascii(&GET_FLAG(affects_flags_, 0), 4, buf);
 	out << " F " << buf << "\n";
 
 	*buf = '\0';
-	tascii((int *) &extra_flags_, 4, buf);
+	tascii(&GET_FLAG(extra_flags_, 0), 4, buf);
 	out << " E " << buf << "\n";
 
 	*buf = '\0';
-	tascii((int *) &no_flags_, 4, buf);
+	tascii(&GET_FLAG(no_flags_, 0), 4, buf);
 	out << " N " << buf << "\n";
 
 	out << " W " << weight_ << "\n~\n";

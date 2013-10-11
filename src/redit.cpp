@@ -50,7 +50,6 @@ extern room_rnum r_unreg_start_room;
 extern DESCRIPTOR_DATA *descriptor_list;
 
 //------------------------------------------------------------------------
-void tascii(int *pointer, int num_planes, char *ascii);
 int planebit(char *str, int *plane, int *bit);
 // * Function Prototypes
 void redit_setup(DESCRIPTOR_DATA * d, int real_num);
@@ -332,7 +331,7 @@ void redit_save_to_disk(int zone_num)
 							counter2, buf1, buf2,
 							room->dir_option[counter2]->exit_info, room->dir_option[counter2]->key,
 							room->dir_option[counter2]->to_room != NOWHERE ?
-							world[room->dir_option[counter2]->to_room]->number : NOWHERE, 
+							world[room->dir_option[counter2]->to_room]->number : NOWHERE,
 							room->dir_option[counter2]->lock_complexity);
 				}
 			}
@@ -451,8 +450,8 @@ void redit_disp_exit_flag_menu(DESCRIPTOR_DATA * d)
 			"%s3%s) [%c]Скрытый выход\r\n"
 			"%s4%s) [%d]Сложность замка\r\n"
 			"Ваш выбор (0 - выход): ",
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info,EX_ISDOOR) ? 'x' : ' ', 
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF) ? 'x' : ' ', 
+			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info,EX_ISDOOR) ? 'x' : ' ',
+			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF) ? 'x' : ' ',
 			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN) ? 'x' : ' ',
 			grn, nrm, OLC_EXIT(d)->lock_complexity
 			);
@@ -867,7 +866,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else if (number == 0)
 			redit_disp_exit_menu(d);
 		else
-		{		
+		{
 			if (number == 1)
 			{
 				if (IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR))

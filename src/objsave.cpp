@@ -67,7 +67,6 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
 void asciiflag_conv(const char *flag, void *value);
-void tascii(int *pointer, int num_planes, char *ascii);
 
 // local functions
 void Crash_extract_norent_eq(CHAR_DATA * ch);
@@ -962,8 +961,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Наводимые аффекты
 		*buf = '\0';
 		*buf2 = '\0';
-		tascii((int *) &GET_OBJ_AFFECTS(object), 4, buf);
-		tascii((int *) &GET_OBJ_AFFECTS(proto), 4, buf2);
+		tascii(&GET_FLAG(GET_OBJ_AFFECTS(object), 0), 4, buf);
+		tascii(&GET_FLAG(GET_OBJ_AFFECTS(proto), 0), 4, buf2);
 		if (str_cmp(buf, buf2))
 		{
 			out << "Affs: " << buf << "~\n";
@@ -971,8 +970,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Анти флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		tascii((int *) &GET_OBJ_ANTI(object), 4, buf);
-		tascii((int *) &GET_OBJ_ANTI(proto), 4, buf2);
+		tascii(&GET_FLAG(GET_OBJ_ANTI(object), 0), 4, buf);
+		tascii(&GET_FLAG(GET_OBJ_ANTI(proto), 0), 4, buf2);
 		if (str_cmp(buf, buf2))
 		{
 			out << "Anti: " << buf << "~\n";
@@ -980,8 +979,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Запрещающие флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		tascii((int *) &GET_OBJ_NO(object), 4, buf);
-		tascii((int *) &GET_OBJ_NO(proto), 4, buf2);
+		tascii(&GET_FLAG(GET_OBJ_NO(object), 0), 4, buf);
+		tascii(&GET_FLAG(GET_OBJ_NO(proto), 0), 4, buf2);
 		if (str_cmp(buf, buf2))
 		{
 			out << "Nofl: " << buf << "~\n";
@@ -993,8 +992,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		bool blooded = IS_OBJ_STAT(object, ITEM_BLOODY) != 0;
 		if (blooded)
 			REMOVE_BIT(GET_OBJ_EXTRA(object, ITEM_BLOODY), ITEM_BLOODY);
-		tascii((int *) &GET_OBJ_EXTRA(object, 0), 4, buf);
-		tascii((int *) &GET_OBJ_EXTRA(proto, 0), 4, buf2);
+		tascii(&GET_OBJ_EXTRA(object, 0), 4, buf);
+		tascii(&GET_OBJ_EXTRA(proto, 0), 4, buf2);
 		if (blooded) //Возвращаем флаг назад
 			SET_BIT(GET_OBJ_EXTRA(object, ITEM_BLOODY), ITEM_BLOODY);
 		if (str_cmp(buf, buf2))
@@ -1004,8 +1003,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Флаги слотов экипировки
 		*buf = '\0';
 		*buf2 = '\0';
-		tascii((int *) &GET_OBJ_WEAR(object), 4, buf);
-		tascii((int *) &GET_OBJ_WEAR(proto), 4, buf2);
+		tascii(&GET_OBJ_WEAR(object), 1, buf);
+		tascii(&GET_OBJ_WEAR(proto), 1, buf2);
 		if (str_cmp(buf, buf2))
 		{
 			out << "Wear: " << buf << "~\n";
@@ -1162,23 +1161,23 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		}
 		// Наводимые аффекты
 		*buf = '\0';
-		tascii((int *) &GET_OBJ_AFFECTS(object), 4, buf);
+		tascii(&GET_FLAG(GET_OBJ_AFFECTS(object), 0), 4, buf);
 		out << "Affs: " << buf << "~\n";
 		// Анти флаги
 		*buf = '\0';
-		tascii((int *) &GET_OBJ_ANTI(object), 4, buf);
+		tascii(&GET_FLAG(GET_OBJ_ANTI(object), 0), 4, buf);
 		out << "Anti: " << buf << "~\n";
 		// Запрещающие флаги
 		*buf = '\0';
-		tascii((int *) &GET_OBJ_NO(object), 4, buf);
+		tascii(&GET_FLAG(GET_OBJ_NO(object), 0), 4, buf);
 		out << "Nofl: " << buf << "~\n";
 		// Экстра флаги
 		*buf = '\0';
-		tascii((int *) &GET_OBJ_EXTRA(object, 0), 4, buf);
+		tascii(&GET_OBJ_EXTRA(object, 0), 4, buf);
 		out << "Extr: " << buf << "~\n";
 		// Флаги слотов экипировки
 		*buf = '\0';
-		tascii((int *) &GET_OBJ_WEAR(object), 4, buf);
+		tascii(&GET_OBJ_WEAR(object), 1, buf);
 		out << "Wear: " << buf << "~\n";
 		// Тип предмета
 		out << "Type: " << GET_OBJ_TYPE(object) << "~\n";

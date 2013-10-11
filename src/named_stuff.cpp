@@ -599,7 +599,8 @@ void load()
 		}
 	}
 	snprintf(buf, MAX_STRING_LENGTH,
-		"NamedStuff: список именных вещей загружен, всего объектов: %d.", stuff_list.size());
+		"NamedStuff: список именных вещей загружен, всего объектов: %lu.",
+		static_cast<unsigned long>(stuff_list.size()));
 	mudlog(buf, CMP, LVL_BUILDER, SYSLOG, TRUE);
 }
 

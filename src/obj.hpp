@@ -20,8 +20,7 @@ struct obj_flag_data
 {
 	boost::array<int, NUM_OBJ_VAL_POSITIONS> value;
 	int type_flag;		// Type of item               //
-	int
-	wear_flags;		// Where you can wear it     //
+	uint32_t wear_flags;		// Where you can wear it     //
 	FLAG_DATA extra_flags;	// If it hums, glows, etc.      //
 	int
 	weight;		// Weigt what else              //

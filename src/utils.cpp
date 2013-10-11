@@ -611,10 +611,10 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 
 	*result = '\0';
 
-	if ((unsigned long) bitvector < (unsigned long) INT_ONE);
-	else if ((unsigned long) bitvector < (unsigned long) INT_TWO)
+	if (bitvector < static_cast<uint32_t>(INT_ONE));
+	else if (bitvector < static_cast<uint32_t>(INT_TWO))
 		fail = 1;
-	else if ((unsigned long) bitvector < (unsigned long) INT_THREE)
+	else if (bitvector < static_cast<uint32_t>(INT_THREE))
 		fail = 2;
 	else
 		fail = 3;
@@ -3016,4 +3016,25 @@ void print_bitset(const boost::dynamic_bitset<>& bits,
 			}
 		}
 	}
+}
+
+void tascii(const uint32_t* pointer, int num_planes, char* ascii)
+{
+	int i, c, found;
+
+	for (i = 0, found = FALSE; i < num_planes; i++)
+	{
+		for (c = 0; c < 30; c++)
+		{
+			if (*(pointer + i) & (1 << c))
+			{
+				found = TRUE;
+				sprintf(ascii + strlen(ascii), "%c%d", c < 26 ? c + 'a' : c - 26 + 'A', i);
+			}
+		}
+	}
+	if (!found)
+		strcat(ascii, "0 ");
+	else
+		strcat(ascii, " ");
 }
