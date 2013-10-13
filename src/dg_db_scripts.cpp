@@ -13,8 +13,10 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
-#include <algorithm>
 #include "conf.h"
+#include <algorithm>
+#include <stack>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "dg_scripts.h"
@@ -48,63 +50,69 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
 
 char* indent_trigger(char* cmd , int* level)
 {
-	// Удаляем впереди идущие пробелы.
-	static int switch_lvl = -1;
-	char * ptr, * tmp;
+	static std::stack<std::string> indent_stack;
 
 	*level = std::max(0, *level);
 	if (*level == 0)
 	{
-		switch_lvl = -1;
+		std::stack<std::string> empty_stack;
+		indent_stack.swap(empty_stack);
 	}
 
+	// уровни вложения
 	int currlev, nextlev;
 	currlev = nextlev = *level;
 
 	if (!cmd) return cmd;
 
-	ptr = cmd;
+	// Удаляем впереди идущие пробелы.
+	char* ptr = cmd;
 	skip_spaces(&ptr);
 
 	// ptr содержит строку без первых пробелов.
-	if (!strn_cmp("switch ", ptr, 7))
+	if (!strn_cmp("case ", ptr , 5) || !strn_cmp("default", ptr , 7))
 	{
-		switch_lvl = currlev;
-		++nextlev;
-	}
-	else if (!strn_cmp("case ", ptr , 5))
-	{
-		currlev = switch_lvl + 1;
-		nextlev = switch_lvl + 2;
-	}
-	else if (!strn_cmp("if ", ptr , 3) || !strn_cmp("while ", ptr , 6)
-		|| !strn_cmp("foreach ", ptr, 8) || !strn_cmp("default", ptr , 7))
-	{
-		// Увеличиваем уровень вложения
-		nextlev++;
-	}
-	else if (!strn_cmp("elseif ", ptr, 7) || !strn_cmp("else", ptr, 4))
-	{
-		currlev--;
-	}
-	else if (!strn_cmp("done", ptr, 4))
-	{
-		if (switch_lvl >= 0)
+		// последовательные case (или default после case) без break
+		if (!indent_stack.empty()
+			&& !strn_cmp("case ", indent_stack.top().c_str(), 5))
 		{
-			nextlev = currlev = switch_lvl;
-			switch_lvl = -1;
+			--currlev;
 		}
 		else
 		{
-			nextlev--;
-			currlev--;
+			indent_stack.push(ptr);
 		}
+		nextlev = currlev + 1;
 	}
-	else if (!strn_cmp("else", ptr, 4) || !strn_cmp("else", ptr, 4) ||
-			 !strn_cmp("break", ptr, 5) || !strn_cmp("end", ptr, 3))
+	else if (!strn_cmp("if ", ptr , 3) || !strn_cmp("while ", ptr , 6)
+		|| !strn_cmp("foreach ", ptr, 8) || !strn_cmp("switch ", ptr, 7))
 	{
-		nextlev--;
-		currlev--;
+		++nextlev;
+		indent_stack.push(ptr);
+	}
+	else if (!strn_cmp("elseif ", ptr, 7) || !strn_cmp("else", ptr, 4))
+	{
+		--currlev;
+	}
+	else if (!strn_cmp("break", ptr, 5) || !strn_cmp("end", ptr, 3)
+		|| !strn_cmp("done", ptr, 4))
+	{
+		// в switch завершающий break можно опускать и сразу писать done|end
+		if ((!strn_cmp("done", ptr, 4) || !strn_cmp("end", ptr, 3))
+			&& !indent_stack.empty()
+			&& (!strn_cmp("case ", indent_stack.top().c_str(), 5)
+				|| !strn_cmp("default", indent_stack.top().c_str() , 7)))
+		{
+			--currlev;
+			--nextlev;
+			indent_stack.pop();
+		}
+		if (!indent_stack.empty())
+		{
+			indent_stack.pop();
+		}
+		--nextlev;
+		--currlev;
 	}
 
 	if (nextlev < 0) nextlev = 0;
@@ -112,7 +120,7 @@ char* indent_trigger(char* cmd , int* level)
 
 	// Вставляем дополнительные пробелы
 
-	tmp = (char *) malloc(currlev * 2 + 1);
+	char* tmp = (char *) malloc(currlev * 2 + 1);
 	memset(tmp, 0x20, currlev*2);
 	tmp[currlev*2] = '\0';
 
