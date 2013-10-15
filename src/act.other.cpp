@@ -279,28 +279,26 @@ int awake_hide(CHAR_DATA * ch)
 {
 	if (IS_GOD(ch))
 		return (FALSE);
-	return check_awake(ch, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING | ACHECK_GLOWING | ACHECK_WEIGHT);
+	return check_awake(ch, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING
+		| ACHECK_GLOWING | ACHECK_WEIGHT);
+}
+
+int awake_sneak(CHAR_DATA * ch)
+{
+	return awake_hide(ch);
 }
 
 int awake_invis(CHAR_DATA * ch)
 {
 	if (IS_GOD(ch))
 		return (FALSE);
-	return check_awake(ch, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING | ACHECK_GLOWING);
+	return check_awake(ch, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING
+		| ACHECK_GLOWING);
 }
 
 int awake_camouflage(CHAR_DATA * ch)
 {
-	if (IS_GOD(ch))
-		return (FALSE);
-	return check_awake(ch, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING | ACHECK_GLOWING);
-}
-
-int awake_sneak(CHAR_DATA * ch)
-{
-	if (IS_GOD(ch))
-		return (FALSE);
-	return check_awake(ch, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING | ACHECK_GLOWING | ACHECK_WEIGHT);
+	return awake_invis(ch);
 }
 
 int awaking(CHAR_DATA * ch, int mode)
@@ -1819,8 +1817,6 @@ ACMD(do_wimpy)
 
 ACMD(do_display)
 {
-	size_t i;
-
 	if (IS_NPC(ch))
 	{
 		send_to_char("И зачем это монстру? Не юродствуйте.\r\n", ch);
@@ -1873,7 +1869,8 @@ ACMD(do_display)
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
 
-			for (i = 0; i < strlen(argument); i++)
+			const size_t len = strlen(argument);
+			for (size_t i = 0; i < len; i++)
 			{
 				switch (LOWER(argument[i]))
 				{

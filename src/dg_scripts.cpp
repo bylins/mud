@@ -1656,7 +1656,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	const char *portal[] = { "mportal", "oportal", "wportal" };
 
 	if (!subfield)
-		subfield = '\0';	// Чтобы проверок меньше было
+	{
+		*subfield = '\0';	// Чтобы проверок меньше было
+	}
 
 	// X.global() will have a NULL trig
 	if (trig)
@@ -1974,31 +1976,31 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "yday"))
 			{
-				strftime(str, sizeof(str), "%j", localtime(&now_time));
+				strftime(str, MAX_INPUT_LENGTH, "%j", localtime(&now_time));
 			}
 			else if (!str_cmp(field, "wday"))
 			{
-				strftime(str, sizeof(str), "%w", localtime(&now_time));
+				strftime(str, MAX_INPUT_LENGTH, "%w", localtime(&now_time));
 			}
 			else if (!str_cmp(field, "minute"))
 			{
-				strftime(str, sizeof(str), "%M", localtime(&now_time));
+				strftime(str, MAX_INPUT_LENGTH, "%M", localtime(&now_time));
 			}
 			else if (!str_cmp(field, "hour"))
 			{
-				strftime(str, sizeof(str), "%H", localtime(&now_time));
+				strftime(str, MAX_INPUT_LENGTH, "%H", localtime(&now_time));
 			}
 			else if (!str_cmp(field, "day"))
 			{
-				strftime(str, sizeof(str), "%d", localtime(&now_time));
+				strftime(str, MAX_INPUT_LENGTH, "%d", localtime(&now_time));
 			}
 			else if (!str_cmp(field, "month"))
 			{
-				strftime(str, sizeof(str), "%m", localtime(&now_time));
+				strftime(str, MAX_INPUT_LENGTH, "%m", localtime(&now_time));
 			}
 			else if (!str_cmp(field, "year"))
 			{
-				strftime(str, sizeof(str), "%y", localtime(&now_time));
+				strftime(str, MAX_INPUT_LENGTH, "%y", localtime(&now_time));
 			}
 			return;
 		}
@@ -2128,25 +2130,31 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				{
 					can_use = 1;
 				}
-				else
+				else if (AFF_FLAGGED(k, AFF_GROUP))
 				{
-					if (AFF_FLAGGED(k, AFF_GROUP))
+					if (!IS_NPC(k) && (GET_CLASS(k) == 8 || GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
+						&& world[IN_ROOM(k)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
 					{
-						if (AFF_FLAGGED(k, AFF_GROUP) && !IS_NPC(k) && (GET_CLASS(k) == 8 || GET_CLASS(k) == 13)//чернок или волхв может использовать ужи на согруппов
-								&& world[IN_ROOM(k)]->zone == world[IN_ROOM(c)]->zone)//но только если находится в той же зоне
-							can_use = 1;
-						if (!can_use)
-							for (f = k->followers; f; f = f->next)
+						can_use = 1;
+					}
+					if (!can_use)
+					{
+						for (f = k->followers; f; f = f->next)
+						{
+							if (IS_NPC(f->follower)
+								|| !AFF_FLAGGED(f->follower, AFF_GROUP))
 							{
-								if (IS_NPC(f->follower) || !AFF_FLAGGED(f->follower, AFF_GROUP))
-									continue;
-								if ((GET_CLASS(f->follower) == 8 || GET_CLASS(f->follower) == 13)//чернок или волхв может использовать ужи на согруппов
-										&& world[IN_ROOM(f->follower)]->zone == world[IN_ROOM(c)]->zone)//но только если находится в той же зоне
-								{
-									can_use = 1;
-									break;
-								}
+								continue;
 							}
+							if ((GET_CLASS(f->follower) == 8
+									|| GET_CLASS(f->follower) == 13) //чернок или волхв может использовать ужи на согруппов
+								&& world[IN_ROOM(f->follower)]->zone
+									== world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
+							{
+								can_use = 1;
+								break;
+							}
+						}
 					}
 				}
 				if (can_use == 2)//дрын
@@ -3581,7 +3589,7 @@ void eval_expr(char *line, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA *
 	if (eval_lhs_op_rhs(line, result, go, sc, trig, type));
 	else if (*line == '(')
 	{
-		p = strcpy(expr, line);
+		strcpy(expr, line);
 		p = matching_paren(expr);
 		*p = '\0';
 		eval_expr(expr + 1, result, go, sc, trig, type);
@@ -3959,7 +3967,7 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, struct cmdlis
 {
 	char *arg;
 	struct wait_event_data *wait_event_obj;
-	long time, hr, min, ntime;
+	long time = 0, hr, min, ntime;
 	char c;
 
 	extern TIME_INFO_DATA time_info;

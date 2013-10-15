@@ -295,19 +295,19 @@ private:
 
 	void ClanUpgrade();
 	void SetPolitics(int victim, int state);
-	void ManagePolitics(CHAR_DATA * ch, std::string & buffer);
-	void HouseInfo(CHAR_DATA * ch);
-	void HouseAdd(CHAR_DATA * ch, std::string & buffer);
-	void HouseRemove(CHAR_DATA * ch, std::string & buffer);
-	void TaxManage(CHAR_DATA * ch, std::string & arg);
-	void ClanAddMember(CHAR_DATA * ch, int rank);
-	void HouseOwner(CHAR_DATA * ch, std::string & buffer);
-	void HouseLeave(CHAR_DATA * ch);
+	void ManagePolitics(CHAR_DATA* ch, std::string& buffer);
+	void HouseInfo(CHAR_DATA* ch);
+	void HouseAdd(CHAR_DATA* ch, std::string& buffer);
+	void HouseRemove(CHAR_DATA* ch, std::string& buffer);
+	void TaxManage(CHAR_DATA* ch, const std::string& arg);
+	void ClanAddMember(CHAR_DATA* ch, int rank);
+	void HouseOwner(CHAR_DATA* ch, std::string& buffer);
+	void HouseLeave(CHAR_DATA* ch);
 	int GetClanScore();
-	void HouseStat(CHAR_DATA * ch, std::string & buffer);
-	void remove_member(ClanMemberList::iterator &it);
-	void save_clan_file(const std::string &filename) const;
-	void house_web_url(CHAR_DATA *ch, std::string &buffer);
+	void HouseStat(CHAR_DATA* ch, std::string& buffer);
+	void remove_member(ClanMemberList::iterator& it);
+	void save_clan_file(const std::string& filename) const;
+	void house_web_url(CHAR_DATA* ch, const std::string& buffer);
 
 	// house аля олц
 	void MainMenu(DESCRIPTOR_DATA * d);

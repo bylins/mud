@@ -282,7 +282,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			*t = '\0';
 			RECREATE(*d->str, char, strlen(*d->str) + 3);
 
-			sprintf(buf, "%d line%sdeleted.\r\n", total_len, ((total_len != 1) ? "s " : " "));
+			sprintf(buf, "%u line%sdeleted.\r\n", total_len, ((total_len != 1) ? "s " : " "));
 			SEND_TO_Q(buf, d);
 		}
 		else
@@ -480,8 +480,10 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				strcat(buf, *d->str);
 			*s = temp;
 			strcat(buf, buf2);
-			if (s && (*s != '\0'))
+			if (*s != '\0')
+			{
 				strcat(buf, s);
+			}
 			RECREATE(*d->str, char, strlen(buf) + 3);
 
 			strcpy(*d->str, buf);

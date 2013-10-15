@@ -2054,7 +2054,7 @@ int check_dupes_email(DESCRIPTOR_DATA * d)
 			continue;
 		if (IS_NPC(ch))
 			continue;
-		if (ch && !IS_IMMORTAL(ch) && (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character))))
+		if (!IS_IMMORTAL(ch) && (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character))))
 		{
 			sprintf(buf, "Вы не можете войти одновременно с %s!\r\n"
 					"Одинаковый email адрес!\r\n", GET_PAD(ch, 4));
@@ -2196,7 +2196,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			GET_INVIS_LEV(d->character) = 0;
 	}
 
-	OfftopSystem::check(d->character);
+	OfftopSystem::set_flag(d->character);
 	// пересчет максимального хп, если нужно
 	check_max_hp(d->character);
 	// проверка и сет религии

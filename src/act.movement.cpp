@@ -1520,17 +1520,17 @@ ACMD(do_enter)
 							!GET_MOB_HOLD(k->follower) &&
 							MOB_FLAGGED(k->follower, MOB_ANGEL) &&
 							!k->follower->get_fighting() &&
-							IN_ROOM(k->follower) == from_room && AWAKE(k->follower))
-						if (k)
-						{
-							act("$n исчез$q в пентаграмме.", TRUE,
-								k->follower, 0, 0, TO_ROOM);
-							char_from_room(k->follower);
-							char_to_room(k->follower, door);
-							set_wait(k->follower, 3, FALSE);
-							act("$n появил$u из пентаграммы.", TRUE,
-								k->follower, 0, 0, TO_ROOM);
-						}
+							IN_ROOM(k->follower) == from_room &&
+							AWAKE(k->follower))
+					{
+						act("$n исчез$q в пентаграмме.", TRUE,
+							k->follower, 0, 0, TO_ROOM);
+						char_from_room(k->follower);
+						char_to_room(k->follower, door);
+						set_wait(k->follower, 3, FALSE);
+						act("$n появил$u из пентаграммы.", TRUE,
+							k->follower, 0, 0, TO_ROOM);
+					}
 					if (IS_CHARMICE(k->follower) &&
 							!GET_MOB_HOLD(k->follower) &&
 							GET_POS(k->follower) == POS_STANDING &&
@@ -1547,13 +1547,15 @@ ACMD(do_enter)
 		else
 		{	// an argument was supplied, search for door keyword
 			for (door = 0; door < NUM_OF_DIRS; door++)
-				if (EXIT(ch, door))
-					if (EXIT(ch, door)->keyword && EXIT(ch, door)->keyword)
-						if (isname(buf, EXIT(ch, door)->keyword) || isname(buf, EXIT(ch, door)->vkeyword))
-						{
-							perform_move(ch, door, 1, TRUE, 0);
-							return;
-						}
+			{
+				if (EXIT(ch, door)
+					&& (isname(buf, EXIT(ch, door)->keyword)
+						|| isname(buf, EXIT(ch, door)->vkeyword)))
+				{
+					perform_move(ch, door, 1, TRUE, 0);
+					return;
+				}
+			}
 			sprintf(buf2, "Вы не нашли здесь '%s'.\r\n", buf);
 			send_to_char(buf2, ch);
 		}

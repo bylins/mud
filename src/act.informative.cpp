@@ -1296,12 +1296,6 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 			strcat(buf1, "(под седлом) ");
 		CAP(buf1);
 	}
-	else if (IS_NPC(i))
-	{
-		strcpy(buf1, GET_NAME(i));
-		strcat(buf1, " ");
-		CAP(buf1);
-	}
 	else
 	{
 		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), PLR_FLAGGED(i, PLR_KILLER) ? " <ДУШЕГУБ>" : "");
@@ -2302,7 +2296,7 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 				strcat(buf, "Ваши метки: ");
 			sprintf(buf + strlen(buf), "%s\r\n", obj->custom_label->label_text);
 		}
-		sprintf(buf+strlen(buf), diag_uses_to_char(obj, ch));
+		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
 }
 /*
  * Given the argument "look at <target>", figure out what object or char
@@ -2792,7 +2786,6 @@ const char *ac_text[] =
 
 void print_do_score_all(CHAR_DATA *ch)
 {
-	OBJ_DATA *weapon = NULL;
 	int ac, max_dam = 0, hr = 0, resist, modi = 0, skill = SKILL_BOTHHANDS;
 
 	std::string sum = string("Вы ") + string(GET_PAD(ch, 0)) + string(", ")
@@ -2857,7 +2850,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	else
 		max_dam += 6 + 2 * GET_LEVEL(ch) / 3;
 
-	weapon = GET_EQ(ch, WEAR_BOTHS);
+	OBJ_DATA* weapon = GET_EQ(ch, WEAR_BOTHS);
 	if (weapon)
 	{
 		if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
@@ -3691,13 +3684,9 @@ ACMD(do_score)
 
 	if (ch->is_morphed())
 	{
-		sprintf(buf, "Вы находитесь в звериной форме - ");
-		sprintf(buf+strlen(buf), ch->get_morph_desc().c_str());
-		sprintf(buf+strlen(buf), ".\r\n");
-
+		sprintf(buf, "Вы находитесь в звериной форме - %s.\r\n", ch->get_morph_desc().c_str());
 		send_to_char(buf, ch);
 	}
-
 }
 
 //29.11.09 Отображение количества рипов (с) Василиса
@@ -4080,11 +4069,11 @@ ACMD(do_who)
 				strcpy(buf, buf1);
 				break;
 			case 'c':
-
 				half_chop(buf1, arg, buf);
 				if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 				{
-					for (size_t i = 0; i < strlen(arg); i++)
+					const size_t len = strlen(arg);
+					for (size_t i = 0; i < len; i++)
 					{
 						showclass |= find_class_bitvector(arg[i]);
 					}
@@ -4455,7 +4444,6 @@ ACMD(do_users)
 // ---
 	CHAR_DATA *tch, *t, *t_tmp;
 	DESCRIPTOR_DATA *d;
-	int i;
 	int low = 0, high = LVL_IMPL, num_can_see = 0;
 	int showclass = 0, outlaws = 0, playing = 0, deadweight = 0;
 
@@ -4511,11 +4499,16 @@ ACMD(do_users)
 				strcpy(buf, buf1);
 				break;
 			case 'c':
+			{
 				playing = 1;
 				half_chop(buf1, arg, buf);
-				for (i = 0; i < (int) strlen(arg); i++)
+				const size_t len = strlen(arg);
+				for (size_t i = 0; i < len; i++)
+				{
 					showclass |= find_class_bitvector(arg[i]);
+				}
 				break;
+			}
 			case 'e':
 				showemail = 1;
 				strcpy(buf, buf1);
@@ -4526,7 +4519,7 @@ ACMD(do_users)
 				break;
 
 			case 's':
-				sorting = 'i';
+				//sorting = 'i';
 				sorting = *(arg + 2);
 				strcpy(buf, buf1);
 				break;
@@ -4705,7 +4698,7 @@ ACMD(do_users)
 				ci = (d->original ? d->original : d->character);
 				if (ci && CAN_SEE(ch, ci) && (ci->in_room != NOWHERE))
 				{
-					if (d->original)
+					if (d->original && d->character)
 						sprintf(line2, " [%5d] %s (in %s)",
 								GET_ROOM_VNUM(IN_ROOM(d->character)),
 								world[d->character->in_room]->name, GET_NAME(d->character));
@@ -5185,7 +5178,7 @@ ACMD(do_toggle)
 			" Оффтоп        : %-3s     "
 			" Потеря связи  : %-3s \r\n"
 			" Ингредиенты   : %-3s     "
-			" Вспомнить     : %-3d     ",
+			" Вспомнить     : %-3u     ",
 			ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),
 			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
 			ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),

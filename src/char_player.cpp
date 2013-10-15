@@ -436,15 +436,15 @@ void Player::save_char()
 
 	if (GET_PAD(this, 0))
 		fprintf(saved, "NmI : %s\n", GET_PAD(this, 0));
-	if (GET_PAD(this, 0))
+	if (GET_PAD(this, 1))
 		fprintf(saved, "NmR : %s\n", GET_PAD(this, 1));
-	if (GET_PAD(this, 0))
+	if (GET_PAD(this, 2))
 		fprintf(saved, "NmD : %s\n", GET_PAD(this, 2));
-	if (GET_PAD(this, 0))
+	if (GET_PAD(this, 3))
 		fprintf(saved, "NmV : %s\n", GET_PAD(this, 3));
-	if (GET_PAD(this, 0))
+	if (GET_PAD(this, 4))
 		fprintf(saved, "NmT : %s\n", GET_PAD(this, 4));
-	if (GET_PAD(this, 0))
+	if (GET_PAD(this, 5))
 		fprintf(saved, "NmP : %s\n", GET_PAD(this, 5));
 	if (!this->get_passwd().empty())
 		fprintf(saved, "Pass: %s\n", this->get_passwd().c_str());
@@ -603,7 +603,7 @@ void Player::save_char()
 
 	for (unsigned i = 0; i < board_date_.size(); ++i)
 	{
-		fprintf(saved, "Br%02d: %llu\n", i + 1, static_cast<unsigned long long>(board_date_.at(i)));
+		fprintf(saved, "Br%02u: %llu\n", i + 1, static_cast<unsigned long long>(board_date_.at(i)));
 	}
 
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
@@ -667,7 +667,7 @@ void Player::save_char()
 
 	if (this->remember_get_num() != Remember::DEF_REMEMBER_NUM)
 	{
-		fprintf(saved, "Rmbr: %d\n", this->remember_get_num());
+		fprintf(saved, "Rmbr: %u\n", this->remember_get_num());
 	}
 
 	if (EXCHANGE_FILTER(this))
@@ -682,7 +682,7 @@ void Player::save_char()
 			{
 				if (!cur->id)
 					continue;
-				fprintf(saved, "Ignr: [%ld]%ld\n", cur->mode, cur->id);
+				fprintf(saved, "Ignr: [%lu]%ld\n", cur->mode, cur->id);
 			}
 		}
 	}
@@ -1303,7 +1303,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				GET_EXP_PK(this) = llnum;
 			else if (!strcmp(tag, "Expt"))
 				GET_EXP_PKTHIS(this) = llnum;
-			else if (!strcmp(tag, "Expt"))
+			else if (!strcmp(tag, "Expo"))
 				GET_EXP_OTHER(this) = llnum;
 			else if (!strcmp(tag, "Exot"))
 				GET_EXP_OTHERTHIS(this) = llnum;

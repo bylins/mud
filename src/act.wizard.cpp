@@ -168,8 +168,6 @@ ACMD(do_wiznet);
 ACMD(do_zreset);
 ACMD(do_wizutil);
 void print_zone_to_buf(char **bufptr, zone_rnum zone);
-void print_zone_exits_to_buf(char *bufptr, zone_rnum zone);
-void print_zone_enters_to_buf(char *bufptr, zone_rnum zone);
 ACMD(do_show);
 ACMD(do_set);
 ACMD(do_liblist);
@@ -1719,7 +1717,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		//added by WorM когда статишь файл собсно показывалось текущее время а не время последнего входа
 		time_t ltime = get_lastlogon_by_unique(GET_UNIQUE(k));
 		strftime(buf1, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player_data.time.birth)));
-		strftime(buf2, sizeof(buf1), "%d-%m-%Y", localtime(&ltime));
+		strftime(buf2, sizeof(buf2), "%d-%m-%Y", localtime(&ltime));
 		buf1[10] = buf2[10] = '\0';
 
 		sprintf(buf,
@@ -2108,22 +2106,23 @@ ACMD(do_stat)
 		}
 		else
 		{
-			Player t_victim;
-			if (load_char(buf2, &t_victim) > -1)
+			Player t_vict;
+			if (load_char(buf2, &t_vict) > -1)
 			{
-				victim = &t_victim;
-				if (GET_LEVEL(victim) > level)
+				if (GET_LEVEL(&t_vict) > level)
 				{
 					send_to_char("Извините, вам это еще рано.\r\n", ch);
 				}
 				else
 				{
-					Clan::SetClanData(victim);
-					do_stat_character(ch, victim);
+					Clan::SetClanData(&t_vict);
+					do_stat_character(ch, &t_vict);
 				}
 			}
 			else
+			{
 				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
+			}
 		}
 	}
 	else if (is_abbrev(buf1, "object") && level >= LVL_BUILDER)
@@ -3181,15 +3180,12 @@ ACMD(do_restore)
 		}
 		if (IS_GRGOD(ch) && IS_IMMORTAL(vict))
 		{
-			if (IS_GRGOD(vict))
-			{
-				vict->set_str(25);
-				vict->set_int(25);
-				vict->set_wis(25);
-				vict->set_dex(25);
-				vict->set_con(25);
-				vict->set_cha(25);
-			}
+			vict->set_str(25);
+			vict->set_int(25);
+			vict->set_wis(25);
+			vict->set_dex(25);
+			vict->set_con(25);
+			vict->set_cha(25);
 		}
 		update_pos(vict);
 		affect_from_char(vict, SPELL_DRUNKED);
@@ -3905,60 +3901,76 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 	*bufptr = str_add(*bufptr, tmpstr);
 }
 
-void print_zone_exits_to_buf(char *bufptr, zone_rnum zone)
+std::string print_zone_exits(zone_rnum zone)
 {
-	int n, dir;
-	bool found = FALSE;
-	sprintf(bufptr, "%s\r\nВыходы из зоны %3d:\r\n", bufptr, zone_table[zone].number);
-	for (n = FIRST_ROOM; n <= top_of_world; n++)
+	bool found = false;
+	char tmp[128];
+
+	snprintf(tmp, sizeof(tmp),
+		"\r\nВыходы из зоны %3d:\r\n", zone_table[zone].number);
+	std::string out(tmp);
+
+	for (int n = FIRST_ROOM; n <= top_of_world; n++)
 	{
 		if (world[n]->zone == zone)
-			for (dir = 0; dir < NUM_OF_DIRS; dir++)
+		{
+			for (int dir = 0; dir < NUM_OF_DIRS; dir++)
 			{
-				if (world[n]->dir_option[dir])
+				if (world[n]->dir_option[dir]
+					&& world[world[n]->dir_option[dir]->to_room]->zone != zone
+					&& world[world[n]->dir_option[dir]->to_room]->number > 0)
 				{
-					if (world[world[n]->dir_option[dir]->to_room]->zone != zone &&
-							world[world[n]->dir_option[dir]->to_room]->number > 0)
-					{
-						sprintf(bufptr,
-								"%s  Номер комнаты:%5d Направление:%6s Выход в комнату:%5d\r\n",
-								bufptr, world[n]->number, Dirs[dir],
-								world[world[n]->dir_option[dir]->to_room]->number);
-						found = TRUE;
-					};
+					snprintf(tmp, sizeof(tmp),
+						"  Номер комнаты:%5d Направление:%6s Выход в комнату:%5d\r\n",
+						world[n]->number, Dirs[dir],
+						world[world[n]->dir_option[dir]->to_room]->number);
+					out += tmp;
+					found = true;
 				}
 			}
-	};
+		}
+	}
 	if (!found)
-		sprintf(bufptr, "%sВыходов из зоны не обнаружено.\r\n", bufptr);
+	{
+		out += "Выходов из зоны не обнаружено.\r\n";
+	}
+	return out;
 }
 
-void print_zone_enters_to_buf(char *bufptr, zone_rnum zone)
+std::string print_zone_enters(zone_rnum zone)
 {
-	int n, dir;
-	bool found = FALSE;
-	sprintf(bufptr, "%s\r\nВходы в зону %3d:\r\n", bufptr, zone_table[zone].number);
-	for (n = FIRST_ROOM; n <= top_of_world; n++)
+	bool found = true;
+	char tmp[128];
+
+	snprintf(tmp, sizeof(tmp),
+		"\r\nВходы в зону %3d:\r\n", zone_table[zone].number);
+	std::string out(tmp);
+
+	for (int n = FIRST_ROOM; n <= top_of_world; n++)
 	{
 		if (world[n]->zone != zone)
-			for (dir = 0; dir < NUM_OF_DIRS; dir++)
+		{
+			for (int dir = 0; dir < NUM_OF_DIRS; dir++)
 			{
-				if (world[n]->dir_option[dir])
+				if (world[n]->dir_option[dir]
+					&& world[world[n]->dir_option[dir]->to_room]->zone == zone
+					&& world[world[n]->dir_option[dir]->to_room]->number > 0)
 				{
-					if (world[world[n]->dir_option[dir]->to_room]->zone == zone &&
-							world[world[n]->dir_option[dir]->to_room]->number > 0)
-					{
-						sprintf(bufptr,
-								"%s  Номер комнаты:%5d Направление:%6s Вход в комнату:%5d\r\n",
-								bufptr, world[n]->number, Dirs[dir],
-								world[world[n]->dir_option[dir]->to_room]->number);
-						found = TRUE;
-					};
+					snprintf(tmp, sizeof(tmp),
+						"  Номер комнаты:%5d Направление:%6s Вход в комнату:%5d\r\n",
+						world[n]->number, Dirs[dir],
+						world[world[n]->dir_option[dir]->to_room]->number);
+					out += tmp;
+					found = true;
 				}
 			}
-	};
+		}
+	}
 	if (!found)
-		sprintf(bufptr, "%sВходов в зону не обнаружено.\r\n", bufptr);
+	{
+		out += "Входов в зону не обнаружено.\r\n";
+	}
+	return out;
 }
 
 namespace
@@ -4266,7 +4278,7 @@ ACMD(do_show)
 		sprintf(buf + strlen(buf), "  Переключенных буферов - %5d, переполненных - %5d\r\n", buf_switches, buf_overflows);
 		sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", number_of_bytes_written);
 		sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
-		sprintf(buf + strlen(buf), "  Максимальный ID - %lu\r\n", max_id);
+		sprintf(buf + strlen(buf), "  Максимальный ID - %ld\r\n", max_id);
 		sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n", (cmd_cnt * 60) / (time(0) - boot_time));
 		send_to_char(buf, ch);
 		Depot::show_stats(ch);
@@ -4391,20 +4403,24 @@ ACMD(do_show)
 		}
 		break;
 	case 11:		// show paths
-
 		if (self)
 		{
-			print_zone_exits_to_buf(buf, world[ch->in_room]->zone);
-			print_zone_enters_to_buf(buf, world[ch->in_room]->zone);
+			std::string out = print_zone_exits(world[ch->in_room]->zone);
+			out += print_zone_enters(world[ch->in_room]->zone);
+			page_string(ch->desc, out);
 		}
 		else if (*value && is_number(value))
 		{
-			for (zvn = atoi(value), zrn = 0;
-					zone_table[zrn].number != zvn && zrn <= top_of_zone_table; zrn++);
+			for (zvn = atoi(value), zrn = 0; zone_table[zrn].number != zvn
+				&& zrn <= top_of_zone_table; zrn++)
+			{
+				// empty
+			}
 			if (zrn <= top_of_zone_table)
 			{
-				print_zone_exits_to_buf(buf, zrn);
-				print_zone_enters_to_buf(buf, zrn);
+				std::string out = print_zone_exits(zrn);
+				out += print_zone_enters(zrn);
+				page_string(ch->desc, out);
 			}
 			else
 			{
@@ -4417,11 +4433,8 @@ ACMD(do_show)
 			send_to_char("Какую зону показать?\r\n", ch);
 			return;
 		}
-		page_string(ch->desc, buf, TRUE);
-
 		break;
 	case 12:		// show loadrooms
-
 		break;
 	case 13:		// show skills
 		if (!*value)

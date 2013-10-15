@@ -822,13 +822,13 @@ ACMD(do_make_item)
 		{
 			tmpstr = "Похоже у вас творческий кризис.\r\n";
 			send_to_char(tmpstr.c_str(), ch);
-			free(canlist);
+			delete canlist;
 			return;
 		}
 	};
 
 	trec->make(ch);
-	free(canlist);
+	delete canlist;
 
 	return;
 }
@@ -2073,7 +2073,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// Модифицируем вес предмета и его таймер.
 	// Для маг предметов надо в сторону облегчения.
 
-	i = GET_OBJ_WEIGHT(obj);
+//	i = GET_OBJ_WEIGHT(obj);
+
 	int sign = -1;
 
 	if ((GET_OBJ_TYPE(obj) == ITEM_WEAPON) || (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT))
@@ -2414,7 +2415,7 @@ int MakeRecept::stat_modify(CHAR_DATA * ch, int value, float devider)
 	int res = value;
 	float delta = 0;
 	int skill_prc = 0;
-	if (devider == 0)
+	if (devider <= 0)
 		return res;
 
 	skill_prc = calculate_skill(ch, skill, skill_info[skill].max_percent, 0);

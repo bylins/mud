@@ -929,15 +929,16 @@ void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_
 {
 	if (type < TOTAL_TYPES)
 	{
+		const int money = ch->get_ext_money(type);
 		send_to_char(ch,
 			"Для подтверждения права на перевоплощение вы должны пожертвовать %d %s %s.\r\n"
 			"У вас в данный момент %d %s %s%s\r\n",
 			amount,
 			desc_count(amount, type_list[type].DESC_MESSAGE_U_NUM),
 			desc_count(amount, WHAT_TORC),
-			ch->get_ext_money(type),
-			desc_count(ch->get_ext_money(type), type_list[type].DESC_MESSAGE_NUM),
-			desc_count(ch->get_ext_money(type), WHAT_TORC),
+			money,
+			desc_count(money, type_list[type].DESC_MESSAGE_NUM),
+			desc_count(money, WHAT_TORC),
 			add_text);
 	}
 }

@@ -1768,7 +1768,8 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	OBJ_DATA *obj_potion;
 
 	send_to_char("Вы узнали следующее:\r\n", ch);
-	sprintf(buf, "UID: %d, Предмет \"%s\", тип : ", obj->uid, obj->short_description);
+	sprintf(buf, "UID: %u, Предмет \"%s\", тип : ",
+		obj->uid, obj->short_description);
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
 	strcat(buf, buf2);
 	strcat(buf, "\r\n");

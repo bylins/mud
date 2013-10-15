@@ -1930,7 +1930,6 @@ char *show_state(CHAR_DATA *ch, CHAR_DATA *victim)
 
 char *show_state(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	int ch_hp = 11;
 	static const char *WORD_STATE[12] = { "Смертельно ранен",
 										  "О.тяжело ранен",
 										  "О.тяжело ранен",
@@ -1945,7 +1944,7 @@ char *show_state(CHAR_DATA * ch, CHAR_DATA * victim)
 										  "Невредим"
 										};
 
-	ch_hp = posi_value(GET_HIT(victim), GET_REAL_MAX_HIT(victim)) + 1;
+	const int ch_hp = posi_value(GET_HIT(victim), GET_REAL_MAX_HIT(victim)) + 1;
 	sprintf(buf, "%s&q[%s:%s%s]%s&Q ",
 			color_value(ch, GET_HIT(victim), GET_REAL_MAX_HIT(victim)),
 			PERS(victim, ch, 0), WORD_STATE[ch_hp], GET_CH_SUF_6(victim), CCNRM(ch, C_NRM));
@@ -2494,8 +2493,7 @@ int new_descriptor(socket_t s)
 	newd->idle_tics = 0;
 	newd->output = newd->small_outbuf;
 	newd->bufspace = SMALL_BUFSIZE - 1;
-	newd->input_time = time(0);
-	newd->login_time = time(0);
+	newd->login_time = newd->input_time = time(0);
 	*newd->output = '\0';
 	newd->bufptr = 0;
 	newd->has_prompt = 1;	// prompt is part of greetings

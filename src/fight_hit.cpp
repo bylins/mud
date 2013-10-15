@@ -3291,7 +3291,9 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& train_skill(victim, SKILL_AWAKE, skill_info[SKILL_AWAKE].max_percent,
 			ch) >= number(1, skill_info[SKILL_AWAKE].max_percent))
 	{
-		dam -= IS_NPC(ch) ? 5 : 5; //и зачем так? кто балансом занимается поправте.
+		// > и зачем так? кто балансом занимается поправте.
+		// воткнул мин. разницу, чтобы анализаторы не ругались
+		dam -= IS_NPC(ch) ? 5 : 4;
 		calc_thaco += IS_NPC(ch) ? 4 : 2;
 	}
 

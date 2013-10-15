@@ -716,11 +716,11 @@ void CharNode::update_online_item()
 bool CharNode::removal_period_cost()
 {
 	double i;
-	buffer_cost += (static_cast<double>(cost_per_day) / SECS_PER_MUD_DAY);
-	modf(buffer_cost, &i);
-	if (i)
+	buffer_cost += static_cast<double>(cost_per_day) / SECS_PER_MUD_DAY;
+	std::modf(buffer_cost, &i);
+	if (i >= 1.0f)
 	{
-		int diff = static_cast<int>(i);
+		unsigned diff = static_cast<unsigned>(i);
 		money -= diff;
 		money_spend += diff;
 		buffer_cost -= i;

@@ -2656,7 +2656,7 @@ void setup_dir(FILE * fl, int room, unsigned dir)
 	int t[5];
 	char line[256];
 
-	sprintf(buf2, "room #%d, direction D%d", GET_ROOM_VNUM(room), dir);
+	sprintf(buf2, "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
 
 	CREATE(world[room]->dir_option[dir], EXIT_DATA, 1);
 	world[room]->dir_option[dir]->general_description = fread_string(fl, buf2);
@@ -3270,7 +3270,9 @@ void parse_espec(char *buf, int i, int nr)
 #else
 	}
 	else
-		ptr = '\0';
+	{
+		*ptr = '\0';
+	}
 #endif
 	interpret_espec(buf, ptr, i, nr);
 }
@@ -4644,7 +4646,6 @@ void zone_update(void)
 	int i, j, k = 0;
 	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
-	char buf[1024];
 
 	// jelson 10/22/92
 	if (((++timer * PULSE_ZONE) / PASSES_PER_SEC) >= 60)  	// one minute has passed
@@ -4694,7 +4695,11 @@ void zone_update(void)
 				|| can_be_reset(update_u->zone_to_reset))
 		{
 			reset_zone(update_u->zone_to_reset);
-			sprintf(buf, "Auto zone reset: %s (%d)", zone_table[update_u->zone_to_reset].name, zone_table[update_u->zone_to_reset].number);
+			char tmp[128];
+			snprintf(tmp, sizeof(tmp), "Auto zone reset: %s (%d)",
+				zone_table[update_u->zone_to_reset].name,
+				zone_table[update_u->zone_to_reset].number);
+			std::string out(tmp);
 			if (zone_table[update_u->zone_to_reset].reset_mode == 3)
 			{
 				for (i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++)
@@ -4703,17 +4708,19 @@ void zone_update(void)
 					for (j = 0; j <= top_of_zone_table; j++)
 					{
 						if (zone_table[j].number ==
-								zone_table[update_u->zone_to_reset].typeA_list[i])
+							zone_table[update_u->zone_to_reset].typeA_list[i])
 						{
 							reset_zone(j);
-							sprintf(buf, "%s ]\r\n[ Also resetting: %s (%d)",
-									buf, zone_table[j].name, zone_table[j].number);
+							snprintf(tmp, sizeof(tmp),
+								" ]\r\n[ Also resetting: %s (%d)",
+								zone_table[j].name, zone_table[j].number);
+							out += tmp;
 							break;
 						}
 					}
 				}
 			}
-			mudlog(buf, LGH, LVL_GOD, SYSLOG, FALSE);
+			mudlog(out.c_str(), LGH, LVL_GOD, SYSLOG, FALSE);
 			// dequeue
 			if (update_u == reset_q.head)
 				reset_q.head = reset_q.head->next;
@@ -6885,7 +6892,7 @@ void entrycount(char *name)
 				//end by WorM
 				player_table[top_of_p_table].id = GET_IDNUM(short_ch);
 				player_table[top_of_p_table].unique = GET_UNIQUE(short_ch);
-				player_table[top_of_p_table].level = (GET_REMORT(short_ch) && !IS_IMMORTAL(short_ch) ? 30 : GET_LEVEL(short_ch));
+				player_table[top_of_p_table].level = (GET_REMORT(short_ch) && !IS_IMMORTAL(short_ch)) ? 30 : GET_LEVEL(short_ch);
 				player_table[top_of_p_table].timer = NULL;
 				if (IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED))
 				{
@@ -7426,10 +7433,26 @@ MobRace::~MobRace()
 namespace OfftopSystem
 {
 
-const char *BLOCK_FILE = LIB_MISC"offtop.lst";
+const char* BLOCK_FILE = LIB_MISC"offtop.lst";
 std::vector<std::string> block_list;
 
-// * Лоад/релоад списка нежелательных для оффтопа товарисчей.
+/// Проверка на наличие чара в стоп-списке и сет флага
+void set_flag(CHAR_DATA* ch)
+{
+	std::string mail(GET_EMAIL(ch));
+	lower_convert(mail);
+	auto i = std::find(block_list.begin(), block_list.end(), mail);
+	if (i != block_list.end())
+	{
+		SET_BIT(PRF_FLAGS(ch, PRF_IGVA_PRONA), PRF_IGVA_PRONA);
+	}
+	else
+	{
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_IGVA_PRONA), PRF_IGVA_PRONA);
+	}
+}
+
+/// Лоад/релоад списка нежелательных для оффтопа товарисчей.
 void init()
 {
 	block_list.clear();
@@ -7445,43 +7468,12 @@ void init()
 		lower_convert(buffer);
 		block_list.push_back(buffer);
 	}
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+	for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next)
 	{
 		if (d->character)
 		{
-			check(d->character);
+			set_flag(d->character);
 		}
-	}
-}
-
-// * Проверка на наличие чара в стоп-списке.
-bool is_blocked(CHAR_DATA *ch)
-{
-	std::string mail(GET_EMAIL(ch));
-	lower_convert(mail);
-	std::vector<std::string>::const_iterator i = std::find(block_list.begin(), block_list.end(), mail);
-	if (i != block_list.end())
-	{
-		return true;
-	}
-	return false;
-}
-
-// * Простановка флага наличия в стоп-списке оффтопа.
-void check(CHAR_DATA *ch)
-{
-	if (!ch || !GET_EMAIL(ch))
-	{
-		return;
-	}
-
-	if (is_blocked(ch))
-	{
-		SET_BIT(PRF_FLAGS(ch, PRF_IGVA_PRONA), PRF_IGVA_PRONA);
-	}
-	else
-	{
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_IGVA_PRONA), PRF_IGVA_PRONA);
 	}
 }
 

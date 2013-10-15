@@ -19,10 +19,10 @@
 
 int fbgetline(FBFILE * fbfl, char *line)
 {
-	char *r = fbfl->ptr, *w = line;
-
 	if (!fbfl || !line || !*fbfl->ptr)
 		return FALSE;
+
+	char *r = fbfl->ptr, *w = line;
 
 	for (; *r && (*r != '\n') && (r <= (fbfl->buf + fbfl->size)); r++)
 		*(w++) = *r;

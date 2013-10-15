@@ -1443,7 +1443,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 				}
 				if (inworld > 1) // У объекта есть как минимум одна копия
 				{
-					sprintf(buf, "Copy detected and prepared to extract! Object %s (UID=%d, VNUM=%d), holder %s. In world %d.",
+					sprintf(buf, "Copy detected and prepared to extract! Object %s (UID=%u, VNUM=%d), holder %s. In world %d.",
 							object->PNames[0], GET_OBJ_UID(object), GET_OBJ_VNUM(object), GET_NAME(ch), inworld);
 					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 					// Удаление предмета

@@ -705,14 +705,14 @@ void trigedit_create_index(int znum, const char *type)
 
 	if (!(oldfile = fopen(old_name, "r")))
 	{
-		sprintf(buf, "SYSERR: DG_OLC: Failed to open %s", buf);
-		mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+		sprintf(buf1, "SYSERR: DG_OLC: Failed to open %s", buf);
+		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, TRUE);
 		return;
 	}
 	else if (!(newfile = fopen(new_name, "w")))
 	{
-		sprintf(buf, "SYSERR: DG_OLC: Failed to open %s", buf);
-		mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+		sprintf(buf1, "SYSERR: DG_OLC: Failed to open %s", buf);
+		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, TRUE);
 		return;
 	}
 

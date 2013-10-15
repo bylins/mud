@@ -615,9 +615,8 @@ void medit_save_to_disk(int zone_num)
 			// * Clean up strings.
 			strcpy(buf1, not_null(GET_LDESC(mob), "неопределен"));
 			strip_string(buf1);
-			strcpy(buf2, not_null(GET_DDESC(mob), "undefined"));
+			strcpy(buf2, not_null(GET_DDESC(mob), "неопределен"));
 			strip_string(buf2);
-
 
 			fprintf(mob_file,
 					"%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",

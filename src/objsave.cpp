@@ -2575,7 +2575,7 @@ void Crash_crashsave(CHAR_DATA * ch)
 
 void Crash_ldsave(CHAR_DATA * ch)
 {
-	save_char_objects(ch, RENT_CRASH, 0);
+	Crash_crashsave(ch);
 }
 
 void Crash_idlesave(CHAR_DATA * ch)
@@ -3056,14 +3056,11 @@ void Crash_save_all(void)
 	DESCRIPTOR_DATA *d;
 	for (d = descriptor_list; d; d = d->next)
 	{
-		if ((STATE(d) == CON_PLAYING) && !IS_NPC(d->character))
+		if ((STATE(d) == CON_PLAYING) && PLR_FLAGGED(d->character, PLR_CRASH))
 		{
-			if (PLR_FLAGGED(d->character, PLR_CRASH))
-			{
-				Crash_crashsave(d->character);
-				d->character->save_char();
-				REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRASH), PLR_CRASH);
-			}
+			Crash_crashsave(d->character);
+			d->character->save_char();
+			REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRASH), PLR_CRASH);
 		}
 	}
 }

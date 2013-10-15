@@ -2044,6 +2044,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case ITEM_WEAPON:
 			min_val = 1;
 			max_val = 50;
+			break;
 		case ITEM_WAND:
 		case ITEM_STAFF:
 			min_val = 0;

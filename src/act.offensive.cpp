@@ -146,19 +146,18 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 
 	// Карачун. Правка бага. Если моб в лаге, он не должен бить, но должен запомнить.
-	if (IS_NPC(ch) && GET_WAIT(ch) > 0)
+	if (MOB_FLAGGED(ch, MOB_MEMORY) && GET_WAIT(ch) > 0)
 	{
-		if (MOB_FLAGGED(ch, MOB_MEMORY))
+		if (!IS_NPC(victim))
 		{
-			if (!IS_NPC(victim))
-				remember(ch, victim);
-			else if (AFF_FLAGGED(victim, AFF_CHARM) && victim->master && !IS_NPC(victim->master))
-			{
-				if (MOB_FLAGGED(victim, MOB_CLONE))
-					remember(ch, victim->master);
-				else if (IN_ROOM(victim->master) == IN_ROOM(ch) && CAN_SEE(ch, victim->master))
-					remember(ch, victim->master);
-			}
+			remember(ch, victim);
+		}
+		else if (AFF_FLAGGED(victim, AFF_CHARM) && victim->master && !IS_NPC(victim->master))
+		{
+			if (MOB_FLAGGED(victim, MOB_CLONE))
+				remember(ch, victim->master);
+			else if (IN_ROOM(victim->master) == IN_ROOM(ch) && CAN_SEE(ch, victim->master))
+				remember(ch, victim->master);
 		}
 		return (FALSE);
 	}
@@ -917,7 +916,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob /= 2;
 	if (GET_MOB_HOLD(vict))
 		prob = percent;
-	if (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))
+	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
 		prob = percent;
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE))
 		prob = 0;
@@ -2792,7 +2791,6 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		af.duration = IS_NPC(vict) ? 8 : 15;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
-		af.battleflag = 0;
 		af.battleflag = AF_SAME_TIME;
 		af.bitvector = AFF_STRANGLED;
 		affect_to_char(vict, &af);

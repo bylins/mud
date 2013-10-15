@@ -445,7 +445,7 @@ namespace OfftopSystem
 {
 
 void init();
-void check(CHAR_DATA *ch);
+void set_flag(CHAR_DATA *ch);
 
 } // namespace OfftopSystem
 

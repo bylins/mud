@@ -2193,13 +2193,11 @@ ACMD(do_upgrade)
 
 	if (IS_IMMORTAL(ch))
 	{
-		add_hr = 10;
-		add_dr = 10;
+		add_dr = add_hr = 10;
 	}
 	else
 	{
-		add_hr = (max_mod <= min_mod) ? min_mod : number(min_mod, max_mod);
-		add_dr = (max_mod <= min_mod) ? min_mod : number(min_mod, max_mod);
+		add_dr = add_hr = (max_mod <= min_mod) ? min_mod : number(min_mod, max_mod);
 	}
 	if (percent > prob || GET_GOD_FLAG(ch, GF_GODSCURSE))
 	{
@@ -3015,7 +3013,7 @@ ACMD(do_custom_label)
 				target->custom_label = NULL;
 				act("Вы затерли надписи на $o5.", FALSE, ch, target, 0, TO_CHAR);
 			}
-			else
+			else if (labels)
 			{
 				if (strlen(labels) > MAX_LABEL_LENGTH)
 					labels[MAX_LABEL_LENGTH] = '\0';

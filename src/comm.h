@@ -38,7 +38,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, int type);
 unsigned long get_ip(const char *addr);
 
-#define SUN_CONTROL     (0 << 1)
+#define SUN_CONTROL     (1 << 0)
 #define WEATHER_CONTROL (1 << 1)
 
 #define TO_ROOM		1

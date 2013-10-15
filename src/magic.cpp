@@ -1846,7 +1846,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	case SPELL_FROST_BREATH:
 	case SPELL_ACID_BREATH:
 	case SPELL_LIGHTNING_BREATH:
-		savetype = SAVING_REFLEX;
+//		savetype = SAVING_REFLEX;
 	case SPELL_GAS_BREATH:
 		savetype = SAVING_STABILITY;
 		if (!IS_NPC(ch))

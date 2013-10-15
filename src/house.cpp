@@ -3052,10 +3052,10 @@ void Clan::ChestUpdate()
 		cost = (cost * CHEST_UPDATE_PERIOD) / (60 * 24);
 
 		(*clan)->bankBuffer += cost;
-		modf((*clan)->bankBuffer, &i);
-		if (i)
+		std::modf((*clan)->bankBuffer, &i);
+		if (i >= 1.0f)
 		{
-			(*clan)->bank -= (long) i;
+			(*clan)->bank -= static_cast<unsigned>(i);
 			(*clan)->bankBuffer -= i;
 		}
 		// при нулевом счете все шмотки в сундуке пуржим
@@ -3084,7 +3084,7 @@ void Clan::ChestUpdate()
 }
 
 //изменение налога на свой опыт
-void Clan::TaxManage(CHAR_DATA * ch, std::string & arg)
+void Clan::TaxManage(CHAR_DATA * ch, const std::string& arg)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 		return;
@@ -5892,7 +5892,7 @@ void init_xhelp()
 } // ClanSystem
 
 // клан сайт <текст>
-void Clan::house_web_url(CHAR_DATA *ch, std::string &buffer)
+void Clan::house_web_url(CHAR_DATA *ch, const std::string& buffer)
 {
 	const unsigned MAX_URL_LENGTH = 40;
 	std::istringstream tmp(buffer);

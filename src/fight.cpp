@@ -95,10 +95,8 @@ void go_autoassist(CHAR_DATA * ch)
 
 void update_pos(CHAR_DATA * victim)
 {
-	if ((GET_HIT(victim) > 0) && (GET_POS(victim) > POS_STUNNED))
-		GET_POS(victim) = GET_POS(victim);
 	//Добавил проверку на лаг, чтобы правильно работали Каменное проклятье и Круг пустоты, ибо позицию делают меньше чем поз_станнед.
-	else if (GET_HIT(victim) > 0 && GET_WAIT(victim) <= 0 && !GET_MOB_HOLD(victim))
+	if (GET_HIT(victim) > 0 && GET_WAIT(victim) <= 0 && !GET_MOB_HOLD(victim))
 		GET_POS(victim) = POS_STANDING;
 	else if (GET_HIT(victim) <= -11)
 		GET_POS(victim) = POS_DEAD;
@@ -1321,7 +1319,7 @@ void using_mob_skills(CHAR_DATA *ch)
 			if (GET_REAL_INT(ch) < number(15, 25))
 			{
 				caster = ch->get_fighting();
-				damager = ch->get_fighting();
+				damager = caster;
 			}
 			else
 			{
