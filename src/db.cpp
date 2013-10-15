@@ -3271,7 +3271,7 @@ void parse_espec(char *buf, int i, int nr)
 	}
 	else
 	{
-		*ptr = '\0';
+		ptr = '\0';
 	}
 #endif
 	interpret_espec(buf, ptr, i, nr);
