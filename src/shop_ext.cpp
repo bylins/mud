@@ -683,16 +683,17 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 	std::string out;
 	std::string print_value="";
 	std::string name_value="";
-	for (ItemListType::iterator k = (*shop)->item_list.begin(),
-		kend = (*shop)->item_list.end(); k != kend; ++k)
+
+	for (ItemListType::iterator k = (*shop)->item_list.begin();
+		k != (*shop)->item_list.end(); /* empty */)
 	{
 		int count = can_sell_count(shop, num - 1);
 
 		print_value="";
 		name_value="";
 
-//Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
-// чтобы не было в списках всяких "гриб @n1"
+		//Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
+		// чтобы не было в списках всяких "гриб @n1"
 		if ((*k)->temporary_ids.empty())
 		{
 			print_value = get_item_name((*k), keeper_vnum);
@@ -710,7 +711,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 			}
 			else
 			{
-				(*shop)->item_list.erase(k);
+				k = (*shop)->item_list.erase(k);
 				continue;
 			}
 		}
@@ -718,11 +719,19 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
 
 		// имхо вполне логично раз уж мы получаем эту надпись в ней и искать
-		if (arg.empty() || isname(arg.c_str(), print_value.c_str()) || (!name_value.empty() && isname(arg.c_str(), name_value.c_str())))
-				out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
-					% num++ % numToShow % print_value % (*k)->price);
-			else
-				num++;
+		if (arg.empty()
+			|| isname(arg.c_str(), print_value.c_str())
+			|| (!name_value.empty() && isname(arg.c_str(), name_value.c_str())))
+		{
+			out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
+				% num++ % numToShow % print_value % (*k)->price);
+		}
+		else
+		{
+			num++;
+		}
+
+		++k;
 	}
 	page_string(ch->desc, out);
 //	send_to_char("В корзине " + boost::lexical_cast<string>((*shop)->waste.size()) + " элементов\r\n", ch);
