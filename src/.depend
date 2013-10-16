@@ -82,9 +82,9 @@ config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp constants.h char.hpp \
  player_i.hpp reset_stats.hpp boards.h db.h morph.hpp comm.h \
  birth_places.hpp
-constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
- pugixml.hpp pugiconfig.hpp interpreter.h utils.h features.hpp obj.hpp \
- house.h db.h house_exp.hpp char.hpp player_i.hpp reset_stats.hpp \
+constants.o: constants.cpp constants.h conf.h sysdep.h structs.h spells.h \
+ skills.h pugixml.hpp pugiconfig.hpp interpreter.h utils.h features.hpp \
+ obj.hpp house.h db.h house_exp.hpp char.hpp player_i.hpp reset_stats.hpp \
  boards.h morph.hpp comm.h remember.hpp
 features.o: features.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp handler.h comm.h db.h interpreter.h \
