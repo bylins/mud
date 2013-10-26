@@ -153,9 +153,6 @@ public:
 	// конструктор деструктор загрузка из строчки.
 	// изготовление рецепта указанным чаром.
 	MakeRecept();
-
-	~MakeRecept();
-
 	// определяем может ли в принципе из компонентов находящихся в инвентаре
 	int can_make(CHAR_DATA *ch);
 	// создать предмет по рецепту
@@ -164,10 +161,6 @@ public:
 	int load_from_str(string & rstr);
 	// сохранить рецепт в строку.
 	int save_to_str(string & rstr);
-
-	MakeRecept & operator=(MakeRecept & x);
-
-
 };
 
 #endif

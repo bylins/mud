@@ -1526,7 +1526,6 @@ MakeReceptList *MakeReceptList::can_make(CHAR_DATA * ch, MakeReceptList * canlis
 {
 	// Ищем по списку рецепты которые чар может изготовить.
 	list < MakeRecept * >::iterator p;
-	MakeRecept *trec;
 
 	p = recepts.begin();
 
@@ -1536,8 +1535,8 @@ MakeReceptList *MakeReceptList::can_make(CHAR_DATA * ch, MakeReceptList * canlis
 		if (((*p)->skill == use_skill) && ((*p)->can_make(ch)))
 		{
 
-			trec = new MakeRecept;
-			trec = *p;
+			MakeRecept *trec = new MakeRecept;
+			*trec = **p;
 			canlist->add(trec);
 		}
 		p++;
@@ -1558,13 +1557,6 @@ MakeRecept::MakeRecept()
 		parts[i].min_power = 0;
 	}
 }
-
-MakeRecept::~MakeRecept()
-{
-
-}
-
-
 
 int MakeRecept::can_make(CHAR_DATA * ch)
 {
@@ -2391,20 +2383,6 @@ int MakeRecept::save_to_str(string & rstr)
 	}
 
 	return (TRUE);
-}
-
-
-MakeRecept & MakeRecept::operator=(MakeRecept & x)
-{
-	obj_proto = x.obj_proto;
-	skill = x.skill;
-	for (int i = 0; i < MAX_PARTS; i++)
-	{
-		parts[i].proto = x.parts[i].proto;
-		parts[i].min_weight = x.parts[i].min_weight;
-		parts[i].min_power = x.parts[i].min_power;
-	}
-	return *this;
 }
 
 // Модификатор базовых значений.

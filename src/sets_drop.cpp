@@ -1281,9 +1281,11 @@ int check_mob(int mob_rnum)
 			}
 			return rnum;
 		}
+log("->sd: %d", it->second.obj_vnum);
 		// соло сетины - на необходимость резета проверяется вся группа
 		if (it->second.linked_mobs.need_reset())
 		{
+log("reset");
 			it->second.linked_mobs.reset();
 		}
 		// +0% если все 4 шмотки в лоаде
@@ -1292,13 +1294,19 @@ int check_mob(int mob_rnum)
 		// +0.3% если 1 из 4 шмоток в лоаде
 		// таже система, если список в целом меньше 4
 		const int drop_mod = it->second.linked_mobs.list_size() - it->second.linked_mobs.drop_count();
-
+log("list_size=%d, drop_count=%d, drop_mod=%d",
+	it->second.linked_mobs.list_size(),
+	it->second.linked_mobs.drop_count(), drop_mod);
+log("num=%d, miw=%d", num, GET_OBJ_MIW(obj_proto[it->second.obj_rnum]));
 		if (num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum]))
 		{
+log("chance1=%d", it->second.chance);
 			it->second.chance += MAX(0, drop_mod);
+log("chance2=%d", it->second.chance);
 			// собственно проверка на лоад
 			if (it->second.chance >= 120 || number(0, 1000) <= it->second.chance)
 			{
+log("drop");
 				// если шмоток две и более в мире - вторую нашару не дропаем
 				it->second.reset_chance();
 				rnum = it->second.obj_rnum;
@@ -1306,13 +1314,17 @@ int check_mob(int mob_rnum)
 		}
 		else
 		{
+log("chance3=%d", it->second.chance);
 			// шмотка не в лоаде, увеличиваем шансы как на дропе с проверкой переполнения
 			it->second.chance += MAX(0, drop_mod);
+log("chance4=%d", it->second.chance);
 			if (it->second.chance > 1000)
 			{
+log("reset");
 				it->second.reset_chance();
 			}
 		}
+log("<-sd");
 
 		need_save_drop_table = true;
 		HelpSystem::reload(HelpSystem::DYNAMIC);
