@@ -450,6 +450,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"баланс", POS_STANDING, do_not_here, 1, 0, 0},
 	{"баги", POS_DEAD, DoBoard, 1, Boards::ERROR_BOARD, 0},
 	{"бежать", POS_FIGHTING, do_flee, 1, 0, -1},
+	{"бинтовать", POS_RESTING, do_bandage, 0, 0, 0},
 	{"билдер", POS_DEAD, DoBoard, 1,Boards:: GODBUILD_BOARD, -1},
 	{"блок", POS_FIGHTING, do_block, 0, 0, -1},
 	{"блокнот", POS_DEAD, DoBoard, 1, Boards::PERS_BOARD, -1},

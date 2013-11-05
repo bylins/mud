@@ -3142,7 +3142,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	else
 	{
 		sprintf(buf + strlen(buf),
-			" || %sПерегружен.%s        |                       |",
+			" || %sПерегруз!%s          |                       |",
 			wdex == 1 ? CCIYEL(ch, C_NRM) : CCIRED(ch, C_NRM),
 			CCCYN(ch, C_NRM));
 	}

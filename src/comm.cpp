@@ -3292,7 +3292,8 @@ int process_input(DESCRIPTOR_DATA * t)
 		}
 		if (t->snoop_by)
 		{
-			SEND_TO_Q("% ", t->snoop_by);
+			SEND_TO_Q("< ", t->snoop_by);
+//			SEND_TO_Q("% ", t->snoop_by); Попытаюсь сделать вменяемый вывод снупаемого трафика в отдельное окно
 			SEND_TO_Q(tmp, t->snoop_by);
 			SEND_TO_Q("\r\n", t->snoop_by);
 		}
