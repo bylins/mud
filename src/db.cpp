@@ -1929,6 +1929,10 @@ void boot_db(void)
 	log("Load reset_stats.xml");
 	ResetStats::init();
 
+	log("Load mail.xml");
+	mail::load();
+	mail::convert();
+
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	HelpSystem::reload_all();
 
@@ -5827,6 +5831,14 @@ long get_id_by_uid(long uid)
 	return -1;
 }
 
+int get_uid_by_id(int id)
+{
+	for (int i = 0; i <= top_of_p_table; i++)
+		if (player_table[i].id == id)
+			return player_table[i].unique;
+	return -1;
+}
+
 const char *get_name_by_id(long id)
 {
 	for (int i = 0; i <= top_of_p_table; i++)
@@ -5837,15 +5849,16 @@ const char *get_name_by_id(long id)
 	return "";
 }
 
-char *get_name_by_unique(long unique)
+char* get_name_by_unique(int unique)
 {
-	int i;
-
-	for (i = 0; i <= top_of_p_table; i++)
+	for (int i = 0; i <= top_of_p_table; i++)
+	{
 		if (player_table[i].unique == unique)
-			return (player_table[i].name);
-
-	return (NULL);
+		{
+			return player_table[i].name;
+		}
+	}
+	return 0;
 }
 
 int get_level_by_unique(long unique)
@@ -7004,7 +7017,7 @@ void flush_player_index(void)
 		// if (c < i)
 		//    continue;
 
-		sprintf(name, "%s %ld %ld %d %d\n",
+		sprintf(name, "%s %d %d %d %d\n",
 				player_table[i].name,
 				player_table[i].id, player_table[i].unique, player_table[i].level, player_table[i].last_logon);
 		fputs(name, players);
@@ -7038,7 +7051,7 @@ void dupe_player_index(void)
 		if (c < i)
 			continue;
 
-		sprintf(name, "%s %ld %ld %d %d\n",
+		sprintf(name, "%s %d %d %d %d\n",
 				player_table[i].name,
 				player_table[i].id, player_table[i].unique, player_table[i].level, player_table[i].last_logon);
 		fputs(name, players);

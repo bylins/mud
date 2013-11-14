@@ -72,6 +72,7 @@
 #include "sets_drop.hpp"
 #include "fight.h"
 #include "help.hpp"
+#include "mail.h"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -610,6 +611,8 @@ void init_game(ush_int port)
 	print_rune_log();
 	//python_off scripting::terminate();
 	SetsDrop::save_mob_stat();
+	SetsDrop::save_drop_table();
+	mail::save();
 
 	log("Closing all sockets.");
 #ifdef HAS_EPOLL
@@ -1532,31 +1535,37 @@ inline void heartbeat(const int missed_pulses)
 	}
 // раз в 5 минут >> ////////////////////////////////////////////////////////////
 
-	if (!((pulse + 36) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 37) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		record_usage();
 	}
-	if (!((pulse + 35) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 36) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
 	}
 	// вывод иммам о неодобренных именах и титулах
-	if (!((pulse + 34) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 35) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		god_work_invoice();
 	}
 	// сейв титулов, ждущих одобрения
-	if (!((pulse + 33) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 34) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		TitleSystem::save_title_list();
 	}
 	// сейв зареганных мыл
-	if (!((pulse + 32) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 33) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		RegisterSystem::save();
 	}
 
 // раз в минуту >> /////////////////////////////////////////////////////////////
+
+	// сохранение почты (при наличии изменений)
+	if (!((pulse + 32) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		mail::save();
+	}
 
 	// проверка необходимости обновления динамической справки
 	if (!((pulse + 31) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))

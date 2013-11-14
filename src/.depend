@@ -51,7 +51,7 @@ act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h \
  map.hpp parcel.hpp liquid.hpp modify.h room.hpp glory_misc.hpp \
  glory_const.hpp shop_ext.hpp dictionary.hpp celebrates.hpp \
  player_races.hpp birth_places.hpp corpse.hpp sets_drop.hpp fight.h \
- ext_money.hpp noob.hpp
+ ext_money.hpp noob.hpp mail.h
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp interpreter.h db.h char.hpp player_i.hpp \
  reset_stats.hpp boards.h morph.hpp comm.h
@@ -77,7 +77,7 @@ comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  char_player.hpp quested.hpp mobmax.hpp dps.hpp map.hpp parcel.hpp pk.h \
  spells.h skills.h corpse.hpp room.hpp glory_misc.hpp glory_const.hpp \
  celebrates.hpp shop_ext.hpp dictionary.hpp sets_drop.hpp fight.h \
- help.hpp
+ help.hpp mail.h
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp constants.h char.hpp \
  player_i.hpp reset_stats.hpp boards.h db.h morph.hpp comm.h \
@@ -153,7 +153,7 @@ mail.o: mail.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp comm.h db.h interpreter.h handler.h mail.h \
  char.hpp player_i.hpp reset_stats.hpp boards.h morph.hpp parcel.hpp \
  char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp map.hpp \
- named_stuff.hpp
+ named_stuff.hpp parse.hpp screen.h
 mobact.o: mobact.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp db.h comm.h interpreter.h handler.h \
  spells.h skills.h constants.h pk.h random.hpp char.hpp player_i.hpp \

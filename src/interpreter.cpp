@@ -3718,12 +3718,12 @@ bool CompareParam(const std::string & buffer, const std::string & buffer2, bool 
 }
 
 // ищет дескриптор игрока(онлайн состояние) по его УИДу
-DESCRIPTOR_DATA *DescByUID(long unique)
+DESCRIPTOR_DATA *DescByUID(int uid)
 {
 	DESCRIPTOR_DATA *d = 0;
 
 	for (d = descriptor_list; d; d = d->next)
-		if (d->character && GET_UNIQUE(d->character) == unique)
+		if (d->character && GET_UNIQUE(d->character) == uid)
 			break;
 	return (d);
 }
@@ -3895,7 +3895,7 @@ void login_change_invoice(CHAR_DATA* ch)
 	{
 		single_god_invoice(ch);
 	}
-	if (has_mail(GET_IDNUM(ch)))
+	if (mail::has_mail(ch->get_uid()))
 	{
 		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}

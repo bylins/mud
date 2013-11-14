@@ -1564,8 +1564,7 @@ struct descriptor_data
 	char **str;		// for the modify-str system     //
 	size_t max_str;		//      -        //
 	char *backstr;		// added for handling abort buffers //
-	long
-	mail_to;		// name for mail system       //
+	int mail_to;		// uid for mail system
 	int
 	has_prompt;		// is the user at a prompt?             //
 	char

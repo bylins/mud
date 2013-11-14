@@ -41,7 +41,7 @@ int find_command(const char *command);
 void GetOneParam(std::string & buffer, std::string & buffer2);
 bool CompareParam(const std::string & buffer, const char *arg, bool full = 0);
 bool CompareParam(const std::string & buffer, const std::string & buffer2, bool full = 0);
-DESCRIPTOR_DATA *DescByUID(long unique);
+DESCRIPTOR_DATA *DescByUID(int uid);
 DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing = 1);
 long GetUniqueByName(const std::string & name, bool god = 0);
 std::string GetNameByUnique(long unique, bool god = 0);

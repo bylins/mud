@@ -187,11 +187,12 @@ room_rnum real_room(room_vnum vnum);
 char *fread_string(FILE * fl, char *error);
 long get_id_by_name(char *name);
 long get_id_by_uid(long uid);
+int get_uid_by_id(int id);
 long cmp_ptable_by_name(char *name, int len);
 const char *get_name_by_id(long id);
-char *get_name_by_unique(long id);
+char* get_name_by_unique(int unique);
 int get_level_by_unique(long unique);
-long get_lastlogon_by_unique(long uniquie);
+long get_lastlogon_by_unique(long unique);
 long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 
@@ -321,8 +322,8 @@ struct player_index_element
 	char *mail;
 	char *last_ip;
 	//end by WorM
-	long id;
-	long unique;
+	int id;
+	int unique;
 	int level;
 	int last_logon;
 	int activity;		// When player be saved and checked

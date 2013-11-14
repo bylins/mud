@@ -693,7 +693,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 				"Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
-			store_mail(GET_EXCHANGE_ITEM_SELLERID(item), -1, tmpbuf);
+			mail::add_by_id(GET_EXCHANGE_ITEM_SELLERID(item), -1, tmpbuf);
 		}
 //-Polud
 		seller->save_char();

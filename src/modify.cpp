@@ -109,7 +109,7 @@ void smash_tilde(char *str)
  * else you may want through it.  The improved editor patch when updated
  * could use it to pass the old text buffer, for instance.
  */
-void string_write(DESCRIPTOR_DATA * d, char **writeto, size_t len, long mailto, void *data)
+void string_write(DESCRIPTOR_DATA * d, char **writeto, size_t len, int mailto, void *data)
 {
 	if (d->character && !IS_NPC(d->character))
 		SET_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
@@ -899,12 +899,12 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		{
 			if ((terminator == 1) && *d->str)  	//log("[SA] 4s");
 			{
-				store_mail(d->mail_to, GET_IDNUM(d->character), *d->str);
+				mail::add(d->mail_to, d->character->get_uid(), *d->str);
 				SEND_TO_Q("Ближайшей оказией я отправлю ваше письмо адресату!\r\n", d);
-				DESCRIPTOR_DATA* i = get_desc_by_id(d->mail_to);
-				if (i)
-					send_to_char(i->character, "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
-								 CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
+				if (DescByUID(d->mail_to))
+				{
+					mail::add_notice(d->mail_to);
+				}
 			}
 			else
 				SEND_TO_Q("Письмо удалено.\r\n", d);

@@ -3281,7 +3281,7 @@ void print_do_score_all(CHAR_DATA *ch)
 				" || %sЭто место отлично подходит для занятий кузнечным делом.                         %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
-	if (has_mail(GET_IDNUM(ch)))
+	if (mail::has_mail(ch->get_uid()))
 		sprintf(buf + strlen(buf),
 				" || %sВас ожидает новое письмо, зайдите на почту.                                     %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3618,7 +3618,7 @@ ACMD(do_score)
 		send_to_char(buf, ch);
 	}
 
-	if (has_mail(GET_IDNUM(ch)))
+	if (mail::has_mail(ch->get_uid()))
 	{
 		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);

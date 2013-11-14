@@ -54,10 +54,6 @@
 // DON'T TOUCH DEFINES BELOW ***
 
 int scan_file(void);
-int has_mail(long recipient);
-void store_mail(long to, long from, char *message_pointer);
-char *read_delete(long recipient);
-
 
 #define HEADER_BLOCK  -1
 #define LAST_BLOCK    -2
@@ -120,5 +116,22 @@ struct mail_index_type_d
 };
 
 typedef struct mail_index_type_d mail_index_type;
+
+#include "conf.h"
+
+namespace mail
+{
+
+bool has_mail(int uid);
+void add(int to_uid, int from_uid, char* message);
+void add_by_id(int to_uid, int from_uid, char* message);
+void receive(CHAR_DATA* ch, CHAR_DATA* mailman);
+void save();
+void load();
+void convert();
+size_t get_msg_count();
+void add_notice(int uid);
+
+} // namespace mail
 
 #endif

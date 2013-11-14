@@ -573,13 +573,16 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 }
 
 // * Отправка сообщения через письмо, с уведомлением чару, если тот онлайн.
-void create_mail(long to, long from, char *text)
+void create_mail(int to_uid, int from_uid, char *text)
 {
-	store_mail(to, from, text);
-	DESCRIPTOR_DATA* i = get_desc_by_id(to);
+	mail::add(to_uid, from_uid, text);
+	DESCRIPTOR_DATA* i = DescByUID(to_uid);
 	if (i)
-		send_to_char(i->character, "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
-				CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
+	{
+		send_to_char(i->character,
+			"%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
+			CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
+	}
 }
 
 // * Формирование временного списка возвращенных предметов (из основного удалены).
@@ -617,17 +620,15 @@ void return_parcel()
 }
 
 // * Дикей предмета на почте и уведомление об этом отправителя и получателя через письма.
-void extract_parcel(const long sender_uid, const long target_uid, const std::list<Node>::iterator &it)
+void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::iterator &it)
 {
-	long sender_id = get_id_by_uid(sender_uid);
-	long target_id = get_id_by_uid(target_uid);
 	snprintf(buf, MAX_STRING_LENGTH, "С прискорбием сообщаем вам: %s рассыпал%s в прах.\r\n",
-			it->obj_->short_description, GET_OBJ_SUF_2(it->obj_));
+		it->obj_->short_description, GET_OBJ_SUF_2(it->obj_));
 
 	char *tmp = str_dup(buf);
 	// -1 в качестве ид отправителя при получении подставит в имя почтовую службу
-	create_mail(sender_id, -1, tmp);
-	create_mail(target_id, -1, tmp);
+	create_mail(sender_uid, -1, tmp);
+	create_mail(target_uid, -1, tmp);
 	free(tmp);
 
 	// возврат оставшихся зарезервированных кун отправителю (у развернутых уже ноль)
@@ -642,13 +643,12 @@ void extract_parcel(const long sender_uid, const long target_uid, const std::lis
 }
 
 // * Генерация письма о возврате посылки.
-void return_invoice(long uid, OBJ_DATA *obj)
+void return_invoice(int uid, OBJ_DATA *obj)
 {
-	long target_id = get_id_by_uid(uid);
-	snprintf(buf, MAX_STRING_LENGTH, "Посылка возвращена отправителю: %s.\r\n", obj->short_description);
-
+	snprintf(buf, MAX_STRING_LENGTH,
+		"Посылка возвращена отправителю: %s.\r\n", obj->short_description);
 	char *tmp = str_dup(buf);
-	create_mail(target_id, -1, tmp);
+	create_mail(uid, -1, tmp);
 	free(tmp);
 }
 
