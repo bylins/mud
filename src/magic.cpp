@@ -1013,17 +1013,25 @@ void pulse_affect_update(CHAR_DATA * ch)
  * it to implement your own spells which require ingredients (i.e., some
  * heal spell which requires a rare herb or some such.)
  */
-int mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
+bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 {
 	int num = 0;
 
-	if ((!IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype == SPELL_RUNES)
-			|| (IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES)
-				&& spelltype != SPELL_RUNES))
-		return (FALSE);
+	if (spelltype == SPELL_RUNES && GET_OBJ_TYPE(obj) != ITEM_INGRADIENT)
+	{
+		return false;
+	}
+	if (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT)
+	{
+		if ((!IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype == SPELL_RUNES)
+			|| (IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype != SPELL_RUNES))
+		{
+			return false;
+		}
+	}
 
 	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES) && GET_OBJ_VAL(obj, 2) <= 0)
-		return (FALSE);
+		return false;
 
 	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LAG))
 	{
@@ -1045,7 +1053,7 @@ int mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG128s))
 			num += 128;
 		if (GET_OBJ_VAL(obj, 3) + num - 5 * GET_REMORT(ch) >= time(NULL))
-			return (FALSE);
+			return false;
 	}
 
 	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL))
@@ -1062,10 +1070,10 @@ int mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL16))
 			num += 16;
 		if (GET_LEVEL(ch) + GET_REMORT(ch) < num)
-			return (FALSE);
+			return false;
 	}
 
-	return (TRUE);
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1196,53 +1204,61 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			(item3 = items->rnumber) +
 			(item0 = items->items[0]) +
 			(item1 = items->items[1]) +
-			(item2 = items->items[2]) < -3) ||
-			((spelltype == SPELL_SCROLL || spelltype == SPELL_WAND
-			  || spelltype == SPELL_POTION) && ((obj_num = items->rnumber) < 0
-												|| (item0 =
-														items->items[0]) + (item1 =
-																				items->
-																				items[1]) + (item2 = items->items[2]) < -2)))
+			(item2 = items->items[2]) < -3)
+		|| ((spelltype == SPELL_SCROLL
+			|| spelltype == SPELL_WAND
+			|| spelltype == SPELL_POTION)
+				&& ((obj_num = items->rnumber) < 0
+					|| (item0 = items->items[0]) + (item1 = items->items[1])
+						+ (item2 = items->items[2]) < -2)))
+	{
 		return (FALSE);
+	}
+
+	const int item0_rnum = item0 >= 0 ? real_object(item0) : -1;
+	const int item1_rnum = item1 >= 0 ? real_object(item1) : -1;
+	const int item2_rnum = item2 >= 0 ? real_object(item2) : -1;
+	const int item3_rnum = item3 >= 0 ? real_object(item3) : -1;
 
 	for (obj = ch->carrying; obj; obj = obj->next_content)
 	{
-		if (item0 >= 0 && (percent = real_object(item0)) >= 0 &&
-				GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[percent], 1) && mag_item_ok(ch, obj, spelltype))
+		if (item0 >= 0 && item0_rnum >= 0
+			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item0_rnum], 1)
+			&& mag_item_ok(ch, obj, spelltype))
 		{
 			obj0 = obj;
 			item0 = -2;
 			objo = obj0;
 			num++;
 		}
-		else
-			if (item1 >= 0 && (percent = real_object(item1)) >= 0 &&
-					GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[percent], 1) && mag_item_ok(ch, obj, spelltype))
-			{
-				obj1 = obj;
-				item1 = -2;
-				objo = obj1;
-				num++;
-			}
-			else
-				if (item2 >= 0 && (percent = real_object(item2)) >= 0 &&
-						GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[percent], 1) && mag_item_ok(ch, obj, spelltype))
-				{
-					obj2 = obj;
-					item2 = -2;
-					objo = obj2;
-					num++;
-				}
-				else
-					if (item3 >= 0 && (percent = real_object(item3)) >= 0 &&
-							GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[percent], 1) && mag_item_ok(ch, obj, spelltype))
-					{
-						obj3 = obj;
-						item3 = -2;
-						objo = obj3;
-						num++;
-					}
-	};
+		else if (item1 >= 0 && item1_rnum >= 0
+			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item1_rnum], 1)
+			&& mag_item_ok(ch, obj, spelltype))
+		{
+			obj1 = obj;
+			item1 = -2;
+			objo = obj1;
+			num++;
+		}
+		else if (item2 >= 0 && item2_rnum >= 0
+			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item2_rnum], 1)
+			&& mag_item_ok(ch, obj, spelltype))
+		{
+			obj2 = obj;
+			item2 = -2;
+			objo = obj2;
+			num++;
+		}
+		else if (item3 >= 0 && item3_rnum >= 0
+			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item3_rnum], 1)
+			&& mag_item_ok(ch, obj, spelltype))
+		{
+			obj3 = obj;
+			item3 = -2;
+			objo = obj3;
+			num++;
+		}
+	}
 
 //  log("%d %d %d %d",items->items[0],items->items[1],items->items[2],items->rnumber);
 //  log("%d %d %d %d",item0,item1,item2,item3);
