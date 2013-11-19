@@ -4242,7 +4242,6 @@ ACMD(DoStoreHouse)
 	filter.cost = -1;
 
 	int num = 0;
-	unsigned int len;
 	bool find = 0;
 	char tmpbuf[MAX_INPUT_LENGTH];
 	char sign = '\0';
@@ -4458,28 +4457,37 @@ ACMD(DoStoreHouse)
 			}
 			break;
 		case 'А':
+		{
 			argument = one_argument(++argument, tmpbuf);
-			if (!strlen(tmpbuf))
+			size_t len = strlen(tmpbuf);
+			if (len == 0)
 			{
 				send_to_char("Неверный аффект предмета.\r\n", ch);
 				return;
 			}
-			if (filter.affect.size() + filter.affect2.size() + filter.affect3.size() >= 3)
-				break;
-			find = 0;
-			switch (*tmpbuf)
+			if (filter.affect.size()
+				+ filter.affect2.size()
+				+ filter.affect3.size() >= 3)
 			{
-				case '1':
-					sprintf(tmpbuf, "можно вплавить 1 камень");
 				break;
-				case '2':
-					sprintf(tmpbuf, "можно вплавить 2 камня");
-				break;
-				case '3':
-					sprintf(tmpbuf, "можно вплавить 3 камня");
-				break;
-				default:
-				break;
+			}
+			find = 0;
+			if (len == 1)
+			{
+				switch (*tmpbuf)
+				{
+					case '1':
+						sprintf(tmpbuf, "можно вплавить 1 камень");
+					break;
+					case '2':
+						sprintf(tmpbuf, "можно вплавить 2 камня");
+					break;
+					case '3':
+						sprintf(tmpbuf, "можно вплавить 3 камня");
+					break;
+					default:
+					break;
+				}
 			}
 			lower_convert(tmpbuf);
 			len = strlen(tmpbuf);
@@ -4491,7 +4499,7 @@ ACMD(DoStoreHouse)
 				{
 					if (strlen(weapon_affects[num]) < len)
 						continue;
-					if (!strncmp(weapon_affects[num], tmpbuf, len))
+					if (isname(tmpbuf, weapon_affects[num]))
 					{
 						filter.affect.push_back(num);
 						find = 1;
@@ -4508,7 +4516,7 @@ ACMD(DoStoreHouse)
 				{
 					if (strlen(apply_types[num]) < len)
 						continue;
-					if (!strncmp(apply_types[num], tmpbuf, len))
+					if (isname(tmpbuf, apply_types[num]))
 					{
 						filter.affect2.push_back(num);
 						find = 1;
@@ -4525,7 +4533,7 @@ ACMD(DoStoreHouse)
 					{
 						if (strlen(extra_bits[num]) < len)
 							continue;
-						if (!strncmp(extra_bits[num], tmpbuf, len))
+						if (isname(tmpbuf, extra_bits[num]))
 						{
 							filter.affect3.push_back(num);
 							find = 1;
@@ -4544,6 +4552,7 @@ ACMD(DoStoreHouse)
 				return;
 			}
 			break;
+		} // case 'А'
 		default:
 			++argument;
 		}
