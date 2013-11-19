@@ -1093,7 +1093,7 @@ void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 	struct timed_type *timed_alloc, *skj;
 
 	// Карачун. Правка бага. Если такой фит уже есть в списке, просто меняем таймер.
-	for (skj = ch->timed; skj; skj = skj->next)
+	for (skj = ch->timed_feat; skj; skj = skj->next)
 	{
 		if (skj->skill == timed->skill)
 		{
