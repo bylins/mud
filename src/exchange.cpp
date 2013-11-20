@@ -67,11 +67,8 @@ void check_exchange(OBJ_DATA * obj);
 void extract_exchange_item(EXCHANGE_ITEM_DATA * item);
 int get_unique_lot(void);
 void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j);
-int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_owner, int *filter_type,
-					   int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass);
 void show_lots(char *filter, short int show_type, CHAR_DATA * ch);
-int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *filter_type,
-					  int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass);
+int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects);
 void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot);
 extern void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH]);
 
@@ -102,6 +99,7 @@ char info_message[] = ("базар выставить <предмет> <цена>        - выставить пред
 					   "базар предложения книги <предмет>       - предложения книг\r\n"
 					   "базар предложения ингредиенты <предмет> - предложения ингредиентов\r\n"
 					   "базар предложения прочие <предмет>      - прочие предложения\r\n"
+					   "базар предложения аффект имя.аффекта    - поиск по аффекту (цена услуги 55 кун)\r\n"
 					   "базар фильтрация <фильтр>               - фильтрация товара на базаре\r\n");
 
 SPECIAL(exchange)
@@ -888,7 +886,7 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 			sprintf(filter, "%s И%s", filter, arg2);
 		}
 	}
-	else if (is_abbrev(arg1, "прочее") || is_abbrev(arg1, "other"))
+	else if (is_abbrev(arg1, "прочие") || is_abbrev(arg1, "other"))
 	{
 		show_type = 7;
 		if ((*arg2) && (*arg2 != '*'))
@@ -935,7 +933,22 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 			strcat(filter, multifilter);
 		}
 	}
-
+	else if (is_abbrev(arg1, "аффект") || is_abbrev(arg1, "affect"))
+	{
+		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2
+			&& GET_LEVEL(ch) < LVL_IMPL)
+		{
+			send_to_char("У вас не хватит на это денег!\r\n", ch);
+			return 0;
+		}
+		if (*arg2 == '\0')
+		{
+			send_to_char("Пустое имя аффекта!\r\n", ch);
+			return 0;
+		}
+		show_type = 11;
+		sprintf(filter, "%s А%s", filter, arg2);
+	}
 	else
 	{
 		send_to_char(info_message, ch);
@@ -958,16 +971,6 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 
 int exchange_setfilter(CHAR_DATA * ch, char *arg)
 {
-	char tmpbuf[MAX_INPUT_LENGTH];
-	char filter_name[FILTER_LENGTH];
-	char filter_owner[FILTER_LENGTH];
-	int filter_type = 0;
-	int filter_cost = 0;
-	int filter_timer = 0;
-	int filter_wereon = 0;
-	int filter_weaponclass = 0;
-	char filter[MAX_INPUT_LENGTH];
-
 	if (!*arg)
 	{
 		if (!EXCHANGE_FILTER(ch))
@@ -975,22 +978,23 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 			send_to_char("Ваш фильтр базара пуст.\r\n", ch);
 			return true;
 		}
-		if (!parse_exch_filter(EXCHANGE_FILTER(ch), filter_name, filter_owner,
-							   &filter_type, &filter_cost, &filter_timer, &filter_wereon, &filter_weaponclass))
+		ParseFilter params(ParseFilter::EXCHANGE);
+		if (!parse_exch_filter(params, EXCHANGE_FILTER(ch), false))
 		{
 			free(EXCHANGE_FILTER(ch));
 			EXCHANGE_FILTER(ch) = NULL;
 			send_to_char("Ваш фильтр базара пуст\r\n", ch);
-			return true;
 		}
 		else
 		{
-			sprintf(tmpbuf, "Ваш текущий фильтр базара: %s.\r\n", EXCHANGE_FILTER(ch));
-			send_to_char(tmpbuf, ch);
-			return true;
+			send_to_char(ch, "Ваш текущий фильтр базара: %s.\r\n",
+				EXCHANGE_FILTER(ch));
 		}
+		return true;
 	}
 
+	char tmpbuf[MAX_INPUT_LENGTH];
+	char filter[MAX_INPUT_LENGTH];
 
 	skip_spaces(&arg);
 	strcpy(filter, arg);
@@ -1002,28 +1006,38 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 	{
 		if (EXCHANGE_FILTER(ch))
 		{
-			sprintf(tmpbuf, "Ваш старый фильтр: %s. Новый фильтр пуст.\r\n", EXCHANGE_FILTER(ch));
+			snprintf(tmpbuf, sizeof(tmpbuf),
+				"Ваш старый фильтр: %s. Новый фильтр пуст.\r\n",
+				EXCHANGE_FILTER(ch));
 			free(EXCHANGE_FILTER(ch));
 			EXCHANGE_FILTER(ch) = NULL;
 		}
 		else
+		{
 			sprintf(tmpbuf, "Новый фильтр пуст.\r\n");
+		}
 		send_to_char(tmpbuf, ch);
 		return true;
 	}
-	if (!parse_exch_filter(filter, filter_name, filter_owner,
-						   &filter_type, &filter_cost, &filter_timer, &filter_wereon, &filter_weaponclass))
+
+	ParseFilter params(ParseFilter::EXCHANGE);
+	if (!parse_exch_filter(params, filter, false))
 	{
 		send_to_char("Неверный формат фильтра. Прочтите справку.\r\n", ch);
 		free(EXCHANGE_FILTER(ch));
 		EXCHANGE_FILTER(ch) = NULL;
 		return false;
 	}
-	if (EXCHANGE_FILTER(ch))
-		sprintf(tmpbuf, "Ваш старый фильтр: %s. Новый фильтр: %s.\r\n", EXCHANGE_FILTER(ch), filter);
-	else
-		sprintf(tmpbuf, "Ваш новый фильтр: %s.\r\n", filter);
 
+	if (EXCHANGE_FILTER(ch))
+	{
+		sprintf(tmpbuf, "Ваш старый фильтр: %s. Новый фильтр: %s.\r\n",
+			EXCHANGE_FILTER(ch), filter);
+	}
+	else
+	{
+		sprintf(tmpbuf, "Ваш новый фильтр: %s.\r\n", filter);
+	}
 	send_to_char(tmpbuf, ch);
 
 	if (EXCHANGE_FILTER(ch))
@@ -1031,8 +1045,6 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 	EXCHANGE_FILTER(ch) = str_dup(filter);
 
 	return true;
-
-
 }
 
 EXCHANGE_ITEM_DATA *create_exchange_item(void)
@@ -1404,42 +1416,26 @@ int get_unique_lot(void)
 
 void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j)
 {
-	DESCRIPTOR_DATA *i;
-
-	char filter_name[FILTER_LENGTH];
-	char filter_owner[FILTER_LENGTH];
-	int filter_type = 0;
-	int filter_cost = 0;
-	int filter_timer = 0;
-	int filter_wereon = 0;
-	int filter_weaponclass = 0;
-
-	memset(filter_name, 0, FILTER_LENGTH);
-	memset(filter_owner, 0, FILTER_LENGTH);
-
-
-	for (i = descriptor_list; i; i = i->next)
+	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next)
 	{
-		if (STATE(i) == CON_PLAYING &&
-				(!ch || i != ch->desc) &&
-				i->character &&
-				!PRF_FLAGGED(i->character, PRF_NOEXCHANGE) &&
-				!PLR_FLAGGED(i->character, PLR_WRITING) &&
-				!ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF) && GET_POS(i->character) > POS_SLEEPING)
+		if (STATE(i) == CON_PLAYING
+			&& (!ch || i != ch->desc)
+			&& i->character
+			&& !PRF_FLAGGED(i->character, PRF_NOEXCHANGE)
+			&& !PLR_FLAGGED(i->character, PLR_WRITING)
+			&& !ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF)
+			&& GET_POS(i->character) > POS_SLEEPING)
 		{
-			if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT || GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING)
+			if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT
+					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING)
 				&& !PRF_FLAGGED(i->character, PRF_NOINGR_MODE))
 			{
 				continue;
 			}
+			ParseFilter params(ParseFilter::EXCHANGE);
 			if (!EXCHANGE_FILTER(i->character)
-					|| ((parse_exch_filter(EXCHANGE_FILTER(i->character),
-										   filter_name, filter_owner, &filter_type, &filter_cost, &filter_timer,
-										   &filter_wereon, &filter_weaponclass))
-						&&
-						(obj_matches_filter
-						 (j, filter_name, filter_owner, &filter_type, &filter_cost, &filter_timer,
-						  &filter_wereon, &filter_weaponclass))))
+				|| (parse_exch_filter(params, EXCHANGE_FILTER(i->character), false)
+					&& params.check(j)))
 			{
 				if (COLOR_LEV(i->character) >= C_NRM)
 					send_to_char("&Y&q", i->character);
@@ -1450,59 +1446,6 @@ void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j)
 		}
 	}
 }
-
-
-int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_owner, int *filter_type,
-					   int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass)
-{
-
-	int tm;
-
-	if (*filter_name && !isname(filter_name, GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)))
-	{
-		if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) &&
-				(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT))
-			return 0;
-		//Для ингридиентов, дополнительно проверяем синонимы прототипa
-		else if (!isname(filter_name, obj_proto[GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))]->aliases))
-			return 0;
-	}
-	if (*filter_owner && !isname(filter_owner, get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j))))
-		return 0;
-	if (*filter_type && !(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == *filter_type))
-		return 0;
-	if (*filter_cost)
-	{
-		if ((*filter_cost > 0) && (GET_EXCHANGE_ITEM_COST(j) - *filter_cost < 0))
-			return 0;
-		else if ((*filter_cost < 0) && (GET_EXCHANGE_ITEM_COST(j) + *filter_cost > 0))
-			return 0;
-	}
-	if (*filter_wereon && (!CAN_WEAR(GET_EXCHANGE_ITEM(j), *filter_wereon)))
-		return 0;
-	if (*filter_weaponclass
-			&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_WEAPON || GET_OBJ_SKILL(GET_EXCHANGE_ITEM(j)) != *filter_weaponclass))
-		return 0;
-	if (*filter_timer)
-	{
-		// Вобщем чтобы тут не валилось от всяких писем и прочей ваты на базаре,
-		// сейчас туда нельзя ставить вещи с -1 рнумом, но на всякий оставим // Krodo
-		try
-		{
-			tm = (GET_EXCHANGE_ITEM(j)->get_timer() * 100 / obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j)))->get_timer());
-			if ((tm + 1) < *filter_timer)
-				return 0;
-		}
-		catch (std::out_of_range)
-		{
-			log("SYSERROR: wrong obj_proto in exchange (%s %s %d)", __FILE__, __func__, __LINE__);
-			return 0;
-		}
-	}
-
-	return 1;		// 1 - Объект подподает под фильтр
-}
-
 
 void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 {
@@ -1515,70 +1458,60 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	4 - оружие
 	5 - книги
 	6 - ингры
-	7 - прочее
+	7 - прочие
 	8 - легкие доспехи
 	9 - средние доспехи
 	10 - тяжелые доспехи
+	11 - аффект
 	*/
 	char tmpbuf[MAX_INPUT_LENGTH];
 	bool any_item = 0;
 
-	char filter_name[FILTER_LENGTH];
-	char filter_owner[FILTER_LENGTH];
-	int filter_type = 0;
-	int filter_cost = 0;
-	int filter_timer = 0;
-	int filter_wereon = 0;
-	int filter_weaponclass = 0;
-
-	memset(filter_name, 0, FILTER_LENGTH);
-	memset(filter_owner, 0, FILTER_LENGTH);
-
-	if (!parse_exch_filter(filter, filter_name, filter_owner, &filter_type, &filter_cost, &filter_timer,
-						   &filter_wereon, &filter_weaponclass))
+	ParseFilter params(ParseFilter::EXCHANGE);
+	if (!parse_exch_filter(params, filter, true))
 	{
 		send_to_char("Неверная строка фильтрации!\r\n", ch);
 		log("Exchange: Player uses wrong filter '%s'", filter);
 		return;
 	}
 
-	std::string buffer =
+	std::string buffer;
+	if (show_type == 11)
+	{
+		buffer += params.print();
+	}
+	buffer +=
 		" Лот     Предмет                                                     Цена  Состояние\r\n"
 		"--------------------------------------------------------------------------------------------\r\n";
 
 	for (EXCHANGE_ITEM_DATA* j = exchange_item_list; j; j = j->next)
 	{
-		if ((!obj_matches_filter(j, filter_name, filter_owner, &filter_type,
-								 &filter_cost, &filter_timer, &filter_wereon, &filter_weaponclass))
-				|| ((show_type == 1) && (!isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j)))))
-				|| ((show_type == 2) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT) ||
-										 (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) < 200)
-										 || (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) > 299)))
-				//|| ((show_type == 3) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR))
-				|| ((show_type == 3) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR)
-							&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_LIGHT)
-							&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_MEDIAN)
-							&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_HEAVY)
-					)
-				|| ((show_type == 4) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_WEAPON))
-				|| ((show_type == 5) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_BOOK))
-
-				|| (show_type == 6 && GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING
-					&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT
-						|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200 && GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
-
-				|| ((show_type == 7) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT)
-										 || ObjSystem::is_armor_type(GET_EXCHANGE_ITEM(j))
-										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_WEAPON)
-										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_BOOK)
-										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING)))
-
-				|| ((show_type == 8) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_LIGHT))
-				|| ((show_type == 9) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_MEDIAN))
-				|| ((show_type == 10) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_HEAVY))
-			)
+		if (!params.check(j)
+			|| ((show_type == 1) && (!isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j)))))
+			|| ((show_type == 2) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT)
+				|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) < 200)
+				|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) > 299)))
+			|| ((show_type == 3) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_LIGHT)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_MEDIAN)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_HEAVY))
+			|| ((show_type == 4) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_WEAPON))
+			|| ((show_type == 5) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_BOOK))
+			|| (show_type == 6 && GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT
+					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200
+						&& GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
+			|| ((show_type == 7) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT)
+				|| ObjSystem::is_armor_type(GET_EXCHANGE_ITEM(j))
+				|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_WEAPON)
+				|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_BOOK)
+				|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING)))
+			|| ((show_type == 8) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_LIGHT))
+			|| ((show_type == 9) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_MEDIAN))
+			|| ((show_type == 10) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_HEAVY)))
+		{
 			continue;
-
+		}
 		// ну идиотизм сидеть статить 5-10 страниц резных
 		if (is_abbrev("резное запястье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0))
 			|| is_abbrev("широкое серебряное обручье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0))
@@ -1641,15 +1574,22 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	}
 
 	if (!any_item)
+	{
 		buffer = "Базар пуст!\r\n";
-
+	}
+	else if (show_type == 11)
+	{
+		const int price = EXCHANGE_IDENT_PAY / 2;
+		ch->remove_both_gold(price);
+		send_to_char(ch,
+			"\r\n%sЗа информацию об аффектах с вашего банковского счета сняли %d %s%s\r\n",
+			CCIGRN(ch, C_NRM), price, desc_count(price, WHAT_MONEYu), CCNRM(ch, C_NRM));
+	}
 	page_string(ch->desc, buffer);
 }
 
-int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *filter_type,
-					  int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass)
+int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects)
 {
-	char sign[FILTER_LENGTH];
 	char tmpbuf[FILTER_LENGTH];
 
 	while (*buf && (*buf != '\r') && (*buf != '\n'))
@@ -1660,127 +1600,46 @@ int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *fil
 			buf++;
 			break;
 		case 'И':
-			buf = one_argument(++buf, filter_name);
+			buf = one_argument(++buf, tmpbuf);
+			filter.name = tmpbuf;
 			break;
 		case 'В':
-			buf = one_argument(++buf, filter_owner);
+			buf = one_argument(++buf, tmpbuf);
+			filter.owner = tmpbuf;
+			//filter.owner_id = get_id_by_name(tmpbuf);
 			break;
 		case 'Т':
 			buf = one_argument(++buf, tmpbuf);
-			if (is_abbrev(tmpbuf, "свет") || is_abbrev(tmpbuf, "light"))
-				*filter_type = ITEM_LIGHT;
-			else if (is_abbrev(tmpbuf, "свиток") || is_abbrev(tmpbuf, "scroll"))
-				*filter_type = ITEM_SCROLL;
-			else if (is_abbrev(tmpbuf, "палочка") || is_abbrev(tmpbuf, "wand"))
-				*filter_type = ITEM_WAND;
-			else if (is_abbrev(tmpbuf, "посох") || is_abbrev(tmpbuf, "staff"))
-				*filter_type = ITEM_STAFF;
-			else if (is_abbrev(tmpbuf, "оружие") || is_abbrev(tmpbuf, "weapon"))
-				*filter_type = ITEM_WEAPON;
-			else if (is_abbrev(tmpbuf, "броня") || is_abbrev(tmpbuf, "armor"))
-				*filter_type = ITEM_ARMOR;
-			else if (is_abbrev(tmpbuf, "напиток") || is_abbrev(tmpbuf, "potion"))
-				*filter_type = ITEM_POTION;
-			else if (is_abbrev(tmpbuf, "прочее") || is_abbrev(tmpbuf, "other"))
-				*filter_type = ITEM_OTHER;
-			else if (is_abbrev(tmpbuf, "контейнер") || is_abbrev(tmpbuf, "container"))
-				*filter_type = ITEM_CONTAINER;
-			else if (is_abbrev(tmpbuf, "емкость") || is_abbrev(tmpbuf, "tank"))
-				*filter_type = ITEM_DRINKCON;
-			else if (is_abbrev(tmpbuf, "книга") || is_abbrev(tmpbuf, "book"))
-				*filter_type = ITEM_BOOK;
-			else if (is_abbrev(tmpbuf, "руна") || is_abbrev(tmpbuf, "rune"))
-				*filter_type = ITEM_INGRADIENT;
-			else if (is_abbrev(tmpbuf, "ингредиент") || is_abbrev(tmpbuf, "ingradient"))
-				*filter_type = ITEM_MING;
-			else if (is_abbrev(tmpbuf, "легкие") || is_abbrev(tmpbuf, "легкая"))
-				*filter_type = ITEM_ARMOR_LIGHT;
-			else if (is_abbrev(tmpbuf, "средние") || is_abbrev(tmpbuf, "средняя"))
-				*filter_type = ITEM_ARMOR_MEDIAN;
-			else if (is_abbrev(tmpbuf, "тяжелые") || is_abbrev(tmpbuf, "тяжелая"))
-				*filter_type = ITEM_ARMOR_HEAVY;
-			else
+			if (!filter.init_type(tmpbuf))
 				return 0;
 			break;
 		case 'Ц':
 			buf = one_argument(++buf, tmpbuf);
-			if (sscanf(tmpbuf, "%d%[-+]", filter_cost, sign) != 2)
+			if (!filter.init_cost(tmpbuf))
 				return 0;
-			if (*sign == '-')
-				*filter_cost = -(*filter_cost);
 			break;
 		case 'С':
 			buf = one_argument(++buf, tmpbuf);
-			if (is_abbrev(tmpbuf, "ужасно"))
-				*filter_timer = 1;
-			else if (is_abbrev(tmpbuf, "скоро_испортится"))
-				*filter_timer = 21;
-			else if (is_abbrev(tmpbuf, "плоховато"))
-				*filter_timer = 41;
-			else if (is_abbrev(tmpbuf, "средне"))
-				*filter_timer = 61;
-			else if (is_abbrev(tmpbuf, "идеально"))
-				*filter_timer = 81;
-			else
+			if (!filter.init_state(tmpbuf))
 				return 0;
-
 			break;
 		case 'О':
 			buf = one_argument(++buf, tmpbuf);
-			if (is_abbrev(tmpbuf, "палец"))
-				*filter_wereon = ITEM_WEAR_FINGER;
-			else if (is_abbrev(tmpbuf, "шея") || is_abbrev(tmpbuf, "грудь"))
-				*filter_wereon = ITEM_WEAR_NECK;
-			else if (is_abbrev(tmpbuf, "тело"))
-				*filter_wereon = ITEM_WEAR_BODY;
-			else if (is_abbrev(tmpbuf, "голова"))
-				*filter_wereon = ITEM_WEAR_HEAD;
-			else if (is_abbrev(tmpbuf, "ноги"))
-				*filter_wereon = ITEM_WEAR_LEGS;
-			else if (is_abbrev(tmpbuf, "ступни"))
-				*filter_wereon = ITEM_WEAR_FEET;
-			else if (is_abbrev(tmpbuf, "кисти"))
-				*filter_wereon = ITEM_WEAR_HANDS;
-			else if (is_abbrev(tmpbuf, "руки"))
-				*filter_wereon = ITEM_WEAR_ARMS;
-			else if (is_abbrev(tmpbuf, "щит"))
-				*filter_wereon = ITEM_WEAR_SHIELD;
-			else if (is_abbrev(tmpbuf, "плечи"))
-				*filter_wereon = ITEM_WEAR_ABOUT;
-			else if (is_abbrev(tmpbuf, "пояс"))
-				*filter_wereon = ITEM_WEAR_WAIST;
-			else if (is_abbrev(tmpbuf, "запястья"))
-				*filter_wereon = ITEM_WEAR_WRIST;
-			else if (is_abbrev(tmpbuf, "левая"))
-				*filter_wereon = ITEM_WEAR_HOLD;
-			else if (is_abbrev(tmpbuf, "правая"))
-				*filter_wereon = ITEM_WEAR_WIELD;
-			else if (is_abbrev(tmpbuf, "обе"))
-				*filter_wereon = ITEM_WEAR_BOTHS;
-			else
+			if (!filter.init_wear(tmpbuf))
 				return 0;
 			break;
 		case 'К':
 			buf = one_argument(++buf, tmpbuf);
-			if (is_abbrev(tmpbuf, "луки"))
-				*filter_weaponclass = SKILL_BOWS;
-			else if (is_abbrev(tmpbuf, "короткие"))
-				*filter_weaponclass = SKILL_SHORTS;
-			else if (is_abbrev(tmpbuf, "длинные"))
-				*filter_weaponclass = SKILL_LONGS;
-			else if (is_abbrev(tmpbuf, "секиры"))
-				*filter_weaponclass = SKILL_AXES;
-			else if (is_abbrev(tmpbuf, "палицы"))
-				*filter_weaponclass = SKILL_CLUBS;
-			else if (is_abbrev(tmpbuf, "иное"))
-				*filter_weaponclass = SKILL_NONSTANDART;
-			else if (is_abbrev(tmpbuf, "двуручники"))
-				*filter_weaponclass = SKILL_BOTHHANDS;
-			else if (is_abbrev(tmpbuf, "проникающее"))
-				*filter_weaponclass = SKILL_PICK;
-			else if (is_abbrev(tmpbuf, "копья"))
-				*filter_weaponclass = SKILL_SPADES;
-			else
+			if (!filter.init_weap_class(tmpbuf))
+				return 0;
+			break;
+		case 'А':
+			if (!parse_affects)
+				return 0;
+			buf = one_argument(++buf, tmpbuf);
+			if (filter.affects_cnt() >= 1)
+				break;
+			else if (!filter.init_affect(tmpbuf, strlen(tmpbuf)))
 				return 0;
 			break;
 		default:

@@ -202,7 +202,7 @@ utils.o: utils.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  interpreter.h constants.h im.h dg_scripts.h boards.h privilege.hpp \
  char.hpp player_i.hpp reset_stats.hpp morph.hpp room.hpp modify.h \
  house.h house_exp.hpp remember.hpp player_races.hpp depot.hpp objsave.h \
- fight.h
+ fight.h skills.h exchange.h
 weather.o: weather.cpp conf.h sysdep.h structs.h spells.h skills.h \
  pugixml.hpp pugiconfig.hpp utils.h features.hpp obj.hpp comm.h handler.h \
  interpreter.h db.h screen.h constants.h random.hpp char.hpp player_i.hpp \

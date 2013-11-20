@@ -18,7 +18,9 @@
 #include <string>
 #include <list>
 #include <new>
+#include <vector>
 #include <boost/dynamic_bitset.hpp>
+
 #include "features.hpp"
 #include "pugixml.hpp"
 
@@ -1529,5 +1531,54 @@ void print_bitset(const boost::dynamic_bitset<>& bits,
 	const std::vector<const char*>& names, const char* div,
 	std::string& str, bool print_num = false);
 void tascii(const uint32_t* pointer, int num_planes, char* ascii);
+
+struct exchange_item_data;
+// для парса строки с фильтрами в клан-хранах и базаре
+struct ParseFilter
+{
+	enum { CLAN, EXCHANGE };
+
+	ParseFilter(int type) : type(-1), state(-1), wear(-1), wear_message(-1),
+		weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'),
+		filter_type(type) {};
+
+	bool init_type(const char *str);
+	bool init_state(const char *str);
+	bool init_wear(const char *str);
+	bool init_cost(const char *str);
+	bool init_weap_class(const char *str);
+	bool init_affect(char *str, size_t str_len);
+	size_t affects_cnt() const;
+	bool check(OBJ_DATA *obj, CHAR_DATA *ch);
+	bool check(exchange_item_data *exch_obj);
+	std::string print() const;
+
+	std::string name;      // имя предмета
+	std::string owner;     // имя продавца (базар)
+	int type;              // тип оружия
+	int state;             // состояние
+	int wear;              // куда одевается
+	int wear_message;      // для названия куда одеть
+	int weap_class;        // класс оружие
+	int weap_message;      // для названия оружия
+	int cost;              // для цены
+	char cost_sign;        // знак цены +/-
+	int filter_type;       // CLAN/EXCHANGE
+	std::vector<int> affect_apply; // аффекты apply_types
+	std::vector<int> affect_weap;  // аффекты weapon_affects
+	std::vector<int> affect_extra; // аффекты extra_bits
+
+private:
+	bool check_name(OBJ_DATA *obj, CHAR_DATA *ch = 0) const;
+	bool check_type(OBJ_DATA *obj) const;
+	bool check_state(OBJ_DATA *obj) const;
+	bool check_wear(OBJ_DATA *obj) const;
+	bool check_weap_class(OBJ_DATA *obj) const;
+	bool check_cost(int obj_price) const;
+	bool check_affect_weap(OBJ_DATA *obj) const;
+	bool check_affect_apply(OBJ_DATA *obj) const;
+	bool check_affect_extra(OBJ_DATA *obj) const;
+	bool check_owner(exchange_item_data *exch_obj) const;
+};
 
 #endif // _UTILS_H_

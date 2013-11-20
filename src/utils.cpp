@@ -44,10 +44,13 @@
 #include "depot.hpp"
 #include "objsave.h"
 #include "fight.h"
+#include "skills.h"
+#include "exchange.h"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern int top_of_p_table;
+extern const char *weapon_class[];
 
 // local functions
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
@@ -3037,4 +3040,638 @@ void tascii(const uint32_t* pointer, int num_planes, char* ascii)
 		strcat(ascii, "0 ");
 	else
 		strcat(ascii, " ");
+}
+
+bool ParseFilter::init_type(const char *str)
+{
+	if (is_abbrev(str, "свет") || is_abbrev(str, "light"))
+		type = ITEM_LIGHT;
+	else if (is_abbrev(str, "свиток") || is_abbrev(str, "scroll"))
+		type = ITEM_SCROLL;
+	else if (is_abbrev(str, "палочка") || is_abbrev(str, "wand"))
+		type = ITEM_WAND;
+	else if (is_abbrev(str, "посох") || is_abbrev(str, "staff"))
+		type = ITEM_STAFF;
+	else if (is_abbrev(str, "оружие") || is_abbrev(str, "weapon"))
+		type = ITEM_WEAPON;
+	else if (is_abbrev(str, "броня") || is_abbrev(str, "armor"))
+		type = ITEM_ARMOR;
+	else if (is_abbrev(str, "напиток") || is_abbrev(str, "potion"))
+		type = ITEM_POTION;
+	else if (is_abbrev(str, "прочее") || is_abbrev(str, "другое") || is_abbrev(str, "other"))
+		type = ITEM_OTHER;
+	else if (is_abbrev(str, "контейнер") || is_abbrev(str, "container"))
+		type = ITEM_CONTAINER;
+	else if (is_abbrev(str, "емкость") || is_abbrev(str, "tank"))
+		type = ITEM_DRINKCON;
+	else if (is_abbrev(str, "книга") || is_abbrev(str, "book"))
+		type = ITEM_BOOK;
+	else if (is_abbrev(str, "руна") || is_abbrev(str, "rune"))
+		type = ITEM_INGRADIENT;
+	else if (is_abbrev(str, "ингредиент") || is_abbrev(str, "ingradient"))
+		type = ITEM_MING;
+	else if (is_abbrev(str, "легкие") || is_abbrev(str, "легкая"))
+		type = ITEM_ARMOR_LIGHT;
+	else if (is_abbrev(str, "средние") || is_abbrev(str, "средняя"))
+		type = ITEM_ARMOR_MEDIAN;
+	else if (is_abbrev(str, "тяжелые") || is_abbrev(str, "тяжелая"))
+		type = ITEM_ARMOR_HEAVY;
+	else
+		return false;
+
+	return true;
+}
+
+bool ParseFilter::init_state(const char *str)
+{
+	if (is_abbrev(str, "ужасно"))
+		state = 1;
+	else if (is_abbrev(str, "скоро испортится"))
+		state = 21;
+	else if (is_abbrev(str, "плоховато"))
+		state = 41;
+	else if (is_abbrev(str, "средне"))
+		state = 61;
+	else if (is_abbrev(str, "идеально"))
+		state = 81;
+	else
+		return false;
+
+	return true;
+}
+
+bool ParseFilter::init_wear(const char *str)
+{
+	if (is_abbrev(str, "палец"))
+	{
+		wear = ITEM_WEAR_FINGER;
+		wear_message = 1;
+	}
+	else if (is_abbrev(str, "шея") || is_abbrev(str, "грудь"))
+	{
+		wear = ITEM_WEAR_NECK;
+		wear_message = 2;
+	}
+	else if (is_abbrev(str, "тело"))
+	{
+		wear = ITEM_WEAR_BODY;
+		wear_message = 3;
+	}
+	else if (is_abbrev(str, "голова"))
+	{
+		wear = ITEM_WEAR_HEAD;
+		wear_message = 4;
+	}
+	else if (is_abbrev(str, "ноги"))
+	{
+		wear = ITEM_WEAR_LEGS;
+		wear_message = 5;
+	}
+	else if (is_abbrev(str, "ступни"))
+	{
+		wear = ITEM_WEAR_FEET;
+		wear_message = 6;
+	}
+	else if (is_abbrev(str, "кисти"))
+	{
+		wear = ITEM_WEAR_HANDS;
+		wear_message = 7;
+	}
+	else if (is_abbrev(str, "руки"))
+	{
+		wear = ITEM_WEAR_ARMS;
+		wear_message = 8;
+	}
+	else if (is_abbrev(str, "щит"))
+	{
+		wear = ITEM_WEAR_SHIELD;
+		wear_message = 9;
+	}
+	else if (is_abbrev(str, "плечи"))
+	{
+		wear = ITEM_WEAR_ABOUT;
+		wear_message = 10;
+	}
+	else if (is_abbrev(str, "пояс"))
+	{
+		wear = ITEM_WEAR_WAIST;
+		wear_message = 11;
+	}
+	else if (is_abbrev(str, "запястья"))
+	{
+		wear = ITEM_WEAR_WRIST;
+		wear_message = 12;
+	}
+	else if (is_abbrev(str, "правая"))
+	{
+		wear = ITEM_WEAR_WIELD;
+		wear_message = 13;
+	}
+	else if (is_abbrev(str, "левая"))
+	{
+		wear = ITEM_WEAR_HOLD;
+		wear_message = 14;
+	}
+	else if (is_abbrev(str, "обе"))
+	{
+		wear = ITEM_WEAR_BOTHS;
+		wear_message = 15;
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool ParseFilter::init_cost(const char *str)
+{
+	if (sscanf(str, "%d%[-+]", &cost, &cost_sign) != 2)
+	{
+		return false;
+	}
+	if (cost_sign == '-')
+	{
+		cost = -cost;
+	}
+
+	return true;
+}
+
+bool ParseFilter::init_weap_class(const char *str)
+{
+	if (is_abbrev(str, "луки"))
+	{
+		weap_class = SKILL_BOWS;
+		weap_message = 0;
+	}
+	else if (is_abbrev(str, "короткие"))
+	{
+		weap_class = SKILL_SHORTS;
+		weap_message = 1;
+	}
+	else if (is_abbrev(str, "длинные"))
+	{
+		weap_class = SKILL_LONGS;
+		weap_message = 2;
+	}
+	else if (is_abbrev(str, "секиры"))
+	{
+		weap_class = SKILL_AXES;
+		weap_message = 3;
+	}
+	else if (is_abbrev(str, "палицы"))
+	{
+		weap_class = SKILL_CLUBS;
+		weap_message = 4;
+	}
+	else if (is_abbrev(str, "иное"))
+	{
+		weap_class = SKILL_NONSTANDART;
+		weap_message = 5;
+	}
+	else if (is_abbrev(str, "двуручники"))
+	{
+		weap_class = SKILL_BOTHHANDS;
+		weap_message = 6;
+	}
+	else if (is_abbrev(str, "проникающее"))
+	{
+		weap_class = SKILL_PICK;
+		weap_message = 7;
+	}
+	else if (is_abbrev(str, "копья"))
+	{
+		weap_class = SKILL_SPADES;
+		weap_message = 8;
+	}
+	else
+	{
+		return false;
+	}
+
+	type = ITEM_WEAPON;
+	return true;
+}
+
+size_t ParseFilter::affects_cnt() const
+{
+	return affect_weap.size() + affect_apply.size() + affect_extra.size();
+}
+
+bool ParseFilter::init_affect(char *str, size_t str_len)
+{
+	// Аимя!
+	bool strong = false;
+	if (str_len > 1 && str[str_len - 1] == '!')
+	{
+		strong = true;
+		str[str_len - 1] = '\0';
+	}
+	// А1, А2, А3
+	if (str_len == 1)
+	{
+		switch (*str)
+		{
+			case '1':
+				sprintf(str, "можно вплавить 1 камень");
+			break;
+			case '2':
+				sprintf(str, "можно вплавить 2 камня");
+			break;
+			case '3':
+				sprintf(str, "можно вплавить 3 камня");
+			break;
+		}
+	}
+
+	lower_convert(str);
+	str_len = strlen(str);
+
+	for (int num = 0; *apply_types[num] != '\n'; ++num)
+	{
+		if (strong && !strcmp(str, apply_types[num]))
+		{
+			affect_apply.push_back(num);
+			return true;
+		}
+		else if (!strong && isname(str, apply_types[num]))
+		{
+			affect_apply.push_back(num);
+			return true;
+		}
+	}
+
+	int num = 0;
+	for (int flag = 0; flag < 4; ++flag)
+	{
+		for (/* тут ничего не надо */; *weapon_affects[num] != '\n'; ++num)
+		{
+			if (strong && !strcmp(str, weapon_affects[num]))
+			{
+				affect_weap.push_back(num);
+				return true;
+			}
+			else if (!strong && isname(str, weapon_affects[num]))
+			{
+				affect_weap.push_back(num);
+				return true;
+			}
+		}
+		++num;
+	}
+
+	num = 0;
+	for (int flag = 0; flag < 4; ++flag)
+	{
+		for (/* тут ничего не надо */; *extra_bits[num] != '\n'; ++num)
+		{
+			if (strong && !strcmp(str, extra_bits[num]))
+			{
+				affect_extra.push_back(num);
+				return true;
+			}
+			else if (!strong && isname(str, extra_bits[num]))
+			{
+				affect_extra.push_back(num);
+				return true;
+			}
+		}
+		num++;
+	}
+
+	return false;
+}
+
+/// имя, метка для клан-хранов
+bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const
+{
+	bool result = false;
+	if (name.empty() || isname(name, GET_OBJ_PNAME(obj, 0)))
+	{
+		result = true;
+	}
+	else if (((GET_OBJ_TYPE(obj) == ITEM_MING)
+			|| (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT))
+		&& GET_OBJ_RNUM(obj) >= 0
+		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->aliases))
+	{
+		result = true;
+	}
+	else if (ch && filter_type == CLAN
+		&& CHECK_CUSTOM_LABEL(name.c_str(), obj, ch))
+	{
+		result = true;
+	}
+	return result;
+}
+
+bool ParseFilter::check_type(OBJ_DATA *obj) const
+{
+	if (type < 0 || type == GET_OBJ_TYPE(obj))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool ParseFilter::check_state(OBJ_DATA *obj) const
+{
+	bool result = false;
+	if (state < 0)
+	{
+		result = true;
+	}
+	else if (GET_OBJ_RNUM(obj) >= 0)
+	{
+		const int proto_tm = obj_proto.at(GET_OBJ_RNUM(obj))->get_timer();
+		if (proto_tm <= 0)
+		{
+			char buf_[MAX_INPUT_LENGTH];
+			snprintf(buf_, sizeof(buf_),
+				"SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
+				proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->item_number,
+				__func__, __FILE__, __LINE__);
+			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		}
+		else
+		{
+			int tm = obj->get_timer() * 100 / proto_tm;
+			if ((tm + 1) >= state)
+			{
+				result = true;
+			}
+		}
+	}
+	return result;
+}
+
+bool ParseFilter::check_wear(OBJ_DATA *obj) const
+{
+	if (wear < 0 || CAN_WEAR(obj, wear))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool ParseFilter::check_weap_class(OBJ_DATA *obj) const
+{
+	if (weap_class < 0 || weap_class == GET_OBJ_SKILL(obj))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool ParseFilter::check_cost(int obj_price) const
+{
+	bool result = false;
+
+	if (cost_sign == '\0')
+	{
+		result = true;
+	}
+	else if (cost >= 0 && obj_price >= cost)
+	{
+		result = true;
+	}
+	else if (cost < 0 && obj_price <= -cost)
+	{
+		result = true;
+	}
+	return result;
+}
+
+// заколебали эти флаги... сравниваем num и все поля в flags
+bool CompareBits(FLAG_DATA flags, const char *names[], int affect)
+{
+	int i;
+	for (i = 0; i < 4; i++)
+	{
+		int nr = 0, fail = 0;
+		bitvector_t bitvector = flags.flags[i] | (i << 30);
+		if (bitvector < static_cast<uint32_t>(INT_ONE));
+		else if (bitvector < static_cast<uint32_t>(INT_TWO))
+			fail = 1;
+		else if (bitvector < static_cast<uint32_t>(INT_THREE))
+			fail = 2;
+		else
+			fail = 3;
+		bitvector &= 0x3FFFFFFF;
+		while (fail)
+		{
+			if (*names[nr] == '\n')
+				fail--;
+			nr++;
+		}
+
+		for (; bitvector; bitvector >>= 1)
+		{
+			if (IS_SET(bitvector, 1))
+				if (*names[nr] != '\n')
+					if (nr == affect)
+						return 1;
+			if (*names[nr] != '\n')
+				nr++;
+		}
+	}
+	return 0;
+}
+
+bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const
+{
+	if (!affect_weap.empty())
+	{
+		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it)
+		{
+			if (!CompareBits(obj->obj_flags.affects, weapon_affects, *it))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
+{
+	bool result = true;
+	if (!affect_apply.empty())
+	{
+		for (auto it = affect_apply.begin(); it != affect_apply.end() && result; ++it)
+		{
+			result = false;
+			for (int i = 0; i < MAX_OBJ_AFFECT; ++i)
+			{
+				if (obj->affected[i].location == *it)
+				{
+					int mod = obj->affected[i].modifier;
+					char buf_[MAX_INPUT_LENGTH];
+					sprinttype(obj->affected[i].location, apply_types, buf_);
+					for (int j = 0; *apply_negative[j] != '\n'; j++)
+					{
+						if (!str_cmp(buf_, apply_negative[j]))
+						{
+							mod = -mod;
+							break;
+						}
+					}
+					if (mod > 0)
+					{
+						result = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
+bool ParseFilter::check_affect_extra(OBJ_DATA *obj) const
+{
+	if (!affect_extra.empty())
+	{
+		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it)
+		{
+			if (!CompareBits(obj->obj_flags.extra_flags, extra_bits, *it))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool ParseFilter::check_owner(exchange_item_data *exch_obj) const
+{
+	if (owner.empty()
+		|| isname(owner, get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(exch_obj))))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch)
+{
+	if (check_name(obj, ch)
+		&& check_type(obj)
+		&& check_state(obj)
+		&& check_wear(obj)
+		&& check_weap_class(obj)
+		&& check_cost(GET_OBJ_COST(obj))
+		&& check_affect_apply(obj)
+		&& check_affect_weap(obj)
+		&& check_affect_extra(obj))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool ParseFilter::check(exchange_item_data *exch_obj)
+{
+	OBJ_DATA *obj = GET_EXCHANGE_ITEM(exch_obj);
+	if (check_name(obj)
+		&& check_owner(exch_obj)
+		//&& (owner_id == -1 || owner_id == GET_EXCHANGE_ITEM_SELLERID(exch_obj))
+		&& check_type(obj)
+		&& check_state(obj)
+		&& check_wear(obj)
+		&& check_weap_class(obj)
+		&& check_cost(GET_EXCHANGE_ITEM_COST(exch_obj))
+		&& check_affect_apply(obj)
+		&& check_affect_weap(obj)
+		&& check_affect_extra(obj))
+	{
+		return true;
+	}
+	return false;
+}
+
+std::string ParseFilter::print() const
+{
+	std::string buffer = "Выборка: ";
+	if (!name.empty())
+	{
+		buffer += name + " ";
+	}
+	/*
+	if (owner_id >= 0)
+	{
+		const char *name = get_name_by_id(owner_id);
+		if (name && name[0] != '\0')
+		{
+			buffer += name;
+			buffer += " ";
+		}
+	}
+	*/
+	if (!owner.empty())
+	{
+		buffer += owner + " ";
+	}
+	if (type >= 0)
+	{
+		buffer += item_types[type];
+		buffer += " ";
+	}
+	if (state >= 0)
+	{
+		if (state == 1)
+			buffer += "ужасно ";
+		else if (state == 21)
+			buffer += "скоро испортится ";
+		else if (state == 41)
+			buffer += "плоховато ";
+		else if (state == 61)
+			buffer += "средне ";
+		else if (state == 81)
+			buffer += "идеально ";
+	}
+	if (wear >= 0)
+	{
+		buffer += wear_bits[wear_message];
+		buffer += " ";
+	}
+	if (weap_class >= 0)
+	{
+		buffer += weapon_class[weap_message];
+		buffer += " ";
+	}
+	if (cost >= 0)
+	{
+		sprintf(buf, "%d%c ", cost, cost_sign);
+		buffer += buf;
+	}
+	if (!affect_weap.empty())
+	{
+		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it)
+		{
+			buffer += weapon_affects[*it];
+			buffer += " ";
+		}
+	}
+	if (!affect_apply.empty())
+	{
+		for (auto it = affect_apply.begin(); it != affect_apply.end(); ++it)
+		{
+			buffer += apply_types[*it];
+			buffer += " ";
+		}
+	}
+	if (!affect_extra.empty())
+	{
+		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it)
+		{
+			buffer += extra_bits[*it];
+			buffer += " ";
+		}
+	}
+	buffer += "\r\n";
+
+	return buffer;
 }

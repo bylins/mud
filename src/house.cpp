@@ -43,14 +43,6 @@ extern int file_to_string_alloc(const char *name, char **buf);
 extern struct player_index_element *player_table;
 // TODO: думать надо с этим, или глобально следить за спамом, или игноров напихать на все случаи жизни, или так и оставить
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
-extern int top_of_p_table;
-extern const char *apply_types[];
-extern const char *item_types[];
-extern const char *wear_bits[];
-extern const char *weapon_class[];
-extern const char *weapon_affects[];
-extern const char *extra_bits[];
-extern const char *apply_negative[];
 extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
@@ -4116,58 +4108,6 @@ void Clan::CheckPkList(CHAR_DATA * ch)
 	}
 }
 
-// заколебали эти флаги... сравниваем num и все поля в flags
-bool CompareBits(FLAG_DATA flags, const char *names[], int affect)
-{
-	int i;
-	for (i = 0; i < 4; i++)
-	{
-		int nr = 0, fail = 0;
-		bitvector_t bitvector = flags.flags[i] | (i << 30);
-		if (bitvector < static_cast<uint32_t>(INT_ONE));
-		else if (bitvector < static_cast<uint32_t>(INT_TWO))
-			fail = 1;
-		else if (bitvector < static_cast<uint32_t>(INT_THREE))
-			fail = 2;
-		else
-			fail = 3;
-		bitvector &= 0x3FFFFFFF;
-		while (fail)
-		{
-			if (*names[nr] == '\n')
-				fail--;
-			nr++;
-		}
-
-		for (; bitvector; bitvector >>= 1)
-		{
-			if (IS_SET(bitvector, 1))
-				if (*names[nr] != '\n')
-					if (nr == affect)
-						return 1;
-			if (*names[nr] != '\n')
-				nr++;
-		}
-	}
-	return 0;
-}
-
-// для выборки содержимого хранилища по фильтрам
-struct ChestFilter
-{
-	std::string name;      // имя
-	int type;              // тип
-	int state;             // состояние
-	int wear;              // куда одевается
-	int wear_message;      // для названия куда одеть
-	int weap_class;        // класс оружие
-	int weap_message;      // для названия оружия
-	int cost;              // для цены
-	vector<int> affect;    // аффекты weap
-	vector<int> affect2;   // аффекты apply
-	vector<int> affect3;   // экстрафлаг
-};
-
 // вобщем это копи-паст из биржи + флаги
 ACMD(DoStoreHouse)
 {
@@ -4231,226 +4171,57 @@ ACMD(DoStoreHouse)
 		return;
 	}
 
-	// мож сэйвить надумается или еще что, вобщем объединим все в структурку
-	ChestFilter filter;
-	filter.type = -1;
-	filter.state = -1;
-	filter.wear = -1;
-	filter.wear_message = -1;
-	filter.weap_class = -1;
-	filter.weap_message = -1;
-	filter.cost = -1;
+	ParseFilter filter(ParseFilter::CLAN);
 
-	int num = 0;
-	bool find = 0;
-	char tmpbuf[MAX_INPUT_LENGTH];
-	char sign = '\0';
+	char buf_tmp[MAX_INPUT_LENGTH];
 	while (*argument)
 	{
 		switch (*argument)
 		{
 		case 'И':
-			argument = one_argument(++argument, tmpbuf);
-			filter.name = tmpbuf;
+			argument = one_argument(++argument, buf_tmp);
+			if (strlen(buf_tmp) == 0)
+			{
+				send_to_char("Укажите имя предмета.\r\n", ch);
+				return;
+			}
+			filter.name = buf_tmp;
 			break;
 		case 'Т':
-			argument = one_argument(++argument, tmpbuf);
-			if (is_abbrev(tmpbuf, "свет") || is_abbrev(tmpbuf, "light"))
-				filter.type = ITEM_LIGHT;
-			else if (is_abbrev(tmpbuf, "свиток") || is_abbrev(tmpbuf, "scroll"))
-				filter.type = ITEM_SCROLL;
-			else if (is_abbrev(tmpbuf, "палочка") || is_abbrev(tmpbuf, "wand"))
-				filter.type = ITEM_WAND;
-			else if (is_abbrev(tmpbuf, "посох") || is_abbrev(tmpbuf, "staff"))
-				filter.type = ITEM_STAFF;
-			else if (is_abbrev(tmpbuf, "оружие") || is_abbrev(tmpbuf, "weapon"))
-				filter.type = ITEM_WEAPON;
-			else if (is_abbrev(tmpbuf, "броня") || is_abbrev(tmpbuf, "armor"))
-				filter.type = ITEM_ARMOR;
-			else if (is_abbrev(tmpbuf, "напиток") || is_abbrev(tmpbuf, "potion"))
-				filter.type = ITEM_POTION;
-			else if (is_abbrev(tmpbuf, "прочее") || is_abbrev(tmpbuf, "другое") || is_abbrev(tmpbuf, "other"))
-				filter.type = ITEM_OTHER;
-			else if (is_abbrev(tmpbuf, "контейнер") || is_abbrev(tmpbuf, "container"))
-				filter.type = ITEM_CONTAINER;
-			else if (is_abbrev(tmpbuf, "емкость") || is_abbrev(tmpbuf, "tank"))
-				filter.type = ITEM_DRINKCON;
-			else if (is_abbrev(tmpbuf, "книга") || is_abbrev(tmpbuf, "book"))
-				filter.type = ITEM_BOOK;
-			else if (is_abbrev(tmpbuf, "руна") || is_abbrev(tmpbuf, "rune"))
-				filter.type = ITEM_INGRADIENT;
-			else if (is_abbrev(tmpbuf, "ингредиент") || is_abbrev(tmpbuf, "ingradient"))
-				filter.type = ITEM_MING;
-			else if (is_abbrev(tmpbuf, "легкие") || is_abbrev(tmpbuf, "легкая"))
-				filter.type = ITEM_ARMOR_LIGHT;
-			else if (is_abbrev(tmpbuf, "средние") || is_abbrev(tmpbuf, "средняя"))
-				filter.type = ITEM_ARMOR_MEDIAN;
-			else if (is_abbrev(tmpbuf, "тяжелые") || is_abbrev(tmpbuf, "тяжелая"))
-				filter.type = ITEM_ARMOR_HEAVY;
-			else
+			argument = one_argument(++argument, buf_tmp);
+			if (!filter.init_type(buf_tmp))
 			{
 				send_to_char("Неверный тип предмета.\r\n", ch);
 				return;
 			}
 			break;
 		case 'С':
-			argument = one_argument(++argument, tmpbuf);
-			if (is_abbrev(tmpbuf, "ужасно"))
-				filter.state = 0;
-			else if (is_abbrev(tmpbuf, "скоро испортится"))
-				filter.state = 20;
-			else if (is_abbrev(tmpbuf, "плоховато"))
-				filter.state = 40;
-			else if (is_abbrev(tmpbuf, "средне"))
-				filter.state = 60;
-			else if (is_abbrev(tmpbuf, "идеально"))
-				filter.state = 80;
-			else
+			argument = one_argument(++argument, buf_tmp);
+			if (!filter.init_state(buf_tmp))
 			{
 				send_to_char("Неверное состояние предмета.\r\n", ch);
 				return;
 			}
-
 			break;
 		case 'О':
-			argument = one_argument(++argument, tmpbuf);
-			if (is_abbrev(tmpbuf, "палец"))
-			{
-				filter.wear = ITEM_WEAR_FINGER;
-				filter.wear_message = 1;
-			}
-			else if (is_abbrev(tmpbuf, "шея") || is_abbrev(tmpbuf, "грудь"))
-			{
-				filter.wear = ITEM_WEAR_NECK;
-				filter.wear_message = 2;
-			}
-			else if (is_abbrev(tmpbuf, "тело"))
-			{
-				filter.wear = ITEM_WEAR_BODY;
-				filter.wear_message = 3;
-			}
-			else if (is_abbrev(tmpbuf, "голова"))
-			{
-				filter.wear = ITEM_WEAR_HEAD;
-				filter.wear_message = 4;
-			}
-			else if (is_abbrev(tmpbuf, "ноги"))
-			{
-				filter.wear = ITEM_WEAR_LEGS;
-				filter.wear_message = 5;
-			}
-			else if (is_abbrev(tmpbuf, "ступни"))
-			{
-				filter.wear = ITEM_WEAR_FEET;
-				filter.wear_message = 6;
-			}
-			else if (is_abbrev(tmpbuf, "кисти"))
-			{
-				filter.wear = ITEM_WEAR_HANDS;
-				filter.wear_message = 7;
-			}
-			else if (is_abbrev(tmpbuf, "руки"))
-			{
-				filter.wear = ITEM_WEAR_ARMS;
-				filter.wear_message = 8;
-			}
-			else if (is_abbrev(tmpbuf, "щит"))
-			{
-				filter.wear = ITEM_WEAR_SHIELD;
-				filter.wear_message = 9;
-			}
-			else if (is_abbrev(tmpbuf, "плечи"))
-			{
-				filter.wear = ITEM_WEAR_ABOUT;
-				filter.wear_message = 10;
-			}
-			else if (is_abbrev(tmpbuf, "пояс"))
-			{
-				filter.wear = ITEM_WEAR_WAIST;
-				filter.wear_message = 11;
-			}
-			else if (is_abbrev(tmpbuf, "запястья"))
-			{
-				filter.wear = ITEM_WEAR_WRIST;
-				filter.wear_message = 12;
-			}
-			else if (is_abbrev(tmpbuf, "правая"))
-			{
-				filter.wear = ITEM_WEAR_WIELD;
-				filter.wear_message = 13;
-			}
-			else if (is_abbrev(tmpbuf, "левая"))
-			{
-				filter.wear = ITEM_WEAR_HOLD;
-				filter.wear_message = 14;
-			}
-			else if (is_abbrev(tmpbuf, "обе"))
-			{
-				filter.wear = ITEM_WEAR_BOTHS;
-				filter.wear_message = 15;
-			}
-			else
+			argument = one_argument(++argument, buf_tmp);
+			if (!filter.init_wear(buf_tmp))
 			{
 				send_to_char("Неверное место одевания предмета.\r\n", ch);
 				return;
 			}
 			break;
 		case 'Ц':
-			argument = one_argument(++argument, tmpbuf);
-			if (!sscanf(tmpbuf, "%d%[-+]", &filter.cost, &sign))
+			argument = one_argument(++argument, buf_tmp);
+			if (!filter.init_cost(buf_tmp))
 			{
-				send_to_char("Неверный формат в фильтре: Ц<цена>[+-].\r\n", ch);
+				send_to_char("Неверный формат в фильтре: Ц<цена><+->.\r\n", ch);
 				return;
 			}
 			break;
 		case 'К':
-			argument = one_argument(++argument, tmpbuf);
-			if (is_abbrev(tmpbuf, "луки"))
-			{
-				filter.weap_class = SKILL_BOWS;
-				filter.weap_message = 0;
-			}
-			else if (is_abbrev(tmpbuf, "короткие"))
-			{
-				filter.weap_class = SKILL_SHORTS;
-				filter.weap_message = 1;
-			}
-			else if (is_abbrev(tmpbuf, "длинные"))
-			{
-				filter.weap_class = SKILL_LONGS;
-				filter.weap_message = 2;
-			}
-			else if (is_abbrev(tmpbuf, "секиры"))
-			{
-				filter.weap_class = SKILL_AXES;
-				filter.weap_message = 3;
-			}
-			else if (is_abbrev(tmpbuf, "палицы"))
-			{
-				filter.weap_class = SKILL_CLUBS;
-				filter.weap_message = 4;
-			}
-			else if (is_abbrev(tmpbuf, "иное"))
-			{
-				filter.weap_class = SKILL_NONSTANDART;
-				filter.weap_message = 5;
-			}
-			else if (is_abbrev(tmpbuf, "двуручники"))
-			{
-				filter.weap_class = SKILL_BOTHHANDS;
-				filter.weap_message = 6;
-			}
-			else if (is_abbrev(tmpbuf, "проникающее"))
-			{
-				filter.weap_class = SKILL_PICK;
-				filter.weap_message = 7;
-			}
-			else if (is_abbrev(tmpbuf, "копья"))
-			{
-				filter.weap_class = SKILL_SPADES;
-				filter.weap_message = 8;
-			}
-			else
+			argument = one_argument(++argument, buf_tmp);
+			if (!filter.init_weap_class(buf_tmp))
 			{
 				send_to_char("Неверный класс оружия.\r\n", ch);
 				return;
@@ -4458,97 +4229,20 @@ ACMD(DoStoreHouse)
 			break;
 		case 'А':
 		{
-			argument = one_argument(++argument, tmpbuf);
-			size_t len = strlen(tmpbuf);
+			argument = one_argument(++argument, buf_tmp);
+			size_t len = strlen(buf_tmp);
 			if (len == 0)
 			{
-				send_to_char("Неверный аффект предмета.\r\n", ch);
+				send_to_char("Укажите аффект предмета.\r\n", ch);
 				return;
 			}
-			if (filter.affect.size()
-				+ filter.affect2.size()
-				+ filter.affect3.size() >= 3)
+			if (filter.affects_cnt() >= 3)
 			{
 				break;
 			}
-			find = 0;
-			if (len == 1)
+			if (!filter.init_affect(buf_tmp, len))
 			{
-				switch (*tmpbuf)
-				{
-					case '1':
-						sprintf(tmpbuf, "можно вплавить 1 камень");
-					break;
-					case '2':
-						sprintf(tmpbuf, "можно вплавить 2 камня");
-					break;
-					case '3':
-						sprintf(tmpbuf, "можно вплавить 3 камня");
-					break;
-					default:
-					break;
-				}
-			}
-			lower_convert(tmpbuf);
-			len = strlen(tmpbuf);
-			num = 0;
-
-			for (int flag = 0; flag < 4; ++flag)
-			{
-				for (/* тут ничего не надо */; *weapon_affects[num] != '\n'; ++num)
-				{
-					if (strlen(weapon_affects[num]) < len)
-						continue;
-					if (isname(tmpbuf, weapon_affects[num]))
-					{
-						filter.affect.push_back(num);
-						find = 1;
-						break;
-					}
-				}
-				if (find)
-					break;
-				++num;
-			}
-			if (!find)
-			{
-				for (num = 0; *apply_types[num] != '\n'; ++num)
-				{
-					if (strlen(apply_types[num]) < len)
-						continue;
-					if (isname(tmpbuf, apply_types[num]))
-					{
-						filter.affect2.push_back(num);
-						find = 1;
-						break;
-					}
-				}
-			}
-			if (!find)//Добавил поиск по экстрафлагу
-			{
-				num = 0;
-				for (int flag = 0; flag < 4; ++flag)
-				{
-					for (/* тут ничего не надо */; *extra_bits[num] != '\n'; ++num)
-					{
-						if (strlen(extra_bits[num]) < len)
-							continue;
-						if (isname(tmpbuf, extra_bits[num]))
-						{
-							filter.affect3.push_back(num);
-							find = 1;
-							break;
-						}
-					}
-					if (find)
-						break;
-					num++;
-				}
-			}
-			if (!find)
-			{
-				sprintf(buf,"Неверный аффект предмета: '%s'.\r\n", tmpbuf);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Неверный аффект предмета: '%s'.\r\n", buf_tmp);
 				return;
 			}
 			break;
@@ -4557,189 +4251,29 @@ ACMD(DoStoreHouse)
 			++argument;
 		}
 	}
-	if (filter.weap_class != -1)
-		filter.type = ITEM_WEAPON; //Если указан класс - ищем только оружие
-	std::string buffer = "Выборка по следующим параметрам: ";
-	if (!filter.name.empty())
-		buffer += filter.name + " ";
-	if (filter.type >= 0)
-	{
-		buffer += item_types[filter.type];
-		buffer += " ";
-	}
-	if (filter.state >= 0)
-	{
-		if (!filter.state)
-			buffer += "ужасно ";
-		else if (filter.state == 20)
-			buffer += "скоро испортится ";
-		else if (filter.state == 40)
-			buffer += "плоховато ";
-		else if (filter.state == 60)
-			buffer += "средне ";
-		else if (filter.state == 80)
-			buffer += "идеально ";
-	}
-	if (filter.wear >= 0)
-	{
-		buffer += wear_bits[filter.wear_message];
-		buffer += " ";
-	}
-	if (filter.weap_class >= 0)
-	{
-		buffer += weapon_class[filter.weap_message];
-		buffer += " ";
-	}
-	if (filter.cost >= 0)
-	{
-		sprintf(buf, "%d%c ", filter.cost, sign);
-		buffer += buf;
-	}
-	if (!filter.affect.empty())
-	{
-		for (vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
-		{
-			buffer += weapon_affects[*it];
-			buffer += " ";
-		}
-	}
-	if (!filter.affect2.empty())
-	{
-		for (vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end(); ++it)
-		{
-			buffer += apply_types[*it];
-			buffer += " ";
-		}
-	}
-	if (!filter.affect3.empty())
-	{
-		for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end(); ++it)
-		{
-			buffer += extra_bits[*it];
-			buffer += " ";
-		}
-	}
-	buffer += "\r\n";
-	send_to_char(buffer, ch);
+
+	send_to_char(filter.print(), ch);
 	set_wait(ch, 1, FALSE);
 
-	std::ostringstream out;
-	for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content)
+	std::string out;
+	for (chest = world[real_room(CLAN(ch)->chest_room)]->contents;
+		chest; chest = chest->next_content)
 	{
 		if (Clan::is_clan_chest(chest))
 		{
-			for (OBJ_DATA *temp_obj = chest->contains; temp_obj; temp_obj = temp_obj->next_content)
+			for (OBJ_DATA *obj = chest->contains; obj; obj = obj->next_content)
 			{
-				std::ostringstream modif;
-				// сверяем имя
-				//if (!filter.name.empty() && !CompareParam(filter.name, temp_obj->aliases))
-				if (!filter.name.empty() && !isname(filter.name.c_str(), temp_obj->aliases) &&
-				    !CHECK_CUSTOM_LABEL(filter.name.c_str(), temp_obj, ch))
-					continue;
-				// тип
-				if (filter.type >= 0 && filter.type != GET_OBJ_TYPE(temp_obj))
-					continue;
-				// таймер
-				if (filter.state >= 0)
+				if (filter.check(obj, ch))
 				{
-					if (!obj_proto[GET_OBJ_RNUM(temp_obj)]->get_timer())
-					{
-						send_to_char("Нулевой таймер прототипа, сообщите Богам!", ch);
-						return;
-					}
-					int tm = (temp_obj->get_timer() * 100 / obj_proto[GET_OBJ_RNUM(temp_obj)]->get_timer());
-					if ((tm + 1) < filter.state || (tm + 1) > (filter.state + 20))
-						continue;
-				}
-				// куда можно одеть
-				if (filter.wear >= 0 && !CAN_WEAR(temp_obj, filter.wear))
-					continue;
-				// класс оружия
-				if (filter.weap_class >= 0 && filter.weap_class != GET_OBJ_SKILL(temp_obj))
-					continue;
-				// цена
-				if (filter.cost >= 0)
-				{
-					if (sign == '\0' && (GET_OBJ_COST(temp_obj) != filter.cost))
-						continue;
-					if (sign == '+' && (GET_OBJ_COST(temp_obj) < filter.cost))
-						continue;
-					if (sign == '-' && (GET_OBJ_COST(temp_obj) > filter.cost))
-						continue;
-				}
-				// аффекты
-				find = 1;
-				if (!filter.affect.empty())
-				{
-					for (vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
-					{
-						if (!CompareBits(temp_obj->obj_flags.affects, weapon_affects, *it))
-						{
-							find = 0;
-							break;
-						}
-					}
-					// аффект не найден, продолжать смысла нет
-					if (!find)
-						continue;
-				}
-				if (!filter.affect2.empty())
-				{
-					for (vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end() && find; ++it)
-					{
-						find = 0;
-						for (int i = 0; i < MAX_OBJ_AFFECT; ++i)
-						{
-							int negative = 1;
-							sprinttype(temp_obj->affected[i].location, apply_types, buf2);
-							for (int j = 0; *apply_negative[j] != '\n'; j++)
-								if (!str_cmp(buf2, apply_negative[j]))
-								{
-									negative = -1;
-									break;
-								}
-							if (temp_obj->affected[i].location == *it)
-							{
-								if ((temp_obj->affected[i].modifier * negative) > 0)
-									modif << "+";
-								else
-									modif << "-";
-								find = 1;
-								break;
-							}
-						}
-					}
-					// доп.свойство не найдено, продолжать смысла нет
-					if (!find)
-						continue;
-				}
-				if (!filter.affect3.empty())
-				{
-					for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it)
-					{
-						//find = 1;
-						if (!CompareBits(temp_obj->obj_flags.extra_flags, extra_bits, *it))
-						{
-							find = 0;
-							break;
-						}
-					}
-					// экстрафлаг не найден, продолжать смысла нет
-					if (!find)
-						continue;
-				}
-				if (find)
-				{
-					if (!modif.str().empty())
-						out << modif.str() << " ";
-					out << show_obj_to_char(temp_obj, ch, 1, 3, 1);
+					out += show_obj_to_char(obj, ch, 1, 3, 1);
 				}
 			}
 			break;
 		}
 	}
-	if (!out.str().empty())
-		page_string(ch->desc, out.str());
+
+	if (!out.empty())
+		page_string(ch->desc, out);
 	else
 		send_to_char("Ничего не найдено.\r\n", ch);
 }
