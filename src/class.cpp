@@ -41,6 +41,7 @@
 #include "named_stuff.hpp"
 #include "player_races.hpp"
 #include "noob.hpp"
+#include "exchange.h"
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -2039,13 +2040,25 @@ void check_max_hp(CHAR_DATA *ch)
 void levelup_events(CHAR_DATA *ch)
 {
 	if (SpamSystem::MIN_OFFTOP_LVL == GET_LEVEL(ch)
-		&& !ch->get_disposable_flag(OFFTOP_MESSAGE))
+		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE))
 	{
 		SET_BIT(PRF_FLAGS(ch, PRF_OFFTOP_MODE), PRF_OFFTOP_MODE);
-		ch->set_disposable_flag(OFFTOP_MESSAGE);
-		send_to_char(ch, "\r\n%sТеперь вы можете пользоваться каналом [оффтоп]!\r\n"
-				"Рекомендуем предварительно ознакомиться со справкой (справка оффтоп).%s\r\n",
+		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
+		send_to_char(ch,
+			"%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').\r\n",
+			CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
+	}
+	if (EXCHANGE_MIN_CHAR_LEV == GET_LEVEL(ch)
+		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE))
+	{
+		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
+		if (GET_REMORT(ch) <= 0)
+		{
+			send_to_char(ch,
+				"%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').\r\n",
 				CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
+		}
+		ch->set_disposable_flag(DIS_EXCHANGE_MESSAGE);
 	}
 }
 

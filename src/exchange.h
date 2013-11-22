@@ -33,9 +33,9 @@ extern std::vector<bool> lot_usage;
 #define EXCHANGE_EXHIBIT_PAY 100	// Плата за выставление на базар
 #define EXCHANGE_EXHIBIT_PAY_COEFF 0.05	// Коэффициент оплаты в зависимости от цены товара
 #define EXCHANGE_IDENT_PAY 110	//куны за опознание
-#define EXCHANGE_MIN_CHAR_LEV 8	//минимальный уровень для доступа к базару
 #define EXCHANGE_MAX_EXHIBIT_PER_CHAR 20	//максимальное кол-во выставляемых объектов одним чаром
-
+//минимальный уровень для доступа к базару
+const int EXCHANGE_MIN_CHAR_LEV = 8;
 
 #define GET_EXCHANGE_ITEM_LOT(item)  ((item)->lot_id)
 #define GET_EXCHANGE_ITEM_SELLERID(item)  ((item)->seller_id)

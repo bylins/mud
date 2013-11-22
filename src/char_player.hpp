@@ -27,9 +27,12 @@
 const int START_STATS_TOTAL = 6;
 
 // для одноразовых флагов
-const int OFFTOP_MESSAGE = 0;
-const int TOTAL_DISPOSABLE_NUM = 1;
-// TOTAL_DISPOSABLE_NUM не забываем менять
+enum
+{
+	DIS_OFFTOP_MESSAGE,
+	DIS_EXCHANGE_MESSAGE,
+	DIS_TOTAL_NUM
+};
 
 class Player : public Character
 {
@@ -146,7 +149,7 @@ private:
 	// 'дметр' персональный и группы, если чар лидер
 	DpsSystem::Dps dps_;
 	// одноразовые флаги
-	std::bitset<TOTAL_DISPOSABLE_NUM> disposable_flags_;
+	std::bitset<DIS_TOTAL_NUM> disposable_flags_;
 	// false, если чар помечен как неактивный через check_idling и пока не двинется с места
 	bool motion_;
 	// опции отрисовки режима карты

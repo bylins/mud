@@ -1273,7 +1273,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			}
 			else if (!strcmp(tag, "Disp"))
 			{
-				std::bitset<TOTAL_DISPOSABLE_NUM> tmp_flags(lnum);
+				std::bitset<DIS_TOTAL_NUM> tmp_flags(lnum);
 				disposable_flags_ = tmp_flags;
 			}
 			else if (!strcmp(tag, "Dex "))
@@ -1864,9 +1864,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 bool Player::get_disposable_flag(int num)
 {
-	if (num < 0 || num >= TOTAL_DISPOSABLE_NUM)
+	if (num < 0 || num >= DIS_TOTAL_NUM)
 	{
-		log("SYSERROR: num=%d (%s %s %d)", num, __FILE__, __func__, __LINE__);
+		log("SYSERROR: num=%d (%s %s:%d)", num, __func__, __FILE__, __LINE__);
 		return false;
 	}
 	return disposable_flags_[num];
@@ -1874,9 +1874,9 @@ bool Player::get_disposable_flag(int num)
 
 void Player::set_disposable_flag(int num)
 {
-	if (num < 0 || num >= TOTAL_DISPOSABLE_NUM)
+	if (num < 0 || num >= DIS_TOTAL_NUM)
 	{
-		log("SYSERROR: num=%d (%s %s %d)", num, __FILE__, __func__, __LINE__);
+		log("SYSERROR: num=%d (%s %s:%d)", num, __func__, __FILE__, __LINE__);
 		return;
 	}
 	disposable_flags_.set(num);
