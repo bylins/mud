@@ -328,6 +328,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 			if (!(obj = get_obj_in_list_vis(ch, tmp_arg, ch->carrying)))
 			{
 				send_to_char(ch, "У вас нет '%s'.\r\n", tmp_arg);
+				return;
 			}
 			send_object(ch, mailman, vict_uid, obj);
 		}
