@@ -92,7 +92,7 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur);
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
-char *diag_obj_timer(const OBJ_DATA * obj);
+const char *diag_obj_timer(const OBJ_DATA * obj);
 char *diag_timer_to_char(const OBJ_DATA * obj);
 const char * print_god_or_player(int level);
 int get_pick_chance(int skill_pick, int lock_complexity);
@@ -349,31 +349,19 @@ char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear)
 }
 
 // Чтобы можно было получить только строку состяния
-char *diag_obj_timer(const OBJ_DATA * obj)
+const char *diag_obj_timer(const OBJ_DATA * obj)
 {
-	static char out_str[MAX_STRING_LENGTH];
-	*out_str = 0;
 	if (GET_OBJ_RNUM(obj) != NOTHING)
 	{
 		int prot_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 		if (!prot_timer)
 		{
-			sprintf(out_str, "Прототип предмета имеет нулевой таймер!\r\n");
-			return (out_str);
+			return "Прототип предмета имеет нулевой таймер!\r\n";
 		}
 		int tm = (obj->get_timer() * 100 / prot_timer);
-		if (tm < 20)
-			sprintf(out_str, "ужасно");
-		else if (tm < 40)
-			sprintf(out_str, "скоро испортится");
-		else if (tm < 60)
-			sprintf(out_str, "плоховато");
-		else if (tm < 80)
-			sprintf(out_str, "средне");
-		else
-			sprintf(out_str, "идеально");
+		return print_obj_state(tm);
 	}
-	return (out_str);
+	return "";
 }
 
 char *diag_timer_to_char(const OBJ_DATA * obj)

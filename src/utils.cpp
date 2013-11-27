@@ -3085,15 +3085,15 @@ bool ParseFilter::init_type(const char *str)
 bool ParseFilter::init_state(const char *str)
 {
 	if (is_abbrev(str, "ужасно"))
-		state = 1;
+		state = 0;
 	else if (is_abbrev(str, "скоро испортится"))
-		state = 21;
+		state = 20;
 	else if (is_abbrev(str, "плоховато"))
-		state = 41;
+		state = 40;
 	else if (is_abbrev(str, "средне"))
-		state = 61;
+		state = 60;
 	else if (is_abbrev(str, "идеально"))
-		state = 81;
+		state = 80;
 	else
 		return false;
 
@@ -3397,8 +3397,14 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const
 		}
 		else
 		{
-			int tm = obj->get_timer() * 100 / proto_tm;
-			if ((tm + 1) >= state)
+			const int tm_pct = obj->get_timer() * 100 / proto_tm;
+			if (filter_type == CLAN
+				&& tm_pct >= state
+				&& tm_pct < state + 20)
+			{
+				result = true;
+			}
+			else if (filter_type == EXCHANGE && tm_pct >= state)
 			{
 				result = true;
 			}
@@ -3592,6 +3598,20 @@ bool ParseFilter::check(exchange_item_data *exch_obj)
 	return false;
 }
 
+const char *print_obj_state(int tm_pct)
+{
+	if (tm_pct < 20)
+		return "ужасно";
+	else if (tm_pct < 40)
+		return "скоро испортится";
+	else if (tm_pct < 60)
+		return "плоховато";
+	else if (tm_pct < 80)
+		return "средне";
+	else
+		return "идеально";
+}
+
 std::string ParseFilter::print() const
 {
 	std::string buffer = "Выборка: ";
@@ -3621,16 +3641,8 @@ std::string ParseFilter::print() const
 	}
 	if (state >= 0)
 	{
-		if (state == 1)
-			buffer += "ужасно ";
-		else if (state == 21)
-			buffer += "скоро испортится ";
-		else if (state == 41)
-			buffer += "плоховато ";
-		else if (state == 61)
-			buffer += "средне ";
-		else if (state == 81)
-			buffer += "идеально ";
+		buffer += print_obj_state(state);
+		buffer += " ";
 	}
 	if (wear >= 0)
 	{

@@ -1531,6 +1531,7 @@ void print_bitset(const boost::dynamic_bitset<>& bits,
 	const std::vector<const char*>& names, const char* div,
 	std::string& str, bool print_num = false);
 void tascii(const uint32_t* pointer, int num_planes, char* ascii);
+const char *print_obj_state(int tm_pct);
 
 struct exchange_item_data;
 // для парса строки с фильтрами в клан-хранах и базаре
