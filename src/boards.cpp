@@ -425,6 +425,10 @@ void Board::Load()
 // сохраняем доску
 void Board::Save()
 {
+	if (this->file.empty())
+	{
+		return;
+	}
 	std::ofstream file((this->file).c_str());
 	if (!file.is_open())
 	{
