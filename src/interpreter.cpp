@@ -551,7 +551,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"карта", POS_RESTING, do_map, 0, 0, 0},
 	{"клан", POS_RESTING, DoHouse, 0, 0, 0},
 	{"клич", POS_FIGHTING, do_warcry, 1, 0, -1},
-	{"кодер", POS_DEAD, DoBoard, 1, Boards::GODCODE_BOARD, -1},
+	{"кодер", POS_DEAD, DoBoard, 1, Boards::CODER_BOARD, -1},
 	{"команды", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0},
 	{"коне", POS_SLEEPING, do_quit, 0, 0, 0},
 	{"конец", POS_SLEEPING, do_quit, 0, SCMD_QUIT, 0},

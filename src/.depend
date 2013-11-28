@@ -62,13 +62,14 @@ ban.o: ban.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
 boards.o: boards.cpp conf.h house.h sysdep.h structs.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp db.h interpreter.h \
  house_exp.hpp char.hpp player_i.hpp reset_stats.hpp boards.h morph.hpp \
- comm.h remember.hpp screen.h privilege.hpp modify.h room.hpp handler.h
+ comm.h remember.hpp screen.h privilege.hpp modify.h room.hpp handler.h \
+ parse.hpp
 class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h pugixml.hpp \
  pugiconfig.hpp utils.h features.hpp obj.hpp spells.h skills.h \
  interpreter.h handler.h constants.h pk.h top.h im.h char.hpp \
  player_i.hpp reset_stats.hpp boards.h morph.hpp spam.hpp screen.h \
  char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp map.hpp \
- named_stuff.hpp player_races.hpp noob.hpp
+ named_stuff.hpp player_races.hpp noob.hpp exchange.h
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp comm.h interpreter.h handler.h db.h house.h \
  house_exp.hpp char.hpp player_i.hpp reset_stats.hpp boards.h morph.hpp \

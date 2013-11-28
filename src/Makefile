@@ -88,6 +88,7 @@ default: circle
 
 circle:
 	$(MAKE) $(BINDIR)/circle
+	hg log -v -M > $(BINDIR)/changelog
 
 $(BINDIR)/circle : $(OBJFILES)
 	$(MKDIR) $(BINDIR)

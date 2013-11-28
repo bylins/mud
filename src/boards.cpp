@@ -19,6 +19,7 @@
 #include "modify.h"
 #include "room.hpp"
 #include "handler.h"
+#include "parse.hpp"
 
 namespace Boards
 {
@@ -40,6 +41,7 @@ const unsigned int MAX_BOARD_MESSAGES = 200;
 // максимальное кол-во сообщений на спец.досках
 const unsigned int MAX_REPORT_MESSAGES = 999;
 const char *OVERFLOW_MESSAGE = "Да, набросали всего столько, что файл переполнен. Напомните об этом богам!\r\n";
+const char *CHANGELOG_FILE = "../bin/changelog";
 std::string dg_script_text;
 
 void set_last_read(CHAR_DATA *ch, BoardTypes type, time_t date)
@@ -126,6 +128,121 @@ void dg_script_message()
 	}
 }
 
+MessagePtr create_changelog_msg(std::string &author, std::string &desc,
+	time_t parsed_time)
+{
+	MessagePtr message(new Message);
+	// имя автора
+	const std::size_t e_pos = author.find('<');
+	const std::size_t s_pos = author.find(' ');
+	if (e_pos != std::string::npos
+		|| s_pos != std::string::npos)
+	{
+		author = author.substr(0, std::min(e_pos, s_pos));
+	}
+	boost::trim(author);
+	message->author = author;
+	// текст в виндовой кодировке
+	boost::trim(desc);
+	for (auto it = desc.begin(); it != desc.end(); ++it)
+	{
+		*it = WtoK(*it);
+	}
+	message->text = desc + "\r\n";
+	// из текста первая строка в заголовок
+	std::string subj(desc.begin(),
+		std::find(desc.begin(), desc.end(), '\n'));
+	if (subj.size() > 40)
+	{
+		subj = subj.substr(0, 40);
+	}
+	boost::trim(subj);
+	message->subject = subj;
+	message->date = parsed_time;
+	message->unique = 1;
+	message->level = 1;
+
+	return message;
+}
+
+void changelog_message()
+{
+	std::ifstream file(CHANGELOG_FILE);
+	if (!file.is_open())
+	{
+		log("SYSERROR: can't open changelog file (%s:%d)", __FILE__, __LINE__);
+		return;
+	}
+	auto board_it = std::find_if(
+		Boards::board_list.begin(),
+		Boards::board_list.end(),
+		boost::bind(&Board::GetType, _1) == Boards::CODER_BOARD);
+	if (Boards::board_list.end() == board_it)
+	{
+		log("SYSERROR: can't find coder board (%s:%d)", __FILE__, __LINE__);
+		return;
+	}
+
+	std::string buf_str, author, date, desc;
+	bool description = false;
+	std::vector<MessagePtr> tmp_list;
+
+	while (std::getline(file, buf_str))
+	{
+		const std::size_t pos = buf_str.find(' ');
+		if (pos != std::string::npos)
+		{
+			std::string tmp_str = buf_str.substr(0, pos);
+			if (tmp_str == "changeset:")
+			{
+				const time_t parsed_time = parse_asctime(date);
+				if (parsed_time >= 1326121851
+					&& !author.empty() && !date.empty() && !desc.empty())
+				{
+					tmp_list.push_back(
+						create_changelog_msg(author, desc, parsed_time));
+				}
+				description = false;
+				author.clear();
+				date.clear();
+				desc.clear();
+				continue;
+			}
+			if (description)
+			{
+				desc += buf_str + "\r\n";
+				continue;
+			}
+			else
+			{
+				if (tmp_str == "user:")
+				{
+					author = buf_str.substr(pos);
+					boost::trim(author);
+				}
+				else if (tmp_str == "date:")
+				{
+					date = buf_str.substr(pos);
+					boost::trim(date);
+				}
+			}
+		}
+		else if (buf_str == "description:")
+		{
+			description = true;
+		}
+		else
+		{
+			desc += buf_str + "\r\n";
+		}
+	}
+
+	for (auto i = tmp_list.rbegin(); i != tmp_list.rend(); ++i)
+	{
+		(*board_it)->add_message(*i);
+	}
+}
+
 } // namespace BoardSystem
 
 using namespace Boards;
@@ -164,13 +281,15 @@ void Board::BoardInit()
 	create_board(GODNEWS_BOARD, "GodNews", "Божественные новости", ETC_BOARD"god-news.board");
 	create_board(GODGENERAL_BOARD, "Божества", "Божественная базарная площадь", ETC_BOARD"god-general.board");
 	create_board(GODBUILD_BOARD, "Билдер", "Заметки билдеров", ETC_BOARD"god-build.board");
-	create_board(GODCODE_BOARD, "Кодер", "Заметки кодеров", ETC_BOARD"god-code.board");
+	//create_board(GODCODE_BOARD, "Кодер", "Заметки кодеров", ETC_BOARD"god-code.board");
 	create_board(GODPUNISH_BOARD, "Наказания", "Комментарии к наказаниям", ETC_BOARD"god-punish.board");
 	create_board(NOTICE_BOARD, "Анонсы", "Сообщения от администрации", ETC_BOARD"notice.board");
 	create_board(MISPRINT_BOARD, "Очепятки", "Опечатки в игровых локациях", ETC_BOARD"misprint.board");
 	create_board(SUGGEST_BOARD, "Придумки", "Для идей в приватном режиме", ETC_BOARD"suggest.board");
+	create_board(CODER_BOARD, "Кодер", "Изменения в коде Былин", "");
 
 	dg_script_message();
+	changelog_message();
 }
 
 // лоад/релоад клановых досок
@@ -244,6 +363,10 @@ void Board::reload_all()
 // подгружаем доску, если она существует
 void Board::Load()
 {
+	if (this->file.empty())
+	{
+		return;
+	}
 	std::ifstream file((this->file).c_str());
 	if (!file.is_open())
 	{
@@ -449,7 +572,10 @@ ACMD(DoBoard)
 		}
 		time_t const date = ch->get_board_date(board.type);
 		// новости мада в ленточном варианте
-		if ((board.type == NEWS_BOARD || board.type == GODNEWS_BOARD) && !PRF_FLAGGED(ch, PRF_NEWS_MODE))
+		if ((board.type == NEWS_BOARD
+			|| board.type == GODNEWS_BOARD
+			|| board.type == CODER_BOARD)
+				&& !PRF_FLAGGED(ch, PRF_NEWS_MODE))
 		{
 			std::ostringstream body;
 			char timeBuf[17];
@@ -458,9 +584,20 @@ ACMD(DoBoard)
 			{
 				strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&(*message)->date));
 				if ((*message)->date > date)
+				{
 					body << CCWHT(ch, C_NRM); // новые подсветим
-				body << timeBuf << CCNRM(ch, C_NRM) << "\r\n"
-				<< (*message)->text;
+				}
+				body << timeBuf << CCNRM(ch, C_NRM);
+				if (board.type == CODER_BOARD)
+				{
+					body << " " << (*message)->author << "\r\n";
+					std::string text((*message)->text);
+					body << format_news_message(text);
+				}
+				else
+				{
+					body << "\r\n" << (*message)->text;
+				}
 			}
 			set_last_read(ch, board.type, board.last_message_date());
 			page_string(ch->desc, body.str());
@@ -900,6 +1037,11 @@ std::bitset<ACCESS_NUM> Board::get_access(CHAR_DATA *ch) const
 			access.set(ACCESS_CAN_WRITE);
 		}
 		break;
+	case CODER_BOARD:
+		access.set(ACCESS_CAN_SEE);
+		access.set(ACCESS_CAN_READ);
+		break;
+
 	default:
 		log("Error board type! (%s %s %d)", __FILE__, __func__, __LINE__);
 	}
@@ -936,7 +1078,7 @@ bool act_board(CHAR_DATA *ch, int vnum, char *buf_)
 		DoBoard(ch, buf_, 0, GODBUILD_BOARD);
 		break;
 	case GODCODE_BOARD_OBJ:
-		DoBoard(ch, buf_, 0, GODCODE_BOARD);
+		DoBoard(ch, buf_, 0, CODER_BOARD);
 		break;
 	default:
 		return false;
@@ -1037,7 +1179,8 @@ void Board::LoginInfo(CHAR_DATA * ch)
 	{
 		// доска не видна или можно только писать, опечатки тож не спамим
 		if (!can_read(ch, **board)
-			|| ((*board)->type == MISPRINT_BOARD && !PRF_FLAGGED(ch, PRF_MISPRINT)))
+			|| ((*board)->type == MISPRINT_BOARD && !PRF_FLAGGED(ch, PRF_MISPRINT))
+			|| (*board)->type == CODER_BOARD)
 		{
 			continue;
 		}
@@ -1149,6 +1292,7 @@ bool Board::is_special() const
 void Board::new_message_notify() const
 {
 	if (GetType() != PERS_BOARD
+		&& GetType() != CODER_BOARD
 		&& !messages.empty())
 	{
 		const Message &msg = **(messages.rbegin());
@@ -1175,9 +1319,14 @@ void Board::new_message_notify() const
 
 void Board::add_message(MessagePtr msg)
 {
+	if (GetType() == CODER_BOARD && messages.size() >= MAX_REPORT_MESSAGES)
+	{
+		messages.erase(messages.begin());
+	}
 	if (!is_special()
 		&& GetType() != NEWS_BOARD
 		&& GetType() != GODNEWS_BOARD
+		&& GetType() != CODER_BOARD
 		&& messages.size() >= MAX_BOARD_MESSAGES)
 	{
 		messages.erase(messages.begin());
@@ -1248,6 +1397,15 @@ void clan_delete_message(const std::string &name, int vnum)
 		"Дружина %1% была автоматически удалена.\r\n"
 		"Номер зоны: %2%\r\n") % name % vnum);
 	add_server_message(subj, text);
+}
+
+std::string& format_news_message(std::string &text)
+{
+	StringReplace(text, '\n', "\n   ");
+	boost::trim(text);
+	text.insert(0, "   ");
+	text += '\n';
+	return text;
 }
 
 } // namespace Boards

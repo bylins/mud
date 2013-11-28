@@ -54,4 +54,6 @@ pugi::xml_node get_child(const T &node, const char *name)
 
 } // namespace Parse
 
+time_t parse_asctime(const std::string &str);
+
 #endif // PARSE_HPP_INCLUDED

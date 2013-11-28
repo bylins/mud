@@ -47,6 +47,7 @@ enum BoardTypes: int
 	NOTICE_BOARD,     // анонсы
 	MISPRINT_BOARD,   // очепятки (опечатка)
 	SUGGEST_BOARD,    // придумки (мысль)
+	CODER_BOARD,      // ченж-лог из меркуриала
 	TYPES_NUM         // кол-во досок
 };
 
@@ -67,6 +68,8 @@ bool can_write(CHAR_DATA *ch, const Board &board);
 bool full_access(CHAR_DATA *ch, const Board &board);
 void clan_delete_message(const std::string &name, int vnum);
 void new_message_notify(const Board &board);
+
+std::string& format_news_message(std::string &text);
 
 } // namespace BoardSystem
 

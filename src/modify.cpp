@@ -821,11 +821,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				if (board->GetType() == Boards::NEWS_BOARD
 					|| board->GetType() == Boards::GODNEWS_BOARD)
 				{
-					StringReplace(d->message->text, '\n', "\n   ");
-					// вообще надо это в той функции все учесть, но пока влом
-					boost::trim(d->message->text);
-					d->message->text.insert(0, "   ");
-					d->message->text += '\n';
+					Boards::format_news_message(d->message->text);
 				}
 				board->add_message(d->message);
 				SEND_TO_Q("Спасибо за ваши излияния души, послание сохранено.\r\n", d);
@@ -865,10 +861,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 								boost::str(boost::format("Сообщение дружины (автор %1%):\r\n")
 										% GET_NAME(d->character));
 						// отступ (копи-паст из CON_WRITEBOARD выше)
-						StringReplace(body, '\n', "\n  ");
-						boost::trim(body);
-						body.insert(0, "  ");
-						body += '\n';
+						Boards::format_news_message(body);
 						head += body;
 
 						CLAN(d->character)->write_mod(head);
