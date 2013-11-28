@@ -10,6 +10,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
 #include "house.h"
 #include "screen.h"
 #include "comm.h"
@@ -128,6 +132,40 @@ void dg_script_message()
 	}
 }
 
+#ifdef HAVE_ICONV
+std::string iconv_convert(const char *from, const char *to, std::string text)
+{
+	iconv_t cnv = iconv_open(to, from);
+	if (cnv == (iconv_t) - 1)
+	{
+		iconv_close(cnv);
+		return "";
+	}
+	char *outbuf;
+	if ((outbuf = (char *) malloc(text.length()*2 + 1)) == NULL)
+	{
+		iconv_close(cnv);
+		return "";
+	}
+	char *ip = (char *) text.c_str(), *op = outbuf;
+	size_t icount = text.length(), ocount = text.length()*2;
+
+	if (iconv(cnv, &ip, &icount, &op, &ocount) != (size_t) - 1)
+	{
+		outbuf[text.length()*2 - ocount] = '\0';
+		text = outbuf;
+	}
+	else
+	{
+		text = "";
+	}
+
+	free(outbuf);
+	iconv_close(cnv);
+	return text;
+}
+#endif
+
 MessagePtr create_changelog_msg(std::string &author, std::string &desc,
 	time_t parsed_time)
 {
@@ -142,16 +180,15 @@ MessagePtr create_changelog_msg(std::string &author, std::string &desc,
 	}
 	boost::trim(author);
 	message->author = author;
-	// текст в виндовой кодировке
 	boost::trim(desc);
-	for (auto it = desc.begin(); it != desc.end(); ++it)
-	{
-		*it = WtoK(*it);
-	}
+#ifdef HAVE_ICONV
+	message->text = iconv_convert("UTF-8", "KOI8-R", desc) + "\r\n";
+#else
 	message->text = desc + "\r\n";
+#endif
 	// из текста первая строка в заголовок
-	std::string subj(desc.begin(),
-		std::find(desc.begin(), desc.end(), '\n'));
+	std::string subj(message->text.begin(),
+		std::find(message->text.begin(), message->text.end(), '\n'));
 	if (subj.size() > 40)
 	{
 		subj = subj.substr(0, 40);
