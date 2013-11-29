@@ -150,8 +150,8 @@ magic.o: magic.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  interpreter.h screen.h constants.h dg_scripts.h pk.h magic.h fight.h \
  char.hpp player_i.hpp reset_stats.hpp boards.h morph.hpp deathtrap.hpp \
  random.hpp poison.hpp modify.h room.hpp AffectHandler.hpp
-mail.o: mail.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
- pugixml.hpp pugiconfig.hpp comm.h db.h interpreter.h handler.h mail.h \
+mail.o: mail.cpp conf.h pugixml.hpp pugiconfig.hpp sysdep.h structs.h \
+ utils.h features.hpp obj.hpp comm.h db.h interpreter.h handler.h mail.h \
  char.hpp player_i.hpp reset_stats.hpp boards.h morph.hpp parcel.hpp \
  char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp map.hpp \
  named_stuff.hpp parse.hpp screen.h

@@ -129,7 +129,6 @@ int top_of_p_table = 0;		// ref to top of table
 int top_of_p_file = 0;		// ref of size of p file
 long top_idnum = 0;		// highest idnum in use
 
-int no_mail = 0;		// mail disabled?
 int mini_mud = 0;		// mini-mud mode?
 time_t boot_time = 0;		// time of mud boot
 int circle_restrict = 0;	// level of game restriction
@@ -1780,12 +1779,6 @@ void boot_db(void)
 	log("Sorting command list.");
 	sort_commands();
 
-	log("Booting mail system.");
-	if (!scan_file())
-	{
-		log("    Mail boot failed -- Mail system disabled");
-		no_mail = 1;
-	}
 	log("Reading banned site, proxy, privileges and invalid-name list.");
 	ban = new BanList();
 	Read_Invalid_List();
@@ -1931,7 +1924,6 @@ void boot_db(void)
 
 	log("Load mail.xml");
 	mail::load();
-	mail::convert();
 
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	HelpSystem::reload_all();
