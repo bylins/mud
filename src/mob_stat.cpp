@@ -24,6 +24,10 @@ const int HISTORY_SIZE = 6;
 std::map<int, int> count_stats;
 /// список мобов по внуму и месяцам
 std::unordered_map<int, std::list<mob_node>> mob_list;
+/// мобов убито - для 'статистика'
+int mkilled = 0;
+/// игроков убито - для 'статистика'
+int pkilled = 0;
 
 /// month, year
 std::pair<int, int> get_date()
@@ -268,6 +272,14 @@ void add_mob(CHAR_DATA *mob, int members)
 		list_node.push_back(node);
 
 		mob_list.insert(std::make_pair(GET_MOB_VNUM(mob), list_node));
+	}
+	if (members == 0)
+	{
+		++pkilled;
+	}
+	else
+	{
+		++mkilled;
 	}
 }
 

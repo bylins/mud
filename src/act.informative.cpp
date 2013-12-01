@@ -18,6 +18,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -54,6 +55,7 @@
 #include "help.hpp"
 #include "map.hpp"
 #include "ext_money.hpp"
+#include "mob_stat.hpp"
 
 using std::string;
 
@@ -4294,6 +4296,19 @@ ACMD(do_who)
 	page_string(ch->desc, out);
 }
 
+extern time_t boot_time;
+
+std::string print_server_uptime()
+{
+	time_t diff = time(0) - boot_time;
+	int d = diff / 86400;
+	int h = (diff / 3600) % 24;
+	int m = (diff / 60) % 60;
+	int s = diff % 60;
+	return boost::str(boost::format(
+		"Времени с перезагрузки: %dд %02d:%02d:%02d\r\n") % d % h % m % s);
+}
+
 ACMD(do_statistic)
 {
 	CHAR_DATA *tch;
@@ -4404,9 +4419,21 @@ ACMD(do_statistic)
 			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), 3, pk, CCIRED(ch,
 					C_NRM),
 			CCICYN(ch, C_NRM), 3, nopk, CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Всего игроков %s[%s%*d%s]%s\r\n",
+	sprintf(buf + strlen(buf), "Всего игроков %s[%s%*d%s]%s\r\n\r\n",
 			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), 3, all, CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
+
+	char buf_[MAX_INPUT_LENGTH];
+	std::string out;
+
+	out += print_server_uptime();
+	snprintf(buf_, sizeof(buf_),
+		"Героев (без ПК) | Тварей убито  %s[%s%3d%s|%s %2d%s]%s\r\n",
+		CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), mob_stat::pkilled,
+		CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), mob_stat::mkilled,
+		CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+	out += buf_;
+	send_to_char(out, ch);
 }
 
 

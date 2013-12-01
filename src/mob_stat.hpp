@@ -22,6 +22,10 @@ const int MAX_GROUP_SIZE = 12;
 const int SAVE_PERIOD = 27;
 /// 0 - убиства мобом игроков, 1..MAX_GROUP_SIZE - убиства моба игроками
 typedef std::array<int, MAX_GROUP_SIZE + 1> KillStatType;
+/// мобов убито - для 'статистика'
+extern int mkilled;
+/// игроков убито - для 'статистика'
+extern int pkilled;
 
 struct mob_node
 {
