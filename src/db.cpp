@@ -78,6 +78,7 @@
 #include "noob.hpp"
 #include "parse.hpp"
 #include "reset_stats.hpp"
+#include "mob_stat.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1910,6 +1911,9 @@ void boot_db(void)
 	log("Check big sets in rent.");
 	SetSystem::check_rented();
 
+	// сначала стата, потом сеты
+	log("Load mob_stat.xml");
+	mob_stat::load();
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
 

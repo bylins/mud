@@ -64,6 +64,7 @@
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "mail.h"
+#include "mob_stat.hpp"
 
 // external vars
 extern bool need_warn;
@@ -4290,7 +4291,7 @@ ACMD(do_show)
 		send_to_char(ch, "  Список полей сражающихся: %d\r\n", fighting_list_size());
 		send_to_char(ch, "  Передвижения: %d\r\n", motion);
 		send_to_char(ch, "  Потрачено кун в магазинах2 за ребут: %d\r\n", ShopExt::get_spent_today());
-		SetsDrop::show_stats(ch);
+		mob_stat::show_stats(ch);
 		break;
 	}
 	case 5:
@@ -4507,11 +4508,18 @@ ACMD(do_show)
 	{
 		if (*value && is_number(value))
 		{
-			SetsDrop::show_zone_stat(ch, atoi(value));
+			if (*value1 && is_number(value1))
+			{
+				mob_stat::show_zone(ch, atoi(value), atoi(value1));
+			}
+			else
+			{
+				mob_stat::show_zone(ch, atoi(value), 0);
+			}
 		}
 		else
 		{
-			send_to_char("Формат комнады: show mobstat zone-vnum.\r\n", ch);
+			send_to_char("Формат комнады: show mobstat внум-зоны <месяцев>.\r\n", ch);
 		}
 		break;
 	}

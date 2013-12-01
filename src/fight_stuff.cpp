@@ -19,6 +19,7 @@
 #include "constants.h"
 #include "screen.h"
 #include "magic.h"
+#include "mob_stat.hpp"
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -606,8 +607,13 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		&& !IS_CHARMICE(victim)
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
 	{
-		SetsDrop::add_mob_stat(victim, members);
+		mob_stat::add_mob(victim, members);
 		SET_BIT(EXTRA_FLAGS(victim, EXTRA_GRP_KILL_COUNT), EXTRA_GRP_KILL_COUNT);
+	}
+	else if (IS_NPC(ch) && !IS_NPC(victim)
+		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
+	{
+		mob_stat::add_mob(ch, 0);
 	}
 
 // Странно, но для NPC эта функция тоже должна работать

@@ -1,5 +1,7 @@
+// Copyright (c) 2012 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "conf.h"
 #include <sstream>
 #include <iostream>
 #include <set>
@@ -12,6 +14,7 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+
 #include "sets_drop.hpp"
 #include "db.h"
 #include "utils.h"
@@ -27,6 +30,7 @@
 #include "screen.h"
 #include "help.hpp"
 #include "parse.hpp"
+#include "mob_stat.hpp"
 
 namespace SetsDrop
 {
@@ -40,7 +44,6 @@ const int MIN_SOLO_MOB_LVL = 25;
 const int MAX_SOLO_MOB_LVL = 31;
 // макс. кол-во участников в группе учитываемое в статистике
 const int MAX_GROUP_SIZE = 12;
-const char *MOB_STAT_FILE = LIB_PLRSTUFF"mob_stat.xml";
 const char *DROP_TABLE_FILE = LIB_PLRSTUFF"sets_drop.xml";
 // сброс таблицы лоада каждые х часов
 const int RESET_TIMER = 35;
@@ -65,13 +68,12 @@ std::list<int> group_obj_list;
 // список соло-сетин на лоад (vnum)
 std::list<int> solo_obj_list;
 
-// статистика по мобам: vnum моба, размер группы, кол-во убийств
-std::map<int, std::vector<int> > mob_stat;
-
 struct MobNode
 {
-	MobNode() : vnum(-1), rnum(-1), miw(-1),
-		type(-1), kill_stat(MAX_GROUP_SIZE + 1, 0) {};
+	MobNode() : vnum(-1), rnum(-1), miw(-1), type(-1)
+	{
+		kill_stat.fill(0);
+	};
 
 	int vnum;
 	int rnum;
@@ -82,7 +84,7 @@ struct MobNode
 	// груп/соло моб
 	int type;
 	// статистика убиств по размеру группы
-	std::vector<int> kill_stat;
+	mob_stat::KillStatType kill_stat;
 };
 
 struct ZoneNode
@@ -385,50 +387,6 @@ void init_obj_list()
 	}
 }
 
-// * Лоад статистики по убийствам мобов с делением на размер группы.
-void init_mob_stat()
-{
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(MOB_STAT_FILE);
-	if (!result)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
-	}
-    pugi::xml_node node_list = doc.child("mob_list");
-    if (!node_list)
-    {
-		snprintf(buf, MAX_STRING_LENGTH, "...<mob_list> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
-    }
-	for (pugi::xml_node mob_node = node_list.child("mob"); mob_node; mob_node = mob_node.next_sibling("mob"))
-	{
-		int mob_vnum = Parse::attr_int(mob_node, "vnum");
-		if (real_mobile(mob_vnum) < 0)
-		{
-			snprintf(buf, MAX_STRING_LENGTH, "...bad mob attributes (vnum=%d)", mob_vnum);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-			continue;
-		}
-
-		std::vector<int> node(MAX_GROUP_SIZE + 1, 0);
-
-		for (int k = 1; k <= MAX_GROUP_SIZE; ++k)
-		{
-			snprintf(buf, sizeof(buf), "n%d", k);
-			pugi::xml_attribute attr = mob_node.attribute(buf);
-			if (attr && attr.as_int() > 0)
-			{
-				node[k] = attr.as_int();
-			}
-		}
-
-		mob_stat.insert(std::make_pair(mob_vnum, node));
-	}
-}
-
 void add_to_zone_list(std::list<ZoneNode> &cont, MobNode &node)
 {
 	int zone = node.vnum/100;
@@ -510,8 +468,8 @@ void init_mob_name_list()
 		}
 	}
 
-	for (std::map<int, std::vector<int> >::iterator i = mob_stat.begin(),
-		iend = mob_stat.end(); i != iend; ++i)
+	for (auto i = mob_stat::mob_list.cbegin(),
+		iend = mob_stat::mob_list.cend(); i != iend; ++i)
 	{
 		const int rnum = real_mobile(i->first);
 		const int zone = i->first/100;
@@ -528,7 +486,8 @@ void init_mob_name_list()
 		node.vnum = i->first;
 		node.rnum = rnum;
 		node.name = mob_proto[rnum].get_name();
-		node.kill_stat = i->second;
+		auto stat = mob_stat::sum_stat(i->second, 4);
+		node.kill_stat = stat.kills;
 
 		add_to_zone_list(mob_name_list, node);
 	}
@@ -547,9 +506,9 @@ void init_zone_type()
 			int group_cnt = 0;
 			for (int cnt = 2; cnt <= MAX_GROUP_SIZE; ++cnt)
 			{
-				group_cnt += k->kill_stat[cnt];
+				group_cnt += k->kill_stat.at(cnt);
 			}
-			if (k->kill_stat[1] > group_cnt)
+			if (k->kill_stat.at(1) > group_cnt)
 			{
 				++killed_solo;
 			}
@@ -577,13 +536,13 @@ void init_mob_type()
 			int group_cnt = 0;
 			for (int cnt = 2; cnt <= MAX_GROUP_SIZE; ++cnt)
 			{
-				group_cnt += k->kill_stat[cnt];
+				group_cnt += k->kill_stat.at(cnt);
 			}
-			if (i->type == SOLO_ZONE && k->kill_stat[1] > group_cnt)
+			if (i->type == SOLO_ZONE && k->kill_stat.at(1) > group_cnt)
 			{
 				k->type = SOLO_MOB;
 			}
-			else if (i->type == GROUP_ZONE && k->kill_stat[1] < group_cnt)
+			else if (i->type == GROUP_ZONE && k->kill_stat.at(1) < group_cnt)
 			{
 				k->type = GROUP_MOB;
 			}
@@ -762,9 +721,9 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 		// в два цикла как-то нагляднее
 		for (int i = 2; i <= MAX_GROUP_SIZE; ++i)
 		{
-			if (mob->kill_stat[i] > max_kill)
+			if (mob->kill_stat.at(i) > max_kill)
 			{
-				max_kill = mob->kill_stat[i];
+				max_kill = mob->kill_stat.at(i);
 				num1 = i;
 			}
 		}
@@ -773,9 +732,9 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 		for (int i = 2; i <= MAX_GROUP_SIZE; ++i)
 		{
 			if (i != num1
-				&& mob->kill_stat[i] > max_kill2)
+				&& mob->kill_stat.at(i) > max_kill2)
 			{
-				max_kill2 = mob->kill_stat[i];
+				max_kill2 = mob->kill_stat.at(i);
 				num2 = i;
 			}
 		}
@@ -1153,23 +1112,6 @@ void save_drop_table()
 	need_save_drop_table = false;
 }
 
-void clear_zone_stat(int zone_vnum)
-{
-	for (std::map<int, std::vector<int> >::iterator i = mob_stat.begin(),
-		iend = mob_stat.end(); i != iend; /* пусто */)
-	{
-		if (i->first/100 == zone_vnum)
-		{
-			mob_stat.erase(i++);
-		}
-		else
-		{
-			++i;
-		}
-	}
-	save_mob_stat();
-}
-
 void reload_by_timer()
 {
 	if (next_reset_time <= time(0))
@@ -1224,7 +1166,7 @@ void reload(int zone_vnum)
 
 	if (zone_vnum > 0)
 	{
-		clear_zone_stat(zone_vnum);
+		mob_stat::clear_zone(zone_vnum);
 	}
 
 	init_obj_list();
@@ -1246,7 +1188,6 @@ void reload(int zone_vnum)
  */
 void init()
 {
-	init_mob_stat();
 	init_obj_list();
 
 	if (!load_drop_table())
@@ -1255,11 +1196,6 @@ void init()
 	}
 
 	init_link_system();
-}
-
-void show_stats(CHAR_DATA *ch)
-{
-	send_to_char(ch, "  Мобов в статистике для сетов: %d\r\n", mob_stat.size());
 }
 
 // * \return рнум шмотки или -1 если дропать нечего
@@ -1370,96 +1306,6 @@ void renumber_obj_rnum(const int rnum, const int mob_rnum)
 		}
 		drop_list = tmp_list;
 	}
-}
-
-void save_mob_stat()
-{
-	pugi::xml_document doc;
-	doc.append_child().set_name("mob_list");
-	pugi::xml_node mob_list = doc.child("mob_list");
-
-	for (std::map<int, std::vector<int> >::const_iterator i = mob_stat.begin(),
-		iend = mob_stat.end(); i != iend; ++i)
-	{
-		pugi::xml_node mob_node = mob_list.append_child();
-		mob_node.set_name("mob");
-		mob_node.append_attribute("vnum") = i->first;
-
-		for (int k = 1; k <= MAX_GROUP_SIZE; ++k)
-		{
-			if (i->second[k] > 0)
-			{
-				snprintf(buf, sizeof(buf), "n%d", k);
-				mob_node.append_attribute(buf) = i->second[k];
-			}
-		}
-	}
-	doc.save_file(MOB_STAT_FILE);
-}
-
-void add_mob_stat(CHAR_DATA *mob, int members)
-{
-	if (members < 1 || members > MAX_GROUP_SIZE)
-	{
-		snprintf(buf, sizeof(buf), "add_mob_stat error: mob_vnum=%d, members=%d",
-			GET_MOB_VNUM(mob), members);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
-	}
-	std::map<int, std::vector<int> >::iterator i = mob_stat.find(GET_MOB_VNUM(mob));
-	if (i != mob_stat.end())
-	{
-		i->second[members] += 1;
-	}
-	else
-	{
-		std::vector<int> node(MAX_GROUP_SIZE + 1, 0);
-		node[members] += 1;
-		mob_stat.insert(std::make_pair(GET_MOB_VNUM(mob), node));
-	}
-}
-
-std::string print_mobstat_name(int mob_vnum)
-{
-	std::string name = "null";
-	const int rnum = real_mobile(mob_vnum);
-	if (rnum > 0 && rnum <= top_of_mobt)
-	{
-		name = mob_proto[rnum].get_name();
-	}
-	if (name.size() > 20)
-	{
-		name = name.substr(0, 20);
-	}
-	return name;
-}
-
-// * show mobstat
-void show_zone_stat(CHAR_DATA *ch, int zone_vnum)
-{
-	std::stringstream out;
-	out << "Статистика убийств мобов в зоне номер " << zone_vnum << "\r\n";
-	out << "   vnum : имя : размер группы = кол-во убийств (n3=100 моба убили 100 раз втроем)\r\n\r\n";
-
-	for (std::map<int, std::vector<int> >::const_iterator i = mob_stat.begin(),
-		iend = mob_stat.end(); i != iend; ++i)
-	{
-		if (i->first/100 == zone_vnum)
-		{
-			out << i->first << " : " << std::setw(20)
-				<< print_mobstat_name(i->first) << " :";
-			for (int k = 1; k <= MAX_GROUP_SIZE; ++k)
-			{
-				if (i->second[k] > 0)
-				{
-					out << " n" << k << "=" << i->second[k];
-				}
-			}
-			out << "\r\n";
-		}
-	}
-
-	send_to_char(out.str().c_str(), ch);
 }
 
 void print_timer_str(CHAR_DATA *ch)

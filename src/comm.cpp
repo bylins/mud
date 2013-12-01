@@ -73,6 +73,7 @@
 #include "fight.h"
 #include "help.hpp"
 #include "mail.h"
+#include "mob_stat.hpp"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -610,7 +611,7 @@ void init_game(ush_int port)
 	ZoneExpStat::print_log();
 	print_rune_log();
 	//python_off scripting::terminate();
-	SetsDrop::save_mob_stat();
+	mob_stat::save();
 	SetsDrop::save_drop_table();
 	mail::save();
 
@@ -1480,9 +1481,9 @@ inline void heartbeat(const int missed_pulses)
 		print_rune_log();
 	}
 
-	if (!((pulse + 57) % (60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC)))
+	if (!((pulse + 57) % (60 * mob_stat::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
-		SetsDrop::save_mob_stat();
+		mob_stat::save();
 	}
 	if (!((pulse + 52) % (60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{

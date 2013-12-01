@@ -1139,8 +1139,8 @@ enum { DRUNK, FULL, THIRST};
 #define SMALL_BUFSIZE         1024	// Static output buffer size   //
 // Max amount of output that can be buffered //
 #define LARGE_BUFSIZE            (MAX_SOCK_BUF - GARBAGE_SPACE - MAX_PROMPT_LENGTH)
-
-#define HISTORY_SIZE          5	// Keep last 5 commands. //
+// Keep last 5 commands
+const int HISTORY_SIZE = 5;
 #define MAX_STRING_LENGTH     16384
 #define MAX_EXTEND_LENGTH     0xFFFF
 #define MAX_INPUT_LENGTH      256	// Max length per *line* of input //
