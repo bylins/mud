@@ -79,6 +79,7 @@
 #include "parse.hpp"
 #include "reset_stats.hpp"
 #include "mob_stat.hpp"
+#include "obj.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -717,6 +718,9 @@ void boot_world(void)
 
 	log("Renumbering Mob_zone.");
 	renum_mob_zone();
+
+	log("Init system_obj rnums.");
+	system_obj::init();
 }
 
 //MZ.load

@@ -17,6 +17,7 @@
 #include "modify.h"
 #include "house.h"
 #include "parse.hpp"
+#include "obj.hpp"
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
@@ -368,12 +369,32 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 
 
 	// transfer gold
-	if (ch->get_gold() > 0)  	// following 'if' clause added to fix gold duplication loophole
+	// following 'if' clause added to fix gold duplication loophole
+	if (ch->get_gold() > 0)
 	{
-		if (IS_NPC(ch) || (!IS_NPC(ch) && ch->desc))
+		if (IS_NPC(ch))
 		{
 			money = create_money(ch->get_gold());
 			obj_to_obj(money, corpse);
+		}
+		else
+		{
+			const int amount = ch->get_gold();
+			money = create_money(amount);
+			OBJ_DATA *purse = 0;
+			if (amount >= 100)
+			{
+				purse = system_obj::create_purse(ch, amount);
+				if (purse)
+				{
+					obj_to_obj(money, purse);
+					obj_to_obj(purse, corpse);
+				}
+			}
+			if (!purse)
+			{
+				obj_to_obj(money, corpse);
+			}
 		}
 		ch->set_gold(0);
 	}

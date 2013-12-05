@@ -13,8 +13,10 @@
 #include "char.hpp"
 #include "db.h"
 #include "constants.h"
+#include "handler.h"
 
 extern void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
+extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 
 id_to_set_info_map obj_data::set_table;
 
@@ -803,3 +805,104 @@ std::string AcquiredAffects::print_to_file() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+namespace system_obj
+{
+
+/// кошелек для кун с игрока
+const int PURSE_VNUM = 1924;
+int PURSE_RNUM = -1;
+/// персональное хранилище
+const int PERS_CHEST_VNUM = 331;
+int PERS_CHEST_RNUM = -1;
+
+/// при старте сразу после лоада зон
+void init()
+{
+	PURSE_RNUM = real_object(PURSE_VNUM);
+	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
+}
+
+/// при добавлении предметов через олц (renumber_obj_rnum)
+void renumber(int rnum)
+{
+	if (PURSE_RNUM >= rnum)
+	{
+		++PURSE_RNUM;
+	}
+	if (PERS_CHEST_RNUM >= rnum)
+	{
+		++PERS_CHEST_RNUM;
+	}
+}
+
+OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)
+{
+	OBJ_DATA *obj = read_object(PURSE_RNUM, REAL);
+	if (!obj)
+	{
+		return obj;
+	}
+
+	obj->aliases = str_dup("тугой кошелек");
+	obj->short_description = str_dup("тугой кошелек");
+	obj->description = str_dup(
+		"Кем-то оброненный тугой кошелек лежит здесь.");
+	GET_OBJ_PNAME(obj, 0) = str_dup("тугой кошелек");
+	GET_OBJ_PNAME(obj, 1) = str_dup("тугого кошелька");
+	GET_OBJ_PNAME(obj, 2) = str_dup("тугому кошельку");
+	GET_OBJ_PNAME(obj, 3) = str_dup("тугой кошелек");
+	GET_OBJ_PNAME(obj, 4) = str_dup("тугим кошельком");
+	GET_OBJ_PNAME(obj, 5) = str_dup("тугом кошельке");
+
+	char buf_[MAX_INPUT_LENGTH];
+	snprintf(buf_, sizeof(buf_),
+		"--------------------------------------------------\r\n"
+		"Владелец: %s\r\n"
+		"В случае потери просьба вернуть за вознаграждение.\r\n"
+		"--------------------------------------------------\r\n"
+		, ch->get_name());
+	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
+	obj->ex_description->keyword = str_dup(obj->PNames[0]);
+	obj->ex_description->description = str_dup(buf_);
+	obj->ex_description->next = 0;
+
+	GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
+	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
+	GET_OBJ_VAL(obj, 0) = 0;
+	// CLOSEABLE + CLOSED
+	GET_OBJ_VAL(obj, 1) = 5;
+	GET_OBJ_VAL(obj, 2) = -1;
+	GET_OBJ_VAL(obj, 3) = ch->get_uid();
+
+	obj->set_rent(0);
+	obj->set_rent_eq(0);
+	// чтобы скавенж мобов не трогать
+	obj->set_cost(2);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODONATE), ITEM_NODONATE);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
+
+	return obj;
+}
+
+bool is_purse(OBJ_DATA *obj)
+{
+	return GET_OBJ_RNUM(obj) == PURSE_RNUM;
+}
+
+/// вываливаем и пуржим кошелек при попытке открыть или при взятии хозяином
+void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
+{
+/*
+	send_to_char(ch,
+		"Радостно рванув замочек %s вы безвозвратно\r\n"
+		"его испортили. Остается только вывалить все содержимое.\r\n",
+		GET_OBJ_PNAME(obj, 1));
+*/
+	char buf_[MAX_INPUT_LENGTH];
+	snprintf(buf_, sizeof(buf_), "all");
+	get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
+	extract_obj(obj);
+}
+
+} // namespace system_obj

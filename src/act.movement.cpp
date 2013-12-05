@@ -1211,8 +1211,19 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 			return;
 		OPEN_DOOR(ch->in_room, obj, door);
 		if (back)
+		{
 			OPEN_DOOR(other_room, obj, rev_dir[door]);
-		send_to_char(OK, ch);
+		}
+		// вываливание и пурж кошелька
+		if (obj && system_obj::is_purse(obj))
+		{
+			system_obj::process_open_purse(ch, obj);
+			return;
+		}
+		else
+		{
+			send_to_char(OK, ch);
+		}
 		break;
 
 	case SCMD_UNLOCK:

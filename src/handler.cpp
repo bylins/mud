@@ -1396,7 +1396,17 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 	int may_carry = TRUE;
 	if (object && ch)
 	{
+		// авто-открывание, вываливание и пурж кошелька хозяину
+		if (system_obj::is_purse(object)
+			&& GET_OBJ_VAL(object, 3) == ch->get_uid())
+		{
+			REMOVE_BIT(GET_OBJ_VAL(object, 1), CONT_CLOSED);
+			system_obj::process_open_purse(ch, object);
+			return;
+		}
+
 		restore_object(object, ch);
+
 		if (invalid_anti_class(ch, object) || invalid_unique(ch, object) || NamedStuff::check_named(ch, object, 0))
 			may_carry = FALSE;
 

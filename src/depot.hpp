@@ -14,9 +14,6 @@
 namespace Depot
 {
 
-extern const int PERS_CHEST_VNUM;
-extern int PERS_CHEST_RNUM;
-
 void init_depot();
 void load_chests();
 void save_timedata();

@@ -27,6 +27,7 @@
 #include "room.hpp"
 #include "features.hpp"
 #include "house.h"
+#include "obj.hpp"
 
 extern SPECIAL(bank);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -36,10 +37,6 @@ extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
 namespace Depot
 {
 
-// внум персонального сундука
-const int PERS_CHEST_VNUM = 331;
-// рнум (пересчитываются при необходимости в renumber_obj_rnum)
-int PERS_CHEST_RNUM = -1;
 // максимальное кол-во шмоток в персональном хранилище (волхвам * 2)
 const unsigned int MAX_PERS_SLOTS = 25;
 
@@ -408,7 +405,6 @@ void init_depot()
 	depot_log("init_depot start");
 
 	init_purged_list();
-	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
 
 	const char *depot_file = LIB_DEPOT"depot.db";
 	std::ifstream file(depot_file);
@@ -524,7 +520,7 @@ void load_chests()
 	{
 		if (ch->nr > 0 && ch->nr <= top_of_mobt && mob_index[ch->nr].func == bank)
 		{
-			OBJ_DATA *pers_chest = read_object(PERS_CHEST_VNUM, VIRTUAL);
+			OBJ_DATA *pers_chest = read_object(system_obj::PERS_CHEST_RNUM, REAL);
 			if (!pers_chest) return;
 			obj_to_room(pers_chest, ch->in_room);
 		}
@@ -816,10 +812,15 @@ void CharNode::reset()
 */
 bool is_depot(OBJ_DATA *obj)
 {
-	if (PERS_CHEST_RNUM < 0 || obj->item_number != PERS_CHEST_RNUM)
+	if (system_obj::PERS_CHEST_RNUM < 0
+		|| obj->item_number != system_obj::PERS_CHEST_RNUM)
+	{
 		return false;
+	}
 	else
+	{
 		return true;
+	}
 }
 
 // * Распечатка отдельного предмета при осмотре хранилища.

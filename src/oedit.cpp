@@ -30,6 +30,7 @@
 #include "shop_ext.hpp"
 #include "constants.h"
 #include "sets_drop.hpp"
+#include "obj.hpp"
 
 //------------------------------------------------------------------------
 
@@ -256,9 +257,6 @@ void renumber_obj_rnum(int rnum)
 	{
 		if (GET_OBJ_RNUM(obj) >= rnum)
 		{
-			// пересчет персональных хранилищ
-			if (GET_OBJ_RNUM(obj) == Depot::PERS_CHEST_RNUM)
-				Depot::PERS_CHEST_RNUM++;
 			GET_OBJ_RNUM(obj)++;
 		}
 	}
@@ -268,6 +266,7 @@ void renumber_obj_rnum(int rnum)
 	GlobalDrop::renumber_obj_rnum(rnum);
 	ShopExt::renumber_obj_rnum(rnum);
 	SetsDrop::renumber_obj_rnum(rnum);
+	system_obj::renumber(rnum);
 }
 
 // * Обновление данных у конкретной шмотки (для update_online_objects).

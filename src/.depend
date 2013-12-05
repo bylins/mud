@@ -12,7 +12,7 @@ act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
  description.h privilege.hpp depot.hpp glory.hpp random.hpp \
  char_player.hpp quested.hpp mobmax.hpp dps.hpp map.hpp parcel.hpp \
  liquid.hpp modify.h room.hpp glory_const.hpp player_races.hpp corpse.hpp \
- sets_drop.hpp help.hpp ext_money.hpp
+ sets_drop.hpp help.hpp ext_money.hpp mob_stat.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h handler.h db.h \
  spells.h skills.h constants.h dg_scripts.h house.h house_exp.hpp \
@@ -416,7 +416,7 @@ obj.spell.o: obj.spell.cpp conf.h sysdep.h structs.h spells.h utils.h \
 obj.o: obj.cpp obj.hpp conf.h sysdep.h structs.h utils.h features.hpp \
  pugixml.hpp pugiconfig.hpp pk.h celebrates.hpp cache.hpp screen.h comm.h \
  char.hpp player_i.hpp reset_stats.hpp boards.h db.h interpreter.h \
- morph.hpp constants.h
+ morph.hpp constants.h handler.h
 room.o: room.cpp room.hpp conf.h sysdep.h structs.h
 spam.o: spam.cpp spam.hpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp reset_stats.hpp \

@@ -469,4 +469,20 @@ bool is_mob_item(OBJ_DATA *obj);
 
 std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch);
 
+namespace system_obj
+{
+
+/// кошелек для кун с игрока
+extern int PURSE_RNUM;
+/// персональное хранилище
+extern int PERS_CHEST_RNUM;
+
+void init();
+void renumber(int rnum);
+OBJ_DATA* create_purse(CHAR_DATA *ch, int gold);
+bool is_purse(OBJ_DATA *obj);
+void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj);
+
+} // namespace system_obj
+
 #endif // OBJ_HPP_INCLUDED

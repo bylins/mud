@@ -1571,42 +1571,42 @@ int npc_track(CHAR_DATA * ch)
 	return (door);
 }
 
-int item_nouse(OBJ_DATA * obj)
+bool item_nouse(OBJ_DATA * obj)
 {
 	switch (GET_OBJ_TYPE(obj))
 	{
 	case ITEM_LIGHT:
 		if (GET_OBJ_VAL(obj, 2) == 0)
-			return (TRUE);
+			return true;
 		break;
 	case ITEM_SCROLL:
 	case ITEM_POTION:
 		if (!GET_OBJ_VAL(obj, 1) && !GET_OBJ_VAL(obj, 2) && !GET_OBJ_VAL(obj, 3))
-			return (TRUE);
+			return true;
 		break;
 	case ITEM_STAFF:
 	case ITEM_WAND:
 		if (!GET_OBJ_VAL(obj, 2))
-			return (TRUE);
+			return true;
+		break;
+	case ITEM_CONTAINER:
+		if (!system_obj::is_purse(obj))
+			return true;
 		break;
 	case ITEM_OTHER:
 	case ITEM_TRASH:
 	case ITEM_TRAP:
-	case ITEM_CONTAINER:
 	case ITEM_NOTE:
 	case ITEM_DRINKCON:
 	case ITEM_FOOD:
 	case ITEM_PEN:
 	case ITEM_BOAT:
 	case ITEM_FOUNTAIN:
-		return (TRUE);
-		break;
 	case ITEM_MING:
-		return (TRUE);
+		return true;
 		break;
-
 	}
-	return (FALSE);
+	return false;
 }
 
 void npc_dropunuse(CHAR_DATA * ch)
@@ -1650,7 +1650,8 @@ int npc_scavenge(CHAR_DATA * ch)
 			{
 				continue;
 			}
-			if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
+			if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER
+				&& !system_obj::is_purse(obj))
 			{
 				if (IS_CORPSE(obj))
 					continue;
@@ -1678,13 +1679,12 @@ int npc_scavenge(CHAR_DATA * ch)
 						max = GET_OBJ_COST(cobj);
 					}
 			}
-			else
-				if (!IS_CORPSE(obj) &&
-						CAN_GET_OBJ(ch, obj) && GET_OBJ_COST(obj) > max && !item_nouse(obj))
-				{
-					best_obj = obj;
-					max = GET_OBJ_COST(obj);
-				}
+			else if (!IS_CORPSE(obj) &&
+				CAN_GET_OBJ(ch, obj) && GET_OBJ_COST(obj) > max && !item_nouse(obj))
+			{
+				best_obj = obj;
+				max = GET_OBJ_COST(obj);
+			}
 		}
 		if (best_obj != NULL)
 		{
@@ -1735,14 +1735,17 @@ int npc_loot(CHAR_DATA * ch)
 	if (world[ch->in_room]->contents && number(0, GET_REAL_INT(ch)) > 10)
 	{
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content)
+		{
 			if (CAN_SEE_OBJ(ch, obj) && IS_CORPSE(obj))
 			{
 				// Сначала лутим то, что не в контейнерах
 				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot)
 				{
 					next_loot = loot_obj->next_content;
-					if (GET_OBJ_TYPE(loot_obj) != ITEM_CONTAINER &&
-							CAN_GET_OBJ(ch, loot_obj) && !item_nouse(loot_obj))
+					if ((GET_OBJ_TYPE(loot_obj) != ITEM_CONTAINER
+							|| system_obj::is_purse(loot_obj))
+						&& CAN_GET_OBJ(ch, loot_obj)
+						&& !item_nouse(loot_obj))
 					{
 						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
 						act(buf, FALSE, ch, loot_obj, 0, TO_ROOM);
@@ -1766,8 +1769,11 @@ int npc_loot(CHAR_DATA * ch)
 					if (GET_OBJ_TYPE(loot_obj) == ITEM_CONTAINER)
 					{
 						if (IS_CORPSE(loot_obj)
-								|| OBJVAL_FLAGGED(loot_obj, CONT_LOCKED))
+							|| OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
+							|| system_obj::is_purse(loot_obj))
+						{
 							continue;
+						}
 						for (cobj = loot_obj->contains; cobj; cobj = cnext_obj)
 						{
 							cnext_obj = cobj->next_content;
@@ -1797,8 +1803,11 @@ int npc_loot(CHAR_DATA * ch)
 					if (GET_OBJ_TYPE(loot_obj) == ITEM_CONTAINER)
 					{
 						if (IS_CORPSE(loot_obj)
-								|| !OBJVAL_FLAGGED(loot_obj, CONT_LOCKED))
+							|| !OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
+							|| system_obj::is_purse(loot_obj))
+						{
 							continue;
+						}
 						// Есть ключ?
 						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
 								has_key(ch, GET_OBJ_VAL(loot_obj, 2)))
@@ -1835,6 +1844,7 @@ int npc_loot(CHAR_DATA * ch)
 					}
 				}
 			}
+		}
 	}
 	return (max);
 }
