@@ -3183,13 +3183,10 @@ void print_do_score_all(CHAR_DATA *ch)
 				(string(desc_count(glory, WHAT_POINT)) + string(" постоянной славы.")).substr(0, 61).c_str(),
 				CCCYN(ch, C_NRM));
 
-	if (CLAN(ch))
+	if (GET_GOD_FLAG(ch, GF_REMORT) && CLAN(ch))
 	{
-		int value = CLAN(ch)->GetMemberExpPersent(ch);
-		if (value > 0)
-		{
-			sprintf(buf + strlen(buf), " || Вы отдаете своей дружине %3d%% опыта                                             ||\r\n", value);
-		}
+		sprintf(buf + strlen(buf),
+			" || Вы самоотверженно отдаете весь получаемый опыт своей дружине.                   ||\r\n");
 	}
 /*
 	////////////////////////////////////////////////////////////////////////////

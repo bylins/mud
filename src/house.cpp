@@ -152,10 +152,12 @@ bool Clan::InEnemyZone(CHAR_DATA * ch)
 }
 
 Clan::Clan()
-		: guard(0), builtOn(time(0)), bankBuffer(0), entranceMode(0), bank(2000), exp(0), clan_exp(0),
-		exp_buf(0), clan_level(0), rent(0), out_rent(0), chest_room(0), storehouse(1), exp_info(1),
-		test_clan(0), ingr_chest_room_rnum_(-1),
-		chest_objcount(0), chest_discount(0), chest_weight(0), ingr_chest_objcount_(0)
+	: guard(0), builtOn(time(0)), bankBuffer(0), entranceMode(0), bank(2000),
+	exp(0), clan_exp(0), exp_buf(0), clan_level(0), rent(0), out_rent(0),
+	chest_room(0), storehouse(1), exp_info(1), test_clan(0),
+	ingr_chest_room_rnum_(-1), gold_tax_pct_(0),
+	chest_objcount(0), chest_discount(0), chest_weight(0),
+	ingr_chest_objcount_(0)
 {
 
 }
@@ -430,6 +432,16 @@ void Clan::ClanLoad()
 					break;
 				}
 			}
+			else if (buffer == "GoldTax:")
+			{
+				file >> tempClan->gold_tax_pct_;
+				if (tempClan->gold_tax_pct_ > MAX_GOLD_TAX_PCT)
+				{
+					log("Clan has invalid tax (%u), remove from list (%s).",
+						tempClan->gold_tax_pct_, filename.c_str());
+					break;
+				}
+			}
 			else if (buffer == "Site:")
 			{
 				file >> tempClan->web_url_;
@@ -449,7 +461,7 @@ void Clan::ClanLoad()
 				long unique = 0;
 				long long money = 0;
 				long long exp = 0;
-				int exp_persent = 0;
+				int exp_persent = 0; // заглушка
 				long long clan_exp = 0;
 
 				if (!(file >> unique >> money >> exp >> exp_persent >> clan_exp))
@@ -469,7 +481,6 @@ void Clan::ClanLoad()
 				tempMember->rank_num = 0;
 				tempMember->money = money;
 				tempMember->exp = exp;
-				tempMember->exp_persent = exp_persent;
 				tempMember->clan_exp = clan_exp;
 				tempClan->members[unique] = tempMember;
 				tempClan->owner = tempMember->name;
@@ -482,7 +493,7 @@ void Clan::ClanLoad()
 				unsigned rank = 0;
 				long long money = 0;
 				long long exp = 0;
-				int exp_persent = 0;
+				int exp_persent = 0; // заглушка
 				long long clan_exp = 0;
 
 				std::getline(file, buffer, '~');
@@ -510,7 +521,6 @@ void Clan::ClanLoad()
 					tempMember->rank_num = rank;
 					tempMember->money = money;
 					tempMember->exp = exp;
-					tempMember->exp_persent = exp_persent;
 					tempMember->clan_exp = clan_exp;
 					tempClan->members[unique] = tempMember;
 				}
@@ -731,7 +741,8 @@ void Clan::save_clan_file(const std::string &filename) const
 		<< "ExpBuf: " << exp_buf << "\n"
 		<< "StoredExp: " << clan_exp << "\n"
 		<< "ClanLevel: " << clan_level << "\n"
-		<< "Bank: " << bank << "\n";
+		<< "Bank: " << bank << "\n"
+		<< "GoldTax: " << gold_tax_pct_ << "\n";
 
 	if (!web_url_.empty())
 	{
@@ -758,7 +769,7 @@ void Clan::save_clan_file(const std::string &filename) const
 		if (it->second->rank_num == 0)
 		{
 			file << it->first << " " << it->second->money
-				<< " " << it->second->exp << " " << it->second->exp_persent
+				<< " " << it->second->exp << " " << 0
 				<< " " << it->second->clan_exp << "\n";
 			break;
 		}
@@ -770,8 +781,8 @@ void Clan::save_clan_file(const std::string &filename) const
 		if (it->second->rank_num != 0)
 		{
 			file << " " << it->first << " " << it->second->rank_num << " "
-				<< it->second->money  << " " << it->second->exp << " "
-				<< it->second->exp_persent << " " << it->second->clan_exp << "\n";
+				<< it->second->money  << " " << it->second->exp << " " << 0
+				<< " " << it->second->clan_exp << "\n";
 		}
 	}
 	file << "~\n";
@@ -950,7 +961,8 @@ const char *HOUSE_FORMAT[] =
 	"  брать вещи из хранилища\r\n",
 	"  казна (снимать)\r\n",
 	"  клан покинуть (выход из дружины)\r\n",
-	"  клан сообщение (написание сообщения дружины)\r\n"
+	"  клан сообщение (написание сообщения дружины)\r\n",
+	"  клан налог <процент отдаваемых кун>\r\n"
 };
 
 // обработка клановых привилегий (команда house)
@@ -1001,8 +1013,8 @@ ACMD(DoHouse)
 		CLAN(ch)->HouseStat(ch, buffer);
 	else if (CompareParam(buffer2, "покинуть", 1) && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_EXIT])
 		CLAN(ch)->HouseLeave(ch);
-	else if (CompareParam(buffer2, "налог"))
-		CLAN(ch)->TaxManage(ch, buffer);
+	else if (CompareParam(buffer2, "налог") && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_TAX])
+		tax_manage(ch, buffer);
 	else if (CompareParam(buffer2, "сообщение")  && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_MOD])
 	{
 		prepare_write_mod(ch, buffer);
@@ -1032,7 +1044,6 @@ ACMD(DoHouse)
 			buffer += "  клан воевода (имя)\r\n";
 			buffer += "  клан сайт (адрес сайта вашей дружины для 'справка сайтыдружин')\r\n";
 		}
-		buffer += "  клан налог (процент отдаваемого опыта)\r\n";
 		if (CLAN(ch)->storehouse)
 			buffer += "  хранилище <фильтры>\r\n";
 		buffer += "  клан статистика <!опыт/!заработанным/!налог/!последнему/!имя>";
@@ -1083,7 +1094,9 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 	{
 		buffer << "  " << (*it) << ":";
 		for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+		{
 			if (this->privileges[num][i])
+			{
 				switch (i)
 				{
 				case MAY_CLAN_INFO:
@@ -1125,7 +1138,12 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 				case MAY_CLAN_MOD:
 					buffer << " сообщение дружины";
 					break;
+				case MAY_CLAN_TAX:
+					buffer << " налог";
+					break;
 				}
+			}
+		}
 		buffer << "\r\n";
 	}
 	//инфа о экспе замка левеле замка, рейтинге замка и плюшках
@@ -1155,7 +1173,7 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 		<< " (" << ingr_cost << " " << desc_count(ingr_cost, WHAT_MONEYa) << " в день).\r\n\r\n"
 		<< "Состояние казны: " << this->bank << " "
 		<< desc_count(this->bank, WHAT_MONEYa) << ".\r\n"
-		<< "Налог: " << options_tax << " "
+		<< "Расходы на инфраструктуру замка: " << options_tax << " "
 		<< desc_count(options_tax, WHAT_MONEYa)
 		<< " в день, Общие расходы: " << total_tax << " "
 		<< desc_count(total_tax, WHAT_MONEYa) << " в день.\r\n";
@@ -1170,6 +1188,8 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 			<< bank/total_tax << " "
 			<< desc_count(bank/total_tax, WHAT_DAY) << ".\r\n";
 	}
+	buffer << "Налог для ратников дружины: " << get_gold_tax_pct() << "%\r\n";
+
 	send_to_char(buffer.str(), ch);
 	exp_history.show(ch);
 }
@@ -3075,41 +3095,6 @@ void Clan::ChestUpdate()
 	}
 }
 
-//изменение налога на свой опыт
-void Clan::TaxManage(CHAR_DATA * ch, const std::string& arg)
-{
-	if (IS_NPC(ch) || !CLAN(ch))
-		return;
-	if (GET_LEVEL(ch) >= LVL_IMMORT)
-	{
-		send_to_char("Нефик читить.\r\n", ch);
-		return;
-	}
-
-	std::string buffer = arg, buffer2;
-	GetOneParam(buffer, buffer2);
-	long value = atol(buffer2.c_str());
-
-	if (value < 0 || value > 100)
-	{
-		send_to_char("Какой налог вы хотите установить? Пределы от 0 до 100.\r\n", ch);
-		return;
-	}
-	else
-	{
-		if (value == 0)
-			send_to_char("Дружине - ни капли! Ну и жадина же вы.\r\n", ch);
-		else if (value < 100)
-			send_to_char(ch, "Теперь %d%% вашего опыта идут на благоустройство замка.\r\n"
-						 "Напоминаем, что данный опыт не учитывается в топе дружин и пока вообще ничего не дает. Ж)\r\n", value);
-		else
-			send_to_char(ch, "Вы самоотверженно отдаете весь получаемый опыт своей дружине.\r\n"
-						 "Напоминаем, что данный опыт не учитывается в топе дружин и пока вообще ничего не дает. Ж)\r\n");
-
-		CLAN_MEMBER(ch)->exp_persent = value;
-	}
-}
-
 // * Запись сообщения дружины в файл и поле клана.
 void Clan::write_mod(const std::string &arg)
 {
@@ -3755,7 +3740,16 @@ void Clan::PrivilegeMenu(DESCRIPTOR_DATA * d, unsigned num)
 					<< " написание сообщения дружины\r\n";
 			}
 			break;
-		}
+		case MAY_CLAN_TAX:
+			if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][MAY_CLAN_TAX])
+			{
+				buffer << CCGRN(d->character, C_NRM) << std::setw(2) << ++count
+					<< CCNRM(d->character, C_NRM) << ") "
+					<< (d->clan_olc->privileges[num][MAY_CLAN_TAX] ? "[x]" : "[ ]")
+					<< " установка налога для ратников\r\n";
+			}
+			break;
+		} // case
 	}
 	buffer << CCGRN(d->character, C_NRM) << " В(Q)" << CCNRM(d->character, C_NRM)
 	<< ") Выход\r\n" << "Ваш выбор:";
@@ -3909,7 +3903,16 @@ void Clan::AllMenu(DESCRIPTOR_DATA * d, unsigned flag)
 					<< " написание сообщения дружины\r\n";
 			}
 			break;
-		}
+		case MAY_CLAN_TAX:
+			if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][MAY_CLAN_TAX])
+			{
+				buffer << CCGRN(d->character, C_NRM) << std::setw(2) << ++count
+					<< CCNRM(d->character, C_NRM) << ") "
+					<< (d->clan_olc->all_ranks[MAY_CLAN_TAX] ? "[x]" : "[ ]")
+					<< " установка налога для ратников\r\n";
+			}
+			break;
+		} // case
 	}
 	buffer << CCGRN(d->character, C_NRM) << " В(Q)" << CCNRM(d->character, C_NRM)
 	<< ") Применить\r\n" << "Ваш выбор:";
@@ -4290,7 +4293,6 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 		SORT_STAT_BY_EXP,
 		SORT_STAT_BY_CLANEXP,
 		SORT_STAT_BY_MONEY,
-		SORT_STAT_BY_EXPPERCENT,
 		SORT_STAT_BY_LOGON,
 		SORT_STAT_BY_NAME
 	};
@@ -4304,7 +4306,7 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 
 	// для избежания путаницы с именами фильтр начинается со знака "!"
 	// формат команды:
-	// клан стат [!опыт/!заработанным/!налог/!последнему] [имя/все]
+	// клан стат [!опыт/!заработанным/!последнему/!имя] [имя/все]
 	sortParameter = SORT_STAT_BY_EXP;
 	if (buffer2.length() > 1)
 	{
@@ -4312,8 +4314,6 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 			sortParameter = SORT_STAT_BY_CLANEXP;
 		else if ((buffer2[0] == '!') && (is_abbrev(buffer2.c_str() + 1, "заработанным")))
 			sortParameter = SORT_STAT_BY_MONEY;
-		else if ((buffer2[0] == '!') && (is_abbrev(buffer2.c_str() + 1, "налог")))
-			sortParameter = SORT_STAT_BY_EXPPERCENT;
 		else if ((buffer2[0] == '!') && (is_abbrev(buffer2.c_str() + 1, "последнему")))
 			sortParameter = SORT_STAT_BY_LOGON;
 		else if ((buffer2[0] == '!') && (is_abbrev(buffer2.c_str() + 1, "имя")))
@@ -4378,9 +4378,6 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 	case SORT_STAT_BY_MONEY:
 		out << "заработанным кунам";
 		break;
-	case SORT_STAT_BY_EXPPERCENT:
-		out << "отдаваемому опыту дружине";
-		break;
 	case SORT_STAT_BY_LOGON:
 		out << "последнему заходу в игру";
 		break;
@@ -4394,8 +4391,8 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 	}
 	out << "):\r\n";
 	out << CCNRM(ch, C_NRM)
-		<< "          Имя | Ур |Проф| Рейт.очков |Опыта дружины|Внесено кун|Налог|Был в игре\r\n"
-		<< "--------------------------------------------------------------------------------\r\n";
+		<< "          Имя | Ур |Проф| Рейт.очков |Опыта дружины|Внесено кун|Был в игре\r\n"
+		<< "--------------------------------------------------------------------------\r\n";
 
 	// multimap ибо могут быть совпадения
 	std::multimap<long long, std::pair<std::string, ClanMemberPtr> > temp_list;
@@ -4414,6 +4411,8 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 			{
 				it->second->level = GET_LEVEL(d->character);
 				it->second->class_abbr = CLASS_ABBR(d->character);
+				it->second->remort = GET_GOD_FLAG(d->character, GF_REMORT) ?
+					true : false;
 			}
 		}
 		else if (name)
@@ -4438,9 +4437,6 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 		case SORT_STAT_BY_MONEY:
 			lSortParam = it->second->money;
 			break;
-		case SORT_STAT_BY_EXPPERCENT:
-			lSortParam = it->second->exp_persent;
-			break;
 		case SORT_STAT_BY_LOGON:
 			lSortParam = get_lastlogon_by_unique(it->first);
 			break;
@@ -4453,26 +4449,26 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 			else lSortParam = pcFirstChar[0]; // или не русская буква или я хз
 			break;
 		}
-
 		// на всякий случай
 		default:
 			lSortParam = it->second->exp;
 		}
 
 		temp_list.insert(std::make_pair(lSortParam,
-										std::make_pair(std::string(timeBuf), it->second)));
+			std::make_pair(std::string(timeBuf), it->second)));
 	}
 
-	for (std::multimap<long long, std::pair<std::string, ClanMemberPtr> >::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it)
+	for (auto it = temp_list.rbegin(); it != temp_list.rend(); ++it)
 	{
-		out << std::setw(13) << it->second.second->name;
-		out << " | " << std::setw(2)
-			<< (it->second.second->level > 0 ? boost::lexical_cast<std::string>(it->second.second->level) : "") << " | "
+		out << std::setw(13) << it->second.second->name << " | "
+			<< std::setw(2) << (it->second.second->level > 0 ?
+				boost::lexical_cast<std::string>(it->second.second->level) :
+				"--")
+			<< (it->second.second->remort ? "+| " : " | ")
 			<< std::setw(2) << it->second.second->class_abbr << " |"
 			<< std::setw(12) << it->second.second->exp << "|"
 			<< std::setw(13) << it->second.second->clan_exp << "| "
-			<< std::setw(9) << it->second.second->money << " | "
-			<< std::setw(3) << it->second.second->exp_persent << " |"
+			<< std::setw(9) << it->second.second->money << " |"
 			<< it->second.first << "\r\n";
 	}
 	page_string(ch->desc, out.str());
@@ -4551,45 +4547,59 @@ bool Clan::ChestShow(OBJ_DATA * obj, CHAR_DATA * ch)
 }
 
 // +/- клан-экспы
-int Clan::SetClanExp(CHAR_DATA *ch, int add)
+void Clan::SetClanExp(CHAR_DATA *ch, int add)
 {
 	// шоб не читили
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
-		return add;
-
-	int toclan, tochar;
-	if (add > 0)
 	{
-		toclan = add * CLAN_MEMBER(ch)->exp_persent / 100;
-		tochar = add - toclan;
-	}
-	else
-	{
-		toclan = add / 5;
-		tochar = 0;
+		return;
 	}
 
-	CLAN_MEMBER(ch)->clan_exp += toclan; // обнулять не надо минуса
+	// обнулять не надо минуса
+	CLAN_MEMBER(ch)->clan_exp += add;
 
-	this->clan_exp += toclan;
+	this->clan_exp += add;
 	if (this->clan_exp < 0)
+	{
 		this->clan_exp = 0;
+	}
 
-	if (this->clan_exp > clan_level_exp[this->clan_level+1] && this->clan_level < MAX_CLANLEVEL)
+	if (this->clan_exp > clan_level_exp[this->clan_level+1]
+		&& this->clan_level < MAX_CLANLEVEL)
 	{
 		this->clan_level++;
 		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
-			if (d->character && STATE(d) == CON_PLAYING && !AFF_FLAGGED(d->character, AFF_DEAFNESS) && CLAN(d->character) && CLAN(d->character)->GetRent() == this->rent)
-				send_to_char(d->character, "%sВаш замок достиг нового, %d уровня! Поздравляем!%s\r\n", CCIRED(d->character, C_NRM), this->clan_level, CCNRM(d->character, C_NRM));
+		{
+			if (d->character && STATE(d) == CON_PLAYING
+				&& !AFF_FLAGGED(d->character, AFF_DEAFNESS)
+				&& CLAN(d->character)
+				&& CLAN(d->character)->GetRent() == this->rent)
+			{
+				send_to_char(d->character,
+					"%sВаш замок достиг нового, %d уровня! Поздравляем!%s\r\n",
+					CCIRED(d->character, C_NRM), this->clan_level,
+					CCNRM(d->character, C_NRM));
+			}
+		}
 	}
-	else if (this->clan_exp < clan_level_exp[this->clan_level] && this->clan_level > 0)
+	else if (this->clan_exp < clan_level_exp[this->clan_level]
+		&& this->clan_level > 0)
 	{
 		this->clan_level--;
 		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
-			if (d->character && STATE(d) == CON_PLAYING && !AFF_FLAGGED(d->character, AFF_DEAFNESS) && CLAN(d->character) && CLAN(d->character)->GetRent() == this->rent)
-				send_to_char(d->character, "%sВаш замок потерял уровень! Теперь он %d уровня! Поздравляем!%s\r\n", CCIRED(d->character, C_NRM), this->clan_level, CCNRM(d->character, C_NRM));
+		{
+			if (d->character && STATE(d) == CON_PLAYING
+				&& !AFF_FLAGGED(d->character, AFF_DEAFNESS)
+				&& CLAN(d->character)
+				&& CLAN(d->character)->GetRent() == this->rent)
+			{
+				send_to_char(d->character,
+					"%sВаш замок потерял уровень! Теперь он %d уровня! Поздравляем!%s\r\n",
+					CCIRED(d->character, C_NRM), this->clan_level,
+					CCNRM(d->character, C_NRM));
+			}
+		}
 	}
-	return tochar;
 }
 
 // добавление экспы для топа кланов и мемберу в зачетку
@@ -4811,11 +4821,6 @@ void Clan::remove_from_clan(long unique)
 			return;
 		}
 	}
-}
-
-int Clan::GetMemberExpPersent(CHAR_DATA *ch)
-{
-	return CLAN(ch) ? CLAN_MEMBER(ch)->exp_persent : 0;
 }
 
 void Clan::init_chest_rnum()
@@ -5391,7 +5396,12 @@ int Clan::ingr_chest_max_objects()
 	return 600 + this->last_exp.get_exp() / 10000000;
 }
 
-void ClanSystem::save_chest_log()
+////////////////////////////////////////////////////////////////////////////////
+
+namespace ClanSystem
+{
+
+void save_chest_log()
 {
 	for (ClanListType::const_iterator i = Clan::ClanList.begin(),
 		iend = Clan::ClanList.end(); i != iend; ++i)
@@ -5399,9 +5409,6 @@ void ClanSystem::save_chest_log()
 		(*i)->chest_log.save((*i)->get_file_abbrev());
 	}
 }
-
-namespace ClanSystem
-{
 
 // * Генерация справки 'сайтыдружин'.
 void init_xhelp()
@@ -5432,7 +5439,64 @@ void init_xhelp()
 	HelpSystem::add("INTERNETLINKS", out.str(), 0, HelpSystem::DYNAMIC);
 }
 
+const char *GOLD_TAX_FORMAT =
+	"Формат команды: клан налог <число от 0 до 25>\r\n"
+	"Устанавливает процент автоматических отчислений в казну дружины.\r\n";
+
+void tax_manage(CHAR_DATA *ch, std::string &buffer)
+{
+	if (!CLAN(ch)) return;
+
+	boost::trim(buffer);
+	if (!buffer.empty())
+	{
+		try
+		{
+			unsigned tax = boost::lexical_cast<unsigned>(buffer);
+			if (tax <= MAX_GOLD_TAX_PCT)
+			{
+				CLAN(ch)->set_gold_tax_pct(tax);
+				send_to_char(ch,
+					"Налог для ратников дружины установлен в %d%%\r\n", tax);
+			}
+			else
+			{
+				send_to_char(GOLD_TAX_FORMAT, ch);
+			}
+		}
+		catch (boost::bad_lexical_cast &)
+		{
+			send_to_char(GOLD_TAX_FORMAT, ch);
+		}
+	}
+	else
+	{
+		send_to_char(ch, "Текущий налог для ратников дружины: %d%%\r\n%s",
+			CLAN(ch)->get_gold_tax_pct(), GOLD_TAX_FORMAT);
+	}
+}
+
+long do_gold_tax(CHAR_DATA *ch, long gold)
+{
+	if (gold >= MIN_GOLD_TAX_AMOUNT
+		&& CLAN(ch) && CLAN(ch)->get_gold_tax_pct() > 0 && CLAN_MEMBER(ch))
+	{
+		long tax = gold  / 100.0 * CLAN(ch)->get_gold_tax_pct();
+
+		send_to_char(ch,
+			"%d %s было немедленно отправлено в казну вашей дружины.\r\n",
+			tax, desc_count(tax, WHAT_MONEYu));
+		// 1 куну за транзакцию
+		CLAN(ch)->set_bank(CLAN(ch)->get_bank() + tax - 1);
+		CLAN_MEMBER(ch)->money += tax - 1;
+		return tax;
+	}
+	return 0;
+}
+
 } // ClanSystem
+
+////////////////////////////////////////////////////////////////////////////////
 
 // клан сайт <текст>
 void Clan::house_web_url(CHAR_DATA *ch, const std::string& buffer)
@@ -5484,3 +5548,22 @@ std::string clan_get_custom_label(OBJ_DATA *obj, ClanPtr clan)
 	}
 }
 
+void Clan::set_gold_tax_pct(unsigned num)
+{
+	gold_tax_pct_ = num;
+}
+
+unsigned Clan::get_gold_tax_pct() const
+{
+	return gold_tax_pct_;
+}
+
+void Clan::set_bank(unsigned num)
+{
+	bank = num;
+}
+
+unsigned Clan::get_bank() const
+{
+	return bank;
+}

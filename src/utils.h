@@ -158,7 +158,7 @@ int mana_gain(CHAR_DATA * ch);
 int hit_gain(CHAR_DATA * ch);
 int move_gain(CHAR_DATA * ch);
 void advance_level(CHAR_DATA * ch);
-void gain_exp(CHAR_DATA * ch, int gain, int clan_exp = 0);
+void gain_exp(CHAR_DATA * ch, int gain);
 void gain_exp_regardless(CHAR_DATA * ch, int gain);
 void gain_condition(CHAR_DATA * ch, unsigned condition, int value);
 void check_idling(CHAR_DATA * ch);

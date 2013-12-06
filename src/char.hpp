@@ -429,7 +429,7 @@ public:
 	long get_bank() const;
 	long get_total_gold() const;
 
-	void add_gold(long gold, bool log = true);
+	void add_gold(long gold, bool log = true, bool clan_tax = false);
 	void add_bank(long gold, bool log = true);
 
 	void set_gold(long num, bool log = true);
@@ -679,6 +679,7 @@ namespace CharacterSystem
 
 void release_purged_list();
 void restore_mobs();
+int do_clan_tax(CHAR_DATA *ch, int gold);
 
 } // namespace CharacterSystem
 

@@ -855,11 +855,13 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 					// за время редактирования могли лишиться привилегии/клана
 					if (d->character
 						&& CLAN(d->character)
-						&& CLAN(d->character)->CheckPrivilege(CLAN_MEMBER(d->character)->rank_num, MAY_CLAN_MOD))
+						&& CLAN(d->character)->CheckPrivilege(
+							CLAN_MEMBER(d->character)->rank_num,
+							ClanSystem::MAY_CLAN_MOD))
 					{
-						std::string head =
-								boost::str(boost::format("Сообщение дружины (автор %1%):\r\n")
-										% GET_NAME(d->character));
+						std::string head = boost::str(boost::format
+							("Сообщение дружины (автор %1%):\r\n")
+							% GET_NAME(d->character));
 						// отступ (копи-паст из CON_WRITEBOARD выше)
 						Boards::format_news_message(body);
 						head += body;

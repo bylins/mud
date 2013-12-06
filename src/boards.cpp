@@ -1019,7 +1019,7 @@ std::bitset<ACCESS_NUM> Board::get_access(CHAR_DATA *ch) const
 		if (CLAN(ch) && CLAN(ch)->GetRent() == this->clanRent)
 		{
 			// воевода
-			if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, MAY_CLAN_NEWS))
+			if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, ClanSystem::MAY_CLAN_NEWS))
 			{
 				access.set();
 			}
@@ -1035,7 +1035,7 @@ std::bitset<ACCESS_NUM> Board::get_access(CHAR_DATA *ch) const
 		// неклановые не видят, клановые могут читать все, писать могут по привилегии, воевода может стирать чужие
 		if (CLAN(ch) && CLAN(ch)->GetRent() == this->clanRent)
 		{
-			if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, MAY_CLAN_NEWS))
+			if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, ClanSystem::MAY_CLAN_NEWS))
 			{
 				access.set();
 			}

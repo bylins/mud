@@ -21,21 +21,45 @@
 #include "house_exp.hpp"
 #include "remember.hpp"
 
-const int MAY_CLAN_INFO = 0;
-const int MAY_CLAN_ADD = 1;
-const int MAY_CLAN_REMOVE = 2;
-const int MAY_CLAN_PRIVILEGES = 3;
-const int MAY_CLAN_CHANNEL = 4;
-const int MAY_CLAN_POLITICS = 5;
-const int MAY_CLAN_NEWS = 6;
-const int MAY_CLAN_PKLIST = 7;
-const int MAY_CLAN_CHEST_PUT = 8;
-const int MAY_CLAN_CHEST_TAKE = 9;
-const int MAY_CLAN_BANK = 10;
-const int MAY_CLAN_EXIT = 11;
-const int MAY_CLAN_MOD = 12;
-const unsigned CLAN_PRIVILEGES_NUM = 13;
-// не забываем про CLAN_PRIVILEGES_NUM
+namespace ClanSystem
+{
+
+enum Privileges: unsigned
+{
+	MAY_CLAN_INFO = 0,
+	MAY_CLAN_ADD,
+	MAY_CLAN_REMOVE,
+	MAY_CLAN_PRIVILEGES,
+	MAY_CLAN_CHANNEL,
+	MAY_CLAN_POLITICS,
+	MAY_CLAN_NEWS,
+	MAY_CLAN_PKLIST,
+	MAY_CLAN_CHEST_PUT,
+	MAY_CLAN_CHEST_TAKE,
+	MAY_CLAN_BANK,
+	MAY_CLAN_EXIT,
+	MAY_CLAN_MOD,
+	MAY_CLAN_TAX,
+	/// всего привилегий
+	CLAN_PRIVILEGES_NUM
+};
+
+const int MAX_GOLD_TAX_PCT = 25;
+const int MIN_GOLD_TAX_AMOUNT = 100;
+
+bool is_ingr_chest(OBJ_DATA *obj);
+void save_ingr_chests();
+bool show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch);
+void save_chest_log();
+// управление клан налогом
+void tax_manage(CHAR_DATA *ch, std::string &buffer);
+// первичная генерация справки сайтов дружин
+void init_xhelp();
+/// высчитывает и снимает клан-налог с gold кун
+/// \return сумму получившегося налога, которую надо снять с чара
+long do_gold_tax(CHAR_DATA *ch, long gold);
+
+} // namespace ClanSystem
 
 #define POLITICS_NEUTRAL  0
 #define POLITICS_WAR      1
@@ -72,21 +96,24 @@ public:
 		rank_num(0),
 		money(0),
 		exp(0),
-		exp_persent(0),
 		clan_exp(0),
-		level(0)
+		level(0),
+		remort(false)
 	{};
 
 	std::string name;   // имя игрока
 	int rank_num;       // номер ранга
 	long long money;    // баланс персонажа по отношению к клановой казне
-	long long exp;      // набранная топ-экспа
-	int exp_persent;    // процент икспы отчисляемый в клан
+	long long exp;      // набраная топ-экспа
 	long long clan_exp; // набранная клан-экспа
+
+/// не сохраняются в клан-файле
 	// уровень для клан стата (те, кто онлайн)
 	int level;
 	// краткое название класса для того же
 	std::string class_abbr;
+	// на праве или нет
+	bool remort;
 };
 
 struct ClanPk
@@ -115,7 +142,7 @@ typedef boost::shared_ptr<ClanMember> ClanMemberPtr;
 typedef std::map<long, ClanMemberPtr> ClanMemberList;
 typedef boost::shared_ptr<ClanPk> ClanPkPtr;
 typedef std::map<long, ClanPkPtr> ClanPkList;
-typedef std::vector<std::bitset<CLAN_PRIVILEGES_NUM> > ClanPrivileges;
+typedef std::vector<std::bitset<ClanSystem::CLAN_PRIVILEGES_NUM> > ClanPrivileges;
 typedef std::map<int, int> ClanPolitics;
 typedef std::vector<ClanStuffName> ClanStuffList;
 
@@ -125,7 +152,7 @@ struct ClanOLC
 	ClanPtr clan;              // клан, который правим
 	ClanPrivileges privileges; // свой список привилегий на случай не сохранения при выходе
 	int rank;                  // редактируемый в данный момент ранг
-	std::bitset<CLAN_PRIVILEGES_NUM> all_ranks; // буфер для удаления/добавления всем рангам
+	std::bitset<ClanSystem::CLAN_PRIVILEGES_NUM> all_ranks; // буфер для удаления/добавления всем рангам
 };
 
 struct ClanInvite
@@ -184,8 +211,7 @@ public:
 	};
 	int GetRent();
 	int GetOutRent();
-	int SetClanExp(CHAR_DATA *ch, int add);  //На входе - икспа с моба - на выходе икспа собсно игроку. за вычетом той что идет в клан
-	int GetMemberExpPersent(CHAR_DATA *ch);
+	void SetClanExp(CHAR_DATA *ch, int add);
 	int GetClanLevel()
 	{
 		return this->clan_level;
@@ -229,6 +255,12 @@ public:
 	void save_chest();
 
 	std::string get_web_url() const { return web_url_; };
+
+	void set_bank(unsigned num);
+	unsigned get_bank() const;
+
+	void set_gold_tax_pct(unsigned num);
+	unsigned get_gold_tax_pct() const;
 
 	friend ACMD(DoHouse);
 	friend ACMD(DoClanChannel);
@@ -284,6 +316,8 @@ private:
 	int ingr_chest_room_rnum_;
 	// адрес сайта дружины для 'справка сайтыдружин'
 	std::string web_url_;
+	// пока общий на всех налог на лут кун
+	unsigned gold_tax_pct_;
 
 	//no save
 	int chest_objcount;
@@ -299,7 +333,6 @@ private:
 	void HouseInfo(CHAR_DATA* ch);
 	void HouseAdd(CHAR_DATA* ch, std::string& buffer);
 	void HouseRemove(CHAR_DATA* ch, std::string& buffer);
-	void TaxManage(CHAR_DATA* ch, const std::string& arg);
 	void ClanAddMember(CHAR_DATA* ch, int rank);
 	void HouseOwner(CHAR_DATA* ch, std::string& buffer);
 	void HouseLeave(CHAR_DATA* ch);
@@ -346,20 +379,6 @@ private:
 
 void SetChestMode(CHAR_DATA *ch, std::string &buffer);
 std::string GetChestMode(CHAR_DATA *ch);
-
-namespace ClanSystem
-{
-
-bool is_ingr_chest(OBJ_DATA *obj);
-void save_ingr_chests();
-bool show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch);
-void save_chest_log();
-
-// первичная генерация справки сайтов дружин
-void init_xhelp();
-
-} // namespace ClanSystem
-
 std::string clan_get_custom_label(OBJ_DATA *obj, ClanPtr clan);
 
 #endif

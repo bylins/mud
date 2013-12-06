@@ -24,6 +24,7 @@
 #include "celebrates.hpp"
 #include "cache.hpp"
 #include "fight.h"
+#include "house.h"
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
@@ -1044,14 +1045,19 @@ long Character::get_total_gold() const
 
 /**
  * Добавление денег на руках, плюсуются только положительные числа.
- * \param need_log здесь и далее - логировать или нет изменения счета
+ * \param need_log здесь и далее - логировать или нет изменения счета (=true)
+ * \param clan_tax - проверять и снимать клан-налог или нет (=false)
  */
-void Character::add_gold(long num, bool need_log)
+void Character::add_gold(long num, bool need_log, bool clan_tax)
 {
 	if (num < 0)
 	{
 		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
 		return;
+	}
+	if (clan_tax)
+	{
+		num -= ClanSystem::do_gold_tax(this, num);
 	}
 	set_gold(get_gold() + num, need_log);
 }
@@ -1138,6 +1144,10 @@ long Character::remove_gold(long num, bool need_log)
 		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
 		return num;
 	}
+	if (num == 0)
+	{
+		return num;
+	}
 
 	long rest = 0;
 	if (get_gold() >= num)
@@ -1159,6 +1169,10 @@ long Character::remove_bank(long num, bool need_log)
 	if (num < 0)
 	{
 		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
+		return num;
+	}
+	if (num == 0)
+	{
 		return num;
 	}
 

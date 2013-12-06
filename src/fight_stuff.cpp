@@ -652,28 +652,18 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	// 4. Последняя проверка
 	exp = MAX(1, exp);
 
-	int clan_exp = 0;
-	if (CLAN(ch))
-	{
-		clan_exp = exp - CLAN(ch)->SetClanExp(ch, exp);
-		exp -= clan_exp;
-		if (clan_exp > 0)
-		{
-			sprintf(buf1, "Вы отдали %d %s опыта вашему замку.\r\n",
-				clan_exp, desc_count(clan_exp, WHAT_POINT));
-			send_to_char(buf1, ch);
-		}
-	}
-
 	if (exp > 1)
 	{
-		sprintf(buf2, "Ваш опыт повысился на %d %s.\r\n", exp, desc_count(exp, WHAT_POINT));
-		send_to_char(buf2, ch);
+		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n",
+			exp, desc_count(exp, WHAT_POINT));
 	}
 	else if (exp == 1)
-		send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
+	{
+		send_to_char(
+			"Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
+	}
 
-	gain_exp(ch, exp, clan_exp);
+	gain_exp(ch, exp);
 	change_alignment(ch, victim);
 	TopPlayer::Refresh(ch);
 }

@@ -685,8 +685,6 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 
 				if (gold > 0)
 				{
-					ch->add_gold(gold);
-					vict->remove_gold(gold);
 					if (gold > 1)
 					{
 						sprintf(buf, "УР-Р-Р-А! Вы таки сперли %d %s.\r\n",
@@ -694,7 +692,11 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 						send_to_char(buf, ch);
 					}
 					else
+					{
 						send_to_char("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);
+					}
+					ch->add_gold(gold, true, true);
+					vict->remove_gold(gold);
 				}
 				else
 					send_to_char("Вы ничего не сумели украсть...\r\n", ch);
@@ -1537,25 +1539,30 @@ ACMD(do_split)
 				GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), share);
 		if (AFF_FLAGGED(k, AFF_GROUP) && IN_ROOM(k) == IN_ROOM(ch) && !IS_NPC(k) && k != ch)
 		{
-			k->add_gold(share);
 			send_to_char(buf, k);
+			k->add_gold(share, true, true);
 		}
 		for (f = k->followers; f; f = f->next)
 		{
 			if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
 					!IS_NPC(f->follower) && IN_ROOM(f->follower) == IN_ROOM(ch) && f->follower != ch)
 			{
-				f->follower->add_gold(share);
 				send_to_char(buf, f->follower);
+				f->follower->add_gold(share, true, true);
 			}
 		}
 		sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
 				amount, desc_count(amount, WHAT_MONEYu), num, share);
 		if (rest)
+		{
 			sprintf(buf + strlen(buf),
-					"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-					rest, desc_count(rest, WHAT_MONEYu));
+				"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
+				rest, desc_count(rest, WHAT_MONEYu));
+		}
 		send_to_char(buf, ch);
+		// клан-налог лутера с той части, которая пошла каждому в группе
+		const long clan_tax = ClanSystem::do_gold_tax(ch, share);
+		ch->remove_gold(clan_tax);
 	}
 	else
 	{
@@ -3016,11 +3023,11 @@ ACMD(do_dig)
 	if (number(1, dig_vars.treasure_chance) == 1)	// копнули клад
 	{
 		int gold = number(40000, 60000);
-		ch->add_gold(gold);
 		send_to_char("Вы нашли клад!\r\n", ch);
 		act("$n выкопал$g клад!", FALSE, ch, 0, 0, TO_ROOM);
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		send_to_char(textbuf, ch);
+		ch->add_gold(gold, true, true);
 		return;
 	}
 

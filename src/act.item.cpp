@@ -47,7 +47,7 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
 
 // local functions
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
-void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj);
+void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont);
 int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj);
 void get_from_room(CHAR_DATA * ch, char *arg, int amount);
 void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount);
@@ -520,9 +520,8 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 }
 
 
-void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj)
+void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 {
-	char local_buf[256];
 	int value = GET_OBJ_VAL(obj, 0);
 
 	if (GET_OBJ_TYPE(obj) != ITEM_MONEY || value <= 0)
@@ -531,14 +530,29 @@ void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj)
 	obj_from_char(obj);
 	extract_obj(obj);
 
-	ch->add_gold(value);
-
 	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	send_to_char(buf, ch);
-	if (IS_AFFECTED(ch, AFF_GROUP) && PRF_FLAGGED(ch, PRF_AUTOSPLIT))
+
+	if (cont && system_obj::is_purse(cont))
 	{
-		sprintf(local_buf, "%ld", (long) value);
+		// лут из кошельков не делится и налогами не облагается
+		return;
+	}
+
+	if (IS_AFFECTED(ch, AFF_GROUP)
+		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT))
+	{
+		// добавляем бабло, пишем в лог, клан-налог снимаем
+		// только по факту деления на группу в do_split()
+		ch->add_gold(value);
+		char local_buf[256];
+		sprintf(local_buf, "%d", value);
 		do_split(ch, local_buf, 0, 0);
+	}
+	else
+	{
+		// добавляем бабло, пишем в лог, снимаем клан-налог
+		ch->add_gold(value, true, true);
 	}
 }
 
@@ -582,7 +596,7 @@ bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont,
 				act("Вы взяли $o3 из $O1.", FALSE, ch, obj, cont, TO_CHAR);
 				act("$n взял$g $o3 из $O1.", TRUE, ch, obj, cont, TO_ROOM | TO_ARENA_LISTEN);
 			}
-			get_check_money(ch, obj);
+			get_check_money(ch, obj, cont);
 		}
 	}
 	return 1;
@@ -674,7 +688,7 @@ int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj)
 				act("Вы подняли $o3.", FALSE, ch, obj, 0, TO_CHAR);
 				act("$n поднял$g $o3.", TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			}
-			get_check_money(ch, obj);
+			get_check_money(ch, obj, 0);
 			return (1);
 		}
 	}
@@ -1293,7 +1307,15 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	{
 		ch->remove_gold(amount);
 	}
-	vict->add_gold(amount);
+	// если денег дает моб - снимаем клан-налог
+	if (IS_NPC(ch) && !IS_CHARMICE(ch))
+	{
+		vict->add_gold(amount, true, true);
+	}
+	else
+	{
+		vict->add_gold(amount);
+	}
 	bribe_mtrigger(vict, ch, amount);
 }
 

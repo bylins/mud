@@ -826,14 +826,15 @@ void init()
 /// при добавлении предметов через олц (renumber_obj_rnum)
 void renumber(int rnum)
 {
-	if (PURSE_RNUM >= rnum)
-	{
+	if (PURSE_RNUM != -1)
 		++PURSE_RNUM;
-	}
-	if (PERS_CHEST_RNUM >= rnum)
-	{
+	else
+		PURSE_RNUM = real_object(PURSE_VNUM);
+
+	if (PERS_CHEST_RNUM != -1)
 		++PERS_CHEST_RNUM;
-	}
+	else
+		PERS_CHEST_RNUM = real_object(PERS_CHEST_RNUM);
 }
 
 OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)

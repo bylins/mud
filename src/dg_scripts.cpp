@@ -2337,20 +2337,34 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "gold"))
 		{
+			const long before = c->get_gold();
 			c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
 			sprintf(str, "%ld", c->get_gold());
+			// клан-налог
+			long diff = c->get_gold() - before;
+			if (CLAN(c))
+			{
+				long tax = ClanSystem::do_gold_tax(c, diff);
+				c->remove_gold(tax);
+			}
 		}
 		else if (!str_cmp(field, "bank"))
 		{
-			long bank_before = c->get_bank();
-
+			long before = c->get_bank();
 			c->set_bank(MAX(0, gm_char_field(c, field, subfield, c->get_bank())));
 			sprintf(str, "%ld", c->get_bank());
-
-			long bank_diff = c->get_bank() - bank_before;
+			// клан-налог
+			long diff = c->get_bank() - before;
+			if (CLAN(c))
+			{
+				long tax = ClanSystem::do_gold_tax(c, diff);
+				c->remove_bank(tax);
+			}
+			// стата для show money
 			if (!IS_NPC(c) && IN_ROOM(c) > 0)
 			{
-				MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone].number, bank_diff);
+				MoneyDropStat::add(
+					zone_table[world[IN_ROOM(c)]->zone].number, diff);
 			}
 		}
 		else if (!str_cmp(field, "exp"))

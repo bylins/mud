@@ -801,7 +801,29 @@ void beat_points_update(int pulse)
 	}
 }
 
-void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
+void update_clan_exp(CHAR_DATA *ch, int gain)
+{
+	if (CLAN(ch) && gain != 0)
+	{
+		// экспа для уровня клана (+ только на праве, - любой, но /5)
+		if (gain < 0 || GET_GOD_FLAG(ch, GF_REMORT))
+		{
+			int tmp = gain > 0 ? gain : gain / 5;
+			CLAN(ch)->SetClanExp(ch, tmp);
+		}
+		// экспа для топа кланов за месяц (учитываются все + и -)
+		CLAN(ch)->last_exp.add_temp(gain);
+		// экспа для топа кланов за все время (учитываются все + и -)
+		CLAN(ch)->AddTopExp(ch, gain);
+		// экспа для авто-очистки кланов (учитываются только +)
+		if (gain > 0)
+		{
+			CLAN(ch)->exp_history.add_exp(gain);
+		}
+	}
+}
+
+void gain_exp(CHAR_DATA * ch, int gain)
 {
 	int is_altered = FALSE;
 	int num_levels = 0;
@@ -865,10 +887,6 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 	{
 		gain = MAX(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
 		ch->set_exp(ch->get_exp() + gain);
-		if (CLAN(ch))
-		{
-			CLAN(ch)->SetClanExp(ch, gain); // клану
-		}
 		while (GET_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch)))
 		{
 			ch->set_level(ch->get_level() - 1);
@@ -900,16 +918,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 		CLR_GOD_FLAG(ch, GF_REMORT);
 	}
 
-	if (CLAN(ch))
-	{
-		long total_exp = gain + clan_exp;
-		CLAN(ch)->last_exp.add_temp(total_exp);
-		CLAN(ch)->AddTopExp(ch, total_exp);
-		if (total_exp > 0)
-		{
-			CLAN(ch)->exp_history.add_exp(total_exp);
-		}
-	}
+	update_clan_exp(ch, gain);
 }
 
 // юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
