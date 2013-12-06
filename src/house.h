@@ -44,7 +44,7 @@ enum Privileges: unsigned
 	CLAN_PRIVILEGES_NUM
 };
 
-const int MAX_GOLD_TAX_PCT = 25;
+const unsigned MAX_GOLD_TAX_PCT = 25;
 const int MIN_GOLD_TAX_AMOUNT = 100;
 
 bool is_ingr_chest(OBJ_DATA *obj);

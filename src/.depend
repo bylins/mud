@@ -362,7 +362,7 @@ char.o: char.cpp char.hpp conf.h sysdep.h structs.h player_i.hpp \
  pugiconfig.hpp db.h interpreter.h morph.hpp comm.h pk.h im.h handler.h \
  privilege.hpp skills.h constants.h char_player.hpp quested.hpp \
  mobmax.hpp remember.hpp dps.hpp map.hpp spells.h room.hpp \
- player_races.hpp celebrates.hpp cache.hpp fight.h
+ player_races.hpp celebrates.hpp cache.hpp fight.h house.h house_exp.hpp
 char_player.o: char_player.cpp conf.h char_player.hpp sysdep.h structs.h \
  quested.hpp mobmax.hpp remember.hpp char.hpp player_i.hpp \
  reset_stats.hpp boards.h utils.h features.hpp obj.hpp pugixml.hpp \
