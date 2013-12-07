@@ -536,7 +536,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	if (cont && system_obj::is_purse(cont))
 	{
 		// лут из кошельков не делится и налогами не облагается
-		ch->add_gold(value, true, true); // но он таки должен начисляться!
+		ch->add_gold(value);
 		return;
 	}
 
