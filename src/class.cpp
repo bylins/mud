@@ -1992,9 +1992,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
 	case CLASS_NECROMANCER:
-		ch->set_skill(SKILL_SATTACK, 10);
-		break;
 	case CLASS_DRUID:
+		ch->set_skill(SKILL_SATTACK, 10);
 		break;
 	case CLASS_CLERIC:
 		ch->set_skill(SKILL_SATTACK, 50);
