@@ -5483,11 +5483,28 @@ long do_gold_tax(CHAR_DATA *ch, long gold)
 		&& CLAN(ch) && CLAN(ch)->get_gold_tax_pct() > 0
 		&& CLAN_MEMBER(ch))
 	{
-		long tax = gold  / 100.0 * CLAN(ch)->get_gold_tax_pct();
-
-		send_to_char(ch,
-			"%d %s было немедленно отправлено в казну вашей дружины.\r\n",
-			tax, desc_count(tax, WHAT_MONEYu));
+		const long tax = (gold * CLAN(ch)->get_gold_tax_pct()) / 100;
+		// TODO: мб вынести как в desc_count для версии с окончаниями?
+		if ((tax % 100 >= 11 && tax % 100 <= 14)
+			|| tax % 10 >= 5
+			|| tax % 10 == 0)
+		{
+			send_to_char(ch,
+				"%d %s было немедленно отправлено в казну вашей дружины.\r\n",
+				tax, desc_count(tax, WHAT_MONEYa));
+		}
+		else if (tax % 10 == 1)
+		{
+			send_to_char(ch,
+				"%d %s была немедленно отправлена в казну вашей дружины.\r\n",
+				tax, desc_count(tax, WHAT_MONEYa));
+		}
+		else
+		{
+			send_to_char(ch,
+				"%d %s были немедленно отправлены в казну вашей дружины.\r\n",
+				tax, desc_count(tax, WHAT_MONEYa));
+		}
 		// 1 куну за транзакцию
 		CLAN(ch)->set_bank(CLAN(ch)->get_bank() + tax - 1);
 		CLAN_MEMBER(ch)->money += tax - 1;
