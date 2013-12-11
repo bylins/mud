@@ -1000,8 +1000,8 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 				// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
 				if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
 				{
-					sprintf(buf, "Вы бросили %d %s на землю.", amount, desc_count(amount, WHAT_MONEYu));
-					send_to_char(buf, ch);
+					send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
+						amount, desc_count(amount, WHAT_MONEYu));
 					sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
 					act(buf, TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				}

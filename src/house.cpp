@@ -5479,7 +5479,9 @@ void tax_manage(CHAR_DATA *ch, std::string &buffer)
 long do_gold_tax(CHAR_DATA *ch, long gold)
 {
 	if (gold >= MIN_GOLD_TAX_AMOUNT
-		&& CLAN(ch) && CLAN(ch)->get_gold_tax_pct() > 0 && CLAN_MEMBER(ch))
+		&& !IS_IMMORTAL(ch)
+		&& CLAN(ch) && CLAN(ch)->get_gold_tax_pct() > 0
+		&& CLAN_MEMBER(ch))
 	{
 		long tax = gold  / 100.0 * CLAN(ch)->get_gold_tax_pct();
 
