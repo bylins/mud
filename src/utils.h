@@ -946,6 +946,7 @@ extern SPECIAL(shop_ext);
 
 #define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && \
                GET_OBJ_VAL((obj), 3) == 1)
+#define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
 #define GET_OBJ_SPEC(obj) ((obj)->item_number >= 0 ? \
    (obj_index[(obj)->item_number].func) : NULL)

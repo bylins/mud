@@ -4788,10 +4788,15 @@ void paste_mob(CHAR_DATA *ch, room_rnum room)
 {
 	if (!IS_NPC(ch) || ch->get_fighting() || GET_POS(ch) < POS_STUNNED)
 		return;
-	if (AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HORSE) || AFF_FLAGGED(ch, AFF_HOLD) || (EXTRACT_TIMER(ch) > 0))
+	if (IS_CHARMICE(ch)
+		|| AFF_FLAGGED(ch, AFF_HORSE)
+		|| AFF_FLAGGED(ch, AFF_HOLD)
+		|| (EXTRACT_TIMER(ch) > 0))
+	{
 		return;
-	if (MOB_FLAGGED(ch, MOB_CORPSE))
-		return;
+	}
+//	if (MOB_FLAGGED(ch, MOB_CORPSE))
+//		return;
 	if (room == NOWHERE)
 		return;
 

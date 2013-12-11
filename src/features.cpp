@@ -1031,19 +1031,15 @@ ACMD(do_spell_capable)
 	AFFECT_DATA af;
 	struct timed_type timed;
 
-	if (IS_NPC(ch) || !can_use_feat(ch, SPELL_CAPABLE_FEAT))
+	if (!IS_IMPL(ch) && (IS_NPC(ch) || !can_use_feat(ch, SPELL_CAPABLE_FEAT)))
 	{
 		send_to_char("Вы не столь могущественны.\r\n", ch);
 		return;
 	}
 
-	if (timed_by_feat(ch, SPELL_CAPABLE_FEAT)
-#ifdef TEST_BUILD
-		&& !IS_IMMORTAL(ch)
-#endif
-	  )
+	if (timed_by_feat(ch, SPELL_CAPABLE_FEAT) && !IS_IMPL(ch))
 	{
-		send_to_char("Не возможно использовать это так часто.\r\n", ch);
+		send_to_char("Невозможно использовать это так часто.\r\n", ch);
 		return;
 	}
 

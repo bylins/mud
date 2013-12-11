@@ -136,7 +136,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 	{
 		obj_from_char(obj);
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
-		if (GET_OBJ_TYPE(obj) == ITEM_MONEY)
+		if (GET_OBJ_TYPE(obj) == ITEM_MONEY && GET_OBJ_VNUM(obj) == -1)
 		{
 			OBJ_DATA *temp, *obj_next;
 			for (temp = cont->contains; temp; temp = obj_next)
@@ -519,6 +519,22 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	return (1);
 }
 
+/// считаем сколько у ch в группе еще игроков (не мобов)
+int other_pc_in_group(CHAR_DATA *ch)
+{
+	int num = 0;
+	CHAR_DATA *k = (ch->master ? ch->master : ch);
+	for (follow_type *f = k->followers; f; f = f->next)
+	{
+		if (AFF_FLAGGED(f->follower, AFF_GROUP)
+			&& !IS_NPC(f->follower)
+			&& IN_ROOM(f->follower) == IN_ROOM(ch))
+		{
+			++num;
+		}
+	}
+	return num;
+}
 
 void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 {
@@ -527,21 +543,13 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	if (GET_OBJ_TYPE(obj) != ITEM_MONEY || value <= 0)
 		return;
 
-	obj_from_char(obj);
-	extract_obj(obj);
-
 	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	send_to_char(buf, ch);
 
-	if (cont && system_obj::is_purse(cont))
-	{
-		// лут из кошельков не делится и налогами не облагается
-		ch->add_gold(value);
-		return;
-	}
-
-	if (IS_AFFECTED(ch, AFF_GROUP)
-		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT))
+	// все, что делится на группу - идет через налог (из кошельков не делится)
+	if (IS_AFFECTED(ch, AFF_GROUP) && other_pc_in_group(ch) > 0
+		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT)
+		&& (!cont || !system_obj::is_purse(cont)))
 	{
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
@@ -550,11 +558,19 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		sprintf(local_buf, "%d", value);
 		do_split(ch, local_buf, 0, 0);
 	}
-	else
+	else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1)
 	{
-		// добавляем бабло, пишем в лог, снимаем клан-налог
+		// лут из трупа моба или из предметов-денег с внумом
+		// (предметы-награды в зонах) - снимаем клан-налог
 		ch->add_gold(value, true, true);
 	}
+	else
+	{
+		ch->add_gold(value);
+	}
+
+	obj_from_char(obj);
+	extract_obj(obj);
 }
 
 
