@@ -327,7 +327,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "%s%s разрешил$G вам издавать звуки.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
-			sprintf(buf2, "$n2 нарушил обет молчания.");
+			sprintf(buf2, "$n нарушил$g обет молчания.");
 
 			break;
 
@@ -539,7 +539,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "%s%s запретил$G вам издавать звуки.%s",
 					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
-			sprintf(buf2, "$n дал обет молчания.");
+			sprintf(buf2, "$n дал$g обет молчания.");
 			break;
 		case SCMD_HELL:
 			SET_BIT(PLR_FLAGS(vict, PLR_HELLED), PLR_HELLED);

@@ -1248,6 +1248,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				set_board_date(Boards::MISPRINT_BOARD, llnum);
 			else if (!strcmp(tag, "Br15"))
 				set_board_date(Boards::SUGGEST_BOARD, llnum);
+			else if (!strcmp(tag, "Br16"))
+				set_board_date(Boards::CODER_BOARD, llnum);
 
 			else if (!strcmp(tag, "Brth"))
 				this->player_data.time.birth = lnum;

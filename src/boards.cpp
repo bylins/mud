@@ -132,9 +132,9 @@ void dg_script_message()
 	}
 }
 
-#ifdef HAVE_ICONV
 std::string iconv_convert(const char *from, const char *to, std::string text)
 {
+#ifdef HAVE_ICONV
 	iconv_t cnv = iconv_open(to, from);
 	if (cnv == (iconv_t) - 1)
 	{
@@ -162,9 +162,9 @@ std::string iconv_convert(const char *from, const char *to, std::string text)
 
 	free(outbuf);
 	iconv_close(cnv);
+#endif
 	return text;
 }
-#endif
 
 MessagePtr create_changelog_msg(std::string &author, std::string &desc,
 	time_t parsed_time)
@@ -181,11 +181,7 @@ MessagePtr create_changelog_msg(std::string &author, std::string &desc,
 	boost::trim(author);
 	message->author = author;
 	boost::trim(desc);
-#ifdef HAVE_ICONV
 	message->text = iconv_convert("UTF-8", "KOI8-R", desc) + "\r\n";
-#else
-	message->text = desc + "\r\n";
-#endif
 	// из текста первая строка в заголовок
 	std::string subj(message->text.begin(),
 		std::find(message->text.begin(), message->text.end(), '\n'));
