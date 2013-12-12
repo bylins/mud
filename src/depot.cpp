@@ -39,6 +39,7 @@ namespace Depot
 
 // максимальное кол-во шмоток в персональном хранилище (волхвам * 2)
 const unsigned int MAX_PERS_SLOTS = 25;
+const unsigned int MAX_PERS_INGR_SLOTS = 50;
 
 // * Для оффлайнового списка шмоток в хранилище.
 class OfflineNode
@@ -824,8 +825,12 @@ bool is_depot(OBJ_DATA *obj)
 }
 
 // * Распечатка отдельного предмета при осмотре хранилища.
-void print_obj(std::stringstream &out, OBJ_DATA *obj, int count, CHAR_DATA *ch)
+void print_obj(std::stringstream &i_out, std::stringstream &s_out,
+	OBJ_DATA *obj, int count, CHAR_DATA *ch)
 {
+	std::stringstream &out = (GET_OBJ_TYPE(obj) == ITEM_MING
+		|| GET_OBJ_TYPE(obj) == ITEM_MATERIAL) ? i_out : s_out;
+
 	out << obj->short_description;
 	out << char_get_custom_label(obj, ch);
 	if (count > 1)
@@ -846,57 +851,86 @@ unsigned int get_max_pers_slots(CHAR_DATA *ch)
 /**
 * Для читаемости show_depot - вывод списка предметов персонажу.
 * Сортировка по алиасам и группировка одинаковых предметов.
-* В данном случае ch и money идут раздельно, чтобы можно было сразу выводить и чужие хранилища.
 */
-std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string &chest_name, int money)
+std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 {
+	cont.sort(boost::bind(std::less<char *>(),
+		boost::bind(&obj_data::aliases, _1),
+		boost::bind(&obj_data::aliases, _2)));
+
+	// чтобы сначала вывести шмотки, а потом ингры
+	std::stringstream s_out, i_out;
 	int rent_per_day = 0;
-	std::stringstream out;
-
-	cont.sort(
-		boost::bind(std::less<char *>(),
-					boost::bind(&obj_data::aliases, _1),
-					boost::bind(&obj_data::aliases, _2)));
-
-	ObjListType::const_iterator prev_obj_it = cont.end();
-	int count = 0;
+	int count = 0, s_cnt = 0, i_cnt = 0;
 	bool found = 0;
-	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
+
+	auto prev_obj_it = cont.cend();
+	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it)
 	{
-		if (prev_obj_it == cont.end())
+		if (GET_OBJ_TYPE(*obj_it) == ITEM_MING
+			|| GET_OBJ_TYPE(*obj_it) == ITEM_MATERIAL)
+		{
+			++i_cnt;
+		}
+		else
+		{
+			++s_cnt;
+		}
+
+		if (prev_obj_it == cont.cend())
 		{
 			prev_obj_it = obj_it;
 			count = 1;
 		}
 		else if (!equal_obj(*obj_it, *prev_obj_it))
 		{
-			print_obj(out, *prev_obj_it, count, ch);
+			print_obj(i_out, s_out, *prev_obj_it, count, ch);
 			prev_obj_it = obj_it;
 			count = 1;
 		}
 		else
+		{
 			count++;
+		}
 		rent_per_day += get_object_low_rent(*obj_it);
 		found = true;
 	}
-	if (prev_obj_it != cont.end() && count)
-		print_obj(out, *prev_obj_it, count, ch);
-	if (!found)
-		out << "В данный момент хранилище абсолютно пусто.\r\n";
+	if (prev_obj_it != cont.cend() && count)
+	{
+		print_obj(i_out, s_out, *prev_obj_it, count, ch);
+	}
+
+	const long money = ch->get_gold() + ch->get_bank();
+	const long expired = rent_per_day ? (money / rent_per_day) : 0;
 
 	std::stringstream head;
-	int expired = rent_per_day ? (money / rent_per_day) : 0;
-	head << CCWHT(ch, C_NRM) << chest_name
-	<< "Вещей: " << cont.size()
-	<< ", свободно мест: " << MAX(get_max_pers_slots(ch) - cont.size(), 0)
-	<< ", рента в день: " << rent_per_day << " " << desc_count(rent_per_day, WHAT_MONEYa);
+	head << CCWHT(ch, C_NRM)
+		<< "Ваше персональное хранилище. Рента в день: "
+		<< rent_per_day << " " << desc_count(rent_per_day, WHAT_MONEYa);
 	if (rent_per_day)
-		head << ", денег на " << expired << " " << desc_count(expired, WHAT_DAY);
-	else
-		head << ", денег на очень много дней";
-	head << CCNRM(ch, C_NRM) << ".\r\n";
+	{
+		head << ", денег хватит на " << expired
+			<< " " << desc_count(expired, WHAT_DAY);
+	}
+	head << ".\r\n"
+		<< "Заполненность отделения для вещей: "
+		<< s_cnt << "/" << get_max_pers_slots(ch)
+		<< ", отделения для ингредиентов: "
+		<< i_cnt << "/" << MAX_PERS_INGR_SLOTS
+		<< CCNRM(ch, C_NRM) << "\r\n\r\n";
 
-	return (head.str() + out.str());
+	if (!found)
+	{
+		head << "В данный момент хранилище абсолютно пусто.\r\n";
+	}
+	std::string s_str = s_out.str();
+	std::string i_str = i_out.str();
+	if (!s_str.empty() && !i_str.empty())
+	{
+		s_str += "-----------------------------------\r\n";
+	}
+
+	return (head.str() + s_str + i_str);
 }
 
 /**
@@ -928,11 +962,14 @@ void show_depot(CHAR_DATA *ch)
 {
 	if (IS_NPC(ch)) return;
 
+#ifndef TEST_BUILD
 	if (IS_IMMORTAL(ch))
 	{
 		send_to_char("И без хранилища обойдешься...\r\n" , ch);
 		return;
 	}
+#endif
+
 	if (RENTABLE(ch))
 	{
 		send_to_char(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
@@ -949,7 +986,7 @@ void show_depot(CHAR_DATA *ch)
 	}
 
 	std::string out;
-	out = print_obj_list(ch, it->second.pers_online, "Ваше персональное хранилище:\r\n", (ch->get_gold() + ch->get_bank()));
+	out = print_obj_list(ch, it->second.pers_online);
 	page_string(ch->desc, out);
 }
 
@@ -1006,20 +1043,38 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 	return 1;
 }
 
+unsigned count_inrg(const ObjListType &cont)
+{
+	unsigned ingr_cnt = 0;
+	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it)
+	{
+		if (GET_OBJ_TYPE(*obj_it) == ITEM_MING
+			|| GET_OBJ_TYPE(*obj_it) == ITEM_MATERIAL)
+		{
+			++ingr_cnt;
+		}
+	}
+	return ingr_cnt;
+}
+
 // * Кладем шмотку в хранилище (мобов посылаем лесом), деньги автоматом на счет в банке.
 bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	if (IS_NPC(ch)) return 0;
 
+#ifndef TEST_BUILD
 	if (IS_IMMORTAL(ch))
 	{
 		send_to_char("И без хранилища обойдешься...\r\n" , ch);
 		return 0;
 	}
+#endif
+
 	if (RENTABLE(ch))
 	{
-		send_to_char(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
-					 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(ch,
+			"%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
+			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		return 0;
 	}
 
@@ -1028,31 +1083,48 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 		put_gold_chest(ch, obj);
 		return 1;
 	}
-	// в данном случае если мы не можем сунуть какую-то конкретную шмотку - это не стопит процесс
+	// в данном случае если мы не можем сунуть какую-то
+	// конкретную шмотку - это не стопит процесс
 	if (!can_put_chest(ch, obj)) return 1;
 
 	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
 	if (it == depot_list.end())
 	{
 		send_to_char("Ошибочка, сообщие богам...\r\n" , ch);
-		log("Хранилище: UID %d, name: %s - возвращен некорректный уид персонажа.", GET_UNIQUE(ch), GET_NAME(ch));
+		log("Хранилище: UID %d, name: %s - возвращен некорректный уид персонажа.",
+			GET_UNIQUE(ch), GET_NAME(ch));
 		return 0;
 	}
 
-	if (it->second.pers_online.size() >= get_max_pers_slots(ch))
+	const unsigned ingr_cnt = count_inrg(it->second.pers_online);
+	const unsigned staff_cnt = it->second.pers_online.size() - ingr_cnt;
+	const bool is_ingr = (GET_OBJ_TYPE(obj) == ITEM_MING
+		|| GET_OBJ_TYPE(obj) == ITEM_MATERIAL) ? true : false;
+
+	if (is_ingr && ingr_cnt >= MAX_PERS_INGR_SLOTS)
 	{
-		send_to_char("В вашем хранилище совсем не осталось места :(.\r\n" , ch);
+		send_to_char(
+			"В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);
 		return 0;
 	}
+	else if (!is_ingr && staff_cnt >= get_max_pers_slots(ch))
+	{
+		send_to_char(
+			"В вашем хранилище совсем не осталось места для вещей :(.\r\n", ch);
+		return 0;
+	}
+
 	if (!ch->get_bank() && !ch->get_gold())
 	{
 		send_to_char(ch,
-					 "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n",
-					 OBJ_PAD(obj, 5));
+			"У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n",
+			OBJ_PAD(obj, 5));
 		return 0;
 	}
 
-	depot_log("put_depot %s %ld: %s %d %d", GET_NAME(ch), GET_UNIQUE(ch), obj->short_description, GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
+	depot_log("put_depot %s %ld: %s %d %d",
+		GET_NAME(ch), GET_UNIQUE(ch), obj->short_description,
+		GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
 	it->second.pers_online.push_front(obj);
 	it->second.need_save = true;
 
@@ -1074,11 +1146,14 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 {
 	if (IS_NPC(vict)) return;
 
+#ifndef TEST_BUILD
 	if (IS_IMMORTAL(vict))
 	{
 		send_to_char("И без хранилища обойдешься...\r\n" , vict);
 		return;
 	}
+#endif
+
 	if (RENTABLE(vict))
 	{
 		send_to_char(vict, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
