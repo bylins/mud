@@ -894,15 +894,11 @@ bool is_purse(OBJ_DATA *obj)
 /// вываливаем и пуржим кошелек при попытке открыть или при взятии хозяином
 void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-/*
-	send_to_char(ch,
-		"Радостно рванув замочек %s вы безвозвратно\r\n"
-		"его испортили. Остается только вывалить все содержимое.\r\n",
-		GET_OBJ_PNAME(obj, 1));
-*/
+	REMOVE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED);
 	char buf_[MAX_INPUT_LENGTH];
 	snprintf(buf_, sizeof(buf_), "all");
 	get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
+	act("$o рассыпал$U в ваших руках...", FALSE, ch, obj, 0, TO_CHAR);
 	extract_obj(obj);
 }
 

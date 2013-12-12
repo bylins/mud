@@ -1487,14 +1487,6 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		{
 			SET_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
 		}
-		// авто-открывание, вываливание и пурж кошелька хозяину
-		if (system_obj::is_purse(object)
-			&& GET_OBJ_VAL(object, 3) == ch->get_uid())
-		{
-			REMOVE_BIT(GET_OBJ_VAL(object, 1), CONT_CLOSED);
-			system_obj::process_open_purse(ch, object);
-			return;
-		}
 	}
 	else
 		log("SYSERR: NULL obj (%p) or char (%p) passed to obj_to_char.", object, ch);

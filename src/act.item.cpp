@@ -538,7 +538,13 @@ int other_pc_in_group(CHAR_DATA *ch)
 
 void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 {
-	int value = GET_OBJ_VAL(obj, 0);
+	if (system_obj::is_purse(obj) && GET_OBJ_VAL(obj, 3) == ch->get_uid())
+	{
+		system_obj::process_open_purse(ch, obj);
+		return;
+	}
+
+	const int value = GET_OBJ_VAL(obj, 0);
 
 	if (GET_OBJ_TYPE(obj) != ITEM_MONEY || value <= 0)
 		return;
@@ -1264,8 +1270,11 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 	act("Вы дали $o3 $N2.", FALSE, ch, obj, vict, TO_CHAR);
 	act("$n дал$g вам $o3.", FALSE, ch, obj, vict, TO_VICT);
 	act("$n дал$g $o3 $N2.", TRUE, ch, obj, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+
 	obj_from_char(obj);
 	obj_to_char(obj, vict);
+	// передача объектов-денег и кошельков
+	get_check_money(vict, obj, 0);
 
 	if (!IS_NPC(ch) && !IS_NPC(vict))
 	{
