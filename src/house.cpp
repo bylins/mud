@@ -5486,6 +5486,8 @@ long do_gold_tax(CHAR_DATA *ch, long gold)
 		&& CLAN_MEMBER(ch))
 	{
 		const long tax = (gold * CLAN(ch)->get_gold_tax_pct()) / 100;
+		if (tax <= 0) return 0;
+
 		// TODO: мб вынести как в desc_count для версии с окончаниями?
 		if ((tax % 100 >= 11 && tax % 100 <= 14)
 			|| tax % 10 >= 5
@@ -5507,9 +5509,11 @@ long do_gold_tax(CHAR_DATA *ch, long gold)
 				"%d %s были немедленно отправлены в казну вашей дружины.\r\n",
 				tax, desc_count(tax, WHAT_MONEYa));
 		}
-		// 1 куну за транзакцию
-		CLAN(ch)->set_bank(CLAN(ch)->get_bank() + tax - 1);
-		CLAN_MEMBER(ch)->money += tax - 1;
+		// 1 куну за транзакцию, если сумма налога позволяет
+		const long real_tax = tax > 1 ? tax - 1 : tax;
+		CLAN(ch)->set_bank(CLAN(ch)->get_bank() + real_tax);
+		CLAN_MEMBER(ch)->money += real_tax;
+		// возврат полного налога, снятого с чара
 		return tax;
 	}
 	return 0;

@@ -4426,10 +4426,12 @@ ACMD(do_statistic)
 	out += print_server_uptime();
 	snprintf(buf_, sizeof(buf_),
 		"Героев (без ПК) | Тварей убито  %s[%s%3d%s|%s %2d%s]%s\r\n",
-		CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), mob_stat::pkilled,
-		CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), mob_stat::mkilled,
+		CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), char_stat::pkilled,
+		CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), char_stat::mkilled,
 		CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	out += buf_;
+	out += char_stat::print_class_exp(ch);
+
 	send_to_char(out, ch);
 }
 

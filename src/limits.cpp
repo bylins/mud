@@ -44,6 +44,7 @@
 #include "objsave.h"
 #include "fight.h"
 #include "ext_money.hpp"
+#include "mob_stat.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -918,6 +919,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 		CLR_GOD_FLAG(ch, GF_REMORT);
 	}
 
+	char_stat::add_class_exp(GET_CLASS(ch), gain);
 	update_clan_exp(ch, gain);
 }
 

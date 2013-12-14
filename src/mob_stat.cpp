@@ -5,6 +5,8 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <boost/format.hpp>
+#include <boost/bind.hpp>
 #include "pugixml.hpp"
 
 #include "mob_stat.hpp"
@@ -12,6 +14,115 @@
 #include "db.h"
 #include "parse.hpp"
 #include "char.hpp"
+#include "screen.h"
+
+namespace char_stat
+{
+
+/// мобов убито - для 'статистика'
+int mkilled = 0;
+/// игроков убито - для 'статистика'
+int pkilled = 0;
+/// экспа, номер профы, имя профы для распечатки
+struct class_exp_node
+{
+	class_exp_node(unsigned i_num, const char *i_name)
+		: exp(0), class_num(i_num), class_name(i_name ? i_name : "") {};
+
+	unsigned long long exp;
+	int class_num;
+	std::string class_name;
+};
+/// экспа за ребут с делением по профам - для 'статистика'
+std::array<class_exp_node, NUM_CLASSES> class_exp =
+{{
+	{ CLASS_CLERIC, "Лекари" },
+	{ CLASS_BATTLEMAGE, "Колдуны" },
+	{ CLASS_THIEF, "Тати" },
+	{ CLASS_WARRIOR, "Богатыри" },
+	{ CLASS_ASSASINE, "Наемники" },
+	{ CLASS_GUARD, "Дружинники" },
+	{ CLASS_CHARMMAGE, "Кудесники" },
+	{ CLASS_DEFENDERMAGE, "Волшебники" },
+	{ CLASS_NECROMANCER, "Чернокнижники" },
+	{ CLASS_PALADINE, "Витязи" },
+	{ CLASS_RANGER, "Охотники" },
+	{ CLASS_SMITH, "Кузнецы" },
+	{ CLASS_MERCHANT, "Купцы" },
+	{ CLASS_DRUID, "Волхвы" }
+}};
+
+void add_class_exp(unsigned class_num, int exp)
+{
+	if (class_num < class_exp.size() && exp > 0)
+	{
+		class_exp.at(class_num).exp += exp;
+	}
+}
+
+std::string print_curr_class(CHAR_DATA *ch, const class_exp_node &node,
+	unsigned long long top_exp)
+{
+	std::string out;
+	out += CCICYN(ch, C_NRM);
+	for (int k = 1; k <= 10; ++k)
+	{
+		if (top_exp / 10 * k <= node.exp)
+		{
+			out += "*";
+		}
+		else
+		{
+			out += CCNRM(ch, C_NRM);
+			out += ".";
+		}
+	}
+	out += CCNRM(ch, C_NRM);
+
+	char buf_[MAX_INPUT_LENGTH];
+	snprintf(buf_, sizeof(buf_), "%-13s %s",
+		node.class_name.c_str(), out.c_str());
+
+	return buf_;
+}
+
+std::string print_class_exp(CHAR_DATA *ch)
+{
+	auto tmp_array = class_exp;
+
+	std::sort(tmp_array.begin(), tmp_array.end(), boost::bind(
+		std::greater<long long>(),
+		boost::bind(&class_exp_node::exp, _1),
+		boost::bind(&class_exp_node::exp, _2)));
+
+	std::string out("\r\nСоотношения набранного с перезагрузки опыта:\r\n");
+	const unsigned long long top_exp = tmp_array.at(0).exp;
+	const size_t add = class_exp.size() / 2;
+	size_t cnt = 0;
+
+	for (auto i = tmp_array.cbegin();
+		i != tmp_array.cend() && cnt < add; ++i, ++cnt)
+	{
+		out += print_curr_class(ch, *i, top_exp);
+		// второй столбик
+		size_t remaining = std::distance(i, tmp_array.cend());
+		if (remaining > add)
+		{
+			auto ii = i;
+			std::advance(ii, add);
+			out += "     " + print_curr_class(ch, *ii, top_exp) + "\r\n";
+		}
+		else
+		{
+			out += "\r\n";
+			break;
+		}
+	}
+
+	return out;
+}
+
+} // namespace char_stat
 
 namespace mob_stat
 {
@@ -24,10 +135,6 @@ const int HISTORY_SIZE = 6;
 std::map<int, int> count_stats;
 /// список мобов по внуму и месяцам
 std::unordered_map<int, std::list<mob_node>> mob_list;
-/// мобов убито - для 'статистика'
-int mkilled = 0;
-/// игроков убито - для 'статистика'
-int pkilled = 0;
 
 /// month, year
 std::pair<int, int> get_date()
@@ -37,58 +144,8 @@ std::pair<int, int> get_date()
 	return std::make_pair(tmp_tm->tm_mon + 1, tmp_tm->tm_year + 1900);
 }
 
-void convert()
-{
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(MOB_STAT_FILE);
-	if (!result)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
-	}
-    pugi::xml_node node_list = doc.child("mob_list");
-    if (!node_list)
-    {
-		snprintf(buf, MAX_STRING_LENGTH, "...<mob_list> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
-    }
-	for (pugi::xml_node xml_mob = node_list.child("mob"); xml_mob; xml_mob = xml_mob.next_sibling("mob"))
-	{
-		int mob_vnum = Parse::attr_int(xml_mob, "vnum");
-		if (real_mobile(mob_vnum) < 0)
-		{
-			snprintf(buf, MAX_STRING_LENGTH, "...bad mob attributes (vnum=%d)", mob_vnum);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-			continue;
-		}
-
-		struct mob_node tmp_mob;
-		tmp_mob.month = 11;
-		tmp_mob.year = 2013;
-
-		for (int k = 1; k <= MAX_GROUP_SIZE; ++k)
-		{
-			snprintf(buf, sizeof(buf), "n%d", k);
-			pugi::xml_attribute attr = xml_mob.attribute(buf);
-			if (attr && attr.as_int() > 0)
-			{
-				tmp_mob.kills.at(k) = attr.as_int();
-			}
-		}
-
-		std::list<mob_node> tmp_time;
-		tmp_time.push_back(tmp_mob);
-		mob_list.insert(std::make_pair(mob_vnum, tmp_time));
-	}
-	rename(MOB_STAT_FILE, LIB_PLRSTUFF"mob_stat.old");
-	save();
-}
-
 void load()
 {
-	convert();
 	mob_list.clear();
 
 	char buf_[MAX_INPUT_LENGTH];
@@ -275,11 +332,11 @@ void add_mob(CHAR_DATA *mob, int members)
 	}
 	if (members == 0)
 	{
-		++pkilled;
+		++char_stat::pkilled;
 	}
 	else
 	{
-		++mkilled;
+		++char_stat::mkilled;
 	}
 }
 

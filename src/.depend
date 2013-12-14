@@ -144,7 +144,7 @@ limits.o: limits.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  house_exp.hpp char.hpp player_i.hpp reset_stats.hpp boards.h morph.hpp \
  remember.hpp exchange.h top.h deathtrap.hpp ban.hpp diskio.h depot.hpp \
  glory.hpp char_player.hpp quested.hpp mobmax.hpp dps.hpp map.hpp \
- room.hpp birth_places.hpp objsave.h fight.h ext_money.hpp
+ room.hpp birth_places.hpp objsave.h fight.h ext_money.hpp mob_stat.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp comm.h spells.h skills.h handler.h db.h \
  interpreter.h screen.h constants.h dg_scripts.h pk.h magic.h fight.h \
@@ -510,6 +510,7 @@ reset_stats.o: reset_stats.cpp conf.h reset_stats.hpp sysdep.h structs.h \
  interpreter.h morph.hpp
 mob_stat.o: mob_stat.cpp conf.h pugixml.hpp pugiconfig.hpp mob_stat.hpp \
  sysdep.h structs.h utils.h features.hpp obj.hpp db.h parse.hpp comm.h \
- char.hpp player_i.hpp reset_stats.hpp boards.h interpreter.h morph.hpp
+ char.hpp player_i.hpp reset_stats.hpp boards.h interpreter.h morph.hpp \
+ screen.h
 version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp

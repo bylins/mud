@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <array>
 #include <list>
+#include <string>
 
 #include "sysdep.h"
 #include "structs.h"
@@ -22,10 +23,6 @@ const int MAX_GROUP_SIZE = 12;
 const int SAVE_PERIOD = 27;
 /// 0 - убиства мобом игроков, 1..MAX_GROUP_SIZE - убиства моба игроками
 typedef std::array<int, MAX_GROUP_SIZE + 1> KillStatType;
-/// мобов убито - для 'статистика'
-extern int mkilled;
-/// игроков убито - для 'статистика'
-extern int pkilled;
 
 struct mob_node
 {
@@ -61,5 +58,19 @@ void clear_zone(int zone_vnum);
 mob_node sum_stat(const std::list<mob_node> &mob_stat, int months);
 
 } // namespace mob_stat
+
+namespace char_stat
+{
+
+/// мобов убито - для 'статистика'
+extern int mkilled;
+/// игроков убито - для 'статистика'
+extern int pkilled;
+/// добавление экспы по профам - для 'статистика'
+void add_class_exp(unsigned class_num, int exp);
+/// распечатка экспы по профам - для 'статистика'
+std::string print_class_exp(CHAR_DATA *ch);
+
+} // namespace char_stat
 
 #endif // MOB_STAT_HPP_INCLUDED
