@@ -834,7 +834,7 @@ void renumber(int rnum)
 	if (PERS_CHEST_RNUM != -1)
 		++PERS_CHEST_RNUM;
 	else
-		PERS_CHEST_RNUM = real_object(PERS_CHEST_RNUM);
+		PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
 }
 
 OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)
