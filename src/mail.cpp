@@ -46,7 +46,67 @@ namespace mail
 
 bool check_poster_cnt(CHAR_DATA* ch);
 
+/// для undelivered_list
+struct undelivered_node
+{
+	undelivered_node(const char *name, int to_uid) : total_num(1), names(name)
+	{
+		uids.insert(to_uid);
+	};
+	/// кол-во недоставленных писем
+	size_t total_num;
+	/// строка с именами адресатов
+	std::string names;
+	/// уиды адресатов для уникальности имен
+	std::unordered_set<int> uids;
+};
+/// уид отправителя, инфа о недоставленных письмах на момент ребута
+std::unordered_map<int, undelivered_node> undelivered_list;
+
+void add_undelivered(int from_uid, const char *name, int to_uid)
+{
+	if (from_uid < 0 || !name) return;
+
+	auto i = undelivered_list.find(from_uid);
+	if (i != undelivered_list.end())
+	{
+		i->second.total_num += 1;
+		// проверка на уникальность и добавление имени в строку
+		if (i->second.uids.find(to_uid) == i->second.uids.end())
+		{
+			i->second.names += " ";
+			i->second.names += name;
+			if (!(i->second.total_num % 8))
+			{
+				i->second.names += "\r\n";
+			}
+			i->second.uids.insert(to_uid);
+		}
+	}
+	else
+	{
+		undelivered_node tmp(name, to_uid);
+		undelivered_list.insert(std::make_pair(from_uid, tmp));
+	}
 }
+
+void print_undelivered(CHAR_DATA *ch)
+{
+	auto i = undelivered_list.find(ch->get_uid());
+	if (i != undelivered_list.end())
+	{
+		std::string out(
+			"Информация по недоставленным (на момент перезагрузки) письмам.\r\n"
+			"Количество писем: ");
+		out += boost::lexical_cast<std::string>(i->second.total_num);
+		out += ", Адресаты:\r\n " + i->second.names + "\r\n";
+		send_to_char(out, ch);
+	}
+}
+
+} // namespace mail
+
+using namespace mail;
 
 // мин.уровень для отправки почты
 const int MIN_MAIL_LEVEL = 2;
@@ -118,6 +178,7 @@ void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *a
 			FALSE, mailman, 0, ch, TO_VICT);
 	}
 	Parcel::print_sending_stuff(ch);
+	print_undelivered(ch);
 }
 
 
@@ -649,8 +710,9 @@ void load()
 				header.c_str());
 			continue;
 		}
+		const char *to_name = get_name_by_unique(to_uid);
 		// проверяем, чего распарсили в хедере
-		if (!get_name_by_unique(to_uid))
+		if (!to_name)
 		{
 			// адресата больше нет
 			continue;
@@ -667,6 +729,7 @@ void load()
 		}
 		mail_list.insert(std::make_pair(to_uid, message));
 		add_poster(message.from);
+		add_undelivered(message.from, to_name, to_uid);
 	}
 	need_save = true;
 }

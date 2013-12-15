@@ -614,6 +614,7 @@ void init_game(ush_int port)
 	mob_stat::save();
 	SetsDrop::save_drop_table();
 	mail::save();
+	char_stat::log_class_exp();
 
 	log("Closing all sockets.");
 #ifdef HAS_EPOLL

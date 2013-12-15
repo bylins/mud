@@ -70,6 +70,8 @@ extern int pkilled;
 void add_class_exp(unsigned class_num, int exp);
 /// распечатка экспы по профам - для 'статистика'
 std::string print_class_exp(CHAR_DATA *ch);
+/// распечатка перед ребутом набранной статистики экспы по профам
+void log_class_exp();
 
 } // namespace char_stat
 

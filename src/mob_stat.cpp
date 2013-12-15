@@ -91,7 +91,7 @@ std::string print_class_exp(CHAR_DATA *ch)
 	auto tmp_array = class_exp;
 
 	std::sort(tmp_array.begin(), tmp_array.end(), boost::bind(
-		std::greater<long long>(),
+		std::greater<unsigned long long>(),
 		boost::bind(&class_exp_node::exp, _1),
 		boost::bind(&class_exp_node::exp, _2)));
 
@@ -120,6 +120,25 @@ std::string print_class_exp(CHAR_DATA *ch)
 	}
 
 	return out;
+}
+
+void log_class_exp()
+{
+	log("Saving class exp stats.");
+	auto tmp_array = class_exp;
+
+	std::sort(tmp_array.begin(), tmp_array.end(), boost::bind(
+		std::greater<unsigned long long>(),
+		boost::bind(&class_exp_node::exp, _1),
+		boost::bind(&class_exp_node::exp, _2)));
+
+	const unsigned long long top_exp_pct = tmp_array.at(0).exp;
+	for (auto i = tmp_array.cbegin(); i != tmp_array.cend(); ++i)
+	{
+		log("class_exp: %13s   %15lld   %3llu%%",
+			i->class_name.c_str(), i->exp,
+			top_exp_pct != 0 ? i->exp * 100 / top_exp_pct : i->exp);
+	}
 }
 
 } // namespace char_stat
