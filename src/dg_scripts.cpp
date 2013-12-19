@@ -64,6 +64,7 @@ extern struct zone_data *zone_table;
 const char *spell_name(int num);
 
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
+extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
 
 // external functions
 int ext_search_block(const char *arg, const char **list, int exact);
@@ -2341,25 +2342,23 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
 			sprintf(str, "%ld", c->get_gold());
 			// клан-налог
-			long diff = c->get_gold() - before;
-			if (CLAN(c))
+			const long diff = c->get_gold() - before;
+			split_or_clan_tax(c, diff);
+			// стата для show money
+			if (!IS_NPC(c) && IN_ROOM(c) > 0)
 			{
-				long tax = ClanSystem::do_gold_tax(c, diff);
-				c->remove_gold(tax);
+				MoneyDropStat::add(
+					zone_table[world[IN_ROOM(c)]->zone].number, diff);
 			}
 		}
 		else if (!str_cmp(field, "bank"))
 		{
-			long before = c->get_bank();
+			const long before = c->get_bank();
 			c->set_bank(MAX(0, gm_char_field(c, field, subfield, c->get_bank())));
 			sprintf(str, "%ld", c->get_bank());
 			// клан-налог
-			long diff = c->get_bank() - before;
-			if (CLAN(c))
-			{
-				long tax = ClanSystem::do_gold_tax(c, diff);
-				c->remove_bank(tax);
-			}
+			const long diff = c->get_bank() - before;
+			split_or_clan_tax(c, diff);
 			// стата для show money
 			if (!IS_NPC(c) && IN_ROOM(c) > 0)
 			{

@@ -82,6 +82,8 @@ int HaveMind(CHAR_DATA * ch);
 extern char *color_value(CHAR_DATA * ch, int real, int max);
 int posi_value(int real, int max);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
+extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
+
 // local functions
 ACMD(do_antigods);
 ACMD(do_quit);
@@ -695,7 +697,8 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					{
 						send_to_char("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);
 					}
-					ch->add_gold(gold, true, true);
+					ch->add_gold(gold);
+					split_or_clan_tax(ch, gold);
 					vict->remove_gold(gold);
 				}
 				else
@@ -3027,7 +3030,8 @@ ACMD(do_dig)
 		act("$n выкопал$g клад!", FALSE, ch, 0, 0, TO_ROOM);
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		send_to_char(textbuf, ch);
-		ch->add_gold(gold, true, true);
+		ch->add_gold(gold);
+		split_or_clan_tax(ch, gold);
 		return;
 	}
 

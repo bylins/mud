@@ -484,12 +484,13 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	if (!IS_NPC(ch) && CLAN(ch))
 		sprintf(buf, "clan%d!", CLAN(ch)->GetRent());
 
-	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
+	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch) && GET_OBJ_TYPE(obj) != ITEM_MONEY)
 	{
 		act("$p: Вы не могете нести столько вещей.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
-	else if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch))
+	else if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)
+		&& GET_OBJ_TYPE(obj) != ITEM_MONEY)
 	{
 		act("$p: Вы не в состоянии нести еще и $S.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
@@ -535,6 +536,24 @@ int other_pc_in_group(CHAR_DATA *ch)
 	}
 	return num;
 }
+
+void split_or_clan_tax(CHAR_DATA *ch, long amount)
+{
+	if (IS_AFFECTED(ch, AFF_GROUP)
+		&& other_pc_in_group(ch) > 0
+		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT))
+	{
+		char buf_[MAX_INPUT_LENGTH];
+		snprintf(buf_, sizeof(buf_), "%ld", amount);
+		do_split(ch, buf_, 0, 0);
+	}
+	else
+	{
+		long tax = ClanSystem::do_gold_tax(ch, amount);
+		ch->remove_gold(tax);
+	}
+}
+
 
 void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 {
@@ -1336,7 +1355,8 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	// если денег дает моб - снимаем клан-налог
 	if (IS_NPC(ch) && !IS_CHARMICE(ch))
 	{
-		vict->add_gold(amount, true, true);
+		vict->add_gold(amount);
+		split_or_clan_tax(vict, amount);
 	}
 	else
 	{
