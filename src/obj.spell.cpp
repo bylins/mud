@@ -29,6 +29,19 @@
 namespace
 {
 
+///
+/// Удаление временного флага со шмотки obj (с проверкой прототипа).
+/// \param flag - ITEM_XXX
+///
+void remove_tmp_extra(OBJ_DATA *obj, bitvector_t flag)
+{
+	const OBJ_DATA * const proto = read_object_mirror(GET_OBJ_VNUM(obj));
+	if (!OBJ_FLAGGED(proto, flag))
+	{
+		REMOVE_BIT(GET_OBJ_EXTRA(obj, flag), flag);
+	}
+}
+
 /**
  * Проверка надо ли что-то делать со шмоткой или писать чару
  * при снятии заклинания со шмотки.
@@ -52,11 +65,12 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 		break;
 	case SPELL_FLY:
 	{
-		const OBJ_DATA * const proto = read_object_mirror(GET_OBJ_VNUM(obj));
-		if (!OBJ_FLAGGED(proto, ITEM_FLYING))
-		{
-			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
-		}
+		remove_tmp_extra(obj, ITEM_FLYING);
+		break;
+	}
+	case SPELL_LIGHT:
+	{
+		remove_tmp_extra(obj, ITEM_GLOW);
 		break;
 	}
 	} // switch
@@ -76,6 +90,11 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 			break;
 		case SPELL_FLY:
 			send_to_char(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
+					GET_OBJ_VIS_SUF_7(obj, ch), GET_OBJ_PNAME(obj, 0),
+					GET_OBJ_VIS_SUF_1(obj, ch));
+			break;
+		case SPELL_LIGHT:
+			send_to_char(ch, "Ваш%s %s перестал%s светиться.\r\n",
 					GET_OBJ_VIS_SUF_7(obj, ch), GET_OBJ_PNAME(obj, 0),
 					GET_OBJ_VIS_SUF_1(obj, ch));
 			break;
@@ -137,7 +156,7 @@ std::string print_spell_str(CHAR_DATA *ch, int spell, int timer)
  * Удаление заклинания со шмотки с проверкой на действия/сообщения
  * при снятии обкаста.
  */
-void TimedSpell::remove_spell(OBJ_DATA *obj, int spell, bool message)
+void TimedSpell::del(OBJ_DATA *obj, int spell, bool message)
 {
 	std::map<int, int>::iterator i = spell_list_.find(spell);
 	if (i != spell_list_.end())
@@ -166,10 +185,10 @@ void TimedSpell::add(OBJ_DATA *obj, int spell, int time)
 		|| spell == SPELL_BELENA_POISON
 		|| spell == SPELL_DATURA_POISON)
 	{
-		remove_spell(obj, SPELL_ACONITUM_POISON, false);
-		remove_spell(obj, SPELL_SCOPOLIA_POISON, false);
-		remove_spell(obj, SPELL_BELENA_POISON, false);
-		remove_spell(obj, SPELL_DATURA_POISON, false);
+		del(obj, SPELL_ACONITUM_POISON, false);
+		del(obj, SPELL_SCOPOLIA_POISON, false);
+		del(obj, SPELL_BELENA_POISON, false);
+		del(obj, SPELL_DATURA_POISON, false);
 	}
 
 	spell_list_[spell] = time;

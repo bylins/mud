@@ -333,6 +333,7 @@ int char_humming(CHAR_DATA * ch)
 	return (FALSE);
 }
 
+/*
 int char_glowing(CHAR_DATA * ch)
 {
 	int i;
@@ -347,7 +348,7 @@ int char_glowing(CHAR_DATA * ch)
 	}
 	return (FALSE);
 }
-
+*/
 
 ACMD(do_sneak)
 {

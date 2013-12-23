@@ -4440,7 +4440,8 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_FLY:
-		obj->timed_spell.add(obj, SPELL_FLY, 60 * 24 * 3);
+//		obj->timed_spell.add(obj, SPELL_FLY, 60 * 24 * 3);
+		obj->timed_spell.add(obj, SPELL_FLY, -1);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
 		//В связи с тем, что летающие вещи более не тонут, флаг плавает тут неуместен
 		//SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
@@ -4467,7 +4468,19 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 			return 0;
 		}
 		break;
-	}
+	case SPELL_LIGHT:
+		obj->timed_spell.add(obj, SPELL_LIGHT, -1);
+		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_GLOW), ITEM_GLOW);
+		to_char = "$o засветил$U ровным зеленоватым светом.";
+		break;
+	case SPELL_DARKNESS:
+		if (obj->timed_spell.check_spell(SPELL_LIGHT))
+		{
+			obj->timed_spell.del(obj, SPELL_LIGHT, true);
+			return 1;
+		}
+		break;
+	} // switch
 
 	if (to_char == NULL)
 		send_to_char(NOEFFECT, ch);

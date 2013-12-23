@@ -1679,7 +1679,10 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 				CCIBLU(ch, C_NRM), wielded->PNames[3], GET_PAD(vict, 1), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		// act("Вы ловко выбили $o3 из рук $N1.",FALSE,ch,wielded,vict,TO_CHAR);
-		act("$n ловко выбил$g $o3 из ваших рук.", FALSE, ch, wielded, vict, TO_VICT);
+		// act("$n ловко выбил$g $o3 из ваших рук.", FALSE, ch, wielded, vict, TO_VICT);
+		send_to_char(vict, "%s ловко выбил%s %s%s из ваших рук.\r\n",
+			GET_PAD(ch, 0), GET_CH_VIS_SUF_1(ch, vict),
+			wielded->PNames[3], char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", TRUE, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		unequip_char(vict, pos);
 		if (GET_WAIT(vict) <= 0)

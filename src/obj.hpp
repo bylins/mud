@@ -295,11 +295,10 @@ public:
 	std::string print() const;
 	void dec_timer(OBJ_DATA *obj, int time = 1);
 	void add(OBJ_DATA *obj, int spell, int time);
+	void del(OBJ_DATA *obj, int spell, bool message);
 	std::string diag_to_char(CHAR_DATA *ch);
 
 private:
-	void remove_spell(OBJ_DATA *obj, int spell, bool message);
-
 	std::map<int /* номер заклинания (SPELL_ХХХ) */, int /* таймер в минутах */> spell_list_;
 };
 
