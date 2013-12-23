@@ -1736,6 +1736,25 @@ void print_zone_info(CHAR_DATA *ch)
 	send_to_char(out.str(), ch);
 }
 
+void show_glow_objs(CHAR_DATA *ch)
+{
+	unsigned cnt = 0;
+	for (OBJ_DATA *obj = world[ch->in_room]->contents;
+		obj; obj = obj->next_content)
+	{
+		if (IS_OBJ_STAT(obj, ITEM_GLOW))
+		{
+			++cnt;
+		}
+	}
+	if (!cnt) return;
+
+	const char *str = cnt > 1 ?
+		"Вы видите очертания каких-то блестящих предметов.\r\n" :
+		"Вы видите очертания какого-то блестящего предмета.\r\n";
+	send_to_char(str, ch);
+}
+
 void look_at_room(CHAR_DATA * ch, int ignore_brief)
 {
 	if (!ch->desc)
@@ -1744,6 +1763,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT))
 	{
 		send_to_char("Слишком темно...\r\n", ch);
+		show_glow_objs(ch);
 		return;
 	}
 	else if (AFF_FLAGGED(ch, AFF_BLIND))
@@ -2497,6 +2517,7 @@ ACMD(do_look)
 
 		send_to_char("Слишком темно...\r\n", ch);
 		list_char_to_char(world[ch->in_room]->people, ch);	// glowing red eyes
+		show_glow_objs(ch);
 	}
 	else
 	{
