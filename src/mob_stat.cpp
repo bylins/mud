@@ -26,9 +26,6 @@ int pkilled = 0;
 /// экспа, номер профы, имя профы для распечатки
 struct class_exp_node
 {
-	class_exp_node(unsigned i_num, const char *i_name)
-		: exp(0), class_num(i_num), class_name(i_name ? i_name : "") {};
-
 	unsigned long long exp;
 	int class_num;
 	std::string class_name;
@@ -36,20 +33,20 @@ struct class_exp_node
 /// экспа за ребут с делением по профам - для 'статистика'
 std::array<class_exp_node, NUM_CLASSES> class_exp =
 {{
-	{ CLASS_CLERIC, "Лекари" },
-	{ CLASS_BATTLEMAGE, "Колдуны" },
-	{ CLASS_THIEF, "Тати" },
-	{ CLASS_WARRIOR, "Богатыри" },
-	{ CLASS_ASSASINE, "Наемники" },
-	{ CLASS_GUARD, "Дружинники" },
-	{ CLASS_CHARMMAGE, "Кудесники" },
-	{ CLASS_DEFENDERMAGE, "Волшебники" },
-	{ CLASS_NECROMANCER, "Чернокнижники" },
-	{ CLASS_PALADINE, "Витязи" },
-	{ CLASS_RANGER, "Охотники" },
-	{ CLASS_SMITH, "Кузнецы" },
-	{ CLASS_MERCHANT, "Купцы" },
-	{ CLASS_DRUID, "Волхвы" }
+	{ 0, CLASS_CLERIC, "Лекари" },
+	{ 0, CLASS_BATTLEMAGE, "Колдуны" },
+	{ 0, CLASS_THIEF, "Тати" },
+	{ 0, CLASS_WARRIOR, "Богатыри" },
+	{ 0, CLASS_ASSASINE, "Наемники" },
+	{ 0, CLASS_GUARD, "Дружинники" },
+	{ 0, CLASS_CHARMMAGE, "Кудесники" },
+	{ 0, CLASS_DEFENDERMAGE, "Волшебники" },
+	{ 0, CLASS_NECROMANCER, "Чернокнижники" },
+	{ 0, CLASS_PALADINE, "Витязи" },
+	{ 0, CLASS_RANGER, "Охотники" },
+	{ 0, CLASS_SMITH, "Кузнецы" },
+	{ 0, CLASS_MERCHANT, "Купцы" },
+	{ 0, CLASS_DRUID, "Волхвы" }
 }};
 
 void add_class_exp(unsigned class_num, int exp)

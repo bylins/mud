@@ -270,7 +270,6 @@ void renumber_obj_rnum(int rnum)
 }
 
 // * Обновление данных у конкретной шмотки (для update_online_objects).
-extern bool is_potion(OBJ_DATA *obj);
 void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 {
 	// Итак, нашел объект
@@ -310,7 +309,12 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 		if (is_potion(&tmp))
 		{
 			GET_OBJ_VAL(obj, 2) = GET_OBJ_VAL(&tmp, 2); //описание жидкости
-			GET_OBJ_SKILL(obj) = GET_OBJ_SKILL(&tmp);   //vnum зелья
+		}
+		// сохранение в случае перелитых заклов
+		// пока там ничего кроме заклов и нет - копируем весь values
+		if (tmp.values.get(ObjVal::POTION_PROTO_VNUM) > 0)
+		{
+			obj->values = tmp.values;
 		}
 	}
 	if (OBJ_FLAGGED(&tmp, ITEM_TICKTIMER))//если у старого объекта запущен таймер
@@ -576,6 +580,12 @@ void oedit_save_to_disk(int zone_num)
 				obj->get_skills(skills);
 				for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
 					fprintf(fp, "S\n%d %d\n", it->first, it->second);
+			}
+			// ObjVal
+			std::string values = obj->values.print_to_zone();
+			if (!values.empty())
+			{
+				fprintf(fp, "%s", values.c_str());
 			}
 		}
 	}
@@ -1285,6 +1295,46 @@ const char *wskill_bits[] = { "палицы и дубины(141)",
 							  "\n"
 							};
 
+std::string print_spell_value(OBJ_DATA *obj, int key1, int key2)
+{
+	if (obj->values.get(key1) < 0)
+	{
+		return "нет";
+	}
+	char buf_[MAX_INPUT_LENGTH];
+	snprintf(buf_, sizeof(buf_), "%s:%d",
+		spell_name(obj->values.get(key1)), obj->values.get(key2));
+	return buf_;
+}
+
+void drinkcon_values_menu(DESCRIPTOR_DATA *d)
+{
+	get_char_cols(d->character);
+#if defined(CLEAR_SCREEN)
+	send_to_char("[H[J", d->character);
+#endif
+
+	char buf_[1024];
+	snprintf(buf_, sizeof(buf_),
+		"%s1%s) Заклинание1 : %s%s\r\n"
+		"%s2%s) Заклинание2 : %s%s\r\n"
+		"%s3%s) Заклинание3 : %s%s\r\n"
+		"%s",
+		grn, nrm, cyn,
+		print_spell_value(OLC_OBJ(d),
+			ObjVal::POTION_SPELL1_NUM, ObjVal::POTION_SPELL1_LVL).c_str(),
+		grn, nrm, cyn,
+		print_spell_value(OLC_OBJ(d),
+			ObjVal::POTION_SPELL2_NUM, ObjVal::POTION_SPELL2_LVL).c_str(),
+		grn, nrm, cyn,
+		print_spell_value(OLC_OBJ(d),
+			ObjVal::POTION_SPELL3_NUM, ObjVal::POTION_SPELL3_LVL).c_str(),
+		nrm);
+
+	send_to_char(buf_, d->character);
+	send_to_char("Ваш выбор (0 - выход) :", d->character);
+	return;
+}
 
 void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 {
@@ -1293,13 +1343,6 @@ void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 	if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGRADIENT)
 	{
 		oedit_disp_ingradient_menu(d);
-		return;
-	}
-	if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_DRINKCON || GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_FOUNTAIN)
-	{
-		sprintf(buf, "Текущий номер зелья : %s%d%s\r\n", cyn, GET_OBJ_SKILL(OLC_OBJ(d)), nrm);
-		send_to_char(buf, d->character);
-		send_to_char("Введите номер зелья (0 для выхода): ", d->character);
 		return;
 	}
 	get_char_cols(d->character);
@@ -1317,6 +1360,18 @@ void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character);
 }
 
+std::string print_values2_menu(OBJ_DATA *obj)
+{
+	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON
+		|| GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN)
+	{
+		return "Спец.параметры";
+	}
+
+	char buf_[MAX_INPUT_LENGTH];
+	snprintf(buf_, sizeof(buf_), "Skill       : %d", GET_OBJ_SKILL(obj));
+	return buf_;
+}
 
 // * Display main menu.
 void oedit_disp_menu(DESCRIPTOR_DATA * d)
@@ -1374,7 +1429,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			"%sH%s) Рента(снято): %s%8d   %sI%s) Рента(одето): %s%d\r\n"
 			"%sJ%s) Мах.проч.   : %s%8d   %sK%s) Тек.проч    : %s%d\r\n"
 			"%sL%s) Материал    : %s%s\r\n"
-			"%sM%s) Таймер      : %s%8d   %sN%s) Skill       : %s%d\r\n"
+			"%sM%s) Таймер      : %s%8d   %sN%s) %s\r\n"
 			"%sO%s) Values      : %s%d %d %d %d\r\n"
 			"%sP%s) Аффекты     : %s%s\r\n"
 			"%sR%s) Меню наводимых аффектов\r\n"
@@ -1395,7 +1450,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, GET_OBJ_CUR(obj),
 			grn, nrm, cyn, material_name[GET_OBJ_MATER(obj)],
 			grn, nrm, cyn, obj->get_timer(),
-			grn, nrm, cyn, GET_OBJ_SKILL(obj),
+			grn, nrm, print_values2_menu(obj).c_str(),
 			grn, nrm, cyn,
 			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 			GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
@@ -1432,6 +1487,72 @@ int planebit(char *str, int *plane, int *bit)
 	return (1);
 }
 
+void check_potion_proto(OBJ_DATA *obj)
+{
+	if (obj->values.get(ObjVal::POTION_SPELL1_NUM) > 0
+		|| obj->values.get(ObjVal::POTION_SPELL2_NUM) > 0
+		|| obj->values.get(ObjVal::POTION_SPELL3_NUM) > 0 )
+	{
+		obj->values.set(ObjVal::POTION_PROTO_VNUM, 0);
+	}
+	else
+	{
+		obj->values.set(ObjVal::POTION_PROTO_VNUM, -1);
+	}
+}
+
+bool parse_val_spell_num(DESCRIPTOR_DATA *d, int key, int val)
+{
+	if (val <= 0 || val >= LAST_USED_SPELL)
+	{
+		if (val != 0)
+		{
+			send_to_char("Неверный выбор.\r\n", d->character);
+		}
+		OLC_OBJ(d)->values.set(key, -1);
+		check_potion_proto(OLC_OBJ(d));
+		OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+		drinkcon_values_menu(d);
+		return false;
+	}
+	OLC_OBJ(d)->values.set(key, val);
+	send_to_char(d->character, "Выбранное заклинание: %s\r\n"
+		"Ведите уровень заклинания от 1 до 50 (0 - выход) :", spell_name(val));
+	return true;
+}
+
+void parse_val_spell_lvl(DESCRIPTOR_DATA *d, int key, int val)
+{
+	if (val <= 0 || val > 50)
+	{
+		if (val != 0)
+		{
+			send_to_char("Некорректный уровень заклинания.\r\n",
+				d->character);
+		}
+		switch (key)
+		{
+		case ObjVal::POTION_SPELL1_LVL:
+			OLC_OBJ(d)->values.set(ObjVal::POTION_SPELL1_NUM, -1);
+			break;
+		case ObjVal::POTION_SPELL2_LVL:
+			OLC_OBJ(d)->values.set(ObjVal::POTION_SPELL2_NUM, -1);
+			break;
+		case ObjVal::POTION_SPELL3_LVL:
+			OLC_OBJ(d)->values.set(ObjVal::POTION_SPELL3_NUM, -1);
+			break;
+		}
+		check_potion_proto(OLC_OBJ(d));
+		OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+		drinkcon_values_menu(d);
+		return;
+	}
+	OLC_OBJ(d)->values.set(key, val);
+	check_potion_proto(OLC_OBJ(d));
+	OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+	drinkcon_values_menu(d);
+}
+
 void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
 	int number, max_val, min_val, plane, bit;
@@ -1446,6 +1567,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'д':
 		case 'Д':
 			send_to_char("Saving object to memory.\r\n", d->character);
+			OLC_OBJ(d)->values.remove_incorrect_keys(GET_OBJ_TYPE(OLC_OBJ(d)));
 			oedit_save_internally(d);
 			sprintf(buf, "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
 			olc_log("%s edit obj %d", GET_NAME(d->character), OLC_NUM(d));
@@ -1479,11 +1601,6 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			else
 				cleanup_olc(d, CLEANUP_ALL);
 			return;
-		case 'x':
-		case 'X':
-			send_to_char("Требует перевоплощений: (-1 для выключения поля) ", d->character);
-			OLC_MODE(d) = OEDIT_MORT_REQ;
-			break;
 		case '1':
 			send_to_char("Введите синонимы : ", d->character);
 			OLC_MODE(d) = OEDIT_EDIT_NAMELIST;
@@ -1597,15 +1714,22 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 'n':
 		case 'N':
-			if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_WEAPON ||
-					GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGRADIENT ||
-					GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_DRINKCON || GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_FOUNTAIN)
+			if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_WEAPON
+				|| GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGRADIENT)
 			{
 				oedit_disp_skills_menu(d);
 				OLC_MODE(d) = OEDIT_SKILL;
 			}
+			else if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_DRINKCON
+				|| GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_FOUNTAIN)
+			{
+				drinkcon_values_menu(d);
+				OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+			}
 			else
+			{
 				oedit_disp_menu(d);
+			}
 			break;
 		case 'o':
 		case 'O':
@@ -1656,6 +1780,11 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'W':
 			oedit_disp_skills_mod_menu(d);
 			OLC_MODE(d) = OEDIT_SKILLS;
+			break;
+		case 'x':
+		case 'X':
+			send_to_char("Требует перевоплощений: (-1 для выключения поля) ", d->character);
+			OLC_MODE(d) = OEDIT_MORT_REQ;
 			break;
 		default:
 			oedit_disp_menu(d);
@@ -1730,9 +1859,10 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else
 		{
 			GET_OBJ_TYPE(OLC_OBJ(d)) = number;
-			if (number != ITEM_WEAPON && number != ITEM_INGRADIENT &&
-					number != ITEM_DRINKCON && number != ITEM_FOUNTAIN)
+			if (number != ITEM_WEAPON && number != ITEM_INGRADIENT)
+			{
 				GET_OBJ_SKILL(OLC_OBJ(d)) = 0;
+			}
 		}
 		break;
 
@@ -1908,13 +2038,6 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				number = 154;
 				break;
 			default:
-				oedit_disp_skills_menu(d);
-				return;
-			}
-		if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_DRINKCON)
-			if (real_object(number) < 0)
-			{
-				send_to_char("Неверный номер объекта, повторите :\r\n ", d->character);
 				oedit_disp_skills_menu(d);
 				return;
 			}
@@ -2245,7 +2368,62 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = atoi(arg);
 		OLC_OBJ(d)->set_manual_mort_req(number);
 		break;
-
+	case OEDIT_DRINKCON_VALUES:
+		switch(number = atoi(arg))
+		{
+		case 0:
+			break;
+		case 1:
+			OLC_MODE(d) = OEDIT_POTION_SPELL1_NUM;
+			oedit_disp_spells_menu(d);
+			return;
+		case 2:
+			OLC_MODE(d) = OEDIT_POTION_SPELL2_NUM;
+			oedit_disp_spells_menu(d);
+			return;
+		case 3:
+			OLC_MODE(d) = OEDIT_POTION_SPELL3_NUM;
+			oedit_disp_spells_menu(d);
+			return;
+		default:
+			send_to_char("Неверный выбор.\r\n", d->character);
+			drinkcon_values_menu(d);
+			return;
+		}
+		break;
+	case OEDIT_POTION_SPELL1_NUM:
+		number = atoi(arg);
+		if (parse_val_spell_num(d, ObjVal::POTION_SPELL1_NUM, number))
+		{
+			OLC_MODE(d) = OEDIT_POTION_SPELL1_LVL;
+		}
+		return;
+	case OEDIT_POTION_SPELL2_NUM:
+		number = atoi(arg);
+		if (parse_val_spell_num(d, ObjVal::POTION_SPELL2_NUM, number))
+		{
+			OLC_MODE(d) = OEDIT_POTION_SPELL2_LVL;
+		}
+		return;
+	case OEDIT_POTION_SPELL3_NUM:
+		number = atoi(arg);
+		if (parse_val_spell_num(d, ObjVal::POTION_SPELL3_NUM, number))
+		{
+			OLC_MODE(d) = OEDIT_POTION_SPELL3_LVL;
+		}
+		return;
+	case OEDIT_POTION_SPELL1_LVL:
+		number = atoi(arg);
+		parse_val_spell_lvl(d, ObjVal::POTION_SPELL1_LVL, number);
+		return;
+	case OEDIT_POTION_SPELL2_LVL:
+		number = atoi(arg);
+		parse_val_spell_lvl(d, ObjVal::POTION_SPELL2_LVL, number);
+		return;
+	case OEDIT_POTION_SPELL3_LVL:
+		number = atoi(arg);
+		parse_val_spell_lvl(d, ObjVal::POTION_SPELL3_LVL, number);
+		return;
 	default:
 		mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		send_to_char("Oops...\r\n", d->character);

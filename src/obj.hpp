@@ -5,11 +5,13 @@
 #ifndef OBJ_HPP_INCLUDED
 #define OBJ_HPP_INCLUDED
 
-#include <vector>
-#include <boost/array.hpp>
-#include <string>
-#include <map>
 #include "conf.h"
+#include <vector>
+#include <map>
+#include <string>
+#include <unordered_map>
+#include <boost/array.hpp>
+
 #include "sysdep.h"
 #include "structs.h"
 
@@ -354,6 +356,57 @@ struct custom_label {
 struct custom_label *init_custom_label();
 void free_custom_label(struct custom_label *);
 
+/// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
+/// Если поле нужно сохранять в обж-файл - вписываем в TextId::init_obj_vals()
+/// Соответствие полей и типов предметов смотреть/обновлять в remove_incorrect_keys()
+class ObjVal
+{
+public:
+	// \return -1 - ключ не был найден
+	int get(unsigned key) const;
+	// сет новой записи/обновление существующей
+	// \param val < 0 - запись (если была) удаляется
+	void set(unsigned key, int val);
+	// если key не найден, то ничего не сетится
+	// \param val допускается +-
+	void inc(unsigned key, int val = 1);
+	// save/load в файлы предметов
+	std::string print_to_file() const;
+	bool init_from_file(const char *str);
+	// тоже самое в файлы зон
+	std::string print_to_zone() const;
+	void init_from_zone(const char *str);
+	// для сравнения с прототипом
+	bool operator==(const ObjVal &r) const
+	{
+		return list_ == r.list_;
+	}
+	bool operator!=(const ObjVal &r) const
+	{
+		return list_ != r.list_;
+	}
+	// чистка левых параметров (поменяли тип предмета в олц/файле и т.п.)
+	// дергается после редактирований в олц, лоада прототипов и просто шмоток
+	void remove_incorrect_keys(int type);
+
+	enum
+	{
+		// номер и уровень заклинаний в зелье/емкости с зельем
+		POTION_SPELL1_NUM,
+		POTION_SPELL1_LVL,
+		POTION_SPELL2_NUM,
+		POTION_SPELL2_LVL,
+		POTION_SPELL3_NUM,
+		POTION_SPELL3_LVL,
+		// внум прототипа зелья, перелитого в емкость
+		// 0 - если зелье в емкости проставлено через олц
+		POTION_PROTO_VNUM
+	};
+
+private:
+	std::unordered_map<unsigned, int> list_;
+};
+
 struct obj_data
 {
 	obj_data();
@@ -397,6 +450,7 @@ struct obj_data
 
 	TimedSpell timed_spell;    // временный обкаст
 	std::vector<AcquiredAffects> acquired_affects;
+	ObjVal values;
 
 	const std::string activate_obj(const activation& __act);
 	const std::string deactivate_obj(const activation& __act);

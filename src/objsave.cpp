@@ -67,6 +67,7 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
 void asciiflag_conv(const char *flag, void *value);
+extern int convert_drinkcon_skill(OBJ_DATA *obj, bool proto);
 
 // local functions
 void Crash_extract_norent_eq(CHAR_DATA * ch);
@@ -591,6 +592,14 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 					object->custom_label = init_custom_label();
 				object->custom_label->clan = str_dup(buffer);
 			}
+			else if (!strcmp(read_line, "Vals"))
+			{
+				*error = 61;
+				if (!object->values.init_from_file(buffer))
+				{
+					return object;
+				}
+			}
 			else
 			{
 				sprintf(buf, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
@@ -626,6 +635,9 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 		free_script(SCRIPT(object));//детачим все триги, пока что так
 		SCRIPT(object) = NULL;
 	}
+	convert_drinkcon_skill(object, false);
+	object->values.remove_incorrect_keys(GET_OBJ_TYPE(object));
+
 	return (object);
 }
 
@@ -1093,6 +1105,12 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		{
 			out << "Mort: " << object->get_manual_mort_req() << "~\n";
 		}
+
+		// ObjectValue предмета, если есть что сохранять
+		if (object->values != proto->values)
+		{
+			out << object->values.print_to_file();
+		}
 	}
 	else  		// Если у шмотки нет прототипа - придется сохранять ее целиком.
 	{
@@ -1247,6 +1265,9 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		{
 			out << "Mort: " << object->get_manual_mort_req() << "~\n";
 		}
+
+		// ObjectValue предмета, если есть что сохранять
+		out << object->values.print_to_file();
 	}
 	// обкаст (если он есть) сохраняется в любом случае независимо от прототипа
 	if (!object->timed_spell.empty())

@@ -384,7 +384,7 @@ parcel.o: parcel.cpp parcel.hpp conf.h sysdep.h structs.h db.h \
 liquid.o: liquid.cpp liquid.hpp conf.h sysdep.h structs.h interpreter.h \
  utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp char.hpp \
  player_i.hpp reset_stats.hpp boards.h db.h morph.hpp comm.h handler.h \
- spells.h skills.h room.hpp
+ spells.h skills.h room.hpp screen.h
 poison.o: poison.cpp poison.hpp conf.h sysdep.h structs.h char.hpp \
  player_i.hpp reset_stats.hpp boards.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp db.h interpreter.h morph.hpp comm.h spells.h \
@@ -413,10 +413,10 @@ obj.spell.o: obj.spell.cpp conf.h sysdep.h structs.h spells.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h screen.h \
  poison.hpp char.hpp player_i.hpp reset_stats.hpp boards.h db.h \
  interpreter.h morph.hpp room.hpp
-obj.o: obj.cpp obj.hpp conf.h sysdep.h structs.h utils.h features.hpp \
+obj.o: obj.cpp conf.h obj.hpp sysdep.h structs.h utils.h features.hpp \
  pugixml.hpp pugiconfig.hpp pk.h celebrates.hpp cache.hpp screen.h comm.h \
  char.hpp player_i.hpp reset_stats.hpp boards.h db.h interpreter.h \
- morph.hpp constants.h handler.h
+ morph.hpp constants.h handler.h parse.hpp
 room.o: room.cpp room.hpp conf.h sysdep.h structs.h
 spam.o: spam.cpp spam.hpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp reset_stats.hpp \

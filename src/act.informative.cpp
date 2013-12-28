@@ -1745,6 +1745,10 @@ void show_glow_objs(CHAR_DATA *ch)
 		if (IS_OBJ_STAT(obj, ITEM_GLOW))
 		{
 			++cnt;
+			if (cnt > 1)
+			{
+				break;
+			}
 		}
 	}
 	if (!cnt) return;

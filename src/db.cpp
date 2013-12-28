@@ -684,6 +684,54 @@ void init_portals(void)
 	fclose(portal_f);
 }
 
+/// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
+int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
+{
+	if ((GET_OBJ_TYPE(obj) == ITEM_DRINKCON
+			|| GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN)
+		&& GET_OBJ_SKILL(obj) > 0)
+	{
+		log("obj_skill: %d - %s (%d)", GET_OBJ_SKILL(obj),
+			GET_OBJ_PNAME(obj, 0), GET_OBJ_VNUM(obj));
+		// если емскости уже просетили какие-то заклы, то зелье
+		// из обж-скилл их не перекрывает, а просто удаляется
+		if (obj->values.get(ObjVal::POTION_PROTO_VNUM) < 0)
+		{
+			OBJ_DATA *potion = read_object(GET_OBJ_SKILL(obj), VIRTUAL);
+			if (potion && GET_OBJ_TYPE(potion) == ITEM_POTION)
+			{
+				drinkcon::copy_potion_values(potion, obj);
+				if (proto)
+				{
+					// copy_potion_values сетит до кучи и внум из пошена,
+					// поэтому уточним здесь, что зелье не перелито
+					// емкости из read_one_object_new идут как перелитые
+					obj->values.set(ObjVal::POTION_PROTO_VNUM, 0);
+				}
+			}
+		}
+		GET_OBJ_SKILL(obj) = 0;
+		return 1;
+	}
+	return 0;
+}
+
+/// конверт параметров прототипов ПОСЛЕ лоада всех файлов с прототипами
+void convert_obj_values()
+{
+	int save = 0;
+	for (auto i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
+	{
+		save = std::max(save, convert_drinkcon_skill(*i, true));
+		// ...
+		if (save)
+		{
+			olc_add_to_save_list(GET_OBJ_VNUM(*i)/100, OLC_SAVE_OBJ);
+			save = 0;
+		}
+	}
+}
+
 void boot_world(void)
 {
 	log("Loading zone table.");
@@ -704,11 +752,14 @@ void boot_world(void)
 	log("Loading mobs and generating index.");
 	index_boot(DB_BOOT_MOB);
 
-	log("Count mob qwantity by level");
+	log("Count mob quantity by level");
 	MobMax::init();
 
 	log("Loading objs and generating index.");
 	index_boot(DB_BOOT_OBJ);
+
+	log("Converting deprecated obj values.");
+	convert_obj_values();
 
 	log("Renumbering zone table.");
 	renum_zone_table();
@@ -3982,6 +4033,9 @@ char *parse_object(FILE * obj_f, int nr)
 			}
 			tobj->set_skill(t[0], t[1]);
 			break;
+		case 'V':
+			tobj->values.init_from_zone(line + 1);
+			break;
 		case '$':
 		case '#':
 			check_object(tobj);
@@ -6771,6 +6825,7 @@ int check_object(OBJ_DATA * obj)
 		break;
 	}
 
+	obj->values.remove_incorrect_keys(GET_OBJ_TYPE(obj));
 	return (error);
 }
 

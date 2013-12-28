@@ -80,7 +80,7 @@ void init()
 		std::string id_str = Parse::attr_str(cur_node, "id");
 		if (id_str.empty()) return;
 
-		const int id = TextId::to_num(TextId::CLASS_NAME, id_str);
+		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
 		if (id == CLASS_UNDEFINED)
 		{
 			snprintf(buf, MAX_STRING_LENGTH, "...<class id='%s'> convert fail", id_str.c_str());

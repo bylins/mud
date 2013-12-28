@@ -2,7 +2,11 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "conf.h"
 #include <sstream>
+#include <cmath>
+#include <boost/algorithm/string.hpp>
+
 #include "obj.hpp"
 #include "utils.h"
 #include "pk.h"
@@ -14,6 +18,7 @@
 #include "db.h"
 #include "constants.h"
 #include "handler.h"
+#include "parse.hpp"
 
 extern void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
 extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
@@ -908,3 +913,173 @@ void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
 }
 
 } // namespace system_obj
+
+int ObjVal::get(unsigned key) const
+{
+	auto i = list_.find(key);
+	if (i != list_.end())
+	{
+		return i->second;
+	}
+	return -1;
+}
+
+void ObjVal::set(unsigned key, int val)
+{
+	if (val >= 0)
+	{
+		list_[key] = val;
+	}
+	else
+	{
+		auto i = list_.find(key);
+		if (i != list_.end())
+		{
+			list_.erase(i);
+		}
+	}
+}
+
+void ObjVal::inc(unsigned key, int val)
+{
+	auto i = list_.find(key);
+	if (i == list_.end() || val == 0) return;
+
+	if (val < 0 && i->second + val <= 0)
+	{
+		i->second = 0;
+		return;
+	}
+	else if (val >= std::numeric_limits<int>::max() - i->second)
+	{
+		i->second = std::numeric_limits<int>::max();
+		return;
+	}
+
+	i->second += val;
+}
+
+std::string ObjVal::print_to_file() const
+{
+	if (list_.empty()) return "";
+
+	std::stringstream out;
+	out << "Vals:\n";
+
+	for(auto i = list_.begin(), iend = list_.end(); i != iend; ++i)
+	{
+		std::string key_str = TextId::to_str(TextId::OBJ_VALS, i->first);
+		if (!key_str.empty())
+		{
+			out << key_str << " " << i->second << "\n";
+		}
+	}
+	out << "~\n";
+
+	return out.str();
+}
+
+bool ObjVal::init_from_file(const char *str)
+{
+	list_.clear();
+	std::stringstream text(str);
+	std::string key_str;
+	bool result = true;
+	int val = -1;
+
+	while (text >> key_str >> val)
+	{
+		int key = TextId::to_num(TextId::OBJ_VALS, key_str);
+		if (key >= 0 && val >= 0)
+		{
+			list_.emplace(key, val);
+			key_str.clear();
+			val = -1;
+		}
+		else
+		{
+			err_log("invalid key=%d or val=%d (%s %s:%d)",
+				key, val, __func__, __FILE__, __LINE__);
+		}
+	}
+
+	return result;
+}
+
+std::string ObjVal::print_to_zone() const
+{
+	if (list_.empty()) return "";
+
+	std::stringstream out;
+
+	for(auto i = list_.begin(), iend = list_.end(); i != iend; ++i)
+	{
+		std::string key_str = TextId::to_str(TextId::OBJ_VALS, i->first);
+		if (!key_str.empty())
+		{
+			out << "V " << key_str << " " << i->second << "\n";
+		}
+	}
+
+	return out.str();
+}
+
+void ObjVal::init_from_zone(const char *str)
+{
+	std::stringstream text(str);
+	std::string key_str;
+	int val = -1;
+
+	if (text >> key_str >> val)
+	{
+		int key = TextId::to_num(TextId::OBJ_VALS, key_str);
+		if (key >= 0 && val >= 0)
+		{
+			list_.emplace(key, val);
+		}
+		else
+		{
+			err_log("invalid key=%d or val=%d (%s %s:%d)",
+				key, val, __func__, __FILE__, __LINE__);
+		}
+	}
+}
+
+bool is_valid_drinkcon(unsigned key)
+{
+	switch(key)
+	{
+	case ObjVal::POTION_SPELL1_NUM:
+	case ObjVal::POTION_SPELL1_LVL:
+	case ObjVal::POTION_SPELL2_NUM:
+	case ObjVal::POTION_SPELL2_LVL:
+	case ObjVal::POTION_SPELL3_NUM:
+	case ObjVal::POTION_SPELL3_LVL:
+	case ObjVal::POTION_PROTO_VNUM:
+		return true;
+	}
+	return false;
+}
+
+void ObjVal::remove_incorrect_keys(int type)
+{
+	for (auto i = list_.begin(); i != list_.end(); /* empty */)
+	{
+		bool erased = false;
+		switch(type)
+		{
+		case ITEM_DRINKCON:
+		case ITEM_FOUNTAIN:
+			if (!is_valid_drinkcon(i->first))
+			{
+				i = list_.erase(i);
+				erased = true;
+			}
+			break;
+		} // switch
+		if (!erased)
+		{
+			++i;
+		}
+	}
+}

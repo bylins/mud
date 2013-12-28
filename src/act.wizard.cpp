@@ -1401,10 +1401,16 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		break;
 	case ITEM_DRINKCON:
 	case ITEM_FOUNTAIN:
+	{
 		sprinttype(GET_OBJ_VAL(j, 2), drinks, buf2);
-		sprintf(buf, "Обьем: %d, Содержит: %d, Отравлен: %s, Жидкость: %s",
-				GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), YESNO(GET_OBJ_VAL(j, 3)), buf2);
+		std::string spells = drinkcon::print_spells(ch, j);
+		boost::trim(spells);
+		sprintf(buf,
+			"Обьем: %d, Содержит: %d, Отравлен: %s, Жидкость: %s\r\n%s",
+			GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), YESNO(GET_OBJ_VAL(j, 3)),
+			buf2, spells.c_str());
 		break;
+	}
 	case ITEM_NOTE:
 		sprintf(buf, "Tongue: %d", GET_OBJ_VAL(j, 0));
 		break;

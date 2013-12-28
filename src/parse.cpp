@@ -5,8 +5,10 @@
 #include <unordered_map>
 #include <array>
 #include <boost/lexical_cast.hpp>
+
 #include "parse.hpp"
 #include "db.h"
+#include "obj.hpp"
 
 namespace TextId
 {
@@ -35,9 +37,9 @@ std::array<TextIdNode, TEXT_ID_COUNT> text_id_list;
 ///
 /// Инит текстовых ИД классов для конфига.
 ///
-void init_class_name()
+void init_char_class()
 {
-	TextIdNode &tmp = text_id_list.at(CLASS_NAME);
+	TextIdNode &tmp = text_id_list.at(CHAR_CLASS);
 	tmp.add(CLASS_CLERIC, "CLASS_CLERIC");
 	tmp.add(CLASS_BATTLEMAGE, "CLASS_BATTLEMAGE");
 	tmp.add(CLASS_THIEF, "CLASS_THIEF");
@@ -55,12 +57,29 @@ void init_class_name()
 }
 
 ///
+/// Инит текстовых ИД параметров предметов для сохранения в файл.
+///
+void init_obj_vals()
+{
+	TextIdNode &tmp = text_id_list.at(OBJ_VALS);
+	tmp.add(ObjVal::POTION_SPELL1_NUM, "POTION_SPELL1_NUM");
+	tmp.add(ObjVal::POTION_SPELL1_LVL, "POTION_SPELL1_LVL");
+	tmp.add(ObjVal::POTION_SPELL2_NUM, "POTION_SPELL2_NUM");
+	tmp.add(ObjVal::POTION_SPELL2_LVL, "POTION_SPELL2_LVL");
+	tmp.add(ObjVal::POTION_SPELL3_NUM, "POTION_SPELL3_NUM");
+	tmp.add(ObjVal::POTION_SPELL3_LVL, "POTION_SPELL3_LVL");
+	tmp.add(ObjVal::POTION_PROTO_VNUM, "POTION_PROTO_VNUM");
+}
+
+///
 /// Общий инит системы текстовых ИД, дергается при старте мада.
 ///
 void init()
 {
-	/// CLASS_NAME
-	init_class_name();
+	/// CHAR_CLASS
+	init_char_class();
+	/// OBJ_VALS
+	init_obj_vals();
 	/// ...
 }
 

@@ -16,6 +16,7 @@
 #include "skills.h"
 #include "features.hpp"
 #include "room.hpp"
+#include "screen.h"
 
 extern void weight_change_object(OBJ_DATA * obj, int weight);
 
@@ -188,7 +189,7 @@ const char *color_liquid[] = { "прозрачной",
 * На случай, когда придется добавлять еще пошенов, которые
 * уже будут идти не подряд по номерам.
 */
-bool is_potion(OBJ_DATA *obj)
+bool is_potion(const OBJ_DATA *obj)
 {
 	switch(GET_OBJ_VAL(obj, 2))
 	{
@@ -207,12 +208,100 @@ bool is_potion(OBJ_DATA *obj)
 	return false;
 }
 
+namespace drinkcon
+{
+
+int init_spell_num(int num)
+{
+	return (num == 1 ? ObjVal::POTION_SPELL1_NUM
+		: num == 2 ? ObjVal::POTION_SPELL2_NUM
+		: ObjVal::POTION_SPELL3_NUM);
+}
+
+int init_spell_lvl(int num)
+{
+	return (num == 1 ? ObjVal::POTION_SPELL1_LVL
+		: num == 2 ? ObjVal::POTION_SPELL2_LVL
+		: ObjVal::POTION_SPELL3_LVL);
+}
+
+void reset_potion_values(OBJ_DATA *obj)
+{
+	obj->values.set(ObjVal::POTION_SPELL1_NUM, -1);
+	obj->values.set(ObjVal::POTION_SPELL1_LVL, -1);
+	obj->values.set(ObjVal::POTION_SPELL2_NUM, -1);
+	obj->values.set(ObjVal::POTION_SPELL2_LVL, -1);
+	obj->values.set(ObjVal::POTION_SPELL3_NUM, -1);
+	obj->values.set(ObjVal::POTION_SPELL3_LVL, -1);
+	obj->values.set(ObjVal::POTION_PROTO_VNUM, -1);
+}
+
+/// уровень в зельях (GET_OBJ_VAL(from_obj, 0)) пока один на все заклы
+bool copy_value(OBJ_DATA *from_obj, OBJ_DATA *to_obj, int num)
+{
+	if (GET_OBJ_VAL(from_obj, num) > 0)
+	{
+		to_obj->values.set(init_spell_num(num), GET_OBJ_VAL(from_obj, num));
+		to_obj->values.set(init_spell_lvl(num), GET_OBJ_VAL(from_obj, 0));
+		return true;
+	}
+	return false;
+}
+
+/// заполнение values емкости (to_obj) из зелья (from_obj)
+void copy_potion_values(OBJ_DATA *from_obj, OBJ_DATA *to_obj)
+{
+	reset_potion_values(to_obj);
+	bool copied = false;
+
+	for (int i = 1; i <= 3; ++i)
+	{
+		if (copy_value(from_obj, to_obj, i))
+		{
+			copied = true;
+		}
+	}
+
+	if (copied)
+	{
+		to_obj->values.set(ObjVal::POTION_PROTO_VNUM, GET_OBJ_VNUM(from_obj));
+	}
+}
+
+} // namespace drinkcon
+
+using namespace drinkcon;
+
+int cast_potion_spell(CHAR_DATA *ch, OBJ_DATA *obj, int num)
+{
+	const int spell = obj->values.get(init_spell_num(num));
+	const int level = obj->values.get(init_spell_lvl(num));
+
+	if (spell >= 0 && level >= 0)
+	{
+		return call_magic(ch, ch, NULL, world[IN_ROOM(ch)],
+			spell, level, CAST_POTION);
+	}
+	return 1;
+}
+
+void cast_potion(CHAR_DATA *ch, OBJ_DATA *obj)
+{
+	for (int i = 1; i <= 3; ++i)
+	{
+		int result = cast_potion_spell(ch, obj, i);
+		if (result <= 0)
+		{
+			break;
+		}
+	}
+}
+
 ACMD(do_drink)
 {
 	OBJ_DATA *temp;
 	AFFECT_DATA af;
-	OBJ_DATA *obj_potion;
-	int amount, weight, duration, i, level;
+	int amount, weight, duration;
 	int on_ground = 0;
 
 	one_argument(argument, arg);
@@ -264,42 +353,21 @@ ACMD(do_drink)
 		return;
 	}
 	// Added by Adept - обкаст если в фонтане или емкости зелье
-	if (is_potion(temp))
+	if (is_potion(temp) && temp->values.get(ObjVal::POTION_PROTO_VNUM) >= 0)
 	{
 		act("$n выпил$g зелья из $o1.", TRUE, ch, temp, 0, TO_ROOM);
-		sprintf(buf, "Вы выпили зелья из %s.\r\n", OBJN(temp, ch, 1));
-		send_to_char(buf, ch);
-		obj_potion = read_object(GET_OBJ_SKILL(temp), VIRTUAL);
-		if (obj_potion == NULL)
+		send_to_char(ch, "Вы выпили зелья из %s.\r\n", OBJN(temp, ch, 1));
+		cast_potion(ch, temp);
+		WAIT_STATE(ch, PULSE_VIOLENCE);
+		GET_OBJ_WEIGHT(temp)--;
+		// все выпито
+		if (--GET_OBJ_VAL(temp, 1) <= 0
+			&& GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)
 		{
-			sprintf(buf,
-					"ERROR: Попытка зачитывания заклинания из несуществующего зелья в предмете (VNUM:%d).",
-					GET_OBJ_VNUM(temp));
-			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
-			return;
+			name_from_drinkcon(temp);
+			GET_OBJ_SKILL(temp) = 0;
+			reset_potion_values(temp);
 		}
-		if (GET_OBJ_TYPE(obj_potion) != ITEM_POTION)
-		{
-			sprintf(buf, "ERROR: Неверный vnum зелья в объекте (VNUM:%d).", GET_OBJ_VNUM(temp));
-			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
-		}
-		else
-		{
-			//Если внум верный и такое зелье есть - кастим из него спеллы и уничтожаем
-			WAIT_STATE(ch, PULSE_VIOLENCE);
-			level = GET_OBJ_VAL(obj_potion, 0);
-			for (i = 1; i <= 3; i++)
-				if (call_magic(ch, ch, NULL, world[IN_ROOM(ch)], GET_OBJ_VAL(obj_potion, i), level, CAST_POTION) <= 0)
-					break;
-			//Если все зелье выпито - обнуляем внум зелья-прототипа
-			if (--GET_OBJ_VAL(temp, 1) <= 0 && GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)
-			{
-				name_from_drinkcon(temp);
-				GET_OBJ_SKILL(temp) = 0;
-			}
-			GET_OBJ_WEIGHT(temp)--;
-		}
-		extract_obj(obj_potion);
 		return;
 	}
 	else if (ch->get_fighting())
@@ -359,8 +427,8 @@ ACMD(do_drink)
 	if (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)
 		weight_change_object(temp, -weight);	// Subtract amount
 
-	
-	if ((GET_DRUNK_STATE(ch) < MAX_COND_VALUE && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK)) 
+
+	if ((GET_DRUNK_STATE(ch) < MAX_COND_VALUE && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
 		|| (GET_COND(ch, DRUNK) < CHAR_DRUNKED && !AFF_FLAGGED(ch, AFF_ABSTINENT)))
 	{
 		gain_condition(ch, DRUNK, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount) / 4);
@@ -394,8 +462,8 @@ ACMD(do_drink)
 		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - CHAR_DRUNKED);
 		if (can_use_feat(ch, DRUNKARD_FEAT))
 			duration += duration/2;
-		if (!AFF_FLAGGED(ch, AFF_ABSTINENT) 
-				&& GET_DRUNK_STATE(ch) < MAX_COND_VALUE 
+		if (!AFF_FLAGGED(ch, AFF_ABSTINENT)
+				&& GET_DRUNK_STATE(ch) < MAX_COND_VALUE
 					&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
 		{
 			send_to_char("Винные пары ударили вам в голову.\r\n", ch);
@@ -630,6 +698,134 @@ ACMD(do_drunkoff)
 	return;
 }
 
+void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
+{
+	switch (spell)
+	{
+		// восстановление (красное) //
+	case SPELL_REFRESH:
+	case SPELL_GROUP_REFRESH:
+		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_RED;
+		name_to_drinkcon(to_obj, LIQ_POTION_RED);
+		break;
+		// насыщение (синее) //
+	case SPELL_FULL:
+		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_BLUE;
+		name_to_drinkcon(to_obj, LIQ_POTION_BLUE);
+		break;
+		// детекты (белое) //
+	case SPELL_DETECT_INVIS:
+	case SPELL_DETECT_MAGIC:
+	case SPELL_DETECT_POISON:
+	case SPELL_DETECT_ALIGN:
+	case SPELL_SENSE_LIFE:
+	case SPELL_INFRAVISION:
+		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_WHITE;
+		name_to_drinkcon(to_obj, LIQ_POTION_WHITE);
+		break;
+		// защитные (золотистое) //
+	case SPELL_ARMOR:
+	case SPELL_GROUP_ARMOR:
+	case SPELL_CLOUDLY:
+		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_GOLD;
+		name_to_drinkcon(to_obj, LIQ_POTION_GOLD);
+		break;
+		// восстанавливающие здоровье (черное) //
+	case SPELL_CURE_CRITIC:
+	case SPELL_CURE_LIGHT:
+	case SPELL_HEAL:
+	case SPELL_GROUP_HEAL:
+	case SPELL_CURE_SERIOUS:
+		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_BLACK;
+		name_to_drinkcon(to_obj, LIQ_POTION_BLACK);
+		break;
+		// снимающее вредные аффекты (серое) //
+	case SPELL_CURE_BLIND:
+	case SPELL_REMOVE_CURSE:
+	case SPELL_REMOVE_HOLD:
+	case SPELL_REMOVE_SIELENCE:
+	case SPELL_CURE_PLAQUE:
+	case SPELL_REMOVE_DEAFNESS:
+	case SPELL_REMOVE_POISON:
+		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_GREY;
+		name_to_drinkcon(to_obj, LIQ_POTION_GREY);
+		break;
+		// прочие полезности (фиолетовое) //
+	case SPELL_INVISIBLE:
+	case SPELL_GROUP_INVISIBLE:
+	case SPELL_STRENGTH:
+	case SPELL_GROUP_STRENGTH:
+	case SPELL_FLY:
+	case SPELL_GROUP_FLY:
+	case SPELL_BLESS:
+	case SPELL_GROUP_BLESS:
+	case SPELL_HASTE:
+	case SPELL_GROUP_HASTE:
+	case SPELL_STONESKIN:
+	case SPELL_BLINK:
+	case SPELL_EXTRA_HITS:
+	case SPELL_WATERBREATH:
+		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_FUCHSIA;
+		name_to_drinkcon(to_obj, LIQ_POTION_FUCHSIA);
+		break;
+	case SPELL_PRISMATICAURA:
+	case SPELL_GROUP_PRISMATICAURA:
+	case SPELL_AIR_AURA:
+	case SPELL_FIRE_AURA:
+	case SPELL_ICE_AURA:
+		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_PINK;
+		name_to_drinkcon(to_obj, LIQ_POTION_PINK);
+		break;
+	default:
+		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION;
+		name_to_drinkcon(to_obj, LIQ_POTION);	// добавляем новый синоним //
+	}
+}
+
+int check_potion_spell(OBJ_DATA *from_obj, OBJ_DATA *to_obj, int num)
+{
+	const int spell = init_spell_num(num);
+	const int level = init_spell_lvl(num);
+
+	if (GET_OBJ_VAL(from_obj, num) != to_obj->values.get(spell))
+	{
+		// не совпали заклы
+		return 0;
+	}
+	if (GET_OBJ_VAL(from_obj, 0) < to_obj->values.get(level))
+	{
+		// переливаемое зелье ниже уровня закла в емкости
+		return -1;
+	}
+	return 1;
+}
+
+/// \return 1 - можно переливать
+///         0 - нельзя смешивать разные зелья
+///        -1 - попытка перелить зелье с меньшим уровнем закла
+int check_equal_potions(OBJ_DATA *from_obj, OBJ_DATA *to_obj)
+{
+	// емкость с уже перелитым ранее зельем
+	if (to_obj->values.get(ObjVal::POTION_PROTO_VNUM) > 0
+		&& GET_OBJ_VNUM(from_obj) != to_obj->values.get(ObjVal::POTION_PROTO_VNUM))
+	{
+		return 0;
+	}
+	// совпадение заклов и не меньшего уровня
+	for (int i = 1; i <= 3; ++i)
+	{
+		if (GET_OBJ_VAL(from_obj, i) > 0)
+		{
+			int result = check_potion_spell(from_obj, to_obj, i);
+			if (result <= 0)
+			{
+				return result;
+			}
+		}
+	}
+	return 1;
+}
+
 ACMD(do_pour)
 {
 	char arg1[MAX_INPUT_LENGTH];
@@ -715,6 +911,7 @@ ACMD(do_pour)
 			GET_OBJ_VAL(from_obj, 3) = 0;
 			GET_OBJ_SKILL(from_obj) = 0;
 			name_from_drinkcon(from_obj);
+			reset_potion_values(from_obj);
 
 			return;
 		}
@@ -751,116 +948,50 @@ ACMD(do_pour)
 	//Переливает из бутылки с зельем в емкость
 	if (GET_OBJ_TYPE(from_obj) == ITEM_POTION)
 	{
-		if (GET_OBJ_VNUM(from_obj) == GET_OBJ_SKILL(to_obj) || GET_OBJ_VAL(to_obj, 1) == 0)
+		int result = check_equal_potions(from_obj, to_obj);
+		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0)
 		{
-			sprintf(buf, "Вы занялись переливанием зелья в %s.\r\n", OBJN(to_obj, ch, 3));
-			send_to_char(buf, ch);
+			send_to_char(ch, "Вы занялись переливанием зелья в %s.\r\n",
+				OBJN(to_obj, ch, 3));
 			if (GET_OBJ_VAL(to_obj, 1) == 0)
 			{
+				copy_potion_values(from_obj, to_obj);
 				// определение названия зелья по содержащемуся заклинанию //
-				switch (GET_OBJ_VAL(from_obj, 1))
-				{
-					// восстановление (красное) //
-				case SPELL_REFRESH:
-				case SPELL_GROUP_REFRESH:
-					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_RED;
-					name_to_drinkcon(to_obj, LIQ_POTION_RED);
-					break;
-					// насыщение (синее) //
-				case SPELL_FULL:
-					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_BLUE;
-					name_to_drinkcon(to_obj, LIQ_POTION_BLUE);
-					break;
-					// детекты (белое) //
-				case SPELL_DETECT_INVIS:
-				case SPELL_DETECT_MAGIC:
-				case SPELL_DETECT_POISON:
-				case SPELL_DETECT_ALIGN:
-				case SPELL_SENSE_LIFE:
-				case SPELL_INFRAVISION:
-					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_WHITE;
-					name_to_drinkcon(to_obj, LIQ_POTION_WHITE);
-					break;
-					// защитные (золотистое) //
-				case SPELL_ARMOR:
-				case SPELL_GROUP_ARMOR:
-				case SPELL_CLOUDLY:
-					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_GOLD;
-					name_to_drinkcon(to_obj, LIQ_POTION_GOLD);
-					break;
-					// восстанавливающие здоровье (черное) //
-				case SPELL_CURE_CRITIC:
-				case SPELL_CURE_LIGHT:
-				case SPELL_HEAL:
-				case SPELL_GROUP_HEAL:
-				case SPELL_CURE_SERIOUS:
-					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_BLACK;
-					name_to_drinkcon(to_obj, LIQ_POTION_BLACK);
-					break;
-					// снимающее вредные аффекты (серое) //
-				case SPELL_CURE_BLIND:
-				case SPELL_REMOVE_CURSE:
-				case SPELL_REMOVE_HOLD:
-				case SPELL_REMOVE_SIELENCE:
-				case SPELL_CURE_PLAQUE:
-				case SPELL_REMOVE_DEAFNESS:
-				case SPELL_REMOVE_POISON:
-					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_GREY;
-					name_to_drinkcon(to_obj, LIQ_POTION_GREY);
-					break;
-					// прочие полезности (фиолетовое) //
-				case SPELL_INVISIBLE:
-				case SPELL_GROUP_INVISIBLE:
-				case SPELL_STRENGTH:
-				case SPELL_GROUP_STRENGTH:
-				case SPELL_FLY:
-				case SPELL_GROUP_FLY:
-				case SPELL_BLESS:
-				case SPELL_GROUP_BLESS:
-				case SPELL_HASTE:
-				case SPELL_GROUP_HASTE:
-				case SPELL_STONESKIN:
-				case SPELL_BLINK:
-				case SPELL_EXTRA_HITS:
-				case SPELL_WATERBREATH:
-					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_FUCHSIA;
-					name_to_drinkcon(to_obj, LIQ_POTION_FUCHSIA);
-					break;
-				case SPELL_PRISMATICAURA:
-				case SPELL_GROUP_PRISMATICAURA:
-				case SPELL_AIR_AURA:
-				case SPELL_FIRE_AURA:
-				case SPELL_ICE_AURA:
-					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_PINK;
-					name_to_drinkcon(to_obj, LIQ_POTION_PINK);
-					break;
-				default:
-					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION;
-					name_to_drinkcon(to_obj, LIQ_POTION);	// добавляем новый синоним //
-				}
+				generate_drinkcon_name(to_obj, GET_OBJ_VAL(from_obj, 1));
 			}
-			GET_OBJ_SKILL(to_obj) = GET_OBJ_VNUM(from_obj);	// помещаем vnum зелья в поле skill //
 			weight_change_object(to_obj, 1);
 			GET_OBJ_VAL(to_obj, 1)++;
 			extract_obj(from_obj);
 			return;
 		}
+		else if (result < 0)
+		{
+			send_to_char("Не пытайтесь подмешать более слабое зелье!\r\n", ch);
+			return;
+		}
 		else
 		{
-			send_to_char("Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
+			send_to_char(
+				"Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
 			return;
 		}
 	}
+
 	//Переливает из емкости или колодца с зельем куда-то
 	if ((GET_OBJ_TYPE(from_obj) == ITEM_DRINKCON ||
-			GET_OBJ_TYPE(from_obj) == ITEM_FOUNTAIN) &&
-			GET_OBJ_VAL(from_obj, 2) >= LIQ_POTION && GET_OBJ_VAL(from_obj, 2) <= LIQ_POTION_PINK)
+			GET_OBJ_TYPE(from_obj) == ITEM_FOUNTAIN)
+		&& GET_OBJ_VAL(from_obj, 2) >= LIQ_POTION
+		&& GET_OBJ_VAL(from_obj, 2) <= LIQ_POTION_PINK)
 	{
-		if ((GET_OBJ_SKILL(from_obj) == GET_OBJ_SKILL(to_obj)) || GET_OBJ_VAL(to_obj, 1) == 0)
+		if ((GET_OBJ_SKILL(from_obj) == GET_OBJ_SKILL(to_obj))
+			|| GET_OBJ_VAL(to_obj, 1) == 0)
+		{
 			GET_OBJ_SKILL(to_obj) = GET_OBJ_SKILL(from_obj);
+		}
 		else
 		{
-			send_to_char("Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
+			send_to_char(
+				"Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
 			return;
 		}
 	}
@@ -868,9 +999,8 @@ ACMD(do_pour)
 
 	if (subcmd == SCMD_POUR)
 	{
-		sprintf(buf, "Вы занялись переливанием %s в %s.",
-				drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
-		send_to_char(buf, ch);
+		send_to_char(ch, "Вы занялись переливанием %s в %s.",
+			drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
 	}
 	if (subcmd == SCMD_FILL)
 	{
@@ -989,9 +1119,9 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 void set_abstinent(CHAR_DATA *ch)
 {
 	AFFECT_DATA af;
-	
+
 	int duration = pc_duration(ch, 2, MAX(0, GET_DRUNK_STATE(ch) - CHAR_DRUNKED), 4, 2, 5);
-	
+
 	if (can_use_feat(ch, DRUNKARD_FEAT))
 		duration /= 2;
 
@@ -1012,3 +1142,107 @@ void set_abstinent(CHAR_DATA *ch)
 	affect_join(ch, &af, 0,0,0,0);
 
 }
+
+std::string print_spell(CHAR_DATA *ch, const OBJ_DATA *obj, int num)
+{
+	const int spell = init_spell_num(num);
+	const int level = init_spell_lvl(num);
+
+	if (obj->values.get(spell) == -1)
+	{
+		return "";
+	}
+
+	char buf_[MAX_INPUT_LENGTH];
+	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
+		CCCYN(ch, C_NRM),
+		spell_name(obj->values.get(spell)), obj->values.get(level),
+		CCNRM(ch, C_NRM));
+
+	return buf_;
+}
+
+namespace drinkcon
+{
+
+std::string print_spells(CHAR_DATA *ch, const OBJ_DATA *obj)
+{
+	std::string out;
+	char buf_[MAX_INPUT_LENGTH];
+
+	for (int i = 1; i <= 3; ++i)
+	{
+		out += print_spell(ch, obj, i);
+	}
+
+	if (!out.empty() && !is_potion(obj))
+	{
+		snprintf(buf_, sizeof(buf_),
+			"%sВНИМАНИЕ%s: тип жидкости не является зельем\r\n",
+			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		out += buf_;
+	}
+	else if (out.empty() && is_potion(obj))
+	{
+		snprintf(buf_, sizeof(buf_),
+			"%sВНИМАНИЕ%s: у данного зелья отсутствуют заклинания\r\n",
+			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		out += buf_;
+	}
+
+	return out;
+}
+
+void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
+{
+	std::string out;
+	char buf_[MAX_INPUT_LENGTH];
+
+	snprintf(buf_, sizeof(buf_), "Может вместить зелья: %s%d %s%s\r\n",
+		CCCYN(ch, C_NRM),
+		GET_OBJ_VAL(obj, 0), desc_count(GET_OBJ_VAL(obj, 0), WHAT_GULP),
+		CCNRM(ch, C_NRM));
+	out += buf_;
+
+	// емкость не пуста
+	if (GET_OBJ_VAL(obj, 1) > 0)
+	{
+		// есть какие-то заклы
+		if (obj->values.get(ObjVal::POTION_PROTO_VNUM) >= 0)
+		{
+			if (IS_IMMORTAL(ch))
+			{
+				snprintf(buf_, sizeof(buf_),
+					"Содержит %d %s %s (VNUM: %d).\r\n",
+					GET_OBJ_VAL(obj, 1),
+					desc_count(GET_OBJ_VAL(obj, 1), WHAT_GULP),
+					drinks[GET_OBJ_VAL(obj, 2)],
+					obj->values.get(ObjVal::POTION_PROTO_VNUM));
+			}
+			else
+			{
+				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s.\r\n",
+					GET_OBJ_VAL(obj, 1),
+					desc_count(GET_OBJ_VAL(obj, 1), WHAT_GULP),
+					drinks[GET_OBJ_VAL(obj, 2)]);
+			}
+			out += buf_;
+			out += print_spells(ch, obj);
+		}
+		else
+		{
+			snprintf(buf_, sizeof(buf_), "Заполнен %s на %d%%\r\n",
+				drinknames[GET_OBJ_VAL(obj, 2)],
+				GET_OBJ_VAL(obj, 1)*100/GET_OBJ_VAL(obj, 0));
+			out += buf_;
+			// чтобы выдать варнинг на тему зелья без заклов
+			if (is_potion(obj))
+			{
+				out += print_spells(ch, obj);
+			}
+		}
+	}
+	send_to_char(out, ch);
+}
+
+} // namespace drinkcon

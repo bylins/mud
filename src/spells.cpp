@@ -1358,7 +1358,6 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 {
 	int i, found, drndice = 0, drsdice = 0, j;
 	long int li;
-	OBJ_DATA *obj_potion;
 
 	send_to_char("Вы узнали следующее:\r\n", ch);
 	sprintf(buf, "Предмет \"%s\", тип : ", obj->short_description);
@@ -1633,43 +1632,10 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		send_to_char(buf, ch);
 		break;
 	case ITEM_DRINKCON:
-		sprintf(buf, "Может вместить зелья: %s%d %s%s\r\n",
-			CCCYN(ch, C_NRM),
-			GET_OBJ_VAL(obj, 0), desc_count(GET_OBJ_VAL(obj, 0), WHAT_GULP),
-			CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-		if (GET_OBJ_VAL(obj, 1) > 0) // емкость не пуста
-		{
-			if (GET_OBJ_SKILL(obj) > 0) // указан внум влитого зелья
-			{
-				sprintf(buf, "Содержит %d %s %s.\r\n", GET_OBJ_VAL(obj, 1), desc_count(GET_OBJ_VAL(obj, 1), WHAT_GULP), drinks[GET_OBJ_VAL(obj, 2)]);
-				send_to_char(buf, ch);
-				obj_potion = read_object(GET_OBJ_SKILL(obj), VIRTUAL); // пробуем прочитать что за объект
-				if ((obj_potion != NULL) && (GET_OBJ_TYPE(obj_potion) == ITEM_POTION)) // внум верен, в нем напиток
-				{
-					sprintf(buf, "Зелье содержит заклинания:");
-					sprintf(buf + strlen(buf), "%s", CCCYN(ch, C_NRM));
-					if (GET_OBJ_VAL(obj_potion, 1) >= 1 && GET_OBJ_VAL(obj_potion, 1) < MAX_SPELLS)
-						sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj_potion, 1)));
-					if (GET_OBJ_VAL(obj_potion, 2) >= 1 && GET_OBJ_VAL(obj_potion, 2) < MAX_SPELLS)
-						sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj_potion, 2)));
-					if (GET_OBJ_VAL(obj_potion, 3) >= 1 && GET_OBJ_VAL(obj_potion, 3) < MAX_SPELLS)
-						sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj_potion, 3)));
-					sprintf(buf + strlen(buf), "%s", CCNRM(ch, C_NRM));
-					strcat(buf, "\r\n");
-					send_to_char(buf, ch);
-					extract_obj(obj_potion);
-				}
-			}
-			else
-			{
-				sprintf(buf, "Заполнен %s на %d%%\r\n", drinknames[GET_OBJ_VAL(obj, 2)], GET_OBJ_VAL(obj, 1)*100/GET_OBJ_VAL(obj, 0));
-				send_to_char(buf, ch);
-			}
-		}
+		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
-	}
+	} // switch
 
 
 	if (fullness < 90)
@@ -1765,7 +1731,6 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 {
 	int i, found, drndice = 0, drsdice = 0;
 	long int li;
-	OBJ_DATA *obj_potion;
 
 	send_to_char("Вы узнали следующее:\r\n", ch);
 	sprintf(buf, "UID: %u, Предмет \"%s\", тип : ",
@@ -2007,43 +1972,10 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		send_to_char(buf, ch);
 		break;
 	case ITEM_DRINKCON:
-		sprintf(buf, "Может вместить зелья: %s%d %s%s\r\n",
-			CCCYN(ch, C_NRM),
-			GET_OBJ_VAL(obj, 0), desc_count(GET_OBJ_VAL(obj, 0), WHAT_GULP),
-			CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-		if (GET_OBJ_VAL(obj, 1) > 0) // емкость не пуста
-		{
-			if (GET_OBJ_SKILL(obj) > 0) // указан внум влитого зелья
-			{
-				sprintf(buf, "Содержит %d %s %s (VNUM: %d).\r\n", GET_OBJ_VAL(obj, 1), desc_count(GET_OBJ_VAL(obj, 1), WHAT_GULP), drinks[GET_OBJ_VAL(obj, 2)], GET_OBJ_SKILL(obj));
-				send_to_char(buf, ch);
-				obj_potion = read_object(GET_OBJ_SKILL(obj), VIRTUAL); // пробуем прочитать что за объект
-				if ((obj_potion != NULL) && (GET_OBJ_TYPE(obj_potion) == ITEM_POTION)) // внум верен, в нем напиток
-				{
-					sprintf(buf, "Зелье содержит заклинания:");
-					sprintf(buf + strlen(buf), "%s", CCCYN(ch, C_NRM));
-					if (GET_OBJ_VAL(obj_potion, 1) >= 1 && GET_OBJ_VAL(obj_potion, 1) < MAX_SPELLS)
-						sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj_potion, 1)));
-					if (GET_OBJ_VAL(obj_potion, 2) >= 1 && GET_OBJ_VAL(obj_potion, 2) < MAX_SPELLS)
-						sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj_potion, 2)));
-					if (GET_OBJ_VAL(obj_potion, 3) >= 1 && GET_OBJ_VAL(obj_potion, 3) < MAX_SPELLS)
-						sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj_potion, 3)));
-					sprintf(buf + strlen(buf), "%s", CCNRM(ch, C_NRM));
-					strcat(buf, "\r\n");
-					send_to_char(buf, ch);
-					extract_obj(obj_potion);
-				}
-			}
-			else
-			{
-				sprintf(buf, "Заполнен %s на %d%%\r\n", drinknames[GET_OBJ_VAL(obj, 2)], GET_OBJ_VAL(obj, 1)*100/GET_OBJ_VAL(obj, 0));
-				send_to_char(buf, ch);
-			}
-		}
+		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
-	}
+	} // switch
 
 	found = FALSE;
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)

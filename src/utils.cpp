@@ -483,6 +483,19 @@ void temp_log(const char *format, ...)
 	fprintf(file, "\n");
 }
 
+void err_log(const char *format, ...)
+{
+	static char buf_[MAX_RAW_INPUT_LENGTH];
+	int cnt = snprintf(buf_, sizeof(buf_), "SYSERROR: ");
+
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf_ + cnt, sizeof(buf_) - cnt, format, args);
+	va_end(args);
+
+	mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+}
+
 /**
 * Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
 * Дескриптор открытого файла у плеера же и хранится (закрывает при con_close).

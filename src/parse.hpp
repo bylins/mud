@@ -7,6 +7,7 @@
 #include "conf.h"
 #include <string>
 #include "pugixml.hpp"
+
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
@@ -17,7 +18,8 @@ namespace TextId
 
 enum IdType
 {
-	CLASS_NAME = 0,
+	CHAR_CLASS,
+	OBJ_VALS,
 	TEXT_ID_COUNT
 };
 
