@@ -89,7 +89,6 @@ void DeathTrap::activity()
 			if (dmg.process(ch, ch) < 0)
 			{
 				sprintf(buf1, "Player %s died in slow DT (room %d)", name.c_str(), (*it)->number);
-				log(buf1);
 				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 		}
