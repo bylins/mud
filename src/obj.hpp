@@ -9,8 +9,9 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <unordered_map>
+//#include <unordered_map>
 #include <boost/array.hpp>
+#include <boost/unordered_map.hpp>
 
 #include "sysdep.h"
 #include "structs.h"
@@ -404,7 +405,8 @@ public:
 	};
 
 private:
-	std::unordered_map<unsigned, int> list_;
+//	std::unordered_map<unsigned, int> list_;
+	boost::unordered_map<unsigned, int> list_;
 };
 
 struct obj_data
