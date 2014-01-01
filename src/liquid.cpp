@@ -826,6 +826,65 @@ int check_equal_potions(OBJ_DATA *from_obj, OBJ_DATA *to_obj)
 	return 1;
 }
 
+/// см check_equal_drinkcon()
+int check_drincon_spell(OBJ_DATA *from_obj, OBJ_DATA *to_obj, int num)
+{
+	const int spell = init_spell_num(num);
+	const int level = init_spell_lvl(num);
+
+	if (from_obj->values.get(spell) != to_obj->values.get(spell))
+	{
+		// не совпали заклы
+		return 0;
+	}
+	if (from_obj->values.get(level) < to_obj->values.get(level))
+	{
+		// переливаемое зелье ниже уровня закла в емкости
+		return -1;
+	}
+	return 1;
+}
+
+/// Временная версия check_equal_potions для двух емкостей, пока в пошенах
+/// еще нет values с заклами/уровнями.
+/// \return 1 - можно переливать
+///         0 - нельзя смешивать разные зелья
+///        -1 - попытка перелить зелье с меньшим уровнем закла
+int check_equal_drinkcon(OBJ_DATA *from_obj, OBJ_DATA *to_obj)
+{
+	// совпадение заклов и не меньшего уровня (и в том же порядке, ибо влом)
+	for (int i = 1; i <= 3; ++i)
+	{
+		if (GET_OBJ_VAL(from_obj, i) > 0)
+		{
+			int result = check_drincon_spell(from_obj, to_obj, i);
+			if (result <= 0)
+			{
+				return result;
+			}
+		}
+	}
+	return 1;
+}
+
+/// копирование полей заклинаний при переливании из емкости с зельем в пустую емкость
+void spells_to_drinkcon(OBJ_DATA *from_obj, OBJ_DATA *to_obj)
+{
+	// инит заклов
+	for (int i = 1; i <= 3; ++i)
+	{
+		const int spell = init_spell_num(i);
+		const int level = init_spell_lvl(i);
+		to_obj->values.set(spell, from_obj->values.get(spell));
+		to_obj->values.set(level, from_obj->values.get(level));
+	}
+	// сохранение инфы о первоначальном источнике зелья
+	const int proto_vnum = from_obj->values.get(ObjVal::POTION_PROTO_VNUM) > 0
+		? from_obj->values.get(ObjVal::POTION_PROTO_VNUM)
+		: GET_OBJ_VNUM(from_obj);
+	to_obj->values.set(ObjVal::POTION_PROTO_VNUM, proto_vnum);
+}
+
 ACMD(do_pour)
 {
 	char arg1[MAX_INPUT_LENGTH];
@@ -980,19 +1039,26 @@ ACMD(do_pour)
 	//Переливает из емкости или колодца с зельем куда-то
 	if ((GET_OBJ_TYPE(from_obj) == ITEM_DRINKCON ||
 			GET_OBJ_TYPE(from_obj) == ITEM_FOUNTAIN)
-		&& GET_OBJ_VAL(from_obj, 2) >= LIQ_POTION
-		&& GET_OBJ_VAL(from_obj, 2) <= LIQ_POTION_PINK)
+		&& is_potion(from_obj))
 	{
-		if ((GET_OBJ_SKILL(from_obj) == GET_OBJ_SKILL(to_obj))
-			|| GET_OBJ_VAL(to_obj, 1) == 0)
+		if (GET_OBJ_VAL(to_obj, 1) == 0)
 		{
-			GET_OBJ_SKILL(to_obj) = GET_OBJ_SKILL(from_obj);
+			spells_to_drinkcon(from_obj, to_obj);
 		}
 		else
 		{
-			send_to_char(
-				"Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
-			return;
+			const int result = check_equal_drinkcon(from_obj, to_obj);
+			if (result < 0)
+			{
+				send_to_char("Не пытайтесь подмешать более слабое зелье!\r\n", ch);
+				return;
+			}
+			else if (!result)
+			{
+				send_to_char(
+					"Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
+				return;
+			}
 		}
 	}
 //Конец изменений Adept'ом
@@ -1034,6 +1100,7 @@ ACMD(do_pour)
 		GET_OBJ_VAL(from_obj, 2) = 0;
 		GET_OBJ_VAL(from_obj, 3) = 0;
 		name_from_drinkcon(from_obj);
+		reset_potion_values(from_obj);
 	}
 
 	// And the weight boogie //
