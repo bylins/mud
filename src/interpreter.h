@@ -184,6 +184,7 @@ struct alias_data
 #define SCMD_ENTER_ZONE    49
 #define SCMD_MISPRINT      50
 #define SCMD_BRIEF_SHIELDS 51
+#define SCMD_AUTO_NOSUMMON 52
 
 // do_wizutil
 #define SCMD_REROLL     0

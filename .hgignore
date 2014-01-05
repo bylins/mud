@@ -29,3 +29,4 @@ autorun
 .crash
 src/*.cbp
 src/*.layout
+src/*.cscope_file_list

@@ -1825,6 +1825,39 @@ ACMD(do_wimpy)
 		 ch);
 }
 
+void set_display_bits(CHAR_DATA *ch, bool flag)
+{
+	if (flag)
+	{
+		SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
+		SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
+		SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
+		SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
+		SET_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
+		SET_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
+		SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
+		SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
+		if (!IS_IMMORTAL(ch))
+		{
+			SET_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+		}
+	}
+	else
+	{
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+	}
+}
+
+const char *DISPLAY_HELP =
+	"Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П } | все | нет }\r\n";
 
 ACMD(do_display)
 {
@@ -1837,97 +1870,75 @@ ACMD(do_display)
 
 	if (!*argument)
 	{
-		send_to_char("Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П } | все | нет }\r\n", ch);
+		send_to_char(DISPLAY_HELP, ch);
 		return;
 	}
+
 	if (!str_cmp(argument, "on") || !str_cmp(argument, "all") ||
 			!str_cmp(argument, "вкл") || !str_cmp(argument, "все"))
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+		set_display_bits(ch, true);
+	}
+	else if (!str_cmp(argument, "off")
+		|| !str_cmp(argument, "none")
+		|| !str_cmp(argument, "выкл")
+		|| !str_cmp(argument, "нет"))
+	{
+		set_display_bits(ch, false);
 	}
 	else
-		if (!str_cmp(argument, "off") || !str_cmp(argument, "none") ||
-				!str_cmp(argument, "выкл") || !str_cmp(argument, "нет"))
-		{
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
-		}
-		else
-		{
-			// TODO: вообще можно и без дублирования переписать
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+	{
+		set_display_bits(ch, false);
 
-			const size_t len = strlen(argument);
-			for (size_t i = 0; i < len; i++)
+		const size_t len = strlen(argument);
+		for (size_t i = 0; i < len; i++)
+		{
+			switch (LOWER(argument[i]))
 			{
-				switch (LOWER(argument[i]))
-				{
-				case 'h':
-				case 'ж':
-					SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
-					break;
-				case 'w':
-				case 'з':
-					SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
-					break;
-				case 'm':
-				case 'э':
-					SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
-					break;
-				case 'e':
-				case 'в':
-					SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
-					break;
-				case 'g':
-				case 'д':
-					SET_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
-					break;
-				case 'l':
-				case 'у':
-					SET_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
-					break;
-				case 'x':
-				case 'о':
-					SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
-					break;
-				case 'б':
-				case 'f':
-					SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
-					break;
-				case 'п':
-				case 't':
-					SET_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
-					break;
-				default:
-					send_to_char
-					("Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П } | все | нет }\r\n", ch);
-					return;
-				}
+			case 'h':
+			case 'ж':
+				SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
+				break;
+			case 'w':
+			case 'з':
+				SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
+				break;
+			case 'm':
+			case 'э':
+				SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
+				break;
+			case 'e':
+			case 'в':
+				SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
+				break;
+			case 'g':
+			case 'д':
+				SET_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
+				break;
+			case 'l':
+			case 'у':
+				SET_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
+				break;
+			case 'x':
+			case 'о':
+				SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
+				break;
+			case 'б':
+			case 'f':
+				SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
+				break;
+			case 'п':
+			case 't':
+				SET_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+				break;
+			case ' ':
+				break;
+			default:
+				send_to_char(DISPLAY_HELP, ch);
+				return;
 			}
 		}
+	}
 
 	send_to_char(OK, ch);
 }
@@ -1984,6 +1995,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "вход в зону", "enter zone",
 							   "опечатки", "misprint",
 							   "магщиты", "mageshields",
+							   "автопризыв", "autonosummon",
 							   "\n"
 							 };
 
@@ -2046,7 +2058,8 @@ struct gen_tog_param_type
 		0, SCMD_DRAW_MAP}, {
 		0, SCMD_ENTER_ZONE}, {
 		LVL_GOD, SCMD_MISPRINT}, {
-		0, SCMD_BRIEF_SHIELDS}
+		0, SCMD_BRIEF_SHIELDS}, {
+		0, SCMD_AUTO_NOSUMMON}
 };
 
 ACMD(do_mode)
@@ -2293,9 +2306,10 @@ ACMD(do_gen_tog)
 		{"Показ уведомлений доски опечаток отключен.\r\n",
 		 "Вы будете видеть уведомления доски опечаток.\r\n"},
 		{"Показ сообщений при срабатывании магических щитов: полный.\r\n",
-		 "Показ сообщений при срабатывании магических щитов: краткий.\r\n"}
+		 "Показ сообщений при срабатывании магических щитов: краткий.\r\n"},
+		{"Автоматический режим защиты от призыва выключен.\r\n",
+		 "Вы будете автоматически включать режим защиты от призыва после его использования.\r\n"}
 	};
-
 
 	if (IS_NPC(ch))
 		return;
@@ -2483,6 +2497,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_BRIEF_SHIELDS:
 		result = PRF_TOG_CHK(ch, PRF_BRIEF_SHIELDS);
+		break;
+	case SCMD_AUTO_NOSUMMON:
+		result = PRF_TOG_CHK(ch, PRF_AUTO_NOSUMMON);
 		break;
 	default:
 		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);

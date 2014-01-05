@@ -5267,13 +5267,16 @@ ACMD(do_toggle)
 		sprintf(buf,  " Уведомления   : %-3s \r\n", "Нет");
 	}
 	send_to_char(buf, ch);
+
 	sprintf(buf,
 		" Карта         : %-3s     "
 		" Вход в зону   : %-3s     "
-		" Магщиты (вид) : %s\r\n",
+		" Магщиты (вид) : %s\r\n"
+		" Автопризыв    : %-3s\r\n",
 		ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)),
 		ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)),
-		(PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS) ? "краткий" : "полный"));
+		(PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS) ? "краткий" : "полный"),
+		ONOFF(PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON)));
 	send_to_char(buf, ch);
 }
 

@@ -408,6 +408,15 @@ inline void decay_portal(const int room_num)
 	world[room_num]->portal_room = 0;
 }
 
+void check_auto_nosummon(CHAR_DATA *ch)
+{
+	if (PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON) && PRF_FLAGGED(ch, PRF_SUMMONABLE))
+	{
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
+		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
+	}
+}
+
 ASPELL(spell_portal)
 {
 	room_rnum to_room, fnd_room;
@@ -498,6 +507,7 @@ ASPELL(spell_portal)
 			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_CHAR);
 			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_ROOM);
 		}
+		check_auto_nosummon(victim);
 
 		// если пенту ставит имм с привилегией arena (и находясь на арене), то пента получается односторонняя
 		if (Privilege::check_flag(ch, Privilege::ARENA_MASTER) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
@@ -651,7 +661,9 @@ ASPELL(spell_summon)
 	check_horse(victim);
 	act("$n прибыл$g по вызову.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("$n призвал$g вас!", FALSE, ch, 0, victim, TO_VICT);
+	check_auto_nosummon(victim);
 	look_at_room(victim, 0);
+
 	entry_memory_mtrigger(victim);
 	greet_mtrigger(victim, -1);	// УЖАС!!! Не стоит в эту функцию передавать -1 :)
 	greet_otrigger(victim, -1);	// УЖАС!!! Не стоит в эту функцию передавать -1 :)
