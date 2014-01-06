@@ -47,7 +47,8 @@ enum BoardTypes: int
 	NOTICE_BOARD,     // анонсы
 	MISPRINT_BOARD,   // очепятки (опечатка)
 	SUGGEST_BOARD,    // придумки (мысль)
-	CODER_BOARD,      // ченж-лог из меркуриала
+	CODER_BOARD,      // выборка из ченж-лога, затрагивающая игроков
+	CHANGELOG_BOARD,  // весь ченж-лог из меркуриала
 	TYPES_NUM         // кол-во досок
 };
 
@@ -97,13 +98,13 @@ class Board
 {
 public:
 	Board(Boards::BoardTypes in_type)
-		: type(in_type), lastWrite(0), clanRent(0), persUnique(0) {};
+		: type_(in_type), last_write_(0), clan_rent_(0), pers_unique_(0),
+		blind_(false) {};
 
 	MessageListType messages; // список сообщений
 
-	Boards::BoardTypes GetType() const;
-	int GetClanRent() const;
-	const std::string & GetName() const;
+	Boards::BoardTypes get_type() const;
+	const std::string & get_name() const;
 
 	long get_lastwrite() const;
 	void set_lastwrite(long unique);
@@ -118,6 +119,7 @@ public:
 	time_t last_message_date() const;
 
 	const std::string & get_alias() const;
+	bool blind() const;
 
 	static void BoardInit();
 	static void ClanInit();
@@ -132,17 +134,19 @@ public:
 	friend ACMD(report_on_board);
 
 private:
-	Boards::BoardTypes type;  // тип доски
-	std::string name;         // имя доски
-	std::string desc;         // описание доски
-	long lastWrite;           // уид последнего писавшего (до ребута)
-	int clanRent;             // номер ренты клана (для клановых досок)
-	int persUnique;           // уид (для персональной доски)
-	std::string persName;     // имя (для персональной доски)
-	std::string file;         // имя файла для сейва/лоада
+	Boards::BoardTypes type_;  // тип доски
+	std::string name_;         // имя доски
+	std::string desc_;         // описание доски
+	long last_write_;          // уид последнего писавшего (до ребута)
+	int clan_rent_;            // номер ренты клана (для клановых досок)
+	int pers_unique_;          // уид (для персональной доски)
+	std::string pers_name_;    // имя (для персональной доски)
+	std::string file_;         // имя файла для сейва/лоада
 	std::string alias_;        // однострочные алиасы для спец.досок
+	bool blind_;               // игроки не видят счетчики сообщений
 
 	void Load();
+	std::string print_stats(CHAR_DATA *ch, int num);
 
 	static void ShowMessage(CHAR_DATA * ch, MessagePtr message);
 	static void create_board(Boards::BoardTypes type, const std::string &name,

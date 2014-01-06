@@ -818,8 +818,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				d->message->date = time(0);
 				d->message->text = *(d->str);
 				// для новостных отступов ну и вообще мож все так сейвить, посмотрим
-				if (board->GetType() == Boards::NEWS_BOARD
-					|| board->GetType() == Boards::GODNEWS_BOARD)
+				if (board->get_type() == Boards::NEWS_BOARD
+					|| board->get_type() == Boards::GODNEWS_BOARD)
 				{
 					Boards::format_news_message(d->message->text);
 				}

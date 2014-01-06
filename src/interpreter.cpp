@@ -792,6 +792,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"cast", POS_SITTING, do_cast, 1, 0, -1},
 	{"check", POS_STANDING, do_not_here, 1, 0, -1},
 	{"chopoff", POS_FIGHTING, do_chopoff, 0, 0, 500},
+	{"changelog", POS_DEAD, DoBoard, 1, Boards::CHANGELOG_BOARD, -1},
 	{"clear", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
 	{"close", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
 	{"cls", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},

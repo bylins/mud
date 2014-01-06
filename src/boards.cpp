@@ -84,7 +84,7 @@ void message_no_read(CHAR_DATA *ch, const Board &board)
 	std::string out("У вас нет возможности читать этот раздел.\r\n");
 	if (board.is_special())
 	{
-		std::string name = board.GetName();
+		std::string name = board.get_name();
 		lower_convert(name);
 		out += "Для сообщения в формате обычной работы с доской используйте: " + name + " писать <заголовок>.\r\n";
 		if (!board.get_alias().empty())
@@ -102,7 +102,7 @@ void add_server_message(const std::string& subj, const std::string& text)
 	auto board_it = std::find_if(
 		Boards::board_list.begin(),
 		Boards::board_list.end(),
-		boost::bind(&Board::GetType, _1) == Boards::GODBUILD_BOARD);
+		boost::bind(&Board::get_type, _1) == Boards::GODBUILD_BOARD);
 
 	if (Boards::board_list.end() == board_it)
 	{
@@ -198,6 +198,27 @@ MessagePtr create_changelog_msg(std::string &author, std::string &desc,
 	return message;
 }
 
+/// ищем в уже сформированном сообщении на доску ченжлога таг </coder>
+/// если нашли - обрезаем все, что после него и добавляем получившуюся
+/// мессагу на доску кодер, при условии даты мессаги после 05.01.2014
+void check_coder_tag(std::vector<MessagePtr> &coder_msgs, MessagePtr msg)
+{
+	const std::size_t tag_pos = msg->text.find("</coder>");
+
+	if (tag_pos != std::string::npos || msg->date <= 1388880000)
+	{
+		MessagePtr new_msg(new Message);
+		*new_msg = *msg;
+		if (tag_pos != std::string::npos)
+		{
+			new_msg->text = new_msg->text.substr(0, tag_pos);
+			boost::trim(new_msg->text);
+			new_msg->text += "\r\n";
+		}
+		coder_msgs.push_back(new_msg);
+	}
+}
+
 void changelog_message()
 {
 	std::ifstream file(CHANGELOG_FILE);
@@ -206,11 +227,17 @@ void changelog_message()
 		log("SYSERROR: can't open changelog file (%s:%d)", __FILE__, __LINE__);
 		return;
 	}
-	auto board_it = std::find_if(
+	auto coder_board = std::find_if(
 		Boards::board_list.begin(),
 		Boards::board_list.end(),
-		boost::bind(&Board::GetType, _1) == Boards::CODER_BOARD);
-	if (Boards::board_list.end() == board_it)
+		boost::bind(&Board::get_type, _1) == Boards::CODER_BOARD);
+	auto changelog_board = std::find_if(
+		Boards::board_list.begin(),
+		Boards::board_list.end(),
+		boost::bind(&Board::get_type, _1) == Boards::CHANGELOG_BOARD);
+
+	if (Boards::board_list.end() == coder_board
+		|| Boards::board_list.end() == changelog_board)
 	{
 		log("SYSERROR: can't find coder board (%s:%d)", __FILE__, __LINE__);
 		return;
@@ -218,7 +245,7 @@ void changelog_message()
 
 	std::string buf_str, author, date, desc;
 	bool description = false;
-	std::vector<MessagePtr> tmp_list;
+	std::vector<MessagePtr> changelog_msgs, coder_msgs;
 
 	while (std::getline(file, buf_str))
 	{
@@ -229,11 +256,13 @@ void changelog_message()
 			if (tmp_str == "changeset:")
 			{
 				const time_t parsed_time = parse_asctime(date);
-				if (parsed_time >= 1326121851
+				if (parsed_time >= 1326121851 // переход на меркуриал
 					&& !author.empty() && !date.empty() && !desc.empty())
 				{
-					tmp_list.push_back(
-						create_changelog_msg(author, desc, parsed_time));
+					MessagePtr msg =
+						create_changelog_msg(author, desc, parsed_time);
+					changelog_msgs.push_back(msg);
+					check_coder_tag(coder_msgs, msg);
 				}
 				description = false;
 				author.clear();
@@ -270,9 +299,14 @@ void changelog_message()
 		}
 	}
 
-	for (auto i = tmp_list.rbegin(); i != tmp_list.rend(); ++i)
+	for (auto i = changelog_msgs.rbegin(); i != changelog_msgs.rend(); ++i)
 	{
-		(*board_it)->add_message(*i);
+		(*changelog_board)->add_message(*i);
+	}
+
+	for (auto i = coder_msgs.rbegin(); i != coder_msgs.rend(); ++i)
+	{
+		(*coder_board)->add_message(*i);
 	}
 }
 
@@ -283,22 +317,36 @@ using namespace Boards;
 void Board::create_board(BoardTypes type, const std::string &name, const std::string &desc, const std::string &file)
 {
 	boost::shared_ptr<Board> board = boost::make_shared<Board>(type);
-	board->name = name;
-	board->desc = desc;
-	board->file = file;
+	board->name_ = name;
+	board->desc_ = desc;
+	board->file_ = file;
 	board->Load();
-	if (board->GetType() == ERROR_BOARD)
+
+	if (board->get_type() == ERROR_BOARD)
 	{
 		board->alias_ = "ошибка";
 	}
-	else if (board->GetType() == MISPRINT_BOARD)
+	else if (board->get_type() == MISPRINT_BOARD)
 	{
 		board->alias_ = "опечатка";
 	}
-	else if (board->GetType() == SUGGEST_BOARD)
+	else if (board->get_type() == SUGGEST_BOARD)
 	{
 		board->alias_ = "мысль";
 	}
+
+	switch (board->get_type())
+	{
+		case ERROR_BOARD:
+		case MISPRINT_BOARD:
+		case SUGGEST_BOARD:
+		case CHANGELOG_BOARD:
+			board->blind_ = true;
+			break;
+		default:
+			break;
+	}
+
 	board_list.push_back(board);
 }
 
@@ -320,6 +368,7 @@ void Board::BoardInit()
 	create_board(MISPRINT_BOARD, "Очепятки", "Опечатки в игровых локациях", ETC_BOARD"misprint.board");
 	create_board(SUGGEST_BOARD, "Придумки", "Для идей в приватном режиме", ETC_BOARD"suggest.board");
 	create_board(CODER_BOARD, "Кодер", "Изменения в коде Былин", "");
+	create_board(CHANGELOG_BOARD, "Changelog", "Full changelog from mercurial", "");
 
 	dg_script_message();
 	changelog_message();
@@ -331,8 +380,8 @@ void Board::ClanInit()
 	// чистим клан-доски для релоада
 	board_list.erase(std::remove_if(
 		board_list.begin(), board_list.end(),
-		boost::bind(&Board::type, _1) == CLAN_BOARD
-			|| boost::bind(&Board::type, _1) == CLANNEWS_BOARD),
+		boost::bind(&Board::type_, _1) == CLAN_BOARD
+			|| boost::bind(&Board::type_, _1) == CLANNEWS_BOARD),
 		board_list.end());
 
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
@@ -341,20 +390,20 @@ void Board::ClanInit()
 		CreateFileName(name);
 		// делаем клановую доску
 		boost::shared_ptr<Board> board = boost::make_shared<Board>(CLAN_BOARD);
-		board->name = "ДрВече";
-		board->desc = "Основной раздел Дружины ";
-		board->desc += (*clan)->GetAbbrev();
-		board->clanRent = (*clan)->GetRent();
-		board->file = LIB_HOUSE + name + "/" + name + ".board";
+		board->name_ = "ДрВече";
+		board->desc_ = "Основной раздел Дружины ";
+		board->desc_ += (*clan)->GetAbbrev();
+		board->clan_rent_ = (*clan)->GetRent();
+		board->file_ = LIB_HOUSE + name + "/" + name + ".board";
 		board->Load();
 		board_list.push_back(board);
 		// делаем клановые новости
 		board = boost::make_shared<Board>(CLANNEWS_BOARD);
-		board->name = "ДрНовости";
-		board->desc = "Новости Дружины ";
-		board->desc += (*clan)->GetAbbrev();
-		board->clanRent = (*clan)->GetRent();
-		board->file = LIB_HOUSE + name + "/" + name + "-news.board";
+		board->name_ = "ДрНовости";
+		board->desc_ = "Новости Дружины ";
+		board->desc_ += (*clan)->GetAbbrev();
+		board->clan_rent_ = (*clan)->GetRent();
+		board->file_ = LIB_HOUSE + name + "/" + name + "-news.board";
 		board->Load();
 		board_list.push_back(board);
 	}
@@ -365,7 +414,7 @@ void Board::clear_god_boards()
 {
 	board_list.erase(std::remove_if(
 		board_list.begin(), board_list.end(),
-		boost::bind(&Board::type, _1) == PERS_BOARD),
+		boost::bind(&Board::type_, _1) == PERS_BOARD),
 		board_list.end());
 }
 
@@ -373,14 +422,14 @@ void Board::clear_god_boards()
 void Board::init_god_board(long uid, std::string name)
 {
 	boost::shared_ptr<Board> board = boost::make_shared<Board>(PERS_BOARD);
-	board->name = "Блокнот";
-	board->desc = "Ваш раздел для заметок";
-	board->persUnique = uid;
-	board->persName = name;
+	board->name_ = "Блокнот";
+	board->desc_ = "Ваш раздел для заметок";
+	board->pers_unique_ = uid;
+	board->pers_name_ = name;
 	// генерим имя и лоадим по возможности
 	std::string tmp_name = name;
 	CreateFileName(tmp_name);
-	board->file = ETC_BOARD + tmp_name + ".board";
+	board->file_ = ETC_BOARD + tmp_name + ".board";
 	board->Load();
 	board_list.push_back(board);
 }
@@ -396,11 +445,11 @@ void Board::reload_all()
 // подгружаем доску, если она существует
 void Board::Load()
 {
-	if (this->file.empty())
+	if (file_.empty())
 	{
 		return;
 	}
-	std::ifstream file((this->file).c_str());
+	std::ifstream file(file_.c_str());
 	if (!file.is_open())
 	{
 		this->Save();
@@ -427,7 +476,7 @@ void Board::Load()
 			// не помешает глянуть че мы там залоадили
 			if (message->author.empty() || !message->unique || !message->level || !message->date)
 				continue;
-			this->messages.push_back(message);
+			messages.push_back(message);
 		}
 		else if (buffer == "Type:")
 		{
@@ -436,19 +485,19 @@ void Board::Load()
 			// тип пишется в файле первым полем и дальше можно все стопнуть
 			int num;
 			file >> num;
-			if (num != this->type)
+			if (num != type_)
 			{
 				log("SYSERROR: wrong board type=%d from %s, expected=%d (%s %s %d)",
-					num, (this->file).c_str(), this->type, __FILE__, __func__, __LINE__);
+					num, file_.c_str(), type_, __FILE__, __func__, __LINE__);
 				return;
 			}
 		}
 		else if (buffer == "Clan:")
-			file >> this->clanRent;
+			file >> clan_rent_;
 		else if (buffer == "PersUID:")
-			file >> this->persUnique;
+			file >> pers_unique_;
 		else if (buffer == "PersName:")
-			file >> this->persName;
+			file >> pers_name_;
 	}
 	file.close();
 
@@ -458,21 +507,21 @@ void Board::Load()
 // сохраняем доску
 void Board::Save()
 {
-	if (this->file.empty())
+	if (file_.empty())
 	{
 		return;
 	}
-	std::ofstream file((this->file).c_str());
+	std::ofstream file(file_.c_str());
 	if (!file.is_open())
 	{
-		log("Error open file: %s! (%s %s %d)", (this->file).c_str(), __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", file_.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 
-	file << "Type: " << this->type << " "
-	<< "Clan: " << this->clanRent << " "
-	<< "PersUID: " << this->persUnique << " "
-	<< "PersName: " << (this->persName.empty() ? "none" : this->persName) << "\n";
+	file << "Type: " << type_ << " "
+	<< "Clan: " << clan_rent_ << " "
+	<< "PersUID: " << pers_unique_ << " "
+	<< "PersName: " << (pers_name_.empty() ? "none" : pers_name_) << "\n";
 	for (MessageListType::const_iterator message = this->messages.begin(); message != this->messages.end(); ++message)
 	{
 		file << "Message: " << (*message)->num << "\n"
@@ -528,7 +577,7 @@ void Board::do_list(CHAR_DATA *ch) const
 	char timeBuf[17];
 	for (auto message = messages.rbegin(); message != messages.rend(); ++message)
 	{
-		if ((*message)->date > ch->get_board_date(this->type))
+		if ((*message)->date > ch->get_board_date(type_))
 			body << CCWHT(ch, C_NRM); // для выделения новых мессаг светло-белым
 
 		strftime(timeBuf, sizeof(timeBuf), "%H:%M %d-%m-%Y", localtime(&(*message)->date));
@@ -549,7 +598,7 @@ bool is_spamer(CHAR_DATA *ch, const Board &board)
 	{
 		return false;
 	}
-	switch (board.GetType())
+	switch (board.get_type())
 	{
 	case CLAN_BOARD:
 	case CLANNEWS_BOARD:
@@ -577,7 +626,7 @@ ACMD(DoBoard)
 	std::vector<boost::shared_ptr<Board>>::const_iterator board_it;
 	for (board_it = board_list.begin(); board_it != board_list.end(); ++board_it)
 	{
-		if ((*board_it)->type == subcmd && can_see(ch, **board_it))
+		if ((*board_it)->type_ == subcmd && can_see(ch, **board_it))
 			break;
 	}
 	if (board_it == board_list.end())
@@ -607,11 +656,12 @@ ACMD(DoBoard)
 			message_no_read(ch, board);
 			return;
 		}
-		time_t const date = ch->get_board_date(board.type);
+		time_t const date = ch->get_board_date(board.type_);
 		// новости мада в ленточном варианте
-		if ((board.type == NEWS_BOARD
-			|| board.type == GODNEWS_BOARD
-			|| board.type == CODER_BOARD)
+		if ((board.type_ == NEWS_BOARD
+			|| board.type_ == GODNEWS_BOARD
+			|| board.type_ == CODER_BOARD
+			|| board.type_ == CHANGELOG_BOARD)
 				&& !PRF_FLAGGED(ch, PRF_NEWS_MODE))
 		{
 			std::ostringstream body;
@@ -625,7 +675,7 @@ ACMD(DoBoard)
 					body << CCWHT(ch, C_NRM); // новые подсветим
 				}
 				body << timeBuf << CCNRM(ch, C_NRM);
-				if (board.type == CODER_BOARD)
+				if (board.type_ == CODER_BOARD || board.type_ == CHANGELOG_BOARD)
 				{
 					body << " " << (*message)->author << "\r\n";
 					std::string text((*message)->text);
@@ -636,12 +686,12 @@ ACMD(DoBoard)
 					body << "\r\n" << (*message)->text;
 				}
 			}
-			set_last_read(ch, board.type, board.last_message_date());
+			set_last_read(ch, board.type_, board.last_message_date());
 			page_string(ch->desc, body.str());
 			return;
 		}
 		// дрновости в ленточном варианте
-		if (board.type == CLANNEWS_BOARD && !PRF_FLAGGED(ch, PRF_NEWS_MODE))
+		if (board.type_ == CLANNEWS_BOARD && !PRF_FLAGGED(ch, PRF_NEWS_MODE))
 		{
 			std::ostringstream body;
 			MessageListType::reverse_iterator message;
@@ -651,7 +701,7 @@ ACMD(DoBoard)
 					body << CCWHT(ch, C_NRM); // новые подсветим
 				body << "[" << (*message)->author << "] " << CCNRM(ch, C_NRM) << (*message)->text;
 			}
-			set_last_read(ch, board.type, board.last_message_date());
+			set_last_read(ch, board.type_, board.last_message_date());
 			page_string(ch->desc, body.str());
 			return;
 		}
@@ -661,7 +711,7 @@ ACMD(DoBoard)
 			if ((*message)->date > date)
 			{
 				Board::ShowMessage(ch, *message);
-				set_last_read(ch, board.type, (*message)->date);
+				set_last_read(ch, board.type_, (*message)->date);
 				return;
 			}
 		}
@@ -690,7 +740,7 @@ ACMD(DoBoard)
 		}
 		num = board.messages.size() - num;
 		Board::ShowMessage(ch, board.messages[num]);
-		set_last_read(ch, board.type, board.messages[num]->date);
+		set_last_read(ch, board.type_, board.messages[num]->date);
 	}
 	else if (CompareParam(buffer, "писать") || CompareParam(buffer, "write"))
 	{
@@ -711,7 +761,7 @@ ACMD(DoBoard)
 		}
 		/// написание новостей от другого имени
 		std::string name = GET_NAME(ch);
-		if ((board.type == NEWS_BOARD || board.type == NOTICE_BOARD) && PRF_FLAGGED(ch, PRF_CODERINFO))
+		if ((board.type_ == NEWS_BOARD || board.type_ == NOTICE_BOARD) && PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
 			GetOneParam(buffer2, buffer);
 			if (buffer.empty())
@@ -771,7 +821,7 @@ ACMD(DoBoard)
 			return;
 		}
 		num = board.messages.size() - num;
-		set_last_read(ch, board.type, board.messages[num]->date);
+		set_last_read(ch, board.type_, board.messages[num]->date);
 		// или он может делетить любые мессаги (по левелу/рангу), или только свои
 		if (!full_access(ch, board))
 		{
@@ -781,9 +831,9 @@ ACMD(DoBoard)
 				return;
 			}
 		}
-		else if (board.type != CLAN_BOARD
-				 && board.type != CLANNEWS_BOARD
-				 && board.type != PERS_BOARD
+		else if (board.type_ != CLAN_BOARD
+				 && board.type_ != CLANNEWS_BOARD
+				 && board.type_ != PERS_BOARD
 				 && !PRF_FLAGGED(ch, PRF_CODERINFO)
 				 && GET_LEVEL(ch) < board.messages[num]->level)
 		{
@@ -792,7 +842,7 @@ ACMD(DoBoard)
 			send_to_char("У вас нет возможности удалить это сообщение.\r\n", ch);
 			return;
 		}
-		else if (board.type == CLAN_BOARD || board.type == CLANNEWS_BOARD)
+		else if (board.type_ == CLAN_BOARD || board.type_ == CLANNEWS_BOARD)
 		{
 			// у кого привилегия на новости, те могут удалять везде чужие, если ранк автора такой же или ниже
 			if (CLAN_MEMBER(ch)->rank_num > board.messages[num]->rank)
@@ -838,6 +888,63 @@ int count_unread(const MessageListType &messages, time_t last_read)
 	return unread;
 }
 
+std::string print_access(const std::bitset<Boards::ACCESS_NUM> &acess_flags)
+{
+	std::string access;
+	if (acess_flags.test(ACCESS_FULL))
+	{
+		access = "полный+";
+	}
+	else if (acess_flags.test(ACCESS_CAN_READ)
+		&& acess_flags.test(ACCESS_CAN_WRITE))
+	{
+		access = "полный";
+	}
+	else if (acess_flags.test(ACCESS_CAN_READ))
+	{
+		access = "чтение";
+	}
+	else if (acess_flags.test(ACCESS_CAN_WRITE))
+	{
+		access = "запись";
+	}
+	else if (acess_flags.test(ACCESS_CAN_SEE))
+	{
+		access = "нет";
+	}
+	else
+	{
+		access = "";
+	}
+	return access;
+}
+
+std::string Board::print_stats(CHAR_DATA *ch, int num)
+{
+	const std::string access = print_access(get_access(ch));
+	if (access.empty()) return "";
+
+	std::string out;
+	if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) || !blind_)
+	{
+		const int unread = count_unread(
+			messages, ch->get_board_date(type_));
+		out += boost::str(boost::format
+			(" %2d)  %10s   [%3d|%3d]   %40s  %6s\r\n")
+			% num % name_ % unread % messages.size()
+			% desc_ % access);
+	}
+	else
+	{
+		std::string tmp = alias_.empty() ? desc_
+			: desc_ + " (" + alias_ + ")";
+		out += boost::str(boost::format
+			(" %2d)  %10s   [ - | - ]   %40s  %6s\r\n")
+			% num % name_ % tmp % access);
+	}
+	return out;
+}
+
 ACMD(DoBoardList)
 {
 	if (IS_NPC(ch))
@@ -847,70 +954,22 @@ ACMD(DoBoardList)
 		" Ном         Имя  Новых|Всего                                  Описание  Доступ\r\n"
 		" ===  ==========  ===========  ========================================  ======\r\n");
 	int num = 1;
-
-	// печатаем обычные как минимум читаемые доски
-	for (auto board = board_list.begin(); board != board_list.end(); ++board)
+	for (auto board = board_list.cbegin(); board != board_list.cend(); ++board)
 	{
-		std::string access;
-		auto acess_flags = (*board)->get_access(ch);
-		if (acess_flags.test(ACCESS_FULL))
+		if (!(*board)->blind())
 		{
-			access = "полный+";
+			out += (*board)->print_stats(ch, num++);
 		}
-		else if (acess_flags.test(ACCESS_CAN_READ)
-			&& acess_flags.test(ACCESS_CAN_WRITE))
-		{
-			access = "полный";
-		}
-		else if (acess_flags.test(ACCESS_CAN_READ))
-		{
-			access = "чтение";
-		}
-		else
-		{
-			continue;
-		}
-		const int unread = count_unread((*board)->messages, ch->get_board_date((*board)->type));
-		out += boost::str(boost::format
-			(" %2d)  %10s   [%3d|%3d]   %40s  %6s\r\n")
-			% num++ % (*board)->name % unread % (*board)->messages.size()
-			% (*board)->desc % access);
 	}
-
-	// остальные спец. доски
-	bool have_blinds = false;
-	for (auto board = board_list.begin(); board != board_list.end(); ++board)
+	// два цикла для сквозной нумерации без заморочек
+	out +=
+		" ---  ----------  -----------  ----------------------------------------  ------\r\n";
+	for (auto board = board_list.cbegin(); board != board_list.cend(); ++board)
 	{
-		std::string access;
-		auto acess_flags = (*board)->get_access(ch);
-		if (acess_flags.none()
-			|| acess_flags.test(ACCESS_CAN_READ)
-			|| acess_flags.test(ACCESS_FULL))
+		if ((*board)->blind())
 		{
-			continue;
+			out += (*board)->print_stats(ch, num++);
 		}
-		else if (acess_flags.test(ACCESS_CAN_WRITE))
-		{
-			access = "запись";
-		}
-		else if (acess_flags.test(ACCESS_CAN_SEE))
-		{
-			access = "нет";
-		}
-		else
-		{
-			access = "error";
-		}
-		if (!have_blinds)
-		{
-			have_blinds = true;
-			out += " ---  ----------  -----------  ----------------------------------------  ------\r\n";
-		}
-		std::string desc = (*board)->get_alias().empty() ? (*board)->desc
-			: (*board)->desc + " (" + (*board)->get_alias() + ")";
-		out += boost::str(boost::format
-			(" %2d)  %10s   [ - | - ]   %40s  %6s\r\n")
-			% num++ % (*board)->name % desc % access);
 	}
 
 	send_to_char(out, ch);
@@ -920,7 +979,7 @@ std::bitset<ACCESS_NUM> Board::get_access(CHAR_DATA *ch) const
 {
 	std::bitset<ACCESS_NUM> access;
 
-	switch (this->type)
+	switch (this->type_)
 	{
 	case GENERAL_BOARD:
 	case IDEA_BOARD:
@@ -1004,15 +1063,15 @@ std::bitset<ACCESS_NUM> Board::get_access(CHAR_DATA *ch) const
 		}
 		break;
 	case PERS_BOARD:
-		if (IS_GOD(ch) && this->persUnique == GET_UNIQUE(ch)
-			&& CompareParam(this->persName, GET_NAME(ch), 1))
+		if (IS_GOD(ch) && this->pers_unique_ == GET_UNIQUE(ch)
+			&& CompareParam(this->pers_name_, GET_NAME(ch), 1))
 		{
 			access.set();
 		}
 		break;
 	case CLAN_BOARD:
 		// от клан-новостей отличается тем, что писать могут все звания
-		if (CLAN(ch) && CLAN(ch)->GetRent() == this->clanRent)
+		if (CLAN(ch) && CLAN(ch)->GetRent() == this->clan_rent_)
 		{
 			// воевода
 			if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, ClanSystem::MAY_CLAN_NEWS))
@@ -1029,7 +1088,7 @@ std::bitset<ACCESS_NUM> Board::get_access(CHAR_DATA *ch) const
 		break;
 	case CLANNEWS_BOARD:
 		// неклановые не видят, клановые могут читать все, писать могут по привилегии, воевода может стирать чужие
-		if (CLAN(ch) && CLAN(ch)->GetRent() == this->clanRent)
+		if (CLAN(ch) && CLAN(ch)->GetRent() == this->clan_rent_)
 		{
 			if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, ClanSystem::MAY_CLAN_NEWS))
 			{
@@ -1078,6 +1137,10 @@ std::bitset<ACCESS_NUM> Board::get_access(CHAR_DATA *ch) const
 		access.set(ACCESS_CAN_SEE);
 		access.set(ACCESS_CAN_READ);
 		break;
+	case CHANGELOG_BOARD:
+		access.set(ACCESS_CAN_SEE);
+		access.set(ACCESS_CAN_READ);
+		break;
 
 	default:
 		log("Error board type! (%s %s %d)", __FILE__, __func__, __LINE__);
@@ -1089,7 +1152,7 @@ std::bitset<ACCESS_NUM> Board::get_access(CHAR_DATA *ch) const
 			|| PLR_FLAGGED(ch, PLR_NAMED)
 			|| PLR_FLAGGED(ch, PLR_DUMB)
 			|| lvl_no_write(ch))
-		&& (this->type != CLAN_BOARD && this->type != CLANNEWS_BOARD))
+		&& (this->type_ != CLAN_BOARD && this->type_ != CLANNEWS_BOARD))
 	{
 		access.reset(ACCESS_CAN_WRITE);
 		access.reset(ACCESS_FULL);
@@ -1179,7 +1242,7 @@ SPECIAL(Board::Special)
 		{
 			for (auto i = board_list.begin(); i != board_list.end(); ++i)
 			{
-				if (isname(buffer2, (*i)->GetName().c_str()))
+				if (isname(buffer2, (*i)->get_name().c_str()))
 				{
 					send_to_char(ch,
 						"Первое слово вашего заголовка совпадает с названием одной из досок сообщений,\r\n"
@@ -1216,19 +1279,19 @@ void Board::LoginInfo(CHAR_DATA * ch)
 	{
 		// доска не видна или можно только писать, опечатки тож не спамим
 		if (!can_read(ch, **board)
-			|| ((*board)->type == MISPRINT_BOARD && !PRF_FLAGGED(ch, PRF_MISPRINT))
-			|| (*board)->type == CODER_BOARD)
+			|| ((*board)->type_ == MISPRINT_BOARD && !PRF_FLAGGED(ch, PRF_MISPRINT))
+			|| (*board)->type_ == CHANGELOG_BOARD)
 		{
 			continue;
 		}
-		const int unread = count_unread((*board)->messages, ch->get_board_date((*board)->type));
+		const int unread = count_unread((*board)->messages, ch->get_board_date((*board)->type_));
 		if (unread > 0)
 		{
 			has_message = 1;
-			if ((*board)->type == NEWS_BOARD || (*board)->type == GODNEWS_BOARD || (*board)->type == CLANNEWS_BOARD)
-				news << std::setw(4) << unread << " в разделе '" << (*board)->desc << "' " << CCWHT(ch, C_NRM) << "(" << (*board)->name << ")" << CCNRM(ch, C_NRM) << ".\r\n";
+			if ((*board)->type_ == NEWS_BOARD || (*board)->type_ == GODNEWS_BOARD || (*board)->type_ == CLANNEWS_BOARD)
+				news << std::setw(4) << unread << " в разделе '" << (*board)->desc_ << "' " << CCWHT(ch, C_NRM) << "(" << (*board)->name_ << ")" << CCNRM(ch, C_NRM) << ".\r\n";
 			else
-				buffer << std::setw(4) << unread << " в разделе '" << (*board)->desc << "' " << CCWHT(ch, C_NRM) << "(" << (*board)->name << ")" << CCNRM(ch, C_NRM) << ".\r\n";
+				buffer << std::setw(4) << unread << " в разделе '" << (*board)->desc_ << "' " << CCWHT(ch, C_NRM) << "(" << (*board)->name_ << ")" << CCNRM(ch, C_NRM) << ".\r\n";
 		}
 	}
 
@@ -1253,7 +1316,7 @@ ACMD(report_on_board)
 
 	auto board = std::find_if(
 		board_list.begin(), board_list.end(),
-		boost::bind(&Board::type, _1) == subcmd);
+		boost::bind(&Board::type_, _1) == subcmd);
 
 	if (board == board_list.end())
 	{
@@ -1290,36 +1353,31 @@ ACMD(report_on_board)
 		"                        Боги.\r\n", argument);
 }
 
-BoardTypes Board::GetType() const
+BoardTypes Board::get_type() const
 {
-	return this->type;
+	return type_;
 }
 
 long Board::get_lastwrite() const
 {
-	return this->lastWrite;
+	return last_write_;
 }
 
 void Board::set_lastwrite(long unique)
 {
-	this->lastWrite = unique;
+	last_write_ = unique;
 }
 
-int Board::GetClanRent() const
+const std::string & Board::get_name() const
 {
-	return this->clanRent;
-}
-
-const std::string & Board::GetName() const
-{
-	return this->name;
+	return name_;
 }
 
 bool Board::is_special() const
 {
-	if (GetType() == ERROR_BOARD
-		|| GetType() == MISPRINT_BOARD
-		|| GetType() == SUGGEST_BOARD)
+	if (get_type() == ERROR_BOARD
+		|| get_type() == MISPRINT_BOARD
+		|| get_type() == SUGGEST_BOARD)
 	{
 		return true;
 	}
@@ -1328,15 +1386,15 @@ bool Board::is_special() const
 
 void Board::new_message_notify() const
 {
-	if (GetType() != PERS_BOARD
-		&& GetType() != CODER_BOARD
+	if (get_type() != PERS_BOARD
+		&& get_type() != CHANGELOG_BOARD
 		&& !messages.empty())
 	{
 		const Message &msg = **(messages.rbegin());
 		char buf_[MAX_INPUT_LENGTH];
 		snprintf(buf_, sizeof(buf_),
 			"Новое сообщение в разделе '%s' от %s, тема: %s\r\n",
-			GetName().c_str(), msg.author.c_str(),
+			get_name().c_str(), msg.author.c_str(),
 			msg.subject.c_str());
 		// оповещаем весь мад кто с правами чтения
 		for (DESCRIPTOR_DATA *f = descriptor_list; f; f = f->next)
@@ -1345,7 +1403,7 @@ void Board::new_message_notify() const
 				&& STATE(f) == CON_PLAYING
 				&& PRF_FLAGGED(f->character, PRF_BOARD_MODE)
 				&& can_read(f->character, *this)
-				&& (GetType() != MISPRINT_BOARD
+				&& (get_type() != MISPRINT_BOARD
 					|| PRF_FLAGGED(f->character, PRF_MISPRINT)))
 			{
 				send_to_char(buf_, f->character);
@@ -1356,14 +1414,16 @@ void Board::new_message_notify() const
 
 void Board::add_message(MessagePtr msg)
 {
-	if (GetType() == CODER_BOARD && messages.size() >= MAX_REPORT_MESSAGES)
+	if ((get_type() == CODER_BOARD || get_type() == CHANGELOG_BOARD)
+		&& messages.size() >= MAX_REPORT_MESSAGES)
 	{
 		messages.erase(messages.begin());
 	}
 	if (!is_special()
-		&& GetType() != NEWS_BOARD
-		&& GetType() != GODNEWS_BOARD
-		&& GetType() != CODER_BOARD
+		&& get_type() != NEWS_BOARD
+		&& get_type() != GODNEWS_BOARD
+		&& get_type() != CODER_BOARD
+		&& get_type() != CHANGELOG_BOARD
 		&& messages.size() >= MAX_BOARD_MESSAGES)
 	{
 		messages.erase(messages.begin());
@@ -1398,6 +1458,11 @@ time_t Board::last_message_date() const
 const std::string & Board::get_alias() const
 {
 	return alias_;
+}
+
+bool Board::blind() const
+{
+	return blind_;
 }
 
 namespace Boards

@@ -1250,6 +1250,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				set_board_date(Boards::SUGGEST_BOARD, llnum);
 			else if (!strcmp(tag, "Br16"))
 				set_board_date(Boards::CODER_BOARD, llnum);
+			else if (!strcmp(tag, "Br17") && GET_LEVEL(this) >= LVL_IMMORT)
+				set_board_date(Boards::CHANGELOG_BOARD, llnum);
 
 			else if (!strcmp(tag, "Brth"))
 				this->player_data.time.birth = lnum;
