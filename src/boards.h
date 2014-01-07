@@ -48,7 +48,6 @@ enum BoardTypes: int
 	MISPRINT_BOARD,   // очепятки (опечатка)
 	SUGGEST_BOARD,    // придумки (мысль)
 	CODER_BOARD,      // выборка из ченж-лога, затрагивающая игроков
-	CHANGELOG_BOARD,  // весь ченж-лог из меркуриала
 	TYPES_NUM         // кол-во досок
 };
 

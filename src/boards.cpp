@@ -198,27 +198,6 @@ MessagePtr create_changelog_msg(std::string &author, std::string &desc,
 	return message;
 }
 
-/// ищем в уже сформированном сообщении на доску ченжлога таг </coder>
-/// если нашли - обрезаем все, что после него и добавляем получившуюся
-/// мессагу на доску кодер, при условии даты мессаги после 05.01.2014
-void check_coder_tag(std::vector<MessagePtr> &coder_msgs, MessagePtr msg)
-{
-	const std::size_t tag_pos = msg->text.find("</coder>");
-
-	if (tag_pos != std::string::npos || msg->date <= 1388880000)
-	{
-		MessagePtr new_msg(new Message);
-		*new_msg = *msg;
-		if (tag_pos != std::string::npos)
-		{
-			new_msg->text = new_msg->text.substr(0, tag_pos);
-			boost::trim(new_msg->text);
-			new_msg->text += "\r\n";
-		}
-		coder_msgs.push_back(new_msg);
-	}
-}
-
 void changelog_message()
 {
 	std::ifstream file(CHANGELOG_FILE);
@@ -231,13 +210,8 @@ void changelog_message()
 		Boards::board_list.begin(),
 		Boards::board_list.end(),
 		boost::bind(&Board::get_type, _1) == Boards::CODER_BOARD);
-	auto changelog_board = std::find_if(
-		Boards::board_list.begin(),
-		Boards::board_list.end(),
-		boost::bind(&Board::get_type, _1) == Boards::CHANGELOG_BOARD);
 
-	if (Boards::board_list.end() == coder_board
-		|| Boards::board_list.end() == changelog_board)
+	if (Boards::board_list.end() == coder_board)
 	{
 		log("SYSERROR: can't find coder board (%s:%d)", __FILE__, __LINE__);
 		return;
@@ -245,7 +219,7 @@ void changelog_message()
 
 	std::string buf_str, author, date, desc;
 	bool description = false;
-	std::vector<MessagePtr> changelog_msgs, coder_msgs;
+	std::vector<MessagePtr> coder_msgs;
 
 	while (std::getline(file, buf_str))
 	{
@@ -259,10 +233,8 @@ void changelog_message()
 				if (parsed_time >= 1326121851 // переход на меркуриал
 					&& !author.empty() && !date.empty() && !desc.empty())
 				{
-					MessagePtr msg =
-						create_changelog_msg(author, desc, parsed_time);
-					changelog_msgs.push_back(msg);
-					check_coder_tag(coder_msgs, msg);
+					coder_msgs.push_back(create_changelog_msg(
+						author, desc, parsed_time));
 				}
 				description = false;
 				author.clear();
@@ -297,11 +269,6 @@ void changelog_message()
 		{
 			desc += buf_str + "\r\n";
 		}
-	}
-
-	for (auto i = changelog_msgs.rbegin(); i != changelog_msgs.rend(); ++i)
-	{
-		(*changelog_board)->add_message(*i);
 	}
 
 	for (auto i = coder_msgs.rbegin(); i != coder_msgs.rend(); ++i)
@@ -340,7 +307,7 @@ void Board::create_board(BoardTypes type, const std::string &name, const std::st
 		case ERROR_BOARD:
 		case MISPRINT_BOARD:
 		case SUGGEST_BOARD:
-		case CHANGELOG_BOARD:
+		case CODER_BOARD:
 			board->blind_ = true;
 			break;
 		default:
@@ -368,7 +335,6 @@ void Board::BoardInit()
 	create_board(MISPRINT_BOARD, "Очепятки", "Опечатки в игровых локациях", ETC_BOARD"misprint.board");
 	create_board(SUGGEST_BOARD, "Придумки", "Для идей в приватном режиме", ETC_BOARD"suggest.board");
 	create_board(CODER_BOARD, "Кодер", "Изменения в коде Былин", "");
-	create_board(CHANGELOG_BOARD, "Changelog", "Full changelog from mercurial", "");
 
 	dg_script_message();
 	changelog_message();
@@ -660,8 +626,7 @@ ACMD(DoBoard)
 		// новости мада в ленточном варианте
 		if ((board.type_ == NEWS_BOARD
 			|| board.type_ == GODNEWS_BOARD
-			|| board.type_ == CODER_BOARD
-			|| board.type_ == CHANGELOG_BOARD)
+			|| board.type_ == CODER_BOARD)
 				&& !PRF_FLAGGED(ch, PRF_NEWS_MODE))
 		{
 			std::ostringstream body;
@@ -675,7 +640,7 @@ ACMD(DoBoard)
 					body << CCWHT(ch, C_NRM); // новые подсветим
 				}
 				body << timeBuf << CCNRM(ch, C_NRM);
-				if (board.type_ == CODER_BOARD || board.type_ == CHANGELOG_BOARD)
+				if (board.type_ == CODER_BOARD)
 				{
 					body << " " << (*message)->author << "\r\n";
 					std::string text((*message)->text);
@@ -1137,10 +1102,6 @@ std::bitset<ACCESS_NUM> Board::get_access(CHAR_DATA *ch) const
 		access.set(ACCESS_CAN_SEE);
 		access.set(ACCESS_CAN_READ);
 		break;
-	case CHANGELOG_BOARD:
-		access.set(ACCESS_CAN_SEE);
-		access.set(ACCESS_CAN_READ);
-		break;
 
 	default:
 		log("Error board type! (%s %s %d)", __FILE__, __func__, __LINE__);
@@ -1280,7 +1241,7 @@ void Board::LoginInfo(CHAR_DATA * ch)
 		// доска не видна или можно только писать, опечатки тож не спамим
 		if (!can_read(ch, **board)
 			|| ((*board)->type_ == MISPRINT_BOARD && !PRF_FLAGGED(ch, PRF_MISPRINT))
-			|| (*board)->type_ == CHANGELOG_BOARD)
+			|| (*board)->type_ == CODER_BOARD)
 		{
 			continue;
 		}
@@ -1387,7 +1348,7 @@ bool Board::is_special() const
 void Board::new_message_notify() const
 {
 	if (get_type() != PERS_BOARD
-		&& get_type() != CHANGELOG_BOARD
+		&& get_type() != CODER_BOARD
 		&& !messages.empty())
 	{
 		const Message &msg = **(messages.rbegin());
@@ -1414,7 +1375,7 @@ void Board::new_message_notify() const
 
 void Board::add_message(MessagePtr msg)
 {
-	if ((get_type() == CODER_BOARD || get_type() == CHANGELOG_BOARD)
+	if ((get_type() == CODER_BOARD)
 		&& messages.size() >= MAX_REPORT_MESSAGES)
 	{
 		messages.erase(messages.begin());
@@ -1423,7 +1384,6 @@ void Board::add_message(MessagePtr msg)
 		&& get_type() != NEWS_BOARD
 		&& get_type() != GODNEWS_BOARD
 		&& get_type() != CODER_BOARD
-		&& get_type() != CHANGELOG_BOARD
 		&& messages.size() >= MAX_BOARD_MESSAGES)
 	{
 		messages.erase(messages.begin());
