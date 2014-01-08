@@ -346,11 +346,13 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	if (!CAN_GO(ch, dir))
 		return (FALSE);
 
-	// не пускать в ванрумы после пк
-	if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_TUNNEL) && !IS_NPC(ch) && RENTABLE(ch))
+	// не пускать в ванрумы после пк, если его там прибьет сразу
+	if (DeathTrap::check_tunnel_death(ch, EXIT(ch, dir)->to_room))
 	{
 		if (show_msg)
+		{
 			send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
+		}
 		return (FALSE);
 	}
 
@@ -777,7 +779,13 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		return (FALSE);
 	}
 	if (check_death_ice(go_to, ch))
+	{
 		return (FALSE);
+	}
+	if (DeathTrap::tunnel_damage(ch))
+	{
+		return (FALSE);
+	}
 
 	entry_memory_mtrigger(ch);
 
@@ -1442,11 +1450,10 @@ ACMD(do_enter)
 						FALSE, ch, 0, get_horse(ch), TO_CHAR);
 					return;
 				}
-				// не пускать в ванрумы после пк
-				if (ROOM_FLAGGED(door, ROOM_TUNNEL) && RENTABLE(ch) && !IS_NPC(ch))
+				// не пускать в ванрумы после пк, если его там прибьет сразу
+				if (DeathTrap::check_tunnel_death(ch, door))
 				{
-					send_to_char
-					("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
+					send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 					return;
 				}
 				// Если чар под местью, и портал односторонний, то не пускать

@@ -337,3 +337,55 @@ bool DeathTrap::is_slow_dt(int rnum)
 		return true;
 	return false;
 }
+
+/// Проверка чара на дамаг в ванруме, если он попадет в комнату room_rnum
+/// \return если > 0, то величину дамага,
+/// иначе - чара в tunnel_damage() не дамагнет
+int calc_tunnel_dmg(CHAR_DATA *ch, int room_rnum)
+{
+	if (!IS_NPC(ch)
+		&& !IS_IMMORTAL(ch)
+		&& RENTABLE(ch)
+		&& ROOM_FLAGGED(room_rnum, ROOM_TUNNEL))
+	{
+		return std::max(20, GET_REAL_MAX_HIT(ch) >> 3);
+	}
+	return 0;
+}
+
+/// \return true - чара может убить сразу при входе в ванрум
+/// предполагается не пускать чара на верную смерть
+bool DeathTrap::check_tunnel_death(CHAR_DATA *ch, int room_rnum)
+{
+	const int dam = calc_tunnel_dmg(ch, room_rnum);
+	if (dam > 0 && GET_HIT(ch) <= dam * 2)
+	{
+		return true;
+	}
+	return false;
+}
+
+/// дамаг чаров с бд в ван-румах раз в 2 секунды (SECS_PER_PLAYER_AFFECT)
+/// и просто по факту входа (char_to_room), чтобы не так резво скакали
+bool DeathTrap::tunnel_damage(CHAR_DATA *ch)
+{
+	const int dam = calc_tunnel_dmg(ch, IN_ROOM(ch));
+	if (dam > 0)
+	{
+		const int room_rnum = IN_ROOM(ch);
+		const std::string name = ch->get_name_str();
+		Damage dmg(SimpleDmg(TYPE_TUNNERLDEATH), dam, FightSystem::UNDEF_DMG);
+		dmg.flags.set(FightSystem::NO_FLEE);
+
+		if (dmg.process(ch, ch) < 0)
+		{
+			char buf_[MAX_INPUT_LENGTH];
+			snprintf(buf_, sizeof(buf_),
+				"Player %s died in tunnel room (room %d)",
+				name.c_str(), GET_ROOM_VNUM(room_rnum));
+			mudlog(buf_, NRM, LVL_IMMORT, SYSLOG, TRUE);
+			return true;
+		}
+	}
+	return false;
+}

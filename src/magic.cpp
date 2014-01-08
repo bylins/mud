@@ -842,12 +842,19 @@ void player_affect_update(void)
 
 	for (i = character_list; i; i = i_next)
 	{
+		// на всякий случай проверка на пурж, в целом пурж чармисов внутри
+		// такого цикла сейчас выглядит безопасным, чармисы если и есть, то они
+		// добавлялись в чар-лист в начало списка и идут до самого чара
+		if (i->purged())
+			break;
 		i_next = i->next;
+
 		if (IS_NPC(i))
+			continue;
+		if (DeathTrap::tunnel_damage(i))
 			continue;
 
 		pulse_affect_update(i);
-
 
 		bool was_purged = false;
 

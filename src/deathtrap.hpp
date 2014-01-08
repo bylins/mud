@@ -28,6 +28,11 @@ void activity();
 int check_death_trap(CHAR_DATA * ch);
 // Проверка комнаты на принадлежность к медленным дт
 bool is_slow_dt(int rnum);
+// \return true - чара может сразу убить при входе в ванрум
+bool check_tunnel_death(CHAR_DATA *ch, int room_rnum);
+// Дамаг чаров с бд в ван-румах, \return true - чара убили
+bool tunnel_damage(CHAR_DATA *ch);
+
 } // namespace DeathTrap
 
 /**
