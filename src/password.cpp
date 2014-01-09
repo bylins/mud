@@ -2,6 +2,11 @@
 // Copyright (c) 2007 Krodo
 // Part of Bylins http://www.mud.ru
 
+#if defined(__APPLE__) || defined(__MACH__)
+#include <unistd.h>
+#else
+#include <crypt.h>
+#endif
 #include "password.hpp"
 #include "utils.h"
 #include "interpreter.h"

@@ -342,7 +342,7 @@ void Clan::ClanLoad()
 				tempClan->ranks.push_back(buffer);
 				tempClan->ranks_female.push_back(buffer2);
 
-				tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM> (0));
+				tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM> ());
 				for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 				{
 					tempClan->privileges[0].set(i);
@@ -2393,7 +2393,7 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	// привилегии
 	for (std::vector<std::string>::const_iterator it =
 				tempClan->ranks.begin(); it != tempClan->ranks.end(); ++it)
-		tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM> (0));
+		tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM> ());
 	// воеводе проставим все привилегии
 	for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 		tempClan->privileges[0].set(i);

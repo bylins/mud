@@ -35,7 +35,16 @@ DEBUGFLAGS = -m32 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC $(EPOLL_FLAG) $(EXTR
 FASTTEST   = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3 $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 #SEARCHPATH = -I /usr/include/python2.6
 
-LIBS =  -m32 -lz -lcrypt
+LIBS =  -m32 -lz
+
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+# needed for clang
+EXTRA_CFLAGS += -Wno-invalid-source-encoding -Wno-out-of-line-declaration
+else
+# there is no -lcrypt on darwin
+LIBS +=  -lcrypt
+endif
 #LIBS =  -lz -lcrypt -lpython2.6 -lboost_python-mt
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
