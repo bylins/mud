@@ -13,6 +13,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/algorithm/string.hpp>
+// GCC 4.4
+#include <boost/tr1/unordered_map.hpp>
 
 #include "obj_sets.hpp"
 #include "obj_sets_stuff.hpp"
@@ -39,10 +41,10 @@ int set_node::uid_cnt = 0;
 
 const char *OBJ_SETS_FILE = LIB_MISC"obj_sets.xml";
 /// мин/макс кол-во активаторов для валидного сета
-const int MIN_ACTIVE_SIZE = 2;
-const int MAX_ACTIVE_SIZE = 8;
+const unsigned MIN_ACTIVE_SIZE = 2;
+const unsigned MAX_ACTIVE_SIZE = 8;
 /// сколько всего активаторов с разных сетов может включиться на чаре
-const int MAX_TOTAL_ACTIV = 8;
+const unsigned MAX_TOTAL_ACTIV = 8;
 /// сколько предметов может быть в сете
 const unsigned MAX_OBJ_LIST = 8;
 /// основной список сетов
@@ -127,7 +129,9 @@ bool is_duplicate(int set_uid, int vnum)
 void init_obj_index()
 {
 	// obj vnum, obj_index idx
-	std::unordered_map<int, int> tmp;
+	// GCC 4.4
+	//std::unordered_map<int, int> tmp;
+	boost::unordered_map<int, int> tmp;
 	tmp.reserve(top_of_objt + 1);
 
 	for (int i = 0; i <= top_of_objt; ++i)
@@ -310,7 +314,9 @@ void load()
 			{
 				init_msg_node(tmp_msg, xml_msg);
 			}
-			tmp_set->obj_list.emplace(Parse::attr_int(xml_obj, "vnum"), tmp_msg);
+			// GCC 4.4
+			//tmp_set->obj_list.emplace(Parse::attr_int(xml_obj, "vnum"), tmp_msg);
+			tmp_set->obj_list.insert(std::make_pair(Parse::attr_int(xml_obj, "vnum"), tmp_msg));
 		}
 		// <activ>
 		for (pugi::xml_node xml_activ = xml_set.child("activ"); xml_activ;
@@ -342,8 +348,11 @@ void load()
 				tmp_activ.skill.num = Parse::attr_int(xml_skill, "num");
 				tmp_activ.skill.val = Parse::attr_int(xml_skill, "val");
 			}
-			tmp_set->activ_list.emplace(
-				Parse::attr_int(xml_activ, "size"), tmp_activ);
+			// GCC 4.4
+			//tmp_set->activ_list.emplace(
+			//	Parse::attr_int(xml_activ, "size"), tmp_activ);
+			tmp_set->activ_list.insert(std::make_pair(
+				Parse::attr_int(xml_activ, "size"), tmp_activ));
 		}
 		// <messages>
 		pugi::xml_node xml_msg = xml_set.child("messages");
@@ -809,7 +818,9 @@ std::string print_activ_help(const set_node &set)
 		if (i->second.skill.num > 0)
 		{
 			std::map<int, int> skills;
-			skills.emplace(i->second.skill.num, i->second.skill.val);
+			// GCC 4.4
+			//skills.emplace(i->second.skill.num, i->second.skill.val);
+			skills[i->second.skill.num] = i->second.skill.val;
 			out << PrintActivators::print_skills(skills, true);
 			PrintActivators::sum_skills(summ.skills, skills);
 		}

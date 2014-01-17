@@ -145,8 +145,8 @@ struct set_node
 
 extern std::vector<boost::shared_ptr<set_node>> sets_list;
 extern msg_node global_msg;
-extern const int MIN_ACTIVE_SIZE;
-extern const int MAX_ACTIVE_SIZE;
+extern const unsigned MIN_ACTIVE_SIZE;
+extern const unsigned MAX_ACTIVE_SIZE;
 extern const unsigned MAX_OBJ_LIST;
 
 size_t setidx_by_objvnum(int vnum);

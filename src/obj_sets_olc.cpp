@@ -853,7 +853,7 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 	else if (num == MAIN_TOTAL + olc_set.obj_list.size() + 1)
 	{
 		send_to_char(ch,
-			"Укажите кол-во предметов для активации (%d-%d) : ",
+			"Укажите кол-во предметов для активации (%u-%u) : ",
 			MIN_ACTIVE_SIZE, MAX_ACTIVE_SIZE);
 		state = STATE_ACTIV_ADD;
 	}
@@ -1016,7 +1016,7 @@ void sedit::parse_setmsg(CHAR_DATA *ch, const char *arg)
 void sedit::parse_activ_add(CHAR_DATA *ch, const char *arg)
 {
 	skip_spaces(&arg);
-	int num = 0;
+	unsigned num = 0;
 	if (!*arg || !isdigit(*arg)
 		|| (num = atoi(arg)) < MIN_ACTIVE_SIZE
 		|| num > MAX_ACTIVE_SIZE)
@@ -1036,7 +1036,9 @@ void sedit::parse_activ_add(CHAR_DATA *ch, const char *arg)
 		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
 			num, desc_count(num, WHAT_OBJECT));
 		activ_node node;
-		olc_set.activ_list.emplace(num, node);
+		// GCC 4.4
+		//olc_set.activ_list.emplace(num, node);
+		olc_set.activ_list.insert(std::make_pair(num, node));
 	}
 	show_main(ch);
 }
@@ -1077,7 +1079,9 @@ void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
 		else
 		{
 			msg_node empty_msg;
-			olc_set.obj_list.emplace(vnum, empty_msg);
+			// GCC 4.4
+			//olc_set.obj_list.emplace(vnum, empty_msg);
+			olc_set.obj_list.insert(std::make_pair(vnum, empty_msg));
 			send_to_char(ch,
 				"Предмет '%s' добавлен в набор.\r\n",
 				obj_proto[rnum]->short_description);
@@ -1283,7 +1287,7 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 	default:
 		break;
 	}
-	const int offset = 3;
+	const unsigned offset = 3;
 
 	if (num > offset && num <= offset + activ.apply.size())
 	{
@@ -1421,7 +1425,9 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 			olc_set.obj_list.erase(i);
 		}
 		obj_edit = vnum;
-		olc_set.obj_list.emplace(vnum, msg);
+		// GCC 4.4
+		//olc_set.obj_list.emplace(vnum, msg);
+		olc_set.obj_list.insert(std::make_pair(vnum, msg));
 		send_to_char(ch,
 			"Предмет '%s' добавлен в набор.\r\n",
 			obj_proto[rnum]->short_description);
@@ -1460,7 +1466,9 @@ void sedit::parse_activ_change(CHAR_DATA *ch, const char *arg)
 			olc_set.activ_list.erase(i);
 		}
 		activ_edit = num;
-		olc_set.activ_list.emplace(num, activ);
+		// GCC 4.4
+		//olc_set.activ_list.emplace(num, activ);
+		olc_set.activ_list.insert(std::make_pair(num, activ));
 		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
 			num, desc_count(num, WHAT_OBJECT));
 	}
