@@ -5,7 +5,9 @@
 #if defined(__APPLE__) || defined(__MACH__)
 #include <unistd.h>
 #else
-#include <crypt.h>
+#	ifndef _MSC_VER
+#	include <crypt.h>
+#	endif
 #endif
 #include "password.hpp"
 #include "utils.h"
