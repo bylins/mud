@@ -586,6 +586,7 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
+std::string print_obj_affects(const obj_affected_type &affect);
 
 //Polud статистика использования заклинаний
 typedef std::map<int, int> SpellCountType;

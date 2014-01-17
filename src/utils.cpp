@@ -493,7 +493,7 @@ void err_log(const char *format, ...)
 	vsnprintf(buf_ + cnt, sizeof(buf_) - cnt, format, args);
 	va_end(args);
 
-	mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog(buf_, DEF, LVL_IMMORT, SYSLOG, TRUE);
 }
 
 /**
@@ -2670,10 +2670,14 @@ long GetAffectNumByName(std::string affName)
 	return -1;
 }
 
-int count_colors(const char * str)//считает кол-во цветов &R и т.п. в строке
+/// считает кол-во цветов &R и т.п. в строке
+/// size_t len = 0 - по дефолту считает strlen(str)
+int count_colors(const char * str, size_t len)
 {
-	unsigned int c, cc=0;
-	for (c=0; c<strlen(str)-1; c++)
+	unsigned int c, cc = 0;
+	len = len ? len : strlen(str);
+
+	for (c = 0; c < len - 1; c++)
 	{
 		if (*(str+c)=='&' && *(str+c+1)!='&')
 			cc++;
@@ -2686,17 +2690,26 @@ int count_colors(const char * str)//считает кол-во цветов &R и т.п. в строке
 char* colored_name(const char * str, int len, const bool left_align)
 {
 	static char cstr[128];
-	char fmt[6];
-	unsigned int cc;
-	cc = len + count_colors(str) * 2;
+	static char fmt[6];
+	unsigned int cc = len + count_colors(str) * 2;
+
 	if (strlen(str)<cc)
 	{
 		snprintf(fmt, sizeof(fmt), "%%%s%ds", (left_align?"-":""), cc);
 		snprintf(cstr, sizeof(cstr), fmt, str);
 	}
 	else
+	{
 		snprintf(cstr, sizeof(cstr), "%s", str);
+	}
 	return cstr;
+}
+
+/// длина строки без символов цвета из count_colors()
+size_t strlen_no_colors(const char *str)
+{
+	const size_t len = strlen(str);
+	return len - count_colors(str, len) * 2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

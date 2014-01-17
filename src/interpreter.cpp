@@ -14,8 +14,10 @@
 #define __INTERPRETER_C__
 
 #include "conf.h"
+#include <stdexcept>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
@@ -61,6 +63,7 @@
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "reset_stats.hpp"
+#include "obj_sets.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -961,6 +964,8 @@ cpp_extern const struct command_info cmd_info[] =
 	{"switch", POS_DEAD, do_switch, LVL_GRGOD, 0, 0},
 	{"syslog", POS_DEAD, do_syslog, LVL_IMMORT, SYSLOG, 0},
 	{"suggest", POS_DEAD, report_on_board, 0, Boards::SUGGEST_BOARD, 0},
+	{"slist", POS_DEAD, do_slist, LVL_IMPL, 0, 0},
+	{"sedit", POS_DEAD, do_sedit, LVL_IMPL, 0, 0},
 	{"errlog", POS_DEAD, do_syslog, LVL_BUILDER, ERRLOG, 0},
 	{"imlog", POS_DEAD, do_syslog, LVL_BUILDER, IMLOG, 0},
 	{"take", POS_RESTING, do_get, 0, 0, 500},
@@ -1024,7 +1029,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"olist", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST, 0},
 	{"rlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST, 0},
 	{"zlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST, 0},
-
 
 	// DG trigger commands
 	{"attach", POS_DEAD, do_attach, LVL_IMPL, 0, 0},
@@ -2528,6 +2532,20 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_TORC_EXCH:
 		ExtMoney::torc_exch_parse(d->character, arg);
 		break;
+	case CON_SEDIT:
+	{
+		try
+		{
+			obj_sets_olc::parse_input(d->character, arg);
+		}
+		catch (const std::out_of_range &e)
+		{
+			send_to_char(d->character, "Редактирование прервано: %s", e.what());
+			d->sedit.reset();
+			STATE(d) = CON_PLAYING;
+		}
+		break;
+	}
 	//python_off case CON_CONSOLE:
 		//python_off d->console->push(arg);
 		//python_off break;

@@ -402,6 +402,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 					GET_OBJ_RNUM(OLC_OBJ(d)) = robj_num;
 					obj_proto.insert(obj_proto.begin() + i, OLC_OBJ(d));
 					new_obj_index[i].zone = real_zone(OLC_NUM(d));
+					new_obj_index[i].set_idx = -1;
 					--i;
 					continue;
 				}
@@ -426,6 +427,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 			GET_OBJ_RNUM(OLC_OBJ(d)) = robj_num;
 			obj_proto.push_back(OLC_OBJ(d));
 			new_obj_index[i].zone = real_zone(OLC_NUM(d));
+			new_obj_index[i].set_idx = -1;
 		}
 
 		// * Free and replace old table.
@@ -696,8 +698,7 @@ void oedit_liquid_type(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = OEDIT_VALUE_3;
 }
 
-// * The actual apply to set.
-void oedit_disp_apply_menu(DESCRIPTOR_DATA * d)
+void show_apply_olc(DESCRIPTOR_DATA *d)
 {
 	int counter, columns = 0;
 
@@ -712,6 +713,12 @@ void oedit_disp_apply_menu(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character);
 	}
 	send_to_char("\r\nЧто добавляем (0 - выход) : ", d->character);
+}
+
+// * The actual apply to set.
+void oedit_disp_apply_menu(DESCRIPTOR_DATA * d)
+{
+	show_apply_olc(d);
 	OLC_MODE(d) = OEDIT_APPLY;
 }
 
@@ -1194,7 +1201,7 @@ void oedit_disp_no_menu(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character);
 }
 
-void oedit_disp_affects_menu(DESCRIPTOR_DATA * d)
+void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags)
 {
 	int counter, columns = 0, plane = 0;
 	char c;
@@ -1220,9 +1227,16 @@ void oedit_disp_affects_menu(DESCRIPTOR_DATA * d)
 				weapon_affects[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_OBJ(d)->obj_flags.affects, weapon_affects, buf1, ",", true);
-	sprintf(buf, "\r\nНакладываемые аффекты : %s%s%s\r\n" "Выберите аффект (0 - выход) : ", cyn, buf1, nrm);
+	sprintbits(flags, weapon_affects, buf1, ",", true);
+	sprintf(buf,
+		"\r\nНакладываемые аффекты : %s%s%s\r\n"
+		"Выберите аффект (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
+}
+
+void oedit_disp_affects_menu(DESCRIPTOR_DATA * d)
+{
+	show_weapon_affects_olc(d, OLC_OBJ(d)->obj_flags.affects);
 }
 
 // * Object wear flags.
@@ -1467,7 +1481,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 // ***************************************************************************
 // * main loop (of sorts).. basically interpreter throws all input to here   *
 // ***************************************************************************
-int planebit(char *str, int *plane, int *bit)
+int planebit(const char *str, int *plane, int *bit)
 {
 	if (!str || !*str)
 		return (-1);
@@ -2354,14 +2368,19 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = atoi(arg);
 		if (number == 0)
 			break;
-		if (number > MAX_SKILL_NUM || !skill_info[number].name || *skill_info[number].name == '!')
+		if (number > MAX_SKILL_NUM
+			|| number < 0
+			|| !skill_info[number].name
+			|| *skill_info[number].name == '!')
+		{
 			send_to_char("Неизвестное умение.\r\n", d->character);
+		}
 		else if (OLC_OBJ(d)->get_skill(number) != 0)
 			OLC_OBJ(d)->set_skill(number, 0);
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
 			send_to_char("Не указан уровень владения умением.\r\n", d->character);
 		else
-			OLC_OBJ(d)->set_skill(number, bit);
+			OLC_OBJ(d)->set_skill(number, (MIN(200, MAX(-200, bit))));
 		oedit_disp_skills_mod_menu(d);
 		return;
 	case OEDIT_MORT_REQ:

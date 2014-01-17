@@ -127,6 +127,10 @@ public:
 	virtual time_t get_board_date(Boards::BoardTypes type) const { return 0; };
 	virtual void set_board_date(Boards::BoardTypes type, time_t date) {};
 
+	virtual void clear_obj_skills() {};
+	virtual void add_obj_skill(int skill, int val) {};
+	virtual int get_obj_skill(int num) const { return 0; };
+
 protected:
 	PlayerI() {};
 	virtual ~PlayerI() {};

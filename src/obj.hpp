@@ -67,13 +67,23 @@ struct obj_affected_type
 
 	obj_affected_type(int __location, int __modifier)
 		: location(__location), modifier(__modifier) {}
+
+	// для сравнения в sedit
+	bool operator!=(const obj_affected_type &r) const
+	{
+		return (location != r.location || modifier != r.modifier);
+	}
+	bool operator==(const obj_affected_type &r) const
+	{
+		return !(*this != r);
+	}
 };
 
 class activation
 {
 	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
 	flag_data affects;
-	boost::array<obj_affected_type, MAX_OBJ_AFFECT> affected;
+	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected;
 	int weight, ndices, nsides;
 	std::map<int, int> skills;
 
@@ -214,7 +224,7 @@ public:
 		return *this;
 	}
 
-	const boost::array<obj_affected_type, MAX_OBJ_AFFECT>&
+	const std::array<obj_affected_type, MAX_OBJ_AFFECT>&
 	get_affected() const
 	{
 		return affected;
@@ -420,7 +430,7 @@ struct obj_data
 	room_rnum in_room;	// In what room -1 when conta/carr //
 
 	struct obj_flag_data obj_flags;		// Object information       //
-	boost::array<obj_affected_type, MAX_OBJ_AFFECT> affected;	// affects //
+	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected;	// affects //
 
 	char *aliases;		// Title of object :get etc.        //
 	char *description;	// When in room                     //
@@ -489,6 +499,9 @@ struct obj_data
 	int get_rent_eq() const;
 	void set_rent_eq(int x);
 
+	void set_activator(bool flag, int num);
+	std::pair<bool, int> get_activator() const;
+
 private:
 	void zero_init();
 	// если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
@@ -509,6 +522,8 @@ private:
 	int cost_per_day_on_;
 	// стоимость ренты, если в инве
 	int cost_per_day_off_;
+	// для сообщений сетов <активировано или нет, размер активатора>
+	std::pair<bool, int> activator_;
 };
 
 namespace ObjSystem

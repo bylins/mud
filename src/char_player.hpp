@@ -5,12 +5,13 @@
 #ifndef CHAR_PLAYER_HPP_INCLUDED
 #define CHAR_PLAYER_HPP_INCLUDED
 
+#include "conf.h"
 #include <string>
 #include <array>
-#include "conf.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include <boost/cstdint.hpp>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "quested.hpp"
@@ -32,6 +33,26 @@ enum
 	DIS_OFFTOP_MESSAGE,
 	DIS_EXCHANGE_MESSAGE,
 	DIS_TOTAL_NUM
+};
+
+struct skill_node
+{
+	skill_node(int _num, int _val) : num(_num), val(_val) {};
+
+	// номер скила SKILL_XXX
+	int num;
+	// значение прокачки
+	int val;
+
+	// для сравнения в sedit
+	bool operator!=(const skill_node &r) const
+	{
+		return (num != r.num || val != r.val);
+	}
+	bool operator==(const skill_node &r) const
+	{
+		return !(*this != r);
+	}
 };
 
 class Player : public Character
@@ -122,6 +143,10 @@ public:
 	time_t get_board_date(Boards::BoardTypes type) const;
 	void set_board_date(Boards::BoardTypes type, time_t date);
 
+	void clear_obj_skills();
+	void add_obj_skill(int skill, int val);
+	int get_obj_skill(int num) const;
+
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
@@ -162,6 +187,8 @@ private:
 	std::array<int, ResetStats::Type::TOTAL_NUM> reset_stats_cnt_;
 	// временнЫе отметки о прочитанных сообщениях на досках
 	std::array<time_t, Boards::TYPES_NUM> board_date_;
+	// временные +скилы с сетов (аналог +скилл со шмоток)
+	std::vector<skill_node> obj_skills_;
 };
 
 namespace PlayerSystem

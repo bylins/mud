@@ -3248,13 +3248,13 @@ int process_input(DESCRIPTOR_DATA * t)
 			}
 			else if (isascii(*ptr) && isprint(*ptr))
 			{
-				if ((*(write_point++) = *ptr) == '$')  	// copy one character
+				*(write_point++) = *ptr;
+				space_left--;
+				if (*ptr == '$' && STATE(t) != CON_SEDIT)  	// copy one character
 				{
 					*(write_point++) = '$';	// if it's a $, double it
-					space_left -= 2;
-				}
-				else
 					space_left--;
+				}
 			}
 			else if ((ubyte) * ptr > 127)
 			{
@@ -3558,7 +3558,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			|| STATE(d) == CON_GLORY_CONST
 			|| STATE(d) == CON_NAMED_STUFF
 			|| STATE(d) == CON_MAP_MENU
-			|| STATE(d) == CON_TORC_EXCH)
+			|| STATE(d) == CON_TORC_EXCH
+			|| STATE(d) == CON_SEDIT)
 		{
 			STATE(d) = CON_PLAYING;
 		}
@@ -3626,6 +3627,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	d->clan_invite.reset();
 	d->glory.reset();
 	d->map_options.reset();
+	d->sedit.reset();
 
 	if (d->pers_log)
 	{

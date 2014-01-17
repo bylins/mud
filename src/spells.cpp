@@ -38,6 +38,7 @@
 #include "modify.h"
 #include "room.hpp"
 #include "birth_places.hpp"
+#include "obj_sets.hpp"
 
 extern room_rnum r_mortal_start_room;
 
@@ -1359,9 +1360,11 @@ std::string print_obj_affects(const obj_affected_type &affect)
 	{
 		negative = false;
 	}
-	sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
-			KCYN, buf2, KNRM,
-			KCYN, negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), KNRM);
+
+	sprintf(buf, "%s%s%s%s%s%d%s\r\n",
+		KCYN, buf2, KNRM,
+		KCYN, (negative ? " ухудшает на " : " улучшает на "),
+		abs(affect.modifier), KNRM);
 
 	return std::string(buf);
 }
@@ -1737,6 +1740,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	{
 		i->print(ch);
 	}
+	obj_sets::print_identify(ch, obj);
 }
 
 void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
@@ -2063,6 +2067,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	{
 		i->print(ch);
 	}
+	obj_sets::print_identify(ch, obj);
 }
 
 #define IDENT_SELF_LEVEL 6

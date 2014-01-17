@@ -411,12 +411,16 @@ int Character::get_equipped_skill(int skill_num) const
 	//int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
 	int is_native = true;
 	for (int i = 0; i < NUM_WEARS; ++i)
-		if (equipment[i]) {
+	{
+		if (equipment[i])
+		{
 			if (is_native)
 				skill += equipment[i]->get_skill(skill_num);
 			else
 				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
 		}
+	}
+	skill += this->get_obj_skill(skill_num);
 
 	return skill;
 }

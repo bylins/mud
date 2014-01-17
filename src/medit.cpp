@@ -50,7 +50,7 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern const char *mobprog_types[];
 #endif
 
-int planebit(char *str, int *plane, int *bit);
+int planebit(const char *str, int *plane, int *bit);
 
 int real_zone(int number);
 
@@ -454,6 +454,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
 //					new_proto[rmob_num] = *(OLC_MOB(d));
 					new_index[rmob_num].zone = real_zone(OLC_NUM(d));
+					new_index[rmob_num].set_idx = -1;
 					--rmob_num;
 					continue;
 				}
@@ -488,6 +489,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
 //			new_proto[rmob_num] = *(OLC_MOB(d));
 			new_index[rmob_num].zone = real_zone(OLC_NUM(d));
+			new_index[rmob_num].set_idx = -1;
 		}
 
 		// Replace tables.
@@ -2333,8 +2335,13 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			number = atoi(arg);
 			if (number == 0)
 				break;
-			if (number > MAX_SKILL_NUM || !skill_info[number].name || *skill_info[number].name == '!')
+			if (number > MAX_SKILL_NUM
+				|| number < 0
+				|| !skill_info[number].name
+				|| *skill_info[number].name == '!')
+			{
 				send_to_char("Неизвестное умение.\r\n", d->character);
+			}
 			else if (OLC_MOB(d)->get_skill(number))
 				OLC_MOB(d)->set_skill(number, 0);
 			else if (sscanf(arg, "%d %d", &plane, &bit) < 2)

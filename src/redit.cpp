@@ -50,7 +50,7 @@ extern room_rnum r_unreg_start_room;
 extern DESCRIPTOR_DATA *descriptor_list;
 
 //------------------------------------------------------------------------
-int planebit(char *str, int *plane, int *bit);
+int planebit(const char *str, int *plane, int *bit);
 // * Function Prototypes
 void redit_setup(DESCRIPTOR_DATA * d, int real_num);
 

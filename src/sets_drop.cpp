@@ -31,6 +31,7 @@
 #include "help.hpp"
 #include "parse.hpp"
 #include "mob_stat.hpp"
+#include "obj_sets.hpp"
 
 namespace SetsDrop
 {
@@ -262,7 +263,8 @@ void init_obj_list()
 				obj_node; obj_node = obj_node.next_sibling("obj"))
 			{
 				const int obj_vnum = Parse::attr_int(obj_node, "vnum");
-				if (real_object(obj_vnum) < 0)
+				const int obj_rnum = real_object(obj_vnum);
+				if (obj_rnum < 0)
 				{
 					snprintf(buf, sizeof(buf),
 						"...bad obj_node attributes (vnum=%d)", obj_vnum);
@@ -297,13 +299,21 @@ void init_obj_list()
 				// имя сета
 				if (node.title.empty())
 				{
-					for (id_to_set_info_map::const_iterator it = obj_data::set_table.begin(),
-						iend = obj_data::set_table.end(); it != iend; ++it)
+					if (obj_index[obj_rnum].set_idx != static_cast<size_t>(-1))
 					{
-						set_info::const_iterator k = it->second.find(obj_vnum);
-						if (k != it->second.end())
+						node.title =
+							obj_sets::get_name(obj_index[obj_rnum].set_idx);
+					}
+					else
+					{
+						for (auto it = obj_data::set_table.begin(),
+							iend = obj_data::set_table.end(); it != iend; ++it)
 						{
-							node.title = it->second.get_name();
+							auto k = it->second.find(obj_vnum);
+							if (k != it->second.end())
+							{
+								node.title = it->second.get_name();
+							}
 						}
 					}
 				}

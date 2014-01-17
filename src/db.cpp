@@ -80,6 +80,7 @@
 #include "reset_stats.hpp"
 #include "mob_stat.hpp"
 #include "obj.hpp"
+#include "obj_sets.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -613,6 +614,10 @@ ACMD(do_reboot)
 	{
 		ResetStats::init();
 	}
+	else if (!str_cmp(arg, "obj_sets.xml"))
+	{
+		obj_sets::load();
+	}
 	else
 	{
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
@@ -723,6 +728,21 @@ void convert_obj_values()
 	for (auto i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
 	{
 		save = std::max(save, convert_drinkcon_skill(*i, true));
+		if (IS_OBJ_STAT(*i, ITEM_1INLAID))
+		{
+			REMOVE_BIT(GET_OBJ_EXTRA(*i, ITEM_1INLAID), ITEM_1INLAID);
+			save = 1;
+		}
+		if (IS_OBJ_STAT(*i, ITEM_2INLAID))
+		{
+			REMOVE_BIT(GET_OBJ_EXTRA(*i, ITEM_2INLAID), ITEM_2INLAID);
+			save = 1;
+		}
+		if (IS_OBJ_STAT(*i, ITEM_3INLAID))
+		{
+			REMOVE_BIT(GET_OBJ_EXTRA(*i, ITEM_3INLAID), ITEM_3INLAID);
+			save = 1;
+		}
 		// ...
 		if (save)
 		{
@@ -1966,7 +1986,8 @@ void boot_db(void)
 	log("Check big sets in rent.");
 	SetSystem::check_rented();
 
-	// сначала стата, потом сеты
+	// сначала сеты, стата мобов, потом дроп сетов
+	obj_sets::load();
 	log("Load mob_stat.xml");
 	mob_stat::load();
 	log("Init SetsDrop lists.");
@@ -3683,6 +3704,7 @@ void parse_mobile(FILE * mob_f, int nr)
 	mob_index[i].vnum = nr;
 	mob_index[i].number = 0;
 	mob_index[i].func = NULL;
+	mob_index[i].set_idx = -1;
 
 	/*
 	 * Mobiles should NEVER use anything in the 'player_specials' structure.
@@ -3814,6 +3836,7 @@ char *parse_object(FILE * obj_f, int nr)
 	obj_index[i].number = 0;
 	obj_index[i].stored = 0;
 	obj_index[i].func = NULL;
+	obj_index[i].set_idx = -1;
 
 	tobj->item_number = i;
 

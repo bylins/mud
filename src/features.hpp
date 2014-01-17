@@ -179,7 +179,7 @@ struct feat_info_type
 	int slot[NUM_CLASSES][NUM_KIN];
 	bool classknow[NUM_CLASSES][NUM_KIN];
 	bool natural_classfeat[NUM_CLASSES][NUM_KIN];
-	boost::array<obj_affected_type, MAX_FEAT_AFFECT> affected;
+	std::array<obj_affected_type, MAX_FEAT_AFFECT> affected;
 	int type;
 	bool up_slot;
 	const char *name;

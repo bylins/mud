@@ -111,6 +111,8 @@ void obj_data::zero_init()
 	cost_ = 0;
 	cost_per_day_on_ = 0;
 	cost_per_day_off_ = 0;
+	activator_.first = false;
+	activator_.second = 0;
 
 	custom_label = NULL;
 
@@ -391,6 +393,17 @@ void obj_data::set_rent_eq(int x)
 	{
 		cost_per_day_on_ = x;
 	}
+}
+
+void obj_data::set_activator(bool flag, int num)
+{
+	activator_.first = flag;
+	activator_.second = num;
+}
+
+std::pair<bool, int> obj_data::get_activator() const
+{
+	return activator_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -5,9 +5,10 @@
 #ifndef HELP_HPP_INCLUDED
 #define HELP_HPP_INCLUDED
 
-#include <string>
-#include <vector>
 #include "conf.h"
+#include <string>
+#include <map>
+
 #include "sysdep.h"
 #include "interpreter.h"
 
@@ -31,5 +32,27 @@ void reload_all();
 void check_update_dynamic();
 
 } // namespace HelpSystem
+
+namespace PrintActivators
+{
+
+// суммарные активы для одной профы
+struct clss_activ_node
+{
+	clss_activ_node() { total_affects = clear_flags; };
+	// аффекты
+	FLAG_DATA total_affects;
+	// свойства
+	std::vector<obj_affected_type> affected;
+	// скилы
+	std::map<int, int> skills;
+};
+
+std::string print_skills(const std::map<int, int> &skills, bool activ);
+void sum_affected(std::vector<obj_affected_type> &l,
+	const std::array<obj_affected_type, MAX_OBJ_AFFECT> &r);
+void sum_skills(std::map<int, int> &target, const std::map<int, int> &add);
+
+} // namespace PrintActivators
 
 #endif // HELP_HPP_INCLUDED

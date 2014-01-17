@@ -739,6 +739,7 @@ typedef struct trig_data TRIG_DATA;
 #define CON_CONSOLE      51 // Интерактивная скриптовая консоль
 #define CON_TORC_EXCH    52 // обмен гривен
 #define CON_MENU_STATS   53 // оплата сброса стартовых статов из главного меню
+#define CON_SEDIT        54 // sedit - редактирование сетов
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
@@ -873,9 +874,9 @@ typedef struct trig_data TRIG_DATA;
 #define ITEM_NO_FAIL       (INT_ONE | (1 << 7)) // не фейлится при изучении (в случае книги)
 #define ITEM_NAMED         (INT_ONE | (1 << 8)) // именной предмет
 #define ITEM_BLOODY        (INT_ONE | (1 << 9)) // окровавленная вещь (снятая с трупа)
-#define ITEM_1INLAID       (INT_ONE | (1 << 10)) // инкрустированная 1 камнем (TODO: не используется)
-#define ITEM_2INLAID       (INT_ONE | (1 << 11)) // инкрустированная 2 камнями -//-
-#define ITEM_3INLAID       (INT_ONE | (1 << 12)) // инкрустированная 3 камнями -//-
+#define ITEM_1INLAID       (INT_ONE | (1 << 10)) // TODO: не используется, см convert_obj_values()
+#define ITEM_2INLAID       (INT_ONE | (1 << 11)) // -//-
+#define ITEM_3INLAID       (INT_ONE | (1 << 12)) // -//-
 
 #define ITEM_NO_MONO       (1 << 0)
 #define ITEM_NO_POLY       (1 << 1)
@@ -1219,13 +1220,39 @@ typedef uint32_t bitvector_t;
 
 struct flag_data
 {
-	flag_data& operator+= (const flag_data &from)
+	flag_data& operator+=(const flag_data &r)
 	{
 		for (int i = 0; i < 4; ++i)
 		{
-			flags[i] |= from.flags[i];
+			flags[i] |= r.flags[i];
 		}
 		return *this;
+	}
+	bool operator!=(const flag_data &r) const
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			if (flags[i] != r.flags[i])
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	bool operator==(const flag_data &r) const
+	{
+		return !(*this != r);
+	}
+	bool empty() const
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			if (flags[i] != 0)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	uint32_t flags[4];
@@ -1541,6 +1568,11 @@ namespace MapSystem
 	struct Options;
 }
 
+namespace obj_sets_olc
+{
+	struct sedit;
+}
+
 class Board;
 
 struct descriptor_data
@@ -1615,6 +1647,7 @@ struct descriptor_data
     boost::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
     bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
     boost::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
+    boost::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
 };
 
 
@@ -1882,18 +1915,14 @@ struct title_type
 // element in monster and object index-tables   //
 struct index_data
 {
-	int
-	vnum;			// virtual number of this mob/obj       //
-	int
-	number;		// number of existing units of this mob/obj //
-	int
-	stored;		// number of things in rent file            //
+	int vnum;			// virtual number of this mob/obj       //
+	int number;		// number of existing units of this mob/obj //
+	int stored;		// number of things in rent file            //
 	SPECIAL(*func);
-
 	char *farg;		// string argument for special function     //
 	struct trig_data *proto;	// for triggers... the trigger     //
-	int
-	zone;			// mob/obj zone rnum //
+	int zone;			// mob/obj zone rnum //
+	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 };
 
 // linked list for mob/object prototype trigger lists //

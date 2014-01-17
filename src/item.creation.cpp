@@ -2436,7 +2436,7 @@ int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add
 }
 
 
-int MakeRecept::add_affects(CHAR_DATA * ch, boost::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const boost::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta)
+int MakeRecept::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta)
 {
 	bool found = false;
 	int i, j;

@@ -20,170 +20,17 @@
 #include "handler.h"
 #include "screen.h"
 #include "spells.h"
+#include "obj_sets.hpp"
 
 extern char *help;
 extern const char *weapon_affects[];
 extern const char *no_bits[];
 extern const char *class_name[];
 void index_boot(int mode);
-std::string print_obj_affects(const obj_affected_type &affect);
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-namespace HelpSystem
-{
-
-struct help_node
-{
-	help_node() : min_level(0), sets_drop_page(false) {};
-
-	// ключ для поиска
-	std::string keyword;
-	// текст справки
-	std::string entry;
-	// требуемый уровень для чтения (демигоды могут читать LVL_IMMORT)
-	int min_level;
-	// для сгенерированных страниц дропа сетов
-	// не спамят в иммлог при чтении, выводят перед страницей таймер
-	bool sets_drop_page;
-};
-
-// справка, подгружаемая из файлов на старте (STATIC)
-std::vector<help_node> static_help;
-// справка для всего, что нужно часто релоадить
-// сеты, сайты дружин, групповые зоны (DYNAMIC)
-std::vector<help_node> dynamic_help;
-// флаг для проверки необходимости обновления dynamic_help по таймеру раз в минуту
-bool need_update = false;
-
-const char *HELP_USE_EXMAPLES =
-	"&cПримеры:&n\r\n"
-	"\t\"справка 3.защита\"\r\n"
-	"\t\"справка 4.защита\"\r\n"
-	"\t\"справка защитаоттьмы\"\r\n"
-	"\t\"справка защита!\"\r\n"
-	"\t\"справка 3.защита!\"\r\n"
-	"\r\nСм. также: &CИСПОЛЬЗОВАНИЕСПРАВКИ&n\r\n";
-
-class UserSearch
-{
-public:
-	UserSearch(CHAR_DATA *in_ch)
-		: strong(false), stop(false), diff_keys(false), level(0), topic_num(0), curr_topic_num(0)
-	{ ch = in_ch; };
-
-	// ищущий чар
-	CHAR_DATA *ch;
-	// строгий поиск (! на конце)
-    bool strong;
-    // флаг остановки прохода по спискам справок
-    bool stop;
-    // флаг наличия двух и более разных топиков в key_list
-    // если топик 1 с несколькими дублями ключей - печатается просто этот топик
-    // если топиков два и более - печатается список всех ключей
-    bool diff_keys;
-    // уровень справки для просмотра данным чаром
-    int level;
-    // номер из х.поисковая_фраза
-    int topic_num;
-    // счетчик поиска при topic_num != 0
-    int curr_topic_num;
-    // поисковая фраза
-    std::string arg_str;
-    // формирующийся список подходящих топиков
-    std::vector<std::vector<help_node>::const_iterator> key_list;
-
-	// инициация поиска через search в нужном массиве
-    void process(int flag);
-    // собственно сам поиск справки в конкретном массиве
-    void search(const std::vector<help_node> &cont);
-    // распечатка чару когда ничего не нашлось
-    void print_not_found() const;
-    // распечатка чару конкретного топика справки
-    void print_curr_topic(const help_node &node) const;
-    // распечатка чару топика или списка кеев
-    // в зависимости от состояния key_list и diff_keys
-    void print_key_list() const;
-};
-
-void add(const std::string key_str, const std::string entry_str, int min_level, Flags add_flag)
-{
-	if (key_str.empty() || entry_str.empty())
-	{
-		log("SYSERROR: empty str '%s' -> '%s' (%s %s %d)",
-				key_str.c_str(), entry_str.c_str(), __FILE__, __func__, __LINE__ );
-		return;
-	}
-
-	help_node tmp_node;
-	tmp_node.keyword = key_str;
-	lower_convert(tmp_node.keyword);
-	tmp_node.entry = entry_str;
-	tmp_node.min_level = min_level;
-
-	switch(add_flag)
-	{
-	case STATIC:
-		static_help.push_back(tmp_node);
-		break;
-	case DYNAMIC:
-		dynamic_help.push_back(tmp_node);
-		break;
-	default:
-		log("SYSERROR: wrong add_flag = %d (%s %s %d)",
-				add_flag, __FILE__, __func__, __LINE__ );
-	};
-}
-
-void add_sets(const std::string key_str, const std::string entry_str)
-{
-	if (key_str.empty() || entry_str.empty())
-	{
-		log("SYSERROR: empty str '%s' -> '%s' (%s %s %d)",
-				key_str.c_str(), entry_str.c_str(), __FILE__, __func__, __LINE__ );
-		return;
-	}
-
-	help_node tmp_node;
-	tmp_node.keyword = key_str;
-	lower_convert(tmp_node.keyword);
-	tmp_node.entry = entry_str;
-	tmp_node.sets_drop_page = true;
-
-	dynamic_help.push_back(tmp_node);
-}
-
-void init_group_zones()
-{
-	std::stringstream out;
-	for (int rnum = 0, i = 1; rnum <= top_of_zone_table; ++rnum)
-	{
-		const int group = zone_table[rnum].group;
-		if (group > 1)
-		{
-			out << boost::format("  %2d - %s (гр. %d+).\r\n") % i % zone_table[rnum].name % group;
-			++i;
-		}
-	}
-	add("групповыезоны", out.str(), 0, DYNAMIC);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 namespace PrintActivators
 {
-
-// суммарные активы для одной профы
-struct clss_activ_node
-{
-	clss_activ_node() { total_affects = clear_flags; };
-	// аффекты
-	FLAG_DATA total_affects;
-	// свойства
-	std::vector<obj_affected_type> affected;
-	// скилы
-	std::map<int, int> skills;
-};
 
 // распечатка активов
 struct dup_node
@@ -216,7 +63,7 @@ void add_affected(std::vector<obj_affected_type> &l, const obj_affected_type &af
 }
 
 // перегружено для добавления через add_affected
-void sum_affected(std::vector<obj_affected_type> &l, const boost::array<obj_affected_type, MAX_OBJ_AFFECT> &r)
+void sum_affected(std::vector<obj_affected_type> &l, const std::array<obj_affected_type, MAX_OBJ_AFFECT> &r)
 {
 	for (int i = 0; i < MAX_OBJ_AFFECT; ++i)
 	{
@@ -278,15 +125,15 @@ bool check_num_in_unique_bit_flag_data(const unique_bit_flag_data &data, const i
 std::string print_skills(const std::map<int, int> &skills, bool activ)
 {
 	std::string skills_str;
-	for (std::map<int, int>::const_iterator i = skills.begin(), iend = skills.end();
-		i != iend; ++i)
+	for (auto i = skills.cbegin(), iend = skills.cend(); i != iend; ++i)
 	{
 		if (i->second != 0)
 		{
 			skills_str += boost::str(boost::format("%s%s%s%s%s%s%d%%%s\r\n")
-					% (activ ? " +    " : "   ") % KCYN %  skill_info[i->first].name % KNRM
-					% KCYN % (i->second < 0 ? " ухудшает на " : " улучшает на ")
-					% abs(i->second) % KNRM);
+				% (activ ? " +    " : "   ") % KCYN
+				% skill_info[i->first].name % KNRM
+				% KCYN % (i->second < 0 ? " ухудшает на " : " улучшает на ")
+				% abs(i->second) % KNRM);
 		}
 	}
 
@@ -336,7 +183,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 	{
 		if (obj->affected[i].modifier != 0)
 		{
-			tmp_str += print_obj_affects(obj->affected[i]);
+			tmp_str += "   " + print_obj_affects(obj->affected[i]);
 		}
 	}
 	if (!tmp_str.empty())
@@ -382,13 +229,13 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_D
 		out << " + Аффекты : " << buf2 << "\r\n";
 	}
 
-	boost::array<obj_affected_type, MAX_OBJ_AFFECT> affected = activ->second.get_affected();
+	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected = activ->second.get_affected();
 	std::string tmp_str;
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
 		if (affected[i].modifier != 0)
 		{
-			tmp_str += " + " + print_obj_affects(affected[i]);
+			tmp_str += " +    " + print_obj_affects(affected[i]);
 		}
 	}
 	if (!tmp_str.empty())
@@ -535,7 +382,7 @@ std::string activators_obj::print()
 		for (std::vector<obj_affected_type>::const_iterator i = cls_it->second.affected.begin(),
 			iend = cls_it->second.affected.end(); i != iend; ++i)
 		{
-			tmp_str += " + " + print_obj_affects(*i);
+			tmp_str += " +    " + print_obj_affects(*i);
 		}
 		if (!tmp_str.empty())
 		{
@@ -655,7 +502,7 @@ void process()
 		{
 			set_name += it->second.get_name();
 			set_name.erase(boost::remove_if(set_name, boost::is_any_of(" ,.")), set_name.end());
-			add(set_name, out.str(), 0, STATIC);
+			HelpSystem::add(set_name, out.str(), 0, HelpSystem::STATIC);
 		}
 		else
 		{
@@ -666,14 +513,158 @@ void process()
 				kend = str_list.end(); k != kend; ++k)
 			{
 				k->erase(boost::remove_if(*k, boost::is_any_of(" ,.")), k->end());
-				add(set_name + "сет" + *k, out.str(), 0, STATIC);
+				HelpSystem::add(set_name + "сет" + *k, out.str(), 0, HelpSystem::STATIC);
 			}
 		}
 	}
 }
 
 } // namespace PrintActivators
+using namespace PrintActivators;
+
 ////////////////////////////////////////////////////////////////////////////////
+
+namespace HelpSystem
+{
+
+struct help_node
+{
+	help_node() : min_level(0), sets_drop_page(false), no_immlog(false) {};
+
+	// ключ для поиска
+	std::string keyword;
+	// текст справки
+	std::string entry;
+	// требуемый уровень для чтения (демигоды могут читать LVL_IMMORT)
+	int min_level;
+	// для сгенерированных страниц дропа сетов
+	// не спамят в иммлог при чтении, выводят перед страницей таймер
+	bool sets_drop_page;
+	// не спамить иммам использование справки
+	bool no_immlog;
+};
+
+// справка, подгружаемая из файлов на старте (STATIC)
+std::vector<help_node> static_help;
+// справка для всего, что нужно часто релоадить
+// сеты, сайты дружин, групповые зоны (DYNAMIC)
+std::vector<help_node> dynamic_help;
+// флаг для проверки необходимости обновления dynamic_help по таймеру раз в минуту
+bool need_update = false;
+
+const char *HELP_USE_EXMAPLES =
+	"&cПримеры:&n\r\n"
+	"\t\"справка 3.защита\"\r\n"
+	"\t\"справка 4.защита\"\r\n"
+	"\t\"справка защитаоттьмы\"\r\n"
+	"\t\"справка защита!\"\r\n"
+	"\t\"справка 3.защита!\"\r\n"
+	"\r\nСм. также: &CИСПОЛЬЗОВАНИЕСПРАВКИ&n\r\n";
+
+class UserSearch
+{
+public:
+	UserSearch(CHAR_DATA *in_ch)
+		: strong(false), stop(false), diff_keys(false), level(0), topic_num(0), curr_topic_num(0)
+	{ ch = in_ch; };
+
+	// ищущий чар
+	CHAR_DATA *ch;
+	// строгий поиск (! на конце)
+    bool strong;
+    // флаг остановки прохода по спискам справок
+    bool stop;
+    // флаг наличия двух и более разных топиков в key_list
+    // если топик 1 с несколькими дублями ключей - печатается просто этот топик
+    // если топиков два и более - печатается список всех ключей
+    bool diff_keys;
+    // уровень справки для просмотра данным чаром
+    int level;
+    // номер из х.поисковая_фраза
+    int topic_num;
+    // счетчик поиска при topic_num != 0
+    int curr_topic_num;
+    // поисковая фраза
+    std::string arg_str;
+    // формирующийся список подходящих топиков
+    std::vector<std::vector<help_node>::const_iterator> key_list;
+
+	// инициация поиска через search в нужном массиве
+    void process(int flag);
+    // собственно сам поиск справки в конкретном массиве
+    void search(const std::vector<help_node> &cont);
+    // распечатка чару когда ничего не нашлось
+    void print_not_found() const;
+    // распечатка чару конкретного топика справки
+    void print_curr_topic(const help_node &node) const;
+    // распечатка чару топика или списка кеев
+    // в зависимости от состояния key_list и diff_keys
+    void print_key_list() const;
+};
+
+void add(const std::string key_str, const std::string entry_str, int min_level, Flags add_flag)
+{
+	if (key_str.empty() || entry_str.empty())
+	{
+		log("SYSERROR: empty str '%s' -> '%s' (%s %s %d)",
+				key_str.c_str(), entry_str.c_str(), __FILE__, __func__, __LINE__ );
+		return;
+	}
+
+	help_node tmp_node;
+	tmp_node.keyword = key_str;
+	lower_convert(tmp_node.keyword);
+	tmp_node.entry = entry_str;
+	tmp_node.min_level = min_level;
+
+	switch(add_flag)
+	{
+	case STATIC:
+		static_help.push_back(tmp_node);
+		break;
+	case DYNAMIC:
+		tmp_node.no_immlog = true;
+		dynamic_help.push_back(tmp_node);
+		break;
+	default:
+		log("SYSERROR: wrong add_flag = %d (%s %s %d)",
+				add_flag, __FILE__, __func__, __LINE__ );
+	};
+}
+
+void add_sets(const std::string key_str, const std::string entry_str)
+{
+	if (key_str.empty() || entry_str.empty())
+	{
+		log("SYSERROR: empty str '%s' -> '%s' (%s %s %d)",
+				key_str.c_str(), entry_str.c_str(), __FILE__, __func__, __LINE__ );
+		return;
+	}
+
+	help_node tmp_node;
+	tmp_node.keyword = key_str;
+	lower_convert(tmp_node.keyword);
+	tmp_node.entry = entry_str;
+	tmp_node.sets_drop_page = true;
+	tmp_node.no_immlog = true;
+
+	dynamic_help.push_back(tmp_node);
+}
+
+void init_group_zones()
+{
+	std::stringstream out;
+	for (int rnum = 0, i = 1; rnum <= top_of_zone_table; ++rnum)
+	{
+		const int group = zone_table[rnum].group;
+		if (group > 1)
+		{
+			out << boost::format("  %2d - %s (гр. %d+).\r\n") % i % zone_table[rnum].name % group;
+			++i;
+		}
+	}
+	add("групповыезоны", out.str(), 0, DYNAMIC);
+}
 
 void check_update_dynamic()
 {
@@ -704,6 +695,8 @@ void reload(Flags flag)
 		SetsDrop::init_xhelp_full();
 		ClanSystem::init_xhelp();
 		init_group_zones();
+		obj_sets::init_xhelp();
+		need_update = false;
 		std::sort(dynamic_help.begin(), dynamic_help.end(),
 			boost::bind(std::less<std::string>(),
 				boost::bind(&help_node::keyword, _1),
@@ -768,9 +761,10 @@ void UserSearch::print_curr_topic(const help_node &node) const
 		// распечатка таймера до следующего релоада таблицы дропа сетов
 		SetsDrop::print_timer_str(ch);
 	}
-	else
+	if (!node.no_immlog)
 	{
-		snprintf(buf, sizeof(buf), "%s uses command HELP: %s (read)", GET_NAME(ch), arg_str.c_str());
+		snprintf(buf, sizeof(buf), "%s uses command HELP: %s (read)",
+			GET_NAME(ch), arg_str.c_str());
 		mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
 	}
 	page_string(ch->desc, node.entry);

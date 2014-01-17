@@ -74,8 +74,6 @@ extern char *policies;
 extern char *handbook;
 extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
-extern INDEX_DATA *obj_index;
-extern INDEX_DATA *mob_index;
 extern const char *material_name[];
 extern im_type *imtypes;
 extern int top_imtypes;

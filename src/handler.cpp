@@ -44,6 +44,7 @@
 #include "fight.h"
 #include "ext_money.hpp"
 #include "noob.hpp"
+#include "obj_sets.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -571,6 +572,13 @@ void apply_natural_affects(CHAR_DATA *ch)
 	}
 }
 
+namespace
+{
+
+obj_sets::WornSets worn_sets;
+
+}
+
 // This updates a character by subtracting everything he is affected by
 // restoring original abilities, and then affecting all again
 void affect_total(CHAR_DATA * ch)
@@ -610,11 +618,14 @@ void affect_total(CHAR_DATA * ch)
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
 	}
 
+	ch->clear_obj_skills();
+	worn_sets.clear();
 	// move object modifiers
 	for (i = 0; i < NUM_WEARS; i++)
 	{
 		if ((obj = GET_EQ(ch, i)))
 		{
+			worn_sets.add(ch, obj);
 			if (ObjSystem::is_armor_type(obj))
 			{
 				GET_AC_ADD(ch) -= apply_ac(ch, i);
@@ -634,6 +645,7 @@ void affect_total(CHAR_DATA * ch)
 			}
 		}
 	}
+	worn_sets.check(ch);
 
 	// move features modifiers - added by Gorrah
 	for (i = 1; i < MAX_FEATS; i++)
@@ -2197,6 +2209,14 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 	obj->worn_by = NULL;
 	obj->worn_on = NOWHERE;
 	obj->next_content = NULL;
+	if (!skip_total)
+	{
+		if (obj->get_activator().first)
+		{
+			obj_sets::print_off_msg(ch, obj);
+		}
+		obj->set_activator(false, 0);
+	}
 
 	if (!skip_total)
 	{

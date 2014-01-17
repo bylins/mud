@@ -54,7 +54,6 @@ int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict);
 int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg);
-void affect_total(CHAR_DATA * ch);
 int npc_track(CHAR_DATA * ch);
 int npc_scavenge(CHAR_DATA * ch);
 int npc_loot(CHAR_DATA * ch);
