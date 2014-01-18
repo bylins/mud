@@ -42,11 +42,10 @@ int set_node::uid_cnt = 0;
 const char *OBJ_SETS_FILE = LIB_MISC"obj_sets.xml";
 /// мин/макс кол-во активаторов для валидного сета
 const unsigned MIN_ACTIVE_SIZE = 2;
-const unsigned MAX_ACTIVE_SIZE = 8;
-/// сколько всего активаторов с разных сетов может включиться на чаре
-const unsigned MAX_TOTAL_ACTIV = 8;
+/// вобщем-то равняется кол-ву допустимых для сетов слотов
+const unsigned MAX_ACTIVE_SIZE = 10;
 /// сколько предметов может быть в сете
-const unsigned MAX_OBJ_LIST = 8;
+const unsigned MAX_OBJ_LIST = 20;
 /// основной список сетов
 std::vector<boost::shared_ptr<set_node>> sets_list;
 /// дефолтные сообщения всех сетов, инятся в init_global_msg()
@@ -152,7 +151,20 @@ void init_obj_index()
 			}
 		}
 	}
-	HelpSystem::reload(HelpSystem::DYNAMIC);
+	HelpSystem::reload(HelpSystem::STATIC);
+}
+
+/// сеты не вешаются на: кольца, ожерелья, браслеты, свет
+bool verify_wear_flag(OBJ_DATA *obj)
+{
+	if (CAN_WEAR(obj, ITEM_WEAR_FINGER)
+		|| CAN_WEAR(obj, ITEM_WEAR_NECK)
+		|| CAN_WEAR(obj, ITEM_WEAR_WRIST)
+		|| GET_OBJ_TYPE(obj) == ITEM_LIGHT)
+	{
+		return false;
+	}
+	return true;
 }
 
 /// проверка сета после олц или лоада из конфига, при необходимости
@@ -185,6 +197,12 @@ void verify_set(set_node &set)
 		else if (OBJ_FLAGGED(obj_proto[rnum], ITEM_SETSTUFF))
 		{
 			err_log("set '%s': obj have ITEM_SETSTUFF flag (vnum=%d)",
+				name, i->first);
+			set.enabled = false;
+		}
+		else if (!verify_wear_flag(obj_proto[rnum]))
+		{
+			err_log("set '%s': obj have invalid wear flag (vnum=%d)",
 				name, i->first);
 			set.enabled = false;
 		}
@@ -818,8 +836,6 @@ std::string print_activ_help(const set_node &set)
 		if (i->second.skill.num > 0)
 		{
 			std::map<int, int> skills;
-			// GCC 4.4
-			//skills.emplace(i->second.skill.num, i->second.skill.val);
 			skills[i->second.skill.num] = i->second.skill.val;
 			out << PrintActivators::print_skills(skills, true);
 			PrintActivators::sum_skills(summ.skills, skills);
@@ -838,6 +854,36 @@ std::string print_activ_help(const set_node &set)
 	return out.str();
 }
 
+/// выриант print_activ_help только для сумму активаторов (олц)
+std::string print_total_activ(const set_node &set)
+{
+	std::stringstream out;
+
+	PrintActivators::clss_activ_node summ;
+	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
+	{
+		// affects
+		summ.total_affects += i->second.affects;
+		// apply
+		PrintActivators::sum_affected(summ.affected, i->second.apply);
+		// skill
+		if (i->second.skill.num > 0)
+		{
+			std::map<int, int> skills;
+			skills[i->second.skill.num] = i->second.skill.val;
+			PrintActivators::sum_skills(summ.skills, skills);
+		}
+	}
+	out << "--------------------------------------------------------------------------------\r\n";
+	out << "Суммарный бонус:\r\n";
+	out << print_affects_help(summ.total_affects);
+	out << print_apply_help(summ.affected);
+	out << PrintActivators::print_skills(summ.skills, true);
+	out << "--------------------------------------------------------------------------------\r\n";
+
+	return out.str();
+}
+
 /// генерация справки по активаторам через индексы сетов, которые потом видны
 /// через опознание любой сетины
 void init_xhelp()
@@ -846,8 +892,7 @@ void init_xhelp()
 	for (size_t i = 0; i < sets_list.size(); ++i)
 	{
 		snprintf(buf_, sizeof(buf_), "активсет%d", i + 1);
-		HelpSystem::add(buf_, print_activ_help(*(sets_list.at(i))),
-			0, HelpSystem::DYNAMIC);
+		HelpSystem::add_static(buf_, print_activ_help(*(sets_list.at(i))), 0, true);
 	}
 }
 
@@ -904,7 +949,6 @@ void WornSets::add(CHAR_DATA *ch, OBJ_DATA *obj)
 /// проверка списка сетов на чаре и применение их активаторов
 void WornSets::check(CHAR_DATA *ch)
 {
-	int total_activ = 0;
     for (auto i = idx_list_.begin(); i != idx_list_.end(); ++i)
 	{
 		if (i->set_idx >= sets_list.size()) return;
@@ -919,8 +963,7 @@ void WornSets::check(CHAR_DATA *ch)
 			{
 				// k->first - кол-во для активации,
 				// i->obj_list.size() - одето на чаре
-				if (k->first <= i->obj_list.size()
-					&& total_activ + k->first <= MAX_TOTAL_ACTIV)
+				if (k->first <= i->obj_list.size())
 				{
 					apply_activator(ch, k->second);
 					max_activ = k->first;
@@ -934,7 +977,6 @@ void WornSets::check(CHAR_DATA *ch)
 		}
 		// на деактивацию проверять надо даже выключенные сеты
 		check_deactivated(ch, max_activ, *i);
-		total_activ += max_activ;
 	}
 }
 

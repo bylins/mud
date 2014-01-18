@@ -5434,9 +5434,9 @@ void init_xhelp()
 		<< "  óÁÊÔ ÉÓÔÏÒÉÉ ÍÁÄÁ íðí âÙÌÉÎÙ:$COLORc mudhistory.nm.ru$COLORn\r\n"
 		<< "\r\nóÍ. ÔÁËÖÅ:$COLORC äòõöéîù $COLORn\r\n";
 
-	HelpSystem::add("óáêôùäòõöéî", out.str(), 0, HelpSystem::DYNAMIC);
-	HelpSystem::add("CLANSITES", out.str(), 0, HelpSystem::DYNAMIC);
-	HelpSystem::add("INTERNETLINKS", out.str(), 0, HelpSystem::DYNAMIC);
+	HelpSystem::add_dynamic("óáêôùäòõöéî", out.str());
+	HelpSystem::add_dynamic("CLANSITES", out.str());
+	HelpSystem::add_dynamic("INTERNETLINKS", out.str());
 }
 
 const char *GOLD_TAX_FORMAT =

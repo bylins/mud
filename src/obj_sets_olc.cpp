@@ -59,6 +59,7 @@ public:
 	void parse_activ_affects(CHAR_DATA *ch, const char *arg);
 	void parse_activ_edit(CHAR_DATA *ch, const char *arg);
 	void parse_activ_add(CHAR_DATA *ch, const char *arg);
+	void parse_total_activ(CHAR_DATA *ch, const char *arg);
 	void parse_obj_remove(CHAR_DATA *ch, const char *arg);
 	void parse_obj_change(CHAR_DATA *ch, const char *arg);
 	void parse_obj_edit(CHAR_DATA *ch, const char *arg);
@@ -120,6 +121,7 @@ enum
 	STATE_OBJMSG_ROOM_ON,
 	STATE_OBJMSG_ROOM_OFF,
 	STATE_OBJ_REMOVE,
+	STATE_TOTAL_ACTIV,
 	STATE_ACTIV_ADD,
 	STATE_ACTIV_EDIT,
 	STATE_ACTIV_AFFECTS,
@@ -299,7 +301,11 @@ void sedit::show_main(CHAR_DATA *ch)
 	out += main_menu_objlist(ch, olc_set, i);
 	i += olc_set.obj_list.size();
 	// активаторы
-	snprintf(buf_, sizeof(buf_), "\r\n%s%2d%s) Добавить активатор\r\n",
+	snprintf(buf_, sizeof(buf_),
+		"\r\n%s%2d%s) Распечатать сумму активаторов\r\n",
+		CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
+	out += buf_;
+	snprintf(buf_, sizeof(buf_), "%s%2d%s) Добавить активатор\r\n",
 		CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
 	out += buf_;
 	for (auto k = olc_set.activ_list.begin(); k != olc_set.activ_list.end(); ++k)
@@ -829,19 +835,24 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 		break;
 	}
 
+	const unsigned NUM_ADD_OBJ = MAIN_TOTAL;
+	const unsigned NUM_TOTAL_ACTIV = NUM_ADD_OBJ + olc_set.obj_list.size() + 1;
+	const unsigned NUM_ADD_ACTIV = NUM_TOTAL_ACTIV + 1;
+	const unsigned NUM_QUIT = NUM_ADD_ACTIV + olc_set.activ_list.size() + 1;
+
 	// после статичного меню идут предметы, за ними активаторы
-	if (num == MAIN_TOTAL)
+	if (num == NUM_ADD_OBJ)
 	{
 		send_to_char(
 			"Vnum добавляемого предмета (несколько через пробел) : ", ch);
 		state = STATE_OBJ_ADD;
 	}
 	else if (!olc_set.obj_list.empty()
-		&& num > MAIN_TOTAL
-		&& num <= MAIN_TOTAL + olc_set.obj_list.size())
+		&& num > NUM_ADD_OBJ
+		&& num <= NUM_ADD_OBJ + olc_set.obj_list.size())
 	{
 		// редактирование предмета
-		const unsigned offset = MAIN_TOTAL + 1;
+		const unsigned offset = NUM_ADD_OBJ + 1;
 		auto i = olc_set.obj_list.begin();
 		if (num > offset)
 		{
@@ -850,7 +861,13 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 		obj_edit = i->first;
 		show_obj_edit(ch);
 	}
-	else if (num == MAIN_TOTAL + olc_set.obj_list.size() + 1)
+	else if (num == NUM_TOTAL_ACTIV)
+	{
+		state = STATE_TOTAL_ACTIV;
+		send_to_char(print_total_activ(olc_set), ch);
+		send_to_char("Введите любую команду для продолжения : ", ch);
+	}
+	else if (num == NUM_ADD_ACTIV)
 	{
 		send_to_char(ch,
 			"Укажите кол-во предметов для активации (%u-%u) : ",
@@ -858,11 +875,11 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 		state = STATE_ACTIV_ADD;
 	}
 	else if (!olc_set.activ_list.empty()
-		&& num > MAIN_TOTAL + olc_set.obj_list.size() + 1
-		&& num <= MAIN_TOTAL + olc_set.obj_list.size() + 1 + olc_set.activ_list.size())
+		&& num > NUM_ADD_ACTIV
+		&& num <= NUM_ADD_ACTIV + olc_set.activ_list.size())
 	{
 		// редактирование активатора
-		const unsigned offset = MAIN_TOTAL + olc_set.obj_list.size() + 2;
+		const unsigned offset = NUM_ADD_ACTIV + 1;
 		auto i = olc_set.activ_list.begin();
 		if (num > offset)
 		{
@@ -871,8 +888,7 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 		activ_edit = i->first;
 		show_activ_edit(ch);
 	}
-	else if (num == MAIN_TOTAL + 1 + olc_set.obj_list.size()
-		+ 1 + olc_set.activ_list.size())
+	else if (num == NUM_QUIT)
 	{
 		if (new_entry || changed())
 		{
@@ -1043,6 +1059,11 @@ void sedit::parse_activ_add(CHAR_DATA *ch, const char *arg)
 	show_main(ch);
 }
 
+void sedit::parse_total_activ(CHAR_DATA *ch, const char *arg)
+{
+	show_main(ch);
+}
+
 void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
 {
 	skip_spaces(&arg);
@@ -1074,6 +1095,12 @@ void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
 		{
 			send_to_char(ch,
 				"Предмет '%s' уже является частью другого набора.\r\n",
+				obj_proto[rnum]->short_description);
+		}
+		else if (!verify_wear_flag(obj_proto[rnum]))
+		{
+			send_to_char(ch,
+				"Предмет '%s' имеет запрещенный слот для надевания.\r\n",
 				obj_proto[rnum]->short_description);
 		}
 		else
@@ -1527,6 +1554,9 @@ void parse_input(CHAR_DATA *ch, const char *arg)
 		break;
 	case STATE_OBJ_REMOVE:
 		olc.parse_obj_remove(ch, arg);
+		break;
+	case STATE_TOTAL_ACTIV:
+		olc.parse_total_activ(ch, arg);
 		break;
 	case STATE_ACTIV_ADD:
 		olc.parse_activ_add(ch, arg);

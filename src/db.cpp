@@ -4302,7 +4302,7 @@ void load_help(FILE * fl)
 		while (*next_key)
 		{
 			std::string key_str(next_key);
-			HelpSystem::add(key_str, entry_str, min_level, HelpSystem::STATIC);
+			HelpSystem::add_static(key_str, entry_str, min_level);
 			scan = one_word(scan, next_key);
 		}
 

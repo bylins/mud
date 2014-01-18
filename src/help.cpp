@@ -502,7 +502,7 @@ void process()
 		{
 			set_name += it->second.get_name();
 			set_name.erase(boost::remove_if(set_name, boost::is_any_of(" ,.")), set_name.end());
-			HelpSystem::add(set_name, out.str(), 0, HelpSystem::STATIC);
+			HelpSystem::add_static(set_name, out.str(), 0, true);
 		}
 		else
 		{
@@ -513,7 +513,7 @@ void process()
 				kend = str_list.end(); k != kend; ++k)
 			{
 				k->erase(boost::remove_if(*k, boost::is_any_of(" ,.")), k->end());
-				HelpSystem::add(set_name + "сет" + *k, out.str(), 0, HelpSystem::STATIC);
+				HelpSystem::add_static(set_name + "сет" + *k, out.str(), 0, true);
 			}
 		}
 	}
@@ -529,7 +529,12 @@ namespace HelpSystem
 
 struct help_node
 {
-	help_node() : min_level(0), sets_drop_page(false), no_immlog(false) {};
+	help_node(const std::string &key, const std::string &val)
+		: keyword(key), entry(val), min_level(0),
+		sets_drop_page(false), no_immlog(false)
+	{
+		lower_convert(keyword);
+	};
 
 	// ключ для поиска
 	std::string keyword;
@@ -602,49 +607,48 @@ public:
     void print_key_list() const;
 };
 
-void add(const std::string key_str, const std::string entry_str, int min_level, Flags add_flag)
+/// \param min_level = 0, \param no_immlog = false
+void add_static(const std::string &key, const std::string &entry,
+	int min_level, bool no_immlog)
 {
-	if (key_str.empty() || entry_str.empty())
+	if (key.empty() || entry.empty())
 	{
-		log("SYSERROR: empty str '%s' -> '%s' (%s %s %d)",
-				key_str.c_str(), entry_str.c_str(), __FILE__, __func__, __LINE__ );
+		log("SYSERROR: empty str '%s' -> '%s' (%s:%d %s)",
+				key.c_str(), entry.c_str(), __FILE__, __LINE__, __func__);
 		return;
 	}
 
-	help_node tmp_node;
-	tmp_node.keyword = key_str;
-	lower_convert(tmp_node.keyword);
-	tmp_node.entry = entry_str;
+	help_node tmp_node(key, entry);
 	tmp_node.min_level = min_level;
-
-	switch(add_flag)
-	{
-	case STATIC:
-		static_help.push_back(tmp_node);
-		break;
-	case DYNAMIC:
-		tmp_node.no_immlog = true;
-		dynamic_help.push_back(tmp_node);
-		break;
-	default:
-		log("SYSERROR: wrong add_flag = %d (%s %s %d)",
-				add_flag, __FILE__, __func__, __LINE__ );
-	};
+	tmp_node.no_immlog = no_immlog;
+	static_help.push_back(tmp_node);
 }
 
-void add_sets(const std::string key_str, const std::string entry_str)
+/// \param min_level = 0, no_immlog = true
+void add_dynamic(const std::string &key, const std::string &entry)
 {
-	if (key_str.empty() || entry_str.empty())
+	if (key.empty() || entry.empty())
 	{
-		log("SYSERROR: empty str '%s' -> '%s' (%s %s %d)",
-				key_str.c_str(), entry_str.c_str(), __FILE__, __func__, __LINE__ );
+		log("SYSERROR: empty str '%s' -> '%s' (%s:%d %s)",
+				key.c_str(), entry.c_str(), __FILE__, __LINE__, __func__);
 		return;
 	}
 
-	help_node tmp_node;
-	tmp_node.keyword = key_str;
-	lower_convert(tmp_node.keyword);
-	tmp_node.entry = entry_str;
+	help_node tmp_node(key, entry);
+	tmp_node.no_immlog = true;
+	dynamic_help.push_back(tmp_node);
+}
+
+void add_sets_drop(const std::string key, const std::string entry)
+{
+	if (key.empty() || entry.empty())
+	{
+		log("SYSERROR: empty str '%s' -> '%s' (%s %s %d)",
+				key.c_str(), entry.c_str(), __FILE__, __func__, __LINE__ );
+		return;
+	}
+
+	help_node tmp_node(key, entry);
 	tmp_node.sets_drop_page = true;
 	tmp_node.no_immlog = true;
 
@@ -663,7 +667,7 @@ void init_group_zones()
 			++i;
 		}
 	}
-	add("групповыезоны", out.str(), 0, DYNAMIC);
+	add_static("групповыезоны", out.str(), 0, true);
 }
 
 void check_update_dynamic()
@@ -682,7 +686,9 @@ void reload(Flags flag)
 	case STATIC:
 		static_help.clear();
 		index_boot(DB_BOOT_HLP);
+		init_group_zones();
 		PrintActivators::process();
+		obj_sets::init_xhelp();
 		// итоговая сортировка массива через дефолтное < для строковых ключей
 		std::sort(static_help.begin(), static_help.end(),
 			boost::bind(std::less<std::string>(),
@@ -694,8 +700,6 @@ void reload(Flags flag)
 		SetsDrop::init_xhelp();
 		SetsDrop::init_xhelp_full();
 		ClanSystem::init_xhelp();
-		init_group_zones();
-		obj_sets::init_xhelp();
 		need_update = false;
 		std::sort(dynamic_help.begin(), dynamic_help.end(),
 			boost::bind(std::less<std::string>(),

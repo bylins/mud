@@ -8,22 +8,32 @@
 #include "conf.h"
 #include <string>
 #include <map>
+#include <vector>
+#include <array>
 
 #include "sysdep.h"
 #include "interpreter.h"
 
-ACMD(do_help);
-
+/// STATIC справка:
+/// 	вся обычная справка
+/// 	активаторы сетов (старые и новые)
+/// 	груп-зоны
+/// DYNAMIC справка:
+/// 	клан-сайты
+/// 	справка по дропу сетов
 namespace HelpSystem
 {
 
 extern bool need_update;
 enum Flags { STATIC, DYNAMIC, TOTAL_NUM };
 
-// добавление в справку топика в нужный массив через флаг
-void add(const std::string key_str, const std::string entry_str, int min_level, HelpSystem::Flags add_flag);
+// добавление статической справки, которая обновляется максимально редко
+void add_static(const std::string &key, const std::string &entry,
+	int min_level = 0, bool no_immlog = false);
+// в динамической справке все с включенным no_immlog и 0 min_level
+void add_dynamic(const std::string &key, const std::string &entry);
 // добавление сетов, идет в DYNAMIC массив с включенным sets_drop_page
-void add_sets(const std::string key_str, const std::string entry_str);
+void add_sets_drop(const std::string key_str, const std::string entry_str);
 // лоад/релоад конкретного массива справки
 void reload(HelpSystem::Flags sort_flag);
 // лоад/релоад всей справки
@@ -54,5 +64,7 @@ void sum_affected(std::vector<obj_affected_type> &l,
 void sum_skills(std::map<int, int> &target, const std::map<int, int> &add);
 
 } // namespace PrintActivators
+
+ACMD(do_help);
 
 #endif // HELP_HPP_INCLUDED

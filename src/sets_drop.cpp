@@ -968,9 +968,9 @@ void init_xhelp()
 		out << "\r\n" << print_current_set(*i);
 	}
 
-	HelpSystem::add_sets("сеты", out.str());
-	HelpSystem::add_sets("сэты", out.str());
-	HelpSystem::add_sets("наборыпредметов", out.str());
+	HelpSystem::add_sets_drop("сеты", out.str());
+	HelpSystem::add_sets_drop("сэты", out.str());
+	HelpSystem::add_sets_drop("наборыпредметов", out.str());
 }
 
 /**
@@ -987,7 +987,7 @@ void init_xhelp_full()
 		for (std::vector<std::string>::const_iterator k = str_list.begin(),
 			kend = str_list.end(); k != kend; ++k)
 		{
-			HelpSystem::add_sets(*k, text);
+			HelpSystem::add_sets_drop(*k, text);
 		}
 	}
 }

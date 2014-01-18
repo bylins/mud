@@ -453,8 +453,8 @@ void zedit_save_internally(DESCRIPTOR_DATA * d)
 		zone_table[OLC_ZNUM(d)].locked = OLC_ZONE(d)->locked;
 		if (zone_table[OLC_ZNUM(d)].group != OLC_ZONE(d)->group)
 		{
-			HelpSystem::need_update = true;
 			zone_table[OLC_ZNUM(d)].group = OLC_ZONE(d)->group;
+			HelpSystem::reload(HelpSystem::STATIC);
 		}
 	}
 
