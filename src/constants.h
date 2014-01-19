@@ -14,6 +14,7 @@
 
 #include "conf.h"
 #include <vector>
+#include <array>
 
 #include "sysdep.h"
 #include "structs.h"

@@ -397,7 +397,7 @@ void load()
 			pugi::xml_attribute xml_prof = xml_activ.attribute("prof");
 			if (xml_prof)
 			{
-				std::bitset<NUM_CLASSES> tmp_p(xml_prof.value());
+				std::bitset<NUM_CLASSES> tmp_p(std::string(xml_prof.value()));
 				tmp_activ.prof = tmp_p;
 			}
 			tmp_set->activ_list[Parse::attr_int(xml_activ, "size")] = tmp_activ;
