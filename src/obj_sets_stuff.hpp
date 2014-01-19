@@ -54,6 +54,7 @@ struct activ_node
 	activ_node() : skill(0, 0)
 	{
 		affects = clear_flags;
+		prof.set();
 	};
 
 	// аффекты (obj_flags.affects)
@@ -62,13 +63,16 @@ struct activ_node
 	std::array<obj_affected_type, MAX_OBJ_AFFECT> apply;
 	// изменение умения
 	skill_node skill;
+	// список проф, на которых этот активатор сработает (по дефолту - все)
+	std::bitset<NUM_CLASSES> prof;
 
 	// для сравнения в sedit
 	bool operator!=(const activ_node &r) const
 	{
 		if (affects != r.affects
 			|| apply != r.apply
-			|| skill != r.skill)
+			|| skill != r.skill
+			|| prof != r.prof)
 		{
 			return true;
 		}

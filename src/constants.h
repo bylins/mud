@@ -81,6 +81,7 @@ extern int mana_cost_cs[][9];
 extern const char *material_name[];
 extern struct attack_hit_type attack_hit_text[];
 extern const char *godslike_bits[];
+extern std::array<const char *, NUM_CLASSES> pc_class_name;
 
 //MZ.load
 extern struct zone_type * zone_types;

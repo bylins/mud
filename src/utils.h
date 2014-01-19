@@ -1530,9 +1530,51 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 #define OK_SHIELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
                           (2 * str_bonus(GET_REAL_STR(ch), STR_HOLD_W)))
 
-void print_bitset(const boost::dynamic_bitset<>& bits,
-	const std::vector<const char*>& names, const char* div,
-	std::string& str, bool print_num = false);
+/// аналог sprintbitwd и производных
+/// \param bits - bitset|boost::dynamic_bitset
+/// \param names - vector|array<string|const char*> список названий битов
+/// div - разделитель между битами при распечатке
+/// str - строка, куда печаются имена битов (добавлением в конец)
+/// print_num - печать номер бита рядом с его именем
+/// 	(для олц, счет битов начинается с 1), по дефолту = false
+template <class T, class N>
+void print_bitset(const N& bits, const T& names,
+	const char* div, std::string& str, bool print_num = false)
+{
+	static char tmp_buf[10];
+	bool first = true;
+
+	for (unsigned i = 0; i < bits.size(); ++i)
+	{
+		if (bits.test(i) == true)
+		{
+			if (!first)
+			{
+				str += div;
+			}
+			else
+			{
+				first = false;
+			}
+
+			if (print_num)
+			{
+				snprintf(tmp_buf, sizeof(tmp_buf), "%d:", i + 1);
+				str += tmp_buf;
+			}
+
+			if (i < names.size())
+			{
+				str += names[i];
+			}
+			else
+			{
+				str += "UNDEF";
+			}
+		}
+	}
+}
+
 void tascii(const uint32_t* pointer, int num_planes, char* ascii);
 const char *print_obj_state(int tm_pct);
 

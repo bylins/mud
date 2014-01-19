@@ -2707,6 +2707,7 @@ ACMD(do_gold)
 	}
 }
 
+/// см pc_class_name
 const char *class_name[] = { "лекарь",
 							 "колдун",
 							 "тать",

@@ -12,6 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "conf.h"
+#include <array>
+
 #include "constants.h"
 #include "spells.h"
 #include "skills.h"
@@ -3072,3 +3075,21 @@ const char *godslike_bits[] =
 	"GF_PERSLOG",
 	"\n"
 };
+
+std::array<const char *, NUM_CLASSES> pc_class_name =
+{{
+	"лекарь",
+	"колдун",
+	"тать",
+	"богатырь",
+	"наемник",
+	"дружинник",
+	"кудесник",
+	"волшебник",
+	"чернокнижник",
+	"витязь",
+	"охотник",
+	"кузнец",
+	"купец",
+	"волхв"
+}};

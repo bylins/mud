@@ -54,6 +54,7 @@ public:
 	void parse_activ_skill(CHAR_DATA *ch, const char *arg);
 	void parse_activ_apply_mod(CHAR_DATA *ch, const char *arg);
 	void parse_activ_apply_loc(CHAR_DATA *ch, const char *arg);
+	void parse_activ_prof(CHAR_DATA *ch, const char *arg);
 	void parse_activ_change(CHAR_DATA *ch, const char *arg);
 	void parse_activ_remove(CHAR_DATA *ch, const char *arg);
 	void parse_activ_affects(CHAR_DATA *ch, const char *arg);
@@ -82,6 +83,7 @@ private:
 	// если правится аффект - его индекс в списке
 	size_t apply_edit;
 
+	void show_activ_prof(CHAR_DATA *ch);
 	void show_activ_skill(CHAR_DATA *ch);
 	void show_activ_apply(CHAR_DATA *ch);
 	void show_activ_affects(CHAR_DATA *ch);
@@ -126,6 +128,7 @@ enum
 	STATE_ACTIV_EDIT,
 	STATE_ACTIV_AFFECTS,
 	STATE_ACTIV_REMOVE,
+	STATE_ACTIV_PROF,
 	STATE_ACTIV_CHANGE,
 	STATE_ACTIV_APPLY_LOC,
 	STATE_ACTIV_APPLY_MOD,
@@ -310,10 +313,23 @@ void sedit::show_main(CHAR_DATA *ch)
 	out += buf_;
 	for (auto k = olc_set.activ_list.begin(); k != olc_set.activ_list.end(); ++k)
 	{
-		snprintf(buf_, sizeof(buf_),
-			"%s%2d%s) Редактировать активатор: %s%d%s\r\n",
-			CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM),
-			CCCYN(ch, C_NRM), k->first,  CCNRM(ch, C_NRM));
+		if (k->second.prof.count() != k->second.prof.size())
+		{
+			std::string prof;
+			print_bitset(k->second.prof, pc_class_name, ",", prof);
+			snprintf(buf_, sizeof(buf_),
+				"%s%2d%s) Редактировать активатор: %s%d (%s)%s\r\n",
+				CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM),
+				CCCYN(ch, C_NRM), k->first, prof.c_str(),
+				CCNRM(ch, C_NRM));
+		}
+		else
+		{
+			snprintf(buf_, sizeof(buf_),
+				"%s%2d%s) Редактировать активатор: %s%d%s\r\n",
+				CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM),
+				CCCYN(ch, C_NRM), k->first,  CCNRM(ch, C_NRM));
+		}
 		out += buf_;
 	}
 
@@ -392,6 +408,15 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	char buf_aff[2048];
 	sprintbits(activ.affects, weapon_affects, buf_aff, ",");
 	std::string aff_str = line_split_str(buf_aff, ",", 80, 14);
+	std::string prof_str;
+	if (activ.prof.count() != activ.prof.size())
+	{
+		print_bitset(activ.prof, pc_class_name, ",", prof_str);
+	}
+	else
+	{
+		prof_str = "все";
+	}
 
 	std::string out;
 	char buf_[2048];
@@ -399,15 +424,18 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 		"\r\nРедактирование активатора\r\n"
 		"%s 1%s) Удалить из набора\r\n"
 		"%s 2%s) Количество предметов : %s%d%s\r\n"
-		"%s 3%s) Аффекты : %s%s%s\r\n",
+		"%s 3%s) Профессии : %s%s%s\r\n"
+		"%s 4%s) Аффекты : %s%s%s\r\n",
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCCYN(ch, C_NRM), activ_edit, CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+		CCCYN(ch, C_NRM), prof_str.c_str(), CCNRM(ch, C_NRM),
+		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCCYN(ch, C_NRM), aff_str.c_str(), CCNRM(ch, C_NRM));
 	out += buf_;
 
-	int cnt = 4;
+	int cnt = 5;
 	for (auto i = activ.apply.begin(); i != activ.apply.end(); ++i)
 	{
 		if (i->location > 0)
@@ -462,13 +490,12 @@ bool sedit::changed()
 
 void sedit::save_olc(CHAR_DATA *ch)
 {
-	verify_set(olc_set);
-
 	if (new_entry)
 	{
 		boost::shared_ptr<set_node> set_ptr =
 			boost::make_shared<set_node>(olc_set);
 		sets_list.push_back(set_ptr);
+		verify_set(*set_ptr);
 		save();
 		init_obj_index();
 		return;
@@ -478,6 +505,7 @@ void sedit::save_olc(CHAR_DATA *ch)
 	if (idx < sets_list.size())
 	{
 		*(sets_list.at(idx)) = olc_set;
+		verify_set(*(sets_list.at(idx)));
 		save();
 		init_obj_index();
 	}
@@ -1219,6 +1247,74 @@ void sedit::show_activ_skill(CHAR_DATA *ch)
 		"\r\nУкажите номер и уровень владения умением (0 - конец) : ", ch);
 }
 
+void sedit::show_activ_prof(CHAR_DATA *ch)
+{
+	state = STATE_ACTIV_PROF;
+	char buf_[128];
+	std::string out;
+	std::bitset<NUM_CLASSES> &bits = olc_set.activ_list.at(activ_edit).prof;
+
+	for (size_t i = 0; i < bits.size(); ++i)
+	{
+		snprintf(buf_, sizeof(buf_), "%s%2zu%s) %s\r\n",
+			CCGRN(ch, C_NRM), i + 1, CCNRM(ch, C_NRM),
+			i < pc_class_name.size() ? pc_class_name.at(i) : "UNDEF");
+		out += buf_;
+	}
+
+	snprintf(buf_, sizeof(buf_),
+		"%s%2zu%s) Сбросить все\r\n"
+		"%s%2zu%s) Установить все\r\n",
+		CCGRN(ch, C_NRM), bits.size() + 1, CCNRM(ch, C_NRM),
+		CCGRN(ch, C_NRM), bits.size() + 2, CCNRM(ch, C_NRM));
+	out += buf_;
+
+	snprintf(buf_, sizeof(buf_), "Текущие профессии : %s", CCCYN(ch, C_NRM));
+	out += buf_;
+	print_bitset(bits, pc_class_name, ",", out, true);
+	out += CCNRM(ch, C_NRM);
+	out += "\r\nВыберите профессии для данного активатора (0 - выход) : ";
+
+	send_to_char(out, ch);
+}
+
+void sedit::parse_activ_prof(CHAR_DATA *ch, const char *arg)
+{
+	skip_spaces(&arg);
+	if (!*arg || !isdigit(*arg))
+	{
+		send_to_char("Некорректный ввод.\r\n", ch);
+		show_activ_prof(ch);
+		return;
+	}
+
+	const unsigned num = atoi(arg);
+	if (num == 0)
+	{
+		show_activ_edit(ch);
+		return;
+	}
+
+	std::bitset<NUM_CLASSES> &bits = olc_set.activ_list.at(activ_edit).prof;
+	if (num > 0 && num <= bits.size())
+	{
+		bits.flip(num - 1);
+	}
+	else if (num == bits.size() + 1)
+	{
+		bits.reset();
+	}
+	else if (num == bits.size() + 2)
+	{
+		bits.set();
+	}
+	else
+	{
+		send_to_char("Некорректный ввод.\r\n", ch);
+	}
+	show_activ_prof(ch);
+}
+
 void sedit::parse_activ_skill(CHAR_DATA *ch, const char *arg)
 {
 	skill_node &skill = olc_set.activ_list.at(activ_edit).skill;
@@ -1309,12 +1405,15 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 		send_to_char("Введите новое кол-во предметов для активации :", ch);
 		return;
 	case 3:
+		show_activ_prof(ch);
+		return;
+	case 4:
 		show_activ_affects(ch);
 		return;
 	default:
 		break;
 	}
-	const unsigned offset = 3;
+	const unsigned offset = 4;
 
 	if (num > offset && num <= offset + activ.apply.size())
 	{
@@ -1569,6 +1668,9 @@ void parse_input(CHAR_DATA *ch, const char *arg)
 		break;
 	case STATE_ACTIV_REMOVE:
 		olc.parse_activ_remove(ch, arg);
+		break;
+	case STATE_ACTIV_PROF:
+		olc.parse_activ_prof(ch, arg);
 		break;
 	case STATE_ACTIV_CHANGE:
 		olc.parse_activ_change(ch, arg);

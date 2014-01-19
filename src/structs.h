@@ -264,23 +264,28 @@ typedef struct trig_data TRIG_DATA;
 
 // char and mob-related defines ***************************************
 
-#define NUM_CLASSES    14	// This must be the number of classes!! //
 // PC classes //
-#define CLASS_UNDEFINED     -1
-#define CLASS_CLERIC         0
-#define CLASS_BATTLEMAGE     1
-#define CLASS_THIEF          2
-#define CLASS_WARRIOR        3
-#define CLASS_ASSASINE       4
-#define CLASS_GUARD          5
-#define CLASS_CHARMMAGE      6
-#define CLASS_DEFENDERMAGE   7
-#define CLASS_NECROMANCER    8
-#define CLASS_PALADINE       9
-#define CLASS_RANGER         10
-#define CLASS_SMITH         11
-#define CLASS_MERCHANT      12
-#define CLASS_DRUID         13
+const int CLASS_UNDEFINED = -1;
+
+enum
+{
+	CLASS_CLERIC,
+	CLASS_BATTLEMAGE,
+	CLASS_THIEF,
+	CLASS_WARRIOR,
+	CLASS_ASSASINE,
+	CLASS_GUARD,
+	CLASS_CHARMMAGE,
+	CLASS_DEFENDERMAGE,
+	CLASS_NECROMANCER,
+	CLASS_PALADINE,
+	CLASS_RANGER,
+	CLASS_SMITH,
+	CLASS_MERCHANT,
+	CLASS_DRUID,
+	NUM_CLASSES
+};
+
 // mobile class
 #define CLASS_MOB      20
 

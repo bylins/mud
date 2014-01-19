@@ -171,18 +171,18 @@ bool verify_wear_flag(OBJ_DATA *obj)
 /// помечает сет как неактивный (сам сет или другие его поля не трогаются)
 void verify_set(set_node &set)
 {
-	const char *name = set.name.empty() ? "<null>" : set.name.c_str();
+	const size_t num = setidx_by_uid(set.uid) + 1;
 
 	if (set.obj_list.size() < 2 || set.activ_list.size() < 1)
 	{
-		err_log("set '%s': incomplete (objs=%zu, activs=%zu)",
-			name, set.obj_list.size(), set.activ_list.size());
+		err_log("сет #%zu: incomplete (objs=%zu, activs=%zu)",
+			num, set.obj_list.size(), set.activ_list.size());
 		set.enabled = false;
 	}
 	if (set.obj_list.size() > MAX_OBJ_LIST)
 	{
-		err_log("set '%s': too many objects (size=%zu)",
-			name, set.obj_list.size());
+		err_log("сет #%zu: too many objects (size=%zu)",
+			num, set.obj_list.size());
 		set.enabled = false;
 	}
 
@@ -191,46 +191,51 @@ void verify_set(set_node &set)
 		const int rnum = real_object(i->first);
 		if (rnum < 0)
 		{
-			err_log("set '%s': empty obj proto (vnum=%d)", name, i->first);
+			err_log("сет #%zu: empty obj proto (vnum=%d)", num, i->first);
 			set.enabled = false;
 		}
 		else if (OBJ_FLAGGED(obj_proto[rnum], ITEM_SETSTUFF))
 		{
-			err_log("set '%s': obj have ITEM_SETSTUFF flag (vnum=%d)",
-				name, i->first);
+			err_log("сет #%zu: obj have ITEM_SETSTUFF flag (vnum=%d)",
+				num, i->first);
 			set.enabled = false;
 		}
 		else if (!verify_wear_flag(obj_proto[rnum]))
 		{
-			err_log("set '%s': obj have invalid wear flag (vnum=%d)",
-				name, i->first);
+			err_log("сет #%zu: obj have invalid wear flag (vnum=%d)",
+				num, i->first);
 			set.enabled = false;
 		}
 		if (is_duplicate(set.uid, i->first))
 		{
-			err_log("set '%s': dublicate obj (vnum=%d)", name, i->first);
+			err_log("сет #%zu: dublicate obj (vnum=%d)", num, i->first);
 			set.enabled = false;
 		}
 	}
 
+	std::bitset<NUM_CLASSES> prof_bits;
+	bool prof_restrict = false;
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
 	{
 		if (i->first < MIN_ACTIVE_SIZE || i->first > MAX_ACTIVE_SIZE)
 		{
-			err_log("set '%s': bad activ attr (size=%d)", name, i->first);
+			err_log("сет #%zu: некорректный размер активатора (activ=%d)",
+				num, i->first);
 			set.enabled = false;
 		}
 		if (i->first > set.obj_list.size())
 		{
-			err_log("set '%s': activ > obj_list (size=%d)", name, i->first);
+			err_log("сет #%zu: активатор больше списка предметов (activ=%d)",
+				num, i->first);
 			set.enabled = false;
 		}
 		for (auto k = i->second.apply.begin(); k != i->second.apply.end(); ++k)
 		{
 			if (k->location < 0 || k->location >= NUM_APPLIES)
 			{
-				err_log("set '%s': bad apply location (loc=%d, mod=%d)",
-					name, k->location, k->modifier);
+				err_log(
+					"сет #%zu: некорректный номер apply аффекта (loc=%d, mod=%d, activ=%d)",
+					num, k->location, k->modifier, i->first);
 				set.enabled = false;
 			}
 		}
@@ -240,14 +245,36 @@ void verify_set(set_node &set)
 			|| i->second.skill.val > 200
 			|| i->second.skill.val < -200)
 		{
-			err_log("set '%s': bad skill attr (num=%d, val=%d)",
-				name, i->second.skill.num);
+			err_log(
+				"сет #%zu: некорректные номер или значение умения (num=%d, val=%d, activ=%d)",
+				num, i->second.skill.num, i->first);
+			set.enabled = false;
+		}
+		if (i->second.prof.none())
+		{
+			err_log("сет #%zu: пустой список профессий активатора (activ=%d)",
+				num, i->first);
 			set.enabled = false;
 		}
 		if (i->second.empty())
 		{
-			err_log("set '%s': empty activ (num=%d)", name, i->first);
+			err_log("сет #%zu: пустой активатор (activ=%d)", num, i->first);
 			set.enabled = false;
+		}
+		if (i->second.prof.count() != i->second.prof.size())
+		{
+			if (!prof_restrict)
+			{
+				prof_bits = i->second.prof;
+				prof_restrict = true;
+			}
+			else if (i->second.prof != prof_bits)
+			{
+				err_log(
+					"сет #%zu: несовпадение ограниченного списка профессий активатора (activ=%d)",
+					num, i->first);
+				set.enabled = false;
+			}
 		}
 	}
 }
@@ -366,11 +393,14 @@ void load()
 				tmp_activ.skill.num = Parse::attr_int(xml_skill, "num");
 				tmp_activ.skill.val = Parse::attr_int(xml_skill, "val");
 			}
-			// GCC 4.4
-			//tmp_set->activ_list.emplace(
-			//	Parse::attr_int(xml_activ, "size"), tmp_activ);
-			tmp_set->activ_list.insert(std::make_pair(
-				Parse::attr_int(xml_activ, "size"), tmp_activ));
+			// если нет атрибута prof - значит актив на все профы
+			pugi::xml_attribute xml_prof = xml_activ.attribute("prof");
+			if (xml_prof)
+			{
+				std::bitset<NUM_CLASSES> tmp_p(xml_prof.value());
+				tmp_activ.prof = tmp_p;
+			}
+			tmp_set->activ_list[Parse::attr_int(xml_activ, "size")] = tmp_activ;
 		}
 		// <messages>
 		pugi::xml_node xml_msg = xml_set.child("messages");
@@ -378,8 +408,8 @@ void load()
 		{
 			init_msg_node(tmp_set->messages, xml_msg);
 		}
-		verify_set(*tmp_set);
 		sets_list.push_back(tmp_set);
+		verify_set(*tmp_set);
 	}
 
 	init_obj_index();
@@ -469,6 +499,11 @@ void save()
 		{
 			pugi::xml_node xml_activ = xml_set.append_child("activ");
 			xml_activ.append_attribute("size") = k->first;
+			if (k->second.prof.count() != k->second.prof.size()) // !all()
+			{
+				xml_activ.append_attribute("prof")
+					= k->second.prof.to_string().c_str();
+			}
 			// set/activ/affects
 			if (!k->second.affects.empty())
 			{
@@ -809,7 +844,7 @@ std::string print_apply_help(const T &list)
 /// больше одного - вывод суммы аффектов
 std::string print_activ_help(const set_node &set)
 {
-	std::stringstream out;
+	std::string out, prof_list;
 	char buf_[2048];
 
 	snprintf(buf_, sizeof(buf_),
@@ -817,71 +852,107 @@ std::string print_activ_help(const set_node &set)
 		"%sНабор предметов: %s%s%s%s\r\n",
 		KNRM, KWHT, set.name.c_str(), KNRM,
 		set.enabled ? "" : " (в данный момент отключен)");
-	out << buf_ << print_obj_list(set)
-		<< "--------------------------------------------------------------------------------";
+	out += buf_ + print_obj_list(set) +
+		"--------------------------------------------------------------------------------\r\n";
 
-	PrintActivators::clss_activ_node summ;
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
 	{
-		snprintf(buf_, sizeof(buf_), "\r\n%d %s\r\n",
-			i->first, desc_count(i->first, WHAT_OBJECT));
-		out << buf_;
+		if (i->second.prof.count() != i->second.prof.size())
+		{
+			// активатор на ограниченный список проф (распечатка закладывается
+			// на то, что у валидных сетов списки проф должны быть одинаковые)
+			if (prof_list.empty())
+			{
+				print_bitset(i->second.prof, pc_class_name, ",", prof_list);
+			}
+			snprintf(buf_, sizeof(buf_), "%d %s (%s)\r\n",
+				i->first, desc_count(i->first, WHAT_OBJECT), prof_list.c_str());
+		}
+		else
+		{
+			snprintf(buf_, sizeof(buf_), "%d %s\r\n",
+				i->first, desc_count(i->first, WHAT_OBJECT));
+		}
+		out += buf_;
 		// affects
-		out << print_affects_help(i->second.affects);
-		summ.total_affects += i->second.affects;
+		out += print_affects_help(i->second.affects);
 		// apply
-		out << print_apply_help(i->second.apply);
-		PrintActivators::sum_affected(summ.affected, i->second.apply);
+		out += print_apply_help(i->second.apply);
 		// skill
 		if (i->second.skill.num > 0)
 		{
 			std::map<int, int> skills;
 			skills[i->second.skill.num] = i->second.skill.val;
-			out << PrintActivators::print_skills(skills, true);
-			PrintActivators::sum_skills(summ.skills, skills);
+			out += PrintActivators::print_skills(skills, true);
 		}
 	}
+
 	if (set.activ_list.size() > 1)
 	{
-		out << "--------------------------------------------------------------------------------\r\n";
-		// распечатка суммарного бонуса активаторов
-		out << "Суммарный бонус:\r\n";
-		out << print_affects_help(summ.total_affects);
-		out << print_apply_help(summ.affected);
-		out << PrintActivators::print_skills(summ.skills, true);
+		out += print_total_activ(set);
 	}
 
-	return out.str();
+	return out;
 }
 
-/// выриант print_activ_help только для сумму активаторов (олц)
+/// выриант print_activ_help только для суммы активаторов (олц)
 std::string print_total_activ(const set_node &set)
 {
-	std::stringstream out;
+	std::string out, prof_list;
 
-	PrintActivators::clss_activ_node summ;
+	PrintActivators::clss_activ_node summ, prof_summ;
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
 	{
-		// affects
-		summ.total_affects += i->second.affects;
-		// apply
-		PrintActivators::sum_affected(summ.affected, i->second.apply);
-		// skill
-		if (i->second.skill.num > 0)
+		if (i->second.prof.count() != i->second.prof.size())
 		{
-			std::map<int, int> skills;
-			skills[i->second.skill.num] = i->second.skill.val;
-			PrintActivators::sum_skills(summ.skills, skills);
+			// активатор на ограниченный список проф (распечатка закладывается
+			// на то, что у валидных сетов списки проф должны быть одинаковые)
+			if (prof_list.empty())
+			{
+				print_bitset(i->second.prof, pc_class_name, ",", prof_list);
+			}
+			// affects
+			prof_summ.total_affects += i->second.affects;
+			// apply
+			PrintActivators::sum_affected(prof_summ.affected, i->second.apply);
+			// skill
+			if (i->second.skill.num > 0)
+			{
+				std::map<int, int> skills;
+				skills[i->second.skill.num] = i->second.skill.val;
+				PrintActivators::sum_skills(prof_summ.skills, skills);
+			}
+		}
+		else
+		{
+			// affects
+			summ.total_affects += i->second.affects;
+			// apply
+			PrintActivators::sum_affected(summ.affected, i->second.apply);
+			// skill
+			if (i->second.skill.num > 0)
+			{
+				std::map<int, int> skills;
+				skills[i->second.skill.num] = i->second.skill.val;
+				PrintActivators::sum_skills(summ.skills, skills);
+			}
 		}
 	}
-	out << "--------------------------------------------------------------------------------\r\n";
-	out << "Суммарный бонус:\r\n";
-	out << print_affects_help(summ.total_affects);
-	out << print_apply_help(summ.affected);
-	out << PrintActivators::print_skills(summ.skills, true);
-	out << "--------------------------------------------------------------------------------\r\n";
+	out += "--------------------------------------------------------------------------------\r\n";
+	out += "Суммарный бонус:\r\n";
+	out += print_affects_help(summ.total_affects);
+	out += print_apply_help(summ.affected);
+	out += PrintActivators::print_skills(summ.skills, true);
+	if (!prof_list.empty())
+	{
+		out += "Профессии: " + prof_list + "\r\n";
+		out += print_affects_help(prof_summ.total_affects);
+		out += print_apply_help(prof_summ.affected);
+		out += PrintActivators::print_skills(prof_summ.skills, true);
+	}
+	out += "--------------------------------------------------------------------------------\r\n";
 
-	return out.str();
+	return out;
 }
 
 /// генерация справки по активаторам через индексы сетов, которые потом видны
@@ -961,17 +1032,16 @@ void WornSets::check(CHAR_DATA *ch)
 			for (auto k = cur_set->activ_list.cbegin();
 				k != cur_set->activ_list.cend(); ++k)
 			{
+				const size_t prof_bit = GET_CLASS(ch);
 				// k->first - кол-во для активации,
 				// i->obj_list.size() - одето на чаре
-				if (k->first <= i->obj_list.size())
+				if (k->first <= i->obj_list.size()
+					&& prof_bit < k->second.prof.size()
+					&& k->second.prof.test(prof_bit))
 				{
 					apply_activator(ch, k->second);
 					max_activ = k->first;
 					check_activated(ch, k->first, *i);
-				}
-				else
-				{
-					break;
 				}
 			}
 		}
