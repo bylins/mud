@@ -618,7 +618,8 @@ void affect_total(CHAR_DATA * ch)
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
 	}
 
-	ch->clear_obj_skills();
+	// очистка сетовых данных перед проходом по шмоткам на чаре
+	ch->obj_bonus().clear();
 	worn_sets.clear();
 	// move object modifiers
 	for (i = 0; i < NUM_WEARS; i++)

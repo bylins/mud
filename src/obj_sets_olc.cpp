@@ -51,6 +51,8 @@ public:
 	bool new_entry;
 
 	void parse_global_msg(CHAR_DATA *ch, const char *arg);
+	void parse_activ_mage_dmg(CHAR_DATA *ch, const char *arg);
+	void parse_activ_phys_dmg(CHAR_DATA *ch, const char *arg);
 	void parse_activ_skill(CHAR_DATA *ch, const char *arg);
 	void parse_activ_apply_mod(CHAR_DATA *ch, const char *arg);
 	void parse_activ_apply_loc(CHAR_DATA *ch, const char *arg);
@@ -133,6 +135,8 @@ enum
 	STATE_ACTIV_APPLY_LOC,
 	STATE_ACTIV_APPLY_MOD,
 	STATE_ACTIV_SKILL,
+	STATE_ACTIV_PHYS_DMG,
+	STATE_ACTIV_MAGE_DMG,
 	STATE_GLOBAL_MSG,
 	STATE_GLOBAL_MSG_EXIT,
 	STATE_GLBMSG_CHAR_ON,
@@ -454,12 +458,13 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 		out += buf_;
 	}
 
-	if (activ.skill.num > 0 && activ.skill.num <= MAX_SKILL_NUM)
+	if (activ.skill.first > 0 && activ.skill.first <= MAX_SKILL_NUM)
 	{
 		snprintf(buf_, sizeof(buf_),
 			"%s%2d%s) Изменяемое умение : %s%+d to %s%s\r\n",
 			CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-			activ.skill.val, skill_info[activ.skill.num].name, CCNRM(ch, C_NRM));
+			activ.skill.second, skill_info[activ.skill.first].name,
+			CCNRM(ch, C_NRM));
 	}
 	else
 	{
@@ -467,6 +472,18 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 			"%s%2d%s) Изменяемое умение : нет\r\n",
 			CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
 	}
+	out += buf_;
+
+	snprintf(buf_, sizeof(buf_),
+		"%s%2d%s) Увеличение физ. урона : %s%+d%%%s\r\n",
+		CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
+		CCCYN(ch, C_NRM), activ.bonus.phys_dmg, CCNRM(ch, C_NRM));
+	out += buf_;
+
+	snprintf(buf_, sizeof(buf_),
+		"%s%2d%s) Увеличение маг. урона : %s%+d%%%s\r\n",
+		CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
+		CCCYN(ch, C_NRM), activ.bonus.mage_dmg, CCNRM(ch, C_NRM));
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
@@ -1317,14 +1334,14 @@ void sedit::parse_activ_prof(CHAR_DATA *ch, const char *arg)
 
 void sedit::parse_activ_skill(CHAR_DATA *ch, const char *arg)
 {
-	skill_node &skill = olc_set.activ_list.at(activ_edit).skill;
+	auto &skill = olc_set.activ_list.at(activ_edit).skill;
 	skip_spaces(&arg);
 	int num = atoi(arg), ssnum = 0, ssval = 0;
 
 	if (num == 0)
 	{
-		skill.num = 0;
-		skill.val = 0;
+		skill.first = 0;
+		skill.second = 0;
 		show_activ_edit(ch);
 		return;
 	}
@@ -1343,16 +1360,50 @@ void sedit::parse_activ_skill(CHAR_DATA *ch, const char *arg)
 	}
 	else if (ssval == 0)
 	{
-		skill.num = 0;
-		skill.val = 0;
+		skill.first = 0;
+		skill.second = 0;
 		show_activ_edit(ch);
 	}
 	else
 	{
-		skill.num = ssnum;
-		skill.val = std::max(-200, std::min(ssval, 200));
+		skill.first = ssnum;
+		skill.second = std::max(-200, std::min(ssval, 200));
 		show_activ_edit(ch);
 	}
+}
+
+void sedit::parse_activ_phys_dmg(CHAR_DATA *ch, const char *arg)
+{
+	bonus_type &bonus = olc_set.activ_list.at(activ_edit).bonus;
+	skip_spaces(&arg);
+	int num = atoi(arg);
+
+	if (num <= 0)
+	{
+		bonus.phys_dmg = 0;
+	}
+	else
+	{
+		bonus.phys_dmg = std::min(num, 1000);
+	}
+	show_activ_edit(ch);
+}
+
+void sedit::parse_activ_mage_dmg(CHAR_DATA *ch, const char *arg)
+{
+	bonus_type &bonus = olc_set.activ_list.at(activ_edit).bonus;
+	skip_spaces(&arg);
+	int num = atoi(arg);
+
+	if (num <= 0)
+	{
+		bonus.mage_dmg = 0;
+	}
+	else
+	{
+		bonus.mage_dmg = std::min(num, 1000);
+	}
+	show_activ_edit(ch);
 }
 
 void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
@@ -1425,6 +1476,16 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 		show_activ_skill(ch);
 	}
 	else if (num == offset + activ.apply.size() + 2)
+	{
+		state = STATE_ACTIV_PHYS_DMG;
+		send_to_char("Укажите процент прибавляемого физ. урона :", ch);
+	}
+	else if (num == offset + activ.apply.size() + 3)
+	{
+		state = STATE_ACTIV_MAGE_DMG;
+		send_to_char("Укажите процент прибавляемого маг. урона :", ch);
+	}
+	else if (num == offset + activ.apply.size() + 4)
 	{
 		show_main(ch);
 	}
@@ -1683,6 +1744,12 @@ void parse_input(CHAR_DATA *ch, const char *arg)
 		break;
 	case STATE_ACTIV_SKILL:
 		olc.parse_activ_skill(ch, arg);
+		break;
+	case STATE_ACTIV_PHYS_DMG:
+		olc.parse_activ_phys_dmg(ch, arg);
+		break;
+	case STATE_ACTIV_MAGE_DMG:
+		olc.parse_activ_mage_dmg(ch, arg);
 		break;
 	case STATE_GLOBAL_MSG:
 		olc.parse_global_msg(ch, arg);

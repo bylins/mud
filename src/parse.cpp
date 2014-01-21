@@ -175,7 +175,7 @@ int cast_to_int(const char *text)
 /// Обертка на pugixml для чтения числового аттрибута
 /// с логирование в имм- и сислог
 /// В конфиге это выглядит как <param value="1234" />
-///
+/// \return -1 в случае неудачи
 int attr_int(const pugi::xml_node &node, const char *text)
 {
 	pugi::xml_attribute attr = node.attribute(text);

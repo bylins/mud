@@ -2950,8 +2950,9 @@ void print_do_score_all(CHAR_DATA *ch)
 		hr += 4;
 		max_dam -= 10;
 	}
-
+	max_dam += ch->obj_bonus().calc_phys_dmg(max_dam);
 	max_dam = MAX(0, max_dam);
+
 	resist = MIN(GET_RESIST(ch, WATER_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
 			" || %sУровень: %s%-2d        %s|"

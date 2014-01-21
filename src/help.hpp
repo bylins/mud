@@ -10,9 +10,11 @@
 #include <map>
 #include <vector>
 #include <array>
+#include <boost/bind.hpp>
 
 #include "sysdep.h"
 #include "interpreter.h"
+#include "char_player.hpp"
 
 /// STATIC справка:
 /// 	вся обычная справка
@@ -50,18 +52,45 @@ namespace PrintActivators
 struct clss_activ_node
 {
 	clss_activ_node() { total_affects = clear_flags; };
+
 	// аффекты
 	FLAG_DATA total_affects;
 	// свойства
 	std::vector<obj_affected_type> affected;
-	// скилы
+	// скилы (в новых сетах не участвует)
 	std::map<int, int> skills;
+	// под новые сеты
+	bonus_type bonus;
 };
 
-std::string print_skills(const std::map<int, int> &skills, bool activ);
-void sum_affected(std::vector<obj_affected_type> &l,
-	const std::array<obj_affected_type, MAX_OBJ_AFFECT> &r);
+std::string print_skill(const std::pair<int, int> &skill, bool activ);
+std::string print_skills(const std::map<int, int> &skills, bool activ, bool header = true);
+void sum_skills(std::map<int, int> &target, const std::pair<int, int> &add);
 void sum_skills(std::map<int, int> &target, const std::map<int, int> &add);
+
+/// l - список <obj_affected_type> куда добавляем,
+/// r - список того же, который добавляем в l
+template <class T, class N>
+void sum_apply(T &l, const N &r)
+{
+	for (auto ri = r.begin(); ri != r.end(); ++ri)
+	{
+		if (ri->modifier == 0)
+		{
+			continue;
+		}
+		auto li = std::find_if(l.begin(), l.end(),
+			boost::bind(&obj_affected_type::location, _1) == ri->location);
+		if (li != l.end())
+		{
+			li->modifier += ri->modifier;
+		}
+		else
+		{
+			l.push_back(*ri);
+		}
+	}
+}
 
 } // namespace PrintActivators
 

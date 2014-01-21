@@ -61,10 +61,13 @@ struct activ_node
 	FLAG_DATA affects;
 	// APPLY_XXX аффекты (affected[MAX_OBJ_AFFECT])
 	std::array<obj_affected_type, MAX_OBJ_AFFECT> apply;
-	// изменение умения
-	skill_node skill;
+	// изменение умения. идет в bonus, но в активаторах юзается это поле
+	// а не bonus::skills, которое юзается для справки и складывании на чаре
+	std::pair<int, int> skill;
 	// список проф, на которых этот активатор сработает (по дефолту - все)
 	std::bitset<NUM_CLASSES> prof;
+	// вешается в такую же структуру на чаре через +=
+	bonus_type bonus;
 
 	// для сравнения в sedit
 	bool operator!=(const activ_node &r) const
@@ -72,7 +75,8 @@ struct activ_node
 		if (affects != r.affects
 			|| apply != r.apply
 			|| skill != r.skill
-			|| prof != r.prof)
+			|| prof != r.prof
+			|| bonus != r.bonus)
 		{
 			return true;
 		}
@@ -84,7 +88,7 @@ struct activ_node
 	}
 	bool empty() const
 	{
-		if (!affects.empty() || skill.num > 0)
+		if (!affects.empty() || skill.first > 0 || !bonus.empty())
 		{
 			return false;
 		}

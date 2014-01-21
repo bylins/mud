@@ -41,46 +41,6 @@ struct dup_node
 	std::string afct;
 };
 
-// добавление аффекта aff в массив l с проверкой на уникальность
-// в случае дублей складывает мофидикаторы
-void add_affected(std::vector<obj_affected_type> &l, const obj_affected_type &aff)
-{
-	if (aff.modifier != 0)
-	{
-		std::vector<obj_affected_type>::iterator k =
-			std::find_if(l.begin(), l.end(),
-				boost::bind(std::equal_to<int>(),
-					boost::bind(&obj_affected_type::location, _1), aff.location));
-		if (k != l.end())
-		{
-			k->modifier += aff.modifier;
-		}
-		else
-		{
-			l.push_back(aff);
-		}
-	}
-}
-
-// перегружено для добавления через add_affected
-void sum_affected(std::vector<obj_affected_type> &l, const std::array<obj_affected_type, MAX_OBJ_AFFECT> &r)
-{
-	for (int i = 0; i < MAX_OBJ_AFFECT; ++i)
-	{
-		add_affected(l, r[i]);
-	}
-}
-
-// перегружено для добавления через add_affected
-void sum_affected(std::vector<obj_affected_type> &l, const std::vector<obj_affected_type> &r)
-{
-	for (std::vector<obj_affected_type>::const_iterator it = r.begin(),
-		itend = r.end(); it != itend; ++it)
-	{
-		add_affected(l, *it);
-	}
-}
-
 void sum_skills(std::map<int, int> &target, const std::map<int, int> &add)
 {
 	for (std::map<int, int>::const_iterator i = add.begin(),
@@ -97,6 +57,22 @@ void sum_skills(std::map<int, int> &target, const std::map<int, int> &add)
 			{
 				target[i->first] = i->second;
 			}
+		}
+	}
+}
+
+void sum_skills(std::map<int, int> &target, const std::pair<int, int> &add)
+{
+	if (add.first > 0 && add.second != 0)
+	{
+		auto i = target.find(add.first);
+		if (i != target.end())
+		{
+			i->second += add.second;
+		}
+		else
+		{
+			target[add.first] = add.second;
 		}
 	}
 }
@@ -121,29 +97,37 @@ bool check_num_in_unique_bit_flag_data(const unique_bit_flag_data &data, const i
 		   num < 120 ? *(data.flags + 3) & (1 << (num - 90)) : false;
 }
 
-// распечатка массива скилов с " + " перед активаторами
-std::string print_skills(const std::map<int, int> &skills, bool activ)
+std::string print_skill(const std::pair<int, int> &skill, bool activ)
 {
-	std::string skills_str;
+	std::string out;
+	if (skill.second != 0)
+	{
+		out += boost::str(boost::format("%s%s%s%s%s%s%d%%%s\r\n")
+			% (activ ? " +    " : "   ") % KCYN
+			% skill_info[skill.first].name % KNRM
+			% KCYN % (skill.second < 0 ? " ухудшает на " : " улучшает на ")
+			% abs(skill.second) % KNRM);
+	}
+	return out;
+}
+
+/// распечатка массива скилов с " + " перед активаторами
+/// \param header = true (печатать или нет заголовок 'Меняет умения')
+std::string print_skills(const std::map<int, int> &skills, bool activ, bool header)
+{
+	std::string out;
 	for (auto i = skills.cbegin(), iend = skills.cend(); i != iend; ++i)
 	{
-		if (i->second != 0)
-		{
-			skills_str += boost::str(boost::format("%s%s%s%s%s%s%d%%%s\r\n")
-				% (activ ? " +    " : "   ") % KCYN
-				% skill_info[i->first].name % KNRM
-				% KCYN % (i->second < 0 ? " ухудшает на " : " улучшает на ")
-				% abs(i->second) % KNRM);
-		}
+		out += print_skill(*i, activ);
 	}
 
-	if (!skills_str.empty())
+	if (!out.empty() && header)
 	{
 		std::string head = activ ? " + " : "   ";
-		return head + "Меняет умения :\r\n" + skills_str;
+		return head + "Меняет умения :\r\n" + out;
 	}
 
-	return skills_str;
+	return out;
 }
 
 // распечатка важных в контексте сетов родных стат предмета
@@ -337,7 +321,7 @@ void activators_obj::fill_node(const set_info &set)
 					{
 						// суммирование активаторов для данной профы
 						w->second.total_affects += q->second.get_affects();
-						sum_affected(w->second.affected, q->second.get_affected());
+						sum_apply(w->second.affected, q->second.get_affected());
 						// скилы
 						std::map<int, int> tmp_skills;
 						q->second.get_skills(tmp_skills);
@@ -372,7 +356,7 @@ std::string activators_obj::print()
 			node.afct += " + Аффекты : " + std::string(buf2) + "\r\n";
 		}
 		// affected
-		sum_affected(cls_it->second.affected, native_affected);
+		sum_apply(cls_it->second.affected, native_affected);
 		// сортировка для более удобного сравнения статов по распечатке
 		std::sort(cls_it->second.affected.begin(), cls_it->second.affected.end(),
 			boost::bind(std::less<int>(),
@@ -437,7 +421,7 @@ std::string print_fullset_stats(const set_info &set)
 		// суммируем родные статы со шмоток
 		activ.native_no_flag += GET_OBJ_NO(obj);
 		activ.native_affects += GET_OBJ_AFFECTS(obj);
-		sum_affected(activ.native_affected, obj->affected);
+		sum_apply(activ.native_affected, obj->affected);
 		sum_skills(activ.native_skills, obj);
 
 		// иним профы

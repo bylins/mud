@@ -25,6 +25,7 @@
 #include "cache.hpp"
 #include "fight.h"
 #include "house.h"
+#include "help.hpp"
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
@@ -420,7 +421,7 @@ int Character::get_equipped_skill(int skill_num) const
 				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
 		}
 	}
-	skill += this->get_obj_skill(skill_num);
+	skill += obj_bonus_.get_skill(skill_num);
 
 	return skill;
 }
@@ -1792,4 +1793,70 @@ void Character::inc_restore_timer(int num)
 			restore_mob();
 		}
 	}
+}
+
+bonus_type& Character::obj_bonus()
+{
+	return obj_bonus_;
+}
+
+bonus_type& bonus_type::operator+=(const bonus_type &r)
+{
+	PrintActivators::sum_skills(skills, r.skills);
+	phys_dmg += r.phys_dmg;
+	mage_dmg += r.mage_dmg;
+
+	return *this;
+}
+
+bool bonus_type::operator!=(const bonus_type &r) const
+{
+	if (skills != r.skills
+		|| phys_dmg != r.phys_dmg
+		|| mage_dmg != r.mage_dmg)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool bonus_type::operator==(const bonus_type &r) const
+{
+	return !(*this != r);
+}
+
+bool bonus_type::empty() const
+{
+	if (!skills.empty() || phys_dmg != 0 || mage_dmg != 0)
+	{
+		return false;
+	}
+	return true;
+}
+
+void bonus_type::clear()
+{
+	skills.clear();
+	phys_dmg = 0;
+	mage_dmg = 0;
+}
+
+int bonus_type::calc_phys_dmg(int dam) const
+{
+	return dam * phys_dmg / 100;
+}
+
+int bonus_type::calc_mage_dmg(int dam) const
+{
+	return dam * mage_dmg / 100;
+}
+
+int bonus_type::get_skill(int num) const
+{
+	auto i = skills.find(num);
+	if (i != skills.end())
+	{
+		return i->second;
+	}
+	return 0;
 }

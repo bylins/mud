@@ -315,6 +315,32 @@ typedef boost::shared_ptr<Player> PlayerPtr;
 typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 //typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
+/// костыльный сетовый бонус, обновляемый в affect_total()
+/// все то, что нельзя повесить текущими стандартными средствами
+struct bonus_type
+{
+	bonus_type() : phys_dmg(0), mage_dmg(0) {};
+
+	bonus_type& operator+=(const bonus_type &r);
+	bool operator!=(const bonus_type &r) const;
+	bool operator==(const bonus_type &r) const;
+
+	bool empty() const;
+	void clear();
+
+	int get_skill(int num) const;
+	int calc_phys_dmg(int dam) const;
+	int calc_mage_dmg(int dam) const;
+
+	// TODO: на перспективу, если таки убирать скилы как поле у шмоток
+	std::map<int, int> skills;
+	// процентные прибавки в выходной дамаге
+	int phys_dmg;
+	int mage_dmg;
+	// процент прибавки к дропу голды с мобов
+	int gold;
+};
+
 // * Общий класс для игроков/мобов.
 class Character : public PlayerI
 {
@@ -529,6 +555,7 @@ public:
 	std::pair<int /* uid */, int /* rounds */> get_max_damager_in_room() const;
 
 	void inc_restore_timer(int num);
+	bonus_type& obj_bonus();
 
 private:
 	std::string clan_for_title();
@@ -610,6 +637,8 @@ private:
 	// для боссов: таймер (в секундах), включающийся по окончанию боя
 	// через который происходит сброс списка атакующих и рефреш моба
 	int restore_timer_;
+	// всякие хитрые бонусы с сетов (здесь, чтобы чармисов не обделить)
+	bonus_type obj_bonus_;
 
 // старое
 public:

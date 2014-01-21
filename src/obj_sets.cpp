@@ -240,14 +240,14 @@ void verify_set(set_node &set)
 			}
 		}
 		// можно просетить скилл в минус
-		if (i->second.skill.num > MAX_SKILL_NUM
-			|| i->second.skill.num < 0
-			|| i->second.skill.val > 200
-			|| i->second.skill.val < -200)
+		if (i->second.skill.first > MAX_SKILL_NUM
+			|| i->second.skill.first < 0
+			|| i->second.skill.second > 200
+			|| i->second.skill.second < -200)
 		{
 			err_log(
 				"сет #%zu: некорректные номер или значение умения (num=%d, val=%d, activ=%d)",
-				num, i->second.skill.num, i->first);
+				num, i->second.skill.first, i->first);
 			set.enabled = false;
 		}
 		if (i->second.prof.none())
@@ -275,6 +275,18 @@ void verify_set(set_node &set)
 					num, i->first);
 				set.enabled = false;
 			}
+		}
+		if (i->second.bonus.phys_dmg < 0 || i->second.bonus.phys_dmg > 1000)
+		{
+			err_log("сет #%zu: некорректный бонус физ. урона (activ=%d)",
+				num, i->first);
+			set.enabled = false;
+		}
+		if (i->second.bonus.mage_dmg < 0 || i->second.bonus.mage_dmg > 1000)
+		{
+			err_log("сет #%zu: некорректный бонус маг. урона (activ=%d)",
+				num, i->first);
+			set.enabled = false;
 		}
 	}
 }
@@ -387,11 +399,23 @@ void load()
 				}
 			}
 			// <skill>
-			pugi::xml_node xml_skill = xml_activ.child("skill");
-			if (xml_skill)
+			pugi::xml_node xml_cur = xml_activ.child("skill");
+			if (xml_cur)
 			{
-				tmp_activ.skill.num = Parse::attr_int(xml_skill, "num");
-				tmp_activ.skill.val = Parse::attr_int(xml_skill, "val");
+				tmp_activ.skill.first = Parse::attr_int(xml_cur, "num");
+				tmp_activ.skill.second = Parse::attr_int(xml_cur, "val");
+			}
+			// <phys_dmg>
+			xml_cur = xml_activ.child("phys_dmg");
+			if (xml_cur)
+			{
+				tmp_activ.bonus.phys_dmg = Parse::attr_int(xml_cur, "pct");
+			}
+			// <mage_dmg>
+			xml_cur = xml_activ.child("mage_dmg");
+			if (xml_cur)
+			{
+				tmp_activ.bonus.mage_dmg = Parse::attr_int(xml_cur, "pct");
 			}
 			// если нет атрибута prof - значит актив на все профы
 			pugi::xml_attribute xml_prof = xml_activ.attribute("prof");
@@ -523,11 +547,23 @@ void save()
 				}
 			}
 			// set/activ/skill
-			if (k->second.skill.num > 0)
+			if (k->second.skill.first > 0)
 			{
 				pugi::xml_node xml_skill = xml_activ.append_child("skill");
-				xml_skill.append_attribute("num") = k->second.skill.num;
-				xml_skill.append_attribute("val") = k->second.skill.val;
+				xml_skill.append_attribute("num") = k->second.skill.first;
+				xml_skill.append_attribute("val") = k->second.skill.second;
+			}
+			// set/activ/phys_dmg
+			if (k->second.bonus.phys_dmg > 0)
+			{
+				pugi::xml_node xml_bonus = xml_activ.append_child("phys_dmg");
+				xml_bonus.append_attribute("pct") = k->second.bonus.phys_dmg;
+			}
+			// set/activ/mage_dmg
+			if (k->second.bonus.mage_dmg > 0)
+			{
+				pugi::xml_node xml_bonus = xml_activ.append_child("mage_dmg");
+				xml_bonus.append_attribute("pct") = k->second.bonus.mage_dmg;
 			}
 		}
 	}
@@ -554,10 +590,8 @@ void apply_activator(CHAR_DATA *ch, const activ_node &activ)
 			affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, TRUE);
 		}
 	}
-	if (activ.skill.num > 0 && activ.skill.val > 0)
-	{
-		ch->add_obj_skill(activ.skill.num, activ.skill.val);
-	}
+	PrintActivators::sum_skills(ch->obj_bonus().skills, activ.skill);
+	ch->obj_bonus() += activ.bonus;
 }
 
 /// распечатка сообщения чару и в комнату
@@ -798,7 +832,7 @@ void do_slist(CHAR_DATA *ch)
 }
 
 /// распечатка аффектов активатора для справки с форматирование по 80 символов
-std::string print_affects_help(const FLAG_DATA &aff)
+std::string print_activ_affects(const FLAG_DATA &aff)
 {
 	char buf_[2048];
 	if (sprintbits(aff, weapon_affects, buf_, ","))
@@ -823,21 +857,61 @@ std::string print_affects_help(const FLAG_DATA &aff)
 /// для распечатки apply аффектов, которые могут быть как в std::array, так и
 /// в std::vector, хотя внутри там абсолютно одно и тоже
 template <class T>
-std::string print_apply_help(const T &list)
+std::string print_activ_apply(const T &list)
 {
-	std::string out(" + Свойства :\r\n");
-	bool print = false;
-
+	std::string out;
 	for (auto i = list.begin(); i != list.end(); ++i)
 	{
 		if (i->location > 0)
 		{
 			out += " +    " + print_obj_affects(*i);
-			print = true;
 		}
 	}
+	return out;
+}
 
-	return (print ? out : "");
+/// распечатка bonus у активатора или суммы активаторов
+std::string print_activ_bonus(const bonus_type &bonus)
+{
+	std::string out;
+	char buf_[128];
+
+	out += PrintActivators::print_skills(bonus.skills, true, false);
+	if (bonus.phys_dmg > 0)
+	{
+		snprintf(buf_, sizeof(buf_),
+			" +    %sувеличивает физ. урон на %d%%%s\r\n",
+			KCYN, bonus.phys_dmg, KNRM);
+		out += buf_;
+	}
+	if (bonus.mage_dmg > 0)
+	{
+		snprintf(buf_, sizeof(buf_),
+			" +    %sувеличивает маг. урон на %d%%%s\r\n",
+			KCYN, bonus.mage_dmg, KNRM);
+		out += buf_;
+	}
+
+	return out;
+}
+
+/// распечатка всего, что подпадает под раздел 'свойства' в активаторе
+std::string print_activ_properties(const activ_node &activ)
+{
+	std::string out;
+
+	// apply
+	out += print_activ_apply(activ.apply);
+	// skill
+	out += PrintActivators::print_skill(activ.skill, true);
+	// bonus
+	out += print_activ_bonus(activ.bonus);
+
+	if (!out.empty())
+	{
+		return " + Свойства :\r\n" + out;
+	}
+	return out;
 }
 
 /// распечатка справки по активатору с суммированием аффектов, если активаторов
@@ -874,17 +948,10 @@ std::string print_activ_help(const set_node &set)
 				i->first, desc_count(i->first, WHAT_OBJECT));
 		}
 		out += buf_;
-		// affects
-		out += print_affects_help(i->second.affects);
-		// apply
-		out += print_apply_help(i->second.apply);
-		// skill
-		if (i->second.skill.num > 0)
-		{
-			std::map<int, int> skills;
-			skills[i->second.skill.num] = i->second.skill.val;
-			out += PrintActivators::print_skills(skills, true);
-		}
+		// аффекты
+		out += print_activ_affects(i->second.affects);
+		// свойства
+		out += print_activ_properties(i->second);
 	}
 
 	if (set.activ_list.size() > 1)
@@ -898,7 +965,7 @@ std::string print_activ_help(const set_node &set)
 /// выриант print_activ_help только для суммы активаторов (олц)
 std::string print_total_activ(const set_node &set)
 {
-	std::string out, prof_list;
+	std::string out, prof_list, properties;
 
 	PrintActivators::clss_activ_node summ, prof_summ;
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
@@ -914,41 +981,44 @@ std::string print_total_activ(const set_node &set)
 			// affects
 			prof_summ.total_affects += i->second.affects;
 			// apply
-			PrintActivators::sum_affected(prof_summ.affected, i->second.apply);
-			// skill
-			if (i->second.skill.num > 0)
-			{
-				std::map<int, int> skills;
-				skills[i->second.skill.num] = i->second.skill.val;
-				PrintActivators::sum_skills(prof_summ.skills, skills);
-			}
+			PrintActivators::sum_apply(prof_summ.affected, i->second.apply);
+			// bonus
+			PrintActivators::sum_skills(prof_summ.bonus.skills, i->second.skill);
+			prof_summ.bonus += i->second.bonus;
 		}
 		else
 		{
 			// affects
 			summ.total_affects += i->second.affects;
 			// apply
-			PrintActivators::sum_affected(summ.affected, i->second.apply);
-			// skill
-			if (i->second.skill.num > 0)
-			{
-				std::map<int, int> skills;
-				skills[i->second.skill.num] = i->second.skill.val;
-				PrintActivators::sum_skills(summ.skills, skills);
-			}
+			PrintActivators::sum_apply(summ.affected, i->second.apply);
+			// bonus
+			PrintActivators::sum_skills(summ.bonus.skills, i->second.skill);
+			summ.bonus += i->second.bonus;
 		}
 	}
+
 	out += "--------------------------------------------------------------------------------\r\n";
 	out += "Суммарный бонус:\r\n";
-	out += print_affects_help(summ.total_affects);
-	out += print_apply_help(summ.affected);
-	out += PrintActivators::print_skills(summ.skills, true);
+	out += print_activ_affects(summ.total_affects);
+	properties += print_activ_apply(summ.affected);
+	properties += print_activ_bonus(summ.bonus);
+	if (!properties.empty())
+	{
+		out += " + Свойства :\r\n" + properties;
+	}
+
 	if (!prof_list.empty())
 	{
+		properties.clear();
 		out += "Профессии: " + prof_list + "\r\n";
-		out += print_affects_help(prof_summ.total_affects);
-		out += print_apply_help(prof_summ.affected);
-		out += PrintActivators::print_skills(prof_summ.skills, true);
+		out += print_activ_affects(prof_summ.total_affects);
+		properties += print_activ_apply(prof_summ.affected);
+		properties += print_activ_bonus(prof_summ.bonus);
+		if (!properties.empty())
+		{
+			out += " + Свойства :\r\n" + properties;
+		}
 	}
 	out += "--------------------------------------------------------------------------------\r\n";
 
@@ -992,7 +1062,8 @@ void WornSets::clear()
 /// одновременно сразу же считается кол-во активированных шмоток в каждом сете
 void WornSets::add(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (IS_NPC(ch) && !IS_CHARMICE(ch)) return;
+//	if (IS_NPC(ch) && !IS_CHARMICE(ch)) return;
+	if (IS_NPC(ch)) return;
 
 	if (GET_OBJ_RNUM(obj) >= 0
 		&& obj_index[GET_OBJ_RNUM(obj)].set_idx != static_cast<size_t>(-1))
@@ -1035,14 +1106,24 @@ void WornSets::check(CHAR_DATA *ch)
 				const size_t prof_bit = GET_CLASS(ch);
 				// k->first - кол-во для активации,
 				// i->obj_list.size() - одето на чаре
-				if (k->first <= i->obj_list.size()
-					&& prof_bit < k->second.prof.size()
-					&& k->second.prof.test(prof_bit))
+				if (k->first > i->obj_list.size())
 				{
-					apply_activator(ch, k->second);
-					max_activ = k->first;
-					check_activated(ch, k->first, *i);
+						continue;
 				}
+				else if (!IS_NPC(ch)
+					&& prof_bit < k->second.prof.size()
+					&& !k->second.prof.test(prof_bit))
+				{
+						continue;
+				}
+				else if (IS_NPC(ch)
+					&& k->second.prof.count() != k->second.prof.size())
+				{
+					continue;
+				}
+				apply_activator(ch, k->second);
+				max_activ = k->first;
+				check_activated(ch, k->first, *i);
 			}
 		}
 		// на деактивацию проверять надо даже выключенные сеты

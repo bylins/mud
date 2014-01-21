@@ -2578,6 +2578,16 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	handle_affects(params1);
 	dam = params1.damage;
 
+	// костыль для сетовых бонусов
+	if (dmg_type == PHYS_DMG)
+	{
+		dam += ch->obj_bonus().calc_phys_dmg(dam);
+	}
+	else if (dmg_type == MAGE_DMG)
+	{
+		dam += ch->obj_bonus().calc_mage_dmg(dam);
+	}
+
 	// обратка от зеркал/огненного щита
 	if (flags[MAGIC_REFLECT])
 	{

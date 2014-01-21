@@ -83,7 +83,7 @@ config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp constants.h char.hpp \
  player_i.hpp reset_stats.hpp boards.h db.h morph.hpp comm.h \
  birth_places.hpp
-constants.o: constants.cpp constants.h conf.h sysdep.h structs.h spells.h \
+constants.o: constants.cpp conf.h constants.h sysdep.h structs.h spells.h \
  skills.h pugixml.hpp pugiconfig.hpp interpreter.h utils.h features.hpp \
  obj.hpp house.h db.h house_exp.hpp char.hpp player_i.hpp reset_stats.hpp \
  boards.h morph.hpp comm.h remember.hpp
@@ -223,7 +223,8 @@ oedit.o: oedit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h \
 zedit.o: zedit.cpp conf.h sysdep.h structs.h comm.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp db.h olc.h dg_scripts.h char.hpp \
  player_i.hpp reset_stats.hpp boards.h interpreter.h morph.hpp room.hpp \
- help.hpp
+ help.hpp char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp \
+ map.hpp
 medit.o: medit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp db.h olc.h handler.h \
  dg_olc.h dg_scripts.h constants.h im.h char.hpp player_i.hpp \
@@ -362,7 +363,8 @@ char.o: char.cpp char.hpp conf.h sysdep.h structs.h player_i.hpp \
  pugiconfig.hpp db.h interpreter.h morph.hpp comm.h pk.h im.h handler.h \
  privilege.hpp skills.h constants.h char_player.hpp quested.hpp \
  mobmax.hpp remember.hpp dps.hpp map.hpp spells.h room.hpp \
- player_races.hpp celebrates.hpp cache.hpp fight.h house.h house_exp.hpp
+ player_races.hpp celebrates.hpp cache.hpp fight.h house.h house_exp.hpp \
+ help.hpp
 char_player.o: char_player.cpp conf.h char_player.hpp sysdep.h structs.h \
  quested.hpp mobmax.hpp remember.hpp char.hpp player_i.hpp \
  reset_stats.hpp boards.h utils.h features.hpp obj.hpp pugixml.hpp \
@@ -464,7 +466,8 @@ sets_drop.o: sets_drop.cpp conf.h sets_drop.hpp sysdep.h structs.h db.h \
  pugixml.hpp pugiconfig.hpp utils.h features.hpp obj.hpp char.hpp \
  player_i.hpp reset_stats.hpp boards.h interpreter.h morph.hpp comm.h \
  handler.h dg_scripts.h im.h room.hpp modify.h house.h house_exp.hpp \
- remember.hpp screen.h help.hpp parse.hpp mob_stat.hpp obj_sets.hpp
+ remember.hpp screen.h help.hpp char_player.hpp quested.hpp mobmax.hpp \
+ dps.hpp map.hpp parse.hpp mob_stat.hpp obj_sets.hpp
 fight_hit.o: fight_hit.cpp fight.h conf.h sysdep.h structs.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp \
  reset_stats.hpp boards.h db.h interpreter.h morph.hpp comm.h \
@@ -486,10 +489,11 @@ dictionary.o: dictionary.cpp dictionary.hpp shop_ext.hpp conf.h sysdep.h \
  interpreter.h utils.h features.hpp obj.hpp structs.h pugixml.hpp \
  pugiconfig.hpp
 help.o: help.cpp help.hpp conf.h sysdep.h interpreter.h utils.h \
- features.hpp obj.hpp structs.h pugixml.hpp pugiconfig.hpp db.h modify.h \
- house.h house_exp.hpp char.hpp player_i.hpp reset_stats.hpp boards.h \
- morph.hpp comm.h remember.hpp sets_drop.hpp handler.h screen.h spells.h \
- obj_sets.hpp
+ features.hpp obj.hpp structs.h pugixml.hpp pugiconfig.hpp \
+ char_player.hpp quested.hpp mobmax.hpp remember.hpp char.hpp \
+ player_i.hpp reset_stats.hpp boards.h db.h morph.hpp comm.h dps.hpp \
+ map.hpp modify.h house.h house_exp.hpp sets_drop.hpp handler.h screen.h \
+ spells.h obj_sets.hpp
 map.o: map.cpp conf.h map.hpp sysdep.h structs.h char.hpp player_i.hpp \
  reset_stats.hpp boards.h utils.h features.hpp obj.hpp pugixml.hpp \
  pugiconfig.hpp db.h interpreter.h morph.hpp comm.h screen.h room.hpp \

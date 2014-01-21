@@ -2017,38 +2017,6 @@ void Player::set_board_date(Boards::BoardTypes type, time_t date)
 	board_date_.at(type) = date;
 }
 
-void Player::clear_obj_skills()
-{
-	obj_skills_.clear();
-}
-
-void Player::add_obj_skill(int skill, int val)
-{
-	auto i = std::find_if(obj_skills_.begin(), obj_skills_.end(),
-		boost::bind(std::equal_to<int>(),
-			boost::bind(&skill_node::num, _1),skill));
-	if (i != obj_skills_.end())
-	{
-		i->val += val;
-	}
-	else
-	{
-		obj_skills_.emplace_back(skill, val);
-	}
-}
-
-int Player::get_obj_skill(int num) const
-{
-	auto i = std::find_if(obj_skills_.begin(), obj_skills_.end(),
-		boost::bind(std::equal_to<int>(),
-			boost::bind(&skill_node::num, _1), num));
-	if (i != obj_skills_.end())
-	{
-		return i->val;
-	}
-	return 0;
-}
-
 namespace PlayerSystem
 {
 
