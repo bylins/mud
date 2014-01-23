@@ -488,7 +488,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			}
 			else if (!strcmp(read_line, "Ench"))
 			{
-				AcquiredAffects tmp_aff;
+				obj::enchant tmp_aff;
 				std::stringstream text(buffer);
 				std::string tmp_buf;
 
@@ -558,21 +558,35 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							return object;
 						}
 						break;
+					case 'B':
+						if (sscanf(tmp_buf.c_str(), "B %d", &tmp_aff.ndice_) != 1)
+						{
+							*error = 58;
+							return object;
+						}
+						break;
+					case 'C':
+						if (sscanf(tmp_buf.c_str(), "C %d", &tmp_aff.sdice_) != 1)
+						{
+							*error = 59;
+							return object;
+						}
+						break;
 					}
 				}
 
-				object->acquired_affects.push_back(tmp_aff);
+				object->enchants.add(tmp_aff);
 			}
 			else if (!strcmp(read_line, "Clbl")) // текст метки
 			{
-				*error = 58;
+				*error = 60;
 				if (!object->custom_label)
 					object->custom_label = init_custom_label();
 				object->custom_label->label_text = str_dup(buffer);
 			}
 			else if (!strcmp(read_line, "ClID")) // id чара
 			{
-				*error = 59;
+				*error = 61;
 				if (!object->custom_label)
 					object->custom_label = init_custom_label();
 				object->custom_label->author = atoi(buffer);
@@ -587,14 +601,14 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			}
 			else if (!strcmp(read_line, "ClCl")) // аббревиатура клана
 			{
-				*error = 60;
+				*error = 62;
 				if (!object->custom_label)
 					object->custom_label = init_custom_label();
 				object->custom_label->clan = str_dup(buffer);
 			}
 			else if (!strcmp(read_line, "Vals"))
 			{
-				*error = 61;
+				*error = 63;
 				if (!object->values.init_from_file(buffer))
 				{
 					return object;
@@ -1275,13 +1289,9 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		out << object->timed_spell.print();
 	}
 	// накладываемые энчанты
-	if (!object->acquired_affects.empty())
+	if (!object->enchants.empty())
 	{
-		for (std::vector<AcquiredAffects>::const_iterator i = object->acquired_affects.begin(),
-			iend = object->acquired_affects.end(); i != iend; ++i)
-		{
-			out << i->print_to_file();
-		}
+		out << object->enchants.print_to_file();
 	}
 
 	// кастомная метка

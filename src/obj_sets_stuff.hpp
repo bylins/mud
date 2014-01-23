@@ -55,6 +55,7 @@ struct activ_node
 	{
 		affects = clear_flags;
 		prof.set();
+		enchant.first = 0;
 	};
 
 	// аффекты (obj_flags.affects)
@@ -66,8 +67,10 @@ struct activ_node
 	std::pair<int, int> skill;
 	// список проф, на которых этот активатор сработает (по дефолту - все)
 	std::bitset<NUM_CLASSES> prof;
-	// вешается в такую же структуру на чаре через +=
+	// числовые сетовые бонусы
 	bonus_type bonus;
+	// энчант на шмотку
+	std::pair<int, ench_type> enchant;
 
 	// для сравнения в sedit
 	bool operator!=(const activ_node &r) const
@@ -76,7 +79,8 @@ struct activ_node
 			|| apply != r.apply
 			|| skill != r.skill
 			|| prof != r.prof
-			|| bonus != r.bonus)
+			|| bonus != r.bonus
+			|| enchant != r.enchant)
 		{
 			return true;
 		}
@@ -88,7 +92,10 @@ struct activ_node
 	}
 	bool empty() const
 	{
-		if (!affects.empty() || skill.first > 0 || !bonus.empty())
+		if (!affects.empty()
+			|| skill.first > 0
+			|| !bonus.empty()
+			|| !enchant.second.empty())
 		{
 			return false;
 		}
@@ -115,6 +122,9 @@ struct set_node
 	std::string name;
 	// алиас, подменяющий имя сета в генерации справки для глобал дропа
 	std::string alias;
+	// сгенеренное имя/первый алиас, который пошел в справку
+	// будет видно при опознании сетин
+	std::string help;
 	// любая доп инфа, видимая только в slist
 	std::string comment;
 	// внумы предметов, активаций/деактиваций (опционально)

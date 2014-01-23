@@ -1735,10 +1735,9 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				break;
 			}
 	//end by WorM
-	for (std::vector<AcquiredAffects>::const_iterator i = obj->acquired_affects.begin(),
-		iend = obj->acquired_affects.end(); i != iend; ++i)
+	if (!obj->enchants.empty())
 	{
-		i->print(ch);
+		obj->enchants.print(ch);
 	}
 	obj_sets::print_identify(ch, obj);
 }
@@ -2062,10 +2061,9 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				break;
 			}
 	//end by WorM
-	for (std::vector<AcquiredAffects>::const_iterator i = obj->acquired_affects.begin(),
-		iend = obj->acquired_affects.end(); i != iend; ++i)
+	if (!obj->enchants.empty())
 	{
-		i->print(ch);
+		obj->enchants.print(ch);
 	}
 	obj_sets::print_identify(ch, obj);
 }

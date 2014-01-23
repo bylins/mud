@@ -572,13 +572,6 @@ void apply_natural_affects(CHAR_DATA *ch)
 	}
 }
 
-namespace
-{
-
-obj_sets::WornSets worn_sets;
-
-}
-
 // This updates a character by subtracting everything he is affected by
 // restoring original abilities, and then affecting all again
 void affect_total(CHAR_DATA * ch)
@@ -618,15 +611,11 @@ void affect_total(CHAR_DATA * ch)
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
 	}
 
-	// очистка сетовых данных перед проходом по шмоткам на чаре
-	ch->obj_bonus().clear();
-	worn_sets.clear();
 	// move object modifiers
 	for (i = 0; i < NUM_WEARS; i++)
 	{
 		if ((obj = GET_EQ(ch, i)))
 		{
-			worn_sets.add(ch, obj);
 			if (ObjSystem::is_armor_type(obj))
 			{
 				GET_AC_ADD(ch) -= apply_ac(ch, i);
@@ -646,7 +635,7 @@ void affect_total(CHAR_DATA * ch)
 			}
 		}
 	}
-	worn_sets.check(ch);
+	ch->obj_bonus().apply_affects(ch);
 
 	// move features modifiers - added by Gorrah
 	for (i = 1; i < MAX_FEATS; i++)
@@ -1991,6 +1980,10 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	if (!skip_total)
 	{
+		if (obj_sets::is_set_item(obj))
+		{
+			ch->obj_bonus().update(ch);
+		}
 		affect_total(ch);
 		check_light(ch, was_lamp, was_lgt, was_hlgt, was_hdrk, 1);
 	}
@@ -2210,17 +2203,20 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 	obj->worn_by = NULL;
 	obj->worn_on = NOWHERE;
 	obj->next_content = NULL;
-	if (!skip_total)
-	{
-		if (obj->get_activator().first)
-		{
-			obj_sets::print_off_msg(ch, obj);
-		}
-		obj->set_activator(false, 0);
-	}
 
 	if (!skip_total)
 	{
+		if (obj_sets::is_set_item(obj))
+		{
+			if (obj->get_activator().first)
+			{
+				obj_sets::print_off_msg(ch, obj);
+			}
+			ch->obj_bonus().update(ch);
+		}
+		obj->set_activator(false, 0);
+		obj->enchants.remove_set_bonus(obj);
+
 		affect_total(ch);
 		check_light(ch, was_lamp, was_lgt, was_hlgt, was_hdrk, 1);
 	}

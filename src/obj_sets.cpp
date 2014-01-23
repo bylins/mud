@@ -123,6 +123,17 @@ bool is_duplicate(int set_uid, int vnum)
 	return false;
 }
 
+void update_char_sets()
+{
+	for (CHAR_DATA* ch = character_list; ch; ch = ch->next)
+	{
+		if (!IS_NPC(ch) || IS_CHARMICE(ch))
+		{
+			ch->obj_bonus().update(ch);
+		}
+	}
+}
+
 /// запись индексов сетов в список индексов предметов (не в OBJ_DATA)
 /// здесь же обновляется справка по активаторам сетов
 void init_obj_index()
@@ -152,6 +163,7 @@ void init_obj_index()
 		}
 	}
 	HelpSystem::reload(HelpSystem::STATIC);
+	update_char_sets();
 }
 
 /// сеты не вешаются на: кольца, ожерелья, браслеты, свет
@@ -288,6 +300,43 @@ void verify_set(set_node &set)
 				num, i->first);
 			set.enabled = false;
 		}
+
+		if (i->second.enchant.first < 0)
+		{
+			err_log("сет #%zu: некорректный vnum предмета для энчанта (vnum=%d, activ=%d)",
+				num, i->second.enchant.first, i->first);
+			set.enabled = false;
+		}
+		if (i->second.enchant.first > 0 &&
+			set.obj_list.find(i->second.enchant.first) == set.obj_list.end())
+		{
+			err_log("сет #%zu: энчант для предмета, не являющегося частью набора (vnum=%d, activ=%d)",
+				num, i->second.enchant.first, i->first);
+			set.enabled = false;
+		}
+		if (i->second.enchant.first > 0 && i->second.enchant.second.empty())
+		{
+			err_log("сет #%zu: пустой энчант для предмета (vnum=%d, activ=%d)",
+				num, i->second.enchant.first, i->first);
+			set.enabled = false;
+		}
+		if (i->second.enchant.second.weight < -100
+			|| i->second.enchant.second.weight > 100)
+		{
+			err_log("сет #%zu: некорректный вес для энчанта (weight=%d, activ=%d)",
+				num, i->second.enchant.second.weight, i->first);
+			set.enabled = false;
+		}
+		if (i->second.enchant.second.ndice < -100
+			|| i->second.enchant.second.ndice > 100
+			|| i->second.enchant.second.sdice > 100
+			|| i->second.enchant.second.sdice > 100)
+		{
+			err_log("сет #%zu: некорректные кубики для энчанта (%dD%d, activ=%d)",
+				num, i->second.enchant.second.ndice,
+				i->second.enchant.second.sdice, i->first);
+			set.enabled = false;
+		}
 	}
 }
 
@@ -404,6 +453,18 @@ void load()
 			{
 				tmp_activ.skill.first = Parse::attr_int(xml_cur, "num");
 				tmp_activ.skill.second = Parse::attr_int(xml_cur, "val");
+			}
+			// <enchant>
+			xml_cur = xml_activ.child("enchant");
+			if (xml_cur)
+			{
+				tmp_activ.enchant.first = Parse::attr_int(xml_cur, "vnum");
+				tmp_activ.enchant.second.weight =
+					xml_cur.attribute("weight").as_int(0);
+				tmp_activ.enchant.second.ndice =
+					xml_cur.attribute("ndice").as_int(0);
+				tmp_activ.enchant.second.sdice =
+					xml_cur.attribute("sdice").as_int(0);
 			}
 			// <phys_dmg>
 			xml_cur = xml_activ.child("phys_dmg");
@@ -553,6 +614,27 @@ void save()
 				xml_skill.append_attribute("num") = k->second.skill.first;
 				xml_skill.append_attribute("val") = k->second.skill.second;
 			}
+			// set/activ/enchant
+			if (k->second.enchant.first > 0)
+			{
+				pugi::xml_node xml_enchant = xml_activ.append_child("enchant");
+				xml_enchant.append_attribute("vnum") = k->second.enchant.first;
+				if (k->second.enchant.second.weight > 0)
+				{
+					xml_enchant.append_attribute("weight") =
+						k->second.enchant.second.weight;
+				}
+				if (k->second.enchant.second.ndice > 0)
+				{
+					xml_enchant.append_attribute("ndice") =
+						k->second.enchant.second.ndice;
+				}
+				if (k->second.enchant.second.sdice)
+				{
+					xml_enchant.append_attribute("sdice") =
+						k->second.enchant.second.sdice;
+				}
+			}
 			// set/activ/phys_dmg
 			if (k->second.bonus.phys_dmg > 0)
 			{
@@ -573,25 +655,6 @@ void save()
 	decl.append_attribute("encoding") = "koi8-r";
 	doc.save_file(OBJ_SETS_FILE);
 	log("Saving %s: done", OBJ_SETS_FILE);
-}
-
-/// активатор сетится аналогично взятию аффектов со шмоток
-void apply_activator(CHAR_DATA *ch, const activ_node &activ)
-{
-	for (auto i = activ.apply.begin(); i != activ.apply.end(); ++i)
-	{
-		affect_modify(ch, i->location, i->modifier, 0, TRUE);
-	}
-	for (int j = 0; weapon_affect[j].aff_bitvector >= 0; j++)
-	{
-		if (weapon_affect[j].aff_bitvector != 0
-			&& IS_SET(GET_FLAG(activ.affects, weapon_affect[j].aff_pos), weapon_affect[j].aff_pos))
-		{
-			affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, TRUE);
-		}
-	}
-	PrintActivators::sum_skills(ch->obj_bonus().skills, activ.skill);
-	ch->obj_bonus() += activ.bonus;
 }
 
 /// распечатка сообщения чару и в комнату
@@ -700,19 +763,19 @@ void check_activated(CHAR_DATA *ch, int activ, idx_node &node)
 void check_deactivated(CHAR_DATA *ch, int max_activ, idx_node &node)
 {
 	int need_msg = node.activated_cnt - max_activ;
-	if (need_msg > 0)
+	for (auto i = node.obj_list.begin(); i != node.obj_list.end(); ++i)
 	{
-		for (auto i = node.obj_list.begin();
-			i != node.obj_list.end() && need_msg > 0; ++i)
+		OBJ_DATA *obj = *i;
+		if (need_msg > 0 && obj->get_activator().first)
 		{
-			OBJ_DATA *obj = *i;
-			if (obj->get_activator().first)
-			{
-				print_msg(ch, obj, node.set_idx, false);
-				obj->set_activator(false, max_activ);
-				--node.activated_cnt;
-				--need_msg;
-			}
+			print_msg(ch, obj, node.set_idx, false);
+			obj->set_activator(false, max_activ);
+			--node.activated_cnt;
+			--need_msg;
+		}
+		else
+		{
+			obj->set_activator(obj->get_activator().first, max_activ);
 		}
 	}
 }
@@ -791,9 +854,9 @@ void print_identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 		}
 
 		snprintf(buf_, sizeof(buf_),
-			"Свойства набора%s: %sсправка активсет%d%s\r\n",
-			(i.second > 0 ? buf_2 : ""), CCWHT(ch, C_NRM),
-			set_idx + 1, CCNRM(ch, C_NRM));
+			"Свойства набора%s: %sсправка %s%s\r\n",
+			(i.second > 0 ? buf_2 : ""),
+			CCWHT(ch, C_NRM), cur_set.help.c_str(), CCNRM(ch, C_NRM));
 		out += buf_;
 
 		send_to_char(out, ch);
@@ -870,13 +933,12 @@ std::string print_activ_apply(const T &list)
 	return out;
 }
 
-/// распечатка bonus у активатора или суммы активаторов
+/// распечатка уникальных сетовых бонусов у активатора или суммы активаторов
 std::string print_activ_bonus(const bonus_type &bonus)
 {
 	std::string out;
 	char buf_[128];
 
-	out += PrintActivators::print_skills(bonus.skills, true, false);
 	if (bonus.phys_dmg > 0)
 	{
 		snprintf(buf_, sizeof(buf_),
@@ -895,6 +957,64 @@ std::string print_activ_bonus(const bonus_type &bonus)
 	return out;
 }
 
+std::string print_activ_enchant(const std::pair<int, ench_type> &ench)
+{
+	std::string out;
+	char buf_[128];
+
+	if (ench.first > 0)
+	{
+		int rnum = real_object(ench.first);
+		if (rnum < 0) return "";
+
+		if (ench.second.weight != 0)
+		{
+			snprintf(buf_, sizeof(buf_),
+				" +    %s%s вес %s на %d%s\r\n",
+				KCYN, ench.second.weight > 0 ? "увеличивает" : "уменьшает",
+				GET_OBJ_PNAME(obj_proto[rnum], 1),
+				abs(ench.second.weight), KNRM);
+			out += buf_;
+		}
+		if (ench.second.ndice != 0 || ench.second.sdice != 0)
+		{
+			if (ench.second.ndice >= 0 && ench.second.sdice >= 0)
+			{
+				snprintf(buf_, sizeof(buf_),
+					" +    %sувеличивает урон %s на %dD%d%s\r\n",
+					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1),
+					abs(ench.second.ndice), abs(ench.second.sdice), KNRM);
+			}
+			else if (ench.second.ndice <= 0 && ench.second.sdice <= 0)
+			{
+				snprintf(buf_, sizeof(buf_),
+					" +    %sуменьшает урон %s на %dD%d%s\r\n",
+					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1),
+					abs(ench.second.ndice), abs(ench.second.sdice), KNRM);
+			}
+			else
+			{
+				snprintf(buf_, sizeof(buf_),
+					" +    %sизменяет урон %s на %+dD%+d%s\r\n",
+					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1),
+					ench.second.ndice, ench.second.sdice, KNRM);
+			}
+			out += buf_;
+		}
+	}
+	return out;
+}
+
+std::string print_activ_enchants(const std::map<int, ench_type> &enchants)
+{
+	std::string out;
+	for (auto i = enchants.begin(); i != enchants.end(); ++i)
+	{
+		out += print_activ_enchant(*i);
+	}
+	return out;
+}
+
 /// распечатка всего, что подпадает под раздел 'свойства' в активаторе
 std::string print_activ_properties(const activ_node &activ)
 {
@@ -906,6 +1026,8 @@ std::string print_activ_properties(const activ_node &activ)
 	out += PrintActivators::print_skill(activ.skill, true);
 	// bonus
 	out += print_activ_bonus(activ.bonus);
+	//enchant
+	out += print_activ_enchant(activ.enchant);
 
 	if (!out.empty())
 	{
@@ -967,7 +1089,7 @@ std::string print_total_activ(const set_node &set)
 {
 	std::string out, prof_list, properties;
 
-	PrintActivators::clss_activ_node summ, prof_summ;
+	activ_sum summ, prof_summ;
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
 	{
 		if (i->second.prof.count() != i->second.prof.size())
@@ -978,31 +1100,21 @@ std::string print_total_activ(const set_node &set)
 			{
 				print_bitset(i->second.prof, pc_class_name, ",", prof_list);
 			}
-			// affects
-			prof_summ.total_affects += i->second.affects;
-			// apply
-			PrintActivators::sum_apply(prof_summ.affected, i->second.apply);
-			// bonus
-			PrintActivators::sum_skills(prof_summ.bonus.skills, i->second.skill);
-			prof_summ.bonus += i->second.bonus;
+			prof_summ += &(i->second);
 		}
 		else
 		{
-			// affects
-			summ.total_affects += i->second.affects;
-			// apply
-			PrintActivators::sum_apply(summ.affected, i->second.apply);
-			// bonus
-			PrintActivators::sum_skills(summ.bonus.skills, i->second.skill);
-			summ.bonus += i->second.bonus;
+			summ += &(i->second);
 		}
 	}
 
 	out += "--------------------------------------------------------------------------------\r\n";
 	out += "Суммарный бонус:\r\n";
-	out += print_activ_affects(summ.total_affects);
-	properties += print_activ_apply(summ.affected);
+	out += print_activ_affects(summ.affects);
+	properties += print_activ_apply(summ.apply);
+	properties += PrintActivators::print_skills(summ.skills, true, false);
 	properties += print_activ_bonus(summ.bonus);
+	properties += print_activ_enchants(summ.enchants);
 	if (!properties.empty())
 	{
 		out += " + Свойства :\r\n" + properties;
@@ -1012,9 +1124,11 @@ std::string print_total_activ(const set_node &set)
 	{
 		properties.clear();
 		out += "Профессии: " + prof_list + "\r\n";
-		out += print_activ_affects(prof_summ.total_affects);
-		properties += print_activ_apply(prof_summ.affected);
+		out += print_activ_affects(prof_summ.affects);
+		properties += print_activ_apply(prof_summ.apply);
+		properties += PrintActivators::print_skills(prof_summ.skills, true, false);
 		properties += print_activ_bonus(prof_summ.bonus);
+		properties += print_activ_enchants(prof_summ.enchants);
 		if (!properties.empty())
 		{
 			out += " + Свойства :\r\n" + properties;
@@ -1032,8 +1146,31 @@ void init_xhelp()
 	char buf_[128];
 	for (size_t i = 0; i < sets_list.size(); ++i)
 	{
-		snprintf(buf_, sizeof(buf_), "активсет%d", i + 1);
-		HelpSystem::add_static(buf_, print_activ_help(*(sets_list.at(i))), 0, true);
+		const int lvl = (sets_list.at(i)->enabled ? 0 : LVL_IMMORT);
+		if (sets_list.at(i)->alias.empty())
+		{
+			snprintf(buf_, sizeof(buf_), "актив%02d", i + 1);
+			HelpSystem::add_static(buf_,
+				print_activ_help(*(sets_list.at(i))), lvl, true);
+			sets_list.at(i)->help = buf_;
+		}
+		else
+		{
+			bool first = true;
+			std::string name = "актив";
+			std::vector<std::string> str_list;
+			boost::split(str_list, sets_list.at(i)->alias, boost::is_any_of(","));
+			for (auto k = str_list.begin(); k != str_list.end(); ++k)
+			{
+				if (first)
+				{
+					sets_list.at(i)->help = name + *k;
+					first = false;
+				}
+				HelpSystem::add_static(name + *k,
+					print_activ_help(*(sets_list.at(i))), lvl, true);
+			}
+		}
 	}
 }
 
@@ -1060,13 +1197,9 @@ void WornSets::clear()
 
 /// добавление сетины (для игроков и чармисов) на последующую обработку
 /// одновременно сразу же считается кол-во активированных шмоток в каждом сете
-void WornSets::add(CHAR_DATA *ch, OBJ_DATA *obj)
+void WornSets::add(OBJ_DATA *obj)
 {
-//	if (IS_NPC(ch) && !IS_CHARMICE(ch)) return;
-	if (IS_NPC(ch)) return;
-
-	if (GET_OBJ_RNUM(obj) >= 0
-		&& obj_index[GET_OBJ_RNUM(obj)].set_idx != static_cast<size_t>(-1))
+	if (obj && is_set_item(obj))
 	{
 		const size_t cur_idx = obj_index[GET_OBJ_RNUM(obj)].set_idx;
 		for (auto i = idx_list_.begin(); i != idx_list_.end(); ++i)
@@ -1121,7 +1254,8 @@ void WornSets::check(CHAR_DATA *ch)
 				{
 					continue;
 				}
-				apply_activator(ch, k->second);
+				// суммируем все на чаре, потом кому надо - сами дернут
+				ch->obj_bonus() += &(k->second);
 				max_activ = k->first;
 				check_activated(ch, k->first, *i);
 			}
@@ -1129,6 +1263,207 @@ void WornSets::check(CHAR_DATA *ch)
 		// на деактивацию проверять надо даже выключенные сеты
 		check_deactivated(ch, max_activ, *i);
 	}
+}
+
+bool bonus_type::operator!=(const bonus_type &r) const
+{
+	if (phys_dmg != r.phys_dmg || mage_dmg != r.mage_dmg)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool bonus_type::operator==(const bonus_type &r) const
+{
+	return !(*this != r);
+}
+
+bonus_type& bonus_type::operator+=(const bonus_type &r)
+{
+	phys_dmg += r.phys_dmg;
+	mage_dmg += r.mage_dmg;
+	return *this;
+}
+
+bool bonus_type::empty() const
+{
+	if (phys_dmg != 0 || mage_dmg != 0)
+	{
+		return false;
+	}
+	return true;
+}
+
+bool ench_type::operator!=(const ench_type &r) const
+{
+	if (weight != r.weight
+		|| ndice != r.ndice
+		|| sdice != r.sdice)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool ench_type::operator==(const ench_type &r) const
+{
+	return !(*this != r);
+}
+
+ench_type& ench_type::operator+=(const ench_type &r)
+{
+	weight += r.weight;
+	ndice += r.ndice;
+	sdice += r.sdice;
+	return *this;
+}
+
+bool ench_type::empty() const
+{
+	if (weight != 0 || ndice != 0 || sdice != 0)
+	{
+		return false;
+	}
+	return true;
+}
+
+activ_sum& activ_sum::operator+=(const activ_node *r)
+{
+	affects += r->affects;
+	PrintActivators::sum_apply(apply, r->apply);
+	PrintActivators::add_pair(skills, r->skill);
+	bonus += r->bonus;
+	PrintActivators::add_pair(enchants, r->enchant);
+
+	return *this;
+}
+
+bool activ_sum::operator!=(const activ_sum &r) const
+{
+	if (affects != r.affects
+		|| apply != r.apply
+		|| skills != r.skills
+		|| bonus != r.bonus
+		|| enchants != r.enchants)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool activ_sum::operator==(const activ_sum &r) const
+{
+	return !(*this != r);
+}
+
+bool activ_sum::empty() const
+{
+	if (!affects.empty()
+		|| !apply.empty()
+		|| !skills.empty()
+		|| !bonus.empty()
+		|| !enchants.empty())
+	{
+		return false;
+	}
+	return true;
+}
+
+void activ_sum::clear()
+{
+	affects = clear_flags;
+	apply.clear();
+	skills.clear();
+	bonus.phys_dmg = 0;
+	bonus.mage_dmg = 0;
+	enchants.clear();
+}
+
+WornSets worn_sets;
+
+void check_enchants(CHAR_DATA *ch)
+{
+	OBJ_DATA *obj;
+	for (int i = 0; i < NUM_WEARS; i++)
+	{
+		obj = GET_EQ(ch, i);
+		if (obj)
+		{
+			auto i = ch->obj_bonus().enchants.find(GET_OBJ_VNUM(obj));
+			if (i != ch->obj_bonus().enchants.end())
+			{
+				obj->enchants.update_set_bonus(obj, &(i->second));
+			}
+			else
+			{
+				obj->enchants.remove_set_bonus(obj);
+			}
+		}
+	}
+}
+
+void activ_sum::update(CHAR_DATA *ch)
+{
+	if (IS_NPC(ch))
+	{
+		return;
+	}
+
+	this->clear();
+	worn_sets.clear();
+	for (int i = 0; i < NUM_WEARS; i++)
+	{
+		worn_sets.add(GET_EQ(ch, i));
+	}
+	worn_sets.check(ch);
+	check_enchants(ch);
+}
+
+void activ_sum::apply_affects(CHAR_DATA *ch) const
+{
+	for (int j = 0; weapon_affect[j].aff_bitvector >= 0; j++)
+	{
+		if (weapon_affect[j].aff_bitvector != 0
+			&& IS_SET(GET_FLAG(affects, weapon_affect[j].aff_pos), weapon_affect[j].aff_pos))
+		{
+			affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, TRUE);
+		}
+	}
+	for (auto i = apply.begin(); i != apply.end(); ++i)
+	{
+		affect_modify(ch, i->location, i->modifier, 0, TRUE);
+	}
+}
+
+int activ_sum::calc_phys_dmg(int dam) const
+{
+	return dam * bonus.phys_dmg / 100;
+}
+
+int activ_sum::calc_mage_dmg(int dam) const
+{
+	return dam * bonus.mage_dmg / 100;
+}
+
+int activ_sum::get_skill(int num) const
+{
+	auto i = skills.find(num);
+	if (i != skills.end())
+	{
+		return i->second;
+	}
+	return 0;
+}
+
+bool is_set_item(OBJ_DATA *obj)
+{
+	if (GET_OBJ_RNUM(obj) >= 0
+		&& obj_index[GET_OBJ_RNUM(obj)].set_idx != static_cast<size_t>(-1))
+	{
+		return true;
+	}
+	return false;
 }
 
 } // namespace obj_sets

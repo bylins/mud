@@ -37,12 +37,75 @@ public:
 	/// очистка перед каждым использованием
 	void clear();
 	/// заполнение списка сетов idx_list_ при обходе предметов на чаре
-	void add(CHAR_DATA *ch, OBJ_DATA *obj);
+	void add(OBJ_DATA *obj);
 	/// проверка активаторов (вся магия здесь)
 	void check(CHAR_DATA *ch);
 
 private:
 	std::array<idx_node, NUM_WEARS> idx_list_;
+};
+
+struct bonus_type
+{
+	bonus_type() : phys_dmg(0), mage_dmg(0) {};
+
+	int phys_dmg;
+	int mage_dmg;
+
+	bool operator!=(const bonus_type &r) const;
+	bool operator==(const bonus_type &r) const;
+	bonus_type& operator+=(const bonus_type &r);
+	bool empty() const;
+};
+
+struct ench_type
+{
+	ench_type() : weight(0), ndice(0), sdice(0) {};
+
+	int weight;
+	int ndice;
+	int sdice;
+
+	bool operator!=(const ench_type &r) const;
+	bool operator==(const ench_type &r) const;
+	ench_type& operator+=(const ench_type &r);
+	bool empty() const;
+};
+
+struct activ_node;
+
+struct activ_sum
+{
+	activ_sum()
+	{
+		affects = clear_flags;
+	};
+
+	// суммирование активаторов
+	activ_sum& operator+=(const activ_node *r);
+
+	bool operator!=(const activ_sum &r) const;
+	bool operator==(const activ_sum &r) const;
+	bool empty() const;
+	void clear();
+
+	void update(CHAR_DATA *ch);
+	void apply_affects(CHAR_DATA *ch) const;
+
+	int get_skill(int num) const;
+	int calc_phys_dmg(int dam) const;
+	int calc_mage_dmg(int dam) const;
+
+	// аффекты (obj_flags.affects)
+	FLAG_DATA affects;
+	// APPLY_XXX аффекты (affected[MAX_OBJ_AFFECT])
+	std::vector<obj_affected_type> apply;
+	// +скилы в обход текущего обхода шмоток
+	std::map<int, int> skills;
+	// числовые сетовые бонусы
+	bonus_type bonus;
+	// внум шмоток - энчанты с сетов
+	std::map<int, ench_type> enchants;
 };
 
 void load();
@@ -51,6 +114,7 @@ void print_off_msg(CHAR_DATA *ch, OBJ_DATA *obj);
 void print_identify(CHAR_DATA *ch, const OBJ_DATA *obj);
 void init_xhelp();
 std::string get_name(size_t idx);
+bool is_set_item(OBJ_DATA *obj);
 
 } // namespace obj_sets
 

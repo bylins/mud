@@ -15,6 +15,7 @@
 
 #include "sysdep.h"
 #include "structs.h"
+#include "obj_enchant.hpp"
 
 // object flags; used in obj_data //
 #define NUM_OBJ_VAL_POSITIONS 4
@@ -315,47 +316,6 @@ private:
 	std::map<int /* номер заклинания (SPELL_ХХХ) */, int /* таймер в минутах */> spell_list_;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-
-enum { ACQUIRED_ENCHANT, ACQUIRED_STONE, ACQUIRED_TOTAL_TYPES };
-
-// список аффектов от какого-то одного источника (энчанта, камня)
-class AcquiredAffects
-{
-	// имя источника аффектов
-	std::string name_;
-	// тип источника аффектов
-	int type_;
-	// список APPLY аффектов (affected[MAX_OBJ_AFFECT])
-	std::vector<obj_affected_type> affected_;
-	// аффекты обкаста (obj_flags.affects)
-	FLAG_DATA affects_flags_;
-	// экстра аффекты (obj_flags.extra_flags)
-	FLAG_DATA extra_flags_;
-	// запреты на ношение (obj_flags.no_flag)
-	FLAG_DATA no_flags_;
-	// изменение веса (+-)
-	int weight_;
-	// для лоада из файла объектов
-	AcquiredAffects();
-
-public:
-	// инит свои аффекты из указанного предмета (для энчантов)
-	AcquiredAffects(OBJ_DATA *obj);
-	// добавить свои аффектф на предмет (на случай стирания, например в сетах)
-	void apply_to_obj(OBJ_DATA *obj) const;
-	// распечатка аффектов для опознания
-	void print(CHAR_DATA *ch) const;
-	// тип источника (для удаления из предмета)
-	int get_type() const;
-	// генерация строки с энчантом для файла объекта
-	std::string print_to_file() const;
-	// для лоада из файла объектов
-	friend OBJ_DATA *read_one_object_new(char **data, int *error);
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
 // метки для команды "нацарапать"
 struct custom_label {
 	char *label_text; // текст
@@ -461,7 +421,7 @@ struct obj_data
 	max_in_world;		// max in world             //
 
 	TimedSpell timed_spell;    // временный обкаст
-	std::vector<AcquiredAffects> acquired_affects;
+	obj::Enchants enchants;
 	ObjVal values;
 
 	const std::string activate_obj(const activation& __act);

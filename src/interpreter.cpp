@@ -2264,7 +2264,10 @@ void do_entergame(DESCRIPTOR_DATA * d)
 
 	// а потом уже вычитаем за ренту
 	if (GET_LEVEL(d->character) != 0)
+	{
 		Crash_load(d->character);
+		d->character->obj_bonus().update(d->character);
+	}
 	Depot::enter_char(d->character);
 	Glory::check_freeze(d->character);
 	Clan::clan_invoice(d->character, true);

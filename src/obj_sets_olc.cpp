@@ -53,6 +53,10 @@ public:
 	void parse_global_msg(CHAR_DATA *ch, const char *arg);
 	void parse_activ_mage_dmg(CHAR_DATA *ch, const char *arg);
 	void parse_activ_phys_dmg(CHAR_DATA *ch, const char *arg);
+	void parse_activ_weight_val(CHAR_DATA *ch, const char *arg);
+	void parse_activ_ench_sdice(CHAR_DATA *ch, const char *arg);
+	void parse_activ_ench_ndice(CHAR_DATA *ch, const char *arg);
+	void parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg);
 	void parse_activ_skill(CHAR_DATA *ch, const char *arg);
 	void parse_activ_apply_mod(CHAR_DATA *ch, const char *arg);
 	void parse_activ_apply_loc(CHAR_DATA *ch, const char *arg);
@@ -62,7 +66,6 @@ public:
 	void parse_activ_affects(CHAR_DATA *ch, const char *arg);
 	void parse_activ_edit(CHAR_DATA *ch, const char *arg);
 	void parse_activ_add(CHAR_DATA *ch, const char *arg);
-	void parse_total_activ(CHAR_DATA *ch, const char *arg);
 	void parse_obj_remove(CHAR_DATA *ch, const char *arg);
 	void parse_obj_change(CHAR_DATA *ch, const char *arg);
 	void parse_obj_edit(CHAR_DATA *ch, const char *arg);
@@ -85,6 +88,7 @@ private:
 	// если правится аффект - его индекс в списке
 	size_t apply_edit;
 
+	void show_activ_ench_vnum(CHAR_DATA *ch);
 	void show_activ_prof(CHAR_DATA *ch);
 	void show_activ_skill(CHAR_DATA *ch);
 	void show_activ_apply(CHAR_DATA *ch);
@@ -135,6 +139,10 @@ enum
 	STATE_ACTIV_APPLY_LOC,
 	STATE_ACTIV_APPLY_MOD,
 	STATE_ACTIV_SKILL,
+	STATE_ACTIV_ENCH_VNUM,
+	STATE_ACTIV_ENCH_NDICE,
+	STATE_ACTIV_ENCH_SDICE,
+	STATE_ACTIV_ENCH_WEIGHT,
 	STATE_ACTIV_PHYS_DMG,
 	STATE_ACTIV_MAGE_DMG,
 	STATE_GLOBAL_MSG,
@@ -468,8 +476,37 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	}
 	else
 	{
-		snprintf(buf_, sizeof(buf_),
-			"%s%2d%s) Изменяемое умение : нет\r\n",
+		snprintf(buf_, sizeof(buf_), "%s%2d%s) Изменяемое умение : нет\r\n",
+			CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
+	}
+	out += buf_;
+
+	if (activ.enchant.first > 0)
+	{
+		const int rnum = real_object(activ.enchant.first);
+		const char *name =
+			(rnum >= 0 ? obj_proto[rnum]->short_description : "<null>");
+		if (GET_OBJ_TYPE(obj_proto[rnum]) == ITEM_WEAPON)
+		{
+			snprintf(buf_, sizeof(buf_),
+				"%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d, кубики %+dD%+d%s\r\n",
+				CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+				activ.enchant.first, name, activ.enchant.second.weight,
+				activ.enchant.second.ndice, activ.enchant.second.sdice,
+				CCNRM(ch, C_NRM));
+		}
+		else
+		{
+			snprintf(buf_, sizeof(buf_),
+				"%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d%s\r\n",
+				CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+				activ.enchant.first, name, activ.enchant.second.weight,
+				CCNRM(ch, C_NRM));
+		}
+	}
+	else
+	{
+		snprintf(buf_, sizeof(buf_), "%s%2d%s) Зачарование предмета: нет\r\n",
 			CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
 	}
 	out += buf_;
@@ -1104,9 +1141,116 @@ void sedit::parse_activ_add(CHAR_DATA *ch, const char *arg)
 	show_main(ch);
 }
 
-void sedit::parse_total_activ(CHAR_DATA *ch, const char *arg)
+void sedit::show_activ_ench_vnum(CHAR_DATA *ch)
 {
-	show_main(ch);
+	state = STATE_ACTIV_ENCH_VNUM;
+	std::string out = main_menu_objlist(ch, olc_set, 1);
+	out += "Укажите vnum предмета (0 - удалить и выйти, пустой ввод - выход) :";
+	send_to_char(out, ch);
+}
+
+void sedit::parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg)
+{
+	skip_spaces(&arg);
+
+	if (!*arg || !isdigit(*arg))
+	{
+		show_activ_edit(ch);
+		return;
+	}
+
+	int rnum = -1;
+	unsigned vnum = atoi(arg);
+	if (vnum == 0)
+	{
+		olc_set.activ_list.at(activ_edit).enchant.first = 0;
+		olc_set.activ_list.at(activ_edit).enchant.second.weight = 0;
+		olc_set.activ_list.at(activ_edit).enchant.second.ndice = 0;
+		olc_set.activ_list.at(activ_edit).enchant.second.sdice = 0;
+		show_activ_edit(ch);
+		return;
+	}
+
+	if (!olc_set.obj_list.empty()
+		&& vnum <= olc_set.obj_list.size()
+		&& vnum >= 1)
+	{
+		auto i = olc_set.obj_list.begin();
+		int add = vnum - 1;
+		if (add > 0)
+		{
+			std::advance(i, add);
+		}
+		vnum = i->first;
+		rnum = real_object(vnum);
+	}
+	else
+	{
+		rnum = real_object(vnum);
+		if (rnum < 0)
+		{
+			send_to_char(ch, "Предметов с vnum %d не существует.\r\n", vnum);
+			show_activ_ench_vnum(ch);
+			return;
+		}
+		else if (olc_set.obj_list.find(vnum) == olc_set.obj_list.end())
+		{
+			send_to_char(ch,
+				"В данном наборе нет предмета с vnum %d.\r\n", vnum);
+			show_activ_ench_vnum(ch);
+			return;
+		}
+	}
+
+	olc_set.activ_list.at(activ_edit).enchant.first = vnum;
+
+	if (rnum >= 0 && GET_OBJ_TYPE(obj_proto[rnum]) == ITEM_WEAPON)
+	{
+		state = STATE_ACTIV_ENCH_NDICE;
+		send_to_char("Укажите изменение бросков кубика (0 - без изменений) :", ch);
+	}
+	else
+	{
+		olc_set.activ_list.at(activ_edit).enchant.second.ndice = 0;
+		olc_set.activ_list.at(activ_edit).enchant.second.sdice = 0;
+		state = STATE_ACTIV_ENCH_WEIGHT;
+		send_to_char("Укажите прибавляемый вес (0 - без изменений) :", ch);
+	}
+}
+
+void sedit::parse_activ_weight_val(CHAR_DATA *ch, const char *arg)
+{
+	skip_spaces(&arg);
+
+	const int weight = atoi(arg);
+	olc_set.activ_list.at(activ_edit).enchant.second.weight =
+		std::max(std::min(weight, 100), -100);
+
+	show_activ_edit(ch);
+}
+
+void sedit::parse_activ_ench_ndice(CHAR_DATA *ch, const char *arg)
+{
+	skip_spaces(&arg);
+
+	const int ndice = atoi(arg);
+	olc_set.activ_list.at(activ_edit).enchant.second.ndice =
+		std::max(std::min(ndice, 100), -100);
+
+	state = STATE_ACTIV_ENCH_SDICE;
+	send_to_char("Укажите изменение граней кубиков (0 - без изменений) :", ch);
+}
+
+void sedit::parse_activ_ench_sdice(CHAR_DATA *ch, const char *arg)
+{
+	skip_spaces(&arg);
+
+	const int sdice = atoi(arg);
+	olc_set.activ_list.at(activ_edit).enchant.second.sdice =
+		std::max(std::min(sdice, 100), -100);
+
+	state = STATE_ACTIV_ENCH_WEIGHT;
+	send_to_char("Укажите прибавляемый вес (0 - без изменений) :", ch);
 }
 
 void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
@@ -1477,15 +1621,19 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 	}
 	else if (num == offset + activ.apply.size() + 2)
 	{
+		show_activ_ench_vnum(ch);
+	}
+	else if (num == offset + activ.apply.size() + 3)
+	{
 		state = STATE_ACTIV_PHYS_DMG;
 		send_to_char("Укажите процент прибавляемого физ. урона :", ch);
 	}
-	else if (num == offset + activ.apply.size() + 3)
+	else if (num == offset + activ.apply.size() + 4)
 	{
 		state = STATE_ACTIV_MAGE_DMG;
 		send_to_char("Укажите процент прибавляемого маг. урона :", ch);
 	}
-	else if (num == offset + activ.apply.size() + 4)
+	else if (num == offset + activ.apply.size() + 5)
 	{
 		show_main(ch);
 	}
@@ -1716,7 +1864,7 @@ void parse_input(CHAR_DATA *ch, const char *arg)
 		olc.parse_obj_remove(ch, arg);
 		break;
 	case STATE_TOTAL_ACTIV:
-		olc.parse_total_activ(ch, arg);
+		olc.show_main(ch);
 		break;
 	case STATE_ACTIV_ADD:
 		olc.parse_activ_add(ch, arg);
@@ -1744,6 +1892,18 @@ void parse_input(CHAR_DATA *ch, const char *arg)
 		break;
 	case STATE_ACTIV_SKILL:
 		olc.parse_activ_skill(ch, arg);
+		break;
+	case STATE_ACTIV_ENCH_VNUM:
+		olc.parse_activ_ench_vnum(ch, arg);
+		break;
+	case STATE_ACTIV_ENCH_NDICE:
+		olc.parse_activ_ench_ndice(ch, arg);
+		break;
+	case STATE_ACTIV_ENCH_SDICE:
+		olc.parse_activ_ench_sdice(ch, arg);
+		break;
+	case STATE_ACTIV_ENCH_WEIGHT:
+		olc.parse_activ_weight_val(ch, arg);
 		break;
 	case STATE_ACTIV_PHYS_DMG:
 		olc.parse_activ_phys_dmg(ch, arg);

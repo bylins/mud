@@ -57,10 +57,8 @@ struct clss_activ_node
 	FLAG_DATA total_affects;
 	// свойства
 	std::vector<obj_affected_type> affected;
-	// скилы (в новых сетах не участвует)
+	// скилы
 	std::map<int, int> skills;
-	// под новые сеты
-	bonus_type bonus;
 };
 
 std::string print_skill(const std::pair<int, int> &skill, bool activ);
@@ -88,6 +86,43 @@ void sum_apply(T &l, const N &r)
 		else
 		{
 			l.push_back(*ri);
+		}
+	}
+}
+
+template <class T>
+void add_pair(std::map<int, T> &target, const std::pair<int, T> &add)
+{
+	if (add.first > 0)
+	{
+		auto i = target.find(add.first);
+		if (i != target.end())
+		{
+			i->second += add.second;
+		}
+		else
+		{
+			target[add.first] = add.second;
+		}
+	}
+}
+
+template <class T>
+void add_map(std::map<int, T> &target, const std::map<int, T> &add)
+{
+	for (auto i = add.begin(), iend = add.end(); i != iend; ++i)
+	{
+		if (i->first > 0)
+		{
+			auto ii = target.find(i->first);
+			if (ii != target.end())
+			{
+				ii->second += i->second;
+			}
+			else
+			{
+				target[i->first] = i->second;
+			}
 		}
 	}
 }

@@ -1614,23 +1614,19 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 				GET_OBJ_SEX(target) == SEX_POLY ? "являются" : "является");
 		return;
 	}
-	for (std::vector<AcquiredAffects>::const_iterator i = target->acquired_affects.begin(),
-		iend = target->acquired_affects.end(); i != iend; ++i)
+	if (target->enchants.check(obj::ENCHANT_FROM_OBJ))
 	{
-		if (i->get_type() == ACQUIRED_ENCHANT)
-		{
-			send_to_char(ch, "На %s уже наложено зачарование.\r\n", GET_OBJ_PNAME(target, 3));
-			return;
-		}
+		send_to_char(ch, "На %s уже наложено зачарование.\r\n",
+			GET_OBJ_PNAME(target, 3));
+		return;
 	}
 
 	int check_slots = GET_OBJ_WEAR(obj) & GET_OBJ_WEAR(target);
 	if (check_slots > 0 && check_slots != ITEM_WEAR_TAKE)
 	{
 		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0));
-		AcquiredAffects tmp_aff(obj);
-		tmp_aff.apply_to_obj(target);
-		target->acquired_affects.push_back(tmp_aff);
+		obj::enchant ench(obj);
+		ench.apply_to_obj(target);
 		extract_obj(obj);
 	}
 	else
