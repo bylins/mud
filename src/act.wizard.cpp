@@ -741,8 +741,7 @@ ACMD(do_echo)
 			// added by Pereplut
 			if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
 			{
-				if PLR_FLAGGED
-				(ch->master, PLR_DUMB)
+				if PLR_FLAGGED(ch->master, PLR_DUMB)
 				{
 // shapirus: правильно пишется не "так-же", а "так же".
 // и запятая пропущена была :-P.
@@ -1743,7 +1742,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 
 		//. Display OLC zone for immorts .
 		if (GET_LEVEL(k) >= LVL_IMMORT)
-			sprintf(buf, "%s, OLC[%d]", buf, GET_OLC_ZONE(k));
+		{
+			sprintf(buf1, ", OLC[%d]", GET_OLC_ZONE(k));
+			strcat(buf, buf1);
+		}
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
@@ -5675,7 +5677,6 @@ ACMD(do_liblist)
 {
 
 	int first, last, nr, found = 0;
-	char bf[MAX_EXTEND_LENGTH];
 
 	argument = two_arguments(argument, buf, buf2);
 
@@ -5732,34 +5733,47 @@ ACMD(do_liblist)
 		return;
 	}
 
+	char buf_[256];
+	std::string out;
 
 	switch (subcmd)
 	{
 	case SCMD_RLIST:
-		sprintf(bf, "Список комнат от Vnum %d до %d\r\n", first, last);
+		snprintf(buf_, sizeof(buf_),
+			"Список комнат от Vnum %d до %d\r\n", first, last);
+		out += buf_;
 		for (nr = FIRST_ROOM; nr <= top_of_world && (world[nr]->number <= last); nr++)
 		{
 			if (world[nr]->number >= first)
 			{
-				sprintf(bf, "%s%5d. [%5d] (%3d) %s\r\n", bf, ++found,
-						world[nr]->number, world[nr]->zone, world[nr]->name);
+				snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s\r\n",
+					++found, world[nr]->number, world[nr]->zone, world[nr]->name);
+				out += buf_;
 			}
 		}
 		break;
 	case SCMD_OLIST:
-		sprintf(bf, "Список объектов Vnum %d до %d\r\n", first, last);
+		snprintf(buf_, sizeof(buf_),
+			"Список объектов Vnum %d до %d\r\n", first, last);
+		out += buf_;
 		for (nr = 0; nr <= top_of_objt; nr++)
 		{
 			if (obj_index[nr].vnum >= first && obj_index[nr].vnum <= last)
 			{
-				sprintf(bf, "%s%5d. %s [%5d] [ilvl=%d]", bf, ++found,
+				snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++found,
 					colored_name(obj_proto[nr]->short_description, 45),
 					obj_index[nr].vnum, obj_proto[nr]->get_ilevel());
+				out += buf_;
 				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
-					sprintf(bf, "%s Игра:%d Пост:%d\r\n", bf,
-							obj_index[nr].number, obj_index[nr].stored);
+				{
+					snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d\r\n",
+						obj_index[nr].number, obj_index[nr].stored);
+					out += buf_;
+				}
 				else
-					sprintf(bf, "%s\r\n", bf);
+				{
+					out += "\r\n";
+				}
 			}
 		}
 		break;
@@ -5775,20 +5789,27 @@ ACMD(do_liblist)
 		return;
 	}
 	case SCMD_ZLIST:
-		sprintf(bf, "Список зон от %d до %d\r\n(флаги, номер, резет, уровень/средний уровень мобов, группа, имя)\r\n", first, last);
+		snprintf(buf_, sizeof(buf_),
+			"Список зон от %d до %d\r\n"
+			"(флаги, номер, резет, уровень/средний уровень мобов, группа, имя)\r\n",
+			first, last);
+		out += buf_;
 		for (nr = 0; nr <= top_of_zone_table && (zone_table[nr].number <= last); nr++)
 		{
 			if (zone_table[nr].number >= first)
 			{
-				sprintf(bf, "%s%5d. [%s%s] [%5d] (%3d) (%2d/%2d) (%2d) %s\r\n", bf, ++found,
-						zone_table[nr].locked ? "L" : " ",
-						zone_table[nr].under_construction ? "T" : " ",
-						zone_table[nr].number,
-						zone_table[nr].lifespan,
-						zone_table[nr].level,
-						zone_table[nr].mob_level,
-						zone_table[nr].group,
-						zone_table[nr].name);
+				snprintf(buf_, sizeof(buf_),
+					"%5d. [%s%s] [%5d] (%3d) (%2d/%2d) (%2d) %s\r\n",
+					++found,
+					zone_table[nr].locked ? "L" : " ",
+					zone_table[nr].under_construction ? "T" : " ",
+					zone_table[nr].number,
+					zone_table[nr].lifespan,
+					zone_table[nr].level,
+					zone_table[nr].mob_level,
+					zone_table[nr].group,
+					zone_table[nr].name);
+				out += buf_;
 			}
 		}
 		break;
@@ -5819,7 +5840,7 @@ ACMD(do_liblist)
 		return;
 	}
 
-	page_string(ch->desc, bf, 1);
+	page_string(ch->desc, out);
 }
 
 ACMD(do_forcetime)

@@ -27,26 +27,25 @@ int pkilled = 0;
 struct class_exp_node
 {
 	unsigned long long exp;
-	int class_num;
 	std::string class_name;
 };
 /// экспа за ребут с делением по профам - для 'статистика'
 std::array<class_exp_node, NUM_CLASSES> class_exp =
 {{
-	{ 0, CLASS_CLERIC, "Лекари" },
-	{ 0, CLASS_BATTLEMAGE, "Колдуны" },
-	{ 0, CLASS_THIEF, "Тати" },
-	{ 0, CLASS_WARRIOR, "Богатыри" },
-	{ 0, CLASS_ASSASINE, "Наемники" },
-	{ 0, CLASS_GUARD, "Дружинники" },
-	{ 0, CLASS_CHARMMAGE, "Кудесники" },
-	{ 0, CLASS_DEFENDERMAGE, "Волшебники" },
-	{ 0, CLASS_NECROMANCER, "Чернокнижники" },
-	{ 0, CLASS_PALADINE, "Витязи" },
-	{ 0, CLASS_RANGER, "Охотники" },
-	{ 0, CLASS_SMITH, "Кузнецы" },
-	{ 0, CLASS_MERCHANT, "Купцы" },
-	{ 0, CLASS_DRUID, "Волхвы" }
+	{ 0, "Лекари" },
+	{ 0, "Колдуны" },
+	{ 0, "Тати" },
+	{ 0, "Богатыри" },
+	{ 0, "Наемники" },
+	{ 0, "Дружинники" },
+	{ 0, "Кудесники" },
+	{ 0, "Волшебники" },
+	{ 0, "Чернокнижники" },
+	{ 0, "Витязи" },
+	{ 0, "Охотники" },
+	{ 0, "Кузнецы" },
+	{ 0, "Купцы" },
+	{ 0, "Волхвы" }
 }};
 
 void add_class_exp(unsigned class_num, int exp)

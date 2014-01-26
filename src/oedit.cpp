@@ -9,6 +9,8 @@
  ************************************************************************/
 
 #include "conf.h"
+#include <array>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
@@ -1297,18 +1299,6 @@ void oedit_disp_ingradient_menu(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character);
 }
 
-const char *wskill_bits[] = { "палицы и дубины(141)",
-							  "секиры(142)",
-							  "длинные лезвия(143)",
-							  "короткие лезвия(144)",
-							  "иное(145)",
-							  "двуручники(146)",
-							  "проникающее(147)",
-							  "копья и рогатины(148)",
-							  "луки(154)",
-							  "\n"
-							};
-
 std::string print_spell_value(OBJ_DATA *obj, int key1, int key2)
 {
 	if (obj->values.get(key1) < 0)
@@ -1350,10 +1340,21 @@ void drinkcon_values_menu(DESCRIPTOR_DATA *d)
 	return;
 }
 
+std::array<const char *, 9> wskill_bits =
+{{
+	"палицы и дубины(141)",
+	"секиры(142)",
+	"длинные лезвия(143)",
+	"короткие лезвия(144)",
+	"иное(145)",
+	"двуручники(146)",
+	"проникающее(147)",
+	"копья и рогатины(148)",
+	"луки(154)"
+}};
+
 void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 {
-	int counter, columns = 0;
-
 	if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGRADIENT)
 	{
 		oedit_disp_ingradient_menu(d);
@@ -1363,14 +1364,17 @@ void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter < 32 && *wskill_bits[counter] != '\n'; counter++)
+	int columns = 0;
+	for (size_t counter = 0; counter < wskill_bits.size(); counter++)
 	{
 		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter + 1, nrm,
 				wskill_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintf(buf, "%sТренируемое умение : %s%d%s\r\n"
-			"Выберите умение (0 - выход) : ", (columns%2 == 1?"\r\n":""), cyn, GET_OBJ_SKILL(OLC_OBJ(d)), nrm);
+	sprintf(buf,
+		"%sТренируемое умение : %s%d%s\r\n"
+		"Выберите умение (0 - выход) : ",
+		(columns%2 == 1?"\r\n":""), cyn, GET_OBJ_SKILL(OLC_OBJ(d)), nrm);
 	send_to_char(buf, d->character);
 }
 
