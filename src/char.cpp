@@ -859,12 +859,14 @@ short Character::get_level() const
 
 void Character::set_level(short level)
 {
-	if (level < 0 || (!IS_NPC(this) && level > LVL_IMPL))
+	if (IS_NPC(this))
 	{
-		log("SYSERROR: level=%d (%s:%d %s)", level, __FILE__, __LINE__, __func__);
-		return;
+		level_ = std::max(static_cast<short>(1), std::min(MAX_MOB_LEVEL, level));
 	}
-	level_ = level;
+	else
+	{
+		level_ = std::max(static_cast<short>(0), std::min(LVL_IMPL, level));
+	}
 }
 
 long Character::get_idnum() const

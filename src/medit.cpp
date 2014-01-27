@@ -2273,7 +2273,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case MEDIT_LEVEL:
-			OLC_MOB(d)->set_level(MAX(1, MIN(50, atoi(arg))));
+			OLC_MOB(d)->set_level(atoi(arg));
 			break;
 
 		case MEDIT_ALIGNMENT:

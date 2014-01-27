@@ -2979,7 +2979,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	mob_proto[i].real_abils.armor = 10 * t[2];
 
 	// max hit = 0 is a flag that H, M, V is xdy+z
-	mob_proto[i].points.max_hit = 0;
+	GET_MAX_HIT(mob_proto + i) = 0;
 	GET_MEM_TOTAL(mob_proto + i) = t[3];
 	GET_MEM_COMPLETED(mob_proto + i) = t[4];
 	mob_proto[i].points.hit = t[5];
@@ -4568,11 +4568,13 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 
 	if (!mob->points.max_hit)
 	{
-		mob->points.max_hit = dice(GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob)) + mob->points.hit;
+		mob->points.max_hit = std::max(1,
+			dice(GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob)) + mob->points.hit);
 	}
 	else
 	{
-		mob->points.max_hit = number(mob->points.hit, GET_MEM_TOTAL(mob));
+		mob->points.max_hit = std::max(1,
+			number(mob->points.hit, GET_MEM_TOTAL(mob)));
 	}
 
 	int test_hp = get_test_hp(GET_LEVEL(mob));

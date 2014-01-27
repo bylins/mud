@@ -1117,11 +1117,11 @@ enum { DRUNK, FULL, THIRST};
  * LVL_IMMORT should always be the LOWEST immortal level.  The number of
  * mortal levels will always be LVL_IMMORT - 1.
  */
-#define LVL_IMPL  34
-#define LVL_GRGOD 33
-#define LVL_BUILDER  33
-#define LVL_GOD      32
-#define LVL_IMMORT   31
+const short LVL_IMPL = 34;
+const short LVL_GRGOD = 33;
+const short LVL_BUILDER = 33;
+const short LVL_GOD = 32;
+const short LVL_IMMORT = 31;
 
 // Level of the 'freeze' command //
 #define LVL_FREEZE   LVL_GRGOD
