@@ -1405,7 +1405,7 @@ void check_enchants(CHAR_DATA *ch)
 
 void activ_sum::update(CHAR_DATA *ch)
 {
-	if (IS_NPC(ch) && !IS_CHARMICE(ch))
+	if (IS_NPC(ch))
 	{
 		return;
 	}

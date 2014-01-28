@@ -592,12 +592,10 @@ void affect_total(CHAR_DATA * ch)
 	ch->clear_add_affects();
 
 	// PC's clear all affects, because recalc one
-	if (!IS_NPC(ch) || IS_CHARMICE(ch))
+	if (!IS_NPC(ch))
 	{
 		saved = ch->char_specials.saved.affected_by;
-		ch->char_specials.saved.affected_by = IS_CHARMICE(ch)
-			? (&mob_proto[GET_MOB_RNUM(ch)])->char_specials.saved.affected_by
-			: clear_flags;
+		ch->char_specials.saved.affected_by = clear_flags;
 		for (i = 0; (j = char_saved_aff[i]); i++)
 		{
 			if (IS_SET(GET_FLAG(saved, j), j))
