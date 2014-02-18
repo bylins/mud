@@ -247,7 +247,7 @@ const char * main_menu_str(CHAR_DATA *ch, set_node &olc_set, int num)
 			olc_set.name.c_str());
 		break;
 	case MAIN_ALIAS:
-		snprintf(buf_, sizeof(buf_), "Алиас  : %s",
+		snprintf(buf_, sizeof(buf_), "Алиасы : %s",
 			olc_set.alias.c_str());
 		break;
 	case MAIN_COMMENT:
@@ -890,7 +890,8 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 		state = STATE_NAME;
 		return;
 	case MAIN_ALIAS:
-		send_to_char("Алиас набора (только для глобал дропа) : ", ch);
+		send_to_char(
+			"Алиасы набора для справки (через запятую и/или пробел) : ", ch);
 		state = STATE_ALIAS;
 		return;
 	case MAIN_COMMENT:

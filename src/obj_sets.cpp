@@ -1159,7 +1159,8 @@ void init_xhelp()
 			bool first = true;
 			std::string name = "актив";
 			std::vector<std::string> str_list;
-			boost::split(str_list, sets_list.at(i)->alias, boost::is_any_of(","));
+			boost::split(str_list, sets_list.at(i)->alias,
+				boost::is_any_of(", "), boost::token_compress_on);
 			for (auto k = str_list.begin(); k != str_list.end(); ++k)
 			{
 				if (first)
