@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 //#include <unordered_map>
+#include <array>
 #include <boost/array.hpp>
 #include <boost/unordered_map.hpp>
 

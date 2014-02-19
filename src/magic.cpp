@@ -3102,12 +3102,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_GROUP_FLY:
 	case SPELL_FLY:
-		if (on_horse(victim))
-		{
-			send_to_char(NOEFFECT, ch);
-			success = FALSE;
-			break;
-		}
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		af[0].bitvector = AFF_FLY;
 		to_room = "$n0 медленно поднял$u в воздух.";

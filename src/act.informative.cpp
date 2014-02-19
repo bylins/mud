@@ -1304,7 +1304,16 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	if (GET_POS(i) != POS_FIGHTING)
 	{
 		if (on_horse(i))
-			sprintf(buf + strlen(buf), "сидит здесь верхом на %s. ", PERS(get_horse(i), ch, 5));
+		{
+			CHAR_DATA *horse = get_horse(i);
+			if (horse)
+			{
+				const char *msg =
+					AFF_FLAGGED(horse, AFF_FLY) ? "летает" : "сидит";
+				sprintf(buf + strlen(buf), "%s здесь верхом на %s. ",
+					msg, PERS(horse, ch, 5));
+			}
+		}
 		else if (IS_HORSE(i) && AFF_FLAGGED(i, AFF_TETHERED))
 			sprintf(buf + strlen(buf), "привязан%s здесь. ", GET_CH_SUF_6(i));
 		else if ((sector = real_sector(IN_ROOM(i))) == SECT_FLYING)

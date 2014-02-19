@@ -429,6 +429,16 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				return (FALSE);
 			}
 		}
+		if (real_sector(EXIT(ch, dir)->to_room) == SECT_FLYING
+			&& !IS_GOD(ch)
+			&& !AFF_FLAGGED(ch, AFF_FLY))
+		{
+			if (show_msg)
+			{
+				send_to_char("Туда можно только влететь.\r\n", ch);
+			}
+			return (FALSE);
+		}
 		// move points needed is avg. move loss for src and destination sect type
 		ch_inroom = real_sector(ch->in_room);
 		ch_toroom = real_sector(EXIT(ch, dir)->to_room);
@@ -679,21 +689,41 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			strcpy(buf1, "сбежал$g");
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN))
 			strcpy(buf1, "убежал$g");
-		else if (AFF_FLAGGED(ch, AFF_FLY) || (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY)))
+		else if ((!use_horse && AFF_FLAGGED(ch, AFF_FLY))
+			|| (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY)))
+		{
 			strcpy(buf1, "улетел$g");
-		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVESWIM) &&
-				 (real_sector(was_in) == SECT_WATER_SWIM ||
-				  real_sector(was_in) == SECT_WATER_NOSWIM || real_sector(was_in) == SECT_UNDERWATER))
+		}
+		else if (IS_NPC(ch)
+			&& NPC_FLAGGED(ch, NPC_MOVESWIM)
+			&& (real_sector(was_in) == SECT_WATER_SWIM
+				|| real_sector(was_in) == SECT_WATER_NOSWIM
+				|| real_sector(was_in) == SECT_UNDERWATER))
+		{
 			strcpy(buf1, "уплыл$g");
+		}
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEJUMP))
 			strcpy(buf1, "ускакал$g");
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVECREEP))
 			strcpy(buf1, "уполз$q");
-		else if (real_sector(was_in) == SECT_WATER_SWIM ||
-				 real_sector(was_in) == SECT_WATER_NOSWIM || real_sector(was_in) == SECT_UNDERWATER)
+		else if (real_sector(was_in) == SECT_WATER_SWIM
+			|| real_sector(was_in) == SECT_WATER_NOSWIM
+			|| real_sector(was_in) == SECT_UNDERWATER)
+		{
 			strcpy(buf1, "уплыл$g");
+		}
 		else if (use_horse)
-			strcpy(buf1, "уехал$g");
+		{
+			CHAR_DATA *horse = get_horse(ch);
+			if (horse && AFF_FLAGGED(horse, AFF_FLY))
+			{
+				strcpy(buf1, "улетел$g");
+			}
+			else
+			{
+				strcpy(buf1, "уехал$g");
+			}
+		}
 		else
 			strcpy(buf1, "уш$y");
 
@@ -738,22 +768,41 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	{
 		if (IsFlee || (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN)))
 			strcpy(buf1, "прибежал$g");
-		else if (AFF_FLAGGED(ch, AFF_FLY)
-				 || (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY)))
+		else if ((!use_horse && AFF_FLAGGED(ch, AFF_FLY))
+			|| (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY)))
+		{
 			strcpy(buf1, "прилетел$g");
-		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVESWIM) &&
-				 (real_sector(go_to) == SECT_WATER_SWIM ||
-				  real_sector(go_to) == SECT_WATER_NOSWIM || real_sector(go_to) == SECT_UNDERWATER))
+		}
+		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVESWIM)
+			&& (real_sector(go_to) == SECT_WATER_SWIM
+				|| real_sector(go_to) == SECT_WATER_NOSWIM
+				|| real_sector(go_to) == SECT_UNDERWATER))
+		{
 			strcpy(buf1, "приплыл$g");
+		}
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEJUMP))
 			strcpy(buf1, "прискакал$g");
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVECREEP))
 			strcpy(buf1, "приполз$q");
-		else if (real_sector(go_to) == SECT_WATER_SWIM ||
-				 real_sector(go_to) == SECT_WATER_NOSWIM || real_sector(go_to) == SECT_UNDERWATER)
+		else if (real_sector(go_to) == SECT_WATER_SWIM
+			|| real_sector(go_to) == SECT_WATER_NOSWIM
+			|| real_sector(go_to) == SECT_UNDERWATER)
+		{
 			strcpy(buf1, "приплыл$g");
+		}
 		else if (use_horse)
-			strcpy(buf1, "приехал$g");
+		{
+			CHAR_DATA *horse = get_horse(ch);
+			if (horse && AFF_FLAGGED(horse, AFF_FLY))
+			{
+				strcpy(buf1, "прилетел$g");
+			}
+			else
+			{
+				strcpy(buf1, "приехал$g");
+			}
+
+		}
 		else
 			strcpy(buf1, "приш$y");
 
@@ -1796,8 +1845,6 @@ ACMD(do_horseon)
 			affect_from_char(ch, SPELL_SNEAK);
 		if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 			affect_from_char(ch, SPELL_CAMOUFLAGE);
-		if (affected_by_spell(ch, SPELL_FLY))
-			affect_from_char(ch, SPELL_FLY);
 		act("Вы взобрались на спину $N1.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n вскочил$g на $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 		SET_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
