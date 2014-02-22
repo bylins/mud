@@ -29,6 +29,7 @@ extern CHAR_DATA *get_player_of_name(const char *name);
 extern int get_buf_line(char **source, char *target);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
+extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 
 namespace Parcel
 {
@@ -165,7 +166,7 @@ int total_sended(CHAR_DATA *ch)
 }
 
 // * Проверка возможности отправить шмотку почтой.
-bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj)
+bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 {
 	if (IS_OBJ_STAT(obj, ITEM_NODROP)
 			|| IS_OBJ_STAT(obj, ITEM_NORENT)
@@ -198,6 +199,28 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj)
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	}
+	Player t_vict;
+	if (load_char(GetNameByUnique(vict_uid).c_str(), &t_vict) < 0)
+		return 0;
+	if (invalid_anti_class(&t_vict, obj))
+	{
+			switch (GET_SEX(&t_vict))
+			{
+				case SEX_MALE:
+			act("$n сказал$g вам : 'Знаю я такого добра молодца - эта вещь явно на него не налезет.'\r\n",
+				FALSE, mailman, 0, ch, TO_VICT);
+			break;
+			case SEX_FEMALE:
+			
+			act("$n сказал$g вам : 'Знаю я такую красну девицу - эта вещь явно на нее не налезет.'\r\n",
+				FALSE, mailman, 0, ch, TO_VICT);
+			break;
+			default:
+			act("$n сказал$g вам : 'Знаю я сие чудо бесполое - эта вещь явно на него не налезет.'\r\n",
+				FALSE, mailman, 0, ch, TO_VICT);
+		}
+		return 0;
+	}
 	return 1;
 }
 
@@ -211,7 +234,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 		return;
 	}
 
-	if (!can_send(ch, mailman, obj)) return;
+	if (!can_send(ch, mailman, obj, vict_uid)) return;
 
 	const int reserved_cost = get_object_low_rent(obj) * RESERVED_COST_COEFF;
 	const int total_cost = reserved_cost + SEND_COST;
