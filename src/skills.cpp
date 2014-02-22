@@ -589,7 +589,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_ADDSHOT:
 		percent = skill_is;
 		if (equip_in_metall(ch))
-			percent -= 20;
+			percent -= 5;
 		pass_mod = 1;
 		break;
 	case SKILL_NOPARRYHIT:
