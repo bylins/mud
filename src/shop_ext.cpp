@@ -524,7 +524,13 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 			item_name.erase(0, ++dot_idx);
 			if (is_number(first_param.c_str()))
 			{
-				num = boost::lexical_cast<int>(first_param);
+				try
+				{
+					num = boost::lexical_cast<int>(first_param);
+				} catch(boost::bad_lexical_cast const& e)
+				{
+					return 0;
+				}
 			}
 		}
 	}
@@ -799,7 +805,13 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		if (is_number(buffer1.c_str()))
 		{
 			// buy 5
-			item_num = boost::lexical_cast<unsigned>(buffer1);
+			try
+			{
+				item_num = boost::lexical_cast<unsigned>(buffer1);
+			} catch(boost::bad_lexical_cast const& e)
+			{
+				item_num = 0;
+			}
 		}
 		else
 		{
@@ -812,14 +824,26 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		if (is_number(buffer2.c_str()))
 		{
 			// buy 5 10
-			item_num = boost::lexical_cast<unsigned>(buffer2);
+			try
+			{
+				item_num = boost::lexical_cast<unsigned>(buffer2);
+			} catch(boost::bad_lexical_cast const& e)
+			{
+				item_num = 0;
+			}
 		}
 		else
 		{
 			// buy 5 sword
 			item_num = get_item_num(shop, buffer2, GET_MOB_VNUM(keeper));
 		}
-		item_count = boost::lexical_cast<unsigned>(buffer1);
+		try
+		{
+			item_count = boost::lexical_cast<unsigned>(buffer1);
+		} catch(boost::bad_lexical_cast const& e)
+		{
+			item_count = 1000;
+		}
 	}
 	else
 	{
@@ -830,6 +854,12 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	if (!item_count || !item_num || (unsigned)item_num > (*shop)->item_list.size())
 	{
 		tell_to_char(keeper, ch, "Протри глаза, у меня нет такой вещи.");
+		return;
+	}
+
+	if (item_count >= 1000)
+	{
+		tell_to_char(keeper, ch, "А морда не треснет?");
 		return;
 	}
 
@@ -1204,7 +1234,13 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	{
 		if (is_number(buffer1.c_str()))
 		{
-			int n = boost::lexical_cast<int>(buffer1);
+			int n = 0;
+		try
+		{
+			n = boost::lexical_cast<int>(buffer1);
+		} catch(boost::bad_lexical_cast const& e)
+		{
+		}
 
 			obj = get_obj_in_list_vis(ch, buffer, ch->carrying);
 
@@ -1291,7 +1327,12 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 	if (is_number(buffer.c_str()))
 	{
 		// характеристики 5
-		item_num = boost::lexical_cast<unsigned>(buffer);
+		try
+		{
+			item_num = boost::lexical_cast<unsigned>(buffer);
+		} catch(boost::bad_lexical_cast const& e)
+		{
+		}
 	}
 	else
 	{
