@@ -1617,7 +1617,7 @@ void npc_dropunuse(CHAR_DATA * ch)
 		nobj = obj->next_content;
 		if (item_nouse(obj))
 		{
-			act("$n выбросил$g $o3.", FALSE, ch, obj, 0, FALSE);
+			act("$n выбросил$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_from_char(obj);
 			obj_to_room(obj, IN_ROOM(ch));
 		}
@@ -2273,10 +2273,12 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 			victim->remove_gold(gold);
 		}
 		// Steal something from equipment
-		if (calculate_skill(ch, SKILL_STEAL, 100, victim) >= number(1, 100) - (AWAKE(victim) ? 100 : 0))
+		if (IS_CARRYING_N(ch) < CAN_CARRY_N(ch) && calculate_skill(ch, SKILL_STEAL, 100, victim)
+			>= number(1, 100) - (AWAKE(victim) ? 100 : 0))
 		{
 			for (obj = victim->carrying; obj; obj = obj->next_content)
-				if (CAN_SEE_OBJ(ch, obj) && (!best || GET_OBJ_COST(obj) > GET_OBJ_COST(best)))
+				if (CAN_SEE_OBJ(ch, obj) && IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)
+					<= CAN_CARRY_W(ch) && (!best || GET_OBJ_COST(obj) > GET_OBJ_COST(best)))
 					best = obj;
 			if (best)
 			{
