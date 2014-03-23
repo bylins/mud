@@ -1892,6 +1892,16 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		ndice = 5;
 		sdice = 6;
 		adice = level;
+		if (GET_POS(victim) > POS_SITTING &&
+				!WAITLESS(victim) && (number(1, 999)  > GET_AR(victim) * 10) &&
+				(!general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30))))
+		{
+			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
+			GET_POS(victim) = POS_SITTING;
+			update_pos(victim);
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+		}
 		break;
 
 	case SPELL_EARTHFALL:
