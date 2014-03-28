@@ -52,19 +52,24 @@
 
 Этот вариант более мутный, зато приближенный к реалиям на сервере.
 
-1. Качаем и запускаем [http://www.cygwin.com/setup.exe][2].
+1. Качаем и запускаем [http://cygwin.com/setup-x86.exe][2] (32) или [http://cygwin.com/setup-x86_64.exe][5] (64).
 
 2. Добираемся до списка доступных пакетов, переключаем справа вверху кнопку View на Full и отмечаем следующие пакеты (слева вверху есть поле поиска по названию):
-	* gcc4-core
-	* gcc4-g++
+	* binutils
+	* crypt
+	* gcc-core
+	* gcc-g++
 	* libboost-devel
-	* libboost 1.48
-	* libboost_python 1.48
 	* make
 	* mercurial
-	* python
 	* zlib
 	* zlib-devel
+
+     Если в конце сборки выдает что-то такое:
+     .../ld: cannot find -ladvapi32
+     .../ld: cannot find -lshell32 и т.д., то ставим еще:
+	* win32api-headers
+	* win32api-runtime
 
      Плюс все, что там было отмечено по умолчанию, отметилось при выборе этих пакетов и рекомендует выбрать после, качаем, ставим.
 
@@ -243,6 +248,7 @@
 - - -
 
 [1]: http://www.mud.ru/?coder
-[2]: http://www.cygwin.com/setup.exe
+[2]: http://cygwin.com/setup-x86.exe
 [3]: https://bitbucket.org.
 [4]: https://bitbucket.org/bylins/mud/fork
+[5]: http://cygwin.com/setup-x86_64.exe
