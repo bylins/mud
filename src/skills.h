@@ -102,8 +102,18 @@
 #define SKILL_TURN_UNDEAD           179
 #define SKILL_IRON_WIND             180
 #define SKILL_STRANGLE              181
+//Магические скиллы
+#define SKILL_AIR_MAGIC				182
+#define SKILL_FIRE_MAGIC			183
+#define SKILL_WATER_MAGIC			184
+#define SKILL_EARTH_MAGIC			185
+#define SKILL_LIGHT_MAGIC			186
+#define SKILL_DARK_MAGIC			187
+#define SKILL_MIND_MAGIC			188
+#define SKILL_LIFE_MAGIC			189
+
 // не забываем указывать максимальный номер скилла
-#define MAX_SKILL_NUM               181
+#define MAX_SKILL_NUM               189
 
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add = "");
 

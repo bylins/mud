@@ -414,4 +414,49 @@
         <name text="железный ветер" />
         <max_percent val="150" />
     </skill>
+	<skill id="SKILL_STRANGLE">
+	    <number val="181" />
+        <name text="удавить" />
+        <max_percent val="200" />
+    </skill>
+	<skill id="SKILL_AIR_MAGIC">
+	    <number val="182" />
+        <name text="магия воздуха" />
+        <max_percent val="200" />
+    </skill>
+	<skill id="SKILL_FIRE_MAGIC">
+	    <number val="183" />
+        <name text="магия огня" />
+        <max_percent val="200" />
+    </skill>
+	<skill id="SKILL_WATER_MAGIC">
+	    <number val="184" />
+        <name text="магия воды" />
+        <max_percent val="200" />
+    </skill>
+	<skill id="SKILL_EARTH_MAGIC">
+	    <number val="185" />
+        <name text="магия земли" />
+        <max_percent val="200" />
+    </skill>
+	<skill id="SKILL_LIGHT_MAGIC">
+	    <number val="186" />
+        <name text="магия света" />
+        <max_percent val="200" />
+    </skill>
+	<skill id="SKILL_DARK_MAGIC">
+	    <number val="187" />
+        <name text="магия тьмы" />
+        <max_percent val="200" />
+    </skill>
+	<skill id="SKILL_MIND_MAGIC">
+	    <number val="188" />
+        <name text="магия разума" />
+        <max_percent val="200" />
+    </skill>
+	<skill id="SKILL_LIFE_MAGIC">
+	    <number val="189" />
+        <name text="магия жизни" />
+        <max_percent val="200" />
+    </skill>
 </skills>

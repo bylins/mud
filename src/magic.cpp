@@ -1469,6 +1469,27 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
  * -1 = dead, otherwise the amount of damage done.
  */
 
+//функция увеличивает урон спеллов с учетом скилла соответствующей магии и параметра "мудрость"
+int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int dam)
+{
+	int skill=0, skill_number;
+	float koeff;
+
+	skill_number = get_magic_skill_number_by_spell(spellnum);
+	if (skill_number > 0)
+	{
+		skill = ch->get_skill(skill_number);
+	}
+
+	koeff = 1.0+skill/20.0;
+	if (GET_REAL_WIS(ch) >= 23)
+	{
+		dam += dam * ((GET_REAL_WIS(ch) - 22) * koeff) / 100;
+	}
+
+	return (dam);
+}
+
 int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
 {
 	int dam = 0, rand = 0, count = 1, modi = 0, ndice = 0, sdice = 0, adice = 0, no_savings = FALSE;
@@ -2022,10 +2043,12 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 
 		// по +5% дамага за каждую мудрость от 23 и выше
-		if (GET_REAL_WIS(ch) >= 23)
+		/*if (GET_REAL_WIS(ch) >= 23)
 		{
 			dam += dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100;
-		}
+		}*/
+		//вместо старого учета мудры добавлена обработка с учетом скиллов
+		dam = magic_skill_damage_calc(ch, victim, spellnum, dam);
 
 		if (AFF_FLAGGED(ch, AFF_DATURA_POISON))
 			dam -= dam * GET_POISON(ch) / 100;

@@ -588,6 +588,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
+int get_magic_skill_number_by_spell(int spellnum);
 
 //Polud статистика использования заклинаний
 typedef std::map<int, int> SpellCountType;

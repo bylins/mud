@@ -2941,7 +2941,7 @@ ACMD(do_cast)
 	ROOM_DATA *troom;
 
 	char *s, *t;
-	int i, spellnum, spell_subst, target = 0;
+	int i, spellnum, skillnum, spell_subst, target = 0;
 
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
 		return;
@@ -3062,6 +3062,12 @@ ACMD(do_cast)
 	// You throws the dice and you takes your chances.. 101% is total failure
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->set_cast(0, 0, 0, 0, 0);
+
+	skillnum = get_magic_skill_number_by_spell(spellnum);
+	if (skillnum > 0)
+	{
+		train_skill(ch, skillnum, skill_info[skillnum].max_percent, tch);
+	}
 
 	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum))
 	{
@@ -5179,6 +5185,14 @@ void mag_assign_spells(void)
 	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 100);
 	skillo(SKILL_IRON_WIND, "железный ветер", 150);
 	skillo(SKILL_STRANGLE, "удавить", 200);
+	skillo(SKILL_AIR_MAGIC, "магия воздуха", 200);
+	skillo(SKILL_FIRE_MAGIC, "магия огня", 200);
+	skillo(SKILL_WATER_MAGIC, "магия воды", 200);
+	skillo(SKILL_EARTH_MAGIC, "магия земли", 200);
+	skillo(SKILL_LIGHT_MAGIC, "магия света", 200);
+	skillo(SKILL_DARK_MAGIC, "магия тьмы", 200);
+	skillo(SKILL_MIND_MAGIC, "магия разума", 200);
+	skillo(SKILL_LIFE_MAGIC, "магия жизни", 200);
 
 }
 

@@ -59,6 +59,7 @@ extern im_type *imtypes;
 extern int top_imtypes;
 //end by WorM
 
+int get_magic_skill_number_by_spell(int spellnum);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
 void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
@@ -79,6 +80,41 @@ void pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim);
 
 int what_sky = SKY_CLOUDLESS;
 // * Special spells appear below.
+
+int get_magic_skill_number_by_spell(int spellnum)
+{
+	switch (spell_info[spellnum].spell_class)
+	{
+	case STYPE_AIR:
+		return SKILL_AIR_MAGIC;
+		break;
+	case STYPE_FIRE:
+		return SKILL_FIRE_MAGIC;
+		break;
+	case STYPE_WATER:
+		return SKILL_WATER_MAGIC;
+		break;
+	case STYPE_EARTH:
+		return SKILL_EARTH_MAGIC;
+		break;
+	case STYPE_LIGHT:
+		return SKILL_LIGHT_MAGIC;
+		break;
+	case STYPE_DARK:
+		return SKILL_DARK_MAGIC;
+		break;
+	case STYPE_MIND:
+		return SKILL_MIND_MAGIC;
+		break;
+	case STYPE_LIFE:
+		return SKILL_LIFE_MAGIC;
+		break;
+	case STYPE_NEUTRAL:
+	default:
+		return 0;
+	}
+}
+
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool can_get_spell(CHAR_DATA *ch, int spellnum)
