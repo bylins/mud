@@ -752,7 +752,8 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 					|| af[i].bitvector == AFF_STOPRIGHT
 					|| af[i].bitvector == AFF_STOPLEFT))
 			{
-				af[i].duration /= 5 + GET_REMORT(ch)/2;
+				af[i].duration /= 5;
+				af[i].duration += pc_duration(victim, GET_REMORT(ch)/2, 0, 0, 0, 0);
 			}
 			affect_join(victim, af + i, TRUE, FALSE, TRUE, FALSE);
 		}
