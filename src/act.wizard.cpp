@@ -174,8 +174,6 @@ ACMD(do_show);
 ACMD(do_set);
 ACMD(do_liblist);
 ACMD(do_name);
-//Gunner
-ACMD(do_email);
 //
 ACMD(do_godtest);
 
@@ -630,94 +628,6 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 		act(buf2, FALSE, vict, 0, ch, TO_ROOM);
 	};
 	return 1;
-}
-
-ACMD(do_email)
-{
-	CHAR_DATA *victim;
-	char *name = arg;
-	char newpass[] = "1234567890";
-	int i = 0;
-	one_argument(argument, arg);
-	if (!*name)
-	{
-		send_to_char("Формат команды : имя_чара \r\n", ch);
-		return;
-	}
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(LIB_ETC"smtp.xml");
-	if (!result)
-	{
-		send_to_char("Ошибка открытия файла etc/smtp.xml\r\n", ch);
-		return;
-	}
-	pugi::xml_node smtp = doc.child("smtp");
-	if (!smtp)
-	{
-		send_to_char("Ошибка чтения файла etc/smtp.xml. Не удалось получить узел <smtp>\r\n", ch);
-		return;
-	}
-	while (i < (int) strlen(newpass))
-	{
-		int j = number(65, 122);
-		if ((j < 91) || (j > 97))
-		{
-			newpass[i] = (char)(j);
-			i++;
-		}
-	}
-
-	Player t_victim;
-	if ((victim = get_player_vis(ch, name, FIND_CHAR_WORLD)))
-	{
-		send_to_char("[char is online]\r\n", ch);
-		Password::set_password(victim, std::string(newpass));
-	}
-	else
-	{
-		send_to_char("[char is offline]\r\n", ch);
-		if (load_char(name, &t_victim) < 0)
-		{
-			send_to_char("Такого персонажа не существует.\r\n", ch);
-			return;
-		}
-		victim = &t_victim;
-		Password::set_password(victim, std::string(newpass));
-		victim->save_char();
-	}
-
-	std::string s_port = smtp.child("Port").child_value();
-	int port = atoi(s_port.c_str());
-	if (port == 0)
-	{
-		send_to_char("Ошибка чтения узла <Port>.\r\n", ch);
-		return;
-	}
-	std::string server = smtp.child("Server").child_value();
-	std::string login = smtp.child("Login").child_value();
-	std::string pass = smtp.child("Password").child_value();
-	std::string senderName = smtp.child("SenderName").child_value();
-	std::string senderMail = smtp.child("SenderMail").child_value();
-	std::string from = senderName + "<" + senderMail + ">";
-	std::string subject = smtp.child("Subject").child_value();
-	std::string msg = "Здравствуйте!\r\n";
-	msg += "Пароль вашего персонажа в МПМ \"Былины\" был изменен!\r\n";
-	msg += "Персонаж: " + std::string(GET_NAME(victim))+"\r\n";
-	msg += "Новый пароль: " + std::string(newpass);
-	std::string addr_to = std::string(GET_EMAIL(victim));
-
-	if (scripting::send_email(server, s_port, login, pass, from, addr_to, msg, subject))
-	{
-		sprintf(buf, "Персонажу '%s' выслан новый пароль на адрес электронной почты, указанный при регистрации.\r\n",
-			GET_NAME(victim));
-	}
-	else
-	{
-		sprintf(buf, "Пароль персонажа '%s' был ИЗМЕНЕН, но при отправке почты возникла ошибка!\r\n",
-			GET_NAME(victim));
-	}
-	send_to_char(buf, ch);
-
 }
 
 ACMD(do_echo)

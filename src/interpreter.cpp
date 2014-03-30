@@ -181,7 +181,6 @@ ACMD(do_fire);
 ACMD(do_drop);
 ACMD(do_eat);
 ACMD(do_echo);
-ACMD(do_email);
 ACMD(do_enter);
 ACMD(do_manadrain);
 ACMD(do_equipment);
@@ -637,7 +636,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"передать", POS_STANDING, do_givehorse, 0, 0, -1},
 	{"перевести", POS_STANDING, do_not_here, 1, 0, -1},
 	{"переместиться", POS_STANDING, do_relocate, 1, 0, 0},
-	{"послать", POS_DEAD, do_email, LVL_IMPL, 0, 0},
 	{"перевоплотитьс", POS_STANDING, do_remort, 0, 0, -1},
 	{"перевоплотиться", POS_STANDING, do_remort, 0, 1, -1},
 	{"перелить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
@@ -818,7 +816,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"devour", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
 	{"echo", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, 0},
 	{"emote", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
-	{"email", POS_DEAD, do_email, LVL_IMPL, 0, 0},
 	{"enter", POS_STANDING, do_enter, 0, 0, -2},
 	{"equipment", POS_SLEEPING, do_equipment, 0, 0, 0},
 	{"examine", POS_RESTING, do_examine, 0, 0, 500},

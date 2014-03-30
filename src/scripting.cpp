@@ -1875,26 +1875,6 @@ ACMD(do_console)
 }
 
 
-bool scripting::send_email(std::string smtp_server, std::string smtp_port, std::string smtp_login, 
-					std::string smtp_pass, std::string addr_from, std::string addr_to, 
-						std::string msg_text, std::string subject)
-{
-	try
-	{
-		object main_module = import("__main__");
-		object mn = main_module.attr("__dict__");
-		exec_file("scripts/send_email.py", mn);
-		object run = mn["send_email"];
-		run(smtp_server, smtp_port, smtp_login, smtp_pass, addr_from, addr_to, msg_text, subject);
-
-	} catch(error_already_set const &)
-	{
-		log(parse_python_exception().c_str());
-		return false;
-	}
-	return true;
-}
-
 template <class t, class nextfunc, class getfunc, class result_t>
 result_t CIterator<t, nextfunc, getfunc, result_t>::next()
 {
