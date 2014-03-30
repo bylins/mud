@@ -26,6 +26,7 @@ using namespace scripting;
 namespace
 {
 	std::list<object> objs_to_call_in_main_thread;
+	object events;
 }
 
 std::string parse_python_exception();
@@ -1734,6 +1735,7 @@ void scripting::init()
 	//object main_namespace = main_module.attr("__dict__");
 	import("console");
 	import("pluginhandler").attr("initialize")();
+	events = import("events");
 	} catch(error_already_set const &)
 	{
 		log(parse_python_exception().c_str());
@@ -1821,6 +1823,36 @@ void scripting::heartbeat()
 		objs_to_call_in_main_thread.erase(cur);
 	}
 }
+
+void publish_event(const char* event_name, dict kwargs)
+{
+	try
+	{
+		events.attr("publish")(*make_tuple(event_name), **kwargs);
+		} catch(error_already_set const &)
+		{
+			mudlog((std::string("Error executing Python event ") + event_name + std::string(": " + parse_python_exception())).c_str(), CMP, LVL_IMMORT, ERRLOG, true);
+	}
+}
+
+void scripting::on_pc_dead(CHAR_DATA* ch, CHAR_DATA* killer, OBJ_DATA* corpse)
+{
+	dict kwargs;
+	kwargs["ch"] = CharacterWrapper(ch);
+	kwargs["killer"] = CharacterWrapper(killer);
+	kwargs["corpse"] = corpse ? object(ObjWrapper(corpse)) : object();
+	publish_event(EVENT_PC_DEAD, kwargs);
+}
+
+void scripting::on_npc_dead(CHAR_DATA* ch, CHAR_DATA* killer, OBJ_DATA* corpse)
+{
+	dict kwargs;
+	kwargs["ch"] = CharacterWrapper(ch);
+	kwargs["killer"] = CharacterWrapper(killer);
+	kwargs["corpse"] = corpse ? object(ObjWrapper(corpse)) : object();
+	publish_event(EVENT_NPC_DEAD, kwargs);
+}
+
 
 class scripting::Console_impl
 {

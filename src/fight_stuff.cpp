@@ -20,6 +20,7 @@
 #include "screen.h"
 #include "magic.h"
 #include "mob_stat.hpp"
+#include "scripting.hpp"
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -500,6 +501,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		RENTABLE(ch) = 0;
 		AGRESSOR(ch) = 0;
 		AGRO(ch) = 0;
+		scripting::on_pc_dead(ch, killer, corpse);
 	}
 	else
 	{
@@ -515,6 +517,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		}
 		dl_load_obj(corpse, ch, NULL, DL_ORDINARY);
 		dl_load_obj(corpse, ch, NULL, DL_PROGRESSION);
+		scripting::on_npc_dead(ch, killer, corpse);
 	}
 
 	// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,

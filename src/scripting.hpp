@@ -15,6 +15,8 @@ void init();
 void terminate();
 bool execute_player_command(CHAR_DATA* ch, const char* command, const char* args);
 void heartbeat();
+void on_pc_dead(CHAR_DATA* ch, CHAR_DATA* killer, OBJ_DATA* corpse);
+void on_npc_dead(CHAR_DATA* ch, CHAR_DATA* killer, OBJ_DATA* corpse);
 class Console_impl;
 
 class Console
@@ -30,6 +32,14 @@ class Console
 		std::auto_ptr<Console_impl> _impl;
 };
 
+/* engine events:
+
+	pc_dead: ch, killer, corpse
+	npc_dead: ch, killer, corpse
+*/
+
+#define EVENT_PC_DEAD "pc_dead"
+#define EVENT_NPC_DEAD "npc_dead"
 }
 
 #endif
