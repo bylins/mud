@@ -1733,7 +1733,7 @@ void scripting::init()
 	//object main_module = import("__main__");
 	//object main_namespace = main_module.attr("__dict__");
 	import("console");
-	import("smtplib");
+	import("pluginhandler").attr("initialize")();
 	} catch(error_already_set const &)
 	{
 		log(parse_python_exception().c_str());
@@ -1745,6 +1745,13 @@ void scripting::init()
 
 void scripting::terminate()
 {
+	try
+	{
+	import("pluginhandler").attr("terminate")();
+	} catch(error_already_set const &)
+	{
+		log(parse_python_exception().c_str());
+	}
 	Py_Finalize();
 }
 
@@ -1809,7 +1816,7 @@ void scripting::heartbeat()
 				} catch(error_already_set const &)
 		{
 			std::string err = "Error in callable submitted to call_later: " + parse_python_exception();
-			mudlog(err.c_str(), BRF, LVL_BUILDER, ERRLOG, TRUE);
+			mudlog(err.c_str(), DEF, LVL_BUILDER, ERRLOG, TRUE);
 		}
 		objs_to_call_in_main_thread.erase(cur);
 	}
