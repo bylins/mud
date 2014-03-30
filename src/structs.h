@@ -745,6 +745,7 @@ enum
 #define CON_TORC_EXCH    52 // обмен гривен
 #define CON_MENU_STATS   53 // оплата сброса стартовых статов из главного меню
 #define CON_SEDIT        54 // sedit - редактирование сетов
+#define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //

@@ -39,7 +39,8 @@ std::array<price_node, Type::TOTAL_NUM> reset_prices =
 {{
 	{ 100000000, 1000000, 1000000000, "main stats" },
 	{ 110000000, 1100000, 1100000000, "race" },
-	{ 120000000, 1200000, 1200000000, "feats" }
+	{ 120000000, 1200000, 1200000000, "feats" },
+	{ 400000, 200000, 1000000, "religion" }
 }};
 
 ///
@@ -85,6 +86,8 @@ void init()
 
 	cur_node = Parse::get_child(main_node, "feats");
 	parse_prices(cur_node, Type::FEATS);
+	cur_node = Parse::get_child(main_node, "religion");
+	parse_prices(cur_node, Type::RELIGION);
 }
 
 ///
@@ -118,6 +121,9 @@ void reset_stats(CHAR_DATA *ch, Type type)
 		ch->real_abils.Feats.reset();
 		set_natural_feats(ch);
 		break;
+	case Type::RELIGION:
+		ch->player_data.Religion = 99;
+		break;
 	default:
 		mudlog("SYSERROR: reset_stats() switch", NRM, LVL_IMMORT, SYSLOG, TRUE);
 		return;
@@ -135,18 +141,21 @@ void print_menu(DESCRIPTOR_DATA *d)
 	const int stats_price = calc_price(d->character, Type::MAIN_STATS);
 	const int race_price = calc_price(d->character, Type::RACE);
 	const int feats_price = calc_price(d->character, Type::FEATS);
+	const int religion_price = calc_price(d->character, Type::RELIGION);
 
 	std::string str = boost::str(boost::format(
 		"%sВ случае потери связи процедуру можно будет продолжить при следующем входе в игру.%s\r\n\r\n"
 		"1) оплатить %d %s и начать перераспределение стартовых характеристик.\r\n"
 		"2) оплатить %d %s и перейти к выбору рода.\r\n"
 		"3) оплатить %d %s и сбросить способности (кроме врожденных).\r\n"
-		"4) отменить и вернуться в главное меню\r\n"
+		"4) оплатить %d %s и перейти к выбору вероисповедания.\r\n"
+		"5) отменить и вернуться в главное меню\r\n"
 		"\r\nВаш выбор:")
 		% CCIGRN(d->character, C_SPR) % CCNRM(d->character, C_SPR)
 		% stats_price % desc_count(stats_price, WHAT_MONEYa)
 		% race_price % desc_count(race_price, WHAT_MONEYa)
-		% feats_price % desc_count(feats_price, WHAT_MONEYa));
+		% feats_price % desc_count(feats_price, WHAT_MONEYa)
+		% religion_price % desc_count(religion_price, WHAT_MONEYa));
 	SEND_TO_Q(str.c_str(), d);
 }
 
@@ -169,7 +178,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 		char buf_[MAX_INPUT_LENGTH];
 		reset_stats(ch, type);
 
-		if ((type == Type::MAIN_STATS || type == Type::RACE)
+		if ((type == Type::MAIN_STATS || type == Type::RACE || type == Type::RELIGION)
 			&& ValidateStats(d))
 		{
 			// если мы попали сюда, значит чара не вывело на переброс статов
@@ -235,6 +244,10 @@ void parse_menu(DESCRIPTOR_DATA *d, const char *arg)
 			break;
 		case 3:
 			process(d, Type::FEATS);
+			result = true;
+			break;
+		case 4:
+			process(d, Type::RELIGION);
 			result = true;
 			break;
 		}

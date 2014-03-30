@@ -2409,6 +2409,14 @@ bool ValidateStats(DESCRIPTOR_DATA * d)
         STATE(d) = CON_RESET_RACE;
         return false;
     }
+    // не корректный номер религии
+    if (GET_RELIGION(d->character) > RELIGION_MONO)
+    {
+        SEND_TO_Q(religion_menu, d);
+        SEND_TO_Q("\n\rРелигия :", d);
+        STATE(d) = CON_RESET_RELIGION;
+        return false;
+    }
    return true;
 }
 
@@ -3644,6 +3652,49 @@ Sventovit
 
 	case CON_MENU_STATS:
 		ResetStats::parse_menu(d, arg);
+		break;
+
+	case CON_RESET_RELIGION:
+		if (pre_help(d->character, arg))
+		{
+			SEND_TO_Q(religion_menu, d);
+			SEND_TO_Q("\n\rРелигия :", d);
+			return;
+		}
+
+		switch (UPPER(*arg))
+		{
+		case 'Я':
+		case 'З':
+		case 'P':
+			if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_MONO)
+			{
+				SEND_TO_Q
+				("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
+				 "Так каким Богам вы хотите служить? ", d);
+				return;
+			}
+			GET_RELIGION(d->character) = RELIGION_POLY;
+			break;
+		case 'Х':
+		case 'C':
+			if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_POLY)
+			{
+				SEND_TO_Q
+				("Персонажу выбранной вами профессии противно христианство!\r\n"
+				 "Так каким Богам вы хотите служить? ", d);
+				return;
+			}
+			GET_RELIGION(d->character) = RELIGION_MONO;
+			break;
+		default:
+			SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
+			return;
+		}
+		if (!ValidateStats(d))
+			return;
+		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+		STATE(d) = CON_RMOTD;
 		break;
 
 	default:

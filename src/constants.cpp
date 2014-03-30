@@ -626,6 +626,7 @@ const char *connected_types[] = { "В игре",
 								  "обмен гривен",
 								  "меню сброса статов",
 								  "sedit",
+								  "select new religion",
 								  "\n"
 								};
 

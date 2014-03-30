@@ -19,6 +19,7 @@ enum Type : int
 	MAIN_STATS,
 	RACE,
 	FEATS,
+	RELIGION,
 	TOTAL_NUM
 };
 
