@@ -23,6 +23,11 @@ using namespace boost::python;
 namespace py=boost::python;
 using namespace scripting;
 
+namespace
+{
+	std::list<object> objs_to_call_in_main_thread;
+}
+
 std::string parse_python_exception();
 void register_global_command(const string& command, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent);
 void unregister_global_command(const string& command);
@@ -231,7 +236,7 @@ const long get_exp() const
 void set_exp(const long v)
 {
 	Ensurer ch(*this);
-	gain_exp(ch, v-ch->get_exp(), 0);
+	gain_exp(ch, v-ch->get_exp());
 }
 
 const long get_gold() const
@@ -652,6 +657,18 @@ string quested_print() const
 	Ensurer ch(*this);
 	return ch->quested_print();
 }
+
+const unsigned get_wait() const
+{
+	Ensurer ch(*this);
+	return ch->wait;
+}
+
+void set_wait(const unsigned v)
+{
+	Ensurer ch(*this);
+	ch->wait = v;
+}
 };
 
 CharacterWrapper create_mob_from_proto(mob_rnum proto_rnum, bool is_virtual=true)
@@ -717,7 +734,7 @@ string get_bitvector_str(const affect_data& af)
 	return buf;
 }
 
-typedef boost::array<obj_affected_type, MAX_OBJ_AFFECT> affected_t;
+typedef std::array<obj_affected_type, MAX_OBJ_AFFECT> affected_t;
 
 template<class T, int N>
 struct _arrayN
@@ -916,35 +933,35 @@ void set_weight(const unsigned v)
 unsigned get_cost() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.cost;
+	return obj->get_cost();
 }
 
 void set_cost(const unsigned v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.cost = v;
+	obj->set_cost(v);
 }
 unsigned get_cost_per_day_on() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.cost_per_day_on;
+	return obj->get_rent_eq();
 }
 
 void set_cost_per_day_on(const unsigned v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.cost_per_day_on = v;
+	obj->set_rent_eq(v);
 }
 unsigned get_cost_per_day_off() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.cost_per_day_off;
+	return obj->get_rent();
 }
 
 void set_cost_per_day_off(const unsigned v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.cost_per_day_off = v;
+	obj->set_rent(v);
 }
 int get_sex() const
 {
@@ -1202,12 +1219,11 @@ void flag_toggle(flag_data& flag, const unsigned f)
 	TOGGLE_BIT(GET_FLAG(flag, f), f);
 }
 
-extern void tascii(int *pointer, int num_planes, char *ascii);
 str flag_str(const flag_data& flag)
 {
 	char buf[MAX_STRING_LENGTH];
 	*buf='\0';
-	tascii((int*)&flag, 4, buf);
+	tascii(flag.flags, 4, buf);
 	return str(buf);
 }
 
@@ -1236,6 +1252,11 @@ object obj_affected_type_str(const obj_affected_type& affect)
 	make_tuple(buf,
 	negative ? str(" ухудшает на ") : str(" улучшает на "),
 	affect.modifier>=0 ? affect.modifier : -affect.modifier);
+}
+
+void call_later(object callable)
+{
+	objs_to_call_in_main_thread.push_back(callable);
 }
 
 BOOST_PYTHON_MODULE(mud)
@@ -1275,6 +1296,8 @@ BOOST_PYTHON_MODULE(mud)
 	"minimum_level - мин. уровень игрока для выполнения команды\n"
 	"unhide_percent - вероятность разхайдиться");
 	def("unregister_global_command", unregister_global_command, "Отменяет регистрацию игровой команды, реализованной на питоне.");
+	def("call_later", call_later, py::arg("callable"),
+		"Сохраняет переданую функцию для выполнения в в основном цикле сервера позже.");
 	ObjectDoesNotExist = handle<>(PyErr_NewException((char*)"mud.ObjectDoesNotExist", PyExc_RuntimeError, NULL));
 	scope().attr("ObjectDoesNotExist") = ObjectDoesNotExist;
 	class_<CharacterWrapper>("Character", "Игровой персонаж.", no_init)
@@ -1352,6 +1375,7 @@ BOOST_PYTHON_MODULE(mud)
 		.def("quested_remove", &CharacterWrapper::quested_remove, "Удаление информации о квесте.")
 		.def("quested_get", &CharacterWrapper::quested_get_text, "Возвращает строку квестовой информации, сохраненной под заданым номером vnum.")
 		.add_property("quested_text", &CharacterWrapper::quested_print, "Вся информация по квестам в текстовом виде.")
+		.add_property("wait", &CharacterWrapper::get_wait, &CharacterWrapper::set_wait, "Сколько циклов ждать")
 	;
 
 	class_<affected_t>("ObjAffectedArray", "Массив из шести модификаторов объекта.", no_init)
@@ -1691,6 +1715,9 @@ BOOST_PYTHON_MODULE(constants)
 	DEFINE_CONSTANT(POS_SITTING);
 	DEFINE_CONSTANT(POS_FIGHTING);
 	DEFINE_CONSTANT(POS_STANDING);
+
+	DEFINE_CONSTANT(PULSE_VIOLENCE);
+	DEFINE_CONSTANT(PASSES_PER_SEC);
 }
 
 void scripting::init()
@@ -1769,6 +1796,25 @@ std::string parse_python_exception()
 	return ret;
 }
 
+void scripting::heartbeat()
+{
+	// execute callables passed to call_later
+	std::list<object>::iterator i = objs_to_call_in_main_thread.begin();
+	while (i != objs_to_call_in_main_thread.end())
+	{
+		std::list<object>::iterator cur = i++;
+		try
+		{
+			(*cur)();
+				} catch(error_already_set const &)
+		{
+			std::string err = "Error in callable submitted to call_later: " + parse_python_exception();
+			mudlog(err.c_str(), BRF, LVL_BUILDER, ERRLOG, TRUE);
+		}
+		objs_to_call_in_main_thread.erase(cur);
+	}
+}
+
 class scripting::Console_impl
 {
 public:
@@ -1823,7 +1869,7 @@ ACMD(do_console)
 {
 	send_to_char(ch, "Python %s on %s\r\nНаберите \"help\" для помощи, \"exit()\", чтобы выйти.\r\n", Py_GetVersion(), Py_GetPlatform());
 	if (!ch->desc->console)
-		ch->desc->console = boost::shared_ptr<Console>(new Console(ch));
+		ch->desc->console.reset(new Console(ch));
 	//ch->desc->console->print_prompt();
 	STATE(ch->desc) = CON_CONSOLE;
 }

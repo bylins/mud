@@ -55,7 +55,7 @@
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
 #include "named_stuff.hpp"
-//python_off #include "scripting.hpp"
+#include "scripting.hpp"
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "help.hpp"
@@ -181,7 +181,7 @@ ACMD(do_fire);
 ACMD(do_drop);
 ACMD(do_eat);
 ACMD(do_echo);
-//python_off ACMD(do_email);
+ACMD(do_email);
 ACMD(do_enter);
 ACMD(do_manadrain);
 ACMD(do_equipment);
@@ -406,7 +406,7 @@ ACMD(do_bandage);
 ACMD(do_sanitize);
 ACMD(do_morph);
 ACMD(do_morphset);
-//python_off ACMD(do_console);
+ACMD(do_console);
 ACMD(do_shops_list);
 
 /* This is the Master Command List(tm).
@@ -637,7 +637,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"передать", POS_STANDING, do_givehorse, 0, 0, -1},
 	{"перевести", POS_STANDING, do_not_here, 1, 0, -1},
 	{"переместиться", POS_STANDING, do_relocate, 1, 0, 0},
-	//python_off {"послать", POS_DEAD, do_email, LVL_IMPL, 0, 0},
+	{"послать", POS_DEAD, do_email, LVL_IMPL, 0, 0},
 	{"перевоплотитьс", POS_STANDING, do_remort, 0, 0, -1},
 	{"перевоплотиться", POS_STANDING, do_remort, 0, 1, -1},
 	{"перелить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
@@ -818,7 +818,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"devour", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
 	{"echo", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, 0},
 	{"emote", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
-	//python_off {"email", POS_DEAD, do_email, LVL_IMPL, 0, 0},
+	{"email", POS_DEAD, do_email, LVL_IMPL, 0, 0},
 	{"enter", POS_STANDING, do_enter, 0, 0, -2},
 	{"equipment", POS_SLEEPING, do_equipment, 0, 0, 0},
 	{"examine", POS_RESTING, do_examine, 0, 0, 500},
@@ -909,7 +909,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"proxy", POS_DEAD, do_proxy, LVL_GRGOD, 0, 0},
 	{"purge", POS_DEAD, do_purge, LVL_GOD, 0, 0},
 	{"put", POS_RESTING, do_put, 0, 0, 500},
-	//python_off {"python", POS_DEAD, do_console, LVL_GOD, 0, 0},
+	{"python", POS_DEAD, do_console, LVL_GOD, 0, 0},
 	{"quaff", POS_RESTING, do_use, 0, SCMD_QUAFF, 500},
 	{"qui", POS_SLEEPING, do_quit, 0, 0, 0},
 	{"quit", POS_SLEEPING, do_quit, 0, SCMD_QUIT, -1},
@@ -1210,9 +1210,9 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		}
 	}
 
-	//python_off Try scripting
-	//python_off if (scripting::execute_player_command(ch, arg, line))
-		//python_off return;
+	// Try scripting
+	if (scripting::execute_player_command(ch, arg, line))
+		return;
 
 	// otherwise, find the command
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
@@ -2549,9 +2549,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 	}
-	//python_off case CON_CONSOLE:
-		//python_off d->console->push(arg);
-		//python_off break;
+	case CON_CONSOLE:
+		d->console->push(arg);
+		break;
 		//. End of OLC states .
 
 	case CON_GET_KEYTABLE:

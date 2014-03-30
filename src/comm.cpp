@@ -68,7 +68,7 @@
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
 #include "celebrates.hpp"
-//python_off #include "scripting.hpp"
+#include "scripting.hpp"
 #include "shop_ext.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
@@ -558,7 +558,7 @@ void init_game(ush_int port)
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
-	//python_off scripting::init();
+	scripting::init();
 	boot_db();
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
@@ -634,7 +634,7 @@ void init_game(ush_int port)
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
-	//python_off scripting::terminate();
+	scripting::terminate();
 	mob_stat::save();
 	SetsDrop::save_drop_table();
 	mail::save();
@@ -1699,6 +1699,11 @@ inline void heartbeat(const int missed_pulses)
 		//  log("Stop it...");
 	}
 
+	if (!(pulse % scripting::HEARTBEAT_PASSES))
+	{
+		scripting::heartbeat();
+	}
+
 	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC))  	// 1 game secunde
 	{
 		//log("Fractional Crash save all...");
@@ -2000,8 +2005,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		sprintf(prompt, "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).", d->showstr_page, d->showstr_count);
 	else if (d->str)
 		strcpy(prompt, "] ");
-	//python_off else if (STATE(d) == CON_CONSOLE)
-		//python_off strcpy(prompt, d->console->get_prompt().c_str());
+	else if (STATE(d) == CON_CONSOLE)
+		strcpy(prompt, d->console->get_prompt().c_str());
 	else if (STATE(d) == CON_PLAYING && !IS_NPC(d->character))
 	{
 		int count = 0;
@@ -2437,8 +2442,7 @@ int new_descriptor(socket_t s)
 		return (-3);
 	}
 	// create a new descriptor
-	CREATE(newd, DESCRIPTOR_DATA, 1);
-	memset((char *) newd, 0, sizeof(DESCRIPTOR_DATA));
+	NEWCREATE(newd, DESCRIPTOR_DATA);
 
 	// find the sitename
 	if (nameserver_is_slow || !(from = gethostbyaddr((char *) & peer.sin_addr, sizeof(peer.sin_addr), AF_INET)))  	// resolution failed

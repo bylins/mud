@@ -33,9 +33,9 @@ CFLAGS = -std=gnu++0x -m32 -ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOS
 TESTCFLAGS = -std=gnu++0x -m32 -Wall -Wextra -Wno-unused-parameter -ggdb3 -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH $(EXTRA_CFLAGS)
 DEBUGFLAGS = -m32 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 FASTTEST   = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3 $(EPOLL_FLAG) $(EXTRA_CFLAGS)
-#SEARCHPATH = -I /usr/include/python2.6
+SEARCHPATH = -I /usr/include/python2.7
 
-LIBS =  -m32 -lz
+LIBS =  -m32 -lz -lpython2.7 -lboost_python-mt
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
@@ -45,7 +45,6 @@ else
 # there is no -lcrypt on darwin
 LIBS +=  -lcrypt
 endif
-#LIBS =  -lz -lcrypt -lpython2.6 -lboost_python-mt
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	act.offensive.o act.other.o act.social.o act.wizard.o alias.o ban.o \
@@ -65,7 +64,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	shop_ext.o named_stuff.o birth_places.o player_races.o celebrates.o cache.o \
 	sets_drop.o fight_hit.o fight_stuff.o objsave_ext.o dictionary.o help.o \
 	map.o ext_money.o noob.o parse.o reset_stats.o mob_stat.o obj_sets.o \
-	obj_sets_olc.o obj_enchant.o version.o
+	obj_sets_olc.o obj_enchant.o scripting.o version.o
 	
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
@@ -87,7 +86,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	celebrates.cpp birth_places.cpp player_races.cpp morph.cpp cache.cpp \
 	sets_drop.cpp fight_hit.cpp fight_stuff.cpp objsave_ext.cpp dictionary.cpp \
 	help.cpp map.cpp ext_money.cpp noob.cpp parse.cpp reset_stats.cpp \
-	mob_stat.cpp obj_sets.cpp obj_sets_olc.cpp obj_enchant.cpp version.cpp
+	mob_stat.cpp obj_sets.cpp obj_sets_olc.cpp obj_enchant.cpp scripting.cpp version.cpp
 
 default: circle
 
