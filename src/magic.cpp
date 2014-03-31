@@ -1475,6 +1475,16 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 	int skill=0, skill_number;
 	float koeff;
 
+	//тупо костыль, пока всем актуальнгым мобам не воткнум магскиллы - 31/03/2014
+	if ((spellnum == SPELL_FIRE_BREATH) ||
+	(spellnum == SPELL_GAS_BREATH) ||
+	(spellnum == SPELL_FROST_BREATH) ||
+	(spellnum == SPELL_ACID_BREATH))
+	{
+		dam += dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100;
+		return (dam);
+	}
+
 	skill_number = get_magic_skill_number_by_spell(spellnum);
 	if (skill_number > 0)
 	{
@@ -1486,6 +1496,10 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 	{
 		dam += dam * ((GET_REAL_WIS(ch) - 22) * koeff) / 100;
 	}
+
+	//По чару можно дамагнуть максимум вдвое против своих хитов. По мобу - вшестеро.
+	if (!IS_NPC(ch))
+		dam = (IS_NPC(victim) ? MIN(dam, 6*GET_MAX_HIT(ch)) : MIN(dam, 2*GET_MAX_HIT(ch)));
 
 	return (dam);
 }
@@ -2042,13 +2056,6 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			dam += dam;
 		}
 
-		// по +5% дамага за каждую мудрость от 23 и выше
-		/*if (GET_REAL_WIS(ch) >= 23)
-		{
-			dam += dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100;
-		}*/
-		//вместо старого учета мудры добавлена обработка с учетом скиллов
-		dam = magic_skill_damage_calc(ch, victim, spellnum, dam);
 
 		if (AFF_FLAGGED(ch, AFF_DATURA_POISON))
 			dam -= dam * GET_POISON(ch) / 100;
@@ -2064,6 +2071,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			koeff *= 1000;
 			dam = (int)MMAX(1.0, (dam * MMAX(300.0, MMIN(koeff, 2500.0)) / 1000.0));
 		}
+		//вместо старого учета мудры добавлена обработка с учетом скиллов
+		//после коэффициента - так как в самой функции стоит планка по дамагу, пусть и относительная
+		dam = magic_skill_damage_calc(ch, victim, spellnum, dam);
 	}
 	dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spellnum), dam));
 

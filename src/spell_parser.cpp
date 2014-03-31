@@ -2717,7 +2717,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 
 int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * troom, int spellnum, int spell_subst)
 {
-	int ignore;
+	int ignore, skillnum;
 	CHAR_DATA *ch_vict;
 
 	if (spellnum < 0 || spellnum > TOP_SPELL_DEFINE)
@@ -2861,6 +2861,12 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			send_to_char(buf, ch);
 		}
 	}
+	//тренируем магические компетенции
+	skillnum = get_magic_skill_number_by_spell(spellnum);
+	if (skillnum > 0)
+	{
+		train_skill(ch, skillnum, skill_info[skillnum].max_percent, tch);
+	}
 	// Комнату тут в say_spell не обрабатываем - будет сказал "что-то"
 	say_spell(ch, spellnum, tch, tobj);
 	if (GET_SPELL_MEM(ch, spell_subst) > 0)
@@ -2941,7 +2947,7 @@ ACMD(do_cast)
 	ROOM_DATA *troom;
 
 	char *s, *t;
-	int i, spellnum, skillnum, spell_subst, target = 0;
+	int i, spellnum, spell_subst, target = 0;
 
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
 		return;
@@ -3062,12 +3068,6 @@ ACMD(do_cast)
 	// You throws the dice and you takes your chances.. 101% is total failure
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->set_cast(0, 0, 0, 0, 0);
-
-	skillnum = get_magic_skill_number_by_spell(spellnum);
-	if (skillnum > 0)
-	{
-		train_skill(ch, skillnum, skill_info[skillnum].max_percent, tch);
-	}
 
 	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum))
 	{
@@ -4605,7 +4605,7 @@ void mag_assign_spells(void)
 	spello(SPELL_IMPLOSION, "гнев богов", "implosion",
 		   140, 120, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-		   15, STYPE_WATER);
+		   15, STYPE_FIRE);
 //69
 	spello(SPELL_WEAKNESS, "слабость", "weakness",
 		   70, 55, 1, POS_FIGHTING,

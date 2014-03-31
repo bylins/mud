@@ -33,9 +33,9 @@ CFLAGS = -std=gnu++0x -m32 -ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOS
 TESTCFLAGS = -std=gnu++0x -m32 -Wall -Wextra -Wno-unused-parameter -ggdb3 -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH $(EXTRA_CFLAGS)
 DEBUGFLAGS = -m32 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 FASTTEST   = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3 $(EPOLL_FLAG) $(EXTRA_CFLAGS)
-SEARCHPATH = -I /usr/include/python2.7
+SEARCHPATH = -I /usr/include/python2.6
 
-LIBS =  -m32 -lz -lpython2.7 -lboost_python-mt
+LIBS =  -m32 -lz -lpython2.6 -lboost_python-mt
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
