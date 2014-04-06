@@ -3536,6 +3536,10 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	case CON_MEDIT:
 	case CON_TRIGEDIT:
 		cleanup_olc(d, CLEANUP_ALL);
+		break;
+	case CON_CONSOLE:
+		d->console.reset();
+		break;
 	default:
 		break;
 	}
@@ -3563,7 +3567,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			|| STATE(d) == CON_NAMED_STUFF
 			|| STATE(d) == CON_MAP_MENU
 			|| STATE(d) == CON_TORC_EXCH
-			|| STATE(d) == CON_SEDIT)
+			|| STATE(d) == CON_SEDIT || STATE(d) == CON_CONSOLE)
 		{
 			STATE(d) = CON_PLAYING;
 		}
