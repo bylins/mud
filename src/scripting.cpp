@@ -27,7 +27,21 @@ namespace
 {
 	std::list<object> objs_to_call_in_main_thread;
 	object events;
+	PyThreadState *_save = NULL;
 }
+
+
+class GILAcquirer
+{
+	PyGILState_STATE _state;
+	public:
+		GILAcquirer():
+			_state(PyGILState_Ensure()) { };
+		~GILAcquirer()
+		{
+			PyGILState_Release(_state);
+		}
+};
 
 std::string parse_python_exception();
 void register_global_command(const string& command, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent);
@@ -1724,6 +1738,7 @@ BOOST_PYTHON_MODULE(constants)
 void scripting::init()
 {
 	Py_InitializeEx(0); //pass 0 to skip initialization registration of signal handlers
+	PyEval_InitThreads();
 	log("Using python version %s", Py_GetVersion());
 	try
 	{
@@ -1743,10 +1758,12 @@ void scripting::init()
 		puts("SYSERR: error initializing Python");
 		exit(1);
 	}
+	Py_UNBLOCK_THREADS
 }
 
 void scripting::terminate()
 {
+	Py_BLOCK_THREADS
 	try
 	{
 	import("pluginhandler").attr("terminate")();
@@ -1807,6 +1824,7 @@ std::string parse_python_exception()
 
 void scripting::heartbeat()
 {
+	GILAcquirer acquire_gil;
 	// execute callables passed to call_later
 	std::list<object>::iterator i = objs_to_call_in_main_thread.begin();
 	while (i != objs_to_call_in_main_thread.end())
@@ -1837,6 +1855,7 @@ void publish_event(const char* event_name, dict kwargs)
 
 void scripting::on_pc_dead(CHAR_DATA* ch, CHAR_DATA* killer, OBJ_DATA* corpse)
 {
+	GILAcquirer acquire_gil;
 	dict kwargs;
 	kwargs["ch"] = CharacterWrapper(ch);
 	kwargs["killer"] = CharacterWrapper(killer);
@@ -1846,6 +1865,7 @@ void scripting::on_pc_dead(CHAR_DATA* ch, CHAR_DATA* killer, OBJ_DATA* corpse)
 
 void scripting::on_npc_dead(CHAR_DATA* ch, CHAR_DATA* killer, OBJ_DATA* corpse)
 {
+	GILAcquirer acquire_gil;
 	dict kwargs;
 	kwargs["ch"] = CharacterWrapper(ch);
 	kwargs["killer"] = CharacterWrapper(killer);
@@ -1862,6 +1882,7 @@ public:
 
 	bool push(const char* line)
 	{
+		GILAcquirer acquire_gil;
 		try
 		{
 			return extract<bool>(console.attr("push")(line))();
@@ -1874,6 +1895,7 @@ public:
 
 	string get_prompt()
 	{
+		GILAcquirer acquire_gil;
 		try
 		{
 			return extract<string>(console.attr("get_prompt")())();
@@ -1906,6 +1928,7 @@ string Console::get_prompt()
 
 ACMD(do_console)
 {
+	GILAcquirer acquire_gil;
 	send_to_char(ch, "Python %s on %s\r\nНаберите \"help\" для помощи, \"exit()\", чтобы выйти.\r\n", Py_GetVersion(), Py_GetPlatform());
 	if (!ch->desc->console)
 		ch->desc->console.reset(new Console(ch));
@@ -2014,5 +2037,6 @@ void unregister_global_command(const string& command)
 // returns true if command is found & dispatched
 bool scripting::execute_player_command(CHAR_DATA* ch, const char* command, const char* args)
 {
+	GILAcquirer acquire_gil;
 	return check_command_on_list(global_commands, ch, command, args);
 }
