@@ -1472,14 +1472,16 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
 //функция увеличивает урон спеллов с учетом скилла соответствующей магии и параметра "мудрость"
 int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int dam)
 {
-	int skill=0, skill_number;
-	float koeff;
+	int skill_number;
+	float koeff, skill = 0.0;
 
 	//тупо костыль, пока всем актуальнгым мобам не воткнум магскиллы - 31/03/2014
-	if ((spellnum == SPELL_FIRE_BREATH) ||
+	/*if ((spellnum == SPELL_FIRE_BREATH) ||
 	(spellnum == SPELL_GAS_BREATH) ||
 	(spellnum == SPELL_FROST_BREATH) ||
-	(spellnum == SPELL_ACID_BREATH))
+	(spellnum == SPELL_ACID_BREATH) ||
+	(spellnum == SPELL_LIGHTNING_BREATH)) */
+	if (IS_NPC(ch))
 	{
 		dam += dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100;
 		return (dam);
@@ -1491,7 +1493,9 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 		skill = ch->get_skill(skill_number);
 	}
 
-	koeff = 1.0+skill/20.0;
+	koeff = 1.00+skill/25.00;
+	//sprintf(buf1, "Magic skill koefficient = %f", koeff);
+	//mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
 	if (GET_REAL_WIS(ch) >= 23)
 	{
 		dam += dam * ((GET_REAL_WIS(ch) - 22) * koeff) / 100;
