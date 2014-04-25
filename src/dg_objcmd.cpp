@@ -593,8 +593,8 @@ OCMD(do_odamage)
 		{
 			if (!IS_NPC(ch))
 			{
-				sprintf(buf2, "%s killed by a trap at %s", GET_NAME(ch),
-						IN_ROOM(ch) == NOWHERE ? "NOWHERE" : world[IN_ROOM(ch)]->name);
+				sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(ch),
+						IN_ROOM(ch) == NOWHERE ? "NOWHERE" : world[IN_ROOM(ch)]->name, GET_ROOM_VNUM(IN_ROOM(ch)));
 				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			die(ch, NULL);

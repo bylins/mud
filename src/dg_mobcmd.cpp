@@ -1851,9 +1851,9 @@ ACMD(do_mdamage)
 		{
 			if (!IS_NPC(victim))
 			{
-				sprintf(buf2, "%s killed by mobdamage at %s",
+				sprintf(buf2, "%s killed by mobdamage at %s [%d]",
 						GET_NAME(victim),
-						IN_ROOM(victim) == NOWHERE ? "NOWHERE" : world[IN_ROOM(victim)]->name);
+						IN_ROOM(victim) == NOWHERE ? "NOWHERE" : world[IN_ROOM(victim)]->name, GET_ROOM_VNUM(IN_ROOM(victim)));
 				mudlog(buf2, BRF, 0, SYSLOG, TRUE);
 			}
 			die(victim, ch);
