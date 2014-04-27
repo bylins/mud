@@ -2140,8 +2140,8 @@ int count_alias_records(FILE * fl)
 
 	// No, they are not evil. -gg 6/24/98
 ackeof:
-	log("SYSERR: Unexpected end of help file.");
-	exit(1);		// Some day we hope to handle these things better...
+	mudlog("SYSERR: Unexpected end of help file.", DEF, LVL_IMMORT, SYSLOG, TRUE);
+	return (total_keywords);
 }
 
 // function to count how many hash-mark delimited records exist in a file
@@ -4263,8 +4263,10 @@ void get_one_line(FILE * fl, char *buf)
 {
 	if (fgets(buf, READ_SIZE, fl) == NULL)
 	{
-		log("SYSERR: error reading help file: not terminated with $?");
-		exit(1);
+		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, LVL_IMMORT, SYSLOG, TRUE);
+		buf[0] = '$';
+		buf[1] = 0;
+		return;
 	}
 	buf[strlen(buf) - 1] = '\0';	// take off the trailing \n
 }
