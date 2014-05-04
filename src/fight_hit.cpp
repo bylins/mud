@@ -1491,8 +1491,8 @@ void HitData::check_weap_feats(CHAR_DATA *ch)
 	case SKILL_BOWS:
 		if (HAVE_FEAT(ch, BOWS_FOCUS_FEAT))
 		{
-			calc_thaco -= 2;
-			dam += 2;
+			calc_thaco -= 7;
+			dam += 4;
 		}
 		break;
 	}

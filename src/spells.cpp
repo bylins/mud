@@ -1034,7 +1034,7 @@ ASPELL(spell_charm)
 		act("$M сейчас, похоже, не до вас.", FALSE, ch, 0, victim, TO_CHAR);
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
-	else if (!IS_IMMORTAL(ch) && general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 3))
+	else if (!IS_IMMORTAL(ch) && general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 3 + GET_REMORT(ch) * 2))
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else
 	{
@@ -1064,7 +1064,7 @@ ASPELL(spell_charm)
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch))
 			af.duration = pc_duration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
 		else
-			af.duration = pc_duration(victim, GET_REAL_CHA(ch) + number(1, 10), 0, 0, 0, 0);
+			af.duration = pc_duration(victim, GET_REAL_CHA(ch) + number(1, 10) + GET_REMORT(ch) * 2, 0, 0, 0, 0);
 		af.modifier = 0;
 		af.location = 0;
 		af.bitvector = AFF_CHARM;
