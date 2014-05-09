@@ -2148,7 +2148,7 @@ void Clan::hcontrol_exphistory(CHAR_DATA *ch, std::string &text)
 
 void Clan::hcontrol_set_ingr_chest(CHAR_DATA *ch, std::string &text)
 {
-	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (!PRF_FLAGGED(ch, PRF_CODERINFO)|| !IS_IMPL(ch))
 	{
 		send_to_char(HCONTROL_FORMAT, ch);
 		return;
