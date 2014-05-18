@@ -69,6 +69,8 @@ void pulse_affect_update(CHAR_DATA * ch);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict);
 extern bool is_room_forbidden(ROOM_DATA*room);
+void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset);
+int remove_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 
 // local functions
 void mobile_activity(int activity_level, int missed_pulses);
@@ -647,6 +649,79 @@ bool allow_enter(ROOM_DATA *room, CHAR_DATA *ch)
 	return true;
 }
 
+namespace {
+
+OBJ_DATA* create_charmice_box()
+{
+	OBJ_DATA *obj = create_obj();
+	obj->aliases = str_dup("узелок вещами");
+	obj->short_description = str_dup("узелок с вещами");
+	obj->description = str_dup("Туго набитый узел лежит тут.");
+	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
+	obj->ex_description->keyword = str_dup("узелок вещами");
+	obj->ex_description->description = str_dup("Кто-то сильно торопился, когда набивал этот узелок.");
+	obj->ex_description->next = 0;
+	obj->PNames[0] = str_dup("узелок");
+	obj->PNames[1] = str_dup("узелка");
+	obj->PNames[2] = str_dup("узелку");
+	obj->PNames[3] = str_dup("узелок");
+	obj->PNames[4] = str_dup("узелком");
+	obj->PNames[5] = str_dup("узелке");
+	GET_OBJ_SEX(obj) = SEX_MALE;
+	GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
+	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
+	GET_OBJ_WEIGHT(obj) = 1;
+	obj->set_cost(1);
+	obj->set_rent(1);
+	obj->set_rent_eq(1);
+	obj->set_timer(24 * 60);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODECAY), ITEM_NODECAY);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
+	return obj;
+}
+
+void extract_charmice(CHAR_DATA* ch)
+{
+	OBJ_DATA* charmice_box = create_charmice_box();
+	bool box_empty = true;
+
+	for (int i = 0; i < NUM_WEARS; ++i)
+	{
+		if (GET_EQ(ch, i))
+		{
+			OBJ_DATA* obj = unequip_char(ch, i);
+			if (obj)
+			{
+				remove_otrigger(obj, ch);
+				if (!obj->purged())
+				{
+					obj_to_obj(obj, charmice_box);
+					box_empty = false;
+				}
+			}
+		}
+	}
+
+	while (ch->carrying)
+	{
+		OBJ_DATA *obj = ch->carrying;
+		obj_from_char(obj);
+		obj_to_obj(obj, charmice_box);
+		box_empty = false;
+	}
+
+	if (!box_empty)
+	{
+		drop_obj_on_zreset(ch, charmice_box, 1, false);
+	}
+
+	extract_char(ch, FALSE);
+}
+
+}
+
 void mobile_activity(int activity_level, int missed_pulses)
 {
 	CHAR_DATA *ch, *next_ch, *vict, *first, *victim;
@@ -739,7 +814,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 				EXTRACT_TIMER(ch)--;
 				if (!EXTRACT_TIMER(ch))
 				{
-					extract_char(ch, FALSE);
+					extract_charmice(ch);
 					continue;
 				}
 			}
