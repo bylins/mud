@@ -651,14 +651,15 @@ bool allow_enter(ROOM_DATA *room, CHAR_DATA *ch)
 
 namespace {
 
-OBJ_DATA* create_charmice_box()
+OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 {
 	OBJ_DATA *obj = create_obj();
 	obj->aliases = str_dup("узелок вещами");
-	obj->short_description = str_dup("узелок с вещами");
+	const std::string descr = std::string("узелок с вещами ") + std::string(ch->get_pad(1));
+	obj->short_description = str_dup(descr.c_str());
 	obj->description = str_dup("Туго набитый узел лежит тут.");
 	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
-	obj->ex_description->keyword = str_dup("узелок вещами");
+	obj->ex_description->keyword = str_dup(descr.c_str());
 	obj->ex_description->description = str_dup("Кто-то сильно торопился, когда набивал этот узелок.");
 	obj->ex_description->next = 0;
 	obj->PNames[0] = str_dup("узелок");
@@ -676,6 +677,7 @@ OBJ_DATA* create_charmice_box()
 	obj->set_rent_eq(1);
 	obj->set_timer(24 * 60);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOLOCATE), ITEM_NOLOCATE);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODECAY), ITEM_NODECAY);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
@@ -684,9 +686,7 @@ OBJ_DATA* create_charmice_box()
 
 void extract_charmice(CHAR_DATA* ch)
 {
-	OBJ_DATA* charmice_box = create_charmice_box();
-	bool box_empty = true;
-
+	std::vector<OBJ_DATA*> objects;
 	for (int i = 0; i < NUM_WEARS; ++i)
 	{
 		if (GET_EQ(ch, i))
@@ -697,8 +697,7 @@ void extract_charmice(CHAR_DATA* ch)
 				remove_otrigger(obj, ch);
 				if (!obj->purged())
 				{
-					obj_to_obj(obj, charmice_box);
-					box_empty = false;
+					objects.push_back(obj);
 				}
 			}
 		}
@@ -708,12 +707,15 @@ void extract_charmice(CHAR_DATA* ch)
 	{
 		OBJ_DATA *obj = ch->carrying;
 		obj_from_char(obj);
-		obj_to_obj(obj, charmice_box);
-		box_empty = false;
+		objects.push_back(obj);
 	}
 
-	if (!box_empty)
+	if (!objects.empty())
 	{
+		OBJ_DATA* charmice_box = create_charmice_box(ch);
+		for (auto obj : objects) {
+			obj_to_obj(obj, charmice_box);
+		}
 		drop_obj_on_zreset(ch, charmice_box, 1, false);
 	}
 
