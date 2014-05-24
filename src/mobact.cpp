@@ -713,8 +713,8 @@ void extract_charmice(CHAR_DATA* ch)
 	if (!objects.empty())
 	{
 		OBJ_DATA* charmice_box = create_charmice_box(ch);
-		for (auto obj : objects) {
-			obj_to_obj(obj, charmice_box);
+		for (std::vector<OBJ_DATA*>::iterator it = objects.begin(); it != objects.end(); ++it) {
+			obj_to_obj(*it, charmice_box);
 		}
 		drop_obj_on_zreset(ch, charmice_box, 1, false);
 	}
