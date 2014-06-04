@@ -1661,8 +1661,14 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			send_to_char("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
 		else {
 			sprintf(buf, "Качество ингредиента ");
-			if (i > 25)
+			if (i > 40)
+				strcat(buf, "божественное\r\n");
+			else if (i > 35)
+				strcat(buf, "идеальное.\r\n");
+			else if (i > 30)
 				strcat(buf, "наилучшее.\r\n");
+			else if (i > 25)
+				strcat(buf, "превосходное.\r\n");
 			else if (i > 20)
 				strcat(buf, "отличное.\r\n");
 			else if (i > 15)
