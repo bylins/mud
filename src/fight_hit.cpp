@@ -751,9 +751,10 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				&& (af[i].bitvector == AFF_STOPFIGHT
 					|| af[i].bitvector == AFF_STOPRIGHT
 					|| af[i].bitvector == AFF_STOPLEFT))
-			{
+			{       
 				af[i].duration /= 5;
-				af[i].duration += pc_duration(victim, GET_REMORT(ch)/2, 0, 0, 0, 0);
+// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
+				af[i].duration += pc_duration(victim, GET_REMORT(ch)/2+  GET_EQ(ch, WEAR_BOTHS) ?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) / 5 : 0 +  GET_EQ(ch, WEAR_WIELD) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD)) / 5 : 0, 0, 0, 0, 0);
 			}
 			affect_join(victim, af + i, TRUE, FALSE, TRUE, FALSE);
 		}
