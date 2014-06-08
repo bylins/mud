@@ -403,28 +403,12 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	IS_CARRYING_N(ch) = 0;
 	IS_CARRYING_W(ch) = 0;
 
-//Polud привязываем загрузку ингров к расе (типу) моба
-
+	//Polud привязываем загрузку ингров к расе (типу) моба
 	if (IS_NPC(ch) && GET_RACE(ch)>NPC_RACE_BASIC && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE))
 	{
-		MobRaceListType::iterator it = mobraces_list.find(GET_RACE(ch));
-		if (it != mobraces_list.end())
-		{
-			int *ingr_to_load_list, j;
-			int num_inrgs = it->second->ingrlist.size();
-			CREATE(ingr_to_load_list, int, num_inrgs * 2 + 1);
-			for (j=0; j < num_inrgs; j++)
-			{
-				ingr_to_load_list[2*j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
-				ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob.at(GET_LEVEL(ch)-1);
-				ingr_to_load_list[2*j+1] |= (GET_LEVEL(ch) << 16);
-			}
-			ingr_to_load_list[2*j] = -1;
-			im_make_corpse(corpse, ingr_to_load_list, 1000);
-		}
-		else
-			if (mob_proto[GET_MOB_RNUM(ch)].ing_list)
-				im_make_corpse(corpse, mob_proto[GET_MOB_RNUM(ch)].ing_list, 100);
+		OBJ_DATA* ingr = try_make_ingr(ch, 1000, 100);
+		if (ingr)
+			obj_to_obj(ingr, corpse);
 	}
 
 	// Загружаю шмотки по листу. - перемещено в raw_kill
