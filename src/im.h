@@ -112,7 +112,7 @@ void im_parse(int **ing_list, char *line);
 //MZ.load
 void im_reset_room(ROOM_DATA * room, int level, int type);
 //-MZ.load
-void im_make_corpse(OBJ_DATA * corpse, int *ing_list, int max_prob);
+OBJ_DATA* try_make_ingr(CHAR_DATA* mob, int prob_default, int prob_special);
 int im_assign_power(OBJ_DATA * obj);
 int im_get_recipe(int id);
 int im_get_type_by_name(char *name, int mode);

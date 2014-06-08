@@ -12,30 +12,31 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
-#include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "spells.h"
-#include "skills.h"
-#include "constants.h"
-#include "dg_scripts.h"
-#include "house.h"
-#include "magic.h"
-#include "fight.h"
-#include "features.hpp"
-#include "depot.hpp"
 #include "char.hpp"
+#include "comm.h"
+#include "conf.h"
+#include "constants.h"
+#include "db.h"
+#include "depot.hpp"
+#include "dg_scripts.h"
+#include "features.hpp"
+#include "fight.h"
+#include "handler.h"
+#include "house.h"
+#include "im.h"
+#include "interpreter.h"
 #include "liquid.hpp"
-#include "poison.hpp"
-#include "pk.h"
-#include "room.hpp"
+#include "magic.h"
 #include "named_stuff.hpp"
 #include "objsave.h"
+#include "pk.h"
+#include "poison.hpp"
+#include "room.hpp"
+#include "skills.h"
+#include "spells.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "utils.h"
 
 // extern variables
 extern vector < OBJ_DATA * >obj_proto;
@@ -2826,12 +2827,9 @@ const int meet_vnum[] = { 320, 321, 322, 323 };
 
 ACMD(do_makefood)
 {
-	OBJ_DATA *obj, *tobj, *skin;
+	OBJ_DATA *obj, *tobj;
 	CHAR_DATA *mob;
 	int prob, percent = 0, mobn, wgt = 0;
-
-//	send_to_char("Временно не доступно.\r\n",ch);
-//	return;
 
 	if (!ch->get_skill(SKILL_MAKEFOOD))
 	{
@@ -2878,31 +2876,31 @@ ACMD(do_makefood)
 	}
 	else
 	{
-		//sprintf (buf, "$n умело вырезал$g %s из $o1.", tobj->PNames[3]);
 		act("$n умело освежевал$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-		//sprintf (buf, "Вы умело вырезали %s из $o1.", tobj->PNames[3]);
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
 
 		dl_load_obj(obj, mob, ch, DL_SKIN);
+
+		std::vector<OBJ_DATA*> entrails;
+		entrails.push_back(tobj);
 		if (number(1, ch->get_skill(SKILL_MAKEFOOD)) + number(1, GET_REAL_DEX(ch)) >= prob)
 		{
-			skin = create_skin(mob, ch);
-			if (skin != NULL)
+			entrails.push_back(create_skin(mob, ch));
+		}
+		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2, 100));
+
+		for (std::vector<OBJ_DATA*>::iterator it = entrails.begin(); it != entrails.end(); ++it)
+		{
+			if (*it)
 			{
 				if (obj->carried_by == ch)
-					can_carry_obj(ch, skin);
+					can_carry_obj(ch, *it);
 				else
-					obj_to_room(skin, IN_ROOM(ch));
+					obj_to_room(*it, IN_ROOM(ch));
 			}
 		}
-		if (obj->carried_by == ch)
-			can_carry_obj(ch, tobj);
-		else
-			obj_to_room(tobj, IN_ROOM(ch));
-
-//  obj_decay(tobj);
 	}
-//Зачем-то труп выкидывался в комнату перед уничтожением.
+    // Зачем-то труп выкидывался в комнату перед уничтожением.
 	if (obj->carried_by)
 	{
 		obj_from_char(obj);

@@ -1086,28 +1086,48 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 	-MZ*/
 }
 //-MZ.load
-// Создание трупа
-// Загрузить ингредиенты в труп
-void im_make_corpse(OBJ_DATA * corpse, int *ing_list, int max_prob)
-{
-	OBJ_DATA *o;
-	int indx;
 
-	for (indx = 0; ing_list[indx] != -1; indx += 2)
+extern MobRaceListType mobraces_list;
+
+OBJ_DATA* try_make_ingr(int *ing_list, int vnum, int max_prob)
+{
+	for (int indx = 0; ing_list[indx] != -1; indx += 2)
 	{
 		int power;
 		if (number(1, max_prob) >= (ing_list[indx + 1] & 0xFFFF))
 			continue;
-		// Загрузить ингредиент в труп
 		power = (ing_list[indx + 1] >> 16) & 0xFFFF;
 		if (power == 0xFFFF)
 			power = im_calc_power();
-		o = load_ingredient(ing_list[indx], power, GET_OBJ_VAL(corpse, 2));
-		if (o)
-			obj_to_obj(o, corpse);
+		return load_ingredient(ing_list[indx], power, vnum);
 	}
+	return NULL;
 }
 
+OBJ_DATA* try_make_ingr(CHAR_DATA* mob, int prob_default, int prob_special)
+{
+	MobRaceListType::iterator it = mobraces_list.find(GET_RACE(mob));
+	const int vnum = GET_MOB_VNUM(mob);
+	if (it != mobraces_list.end())
+	{
+		int num_inrgs = it->second->ingrlist.size();
+		int* ingr_to_load_list = NULL;
+		CREATE(ingr_to_load_list, int, num_inrgs * 2 + 1);
+		int j = 0;
+		for (; j < num_inrgs; j++)
+		{
+			ingr_to_load_list[2*j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
+			ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob.at(GET_LEVEL(mob)-1);
+			ingr_to_load_list[2*j+1] |= (GET_LEVEL(mob) << 16);
+		}
+		ingr_to_load_list[2*j] = -1;
+		return try_make_ingr(ingr_to_load_list, vnum, prob_default);
+	}
+	else if (mob_proto[GET_MOB_RNUM(mob)].ing_list)
+	{
+		return try_make_ingr(mob_proto[GET_MOB_RNUM(mob)].ing_list, vnum, prob_special);
+	}
+}
 
 void list_recipes(CHAR_DATA * ch, bool all_recipes)
 {
