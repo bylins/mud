@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include "corpse.hpp"
+#include "constants.h"
 #include "db.h"
 #include "utils.h"
 #include "char.hpp"
@@ -424,7 +425,10 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	}
 	else
 	{
-		obj_to_room(corpse, IN_ROOM(ch));
+		room_rnum corpse_room = IN_ROOM(ch);
+		if (corpse_room == STRANGE_ROOM && ch->get_was_in_room() != NOWHERE)
+			corpse_room = ch->get_was_in_room();
+		obj_to_room(corpse, corpse_room);
 		return corpse;
 	}
 }
