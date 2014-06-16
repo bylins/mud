@@ -1691,7 +1691,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 			exthit(ch, GET_AF_BATTLE(ch, EAF_STUPOR) ? SKILL_STUPOR : GET_AF_BATTLE(ch, EAF_MIGHTHIT) ? SKILL_MIGHTHIT : TYPE_UNDEFINED, RIGHT_WEAPON);
 		}
 // двуруч при скиллкапе 160 и перке любимоедвуруч дает допатаку 20%
-		if (GET_EQ(ch,WEAR_BOTHS)&& can_use_feat(ch, BOTHHANDS_FOCUS_FEAT))
+		if (GET_EQ(ch,WEAR_BOTHS)&& can_use_feat(ch, BOTHHANDS_FOCUS_FEAT) && (GET_OBJ_SKILL(GET_EQ(ch,WEAR_BOTHS)) == SKILL_BOTHHANDS))
 		{
 			if (ch->get_skill(SKILL_BOTHHANDS) > (number(1,800)))
 				exthit(ch,  TYPE_UNDEFINED, RIGHT_WEAPON);
