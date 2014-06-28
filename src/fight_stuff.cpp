@@ -459,6 +459,7 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
 		&& ch->master
 		&& affected_by_spell(ch, SPELL_CAPABLE))
 	{
+		affect_from_char(ch, SPELL_CAPABLE);
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
 			FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		int pos = GET_POS(ch);
