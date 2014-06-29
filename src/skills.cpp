@@ -795,13 +795,23 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
 			morale -= 3;
 
-		// если мораль отрицательная, увеличивается вероятность, что умение не пройдет
-		if ((skill_is = number(0, 99)) >= 95 + morale)
+		const int prob = number(0, 999);
+		int morale_bonus = morale;
+		if (morale < 0) {
+			morale_bonus = morale * 10;
+		}
+		const int bonus_limit = MIN(500, morale * 10);
+		const int fail_limit = MIN(990, 950 + morale_bonus * 4 / 5);
+		// Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
+		// игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
+		// все решают спас-броски.
+		if (prob >= fail_limit) {
 			percent = 0;
-		else if (skill_is <= MIN(50, morale))
+		} else if (prob < bonus_limit) {
 			percent = skill_info[skill_no].max_percent;
-		else if (vict && general_savingthrow(ch, vict, victim_sav, victim_modi))
+		} else if (vict && general_savingthrow(ch, vict, victim_sav, victim_modi)) {
 			percent = 0;
+		}
 	}
 
 	// иммские флаги и прокла влияют на все
