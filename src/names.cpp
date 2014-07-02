@@ -426,6 +426,9 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		send_to_char("Имя одобрено!\r\n", ch);
 		send_to_char(vict, "&GВаше имя одобрено %s %s!&n\r\n", print_god_or_player(god_level), GET_NAME(ch));
 		agree_name(vict, GET_NAME(ch), god_level);
+		sprintf(buf,  "%s одобрил имя игрока %s.", GET_NAME(ch), GET_NAME(vict));
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+
 	}
 	else
 	{
@@ -434,6 +437,9 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		send_to_char("Имя запрещено!\r\n", ch);
 		send_to_char(vict, "&RВаше имя запрещено %s %s!&n\r\n", print_god_or_player(god_level), GET_NAME(ch));
 		disagree_name(vict, GET_NAME(ch), god_level);
+		sprintf(buf,  "%s запретил имя игрока %s.", GET_NAME(ch), GET_NAME(vict));
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+
 	}
 
 }
