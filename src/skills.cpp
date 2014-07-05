@@ -796,15 +796,18 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			morale -= 3;
 
 		const int prob = number(0, 999);
+
 		int morale_bonus = morale;
 		if (morale < 0) {
 			morale_bonus = morale * 10;
 		}
 		const int bonus_limit = MIN(500, morale * 10);
-		const int fail_limit = MIN(990, 950 + morale_bonus * 4 / 5);
+		int fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
 		// Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
 		// игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
 		// все решают спас-броски.
+		if (morale >= 50) 
+			fail_limit = 999;
 		if (prob >= fail_limit) {
 			percent = 0;
 		} else if (prob < bonus_limit) {
