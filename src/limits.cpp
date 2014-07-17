@@ -774,6 +774,7 @@ void beat_points_update(int pulse)
 
 		if (!IS_MANA_CASTER(i) && MEMQUEUE_EMPTY(i))
 		{
+			GET_MEM_TOTAL(i) = 0;
 			GET_MEM_COMPLETED(i) = 0;
 		}
 
