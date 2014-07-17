@@ -1662,7 +1662,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		else {
 			sprintf(buf, "Качество ингредиента ");
 			if (i > 40)
-				strcat(buf, "божественное\r\n");
+				strcat(buf, "божественное.\r\n");
 			else if (i > 35)
 				strcat(buf, "идеальное.\r\n");
 			else if (i > 30)
