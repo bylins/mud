@@ -1177,13 +1177,13 @@ const long MAX_MONEY_KEPT = 1000000000;
 // *********************************************************************
 
 
-typedef signed char
+typedef int8_t
 sbyte;
-typedef unsigned char
+typedef uint8_t
 ubyte;
-typedef short int
+typedef int16_t
 sh_int;
-typedef short int
+typedef uint16_t
 ush_int;
 #if !defined(__cplusplus)	// Anyone know a portable method?
 typedef char
