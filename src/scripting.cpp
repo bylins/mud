@@ -218,7 +218,7 @@ void set_description(const char* v)
 	ch->set_description(v);
 }
 
-const short get_class() const
+short get_class() const
 {
 	Ensurer ch(*this);
 	return ch->get_class();
@@ -230,7 +230,7 @@ void set_class(const short v)
 	ch->set_class(v);
 }
 
-const short get_level() const
+short get_level() const
 {
 	Ensurer ch(*this);
 	return ch->get_level();
@@ -242,7 +242,7 @@ void set_level(const short v)
 	ch->set_level(v);
 }
 
-const long get_exp() const
+long get_exp() const
 {
 	Ensurer ch(*this);
 	return ch->get_exp();
@@ -254,7 +254,7 @@ void set_exp(const long v)
 	gain_exp(ch, v-ch->get_exp());
 }
 
-const long get_gold() const
+long get_gold() const
 {
 	Ensurer ch(*this);
 	return ch->get_gold();
@@ -266,7 +266,7 @@ void set_gold(const long v)
 	ch->set_gold(v);
 }
 
-const long get_bank() const
+long get_bank() const
 {
 	Ensurer ch(*this);
 	return ch->get_bank();
@@ -278,7 +278,7 @@ void set_bank(const long v)
 	ch->set_bank(v);
 }
 
-const int get_str() const
+int get_str() const
 {
 	Ensurer ch(*this);
 	return ch->get_str();
@@ -290,7 +290,7 @@ void set_str(const int v)
 	ch->set_str(v);
 }
 
-const int get_dex() const
+int get_dex() const
 {
 	Ensurer ch(*this);
 	return ch->get_dex();
@@ -302,7 +302,7 @@ void set_dex(const int v)
 	ch->set_dex(v);
 }
 
-const int get_con() const
+int get_con() const
 {
 	Ensurer ch(*this);
 	return ch->get_con();
@@ -314,7 +314,7 @@ void set_con(const int v)
 	ch->set_con(v);
 }
 
-const int get_wis() const
+int get_wis() const
 {
 	Ensurer ch(*this);
 	return ch->get_wis();
@@ -326,7 +326,7 @@ void set_wis(const int v)
 	ch->set_wis(v);
 }
 
-const int get_int() const
+int get_int() const
 {
 	Ensurer ch(*this);
 	return ch->get_int();
@@ -338,7 +338,7 @@ void set_int(const int v)
 	ch->set_int(v);
 }
 
-const int get_cha() const
+int get_cha() const
 {
 	Ensurer ch(*this);
 	return ch->get_cha();
@@ -350,7 +350,7 @@ void set_cha(const int v)
 	ch->set_cha(v);
 }
 
-const byte get_sex() const
+byte get_sex() const
 {
 	Ensurer ch(*this);
 	return ch->get_sex();
@@ -362,7 +362,7 @@ void set_sex(const byte v)
 	ch->set_sex(v);
 }
 
-const ubyte get_weight() const
+ubyte get_weight() const
 {
 	Ensurer ch(*this);
 	return ch->get_weight();
@@ -374,7 +374,7 @@ void set_weight(const ubyte v)
 	ch->set_weight(v);
 }
 
-const ubyte get_height() const
+ubyte get_height() const
 {
 	Ensurer ch(*this);
 	return ch->get_height();
@@ -386,7 +386,7 @@ void set_height(const ubyte v)
 	ch->set_height(v);
 }
 
-const ubyte get_religion() const
+ubyte get_religion() const
 {
 	Ensurer ch(*this);
 	return ch->get_religion();
@@ -398,7 +398,7 @@ void set_religion(const ubyte v)
 	ch->set_religion(v);
 }
 
-const ubyte get_kin() const
+ubyte get_kin() const
 {
 	Ensurer ch(*this);
 	return ch->get_kin();
@@ -410,7 +410,7 @@ void set_kin(const ubyte v)
 	ch->set_kin(v);
 }
 
-const ubyte get_race() const
+ubyte get_race() const
 {
 	Ensurer ch(*this);
 	return ch->get_race();
@@ -422,7 +422,7 @@ void set_race(const ubyte v)
 	ch->set_race(v);
 }
 
-const int get_hit() const
+int get_hit() const
 {
 	Ensurer ch(*this);
 	return ch->get_hit();
@@ -434,7 +434,7 @@ void set_hit(const int v)
 	ch->set_hit(v);
 }
 
-const int get_max_hit() const
+int get_max_hit() const
 {
 	Ensurer ch(*this);
 	return ch->get_max_hit();
@@ -446,7 +446,7 @@ void set_max_hit(const int v)
 	ch->set_max_hit(v);
 }
 
-const sh_int get_move() const
+sh_int get_move() const
 {
 	Ensurer ch(*this);
 	return ch->get_move();
@@ -458,7 +458,7 @@ void set_move(const sh_int v)
 	ch->set_move(v);
 }
 
-const sh_int get_max_move() const
+sh_int get_max_move() const
 {
 	Ensurer ch(*this);
 	return ch->get_max_move();
@@ -512,19 +512,19 @@ void add_bank(const long num, const bool log=true)
 	ch->add_bank(num, log);
 }
 
-const long get_total_gold() const
+long get_total_gold() const
 {
 	Ensurer ch(*this);
 	return ch->get_total_gold();
 	}
 
-const int get_uid() const
+int get_uid() const
 {
 	Ensurer ch(*this);
 	return ch->get_uid();
 }
 
-const short get_remort() const
+short get_remort() const
 {
 	Ensurer ch(*this);
 	return ch->get_remort();
@@ -673,7 +673,7 @@ string quested_print() const
 	return ch->quested_print();
 }
 
-const unsigned get_wait() const
+unsigned get_wait() const
 {
 	Ensurer ch(*this);
 	return ch->wait;
@@ -1753,7 +1753,7 @@ void scripting::init()
 	events = import("events");
 	} catch(error_already_set const &)
 	{
-		log(parse_python_exception().c_str());
+		log("%s",parse_python_exception().c_str());
 		//Лучше не дать маду запуститься с зафейлившим питоном, чем потом обрабатывать это состояние везде по коду
 		puts("SYSERR: error initializing Python");
 		exit(1);
@@ -1769,7 +1769,7 @@ void scripting::terminate()
 	import("pluginhandler").attr("terminate")();
 	} catch(error_already_set const &)
 	{
-		log(parse_python_exception().c_str());
+		log("%s",parse_python_exception().c_str());
 	}
 	Py_Finalize();
 }
@@ -1888,7 +1888,7 @@ public:
 			return extract<bool>(console.attr("push")(line))();
 		} catch(error_already_set const &)
 		{
-			log(parse_python_exception().c_str());
+			log("%s",parse_python_exception().c_str());
 			return false;
 		}
 	}
@@ -1901,7 +1901,7 @@ public:
 			return extract<string>(console.attr("get_prompt")())();
 		} catch(error_already_set const &)
 		{
-			log(parse_python_exception().c_str());
+			log("%s",parse_python_exception().c_str());
 			return string();
 		}
 	}

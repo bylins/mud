@@ -2284,7 +2284,7 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
 	ClanPkLog::check(ch, victim);
 	sprintf(buf2, "%s killed by %s at %s", GET_NAME(victim), GET_NAME(ch),
 		IN_ROOM(victim) != NOWHERE ? world[IN_ROOM(victim)]->name : "NOWHERE");
-	log(buf2);
+	log("%s",buf2);
 
 	if ((!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		&& (RENTABLE(victim) && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)))
