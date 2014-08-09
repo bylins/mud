@@ -122,7 +122,7 @@ void reset_stats(CHAR_DATA *ch, Type type)
 		set_natural_feats(ch);
 		break;
 	case Type::RELIGION:
-		ch->player_data.Religion = 99;
+		ch->player_data.Religion = 2; //RELIGION_MONO + 1
 		break;
 	default:
 		mudlog("SYSERROR: reset_stats() switch", NRM, LVL_IMMORT, SYSLOG, TRUE);
