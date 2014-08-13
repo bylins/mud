@@ -1041,7 +1041,7 @@ void underwater_check(void)
 
 			if (dmg.process(d->character, d->character) < 0)
 			{
-				log(buf);
+				log("%s",buf);
 			}
 		}
 	}
@@ -1286,7 +1286,7 @@ void exchange_point_update()
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
 					CAP(GET_EXCHANGE_ITEM(exch_item)->PNames[0]),
 					GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(exch_item)));
-			log(buf);
+			log("%s",buf);
 			extract_exchange_item(exch_item);
 		}
 	}
