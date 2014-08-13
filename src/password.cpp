@@ -89,10 +89,16 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 	else
 	{
 		// если пароль des сошелся - конвертим сразу в md5 (10 - бывший MAX_PWD_LENGTH)
-		if (!strncmp(CRYPT(pwd.c_str(), ch->get_passwd().c_str()), ch->get_passwd().c_str(), 10))
+		char* s = CRYPT(pwd.c_str(), ch->get_passwd().c_str());
+		if (s && !strncmp(s, ch->get_passwd().c_str(), 10))
 		{
 			set_password(ch, pwd);
 			result = 1;
+		}
+		else if (s == NULL)
+		{
+			send_to_char("Возникли проблемы при проверке вашего пароля. Обратитесь к старшим богам для его сброса.\r\n", ch);
+			result = 0;
 		}
 	}
 	return result;
