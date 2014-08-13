@@ -188,7 +188,7 @@ void parse_trigger(FILE * trig_f, int nr)
 		char tmp[MAX_INPUT_LENGTH];
 		snprintf(tmp, sizeof(tmp),
 			"Positive indent-level on trigger #%d end.", nr);
-		log(tmp);
+		log("%s",tmp);
 		Boards::dg_script_text += tmp + std::string("\r\n");
 	}
 
@@ -344,7 +344,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	if (rnum < 0)
 	{
 		sprintf(line, "SYSERR: Trigger vnum #%d asked for but non-existant!", vnum);
-		log(line);
+		log("%s",line);
 		return;
 	}
 
@@ -394,12 +394,12 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 		else
 		{
 			sprintf(line, "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->number);
-			log(line);
+			log("%s",line);
 		}
 		break;
 	default:
 		sprintf(line, "SYSERR: Trigger vnum #%d assigned to non-mob/obj/room", vnum);
-		log(line);
+		log("%s",line);
 	}
 }
 
@@ -421,7 +421,7 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 	if (rnum < 0)
 	{
 		sprintf(line, "SYSERR: Trigger vnum #%d asked for but non-existant!", vnum);
-		log(line);
+		log("%s",line);
 		return;
 	}
 
@@ -466,7 +466,7 @@ void assign_triggers(void *i, int type)
 			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for mob #%d",
 						trg_proto->vnum, mob_index[mob->nr].vnum);
-				log(buf);
+				log("%s",buf);
 			}
 			else
 			{
@@ -497,7 +497,7 @@ void assign_triggers(void *i, int type)
 			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for obj #%d",
 						trg_proto->vnum, obj_index[obj->item_number].vnum);
-				log(buf);
+				log("%s",buf);
 			}
 			else
 			{
@@ -528,7 +528,7 @@ void assign_triggers(void *i, int type)
 			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for room #%d",
 						trg_proto->vnum, room->number);
-				log(buf);
+				log("%s",buf);
 			}
 			else
 			{
