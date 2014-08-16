@@ -3958,7 +3958,8 @@ void single_god_invoice(CHAR_DATA* ch)
 void god_work_invoice()
 {
 	for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next)
-		if (d->character && IS_IMMORTAL(d->character) && STATE(d) == CON_PLAYING)
+		if (d->character && STATE(d) == CON_PLAYING)
+		    if (IS_IMMORTAL(d->character) || GET_GOD_FLAG(d->character, GF_DEMIGOD))
 			single_god_invoice(d->character);
 }
 
