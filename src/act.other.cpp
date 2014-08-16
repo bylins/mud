@@ -1614,6 +1614,11 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 				GET_OBJ_SEX(target) == SEX_POLY ? "являются" : "является");
 		return;
 	}
+	if (GET_OBJ_TYPE(target) == ITEM_ENCHANT)
+	{
+		send_to_char(ch, "Этот предмет уже магический и не может быть зачарован.\r\n");
+		return;
+	}
 	if (target->enchants.check(obj::ENCHANT_FROM_OBJ))
 	{
 		send_to_char(ch, "На %s уже наложено зачарование.\r\n",
