@@ -2058,8 +2058,7 @@ int check_dupes_email(DESCRIPTOR_DATA * d)
 			continue;
 		if (!IS_IMMORTAL(ch) && (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character))))
 		{
-			sprintf(buf, "Вы не можете войти одновременно с %s!\r\n"
-					"Одинаковый email адрес!\r\n", GET_PAD(ch, 4));
+			sprintf(buf, "Персонаж с таким email уже находится в игре, вы не можете войти одновременно с ним!");
 			send_to_char(buf, d->character);
 			return (0);
 		}
