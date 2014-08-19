@@ -3622,10 +3622,11 @@ ACMD(do_wiznet)
 	for (d = descriptor_list; d; d = d->next)
 	{
 		if ((STATE(d) == CON_PLAYING) &&	// персонаж должен быть в игре
-				((GET_LEVEL(d->character) >= level) ||	// уровень равным или выше level
-				 (GET_LEVEL(d->character) < LVL_IMMORT &&	// игроки с флагом 'gd_demigod' могут видеть теллы в имм канал,
+				((GET_LEVEL(d->character) >= level)
+// ||	// уровень равным или выше level
+//				 (GET_LEVEL(d->character) < LVL_IMMORT &&	// игроки с флагом 'gd_demigod' могут видеть теллы в имм канал,
 //				  GET_GOD_FLAG(d->character, GF_DEMIGOD) &&	// за исключением случая когда level > LVL_IMMORT
-				  level <= LVL_IMMORT)
+//				  level <= LVL_IMMORT)
 				) && (!PRF_FLAGGED(d->character, PRF_NOWIZ)) &&	// игрок с режимом NOWIZ не видит имм канала
 				(!PLR_FLAGGED(d->character, PLR_WRITING)) &&	// пишущий не видит имм канала
 				(!PLR_FLAGGED(d->character, PLR_MAILING)))	// отправляющий письмо не видит имм канала
