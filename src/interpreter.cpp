@@ -272,6 +272,7 @@ ACMD(do_return);
 ACMD(do_save);
 ACMD(do_say);
 ACMD(do_score);
+ACMD(do_sdemigod);
 ACMD(do_send);
 ACMD(do_set);
 ACMD(do_show);
@@ -699,6 +700,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"сглазить", POS_FIGHTING, do_manadrain, 0, 0, -1},
 	{"сесть", POS_RESTING, do_sit, 0, 0, -1},
 	{"синоним", POS_DEAD, do_alias, 0, 0, 0},
+	{"сдемигодам", POS_DEAD, do_sdemigod, LVL_IMMORT, 0, 0},
 	{"сказать", POS_RESTING, do_tell, 0, 0, -1},
 	{"скользить", POS_STANDING, do_lightwalk, 0, 0, 0},
 	{"следовать", POS_RESTING, do_follow, 0, 0, 500},
@@ -2363,7 +2365,11 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character);
 	}
-
+	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
+	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character)))
+	{
+	    SET_GOD_FLAG(d->character, GF_DEMIGOD);
+	}
 	sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
 	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 	look_at_room(d->character, 0);

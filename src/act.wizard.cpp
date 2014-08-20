@@ -176,7 +176,7 @@ ACMD(do_liblist);
 ACMD(do_name);
 //
 ACMD(do_godtest);
-
+ACMD(do_sdemigod);
 
 #define MAX_TIME 0x7fffffff
 
@@ -3494,6 +3494,43 @@ ACMD(do_force)
 	}
 }
 
+
+ACMD(do_sdemigod)
+{
+    DESCRIPTOR_DATA *d;
+    // убираем пробелы
+    skip_spaces(&argument);
+    
+    if (!*argument)
+    {
+	send_to_char("Что Вы хотите сообщить ?\r\n", ch);
+	return;
+    }
+    sprintf(buf1, "&c%s демигодам: '%s'&n\r\n", GET_NAME(ch), argument);
+    
+    // проходим по всем чарам и отправляем мессагу
+    for (d = descriptor_list; d; d = d->next)
+    {
+	// Проверяем, в игре ли чар
+	if (STATE(d) == CON_PLAYING)
+	{
+	    // Если в игре, то проверяем, демигод ли чар
+	    if (GET_GOD_FLAG(d->character, GF_DEMIGOD))
+	    {
+		// Проверяем пишет ли чар или отправляет письмо
+		// А так же на реж wiz
+		// И реж repeat
+		if ((!PLR_FLAGGED(d->character, PLR_WRITING)) &&
+		    (!PLR_FLAGGED(d->character, PLR_MAILING)) &&
+		    (!PLR_FLAGGED(d->character, PRF_NOWIZ)) &&
+		    (!PLR_FLAGGED(d->character, PRF_NOREPEAT)))
+		{
+		    send_to_char(buf1, d->character);
+		}
+	    }
+	}
+    }
+}
 
 
 ACMD(do_wiznet)
