@@ -1997,6 +1997,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "опечатки", "misprint",
 							   "магщиты", "mageshields",
 							   "автопризыв", "autonosummon",
+							   "сдемигодам", "sdemigod",
 							   "\n"
 							 };
 
@@ -2060,7 +2061,8 @@ struct gen_tog_param_type
 		0, SCMD_ENTER_ZONE}, {
 		LVL_GOD, SCMD_MISPRINT}, {
 		0, SCMD_BRIEF_SHIELDS}, {
-		0, SCMD_AUTO_NOSUMMON}
+		0, SCMD_AUTO_NOSUMMON}, {
+		LVL_IMPL, SCMD_SDEMIGOD}
 };
 
 ACMD(do_mode)
@@ -2309,7 +2311,9 @@ ACMD(do_gen_tog)
 		{"Показ сообщений при срабатывании магических щитов: полный.\r\n",
 		 "Показ сообщений при срабатывании магических щитов: краткий.\r\n"},
 		{"Автоматический режим защиты от призыва выключен.\r\n",
-		 "Вы будете автоматически включать режим защиты от призыва после его использования.\r\n"}
+		 "Вы будете автоматически включать режим защиты от призыва после его использования.\r\n"},
+	        {"Канал для демигодов выключен.\r\n",
+	         "Канал для демигодов включен.\r\n"}
 	};
 
 	if (IS_NPC(ch))
@@ -2377,6 +2381,9 @@ ACMD(do_gen_tog)
 	case SCMD_COLOR:
 		do_color(ch, argument, 0, 0);
 		return;
+		break;
+	case SCMD_SDEMIGOD:
+		result = PRF_TOG_CHK(ch, PRF_SDEMIGOD);
 		break;
 #if defined(HAVE_ZLIB)
 	case SCMD_COMPRESS:

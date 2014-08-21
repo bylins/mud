@@ -3517,14 +3517,18 @@ ACMD(do_sdemigod)
 	    // Если в игре, то проверяем, демигод ли чар
 	    if (GET_GOD_FLAG(d->character, GF_DEMIGOD))
 	    {
+		// Проверка на иммов. Только 34 могут видеть этот канал
+		if (GET_LEVEL(d->character) >= LVL_GOD && !(GET_LEVEL(d->character) == LVL_IMPL))
+		{
+		    return;
+		}
 		// Проверяем пишет ли чар или отправляет письмо
-		// А так же на реж wiz
-		// И реж repeat
+		// А так же на реж сдемигод
 		if ((!PLR_FLAGGED(d->character, PLR_WRITING)) &&
 		    (!PLR_FLAGGED(d->character, PLR_MAILING)) &&
-		    (!PLR_FLAGGED(d->character, PRF_NOWIZ)) &&
-		    (!PLR_FLAGGED(d->character, PRF_NOREPEAT)))
+		    (!PLR_FLAGGED(d->character, PRF_SDEMIGOD)))
 		{
+		    d->character->remember_add(buf2, Remember::ALL);
 		    send_to_char(buf1, d->character);
 		}
 	    }
