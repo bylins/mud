@@ -3528,7 +3528,7 @@ ACMD(do_sdemigod)
 		    (!PLR_FLAGGED(d->character, PLR_MAILING)) &&
 		    (!PLR_FLAGGED(d->character, PRF_SDEMIGOD)))
 		{
-		    d->character->remember_add(buf2, Remember::ALL);
+		    d->character->remember_add(buf1, Remember::ALL);
 		    send_to_char(buf1, d->character);
 		}
 	    }

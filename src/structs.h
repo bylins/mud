@@ -587,7 +587,7 @@ enum
 #define PRF_MISPRINT      (INT_TWO | 1 << 5)  // показ непрочитанных сообщений на доске опечаток при входе
 #define PRF_BRIEF_SHIELDS (INT_TWO | 1 << 6)  // краткий режим сообщений при срабатывании маг.щитов
 #define PRF_AUTO_NOSUMMON (INT_TWO | 1 << 7)  // автоматическое включение режима защиты от призыва ('реж призыв') после удачного суммона/пенты
-#define PRF_SDEMIGOD      (INT_TWO | 1 << 7) // Для канала демигодов
+#define PRF_SDEMIGOD      (INT_TWO | 1 << 8) // Для канала демигодов
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
