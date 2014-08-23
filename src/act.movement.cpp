@@ -598,9 +598,6 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	dir = dir & 0x7f;
 
-	if (!(need_movement = legal_dir(ch, dir, need_specials_check, TRUE)))
-		return (FALSE);
-
 	// Mortally drunked - it is loss direction
 	if (!IS_NPC(ch) && !leader && GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED && !on_horse(ch) &&
 			GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50))
@@ -614,6 +611,9 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 				ndir = -1;
 			else
 			{
+				// должно работать...
+				if (!(need_movement = legal_dir(ch, ndir, need_specials_check, TRUE)))
+				    return (FALSE);
 				if (dir != ndir)
 				{
 					sprintf(buf, "Ваши ноги не хотят слушаться вас...\r\n");
@@ -634,6 +634,10 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			}
 		}
 	}
+	
+	
+	if (!(need_movement = legal_dir(ch, dir, need_specials_check, TRUE)))
+	    return (FALSE);
 
 	// Now we know we're allow to go into the room.
 	if (!IS_IMMORTAL(ch) && !IS_NPC(ch))
