@@ -2366,9 +2366,14 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		send_to_char(START_MESSG, d->character);
 	}
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
-	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character)) && (GET_LEVEL(d->character) < LVL_GOD))
+	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character)))
 	{
 	    SET_GOD_FLAG(d->character, GF_DEMIGOD);
+	}
+	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
+	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GET_LEVEL(d->character) >= LVL_GOD))
+	{
+	    CLR_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
 	sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
 	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);

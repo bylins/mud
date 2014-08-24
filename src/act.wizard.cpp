@@ -3515,13 +3515,9 @@ ACMD(do_sdemigod)
 	if (STATE(d) == CON_PLAYING)
 	{
 	    // Если в игре, то проверяем, демигод ли чар
-	    if (GET_GOD_FLAG(d->character, GF_DEMIGOD))
+	    // Иммы 34-левела тоже могут смотреть канал
+	    if ((GET_GOD_FLAG(d->character, GF_DEMIGOD)) || (GET_LEVEL(d->character) == LVL_IMPL))
 	    {
-		// Проверка на иммов. Только 34 могут видеть этот канал
-		if (GET_LEVEL(d->character) >= LVL_GOD && !(GET_LEVEL(d->character) == LVL_IMPL))
-		{
-		    return;
-		}
 		// Проверяем пишет ли чар или отправляет письмо
 		// А так же на реж сдемигод
 		if ((!PLR_FLAGGED(d->character, PLR_WRITING)) &&
