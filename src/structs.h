@@ -1156,7 +1156,7 @@ const int HISTORY_SIZE = 5;
 #define MAX_RAW_INPUT_LENGTH  512	// Max size of *raw* input //
 #define MAX_MESSAGES          600
 #define MAX_NAME_LENGTH       20
-#define MIN_NAME_LENGTH       4
+#define MIN_NAME_LENGTH       5
 #define HOST_LENGTH           30
 #define EXDSCR_LENGTH         512
 #define MAX_SPELLS            350

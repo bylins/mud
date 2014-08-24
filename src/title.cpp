@@ -17,6 +17,8 @@
 #include "char.hpp"
 #include "char_player.hpp"
 
+extern void send_to_gods(char *text, bool demigod);
+
 namespace TitleSystem
 {
 
@@ -108,11 +110,12 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 			}
 			if (GET_TITLE(vict))
 			{
-				sprintf(buf, "%s удалил титул игрока %s.", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+				sprintf(buf, "&c%s удалил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+				send_to_gods(buf, true);
+				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
                                 free(GET_TITLE(vict));
 				GET_TITLE(vict) = 0;
-				send_to_char("Титул удален.\r\n", ch);
+				//send_to_char("Титул удален.\r\n", ch);
 			} else
 				send_to_char("У игрока нет титула.\r\n", ch);
 			return;
@@ -339,11 +342,13 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 		if (action)
 		{
 			DESCRIPTOR_DATA* d = send_result_message(it->second->unique, action);
+			// Что внизу за хрень ?
 			if (d)
 			{
 				set_player_title(d->character, it->second->pre_title, it->second->title, GET_NAME(ch));
-				sprintf(buf, "%s одобрил титул игрока %s!", GET_NAME(ch), GET_NAME(d->character));
-				mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+				sprintf(buf, "&c%s одобрил титул игрока %s!&n\r\n", GET_NAME(ch), GET_NAME(d->character));
+				send_to_gods(buf, true);
+				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 			}
 			else
 			{
@@ -356,23 +361,25 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 					return TITLE_FIND_CHAR;
 				}
 				set_player_title(victim, it->second->pre_title, it->second->title, GET_NAME(ch));
-				sprintf(buf, "%s запретил титул игрока %s.", GET_NAME(ch), GET_NAME(victim));
-				mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+				sprintf(buf, "&c%s запретил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(victim));
+				send_to_gods(buf, true);
+				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 				victim->save_char();
 				delete victim;
 			}
-			send_to_char("Титул одобрен.\r\n", ch);
+			//send_to_char("Титул одобрен.\r\n", ch);
 
 		}
 		else
 		{
 			send_result_message(it->second->unique, action);
-			send_to_char("Титул запрещен.\r\n", ch);
+			//send_to_char("Титул запрещен.\r\n", ch);
 			DESCRIPTOR_DATA* d = send_result_message(it->second->unique, action);
 			if (d)
-			{
-				sprintf(buf, "%s запретил титул игрока %s.", GET_NAME(ch), GET_NAME(d->character));
-				mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+			{			
+				sprintf(buf, "&c%s запретил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(d->character));
+				send_to_gods(buf, true);
+				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 			}
 
 		}

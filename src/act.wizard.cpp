@@ -177,6 +177,26 @@ ACMD(do_name);
 //
 ACMD(do_godtest);
 ACMD(do_sdemigod);
+// Функция для отправки текста богам
+// При demigod = True, текст отправляется и демигодам тоже
+void send_to_gods(char *text, bool demigod)
+{
+        DESCRIPTOR_DATA *d;
+        for (d = descriptor_list; d; d = d->next)
+        {
+    	    // Чар должен быть в игре
+    	    if (STATE(d) == CON_PLAYING)
+    	    {
+    		// Чар должен быть имморталом
+    		// Либо же демигодом (при demigod = true)
+    		if ((GET_LEVEL(d->character) >= LVL_GOD) ||
+    		(GET_GOD_FLAG(d->character, GF_DEMIGOD) && demigod))
+    		{
+    		    send_to_char(text, d->character);
+    		}
+    	    }
+        }
+}
 
 #define MAX_TIME 0x7fffffff
 

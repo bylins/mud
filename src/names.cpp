@@ -29,7 +29,9 @@
 #include "char.hpp"
 #include "char_player.hpp"
 
+
 extern const char *genders[];
+extern void send_to_gods(char *text, bool demigod);
 
 static const char *god_text = "Богом";
 static const char *player_text = "привилегированным игроком";
@@ -423,22 +425,25 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 	{
 		NAME_GOD(vict) = god_level + 1000;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
-		send_to_char("Имя одобрено!\r\n", ch);
+		//send_to_char("Имя одобрено!\r\n", ch);
 		send_to_char(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf,  "%s одобрил имя игрока %s.", GET_NAME(ch), GET_NAME(vict));
-		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+		sprintf(buf,  "&c%s одобрил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		send_to_gods(buf, true);
+		// В этом теперь нет смысла
+		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 
 	}
 	else
 	{
 		NAME_GOD(vict) = god_level;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
-		send_to_char("Имя запрещено!\r\n", ch);
+		//send_to_char("Имя запрещено!\r\n", ch);
 		send_to_char(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf,  "%s запретил имя игрока %s.", GET_NAME(ch), GET_NAME(vict));
-		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+		sprintf(buf,  "&c%s запретил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		send_to_gods(buf, true);
+		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 
 	}
 
