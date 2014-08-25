@@ -361,7 +361,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 					return TITLE_FIND_CHAR;
 				}
 				set_player_title(victim, it->second->pre_title, it->second->title, GET_NAME(ch));
-				sprintf(buf, "&c%s ÚÁĞÒÅÔÉÌ ÔÉÔÕÌ ÉÇÒÏËÁ %s.&n\r\n", GET_NAME(ch), GET_NAME(victim));
+				sprintf(buf, "&c%s ÏÄÏÂÒÉÌ ÔÉÔÕÌ ÉÇÒÏËÁ %s[ïææìáêî].&n\r\n", GET_NAME(ch), GET_NAME(victim));
 				send_to_gods(buf, true);
 				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 				victim->save_char();

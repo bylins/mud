@@ -408,6 +408,8 @@ ACMD(do_morph);
 ACMD(do_morphset);
 ACMD(do_console);
 ACMD(do_shops_list);
+ACMD(do_unfreeze);
+
 
 /* This is the Master Command List(tm).
 
@@ -981,6 +983,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"typo", POS_DEAD, report_on_board, 0, Boards::MISPRINT_BOARD, 0},
 	{"unaffect", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_UNAFFECT, 0},
 	{"unban", POS_DEAD, do_unban, LVL_GRGOD, 0, 0},
+	{"unfreeze", POS_DEAD, do_unfreeze, LVL_IMPL, 0, 0},
 	{"ungroup", POS_DEAD, do_ungroup, 0, 0, -1},
 	{"unlock", POS_SITTING, do_gen_door, 0, SCMD_UNLOCK, 500},
 	{"uptime", POS_DEAD, do_date, LVL_IMMORT, SCMD_UPTIME, 0},
@@ -2366,7 +2369,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		send_to_char(START_MESSG, d->character);
 	}
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
-	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character)) && (GET_LEVEL(d->character) < LVL_GOD))
+	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character)))
 	{
 	    SET_GOD_FLAG(d->character, GF_DEMIGOD);
 	}

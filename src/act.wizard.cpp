@@ -15,6 +15,8 @@
 #include "conf.h"
 #include <sstream>
 #include <iomanip>
+#include <fstream>
+#include <iostream>
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -65,6 +67,9 @@
 #include "noob.hpp"
 #include "mail.h"
 #include "mob_stat.hpp"
+
+using std::ifstream;
+using std::fstream;
 
 // external vars
 extern bool need_warn;
@@ -177,6 +182,8 @@ ACMD(do_name);
 //
 ACMD(do_godtest);
 ACMD(do_sdemigod);
+ACMD(do_unfreeze);
+
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже
 void send_to_gods(char *text, bool demigod)
@@ -973,6 +980,59 @@ ACMD(do_at)
 	check_horse(ch);
 }
 
+ACMD(do_unfreeze)
+{
+    /*Формат файл unfreeze.lst
+    Первая строка email
+    Вторая строка причина по которой разфриз
+    Все остальные строки полные имена чаров*/
+    //char email[50], reason[50];
+    Player t_vict;
+    CHAR_DATA *vict;
+    char *reason_c; // для функции set_punish, она не умеет принимать тип string :(
+    std::string email;
+    std::string reason;
+    std::string name_buffer;
+    ifstream unfreeze_list;
+    unfreeze_list.open("../lib/misc/unfreeze.lst", fstream::in);
+    if (!unfreeze_list)
+    {
+	send_to_char("Файл unfreeze.lst отсутствует!\r\n", ch);
+	return;
+    }
+    unfreeze_list >> email;
+    unfreeze_list >> reason;
+    sprintf(buf, "Начинаем масс.разфриз\r\nEmail:%s\r\nПричина:%s\r\n", email.c_str(), reason.c_str());
+    send_to_char(buf, ch);
+    reason_c = new char[reason.length() + 1];
+    strcpy(reason_c, reason.c_str());
+    
+    while (!unfreeze_list.eof())
+    {
+	unfreeze_list >> name_buffer;
+	if (load_char(name_buffer.c_str(), &t_vict) < 0)
+	{
+	    sprintf(buf, "Чара с именем %s не существует !\r\n", name_buffer.c_str());
+	    send_to_char(buf, ch);
+	    continue;
+	}
+	vict = &t_vict;
+	if (GET_EMAIL(vict) != email)
+	{
+	    sprintf(buf, "У чара %s другой емайл.\r\n", name_buffer.c_str());
+	    send_to_char(buf, ch);
+	    continue;
+	}	
+	set_punish(ch, vict, SCMD_FREEZE, reason_c, 0);
+	vict->save_char();
+	sprintf(buf, "Чар %s разморожен.\r\n", name_buffer.c_str());
+	send_to_char(buf, ch);
+    }
+    
+    delete [] reason_c;
+    unfreeze_list.close();
+    
+}
 
 ACMD(do_goto)
 {
