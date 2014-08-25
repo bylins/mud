@@ -2369,7 +2369,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		send_to_char(START_MESSG, d->character);
 	}
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
-	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character)))
+	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character)) && (GET_LEVEL(d->character) < LVL_GOD))
 	{
 	    SET_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
