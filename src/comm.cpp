@@ -1365,6 +1365,9 @@ void beat_points_update(int pulse);
 extern void inspecting();
 //список запросов инспекта
 extern InspReqListType inspect_list;
+
+extern SetAllInspReqListType setall_inspect_list;
+extern void setall_inspect();
 inline void heartbeat(const int missed_pulses)
 {
 	static int mins_since_crashsave = 0, pulse = 0;
@@ -1436,6 +1439,9 @@ inline void heartbeat(const int missed_pulses)
 	//log("Stop it...");
 	if ((missed_pulses == 0) && (inspect_list.size() > 0))
 		inspecting();
+		
+	if ((missed_pulses == 0) && (setall_inspect_list.size() > 0))
+		setall_inspect();
 
 	if (!(pulse % (2 * PASSES_PER_SEC)))
 	{

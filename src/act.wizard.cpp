@@ -183,7 +183,7 @@ ACMD(do_name);
 ACMD(do_godtest);
 ACMD(do_sdemigod);
 ACMD(do_unfreeze);
-
+ACMD(do_setall);
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже
 void send_to_gods(char *text, bool demigod)
@@ -219,6 +219,8 @@ void add_karma(CHAR_DATA * ch, const char * punish , const char * reason)
 		KARMA(ch) = str_add(KARMA(ch), buf1);
 	};
 }
+
+
 
 int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , long times)
 {
@@ -656,6 +658,237 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 	};
 	return 1;
 }
+
+SetAllInspReqListType setall_inspect_list;
+InspReqListType inspect_list;
+
+#define SETALL_FREEZE 0
+#define SETALL_EMAIL 1
+#define SETALL_PSWD 2
+
+void setall_inspect()
+{
+    if(setall_inspect_list.size() == 0)
+		return;
+    SetAllInspReqListType::iterator it = setall_inspect_list.begin();
+    CHAR_DATA *ch = 0;
+    DESCRIPTOR_DATA *d_vict = 0;
+    DESCRIPTOR_DATA *imm_d = 0;
+	if (!(imm_d = DescByUID(player_table[it->first].unique)) || (STATE(imm_d) != CON_PLAYING) || !(ch = imm_d->character))
+	{
+		setall_inspect_list.erase(it->first);
+		return;
+	}    
+	struct timeval start, stop, result;
+	int is_online;
+	need_warn = false;
+	gettimeofday(&start, NULL);
+	Player *vict;
+	for(;it->second->pos <= top_of_p_table; it->second->pos++)
+	{
+		vict = new Player;
+		gettimeofday(&stop, NULL);
+		timediff(&result, &stop, &start);
+		if (result.tv_sec > 0 || result.tv_usec >= OPT_USEC)
+		{
+			return;
+		}
+		buf1[0] = '\0';
+		is_online = 0;
+		d_vict = DescByUID(player_table[it->second->pos].unique);
+		if (d_vict)
+			is_online = 1;
+		if(player_table[it->second->pos].mail)
+		    if(strstr(player_table[it->second->pos].mail, it->second->mail))
+			{
+				it->second->found++;
+				if (it->second->type_req == SETALL_FREEZE)		
+				{
+					if (is_online)
+					{
+						set_punish(imm_d->character, d_vict->character, SCMD_FREEZE, "setall", it->second->freeze_time);
+						sprintf(buf1, "Фриз чара: %s\r\n", player_table[it->second->pos].name);
+						it->second->out += buf1;
+					}
+					else
+					{
+						if (load_char(player_table[it->second->pos].name, vict) < 0)
+						{
+							sprintf(buf1, "Ошибка загрузки чара: %s\r\n", player_table[it->second->pos].name);
+							delete vict;
+							it->second->out += buf1;
+							return;
+						}
+						else
+						{
+							set_punish(imm_d->character, vict, SCMD_FREEZE, "setall", it->second->freeze_time);
+							sprintf(buf1, "Фриз чара: %s\r\n", player_table[it->second->pos].name);
+							vict->save_char();
+						}
+					}
+				}
+				if (it->second->type_req == SETALL_EMAIL)
+				{
+					if (is_online)
+					{
+						strncpy(GET_EMAIL(d_vict->character), it->second->newmail, 127);
+						*(GET_EMAIL(d_vict->character) + 127) = '\0';
+						sprintf(buf1, "Смена емайла у чара %s на %s\r\n", player_table[it->second->pos].name, it->second->newmail);
+						it->second->out += buf1;
+						add_karma(d_vict->character, buf1, GET_NAME(imm_d->character));
+					}
+					else
+					{
+						if (load_char(player_table[it->second->pos].name, vict) < 0)
+						{
+							printf("1");
+							sprintf(buf1, "Ошибка загрузки чара: %s\r\n", player_table[it->second->pos].name);
+							it->second->out += buf1;
+							delete vict;
+							return;
+						}
+						else
+						{
+							printf("6");
+							strncpy(GET_EMAIL(vict), it->second->newmail, 127);
+							*(GET_EMAIL(vict) + 127) = '\0';							
+							sprintf(buf1, "Смена емайла у чара %s на %s\r\n", player_table[it->second->pos].name, it->second->newmail);
+							it->second->out += buf1;
+							add_karma(vict, buf1, GET_NAME(imm_d->character));
+							vict->save_char();
+						}
+					}
+				}
+				
+				if (it->second->type_req == SETALL_PSWD)
+				{
+					if (is_online)
+					{
+						Password::set_password(d_vict->character, std::string(it->second->pwd));
+						sprintf(buf1, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
+						it->second->out += buf1;
+						add_karma(d_vict->character, buf1, GET_NAME(imm_d->character));
+					}
+					else
+					{
+						if (load_char(player_table[it->second->pos].name, vict) < 0)
+						{
+							sprintf(buf1, "Ошибка загрузки чара: %s\r\n", player_table[it->second->pos].name);
+							it->second->out += buf1;
+							delete vict;
+							return;
+						}
+						Password::set_password(vict, std::string(it->second->pwd));
+						sprintf(buf1, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
+						it->second->out += buf1;
+						add_karma(vict, buf1, GET_NAME(imm_d->character));
+						vict->save_char();
+					}
+				}							
+			}
+		delete vict;	
+	}
+	
+	if (it->second->mail)
+		free(it->second->mail);
+	need_warn = true;
+	gettimeofday(&stop, NULL);
+	timediff(&result, &stop, &it->second->start);
+	sprintf(buf1, "Всего найдено: %d.\r\n", it->second->found);
+	it->second->out += buf1;
+	page_string(ch->desc, it->second->out);
+	setall_inspect_list.erase(it->first);		
+}
+
+
+ACMD(do_setall)
+{
+	int type_request = 0;
+	int times = 0;
+	if (ch->get_pfilepos() < 0)
+		return;
+
+	InspReqListType::iterator it_inspect = inspect_list.find(GET_UNIQUE(ch));
+	SetAllInspReqListType::iterator it = setall_inspect_list.find(GET_UNIQUE(ch));
+	// // Навсякий случай разрешаем только одну команду такого типа, либо сетол, либо инспект
+	if (it_inspect != inspect_list.end() and it != setall_inspect_list.end())
+	{
+		send_to_char(ch, "Обрабатывается другой запрос, подождите...\r\n", argument);
+		return;
+	}
+	
+	argument = three_arguments(argument, buf, buf1, buf2);
+	SetAllInspReqPtr req(new setall_inspect_request);
+	
+	
+	if (!*buf)
+	{
+		send_to_char("Usage: setall { email } [command] <argument> \r\n", ch);
+		return;
+	}
+	
+	if (!valid_email(buf))
+	{
+		send_to_char("Некорректный E-mail !\r\n", ch);
+		return;
+	}
+	
+	if (!isname(buf1, "freeze email pswd"))
+	{
+		send_to_char("Сделай лучше что-нибудь нормальное.\r\n", ch);
+		return;
+	}
+	if (is_abbrev(buf1, "freeze"))
+	{
+		if (!argument || !*argument)
+		{
+			send_to_char("И по какой причине Вы решиле ЭТО сделать?\r\n", ch);
+			return;
+		}
+		if (*buf2) times = atol(buf2);
+		type_request = SETALL_FREEZE;
+		req->freeze_time = times;
+		req->reason = argument;
+	}
+	else if (is_abbrev(buf1, "email"))
+	{
+		if (!*buf2)
+		{
+			send_to_char("Укажите новый e-mail!\r\n", ch);
+			return;
+		}
+		if (!valid_email(buf2))
+		{
+			send_to_char("Новый e-mail невалидный !\r\n", ch);
+			return;
+		}
+		req->newmail = buf2;
+		type_request = SETALL_EMAIL;
+	}
+	else if (is_abbrev(buf1, "pswd"))
+	{
+		if (!*buf2)
+		{
+			send_to_char("Укажите новый пароль!\r\n", ch);
+			return;
+		}
+		req->pwd = buf2;
+		type_request = SETALL_PSWD;
+	}
+	else
+	{
+		send_to_char("Какой-то баг. Вы эту надпись видеть не должны.\r\n", ch);
+		return;
+	}
+	req->type_req = type_request;
+	req->mail = str_dup(buf);
+	req->pos = 0;
+	req->found = 0;
+	req->out = "";
+	setall_inspect_list[ch->get_pfilepos()] = req;	
+}
+
+
 
 ACMD(do_echo)
 {
@@ -2639,8 +2872,6 @@ ACMD(do_purge)
 	}
 }
 
-InspReqListType inspect_list;
-
 const int IIP   = 1;
 const int IMAIL = 2;
 const int ICHAR = 3;
@@ -2853,7 +3084,9 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		return;
 
 	InspReqListType::iterator it = inspect_list.find(GET_UNIQUE(ch));
-	if (it != inspect_list.end())
+	SetAllInspReqListType::iterator it_setall = setall_inspect_list.find(GET_UNIQUE(ch));
+	// Навсякий случай разрешаем только одну команду такого типа, либо сетол, либо инспект
+	if (it != inspect_list.end() and it_setall != setall_inspect_list.end())
 	{
 		send_to_char(ch, "Обрабатывается другой запрос, подождите...\r\n", argument);
 		return;
