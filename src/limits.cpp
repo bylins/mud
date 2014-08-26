@@ -1342,6 +1342,13 @@ void clan_chest_invoice(OBJ_DATA *j)
 // * Дикей шмоток в клан-хране.
 void clan_chest_point_update(OBJ_DATA *j)
 {
+	// если это шмотка из большого набора предметов и она такая одна в хране, то таймер тикает в 2 раза быстрее
+	if (SetSystem::is_big_set(j))
+	{
+		SetSystem::init_vnum_list(GET_OBJ_VNUM(j));
+		if (!SetSystem::find_set_item(j->in_obj) && j->get_timer() > 0)
+			j->dec_timer();
+	}
 	if (j->get_timer() > 0)
 	{
 		j->dec_timer();
