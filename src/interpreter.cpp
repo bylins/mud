@@ -265,6 +265,7 @@ ACMD(do_reply);
 ACMD(do_report);
 ACMD(do_rescue);
 ACMD(do_stopfight);
+ACMD(do_setall);
 ACMD(do_stophorse);
 ACMD(do_rest);
 ACMD(do_restore);
@@ -951,6 +952,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"skills", POS_RESTING, do_skills, 0, 0, 0},
 	{"skillset", POS_SLEEPING, do_skillset, LVL_IMPL, 0, 0},
 	{"morphset", POS_SLEEPING, do_morphset, LVL_IMPL, 0, 0},
+	{"setall", POS_DEAD, do_setall, LVL_IMPL, 0, 0},
 	{"sleep", POS_SLEEPING, do_sleep, 0, 0, -1},
 	{"sneak", POS_STANDING, do_sneak, 1, 0, -2},
 	{"snoop", POS_DEAD, do_snoop, LVL_GRGOD, 0, 0},
