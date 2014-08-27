@@ -2638,7 +2638,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			}
 			else
 				if (parse_exist_name(arg, tmp_name) ||
-						strlen(tmp_name) < MIN_NAME_LENGTH ||
+						strlen(tmp_name) < (MIN_NAME_LENGTH - 1) || // дабы можно было войти чарам с 4 буквами
 						strlen(tmp_name) > MAX_NAME_LENGTH ||
 						!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name))
 				{
@@ -2676,6 +2676,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
 					}
+					// дополнительная проверка на длину имени чара
+					if (strlen(tmp_name) < (MIN_NAME_LENGTH))
+					{
+						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+						return;
+					}
 					CreateChar(d);
 					d->character->set_pc_name(CAP(tmp_name));
 					CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
@@ -2706,8 +2712,13 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			}
 			else  	// player unknown -- make new character
 			{
-
-
+				
+				// еще одна проверка
+				if (strlen(tmp_name) < (MIN_NAME_LENGTH))
+				{
+					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+					return;
+				}
 				// Check for multiple creations of a character.
 				if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name))
 				{
