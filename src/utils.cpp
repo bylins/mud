@@ -2727,7 +2727,7 @@ struct SetNode
 };
 
 std::vector<SetNode> set_list;
-const unsigned BIG_SET_ITEMS = 8;
+const unsigned BIG_SET_ITEMS = 3;
 // для проверок при попытке ренты
 std::set<int> vnum_list;
 
