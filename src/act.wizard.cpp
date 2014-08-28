@@ -226,7 +226,6 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 {
 	struct punish_data * pundata = 0;
 	int result;
-
 	if (ch == vict)
 	{
 		send_to_char("Это слишком жестоко...\r\n", ch);
@@ -539,7 +538,6 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 			imm_log(buf);
-
 			sprintf(buf, "Freeze ON (%ldh) by %s", times , GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
@@ -706,8 +704,13 @@ void setall_inspect()
 				{
 					if (is_online)
 					{
+						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
+						{
+							sprintf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+							it->second->out += buf1;
+							continue;
+						}
 						set_punish(imm_d->character, d_vict->character, SCMD_FREEZE, "setall", it->second->freeze_time);
-						sprintf(buf1, "Фриз чара: %s\r\n", player_table[it->second->pos].name);
 						it->second->out += buf1;
 					}
 					else
@@ -717,10 +720,16 @@ void setall_inspect()
 							sprintf(buf1, "Ошибка загрузки чара: %s\r\n", player_table[it->second->pos].name);
 							delete vict;
 							it->second->out += buf1;
-							return;
+							continue;
 						}
 						else
 						{
+							if (GET_LEVEL(vict) >= LVL_GOD)
+							{
+								printf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+								it->second->out += buf1;
+								continue;
+							}
 							set_punish(imm_d->character, vict, SCMD_FREEZE, "setall", it->second->freeze_time);
 							sprintf(buf1, "Фриз чара: %s\r\n", player_table[it->second->pos].name);
 							vict->save_char();
@@ -731,6 +740,12 @@ void setall_inspect()
 				{
 					if (is_online)
 					{
+						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
+						{
+							sprintf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+							it->second->out += buf1;
+							continue;
+						}
 						strncpy(GET_EMAIL(d_vict->character), it->second->newmail, 127);
 						*(GET_EMAIL(d_vict->character) + 127) = '\0';
 						sprintf(buf1, "Смена емайла у чара %s на %s\r\n", player_table[it->second->pos].name, it->second->newmail);
@@ -745,10 +760,16 @@ void setall_inspect()
 							sprintf(buf1, "Ошибка загрузки чара: %s\r\n", player_table[it->second->pos].name);
 							it->second->out += buf1;
 							delete vict;
-							return;
+							continue;
 						}
 						else
 						{
+							if (GET_LEVEL(vict) >= LVL_GOD)
+							{
+								printf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+								it->second->out += buf1;
+								continue;
+							}
 							printf("6");
 							strncpy(GET_EMAIL(vict), it->second->newmail, 127);
 							*(GET_EMAIL(vict) + 127) = '\0';							
@@ -764,6 +785,12 @@ void setall_inspect()
 				{
 					if (is_online)
 					{
+						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
+						{
+							sprintf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+							it->second->out += buf1;
+							continue;
+						}
 						Password::set_password(d_vict->character, std::string(it->second->pwd));
 						sprintf(buf1, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
 						it->second->out += buf1;
@@ -776,7 +803,13 @@ void setall_inspect()
 							sprintf(buf1, "Ошибка загрузки чара: %s\r\n", player_table[it->second->pos].name);
 							it->second->out += buf1;
 							delete vict;
-							return;
+							continue;
+						}
+						if (GET_LEVEL(vict) >= LVL_GOD)
+						{
+							printf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+							it->second->out += buf1;
+							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
 						sprintf(buf1, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
@@ -839,7 +872,8 @@ ACMD(do_setall)
 		return;
 	}
 	if (is_abbrev(buf1, "freeze"))
-	{
+	{	
+		skip_spaces(&argument);
 		if (!argument || !*argument)
 		{
 			send_to_char("И по какой причине Вы решиле ЭТО сделать?\r\n", ch);
