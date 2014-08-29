@@ -2282,8 +2282,8 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
 void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	ClanPkLog::check(ch, victim);
-	sprintf(buf2, "%s killed by %s at %s", GET_NAME(victim), GET_NAME(ch),
-		IN_ROOM(victim) != NOWHERE ? world[IN_ROOM(victim)]->name : "NOWHERE");
+	sprintf(buf2, "%s killed by %s at %s [%d] ", GET_NAME(victim), GET_NAME(ch),
+		IN_ROOM(victim) != NOWHERE ? world[IN_ROOM(victim)]->name : "NOWHERE", GET_ROOM_VNUM(IN_ROOM(victim)));
 	log("%s",buf2);
 
 	if ((!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
