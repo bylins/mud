@@ -4254,7 +4254,7 @@ ACMD(do_who)
 			}
 		}
 		else if (GET_GOD_FLAG(tch, GF_DEMIGOD)
-			&& (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)))
+			&& (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) || GET_GOD_FLAG(tch, GF_DEMIGOD)))
 		{
 			demigods_num++;
 			demigods += buf;
