@@ -39,6 +39,8 @@ extern int max_exp_gain_npc;
 extern const unsigned RECALL_SPELLS_INTERVAL;
 const unsigned RECALL_SPELLS_INTERVAL = 28;
 
+extern bool is_bonus(int type);
+extern int mult_bonus;
 void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	CHAR_DATA *master = 0;
@@ -90,7 +92,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 //edited by WorM
 void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 {
-	//настоящий убийца мастер чармиса/коня/ангела
+	//настоящий убийца мастер чармиса/коня/ангела
 	CHAR_DATA *rkiller = killer;
 
 	if (rkiller
@@ -655,7 +657,11 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 
 	// 4. Последняя проверка
 	exp = MAX(1, exp);
-
+	if ((exp > 1) and is_bonus(1))
+	{
+		exp *= mult_bonus;
+	}
+	
 	if (exp > 1)
 	{
 		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n",
@@ -774,6 +780,8 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
+		if (is_bonus(0))
+			battle_exp *= mult_bonus;
 //		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
 //						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		gain_exp(ch, battle_exp);

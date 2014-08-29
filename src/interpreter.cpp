@@ -410,7 +410,7 @@ ACMD(do_morphset);
 ACMD(do_console);
 ACMD(do_shops_list);
 ACMD(do_unfreeze);
-
+ACMD(do_bonus);
 
 /* This is the Master Command List(tm).
 
@@ -463,6 +463,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"боги", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
 	{"божества", POS_DEAD, DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
 	{"болтать", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
+	{"бонус", POS_DEAD, do_bonus, LVL_IMPL, 0, 0},
 	{"бросить", POS_RESTING, do_drop, 0, SCMD_DROP, -1},
 
 	{"варить", POS_RESTING, do_cook, 0, 0, 200},

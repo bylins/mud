@@ -304,6 +304,8 @@ void oedit_save_to_disk(int zone_num);
 void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
 void hour_update();
+// бонус
+extern void timer_bonus();
 int real_zone(int number);
 void koi_to_alt(char *str, int len);
 void koi_to_win(char *str, int len);
@@ -1490,6 +1492,7 @@ inline void heartbeat(const int missed_pulses)
 	if (!(pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))  	//log("Hour msg update...");
 	{
 		hour_update();
+		timer_bonus();
 		//log("Stop it...");
 		//log("Weather and time...");
 		weather_and_time(1);
