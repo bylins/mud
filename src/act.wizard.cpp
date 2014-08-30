@@ -882,7 +882,7 @@ ACMD(do_setall)
 	
 	if (!*buf)
 	{
-		send_to_char("Usage: setall { email } [command] <argument> \r\n", ch);
+		send_to_char("Usage: setall { email } [command (email pswd frozen)] [для frozen время] <argument> \r\n", ch);
 		return;
 	}
 	
