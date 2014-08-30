@@ -313,7 +313,7 @@ struct reset_q_type
 
 #define OBJECT_SAVE_ACTIVITY 300
 #define PLAYER_SAVE_ACTIVITY 300
-#define MAX_SAVED_ITEMS      500
+#define MAX_SAVED_ITEMS      1000
 
 struct player_index_element
 {
