@@ -184,6 +184,21 @@ ACMD(do_godtest);
 ACMD(do_sdemigod);
 ACMD(do_unfreeze);
 ACMD(do_setall);
+ACMD(do_bonus);
+
+// переменные для бонуса
+
+// время бонуса, в неактивном состоянии -1
+int time_bonus = -1;
+// множитель бонуса
+int mult_bonus = 2;
+// типа бонуса
+// 0 - оружейный
+// 1 - опыт
+// 2 - куны
+int type_bonus = 0;
+bool is_bonus(int type);
+void timer_bonus();
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже
 void send_to_gods(char *text, bool demigod)
@@ -2784,7 +2799,117 @@ ACMD(do_load)
 		send_to_char("Нет уж. Ты создай че-нить нормальное.\r\n", ch);
 }
 
+// отправка сообщения вообще всем
+void send_to_all(char * buffer)
+{
+	DESCRIPTOR_DATA *pt;
+	for (pt = descriptor_list; pt; pt = pt->next)
+			if (STATE(pt) == CON_PLAYING && pt->character)
+				send_to_char(buffer, pt->character);
+}
 
+
+ACMD(do_bonus)
+{
+	argument = two_arguments(argument, buf, buf2);
+	std::string out = "&W*** Объявляется ";
+	
+	if(!isname(buf, "двойной тройной отменить"))
+	{
+		send_to_char("Множитель бонуса может быть двойным, либо тройным.\r\n", ch);
+		return;
+	}
+	if (is_abbrev(buf, "отменить"))
+	{
+		sprintf(buf, "Бонус был отменен\r\n");
+		send_to_all(buf);
+		time_bonus = -1;
+		return;
+	}	
+	if (!*buf || !*buf2 || !a_isascii(*buf2))
+	{
+		send_to_char("Синтаксис команды бонус:\r\nбонус [множитель бонуса двойной или тройной] [тип бонуса оружейный опыт/просто опыт/куны] [время бонуса от 1 до 15 игровых часов]", ch);
+		return;
+	}		
+	
+	
+	
+	if(!isname(buf2, "оружейный опыт куны"))
+	{
+		send_to_char("Тип бонуса может быть &Wоружейный&n, &Wопыт&n, &Wкуны&n.\r\n", ch);
+		return;
+	}
+	if (*argument) time_bonus = atol(argument);
+	
+	if ((time_bonus < 1) || (time_bonus > 15))
+	{
+		send_to_char("Временной бонус можно указать в интервале от 1 до 15.\r\n", ch);
+		return;
+	}
+	
+	if (is_abbrev(buf, "двойной"))
+	{
+		out += "двойной бонус ";
+		mult_bonus = 2;
+	}	
+	else if (is_abbrev(buf, "тройной"))
+	{
+		out += "тройной бонус ";
+		mult_bonus = 3;
+	}
+	else
+	{
+		return;
+	}
+	
+	if (is_abbrev(buf2, "оружейный")) 
+	{
+		out += "оружейного опыта ";
+		type_bonus = 0;
+	}
+	else if (is_abbrev(buf2, "опыт")) 
+	{
+		out += "опыта ";
+		type_bonus = 1;
+	}
+	else if (is_abbrev(buf2, "куны")) 
+	{
+		out += "кун ";
+		type_bonus = 2;
+	}
+	else
+	{
+		return;
+	}
+	out += "на " + boost::lexical_cast<string>(time_bonus) + " часов. ***&n\r\n";
+	send_to_all(out.c_str());	
+}
+
+// таймер бонуса
+void timer_bonus()
+{
+	if (time_bonus <= -1)
+	{
+		return;
+	}
+	time_bonus--;
+	if (time_bonus < 1)
+	{
+		send_to_all("&WБонус закончился...&n\r\n");
+		time_bonus = -1;
+		return;
+	}
+	sprintf(buf, "&WДо конца бонуса осталось %d часов\r\n", time_bonus);
+	send_to_all(buf);
+}
+
+// проверка на тип бонуса
+bool is_bonus(int type)
+{
+	if (time_bonus <= -1) return false;
+	if (type == type_bonus) return true;
+	return false;
+}
 
 ACMD(do_vstat)
 {
