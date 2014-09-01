@@ -1119,7 +1119,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
 //      Временная заплатка баги с выручкой бабок купцом с способностью "торговая сметка"
 //	if (!can_use_feat(ch, SKILLED_TRADER_FEAT))
-//		 buy_price = MMAX(1, (buy_price * (*shop)->profit) / 100); //учтем прибыль магазина
+	 buy_price = MMAX(1, (buy_price * (*shop)->profit) / 100); //учтем прибыль магазина
 
 	std::string price_to_show = boost::lexical_cast<string>(buy_price) + " " + string(desc_count(buy_price, WHAT_MONEYu));
 
