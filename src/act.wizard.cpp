@@ -832,7 +832,7 @@ void setall_inspect()
 						sprintf(buf1, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
 						it->second->out += buf1;
 						sprintf(buf2, "Изменен пароль", player_table[it->second->pos].name);
-						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
+						add_karma(d_vict, buf2, GET_NAME(imm_d->character));
 						vict->save_char();
 					}
 				}							
