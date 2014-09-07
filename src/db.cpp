@@ -3890,7 +3890,9 @@ char *parse_object(FILE * obj_f, int nr)
 	tobj->obj_flags.Obj_max = t[1];
 	tobj->obj_flags.Obj_cur = MIN(t[1], t[2]);
 	tobj->obj_flags.Obj_mater = t[3];
-
+	
+	if ( tobj->obj_flags.Obj_cur > tobj->obj_flags.Obj_max)
+		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", nr);
 	if (!get_line(obj_f, line))
 	{
 		log("SYSERR: Expecting *2th* numeric line of %s, but file ended!", buf2);
