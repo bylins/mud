@@ -1812,6 +1812,8 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	sprintf(buf, "Таймер : %d\r\n", obj->get_timer());
 	send_to_char(buf, ch);
+	sprintf(buf, "Прочность : %d\\%d\r\n", obj->obj_flags.Obj_cur, obj->obj_flags.Obj_max);
+	send_to_char(buf, ch);
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);

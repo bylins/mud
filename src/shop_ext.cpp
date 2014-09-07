@@ -1040,8 +1040,8 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 long get_sell_price(OBJ_DATA * obj)
 {
 	long cost = GET_OBJ_COST(obj);
-	cost = obj_proto[GET_OBJ_RNUM(obj)]->get_timer()<=0 ? 1 : cost * ((float)obj->get_timer() / (float)obj_proto[GET_OBJ_RNUM(obj)]->get_timer()); //учтем таймер
-
+	cost = obj_proto[GET_OBJ_RNUM(obj)]->get_timer()<=0 ? 1 : (long)cost * ((float)obj->get_timer() / (float)obj_proto[GET_OBJ_RNUM(obj)]->get_timer()); //учтем таймер
+	cost = obj->obj_flags.Obj_max <=0 ? 1 : (long)cost*((float)obj->obj_flags.Obj_cur / (float)obj->obj_flags.Obj_max); //учтем повреждения
 	return MMAX(1, cost);
 }
 
@@ -1117,9 +1117,8 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
-//      Временная заплатка баги с выручкой бабок купцом с способностью "торговая сметка"
-//	if (!can_use_feat(ch, SKILLED_TRADER_FEAT))
-	 buy_price = MMAX(1, (buy_price * (*shop)->profit) / 100); //учтем прибыль магазина
+	if (!can_use_feat(ch, SKILLED_TRADER_FEAT))
+	    buy_price = MMAX(1, (buy_price * (*shop)->profit) / 100); //учтем прибыль магазина
 
 	std::string price_to_show = boost::lexical_cast<string>(buy_price) + " " + string(desc_count(buy_price, WHAT_MONEYu));
 
