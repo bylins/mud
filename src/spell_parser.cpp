@@ -1572,6 +1572,9 @@ inline int spell_create_level(CHAR_DATA * ch, int spellnum)
 {
 
 	int required_level = spell_create[spellnum].runes.min_caster_level;
+	// дабы у простых игроков не отображлись иммовские заклы
+	if (required_level >= LVL_GOD)
+	    return required_level;
 	if (can_use_feat(ch, RUNE_ULTIMATE_FEAT))
 		required_level -= 6;
 	else if (can_use_feat(ch, RUNE_MASTER_FEAT))
