@@ -907,6 +907,7 @@ enum
 #define ITEM_NO_KILLER     (INT_ONE | 1 << 0)
 #define ITEM_NO_COLORED    (INT_ONE | 1 << 1)	// нельзя цветным //
 //#define ITEM_NO_KILLERONLY (INT_ONE | 1 << 2)// // только для душиков //
+#define ITEM_NO_BD	   (INT_ONE | 1 << 2)
 
 #define ITEM_NO_SEVERANE   (INT_TWO | 1 << 0)
 #define ITEM_NO_POLANE     (INT_TWO | 1 << 1)
@@ -956,6 +957,8 @@ enum
 #define ITEM_AN_KILLER     (INT_ONE | (1 << 0))
 #define ITEM_AN_COLORED    (INT_ONE | (1 << 1))	// нельзя цветным //
 //#define ITEM_AN_KILLERONLY (INT_ONE | (1 << 2))// // только для душиков //
+#define ITEM_AN_BD	   (INT_ONE | (1 << 2))
+
 
 #define ITEM_AN_SEVERANE   (INT_TWO | 1 << 0)
 #define ITEM_AN_POLANE     (INT_TWO | 1 << 1)
