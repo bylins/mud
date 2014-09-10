@@ -27,6 +27,7 @@
 #include "db.h"
 #include "comm.h"
 #include "screen.h"
+
 #include "spells.h"
 #include "handler.h"
 #include "interpreter.h"
@@ -589,8 +590,10 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 	}
 	if (level < 0)
 		return;
-
-	sprintf(tmpbuf, "[ %s ]\r\n", str);
+	char time_buf[20];
+        time_t ct = time(0);
+        strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
+	sprintf(tmpbuf, "[ %s ][%s]\r\n", str, time_buf);
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING || IS_NPC(i->character))	// switch
