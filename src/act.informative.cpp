@@ -4236,6 +4236,8 @@ ACMD(do_who)
 							genders[(int)GET_SEX(tch)]);
 				}
 			}
+			if ((GET_LEVEL(ch) == LVL_IMPL) && (RENTABLE(ch))
+			    sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
 			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && NAME_BAD(tch))
 			{
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
