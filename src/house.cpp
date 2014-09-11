@@ -1288,7 +1288,7 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 		send_to_char("Этого персонажа нет в игре!\r\n", ch);
 		return;
 	}
-	if (PRF_FLAGGED(d->character, PRF_CODERINFO))
+	if (PRF_FLAGGED(d->character, PRF_CODERINFO) || (GET_LEVEL(d->character) >= LVL_GOD))
 	{
 		send_to_char("Вы не можете приписать этого игрока.\r\n", ch);
 		return;
