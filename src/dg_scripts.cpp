@@ -5443,11 +5443,18 @@ ACMD(do_tlist)
 		send_to_char(buf, ch);
 	}
 
-	if (first >= last)
-	{
-		send_to_char("Second value must be greater than first.\n\r", ch);
-		return;
-	}
+	 if (first >= last)
+        {
+                send_to_char("Второе значение должно быть больше первого.\n\r", ch);
+                return;
+        }
+
+        if (first + 200 < last)
+        {
+                send_to_char("Максимальный показываемый промежуток - 200.\n\r", ch);
+                return;
+        }
+
 
 	for (nr = 0; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++)
 	{
