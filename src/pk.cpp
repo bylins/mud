@@ -69,10 +69,20 @@ int pk_count(CHAR_DATA * ch)
 		i += pk->kill_num;
 	return i;
 }
+bool check_agrobd(CHAR_DATA *ch) {
+	struct PK_Memory_type *pk;
+	for (pk = ch->pk_list; pk; pk = pk->next)
+	{
+		if ((pk->kill_num == 0) && !(pk->battle_exp > time(NULL))) continue;
+		if (pk->battle_exp > time(NULL))
+			return true;
+	}
+	return false;
+}
 
-//Количество убитых игроков (уникальное мыло)
-int pk_player_count(CHAR_DATA * ch)
-{
+
+//Количество убитых игроков (уникальное мыло) int 
+int pk_player_count(CHAR_DATA * ch) {
 	struct PK_Memory_type *pk, *pkg;
 	unsigned count = 0;
 	for (pk = ch->pk_list; pk; pk = pk->next)

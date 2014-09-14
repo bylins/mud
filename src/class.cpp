@@ -2231,7 +2231,7 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT) && IS_MERCHANT(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_DRUID) && IS_DRUID(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_BD) && RENTABLE(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_BD) && check_agrobd(ch)) ||
 		// нелогичный флаг (IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch)))
 		return (TRUE);
@@ -2265,7 +2265,7 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_NO(obj, ITEM_NO_MERCHANT) && IS_MERCHANT(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_DRUID) && IS_DRUID(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_BD) && RENTABLE(ch)) ||
+		(IS_OBJ_NO(obj, ITEM_NO_BD) && check_agrobd(ch)) ||
 		//(IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
 		((OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED)) && !IS_SMITH(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch)))

@@ -54,6 +54,9 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim);
 // FALSE - не может
 int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim);
 
+// проверка на агробд для сетов
+bool check_agrobd(CHAR_DATA *ch);
+
 // Определение необходимости вводить имя жертвы полностью
 bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent);
 
