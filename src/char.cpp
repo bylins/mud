@@ -172,7 +172,7 @@ void Character::zero_init()
 	Poisoner = 0;
 	ing_list = 0;
 	dl_list = 0;
-
+	agrobd = false;
 	memset(&extra_attack_, 0, sizeof(extra_attack_type));
 	memset(&cast_attack_, 0, sizeof(cast_attack_type));
 	memset(&player_data, 0, sizeof(char_player_data));

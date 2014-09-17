@@ -2231,7 +2231,7 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT) && IS_MERCHANT(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_DRUID) && IS_DRUID(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_BD) && check_agrobd(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_BD) && AGRESSOR(ch)) ||
 		// нелогичный флаг (IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch)))
 		return (TRUE);

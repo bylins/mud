@@ -70,13 +70,8 @@ int pk_count(CHAR_DATA * ch)
 	return i;
 }
 bool check_agrobd(CHAR_DATA *ch) {
-	struct PK_Memory_type *pk;
-	for (pk = ch->pk_list; pk; pk = pk->next)
-	{
-		if ((pk->kill_num == 0) && !(pk->battle_exp > time(NULL))) continue;
-		if (pk->battle_exp > time(NULL))
-			return true;
-	}
+	if (ch->agrobd)
+	    return true;
 	return false;
 }
 
@@ -186,9 +181,8 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 		}
 	}
 	pk->clan_exp = time(NULL) + CLAN_REVENGE * 60;
-
 	agressor->save_char();
-
+	agressor->agrobd = true;
 	return;
 }
 
@@ -296,6 +290,8 @@ void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool 
 
 // shapirus: прописываем время получения флага агрессора
 	AGRO(agressor) = MAX(AGRO(agressor), time(NULL) + KILLER_UNRENTABLE * 60);
+	//  вешаем агробд на агрессора
+	agressor->agrobd = true;
 	pk_update_revenge(agressor, victim, BATTLE_DURATION, rent ? KILLER_UNRENTABLE : 0);
 	pk_update_revenge(victim, agressor, BATTLE_DURATION, rent ? REVENGE_UNRENTABLE : 0);
 	agressor->save_char();

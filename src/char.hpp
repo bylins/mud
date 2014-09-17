@@ -278,7 +278,7 @@ struct player_special_data
 	struct _im_rskill_tag *rskill;	// Известные рецепты
 	struct char_portal_type *portals;	// порталы теперь живут тут
 	int *logs;		// уровни подробности каналов log
-
+	
 	char *Exchange_filter;
 	struct ignore_data *ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
@@ -691,6 +691,7 @@ public:
 
 	int *ing_list;		//загружаемые в труп ингредиенты
 	load_list *dl_list;	// загружаемые в труп предметы
+	bool agrobd;		// показывает, агробд или нет
 };
 
 void change_fighting(CHAR_DATA * ch, int need_stop);

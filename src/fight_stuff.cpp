@@ -504,6 +504,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		RENTABLE(ch) = 0;
 		AGRESSOR(ch) = 0;
 		AGRO(ch) = 0;
+		ch->agrobd = false;
 		scripting::on_pc_dead(ch, killer, corpse);
 	}
 	else

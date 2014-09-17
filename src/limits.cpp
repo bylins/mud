@@ -692,9 +692,11 @@ void beat_points_update(int pulse)
 			RENTABLE(i) = 0;
 			AGRESSOR(i) = 0;
 			AGRO(i) = 0;
+			i->agrobd = false;
 		}
 		if (AGRO(i) < time(NULL))
 			AGRO(i) = 0;
+			i->agrobd = false;
 
 		beat_punish(i);
 
