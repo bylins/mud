@@ -83,7 +83,7 @@
 #include "obj_sets.hpp"
 
 #define  TEST_OBJECT_TIMER   30
-
+#define CRITERION_FILE "criterion.xml"
 /**************************************************************************
 *  declarations of global containers and objects                          *
 **************************************************************************/
@@ -113,7 +113,7 @@ long max_id = MOBOBJ_ID_BASE;	// for unique mob/obj id's
 INDEX_DATA *mob_index;		// index table for mobile file
 CHAR_DATA *mob_proto;		// prototypes for mobs
 mob_rnum top_of_mobt = 0;	// top of mobile index table
-
+void Load_Criterion(pugi::xml_node XMLCriterion, int type);
 int global_uid = 0;
 
 OBJ_DATA *object_list = NULL;	// global linked list of objs
@@ -282,6 +282,173 @@ extern void LoadProxyList();
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 
 #define READ_SIZE 256
+
+
+int strchrn (const char *s, int c) {
+ int n=-1;
+ while (*s) {
+  n++;
+  if (*s==c) return n;
+  s++;
+ }
+ return -1;
+}
+
+
+// поиск подстроки
+int strchrs(const char *s, const char *t) { 
+ while (*t) {
+  int r=strchrn(s,*t);
+  if (r>-1) return r;
+  t++;
+ }
+ return -1;
+}
+
+
+struct Item_struct
+{
+	// для параметров
+	std::map<std::string, double> params;
+	// для аффектов
+	std::map<std::string, double> affects;
+};
+
+// массив для критерии, каждый элемент массива это отдельный слот
+Item_struct items_struct[16]; // = new Item_struct[16];
+// определение степени двойки
+int exp_two(int number)
+{
+	int tmp = 1;
+	int count = 0;
+	while (true)
+	{
+		tmp = 1 << count;
+		if (number < tmp)
+			return -1;
+		if (number == tmp)
+			return count;
+		count++;
+	}
+}
+bool check_unlimited_timer(OBJ_DATA *obj)
+{
+	//sleep(15);
+	// куда одевается наш предмет
+	int item_wear = -1;
+	// сумма
+	double sum = 0;
+	// по другому чот не получилось
+	if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
+		item_wear = exp_two(ITEM_WEAR_FINGER);
+	if (CAN_WEAR(obj, ITEM_WEAR_NECK))
+		item_wear = exp_two(ITEM_WEAR_NECK);
+	if (CAN_WEAR(obj, ITEM_WEAR_BODY))
+		item_wear = exp_two(ITEM_WEAR_BODY);
+	if (CAN_WEAR(obj, ITEM_WEAR_HEAD))
+		item_wear = exp_two(ITEM_WEAR_HEAD);
+	if (CAN_WEAR(obj, ITEM_WEAR_LEGS))
+		item_wear = exp_two(ITEM_WEAR_LEGS);
+	if (CAN_WEAR(obj, ITEM_WEAR_FEET))
+		item_wear = exp_two(ITEM_WEAR_FEET);
+	if (CAN_WEAR(obj, ITEM_WEAR_HANDS))
+		item_wear = exp_two(ITEM_WEAR_HANDS);
+	if (CAN_WEAR(obj, ITEM_WEAR_ARMS))
+		item_wear = exp_two(ITEM_WEAR_ARMS);
+	if (CAN_WEAR(obj, ITEM_WEAR_SHIELD))
+		item_wear = exp_two(ITEM_WEAR_SHIELD);
+	if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))
+		item_wear = exp_two(ITEM_WEAR_ABOUT);
+	if (CAN_WEAR(obj, ITEM_WEAR_WAIST))
+		item_wear = exp_two(ITEM_WEAR_WAIST);
+	if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
+		item_wear = exp_two(ITEM_WEAR_WRIST);
+	if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
+		item_wear = exp_two(ITEM_WEAR_WIELD);
+	if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
+		item_wear = exp_two(ITEM_WEAR_HOLD);
+	if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+		item_wear = exp_two(ITEM_WEAR_BOTHS);
+	// если предмет никуда не надевается, то облом.
+	if (GET_OBJ_VNUM(obj) == 107)
+		printf("%d\n", item_wear);
+	if (item_wear == -1)
+		return false;
+	// если это сетовый предмет
+	if (SetSystem::is_big_set(obj))
+		return false;
+	// если предмет требует реморты, то он явно овер
+	if (obj->get_mort_req() > 0)
+		return false;
+	// проходим по всем характеристикам предмета
+	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+		if (obj->affected[i].modifier)
+		{
+			sprinttype(obj->affected[i].location, apply_types, buf2);
+			// проходим по нашей таблице с критериями
+			for(std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++) 
+			{
+			
+			if (strcmp(it->first.c_str(), buf2) == 0)
+			{	for (int i = 0; i < obj->affected[i].modifier;i++)
+						sum += it->second; 					
+			}
+				
+				//std::cout << it->first << " " << it->second << std::endl;
+			}
+		}	
+	sprintbits(obj->obj_flags.affects, weapon_affects, buf, ",");
+	
+	// проходим по всем аффектам в нашей таблице
+	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
+			{
+				// проверяем, есть ли наш аффект на предмете
+				if (strstr(buf, it->first.c_str()) != NULL)
+				{
+					sum += it->second;
+				}
+				//std::cout << it->first << " " << it->second << std::endl;
+			}
+	// если сумма больше или равна единице
+	if (GET_OBJ_VNUM(obj) == 107)
+		printf("SUM:%f\n", sum);
+	if (sum >= 1)
+		return false;
+	// иначе все норм
+	return true;
+	
+}
+
+
+
+
+
+void Load_Criterion(pugi::xml_node XMLCriterion, int type)
+{
+	int index = exp_two(type);
+	log("%d", index);
+	pugi::xml_node params, CurNode, affects;
+	params = XMLCriterion.child("params");
+	affects = XMLCriterion.child("affects");
+	
+	// добавляем в массив все параметры, типа силы, ловкости, каст и тд
+	log("1");
+	for (CurNode = params.child("param"); CurNode; CurNode = CurNode.next_sibling("param"))
+	{
+		items_struct[index-1].params.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
+		log("str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
+	}
+	
+	// добавляем в массив все аффекты
+	log("2");
+	for (CurNode = affects.child("affect"); CurNode; CurNode = CurNode.next_sibling("affect"))
+	{
+		items_struct[index-1].affects.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
+		log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
+	}	
+	
+}
+
 
 // Separate a 4-character id tag from the data it precedes
 void tag_argument(char *argument, char *tag)
@@ -1757,7 +1924,7 @@ void boot_db(void)
 	MKLETTERS(plrstuff/depot);
 	MKDIR("plrstuff/house");
 	MKDIR("stat");
-
+	
 	#undef MKLETTERS
 	#undef MKDIR
 
@@ -1785,8 +1952,38 @@ void boot_db(void)
 	pugi::xml_document doc;
 
 	Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR, doc));
+	
+	log("Loading Criterion...");
+	pugi::xml_document doc1;
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1), ITEM_WEAR_FINGER);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1), ITEM_WEAR_NECK);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1), ITEM_WEAR_BODY);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "head", "Error Loading Criterion.xml: <head>", doc1), ITEM_WEAR_HEAD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "legs", "Error Loading Criterion.xml: <legs>", doc1), ITEM_WEAR_LEGS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "feet", "Error Loading Criterion.xml: <feet>", doc1), ITEM_WEAR_FEET);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hands", "Error Loading Criterion.xml: <hands>", doc1), ITEM_WEAR_HANDS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "arms", "Error Loading Criterion.xml: <arms>", doc1), ITEM_WEAR_ARMS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1), ITEM_WEAR_SHIELD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1), ITEM_WEAR_ABOUT);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1), ITEM_WEAR_WAIST);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1), ITEM_WEAR_WRIST);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1), ITEM_WEAR_WIELD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), ITEM_WEAR_HOLD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), ITEM_WEAR_BOTHS);
 
-    log("Loading birth places definitions.");
+	
+	for (int i = 1;i < 16; i++)
+	{
+		for(std::map<std::string, double>::iterator it = items_struct[i-1].affects.begin(); it != items_struct[i-1].affects.end(); it++) 
+		{
+			log("Affects String:%s, double:%f", it->first.c_str(), it->second);
+		}
+		for(std::map<std::string, double>::iterator it = items_struct[i-1].params.begin(); it != items_struct[i-1].params.end(); it++) 
+		{
+			log("Affects String:%s, double:%f", it->first.c_str(), it->second);
+		}
+	}	
+	log("Loading birth places definitions.");
 	BirthPlace::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
 
     log("Loading player races definitions.");
@@ -4064,6 +4261,12 @@ char *parse_object(FILE * obj_f, int nr)
 		case '$':
 		case '#':
 			check_object(tobj);
+			if (check_unlimited_timer(tobj))
+			{
+				tobj->set_timer(2147483647);
+				tobj->obj_flags.Obj_max = 999;
+				printf("vnum:%d\n", nr);
+			}	
 			obj_proto.push_back(tobj);
 			top_of_objt = i++;
 			return (line);

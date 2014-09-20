@@ -696,8 +696,6 @@ void beat_points_update(int pulse)
 		}
 		if (AGRO(i) < time(NULL))
 			AGRO(i) = 0;
-			i->agrobd = false;
-
 		beat_punish(i);
 
 // This line is used only to control all situations when someone is

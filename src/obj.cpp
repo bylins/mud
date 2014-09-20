@@ -312,6 +312,8 @@ int obj_data::get_timer() const
 */
 void obj_data::dec_timer(int time)
 {
+	if (timer_ == 2147483647)
+		return;
 	if (time > 0)
 	{
 		timer_ -= time;
