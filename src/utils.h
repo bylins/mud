@@ -1315,6 +1315,8 @@ size_t strlen_no_colors(const char *str);
 #define SEEK_END  2
 #endif
 
+// бесконечный таймер
+#define UTIMER 2147483647
 #define SENDOK(ch)   (((ch)->desc || SCRIPT_CHECK((ch), MTRIG_ACT)) && \
                (to_sleeping || AWAKE(ch)) && \
                      !PLR_FLAGGED((ch), PLR_WRITING))

@@ -4263,7 +4263,7 @@ char *parse_object(FILE * obj_f, int nr)
 			check_object(tobj);
 			if (check_unlimited_timer(tobj))
 			{
-				tobj->set_timer(2147483647);
+				tobj->set_timer(UTIMER);
 				tobj->obj_flags.Obj_max = 999;
 				printf("vnum:%d\n", nr);
 			}	
