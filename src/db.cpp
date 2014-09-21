@@ -410,8 +410,6 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 	// если сумма больше или равна единице
-	if (GET_OBJ_VNUM(obj) == 107)
-		printf("SUM:%f\n", sum);
 	if (sum >= 1)
 		return false;
 	// иначе все норм

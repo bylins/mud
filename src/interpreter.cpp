@@ -2579,6 +2579,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	}
 	case CON_CONSOLE:
 		pers_log(d->character, "<%s> %s", GET_NAME(d->character), arg);
+		log("%s :: python_console :: %s", GET_NAME(d->character), arg);
 		d->console->push(arg);
 		break;
 		//. End of OLC states .
