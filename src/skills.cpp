@@ -944,13 +944,18 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 	if (!killer || !victim)
 		log("SYSERROR: zero character in calculate_awake_mod.");
 	else if (IS_NPC(killer) || IS_NPC(victim))
-		result = victim->get_skill(SKILL_AWAKE) / 2;
+	{
+		// если чар наем, то не режем осторогу вообще, ибо нефиг
+		if (!can_use_feat(victim, SHADOW_STRIKE_FEAT))
+		    result = victim->get_skill(SKILL_AWAKE) / 2;
+		else
+		    result = victim->get_skill(SKILL_AWAKE);
+	}
 	else
 	{
-		if (!can_use_feat(victim, SHADOW_STRIKE_FEAT))
-			result = victim->get_skill(SKILL_AWAKE) / 2;
-		else
-			result = static_cast<int>(victim->get_skill(SKILL_AWAKE) / 2.5);
+		// Нафига резали так сильно осторогу у наемов в ПК ? Наемник - ПК профессия
+		result = victim->get_skill(SKILL_AWAKE) / 2;
+		
 	}
 	return result;
 }

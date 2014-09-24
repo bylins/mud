@@ -546,6 +546,11 @@ void assign_feats(void)
 	feato(SHADOW_STRIKE_FEAT, "танцующая тень", NORMAL_FTYPE, TRUE, feat_app);
 //109
 	feato(THRIFTY_FEAT, "запасливость", NORMAL_FTYPE, TRUE, feat_app);
+//110 
+	// Циничность: Вы настолько циничны, что люди не хотят общаться с Вами 
+	// -25% опыта за зонинг в группе
+	feato(CYNIC_FEAT, "циничность", NORMAL_FTYPE, TRUE, feat_app);
+
 
 	/*
 	//

@@ -1405,6 +1405,13 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		{
 			bs_coeff = 5 + (ch->get_skill(SKILL_BACKSTAB) - 100) / 40;
 		}
+		// Читаем справку по скрытому: Если нанести такой удар в спину противника (ака стаб), то почти
+		// всегда для жертвы такой удар будет смертельным. Однако, в коде скрытый нигде не дает
+		// бонусов для стаба. Решил это исправить
+		// Проверяем, наем ли наш игрок
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT))
+		    if (ch->get_skill(SKILL_NOPARRYHIT))
+			bs_coeff += ch->get_skill(SKILL_NOPARRYHIT)/20;
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))

@@ -562,13 +562,15 @@ int char_stealth_aff[] =
 ///
 /// Сет чару аффектов, которые должны висеть постоянно (через affect_total)
 ///
+// Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
+// Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CHAR_DATA *ch)
 {
-	if (GET_REMORT(ch) <= 0 && !IS_IMMORTAL(ch))
+	if (GET_REMORT(ch) <= 3 && !IS_IMMORTAL(ch))
 	{
-		affect_modify(ch, APPLY_HITREG, 50, AFF_NOOB_REGEN, TRUE);
+		affect_modify(ch, APPLY_HITREG, 60 - (GET_REMORT(ch) * 10), AFF_NOOB_REGEN, TRUE);
 		affect_modify(ch, APPLY_MOVEREG, 100, AFF_NOOB_REGEN, TRUE);
-		affect_modify(ch, APPLY_MANAREG, 100, AFF_NOOB_REGEN, TRUE);
+		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REMORT(ch) * 20), AFF_NOOB_REGEN, TRUE);
 	}
 }
 
