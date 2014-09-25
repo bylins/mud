@@ -1077,6 +1077,7 @@ void check_idling(CHAR_DATA * ch)
 					char_from_room(ch);
 				char_to_room(ch, STRANGE_ROOM);
 				if (ch->desc)
+				{
 					STATE(ch->desc) = CON_DISCONNECT;
 					/*
 					 * For the 'if (d->character)' test in close_socket().

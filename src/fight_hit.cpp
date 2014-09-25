@@ -1384,8 +1384,7 @@ int backstab_mult(int level)
 * Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30)
 * Влияение по 50% от скилла и дексы, максимум 36,18%.
 */
-int calculate_
-crit_backstab_percent(CHAR_DATA *ch)
+int calculate_crit_backstab_percent(CHAR_DATA *ch)
 {
 	return static_cast<int>(ch->get_skill(SKILL_BACKSTAB)/11.0 + (GET_REAL_DEX(ch) - 20) / (GET_REAL_DEX(ch) / 30.0));
 }
@@ -3798,7 +3797,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		else
 		{
-			мобы игнорят вполовину
+			//мобы игнорят вполовину
 			hit_params.flags.set(HALF_IGNORE_ARMOR);
 		}
 		// Наемы фигачат в полтора раза больнее
