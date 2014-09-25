@@ -1384,7 +1384,8 @@ int backstab_mult(int level)
 * Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30)
 * Влияение по 50% от скилла и дексы, максимум 36,18%.
 */
-int calculate_crit_backstab_percent(CHAR_DATA *ch)
+int calculate_
+crit_backstab_percent(CHAR_DATA *ch)
 {
 	return static_cast<int>(ch->get_skill(SKILL_BACKSTAB)/11.0 + (GET_REAL_DEX(ch) - 20) / (GET_REAL_DEX(ch) / 30.0));
 }
@@ -1411,7 +1412,7 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		// Проверяем, наем ли наш игрок
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT))
 		    if (ch->get_skill(SKILL_NOPARRYHIT))
-			bs_coeff += (int)(ch->get_skill(SKILL_NOPARRYHIT)/(number(30, 40)));
+			bs_coeff += ch->get_skill(SKILL_NOPARRYHIT)/(number(30, 40));
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
@@ -3789,17 +3790,22 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		hit_params.flags.reset(CRIT_HIT);
 		hit_params.flags.set(IGNORE_FSHIELD);
-		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
+		if (can_use_feat(ch, THIEVES_STRIKE_FEAT) || can_use_feat(ch, SHADOW_STRIKE_FEAT))
 		{
-			// тати игнорят броню полностью
+			// тати игнорят броню полностью 
+			// и наемы тоже!
 			hit_params.flags.set(IGNORE_ARMOR);
 		}
 		else
 		{
-			// наемы и, видимо, мобы игнорят вполовину
+			мобы игнорят вполовину
 			hit_params.flags.set(HALF_IGNORE_ARMOR);
 		}
-		hit_params.dam *= backstab_mult(GET_LEVEL(ch));
+		// Наемы фигачат в полтора раза больнее
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT))
+		    hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * 1.5;
+		else
+		    hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 		if (number(1, 100) < calculate_crit_backstab_percent(ch)
 			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
 		{

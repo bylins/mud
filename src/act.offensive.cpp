@@ -490,7 +490,9 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (AFF_FLAGGED(ch, AFF_HIDE))
 		prob += 5;	// Add by Alez - Improove in hide stab probability
-
+	// бонус для новичков
+	if (AFF_FLAGGED(ch, AFF_NOOB_REGEN))
+		prob += 5;
 	if (GET_MOB_HOLD(vict))
 		prob = prob * 5 / 4;
 	if (GET_GOD_FLAG(vict, GF_GODSCURSE))

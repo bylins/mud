@@ -831,10 +831,6 @@ void gain_exp(CHAR_DATA * ch, int gain)
 	int num_levels = 0;
 	char buf[128];
 	
-	// Если состоит в группе и имеет способность наемник, то режем экспу на 1/4
-	if ((can_use_feat(ch, CYNIC_FEAT)) && (AFF_FLAGGED(ch, AFF_GROUP)))
-	    gain = gain - (gain*0.25);
-	
 	if (IS_NPC(ch))
 	{
 		ch->set_exp(ch->get_exp() + gain);
@@ -1081,7 +1077,6 @@ void check_idling(CHAR_DATA * ch)
 					char_from_room(ch);
 				char_to_room(ch, STRANGE_ROOM);
 				if (ch->desc)
-				{
 					STATE(ch->desc) = CON_DISCONNECT;
 					/*
 					 * For the 'if (d->character)' test in close_socket().

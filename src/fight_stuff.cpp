@@ -717,9 +717,15 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 		inroom_members = 0;
 
 	// Вычисляем максимальный уровень в группе
+	
 	for (f = k->followers; f; f = f->next)
 		if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
 		{
+			// если в группе наем, то режим опыт всей группе
+			// дабы наема не выгодно было бы брать в группу
+			// ставим 300, чтобы вообще под ноль резало
+			if (can_use_feat(ch, CYNIC_FEAT))
+			    maxlevel = 300;
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
