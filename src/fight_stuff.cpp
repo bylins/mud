@@ -697,8 +697,12 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	CHAR_DATA *k;
 	struct follow_type *f;
 	int leader_inroom;
-
-	maxlevel = GET_LEVEL(ch);
+	
+	// если наем лидер, то тоже режем экспу
+	if (can_use_feat(ch, CYNIC_FEAT))
+	    maxlevel = 300;
+	else
+	    maxlevel = GET_LEVEL(ch);
 
 	if (!(k = ch->master))
 		k = ch;
@@ -718,13 +722,15 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	// Вычисляем максимальный уровень в группе
 	
+	
+	
 	for (f = k->followers; f; f = f->next)
 		if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
 		{
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
-			if (can_use_feat(ch, CYNIC_FEAT))
+			if (can_use_feat(f->follower, CYNIC_FEAT))
 			    maxlevel = 300;
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически

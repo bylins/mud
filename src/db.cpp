@@ -370,8 +370,6 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
 		item_wear = exp_two(ITEM_WEAR_BOTHS);
 	// если предмет никуда не надевается, то облом.
-	if (GET_OBJ_VNUM(obj) == 107)
-		printf("%d\n", item_wear);
 	if (item_wear == -1)
 		return false;
 	// если это сетовый предмет
@@ -380,6 +378,10 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	// если предмет требует реморты, то он явно овер
 	if (obj->get_mort_req() > 0)
 		return false;
+	// проверяем дырки в предмете
+	 if (OBJ_FLAGGED(obj, ITEM_WITH1SLOT) || OBJ_FLAGGED(obj, ITEM_WITH2SLOTS)
+                        || OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))
+		return false;	
 	// проходим по всем характеристикам предмета
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 		if (obj->affected[i].modifier)
@@ -389,8 +391,9 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 			for(std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++) 
 			{
 			
-			if (strcmp(it->first.c_str(), buf2) == 0)
-			{	for (int i = 0; i < obj->affected[i].modifier;i++)
+			if (strcmp(it->first.c_str(), buf2))
+			{	
+			    for (int i = 0; i < obj->affected[i].modifier;i++)
 						sum += it->second; 					
 			}
 				
@@ -4100,6 +4103,10 @@ char *parse_object(FILE * obj_f, int nr)
 	}
 	tobj->obj_flags.Obj_sex = t[0];
 	int timer = t[1] > 0 ? t[1] : SEVEN_DAYS;
+	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
+	// не должно быть
+	if (timer == UTIMER)
+	    timer--;
 	tobj->set_timer(timer);
 	tobj->obj_flags.Obj_spell = t[2];
 	tobj->obj_flags.Obj_level = t[3];
@@ -4262,8 +4269,7 @@ char *parse_object(FILE * obj_f, int nr)
 			if (check_unlimited_timer(tobj))
 			{
 				tobj->set_timer(UTIMER);
-				tobj->obj_flags.Obj_max = 999;
-				printf("vnum:%d\n", nr);
+				GET_OBJ_MIW(tobj) = 999;
 			}	
 			obj_proto.push_back(tobj);
 			top_of_objt = i++;
