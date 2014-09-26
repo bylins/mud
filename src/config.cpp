@@ -203,7 +203,7 @@ room_vnum unreg_start_room = 103;
  * Change the PORT= line in autorun instead of (or in addition to)
  * changing this.
  */
-ush_int DFLT_PORT = 4001;
+ush_int DFLT_PORT = 4000;
 
 /*
  * IP address to which the MUD should bind.  This is only useful if
