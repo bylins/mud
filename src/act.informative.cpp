@@ -4239,7 +4239,7 @@ ACMD(do_who)
 							genders[(int)GET_SEX(tch)]);
 				}
 			}
-			if ((GET_LEVEL(ch) == LVL_IMPL) && (RENTABLE(ch)))
+			if ((GET_LEVEL(ch) == LVL_IMPL) && (RENTABLE(tch)))
 			    sprintf(buf + strlen(buf), " &R(÷ ëòï÷é)&n");
 			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && NAME_BAD(tch))
 			{

@@ -740,6 +740,7 @@ void setall_inspect()
 						{
 							if (GET_LEVEL(vict) >= LVL_GOD)
 							{
+								sprintf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
 								it->second->out += buf1;
 								continue;
 							}
@@ -802,8 +803,8 @@ void setall_inspect()
 							continue;
 						}
 						Password::set_password(d_vict->character, std::string(it->second->pwd));
-						sprintf(buf1, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
-						it->second->out += buf1;
+						sprintf(buf2, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
+						it->second->out += buf2;
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
 					}
 					else
@@ -822,8 +823,8 @@ void setall_inspect()
 							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
-						sprintf(buf1, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
-						it->second->out += buf1;
+						sprintf(buf2, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
+						it->second->out += buf2;
 						add_karma(vict, buf2, GET_NAME(imm_d->character));
 						vict->save_char();
 					}
