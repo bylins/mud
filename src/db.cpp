@@ -4112,7 +4112,10 @@ char *parse_object(FILE * obj_f, int nr)
 	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
 	// не должно быть
 	if (timer == UTIMER)
+	{
 	    timer--;
+            SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_TICKTIMER), ITEM_TICKTIMER);
+	}
 	tobj->set_timer(timer);
 	tobj->obj_flags.Obj_spell = t[2];
 	tobj->obj_flags.Obj_level = t[3];
@@ -4275,7 +4278,8 @@ char *parse_object(FILE * obj_f, int nr)
 			if (check_unlimited_timer(tobj))
 			{
 				tobj->set_timer(UTIMER);
-				GET_OBJ_MIW(tobj) = 999;
+				GET_OBJ_MIW(tobj) = 10000;
+				REMOVE_BIT(GET_OBJ_EXTRA(tobj, ITEM_TICKTIMER), ITEM_TICKTIMER);
 			}	
 			obj_proto.push_back(tobj);
 			top_of_objt = i++;
