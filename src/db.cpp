@@ -391,10 +391,15 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 			for(std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++) 
 			{
 			
-			if (strcmp(it->first.c_str(), buf2))
+			//printf("Buf2:%s, it:%s, vnum: %d, mod:%d\n", buf2, it->first.c_str(), GET_OBJ_VNUM(obj), obj->affected[i].modifier);
+			if (strcmp(it->first.c_str(), buf2) == 0)
 			{	
-			    for (int i = 0; i < obj->affected[i].modifier;i++)
-						sum += it->second; 					
+			    //printf("!\n");
+			    for (int j = 0; j < fabs(obj->affected[i].modifier);j++)
+			    {
+				sum += it->second; 					
+				//printf("Sum:%f, it: %f", sum, it->second);
+			    }
 			}
 				
 				//std::cout << it->first << " " << it->second << std::endl;
@@ -413,6 +418,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 	// если сумма больше или равна единице
+	//printf("Summ:%f\n", sum);
 	if (sum >= 1)
 		return false;
 	// иначе все норм
