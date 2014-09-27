@@ -4278,7 +4278,7 @@ char *parse_object(FILE * obj_f, int nr)
 			if (check_unlimited_timer(tobj))
 			{
 				tobj->set_timer(UTIMER);
-				GET_OBJ_MIW(tobj) = 10000;
+				GET_OBJ_MIW(tobj) = -1;
 				REMOVE_BIT(GET_OBJ_EXTRA(tobj, ITEM_TICKTIMER), ITEM_TICKTIMER);
 			}	
 			obj_proto.push_back(tobj);
