@@ -358,7 +358,7 @@ const char *diag_obj_timer(const OBJ_DATA * obj)
 		{
 			return "Прототип предмета имеет нулевой таймер!\r\n";
 		}
-		if (prot_timer == UTIMER)
+		if (obj->get_timer() == UTIMER)
 		    return "Нерушим";
 		int tm = (obj->get_timer() * 100 / prot_timer);
 		return print_obj_state(tm);
