@@ -373,7 +373,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	if (item_wear == -1)
 		return false;
 	// если это сетовый предмет
-	if (SetSystem::is_big_set(obj))
+	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF))
 		return false;
 	// если предмет требует реморты, то он явно овер
 	if (obj->get_mort_req() > 0)

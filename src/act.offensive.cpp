@@ -484,6 +484,11 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	percent = number(1, skill_info[SKILL_BACKSTAB].max_percent);
 	prob = train_skill(ch, SKILL_BACKSTAB, skill_info[SKILL_BACKSTAB].max_percent, vict);
+	//printf("probsssss: %d, skillinfo: %d\n", prob, skill_info[SKILL_BACKSTAB].max_percent);
+	// в функции hit уже есть проверка на попал/не попал.
+	// из-за этого шанс стабануть о маломорченных наемов очень маленький
+	if (can_use_feat(ch, SHADOW_STRIKE_FEAT))
+		prob = percent;
 
 	if (vict->get_fighting())
 		prob = prob * (GET_REAL_DEX(ch) + 50) / 100;
@@ -499,14 +504,16 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = percent;
 	if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE))
 		prob = 0;
-
+//	printf("per:%d, prob:%d\n", percent, prob);
 	if (percent > prob)
 	{
+//		printf("DAMAGE\n");
 		Damage dmg(SkillDmg(SKILL_BACKSTAB), 0, FightSystem::PHYS_DMG);
 		dmg.process(ch, vict);
 	}
 	else
 	{
+//		printf("1\n");
 		hit(ch, vict, SKILL_BACKSTAB, 1);
 	}
 	set_wait(ch, 2, TRUE);
