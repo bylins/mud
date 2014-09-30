@@ -2107,7 +2107,7 @@ int Crash_load(CHAR_DATA * ch)
 			obj_index[rnum].stored--;
 		}
 		// в два действия, чтобы заодно снять и таймер обкаста
-		if (!(obj->get_timer() != UTIMER))
+		if (obj->get_timer() != UTIMER)
 		{
 		    obj->set_timer(SAVEINFO(index)->time[fsize].timer);
 		    obj->dec_timer(timer_dec);
