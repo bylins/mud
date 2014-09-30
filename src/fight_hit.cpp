@@ -1411,7 +1411,7 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		// Проверяем, наем ли наш игрок
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT))
 		    if (ch->get_skill(SKILL_NOPARRYHIT))
-			bs_coeff += ch->get_skill(SKILL_NOPARRYHIT)/(number(70,80));
+			bs_coeff += ch->get_skill(SKILL_NOPARRYHIT)/(number(30,40));
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
