@@ -391,7 +391,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 		item_wear = exp_two(ITEM_WEAR_HOLD);
 	if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
 		item_wear = exp_two(ITEM_WEAR_BOTHS);
-	if (!type_item)
+	if (type_item)
 	    return false;
 	// находится ли объект в системной зоне
 	if (check_obj_in_system_zone(GET_OBJ_RNUM(obj)))
