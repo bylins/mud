@@ -336,16 +336,16 @@ bool check_obj_in_system_zone(int vnum)
 {
     // ковка
     if ((vnum < 400) && (vnum > 299))
-	return false;
+	return true;
     // сет-шмот
     if ((vnum >= 1200) && (vnum <= 1299))
-	return false; 
+	return true; 
     if ((vnum >= 2300) && (vnum <= 2399))
-	return false;
+	return true;
     // луки
     if ((vnum >= 1500) && (vnum <= 1599))
-	return false;
-    return true;
+	return true;
+    return false;
 }
 
 bool check_unlimited_timer(OBJ_DATA *obj)
@@ -391,7 +391,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 		item_wear = exp_two(ITEM_WEAR_HOLD);
 	if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
 		item_wear = exp_two(ITEM_WEAR_BOTHS);
-	if (type_item)
+	if (!type_item)
 	    return false;
 	// находится ли объект в системной зоне
 	if (check_obj_in_system_zone(GET_OBJ_RNUM(obj)))
