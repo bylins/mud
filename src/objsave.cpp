@@ -2112,6 +2112,12 @@ int Crash_load(CHAR_DATA * ch)
 		    obj->set_timer(SAVEINFO(index)->time[fsize].timer);
 		    obj->dec_timer(timer_dec);
 		}
+		else
+		{
+		    int temp_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
+		    if (obj->get_timer() > temp_timer)
+			obj->set_timer(temp_timer);
+		}
 
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0)
