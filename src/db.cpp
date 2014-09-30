@@ -331,11 +331,33 @@ int exp_two(int number)
 		count++;
 	}
 }
+
+bool check_obj_in_system_zone(int vnum)
+{
+    // ковка
+    if ((vnum < 400) && (vnum > 299))
+	return false;
+    // сет-шмот
+    if ((vnum >= 1200) && (vnum <= 1299))
+	return false; 
+    if ((vnum >= 2300) && (vnum <= 2399))
+	return false;
+    // луки
+    if ((vnum >= 1500) && (vnum <= 1599))
+	return false;
+    return true;
+}
+
 bool check_unlimited_timer(OBJ_DATA *obj)
 {
 	//sleep(15);
 	// куда одевается наш предмет
 	int item_wear = -1;
+	bool type_item = false;
+	if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR)  ||
+	    (GET_OBJ_TYPE(obj) == ITEM_STAFF)  ||
+	    (GET_OBJ_TYPE(obj) == ITEM_WEAPON))
+		type_item = true;
 	// сумма
 	double sum = 0;
 	// по другому чот не получилось
@@ -369,9 +391,14 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 		item_wear = exp_two(ITEM_WEAR_HOLD);
 	if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
 		item_wear = exp_two(ITEM_WEAR_BOTHS);
-	// если предмет никуда не надевается, то облом.
+	if (!type_item)
+	    return false;
+	// находится ли объект в системной зоне
+	if (check_obj_in_system_zone(GET_OBJ_RNUM(obj)))
+	    return false;
+	// если объект никуда не надевается, то все, облом
 	if (item_wear == -1)
-		return false;
+	    return false;
 	// если это сетовый предмет
 	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
 		return false;
