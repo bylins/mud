@@ -15,8 +15,13 @@ void init();
 void terminate();
 bool execute_player_command(CHAR_DATA* ch, const char* command, const char* args);
 void heartbeat();
+// Events aka События
 void on_pc_dead(CHAR_DATA* ch, CHAR_DATA* killer, OBJ_DATA* corpse);
 void on_npc_dead(CHAR_DATA* ch, CHAR_DATA* killer, OBJ_DATA* corpse);
+void on_enter_pc(CHAR_DATA* ch);
+void on_say_pc(CHAR_DATA* ch, char *argument);
+void on_input_command(CHAR_DATA* ch, char *argument, int cmd, int subcmd);
+
 class Console_impl;
 
 class Console

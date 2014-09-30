@@ -803,7 +803,7 @@ void setall_inspect()
 							continue;
 						}
 						Password::set_password(d_vict->character, std::string(it->second->pwd));
-						sprintf(buf2, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
+						sprintf(buf2, "У чара %s изменен пароль\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
 					}
@@ -823,7 +823,7 @@ void setall_inspect()
 							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
-						sprintf(buf2, "У чара %s изменен пароль на %s\r\n", player_table[it->second->pos].name, it->second->pwd);
+						sprintf(buf2, "У чара %s изменен пароль\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(vict, buf2, GET_NAME(imm_d->character));
 						vict->save_char();

@@ -1885,7 +1885,6 @@ void scripting::on_npc_dead(CHAR_DATA* ch, CHAR_DATA* killer, OBJ_DATA* corpse)
 	publish_event(EVENT_NPC_DEAD, kwargs);
 }
 
-
 class scripting::Console_impl
 {
 public:
