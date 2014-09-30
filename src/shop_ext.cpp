@@ -1040,7 +1040,10 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 long get_sell_price(OBJ_DATA * obj)
 {
 	long cost = GET_OBJ_COST(obj);
-	cost = obj_proto[GET_OBJ_RNUM(obj)]->get_timer()<=0 ? 1 : (long)cost * ((float)obj->get_timer() / (float)obj_proto[GET_OBJ_RNUM(obj)]->get_timer()); //учтем таймер
+	int timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
+	if (timer < obj->get_timer())
+	    obj->set_timer(timer);
+	cost = timer <= 0 ? 1 : (long)cost * ((float)obj->get_timer() / (float)timer); //учтем таймер
 	cost = obj->obj_flags.Obj_max <=0 ? 1 : (long)cost*((float)obj->obj_flags.Obj_cur / (float)obj->obj_flags.Obj_max); //учтем повреждения
 	return MMAX(1, cost);
 }
@@ -1110,8 +1113,11 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		}
 	}
 	long buy_price = GET_OBJ_COST(obj);
-
-	buy_price = obj_proto[rnum]->get_timer()<=0 ? 1 : (long)buy_price*((float)obj->get_timer() / (float)obj_proto[rnum]->get_timer()); //учтем таймер
+	int timer = obj_proto[rnum]->get_timer();
+	if (timer < obj->get_timer())
+	    obj->set_timer(timer);
+	
+	buy_price = timer <=0 ? 1 : (long)buy_price*((float)obj->get_timer() / (float)timer); //учтем таймер
 
 	buy_price = obj->obj_flags.Obj_max <=0 ? 1 : (long)buy_price*((float)obj->obj_flags.Obj_cur / (float)obj->obj_flags.Obj_max); //учтем повреждения
 
