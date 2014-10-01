@@ -205,13 +205,13 @@ void verify_set(set_node &set)
 		{
 			err_log("сет #%zu: empty obj proto (vnum=%d)", num, i->first);
 			set.enabled = false;
-		}
+		}/*
 		else if (OBJ_FLAGGED(obj_proto[rnum], ITEM_SETSTUFF))
 		{
 			err_log("сет #%zu: obj have ITEM_SETSTUFF flag (vnum=%d)",
 				num, i->first);
 			set.enabled = false;
-		}
+		}*/
 		else if (!verify_wear_flag(obj_proto[rnum]))
 		{
 			err_log("сет #%zu: obj have invalid wear flag (vnum=%d)",
