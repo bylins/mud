@@ -418,14 +418,11 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 			for(std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++) 
 			{
 			
-			//printf("Buf2:%s, it:%s, vnum: %d, mod:%d\n", buf2, it->first.c_str(), GET_OBJ_VNUM(obj), obj->affected[i].modifier);
 			if (strcmp(it->first.c_str(), buf2) == 0)
 			{	
-			    //printf("!\n");
 			    for (int j = 0; j < fabs(obj->affected[i].modifier);j++)
 			    {
 				sum += it->second; 					
-				//printf("Sum:%f, it: %f", sum, it->second);
 			    }
 			}
 				
@@ -445,7 +442,6 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 	// если сумма больше или равна единице
-	//printf("Summ:%f\n", sum);
 	if (sum >= 1)
 		return false;
 	// иначе все норм
@@ -460,13 +456,11 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 void Load_Criterion(pugi::xml_node XMLCriterion, int type)
 {
 	int index = exp_two(type);
-	log("%d", index);
 	pugi::xml_node params, CurNode, affects;
 	params = XMLCriterion.child("params");
 	affects = XMLCriterion.child("affects");
 	
 	// добавляем в массив все параметры, типа силы, ловкости, каст и тд
-	log("1");
 	for (CurNode = params.child("param"); CurNode; CurNode = CurNode.next_sibling("param"))
 	{
 		items_struct[index-1].params.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
@@ -474,7 +468,6 @@ void Load_Criterion(pugi::xml_node XMLCriterion, int type)
 	}
 	
 	// добавляем в массив все аффекты
-	log("2");
 	for (CurNode = affects.child("affect"); CurNode; CurNode = CurNode.next_sibling("affect"))
 	{
 		items_struct[index-1].affects.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
@@ -2892,7 +2885,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	{
 		if (!get_line(fl, line))
 		{
-			log(buf);
+			log("%s", buf);
 			exit(1);
 		}
 		switch (*line)
@@ -2914,7 +2907,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			else
 			{
 				sprintf(buf, "SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
-				log(buf);
+				log("%s", buf);
 				free(new_descr);
 			}
 			break;
@@ -2943,7 +2936,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			top_of_world = room_nr++;
 			return;
 		default:
-			log(buf);
+			log("%s", buf);
 			exit(1);
 		}
 	}
@@ -4244,7 +4237,7 @@ char *parse_object(FILE * obj_f, int nr)
 			else
 			{
 				sprintf(buf, "SYSERR: Format error in %s (Corrupt extradesc)", buf2);
-				log(buf);
+				log("%s", buf);
 				free(new_descr);
 			}
 			break;
