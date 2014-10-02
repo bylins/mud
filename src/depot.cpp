@@ -1368,6 +1368,9 @@ void CharNode::load_online_objs(int file_type, bool reload)
 			{
 				depot_log("load object %s %d %d", obj->short_description, GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
 				obj->set_timer(obj_it->timer);
+                         	int temp_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
+                                if (obj->get_timer() > temp_timer)
+                                        obj->set_timer(temp_timer);
 				// надо уменьшать макс в мире на постое, макс в мире шмотки в игре
 				// увеличивается в read_one_object_new через read_object
 				int rnum = real_object(GET_OBJ_VNUM(obj));

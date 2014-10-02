@@ -289,7 +289,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 20;
 				object->set_timer(atoi(buffer));
-			        int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
+				int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
 		                if (object->get_timer() > temp_timer)
 					object->set_timer(temp_timer);
 			}
