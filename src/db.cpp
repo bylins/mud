@@ -394,7 +394,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	if (!type_item)
 	    return false;
 	// находится ли объект в системной зоне
-	if (check_obj_in_system_zone(GET_OBJ_RNUM(obj)))
+	if (check_obj_in_system_zone(GET_OBJ_VNUM(obj)))
 	    return false;
 	// если объект никуда не надевается, то все, облом
 	if (item_wear == -1)
