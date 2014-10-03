@@ -289,9 +289,12 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 20;
 				object->set_timer(atoi(buffer));
-				int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
-		                if (object->get_timer() > temp_timer)
-					object->set_timer(temp_timer);
+				if (vnum > 0)
+				{
+				    int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
+		            	    if (object->get_timer() > temp_timer)
+					    object->set_timer(temp_timer);
+				}
 			}
 			else if (!strcmp(read_line, "Spll"))
 			{
@@ -732,10 +735,12 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		return (object);
 	GET_OBJ_SEX(object) = t[0];
 	object->set_timer(t[1]);
-	int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
-        if (object->get_timer() > temp_timer)
-            object->set_timer(temp_timer);
-
+	if (vnum > 0)
+	{
+		int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
+    		if (object->get_timer() > temp_timer)
+        	    object->set_timer(temp_timer);
+	}
 	GET_OBJ_SPELL(object) = t[2];
 	GET_OBJ_LEVEL(object) = t[3];
 
