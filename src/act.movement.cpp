@@ -1568,6 +1568,7 @@ ACMD(do_enter)
 						CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 					pkPortal(ch);
 				}
+				check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
 				char_from_room(ch);
 				char_to_room(ch, door);
 				set_wait(ch, 3, FALSE);
@@ -1594,6 +1595,7 @@ ACMD(do_enter)
 							IN_ROOM(k->follower) == from_room &&
 							AWAKE(k->follower))
 					{
+						check_light(k->follower, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
 						act("$n исчез$q в пентаграмме.", TRUE,
 							k->follower, 0, 0, TO_ROOM);
 						char_from_room(k->follower);
