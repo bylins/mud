@@ -1599,6 +1599,8 @@ ACMD(do_enter)
 						char_from_room(k->follower);
 						char_to_room(k->follower, door);
 						set_wait(k->follower, 3, FALSE);
+						// на чармисах тоже могут быть свет и тьма
+						check_light(k->follower, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
 						act("$n появил$u из пентаграммы.", TRUE,
 							k->follower, 0, 0, TO_ROOM);
 					}
@@ -1613,6 +1615,7 @@ ACMD(do_enter)
 				}
 				if (ch->desc != NULL)
 					look_at_room(ch, 0);
+				check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
 			}
 		}
 		else

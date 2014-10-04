@@ -3713,6 +3713,12 @@ ACMD(do_score)
 		sprintf(buf, "Вы находитесь в звериной форме - %s.\r\n", ch->get_morph_desc().c_str());
 		send_to_char(buf, ch);
 	}
+	if (GET_LEVEL(ch) >= LVL_GOD)
+        {
+                sprintf(buf,"Light:%d Glight:%d gdark%d \r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark);
+                send_to_char(buf,ch);
+        }
+
 }
 
 //29.11.09 Отображение количества рипов (с) Василиса

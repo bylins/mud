@@ -303,9 +303,9 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 			world[ch->in_room]->gdark = MAX(0, world[ch->in_room]->gdark - koef);
 	}
 
-	/*if (IS_IMMORTAL(ch))
+/*	if (GET_LEVEL(ch) >= LVL_GOD)
 	{
-		sprintf(buf,"%d %d %d (%d)\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
+		sprintf(buf,"Light:%d Glight:%d gdark%d koef:%d\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
 		send_to_char(buf,ch);
 	}*/
 }
