@@ -11,6 +11,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include <boost/cstdint.hpp>
+#include <vector>
 
 #include "sysdep.h"
 #include "structs.h"
@@ -23,6 +24,7 @@
 #include "map.hpp"
 #include "reset_stats.hpp"
 #include "boards.h"
+#include "quest.hpp"
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
@@ -143,6 +145,8 @@ private:
 	Quested quested_;
 	// замаксы по отдельным мобам
 	MobMax mobmax_;
+	// Квесты
+	std::vector<Quest> quests;
 	// последняя введенная строка (от спама)
 	std::string last_tell_;
 	// id последнего телявшего (для ответа)

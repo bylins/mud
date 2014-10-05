@@ -123,6 +123,8 @@ ACMD(do_commands);
 ACMD(do_looking);
 ACMD(do_hearing);
 ACMD(do_sides);
+ACMD(do_quest);
+
 void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch);
 void look_at_char(CHAR_DATA * i, CHAR_DATA * ch);
 void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode);
@@ -136,6 +138,12 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd);
 void gods_day_now(CHAR_DATA * ch);
 #define EXIT_SHOW_WALL    (1 << 0)
 #define EXIT_SHOW_LOOKING (1 << 1)
+
+ACMD(do_quest)
+{
+    send_to_char("У Вас нет никаких поручений.\r\n", ch);
+}
+
 /*
  * This function screams bitvector... -gg 6/45/98
  */
