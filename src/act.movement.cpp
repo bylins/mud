@@ -1594,7 +1594,6 @@ ACMD(do_enter)
 							IN_ROOM(k->follower) == from_room &&
 							AWAKE(k->follower))
 					{
-						check_light(k->follower, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
 						act("$n исчез$q в пентаграмме.", TRUE,
 							k->follower, 0, 0, TO_ROOM);
 						char_from_room(k->follower);
