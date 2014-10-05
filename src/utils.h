@@ -386,7 +386,7 @@ extern SPECIAL(shop_ext);
 
 
 #define IS_DARK(room)      ((world[room]->gdark > (world[room]->glight + world[room]->light + world[room]->fires)) || \
-                            (!(world[room]->gdark < (world[room]->glight + world[room]->light + world[room]->fires) && \
+                            (!(world[room]->gdark < (world[room]->glight + world[room]->light + world[room]->fires)) && \
                               !ROOM_AFFECTED(room, AFF_ROOM_LIGHT) && \
 				(ROOM_FLAGGED(room, ROOM_DARK) || \
                               (SECT(room) != SECT_INSIDE && \
