@@ -8,6 +8,7 @@ lib
 log/*
 src/Bylins.*
 src/Debug/*
+src/config.cpp
 src.old/*
 backup/*
 syslog
