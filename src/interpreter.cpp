@@ -3090,11 +3090,9 @@ Sventovit
 			SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
 			return;
 		}
-		sprintf(buf, "Для Вашей профессией больше всего подходит %s \r\n", default_race[GET_CLASS(d->character)]);
-		SEND_TO_Q(buf, d);
 		SEND_TO_Q("\r\nКакой род вам ближе всего по духу:\r\n", d);
 		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-		sprintf(buf, "Для Вашей профессией больше всего подходит %s", default_race[GET_CLASS(d->character)]);
+		sprintf(buf, "Для вашей профессией больше всего подходит %s", default_race[GET_CLASS(d->character)]);
 		SEND_TO_Q(buf, d);
 		SEND_TO_Q("\r\nИз чьих вы будете : ", d);
 		STATE(d) = CON_RACE;
