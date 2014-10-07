@@ -91,6 +91,7 @@ extern int no_specials;
 extern int max_bad_pws;
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
+extern const char *default_race[];
 
 extern struct pclean_criteria_data pclean_criteria[];
 
@@ -3089,9 +3090,12 @@ Sventovit
 			SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
 			return;
 		}
-
+		sprintf(buf, "Для Вашей профессией больше всего подходит %s \r\n", default_race[GET_CLASS(d->character)]);
+		SEND_TO_Q(buf, d);
 		SEND_TO_Q("\r\nКакой род вам ближе всего по духу:\r\n", d);
 		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+		sprintf(buf, "Для Вашей профессией больше всего подходит %s", default_race[GET_CLASS(d->character)]);
+		SEND_TO_Q(buf, d);
 		SEND_TO_Q("\r\nИз чьих вы будете : ", d);
 		STATE(d) = CON_RACE;
 		break;
@@ -3665,7 +3669,7 @@ Sventovit
     case CON_RESET_RACE:
 		if (pre_help(d->character, arg))
 		{
-            SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
+			SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
             SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
 			SEND_TO_Q("\r\nРод: ", d);
 			STATE(d) = CON_RESET_RACE;

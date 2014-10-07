@@ -68,6 +68,44 @@ int min_stats[][6] =
 	{15, 10, 19, 15, 12, 12}	// Волхв //
 };
 
+int auto_stats[][6] =
+	// Str Dex Int Wis Con Cha //
+{ {11, 10, 24, 25, 15, 10},	// Лекарь //
+	{12,  9, 25, 23, 13, 13},	// Колдун //
+	{19, 25,  12,  9, 17, 13},	// Вор //
+	{25,  8, 15, 12, 25, 10},	// Богатырь //
+	{22, 24, 11, 11, 15, 12},	// Наемник //
+	{23, 17, 10, 10, 23, 12},	// Дружинник //
+	{10,  9, 25, 22, 13, 16},	// Кудесник //
+	{10,  9, 25, 22, 13, 16},	// Волшебник //
+	{14,  9, 25, 23, 14, 10},	// Чернокнижник //
+	{22, 13, 12, 17, 18, 13},	// Витязь //
+	{25, 21, 11, 11, 16, 11},	// Охотник //
+	{25, 17, 10, 11, 20, 12},	// Кузнец //
+	{18, 17, 14, 11, 18, 17},	// Купец //
+	{16, 10, 24, 18, 15, 12}	// Волхв //
+};
+
+
+const char *default_race[] = { 
+	"Кривичи", //лекарь
+	"Веляне", //колдун
+    "Поляне", //вор
+    "Северяне или Вятичи", //богатырь
+	"Поляне", //наемник
+	"Поляне или Вятичи", // дружинник
+	"Веляне", // кудесник
+	"Веляне", //волшебник
+	"Веляне или Кривичи", //Чернокнижник
+	"Поляне", //витязь
+	"Поляне", //охотник
+	"Северяне", //кузнец
+	"Веляне или Поляне", // купец
+	"Веляне" //волхв
+};
+
+
+
 void genchar_disp_menu(CHAR_DATA * ch)
 {
 	char buf[MAX_STRING_LENGTH];
@@ -83,7 +121,8 @@ void genchar_disp_menu(CHAR_DATA * ch)
 			"\r\n"
 			"  Можно добавить: %3d \r\n"
 			"\r\n"
-			"  П) Помощь (для доп. информации наберите 'справка характеристики')\r\n",
+			"  П) Помощь (для доп. информации наберите 'справка характеристики')\r\n"
+			"  О) &WАвтоматически сгенировать (рекомендуется для новичков)&n\r\n",
 			ch->get_inborn_str(), MIN_STR(ch), MAX_STR(ch),
 			ch->get_inborn_dex(), MIN_DEX(ch), MAX_DEX(ch),
 			ch->get_inborn_int(), MIN_INT(ch), MAX_INT(ch),
@@ -98,6 +137,7 @@ void genchar_disp_menu(CHAR_DATA * ch)
 
 int genchar_parse(CHAR_DATA * ch, char *arg)
 {
+	int tmp_class;
 	switch (*arg)
 	{
 	case 'А':
@@ -157,6 +197,22 @@ int genchar_parse(CHAR_DATA * ch, char *arg)
 		if (SUM_STATS(ch) != SUM_ALL_STATS)
 			break;
 		// по случаю успешной генерации сохраняем стартовые статы
+		ch->set_start_stat(G_STR, ch->get_inborn_str());
+		ch->set_start_stat(G_DEX, ch->get_inborn_dex());
+		ch->set_start_stat(G_INT, ch->get_inborn_int());
+		ch->set_start_stat(G_WIS, ch->get_inborn_wis());
+		ch->set_start_stat(G_CON, ch->get_inborn_con());
+		ch->set_start_stat(G_CHA, ch->get_inborn_cha());
+		return GENCHAR_EXIT;
+	case 'О':
+	case 'о':
+		tmp_class = GET_CLASS(ch);
+		ch->set_str(auto_stats[tmp_class][0]);
+		ch->set_dex(auto_stats[tmp_class][1]);
+		ch->set_int(auto_stats[tmp_class][2]);
+		ch->set_wis(auto_stats[tmp_class][3]);
+		ch->set_con(auto_stats[tmp_class][4]);
+		ch->set_cha(auto_stats[tmp_class][5]);
 		ch->set_start_stat(G_STR, ch->get_inborn_str());
 		ch->set_start_stat(G_DEX, ch->get_inborn_dex());
 		ch->set_start_stat(G_INT, ch->get_inborn_int());
