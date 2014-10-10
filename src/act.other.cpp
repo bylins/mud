@@ -3823,15 +3823,12 @@ bool is_dark(room_rnum room)
 			coef += 1.0;
 		// если на чаре аффект свет
 		if (AFF_FLAGGED(tmp_ch, AFF_SINGLELIGHT))
-			coef += 1.0;
-		// свет (закл)
-		if (AFF_FLAGGED(tmp_ch, AFF_SINGLELIGHT))
-			coef += 1.0;
+			coef += 3.0;
 		// освещение ?
 		if (AFF_FLAGGED(tmp_ch, AFF_HOLYLIGHT))
 			coef += 1.0;
 		// Санка. Логично, что если чар светится ярким сиянием, то это сияние распространяется на комнату
-		if (AFF_FLAGGED(tmp_ch, AFF_HOLYLIGHT))
+		if (AFF_FLAGGED(tmp_ch, AFF_SANCTUARY))
 			coef += 1.0;
 		// Тьма. Сразу фигачим коэф 3. 
 		if (AFF_FLAGGED(tmp_ch, AFF_HOLYDARK))
