@@ -65,6 +65,7 @@ const char *spell_name(int num);
 
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 
 // external functions
 int ext_search_block(const char *arg, const char **list, int exact);
@@ -1878,7 +1879,12 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				num = real_object(num);
 				if (num >= 0)
 				{
-					sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));
+					// если о прототипа беск.таймер, то по идее
+					// и у объекта должен быть беск.таймер
+					if (check_unlimited_timer(obj_proto[num]))
+					    sprintf(str, "-1");
+					else
+					    sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));
 				}
 			}
 //-Polud

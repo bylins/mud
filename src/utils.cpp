@@ -62,7 +62,6 @@ int valid_email(const char *address);
 // external functions
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
-
 // Файл для вывода
 FILE *logfile = NULL;
 

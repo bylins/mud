@@ -68,7 +68,7 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
 void asciiflag_conv(const char *flag, void *value);
 extern int convert_drinkcon_skill(OBJ_DATA *obj, bool proto);
-
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 // local functions
 void Crash_extract_norent_eq(CHAR_DATA * ch);
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location);
@@ -291,9 +291,16 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				object->set_timer(atoi(buffer));
 				if (vnum > 0)
 				{
+					// на тот случай, если есть объекты с таймером, больше таймера прототипа
 				    int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
 		            	    if (object->get_timer() > temp_timer)
-					    object->set_timer(temp_timer);
+					object->set_timer(temp_timer);
+					// проверяем наш объект на беск.таймер
+					if (check_unlimited_timer(object))
+					{
+						// ставим беск.таймер
+						object->set_timer(UTIMER);
+					}
 				}
 			}
 			else if (!strcmp(read_line, "Spll"))
@@ -735,12 +742,6 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		return (object);
 	GET_OBJ_SEX(object) = t[0];
 	object->set_timer(t[1]);
-	if (vnum > 0)
-	{
-		int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
-    		if (object->get_timer() > temp_timer)
-        	    object->set_timer(temp_timer);
-	}
 	GET_OBJ_SPELL(object) = t[2];
 	GET_OBJ_LEVEL(object) = t[3];
 
@@ -2124,13 +2125,6 @@ int Crash_load(CHAR_DATA * ch)
 		    obj->set_timer(SAVEINFO(index)->time[fsize].timer);
 		    obj->dec_timer(timer_dec);
 		}
-		else
-		{
-		    int temp_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
-		    if (obj->get_timer() > temp_timer)
-			obj->set_timer(temp_timer);
-		}
-
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0)
 		{

@@ -105,7 +105,7 @@ int extra_damroll(int class_num, int level);
 int Crash_delete_file(char *name, int mask);
 void do_entergame(DESCRIPTOR_DATA * d);
 ACMD(do_return);
-
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 extern void check_auction(CHAR_DATA * ch, OBJ_DATA * obj);
 extern void check_exchange(OBJ_DATA * obj);
 void free_script(SCRIPT_DATA * sc);
@@ -1476,7 +1476,13 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			object->next_content = ch->carrying;
 			ch->carrying = object;
 		}
-
+		
+		// проверяем наш объект на беск.таймер
+		if (check_unlimited_timer(object))
+		{
+			// ставим беск.таймер
+			object->set_timer(UTIMER);
+		}
 		object->carried_by = ch;
 		object->in_room = NOWHERE;
 		IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);

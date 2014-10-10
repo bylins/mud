@@ -315,7 +315,7 @@ struct Item_struct
 };
 
 // массив для критерии, каждый элемент массива это отдельный слот
-Item_struct items_struct[16]; // = new Item_struct[16];
+Item_struct items_struct[17]; // = new Item_struct[16];
 // определение степени двойки
 int exp_two(int number)
 {
@@ -358,8 +358,10 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	    (GET_OBJ_TYPE(obj) == ITEM_STAFF)  ||
 	    (GET_OBJ_TYPE(obj) == ITEM_WEAPON))
 		type_item = true;
-	// сумма
+	// сумма для статов
 	double sum = 0;
+	// сумма для аффектов
+	double sum_aff = 0;
 	// по другому чот не получилось
 	if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
 		item_wear = exp_two(ITEM_WEAR_FINGER);
@@ -437,12 +439,15 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 				// проверяем, есть ли наш аффект на предмете
 				if (strstr(buf, it->first.c_str()) != NULL)
 				{
-					sum += it->second;
+					sum_aff += it->second;
 				}
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 	// если сумма больше или равна единице
 	if (sum >= 1)
+		return false;
+	// тоже самое для аффектов на объекте
+	if (sum_aff >= 1)
 		return false;
 	// иначе все норм
 	return true;
@@ -463,15 +468,15 @@ void Load_Criterion(pugi::xml_node XMLCriterion, int type)
 	// добавляем в массив все параметры, типа силы, ловкости, каст и тд
 	for (CurNode = params.child("param"); CurNode; CurNode = CurNode.next_sibling("param"))
 	{
-		items_struct[index-1].params.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
-		log("str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
+		items_struct[index].params.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
+		//log("str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
 	}
 	
 	// добавляем в массив все аффекты
 	for (CurNode = affects.child("affect"); CurNode; CurNode = CurNode.next_sibling("affect"))
 	{
-		items_struct[index-1].affects.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
-		log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
+		items_struct[index].affects.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
+		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
 	}	
 	
 }
@@ -1998,18 +2003,19 @@ void boot_db(void)
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), ITEM_WEAR_HOLD);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), ITEM_WEAR_BOTHS);
 
-	
+	/*
 	for (int i = 1;i < 16; i++)
 	{
-		for(std::map<std::string, double>::iterator it = items_struct[i-1].affects.begin(); it != items_struct[i-1].affects.end(); it++) 
+		log("typs:%d", i);
+		for(std::map<std::string, double>::iterator it = items_struct[i].affects.begin(); it != items_struct[i-1].affects.end(); it++) 
 		{
 			log("Affects String:%s, double:%f", it->first.c_str(), it->second);
 		}
-		for(std::map<std::string, double>::iterator it = items_struct[i-1].params.begin(); it != items_struct[i-1].params.end(); it++) 
+		for(std::map<std::string, double>::iterator it = items_struct[i].params.begin(); it != items_struct[i-1].params.end(); it++) 
 		{
 			log("Affects String:%s, double:%f", it->first.c_str(), it->second);
 		}
-	}	
+	}*/	
 	log("Loading birth places definitions.");
 	BirthPlace::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
 
@@ -3704,7 +3710,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			{
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
 				if (GET_OBJ_MIW(tobj) >= obj_index[GET_OBJ_RNUM(tobj)].stored +
-						obj_index[GET_OBJ_RNUM(tobj)].number || GET_OBJ_MIW(tobj) == -1)
+						obj_index[GET_OBJ_RNUM(tobj)].number || GET_OBJ_MIW(tobj) == -1 || check_unlimited_timer(tobj))
 					miw = true;
 				else
 					miw = false;
@@ -4295,12 +4301,7 @@ char *parse_object(FILE * obj_f, int nr)
 		case '$':
 		case '#':
 			check_object(tobj);
-			if (check_unlimited_timer(tobj))
-			{
-				tobj->set_timer(UTIMER);
-				GET_OBJ_MIW(tobj) = -1;
-				REMOVE_BIT(GET_OBJ_EXTRA(tobj, ITEM_TICKTIMER), ITEM_TICKTIMER);
-			}	
+			
 			obj_proto.push_back(tobj);
 			top_of_objt = i++;
 			return (line);
@@ -5662,7 +5663,7 @@ void reset_zone(zone_rnum zone)
 							obj_in_room++;
 				// Теперь грузим обьект если надо
 				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1) &&
+						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1 || check_unlimited_timer(obj_proto[ZCMD.arg1])) &&
 						(ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)
 						&& (obj_in_room < obj_in_room_max))
 				{
@@ -5698,7 +5699,7 @@ void reset_zone(zone_rnum zone)
 				// object to object
 				// 'P' <flag> <obj_vnum> <max_in_world> <target_vnum> <load%|-1>
 				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
+						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1 || check_unlimited_timer(obj_proto[ZCMD.arg1]))
 						&& (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4))
 				{
 					if (!(obj_to = get_obj_num(ZCMD.arg3)))
@@ -5739,7 +5740,7 @@ void reset_zone(zone_rnum zone)
 					break;
 				}
 				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
+						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1 || check_unlimited_timer(obj_proto[ZCMD.arg1]))
 						&& (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4))
 				{
 					obj = read_object(ZCMD.arg1, REAL);
@@ -5763,7 +5764,7 @@ void reset_zone(zone_rnum zone)
 					break;
 				}
 				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
+						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1 || check_unlimited_timer(obj_proto[ZCMD.arg1]))
 						&& (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4))
 				{
 					if (ZCMD.arg3 < 0 || ZCMD.arg3 >= NUM_WEARS)

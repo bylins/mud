@@ -92,7 +92,7 @@ long GetAffectNumByName(std::string);
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
 
 extern std::list<FILE *> opened_files;
-
+extern bool is_dark(room_rnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
 
 extern const char *ACTNULL;
@@ -384,8 +384,9 @@ extern SPECIAL(shop_ext);
                                ( weather_info.sunlight == SUN_SET || \
                                  weather_info.sunlight == SUN_DARK )) )
 
-
-#define IS_DARK(room)      ((world[room]->gdark > (world[room]->glight + world[room]->light + world[room]->fires)) || \
+#define IS_DARK(room) is_dark(room)
+								 
+#define IS_DARKOLD(room)      ((world[room]->gdark > (world[room]->glight + world[room]->light + world[room]->fires)) || \
                             (!(world[room]->gdark < (world[room]->glight + world[room]->light + world[room]->fires)) && \
                               !ROOM_AFFECTED(room, AFF_ROOM_LIGHT) && \
 				(ROOM_FLAGGED(room, ROOM_DARK) || \

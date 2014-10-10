@@ -83,7 +83,7 @@ extern char *color_value(CHAR_DATA * ch, int real, int max);
 int posi_value(int real, int max);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
-
+extern bool is_wear_light(CHAR_DATA *ch);
 // local functions
 ACMD(do_antigods);
 ACMD(do_quit);
@@ -111,6 +111,8 @@ ACMD(do_toggle);
 ACMD(do_color);
 ACMD(do_recall);
 ACMD(do_dig);
+
+bool is_dark(room_rnum room);
 
 ACMD(do_antigods)
 {
@@ -3792,3 +3794,53 @@ ACMD(do_bandage)
 		extract_obj(bandage);
 	}
 }
+
+bool is_dark(room_rnum room)
+{
+	double coef = 0.0;
+	CHAR_DATA *tmp_ch;
+	// если на комнате висит флаг всегда светло, то добавляем
+	// +2 к коэф
+	if (ROOM_AFFECTED(room, AFF_ROOM_LIGHT))
+		coef += 2.0;
+	
+	// если светит луна и комната !помещение и !город
+	if ((SECT(room) != SECT_INSIDE) && (SECT(room) != SECT_CITY) && (IS_MOONLIGHT(room)))
+		coef += 1.0;
+		
+	// если ночь и мы не внутри и не в городе
+	if ((SECT(room) != SECT_INSIDE) && (SECT(room) != SECT_CITY) && ((weather_info.sunlight == SUN_SET) || (weather_info.sunlight == SUN_DARK)))
+		coef -= 1.0;
+	
+	// если на комнате флаг темно
+	if (ROOM_FLAGGED(room, ROOM_DARK))
+		coef -= 1.0;
+	// проходим по всем чарам и смотрим на них аффекты тьма/свет/освещение
+	for (tmp_ch = world[room]->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
+	{
+		// если на чаре есть освещение, например, шарик или лампа
+		if (is_wear_light(tmp_ch))
+			coef += 1.0;
+		// если на чаре аффект свет
+		if (AFF_FLAGGED(tmp_ch, AFF_SINGLELIGHT))
+			coef += 1.0;
+		// свет (закл)
+		if (AFF_FLAGGED(tmp_ch, AFF_SINGLELIGHT))
+			coef += 1.0;
+		// освещение ?
+		if (AFF_FLAGGED(tmp_ch, AFF_HOLYLIGHT))
+			coef += 1.0;
+		// Санка. Логично, что если чар светится ярким сиянием, то это сияние распространяется на комнату
+		if (AFF_FLAGGED(tmp_ch, AFF_HOLYLIGHT))
+			coef += 1.0;
+		// Тьма. Сразу фигачим коэф 3. 
+		if (AFF_FLAGGED(tmp_ch, AFF_HOLYDARK))
+			coef -= 3.0;
+	}
+	
+	if (coef < 0)
+		return true;
+	return false;
+		
+}
+

@@ -33,7 +33,7 @@ extern SPECIAL(bank);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
-
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 namespace Depot
 {
 
@@ -1368,9 +1368,15 @@ void CharNode::load_online_objs(int file_type, bool reload)
 			{
 				depot_log("load object %s %d %d", obj->short_description, GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
 				obj->set_timer(obj_it->timer);
-                         	int temp_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
-                                if (obj->get_timer() > temp_timer)
-                                        obj->set_timer(temp_timer);
+                int temp_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
+                if (obj->get_timer() > temp_timer)
+                    obj->set_timer(temp_timer);
+				// проверяем наш объект на беск.таймер
+				if (check_unlimited_timer(obj))
+				{
+					// ставим беск.таймер
+					obj->set_timer(UTIMER);
+				}
 				// надо уменьшать макс в мире на постое, макс в мире шмотки в игре
 				// увеличивается в read_one_object_new через read_object
 				int rnum = real_object(GET_OBJ_VNUM(obj));

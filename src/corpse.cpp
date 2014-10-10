@@ -23,6 +23,7 @@
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
 extern void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload);
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 
 namespace GlobalDrop
 {
@@ -179,7 +180,7 @@ int get_obj_to_drop(DropListType::iterator &i)
 	std::vector<int> tmp_list;
 	for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end(); k != kend; ++k)
 	{
-		if (obj_index[k->second].stored + obj_index[k->second].number < GET_OBJ_MIW(obj_proto[k->second]))
+		if ((obj_index[k->second].stored + obj_index[k->second].number < GET_OBJ_MIW(obj_proto[k->second])) || (check_unlimited_timer(obj_proto[k->second])))
 		{
 			tmp_list.push_back(k->second);
 		}
