@@ -2003,19 +2003,7 @@ void boot_db(void)
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), ITEM_WEAR_HOLD);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), ITEM_WEAR_BOTHS);
 
-	/*
-	for (int i = 1;i < 16; i++)
-	{
-		log("typs:%d", i);
-		for(std::map<std::string, double>::iterator it = items_struct[i].affects.begin(); it != items_struct[i-1].affects.end(); it++) 
-		{
-			log("Affects String:%s, double:%f", it->first.c_str(), it->second);
-		}
-		for(std::map<std::string, double>::iterator it = items_struct[i].params.begin(); it != items_struct[i-1].params.end(); it++) 
-		{
-			log("Affects String:%s, double:%f", it->first.c_str(), it->second);
-		}
-	}*/	
+	
 	log("Loading birth places definitions.");
 	BirthPlace::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
 
