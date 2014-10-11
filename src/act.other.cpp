@@ -3803,7 +3803,6 @@ bool is_dark(room_rnum room)
 	// +2 к коэф
 	if (ROOM_AFFECTED(room, AFF_ROOM_LIGHT))
 		coef += 2.0;
-	
 	// если светит луна и комната !помещение и !город
 	if ((SECT(room) != SECT_INSIDE) && (SECT(room) != SECT_CITY) && (IS_MOONLIGHT(room)))
 		coef += 1.0;
@@ -3811,13 +3810,15 @@ bool is_dark(room_rnum room)
 	// если ночь и мы не внутри и не в городе
 	if ((SECT(room) != SECT_INSIDE) && (SECT(room) != SECT_CITY) && ((weather_info.sunlight == SUN_SET) || (weather_info.sunlight == SUN_DARK)))
 		coef -= 1.0;
-	
 	// если на комнате флаг темно
 	if (ROOM_FLAGGED(room, ROOM_DARK))
 		coef -= 1.0;
 	// проходим по всем чарам и смотрим на них аффекты тьма/свет/освещение
 	for (tmp_ch = world[room]->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
 	{
+		// костер охота
+    		if (world[IN_ROOM(tmp_ch)]->fires)
+			coef += 1.0;
 		// если на чаре есть освещение, например, шарик или лампа
 		if (is_wear_light(tmp_ch))
 			coef += 1.0;
