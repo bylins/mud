@@ -2263,7 +2263,6 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 	*tch = NULL;
 	*tobj = NULL;
 	*troom = world[IN_ROOM(ch)];
-
 	if (spellnum == SPELL_CONTROL_WEATHER)
 	{
 		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0)
@@ -2509,7 +2508,6 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 	ROOM_DATA *troom = NULL;
 
 	one_argument(argument, cast_argument);
-
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0 && GET_OBJ_TYPE(obj) == ITEM_STAFF)
 		level = DEFAULT_STAFF_LVL;

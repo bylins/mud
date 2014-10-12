@@ -350,6 +350,8 @@ bool check_obj_in_system_zone(int vnum)
 
 bool check_unlimited_timer(OBJ_DATA *obj)
 {
+	char buf_temp[MAX_STRING_LENGTH];
+	char buf_temp1[MAX_STRING_LENGTH];
 	//sleep(15);
 	// куда одевается наш предмет
 	int item_wear = -1;
@@ -415,12 +417,12 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 		if (obj->affected[i].modifier)
 		{
-			sprinttype(obj->affected[i].location, apply_types, buf2);
+			sprinttype(obj->affected[i].location, apply_types, buf_temp);
 			// проходим по нашей таблице с критериями
 			for(std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++) 
 			{
 			
-			if (strcmp(it->first.c_str(), buf2) == 0)
+			if (strcmp(it->first.c_str(), buf_temp) == 0)
 			{	
 			    for (int j = 0; j < fabs(obj->affected[i].modifier);j++)
 			    {
@@ -431,13 +433,13 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 		}	
-	sprintbits(obj->obj_flags.affects, weapon_affects, buf, ",");
+	sprintbits(obj->obj_flags.affects, weapon_affects, buf_temp1, ",");
 	
 	// проходим по всем аффектам в нашей таблице
 	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
 			{
 				// проверяем, есть ли наш аффект на предмете
-				if (strstr(buf, it->first.c_str()) != NULL)
+				if (strstr(buf_temp1, it->first.c_str()) != NULL)
 				{
 					sum_aff += it->second;
 				}

@@ -1656,9 +1656,9 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 ACMD(do_use)
 {
 	OBJ_DATA *mag_item;
-	int do_hold = 0;
-
+	int do_hold = 0;	
 	two_arguments(argument, arg, buf);
+	char *buf_temp = str_dup(buf);
 	if (!*arg)
 	{
 		sprintf(buf2, "Что вы хотите %s?\r\n", CMD_NAME);
@@ -1673,7 +1673,6 @@ ACMD(do_use)
 	}
 
 	mag_item = GET_EQ(ch, WEAR_HOLD);
-
 	if (!mag_item || !isname(arg, mag_item->aliases))
 	{
 		switch (subcmd)
@@ -1769,7 +1768,9 @@ ACMD(do_use)
 		equip_char(ch, mag_item, WEAR_HOLD);
 	}
 	if ((do_hold && GET_EQ(ch, WEAR_HOLD) == mag_item) || (!do_hold))
-		mag_objectmagic(ch, mag_item, buf);
+		mag_objectmagic(ch, mag_item, buf_temp);
+	free (buf_temp);
+		
 }
 
 
@@ -3813,6 +3814,11 @@ bool is_dark(room_rnum room)
 	// если на комнате флаг темно
 	if (ROOM_FLAGGED(room, ROOM_DARK))
 		coef -= 1.0;
+	
+	// проверка на костер
+	if (world[room]->fires)
+		coef += 1.0;	
+	
 	// проходим по всем чарам и смотрим на них аффекты тьма/свет/освещение
 	// костер охота
 	if (world[IN_ROOM(tmp_ch)]->fires)
