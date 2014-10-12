@@ -3161,44 +3161,36 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name)
 	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
-
 	// JE 7/18/94 :-) :-)
 	if (!str_cmp(name, "self") || !str_cmp(name, "me") ||
 			!str_cmp(name, "я") || !str_cmp(name, "меня") || !str_cmp(name, "себя"))
-		return (ch);
-
+	return (ch);
 	// 0.<name> means PC with name
 	strl_cpy(tmp, name, MAX_INPUT_LENGTH);
 	if (!(number = get_number(&tmp)))
 		return (get_player_vis(ch, tmp, FIND_CHAR_ROOM));
-
 	for (i = world[ch->in_room]->people; i && j <= number; i = i->next_in_room)
 		if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->get_pc_name()))
 			if (++j == number)
 				return (i);
-
 	return (NULL);
 }
 CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name)
 {
 	CHAR_DATA *i;
 	int j = 0, number;
-
 	// JE 7/18/94 :-) :-)
 	if (!str_cmp(name, "self") || !str_cmp(name, "me") ||
 			!str_cmp(name, "я") || !str_cmp(name, "меня") || !str_cmp(name, "себя"))
 		return (ch);
-
 	// 0.<name> means PC with name
 	std::string tmp(name);
 	if (!(number = get_number(tmp)))
 		return (get_player_vis(ch, tmp, FIND_CHAR_ROOM));
-
 	for (i = world[ch->in_room]->people; i && j <= number; i = i->next_in_room)
 		if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->get_pc_name()))
 			if (++j == number)
 				return (i);
-
 	return (NULL);
 }
 
@@ -3209,25 +3201,23 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
-
 	// check the room first
 	if (where == FIND_CHAR_ROOM)
-		return get_char_room_vis(ch, name);
-	else if (where == FIND_CHAR_WORLD)
 	{
-		if ((i = get_char_room_vis(ch, name)) != NULL)
-			return (i);
-
+		return get_char_room_vis(ch, name);
+	}
+	else if (where == FIND_CHAR_WORLD)	{
+ 		if ((i = get_char_room_vis(ch, name)) != NULL)
+			return (i);		
 		strcpy(tmp, name);
 		if (!(number = get_number(&tmp)))
 			return get_player_vis(ch, tmp, 0);
-
 		for (i = character_list; i && (j <= number); i = i->next)
 			if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->get_pc_name()))
 				if (++j == number)
 					return (i);
 	}
-
+	
 	return (NULL);
 }
 CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where)

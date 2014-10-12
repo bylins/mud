@@ -2263,7 +2263,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 	*tch = NULL;
 	*tobj = NULL;
 	*troom = world[IN_ROOM(ch)];
-
+	log("find_cast_target: %s", t);
 	if (spellnum == SPELL_CONTROL_WEATHER)
 	{
 		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0)
@@ -2294,14 +2294,18 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 		return TRUE;
 	else if (*t)
 	{
+		log("1");
 		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM))
 		{
+			log("2");
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != NULL)
 			{
+				log("3");
 				if (SpINFO.violent && !check_pkill(ch, *tch, t))
 					return FALSE;
 				return TRUE;
 			}
+			log("4");
 		}
 
 		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
@@ -2509,7 +2513,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 	ROOM_DATA *troom = NULL;
 
 	one_argument(argument, cast_argument);
-
+	log("mag_objectmagic: %s %s", argument, cast_argument);
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0 && GET_OBJ_TYPE(obj) == ITEM_STAFF)
 		level = DEFAULT_STAFF_LVL;
