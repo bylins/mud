@@ -3820,9 +3820,6 @@ bool is_dark(room_rnum room)
 		coef += 1.0;	
 	
 	// проходим по всем чарам и смотрим на них аффекты тьма/свет/освещение
-	// костер охота
-	if (world[IN_ROOM(tmp_ch)]->fires)
-		coef += 1.0;
 
 	for (tmp_ch = world[room]->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
 	{
