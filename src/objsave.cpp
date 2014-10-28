@@ -293,14 +293,14 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				{
 					// на тот случай, если есть объекты с таймером, больше таймера прототипа
 				    int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
-		            	    if (object->get_timer() > temp_timer)
-					object->set_timer(temp_timer);
-					// проверяем наш объект на беск.таймер
-					if (check_unlimited_timer(object))
-					{
-						// ставим беск.таймер
-						object->set_timer(UTIMER);
-					}
+					if (object->get_timer() > temp_timer)
+						object->set_timer(temp_timer);
+					// проверяем наш объект на беск.таймер					
+				}
+				if (check_unlimited_timer(object))
+				{
+					// ставим беск.таймер
+					object->set_timer(UTIMER);
 				}
 			}
 			else if (!strcmp(read_line, "Spll"))

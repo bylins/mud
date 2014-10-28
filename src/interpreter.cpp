@@ -343,7 +343,7 @@ ACMD(do_relocate);
 ACMD(do_strangle);
 ACMD(do_custom_label);
 ACMD(do_quest);
-
+ACMD(do_check);
 // DG Script ACMD's
 ACMD(do_attach);
 ACMD(do_detach);
@@ -680,6 +680,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"прислушаться", POS_RESTING, do_hearing, 0, 0, 300},
 	{"присмотреться", POS_RESTING, do_looking, 0, 0, 250},
 	{"придумки", POS_DEAD, DoBoard, 0, Boards::SUGGEST_BOARD, 0},
+	{"проверить", POS_DEAD, do_check, 0, 0, 0},
 	{"проснуться", POS_SLEEPING, do_wake, 0, SCMD_WAKE, -1},
 	{"простить", POS_RESTING, do_forgive, 0, 0, 0},
 	{"пробовать", POS_RESTING, do_eat, 0, SCMD_TASTE, 300},

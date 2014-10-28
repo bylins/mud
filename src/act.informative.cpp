@@ -79,6 +79,7 @@ extern im_type *imtypes;
 extern int top_imtypes;
 extern void show_code_date(CHAR_DATA *ch);
 extern int nameserver_is_slow; //config.cpp
+extern void login_change_invoice(CHAR_DATA *ch);
 
 // extern functions
 long find_class_bitvector(char arg);
@@ -124,6 +125,7 @@ ACMD(do_looking);
 ACMD(do_hearing);
 ACMD(do_sides);
 ACMD(do_quest);
+ACMD(do_check);
 
 void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch);
 void look_at_char(CHAR_DATA * i, CHAR_DATA * ch);
@@ -176,6 +178,11 @@ const char *Locks[4][2] =
 	{"%s Сложный замок. Как бы не сломать.%s\r\n", KIGRN},
 	{"%s Простой замок. Эка невидаль.%s\r\n", KGRN}
 };
+
+ACMD(do_check)
+{
+    login_change_invoice(ch);
+}
 
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode)
 {

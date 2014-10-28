@@ -1040,11 +1040,15 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 long get_sell_price(OBJ_DATA * obj)
 {
 	long cost = GET_OBJ_COST(obj);
+	long cost_obj = GET_OBJ_COST(obj);
 	int timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 	if (timer < obj->get_timer())
 	    obj->set_timer(timer);
 	cost = timer <= 0 ? 1 : (long)cost * ((float)obj->get_timer() / (float)timer); //учтем таймер
 	cost = obj->obj_flags.Obj_max <=0 ? 1 : (long)cost*((float)obj->obj_flags.Obj_cur / (float)obj->obj_flags.Obj_max); //учтем повреждения
+	// если цена продажи, выше, чем стоймость предмета
+	if (cost > cost_obj)
+		cost = cost_obj;
 	return MMAX(1, cost);
 }
 
@@ -1113,6 +1117,8 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		}
 	}
 	long buy_price = GET_OBJ_COST(obj);
+	long buy_price_old = GET_OBJ_COST(obj);
+	
 	int timer = obj_proto[rnum]->get_timer();
 	if (timer < obj->get_timer())
 	    obj->set_timer(timer);
@@ -1125,7 +1131,9 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
 	if (!can_use_feat(ch, SKILLED_TRADER_FEAT))
 	    buy_price = MMAX(1, (buy_price * (*shop)->profit) / 100); //учтем прибыль магазина
-
+	// если цена покупки, выше, чем стоймость предмета
+	if (buy_price > buy_price_old)
+		buy_price = buy_price_old;
 	std::string price_to_show = boost::lexical_cast<string>(buy_price) + " " + string(desc_count(buy_price, WHAT_MONEYu));
 
 	if (cmd == "Оценить")

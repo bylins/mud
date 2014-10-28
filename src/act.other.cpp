@@ -84,6 +84,7 @@ int posi_value(int real, int max);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
 extern bool is_wear_light(CHAR_DATA *ch);
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 // local functions
 ACMD(do_antigods);
 ACMD(do_quit);
@@ -3449,7 +3450,10 @@ ACMD(do_insertgem)
 		int timer = itemobj->get_timer() - itemobj->get_timer() / 100 * insgem_vars.timer_minus_percent;
 		itemobj->set_timer(timer);
 	}
-
+	if (check_unlimited_timer(itemobj))
+	{
+		itemobj->set_timer(UTIMER);
+	}
 	if (GET_OBJ_MATER(gemobj) == 18)
 	{
 //Polos.insert_wanted_gem
