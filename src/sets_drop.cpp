@@ -968,8 +968,8 @@ void init_xhelp()
 		out << "\r\n" << print_current_set(*i);
 	}
 
-	HelpSystem::add_sets_drop("сеты", out.str());
-	HelpSystem::add_sets_drop("сэты", out.str());
+	HelpSystem::add_sets_drop("сетывсе", out.str());
+	HelpSystem::add_sets_drop("сэтывсе", out.str());
 	HelpSystem::add_sets_drop("наборыпредметов", out.str());
 }
 
