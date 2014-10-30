@@ -1454,6 +1454,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					// Удаление предмета
 					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
 					object->set_timer(0); // Хана предмету, развалится на тике
+					extract_obj(object);
 					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL); // Ибо нефиг
 				}
 			} // Назначаем UID

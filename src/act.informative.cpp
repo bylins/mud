@@ -386,7 +386,7 @@ char *diag_timer_to_char(const OBJ_DATA * obj)
 	static char out_str[MAX_STRING_LENGTH];
 	*out_str = 0;
 	if (obj->get_timer() == UTIMER)
-		sprintf(out_str, "Состояние этого предмета идеальное.\r\n");
+		sprintf(out_str, "Состояние: нерушимо.\r\n");
 	else
 		sprintf(out_str, "Состояние: %s.\r\n", diag_obj_timer(obj));
 	return (out_str);

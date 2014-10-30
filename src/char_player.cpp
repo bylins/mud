@@ -399,7 +399,7 @@ void Player::save_char()
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
 	if (this->desc)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 		strcpy(buf, this->desc->host);
-	else//по сути так должен норм сохраняцо последний айпи
+	/*else//по сути так должен норм сохраняцо последний айпи
 	{
 		li = 0;
 		if (LOGON_LIST(this))
@@ -418,7 +418,7 @@ void Player::save_char()
 		}
 		else
 			strcpy(buf, "Unknown");
-	}
+	}*/
 	fprintf(saved, "Host: %s\n", buf);
 	free(player_table[this->get_pfilepos()].last_ip);
 	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
