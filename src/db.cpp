@@ -414,7 +414,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
                         || OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))
 		return false;
 	// если у объекта таймер ноль, то облом. 
-	if (obj->get_timer == 0)
+	if (obj->get_timer() == 0)
 		return false;
 	// проходим по всем характеристикам предмета
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
