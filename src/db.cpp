@@ -412,7 +412,10 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	// проверяем дырки в предмете
 	 if (OBJ_FLAGGED(obj, ITEM_WITH1SLOT) || OBJ_FLAGGED(obj, ITEM_WITH2SLOTS)
                         || OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))
-		return false;	
+		return false;
+	// если у объекта таймер ноль, то облом. 
+	if (obj->get_timer == 0)
+		return false;
 	// проходим по всем характеристикам предмета
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 		if (obj->affected[i].modifier)
