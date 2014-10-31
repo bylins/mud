@@ -1453,8 +1453,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 					// Удаление предмета
 					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
-					object->set_timer(0); // Хана предмету, развалится на тике
-					extract_obj(object);
+					object->set_timer(0); // Хана предмету
 					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL); // Ибо нефиг
 				}
 			} // Назначаем UID
