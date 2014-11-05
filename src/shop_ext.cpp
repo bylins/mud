@@ -1129,8 +1129,12 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
+	// если не купцы, то учитываем прибыль магазина, если купцы, то назначаем цену, при которой объект был куплен
 	if (!can_use_feat(ch, SKILLED_TRADER_FEAT))
 	    buy_price = MMAX(1, (buy_price * (*shop)->profit) / 100); //учтем прибыль магазина
+	else
+		buy_price = get_sell_price(obj);
+		
 	// если цена покупки, выше, чем стоймость предмета
 	if (buy_price > buy_price_old)
 		buy_price = buy_price_old;
