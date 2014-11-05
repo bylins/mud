@@ -2175,7 +2175,7 @@ void decrease_level(CHAR_DATA * ch)
 	if (!IS_IMMORTAL(ch))
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 
-	check_max_skills(ch);
+	//check_max_skills(ch);
 	TopPlayer::Refresh(ch);
 	ch->save_char();
 }

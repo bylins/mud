@@ -771,9 +771,23 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	// Раздача опыта
 
+	// если лидер группы
 	if (leader_inroom)
+	{
+	    // если у лидера группы есть способность напарник
+	    if (can_use_feat(k, PARTNER_FEAT))
+	    {
+		// если в группе всего двое человек
+		// k - лидер, и один последователь
+		if (inroom_members == 1)
+		{
+		    // и если кожф. больше или равен 100
+		    if (koef >= 100)
+			koef += 100;
+		}
+	    }
 		perform_group_gain(k, victim, inroom_members, koef);
-
+	}
 	for (f = k->followers; f; f = f->next)
 		if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
 			perform_group_gain(f->follower, victim, inroom_members, koef);
