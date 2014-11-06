@@ -128,6 +128,8 @@ using std::bitset;
 #define	THRIFTY_FEAT			109 //запасливость
 #define CYNIC_FEAT			110 // циничность
 #define PARTNER_FEAT			111 // напарник
+
+
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
 #define FIRE_MAGIC_FOCUS_FEAT		  //любимая_магия: огонь
