@@ -1676,6 +1676,7 @@ struct descriptor_data
 		last_input[0] = 0;
 		small_outbuf[0] = 0;
 	}
+	bool mxp; // ‰Ã— MXP
 };
 
 

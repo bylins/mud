@@ -43,6 +43,7 @@
 #include "noob.hpp"
 #include "exchange.h"
 
+#include <iostream>
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
 extern double exp_coefficients[];
@@ -2609,7 +2610,6 @@ void init_spell_levels(void)
 		}
 	}
 	fclose(magic);
-
 	// Load features variables - added by Gorrah
 	if (!(magic = fopen(LIB_MISC "features.lst", "r")))
 	{

@@ -184,6 +184,9 @@ OCMD(do_oforce)
 	{
 		if ((ch = get_char_by_obj(obj, arg1)))
 		{
+			// если чар в ЛД
+			if (!ch->desc)
+			    return;
 			if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
 			{
 				command_interpreter(ch, line);
