@@ -141,6 +141,218 @@
 # endif
 #endif
 
+// Для MXP. Взято вот отсюда http://www.gammon.com.au/mushclient/addingservermxp.htm
+/* ----------------------------------------- */
+#define  TELOPT_MXP        '\x5B'
+
+const unsigned char will_mxp_str  [] = { IAC, WILL, TELOPT_MXP, '\0' };
+const unsigned char start_mxp_str [] = { IAC, SB, TELOPT_MXP, IAC, SE, '\0' };
+const unsigned char do_mxp_str    [] = { IAC, DO, TELOPT_MXP, '\0' };
+const unsigned char dont_mxp_str  [] = { IAC, DONT, TELOPT_MXP, '\0' };
+
+// Строки
+
+#define MXP_BEG "\x03"    /* becomes < */
+#define MXP_END "\x04"    /* becomes > */
+#define MXP_AMP "\x05"    /* becomes & */
+
+// Символы 
+
+#define MXP_BEGc '\x03'    /* becomes < */
+#define MXP_ENDc '\x04'    /* becomes > */
+#define MXP_AMPc '\x05'    /* becomes & */
+
+// constructs an MXP tag with < and > around it 
+
+#define MXPTAG(arg) MXP_BEG arg MXP_END
+
+#define ESC "\x1B"  /* esc character */
+
+#define MXPMODE(arg) ESC "[" #arg "z"
+
+// flags for show_list_to_char 
+
+enum {
+  eItemNothing,   /* item is not readily accessible */
+  eItemGet,     /* item on ground */
+  eItemDrop,    /* item in inventory */
+  eItemBid     /* auction item */
+  };
+
+/*
+* Count number of mxp tags need converting
+*    ie. < becomes &lt;
+*        > becomes &gt;
+*        & becomes &amp;
+*/
+
+int count_mxp_tags (const int bMXP, const char *txt, int length)
+  {
+  char c;
+  const char * p;
+  int count;
+  int bInTag = FALSE;
+  int bInEntity = FALSE;
+
+  for (p = txt, count = 0; 
+       length > 0; 
+       p++, length--)
+    {
+    c = *p;
+
+    if (bInTag)  /* in a tag, eg. <send> */
+      {
+      if (!bMXP)
+        count--;     /* not output if not MXP */   
+      if (c == MXP_ENDc)
+        bInTag = FALSE;
+      } /* end of being inside a tag */
+    else if (bInEntity)  /* in a tag, eg. <send> */
+      {
+      if (!bMXP)
+        count--;     /* not output if not MXP */   
+      if (c == ';')
+        bInEntity = FALSE;
+      } /* end of being inside a tag */
+    else switch (c)
+      {
+
+      case MXP_BEGc:
+        bInTag = TRUE;
+        if (!bMXP)
+          count--;     /* not output if not MXP */   
+        break;
+
+      case MXP_ENDc:   /* shouldn't get this case */
+        if (!bMXP)
+          count--;     /* not output if not MXP */   
+        break;
+
+      case MXP_AMPc:
+        bInEntity = TRUE;
+        if (!bMXP)
+          count--;     /* not output if not MXP */   
+        break;
+
+      default:
+        if (bMXP)
+          {
+          switch (c)
+            {
+            case '<':       /* < becomes &lt; */
+            case '>':       /* > becomes &gt; */
+              count += 3;    
+              break;
+
+            case '&':
+              count += 4;    /* & becomes &amp; */
+              break;
+
+            case '"':        /* " becomes &quot; */
+              count += 5;    
+              break;
+
+            } /* end of inner switch */
+          }   /* end of MXP enabled */
+      } /* end of switch on character */
+
+     }   /* end of counting special characters */
+
+  return count;
+  } /* end of count_mxp_tags */
+  
+ void convert_mxp_tags (const int bMXP, char * dest, const char *src, int length)
+  {
+char c;
+const char * ps;
+char * pd;
+int bInTag = FALSE;
+int bInEntity = FALSE;
+
+  for (ps = src, pd = dest; 
+       length > 0; 
+       ps++, length--)
+    {
+    c = *ps;
+    if (bInTag)  /* in a tag, eg. <send> */
+      {
+      if (c == MXP_ENDc)
+        {
+        bInTag = FALSE;
+        if (bMXP)
+          *pd++ = '>';
+        }
+      else if (bMXP)
+        *pd++ = c;  /* copy tag only in MXP mode */
+      } /* end of being inside a tag */
+    else if (bInEntity)  /* in a tag, eg. <send> */
+      {
+      if (bMXP)
+        *pd++ = c;  /* copy tag only in MXP mode */
+      if (c == ';')
+        bInEntity = FALSE;
+      } /* end of being inside a tag */
+    else switch (c)
+      {
+      case MXP_BEGc:
+        bInTag = TRUE;
+        if (bMXP)
+          *pd++ = '<';
+        break;
+
+      case MXP_ENDc:    /* shouldn't get this case */
+        if (bMXP)
+          *pd++ = '>';
+        break;
+
+      case MXP_AMPc:
+        bInEntity = TRUE;
+        if (bMXP)
+          *pd++ = '&';
+        break;
+
+      default:
+        if (bMXP)
+          {
+          switch (c)
+            {
+            case '<':
+              memcpy (pd, "&lt;", 4);
+              pd += 4;    
+              break;
+
+            case '>':
+              memcpy (pd, "&gt;", 4);
+              pd += 4;    
+              break;
+
+            case '&':
+              memcpy (pd, "&amp;", 5);
+              pd += 5;    
+              break;
+
+            case '"':
+              memcpy (pd, "&quot;", 6);
+              pd += 6;    
+              break;
+
+            default:
+              *pd++ = c;
+              break;  /* end of default */
+
+            } /* end of inner switch */
+          }
+        else
+          *pd++ = c;  /* not MXP - just copy character */
+        break;  
+
+      } /* end of switch on character */
+
+    }   /* end of converting special characters */
+  } /* end of convert_mxp_tags */
+  
+/* ----------------------------------------- */  
+  
 void our_terminate();
 
 namespace
@@ -2544,6 +2756,7 @@ int new_descriptor(socket_t s)
 	newd->login_time = newd->input_time = time(0);
 	*newd->output = '\0';
 	newd->bufptr = 0;
+	newd->mxp = false;
 	newd->has_prompt = 1;	// prompt is part of greetings
 	newd->keytable = KT_SELECTMENU;
 	STATE(newd) = CON_GET_KEYTABLE;

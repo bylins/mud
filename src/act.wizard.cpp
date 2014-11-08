@@ -2814,29 +2814,29 @@ ACMD(do_bonus)
 	}
 	if (is_abbrev(buf, "отменить"))
 	{
-		sprintf(buf, "Бонус был отменен\r\n");
+		sprintf(buf, "Бонус был отменен.\r\n");
 		send_to_all(buf);
 		time_bonus = -1;
 		return;
 	}	
 	if (!*buf || !*buf2 || !a_isascii(*buf2))
 	{
-		send_to_char("Синтаксис команды бонус:\r\nбонус [множитель бонуса двойной или тройной] [тип бонуса оружейный опыт/просто опыт/куны] [время бонуса от 1 до 15 игровых часов]", ch);
+		send_to_char("Синтаксис команды бонус:\r\nбонус [множитель бонуса двойной или тройной] [тип бонуса оружейный опыт/просто опыт] [время бонуса от 1 до 30 игровых часов]", ch);
 		return;
 	}		
 	
 	
 	
-	if(!isname(buf2, "оружейный опыт куны"))
+	if(!isname(buf2, "оружейный опыт"))
 	{
-		send_to_char("Тип бонуса может быть &Wоружейный&n, &Wопыт&n, &Wкуны&n.\r\n", ch);
+		send_to_char("Тип бонуса может быть &Wоружейный&n, &Wопыт&n&n.\r\n", ch);
 		return;
 	}
 	if (*argument) time_bonus = atol(argument);
 	
-	if ((time_bonus < 1) || (time_bonus > 15))
+	if ((time_bonus < 1) || (time_bonus > 30))
 	{
-		send_to_char("Временной бонус можно указать в интервале от 1 до 15.\r\n", ch);
+		send_to_char("Временной бонус можно указать в интервале от 1 до 30.\r\n", ch);
 		return;
 	}
 	
@@ -2865,11 +2865,6 @@ ACMD(do_bonus)
 		out += "опыта ";
 		type_bonus = 1;
 	}
-	else if (is_abbrev(buf2, "куны")) 
-	{
-		out += "кун ";
-		type_bonus = 2;
-	}
 	else
 	{
 		return;
@@ -2892,7 +2887,16 @@ void timer_bonus()
 		time_bonus = -1;
 		return;
 	}
-	sprintf(buf, "&WДо конца бонуса осталось %d часов\r\n", time_bonus);
+	if (time_bonus > 4)
+		sprintf(buf, "&WДо конца бонуса осталось %d часов.&n\r\n", time_bonus);
+	else if (time_bonus == 4)
+		sprintf(buf, "&WДо конца бонуса осталось четыре часа.&n\r\n");
+	else if (time_bonus == 3)
+		sprintf(buf, "&WДо конца бонуса осталось три часа.&n\r\n");
+	else if (time_bonus == 2)
+		sprintf(buf, "&WДо конца бонуса осталось два часа.&n\r\n");
+	else 
+		sprintf(buf, "&WДо конца бонуса остался последний час!&n\r\n");
 	send_to_all(buf);
 }
 
