@@ -44,7 +44,8 @@ extern int mult_bonus;
 void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	CHAR_DATA *master = 0;
-
+	bool leader_partner = false;
+	int partner_feat = 0;
 	if (IS_NPC(killer)
 		&& (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
 		&& killer->master)
@@ -69,6 +70,9 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 			{
 				// лидер группы в тойже комнате, что и убивец
 				cnt = 1;
+				if (can_use_feat(master, PARTNER_FEAT))
+					leader_partner = true;
+
 			}
 
 			for (struct follow_type *f = master->followers; f; f = f->next)
@@ -81,9 +85,15 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 						master = f->follower;
 					}
 					++cnt;
+					if (leader_partner)
+						if (!IS_NPC(f->follower))
+							partner_feat++;
 				}
 			}
 		}
+		// 2x замакс, если способность напарник работает
+		if (leader_partner && partner_feat == 1)
+			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 		master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 	}
 }
@@ -697,7 +707,7 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	CHAR_DATA *k;
 	struct follow_type *f;
 	int leader_inroom;
-	
+	int partner_count = 0;
 	// если наем лидер, то тоже режем экспу
 	if (can_use_feat(ch, CYNIC_FEAT))
 	    maxlevel = 300;
@@ -736,6 +746,8 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 			// член группы => PC автоматически
 			++inroom_members;
 			maxlevel = MAX(maxlevel, GET_LEVEL(f->follower));
+			if (!IS_NPC(f->follower))
+				partner_count++;
 		}
 
 	// Вычисляем, надо ли резать экспу, смотрим сначала лидера, если он рядом
@@ -771,20 +783,20 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	// Раздача опыта
 
-	// если лидер группы
+	// если лидер группы в комнате
 	if (leader_inroom)
 	{
 	    // если у лидера группы есть способность напарник
 	    if (can_use_feat(k, PARTNER_FEAT))
 	    {
-		// если в группе всего двое человек
-		// k - лидер, и один последователь
-		if (inroom_members == 1)
-		{
-		    // и если кожф. больше или равен 100
-		    if (koef >= 100)
-			koef += 100;
-		}
+			// если в группе всего двое человек
+			// k - лидер, и один последователь
+			if (partner_count == 1)
+			{
+				// и если кожф. больше или равен 100
+				if (koef >= 100)
+					koef += 100;
+			}
 	    }
 		perform_group_gain(k, victim, inroom_members, koef);
 	}
