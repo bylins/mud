@@ -1045,7 +1045,7 @@ long get_sell_price(OBJ_DATA * obj)
 	if (timer < obj->get_timer())
 	    obj->set_timer(timer);
 	cost = timer <= 0 ? 1 : (long)cost * ((float)obj->get_timer() / (float)timer); //учтем таймер
-	cost = obj->obj_flags.Obj_max <=0 ? 1 : (long)cost*((float)obj->obj_flags.Obj_cur / (float)obj->obj_flags.Obj_max); //учтем повреждения
+	//cost = obj->obj_flags.Obj_max <=0 ? 1 : (long)cost*((float)obj->obj_flags.Obj_cur / (float)obj->obj_flags.Obj_max); //учтем повреждения
 	// если цена продажи, выше, чем стоймость предмета
 	if (cost > cost_obj)
 		cost = cost_obj;
@@ -1125,7 +1125,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	
 	buy_price = timer <=0 ? 1 : (long)buy_price*((float)obj->get_timer() / (float)timer); //учтем таймер
 
-	buy_price = obj->obj_flags.Obj_max <=0 ? 1 : (long)buy_price*((float)obj->obj_flags.Obj_cur / (float)obj->obj_flags.Obj_max); //учтем повреждения
+	//buy_price = obj->obj_flags.Obj_max <=0 ? 1 : (long)buy_price*((float)obj->obj_flags.Obj_cur / (float)obj->obj_flags.Obj_max); //учтем повреждения
 
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
