@@ -490,7 +490,7 @@ ACMD(do_spec_comm)
 
 
 
-#define MAX_NOTE_LENGTH 1000	// arbitrary
+#define MAX_NOTE_LENGTH 4096	// arbitrary
 
 ACMD(do_write)
 {
