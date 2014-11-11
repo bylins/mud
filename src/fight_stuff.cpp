@@ -92,8 +92,8 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 			}
 		}
 		// 2x замакс, если способность напарник работает
-		if (leader_partner && partner_feat == 1)
-			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+		//if (leader_partner && partner_feat == 1)
+			//master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 		master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 	}
 }
