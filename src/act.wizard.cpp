@@ -5428,6 +5428,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				GCURSE_DURATION(vict) = (i > 0) ? time(NULL) + i * 60 * 60 : MAX_TIME;
 			else
 				GCURSE_DURATION(vict) = 0;
+		        sprintf(buf, "%s установил GUDSLIKE персонажу %s.", GET_NAME(ch), GET_NAME(vict));
+	                mudlog(buf, BRF, LVL_IMPL, SYSLOG, 0);
+
 		}
 		else if (off)
 			CLR_GOD_FLAG(vict, GF_GODSLIKE);
