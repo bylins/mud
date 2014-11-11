@@ -2384,6 +2384,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 	// в сислог иммам идут только смерти в пк (без арен)
 	// в файл пишутся все смерти чаров
 	// если чар убит палачем то тоже не спамим
+	
 	if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR)))
 	{
 		update_pk_logs(ch, victim);

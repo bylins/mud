@@ -92,8 +92,8 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 			}
 		}
 		// 2x замакс, если способность напарник работает
-		if (leader_partner && partner_feat == 1)
-			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+		//if (leader_partner && partner_feat == 1)
+			//master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 		master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 	}
 }
@@ -795,7 +795,8 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 			{
 				// и если кожф. больше или равен 100
 				if (koef >= 100)
-					koef += 100;
+					if (k->get_zone_group() < 2)
+						koef += 100;
 			}
 	    }
 		perform_group_gain(k, victim, inroom_members, koef);
