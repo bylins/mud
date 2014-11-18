@@ -1117,15 +1117,10 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		}
 	}
 	long buy_price = GET_OBJ_COST(obj);
-	long buy_price_old = GET_OBJ_COST(obj);
+	long buy_price_old = get_sell_price(obj);
 	
-	int timer = obj_proto[rnum]->get_timer();
-	if (timer < obj->get_timer())
-	    obj->set_timer(timer);
-	
-	buy_price = timer <=0 ? 1 : (long)buy_price*((float)obj->get_timer() / (float)timer); //учтем таймер
 
-	//buy_price = obj->obj_flags.Obj_max <=0 ? 1 : (long)buy_price*((float)obj->obj_flags.Obj_cur / (float)obj->obj_flags.Obj_max); //учтем повреждения
+	
 
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
