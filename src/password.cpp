@@ -19,7 +19,7 @@
 //#define NOCRYPT
 // в случае сборки без криптования просто пишем пароль в открытом виде
 #if defined(NOCRYPT)
-#define CRYPT(a,b) (a)
+#define CRYPT(a,b) ((char *) (a))
 #else
 #define CRYPT(a,b) ((char *) crypt((a),(b)))
 #endif
