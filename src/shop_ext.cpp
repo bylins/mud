@@ -1082,7 +1082,7 @@ void put_item_in_shop(ShopListType::const_iterator &shop, OBJ_DATA * obj)
 
 		ItemNodePtr tmp_item(new item_node);
 		tmp_item->rnum = GET_OBJ_RNUM(obj);
-		tmp_item->price = get_sell_price(obj);
+		tmp_item->price = GET_OBJ_COST(obj);
 		tmp_item->temporary_ids.push_back(obj->uid);
 		(*shop)->item_list.push_back(tmp_item);
 		waste_node tmp_node;
