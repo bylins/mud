@@ -585,11 +585,11 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 int get_remort_mobmax(CHAR_DATA * ch)
 {
 	int remort = GET_REMORT(ch);
-	if (remort > 18)
+	if (remort >= 18)
 		return 15;
-	if (remort > 9)
+	if (remort >= 9)
 		return 10;
-	if (remort > 4)
+	if (remort >= 4)
 		return 5;
 	return 0;
 }
