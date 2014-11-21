@@ -591,7 +591,7 @@ int get_remort_mobmax(CHAR_DATA * ch)
 		return 10;
 	if (remort > 4)
 		return 5;
-	return 1;
+	return 0;
 }
 
 int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
