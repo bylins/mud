@@ -92,8 +92,8 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 			}
 		}
 		// 2x замакс, если способность напарник работает
-		//if (leader_partner && partner_feat == 1)
-			//master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+		if (leader_partner && partner_feat == 1)
+			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 		master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 	}
 }
@@ -582,6 +582,18 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 }
 
+int get_remort_mobmax(CHAR_DATA * ch)
+{
+	int remort = GET_REMORT(ch);
+	if (remort > 18)
+		return 15;
+	if (remort > 9)
+		return 10;
+	if (remort > 4)
+		return 5;
+	return 1;
+}
+
 int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	int base, diff;
@@ -591,7 +603,7 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 		return (exp);
 
 	for (koef = 100, base = 0, diff = ch->mobmax_get(GET_MOB_VNUM(victim));
-			base < diff && koef > 5; base++, koef = koef * 95 / 100);
+			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
 
 	exp = exp * MAX(5, koef) / 100;
 	exp /= MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1);
