@@ -713,7 +713,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 			{
 				print_value = std::string(tmp_obj->short_description);
 				name_value = std::string(tmp_obj->aliases);
-				(*k)->price = get_sell_price(tmp_obj);
+				(*k)->price = GET_OBJ_COST(tmp_obj);
 			}
 			else
 			{
