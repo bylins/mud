@@ -1219,7 +1219,7 @@ ACMD(do_relocate)
 #endif
 	  )
 	{
-		send_to_char("Не возможно использовать это так часто.\r\n", ch);
+		send_to_char("Невозможно использовать это так часто.\r\n", ch);
 		return;
 	}
 
