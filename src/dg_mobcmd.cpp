@@ -825,6 +825,8 @@ ACMD(do_mforce)
 			mob_log(ch, "mforce: no such victim");
 			return;
 		}
+		if ((!ch->desc) || (!victim->desc))
+			    return;
 		if (victim == ch)
 		{
 			mob_log(ch, "mforce: forcing self");

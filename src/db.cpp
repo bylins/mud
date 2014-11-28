@@ -2423,7 +2423,37 @@ ackeof:
 	log("SYSERR: Unexpected end of help file.");
 	exit(1);		// Some day we hope to handle these things better...
 }
-
+/*
+void count_mobs_in_world(int count)
+{
+	std::map <int,int> mobs;
+	CHAR_DATA *mob;
+	mob_rnum r_num;
+	for (int i = 0; i < 51; i++)
+	{
+		mobs[i] = 0;
+	}
+	log("Всего мобов: %d", count);
+	for (int i = 1; i < count; i++)
+	{
+		log("1");
+		r_num = real_mobile(i);
+		//if ((r_num = real_mobile(i)) > -1)
+		if (true)
+		{
+			
+			mob = read_mobile(r_num, REAL);			
+			mobs[GET_LEVEL(mob)] += mob_index[i].number;	
+			log("%d %d", GET_LEVEL(mob), mob_index[i].number);	
+		}
+	}
+	std::map <int,int>::iterator cur;
+	for (cur=mobs.begin();cur!=mobs.end();cur++)
+	{
+		log("Level: %d, count: %d", (*cur).first, (*cur).second);
+	}
+	
+}*/
 
 
 
