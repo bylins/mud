@@ -434,6 +434,8 @@ WCMD(do_wforce)
 	}
 	else
 	{
+		if ((!ch->desc))
+			    return;
 		if ((ch = get_char_by_room(room, arg1)))
 		{
 			if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
