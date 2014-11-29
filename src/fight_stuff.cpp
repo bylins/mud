@@ -587,11 +587,11 @@ int get_remort_mobmax(CHAR_DATA * ch)
 {
 	int remort = GET_REMORT(ch);
 	if (remort >= 18)
-		return 15;
+		return 20;
+	if (remort >= 14)
+		return 12;
 	if (remort >= 9)
-		return 10;
-	if (remort >= 4)
-		return 5;
+		return 9;
 	return 0;
 }
 
