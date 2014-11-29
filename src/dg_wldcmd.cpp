@@ -434,7 +434,8 @@ WCMD(do_wforce)
 	}
 	else
 	{
-		if ((!ch->desc))
+		if (!IS_NPC(ch))
+			if ((!ch->desc))
 			    return;
 		if ((ch = get_char_by_room(room, arg1)))
 		{

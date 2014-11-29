@@ -825,7 +825,8 @@ ACMD(do_mforce)
 			mob_log(ch, "mforce: no such victim");
 			return;
 		}
-		if ((!ch->desc) || (!victim->desc))
+		if (!IS_NPC(victim))
+			if ((!victim->desc))
 			    return;
 		if (victim == ch)
 		{
