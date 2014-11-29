@@ -21,6 +21,7 @@
 #include "magic.h"
 #include "mob_stat.hpp"
 #include "scripting.hpp"
+#include <algorithm>
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -606,7 +607,7 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
 
 	exp = exp * MAX(5, koef) / 100;
-	exp /= MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1);
+	exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 
 	return (exp);
 }
