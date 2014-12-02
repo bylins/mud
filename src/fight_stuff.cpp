@@ -605,8 +605,8 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 
 	for (koef = 100, base = 0, diff = ch->mobmax_get(GET_MOB_VNUM(victim));
 			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
-
-	exp = exp * MAX(5, koef) / 100;
+        // минимальный опыт при замаксе 15% от полного опыта
+	exp = exp * MAX(15, koef) / 100;
 	exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 
 	return (exp);
