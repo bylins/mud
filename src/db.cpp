@@ -6070,7 +6070,7 @@ int is_empty(zone_rnum zone_nr)
 			continue;
 		if (world[i->character->in_room]->zone != zone_nr)
 			continue;
-		log("Zone (vnum: %d) not empty", zone_nr);
+		log("Zone (vnum: %d) not empty (char:%s)", zone_nr, GET_NAME(i->character));
 		return (0);
 	}
 
@@ -6084,7 +6084,7 @@ int is_empty(zone_rnum zone_nr)
 		for (c = world[rnum_start]->people; c; c = c->next_in_room)
 			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
 			{
-				log("Zone (vnum %d) not empty", zone_nr);
+				log("Zone (vnum %d) not empty (char: %s)", zone_nr, GET_NAME(c));
 				return 0;
 			}
 	}
@@ -6099,13 +6099,18 @@ int is_empty(zone_rnum zone_nr)
 			continue;
 		if (world[was]->zone != zone_nr)
 			continue;
+		log("Zone (vnum:%d) not empty (char:%s)", zone_nr, GET_NAME(c));
 		return 0;
 	}
 
 //Проверим, нет ли в зоне метки для врат, чтоб не абузили.
     for (std::list<ROOM_DATA*>::iterator it = RoomSpells::aff_room_list.begin();it != RoomSpells::aff_room_list.end();++it)
         if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
+        {
+    	    // если в зоне метка
+    	    log("Zone (vnum:%d) not empty (marker)", zone_nr);
             return 0;
+        }
 
 	return (1);
 }
