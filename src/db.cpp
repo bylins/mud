@@ -6070,7 +6070,7 @@ int is_empty(zone_rnum zone_nr)
 			continue;
 		if (world[i->character->in_room]->zone != zone_nr)
 			continue;
-
+		log("Zone (vnum: %d) not empty", zone_nr);
 		return (0);
 	}
 
@@ -6083,7 +6083,10 @@ int is_empty(zone_rnum zone_nr)
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (c = world[rnum_start]->people; c; c = c->next_in_room)
 			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
+			{
+				log("Zone (vnum %d) not empty", zone_nr);
 				return 0;
+			}
 	}
 
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM

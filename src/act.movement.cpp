@@ -439,6 +439,19 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			}
 			return (FALSE);
 		}
+		
+		// если там ДТ и чар верхом на пони
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room , ROOM_DEATH) && on_horse(ch))
+		{
+		    if (show_msg)
+		    {
+			// я весьма костоязычен, исправьте кто-нибудь на нормальную
+			// мессагу, антуражненькую
+			send_to_char("Ваш скакун не хочет идти туда.\r\n", ch);
+		    }
+		    return (FALSE);
+		}
+		
 		// move points needed is avg. move loss for src and destination sect type
 		ch_inroom = real_sector(ch->in_room);
 		ch_toroom = real_sector(EXIT(ch, dir)->to_room);

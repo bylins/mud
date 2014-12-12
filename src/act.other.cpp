@@ -112,7 +112,7 @@ ACMD(do_toggle);
 ACMD(do_color);
 ACMD(do_recall);
 ACMD(do_dig);
-
+ACMD(do_summon);
 bool is_dark(room_rnum room);
 
 ACMD(do_antigods)
@@ -202,6 +202,25 @@ ACMD(do_quit)
 	}
 }
 
+ACMD(do_summon)
+{
+	// для начала проверяем, есть ли вообще лошадь у чара
+	CHAR_DATA *horse = NULL;
+	horse = get_horse(ch);
+	if (!horse)
+		send_to_char("У вас нет скакуна!\r\n", ch);
+		return;
+	if (IN_ROOM(ch) == IN_ROOM(horse))
+		send_to_char("Но ваш какун рядом с вами!\r\n", ch);
+		return;
+	
+	send_to_char("Ваш скакун появился перед вами.\r\n", ch);
+	act("$n исчез$q в голубом пламени.", TRUE, horse, 0, 0, TO_ROOM);
+	char_from_room(horse);
+	char_to_room(horse, IN_ROOM(ch));
+	look_at_room(horse, 0);
+	act("$n появил$u из голубого пламени!", TRUE, horse, 0, 0, TO_ROOM);
+}
 
 
 ACMD(do_save)

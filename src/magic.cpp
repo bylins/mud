@@ -4856,6 +4856,9 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 			continue;
 		if (SpINFO.violent && same_group(ch, ch_vict))
 			continue;
+		// пони не трогаем
+		if (AFF_FLAGGED(ch_vict, AFF_HORSE))
+			continue;
 		add_to_tmp_char_list(ch_vict);
 	}
 

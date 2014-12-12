@@ -413,7 +413,7 @@ ACMD(do_console);
 ACMD(do_shops_list);
 ACMD(do_unfreeze);
 ACMD(do_bonus);
-
+ACMD(do_summon);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -671,6 +671,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"появиться", POS_RESTING, do_visible, 1, 0, -1},
 	{"правила", POS_DEAD, do_gen_ps, 0, SCMD_POLICIES, 0},
 	{"предложение", POS_STANDING, do_not_here, 1, 0, 500},
+	//{"призвать", POS_STANDING, do_summon, 1, 0, -1},
 	{"приказ", POS_RESTING, do_order, 1, 0, -1},
 	{"привязать", POS_RESTING, do_horseput, 0, 0, 500},
 	{"приглядеться", POS_RESTING, do_looking, 0, 0, 250},
