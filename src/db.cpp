@@ -6059,7 +6059,7 @@ int is_empty(zone_rnum zone_nr)
 	DESCRIPTOR_DATA *i;
 	int rnum_start, rnum_stop;
 	CHAR_DATA *c;
-
+	//char *buf_tmp;
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING)
@@ -6070,7 +6070,8 @@ int is_empty(zone_rnum zone_nr)
 			continue;
 		if (world[i->character->in_room]->zone != zone_nr)
 			continue;
-		log("Zone (vnum: %d) not empty (char:%s)", zone_nr, GET_NAME(i->character));
+		sprintf(buf2, "Zone (vnum: %d) not empty (char:%s)", zone_nr, GET_NAME(i->character));
+		mudlog(buf2, LGH, LVL_GOD, SYSLOG, FALSE);
 		return (0);
 	}
 
