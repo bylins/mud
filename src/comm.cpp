@@ -3807,6 +3807,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 				d->character->save_char();
 				check_light(d->character, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
 				Crash_ldsave(d->character);
+				
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
 				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			}
@@ -3814,8 +3815,9 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		}
 		else
 		{
-			sprintf(buf, "Losing player: %s %s.", GET_NAME(d->character) ? GET_NAME(d->character) : "<null>", STATE(d) > CON_CLOSE && STATE(d) < CON_DISCONNECT ? d->host : "");
-			mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+//			Убрал непонятно зачем нужный спам в сислог
+//			sprintf(buf, "Losing player: %s %s.", GET_NAME(d->character) ? GET_NAME(d->character) : "<null>", STATE(d) > CON_CLOSE && STATE(d) < CON_DISCONNECT ? d->host : "");
+//			mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			if (!any_other_ch(d->character))
 				Depot::exit_char(d->character);
 			delete d->character;

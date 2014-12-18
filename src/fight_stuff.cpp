@@ -21,6 +21,7 @@
 #include "magic.h"
 #include "mob_stat.hpp"
 #include "scripting.hpp"
+#include <algorithm>
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -587,10 +588,10 @@ int get_remort_mobmax(CHAR_DATA * ch)
 	int remort = GET_REMORT(ch);
 	if (remort >= 18)
 		return 15;
+	if (remort >= 14)
+		return 7;
 	if (remort >= 9)
-		return 10;
-	if (remort >= 4)
-		return 5;
+		return 4;
 	return 0;
 }
 
@@ -604,9 +605,9 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 
 	for (koef = 100, base = 0, diff = ch->mobmax_get(GET_MOB_VNUM(victim));
 			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
-
-	exp = exp * MAX(5, koef) / 100;
-	exp /= MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1);
+        // минимальный опыт при замаксе 15% от полного опыта
+	exp = exp * MAX(15, koef) / 100;
+	exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 
 	return (exp);
 }
