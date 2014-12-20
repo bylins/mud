@@ -246,7 +246,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		send_to_char(tmpbuf, ch);
 		return false;
 	}
-	else if (SetSystem::is_big_set(obj))
+	else if (SetSystem::is_big_set(obj, true))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 				"%s является частью большого набора предметов.\r\n",

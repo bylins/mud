@@ -58,7 +58,7 @@ TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void prune_crlf(char *txt);
 int valid_email(const char *address);
-
+#define MINI_SET_ITEMS 3
 // external functions
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -102,6 +102,8 @@ CHAR_DATA *find_char(long n)
 			return (ch);
 	return NULL;
 }
+
+
 
 int MIN(int a, int b)
 {
@@ -2729,7 +2731,7 @@ struct SetNode
 };
 
 std::vector<SetNode> set_list;
-const unsigned BIG_SET_ITEMS = 3;
+const unsigned BIG_SET_ITEMS = 9;
 // для проверок при попытке ренты
 std::set<int> vnum_list;
 
@@ -2847,12 +2849,16 @@ void check_rented()
 	}
 }
 
+
+
+
 /**
  * Почта, базар.
  * Предметы сетов из BIG_SET_ITEMS и более предметов не принимаются.
  */
-bool is_big_set(const OBJ_DATA *obj)
+bool is_big_set(const OBJ_DATA *obj,bool is_mini)
 {
+	int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
 	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF))
 	{
 		return false;
@@ -2861,13 +2867,15 @@ bool is_big_set(const OBJ_DATA *obj)
 		iend = obj_data::set_table.end(); i != iend; ++i)
 	{
 		if (i->second.find(GET_OBJ_VNUM(obj)) != i->second.end()
-			&& i->second.size() > BIG_SET_ITEMS)
+			&& i->second.size() > sets_items)
 		{
 			return true;
 		}
 	}
 	return false;
 }
+
+
 
 bool find_set_item(OBJ_DATA *obj)
 {

@@ -135,7 +135,7 @@ extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameRemove(CHAR_DATA * ch);
 extern void NewNameRemove(const std::string& name, CHAR_DATA * ch);
 extern void print_rune_stats(CHAR_DATA *ch);
-
+extern int real_zone(int number);
 // local functions
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
 void perform_immort_invis(CHAR_DATA * ch, int level);
@@ -2732,6 +2732,9 @@ ACMD(do_load)
 			send_to_char("Нет такого моба в этом МУДе.\r\n", ch);
 			return;
 		}
+		if (zone_table[real_zone(number)].locked)
+			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
+			return;
 		mob = read_mobile(r_num, REAL);
 		char_to_room(mob, ch->in_room);
 		act("$n порыл$u в МУДе.", TRUE, ch, 0, 0, TO_ROOM);
@@ -2747,6 +2750,10 @@ ACMD(do_load)
 			send_to_char("Господи, да изучи ты номера объектов.\r\n", ch);
 			return;
 		}
+		if (zone_table[real_zone(number)].locked)
+			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
+			return;
+
 		obj = read_object(r_num, REAL);
 		GET_OBJ_MAKER(obj) = GET_UNIQUE(ch);
 

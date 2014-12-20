@@ -1513,7 +1513,7 @@ void check_item(int vnum);
 void check_rented();
 void init_vnum_list(int vnum);
 bool find_set_item(OBJ_DATA *obj);
-bool is_big_set(const OBJ_DATA *obj);
+bool is_big_set(const OBJ_DATA *obj, bool is_mini = false);
 bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 
 } // namespace SetSystem

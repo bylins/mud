@@ -566,10 +566,11 @@ ASPELL(spell_portal)
 	}
 }
 
+
 ASPELL(spell_summon)
 {
 	room_rnum ch_room, vic_room;
-
+	struct follow_type *k, *k_next;
 	// Если переменные не определены или каст на себя - завершаем.
 	if (ch == NULL || victim == NULL || ch == victim)
 		return;
@@ -700,7 +701,29 @@ ASPELL(spell_summon)
 	act("$n призвал$g вас!", FALSE, ch, 0, victim, TO_VICT);
 	check_auto_nosummon(victim);
 	look_at_room(victim, 0);
-
+	// призываем чармисов
+	for (k = victim->followers; k; k = k_next)
+	{
+		k_next = k->next;
+		// проверяем, находится ли чармис в той же комнате, где был сам чар
+		if (IN_ROOM(k->follower) == vic_room)
+		{
+			// проверяем, чармис ли это вообще
+			if (AFF_FLAGGED(k->follower, AFF_CHARM))
+			{
+				// чармис не должен быть в бою
+				if (!k->follower->get_fighting())
+				{
+					// призываем
+					char_from_room(k->follower);
+					act("$n растворил$u на ваших глазах.", TRUE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("$n прибыл$g за хозяином.", TRUE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("$n призвал$g вас!", FALSE, ch, 0, k->follower, TO_VICT);
+				}
+			}
+		}
+	}
+	
 	entry_memory_mtrigger(victim);
 	greet_mtrigger(victim, -1);	// УЖАС!!! Не стоит в эту функцию передавать -1 :)
 	greet_otrigger(victim, -1);	// УЖАС!!! Не стоит в эту функцию передавать -1 :)

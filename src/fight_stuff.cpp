@@ -99,6 +99,12 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 }
 
+
+void gift_new_year(CHAR_DATA *vict)
+{
+	
+}
+
 // 29.11.09 Увеличиваем счетчики рипов (с) Василиса
 //edited by WorM
 void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)

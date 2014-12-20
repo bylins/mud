@@ -3858,9 +3858,9 @@ bool is_dark(room_rnum room)
 		// Санка. Логично, что если чар светится ярким сиянием, то это сияние распространяется на комнату
 		if (AFF_FLAGGED(tmp_ch, AFF_SANCTUARY))
 			coef += 1.0;
-		// Тьма. Сразу фигачим коэф 3. 
+		// Тьма. Сразу фигачим коэф 6. 
 		if (AFF_FLAGGED(tmp_ch, AFF_HOLYDARK))
-			coef -= 3.0;
+			coef -= 6.0;
 	}
 	
 	if (coef < 0)
