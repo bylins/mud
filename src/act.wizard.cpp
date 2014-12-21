@@ -2825,8 +2825,10 @@ ACMD(do_load)
 			return;
 		}
 		if ((zone_table[real_zone(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL))
+		{
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
+		}
 		mob = read_mobile(r_num, REAL);
 		char_to_room(mob, ch->in_room);
 		act("$n порыл$u в МУДе.", TRUE, ch, 0, 0, TO_ROOM);
@@ -2843,9 +2845,10 @@ ACMD(do_load)
 			return;
 		}
 		if ((zone_table[real_zone(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL))
+		{
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
-
+		}
 		obj = read_object(r_num, REAL);
 		GET_OBJ_MAKER(obj) = GET_UNIQUE(ch);
 
