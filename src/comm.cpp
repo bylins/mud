@@ -592,7 +592,7 @@ void gifts()
 	obj->description = str_dup("Красивая новогодняя сумка для подарков лежит здесь.");
 	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
 	obj->ex_description->keyword = str_dup(descr.c_str());
-	obj->ex_description->description = str_dup("Красивая сумка, в которую ложат подарки на Новый год.");
+	obj->ex_description->description = str_dup("Красивая сумка, в которую кладут подарки на Новый год.");
 	obj->ex_description->next = 0;
 	obj->PNames[0] = str_dup("красивая новогодняя сумка");
 	obj->PNames[1] = str_dup("красивой новогодней сумки");
