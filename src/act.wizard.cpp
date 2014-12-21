@@ -185,7 +185,7 @@ ACMD(do_sdemigod);
 ACMD(do_unfreeze);
 ACMD(do_setall);
 ACMD(do_bonus);
-
+ACMD(do_check_occupation);
 // переменные для бонуса
 
 // время бонуса, в неактивном состоянии -1
@@ -670,6 +670,96 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 		act(buf2, FALSE, vict, 0, ch, TO_ROOM);
 	};
 	return 1;
+}
+
+
+
+void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
+{
+	DESCRIPTOR_DATA *i;
+	int rnum_start, rnum_stop;
+	CHAR_DATA *c;
+	//char *buf_tmp;
+	for (i = descriptor_list; i; i = i->next)
+	{
+		if (STATE(i) != CON_PLAYING)
+			continue;
+		if (IN_ROOM(i->character) == NOWHERE)
+			continue;
+		if (GET_LEVEL(i->character) >= LVL_IMMORT)
+			continue;
+		if (world[i->character->in_room]->zone != zone_nr)
+			continue;
+		sprintf(buf2, "Zone (vnum: %d) not empty (char:%s)", zone_nr, GET_NAME(i->character));
+		send_to_char(buf2, ch);
+		return;
+	}
+
+	// Поиск link-dead игроков в зонах комнаты zone_nr
+	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop))
+		return;	// в зоне нет комнат :)
+
+	for (; rnum_start <= rnum_stop; rnum_start++)
+	{
+// num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
+		for (c = world[rnum_start]->people; c; c = c->next_in_room)
+			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
+			{
+				sprintf(buf2, "Zone (vnum %d) not empty (char: %s)", zone_nr, GET_NAME(c));
+				send_to_char(buf2, ch);
+				return;
+			}
+	}
+
+// теперь проверю всех товарищей в void комнате STRANGE_ROOM
+	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room)
+	{
+		int was = c->get_was_in_room();
+		if (was == NOWHERE)
+			continue;
+		if (GET_LEVEL(c) >= LVL_IMMORT)
+			continue;
+		if (world[was]->zone != zone_nr)
+			continue;
+		sprintf(buf2, "Zone (vnum:%d) not empty (char:%s)", zone_nr, GET_NAME(c));
+		send_to_char(buf2, ch);
+		return;
+	}
+
+//Проверим, нет ли в зоне метки для врат, чтоб не абузили.
+    for (std::list<ROOM_DATA*>::iterator it = RoomSpells::aff_room_list.begin();it != RoomSpells::aff_room_list.end();++it)
+        if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
+        {
+    	    // если в зоне метка
+    	    sprintf(buf2, "Zone (vnum:%d) not empty (marker)", zone_nr);
+			send_to_char(buf2, ch);
+        }
+
+
+}
+
+ACMD(do_check_occupation)
+{
+	int number;
+	int zrn;
+	one_argument(argument, buf);
+
+	if (!*buf || !isdigit(*buf))
+	{
+		send_to_char("Usage: занятость внумзоны\r\n", ch);
+		return;
+	}
+	if ((number = atoi(buf2)) < 0)
+	{
+		send_to_char("Такого внума не может быть!\r\n", ch);
+		return;
+	}
+	// что-то по другому не нашел, как проверить существует такая зона или нет
+	for (int zvn = number,zrn = 0; zone_table[zrn].number != zvn && zrn <= top_of_zone_table; zrn++);
+	if (zrn <= top_of_zone_table)
+		is_empty_ch(zrn, ch);
+	else
+		send_to_char("Такой зоны нет.\r\n", ch);
 }
 
 SetAllInspReqListType setall_inspect_list;
@@ -2704,6 +2794,8 @@ ACMD(do_return)
 	}
 }
 
+
+
 ACMD(do_load)
 {
 	CHAR_DATA *mob;
@@ -2732,7 +2824,7 @@ ACMD(do_load)
 			send_to_char("Нет такого моба в этом МУДе.\r\n", ch);
 			return;
 		}
-		if (zone_table[real_zone(number)].locked)
+		if ((zone_table[real_zone(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL))
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		mob = read_mobile(r_num, REAL);
@@ -2750,7 +2842,7 @@ ACMD(do_load)
 			send_to_char("Господи, да изучи ты номера объектов.\r\n", ch);
 			return;
 		}
-		if (zone_table[real_zone(number)].locked)
+		if ((zone_table[real_zone(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL))
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 

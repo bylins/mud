@@ -570,9 +570,9 @@ const int vnum_gifts[len_array_gifts] = { 2525,
 void gifts()
 {
 	// выбираем случайную комнату с елкой
-	int rand_vnum_r = number(1, 56);
+	int rand_vnum_r = vnum_room_new_year[number(1, 56)];
 	// выбираем  случайный подарок
-	int rand_vnum = number(0, len_array_gifts - 1);
+	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	obj_rnum rnum;
 	OBJ_DATA *obj_cont = create_obj();
 	OBJ_DATA *obj = create_obj();
@@ -592,7 +592,7 @@ void gifts()
 	obj->description = str_dup("Красивая новогодняя сумка для подарков лежит здесь.");
 	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
 	obj->ex_description->keyword = str_dup(descr.c_str());
-	obj->ex_description->description = str_dup("Красивая сумка, в которую ложат подарки на Новый год.");
+	obj->ex_description->description = str_dup("Красивая сумка, в которую кладут подарки на Новый год.");
 	obj->ex_description->next = 0;
 	obj->PNames[0] = str_dup("красивая новогодняя сумка");
 	obj->PNames[1] = str_dup("красивой новогодней сумки");
@@ -1778,7 +1778,7 @@ inline void heartbeat(const int missed_pulses)
 	}
 
 	// каждые 30 минут
-	if ((uptime_minutes % 30) == 0)
+	if (((uptime_minutes % 30) == 0) && (pulse % PASSES_PER_SEC))
 	{
 		gifts();
 	}
