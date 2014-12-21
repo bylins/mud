@@ -1217,6 +1217,35 @@ void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
 	}
 }
 
+void print_list_group(CHAR_DATA *ch)
+{
+	
+	CHAR_DATA *k;
+	struct follow_type *f, *g;
+	int count = 1;
+	k = (ch->master ? ch->master : ch);
+	if (AFF_FLAGGED(ch, AFF_GROUP))
+	{
+		send_to_char("Ваша группа состоит из:\r\n", ch);
+		if (AFF_FLAGGED(k, AFF_GROUP))
+		{
+			sprintf(buf1, "Лидер: %s", GET_NAME(k));
+			send_to_char(buf1, ch);
+		}
+		for (f = k->followers; f; f = f->next)
+		{
+			if (!AFF_FLAGGED(f->follower, AFF_GROUP))
+				continue;	
+			sprintf(buf1, "%d. Согруппник %s", count, GET_NAME(f->follower));
+			send_to_char(buf1, ch);
+			count++;
+		}
+	}
+	else
+	{
+		send_to_char("Но вы же не член (в лучшем смысле этого слова) группы!\r\n", ch);
+	}
+}
 
 void print_group(CHAR_DATA * ch)
 {
@@ -1302,7 +1331,12 @@ ACMD(do_group)
 		print_group(ch);
 		return;
 	}
-
+	
+	if (str_cmp(buf, "список"))
+	{
+		print_list_group(ch);
+	}
+	
 	if (GET_POS(ch) < POS_RESTING)
 	{
 		send_to_char("Трудно управлять группой в таком состоянии.\r\n", ch);
@@ -1320,6 +1354,9 @@ ACMD(do_group)
 		send_to_char("За вами никто не следует.\r\n", ch);
 		return;
 	}
+	
+	
+	
 // вычисляем количество последователей
 	for (f_number = 0, f = ch->followers; f; f = f->next)
 		if (AFF_FLAGGED(f->follower, AFF_GROUP))
