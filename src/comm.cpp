@@ -451,6 +451,180 @@ log_info logs[NLOG] =
 
 char src_path[4096];
 
+// Для нового года
+
+
+// внумы комнат, где ставятся елки
+// размер массива 57
+const int vnum_room_new_year[57] = { 100,
+	4056,
+	5000,
+	6049,
+	7038,
+	8010,
+	9007,
+	66069,
+	60036,
+	18253,
+	63671,
+	34404,
+	61064,
+	76601,
+	25685,
+	13589,
+	27018,
+	63030,
+	30266,
+	69091,
+	77065,
+	76000,
+	49987,
+	25075,
+	72043,
+	75000,
+	64035,
+	85123,
+	35040,
+	73050,
+	60288,
+	24074,
+	62001,
+	32480,
+	68051,
+	21017,
+	20962,
+	58123,
+	30423,
+	35738,
+	14611,
+	77501,
+	31210,
+	21186,
+	13405,
+	15906,
+	85540,
+	13101,
+	77622,
+	23744,
+	71300,
+	85146,
+	42103,
+	21211,
+	12662,
+	25327,
+	12510 } ;
+
+const int len_array_gifts = 47;
+
+
+const int vnum_gifts[len_array_gifts] = { 2525,
+	2526,
+	2527,
+	2528,
+	2529,
+	2530,
+	2531,
+	2532,
+	2533,
+	2534,
+	2535,
+	2512,
+	2513,
+	2514,
+	2515,
+	2516,
+	2517,
+	2518,
+	2519,
+	2520,
+	2521,
+	2522,
+	2523,
+	2524,
+	2500,
+	2501,
+	2502,
+	2503,
+	2504,
+	2505,
+	2506,
+	10672,
+	2507,
+	2508,
+	2509,
+	2510,
+	2511,
+	226,
+	919,
+	216,
+	10611,
+	10613,
+	10614,
+	10616,
+	10618,
+	10619,
+	10621};
+
+
+
+void gifts()
+{
+	// выбираем случайную комнату с елкой
+	int rand_vnum_r = number(1, 56);
+	// выбираем  случайный подарок
+	int rand_vnum = number(0, len_array_gifts - 1);
+	obj_rnum rnum;
+	OBJ_DATA *obj_cont = create_obj();
+	OBJ_DATA *obj = create_obj();
+	if ((rnum = real_object(rand_vnum)) < 0)
+	{
+		log("Ошибка в таблице НГ подарков!");
+		return;
+	}
+	obj = read_object(rnum, REAL);
+	
+	
+	// создаем упаковку для подарка
+	
+	obj->aliases = str_dup("красивая новогодняя сумка из под подарка");
+	const std::string descr = std::string("красивая новогодняя сумка из под подарка");
+	obj->short_description = str_dup(descr.c_str());
+	obj->description = str_dup("Красивая новогодняя сумка для подарков лежит здесь.");
+	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
+	obj->ex_description->keyword = str_dup(descr.c_str());
+	obj->ex_description->description = str_dup("Красивая сумка, в которую ложат подарки на Новый год.");
+	obj->ex_description->next = 0;
+	obj->PNames[0] = str_dup("красивая новогодняя сумка");
+	obj->PNames[1] = str_dup("красивой новогодней сумки");
+	obj->PNames[2] = str_dup("красивой новогодней сумке");
+	obj->PNames[3] = str_dup("красивую новогоднию сумку");
+	obj->PNames[4] = str_dup("красивой новогодней сумкой");
+	obj->PNames[5] = str_dup("красивой новогодней сумке");
+	GET_OBJ_SEX(obj) = SEX_FEMALE;
+	GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
+	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
+	GET_OBJ_WEIGHT(obj) = 1;
+	obj->set_cost(1);
+	obj->set_rent(1);
+	obj->set_rent_eq(1);
+	obj->set_timer(24 * 60);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOLOCATE), ITEM_NOLOCATE);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODECAY), ITEM_NODECAY);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
+	obj_to_room(obj_cont, rand_vnum_r);
+	obj_to_obj(obj, obj_cont);
+	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);
+	
+}
+
+
+
+// -----------------------------
+
+
+
 // functions in this file
 RETSIGTYPE unrestrict_game(int sig);
 RETSIGTYPE reap(int sig);
@@ -1311,7 +1485,6 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 #endif
 			continue;
 		}
-
 		d->input_time = time(NULL);
 		if (d->character)  	// Reset the idle timer & pull char back from void if necessary
 		{
@@ -1604,6 +1777,13 @@ inline void heartbeat(const int missed_pulses)
 		uptime_minutes = ((time(NULL) - boot_time) / 60);
 	}
 
+	// каждые 30 минут
+	if ((uptime_minutes % 30) == 0)
+	{
+		gifts();
+	}
+	
+	
 	//log("---------- Start heartbeat ----------");
 	//log("Process events...");
 	process_events();
