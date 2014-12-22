@@ -574,14 +574,19 @@ void gifts()
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	obj_rnum rnum;
-	OBJ_DATA *obj_cont = create_obj();
 	OBJ_DATA *obj = create_obj();
+	OBJ_DATA *obj_gift = create_obj();
 	if ((rnum = real_object(rand_vnum)) < 0)
 	{
 		log("Ошибка в таблице НГ подарков!");
 		return;
 	}
-	obj = read_object(rnum, REAL);
+	if (real_room(rand_vnum_r) < 0)
+	{
+		log("Ошибка в таблице елок");
+		return;
+	}
+	obj_gift = read_object(rnum, REAL);
 	
 	
 	// создаем упаковку для подарка
@@ -613,8 +618,8 @@ void gifts()
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODECAY), ITEM_NODECAY);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
-	obj_to_room(obj_cont, real_room(rand_vnum_r));
-	obj_to_obj(obj, obj_cont);
+	obj_to_room(obj, real_room(rand_vnum_r));
+	obj_to_obj(obj_gift, obj);
 	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);
 	
 }
