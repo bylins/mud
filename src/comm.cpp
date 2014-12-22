@@ -613,7 +613,7 @@ void gifts()
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODECAY), ITEM_NODECAY);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
-	obj_to_room(obj_cont, rand_vnum_r);
+	obj_to_room(obj_cont, real_room(rand_vnum_r));
 	obj_to_obj(obj, obj_cont);
 	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);
 	
