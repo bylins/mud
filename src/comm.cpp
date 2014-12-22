@@ -1778,10 +1778,10 @@ inline void heartbeat(const int missed_pulses)
 	}
 
 	// каждые 30 минут
-	if (((uptime_minutes % 30) == 0) && (pulse % PASSES_PER_SEC))
-	{
-		gifts();
-	}
+//	if (((uptime_minutes % 30) == 0) && (pulse % PASSES_PER_SEC))
+//	{
+//		gifts();
+//	}
 	
 	
 	//log("---------- Start heartbeat ----------");
