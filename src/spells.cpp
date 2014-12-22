@@ -716,6 +716,7 @@ ASPELL(spell_summon)
 				{
 					// призываем
 					char_from_room(k->follower);
+					char_to_room(k->follower, ch_room);
 					act("$n растворил$u на ваших глазах.", TRUE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					act("$n прибыл$g за хозяином.", TRUE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					act("$n призвал$g вас!", FALSE, ch, 0, k->follower, TO_VICT);

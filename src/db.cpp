@@ -6070,8 +6070,6 @@ int is_empty(zone_rnum zone_nr)
 			continue;
 		if (world[i->character->in_room]->zone != zone_nr)
 			continue;
-		sprintf(buf2, "Zone (vnum: %d) not empty (char:%s)", zone_nr, GET_NAME(i->character));
-		mudlog(buf2, LGH, LVL_GOD, SYSLOG, FALSE);
 		return (0);
 	}
 
@@ -6085,7 +6083,6 @@ int is_empty(zone_rnum zone_nr)
 		for (c = world[rnum_start]->people; c; c = c->next_in_room)
 			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
 			{
-				log("Zone (vnum %d) not empty (char: %s)", zone_nr, GET_NAME(c));
 				return 0;
 			}
 	}
@@ -6100,7 +6097,6 @@ int is_empty(zone_rnum zone_nr)
 			continue;
 		if (world[was]->zone != zone_nr)
 			continue;
-		log("Zone (vnum:%d) not empty (char:%s)", zone_nr, GET_NAME(c));
 		return 0;
 	}
 
@@ -6109,7 +6105,6 @@ int is_empty(zone_rnum zone_nr)
         if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
         {
     	    // если в зоне метка
-    	    log("Zone (vnum:%d) not empty (marker)", zone_nr);
             return 0;
         }
 

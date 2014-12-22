@@ -570,9 +570,9 @@ const int vnum_gifts[len_array_gifts] = { 2525,
 void gifts()
 {
 	// выбираем случайную комнату с елкой
-	int rand_vnum_r = number(1, 56);
+	int rand_vnum_r = vnum_room_new_year[number(1, 56)];
 	// выбираем  случайный подарок
-	int rand_vnum = number(0, len_array_gifts - 1);
+	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	obj_rnum rnum;
 	OBJ_DATA *obj_cont = create_obj();
 	OBJ_DATA *obj = create_obj();
