@@ -1332,7 +1332,7 @@ ACMD(do_group)
 		return;
 	}
 	
-	if (str_cmp(buf, "список"))
+	if (!str_cmp(buf, "список"))
 	{
 		print_list_group(ch);
 		return;
