@@ -1236,7 +1236,7 @@ void print_list_group(CHAR_DATA *ch)
 		{
 			if (!AFF_FLAGGED(f->follower, AFF_GROUP))
 				continue;	
-			sprintf(buf1, "%d. óÏÇÒÕÐÐÎÉË %s\r\n", count, GET_NAME(f->follower));
+			sprintf(buf1, "%d. óÏÇÒÕÐÐÎÉË: %s\r\n", count, GET_NAME(f->follower));
 			send_to_char(buf1, ch);
 			count++;
 		}
