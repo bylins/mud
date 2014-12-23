@@ -749,7 +749,7 @@ ACMD(do_check_occupation)
 		send_to_char("Usage: занятость внумзоны\r\n", ch);
 		return;
 	}
-	if ((number = atoi(buf2)) < 0)
+	if ((number = atoi(buf)) < 0)
 	{
 		send_to_char("Такого внума не может быть!\r\n", ch);
 		return;
