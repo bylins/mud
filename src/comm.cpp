@@ -574,52 +574,21 @@ void gifts()
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	obj_rnum rnum;
-	OBJ_DATA *obj = create_obj();
-	OBJ_DATA *obj_gift = create_obj();
+	OBJ_DATA *obj_gift;
+	OBJ_DATA *obj_cont;
 	if ((rnum = real_object(rand_vnum)) < 0)
 	{
 		log("Ошибка в таблице НГ подарков!");
 		return;
 	}
-	if (real_room(rand_vnum_r) < 0)
-	{
-		log("Ошибка в таблице елок");
-		return;
-	}
 	obj_gift = read_object(rnum, REAL);
-	
+	obj_cont = read_object(real_object(2594), REAL);
 	
 	// создаем упаковку для подарка
-	
-	obj->aliases = str_dup("красивая новогодняя сумка из под подарка");
-	const std::string descr = std::string("красивая новогодняя сумка из под подарка");
-	obj->short_description = str_dup(descr.c_str());
-	obj->description = str_dup("Красивая новогодняя сумка для подарков лежит здесь.");
-	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
-	obj->ex_description->keyword = str_dup(descr.c_str());
-	obj->ex_description->description = str_dup("Красивая сумка, в которую кладут подарки на Новый год.");
-	obj->ex_description->next = 0;
-	obj->PNames[0] = str_dup("красивая новогодняя сумка");
-	obj->PNames[1] = str_dup("красивой новогодней сумки");
-	obj->PNames[2] = str_dup("красивой новогодней сумке");
-	obj->PNames[3] = str_dup("красивую новогоднию сумку");
-	obj->PNames[4] = str_dup("красивой новогодней сумкой");
-	obj->PNames[5] = str_dup("красивой новогодней сумке");
-	GET_OBJ_SEX(obj) = SEX_FEMALE;
-	GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
-	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
-	GET_OBJ_WEIGHT(obj) = 1;
-	obj->set_cost(1);
-	obj->set_rent(1);
-	obj->set_rent_eq(1);
-	obj->set_timer(24 * 60);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOLOCATE), ITEM_NOLOCATE);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODECAY), ITEM_NODECAY);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
-	obj_to_room(obj, real_room(rand_vnum_r));
-	obj_to_obj(obj_gift, obj);
+	obj_to_room(obj_cont, real_room(rand_vnum_r));
+	obj_to_obj(obj_gift, obj_cont);
+	obj_decay(obj_gift);
+	obj_decay(obj_cont);
 	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);
 	
 }
@@ -1783,9 +1752,9 @@ inline void heartbeat(const int missed_pulses)
 	}
 
 	// каждые 30 минут
-	if (((uptime_minutes % 30) == 0) && !(pulse % PASSES_PER_SEC))
+	if ((pulse % (PASSES_PER_SEC * 30) == 0))
 	{
-	//	gifts();
+		gifts();
 	}
 	
 	

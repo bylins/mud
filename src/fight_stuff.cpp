@@ -691,7 +691,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	{
 		exp *= mult_bonus;
 	}
-	
+	exp = MIN(max_exp_gain_pc(ch), exp);
 	if (exp > 1)
 	{
 		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n",

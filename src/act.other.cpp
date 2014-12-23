@@ -1229,14 +1229,14 @@ void print_list_group(CHAR_DATA *ch)
 		send_to_char("Ваша группа состоит из:\r\n", ch);
 		if (AFF_FLAGGED(k, AFF_GROUP))
 		{
-			sprintf(buf1, "Лидер: %s", GET_NAME(k));
+			sprintf(buf1, "Лидер: %s\r\n", GET_NAME(k));
 			send_to_char(buf1, ch);
 		}
 		for (f = k->followers; f; f = f->next)
 		{
 			if (!AFF_FLAGGED(f->follower, AFF_GROUP))
 				continue;	
-			sprintf(buf1, "%d. Согруппник %s", count, GET_NAME(f->follower));
+			sprintf(buf1, "%d. Согруппник %s\r\n", count, GET_NAME(f->follower));
 			send_to_char(buf1, ch);
 			count++;
 		}
@@ -1335,6 +1335,7 @@ ACMD(do_group)
 	if (str_cmp(buf, "список"))
 	{
 		print_list_group(ch);
+		return;
 	}
 	
 	if (GET_POS(ch) < POS_RESTING)

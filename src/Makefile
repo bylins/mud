@@ -1,4 +1,4 @@
-# для сборки на платформах, не поддерживающих epoll (отличных от linux 2.6+),
+# для сборки на платформах, не поддерживающих epoll (отличных от linux 2.7+),
 # используйте параметр NO_EPOLL:
 #
 # make [options] [target] NO_EPOLL=1
@@ -27,15 +27,15 @@ else
 EPOLL_FLAG = -DHAS_EPOLL
 endif
 
-CFLAGS = -std=gnu++0x -m32 -ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV $(EPOLL_FLAG) $(EXTRA_CFLAGS)
+CFLAGS = -std=gnu++0x -m64 -ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
-TESTCFLAGS = -std=gnu++0x -m32 -Wall -Wextra -Wno-unused-parameter -ggdb3 -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH $(EXTRA_CFLAGS)
-DEBUGFLAGS = -m32 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC $(EPOLL_FLAG) $(EXTRA_CFLAGS)
-FASTTEST   = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3 $(EPOLL_FLAG) $(EXTRA_CFLAGS)
-SEARCHPATH = -I /usr/include/python2.6
+TESTCFLAGS = -std=gnu++0x -m64 -Wall -Wextra -Wno-unused-parameter -ggdb3 -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH $(EXTRA_CFLAGS)
+DEBUGFLAGS = -m64 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC $(EXTRA_CFLAGS)
+FASTTEST   = -m64 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3 $(EPOLL_FLAG) $(EXTRA_CFLAGS)
+SEARCHPATH = -I /usr/include/python2.7
 
-LIBS =  -m32 -lz -lpython2.6 -lboost_python-mt
+LIBS =  -m64 -lz -lpython2.7 -lboost_python
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
@@ -98,7 +98,7 @@ default: circle
 
 circle:
 	$(MAKE) $(BINDIR)/circle
-	HGENCODING=utf-8 hg log -v -M > $(BINDIR)/changelog
+	LANGUAGE=en_US.UTF-8 HGENCODING=utf-8 hg log -v -M > $(BINDIR)/changelog
 
 $(BINDIR)/circle : $(OBJFILES)
 	$(MKDIR) $(BINDIR)
