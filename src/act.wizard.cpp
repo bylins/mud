@@ -741,9 +741,8 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 ACMD(do_check_occupation)
 {
 	int number;
-	int zrn;
 	one_argument(argument, buf);
-
+	bool is_found = false;
 	if (!*buf || !isdigit(*buf))
 	{
 		send_to_char("Usage: занятость внумзоны\r\n", ch);
@@ -755,10 +754,16 @@ ACMD(do_check_occupation)
 		return;
 	}
 	// что-то по другому не нашел, как проверить существует такая зона или нет
-	for (int zvn = number,zrn = 0; zone_table[zrn].number != zvn && zrn <= top_of_zone_table; zrn++);
-	if (zrn <= top_of_zone_table)
+	for (int zrn = 0; zrn < top_of_zone_table; zrn++)
+	{
+	    if (zone_table[zrn].number == number)
+	    {
 		is_empty_ch(zrn, ch);
-	else
+		is_found = true;
+		break;
+	    }
+	}
+	if (!is_found)
 		send_to_char("Такой зоны нет.\r\n", ch);
 }
 
