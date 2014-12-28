@@ -3508,7 +3508,7 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 void HitData::add_hand_damage(CHAR_DATA *ch)
 {
 	if (AFF_FLAGGED(ch, AFF_STONEHAND))
-		dam += number(5, 10);
+		dam += dice(2, 3);
 	else
 		dam += number(1, 3);
 
