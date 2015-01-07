@@ -747,6 +747,132 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 	return (victim);
 }
 
+extern bool find_master_charmice(CHAR_DATA *charmise);
+CHAR_DATA *find_target(CHAR_DATA *ch)
+{
+	CHAR_DATA *vict, *victim, *use_light = NULL, *min_hp = NULL, *min_lvl = NULL, *caster = NULL, *best = NULL;
+	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
+	victim = ch->get_fighting();
+	
+	// если нет цели
+	if (!victim)
+		return NULL;
+		
+	
+	
+	// проходим по всем чарам в комнате
+	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
+	{
+		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
+				|| (IS_CHARMICE(vict) && !vict->get_fighting() && !find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
+				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
+				|| !MAY_SEE(ch, vict))
+			continue;
+		
+
+		if (!CAN_SEE(ch, vict))
+			continue;
+
+		
+		// волхв
+		if (GET_CLASS(vict) == CLASS_DRUID)
+		{
+			druid = vict;
+			caster = vict;
+			continue;
+		}
+		
+		// лекарь
+		if (GET_CLASS(vict) == CLASS_CLERIC)
+		{
+			cler = vict;
+			caster = vict;
+			continue;
+		}
+		// кудес
+		if (GET_CLASS(vict) == CLASS_CHARMMAGE)
+		{
+			charmmage = vict;
+			caster = vict;
+			continue;
+		}
+		
+		// если у чара меньше 100 хп, то переключаемся на него
+		if (GET_HIT(vict) <= 100)
+		{
+			min_hp = vict;
+			continue;
+		}
+		
+		if (IS_CASTER(vict))
+		{			
+			caster = vict;
+			continue;
+		}
+		
+		best = vict;	
+	}
+	if (!best)
+		best = victim;
+	// интелект моба
+	int i = GET_REAL_INT(ch);
+	// если у моба меньше 20 инты, то моб тупой
+	if (i < 20)
+	{
+		return find_damagee(ch);
+	}
+	// если цель кастер, то зачем переключаться ?
+	if (IS_CASTER(victim))
+	{
+		return victim;
+	}
+	
+	
+	if (i < 30)
+	{
+		int rand = number(0, 3);
+		if (!caster)
+			best = caster;
+		if ((rand == 0) && (!druid))
+			best = druid;
+		if ((rand == 1) && (!cler))
+			best = cler;
+		if ((rand == 2) && (!charmmage))
+			best = charmmage;
+		return best;
+	}
+	
+	if (i < 40)
+	{
+		int rand = number(0, 2);
+		if (!caster)
+			best = caster;
+		if (!charmmage)
+			best = charmmage;
+		if ((rand == 0) && (!druid))
+			best = druid;
+		if ((rand == 1) && (!cler))
+			best = cler;
+		
+		return best;
+	}
+	
+	//  и если >= 40 инты
+	if (!caster)
+		best = caster;
+	if (!charmmage)
+		best = charmmage;
+	if (!cler)
+		best = cler;
+	if (druid)
+		best = druid;
+	
+	return best;
+}
+
+
+
+
 CHAR_DATA *find_minhp(CHAR_DATA * caster)
 {
 	CHAR_DATA *vict, *victim = NULL;
@@ -858,12 +984,12 @@ void mob_casting(CHAR_DATA * ch)
 			if (spell_info[spellnum].routines & NPC_DAMAGE_PC_MINHP)
 			{
 				if (!AFF_FLAGGED(ch, AFF_CHARM))
-					victim = find_minhp(ch);
+					victim = find_target(ch);
 			}
 			else if (spell_info[spellnum].routines & NPC_DAMAGE_PC)
 			{
 				if (!AFF_FLAGGED(ch, AFF_CHARM))
-					victim = find_damagee(ch);
+					victim = find_target(ch);
 			}
 			else if (spell_info[spellnum].routines & NPC_AFFECT_PC_CASTER)
 			{
@@ -1326,6 +1452,8 @@ void using_mob_skills(CHAR_DATA *ch)
 			}
 			else
 			{
+				caster = find_target(ch);
+				damager = find_target(ch);
 				for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people; vict;
 						vict = vict->next_in_room)
 				{
@@ -1353,6 +1481,7 @@ void using_mob_skills(CHAR_DATA *ch)
 						damager = vict;
 					}
 				}
+				
 			}
 
 			if (caster
@@ -1387,6 +1516,7 @@ void using_mob_skills(CHAR_DATA *ch)
 			{
 				if (sk_num == SKILL_BASH)
 				{
+					
 					if (on_horse(damager))
 					{
 						// Карачун. Правка бага. Лошадь не должна башить себя, если дерется с наездником.

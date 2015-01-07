@@ -500,6 +500,34 @@ void clear_mobs_memory(CHAR_DATA *ch)
 	}
 }
 
+
+bool change_rep(CHAR_DATA *ch, CHAR_DATA *killer)
+{
+	return false;
+	// проверяем, в кланах ли оба игрока
+	if ((!CLAN(ch)) || (!CLAN(killer)))
+		return false;
+	// кланы должны быть разные
+	if (CLAN(ch) == CLAN(killer))
+		return false;
+	
+	// 1/10 репутации замка уходит замку киллера
+	int rep_ch = CLAN(ch)->get_rep() * 0.1 + 1;	
+	CLAN(ch)->set_rep(CLAN(ch)->get_rep() - rep_ch);
+	CLAN(killer)->set_rep(CLAN(killer)->get_rep() + rep_ch);
+	send_to_char("Вы потеряли очко репутации своего клана! Стыд и позор вам.\r\n", ch);
+	send_to_char("Вы заработали очко репутации для своего клана! Честь и похвала вам.\r\n", killer);
+	// проверяем репу клана у убитого
+	if (CLAN(ch)->get_rep() < 1)
+	{
+		// сам распустится
+		//CLAN(ch)->bank = 0;
+	}
+	return true;
+}
+
+
+
 void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	const long local_gold = ch->get_gold();
@@ -581,7 +609,12 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 			//Если убили на арене или палач
 			arena_kill(ch, killer);
 		}
-		else
+		else if (!change_rep(ch, killer))
+		{
+			// клановые не теряют вещи
+			arena_kill(ch, killer);
+			
+		} else
 		{
 			real_kill(ch, killer);
 			extract_char(ch, TRUE);

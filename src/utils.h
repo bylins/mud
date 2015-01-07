@@ -1008,7 +1008,7 @@ extern SPECIAL(shop_ext);
 
 
 // Various macros building up to CAN_SEE
-#define MAY_SEE(sub,obj) (!AFF_FLAGGED((sub),AFF_BLIND) && \
+#define MAY_SEE(sub,obj) (!(GET_INVIS_LEV(ch) > 30) && !AFF_FLAGGED((sub),AFF_BLIND) && \
                           (!IS_DARK(IN_ROOM(sub)) || AFF_FLAGGED((sub),AFF_INFRAVISION)) && \
            (!AFF_FLAGGED((obj),AFF_INVISIBLE) || AFF_FLAGGED((sub),AFF_DETECT_INVIS)))
 

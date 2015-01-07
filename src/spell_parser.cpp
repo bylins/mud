@@ -2931,6 +2931,8 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 	if ((SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSCURSE)) ||
 			(!SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE)))
 		prob += 50;
+	if (IS_NPC(ch) && (GET_LEVEL(ch) >= 30))
+	    prob += 15;
 	return (prob > number(0, 100));
 }
 

@@ -237,7 +237,8 @@ public:
 	void write_mod(const std::string &arg);
 	void print_mod(CHAR_DATA *ch) const;
 	void load_mod();
-
+	int get_rep();
+	void set_rep(int rep);
 	void init_ingr_chest();
 	int get_ingr_chest_room_rnum() const { return ingr_chest_room_rnum_; };
 	void set_ingr_chest_room_rnum(const int new_rnum) { ingr_chest_room_rnum_ = new_rnum; };
@@ -318,7 +319,8 @@ private:
 	std::string web_url_;
 	// пока общий на всех налог на лут кун
 	unsigned gold_tax_pct_;
-
+	// очки репутации
+	int reputation;
 	//no save
 	int chest_objcount;
 	int chest_discount;
