@@ -404,7 +404,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		return find_best_stupidmob_victim(ch, extmode);
 	}
 	//return find_best_stupidmob_victim(ch, extmode);
-	CHAR_DATA *vict, *victim,  *caster = NULL, *best = NULL;
+	CHAR_DATA *vict, *victim,  *caster = NULL, *best = NULL, *min_hp = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	int extra_aggr = 0;
 	bool kill_this;

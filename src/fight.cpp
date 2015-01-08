@@ -750,9 +750,17 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 extern bool find_master_charmice(CHAR_DATA *charmise);
 CHAR_DATA *find_target(CHAR_DATA *ch)
 {
-	CHAR_DATA *vict, *victim, *use_light = NULL, *min_hp = NULL, *min_lvl = NULL, *caster = NULL, *best = NULL;
+	CHAR_DATA *vict, *victim, *caster = NULL, *best = NULL, *min_hp = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	victim = ch->get_fighting();
+	
+	// интелект моба
+	int i = GET_REAL_INT(ch);
+	// если у моба меньше 20 инты, то моб тупой
+	if (i < 20)
+	{
+		return find_damagee(ch);
+	}
 	
 	// если нет цели
 	if (!victim)
@@ -814,13 +822,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 	}
 	if (!best)
 		best = victim;
-	// интелект моба
-	int i = GET_REAL_INT(ch);
-	// если у моба меньше 20 инты, то моб тупой
-	if (i < 20)
-	{
-		return find_damagee(ch);
-	}
+	
 	// если цель кастер, то зачем переключаться ?
 	if (IS_CASTER(victim))
 	{
@@ -830,39 +832,39 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 	
 	if (i < 30)
 	{
-		int rand = number(0, 3);
-		if (!caster)
+		int rand = number(0, 2);
+		if (caster)
 			best = caster;
-		if ((rand == 0) && (!druid))
+		if ((rand == 0) && (druid))
 			best = druid;
-		if ((rand == 1) && (!cler))
+		if ((rand == 1) && (cler))
 			best = cler;
-		if ((rand == 2) && (!charmmage))
+		if ((rand == 2) && (charmmage))
 			best = charmmage;
 		return best;
 	}
 	
 	if (i < 40)
 	{
-		int rand = number(0, 2);
-		if (!caster)
+		int rand = number(0, 1);
+		if (caster)
 			best = caster;
-		if (!charmmage)
+		if (charmmage)
 			best = charmmage;
-		if ((rand == 0) && (!druid))
+		if ((rand == 0) && (druid))
 			best = druid;
-		if ((rand == 1) && (!cler))
+		if ((rand == 1) && (cler))
 			best = cler;
 		
 		return best;
 	}
 	
 	//  и если >= 40 инты
-	if (!caster)
+	if (caster)
 		best = caster;
-	if (!charmmage)
+	if (charmmage)
 		best = charmmage;
-	if (!cler)
+	if (cler)
 		best = cler;
 	if (druid)
 		best = druid;
