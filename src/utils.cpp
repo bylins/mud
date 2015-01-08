@@ -2200,7 +2200,7 @@ int get_real_dr(CHAR_DATA *ch)
 	{
 		if (level > STRONG_MOB_LEVEL)
 		    bonus += level + number(0, level);
-		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch));
+		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + bonus);
 	}
 	return VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50);
 }
