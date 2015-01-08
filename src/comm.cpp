@@ -1775,6 +1775,19 @@ inline void heartbeat(const int missed_pulses)
 	}
 	
 	
+	
+	// каждые 8 часов
+	/*
+	if ((pulse % (PASSES_PER_SEC * 60 * 60 * 8) ) == 0
+	{
+		ClanListType::const_iterator clan;
+		for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+		{
+			(*clan)->set_rep((*clan)->get_rep()++);			
+		}
+	}*/
+	
+	
 	//log("---------- Start heartbeat ----------");
 	//log("Process events...");
 	process_events();

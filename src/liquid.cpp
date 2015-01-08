@@ -1300,7 +1300,7 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 		{
 			snprintf(buf_, sizeof(buf_), "Заполнен %s на %d%%\r\n",
 				drinknames[GET_OBJ_VAL(obj, 2)],
-				GET_OBJ_VAL(obj, 1)*100/GET_OBJ_VAL(obj, 0));
+				GET_OBJ_VAL(obj, 1)*100/(GET_OBJ_VAL(obj, 0) + 1));
 			out += buf_;
 			// чтобы выдать варнинг на тему зелья без заклов
 			if (is_potion(obj))

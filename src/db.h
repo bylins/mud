@@ -18,8 +18,6 @@
 #include <boost/array.hpp>
 #include "pugixml.hpp"
 
-// Максимальный уровень мобов
-const short MAX_MOB_LEVEL = 50;
 
 // arbitrary constants used by index_boot() (must be unique)
 #define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.

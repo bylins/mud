@@ -230,7 +230,10 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 
 
 
-CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
+		
+		
+
+CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 {
 	CHAR_DATA *vict, *victim, *use_light = NULL, *min_hp = NULL, *min_lvl = NULL, *caster = NULL, *best = NULL;
 	int kill_this, extra_aggr = 0;
@@ -375,15 +378,204 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	return best;
 }
 
+
+bool find_master_charmice(CHAR_DATA *charmice)
+{
+	// проверяем на спелл чарма, ищем хозяина и сравниваем румы
+	if (!IS_CHARMICE(charmice))
+		return true;
+	
+	if (charmice->in_room == charmice->master->in_room)
+	{
+		return true;
+	}
+	return false;
+	
+}
+
+
+
+// пока тестово
+CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
+{
+	// интелект моба
+	int i = GET_REAL_INT(ch);
+	// если у моба меньше 20 инты, то моб тупой
+	if (i < INT_STUPID_MOD)
+	{
+		return find_best_stupidmob_victim(ch, extmode);
+	}
+	//return find_best_stupidmob_victim(ch, extmode);
+	CHAR_DATA *vict, *victim,  *caster = NULL, *best = NULL, *min_hp = NULL;
+	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
+	int extra_aggr = 0;
+	bool kill_this;
+	victim = ch->get_fighting();
+	// проходим по всем чарам в комнате
+	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
+	{
+		log(buf1);
+		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
+				|| (IS_CHARMICE(vict) && !vict->get_fighting() && !find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
+				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
+				|| !MAY_SEE(ch, vict) // если не видим цель, 
+				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
+				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+			continue;
+		kill_this = FALSE;
+		// Mobile too damage //обработка флага ТРУС
+		if (IS_SET(extmode, CHECK_HITS) &&
+				MOB_FLAGGED(ch, MOB_WIMPY) && AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch))
+			continue;
+		
+		
+	
+		// Mobile helpers... //ассист
+		if ((vict->get_fighting()) && (vict->get_fighting() != ch) &&
+				(IS_NPC(vict->get_fighting())) && (!AFF_FLAGGED(vict->get_fighting(), AFF_CHARM)))
+			kill_this = TRUE;
+		else
+			// ... but no aggressive for this char
+			if (!(extra_aggr = extra_aggressive(ch, vict)) && !IS_SET(extmode, GUARD_ATTACK))
+				continue;
+
+		if (IS_SET(extmode, SKIP_SNEAKING))
+		{
+			skip_sneaking(vict, ch);
+			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
+				REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
+			if (AFF_FLAGGED(vict, AFF_SNEAK))
+				continue;
+		}
+		
+		if (IS_SET(extmode, SKIP_HIDING))
+		{
+			skip_hiding(vict, ch);
+			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
+				REMOVE_BIT(AFF_FLAGS(vict, AFF_HIDE), AFF_HIDE);
+		}
+
+		if (IS_SET(extmode, SKIP_CAMOUFLAGE))
+		{
+			skip_camouflage(vict, ch);
+			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
+				REMOVE_BIT(AFF_FLAGS(vict, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
+		}	
+		if (!CAN_SEE(ch, vict))
+			continue;
+		
+		if (!kill_this && extra_aggr)
+		{
+			kill_this = TRUE;
+		}
+		
+		if (!kill_this)
+			continue;
+		// волхв
+		if (GET_CLASS(vict) == CLASS_DRUID)
+		{
+			druid = vict;
+			caster = vict;
+			continue;
+		}
+		// лекарь
+		if (GET_CLASS(vict) == CLASS_CLERIC)
+		{
+			cler = vict;
+			caster = vict;
+			continue;
+		}
+		// кудес
+		if (GET_CLASS(vict) == CLASS_CHARMMAGE)
+		{
+			charmmage = vict;
+			caster = vict;
+			continue;
+		}
+		// если у чара меньше 100 хп, то переключаемся на него
+		if (GET_HIT(vict) <= MIN_HP_MOBACT)
+		{
+			min_hp = vict;
+			continue;
+		}
+		if (IS_CASTER(vict))
+		{			
+			caster = vict;
+			continue;
+		}
+		best = vict;	
+	}
+	
+	
+	
+	if (!best)
+		best = victim;
+	
+	// если цель кастер, то зачем переключаться ?
+	// проверка, а вдруг это существо моб
+	if (victim && !IS_NPC(victim))
+		if (IS_CASTER(victim))
+			return victim;
+	
+	if (i < INT_MIDDLE_AI)
+	{
+		int rand = number(0, 2);
+		if (caster)
+		{
+			best = caster;
+		}
+		if ((rand == 0) && (druid))
+		{
+			best = druid;
+		}
+		if ((rand == 1) && (cler))
+		{
+			best = cler;
+		}
+		if ((rand == 2) && (charmmage))
+		{
+			best = charmmage;
+		}
+		return best;
+	}
+	if (i < INT_HIGH_AI)
+	{
+		int rand = number(0, 1);
+		if (caster)
+			best = caster;
+		if (charmmage)
+			best = charmmage;
+		if ((rand == 0) && (druid))
+			best = druid;
+		if ((rand == 1) && (cler))
+			best = cler;
+		
+		return best;
+	}
+	//  и если >= 40 инты
+	if (caster)
+		best = caster;
+	if (charmmage)
+		best = charmmage;
+	if (cler)
+		best = cler;
+	if (druid)
+		best = druid;
+	
+	return best;
+	
+	
+}
+
 int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 {
 	CHAR_DATA *best;
 	int clone_number = 0;
-
 	best = find_best_mob_victim(ch, extmode);
-
+	
 	if (best)
-	{		/*
+	{
+	/*
 				   sprintf(buf,"Attacker-%s,B-%s,IS-NPC-%s,IS-CLONE-%s",
 				   GET_NAME(ch),
 				   best ? GET_NAME(best) : "None",
@@ -425,9 +617,9 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 				{
 					if (number(0, clone_number) == 1)
 						break;
-					//if( (GET_REAL_INT(ch)<20) && number(0,clone_number) ) break;
-					//if( GET_REAL_INT(ch)>=35 ) break;
-					//if( (GET_REAL_INT(ch)>=20) && number(1, 10+VPOSI((35-GET_REAL_INT(ch)),0,15)*clone_number)<=10  ) break;
+					if( (GET_REAL_INT(ch)<20) && number(0,clone_number) ) break;
+					if( GET_REAL_INT(ch)>=30 ) break;
+					if( (GET_REAL_INT(ch)>=20) && number(1, 10+VPOSI((35-GET_REAL_INT(ch)),0,15)*clone_number)<=10  ) break;
 					best = f->follower;
 					break;
 				}

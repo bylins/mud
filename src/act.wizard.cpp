@@ -679,7 +679,6 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	DESCRIPTOR_DATA *i;
 	int rnum_start, rnum_stop;
 	CHAR_DATA *c;
-	//char *buf_tmp;
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING)
@@ -692,7 +691,6 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 			continue;
 		sprintf(buf2, "Zone (vnum: %d) not empty (char:%s)", zone_nr, GET_NAME(i->character));
 		send_to_char(buf2, ch);
-		return;
 	}
 
 	// Поиск link-dead игроков в зонах комнаты zone_nr
@@ -707,7 +705,6 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 			{
 				sprintf(buf2, "Zone (vnum %d) not empty (char: %s)", zone_nr, GET_NAME(c));
 				send_to_char(buf2, ch);
-				return;
 			}
 	}
 
@@ -723,7 +720,6 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 			continue;
 		sprintf(buf2, "Zone (vnum:%d) not empty (char:%s)", zone_nr, GET_NAME(c));
 		send_to_char(buf2, ch);
-		return;
 	}
 
 //Проверим, нет ли в зоне метки для врат, чтоб не абузили.

@@ -156,7 +156,7 @@ Clan::Clan()
 	exp(0), clan_exp(0), exp_buf(0), clan_level(0), rent(0), out_rent(0),
 	chest_room(0), storehouse(1), exp_info(1), test_clan(0),
 	ingr_chest_room_rnum_(-1), gold_tax_pct_(0),
-	chest_objcount(0), chest_discount(0), chest_weight(0),
+	chest_objcount(0), chest_discount(0), chest_weight(0), reputation(10),
 	ingr_chest_objcount_(0)
 {
 
@@ -299,6 +299,16 @@ void Clan::ClanLoad()
 								tmp_vnum, filename.c_str());
 					}
 				}
+			}
+			else if (buffer == "Rep:")
+			{
+				int rep = 0;
+				if (!(file >> rep))
+				{
+					log("Error open 'Rep:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+					break;
+				}
+				tempClan->set_rep(rep);
 			}
 			else if (buffer == "Guard:")
 			{
@@ -731,6 +741,7 @@ void Clan::save_clan_file(const std::string &filename) const
 		<< "OutRent: " << out_rent << "\n"
 		<< "ChestRoom: " << chest_room << "\n"
 		<< "IngrChestRoom: " << GET_ROOM_VNUM(get_ingr_chest_room_rnum()) << "\n"
+		<< "Rep: " << reputation << "\n"
 		<< "Guard: " << guard << "\n"
 		<< "BuiltOn: " << builtOn << "\n"
 		<< "EntranceMode: " << entranceMode << "\n"
@@ -1060,6 +1071,17 @@ ACMD(DoHouse)
 		send_to_char(buffer, ch);
 	}
 }
+// репутация
+int Clan::get_rep()
+{
+	return this->reputation;
+}
+
+void Clan::set_rep(int rep)
+{
+	this->reputation = rep;
+}
+
 
 // house информация
 void Clan::HouseInfo(CHAR_DATA * ch)
@@ -1151,6 +1173,7 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 		<< " очков опыта и имеет уровень " << this->clan_level << "\r\n"
 		<< "Рейтинг вашего замка: " << this->exp
 		<< " Это очень круто :), но ничего вам не дает.\r\n"
+		<< "Ваша дружина имеет " << this->get_rep() << " очков репутации.\r\n"
 		<< "В хранилище замка может храниться до " << this->ChestMaxObjects()
 		<< " " << desc_count(this->ChestMaxObjects(), WHAT_OBJu)
 		<< " с общим весом не более чем " << this->ChestMaxWeight() << "\r\n"
