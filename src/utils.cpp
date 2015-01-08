@@ -2194,8 +2194,12 @@ size_t strl_cpy(char *dst, const char *src, size_t siz)
 */
 int get_real_dr(CHAR_DATA *ch)
 {
+	int level = GET_LEVEL(ch);
+	int bonus = 0;
 	if (IS_NPC(ch) && !IS_CHARMICE(ch))
 	{
+		if (level > STRONG_MOB_LEVEL)
+		    bonus += level + number(0, level);
 		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch));
 	}
 	return VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50);

@@ -1177,6 +1177,14 @@ const int HISTORY_SIZE = 5;
 // планка на кол-во денег у чара на руках и в банке (раздельно)
 const long MAX_MONEY_KEPT = 1000000000;
 
+
+#define INT_STUPID_MOD 20
+#define INT_MIDDLE_AI 30
+#define INT_HIGH_AI 40
+#define MIN_HP_MOBACT 100
+#define STRONG_MOB_LEVEL 30
+const short MAX_MOB_LEVEL = 50;
+
 // *********************************************************************
 // * Structures                                                        *
 // *********************************************************************

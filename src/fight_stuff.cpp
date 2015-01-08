@@ -609,7 +609,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 			//Если убили на арене или палач
 			arena_kill(ch, killer);
 		}
-		else if (!change_rep(ch, killer))
+		else if (change_rep(ch, killer))
 		{
 			// клановые не теряют вещи
 			arena_kill(ch, killer);

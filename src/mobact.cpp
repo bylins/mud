@@ -393,13 +393,15 @@ bool find_master_charmice(CHAR_DATA *charmice)
 	
 }
 
+
+
 // пока тестово
 CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 {
 	// интелект моба
 	int i = GET_REAL_INT(ch);
 	// если у моба меньше 20 инты, то моб тупой
-	if (i < 20)
+	if (i < INT_STUPID_MOD)
 	{
 		return find_best_stupidmob_victim(ch, extmode);
 	}
@@ -491,7 +493,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			continue;
 		}
 		// если у чара меньше 100 хп, то переключаемся на него
-		if (GET_HIT(vict) <= 100)
+		if (GET_HIT(vict) <= MIN_HP_MOBACT)
 		{
 			min_hp = vict;
 			continue;
@@ -515,7 +517,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if (IS_CASTER(victim))
 			return victim;
 	
-	if (i < 30)
+	if (i < INT_MIDDLE_AI)
 	{
 		int rand = number(0, 2);
 		if (caster)
@@ -536,7 +538,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		}
 		return best;
 	}
-	if (i < 40)
+	if (i < INT_HIGH_AI)
 	{
 		int rand = number(0, 1);
 		if (caster)

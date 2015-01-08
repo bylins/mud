@@ -2900,7 +2900,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int spellnum)
 {
 	int prob = 100;
-
+	int skill_number, skill;
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 		return (TRUE);
 
@@ -2931,8 +2931,15 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 	if ((SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSCURSE)) ||
 			(!SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE)))
 		prob += 50;
-	if (IS_NPC(ch) && (GET_LEVEL(ch) >= 30))
-	    prob += 15;
+	if (IS_NPC(ch) && (GET_LEVEL(ch) >= STRONG_MOB_LEVEL))
+	    prob += GET_LEVEL(ch) - 20;
+	skill_number = get_magic_skill_number_by_spell(spellnum);
+	if (skill_number > 0)
+	{
+		skill = ch->get_skill(skill_number) / 20;
+		prob += skill;
+	}
+	// ÕÍÅÎÉÑ ÍÁÇÉÉ ÄÁÀÔ + Ë ÕÓĞÅÈÕ ËÏÌÄÏ×ÓÔ×Á
 	return (prob > number(0, 100));
 }
 
