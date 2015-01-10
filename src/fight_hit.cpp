@@ -966,7 +966,7 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	// 4й доп - 20% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob + dex_mod * 100) * remort_mod * sit_mod > percent * 10 && ch->get_fighting())
+	if ((prob + dex_mod * 100) * remort_mod * sit_mod > percent * 2 / 5 && ch->get_fighting())
 		hit(ch, ch->get_fighting(), type, weapon);
 }
 
