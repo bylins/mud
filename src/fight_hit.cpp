@@ -927,7 +927,7 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 	int prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, ch->get_fighting());
 
 	// ловка роляет только выше 21 (стартовый максимум охота) и до 50
-	float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29;
+	float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29 * 2;
 	// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
 	float remort_mod = static_cast<float>(GET_REMORT(ch)) / 5;
 	if (remort_mod > 1) remort_mod = 1;
@@ -956,17 +956,17 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	// 2й доп - 60% при скилле 100, до 100% при максимуме скилла и дексы
-	if ((prob * 3 + skill_mod * 100 + dex_mod * 100) * sit_mod > percent * 5 / 2 && ch->get_fighting())
+	if ((prob * 3 + dex_mod * 100) * sit_mod > percent * 5 / 2 && ch->get_fighting())
 		hit(ch, ch->get_fighting(), type, weapon);
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	// 3й доп - 30% при скилле 100, до 70% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob * 3 + skill_mod * 200 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
+	if ((prob * 3 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
 		hit(ch, ch->get_fighting(), type, weapon);
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
-	// 4й доп - 10% при скилле 100, до 30% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob + skill_mod * 100 + dex_mod * 100) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
+	// 4й доп - 20% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
+	if ((prob + dex_mod * 100) * remort_mod * sit_mod > percent * 10 && ch->get_fighting())
 		hit(ch, ch->get_fighting(), type, weapon);
 }
 
