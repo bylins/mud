@@ -1096,7 +1096,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 {
 	if (!obj) return;
 	int rnum = GET_OBJ_RNUM(obj);
-	if (rnum < 0 || OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN) ||
+	if (rnum <= 0 || OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN) ||
 		//OBJ_FLAGGED(obj, ITEM_NODONATE) || //Реально не пойму почему все торгаши так ненавидят стаф !пожертовать?!!!
 		OBJ_FLAGGED(obj, ITEM_NODROP))
 	{
