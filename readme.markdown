@@ -22,8 +22,8 @@
 
 1. Для сборки мада вам как минимум понадобятся:
      * Современный C++ компилятор
-     * [http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.zip/download](boost) >=1.49.0 
-     * [https://www.python.org/download/releases/2.7/](Python 2.7) (третий не подойдет)
+     * [boost](http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.zip/download) >=1.49.0 
+     * [Python 2.7](https://www.python.org/download/releases/2.7/) (третий не подойдет)
      * [Zlib](http://zlib.net/zlib128.zip)
      * Mercurial (http://mercurial.selenic.com/)
 
