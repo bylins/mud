@@ -22,9 +22,9 @@
 
 1. Для сборки мада вам как минимум понадобятся:
      * Современный C++ компилятор
-     * boost >=1.49.0
-     * Python второй версии (третья не подойдет)
-     * Zlib
+     * [http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.zip/download](boost) >=1.49.0 
+     * [https://www.python.org/download/releases/2.7/](Python 2.7) (третий не подойдет)
+     * [Zlib](http://zlib.net/zlib128.zip)
      * Mercurial (http://mercurial.selenic.com/)
 
 2. Устанавливаем boost, кроме заголовочных файлов понадобится библиотека boost_python, убеждаемся, что буст виден студией.
