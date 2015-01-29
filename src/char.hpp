@@ -550,6 +550,8 @@ public:
 	void inc_restore_timer(int num);
 	obj_sets::activ_sum& obj_bonus();
 
+	void set_ruble(int ruble);
+	long get_ruble();
 private:
 	std::string clan_for_title();
 	std::string only_title_noclan();
@@ -595,6 +597,8 @@ private:
 	long gold_;
 	// деньги в банке
 	long bank_gold_;
+	// рубли
+	long ruble;
 	// родная сила
 	int str_;
 	// плюсы на силу

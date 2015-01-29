@@ -123,6 +123,7 @@ void Character::zero_init()
 	last_logon_ = 0;
 	gold_ = 0;
 	bank_gold_ = 0;
+	ruble = 0;
 	str_ = 0;
 	str_add_ = 0;
 	dex_ = 0;
@@ -1033,6 +1034,16 @@ void Character::set_max_move(const sh_int v)
 {
 	if (v >= 0)
 		points.max_move = v;
+}
+
+long Character::get_ruble()
+{
+        return ruble;
+}
+
+void Character::set_ruble(int ruble)
+{
+        this->ruble = ruble;
 }
 
 long Character::get_gold() const

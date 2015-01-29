@@ -595,7 +595,7 @@ void Player::save_char()
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(this), GET_MAX_MOVE(this));
 	fprintf(saved, "Gold: %ld\n", get_gold());
 	fprintf(saved, "Bank: %ld\n", get_bank());
-
+	fprintf(saved, "Ruble: %ld\n", get_ruble());
 	fprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(this));
 	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(this));
 	fprintf(saved, "Invs: %d\n", GET_INVIS_LEV(this));
@@ -1121,7 +1121,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 	set_gold(0, false);
 	set_bank(0, false);
-
+	set_ruble(0);
 	this->player_specials->saved.GodsLike = 0;
 	GET_HIT(this) = 21;
 	GET_MAX_HIT(this) = 21;
@@ -1632,6 +1632,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				GET_RIP_MOB(this) = num;
 			else if (!strcmp(tag, "Rimt"))
 				GET_RIP_MOBTHIS(this) = num;
+			else if (!strcmp(tag, "Ruble"))
+				this->set_ruble(num);
 			else if (!strcmp(tag, "Ripp"))
 				GET_RIP_PK(this) = num;
 			else if (!strcmp(tag, "Ript"))

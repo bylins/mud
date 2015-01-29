@@ -227,10 +227,6 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 #define SKIP_SNEAKING   (1 << 13)
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
-
-
-
-		
 		
 
 CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
@@ -405,7 +401,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	{
 		return find_best_stupidmob_victim(ch, extmode);
 	}
-	//return find_best_stupidmob_victim(ch, extmode);
 	CHAR_DATA *vict, *victim,  *caster = NULL, *best = NULL, *min_hp = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	int extra_aggr = 0;
@@ -414,9 +409,8 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	// проходим по всем чарам в комнате
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
-		log(buf1);
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
-				|| (IS_CHARMICE(vict) && !vict->get_fighting() && !find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
+				|| (IS_CHARMICE(vict) && !vict->get_fighting() && find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 				|| !MAY_SEE(ch, vict) // если не видим цель, 
 				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
@@ -466,6 +460,10 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		
 		if (!kill_this && extra_aggr)
 		{
+			if (can_use_feat(vict, SILVER_TONGUED_FEAT) &&
+					number(1, GET_LEVEL(vict) * GET_REAL_CHA(vict)) >
+					number(1, GET_LEVEL(ch) * GET_REAL_INT(ch)))
+				continue;
 			kill_this = TRUE;
 		}
 		

@@ -39,7 +39,6 @@ extern int max_exp_gain_npc;
 //интервал в секундах между восстановлением кругов после рипа
 extern const unsigned RECALL_SPELLS_INTERVAL;
 const unsigned RECALL_SPELLS_INTERVAL = 28;
-
 extern bool is_bonus(int type);
 extern int mult_bonus;
 void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
@@ -735,7 +734,6 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		send_to_char(
 			"Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 	}
-
 	gain_exp(ch, exp);
 	change_alignment(ch, victim);
 	TopPlayer::Refresh(ch);

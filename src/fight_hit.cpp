@@ -927,7 +927,7 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 	int prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, ch->get_fighting());
 
 	// ловка роляет только выше 21 (стартовый максимум охота) и до 50
-	float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29 * 2;
+	float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29;
 	// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
 	float remort_mod = static_cast<float>(GET_REMORT(ch)) / 5;
 	if (remort_mod > 1) remort_mod = 1;
@@ -956,17 +956,17 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	// 2й доп - 60% при скилле 100, до 100% при максимуме скилла и дексы
-	if ((prob * 3 + dex_mod * 100) * sit_mod > percent * 5 / 2 && ch->get_fighting())
+	if ((prob * 3 + skill_mod * 100 + dex_mod * 100) * sit_mod > percent * 5 / 2 && ch->get_fighting())
 		hit(ch, ch->get_fighting(), type, weapon);
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	// 3й доп - 30% при скилле 100, до 70% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob * 3 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
+	if ((prob * 3 + skill_mod * 200 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
 		hit(ch, ch->get_fighting(), type, weapon);
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
-	// 4й доп - 20% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob + dex_mod * 100) * remort_mod * sit_mod > percent * 2 / 5 && ch->get_fighting())
+	// 4й доп - 10% при скилле 100, до 30% при максимуме скилла и дексы (при 5+ мортов)
+	if ((prob + skill_mod * 100 + dex_mod * 100) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
 		hit(ch, ch->get_fighting(), type, weapon);
 }
 
@@ -2238,6 +2238,8 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 {
 	if (!IS_NPC(ch))
 	{
+		sprintf(buf2, "DMG_LOG: Name(player): %s, Class: %d, Remort: %d, Level: %d, real_dam: %d, over_dam: %d", GET_NAME(ch), GET_CLASS(ch), GET_REMORT(ch), GET_LEVEL(ch), real_dam, over_dam);
+		log(buf2);
 		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
 		if (AFF_FLAGGED(ch, AFF_GROUP))
 		{
@@ -2247,6 +2249,8 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 	}
 	else if (IS_CHARMICE(ch) && ch->master)
 	{
+		sprintf(buf2, "DMG_LOG: Name(charmis): %s, real_dam: %d, over_dam: %d. Name(master): %s, Class: %d, Remort: %d, Level: %d,", GET_NAME(ch), real_dam, over_dam, GET_NAME(ch->master), GET_CLASS(ch->master), GET_REMORT(ch->master), GET_LEVEL(ch->master));
+		log(buf2);
 		ch->master->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
 		if (AFF_FLAGGED(ch->master, AFF_GROUP))
 		{
@@ -3397,6 +3401,8 @@ void HitData::calc_ac(CHAR_DATA *victim)
 	// Calculate the raw armor including magic armor.  Lower AC is better.
 	victim_ac += compute_armor_class(victim);
 	victim_ac /= 10;
+	// для эксперемента
+	victim_ac += 4;
 
 	if (GET_POS(victim) < POS_FIGHTING)
 		victim_ac += 4;
@@ -3508,7 +3514,7 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 void HitData::add_hand_damage(CHAR_DATA *ch)
 {
 	if (AFF_FLAGGED(ch, AFF_STONEHAND))
-		dam += dice(2, 3);
+		dam += number(5, 10);
 	else
 		dam += number(1, 3);
 

@@ -1096,7 +1096,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 {
 	if (!obj) return;
 	int rnum = GET_OBJ_RNUM(obj);
-	if (rnum <= 0 || OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN) ||
+	if (rnum < 0 || OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN) ||
 		//OBJ_FLAGGED(obj, ITEM_NODONATE) || //Реально не пойму почему все торгаши так ненавидят стаф !пожертовать?!!!
 		OBJ_FLAGGED(obj, ITEM_NODROP))
 	{
@@ -1147,7 +1147,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	if (cmd == "Продать")
 	{
-		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED) || OBJ_FLAGGED(obj, ITEM_REPOP_DECAY))
+		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED) || OBJ_FLAGGED(obj, ITEM_REPOP_DECAY) || (buy_price  > 1))
 		{
 			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
 			return;
