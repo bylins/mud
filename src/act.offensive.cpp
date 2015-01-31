@@ -2771,7 +2771,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 			aware = -prob/2;
 		if (AFF_FLAGGED (vict, PRF_AWAKE))
 			awake = -(vict->get_skill(SKILL_AWAKE)/5);
-		react = -2*GET_SAVE(vict, SAVING_REFLEX);
+		react = GET_SAVE(vict, SAVING_REFLEX);
 		prob = MAX(0,prob+visibl+aware+awake+react);
 	}
 	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
