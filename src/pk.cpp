@@ -160,14 +160,14 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 		if (pk->unique == GET_UNIQUE(victim))
 			break;
 	}
-	if (!pk)
+	if (!pk && (!IS_GOD(victim)))
 	{
 		CREATE(pk, struct PK_Memory_type, 1);
 		pk->unique = GET_UNIQUE(victim);
 		pk->next = agressor->pk_list;
 		agressor->pk_list = pk;
 	}
-	if (victim->desc)
+	if (victim->desc && (!IS_GOD(victim)))
 	{
 		if (pk->clan_exp > time(NULL))
 		{
@@ -261,7 +261,7 @@ void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool 
 			if (pk->unique == GET_UNIQUE(victim))
 				break;
 		}
-		if (!pk)
+		if (!pk && (!IS_GOD(victim)))
 		{
 			CREATE(pk, struct PK_Memory_type, 1);
 			pk->unique = GET_UNIQUE(victim);
@@ -500,7 +500,7 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 		for (pk = thief->pk_list; pk; pk = pk->next)
 			if (pk->unique == GET_UNIQUE(victim))
 				break;
-		if (!pk)
+		if (!pk && (!IS_GOD(victim)))
 		{
 			CREATE(pk, struct PK_Memory_type, 1);
 			pk->unique = GET_UNIQUE(victim);
@@ -1152,7 +1152,7 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 	remove_obj(obj); //снимаем флаг
 		result = true;
 	}
-	else if (!ch && victim) //лут не владельцем
+	else if (!ch && victim && (!IS_GOD(victim))) //лут не владельцем
 	{
 		if (IS_NPC(initial_victim)) //чармисам брать нельзя
 			return false;
@@ -1184,7 +1184,8 @@ void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 		&& !IS_NPC(ch)
 		&& !IS_NPC(killer)
 		&& !PLR_FLAGGED(ch, PLR_KILLER)
-		&& !AGRO(ch))
+		&& !AGRO(ch)
+                && !IS_GOD(victim))
 	{
 		//Проверим, может у killer есть месть на ch
 		struct PK_Memory_type *pk = 0;
