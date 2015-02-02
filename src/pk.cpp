@@ -1185,7 +1185,7 @@ void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 		&& !IS_NPC(killer)
 		&& !PLR_FLAGGED(ch, PLR_KILLER)
 		&& !AGRO(ch)
-                && !IS_GOD(victim))
+                && !IS_GOD(killer))
 	{
 		//Проверим, может у killer есть месть на ch
 		struct PK_Memory_type *pk = 0;
