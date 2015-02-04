@@ -2191,7 +2191,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	// Magic glass
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 	{
-		if (ch != victim && SpINFO.violent && (!IS_GOD(ch))
+		if (ch != victim && SpINFO.violent && (!IS_GOD(ch)
 				&& (AFF_FLAGGED(victim, AFF_MAGICGLASS)
 					 && (IN_ROOM(ch) == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
 					 && number(1, 100) < (GET_LEVEL(victim) / 3)) || (IS_GOD(victim)
