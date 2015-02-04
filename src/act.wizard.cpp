@@ -5604,7 +5604,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				return (0);
 			}
 
-			if (get_id_by_name(npad[0]) >= 0)
+			if ((get_id_by_name(npad[0]) >= 0) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED))
 			{
 				send_to_char("Это имя совпадает с именем другого персонажа.\r\n"
 							 "Для исключения различного рода недоразумений имя отклонено.\r\n", ch);
