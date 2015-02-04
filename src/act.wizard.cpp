@@ -5564,16 +5564,6 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 
-		for (i = 0; i < NUM_PADS; i++)
-		{
-			if (strlen(npad[i]) < MIN_NAME_LENGTH || strlen(npad[i]) > MAX_NAME_LENGTH)
-			{
-				sprintf(buf, "Падеж номер %d некорректен.\r\n", ++i);
-				send_to_char(buf, ch);
-				return (0);
-			}
-		}
-
 		if (*npad[0] == '*')  	// Only change pads
 		{
 			for (i = 1; i < NUM_PADS; i++)
@@ -5589,6 +5579,16 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		else
 		{
+		for (i = 0; i < NUM_PADS; i++)
+		{
+			if (strlen(npad[i]) < MIN_NAME_LENGTH || strlen(npad[i]) > MAX_NAME_LENGTH)
+			{
+				sprintf(buf, "Падеж номер %d некорректен.\r\n", ++i);
+				send_to_char(buf, ch);
+				return (0);
+			}
+		}
+
 			/*if (!IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			{
 				send_to_char("Для изменения падежей пользуйтесь форматом 'set имя name *падеж1 падеж2 падеж3 падеж4 падеж5 падеж6'.\r\nРенеймы не разрешаются.\r\n", ch);
