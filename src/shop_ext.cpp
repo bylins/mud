@@ -954,6 +954,8 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 		if (obj)
 		{
+			if (GET_OBJ_ZONE(obj) == NOWHERE)
+                              GET_OBJ_ZONE(obj) = world[IN_ROOM(ch)]->zone;
 			obj_to_char(obj, ch);
 			if ((*shop)->currency == "слава")
 			{
