@@ -473,7 +473,7 @@ int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim)
 				// действия клан-флага
 				pk->clan_exp > time(NULL))
 			return PK_ACTION_REVENGE;	// месть по клан-флагу
-		if (pk->kill_num && !(CLAN(agressor) && CLAN(victim)) && (!IS_GOFD(agressor)))
+		if (pk->kill_num && !(CLAN(agressor) && CLAN(victim)) && !IS_GOD(agressor))
 			return PK_ACTION_REVENGE;	// обычная месть
 		if (pk->thief_exp > time(NULL) && (!IS_GOD(agressor)))
 			return PK_ACTION_REVENGE;	// месть вору
