@@ -500,14 +500,14 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 		for (pk = thief->pk_list; pk; pk = pk->next)
 			if (pk->unique == GET_UNIQUE(victim))
 				break;
-		if (!pk && (!IS_GOD(victim)))
+		if (!pk && (!IS_GOD(victim)) && (!IS_GOD(thief)))
 		{
 			CREATE(pk, struct PK_Memory_type, 1);
 			pk->unique = GET_UNIQUE(victim);
 			pk->next = thief->pk_list;
 			thief->pk_list = pk;
 		}
-		if (pk->thief_exp == 0)
+		if ((pk->thief_exp == 0) && (!IS_GOD(thief)))
 			act("$N получил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
 		else
 			act("$N продлил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
