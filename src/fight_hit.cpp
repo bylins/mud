@@ -943,9 +943,7 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 	}
 
 	// выше 100% идет другая формула
-	float add_prob = MAX(prob - 100, 0);
 	// скилл выше 100 добавляет равный ловке процент в максимуме
-	float skill_mod = add_prob / 100;
 	// а для скилла до сотни все остается как было
 	prob = MIN(100, prob);
 
@@ -2239,6 +2237,7 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 	if (!IS_NPC(ch))
 	{
 		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
+		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d", GET_NAME(ch), GET_CLASS(ch), GET_REMORT(ch), GET_LEVEL(ch), real_dam, over_dam);
 		if (AFF_FLAGGED(ch, AFF_GROUP))
 		{
 			CHAR_DATA *leader = ch->master ? ch->master : ch;
@@ -2249,6 +2248,7 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 	{
 		ch->master->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
 		if (!IS_NPC(ch->master))
+		    log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d", GET_NAME(ch), GET_NAME(ch->master), GET_CLASS(ch->master), GET_REMORT(ch->master), GET_LEVEL(ch->master), real_dam, over_dam);
 		if (AFF_FLAGGED(ch->master, AFF_GROUP))
 		{
 			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
