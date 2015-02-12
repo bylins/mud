@@ -442,7 +442,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	DESCRIPTOR_DATA *dsc;
 	FILE *trig_file;
 	int zone, top;
-	char buf[MAX_CMD_LENGTH];
+	char buf[MAX_STRING_LENGTH];
 	char bitBuf[MAX_INPUT_LENGTH];
 	char fname[MAX_INPUT_LENGTH];
 	char logbuf[MAX_INPUT_LENGTH];
