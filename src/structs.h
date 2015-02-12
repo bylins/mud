@@ -1154,7 +1154,7 @@ const short LVL_IMMORT = 31;
 #define LARGE_BUFSIZE            (MAX_SOCK_BUF - GARBAGE_SPACE - MAX_PROMPT_LENGTH)
 // Keep last 5 commands
 const int HISTORY_SIZE = 5;
-#define MAX_STRING_LENGTH     16384
+#define MAX_STRING_LENGTH     32768
 #define MAX_EXTEND_LENGTH     0xFFFF
 #define MAX_INPUT_LENGTH      256	// Max length per *line* of input //
 #define MAX_RAW_INPUT_LENGTH  512	// Max size of *raw* input //
