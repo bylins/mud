@@ -2756,14 +2756,14 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		prob = 0;
 	}
-	if (prob * 100 / percent < 100 || dam == 0)
+	if (prob * 50 / percent < 100 || dam == 0)
 	{
 		sprintf(buf, "&c&qВаш богатырский удар пропал впустую.&Q&n\r\n");
 		send_to_char(buf, ch);
 		lag = 3;
 		dam = 0;
 	}
-	else if (prob * 100 / percent < 150)
+	else if (prob * 50 / percent < 150)
 	{
 		sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n",
 				PERS(victim, ch, 3));
@@ -2787,7 +2787,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			might_hit_bash(ch, victim);
 		}
 	}
-	else if (prob * 100 / percent < 400)
+	else if (prob * 50 / percent < 400)
 	{
 		sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n",
 				PERS(victim, ch, 3));
