@@ -176,7 +176,8 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 			|| OBJ_FLAGGED(obj, ITEM_NORENT)
 			|| GET_OBJ_TYPE(obj) == ITEM_KEY
 			|| GET_OBJ_RENT(obj) < 0
-			|| GET_OBJ_RNUM(obj) <= NOTHING)
+			|| GET_OBJ_RNUM(obj) <= NOTHING
+			|| GET_OBJ_OWNER(obj))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 				"$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
