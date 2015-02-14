@@ -31,7 +31,7 @@ void proto_script_copy(struct trig_proto_list **pdst, struct trig_proto_list *sr
 void proto_script_free(struct trig_proto_list *src);
 
 // define the largest set of commands for as trigger
-#define MAX_CMD_LENGTH 16384	// 16k should be plenty and then some
+#define MAX_CMD_LENGTH 32768	// 16k should be plenty and then some
 
 
 
