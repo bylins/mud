@@ -830,7 +830,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 	int is_altered = FALSE;
 	int num_levels = 0;
 	char buf[128];
-	
+
 	if (IS_NPC(ch))
 	{
 		ch->set_exp(ch->get_exp() + gain);

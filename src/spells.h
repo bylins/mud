@@ -338,7 +338,8 @@
 #define SPELL_CAPABLE           197
 #define SPELL_STRANGLE          198
 #define SPELL_RECALL_SPELLS     199
-#define LAST_USED_SPELL			200
+#define SPELL_HYPNOTIC_PATTERN	200
+#define LAST_USED_SPELL			201
 
 #define MAX_SLOT 13
 

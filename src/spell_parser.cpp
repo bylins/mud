@@ -5058,6 +5058,7 @@ void mag_assign_spells(void)
 	spello(SPELL_RUNE_LABEL, "рунная метка", "rune label", 50, 35, 1,
 		POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INWORLD_DELAY, 0, STYPE_LIGHT);
 
+
 	// NON-castable spells should appear below here.
 
 // 189
@@ -5090,8 +5091,12 @@ void mag_assign_spells(void)
 	spello(SPELL_CAPABLE, "!зачарован!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //198
 	spello(SPELL_STRANGLE, "!удушье!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
-	spello(SPELL_RECALL_SPELLS, "!вспоминает заклинания!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //199
+	spello(SPELL_RECALL_SPELLS, "!вспоминает заклинания!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+//200
+	spello(SPELL_HYPNOTIC_PATTERN, "чарующий узор", "hypnotic pattern", 120, 100, 2,
+			POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_MIND);
+
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.

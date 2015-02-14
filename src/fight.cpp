@@ -753,7 +753,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 	CHAR_DATA *vict, *victim, *caster = NULL, *best = NULL, *min_hp = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	victim = ch->get_fighting();
-	
+
 	// интелект моба
 	int i = GET_REAL_INT(ch);
 	// если у моба меньше 20 инты, то моб тупой
@@ -761,13 +761,13 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 	{
 		return find_damagee(ch);
 	}
-	
+
 	// если нет цели
 	if (!victim)
 		return NULL;
-		
-	
-	
+
+
+
 	// проходим по всем чарам в комнате
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
@@ -776,12 +776,12 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 				|| !MAY_SEE(ch, vict))
 			continue;
-		
+
 
 		if (!CAN_SEE(ch, vict))
 			continue;
 
-		
+
 		// волхв
 		if (GET_CLASS(vict) == CLASS_DRUID)
 		{
@@ -789,7 +789,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			caster = vict;
 			continue;
 		}
-		
+
 		// лекарь
 		if (GET_CLASS(vict) == CLASS_CLERIC)
 		{
@@ -804,32 +804,32 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			caster = vict;
 			continue;
 		}
-		
+
 		// если у чара меньше 100 хп, то переключаемся на него
 		if (GET_HIT(vict) <= MIN_HP_MOBACT)
 		{
 			min_hp = vict;
 			continue;
 		}
-		
+
 		if (IS_CASTER(vict))
-		{			
+		{
 			caster = vict;
 			continue;
 		}
-		
-		best = vict;	
+
+		best = vict;
 	}
 	if (!best)
 		best = victim;
-	
+
 	// если цель кастер, то зачем переключаться ?
 	if (IS_CASTER(victim))
 	{
 		return victim;
 	}
-	
-	
+
+
 	if (i < INT_MIDDLE_AI)
 	{
 		int rand = number(0, 2);
@@ -843,7 +843,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			best = charmmage;
 		return best;
 	}
-	
+
 	if (i < INT_HIGH_AI)
 	{
 		int rand = number(0, 1);
@@ -855,10 +855,10 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			best = druid;
 		if ((rand == 1) && (cler))
 			best = cler;
-		
+
 		return best;
 	}
-	
+
 	//  и если >= 40 инты
 	if (caster)
 		best = caster;
@@ -868,7 +868,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 		best = cler;
 	if (druid)
 		best = druid;
-	
+
 	return best;
 }
 
@@ -1483,7 +1483,7 @@ void using_mob_skills(CHAR_DATA *ch)
 						damager = vict;
 					}
 				}
-				
+
 			}
 
 			if (caster
@@ -1518,7 +1518,7 @@ void using_mob_skills(CHAR_DATA *ch)
 			{
 				if (sk_num == SKILL_BASH)
 				{
-					
+
 					if (on_horse(damager))
 					{
 						// Карачун. Правка бага. Лошадь не должна башить себя, если дерется с наездником.

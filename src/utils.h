@@ -385,7 +385,7 @@ extern SPECIAL(shop_ext);
                                  weather_info.sunlight == SUN_DARK )) )
 
 #define IS_DARK(room) is_dark(room)
-								 
+
 #define IS_DARKOLD(room)      ((world[room]->gdark > (world[room]->glight + world[room]->light + world[room]->fires)) || \
                             (!(world[room]->gdark < (world[room]->glight + world[room]->light + world[room]->fires)) && \
                               !ROOM_AFFECTED(room, AFF_ROOM_LIGHT) && \

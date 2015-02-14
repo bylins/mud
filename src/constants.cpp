@@ -555,6 +555,7 @@ const char *room_aff_visib_bits[] =
 	"&G... все окутано туманом ...&n", 		// AFF_FOG
 	"",	// AFF_RUNE_LABEL
 	"", // AFF_FORBIDDEN
+	"&Y... чарующий огненный узор плывет в воздухе ...&n", // AFF_HYPNOTIC_PATTERN
 	"\n",
 	"\n",
 	"\n"
@@ -567,6 +568,7 @@ const char *room_aff_invis_bits[] =
 	"&G... колдовской туман плывет над вами &n ...", // AFF_FOG
 	"&G... светящиеся руны на земле складываются в чьё-то имя ...&n",	// AFF_RUNE_LABEL
 	"&c... магическая печать закрывает все входы ...&n", // AFF_FORBIDDEN
+	"&Y... чарующий огненный узор плывет в воздухе ...&n", // AFF_HYPNOTIC_PATTERN
 	"\n",
 	"\n",
 	"\n",
@@ -626,7 +628,7 @@ const char *connected_types[] = { "В игре",
                                   "Select new race",
 								  "Interactive console",
 								  "обмен гривен",
-								  "меню сброса статов",
+								  "меню сброса параметров",
 								  "sedit",
 								  "select new religion",
 								  "\n"
@@ -1830,7 +1832,8 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	// 0
 		"Вы снова можете перевязывать свои раны.",
 		"!SPELL_CAPABLE!",
 		"Удушье отпустило вас, и вы вздохнули полной грудью.", //SPELL_STRANGLE
-		"Вам стало не на чем концентрироваться." //SPELL_RECALL_SPELLS
+		"Вам стало не на чем концентрироваться.", //SPELL_RECALL_SPELLS
+		"Плывший в воздухе огненный узор потускнел и растаял струйками дыма." //SPELL_HYPNOTIC_PATTERN
 };
 
 
@@ -2269,7 +2272,9 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	// 0
 	 {"\n",
 	 "\n"}, // SPELL_STRANGLE
 	 {"\n",
-	 "\n"} // SPELL_RECALL_SPELLS
+	 "\n"}, // SPELL_RECALL_SPELLS
+	{"ажбо супостаты блазнити да клюковати",
+	 "...и утроба его приготовляет обман."}, //SPELL_HYPNOTIC_PATTERN
 };
 
 namespace

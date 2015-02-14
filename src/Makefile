@@ -7,7 +7,7 @@
 #
 
 # C compiler to use
-CC = g++-4.9
+CC = g++
 TESTCC = g++
 
 MKDIR = mkdir -p
@@ -22,12 +22,12 @@ CXREF = cxref
 BINDIR = ../bin
 
 ifdef NO_EPOLL
-EPOLL_FLAG = 
+EPOLL_FLAG =
 else
 EPOLL_FLAG = -DHAS_EPOLL
 endif
 
-CFLAGS = -std=c++14 -m32 -ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV $(EPOLL_FLAG) $(EXTRA_CFLAGS)
+CFLAGS = -std=gnu++0x -m32 -ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
 TESTCFLAGS = -std=gnu++0x -m32 -Wall -Wextra -Wno-unused-parameter -ggdb3 -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH $(EXTRA_CFLAGS)
@@ -65,7 +65,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	sets_drop.o fight_hit.o fight_stuff.o objsave_ext.o dictionary.o help.o \
 	map.o ext_money.o noob.o parse.o reset_stats.o mob_stat.o obj_sets.o \
 	obj_sets_olc.o obj_enchant.o scripting.o version.o
-	
+
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	act.offensive.cpp act.other.cpp act.social.cpp act.wizard.cpp alias.cpp ban.cpp \

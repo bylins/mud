@@ -200,10 +200,11 @@ typedef struct trig_data TRIG_DATA;
 #define ROOM_STEPNYAKI      (INT_TWO|(1<<3))
 
 // Флаги комнатных аффектов НЕ сохраняются в файлах и возникают только от заклов //
-#define AFF_ROOM_LIGHT       (1 << 0) // Аффект освещения комнаты  - SPELL_ROOM_LIGHT //
-#define AFF_ROOM_FOG         (2 << 0) // Комната затуманена для SPELL_POISONED_FOG //
-#define AFF_ROOM_RUNE_LABEL	 (4 << 0) // Комната помечена SPELL_MAGIC_LABEL //
-#define AFF_ROOM_FORBIDDEN	 (8 << 0) // Комната помечена SPELL_FORBIDDEN //
+#define AFF_ROOM_LIGHT				(1 << 0) // Аффект освещения комнаты  - SPELL_ROOM_LIGHT //
+#define AFF_ROOM_FOG				(1 << 1) // Комната затуманена для SPELL_POISONED_FOG //
+#define AFF_ROOM_RUNE_LABEL			(1 << 2) // Комната помечена SPELL_MAGIC_LABEL //
+#define AFF_ROOM_FORBIDDEN			(1 << 3) // Комната помечена SPELL_FORBIDDEN //
+#define AFF_ROOM_HYPNOTIC_PATTERN	(1 << 4) // Комната под SPELL_HYPNOTIC_PATTERN //
 
 // Exit info: used in room_data.dir_option.exit_info //
 #define EX_ISDOOR    (1 << 0)	// Exit is a door     //

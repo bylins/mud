@@ -439,7 +439,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			}
 			return (FALSE);
 		}
-		
+
 		// если там ДТ и чар верхом на пони
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room , ROOM_DEATH) && on_horse(ch))
 		{
@@ -451,7 +451,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		    }
 		    return (FALSE);
 		}
-		
+
 		// move points needed is avg. move loss for src and destination sect type
 		ch_inroom = real_sector(ch->in_room);
 		ch_toroom = real_sector(EXIT(ch, dir)->to_room);
@@ -582,6 +582,32 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 
 #define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
 
+void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
+{
+	AFFECT_DATA *affect_on_room = room_affected_by_spell(world[room], SPELL_HYPNOTIC_PATTERN);
+	if (affect_on_room)
+	{
+		act("Вы уставились на огненный узор, как баран на новые ворота.", FALSE, ch, 0, ch, TO_CHAR);
+		act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
+		CHAR_DATA *caster = find_char(affect_on_room->caster_id);
+		call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
+	}
+/* код ниже - на случай добавления новых спеллов такого типа
+	AFFECT_DATA *affect_on_room = world[room]->affected;
+	while (affect_on_room)
+	{
+		switch (affect_on_room->type)
+		{
+		case SPELL_HYPNOTIC_PATTERN:
+			act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
+			act(to_room, TRUE, victim, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
+		break;
+		}
+		affect_on_room = affect_on_room->next;
+	}
+	*/
+}
+
 #define MAX_DRUNK_SONG 6
 const char *drunk_songs[MAX_DRUNK_SONG] = { "\"Шумел камыш, и-к-к..., деревья гнулися\"",
 		"\"Куда ты, тропинка, меня завела\"",
@@ -647,8 +673,8 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			}
 		}
 	}
-	
-	
+
+
 	if (!(need_movement = legal_dir(ch, dir, need_specials_check, TRUE)))
 	    return (FALSE);
 
@@ -837,6 +863,8 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	if (ch->desc != NULL)
 		look_at_room(ch, 0);
+
+	room_affect_process_on_entry(ch, IN_ROOM(ch));
 
 	if (DeathTrap::check_death_trap(ch))
 	{

@@ -227,7 +227,7 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 #define SKIP_SNEAKING   (1 << 13)
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
-		
+
 
 CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 {
@@ -380,13 +380,13 @@ bool find_master_charmice(CHAR_DATA *charmice)
 	// проверяем на спелл чарма, ищем хозяина и сравниваем румы
 	if (!IS_CHARMICE(charmice))
 		return true;
-	
+
 	if (charmice->in_room == charmice->master->in_room)
 	{
 		return true;
 	}
 	return false;
-	
+
 }
 
 
@@ -412,7 +412,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
 				|| (IS_CHARMICE(vict) && !vict->get_fighting() && find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
-				|| !MAY_SEE(ch, vict) // если не видим цель, 
+				|| !MAY_SEE(ch, vict) // если не видим цель,
 				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
 				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 			continue;
@@ -421,9 +421,9 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if (IS_SET(extmode, CHECK_HITS) &&
 				MOB_FLAGGED(ch, MOB_WIMPY) && AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch))
 			continue;
-		
-		
-	
+
+
+
 		// Mobile helpers... //ассист
 		if ((vict->get_fighting()) && (vict->get_fighting() != ch) &&
 				(IS_NPC(vict->get_fighting())) && (!AFF_FLAGGED(vict->get_fighting(), AFF_CHARM)))
@@ -441,7 +441,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			if (AFF_FLAGGED(vict, AFF_SNEAK))
 				continue;
 		}
-		
+
 		if (IS_SET(extmode, SKIP_HIDING))
 		{
 			skip_hiding(vict, ch);
@@ -454,10 +454,10 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			skip_camouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
 				REMOVE_BIT(AFF_FLAGS(vict, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
-		}	
+		}
 		if (!CAN_SEE(ch, vict))
 			continue;
-		
+
 		if (!kill_this && extra_aggr)
 		{
 			if (can_use_feat(vict, SILVER_TONGUED_FEAT) &&
@@ -466,7 +466,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 				continue;
 			kill_this = TRUE;
 		}
-		
+
 		if (!kill_this)
 			continue;
 		// волхв
@@ -497,24 +497,24 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			continue;
 		}
 		if (IS_CASTER(vict))
-		{			
+		{
 			caster = vict;
 			continue;
 		}
-		best = vict;	
+		best = vict;
 	}
-	
-	
-	
+
+
+
 	if (!best)
 		best = victim;
-	
+
 	// если цель кастер, то зачем переключаться ?
 	// проверка, а вдруг это существо моб
 	if (victim && !IS_NPC(victim))
 		if (IS_CASTER(victim))
 			return victim;
-	
+
 	if (i < INT_MIDDLE_AI)
 	{
 		int rand = number(0, 2);
@@ -547,7 +547,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			best = druid;
 		if ((rand == 1) && (cler))
 			best = cler;
-		
+
 		return best;
 	}
 	//  и если >= 40 инты
@@ -559,10 +559,10 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		best = cler;
 	if (druid)
 		best = druid;
-	
+
 	return best;
-	
-	
+
+
 }
 
 int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
@@ -570,7 +570,7 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 	CHAR_DATA *best;
 	int clone_number = 0;
 	best = find_best_mob_victim(ch, extmode);
-	
+
 	if (best)
 	{
 	/*

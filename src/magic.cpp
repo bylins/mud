@@ -63,6 +63,7 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum);
 // Extern functions
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 // local functions
+bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum);
 int mag_materials(CHAR_DATA * ch, int item0, int item1, int item2, int extract, int verbose);
 void perform_mag_groups(int level, CHAR_DATA * ch, CHAR_DATA * tch, int spellnum, int savetype);
 void affect_update(void);
@@ -561,6 +562,26 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		to_room = "$n начертил$g на земле несколько рун и произнес$q заклинание.";
 		lag = 2; //Чет много тут всяких циклов-искалок. Повесим-ка лаг на чара. И вобще может пригодиться.
 		break;
+
+	case SPELL_HYPNOTIC_PATTERN:
+		if (material_component_processing(ch, ch, spellnum))
+		{
+			success = FALSE;
+			break;
+		}
+		af[0].type = spellnum;
+		af[0].location = APPLY_ROOM_NONE;
+		af[0].modifier = 0;
+		af[0].duration = 30+(GET_LEVEL(ch)+GET_REMORT(ch))*dice(1,3);
+		af[0].caster_id = GET_ID(ch);
+		af[0].bitvector = AFF_ROOM_HYPNOTIC_PATTERN;
+		af[0].must_handled = false;
+		accum_duration = FALSE;
+		update_spell = FALSE;
+		only_one = FALSE;
+		to_char = "Вы воскурили благовония и пропели заклинание. В воздухе поплыл чарующий глаз огненный узор.";
+		to_room = "$n воскурил$g благовония и пропел$g заклинание. В воздухе поплыл чарующий глаз огненный узор.";
+		break;
 	}
 
 	// Проверяем а не висит ли уже аффектов от аналогичных заклов на комнате.
@@ -570,7 +591,8 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		success = FALSE;
 	} else if (only_one) //Вообще по хорошему счетчик надо, типа не более N экземпляров, но это потом
 	{
-	    find_and_remove_room_affect(GET_ID(ch), SPELL_RUNE_LABEL);
+	    //find_and_remove_room_affect(GET_ID(ch), SPELL_RUNE_LABEL); - по идее удалять надо не именно метку, а кастуемый спелл если есть флаг О_о
+	    find_and_remove_room_affect(GET_ID(ch), spellnum);
 	}
 
 	// Перебираем заклы чтобы понять не производиться ли рефрешь закла
@@ -2156,6 +2178,43 @@ int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min,
  * affect_join(vict, aff, add_dur, avg_dur, add_mod, avg_mod)
 */
 
+bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum)
+{
+	int vnum;
+	const char *missing = NULL, *use = NULL, *exhausted = NULL;
+	switch (spellnum)
+	{
+		case SPELL_FASCINATION:
+			vnum = 3000;
+			use = "Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n";
+			missing = "Батюшки светы! А помаду-то я дома забыл$g.\r\n";
+			exhausted = "$o рассыпался в ваших руках от неловкого движения.\r\n";
+		break;
+		case SPELL_HYPNOTIC_PATTERN:
+			vnum = 3006;
+			use = "Вы разожгли палочку заморских благовоний.\r\n";
+			missing = "Вы начали суматошно искать свои благовония, но тщетно.\r\n";
+			exhausted = "$o дотлели и рассыпались пеплом.\r\n";
+		break;
+	}
+	OBJ_DATA *tobj = get_obj_in_list_vnum(vnum, caster->carrying);
+	if (!tobj)
+	{
+		act(missing, FALSE, victim, 0, caster, TO_CHAR);
+		return (TRUE);
+	}
+	GET_OBJ_VAL(tobj,2) -= 1;
+	act(use, FALSE, caster, tobj, 0, TO_CHAR);
+	if (GET_OBJ_VAL(tobj,2) < 1)
+	{
+		act(exhausted, FALSE, caster, tobj, 0, TO_CHAR);
+		obj_from_char(tobj);
+		extract_obj(tobj);
+	}
+	return (FALSE);
+}
+
+
 int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
 {
 	AFFECT_DATA af[MAX_SPELL_AFFECTS];
@@ -2164,7 +2223,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	const char *to_vict = NULL, *to_room = NULL;
 	int i, modi = 0;
 	int rnd = 0;
-	OBJ_DATA *tobj;
 
 	if (victim == NULL || IN_ROOM(victim) == NOWHERE || ch == NULL)
 		return 0;
@@ -2424,15 +2482,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
-		tobj = get_obj_in_list_vnum(3000, ch->carrying);
-		if (!tobj)	//не нашли один инрг, ищем другой
+		if (material_component_processing(ch, victim, spellnum))
 		{
-			tobj = get_obj_in_list_vnum(3001, ch->carrying);
-		}
-		if (!tobj)	//не нашли ни одного ингридиента
-		{
-			act("Батюшки светы! А помаду-то я дома забыл$g.\r\n", FALSE, victim, 0, ch, TO_CHAR);
-			//send_to_char("Батюшки светы! А помаду то я дома забыл.\r\n",ch);
 			success = FALSE;
 			break;
 		}
@@ -2469,14 +2520,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room =
 			"$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос \r\n\"..так это на ресницы надо, кажется... Эх, только бы не перепутать...\" \r\n";
 
-		rnd = number(1, 100);
-		if (rnd < 20)
-		{
-			//send_to_char("$o рассыпался в ваших руках от неловкого движения",ch);
-			act("$o рассыпался в ваших руках от неловкого движения.\r\n", FALSE, ch, tobj, 0, TO_CHAR);
-			obj_from_char(tobj);	//удаляем ингр
-			extract_obj(tobj);
-		}
 		break;
 
 	case SPELL_GROUP_BLESS:
@@ -3688,6 +3731,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы почувствовали себя отравленным.";
 		to_room = "$n позеленел$g от действия яда.";
 		break;
+
 	case SPELL_LACKY:
 		af[0].duration = pc_duration(victim, 6, 0, 0, 0, 0);
 		af[0].bitvector = AFF_LACKY;
@@ -3699,6 +3743,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n вдохновенно выпятил$g грудь.";
 		to_vict = "Вы почувствовали вдохновение.";
 		break;
+
 	}
 
 

@@ -1212,7 +1212,6 @@ void char_from_room(CHAR_DATA * ch)
 	ch->track_dirs = 0;
 }
 
-
 // place a character in a room
 void char_to_room(CHAR_DATA * ch, room_rnum room)
 {
@@ -1250,7 +1249,6 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
-
 		// Stop fighting now, if we left.
 		if (ch->get_fighting() && IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
 		{
@@ -1476,7 +1474,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			object->next_content = ch->carrying;
 			ch->carrying = object;
 		}
-		
+
 		// проверяем наш объект на беск.таймер
 		if (check_unlimited_timer(object))
 		{
@@ -3208,7 +3206,7 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 	}
 	else if (where == FIND_CHAR_WORLD)	{
  		if ((i = get_char_room_vis(ch, name)) != NULL)
-			return (i);		
+			return (i);
 		strcpy(tmp, name);
 		if (!(number = get_number(&tmp)))
 			return get_player_vis(ch, tmp, 0);
@@ -3217,7 +3215,7 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 				if (++j == number)
 					return (i);
 	}
-	
+
 	return (NULL);
 }
 CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where)

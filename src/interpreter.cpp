@@ -1302,6 +1302,9 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		case POS_FIGHTING:
 			send_to_char("Ни за что! Вы сражаетесь за свою жизнь!\r\n", ch);
 			break;
+		default:
+			send_to_char("Вы не в том состоянии, чтобы это сделать...\r\n", ch);
+			break;
 		}
 		return;
 	}
@@ -2722,7 +2725,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			}
 			else  	// player unknown -- make new character
 			{
-				
+
 				// еще одна проверка
 				if (strlen(tmp_name) < (MIN_NAME_LENGTH))
 				{

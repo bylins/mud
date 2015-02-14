@@ -25,7 +25,7 @@
 #define MOB_KEEPER        104
 #define MOB_FIREKEEPER    105
 
-#define MAX_SPELL_AFFECTS 5	// change if more needed
+#define MAX_SPELL_AFFECTS 16	// change if more needed
 
 //таймеры для спеллов, которые должны тикать, только если кастер помер или вышел
 #define TIME_SPELL_RUNE_LABEL 300
