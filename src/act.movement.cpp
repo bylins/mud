@@ -584,13 +584,19 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 
 void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 {
+	if (IS_IMMORTAL(ch))
+		return;
+
 	AFFECT_DATA *affect_on_room = room_affected_by_spell(world[room], SPELL_HYPNOTIC_PATTERN);
 	if (affect_on_room)
 	{
-		act("Вы уставились на огненный узор, как баран на новые ворота.", FALSE, ch, 0, ch, TO_CHAR);
-		act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 		CHAR_DATA *caster = find_char(affect_on_room->caster_id);
-		call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
+		if (!same_group(ch, caster) && !AFF_FLAGGED(ch, AFF_BLIND))
+		{
+			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
+			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
+			call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
+		}
 	}
 /* код ниже - на случай добавления новых спеллов такого типа
 	AFFECT_DATA *affect_on_room = world[room]->affected;
