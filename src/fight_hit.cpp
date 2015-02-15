@@ -2750,7 +2750,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	if (GET_MOB_HOLD(victim))
 	{
-		prob = MAX(prob, percent);
+		percent = number(1, 25);
 	}
 	if (IS_IMMORTAL(victim))
 	{
