@@ -2274,7 +2274,7 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	// 0
 	 {"\n",
 	 "\n"}, // SPELL_RECALL_SPELLS
 	{"ажбо супостаты блазнити да клюковати",
-	 "...и утроба его приготовляет обман."}, //SPELL_HYPNOTIC_PATTERN
+	 "...и утроба его приготовляет обман."} //SPELL_HYPNOTIC_PATTERN
 };
 
 namespace
