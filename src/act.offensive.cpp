@@ -2768,10 +2768,10 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 			visibl = prob/5;
 		if (vict->get_fighting() ||
 			((MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, AFF_AWARNESS)) && AWAKE(vict) && !IS_GOD(ch)))
-			aware = -prob/2;
+			aware = -prob/10;
 		if (AFF_FLAGGED (vict, PRF_AWAKE))
 			awake = -(vict->get_skill(SKILL_AWAKE)/5);
-		react = GET_SAVE(vict, SAVING_REFLEX);
+		react = GET_SAVE(vict, SAVING_REFLEX)*2/3;
 		prob = MAX(5,prob+visibl+aware+awake+react);
 	}
 	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
@@ -2790,7 +2790,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		//act("Strangle failed.\r\n", FALSE, ch, 0, vict, TO_CHAR);
+		act("Strangle failed %d, %d.\r\n", FALSE, percent, prob, ch, 0, vict, TO_CHAR);
 		Damage dmg(SkillDmg(SKILL_STRANGLE), 0, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
@@ -2798,7 +2798,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 	else
 	{
-		//act("Strangle success.\r\n", FALSE, ch, 0, vict, TO_CHAR);
+		act("Strangle success.%d, %d\r\n", FALSE, percent,prob, ch, 0, vict, TO_CHAR);
 		af.type = SPELL_STRANGLE;
 		af.duration = IS_NPC(vict) ? 8 : 15;
 		af.modifier = 0;

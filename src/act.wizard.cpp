@@ -2157,28 +2157,28 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	send_to_char(buf, ch);
 
 	sprintf(buf,
-			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Hitroll: [%2d/%2d/%d], Damroll: [%2d/%2d/%d]\r\n",
+			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
 			Glory::get_glory(GET_UNIQUE(k)), GloryConst::get_glory(GET_UNIQUE(k)), GET_AC(k), GET_REAL_AC(k),
 			compute_armor_class(k), GET_ARMOUR(k), GET_HR(k),
 			GET_REAL_HR(k), GET_REAL_HR(k) + str_bonus(GET_REAL_STR(k), STR_TO_HIT),
 			GET_DR(k), GET_REAL_DR(k), GET_REAL_DR(k) + str_bonus(GET_REAL_STR(k), STR_TO_DAM));
 	send_to_char(buf, ch);
 	sprintf(buf,
-			"Saving throws: [Para:%d/Breath:%d/Spell:%d/Basic:%d], Morale: [%d], Init: [%d], ToCast: [%d]\r\n",
+			"Защитн.аффекты: [Para:%d/Breath:%d/Spell:%d/Basic:%d], Поглощ: [%d], Стойк: [%d], Реакц: [%d], Воля: [%d]\r\n",
 			GET_SAVE(k, 0), GET_SAVE(k, 1), GET_SAVE(k, 2), GET_SAVE(k, 3),
-			k->calc_morale(), GET_INITIATIVE(k), GET_CAST_SUCCESS(k));
+			GET_ABSORBE(k), (GET_REAL_CON(k)-GET_SAVE(k, SAVING_STABILITY)), (-GET_SAVE(k, SAVING_REFLEX)+dex_bonus(GET_REAL_DEX(k))), (-GET_SAVE(k, SAVING_WILL)+GET_REAL_WIS(k)));
 	send_to_char(buf, ch);
 	sprintf(buf,
-			"Resistances: [Fire:%d/Air:%d/Water:%d/Earth:%d/Vit:%d/Mind:%d/Immun:%d]\r\n",
+			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d]\r\n",
 			GET_RESIST(k, 0), GET_RESIST(k, 1), GET_RESIST(k, 2), GET_RESIST(k, 3),
 			GET_RESIST(k, 4), GET_RESIST(k, 5), GET_RESIST(k, 6));
 	send_to_char(buf, ch);
 	sprintf(buf,
-			"Magic affect resist : [%d], Magic damage resist : [%d], Physical damage resist : [%d]\r\n", GET_AR(k), GET_MR(k), GET_PR(k));
+			"Защита от маг. аффектов : [%d], Защита от маг. урона : [%d], Защита от физ. урона : [%d]\r\n", GET_AR(k), GET_MR(k), GET_PR(k));
 	send_to_char(buf, ch);
 
-	sprintf(buf, "EffCha: [%f], PlusMem: [%d], HpReg: [%d], MoveReg: [%d], Absorbe: [%d]\r\n",
-			get_effective_cha(k, 0), GET_MANAREG(k), GET_HITREG(k), GET_MOVEREG(k), GET_ABSORBE(k));
+	sprintf(buf, "Запом: [%d], УспехКолд: [%d], ВоссЖиз: [%d], ВоссСил: [%d], Поглощ: [%d], Удача: [%d], Иниц: [%d]\r\n",
+			GET_MANAREG(k), GET_CAST_SUCCESS(k), GET_HITREG(k), GET_MOVEREG(k), GET_ABSORBE(k), k->calc_morale(), GET_INITIATIVE(k));
 	send_to_char(buf, ch);
 
 	sprinttype(GET_POS(k), position_types, buf2);
