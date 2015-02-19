@@ -2790,7 +2790,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		act("Strangle failed %d, %d.\r\n", FALSE, percent, prob, ch, 0, vict, TO_CHAR);
+		send_to_char(ch, "Prob == %d, Percent == %d, React == %d, Awake == %d, Visibl == %d, Aware == %d\r\n", prob, percent, react, awake, visibl, aware);
 		Damage dmg(SkillDmg(SKILL_STRANGLE), 0, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
@@ -2798,7 +2798,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 	else
 	{
-		act("Strangle success.%d, %d\r\n", FALSE, percent,prob, ch, 0, vict, TO_CHAR);
+		send_to_char(ch, "Prob == %d, Percent == %d, React == %d, Awake == %d, Visibl == %d, Aware == %d\r\n", prob, percent, react, awake, visibl, aware);
 		af.type = SPELL_STRANGLE;
 		af.duration = IS_NPC(vict) ? 8 : 15;
 		af.modifier = 0;
