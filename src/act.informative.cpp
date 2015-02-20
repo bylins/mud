@@ -3819,6 +3819,12 @@ ACMD(do_equipment)
 			    if (GET_EQ(ch, 18))
 				if ((i==16) || (i==17))
 				    continue;
+			    if (GET_EQ(ch, 16) || GET_EQ(ch, 17))
+				if ((i==18))
+				    continue;
+			    if (GET_EQ(ch, 11))
+				if ((i==17) || (i==18))
+				    continue;
 				send_to_char(where[i], ch);
 				sprintf(buf, "%s[ Ничего ]%s\r\n", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
