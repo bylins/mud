@@ -1212,6 +1212,38 @@ void char_from_room(CHAR_DATA * ch)
 	ch->track_dirs = 0;
 }
 
+void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
+{
+	if (IS_IMMORTAL(ch))
+		return;
+
+	AFFECT_DATA *affect_on_room = room_affected_by_spell(world[room], SPELL_HYPNOTIC_PATTERN);
+	if (affect_on_room)
+	{
+		CHAR_DATA *caster = find_char(affect_on_room->caster_id);
+		if (!same_group(ch, caster) && !AFF_FLAGGED(ch, AFF_BLIND))
+		{
+			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
+			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
+			call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
+		}
+	}
+/* код ниже - на случай добавления новых спеллов такого типа
+	AFFECT_DATA *affect_on_room = world[room]->affected;
+	while (affect_on_room)
+	{
+		switch (affect_on_room->type)
+		{
+		case SPELL_HYPNOTIC_PATTERN:
+			act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
+			act(to_room, TRUE, victim, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
+		break;
+		}
+		affect_on_room = affect_on_room->next;
+	}
+	*/
+}
+
 // place a character in a room
 void char_to_room(CHAR_DATA * ch, room_rnum room)
 {
@@ -1260,6 +1292,11 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		{
 			zone_table[world[room]->zone].used = 1;
 			zone_table[world[room]->zone].activity++;
+		} else
+		{
+			//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
+			//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
+			room_affect_process_on_entry(ch, IN_ROOM(ch));
 		}
 	}
 }

@@ -1017,6 +1017,7 @@ extern SPECIAL(shop_ext);
            !AFF_FLAGGED((sub),AFF_STOPFIGHT)      && \
            !AFF_FLAGGED((sub),AFF_MAGICSTOPFIGHT) && \
            !AFF_FLAGGED((sub),AFF_HOLD)           && \
+           !AFF_FLAGGED((sub),AFF_SLEEP)          && \
            !MOB_FLAGGED((sub),MOB_NOFIGHT)        && \
            GET_WAIT(sub) <= 0                     && \
            !sub->get_fighting()                   && \

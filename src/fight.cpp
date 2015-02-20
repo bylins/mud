@@ -1101,7 +1101,10 @@ void summon_mob_helpers(CHAR_DATA *ch)
 				act("$n вступил$g в битву на стороне $N1.",
 					FALSE, vict, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			}
-			set_fighting(vict, ch->get_fighting());
+			if (MAY_ATTACK(vict))
+			{
+				set_fighting(vict, ch->get_fighting());
+			}
 		}
 	}
 }
