@@ -1308,6 +1308,8 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 		return;
 	if (GET_OBJ_OWNER(obj) && OBJ_FLAGGED(obj, ITEM_NODONATE) && (!ch || GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)))
 	{
+		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
+		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		GET_OBJ_VAL(obj, 0) = GET_OBJ_VAL(obj_proto[i], 0);
 		GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(obj_proto[i], 1);
 		GET_OBJ_VAL(obj, 2) = GET_OBJ_VAL(obj_proto[i], 2);
