@@ -1310,7 +1310,8 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 	{
 		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-		GET_OBJ_VAL(obj, 0) = GET_OBJ_VAL(obj_proto[i], 0);
+/* Вообще не понял какая белочка и для чего сделала это функцию, лог оставлю, может будут случаи, тогда поправлю ошибки.	
+    		GET_OBJ_VAL(obj, 0) = GET_OBJ_VAL(obj_proto[i], 0);
 		GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(obj_proto[i], 1);
 		GET_OBJ_VAL(obj, 2) = GET_OBJ_VAL(obj_proto[i], 2);
 		GET_OBJ_VAL(obj, 3) = GET_OBJ_VAL(obj_proto[i], 3);
@@ -1325,6 +1326,7 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 		GET_OBJ_OWNER(obj) = 0;
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			obj->affected[j] = obj_proto[i]->affected[j];
+*/
 	}
 }
 
