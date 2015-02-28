@@ -487,6 +487,7 @@ enum
 #define MOB_AGGR_VIKINGI   (INT_TWO | (1 << 18))
 #define MOB_AGGR_STEPNYAKI (INT_TWO | (1 << 19))
 #define MOB_NORESURRECTION (INT_TWO | (1 << 20))
+#define MOB_AWAKE          (INT_TWO | (1 << 21))
 
 
 #define NPC_NORTH         (1 << 0)

@@ -672,13 +672,18 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		victim_sav = SAVING_STABILITY;
 		percent =
 			skill_is + size_app[GET_POS_SIZE(ch)].shocking +
-			str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+			str_bonus(GET_REAL_STR(ch) - 25);
 
-		if (vict)
+		if (vict && !IS_NPC(vict))
 		{
 			victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
 		}
-		break;
+		else if (vict && IS_NPC(vict))
+		{
+                	victim_modi -= (size_app[GET_POS_SIZE(vict)].shocking)/2;
+                }
+		send_to_char(ch, "Размер == %d\r\n", victim_modi);
+                break;
 	case SKILL_STUPOR:
 		victim_sav = SAVING_STABILITY;
 		percent = skill_is + str_bonus(GET_REAL_STR(ch), STR_TO_DAM) * 2;

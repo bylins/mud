@@ -2767,11 +2767,11 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		if (!CAN_SEE(ch,vict))
 			visibl = prob/5;
 		if (vict->get_fighting() ||
-			((MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, AFF_AWARNESS)) && AWAKE(vict) && !IS_GOD(ch)))
+			((AFF_FLAGGED(vict, AFF_AWARNESS)) && AWAKE(vict) && !IS_GOD(ch)))
 			aware = -prob/10;
-		if (AFF_FLAGGED (vict, PRF_AWAKE))
+		if (PRF_FLAGGED (vict, PRF_AWAKE) || MOB_FLAGGED(vict, MOB_AWAKE))
 			awake = -(vict->get_skill(SKILL_AWAKE)/5);
-		react = GET_SAVE(vict, SAVING_REFLEX)*2/3;
+		react = GET_SAVE(vict, SAVING_REFLEX);
 		prob = MAX(5,prob+visibl+aware+awake+react);
 	}
 	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
