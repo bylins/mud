@@ -2855,7 +2855,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 	}
 	else if (IS_OBJ_STAT(obj, ITEM_NODROP) || OBJ_FLAGGED(obj, ITEM_ZONEDECAY) || OBJ_FLAGGED(obj, ITEM_REPOP_DECAY) ||
 						GET_OBJ_TYPE(obj) == ITEM_KEY || IS_OBJ_STAT(obj, ITEM_NORENT) || GET_OBJ_RENT(obj) < 0 ||
-						GET_OBJ_RNUM(obj) <= NOTHING || OBJ_FLAGGED(obj, ITEM_NAMED))
+						GET_OBJ_RNUM(obj) <= NOTHING || OBJ_FLAGGED(obj, ITEM_NAMED) || GET_OBJ_OWNER(obj))
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
 	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && obj->contains)
 		act("В $o5 что-то лежит.", FALSE, ch, obj, 0, TO_CHAR);
