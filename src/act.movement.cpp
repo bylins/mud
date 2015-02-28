@@ -838,7 +838,8 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	if (ch->desc != NULL)
 		look_at_room(ch, 0);
 
-	room_affect_process_on_entry(ch, IN_ROOM(ch));
+	if (!IS_NPC(ch))
+		room_affect_process_on_entry(ch, IN_ROOM(ch));
 
 	if (DeathTrap::check_death_trap(ch))
 	{
