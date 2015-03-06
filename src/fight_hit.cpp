@@ -2458,11 +2458,11 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	appear(ch);
 	appear(victim);
 
-	//**************** If you attack a pet, it hates your guts
+	// If you attack a pet, it hates your guts
 	if (!same_group(ch, victim))
 		check_agro_follower(ch, victim);
 
-	if (victim != ch)  	//**************** Start the attacker fighting the victim
+	if (victim != ch)  	// Start the attacker fighting the victim
 	{
 		if (GET_POS(ch) > POS_STUNNED && (ch->get_fighting() == NULL))
 		{
@@ -2470,7 +2470,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			set_fighting(ch, victim);
 			npc_groupbattle(ch);
 		}
-		//***************** Start the victim fighting the attacker
+		// Start the victim fighting the attacker
 		if (GET_POS(victim) > POS_STUNNED && (victim->get_fighting() == NULL))
 		{
 			set_fighting(victim, ch);
@@ -2478,7 +2478,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	//*************** If negative damage - return
+	// If negative damage - return
 	if (dam < 0
 		|| IN_ROOM(ch) == NOWHERE
 		|| IN_ROOM(victim) == NOWHERE
@@ -2506,7 +2506,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	// ** учет положения атакующего и жертвы
+	// учет положения атакующего и жертвы
 	// Include a damage multiplier if victim isn't ready to fight:
 	// Position sitting  1.5 x normal
 	// Position resting  2.0 x normal
@@ -2647,25 +2647,25 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	// обновление позиции после удара и ангела
 	update_pos(victim);
 
-	//* сбивание надува черноков //
+	// сбивание надува черноков //
 	if (spell_num != SPELL_POISON && dam > 0)
 		try_remove_extrahits(ch, victim);
 
-	//* сообщения о крит ударах //
+	// сообщения о крит ударах //
 	if (dam && flags[CRIT_HIT] && !dam_critic && spell_num != SPELL_POISON)
 	{
 		send_critical_message(ch, victim);
 	}
 
-	// * skill_message sends a message from the messages file in lib/misc.
-	//  * dam_message just sends a generic "You hit $n extremely hard.".
-	// * skill_message is preferable to dam_message because it is more
-	// * descriptive.
-	// *
-	// * If we are _not_ attacking with a weapon (i.e. a spell), always use
-	// * skill_message. If we are attacking with a weapon: If this is a miss or a
-	// * death blow, send a skill_message if one exists; if not, default to a
-	// * dam_message. Otherwise, always send a dam_message.
+	//  skill_message sends a message from the messages file in lib/misc.
+	//  dam_message just sends a generic "You hit $n extremely hard.".
+	//  skill_message is preferable to dam_message because it is more
+	//  descriptive.
+	// 
+	//  If we are _not_ attacking with a weapon (i.e. a spell), always use
+	//  skill_message. If we are attacking with a weapon: If this is a miss or a
+	//  death blow, send a skill_message if one exists; if not, default to a
+	//  dam_message. Otherwise, always send a dam_message.
 	// log("[DAMAGE] Attack message...");
 
 	// инит Damage::brief_shields_
@@ -2683,7 +2683,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		brief_shields_ = buf_;
 	}
 
-	//* сообщения об ударах //
+	// сообщения об ударах //
 	if (skill_num >= 0 || spell_num >= 0 || hit_type < 0)
 	{
 		// скилл, спелл, необычный дамаг
@@ -2703,7 +2703,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	///******* Use send_to_char -- act() doesn't send message if you are DEAD.
+	/// Use send_to_char -- act() doesn't send message if you are DEAD.
 	char_dam_message(dam, ch, victim, flags[NO_FLEE]);
 
 	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.
@@ -2713,13 +2713,13 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (IN_ROOM(ch) != IN_ROOM(victim))
 		return dam;
 
-	// *********** Stop someone from fighting if they're stunned or worse
+	// Stop someone from fighting if they're stunned or worse
 	if ((GET_POS(victim) <= POS_STUNNED) && (victim->get_fighting() != NULL))
 	{
 		stop_fighting(victim, GET_POS(victim) <= POS_DEAD);
 	}
 
-	//* жертва умирает //
+	// жертва умирает //
 	if (GET_POS(victim) == POS_DEAD)
 	{
 		process_death(ch, victim);
@@ -2744,8 +2744,9 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	int percent = number(1, skill_info[SKILL_MIGHTHIT].max_percent);
+//        int stab = GET_SAVE(victim, SAVING_STABILITY);
 	int prob = train_skill(ch, SKILL_MIGHTHIT, skill_info[SKILL_MIGHTHIT].max_percent, victim);
-	int lag = 0;
+	int lag = 0, might = 0;
 	AFFECT_DATA af;
 
 	if (GET_MOB_HOLD(victim))
@@ -2756,14 +2757,20 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		prob = 0;
 	}
-	if (prob * 50 / percent < 100 || dam == 0)
+        might = prob * 50 / percent;
+/*  Логирование шанса молота.
+send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Stab == %d\r\n", prob, percent, might, stab);
+ sprintf(buf, "%s молотит : Percent == %d,Prob == %d, Might == %d, Stability == %d\r\n",GET_NAME(ch), percent, prob, might, stab);
+                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+*/
+        if (might < 130 || dam == 0)
 	{
 		sprintf(buf, "&c&qВаш богатырский удар пропал впустую.&Q&n\r\n");
 		send_to_char(buf, ch);
 		lag = 3;
 		dam = 0;
 	}
-	else if (prob * 50 / percent < 150)
+	else if (might < 180)
 	{
 		sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n",
 				PERS(victim, ch, 3));
@@ -2787,7 +2794,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			might_hit_bash(ch, victim);
 		}
 	}
-	else if (prob * 50 / percent < 400)
+	else if (might < 800)
 	{
 		sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n",
 				PERS(victim, ch, 3));

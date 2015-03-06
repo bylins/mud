@@ -5199,7 +5199,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_WARCRY, "боевой клич", 100);
 	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 100);
 	skillo(SKILL_IRON_WIND, "железный ветер", 150);
-	skillo(SKILL_STRANGLE, "удавить", 175);
+	skillo(SKILL_STRANGLE, "удавить", 200);
 	skillo(SKILL_AIR_MAGIC, "магия воздуха", 200);
 	skillo(SKILL_FIRE_MAGIC, "магия огня", 200);
 	skillo(SKILL_WATER_MAGIC, "магия воды", 200);

@@ -2723,7 +2723,7 @@ ACMD(do_iron_wind)
 void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob, dam, delay;
-	int visibl=0, aware=0, awake=0, react=0;
+//	int visibl=0, aware=0, awake=0, react=0;
 	AFFECT_DATA af;
 	struct timed_type timed;
 
@@ -2754,33 +2754,12 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	prob = train_skill(ch, SKILL_STRANGLE, skill_info[SKILL_STRANGLE].max_percent, vict);
 	delay = 6 - MIN(4, (ch->get_skill(SKILL_STRANGLE) + 30) / 50);
 	percent = number(1, skill_info[SKILL_STRANGLE].max_percent);
+//     Лонирование шансов удавки
+//        send_to_char(ch,"Вычисление удавки: Prob = %d, Percent = %d, Delay = %d\r\n", prob, percent, delay);
+//        sprintf(buf, "%s Давит гадов : Percent == %d,Prob == %d, Delay == %d\r\n",GET_NAME(ch), percent, prob, delay);
+//                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 
-	if (prob > 100)
-		prob = 100+(prob-100)/2; //от 0 до 150 в зависимости от % умения
-
-	prob += MAX(0, GET_REAL_DEX(ch)-25); //бонус за каждый стат ловки больше 25
-
-	if (GET_MOB_HOLD(vict))
-		prob += prob/2;
-	else
-	{
-		if (!CAN_SEE(ch,vict))
-			visibl = prob/5;
-		if (vict->get_fighting() ||
-			((AFF_FLAGGED(vict, AFF_AWARNESS)) && AWAKE(vict) && !IS_GOD(ch)))
-			aware = -prob/10;
-		if (PRF_FLAGGED (vict, PRF_AWAKE) || MOB_FLAGGED(vict, MOB_AWAKE))
-			awake = -(vict->get_skill(SKILL_AWAKE)/5);
-		react = GET_SAVE(vict, SAVING_REFLEX);
-		prob = MAX(5,prob+visibl+aware+awake+react);
-	}
-	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
-		prob = percent;
-	if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE) ||
-		affected_by_spell(vict, SPELL_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT))
-		prob = 0;
-
-//тестим гаусс - пока оставлено, мало ли что.
+	//тестим гаусс - пока оставлено, мало ли что.
 	//double mean = 21-1/(0.25+((4*sqrt(11)-1)/320)*ch->get_skill(SKILL_STRANGLE));
 	//mean = (300+5*ch->get_skill(SKILL_STRANGLE))/70;
 	//awake = GaussIntNumber((300+5*ch->get_skill(SKILL_STRANGLE))/70, 7.0, 1, 30);
@@ -2790,7 +2769,6 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		send_to_char(ch, "Prob == %d, Percent == %d, React == %d, Awake == %d, Visibl == %d, Aware == %d\r\n", prob, percent, react, awake, visibl, aware);
 		Damage dmg(SkillDmg(SKILL_STRANGLE), 0, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
@@ -2798,7 +2776,6 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 	else
 	{
-		send_to_char(ch, "Prob == %d, Percent == %d, React == %d, Awake == %d, Visibl == %d, Aware == %d\r\n", prob, percent, react, awake, visibl, aware);
 		af.type = SPELL_STRANGLE;
 		af.duration = IS_NPC(vict) ? 8 : 15;
 		af.modifier = 0;
