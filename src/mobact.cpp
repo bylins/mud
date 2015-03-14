@@ -435,8 +435,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 
 		if (IS_SET(extmode, SKIP_SNEAKING))
 		{
-			if (!skip_sneaking(vict, ch))
-			    continue;
+			skip_sneaking(vict, ch)
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
 				REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
 			if (AFF_FLAGGED(vict, AFF_SNEAK))
