@@ -432,11 +432,11 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			// ... but no aggressive for this char
 			if (!(extra_aggr = extra_aggressive(ch, vict)) && !IS_SET(extmode, GUARD_ATTACK))
 				continue;
-
 		if (IS_SET(extmode, SKIP_SNEAKING))
 		{
-			skip_sneaking(vict, ch);
-			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
+			if (skip_sneaking(vict, ch))
+			    continue;
+    			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
 				REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
 			if (AFF_FLAGGED(vict, AFF_SNEAK))
 				continue;
@@ -737,15 +737,11 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 					}
 					if (check_sneak)
 					{
-						skip_sneaking(vict, ch);
+	    					skip_sneaking(vict, ch);
 						if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
-						{
-							REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
-						}
+						    REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
 						if (AFF_FLAGGED(vict, AFF_SNEAK))
-						{
-							continue;
-						}
+								continue;
 					}
 					skip_hiding(vict, ch);
 					if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
