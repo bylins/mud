@@ -1496,6 +1496,9 @@ void using_mob_skills(CHAR_DATA *ch)
 			{
 				if (sk_num == SKILL_BASH)
 				{
+//send_to_char(caster, "Баш предфункция\r\n");
+//sprintf(buf, "%s башат предфункция\r\n",GET_NAME(caster));
+//mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 					if (GET_POS(caster) >= POS_FIGHTING
 						|| calculate_skill(ch, SKILL_BASH, 200, caster) > number(50, 80))
 					{
@@ -1504,7 +1507,11 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 				else
-				{
+				{ 
+//send_to_char(caster, "Подножка предфункция\r\n");
+//sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
+//                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+
 					if (GET_POS(caster) >= POS_FIGHTING
 						|| calculate_skill(ch, SKILL_CHOPOFF, 200, caster) > number(50, 80))
 					{
@@ -1600,6 +1607,7 @@ void update_round_affs()
 		CLR_AF_BATTLE(ch, EAF_USEDLEFT);
 		CLR_AF_BATTLE(ch, EAF_USEDRIGHT);
 		CLR_AF_BATTLE(ch, EAF_MULTYPARRY);
+                CLR_AF_BATTLE(ch, EAF_DEVIATE);
 
 		if (GET_AF_BATTLE(ch, EAF_SLEEP))
 			affect_from_char(ch, SPELL_SLEEP);
@@ -1611,12 +1619,12 @@ void update_round_affs()
 				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 		}
 
-		if (GET_AF_BATTLE(ch, EAF_DEVIATE))
-		{
-			CLR_AF_BATTLE(ch, EAF_DEVIATE);
-			if (!WAITLESS(ch) && GET_WAIT(ch) < PULSE_VIOLENCE)
-				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
-		}
+//		if (GET_AF_BATTLE(ch, EAF_DEVIATE))
+//		{
+//			CLR_AF_BATTLE(ch, EAF_DEVIATE);
+//			if (!WAITLESS(ch) && GET_WAIT(ch) < PULSE_VIOLENCE)
+//				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+//		}
 
 		if (GET_AF_BATTLE(ch, EAF_POISONED))
 		{

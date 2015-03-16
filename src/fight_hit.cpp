@@ -1574,13 +1574,15 @@ void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 		act("Вы не смогли уклониться от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
 		act("$N не сумел$G уклониться от вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
 		act("$n не сумел$g уклониться от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
-	}
+                SET_AF_BATTLE(victim, EAF_DEVIATE);
+}
 	else if (prob < 100)
 	{
 		act("Вы немного уклонились от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
 		act("$N немного уклонил$U от вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
 		act("$n немного уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		*dam = *dam * 10 / 15;
+                SET_AF_BATTLE(victim, EAF_DEVIATE);
 	}
 	else if (prob < 200)
 	{
@@ -1588,6 +1590,7 @@ void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 		act("$N частично уклонил$U от вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
 		act("$n частично уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		*dam = *dam / 2;
+                SET_AF_BATTLE(victim, EAF_DEVIATE);
 	}
 	else
 	{
@@ -1595,6 +1598,7 @@ void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 		act("$N уклонил$U от вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
 		act("$n уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		*dam = -1;
+                SET_AF_BATTLE(victim, EAF_DEVIATE);
 	}
 	BATTLECNTR(victim)++;
 }
