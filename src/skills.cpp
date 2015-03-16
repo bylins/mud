@@ -764,7 +764,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_MORPH:
 		break;
 	case SKILL_STRANGLE: // удавить
-                victim_sav = GET_SAVE(vict, SAVING_REFLEX);
+                victim_sav = GET_SAVE(vict, SAVING_REFLEX) -dex_bonus(GET_REAL_DEX(vict));
                 bonus += MAX(0, dex_bonus(GET_REAL_DEX(ch)) - 25);
                 pass_mod = 1;
              if (GET_MOB_HOLD(vict))
