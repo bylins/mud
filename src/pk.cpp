@@ -507,7 +507,9 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 			pk->next = thief->pk_list;
 			thief->pk_list = pk;
 		}
-		if ((pk->thief_exp == 0) && (!IS_GOD(thief)))
+                else 
+                   break;
+		if (pk->thief_exp == 0)
 			act("$N получил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
 		else
 			act("$N продлил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);

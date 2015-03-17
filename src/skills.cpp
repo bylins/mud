@@ -900,7 +900,8 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 		// if (!IS_NPC(ch))
 //        log("Player %s skill '%d' - need to improove %d(%d-%d)",
 //            GET_NAME(ch), skill_no, skill_is, div, prob);
-
+                if ((skill_no == SKILL_STEAL) && (!IS_NPC(victim)))
+                   return;
 		if (
 			(victim
 			 && skill_is <= GET_REAL_INT(ch) * GET_LEVEL(victim) / GET_LEVEL(ch))
