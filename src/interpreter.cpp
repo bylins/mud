@@ -2391,7 +2391,15 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	{
 	    CLR_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
-	sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+	if (GET_SEX(d->character) == 0)
+        sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
+	if (GET_SEX(d->character) == 1)
+        sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+	if (GET_SEX(d->character) == 2)
+        sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
+	if (GET_SEX(d->character) == 3)
+        sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+
 	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 	look_at_room(d->character, 0);
 	d->has_prompt = 0;

@@ -428,7 +428,14 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		//send_to_char("Имя одобрено!\r\n", ch);
 		send_to_char(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf,  "&c%s одобрил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		if(GET_SEX == 0)
+                sprintf(buf,  "&c%s одобрило имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		if(GET_SEX == 1)
+                sprintf(buf,  "&c%s одобрил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		if(GET_SEX == 2)
+                sprintf(buf,  "&c%s одобрила имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		if(GET_SEX == 3)
+                sprintf(buf,  "&c%s одобрили имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
 		send_to_gods(buf, true);
 		// В этом теперь нет смысла
 		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
@@ -441,7 +448,15 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		//send_to_char("Имя запрещено!\r\n", ch);
 		send_to_char(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf,  "&c%s запретил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		if(GET_SEX ==0) 
+                sprintf(buf,  "&c%s запретило имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		if(GET_SEX ==1) 
+                sprintf(buf,  "&c%s запретил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		if(GET_SEX ==2) 
+                sprintf(buf,  "&c%s запретила имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		if(GET_SEX ==3) 
+                sprintf(buf,  "&c%s запретили имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+
 		send_to_gods(buf, true);
 		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 
