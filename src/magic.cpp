@@ -2809,14 +2809,20 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 						 pc_duration(victim, 1, level, 2, 0, 0));
 		af[0].modifier = -5;
 		af[0].bitvector = AFF_CURSE;
+
+		af[1].location = APPLY_HITROLL;
+		af[1].duration = af[0].duration;
+		af[1].modifier = -level/6;
+		af[1].bitvector = AFF_CURSE;
+
 		if (level >= 20)
 		{
-			af[1].location = APPLY_CAST_SUCCESS;
-			af[1].duration = af[0].duration;
-			af[1].modifier = -1 * (level / 3 + GET_REMORT(ch));
+			af[2].location = APPLY_CAST_SUCCESS;
+			af[2].duration = af[0].duration;
+			af[2].modifier = -1 * (level / 3 + GET_REMORT(ch));
 			if (IS_NPC(ch) && level >= (LVL_IMMORT))
-				af[1].modifier += (LVL_IMMORT - level - 1);	//1 cast per mob level above 30
-			af[1].bitvector = AFF_CURSE;
+				af[2].modifier += (LVL_IMMORT - level - 1);	//1 cast per mob level above 30
+			af[2].bitvector = AFF_CURSE;
 		}
 		accum_duration = TRUE;
 		accum_affect = TRUE;

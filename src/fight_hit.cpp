@@ -2542,7 +2542,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	// изменение физ урона по холду
 	if (GET_MOB_HOLD(victim) && dmg_type == PHYS_DMG)
 	{
-		if (IS_NPC(ch))
+		if (IS_NPC(ch) && !IS_CHARMICE(ch))
 			dam = dam * 15 / 10;
 		else
 			dam = dam * 125 / 100;
