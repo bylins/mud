@@ -5043,9 +5043,10 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 		{
 			if (CAN_SEE(ch, i) && i->in_room != NOWHERE && isname(arg, i->get_pc_name()))
 			{
+			    zone_data *zone = &zone_table[world[i->in_room]->zone];
 				found = 1;
-				sprintf(buf, "M%3d. %-25s - [%5d] %s\r\n", num++, GET_NAME(i),
-						GET_ROOM_VNUM(IN_ROOM(i)), world[IN_ROOM(i)]->name);
+				sprintf(buf, "%s%3d. %-25s - [%5d] %s. Название зоны: '%s'\r\n", IS_NPC(i)? "Моб:  ":"Игрок:", num++, GET_NAME(i),
+						GET_ROOM_VNUM(IN_ROOM(i)), world[IN_ROOM(i)]->name, zone->name);
 				send_to_char(buf, ch);
 			}
 		}
