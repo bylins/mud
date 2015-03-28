@@ -303,7 +303,9 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
 	GET_OBJ_CUR(obj) = GET_OBJ_CUR(&tmp);
-	obj->set_timer(tmp.get_timer());
+//	если таймер шмота в мире меньше  чем установленный, восстанавливаем его.
+	if (obj->get_timer() > tmp.get_timer())
+		obj->set_timer(tmp.get_timer());
 	// емкостям сохраняем жидкость и кол-во глотков, во избежание жалоб
 	if ((GET_OBJ_TYPE(&tmp) == ITEM_DRINKCON) && (GET_OBJ_TYPE(obj) == ITEM_DRINKCON))
 	{
