@@ -312,15 +312,16 @@ int obj_data::get_timer() const
 */
 void obj_data::dec_timer(int time)
 {
+	if (!timed_spell.empty())
+	{
+		timed_spell.dec_timer(this, time);
+	}
+
 	if ((timer_ == UTIMER) && (timer_ != 0))
 		return;
 	if (time > 0)
 	{
 		timer_ -= time;
-		if (!timed_spell.empty())
-		{
-			timed_spell.dec_timer(this, time);
-		}
 	}
 }
 
