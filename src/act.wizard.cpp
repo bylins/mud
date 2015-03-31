@@ -149,7 +149,7 @@ ACMD(do_vnum);
 void do_stat_room(CHAR_DATA * ch, const int rnum = 0);
 void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt = 0);//added by WorM virt при vstat'е 1 чтобы считалось реальное кол-во объектов в мире
 void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt = 0);//added by WorM virt при vstat'е 1 чтобы считалось реальное кол-во мобов в мире
-void do_stat_ip(CHAR_DATA * ch, CHAR_DATEA * k);
+void do_statip(CHAR_DATA * ch, CHAR_DATA * k);
 ACMD(do_stat);
 ACMD(do_shutdown);
 void stop_snooping(CHAR_DATA * ch);
