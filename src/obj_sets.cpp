@@ -169,14 +169,14 @@ void init_obj_index()
 /// сеты не вешаются на: кольца, ожерелья, браслеты, свет
 bool verify_wear_flag(OBJ_DATA *obj)
 {
-	if (CAN_WEAR(obj, ITEM_WEAR_FINGER)
+/*	if (CAN_WEAR(obj, ITEM_WEAR_FINGER)
 		|| CAN_WEAR(obj, ITEM_WEAR_NECK)
 		|| CAN_WEAR(obj, ITEM_WEAR_WRIST)
 		|| GET_OBJ_TYPE(obj) == ITEM_LIGHT)
 	{
 		return false;
 	}
-	return true;
+*/	return true;
 }
 
 /// проверка сета после олц или лоада из конфига, при необходимости

@@ -149,6 +149,7 @@ ACMD(do_vnum);
 void do_stat_room(CHAR_DATA * ch, const int rnum = 0);
 void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt = 0);//added by WorM virt при vstat'е 1 чтобы считалось реальное кол-во объектов в мире
 void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt = 0);//added by WorM virt при vstat'е 1 чтобы считалось реальное кол-во мобов в мире
+void do_stat_ip(CHAR_DATA * ch, CHAR_DATEA * k);
 ACMD(do_stat);
 ACMD(do_shutdown);
 void stop_snooping(CHAR_DATA * ch);
@@ -2401,7 +2402,14 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			sprintf(buf, "Карма:\r\n%s", KARMA(k));
 			send_to_char(buf, ch);
 		}
+
+      }
+}
+
+void do_statip(CHAR_DATA * ch, CHAR_DATA * k)
+{
 		log("Start logon list stat");
+
 		// Отображаем список ip-адресов с которых персонаж входил
 		if (LOGON_LIST(k))
 		{
@@ -2418,7 +2426,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			page_string(ch->desc, out);
 		}
 		log("End logon list stat");
-	}
+	
 }
 
 
@@ -2477,6 +2485,34 @@ ACMD(do_stat)
 				send_to_char("Этого персонажа сейчас нет в игре.\r\n", ch);
 		}
 	}
+        else if (is_abbrev(buf1, "ip"))
+        {        
+		if (!*buf2)
+		{
+			send_to_char("Состояние ip какого игрока?\r\n", ch);
+		}
+		else
+		{
+                 	Player t_vict;
+			if (load_char(buf2, &t_vict) > -1)
+			{
+				if (GET_LEVEL(&t_vict) > level)
+				{
+					send_to_char("Извините, вам это еще рано.\r\n", ch);
+				}
+				else
+				{
+					Clan::SetClanData(&t_vict);
+					do_statip(ch, &t_vict);
+				}
+			}
+			else
+			{
+				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
+			}
+		}
+	}
+                     
 	else if (is_abbrev(buf1, "file"))
 	{
 		if (!*buf2)
