@@ -550,13 +550,13 @@ bool is_mob_item(OBJ_DATA *obj)
 	{
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ITEM_NO_SEVERANE)
+	if (/*IS_OBJ_NO(obj, ITEM_NO_SEVERANE)
 		&& IS_OBJ_NO(obj, ITEM_NO_POLANE)
 		&& IS_OBJ_NO(obj, ITEM_NO_KRIVICHI)
 		&& IS_OBJ_NO(obj, ITEM_NO_VATICHI)
 		&& IS_OBJ_NO(obj, ITEM_NO_VELANE)
-		&& IS_OBJ_NO(obj, ITEM_NO_DREVLANE)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+		&& IS_OBJ_NO(obj, ITEM_NO_DREVLANE)  
+		&& */IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
 	{
 		return true;
 	}

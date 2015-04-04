@@ -912,12 +912,12 @@ enum
 //#define ITEM_NO_KILLERONLY (INT_ONE | 1 << 2)// // только для душиков //
 #define ITEM_NO_BD	   (INT_ONE | 1 << 2)
 
-#define ITEM_NO_SEVERANE   (INT_TWO | 1 << 0)
+/*#define ITEM_NO_SEVERANE   (INT_TWO | 1 << 0) // невозможность одеть родам
 #define ITEM_NO_POLANE     (INT_TWO | 1 << 1)
 #define ITEM_NO_KRIVICHI   (INT_TWO | 1 << 2)
 #define ITEM_NO_VATICHI    (INT_TWO | 1 << 3)
 #define ITEM_NO_VELANE     (INT_TWO | 1 << 4)
-#define ITEM_NO_DREVLANE   (INT_TWO | 1 << 5)
+#define ITEM_NO_DREVLANE   (INT_TWO | 1 << 5) */
 #define ITEM_NO_MALE       (INT_TWO | 1 << 6)
 #define ITEM_NO_FEMALE     (INT_TWO | 1 << 7)
 #define ITEM_NO_CHARMICE   (INT_TWO | 1 << 8)
@@ -963,12 +963,12 @@ enum
 #define ITEM_AN_BD	   (INT_ONE | (1 << 2))
 
 
-#define ITEM_AN_SEVERANE   (INT_TWO | 1 << 0)
+#define ITEM_AN_SEVERANE   (INT_TWO | 1 << 0)  // недоступность по родам
 #define ITEM_AN_POLANE     (INT_TWO | 1 << 1)
 #define ITEM_AN_KRIVICHI   (INT_TWO | 1 << 2)
 #define ITEM_AN_VATICHI    (INT_TWO | 1 << 3)
 #define ITEM_AN_VELANE     (INT_TWO | 1 << 4)
-#define ITEM_AN_DREVLANE   (INT_TWO | 1 << 5)
+#define ITEM_AN_DREVLANE   (INT_TWO | 1 << 5)  
 #define ITEM_AN_MALE       (INT_TWO | 1 << 6)
 #define ITEM_AN_FEMALE     (INT_TWO | 1 << 7)
 #define ITEM_AN_CHARMICE   (INT_TWO | 1 << 8)

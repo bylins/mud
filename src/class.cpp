@@ -2233,13 +2233,13 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_ANTI(obj, ITEM_AN_DRUID) && IS_DRUID(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_BD) && check_agrobd(ch)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_SEVERANE) &&(GET_RACE(ch) == 0)) ||
+/*                (IS_OBJ_ANTI(obj, ITEM_AN_SEVERANE) &&(GET_RACE(ch) == 0)) ||
                 (IS_OBJ_ANTI(obj, ITEM_AN_POLANE) && (GET_RACE(ch) == 1)) ||
                 (IS_OBJ_ANTI(obj, ITEM_AN_KRIVICHI) && (GET_RACE(ch) == 2)) ||
                 (IS_OBJ_ANTI(obj, ITEM_AN_VATICHI) && (GET_RACE(ch) == 3)) ||
                 (IS_OBJ_ANTI(obj, ITEM_AN_VELANE) && (GET_RACE(ch) == 4)) ||
                 (IS_OBJ_ANTI(obj, ITEM_AN_DREVLANE) && (GET_RACE(ch) == 5)) ||
-		// нелогичный флаг (IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
+*/		// нелогичный флаг (IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch)))
 		return (TRUE);
 	return (FALSE);
@@ -2273,13 +2273,13 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_NO(obj, ITEM_NO_DRUID) && IS_DRUID(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_BD) && check_agrobd(ch)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_SEVERANE) && (GET_RACE(ch) == 0)) ||
+/*                (IS_OBJ_NO(obj, ITEM_NO_SEVERANE) && (GET_RACE(ch) == 0)) ||
                 (IS_OBJ_NO(obj, ITEM_NO_POLANE) && (GET_RACE(ch) == 1)) ||
                 (IS_OBJ_NO(obj, ITEM_NO_KRIVICHI) && (GET_RACE(ch) == 2)) ||
                 (IS_OBJ_NO(obj, ITEM_NO_VATICHI) && (GET_RACE(ch) == 3)) ||
                 (IS_OBJ_NO(obj, ITEM_NO_VELANE) && (GET_RACE(ch) == 4)) ||
                 (IS_OBJ_NO(obj, ITEM_NO_DREVLANE) && (GET_RACE(ch) == 5)) ||
-		//(IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
+*/		//(IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
 		((OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED)) && !IS_SMITH(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch)))
 	{

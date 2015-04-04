@@ -250,7 +250,7 @@ void assign_feats(void)
 //16
 	feato(HEALER_FEAT, "целитель", NORMAL_FTYPE, TRUE, feat_app);
 //17
-	feat_app.insert(APPLY_SAVING_REFLEX, -4);
+	feat_app.insert(APPLY_SAVING_REFLEX, -10);
 	feato(LIGHTING_REFLEX_FEAT, "мгновенная реакция", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //18
@@ -264,8 +264,8 @@ void assign_feats(void)
 	feato(ENDURANCE_FEAT, "выносливость", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //21
-	feat_app.insert(APPLY_SAVING_WILL, -4);
-	feat_app.insert(APPLY_SAVING_STABILITY, -4);
+	feat_app.insert(APPLY_SAVING_WILL, -10);
+	feat_app.insert(APPLY_SAVING_STABILITY, -10);
 	feato(GREAT_FORTITUDE_FEAT, "сила духа", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //22

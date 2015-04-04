@@ -4958,11 +4958,19 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur)
 	}
 	else if (obj->in_obj)
 	{
+			if (Clan::is_clan_chest(obj->in_obj))
+			{
+				return; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
+			}
+			else
+			{
+
 		sprintf(buf + strlen(buf), "лежит в %s%s\r\n",
 				GET_OBJ_PNAME(obj->in_obj, 5), (recur ? ", который находится " : " "));
 		send_to_char(buf, ch);
 		if (recur)
 			print_object_location(0, obj->in_obj, ch, recur);
+			}
 	}
 	else
 	{
@@ -4991,7 +4999,8 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 	int tmp_num = num;
 	if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
-		tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
+		tmp_num = Clan::print_spell_locate_object(ch, tmp_num, arg);
+                tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
 		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);
 	}
 
