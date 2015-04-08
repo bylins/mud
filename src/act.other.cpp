@@ -1659,7 +1659,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 	OBJ_DATA *target = get_obj_equip_or_carry(ch, tmp_buf);
 	if (!target)
 	{
-		send_to_char(ch, "Окститесь, нет у вас %s.\r\n", arg);
+		send_to_char(ch, "Окститесь, у вас нет такого предмета для зачаровывания.\r\n");
 		return;
 	}
 
