@@ -945,7 +945,7 @@ ACMD(do_pray_gods)
 		return;
 	}
 
-	if (IS_IMMORTAL(ch))
+	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD))
 	{
 		// Выделяем чара кому отвечают иммы
 		argument = one_argument(argument, arg1);
@@ -961,6 +961,12 @@ ACMD(do_pray_gods)
 			send_to_char("Такого нет в игре!\r\n", ch);
 			return;
 		}
+		if (GET_GOD_FLAG(ch, GF_DEMIGOD) && (GET_LEVEL(victim) > 5))
+		{
+			send_to_char("Персонаж выше пятого уровня, качайтесь в Боги для ответа ему.\r\n", ch);
+			return;
+		}
+	
 	}
 
 	if (!*argument)
@@ -975,7 +981,7 @@ ACMD(do_pray_gods)
 	{
 		if (IS_NPC(ch))
 			return;
-		if (IS_IMMORTAL(ch))
+		if (IS_IMMORTAL(ch) || (GET_GOD_FLAG(ch, GF_DEMIGOD)))
 		{
 			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n\r\n", GET_PAD(victim, 3), argument);
 		}
@@ -988,7 +994,7 @@ ACMD(do_pray_gods)
 		ch->remember_add(buf, Remember::PRAY_PERSONAL);
 	}
 
-	if (IS_IMMORTAL(ch))
+	if (IS_IMMORTAL(ch) || (GET_GOD_FLAG(ch, GF_DEMIGOD) && (GET_LEVEL(victim) < 6)))
 	{
 		sprintf(buf, "&R%s ответил%s вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		send_to_char(buf, victim);
@@ -1013,14 +1019,12 @@ ACMD(do_pray_gods)
 
 	for (i = descriptor_list; i; i = i->next)
 	{
-		if (STATE(i) == CON_PLAYING
-				&& IS_IMMORTAL(i->character)
-//			&& Privilege::god_list_check(GET_NAME(i->character), GET_UNIQUE(i->character))
-				&& i->character != ch)
-		{
-			send_to_char(buf, i->character);
-			i->character->remember_add(buf, Remember::ALL);
-		}
+		if (STATE(i) == CON_PLAYING) 
+		     if ((IS_IMMORTAL(i->character) || (GET_GOD_FLAG(i->character, GF_DEMIGOD) && (GET_LEVEL(ch) < 6))) && (i->character != ch))
+			{
+				send_to_char(buf, i->character);
+				i->character->remember_add(buf, Remember::ALL);
+			}
 	}
 }
 
