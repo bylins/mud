@@ -4997,7 +4997,7 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 	}
 
 	int tmp_num = num;
-	if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		tmp_num = Clan::print_spell_locate_object(ch, tmp_num, arg);
                 tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
