@@ -381,9 +381,25 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 				send_to_gods(buf, true);
 				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 			}
-
+			else
+			{
+				Player *victim = new Player; // TODO: переделать на стек
+				if (load_char(it->first.c_str(), victim) < 0)
+				{
+				    send_to_char("Персонаж был удален или ошибочка какая-то вышла.\r\n", ch);
+				    delete victim;
+				    title_list.erase(it);
+				    return TITLE_FIND_CHAR;
+				}
+				set_player_title(victim, it->second->pre_title, it->second->title, GET_NAME(ch));
+				sprintf(buf, "&c%s запретил титул игрока %s[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(victim));
+				send_to_gods(buf, true);
+				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+				victim->save_char();
+				delete victim;
+			}
+			title_list.erase(it);
 		}
-		title_list.erase(it);
 		return TITLE_FIND_CHAR;
 	}
 	return TITLE_CANT_FIND_CHAR;
