@@ -397,8 +397,8 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 				victim->save_char();
 				delete victim;
 			}
-			title_list.erase(it);
 		}
+		title_list.erase(it);
 		return TITLE_FIND_CHAR;
 	}
 	return TITLE_CANT_FIND_CHAR;
