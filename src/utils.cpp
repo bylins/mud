@@ -2202,7 +2202,10 @@ int get_real_dr(CHAR_DATA *ch)
 		    bonus += level + number(0, level);
 		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + bonus);
 	}
-	return VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50);
+	if (!can_use_feat(ch, BOWS_FOCUS_FEAT))
+	    return VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50);
+	else
+	    return  MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + bonus);
 }
 
 // без ограничений
