@@ -679,7 +679,8 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 {
 	DESCRIPTOR_DATA *i;
 	int rnum_start, rnum_stop;
-	CHAR_DATA *c;
+	bool found = false;
+	CHAR_DATA *c, *caster;
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING)
@@ -690,10 +691,12 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 			continue;
 		if (world[i->character->in_room]->zone != zone_nr)
 			continue;
-		sprintf(buf2, "Zone (vnum: %d) not empty (char:%s)", zone_nr, GET_NAME(i->character));
+		sprintf(buf2, "Проверка по дискрипторам: В зоне (vnum: %d клетка: %d) находится персонаж: %s.\r\n", zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(i->character)), GET_NAME(i->character));
 		send_to_char(buf2, ch);
+		found = true;
 	}
-
+	if (found)
+	    return;
 	// Поиск link-dead игроков в зонах комнаты zone_nr
 	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop))
 		return;	// в зоне нет комнат :)
@@ -704,8 +707,9 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 		for (c = world[rnum_start]->people; c; c = c->next_in_room)
 			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
 			{
-				sprintf(buf2, "Zone (vnum %d) not empty (char: %s)", zone_nr, GET_NAME(c));
+				sprintf(buf2, "Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n", zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)), GET_NAME(c));
 				send_to_char(buf2, ch);
+
 			}
 	}
 
@@ -719,7 +723,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 			continue;
 		if (world[was]->zone != zone_nr)
 			continue;
-		sprintf(buf2, "Zone (vnum:%d) not empty (char:%s)", zone_nr, GET_NAME(c));
+		sprintf(buf2, "В прокси руме сидит игрок %s находящийся в зоне vnum: %d клетка: %d\r\n", GET_NAME(c), zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)));
 		send_to_char(buf2, ch);
 	}
 
@@ -728,8 +732,13 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
         if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
         {
     	    // если в зоне метка
-    	    sprintf(buf2, "Zone (vnum:%d) not empty (marker)", zone_nr);
+		AFFECT_DATA *aff = room_affected_by_spell(*it, SPELL_RUNE_LABEL);
+		caster = find_char(aff->caster_id);	   
+		if (caster)
+		{ 
+    			sprintf(buf2, "В зоне vnum:%d клетка vnum: %d находится рунная метка игрока: %s.\r\n", zone_table[zone_nr].number, (*it)->number, GET_NAME(caster));
 			send_to_char(buf2, ch);
+		}
         }
 
 
@@ -738,6 +747,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 ACMD(do_check_occupation)
 {
 	int number;
+	zone_rnum zrn;
 	one_argument(argument, buf);
 	bool is_found = false;
 	if (!*buf || !isdigit(*buf))
@@ -751,7 +761,7 @@ ACMD(do_check_occupation)
 		return;
 	}
 	// что-то по другому не нашел, как проверить существует такая зона или нет
-	for (int zrn = 0; zrn < top_of_zone_table; zrn++)
+	for (zrn = 0; zrn < top_of_zone_table; zrn++)
 	{
 	    if (zone_table[zrn].number == number)
 	    {
