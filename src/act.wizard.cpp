@@ -681,6 +681,19 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	int rnum_start, rnum_stop;
 	bool found = false;
 	CHAR_DATA *c, *caster;
+//Проверим, нет ли в зоне метки для врат, чтоб не абузили.
+	for (std::list<ROOM_DATA*>::iterator it = RoomSpells::aff_room_list.begin();it != RoomSpells::aff_room_list.end();++it)
+	    if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
+    	    {
+    		// если в зоне метка
+		AFFECT_DATA *aff = room_affected_by_spell(*it, SPELL_RUNE_LABEL);
+		caster = find_char(aff->caster_id);	   
+		if (caster)
+		{ 
+    			sprintf(buf2, "В зоне vnum:%d клетка vnum: %d находится рунная метка игрока: %s.\r\n", zone_table[zone_nr].number, (*it)->number, GET_NAME(caster));
+			send_to_char(buf2, ch);
+	    }
+        }
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING)
@@ -712,7 +725,6 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 
 			}
 	}
-
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
 	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room)
 	{
@@ -726,22 +738,6 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 		sprintf(buf2, "В прокси руме сидит игрок %s находящийся в зоне vnum: %d клетка: %d\r\n", GET_NAME(c), zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)));
 		send_to_char(buf2, ch);
 	}
-
-//Проверим, нет ли в зоне метки для врат, чтоб не абузили.
-    for (std::list<ROOM_DATA*>::iterator it = RoomSpells::aff_room_list.begin();it != RoomSpells::aff_room_list.end();++it)
-        if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
-        {
-    	    // если в зоне метка
-		AFFECT_DATA *aff = room_affected_by_spell(*it, SPELL_RUNE_LABEL);
-		caster = find_char(aff->caster_id);	   
-		if (caster)
-		{ 
-    			sprintf(buf2, "В зоне vnum:%d клетка vnum: %d находится рунная метка игрока: %s.\r\n", zone_table[zone_nr].number, (*it)->number, GET_NAME(caster));
-			send_to_char(buf2, ch);
-		}
-        }
-
-
 }
 
 ACMD(do_check_occupation)
