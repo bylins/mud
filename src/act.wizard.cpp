@@ -722,6 +722,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 			{
 				sprintf(buf2, "Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n", zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)), GET_NAME(c));
 				send_to_char(buf2, ch);
+				found = true;
 
 			}
 	}
@@ -736,6 +737,12 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 		if (world[was]->zone != zone_nr)
 			continue;
 		sprintf(buf2, "В прокси руме сидит игрок %s находящийся в зоне vnum: %d клетка: %d\r\n", GET_NAME(c), zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)));
+		send_to_char(buf2, ch);
+		found = true;
+	}
+	if (!found)
+	{
+		sprintf(buf2, "В зоне %d даже мышь не пробегала.\r\n", zone_table[zone_nr].number);
 		send_to_char(buf2, ch);
 	}
 }
