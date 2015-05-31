@@ -2280,7 +2280,7 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
 void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 {
 	int j;
-		if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+		if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT)|| ch->get_skill(SKILL_INSERTGEM))
 		{
 			sprintf(buf+strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
 			sprinttype(obj->obj_flags.Obj_mater, material_name, buf+strlen(buf));
