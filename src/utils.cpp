@@ -2199,7 +2199,7 @@ int get_real_dr(CHAR_DATA *ch)
 	int dam[31] = {0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,6,6,6,6,7,7,7,7,7,7};
         if (IS_SMITH(ch) || IS_WARRIOR(ch) || IS_RANGER(ch))  // Бонус имеют только Дружинники, охотники, кузнецы
            dd = dam[GET_REMORT(ch)];
-           GET_HR_ADD(ch) = +dd;           // Бонус попаданий от количества перевоплощений
+           GET_HR_ADD(ch) += dd;           // Бонус попаданий от количества перевоплощений
 
         int level = GET_LEVEL(ch);
 
