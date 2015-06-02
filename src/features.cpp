@@ -217,7 +217,7 @@ void assign_feats(void)
 //6
 	feato(DEFENDER_FEAT, "щитоносец", NORMAL_FTYPE, TRUE, feat_app);
 //7
-	feato(DODGER_FEAT, "изворотливость", NORMAL_FTYPE, TRUE, feat_app);
+	feato(DODGER_FEAT, "изворотливость", AFFECT_FTYPE, TRUE, feat_app);
 //8
 	feato(LIGHT_WALK_FEAT, "легкая поступь", NORMAL_FTYPE, TRUE, feat_app);
 //9

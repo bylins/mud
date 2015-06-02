@@ -656,7 +656,17 @@ void affect_total(CHAR_DATA * ch)
 						  MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier*GET_REMORT(ch)), 0, TRUE);
 	};
 
-	// Обработка "выносливости" и "богатырского здоровья
+	        // Обработка изворотливости (с) Числобог
+        if (can_use_feat(ch, DODGER_FEAT))
+        {
+                        affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REMORT(ch) + GET_LEVEL(ch)), 0, TRUE);
+                        affect_modify(ch, APPLY_SAVING_WILL, -(GET_REMORT(ch) + GET_LEVEL(ch)), 0, TRUE);
+                        affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REMORT(ch) + GET_LEVEL(ch)), 0, TRUE);
+                        affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REMORT(ch) + GET_LEVEL(ch)), 0, TRUE);
+
+        };
+
+        // Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!IS_NPC(ch))
 	{

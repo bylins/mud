@@ -2194,7 +2194,15 @@ size_t strl_cpy(char *dst, const char *src, size_t siz)
 */
 int get_real_dr(CHAR_DATA *ch)
 {
-	int level = GET_LEVEL(ch);
+	int dd = 0;
+// Инициализация массива для дальнейшего бонуса попаданий/повреждений от количества перевоплощений	
+	int dam[31] = {0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,6,6,6,6,7,7,7,7,7,7};
+        if (IS_SMITH(ch) || IS_WARRIOR(ch) || IS_RANGER(ch))  // Бонус имеют только Дружинники, охотники, кузнецы
+           dd = dam[GET_REMORT(ch)];
+           GET_HR_ADD(ch) = +dd;           // Бонус попаданий от количества перевоплощений
+
+        int level = GET_LEVEL(ch);
+
 	int bonus = 0;
 	if (IS_NPC(ch) && !IS_CHARMICE(ch))
 	{
@@ -2203,9 +2211,9 @@ int get_real_dr(CHAR_DATA *ch)
 		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + bonus);
 	}
 	if (can_use_feat(ch, BOWS_FOCUS_FEAT) && ch->get_skill(SKILL_ADDSHOT))
-	    return  MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + bonus);
-	else
-	    return VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50);
+	    return  MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + dd);
+        else
+            return VPOSI(GET_DR(ch)+GET_DR_ADD(ch) + dd, -50, 50);
 }
 
 // без ограничений
