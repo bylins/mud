@@ -4933,7 +4933,7 @@ ACMD(do_show)
 		send_to_char(buf, ch);
 		for (i = 0, vict = character_list; vict; vict = vict->next)
 		{
-			if (IS_NPC(vict) || vict->desc != NULL || IN_ROOM(vict) == NOWHERE)
+			if (IS_GOD(vict) || IS_NPC(vict) || vict->desc != NULL || IN_ROOM(vict) == NOWHERE)
 				continue;
 			++i;
 			sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",

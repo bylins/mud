@@ -2204,7 +2204,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			if (PRF_FLAGGED(d->character, PRF_HOLYLIGHT))
 				REMOVE_BIT(PRF_FLAGS(d->character, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 		}
-		if (GET_LEVEL(d->character) < LVL_GRGOD)
+		if (GET_LEVEL(d->character) < LVL_GOD)
 		{
 			if (PRF_FLAGGED(d->character, PRF_NOHASSLE))
 				REMOVE_BIT(PRF_FLAGS(d->character, PRF_NOHASSLE), PRF_NOHASSLE);
