@@ -848,12 +848,33 @@ ACMD(do_gen_comm)
 			}
 		}
 		snprintf(out_str, MAX_STRING_LENGTH, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
-
-		if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
+                if (IS_FEMALE(ch))
 		{
-			snprintf(buf1, MAX_STRING_LENGTH, "%s'%s'%s\r\n", color_on, argument, KNRM);
+                if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP))
+		 {
+			snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметила :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
 			ch->remember_add(buf1, Remember::GOSSIP);
-		}
+		 }
+                if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER))
+                 {
+                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорала :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+                        ch->remember_add(buf1, Remember::GOSSIP);
+                 }
+                }
+                else
+                {
+                if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP))
+                 {
+                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметил :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+                        ch->remember_add(buf1, Remember::GOSSIP);
+                 }
+                if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER))
+                 {
+                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорал :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+                        ch->remember_add(buf1, Remember::GOSSIP);
+                 }
+                }
+
 	}
 
 	switch (subcmd)
@@ -893,11 +914,11 @@ ACMD(do_gen_comm)
 
 			std::string text = Remember::format_gossip(ch, i->character, subcmd, argument);
 			//пока закрыл это дело, ибо в лоб не получается сделать запоминание
-			//if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
-			//{
-				//	i->character->remember_add(text, Remember::GOSSIP);
-			//}
-			i->character->remember_add(text, Remember::ALL);
+/*			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
+			{
+				i->character->remember_add(buf1, Remember::GOSSIP);
+			}
+*/			i->character->remember_add(text, Remember::ALL);
 		}
 	}
 }
@@ -966,7 +987,6 @@ ACMD(do_pray_gods)
 			send_to_char("Персонаж выше пятого уровня, качайтесь в Боги для ответа ему.\r\n", ch);
 			return;
 		}
-	
 	}
 
 	if (!*argument)

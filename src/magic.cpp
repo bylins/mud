@@ -2975,7 +2975,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_PROTECT_EVIL;
 		accum_duration = TRUE;
 		to_vict = "Вы подавили в себе страх к тьме.";
-		break;
+		to_room = "$n подавил$g в себе страх к тьме.";
+                break;
 
 	case SPELL_GROUP_SANCTUARY:
 	case SPELL_SANCTUARY:

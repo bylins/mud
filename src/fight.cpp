@@ -239,6 +239,11 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 			WAIT_STATE(ch, (tmp.quot + 1) * PULSE_VIOLENCE);
 		}
 	}
+	if (!IS_NPC(ch) && (!ch->get_skill(SKILL_AWAKE)))
+	REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
+
+	if (!IS_NPC(ch) && (!ch->get_skill(SKILL_PUNCTUAL)))
+	REMOVE_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL);
 
 	// Set combat style
 	if (!AFF_FLAGGED(ch, AFF_COURAGE) && !AFF_FLAGGED(ch, AFF_DRUNKED) && !AFF_FLAGGED(ch, AFF_ABSTINENT))
@@ -325,7 +330,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 			{
 				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
 				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			};
+			};                                                   
 		};
 	}
 }
