@@ -102,7 +102,7 @@ void parse_flags(const std::string &command)
 		tmp_god.flags.set(USE_SKILLS);
 	else if (command == "arena")
 		tmp_god.flags.set(ARENA_MASTER);
-	else if (command == "kroder" && tmp_god.name == "Китоша")
+	else if (command == "kroder" && tmp_god.name == "Числобог")
 		tmp_god.flags.set(KRODER);
 	else if (command == "fullzedit")
 		tmp_god.flags.set(FULLZEDIT);
