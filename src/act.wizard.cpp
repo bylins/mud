@@ -5602,8 +5602,15 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			CLR_GOD_FLAG(vict, GF_GODSCURSE);
 		break;
 	case 44:
-		GET_OLC_ZONE(vict) = value;
-		break;
+		if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+			GET_OLC_ZONE(vict) = value;
+		else
+		{
+		    sprintf(buf, "Вы всеж не иммортал 34 чтоб раздавать права OLC\r\n");
+		    send_to_char(buf, ch);
+		}
+	break;
+
 	case 45:
 		// изменение имени !!!
 
@@ -5962,7 +5969,7 @@ ACMD(do_set)
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD))
 			{
-				if (GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO))
+				if (GET_LEVEL(ch) <= GET_LEVEL(vict) )
 				{
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;
