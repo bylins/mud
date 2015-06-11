@@ -4186,7 +4186,7 @@ ACMD(do_wiznet)
 		return;
 	}
 
-	if (PRF_FLAGGED(ch, PRF_CODERINFO)) return;
+//	if (PRF_FLAGGED(ch, PRF_CODERINFO)) return;
 
 	// Опускаем level для gf_demigod
 	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
