@@ -3290,7 +3290,7 @@ void inspecting()
 			break;
 		}
 		if ((it->second->sfor == ICHAR && it->second->unique == player_table[it->second->pos].unique)//Это тот же перс которого мы статим
-			|| (player_table[it->second->pos].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
+			|| (player_table[it->second->pos].level >= LVL_IMMORT && !IS_GRGOD(ch) || !PRF_FLAGGED(ch,PRG_CODERINFO))//Иммов могут чекать только 33+
 			|| (player_table[it->second->pos].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))//если левел больше то облом
 				continue;
 		buf1[0] = '\0';

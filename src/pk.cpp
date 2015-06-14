@@ -431,7 +431,9 @@ void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 		// раздача флагов всей группе
 		// поединок со всей группой
 		// БД только между непосредственными участниками
-		pk_increment_gkill(agressor, victim);
+		if(IS_GOD(agressor) || IS_GOD(victim)) // Богам и против богов флаги не вешаем!
+                  break;
+                pk_increment_gkill(agressor, victim);
 		break;
 	}
 
