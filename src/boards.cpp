@@ -973,6 +973,7 @@ std::bitset<ACCESS_NUM> Board::get_access(CHAR_DATA *ch) const
 		{
 			access.set(ACCESS_CAN_SEE);
 			access.set(ACCESS_CAN_WRITE);
+			if (IS_GOD(ch)) access.set(ACCESS_CAN_READ);
 		}
 		break;
 	case NEWS_BOARD:
