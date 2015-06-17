@@ -1207,20 +1207,6 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		*(argument + length) = ' ';
 	}
 
-	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_STOPFIGHT) && !AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)))
-	{
-		int cont;	// continue the command checks
-		cont = command_wtrigger(ch, arg, line);
-		if (!cont)
-			cont += command_mtrigger(ch, arg, line);
-		if (!cont)
-			cont = command_otrigger(ch, arg, line);
-		if (cont)
-		{
-			check_hiding_cmd(ch, -1);
-			return;	// command trigger took over
-		}
-	}
 
 	// Try scripting
 	if (scripting::execute_player_command(ch, arg, line))
@@ -1308,6 +1294,27 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		}
 		return;
 	}
+	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_STOPFIGHT) && !AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)))
+	{
+		int cont;	// continue the command checks
+	if (!social && GET_POS(ch) < cmd_info[cmd].minimum_position)
+		if (!IS_NPC(ch) && (GET_POS(ch) == POS_SLEEPING))   // добавил проверку чтоб если чар спит, акт триггер вызвать нельзя было.
+		{
+		    send_to_char("Сделать это в ваших снах?\r\n", ch);
+		    return;
+		}
+		cont = command_wtrigger(ch, arg, line);
+		if (!cont)
+			cont += command_mtrigger(ch, arg, line);
+		if (!cont)
+			cont = command_otrigger(ch, arg, line);
+		if (cont)
+		{
+			check_hiding_cmd(ch, -1);
+			return;	// command trigger took over
+		}
+	}
+
 
 	if (social)
 	{
