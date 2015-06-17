@@ -1210,6 +1210,11 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_STOPFIGHT) && !AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)))
 	{
 		int cont;	// continue the command checks
+		if (!IS_NPC(ch) && (GET_POS(ch) == POS_SLEEPING))   // добавил проверку чтоб если чар спит, акт триггер вызвать нельзя было.
+		{
+		    send_to_char("Сделать это в ваших снах?\r\n", ch);
+		    return;
+		}
 		cont = command_wtrigger(ch, arg, line);
 		if (!cont)
 			cont += command_mtrigger(ch, arg, line);

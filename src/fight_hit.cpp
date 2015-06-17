@@ -2979,6 +2979,13 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 				}
 			}
 		}
+		else
+		{
+			sprintf(buf,"&c&qВы оказались без оружия, а пальцем оглушить нельзя.&Q&n\r\n");
+			send_to_char(buf, ch);
+			sprintf(buf,"&c&q%s оказался без оружия и не смог вас оглушить.&Q&n\r\n", ch);
+			send_to_char(buf, victim);
+		}
 	}
 	//* яды со скила отравить //
 	else if (!MOB_FLAGGED(victim, MOB_PROTECT)
