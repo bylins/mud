@@ -550,6 +550,11 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 				}
 				if (compare_cmd(GET_TRIG_NARG(t), GET_TRIG_ARG(t), cmd))
 				{
+					if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
+					{
+						send_to_char("Сделать это в ваших снах?\r\n", actor);
+						return 1;
+					}
 					ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 					skip_spaces(&argument);
 					add_var_cntx(&GET_TRIG_VARS(t), "arg", argument, 0);
@@ -1027,6 +1032,11 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int 
 			if (IS_SET(GET_TRIG_NARG(t), type) &&
 					(*GET_TRIG_ARG(t) == '*' || !strn_cmp(GET_TRIG_ARG(t), cmd, strlen(GET_TRIG_ARG(t)))))
 			{
+				if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
+				{
+					send_to_char("Сделать это в ваших снах?\r\n", actor);
+					return 1;
+				}
 				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 				skip_spaces(&argument);
 				add_var_cntx(&GET_TRIG_VARS(t), "arg", argument, 0);
@@ -1400,6 +1410,11 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 				   !strn_cmp(GET_TRIG_ARG(t), cmd, strlen(GET_TRIG_ARG(t))) */
 		   )
 		{
+			if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
+			{
+				send_to_char("Сделать это в ваших снах?\r\n", actor);
+				return 1;
+			}
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			skip_spaces(&argument);
 			add_var_cntx(&GET_TRIG_VARS(t), "arg", argument, 0);
