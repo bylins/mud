@@ -830,12 +830,12 @@ send_to_char(vict, "Skill == %d, Percent == %d, Bonus == %d, victim_sav == %d, v
 		//	percent = 0;
 //		}
 // Логирование удачи.
-/*
-if ((skill_no == SKILL_CHOPOFF) ||(skill_no == SKILL_BASH)){
-send_to_char(vict, "Вычисление удачи, противник %s: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n", GET_NAME(vict), skill_is, percent, prob, fail_limit, morale_bonus, bonus_limit);
-		sprintf(buf, "Противник %s, удача: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n",GET_NAME(vict), skill_is, percent, prob,fail_limit, morale_bonus, bonus_limit);
-		mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE); }
-*/	}
+
+		if ((skill_no == SKILL_CHOPOFF) && !IS_NPC(ch) && !IS_NPC(vict)){
+		//send_to_char(vict, "Вычисление удачи, противник %s: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n", GET_NAME(vict), skill_is, percent, prob, fail_limit, morale_bonus, bonus_limit);
+		//sprintf(buf, "Игрок %s. Противник %s, удача: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n",GET_NAME (ch), GET_NAME(vict), skill_is, percent, prob,fail_limit, morale_bonus, bonus_limit);
+			log("Игрок %s. Противник %s, удача: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n",GET_NAME (ch), GET_NAME(vict), skill_is, percent, prob,fail_limit, morale_bonus, bonus_limit); }
+	}
 
 	// иммские флаги и прокла влияют на все
 	if (IS_IMMORTAL(ch))
