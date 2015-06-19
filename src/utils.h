@@ -626,11 +626,11 @@ extern SPECIAL(shop_ext);
                                 !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&            \
         			(IS_NPC(victim) && (GET_EXP(victim) > 0)) &&         \
                                 (!IS_NPC(victim)||                                   \
-//                                 CALC_ALIGNMENT(victim)==ALIG_GOOD ? 0 :             \ зачем оно нужно? у нас не используются наклонности мобов и игроков, а в олц умники умудряются ставить.
-//                                 (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        \
                                  (IS_NPC(ch) && AFF_FLAGGED(ch,AFF_CHARM))	     \
                                 )                                                    \
                                )
+//                                 CALC_ALIGNMENT(victim)==ALIG_GOOD ? 0 :              убрал эти строки, зачем они ведь наклонности у нас не используются? 
+//                                 (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        
 
 
 #define MAX_EXP_PERCENT   80

@@ -1313,7 +1313,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 
 void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 {
-	int i, j;
+	int i;
 	if ((i = GET_OBJ_RNUM(obj)) < 0)
 		return;
 	if (GET_OBJ_OWNER(obj) && OBJ_FLAGGED(obj, ITEM_NODONATE) && (!ch || GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)))

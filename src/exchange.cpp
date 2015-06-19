@@ -1233,9 +1233,8 @@ int exchange_database_load()
 		// Предмет разваливается от старости
 		if (GET_EXCHANGE_ITEM(item)->get_timer() <= 0)
 		{
-			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
+			log("Exchange: - %s рассыпал%s от длительного использования.\r\n",
 					CAP(GET_EXCHANGE_ITEM(item)->PNames[0]), GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(item)));
-			log(buf);
 			extract_exchange_item(item);
 			continue;
 		}
@@ -1340,9 +1339,8 @@ int exchange_database_reload(bool loadbackup)
 		// Предмет разваливается от старости
 		if (GET_EXCHANGE_ITEM(item)->get_timer() <= 0)
 		{
-			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
+			log("Exchange: - %s рассыпал%s от длительного использования.\r\n",
 					CAP(GET_EXCHANGE_ITEM(item)->PNames[0]), GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(item)));
-			log(buf);
 			extract_exchange_item(item);
 			continue;
 		}
