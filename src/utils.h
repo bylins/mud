@@ -610,6 +610,18 @@ extern SPECIAL(shop_ext);
 #define NAME_LEVEL 5
 #define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
 #define NAME_BAD(ch)           (NAME_GOD(ch)<1000 && NAME_GOD(ch))
+
+
+#define OK_GAIN_EXP(ch,victim) (!NAME_BAD(ch) &&                                     \
+                                (NAME_FINE(ch) || !(GET_LEVEL(ch)==NAME_LEVEL)) &&   \
+                                !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&            \
+            (IS_NPC(victim) && (GET_EXP(victim) > 0)) &&         \
+                                (!IS_NPC(victim)||                                   \
+                                 (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        \
+                                )                                                    \
+                               )
+
+
 /*
 #define OK_GAIN_EXP(ch,victim) (!NAME_BAD(ch) && \
                                 (NAME_FINE(ch) || !(GET_LEVEL(ch)==NAME_LEVEL)) && \
@@ -620,7 +632,18 @@ extern SPECIAL(shop_ext);
                                  ) \
                                 ) \
                                )
-*/
+
+
+#define OK_GAIN_EXP(ch,victim) (!NAME_BAD(ch) &&                                     \
+                                (NAME_FINE(ch) || !(GET_LEVEL(ch)==NAME_LEVEL)) &&   \
+                                !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&            \
+            (IS_NPC(victim) && (GET_EXP(victim) > 0)) &&         \
+                                (!IS_NPC(victim)||                                   \
+                                 (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        \
+                                )                                                    \
+                               )
+
+
 #define OK_GAIN_EXP(ch,victim) (!NAME_BAD(ch) &&                                     \
                                 (NAME_FINE(ch) || !(GET_LEVEL(ch)==NAME_LEVEL)) &&   \
                                 !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&            \
@@ -629,6 +652,7 @@ extern SPECIAL(shop_ext);
                                  (IS_NPC(ch) && AFF_FLAGGED(ch,AFF_CHARM))	     \
                                 )                                                    \
                                )
+*/
 //                                 CALC_ALIGNMENT(victim)==ALIG_GOOD ? 0 :              убрал эти строки, зачем они ведь наклонности у нас не используются? 
 //                                 (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        
 
