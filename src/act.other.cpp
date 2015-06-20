@@ -2571,10 +2571,10 @@ ACMD(do_gen_tog)
 		result = PRF_TOG_CHK(ch, PRF_AUTO_NOSUMMON);
 		break;
 	default:
-		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);
+		send_to_char(ch, "Введите параметр режима полностью.\r\n");
+//		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);
 		return;
 	}
-
 	if (result)
 		send_to_char(tog_messages[subcmd][TOG_ON], ch);
 	else
