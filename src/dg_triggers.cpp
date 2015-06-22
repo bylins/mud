@@ -555,6 +555,11 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 						send_to_char("Сделать это в ваших снах?\r\n", actor);
 						return 1;
 					}
+					if (GET_POS(actor) == POS_FIGHTING)
+					{
+						send_to_char("Вы не можете это сделать в бою.\r\n", actor); //command триггер не будет работать в бою
+						return 1;
+					}
 					ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 					skip_spaces(&argument);
 					add_var_cntx(&GET_TRIG_VARS(t), "arg", argument, 0);
@@ -1037,6 +1042,11 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int 
 					send_to_char("Сделать это в ваших снах?\r\n", actor);
 					return 1;
 				}
+				if (GET_POS(actor) == POS_FIGHTING)
+				{
+					send_to_char("Вы не можете это сделать в бою.\r\n", actor); //command триггер не будет работать в бою
+					return 1;
+				}
 				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 				skip_spaces(&argument);
 				add_var_cntx(&GET_TRIG_VARS(t), "arg", argument, 0);
@@ -1415,16 +1425,19 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 				send_to_char("Сделать это в ваших снах?\r\n", actor);
 				return 1;
 			}
+			if (GET_POS(actor) == POS_FIGHTING)
+			{
+				send_to_char("Вы не можете это сделать в бою.\r\n", actor); //command триггер не будет работать в бою
+				return 1;
+			}
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			skip_spaces(&argument);
 			add_var_cntx(&GET_TRIG_VARS(t), "arg", argument, 0);
 			skip_spaces(&cmd);
 			add_var_cntx(&GET_TRIG_VARS(t), "cmd", cmd, 0);
-
 			return script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
 		}
 	}
-
 	return 0;
 }
 
