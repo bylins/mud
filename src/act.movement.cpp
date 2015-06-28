@@ -1253,8 +1253,11 @@ const int flags_door[] =
 		(TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_LOCKED)) :\
 		(TOGGLE_BIT(EXITN(room, door)->exit_info, EX_LOCKED)))
 
+// для кейсов
+extern std::vector<_case> cases;;
 void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 {
+	int rand_numb = 0;
 	int other_room = 0;
 	EXIT_DATA *back = 0;
 	CHAR_DATA * to;
@@ -1321,7 +1324,58 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		if (back)
 			LOCK_DOOR(other_room, obj, rev_dir[door]);
 		if (!AFF_FLAGGED(ch, AFF_DEAFNESS))
+		{
 			send_to_char("*Щелк*\r\n", ch);
+			if (obj)
+			{				
+				for(int i = 0; i < cases.size(); i++)
+				{
+					if (GET_OBJ_VNUM(obj) == cases[i].vnum)
+					{
+						send_to_char("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
+						int chance = cases[i].chance;
+						int r_num;
+						// объект, который выпадает из сундука
+						OBJ_DATA *drop_obj;
+						for (int  k = 0; k < cases[i].vnum_objs.size(); k++)
+						{
+							rand_numb = number(0, 100);
+							//printf("Chance: %d, size: %d\n", rand_numb, cases[i].vnum_objs.size());
+							if ((number(0, 100) < chance) or (k == cases[i].vnum_objs.size() - 1))
+							{
+								int vnum = cases[i].vnum_objs[k];
+								if ((r_num = real_object(vnum)) < 0)
+								{
+									send_to_char("Ошибка с номером 1, пожалуйста, напишите об этом в воззвать.\r\n", ch);
+								}
+								// сначала удалим ключ из инвентаря
+								int vnum_key = GET_OBJ_VAL(obj, 2);
+								// первый предмет в инвентаре
+								OBJ_DATA *obj_inv = ch->carrying;
+								OBJ_DATA *i;
+								for (i = obj_inv; i; i = i->next_content)
+								{
+									if (GET_OBJ_VNUM(i) == vnum_key)
+									{
+										extract_obj(i);
+										break;
+									}
+								}								
+								extract_obj(obj);
+								obj = read_object(r_num, REAL);
+								GET_OBJ_MAKER(obj) = GET_UNIQUE(ch);
+								obj_to_char(obj, ch);
+								act("$n завизжал$g от радости.", FALSE, ch, 0, 0, TO_ROOM);
+								load_otrigger(obj);
+								obj_decay(obj);
+								olc_log("%s load obj %s #%d", GET_NAME(ch), obj->short_description, vnum);
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
 		break;
 
 	case SCMD_PICK:

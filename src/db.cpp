@@ -84,6 +84,7 @@
 
 #define  TEST_OBJECT_TIMER   30
 #define CRITERION_FILE "criterion.xml"
+#define CASES_FILE "cases.xml"
 /**************************************************************************
 *  declarations of global containers and objects                          *
 **************************************************************************/
@@ -487,6 +488,10 @@ void Load_Criterion(pugi::xml_node XMLCriterion, int type)
 }
 
 
+
+
+
+
 // Separate a 4-character id tag from the data it precedes
 void tag_argument(char *argument, char *tag)
 {
@@ -643,10 +648,36 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 	NodeList = Doc.child(MainTag);
 	// Тэга нет - кляузничаем в сислоге
 	if (!NodeList)
+	{
 		mudlog(ErrorStr, CMP, LVL_IMMORT, SYSLOG, TRUE);
+	}
 
 	return NodeList;
 };
+
+std::vector<_case> cases;
+// Заггрузка сундуков в мире
+void load_cases()
+{
+	pugi::xml_document doc_cases;	
+	pugi::xml_node case_, object_, file_case;
+	file_case = XMLLoad(LIB_MISC CASES_FILE, "cases", "Error loading cases file: cases.xml", doc_cases);
+	for (case_ = file_case.child("casef"); case_; case_ = case_.next_sibling("casef"))
+	{
+		_case __case;
+		__case.vnum = case_.attribute("vnum").as_int();
+		__case.chance = case_.attribute("chance").as_int();
+		for (object_ = case_.child("object"); object_;  object_ = object_.next_sibling("object"))
+		{
+			__case.vnum_objs.push_back(object_.attribute("vnum").as_int());
+		}
+		cases.push_back(__case);
+	}
+}
+
+
+
+
 
 /*
  * Too bad it doesn't check the return values to let the user
@@ -2227,7 +2258,10 @@ void boot_db(void)
 
 	log("Load mail.xml");
 	mail::load();
-
+	
+	// загрузка кейсов
+	load_cases();
+	
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	HelpSystem::reload_all();
 

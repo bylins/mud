@@ -245,7 +245,15 @@ struct reset_com
 	 */
 };
 
-
+struct _case
+{
+	// внум сундука
+	int vnum;
+	// шанс выпадаения
+	int chance;
+	// внумы шмоток, которые выпадают из кейса
+	std::vector<int> vnum_objs;
+};
 
 // zone definition structure. for the 'zone-table'
 struct zone_data

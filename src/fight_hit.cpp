@@ -2877,6 +2877,9 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		send_to_char(buf, ch);
 		lag = 2;
 		int k = ch->get_skill(SKILL_STUPOR) / 30;
+		// у кузнецов x5 дамага
+		if (GET_CLASS(ch) == CLASS_SMITH)
+			k = ch->get_skill(SKILL_STUPOR) / 5;
 		if (!IS_NPC(victim))
 		{
 			k = MIN(2, k);
@@ -3772,8 +3775,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 
 	// Gorrah: бонус к повреждениям от умения "железный ветер"
+	// x5 по идее должно быть
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
-		hit_params.dam += ch->get_skill(SKILL_IRON_WIND) / 10;
+		hit_params.dam += ch->get_skill(SKILL_IRON_WIND) / 2;
 
 	//dzMUDiST Обработка !исступления! +Gorrah
 	if (affected_by_spell(ch, SPELL_BERSERK))
