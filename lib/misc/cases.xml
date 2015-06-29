@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<cases>
+	<casef vnum="4070" chance="10">
+		<object vnum="100"></object>
+		<object vnum="101"></object>
+		<object vnum="102"></object>
+		<object vnum="103"></object>
+		<object vnum="104"></object>
+		<object vnum="105"></object>
+		<object vnum="106"></object>
+		<object vnum="107"></object>
+		<object vnum="108"></object>
+		<object vnum="109"></object>
+		<object vnum="110"></object>
+	</casef>		
+</cases>
