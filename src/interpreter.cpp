@@ -919,7 +919,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"proxy", POS_DEAD, do_proxy, LVL_GRGOD, 0, 0},
 	{"purge", POS_DEAD, do_purge, LVL_GOD, 0, 0},
 	{"put", POS_RESTING, do_put, 0, 0, 500},
-	{"python", POS_DEAD, do_console, LVL_GOD, 0, 0},
+//	{"python", POS_DEAD, do_console, LVL_GOD, 0, 0},
 	{"quaff", POS_RESTING, do_use, 0, SCMD_QUAFF, 500},
 	{"qui", POS_SLEEPING, do_quit, 0, 0, 0},
 	{"quit", POS_SLEEPING, do_quit, 0, SCMD_QUIT, -1},
