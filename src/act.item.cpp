@@ -42,6 +42,7 @@
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 
 // from act.informative.cpp
 char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
@@ -2164,7 +2165,7 @@ ACMD(do_upgrade)
 {
 	OBJ_DATA *obj;
 	int weight, add_hr, add_dr, prob, percent, min_mod, max_mod, i;
-
+	bool oldstate;
 	if (!ch->get_skill(SKILL_UPGRADE))
 	{
 		send_to_char("Вы не умеете этого.", ch);
@@ -2259,7 +2260,7 @@ ACMD(do_upgrade)
 	min_mod = ch->get_trained_skill(SKILL_UPGRADE) / 50;
 	//С мортами все меньший уровень требуется для макс. заточки
 	max_mod = MAX(1,MIN(5,(GET_LEVEL(ch) + 5 + GET_REMORT(ch) / 4) / 6));
-
+	oldstate = check_unlimited_timer(obj); // запомним какая шмотка была до заточки
 	if (IS_IMMORTAL(ch))
 	{
 		add_dr = add_hr = 10;
@@ -2282,7 +2283,9 @@ ACMD(do_upgrade)
 
 	obj->affected[1].location = APPLY_DAMROLL;
 	obj->affected[1].modifier = add_dr;
-
+	// если шмотка перестала быть нерушимой ставим таймер из прототипа
+	if (oldstate && !check_unlimited_timer(obj))
+		obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
 	//Вес меняется только если шмотка еще не была заточена
 	//Также вес НЕ меняется если он уже нулевой и должен снизиться
 	if ((change_weight) && !((obj->obj_flags.weight == 0) && (weight < 0)))

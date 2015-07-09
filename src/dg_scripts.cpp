@@ -1879,10 +1879,10 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				num = real_object(num);
 				if (num >= 0)
 				{
-					// если о прототипа беск.таймер, то по идее
-					// и у объекта должен быть беск.таймер
+					// если о прототипа беск.таймер,
+					// то их оч много в мире
 					if (check_unlimited_timer(obj_proto[num]))
-					    sprintf(str, "-1");
+					    sprintf(str, "9999999");
 					else
 					    sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));
 				}

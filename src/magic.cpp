@@ -43,7 +43,7 @@ extern struct zone_data *zone_table;
 extern struct spell_create_type spell_create[];
 extern int mini_mud;
 extern const char *spell_wear_off_msg[];
-
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 extern const char *cast_phrase[LAST_USED_SPELL + 1][2];
 extern int interpolate(int min_value, int pulse);
 
@@ -4519,10 +4519,9 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		obj->affected[0].modifier = 1 + (WAITLESS(ch) ? 3 : (level >= 18));
 		obj->affected[1].location = APPLY_DAMROLL;
 		obj->affected[1].modifier = 1 + (WAITLESS(ch) ? 3 : (level >= 20));
-		if (!WAITLESS(ch))
-		{
-			obj->set_timer(MAX(obj->get_timer(), 4 * 24 * 60));
-		}
+		// если шмотка перестала быть нерушимой ставим таймер из прототипа
+		if (!check_unlimited_timer(obj))
+		    obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
 		if (GET_RELIGION(ch) == RELIGION_MONO)
 			to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
 		else if (GET_RELIGION(ch) == RELIGION_POLY)
