@@ -2369,6 +2369,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	if (new_char)
 	{
 		SET_BIT(PRF_FLAGS(d->character, PRF_DRAW_MAP), PRF_DRAW_MAP);
+		SET_BIT(PRF_FLAGS(d->character, PRF_GOAHEAD), PRF_GOAHEAD);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
