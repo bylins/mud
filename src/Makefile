@@ -7,7 +7,7 @@
 #
 
 # C compiler to use
-CC = g++
+CC = g++-4.8
 TESTCC = g++
 
 MKDIR = mkdir -p

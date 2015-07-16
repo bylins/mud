@@ -32,6 +32,7 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 int slot_for_char(CHAR_DATA * ch, int i);
 int mag_manacost(CHAR_DATA * ch, int spellnum);
 ACMD(do_flee);
+void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 extern int material_value[];
 extern int max_exp_gain_npc;
@@ -247,6 +248,25 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		log("SYSERR: %s is dying in room NOWHERE.", GET_NAME(ch));
 		return;
 	}
+	if (!IS_NPC(ch) && (zone_table[world[IN_ROOM(ch)]->zone].number == 759) && (GET_LEVEL(ch) <15)) //нуб помер в мадшколе
+	{
+		act("$n глупо погиб$q не закончив обучение.", FALSE, ch, 0, 0, TO_ROOM);
+//		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
+//		send_to_char(buf, ch);  // все мессаги писать в грит триггере
+		char_from_room(ch);
+		char_to_room(ch, real_room(75989));
+		check_horse(ch);
+		GET_HIT(ch) = 1;
+		update_pos(ch);
+		act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+		look_at_room(ch, 0);
+		entry_memory_mtrigger(ch);
+		greet_mtrigger(ch, -1);
+		greet_otrigger(ch, -1);
+		greet_memory_mtrigger(ch);
+//		WAIT_STATE(ch, 10 * PULSE_VIOLENCE); лаг лучше ставить триггерами
+		return;
+	} 
 
 	if (IS_NPC(ch)
 		|| !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)

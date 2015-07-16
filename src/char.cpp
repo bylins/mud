@@ -84,12 +84,12 @@ void release_purged_list()
 } // namespace CharacterSystem
 
 ////////////////////////////////////////////////////////////////////////////////
-
+//extern MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
 Character::Character()
 	: role_(MOB_ROLE_TOTAL_NUM)
 {
 	this->zero_init();
-	current_morph_ = NormalMorph::GetNormalMorph(this);
+	current_morph_ = GetNormalMorphNew(this);
 	caching::character_cache.add(this);
 }
 
@@ -1617,7 +1617,7 @@ void Character::reset_morph()
 	int value = this->get_trained_skill(SKILL_MORPH);
 	send_to_char(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), TRUE, this, 0, 0, TO_ROOM);
-	this->current_morph_ = NormalMorph::GetNormalMorph(this);
+	this->current_morph_ = GetNormalMorphNew(this);
 	this->set_morphed_skill(SKILL_MORPH, (MIN(MAX_EXP_PERCENT + GET_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
 };
@@ -1629,7 +1629,7 @@ bool Character::is_morphed() const
 
 void Character::set_normal_morph()
 {
-	current_morph_ = NormalMorph::GetNormalMorph(this);
+	current_morph_ = GetNormalMorphNew(this);
 }
 
 bool Character::isAffected(long flag) const

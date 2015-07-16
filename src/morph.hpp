@@ -26,7 +26,7 @@ class AnimalMorph;
 
 typedef boost::shared_ptr<IMorph> MorphPtr;
 typedef boost::shared_ptr<AnimalMorph> AnimalMorphPtr;
-
+MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
 typedef map<string, AnimalMorphPtr> MorphListType;
 
 typedef map<int, int> MorphSkillsList;
@@ -69,17 +69,16 @@ public:
 
 };
 
+
+
 class NormalMorph : public IMorph
-{
-	NormalMorph (CHAR_DATA *ch) {ch_=ch;}
+{	
 public:
+	NormalMorph (CHAR_DATA *ch) {ch_=ch;}
 	CHAR_DATA *ch_;
 
 	~NormalMorph () {};
-	static MorphPtr GetNormalMorph(CHAR_DATA *ch)
-	{
-		return MorphPtr(new NormalMorph(ch));
-	};
+	
 
 	string GetMorphDesc();
 	string GetMorphTitle();

@@ -188,6 +188,11 @@ void AnimalMorph::SetAffects(std::vector<long> affs)
 	affects_ = affs;
 }
 
+MorphPtr GetNormalMorphNew(CHAR_DATA *ch)
+{
+	return MorphPtr(new NormalMorph(ch));
+}
+
 ACMD(do_morph)
 {
 	if (IS_NPC(ch))

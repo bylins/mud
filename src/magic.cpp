@@ -2318,7 +2318,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].modifier = -1;
 		af[0].battleflag = AF_BATTLEDEC;
 		accum_duration = TRUE;
-		to_room = "Боевый пыл $n1 несколько остыл.";
+		to_room = "Боевой пыл $n1 несколько остыл.";
 		to_vict = "Вы почувствовали себя слабее!";
 		break;
 
