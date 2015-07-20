@@ -228,7 +228,8 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 				|| OBJ_FLAGGED(obj, ITEM_NOSELL)
 				|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
 				|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
-				|| GET_OBJ_RNUM(obj) < 0)
+				|| GET_OBJ_RNUM(obj) < 0
+				|| obj->get_timer() == UTIMER)
 		{
 			send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
 			return false;
