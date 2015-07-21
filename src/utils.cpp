@@ -3108,8 +3108,9 @@ bool ParseFilter::init_state(const char *str)
 		state = 60;
 	else if (is_abbrev(str, "идеально"))
 		state = 80;
-	else
-		return false;
+	else if (is_abbrev(str, "нерушимо"))
+		state = 100;
+	else return false;
 
 	return true;
 }
@@ -3399,7 +3400,7 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const
 	}
 	else if (GET_OBJ_RNUM(obj) >= 0)
 	{
-		const int proto_tm = obj_proto.at(GET_OBJ_RNUM(obj))->get_timer();
+		int proto_tm = obj_proto.at(GET_OBJ_RNUM(obj))->get_timer();
 		if (proto_tm <= 0)
 		{
 			char buf_[MAX_INPUT_LENGTH];
@@ -3411,7 +3412,11 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const
 		}
 		else
 		{
-			const int tm_pct = obj->get_timer() * 100 / proto_tm;
+			int tm_pct;
+			if (obj->get_timer() == UTIMER)
+				tm_pct = 100;
+			else
+				tm_pct = obj->get_timer() * 100 / proto_tm;
 			if (filter_type == CLAN
 				&& tm_pct >= state
 				&& tm_pct < state + 20)
@@ -3622,8 +3627,10 @@ const char *print_obj_state(int tm_pct)
 		return "плоховато";
 	else if (tm_pct < 80)
 		return "средне";
-	else
+	else if (tm_pct <100)
 		return "идеально";
+	else
+		return "нерушимо";
 }
 
 std::string ParseFilter::print() const
