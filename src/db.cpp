@@ -405,7 +405,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	if (item_wear == -1)
 	    return false;
 	// если шмотка магическая или энчантнута таймер обычный
-        if (OBJ_FLAGGED(obj, ITEM_MAGIC)
+        if (OBJ_FLAGGED(obj, ITEM_MAGIC))
 	    return false;
 	// если это сетовый предмет
 	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
