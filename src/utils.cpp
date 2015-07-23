@@ -3109,7 +3109,7 @@ bool ParseFilter::init_state(const char *str)
 	else if (is_abbrev(str, "идеально"))
 		state = 80;
 	else if (is_abbrev(str, "нерушимо"))
-		state = 100;
+		state = 200;
 	else return false;
 
 	return true;
@@ -3413,8 +3413,8 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const
 		else
 		{
 			int tm_pct;
-			if (obj->get_timer() == UTIMER)
-				tm_pct = 100;
+			if (obj->get_timer() == UTIMER)  // если шмотка нерушима, физически проставляем текст нерушимо
+				tm_pct = 200;
 			else
 				tm_pct = obj->get_timer() * 100 / proto_tm;
 			if (filter_type == CLAN
@@ -3627,10 +3627,9 @@ const char *print_obj_state(int tm_pct)
 		return "плоховато";
 	else if (tm_pct < 80)
 		return "средне";
-	else if (tm_pct <100)
+	else if (tm_pct <=100) // у только что созданной шмотки значение 100% первый тик, потому <=
 		return "идеально";
-	else
-		return "нерушимо";
+	else return "нерушимо";
 }
 
 std::string ParseFilter::print() const
