@@ -4510,49 +4510,17 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_ENCHANT_WEAPON:
-	
 		if (ch == NULL || obj == NULL)
 			return 0;
 		// Either already enchanted or not a weapon.
 		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON || OBJ_FLAGGED(obj, ITEM_MAGIC))
 			break;
 
-		for (i = 0; i < MAX_OBJ_AFFECT; i++)
-		if ((obj->affected[i].location != APPLY_NONE)
-		   obj->affected[i].location = APPLY_NONE;
-
-		int real_skill_light_magic = (ch->get_skill(SKILL_LIGHT_MAGIC)-80) / 5 ;
-		
-		if (real_skill_light_magic =< 4)
-		// 4 мортов (скил магия света 100)
-		{
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		}
-		else if (real_skill_light_magic =< 9)
-		// 9 мортов (скил магия света 125)
-		{
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
-		}
-		else if (real_skill_light_magic =< 16)
-		// 16 мортов (скил магия света 160)
-		{
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
-		}
-		else if (real_skill_light_magic >16)
-		// 16 мортов (скил магия света 160+)
-		{
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
-		}
-		else
-		{  // лоуморт и волхвы
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		}
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
+		obj->affected[0].location = APPLY_HITROLL;
+		obj->affected[0].modifier = 1 + (WAITLESS(ch) ? 3 : (level >= 18));
+		obj->affected[1].location = APPLY_DAMROLL;
+		obj->affected[1].modifier = 1 + (WAITLESS(ch) ? 3 : (level >= 20));
 		// если шмотка перестала быть нерушимой ставим таймер из прототипа
 		if (!check_unlimited_timer(obj))
 		    obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
@@ -4563,7 +4531,6 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		else
 			to_char = "$o вспыхнул$G на миг желтым светом и тут же потух$Q.";
 		break;
-
 
 	case SPELL_REMOVE_POISON:
 		if (((GET_OBJ_TYPE(obj) == ITEM_DRINKCON) ||
