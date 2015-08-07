@@ -4522,6 +4522,9 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		if (obj->affected[i].location != APPLY_NONE)
 		   obj->affected[i].location = APPLY_NONE;
 
+ 	    obj->affected[0].location = APPLY_HITROLL;
+		obj->affected[1].location = APPLY_DAMROLL;
+
 		real_skill_light_magic = ((ch->get_skill(SKILL_LIGHT_MAGIC)-80) / 5) ;
 		if (real_skill_light_magic <= 4)
 		// 4 мортов (скил магия света 100)
