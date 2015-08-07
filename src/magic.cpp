@@ -385,7 +385,7 @@ void room_affect_update(void)
 				ch = find_char(af->caster_id);
 			}
 
-			if !(ch && IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY))
+			if (!(ch && IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY)))
 			{
 			// если чара нет в мире или он не найдет то таймер ускоряеться в два раза
 			// старый комент //Если персонаж найден, то таймер тикать не должен - восстанавливаем время.
@@ -553,7 +553,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].type = spellnum;
 		af[0].location = APPLY_ROOM_NONE;
 		af[0].modifier = 0;
-		af[0].duration = af[0].duration = TIME_SPELL_RUNE_LABEL + (GET_REMORT(ch)*10);
+		af[0].duration = TIME_SPELL_RUNE_LABEL + (GET_REMORT(ch)*10);
 		af[0].caster_id = GET_ID(ch);
 		af[0].bitvector = AFF_ROOM_RUNE_LABEL;
 		af[0].must_handled = false;
@@ -4436,7 +4436,9 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int savetype)
 {
 	const char *to_char = NULL, *to_room = NULL;
-
+	int real_skill_light_magic = 0;
+	int i = 0;
+	
 	if (obj == NULL)
 		return 0;
 
@@ -4516,11 +4518,42 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON || OBJ_FLAGGED(obj, ITEM_MAGIC))
 			break;
 
+		for (i = 0; i < MAX_OBJ_AFFECT; i++)
+		if (obj->affected[i].location != APPLY_NONE)
+		   obj->affected[i].location = APPLY_NONE;
+
+		real_skill_light_magic = ((ch->get_skill(SKILL_LIGHT_MAGIC)-80) / 5) ;
+		if (real_skill_light_magic <= 4)
+		// 4 мортов (скил магия света 100)
+		{
+		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
+		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
+		}
+		else if (real_skill_light_magic <= 9)
+		// 8 мортов (скил магия света 125)
+		{
+		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
+		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
+		}
+		else if (real_skill_light_magic <= 16)
+		// 12 мортов (скил магия света 160)
+		{
+		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
+		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
+		}
+		else if (real_skill_light_magic >16)
+		// 16 мортов (скил магия света 160+)
+		{
+		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
+		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
+		}
+		else
+		{  // лоуморт и волхвы
+		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
+		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
+		}
+		
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
-		obj->affected[0].location = APPLY_HITROLL;
-		obj->affected[0].modifier = 1 + (WAITLESS(ch) ? 3 : (level >= 18));
-		obj->affected[1].location = APPLY_DAMROLL;
-		obj->affected[1].modifier = 1 + (WAITLESS(ch) ? 3 : (level >= 20));
 		// если шмотка перестала быть нерушимой ставим таймер из прототипа
 		if (!check_unlimited_timer(obj))
 		    obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
