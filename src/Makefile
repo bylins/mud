@@ -40,7 +40,7 @@ TESTCFLAGS = -std=gnu++0x -m32 -Wall -Wextra -Wno-unused-parameter -ggdb3 -DNOCR
 DEBUGFLAGS = -m32 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC $(EXTRA_CFLAGS)
 FASTTEST   = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3 $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 SEARCHPATH = -I /usr/include/python2.7
-LIBS =  -m32 -lz -lpython2.7 -lboost_python-mr
+LIBS =  -m32 -lz -lpython2.7 -lboost_python
 endif
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
