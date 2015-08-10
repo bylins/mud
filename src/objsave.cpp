@@ -973,7 +973,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		if (object->get_timer() != proto->get_timer())
 		{
 			out << "Tmer: " << object->get_timer() << "~\n";
-				if (vnum > 3000)
+				if (vnum > 3000) //если шмот в служебной зоне, то таймер не трогаем
 				{
 					// на тот случай, если есть объекты с таймером, больше таймера прототипа
 				    int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
