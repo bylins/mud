@@ -297,11 +297,6 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 						object->set_timer(temp_timer);
 					// проверяем наш объект на беск.таймер					
 				}
-				if (check_unlimited_timer(object))
-				{
-					// ставим беск.таймер
-					object->set_timer(UTIMER);
-				}
 			}
 			else if (!strcmp(read_line, "Spll"))
 			{
@@ -986,6 +981,12 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		if (object->get_timer() != proto->get_timer())
 		{
 			out << "Tmer: " << object->get_timer() << "~\n";
+			if (check_unlimited_timer(object))
+				{
+					// ставим беск.таймер
+					object->set_timer(UTIMER);
+				}
+
 		}
 		// Сложность замкА
 		if (GET_OBJ_SPELL(object) != GET_OBJ_SPELL(proto))
