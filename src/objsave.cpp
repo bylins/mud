@@ -289,14 +289,6 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 20;
 				object->set_timer(atoi(buffer));
-				if (vnum > 0)
-				{
-					// на тот случай, если есть объекты с таймером, больше таймера прототипа
-				    int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
-					if (object->get_timer() > temp_timer)
-						object->set_timer(temp_timer);
-					// проверяем наш объект на беск.таймер					
-				}
 			}
 			else if (!strcmp(read_line, "Spll"))
 			{
@@ -981,7 +973,15 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		if (object->get_timer() != proto->get_timer())
 		{
 			out << "Tmer: " << object->get_timer() << "~\n";
-			if (check_unlimited_timer(object))
+				if (vnum > 3000)
+				{
+					// на тот случай, если есть объекты с таймером, больше таймера прототипа
+				    int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
+					if (object->get_timer() > temp_timer)
+						object->set_timer(temp_timer);
+				}	
+                                 // проверяем наш объект на беск.таймер					
+				if (check_unlimited_timer(object))
 				{
 					// ставим беск.таймер
 					object->set_timer(UTIMER);
