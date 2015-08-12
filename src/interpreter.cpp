@@ -2746,7 +2746,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 					return;
 				}
-				if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH + 1) >= 0)
+				if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH) >= 0)
 				{
 					SEND_TO_Q
 					("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
