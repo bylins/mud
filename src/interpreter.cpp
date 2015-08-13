@@ -2364,13 +2364,16 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	greet_otrigger(d->character, -1);
 	greet_memory_mtrigger(d->character);
 	STATE(d) = CON_PLAYING;
-
+// режимы по дефолту у нового чара
 	const bool new_char = GET_LEVEL(d->character) <= 0 ? true : false;
 	if (new_char)
 	{
-		SET_BIT(PRF_FLAGS(d->character, PRF_DRAW_MAP), PRF_DRAW_MAP);
-		SET_BIT(PRF_FLAGS(d->character, PRF_GOAHEAD), PRF_GOAHEAD);
-		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOMEM), PRF_AUTOMEM);
+		SET_BIT(PRF_FLAGS(d->character, PRF_DRAW_MAP), PRF_DRAW_MAP); //рисовать миникарту
+		SET_BIT(PRF_FLAGS(d->character, PRF_GOAHEAD), PRF_GOAHEAD); //IAC GA
+		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOMEM), PRF_AUTOMEM); // автомем
+		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOLOOT), PRF_AUTOLOOT); // автолут
+		SET_BIT(PRF_FLAGS(d->character, PRF_PKL_MODE), PRF_PKL_MODE); // пклист
+		SET_BIT(PRF_FLAGS(d->character, PRF_WORKMATE_MODE), PRF_WORKMATE_MODE); // соклан
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
