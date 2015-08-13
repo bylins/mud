@@ -975,18 +975,18 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		{
 			out << "Tmer: " << object->get_timer() << "~\n";
 			if (!check_obj_in_system_zone(GET_OBJ_VNUM(object))) //если шмот в служебной зоне, то таймер не трогаем
+			{
+				// на тот случай, если есть объекты с таймером, больше таймера прототипа
+				int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
+				if (object->get_timer() > temp_timer)
+				object->set_timer(temp_timer);
+				// проверяем наш объект на беск.таймер
+				if (check_unlimited_timer(object)) 
 				{
-					// на тот случай, если есть объекты с таймером, больше таймера прототипа
-					int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
-						if (object->get_timer() > temp_timer)
-						object->set_timer(temp_timer);
-					// проверяем наш объект на беск.таймер
-					if (check_unlimited_timer(object)) 
-						{
-						// ставим беск.таймер
-							object->set_timer(UTIMER);
-				       		}
+					// ставим беск.таймер
+					object->set_timer(UTIMER);
 				}
+			}
 		}
 		// Сложность замкА
 		if (GET_OBJ_SPELL(object) != GET_OBJ_SPELL(proto))
