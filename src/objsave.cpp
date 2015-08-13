@@ -69,6 +69,7 @@ int min_rent_cost(CHAR_DATA * ch);
 void asciiflag_conv(const char *flag, void *value);
 extern int convert_drinkcon_skill(OBJ_DATA *obj, bool proto);
 extern bool check_unlimited_timer(OBJ_DATA *obj);
+extern bool check_obj_in_system_zone(int vnum);
 // local functions
 void Crash_extract_norent_eq(CHAR_DATA * ch);
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location);
@@ -289,19 +290,6 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 20;
 				object->set_timer(atoi(buffer));
-				if (vnum > 0)
-				{
-					// на тот случай, если есть объекты с таймером, больше таймера прототипа
-				    int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
-					if (object->get_timer() > temp_timer)
-						object->set_timer(temp_timer);
-					// проверяем наш объект на беск.таймер					
-				}
-				if (check_unlimited_timer(object))
-				{
-					// ставим беск.таймер
-					object->set_timer(UTIMER);
-				}
 			}
 			else if (!strcmp(read_line, "Spll"))
 			{
@@ -986,6 +974,19 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		if (object->get_timer() != proto->get_timer())
 		{
 			out << "Tmer: " << object->get_timer() << "~\n";
+			if (!check_obj_in_system_zone(GET_OBJ_VNUM(object))) //если шмот в служебной зоне, то таймер не трогаем
+				{
+					// на тот случай, если есть объекты с таймером, больше таймера прототипа
+					int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
+						if (object->get_timer() > temp_timer)
+						object->set_timer(temp_timer);
+					// проверяем наш объект на беск.таймер
+					if (check_unlimited_timer(object)) 
+						{
+						// ставим беск.таймер
+							object->set_timer(UTIMER);
+				       		}
+				}
 		}
 		// Сложность замкА
 		if (GET_OBJ_SPELL(object) != GET_OBJ_SPELL(proto))
