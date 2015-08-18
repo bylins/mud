@@ -144,6 +144,8 @@ void show_room_spell_off(int aff, room_rnum room);
 void AddRoom(ROOM_DATA* room);
 // Применение заклинания к комнате //
 int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
+// Время существования заклинания в комнате //
+int timer_affected_roomt(CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
 
 // =============================================================== //
 
@@ -157,7 +159,7 @@ void ShowRooms(CHAR_DATA *ch)
 	{
 		buf1[0] = '\0';
 		for (af = (*it)->affected ; af ; af = af->next)
-			sprintf(buf1 + strlen(buf1),  " !%s! (%s) ", spell_info[af->type].name, get_name_by_id(af->caster_id));
+			sprintf(buf1 + strlen(buf1),  " !%s! (%s) [%d] ", spell_info[af->type].name, get_name_by_id(af->caster_id), af->duration);
         sprintf(buf + strlen(buf),  "   [%d] %s\r\n", (*it)->number, buf1);
 	}
     page_string(ch->desc, buf, TRUE);
@@ -553,7 +555,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].type = spellnum;
 		af[0].location = APPLY_ROOM_NONE;
 		af[0].modifier = 0;
-		af[0].duration = TIME_SPELL_RUNE_LABEL + (GET_REMORT(ch)*10);
+		af[0].duration = (TIME_SPELL_RUNE_LABEL + (GET_REMORT(ch)*10))3;
 		af[0].caster_id = GET_ID(ch);
 		af[0].bitvector = AFF_ROOM_RUNE_LABEL;
 		af[0].must_handled = false;
@@ -630,6 +632,24 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 
 }
 
+// ===============================================================
+
+// Время существования заклинания в комнате //
+int timer_affected_roomt(long id, int spellnum);
+{
+   AFFECT_DATA *af;
+
+    for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
+    {
+        for (af = (*it)->affected ; af ; af = af->next)
+        {
+			if ((af->type == spellnum) && (af->caster_id == id))
+                return (af->duration * 2);
+        }
+    }
+    return 0;
+
+}
 // ===============================================================
 
 } // namespace RoomSpells

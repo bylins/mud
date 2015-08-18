@@ -573,6 +573,8 @@ void room_affect_update(void);
 int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
 // Поиск первой комнаты с аффектом от spellnum и кастером с идом Id //
 ROOM_DATA * find_affected_roomt(long id, int spellnum);
+// Время существования заклинания в комнате //
+int timer_affected_roomt(long id, int spellnum);
 
 } // RoomSpells
 

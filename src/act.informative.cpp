@@ -2829,7 +2829,7 @@ const char *ac_text[] =
 
 void print_do_score_all(CHAR_DATA *ch)
 {
-	int ac, max_dam = 0, hr = 0, resist, modi = 0, skill = SKILL_BOTHHANDS;
+	int ac, max_dam = 0, hr = 0, resist, modi = 0, skill = SKILL_BOTHHANDS, timer_room_label;
 
 	std::string sum = string("Вы ") + string(GET_PAD(ch, 0)) + string(", ")
 		+ string(class_name[(int) GET_CLASS(ch)+14*GET_KIN(ch)]) + string(".");
@@ -3215,11 +3215,17 @@ void print_do_score_all(CHAR_DATA *ch)
     ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room)
 	{
+		timer_room_label = RoomSpells::timer_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 		sprintf(buf + strlen(buf),
 				" %s|| &G&qВы поставили рунную метку в комнате %s%s||\r\n",
 				CCCYN(ch, C_NRM),
 				colored_name(string(string("'")+label_room->name+string("&n&Q'.")).c_str(), 44),
 				CCCYN(ch, C_NRM));
+		if (timer_room_label > 0)
+		{
+			sprintf(buf + strlen(buf),
+				" || Метка продержиться еще %4d секунд.                                               ||\r\n");
+		}
 	}
 
 	int glory = Glory::get_glory(GET_UNIQUE(ch));
