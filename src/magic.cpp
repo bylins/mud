@@ -555,7 +555,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].type = spellnum;
 		af[0].location = APPLY_ROOM_NONE;
 		af[0].modifier = 0;
-		af[0].duration = (TIME_SPELL_RUNE_LABEL + (GET_REMORT(ch)*10))3;
+		af[0].duration = (TIME_SPELL_RUNE_LABEL + (GET_REMORT(ch)*10))*3;
 		af[0].caster_id = GET_ID(ch);
 		af[0].bitvector = AFF_ROOM_RUNE_LABEL;
 		af[0].must_handled = false;
@@ -635,7 +635,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 // ===============================================================
 
 // Время существования заклинания в комнате //
-int timer_affected_roomt(long id, int spellnum);
+int timer_affected_roomt(long id, int spellnum)
 {
    AFFECT_DATA *af;
 
