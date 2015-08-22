@@ -644,7 +644,7 @@ int timer_affected_roomt(long id, int spellnum)
         for (af = (*it)->affected ; af ; af = af->next)
         {
 			if ((af->type == spellnum) && (af->caster_id == id))
-                return (af->duration * 2);
+                return af->duration;
         }
     }
     return 0;
