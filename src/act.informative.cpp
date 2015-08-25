@@ -3226,7 +3226,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			*buf2 = '\0';
 			(timer_room_label + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1, desc_count((timer_room_label + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "менее часа.");			
 			sprintf(buf + strlen(buf),
-					" || Метка продержиться еще %-57s||\r\n",buf2);
+					" || Метка продержится еще %-58s||\r\n",buf2);
 			*buf2 = '\0';
 		}
 	}
