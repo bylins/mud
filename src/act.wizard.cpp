@@ -826,7 +826,7 @@ void setall_inspect()
 					{
 						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
 						{
-							sprintf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
 							it->second->out += buf1;
 							continue;
 						}
@@ -836,7 +836,7 @@ void setall_inspect()
 					{
 						if (load_char(player_table[it->second->pos].name, vict) < 0)
 						{
-							sprintf(buf1, "Ошибка загрузки чара: %s\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name);
 							delete vict;
 							it->second->out += buf1;
 							continue;
@@ -845,7 +845,7 @@ void setall_inspect()
 						{
 							if (GET_LEVEL(vict) >= LVL_GOD)
 							{
-								sprintf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
 								it->second->out += buf1;
 								continue;
 							}
@@ -860,13 +860,13 @@ void setall_inspect()
 					{
 						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
 						{
-							sprintf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
 							it->second->out += buf1;
 							continue;
 						}
 						strncpy(GET_EMAIL(d_vict->character), it->second->newmail, 127);
 						*(GET_EMAIL(d_vict->character) + 127) = '\0';
-						sprintf(buf2, "Смена емайла у чара %s на %s\r\n", player_table[it->second->pos].name, it->second->newmail);
+						sprintf(buf2, "Смена e-mail адреса персонажа %s на %s.\r\n", player_table[it->second->pos].name, it->second->newmail);
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
 						it->second->out += buf2;
 						
@@ -875,7 +875,7 @@ void setall_inspect()
 					{
 						if (load_char(player_table[it->second->pos].name, vict) < 0)
 						{
-							sprintf(buf1, "Ошибка загрузки чара: %s\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name);
 							it->second->out += buf1;
 							delete vict;
 							continue;
@@ -889,7 +889,7 @@ void setall_inspect()
 							}
 							strncpy(GET_EMAIL(vict), it->second->newmail, 127);
 							*(GET_EMAIL(vict) + 127) = '\0';							
-							sprintf(buf2, "Смена емайла у чара %s на %s\r\n", player_table[it->second->pos].name, it->second->newmail);
+							sprintf(buf2, "Смена e-mail адреса персонажа %s на %s.\r\n", player_table[it->second->pos].name, it->second->newmail);
 							it->second->out += buf2;
 							add_karma(vict, buf2, GET_NAME(imm_d->character));
 							vict->save_char();
@@ -903,12 +903,12 @@ void setall_inspect()
 					{
 						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
 						{
-							sprintf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
 							it->second->out += buf1;
 							continue;
 						}
 						Password::set_password(d_vict->character, std::string(it->second->pwd));
-						sprintf(buf2, "У чара %s изменен пароль\r\n", player_table[it->second->pos].name);
+						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
 					}
@@ -916,19 +916,19 @@ void setall_inspect()
 					{
 						if (load_char(player_table[it->second->pos].name, vict) < 0)
 						{
-							sprintf(buf1, "Ошибка загрузки чара: %s\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name);
 							it->second->out += buf1;
 							delete vict;
 							continue;
 						}
 						if (GET_LEVEL(vict) >= LVL_GOD)
 						{
-							sprintf(buf1, "Чар %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
 							it->second->out += buf1;
 							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
-						sprintf(buf2, "У чара %s изменен пароль\r\n", player_table[it->second->pos].name);
+						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(vict, buf2, GET_NAME(imm_d->character));
 						vict->save_char();
@@ -964,7 +964,7 @@ ACMD(do_setall)
 	
 	InspReqListType::iterator it_inspect = inspect_list.find(GET_UNIQUE(ch));
 	SetAllInspReqListType::iterator it = setall_inspect_list.find(GET_UNIQUE(ch));
-	// // Навсякий случай разрешаем только одну команду такого типа, либо сетол, либо инспект
+	// На всякий случай разрешаем только одну команду такого типа - либо setall, либо inspect
 	if (it_inspect != inspect_list.end() and it != setall_inspect_list.end())
 	{
 		send_to_char(ch, "Обрабатывается другой запрос, подождите...\r\n", argument);
@@ -980,19 +980,19 @@ ACMD(do_setall)
 	
 	if (!*buf)
 	{
-		send_to_char("Usage: setall { email } [command (email pswd frozen)] [для frozen время] <argument> \r\n", ch);
+		send_to_char("Usage: setall <e-mail> <email|passwd|frozen> <arguments>\r\n", ch);
 		return;
 	}
 	
 	if (!valid_email(buf))
 	{
-		send_to_char("Некорректный E-mail !\r\n", ch);
+		send_to_char("Некорректный e-mail!\r\n", ch);
 		return;
 	}
 	
-	if (!isname(buf1, "frozen email pswd"))
+	if (!isname(buf1, "frozen email passwd"))
 	{
-		send_to_char("Сделай лучше что-нибудь нормальное.\r\n", ch);
+		send_to_char("Данное действие совершить нельзя.\r\n", ch);
 		return;
 	}
 	if (is_abbrev(buf1, "frozen"))
@@ -1000,7 +1000,7 @@ ACMD(do_setall)
 		skip_spaces(&argument);
 		if (!argument || !*argument)
 		{
-			send_to_char("И по какой причине Вы решиле ЭТО сделать?\r\n", ch);
+			send_to_char("Необходимо указать причину такой немилости.\r\n", ch);
 			return;
 		}
 		if (*buf2) times = atol(buf2);
@@ -1017,13 +1017,13 @@ ACMD(do_setall)
 		}
 		if (!valid_email(buf2))
 		{
-			send_to_char("Новый e-mail невалидный !\r\n", ch);
+			send_to_char("Новый e-mail некорректен!\r\n", ch);
 			return;
 		}
 		req->newmail = strdup(buf2);
 		type_request = SETALL_EMAIL;
 	}
-	else if (is_abbrev(buf1, "pswd"))
+	else if (is_abbrev(buf1, "passwd"))
 	{
 		if (!*buf2)
 		{
