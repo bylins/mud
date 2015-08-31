@@ -60,6 +60,7 @@
 	* gcc-core
 	* gcc-g++
 	* libboost-devel
+	* libboost_python-devel
 	* make
 	* mercurial
 	* zlib
