@@ -1487,22 +1487,26 @@ ACMD(do_vnum)
 {
 	half_chop(argument, buf, buf2);
 
-	if (!*buf || !*buf2 || (!is_abbrev(buf, "mob") && !is_abbrev(buf, "obj")
-							&& !is_abbrev(buf, "flag")))
+	if (!*buf || !*buf2 || (!is_abbrev(buf, "mob") && !is_abbrev(buf, "obj") && !is_abbrev(buf, "room")	&& !is_abbrev(buf, "flag")
+						 && !is_abbrev(buf, "существо") && !is_abbrev(buf, "предмет") && !is_abbrev(buf, "флаг")	&& !is_abbrev(buf, "комната")))
 	{
-		send_to_char("Usage: vnum { obj | mob | flag } <name>\r\n", ch);
+		send_to_char("Usage: vnum { obj | mob | flag | room } <name>\r\n", ch);
 		return;
 	}
-	if (is_abbrev(buf, "mob"))
+	if ((is_abbrev(buf, "mob")) || (is_abbrev(buf, "существо"))) 
 		if (!vnum_mobile(buf2, ch))
 			send_to_char("Нет существа с таким именем.\r\n", ch);
 
-	if (is_abbrev(buf, "obj"))
+	if ((is_abbrev(buf, "obj")) || (is_abbrev(buf, "предмет")))
 		if (!vnum_object(buf2, ch))
 			send_to_char("Нет предмета с таким названием.\r\n", ch);
 
-	if (is_abbrev(buf, "flag"))
+	if ((is_abbrev(buf, "flag")) || (is_abbrev(buf, "флаг")))
 		if (!vnum_flag(buf2, ch))
+			send_to_char("Нет объектов с таким флагом.\r\n", ch);
+	
+	if ((is_abbrev(buf, "room")) || (is_abbrev(buf, "комната")))
+		if (!vnum_room(buf2, ch))
 			send_to_char("Нет объектов с таким флагом.\r\n", ch);
 }
 

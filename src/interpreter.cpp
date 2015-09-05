@@ -1003,6 +1003,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"version", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
 	{"visible", POS_RESTING, do_visible, 1, 0, -1},
 	{"vnum", POS_DEAD, do_vnum, LVL_GRGOD, 0, 0},
+	{"вномер", POS_DEAD, do_vnum, LVL_GRGOD, 0, 0},  //тупой копипаст для использования русского синтаксиса
 	{"vstat", POS_DEAD, do_vstat, LVL_GRGOD, 0, 0},
 	{"wake", POS_SLEEPING, do_wake, 0, 0, -1},
 	{"warcry", POS_FIGHTING, do_warcry, 1, 0, -1},

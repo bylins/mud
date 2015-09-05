@@ -4771,6 +4771,21 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	return found;
 }
 
+int vnum_room(char *searchname, CHAR_DATA * ch)
+{
+	int nr, found = 0;
+
+	for (nr = 0; nr <= top_of_world; nr++)
+	{
+		if (isname(searchname, world[nr]->name))
+		{
+			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, world[nr]->number, world[nr]->name);
+			send_to_char(buf, ch);
+		}
+	}
+	return (found);
+}
+
 namespace {
 
 int test_hp[] = {

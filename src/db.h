@@ -217,6 +217,7 @@ const OBJ_DATA* read_object_mirror(obj_vnum nr, int type = VIRTUAL);
 
 int vnum_object(char *searchname, CHAR_DATA * ch);
 int vnum_flag(char *searchname, CHAR_DATA * ch);
+int vnum_room(char *searchname, CHAR_DATA * ch);
 
 // structure for the reset commands
 struct reset_com
