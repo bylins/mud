@@ -2923,8 +2923,8 @@ void init_vnum_list(int vnum)
 	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
 		iend = obj_data::set_table.end(); i != iend; ++i)
 	{
-		if (i->second.find(vnum) != i->second.end()
-			&& i->second.size() > BIG_SET_ITEMS)
+		if (i->second.find(vnum) != i->second.end())
+			//&& i->second.size() > BIG_SET_ITEMS)
 		{
 			for (set_info::const_iterator k = i->second.begin(),
 				kend = i->second.end(); k != kend; ++k)

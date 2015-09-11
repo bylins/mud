@@ -2253,7 +2253,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 				affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, FALSE);
 			}
 
-		if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+		if ((OBJ_FLAGGED(obj, ITEM_SETSTUFF))&&(SetSystem::is_big_set(obj)))
 			obj->deactivate_obj(activation());
 	}
 

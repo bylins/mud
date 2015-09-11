@@ -293,6 +293,8 @@ int count_obj_vnum(long n)
 	int i;
 	if ((i = real_object(n)) < 0)
 		return 0;
+	if (obj_proto[i]->get_timer() == UTIMER) 
+		return 0;
 	return (obj_index[i].number + obj_index[i].stored);
 }
 
