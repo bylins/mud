@@ -410,6 +410,10 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	// если это сетовый предмет
 	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
 		return false;
+	// рассыпется вне зоны
+	if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY))
+		return false;
+
 	// если предмет требует реморты, то он явно овер
 	if (obj->get_mort_req() > 0)
 		return false;
