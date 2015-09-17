@@ -982,7 +982,7 @@ const char *apply_types[] = { "־ֹÞֵַֿ",
 							};
 
 // MAT_
-const char *material_name[] = { "NO",
+const char *material_name[] = { "מויתקוףפומ",
 								"גץלבפ",
 								"געןמתב",
 								"צולותן",
