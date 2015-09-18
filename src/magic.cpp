@@ -917,6 +917,7 @@ void player_affect_update(void)
 					}
 				}
 				af->duration--;
+
 			}
 			else if (af->duration != -1)
 			{
@@ -4327,7 +4328,8 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			hjp->type == SPELL_CHARM || \
 			hjp->type == SPELL_QUEST || \
 			hjp->type == SPELL_FASCINATION || \
-			hjp->type == SPELL_PATRONAGE)
+			hjp->type == SPELL_PATRONAGE || \
+			hjp->type == SPELL_SOLOBONUS)    
 
 int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int type)
 {
