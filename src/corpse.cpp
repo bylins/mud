@@ -71,6 +71,7 @@ void init()
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
+
 	for (pugi::xml_node node = node_list.child("drop"); node; node = node.next_sibling("drop"))
 	{
 		int obj_vnum = Parse::attr_int(node, "obj_vnum");
@@ -78,7 +79,7 @@ void init()
 		int max_mob_lvl = Parse::attr_int(node, "max_mob_lvl");
 		int chance = Parse::attr_int(node, "chance");
 
-		if (obj_vnum == -1 || mob_lvl <= 0 || chance <= 0 || max_mob_lvl < 0)
+		if (obj_vnum < -1 || mob_lvl <= 0 || chance <= 0 || max_mob_lvl < 0)
 		{
 			snprintf(buf, MAX_STRING_LENGTH,
 					"...bad drop attributes (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d)",
@@ -199,6 +200,7 @@ int get_obj_to_drop(DropListType::iterator &i)
  */
 bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch)
 {
+
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i)
 	{
 		if (GET_LEVEL(ch) >= i->mob_lvl
