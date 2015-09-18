@@ -5496,11 +5496,13 @@ ACMD(do_affects)
 	{
 		for (aff = ch->affected; aff; aff = aff->next)
 		{
+			if (aff->type == SPELL_SOLOBONUS)
+				continue;
 			*buf2 = '\0';
 			strcpy(sp_name, spell_name(aff->type));
-			(aff->duration + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s", (aff->duration + 1) / SECS_PER_MUD_HOUR + 1, desc_count((aff->duration + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "менее часа");
+			(aff->duration + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (aff->duration + 1) / SECS_PER_MUD_HOUR + 1, desc_count((aff->duration + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
 
-			sprintf(buf, "%s%s%-21s (%s)%s",
+			sprintf(buf, "%s%s%-21s %-12s%s ",
 					*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					CCICYN(ch, C_NRM), sp_name, buf2, CCNRM(ch, C_NRM));
 			*buf2 = '\0';
@@ -5513,7 +5515,7 @@ ACMD(do_affects)
 			{
 				if (aff->modifier)
 				{
-					sprintf(buf2, "%+d к %s", aff->modifier, apply_types[(int) aff->location]);
+					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
 					strcat(buf, buf2);
 				}
 				if (aff->bitvector)
@@ -5529,6 +5531,22 @@ ACMD(do_affects)
 				}
 			}
 			send_to_char(strcat(buf, "\r\n"), ch);
+		}
+// отображение наград
+		for (aff = ch->affected; aff; aff = aff->next)
+		{
+		    if (aff->type == SPELL_SOLOBONUS)
+		    {
+			    (aff->duration + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (aff->duration + 1) / SECS_PER_MUD_HOUR + 1, desc_count((aff->duration + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
+			    sprintf(buf, "Заклинание : %s%-21s %-12s%s ", CCICYN(ch, C_NRM),  "награда",  buf2, CCNRM(ch, C_NRM));
+			    *buf2 = '\0';
+			    if (aff->modifier)
+			    {	
+				    sprintf(buf2, "%s%-3d к параметру: %s%s%s",(aff->modifier > 0)? "+": "",  aff->modifier, CCIRED(ch, C_NRM), apply_types[(int) aff->location], CCNRM(ch, C_NRM));
+				    strcat(buf, buf2);
+			    }
+			    send_to_char(strcat(buf, "\r\n"), ch);
+		    }
 		}
 	}
 	if (ch->is_morphed())
