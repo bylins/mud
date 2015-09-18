@@ -1048,7 +1048,9 @@ enum
 #define APPLY_BELENA_POISON    55
 #define APPLY_DATURA_POISON    56
 #define APPLY_HIT_GLORY        57
-#define NUM_APPLIES	           58
+#define APPLY_BONUS_EXP		58
+#define APPLY_BONUS_SKILLS      59
+#define NUM_APPLIES	        60
 
 // APPLY - эффекты для комнат //
 #define APPLY_ROOM_NONE        0
@@ -1467,7 +1469,7 @@ struct affect_data
 		apply_time(0), next(0) {};
 
 	sh_int type;		// The type of spell that caused this      //
-	sh_int duration;	// For how long its effects will last      //
+	int duration;	// For how long its effects will last      //
 	int modifier;		// This is added to apropriate ability     //
 	int location;		// Tells which ability to change(APPLY_XXX) //
 	long
