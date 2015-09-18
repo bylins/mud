@@ -313,14 +313,18 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
 
 	if (skill_no < 1 || skill_no > MAX_SKILL_NUM)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
-	{
 		return 0;
-	}
 	if ((skill_is = ch->get_skill(skill_no)) <= 0)
-	{
 		return 0;                                         // если скила нет возвращаем 0.
+	if (!IS_NPC(ch) && ch->affected)
+	{
+		AFFECT_DATA *aff = ch->affected;
+		for (aff = ch->affected; aff; aff = aff->next)
+		{
+			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с эксп умелкой
+			skill_is +=  aff->modifier; 
+		}
 	}
-
 	skill_is += int_app[GET_REAL_INT(ch)].to_skilluse;
         switch (skill_no)
 	{
