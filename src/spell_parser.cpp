@@ -5116,8 +5116,9 @@ void mag_assign_spells(void)
 	spello(SPELL_LIGHTNING_BREATH, "опаляющее дыхание", "lightning breath",
 		   0, 0, 0, POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_DARK);
 
-
 	spello(SPELL_QUEST, "чары", "quest spell",
+		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
+	spello(SPELL_SOLOBONUS, "награда", "bonus",
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
 
 	/*
