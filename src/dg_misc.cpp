@@ -40,6 +40,7 @@ int ext_search_block(const char *arg, const char **list, int exact);
 extern const char *what_sky_type[];
 extern int what_sky;
 extern const char *what_weapon[];
+extern int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min, int max);
 /*
  * Функция осуществляет поиск цели для DG_CAST
  * Облегченная версия find_cast_target
@@ -333,9 +334,9 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	half_chop(cmd, duration_p, battle_p);
 
 	// make sure all parameters are present
-	if (!*charname || !*property || !*value_p || !*duration_p)
+	if (!*charname || !*property || !*spell || !*value_p || !*duration_p || !*battle_p)
 	{
-		sprintf(buf2, "dg_affect usage: <target> <property> <spell> <value> <duration>");
+		sprintf(buf2, "dg_affect usage: <target> <property> <spell> <value> <duration> <battleposition>");
 		trig_log(trig, buf2);
 		return;
 	}
@@ -351,13 +352,13 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	value = atoi(value_p);
 	duration = atoi(duration_p);
 	battle = atoi(battle_p);
+// Если длительность 0 снимаем аффект ниже
 	if (duration < 0)
 	{
 		sprintf(buf2, "dg_affect: need positive duration!");
 		trig_log(trig, buf2);
 		return;
 	}
-
 	// find the property -- first search apply_types
 	if ((index = search_block(property, apply_types, FALSE)) != -1)
 		type = APPLY_TYPE;
@@ -400,9 +401,12 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	{
 		// add the affect
 		af.type = index_s;
-		af.duration = duration;
 		af.modifier = value;
 		af.battleflag = battle;
+		if (battle == AF_PULSEDEC)
+		    af.duration = duration;
+		else 
+		    af.duration = pc_duration(ch, duration * 2, 0, 0, 0, 0);
 		if (type == AFFECT_TYPE)
 		{
 			af.location = APPLY_NONE;
@@ -413,7 +417,7 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 			af.location = index;
 			af.bitvector = 0;
 		}
-		affect_to_char(ch, &af);
+		affect_join_fspell(ch, &af); // перекастим аффект
 	}
 	else
 	{

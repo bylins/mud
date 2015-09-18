@@ -5217,6 +5217,7 @@ struct set_struct		/*
 	{"unreg", LVL_GOD, PC, MISC}, // 56
 	{"executor", LVL_IMPL, PC, BINARY}, // 57
 	{"killer", LVL_IMPL, PC, BINARY}, // 58
+	{"remort", LVL_IMPL, PC, BINARY}, // 59
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -5894,6 +5895,13 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 58: // Снятие или постановка флага !ДУШЕГУБ! только для имплементоров
         SET_OR_REMOVE(PLR_FLAGS(vict, PLR_KILLER), PLR_KILLER);
+        break;
+	case 59: // флаг реморта
+    		ch->remort();
+		sprintf(buf,"Иммортал %s установил реморт +1 для %s\r\n", GET_NAME(ch), GET_NAME(vict));
+		add_karma(vict, buf, GET_NAME(ch));
+		add_karma(ch, buf, GET_NAME(vict));
+		send_to_gods(buf);
         break;
 
 	default:
