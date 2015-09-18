@@ -379,12 +379,20 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 {
-	int i = 0, sortpos;
+	int i = 0, bonus = 0, sortpos;
 
 	sprintf(buf, "Вы владеете следующими умениями :\r\n");
 
 	strcpy(buf2, buf);
-
+	if (!IS_NPC(ch) && ch->affected)
+	{
+		AFFECT_DATA *aff = ch->affected;
+		for (aff = ch->affected; aff; aff = aff->next)
+		{
+			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с скилл бонусом
+			bonus = aff->modifier; // сколько крут стал 
+		}
+	}
 	for (sortpos = 1; sortpos <= MAX_SKILL_NUM; sortpos++)
 	{
 		if (strlen(buf2) >= MAX_STRING_LENGTH - 60)
@@ -418,8 +426,9 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 			default:
 				sprintf(buf, "      ");
 			}
-			sprintf(buf + strlen(buf), "%-20s %s\r\n",
-					skill_info[sortpos].name, how_good(ch, ch->get_skill(sortpos)));
+			
+			sprintf(buf + strlen(buf), "%-23s %s\r\n",
+					skill_info[sortpos].name, how_good(ch, ch->get_skill(sortpos) + bonus));
 			strcat(buf2, buf);	// The above, ^ should always be safe to do.
 			i++;
 		}
