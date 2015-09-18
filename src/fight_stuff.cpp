@@ -738,21 +738,25 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
 	}
 	else
-	{
 		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
-	}
-
 	// 4. Последняя проверка
 	exp = MAX(1, exp);
-	if ((exp > 1) and is_bonus(1))
-	{
-		exp *= mult_bonus;
-	}
 	exp = MIN(max_exp_gain_pc(ch), exp);
 	if (exp > 1)
 	{
+		if (is_bonus(1))
+			exp *= mult_bonus;
+		if (!IS_NPC(ch) && ch->affected)
+		{ 
+			AFFECT_DATA *aff = ch->affected;
+			for (aff = ch->affected; aff; aff = aff->next)
+			{
+				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
+					exp *= MIN( 3, aff->modifier); // бонус макс тройной
+			}
+		}
 		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n",
-			exp, desc_count(exp, WHAT_POINT));
+		exp, desc_count(exp, WHAT_POINT));
 	}
 	else if (exp == 1)
 	{
