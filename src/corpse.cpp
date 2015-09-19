@@ -79,7 +79,7 @@ void init()
 		int max_mob_lvl = Parse::attr_int(node, "max_mob_lvl");
 		int chance = Parse::attr_int(node, "chance");
 
-		if (obj_vnum < -1 || mob_lvl <= 0 || chance <= 0 || max_mob_lvl < 0)
+		if (obj_vnum < 0 || mob_lvl <= 0 || chance <= 0 || max_mob_lvl < 0)
 		{
 			snprintf(buf, MAX_STRING_LENGTH,
 					"...bad drop attributes (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d)",
@@ -94,7 +94,7 @@ void init()
 		tmp_node.max_mob_lvl = max_mob_lvl;
 		tmp_node.prc = chance;
 
-		if (obj_vnum >= 0)
+		if (obj_vnum > 0)
 		{
 			int obj_rnum = real_object(obj_vnum);
 			if (obj_rnum < 0)
