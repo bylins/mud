@@ -334,9 +334,9 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	half_chop(cmd, duration_p, battle_p);
 
 	// make sure all parameters are present
-	if (!*charname || !*property || !*spell || !*value_p || !*duration_p || !*battle_p)
+	if (!*charname || !*property || !*spell || !*value_p || !*duration_p)
 	{
-		sprintf(buf2, "dg_affect usage: <target> <property> <spell> <value> <duration> <battleposition>");
+		sprintf(buf2, "dg_affect usage: <target> <property> <spell> <value> <duration> *<battleposition>");
 		trig_log(trig, buf2);
 		return;
 	}
