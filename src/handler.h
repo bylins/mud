@@ -32,7 +32,7 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
 
 // handling the affected-structures //
 void affect_total(CHAR_DATA * ch);
-void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool add);
+void affect_modify(CHAR_DATA * ch, byte loc, int mod, bitvector_t bitv, bool add);
 void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * af);
 void affect_remove(CHAR_DATA * ch, AFFECT_DATA * af);
 void affect_from_char(CHAR_DATA * ch, int type);

@@ -1140,6 +1140,7 @@ void apply_modifiers(CHAR_DATA *ch)
 				break;
 		}
 		// TODO: убрать наверно надо эти костыли блин, но аппли у нас не позволяет навесить что либо больше чем влазит в signed byte т.е. +127
+// не совсем понял что тут делается, но тупо увеличил аппли до инта, кто мешал это сделать раньше? А то 10 лет багрепортят что аффекты после 127 глючат.
 		if (location)
 			affect_modify(ch, location, (i->second) * (location != APPLY_HIT_GLORY ? stat_multi(i->first) : 1), 0, add);
 	}

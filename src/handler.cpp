@@ -310,7 +310,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	}*/
 }
 
-void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool add)
+void affect_modify(CHAR_DATA * ch, byte loc, int mod, bitvector_t bitv, bool add)
 {
 	if (add)
 	{
