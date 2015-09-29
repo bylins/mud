@@ -213,7 +213,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch)
 				if (obj_rnum >= 0)
 				{
 					sprintf(buf, "Фридроп: упал предмет %s с VNUM: %d\r\n", obj_proto[obj_rnum]->short_description, obj_index[obj_rnum].vnum);
-					mudlog(buf,  NRM, LVL_GRGOD, SYSLOG, TRUE);
+					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
 					obj_to_corpse(corpse, ch, obj_rnum, false);
 				}
 				i->mobs = 0;
