@@ -2832,7 +2832,7 @@ ACMD(do_makefood)
 {
 	OBJ_DATA *obj, *tobj;
 	CHAR_DATA *mob;
-	int prob, percent = 0, mobn, wgt = 0;
+	int prob, percent = 0, mobn;
 
 	if (!ch->get_skill(SKILL_MAKEFOOD))
 	{
@@ -2863,9 +2863,15 @@ ACMD(do_makefood)
 	mob = (mob_proto + real_mobile(mobn));
 	mob->set_normal_morph();
 
-	if (!IS_IMMORTAL(ch) && (GET_RACE(mob) != NPC_RACE_ANIMAL || (wgt = GET_WEIGHT(mob)) < 11))
+	if (!IS_IMMORTAL(ch) && ((GET_RACE(mob) != NPC_RACE_ANIMAL) && (GET_RACE(mob) != NPC_RACE_REPTILE) && (GET_RACE(mob) != NPC_RACE_FISH) && (GET_RACE(mob) != NPC_RACE_BIRD) && 
+		(GET_RACE(mob) != NPC_RACE_HUMAN_ANIMAL)  && (GET_RACE(mob) != NPC_RACE_PLANT)))
 	{
 		send_to_char("Этот труп невозможно освежевать.\r\n", ch);
+		return;
+	}
+	if (GET_WEIGHT(mob) < 11)
+	{
+		send_to_char("Этот труп слишком маленький, ничего не получится.\r\n", ch);
 		return;
 	}
 	prob = number(1, skill_info[SKILL_MAKEFOOD].max_percent);
