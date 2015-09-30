@@ -2864,7 +2864,7 @@ ACMD(do_makefood)
 	mob->set_normal_morph();
 
 	if (!IS_IMMORTAL(ch) && ((GET_RACE(mob) != NPC_RACE_ANIMAL) && (GET_RACE(mob) != NPC_RACE_REPTILE) && (GET_RACE(mob) != NPC_RACE_FISH) && (GET_RACE(mob) != NPC_RACE_BIRD) && 
-		(GET_RACE(mob) != NPC_RACE_HUMAN_ANIMAL)  && (GET_RACE(mob) != NPC_RACE_PLANT)))
+		(GET_RACE(mob) != NPC_RACE_HUMAN_ANIMAL)))
 	{
 		send_to_char("Этот труп невозможно освежевать.\r\n", ch);
 		return;
