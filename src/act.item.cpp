@@ -2892,12 +2892,12 @@ ACMD(do_makefood)
 
 		std::vector<OBJ_DATA*> entrails;
 		entrails.push_back(tobj);
-		if (number(1, ch->get_skill(SKILL_MAKEFOOD)) + number(1, GET_REAL_DEX(ch)) >= prob)
-		{
-			entrails.push_back(create_skin(mob, ch));
-		}
-		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2, 100));
-
+		if (GET_RACE(mob) == NPC_RACE_ANIMAL) // шкуры только с животных
+			if (number(1, ch->get_skill(SKILL_MAKEFOOD)) + number(1, GET_REAL_DEX(ch)) >= prob)
+			{
+				entrails.push_back(create_skin(mob, ch));
+			}
+		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2, 100));  // ингры со всех
 		for (std::vector<OBJ_DATA*>::iterator it = entrails.begin(); it != entrails.end(); ++it)
 		{
 			if (*it)
