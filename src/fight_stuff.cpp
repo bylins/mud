@@ -71,7 +71,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 			{
 				// лидер группы в тойже комнате, что и убивец
 				cnt = 1;
-				if (can_use_feat(master, PARTNER_FEAT))
+				if (can_use_feat(master, PARTNER_FEAT) && (GET_LEVEL(master) < 25))
 					leader_partner = true;
 
 			}
@@ -865,8 +865,8 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	// если лидер группы в комнате
 	if (leader_inroom)
 	{
-	    // если у лидера группы есть способность напарник
-	    if (can_use_feat(k, PARTNER_FEAT))
+	    // если у лидера группы есть способность напарник и лидер меньше 25 лева
+	    if (can_use_feat(k, PARTNER_FEAT) && (GET_LEVEL(k) <25))
 	    {
 			// если в группе всего двое человек
 			// k - лидер, и один последователь
