@@ -1480,7 +1480,7 @@ void Clan::hcon_outcast(CHAR_DATA *ch, std::string &buffer)
 				return;
 			}
 			(*clan)->remove_member(it);
-			send_to_char(ch, "%s исключен из дружины '%s'.\r\n", name.c_str(), (*clan)->name.c_str());
+			send_to_char(ch, "%s исключен(a) из дружины '%s'.\r\n", name.c_str(), (*clan)->name.c_str());
 			return;
 		}
 	}
@@ -2020,8 +2020,8 @@ void Clan::ManagePolitics(CHAR_DATA * ch, std::string & buffer)
 const char *HCONTROL_FORMAT =
 	"Формат: hcontrol build <rent vnum> <outrent vnum> <guard vnum> <leader name> <abbreviation> <clan name>\r\n"
 	"        hcontrol show\r\n"
-	"        hcontrol destroy <house vnum>\r\n"
-	"        hcontrol outcast <name>\r\n"
+	"        hcontrol destroy <house vnum> - удалить дружину\r\n"
+	"        hcontrol outcast <name> - исключить игрока из дружины\r\n"
 	"        hcontrol save\r\n"
 	"        hcontrol title <vnum ренты> <аббревиатура для муж рода> <аббревиатура для жен рода>\r\n"
 	"        hcontrol rank <vnum ренты> <старое звание муж рода> <звание для муж рода> <звание для жен рода>\r\n"
