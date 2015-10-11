@@ -1227,6 +1227,9 @@ extern SPECIAL(shop_ext);
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
 #define IS_HORSE(ch) (IS_NPC(ch) && (ch->master) && AFF_FLAGGED(ch, AFF_HORSE))
+
+
+
 int on_horse(CHAR_DATA * ch);
 int has_horse(CHAR_DATA * ch, int same_room);
 CHAR_DATA *get_horse(CHAR_DATA * ch);

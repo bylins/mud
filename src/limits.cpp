@@ -200,7 +200,7 @@ int mana_gain(CHAR_DATA * ch)
 	}
 
 	if (world[IN_ROOM(ch)]->fires)
-		percent += MAX(50, 10 + world[IN_ROOM(ch)]->fires * 5);
+		percent += MAX(100, 10 + (world[IN_ROOM(ch)]->fires * 5) * 2);
 
 	if (AFF_FLAGGED(ch, AFF_DEAFNESS))
 		percent += 15;
@@ -303,7 +303,7 @@ int hit_gain(CHAR_DATA * ch)
 	}
 
 	if (world[IN_ROOM(ch)]->fires)
-		percent += MAX(50, 10 + world[IN_ROOM(ch)]->fires * 5);
+		percent += MAX(100, 10 + (world[IN_ROOM(ch)]->fires * 5) * 2);
 
 	// Skill/Spell calculations //
 
