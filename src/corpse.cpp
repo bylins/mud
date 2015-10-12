@@ -181,7 +181,7 @@ int get_obj_to_drop(DropListType::iterator &i)
 	std::vector<int> tmp_list;
 	for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end(); k != kend; ++k)
 	{
-		if ((obj_index[k->second].stored + obj_index[k->second].number < GET_OBJ_MIW(obj_proto[k->second])) || (check_unlimited_timer(obj_proto[k->second])))
+		if ((obj_index[k->second].stored + obj_index[k->second].number < GET_OBJ_MIW(obj_proto[k->second])) || check_unlimited_timer(obj_proto[k->second]) || (GET_OBJ_MIW(obj_proto[k->second]) == -1)) //MIW -1 для совместимости понятия бесконечного количества шмота в магазах
 		{
 			tmp_list.push_back(k->second);
 		}

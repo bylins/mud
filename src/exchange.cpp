@@ -228,8 +228,8 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 				|| OBJ_FLAGGED(obj, ITEM_NOSELL)
 				|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
 				|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
-				|| GET_OBJ_RNUM(obj) < 0
-				|| obj->get_timer() == UTIMER)
+				|| GET_OBJ_RNUM(obj) < 0)
+
 		{
 			send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
 			return false;
@@ -292,9 +292,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		send_to_char("Базар переполнен!\r\n", ch);
 		return false;
 	}
-
 	item = create_exchange_item();
-
 	GET_EXCHANGE_ITEM_LOT(item) = lot;
 	GET_EXCHANGE_ITEM_SELLERID(item) = GET_IDNUM(ch);
 	GET_EXCHANGE_ITEM_COST(item) = item_cost;
@@ -306,6 +304,8 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 
 	GET_EXCHANGE_ITEM(item) = obj;
 	obj_from_char(obj);
+	if  (obj->get_timer() == UTIMER) // если нерушима таймер 1 неделя
+		obj->set_timer(10080);
 
 	sprintf(tmpbuf, "Вы выставили на базар $O3 (лот %d) за %d %s.\r\n",
 			GET_EXCHANGE_ITEM_LOT(item), item_cost, desc_count(item_cost, WHAT_MONEYu));
@@ -1559,9 +1559,13 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 				sprintf(tmpbuf, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0), buf);
 			}
 		}
-		else if (is_dig_stone(GET_EXCHANGE_ITEM(j)) && GET_OBJ_MATER(GET_EXCHANGE_ITEM(j)) == MAT_GLASS)
+		else 
 		{
 			sprintf(tmpbuf, "[%4d]   %s (стекло)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
+		}
+		else if (check_unlimited_timer(object))
+		{
+			sprintf(tmpbuf, "[%4d]   %s (нерушимо)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
 		}
 		else
 		{
