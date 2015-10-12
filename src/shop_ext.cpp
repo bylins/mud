@@ -84,6 +84,8 @@ long get_sell_price(OBJ_DATA * obj);
 const int IDENTIFY_COST = 110;
 int spent_today = 0;
 const char *MSG_NO_STEAL_HERE = "$n, грязн$w воришка, чеши отседова!";
+int wear = -10;
+int type = -10;
 
 struct item_desc_node
 {
@@ -728,6 +730,222 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		if (arg.empty()
 			|| isname(arg.c_str(), print_value.c_str())
 			|| (!name_value.empty() && isname(arg.c_str(), name_value.c_str())))
+		{
+			out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
+				% num++ % numToShow % print_value % (*k)->price);
+		}
+		else
+		{
+			num++;
+		}
+
+		++k;
+	}
+	page_string(ch->desc, out);
+//	send_to_char("В корзине " + boost::lexical_cast<string>((*shop)->waste.size()) + " элементов\r\n", ch);
+}
+
+bool init_wear(const char *str)
+{
+	if (is_abbrev(str, "палец"))
+	{
+		wear = ITEM_WEAR_FINGER;
+	}
+	else if (is_abbrev(str, "шея") || is_abbrev(str, "грудь"))
+	{
+		wear = ITEM_WEAR_NECK;
+	}
+	else if (is_abbrev(str, "тело"))
+	{
+		wear = ITEM_WEAR_BODY;
+	}
+	else if (is_abbrev(str, "голова"))
+	{
+		wear = ITEM_WEAR_HEAD;
+	}
+	else if (is_abbrev(str, "ноги"))
+	{
+		wear = ITEM_WEAR_LEGS;
+	}
+	else if (is_abbrev(str, "ступни"))
+	{
+		wear = ITEM_WEAR_FEET;
+	}
+	else if (is_abbrev(str, "кисти"))
+	{
+		wear = ITEM_WEAR_HANDS;
+	}
+	else if (is_abbrev(str, "руки"))
+	{
+		wear = ITEM_WEAR_ARMS;
+	}
+	else if (is_abbrev(str, "щит"))
+	{
+		wear = ITEM_WEAR_SHIELD;
+	}
+	else if (is_abbrev(str, "плечи"))
+	{
+		wear = ITEM_WEAR_ABOUT;
+	}
+	else if (is_abbrev(str, "пояс"))
+	{
+		wear = ITEM_WEAR_WAIST;
+	}
+	else if (is_abbrev(str, "запястья"))
+	{
+		wear = ITEM_WEAR_WRIST;
+	}
+	else if (is_abbrev(str, "правая"))
+	{
+		wear = ITEM_WEAR_WIELD;
+	}
+	else if (is_abbrev(str, "левая"))
+	{
+		wear = ITEM_WEAR_HOLD;
+	}
+	else if (is_abbrev(str, "обе"))
+	{
+		wear = ITEM_WEAR_BOTHS;
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool init_type(const char *str)
+{
+	if (is_abbrev(str, "свет") || is_abbrev(str, "light"))
+		type = ITEM_LIGHT;
+	else if (is_abbrev(str, "свиток") || is_abbrev(str, "scroll"))
+		type = ITEM_SCROLL;
+	else if (is_abbrev(str, "палочка") || is_abbrev(str, "wand"))
+		type = ITEM_WAND;
+	else if (is_abbrev(str, "посох") || is_abbrev(str, "staff"))
+		type = ITEM_STAFF;
+	else if (is_abbrev(str, "оружие") || is_abbrev(str, "weapon"))
+		type = ITEM_WEAPON;
+	else if (is_abbrev(str, "броня") || is_abbrev(str, "armor"))
+		type = ITEM_ARMOR;
+	else if (is_abbrev(str, "напиток") || is_abbrev(str, "potion"))
+		type = ITEM_POTION;
+	else if (is_abbrev(str, "прочее") || is_abbrev(str, "другое") || is_abbrev(str, "other"))
+		type = ITEM_OTHER;
+	else if (is_abbrev(str, "контейнер") || is_abbrev(str, "container"))
+		type = ITEM_CONTAINER;
+	else if (is_abbrev(str, "емкость") || is_abbrev(str, "tank"))
+		type = ITEM_DRINKCON;
+	else if (is_abbrev(str, "книга") || is_abbrev(str, "book"))
+		type = ITEM_BOOK;
+	else if (is_abbrev(str, "руна") || is_abbrev(str, "rune"))
+		type = ITEM_INGRADIENT;
+	else if (is_abbrev(str, "ингредиент") || is_abbrev(str, "ingradient"))
+		type = ITEM_MING;
+	else if (is_abbrev(str, "легкие") || is_abbrev(str, "легкая"))
+		type = ITEM_ARMOR_LIGHT;
+	else if (is_abbrev(str, "средние") || is_abbrev(str, "средняя"))
+		type = ITEM_ARMOR_MEDIAN;
+	else if (is_abbrev(str, "тяжелые") || is_abbrev(str, "тяжелая"))
+		type = ITEM_ARMOR_HEAVY;
+	else
+		return false;
+
+	return true;
+}
+
+void filter_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::string arg, int keeper_vnum)
+{
+	int num = 1;
+	wear = -10;
+	type = -10;
+	
+	std::string out;
+	std::string print_value="";
+	std::string name_value="";
+
+	const char *filtr_value="";
+	const char *first_simvol="";
+	
+	if (!arg.empty())
+		{first_simvol = arg.c_str();
+		filtr_value   = arg.substr(1,arg.size()-1).c_str();
+		}
+	
+	switch (first_simvol[0])
+		{
+		case 'Т':
+			if (!init_type(filtr_value))
+			{
+				send_to_char("Неверный тип предмета.\r\n", ch);
+				return;
+			}
+		break;
+		case 'О':
+			if (!init_wear(filtr_value))
+			{
+				send_to_char("Неверное место одевания предмета.\r\n", ch);
+				return;
+			}
+		break;
+		default:
+				send_to_char("Неверный фильтр. \r\n", ch);
+			return;;
+		break;
+		};
+	
+	send_to_char(ch,
+		" ##    Доступно   Предмет(фильтр)                              Цена (%s)\r\n"
+		"---------------------------------------------------------------------------\r\n",
+		(*shop)->currency.c_str());
+	
+	for (ItemListType::iterator k = (*shop)->item_list.begin();
+		k != (*shop)->item_list.end(); /* empty */)
+	{
+		int count = can_sell_count(shop, num - 1);
+		bool show_name = true;
+		
+		print_value="";
+		name_value="";
+
+		//Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
+		// чтобы не было в списках всяких "гриб @n1"
+		if ((*k)->temporary_ids.empty())
+		{
+			print_value = get_item_name((*k), keeper_vnum);
+			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == ITEM_DRINKCON)
+				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
+			
+				if (!( (wear > 0 && CAN_WEAR(obj_proto[(*k)->rnum], wear))
+					|| (type > 0 && type == GET_OBJ_TYPE(obj_proto[(*k)->rnum]))))
+					show_name = false;
+		
+		}
+		else
+		{
+			OBJ_DATA * tmp_obj = get_obj_from_waste(shop, (*k)->temporary_ids);
+			if (tmp_obj)
+			{
+				if (!( (wear > 0 && CAN_WEAR(tmp_obj, wear))
+					|| (type > 0 && type == GET_OBJ_TYPE(tmp_obj))))
+					show_name = false;
+			
+				print_value = std::string(tmp_obj->short_description);
+				name_value = std::string(tmp_obj->aliases);
+				(*k)->price = GET_OBJ_COST(tmp_obj);
+			}
+			else
+			{
+				k = (*shop)->item_list.erase(k);
+				continue;
+			}
+		}
+
+		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
+
+		// 
+		if ( show_name )
 		{
 			out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
 				% num++ % numToShow % print_value % (*k)->price);
@@ -1471,14 +1689,15 @@ SPECIAL(shop_ext)
 	{
 		return 0;
 	}
-	if (!(CMD_IS("список") || CMD_IS("list")
-		|| CMD_IS("купить") || CMD_IS("buy")
-		|| CMD_IS("рассмотреть") || CMD_IS("examine")
-		|| CMD_IS("характеристики") || CMD_IS("identify")
-		|| CMD_IS("оценить") || CMD_IS("value")
+	if (!(CMD_IS("список")   || CMD_IS("list")
+		|| CMD_IS("купить")  || CMD_IS("buy")
 		|| CMD_IS("продать") || CMD_IS("sell")
-		|| CMD_IS("чинить") || CMD_IS("repair")
-		|| CMD_IS("steal") || CMD_IS("украсть")))
+		|| CMD_IS("оценить") || CMD_IS("value")
+		|| CMD_IS("чинить")  || CMD_IS("repair")
+		|| CMD_IS("украсть") || CMD_IS("steal")
+		|| CMD_IS("фильтровать")    || CMD_IS("filter")
+		|| CMD_IS("рассмотреть")    || CMD_IS("examine")
+		|| CMD_IS("характеристики") || CMD_IS("identify")))
 	{
 		return 0;
 	}
@@ -1512,6 +1731,13 @@ SPECIAL(shop_ext)
 		std::string buffer = argument, buffer2;
 		GetOneParam(buffer, buffer2);
 		print_shop_list(ch, shop, buffer2, GET_MOB_VNUM(keeper));
+		return 1;
+	}
+	if (CMD_IS("фильтровать") || CMD_IS("filter"))
+	{
+		std::string buffer = argument, buffer2;
+		GetOneParam(buffer, buffer2);
+		filter_shop_list(ch, shop, buffer2, GET_MOB_VNUM(keeper));
 		return 1;
 	}
 	if (CMD_IS("купить") || CMD_IS("buy"))
