@@ -689,6 +689,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"пробовать", POS_RESTING, do_eat, 0, SCMD_TASTE, 300},
 	{"сожрать", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
 	{"продать", POS_STANDING, do_not_here, 0, 0, -1},
+	{"фильтровать", POS_STANDING, do_not_here, 0, 0, -1},
 	{"прыжок", POS_SLEEPING, do_goto, LVL_GOD, 0, 0},
 
 	{"разбудить", POS_RESTING, do_wake, 0, SCMD_WAKEUP, -1},
