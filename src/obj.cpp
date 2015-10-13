@@ -373,6 +373,8 @@ void obj_data::set_cost(int x)
 
 int obj_data::get_rent() const
 {
+	/* if (check_unlimited_timer(this))
+		return 0; */
 	return cost_per_day_off_;
 }
 
@@ -386,6 +388,8 @@ void obj_data::set_rent(int x)
 
 int obj_data::get_rent_eq() const
 {
+	/* if (check_unlimited_timer(this))
+		return 0; */
 	return cost_per_day_on_;
 }
 
