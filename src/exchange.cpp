@@ -49,6 +49,7 @@ extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern bool is_dig_stone(OBJ_DATA *obj);
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 
 //свои ф-ии
 int exchange_exhibit(CHAR_DATA * ch, char *arg);
@@ -302,10 +303,10 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	else
 		GET_EXCHANGE_ITEM_COMMENT(item) = NULL;
 
-	GET_EXCHANGE_ITEM(item) = obj;
-	obj_from_char(obj);
 	if  (obj->get_timer() == UTIMER) // если нерушима таймер 1 неделя
 		obj->set_timer(10080);
+	GET_EXCHANGE_ITEM(item) = obj;
+	obj_from_char(obj);
 
 	sprintf(tmpbuf, "Вы выставили на базар $O3 (лот %d) за %d %s.\r\n",
 			GET_EXCHANGE_ITEM_LOT(item), item_cost, desc_count(item_cost, WHAT_MONEYu));
@@ -1563,7 +1564,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		{
 			sprintf(tmpbuf, "[%4d]   %s (стекло)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
 		}
-		else if (check_unlimited_timer(object))
+		else if (check_unlimited_timer(GET_EXCHANGE_ITEM(j)))
 		{
 			sprintf(tmpbuf, "[%4d]   %s (нерушимо)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
 		}
