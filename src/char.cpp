@@ -1812,3 +1812,23 @@ obj_sets::activ_sum& Character::obj_bonus()
 {
 	return obj_bonus_;
 }
+
+/*
+int Character::get_event_score()
+{
+	return score_event;
+}
+
+void Character::inc_event_score(int score)
+{
+	score_event++;
+}
+
+void Character::set_event_score(int score)
+{
+	score_event = score;
+}
+*/
+
+
+

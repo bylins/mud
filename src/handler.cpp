@@ -45,7 +45,7 @@
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "obj_sets.hpp"
-
+  extern bool check_unlimited_timer(OBJ_DATA *obj);
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
 int max_stats2[][6] =
@@ -1515,7 +1515,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		{
-			if (!(object->get_timer() == UTIMER))
+			if (!( check_unlimited_timer(object)))
 			    SET_BIT(GET_OBJ_EXTRA(object, ITEM_TICKTIMER), ITEM_TICKTIMER);
 			insert_obj_and_group(object, &ch->carrying);
 		}
@@ -1526,12 +1526,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			ch->carrying = object;
 		}
 
-		// проверяем наш объект на беск.таймер
-		if (check_unlimited_timer(object))
-		{
-			// ставим беск.таймер
-			object->set_timer(UTIMER);
-		}
+	
 		object->carried_by = ch;
 		object->in_room = NOWHERE;
 		IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);

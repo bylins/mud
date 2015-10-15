@@ -618,7 +618,25 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 
 	reset_affects(ch);
-
+	// для начала проверяем, активны ли евенты
+	/*if (ACTIVE_EVENT)
+	{
+		// проверяем тип евента
+		if (type_event == EVENT_KILL_MOBS)
+		{
+			// проверяем лмоб ли это
+			if (IS_NPC(ch))
+			{
+				// проверяем левел
+				if (GET_LEVEL(ch) == event_level_mob)
+				{
+					send_to_char(killer, EventMessageCommon);
+					killer->inc_event_score();
+					event_leaderboard.insert(pair<std::string,int>(GET_NAME(killer), killer->get_event_score()) );
+				}
+			}
+		}
+	}*/
 	if ((!killer || death_mtrigger(ch, killer)) && IN_ROOM(ch) != NOWHERE)
 	{
 		death_cry(ch);

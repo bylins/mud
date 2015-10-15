@@ -21,6 +21,8 @@
 #include <map>
 #include <iterator>
 #include <sys/stat.h>
+#include <set>
+#include <utility>
 
 #include "sysdep.h"
 #include "structs.h"
@@ -3507,10 +3509,7 @@ ACMD(do_insertgem)
 		int timer = itemobj->get_timer() - itemobj->get_timer() / 100 * insgem_vars.timer_minus_percent;
 		itemobj->set_timer(timer);
 	}
-	if (check_unlimited_timer(itemobj))
-	{
-		itemobj->set_timer(UTIMER);
-	}
+
 	if (GET_OBJ_MATER(gemobj) == 18)
 	{
 //Polos.insert_wanted_gem
@@ -3907,3 +3906,95 @@ bool is_dark(room_rnum room)
 		
 }
 
+
+/*
+
+
+
+// активен ли ивент, 0 - не активен, 0 < время в тиках до конца ивента
+int time_event = 0;
+// тип евента
+int type_event = 0;
+// список левелов для первого типа ивента (убить n-количество мобов)
+const int rand_level_mob_for_event[10] = {2, 25, 21};
+int event_level_mob = 0;
+// для хранения лидерборда <имя, количество очков>
+std::map <string,int> event_leaderboard = {};
+
+
+const char *EventStartMsg[] =
+{
+	"&WНачинается событие! Убей, как можно больше мобов определенного уровня&n",
+	"блаблабла",
+	"блаблабла",
+	"блабла",
+};
+const char *EventMessageCommon = "&WПоздравляем, Вы стали чуть-чуть ближе к победе&n\r\n";
+// количество типов евента
+#define COUNT_EVENT 1
+#define EVENT_KILL_MOBS 0
+// активен ли event
+#define ACTIVE_EVENT ((time_event > 0) ? true : false)
+
+// для старта ивентов
+void start_event()
+{
+	// если ивент уже идет, то не начинаем его
+	if (time_event > 0)
+		return;
+	// начинаем евент
+	type_event = number(0, COUNT_EVENT-1);
+	time_event = 10;	
+	if (time_event == EVENT_KILL_MOBS)
+	{
+		event_level_mob = 2;
+		// здесь отправляем всем сообщение
+		sprintf(buf, EventStartMsg[EVENT_KILL_MOBS]);
+		send_to_all(buf);
+	}
+	
+	
+}
+ACMD(do_event)
+{
+	start_event();
+}
+
+
+
+// Вывод лидерборда
+ACMD(do_leaderboard_event)
+{
+	send_to_char("Список лидеров текущего события:\r\n", ch);
+	if (event_leaderboard.size() <= 0)
+	{
+		send_to_char("Текущий список пуст :(", ch);
+		return;
+	}
+	// итератор
+	std::map<std::string, int>::iterator it;
+	for (it = event_leaderboard.begin(); it != event_leaderboard.end(); it++)
+	{
+		//sprintf(buf, "%d. %s : %s\r\n", i, (*it).first, (*it).second);
+		send_to_char(buf, ch);
+	}
+	
+}
+
+
+// Для проверки ивента
+void check_event()
+{
+	if (time_event < 0)
+		return;
+	time_event--;
+	if (time_event <= 0)
+	{
+		send_to_all("Событие закончилось :(");
+		return;
+	}
+	sprintf(buf, "До конца события осталось: %d часов", time_event);
+	send_to_all(buf);
+	
+	
+}*/

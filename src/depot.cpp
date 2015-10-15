@@ -1371,12 +1371,6 @@ void CharNode::load_online_objs(int file_type, bool reload)
                 int temp_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
                 if (obj->get_timer() > temp_timer)
                     obj->set_timer(temp_timer);
-				// проверяем наш объект на беск.таймер
-				if (check_unlimited_timer(obj))
-				{
-					// ставим беск.таймер
-					obj->set_timer(UTIMER);
-				}
 				// надо уменьшать макс в мире на постое, макс в мире шмотки в игре
 				// увеличивается в read_one_object_new через read_object
 				int rnum = real_object(GET_OBJ_VNUM(obj));

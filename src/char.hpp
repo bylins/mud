@@ -341,7 +341,10 @@ class Character : public PlayerI
 public:
 	Character();
 	virtual ~Character();
-
+	// для ивентов
+	int get_event_score();
+	void inc_event_score(int score);
+	void set_event_score(int score);
 	// это все как обычно временно... =)
 	friend void save_char(CHAR_DATA *ch);
 	friend void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -636,7 +639,9 @@ private:
 	int restore_timer_;
 	// всякие хитрые бонусы с сетов (здесь, чтобы чармисов не обделить)
 	obj_sets::activ_sum obj_bonus_;
-
+	// для режимов
+	// количество набранных очков
+	int count_score;
 // старое
 public:
 	mob_rnum nr;		// Mob's rnum

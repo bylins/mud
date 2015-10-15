@@ -305,6 +305,8 @@ int obj_data::get_timer() const
 	return timer_;
 }
 
+
+ extern bool check_unlimited_timer(OBJ_DATA *obj);
 /**
 * Реальное старение шмотки (без всяких технических сетов таймера по коду).
 * Помимо таймера самой шмотки снимается таймер ее временного обкаста.
@@ -317,7 +319,7 @@ void obj_data::dec_timer(int time)
 		timed_spell.dec_timer(this, time);
 	}
 
-	if ((timer_ == UTIMER) && (timer_ != 0))
+	if ( check_unlimited_timer(this) )
 		return;
 	if (time > 0)
 	{

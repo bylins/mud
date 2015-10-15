@@ -1,5 +1,4 @@
-/* ************************************************************************
-*   File: objsave.cpp                                     Part of Bylins  *
+/*   File: objsave.cpp                                     Part of Bylins  *
 *  Usage: loading/saving player objects for rent and crash-save           *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
@@ -980,12 +979,6 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 				int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
 				if (object->get_timer() > temp_timer)
 				object->set_timer(temp_timer);
-				// проверяем наш объект на беск.таймер
-				if (check_unlimited_timer(object)) 
-				{
-					// ставим беск.таймер
-					object->set_timer(UTIMER);
-				}
 			}
 		}
 		// Сложность замкА
@@ -2121,11 +2114,9 @@ int Crash_load(CHAR_DATA * ch)
 			obj_index[rnum].stored--;
 		}
 		// в два действия, чтобы заодно снять и таймер обкаста
-		if (obj->get_timer() != UTIMER)
-		{
-		    obj->set_timer(SAVEINFO(index)->time[fsize].timer);
-		    obj->dec_timer(timer_dec);
-		}
+		obj->set_timer(SAVEINFO(index)->time[fsize].timer);
+		obj->dec_timer(timer_dec);
+		
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0)
 		{

@@ -80,7 +80,7 @@ extern int top_imtypes;
 extern void show_code_date(CHAR_DATA *ch);
 extern int nameserver_is_slow; //config.cpp
 extern void login_change_invoice(CHAR_DATA *ch);
-
+ extern bool check_unlimited_timer(OBJ_DATA *obj);
 // extern functions
 long find_class_bitvector(char arg);
 int level_exp(CHAR_DATA * ch, int level);
@@ -364,7 +364,7 @@ char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear)
 }
 
 // Чтобы можно было получить только строку состяния
-const char *diag_obj_timer(const OBJ_DATA * obj)
+const char *diag_obj_timer(OBJ_DATA * obj)
 {
 	if (GET_OBJ_RNUM(obj) != NOTHING)
 	{
@@ -373,7 +373,7 @@ const char *diag_obj_timer(const OBJ_DATA * obj)
 		{
 			return "Прототип предмета имеет нулевой таймер!\r\n";
 		}
-		if (obj->get_timer() == UTIMER)
+		if ( check_unlimited_timer(obj))
 		    return "нерушимо";
 		int tm = (obj->get_timer() * 100 / prot_timer);
 		return print_obj_state(tm);
@@ -381,11 +381,11 @@ const char *diag_obj_timer(const OBJ_DATA * obj)
 	return "";
 }
 
-char *diag_timer_to_char(const OBJ_DATA * obj)
+char *diag_timer_to_char(OBJ_DATA * obj)
 {
 	static char out_str[MAX_STRING_LENGTH];
 	*out_str = 0;
-	if (obj->get_timer() == UTIMER)
+	if ( check_unlimited_timer(obj))
 		sprintf(out_str, "Состояние: нерушимо.\r\n");
 	else
 		sprintf(out_str, "Состояние: %s.\r\n", diag_obj_timer(obj));

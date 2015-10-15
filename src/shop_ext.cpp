@@ -74,7 +74,7 @@ extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_align(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
-extern char *diag_timer_to_char(const OBJ_DATA * obj);
+extern char *diag_timer_to_char(OBJ_DATA * obj);
 
 
 namespace ShopExt
@@ -1608,7 +1608,8 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		std::string tell = "Предмет "+ std::string(ident_obj->short_description)+": ";
 		tell += std::string(item_types[GET_OBJ_TYPE(ident_obj)])+"\r\n";
 		tell += std::string(diag_weapon_to_char(ident_obj, TRUE));
-		tell += std::string(diag_timer_to_char(ident_obj));
+		tmp_obj = const_cast<OBJ_DATA*>(ident_obj);
+		tell += std::string(diag_timer_to_char(tmp_obj));
 		if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		{
 			sprintf(buf, "Материал : ");
