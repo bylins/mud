@@ -439,8 +439,8 @@ struct obj_data
 
 	void set_timer(int timer);
 	int get_timer() const;
-	void dec_timer(int time = 1);
-
+	void dec_timer(int time = 1, bool ingore_utimer = false);
+	
 	static id_to_set_info_map set_table;
 	static void init_set_table();
 

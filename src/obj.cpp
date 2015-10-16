@@ -312,20 +312,22 @@ int obj_data::get_timer() const
 * Помимо таймера самой шмотки снимается таймер ее временного обкаста.
 * \param time по дефолту 1.
 */
-void obj_data::dec_timer(int time)
+void obj_data::dec_timer(int time, bool ignore_utimer)
 {
 	if (!timed_spell.empty())
 	{
 		timed_spell.dec_timer(this, time);
 	}
 
-	if ( check_unlimited_timer(this) )
+	if ( check_unlimited_timer(this) && !ignore_utimer)
 		return;
 	if (time > 0)
 	{
 		timer_ -= time;
 	}
 }
+
+
 
 int obj_data::get_manual_mort_req() const
 {
