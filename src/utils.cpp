@@ -52,7 +52,7 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern int top_of_p_table;
 extern const char *weapon_class[];
-
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 // local functions
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
@@ -3413,7 +3413,7 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const
 		else
 		{
 			int tm_pct;
-			if (obj->get_timer() == UTIMER)  // если шмотка нерушима, физически проставляем текст нерушимо
+			if (check_unlimited_timer(obj))  // если шмотка нерушима, физически проставляем текст нерушимо
 				tm_pct = 1000;
 			else
 				tm_pct = obj->get_timer() * 100 / proto_tm;
