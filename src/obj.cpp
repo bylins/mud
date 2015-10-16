@@ -319,7 +319,7 @@ void obj_data::dec_timer(int time, bool ignore_utimer)
 		timed_spell.dec_timer(this, time);
 	}
 
-	if ( check_unlimited_timer(this) && !ignore_utimer)
+	if (!ignore_utimer && check_unlimited_timer(this))
 		return;
 	if (time > 0)
 	{
