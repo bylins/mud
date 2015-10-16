@@ -303,8 +303,8 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	else
 		GET_EXCHANGE_ITEM_COMMENT(item) = NULL;
 
-//	if  (obj->get_timer() == UTIMER) // если нерушима таймер 1 неделя
-//		obj->set_timer(10080);
+	if  (obj->get_timer() == UTIMER) // если нерушима таймер 1 неделя
+		obj->set_timer(10080);
 	GET_EXCHANGE_ITEM(item) = obj;
 	obj_from_char(obj);
 
