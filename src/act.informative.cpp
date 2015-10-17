@@ -94,7 +94,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
 const char *diag_obj_timer(const OBJ_DATA * obj);
-char *diag_timer_to_char(const OBJ_DATA * obj);
+char *diag_timer_to_char(OBJ_DATA * obj);
 const char * print_god_or_player(int level);
 int get_pick_chance(int skill_pick, int lock_complexity);
 int thaco(int class_num, int level);
@@ -391,6 +391,7 @@ char *diag_timer_to_char(OBJ_DATA * obj)
 		sprintf(out_str, "Состояние: %s.\r\n", diag_obj_timer(obj));
 	return (out_str);
 }
+
 
 
 char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)

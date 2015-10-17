@@ -1608,8 +1608,7 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		std::string tell = "Предмет "+ std::string(ident_obj->short_description)+": ";
 		tell += std::string(item_types[GET_OBJ_TYPE(ident_obj)])+"\r\n";
 		tell += std::string(diag_weapon_to_char(ident_obj, TRUE));
-		tmp_obj = const_cast<OBJ_DATA*>(ident_obj);
-		tell += std::string(diag_timer_to_char(tmp_obj));
+		tell += std::string(diag_timer_to_char(const_cast<OBJ_DATA*>(ident_obj)));
 		if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		{
 			sprintf(buf, "Материал : ");

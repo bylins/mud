@@ -46,7 +46,7 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict);
 bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
 
 // external functions
-extern char *diag_timer_to_char(const OBJ_DATA * obj);
+extern char *diag_timer_to_char(OBJ_DATA * obj);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 ACMD(do_say);
