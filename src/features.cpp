@@ -554,12 +554,12 @@ void assign_feats(void)
 	// если у лидера группы есть данная способность и в группе,
 	// двое человек, то экспа не режется.
 	feato(PARTNER_FEAT, "напарник", NORMAL_FTYPE, TRUE, feat_app);
-///112
+/*//112
 	// 2x дамаги
-	feato(FRENZY_FEAT, "неистовство", NORMAL_FTYPE, TRUE, feat_app);
+//	feato(FRENZY_FEAT, "неистовство", NORMAL_FTYPE, TRUE, feat_app);
 ///113
 	// 2x дамаги, но 40% меньше хп
-	feato(FRANTIC_FEAT, "безумие",  NORMAL_FTYPE, TRUE, feat_app);
+//	feato(FRANTIC_FEAT, "безумие",  NORMAL_FTYPE, TRUE, feat_app);
 ///114
 	// 2x к дамаги к стабу
 	feato(EASTMATTER_FEAT, "восточное дело", NORMAL_FTYPE, TRUE, feat_app);
@@ -613,25 +613,25 @@ void assign_feats(void)
 	feato(MAGICLIFE_FEAT, "магическая жизнь", NORMAL_FTYPE, TRUE, feat_app);
 ///131 
 	// высосать жизнь дает на 25% больше надува
-	feato(BUSYLIFE_FEAT, "насыщение жизнью", NORMAL_FTYPE, TRUE, feat_app);
+//	feato(BUSYLIFE_FEAT, "насыщение жизнью", NORMAL_FTYPE, TRUE, feat_app);
 ///132
 	// высосать жизнь дает на 50% больше надува
-	feato(BUSYLIFE2_FEAT, "насыщение жизнью2", NORMAL_FTYPE, TRUE, feat_app);
+//	feato(BUSYLIFE2_FEAT, "насыщение жизнью2", NORMAL_FTYPE, TRUE, feat_app);
 ///133
 	// скелет может рескать
 	feato(TRUEFRIEND_FEAT, "верный друг", NORMAL_FTYPE, TRUE, feat_app);
 ///134
 	// умка может рескать
-	feato(DEATHASSIST_FEAT, "мертвая помощь", NORMAL_FTYPE, TRUE, feat_app);
+//	feato(DEATHASSIST_FEAT, "мертвая помощь", NORMAL_FTYPE, TRUE, feat_app);
 ///135
 	// Землятресение длится на один раунд дольше
-	feato(LOOSEARTH_FEAT, "рыхлая земля", NORMAL_FTYPE, TRUE, feat_app);
+//	feato(LOOSEARTH_FEAT, "рыхлая земля", NORMAL_FTYPE, TRUE, feat_app);
 ///136
 	// Процент прохождение кам.проклы выше на 75%
-	feato(FLINT_HEART_FEAT, "каменное сердце", NORMAL_FTYPE, TRUE, feat_app);
+//	feato(FLINT_HEART_FEAT, "каменное сердце", NORMAL_FTYPE, TRUE, feat_app);
 ///137
 	// чернок может поднять на одного последователя больше
-	feato(TRUEFOLLOWERS_FEAT, "верные последователи", NORMAL_FTYPE, TRUE, feat_app);
+//	feato(TRUEFOLLOWERS_FEAT, "верные последователи", NORMAL_FTYPE, TRUE, feat_app);
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
