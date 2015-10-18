@@ -3695,11 +3695,12 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 			// Если имя в именительном то дублируем запись
 			if (i == 0)
 			{
-				obj->short_description = str_dup(obj_pad.c_str());
+//				obj->short_description = str_dup(obj_pad.c_str());
 				ptr = obj_proto[GET_OBJ_RNUM(obj)]->short_description;
 				if (obj->short_description != ptr)
 					free(obj->short_description);
 				obj->short_description = str_dup(obj_pad.c_str());
+				obj->aliases = str_dup(obj_pad.c_str()); // ставим алиасы
 			}
 		}
 	};

@@ -908,7 +908,7 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 		oedit_disp_val4_menu(d);
 		break;
 	case ITEM_MATERIAL:
-		send_to_char("Первый параметр: ", d->character);
+		send_to_char("Уровень игрока для использования + морт * 2: ", d->character);
 		break;
 	case ITEM_BANDAGE:
 		send_to_char("Хитов в секунду: ", d->character);
@@ -985,7 +985,7 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Виртуальный номер прототипа  : ", d->character);
 		break;
 	case ITEM_MATERIAL:
-		send_to_char("Второй параметр: ", d->character);
+		send_to_char("Введите VNUM прототипа: ", d->character);
 		break;
 	default:
 		oedit_disp_menu(d);
@@ -1037,7 +1037,7 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Сколько раз можно использовать : ", d->character);
 		break;
 	case ITEM_MATERIAL:
-		send_to_char("Введите количество (размер): ", d->character);
+		send_to_char("Введите силу ингридиента: ", d->character);
 		break;
 	default:
 		oedit_disp_menu(d);
@@ -1083,7 +1083,7 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character);
 		break;
 	case ITEM_MATERIAL:
-		send_to_char("Введите материал: ", d->character);
+		send_to_char("Введите условный уровень (1-5): ", d->character);
 		break;
 	case ITEM_CONTAINER:
 		send_to_char("Введите сложность замка (0-255): ", d->character);
