@@ -237,79 +237,74 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 		return NULL;
 	}
 
-	definitor = (int)((mob->get_str() + mob->get_dex() + mob->get_con() + mob->get_wis() + mob->get_int()) / 5);
+	definitor = int (GET_LEVEL(mob) / 11);
 	GET_OBJ_PARENT(skin) = GET_MOB_VNUM(mob);
-	trans_obj_name(skin, mob);
-	if (0 <= definitor && definitor <= 15)
+	trans_obj_name(skin, mob); // переносим падежи
+	if (definitor == 0) // 1-10
 	{
 		limit = 5;
-		eff = number(0, 1);
+		eff = 0;
 		max_eff = 9;
 		//aff = 0;
-		GET_OBJ_VAL(skin, 0) = number(1, 3);
-		GET_OBJ_VAL(skin, 1) = number(0, 2);
+		GET_OBJ_VAL(skin, 3) = 1; // типа будет левел шкуры
 	}
-	else if (16 <= definitor && definitor <= 25)
-	{
-		limit = 7;
-		eff = number(0, 2);
+	else if (definitor == 1) // 11-21
+	{		limit = 7;
+		eff = 1;
 		max_eff = 12;
 		//aff = number(0, 1);
-		GET_OBJ_VAL(skin, 0) = number(2, 5);
-		GET_OBJ_VAL(skin, 1) = number(2, 5);
+		GET_OBJ_VAL(skin, 3) = 2;
 	}
-	else if (26 <= definitor && definitor <= 35)
+	else if (definitor == 2) //22-32
 	{
 		limit = 8;
-		eff = number(0, 3);
+		eff = 2;
 		max_eff = 25;
 		//aff = number(0, 1);
-		GET_OBJ_VAL(skin, 0) = number(4, 7);
-		GET_OBJ_VAL(skin, 1) = number(4, 6);
+		GET_OBJ_VAL(skin, 3) = 3;
 	}
-	else if (36 <= definitor && definitor <= 45)
+	else if (definitor == 3) //33-43
 	{
 		limit = 10;
-		eff = number(0, 4);
+		eff =  3;
 		max_eff = 30;
 		//aff = number(0, 2);
-		GET_OBJ_VAL(skin, 0) = number(6, 9);
-		GET_OBJ_VAL(skin, 1) = number(5, 7);
+		GET_OBJ_VAL(skin, 3) = 4;
 	}
-	else
+	else //44+
 	{
 		limit = 10;
-		eff = number(0, 6);
+		eff = 4;
 		max_eff = 39;
 		//aff = number(0, 3);
-		GET_OBJ_VAL(skin, 0) = number(6, 10);
-		GET_OBJ_VAL(skin, 1) = number(5, 8);
+		GET_OBJ_VAL(skin, 3) = 5;
 	}
 
 	for (i = 1; i <= eff; i++)
 	{
-		if (number(0, 1000) <= 200)
-			continue;
-		concidence = TRUE;
-		while (concidence)
+		if (number(1, i) == 1) // 1 100% +1 50% +2 33% +3 25% +4 20%
 		{
-			num = number(0, max_eff);
-			concidence = FALSE;
-			for (n = 0; n <= k && i > 1; n++)
+			concidence = TRUE;
+			while (concidence)
 			{
-				if (effects[num][0] == (skin)->affected[n].location)
-					concidence = TRUE;
+				num = number(0, max_eff);
+				concidence = FALSE;
+				for (n = 0; n <= k && i > 1; n++)
+				{
+					if (effects[num][0] == (skin)->affected[n].location)
+						concidence = TRUE;
+				}
 			}
+			(skin)->affected[k].location = effects[num][0];
+			effect = number(1, (int)(effects[num][1] * limit / 10));
+			if (number(0, 1000) <= 150) // 15% аффект отрицательный
+				effect *= -1;
+			(skin)->affected[k].modifier = effect;
+			k++;
 		}
-		(skin)->affected[k].location = effects[num][0];
-		effect = number(1, (int)(effects[num][1] * limit / 10));
-		if (number(0, 1000) <= 150)
-			effect *= -1;
-		(skin)->affected[k].modifier = effect;
-		k++;
 	}
 	skin->set_cost(GET_LEVEL(mob) * number(2, MAX(3, 3 * k)));
-	GET_OBJ_VAL(skin, 2) = (int)(1 + (GET_WEIGHT(mob) + GET_SIZE(mob)) / 20);
+	GET_OBJ_VAL(skin, 2) = 95; //оставил 5% фейла переноса аффектов на создаваемую шмотку
 
 	return skin;
 }

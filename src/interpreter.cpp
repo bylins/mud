@@ -1034,7 +1034,7 @@ cpp_extern const struct command_info cmd_info[] =
 	// Команды крафтинга - для тестига пока уровня имма
 	{"mrlist", POS_DEAD, do_list_make, LVL_BUILDER, 0, 0},
 	{"mredit", POS_DEAD, do_edit_make, LVL_BUILDER, 0, 0},
-	{"шить", POS_STANDING, do_make_item, 0, MAKE_WEAR, 0},
+	{"сшить", POS_STANDING, do_make_item, 0, MAKE_WEAR, 0},
 	{"выковать", POS_STANDING, do_make_item, 0, MAKE_METALL, 0},
 	{"смастерить", POS_STANDING, do_make_item, 0, MAKE_CRAFT, 0},
 

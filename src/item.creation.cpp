@@ -1544,6 +1544,19 @@ MakeReceptList *MakeReceptList::can_make(CHAR_DATA * ch, MakeReceptList * canlis
 
 	return (canlist);
 }
+OBJ_DATA *get_obj_in_list_ingr(int num, OBJ_DATA * list) //Ингридиентом является или сам прототип с VNUM или альтернатива с VALUE 1 равным внум прототипа
+{
+    OBJ_DATA *i;
+
+    for (i = list; i; i = i->next_content)
+    {
+	if (GET_OBJ_VNUM(i) == num)
+	    return (i);
+	if ((GET_OBJ_VAL(i, 1) == num) && (GET_OBJ_TYPE(i) == ITEM_INGRADIENT || GET_OBJ_TYPE(i) == ITEM_MING || GET_OBJ_TYPE(i) == ITEM_MATERIAL))
+	    return (i);
+    }
+    return (NULL);
+}
 
 MakeRecept::MakeRecept()
 {
@@ -1614,7 +1627,7 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 			return (FALSE);
 //      send_to_char("Образец был невозвратимо утерян.\r\n",ch); //леший знает чего тут надо писать
 
-		if (!(ingrobj = get_obj_in_list_vnum(parts[i].proto, ch->carrying)))
+		if (!(ingrobj = get_obj_in_list_ingr(parts[i].proto, ch->carrying)))
 		{
 //       sprintf(tmpbuf,"Для '%d' у вас нет '%d'.\r\n",obj_proto,parts[i].proto);
 //       send_to_char(tmpbuf,ch);
@@ -1624,8 +1637,10 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 		int ingr_lev = get_ingr_lev(ingrobj);
 		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
 		// участием.
-		if (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch)))
-		{
+		if (!IS_IMPL(ch) && (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch))))
+    		{
+			send_to_char("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
+
 			return (FALSE);
 		}
 	}
@@ -1678,7 +1693,7 @@ int MakeRecept::get_ingr_pow(OBJ_DATA * ingrobj)
 // создать предмет по рецепту
 int MakeRecept::make(CHAR_DATA * ch)
 {
-	char tmpbuf[MAX_STRING_LENGTH];	//, tmpbuf2[MAX_STRING_LENGTH];
+	char tmpbuf[MAX_STRING_LENGTH];//, tmpbuf2[MAX_STRING_LENGTH];
 	OBJ_DATA *ingrs[MAX_PARTS];
 	string tmpstr, charwork, roomwork, charfail, roomfail, charsucc, roomsucc, chardam, roomdam, tagging, itemtag;
 	int dam = 0;
@@ -1722,11 +1737,11 @@ int MakeRecept::make(CHAR_DATA * ch)
 		if (parts[i].proto == 0)
 			break;
 
-		ingrs[i] = get_obj_in_list_vnum(parts[i].proto, ch->carrying);
+		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 
 		ingr_lev = get_ingr_lev(ingrs[i]);
 
-		if (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch)))
+		if (!IS_IMPL(ch) && (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch))))
 		{
 			tmpstr = "Вы побоялись испортить " + string(ingrs[i]->PNames[3]) +
 					 "\r\n и прекратили работу над " + string(tobj->PNames[4]) + ".\r\n";
@@ -1904,7 +1919,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		else
 			created_lev += ingr_lev;
 		// Шанс испортить не ингредиент всетаки есть.
-		if (number(0, 30) < (5 + ingr_lev - GET_LEVEL(ch) - 2 * GET_REMORT(ch)))
+		if ((number(0, 30) < (5 + ingr_lev - GET_LEVEL(ch) - 2 * GET_REMORT(ch))) && !IS_IMPL(ch))
 		{
 			tmpstr = "Вы испортили " + string(ingrs[i]->PNames[3]) + ".\r\n";
 
@@ -1936,7 +1951,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 	}
 	else
-		GET_MOVE(ch) -= craft_move;
+		if (!IS_IMPL(ch))
+			GET_MOVE(ch) -= craft_move;
 
 	// Делаем тут прокачку умения.
 
@@ -2051,7 +2067,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// Лоадим предмет игроку
 
 	OBJ_DATA *obj = read_object(obj_proto, VIRTUAL);
-
 	act(charsucc.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 	act(roomsucc.c_str(), FALSE, ch, obj, 0, TO_ROOM);
 	// 6. Считаем базовые статсы предмета и таймер
@@ -2170,24 +2185,71 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// больше переноситься 0
 
 	// переносим доп аффекты ...+мудра +ловка и т.п.
-
-	for (j = 0; j < ingr_cnt; j++)
+	if (skill == SKILL_MAKE_WEAR)
 	{
-		ingr_pow = get_ingr_pow(ingrs[j]);
+		int i;
+		//ставим именительные именительные падежи в алиасы 
+		sprintf(buf, "%s %s %s %s", GET_OBJ_PNAME(obj, 0), GET_OBJ_PNAME(ingrs[0], 0), GET_OBJ_PNAME(ingrs[1], 0), GET_OBJ_PNAME(ingrs[2], 0));
+		obj->aliases = str_dup(buf);
 
-		if (ingr_pow < 0)
-			ingr_pow = 20;
+		for (i = 0; i < NUM_PADS; i++) // ставим падежи в имя с учетов ингров
+		{
+			sprintf(buf, "%s", GET_OBJ_PNAME(obj, i));
+			strcat(buf, " из ");
+			strcat(buf, GET_OBJ_PNAME(ingrs[0], 1));
+			strcat(buf, " c ");
+			strcat(buf, GET_OBJ_PNAME(ingrs[1], 4));
+			strcat(buf, " и ");
+			strcat(buf, GET_OBJ_PNAME(ingrs[2], 4));
+			GET_OBJ_PNAME(obj, i) = str_dup(buf);
+			if (i == 0) // именительный падеж
+			{
+				obj->short_description = str_dup(buf);
+				sprintf(buf2, "Брошенная %s", buf);
+				strcat(buf2, " лежит тут.");
+				obj->description = str_dup(buf2); // описание на земле
+			}
+//			sprintf(buf2, "Падежи %d  == %s \r\n", i, GET_OBJ_PNAME(obj, i));
+//			send_to_char(buf2, ch);
+		}
+		add_flags(ch, &obj->obj_flags.affects, &ingrs[0]->obj_flags.affects, get_ingr_pow(ingrs[0]));
 
-		// переносим аффекты ... c ингров на прототип.
-		add_flags(ch, &obj->obj_flags.affects, &ingrs[j]->obj_flags.affects, ingr_pow);
+		// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
+		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[0]->obj_flags.extra_flags, get_ingr_pow(ingrs[0]));
+		add_affects(ch, obj->affected, ingrs[0]->affected, get_ingr_pow(ingrs[0]));
 
-		// перносим эффекты ... с ингров на прототип.
-		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[j]->obj_flags.extra_flags, ingr_pow);
+		for (j = 1; j < ingr_cnt; j++)
+		{ int i, z, raffect = 0;
+    			ingr_pow = get_ingr_pow(ingrs[j]);
+			if (ingr_pow < 0)
+				ingr_pow = 20;
+			for (i = 0;  i < MAX_OBJ_AFFECT; i++)
+				if (ingrs[j]->affected[i].location == APPLY_NONE)
+					break;
+			raffect = number (1, i);
+			for (z = 0; (z != raffect - 1) && (z < MAX_OBJ_AFFECT); z++);
+			// переносим аффекты ... c ингров на прототип.
+			add_flags(ch, &obj->obj_flags.affects, &ingrs[j]->obj_flags.affects, ingr_pow);
+			// перносим эффекты ... с ингров на прототип.
+			add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[j]->obj_flags.extra_flags, ingr_pow);
+			// переносим 1 рандом аффект
+			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+			{
+				if (obj->affected[i].location == ingrs[j]->affected[z].location) // если аффект такой висит, переставим параметр
+				{
+					obj->affected[i].modifier =  ingrs[j]->affected[z].modifier;
+					break;
+				}
+				if (obj->affected[i].location == APPLY_NONE) // добавляем афф на свободное место
+				{
+					obj->affected[i].location =  ingrs[j]->affected[z].location;
+					obj->affected[i].modifier =  ingrs[j]->affected[z].modifier;
+					break;
+				}
 
-		add_affects(ch, obj->affected, ingrs[j]->affected, ingr_pow);
-	};
-
-	/*  send_to_char("Устанавливает аффекты : ", ch);
+			}
+		}
+/*	  send_to_char("Устанавливает аффекты : ", ch);
 	  sprintbits(obj->obj_flags.affects, weapon_affects, tmpbuf, ",");
 	  strcat(tmpbuf, "\r\n");
 	  send_to_char(tmpbuf, ch);
@@ -2206,7 +2268,46 @@ int MakeRecept::make(CHAR_DATA * ch)
 	          send_to_char(tmpbuf, ch);
 	         }
 	  send_to_char("\r\n",ch);
-	*/
+*/
+	
+
+	} else // если не шитье то никаких махинаций с падежами и копированием рандом аффекта
+	for (j = 0; j < ingr_cnt; j++)
+	{
+		ingr_pow = get_ingr_pow(ingrs[j]);
+
+		if (ingr_pow < 0)
+			ingr_pow = 20;
+
+		// переносим аффекты ... c ингров на прототип.
+		add_flags(ch, &obj->obj_flags.affects, &ingrs[j]->obj_flags.affects, ingr_pow);
+
+		// перносим эффекты ... с ингров на прототип.
+		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[j]->obj_flags.extra_flags, ingr_pow);
+
+		add_affects(ch, obj->affected, ingrs[j]->affected, ingr_pow);
+	}
+/*
+	  send_to_char("Устанавливает аффекты : ", ch);
+	  sprintbits(obj->obj_flags.affects, weapon_affects, tmpbuf, ",");
+	  strcat(tmpbuf, "\r\n");
+	  send_to_char(tmpbuf, ch);
+
+	  send_to_char("Дополнительные флаги  : ", ch);
+	  sprintbits(obj->obj_flags.extra_flags, extra_bits, tmpbuf, ",");
+	  strcat(tmpbuf, "\r\n");
+	  send_to_char(tmpbuf, ch);
+
+	  send_to_char("Аффекты:", ch);
+	  for (i = 0; i < MAX_OBJ_AFFECT; i++)
+	      if (obj->affected[i].modifier)
+	         {sprinttype(obj->affected[i].location, apply_types, tmpbuf2);
+	          sprintf(tmpbuf, "%s %+d to %s",";",
+	         obj->affected[i].modifier, tmpbuf2);
+	          send_to_char(tmpbuf, ch);
+	         }
+	  send_to_char("\r\n",ch);
+*/	
 	// Мочим истраченные ингры.
 	for (i = 0; i < ingr_cnt; i++)
 	{
@@ -2232,7 +2333,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// шмотки по лучше (в целом это не так страшно).
 
 
-	if ((obj_index[GET_OBJ_RNUM(obj)].number + obj_index[GET_OBJ_RNUM(obj)].stored) >= (31 - created_lev) * 5)
+/*	if ((obj_index[GET_OBJ_RNUM(obj)].number + obj_index[GET_OBJ_RNUM(obj)].stored) >= (31 - created_lev) * 5)
 	{
 		tmpstr = "$o вспыхнул синим пламенем и исчез.\r\n";
 		act(tmpstr.c_str(), FALSE, ch, obj, 0, TO_CHAR);
@@ -2241,7 +2342,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 		extract_obj(obj);
 		return (FALSE);
 	};
-
+убрал макс чтоб нерушимыми не забили
+*/ 
 	// Ставим метку если все хорошо.
 	if (((GET_OBJ_TYPE(obj) != ITEM_INGRADIENT) &&
 			(GET_OBJ_TYPE(obj) != ITEM_MING)) &&
