@@ -2128,9 +2128,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			ExtMoney::draw_daily_limit(k, true).c_str());
 
 		//. Display OLC zone for immorts .
-		if (GET_LEVEL(k) >= LVL_IMMORT)
+		if (GET_LEVEL(ch) >= LVL_IMMORT)
 		{
-			sprintf(buf1, ", OLC[%d]", GET_OLC_ZONE(k));
+			sprintf(buf1, ", %sOLC[%d]%s", CCGRN(ch, C_NRM), GET_OLC_ZONE(k), CCNRM(ch, C_NRM));
 			strcat(buf, buf1);
 		}
 		strcat(buf, "\r\n");
@@ -5602,11 +5602,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			CLR_GOD_FLAG(vict, GF_GODSCURSE);
 		break;
 	case 44:
-		if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+		if (PRF_FLAGGED(ch, PRF_CODERINFO) || IS_IMPL(ch))
 			GET_OLC_ZONE(vict) = value;
 		else
 		{
-		    sprintf(buf, "Вы всеж не иммортал 34 чтоб раздавать права OLC\r\n");
+		    sprintf(buf, "Слишком низкий уровень чтоб раздавать права OLC.\r\n");
 		    send_to_char(buf, ch);
 		}
 	break;
