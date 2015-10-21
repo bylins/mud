@@ -303,7 +303,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	else
 		GET_EXCHANGE_ITEM_COMMENT(item) = NULL;
 
-	if  (obj->get_timer() == UTIMER) // если нерушима таймер 1 неделя
+	if  (check_unlimited_timer(obj)) // если нерушима таймер 1 неделя
 		obj->set_timer(10080);
 	GET_EXCHANGE_ITEM(item) = obj;
 	obj_from_char(obj);
@@ -1564,10 +1564,10 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		{
 			sprintf(tmpbuf, "[%4d]   %s (стекло)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
 		}
-		else if (check_unlimited_timer(GET_EXCHANGE_ITEM(j)))
-		{
-			sprintf(tmpbuf, "[%4d]   %s (нерушимо)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
-		}
+//		else if (check_unlimited_timer(GET_EXCHANGE_ITEM(j)))
+//		{
+//			sprintf(tmpbuf, "[%4d]   %s (нерушимо)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
+//		}
 		else
 		{
 			sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
