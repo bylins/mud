@@ -306,7 +306,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	}
 	skin->set_cost(GET_LEVEL(mob) * number(2, MAX(3, 3 * k)));
 	GET_OBJ_VAL(skin, 2) = 95; //оставил 5% фейла переноса аффектов на создаваемую шмотку
-	act("$n умело вырезали$g $o3.", FALSE, ch, skin, 0, TO_ROOM | TO_ARENA_LISTEN);
+	act("$n умело вырезал$g $o3.", FALSE, ch, skin, 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("Вы умело вырезали $o3.", FALSE, ch, skin, 0, TO_CHAR);
 	return skin;
 }
