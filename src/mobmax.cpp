@@ -21,6 +21,7 @@ const int MAX_MOB_IN_MOBKILL = 100;
 const int MOBKILL_KOEFF = 3;
 // кол-во мобов каждого уровня
 boost::array<int, MAX_MOB_LEVEL + 1> num_levels = { {0} };
+boost::array<int, MAX_MOB_LEVEL + 1> num_animals_levels = { {0} };
 // мап соответствий внумов и левелов (для быстрого чтения плеер-файла)
 typedef std::map<int/* внум моба */, int/* левел моба */> VnumToLevelType;
 VnumToLevelType vnum_to_level;
@@ -40,6 +41,8 @@ void MobMax::init()
 		else
 		{
 			++num_levels[level];
+			if (GET_RACE(mob_proto + i) == NPC_RACE_ANIMAL)
+				++num_animals_levels[level];
 			vnum_to_level[mob_index[i].vnum] = level;
 		}
 	}
@@ -47,6 +50,7 @@ void MobMax::init()
 	for (int i = 0; i <= MAX_MOB_LEVEL; ++i)
 	{
 		log("Mob lev %d. Num of mobs %d", i, num_levels[i]);
+		log("Mob animals lev %d. Num of animals mobs %d", i, num_animals_levels[i]);
 		num_levels[i] = num_levels[i] / MOBKILL_KOEFF;
 		if (num_levels[i] < MIN_MOB_IN_MOBKILL)
 			num_levels[i] = MIN_MOB_IN_MOBKILL;

@@ -37,13 +37,14 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "utils.h"
+#include "mobmax.hpp"
 
 // extern variables
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
 extern bool check_unlimited_timer(OBJ_DATA *obj);
-
+extern boost::array<int, MAX_MOB_LEVEL + 1> num_animals_levels;
 // from act.informative.cpp
 char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
 
@@ -305,7 +306,8 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	}
 	skin->set_cost(GET_LEVEL(mob) * number(2, MAX(3, 3 * k)));
 	GET_OBJ_VAL(skin, 2) = 95; //оставил 5% фейла переноса аффектов на создаваемую шмотку
-
+	act("$n умело вырезали$g $o3.", FALSE, ch, skin, 0, TO_ROOM | TO_ARENA_LISTEN);
+	act("Вы умело вырезали $o3.", FALSE, ch, skin, 0, TO_CHAR);
 	return skin;
 }
 
@@ -2823,6 +2825,78 @@ ACMD(do_repair)
 
 const int meet_vnum[] = { 320, 321, 322, 323 };
 
+
+bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
+{ int i, sum = 0;
+// потом использовать в расчетах функцию mobmax num_animals_levels[i]
+	switch (GET_LEVEL(mob)/11)
+	{
+	case 0:
+//		for ( i = 1; i <= 10; i++)
+//  		sum +=num_animals_levels[i];
+		if (number(1, 100) <= 15)
+			return true;
+	break;
+	case 1:
+		if (ch->get_skill(SKILL_MAKEFOOD) >= 40)
+		{
+//			for ( i = 1; i <= 10; i++)
+//				sum +=num_animals_levels[i];
+			if (number(1, 100) <= 20)
+				return true;
+		}
+			else	
+			{
+				sprintf(buf, "Ваше умение слишком низкое, чтобы вырезать шкуру %s.\r\n", GET_PAD(mob, 1));
+				send_to_char(buf, ch);
+				return false;
+			}
+		
+	break;
+	case 2:
+		if (ch->get_skill(SKILL_MAKEFOOD) >= 80)
+		{
+			if (number(1, 100) <= 10)
+				return true;
+		}
+			else	
+			{
+				sprintf(buf, "Ваше умение слишком низкое, чтобы вырезать шкуру %s.\r\n", GET_PAD(mob, 1));	
+				send_to_char(buf, ch);
+				return false;
+			}
+	break;
+	case 3:
+		if (ch->get_skill(SKILL_MAKEFOOD) >= 120)
+		{
+			if (number(1, 100) <= 8)
+				return true;
+		}
+			else	
+			{
+				sprintf(buf, "Ваше умение слишком низкое, чтобы вырезать шкуру %s.\r\n", GET_PAD(mob, 1));				
+				send_to_char(buf, ch);
+				return false;
+			}
+	break;
+	case 4:
+		if (ch->get_skill(SKILL_MAKEFOOD) >= 160)
+		{
+			if (number(1, 100) <= 25)
+				return true;
+		}
+			else	
+			{
+				sprintf(buf, "Ваше умение слишком низкое, чтобы вырезать шкуру %s.\r\n", GET_PAD(mob, 1));
+				send_to_char(buf, ch);
+				return false;
+			}
+	break;
+	default:
+		return false;
+	}
+	return false;
+}
 ACMD(do_makefood)
 {
 	OBJ_DATA *obj, *tobj;
@@ -2888,9 +2962,10 @@ ACMD(do_makefood)
 		std::vector<OBJ_DATA*> entrails;
 		entrails.push_back(tobj);
 		if (GET_RACE(mob) == NPC_RACE_ANIMAL) // шкуры только с животных
-			if (number(1, ch->get_skill(SKILL_MAKEFOOD)) + number(1, GET_REAL_DEX(ch)) >= prob)
+		if (skill_to_skin(mob, ch))
 			{
 				entrails.push_back(create_skin(mob, ch));
+
 			}
 		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2, 100));  // ингры со всех
 		for (std::vector<OBJ_DATA*>::iterator it = entrails.begin(); it != entrails.end(); ++it)
