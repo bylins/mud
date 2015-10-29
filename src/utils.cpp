@@ -3083,7 +3083,7 @@ bool ParseFilter::init_type(const char *str)
 		type = ITEM_CONTAINER;
 	else if (is_abbrev(str, "материал") || is_abbrev(str, "material"))
 		type = ITEM_MATERIAL;
-	else if (is_abbrev(str, "зачарованый")  | is_abbrev(str, "enchant"))
+	else if (is_abbrev(str, "зачарованный")  | is_abbrev(str, "enchant"))
 		type = ITEM_ENCHANT;
 	else if (is_abbrev(str, "емкость") || is_abbrev(str, "tank"))
 		type = ITEM_DRINKCON;
