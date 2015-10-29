@@ -113,6 +113,7 @@ void save();
 void print_off_msg(CHAR_DATA *ch, OBJ_DATA *obj);
 void print_identify(CHAR_DATA *ch, const OBJ_DATA *obj);
 void init_xhelp();
+std::set<int> vnum_list_add(int vnum);
 std::string get_name(size_t idx);
 bool is_set_item(OBJ_DATA *obj);
 

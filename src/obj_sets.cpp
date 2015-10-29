@@ -39,6 +39,8 @@ namespace obj_sets
 
 int set_node::uid_cnt = 0;
 
+std::set<int> list_vnum;
+
 const char *OBJ_SETS_FILE = LIB_MISC"obj_sets.xml";
 /// мин/макс кол-во активаторов для валидного сета
 const unsigned MIN_ACTIVE_SIZE = 2;
@@ -655,6 +657,22 @@ void save()
 	decl.append_attribute("encoding") = "koi8-r";
 	doc.save_file(OBJ_SETS_FILE);
 	log("Saving %s: done", OBJ_SETS_FILE);
+}
+///Создание и заполнение списка сетового набора по 1 вещи из набора
+std::set<int> vnum_list_add(int vnum)
+{
+	list_vnum.clear();
+	size_t idx = setidx_by_objvnum(vnum); 
+
+	for (auto k = sets_list.at(idx)->obj_list.begin(); k != sets_list.at(idx)->obj_list.end(); ++k)
+	{
+		if (k->first != vnum)
+		{
+			list_vnum.insert(k->first);
+		}
+	}
+	
+	return list_vnum;
 }
 
 /// распечатка сообщения чару и в комнату

@@ -2936,6 +2936,11 @@ void init_vnum_list(int vnum)
 			}
 		}
 	}
+
+	if (vnum_list.empty())
+	{
+		vnum_list = obj_sets::vnum_list_add(vnum);
+	} 
 }
 
 /**
@@ -3076,6 +3081,10 @@ bool ParseFilter::init_type(const char *str)
 		type = ITEM_OTHER;
 	else if (is_abbrev(str, "контейнер") || is_abbrev(str, "container"))
 		type = ITEM_CONTAINER;
+	else if (is_abbrev(str, "материал") || is_abbrev(str, "material"))
+		type = ITEM_MATERIAL;
+	else if (is_abbrev(str, "зачарованый")  | is_abbrev(str, "enchant"))
+		type = ITEM_ENCHANT;
 	else if (is_abbrev(str, "емкость") || is_abbrev(str, "tank"))
 		type = ITEM_DRINKCON;
 	else if (is_abbrev(str, "книга") || is_abbrev(str, "book"))
