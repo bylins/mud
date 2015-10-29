@@ -4017,6 +4017,11 @@ void Clan::HouseOwner(CHAR_DATA * ch, std::string & buffer)
 			this->ClanAddMember(d->character, 0);
 		this->owner = buffer2;
 		send_to_char(ch, "Поздравляем, вы передали свои полномочия %s!\r\n", GET_PAD(d->character, 2));
+		if (IS_MALE(ch))
+			    sprintf(buf, "&RВнимание!!!&n %s ушел на пенсию и добровольно передал руководство дружины %s игроку %s.\r\n", GET_NAME(ch), CLAN(d->character)->GetAbbrev(), GET_PAD(d->character, 2));
+		else
+			    sprintf(buf, "&RВнимание!!!&n %s ушла на пенсию и добровольно передала руководство дружины %s игроку %s.\r\n", GET_NAME(ch), CLAN(d->character)->GetAbbrev(), GET_PAD(d->character, 2));
+		send_to_all(buf);
 	}
 }
 
