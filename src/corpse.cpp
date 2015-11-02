@@ -237,8 +237,10 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i)
 	{ int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
-		if (GET_LEVEL(mob) >= i->mob_lvl && ((i->race_mob < 0) ||  (GET_RACE(mob) == i->race_mob))
-			&& (!i->max_mob_lvl || GET_LEVEL(mob) <= i->max_mob_lvl) && ((i->day_start <= day) && (i->day_end >= day) ))
+		if (GET_LEVEL(mob) >= i->mob_lvl 				\   
+		    && (!i->max_mob_lvl || GET_LEVEL(mob) <= i->max_mob_lvl) 	\	// моб в диапазоне уровней
+		    && ((i->race_mob < 0) || (GET_RACE(mob) == i->race_mob)) 	\	// совпадает раса или для всех
+		    && ((i->day_start <= day) && (i->day_end >= day) ))			// временной промежуток
 		{
 			++(i->mobs);
 			if (i->mobs >= i->prc)
