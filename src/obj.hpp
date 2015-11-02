@@ -13,7 +13,7 @@
 #include <array>
 #include <boost/array.hpp>
 #include <boost/unordered_map.hpp>
-
+#include <boost/shared_ptr.hpp>
 #include "sysdep.h"
 #include "structs.h"
 #include "obj_enchant.hpp"
@@ -395,7 +395,8 @@ struct obj_data
 
 	char *aliases;		// Title of object :get etc.        //
 	char *description;	// When in room                     //
-	char *short_description;	// when worn/carry/in cont.         //
+	//boost::shared_ptr<char> short_description;
+        char *short_description;	// when worn/carry/in cont.         //
 	char *action_description;	// What to write when used          //
 	EXTRA_DESCR_DATA *ex_description;	// extra descriptions     //
 	CHAR_DATA *carried_by;	// Carried by :NULL in room/conta   //

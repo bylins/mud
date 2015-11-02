@@ -3924,7 +3924,7 @@ ACMD(do_time)
 	strcat(buf, ".\r\n");
 	send_to_char(buf, ch);
 
-	day = time_info.day + 1;	// day in [1..35]
+	day = time_info.day + 1;	// day in [1..30]
 	*buf = '\0';
 	if (GET_RELIGION(ch) == RELIGION_POLY || IS_IMMORTAL(ch))
 	{
@@ -3938,7 +3938,7 @@ ACMD(do_time)
 		sprintf(buf + strlen(buf), "%s, %dй День, Год %d",
 				month_name[(int) time_info.month], day, time_info.year);
 	if (IS_IMMORTAL(ch))
-		sprintf(buf + strlen(buf), "\r\n %d.%d.%d", day, time_info.month+1, time_info.year);
+		sprintf(buf + strlen(buf), "\r\n%d.%d.%d, дней с начала года: %d", day, time_info.month+1, time_info.year, (time_info.month *DAYS_PER_MONTH) + day);
 	switch (weather_info.season)
 	{
 	case SEASON_WINTER:
@@ -5496,17 +5496,13 @@ ACMD(do_affects)
 	if (ch->affected)
 	{
 		for (aff = ch->affected; aff; aff = aff->next)
-		{	int mod;
+		{
 			if (aff->type == SPELL_SOLOBONUS)
 				continue;
 			*buf2 = '\0';
-			
 			strcpy(sp_name, spell_name(aff->type));
-			if (aff->battleflag == AF_PULSEDEC)
-					mod = aff->duration /51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
-			else mod = aff->duration;
-			(mod + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
-			
+			(aff->duration + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (aff->duration + 1) / SECS_PER_MUD_HOUR + 1, desc_count((aff->duration + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
+
 			sprintf(buf, "%s%s%-21s %-12s%s ",
 					*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					CCICYN(ch, C_NRM), sp_name, buf2, CCNRM(ch, C_NRM));
@@ -5541,11 +5537,8 @@ ACMD(do_affects)
 		for (aff = ch->affected; aff; aff = aff->next)
 		{
 		    if (aff->type == SPELL_SOLOBONUS)
-		    {	int mod;
-				if (aff->battleflag == AF_PULSEDEC)
-						mod = aff->duration /51; //если в пульсах приводим к тикам	25.5 в сек 2 минуты
-				else mod = aff->duration;
-				(mod + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
+		    {
+			    (aff->duration + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (aff->duration + 1) / SECS_PER_MUD_HOUR + 1, desc_count((aff->duration + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
 			    sprintf(buf, "Заклинание : %s%-21s %-12s%s ", CCICYN(ch, C_NRM),  "награда",  buf2, CCNRM(ch, C_NRM));
 			    *buf2 = '\0';
 			    if (aff->modifier)

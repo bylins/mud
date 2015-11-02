@@ -32,15 +32,34 @@ typedef std::map<int /* vnum */, int /* rnum*/> OlistType;
 
 struct global_drop
 {
-	global_drop() : vnum(0), mob_lvl(0), max_mob_lvl(0), prc(0), mobs(0), rnum(-1) {};
+	global_drop() : vnum(0), mob_lvl(0), max_mob_lvl(0), prc(0), mobs(0), rnum(-1), day_start(-1), day_end(-1), race_mob(-1) {};
 	int vnum; // внум шмотки, если число отрицательное - есть список внумов
 	int mob_lvl;  // мин левел моба
 	int max_mob_lvl; // макс. левел моба (0 - не учитывается)
 	int prc;  // шансы дропа (каждые Х мобов)
 	int mobs; // убито подходящих мобов
 	int rnum; // рнум шмотки, если vnum валидный
+	int day_start; // начиная с какого дня (игрового) шмотка может выпасть с моба и ... 
+	int day_end; // ... кончая тем днем, после которого, шмотка перестанет выпадать из моба
+	int race_mob; // тип моба, с которого падает данная шмотка (-1 все)
 	// список внумов с общим дропом (дропается первый возможный)
 	// для внумов из списка учитывается поле максимума в мире
+/*#define NPC_RACE_BASIC			100   - номера рас
+#define NPC_RACE_HUMAN			101
+#define NPC_RACE_HUMAN_ANIMAL	102
+#define NPC_RACE_BIRD			103
+#define NPC_RACE_ANIMAL			104
+#define NPC_RACE_REPTILE		105
+#define NPC_RACE_FISH			106
+#define NPC_RACE_INSECT			107
+#define NPC_RACE_PLANT			108
+#define NPC_RACE_THING			109
+#define NPC_RACE_ZOMBIE			110
+#define NPC_RACE_GHOST			111
+#define NPC_RACE_EVIL_SPIRIT	112
+#define NPC_RACE_SPIRIT			113
+#define NPC_RACE_MAGIC_CREATURE	114
+*/
 	OlistType olist;
 };
 
@@ -78,7 +97,15 @@ void init()
 		int mob_lvl = Parse::attr_int(node, "mob_lvl");
 		int max_mob_lvl = Parse::attr_int(node, "max_mob_lvl");
 		int chance = Parse::attr_int(node, "chance");
-
+		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
+		int day_end = Parse::attr_int_t(node, "day_end");
+		int race_mob = Parse::attr_int_t(node, "race_mob"); 
+		if (day_start == -1)
+		{
+			day_end = 360;
+			day_start = 0;
+			race_mob = -1; // -1 для всех рас
+		}
 		if (obj_vnum == -1 || mob_lvl <= 0 || chance <= 0 || max_mob_lvl < 0)
 		{
 			snprintf(buf, MAX_STRING_LENGTH,
@@ -87,12 +114,19 @@ void init()
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
-
+		snprintf(buf, MAX_STRING_LENGTH,
+					"GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d)",
+					obj_vnum, mob_lvl, chance, max_mob_lvl, day_start, day_end, race_mob);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		global_drop tmp_node;
 		tmp_node.vnum = obj_vnum;
 		tmp_node.mob_lvl = mob_lvl;
 		tmp_node.max_mob_lvl = max_mob_lvl;
 		tmp_node.prc = chance;
+		tmp_node.day_start = day_start;
+		tmp_node.day_end = day_end;
+		tmp_node.race_mob = race_mob;
+
 
 		if (obj_vnum >= 0)
 		{
@@ -198,13 +232,13 @@ int get_obj_to_drop(DropListType::iterator &i)
  * Глобальный дроп с мобов заданных параметров.
  * Если vnum отрицательный, то поиск идет по списку общего дропа.
  */
-bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch)
+bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 {
 
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i)
-	{
-		if (GET_LEVEL(ch) >= i->mob_lvl
-			&& (!i->max_mob_lvl || GET_LEVEL(ch) <= i->max_mob_lvl))
+	{ int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
+		if (GET_LEVEL(mob) >= i->mob_lvl && ((i->race_mob < 0) ||  (GET_RACE(mob) == i->race_mob))
+			&& (!i->max_mob_lvl || GET_LEVEL(mob) <= i->max_mob_lvl) && ((i->day_start <= day) && (i->day_end >= day) ))
 		{
 			++(i->mobs);
 			if (i->mobs >= i->prc)
@@ -212,9 +246,10 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch)
 				int obj_rnum = i->vnum > 0 ? i->rnum : get_obj_to_drop(i);
 				if (obj_rnum >= 0)
 				{
+					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
 					sprintf(buf, "Фридроп: упал предмет %s с VNUM: %d", obj_proto[obj_rnum]->short_description, obj_index[obj_rnum].vnum);
 					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
-					obj_to_corpse(corpse, ch, obj_rnum, false);
+					obj_to_corpse(corpse, mob, obj_rnum, false);
 				}
 				i->mobs = 0;
 //				return true; пусть после фридропа дроп вещей продолжается
@@ -223,7 +258,6 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch)
 	}
 	return false;
 }
-
 void renumber_obj_rnum(int rnum)
 {
 	for (DropListType::iterator i = drop_list.begin(); i != drop_list.end(); ++i)

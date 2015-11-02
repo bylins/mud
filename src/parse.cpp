@@ -187,6 +187,18 @@ int attr_int(const pugi::xml_node &node, const char *text)
 	return cast_to_int(attr.value());
 }
 
+// тоже самое, что и attr_int, только, если элемента нет, возвращает -1
+int attr_int_t(const pugi::xml_node &node, const char *text)
+{
+        pugi::xml_attribute attr = node.attribute(text);
+        if (!attr)
+        {
+		return -1;
+        }
+        return cast_to_int(attr.value());
+}
+
+
 ///
 /// Тоже, что и attr_int, только для чтения child_value()
 /// В конфиге это выглядит как <param>1234<param>

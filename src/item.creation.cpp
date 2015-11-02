@@ -2197,7 +2197,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			sprintf(buf, "%s", GET_OBJ_PNAME(obj, i));
 			strcat(buf, " из ");
 			strcat(buf, GET_OBJ_PNAME(ingrs[0], 1));
-			strcat(buf, " c ");
+			strcat(buf, " с ");
 			strcat(buf, GET_OBJ_PNAME(ingrs[1], 4));
 			strcat(buf, " и ");
 			strcat(buf, GET_OBJ_PNAME(ingrs[2], 4));

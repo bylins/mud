@@ -36,6 +36,7 @@ namespace Parse
 bool valid_obj_vnum(int vnum);
 
 int attr_int(const pugi::xml_node &node, const char *text);
+int attr_int_t(const pugi::xml_node &node, const char *text);
 int child_value_int(const pugi::xml_node &node, const char *text);
 
 std::string attr_str(const pugi::xml_node &node, const char *text);
