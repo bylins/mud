@@ -2013,7 +2013,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 				// Просто удаляем предмет мы его потратили.
 				tmpstr = "Вы полностью использовали " + string(ingrs[i]->PNames[0]) + ".\r\n";
 				// Екстрактим ... предмет у чара.
-				// extract_obj(ingrs[i]);
+				extract_obj(ingrs[i]);
 			}
 		}
 
@@ -2213,11 +2213,10 @@ int MakeRecept::make(CHAR_DATA * ch)
 //			send_to_char(buf2, ch);
 		}
 		add_flags(ch, &obj->obj_flags.affects, &ingrs[0]->obj_flags.affects, get_ingr_pow(ingrs[0]));
-
 		// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
 		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[0]->obj_flags.extra_flags, get_ingr_pow(ingrs[0]));
 		add_affects(ch, obj->affected, ingrs[0]->affected, get_ingr_pow(ingrs[0]));
-
+		add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
 		for (j = 1; j < ingr_cnt; j++)
 		{ int i, z, raffect = 0;
     			ingr_pow = get_ingr_pow(ingrs[j]);
@@ -2233,6 +2232,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			// перносим эффекты ... с ингров на прототип.
 			add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[j]->obj_flags.extra_flags, ingr_pow);
 			// переносим 1 рандом аффект
+			add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 			{
 				if (obj->affected[i].location == ingrs[j]->affected[z].location) // если аффект такой висит, переставим параметр
@@ -2515,7 +2515,39 @@ int MakeRecept::stat_modify(CHAR_DATA * ch, int value, float devider)
 	return res;
 }
 
-
+void MakeRecept::add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to)
+{
+	if (obj_from->has_skills())
+	{
+	int skill_num, rskill, i = 0, z  = 0;
+	int percent;
+		send_to_char("Копирую умения :\r\n", ch);
+		std::map<int, int> skills;
+		obj_from->get_skills(skills);
+    		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)  // сколько добавлено умелок
+			i++;
+		rskill = number (0, i); // берем рандом
+		sprintf(buf, "Всего умений %d копируем из них случайное под N %d.\r\n", i, rskill);
+		send_to_char(buf,  ch);
+		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
+		{	
+			if (z == rskill) // ставим рандомную умелку
+			{
+				skill_num = it->first;
+				percent = it->second;
+				if (percent == 0) // TODO: такого не должно быть?
+					continue;
+//				sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
+//				CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
+//				CCCYN(ch, C_NRM),
+//				percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
+//				send_to_char(buf, ch);
+				obj_to->set_skill(skill_num, percent);// копируем скиллы
+			}
+			z++;
+		}
+	}
+}
 int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add_flag, int delta)
 {
 // БЕз вариантов вообще :(

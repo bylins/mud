@@ -141,6 +141,7 @@ class MakeRecept
 	int get_ingr_lev(struct obj_data *ingrobj);
 
 	int get_ingr_pow(struct obj_data *ingrobj);
+	void add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to);
 
 public:
 
