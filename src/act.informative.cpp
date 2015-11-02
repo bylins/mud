@@ -5496,13 +5496,15 @@ ACMD(do_affects)
 	if (ch->affected)
 	{
 		for (aff = ch->affected; aff; aff = aff->next)
-		{
+		{	int mod;
 			if (aff->type == SPELL_SOLOBONUS)
 				continue;
 			*buf2 = '\0';
 			strcpy(sp_name, spell_name(aff->type));
-			(aff->duration + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (aff->duration + 1) / SECS_PER_MUD_HOUR + 1, desc_count((aff->duration + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
-
+			if (aff->battleflag == AF_PULSEDEC)
+					mod = aff->duration /51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
+			else mod = aff->duration;
+			(mod + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
 			sprintf(buf, "%s%s%-21s %-12s%s ",
 					*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					CCICYN(ch, C_NRM), sp_name, buf2, CCNRM(ch, C_NRM));
@@ -5537,8 +5539,11 @@ ACMD(do_affects)
 		for (aff = ch->affected; aff; aff = aff->next)
 		{
 		    if (aff->type == SPELL_SOLOBONUS)
-		    {
-			    (aff->duration + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (aff->duration + 1) / SECS_PER_MUD_HOUR + 1, desc_count((aff->duration + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
+		    {	int mod;
+				if (aff->battleflag == AF_PULSEDEC)
+						mod = aff->duration /51; //если в пульсах приводим к тикам	25.5 в сек 2 минуты
+				else mod = aff->duration;
+				(mod + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
 			    sprintf(buf, "Заклинание : %s%-21s %-12s%s ", CCICYN(ch, C_NRM),  "награда",  buf2, CCNRM(ch, C_NRM));
 			    *buf2 = '\0';
 			    if (aff->modifier)
