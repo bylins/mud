@@ -3704,6 +3704,7 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 			}
 		}
 	};
+	obj->obj_flags.Obj_is_rename = true; // присвоим флажок что у шмотки заменены падежи
 	return (TRUE);
 }
 

@@ -2012,8 +2012,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 			{
 				// Просто удаляем предмет мы его потратили.
 				tmpstr = "Вы полностью использовали " + string(ingrs[i]->PNames[0]) + ".\r\n";
-				// Екстрактим ... предмет у чара.
-				extract_obj(ingrs[i]);
 			}
 		}
 
@@ -2212,6 +2210,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 //			sprintf(buf2, "Падежи %d  == %s \r\n", i, GET_OBJ_PNAME(obj, i));
 //			send_to_char(buf2, ch);
 		}
+		obj->obj_flags.Obj_is_rename = true; // ставим флаг что объект переименован
 		add_flags(ch, &obj->obj_flags.affects, &ingrs[0]->obj_flags.affects, get_ingr_pow(ingrs[0]));
 		// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
 		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[0]->obj_flags.extra_flags, get_ingr_pow(ingrs[0]));
@@ -2318,7 +2317,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 				extract_obj(ingrs[i]);
 			continue;
 		}
-
+// разобраться почему не мочатся ингры тима материал, если вес при производстве стал 0 
 		if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
 		{
 			extract_obj(ingrs[i]);
@@ -2521,14 +2520,14 @@ void MakeRecept::add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *o
 	{
 	int skill_num, rskill, i = 0, z  = 0;
 	int percent;
-		send_to_char("Копирую умения :\r\n", ch);
+//		send_to_char("Копирую умения :\r\n", ch);
 		std::map<int, int> skills;
 		obj_from->get_skills(skills);
     		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)  // сколько добавлено умелок
 			i++;
 		rskill = number (0, i); // берем рандом
-		sprintf(buf, "Всего умений %d копируем из них случайное под N %d.\r\n", i, rskill);
-		send_to_char(buf,  ch);
+//		sprintf(buf, "Всего умений %d копируем из них случайное под N %d.\r\n", i, rskill);
+//		send_to_char(buf,  ch);
 		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
 		{	
 			if (z == rskill) // ставим рандомную умелку

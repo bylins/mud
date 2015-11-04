@@ -58,6 +58,8 @@ struct obj_flag_data
 	Obj_maker;		// Unique number for object crafters //
 	int
 	Obj_parent;		// Vnum for object parent //
+	bool
+	Obj_is_rename;
 };
 
 struct obj_affected_type

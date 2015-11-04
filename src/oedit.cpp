@@ -57,7 +57,7 @@ extern const char *ingradient_bits[];
 extern struct spell_info_type spell_info[];
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_imrecipes;
-
+extern void extract_obj(OBJ_DATA * obj);
 int real_zone(int number);
 
 //------------------------------------------------------------------------
@@ -283,6 +283,8 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// Удаляю его строки и т.д.
 	// прототип скрипта не удалится, т.к. его у экземпляра нету
 	// скрипт не удалится, т.к. его не удаляю
+	if (obj->obj_flags.Obj_is_rename) // шмотка была переименованна кодом
+		oedit_object_copy(&tmp, obj); // сохраним падежи для рестора
 	oedit_object_free(obj);
 
 	// Нужно скопировать все новое, сохранив определенную информацию
@@ -303,6 +305,8 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
 	GET_OBJ_CUR(obj) = GET_OBJ_CUR(&tmp);
+	if (tmp.obj_flags.Obj_is_rename)
+		oedit_object_copy(obj, &tmp); // восстановим падежи из сохраненки если имена были изменены при трансформации
 //	если таймер шмота в мире меньше  чем установленный, восстанавливаем его.
 	if (obj->get_timer() > tmp.get_timer())
 		obj->set_timer(tmp.get_timer());
