@@ -306,8 +306,8 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	}
 	skin->set_cost(GET_LEVEL(mob) * number(2, MAX(3, 3 * k)));
 	GET_OBJ_VAL(skin, 2) = 95; //оставил 5% фейла переноса аффектов на создаваемую шмотку
-	act("$n умело вырезал$g $o3.", FALSE, ch, skin, 0, TO_ROOM | TO_ARENA_LISTEN);
-	act("Вы умело вырезали $o3.", FALSE, ch, skin, 0, TO_CHAR);
+	act("$n умело срезал$g &G$o3.&n", FALSE, ch, skin, 0, TO_ROOM | TO_ARENA_LISTEN);
+	act("Вы умело срезали &G$o3.&n", FALSE, ch, skin, 0, TO_CHAR);
 	return skin;
 }
 
@@ -2847,7 +2847,7 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 		}
 			else	
 			{
-				sprintf(buf, "Ваше умение слишком низкое, чтобы вырезать шкуру %s.\r\n", GET_PAD(mob, 1));
+				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
 				send_to_char(buf, ch);
 				return false;
 			}
@@ -2861,7 +2861,7 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 		}
 			else	
 			{
-				sprintf(buf, "Ваше умение слишком низкое, чтобы вырезать шкуру %s.\r\n", GET_PAD(mob, 1));	
+				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));	
 				send_to_char(buf, ch);
 				return false;
 			}
@@ -2874,7 +2874,7 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 		}
 			else	
 			{
-				sprintf(buf, "Ваше умение слишком низкое, чтобы вырезать шкуру %s.\r\n", GET_PAD(mob, 1));				
+				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));				
 				send_to_char(buf, ch);
 				return false;
 			}
@@ -2887,7 +2887,7 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 		}
 			else	
 			{
-				sprintf(buf, "Ваше умение слишком низкое, чтобы вырезать шкуру %s.\r\n", GET_PAD(mob, 1));
+				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
 				send_to_char(buf, ch);
 				return false;
 			}
@@ -2965,7 +2965,6 @@ ACMD(do_makefood)
 		if (skill_to_skin(mob, ch))
 			{
 				entrails.push_back(create_skin(mob, ch));
-
 			}
 		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2, 100));  // ингры со всех
 		for (std::vector<OBJ_DATA*>::iterator it = entrails.begin(); it != entrails.end(); ++it)
