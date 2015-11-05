@@ -292,6 +292,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	obj->proto_script = NULL;
 	// Восстанавливаю игровую информацию
 	obj->uid = tmp.uid;
+	obj->id = tmp.id; // аук работает не по рнум а по id объекта, поэтому вернем и его
 	obj->in_room = tmp.in_room;
 	obj->item_number = robj_num;
 	obj->carried_by = tmp.carried_by;
