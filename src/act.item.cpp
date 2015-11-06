@@ -37,7 +37,6 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "utils.h"
-#include "mobmax.hpp"
 
 // extern variables
 extern vector < OBJ_DATA * >obj_proto;
@@ -178,8 +177,171 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 	}
 	return 2;
 }
+const int effects_l[5][40][2]{ 
+	{{0,0}},
+	{{0,	26}, // количество строк
+	{APPLY_ABSORBE,	5},
+	{APPLY_C1,	3},
+	{APPLY_C2,	3},
+	{APPLY_C3,	2},
+	{APPLY_C4,	2},
+	{APPLY_C5,	1},
+	{APPLY_C6,	1},
+	{APPLY_CAST_SUCCESS,	3},
+	{APPLY_HIT,	20},
+	{APPLY_HITREG,	35},
+	{APPLY_INITIATIVE,	5},
+	{APPLY_MANAREG,	15},
+	{APPLY_MORALE,	5},
+	{APPLY_MOVE,	35},
+	{APPLY_RESIST_AIR,	15},
+	{APPLY_RESIST_EARTH,	15},
+	{APPLY_RESIST_FIRE,	15},
+	{APPLY_RESIST_IMMUNITY,	5},
+	{APPLY_RESIST_MIND,	5},
+	{APPLY_RESIST_VITALITY,	5},
+	{APPLY_RESIST_WATER,	15},
+	{APPLY_SAVING_CRITICAL,	-5},
+	{APPLY_SAVING_REFLEX,	-5},
+	{APPLY_SAVING_STABILITY,	-5},
+	{APPLY_SAVING_WILL,	-5},
+	{APPLY_SIZE,	10},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0}},
+	{{0,	37},
+	{APPLY_ABSORBE,	10},
+	{APPLY_C1,	3},
+	{APPLY_C2,	3},
+	{APPLY_C3,	3},
+	{APPLY_C4,	3},
+	{APPLY_C5,	2},
+	{APPLY_C6,	2},
+	{APPLY_C7,	2},
+	{APPLY_C8,	1},
+	{APPLY_C9,	1},
+	{APPLY_CAST_SUCCESS,	5},
+	{APPLY_CHA,	1},
+	{APPLY_CON,	1},
+	{APPLY_DAMROLL,	2},
+	{APPLY_DEX,	1},
+	{APPLY_HIT,	30},
+	{APPLY_HITREG,	55},
+	{APPLY_HITROLL,	2},
+	{APPLY_INITIATIVE,	10},
+	{APPLY_INT,	1},
+	{APPLY_MANAREG,	30},
+	{APPLY_MORALE,	7},
+	{APPLY_MOVE,	55},
+	{APPLY_RESIST_AIR,	25},
+	{APPLY_RESIST_EARTH,	25},
+	{APPLY_RESIST_FIRE,	25},
+	{APPLY_RESIST_IMMUNITY,	10},
+	{APPLY_RESIST_MIND,	10},
+	{APPLY_RESIST_VITALITY,	10},
+	{APPLY_RESIST_WATER,	25},
+	{APPLY_SAVING_CRITICAL,	-10},
+	{APPLY_SAVING_REFLEX,	-10},
+	{APPLY_SAVING_STABILITY,	-10},
+	{APPLY_SAVING_WILL,	-10},
+	{APPLY_SIZE,	15},
+	{APPLY_STR,	1},
+	{APPLY_WIS,	1},
+	{0 , 0},
+	{0 , 0}},
+	{{0,	23},
+	{APPLY_ABSORBE,	15},
+	{APPLY_C8,	2},
+	{APPLY_C9,	2},
+	{APPLY_CAST_SUCCESS,	7},
+	{APPLY_CHA,	2},
+	{APPLY_CON,	2},
+	{APPLY_DAMROLL,	3},
+	{APPLY_DEX,	2},
+	{APPLY_HIT,	45},
+	{APPLY_HITROLL,	3},
+	{APPLY_INITIATIVE,	15},
+	{APPLY_INT,	2},
+	{APPLY_MORALE,	9},
+	{APPLY_RESIST_IMMUNITY,	15},
+	{APPLY_RESIST_MIND,	15},
+	{APPLY_RESIST_VITALITY,	15},
+	{APPLY_SAVING_CRITICAL,	-15},
+	{APPLY_SAVING_REFLEX,	-15},
+	{APPLY_SAVING_STABILITY,	-15},
+	{APPLY_SAVING_WILL,	-15},
+	{APPLY_SIZE,	20},
+	{APPLY_STR,	2},
+	{APPLY_WIS,	2},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0}},
+	{{0,		21},
+	{APPLY_ABSORBE,	20},
+	{APPLY_CAST_SUCCESS,	10},
+	{APPLY_CHA,	2},
+	{APPLY_CON,	2},
+	{APPLY_DAMROLL,	4},
+	{APPLY_DEX,	2},
+	{APPLY_HIT,	60},
+	{APPLY_HITROLL,	4},
+	{APPLY_INITIATIVE,	20},
+	{APPLY_INT,	2},
+	{APPLY_MORALE,	12},
+	{APPLY_MR,	3},
+	{APPLY_RESIST_IMMUNITY,	20},
+	{APPLY_RESIST_MIND,	20},
+	{APPLY_RESIST_VITALITY,	20},
+	{APPLY_SAVING_CRITICAL,	-20},
+	{APPLY_SAVING_REFLEX,	-20},
+	{APPLY_SAVING_STABILITY,	-20},
+	{APPLY_SAVING_WILL,	-20},
+	{APPLY_STR,	2},
+	{APPLY_WIS,	2},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0},
+	{0 , 0}}
 
-const int effects[][2] = { {APPLY_MOVEREG, 100},
+};
+/*const int effects[][2] = { {APPLY_MOVEREG, 100},
 	{APPLY_HITROLL, 2},
 	{APPLY_DAMROLL, 2},
 	{APPLY_MANAREG, 30},
@@ -220,11 +382,11 @@ const int effects[][2] = { {APPLY_MOVEREG, 100},
 	{APPLY_C8, 1},
 	{APPLY_C9, 1}
 };
-
+*/
 OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 {
 	OBJ_DATA *skin;
-	int definitor, vnum, eff, limit, i, n, k = 0, num, effect, max_eff;
+	int vnum, i, n, k = 0, num, effect;
 	bool concidence;
 	const int vnum_skin_prototype = 1660;
 
@@ -238,67 +400,27 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 		return NULL;
 	}
 
-	definitor = int (GET_LEVEL(mob) / 11);
+	GET_OBJ_VAL(skin, 3) = int (GET_LEVEL(mob) / 11); // установим уровень шкуры, топовая 44+
 	GET_OBJ_PARENT(skin) = GET_MOB_VNUM(mob);
 	trans_obj_name(skin, mob); // переносим падежи
-	if (definitor == 0) // 1-10
-	{
-		limit = 5;
-		eff = 0;
-		max_eff = 9;
-		//aff = 0;
-		GET_OBJ_VAL(skin, 3) = 1; // типа будет левел шкуры
-	}
-	else if (definitor == 1) // 11-21
-	{		limit = 7;
-		eff = 1;
-		max_eff = 12;
-		//aff = number(0, 1);
-		GET_OBJ_VAL(skin, 3) = 2;
-	}
-	else if (definitor == 2) //22-32
-	{
-		limit = 8;
-		eff = 2;
-		max_eff = 25;
-		//aff = number(0, 1);
-		GET_OBJ_VAL(skin, 3) = 3;
-	}
-	else if (definitor == 3) //33-43
-	{
-		limit = 10;
-		eff =  3;
-		max_eff = 30;
-		//aff = number(0, 2);
-		GET_OBJ_VAL(skin, 3) = 4;
-	}
-	else //44+
-	{
-		limit = 10;
-		eff = 4;
-		max_eff = 39;
-		//aff = number(0, 3);
-		GET_OBJ_VAL(skin, 3) = 5;
-	}
-
-	for (i = 1; i <= eff; i++)
+	for (i = 1; i <= GET_OBJ_VAL(skin, 3); i++) // топовая шкура до 4х афектов
 	{
 		if (number(1, i) == 1) // 1 100% +1 50% +2 33% +3 25% +4 20%
 		{
 			concidence = TRUE;
 			while (concidence)
 			{
-				num = number(0, max_eff);
+				num = number(1, effects_l[GET_OBJ_VAL(skin,3)][0][1]);
 				concidence = FALSE;
 				for (n = 0; n <= k && i > 1; n++)
 				{
-					if (effects[num][0] == (skin)->affected[n].location)
+					if (effects_l[GET_OBJ_VAL(skin,3)][num][0] == (skin)->affected[n].location)
 						concidence = TRUE;
 				}
 			}
-			(skin)->affected[k].location = effects[num][0];
-			effect = number(1, (int)(effects[num][1] * limit / 10));
-			if (number(0, 1000) <= 150) // 15% аффект отрицательный
+			(skin)->affected[k].location = effects_l[GET_OBJ_VAL(skin,3)][num][0];
+			effect = effects_l[GET_OBJ_VAL(skin,3)][num][1];
+			if (number(0, 1000) <= (250 / (GET_OBJ_VAL(skin,3) + 1))) //  чем круче шкура тем реже  отрицательный аффект
 				effect *= -1;
 			(skin)->affected[k].modifier = effect;
 			k++;
@@ -306,8 +428,8 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	}
 	skin->set_cost(GET_LEVEL(mob) * number(2, MAX(3, 3 * k)));
 	GET_OBJ_VAL(skin, 2) = 95; //оставил 5% фейла переноса аффектов на создаваемую шмотку
-	act("$n умело срезал$g &G$o3.&n", FALSE, ch, skin, 0, TO_ROOM | TO_ARENA_LISTEN);
-	act("Вы умело срезали &G$o3.&n", FALSE, ch, skin, 0, TO_CHAR);
+	act("$n умело срезал$g $o3.", FALSE, ch, skin, 0, TO_ROOM | TO_ARENA_LISTEN);
+	act("Вы умело срезали $o3.", FALSE, ch, skin, 0, TO_CHAR);
 	return skin;
 }
 
@@ -2832,8 +2954,8 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	switch (GET_LEVEL(mob)/11)
 	{
 	case 0:
-//		for ( i = 1; i <= 10; i++)
-//  		sum +=num_animals_levels[i];
+		for ( i = 1; i <= 10; i++)
+  			sum +=num_animals_levels[i];
 		if (number(1, 100) <= 15)
 			return true;
 	break;

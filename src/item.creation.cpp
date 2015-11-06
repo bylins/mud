@@ -2220,6 +2220,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[0]->obj_flags.extra_flags, get_ingr_pow(ingrs[0]));
 		add_affects(ch, obj->affected, ingrs[0]->affected, get_ingr_pow(ingrs[0]));
 		add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
+		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOALTER), ITEM_NOALTER);  // нельзя сфрешить черным свитком
+		obj->set_timer((GET_OBJ_VAL(ingrs[0],3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) * number(180,220)); // таймер зависит в основном от умелки
 		for (j = 1; j < ingr_cnt; j++)
 		{ int i, z, raffect = 0;
     			ingr_pow = get_ingr_pow(ingrs[j]);
@@ -2319,7 +2321,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			// Если запрошенный вес 0 то  удаляем предмет выше не трогаем.
 			if (parts[i].min_weight == 0)
 				extract_obj(ingrs[i]);
-			continue;
+//			continue;
 		}
 // разобраться почему не мочатся ингры тима материал, если вес при производстве стал 0 
 		if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
