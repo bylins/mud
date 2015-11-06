@@ -2203,8 +2203,12 @@ int MakeRecept::make(CHAR_DATA * ch)
 			if (i == 0) // именительный падеж
 			{
 				obj->short_description = str_dup(buf);
-				sprintf(buf2, "Брошенная %s", buf);
-				strcat(buf2, " лежит тут.");
+				if (GET_OBJ_SEX(obj) == 1)
+					sprintf(buf2, "Брошенный %s лежит тут.", buf);
+				else if (GET_OBJ_SEX(obj) == 2)
+					sprintf(buf2, "Брошенная %s лежит тут.", buf);
+				else if (GET_OBJ_SEX(obj) == 3)
+					sprintf(buf2, "Брошенные %s лежат тут.", buf);
 				obj->description = str_dup(buf2); // описание на земле
 			}
 //			sprintf(buf2, "Падежи %d  == %s \r\n", i, GET_OBJ_PNAME(obj, i));
@@ -2366,14 +2370,11 @@ int MakeRecept::make(CHAR_DATA * ch)
 		else
 		{
 			CREATE(new_desc, EXTRA_DESCR_DATA, 1);
-			obj->ex_description = new_desc;
 			new_desc->keyword = str_dup(desc->keyword);
 			new_desc->description = str_dup(desc->description);
 			new_desc->next = NULL;	// На всякий случай :)
-
 			new_desc->description = str_add(new_desc->description, tagchar);
 			// По уму тут надо бы стереть старое описапние если оно не с прототипа
-
 			obj->ex_description = new_desc;
 		}
 
