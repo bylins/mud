@@ -676,6 +676,11 @@ void CharNode::update_online_item()
 {
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end();)
 	{
+		if (check_unlimited_timer((*obj_it)))
+		{
+		    obj_it++;
+		    continue;
+		}
 		(*obj_it)->dec_timer();
 		if ((*obj_it)->get_timer() <= 0)
 		{

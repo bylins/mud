@@ -1812,13 +1812,13 @@ void Crash_list_objects(CHAR_DATA * ch, int index)
 	for (; i < SAVEINFO(index)->rent.nitems; i++)
 	{
 		data = SAVEINFO(index)->time[i];
-		if ((rnum = real_object(data.vnum)) > -1)
+		if (((rnum = real_object(data.vnum)) > -1) && ((data.vnum > 799 ) || (data.vnum < 700 )))
 		{
 			sprintf(buf + strlen(buf), " [%5d] (%5dau) <%6d> %-20s\r\n",
 					data.vnum, GET_OBJ_RENT(obj_proto[rnum]),
 					MAX(-1, data.timer - timer_dec), obj_proto[rnum]->short_description);
 		}
-		else
+		else if ((data.vnum > 799 ) || (data.vnum < 700 ))
 		{
 			sprintf(buf + strlen(buf), " [%5d] (?????au) <%2d> %-20s\r\n",
 					data.vnum, MAX(-1, data.timer - timer_dec), "БЕЗ ПРОТОТИПА");
@@ -1830,10 +1830,11 @@ void Crash_list_objects(CHAR_DATA * ch, int index)
 		}
 	}
 	send_to_char(buf, ch);
+//        page_string(ch->desc, buf, TRUE); // Постраничный вывод.
 	sprintf(buf, "Время в ренте: %ld тиков.\r\n", timer_dec);
 	send_to_char(buf, ch);
 	sprintf(buf,
-			"Предметов: %d. Стоимость: (%d в день) * (%1.2f дней) = %d.\r\n",
+			"Предметов: %d. Стоимость: (%d в день) * (%1.2f дней) = %d.\r\n Предметы из 7 зоны не отображаются(Ингры), дабы не захламлять. \r\n",
 			SAVEINFO(index)->rent.nitems,
 			SAVEINFO(index)->rent.net_cost_per_diem, num_of_days,
 			(int)(num_of_days * SAVEINFO(index)->rent.net_cost_per_diem));

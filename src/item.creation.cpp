@@ -2613,7 +2613,7 @@ int MakeRecept::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OB
 						break;
 
 					base[j].location = add[i].location;
-					base[j].modifier += stat_modify(ch, add[i].modifier, 1);
+					base[j].modifier += add[i].modifier;
 
 //    cout << "add affect " << int(base[j].location) <<" - " << int(base[j].modifier) << endl;
 
