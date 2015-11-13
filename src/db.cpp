@@ -281,7 +281,9 @@ extern char *house_rank[];
 extern struct pclean_criteria_data pclean_criteria[];
 extern void LoadProxyList();
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
-
+/*
+extern struct global_drop_obj;
+extern std::vector<global_drop_obj> drop_list_obj;*/
 #define READ_SIZE 256
 
 
@@ -994,6 +996,42 @@ void convert_obj_values()
 	}
 }
 
+/*
+void first_init_global_drop()
+{
+	for(int i = 0; i < world.size(); i++)
+	{
+		for (int  x = 0; x < drop_list_obj.size(); x++)
+		{
+			int stop = true;
+			for (int  k = 0; k < drop_list_obj.sects.size(); k++)
+			{
+				if (SECT(world[i] == drop_list_obj.sects[k]))
+					stop = false;
+			}
+			if (stop)
+				continue;
+			if (drop_list_obj[x].chance > number(0, 999))
+			{
+				obj_to_room(tobj, IN_ROOM(ch));
+				int obj_rnum = real_object(obj_vnum);
+				if (obj_rnum < 0)
+				{
+					snprintf(buf, MAX_STRING_LENGTH, "[FreeDropObj] Incorrect obj_vnum=%d", obj_vnum);
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					return;
+				}
+				OBJ_DATA *obj= read_object(obj_rnum, REAL);
+				obj_to_room(obj, real_room(world[i].number));
+				dobj_decay(obj);
+				
+			}
+			
+		}
+	}
+}
+*/
+
 void boot_world(void)
 {
 	log("Loading zone table.");
@@ -1034,6 +1072,8 @@ void boot_world(void)
 
 	log("Init system_obj rnums.");
 	system_obj::init();
+	log("Init global_drop_obj.");
+	
 }
 
 //MZ.load

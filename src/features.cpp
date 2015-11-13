@@ -554,84 +554,46 @@ void assign_feats(void)
 	// если у лидера группы есть данная способность и в группе,
 	// двое человек, то экспа не режется.
 	feato(PARTNER_FEAT, "напарник", NORMAL_FTYPE, TRUE, feat_app);
-/*//112
-	// 2x дамаги
-//	feato(FRENZY_FEAT, "неистовство", NORMAL_FTYPE, TRUE, feat_app);
-///113
-	// 2x дамаги, но 40% меньше хп
-//	feato(FRANTIC_FEAT, "безумие",  NORMAL_FTYPE, TRUE, feat_app);
-///114
-	// 2x к дамаги к стабу
-	feato(EASTMATTER_FEAT, "восточное дело", NORMAL_FTYPE, TRUE, feat_app);
-///115
-	// 2x дамаги к стабу и на 30% меньше хп
-	feato(DIRECTHIT_FEAT, "прямой удар", NORMAL_FTYPE, TRUE, feat_app);
-///116
-	// 1.5 к  дамаге
-	feato(VIOLENCE_FEAT, "жестокость", NORMAL_FTYPE, TRUE, feat_app);
-///117
-	// на 100% больше дамаги, но хитролов становится меньше
-	feato(WRATH_FEAT, "гнев", NORMAL_FTYPE, TRUE, feat_app);
-///118
-	// 1.2x к дамаге
-	feato(GOODPUNCH_FEAT, "хороший удар", NORMAL_FTYPE, TRUE, feat_app);
-///119
-	// 2x хп
-	feato(THICKSKIN_FEAT, "толстая кожа", NORMAL_FTYPE, TRUE, feat_app);
-///120 
-	// 2x хп, но минус к ловке
-	feato(BIGGIGANT_FEAT, "гигант", NORMAL_FTYPE, TRUE, feat_app);
-///121
-	// 1.5х к хп
-	feato(NORTHSTEEL_FEAT, "северная сталь", NORMAL_FTYPE, TRUE, feat_app);
-///122
-	// 1.5х к хп, но минус к ловке
-	feato(MIDGIGANT_FEAT, "средний гигант", NORMAL_FTYPE, TRUE, feat_app);
-///123
-	// 1.2х хп
-	feato(TREELIFE_FEAT, "дерево жизни", NORMAL_FTYPE, TRUE, feat_app);
-///124
-	// У умертвий 2x дамаги
-	feato(TREEDEATH_FEAT, "дерево смерти", NORMAL_FTYPE, TRUE, feat_app);
-///125
-	// У умертвий 2x дамаги, но в два раза меньше хп
-	feato(DARKWEB_FEAT, "паутина тьмы", NORMAL_FTYPE, TRUE, feat_app);
-///126
-	// У умертвий 1.5x дамаги
-	feato(SHININGDARK_FEAT, "сияющая тьма", NORMAL_FTYPE, TRUE, feat_app);
-///127
-	// У умертвий 1.5к дамаги, но минут 25% хп
-	feato(RENTDARK_FEAT, "оброк тьмы", NORMAL_FTYPE, TRUE, feat_app);
-///128
-	// У сз эффект в два раза выше
-	feato(DARKSIDE_FEAT, "темная сторона", NORMAL_FTYPE, TRUE, feat_app);
-///129
-	// уж дает на 25% больше надува
-	feato(BUSHLIFE_FEAT, "куст жизни", NORMAL_FTYPE, TRUE, feat_app);
-///130 
-	// уж дает на 50% больше надува
-	feato(MAGICLIFE_FEAT, "магическая жизнь", NORMAL_FTYPE, TRUE, feat_app);
-///131 
-	// высосать жизнь дает на 25% больше надува
-//	feato(BUSYLIFE_FEAT, "насыщение жизнью", NORMAL_FTYPE, TRUE, feat_app);
-///132
-	// высосать жизнь дает на 50% больше надува
-//	feato(BUSYLIFE2_FEAT, "насыщение жизнью2", NORMAL_FTYPE, TRUE, feat_app);
-///133
-	// скелет может рескать
-	feato(TRUEFRIEND_FEAT, "верный друг", NORMAL_FTYPE, TRUE, feat_app);
-///134
-	// умка может рескать
-//	feato(DEATHASSIST_FEAT, "мертвая помощь", NORMAL_FTYPE, TRUE, feat_app);
-///135
-	// Землятресение длится на один раунд дольше
-//	feato(LOOSEARTH_FEAT, "рыхлая земля", NORMAL_FTYPE, TRUE, feat_app);
-///136
-	// Процент прохождение кам.проклы выше на 75%
-//	feato(FLINT_HEART_FEAT, "каменное сердце", NORMAL_FTYPE, TRUE, feat_app);
-///137
-	// чернок может поднять на одного последователя больше
-//	feato(TRUEFOLLOWERS_FEAT, "верные последователи", NORMAL_FTYPE, TRUE, feat_app);
+//112
+	// уменьшается процент фейла для закла Оживить Труп
+	feato(HELPDARK_FEAT, "помощь тьмы", NORMAL_FTYPE, TRUE, feat_app);
+//113
+	// увеличивает характеристики умок
+	feato(FURYDARK_FEAT, "ярость тьмы", NORMAL_FTYPE, TRUE, feat_app);
+//114
+	// темное восстановление - увеличивает реген хп
+	feato(DARKREGEN_FEAT, "темное восстановление", NORMAL_FTYPE, TRUE, feat_app);
+//115
+	// если на умертвии есть аффект вампиризм, то чару идет +5% от урона умки
+	feato(SOULLINK_FEAT, "родство душ", NORMAL_FTYPE, TRUE, feat_app);
+//116 
+	// при наличии этого умения невозможно сдизармить оружие
+	feato(STRONGCLUTCH_FEAT, "сильная хватка", NORMAL_FTYPE, TRUE, feat_app);
+//117 
+	// до 6 стрел одновременно
+	feato(MAGICARROWS_FEAT, "магические стрелы", NORMAL_FTYPE, TRUE, feat_app);
+//118
+	// позволяет производить действия с душами
+	feato(COLLECTORSOULS_FEAT, "колекционер душ", NORMAL_FTYPE, TRUE, feat_app);
+//119
+	// увеличивает шанс прохождения кам проклы.
+	feato(DARKDEAL_FEAT, "темная сделка", NORMAL_FTYPE, TRUE, feat_app);
+//120
+	// Очень сильно увеличивает вред от проклятия
+	feato(DECLINE_FEAT, "порча", NORMAL_FTYPE, TRUE, feat_app);
+//121
+	// если у чернока есть больше 9 душ, то перед смертью он немного исцеляется взамен на души
+	feato(HARVESTLIFE_FEAT, "жатва жизни", NORMAL_FTYPE, TRUE, feat_app);
+//122
+	// у скелета появляется умение спасти
+	feato(LOYALASSIST_FEAT, "верный помощник", NORMAL_FTYPE, TRUE, feat_app);
+//123
+	// у костяного духа появляется умение спасти
+	feato(HAUNTINGSPIRIT_FEAT, "блуждающий дух", NORMAL_FTYPE, TRUE, feat_app);
+//124
+	//
+	
+	
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
@@ -1442,3 +1404,53 @@ void set_natural_feats(CHAR_DATA *ch)
 	set_class_feats(ch);
 	set_race_feats(ch);
 }
+
+/*
+bool check_feat(CHAR_DATA *ch, int feat)
+{
+	pugi::xml_node cur_feat, tmp_feat;
+	int class_player = GET_CLASS(ch);
+	int remort = GET_REMORT(ch);
+	// временная переменная для цикла, сюда записываем значение фита из текущего листа дерева
+	int ftmp;
+	// тоже самое, только для количество ремортов
+	int rtmp;
+	for (cur_feat = .child(class_name[(int)GET_CLASS(ch) + 14*GET_KIN(ch)]); mob_ ; mob_  = mob_ .next_sibling(class_name[(int)GET_CLASS(ch) + 14*GET_KIN(ch)]))
+	{	
+		// ищем в данном дереве нашу способсность
+		tmp_feat = cur_feat.find_child_by_attribute("feat", std::to_string(feat).c_str())
+		ftmp = cur_feat.attribute("feat").as_int();
+		rtmp = cur_feat.attribute("remort").as_int();
+		// если ничего не было найдено, то функция возвратить ту ноду, в которой мы собсна и искали нашего ребенка
+		if (tmp_feat == cur_feat)
+		{			
+			if (ftmp = feat)
+				// если у данной способности реморт больше, чем у чара
+				if (rtmp > remort)
+					return false;
+				else
+					return true;
+		}
+		else
+		{
+			// смотрим, подходит ли нам эта способность по мортам
+			if (rtmp <= remort)
+			{
+				// проверяем, подходит ли родитель этого умения по ремортам
+				if (tmp_feat.parent()..attribute("remort").as_int())
+				{
+					// проверяем, выучен ли родитель у чара
+					// TODO: не помню функцию, изменить на нормальную функцию, которая проверяет, выучен ли фит родителя у чара
+					if (features(ch, tmp_feat.parent()..attribute("feat").as_int()))
+					{
+						return true;
+					}
+				}
+			}
+		}
+			
+		
+	}
+	return false;
+	
+}*/

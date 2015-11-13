@@ -19,7 +19,7 @@
 #include "house.h"
 #include "parse.hpp"
 #include "obj.hpp"
-
+#include <boost/algorithm/string.hpp>
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
 extern void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload);
@@ -63,8 +63,25 @@ struct global_drop
 	OlistType olist;
 };
 
+// для вещей
+struct global_drop_obj
+{
+	global_drop_obj() : vnum(0), chance(0), day_start(0), day_end(0) {};
+	// vnum шмотки
+	int vnum;
+	// chance шмотки от 0 до 1000
+	int chance;
+	// здесь храним типы рум, в которых может загрузится объект
+	std::vector<int> sects;
+	int day_start;
+	int day_end;
+};
+
+
 typedef std::vector<global_drop> DropListType;
 DropListType drop_list;
+
+std::vector<global_drop_obj> drop_list_obj;
 
 const char *CONFIG_FILE = LIB_MISC"global_drop.xml";
 const char *STAT_FILE = LIB_PLRSTUFF"global_drop.tmp";
@@ -73,7 +90,7 @@ void init()
 {
 	// на случай релоада
 	drop_list.clear();
-
+	drop_list_obj.clear();
 	// конфиг
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
@@ -90,7 +107,30 @@ void init()
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
-
+	
+	for (pugi::xml_node node = node_list.child("freedrop_obj"); node; node = node.next_sibling("freedrop_obj"))
+	{
+		global_drop_obj tmp;
+		int obj_vnum = Parse::attr_int(node, "obj_vnum");
+		int chance =  Parse::attr_int(node, "chance");
+		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
+		int day_end = Parse::attr_int_t(node, "day_end");
+		if (day_start == -1)
+		{
+			day_end = 360;
+			day_start = 0;
+		}
+		std::string tmp_str = Parse::attr_str(node, "sects");
+		std::vector<string> strs;
+		boost::split(strs, tmp_str, boost::is_any_of(" "));
+		for (size_t i = 0; i < strs.size(); i++)
+			tmp.sects.push_back(std::stoi( strs[i] ));
+		tmp.vnum = obj_vnum;
+		tmp.chance = chance;
+		tmp.day_start = day_start;
+		tmp.day_end = day_end;
+		drop_list_obj.push_back(tmp);
+	}
 	for (pugi::xml_node node = node_list.child("drop"); node; node = node.next_sibling("drop"))
 	{
 		int obj_vnum = Parse::attr_int(node, "obj_vnum");

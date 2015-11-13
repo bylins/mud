@@ -2845,3 +2845,6 @@ ASPELL(spell_angel)
 	add_follower(mob, ch);
 	return;
 }
+ASPELL(spell_vampire)
+{
+}

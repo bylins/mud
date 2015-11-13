@@ -2636,7 +2636,18 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		over_dam = dam - real_dam;
 	}
 	GET_HIT(victim) -= dam;
-
+	// если на чармисе вампир
+	if (AFF_FLAGGED(ch, AFF_VAMPIRE))
+	{
+			GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam * 0.1), GET_REAL_MAX_HIT(ch)
+									   + GET_REAL_MAX_HIT(ch) * GET_LEVEL(ch) / 10));
+			// если есть родство душ, то чару отходит по 5% от дамаги к хп
+			if (ch->master)
+				if (can_use_feat(ch->master, SOULLINK_FEAT))
+					GET_HIT(ch->master) = MAX(GET_HIT(ch->master), MIN(GET_HIT(ch->master) + MAX(1, dam * 0.05), GET_REAL_MAX_HIT(ch->master)
+									   + GET_REAL_MAX_HIT(ch->master) * GET_LEVEL(ch->master) / 10));
+	}
+	
 	// запись в дметр фактического и овер дамага
 	update_dps_stats(ch, real_dam, over_dam);
 	// запись дамага в список атакеров
@@ -2650,7 +2661,21 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	// обновление позиции после удара и ангела
 	update_pos(victim);
-
+	// если у чара есть жатва жизни
+	if (can_use_feat(victim, HARVESTLIFE_FEAT))
+	{
+		if (GET_POS(victim) == POS_DEAD)
+		{
+			int souls = victim->get_souls();
+			if (souls >= 10)
+			{
+				GET_HIT(victim) = 0 + souls * 10;
+				update_pos(victim);
+				send_to_char("&GДуши спасли вас от смерти!&n\r\n", victim);
+				victim->set_souls(0);
+			}
+		}
+	}
 	// сбивание надува черноков //
 	if (spell_num != SPELL_POISON && dam > 0)
 		try_remove_extrahits(ch, victim);
@@ -2706,7 +2731,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			dam_message(ch, victim);
 		}
 	}
-
+	
 	/// Use send_to_char -- act() doesn't send message if you are DEAD.
 	char_dam_message(dam, ch, victim, flags[NO_FLEE]);
 

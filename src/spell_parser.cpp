@@ -5095,7 +5095,9 @@ void mag_assign_spells(void)
 //200
 	spello(SPELL_HYPNOTIC_PATTERN, "чарующий узор", "hypnotic pattern", 120, 100, 2,
 			POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_MIND);
-
+//202
+	spello(SPELL_VAMPIRE, "вампиризм", "vampire", 150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,
+		   3, STYPE_DARK);
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.

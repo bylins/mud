@@ -45,6 +45,7 @@
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "obj_sets.hpp"
+#include "utils.h"
   extern bool check_unlimited_timer(OBJ_DATA *obj);
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -708,6 +709,10 @@ void affect_total(CHAR_DATA * ch)
 		if (!AFF_FLAGGED(ch, AFF_NOOB_REGEN))
 		{
 			GET_HITREG(ch) += ((int) GET_LEVEL(ch) + 4) / 5 * 10;
+		}
+		if (can_use_feat(ch, DARKREGEN_FEAT))
+		{
+			GET_HITREG(ch) += GET_HITREG(ch) * 0.2;
 		}
 		if (GET_CON_ADD(ch))
 		{

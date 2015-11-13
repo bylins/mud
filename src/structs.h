@@ -657,6 +657,7 @@ enum
 #define AFF_PEACEFUL          (INT_ONE | (1 << 28))
 #define AFF_MAGICSTOPFIGHT    (INT_ONE | (1 << 29))
 
+
 #define AFF_BERSERK           (INT_TWO | (1 << 0))
 #define AFF_LIGHT_WALK        (INT_TWO | (1 << 1))
 #define AFF_BROKEN_CHAINS     (INT_TWO | (1 << 2))
@@ -677,6 +678,7 @@ enum
 #define AFF_STRANGLED         (INT_TWO | (1 << 17))
 #define AFF_RECALL_SPELLS     (INT_TWO | (1 << 18))
 #define AFF_NOOB_REGEN        (INT_TWO | (1 << 19))
+#define AFF_VAMPIRE			  (INT_TWO | (1 << 20))	
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)

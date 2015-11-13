@@ -3738,11 +3738,35 @@ ACMD(do_score)
 		sprintf(buf, "Вы находитесь в звериной форме - %s.\r\n", ch->get_morph_desc().c_str());
 		send_to_char(buf, ch);
 	}
-	if (GET_LEVEL(ch) >= LVL_GOD)
-        {
-                sprintf(buf,"Light:%d Glight:%d gdark%d \r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark);
-                send_to_char(buf,ch);
-        }
+	if (can_use_feat(ch, COLLECTORSOULS_FEAT))
+	{
+		int souls = ch->get_souls();
+		if (souls == 0)
+		{
+			sprintf(buf, "Вы не имеете чужих душ.\r\n");
+			send_to_char(buf, ch);
+		}
+		else
+		{
+			if (souls == 1)
+			{
+				sprintf(buf, "Вы имеете всего одну душу в запасе.\r\n");
+				send_to_char(buf, ch);
+			}
+			if (souls > 1 && souls < 5)
+			{
+				sprintf(buf, "Вы имеете %d души в запасе.\r\n", souls);
+				send_to_char(buf, ch);
+			}
+			if (souls >= 5)
+			{
+				sprintf(buf, "Вы имеете %d чужих душ в запасе.\r\n", souls);
+				send_to_char(buf, ch);
+			}
+			
+		}
+		
+	}
 
 }
 

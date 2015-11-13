@@ -1623,7 +1623,11 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		ndice = 2;
 		sdice = 4;
 		adice = 10;
-		count = (level + 9) / 10;
+		// если есть фит магическая стрела, то стрелок на 30 уровне будет 6
+		if (can_use_feat(ch, MAGICARROWS_FEAT))
+			count = (level + 9) / 5;
+		else
+			count = (level + 9) / 10;
 		break;
 		// ледяное прикосновение - для всех с 7го левела 3го круга(7 слотов)
 		// *** мин 29.5 макс 55.5  (390)
@@ -1854,7 +1858,10 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			ndice = GET_REAL_WIS(ch) / 5;
 			sdice = GET_REAL_WIS(ch);
 			adice = 5 + (GET_REAL_WIS(ch) - 20) / 6;
-			if (number(1, 999) > 750)
+			int choice_stunning = 750;
+			if (can_use_feat(ch, DARKDEAL_FEAT))
+				choice_stunning -= GET_REMORT(ch) * 15;
+			if (number(1, 999) > choice_stunning)
 			{
 				act("Ваше каменное проклятье отшибло сознание у $N1.", FALSE, ch, 0, victim, TO_CHAR);
 				act("Каменное проклятье $n1 отшибло сознание у $N1.", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -2246,7 +2253,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	const char *to_vict = NULL, *to_room = NULL;
 	int i, modi = 0;
 	int rnd = 0;
-
+	int decline_mod = 0;
 	if (victim == NULL || IN_ROOM(victim) == NOWHERE || ch == NULL)
 		return 0;
 
@@ -2827,15 +2834,19 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
+		
+		// если есть фит порча
+		if (can_use_feat(ch, DECLINE_FEAT))
+			decline_mod += GET_REMORT(ch);
 		af[0].location = APPLY_INITIATIVE;
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 1, level, 2, 0, 0));
-		af[0].modifier = -5;
+		af[0].modifier = -(5 + decline_mod);
 		af[0].bitvector = AFF_CURSE;
 
 		af[1].location = APPLY_HITROLL;
 		af[1].duration = af[0].duration;
-		af[1].modifier = -level/6;
+		af[1].modifier = -(level/6 + decline_mod);
 		af[1].bitvector = AFF_CURSE;
 
 		if (level >= 20)
@@ -3299,7 +3310,13 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n0 погрузил$g комнату во мрак.";
 		to_vict = "Вы погрузили комнату в непроглядную тьму.";
 		break;
-
+	case SPELL_VAMPIRE:
+		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0);
+		af[0].location = APPLY_DAMROLL;
+		af[0].modifier = 0;
+		af[0].bitvector = AFF_VAMPIRE;
+		to_room = "Зрачки $n3 приобрели красный оттенок.";
+		to_vict = "Ваши зрачки приобрели красный оттенок.";
 	case SPELL_EVILESS:
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0);
 		af[0].location = APPLY_DAMROLL;
@@ -4016,13 +4033,26 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		send_to_char("Вы слишком зависимы, чтобы искать себе последователей!\r\n", ch);
 		return 0;
 	}
-
+	// при перке помощь тьмы гораздо меньше шанс фейла
 	if (!IS_IMMORTAL(ch) && number(0, 101) < pfail && savetype)
 	{
-		send_to_char(mag_summon_fail_msgs[fmsg], ch);
-		if (handle_corpse)
-			extract_obj(obj);
-		return 0;
+		if (can_use_feat(ch, HELPDARK_FEAT))
+		{
+			if (number(0, 3) == 0)
+			{
+				send_to_char(mag_summon_fail_msgs[fmsg], ch);
+				if (handle_corpse)
+					extract_obj(obj);
+				return 0;
+			}
+		}
+		else
+		{
+			send_to_char(mag_summon_fail_msgs[fmsg], ch);
+			if (handle_corpse)
+				extract_obj(obj);
+			return 0;
+		}		
 	}
 
 	if (!(mob = read_mobile(-mob_num, VIRTUAL)))
@@ -4054,6 +4084,14 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		GET_PAD(mob, 1) = str_dup(buf2);
 		GET_SEX(mob) = SEX_NEUTRAL;
 		SET_BIT(MOB_FLAGS(mob, MOB_RESURRECTED), MOB_RESURRECTED);	// added by Pereplut
+		// если есть фит ярость тьмы, то прибавляем к хп и дамролам
+		if (can_use_feat(ch, FURYDARK_FEAT))
+		{
+			GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
+			GET_MAX_HIT(mob) = GET_MAX_HIT(mob) + GET_MAX_HIT(mob) * 0.20;
+			GET_HIT(mob) = GET_MAX_HIT(mob);
+			GET_HR(mob) = GET_HR(mob) + GET_HR(mob) * 0.20;
+		}
 	}
 	char_to_room(mob, ch->in_room);
 	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, AFF_SANCTUARY) || MOB_FLAGGED(mob, MOB_PROTECT)))
@@ -4192,6 +4230,11 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	if (spellnum == SPELL_ANIMATE_DEAD)
 	{
 		SET_BIT(MOB_FLAGS(mob, MOB_RESURRECTED), MOB_RESURRECTED);	// added by Pereplut
+		if (mob_num == MOB_SKELETON && can_use_feat(ch, LOYALASSIST_FEAT))
+			mob->set_skill(SKILL_RESCUE, 100);
+		
+		if (mob_num == MOB_BONESPIRIT && can_use_feat(ch, HAUNTINGSPIRIT_FEAT	))
+			mob->set_skill(SKILL_RESCUE, 120);
 	}
 //added by Adept
 	if (spellnum == SPELL_SUMMON_FIREKEEPER)
@@ -4763,6 +4806,9 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 		break;
 	case SPELL_ANGEL:
 		MANUAL_SPELL(spell_angel);
+		break;
+	case SPELL_VAMPIRE:
+		MANUAL_SPELL(spell_vampire);
 		break;
 	default:
 		return 0;

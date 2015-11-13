@@ -52,7 +52,6 @@ extern long last_rent_check;
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
-
 #define SAVEINFO(number) ((player_table+number)->timer)
 #define RENTCODE(number) ((player_table+number)->timer->rent.rentcode)
 #define GET_INDEX(ch) (get_ptable_by_name(GET_NAME(ch)))
@@ -459,6 +458,15 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 48;
 				GET_OBJ_UID(object) = atoi(buffer);
+			}
+			else if (!strcmp(read_line, "Rnme"))
+			{
+				*error = 64;
+				int tmp_int = atoi(buffer);
+				if (tmp_int == 1)
+					GET_OBJ_RENAME(object) = true;
+				else
+					GET_OBJ_RENAME(object) = false;
 			}
 			else if (!strcmp(read_line, "TSpl"))
 			{
@@ -990,6 +998,11 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		if (GET_OBJ_LEVEL(object) != GET_OBJ_LEVEL(proto))
 		{
 			out << "Levl: " << GET_OBJ_LEVEL(object) << "~\n";
+		}
+		// была ли шмотка ренейм
+		if ((GET_OBJ_RENAME(object) != NULL) && (GET_OBJ_RENAME(object) != false)) 
+		{
+			out << "Rnme: 1~\n";
 		}
 		// Наводимые аффекты
 		*buf = '\0';
@@ -1812,13 +1825,13 @@ void Crash_list_objects(CHAR_DATA * ch, int index)
 	for (; i < SAVEINFO(index)->rent.nitems; i++)
 	{
 		data = SAVEINFO(index)->time[i];
-		if (((rnum = real_object(data.vnum)) > -1) && ((data.vnum > 799 ) || (data.vnum < 700 )))
+		if ((rnum = real_object(data.vnum)) > -1)
 		{
 			sprintf(buf + strlen(buf), " [%5d] (%5dau) <%6d> %-20s\r\n",
 					data.vnum, GET_OBJ_RENT(obj_proto[rnum]),
 					MAX(-1, data.timer - timer_dec), obj_proto[rnum]->short_description);
 		}
-		else if ((data.vnum > 799 ) || (data.vnum < 700 ))
+		else
 		{
 			sprintf(buf + strlen(buf), " [%5d] (?????au) <%2d> %-20s\r\n",
 					data.vnum, MAX(-1, data.timer - timer_dec), "БЕЗ ПРОТОТИПА");
@@ -1830,11 +1843,10 @@ void Crash_list_objects(CHAR_DATA * ch, int index)
 		}
 	}
 	send_to_char(buf, ch);
-//        page_string(ch->desc, buf, TRUE); // Постраничный вывод.
 	sprintf(buf, "Время в ренте: %ld тиков.\r\n", timer_dec);
 	send_to_char(buf, ch);
 	sprintf(buf,
-			"Предметов: %d. Стоимость: (%d в день) * (%1.2f дней) = %d.\r\n Предметы из 7 зоны не отображаются(Ингры), дабы не захламлять. \r\n",
+			"Предметов: %d. Стоимость: (%d в день) * (%1.2f дней) = %d.\r\n",
 			SAVEINFO(index)->rent.nitems,
 			SAVEINFO(index)->rent.net_cost_per_diem, num_of_days,
 			(int)(num_of_days * SAVEINFO(index)->rent.net_cost_per_diem));
@@ -2115,8 +2127,11 @@ int Crash_load(CHAR_DATA * ch)
 			obj_index[rnum].stored--;
 		}
 		// в два действия, чтобы заодно снять и таймер обкаста
-		obj->set_timer(SAVEINFO(index)->time[fsize].timer);
-		obj->dec_timer(timer_dec);
+		if (!check_unlimited_timer(obj))
+		{
+		    obj->set_timer(SAVEINFO(index)->time[fsize].timer);
+		    obj->dec_timer(timer_dec);
+		}
 		
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0)

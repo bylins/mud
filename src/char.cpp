@@ -101,6 +101,26 @@ Character::~Character()
 	}
 }
 
+void Character::set_souls(int souls)
+{
+	this->souls = souls;
+}
+
+void Character::inc_souls()
+{
+	this->souls++;
+}
+
+void Character::dec_souls()
+{
+	this->souls--;
+}
+
+int Character::get_souls()
+{
+	return this->souls;
+}
+
 /**
 * Обнуление всех полей Character (аналог конструктора),
 * вынесено в отдельную функцию, чтобы дергать из purge().
@@ -193,6 +213,7 @@ void Character::zero_init()
 	memset(&BattleAffects, 0, sizeof(FLAG_DATA));
 	char_specials.position = POS_STANDING;
 	mob_specials.default_pos = POS_STANDING;
+	souls = 0;
 }
 
 /**

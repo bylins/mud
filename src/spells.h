@@ -340,7 +340,8 @@
 #define SPELL_RECALL_SPELLS     199
 #define SPELL_HYPNOTIC_PATTERN	200
 #define SPELL_SOLOBONUS		201
-#define LAST_USED_SPELL			202
+#define SPELL_VAMPIRE		202
+#define LAST_USED_SPELL			203
 
 #define MAX_SLOT 13
 
@@ -527,6 +528,7 @@ ASPELL(spell_identify);
 ASPELL(spell_holystrike);
 ASPELL(skill_identify);
 ASPELL(spell_angel);
+ASPELL(spell_vampire);
 
 // basic magic calling functions
 

@@ -619,29 +619,26 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 
 	reset_affects(ch);
 	// для начала проверяем, активны ли евенты
-	/*if (ACTIVE_EVENT)
-	{
-		// проверяем тип евента
-		if (type_event == EVENT_KILL_MOBS)
-		{
-			// проверяем лмоб ли это
-			if (IS_NPC(ch))
-			{
-				// проверяем левел
-				if (GET_LEVEL(ch) == event_level_mob)
-				{
-					send_to_char(killer, EventMessageCommon);
-					killer->inc_event_score();
-					event_leaderboard.insert(pair<std::string,int>(GET_NAME(killer), killer->get_event_score()) );
-				}
-			}
-		}
-	}*/
 	if ((!killer || death_mtrigger(ch, killer)) && IN_ROOM(ch) != NOWHERE)
 	{
 		death_cry(ch);
 	}
-
+	// добавляем одну душу киллеру
+	if (IS_NPC(ch))
+	{
+		if (can_use_feat(killer, COLLECTORSOULS_FEAT))
+		{
+			if (GET_LEVEL(ch) >= GET_LEVEL(killer))
+			{
+				if (killer->get_souls() < (GET_REMORT(killer) + 1))
+				{
+					act("&GВы забрали душу $N1 себе!&n", FALSE, killer, 0, ch, TO_CHAR);
+					act("$n забрал душу $N1 себе!", FALSE, killer, 0, ch, TO_NOTVICT || TO_ARENA_LISTEN);
+					killer->inc_souls();
+				}
+			}
+		}
+	}
 	if (IN_ROOM(ch) != NOWHERE)
 	{
 		if (!IS_NPC(ch)

@@ -128,32 +128,18 @@ using std::bitset;
 #define	THRIFTY_FEAT			109 //запасливость
 #define CYNIC_FEAT			110 // циничность
 #define PARTNER_FEAT			111 // напарник
-#define FRENZY_FEAT             112
-#define FRANTIC_FEAT			113
-#define EASTMATTER_FEAT			114
-#define DIRECTHIT_FEAT			115
-#define VIOLENCE_FEAT			116
-#define WRATH_FEAT				117
-#define GOODPUNCH_FEAT			118
-#define THICKSKIN_FEAT			119
-#define BIGGIGANT_FEAT			120
-#define NORTHSTEEL_FEAT			121
-#define MIDGIGANT_FEAT			122
-#define TREELIFE_FEAT			123
-#define TREEDEATH_FEAT			124
-#define DARKWEB_FEAT			125
-#define SHININGDARK_FEAT		126
-#define RENTDARK_FEAT			127
-#define DARKSIDE_FEAT			128
-#define BUSHLIFE_FEAT			129
-#define MAGICLIFE_FEAT			130
-#define BUSYLIFE_FEAT			131
-#define BUSYLIFE2_FEAT			132
-#define TRUEFRIEND_FEAT			133
-#define DEATHASSIST_FEAT		134
-#define LOOSEARTH_FEAT 			135
-#define FLINT_HEART_FEAT		136
-#define TRUEFOLLOWERS_FEAT		137
+#define HELPDARK_FEAT			112 // помощь тьмы
+#define FURYDARK_FEAT           113 // ярость тьмы
+#define DARKREGEN_FEAT			114 // темное восстановление
+#define SOULLINK_FEAT			115 // родство душ
+#define STRONGCLUTCH_FEAT		116 // сильная хватка
+#define MAGICARROWS_FEAT		117 // магические стрелы
+#define COLLECTORSOULS_FEAT		118 // коллекционер душ
+#define DARKDEAL_FEAT			119 // темная сделка
+#define DECLINE_FEAT			120 // порча
+#define HARVESTLIFE_FEAT		121 // жатва жизни
+#define LOYALASSIST_FEAT		122 // верный помощник
+#define HAUNTINGSPIRIT_FEAT		123 // блуждающий дух
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух

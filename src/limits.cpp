@@ -86,7 +86,7 @@ int level_exp(CHAR_DATA * ch, int level);
 void update_char_objects(CHAR_DATA * ch);	// handler.cpp
 // Delete this, if you delete overflow fix in beat_points_update below.
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
-
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 // When age < 20 return the value p0 //
 // When age in 20..29 calculate the line between p1 & p2 //
 // When age in 30..34 calculate the line between p2 & p3 //
@@ -1349,7 +1349,7 @@ void clan_chest_point_update(OBJ_DATA *j)
 		if (!SetSystem::find_set_item(j->in_obj) && j->get_timer() > 0)
 			j->dec_timer();
 	}
-	if (j->get_timer() > 0)
+	if ((j->get_timer() > 0) && (!check_unlimited_timer(j)))
 	{
 		j->dec_timer();
 	}
@@ -1447,7 +1447,7 @@ void obj_point_update()
 				}
 			}
 
-			if (!find && j->get_timer() > 0)
+			if (!find && j->get_timer() > 0 && !check_unlimited_timer(j))
 			{
 				j->dec_timer();
 			}
@@ -1456,7 +1456,7 @@ void obj_point_update()
 		// If this is a corpse
 		if (IS_CORPSE(j))  	// timer count down
 		{
-			if (j->get_timer() > 0)
+			if (j->get_timer() > 0 && !check_unlimited_timer(j))
 			{
 				j->dec_timer();
 			}
@@ -1510,7 +1510,7 @@ void obj_point_update()
 		{
 			if (SCRIPT_CHECK(j, OTRIG_TIMER))
 			{
-				if (j->get_timer() > 0 && OBJ_FLAGGED(j, ITEM_TICKTIMER))
+				if (j->get_timer() > 0 && OBJ_FLAGGED(j, ITEM_TICKTIMER) && !check_unlimited_timer(j))
 				{
 					j->dec_timer();
 				}
@@ -1523,7 +1523,7 @@ void obj_point_update()
 			else if (GET_OBJ_DESTROY(j) > 0 && !NO_DESTROY(j))
 				GET_OBJ_DESTROY(j)--;
 
-			if (j && (j->in_room != NOWHERE) && j->get_timer() > 0 && !NO_DESTROY(j))
+			if (j && (j->in_room != NOWHERE) && j->get_timer() > 0 && !NO_DESTROY(j) && !check_unlimited_timer(j))
 			{
 				j->dec_timer();
 			}

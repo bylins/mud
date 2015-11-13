@@ -946,6 +946,7 @@ extern SPECIAL(shop_ext);
 #define GET_OBJ_OWNER(obj)      ((obj)->obj_flags.Obj_owner)
 #define GET_OBJ_MAKER(obj)      ((obj)->obj_flags.Obj_maker)
 #define GET_OBJ_PARENT(obj)      ((obj)->obj_flags.Obj_parent)
+#define GET_OBJ_RENAME(obj)      ((obj)->obj_flags.Obj_is_rename)
 #define GET_OBJ_VAL(obj, val) ((obj)->obj_flags.value[(val)])
 #define GET_OBJ_WEIGHT(obj)   ((obj)->obj_flags.weight)
 #define GET_OBJ_DESTROY(obj) ((obj)->obj_flags.Obj_destroyer)

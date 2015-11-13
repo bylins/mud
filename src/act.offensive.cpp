@@ -1669,7 +1669,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, GF_GODSCURSE)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE))
 		prob = percent;
-	if (IS_IMMORTAL(vict) || GET_GOD_FLAG(ch, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSLIKE))
+	if (IS_IMMORTAL(vict) || GET_GOD_FLAG(ch, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSLIKE) || can_use_feat(vict, STRONGCLUTCH_FEAT))
 		prob = 0;
 
 

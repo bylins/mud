@@ -75,7 +75,7 @@ extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_align(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
 extern char *diag_timer_to_char(OBJ_DATA * obj);
-
+extern bool check_unlimited_timer(OBJ_DATA *obj);
 
 namespace ShopExt
 {
@@ -641,7 +641,8 @@ void update_shop_timers(ShopListType::const_iterator &shop)
 	int waste_time = (*shop)->waste_time_min * 60;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end();)
 	{
-		it->obj->dec_timer();
+		if (!check_unlimited_timer(it->obj))
+		    it->obj->dec_timer();
 		if (it->obj->get_timer() <= 0 || ((waste_time > 0) && (cur_time - it->last_activity > waste_time)))
 		{
 			remove_item_id(shop, it->obj->uid);
