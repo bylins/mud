@@ -1088,7 +1088,7 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character);
 		break;
 	case ITEM_MATERIAL:
-		send_to_char("Введите условный уровень (1-5): ", d->character);
+		send_to_char("Введите условный уровень: ", d->character);
 		break;
 	case ITEM_CONTAINER:
 		send_to_char("Введите сложность замка (0-255): ", d->character);
