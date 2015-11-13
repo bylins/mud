@@ -555,6 +555,11 @@ public:
 
 	void set_ruble(int ruble);
 	long get_ruble();
+	
+	void set_souls(int souls);
+	void inc_souls();
+	void dec_souls();
+	int get_souls();
 private:
 	std::string clan_for_title();
 	std::string only_title_noclan();
@@ -642,6 +647,8 @@ private:
 	// для режимов
 	// количество набранных очков
 	int count_score;
+	// души, онли чернок
+	int souls;
 // старое
 public:
 	mob_rnum nr;		// Mob's rnum
