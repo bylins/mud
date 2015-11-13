@@ -2949,21 +2949,16 @@ const int meet_vnum[] = { 320, 321, 322, 323 };
 
 
 bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
-{ int i, sum = 0;
-// потом использовать в расчетах функцию mobmax num_animals_levels[i]
+{// потом использовать в расчетах функцию mobmax num_animals_levels[i]
 	switch (GET_LEVEL(mob)/11)
 	{
 	case 0:
-		for ( i = 1; i <= 10; i++)
-  			sum +=num_animals_levels[i];
 		if (number(1, 100) <= 15)
 			return true;
 	break;
 	case 1:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 40)
 		{
-//			for ( i = 1; i <= 10; i++)
-//				sum +=num_animals_levels[i];
 			if (number(1, 100) <= 20)
 				return true;
 		}
