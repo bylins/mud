@@ -605,7 +605,8 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	check_spell_capable(ch, killer);
-
+if (!killer)
+return;
 	if (ch->get_fighting())
 		stop_fighting(ch, TRUE);
 
