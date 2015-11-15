@@ -307,6 +307,9 @@ int obj_data::get_timer() const
 
 
  extern bool check_unlimited_timer(OBJ_DATA *obj);
+ extern float count_remort_requred(OBJ_DATA *obj);
+ extern float count_unlimited_timer(OBJ_DATA *obj);
+
 /**
 * Реальное старение шмотки (без всяких технических сетов таймера по коду).
 * Помимо таймера самой шмотки снимается таймер ее временного обкаста.
@@ -327,7 +330,15 @@ void obj_data::dec_timer(int time, bool ignore_utimer)
 	}
 }
 
+float obj_data::show_mort_req() 
+{
+	return count_remort_requred(this);
+}
 
+float obj_data::show_koef_obj() 
+{
+	return count_unlimited_timer(this);
+}
 
 int obj_data::get_manual_mort_req() const
 {
@@ -425,6 +436,13 @@ const float SQRT_MOD = 1.7095f;
 const int AFF_SHIELD_MOD = 30;
 const int AFF_BLINK_MOD = 10;
 
+} // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace ObjSystem
+{
+
 float count_affect_weight(OBJ_DATA *obj, int num, int mod)
 {
 	float weight = 0;
@@ -489,13 +507,6 @@ float count_affect_weight(OBJ_DATA *obj, int num, int mod)
 
 	return weight;
 }
-
-} // namespace
-
-////////////////////////////////////////////////////////////////////////////////
-
-namespace ObjSystem
-{
 
 bool is_armor_type(const OBJ_DATA *obj)
 {
@@ -646,6 +657,8 @@ void init_ilvl(OBJ_DATA *obj)
 				return;
 			}
 		}
+		//если аффект отрицательный. убирем ошибку от степени
+		if (obj->affected[k].modifier < 0) continue;
 		float weight = count_affect_weight(obj, obj->affected[k].location,
 			obj->affected[k].modifier);
 		total_weight += pow(weight, SQRT_MOD);
