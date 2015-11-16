@@ -9,7 +9,8 @@
 #include "char.hpp"
 #include "utils.h"
 #include "db.h"
-boost::array<int, MAX_MOB_LEVEL + 1> num_animals_levels = { {0} };
+
+boost::array<int, 5> animals_levels = { {0} };
 
 namespace
 {
@@ -22,6 +23,7 @@ const int MAX_MOB_IN_MOBKILL = 100;
 const int MOBKILL_KOEFF = 3;
 // кол-во мобов каждого уровня
 boost::array<int, MAX_MOB_LEVEL + 1> num_levels = { {0} };
+
 // мап соответствий внумов и левелов (для быстрого чтения плеер-файла)
 typedef std::map<int/* внум моба */, int/* левел моба */> VnumToLevelType;
 VnumToLevelType vnum_to_level;
@@ -30,7 +32,7 @@ VnumToLevelType vnum_to_level;
 
 // * Иним массив кол-ва мобов каждого левела и мап соответствий внумов и левелов.
 void MobMax::init()
-{
+{boost::array<int, MAX_MOB_LEVEL + 1> num_animals_levels = { {0} };
 	for (int i = 0; i <= top_of_mobt; ++i)
 	{
 		int level = GET_LEVEL(mob_proto + i);
@@ -56,6 +58,7 @@ void MobMax::init()
 			num_levels[i] = MIN_MOB_IN_MOBKILL;
 		if (num_levels[i] > MAX_MOB_IN_MOBKILL)
 			num_levels[i] = MAX_MOB_IN_MOBKILL;
+		animals_levels[i/11] += num_animals_levels[i]; //составим список количества животных по уровню для освежевки
 		log("Mob lev %d. Max in MobKill file %d", i, num_levels[i]);
 
 	}

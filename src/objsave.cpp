@@ -459,15 +459,6 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				*error = 48;
 				GET_OBJ_UID(object) = atoi(buffer);
 			}
-			else if (!strcmp(read_line, "Rnme"))
-			{
-				*error = 64;
-				int tmp_int = atoi(buffer);
-				if (tmp_int == 1)
-					GET_OBJ_RENAME(object) = true;
-				else
-					GET_OBJ_RENAME(object) = false;
-			}
 			else if (!strcmp(read_line, "TSpl"))
 			{
 				*error = 49;
@@ -621,6 +612,20 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				{
 					return object;
 				}
+			}
+			else if (!strcmp(read_line, "Rnme"))
+			{
+				*error = 64;
+				int tmp_int = atoi(buffer);
+				if (tmp_int == 1)
+					GET_OBJ_RENAME(object) = true;
+				else
+					GET_OBJ_RENAME(object) = false;
+			}
+			else if (!strcmp(read_line, "Ctmr"))
+			{
+				*error = 65;
+				GET_OBJ_CRAFTIMER(object) = atoi(buffer);
 			}
 			else
 			{
@@ -1003,6 +1008,11 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		if ((GET_OBJ_RENAME(object) != NULL) && (GET_OBJ_RENAME(object) != false)) 
 		{
 			out << "Rnme: 1~\n";
+		}
+		// есть ли на шмотке таймер при крафте
+		if ((GET_OBJ_CRAFTIMER(object) > 0))
+		{
+			out << "Ctmr: " << GET_OBJ_CRAFTIMER(object) << "~\n";
 		}
 		// Наводимые аффекты
 		*buf = '\0';

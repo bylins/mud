@@ -43,7 +43,7 @@ extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
 extern bool check_unlimited_timer(OBJ_DATA *obj);
-extern boost::array<int, MAX_MOB_LEVEL + 1> num_animals_levels;
+extern boost::array<int, 4> animals_levels;
 // from act.informative.cpp
 char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
 
@@ -399,7 +399,6 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 			   NRM, LVL_GRGOD, ERRLOG, TRUE);
 		return NULL;
 	}
-
 	GET_OBJ_VAL(skin, 3) = int (GET_LEVEL(mob) / 11); // установим уровень шкуры, топовая 44+
 	GET_OBJ_PARENT(skin) = GET_MOB_VNUM(mob);
 	trans_obj_name(skin, mob); // переносим падежи
@@ -2964,17 +2963,19 @@ const int meet_vnum[] = { 320, 321, 322, 323 };
 
 
 bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
-{// потом использовать в расчетах функцию mobmax num_animals_levels[i]
+{ int num;
 	switch (GET_LEVEL(mob)/11)
 	{
 	case 0:
-		if (number(1, 100) <= 15)
+			num = 15 * animals_levels[0] / 2201; // приводим пропорцией к количеству зверья на 15.11.2015 в мире
+			if (number(1, 100) <= num)
 			return true;
 	break;
 	case 1:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 40)
 		{
-			if (number(1, 100) <= 20)
+			num = 20 * animals_levels[1] / 701;
+			if (number(1, 100) <= num)
 				return true;
 		}
 			else	
@@ -2988,7 +2989,8 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	case 2:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 80)
 		{
-			if (number(1, 100) <= 10)
+			num = 10 * animals_levels[2] / 594;
+			if (number(1, 100) <= num)
 				return true;
 		}
 			else	
@@ -3001,7 +3003,8 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	case 3:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 120)
 		{
-			if (number(1, 100) <= 8)
+			num = 8 * animals_levels[3] / 209;
+			if (number(1, 100) <= num)
 				return true;
 		}
 			else	
@@ -3014,7 +3017,8 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	case 4:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 160)
 		{
-			if (number(1, 100) <= 25)
+			num = 25 * animals_levels[4] / 20;
+			if (number(1, 100) <= num)
 				return true;
 		}
 			else	

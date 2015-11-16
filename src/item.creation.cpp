@@ -2222,7 +2222,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOALTER), ITEM_NOALTER);  // нельзя сфрешить черным свитком
 		obj->set_timer((GET_OBJ_VAL(ingrs[0],3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) * number(180,220)); // таймер зависит в основном от умелки
-//		obj->set_timer(obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
+		GET_OBJ_CRAFTIMER(obj) = obj->get_timer(); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
 		send_to_char(buf, ch);
 		if (CAN_WEAR(obj, ITEM_WEAR_BODY)) // 1.1
 			wearkoeff = 110;
@@ -2273,7 +2273,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 						break;
 					}
 					if (obj->affected[i].location == APPLY_NONE) // добавляем афф на свободное место
-					{
+					{	if (number(1, 100) > GET_OBJ_VAL(obj,2)) // проверим фейл на силу ингра
+							break;
 						obj->affected[i].location =  ingrs[j]->affected[raffect].location;
 						obj->affected[i].modifier =  ingrs[j]->affected[raffect].modifier;
 						break;

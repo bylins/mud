@@ -60,6 +60,8 @@ struct obj_flag_data
 	Obj_parent;		// Vnum for object parent //
 	bool
 	Obj_is_rename;
+	int 
+	craft_timer; // таймер крафтовой вещи при создании
 };
 
 struct obj_affected_type
