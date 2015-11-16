@@ -16,32 +16,32 @@
 
 using std::bitset;
 
-#define THAC0_FEAT			0   //DO NOT USED
+#define THAC0_FEAT				0   //DO NOT USED
 #define BERSERK_FEAT			1   //предсмертная ярость
 #define PARRY_ARROW_FEAT		2   //отбить стрелу
 #define BLIND_FIGHT_FEAT		3   //слепой бой
 #define IMPREGNABLE_FEAT		4   //непробиваемый
-#define APPROACHING_ATTACK_FEAT		5   //встречная атака
+#define APPROACHING_ATTACK_FEAT	5   //встречная атака
 #define DEFENDER_FEAT			6   //щитоносец
-#define DODGER_FEAT	7   //изворотливость
+#define DODGER_FEAT				7   //изворотливость
 #define LIGHT_WALK_FEAT			8   //легкая поступь
-#define WRIGGLER_FEAT		9   //проныра
-#define SPELL_SUBSTITUTE_FEAT		10  //подмена заклинания
+#define WRIGGLER_FEAT			9   //проныра
+#define SPELL_SUBSTITUTE_FEAT	10  //подмена заклинания
 #define POWER_ATTACK_FEAT		11  //мощная атака
 #define WOODEN_SKIN_FEAT		12  //деревянная кожа
 #define IRON_SKIN_FEAT			13  //железная кожа
 #define CONNOISEUR_FEAT			14  //знаток
 #define EXORCIST_FEAT			15  //изгоняющий нежить
-#define HEALER_FEAT			16  //целитель
-#define LIGHTING_REFLEX_FEAT		17  //мгновенная реакция
+#define HEALER_FEAT				16  //целитель
+#define LIGHTING_REFLEX_FEAT	17  //мгновенная реакция
 #define DRUNKARD_FEAT			18  //пьяница
-#define POWER_MAGIC_FEAT			19  //мощь колдовства
+#define POWER_MAGIC_FEAT		19  //мощь колдовства
 #define ENDURANCE_FEAT			20  //выносливость
-#define GREAT_FORTITUDE_FEAT		21  //сила духа
-#define FAST_REGENERATION_FEAT		22  //быстрое заживление
+#define GREAT_FORTITUDE_FEAT	21  //сила духа
+#define FAST_REGENERATION_FEAT	22  //быстрое заживление
 #define STEALTHY_FEAT			23  //незаметность
-#define RELATED_TO_MAGIC_FEAT		24  //магическое родство
-#define SPLENDID_HEALTH_FEAT		25  //богатырское здоровье
+#define RELATED_TO_MAGIC_FEAT	24  //магическое родство
+#define SPLENDID_HEALTH_FEAT	25  //богатырское здоровье
 #define TRACKER_FEAT			26  //следопыт
 #define WEAPON_FINESSE_FEAT		27  //фехтование
 #define COMBAT_CASTING_FEAT		28  //боевое чародейство
@@ -126,7 +126,7 @@ using std::bitset;
 #define RETREAT_FEAT			107 //отступление
 #define SHADOW_STRIKE_FEAT		108 //танцующая тень
 #define	THRIFTY_FEAT			109 //запасливость
-#define CYNIC_FEAT			110 // циничность
+#define CYNIC_FEAT			    110 // циничность
 #define PARTNER_FEAT			111 // напарник
 #define HELPDARK_FEAT			112 // помощь тьмы
 #define FURYDARK_FEAT           113 // ярость тьмы

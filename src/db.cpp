@@ -361,6 +361,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	bool type_item = false;
 	if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR)  ||
 	    (GET_OBJ_TYPE(obj) == ITEM_STAFF)  ||
+	    (GET_OBJ_TYPE(obj) == ITEM_WORN)   ||
 	    (GET_OBJ_TYPE(obj) == ITEM_WEAPON))
 		type_item = true;
 	// сумма для статов
@@ -437,9 +438,10 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 			
 			if (strcmp(it->first.c_str(), buf_temp) == 0)
 			{	
-			    for (int j = 0; j < fabs(obj->affected[i].modifier);j++)
+				
+			    if (obj->affected[i].modifier > 0)
 			    {
-				sum += it->second; 					
+					sum += it->second * obj->affected[i].modifier; 					
 			    }
 			}
 				
@@ -470,7 +472,176 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 }
 
 
+float count_koef_obj(OBJ_DATA *obj,int item_wear)
+{
+	double sum = 0.0;
+	double sum_aff = 0.0;
+	char buf_temp[MAX_STRING_LENGTH];
+	char buf_temp1[MAX_STRING_LENGTH];
 
+	// проходим по всем характеристикам предмета
+	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+		if (obj->affected[i].modifier)
+		{
+			sprinttype(obj->affected[i].location, apply_types, buf_temp);
+			// проходим по нашей таблице с критериями
+			for(std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++) 
+			{
+			
+			if (strcmp(it->first.c_str(), buf_temp) == 0)
+			{	
+			    if (obj->affected[i].modifier > 0)
+			    {
+					sum += it->second * obj->affected[i].modifier; 					
+			    }
+			}
+				
+				//std::cout << it->first << " " << it->second << std::endl;
+			}
+		}
+	sprintbits(obj->obj_flags.affects, weapon_affects, buf_temp1, ",");
+	
+	// проходим по всем аффектам в нашей таблице
+	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
+			{
+				// проверяем, есть ли наш аффект на предмете
+				if (strstr(buf_temp1, it->first.c_str()) != NULL)
+				{
+					sum_aff += it->second;
+				}
+				//std::cout << it->first << " " << it->second << std::endl;
+			}
+	sum += sum_aff;	
+  return sum;
+}
+
+float count_unlimited_timer(OBJ_DATA *obj)
+{
+	float result = 0.0;
+	bool type_item = false;
+	if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR)  ||
+	    (GET_OBJ_TYPE(obj) == ITEM_STAFF)  ||
+	    (GET_OBJ_TYPE(obj) == ITEM_WORN)  ||
+	    (GET_OBJ_TYPE(obj) == ITEM_WEAPON))
+		type_item = true;
+	// сумма для статов
+	
+	
+	result = 0.0;
+	
+	if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_FINGER));
+	if (CAN_WEAR(obj, ITEM_WEAR_NECK))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_NECK));
+	if (CAN_WEAR(obj, ITEM_WEAR_BODY))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_BODY));
+	if (CAN_WEAR(obj, ITEM_WEAR_HEAD))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_HEAD));
+	if (CAN_WEAR(obj, ITEM_WEAR_LEGS))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_LEGS));
+	if (CAN_WEAR(obj, ITEM_WEAR_FEET))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_FEET));
+	if (CAN_WEAR(obj, ITEM_WEAR_HANDS))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_HANDS));
+	if (CAN_WEAR(obj, ITEM_WEAR_ARMS))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_ARMS));
+	if (CAN_WEAR(obj, ITEM_WEAR_SHIELD))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_SHIELD));
+	if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_ABOUT));
+	if (CAN_WEAR(obj, ITEM_WEAR_WAIST))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_WAIST));
+	if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_WRIST));
+	if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_WIELD));
+	if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_HOLD));
+	if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+		result += count_koef_obj(obj,exp_two(ITEM_WEAR_BOTHS));
+	if (!type_item)
+	    return 0.0;
+
+	return result;
+}
+
+float count_remort_requred(OBJ_DATA *obj)
+{
+	float result = 0.0;
+	bool type_item = false;
+	const float SQRT_MOD = 1.7095f;
+	const int AFF_SHIELD_MOD = 30;
+	const int AFF_BLINK_MOD = 10;
+	
+	if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR)  ||
+	    (GET_OBJ_TYPE(obj) == ITEM_STAFF)  ||
+	    (GET_OBJ_TYPE(obj) == ITEM_WORN)   ||
+	    (GET_OBJ_TYPE(obj) == ITEM_WEAPON))
+		type_item = true;
+	// сумма для статов
+	
+	
+	result = 0.0;
+	
+	if (ObjSystem::is_mob_item(obj)
+		|| OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	{
+		return result;
+	}
+
+	float total_weight = 0.0;
+
+	// аффекты APPLY_x
+	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
+	{
+		if (obj->affected[k].location == 0) continue;
+
+		// случай, если один аффект прописан в нескольких полях
+		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
+		{
+			if (obj->affected[k].location == obj->affected[kk].location
+				&& k != kk)
+			{
+				log("SYSERROR: double affect=%d, obj_vnum=%d",
+					obj->affected[k].location, GET_OBJ_VNUM(obj));
+				return 1000000;
+			}
+		}
+		if (obj->affected[k].modifier < 0) continue;
+		float weight = ObjSystem::count_affect_weight(obj, obj->affected[k].location,
+			obj->affected[k].modifier);
+		total_weight += pow(weight, SQRT_MOD);
+		
+	}
+	// аффекты AFF_x через weapon_affect
+	for (int m = 0; weapon_affect[m].aff_bitvector != -1; ++m)
+	{
+		if (weapon_affect[m].aff_bitvector == AFF_AIRSHIELD
+			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		{
+			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+		}
+		else if (weapon_affect[m].aff_bitvector == AFF_FIRESHIELD
+			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		{
+			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+		}
+		else if (weapon_affect[m].aff_bitvector == AFF_ICESHIELD
+			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		{
+			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+		}
+		else if (weapon_affect[m].aff_bitvector == AFF_BLINK
+			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		{
+			total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+		}
+	}
+
+	result = ceil(pow(total_weight, 1/SQRT_MOD));
+
+	return result;
+}
 
 
 void Load_Criterion(pugi::xml_node XMLCriterion, int type)

@@ -450,12 +450,16 @@ struct obj_data
 	void purge(bool destructor = false);
 	bool purged() const;
 
+	//разные системы расчета привлекательности предмета
 	unsigned get_ilevel() const;
 	void set_ilevel(unsigned ilvl);
 	int get_manual_mort_req() const;
 	void set_manual_mort_req(int);
 	int get_mort_req() const;
+	float show_mort_req();
+	float show_koef_obj();
 
+	
 	int get_cost() const;
 	void set_cost(int x);
 	int get_rent() const;
@@ -493,6 +497,7 @@ private:
 namespace ObjSystem
 {
 
+float count_affect_weight(OBJ_DATA *obj, int num, int mod);
 bool is_armor_type(const OBJ_DATA *obj);
 void release_purged_list();
 void init_item_levels();
