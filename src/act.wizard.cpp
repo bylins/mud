@@ -1680,6 +1680,10 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	{
 		send_to_char(ch, ", Родитель(VNum) : [%d]", GET_OBJ_PARENT(j));
 	}
+	if (GET_OBJ_CRAFTIMER(j) > 0)
+	{
+		send_to_char(ch, ", &Yскрафчена с таймером : [%d]&n", GET_OBJ_CRAFTIMER(j));
+	}
 	if (j->obj_flags.Obj_is_rename) // изменены падежи
 		send_to_char(ch, ", &Gпадежи отличны от прототипа&n");
 	sprintf(buf, "\r\nL-Des: %s\r\n%s", ((j->description) ? j->description : "Нет"), CCNRM(ch, C_NRM));

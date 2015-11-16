@@ -2273,7 +2273,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 						break;
 					}
 					if (obj->affected[i].location == APPLY_NONE) // добавляем афф на свободное место
-					{	if (number(1, 100) > GET_OBJ_VAL(obj,2)) // проверим фейл на силу ингра
+					{	if (number(1, 100) > GET_OBJ_VAL(ingrs[j],2)) // проверим фейл на силу ингра
 							break;
 						obj->affected[i].location =  ingrs[j]->affected[raffect].location;
 						obj->affected[i].modifier =  ingrs[j]->affected[raffect].modifier;
