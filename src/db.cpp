@@ -438,9 +438,10 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 			
 			if (strcmp(it->first.c_str(), buf_temp) == 0)
 			{	
-			    for (int j = 0; j < fabs(obj->affected[i].modifier);j++)
+				
+			    if (obj->affected[i].modifier > 0)
 			    {
-				sum += it->second; 					
+					sum += it->second * obj->affected[i].modifier; 					
 			    }
 			}
 				
