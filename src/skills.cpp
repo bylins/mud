@@ -349,7 +349,11 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			if (GET_POS(vict) < POS_FIGHTING)
 				bonus += (20 * (POS_FIGHTING - GET_POS(vict)));
 			else if (AFF_FLAGGED(vict, AFF_AWARNESS))
+			{
 				victim_modi -= 30;
+				if (can_use_feat(vict, ALERT_FEAT))
+					victim_modi -= 30;
+			}
 			victim_modi += size_app[GET_POS_SIZE(vict)].ac;
 			victim_modi -= dex_bonus(GET_REAL_DEX(vict));
 		}
@@ -462,7 +466,11 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			{
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 				if (AFF_FLAGGED(vict, AFF_AWARNESS))
+				{
 					bonus -= 30;
+					if (can_use_feat(vict, ALERT_FEAT))
+						bonus -= 30;
+				}
 			}
 		}
 		break;
@@ -650,7 +658,11 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			if (GET_POS(vict) < POS_SITTING)
 				bonus -= 50;
 			if (AWAKE(vict) || AFF_FLAGGED(vict, AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
+			{
 				victim_modi -= 20;
+				if (can_use_feat(vict, ALERT_FEAT))
+					victim_modi -= 30;
+			}
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
 				victim_modi -= calculate_awake_mod(ch, vict);
 //			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
@@ -778,7 +790,11 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
                 bonus += (skill_is + bonus)/5;
                 if (vict->get_fighting() ||
 			(MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, AFF_AWARNESS) || AWAKE(vict) ))
+			{
                         bonus -= (skill_is + bonus)/10;
+						if (can_use_feat(vict, ALERT_FEAT))
+							bonus -= (skill_is + bonus)/10;
+			}
                 if (PRF_FLAGGED (vict, PRF_AWAKE))
 			victim_modi = -(vict->get_skill(SKILL_AWAKE)/5);
                   }

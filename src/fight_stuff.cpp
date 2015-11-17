@@ -605,8 +605,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	check_spell_capable(ch, killer);
-if (!killer)
-return;
+
 	if (ch->get_fighting())
 		stop_fighting(ch, TRUE);
 
@@ -625,7 +624,7 @@ return;
 		death_cry(ch);
 	}
 	// добавляем одну душу киллеру
-	if (IS_NPC(ch))
+	if (IS_NPC(ch) && killer)
 	{
 		if (can_use_feat(killer, COLLECTORSOULS_FEAT))
 		{

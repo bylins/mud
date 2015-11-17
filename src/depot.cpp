@@ -114,7 +114,6 @@ DepotListType depot_list; // список личных хранилищ
 // * Капитально расширенная версия сислога для хранилищ.
 void depot_log(const char *format, ...)
 {
-	return;
 	const char *filename = "../log/depot.log";
 	static FILE *file = 0;
 	if (!file)
@@ -676,11 +675,6 @@ void CharNode::update_online_item()
 {
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end();)
 	{
-		if (check_unlimited_timer((*obj_it)))
-		{
-		    obj_it++;
-		    continue;
-		}
 		(*obj_it)->dec_timer();
 		if ((*obj_it)->get_timer() <= 0)
 		{
@@ -760,15 +754,27 @@ void update_timers()
 // * Апдейт таймеров в оффлайн списках с расчетом общей ренты.
 void CharNode::update_offline_item(long uid)
 {
+	OBJ_DATA *obj;
 	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end();)
 	{
 		--(obj_it->timer);
 		if (obj_it->timer <= 0)
 		{
+			int rnum = real_object(obj_it->vnum);
+			if (rnum < 0)
+			{
+				depot_log("Что-то не так с объектом : %d", obj_it->vnum);
+				continue;
+			}
+			obj = read_object(rnum, REAL);
+			if (check_unlimited_timer(obj))
+			{
+				obj_it->timer = obj->get_timer();
+				continue;
+			}
 			depot_log("update_offline_item %s: zero timer %d %d", name.c_str(), obj_it->vnum, obj_it->uid);
 			add_purged_message(uid, obj_it->vnum, obj_it->uid);
-			// шмотка уходит в лоад
-			int rnum = real_object(obj_it->vnum);
+			// шмотка уходит в лоад			
 			if (rnum >= 0)
 				obj_index[rnum].stored--;
 			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена

@@ -297,7 +297,7 @@ bool obj_data::has_skills() const
 
 void obj_data::set_timer(int timer)
 {
-	timer_ = MAX(0, timer);
+	timer_ = MAX(0, timer);	
 }
 
 int obj_data::get_timer() const
