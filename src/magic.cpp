@@ -1586,8 +1586,8 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			return (mag_damage(level, ch, ch, spellnum, savetype));
 		}
 	}
-	
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 100) < (can_use_feat(victim, BIGSHADOW_FEAT) ? 40 : 21))
+
+	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 100) < 21)
 	{
 		act("Густая тень вокруг $N1 жадно поглотила вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
 		act("Густая тень вокруг $N1 жадно поглотила магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -1685,14 +1685,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
 			GET_POS(victim) = POS_SITTING;
 			update_pos(victim);
-			if (can_use_feat(ch, FAULTSHAKE_FEAT))
-			{
-				WAIT_STATE(victim, 4 * PULSE_VIOLENCE);
-			}
-			else
-			{
-				WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
-			}
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 		}
 		break;
 
@@ -2254,7 +2247,6 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 
 int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
 {
-	int _mod_poison = 0;
 	AFFECT_DATA af[MAX_SPELL_AFFECTS];
 	bool accum_affect = FALSE, accum_duration = FALSE, success = TRUE;
 	bool update_spell = FALSE;
@@ -2994,20 +2986,17 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
-		_mod_poison = 0;
-		if (can_use_feat(ch, STRONGPOISON_FEAT))
-			_mod_poison = 7;
-		
+
 		af[0].location = APPLY_STR;
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 				pc_duration(victim, 0, level, 1, 0, 0));
-		af[0].modifier = -2 - _mod_poison;
+		af[0].modifier = -2;
 		af[0].bitvector = AFF_POISON;
 		af[1].battleflag = AF_SAME_TIME;
 
 		af[1].location = APPLY_POISON;
 		af[1].duration = af[0].duration;
-		af[1].modifier = level + _mod_poison;
+		af[1].modifier = level;
 		af[1].bitvector = AFF_POISON;
 		af[1].battleflag = AF_SAME_TIME;
 
@@ -4095,19 +4084,13 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		GET_PAD(mob, 1) = str_dup(buf2);
 		GET_SEX(mob) = SEX_NEUTRAL;
 		SET_BIT(MOB_FLAGS(mob, MOB_RESURRECTED), MOB_RESURRECTED);	// added by Pereplut
-		// если есть фит погонщик умертвий, то прибавляем к хп и дамролам
-		if (can_use_feat(ch, DROVERUNDEAD_FEAT))
+		// если есть фит ярость тьмы, то прибавляем к хп и дамролам
+		if (can_use_feat(ch, FURYDARK_FEAT))
 		{
-			double coef_fd = 0.2;
-			// если есть ярость тьмы, то коеф = 0.4
-			if (can_use_feat(ch, FURYDARK_FEAT))
-			{
-				coef_fd = 0.4;
-			}
-			GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * coef_fd;
-			GET_MAX_HIT(mob) = GET_MAX_HIT(mob) + GET_MAX_HIT(mob) * coef_fd;
+			GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
+			GET_MAX_HIT(mob) = GET_MAX_HIT(mob) + GET_MAX_HIT(mob) * 0.20;
 			GET_HIT(mob) = GET_MAX_HIT(mob);
-			GET_HR(mob) = GET_HR(mob) + GET_HR(mob) * coef_fd;
+			GET_HR(mob) = GET_HR(mob) + GET_HR(mob) * 0.20;
 		}
 	}
 	char_to_room(mob, ch->in_room);
@@ -4252,19 +4235,6 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		
 		if (mob_num == MOB_BONESPIRIT && can_use_feat(ch, HAUNTINGSPIRIT_FEAT	))
 			mob->set_skill(SKILL_RESCUE, 120);
-		
-		if (mob_num == MOB_ZOMBIE && can_use_feat(ch, LIVINGFLESH_FEAT))		{
-		
-			mob->set_skill(SKILL_RESCUE, 100);
-			if (mob_num == MOB_ZOMBIE && can_use_feat(ch, MORTALCOIN_FEAT))
-			{
-				GET_DR(mob) = GET_DR(mob) * 5;
-				GET_MAX_HIT(mob) = 1500;
-				GET_HIT(mob) = GET_MAX_HIT(mob);
-				GET_HR(mob) = GET_HR(mob) * 5;
-				mob->mob_specials.ExtraAttack = 2;
-			}
-		}
 	}
 //added by Adept
 	if (spellnum == SPELL_SUMMON_FIREKEEPER)

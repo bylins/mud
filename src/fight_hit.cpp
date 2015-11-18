@@ -3735,18 +3735,12 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		hitprcnt_mtrigger(victim);
 		return;
 	}
-	// коэфициент для мигалки
-	int coef_blink = 20;
-	if (can_use_feat(victim, FLICKER_FEAT))
-	{
-		coef_blink = 40;
-	}
 	// даже в случае попадания можно уклониться мигалкой
 	if (AFF_FLAGGED(victim, AFF_BLINK)
 		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
 		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
 		&& (!(hit_params.skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
-		&& number(1, 100) <= coef_blink)
+		&& number(1, 100) <= 20)
 	{
 		sprintf(buf,
 			"%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",

@@ -140,16 +140,7 @@ using std::bitset;
 #define HARVESTLIFE_FEAT		121 // жатва жизни
 #define LOYALASSIST_FEAT		122 // верный помощник
 #define HAUNTINGSPIRIT_FEAT		123 // блуждающий дух
-#define DROVERUNDEAD_FEAT		124 // погоншик умертвий
-#define FAULTSHAKE_FEAT			125	// разлом
-#define FLICKER_FEAT			126 // мерцающий
-#define STRONGPOISON_FEAT		127 // сильный яд
-#define BIGSHADOW_FEAT			128 // покрывало тьмы
-#define MORTALCOIN_FEAT			129 // лик тлена
-#define LIVINGFLESH_FEAT		130 // живая плоть
-#define BLOODHORROR_FEAT		131 // кровавый ужас
-#define ERADICATION_FEAT		132 // искоренение
-#define ALERT_FEAT				133 // настороженность
+
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
 #define FIRE_MAGIC_FOCUS_FEAT		  //любимая_магия: огонь

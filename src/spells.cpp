@@ -2493,8 +2493,7 @@ ASPELL(spell_fear)
 		modi = modi - 50;
 	if (AFF_FLAGGED(victim, AFF_BLESS))
 		modi -= 25;
-	if (can_use_feat(ch, STRONGPOISON_FEAT))
-		modi += 50;
+
 	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(ch, victim, SAVING_WILL, modi))
 		go_flee(victim);
 }
@@ -2523,8 +2522,7 @@ ASPELL(spell_energydrain)
 		modi += (GET_LEVEL(ch) - 10);
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
-	if (can_use_feat(ch, ERADICATION_FEAT))
-		modi += 50;
+
 	if (ch == victim || !general_savingthrow(ch, victim, SAVING_WILL, CALC_SUCCESS(modi, 33)))
 	{
 		int i;
