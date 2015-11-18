@@ -591,9 +591,37 @@ void assign_feats(void)
 	// у костяного духа появляется умение спасти
 	feato(HAUNTINGSPIRIT_FEAT, "блуждающий дух", NORMAL_FTYPE, TRUE, feat_app);
 //124
-	//
-	
-	
+	// плюс немного хп умкам
+	feato(DROVERUNDEAD_FEAT, "погонщик умертвий", NORMAL_FTYPE, TRUE, feat_app);
+//125
+	// увеличивает лаг от тряса (2x)
+	feato(FAULTSHAKE_FEAT, "разлом", NORMAL_FTYPE, TRUE, feat_app);
+//126
+	// увеличивает процент у мигалки
+	feato(FLICKER_FEAT, "мерцающий", NORMAL_FTYPE, TRUE, feat_app);
+//127
+	// увеличивает урон от яда
+	feato(STRONGPOISON_FEAT, "сильный яд", NORMAL_FTYPE, TRUE, feat_app);
+//128
+	// увеличивает шанс для мантии теней
+	feato(BIGSHADOW_FEAT, "покрывало тьмы", NORMAL_FTYPE, TRUE, feat_app);
+//129
+	// Делает из зомби неплохого танко-дамагу
+	feato(MORTALCOIN_FEAT, "лик тлена", NORMAL_FTYPE, TRUE, feat_app);
+// 130
+	// Добавляет зомби реск
+	feato(LIVINGFLESH_FEAT, "живая плоть", NORMAL_FTYPE, TRUE, feat_app);
+// 131
+	// увеличивает процет прохождения страха и масс.страха
+	feato(BLOODHORROR_FEAT, "кровавый ужас", NORMAL_FTYPE, TRUE, feat_app);
+// 132
+	// увеличивает шанс прохождения истощить энергию
+	feato(ERADICATION_FEAT, "искоренение", NORMAL_FTYPE, TRUE, feat_app);
+// 133
+	// увеличивает эффект от внимательности
+	feato(ALERT_FEAT, "настороженный", NORMAL_FTYPE, TRUE, feat_app);
+	// 
+	// 
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
