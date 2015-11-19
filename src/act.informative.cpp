@@ -368,6 +368,8 @@ const char *diag_obj_timer(OBJ_DATA * obj)
 { int prot_timer;
 	if (GET_OBJ_RNUM(obj) != NOTHING)
 	{
+		if (check_unlimited_timer(obj))
+			return "нерушимо";
 		if (GET_OBJ_CRAFTIMER(obj) > 0)
 			prot_timer = GET_OBJ_CRAFTIMER(obj);// если вещь скрафчена, смотрим ее таймер а не у прототипа
 		else 
@@ -386,9 +388,6 @@ char *diag_timer_to_char(OBJ_DATA * obj)
 {
 	static char out_str[MAX_STRING_LENGTH];
 	*out_str = 0;
-	if ( check_unlimited_timer(obj))
-		sprintf(out_str, "Состояние: нерушимо.\r\n");
-	else
 		sprintf(out_str, "Состояние: %s.\r\n", diag_obj_timer(obj));
 	return (out_str);
 }
