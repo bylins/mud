@@ -1223,7 +1223,7 @@ void print_list_group(CHAR_DATA *ch)
 {
 	
 	CHAR_DATA *k;
-	struct follow_type *f, *g;
+	struct follow_type *f;
 	int count = 1;
 	k = (ch->master ? ch->master : ch);
 	if (AFF_FLAGGED(ch, AFF_GROUP))

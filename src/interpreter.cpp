@@ -55,7 +55,7 @@
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
 #include "named_stuff.hpp"
-#include "scripting.hpp"
+//#include "scripting.hpp"
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "help.hpp"
@@ -1224,8 +1224,8 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	}
 
 	// Try scripting
-	if (scripting::execute_player_command(ch, arg, line))
-		return;
+	/*if (scripting::execute_player_command(ch, arg, line))
+		return;*/
 
 	// otherwise, find the command
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
@@ -2600,12 +2600,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 	}
-	case CON_CONSOLE:
+	/*case CON_CONSOLE:
 		pers_log(d->character, "<%s> %s", GET_NAME(d->character), arg);
 		log("%s :: python_console :: %s", GET_NAME(d->character), arg);
 		d->console->push(arg);
 		break;
-		//. End of OLC states .
+		//. End of OLC states .*/
 
 	case CON_GET_KEYTABLE:
 		if (strlen(arg) > 0)

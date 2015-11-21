@@ -12,6 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include <boost/array.hpp>
+#include <boost/bind.hpp>
+
 #include "char.hpp"
 #include "comm.h"
 #include "conf.h"
@@ -37,13 +40,14 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "utils.h"
+#include "mobmax.hpp"
 
 // extern variables
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
 extern bool check_unlimited_timer(OBJ_DATA *obj);
-extern boost::array<int, 4> animals_levels;
+extern boost::array<int, 5> animals_levels;
 // from act.informative.cpp
 char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
 

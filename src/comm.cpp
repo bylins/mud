@@ -68,7 +68,7 @@
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
 #include "celebrates.hpp"
-#include "scripting.hpp"
+//#include "scripting.hpp"
 #include "shop_ext.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
@@ -937,7 +937,7 @@ void init_game(ush_int port)
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
-	scripting::init();
+	//scripting::init();
 	boot_db();
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
@@ -1013,7 +1013,7 @@ void init_game(ush_int port)
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
-	scripting::terminate();
+	//scripting::terminate();
 	mob_stat::save();
 	SetsDrop::save_drop_table();
 	mail::save();
@@ -2104,10 +2104,10 @@ inline void heartbeat(const int missed_pulses)
 		//  log("Stop it...");
 	}
 
-	if (!(pulse % scripting::HEARTBEAT_PASSES))
+	/*if (!(pulse % scripting::HEARTBEAT_PASSES))
 	{
 		scripting::heartbeat();
-	}
+	}*/
 
 	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC))  	// 1 game secunde
 	{
@@ -2410,8 +2410,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		sprintf(prompt, "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).", d->showstr_page, d->showstr_count);
 	else if (d->str)
 		strcpy(prompt, "] ");
-	else if (STATE(d) == CON_CONSOLE)
-		strcpy(prompt, d->console->get_prompt().c_str());
+/*	else if (STATE(d) == CON_CONSOLE)
+		strcpy(prompt, d->console->get_prompt().c_str());*/
 	else if (STATE(d) == CON_PLAYING && !IS_NPC(d->character))
 	{
 		int count = 0;
@@ -3943,9 +3943,9 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	case CON_TRIGEDIT:
 		cleanup_olc(d, CLEANUP_ALL);
 		break;
-	case CON_CONSOLE:
+	/*case CON_CONSOLE:
 		d->console.reset();
-		break;
+		break;*/
 	default:
 		break;
 	}

@@ -1668,13 +1668,15 @@ struct descriptor_data
 	boost::shared_ptr<class Glory::spend_glory> glory; // вливание славы
 	boost::shared_ptr<GloryConst::glory_olc> glory_const; // вливание славы2
 	boost::shared_ptr<NamedStuff::stuff_node> named_obj;	// редактируемая именная шмотка
-	boost::shared_ptr<scripting::Console> console;	// Скриптовая консоль
+	//boost::shared_ptr<scripting::Console> console;	// Скриптовая консоль
 	unsigned long cur_vnum;					// текущий внум именной шмотки
 	unsigned long old_vnum;					// старый внум именной шмотки
     boost::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
     bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
     boost::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
     boost::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
+
+
 
 	descriptor_data(): bad_pws(0), idle_tics(0), connected(0), desc_num(0), input_time(0), login_time(0),
 	showstr_head(0), showstr_vector(0), showstr_count(0), showstr_page(0), str(0), max_str(0), backstr(0), mail_to(0),

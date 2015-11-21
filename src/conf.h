@@ -47,7 +47,10 @@
 
 #define ssize_t int
 #define socklen_t int
-#define snprintf _snprintf
+#if (_MSC_VER != 1900)
+	#define snprintf _snprintf
+#endif
+
 
 void gettimeofday(struct timeval *t, struct timezone *dummy);
 #else // _WIN32
