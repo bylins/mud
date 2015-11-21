@@ -1772,9 +1772,10 @@ int i,j;
 				raffect = number (0, i - 1);
 				for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 				{
-					if (obj->affected[i].location == ingrs[j]->affected[raffect].location) // если аффект такой висит, переставим параметр
+					if (obj->affected[i].location == ingrs[j]->affected[raffect].location) // если аффект такой уже висит и он меньше, переставим значение
 					{
-						obj->affected[i].modifier =  ingrs[j]->affected[raffect].modifier;
+						if (obj->affected[i].modifier <  ingrs[j]->affected[raffect].modifier)
+							obj->affected[i].modifier =  ingrs[j]->affected[raffect].modifier;
 						break;
 					}
 					if (obj->affected[i].location == APPLY_NONE) // добавляем афф на свободное место
