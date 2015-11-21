@@ -1688,7 +1688,134 @@ int MakeRecept::get_ingr_pow(OBJ_DATA * ingrobj)
 	else
 		return (-1);
 }
+void MakeRecept::make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS])
+{ int wearkoeff = 50;
+		if (CAN_WEAR(obj, ITEM_WEAR_BODY)) // 1.1
+			wearkoeff = 110;
+		if (CAN_WEAR(obj, ITEM_WEAR_HEAD)) //0.8
+			wearkoeff = 80;
+	        if (CAN_WEAR(obj, ITEM_WEAR_LEGS)) //0.5
+			wearkoeff = 50;
+		if (CAN_WEAR(obj, ITEM_WEAR_FEET)) //0.6
+			wearkoeff = 60;
+		if (CAN_WEAR(obj, ITEM_WEAR_ARMS)) //0.5
+			wearkoeff = 50;
+		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))//0.9
+			wearkoeff = 90;
+		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))//0.45
+			wearkoeff = 45;
+		GET_OBJ_VAL(obj, 0) = ((GET_REAL_INT(ch) * GET_REAL_INT(ch) /10 + ch->get_skill(SKILL_MAKE_WEAR)) / 100 + (GET_OBJ_VAL(ingrs[0],3) + 1)) * wearkoeff / 100; //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
+		if (CAN_WEAR(obj, ITEM_WEAR_BODY)) //0.9
+			wearkoeff = 90;
+		if (CAN_WEAR(obj, ITEM_WEAR_HEAD)) //0.7
+			wearkoeff = 70;
+	        if (CAN_WEAR(obj, ITEM_WEAR_LEGS)) //0.4
+			wearkoeff = 40;
+		if (CAN_WEAR(obj, ITEM_WEAR_FEET)) //0.5
+			wearkoeff = 50;
+		if (CAN_WEAR(obj, ITEM_WEAR_ARMS)) //0.4
+			wearkoeff = 40;
+		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))//0.8
+			wearkoeff = 80;
+		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))//0.31
+			wearkoeff = 31;
+		GET_OBJ_VAL(obj, 1) = (ch->get_skill(SKILL_MAKE_WEAR) / 25 + (GET_OBJ_VAL(ingrs[0],3) + 1)) * wearkoeff / 100; //броня=(%умелки/25+левл.шкуры)*коэф.части тела
+}
+void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt)
+{
+int i,j;
+		//ставим именительные именительные падежи в алиасы 
+		sprintf(buf, "%s %s %s %s", GET_OBJ_PNAME(obj, 0), GET_OBJ_PNAME(ingrs[0], 0), GET_OBJ_PNAME(ingrs[1], 0), GET_OBJ_PNAME(ingrs[2], 0));
+		obj->aliases = str_dup(buf);
 
+		for (i = 0; i < NUM_PADS; i++) // ставим падежи в имя с учетов ингров
+		{ 
+			sprintf(buf, "%s", GET_OBJ_PNAME(obj, i));
+			strcat(buf, " из ");
+			strcat(buf, GET_OBJ_PNAME(ingrs[0], 1));
+			strcat(buf, " с ");
+			strcat(buf, GET_OBJ_PNAME(ingrs[1], 4));
+			strcat(buf, " и ");
+			strcat(buf, GET_OBJ_PNAME(ingrs[2], 4));
+			GET_OBJ_PNAME(obj, i) = str_dup(buf);
+			if (i == 0) // именительный падеж
+			{
+				obj->short_description = str_dup(buf);
+				if (GET_OBJ_SEX(obj) == 1)
+					sprintf(buf2, "Брошенный %s лежит тут.", buf);
+				else if (GET_OBJ_SEX(obj) == 2)
+					sprintf(buf2, "Брошенная %s лежит тут.", buf);
+				else if (GET_OBJ_SEX(obj) == 3)
+					sprintf(buf2, "Брошенные %s лежат тут.", buf);
+				obj->description = str_dup(buf2); // описание на земле
+			}
+//			sprintf(buf2, "Падежи %d  == %s \r\n", i, GET_OBJ_PNAME(obj, i));
+//			send_to_char(buf2, ch);
+		}
+		obj->obj_flags.Obj_is_rename = true; // ставим флаг что объект переименован
+		add_flags(ch, &obj->obj_flags.affects, &ingrs[0]->obj_flags.affects, get_ingr_pow(ingrs[0]));
+		// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
+		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[0]->obj_flags.extra_flags, get_ingr_pow(ingrs[0]));
+		add_affects(ch, obj->affected, ingrs[0]->affected, get_ingr_pow(ingrs[0]));
+		add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
+		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOALTER), ITEM_NOALTER);  // нельзя сфрешить черным свитком
+		obj->set_timer((GET_OBJ_VAL(ingrs[0],3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) * number(180,220)); // таймер зависит в основном от умелки
+		GET_OBJ_CRAFTIMER(obj) = obj->get_timer(); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
+
+		for (j = 1; j < ingr_cnt; j++)
+		{ int i, raffect = 0;
+			for (i = 0;  i < MAX_OBJ_AFFECT; i++) // посмотрим скока аффектов
+				if (ingrs[j]->affected[i].location == APPLY_NONE)
+					break;
+			if (i > 0) // если > 0 переносим случайный
+			{
+				raffect = number (0, i - 1);
+				for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+				{
+					if (obj->affected[i].location == ingrs[j]->affected[raffect].location) // если аффект такой висит, переставим параметр
+					{
+						obj->affected[i].modifier =  ingrs[j]->affected[raffect].modifier;
+						break;
+					}
+					if (obj->affected[i].location == APPLY_NONE) // добавляем афф на свободное место
+					{	if (number(1, 100) > GET_OBJ_VAL(ingrs[j],2)) // проверим фейл на силу ингра
+							break;
+						obj->affected[i].location =  ingrs[j]->affected[raffect].location;
+						obj->affected[i].modifier =  ingrs[j]->affected[raffect].modifier;
+						break;
+					}
+				}
+			}
+			// переносим аффекты ... c ингров на прототип.
+			add_flags(ch, &obj->obj_flags.affects, &ingrs[j]->obj_flags.affects, get_ingr_pow(ingrs[j]));
+			// перносим эффекты ... с ингров на прототип.
+			add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[j]->obj_flags.extra_flags, get_ingr_pow(ingrs[j]));
+			// переносим 1 рандом аффект
+			add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
+		}
+/*	  send_to_char("Устанавливает аффекты : ", ch);
+	  sprintbits(obj->obj_flags.affects, weapon_affects, tmpbuf, ",");
+	  strcat(tmpbuf, "\r\n");
+	  send_to_char(tmpbuf, ch);
+
+	  send_to_char("Дополнительные флаги  : ", ch);
+	  sprintbits(obj->obj_flags.extra_flags, extra_bits, tmpbuf, ",");
+	  strcat(tmpbuf, "\r\n");
+	  send_to_char(tmpbuf, ch);
+
+	  send_to_char("Аффекты:", ch);
+	  for (i = 0; i < MAX_OBJ_AFFECT; i++)
+	      if (obj->affected[i].modifier)
+	         {sprinttype(obj->affected[i].location, apply_types, tmpbuf2);
+	          sprintf(tmpbuf, "%s %+d to %s",";",
+	         obj->affected[i].modifier, tmpbuf2);
+	          send_to_char(tmpbuf, ch);
+	         }
+	  send_to_char("\r\n",ch);
+*/
+	
+
+}
 
 // создать предмет по рецепту
 int MakeRecept::make(CHAR_DATA * ch)
@@ -2184,133 +2311,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 	// переносим доп аффекты ...+мудра +ловка и т.п.
 	if (skill == SKILL_MAKE_WEAR)
-	{ int wearkoeff = 50;
-		int i;
-		//ставим именительные именительные падежи в алиасы 
-		sprintf(buf, "%s %s %s %s", GET_OBJ_PNAME(obj, 0), GET_OBJ_PNAME(ingrs[0], 0), GET_OBJ_PNAME(ingrs[1], 0), GET_OBJ_PNAME(ingrs[2], 0));
-		obj->aliases = str_dup(buf);
-
-		for (i = 0; i < NUM_PADS; i++) // ставим падежи в имя с учетов ингров
-		{ 
-			sprintf(buf, "%s", GET_OBJ_PNAME(obj, i));
-			strcat(buf, " из ");
-			strcat(buf, GET_OBJ_PNAME(ingrs[0], 1));
-			strcat(buf, " с ");
-			strcat(buf, GET_OBJ_PNAME(ingrs[1], 4));
-			strcat(buf, " и ");
-			strcat(buf, GET_OBJ_PNAME(ingrs[2], 4));
-			GET_OBJ_PNAME(obj, i) = str_dup(buf);
-			if (i == 0) // именительный падеж
-			{
-				obj->short_description = str_dup(buf);
-				if (GET_OBJ_SEX(obj) == 1)
-					sprintf(buf2, "Брошенный %s лежит тут.", buf);
-				else if (GET_OBJ_SEX(obj) == 2)
-					sprintf(buf2, "Брошенная %s лежит тут.", buf);
-				else if (GET_OBJ_SEX(obj) == 3)
-					sprintf(buf2, "Брошенные %s лежат тут.", buf);
-				obj->description = str_dup(buf2); // описание на земле
-			}
-//			sprintf(buf2, "Падежи %d  == %s \r\n", i, GET_OBJ_PNAME(obj, i));
-//			send_to_char(buf2, ch);
-		}
-		obj->obj_flags.Obj_is_rename = true; // ставим флаг что объект переименован
-		add_flags(ch, &obj->obj_flags.affects, &ingrs[0]->obj_flags.affects, get_ingr_pow(ingrs[0]));
-		// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
-		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[0]->obj_flags.extra_flags, get_ingr_pow(ingrs[0]));
-		add_affects(ch, obj->affected, ingrs[0]->affected, get_ingr_pow(ingrs[0]));
-		add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOALTER), ITEM_NOALTER);  // нельзя сфрешить черным свитком
-		obj->set_timer((GET_OBJ_VAL(ingrs[0],3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) * number(180,220)); // таймер зависит в основном от умелки
-		GET_OBJ_CRAFTIMER(obj) = obj->get_timer(); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
-		send_to_char(buf, ch);
-		if (CAN_WEAR(obj, ITEM_WEAR_BODY)) // 1.1
-			wearkoeff = 110;
-		if (CAN_WEAR(obj, ITEM_WEAR_HEAD)) //0.8
-			wearkoeff = 80;
-	        if (CAN_WEAR(obj, ITEM_WEAR_LEGS)) //0.5
-			wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_FEET)) //0.6
-			wearkoeff = 60;
-		if (CAN_WEAR(obj, ITEM_WEAR_ARMS)) //0.5
-			wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))//0.9
-			wearkoeff = 90;
-		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))//0.45
-			wearkoeff = 45;
-		GET_OBJ_VAL(obj, 0) = ((GET_REAL_INT(ch) * GET_REAL_INT(ch) /10 + ch->get_skill(SKILL_MAKE_WEAR)) / 100 + (GET_OBJ_VAL(ingrs[0],3) + 1)) * wearkoeff / 100; //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
-		if (CAN_WEAR(obj, ITEM_WEAR_BODY)) //0.9
-			wearkoeff = 90;
-		if (CAN_WEAR(obj, ITEM_WEAR_HEAD)) //0.7
-			wearkoeff = 70;
-	        if (CAN_WEAR(obj, ITEM_WEAR_LEGS)) //0.4
-			wearkoeff = 40;
-		if (CAN_WEAR(obj, ITEM_WEAR_FEET)) //0.5
-			wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_ARMS)) //0.4
-			wearkoeff = 40;
-		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))//0.8
-			wearkoeff = 80;
-		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))//0.31
-			wearkoeff = 31;
-		GET_OBJ_VAL(obj, 1) = (ch->get_skill(SKILL_MAKE_WEAR) / 25 + (GET_OBJ_VAL(ingrs[0],3) + 1)) * wearkoeff / 100; //броня=(%умелки/25+левл.шкуры)*коэф.части тела
-		for (j = 1; j < ingr_cnt; j++)
-		{ int i, raffect = 0;
-    			ingr_pow = get_ingr_pow(ingrs[j]);
-			if (ingr_pow < 0)
-				ingr_pow = 20;
-			for (i = 0;  i < MAX_OBJ_AFFECT; i++) // посмотрим скока аффектов
-				if (ingrs[j]->affected[i].location == APPLY_NONE)
-					break;
-			if (i > 0) // если > 0 переносим случайный
-			{
-				raffect = number (0, i - 1);
-				for (int i = 0; i < MAX_OBJ_AFFECT; i++)
-				{
-					if (obj->affected[i].location == ingrs[j]->affected[raffect].location) // если аффект такой уже висит и он меньше, переставим параметр
-					{
-						if (obj->affected[i].modifier <  ingrs[j]->affected[raffect].modifier)
-							obj->affected[i].modifier =  ingrs[j]->affected[raffect].modifier;
-						break;
-					}
-					if (obj->affected[i].location == APPLY_NONE) // добавляем афф на свободное место
-					{	if (number(1, 100) > GET_OBJ_VAL(ingrs[j],2)) // проверим фейл на силу ингра
-							break;
-						obj->affected[i].location =  ingrs[j]->affected[raffect].location;
-						obj->affected[i].modifier =  ingrs[j]->affected[raffect].modifier;
-						break;
-					}
-				}
-			}
-			// переносим аффекты ... c ингров на прототип.
-			add_flags(ch, &obj->obj_flags.affects, &ingrs[j]->obj_flags.affects, ingr_pow);
-			// перносим эффекты ... с ингров на прототип.
-			add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[j]->obj_flags.extra_flags, ingr_pow);
-			// переносим 1 рандом аффект
-			add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
-		}
-/*	  send_to_char("Устанавливает аффекты : ", ch);
-	  sprintbits(obj->obj_flags.affects, weapon_affects, tmpbuf, ",");
-	  strcat(tmpbuf, "\r\n");
-	  send_to_char(tmpbuf, ch);
-
-	  send_to_char("Дополнительные флаги  : ", ch);
-	  sprintbits(obj->obj_flags.extra_flags, extra_bits, tmpbuf, ",");
-	  strcat(tmpbuf, "\r\n");
-	  send_to_char(tmpbuf, ch);
-
-	  send_to_char("Аффекты:", ch);
-	  for (i = 0; i < MAX_OBJ_AFFECT; i++)
-	      if (obj->affected[i].modifier)
-	         {sprinttype(obj->affected[i].location, apply_types, tmpbuf2);
-	          sprintf(tmpbuf, "%s %+d to %s",";",
-	         obj->affected[i].modifier, tmpbuf2);
-	          send_to_char(tmpbuf, ch);
-	         }
-	  send_to_char("\r\n",ch);
-*/
-	
-
+	{ 
+		make_object(ch, obj, ingrs, ingr_cnt );
+		make_value_wear(ch, obj, ingrs);
 	} else // если не шитье то никаких махинаций с падежами и копированием рандом аффекта
 	for (j = 0; j < ingr_cnt; j++)
 	{

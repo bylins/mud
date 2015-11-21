@@ -140,7 +140,12 @@ class MakeRecept
 
 	int get_ingr_lev(struct obj_data *ingrobj);
 
+	void make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt);
+
+	void make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS]);
+
 	int get_ingr_pow(struct obj_data *ingrobj);
+
 	void add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to);
 
 public:
