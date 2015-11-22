@@ -7,6 +7,7 @@
 #include "conf.h"
 #include <array>
 #include <vector>
+#include <set>
 
 #include "sysdep.h"
 #include "structs.h"

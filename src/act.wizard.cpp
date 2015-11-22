@@ -59,7 +59,7 @@
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "corpse.hpp"
-#include "scripting.hpp"
+//#include "scripting.hpp"
 #include "pugixml.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
@@ -965,7 +965,7 @@ ACMD(do_setall)
 	InspReqListType::iterator it_inspect = inspect_list.find(GET_UNIQUE(ch));
 	SetAllInspReqListType::iterator it = setall_inspect_list.find(GET_UNIQUE(ch));
 	// На всякий случай разрешаем только одну команду такого типа - либо setall, либо inspect
-	if (it_inspect != inspect_list.end() and it != setall_inspect_list.end())
+	if (it_inspect != inspect_list.end() && it != setall_inspect_list.end())
 	{
 		send_to_char(ch, "Обрабатывается другой запрос, подождите...\r\n", argument);
 		return;
@@ -3412,7 +3412,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 	InspReqListType::iterator it = inspect_list.find(GET_UNIQUE(ch));
 	SetAllInspReqListType::iterator it_setall = setall_inspect_list.find(GET_UNIQUE(ch));
 	// Навсякий случай разрешаем только одну команду такого типа, либо сетол, либо инспект
-	if (it != inspect_list.end() and it_setall != setall_inspect_list.end())
+	if (it != inspect_list.end() && it_setall != setall_inspect_list.end())
 	{
 		send_to_char(ch, "Обрабатывается другой запрос, подождите...\r\n", argument);
 		return;

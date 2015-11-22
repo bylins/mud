@@ -1259,11 +1259,13 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 {
 	int rand_numb = 0;
 	int other_room = 0;
+	int r_num, chance, vnum;
 	EXIT_DATA *back = 0;
 	CHAR_DATA * to;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	char local_buf[MAX_STRING_LENGTH]; // глобальный buf в тригах переписывается
-
+	// объект, который выпадает из сундука
+	OBJ_DATA *drop_obj;
 	sprintf(local_buf, "$n %s ", cmd_door[scmd]);
 //  if (IS_NPC(ch))
 //     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(IN_ROOM(ch)));
@@ -1328,22 +1330,18 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 			send_to_char("*Щелк*\r\n", ch);
 			if (obj)
 			{				
-				for(int i = 0; i < cases.size(); i++)
+				for(unsigned long i = 0; i < cases.size(); i++)
 				{
 					if (GET_OBJ_VNUM(obj) == cases[i].vnum)
 					{
 						send_to_char("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
-						int chance = cases[i].chance;
-						int r_num;
-						// объект, который выпадает из сундука
-						OBJ_DATA *drop_obj;
-						for (int  k = 0; k < cases[i].vnum_objs.size(); k++)
+						chance = cases[i].chance;						
+						for (unsigned long  int  k = 0; k < cases[i].vnum_objs.size(); k++)
 						{
 							rand_numb = number(0, 100);
-							//printf("Chance: %d, size: %d\n", rand_numb, cases[i].vnum_objs.size());
-							if ((number(0, 100) < chance) or (k == cases[i].vnum_objs.size() - 1))
+							if ((number(0, 100) < chance) || (k == cases[i].vnum_objs.size() - 1))
 							{
-								int vnum = cases[i].vnum_objs[k];
+								vnum = cases[i].vnum_objs[k];
 								if ((r_num = real_object(vnum)) < 0)
 								{
 									send_to_char("Ошибка с номером 1, пожалуйста, напишите об этом в воззвать.\r\n", ch);

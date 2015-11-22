@@ -10,8 +10,8 @@
 #include "utils.h"
 #include "db.h"
 
-boost::array<int, 5> animals_levels = { {0} };
 
+boost::array<int, 5> animals_levels = { { 0 } };
 namespace
 {
 

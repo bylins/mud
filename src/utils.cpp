@@ -2880,7 +2880,7 @@ void check_rented()
  */
 bool is_big_set(const OBJ_DATA *obj,bool is_mini)
 {
-	int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
+	unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
 	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF))
 	{
 		return false;
