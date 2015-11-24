@@ -1842,7 +1842,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		if (GET_EQ(ch,WEAR_BOTHS)&& can_use_feat(ch, BOTHHANDS_FOCUS_FEAT) && (GET_OBJ_SKILL(GET_EQ(ch,WEAR_BOTHS)) == SKILL_BOTHHANDS))
 		{
 			if (ch->get_skill(SKILL_BOTHHANDS) > (number(1,800)))
-				exthit(ch,  TYPE_UNDEFINED, RIGHT_WEAPON);
+				hit(ch, ch->get_fighting(), TYPE_UNDEFINED, RIGHT_WEAPON);
 		}
 		CLR_AF_BATTLE(ch, EAF_FIRST);
 		SET_AF_BATTLE(ch, EAF_SECOND);
