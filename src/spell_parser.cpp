@@ -5174,7 +5174,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_FIRE, "разжечь костер", 100);
 	skillo(SKILL_SHIT, "удар левой рукой", 100);
 	skillo(SKILL_MIGHTHIT, "богатырский молот", 100);
-	skillo(SKILL_STUPOR, "оглушить", 100);
+	skillo(SKILL_STUPOR, "оглушить", 160);
 	skillo(SKILL_POISONED, "отравить", 200);
 	skillo(SKILL_LEADERSHIP, "лидерство", 100);
 	skillo(SKILL_PUNCTUAL, "точный стиль", 110);
