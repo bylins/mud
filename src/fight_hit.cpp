@@ -3752,7 +3752,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 
 	// обработка по факту попадания
-	hit_params.dam += GET_REAL_DR(ch);
+	hit_params.dam += get_real_dr(ch);
+
 	hit_params.dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
 	// рандом разброс базового дамага
@@ -3800,7 +3801,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	// x5 по идее должно быть
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
 		hit_params.dam += ch->get_skill(SKILL_IRON_WIND) / 2;
-
 	//dzMUDiST Обработка !исступления! +Gorrah
 	if (affected_by_spell(ch, SPELL_BERSERK))
 	{
@@ -3859,6 +3859,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		//Adept: учитываем резисты от крит. повреждений
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		hit_params.extdamage(ch, victim);
+		if (IS_IMPL(ch) || IS_IMPL(victim))
+		{
+			sprintf(buf, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
+			send_to_char(buf,ch);
+			sprintf(buf, "&RДамага стаба равна = %d&n\r\n", hit_params.dam);
+			send_to_char(buf,victim);
+		}
 		return;
 	}
 
@@ -3872,6 +3879,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		hit_params.extdamage(ch, victim);
+		if (IS_IMPL(ch) || IS_IMPL(victim))
+		{
+			sprintf(buf, "&CДамага метнуть равна = %d&n\r\n", hit_params.dam);
+			send_to_char(buf,ch);
+			sprintf(buf, "&RДамага метнуть равна = %d&n\r\n", hit_params.dam);
+			send_to_char(buf,victim);
+		}
 		return;
 	}
 
@@ -3895,12 +3909,18 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			// CRIT_HIT и так щиты игнорит, но для порядку
 			hit_params.flags.set(IGNORE_FSHIELD);
 			hit_params.dam_critic = do_punctual(ch, victim, hit_params.wielded);
-
 			if (!PUNCTUAL_WAITLESS(ch))
 			{
 				PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 			}
 		}
+	}
+	if (IS_IMPL(ch) || IS_IMPL(victim))
+	{
+		sprintf(buf, "&CДамага равна = %d&n\r\n", hit_params.dam);
+		send_to_char(buf,ch);
+		sprintf(buf, "&RДамага равна = %d&n\r\n", hit_params.dam);
+		send_to_char(buf,victim);
 	}
 
 	// обнуляем флаги, если у нападающего есть лаг
