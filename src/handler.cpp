@@ -790,14 +790,14 @@ void affect_total(CHAR_DATA * ch)
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch)) * 2;
 	if ((obj = GET_EQ(ch, WEAR_BOTHS)) && GET_OBJ_TYPE(obj) == ITEM_WEAPON)
-		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1)) >> 1;
+		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1; // правильный расчет среднего у оружия
 	else
 	{
 		if ((obj = GET_EQ(ch, WEAR_WIELD))
 				&& GET_OBJ_TYPE(obj) == ITEM_WEAPON)
-			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1)) >> 1;
+			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		if ((obj = GET_EQ(ch, WEAR_HOLD)) && GET_OBJ_TYPE(obj) == ITEM_WEAPON)
-			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1)) >> 1;
+			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 	}
 
 	// Calculate CASTER value
