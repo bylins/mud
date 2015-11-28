@@ -462,6 +462,7 @@ extern SPECIAL(shop_ext);
                                 GET_FLAG((ch)->BattleAffects, INT_TWO) = \
                                 GET_FLAG((ch)->BattleAffects, INT_THREE) = 0)
 #define GET_REMORT(ch)         ((ch)->get_remort())
+#define GET_SKILL(ch, skill)   ((ch)->get_skill(skill))
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
 #define GET_GOD_FLAG(ch,flag)  (IS_SET((ch)->player_specials->saved.GodsLike,flag))
