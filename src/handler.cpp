@@ -2612,7 +2612,7 @@ void extract_obj(OBJ_DATA * obj)
 	OBJ_DATA *temp;
 
 	strcpy(name, obj->PNames[0]);
-	log("Extracting obj %s", name);
+	log("Extracting obj %s vnum == %d timer == %d", name, GET_OBJ_VNUM(obj), obj->get_timer());
 // TODO: в дебаг log("Start extract obj %s", name);
 
 	// Get rid of the contents of the object, as well.
