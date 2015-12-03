@@ -1,36 +1,32 @@
 #!/bin/sh
 
-#mkdir ./lib.template/
-#mkdir ./lib.template/etc/
-mkdir ./lib.template/etc/board
-mkdir ./lib.template/plralias/
-mkdir ./lib.template/plralias/A-E
-mkdir ./lib.template/plralias/F-J
-mkdir ./lib.template/plralias/K-O
-mkdir ./lib.template/plralias/P-T
-mkdir ./lib.template/plralias/U-Z
-mkdir ./lib.template/plralias/ZZZ
-mkdir ./lib.template/plrobjs/
-mkdir ./lib.template/plrobjs/A-E
-mkdir ./lib.template/plrobjs/F-J
-mkdir ./lib.template/plrobjs/K-O
-mkdir ./lib.template/plrobjs/P-T
-mkdir ./lib.template/plrobjs/U-Z
-mkdir ./lib.template/plrobjs/ZZZ
-#mkdir ./lib.template/plrs/
-mkdir ./lib.template/plrs/A-E
-mkdir ./lib.template/plrs/F-J
-mkdir ./lib.template/plrs/K-O
-mkdir ./lib.template/plrs/P-T
-mkdir ./lib.template/plrs/U-Z
-mkdir ./lib.template/plrs/ZZZ
-#mkdir ./lib.template/plrstuff/
-#mkdir ./lib.template/plrstuff/depot/
-mkdir ./lib.template/plrstuff/depot/A-E
-mkdir ./lib.template/plrstuff/depot/F-J
-mkdir ./lib.template/plrstuff/depot/K-O
-mkdir ./lib.template/plrstuff/depot/P-T
-mkdir ./lib.template/plrstuff/depot/U-Z
-mkdir ./lib.template/plrstuff/depot/ZZZ
-mkdir ./lib.template/stat
-cp -r lib.template lib
+mkdir -p lib
+mkdir -p ./lib.template/etc/board
+mkdir -p ./lib.template/plralias/
+mkdir -p ./lib.template/plralias/A-E
+mkdir -p ./lib.template/plralias/F-J
+mkdir -p ./lib.template/plralias/K-O
+mkdir -p ./lib.template/plralias/P-T
+mkdir -p ./lib.template/plralias/U-Z
+mkdir -p ./lib.template/plralias/ZZZ
+mkdir -p ./lib.template/plrobjs/
+mkdir -p ./lib.template/plrobjs/A-E
+mkdir -p ./lib.template/plrobjs/F-J
+mkdir -p ./lib.template/plrobjs/K-O
+mkdir -p ./lib.template/plrobjs/P-T
+mkdir -p ./lib.template/plrobjs/U-Z
+mkdir -p ./lib.template/plrobjs/ZZZ
+mkdir -p ./lib.template/plrs/A-E
+mkdir -p ./lib.template/plrs/F-J
+mkdir -p ./lib.template/plrs/K-O
+mkdir -p ./lib.template/plrs/P-T
+mkdir -p ./lib.template/plrs/U-Z
+mkdir -p ./lib.template/plrs/ZZZ
+mkdir -p ./lib.template/plrstuff/depot/A-E
+mkdir -p ./lib.template/plrstuff/depot/F-J
+mkdir -p ./lib.template/plrstuff/depot/K-O
+mkdir -p ./lib.template/plrstuff/depot/P-T
+mkdir -p ./lib.template/plrstuff/depot/U-Z
+mkdir -p ./lib.template/plrstuff/depot/ZZZ
+mkdir -p ./lib.template/stat
+cp -a lib.template/* lib/
