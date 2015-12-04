@@ -780,7 +780,23 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		char_from_room(horse);
 		char_to_room(horse, go_to);
 	}
-
+	if (PRF_FLAGGED(ch, PRF_BLIND))
+	{   EXIT_DATA *rdata = NULL;
+	    for (int i = 0; i < NUM_OF_DIRS; i++)
+	    {	
+		if (CAN_GO(ch, i) || (EXIT(ch, i) && EXIT(ch, i)->to_room != NOWHERE))
+		{
+			rdata = EXIT(ch, i);
+			if (ROOM_FLAGGED(rdata->to_room, ROOM_DEATH))
+				send_to_char("\007", ch);
+/*			if ((real_sector(rdata->to_room) == SECT_WATER_NOSWIM) 
+			    || (real_sector(rdata->to_room) == SECT_UNDERWATER)
+			    || (real_sector(rdata->to_room) == SECT_FLYING))
+				send_to_char("\007\007", ch);
+*/
+		}
+	    }
+	}
 	if (!invis && !is_horse)
 	{
 		if (IsFlee || (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN)))

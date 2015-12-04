@@ -55,7 +55,7 @@
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
 #include "named_stuff.hpp"
-#include "scripting.hpp"
+//#include "scripting.hpp"
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "help.hpp"
@@ -1224,8 +1224,8 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	}
 
 	// Try scripting
-	if (scripting::execute_player_command(ch, arg, line))
-		return;
+	/*if (scripting::execute_player_command(ch, arg, line))
+		return;*/
 
 	// otherwise, find the command
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
@@ -3442,6 +3442,23 @@ Sventovit
 			{
 				ResetStats::print_menu(d);
 				STATE(d) = CON_MENU_STATS;
+			}
+			break;
+		}
+		case '7':
+		{	if (!PRF_FLAGGED(d->character, PRF_BLIND))
+			{
+				SET_BIT(PRF_FLAGS(d->character, PRF_BLIND), PRF_BLIND);
+				SEND_TO_Q("\r\nСпециальный режим для слепых игроков ВКЛЮЧЕН.\r\n", d);
+				SEND_TO_Q(MENU, d);
+				STATE(d) = CON_MENU;
+			}
+			else
+			{
+				REMOVE_BIT(PRF_FLAGS(d->character, PRF_BLIND), PRF_BLIND);
+				SEND_TO_Q("\r\nСпециальный режим для слепых игроков ВЫКЛЮЧЕН.\r\n", d);
+				SEND_TO_Q(MENU, d);
+				STATE(d) = CON_MENU;
 			}
 			break;
 		}
