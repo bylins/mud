@@ -210,25 +210,6 @@ set(HEADERS
     src/top.h
     src/utils.h)
 
-add_executable(circle ${SOURCES} ${HEADERS})
-
-## Look for required components
-# Python
-find_package(PythonLibs)
-if (NOT PYTHONLIBS_FOUND)
-    message(ERROR "Python not found.")
-endif ()
-
-# Boost
-set(Boost_NO_SYSTEM_PATHS ON)
-find_package(Boost 1.49.0 REQUIRED COMPONENTS python)
-
-# ZLib
-find_package(ZLIB REQUIRED)
-
-include_directories(src ${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(circle ${ZLIB_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
-
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
 
@@ -241,6 +222,44 @@ set(CMAKE_EXE_LINKER_FLAGS_DEBUG "")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "")
 set(CMAKE_EXE_LINKER_FLAGS_TEST "")
 set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
+
+add_executable(circle ${SOURCES} ${HEADERS})
+add_definitions("-DBOOST_PYTHON_STATIC_LIB")
+
+## Look for required components
+# Python
+find_package(PythonLibs)
+if (NOT PYTHONLIBS_FOUND)
+    message(ERROR "Python not found.")
+endif ()
+
+# Boost
+set(Boost_NO_SYSTEM_PATHS ON)
+set(Boost_USE_STATIC_LIBS ON)
+
+## In case of you have more than one Visual Studio and want to use specific version, uncomment the following three lines and specify compiler you want
+if (CMAKE_HOST_WIN32)
+    set(Boost_COMPILER "-vc140")
+    target_compile_options(circle PUBLIC /MP /MDd)
+    target_compile_options(circle PUBLIC $<$<CONFIG:Debug>:/Od>)
+    target_compile_options(circle PUBLIC $<$<CONFIG:Release>:/O2>)
+    target_compile_options(circle PUBLIC $<$<CONFIG:Test>:/Od>)
+    target_compile_options(circle PUBLIC $<$<CONFIG:FastTest>:/O2>)
+endif ()
+find_package(Boost 1.59 REQUIRED COMPONENTS python locale)
+
+# ZLib
+set(ZLIB_ROOT $ENV{ZLIB_ROOT})
+find_package(ZLIB REQUIRED)
+
+include_directories(src
+    ${Boost_INCLUDE_DIRS}
+    ${ZLIB_INCLUDE_DIRS}
+    ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(circle
+    ${ZLIB_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${PYTHON_LIBRARIES})
 
 if (CMAKE_HOST_UNIX)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
