@@ -1407,10 +1407,11 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		case MAT_STEEL:
 		case MAT_SKIN:
 		case MAT_MATERIA:
-			repair_price = repair_price;
+			//repair_price = repair_price;
 			break;
 		default:
-			repair_price = repair_price;
+			//repair_price = repair_price;
+            break;
 		}
 
 		if (repair_price <= 0 ||

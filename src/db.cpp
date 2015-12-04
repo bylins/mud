@@ -2977,7 +2977,7 @@ void asciiflag_conv(const char *flag, void *value)
 {
 	int *flags = (int *) value;
 	int is_number = 1, block = 0, i;
-	register const char *p;
+	const char *p;
 
 	for (p = flag; *p; p += i + 1)
 	{
@@ -3340,7 +3340,7 @@ void check_start_rooms(void)
 // resolve all vnums into rnums in the world
 void renum_world(void)
 {
-	register int room, door;
+	int room, door;
 
 	for (room = FIRST_ROOM; room <= top_of_world; room++)
 		for (door = 0; door < NUM_OF_DIRS; door++)
@@ -3852,7 +3852,7 @@ void parse_espec(char *buf, int i, int nr)
 	}
 	else
 	{
-		ptr = '\0';
+		ptr = NULL;
 	}
 #endif
 	interpret_espec(buf, ptr, i, nr);
@@ -6685,7 +6685,7 @@ int create_entry(const char *name)
 char *fread_string(FILE * fl, char *error)
 {
 	char buf[MAX_STRING_LENGTH], tmp[512], *rslt;
-	register char *point;
+	char *point;
 	int done = 0, length = 0, templength;
 
 	*buf = '\0';

@@ -145,11 +145,6 @@
 /* ----------------------------------------- */
 #define  TELOPT_MXP        '\x5B'
 
-const unsigned char will_mxp_str  [] = { IAC, WILL, TELOPT_MXP, '\0' };
-const unsigned char start_mxp_str [] = { IAC, SB, TELOPT_MXP, IAC, SE, '\0' };
-const unsigned char do_mxp_str    [] = { IAC, DO, TELOPT_MXP, '\0' };
-const unsigned char dont_mxp_str  [] = { IAC, DONT, TELOPT_MXP, '\0' };
-
 // Строки
 
 #define MXP_BEG "\x03"    /* becomes < */
@@ -367,7 +362,11 @@ void our_terminate()
 
 	try
 	{
-		if(!tried_throw++) throw;
+		if (!tried_throw)
+        {
+            tried_throw = true;
+            throw;
+        }
 
 		log("No active exception");
     }

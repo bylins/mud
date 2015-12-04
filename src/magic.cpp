@@ -2279,11 +2279,15 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	// Magic glass
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 	{
-		if (ch != victim && SpINFO.violent && (!IS_GOD(ch)
-				&& (AFF_FLAGGED(victim, AFF_MAGICGLASS)
-					 && (IN_ROOM(ch) == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
-					 && number(1, 100) < (GET_LEVEL(victim) / 3)) || (IS_GOD(victim)
-							 && (IS_NPC(ch) || GET_LEVEL(victim) > GET_LEVEL(ch)))))
+        if (ch != victim
+                && SpINFO.violent
+                && ((!IS_GOD(ch)
+                        && AFF_FLAGGED(victim, AFF_MAGICGLASS)
+                        && (IN_ROOM(ch) == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
+                        && number(1, 100) < (GET_LEVEL(victim) / 3))
+                    || (IS_GOD(victim)
+                        && (IS_NPC(ch)
+                            || GET_LEVEL(victim) > GET_LEVEL(ch)))))
 		{
 			act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
 			act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);

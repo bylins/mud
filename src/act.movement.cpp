@@ -1265,7 +1265,6 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	char local_buf[MAX_STRING_LENGTH]; // глобальный buf в тригах переписывается
 	// объект, который выпадает из сундука
-	OBJ_DATA *drop_obj;
 	sprintf(local_buf, "$n %s ", cmd_door[scmd]);
 //  if (IS_NPC(ch))
 //     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(IN_ROOM(ch)));

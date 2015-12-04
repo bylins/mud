@@ -452,7 +452,7 @@ void get_char_cols(CHAR_DATA * ch)
  */
 void strip_string(char *buffer)
 {
-	register char *ptr, *str;
+	char *ptr, *str;
 
 	ptr = buffer;
 	str = ptr;

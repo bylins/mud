@@ -3598,7 +3598,7 @@ ACMD(do_syslog)
 			logtypes[4] = "\n";
 		else
 			logtypes[4] = "полный";
-		if (((tp = search_block(arg, logtypes, FALSE)) == -1))
+		if ((tp = search_block(arg, logtypes, FALSE)) == -1)
 		{
 			if (GET_LEVEL(ch) == LVL_IMMORT)
 				send_to_char("Формат: syslog { нет | начальный }\r\n", ch);
@@ -7038,21 +7038,10 @@ ACMD(do_print_armor)
 					break;
 				}
 			}
-			switch (negative)
-			{
-			case false:
-				if (obj->affected[i].modifier < 0)
-				{
-					negative = true;
-				}
-				break;
-			case true:
-				if (obj->affected[i].modifier < 0)
-				{
-					negative = false;
-				}
-				break;
-			}
+            if (obj->affected[i].modifier < 0)
+            {
+                negative = !negative;
+            }
 			sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
 					CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
 					CCCYN(ch, C_NRM),

@@ -3854,7 +3854,7 @@ ACMD(do_equipment)
 				if ((i==16) || (i==17))
 				    continue;
 			    if (GET_EQ(ch, 16) || GET_EQ(ch, 17))
-				if ((i==18))
+				if (i==18)
 				    continue;
 			    if (GET_EQ(ch, 11))
 				if ((i==17) || (i==18))
@@ -4559,7 +4559,7 @@ ACMD(do_users)
 	unsigned long a1, a2;
 	int showremorts = 0, showemail = 0, locating = 0;
 	char sorting = '!';
-	register CHAR_DATA *ci;
+	CHAR_DATA *ci;
 // ---
 	CHAR_DATA *tch, *t, *t_tmp;
 	DESCRIPTOR_DATA *d;
@@ -4677,7 +4677,7 @@ ACMD(do_users)
 			tch = d->original;
 		else if (!(tch = d->character))
 			continue;
-		if (host_by_name != 0)
+//		if (host_by_name != 0) local array is always not NULL
 			if (isname(host_by_name, GET_NAME(tch)))
 				strcpy(host_search, d->host);
 	}
@@ -4812,7 +4812,7 @@ ACMD(do_users)
 		}
 
 		if (locating && (*name_search || *host_by_name))
-			if ((STATE(d) == CON_PLAYING))
+			if (STATE(d) == CON_PLAYING)
 			{
 				ci = (d->original ? d->original : d->character);
 				if (ci && CAN_SEE(ch, ci) && (ci->in_room != NOWHERE))
@@ -4925,8 +4925,8 @@ ACMD(do_gen_ps)
 
 void perform_mortal_where(CHAR_DATA * ch, char *arg)
 {
-	register CHAR_DATA *i;
-	register DESCRIPTOR_DATA *d;
+	CHAR_DATA *i;
+	DESCRIPTOR_DATA *d;
 
 	send_to_char("Кто много знает, тот плохо спит.\r\n", ch);
 	return;
@@ -5049,7 +5049,7 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 
 void perform_immort_where(CHAR_DATA * ch, char *arg)
 {
-	register CHAR_DATA *i;
+	CHAR_DATA *i;
 	DESCRIPTOR_DATA *d;
 	int num = 1, found = 0;
 
@@ -5227,7 +5227,7 @@ ACMD(do_color)
 		send_to_char(CAP(buf), ch);
 		return;
 	}
-	if (((tp = search_block(arg, ctypes, FALSE)) == -1))
+	if ((tp = search_block(arg, ctypes, FALSE)) == -1)
 	{
 		send_to_char("Формат: [режим] цвет { выкл | простой | обычный | полный }\r\n", ch);
 		return;

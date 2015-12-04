@@ -1662,7 +1662,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 	if (!subfield)
 	{
-		subfield = '\0';	// Чтобы проверок меньше было
+		subfield = NULL;	// Чтобы проверок меньше было
 	}
 
 	// X.global() will have a NULL trig

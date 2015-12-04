@@ -2098,7 +2098,7 @@ ACMD(do_style)
 		send_to_char(buf, ch);
 		return;
 	}
-	if (((tp = search_block(arg, cstyles, FALSE)) == -1))
+	if ((tp = search_block(arg, cstyles, FALSE)) == -1)
 	{
 		send_to_char("Формат: стиль { название стиля }\r\n", ch);
 		return;
