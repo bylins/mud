@@ -32,3 +32,6 @@ src/*.layout
 src/*.cscope_file_list
 build/*
 build.gcc/*
+build.clang/*
+contrib/boost_1_59_0/*
+boost_1_59_0.tar.gz

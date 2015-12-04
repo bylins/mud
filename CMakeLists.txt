@@ -103,6 +103,7 @@ set(SOURCES
     src/remember.cpp
     src/reset_stats.cpp
     src/room.cpp
+    src/scripting.cpp
     src/sets_drop.cpp
     src/shop_ext.cpp
     src/skills.cpp
@@ -195,6 +196,7 @@ set(HEADERS
     src/reset_stats.hpp
     src/room.hpp
     src/screen.h
+    src/scripting.hpp
     src/sets_drop.hpp
     src/shop_ext.hpp
     src/skills.h
@@ -210,12 +212,22 @@ set(HEADERS
 
 add_executable(circle ${SOURCES} ${HEADERS})
 
-find_package(Boost 1.49.0 REQUIRED)
-set(ZLIB_ROOT $ENV{ZLIB_ROOT})
+## Look for required components
+# Python
+find_package(PythonLibs)
+if (NOT PYTHONLIBS_FOUND)
+    message(ERROR "Python not found.")
+endif ()
+
+# Boost
+set(Boost_NO_SYSTEM_PATHS ON)
+find_package(Boost 1.49.0 REQUIRED COMPONENTS python)
+
+# ZLib
 find_package(ZLIB REQUIRED)
 
-include_directories(src ${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
-target_link_libraries(circle ${ZLIB_LIBRARIES} ${Boost_LIBRARIES})
+include_directories(src ${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(circle ${ZLIB_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
@@ -260,8 +272,8 @@ if (HAS_EPOLL)
     add_definitions("-DHAS_EPOLL")
 endif ()
 
-message(STATUS "Compiler ID is ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "Architechture is ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "CXX compiler ID is ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "System processor is ${CMAKE_SYSTEM_PROCESSOR}")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
