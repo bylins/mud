@@ -605,3 +605,5 @@ int xparse_ing(DESCRIPTOR_DATA * d, int **pping, char *arg)
 	}
 	return 1;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

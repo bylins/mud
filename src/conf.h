@@ -130,3 +130,5 @@ void gettimeofday(struct timeval *t, struct timezone *dummy);
 #define BOOST_DISABLE_THREADS
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

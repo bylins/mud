@@ -394,3 +394,5 @@ bool read_line(FILE * fl, string & line, bool cut_cr_lf)
 ///////////////////////////////////////////////////////////////////////////////
 
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

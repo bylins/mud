@@ -476,3 +476,5 @@ void ClanChestLog::load(const std::string &abbrev)
 	file.close();
 }
 ////////////////////////////////////////////////////////////////////////////////
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

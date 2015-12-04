@@ -23,3 +23,5 @@ void check_crc(const char *name, int mode, long uid);
 } // namespace FileCRC
 
 #endif // FILE_CRC_HPP_INCLUDED
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

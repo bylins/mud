@@ -60,3 +60,5 @@ pugi::xml_node get_child(const T &node, const char *name)
 time_t parse_asctime(const std::string &str);
 
 #endif // PARSE_HPP_INCLUDED
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

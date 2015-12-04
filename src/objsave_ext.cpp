@@ -177,3 +177,5 @@ void check(int uid, int type)
 }
 
 } // namespace ObjSaveSync
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

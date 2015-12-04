@@ -1229,7 +1229,7 @@ ACMD(do_transform_weapon)
 
 int ext_search_block(const char *arg, const char **list, int exact)
 {
-	register int i, l = strlen(arg), j, o;
+	int i, l = strlen(arg), j, o;
 
 	if (exact)
 	{
@@ -1590,7 +1590,7 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 		return (FALSE);
 	}
 	// Делаем проверку может ли чар сделать посох такого типа
-	if ((skill == SKILL_MAKE_STAFF))
+	if (skill == SKILL_MAKE_STAFF)
 	{
 		const OBJ_DATA *tobj = read_object_mirror(obj_proto);
 		if (!tobj)
@@ -2663,3 +2663,5 @@ int MakeRecept::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OB
 
 	return (TRUE);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

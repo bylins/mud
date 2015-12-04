@@ -520,3 +520,5 @@ ACMD(do_hidetrack)
 		if (track[i])
 			SET_BIT(track[i]->track_info, TRACK_HIDE);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

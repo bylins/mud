@@ -305,3 +305,5 @@ time_t parse_asctime(const std::string &str)
 	}
 	return time;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

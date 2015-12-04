@@ -180,3 +180,5 @@ std::string print_total_activ(const set_node &set);
 } // namespace obj_sets
 
 #endif // OBJ_SETS_STUFF_HPP_INCLUDED
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

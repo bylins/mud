@@ -201,3 +201,5 @@ struct feat_info_type
 };
 
 #endif // __FEATURES_HPP__
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

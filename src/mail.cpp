@@ -740,3 +740,5 @@ size_t get_msg_count()
 }
 
 } // namespace mail
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

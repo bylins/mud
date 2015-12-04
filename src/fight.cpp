@@ -2111,3 +2111,5 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 	return return_value;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

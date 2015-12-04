@@ -132,3 +132,5 @@ void add_map(std::map<int, T> &target, const std::map<int, T> &add)
 ACMD(do_help);
 
 #endif // HELP_HPP_INCLUDED
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

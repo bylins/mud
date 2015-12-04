@@ -21,3 +21,5 @@ bool check_poison(int spell);
 int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af);
 
 #endif // POISON_HPP_INCLUDED
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

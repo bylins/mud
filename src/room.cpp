@@ -43,3 +43,5 @@ room_data::room_data()
 	memset(&base_property, 0, sizeof(room_property_data));
 	memset(&add_property, 0, sizeof(room_property_data));
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

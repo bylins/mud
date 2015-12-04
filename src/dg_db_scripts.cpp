@@ -731,3 +731,5 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell)
 		check_recipe_items(ch, spellnum, spell, TRUE);
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

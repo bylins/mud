@@ -354,3 +354,5 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch)
 		}
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

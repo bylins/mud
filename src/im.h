@@ -131,3 +131,5 @@ void forget_recipe(CHAR_DATA * ch, char *argument, int subcmd);
 int im_get_idx_by_type(int type);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

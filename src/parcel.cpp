@@ -1031,3 +1031,5 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman)
 }
 
 } // namespace Parcel
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

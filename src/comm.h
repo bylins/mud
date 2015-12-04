@@ -95,3 +95,5 @@ extern unsigned long cmd_cnt;
 void timediff(struct timeval *diff, struct timeval *a, struct timeval *b);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

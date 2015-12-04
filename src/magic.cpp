@@ -5418,3 +5418,5 @@ int get_resist_type(int spellnum)
 	log("SYSERR: Unknown spell type in %s", SpINFO.name);
 	return 0;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

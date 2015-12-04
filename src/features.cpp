@@ -71,8 +71,9 @@ public:
 			_pos = pos;
 			return _pos;
 		}
-		sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos!");
+		sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos (argument value: %d)!", pos);
 		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+		return _pos;
 	}
 
 	void insert(byte location, sbyte modifier)
@@ -1454,3 +1455,5 @@ bool check_feat(CHAR_DATA *ch, int feat)
 	return false;
 	
 }*/
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

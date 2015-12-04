@@ -115,3 +115,5 @@ char *replace_string(const char *str, const char *weapon_singular, const char *w
 bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int line);
 
 #endif // _FIGHT_LOCAL_HPP_
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

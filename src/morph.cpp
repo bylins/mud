@@ -439,3 +439,5 @@ void morphs_load(CHAR_DATA* ch, std::string line)
 	}
 };
 
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

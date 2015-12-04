@@ -230,32 +230,40 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			if(*buf2)
 			{
 				ch->desc->named_obj->wear_msg_v = delete_doubledollar(buf2);
+				/* TODO: review me
 				if(!strcmp(ch->desc->named_obj->wear_msg_v.c_str(), "_"))
 					ch->desc->named_obj->wear_msg_v == "";
+					*/
 			}
 			break;
 		case '6':
 			if(*buf2)
 			{
 				ch->desc->named_obj->wear_msg_a = delete_doubledollar(buf2);
+				/* TODO: review me
 				if(!strcmp(ch->desc->named_obj->wear_msg_a.c_str(), "_"))
 					ch->desc->named_obj->wear_msg_a == "";
+					*/
 			}
 			break;
 		case '7':
 			if(*buf2)
 			{
 				ch->desc->named_obj->cant_msg_v = delete_doubledollar(buf2);
+				/* TODO: review me
 				if(!strcmp(ch->desc->named_obj->cant_msg_v.c_str(), "_"))
 					ch->desc->named_obj->cant_msg_v == "";
+					*/
 			}
 			break;
 		case '8':
 			if(*buf2)
 			{
 				ch->desc->named_obj->cant_msg_a = delete_doubledollar(buf2);
+				/* TODO: review me
 				if(!strcmp(ch->desc->named_obj->cant_msg_a.c_str(), "_"))
 					ch->desc->named_obj->cant_msg_a == "";
+					*/
 			}
 			break;
 		case 'Õ':
@@ -605,3 +613,5 @@ void load()
 }
 
 } // namespace NamedStuff
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

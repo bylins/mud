@@ -255,7 +255,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 				strcat(buf1, "**OVERFLOW**\r\n");
 				break;
 			}
-			sprintf(buf1 + strlen(buf1), names[i]);
+			sprintf(buf1 + strlen(buf1), "%s", names[i]);
 		}
 
 		send_to_char(buf1, vict);
@@ -369,7 +369,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 					CCGRN(vict, C_NRM), i + 1, CCNRM(vict, C_NRM), CCIWHT(vict, C_NRM), CCNRM(vict, C_NRM));
 		if (i >= NUM_LEV_FEAT(ch))
 			break;
-		sprintf(buf1 + strlen(buf1), names[i]);
+		sprintf(buf1 + strlen(buf1), "%s", names[i]);
 	}
 	send_to_char(buf1, vict);
 
@@ -3027,3 +3027,5 @@ SPECIAL(bank)
 		return (Clan::BankManage(ch, argument));
 	return 0;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -397,3 +397,5 @@ bool check_skills(const CHAR_DATA *ch)
 }
 
 } // namespace Privilege
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

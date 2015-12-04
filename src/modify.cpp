@@ -128,7 +128,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 {
 	int indent = 0, rep_all = 0, flags = 0, replaced;
 	unsigned int total_len;
-	register int j = 0;
+	int j = 0;
 	int i, line_low, line_high;
 	char *s, *t, temp;
 	//log("[PA] Start %d(%s)", command, string);
@@ -581,7 +581,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 void string_add(DESCRIPTOR_DATA * d, char *str)
 {
 	int terminator = 0, action = 0;
-	register int i = 2, j = 0;
+	int i = 2, j = 0;
 	char actions[MAX_INPUT_LENGTH];
 
 	// determine if this is the terminal string, and truncate if so //
@@ -1453,3 +1453,5 @@ void print_con_prompt(DESCRIPTOR_DATA *d)
 		genchar_disp_menu(d->character);
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

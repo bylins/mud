@@ -632,7 +632,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 				if (killer->get_souls() < (GET_REMORT(killer) + 1))
 				{
 					act("&GВы забрали душу $N1 себе!&n", FALSE, killer, 0, ch, TO_CHAR);
-					act("$n забрал душу $N1 себе!", FALSE, killer, 0, ch, TO_NOTVICT || TO_ARENA_LISTEN);
+					act("$n забрал душу $N1 себе!", FALSE, killer, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 					killer->inc_souls();
 				}
 			}
@@ -1260,3 +1260,5 @@ void solo_gain(CHAR_DATA * ch, CHAR_DATA * victim)
   change_alignment(ch, victim);
 }
 */
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -586,7 +586,7 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 	if (file)
 	{
 		logfile = logs[channel].logfile;
-		log(str);
+		log("%s", str);
 		logfile = logs[SYSLOG].logfile;
 	}
 	if (level < 0)
@@ -3718,3 +3718,5 @@ std::string ParseFilter::print() const
 
 	return buffer;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

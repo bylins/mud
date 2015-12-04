@@ -1100,3 +1100,5 @@ void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 		((*obj_cmd_info[cmd].command_pointer)
 				(obj, line, cmd, obj_cmd_info[cmd].subcmd));
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

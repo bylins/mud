@@ -723,3 +723,5 @@ int do_clan_tax(CHAR_DATA *ch, int gold);
 } // namespace CharacterSystem
 
 #endif // CHAR_HPP_INCLUDED
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

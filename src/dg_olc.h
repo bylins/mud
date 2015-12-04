@@ -62,3 +62,5 @@ void proto_script_free(struct trig_proto_list *src);
 #define OLC_ITEM_TYPE(d)	((d)->olc->item_type)	// mob/obj/room
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

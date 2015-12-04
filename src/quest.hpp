@@ -31,3 +31,5 @@ class Quest
 	// сколько уже выполнено
 	int pvar_quest;
 };
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

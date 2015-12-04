@@ -157,3 +157,5 @@ const char * spell_knowledge(CHAR_DATA * ch, char *spell)
 		strcpy(retval, "");
 	return retval;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

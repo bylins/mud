@@ -262,3 +262,5 @@ void parse_menu(DESCRIPTOR_DATA *d, const char *arg)
 }
 
 } // namespace ResetStats
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

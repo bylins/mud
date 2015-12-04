@@ -316,3 +316,5 @@ ACMD(do_remember_char)
 	}
 }
 
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

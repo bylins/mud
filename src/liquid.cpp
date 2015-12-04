@@ -1313,3 +1313,5 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 }
 
 } // namespace drinkcon
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

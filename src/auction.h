@@ -44,3 +44,5 @@ int obj_on_auction(OBJ_DATA * obj);
 #define AUCTION_IDENT_PAY 110	//цена за опознание
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

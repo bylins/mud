@@ -199,3 +199,5 @@ void set_uid(OBJ_DATA *object);
 
 void remove_rune_label(CHAR_DATA *ch);
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

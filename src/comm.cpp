@@ -887,8 +887,8 @@ int main(int argc, char **argv)
 	 * Moved here to distinguish command line options and to show up
 	 * in the log if stderr is redirected to a file.
 	 */
-	log(circlemud_version);
-	log(DG_SCRIPT_VERSION);
+	log("%s", circlemud_version);
+	log("%s", DG_SCRIPT_VERSION);
 	log_code_date();
 	if (chdir(dir) < 0)
 	{
@@ -1044,23 +1044,23 @@ void init_game(ush_int port)
 			if (entry->type < 0 || entry->type > 4)
 			{
 				sprintf(buf, "OLC: Illegal save type %d!", entry->type);
-				log(buf);
+				log("%s", buf);
 			}
 			else if ((rznum = real_zone(entry->zone * 100)) == -1)
 			{
 				sprintf(buf, "OLC: Illegal save zone %d!", entry->zone);
-				log(buf);
+				log("%s", buf);
 			}
 			else if (rznum < 0 || rznum > top_of_zone_table)
 			{
 				sprintf(buf, "OLC: Invalid real zone number %d!", rznum);
-				log(buf);
+				log("%s", buf);
 			}
 			else
 			{
 				sprintf(buf, "OLC: Reboot saving %s for zone %d.",
 						save_info_msg[(int) entry->type], zone_table[rznum].number);
-				log(buf);
+				log("%s", buf);
 				switch (entry->type)
 				{
 				case OLC_SAVE_ROOM:
@@ -1372,7 +1372,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	{
 		std::string err = boost::str(boost::format("EPOLL: epoll_wait() failed in %s() at %s:%d")
 		                             % __func__ % __FILE__ % __LINE__);
-		log(err.c_str());
+		log("%s", err.c_str());
 		perror(err.c_str());
 		return;
 	}
@@ -1401,7 +1401,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in %s() at %s:%d",
 				static_cast<unsigned>(events[i].events),
 				__func__, __FILE__, __LINE__);
-			log(tmp);
+			log("%s", tmp);
 		}
 #else
 	// Poll (without blocking) for new input, output, and exceptions
@@ -2923,7 +2923,7 @@ int new_descriptor(socket_t s)
 	event.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP;
 	if (epoll_ctl(epoll, EPOLL_CTL_ADD, desc, &event) == -1)
 	{
-		log(boost::str(boost::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD in %s() at %s:%d")
+		log("%s", boost::str(boost::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD in %s() at %s:%d")
 		               % __func__ % __FILE__ % __LINE__).c_str());
 		CLOSE_SOCKET(desc);
 		free(newd);
@@ -3048,7 +3048,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
 	if (t == NULL)
 	{
-		log(boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
+		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
 		               % __func__ % __FILE__ % __LINE__).c_str());
 		return -1;
 	}
@@ -3490,7 +3490,7 @@ int process_input(DESCRIPTOR_DATA * t)
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
 	if (t == NULL)
 	{
-		log(boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
+		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
 		               % __func__ % __FILE__ % __LINE__).c_str());
 		return -1;
 	}
@@ -3895,7 +3895,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 	if (d == NULL)
 	{
-		log(boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
+		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
 		               % __func__ % __FILE__ % __LINE__).c_str());
 		return;
 	}
@@ -5099,3 +5099,5 @@ int toggle_compression(DESCRIPTOR_DATA * t)
 #endif
 	return 0;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -306,3 +306,5 @@ void recalculate_stats(CHAR_DATA *ch)
 }
 
 } // namespace GloryMisc
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -91,3 +91,5 @@ void remove_from_mob_lists(long uid);
 };
 
 #endif //CELEBRATES_HPP_INCLUDED
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

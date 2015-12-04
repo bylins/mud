@@ -974,3 +974,5 @@ void ObjVal::remove_incorrect_keys(int type)
 		}
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

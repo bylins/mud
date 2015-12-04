@@ -2528,3 +2528,5 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		medit_disp_menu(d);
 	}
 	// * End of medit_parse(), thank god.
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

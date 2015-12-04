@@ -1127,6 +1127,7 @@ OBJ_DATA* try_make_ingr(CHAR_DATA* mob, int prob_default, int prob_special)
 	{
 		return try_make_ingr(mob_proto[GET_MOB_RNUM(mob)].ing_list, vnum, prob_special);
 	}
+	return NULL;
 }
 
 void list_recipes(CHAR_DATA * ch, bool all_recipes)
@@ -2032,3 +2033,5 @@ ACMD(do_imlist)
 
 }
 
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

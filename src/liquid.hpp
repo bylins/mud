@@ -65,3 +65,5 @@ std::string print_spells(CHAR_DATA *ch, const OBJ_DATA *obj);
 void copy_potion_values(OBJ_DATA *from_obj, OBJ_DATA *to_obj);
 
 } // namespace drinkcon
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

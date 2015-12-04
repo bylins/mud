@@ -956,3 +956,5 @@ int obj_on_auction(OBJ_DATA * obj)
 
 	return (FALSE);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

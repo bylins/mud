@@ -487,3 +487,5 @@ int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
 	}
 	return result;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -2848,3 +2848,4 @@ ASPELL(spell_angel)
 ASPELL(spell_vampire)
 {
 }
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

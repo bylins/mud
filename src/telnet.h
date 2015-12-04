@@ -318,3 +318,5 @@ extern char *enctype_names[];
 #define	ENCTYPE_NAME(x)		enctype_names[x]
 
 #endif				// _TELNET_H_
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

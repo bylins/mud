@@ -1330,3 +1330,5 @@ void RegisterSystem::save()
 	file.close();
 	need_save = 0;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

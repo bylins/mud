@@ -5217,3 +5217,5 @@ int get_max_slot(CHAR_DATA* ch)
 {
 	return max_slots.get(GET_CLASS(ch), GET_KIN(ch));
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

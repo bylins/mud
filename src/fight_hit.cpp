@@ -4157,3 +4157,5 @@ int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
 }
 
 */
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

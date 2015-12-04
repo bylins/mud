@@ -42,3 +42,5 @@ void remove_event(struct event_info *event);
 void process_events(void);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

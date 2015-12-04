@@ -1557,7 +1557,7 @@ int perform_alias(DESCRIPTOR_DATA * d, char *orig)
  */
 int search_block(const char *arg, const char **list, int exact)
 {
-	register int i, l = strlen(arg);
+	int i, l = strlen(arg);
 
 	if (exact)
 	{
@@ -1579,7 +1579,7 @@ int search_block(const char *arg, const char **list, int exact)
 
 int search_block(const std::string &arg, const char **list, int exact)
 {
-	register int i;
+	int i;
 	std::string::size_type l = arg.length();
 
 	if (exact)
@@ -1709,8 +1709,8 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 		}
 	}
 
-	register OBJ_DATA *i;
-	register CHAR_DATA *k;
+	OBJ_DATA *i;
+	CHAR_DATA *k;
 	int j;
 
 	// special in room? //
@@ -4101,3 +4101,5 @@ bool who_spamcontrol(CHAR_DATA *ch, unsigned short int mode = WHO_LISTALL)
 	return false;
 }
 
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

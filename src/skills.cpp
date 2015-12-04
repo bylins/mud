@@ -1063,3 +1063,5 @@ int Skill::GetNumByID(std::string ID)
 };
 
 // Конец (увы) реализации класса Skill
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

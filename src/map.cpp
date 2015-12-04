@@ -1229,3 +1229,5 @@ ACMD(do_map)
 		ch->map_text_olc(argument);
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

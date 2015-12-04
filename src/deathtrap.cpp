@@ -389,3 +389,5 @@ bool DeathTrap::tunnel_damage(CHAR_DATA *ch)
 	}
 	return false;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -59,3 +59,5 @@ int fbcat(char *fromfilename, FBFILE * tofile);
 char *fbgetstring(FBFILE * fl);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -427,3 +427,5 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 		//Вроде не критично уже видеть все снятия аффектов
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

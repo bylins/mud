@@ -269,7 +269,7 @@ if (CMAKE_HOST_UNIX)
         set(CMAKE_CXX_FLAGS_FASTTEST "-ggdb3 -O3 -Wall -DNOCRYPT -DTEST_BUILD")
 
         if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-            add_definitions("-Wno-invalid-source-encoding -Wno-out-of-line-declaration -Wno-format-security -Wno-pointer-bool-conversion")
+            add_definitions("-Wno-invalid-source-encoding -Wno-out-of-line-declaration -Wno-pointer-bool-conversion")
         endif ()
         target_link_libraries(circle crypt)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=gnu++0x")

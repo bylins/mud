@@ -1472,3 +1472,5 @@ std::string& format_news_message(std::string &text)
 }
 
 } // namespace Boards
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

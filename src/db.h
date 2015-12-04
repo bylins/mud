@@ -470,3 +470,5 @@ void set_zone_mob_level();
 bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

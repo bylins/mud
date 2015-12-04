@@ -614,3 +614,5 @@ namespace SpellUsage
 const int HOURS_PER_WARCRY = 4;
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

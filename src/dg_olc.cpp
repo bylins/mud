@@ -948,3 +948,5 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 	dg_script_menu(d);
 	return 1;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

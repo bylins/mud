@@ -2608,3 +2608,5 @@ bool scripting::execute_player_command(CHAR_DATA* ch, const char* command, const
 	GILAcquirer acquire_gil;
 	return check_command_on_list(global_commands, ch, command, args);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

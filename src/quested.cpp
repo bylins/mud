@@ -75,3 +75,5 @@ void Quested::clear()
 {
 	quested_.clear();
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

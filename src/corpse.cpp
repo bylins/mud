@@ -511,3 +511,5 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 		return corpse;
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

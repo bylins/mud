@@ -556,3 +556,5 @@ ACMD(do_dmeter)
 		send_to_char(DMETR_FORMAT, ch);
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

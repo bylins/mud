@@ -5669,7 +5669,7 @@ void make_who2html(void)
 		buffer = str_add(buffer, ".\n");
 	}
 
-	fprintf(opf, buffer);
+	fprintf(opf, "%s", buffer);
 
 	free(buffer);
 	free(imms);
@@ -5679,3 +5679,5 @@ void make_who2html(void)
 	fprintf(opf, "<HR></BODY></HTML>\n");
 	fclose(opf);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

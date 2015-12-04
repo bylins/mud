@@ -120,7 +120,7 @@ extern char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
 char *fname(const char *namelist)
 {
 	static char holder[30];
-	register char *point;
+	char *point;
 
 	for (point = holder; a_isalpha(*namelist); namelist++, point++)
 		*point = *namelist;
@@ -4379,3 +4379,5 @@ void remove_rune_label(CHAR_DATA *ch)
 		}
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

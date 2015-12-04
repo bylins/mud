@@ -128,3 +128,5 @@ bool compare_password(std::string const &hash, std::string const &pass)
 }
 
 } // namespace Password
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

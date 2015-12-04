@@ -3107,3 +3107,5 @@ std::array<const char *, NUM_CLASSES> pc_class_name =
 	"купец",
 	"волхв"
 }};
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

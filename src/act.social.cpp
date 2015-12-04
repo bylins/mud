@@ -330,3 +330,5 @@ char *fread_action(FILE * fl, int nr)
 	buf[strlen(buf) - 1] = '\0';
 	return (str_dup(buf));
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

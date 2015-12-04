@@ -202,7 +202,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 	{
 		tag_argument(buffer, read_line);
 
-		if (read_line != NULL)
+		//if (read_line != NULL) read_line cannot be NULL because it is a local array
 		{
 			// Чтобы не портился прототип вещи некоторые параметры изменяются лишь у вещей с vnum < 0
 			if (!strcmp(read_line, "Alia"))
@@ -1005,7 +1005,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "Levl: " << GET_OBJ_LEVEL(object) << "~\n";
 		}
 		// была ли шмотка ренейм
-		if ((GET_OBJ_RENAME(object) != NULL) && (GET_OBJ_RENAME(object) != false)) 
+		if ((GET_OBJ_RENAME(object) != false) && (GET_OBJ_RENAME(object) != false)) 
 		{
 			out << "Rnme: 1~\n";
 		}
@@ -1663,7 +1663,7 @@ int Crash_read_timer(int index, int temp)
 		break;
 	}
 	strcat(buf, "rent code.");
-	log(buf);
+	log("%s", buf);
 	Crash_create_timer(index, rent.nitems);
 	player_table[index].timer->rent = rent;
 	for (; count < rent.nitems && !feof(fl); count++)
@@ -3168,3 +3168,5 @@ void Crash_rent_time(int dectime)
 		if (player_table[c].unique != -1)
 			Crash_timer_obj(c, time(0));
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

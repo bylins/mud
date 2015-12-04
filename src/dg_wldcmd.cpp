@@ -1045,3 +1045,5 @@ void wld_command_interpreter(room_data * room, char *argument)
 		((*wld_cmd_info[cmd].command_pointer)
 				(room, line, cmd, wld_cmd_info[cmd].subcmd));
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

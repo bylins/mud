@@ -2869,3 +2869,5 @@ ACMD(do_strangle)
 	go_strangle(ch, vict);
 }
 
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

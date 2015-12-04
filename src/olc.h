@@ -385,3 +385,5 @@ void xedit_disp_ing(DESCRIPTOR_DATA * d, int *ping);
 int xparse_ing(DESCRIPTOR_DATA * d, int **pping, char *arg);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

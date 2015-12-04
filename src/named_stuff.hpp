@@ -48,3 +48,5 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman);
 } // namespace NamedStuff
 
 #endif // NAMEDSTUFF_HPP_INCLUDED
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -38,3 +38,5 @@ bool is_room_forbidden(ROOM_DATA * room);
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ = NULL);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

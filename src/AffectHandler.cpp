@@ -50,3 +50,5 @@ void LackyAffectHandler::Handle( StopFightParameters& params )
 	round_=0;
 	damFromMe_=damToMe_=false;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

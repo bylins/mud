@@ -6731,7 +6731,7 @@ char *fread_string(FILE * fl, char *error)
 		if (length + templength >= MAX_STRING_LENGTH)
 		{
 			log("SYSERR: fread_string: string too large (db.c)");
-			log(error);
+			log("%s", error);
 			exit(1);
 		}
 		else
@@ -7111,7 +7111,7 @@ ACMD(do_remort)
     if (!*arg)
     {
         sprintf(buf, "Укажите, где вы хотите заново начать свой путь:\r\n");
-        sprintf(buf+strlen(buf), string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch),GET_RACE(ch)))).c_str());
+        sprintf(buf+strlen(buf), "%s", string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch),GET_RACE(ch)))).c_str());
         send_to_char(buf, ch);
         return;
     } else {
@@ -8115,3 +8115,5 @@ void init()
 
 } // namespace OfftopSystem
 ////////////////////////////////////////////////////////////////////////////////
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

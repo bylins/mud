@@ -124,3 +124,5 @@ extern int CREATE_LIGHT;
    уровень моба 50 */
 #define CHARM_MOB_VNUM 200
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

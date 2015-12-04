@@ -625,3 +625,5 @@ void GetCase(const char *name, int sex, int caseNum, char *result)
 	CAP(result);
 	return;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

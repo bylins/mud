@@ -32,3 +32,5 @@ void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto);
 } // namespace Parcel
 
 #endif // PARCEL_HPP_INCLUDED
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

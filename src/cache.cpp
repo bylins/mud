@@ -14,3 +14,5 @@ caching::CharacterCache caching::character_cache;
 template class caching::Cache<obj_data*>;
 caching::ObjCache caching::obj_cache;
 
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

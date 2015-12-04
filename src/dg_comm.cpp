@@ -201,3 +201,5 @@ void send_to_zone(char *messg, int zone_rnum)
 				(IN_ROOM(i->character) != NOWHERE) && (world[IN_ROOM(i->character)]->zone == zone_rnum))
 			SEND_TO_Q(messg, i);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

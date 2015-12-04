@@ -289,3 +289,5 @@ void TimedSpell::dec_timer(OBJ_DATA *obj, int time)
 		}
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

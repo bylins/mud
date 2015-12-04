@@ -126,3 +126,5 @@ int GaussIntNumber(double mean, double sigma, int min_val, int max_val)
 	return MAX(MIN(iresult, max_val), min_val);
 }
 
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

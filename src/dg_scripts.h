@@ -330,3 +330,5 @@ const int MAX_TRIG_USEC = 30000;
 void save_char_vars(CHAR_DATA *ch);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

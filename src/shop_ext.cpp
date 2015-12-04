@@ -1820,3 +1820,5 @@ void fill_shop_dictionary(DictionaryType &dic)
 	for (;it != ShopExt::shop_list.end();++it)
 		dic.push_back((*it)->GetDictionaryItem());
 };
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

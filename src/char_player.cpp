@@ -2072,3 +2072,5 @@ unsigned weight_dex_penalty(CHAR_DATA* ch)
 }
 
 } // namespace PlayerSystem
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

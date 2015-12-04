@@ -40,3 +40,5 @@ extern oload_class oload_table;
 void obj_load_on_death(OBJ_DATA * corpse, CHAR_DATA * ch);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

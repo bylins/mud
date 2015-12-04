@@ -3406,3 +3406,5 @@ int level_exp(CHAR_DATA * ch, int level)
 	log("SYSERR: XP tables not set up correctly in class.c!");
 	return 123456;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

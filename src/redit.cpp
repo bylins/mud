@@ -995,3 +995,5 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 	OLC_VAL(d) = 1;
 	redit_disp_menu(d);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

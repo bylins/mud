@@ -14,3 +14,5 @@ void page_string(DESCRIPTOR_DATA * d, std::string buf);
 void print_con_prompt(DESCRIPTOR_DATA * d);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

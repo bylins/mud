@@ -263,3 +263,5 @@ int proc_color(char *inbuf, int colour)
 		return j;
 	return 0;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

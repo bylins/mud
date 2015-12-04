@@ -569,3 +569,5 @@ ssize_t write(int fildes, const void *buf, size_t nbyte);
 #endif				// NO_LIBRARY_PROTOTYPES
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

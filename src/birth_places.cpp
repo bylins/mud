@@ -162,3 +162,5 @@ std::string BirthPlace::GetRentHelp(short Id)
     }
     return DEFAULT_RENT_HELP;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

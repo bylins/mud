@@ -1865,3 +1865,5 @@ ACMD(do_mdamage)
 	else
 		mob_log(ch, "mdamage: target not found");
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

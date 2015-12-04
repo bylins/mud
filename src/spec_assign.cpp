@@ -257,3 +257,5 @@ void clear_mob_charm(CHAR_DATA *mob)
 			__FILE__, __LINE__);
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -448,3 +448,5 @@ template<class T> T three_arguments(T argument, char *first_arg, char *second_ar
 bool who_spamcontrol(CHAR_DATA *, unsigned short int);
 
 #endif // _INTERPRETER_H_
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

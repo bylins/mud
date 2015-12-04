@@ -4817,7 +4817,7 @@ ACMD(do_show)
 			sprintf(rem, "Перевоплощений: %d\r\n", GET_REMORT(vict));
 		else
 			sprintf(rem, "Перевоплощений: 3+\r\n");
-		sprintf(buf + strlen(buf), rem);
+		sprintf(buf + strlen(buf), "%s", rem);
 		sprintf(buf + strlen(buf), "Уровень: %s\r\n", (GET_LEVEL(vict) < 25 ? "ниже 25" : "25+"));
 		sprintf(buf + strlen(buf), "Титул: %s\r\n", (vict->player_data.title ? vict->player_data.title : "<Нет>"));
 		sprintf(buf + strlen(buf), "Описание игрока:\r\n");
@@ -7059,3 +7059,5 @@ ACMD(do_print_armor)
 		send_to_char("Ничего не найдено.\r\n", ch);
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

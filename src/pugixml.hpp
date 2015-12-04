@@ -1263,3 +1263,5 @@ namespace std
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -48,3 +48,5 @@ const std::string RoomDescription::show_desc(int desc_num)
 		return "";
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

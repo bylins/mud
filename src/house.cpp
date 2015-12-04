@@ -928,7 +928,8 @@ bool Clan::MayEnter(CHAR_DATA * ch, room_rnum room, bool mode)
 	if (CLAN(ch) == *clan || (*clan)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
 		isMember = 1;
 
-	switch (mode)
+	int _mode = mode ? HCE_PORTAL : HCE_ATRIUM;
+	switch (_mode)
 	{
 		// вход через дверь - контролирует охранник
 	case HCE_ATRIUM:
@@ -5620,3 +5621,5 @@ unsigned Clan::get_bank() const
 {
 	return bank;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

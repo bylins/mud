@@ -1171,3 +1171,5 @@ int get_room_sky(int rnum)
 {
 	return GET_ROOM_SKY(rnum);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

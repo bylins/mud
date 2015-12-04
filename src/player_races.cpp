@@ -331,3 +331,5 @@ int PlayerRace::CheckBirthPlace(int Kin, int Race, char *arg)
 
     return RACE_UNDEFINED;
 };
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

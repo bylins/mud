@@ -2019,3 +2019,5 @@ ACMD(do_sedit)
 		send_to_char(SEDIT_HELP, ch);
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

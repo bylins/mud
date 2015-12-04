@@ -342,3 +342,5 @@ void boost::assertion_failed_msg(char const * expr, char const * msg, char const
 }
 #endif
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

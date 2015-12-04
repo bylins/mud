@@ -1167,7 +1167,7 @@ void init_xhelp()
 		const int lvl = (sets_list.at(i)->enabled ? 0 : LVL_IMMORT);
 		if (sets_list.at(i)->alias.empty())
 		{
-			snprintf(buf_, sizeof(buf_), "актив%02d", i + 1);
+			snprintf(buf_, sizeof(buf_), "актив%02d", static_cast<int>(i + 1));
 			HelpSystem::add_static(buf_,
 				print_activ_help(*(sets_list.at(i))), lvl, true);
 			sets_list.at(i)->help = buf_;
@@ -1496,3 +1496,5 @@ ACMD(do_slist)
 	}
 	obj_sets::do_slist(ch);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

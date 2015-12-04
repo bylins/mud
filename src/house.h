@@ -384,3 +384,5 @@ std::string GetChestMode(CHAR_DATA *ch);
 std::string clan_get_custom_label(OBJ_DATA *obj, ClanPtr clan);
 
 #endif
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

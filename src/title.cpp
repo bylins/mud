@@ -563,3 +563,5 @@ void TitleSystem::do_title_empty(CHAR_DATA* ch)
 		send_to_char(out.str(), ch);
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -50,3 +50,5 @@ std::string Dictionary::GetNameByTID(std::string tid)
 	std::string result="";
 	return result;
 };
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

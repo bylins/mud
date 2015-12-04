@@ -1209,3 +1209,5 @@ bool bloody::is_bloody(const OBJ_DATA* obj)
 		result = is_bloody(nobj);
 	return result;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1579,3 +1579,5 @@ int timechange_wtrigger(ROOM_DATA * room, const int time)
 
 	return 1;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

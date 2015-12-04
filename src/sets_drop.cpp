@@ -1345,3 +1345,5 @@ void print_timer_str(CHAR_DATA *ch)
 }
 
 } // namespace SetsDrop
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

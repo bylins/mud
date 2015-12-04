@@ -62,3 +62,5 @@ void Quest::set_pvar(int pvar)
 
 
 
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

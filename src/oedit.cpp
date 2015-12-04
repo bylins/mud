@@ -1374,8 +1374,12 @@ void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 	int columns = 0;
 	for (size_t counter = 0; counter < wskill_bits.size(); counter++)
 	{
-		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter + 1, nrm,
-				wskill_bits[counter], !(++columns % 2) ? "\r\n" : "");
+		sprintf(buf, "%s%2d%s) %-20.20s %s",
+				grn,
+				static_cast<int>(counter + 1),
+				nrm,
+				wskill_bits[counter],
+				!(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf,
@@ -2464,3 +2468,5 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	OLC_VAL(d) = 1;
 	oedit_disp_menu(d);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

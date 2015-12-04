@@ -137,3 +137,5 @@ bool check(CHAR_DATA *ch, int mode)
 }
 
 } // SpamSystem
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
