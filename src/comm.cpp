@@ -68,7 +68,7 @@
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
 #include "celebrates.hpp"
-//#include "scripting.hpp"
+#include "scripting.hpp"
 #include "shop_ext.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
@@ -936,7 +936,7 @@ void init_game(ush_int port)
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
-	//scripting::init();
+	scripting::init();
 	boot_db();
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
@@ -2103,10 +2103,10 @@ inline void heartbeat(const int missed_pulses)
 		//  log("Stop it...");
 	}
 
-	/*if (!(pulse % scripting::HEARTBEAT_PASSES))
+	if (!(pulse % scripting::HEARTBEAT_PASSES))
 	{
 		scripting::heartbeat();
-	}*/
+	}
 
 	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC))  	// 1 game secunde
 	{
