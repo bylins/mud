@@ -30,3 +30,5 @@ autorun
 src/*.cbp
 src/*.layout
 src/*.cscope_file_list
+build/*
+build.gcc/*
