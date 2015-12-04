@@ -210,12 +210,27 @@ set(HEADERS
 
 add_executable(circle ${SOURCES} ${HEADERS})
 
-# Build types
-set(CMAKE_CONFIGURATION_TYPES "Release Debug Test FastTest")
+find_package(Boost 1.49.0 REQUIRED)
+set(ZLIB_ROOT $ENV{ZLIB_ROOT})
+find_package(ZLIB REQUIRED)
 
-set(CMAKE_CXX_FLAGS "")
+include_directories(src ${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
+target_link_libraries(circle ${ZLIB_LIBRARIES} ${Boost_LIBRARIES})
+
+# Build types
+set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
+
+# Default flags
+set(CMAKE_CXX_FLAGS_DEBUG "")
+set(CMAKE_CXX_FLAGS_RELEASE "")
+set(CMAKE_CXX_FLAGS_TEST "")
+set(CMAKE_CXX_FLAGS_FASTTEST "")
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "")
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "")
+set(CMAKE_EXE_LINKER_FLAGS_TEST "")
+set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
+
 if (CMAKE_HOST_UNIX)
-    target_link_libraries(circle z)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set(CMAKE_CXX_FLAGS_RELEASE "-ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV")
         set(CMAKE_CXX_FLAGS_DEBUG "-D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC")
@@ -228,6 +243,21 @@ if (CMAKE_HOST_UNIX)
         target_link_libraries(circle crypt)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=gnu++0x")
     endif()
+
+    # Suppose that UNIX hosts support epoll by default EPOLL>>>
+    option(HAS_EPOLL "Does system support epoll call?" ON)
+elseif (CMAKE_HOST_WIN32)
+        set(CMAKE_CXX_FLAGS_RELEASE "-DBOOST_ENABLE_ASSERT_HANDLER")
+        set(CMAKE_CXX_FLAGS_DEBUG "")
+        set(CMAKE_CXX_FLAGS_TEST  "-DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH")
+        set(CMAKE_CXX_FLAGS_FASTTEST "-DNOCRYPT -DTEST_BUILD")
+
+    # EPOLL>>> ...and suppose that Windows does not
+    option(HAS_EPOLL "Does system support epoll call?" OFF)
+endif ()
+
+if (HAS_EPOLL)
+    add_definitions("-DHAS_EPOLL")
 endif ()
 
 message(STATUS "Compiler ID is ${CMAKE_CXX_COMPILER_ID}")
@@ -239,13 +269,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
     endif ()
 endif ()
-
-option(HAS_EPOLL "Does system support epoll call?" ON)
-if (HAS_EPOLL)
-    add_definitions("-DHAS_EPOLL")
-endif ()
-
-include_directories(src)
 
 # Copy lib.template content here
 add_custom_target(libTemplate)
