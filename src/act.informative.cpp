@@ -4796,7 +4796,7 @@ ACMD(do_users)
 		else
 			sprintf(line, format, d->desc_num, "   -   ", "UNDEFINED", state, idletime, timeptr);
 // Хорс
-		if (d->host && *d->host)
+		if (d/*->host*/ && *d->host)	// address of field is always not NULL if it is not first field. So, host is not first field
 		{
 			sprintf(line2, "[%s]", d->host);
 			strcat(line, line2);
