@@ -234,10 +234,15 @@ if (NOT PYTHONLIBS_FOUND)
 endif ()
 
 # Boost
+set(BOOST_MODULES python)
+if (CMAKE_HOST_WIN32)
+    list(APPEND BOOST_MODULES locale)
+endif ()
+
 set(Boost_NO_SYSTEM_PATHS ON)
 set(Boost_USE_STATIC_LIBS ON)
 
-## In case of you have more than one Visual Studio and want to use specific version, uncomment the following three lines and specify compiler you want
+# In case of you have more than one Visual Studio and want to use specific version, uncomment the following three lines and specify compiler you want
 if (CMAKE_HOST_WIN32)
     set(Boost_COMPILER "-vc140")
     target_compile_options(circle PUBLIC /MP /MDd)
@@ -246,7 +251,7 @@ if (CMAKE_HOST_WIN32)
     target_compile_options(circle PUBLIC $<$<CONFIG:Test>:/Od>)
     target_compile_options(circle PUBLIC $<$<CONFIG:FastTest>:/O2>)
 endif ()
-find_package(Boost 1.59 REQUIRED COMPONENTS python locale)
+find_package(Boost 1.59 REQUIRED COMPONENTS ${BOOST_MODULES})
 
 # ZLib
 set(ZLIB_ROOT $ENV{ZLIB_ROOT})
@@ -278,10 +283,10 @@ if (CMAKE_HOST_UNIX)
     # Suppose that UNIX hosts support epoll by default EPOLL>>>
     option(HAS_EPOLL "Does system support epoll call?" ON)
 elseif (CMAKE_HOST_WIN32)
-        set(CMAKE_CXX_FLAGS_RELEASE "-DBOOST_ENABLE_ASSERT_HANDLER")
-        set(CMAKE_CXX_FLAGS_DEBUG "")
-        set(CMAKE_CXX_FLAGS_TEST  "-DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH")
-        set(CMAKE_CXX_FLAGS_FASTTEST "-DNOCRYPT -DTEST_BUILD")
+    set(CMAKE_CXX_FLAGS_RELEASE "-DBOOST_ENABLE_ASSERT_HANDLER")
+    set(CMAKE_CXX_FLAGS_DEBUG "")
+    set(CMAKE_CXX_FLAGS_TEST  "-DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH")
+    set(CMAKE_CXX_FLAGS_FASTTEST "-DNOCRYPT -DTEST_BUILD")
 
     # EPOLL>>> ...and suppose that Windows does not
     option(HAS_EPOLL "Does system support epoll call?" OFF)
