@@ -228,6 +228,11 @@ add_definitions("-DBOOST_PYTHON_STATIC_LIB")
 
 ## Look for required components
 # Python
+set(Python_ADDITIONAL_VERSIONS 3.5)
+# If you have more than one Python version and want to use other one,
+# just comment out previous command and uncomment the following:
+#set(Python_ADDITIONAL_VERSIONS 2.7)
+
 find_package(PythonLibs)
 if (NOT PYTHONLIBS_FOUND)
     message(ERROR "Python not found.")
