@@ -1808,7 +1808,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		return;
 	}
 
-	if (PRF_FLAGGED(ch, PRF_DRAW_MAP))
+	if (PRF_FLAGGED(ch, PRF_DRAW_MAP) && !PRF_FLAGGED(ch, PRF_BLIND))
 	{
 		MapSystem::print_map(ch);
 	}
@@ -3288,6 +3288,9 @@ void print_do_score_all(CHAR_DATA *ch)
 	else
 		sprintf(buf + strlen(buf),
 				" || Вы защищены от призыва.                                                         ||\r\n");
+	if (PRF_FLAGGED(ch, PRF_BLIND))
+		sprintf(buf + strlen(buf),
+				" || Режим слепого игрока включен.                                                   ||\r\n");
 
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL)
 	{

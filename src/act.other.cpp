@@ -2558,8 +2558,14 @@ ACMD(do_gen_tog)
 		return;
 	}
 	case SCMD_DRAW_MAP:
+	{	if (PRF_FLAGGED(ch, PRF_BLIND))
+		{
+			send_to_char("В режиме слепого игрока карта недоступна.\r\n", ch);
+			return;
+		}
 		result = PRF_TOG_CHK(ch, PRF_DRAW_MAP);
 		break;
+	}
 	case SCMD_ENTER_ZONE:
 		result = PRF_TOG_CHK(ch, PRF_ENTER_ZONE);
 		break;
