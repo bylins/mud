@@ -3449,14 +3449,14 @@ Sventovit
 		{	if (!PRF_FLAGGED(d->character, PRF_BLIND))
 			{
 				SET_BIT(PRF_FLAGS(d->character, PRF_BLIND), PRF_BLIND);
-				SEND_TO_Q("\r\nСпециальный режим для игроков с ограниченным зрением ВКЛЮЧЕН.\r\n", d);
+				SEND_TO_Q("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
 				SEND_TO_Q(MENU, d);
 				STATE(d) = CON_MENU;
 			}
 			else
 			{
 				REMOVE_BIT(PRF_FLAGS(d->character, PRF_BLIND), PRF_BLIND);
-				SEND_TO_Q("\r\nСпециальный режим для игроков с ограниченным зрением ВЫКЛЮЧЕН.\r\n", d);
+				SEND_TO_Q("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
 				SEND_TO_Q(MENU, d);
 				STATE(d) = CON_MENU;
 			}

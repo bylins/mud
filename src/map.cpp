@@ -1218,7 +1218,7 @@ ACMD(do_map)
 		return;
 	}
 	if (PRF_FLAGGED(ch, PRF_BLIND))
-	{	send_to_char("В режиме для игроков с ограниченным зрением карта недоступна.\r\n", ch);
+	{	send_to_char("В режиме слепого игрока карта недоступна.\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);
