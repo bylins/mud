@@ -450,7 +450,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 						return (object);
 					}
 					new_descr->description = str_dup(buffer);
-					new_descr->next = object->ex_description;
+			//		new_descr->next = object->ex_description;
 					object->ex_description = new_descr;
 				}
 			}
