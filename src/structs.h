@@ -592,6 +592,7 @@ enum
 #define PRF_AUTO_NOSUMMON (INT_TWO | 1 << 7)  // автоматическое включение режима защиты от призыва ('реж призыв') после удачного суммона/пенты
 #define PRF_SDEMIGOD      (INT_TWO | 1 << 8) // Для канала демигодов
 #define PRF_BLIND         (INT_TWO | 1 << 9)  // примочки для слепых
+#define PRF_MAPPER	  (INT_TWO | 1 << 10) // Показывает хеши рядом с названием комнаты
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //

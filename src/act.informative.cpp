@@ -99,6 +99,7 @@ const char * print_god_or_player(int level);
 int get_pick_chance(int skill_pick, int lock_complexity);
 int thaco(int class_num, int level);
 
+
 ACMD(do_affects);
 ACMD(do_look);
 ACMD(do_examine);
@@ -1837,8 +1838,15 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		}
 	}
 	else
-		send_to_char(world[ch->in_room]->name, ch);
-
+	{
+		if (PRF_FLAGGED(ch, PRF_MAPPER))
+		{
+		    sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(IN_ROOM(ch)) ^ 228);
+		    send_to_char(buf2, ch);
+		}
+		else    
+		    send_to_char(world[ch->in_room]->name, ch);
+	}
 	send_to_char(CCNRM(ch, C_NRM), ch);
 	send_to_char("\r\n", ch);
 

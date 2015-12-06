@@ -187,6 +187,7 @@ struct alias_data
 #define SCMD_AUTO_NOSUMMON 52
 #define SCMD_SDEMIGOD 53
 #define SCMD_BLIND 54
+#define SCMD_MAPPER 55
 
 // do_wizutil
 #define SCMD_REROLL     0
