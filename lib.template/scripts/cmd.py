@@ -11,14 +11,19 @@ def initialize():
 		if name.startswith("_"):			
 			continue
 		try:
-			command = __import__("commands." + name, globals(), locals(), ("commands",)).Command
+			command = __import__("commands." + name, globals(), locals(), ("commands",))
 		except:
 			log_sys("Error importing command " + name)
 			continue
 		try:
+			if "init" in dir(command):
+				command.init()
+		except:
+			log_sys("Error init command " + name)
+			continue
+		try:
 			mud.register_global_command(command.command_text, command.command_text.encode("koi8-r"), command.command, command.position_min, command.level_min, command.unhide_percent)
 			reg_cmd(command.command_text, command.command, command.position_min, command.level_min, command.unhide_percent)
-			log_sys("Команда {} зарегистрирована.".format(command.command_text))
 		except:
 			log_sys("[PythonError] Команда {} не зарегистрирована.".format(command.command_text))
 			continue
