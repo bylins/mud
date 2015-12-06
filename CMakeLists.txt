@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(bylins)
+project(bylins CXX)
 
 set(SOURCES
     src/act.comm.cpp
@@ -228,10 +228,14 @@ add_definitions("-DBOOST_PYTHON_STATIC_LIB")
 
 ## Look for required components
 # Python
-set(Python_ADDITIONAL_VERSIONS 3.5)
-# If you have more than one Python version and want to use other one,
-# just comment out previous command and uncomment the following:
-#set(Python_ADDITIONAL_VERSIONS 2.7)
+# You can specify preferred Python version using cmake command line parameter. Like this:
+#     $ cmake -DPY_VERSION=3.4 ..
+# or 
+#     $ cmake -DPY_VERSION=2.7 ..
+option(PY_VERSION "Preferred Python version")
+if (PY_VERSION)
+    set(Python_ADDITIONAL_VERSIONS ${PY_VERSION})
+endif ()
 
 find_package(PythonLibs)
 if (NOT PYTHONLIBS_FOUND)
@@ -312,14 +316,14 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif ()
 
 # Copy lib.template content here
-add_custom_target(libTemplate)
+add_custom_target(lib_directory)
 if (NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-    add_custom_command(TARGET libTemplate
+    add_custom_command(TARGET lib_directory
         POST_BUILD
         DEPENDS ${CMAKEBINARY_DIR}/lib
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/lib.template ${CMAKE_BINARY_DIR}/lib)
 endif ()
 
-add_dependencies(circle libTemplate)
+add_dependencies(circle lib_directory)
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :
