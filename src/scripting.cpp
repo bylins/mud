@@ -470,6 +470,12 @@ void set_max_move(const sh_int v)
 	ch->set_max_move(v);
 }
 
+const char* get_email() const
+{
+	Ensurer ch(*this);
+	return GET_EMAIL(ch);
+}
+
 const char* get_pad(const int v) const
 {
 	Ensurer ch(*this);
@@ -1211,6 +1217,9 @@ void set_vnum(const obj_vnum vnum) {
 };
 
 
+
+
+
 extern obj_rnum top_of_objt;
 extern std::vector < OBJ_DATA * >obj_proto;
 ObjWrapper get_obj_proto(const obj_rnum rnum)
@@ -1235,6 +1244,15 @@ object get_char_equipment(const CharacterWrapper& c, const unsigned num)
 		return object();
 	else
 		return object(ObjWrapper(r));
+}
+
+
+
+void obj_to_char_wrap(const CharacterWrapper& c, ObjWrapper& o)
+{
+	CharacterWrapper::Ensurer ch(c);
+	ObjWrapper::Ensurer obj(o);
+	obj_to_char(obj, ch);
 }
 
 bool flag_is_set(const flag_data& flag, const unsigned f)
@@ -1297,6 +1315,12 @@ void call_later(object callable)
 	objs_to_call_in_main_thread.push_back(callable);
 }
 
+
+
+
+
+
+
 BOOST_PYTHON_MODULE(mud)
 {
 	def("log", mudlog, ( py::arg("msg"), py::arg("msg_type")=DEF, py::arg("level")=LVL_IMMORT, py::arg("channel")=SYSLOG, py::arg("to_file")=TRUE ) ,
@@ -1306,7 +1330,7 @@ BOOST_PYTHON_MODULE(mud)
 	"channel  канал, в который будет записано сообщение (comm.h). в настоящее время может принимать значения constants.SYSLOG, constants.ERRLOG и constants.IMLOG.\n"
 	"to_file  Записывать ли сообщение так же в файл, помимо вывода его иммам");
 	def("send_all", send_to_all,
-"Шлет сообщение msg всем игрокам.");
+"Шлет сообщение msg всем игрокам.");	
 	def("find_skill_num", find_skill_num, "Возвращает номер скила по его названию.");
 	def("find_spell_num", find_spell_num, "Возвращает номер спелла по его названию.");
 	def("get_mob_proto", get_mob_proto, "Возвращает моба из базы прототипов с заданым rnum.");
@@ -1339,6 +1363,7 @@ BOOST_PYTHON_MODULE(mud)
 	ObjectDoesNotExist = handle<>(PyErr_NewException((char*)"mud.ObjectDoesNotExist", PyExc_RuntimeError, NULL));
 	scope().attr("ObjectDoesNotExist") = ObjectDoesNotExist;
 	class_<CharacterWrapper>("Character", "Игровой персонаж.", no_init)
+		.def("obj_to_char", obj_to_char_wrap, "передает объект чару.")
 		.def("send", &CharacterWrapper::send, "Посылает персонажу заданную строку.")
 		.def("page_string", &CharacterWrapper::_page_string, "Отправляет строку персонажу с возможностью постраничного просмотра.")
 		.def("act", &CharacterWrapper::act_on_char, (py::arg("msg"), py::arg("hide_invisible")=false, py::arg("obj")=NULL, py::arg("victim")=NULL, py::arg("act_type")=TO_CHAR), "Классический act (см. comm.cpp).")
@@ -1368,7 +1393,7 @@ BOOST_PYTHON_MODULE(mud)
 		.add_property("wis", &CharacterWrapper::get_wis, &CharacterWrapper::set_wis)
 		.add_property("int", &CharacterWrapper::get_int, &CharacterWrapper::set_int)
 		.add_property("cha", &CharacterWrapper::get_cha, &CharacterWrapper::set_cha)
-
+		.add_property("email", &CharacterWrapper::get_email)
 		.add_property("sex", &CharacterWrapper::get_sex, &CharacterWrapper::set_sex, "Пол персонажа. значения из constants.SEX_XXX")
 		.add_property("weight", &CharacterWrapper::get_weight, &CharacterWrapper::set_weight, "Вес")
 		.add_property("height", &CharacterWrapper::get_height, &CharacterWrapper::set_height, "рост")

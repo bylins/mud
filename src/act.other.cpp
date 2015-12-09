@@ -2061,6 +2061,8 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "магщиты", "mageshields",
 							   "автопризыв", "autonosummon",
 							   "сдемигодам", "sdemigod",
+							   "незрячий", "blind",
+							   "маппер", "mapper",
 							   "\n"
 							 };
 
@@ -2125,7 +2127,9 @@ struct gen_tog_param_type
 		LVL_GOD, SCMD_MISPRINT}, {
 		0, SCMD_BRIEF_SHIELDS}, {
 		0, SCMD_AUTO_NOSUMMON}, {
-		LVL_IMPL, SCMD_SDEMIGOD}
+		LVL_IMPL, SCMD_SDEMIGOD}, {
+		0, SCMD_BLIND}, {
+		0, SCMD_MAPPER}
 };
 
 ACMD(do_mode)
@@ -2376,7 +2380,11 @@ ACMD(do_gen_tog)
 		{"Автоматический режим защиты от призыва выключен.\r\n",
 		 "Вы будете автоматически включать режим защиты от призыва после его использования.\r\n"},
 	        {"Канал для демигодов выключен.\r\n",
-	         "Канал для демигодов включен.\r\n"}
+	         "Канал для демигодов включен.\r\n"},
+		{"Режим слепого игрока недоступен. Выключайте его в главном меню.\r\n",
+		 "Режим слепого игрока недоступен. Включайте его в главном меню.\r\n"},
+		{"Режим для мапперов выключен.\r\n",
+		 "Режим для мапперов включен.\r\n"}
 	};
 
 	if (IS_NPC(ch))
@@ -2447,6 +2455,11 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_SDEMIGOD:
 		result = PRF_TOG_CHK(ch, PRF_SDEMIGOD);
+		break;
+	case SCMD_BLIND:
+		break;
+	case SCMD_MAPPER:
+		result = PRF_TOG_CHK(ch, PRF_MAPPER);
 		break;
 #if defined(HAVE_ZLIB)
 	case SCMD_COMPRESS:
