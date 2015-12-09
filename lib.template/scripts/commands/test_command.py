@@ -1,6 +1,5 @@
 # -*- coding: koi8-r -*-
 import mud
-from utils import log_sys
 
 # сама команда
 command_text = "тест"
