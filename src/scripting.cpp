@@ -2594,9 +2594,15 @@ typedef std::vector<PythonUserCommand> python_command_list_t;
 		check_hiding_cmd(ch, i->unhide_percent);
 		try
 		{
-			PyObject* py_buf = PyBytes_FromStringAndSize(command.c_str(), command.length());
-			object retval = object(handle<>(py_buf));
-			i->callable(CharacterWrapper(ch), retval, args);
+			// send command as bytes
+			PyObject* buffer = PyBytes_FromStringAndSize(command.c_str(), command.length());
+			object cmd = object(handle<>(buffer));
+
+			// send arguments as bytes
+			buffer = PyBytes_FromStringAndSize(args.c_str(), args.length());
+			object arguments = object(handle<>(buffer));
+
+			i->callable(CharacterWrapper(ch), cmd, arguments);
 			return true;
 		} catch(error_already_set const &)
 		{
