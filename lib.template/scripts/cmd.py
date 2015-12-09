@@ -25,7 +25,8 @@ def initialize():
 			mud.register_global_command(command.command_text, command.command_text.encode("koi8-r"), command.command, command.position_min, command.level_min, command.unhide_percent)
 			reg_cmd(command.command_text, command.command, command.position_min, command.level_min, command.unhide_percent)
 		except:
-			log_sys("[PythonError] Команда {} не зарегистрирована.".format(command.command_text))
+			s = "[PythonError] Команда {} не зарегистрирована.".format(command.command_text)
+			log_sys(s.encode("koi8-r"))
 			continue
 
 

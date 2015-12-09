@@ -752,7 +752,7 @@ const char str_goahead[] = { (char)IAC, (char)GA, 0 };
  * The Mac doesn't have gettimeofday either.
  * Borland C++ warns: "Undefined structure 'timezone'"
  */
-void gettimeofday(struct timeval *t, struct timezone *dummy)
+void gettimeofday(struct timeval *t, void *dummy)
 {
 #if defined(CIRCLE_WINDOWS)
 	DWORD millisec = GetTickCount();

@@ -142,7 +142,7 @@ void set_name(const char* name)
 	ch->set_name(name);
 }
 
-void send(const char* msg)
+void send(const string& msg)
 {
 	Ensurer ch(*this);
 	send_to_char(msg, (Character*)ch);
@@ -476,10 +476,14 @@ const char* get_email() const
 	return GET_EMAIL(ch);
 }
 
-const char* get_pad(const int v) const
+const object get_pad(const int v) const
 {
 	Ensurer ch(*this);
-	return ch->get_pad(v);
+	const char* val = ch->get_pad(v);
+	size_t size = strlen(val);
+	PyObject* py_buf = PyBytes_FromStringAndSize(val, size);
+	object retval = object(handle<>(py_buf));
+	return retval;
 }
 
 void set_pad(const int pad, const char* v)
@@ -1315,15 +1319,9 @@ void call_later(object callable)
 	objs_to_call_in_main_thread.push_back(callable);
 }
 
-
-
-
-
-
-
 BOOST_PYTHON_MODULE(mud)
 {
-	def("log", mudlog, ( py::arg("msg"), py::arg("msg_type")=DEF, py::arg("level")=LVL_IMMORT, py::arg("channel")=SYSLOG, py::arg("to_file")=TRUE ) ,
+	def("log", mudlog_python, ( py::arg("msg"), py::arg("msg_type")=DEF, py::arg("level")=LVL_IMMORT, py::arg("channel")=SYSLOG, py::arg("to_file")=TRUE ) ,
 	"Записывает сообщение msg типа msg_type в канал лога channel для уровня level.\n"
 	"\n"
 	"msg_type принимает значения констант из utils.h, defines for mudlog.\n"
@@ -2596,12 +2594,14 @@ typedef std::vector<PythonUserCommand> python_command_list_t;
 		check_hiding_cmd(ch, i->unhide_percent);
 		try
 		{
-			
-			i->callable(CharacterWrapper(ch), command, args);
+			PyObject* py_buf = PyBytes_FromStringAndSize(command.c_str(), command.length());
+			object retval = object(handle<>(py_buf));
+			i->callable(CharacterWrapper(ch), retval, args);
 			return true;
 		} catch(error_already_set const &)
 		{
-			mudlog(std::string("Error executing Python command: " + parse_python_exception()).c_str(),   BRF, LVL_IMPL, SYSLOG, true);
+			std::string msg = std::string("Error executing Python command: " + parse_python_exception());
+			mudlog(msg.c_str(), BRF, LVL_IMPL, SYSLOG, true);
 			return false;
 		}
 	}

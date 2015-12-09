@@ -60,6 +60,7 @@ void temp_log(const char *format, ...);
 void ip_log(const char *ip);
 int touch(const char *path);
 void mudlog(const char *str, int type, int level, int channel, int file);
+void mudlog_python(const string& str, int type, int level, int channel, int file);
 int number(int from, int to);
 int dice(int number, int size);
 bool sprintbit(bitvector_t vektor, const char *names[], char *result, const int print_flag = 0);

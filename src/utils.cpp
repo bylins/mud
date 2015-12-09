@@ -568,7 +568,6 @@ int touch(const char *path)
 	}
 }
 
-
 /*
  * mudlog -- log mud messages to a file & to online imm's syslogs
  * based on syslog by Fen Jul 3, 1992
@@ -614,7 +613,10 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 	}
 }
 
-
+void mudlog_python(const string& str, int type, int level, int channel, int file)
+{
+	mudlog(str.c_str(), type, level, channel, file);
+}
 
 /*
  * If you don't have a 'const' array, just cast it as such.  It's safer

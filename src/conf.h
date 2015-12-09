@@ -52,7 +52,7 @@
 #endif
 
 
-void gettimeofday(struct timeval *t, struct timezone *dummy);
+void gettimeofday(struct timeval *t, void *dummy);
 #else // _WIN32
 // Define if you have <sys/wait.h> that is POSIX.1 compatible.
 #define HAVE_SYS_WAIT_H 1
