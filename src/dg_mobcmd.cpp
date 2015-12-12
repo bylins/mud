@@ -1511,7 +1511,15 @@ ACMD(do_mskillturn)
 	};
 
 	if (isSkill)
-		trg_skillturn(victim, skillnum, skilldiff);
+	{
+		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == KNOW_SKILL)
+			trg_skillturn(victim, skillnum, skilldiff);
+		else 
+		{
+			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
+			mob_log(ch, buf);
+		}
+	}
 	else
 		trg_recipeturn(victim, skillnum, skilldiff);
 }
