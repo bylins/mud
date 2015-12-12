@@ -1878,7 +1878,15 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		}
 	}
 	else
-		send_to_char(world[ch->in_room]->name, ch);
+	{
+		if (PRF_FLAGGED(ch, PRF_MAPPER))
+		{
+			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(IN_ROOM(ch)) ^ 228);
+			send_to_char(buf2, ch);
+		}
+		else    
+			send_to_char(world[ch->in_room]->name, ch);
+	}
 
 	send_to_char(CCNRM(ch, C_NRM), ch);
 	send_to_char("\r\n", ch);
@@ -5406,11 +5414,13 @@ ACMD(do_toggle)
 		" Карта         : %-3s     "
 		" Вход в зону   : %-3s     "
 		" Магщиты (вид) : %s\r\n"
-		" Автопризыв    : %-3s\r\n",
+		" Автопризыв    : %-3s\r\n"
+		" Маппер        : %-3s\r\n",
 		ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)),
 		ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)),
 		(PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS) ? "краткий" : "полный"),
-		ONOFF(PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON)));
+		ONOFF(PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON)),
+		ONOFF(PRF_FLAGGED(ch, PRF_MAPPER)));
 	send_to_char(buf, ch);
 }
 
