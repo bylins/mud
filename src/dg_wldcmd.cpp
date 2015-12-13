@@ -755,7 +755,15 @@ WCMD(do_wskillturn)
 	}
 
 	if (isSkill)
-		trg_skillturn(ch, skillnum, skilldiff);
+	{
+		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == KNOW_SKILL)
+			trg_skillturn(ch, skillnum, skilldiff);
+		else 
+		{
+			sprintf(buf, "wskillturn: несоответсвие устанавливаемого умения классу игрока");
+			wld_log(room, buf);
+		}
+	}
 	else
 		trg_recipeturn(ch, skillnum, skilldiff);
 }

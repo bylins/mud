@@ -2494,14 +2494,14 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	// санка/призма для физ и маг урона
 	if (dam >= 2)
 	{
-		if (AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !flags[IGNORE_PRISM])
+		if (AFF_FLAGGED(victim, AFF_PRISMATICAURA) &&  !(skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
 		{
 			if (dmg_type == PHYS_DMG)
 				dam *= 2;
 			else if (dmg_type == MAGE_DMG)
 				dam /= 2;
 		}
-		if (AFF_FLAGGED(victim, AFF_SANCTUARY) && !flags[IGNORE_SANCT])
+		if (AFF_FLAGGED(victim, AFF_SANCTUARY) &&  !(skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
 		{
 			if (dmg_type == PHYS_DMG)
 				dam /= 2;
@@ -3859,13 +3859,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		//Adept: учитываем резисты от крит. повреждений
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		hit_params.extdamage(ch, victim);
-		if (IS_IMPL(ch) || IS_IMPL(victim))
-		{
-			sprintf(buf, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
-			send_to_char(buf,ch);
-			sprintf(buf, "&RДамага стаба равна = %d&n\r\n", hit_params.dam);
-			send_to_char(buf,victim);
-		}
 		return;
 	}
 
@@ -3917,10 +3910,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 	if (IS_IMPL(ch) || IS_IMPL(victim))
 	{
-		sprintf(buf, "&CДамага равна = %d&n\r\n", hit_params.dam);
+		sprintf(buf, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
 		send_to_char(buf,ch);
-		sprintf(buf, "&RДамага равна = %d&n\r\n", hit_params.dam);
-		send_to_char(buf,victim);
 	}
 
 	// обнуляем флаги, если у нападающего есть лаг

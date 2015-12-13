@@ -1957,8 +1957,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	int k_room = -1;
 	if (!virt && (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k))))
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
-
 	sprinttype(GET_SEX(k), genders, buf);
+	if (IS_NPC(k))
+	{
+		sprinttype(GET_RACE(k) - NPC_RACE_BASIC, npc_race_types, buf2);
+		sprintf(buf,"%s %s", buf, buf2);
+	}
 	sprintf(buf2, " %s '%s' IDNum: [%ld] В комнате [%d] Текущий ID:[%ld]\r\n",
 			(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 			GET_NAME(k), GET_IDNUM(k), k_room, GET_ID(k));

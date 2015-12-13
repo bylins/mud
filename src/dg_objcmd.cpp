@@ -850,7 +850,15 @@ OCMD(do_oskillturn)
 	}
 
 	if (isSkill)
-		trg_skillturn(ch, skillnum, skilldiff);
+	{
+		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == KNOW_SKILL)
+			trg_skillturn(ch, skillnum, skilldiff);
+		else 
+		{
+			sprintf(buf, "oskillturn: несоответсвие устанавливаемого умения классу игрока");
+			obj_log(obj, buf);
+		}
+	}
 	else
 		trg_recipeturn(ch, skillnum, skilldiff);
 }
