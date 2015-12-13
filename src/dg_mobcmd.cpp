@@ -1512,7 +1512,7 @@ ACMD(do_mskillturn)
 
 	if (isSkill)
 	{
-		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == KNOW_SKILL)
+		if (skill_info[skillnum].classknow[GET_CLASS(victim)][GET_KIN(victim)] == KNOW_SKILL)
 			trg_skillturn(victim, skillnum, skilldiff);
 		else 
 		{
