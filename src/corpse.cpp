@@ -277,7 +277,8 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 		if (GET_LEVEL(mob) >= i->mob_lvl 				   
 		    && (!i->max_mob_lvl || GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
 		    && ((i->race_mob < 0) || (GET_RACE(mob) == i->race_mob)) 		// совпадает раса или для всех
-		    && ((i->day_start <= day) && (i->day_end >= day)))			// временной промежуток
+		    && ((i->day_start <= day) && (i->day_end >= day))			// временной промежуток
+		    && (!mob->master || IS_NPC(mob->master))) // не чармис
 		{
 			++(i->mobs);
 			if (i->mobs >= i->prc)
