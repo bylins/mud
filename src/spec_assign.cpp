@@ -51,7 +51,10 @@ SPECIAL(thief);
 SPECIAL(magic_user);
 SPECIAL(bank);
 SPECIAL(torc);
-SPECIAL(Noob::outfit);
+namespace Noob
+{
+SPECIAL(outfit);
+}
 
 void assign_kings_castle(void);
 

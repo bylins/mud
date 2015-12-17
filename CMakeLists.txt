@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.8)
 
 project(bylins CXX)
 
@@ -231,7 +231,7 @@ add_definitions("-DBOOST_PYTHON_STATIC_LIB")
 # You can specify preferred Python version using cmake command line parameter. Like this:
 #     $ cmake -DPY_VERSION=3.4 ..
 # or 
-#     $ cmake -DPY_VERSION=2.7 ..
+#     $ cmake -DPY_VERSION=3.2 ..
 option(PY_VERSION "Preferred Python version")
 if (PY_VERSION)
     set(Python_ADDITIONAL_VERSIONS ${PY_VERSION})
@@ -239,11 +239,23 @@ endif ()
 
 find_package(PythonLibs)
 if (NOT PYTHONLIBS_FOUND)
-    message(ERROR "Python not found.")
+    message(FATAL_ERROR "Python not found.")
+endif ()
+
+if (PYTHONLIBS_VERSION_STRING STRLESS "3.0.0")
+    message(FATAL_ERROR "Python of version 3 or later has not been found (found ${PYTHONLIBS_VERSION_STRING})")
+endif ()
+
+option(EXPLICIT_BP_VERSION "Try to find boost python library with explicit version suffix" NO)
+if (EXPLICIT_BP_VERSION)
+    string(REGEX REPLACE "^([0-9])\\.([0-9]).*$" "-py\\1\\2" BOOSTPYTHON_LIBS_SUFFIX ${PYTHONLIBS_VERSION_STRING})
+    message(STATUS "Using explicit boostpython library suffix '${BOOSTPYTHON_LIBS_SUFFIX}'")
+else ()
+    set(BOOSTPYTHON_LIBS_SUFFIX "")
 endif ()
 
 # Boost
-set(BOOST_MODULES python)
+set(BOOST_MODULES python${BOOSTPYTHON_LIBS_SUFFIX})
 if (CMAKE_HOST_WIN32)
     list(APPEND BOOST_MODULES locale)
 endif ()
@@ -262,7 +274,7 @@ if (CMAKE_HOST_WIN32)
     set_target_properties(circle PROPERTIES LINK_FLAGS_DEBUG "/DEBUG")
     set_target_properties(circle PROPERTIES LINK_FLAGS_TEST "/DEBUG")
 endif ()
-find_package(Boost 1.59 REQUIRED COMPONENTS ${BOOST_MODULES})
+find_package(Boost 1.54 REQUIRED COMPONENTS ${BOOST_MODULES})
 
 # ZLib
 set(ZLIB_ROOT $ENV{ZLIB_ROOT})

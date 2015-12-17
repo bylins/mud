@@ -30,7 +30,10 @@ SPECIAL(horse_keeper);
 SPECIAL(guild_mono);
 SPECIAL(guild_poly);
 SPECIAL(torc);
-SPECIAL(Noob::outfit);
+namespace Noob
+{
+SPECIAL(outfit);
+}
 extern int has_boat(CHAR_DATA *ch);
 
 namespace MapSystem

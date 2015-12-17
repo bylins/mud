@@ -669,7 +669,10 @@ void zlib_free(void *opaque, void *address);
 void SaveGlobalUID(void);
 void boot_world(void);
 void player_affect_update(void);	// In spells.cpp
-void RoomSpells::room_affect_update(void);		// In spells.cpp
+namespace RoomSpells
+{
+void room_affect_update(void);		// In spells.cpp
+}
 void mobile_affect_update(void);
 void mobile_activity(int activity_level, int missed_pulses);
 void process_events(void);
