@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
+set(CMAKE_LEGACY_CYGWIN_WIN32 0) # Remove when CMake >= 2.8.4 is required
+
 project(bylins CXX)
 
 set(SOURCES
@@ -224,7 +226,6 @@ set(CMAKE_EXE_LINKER_FLAGS_TEST "")
 set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
 
 add_executable(circle ${SOURCES} ${HEADERS})
-add_definitions("-DBOOST_PYTHON_STATIC_LIB")
 
 ## Look for required components
 # Python
@@ -246,22 +247,34 @@ if (PYTHONLIBS_VERSION_STRING STRLESS "3.0.0")
     message(FATAL_ERROR "Python of version 3 or later has not been found (found ${PYTHONLIBS_VERSION_STRING})")
 endif ()
 
-option(EXPLICIT_BP_VERSION "Try to find boost python library with explicit version suffix" NO)
-if (EXPLICIT_BP_VERSION)
-    string(REGEX REPLACE "^([0-9])\\.([0-9]).*$" "-py\\1\\2" BOOSTPYTHON_LIBS_SUFFIX ${PYTHONLIBS_VERSION_STRING})
-    message(STATUS "Using explicit boostpython library suffix '${BOOSTPYTHON_LIBS_SUFFIX}'")
+if (NOT CYGWIN)
+    option(EXPLICIT_BP_VERSION "Try to find boost python library with explicit version suffix" NO)
+    if (EXPLICIT_BP_VERSION)
+        string(REGEX REPLACE "^([0-9])\\.([0-9]).*$" "-py\\1\\2" BOOSTPYTHON_LIBS_SUFFIX ${PYTHONLIBS_VERSION_STRING})
+        message(STATUS "Using explicit boostpython library suffix '${BOOSTPYTHON_LIBS_SUFFIX}'")
+    else ()
+        set(BOOSTPYTHON_LIBS_SUFFIX "")
+    endif ()
 else ()
-    set(BOOSTPYTHON_LIBS_SUFFIX "")
+    set(BOOSTPYTHON_LIBS_SUFFIX "3")
 endif ()
 
 # Boost
+
 set(BOOST_MODULES python${BOOSTPYTHON_LIBS_SUFFIX})
 if (CMAKE_HOST_WIN32)
     list(APPEND BOOST_MODULES locale)
 endif ()
 
 set(Boost_NO_SYSTEM_PATHS ON)
-set(Boost_USE_STATIC_LIBS ON)
+add_definitions("-DBOOST_PYTHON_STATIC_LIB")
+if (NOT CYGWIN)
+    set(Boost_USE_STATIC_LIBS ON)
+else ()
+endif ()
+if (DEFINED ENV{DEBUG_BOOST_FIND})
+    set(Boost_DEBUG ON)
+endif ()
 
 # In case of you have more than one Visual Studio and want to use specific version, uncomment the following three lines and specify compiler you want
 if (CMAKE_HOST_WIN32)
@@ -292,7 +305,7 @@ target_link_libraries(circle
 if (CMAKE_HOST_UNIX)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set(CMAKE_CXX_FLAGS_RELEASE "-ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV")
-        set(CMAKE_CXX_FLAGS_DEBUG "-D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC")
+        set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC")
         set(CMAKE_CXX_FLAGS_TEST  "-ggdb3 -Wall -Wextra -Wno-unused-parameter -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH")
         set(CMAKE_CXX_FLAGS_FASTTEST "-ggdb3 -O3 -Wall -DNOCRYPT -DTEST_BUILD")
 
@@ -304,7 +317,12 @@ if (CMAKE_HOST_UNIX)
     endif()
 
     # Suppose that UNIX hosts support epoll by default EPOLL>>>
-    option(HAS_EPOLL "Does system support epoll call?" ON)
+    if (NOT CYGWIN)
+        option(HAS_EPOLL "Does system support epoll call?" ON)
+    else ()
+        # EPOLL>>> ... if it is not Cygwin ... EPOLL>>>
+        option(HAS_EPOLL "Does system support epoll call?" OFF)
+    endif ()
 elseif (CMAKE_HOST_WIN32)
     set(CMAKE_CXX_FLAGS_RELEASE "-DBOOST_ENABLE_ASSERT_HANDLER")
     set(CMAKE_CXX_FLAGS_DEBUG "")
