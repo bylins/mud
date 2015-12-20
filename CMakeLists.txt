@@ -260,7 +260,6 @@ else ()
 endif ()
 
 # Boost
-
 set(BOOST_MODULES python${BOOSTPYTHON_LIBS_SUFFIX})
 if (CMAKE_HOST_WIN32)
     list(APPEND BOOST_MODULES locale)
@@ -293,6 +292,13 @@ find_package(Boost 1.54 REQUIRED COMPONENTS ${BOOST_MODULES})
 set(ZLIB_ROOT $ENV{ZLIB_ROOT})
 find_package(ZLIB REQUIRED)
 
+# Iconv
+find_path(ICONV_INCLUDE_DIR iconv.h) 
+find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
+if (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES) 
+	set(ICONV_FOUND TRUE) 
+endif () 
+
 include_directories(src
     ${Boost_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
@@ -302,9 +308,15 @@ target_link_libraries(circle
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES})
 
+if (ICONV_FOUND)
+    add_definitions("-DHAVE_ICONV")
+    include_directories(${ICONV_INCLUDE_DIR})
+    target_link_libraries(circle ${ICONV_LIBRARIES})
+endif ()
+
 if (CMAKE_HOST_UNIX)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS_RELEASE "-ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV")
+        set(CMAKE_CXX_FLAGS_RELEASE "-ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER")
         set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC")
         set(CMAKE_CXX_FLAGS_TEST  "-ggdb3 -Wall -Wextra -Wno-unused-parameter -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH")
         set(CMAKE_CXX_FLAGS_FASTTEST "-ggdb3 -O3 -Wall -DNOCRYPT -DTEST_BUILD")
