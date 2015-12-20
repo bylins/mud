@@ -1,9 +1,6 @@
 // $RCSfile$     $Date$     $Revision$
 // Part of Bylins http://www.mud.ru
 
-#include <fstream>
-#include <map>
-#include <vector>
 #include "corpse.hpp"
 #include "constants.h"
 #include "db.h"
@@ -19,7 +16,20 @@
 #include "house.h"
 #include "parse.hpp"
 #include "obj.hpp"
+
 #include <boost/algorithm/string.hpp>
+
+#include <fstream>
+#include <map>
+#include <vector>
+#include <string>
+
+// see http://stackoverflow.com/questions/20145488/cygwin-g-stdstoi-error-stoi-is-not-a-member-of-std
+#if defined __CYGWIN__
+#include <cstdlib>
+#define stoi(x) strtol(x.c_str(),0,10)
+#endif
+
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
 extern void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload);
