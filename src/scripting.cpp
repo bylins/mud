@@ -1375,6 +1375,7 @@ BOOST_PYTHON_MODULE(mud)
 		.add_property("class", &CharacterWrapper::get_class, &CharacterWrapper::set_class)
 		.add_property("level", &CharacterWrapper::get_level, &CharacterWrapper::set_level)
 		.add_property("UID", &CharacterWrapper::get_uid)
+		/*
 		.add_property("exp", &CharacterWrapper::get_exp, &CharacterWrapper::set_exp)
 		.add_property("remort", &CharacterWrapper::get_remort)
 		.add_property("gold", &CharacterWrapper::get_gold, &CharacterWrapper::set_gold)
@@ -1436,6 +1437,7 @@ BOOST_PYTHON_MODULE(mud)
 		.def("quested_get", &CharacterWrapper::quested_get_text, "Возвращает строку квестовой информации, сохраненной под заданым номером vnum.")
 		.add_property("quested_text", &CharacterWrapper::quested_print, "Вся информация по квестам в текстовом виде.")
 		.add_property("wait", &CharacterWrapper::get_wait, &CharacterWrapper::set_wait, "Сколько циклов ждать")
+		/**/
 	;
 
 	class_<affected_t>("ObjAffectedArray", "Массив из шести модификаторов объекта.", no_init)
