@@ -52,6 +52,7 @@ struct global_drop
 	int day_start; // начиная с какого дня (игрового) шмотка может выпасть с моба и ... 
 	int day_end; // ... кончая тем днем, после которого, шмотка перестанет выпадать из моба
 	int race_mob; // тип моба, с которого падает данная шмотка (-1 все)
+	int random; // процент выпадения (1..1000)
 	// список внумов с общим дропом (дропается первый возможный)
 	// для внумов из списка учитывается поле максимума в мире
 /*#define NPC_RACE_BASIC			100   - номера рас
@@ -150,6 +151,9 @@ void init()
 		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
 		int day_end = Parse::attr_int_t(node, "day_end");
 		int race_mob = Parse::attr_int_t(node, "race_mob"); 
+		int random = Parse::attr_int_t(node, "random"); 
+		if (random == -1)
+			random = 1000;
 		if (day_start == -1)
 		{
 			day_end = 360;
@@ -165,8 +169,8 @@ void init()
 			return;
 		}
 		snprintf(buf, MAX_STRING_LENGTH,
-					"GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d)",
-					obj_vnum, mob_lvl, chance, max_mob_lvl, day_start, day_end, race_mob);
+					"GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, random=%d)",
+					obj_vnum, mob_lvl, chance, max_mob_lvl, day_start, day_end, race_mob, random);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		global_drop tmp_node;
 		tmp_node.vnum = obj_vnum;
@@ -176,6 +180,7 @@ void init()
 		tmp_node.day_start = day_start;
 		tmp_node.day_end = day_end;
 		tmp_node.race_mob = race_mob;
+		tmp_node.random = random;
 
 
 		if (obj_vnum >= 0)
@@ -288,7 +293,8 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 		    && (!i->max_mob_lvl || GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
 		    && ((i->race_mob < 0) || (GET_RACE(mob) == i->race_mob)) 		// совпадает раса или для всех
 		    && ((i->day_start <= day) && (i->day_end >= day))			// временной промежуток
-		    && (!mob->master || IS_NPC(mob->master))) // не чармис
+		    && (!mob->master || IS_NPC(mob->master)) // не чармис	
+		    && (number(1, 1000) <= i->random)) //если установлен рандом
 		{
 			++(i->mobs);
 			if (i->mobs >= i->prc)
