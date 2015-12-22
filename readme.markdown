@@ -93,7 +93,11 @@
 
 ## Запуск
 
-Если вы собирали проект из Makefile'ов, то в директории с проектом появится исполняемый файл circle. В случае Visual Studio - она покажет, куда сохранила исполняемый файл. Например:
+Если вы собирали проект из Makefile'ов, то в директории с проектом появится исполняемый файл circle. Поэтому просто запускаем его:
+
+    $ ./circle
+
+В случае Visual Studio - она покажет, куда сохранила исполняемый файл. Например:
 
     3>  circle.vcxproj -> S:\repositories\hg\mud\build\Debug\circle.exe
     4>------ Build started: Project: ALL_BUILD, Configuration: Debug x64 ------
