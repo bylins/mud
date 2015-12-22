@@ -124,7 +124,7 @@
 
 Второй же способ - прямая передача сообщения:
 
-    hg commit -m "UMESSAGE" -u "UNAME <UEMAIL>"
+    $ hg commit -m "UMESSAGE" -u "UNAME <UEMAIL>"
 
 *UNAME* – должно быть Вашим именем на сайте bitbucket.com.  
 *UEMAIL* – должен быть Вашей почтой, указанной при регистрации на bitbucket.com.  
