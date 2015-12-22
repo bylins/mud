@@ -368,6 +368,9 @@ if (NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/lib.template ${CMAKE_BINARY_DIR}/lib)
 endif ()
 
+add_custom_target(changelog ALL)
+add_custom_command(OUTPUT changelog COMMAND LANGUAGE=en_US.UTF-8 HGENCODING=utf-8 hg log -v -M > changelog)
+
 add_dependencies(circle lib_directory)
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :
