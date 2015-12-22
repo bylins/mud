@@ -11,7 +11,7 @@
 
 Система сборки данного проекта была изменена на CMake, дабы унифицировать сборку под различными платформами.
 
-Сам проект может быть взят по адресу [https://bitbucket.com/kvirund/mud](https://bitbucket.com/kvirund/mud). Оригинальный проект находится по адресу [https://bitbucket.com/bylins/mud](https://bitbucket.com/bylins/mud) однако, в момент написания данного документа он не поддерживает сборку CMake'ом.
+Сам проект может быть взят по адресу [https://bitbucket.com/bylins/mud](https://bitbucket.com/bylins/mud).
 
 Из командной строки это делается следующим образом:
 
