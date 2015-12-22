@@ -5064,7 +5064,7 @@ int get_test_hp(int lvl)
 {
 	if (lvl > 0 && lvl <= 50)
 	{
-		return test_hp[lvl];
+		return test_hp[lvl - 1];
 	}
 	return 1;
 }
