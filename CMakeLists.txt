@@ -335,6 +335,11 @@ if (CMAKE_HOST_UNIX)
         # EPOLL>>> ... if it is not Cygwin ... EPOLL>>>
         option(HAS_EPOLL "Does system support epoll call?" OFF)
     endif ()
+
+    # On Unix systems will make changelog file.
+    add_custom_target(changelog ALL)
+    add_custom_command(TARGET changelog
+        COMMAND LANGUAGE=en_US.UTF-8 HGENCODING=utf-8 hg log -v -M > changelog)
 elseif (CMAKE_HOST_WIN32)
     set(CMAKE_CXX_FLAGS_RELEASE "-DBOOST_ENABLE_ASSERT_HANDLER")
     set(CMAKE_CXX_FLAGS_DEBUG "")
@@ -367,9 +372,6 @@ if (NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
         DEPENDS ${CMAKEBINARY_DIR}/lib
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/lib.template ${CMAKE_BINARY_DIR}/lib)
 endif ()
-
-add_custom_target(changelog ALL)
-add_custom_command(OUTPUT changelog COMMAND LANGUAGE=en_US.UTF-8 HGENCODING=utf-8 hg log -v -M > changelog)
 
 add_dependencies(circle lib_directory)
 
