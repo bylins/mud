@@ -3029,18 +3029,17 @@ void utf8_to_koi(char *str_i, char *str_o)
 
 	if ((cd = iconv_open("KOI8-R", "UTF-8")) == (iconv_t) - 1)
 	{
-		printf("utf8_to_koi: iconv_open error\n");
+		perror("utf8_to_koi: iconv_open error");
 		return;
 	}
 	len_i = strlen(str_i);
 	if ((i=iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
 	{
-		printf("utf8_to_koi: iconv error\n");
-		// return;
+		perror("utf8_to_koi: iconv error");
 	}
 	if (iconv_close(cd) == -1)
 	{
-		printf("utf8_to_koi: iconv_close error\n");
+		perror("utf8_to_koi: iconv_close error");
 		return;
 	}
 }
