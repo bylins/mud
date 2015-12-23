@@ -29,6 +29,7 @@ set(SOURCES
     src/config.cpp
     src/constants.cpp
     src/corpse.cpp
+    src/craft.cpp
     src/db.cpp
     src/deathtrap.cpp
     src/depot.cpp
@@ -136,6 +137,7 @@ set(HEADERS
     src/conf.h
     src/constants.h
     src/corpse.hpp
+    src/craft.hpp
     src/db.h
     src/deathtrap.hpp
     src/depot.hpp
@@ -369,7 +371,7 @@ add_custom_target(lib_directory)
 if (NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
     add_custom_command(TARGET lib_directory
         POST_BUILD
-        DEPENDS ${CMAKEBINARY_DIR}/lib
+        DEPENDS ${CMAKE_BINARY_DIR}/lib
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/lib.template ${CMAKE_BINARY_DIR}/lib)
 endif ()
 
