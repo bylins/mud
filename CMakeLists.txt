@@ -367,12 +367,212 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif ()
 
 # Copy lib.template content here
-add_custom_target(lib_directory)
 if (NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+    set(TEMPLATE_DIRS
+        misc
+        misc/craft
+        plralias
+        plralias/F-J
+        plralias/K-O
+        plralias/A-E
+        plralias/ZZZ
+        plralias/P-T
+        plralias/U-Z
+        scripts
+        scripts/plugins
+        scripts/commands
+        plrstuff
+        plrstuff/depot
+        plrstuff/depot/F-J
+        plrstuff/depot/K-O
+        plrstuff/depot/A-E
+        plrstuff/depot/ZZZ
+        plrstuff/depot/P-T
+        plrstuff/depot/U-Z
+        plrstuff/shop
+        plrstuff/house
+        plrs
+        plrs/F-J
+        plrs/K-O
+        plrs/A-E
+        plrs/ZZZ
+        plrs/P-T
+        plrs/U-Z
+        text
+        text/help
+        plrobjs
+        plrobjs/F-J
+        plrobjs/K-O
+        plrobjs/A-E
+        plrobjs/ZZZ
+        plrobjs/P-T
+        plrobjs/U-Z
+        etc
+        etc/board
+        stat
+        world
+        world/trg
+        world/obj
+        world/mob
+        world/shp
+        world/wld
+        world/zon)
+    set(TEMPLATE_FILES
+        misc/ztypes.lst
+        misc/mobrace.xml
+        misc/makeitems.lst
+        misc/index
+        misc/insert_wanted.lst
+        misc/skillvariables.lst
+        misc/remort.xml
+        misc/messages
+        misc/playerraces.xml
+        misc/guards.xml
+        misc/morphs.xml
+        misc/specials.lst
+        misc/grouping
+        misc/portals.lst
+        misc/privilege.lst
+        misc/globaluid
+        misc/criterion.xml
+        misc/socials
+        misc/noob_help.xml
+        misc/features.lst
+        misc/xnames
+        misc/setstuff.lst
+        misc/schedule
+        misc/reset_stats.xml
+        misc/skills.xml
+        misc/deny_pk_zones.lst
+        misc/stuff.lst.template
+        misc/full_set_drop.xml
+        misc/basic.lst
+        misc/offtop.lst
+        misc/magic.lst
+        misc/apr_name
+        misc/items.lst
+        misc/convert
+        misc/guilds.lst
+        misc/dis_name
+        misc/classskills.xml
+        misc/im.lst
+        misc/new_name
+        misc/celebrates.xml
+        misc/global_drop.xml
+        misc/classrecipe.lst
+        misc/birthplaces.xml
+        scripts/plugins/__init__.py
+        scripts/cmd.py
+        scripts/events.py
+        scripts/console.py
+        scripts/commands/test_command.py
+        scripts/utils.py
+        scripts/pluginhandler.py
+        plrstuff/depot/purge.db
+        plrstuff/depot/parcel.db
+        plrstuff/depot/depot.db
+        plrstuff/titles.lst
+        plrstuff/crc.lst
+        plrstuff/glory_const.xml
+        plrstuff/shop/item_desc.xml
+        plrstuff/shop/shops.xml
+        plrstuff/named_stuff_list.xml
+        plrstuff/glory.lst
+        plrstuff/exchange.backup
+        plrstuff/registered-email.lst
+        plrstuff/exchange.db
+        plrstuff/house/index
+        plrstuff/global_drop.tmp
+        plrstuff/mob_stat.xml
+        plrs/players.dup
+        plrs/players.lst
+        text/background
+        text/info
+        text/godnews
+        text/rules
+        text/news
+        text/help/index
+        text/help/info.~hl
+        text/help/feats.hlp
+        text/help/rules.hlp
+        text/help/screen
+        text/help/wizhelp.hlp
+        text/help/slang.hlp
+        text/help/spells.hlp
+        text/help/rules.old.hlp
+        text/help/pk.hlp
+        text/help/zones.hlp
+        text/help/index.mini
+        text/help/im.hlp
+        text/help/skills.hlp
+        text/help/skills_spells_list.hlp
+        text/help/commands.hlp
+        text/help/info.hlp
+        text/help/socials.hlp
+        text/help/clan.hlp
+        text/help/spells.~hl
+        text/handbook
+        text/policies
+        text/imotd
+        text/immlist
+        text/motd
+        text/credits
+        text/greetings
+        text/namerules
+        etc/badsites
+        etc/smtp.xml
+        etc/plrmail
+        etc/badproxy
+        world/trg/1.trg
+        world/trg/index
+        world/trg/2.trg
+        world/trg/40.trg
+        world/obj/index
+        world/obj/2.obj
+        world/obj/40.obj
+        world/obj/1.obj
+        world/obj/3.obj
+        world/mob/index
+        world/mob/2.mob
+        world/mob/1.mob
+        world/mob/40.mob
+        world/shp/index
+        world/shp/40.shp
+        world/wld/index
+        world/wld/2.wld
+        world/wld/40.wld
+        world/wld/3.wld
+        world/wld/1.wld
+        world/zon/index
+        world/zon/2.zon
+        world/zon/1.zon
+        world/zon/3.zon
+        world/zon/40.zon)
+
+    # Replace files if they were changed in template
+    set(TEMPLATE_FILES_LIST)
+    foreach (FILE ${TEMPLATE_FILES})
+        add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/lib/${FILE}
+            DEPENDS ${CMAKE_SOURCE_DIR}/lib.template/${FILE}
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/${FILE} ${CMAKE_BINARY_DIR}/lib/${FILE})
+        list(APPEND TEMPLATE_FILES_LIST ${CMAKE_BINARY_DIR}/lib/${FILE})
+    endforeach ()
+
+    # Make target for lib directory
+    add_custom_target(lib_directory
+        DEPENDS ${TEMPLATE_FILES_LIST})
+
+    # Create root lib directory
     add_custom_command(TARGET lib_directory
         POST_BUILD
-        DEPENDS ${CMAKE_BINARY_DIR}/lib
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/lib.template ${CMAKE_BINARY_DIR}/lib)
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/lib)
+
+    # Make firectories (unconditionally)
+    foreach (DIR ${TEMPLATE_DIRS})
+        add_custom_command(TARGET lib_directory
+            PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/lib/${DIR})
+    endforeach ()
 endif ()
 
 add_dependencies(circle lib_directory)
