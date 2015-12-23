@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="koi8-r">
+<craft>
+    <name>craft1</name>
+
+    <base_skills>
+        <skill id="ID of first required skill" train_threshold="500" <!-- Override skill parameter --> />
+        <skill id="ID of second required skill" />
+    </base_skills>
+
+    <slots>1</slots>
+    <additional_skills>
+        <skill id="ID of first additional skill" train_threshold="1000" <!-- Override skill parameter --> />
+        <skill id="ID of second additional skill" />
+    </additional_skills>
+
+    <receipts>
+        <receipt id="ID of available receipt" />
+    </receipts>
+</craft>

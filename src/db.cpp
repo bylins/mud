@@ -7989,7 +7989,7 @@ void load_guardians()
 
 //Polud тестовый класс для хранения параметров различных рас мобов
 //Читает данные из файла
-const char *MOBRACE_FILE = LIB_MISC"mobrace.xml";
+const char *MOBRACE_FILE = LIB_MISC_MOBRACES "mobrace.xml";
 
 MobRaceListType mobraces_list;
 
