@@ -592,7 +592,8 @@ void assign_feats(void)
 	// у костяного духа появляется умение спасти
 	feato(HAUNTINGSPIRIT_FEAT, "блуждающий дух", NORMAL_FTYPE, TRUE, feat_app);
 //124
-	//
+	// наем наносит серию сильных ударов, но быстро устает
+	feato(RAGE_SNEAK, "ярость змеи", NORMAL_FTYPE, TRUE, feat_app);
 	
 	
 	/*

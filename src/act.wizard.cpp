@@ -187,6 +187,7 @@ ACMD(do_unfreeze);
 ACMD(do_setall);
 ACMD(do_bonus);
 ACMD(do_check_occupation);
+ACMD(do_delete_obj);
 // переменные для бонуса
 
 // время бонуса, в неактивном состоянии -1
@@ -236,6 +237,38 @@ void add_karma(CHAR_DATA * ch, const char * punish , const char * reason)
 	};
 }
 
+ACMD(do_delete_obj)
+{
+	char *iname;
+	int vnum;
+	iname = one_argument(argument, buf);
+	int num = 0;
+	if (!*buf || !isdigit(*buf))
+	{
+		send_to_char("Usage: delete <number>\r\n", ch);
+		return;
+	}
+	if ((vnum = atoi(buf)) < 0)
+	{
+		send_to_char("Указан неверный VNUM объекта !\r\n", ch);
+		return;
+	}
+	for (OBJ_DATA *k = object_list; k; k = k->next)
+	{
+		if (GET_OBJ_VNUM(k) == vnum)
+		{
+			k->set_timer(0);
+			num++;
+		}
+	}
+	num += Depot::delete_obj(vnum);
+	num += Clan::delete_obj(vnum);
+	num += Parcel::delete_obj(vnum);
+
+	sprintf(buf2, "Удалено всего предметов: %d", num);
+	send_to_char(buf2, ch);
+	
+}
 
 
 int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , long times)

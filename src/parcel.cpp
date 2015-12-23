@@ -919,6 +919,27 @@ void renumber_obj_rnum(int rnum)
 	}
 }
 
+
+int delete_obj(int vnum)
+{
+	int num = 0;
+	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
+	{
+		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+		{
+			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
+			{
+				if (GET_OBJ_VNUM(it3->obj_) == vnum)
+				{
+					it3->obj_->set_timer(0);
+					num++;
+				}
+			}
+		}
+	}
+	return num;
+}
+
 // * Иммское 'где' для учета предметов на почте.
 int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 {

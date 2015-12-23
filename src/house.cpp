@@ -1457,6 +1457,31 @@ void Clan::HouseLeave(CHAR_DATA * ch)
 		remove_member(it);
 }
 
+// удаляет объект из хранилищ клана
+int Clan::delete_obj(int vnum)
+{
+	int num = 0;
+	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	{
+		OBJ_DATA *temp, *chest;
+		for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->next_content)
+		{
+			if (Clan::is_clan_chest(chest))
+			{
+				for (temp = chest->contains; temp; temp = temp->next_content)
+				{
+					if (GET_OBJ_VNUM(temp) == vnum)
+					{
+						temp->set_timer(0);
+						num++;
+					}
+				}
+			}
+		}
+	}
+	return num;
+}
+
 // * hcontrol outcast имя - отписывание любого персонажа от дружины, кроме воеводы.
 void Clan::hcon_outcast(CHAR_DATA *ch, std::string &buffer)
 {
@@ -4927,6 +4952,9 @@ void Clan::clan_invoice(CHAR_DATA *ch, bool enter)
 		}
 	}
 }
+
+
+
 
 int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 {

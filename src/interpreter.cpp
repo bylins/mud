@@ -415,6 +415,7 @@ ACMD(do_unfreeze);
 ACMD(do_bonus);
 ACMD(do_summon);
 ACMD(do_check_occupation);
+ACMD(do_delete_obj);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -752,6 +753,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"убрать", POS_RESTING, do_remove, 0, 0, 400},
 	{"ударить", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
 	{"удавить", POS_FIGHTING, do_strangle, 0, 0, -1},
+	{ "удалить", POS_STANDING, do_delete_obj, LVL_IMMORT, 0, 0 },
 	{"уклониться", POS_FIGHTING, do_deviate, 1, 0, -1},
 	{"украсть", POS_STANDING, do_steal, 1, 0, 0},
 	{"укрепить", POS_RESTING, do_armored, 0, 0, -1},

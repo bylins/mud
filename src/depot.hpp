@@ -25,6 +25,8 @@ bool is_depot(OBJ_DATA *obj);
 void show_depot(CHAR_DATA *ch);
 bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj);
 void take_depot(CHAR_DATA *ch, char *arg, int howmany);
+int delete_obj(int vnum);
+
 
 int get_total_cost_per_day(CHAR_DATA *ch);
 void show_stats(CHAR_DATA *ch);

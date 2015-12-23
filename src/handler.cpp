@@ -4068,11 +4068,11 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 								 min_stats2[(int) GET_CLASS(ch)][5] - 1 -
 								 min_stats2[(int) GET_CLASS(ch)][2], 0, 100);
 
-	if (GET_LEVEL(ch) > 14 && GET_LEVEL(ch) <= 26)
+	/*if (GET_LEVEL(ch) > 14 && GET_LEVEL(ch) <= 26)
 		stat_overlimit =
 			VPOSI(stat_overlimit - MIN(GET_REMORT(ch), 16) * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0), 0, 100);
 	else if (GET_LEVEL(ch) > 26)
-		stat_overlimit = VPOSI(stat_overlimit - MIN(GET_REMORT(ch), 16), 0, 100);
+		stat_overlimit = VPOSI(stat_overlimit - MIN(GET_REMORT(ch), 16), 0, 100);*/
 
 	float price = 0;
 	float real_cha = 1.0 + GET_LEVEL(ch) / 2.0 + stat_overlimit / 2.0;

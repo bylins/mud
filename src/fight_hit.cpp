@@ -1409,7 +1409,7 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		// Проверяем, наем ли наш игрок
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT))
 		    if (ch->get_skill(SKILL_NOPARRYHIT))
-			bs_coeff += ch->get_skill(SKILL_NOPARRYHIT)/(number(30,40));
+				bs_coeff += ch->get_skill(SKILL_NOPARRYHIT)/(number(30, 50));
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
@@ -3781,14 +3781,21 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		if (tmp_dam > 0)
 		{
 			// 0 раунд и стаб = 40% скрытого, дальше раунд * 0.4 (до 5 раунда)
-			int round_dam = tmp_dam * 4 / 10;
+			int round_dam = tmp_dam * 7 / 10;
+			if (can_use_feat(ch, RAGE_SNEAK))
+			{
+				if (ROUND_COUNTER(ch) >= 1 && ROUND_COUNTER(ch) <= 3)
+				{
+					hit_params.dam *= ROUND_COUNTER(ch);
+				}
+			}
 			if (hit_params.skill_num == SKILL_BACKSTAB || ROUND_COUNTER(ch) <= 0)
 			{
 				hit_params.dam += round_dam;
 			}
 			else
 			{
-				hit_params.dam += round_dam * MIN(5, ROUND_COUNTER(ch));
+				hit_params.dam += round_dam * MIN(3, ROUND_COUNTER(ch));
 			}
 		}
 	}
@@ -3846,9 +3853,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			//мобы игнорят вполовину
 			hit_params.flags.set(HALF_IGNORE_ARMOR);
 		}
-		// Наемы фигачат в полтора раза больнее
+		// Наемы фигачат в три раза больнее
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT))
-		    hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * 1.5;
+		    hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * 3;
 		else
 		    hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 		if (number(1, 100) < calculate_crit_backstab_percent(ch)
