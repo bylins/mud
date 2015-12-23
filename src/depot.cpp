@@ -705,6 +705,38 @@ void CharNode::update_online_item()
 	save_purged_list();
 }
 
+
+int delete_obj(int vnum)
+{
+	int num = 0;
+	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
+	{
+		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
+		{
+			if (GET_OBJ_VNUM(*obj_it) == vnum)
+			{
+				(*obj_it)->set_timer(0);
+				num++;
+			}
+		}
+	}
+	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
+	{
+
+		for (TimerListType::iterator k = it->second.offline_list.begin(),
+			kend = it->second.offline_list.end(); k != kend; ++k)
+		{
+			if (vnum == k->vnum)
+			{
+				k->timer = 0;
+				num++;
+			}
+		}
+	}
+	return num;
+}
+
+
 /**
 * Снятие ренты за период в оффлайне с удалением шмота при нехватке денег.
 * \return true - нужно удалять запись в списки хранилищ
@@ -772,6 +804,7 @@ void CharNode::update_offline_item(long uid)
 				obj_it->timer = obj->get_timer();
 				continue;
 			}
+			extract_obj(obj);
 			depot_log("update_offline_item %s: zero timer %d %d", name.c_str(), obj_it->vnum, obj_it->uid);
 			add_purged_message(uid, obj_it->vnum, obj_it->uid);
 			// шмотка уходит в лоад			
@@ -1572,6 +1605,9 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 	}
 	return count;
 }
+
+
+
 
 int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 {

@@ -197,6 +197,7 @@ public:
 	bool is_clan_member(int unique);//Возвращает true если чар с данным unique в клане
 	bool is_alli_member(int unique);//Возвращает true если чар с данным unique в альянсе
 	static void clan_invoice(CHAR_DATA *ch, bool enter);
+	static int delete_obj(int vnum);
 	static void save_pk_log();
 
 	static bool put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest);

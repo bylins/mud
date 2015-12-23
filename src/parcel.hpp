@@ -12,6 +12,8 @@
 namespace Parcel
 {
 
+
+int delete_obj(int vnum);
 void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg);
 void print_sending_stuff(CHAR_DATA *ch);
 int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name);
