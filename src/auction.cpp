@@ -427,8 +427,12 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			send_to_char("Лот пуст.\r\n", ch);
 			return false;
 		}
+		if (GET_LEVEL(GET_LOT(lot)->seller) >= LVL_IMMORT)
+		{
+			send_to_char("Неисповедимы пути божественные.\r\n", ch);
+			return false;
+		}
 		obj = GET_LOT(lot)->item;
-
 		sprintf(buf, "Предмет \"%s\", ", obj->short_description);
 		if ((GET_OBJ_TYPE(obj) == ITEM_WAND)
 				|| (GET_OBJ_TYPE(obj) == ITEM_STAFF))
