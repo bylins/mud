@@ -281,6 +281,7 @@ extern char *house_rank[];
 extern struct pclean_criteria_data pclean_criteria[];
 extern void LoadProxyList();
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
+
 /*
 extern struct global_drop_obj;
 extern std::vector<global_drop_obj> drop_list_obj;*/
@@ -288,6 +289,7 @@ extern std::vector<global_drop_obj> drop_list_obj;*/
 
 
 int strchrn (const char *s, int c) {
+	
  int n=-1;
  while (*s) {
   n++;

@@ -140,7 +140,7 @@ using std::bitset;
 #define HARVESTLIFE_FEAT		121 // жатва жизни
 #define LOYALASSIST_FEAT		122 // верный помощник
 #define HAUNTINGSPIRIT_FEAT		123 // блуждающий дух
-#define RAGE_SNEAK				124 // ярость змеи
+#define SNEAKRAGE_FEAT			124 // ярость змеи
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух

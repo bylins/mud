@@ -7,9 +7,11 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-
 void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer);
 OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer = NULL);
+
+
+
 
 namespace GlobalDrop
 {
@@ -18,6 +20,7 @@ void init();
 void save();
 void renumber_obj_rnum(int rnum);
 bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch);
+void reload_tables();
 
 // период сохранения временного файла с мобами (в минутах)
 const int SAVE_PERIOD = 10;
@@ -27,6 +30,29 @@ const int BOOK_UPGRD_VNUM = 1920;
 const int WARR1_ENCHANT_VNUM = 1921;
 const int WARR2_ENCHANT_VNUM = 1922;
 const int WARR3_ENCHANT_VNUM = 1923;
+
+class table_drop
+{
+private:
+	// внумы мобов
+	std::vector<int> mobs;
+	// шанс выпадения 0 от 1000
+	int chance;
+	// сколько мобов брать из списка для таблицы дропа
+	int count_mobs;
+	// список мобов, с которых в данный момент будет падать дроп
+	std::vector<int> drop_mobs;
+	// предмет, который будет падать с мобов
+	int vnum_obj;
+public:
+	table_drop(std::vector<int> mbs, int chance_, int count_mobs_, int vnum_obj_);
+	void reload_table();
+	// возвратит true, если моб найден в таблице и прошел шанс
+	bool check_mob(int vnum);
+	int get_vnum();
+
+};
+
 
 } // namespace GlobalDrop
 

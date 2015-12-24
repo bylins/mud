@@ -593,7 +593,7 @@ void assign_feats(void)
 	feato(HAUNTINGSPIRIT_FEAT, "блуждающий дух", NORMAL_FTYPE, TRUE, feat_app);
 //124
 	// наем наносит серию сильных ударов, но быстро устает
-	feato(RAGE_SNEAK, "ярость змеи", NORMAL_FTYPE, TRUE, feat_app);
+	feato(SNEAKRAGE_FEAT, "ярость змеи", NORMAL_FTYPE, TRUE, feat_app);
 	
 	
 	/*

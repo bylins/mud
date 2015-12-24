@@ -3780,9 +3780,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		int tmp_dam = calculate_noparryhit_dmg(ch, hit_params.wielded);
 		if (tmp_dam > 0)
 		{
-			// 0 раунд и стаб = 40% скрытого, дальше раунд * 0.4 (до 5 раунда)
+			// 0 раунд и стаб = 70% скрытого, дальше раунд * 0.4 (до 5 раунда)
 			int round_dam = tmp_dam * 7 / 10;
-			if (can_use_feat(ch, RAGE_SNEAK))
+			if (can_use_feat(ch, SNEAKRAGE_FEAT))
 			{
 				if (ROUND_COUNTER(ch) >= 1 && ROUND_COUNTER(ch) <= 3)
 				{
@@ -3854,7 +3854,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			hit_params.flags.set(HALF_IGNORE_ARMOR);
 		}
 		// Наемы фигачат в три раза больнее
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT))
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim))
 		    hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * 3;
 		else
 		    hit_params.dam *= backstab_mult(GET_LEVEL(ch));
@@ -3866,6 +3866,11 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		//Adept: учитываем резисты от крит. повреждений
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		hit_params.extdamage(ch, victim);
+		// режем стаб
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !IS_NPC(ch))
+		{
+			hit_params.dam = MIN(8000 + GET_REMORT(ch) * 200, hit_params.dam);
+		}
 		return;
 	}
 
