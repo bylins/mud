@@ -16,7 +16,7 @@
 #include "house.h"
 #include "parse.hpp"
 #include "obj.hpp"
-
+#include "random.hpp"
 #include <boost/algorithm/string.hpp>
 
 #include <fstream>
@@ -35,9 +35,15 @@ extern MobRaceListType mobraces_list;
 extern void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload);
 extern bool check_unlimited_timer(OBJ_DATA *obj);
 
+
+
+
+
+
+
 namespace GlobalDrop
 {
-
+std::vector<table_drop> tables_drop;
 typedef std::map<int /* vnum */, int /* rnum*/> OlistType;
 
 struct global_drop
@@ -89,6 +95,48 @@ struct global_drop_obj
 };
 
 
+table_drop::table_drop(std::vector<int> mbs, int chance_, int count_mobs_, int vnum_obj_)
+{
+	this->mobs = mbs;
+	this->chance = chance_;
+	this->count_mobs = count_mobs_;
+	this->vnum_obj = vnum_obj_;
+	this->reload_table();
+}
+void table_drop::reload_table()
+{
+	this->drop_mobs.clear();
+	for (int i = 0; i < this->count_mobs; i++)
+	{
+		this->drop_mobs.push_back(this->mobs[number(0, this->mobs.size() - 1)]);
+	}
+}
+// возвратит true, если моб найден в таблице и прошел шанс
+bool table_drop::check_mob(int vnum)
+{
+	for (int i = 0; i < this->drop_mobs.size(); i++)
+	{
+		if (this->drop_mobs[i] == vnum)
+		{
+			if (number(0, 1000) < this->chance)
+				return true;
+		}
+	}
+	return false;
+}
+int table_drop::get_vnum()
+{
+	return this->vnum_obj;
+}
+
+void reload_tables()
+{
+	for (int i = 0; i < tables_drop.size(); i++)
+	{
+		tables_drop[i].reload_table();
+	}
+}
+
 typedef std::vector<global_drop> DropListType;
 DropListType drop_list;
 
@@ -118,7 +166,19 @@ void init()
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
-	
+	for (pugi::xml_node node = node_list.child("tdrop"); node; node = node.next_sibling("tdrop"))
+	{
+		int chance = Parse::attr_int(node, "chance");
+		int count_mobs = Parse::attr_int(node, "count_mobs");
+		int vnum_obj = Parse::attr_int(node, "vnum_obj");
+		std::vector<int> list_mobs;
+		for (pugi::xml_node node_ = node.child("mobs"); node_; node_ = node_.next_sibling("mobs"))
+		{
+			list_mobs.push_back(Parse::attr_int(node_, "vnum"));
+		}
+		table_drop tmp(list_mobs, chance, count_mobs, vnum_obj);
+		tables_drop.push_back(tmp);			
+	}
 	for (pugi::xml_node node = node_list.child("freedrop_obj"); node; node = node.next_sibling("freedrop_obj"))
 	{
 		global_drop_obj tmp;
@@ -286,7 +346,23 @@ int get_obj_to_drop(DropListType::iterator &i)
  */
 bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 {
-
+	for (int i = 0; i < tables_drop.size(); i++)
+	{
+		if (tables_drop[i].check_mob(GET_MOB_VNUM(mob)))
+		{			
+			int rnum;
+			if ((rnum = real_object(tables_drop[i].get_vnum())) < 0)
+			{
+				log("Ошибка tdrop. Внум: %d", tables_drop[i].get_vnum());
+				return true;
+			}
+			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
+			sprintf(buf, "Фридроп: упал предмет %s с VNUM: %d", obj_proto[rnum]->short_description, obj_index[rnum].vnum);
+			log(buf);
+			obj_to_corpse(corpse, mob, rnum, false);
+			return true;
+		}
+	}
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i)
 	{ int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
 		if (GET_LEVEL(mob) >= i->mob_lvl 				   
