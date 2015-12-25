@@ -1663,6 +1663,9 @@ private:
 	bool check_owner(exchange_item_data *exch_obj) const;
 };
 
+int get_virtual_race(CHAR_DATA *mob);
+
+
 #endif // _UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
