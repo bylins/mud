@@ -455,7 +455,7 @@ char src_path[4096];
 
 // внумы комнат, где ставятся елки
 // размер массива 57
-const int vnum_room_new_year[57] = { 100,
+const int vnum_room_new_year[58] = { 100,
 	4056,
 	5000,
 	6049,
@@ -476,6 +476,7 @@ const int vnum_room_new_year[57] = { 100,
 	30266,
 	69091,
 	77065,
+	79044,
 	76000,
 	49987,
 	25075,
