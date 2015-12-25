@@ -7,7 +7,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-
+#include <map>
 namespace SetsDrop
 {
 
@@ -31,6 +31,8 @@ void init_xhelp_full();
 void print_timer_str(CHAR_DATA *ch);
 // сейв текущей таблицы дропа и шансов
 void save_drop_table();
+
+std::map<int, int> get_unique_mob();
 
 } // namespace SetsDrop
 

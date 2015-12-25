@@ -48,11 +48,11 @@ typedef std::map<int /* vnum */, int /* rnum*/> OlistType;
 
 struct global_drop
 {
-	global_drop() : vnum(0), mob_lvl(0), max_mob_lvl(0), prc(0), mobs(0), rnum(-1), day_start(-1), day_end(-1), race_mob(-1) {};
+	global_drop() : vnum(0), mob_lvl(0), max_mob_lvl(0), count_mob(0), mobs(0), rnum(-1), day_start(-1), day_end(-1), race_mob(-1) {};
 	int vnum; // внум шмотки, если число отрицательное - есть список внумов
 	int mob_lvl;  // мин левел моба
 	int max_mob_lvl; // макс. левел моба (0 - не учитывается)
-	int prc;  // шансы дропа (каждые Х мобов)
+	int count_mob;  // после каждых убитых в сумме мобов, заданного левела, будет падать дроп
 	int mobs; // убито подходящих мобов
 	int rnum; // рнум шмотки, если vnum валидный
 	int day_start; // начиная с какого дня (игрового) шмотка может выпасть с моба и ... 
@@ -170,7 +170,7 @@ void init()
 	{
 		int chance = Parse::attr_int(node, "chance");
 		int count_mobs = Parse::attr_int(node, "count_mobs");
-		int vnum_obj = Parse::attr_int(node, "vnum_obj");
+		int vnum_obj = Parse::attr_int(node, "obj_vnum");
 		std::vector<int> list_mobs;
 		for (pugi::xml_node node_ = node.child("mobs"); node_; node_ = node_.next_sibling("mobs"))
 		{
@@ -207,7 +207,7 @@ void init()
 		int obj_vnum = Parse::attr_int(node, "obj_vnum");
 		int mob_lvl = Parse::attr_int(node, "mob_lvl");
 		int max_mob_lvl = Parse::attr_int(node, "max_mob_lvl");
-		int chance = Parse::attr_int(node, "chance");
+		int count_mob = Parse::attr_int(node, "count_mob");
 		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
 		int day_end = Parse::attr_int_t(node, "day_end");
 		int race_mob = Parse::attr_int_t(node, "race_mob"); 
@@ -220,23 +220,23 @@ void init()
 			day_start = 0;
 			race_mob = -1; // -1 для всех рас
 		}
-		if (obj_vnum == -1 || mob_lvl <= 0 || chance <= 0 || max_mob_lvl < 0)
+		if (obj_vnum == -1 || mob_lvl <= 0 || count_mob <= 0 || max_mob_lvl < 0)
 		{
 			snprintf(buf, MAX_STRING_LENGTH,
 					"...bad drop attributes (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d)",
-					obj_vnum, mob_lvl, chance, max_mob_lvl);
+					obj_vnum, mob_lvl, count_mob, max_mob_lvl);
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
 		snprintf(buf, MAX_STRING_LENGTH,
 					"GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, random=%d)",
-					obj_vnum, mob_lvl, chance, max_mob_lvl, day_start, day_end, race_mob, random);
+					obj_vnum, mob_lvl, count_mob, max_mob_lvl, day_start, day_end, race_mob, random);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		global_drop tmp_node;
 		tmp_node.vnum = obj_vnum;
 		tmp_node.mob_lvl = mob_lvl;
 		tmp_node.max_mob_lvl = max_mob_lvl;
-		tmp_node.prc = chance;
+		tmp_node.count_mob = count_mob;
 		tmp_node.day_start = day_start;
 		tmp_node.day_end = day_end;
 		tmp_node.race_mob = race_mob;
@@ -367,13 +367,13 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 	{ int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
 		if (GET_LEVEL(mob) >= i->mob_lvl 				   
 		    && (!i->max_mob_lvl || GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
-		    && ((i->race_mob < 0) || (GET_RACE(mob) == i->race_mob)) 		// совпадает раса или для всех
+		    && ((i->race_mob < 0) || (GET_RACE(mob) == i->race_mob) || (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
 		    && ((i->day_start <= day) && (i->day_end >= day))			// временной промежуток
 		    && (!mob->master || IS_NPC(mob->master)) // не чармис	
 		    && (number(1, 1000) <= i->random)) //если установлен рандом
 		{
 			++(i->mobs);
-			if (i->mobs >= i->prc)
+			if (i->mobs >= i->count_mob)
 			{
 				int obj_rnum = i->vnum > 0 ? i->rnum : get_obj_to_drop(i);
 				if (((obj_rnum >= 0) && (obj_index[obj_rnum].stored + obj_index[obj_rnum].number < GET_OBJ_MIW(obj_proto[obj_rnum])))

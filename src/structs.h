@@ -355,6 +355,10 @@ enum
 #define NPC_RACE_MAGIC_CREATURE	114
 #define NPC_RACE_LAST			115
 
+// Virtual NPC races
+#define NPC_BOSS				200
+#define NPC_UNIQUE				201
+
 // Sex
 #define SEX_NEUTRAL         0
 #define SEX_MALE            1
