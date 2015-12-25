@@ -1002,6 +1002,11 @@ ACMD(do_pour)
 		send_to_char("Там нет места.\r\n", ch);
 		return;
 	}
+		if (OBJ_FLAGGED(from_obj, ITEM_NOPOUR))
+		{
+			send_to_char(ch,"Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n", GET_OBJ_PNAME(from_obj, 3));
+			return;
+		}
 //Added by Adept - переливание зелья из бутылки или емкости в емкость
 
 	//Переливает из бутылки с зельем в емкость
@@ -1065,7 +1070,7 @@ ACMD(do_pour)
 
 	if (subcmd == SCMD_POUR)
 	{
-		send_to_char(ch, "Вы занялись переливанием %s в %s.",
+		send_to_char(ch, "Вы занялись переливанием %s в %s.\r\n",
 			drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
 	}
 	if (subcmd == SCMD_FILL)

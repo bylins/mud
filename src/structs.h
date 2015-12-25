@@ -896,6 +896,7 @@ enum
 #define ITEM_1INLAID       (INT_ONE | (1 << 10)) // TODO: не используется, см convert_obj_values()
 #define ITEM_2INLAID       (INT_ONE | (1 << 11)) // -//-
 #define ITEM_3INLAID       (INT_ONE | (1 << 12)) // -//-
+#define ITEM_NOPOUR        (INT_ONE | (1 << 13)) // нельзя перелить
 
 #define ITEM_NO_MONO       (1 << 0)
 #define ITEM_NO_POLY       (1 << 1)
