@@ -38,8 +38,6 @@ namespace SetsDrop
 
 // список сетин на дроп
 const char *CONFIG_FILE = LIB_MISC"full_set_drop.xml";
-// список уникальных мобов
-const char *UNIQUE_MOBS = LIB_PLRSTUFF"unique_mobs.xml";
 // минимальный уровень моба для участия в груп-списке дропа
 const int MIN_GROUP_MOB_LVL = 32;
 // мин/макс уровни мобов для выборки соло-сетин
@@ -71,8 +69,6 @@ std::list<int> group_obj_list;
 // список соло-сетин на лоад (vnum)
 std::list<int> solo_obj_list;
 
-// уникальные мобы. Таблица вида внум : левел
-std::map<int, int> unique_mobs;
 struct MobNode
 {
 	MobNode() : vnum(-1), rnum(-1), miw(-1), type(-1)
@@ -160,12 +156,6 @@ struct DropNode
 
 	void reset_chance() { chance = is_big_set ? DEFAULT_SOLO_CHANCE : DEFAULT_SOLO_CHANCE * MINI_SET_MULT; };
 };
-
-
-std::map<int, int> get_unique_mob()
-{
-	return unique_mobs;
-}
 
 // финальный список дропа по мобам (mob_rnum)
 std::map<int, DropNode> drop_list;
@@ -601,8 +591,6 @@ int calc_max_in_world(int mob_rnum)
  */
 void filter_dupe_names()
 {
-	int vnum = 0;
-	int level = 0;
 	for (std::list<ZoneNode>::iterator it = mob_name_list.begin(),
 		iend = mob_name_list.end(); it != iend; ++it)
 	{
@@ -625,7 +613,14 @@ void filter_dupe_names()
 			if (!good || k->type == -1)
 			{
 				continue;
-			}			
+			}
+			// проверка на левел моба
+			if (k->type == SOLO_MOB
+				&& (mob_proto[k->rnum].get_level() < MIN_SOLO_MOB_LVL
+					|| mob_proto[k->rnum].get_level() > MAX_SOLO_MOB_LVL))
+			{
+				continue;
+			}
 			if (k->type == GROUP_MOB
 				&& mob_proto[k->rnum].get_level() < MIN_GROUP_MOB_LVL)
 			{
@@ -649,17 +644,6 @@ void filter_dupe_names()
 				continue;
 			}
 
-			vnum = mob_index[k->rnum].vnum;
-			level = mob_proto[k->rnum].get_level();
-			unique_mobs.insert(std::make_pair(vnum, level));
-
-			// проверка на левел моба
-			if (k->type == SOLO_MOB
-				&& (mob_proto[k->rnum].get_level() < MIN_SOLO_MOB_LVL
-					|| mob_proto[k->rnum].get_level() > MAX_SOLO_MOB_LVL))
-			{
-				continue;
-			}
 			tmp_list.push_back(*k);
 		}
 		it->mobs = tmp_list;
@@ -1008,38 +992,6 @@ void init_xhelp_full()
 	}
 }
 
-
-bool load_unique_mobs()
-{
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(UNIQUE_MOBS);
-	int vnum = 0;
-	int level = 0;
-	if (!result)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return false;
-	}
-
-	pugi::xml_node node_list = doc.child("mobs");
-	if (!node_list)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...<mobs> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return false;
-	}
-
-	for (pugi::xml_node node = node.child("mob"); node; node = node.next_sibling("mob"))
-	{
-		vnum = Parse::attr_int(node, "vnum");
-		level = Parse::attr_int(node, "level");
-		unique_mobs.insert(std::make_pair(vnum, level));
-	}	
-	return true;
-}
-
-
 bool load_drop_table()
 {
 	pugi::xml_document doc;
@@ -1139,22 +1091,6 @@ bool load_drop_table()
 		drop_list.insert(std::make_pair(mob_rnum, tmp_node));
 	}
 	return true;
-}
-
-void save_unique_mobs()
-{
-	pugi::xml_document doc;
-	doc.append_child().set_name("mobs");
-	pugi::xml_node node_list = doc.child("mobs");
-	std::map<int, int>::iterator it;
-	for (it = unique_mobs.begin(); it != unique_mobs.end(); it++)
-	{
-		pugi::xml_node mob_node = node_list.append_child();
-		mob_node.set_name("mob");
-		mob_node.append_attribute("vnum") = it->first;
-		mob_node.append_attribute("level") = it->second;
-	}
-	doc.save_file(UNIQUE_MOBS);
 }
 
 void save_drop_table()
@@ -1264,10 +1200,9 @@ void init()
 {
 	init_obj_list();
 
-	if (!load_drop_table() || !load_unique_mobs())
+	if (!load_drop_table())
 	{
 		init_drop_system();
-		save_unique_mobs();
 	}
 
 	init_link_system();

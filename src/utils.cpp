@@ -47,7 +47,7 @@
 #include "fight.h"
 #include "skills.h"
 #include "exchange.h"
-#include "sets_drop.hpp"
+
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern int top_of_p_table;
@@ -161,21 +161,6 @@ void prune_crlf(char *txt)
 		txt[i--] = '\0';
 }
 
-int get_virtual_race(CHAR_DATA *mob)
-{
-	if (mob->get_role(MOB_ROLE_BOSS))
-	{
-		return NPC_BOSS;
-	}
-	std::map<int, int>::iterator it;
-	std::map<int, int> unique_mobs = SetsDrop::get_unique_mob();
-	for (it = unique_mobs.begin(); it != unique_mobs.end(); it++)
-	{
-		if (GET_MOB_VNUM(mob) == it->first)
-			return NPC_UNIQUE;
-	}
-	return -1;
-}
 
 /*
  * str_cmp: a case-insensitive version of strcmp().
