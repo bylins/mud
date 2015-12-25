@@ -642,6 +642,13 @@ void filter_dupe_names()
 			{
 				continue;
 			}
+			// пока только уникальные мобы
+			k->miw = calc_max_in_world(k->rnum);
+			if (k->miw != 1)
+			{
+				continue;
+			}
+
 			vnum = mob_index[k->rnum].vnum;
 			level = mob_proto[k->rnum].get_level();
 			unique_mobs.insert(std::make_pair(vnum, level));
@@ -653,14 +660,6 @@ void filter_dupe_names()
 			{
 				continue;
 			}
-
-			// пока только уникальные мобы
-			k->miw = calc_max_in_world(k->rnum);
-			if (k->miw != 1)
-			{
-				continue;
-			}
-		
 			tmp_list.push_back(*k);
 		}
 		it->mobs = tmp_list;
