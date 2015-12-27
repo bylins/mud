@@ -215,11 +215,12 @@ void init()
 		if (chance == -1)
 			chance = 1000;
 		if (day_start == -1)
-		{
-			day_end = 360;
 			day_start = 0;
+		if (day_end == -1)
+			day_end = 360;
+		if (race_mob == -1)
 			race_mob = -1; // -1 для всех рас
-		}
+	
 		if (obj_vnum == -1 || mob_lvl <= 0 || count_mob <= 0 || max_mob_lvl < 0)
 		{
 			snprintf(buf, MAX_STRING_LENGTH,

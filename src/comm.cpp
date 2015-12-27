@@ -1774,7 +1774,7 @@ inline void heartbeat(const int missed_pulses)
 	// каждые 30 минут подарки под случайную елку
 	if ((pulse % (PASSES_PER_SEC * 30 * 60)) == 0)
 	{
-		gifts();
+//		gifts();
 	}
 	
 	// таблица меняется каждые два часа
