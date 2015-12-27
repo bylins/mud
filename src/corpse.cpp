@@ -229,7 +229,7 @@ void init()
 			return;
 		}
 		snprintf(buf, MAX_STRING_LENGTH,
-					"GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, chance=%d)",
+					"GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, random=%d)",
 					obj_vnum, mob_lvl, count_mob, max_mob_lvl, day_start, day_end, race_mob, chance);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		global_drop tmp_node;
@@ -357,8 +357,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				return true;
 			}
 			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
-			sprintf(buf, "Фридроп: упал предмет %s с VNUM: %d", obj_proto[rnum]->short_description, obj_index[rnum].vnum);
-			log("%s", buf);
+			log("Фридроп: упал предмет %s с VNUM: %d", obj_proto[rnum]->short_description, obj_index[rnum].vnum);
 			obj_to_corpse(corpse, mob, rnum, false);
 			return true;
 		}
@@ -367,7 +366,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 	{ int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
 		if (GET_LEVEL(mob) >= i->mob_lvl 				   
 		    && (!i->max_mob_lvl || GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
-		    && ((i->race_mob < 0) || (GET_RACE(mob) == i->race_mob))// || (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
+		    && ((i->race_mob < 0) || (GET_RACE(mob) == i->race_mob) || (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
 		    && ((i->day_start <= day) && (i->day_end >= day))			// временной промежуток
 		    && (!mob->master || IS_NPC(mob->master)) // не чармис	
 		    && (number(1, 1000) <= i->chance)) //если установлен рандом
