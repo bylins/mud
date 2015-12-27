@@ -230,7 +230,7 @@ void init()
 		}
 		snprintf(buf, MAX_STRING_LENGTH,
 					"GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, random=%d)",
-					obj_vnum, mob_lvl, count_mob, max_mob_lvl, day_start, day_end, race_mob, chance);
+					obj_vnum, mob_lvl, count_mob, max_mob_lvl, day_start, day_end, race_mob, chance); 
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		global_drop tmp_node;
 		tmp_node.vnum = obj_vnum;
