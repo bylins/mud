@@ -155,10 +155,12 @@ char *str_dup(const char *source)
 // * Strips \r\n from end of string.
 void prune_crlf(char *txt)
 {
-	int i = strlen(txt) - 1;
+	size_t i = strlen(txt) - 1;
 
 	while (txt[i] == '\n' || txt[i] == '\r')
+	{
 		txt[i--] = '\0';
+	}
 }
 
 int get_virtual_race(CHAR_DATA *mob)
@@ -382,22 +384,36 @@ void write_test_time(FILE *file)
 void log(const char *format, ...)
 {
 	if (logfile == NULL)
+	{
 		puts("SYSERR: Using log() before stream was initialized!");
+	}
+
 	if (format == NULL)
+	{
 		format = "SYSERR: log() received a NULL format.";
+	}
 
 	time_t ct = time(0);
 	char *time_s = asctime(localtime(&ct));
 
 	time_s[strlen(time_s) - 1] = '\0';
 	fprintf(logfile, "%-15.15s :: ", time_s + 4);
+#ifdef LOG_STDERR
+	fprintf(stderr, "%-15.15s :: ", time_s + 4);
+#endif
 
-//	write_test_time(logfile);
 	va_list args;
 	va_start(args, format);
 	vfprintf(logfile, format, args);
+#ifdef LOG_STDERR
+	vfprintf(stderr, format, args);
+#endif
 	va_end(args);
+
 	fprintf(logfile, "\n");
+#ifdef LOG_STDERR
+	fprintf(stderr, "\n");
+#endif
 
 // shapirus: для дебаггинга
 #ifdef LOG_AUTOFLUSH
@@ -1328,14 +1344,13 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 {
 	char *replace_buffer = NULL;
 	char *flow, *jetsam, temp;
-	int len, i;
 
 	if ((signed)((strlen(*string) - strlen(pattern)) + strlen(replacement))
 			> max_size)
 		return -1;
 
 	CREATE(replace_buffer, char, max_size);
-	i = 0;
+	int i = 0;
 	jetsam = *string;
 	flow = *string;
 	*replace_buffer = '\0';
@@ -1365,7 +1380,7 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 		{
 			i++;
 			flow += strlen(pattern);
-			len = ((char *) flow - (char *) * string) - strlen(pattern);
+			size_t len = ((char *) flow - (char *) * string) - strlen(pattern);
 
 			strncpy(replace_buffer, *string, len);
 			strcat(replace_buffer, replacement);
@@ -1373,13 +1388,16 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 		}
 	}
 	if (i == 0)
+	{
 		return 0;
+	}
 	if (i > 0)
 	{
 		RECREATE(*string, char, strlen(replace_buffer) + 3);
 		strcpy(*string, replace_buffer);
 	}
 	free(replace_buffer);
+
 	return i;
 }
 
@@ -1388,7 +1406,8 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 // (for strings edited with d->str) (mostly olc and mail)     //
 void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 {
-	int total_chars, cap_next = TRUE, cap_next_next = FALSE;
+	size_t total_chars = 0;
+	int cap_next = TRUE, cap_next_next = FALSE;
 	char *flow, *start = NULL, temp;
 	// warning: do not edit messages with max_str's of over this value //
 	char formated[MAX_STRING_LENGTH];
@@ -1485,7 +1504,7 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 
 	if ((signed) strlen(formated) > maxlen)
 		formated[maxlen] = '\0';
-	RECREATE(*ptr_string, char, MIN(maxlen, strlen(formated) + 3));
+	RECREATE(*ptr_string, char, MIN(maxlen, static_cast<int>(strlen(formated) + 3)));
 	strcpy(*ptr_string, formated);
 }
 
@@ -1979,7 +1998,7 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 //Gorrah
 int valid_email(const char *address)
 {
-	int i, size, count = 0;
+	int i, count = 0;
 	static string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
 	string addr = address;
 	string::size_type dog_pos = 0, pos = 0;
@@ -1987,7 +2006,7 @@ int valid_email(const char *address)
 	// Наличие запрещенных символов или кириллицы //
 	if (addr.find_first_of(special_symbols) != string::npos)
 		return 0;
-	size = 	addr.size();
+	size_t size = addr.size();
 	for (i = 0; i < size; i++)
 		if (addr[i] <= ' ' || addr[i] >= 127)
 			return 0;

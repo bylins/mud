@@ -386,4 +386,10 @@ endif ()
 
 add_dependencies(circle lib_directory)
 
+# Add custom defines
+option(LOG_STDERR "Define LOG_STDERR. If defined, MUD will log messages additionally to stderr." NO)
+if (LOG_STDERR)
+    add_definitions("-DLOG_STDERR")
+endif()
+
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :
