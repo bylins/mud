@@ -1,3 +1,9 @@
+/**
+ * \file Contains definition of craft model for Bylins MUD.
+ * \date 2015/12/28
+ * \author Anton Gorev <kvirund@gmail.com>
+ */
+
 #ifndef __CRAFT_HPP__
 #define __CRAFT_HPP__
 
@@ -8,7 +14,7 @@
 
 namespace craft
 {
-	typedef int id_t;                           ///< Common type for IDs.
+	typedef std::string id_t;						///< Common type for IDs.
 
 	/**
 	 * Describes one material class.
@@ -72,6 +78,8 @@ namespace craft
 	{
 		public:
 			typedef std::set<id_t> id_set_t;
+
+			const static std::string FILE_NAME;
 
 			/**
 			 * Loads data from XML data files.
