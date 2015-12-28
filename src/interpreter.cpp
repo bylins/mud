@@ -1605,10 +1605,14 @@ int search_block(const std::string &arg, const char **list, int exact)
 int is_number(const char *str)
 {
 	while (*str)
-		if (!isdigit(*(str++)))
-			return (0);
+	{
+		if (!isdigit(static_cast<unsigned char>(*(str++))))
+		{
+			return 0;
+		}
+	}
 
-	return (1);
+	return 1;
 }
 
 /*
