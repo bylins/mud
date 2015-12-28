@@ -15,8 +15,7 @@
 #ifndef _DB_H_
 #define _DB_H_
 
-#include "pugixml.hpp"
-#include "conf.h"
+#include "structs.h"
 
 #include <boost/array.hpp>
 
