@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <craftmodel>
+	<dependencies>dependencies.xml</dependencies>
+	<base_crafts>2</base_crafts>
+	<crafts_bonus>0</crafts_bonus>
+	<skills_cap>80</skills_cap>
+	<skills_bonus>10</skills_bonus>
+
 	<skills>
 		<skill id="skill1" filename="skill1.xml" />
 		<skill id="skill2">
 		</skill>
 	</skills>
 
-	<crafts dependencies="dependencies.xml" base_crafts="2" crafts_bonus="0" skills_cap="80" skills_bonus="80">
+	<crafts>
 		<craft id="craft1" filename="craft1.xml">
 			<name>Craft 1</name>	<!-- craft based of craft from file craft1.xml but with overridden name -->
 		</craft>
@@ -32,6 +38,7 @@
 		<material id="material1" filename="material1.xml" />
 		<material id="meterial2">
 		</material>
+		<material filename="material3.xml" />	<!-- wrong material definition: without ID attribute -->
 	</materials>
 
 	<recipes>
