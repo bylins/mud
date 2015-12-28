@@ -2291,15 +2291,19 @@ int get_number(char **name)
 	if ((ppos = strchr(*name, '.')) != NULL)
 	{
 		for (i = 0; *name + i != ppos; i++)
-			if (!isdigit(*(*name + i)))
-				return (1);
+		{
+			if (!isdigit(static_cast<unsigned char>(*(*name + i))))
+			{
+				return 1;
+			}
+		}
 		*ppos = '\0';
 		res = atoi(*name);
 		strl_cpy(tmpname, ppos + 1, MAX_INPUT_LENGTH);
 		strl_cpy(*name, tmpname, MAX_INPUT_LENGTH);
-		return (res);
+		return res;
 	}
-	return (1);
+	return 1;
 }
 
 int get_number(std::string &name)
