@@ -3915,7 +3915,7 @@ struct cmdlist_element *find_done(TRIG_DATA * trig, struct cmdlist_element *cl)
 
 	while ((cl = cl ? cl->next : cl) != NULL)
 	{
-		for (p = cl->cmd; *p && isspace(*p); p++);
+		for (p = cl->cmd; *p && isspace(static_cast<unsigned char>(*p)); p++);
 
 		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8))
 			cl = find_done(trig, cl);
