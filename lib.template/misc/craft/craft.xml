@@ -7,7 +7,9 @@
 	</skills>
 
 	<crafts dependencies="dependencies.xml" base_crafts="1" crafts_bonus="1" skills_top="80" skills_bonus="80">
-		<craft id="craft1" filename="craft1.xml" />
+		<craft id="craft1" filename="craft1.xml">
+			<name>Craft 1</name>	<!-- craft based of craft from file craft1.xml but with overridden name -->
+		</craft>
 		<craft id="craft2">
 			<name>craft2</name>
 
@@ -37,6 +39,52 @@
 	<receipts>
 		<receipt id="receipt1" filename="receipt1.xml" />
 		<receipt id="receipt2">
+			<name>Receipt 2</name>
+			<improve>150</improve>	<!-- Improves skill up to this value -->
+			<requirements>
+				<skills>
+					<skill id="ID of first required skill" key />
+					<skill id="ID of second required skill" />
+				</skills>
+				<tools>
+					<tool type="Type of the first required tool" min_qualtiy="50" />
+					<tool type="Type of the second required tool" min_qualtiy="50" />
+				</tools>
+				<materials>
+					<material id="ID of the first material type" base />
+					<material id="ID of the second material type" base />
+				</materials>
+				<items>
+					<item vnum="VNum of required item" />
+					<item receipt="ID of receipt used to craft item" />
+				</items>
+			</requirements>
+			<outcome>
+				<attributes>
+					<!-- required attributes -->
+					<prototype vnum="VNum of item prototype" />
+					<timer>50</timer>
+					<durability>50</durability>
+					<weight>50</weight>
+					<cost>100</cost>
+					<remorts>0</remorts>
+					<description>
+						<short>Short item name</short>
+						<long>Long description of the new item.</long>
+					</description>
+
+					<!-- Unnecessary attributes -->
+					<type>Overridden</type>
+					<wear_to>
+						<neck />
+						<!-- TODO: List possible options to wear item
+						...
+						-->
+					</wear_to>
+					<!-- TODO: Continue from list of extraflags...
+					-->
+				</attributes>
+			</outcome>
 		</receipt>
 	</receipts>
 </craftmodel>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="koi8-r">
 <craft>
-    <name>craft1</name>
+    <name>Craft Name</name>
 
     <base_skills>
         <skill id="ID of first required skill" train_threshold="500" <!-- Override skill parameter --> />
