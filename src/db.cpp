@@ -14,16 +14,6 @@
 
 #define __DB_C__
 
-#include "conf.h"
-#include "sys/stat.h"
-#include <sstream>
-#include <string>
-#include <cmath>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <boost/dynamic_bitset.hpp>
-
-#include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
 #include "db.h"
@@ -40,6 +30,8 @@
 #include "diskio.h"
 #include "im.h"
 #include "top.h"
+
+#include "craft.hpp"
 #include "stuff.hpp"
 #include "ban.hpp"
 #include "item.creation.hpp"
@@ -81,6 +73,14 @@
 #include "mob_stat.hpp"
 #include "obj.hpp"
 #include "obj_sets.hpp"
+
+#include <sys/stat.h>
+#include <sstream>
+#include <string>
+#include <cmath>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+#include <boost/dynamic_bitset.hpp>
 
 #define  TEST_OBJECT_TIMER   30
 #define CRITERION_FILE "criterion.xml"
@@ -2454,8 +2454,8 @@ void boot_db(void)
 	log("Init town shop_keepers.");
 	town_shop_keepers();
 
-//	log("Init stop list for snoop.");
-//	init_snoop_stop_list();
+	log("Load craft system.");
+	craft::load();
 
 	log("Check big sets in rent.");
 	SetSystem::check_rented();

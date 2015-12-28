@@ -11,10 +11,28 @@
 
 namespace craft
 {
+	bool load()
+	{
+		CCraftModel model;
+
+		model.load();
+	}
+
 	const std::string CCraftModel::FILE_NAME = LIB_MISC_CRAFT "craft.xml";
 
 	bool CCraftModel::load()
 	{
+		pugi::xml_document doc;
+		pugi::xml_parse_result result = doc.load_file(FILE_NAME.c_str());
+
+		if (!result)
+		{
+			std::cerr << "Craft load error: " << result.description() << std::endl
+				<< " at offset " << result.offset << std::endl;
+			return false;
+		}
+
+		return true;
 	}
 }
 

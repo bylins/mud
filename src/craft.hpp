@@ -14,6 +14,8 @@
 
 namespace craft
 {
+	bool load();
+
 	typedef std::string id_t;						///< Common type for IDs.
 
 	/**
