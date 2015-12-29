@@ -15,9 +15,9 @@
 #ifndef _DB_H_
 #define _DB_H_
 
-#include <boost/array.hpp>
-#include "pugixml.hpp"
+#include "structs.h"
 
+#include <boost/array.hpp>
 
 // arbitrary constants used by index_boot() (must be unique)
 #define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.
@@ -67,6 +67,7 @@ enum SetStuffMode
 #define LIB_TEXT_HELP	":text:help:"
 #define LIB_MISC	":misc:"
 #define LIB_MISC_MOBRACES	":misc:mobraces:"
+#define LIB_MISC_CRAFT		":misc:craft:"
 #define LIB_ETC		":etc:"
 #define ETC_BOARD	":etc:board:"
 #define LIB_PLROBJS	":plrobjs:"
@@ -83,6 +84,7 @@ enum SetStuffMode
 #define LIB_TEXT_HELP "text/help/"
 #define LIB_MISC      "misc/"
 #define LIB_MISC_MOBRACES	"misc/mobraces/"
+#define LIB_MISC_CRAFT		"misc/craft/"
 #define LIB_STAT      "stat/"
 #define LIB_ETC       "etc/"
 #define ETC_BOARD     "etc/board/"

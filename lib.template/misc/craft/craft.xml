@@ -1,32 +1,36 @@
-<?xml version="1.0" encoding="koi8-r">
+<?xml version="1.0" encoding="koi8-r"?>
 <craftmodel>
+	<dependencies>dependencies.xml</dependencies>
+	<base_crafts>2</base_crafts>
+	<crafts_bonus>0</crafts_bonus>
+	<skills_cap>80</skills_cap>
+	<skills_bonus>10</skills_bonus>
+
 	<skills>
 		<skill id="skill1" filename="skill1.xml" />
 		<skill id="skill2">
 		</skill>
 	</skills>
 
-	<crafts dependencies="dependencies.xml" base_crafts="1" crafts_bonus="1" skills_top="80" skills_bonus="80">
+	<crafts>
 		<craft id="craft1" filename="craft1.xml">
 			<name>Craft 1</name>	<!-- craft based of craft from file craft1.xml but with overridden name -->
 		</craft>
-		<craft id="craft2">
-			<name>craft2</name>
+		<craft id="CRAFT_TAILOR">
+			<name>Портной</name>
+			<sockets required="4" additional="4" />
 
-			<base_skills>
-				<skill id="ID of first required skill" train_threshold="500" <!-- override skill parameter --> />
-				<skill id="ID of second required skill" />
-			</base_skills>
+			<skills>
+				<skill id="ID of first required skill" base="yes" train_threshold="500" /> <!-- override skill parameter -->
+				<skill id="ID of second required skill" base="yes" />
 
-			<slots>1</slots>
-			<additional_skills>
-				<skill id="ID of first additional skill" train_threshold="1000" <!-- override skill parameter --> />
+				<skill id="ID of first additional skill" train_threshold="1000" /> <!-- override skill parameter -->
 				<skill id="ID of second additional skill" />
-			</additional_skills>
+			</skills>
 
-			<receipts>
-				<receipt id="ID of available receipt" />
-			</receipts>
+			<recipes>
+				<recipe id="ID of available recipe" />
+			</recipes>
 		</craft>
 	</crafts>
 
@@ -34,29 +38,30 @@
 		<material id="material1" filename="material1.xml" />
 		<material id="meterial2">
 		</material>
+		<material filename="material3.xml" />	<!-- wrong material definition: without ID attribute -->
 	</materials>
 
-	<receipts>
-		<receipt id="receipt1" filename="receipt1.xml" />
-		<receipt id="receipt2">
-			<name>Receipt 2</name>
-			<improve>150</improve>	<!-- Improves skill up to this value -->
+	<recipes>
+		<recipe id="recipe1" filename="recipe1.xml" />
+		<recipe id="recipe2">
+			<name>Recipe 2</name>
+			<training_cap>150</training_cap>	<!-- Improves skill up to this value -->
 			<requirements>
 				<skills>
-					<skill id="ID of first required skill" key />
-					<skill id="ID of second required skill" />
+					<skill id="ID of the first required skill" key="yes" />
+					<skill id="ID of the second required skill" />
 				</skills>
 				<tools>
 					<tool type="Type of the first required tool" min_qualtiy="50" />
 					<tool type="Type of the second required tool" min_qualtiy="50" />
 				</tools>
 				<materials>
-					<material id="ID of the first material type" base />
-					<material id="ID of the second material type" base />
+					<material id="ID of the first material type" base="yes" min_quality="50" amount="1" />
+					<material id="ID of the second material type" min_quality="50" amount="1" />
 				</materials>
 				<items>
 					<item vnum="VNum of required item" />
-					<item receipt="ID of receipt used to craft item" />
+					<item recipe="ID of recipe used to craft item" />
 				</items>
 			</requirements>
 			<outcome>
@@ -69,7 +74,7 @@
 					<cost>100</cost>
 					<remorts>0</remorts>
 					<description>
-						<short>Short item name</short>
+						<short>Short description of the new item.</short>
 						<long>Long description of the new item.</long>
 					</description>
 
@@ -85,8 +90,8 @@
 					-->
 				</attributes>
 			</outcome>
-		</receipt>
-	</receipts>
+		</recipe>
+	</recipes>
 </craftmodel>
 
-<!-- vim: set ts=4 sw=4 tw=0 noet syntax=xml :-->
+<!-- vim: set ts=4 sw=4 tw=0 noet syntax=xml : -->
