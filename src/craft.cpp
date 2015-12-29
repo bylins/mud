@@ -9,13 +9,15 @@
 #include "db.h"
 #include "pugixml.hpp"
 
+#include <iostream>
+
 namespace craft
 {
 	bool load()
 	{
 		CCraftModel model;
 
-		model.load();
+		return model.load();
 	}
 
 	const std::string CCraftModel::FILE_NAME = LIB_MISC_CRAFT "craft.xml";
@@ -23,21 +25,29 @@ namespace craft
 	bool CMaterial::load(const pugi::xml_node* node)
 	{
 		std::cerr << "Loading material with ID " << m_id << std::endl;
+
+		return true;
 	}
 
 	bool CRecipe::load(const pugi::xml_node* node)
 	{
 		std::cerr << "Loading recipe with ID " << m_id << std::endl;
+
+		return true;
 	}
 
 	bool CSkillBase::load(const pugi::xml_node* node)
 	{
 		std::cerr << "Loading skill with ID " << m_id << std::endl;
+
+		return true;
 	}
 
 	bool CCraft::load(const pugi::xml_node* node)
 	{
 		std::cerr << "Loading craft with ID " << m_id << std::endl;
+
+		return true;
 	}
 
 	bool CCraftModel::load()
