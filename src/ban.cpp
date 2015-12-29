@@ -655,19 +655,34 @@ bool BanList::add_ban(std::string BannedIp, std::string BanReason, std::string B
 	temp_node_ptr->BanDate = time(0);
 	temp_node_ptr->UnbanDate = (UnbanDate > 0) ? time(0) + UnbanDate * 60 * 60 : BAN_MAX_TIME;
 	temp_node_ptr->BanType = BanType;
+
 	// checking all strings: replacing all whitespaces with underlines
-	int k = temp_node_ptr->BannedIp.size();
-	for (int j = 0; j < k; j++)
+	size_t k = temp_node_ptr->BannedIp.size();
+	for (size_t j = 0; j < k; j++)
+	{
 		if (temp_node_ptr->BannedIp[j] == ' ')
+		{
 			temp_node_ptr->BannedIp[j] = '_';
+		}
+	}
+
 	k = temp_node_ptr->BannerName.size();
-	for (int j = 0; j < k; j++)
+	for (size_t j = 0; j < k; j++)
+	{
 		if (temp_node_ptr->BannerName[j] == ' ')
+		{
 			temp_node_ptr->BannerName[j] = '_';
+		}
+	}
+
 	k = temp_node_ptr->BanReason.size();
-	for (int j = 0; j < k; j++)
+	for (size_t j = 0; j < k; j++)
+	{
 		if (temp_node_ptr->BanReason[j] == ' ')
+		{
 			temp_node_ptr->BanReason[j] = '_';
+		}
+	}
 
 	Ban_List.push_front(temp_node_ptr);
 	current_sort_algorithm = SORT_UNDEFINED;
@@ -697,15 +712,23 @@ bool BanList::add_proxy_ban(std::string BannedIp, std::string BannerName)
 	temp_node_ptr->BannedIp = BannedIp;
 	temp_node_ptr->BannerName = BannerName;
 	// checking all strings: replacing all whitespaces with underlines
-	int k = temp_node_ptr->BannedIp.size();
-	for (int j = 0; j < k; j++)
+	size_t k = temp_node_ptr->BannedIp.size();
+	for (size_t j = 0; j < k; j++)
+	{
 		if (temp_node_ptr->BannedIp[j] == ' ')
+		{
 			temp_node_ptr->BannedIp[j] = '_';
-	k = temp_node_ptr->BannerName.size();
-	for (int j = 0; j < k; j++)
-		if (temp_node_ptr->BannerName[j] == ' ')
-			temp_node_ptr->BannerName[j] = '_';
+		}
+	}
 
+	k = temp_node_ptr->BannerName.size();
+	for (size_t j = 0; j < k; j++)
+	{
+		if (temp_node_ptr->BannerName[j] == ' ')
+		{
+			temp_node_ptr->BannerName[j] = '_';
+		}
+	}
 
 	Proxy_Ban_List.push_front(temp_node_ptr);
 	current_proxy_sort_algorithm = SORT_UNDEFINED;

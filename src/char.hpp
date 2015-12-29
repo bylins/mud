@@ -516,7 +516,7 @@ public:
 	void clear_morphs();
 	void set_morph(MorphPtr morph);
 	void reset_morph();
-	int get_morphs_count() const;
+	size_t get_morphs_count() const;
 	std::list<string> get_morphs();
 	bool is_morphed() const;
 	void set_normal_morph();
@@ -711,7 +711,7 @@ public:
 };
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
-int fighting_list_size();
+size_t fighting_list_size();
 
 namespace CharacterSystem
 {

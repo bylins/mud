@@ -2481,7 +2481,7 @@ void init_spell_levels(void)
 {
 	FILE *magic;
 	char line1[256], line2[256], line3[256], name[256];
-	int i[15], j, c, sp_num;
+	int i[15], j, sp_num;
 	if (!(magic = fopen(LIB_MISC "magic.lst", "r")))
 	{
 		log("Cann't open magic list file...");
@@ -2569,7 +2569,7 @@ void init_spell_levels(void)
 			log("Spell '%s' not found...", name);
 			_exit(1);
 		}
-		c = strlen(line3);
+		size_t c = strlen(line3);
 		if (!strn_cmp(line3, "potion", c))
 		{
 			spell_create[sp_num].potion.items[0] = i[0];

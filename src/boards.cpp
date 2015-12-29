@@ -688,7 +688,7 @@ ACMD(DoBoard)
 	{
 		// если после команды стоит цифра или 'читать цифра' - пытаемся
 		// показать эту мессагу, два сравнения - чтобы не загребать 'писать число...' как чтение
-		unsigned num = 0;
+		size_t num = 0;
 		if (!can_read(ch, board))
 		{
 			message_no_read(ch, board);
@@ -779,7 +779,7 @@ ACMD(DoBoard)
 			send_to_char("Укажите корректный номер сообщения.\r\n", ch);
 			return;
 		}
-		unsigned num = atoi(buffer2.c_str());
+		size_t num = atoi(buffer2.c_str());
 		if (num <= 0 || num > board.messages.size())
 		{
 			send_to_char("Это сообщение может вам только присниться.\r\n", ch);
