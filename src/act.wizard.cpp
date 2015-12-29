@@ -1317,7 +1317,7 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 		send_to_char("Укажите номер или название комнаты.\r\n", ch);
 		return (NOWHERE);
 	}
-	if (isdigit(*roomstr) && !strchr(roomstr, '.'))
+	if (isdigit(static_cast<unsigned char>(*roomstr)) && !strchr(roomstr, '.'))
 	{
 		tmp = atoi(roomstr);
 		if ((location = real_room(tmp)) == NOWHERE)
