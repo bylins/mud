@@ -362,19 +362,20 @@ bool ClanExpHistory::need_destroy() const
 void ClanExpHistory::show(CHAR_DATA *ch) const
 {
 	send_to_char(ch, "\r\nОпыт, набранный за три последних календарных месяца без учета минусов:\r\n");
-	int num_print = list_.size() - 3;
+	size_t size = list_.size();
 	int count = 0;
 	for (HistoryExpListType::const_iterator i = list_.begin(), iend = list_.end(); i != iend; ++i, ++count)
 	{
-		if (count >= num_print)
+		if (3 + count >= size)
 		{
 			send_to_char(ch, "%s : %14s\r\n", i->first.c_str(), thousands_sep(i->second).c_str());
 		}
 	}
 	send_to_char(ch, "Напоминаем, что в системе автоматической очистки неактивных кланов учитывается\r\n"
-			"опыт, набранный за два последних ПОЛНЫХ календарных месяца ( >= %s в сумме);\r\n"
-			"сейчас он составляет %s.\r\n", thousands_sep(MIN_EXP_HISTORY).c_str(),
-			                             thousands_sep(calc_exp_history()).c_str());
+		"опыт, набранный за два последних ПОЛНЫХ календарных месяца ( >= %s в сумме);\r\n"
+		"сейчас он составляет %s.\r\n",
+		thousands_sep(MIN_EXP_HISTORY).c_str(),
+		thousands_sep(calc_exp_history()).c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

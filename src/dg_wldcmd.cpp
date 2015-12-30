@@ -48,8 +48,8 @@ extern TRIG_DATA *cur_trig;
 struct wld_command_info
 {
 	const char *command;
-	void (*command_pointer)
-	(room_data * room, char *argument, int cmd, int subcmd);
+	typedef void (*handler_f)(room_data* room, char *argument, int cmd, int subcmd);
+	handler_f command_pointer;	
 	int subcmd;
 };
 
@@ -1027,7 +1027,6 @@ const struct wld_command_info wld_cmd_info[] =
 // *  This is the command interpreter used by rooms, called by script_driver.
 void wld_command_interpreter(room_data * room, char *argument)
 {
-	int cmd, length;
 	char *line, arg[MAX_INPUT_LENGTH];
 
 	skip_spaces(&argument);
@@ -1038,11 +1037,17 @@ void wld_command_interpreter(room_data * room, char *argument)
 
 	line = any_one_arg(argument, arg);
 
-
 	// find the command
-	for (length = strlen(arg), cmd = 0; *wld_cmd_info[cmd].command != '\n'; cmd++)
+	int cmd = 0;
+	size_t length = strlen(arg);
+	while (*wld_cmd_info[cmd].command != '\n')
+	{
 		if (!strncmp(wld_cmd_info[cmd].command, arg, length))
+		{
 			break;
+		}
+		cmd++;
+	}
 
 	if (*wld_cmd_info[cmd].command == '\n')
 	{
@@ -1050,8 +1055,10 @@ void wld_command_interpreter(room_data * room, char *argument)
 		wld_log(room, buf2, LGH);
 	}
 	else
-		((*wld_cmd_info[cmd].command_pointer)
-				(room, line, cmd, wld_cmd_info[cmd].subcmd));
+	{
+		const wld_command_info::handler_f& command = wld_cmd_info[cmd].command_pointer;
+		command(room, line, cmd, wld_cmd_info[cmd].subcmd);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

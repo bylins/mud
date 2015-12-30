@@ -108,7 +108,8 @@ void table_drop::reload_table()
 	this->drop_mobs.clear();
 	for (int i = 0; i < this->count_mobs; i++)
 	{
-		this->drop_mobs.push_back(this->mobs[number(0, this->mobs.size() - 1)]);
+		const int mob_number = number(0, static_cast<int>(this->mobs.size() - 1));
+		this->drop_mobs.push_back(this->mobs[mob_number]);
 	}
 }
 // возвратит true, если моб найден в таблице и прошел шанс
@@ -335,7 +336,7 @@ int get_obj_to_drop(DropListType::iterator &i)
 	}
 	if (!tmp_list.empty())
 	{
-		int rnd = number(0, tmp_list.size() - 1);
+		int rnd = number(0, static_cast<int>(tmp_list.size() - 1));
 		return tmp_list.at(rnd);
 	}
 	return -1;

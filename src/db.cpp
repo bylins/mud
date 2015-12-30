@@ -177,11 +177,11 @@ class insert_wanted_gem iwg;
 void SaveGlobalUID(void);
 void LoadGlobalUID(void);
 bool check_object_spell_number(OBJ_DATA * obj, unsigned val);
-int check_object_level(OBJ_DATA * obj, int val);
+bool check_object_level(OBJ_DATA * obj, int val);
 void setup_dir(FILE * fl, int room, unsigned dir);
 void index_boot(int mode);
 void discrete_load(FILE * fl, int mode, char *filename);
-int check_object(OBJ_DATA *);
+bool check_object(OBJ_DATA *);
 void parse_trigger(FILE * fl, int virtual_nr);
 void parse_room(FILE * fl, int virtual_nr, int virt);
 void parse_mobile(FILE * mob_f, int nr);
@@ -3889,11 +3889,11 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 	// ищем метку @p , @p1 ... и заменяем на падежи.
 	string obj_pad;
 	char *ptr;
-	int i, j, k;
+	int i, k;
 	for (i = 0; i < NUM_PADS; i++)
 	{
 		obj_pad = string(GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i));
-		j = obj_pad.find("@p");
+		size_t j = obj_pad.find("@p");
 		if (j > 0)
 		{
 			// Родитель найден прописываем его.
@@ -4579,8 +4579,7 @@ char *parse_object(FILE * obj_f, int nr)
 			break;
 		case '$':
 		case '#':
-			check_object(tobj);
-			
+			check_object(tobj);		// Anton Gorev (2015/12/29): do we need the result of this check?
 			obj_proto.push_back(tobj);
 			top_of_objt = i++;
 			return (line);
@@ -4692,7 +4691,7 @@ void load_zones(FILE * fl, char *zonename)
 			exit(1);
 		}
 	}
-	Z.reset_idle = tmp_reset_idle;
+	Z.reset_idle = 0 != tmp_reset_idle;
 	Z.under_construction = !str_cmp(t1, "test");
 	Z.locked = !str_cmp(t2, "locked");
 	cmd_no = 0;
@@ -6403,12 +6402,18 @@ long cmp_ptable_by_name(char *name, int len)
 {
 	int i;
 
-	len = MIN(len, strlen(name));
+	len = MIN(len, static_cast<int>(strlen(name)));
 	one_argument(name, arg);
+	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here. TODO: make map helper (MAPHELPER). */
 	for (i = 0; i <= top_of_p_table; i++)
-		if (!strn_cmp(player_table[i].name, arg, MIN(len, strlen(player_table[i].name))))
-			return (i);
-	return (-1);
+	{
+		const char* pname = player_table[i].name;
+		if (!strn_cmp(name, arg, MIN(len, static_cast<int>(strlen(pname)))))
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
 
@@ -6418,9 +6423,15 @@ long get_ptable_by_name(const char *name)
 	int i;
 
 	one_argument(name, arg);
+	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (i = 0; i <= top_of_p_table; i++)
-		if (!str_cmp(player_table[i].name, arg))
+	{
+		const char* pname = player_table[i].name;
+		if (!str_cmp(pname, arg))
+		{
 			return (i);
+		}
+	}
 	sprintf(buf, "Char %s(%s) not found !!!", name, arg);
 	mudlog(buf, LGH, LVL_IMMORT, SYSLOG, FALSE);
 	return (-1);
@@ -6428,9 +6439,14 @@ long get_ptable_by_name(const char *name)
 
 long get_ptable_by_unique(long unique)
 {
+	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (int i = 0; i <= top_of_p_table; i++)
+	{
 		if (player_table[i].unique == unique)
+		{
 			return i;
+		}
+	}
 	return 0;
 }
 
@@ -6440,41 +6456,60 @@ long get_id_by_name(char *name)
 	int i;
 
 	one_argument(name, arg);
+	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (i = 0; i <= top_of_p_table; i++)
+	{
 		if (!str_cmp(player_table[i].name, arg))
+		{
 			return (player_table[i].id);
+		}
+	}
 
 	return (-1);
 }
 
 long get_id_by_uid(long uid)
 {
+	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (int i = 0; i <= top_of_p_table; i++)
+	{
 		if (player_table[i].unique == uid)
+		{
 			return player_table[i].id;
+		}
+	}
 	return -1;
 }
 
 int get_uid_by_id(int id)
 {
+	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (int i = 0; i <= top_of_p_table; i++)
+	{
 		if (player_table[i].id == id)
+		{
 			return player_table[i].unique;
+		}
+	}
 	return -1;
 }
 
 const char *get_name_by_id(long id)
 {
+	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (int i = 0; i <= top_of_p_table; i++)
 	{
 		if (player_table[i].id == id)
+		{
 			return player_table[i].name;
+		}
 	}
 	return "";
 }
 
 char* get_name_by_unique(int unique)
 {
+	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (int i = 0; i <= top_of_p_table; i++)
 	{
 		if (player_table[i].unique == unique)
@@ -6488,30 +6523,45 @@ char* get_name_by_unique(int unique)
 int get_level_by_unique(long unique)
 {
 	int level = 0;
+
+	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (int i = 0; i <= top_of_p_table; ++i)
+	{
 		if (player_table[i].unique == unique)
+		{
 			level = player_table[i].level;
+		}
+	}
 	return level;
 }
 
 long get_lastlogon_by_unique(long unique)
 {
 	long time = 0;
+
+	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (int i = 0; i <= top_of_p_table; ++i)
+	{
 		if (player_table[i].unique == unique)
+		{
 			time = player_table[i].last_logon;
+		}
+	}
 	return time;
 }
 
 int correct_unique(int unique)
 {
-	int i;
-
-	for (i = 0; i <= top_of_p_table; i++)
+	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
+	for (int i = 0; i <= top_of_p_table; i++)
+	{
 		if (player_table[i].unique == unique)
-			return (TRUE);
+		{
+			return TRUE;
+		}
+	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 int create_unique(void)
@@ -6532,8 +6582,6 @@ struct ignore_data *parse_ignore(char *buf)
 	struct ignore_data *result;
 
 	CREATE(result, struct ignore_data, 1);
-
-//log("parsing ignore item '%s'", buf);
 
 	if (sscanf(buf, "[%ld]%ld", &result->mode, &result->id) < 2)
 	{
@@ -6688,7 +6736,8 @@ char *fread_string(FILE * fl, char *error)
 {
 	char buf[MAX_STRING_LENGTH], tmp[512], *rslt;
 	char *point;
-	int done = 0, length = 0, templength;
+	int done = 0;
+	size_t length = 0;
 
 	*buf = '\0';
 
@@ -6728,7 +6777,7 @@ char *fread_string(FILE * fl, char *error)
 			*point = '\0';
 		}
 
-		templength = strlen(tmp);
+		size_t templength = strlen(tmp);
 
 		if (length + templength >= MAX_STRING_LENGTH)
 		{
@@ -7325,73 +7374,83 @@ obj_rnum real_object(obj_vnum vnum)
  *
  * TODO: Add checks for unknown bitvectors.
  */
-int check_object(OBJ_DATA * obj)
+bool check_object(OBJ_DATA * obj)
 {
-	int error = FALSE;
+	bool error = false;
 
-	if (GET_OBJ_WEIGHT(obj) < 0 && (error = TRUE))
+	if (GET_OBJ_WEIGHT(obj) < 0)
+	{
+		error = true;
 		log("SYSERR: Object #%d (%s) has negative weight (%d).",
 			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_WEIGHT(obj));
+	}
 
-	if (GET_OBJ_RENT(obj) < 0 && (error = TRUE))
+	if (GET_OBJ_RENT(obj))
+	{
+		error = true;
 		log("SYSERR: Object #%d (%s) has negative cost/day (%d).",
 			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_RENT(obj));
+	}
 
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf);
-	if (strstr(buf, "UNDEFINED") && (error = TRUE))
+	if (strstr(buf, "UNDEFINED"))
+	{
+		error = true;
 		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->short_description);
+	}
 
 	sprintbits(obj->obj_flags.extra_flags, extra_bits, buf, ",");
-	if (strstr(buf, "UNDEFINED") && (error = TRUE))
+	if (strstr(buf, "UNDEFINED"))
+	{
+		error = true;
 		log("SYSERR: Object #%d (%s) has unknown extra flags.", GET_OBJ_VNUM(obj), obj->short_description);
+	}
 
 	sprintbits(obj->obj_flags.affects, affected_bits, buf, ",");
 
-	if (strstr(buf, "UNDEFINED") && (error = TRUE))
+	if (strstr(buf, "UNDEFINED"))
+	{
+		error = true;
 		log("SYSERR: Object #%d (%s) has unknown affection flags.", GET_OBJ_VNUM(obj), obj->short_description);
+	}
 
 	switch (GET_OBJ_TYPE(obj))
 	{
 	case ITEM_DRINKCON:
-//  { char onealias[MAX_INPUT_LENGTH], *space = strchr(obj->aliases, ' ');
-//
-//    int offset = space ? space - obj->aliases : strlen(obj->aliases);
-//
-//    strncpy(onealias, obj->aliases, offset);
-//    onealias[offset] = '\0';
-//
-//    if (search_block(onealias, drinknames, TRUE) < 0 && (error = TRUE))
-//       log("SYSERR: Object #%d (%s) doesn't have drink type as first alias. (%s)",
-//                   GET_OBJ_VNUM(obj), obj->short_description, obj->aliases);
-//  }
 		// Fall through.
 	case ITEM_FOUNTAIN:
-		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0) && (error = TRUE))
+		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0))
+		{
+			error = true;
 			log("SYSERR: Object #%d (%s) contains (%d) more than maximum (%d).",
 				GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 0));
+		}
 		break;
 	case ITEM_SCROLL:
 	case ITEM_POTION:
-		error |= check_object_level(obj, 0);
-		error |= check_object_spell_number(obj, 1);
-		error |= check_object_spell_number(obj, 2);
-		error |= check_object_spell_number(obj, 3);
+		error = error || check_object_level(obj, 0);
+		error = error || check_object_spell_number(obj, 1);
+		error = error || check_object_spell_number(obj, 2);
+		error = error || check_object_spell_number(obj, 3);
 		break;
 	case ITEM_BOOK:
-		error |= check_object_spell_number(obj, 1);
+		error = error || check_object_spell_number(obj, 1);
 		break;
 	case ITEM_WAND:
 	case ITEM_STAFF:
-		error |= check_object_level(obj, 0);
-		error |= check_object_spell_number(obj, 3);
-		if (GET_OBJ_VAL(obj, 2) > GET_OBJ_VAL(obj, 1) && (error = TRUE))
+		error = error || check_object_level(obj, 0);
+		error = error || check_object_spell_number(obj, 3);
+		if (GET_OBJ_VAL(obj, 2) > GET_OBJ_VAL(obj, 1))
+		{
+			error = true;
 			log("SYSERR: Object #%d (%s) has more charges (%d) than maximum (%d).",
 				GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 1));
+		}
 		break;
 	}
 
 	obj->values.remove_incorrect_keys(GET_OBJ_TYPE(obj));
-	return (error);
+	return error;
 }
 
 bool check_object_spell_number(OBJ_DATA * obj, unsigned val)
@@ -7443,15 +7502,19 @@ bool check_object_spell_number(OBJ_DATA * obj, unsigned val)
 	return error;
 }
 
-int check_object_level(OBJ_DATA * obj, int val)
+bool check_object_level(OBJ_DATA * obj, int val)
 {
-	int error = FALSE;
+	bool error = false;
 
-	if ((GET_OBJ_VAL(obj, val) < 0 || GET_OBJ_VAL(obj, val) > LVL_IMPL)
-			&& (error = TRUE))
+	if (GET_OBJ_VAL(obj, val) < 0 || GET_OBJ_VAL(obj, val) > LVL_IMPL)
+	{
+		error = true;
 		log("SYSERR: Object #%d (%s) has out of range level #%d.",
-			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, val));
-	return (error);
+			GET_OBJ_VNUM(obj),
+			obj->short_description,
+			GET_OBJ_VAL(obj, val));
+	}
+	return error;
 }
 
 // данная функция работает с неполностью загруженным персонажем

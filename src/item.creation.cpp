@@ -1229,11 +1229,12 @@ ACMD(do_transform_weapon)
 
 int ext_search_block(const char *arg, const char **list, int exact)
 {
-	int i, l = strlen(arg), j, o;
+	int i, j, o;
 
 	if (exact)
 	{
 		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: попытка в лоб убрать креш
+		{
 			if (**(list + i) == '\n')
 			{
 				o = 1;
@@ -1254,15 +1255,24 @@ int ext_search_block(const char *arg, const char **list, int exact)
 				}
 			}
 			else if (!str_cmp(arg, *(list + i)))
-				return (j | o);
+			{
+				return j | o;
+			}
 			else
+			{
 				o <<= 1;
+			}
+		}
 	}
 	else
 	{
+		size_t l = strlen(arg);
 		if (!l)
+		{
 			l = 1;	// Avoid "" to match the first available string
+		}
 		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: попытка в лоб убрать креш
+		{
 			if (**(list + i) == '\n')
 			{
 				o = 1;
@@ -1283,12 +1293,17 @@ int ext_search_block(const char *arg, const char **list, int exact)
 				}
 			}
 			else if (!strn_cmp(arg, *(list + i), l))
-				return (j | o);
+			{
+				return j | o;
+			}
 			else
+			{
 				o <<= 1;
+			}
+		}
 	}
 
-	return (0);
+	return 0;
 }
 
 // *****************************
@@ -1417,7 +1432,7 @@ void MakeReceptList::sort()
 	return;
 }
 
-int MakeReceptList::size()
+size_t MakeReceptList::size()
 {
 	return recepts.size();
 }
@@ -1460,66 +1475,55 @@ MakeRecept *MakeReceptList::get_by_name(string & rname)
 {
 	// Ищем по списку рецепт с таким именем.
 	// Ищем по списку рецепты которые чар может изготовить.
-	list < MakeRecept * >::iterator p;
+	list<MakeRecept*>::iterator p = recepts.begin();
 
-	string tmpstr;
-	p = recepts.begin();
-
-
-	int i, j, k;
-
-	i = rname.find(".");
-
-	if (i < 0)
+	int k = 1;	// count
+	// split string by '.' character and convert first part into number (store to k)
+	size_t i = rname.find(".");
+	if (std::string::npos != i)	// TODO: Check me.
 	{
 		// Строка не найдена.
-		k = 1;
-		i = -1;
+		if (0 < i)
+		{
+			k = atoi(rname.substr(0, i).c_str());
 
+			if (k <= 0)
+			{
+				return NULL;	// Если ввели -3.xxx
+			}
+		}
+		rname = rname.substr(i + 1);
 	}
-	else if (i == 0)
-		k = 1;
-	else
-		k = atoi(rname.substr(0, i).c_str());
 
-	if (k <= 0)
-		return (NULL);	// Если ввели -3.xxx
-
-	j = 0;
-
-	// cout <<  rname.substr(i+1) << endl;
-
-	rname = rname.substr(i + 1);
-
+	int j = 0;
 	while (p != recepts.end())
 	{
 		const OBJ_DATA *tobj = read_object_mirror((*p)->obj_proto);
 		if (!tobj)
+		{
 			return 0;
-		tmpstr = string(tobj->aliases);
-
-//    cout << tmpstr << endl;
-
+		}
+		std::string tmpstr(tobj->aliases);
 		tmpstr += " ";
 
-		while (int (tmpstr.find(" ")) > 0)
+		while (int(tmpstr.find(" ")) > 0)
 		{
 			if ((tmpstr.substr(0, tmpstr.find(" "))).find(rname) == 0)
 			{
 				if ((k - 1) == j)
-					return (*p);
+				{
+					return *p;
+				}
 				j++;
 				break;
 			}
 			tmpstr = tmpstr.substr(tmpstr.find(" ") + 1);
-//      cout << tmpstr << endl;
 		}
-
 
 		p++;
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 MakeReceptList *MakeReceptList::can_make(CHAR_DATA * ch, MakeReceptList * canlist, int use_skill)

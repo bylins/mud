@@ -16,12 +16,12 @@ typedef boost::shared_ptr<DictionaryItem> DictionaryItemPtr;
 class DictionaryItem
 {
 public:
-	DictionaryItem() : DictionaryName(std::string()), DictionaryTID(std::string()) {};
-	DictionaryItem(std::string name, std::string tid) : DictionaryName(name), DictionaryTID(tid) {};
-	virtual void SetDictionaryName(std::string name) {DictionaryName = name;}
-	virtual void SetDictionaryTID(std::string tid) {DictionaryTID = tid;}
-	virtual std::string GetDictionaryName() {return DictionaryName;}
-	virtual std::string GetDictionaryTID() {return DictionaryTID;}
+	DictionaryItem() : DictionaryName(std::string()), DictionaryTID(std::string()) {}
+	DictionaryItem(std::string name, std::string tid) : DictionaryName(name), DictionaryTID(tid) {}
+	void SetDictionaryName(const std::string& name) { DictionaryName = name; }
+	void SetDictionaryTID(const std::string& tid) { DictionaryTID = tid; }
+	const std::string& GetDictionaryName() { return DictionaryName; }
+	const std::string& GetDictionaryTID() { return DictionaryTID; }
 	DictionaryItemPtr GetDictionaryItem();
 private:
 	std::string DictionaryName;
@@ -36,11 +36,11 @@ public:
 	Dictionary() {};
 	Dictionary(DictionaryMode mode);
 	void AddToDictionary(DictionaryItemPtr item);
-	int Size();
+	size_t Size();
 
 	std::string GetNameByTID(std::string tid);
-	std::string GetNameByNID(unsigned nid);
-	std::string GetTIDByNID(unsigned nid);
+	std::string GetNameByNID(size_t nid);
+	std::string GetTIDByNID(size_t nid);
 
 private:
 	DictionaryType dictionary_;

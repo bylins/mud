@@ -159,69 +159,93 @@ int isname(const char *str, const char *namelist)
 }
 */
 
-int isname(const char *str, const char *namelist)
+bool isname(const char *str, const char *namelist)
 {
-	int once_ok = FALSE;
+	bool once_ok = false;
 	const char *curname, *curstr, *laststr;
 
 	if (!namelist || !*namelist || !str)
-		return (FALSE);
+	{
+		return false;
+	}
 
 	for (curstr = str; !a_isalnum(*curstr); curstr++)
 	{
 		if (!*curstr)
-			return (once_ok);
+		{
+			return once_ok;
+		}
 	}
+
 	laststr = curstr;
 	curname = namelist;
 	for (;;)
 	{
-		once_ok = FALSE;
+		once_ok = false;
 		for (;; curstr++, curname++)
 		{
 			if (!*curstr)
-				return (once_ok);
+			{
+				return once_ok;
+			}
+
 			if (*curstr == '!')
+			{
 				if (a_isalnum(*curname))
 				{
 					curstr = laststr;
 					break;
 				}
+			}
+
 			if (!a_isalnum(*curstr))
 			{
 				for (; !a_isalnum(*curstr); curstr++)
 				{
 					if (!*curstr)
-						return (once_ok);
+					{
+						return once_ok;
+					}
 				}
 				laststr = curstr;
 				break;
 			}
+
 			if (!*curname)
-				return (FALSE);
+			{
+				return false;
+			}
+
 			if (!a_isalnum(*curname))
 			{
 				curstr = laststr;
 				break;
 			}
+
 			if (LOWER(*curstr) != LOWER(*curname))
 			{
 				curstr = laststr;
 				break;
 			}
 			else
-				once_ok = TRUE;
+			{
+				once_ok = true;
+			}
 		}
+
 		// skip to next name
 		for (; a_isalnum(*curname); curname++);
 		for (; !a_isalnum(*curname); curname++)
 		{
 			if (!*curname)
-				return (FALSE);
+			{
+				return false;
+			}
 		}
 	}
 }
-int isname(const std::string &str, const char *namelist)
+
+bool isname(const std::string &str, const char *namelist)
 {
 	return isname(str.c_str(), namelist);
 }

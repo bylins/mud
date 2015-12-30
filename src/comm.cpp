@@ -3435,7 +3435,7 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left)
 #if defined(CIRCLE_ACORN)
 	ret = recv(desc, read_point, space_left, MSG_DONTWAIT);
 #elif defined(CIRCLE_WINDOWS)
-	ret = recv(desc, read_point, space_left, 0);
+	ret = recv(desc, read_point, static_cast<int>(space_left), 0);
 #else
 	ret = read(desc, read_point, space_left);
 #endif
@@ -3497,14 +3497,14 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left)
  */
 int process_input(DESCRIPTOR_DATA * t)
 {
-	int buf_length, failed_subst;
+	int failed_subst;
 	ssize_t bytes_read;
 	size_t space_left;
 	char *ptr, *read_point, *write_point, *nl_pos;
 	char tmp[MAX_INPUT_LENGTH];
 
 	// first, find the point where we left off reading data
-	buf_length = strlen(t->inbuf);
+	size_t buf_length = strlen(t->inbuf);
 	read_point = t->inbuf + buf_length;
 	space_left = MAX_RAW_INPUT_LENGTH - buf_length - 1;
 

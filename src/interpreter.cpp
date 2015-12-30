@@ -14,9 +14,6 @@
 #define __INTERPRETER_C__
 
 #include "conf.h"
-#include <stdexcept>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
 
 #include "sysdep.h"
 #include "structs.h"
@@ -64,6 +61,12 @@
 #include "noob.hpp"
 #include "reset_stats.hpp"
 #include "obj_sets.hpp"
+
+#include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
+
+#include <algorithm>
+#include <stdexcept>
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -1170,7 +1173,7 @@ bool check_frozen_cmd(CHAR_DATA *ch, int cmd)
  */
 void command_interpreter(CHAR_DATA * ch, char *argument)
 {
-	int cmd, length, social = FALSE, hardcopy = FALSE;
+	int cmd, social = FALSE, hardcopy = FALSE;
 	char *line;
 
 	// just drop to next line for hitting CR
@@ -1204,12 +1207,14 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	else
 		line = any_one_arg(argument, arg);
 
-	if ((length = strlen(arg)) && length > 1 && *(arg + length - 1) == '!')
+	const size_t length = strlen(arg);
+	if (1 < length && *(arg + length - 1) == '!')
 	{
 		hardcopy = TRUE;
-		*(arg + (--length)) = '\0';
-		*(argument + length) = ' ';
+		*(arg + length - 1) = '\0';
+		*(argument + length - 1) = ' ';
 	}
+
 	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_STOPFIGHT) && !AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)))
 	{
 		int cont;	// continue the command checks
@@ -1559,24 +1564,35 @@ int perform_alias(DESCRIPTOR_DATA * d, char *orig)
  */
 int search_block(const char *arg, const char **list, int exact)
 {
-	int i, l = strlen(arg);
+	int i;
+	size_t l = strlen(arg);
 
 	if (exact)
 	{
 		for (i = 0; **(list + i) != '\n'; i++)
+		{
 			if (!str_cmp(arg, *(list + i)))
-				return (i);
+			{
+				return i;
+			}
+		}
 	}
 	else
 	{
-		if (!l)
+		if (0 == l)
+		{
 			l = 1;	// Avoid "" to match the first available string
+		}
 		for (i = 0; **(list + i) != '\n'; i++)
+		{
 			if (!strn_cmp(arg, *(list + i), l))
-				return (i);
+			{
+				return i;
+			}
+		}
 	}
 
-	return (-1);
+	return -1;
 }
 
 int search_block(const std::string &arg, const char **list, int exact)
@@ -3539,7 +3555,7 @@ Sventovit
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, arg);
 		if (!_parse_name(arg, tmp_name) &&
 				strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
-				!strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
 			CREATE(GET_PAD(d->character, 1), char, strlen(tmp_name) + 1);
@@ -3563,7 +3579,7 @@ Sventovit
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, arg);
 		if (!_parse_name(arg, tmp_name) &&
 				strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
-				!strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
 			CREATE(GET_PAD(d->character, 2), char, strlen(tmp_name) + 1);
@@ -3587,7 +3603,7 @@ Sventovit
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, arg);
 		if (!_parse_name(arg, tmp_name) &&
 				strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
-				!strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
 			CREATE(GET_PAD(d->character, 3), char, strlen(tmp_name) + 1);
@@ -3611,7 +3627,7 @@ Sventovit
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, arg);
 		if (!_parse_name(arg, tmp_name) &&
 				strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
-				!strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
 			CREATE(GET_PAD(d->character, 4), char, strlen(tmp_name) + 1);
@@ -3635,7 +3651,7 @@ Sventovit
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, arg);
 		if (!_parse_name(arg, tmp_name) &&
 				strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
-				!strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
 			CREATE(GET_PAD(d->character, 5), char, strlen(tmp_name) + 1);

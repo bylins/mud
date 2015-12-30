@@ -129,7 +129,7 @@ class Linked
 {
 public:
 	Linked() {};
-	int list_size() const { return mob_list.size(); };
+	size_t list_size() const { return mob_list.size(); };
 	int drop_count() const;
 	bool need_reset() const;
 	void reset();
@@ -334,8 +334,7 @@ void init_obj_list()
 			// список сета сортированный по макс.активаторам
 			std::multimap<int, int> set_sort_list;
 
-			for (pugi::xml_node obj_node = set_node.child("obj");
-				obj_node; obj_node = obj_node.next_sibling("obj"))
+			for (pugi::xml_node obj_node = set_node.child("obj"); obj_node; obj_node = obj_node.next_sibling("obj"))
 			{
 				const int obj_vnum = Parse::attr_int(obj_node, "vnum");
 				if (real_object(obj_vnum) < 0)
@@ -364,7 +363,8 @@ void init_obj_list()
 				}
 			}
 			// первая половина активаторов в соло-лист, вторая в групп
-			int num = 0, total_num = set_sort_list.size();
+			size_t num = 0;
+			size_t total_num = set_sort_list.size();
 			for (std::multimap<int, int>::const_iterator i = set_sort_list.begin(),
 				iend = set_sort_list.end(); i != iend; ++i, ++num)
 			{
@@ -383,7 +383,8 @@ void init_obj_list()
 		// деление соло списка на два, если требуется
 		if (tmp_solo_list.size() > 4)
 		{
-			int num = 0, total_num = tmp_solo_list.size();
+			size_t num = 0;
+			size_t total_num = tmp_solo_list.size();
 			for (std::set<int>::const_iterator i = tmp_solo_list.begin(),
 				iend = tmp_solo_list.end(); i != iend; ++i, ++num)
 			{
@@ -679,12 +680,12 @@ void filter_dupe_names()
 void filter_extra_mobs(int total, int type)
 {
 	std::list<ZoneNode> &cont = (type == GROUP_MOB) ? group_mob_list : solo_mob_list;
-	const int obj_total = (type == GROUP_MOB) ? group_obj_list.size() : solo_obj_list.size();
+	const size_t obj_total = (type == GROUP_MOB) ? group_obj_list.size() : solo_obj_list.size();
 	// обрезание лишних мобов в самых заполненных зонах
-	int num_del = total - obj_total;
+	int num_del = total - static_cast<int>(obj_total);
 	while (num_del > 0)
 	{
-		unsigned max_num = 0;
+		size_t max_num = 0;
 		for (std::list<ZoneNode>::iterator it = cont.begin(),
 			iend = cont.end(); it != iend; ++it)
 		{
@@ -699,7 +700,7 @@ void filter_extra_mobs(int total, int type)
 			if (it->mobs.size() >= max_num)
 			{
 				std::list<MobNode>::iterator l = it->mobs.begin();
-				std::advance(l, number(0, it->mobs.size() - 1));
+				std::advance(l, number(0, static_cast<int>(it->mobs.size()) - 1));
 				it->mobs.erase(l);
 				if (it->mobs.empty())
 				{
@@ -804,11 +805,11 @@ void init_drop_table(int type)
 	while(!obj_list.empty() && !mob_list.empty())
 	{
 		std::list<int>::iterator it = obj_list.begin();
-		std::advance(it, number(0, obj_list.size() - 1));
+		std::advance(it, number(0, static_cast<int>(obj_list.size()) - 1));
 		const int obj_rnum = real_object(*it);
 
 		std::list<ZoneNode>::iterator k = mob_list.begin();
-		std::advance(k, number(0, mob_list.size() - 1));
+		std::advance(k, number(0, static_cast<int>(mob_list.size()) - 1));
 
 		// по идее чистить надо сразу после удаления последнего
 		// элемента, но тут может получиться ситуация, что на входе
@@ -820,7 +821,7 @@ void init_drop_table(int type)
 		}
 
 		std::list<MobNode>::iterator l = k->mobs.begin();
-		std::advance(l, number(0, k->mobs.size() - 1));
+		std::advance(l, number(0, static_cast<int>(k->mobs.size()) - 1));
 
 		DropNode tmp_node;
 		tmp_node.obj_rnum = obj_rnum;
@@ -1310,20 +1311,20 @@ log("reset");
 		// +0.2% если 2 из 4 шмоток в лоаде
 		// +0.3% если 1 из 4 шмоток в лоаде
 		// таже система, если список в целом меньше 4
-		const int drop_mod = it->second.linked_mobs.list_size() - it->second.linked_mobs.drop_count();
-log("list_size=%d, drop_count=%d, drop_mod=%d",
-	it->second.linked_mobs.list_size(),
-	it->second.linked_mobs.drop_count(), drop_mod);
-log("num=%d, miw=%d", num, GET_OBJ_MIW(obj_proto[it->second.obj_rnum]));
+		const int mobs_count = static_cast<int>(it->second.linked_mobs.list_size());
+		const int drop_count = it->second.linked_mobs.drop_count();
+		const int drop_mod = mobs_count - drop_count;
+		log("list_size=%d, drop_count=%d, drop_mod=%d", mobs_count, drop_count, drop_mod);
+		log("num=%d, miw=%d", num, GET_OBJ_MIW(obj_proto[it->second.obj_rnum]));
 		if (num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum]))
 		{
-log("chance1=%d", it->second.chance);
+			log("chance1=%d", it->second.chance);
 			it->second.chance += MAX(0, drop_mod);
-log("chance2=%d", it->second.chance);
+			log("chance2=%d", it->second.chance);
 			// собственно проверка на лоад
 			if (it->second.chance >= 120 || number(0, 1000) <= it->second.chance)
 			{
-log("drop");
+				log("drop");
 				// если шмоток две и более в мире - вторую нашару не дропаем
 				it->second.reset_chance();
 				rnum = it->second.obj_rnum;
@@ -1331,17 +1332,17 @@ log("drop");
 		}
 		else
 		{
-log("chance3=%d", it->second.chance);
+			log("chance3=%d", it->second.chance);
 			// шмотка не в лоаде, увеличиваем шансы как на дропе с проверкой переполнения
 			it->second.chance += MAX(0, drop_mod);
-log("chance4=%d", it->second.chance);
+			log("chance4=%d", it->second.chance);
 			if (it->second.chance > 1000)
 			{
-log("reset");
+				log("reset");
 				it->second.reset_chance();
 			}
 		}
-log("<-sd");
+		log("<-sd");
 
 		need_save_drop_table = true;
 		HelpSystem::reload(HelpSystem::DYNAMIC);

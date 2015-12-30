@@ -1161,7 +1161,7 @@ void Damage::post_init_shields(CHAR_DATA *victim)
 		if (shields.empty())
 			return;
 
-		int shield_num = number(0, shields.size() - 1);
+		int shield_num = number(0, static_cast<int>(shields.size() - 1));
 
 		if (shields[shield_num] == FIRESHIELD)
 		{

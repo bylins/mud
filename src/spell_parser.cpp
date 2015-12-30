@@ -1683,7 +1683,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 	*helpee_vict, *damagee_vict, *format;
 	CHAR_DATA *i;
-	int j = 0, ofs = 0, religion;
+	int j = 0, religion;
 
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
@@ -1739,6 +1739,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 
 	if (!*buf)
 	{
+		size_t ofs = 0;
 		while (lbuf[ofs])
 		{
 			for (j = 0; *(syls[j].org); j++)
@@ -3395,7 +3396,7 @@ ACMD(do_mixture)
 ACMD(do_create)
 {
 	char *s;
-	int spellnum, itemnum = 0, i;
+	int spellnum, itemnum = 0;
 
 	if (IS_NPC(ch))
 		return;
@@ -3412,7 +3413,7 @@ ACMD(do_create)
 		return;
 	}
 
-	i = strlen(arg);
+	size_t i = strlen(arg);
 	if (!strn_cmp(arg, "potion", i) || !strn_cmp(arg, "напиток", i))
 		itemnum = SPELL_POTION;
 	else if (!strn_cmp(arg, "wand", i) || !strn_cmp(arg, "палочка", i))
@@ -3982,7 +3983,7 @@ inline bool in_mem(char* arg)
 ACMD(do_forget)
 {
 	char *s=0, *t=0;
-	int spellnum, is_in_mem, i;
+	int spellnum, is_in_mem;
 
 	// проверка на аргумент рецепт|отвар
 	one_argument(argument, arg);
@@ -3993,7 +3994,7 @@ ACMD(do_forget)
 		return;
 	}
 
-	i = strlen(arg);
+	size_t i = strlen(arg);
 	if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "рецепт", i) ||
 			!strn_cmp(arg, "отвар", i))
 	{
@@ -4009,9 +4010,13 @@ ACMD(do_forget)
 		{
 			MemQ_flush(ch);
 			send_to_char("Вы вычеркнули все заклинания из своего списка для запоминания.\r\n", ch);
-		} else {
+		}
+		else
+		{
 			for (i = 1; i <= MAX_SPELLS; i++)
+			{
 				GET_SPELL_MEM(ch, i) = 0;
+			}
 			sprintf(buf, "Вы удалили все заклинания из %s.\r\n", GET_RELIGION(ch) == RELIGION_MONO ? "своего часослова" : "своих рез");
 			send_to_char(buf, ch);
 		}

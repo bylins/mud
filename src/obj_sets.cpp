@@ -736,7 +736,7 @@ void print_msg(CHAR_DATA *ch, OBJ_DATA *obj, size_t set_idx, bool activated)
 /// сообщение деактивации предмета
 void print_off_msg(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	const int set_idx = GET_OBJ_RNUM(obj) >= 0
+	const size_t set_idx = GET_OBJ_RNUM(obj) >= 0
 		? obj_index[GET_OBJ_RNUM(obj)].set_idx : -1;
 	if (set_idx >= 0)
 	{

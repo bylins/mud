@@ -87,14 +87,19 @@ void sum_skills(std::map<int, int> &target, const OBJ_DATA *obj)
 	}
 }
 
+inline bool bit_is_set(const uint32_t flags, const int bit)
+{
+	return 0 != (flags & (1 << bit));
+}
+
 // проверка обратная flag_data_by_num()
 bool check_num_in_unique_bit_flag_data(const unique_bit_flag_data &data, const int num)
 {
 	return num < 0   ? false :
-		   num < 30  ? *(data.flags) & (1 << num) :
-		   num < 60  ? *(data.flags + 1) & (1 << (num - 30)) :
-		   num < 90  ? *(data.flags + 2) & (1 << (num - 60)) :
-		   num < 120 ? *(data.flags + 3) & (1 << (num - 90)) : false;
+		   num < 30  ? bit_is_set(*data.flags, num) :
+		   num < 60  ? bit_is_set(*(data.flags + 1), num - 30) :
+		   num < 90  ? bit_is_set(*(data.flags + 2), num - 60) :
+		   num < 120 ? bit_is_set(*(data.flags + 3), num - 90) : false;
 }
 
 std::string print_skill(const std::pair<int, int> &skill, bool activ)

@@ -343,6 +343,7 @@ if (CMAKE_HOST_UNIX)
     add_custom_command(TARGET changelog
         COMMAND LANGUAGE=en_US.UTF-8 HGENCODING=utf-8 hg log -v -M > changelog)
 elseif (CMAKE_HOST_WIN32)
+    add_definitions("-D_SCL_SECURE_NO_WARNINGS")
     set(CMAKE_CXX_FLAGS_RELEASE "-DBOOST_ENABLE_ASSERT_HANDLER")
     set(CMAKE_CXX_FLAGS_DEBUG "")
     set(CMAKE_CXX_FLAGS_TEST  "-DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH")

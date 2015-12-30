@@ -127,7 +127,6 @@ void string_write(DESCRIPTOR_DATA * d, char **writeto, size_t len, int mailto, v
 void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 {
 	int indent = 0, rep_all = 0, flags = 0, replaced;
-	unsigned int total_len;
 	int j = 0;
 	int i, line_low, line_high;
 	char *s, *t, temp;
@@ -152,6 +151,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				"              Формат: /r[a] 'шаблон' 'на_что_меняем'\r\n" "/s         -  сохранить текст\r\n");
 		SEND_TO_Q(buf, d);
 		break;
+
 	case PARSE_FORMAT:
 		while (isalpha(string[j]) && j < 2)
 		{
@@ -173,6 +173,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		sprintf(buf, "Текст отформатирован %s\r\n", (indent ? "WITH INDENT." : "."));
 		SEND_TO_Q(buf, d);
 		break;
+
 	case PARSE_REPLACE:
 		while (isalpha(string[j]) && j < 2)
 		{
@@ -207,24 +208,34 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			SEND_TO_Q("Замещающая строка должна быть заключена в апострофы.\r\n", d);
 			return;
 		}
-		else if ((total_len = ((strlen(t) - strlen(s)) + strlen(*d->str))) <= d->max_str)
+		else
 		{
-			if ((replaced = replace_str(d->str, s, t, rep_all, d->max_str)) > 0)
+			size_t total_len = strlen(t) + strlen(*d->str) - strlen(s);
+			if (total_len <= d->max_str)
 			{
-				sprintf(buf, "Заменено вхождений '%s' на '%s' - %d.\r\n", s, t, replaced);
-				SEND_TO_Q(buf, d);
-			}
-			else if (replaced == 0)
-			{
-				sprintf(buf, "Шаблон '%s' не найден.\r\n", s);
-				SEND_TO_Q(buf, d);
+				replaced = replace_str(d->str, s, t, rep_all, static_cast<int>(d->max_str));
+				if (replaced > 0)
+				{
+					sprintf(buf, "Заменено вхождений '%s' на '%s' - %d.\r\n", s, t, replaced);
+					SEND_TO_Q(buf, d);
+				}
+				else if (replaced == 0)
+				{
+					sprintf(buf, "Шаблон '%s' не найден.\r\n", s);
+					SEND_TO_Q(buf, d);
+				}
+				else
+				{
+					SEND_TO_Q("ОШИБКА: При попытке замены буфер переполнен - прервано.\r\n", d);
+				}
 			}
 			else
-				SEND_TO_Q("ОШИБКА: При попытке замены буфер переполнен - прервано.\r\n", d);
+			{
+				SEND_TO_Q("Нет свободного места для завершения команды.\r\n", d);
+			}
 		}
-		else
-			SEND_TO_Q("Нет свободного места для завершения команды.\r\n", d);
 		break;
+
 	case PARSE_DELETE:
 		switch (sscanf(string, " %d - %d ", &line_low, &line_high))
 		{
@@ -244,7 +255,6 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 
 		i = 1;
-		total_len = 1;
 		if ((s = *d->str) == NULL)
 		{
 			SEND_TO_Q("Буфер пуст.\r\n", d);
@@ -252,6 +262,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 		else if (line_low > 0)
 		{
+			unsigned int total_len = 1;
 			while (s && (i < line_low))
 				if ((s = strchr(s, '\n')) != NULL)
 				{
@@ -291,6 +302,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			return;
 		}
 		break;
+
 	case PARSE_LIST_NORM:
 		// * Note: Rv's buf, buf1, buf2, and arg variables are defined to 32k so
 		// * they are probly ok for what to do here.
@@ -326,27 +338,33 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		if ((line_high < 999999) || (line_low > 1))
 			sprintf(buf, "Текущий диапазон [%d - %d]:\r\n", line_low, line_high);
 		i = 1;
-		total_len = 0;
-		s = *d->str;
-		while (s && (i < line_low))
-			if ((s = strchr(s, '\n')) != NULL)
-			{
-				i++;
-				s++;
-			}
-		if ((i < line_low) || (s == NULL))
 		{
-			SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
-			return;
-		}
-		t = s;
-		while (s && (i <= line_high))
-			if ((s = strchr(s, '\n')) != NULL)
+			unsigned int total_len = 0;
+			s = *d->str;
+			while (s && (i < line_low))
 			{
-				i++;
-				total_len++;
-				s++;
+				if ((s = strchr(s, '\n')) != NULL)
+				{
+					i++;
+					s++;
+				}
 			}
+			if ((i < line_low) || (s == NULL))
+			{
+				SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+				return;
+			}
+			t = s;
+			while (s && (i <= line_high))
+			{
+				if ((s = strchr(s, '\n')) != NULL)
+				{
+					i++;
+					total_len++;
+					s++;
+				}
+			}
+		}
 		if (s)
 		{
 			temp = *s;
@@ -355,13 +373,16 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			*s = temp;
 		}
 		else
+		{
 			strcat(buf, t);
+		}
 		// * This is kind of annoying...but some people like it.
 #if 0
 		sprintf(buf, "%s\r\nПоказано строк - %d.\r\n", buf, total_len);
 #endif
 		page_string(d, buf, TRUE);
 		break;
+
 	case PARSE_LIST_NUM:
 		// * Note: Rv's buf, buf1, buf2, and arg variables are defined to 32k so
 		// * they are probly ok for what to do here.
@@ -395,33 +416,39 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 		*buf = '\0';
 		i = 1;
-		total_len = 0;
-		s = *d->str;
-		while (s && (i < line_low))
-			if ((s = strchr(s, '\n')) != NULL)
-			{
-				i++;
-				s++;
-			}
-		if ((i < line_low) || (s == NULL))
 		{
-			SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
-			return;
-		}
-		t = s;
-		while (s && (i <= line_high))
-			if ((s = strchr(s, '\n')) != NULL)
+			unsigned int total_len = 0;
+			s = *d->str;
+			while (s && (i < line_low))
 			{
-				i++;
-				total_len++;
-				s++;
-				temp = *s;
-				*s = '\0';
-				sprintf(buf, "%s%4d:\r\n", buf, (i - 1));
-				strcat(buf, t);
-				*s = temp;
-				t = s;
+				if ((s = strchr(s, '\n')) != NULL)
+				{
+					i++;
+					s++;
+				}
 			}
+			if ((i < line_low) || (s == NULL))
+			{
+				SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+				return;
+			}
+			t = s;
+			while (s && (i <= line_high))
+			{
+				if ((s = strchr(s, '\n')) != NULL)
+				{
+					i++;
+					total_len++;
+					s++;
+					temp = *s;
+					*s = '\0';
+					sprintf(buf, "%s%4d:\r\n", buf, (i - 1));
+					strcat(buf, t);
+					*s = temp;
+					t = s;
+				}
+			}
+		}
 		if (s && t)
 		{
 			temp = *s;
@@ -566,6 +593,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			return;
 		}
 		break;
+
 	default:
 		SEND_TO_Q("Неверная опция.\r\n", d);
 		mudlog("SYSERR: invalid command passed to parse_action", BRF, LVL_IMPL, SYSLOG, TRUE);

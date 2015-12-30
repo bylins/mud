@@ -1610,7 +1610,7 @@ namespace MapSystem
 
 namespace obj_sets_olc
 {
-	struct sedit;
+	class sedit;
 }
 
 class Board;

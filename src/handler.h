@@ -60,8 +60,8 @@ void affect_room_join(ROOM_DATA * room, AFFECT_DATA * af, bool add_dur, bool avg
 // utility //
 char *money_desc(int amount, int padis);
 OBJ_DATA *create_money(int amount);
-int isname(const char *str, const char *namelist);
-int isname(const std::string &str, const char *namelist);
+bool isname(const char *str, const char *namelist);
+bool isname(const std::string &str, const char *namelist);
 char *fname(const char *namelist);
 int get_number(char **name);
 int get_number(std::string &name);

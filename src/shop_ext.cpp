@@ -194,7 +194,7 @@ std::list<std::string> split(std::string s, char c)
 	size_t idx = s.find_first_of(c);
 	while (idx != std::string::npos)
 	{
-		int l = s.length();
+		size_t l = s.length();
 		result.push_back(s.substr(0, idx));
 		s = s.substr(idx+1, l-idx);
 		idx = s.find_first_of(c);
@@ -529,7 +529,8 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 				try
 				{
 					num = boost::lexical_cast<int>(first_param);
-				} catch(boost::bad_lexical_cast const& e)
+				}
+				catch (const boost::bad_lexical_cast&)
 				{
 					return 0;
 				}
@@ -604,7 +605,9 @@ bool check_money(CHAR_DATA *ch, long price, std::string currency)
 int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 {
 	if ((*shop)->item_list[item_num]->temporary_ids.size() != 0)
-		return (*shop)->item_list[item_num]->temporary_ids.size();
+	{
+		return static_cast<int>((*shop)->item_list[item_num]->temporary_ids.size());
+	}
 	else
 	{
 		int numToSell = obj_proto[(*shop)->item_list[item_num]->rnum]->max_in_world;
@@ -1025,7 +1028,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 			try
 			{
 				item_num = boost::lexical_cast<unsigned>(buffer1);
-			} catch(boost::bad_lexical_cast const& e)
+			} catch (const boost::bad_lexical_cast&)
 			{
 				item_num = 0;
 			}
@@ -1044,7 +1047,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 			try
 			{
 				item_num = boost::lexical_cast<unsigned>(buffer2);
-			} catch(boost::bad_lexical_cast const& e)
+			} catch (const boost::bad_lexical_cast&)
 			{
 				item_num = 0;
 			}
@@ -1057,7 +1060,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		try
 		{
 			item_count = boost::lexical_cast<unsigned>(buffer1);
-		} catch(boost::bad_lexical_cast const& e)
+		} catch (const boost::bad_lexical_cast&)
 		{
 			item_count = 1000;
 		}
@@ -1470,7 +1473,7 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		try
 		{
 			n = boost::lexical_cast<int>(buffer1);
-		} catch(boost::bad_lexical_cast const& e)
+		} catch (const boost::bad_lexical_cast&)
 		{
 		}
 
@@ -1562,7 +1565,7 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		try
 		{
 			item_num = boost::lexical_cast<unsigned>(buffer);
-		} catch(boost::bad_lexical_cast const& e)
+		} catch (const boost::bad_lexical_cast&)
 		{
 		}
 	}
@@ -1807,10 +1810,12 @@ void town_shop_keepers()
 ACMD(do_shops_list)
 {
 	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
-	int n = dic->Size();
+	size_t n = dic->Size();
 	std::string out = std::string();
-	for (int i =0; i< n; i++)
-		out = out + boost::lexical_cast<string>(i+1)+" " + dic->GetNameByNID(i) + " " + dic->GetTIDByNID(i) + "\r\n";
+	for (size_t i = 0; i < n; i++)
+	{
+		out = out + boost::lexical_cast<string>(i + 1) + " " + dic->GetNameByNID(i) + " " + dic->GetTIDByNID(i) + "\r\n";
+	}
 	send_to_char(out, ch);
 }
 

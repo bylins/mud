@@ -73,7 +73,7 @@ TIME_INFO_DATA *age(CHAR_DATA * ch);
 int num_pc_in_room(ROOM_DATA * room);
 void core_dump_real(const char *, int);
 int replace_str(char **string, char *pattern, char *replacement, int rep_all, int max_size);
-void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen);
+void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, size_t maxlen);
 int check_moves(CHAR_DATA * ch, int how_moves);
 void to_koi(char *str, int);
 void from_koi(char *str, int);
@@ -1321,8 +1321,8 @@ int awake_sneak(CHAR_DATA * ch);
 int awaking(CHAR_DATA * ch, int mode);
 std::string time_format(int timer, int flag = 0);
 
-int count_colors(const char * str, size_t len = 0);
-char* colored_name(const char * str, int len, const bool left_align = false);
+size_t count_colors(const char * str, size_t len = 0);
+char* colored_name(const char * str, size_t len, const bool left_align = false);
 size_t strlen_no_colors(const char *str);
 
 // OS compatibility *****************************************************

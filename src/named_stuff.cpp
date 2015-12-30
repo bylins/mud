@@ -166,8 +166,10 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 	}
 	if(!*buf2 && LOWER(*buf1)!='в' && LOWER(*buf1)!='х' && LOWER(*buf1)!='у')
 	{
-		if (*buf1<'5' ||  *buf1>'8')
+		if (*buf1<'5' || *buf1>'8')
+		{
 			send_to_char("Не указан второй параметр!\r\n", ch);
+		}
 		else
 		{
 			switch (*buf1)
@@ -192,12 +194,13 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 		}
 		return false;
 	}
+
 	switch (LOWER(*buf1))
 	{
 		case '1':
-			if(a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
+			if (a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
 			{
-				if(real_object(num) < 0)
+				if (real_object(num) < 0)
 				{
 					send_to_char(ch, "Такого объекта не существует.\r\n");
 					return false;
@@ -205,27 +208,32 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 				ch->desc->cur_vnum = num;
 			}
 			break;
+
 		case '2':
 			num = GetUniqueByName(buf2);
-			if(num>0)
-			{
-				ch->desc->named_obj->uid = num;
-				ch->desc->named_obj->mail = str_dup(player_table[get_ptable_by_unique(num)].mail);
-			}
-			else
+			if (0 >= num)
 			{
 				send_to_char(ch, "Такого персонажа не существует.\r\n");
 				return false;
 			}
+			ch->desc->named_obj->uid = num;
+			ch->desc->named_obj->mail = str_dup(player_table[get_ptable_by_unique(num)].mail);
 			break;
+
 		case '3':
-			if(*buf2 && a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
-				ch->desc->named_obj->can_clan = (int)(bool)num;
+			if (*buf2 && a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
+			{
+				ch->desc->named_obj->can_clan = 0 == num ? 0 : 1;
+			}
 			break;
+
 		case '4':
-			if(*buf2 && a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
-				ch->desc->named_obj->can_alli = (int)(bool)num;
+			if (*buf2 && a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
+			{
+				ch->desc->named_obj->can_alli = 0 == num ? 0 : 1;
+			}
 			break;
+
 		case '5':
 			if(*buf2)
 			{
@@ -236,6 +244,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 					*/
 			}
 			break;
+
 		case '6':
 			if(*buf2)
 			{
@@ -246,6 +255,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 					*/
 			}
 			break;
+
 		case '7':
 			if(*buf2)
 			{
@@ -256,6 +266,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 					*/
 			}
 			break;
+
 		case '8':
 			if(*buf2)
 			{
@@ -266,6 +277,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 					*/
 			}
 			break;
+
 		case 'у':
 			if(!ch->desc->old_vnum)
 				return false;
@@ -274,7 +286,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			send_to_char(OK, ch);
 			save();
 			return true;
-			break;
+
 		case 'в':
 			tmp_node->uid = ch->desc->named_obj->uid;
 			tmp_node->can_clan = ch->desc->named_obj->can_clan;
@@ -291,11 +303,12 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			send_to_char(OK, ch);
 			save();
 			return true;
-			break;
+
 		case 'х':
 			STATE(ch->desc) = CON_PLAYING;
 			send_to_char(OK, ch);
 			return true;
+
 		default:
 			break;
 	}
@@ -308,14 +321,16 @@ void nedit_menu(CHAR_DATA * ch)
 
 	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: " << (real_object(ch->desc->cur_vnum)?obj_proto[real_object(ch->desc->cur_vnum)]->short_description:"&Rнеизвестно&n") << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: " << GetNameByUnique(ch->desc->named_obj->uid,0) << " e-mail: &S" << ch->desc->named_obj->mail << "&s\r\n";
-	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: " << (int)(bool)ch->desc->named_obj->can_clan << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "4" << CCNRM(ch, C_SPR) << ") Доступно альянсу: " << (int)(bool)ch->desc->named_obj->can_alli << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: " << (0 == ch->desc->named_obj->can_clan ? 0 : 1) << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "4" << CCNRM(ch, C_SPR) << ") Доступно альянсу: " << (0 == ch->desc->named_obj->can_alli ? 0 : 1) << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "5" << CCNRM(ch, C_SPR) << ") Сообщение при одевании персу: " << ch->desc->named_obj->wear_msg_v << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "6" << CCNRM(ch, C_SPR) << ") Сообщение при одевании вокруг перса: " << ch->desc->named_obj->wear_msg_a << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "7" << CCNRM(ch, C_SPR) << ") Сообщение если вещь недоступна персу: " << ch->desc->named_obj->cant_msg_v << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "8" << CCNRM(ch, C_SPR) << ") Сообщение если вещь недоступна вокруг перса: " << ch->desc->named_obj->cant_msg_a << "\r\n";
-	if(ch->desc->old_vnum)
+	if (ch->desc->old_vnum)
+	{
 		out << CCIGRN(ch, C_SPR) << "У" << CCNRM(ch, C_SPR) << ") Удалить\r\n";
+	}
 	out << CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR) << ") Выйти и сохранить\r\n";
 	out << CCIGRN(ch, C_SPR) << "Х" << CCNRM(ch, C_SPR) << ") Выйти без сохранения\r\n";
 	send_to_char(out.str().c_str(), ch);

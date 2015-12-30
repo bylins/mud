@@ -1140,8 +1140,8 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 		return 0;
 	}
 
-	const unsigned ingr_cnt = count_inrg(it->second.pers_online);
-	const unsigned staff_cnt = it->second.pers_online.size() - ingr_cnt;
+	const size_t ingr_cnt = count_inrg(it->second.pers_online);
+	const size_t staff_cnt = it->second.pers_online.size() - ingr_cnt;
 	const bool is_ingr = (GET_OBJ_TYPE(obj) == ITEM_MING
 		|| GET_OBJ_TYPE(obj) == ITEM_MATERIAL) ? true : false;
 
@@ -1329,7 +1329,8 @@ int get_total_cost_per_day(CHAR_DATA *ch)
 void show_stats(CHAR_DATA *ch)
 {
 	std::stringstream out;
-	int pers_count = 0, offline_count = 0;
+	size_t pers_count = 0;
+	size_t offline_count = 0;
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
 	{
 		pers_count += it->second.pers_online.size();

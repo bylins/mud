@@ -5194,7 +5194,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		}
 	}
 
-	int size = tmp_char_list.size();
+	size_t size = tmp_char_list.size();
 	int count = 0;
 	while (level > 0 && level >= decay && size != 0)
 	{
@@ -5202,7 +5202,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		{
 			break;
 		}
-		i = number(0, size - 1);
+		i = number(0, static_cast<int>(size) - 1);
 		ch_vict = tmp_char_list[i];
 		tmp_char_list[i] = tmp_char_list[--size];
 		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)

@@ -219,41 +219,56 @@ FBFILE *fbopen(char *fname, int mode)
 }
 
 
-int fbclose_for_read(FBFILE * fbfl)
+size_t fbclose_for_read(FBFILE * fbfl)
 {
 	if (!fbfl)
+	{
 		return 0;
+	}
 
 	if (fbfl->buf)
+	{
 		free(fbfl->buf);
+	}
 	if (fbfl->name)
+	{
 		free(fbfl->name);
+	}
 	free(fbfl);
 	return 1;
 }
 
 
-int fbclose_for_write(FBFILE * fbfl)
+size_t fbclose_for_write(FBFILE * fbfl)
 {
 	const char *arg;
 	char *tname;
-	int len, bytes_written;
 	FILE *fl;
 
 	if (!fbfl || !fbfl->name || fbfl->ptr == fbfl->buf)
+	{
 		return 0;
+	}
 
 	if (IS_SET(fbfl->flags, FB_APPEND))
+	{
 		arg = "wa";
+	}
 	else
+	{
 		arg = "w";
+	}
 
-	if (!(tname = (char *) malloc(strlen(fbfl->name) + 6)))
+	if (!(tname = (char *)malloc(strlen(fbfl->name) + 6)))
+	{
 		return 0;
+	}
 
-	len = strlen(fbfl->buf);
-	if (!len)
+	size_t len = strlen(fbfl->buf);
+	if (0 == len)
+	{
 		return 0;
+	}
 	sprintf(tname, "%s.tmp", fbfl->name);
 
 	if (!(fl = fopen(tname, arg)))
@@ -262,7 +277,8 @@ int fbclose_for_write(FBFILE * fbfl)
 		return 0;
 	}
 
-	if ((bytes_written = fwrite(fbfl->buf, sizeof(char), len, fl)) < len)
+	const size_t bytes_written = fwrite(fbfl->buf, sizeof(char), len, fl);
+	if (bytes_written < len)
 	{
 		fclose(fl);
 		remove(tname);
@@ -277,21 +293,24 @@ int fbclose_for_write(FBFILE * fbfl)
 	free(fbfl->name);
 	free(fbfl->buf);
 	free(fbfl);
+
 	return bytes_written;
 }
 
-
-int fbclose(FBFILE * fbfl)
+size_t fbclose(FBFILE * fbfl)
 {
-	if (!fbfl)
-		return 0;
-
-	if (IS_SET(fbfl->flags, FB_READ))
-		return fbclose_for_read(fbfl);
-	else if (IS_SET(fbfl->flags, FB_WRITE | FB_APPEND))
-		return fbclose_for_write(fbfl);
-	else
-		return 0;
+	if (fbfl)
+	{
+		if (IS_SET(fbfl->flags, FB_READ))
+		{
+			return fbclose_for_read(fbfl);
+		}
+		else if (IS_SET(fbfl->flags, FB_WRITE | FB_APPEND))
+		{
+			return fbclose_for_write(fbfl);
+		}
+	}
+	return 0;
 }
 
 
@@ -347,7 +366,7 @@ int fbcat(char *fromfilename, FBFILE * tofile)
 	tofile->size += sb.st_size;
 	in_buf = (char *) malloc(sb.st_size + 1);
 	in_buf[0] = 0;
-	errnum = fread(in_buf, sb.st_size, 1, fromfile);
+	/*size_t amount = */fread(in_buf, sb.st_size, 1, fromfile);	// Anton Gorev (2015/12/29): maybe we have to check amount of read data
 	fbprintf(tofile, "%s", in_buf);
 	fclose(fromfile);
 	free(in_buf);
