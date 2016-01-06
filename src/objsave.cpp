@@ -971,7 +971,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			{
 				for (std::map<int, int>::iterator it = tmp_skills_object_.begin(); it != tmp_skills_object_.end(); ++it)
 				{
-					out << "Skil: " << it->first << it->second << "\n";
+					out << "Skil: " << it->first << " " << it->second << "~\n";
 				}
 				
 			}
@@ -1202,12 +1202,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			object->get_skills(tmp_skills_object_);
 			for (std::map<int, int>::iterator it = tmp_skills_object_.begin(); it != tmp_skills_object_.end(); ++it)
 			{
-				out << "Skil: " << it->first << it->second << "\n";
+				out << "Skil: " << it->first << " " <<it->second << "~\n";
 			}
-		}
-		if (GET_OBJ_SKILL(object))
-		{
-			out << "Skil: " << GET_OBJ_SKILL(object) << "~\n";
 		}
 		// Макс. прочность
 		if (GET_OBJ_MAX(object))
@@ -1309,7 +1305,16 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		{
 			out << "Prnt: " << GET_OBJ_PARENT(object) << "~\n";
 		}
-
+		// была ли шмотка ренейм
+		if (GET_OBJ_RENAME(object)) 
+			out << "Rnme: 1~\n";
+		else
+			out << "Rnme: 0~\n";
+		// есть ли на шмотке таймер при крафте
+		if (GET_OBJ_CRAFTIMER(object) > 0) 
+		{
+			out << "Ctmr: " << GET_OBJ_CRAFTIMER(object) << "~\n";
+		}
 		// Аффекты
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 		{
