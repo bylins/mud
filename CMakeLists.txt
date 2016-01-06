@@ -375,4 +375,10 @@ endif ()
 
 add_dependencies(circle lib_directory)
 
+# Add custom defines
+set(LOG_STDERR NO CACHE STRING "Define LOG_STDERR. If defined, MUD will log messages additionally to stderr. Also here you can specify output encoding")
+if (LOG_STDERR)
+    add_definitions("-DLOG_STDERR=${LOG_STDERR}")
+endif()
+
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :

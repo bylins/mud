@@ -75,8 +75,11 @@ void core_dump_real(const char *, int);
 int replace_str(char **string, char *pattern, char *replacement, int rep_all, int max_size);
 void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen);
 int check_moves(CHAR_DATA * ch, int how_moves);
-void to_koi(char *str, int);
-void from_koi(char *str, int);
+void to_koi(char *str, int from);
+void from_koi(char *str, int to);
+void koi_to_alt(char *str, int len);
+void koi_to_win(char *str, int len);
+void koi_to_winz(char *str, int len);
 int real_sector(int room);
 char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj);
 int roundup(float fl);
@@ -1665,6 +1668,13 @@ private:
 
 int get_virtual_race(CHAR_DATA *mob);
 
+#define _QUOTE(x) # x
+#define QUOTE(x) _QUOTE(x)
+
+typedef void(*converter_t)(char*, int);
+extern converter_t syslog_converter;
+
+void setup_converters();
 
 #endif // _UTILS_H_
 

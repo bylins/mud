@@ -687,9 +687,6 @@ void hour_update();
 // бонус
 extern void timer_bonus();
 int real_zone(int number);
-void koi_to_alt(char *str, int len);
-void koi_to_win(char *str, int len);
-void koi_to_winz(char *str, int len);
 void Crash_rent_time(int dectime);
 void Crash_ldsave(CHAR_DATA * ch);
 void Crash_save_all_rent();
@@ -4954,14 +4951,20 @@ void setup_logs(void)
 		}
 	}
 	logfile = logs[SYSLOG].logfile;
+
+	setup_converters();
 }
 
 int open_logfile(log_info * li, FILE * stderr_fp)
 {
 	if (stderr_fp)		// freopen() the descriptor.
+	{
 		li->logfile = freopen(li->filename, "w", stderr_fp);
+	}
 	else
+	{
 		li->logfile = fopen(li->filename, "w");
+	}
 
 	if (li->logfile)
 	{
