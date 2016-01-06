@@ -262,7 +262,10 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Skil"))
 			{
 				*error = 15;
-				GET_OBJ_SKILL(object) = atoi(buffer);
+				int tmp_a_, tmp_b_;
+				if (sscanf(buffer, "%d %d", &tmp_a_, &tmp_b_) != 2)
+					continue;
+				object->set_skill(tmp_a_, tmp_b_);
 			}
 			else if (!strcmp(read_line, "Maxx"))
 			{
@@ -957,10 +960,21 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 				out << "ADsc: " << GET_OBJ_ACT(object) << "~\n";
 			}
 		}
-		// Тренируемый скилл
-		if (GET_OBJ_SKILL(object) != GET_OBJ_SKILL(proto))
+		if (object->has_skills())
 		{
-			out << "Skil: " << GET_OBJ_SKILL(object) << "~\n";
+			std::map<int, int> tmp_skills_object_;
+			std::map<int, int> tmp_skills_proto_;
+			object->get_skills(tmp_skills_object_);
+			proto->get_skills(tmp_skills_proto_);
+			// Тренируемый скилл
+			if (tmp_skills_object_ != tmp_skills_proto_)
+			{
+				for (std::map<int, int>::iterator it = tmp_skills_object_.begin(); it != tmp_skills_object_.end(); ++it)
+				{
+					out << "Skil: " << it->first << " " << it->second << "~\n";
+				}
+				
+			}
 		}
 		// Макс. прочность
 		if (GET_OBJ_MAX(object) != GET_OBJ_MAX(proto))
@@ -1182,9 +1196,14 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "ADsc: " << GET_OBJ_ACT(object) << "~\n";
 		}
 		// Тренируемый скилл
-		if (GET_OBJ_SKILL(object))
+		if (object->has_skills())
 		{
-			out << "Skil: " << GET_OBJ_SKILL(object) << "~\n";
+			std::map<int, int> tmp_skills_object_;
+			object->get_skills(tmp_skills_object_);
+			for (std::map<int, int>::iterator it = tmp_skills_object_.begin(); it != tmp_skills_object_.end(); ++it)
+			{
+				out << "Skil: " << it->first << " " <<it->second << "~\n";
+			}
 		}
 		// Макс. прочность
 		if (GET_OBJ_MAX(object))
@@ -1286,7 +1305,16 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		{
 			out << "Prnt: " << GET_OBJ_PARENT(object) << "~\n";
 		}
-
+		// была ли шмотка ренейм
+		if (GET_OBJ_RENAME(object)) 
+			out << "Rnme: 1~\n";
+		else
+			out << "Rnme: 0~\n";
+		// есть ли на шмотке таймер при крафте
+		if (GET_OBJ_CRAFTIMER(object) > 0) 
+		{
+			out << "Ctmr: " << GET_OBJ_CRAFTIMER(object) << "~\n";
+		}
 		// Аффекты
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 		{
