@@ -393,4 +393,8 @@ if (LOG_STDERR)
     add_definitions("-DLOG_STDERR")
 endif()
 
+set(CRAFT_FILES lib.template/misc/craft/index.xml)
+source_group("Craft" FILES ${CRAFT_FILES})
+add_custom_target(world SOURCES ${CRAFT_FILES})
+
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :
