@@ -3455,7 +3455,7 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 // returns 1 if string is all digits, else 0
 int is_num(char *num)
 {
-	while (*num && (isdigit(*num) || *num == '-'))
+	while (*num && (isdigit(static_cast<unsigned char>(*num)) || *num == '-'))
 		num++;
 
 	if (!*num || a_isspace(*num))
