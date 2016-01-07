@@ -1665,29 +1665,6 @@ private:
 
 int get_virtual_race(CHAR_DATA *mob);
 
-/// Макрос задания файла для накопления статистики
-#define DECLARE_PERFORMANCE_FILE_STREAM(fileName, varName)    \
-    static std::ofstream varName(#fileName)
-
-/// Макрос задания статического экземпляра checkera
-#define DECLARE_PERFORMANCE_CHECKER(index, outFile)    \
-    static performance::stream_guard performance_checker_##index(index, outFile)
-
-/// Макрос начала замера
-#define START_PERFORMANCE_CHECK(index)    \
-    performance_checker_##index.start()
-
-/// Макрос конца замера
-#define FINISH_PERFORMANCE_CHECK(index)    \
-    performance_checker_##index.finish()
-
-DECLARE_PERFORMANCE_FILE_STREAM(finish_dos_point_perf.log, perfFile);
-
-#define CHECKER_TIMER(func, number) \
-	DECLARE_PERFORMANCE_CHECKER(number, perfFile); \
-	START_PERFORMANCE_CHECK(number); \
-	func \
-	FINISH_PERFORMANCE_CHECK(number);
 
 #endif // _UTILS_H_
 
