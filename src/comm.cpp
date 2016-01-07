@@ -76,6 +76,7 @@
 #include "mail.h"
 #include "mob_stat.hpp"
 
+
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
 #endif
@@ -1739,6 +1740,100 @@ void game_loop(socket_t mother_desc)
 #endif
 }
 
+
+// конечно, лучше бы в отдельный файл, но пока пусть будет так
+namespace performance
+{
+	/// Класс замера времени.
+	class timer
+	{
+		LARGE_INTEGER m_start;
+
+	public:
+
+		inline void start() { QueryPerformanceCounter(&m_start); }
+
+		inline double finish()
+		{
+			LARGE_INTEGER finish;
+			QueryPerformanceCounter(&finish);
+			LARGE_INTEGER freq;
+			QueryPerformanceFrequency(&freq);
+			return double(finish.QuadPart - m_start.QuadPart) / double(freq.QuadPart);
+		}
+
+		template <class TStream> void finish_output(TStream & out)
+		{
+			out << finish() << std::endl;
+		}
+	};
+
+	/// Класс замера производительности многократного выполнения некого куска кода.
+	/// Накапливает статистику по времени ее выполнения и количества выполнения.
+	class instruction_checker
+	{
+		timer m_timer;
+
+		class instruction_info
+		{
+			double m_time;
+			size_t m_count;
+
+		public:
+
+			instruction_info() : m_time(0.0), m_count(0) {}
+			void add_time(double time) { m_time += time; }
+			void inc_count() { ++m_count; }
+
+			inline double get_time() const { return m_time; }
+			inline size_t get_count() const { return m_count; }
+			inline double get_average_time() const { return m_time / double(m_count); }
+		} m_info;
+
+	public:
+
+		inline void start() { m_timer.start(); }
+		inline void finish()
+		{
+			m_info.add_time(m_timer.finish());
+			m_info.inc_count();
+		}
+
+		inline double get_time() const { return m_info.get_time(); }
+		inline size_t get_count() const { return m_info.get_count(); }
+		inline double get_average_time() const { return m_info.get_average_time(); }
+	};
+
+	/// Класс - guard для замера многократно-вызываемого участка кода.
+	/// Имеет интерфейс класса performance_instruction_checker и дополнительно
+	/// в деструкторе выводит в поток накопленную информацию.
+	/// Должен использоваться как статический экземпляр в функции.
+	class stream_guard
+	{
+		instruction_checker m_checker;
+		int m_instructionNumber;
+		std::ofstream & m_outFile;
+	public:
+		stream_guard(int instructionNumber, std::ofstream & outFile)
+			: m_instructionNumber(instructionNumber), m_outFile(outFile)
+		{
+		}
+		inline void start() { m_checker.start(); }
+		inline void finish() { m_checker.finish(); }
+		~stream_guard()
+		{
+			m_outFile << "Instruction number = " << m_instructionNumber << std::endl;
+			m_outFile << "Hole time = " << m_checker.get_time() << std::endl;
+			m_outFile << "Call count = " << static_cast<unsigned int>(m_checker.get_count()) << std::endl;
+			m_outFile << "Average time = " << m_checker.get_average_time() << std::endl;
+			m_outFile << "===============================================" << std::endl;
+		}
+	};
+}
+
+
+
+
 void beat_points_update(int pulse);
 #define FRAC_SAVE TRUE
 
@@ -1780,8 +1875,9 @@ inline void heartbeat(const int missed_pulses)
 	// таблица меняется каждые два часа
 	if ((pulse % (PASSES_PER_SEC * 120 * 60)) == 0)
 	{
-		GlobalDrop::reload_tables();
-		
+
+		CHECKER_TIMER(GlobalDrop::reload_tables();, 1);
+				
 	}
 	
 	
@@ -1804,13 +1900,13 @@ inline void heartbeat(const int missed_pulses)
 
 	if (!((pulse + 1) % PULSE_DG_SCRIPT))  	//log("Triggers check...");
 	{
-		script_trigger_check();
+		CHECKER_TIMER(script_trigger_check(); , 2);
 		//log("Stop it...");
 	}
 
 	if (!((pulse + 2) % (60 * PASSES_PER_SEC)))  	//log("Sanity check...");
 	{
-		sanity_check();
+		CHECKER_TIMER(sanity_check(); , 3);
 		//log("Stop it...");
 	}
 
@@ -1823,7 +1919,7 @@ inline void heartbeat(const int missed_pulses)
 
 	if (!(pulse % (40 * PASSES_PER_SEC)))
 	{	// 40 seconds log("Check idle password...");
-		check_idle_passwords();
+		CHECKER_TIMER(check_idle_passwords(); , 4);
 		//log("Stop it...");
 	}
 	/* Old proc
@@ -1841,7 +1937,7 @@ inline void heartbeat(const int missed_pulses)
 // выраженные в количестве пульсов, были ему кратны.
 	if (!(pulse % 10))
 	{
-		mobile_activity(pulse, 10);
+		CHECKER_TIMER(mobile_activity(pulse, 10); , 5);
 	}
 	//log("Stop it...");
 	if ((missed_pulses == 0) && (inspect_list.size() > 0))
@@ -1852,13 +1948,13 @@ inline void heartbeat(const int missed_pulses)
 
 	if (!(pulse % (2 * PASSES_PER_SEC)))
 	{
-		DeathTrap::activity();
-		underwater_check();
+		CHECKER_TIMER(DeathTrap::activity();
+		underwater_check(); , 6);
 	}
 
 	if (!((pulse + 3) % PULSE_VIOLENCE))
 	{
-		perform_violence();
+		CHECKER_TIMER(perform_violence(); , 7);
 	}
 
 	if (!(pulse % (30 * PASSES_PER_SEC)))
@@ -1876,19 +1972,20 @@ inline void heartbeat(const int missed_pulses)
 
 	if (!(pulse % (AUCTION_PULSES * PASSES_PER_SEC)))  	//log("Auction update...");
 	{
-		tact_auction();
+
+		CHECKER_TIMER(tact_auction(); , 8)
 		//log("Stop it...");
 	}
 
 	if (!(pulse % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC)))  	//log ("Player affect update...");
 	{
-		RoomSpells::room_affect_update();
+		CHECKER_TIMER(RoomSpells::room_affect_update(); , 9)
 		//log("Stop it...");
 	}
 
 	if (!(pulse % (SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC)))  	//log ("Player affect update...");
 	{
-		player_affect_update();
+		CHECKER_TIMER(player_affect_update();, 10)
 		//log("Stop it...");
 	}
 
@@ -1896,37 +1993,37 @@ inline void heartbeat(const int missed_pulses)
 
 	if (!(pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))  	//log("Hour msg update...");
 	{
-		hour_update();
+		CHECKER_TIMER(hour_update();
 		timer_bonus();
 		//log("Stop it...");
 		//log("Weather and time...");
 		weather_and_time(1);
 		//log("Stop it...");
 		//log("Paste mobiles...");
-		paste_mobiles();
+		paste_mobiles();, 11)
 		//log("Stop it...");
 	}
 
 	if (!((pulse + 5) % PULSE_ZONE))  	//log("Zone update...");
 	{
-		zone_update();
+		CHECKER_TIMER(zone_update();, 12)
 		//log("Stop it...");
 	}
 
 	if (!((pulse + 49) % (60 * 60 * PASSES_PER_SEC)))
 	{
-		MoneyDropStat::print_log();
+		CHECKER_TIMER(MoneyDropStat::print_log();
 		ZoneExpStat::print_log();
-		print_rune_log();
+		print_rune_log(); , 13);
 	}
 
 	if (!((pulse + 57) % (60 * mob_stat::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
-		mob_stat::save();
+		CHECKER_TIMER(mob_stat::save();, 14)
 	}
 	if (!((pulse + 52) % (60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
-		SetsDrop::save_drop_table();
+		CHECKER_TIMER(SetsDrop::save_drop_table();, 15)
 	}
 
 // раз в 10 минут >> ///////////////////////////////////////////////////////////
@@ -1940,63 +2037,63 @@ inline void heartbeat(const int missed_pulses)
 	// сохранение лога клан-хранов
 	if (!((pulse + 50) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
-		ClanSystem::save_chest_log();
+		CHECKER_TIMER(ClanSystem::save_chest_log();, 16)
 	}
 	// сохранение клан-хранов для ингров
 	if (!((pulse + 48) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
-		ClanSystem::save_ingr_chests();
+		CHECKER_TIMER(ClanSystem::save_ingr_chests();, 17)
 	}
 	// убитые мобы для глобал-дропа
 	if (!((pulse + 47) % (60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
-		GlobalDrop::save();
+		CHECKER_TIMER(GlobalDrop::save();, 18)
 	}
 	// снятие денег за шмот в клановых сундуках
 	if (!((pulse + 46) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
-		Clan::ChestUpdate();
+		CHECKER_TIMER(Clan::ChestUpdate();, 19)
 	}
 	// сохранение клан-хранов
 	if (!((pulse + 44) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
-		Clan::SaveChestAll();
+		CHECKER_TIMER(Clan::SaveChestAll();, 20)
 	}
 	// и самих кланов
 	if (!((pulse + 40) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
-		Clan::ClanSave();
+		CHECKER_TIMER(Clan::ClanSave();, 21)
 	}
 
 //Polud организуем зачистку после праздника
 	if (!((pulse+39) % (Celebrates::CLEAN_PERIOD * 60 * PASSES_PER_SEC)))
 	{
-		Celebrates::sanitize();
+		CHECKER_TIMER(Celebrates::sanitize();, 22)
 	}
 // раз в 5 минут >> ////////////////////////////////////////////////////////////
 
 	if (!((pulse + 37) % (5 * 60 * PASSES_PER_SEC)))
 	{
-		record_usage();
+		CHECKER_TIMER(record_usage();, 23)
 	}
 	if (!((pulse + 36) % (5 * 60 * PASSES_PER_SEC)))
 	{
-		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
+		CHECKER_TIMER(ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);, 24)
 	}
 	// вывод иммам о неодобренных именах и титулах
 	if (!((pulse + 35) % (5 * 60 * PASSES_PER_SEC)))
 	{
-		god_work_invoice();
+		CHECKER_TIMER(god_work_invoice();, 25)
 	}
 	// сейв титулов, ждущих одобрения
 	if (!((pulse + 34) % (5 * 60 * PASSES_PER_SEC)))
 	{
-		TitleSystem::save_title_list();
+		CHECKER_TIMER(TitleSystem::save_title_list();, 26)
 	}
 	// сейв зареганных мыл
 	if (!((pulse + 33) % (5 * 60 * PASSES_PER_SEC)))
 	{
-		RegisterSystem::save();
+		CHECKER_TIMER(RegisterSystem::save();, 27)
 	}
 
 // раз в минуту >> /////////////////////////////////////////////////////////////
@@ -2004,144 +2101,144 @@ inline void heartbeat(const int missed_pulses)
 	// сохранение почты (при наличии изменений)
 	if (!((pulse + 32) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		mail::save();
+		CHECKER_TIMER(mail::save();, 28)
 	}
 
 	// проверка необходимости обновления динамической справки
 	if (!((pulse + 31) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		HelpSystem::check_update_dynamic();
+		CHECKER_TIMER(HelpSystem::check_update_dynamic();, 29)
 	}
 
 	// обновление таблицы дропа сетов
 	if (!((pulse + 30) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		SetsDrop::reload_by_timer();
+		CHECKER_TIMER(SetsDrop::reload_by_timer();, 30)
 	}
 
 	// клан-пк
 	if (!((pulse + 29) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		Clan::save_pk_log();
+		CHECKER_TIMER(Clan::save_pk_log();, 31)
 	}
 
 	// очистка спурженных char_data и obj_data
 	if (!((pulse + 28) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		CharacterSystem::release_purged_list();
-		ObjSystem::release_purged_list();
+		CHECKER_TIMER(CharacterSystem::release_purged_list();
+		ObjSystem::release_purged_list();, 32)
 	}
 
 	// апдейт таймеров в магазинах
 	if (!((pulse + 27) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		ShopExt::update_timers();
+		CHECKER_TIMER(ShopExt::update_timers();, 33)
 	}
 	// апдейт таймеров в личных хранах + пурж чего надо
 	if (!((pulse + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		Depot::update_timers();
+		CHECKER_TIMER(Depot::update_timers();, 34)
 	}
 	// апдейт таймеров на почте + разворот посылок/пурж
 	if (!((pulse + 24) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		Parcel::update_timers();
+		CHECKER_TIMER(Parcel::update_timers();, 35)
 	}
 	// апдейт таймеров славы
 	if (!((pulse + 23) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		Glory::timers_update();
+		CHECKER_TIMER(Glory::timers_update();, 36)
 	}
 	// сохранение файла славы
 	if (!((pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		Glory::save_glory();
+		CHECKER_TIMER(Glory::save_glory();, 37)
 	}
 	// сохранение онлайновых списков шмота
 	if (!((pulse + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		Depot::save_all_online_objs();
+		CHECKER_TIMER(Depot::save_all_online_objs();, 38)
 	}
 	// сохранение таймер-инфы всех шмоток в общий файл
 	if (!((pulse + 17) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		Depot::save_timedata();
+		CHECKER_TIMER(Depot::save_timedata();, 39)
 	}
 
 	if (!((pulse + 16) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		mobile_affect_update();
+		CHECKER_TIMER(mobile_affect_update();, 40)
 	}
 
 	if (!((pulse + 11) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		obj_point_update();
-		bloody::update();
+		CHECKER_TIMER(obj_point_update();
+		bloody::update();, 41)
 	}
 
 	if (!((pulse + 6) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		room_point_update();
+		CHECKER_TIMER(room_point_update();, 42)
 	}
 
 	if (!((pulse + 2) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		exchange_point_update();
+		CHECKER_TIMER(exchange_point_update();, 43)
 	}
 
 	if (!((pulse + 1) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		flush_player_index();
+		CHECKER_TIMER(flush_player_index();, 44)
 	}
 
 	if (!(pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		point_update();
+		CHECKER_TIMER(point_update();, 45)
 	}
 
 // << раз в минуту /////////////////////////////////////////////////////////////
 
 	if (pulse == 720)  	//log("Dupe player index...");
 	{
-		dupe_player_index();
+		CHECKER_TIMER(dupe_player_index();, 46)
 		//log("Stop it...");
 	}
 	//log("Beat points update...");
 	if (!(pulse % PASSES_PER_SEC))
 	{
-		beat_points_update(pulse / PASSES_PER_SEC);
+		CHECKER_TIMER(beat_points_update(pulse / PASSES_PER_SEC);, 47)
 		//  log("Stop it...");
 	}
 
 	if (!(pulse % scripting::HEARTBEAT_PASSES))
 	{
-		scripting::heartbeat();
+		CHECKER_TIMER(scripting::heartbeat();, 47)
 	}
 
 	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC))  	// 1 game secunde
 	{
-		//log("Fractional Crash save all...");
+		CHECKER_TIMER(//log("Fractional Crash save all...");
 		Crash_frac_save_all((pulse / PASSES_PER_SEC) % PLAYER_SAVE_ACTIVITY);
 		//log("Stop it...");
 		//log("Fractional Rent timer save all...");
-		Crash_frac_rent_time((pulse / PASSES_PER_SEC) % OBJECT_SAVE_ACTIVITY);
+		Crash_frac_rent_time((pulse / PASSES_PER_SEC) % OBJECT_SAVE_ACTIVITY);, 48)
 		//log("Stop it...");
 	}
 //F@N++
 	if (EXCHANGE_AUTOSAVETIME && auto_save && !((pulse + 9) % (EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC)))
 	{
-		exchange_database_save();
+		CHECKER_TIMER(exchange_database_save();, 49)
 	}
 
 	if (EXCHANGE_AUTOSAVEBACKUPTIME && !((pulse + 9) % (EXCHANGE_AUTOSAVEBACKUPTIME * PASSES_PER_SEC)))
 	{
-		exchange_database_save(true);
+		CHECKER_TIMER(exchange_database_save(true);, 50)
 	}
 //F@N--
 
 	if (auto_save && !((pulse + 9) % (60 * PASSES_PER_SEC)))
 	{
-		SaveGlobalUID();
+		CHECKER_TIMER(SaveGlobalUID();, 51)
 	}
 
 	if (!FRAC_SAVE && auto_save && !((pulse + 11) % (60 * PASSES_PER_SEC)))  	// 1 minute
@@ -2150,7 +2247,7 @@ inline void heartbeat(const int missed_pulses)
 		{
 			mins_since_crashsave = 0;
 			//log("Crash save all...");
-			Crash_save_all();
+			CHECKER_TIMER(Crash_save_all();, 52)
 			//log("Stop it...");
 			check_at = time(NULL);
 			if (last_rent_check > check_at)
@@ -2158,7 +2255,7 @@ inline void heartbeat(const int missed_pulses)
 			if (((check_at - last_rent_check) / 60))  	//log("Crash rent time...");
 			{
 				//long save_start = time(NULL);
-				Crash_rent_time((check_at - last_rent_check) / 60);
+				CHECKER_TIMER(Crash_rent_time((check_at - last_rent_check) / 60);, 53)
 				//log("Saving rent timer time = %ld(s)",time(NULL) - save_start);
 				last_rent_check = time(NULL) - (check_at - last_rent_check) % 60;
 				//log("Stop it...");
@@ -2169,18 +2266,18 @@ inline void heartbeat(const int missed_pulses)
 	// обновление и сохранение клановой экспы
 	if (!((pulse + 14) % (60 * CLAN_EXP_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
-		update_clan_exp();
-		save_clan_exp();
+		CHECKER_TIMER(update_clan_exp();
+		save_clan_exp();, 54)
 	}
 	// оповещение о скорой кончине денег в дружине
 	if (!((pulse + 15) % (60 * CHEST_INVOICE_PERIOD * PASSES_PER_SEC)))
 	{
-		Clan::ChestInvoice();
+		CHECKER_TIMER(Clan::ChestInvoice();, 55)
 	}
 	// обновление статов экспы в топе кланов для тех, кто вырубил показ на лету
 	if (!((pulse + 16) % (60 * CLAN_TOP_REFRESH_PERIOD * PASSES_PER_SEC)))
 	{
-		Clan::SyncTopExp();
+		CHECKER_TIMER(Clan::SyncTopExp();, 56)
 	}
 
 // shapirus: ротация логов. сислог каждые 2 часа, остальные раз в сутки.
@@ -2211,7 +2308,7 @@ inline void heartbeat(const int missed_pulses)
 	// сохранение файла чексумм, если в нем были изменения
 	if (!((pulse + 23) % (PASSES_PER_SEC)))
 	{
-		FileCRC::save();
+		CHECKER_TIMER(FileCRC::save();, 57)
 	}
 
 	//Polud раз в час проверяем не пришло ли время сохранить статистику
@@ -2220,7 +2317,7 @@ inline void heartbeat(const int missed_pulses)
 		time_t tmp_time = time(0);
 		if ((tmp_time - SpellUsage::start) >= (60*60*24))
 		{
-			SpellUsage::save();
+			CHECKER_TIMER(SpellUsage::save();, 58)
 			SpellUsage::clear();
 		}
 
