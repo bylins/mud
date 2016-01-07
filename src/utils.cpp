@@ -405,12 +405,33 @@ void log(const char *format, ...)
 	fprintf(stderr, "%-15.15s :: ", time_s + 4);
 #endif
 
+#ifdef LOG_STDERR
+	fprintf(stderr, "%-15.15s :: ", time_s + 4);
+#endif
+
 	va_list args;
 	va_start(args, format);
 	vfprintf(logfile, format, args);
 #ifdef LOG_STDERR
-	vfprintf(stderr, format, args);
+	const size_t BUFFER_SIZE = 4096;
+	char buffer[BUFFER_SIZE];
+	char* p = buffer;
+	const size_t length = vsnprintf(p, BUFFER_SIZE, format, args);
+
+	if (BUFFER_SIZE <= length)
+	{
+		fputs("TRUNCATED: ", stderr);
+		p[BUFFER_SIZE - 1] = '\0';
+	}
+
+	if (syslog_converter)
+	{
+		syslog_converter(buffer, length);
+	}
+
+	fputs(p, stderr);
 #endif
+
 	va_end(args);
 
 	fprintf(logfile, "\n");
@@ -1308,9 +1329,9 @@ void to_koi(char *str, int from)
 	}
 }
 
-void from_koi(char *str, int from)
+void from_koi(char *str, int to)
 {
-	switch (from)
+	switch (to)
 	{
 	case KT_ALT:
 		for (; *str; *str = KtoA(*str), str++);
@@ -3686,6 +3707,22 @@ const char *print_obj_state(int tm_pct)
 	else return "нерушимо";
 }
 
+void setup_converters()
+{
+#if defined LOG_STDERR
+	// set up converter
+	const char* encoding = QUOTE(LOG_STDERR);
+	if (0 == strcmp("cp1251", encoding))
+	{
+		syslog_converter = koi_to_win;
+	}
+	else if (0 == strcmp("alt", encoding))
+	{
+		syslog_converter = koi_to_alt;
+	}
+#endif
+}
+
 std::string ParseFilter::print() const
 {
 	std::string buffer = "Выборка: ";
@@ -3761,5 +3798,7 @@ std::string ParseFilter::print() const
 
 	return buffer;
 }
+
+converter_t syslog_converter = NULL;
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

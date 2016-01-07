@@ -387,14 +387,14 @@ endif ()
 
 add_dependencies(circle lib_directory)
 
-# Add custom defines
-option(LOG_STDERR "Define LOG_STDERR. If defined, MUD will log messages additionally to stderr." NO)
-if (LOG_STDERR)
-    add_definitions("-DLOG_STDERR")
-endif()
-
 set(CRAFT_FILES lib.template/misc/craft/index.xml)
 source_group("Craft" FILES ${CRAFT_FILES})
 add_custom_target(world SOURCES ${CRAFT_FILES})
+
+# Add custom defines
+set(LOG_STDERR NO CACHE STRING "Define LOG_STDERR. If defined, MUD will log messages additionally to stderr. Also here you can specify output encoding")
+if (LOG_STDERR)
+    add_definitions("-DLOG_STDERR=${LOG_STDERR}")
+endif()
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :
