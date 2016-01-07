@@ -226,6 +226,7 @@ void send_to_gods(char *text, bool demigod)
 
 extern const char *deaf_social;
 
+
 // Adds karma string to KARMA
 void add_karma(CHAR_DATA * ch, const char * punish , const char * reason)
 {
@@ -6019,7 +6020,7 @@ ACMD(do_set)
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD))
 			{
-				if (GET_LEVEL(ch) <= GET_LEVEL(vict) )
+				if ((GET_LEVEL(ch) <= GET_LEVEL(vict)) && !(is_head(ch->get_name_str() )))
 				{
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;
@@ -6059,7 +6060,7 @@ ACMD(do_set)
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD))
 			{
-				if (GET_LEVEL(ch) <= GET_LEVEL(cbuf) && !PRF_FLAGGED(ch, PRF_CODERINFO))
+				if (GET_LEVEL(ch) <= GET_LEVEL(cbuf) && !(is_head(ch->get_name_str())))
 				{
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					delete cbuf;

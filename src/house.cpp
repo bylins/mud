@@ -167,6 +167,12 @@ Clan::~Clan()
 
 }
 
+void Clan::reload_one(std::string name)
+{
+
+}
+
+
 // лоад/релоад индекса и файлов кланов
 void Clan::ClanLoad()
 {
