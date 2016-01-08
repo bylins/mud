@@ -24,28 +24,28 @@ namespace craft
 
 	bool CMaterial::load(const pugi::xml_node* node)
 	{
-		std::cerr << "Loading material with ID " << m_id << std::endl;
+		log("Loading material with ID %s\n", m_id.c_str());
 
 		return true;
 	}
 
 	bool CRecipe::load(const pugi::xml_node* node)
 	{
-		std::cerr << "Loading recipe with ID " << m_id << std::endl;
+		log("Loading recipe with ID %s\n", m_id.c_str());
 
 		return true;
 	}
 
 	bool CSkillBase::load(const pugi::xml_node* node)
 	{
-		std::cerr << "Loading skill with ID " << m_id << std::endl;
+		log("Loading skill with ID %s\n", m_id.c_str());
 
 		return true;
 	}
 
 	bool CCraft::load(const pugi::xml_node* node)
 	{
-		std::cerr << "Loading craft with ID " << m_id << std::endl;
+		log("Loading craft with ID %s\n", m_id.c_str());
 
 		return true;
 	}
@@ -57,15 +57,16 @@ namespace craft
 
 		if (!result)
 		{
-			std::cerr << "Craft load error: " << result.description() << std::endl
-				<< " at offset " << result.offset << std::endl;
+			log("Craft load error: %s at offset %zu\n",
+					result.description(),
+					result.offset);
 			return false;
 		}
 		
 		pugi::xml_node model = doc.child("craftmodel");
 		if (!model)
 		{
-			std::cerr << "Craft model is not defined in XML file " << FILE_NAME << std::endl;
+			log("Craft model is not defined in XML file %s\n", FILE_NAME.c_str());
 			return false;
 		}
 		// Load model properties.
@@ -79,7 +80,7 @@ namespace craft
 			{
 				if (material.attribute("id").empty())
 				{
-					std::cerr << "Material tag does not have ID attribute. Will be skipped." << std::endl;
+					log("Material tag does not have ID attribute. Will be skipped.\n");
 					continue;
 				}
 				id_t id = material.attribute("id").as_string();

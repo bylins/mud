@@ -419,11 +419,16 @@ void log(const char *format, ...)
 	va_list args;
 	va_start(args, format);
 	vfprintf(logfile, format, args);
+	va_end(args);
+
 #ifdef LOG_STDERR
+	va_list log_args;
 	const size_t BUFFER_SIZE = 4096;
 	char buffer[BUFFER_SIZE];
 	char* p = buffer;
-	const size_t length = vsnprintf(p, BUFFER_SIZE, format, args);
+	va_start(log_args, format);
+	const size_t length = vsnprintf(p, BUFFER_SIZE, format, log_args);
+	va_end(log_args);
 
 	if (BUFFER_SIZE <= length)
 	{
@@ -438,8 +443,6 @@ void log(const char *format, ...)
 
 	fputs(p, stderr);
 #endif
-
-	va_end(args);
 
 	fprintf(logfile, "\n");
 #ifdef LOG_STDERR
