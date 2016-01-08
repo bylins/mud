@@ -7,6 +7,8 @@
 #ifndef __CRAFT_HPP__
 #define __CRAFT_HPP__
 
+#include <stdarg.h>
+
 #include <set>
 #include <map>
 #include <list>
@@ -20,6 +22,13 @@ namespace pugi
 namespace craft
 {
 	bool load();
+	class CLogger
+	{
+		public:
+			void operator()(const char* format, ...) __attribute__((format(printf, 2, 3)));
+	};
+
+	extern CLogger log;
 
 	typedef std::string id_t;						///< Common type for IDs.
 

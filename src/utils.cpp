@@ -391,11 +391,12 @@ void write_test_time(FILE *file)
  * New variable argument log() function.  Works the same as the old for
  * previously written code but is very nice for new code.
  */
-void log(const char *format, ...)
+void log(const char *format, va_list args)
 {
 	if (logfile == NULL)
 	{
 		puts("SYSERR: Using log() before stream was initialized!");
+		return;
 	}
 
 	if (format == NULL)
@@ -414,19 +415,16 @@ void log(const char *format, ...)
 
 #ifdef LOG_STDERR
 	fprintf(stderr, "%-15.15s :: ", time_s + 4);
+	va_list log_args;
+	va_copy(log_args, args);
 #endif
 
-	va_list args;
-	va_start(args, format);
 	vfprintf(logfile, format, args);
-	va_end(args);
 
 #ifdef LOG_STDERR
-	va_list log_args;
 	const size_t BUFFER_SIZE = 4096;
 	char buffer[BUFFER_SIZE];
 	char* p = buffer;
-	va_start(log_args, format);
 	const size_t length = vsnprintf(p, BUFFER_SIZE, format, log_args);
 	va_end(log_args);
 
@@ -453,6 +451,14 @@ void log(const char *format, ...)
 #ifdef LOG_AUTOFLUSH
 	fflush(logfile);
 #endif
+}
+
+void log(const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	log(format, args);
+	va_end(args);
 }
 
 void shop_log(const char *format, ...)

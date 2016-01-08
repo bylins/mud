@@ -20,30 +20,59 @@ namespace craft
 		return model.load();
 	}
 
+	void CLogger::operator()(const char* format, ...)
+	{
+		va_list args;
+		va_start(args, format);
+		// Use the following line to redirect craft log into syslog:
+		// ::log(format, args);
+		// instead of output just onto console:
+		// FROM HERE...
+		const size_t BUFFER_SIZE = 4096;
+		char buffer[BUFFER_SIZE];
+		char* p = buffer;
+		const size_t length = vsnprintf(p, BUFFER_SIZE, format, args);
+		va_end(args);
+
+		if (BUFFER_SIZE <= length)
+		{
+			std::cerr << "TRUNCATED: ";
+			p[BUFFER_SIZE - 1] = '\0';
+		}
+
+		if (syslog_converter)
+		{
+			syslog_converter(buffer, static_cast<int>(length));
+		}
+
+		std::cerr << buffer;
+		// ...TO HERE
+	}
+
 	const std::string CCraftModel::FILE_NAME = LIB_MISC_CRAFT "craft.xml";
 
-	bool CMaterial::load(const pugi::xml_node* node)
+	bool CMaterial::load(const pugi::xml_node* /*node*/)
 	{
 		log("Loading material with ID %s\n", m_id.c_str());
 
 		return true;
 	}
 
-	bool CRecipe::load(const pugi::xml_node* node)
+	bool CRecipe::load(const pugi::xml_node* /*node*/)
 	{
 		log("Loading recipe with ID %s\n", m_id.c_str());
 
 		return true;
 	}
 
-	bool CSkillBase::load(const pugi::xml_node* node)
+	bool CSkillBase::load(const pugi::xml_node* /*node*/)
 	{
 		log("Loading skill with ID %s\n", m_id.c_str());
 
 		return true;
 	}
 
-	bool CCraft::load(const pugi::xml_node* node)
+	bool CCraft::load(const pugi::xml_node* /*node*/)
 	{
 		log("Loading craft with ID %s\n", m_id.c_str());
 
@@ -100,6 +129,8 @@ namespace craft
 
 		return true;
 	}
+
+	CLogger log;
 }
 
 /* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/
