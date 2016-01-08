@@ -455,7 +455,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch);
 	corpse->set_rent(100000);
 	corpse->set_timer(max_pc_corpse_time * 2);
-	CREATE(exdesc, EXTRA_DESCR_DATA, 1);
+	CREATE(exdesc, 1);
 	exdesc->keyword = str_dup(corpse->PNames[0]);	// косметика
 	if (killer)
 		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));

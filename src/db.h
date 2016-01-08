@@ -15,6 +15,7 @@
 #ifndef _DB_H_
 #define _DB_H_
 
+#include "utils.h"
 #include "structs.h"
 
 #include <boost/array.hpp>
@@ -338,7 +339,7 @@ struct player_index_element
 	int level;
 	int last_logon;
 	int activity;		// When player be saved and checked
-	struct save_info *timer;
+	save_info *timer;
 };
 
 #define SEASON_WINTER		0
@@ -448,7 +449,24 @@ extern room_rnum r_unreg_start_room;
 
 long get_ptable_by_name(const char *name);
 void free_alias(struct alias_data *a);
-extern struct player_index_element *player_table;
+extern player_index_element* player_table;
+
+inline save_info* SAVEINFO(const size_t number)
+{
+	return player_table[number].timer;
+}
+
+inline void clear_saveinfo(const size_t number)
+{
+	delete player_table[number].timer;
+	player_table[number].timer = NULL;
+}
+
+inline void recreate_saveinfo(const size_t number)
+{
+	delete player_table[number].timer;
+	NEWCREATE(player_table[number].timer);
+}
 
 void set_god_skills(CHAR_DATA *ch);
 void check_room_flags(int rnum);

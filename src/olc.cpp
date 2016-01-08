@@ -408,7 +408,7 @@ void olc_add_to_save_list(int zone, byte type)
 		if ((lnew->zone == zone) && (lnew->type == type))
 			return;
 
-	CREATE(lnew, struct olc_save_info, 1);
+	CREATE(lnew, 1);
 	lnew->zone = zone;
 	lnew->type = type;
 	lnew->next = olc_save_list;

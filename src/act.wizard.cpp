@@ -93,7 +93,6 @@ extern mob_rnum top_of_mobt;
 extern obj_rnum top_of_objt;
 extern int top_of_p_table;
 extern int shutdown_time;
-extern struct player_index_element *player_table;
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern const char *Dirs[];
@@ -5683,7 +5682,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				{
 					if (GET_PAD(vict, i))
 						free(GET_PAD(vict, i));
-					CREATE(GET_PAD(vict, i), char, strlen(npad[i]) + 1);
+					CREATE<char>(GET_PAD(vict, i), strlen(npad[i]) + 1);
 					strcpy(GET_PAD(vict, i), npad[i]);
 				}
 			sprintf(buf, "Произведена замена падежей.\r\n");
@@ -5753,7 +5752,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				{
 					if (GET_PAD(vict, i))
 						free(GET_PAD(vict, i));
-					CREATE(GET_PAD(vict, i), char, strlen(npad[i]) + 1);
+					CREATE<char>(GET_PAD(vict, i), strlen(npad[i]) + 1);
 					strcpy(GET_PAD(vict, i), npad[i]);
 				}
 			}
@@ -5765,7 +5764,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				TopPlayer::Refresh(vict);
 
 			free(player_table[ptnum].name);
-			CREATE(player_table[ptnum].name, char, strlen(npad[0]) + 1);
+			CREATE<char>(player_table[ptnum].name, strlen(npad[0]) + 1);
 			for (i = 0, player_table[ptnum].name[i] = '\0'; npad[0][i]; i++)
 				player_table[ptnum].name[i] = LOWER(npad[0][i]);
 			return_code = 2;

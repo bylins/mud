@@ -107,7 +107,7 @@ void proto_script_copy(struct trig_proto_list **pdst, struct trig_proto_list *sr
 {
 	for (pdst[0] = NULL; src; src = src->next, pdst = &(pdst[0]->next))
 	{
-		CREATE(pdst[0], struct trig_proto_list, 1);
+		CREATE(pdst[0], 1);
 		pdst[0]->vnum = src->vnum;
 		// pdst[0]->next обнуляется в макросе CREATE()
 	}
@@ -1081,7 +1081,7 @@ ACMD(do_attach)
 				if ((rn >= 0) && (trig = read_trigger(rn)))
 				{
 					if (!SCRIPT(victim))
-						CREATE(SCRIPT(victim), SCRIPT_DATA, 1);
+						CREATE(SCRIPT(victim), 1);
 					add_trigger(SCRIPT(victim), trig, loc);
 
 					sprintf(buf, "Trigger %d (%s) attached to %s.\r\n",
@@ -1105,7 +1105,9 @@ ACMD(do_attach)
 			if ((rn >= 0) && (trig = read_trigger(rn)))
 			{
 				if (!SCRIPT(object))
-					CREATE(SCRIPT(object), SCRIPT_DATA, 1);
+				{
+					CREATE(SCRIPT(object), 1);
+				}
 				add_trigger(SCRIPT(object), trig, loc);
 
 				sprintf(buf, "Trigger %d (%s) attached to %s.\r\n",
@@ -1129,7 +1131,9 @@ ACMD(do_attach)
 				if ((rn >= 0) && (trig = read_trigger(rn)))
 				{
 					if (!(world[room]->script))
-						CREATE(world[room]->script, SCRIPT_DATA, 1);
+					{
+						CREATE(world[room]->script, 1);
+					}
 					add_trigger(world[room]->script, trig, loc);
 
 					sprintf(buf, "Trigger %d (%s) attached to room %d.\r\n",
@@ -1385,8 +1389,8 @@ void add_var_cntx(struct trig_var_data **var_list, const char *name, const char 
 	else
 	{
 // Создать новую переменную
-		CREATE(vd, struct trig_var_data, 1);
-		CREATE(vd->name, char, strlen(name) + 1);
+		CREATE(vd, 1);
+		CREATE(vd->name, strlen(name) + 1);
 		strcpy(vd->name, name);
 
 		vd->context = id;
@@ -1408,7 +1412,7 @@ void add_var_cntx(struct trig_var_data **var_list, const char *name, const char 
 		}
 	}
 
-	CREATE(vd->value, char, strlen(value) + 1);
+	CREATE(vd->value, strlen(value) + 1);
 	strcpy(vd->value, value);
 }
 
@@ -4047,7 +4051,7 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, struct cmdlis
 		}
 	}
 
-	CREATE(wait_event_obj, struct wait_event_data, 1);
+	CREATE(wait_event_obj, 1);
 	wait_event_obj->trigger = trig;
 	wait_event_obj->go = go;
 	wait_event_obj->type = type;
@@ -4172,7 +4176,9 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 	if (c)
 	{
 		if (!SCRIPT(c))
-			CREATE(SCRIPT(c), SCRIPT_DATA, 1);
+		{
+			CREATE(SCRIPT(c), 1);
+		}
 		add_trigger(SCRIPT(c), newtrig, -1);
 		return;
 	}
@@ -4180,7 +4186,9 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 	if (o)
 	{
 		if (!SCRIPT(o))
-			CREATE(SCRIPT(o), SCRIPT_DATA, 1);
+		{
+			CREATE(SCRIPT(o), 1);
+		}
 		add_trigger(SCRIPT(o), newtrig, -1);
 		return;
 	}
@@ -4188,7 +4196,9 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 	if (r)
 	{
 		if (!SCRIPT(r))
-			CREATE(SCRIPT(r), SCRIPT_DATA, 1);
+		{
+			CREATE(SCRIPT(r), 1);
+		}
 		add_trigger(SCRIPT(r), newtrig, -1);
 		return;
 	}
@@ -5555,7 +5565,7 @@ void read_saved_vars(CHAR_DATA * ch)
 	char context_str[16], *c;
 
 	// create the space for the script structure which holds the vars
-	CREATE(SCRIPT(ch), SCRIPT_DATA, 1);
+	CREATE(SCRIPT(ch), 1);
 
 	// find the file that holds the saved variables and open it
 	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);

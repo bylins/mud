@@ -40,7 +40,6 @@ using namespace ClanSystem;
 extern void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int file_to_string_alloc(const char *name, char **buf);
-extern struct player_index_element *player_table;
 // TODO: думать надо с этим, или глобально следить за спамом, или игноров напихать на все случаи жизни, или так и оставить
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
@@ -98,7 +97,7 @@ void prepare_write_mod(CHAR_DATA *ch, std::string &param)
 		return;
 	}
 	char **text;
-	CREATE(text, char *, 1);
+	CREATE(text, 1);
 	send_to_char("Можете писать сообщение.  (/s записать /h помощь)\r\n", ch);
 	STATE(ch->desc) = CON_WRITE_MOD;
 	string_write(ch->desc, text, MAX_MOD_LENGTH, 0, NULL);
@@ -4810,8 +4809,8 @@ ACMD(do_clanstuff)
 
 		if (it->longdesc.length() > 0)
 		{
-			EXTRA_DESCR_DATA * new_descr;
-			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+			EXTRA_DESCR_DATA* new_descr;
+			CREATE(new_descr, 1);
 			new_descr->keyword = str_dup(obj->short_description);
 			new_descr->description = str_dup(it->longdesc.c_str());
 			new_descr->next = NULL;

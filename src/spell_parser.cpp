@@ -3759,7 +3759,7 @@ ACMD(do_learn)
 			}
 			break;
 		case BOOK_RECPT:
-			CREATE(rs, im_rskill, 1);
+			CREATE(rs, 1);
 			rs->rid = spellnum;
 			rs->link = GET_RSKILL(ch);
 			GET_RSKILL(ch) = rs;

@@ -276,7 +276,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 	SET_BIT(PLR_FLAGS(ch, PLR_MAILING), PLR_MAILING);	// string_write() sets writing.
 
 	// Start writing!
-	CREATE(write, char *, 1);
+	CREATE(write, 1);
 	string_write(ch->desc, write, MAX_MAIL_SIZE, recipient, NULL);
 }
 

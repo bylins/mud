@@ -2567,7 +2567,7 @@ void write_to_q(const char *txt, struct txt_q *queue, int aliased)
 {
 	struct txt_block *newt;
 
-	CREATE(newt, struct txt_block, 1);
+	CREATE(newt, 1);
 	newt->text = str_dup(txt);
 	newt->aliased = aliased;
 
@@ -2664,8 +2664,8 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	}
 	else  		// else create a new one
 	{
-		CREATE(t->large_outbuf, struct txt_block, 1);
-		CREATE(t->large_outbuf->text, char, LARGE_BUFSIZE);
+		CREATE(t->large_outbuf, 1);
+		CREATE(t->large_outbuf->text, LARGE_BUFSIZE);
 		buf_largecount++;
 	}
 
@@ -2852,7 +2852,7 @@ int new_descriptor(socket_t s)
 		return (-3);
 	}
 	// create a new descriptor
-	NEWCREATE(newd, DESCRIPTOR_DATA);
+	NEWCREATE(newd);
 
 	// find the sitename
 	if (nameserver_is_slow || !(from = gethostbyaddr((char *) & peer.sin_addr, sizeof(peer.sin_addr), AF_INET)))  	// resolution failed
@@ -2954,7 +2954,7 @@ int new_descriptor(socket_t s)
 	 * Do we embed the history in descriptor_data or keep it dynamically
 	 * allocated and allow a user defined history size?
 	 */
-	CREATE(newd->history, char *, HISTORY_SIZE);
+	CREATE(newd->history, HISTORY_SIZE);
 
 	if (++last_desc == 1000)
 		last_desc = 1;
@@ -5038,7 +5038,7 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver)
 		return 1;	// компрессия уже включена
 
 	// Set up zlib structures.
-	CREATE(t->deflate, z_stream, 1);
+	CREATE(t->deflate, 1);
 	t->deflate->zalloc = zlib_alloc;
 	t->deflate->zfree = zlib_free;
 	t->deflate->opaque = NULL;

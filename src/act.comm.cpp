@@ -1132,7 +1132,6 @@ void ignore_usage(CHAR_DATA * ch)
 
 int ign_find_id(char *name, long *id)
 {
-	extern struct player_index_element *player_table;
 	extern int top_of_p_table;
 	int i;
 
@@ -1151,7 +1150,6 @@ int ign_find_id(char *name, long *id)
 
 const char * ign_find_name(long id)
 {
-	extern struct player_index_element *player_table;
 	extern int top_of_p_table;
 	int i;
 
@@ -1308,7 +1306,7 @@ ACMD(do_ignore)
 // создаем новый элемент списка в хвосте, если не нашли
 		if (!ignore || ignore->id != vict_id)
 		{
-			CREATE(cur, struct ignore_data, 1);
+			CREATE(cur, 1);
 			cur->next = NULL;
 			if (!ignore)	// создаем вообще новый список, если еще нет
 				IGNORE_LIST(ch) = cur;

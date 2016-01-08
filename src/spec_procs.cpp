@@ -671,11 +671,15 @@ void init_guilds(void)
 				if (type == 1)
 				{
 					if (!guild_mono_info)
-						CREATE(guild_mono_info, struct guild_mono_type, GUILDS_MONO_USED + 1);
+					{
+						CREATE(guild_mono_info, GUILDS_MONO_USED + 1);
+					}
 					else
-						RECREATE(guild_mono_info, struct guild_mono_type, GUILDS_MONO_USED + 1);
+					{
+						RECREATE(guild_mono_info, GUILDS_MONO_USED + 1);
+					}
 					log("Create mono guild for mobile %s", line1);
-					RECREATE(mono_guild.learn_info, struct guild_learn_type, mgcount + 1);
+					RECREATE(mono_guild.learn_info, mgcount + 1);
 					(mono_guild.learn_info + mgcount)->skill_no = -1;
 					(mono_guild.learn_info + mgcount)->feat_no = -1;
 					(mono_guild.learn_info + mgcount)->spell_no = -1;
@@ -693,12 +697,15 @@ void init_guilds(void)
 				if (type == 2)
 				{
 					if (!guild_poly_info)
-						CREATE(guild_poly_info, struct guild_poly_type *, GUILDS_POLY_USED + 1);
+					{
+						CREATE(guild_poly_info, GUILDS_POLY_USED + 1);
+					}
 					else
-						RECREATE(guild_poly_info, struct guild_poly_type *,
-								 GUILDS_POLY_USED + 1);
+					{
+						RECREATE(guild_poly_info, GUILDS_POLY_USED + 1);
+					}
 					log("Create poly guild for mobile %s", line1);
-					RECREATE(poly_guild, struct guild_poly_type, pgcount + 1);
+					RECREATE(poly_guild, pgcount + 1);
 					(poly_guild + pgcount)->feat_no = -1;
 					(poly_guild + pgcount)->skill_no = -1;
 					(poly_guild + pgcount)->spell_no = -1;
@@ -750,9 +757,13 @@ void init_guilds(void)
 				_exit(1);
 			}
 			if (!mono_guild.learn_info)
-				CREATE(mono_guild.learn_info, struct guild_learn_type, mgcount + 1);
+			{
+				CREATE(mono_guild.learn_info, mgcount + 1);
+			}
 			else
-				RECREATE(mono_guild.learn_info, struct guild_learn_type, mgcount + 1);
+			{
+				RECREATE(mono_guild.learn_info, mgcount + 1);
+			}
 			(mono_guild.learn_info + mgcount)->spell_no = MAX(0, spellnum);
 			(mono_guild.learn_info + mgcount)->skill_no = MAX(0, skillnum);
 			(mono_guild.learn_info + mgcount)->feat_no = MAX(0, featnum);
@@ -768,9 +779,13 @@ void init_guilds(void)
 				_exit(1);
 			}
 			if (!poly_guild)
-				CREATE(poly_guild, struct guild_poly_type, pgcount + 1);
+			{
+				CREATE(poly_guild, pgcount + 1);
+			}
 			else
-				RECREATE(poly_guild, struct guild_poly_type, pgcount + 1);
+			{
+				RECREATE(poly_guild, pgcount + 1);
+			}
 			(poly_guild + pgcount)->races = 0;
 			(poly_guild + pgcount)->classes = 0;
 			(poly_guild + pgcount)->religion = 0;

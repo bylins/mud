@@ -5466,7 +5466,7 @@ void sort_commands(void)
 		num_of_cmds++;
 
 	// create data array
-	CREATE(cmd_sort_info, struct sort_struct, num_of_cmds);
+	CREATE(cmd_sort_info, num_of_cmds);
 
 	// initialize it
 	for (a = 1; a < num_of_cmds; a++)

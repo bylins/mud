@@ -87,7 +87,6 @@ extern const char *WELC_MESSG;
 extern const char *START_MESSG;
 extern CHAR_DATA *character_list;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern struct player_index_element *player_table;
 extern int top_of_p_table;
 extern int circle_restrict;
 extern int no_specials;
@@ -1420,7 +1419,7 @@ ACMD(do_alias)
 				send_to_char("Вы не можете определить алиас 'alias'.\r\n", ch);
 				return;
 			}
-			CREATE(a, struct alias_data, 1);
+			CREATE(a, 1);
 			a->alias = str_dup(arg);
 			delete_doubledollar(repl);
 			a->replacement = str_dup(repl);
@@ -2552,7 +2551,7 @@ void CreateChar(DESCRIPTOR_DATA * d)
 	if (d->character != NULL) return;
 
 	d->character = new Player;
-	CREATE(d->character->player_specials, struct player_special_data, 1);
+	CREATE(d->character->player_specials, 1);
 	memset(d->character->player_specials, 0, sizeof(struct player_special_data));
 	d->character->desc = d;
 }
@@ -2732,7 +2731,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					}
 					CreateChar(d);
 					d->character->set_pc_name(CAP(tmp_name));
-					CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
+					CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
 					strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 					d->character->set_pfilepos(player_i);
 					sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
@@ -2782,7 +2781,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					return;
 				}
 				d->character->set_pc_name(CAP(tmp_name));
-				CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
+				CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
 				strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 				SEND_TO_Q(name_rules, d);
 				sprintf(buf, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
@@ -2892,7 +2891,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		d->character->set_pc_name(CAP(tmp_name));
-		CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
+		CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
 		strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 		if (ban->is_banned(d->host) >= BanList::BAN_NEW)
 		{
@@ -3558,7 +3557,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 1), char, strlen(tmp_name) + 1);
+			CREATE(GET_PAD(d->character, 1), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 1), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
 			sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
@@ -3582,7 +3581,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 2), char, strlen(tmp_name) + 1);
+			CREATE(GET_PAD(d->character, 2), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 2), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
 			sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
@@ -3606,7 +3605,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 3), char, strlen(tmp_name) + 1);
+			CREATE(GET_PAD(d->character, 3), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 3), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
 			sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
@@ -3630,7 +3629,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 4), char, strlen(tmp_name) + 1);
+			CREATE(GET_PAD(d->character, 4), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 4), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
 			sprintf(buf, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
@@ -3654,7 +3653,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 5), char, strlen(tmp_name) + 1);
+			CREATE(GET_PAD(d->character, 5), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 5), CAP(tmp_name));
 			sprintf(buf,
 					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",

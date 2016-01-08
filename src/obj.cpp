@@ -764,7 +764,7 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)
 		"В случае потери просьба вернуть за вознаграждение.\r\n"
 		"--------------------------------------------------\r\n"
 		, ch->get_name());
-	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
+	CREATE(obj->ex_description, 1);
 	obj->ex_description->keyword = str_dup(obj->PNames[0]);
 	obj->ex_description->description = str_dup(buf_);
 	obj->ex_description->next = 0;

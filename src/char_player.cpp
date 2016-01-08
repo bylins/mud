@@ -886,7 +886,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 	// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
 	if (this->player_specials == NULL)
-		CREATE(this->player_specials, struct player_special_data, 1);
+	{
+		CREATE(this->player_specials, 1);
+	}
 
 	set_level(1);
 	set_class(1);
@@ -1152,7 +1154,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_PORTALS(this) = NULL;
 	EXCHANGE_FILTER(this) = NULL;
 	IGNORE_LIST(this) = NULL;
-	CREATE(GET_LOGS(this), int, NLOG);
+	CREATE(GET_LOGS(this), NLOG);
 	NOTIFY_EXCH_PRICE(this) = 0;
 	this->player_specials->saved.HiredCost = 0;
 	this->set_who_mana(WHO_MANA_MAX);
@@ -1543,7 +1545,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 						continue;
 					}
 
-					CREATE(pk_one, struct PK_Memory_type, 1);
+					CREATE(pk_one, 1);
 					pk_one->unique = lnum;
 					pk_one->kill_num = num;
 					pk_one->next = this->pk_list;
@@ -1668,7 +1670,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					if (num < 0 || imrecipes[num].classknow[(int) GET_CLASS(this)] != KNOW_RECIPE)
 // -newbook.patch (Alisher)
 						continue;
-					CREATE(rs, im_rskill, 1);
+					CREATE(rs,  1);
 					rs->rid = num;
 					rs->perc = num2;
 					rs->link = NULL;
@@ -1746,7 +1748,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					sscanf(line, "%d", &num);
 					if (num != 0)
 					{
-						CREATE(qi_cur, struct spell_mem_queue_item, 1);
+						CREATE(qi_cur, 1);
 						*qi = qi_cur;
 						qi_cur->spellnum = num;
 						qi_cur->link = NULL;

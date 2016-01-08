@@ -844,7 +844,7 @@ OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 	const std::string descr = std::string("узелок с вещами ") + std::string(ch->get_pad(1));
 	obj->short_description = str_dup(descr.c_str());
 	obj->description = str_dup("Туго набитый узел лежит тут.");
-	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
+	CREATE(obj->ex_description, 1);
 	obj->ex_description->keyword = str_dup(descr.c_str());
 	obj->ex_description->description = str_dup("Кто-то сильно торопился, когда набивал этот узелок.");
 	obj->ex_description->next = 0;
@@ -1304,7 +1304,7 @@ void remember(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (!present)
 	{
-		CREATE(tmp, memory_rec, 1);
+		CREATE(tmp, 1);
 		tmp->next = MEMORY(ch);
 		tmp->id = GET_IDNUM(victim);
 		tmp->time = time(NULL) + MOB_MEM_KOEFF * GET_REAL_INT(ch);

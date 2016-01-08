@@ -978,7 +978,7 @@ void remove_from_waste(ShopListType::const_iterator &shop, OBJ_DATA *obj)
 void attach_triggers(OBJ_DATA *obj, std::list<unsigned> trigs)
 {
 	if (!obj->script)
-		CREATE(obj->script, SCRIPT_DATA, 1);
+		CREATE(obj->script, 1);
 	for (std::list<unsigned>::iterator it = trigs.begin(); it != trigs.end(); ++it)
 	{
 		int rnum = real_trigger(*it);

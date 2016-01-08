@@ -345,7 +345,7 @@ void forget_all_spells(CHAR_DATA *ch)
 			for (unsigned j=0; (slots[slotn]>0 && j<ch->real_abils.SplMem[i]); ++j, --slots[slotn])
 			{
 				ch->MemQueue.total += mag_manacost(ch, i);
-				CREATE(qi_cur, struct spell_mem_queue_item, 1);
+				CREATE(qi_cur, 1);
 				*qi = qi_cur;
 				qi_cur->spellnum = i;
 				qi_cur->link = NULL;

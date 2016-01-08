@@ -1054,7 +1054,7 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 EXCHANGE_ITEM_DATA *create_exchange_item(void)
 {
 	EXCHANGE_ITEM_DATA *item;
-	CREATE(item, EXCHANGE_ITEM_DATA, 1);
+	CREATE(item, 1);
 	GET_EXCHANGE_ITEM_LOT(item) = -1;
 	GET_EXCHANGE_ITEM_SELLERID(item) = -1;
 	GET_EXCHANGE_ITEM_COST(item) = 0;
@@ -1193,7 +1193,7 @@ int exchange_database_load()
 	fseek(fl, 0L, SEEK_END);
 	fsize = ftell(fl);
 
-	CREATE(readdata, char, fsize + 1);
+	CREATE(readdata, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl))
 	{
@@ -1290,7 +1290,7 @@ int exchange_database_reload(bool loadbackup)
 	fseek(fl, 0L, SEEK_END);
 	fsize = ftell(fl);
 
-	CREATE(readdata, char, fsize + 1);
+	CREATE(readdata, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl))
 	{

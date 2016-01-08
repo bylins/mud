@@ -15,14 +15,16 @@
 #define _UTILS_H_
 
 #include "conf.h"
+
+#include "features.hpp"
+#include "pugixml.hpp"
+
+#include <boost/dynamic_bitset.hpp>
+
 #include <string>
 #include <list>
 #include <new>
 #include <vector>
-#include <boost/dynamic_bitset.hpp>
-
-#include "features.hpp"
-#include "pugixml.hpp"
 
 // external declarations and prototypes *********************************
 
@@ -266,20 +268,49 @@ extern SPECIAL(shop_ext);
 
 // memory utils *********************************************************
 
+template <typename T>
+inline void CREATE(T*& result, const size_t number)
+{
+	result = static_cast<T*>(calloc(number, sizeof(T)));
+	if (!result)
+	{
+		perror("SYSERR: calloc failure");
+		abort();
+	}
+}
 
-#define CREATE(result, type, number)  do {\
-   if ((number) * sizeof(type) <= 0)   \
-      log("SYSERR: Zero bytes or less requested at %s:%d.", __FILE__, __LINE__); \
-   if (!((result) = (type *) calloc ((number), sizeof(type)))) \
-      { perror("SYSERR: malloc failure"); abort(); } } while(0)
+template <typename T>
+inline void RECREATE(T*& result, const size_t number)
+{
+	result = static_cast<T*>(realloc(result, number*sizeof(T)));
+	if (!result)
+	{
+		perror("SYSERR: realloc failure");
+		abort();
+	}
+}
 
-#define RECREATE(result,type,number) do {\
-  if (!((result) = (type *) realloc ((result), sizeof(type) * (number))))\
-      { perror("SYSERR: realloc failure"); abort(); } } while(0)
+template <typename T>
+inline void NEWCREATE(T*& result)
+{
+	result = new(std::nothrow) T;
+	if (!result)
+	{
+		perror("SYSERR: new failure");
+		abort();
+	}
+}
 
-#define NEWCREATE(result, constructor) do {\
-   if (!((result) = new(std::nothrow) constructor)) \
-      { perror("SYSERR: new operator failure"); abort(); } } while(0)
+template <typename T>
+inline void NEWCREATE(T*& result, const T& init_value)
+{
+	result = new(std::nothrow) T(init_value);
+	if (!result)
+	{
+		perror("SYSERR: new failure");
+		abort();
+	}
+}
 
 /*
  * the source previously used the same code in many places to remove an item

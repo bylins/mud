@@ -901,7 +901,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 			if (!track && !ROOM_FLAGGED(go_to, ROOM_NOTRACK))
 			{
-				CREATE(track, struct track_data, 1);
+				CREATE(track, 1);
 				track->track_info = IS_NPC(ch) ? TRACK_NPC : 0;
 				track->who = IS_NPC(ch) ? mob_rnum : GET_IDNUM(ch);
 				track->next = world[go_to]->track;
@@ -926,7 +926,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 			if (!track && !ROOM_FLAGGED(was_in, ROOM_NOTRACK))
 			{
-				CREATE(track, struct track_data, 1);
+				CREATE(track, 1);
 				track->track_info = IS_NPC(ch) ? TRACK_NPC : 0;
 				track->who = IS_NPC(ch) ? mob_rnum : GET_IDNUM(ch);
 				track->next = world[was_in]->track;

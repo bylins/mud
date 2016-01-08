@@ -678,7 +678,7 @@ OCMD(do_odoor)
 	{
 		if (!exit)
 		{
-			CREATE(exit, EXIT_DATA, 1);
+			CREATE(exit, 1);
 			rm->dir_option[dir] = exit;
 		}
 
@@ -689,8 +689,10 @@ OCMD(do_odoor)
 		{
 		case 1:	// description 
 			if (exit->general_description)
+			{
 				free(exit->general_description);
-			CREATE(exit->general_description, char, strlen(value) + 3);
+			}
+			CREATE(exit->general_description, strlen(value) + 3);
 			strcpy(exit->general_description, value);
 			strcat(exit->general_description, "\r\n");
 			break;
@@ -717,8 +719,6 @@ OCMD(do_odoor)
 				exit->keyword = str_dup(buffer.c_str());
 				exit->vkeyword = str_dup(buffer.c_str());
 			}
-//			CREATE(exit->keyword, char, strlen(value) + 1);
-//			strcpy(exit->keyword, value);
 			break;
 		case 5:	// room        
 			if ((to_room = real_room(atoi(value))) != NOWHERE)

@@ -852,7 +852,7 @@ void affect_to_room(ROOM_DATA * room, AFFECT_DATA * af)
 {
 	AFFECT_DATA *affected_alloc;
 
-	CREATE(affected_alloc, AFFECT_DATA, 1);
+	CREATE(affected_alloc, 1);
 
 	*affected_alloc = *af;
 	affected_alloc->next = room->affected;
@@ -876,7 +876,7 @@ void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * af)
 							  was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
 	AFFECT_DATA *affected_alloc;
 
-	CREATE(affected_alloc, AFFECT_DATA, 1);
+	CREATE(affected_alloc, 1);
 
 	*affected_alloc = *af;
 	affected_alloc->next = ch->affected;
@@ -1145,7 +1145,7 @@ void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 		}
 	}
 
-	CREATE(timed_alloc, struct timed_type, 1);
+	CREATE(timed_alloc, 1);
 
 	*timed_alloc = *timed;
 	timed_alloc->next = ch->timed_feat;
@@ -1193,7 +1193,7 @@ void timed_to_char(CHAR_DATA * ch, struct timed_type *timed)
 		}
 	}
 
-	CREATE(timed_alloc, struct timed_type, 1);
+	CREATE(timed_alloc, 1);
 
 	*timed_alloc = *timed;
 	timed_alloc->next = ch->timed;
@@ -2719,7 +2719,10 @@ void extract_obj(OBJ_DATA * obj)
 void update_object(OBJ_DATA * obj, int use)
 {
 	// dont update objects with a timer trigger
-	if (!SCRIPT_CHECK(obj, OTRIG_TIMER) && obj->get_timer() > 0 && OBJ_FLAGGED(obj, ITEM_TICKTIMER))
+	const bool trig_timer = SCRIPT_CHECK(obj, OTRIG_TIMER);
+	const bool has_timer = obj->get_timer() > 0;
+	const bool tick_timer = OBJ_FLAGGED(obj, ITEM_TICKTIMER);
+	if (!trig_timer && has_timer && tick_timer)
 	{
 		obj->dec_timer(use);
 	}
@@ -3576,7 +3579,7 @@ OBJ_DATA *create_money(int amount)
 		return (NULL);
 	}
 	obj = create_obj();
-	CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+	CREATE(new_descr, 1);
 
 	if (amount == 1)
 	{
@@ -3855,7 +3858,7 @@ void add_portal_to_char(CHAR_DATA * ch, int vnum)
 		dlt = tmp;
 	}
 
-	CREATE(tmp, struct char_portal_type, 1);
+	CREATE(tmp, 1);
 	tmp->vnum = vnum;
 	tmp->next = GET_PORTALS(ch);
 	GET_PORTALS(ch) = tmp;
@@ -4222,7 +4225,7 @@ void MemQ_remember(CHAR_DATA * ch, int num)
 	ch->MemQueue.total += mag_manacost(ch, num);
 	while (*pi)
 		pi = &((*pi)->link);
-	CREATE(i, struct spell_mem_queue_item, 1);
+	CREATE(i, 1);
 	*pi = i;
 	i->spellnum = num;
 	i->link = NULL;

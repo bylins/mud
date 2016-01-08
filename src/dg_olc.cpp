@@ -45,70 +45,6 @@ void trigedit_save(DESCRIPTOR_DATA * d);
 void trigedit_create_index(int znum, const char *type);
 char * indent_trigger(char * cmd , int * level);
 
-#if 0
-// copy an entire script from one holder (mob/obj/room) to another
-void script_copy(void *dst, void *src, int type)
-/*++
-   Копирование скрипта в составе:
-      - прототип скрипта (копируются с созданием нового)
-      - текущий скрипт (не копируются глобальные переменные и т.д.)
-         в текущем скрипте копируются types, context = 0,
-         и используется trig_data_copy (новые name и arglist)
-   При создании новых структур данных старые удаляются
---*/
-{
-	SCRIPT_DATA *s_src;
-	SCRIPT_DATA **s_dst;
-	TRIG_DATA *t_src, **pt_dst;
-
-	// find the scripts of the source and destination
-	switch (type)
-	{
-	case MOB_TRIGGER:
-		s_src = SCRIPT((CHAR_DATA *) src);
-		s_dst = &SCRIPT((CHAR_DATA *) dst);
-		proto_script_free(((CHAR_DATA *) dst)->proto_script);
-		proto_script_copy(&((CHAR_DATA *) dst)->proto_script, ((CHAR_DATA *) src)->proto_script);
-		break;
-	case OBJ_TRIGGER:
-		s_src = SCRIPT((OBJ_DATA *) src);
-		s_dst = &SCRIPT((OBJ_DATA *) dst);
-		proto_script_free(((OBJ_DATA *) dst)->proto_script);
-		proto_script_copy(&((OBJ_DATA *) dst)->proto_script, ((OBJ_DATA *) src)->proto_script);
-		break;
-	case WLD_TRIGGER:
-		s_src = SCRIPT((ROOM_DATA *) src);
-		s_dst = &SCRIPT((ROOM_DATA *) dst);
-		proto_script_free(((ROOM_DATA *) dst)->proto_script);
-		proto_script_copy(&((ROOM_DATA *) dst)->proto_script, ((ROOM_DATA *) src)->proto_script);
-		break;
-	default:
-		log("SYSERR: Unknown type code sent to script_copy()!");
-		return;
-	}
-
-	// make sure the dst doesnt already have a script
-	// if it does, delete it
-	// free_script именно УДАЛЯЕТ со всеми потрохами
-	free_script(s_dst[0]);
-	CREATE(s_dst[0], SCRIPT_DATA, 1);
-
-	// copy the scrip data
-	s_dst[0]->types = s_src->types;
-	s_dst[0]->context = 0;
-
-	t_src = TRIGGERS(s_src);
-	pt_dst = NULL;
-	while (t_src)
-	{
-		pt_dst = pt_dst ? &(pt_dst[0]->next) : &TRIGGERS(s_dst[0]);
-		CREATE(pt_dst[0], trig_data, 1);
-		trig_data_copy(*pt_dst, t_src);
-		t_src = t_src->next;
-	}
-}
-#endif
-
 // called when a mob or object is being saved to disk, so its script can
 // be saved
 void script_save_to_disk(FILE * fp, void *item, int type)
@@ -134,7 +70,6 @@ void script_save_to_disk(FILE * fp, void *item, int type)
 	}
 }
 
-
 /**************************************************************************
  *  Редактирование ТРИГГЕРОВ
  *  trigedit
@@ -145,7 +80,7 @@ void trigedit_setup_new(DESCRIPTOR_DATA * d)
 	TRIG_DATA *trig;
 
 	// Allocate a scratch trigger structure
-	CREATE(trig, TRIG_DATA, 1);
+	CREATE(trig, 1);
 
 	trig->nr = -1;
 
@@ -154,7 +89,7 @@ void trigedit_setup_new(DESCRIPTOR_DATA * d)
 	trig->trigger_type = MTRIG_GREET;
 
 	// cmdlist will be a large char string until the trigger is saved
-	CREATE(OLC_STORAGE(d), char, MAX_CMD_LENGTH);
+	CREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
 	strcpy(OLC_STORAGE(d), "say My trigger commandlist is not complete!\r\n");
 	trig->narg = 100;
 
@@ -170,13 +105,13 @@ void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num)
 	struct cmdlist_element *c;
 
 	// Allocate a scratch trigger structure
-	CREATE(trig, TRIG_DATA, 1);
+	CREATE(trig, 1);
 
 	trig_data_copy(trig, trig_index[rtrg_num]->proto);
 
 	// convert cmdlist to a char string
 	c = trig->cmdlist;
-	CREATE(OLC_STORAGE(d), char, MAX_CMD_LENGTH);
+	CREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
 	strcpy(OLC_STORAGE(d), "");
 
 	while (c)
@@ -452,13 +387,13 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	s = OLC_STORAGE(d);
 	olc_log("%s start trig %d:\n%s", GET_NAME(d->character), OLC_NUM(d), OLC_STORAGE(d));
 
-	CREATE(trig->cmdlist, struct cmdlist_element, 1);
+	CREATE(trig->cmdlist, 1);
 	trig->cmdlist->cmd = str_dup(strtok(s, "\n\r"));
 	cmd = trig->cmdlist;
 
 	while ((s = strtok(NULL, "\n\r")))
 	{
-		CREATE(cmd->next, struct cmdlist_element, 1);
+		CREATE(cmd->next, 1);
 		cmd = cmd->next;
 		cmd->cmd = str_dup(s);
 	}
@@ -525,7 +460,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	else
 	{
 		// this is a new trigger
-		CREATE(new_index, INDEX_DATA *, top_of_trigt + 2);
+		CREATE(new_index, top_of_trigt + 2);
 
 		for (i = 0; i < top_of_trigt; i++)
 		{
@@ -536,12 +471,12 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 					found = TRUE;
 					trig_rnum = i;
 
-					CREATE(new_index[trig_rnum], INDEX_DATA, 1);
+					CREATE(new_index[trig_rnum], 1);
 					GET_TRIG_RNUM(OLC_TRIG(d)) = trig_rnum;
 					new_index[trig_rnum]->vnum = OLC_NUM(d);
 					new_index[trig_rnum]->number = 0;
 					new_index[trig_rnum]->func = NULL;
-					CREATE(proto, TRIG_DATA, 1);
+					CREATE(proto, 1);
 					new_index[trig_rnum]->proto = proto;
 
 					trig_data_copy(proto, trig);
@@ -566,13 +501,13 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 		if (!found)
 		{
 			trig_rnum = i;
-			CREATE(new_index[trig_rnum], INDEX_DATA, 1);
+			CREATE(new_index[trig_rnum], 1);
 			GET_TRIG_RNUM(OLC_TRIG(d)) = trig_rnum;
 			new_index[trig_rnum]->vnum = OLC_NUM(d);
 			new_index[trig_rnum]->number = 0;
 			new_index[trig_rnum]->func = NULL;
 
-			CREATE(proto, TRIG_DATA, 1);
+			CREATE(proto, 1);
 			new_index[trig_rnum]->proto = proto;
 			trig_data_copy(proto, trig);
 		}
@@ -896,7 +831,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		// add the new info in position
 		currtrig = OLC_SCRIPT(d);
-		CREATE(trig, struct trig_proto_list, 1);
+		CREATE(trig, 1);
 		trig->vnum = vnum;
 
 		if (pos == 1 || !currtrig)

@@ -1087,8 +1087,8 @@ void init_portals(void)
 		for (i = 0; !(i == 10 || wrd[i] == ' ' || wrd[i] == '\0'); i++);
 		wrd[i] = '\0';
 		// добавляем портал в список - rnm - комната, wrd - слово
-		CREATE(curr, struct portals_list_type, 1);
-		CREATE(curr->wrd, char, strlen(wrd) + 1);
+		CREATE(curr, 1);
+		CREATE(curr->wrd, strlen(wrd) + 1);
 		curr->vnum = rnm;
 		curr->level = level;
 		for (i = 0, curr->wrd[i] = '\0'; wrd[i]; i++)
@@ -1323,7 +1323,7 @@ void init_zone_types()
 	}
 	names++;
 
-	CREATE(zone_types, struct zone_type, names);
+	CREATE(zone_types, names);
 	for (i = 0; i < names; i++)
 	{
 		zone_types[i].name = NULL;
@@ -1355,8 +1355,12 @@ void init_zone_types()
 	zone_types[i].name = str_dup("\n");
 
 	for (i = 0; *zone_types[i].name != '\n'; i++)
+	{
 		if (zone_types[i].ingr_qty > 0)
-			CREATE(zone_types[i].ingr_types, int, zone_types[i].ingr_qty);
+		{
+			CREATE(zone_types[i].ingr_types, zone_types[i].ingr_qty);
+		}
+	}
 
 	rewind(zt_file);
 	i = 0;
@@ -2157,7 +2161,7 @@ void load_messages(void)
 			exit(1);
 		}
 		log("BATTLE MESSAGE %d(%d)", i, type);
-		CREATE(messages, struct message_type, 1);
+		CREATE(messages, 1);
 		fight_messages[i].number_of_attacks++;
 		fight_messages[i].a_type = type;
 		messages->next = fight_messages[i].msg;
@@ -2815,7 +2819,7 @@ void index_boot(int mode)
 	switch (mode)
 	{
 	case DB_BOOT_TRG:
-		CREATE(trig_index, INDEX_DATA *, rec_count);
+		CREATE(trig_index, rec_count);
 		break;
 	case DB_BOOT_WLD:
 		// Creating empty world with NOWHERE room.
@@ -2826,28 +2830,28 @@ void index_boot(int mode)
 		break;
 	case DB_BOOT_MOB:
 		mob_proto = new CHAR_DATA[rec_count]; // TODO: переваять на вектор (+в medit)
-		CREATE(mob_index, INDEX_DATA, rec_count);
+		CREATE(mob_index, rec_count);
 		size[0] = sizeof(INDEX_DATA) * rec_count;
 		size[1] = sizeof(CHAR_DATA) * rec_count;
 		log("   %d mobs, %d bytes in index, %d bytes in prototypes.", rec_count, size[0], size[1]);
 		break;
 	case DB_BOOT_OBJ:
 		obj_proto.reserve(rec_count);
-		CREATE(obj_index, INDEX_DATA, rec_count);
+		CREATE(obj_index, rec_count);
 		size[0] = sizeof(INDEX_DATA) * rec_count;
 		size[1] = sizeof(OBJ_DATA) * rec_count;
 		log("   %d objs, %d bytes in index, %d bytes in prototypes.", rec_count, size[0], size[1]);
 		break;
 	case DB_BOOT_ZON:
-		CREATE(zone_table, struct zone_data, rec_count);
+		CREATE(zone_table, rec_count);
 		size[0] = sizeof(struct zone_data) * rec_count;
 		log("   %d zones, %d bytes.", rec_count, size[0]);
 		break;
 	case DB_BOOT_HLP:
 		break;
 	case DB_BOOT_SOCIAL:
-		CREATE(soc_mess_list, struct social_messg, top_of_socialm + 1);
-		CREATE(soc_keys_list, struct social_keyword, top_of_socialk + 1);
+		CREATE(soc_mess_list, top_of_socialm + 1);
+		CREATE(soc_keys_list, top_of_socialk + 1);
 		size[0] = sizeof(struct social_messg) * (top_of_socialm + 1);
 		size[1] = sizeof(struct social_keyword) * (top_of_socialk + 1);
 		log("   %d entries(%d keywords), %d(%d) bytes.", top_of_socialm + 1,
@@ -3104,7 +3108,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		{
 			std::string buffer(temp_buf);
 			boost::trim_right_if(buffer, boost::is_any_of(std::string(" _"))); //убираем пробелы в конце строки
-			RECREATE(temp_buf, char, strlen(buffer.c_str()) + 1);
+			RECREATE(temp_buf, strlen(buffer.c_str()) + 1);
 			strcpy(temp_buf, buffer.c_str());
 		}
 		world[room_nr]->description_num = RoomDescription::add_desc(temp_buf);
@@ -3177,7 +3181,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			setup_dir(fl, room_nr, atoi(line + 1));
 			break;
 		case 'E':
-			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+			CREATE(new_descr, 1);
 			new_descr->keyword = NULL;
 			new_descr->description = NULL;
 			new_descr->keyword = fread_string(fl, buf2);
@@ -3241,7 +3245,7 @@ void setup_dir(FILE * fl, int room, unsigned dir)
 
 	sprintf(buf2, "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
 
-	CREATE(world[room]->dir_option[dir], EXIT_DATA, 1);
+	CREATE(world[room]->dir_option[dir], 1);
 	world[room]->dir_option[dir]->general_description = fread_string(fl, buf2);
 
 	// парс строки алиаса двери на имя;вининельный падеж, если он есть
@@ -3813,7 +3817,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Helper")
 	{
-		CREATE(helper, struct helper_data_type, 1);
+		CREATE(helper, 1);
 		helper->mob_vnum = num_arg;
 		helper->next_helper = GET_HELPER(mob_proto + i);
 		GET_HELPER(mob_proto + i) = helper;
@@ -4068,7 +4072,7 @@ int dl_parse(load_list ** dl_list, char *line)
 		*dl_list = new load_list;
 	}
 
-	CREATE(new_item, struct load_data, 1);
+	CREATE(new_item, 1);
 	new_item->obj_vnum = vnum;
 	new_item->load_prob = prob;
 	new_item->load_type = type;
@@ -4238,7 +4242,7 @@ void parse_mobile(FILE * mob_f, int nr)
 	}
 
 	// real name
-	CREATE(GET_PAD(mob_proto + i, 0), char, strlen(mob_proto[i].get_npc_name()) + 1);
+	CREATE(GET_PAD(mob_proto + i, 0), strlen(mob_proto[i].get_npc_name()) + 1);
 	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name());
 	for (j = 1; j < NUM_PADS; j++)
 		GET_PAD(mob_proto + i, j) = fread_string(mob_f, buf2);
@@ -4339,7 +4343,7 @@ char *parse_object(FILE * obj_f, int nr)
 	EXTRA_DESCR_DATA *new_descr;
 	OBJ_DATA *tobj;
 
-	NEWCREATE(tobj, OBJ_DATA);
+	NEWCREATE(tobj);
 
 	obj_index[i].vnum = nr;
 	obj_index[i].number = 0;
@@ -4367,7 +4371,7 @@ char *parse_object(FILE * obj_f, int nr)
 	}
 	tmpptr = tobj->short_description = fread_string(obj_f, buf2);
 	*tobj->short_description = LOWER(*tobj->short_description);
-	CREATE(tobj->PNames[0], char, strlen(tobj->short_description) + 1);
+	CREATE(tobj->PNames[0], strlen(tobj->short_description) + 1);
 	strcpy(tobj->PNames[0], tobj->short_description);
 
 	for (j = 1; j < NUM_PADS; j++)
@@ -4509,7 +4513,7 @@ char *parse_object(FILE * obj_f, int nr)
 		switch (*line)
 		{
 		case 'E':
-			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+			CREATE(new_descr, 1);
 			new_descr->keyword = NULL;
 			new_descr->description = NULL;
 			new_descr->keyword = fread_string(obj_f, buf2);
@@ -4626,11 +4630,13 @@ void load_zones(FILE * fl, char *zonename)
 	}
 	rewind(fl);
 	if (Z.typeA_count)
-		CREATE(Z.typeA_list, int, Z.typeA_count);
+	{
+		CREATE(Z.typeA_list, Z.typeA_count);
+	}
 	if (Z.typeB_count)
 	{
-		CREATE(Z.typeB_list, int, Z.typeB_count);
-		CREATE(Z.typeB_flag, bool, Z.typeB_count);
+		CREATE(Z.typeB_list, Z.typeB_count);
+		CREATE(Z.typeB_flag, Z.typeB_count);
 		// сбрасываем все флаги
 		for (b_number = Z.typeB_count; b_number > 0; b_number--)
 			Z.typeB_flag[b_number - 1] = FALSE;
@@ -4642,7 +4648,9 @@ void load_zones(FILE * fl, char *zonename)
 		exit(1);
 	}
 	else
-		CREATE(Z.cmd, struct reset_com, num_of_cmds);
+	{
+		CREATE(Z.cmd, num_of_cmds);
+	}
 
 	line_num += get_line(fl, buf);
 
@@ -5168,7 +5176,7 @@ OBJ_DATA *create_obj(const char *alias)
 {
 	OBJ_DATA *obj;
 
-	NEWCREATE(obj, OBJ_DATA);
+	NEWCREATE(obj);
 	obj->next = object_list;
 	object_list = obj;
 	GET_ID(obj) = max_id++;
@@ -5230,7 +5238,7 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	else
 		i = nr;
 
-	NEWCREATE(obj, OBJ_DATA(*obj_proto[i]));
+	NEWCREATE(obj, *obj_proto[i]);
 	obj_index[i].number++;
 	i = obj_index[i].zone;
 	if (i != -1 && zone_table[i].under_construction)
@@ -5287,7 +5295,7 @@ void zone_update(void)
 					(zone_table[i].reset_idle || zone_table[i].used))  	// enqueue zone
 			{
 
-				CREATE(update_u, struct reset_q_element, 1);
+				CREATE(update_u, 1);
 				update_u->zone_to_reset = i;
 				update_u->next = 0;
 
@@ -5654,7 +5662,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 			if ( rn != NOWHERE)
 			{
 				if (!(world[rn]->script))
-					CREATE(world[rn]->script, SCRIPT_DATA, 1);
+					CREATE(world[rn]->script, 1);
 
 				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin();
 						it != (*room)->triggers.end(); ++it)
@@ -5672,7 +5680,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					if (mob)
 					{
 						if (!SCRIPT(mob))
-							CREATE(SCRIPT(mob), SCRIPT_DATA, 1);
+							CREATE(SCRIPT(mob), 1);
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 							add_trigger(SCRIPT(mob), read_trigger(real_trigger(*it)), -1);
@@ -5692,7 +5700,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 									GET_OBJ_ZONE(obj) = world[IN_ROOM(mob)]->zone;
 
 									if (!SCRIPT(obj))
-										CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
+										CREATE(SCRIPT(obj), 1);
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
 										add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
@@ -5732,7 +5740,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					if (obj)
 					{
 						if (!SCRIPT(obj))
-							CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
+							CREATE(SCRIPT(obj), 1);
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 							add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
@@ -5754,7 +5762,9 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 									GET_OBJ_ZONE(obj_in) = GET_OBJ_ZONE(obj);
 
 									if (!SCRIPT(obj_in))
-										CREATE(SCRIPT(obj_in), SCRIPT_DATA, 1);
+									{
+										CREATE(SCRIPT(obj_in), 1);
+									}
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
 										add_trigger(SCRIPT(obj_in), read_trigger(real_trigger(*it)), -1);
@@ -5790,7 +5800,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			if (ch->nr > 0 && list.find(mob_index[ch->nr].vnum) != list.end())
 			{
 				if (!SCRIPT(ch))
-					CREATE(SCRIPT(ch), SCRIPT_DATA, 1);
+					CREATE(SCRIPT(ch), 1);
 				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin();
 						it != list[mob_index[ch->nr].vnum].end(); ++it)
 					add_trigger(SCRIPT(ch), read_trigger(real_trigger(*it)), -1);
@@ -5807,10 +5817,13 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			if (o->item_number > 0 && list.find(o->item_number) != list.end())
 			{
 				if (!SCRIPT(o))
-					CREATE(SCRIPT(o), SCRIPT_DATA, 1);
-				for (Celebrates::TrigList::iterator it = list[o->item_number].begin();
-						it != list[o->item_number].end(); ++it)
+				{
+					CREATE(SCRIPT(o), 1);
+				}
+				for (Celebrates::TrigList::iterator it = list[o->item_number].begin(); it != list[o->item_number].end(); ++it)
+				{
 					add_trigger(SCRIPT(o), read_trigger(real_trigger(*it)), -1);
+				}
 				Celebrates::add_obj_to_attach_list(o->uid, o);
 			}
 		}
@@ -6154,14 +6167,14 @@ void reset_zone(zone_rnum zone)
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
 					if (!SCRIPT(tmob))
-						CREATE(SCRIPT(tmob), SCRIPT_DATA, 1);
+						CREATE(SCRIPT(tmob), 1);
 					add_trigger(SCRIPT(tmob), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
 				}
 				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
 				{
 					if (!SCRIPT(tobj))
-						CREATE(SCRIPT(tobj), SCRIPT_DATA, 1);
+						CREATE(SCRIPT(tobj), 1);
 					add_trigger(SCRIPT(tobj), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
 				}
@@ -6170,7 +6183,9 @@ void reset_zone(zone_rnum zone)
 					if (ZCMD.arg3 != NOWHERE)
 					{
 						if (!(world[ZCMD.arg3]->script))
-							CREATE(world[ZCMD.arg3]->script, SCRIPT_DATA, 1);
+						{
+							CREATE(world[ZCMD.arg3]->script, 1);
+						}
 						add_trigger(world[ZCMD.arg3]->script,
 									read_trigger(real_trigger(ZCMD.arg2)), -1);
 						curr_state = 1;
@@ -6581,7 +6596,7 @@ struct ignore_data *parse_ignore(char *buf)
 {
 	struct ignore_data *result;
 
-	CREATE(result, struct ignore_data, 1);
+	CREATE(result, 1);
 
 	if (sscanf(buf, "[%ld]%ld", &result->mode, &result->id) < 2)
 	{
@@ -6702,17 +6717,17 @@ int create_entry(const char *name)
 
 	if (top_of_p_table == -1)  	// no table
 	{
-		CREATE(player_table, struct player_index_element, 1);
+		CREATE(player_table, 1);
 		pos = top_of_p_table = 0;
 	}
 	else if ((pos = get_ptable_by_name(name)) == -1)  	// new name
 	{
 		i = ++top_of_p_table + 1;
-		RECREATE(player_table, struct player_index_element, i);
+		RECREATE(player_table, i);
 		pos = top_of_p_table;
 	}
 
-	CREATE(player_table[pos].name, char, strlen(name) + 1);
+	CREATE(player_table[pos].name, strlen(name) + 1);
 
 	// copy lowercase equivalent of name to table field
 	for (i = 0, player_table[pos].name[i] = '\0'; (player_table[pos].name[i] = LOWER(name[i])); i++);
@@ -6796,7 +6811,7 @@ char *fread_string(FILE * fl, char *error)
 	// allocate space for the new string and copy it
 	if (strlen(buf) > 0)
 	{
-		CREATE(rslt, char, length + 1);
+		CREATE(rslt, length + 1);
 		strcpy(rslt, buf);
 	}
 	else
@@ -7016,10 +7031,6 @@ void init_char(CHAR_DATA * ch)
 {
 	int i;
 
-	// create a player_special structure
-//	if (ch->player_specials == NULL)
-//		CREATE(ch->player_specials, struct player_special_data, 1);
-
 #ifdef TEST_BUILD
 	if (top_of_p_table == 0)
 	{
@@ -7027,8 +7038,9 @@ void init_char(CHAR_DATA * ch)
 		ch->set_level(LVL_IMPL);
 	}
 #endif
+
 	GET_PORTALS(ch) = NULL;
-	CREATE(GET_LOGS(ch), int, NLOG);
+	CREATE(GET_LOGS(ch), NLOG);
 	ch->set_npc_name(0);
 	ch->player_data.long_descr = NULL;
 	ch->player_data.description = NULL;
@@ -7574,20 +7586,20 @@ void entrycount(char *name)
 				deleted = 0;
 				// new record
 				if (player_table)
-					RECREATE(player_table, struct player_index_element, top_of_p_table + 2);
+					RECREATE(player_table, top_of_p_table + 2);
 				else
-					CREATE(player_table, struct player_index_element, 1);
+					CREATE(player_table, 1);
 				top_of_p_file++;
 				top_of_p_table++;
 
-				CREATE(player_table[top_of_p_table].name, char, strlen(GET_NAME(short_ch)) + 1);
+				CREATE(player_table[top_of_p_table].name, strlen(GET_NAME(short_ch)) + 1);
 				for (i = 0, player_table[top_of_p_table].name[i] = '\0';
 						(player_table[top_of_p_table].name[i] = LOWER(GET_NAME(short_ch)[i])); i++);
 				//added by WorM 2010.08.27 в индексе чистим мыло и ip
-				CREATE(player_table[top_of_p_table].mail, char, strlen(GET_EMAIL(short_ch)) + 1);
+				CREATE(player_table[top_of_p_table].mail, strlen(GET_EMAIL(short_ch)) + 1);
 				for (i = 0, player_table[top_of_p_table].mail[i] = '\0';
 						(player_table[top_of_p_table].mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
-				CREATE(player_table[top_of_p_table].last_ip, char, strlen(GET_LASTIP(short_ch)) + 1);
+				CREATE(player_table[top_of_p_table].last_ip, strlen(GET_LASTIP(short_ch)) + 1);
 				for (i = 0, player_table[top_of_p_table].last_ip[i] = '\0';
 						(player_table[top_of_p_table].last_ip[i] = GET_LASTIP(short_ch)[i]); i++);
 				//end by WorM
@@ -7859,7 +7871,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		EXIT_DATA *rdd;
 		if ((rdd = src->dir_option[i]) != NULL)
 		{
-			CREATE(dst->dir_option[i], EXIT_DATA, 1);
+			CREATE(dst->dir_option[i], 1);
 			// Копируем числа
 			*dst->dir_option[i] = *rdd;
 			// Выделяем память
@@ -7876,7 +7888,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 
 	while (sdd)
 	{
-		CREATE(pddd[0], EXTRA_DESCR_DATA, 1);
+		CREATE(pddd[0], 1);
 		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
 		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
 		pddd = &(pddd[0]->next);

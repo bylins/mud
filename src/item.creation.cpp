@@ -2406,7 +2406,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		if (desc == NULL)
 		{
-			CREATE(desc, EXTRA_DESCR_DATA, 1);
+			CREATE(desc, 1);
 			obj->ex_description = desc;
 			desc->keyword = str_dup(obj->aliases);
 			desc->description = str_dup(tagchar);
@@ -2414,7 +2414,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		}
 		else
 		{
-			CREATE(new_desc, EXTRA_DESCR_DATA, 1);
+			CREATE(new_desc, 1);
 			new_desc->keyword = str_dup(desc->keyword);
 			new_desc->description = str_dup(desc->description);
 			new_desc->next = NULL;	// На всякий случай :)

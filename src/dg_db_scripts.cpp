@@ -144,8 +144,8 @@ void parse_trigger(FILE * trig_f, int nr)
 	index_data *index;
 	TRIG_DATA *trig;
 
-	CREATE(trig, trig_data, 1);
-	CREATE(index, index_data, 1);
+	CREATE(trig, 1);
+	CREATE(index, 1);
 
 	index->vnum = nr;
 	index->number = 0;
@@ -167,7 +167,7 @@ void parse_trigger(FILE * trig_f, int nr)
 
 	s = cmds = fread_string(trig_f, buf2);
 
-	CREATE(trig->cmdlist, struct cmdlist_element, 1);
+	CREATE(trig->cmdlist, 1);
 
 	trig->cmdlist->cmd = str_dup(strtok(s, "\n\r"));
 
@@ -178,7 +178,7 @@ void parse_trigger(FILE * trig_f, int nr)
 
 	while ((s = strtok(NULL, "\n\r")))
 	{
-		CREATE(cle->next, struct cmdlist_element, 1);
+		CREATE(cle->next, 1);
 		cle = cle->next;
 		cle->cmd = str_dup(s);
 		cle->cmd = indent_trigger(cle->cmd, &indlev);
@@ -212,7 +212,7 @@ TRIG_DATA *read_trigger(int nr)
 	if ((index = trig_index[nr]) == NULL)
 		return NULL;
 
-	CREATE(trig, trig_data, 1);
+	CREATE(trig, 1);
 	trig_data_copy(trig, index->proto);
 
 	index->number++;
@@ -351,7 +351,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	switch (type)
 	{
 	case MOB_TRIGGER:
-		CREATE(new_trg, struct trig_proto_list, 1);
+		CREATE(new_trg, 1);
 		new_trg->vnum = vnum;
 		new_trg->next = NULL;
 
@@ -369,7 +369,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 		}
 		break;
 	case WLD_TRIGGER:
-		CREATE(new_trg, struct trig_proto_list, 1);
+		CREATE(new_trg, 1);
 		new_trg->vnum = vnum;
 		new_trg->next = NULL;
 		room = (room_data *) proto;
@@ -388,7 +388,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 		if (rnum >= 0)
 		{
 			if (!(room->script))
-				CREATE(room->script, SCRIPT_DATA, 1);
+				CREATE(room->script, 1);
 			add_trigger(SCRIPT(room), read_trigger(rnum), -1);
 		}
 		else
@@ -425,7 +425,7 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 		return;
 	}
 
-	CREATE(new_trg, struct trig_proto_list, 1);
+	CREATE(new_trg, 1);
 	new_trg->vnum = vnum;
 	new_trg->next = NULL;
 
@@ -480,7 +480,9 @@ void assign_triggers(void *i, int type)
 				else
 				{
 					if (!SCRIPT(mob))
-						CREATE(SCRIPT(mob), SCRIPT_DATA, 1);
+					{
+						CREATE(SCRIPT(mob), 1);
+					}
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
 				}
 			}
@@ -511,7 +513,9 @@ void assign_triggers(void *i, int type)
 				else
 				{
 					if (!SCRIPT(obj))
-						CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
+					{
+						CREATE(SCRIPT(obj), 1);
+					}
 					add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
 				}
 			}
@@ -542,7 +546,9 @@ void assign_triggers(void *i, int type)
 				else
 				{
 					if (!SCRIPT(room))
-						CREATE(SCRIPT(room), SCRIPT_DATA, 1);
+					{
+						CREATE(SCRIPT(room), 1);
+					}
 					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
 				}
 			}

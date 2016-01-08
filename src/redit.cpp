@@ -394,7 +394,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	// * if exit doesn't exist, alloc/create it
 	if (!OLC_EXIT(d))
 	{
-		CREATE(OLC_EXIT(d), EXIT_DATA, 1);
+		CREATE(OLC_EXIT(d), 1);
 		OLC_EXIT(d)->to_room = NOWHERE;
 	}
 
@@ -674,7 +674,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			// * If the extra description doesn't exist.
 			if (!OLC_ROOM(d)->ex_description)
 			{
-				CREATE(OLC_ROOM(d)->ex_description, EXTRA_DESCR_DATA, 1);
+				CREATE(OLC_ROOM(d)->ex_description, 1);
 				OLC_ROOM(d)->ex_description->next = NULL;
 			}
 			OLC_DESC(d) = OLC_ROOM(d)->ex_description;
@@ -967,7 +967,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				else
 				{
 					// * Make new extra description and attach at end.
-					CREATE(new_extra, EXTRA_DESCR_DATA, 1);
+					CREATE(new_extra, 1);
 					OLC_DESC(d)->next = new_extra;
 					OLC_DESC(d) = new_extra;
 				}

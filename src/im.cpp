@@ -142,7 +142,7 @@ void TypeListAllocate(im_tlist * tl, int size)
 	if (tl->size < size)
 	{
 		long *ptr;
-		CREATE(ptr, long, size);
+		CREATE(ptr, size);
 		if (tl->size)
 		{
 			memcpy(ptr, tl->types, size * 4);
@@ -532,12 +532,12 @@ void init_im(void)
 		{
 			if (mbs == NULL)
 			{
-				CREATE(mbs, im_memb, 1);
+				CREATE(mbs, 1);
 				mptr = mbs;
 			}
 			else
 			{
-				CREATE(mptr->next, im_memb, 1);
+				CREATE(mptr->next, 1);
 				mptr = mptr->next;
 			}
 			// Количество пар alias
@@ -552,11 +552,11 @@ void init_im(void)
 	}
 
 	// Выделение памяти для imtypes и заполнение массива
-	CREATE(imtypes, im_type, top_imtypes + 1);
+	CREATE(imtypes, top_imtypes + 1);
 	top_imtypes = -1;
 
 	// Выделение пямяти для imrecipes и заполнение массива
-	CREATE(imrecipes, im_recipe, top_imrecipes + 1);
+	CREATE(imrecipes, top_imrecipes + 1);
 	top_imrecipes = -1;
 
 	// ПРОХОД 2
@@ -621,7 +621,7 @@ void init_im(void)
 				{
 					char **p;
 					im_memb *ins_after, *ins_before;
-					CREATE(mptr->aliases, char *, 2 * (mptr->power + 1));
+					CREATE(mptr->aliases, 2 * (mptr->power + 1));
 					mptr->power = power;
 					mptr->sex = sex;
 					p = mptr->aliases;
@@ -811,7 +811,7 @@ void init_im(void)
 							break;
 						while (n--)
 						{
-							CREATE(adi, im_addon, 1);
+							CREATE(adi, 1);
 							adi->id = id;
 							adi->k0 = k0;
 							adi->k1 = k1;
@@ -986,14 +986,25 @@ void im_parse(int **ing_list, char *line)
 			l = strtol(line, &line, 10);
 		}
 		if (*line++ != ':')
+		{
 			break;
+		}
+
 		p = strtol(line, &line, 10);
 		if (!p)
+		{
 			break;
+		}
+
 		if (!local_count)
-			CREATE(local_list, int, 2);
+		{
+			CREATE(local_list, 2);
+		}
 		else
-			RECREATE(local_list, int, local_count + 2);
+		{
+			RECREATE(local_list, local_count + 2);
+		}
+
 		local_list[local_count++] = n;
 		local_list[local_count++] = (l << 16) | p;
 	}
@@ -1002,13 +1013,17 @@ void im_parse(int **ing_list, char *line)
 		for (ptr = *ing_list; (*ptr++ != -1););
 		count = ptr - *ing_list - 1;
 	}
-	CREATE(res, int, local_count + count + 1);
+	CREATE(res, local_count + count + 1);
 	if (count)
+	{
 		memcpy(res, *ing_list, count * sizeof(int));
+	}
 	memcpy(res + count, local_list, local_count * sizeof(int));
 	res[count + local_count] = -1;
 	if (*ing_list)
+	{
 		free(*ing_list);
+	}
 	free(local_list);
 	*ing_list = res;
 }
@@ -1112,7 +1127,7 @@ OBJ_DATA* try_make_ingr(CHAR_DATA* mob, int prob_default, int prob_special)
 	{
 		size_t num_inrgs = it->second->ingrlist.size();
 		int* ingr_to_load_list = NULL;
-		CREATE(ingr_to_load_list, int, num_inrgs * 2 + 1);
+		CREATE(ingr_to_load_list, num_inrgs * 2 + 1);
 		size_t j = 0;
 		for (; j < num_inrgs; j++)
 		{
@@ -1318,7 +1333,7 @@ ACMD(do_rset)
 	rs = im_get_char_rskill(vict, rcpt);
 	if (!rs)
 	{
-		CREATE(rs, im_rskill, 1);
+		CREATE(rs, 1);
 		rs->rid = rcpt;
 		rs->link = GET_RSKILL(vict);
 		GET_RSKILL(vict) = rs;
@@ -1416,11 +1431,17 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 			break;
 		}
 		if (i != n)
+		{
 			break;
+		}
 		if (!array)
-			CREATE(array, OBJ_DATA *, 1);
+		{
+			CREATE(array, 1);
+		}
 		else
-			RECREATE(array, OBJ_DATA *, n + 1);
+		{
+			RECREATE(array, n + 1);
+		}
 		array[n++] = o;
 	}
 	if (array)
@@ -1880,7 +1901,7 @@ void im_inglist_copy(int **pdst, int *src)
 		return;
 	for (i = 0; src[i] != -1; i += 2);
 	++i;
-	CREATE(*pdst, int, i);
+	CREATE(*pdst, i);
 	memcpy(*pdst, src, i * sizeof(int));
 	return;
 }
@@ -1938,7 +1959,7 @@ void trg_recipeturn(CHAR_DATA * ch, int rid, int recipediff)
 // +newbook.patch (Alisher)
 		if (imrecipes[rid].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE)
 		{
-			CREATE(rs, im_rskill, 1);
+			CREATE(rs, 1);
 			rs->rid = rid;
 			rs->link = GET_RSKILL(ch);
 			GET_RSKILL(ch) = rs;

@@ -500,7 +500,7 @@ void return_money(std::string const &name, int money, bool add)
 // * Экстра-описание на самой посылке при получении.
 void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 {
-	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
+	CREATE(obj->ex_description, 1);
 	obj->ex_description->keyword = str_dup("посылка бандероль пакет ящик parcel box case chest");
 	obj->ex_description->next = 0;
 
@@ -747,7 +747,7 @@ void load()
 	int fsize = ftell(fl);
 
 	char *data, *readdata;
-	CREATE(readdata, char, fsize + 1);
+	CREATE(readdata, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl))
 	{

@@ -291,7 +291,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			else
 				total_len--;
 			*t = '\0';
-			RECREATE(*d->str, char, strlen(*d->str) + 3);
+			RECREATE(*d->str, strlen(*d->str) + 3);
 
 			sprintf(buf, "%u line%sdeleted.\r\n", total_len, ((total_len != 1) ? "s " : " "));
 			SEND_TO_Q(buf, d);
@@ -511,7 +511,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			{
 				strcat(buf, s);
 			}
-			RECREATE(*d->str, char, strlen(buf) + 3);
+			RECREATE(*d->str, strlen(buf) + 3);
 
 			strcpy(*d->str, buf);
 			SEND_TO_Q("Строка вставлена.\r\n", d);
@@ -583,7 +583,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				return;
 			}
 			// * Change the size of the REAL buffer to fit the new text.
-			RECREATE(*d->str, char, strlen(buf) + 3);
+			RECREATE(*d->str, strlen(buf) + 3);
 			strcpy(*d->str, buf);
 			SEND_TO_Q("Строка изменена.\r\n", d);
 		}
@@ -710,7 +710,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		{
 			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
 			strcpy(&str[d->max_str - 3], "\r\n");
-			CREATE(*d->str, char, d->max_str);
+			CREATE(*d->str, d->max_str);
 			strcpy(*d->str, str);
 
 			// Changed this to NOT abort out.. just give warning. //
@@ -724,7 +724,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		}
 		else
 		{
-			CREATE(*d->str, char, strlen(str) + 3);
+			CREATE(*d->str, strlen(str) + 3);
 			strcpy(*d->str, str);
 		}
 		//log("[SA] No str f");
@@ -746,7 +746,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		}
 		else  	//log("[SA] 1.2");
 		{
-			RECREATE(*d->str, char, strlen(*d->str) + strlen(str) + 3);	// \r\n\0
+			RECREATE(*d->str, strlen(*d->str) + strlen(str) + 3);	// \r\n\0
 			strcat(*d->str, str);
 		}
 		//log("[SA] 1f");
@@ -1370,7 +1370,7 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 		return;
 	}
 	d->showstr_count = count_pages(str, d->character);
-	CREATE(d->showstr_vector, char *, d->showstr_count);
+	CREATE(d->showstr_vector, d->showstr_count);
 
 	if (keep_internal)
 	{

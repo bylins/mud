@@ -84,7 +84,7 @@ void read_aliases(CHAR_DATA * ch)
 		return;
 	}
 
-	CREATE(GET_ALIASES(ch), struct alias_data, 1);
+	CREATE(GET_ALIASES(ch), 1);
 	t2 = GET_ALIASES(ch);
 
 	for (;;)  		// Read the aliased command.
@@ -106,7 +106,7 @@ void read_aliases(CHAR_DATA * ch)
 		if (feof(file))
 			break;
 
-		CREATE(t2->next, struct alias_data, 1);
+		CREATE(t2->next, 1);
 		t2 = t2->next;
 	};
 

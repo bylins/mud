@@ -16,17 +16,6 @@
 #include "room.hpp"
 #include "help.hpp"
 
-/*
- * Turn on zedit debugging.  Please mail log results to greerga@van.ml.org
- * This will attempt to find the problem with replacing other zedit commands
- * when you add unrelated ones.
- */
-#if 0
-#define DEBUG	1
-#endif
-
-//------------------------------------------------------------------------
-
 // * External data structures.
 extern struct zone_data *zone_table;
 extern CHAR_DATA *mob_proto;
@@ -110,7 +99,7 @@ pzcmd zedit_build_cmdlist(DESCRIPTOR_DATA * d)
 	pzcmd head, item;
 	int subcmd;
 
-	CREATE(head, struct t_zcmd, 1);
+	CREATE(head, 1);
 	head->next = head->prev = head;
 	head->cmd.command = 'S';
 
@@ -119,7 +108,7 @@ pzcmd zedit_build_cmdlist(DESCRIPTOR_DATA * d)
 		if (ZCMD.command == '*')
 			continue;
 
-		CREATE(item, struct t_zcmd, 1);
+		CREATE(item, 1);
 		item->cmd = ZCMD;	// копирование команды
 
 		switch (ZCMD.command)
@@ -278,7 +267,7 @@ int new_command(DESCRIPTOR_DATA * d, int pos)
 	if (!item)
 		return 0;	// очень большой номер
 	// новый элемент добавляю перед item
-	CREATE(head, struct t_zcmd, 1);
+	CREATE(head, 1);
 	head->cmd.command = '*';
 	head->cmd.if_flag = 0;
 	head->cmd.arg1 = head->cmd.arg2 = head->cmd.arg3 = head->cmd.arg4 = -1;
@@ -341,11 +330,15 @@ void zedit_setup(DESCRIPTOR_DATA * d, int room_num)
 	int i;
 
 	// Allocate one scratch zone structure. //
-	CREATE(zone, struct zone_data, 1);
+	CREATE(zone, 1);
 	if (zone_table[OLC_ZNUM(d)].typeA_count)
-		CREATE(zone->typeA_list, int, zone_table[OLC_ZNUM(d)].typeA_count);
+	{
+		CREATE(zone->typeA_list, zone_table[OLC_ZNUM(d)].typeA_count);
+	}
 	if (zone_table[OLC_ZNUM(d)].typeB_count)
-		CREATE(zone->typeB_list, int, zone_table[OLC_ZNUM(d)].typeB_count);
+	{
+		CREATE(zone->typeB_list, zone_table[OLC_ZNUM(d)].typeB_count);
+	}
 
 	// Copy all the zone header information over. //
 	zone->name = str_dup(zone_table[OLC_ZNUM(d)].name);
@@ -404,7 +397,7 @@ void zedit_save_internally(DESCRIPTOR_DATA * d)
 
 	head = (pzcmd) OLC_ZONE(d)->cmd;
 	count = zedit_count_cmdlist(head);
-	CREATE(zone_table[OLC_ZNUM(d)].cmd, struct reset_com, count);
+	CREATE(zone_table[OLC_ZNUM(d)].cmd, count);
 	// Перенос команд обратно с трансляцией в RNUM
 
 	for (subcmd = 0, item = head->next; item != head; item = item->next, ++subcmd)
@@ -438,17 +431,23 @@ void zedit_save_internally(DESCRIPTOR_DATA * d)
 		zone_table[OLC_ZNUM(d)].typeB_count = OLC_ZONE(d)->typeB_count;
 		free(zone_table[OLC_ZNUM(d)].typeA_list);
 		if (zone_table[OLC_ZNUM(d)].typeA_count)
-			CREATE(zone_table[OLC_ZNUM(d)].typeA_list, int, zone_table[OLC_ZNUM(d)].typeA_count);
+		{
+			CREATE(zone_table[OLC_ZNUM(d)].typeA_list, zone_table[OLC_ZNUM(d)].typeA_count);
+		}
 		for (i = 0; i < zone_table[OLC_ZNUM(d)].typeA_count; i++)
 			zone_table[OLC_ZNUM(d)].typeA_list[i] = OLC_ZONE(d)->typeA_list[i];
 		free(zone_table[OLC_ZNUM(d)].typeB_list);
 		if (zone_table[OLC_ZNUM(d)].typeB_count)
-			CREATE(zone_table[OLC_ZNUM(d)].typeB_list, int, zone_table[OLC_ZNUM(d)].typeB_count);
+		{
+			CREATE(zone_table[OLC_ZNUM(d)].typeB_list, zone_table[OLC_ZNUM(d)].typeB_count);
+		}
 		for (i = 0; i < zone_table[OLC_ZNUM(d)].typeB_count; i++)
 			zone_table[OLC_ZNUM(d)].typeB_list[i] = OLC_ZONE(d)->typeB_list[i];
 		free(zone_table[OLC_ZNUM(d)].typeB_flag);
 		if (zone_table[OLC_ZNUM(d)].typeB_count)
-			CREATE(zone_table[OLC_ZNUM(d)].typeB_flag, bool, zone_table[OLC_ZNUM(d)].typeB_count);
+		{
+			CREATE(zone_table[OLC_ZNUM(d)].typeB_flag, zone_table[OLC_ZNUM(d)].typeB_count);
+		}
 		zone_table[OLC_ZNUM(d)].under_construction = OLC_ZONE(d)->under_construction;
 		zone_table[OLC_ZNUM(d)].locked = OLC_ZONE(d)->locked;
 		if (zone_table[OLC_ZNUM(d)].group != OLC_ZONE(d)->group)
@@ -1970,7 +1969,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				if (OLC_ZONE(d)->typeA_list[i] == pos)	// нашли совпадающий -- убираем элемент
 				{
 					if (OLC_ZONE(d)->typeA_count > 1)
-						CREATE(temp, int, (OLC_ZONE(d)->typeA_count - 1));
+						CREATE(temp, (OLC_ZONE(d)->typeA_count - 1));
 // копируем в temp с пропуском значения из pos
 					for (j = 0; j < i; j++)
 						temp[j] = OLC_ZONE(d)->typeA_list[j];
@@ -1981,7 +1980,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 			if (i == OLC_ZONE(d)->typeA_count)	// не нашли совпадающих -- добавляем новый
 			{
-				CREATE(temp, int, (OLC_ZONE(d)->typeA_count + 1));
+				CREATE(temp, (OLC_ZONE(d)->typeA_count + 1));
 				for (j = 0; j < OLC_ZONE(d)->typeA_count; j++)
 					temp[j] = OLC_ZONE(d)->typeA_list[j];
 				temp[j] = pos;
@@ -1991,7 +1990,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				--OLC_ZONE(d)->typeA_count;
 
 			free(OLC_ZONE(d)->typeA_list);
-			CREATE(OLC_ZONE(d)->typeA_list, int, OLC_ZONE(d)->typeA_count);
+			CREATE(OLC_ZONE(d)->typeA_list, OLC_ZONE(d)->typeA_count);
 			for (i = 0; i < OLC_ZONE(d)->typeA_count; i++)
 				OLC_ZONE(d)->typeA_list[i] = temp[i];
 			free(temp);
@@ -2013,7 +2012,9 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				if (OLC_ZONE(d)->typeB_list[i] == pos)	// нашли совпадающий -- убираем элемент
 				{
 					if (OLC_ZONE(d)->typeB_count > 1)
-						CREATE(temp, int, (OLC_ZONE(d)->typeB_count - 1));
+					{
+						CREATE(temp, (OLC_ZONE(d)->typeB_count - 1));
+					}
 // копируем в temp с пропуском значения из pos
 					for (j = 0; j < i; j++)
 						temp[j] = OLC_ZONE(d)->typeB_list[j];
@@ -2024,19 +2025,25 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 			if (i == OLC_ZONE(d)->typeB_count)	// не нашли совпадающих -- добавляем новый
 			{
-				CREATE(temp, int, (OLC_ZONE(d)->typeB_count + 1));
+				CREATE(temp, (OLC_ZONE(d)->typeB_count + 1));
 				for (j = 0; j < OLC_ZONE(d)->typeB_count; j++)
+				{
 					temp[j] = OLC_ZONE(d)->typeB_list[j];
+				}
 				temp[j] = pos;
 				OLC_ZONE(d)->typeB_count++;
 			}
 			else
+			{
 				--OLC_ZONE(d)->typeB_count;
+			}
 
 			free(OLC_ZONE(d)->typeB_list);
-			CREATE(OLC_ZONE(d)->typeB_list, int, OLC_ZONE(d)->typeB_count);
+			CREATE(OLC_ZONE(d)->typeB_list, OLC_ZONE(d)->typeB_count);
 			for (i = 0; i < OLC_ZONE(d)->typeB_count; i++)
+			{
 				OLC_ZONE(d)->typeB_list[i] = temp[i];
+			}
 			free(temp);
 			OLC_ZONE(d)->number = 1;
 			zedit_disp_menu(d);
@@ -2093,352 +2100,5 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 }
 
 // * End of parse_zedit()
-
-
-//------------------------------------------------------------------------
-//------------------------------------------------------------------------
-//------------------------------------------------------------------------
-#if 0
-
-// * Create a new zone.
-void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
-{
-	FILE *fp;
-	struct zone_data *new_table;
-	int i, room;
-
-	if (vzone_num < 0)
-	{
-		send_to_char("Отрицательные номера зон не поддерживаются.\r\n", ch);
-		return;
-	}
-	else if (vzone_num > 999)
-	{
-		send_to_char("Максимально поддерживается 999 зон.\r\n", ch);
-		return;
-	}
-
-	// * Make sure the zone does not exist.
-	room = vzone_num * 100;
-	for (i = 0; i <= top_of_zone_table; i++)
-		if ((zone_table[i].number * 100 <= room) && (zone_table[i].top >= room))
-		{
-			send_to_char("Аналогичная зона уже существует.\r\n", ch);
-			return;
-		}
-
-	// * Create the zone file.
-	sprintf(buf, "%s/%d.zon", ZON_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w")))
-	{
-		mudlog("SYSERR: OLC: Can't write new zone file", BRF, LVL_IMPL, SYSLOG, TRUE);
-		send_to_char("Ошибка создания файла зоны.\r\n", ch);
-		return;
-	}
-	fprintf(fp, "#%d\nНовая зона~\n%d 30 2 0\nS\n$\n", vzone_num, (vzone_num * 100) + 99);
-	fclose(fp);
-
-	// * Create the room file.
-	sprintf(buf, "%s/%d.wld", WLD_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w")))
-	{
-		mudlog("SYSERR: OLC: Can't write new world file", BRF, LVL_IMPL, SYSLOG, TRUE);
-		send_to_char("Не могу создать файл карты новой зоны.\r\n", ch);
-		return;
-	}
-	fprintf(fp, "#%d\nНачало~\nНеокончено.\n~\n%d 0 0\nS\n$\n", vzone_num * 100, vzone_num);
-	fclose(fp);
-
-	// * Create the mobile file.
-	sprintf(buf, "%s/%d.mob", MOB_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w")))
-	{
-		mudlog("SYSERR: OLC: Can't write new mob file", BRF, LVL_IMPL, SYSLOG, TRUE);
-		send_to_char("Не могу создать файл мобов новой зоны.\r\n", ch);
-		return;
-	}
-	fprintf(fp, "$\n");
-	fclose(fp);
-
-	// * Create the object file.
-	sprintf(buf, "%s/%d.obj", OBJ_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w")))
-	{
-		mudlog("SYSERR: OLC: Can't write new obj file", BRF, LVL_IMPL, SYSLOG, TRUE);
-		send_to_char("Не могу создать файл предметов новой зоны.\r\n", ch);
-		return;
-	}
-	fprintf(fp, "$\n");
-	fclose(fp);
-
-	// * Create the trigger file.
-	sprintf(buf, "%s/%d.trg", TRG_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w")))
-	{
-		mudlog("SYSERR: OLC: Can't write new trigger file", BRF, LVL_IMPL, SYSLOG, TRUE);
-		send_to_char("Не могу создать файл тригеров новой зоны.\r\n", ch);
-		return;
-	}
-	fprintf(fp, "$~\n");
-	fclose(fp);
-
-	// * Update index files.
-	zedit_create_index(vzone_num, "zon");
-	zedit_create_index(vzone_num, "wld");
-	zedit_create_index(vzone_num, "mob");
-	zedit_create_index(vzone_num, "obj");
-	zedit_create_index(vzone_num, "shp");
-	zedit_create_index(vzone_num, "trg");
-
-	/*
-	 * Make a new zone in memory. This was the source of all the zedit new
-	 * crashes reported to the CircleMUD list. It was happily overwriting
-	 * the stack.  This new loop by Andrew Helm fixes that problem and is
-	 * more understandable at the same time.
-	 *
-	 * The variable is 'top_of_zone_table_table + 2' because we need record 0
-	 * through top_of_zone (top_of_zone_table + 1 items) and a new one which
-	 * makes it top_of_zone_table + 2 elements large.
-	 */
-	CREATE(new_table, struct zone_data, top_of_zone_table + 2);
-	new_table[top_of_zone_table + 1].number = 99900;
-
-	if (vzone_num > zone_table[top_of_zone_table].number)
-	{	/*
-								 * We're adding to the end of the zone table, copy all of the current
-								 * top_of_zone_table + 1 items over and set write point to before the
-								 * the last record for the for() loop below.
-								 */
-		memcpy(new_table, zone_table, (sizeof(struct zone_data) * (top_of_zone_table + 1)));
-		i = top_of_zone_table + 1;
-	}
-	else
-		// * Copy over all the zones that are before this zone.
-		for (i = 0; vzone_num > zone_table[i].number; i++)
-			new_table[i] = zone_table[i];
-
-	// * Ok, insert the new zone here.
-	new_table[i].name = str_dup("Новая зона");
-	new_table[i].number = vzone_num;
-	new_table[i].top = (vzone_num * 100) + 99;
-	new_table[i].lifespan = 30;
-	new_table[i].age = 0;
-	new_table[i].reset_mode = 2;
-	new_table[i].reset_idle = 0;
-	// * No zone commands, just terminate it with an 'S'
-	CREATE(new_table[i].cmd, struct reset_com, 1);
-	new_table[i].cmd[0].command = 'S';
-
-	// * Copy remaining zones into the table one higher, unless of course we
-	// * are appending to the end in which case this loop will not be used.
-	for (; i <= top_of_zone_table; i++)
-		new_table[i + 1] = zone_table[i];
-
-	// * Look Ma, no memory leak!
-	free(zone_table);
-	zone_table = new_table;
-	top_of_zone_table++;
-
-	// * Previously, creating a new zone while invisible gave you away.
-	// * That quirk has been fixed with the MAX() statement.
-	sprintf(buf, "OLC: %s creates new zone #%d", GET_NAME(ch), vzone_num);
-	olc_log("%s create zone %d", GET_NAME(ch), vzone_num);
-	mudlog(buf, BRF, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-	send_to_char("Зона успешно добавлена.\r\n", ch);
-
-	return;
-}
-
-//------------------------------------------------------------------------
-
-void zedit_create_index(int znum, char *type)
-{
-	FILE *newfile, *oldfile;
-	char new_name[32], old_name[32], *prefix;
-	int num, found = FALSE;
-
-	switch (*type)
-	{
-	case 'z':
-		prefix = ZON_PREFIX;
-		break;
-	case 'w':
-		prefix = WLD_PREFIX;
-		break;
-	case 'o':
-		prefix = OBJ_PREFIX;
-		break;
-	case 'm':
-		prefix = MOB_PREFIX;
-		break;
-	case 't':
-		prefix = TRG_PREFIX;
-		break;
-	default:
-		// * Caller messed up
-		return;
-	}
-
-	sprintf(old_name, "%s/index", prefix);
-	sprintf(new_name, "%s/newindex", prefix);
-
-	if (!(oldfile = fopen(old_name, "r")))
-	{
-		sprintf(buf, "SYSERR: OLC: Failed to open %s", buf);
-		mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-		return;
-	}
-	else if (!(newfile = fopen(new_name, "w")))
-	{
-		sprintf(buf, "SYSERR: OLC: Failed to open %s", buf);
-		mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-		return;
-	}
-
-	// * Index contents must be in order: search through the old file for the
-	// * right place, insert the new file, then copy the rest over.
-	sprintf(buf1, "%d.%s", znum, type);
-	while (get_line(oldfile, buf))
-	{
-		if (*buf == '$')
-		{
-			fprintf(newfile, "%s\n$\n", (!found ? buf1 : ""));
-			break;
-		}
-		else if (!found)
-		{
-			sscanf(buf, "%d", &num);
-			if (num > znum)
-			{
-				found = TRUE;
-				fprintf(newfile, "%s\n", buf1);
-			}
-		}
-		fprintf(newfile, "%s\n", buf);
-	}
-
-	fclose(newfile);
-	fclose(oldfile);
-	// * Out with the old, in with the new.
-	remove(old_name);
-	rename(new_name, old_name);
-}
-
-//------------------------------------------------------------------------
-
-// * Some common code to count the number of comands in the list.
-int count_commands(struct reset_com *list)
-{
-	int count = 0;
-
-	while (list[count].command != 'S')
-		count++;
-
-	return count;
-}
-
-//------------------------------------------------------------------------
-
-/*
- * Adds a new reset command into a list.  Takes a pointer to the list
- * so that it may play with the memory locations.
- */
-void add_cmd_to_list(struct reset_com **list, struct reset_com *newcmd, int pos)
-{
-	int count, i, l;
-	struct reset_com *newlist;
-
-	// * Count number of commands (not including terminator).
-	count = count_commands(*list);
-
-	// * Value is +2 for the terminator and new field to add.
-	CREATE(newlist, struct reset_com, count + 2);
-
-	// * Even tighter loop to copy the old list and insert a new command.
-	for (i = 0, l = 0; i <= count; i++)
-	{
-		newlist[i] = ((i == pos) ? *newcmd : (*list)[l++]);
-#if defined(DEBUG)
-		sprintf(buf, "add_cmd_to_list: added %c %d %d %d %d",
-				newlist[i].command, newlist[i].arg1, newlist[i].arg2, newlist[i].arg3, newlist[i].line);
-		log(buf);
-#endif
-	}
-
-	// * Add terminator, then insert new list.
-	newlist[count + 1].command = 'S';
-	free(*list);
-	*list = newlist;
-}
-
-//------------------------------------------------------------------------
-
-/*
- * Remove a reset command from a list.  Takes a pointer to the list
- * so that it may play with the memory locations.
- */
-void remove_cmd_from_list(struct reset_com **list, int pos)
-{
-	int count, i, l;
-	struct reset_com *newlist;
-
-	// * Count number of commands (not including terminator)
-	count = count_commands(*list);
-
-	// * Value is 'count' because we didn't include the terminator above
-	// * but since we're deleting one thing anyway we want one less.
-	CREATE(newlist, struct reset_com, count);
-
-	// * Even tighter loop to copy old list and skip unwanted command.
-	for (i = 0, l = 0; i < count; i++)
-	{
-		if (i != pos)
-		{
-#if defined(DEBUG)
-			sprintf(buf, "remove_cmd_from_list: kept %c %d %d %d %d",
-					(*list)[i].command, (*list)[i].arg1, (*list)[i].arg2, (*list)[i].arg3, (*list)[i].line);
-#endif
-			newlist[l++] = (*list)[i];
-		}
-#if defined(DEBUG)
-		else
-			sprintf(buf, "remove_cmd_from_list: deleted %c %d %d %d %d",
-					(*list)[i].command, (*list)[i].arg1, (*list)[i].arg2, (*list)[i].arg3, (*list)[i].line);
-		log(buf);
-#endif
-	}
-	// * Add the terminator, then insert the new list.
-	newlist[count - 1].command = 'S';
-	free(*list);
-	*list = newlist;
-}
-
-//------------------------------------------------------------------------
-
-// * Error check user input and then add new (blank) command
-int new_command(DESCRIPTOR_DATA * d, int pos)
-{
-	int subcmd = 0;
-	struct reset_com *new_com;
-
-	// * Error check to ensure users hasn't given too large an index
-	while (MYCMD.command != 'S')
-		subcmd++;
-
-	if ((pos > subcmd) || (pos < 0))
-		return 0;
-
-	// * Ok, let's add a new (blank) command
-	CREATE(new_com, struct reset_com, 1);
-	new_com->command = 'N';
-#if defined(DEBUG)
-	log("new_command called add_cmd_to_list.");
-#endif
-	add_cmd_to_list(&OLC_ZONE(d)->cmd, new_com, pos);
-	return 1;
-}
-
-#endif
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

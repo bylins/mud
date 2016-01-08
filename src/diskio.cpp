@@ -165,8 +165,8 @@ FBFILE *fbopen_for_read(char *fname)
 
 	fbfl->size = sb.st_size;
 
-	CREATE(fbfl->buf, char, fbfl->size + 1);
-	CREATE(fbfl->name, char, fbfl->size + 1);
+	CREATE(fbfl->buf, fbfl->size + 1);
+	CREATE(fbfl->name, fbfl->size + 1);
 
 	fbfl->ptr = fbfl->buf;
 	fbfl->flags = FB_READ;

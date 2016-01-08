@@ -767,7 +767,7 @@ ACMD(DoBoard)
 		ch->desc->board = *board_it;
 
 		char **text;
-		CREATE(text, char *, 1);
+		CREATE<char*>(text, 1);
 		send_to_char(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
 		STATE(ch->desc) = CON_WRITEBOARD;
 		string_write(ch->desc, text, MAX_MESSAGE_LENGTH, 0, NULL);

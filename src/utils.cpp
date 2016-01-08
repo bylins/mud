@@ -145,10 +145,10 @@ char *str_dup(const char *source)
 	char *new_z = NULL;
 	if (source)
 	{
-		CREATE(new_z, char, strlen(source) + 1);
+		CREATE(new_z, strlen(source) + 1);
 		return (strcpy(new_z, source));
 	}
-	CREATE(new_z, char, 1);
+	CREATE(new_z, 1);
 	return (strcpy(new_z, ""));
 }
 
@@ -426,7 +426,7 @@ void log(const char *format, ...)
 
 	if (syslog_converter)
 	{
-		syslog_converter(buffer, length);
+		syslog_converter(buffer, static_cast<int>(length));
 	}
 
 	fputs(p, stderr);
@@ -1122,7 +1122,7 @@ void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence)
 
 	ch->master = leader;
 
-	CREATE(k, struct follow_type, 1);
+	CREATE(k, 1);
 
 	k->follower = ch;
 	k->next = leader->followers;
@@ -1374,7 +1374,7 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 		return -1;
 	}
 
-	CREATE(replace_buffer, char, max_size);
+	CREATE(replace_buffer, max_size);
 	int i = 0;
 	jetsam = *string;
 	flow = *string;
@@ -1418,7 +1418,7 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 	}
 	if (i > 0)
 	{
-		RECREATE(*string, char, strlen(replace_buffer) + 3);
+		RECREATE(*string, strlen(replace_buffer) + 3);
 		strcpy(*string, replace_buffer);
 	}
 	free(replace_buffer);
@@ -1531,7 +1531,7 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, size_t maxlen
 	{
 		formated[maxlen] = '\0';
 	}
-	RECREATE(*ptr_string, char, std::min(maxlen, strlen(formated) + 3));
+	RECREATE(*ptr_string, std::min(maxlen, strlen(formated) + 3));
 	strcpy(*ptr_string, formated);
 }
 

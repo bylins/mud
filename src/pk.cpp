@@ -162,7 +162,7 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 	}
 	if (!pk && (!IS_GOD(victim)))
 	{
-		CREATE(pk, struct PK_Memory_type, 1);
+		CREATE(pk, 1);
 		pk->unique = GET_UNIQUE(victim);
 		pk->next = agressor->pk_list;
 		agressor->pk_list = pk;
@@ -222,7 +222,7 @@ void pk_update_revenge(CHAR_DATA * agressor, CHAR_DATA * victim, int attime, int
 		return;
 	if (!pk)
 	{
-		CREATE(pk, struct PK_Memory_type, 1);
+		CREATE(pk, 1);
 		pk->unique = GET_UNIQUE(victim);
 		pk->next = agressor->pk_list;
 		agressor->pk_list = pk;
@@ -263,7 +263,7 @@ void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool 
 		}
 		if (!pk && (!IS_GOD(victim)))
 		{
-			CREATE(pk, struct PK_Memory_type, 1);
+			CREATE(pk, 1);
 			pk->unique = GET_UNIQUE(victim);
 			pk->next = agressor->pk_list;
 			agressor->pk_list = pk;
@@ -504,7 +504,7 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 				break;
 		if (!pk && (!IS_GOD(victim)) && (!IS_GOD(thief)))
 		{
-			CREATE(pk, struct PK_Memory_type, 1);
+			CREATE(pk, 1);
 			pk->unique = GET_UNIQUE(victim);
 			pk->next = thief->pk_list;
 			thief->pk_list = pk;

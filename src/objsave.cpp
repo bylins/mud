@@ -41,7 +41,6 @@
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern struct player_index_element *player_table;
 extern vector < OBJ_DATA * >obj_proto;
 extern int top_of_p_table;
 extern int rent_file_timeout, crash_file_timeout;
@@ -52,7 +51,7 @@ extern long last_rent_check;
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
-#define SAVEINFO(number) ((player_table+number)->timer)
+
 #define RENTCODE(number) ((player_table+number)->timer->rent.rentcode)
 #define GET_INDEX(ch) (get_ptable_by_name(GET_NAME(ch)))
 
@@ -437,7 +436,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Edes"))
 			{
 				*error = 46;
-				CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+				CREATE(new_descr, 1);
 				new_descr->keyword = str_dup(buffer);
 				if (!strcmp(new_descr->keyword, "None"))
 				{
@@ -821,7 +820,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		switch (*buffer)
 		{
 		case 'E':
-			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+			CREATE(new_descr, 1);
 			if (!get_buf_lines(data, buffer))
 			{
 				free(new_descr);
@@ -1559,11 +1558,14 @@ void Crash_clear_objects(int index)
 	if (SAVEINFO(index))
 	{
 		for (; i < SAVEINFO(index)->rent.nitems; i++)
+		{
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
-					(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
+				(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
+			{
 				obj_index[rnum].stored--;
-		delete SAVEINFO(index);
-		SAVEINFO(index) = 0;
+			}
+		}
+		clear_saveinfo(index);
 	}
 }
 
@@ -1573,11 +1575,14 @@ void Crash_reload_timer(int index)
 	if (SAVEINFO(index))
 	{
 		for (; i < SAVEINFO(index)->rent.nitems; i++)
+		{
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
-					(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
+				(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
+			{
 				obj_index[rnum].stored--;
-		delete SAVEINFO(index);
-		SAVEINFO(index) = 0;
+			}
+		}
+		clear_saveinfo(index);
 	}
 
 	if (!Crash_read_timer(index, FALSE))
@@ -1590,9 +1595,7 @@ void Crash_reload_timer(int index)
 
 void Crash_create_timer(int index, int num)
 {
-	if (SAVEINFO(index))
-		delete SAVEINFO(index);
-	SAVEINFO(index) = new save_info;
+	recreate_saveinfo(index);
 }
 
 int Crash_write_timer(int index)
@@ -1702,8 +1705,7 @@ int Crash_read_timer(int index, int temp)
 			log("SYSERR: I/O Error reading %s timer file.", name);
 			fclose(fl);
 			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
-			delete SAVEINFO(index);
-			SAVEINFO(index) = 0;
+			clear_saveinfo(index);
 			return FALSE;
 		}
 		if (info.vnum && info.timer >= -1)
@@ -1727,8 +1729,7 @@ int Crash_read_timer(int index, int temp)
 	if (rent.nitems != num)
 	{
 		log("[ReadTimer] Error reading %s timer file - file is corrupt.", fname);
-		delete SAVEINFO(index);
-		SAVEINFO(index) = 0;
+		clear_saveinfo(index);
 		return FALSE;
 	}
 	else
@@ -1904,6 +1905,7 @@ void Crash_listrent(CHAR_DATA * ch, char *name)
 	}
 
 	if (!SAVEINFO(index))
+	{
 		if (!Crash_read_timer(index, TRUE))
 		{
 			sprintf(buf, "Ubable to read %s timer file.\r\n", name);
@@ -1919,9 +1921,9 @@ void Crash_listrent(CHAR_DATA * ch, char *name)
 			sprintf(buf, "%s находится в игре. Содержимое файла ренты:\r\n", CAP(name));
 			send_to_char(buf, ch);
 			Crash_list_objects(ch, index);
-			delete SAVEINFO(index);
-			SAVEINFO(index) = 0;
+			clear_saveinfo(index);
 		}
+	}
 	else
 	{
 		sprintf(buf, "%s находится в ренте. Содержимое файла ренты:\r\n", CAP(name));
@@ -2084,7 +2086,7 @@ int Crash_load(CHAR_DATA * ch)
 		return (1);
 	}
 
-	CREATE(readdata, char, fsize + 1);
+	CREATE(readdata, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl) || !readdata)
 	{
@@ -2167,7 +2169,8 @@ int Crash_load(CHAR_DATA * ch)
 		// в два действия, чтобы заодно снять и таймер обкаста
 		if (!check_unlimited_timer(obj))
 		{
-		    obj->set_timer(SAVEINFO(index)->time[fsize].timer);
+			const save_info* si = SAVEINFO(index);
+		    obj->set_timer(si->time[fsize].timer);
 		    obj->dec_timer(timer_dec);
 		}
 		
@@ -2216,7 +2219,7 @@ int Crash_load(CHAR_DATA * ch)
 		{
 			if (obj2 && obj2->worn_on < 0 && GET_OBJ_TYPE(obj) == ITEM_CONTAINER)  	// This is container and it is not free
 			{
-				CREATE(tank, struct container_list_type, 1);
+				CREATE(tank, 1);
 				tank->next = tank_list;
 				tank->tank = obj;
 				tank->location = 0;
@@ -2242,7 +2245,7 @@ int Crash_load(CHAR_DATA * ch)
 			if (obj2 && obj2->worn_on < obj->worn_on && GET_OBJ_TYPE(obj) == ITEM_CONTAINER)  	// This is container and it is not free
 			{
 				tank_to = tank_list;
-				CREATE(tank, struct container_list_type, 1);
+				CREATE(tank, 1);
 				tank->next = tank_list;
 				tank->tank = obj;
 				tank->location = obj->worn_on;
@@ -2276,18 +2279,10 @@ int Crash_load(CHAR_DATA * ch)
 		free(tank);
 	}
 	affect_total(ch);
-	delete SAVEINFO(index);
-	SAVEINFO(index) = 0;
+	clear_saveinfo(index);
 	//???
 	//Crash_crashsave();
-	return (0);
-	/*  if (RENTCODE(index) == RENT_RENTED ||
-	      RENTCODE(index) == RENT_CRYO
-	     )
-	     return (0);
-	  else
-	     return (1);
-	*/
+	return 0;
 }
 
 // ********** Some util functions for objects save... **********
@@ -2651,8 +2646,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 
 	if (savetype == RENT_CRASH)
 	{
-		delete SAVEINFO(iplayer);
-		SAVEINFO(iplayer) = 0;
+		clear_saveinfo(iplayer);
 	}
 
 	return TRUE;

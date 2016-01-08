@@ -130,7 +130,7 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 
 	while (sdd)
 	{
-		CREATE(pddd[0], EXTRA_DESCR_DATA, 1);
+		CREATE(pddd[0], 1);
 		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
 		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
 		pddd = &(pddd[0]->next);
@@ -226,7 +226,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 {
 	OBJ_DATA *obj;
 
-	NEWCREATE(obj, OBJ_DATA);
+	NEWCREATE(obj);
 
 	if (real_num == -1)
 	{
@@ -390,7 +390,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		log("[OEdit] Save mem new %d(%d/%lu)",
 			OLC_NUM(d), (top_of_objt + 2), static_cast<unsigned long>(sizeof(OBJ_DATA)));
 
-		CREATE(new_obj_index, INDEX_DATA, top_of_objt + 2);
+		CREATE(new_obj_index, top_of_objt + 2);
 
 		// * Start counting through both tables.
 		for (i = 0; i <= top_of_objt; i++)  	// If we haven't found it.
@@ -1783,7 +1783,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			// * If extra descriptions don't exist.
 			if (!OLC_OBJ(d)->ex_description)
 			{
-				CREATE(OLC_OBJ(d)->ex_description, EXTRA_DESCR_DATA, 1);
+				CREATE(OLC_OBJ(d)->ex_description, 1);
 				OLC_OBJ(d)->ex_description->next = NULL;
 			}
 			OLC_DESC(d) = OLC_OBJ(d)->ex_description;
@@ -2368,7 +2368,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					OLC_DESC(d) = OLC_DESC(d)->next;
 				else  	// Make new extra description and attach at end.
 				{
-					CREATE(new_extra, EXTRA_DESCR_DATA, 1);
+					CREATE(new_extra, 1);
 					OLC_DESC(d)->next = new_extra;
 					OLC_DESC(d) = OLC_DESC(d)->next;
 				}

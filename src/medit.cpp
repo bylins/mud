@@ -182,7 +182,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 	while (shd)
 	{
-		CREATE(pdhd[0], struct helper_data_type, 1);
+		CREATE(pdhd[0], 1);
 		pdhd[0]->mob_vnum = shd->mob_vnum;
 		pdhd = &(pdhd[0]->next_helper);
 		shd = shd->next_helper;
@@ -342,7 +342,7 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 		 * try it with the braces and report to greerga@van.ml.org on if that works.
 		 */
 		if (GET_MPROG(mob))
-			CREATE(OLC_MPROGL(d), MPROG_DATA, 1);
+			CREATE(OLC_MPROGL(d), 1);
 		head = OLC_MPROGL(d);
 		for (temp = GET_MPROG(mob); temp; temp = temp->next)
 		{
@@ -351,7 +351,7 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 			OLC_MPROGL(d)->comlist = str_dup(temp->comlist);
 			if (temp->next)
 			{
-				CREATE(OLC_MPROGL(d)->next, MPROG_DATA, 1);
+				CREATE(OLC_MPROGL(d)->next, 1);
 				OLC_MPROGL(d) = OLC_MPROGL(d)->next;
 			}
 		}
@@ -434,7 +434,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 #endif
 
 		new_proto = new CHAR_DATA[top_of_mobt + 2];
-		CREATE(new_index, INDEX_DATA, top_of_mobt + 2);
+		CREATE(new_index, top_of_mobt + 2);
 
 		for (rmob_num = 0; rmob_num <= top_of_mobt; rmob_num++)
 		{
@@ -2093,7 +2093,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else if (i == OLC_MTOTAL(d))
 		{
 			struct mob_prog_data *temp;
-			CREATE(temp, struct mob_prog_data, 1);
+			CREATE(temp, 1);
 			temp->next = OLC_MPROGL(d);
 			temp->type = -1;
 			temp->arglist = NULL;
@@ -2322,7 +2322,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 				}
 				else
 				{
-					CREATE(helper, struct helper_data_type, 1);
+					CREATE(helper, 1);
 					helper->mob_vnum = number;
 					helper->next_helper = OLC_MOB(d)->helpers;
 					OLC_MOB(d)->helpers = helper;
