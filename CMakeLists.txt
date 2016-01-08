@@ -397,13 +397,18 @@ endif()
 # Fake project for game descriptors.
 #
 set(CRAFT_GENERAL_FILES lib.template/misc/craft/index.xml)
-set(CRAFT_MATERIAL_FILES lib.template/misc/craft/inwrought_flax.xml)
+set(CRAFT_MATERIAL_FILES
+    lib.template/misc/craft/tough_leather.xml
+    lib.template/misc/craft/soft_leather.xml
+    lib.template/misc/craft/inwrought_flax.xml)
 set(CRAFT_CRAFT_FILES lib.template/misc/craft/craft1.xml)
+set(CRAFT_TEMPLAET_FILES lib.template/misc/craft/material_template.xml)
 
 source_group("Craft" FILES ${CRAFT_GENERAL_FILES})
+source_group("Craft\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
 source_group("Craft\\Materials" FILES ${CRAFT_MATERIAL_FILES})
 source_group("Craft\\Crafts" FILES ${CRAFT_CRAFT_FILES})
-set(CRAFT_FILES ${CRAFT_GENERAL_FILE} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES})
+set(CRAFT_FILES ${CRAFT_GENERAL_FILE} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES} ${CRAFT_TEMPLATE_FILES})
 add_custom_target(world SOURCES ${CRAFT_FILES})
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :
