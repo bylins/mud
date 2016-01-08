@@ -171,6 +171,7 @@ public:
 	static ClanListType ClanList; // список кланов
 
 	static void ClanLoad();
+	static void reload_one(std::string name);
 	static void ClanSave();
 	static void SaveChestAll();
 	static void HconShow(CHAR_DATA * ch);
@@ -249,7 +250,6 @@ public:
 	bool ingr_chest_active() const;
 	void set_ingr_chest(CHAR_DATA *ch);
 	void disable_ingr_chest(CHAR_DATA *ch);
-
 	int calculate_clan_tax() const;
 	void add_offline_member(const std::string &name, int uid, int rank);
 	int ingr_chest_max_objects();

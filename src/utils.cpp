@@ -163,6 +163,13 @@ void prune_crlf(char *txt)
 	}
 }
 
+bool is_head(std::string name)
+{
+	if ((name == "Стрибог") || (name == "стрибог"))
+		return true;
+	return false;
+}
+
 int get_virtual_race(CHAR_DATA *mob)
 {
 	if (mob->get_role(MOB_ROLE_BOSS))

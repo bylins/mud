@@ -32,7 +32,7 @@ str.cpp - PyUnicode_FromString �� PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 using namespace boost::python;
 namespace py=boost::python;
 using namespace scripting;
-
+extern room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 namespace
 {
 	std::list<object> objs_to_call_in_main_thread;
@@ -694,6 +694,12 @@ void set_wait(const unsigned v)
 	Ensurer ch(*this);
 	ch->wait = v;
 }
+
+std::string clan_status()
+{
+	Ensurer ch(*this);
+	return GET_CLAN_STATUS(ch);
+}
 };
 
 CharacterWrapper create_mob_from_proto(mob_rnum proto_rnum, bool is_virtual=true)
@@ -1319,15 +1325,63 @@ void call_later(object callable)
 	objs_to_call_in_main_thread.push_back(callable);
 }
 
+boost::python::list get_players()
+{
+	boost::python::list tmp_list;
+	DESCRIPTOR_DATA *d;
+	for (d = descriptor_list; d; d = d->next)
+	{
+		if (STATE(d) == CON_PLAYING)
+		{
+			tmp_list.append(CharacterWrapper(d->character));
+		}
+	}
+	return tmp_list;
+}
+
+bool check_ingame(std::string name)
+{
+	DESCRIPTOR_DATA *d;
+	for (d = descriptor_list; d; d = d->next)
+	{
+		if (STATE(d) == CON_PLAYING)
+		{
+			if (d->character->get_name_str() == name)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void char_to_room_wrap(CharacterWrapper& c, int vnum)
+{
+	CharacterWrapper::Ensurer ch(c);
+	room_rnum location;
+	if (((location = real_room(vnum)) == NOWHERE))
+	{
+		log("[PythonError] Error in char_to_room_wrap. %d vnum invalid.", vnum);
+		return;
+	}
+	char_from_room(ch);
+	char_to_room(ch, location);
+	check_horse(ch);
+	look_at_room(ch, 0);
+
+}
+
 BOOST_PYTHON_MODULE(mud)
 {
+	def("get_players", get_players, "return players online");
+	def("check_ingame", check_ingame, "check player in game");
 	def("log", mudlog_python, ( py::arg("msg"), py::arg("msg_type")=DEF, py::arg("level")=LVL_IMMORT, py::arg("channel")=SYSLOG, py::arg("to_file")=TRUE ) ,
 	"Записывает сообщение msg типа msg_type в канал лога channel для уровня level.\n"
 	"\n"
 	"msg_type принимает значения констант из utils.h, defines for mudlog.\n"
 	"channel  канал, в который будет записано сообщение (comm.h). в настоящее время может принимать значения constants.SYSLOG, constants.ERRLOG и constants.IMLOG.\n"
 	"to_file  Записывать ли сообщение так же в файл, помимо вывода его иммам");
-	def("send_all", send_to_all,
+	def("send_all", send_to_all, (py::arg("msg")),
 "Шлет сообщение msg всем игрокам.");	
 	def("find_skill_num", find_skill_num, "Возвращает номер скила по его названию.");
 	def("find_spell_num", find_spell_num, "Возвращает номер спелла по его названию.");
@@ -1361,6 +1415,7 @@ BOOST_PYTHON_MODULE(mud)
 	ObjectDoesNotExist = handle<>(PyErr_NewException((char*)"mud.ObjectDoesNotExist", PyExc_RuntimeError, NULL));
 	scope().attr("ObjectDoesNotExist") = ObjectDoesNotExist;
 	class_<CharacterWrapper>("Character", "Игровой персонаж.", no_init)
+		.def("char_from_room", char_to_room_wrap, "")
 		.def("obj_to_char", obj_to_char_wrap, "передает объект чару.")
 		.def("send", &CharacterWrapper::send, "Посылает персонажу заданную строку.")
 		.def("page_string", &CharacterWrapper::_page_string, "Отправляет строку персонажу с возможностью постраничного просмотра.")
@@ -1375,7 +1430,6 @@ BOOST_PYTHON_MODULE(mud)
 		.add_property("class", &CharacterWrapper::get_class, &CharacterWrapper::set_class)
 		.add_property("level", &CharacterWrapper::get_level, &CharacterWrapper::set_level)
 		.add_property("UID", &CharacterWrapper::get_uid)
-		/*
 		.add_property("exp", &CharacterWrapper::get_exp, &CharacterWrapper::set_exp)
 		.add_property("remort", &CharacterWrapper::get_remort)
 		.add_property("gold", &CharacterWrapper::get_gold, &CharacterWrapper::set_gold)
@@ -1404,6 +1458,7 @@ BOOST_PYTHON_MODULE(mud)
 		.add_property("move", &CharacterWrapper::get_move, &CharacterWrapper::set_move, "Текущее количество единиц движения")
 		.add_property("max_move", &CharacterWrapper::get_max_move, &CharacterWrapper::set_max_move, "Максимальное колличество единиц энергии")
 		//.add_property("master", make_getter(&CharacterWrapper::master, return_value_policy<reference_existing_object>()), make_setter(Character::master, ))
+		.def("clan_status", &CharacterWrapper::clan_status, "get clan status")
 		.def("followers", &CharacterWrapper::get_followers, "Возвращает список последователей персонажа.")
 		.add_property("is_immortal", &CharacterWrapper::is_immortal)
 		.add_property("is_impl", &CharacterWrapper::is_impl)
@@ -1437,7 +1492,7 @@ BOOST_PYTHON_MODULE(mud)
 		.def("quested_get", &CharacterWrapper::quested_get_text, "Возвращает строку квестовой информации, сохраненной под заданым номером vnum.")
 		.add_property("quested_text", &CharacterWrapper::quested_print, "Вся информация по квестам в текстовом виде.")
 		.add_property("wait", &CharacterWrapper::get_wait, &CharacterWrapper::set_wait, "Сколько циклов ждать")
-		/**/
+		
 	;
 
 	class_<affected_t>("ObjAffectedArray", "Массив из шести модификаторов объекта.", no_init)

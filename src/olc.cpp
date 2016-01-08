@@ -252,7 +252,8 @@ ACMD(do_olc)
 	}
 
 	// * Everyone but IMPLs can only edit zones they have been assigned.
-	if (GET_LEVEL(ch) < LVL_BUILDER)
+	if (GET_LEVEL(ch) < LVL_IMPL)
+		if (!Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0, false))
 	    if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].number != GET_OLC_ZONE(ch)))
 	    {
 		send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);

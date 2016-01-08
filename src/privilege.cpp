@@ -102,7 +102,7 @@ void parse_flags(const std::string &command)
 		tmp_god.flags.set(USE_SKILLS);
 	else if (command == "arena")
 		tmp_god.flags.set(ARENA_MASTER);
-	else if (command == "kroder" && tmp_god.name == "Числобог")
+	else if (command == "kroder")
 		tmp_god.flags.set(KRODER);
 	else if (command == "fullzedit")
 		tmp_god.flags.set(FULLZEDIT);
@@ -310,19 +310,19 @@ void load_god_boards()
 * \param mode 0 - общие команды, 1 - подкоманды set, 2 - подкоманды show
 * \return 0 - нельзя, 1 - можно
 */
-bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode)
+bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level )
 {
-	if (!mode && cmd_info[cmd_number].minimum_level < LVL_IMMORT && GET_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
+	if (check_level && !mode && cmd_info[cmd_number].minimum_level < LVL_IMMORT && GET_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
 	if (IS_NPC(ch)) return false;
 #ifdef TEST_BUILD
-	if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (IS_IMMORTAL(ch))
 		return true;
 #endif
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1))
 	{
-		if (GET_LEVEL(ch) == LVL_IMPL || PRF_FLAGGED(ch, PRF_CODERINFO))
+		if (GET_LEVEL(ch) == LVL_IMPL)
 			return true;
 		switch (mode)
 		{
@@ -362,7 +362,7 @@ bool check_flag(const CHAR_DATA *ch, int flag)
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1))
 		if (it->second.flags[flag])
 			result = true;
-	if (flag == USE_SKILLS && (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)))
+	if (flag == USE_SKILLS && (IS_IMPL(ch)))
 		result = true;
 	return result;
 }
@@ -375,7 +375,7 @@ bool check_flag(const CHAR_DATA *ch, int flag)
 bool check_spells(const CHAR_DATA *ch, int spellnum)
 {
 	// флаг use_skills - везде и что угодно
-	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS) || PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS) )
 		return true;
 	// флаг arena_master - только на арене и только для призыва/пенты
 	if (spellnum == SPELL_PORTAL || spellnum == SPELL_SUMMON || spellnum == SPELL_WORD_OF_RECALL)
@@ -391,7 +391,7 @@ bool check_spells(const CHAR_DATA *ch, int spellnum)
 */
 bool check_skills(const CHAR_DATA *ch)
 {
-	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS) || PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	return false;
 }
