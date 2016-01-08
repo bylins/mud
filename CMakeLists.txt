@@ -387,14 +387,23 @@ endif ()
 
 add_dependencies(circle lib_directory)
 
-set(CRAFT_FILES lib.template/misc/craft/index.xml)
-source_group("Craft" FILES ${CRAFT_FILES})
-add_custom_target(world SOURCES ${CRAFT_FILES})
-
 # Add custom defines
 set(LOG_STDERR NO CACHE STRING "Define LOG_STDERR. If defined, MUD will log messages additionally to stderr. Also here you can specify output encoding")
 if (LOG_STDERR)
     add_definitions("-DLOG_STDERR=${LOG_STDERR}")
 endif()
+
+#
+# Fake project for game descriptors.
+#
+set(CRAFT_GENERAL_FILES lib.template/misc/craft/index.xml)
+set(CRAFT_MATERIAL_FILES lib.template/misc/craft/inwrought_flax.xml)
+set(CRAFT_CRAFT_FILES lib.template/misc/craft/craft1.xml)
+
+source_group("Craft" FILES ${CRAFT_GENERAL_FILES})
+source_group("Craft\\Materials" FILES ${CRAFT_MATERIAL_FILES})
+source_group("Craft\\Crafts" FILES ${CRAFT_CRAFT_FILES})
+set(CRAFT_FILES ${CRAFT_GENERAL_FILE} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES})
+add_custom_target(world SOURCES ${CRAFT_FILES})
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :

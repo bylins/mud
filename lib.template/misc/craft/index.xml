@@ -35,8 +35,188 @@
 	</crafts>
 
 	<materials>
-		<material id="material1" filename="material1.xml" />
-		<material id="meterial2">
+		<material id="MT_INWROUGHT_FLAX" filename="inwrought_flax.xml" />
+		<material id="MT_THIN_SILK">
+			<name>тонкая шёлковая ткань</name>
+			<!-- <prototype></prototype> -->
+			<class id="MC_WISSON">
+				<description>
+					<short>Отрез тончайшей ткани лежит тут.</short>
+					<long>Это тончайшая шёлковая ткань, кажется, немалый её отрез войдёт в крошечный напёрсток.</long>
+				</description>
+				<item>
+					<case1>отрез виссона</case1>
+					<case2>отреза виссона</case2>
+					<case3>отрезу висона</case3>
+					<case4>отрез виссона</case4>
+					<case5>отрезом виссона</case5>
+					<case6>отрезе виссона</case6>
+					<aliases> <!-- ??? what is this? how is this will be used -->
+						<alias>отрез</alias>
+						<alias>виссон</alias>
+					</aliases>
+				</item>
+				<names>
+					<case1>виссон</case1>
+					<case2>виссона</case2>
+					<case3>виссону</case3>
+					<case4>виссон</case4>
+					<case5>виссоном</case5>
+					<case6>виссоне</case6>
+					<aliases>
+						<alias>виссон</alias>	<!-- ??? what is this? -->
+					</aliases>
+				</names>
+				<adjectives>
+					<male>
+						<case1>виссоновый</case1>
+						<case2>виссонового</case2>
+						<case3>виссоновому</case3>
+						<case4>виссоновый</case4>
+						<case5>виссоновым</case5>
+						<case6>воссоновом</case6>
+					</male>
+					<female>
+						<case1>виссоновая</case1>
+						<case2>виссоновой</case2>
+						<case3>виссоновой</case3>
+						<case4>виссоновую</case4>
+						<case5>виссоновой</case5>
+						<case6>виссоновой</case6>
+					</female>
+					<neuter>
+						<case1>виссоновое</case1>
+						<case2>виссонового</case2>
+						<case3>виссоновому</case3>
+						<case4>виссоновое</case4>
+						<case5>виссоновым</case5>
+						<case6>виссоновом</case6>
+					</neuter>
+				</adjectives>
+				<bonuses>
+					<durability>20</durability>
+					<cost>300</cost>
+					<meta>
+						<applies>
+							<!-- Possible values (see structs.h): APPLY_STR, APPLY_DEX, APPLY_INT, APPLY_WIS, APPLY_CON, APPLY_CHA, APPLY_CLASS, APPLY_LEVEL, APPLY_AGE, APPLY_CHAR_WEIGHT, APPLY_CHAR_HEIGHT, APPLY_MANAREG, APPLY_HIT, APPLY_MOVE, APPLY_GOLD, APPLY_EXP, APPLY_AC, APPLY_HITROLL, APPLY_DAMROLL, APPLY_SAVING_WILL, APPLY_RESIST_FIRE, APPLY_RESIST_AIR, APPLY_SAVING_CRITICAL, APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_MOVEREG, APPLY_C1, APPLY_C2, APPLY_C3, APPLY_C4, APPLY_C5, APPLY_C6, APPLY_C7, APPLY_C8, APPLY_C9, APPLY_SIZE, APPLY_ARMOUR, APPLY_POISON, APPLY_SAVING_REFLEX, APPLY_CAST_SUCCESS, APPLY_MORALE, APPLY_INITIATIVE, APPLY_RELIGION, APPLY_ABSORBE, APPLY_LIKES, APPLY_RESIST_WATER, APPLY_RESIST_EARTH, APPLY_RESIST_VITALITY, APPLY_RESIST_MIND, APPLY_RESIST_IMMUNITY, APPLY_AR, APPLY_MR, APPLY_ACONITUM_POISON, APPLY_SCOPOLIA_POISON, APPLY_BELENA_POISON, APPLY_DATURA_POISON, APPLY_HIT_GLORY, APPLY_BONUS_EXP, APPLY_BONUS_SKILLS -->
+							<apply>APPLY_INT</apply>
+							<apply>APPLY_CHA</apply>
+							<apply>APPLY_WIS</apply>
+							<apply>APPLY_CAST_SUCCESS</apply>
+						</applies>
+						<skills>
+							<!-- Possible values (see skills.h): SKILL_PROTECT, SKILL_TOUCH, SKILL_SHIT, SKILL_MIGHTHIT, SKILL_STUPOR, SKILL_POISONED, SKILL_SENSE, SKILL_HORSE, SKILL_HIDETRACK, SKILL_RELIGION, SKILL_MAKEFOOD, SKILL_MULTYPARRY, SKILL_TRANSFORMWEAPON, SKILL_LEADERSHIP, SKILL_PUNCTUAL, SKILL_AWAKE, SKILL_IDENTIFY, SKILL_HEARING, SKILL_CREATE_POTION, SKILL_CREATE_SCROLL, SKILL_CREATE_WAND, SKILL_LOOK_HIDE, SKILL_ARMORED, SKILL_DRUNKOFF, SKILL_AID, SKILL_FIRE, SKILL_CREATEBOW, SKILL_THROW, SKILL_BACKSTAB, SKILL_BASH, SKILL_HIDE, SKILL_KICK, SKILL_PICK_LOCK, SKILL_PUNCH, SKILL_RESCUE, SKILL_SNEAK, SKILL_STEAL, SKILL_TRACK, SKILL_CLUBS, SKILL_AXES, SKILL_LONGS, SKILL_SHORTS, SKILL_NONSTANDART, SKILL_BOTHHANDS, SKILL_PICK, SKILL_SPADES, SKILL_SATTACK, SKILL_DISARM, SKILL_PARRY, SKILL_HEAL, SKILL_MORPH, SKILL_BOWS, SKILL_ADDSHOT, SKILL_CAMOUFLAGE, SKILL_DEVIATE, SKILL_BLOCK, SKILL_LOOKING, SKILL_CHOPOFF, SKILL_REPAIR, SKILL_UPGRADE, SKILL_COURAGE, SKILL_MANADRAIN, SKILL_NOPARRYHIT, SKILL_TOWNPORTAL, SKILL_MAKE_STAFF, SKILL_MAKE_BOW, SKILL_MAKE_WEAPON, SKILL_MAKE_ARMOR, SKILL_MAKE_JEWEL, SKILL_MAKE_WEAR, SKILL_MAKE_POTION, SKILL_DIG, SKILL_INSERTGEM, SKILL_WARCRY, SKILL_TURN_UNDEAD, SKILL_IRON_WIND, SKILL_STRANGLE, SKILL_AIR_MAGIC, SKILL_FIRE_MAGIC, SKILL_WATER_MAGIC, SKILL_EARTH_MAGIC, SKILL_LIGHT_MAGIC, SKILL_DARK_MAGIC, SKILL_MIND_MAGIC, SKILL_LIFE_MAGIC -->
+							<skill>SKILL_FIRE_MAGIC</skill>
+							<skill>SKILL_MANADRAIN</skill>
+						</skills>
+						<affects>
+							<!-- For possible values see material/class/affects -->
+							<affect>AFF_SANCTUARY</affect>
+							<affect>AFF_FIREAURA</affect>
+						</affects>
+						<extraflags>
+							<!-- For possible values see material/class/extraflags -->
+							<extraflag>ITEM_NORENT</extraflag>
+							<extraflag>ITEM_WITH1SLOT</extraflag>
+						</extraflags>
+						<number_values>
+							<val0>false</val0>
+							<val1>true</val1>
+							<!-- by default all values is false -->
+						</number_values>
+					</meta>
+				</bonuses>
+				<extraflags>
+					<!-- Possible values (see structs.h): ITEM_GLOW, ITEM_HUM, ITEM_NORENT, ITEM_NODONATE, ITEM_NOINVIS, ITEM_INVISIBLE, ITEM_MAGIC, ITEM_NODROP, ITEM_BLESS, ITEM_NOSELL, ITEM_DECAY, ITEM_ZONEDECAY, ITEM_NODISARM, ITEM_NODECAY, ITEM_POISONED, ITEM_SHARPEN, ITEM_ARMORED, ITEM_DAY, ITEM_NIGHT, ITEM_FULLMOON, ITEM_WINTER, ITEM_SPRING, ITEM_SUMMER, ITEM_AUTUMN, ITEM_SWIMMING, ITEM_FLYING, ITEM_THROWING, ITEM_TICKTIMER, ITEM_FIRE, ITEM_REPOP_DECAY, ITEM_NOLOCATE, ITEM_TIMEDLVL, ITEM_NOALTER, ITEM_WITH1SLOT, ITEM_WITH2SLOTS, ITEM_WITH3SLOTS, ITEM_SETSTUFF, ITEM_NO_FAIL, ITEM_NAMED, ITEM_BLOODY, ITEM_1INLAID, ITEM_2INLAID, ITEM_3INLAID, ITEM_NOPOUR -->
+					<extraflag>ITEM_NORENT</extraflag>
+					<extraflag>ITEM_WITH1SLOT</extraflag>
+				</extraflags>
+				<affects>
+					<!-- Possible values (see structs.h): AFF_BLIND, AFF_INVISIBLE, AFF_DETECT_ALIGN, AFF_DETECT_INVIS, AFF_DETECT_MAGIC, AFF_SENSE_LIFE, AFF_WATERWALK, AFF_SANCTUARY, AFF_GROUP, AFF_CURSE, AFF_INFRAVISION, AFF_POISON, AFF_PROTECT_EVIL, AFF_PROTECT_GOOD, AFF_SLEEP, AFF_NOTRACK, AFF_TETHERED, AFF_BLESS, AFF_SNEAK, AFF_HIDE, AFF_COURAGE, AFF_CHARM, AFF_HOLD, AFF_FLY, AFF_SIELENCE, AFF_AWARNESS, AFF_BLINK, AFF_HORSE, AFF_NOFLEE, AFF_SINGLELIGHT, AFF_HOLYLIGHT, AFF_HOLYDARK, AFF_DETECT_POISON, AFF_DRUNKED, AFF_ABSTINENT, AFF_STOPRIGHT, AFF_STOPLEFT, AFF_STOPFIGHT, AFF_HAEMORRAGIA, AFF_CAMOUFLAGE, AFF_WATERBREATH, AFF_SLOW, AFF_HASTE, AFF_SHIELD, AFF_AIRSHIELD, AFF_FIRESHIELD, AFF_ICESHIELD, AFF_MAGICGLASS, AFF_STAIRS, AFF_STONEHAND, AFF_PRISMATICAURA, AFF_HELPER, AFF_EVILESS, AFF_AIRAURA, AFF_FIREAURA, AFF_ICEAURA, AFF_DEAFNESS, AFF_CRYING, AFF_PEACEFUL, AFF_MAGICSTOPFIGHT, AFF_BERSERK, AFF_LIGHT_WALK, AFF_BROKEN_CHAINS, AFF_CLOUD_OF_ARROWS, AFF_SHADOW_CLOAK, AFF_GLITTERDUST, AFF_AFFRIGHT, AFF_SCOPOLIA_POISON, AFF_DATURA_POISON, AFF_SKILLS_REDUCE, AFF_NOT_SWITCH, AFF_BELENA_POISON, AFF_NOTELEPORT, AFF_LACKY, AFF_BANDAGE, AFF_NO_BANDAGE, AFF_MORPH, AFF_STRANGLED, AFF_RECALL_SPELLS, AFF_NOOB_REGEN, AFF_VAMPIRE -->
+					<affect>AFF_SANCTUARY</affect>
+				</affects>
+			</class>
+			<class id="MC_ORGANDY">
+				<description>
+					<short>Отрез прозрачной ткани лежит тут.</short>
+					<long>Это очень тонкая и прозрачная жёсткая ткань.</long>
+				</description>
+				<item>
+					<case1>отрез органди</case1>
+					<case2>отреза органди</case2>
+					<case3>отрезу органди</case3>
+					<case4>отрез органди</case4>
+					<case5>отрезом органди</case5>
+					<case6>отрезе органди</case6>
+					<aliases> <!-- ??? what is this? how is this will be used -->
+						<alias>отрез</alias>
+						<alias>органди</alias>
+					</aliases>
+				</item>
+				<names>
+					<case1>органди</case1>
+					<case2>органди</case2>
+					<case3>органди</case3>
+					<case4>органди</case4>
+					<case5>органди</case5>
+					<case6>органди</case6>
+					<aliases>
+						<alias>органди</alias>	<!-- ??? what is this? -->
+					</aliases>
+				</names>
+				<adjectives>
+					<male>
+						<case1>органдиевый</case1>
+						<case2>органдиевого</case2>
+						<case3>органдиевому</case3>
+						<case4>органдиевый</case4>
+						<case5>органдиевым</case5>
+						<case6>органдиевом</case6>
+					</male>
+					<female>
+						<case1>органдиевая</case1>
+						<case2>органдиевой</case2>
+						<case3>органдиевой</case3>
+						<case4>оргундиевую</case4>
+						<case5>органдиевой</case5>
+						<case6>органдиевой</case6>
+					</female>
+					<neuter>
+						<case1>органдиевое</case1>
+						<case2>органдиевого</case2>
+						<case3>органдиевому</case3>
+						<case4>органдиевое</case4>
+						<case5>органдиевым</case5>
+						<case6>органдиевом</case6>
+					</neuter>
+				</adjectives>
+				<bonuses>
+					<durability>100</durability>
+					<cost>500</cost>
+					<extraflags>
+						<extraflag>ITEM_BLESS</extraflag>
+					</extraflags>
+					<meta>
+						<applies>
+							<apply>APPLY_WIS</apply>
+							<apply>APPLY_C6</apply>
+						</applies>
+						<skills>
+							<skill>SKILL_AIR_MAGIC</skill>
+						</skills>
+						<affects>
+							<affect>AFF_FLY</affect>
+						</affects>
+						<extraflags>
+							<extraflag>ITEM_NORENT</extraflag>
+						</extraflags>
+						<number_values>
+							<val0>true</val0>
+							<val1>true</val1>
+						</number_values>
+					</meta>
+				</bonuses>
+			</class>
 		</material>
 		<material filename="material3.xml" />	<!-- wrong material definition: without ID attribute -->
 	</materials>
