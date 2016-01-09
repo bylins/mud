@@ -75,7 +75,6 @@ using std::fstream;
 extern bool need_warn;
 extern FILE *player_fl;
 
-extern CHAR_DATA *character_list;
 extern OBJ_DATA *object_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;

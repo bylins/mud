@@ -398,7 +398,6 @@ extern int autosave_time;	// see config.cpp
 extern int mana[];
 extern struct zone_data *zone_table;
 extern const char *save_info_msg[];	// In olc.cpp
-extern CHAR_DATA *character_list;
 extern CHAR_DATA *combat_list;
 extern int proc_color(char *inbuf, int color);
 extern void tact_auction(void);

@@ -50,7 +50,6 @@ extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
 extern room_rnum r_unreg_start_room;
 
-extern CHAR_DATA *character_list;
 extern CHAR_DATA *mob_proto;
 extern OBJ_DATA *object_list;
 

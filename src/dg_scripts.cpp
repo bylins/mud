@@ -49,7 +49,6 @@ int last_trig_vnum=0;
 
 // other external vars
 
-extern CHAR_DATA *character_list;
 extern CHAR_DATA *combat_list;
 extern OBJ_DATA *object_list;
 extern const char *item_types[];

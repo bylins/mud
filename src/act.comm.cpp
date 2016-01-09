@@ -37,7 +37,6 @@
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
-extern CHAR_DATA *character_list;
 extern TIME_INFO_DATA time_info;
 
 // local functions

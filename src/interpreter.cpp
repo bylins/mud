@@ -82,7 +82,6 @@ extern char *background;
 extern const char *MENU;
 extern const char *WELC_MESSG;
 extern const char *START_MESSG;
-extern CHAR_DATA *character_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct player_index_element *player_table;
 extern int top_of_p_table;

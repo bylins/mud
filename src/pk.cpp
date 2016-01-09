@@ -29,9 +29,6 @@
 
 ACMD(do_revenge);
 
-extern CHAR_DATA *character_list;
-
-
 #define FirstPK  1
 #define SecondPK 5
 #define ThirdPK	 10

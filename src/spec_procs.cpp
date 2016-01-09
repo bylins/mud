@@ -38,8 +38,6 @@
 #include "fight.h"
 
 //   external vars
-
-extern CHAR_DATA *character_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;

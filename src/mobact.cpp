@@ -32,7 +32,6 @@
 #include "fight.h"
 
 // external structs
-extern CHAR_DATA *character_list;
 extern INDEX_DATA *mob_index;
 extern int no_specials;
 extern TIME_INFO_DATA time_info;

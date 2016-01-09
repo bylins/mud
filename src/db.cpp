@@ -99,9 +99,7 @@ long beginning_of_time = -1561789232;
 long beginning_of_time = 650336715;
 #endif
 
-
-//ROOM_DATA *world = NULL; // array of rooms
-vector < ROOM_DATA * >world;
+CRooms world;
 
 room_rnum top_of_world = 0;	// ref to top element of world
 

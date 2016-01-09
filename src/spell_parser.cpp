@@ -48,7 +48,6 @@ extern const char *cast_phrase[LAST_USED_SPELL + 1][2];
 // Во сколько раз манакост манакастеров меньше манакоста НЕманакастеров
 #define DRUID_MANA_COST_MODIFIER 0.5
 
-extern CHAR_DATA *character_list;
 extern vector < OBJ_DATA * >obj_proto;
 extern int what_sky;
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);

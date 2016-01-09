@@ -38,7 +38,6 @@ extern CHAR_DATA *mob_proto;
 extern vector < OBJ_DATA * >obj_proto;
 extern INDEX_DATA *obj_index;
 extern INDEX_DATA *mob_index;
-extern CHAR_DATA *character_list;
 
 ACMD(do_rset);
 ACMD(do_recipes);
