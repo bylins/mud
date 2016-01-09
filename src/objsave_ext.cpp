@@ -48,7 +48,7 @@ void write_file(int uid, int type)
 {
 	if (type == CHAR_SAVE)
 	{
-		for (CHAR_DATA *ch = character_list; ch; ch = ch->next)
+		for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
 		{
 			if (ch->get_uid() == uid)
 			{

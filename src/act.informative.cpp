@@ -4252,7 +4252,7 @@ ACMD(do_who)
 
 	int all = 0;
 
-	for (CHAR_DATA* tch = character_list; tch; tch = tch->next)
+	for (CHAR_DATA* tch = character_list; tch; tch = tch->get_next())
 	{
 		if (IS_NPC(tch))
 			continue;
@@ -4475,7 +4475,7 @@ ACMD(do_statistic)
 		ptot[i] = 0;
 	}
 
-	for (tch = character_list; tch; tch = tch->next)
+	for (tch = character_list; tch; tch = tch->get_next())
 	{
 		if (IS_NPC(tch) || GET_LEVEL(tch) >= LVL_IMMORT || !HERE(tch))
 			continue;
@@ -5001,7 +5001,7 @@ void perform_mortal_where(CHAR_DATA * ch, char *arg)
 	}
 	else  		// print only FIRST char, not all.
 	{
-		for (i = character_list; i; i = i->next)
+		for (i = character_list; i; i = i->get_next())
 		{
 			if (i->in_room == NOWHERE || i == ch)
 				continue;
@@ -5133,7 +5133,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 	}
 	else
 	{
-		for (i = character_list; i; i = i->next)
+		for (i = character_list; i; i = i->get_next())
 		{
 			if (CAN_SEE(ch, i) && i->in_room != NOWHERE && isname(arg, i->get_pc_name()))
 			{

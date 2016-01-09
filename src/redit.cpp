@@ -209,7 +209,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 
 
 		// поля in_room для объектов и персонажей уже изменены
-		for (temp_ch = character_list; temp_ch; temp_ch = temp_ch->next)
+		for (temp_ch = character_list; temp_ch; temp_ch = temp_ch->get_next())
 		{
 			room_rnum temp_room = temp_ch->get_was_in_room();
 			if (temp_room >= room_num)

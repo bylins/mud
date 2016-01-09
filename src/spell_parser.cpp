@@ -2026,9 +2026,13 @@ int check_mobile_list(CHAR_DATA * ch)
 {
 	CHAR_DATA *vict;
 
-	for (vict = character_list; vict; vict = vict->next)
+	for (vict = character_list; vict; vict = vict->get_next())
+	{
 		if (vict == ch)
+		{
 			return (TRUE);
+		}
+	}
 
 	return (FALSE);
 }

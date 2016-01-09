@@ -443,7 +443,6 @@ inline void CRooms::push_back(const value_type& val)
 }
 
 extern CRooms world;
-
 extern CHAR_DATA *character_list;
 extern OBJ_DATA *object_list;
 extern INDEX_DATA *mob_index;

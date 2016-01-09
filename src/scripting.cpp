@@ -126,10 +126,10 @@ private:
 	caching::id_t id;
 };
 
-class CharacterWrapper: public Wrapper<Character>
+class CharacterWrapper: public Wrapper<CHAR_DATA>
 {
 public:
-CharacterWrapper(Character* ch):Wrapper<Character>(ch, caching::character_cache) { }
+CharacterWrapper(CHAR_DATA* ch):Wrapper<CHAR_DATA>(ch, caching::character_cache) { }
 const char* get_name() const
 {
 	Ensurer ch(*this);
@@ -145,7 +145,7 @@ void set_name(const char* name)
 void send(const string& msg)
 {
 	Ensurer ch(*this);
-	send_to_char(msg, (Character*)ch);
+	send_to_char(msg, (CHAR_DATA*)ch);
 }
 
 void _page_string(const string& msg)
@@ -158,7 +158,7 @@ void act_on_char(const char *str, bool hide_invisible, const OBJ_DATA * obj, con
 {
 	Ensurer ch(*this);
 	Ensurer v(victim);
-	act(str, hide_invisible, ch, obj, (Character*)victim, type);
+	act(str, hide_invisible, ch, obj, (CHAR_DATA*)victim, type);
 }
 
 void act_on_obj(const char *str, bool hide_invisible, const OBJ_DATA * obj, const OBJ_DATA *victim, int type)
@@ -635,7 +635,7 @@ void add_affect(affect_data& af)
 CharacterWrapper get_vis(const char* name, int where) const
 {
 	Ensurer ch(*this);
-	Character* r = get_char_vis(ch, name, where);
+	CHAR_DATA* r = get_char_vis(ch, name, where);
 	if (!r)
 	{
 		PyErr_SetString(PyExc_ValueError, "Character not found");
@@ -662,7 +662,7 @@ void restore()
 void quested_add(const CharacterWrapper& ch, int vnum, char *text)
 {
 	Ensurer self(*this);
-	self->quested_add((Character*)Ensurer(ch), vnum, text);
+	self->quested_add((CHAR_DATA*)Ensurer(ch), vnum, text);
 }
 
 bool quested_remove(int vnum)
@@ -717,8 +717,10 @@ typedef CIterator<CharacterWrapper, func_type, func_type> iterator;
 static CharacterWrapper my_next_func(const CharacterWrapper& w)
 {
 	CharacterWrapper::Ensurer ch(w);
-	if (ch->next)
-		return ch->next;
+	if (ch->get_next())
+	{
+		return ch->get_next();
+	}
 	PyErr_SetString(PyExc_StopIteration, "End of list.");
 	throw_error_already_set();
 	return CharacterWrapper(NULL); //to prevent compiler warning
@@ -736,12 +738,12 @@ CharacterWrapper get_mob_proto(const mob_rnum rnum)
 	return CharacterWrapper(NULL);
 	}
 
-Character* character_get_master(Character* ch)
+CHAR_DATA* character_get_master(CHAR_DATA* ch)
 {
 	return ch->master;
 }
 
-void character_set_master(Character* ch, Character* master)
+void character_set_master(CHAR_DATA* ch, CHAR_DATA* master)
 {
 	ch->master = master;
 }
@@ -1546,7 +1548,7 @@ BOOST_PYTHON_MODULE(mud)
 	;
 
 	//implicitly_convertible<Character*, CharacterWrapper>();
-	implicitly_convertible<CharacterWrapper, Character* >();
+	implicitly_convertible<CharacterWrapper, CHAR_DATA* >();
 
 	class_<CharacterListWrapper::iterator>("CharacterListIterator", "Итератор по списку mud.character_list", no_init)
 		.def("next", &CharacterListWrapper::iterator::next);

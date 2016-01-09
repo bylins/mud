@@ -97,9 +97,13 @@ const char *ACTNULL = "<NULL>";
 CHAR_DATA *find_char(long n)
 {
 	CHAR_DATA *ch;
-	for (ch = character_list; ch; ch = ch->next)
+	for (ch = character_list; ch; ch = ch->get_next())
+	{
 		if (GET_ID(ch) == n)
+		{
 			return (ch);
+		}
+	}
 	return NULL;
 }
 

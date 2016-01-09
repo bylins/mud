@@ -15,7 +15,13 @@
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
 
+#include "sysdep.h"
 #include "conf.h"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+#include <boost/array.hpp>
+
 #include <vector>
 #include <list>
 #include <bitset>
@@ -24,9 +30,6 @@
 #include <map>
 #include <iterator>
 #include <cstdint>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-#include <boost/array.hpp>
 
 using std::map;
 using std::iterator;
@@ -75,28 +78,6 @@ using std::bitset;
 
 #define MAX_DEST         50
 
-
-// * Structure types.
-/*
-typedef struct area_data      AREA_DATA;
-typedef struct ban_data    BAN_DATA;
-typedef struct    buf_type    BUFFER;
-
-typedef struct help_data      HELP_DATA;
-typedef struct kill_data      KILL_DATA;
-typedef struct mem_data    MEM_DATA;
-typedef struct note_data      NOTE_DATA;
-
-typedef struct mob_index_data    MOB_INDEX_DATA;
-typedef struct obj_index_data    OBJ_INDEX_DATA;
-typedef struct room_index_data      ROOM_INDEX_DATA;
-
-typedef struct pc_data        PC_DATA;
-typedef struct  gen_data      GEN_DATA;
-typedef struct reset_data     RESET_DATA;
-
-typedef struct weather_data      WEATHER_DATA;*/
-
 // done
 typedef struct flag_data FLAG_DATA;
 typedef struct room_data ROOM_DATA;
@@ -109,7 +90,7 @@ typedef struct extra_descr_data EXTRA_DESCR_DATA;
 typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct affect_data AFFECT_DATA;
 
-typedef class Character CHAR_DATA;
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and mutual dependencies.
 typedef struct obj_data OBJ_DATA;
 typedef struct trig_data TRIG_DATA;
 
@@ -152,7 +133,6 @@ typedef struct trig_data TRIG_DATA;
 #define WEST           3
 #define UP             4
 #define DOWN           5
-
 
 // Room flags: used in room_data.room_flags //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //

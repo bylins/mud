@@ -12,8 +12,9 @@
 #ifndef _DG_SCRIPTS_H_
 #define _DG_SCRIPTS_H_
 
-#define DG_SCRIPT_VERSION "DG Scripts Version 0.99 Patch Level 7   12/98"
+#include "structs.h"
 
+#define DG_SCRIPT_VERSION "DG Scripts Version 0.99 Patch Level 7   12/98"
 
 #define    MOB_TRIGGER   0
 #define    OBJ_TRIGGER   1

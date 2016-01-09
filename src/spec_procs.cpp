@@ -1527,7 +1527,7 @@ int npc_track(CHAR_DATA * ch)
 
 	if (GET_REAL_INT(ch) < number(15, 20))
 	{
-		for (vict = character_list; vict && door == BFS_ERROR; vict = vict->next)
+		for (vict = character_list; vict && door == BFS_ERROR; vict = vict->get_next())
 		{
 			if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
 				for (names = MEMORY(ch); names && door == BFS_ERROR; names = names->next)
@@ -1556,13 +1556,14 @@ int npc_track(CHAR_DATA * ch)
 	}
 	else
 	{
-		for (vict = character_list; vict && door == BFS_ERROR; vict = vict->next)
+		for (vict = character_list; vict && door == BFS_ERROR; vict = vict->get_next())
+		{
 			if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
 			{
 				for (names = MEMORY(ch); names && door == BFS_ERROR; names = names->next)
-					if (GET_IDNUM(vict) == names->id && (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-														 || world[IN_ROOM(ch)]->zone ==
-														 world[IN_ROOM(vict)]->zone))
+					if (GET_IDNUM(vict) == names->id
+						&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
+							|| world[IN_ROOM(ch)]->zone == world[IN_ROOM(vict)]->zone))
 					{
 						if (!msg)
 						{
@@ -1574,6 +1575,7 @@ int npc_track(CHAR_DATA * ch)
 						// log("MOB %s sense %s at dir %d", GET_NAME(ch), GET_NAME(vict), door);
 					}
 			}
+		}
 	}
 	return (door);
 }
@@ -2878,7 +2880,7 @@ CHAR_DATA *get_player_of_name(const char *name)
 {
 	CHAR_DATA *i;
 
-	for (i = character_list; i; i = i->next)
+	for (i = character_list; i; i = i->get_next())
 	{
 		if (IS_NPC(i))
 			continue;

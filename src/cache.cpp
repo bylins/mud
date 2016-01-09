@@ -6,7 +6,7 @@
 #include "cache.hpp"
 using namespace boost;
 
-template class caching::Cache<Character*>;
+template class caching::Cache<CHAR_DATA*>;
 template<class t>
 caching::id_t caching::Cache<t>::max_id = 0;
 caching::CharacterCache caching::character_cache;

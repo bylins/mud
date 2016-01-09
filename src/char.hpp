@@ -4,19 +4,19 @@
 #ifndef CHAR_HPP_INCLUDED
 #define CHAR_HPP_INCLUDED
 
+#include "player_i.hpp"
+#include "morph.hpp"
+#include "obj_sets.hpp"
+#include "structs.h"
 #include "conf.h"
-#include <bitset>
-#include <map>
-#include <unordered_map>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include <boost/dynamic_bitset.hpp>
 
-#include "sysdep.h"
-#include "structs.h"
-#include "player_i.hpp"
-#include "morph.hpp"
-#include "obj_sets.hpp"
+#include <bitset>
+#include <map>
+#include <unordered_map>
 
 // These data contain information about a players time data
 struct time_data
@@ -335,12 +335,12 @@ typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsT
 //typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
 // * Общий класс для игроков/мобов.
-class Character : public PlayerI
+class CHAR_DATA : public PlayerI
 {
 // новое
 public:
-	Character();
-	virtual ~Character();
+	CHAR_DATA();
+	virtual ~CHAR_DATA();
 	// для ивентов
 	int get_event_score();
 	void inc_event_score(int score);
@@ -560,6 +560,13 @@ public:
 	void inc_souls();
 	void dec_souls();
 	int get_souls();
+
+	CHAR_DATA* get_next() const { return next_; }
+	void set_next(CHAR_DATA* _) { next_ = _; }
+	void remove_from_list(CHAR_DATA*& list) const;
+
+	virtual void reset();
+
 private:
 	std::string clan_for_title();
 	std::string only_title_noclan();
@@ -649,7 +656,9 @@ private:
 	int count_score;
 	// души, онли чернок
 	int souls;
-// старое
+
+	CHAR_DATA *next_;	// For either monster or ppl-list
+
 public:
 	mob_rnum nr;		// Mob's rnum
 	room_rnum in_room;	// Location (real room number)
@@ -679,7 +688,6 @@ public:
 	struct script_memory *memory;	// for mob memory triggers
 
 	CHAR_DATA *next_in_room;	// For room->people - list
-	CHAR_DATA *next;	// For either monster or ppl-list
 	CHAR_DATA *next_fighting;	// For fighting list
 
 	struct follow_type *followers;	// List of chars followers
@@ -709,6 +717,26 @@ public:
 	load_list *dl_list;	// загружаемые в труп предметы
 	bool agrobd;		// показывает, агробд или нет
 };
+
+inline void CHAR_DATA::remove_from_list(CHAR_DATA*& list) const
+{
+	if (this == list)
+	{
+		list = next_;
+	}
+	else
+	{
+		CHAR_DATA* temp = list;
+		while (temp && temp->get_next() != this)
+		{
+			temp = temp->get_next();
+		}
+		if (temp)
+		{
+			temp->set_next(next_);
+		}
+	}
+}
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
 int fighting_list_size();

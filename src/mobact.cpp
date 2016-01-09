@@ -920,14 +920,18 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 	for (ch = character_list; ch; ch = next_ch)
 	{
-		next_ch = ch->next;
-
+		next_ch = ch->get_next();
 
 		if (!IS_MOB(ch))
+		{
 			continue;
+		}
+
 		i = missed_pulses;
 		while (i--)
+		{
 			pulse_affect_update(ch);
+		}
 
 		if (GET_WAIT(ch) > 0)
 			GET_WAIT(ch) -= missed_pulses;
@@ -1242,31 +1246,28 @@ void mobile_activity(int activity_level, int missed_pulses)
 		{
 			victim = NULL;
 			// Find memory in world
-			for (names = MEMORY(ch);
-					names && !victim && (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0
-										 || GET_SPELL_MEM(ch, SPELL_RELOCATE) > 0); names = names->next)
-				for (vict = character_list; vict && !victim; vict = vict->next)
+			for (names = MEMORY(ch); names && !victim && (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0
+				|| GET_SPELL_MEM(ch, SPELL_RELOCATE) > 0); names = names->next)
+			{
+				for (vict = character_list; vict && !victim; vict = vict->get_next())
+				{
 					if (names->id == GET_IDNUM(vict) &&
-							// PRF_FLAGGED(vict, PRF_SUMMONABLE) &&
-							CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, PRF_NOHASSLE))
+						// PRF_FLAGGED(vict, PRF_SUMMONABLE) &&
+						CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, PRF_NOHASSLE))
 					{
 						if (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0)
 						{
-							cast_spell(ch, vict, 0 , 0, SPELL_SUMMON, SPELL_SUMMON);
+							cast_spell(ch, vict, 0, 0, SPELL_SUMMON, SPELL_SUMMON);
 							break;
 						}
 						else if (GET_SPELL_MEM(ch, SPELL_RELOCATE) > 0)
 						{
-							cast_spell(ch, vict, 0 , 0, SPELL_RELOCATE, SPELL_RELOCATE);
+							cast_spell(ch, vict, 0, 0, SPELL_RELOCATE, SPELL_RELOCATE);
 							break;
 						}
-						/*                       if (IN_ROOM(vict) == IN_ROOM(ch) &&
-								           CAN_SEE(ch,vict)
-									  )
-						                          {victim      = vict;
-						                           names->time = 0;
-						                          }*/
 					}
+				}
+			}
 		}
 
 		// Add new mobile actions here
