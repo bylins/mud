@@ -920,9 +920,12 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 	for (ch = character_list; ch; ch = next_ch)
 	{
+		// Next line required in case of current character fill be removed during iteration.
+		// To safely get rid this line we must guarantee unchanging of the list.
 		next_ch = ch->get_next();
 
-		if (!IS_MOB(ch))
+		if (!IS_MOB(ch)
+			|| !ch->in_used_zone())
 		{
 			continue;
 		}

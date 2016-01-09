@@ -511,6 +511,11 @@ public:
 	 */
 	int get_zone_group() const;
 
+	/**
+	** Returns true if character is mob and located in used zone.
+	**/
+	bool in_used_zone() const;
+
 	bool know_morph(string morph_id) const;
 	void add_morph(string morph_id);
 	void clear_morphs();
@@ -736,6 +741,15 @@ inline void CHAR_DATA::remove_from_list(CHAR_DATA*& list) const
 			temp->set_next(next_);
 		}
 	}
+}
+
+inline bool CHAR_DATA::in_used_zone() const
+{
+	if (IS_MOB(this))
+	{
+		return 0 != zone_table[mob_index[nr].zone].used;
+	}
+	return false;
 }
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
