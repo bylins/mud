@@ -2097,8 +2097,14 @@ void npc_armor(CHAR_DATA * ch)
 	for (obj = ch->carrying; obj; obj = next)
 	{
 		next = obj->next_content;
-		if (!ObjSystem::is_armor_type(obj) || GET_OBJ_UID(obj) != 0)
+
+		if (!ObjSystem::is_armor_type(obj))
 			continue;
+
+
+		if (!no_bad_affects(obj))
+			continue;
+
 		if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
 			where = WEAR_FINGER_R;
 		if (CAN_WEAR(obj, ITEM_WEAR_NECK))

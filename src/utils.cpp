@@ -522,6 +522,33 @@ void imm_log(const char *format, ...)
 	fclose(file);
 }
 
+bool no_bad_affects(OBJ_DATA *obj)
+{
+	if (OBJ_AFFECT(obj, AFF_HOLD))
+		return false;
+	if (OBJ_AFFECT(obj, AFF_COURAGE))
+		return false;
+	if (OBJ_AFFECT(obj, AFF_SANCTUARY))
+		return false;
+	if (OBJ_AFFECT(obj, AFF_PRISMATICAURA))
+		return false;
+	if(OBJ_AFFECT(obj, AFF_POISON))
+		return false;
+	if (OBJ_AFFECT(obj, AFF_SIELENCE))
+		return false;
+	if (OBJ_AFFECT(obj, AFF_DEAFNESS))
+		return false;
+	if (OBJ_AFFECT(obj, AFF_HAEMORRAGIA))
+		return false;
+	if (OBJ_AFFECT(obj, AFF_BLIND))
+		return false;
+	if (OBJ_AFFECT(obj, AFF_SLEEP))
+		return false;
+	if (OBJ_AFFECT(obj, AFF_HOLYDARK))
+		return false;
+	return true;
+}
+
 void temp_log(const char *format, ...)
 {
 	const char *filename = "../log/trig.log";

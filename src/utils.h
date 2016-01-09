@@ -352,6 +352,7 @@ extern SPECIAL(shop_ext);
 #define OBJWEAR_FLAGGED(obj, flag)   (IS_SET((obj)->obj_flags.wear_flags, (flag)))
 #define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
 #define OBJ_FLAGGED(obj, flag)       (IS_SET(GET_OBJ_EXTRA(obj,flag), (flag)))
+#define OBJ_AFFECT(obj, aff)		 (IS_SET(GET_OBJ_AFF(obj, aff), (aff)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 #define IS_FLY(ch)                   (AFF_FLAGGED(ch,AFF_FLY))
 
@@ -1615,6 +1616,9 @@ void print_bitset(const N& bits, const T& names,
 
 void tascii(const uint32_t* pointer, int num_planes, char* ascii);
 const char *print_obj_state(int tm_pct);
+
+
+bool no_bad_affects(OBJ_DATA *obj);
 
 struct exchange_item_data;
 // для парса строки с фильтрами в клан-хранах и базаре
