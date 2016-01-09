@@ -1394,11 +1394,10 @@ inline bool a_isalpha(unsigned char c)
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c >= 192 || c == 163 || c == 179;
 }
 
+extern const bool a_isalnum_table[];
 inline bool a_isalnum(unsigned char c)
 {
-	return (c >= '0' && c <= '9')
-		   || (c >= 'a' && c <= 'z')
-		   || (c >= 'A' && c <= 'Z') || c >= 192 || c == 163 || c == 179;
+	return a_isalnum_table[c];
 }
 
 inline bool a_isxdigit(unsigned char c)
@@ -1416,12 +1415,10 @@ inline char a_ucc(unsigned char c)
 	return c;
 }
 
+extern const char a_lcc_table[];
 inline char a_lcc(unsigned char c)
 {
-	if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
-	if (c >= 224) return c - 32;
-	if (c == 179) return c - 16;
-	return c;
+	return a_lcc_table[c];
 }
 
 enum separator_mode
