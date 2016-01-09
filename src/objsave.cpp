@@ -130,7 +130,7 @@ int get_buf_line(char **source, char *target)
 			return (TRUE);
 		}
 		*target = **source;
-		if (!isspace(*target++))
+		if (!isspace(static_cast<unsigned char>(*target++)))
 			empty = FALSE;
 		*target = '\0';
 	}
