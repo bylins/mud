@@ -8,9 +8,6 @@
 *  $Revision$                                                      *
 **************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
 #include "dg_scripts.h"
 #include "utils.h"
 #include "comm.h"
@@ -33,6 +30,9 @@
 #include "skills.h"
 #include "noob.hpp"
 #include "genchar.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -49,7 +49,6 @@ int last_trig_vnum=0;
 
 // other external vars
 
-extern CHAR_DATA *character_list;
 extern CHAR_DATA *combat_list;
 extern OBJ_DATA *object_list;
 extern const char *item_types[];
@@ -265,9 +264,13 @@ int gcount_char_vnum(long n)
 	int count = 0;
 	CHAR_DATA *ch;
 
-	for (ch = character_list; ch; ch = ch->next)
+	for (ch = character_list; ch; ch = ch->get_next())
+	{
 		if (n == GET_MOB_VNUM(ch))
+		{
 			count++;
+		}
+	}
 
 	return (count);
 }
@@ -336,7 +339,7 @@ int find_char_vnum(long n, int num = 0)
 {
 	CHAR_DATA *ch;
 	int count = 0;
-	for (ch = character_list; ch; ch = ch->next)
+	for (ch = character_list; ch; ch = ch->get_next())
 	{
 		if (n == GET_MOB_VNUM(ch) && IN_ROOM(ch) != NOWHERE)
 		{
@@ -414,16 +417,17 @@ CHAR_DATA *get_char(char *name, int vnum)
 	}
 	else
 	{
-		for (i = character_list; i; i = i->next)
+		for (i = character_list; i; i = i->get_next())
+		{
 			if (isname(name, i->get_pc_name()) && (IS_NPC(i) || !GET_INVIS_LEV(i)))
+			{
 				return i;
-//		return CharacterAlias::get_by_name(name);
+			}
+		}
 	}
 
 	return NULL;
 }
-
-
 // returns the object in the world with name name, or NULL if not found
 OBJ_DATA *get_obj(char *name, int vnum)
 {
@@ -494,9 +498,13 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name)
 				isname(name, obj->worn_by->get_pc_name()) && (IS_NPC(obj->worn_by) || !GET_INVIS_LEV(obj->worn_by)))
 			return obj->worn_by;
 
-		for (ch = character_list; ch; ch = ch->next)
+		for (ch = character_list; ch; ch = ch->get_next())
+		{
 			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+			{
 				return ch;
+			}
+		}
 	}
 
 	return NULL;
@@ -527,9 +535,13 @@ CHAR_DATA *get_char_by_room(room_data * room, char *name)
 			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
 				return ch;
 
-		for (ch = character_list; ch; ch = ch->next)
+		for (ch = character_list; ch; ch = ch->get_next())
+		{
 			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+			{
 				return ch;
+			}
+		}
 	}
 
 	return NULL;
@@ -673,7 +685,7 @@ void script_trigger_check(void)
 	int nr;
 	SCRIPT_DATA *sc;
 
-	for (ch = character_list; ch; ch = ch->next)
+	for (ch = character_list; ch; ch = ch->get_next())
 	{
 		if (SCRIPT(ch))
 		{
@@ -726,7 +738,7 @@ void script_timechange_trigger_check(const int time)
 	int nr;
 	SCRIPT_DATA *sc;
 
-	for (ch = character_list; ch; ch = ch->next)
+	for (ch = character_list; ch; ch = ch->get_next())
 	{
 		if (SCRIPT(ch))
 		{
@@ -3915,7 +3927,7 @@ struct cmdlist_element *find_done(TRIG_DATA * trig, struct cmdlist_element *cl)
 
 	while ((cl = cl ? cl->next : cl) != NULL)
 	{
-		for (p = cl->cmd; *p && isspace(*p); p++);
+		for (p = cl->cmd; *p && isspace(*reinterpret_cast<unsigned char*>(p)); p++);
 
 		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8))
 			cl = find_done(trig, cl);
@@ -3951,7 +3963,7 @@ struct cmdlist_element *find_case(TRIG_DATA * trig,
 
 	while ((cl = cl ? cl->next : cl) != NULL)
 	{
-		for (p = cl->cmd; *p && isspace(*p); p++);
+		for (p = cl->cmd; *p && isspace(*reinterpret_cast<unsigned char*>(p)); p++);
 
 		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8))
 			cl = find_done(trig, cl);
@@ -4595,7 +4607,7 @@ void charuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 		return;
 	}
 
-	for (tch = character_list; tch; tch = tch->next)
+	for (tch = character_list; tch; tch = tch->get_next())
 	{
 		if (IS_NPC(tch))
 			continue;
@@ -4627,7 +4639,7 @@ void charuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 bool find_all_char_vnum(long n, char *str)
 {
 	int count = 0;
-	for (CHAR_DATA *ch = character_list; ch; ch = ch->next)
+	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
 	{
 		if (n == GET_MOB_VNUM(ch) && IN_ROOM(ch) != NOWHERE && count < 25)
 		{

@@ -3167,7 +3167,7 @@ void Crash_save_all_rent(void)
 	CHAR_DATA *tch;
 	for (CHAR_DATA *ch = character_list; ch; ch = tch)
 	{
-		tch = ch->next;
+		tch = ch->get_next();
 		if (!IS_NPC(ch))
 		{
 			save_char_objects(ch, RENT_FORCED, 0);

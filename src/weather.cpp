@@ -32,8 +32,6 @@
 extern void script_timechange_trigger_check(const int time);//Эксопрт тригеров смены времени
 extern TIME_INFO_DATA time_info;
 
-extern CHAR_DATA *character_list;
-
 void weather_and_time(int mode);
 void another_hour(int mode);
 void weather_change(void);

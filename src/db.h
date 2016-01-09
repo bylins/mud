@@ -415,11 +415,36 @@ extern const int Reverse[];
 extern CHAR_DATA *combat_list;
 
 #include <vector>
-using std::vector;
-extern vector < ROOM_DATA * >world;
 
-extern OBJ_DATA *object_list;
+class CRooms : protected std::vector<ROOM_DATA*>
+{
+	typedef std::vector<ROOM_DATA*> parent_t;
+
+	const size_t RESERVATION_STEP = 100;
+
+public:
+	using parent_t::value_type;
+	using parent_t::operator[];
+	using parent_t::begin;
+	using parent_t::end;
+
+	void push_back(const value_type& val);	///< Will automatically reserve for the future
+	void insert(const_iterator _Where, const value_type& _Val) { parent_t::insert(_Where, _Val); }
+};
+
+inline void CRooms::push_back(const value_type& val)
+{
+	const size_t s = size();
+	if (capacity() == s)
+	{
+		reserve(RESERVATION_STEP + s);
+	}
+	parent_t::push_back(val);
+}
+
+extern CRooms world;
 extern CHAR_DATA *character_list;
+extern OBJ_DATA *object_list;
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
 extern INDEX_DATA *obj_index;

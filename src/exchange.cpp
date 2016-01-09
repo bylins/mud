@@ -596,9 +596,13 @@ int exchange_identify(CHAR_DATA * ch, char *arg)
 
 CHAR_DATA *get_char_by_id(int id)
 {
-	for (CHAR_DATA *i = character_list; i; i = i->next)
+	for (CHAR_DATA *i = character_list; i; i = i->get_next())
+	{
 		if (!IS_NPC(i) && GET_IDNUM(i) == id)
+		{
 			return (i);
+		}
+	}
 	return 0;
 }
 

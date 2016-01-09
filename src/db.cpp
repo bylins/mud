@@ -99,9 +99,7 @@ long beginning_of_time = -1561789232;
 long beginning_of_time = 650336715;
 #endif
 
-
-//ROOM_DATA *world = NULL; // array of rooms
-vector < ROOM_DATA * >world;
+CRooms world;
 
 room_rnum top_of_world = 0;	// ref to top element of world
 
@@ -5098,7 +5096,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	*mob = mob_proto[i]; //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
 	mob->proto_script = NULL;
-	mob->next = character_list;
+	mob->set_next(character_list);
 	character_list = mob;
 //	CharacterAlias::add(mob);
 
@@ -5599,7 +5597,7 @@ void paste_mobiles()
 	CHAR_DATA *ch_next;
 	for (CHAR_DATA *ch = character_list; ch; ch = ch_next)
 	{
-		ch_next = ch->next;
+		ch_next = ch->get_next();
 		paste_mob(ch, IN_ROOM(ch));
 	}
 
@@ -5786,7 +5784,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 		//поскольку единственным доступным способом получить всех мобов одного внума является
 		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
 		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
-		for (CHAR_DATA *ch = character_list; ch; ch=ch->next)
+		for (CHAR_DATA *ch = character_list; ch; ch=ch->get_next())
 		{
 			if (ch->nr > 0 && list.find(mob_index[ch->nr].vnum) != list.end())
 			{
@@ -5925,7 +5923,7 @@ void reset_zone(zone_rnum zone)
 				// 'Q' <flag> <mob_vnum>
 				for (ch = character_list; ch; ch = leader)
 				{
-					leader = ch->next;
+					leader = ch->get_next();
 					// Карачун. Поднятые мобы не должны уничтожаться.
 					if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED))
 					{
@@ -6918,36 +6916,6 @@ int file_to_string(const char *name, char *buf)
 // clear some of the the working variables of a char
 void reset_char(CHAR_DATA * ch)
 {
-	int i;
-
-	for (i = 0; i < NUM_WEARS; i++)
-		GET_EQ(ch, i) = NULL;
-	memset((void *) &ch->add_abils, 0, sizeof(struct char_played_ability_data));
-
-	ch->followers = NULL;
-	ch->master = NULL;
-	ch->in_room = NOWHERE;
-	ch->carrying = NULL;
-	ch->next = NULL;
-	ch->next_fighting = NULL;
-	ch->next_in_room = NULL;
-	ch->set_protecting(0);
-	ch->set_touching(0);
-	ch->BattleAffects = clear_flags;
-	ch->Poisoner = 0;
-	ch->set_fighting(0);
-	ch->char_specials.position = POS_STANDING;
-	ch->mob_specials.default_pos = POS_STANDING;
-	ch->char_specials.carry_weight = 0;
-	ch->char_specials.carry_items = 0;
-
-	if (GET_HIT(ch) <= 0)
-		GET_HIT(ch) = 1;
-	if (GET_MOVE(ch) <= 0)
-		GET_MOVE(ch) = 1;
-
-	GET_CASTER(ch) = 0;
-	GET_DAMAGE(ch) = 0;
 	ch->reset();
 }
 

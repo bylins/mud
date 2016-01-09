@@ -82,7 +82,6 @@ extern char *background;
 extern const char *MENU;
 extern const char *WELC_MESSG;
 extern const char *START_MESSG;
-extern CHAR_DATA *character_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct player_index_element *player_table;
 extern int top_of_p_table;
@@ -1912,7 +1911,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 
 	for (ch = character_list; ch; ch = next_ch)
 	{
-		next_ch = ch->next;
+		next_ch = ch->get_next();
 
 		if (IS_NPC(ch))
 			continue;
@@ -2070,7 +2069,7 @@ int check_dupes_email(DESCRIPTOR_DATA * d)
 	if (!d->character || IS_IMMORTAL(d->character))
 		return (1);
 
-	for (ch = character_list; ch; ch = ch->next)
+	for (ch = character_list; ch; ch = ch->get_next())
 	{
 		if (ch == d->character)
 			continue;
@@ -2259,13 +2258,17 @@ void do_entergame(DESCRIPTOR_DATA * d)
 
 	send_to_char(WELC_MESSG, d->character);
 
-	for (ch = character_list; ch; ch = ch->next)
+	for (ch = character_list; ch; ch = ch->get_next())
+	{
 		if (ch == d->character)
+		{
 			break;
+		}
+	}
 
 	if (!ch)
 	{
-		d->character->next = character_list;
+		d->character->set_next(character_list);
 		character_list = d->character;
 //		CharacterAlias::add(d->character);
 	}

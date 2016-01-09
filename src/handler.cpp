@@ -2386,9 +2386,13 @@ CHAR_DATA *get_char_num(mob_rnum nr)
 {
 	CHAR_DATA *i;
 
-	for (i = character_list; i; i = i->next)
+	for (i = character_list; i; i = i->get_next())
+	{
 		if (GET_MOB_RNUM(i) == nr)
+		{
 			return (i);
+		}
+	}
 
 	return (NULL);
 }
@@ -2846,7 +2850,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 
 	DESCRIPTOR_DATA *t_desc;
 	int i, freed = 0;
-	CHAR_DATA *ch_w, *temp;
+	CHAR_DATA *ch_w;
 
 	if (MOB_FLAGGED(ch, MOB_FREE) || MOB_FLAGGED(ch, MOB_DELETE))
 		return;
@@ -2951,7 +2955,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 
 	// pull the char from the list
 	SET_BIT(MOB_FLAGS(ch, MOB_DELETE), MOB_DELETE);
-	REMOVE_FROM_LIST(ch, character_list, next);
+	ch->remove_from_list(character_list);
 //	CharacterAlias::remove(ch);
 
 	if (ch->desc && ch->desc->original)
@@ -2997,9 +3001,9 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		SEND_TO_Q(MENU, ch->desc);
 		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs)
 		{
-			ch_w = ch->next;
+			ch_w = ch->get_next();
 			do_entergame(ch->desc);
-			ch->next = ch_w;
+			ch->set_next(ch_w);
 		}
 
 	}
@@ -3026,7 +3030,6 @@ void extract_mob(CHAR_DATA * ch)
 	}
 
 	int i;
-	CHAR_DATA *temp;
 
 	if (MOB_FLAGGED(ch, MOB_FREE) || MOB_FLAGGED(ch, MOB_DELETE))
 		return;
@@ -3083,7 +3086,7 @@ void extract_mob(CHAR_DATA * ch)
 
 	// pull the char from the list
 	SET_BIT(MOB_FLAGS(ch, MOB_DELETE), MOB_DELETE);
-	REMOVE_FROM_LIST(ch, character_list, next);
+	ch->remove_from_list(character_list);
 //	CharacterAlias::remove(ch);
 
 	if (ch->desc && ch->desc->original)
@@ -3120,7 +3123,7 @@ CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom)
 {
 	CHAR_DATA *i;
 
-	for (i = character_list; i; i = i->next)
+	for (i = character_list; i; i = i->get_next())
 	{
 		//if (IS_NPC(i) || (!(i->desc) && !RENTABLE(i) && !(inroom & FIND_CHAR_DISCONNECTED)))
 		//   continue;
@@ -3145,7 +3148,7 @@ CHAR_DATA *get_player_vis(CHAR_DATA * ch, const std::string &name, int inroom)
 {
 	CHAR_DATA *i;
 
-	for (i = character_list; i; i = i->next)
+	for (i = character_list; i; i = i->get_next())
 	{
 		//if (IS_NPC(i) || (!(i->desc) && !RENTABLE(i) && !(inroom & FIND_CHAR_DISCONNECTED)))
 		//   continue;
@@ -3172,7 +3175,7 @@ CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
 {
 	CHAR_DATA *i;
 
-	for (i = character_list; i; i = i->next)
+	for (i = character_list; i; i = i->get_next())
 	{
 		if (IS_NPC(i))
 			continue;
@@ -3189,7 +3192,7 @@ CHAR_DATA *get_player_pun(CHAR_DATA * ch, const std::string &name, int inroom)
 {
 	CHAR_DATA *i;
 
-	for (i = character_list; i; i = i->next)
+	for (i = character_list; i; i = i->get_next())
 	{
 		if (IS_NPC(i))
 			continue;
@@ -3261,10 +3264,16 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 		strcpy(tmp, name);
 		if (!(number = get_number(&tmp)))
 			return get_player_vis(ch, tmp, 0);
-		for (i = character_list; i && (j <= number); i = i->next)
+		for (i = character_list; i && (j <= number); i = i->get_next())
+		{
 			if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->get_pc_name()))
+			{
 				if (++j == number)
+				{
 					return (i);
+				}
+			}
+		}
 	}
 
 	return (NULL);
@@ -3286,10 +3295,16 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where)
 		if (!(number = get_number(tmp)))
 			return get_player_vis(ch, tmp, 0);
 
-		for (i = character_list; i && (j <= number); i = i->next)
+		for (i = character_list; i && (j <= number); i = i->get_next())
+		{
 			if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->get_pc_name()))
+			{
 				if (++j == number)
+				{
 					return (i);
+				}
+			}
+		}
 	}
 
 	return (NULL);

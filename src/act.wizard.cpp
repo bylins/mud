@@ -75,7 +75,6 @@ using std::fstream;
 extern bool need_warn;
 extern FILE *player_fl;
 
-extern CHAR_DATA *character_list;
 extern OBJ_DATA *object_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
@@ -4883,7 +4882,7 @@ ACMD(do_show)
 		k = 0;
 		con = 0;
 		int motion = 0;
-		for (vict = character_list; vict; vict = vict->next)
+		for (vict = character_list; vict; vict = vict->get_next())
 		{
 			if (IS_NPC(vict))
 				j++;
@@ -4974,7 +4973,7 @@ ACMD(do_show)
 		send_to_char("  Список игроков в состоянии 'link drop'\r\n", ch);
 		sprintf(buf, "%-50s%-16s   %s\r\n", "   Имя", "Комната", "Бездействие (тики)");
 		send_to_char(buf, ch);
-		for (i = 0, vict = character_list; vict; vict = vict->next)
+		for (i = 0, vict = character_list; vict; vict = vict->get_next())
 		{
 			if (IS_GOD(vict) || IS_NPC(vict) || vict->desc != NULL || IN_ROOM(vict) == NOWHERE)
 				continue;

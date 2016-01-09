@@ -301,7 +301,6 @@ extern SPECIAL(shop_ext);
          temp->next = (item)->next; \
    }              \
 
-
 // basic bitvector utils ************************************************
 
 

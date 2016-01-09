@@ -37,7 +37,7 @@ enum
 	DIS_TOTAL_NUM
 };
 
-class Player : public Character
+class Player : public CHAR_DATA
 {
 public:
 	Player();

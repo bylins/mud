@@ -17,8 +17,9 @@
 #ifndef _SYSDEP_H_
 #define _SYSDEP_H_
 
-//************************************************************************
+#include "conf.h"
 
+//************************************************************************
 /*
  * If you are porting CircleMUD to a new (untested) platform and you find
  * that POSIX-standard non-blocking I/O does *not* work, you can define
@@ -74,7 +75,6 @@
  */
 
 // Standard C headers  *************************************************
-
 #include <stdio.h>
 #include <ctype.h>
 #include <stdarg.h>
@@ -86,7 +86,6 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
-
 
 #if     (defined (STDC_HEADERS) || defined (__GNU_LIBRARY__))
 #include <stdlib.h>

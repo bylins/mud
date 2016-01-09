@@ -39,7 +39,6 @@
 CHAR_DATA *combat_list = NULL;	// head of l-list of fighting chars
 CHAR_DATA *next_combat_list = NULL;
 
-extern CHAR_DATA *character_list;
 extern vector < OBJ_DATA * >obj_proto;
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
@@ -376,10 +375,12 @@ int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 	npc_master = npc->master ? npc->master : npc;
 	pc_master = pc->master ? pc->master : pc;
 
-	for (ch = world[IN_ROOM(npc)]->people; ch; ch = ch->next)
+	for (ch = world[IN_ROOM(npc)]->people; ch; ch = ch->get_next())
 	{
 		if (!ch->get_fighting())
+		{
 			continue;
+		}
 		ch_master = ch->master ? ch->master : ch;
 		ch_friend_npc = (ch_master == npc_master) ||
 						(IS_NPC(ch) && IS_NPC(npc) &&
@@ -1074,7 +1075,7 @@ void summon_mob_helpers(CHAR_DATA *ch)
 	for (struct helper_data_type *helpee = GET_HELPER(ch);
 		helpee; helpee = helpee->next_helper)
 	{
-		for (CHAR_DATA *vict = character_list; vict; vict = vict->next)
+		for (CHAR_DATA *vict = character_list; vict; vict = vict->get_next())
 		{
 			if (!IS_NPC(vict)
 				|| GET_MOB_VNUM(vict) != helpee->mob_vnum

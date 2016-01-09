@@ -37,7 +37,6 @@
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
-extern CHAR_DATA *character_list;
 extern TIME_INFO_DATA time_info;
 
 // local functions
@@ -405,7 +404,7 @@ ACMD(do_reply)
 		 *      hear tells anyway. :) -gg 2/24/98
 		 */
 		while (tch != NULL && (IS_NPC(tch) || GET_IDNUM(tch) != ch->get_answer_id()))
-			tch = tch->next;
+			tch = tch->get_next();
 
 		if (tch == NULL)
 			send_to_char("Этого игрока уже нет в игре.", ch);

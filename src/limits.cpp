@@ -50,7 +50,6 @@ extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
 extern room_rnum r_unreg_start_room;
 
-extern CHAR_DATA *character_list;
 extern CHAR_DATA *mob_proto;
 extern OBJ_DATA *object_list;
 
@@ -677,7 +676,7 @@ void beat_points_update(int pulse)
 	// only for PC's
 	for (i = character_list; i; i = next_char)
 	{
-		next_char = i->next;
+		next_char = i->get_next();
 		if (IS_NPC(i))
 			continue;
 
@@ -1695,7 +1694,7 @@ void point_update(void)
 		{
 			i->inc_restore_timer(SECS_PER_MUD_HOUR);
 		}
-		next_char = i->next;
+		next_char = i->get_next();
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		   то он снова должен валиться в сон */
 		if (AFF_FLAGGED(i, AFF_SLEEP) && GET_POS(i) > POS_SLEEPING)
