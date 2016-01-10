@@ -2758,7 +2758,7 @@ void update_char_objects(CHAR_DATA * ch)
 * \param inv - 1 сообщение о выкидывании из инвентаря, 0 - о снятии с себя
 * \param zone_reset - 1 - пуржим стаф без включенных таймеров, 0 - не пуржим ничего
 */
-void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
+void drop_obj_on_z*ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 {
 	if (zone_reset && !OBJ_FLAGGED(obj, ITEM_TICKTIMER))
 		extract_obj(obj);

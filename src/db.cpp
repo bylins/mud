@@ -6916,7 +6916,7 @@ int file_to_string(const char *name, char *buf)
 // clear some of the the working variables of a char
 void reset_char(CHAR_DATA * ch)
 {
-	ch->reset();
+	ch->reset_char();
 }
 
 void clear_char_skills(CHAR_DATA * ch)
