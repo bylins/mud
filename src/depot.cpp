@@ -516,7 +516,7 @@ void init_depot()
 // * Загрузка самих хранилищ в банки делается после инита хранилищ и резета зон, потому как мобов надо.
 void load_chests()
 {
-	for (CHAR_DATA *ch = character_list; ch; ch = ch->next)
+	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
 	{
 		if (ch->nr > 0 && ch->nr <= top_of_mobt && mob_index[ch->nr].func == bank)
 		{

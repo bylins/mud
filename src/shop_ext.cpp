@@ -1783,15 +1783,15 @@ SPECIAL(shop_ext)
 void town_shop_keepers()
 {
 	// список уже оработанных зон, чтобы не грузить двух и более торгашей в одну
-	std::vector<int> zone_list;
+	std::set<int> zone_list;
 
-	for (CHAR_DATA *ch = character_list; ch; ch = ch->next)
+	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
 	{
 		if (IS_RENTKEEPER(ch) && IN_ROOM(ch) > 0
 			&& Clan::IsClanRoom(IN_ROOM(ch)) == Clan::ClanList.end()
 			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SOUNDPROOF)
 			&& GET_ROOM_VNUM(IN_ROOM(ch)) % 100 != 99
-			&& std::find(zone_list.begin(), zone_list.end(), world[IN_ROOM(ch)]->zone) == zone_list.end())
+			&& zone_list.find(world[IN_ROOM(ch)]->zone) == zone_list.end())
 		{
 			int rnum_start, rnum_end;
 			if (get_zone_rooms(world[IN_ROOM(ch)]->zone, &rnum_start, &rnum_end))
@@ -1802,7 +1802,7 @@ void town_shop_keepers()
 					char_to_room(mob, number(rnum_start, rnum_end));
 				}
 			}
-			zone_list.push_back(world[IN_ROOM(ch)]->zone);
+			zone_list.insert(world[IN_ROOM(ch)]->zone);
 		}
 	}
 }

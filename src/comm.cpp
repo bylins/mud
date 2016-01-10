@@ -398,7 +398,6 @@ extern int autosave_time;	// see config.cpp
 extern int mana[];
 extern struct zone_data *zone_table;
 extern const char *save_info_msg[];	// In olc.cpp
-extern CHAR_DATA *character_list;
 extern CHAR_DATA *combat_list;
 extern int proc_color(char *inbuf, int color);
 extern void tact_auction(void);
@@ -3895,7 +3894,7 @@ int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst)
 */
 bool any_other_ch(CHAR_DATA *ch)
 {
-	for (CHAR_DATA *vict = character_list; vict; vict = vict->next)
+	for (CHAR_DATA *vict = character_list; vict; vict = vict->get_next())
 	{
 		if (!IS_NPC(vict) && vict != ch && GET_UNIQUE(vict) == GET_UNIQUE(ch))
 			return true;

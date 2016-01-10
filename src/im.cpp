@@ -38,7 +38,6 @@ extern CHAR_DATA *mob_proto;
 extern vector < OBJ_DATA * >obj_proto;
 extern INDEX_DATA *obj_index;
 extern INDEX_DATA *mob_index;
-extern CHAR_DATA *character_list;
 
 ACMD(do_rset);
 ACMD(do_recipes);
@@ -419,7 +418,7 @@ void im_translate_rskill_to_id(void)
 {
 	CHAR_DATA *ch;
 	im_rskill *rs;
-	for (ch = character_list; ch; ch = ch->next)
+	for (ch = character_list; ch; ch = ch->get_next())
 	{
 		if (IS_NPC(ch))
 			continue;
@@ -433,7 +432,7 @@ void im_translate_rskill_to_rid(void)
 	CHAR_DATA *ch;
 	im_rskill *rs, **prs;
 	int rid;
-	for (ch = character_list; ch; ch = ch->next)
+	for (ch = character_list; ch; ch = ch->get_next())
 	{
 		if (IS_NPC(ch))
 			continue;

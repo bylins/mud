@@ -333,7 +333,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
          temp->next = (item)->next; \
    }              \
 
-
 // basic bitvector utils ************************************************
 
 

@@ -515,7 +515,7 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
 
 void clear_mobs_memory(CHAR_DATA *ch)
 {
-	for (CHAR_DATA *hitter = character_list; hitter; hitter = hitter->next)
+	for (CHAR_DATA *hitter = character_list; hitter; hitter = hitter->get_next())
 	{
 		if (IS_NPC(hitter) && MEMORY(hitter))
 		{

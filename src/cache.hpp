@@ -6,7 +6,7 @@
 
 #include <boost/unordered_map.hpp>
 
-class Character;
+class CHAR_DATA;
 struct obj_data;
 
 namespace caching
@@ -58,7 +58,7 @@ id_map_t id_map;
 ptr_map_t ptr_map;
 static id_t max_id;
 };
-typedef Cache<Character*> CharacterCache;
+typedef Cache<CHAR_DATA*> CharacterCache;
 extern CharacterCache character_cache;
 
 typedef Cache<obj_data*> ObjCache;

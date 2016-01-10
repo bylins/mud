@@ -127,7 +127,7 @@ bool is_duplicate(int set_uid, int vnum)
 
 void update_char_sets()
 {
-	for (CHAR_DATA* ch = character_list; ch; ch = ch->next)
+	for (CHAR_DATA* ch = character_list; ch; ch = ch->get_next())
 	{
 		if (!IS_NPC(ch) || IS_CHARMICE(ch))
 		{

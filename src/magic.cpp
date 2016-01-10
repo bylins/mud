@@ -797,7 +797,7 @@ void mobile_affect_update(void)
 
 	for (i = character_list; i; i = i_next)
 	{
-		i_next = i->next;
+		i_next = i->get_next();
 		charmed_msg = FALSE;
 		was_charmed = FALSE;
 
@@ -891,7 +891,7 @@ void player_affect_update(void)
 		// добавлялись в чар-лист в начало списка и идут до самого чара
 		if (i->purged())
 			break;
-		i_next = i->next;
+		i_next = i->get_next();
 
 		if (IS_NPC(i))
 			continue;

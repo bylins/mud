@@ -29,9 +29,6 @@
 
 ACMD(do_revenge);
 
-extern CHAR_DATA *character_list;
-
-
 #define FirstPK  1
 #define SecondPK 5
 #define ThirdPK	 10
@@ -538,7 +535,7 @@ void pk_revenge_action(CHAR_DATA * killer, CHAR_DATA * victim)
 		}
 	}
 	// завершить все поединки, в которых участвовал victim
-	for (killer = character_list; killer; killer = killer->next)
+	for (killer = character_list; killer; killer = killer->get_next())
 	{
 		if (IS_NPC(killer))
 			continue;
@@ -734,7 +731,7 @@ ACMD(do_revenge)
 			// если нада исключаем тех, кто находится оффлайн
 			if (bOnlineOnly)
 			{
-				for (tch = character_list; tch; tch = tch->next)
+				for (tch = character_list; tch; tch = tch->get_next())
 				{
 					if (IS_NPC(tch)) continue;
 					if (GET_UNIQUE(tch) == pk->unique)
@@ -766,7 +763,7 @@ ACMD(do_revenge)
 
 	found = FALSE;
 	*buf = '\0';
-	for (tch = character_list; tch; tch = tch->next)
+	for (tch = character_list; tch; tch = tch->get_next())
 	{
 		if (IS_NPC(tch))
 			continue;
@@ -832,7 +829,7 @@ ACMD(do_forgive)
 
 	*buf = '\0';
 
-	for (tch = character_list; tch; tch = tch->next)
+	for (tch = character_list; tch; tch = tch->get_next())
 	{
 		if (IS_NPC(tch))
 			continue;
@@ -904,9 +901,13 @@ void save_pkills(CHAR_DATA * ch, FILE * saved)
 		{
 			if (pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(NULL))
 			{
-				for (tch = character_list; tch; tch = tch->next)
+				for (tch = character_list; tch; tch = tch->get_next())
+				{
 					if (!IS_NPC(tch) && GET_UNIQUE(tch) == pk->unique)
+					{
 						break;
+					}
+				}
 				if (--(pk->kill_num) == 0 && tch)
 					act("Вы больше не можете мстить $N2.", FALSE, tch, 0, ch, TO_CHAR);
 			}

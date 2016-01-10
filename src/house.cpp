@@ -2549,9 +2549,12 @@ const char *CLAN_PKLIST_FORMAT[] =
 */
 bool check_online_state(long uid)
 {
-	for (CHAR_DATA *tch = character_list; tch; tch = tch->next)
+	for (CHAR_DATA *tch = character_list; tch; tch = tch->get_next())
 	{
-		if (IS_NPC(tch) || GET_UNIQUE(tch) != uid || (!tch->desc && !RENTABLE(tch))) continue;
+		if (IS_NPC(tch) || GET_UNIQUE(tch) != uid || (!tch->desc && !RENTABLE(tch)))
+		{
+			continue;
+		}
 
 		return true;
 	}
@@ -2593,7 +2596,7 @@ ACMD(DoClanPkList)
 		send_to_char(ch, "%sОтображаются только находящиеся в игре персонажи:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		ClanPkList::const_iterator it;
 		// вобщем чтобы словить чаров, находящихся в лд - придется гонять по чарактер-листу
-		for (CHAR_DATA *tch = character_list; tch; tch = tch->next)
+		for (CHAR_DATA *tch = character_list; tch; tch = tch->get_next())
 		{
 			if (IS_NPC(tch))
 				continue;

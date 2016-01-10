@@ -33,7 +33,6 @@
 // Externals
 ACMD(do_say);
 ACMD(do_sense);
-extern CHAR_DATA *character_list;
 extern const char *dirs[];
 extern const char *DirsTo[];
 extern int track_through_doors;
