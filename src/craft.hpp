@@ -7,6 +7,8 @@
 #ifndef __CRAFT_HPP__
 #define __CRAFT_HPP__
 
+#include "sysdep.h"
+
 #include <stdarg.h>
 
 #include <set>
