@@ -395,7 +395,7 @@ void write_test_time(FILE *file)
  * New variable argument log() function.  Works the same as the old for
  * previously written code but is very nice for new code.
  */
-void log(const char *format, va_list args)
+void vlog(const char *format, va_list args)
 {
 	if (logfile == NULL)
 	{
@@ -461,7 +461,7 @@ void log(const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	log(format, args);
+	vlog(format, args);
 	va_end(args);
 }
 

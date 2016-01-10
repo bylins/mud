@@ -52,7 +52,7 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
 int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 void write_time(FILE *file);
-void log(const char* format, va_list args) __attribute__((format(printf, 1, 0)));
+void vlog(const char* format, va_list args) __attribute__((format(printf, 1, 0)));
 void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void olc_log(const char *format, ...);
 void shop_log(const char *format, ...);
