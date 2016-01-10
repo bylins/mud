@@ -432,11 +432,11 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			bonus -= 10;
 		if (IS_DARK(IN_ROOM(ch)))
 			bonus += 20;
-		if (GET_LEVEL(vict) > 35)
-			bonus -= 50;
 
 		if (vict)
 		{
+			if (GET_LEVEL(vict) > 35)
+				bonus -= 50;
 			if (!CAN_SEE(vict, ch))
 				bonus += 25;
 			if (AWAKE(vict))
