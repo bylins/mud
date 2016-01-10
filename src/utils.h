@@ -384,6 +384,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define OBJWEAR_FLAGGED(obj, flag)   (IS_SET((obj)->obj_flags.wear_flags, (flag)))
 #define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
 #define OBJ_FLAGGED(obj, flag)       (IS_SET(GET_OBJ_EXTRA(obj,flag), (flag)))
+#define OBJ_AFFECT(obj, aff)		 (IS_SET(GET_OBJ_AFF(obj, aff), (aff)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 #define IS_FLY(ch)                   (AFF_FLAGGED(ch,AFF_FLY))
 
@@ -1426,11 +1427,10 @@ inline bool a_isalpha(unsigned char c)
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c >= 192 || c == 163 || c == 179;
 }
 
+extern const bool a_isalnum_table[];
 inline bool a_isalnum(unsigned char c)
 {
-	return (c >= '0' && c <= '9')
-		   || (c >= 'a' && c <= 'z')
-		   || (c >= 'A' && c <= 'Z') || c >= 192 || c == 163 || c == 179;
+	return a_isalnum_table[c];
 }
 
 inline bool a_isxdigit(unsigned char c)
@@ -1448,12 +1448,10 @@ inline char a_ucc(unsigned char c)
 	return c;
 }
 
+extern const char a_lcc_table[];
 inline char a_lcc(unsigned char c)
 {
-	if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
-	if (c >= 224) return c - 32;
-	if (c == 179) return c - 16;
-	return c;
+	return a_lcc_table[c];
 }
 
 enum separator_mode
@@ -1647,6 +1645,9 @@ void print_bitset(const N& bits, const T& names,
 
 void tascii(const uint32_t* pointer, int num_planes, char* ascii);
 const char *print_obj_state(int tm_pct);
+
+
+bool no_bad_affects(OBJ_DATA *obj);
 
 struct exchange_item_data;
 // для парса строки с фильтрами в клан-хранах и базаре

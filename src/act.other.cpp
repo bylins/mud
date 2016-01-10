@@ -1658,7 +1658,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 		return;
 	}
 
-	OBJ_DATA *target = get_obj_equip_or_carry(ch, tmp_buf);
+	OBJ_DATA *target = get_obj_in_list_vis(ch, tmp_buf, ch->carrying);
 	if (!target)
 	{
 		send_to_char(ch, "Окститесь, у вас нет такого предмета для зачаровывания.\r\n");
