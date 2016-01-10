@@ -2175,7 +2175,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	int load_room, cmd, flag = 0;
 	CHAR_DATA *ch;
 
-	reset_char(d->character);
+	d->character->reset();
 	read_aliases(d->character);
 
 	if (GET_LEVEL(d->character) == LVL_IMMORT)

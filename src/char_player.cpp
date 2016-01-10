@@ -128,6 +128,7 @@ void Player::reset()
 	remember_.reset();
 	last_tell_ = "";
 	answer_id_ = NOBODY;
+	CHAR_DATA::reset();
 }
 
 room_rnum Player::get_from_room() const

@@ -120,7 +120,7 @@ int CHAR_DATA::get_souls()
 	return this->souls;
 }
 
-void CHAR_DATA::reset_char()
+void CHAR_DATA::reset()
 {
 	int i;
 

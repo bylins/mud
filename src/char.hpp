@@ -329,8 +329,6 @@ enum
 	ATTACKER_ROUNDS
 };
 
-class Player;
-typedef boost::shared_ptr<Player> PlayerPtr;
 typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 //typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
@@ -570,7 +568,7 @@ public:
 	void set_next(CHAR_DATA* _) { next_ = _; }
 	void remove_from_list(CHAR_DATA*& list) const;
 
-	void reset_char();
+	virtual void reset();
 
 private:
 	std::string clan_for_title();
