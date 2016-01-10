@@ -2718,14 +2718,12 @@ void extract_obj(OBJ_DATA * obj)
 // TODO: в дебаг log("Stop extract obj %s", name);
 }
 
-
-
 void update_object(OBJ_DATA * obj, int use)
 {
 	// dont update objects with a timer trigger
 	const bool trig_timer = SCRIPT_CHECK(obj, OTRIG_TIMER);
 	const bool has_timer = obj->get_timer() > 0;
-	const bool tick_timer = OBJ_FLAGGED(obj, ITEM_TICKTIMER);
+	const bool tick_timer = 0 != OBJ_FLAGGED(obj, ITEM_TICKTIMER);
 	if (!trig_timer && has_timer && tick_timer)
 	{
 		obj->dec_timer(use);
