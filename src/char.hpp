@@ -570,7 +570,7 @@ public:
 	void set_next(CHAR_DATA* _) { next_ = _; }
 	void remove_from_list(CHAR_DATA*& list) const;
 
-	virtual void reset();
+	void reset_char();
 
 private:
 	std::string clan_for_title();
