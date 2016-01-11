@@ -36,11 +36,11 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void send_to_zone(char *messg, int zone_rnum);
 void asciiflag_conv(const char *flag, void *value);
-CHAR_DATA *get_char_by_room(room_data * room, char *name);
-room_data *get_room(char *name);
-OBJ_DATA *get_obj_by_room(room_data * room, char *name);
+CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name);
+ROOM_DATA *get_room(char *name);
+OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name);
 #define WCMD(name)  \
-    void (name)(room_data *room, char *argument, int cmd, int subcmd)
+    void (name)(ROOM_DATA *room, char *argument, int cmd, int subcmd)
 
 extern int reloc_target;
 extern TRIG_DATA *cur_trig;
@@ -49,7 +49,7 @@ struct wld_command_info
 {
 	const char *command;
 	void (*command_pointer)
-	(room_data * room, char *argument, int cmd, int subcmd);
+	(ROOM_DATA * room, char *argument, int cmd, int subcmd);
 	int subcmd;
 };
 
@@ -61,7 +61,7 @@ struct wld_command_info
 
 
 // attaches room vnum to msg and sends it to script_log
-void wld_log(room_data * room, const char *msg, const int type = 0)
+void wld_log(ROOM_DATA * room, const char *msg, const int type = 0)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 
@@ -71,7 +71,7 @@ void wld_log(room_data * room, const char *msg, const int type = 0)
 
 
 // sends str to room
-void act_to_room(char *str, room_data * room)
+void act_to_room(char *str, ROOM_DATA * room)
 {
 	// no one is in the room
 	if (!room->people)
@@ -198,7 +198,7 @@ WCMD(do_wdoor)
 {
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
-	room_data *rm;
+	ROOM_DATA *rm;
 	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 
@@ -640,7 +640,7 @@ WCMD(do_wat)
 	int vnum, rnum = 0;
 //    room_data *r2;
 
-	void wld_command_interpreter(room_data * room, char *argument);
+	void wld_command_interpreter(ROOM_DATA * room, char *argument);
 
 	half_chop(argument, location, arg2);
 
@@ -1025,7 +1025,7 @@ const struct wld_command_info wld_cmd_info[] =
 
 
 // *  This is the command interpreter used by rooms, called by script_driver.
-void wld_command_interpreter(room_data * room, char *argument)
+void wld_command_interpreter(ROOM_DATA * room, char *argument)
 {
 	int cmd, length;
 	char *line, arg[MAX_INPUT_LENGTH];

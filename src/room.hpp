@@ -47,9 +47,9 @@ struct room_property_data
 	int poison; //Пока только степень зараженности для SPELL_POISONED_FOG//
 };
 
-struct room_data
+struct ROOM_DATA
 {
-	room_data();
+	ROOM_DATA();
 
 	room_vnum number;	// Rooms number  (vnum)                //
 	zone_rnum zone;		// Room zone (for resetting)          //

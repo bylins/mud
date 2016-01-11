@@ -15,9 +15,12 @@
 #ifndef _DB_H_
 #define _DB_H_
 
-#include <boost/array.hpp>
+// instead of #include "room.hpp"
+struct ROOM_DATA;
+
 #include "pugixml.hpp"
 
+#include <boost/array.hpp>
 
 // arbitrary constants used by index_boot() (must be unique)
 #define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.

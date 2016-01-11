@@ -14,6 +14,9 @@
 
 #include "structs.h"
 
+// instead of #include "room.hpp"
+struct ROOM_DATA;
+
 #define DG_SCRIPT_VERSION "DG Scripts Version 0.99 Patch Level 7   12/98"
 
 #define    MOB_TRIGGER   0
@@ -302,7 +305,7 @@ void free_script(struct script_data *sc);
 
 // typedefs that the dg functions rely on //
 typedef INDEX_DATA index_data;
-typedef ROOM_DATA room_data;
+typedef ROOM_DATA ROOM_DATA;
 
 void timechange_mtrigger(CHAR_DATA * ch, const int time);
 int pick_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);

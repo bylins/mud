@@ -17,6 +17,9 @@
 #ifndef _HANDLER_H_
 #define _HANDLER_H_
 
+// instead of #include "room.hpp"
+struct ROOM_DATA;
+
 #define LIGHT_NO    0
 #define LIGHT_YES   1
 #define LIGHT_UNDEF 2

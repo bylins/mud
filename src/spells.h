@@ -14,6 +14,9 @@
 #include <boost/tokenizer.hpp>
 #include <boost/array.hpp>
 
+// instead of #include "room.hpp"
+struct ROOM_DATA;
+
 #define DEFAULT_STAFF_LVL	12
 #define DEFAULT_WAND_LVL	12
 #define CAST_UNDEFINED	-1

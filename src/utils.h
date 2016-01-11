@@ -14,15 +14,19 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+#include "features.hpp"
+#include "pugixml.hpp"
 #include "conf.h"
+
+#include <boost/dynamic_bitset.hpp>
+
 #include <string>
 #include <list>
 #include <new>
 #include <vector>
-#include <boost/dynamic_bitset.hpp>
 
-#include "features.hpp"
-#include "pugixml.hpp"
+// instead of #include "room.hpp"
+struct ROOM_DATA;
 
 // external declarations and prototypes *********************************
 

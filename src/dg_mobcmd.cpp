@@ -66,7 +66,7 @@ extern TRIG_DATA *cur_trig;
 
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void asciiflag_conv(const char *flag, void *value);
-room_data *get_room(char *name);
+ROOM_DATA *get_room(char *name);
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
 // * Local functions.
@@ -1221,7 +1221,7 @@ ACMD(do_mdoor)
 {
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
-	room_data *rm;
+	ROOM_DATA *rm;
 	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 
