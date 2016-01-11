@@ -222,47 +222,79 @@
 			<training_cap>150</training_cap>	<!-- Improves skill up to this value -->
 			<requirements>
 				<skills>
-					<skill id="ID of the first required skill" key="yes" />
-					<skill id="ID of the second required skill" />
+					<skill key="yes">ID of the first required skill</skill>
+					<skill>ID of the second requried skill</skill>
 				</skills>
 				<tools>
-					<tool type="Type of the first required tool" min_qualtiy="50" />
-					<tool type="Type of the second required tool" min_qualtiy="50" />
+					<tool min_qualtiy="50">Type of the first required tool</tool>
+					<tool min_qualtiy="50">Type of the second required tool</tool>
 				</tools>
 				<materials>
-					<material id="ID of the first material type" base="yes" min_quality="50" amount="1" />
-					<material id="ID of the second material type" min_quality="50" amount="1" />
+					<material base="yes" min_quality="50" amount="1">ID of the first material type</material>
+					<material min_quality="50" amount="1">ID of the second material type</material>
 				</materials>
 				<items>
-					<item vnum="VNum of required item" />
-					<item recipe="ID of recipe used to craft item" />
+					<item>VNum of required item</item>
+					<recipe>ID of recipe used to craft item</recipe>
 				</items>
 			</requirements>
 			<outcome>
-				<attributes>
-					<!-- required attributes -->
-					<prototype vnum="VNum of item prototype" />
-					<timer>50</timer>
-					<durability>50</durability>
-					<weight>50</weight>
-					<cost>100</cost>
-					<remorts>0</remorts>
-					<description>
-						<short>Short description of the new item.</short>
-						<long>Long description of the new item.</long>
-					</description>
+				<prototype>VNum of prototype item</prototype>
+				<name>
+					<case1></case1>
+					<case2></case2>
+					<case3></case3>
+					<case4></case4>
+					<case5></case5>
+					<case6></case6>
+					<aliases>
+						<alias></alias>
+					</aliases>
+					<sex></sex>	<!-- M|F|N -->
+				</name>
+				<description>
+					<short>Short description of the new item.</short>
+					<long>Long description of the new item.</long>
+				</description>
 
-					<!-- Unnecessary attributes -->
-					<type>Overridden</type>
-					<wear_to>
-						<neck />
-						<!-- TODO: List possible options to wear item
-						...
-						-->
-					</wear_to>
-					<!-- TODO: Continue from list of extraflags...
-					-->
-				</attributes>
+				<!-- required attributes -->
+				<timer>50</timer>
+				<durability>50</durability>
+				<weight>50</weight>
+				<cost>100</cost>
+				<remorts>0</remorts>
+
+				<!-- Unnecessary attributes -->
+				<type>Overridden</type>
+				<wear_to>
+					<!-- Possible values (see structs.h): WEAR_LIGHT, WEAR_FINGER_R, WEAR_FINGER_L, WEAR_NECK_1, WEAR_NECK_2, WEAR_BODY, WEAR_HEAD, WEAR_LEGS, WEAR_FEET, WEAR_HANDS, WEAR_ARMS, WEAR_SHIELD, WEAR_ABOUT, WEAR_WAIST, WEAR_WRIST_R, WEAR_WRIST_L, WEAR_WIELD, WEAR_HOLD, WEAR_BOTHS -->
+					<part></part>
+				</wear_to>
+				<extraflags>
+					<!-- Possible values (see structs.h): ITEM_GLOW, ITEM_HUM, ITEM_NORENT, ITEM_NODONATE, ITEM_NOINVIS, ITEM_INVISIBLE, ITEM_MAGIC, ITEM_NODROP, ITEM_BLESS, ITEM_NOSELL, ITEM_DECAY, ITEM_ZONEDECAY, ITEM_NODISARM, ITEM_NODECAY, ITEM_POISONED, ITEM_SHARPEN, ITEM_ARMORED, ITEM_DAY, ITEM_NIGHT, ITEM_FULLMOON, ITEM_WINTER, ITEM_SPRING, ITEM_SUMMER, ITEM_AUTUMN, ITEM_SWIMMING, ITEM_FLYING, ITEM_THROWING, ITEM_TICKTIMER, ITEM_FIRE, ITEM_REPOP_DECAY, ITEM_NOLOCATE, ITEM_TIMEDLVL, ITEM_NOALTER, ITEM_WITH1SLOT, ITEM_WITH2SLOTS, ITEM_WITH3SLOTS, ITEM_SETSTUFF, ITEM_NO_FAIL, ITEM_NAMED, ITEM_BLOODY, ITEM_1INLAID, ITEM_2INLAID, ITEM_3INLAID, ITEM_NOPOUR -->
+					<extraflag></extraflag>
+				</extraflags>
+				<applies>
+					<!-- Possible values (see structs.h): APPLY_STR, APPLY_DEX, APPLY_INT, APPLY_WIS, APPLY_CON, APPLY_CHA, APPLY_CLASS, APPLY_LEVEL, APPLY_AGE, APPLY_CHAR_WEIGHT, APPLY_CHAR_HEIGHT, APPLY_MANAREG, APPLY_HIT, APPLY_MOVE, APPLY_GOLD, APPLY_EXP, APPLY_AC, APPLY_HITROLL, APPLY_DAMROLL, APPLY_SAVING_WILL, APPLY_RESIST_FIRE, APPLY_RESIST_AIR, APPLY_SAVING_CRITICAL, APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_MOVEREG, APPLY_C1, APPLY_C2, APPLY_C3, APPLY_C4, APPLY_C5, APPLY_C6, APPLY_C7, APPLY_C8, APPLY_C9, APPLY_SIZE, APPLY_ARMOUR, APPLY_POISON, APPLY_SAVING_REFLEX, APPLY_CAST_SUCCESS, APPLY_MORALE, APPLY_INITIATIVE, APPLY_RELIGION, APPLY_ABSORBE, APPLY_LIKES, APPLY_RESIST_WATER, APPLY_RESIST_EARTH, APPLY_RESIST_VITALITY, APPLY_RESIST_MIND, APPLY_RESIST_IMMUNITY, APPLY_AR, APPLY_MR, APPLY_ACONITUM_POISON, APPLY_SCOPOLIA_POISON, APPLY_BELENA_POISON, APPLY_DATURA_POISON, APPLY_HIT_GLORY, APPLY_BONUS_EXP, APPLY_BONUS_SKILLS -->
+					<apply></apply>
+				</applies>
+				<affects>
+					<!-- Possible values (see structs.h): AFF_BLIND, AFF_INVISIBLE, AFF_DETECT_ALIGN, AFF_DETECT_INVIS, AFF_DETECT_MAGIC, AFF_SENSE_LIFE, AFF_WATERWALK, AFF_SANCTUARY, AFF_GROUP, AFF_CURSE, AFF_INFRAVISION, AFF_POISON, AFF_PROTECT_EVIL, AFF_PROTECT_GOOD, AFF_SLEEP, AFF_NOTRACK, AFF_TETHERED, AFF_BLESS, AFF_SNEAK, AFF_HIDE, AFF_COURAGE, AFF_CHARM, AFF_HOLD, AFF_FLY, AFF_SIELENCE, AFF_AWARNESS, AFF_BLINK, AFF_HORSE, AFF_NOFLEE, AFF_SINGLELIGHT, AFF_HOLYLIGHT, AFF_HOLYDARK, AFF_DETECT_POISON, AFF_DRUNKED, AFF_ABSTINENT, AFF_STOPRIGHT, AFF_STOPLEFT, AFF_STOPFIGHT, AFF_HAEMORRAGIA, AFF_CAMOUFLAGE, AFF_WATERBREATH, AFF_SLOW, AFF_HASTE, AFF_SHIELD, AFF_AIRSHIELD, AFF_FIRESHIELD, AFF_ICESHIELD, AFF_MAGICGLASS, AFF_STAIRS, AFF_STONEHAND, AFF_PRISMATICAURA, AFF_HELPER, AFF_EVILESS, AFF_AIRAURA, AFF_FIREAURA, AFF_ICEAURA, AFF_DEAFNESS, AFF_CRYING, AFF_PEACEFUL, AFF_MAGICSTOPFIGHT, AFF_BERSERK, AFF_LIGHT_WALK, AFF_BROKEN_CHAINS, AFF_CLOUD_OF_ARROWS, AFF_SHADOW_CLOAK, AFF_GLITTERDUST, AFF_AFFRIGHT, AFF_SCOPOLIA_POISON, AFF_DATURA_POISON, AFF_SKILLS_REDUCE, AFF_NOT_SWITCH, AFF_BELENA_POISON, AFF_NOTELEPORT, AFF_LACKY, AFF_BANDAGE, AFF_NO_BANDAGE, AFF_MORPH, AFF_STRANGLED, AFF_RECALL_SPELLS, AFF_NOOB_REGEN, AFF_VAMPIRE -->
+					<affect></affect>
+				</affects>
+				<skills>
+					<!-- Possible values (see skills.h): SKILL_PROTECT, SKILL_TOUCH, SKILL_SHIT, SKILL_MIGHTHIT, SKILL_STUPOR, SKILL_POISONED, SKILL_SENSE, SKILL_HORSE, SKILL_HIDETRACK, SKILL_RELIGION, SKILL_MAKEFOOD, SKILL_MULTYPARRY, SKILL_TRANSFORMWEAPON, SKILL_LEADERSHIP, SKILL_PUNCTUAL, SKILL_AWAKE, SKILL_IDENTIFY, SKILL_HEARING, SKILL_CREATE_POTION, SKILL_CREATE_SCROLL, SKILL_CREATE_WAND, SKILL_LOOK_HIDE, SKILL_ARMORED, SKILL_DRUNKOFF, SKILL_AID, SKILL_FIRE, SKILL_CREATEBOW, SKILL_THROW, SKILL_BACKSTAB, SKILL_BASH, SKILL_HIDE, SKILL_KICK, SKILL_PICK_LOCK, SKILL_PUNCH, SKILL_RESCUE, SKILL_SNEAK, SKILL_STEAL, SKILL_TRACK, SKILL_CLUBS, SKILL_AXES, SKILL_LONGS, SKILL_SHORTS, SKILL_NONSTANDART, SKILL_BOTHHANDS, SKILL_PICK, SKILL_SPADES, SKILL_SATTACK, SKILL_DISARM, SKILL_PARRY, SKILL_HEAL, SKILL_MORPH, SKILL_BOWS, SKILL_ADDSHOT, SKILL_CAMOUFLAGE, SKILL_DEVIATE, SKILL_BLOCK, SKILL_LOOKING, SKILL_CHOPOFF, SKILL_REPAIR, SKILL_UPGRADE, SKILL_COURAGE, SKILL_MANADRAIN, SKILL_NOPARRYHIT, SKILL_TOWNPORTAL, SKILL_MAKE_STAFF, SKILL_MAKE_BOW, SKILL_MAKE_WEAPON, SKILL_MAKE_ARMOR, SKILL_MAKE_JEWEL, SKILL_MAKE_WEAR, SKILL_MAKE_POTION, SKILL_DIG, SKILL_INSERTGEM, SKILL_WARCRY, SKILL_TURN_UNDEAD, SKILL_IRON_WIND, SKILL_STRANGLE, SKILL_AIR_MAGIC, SKILL_FIRE_MAGIC, SKILL_WATER_MAGIC, SKILL_EARTH_MAGIC, SKILL_LIGHT_MAGIC, SKILL_DARK_MAGIC, SKILL_MIND_MAGIC, SKILL_LIFE_MAGIC -->
+					<skill></skill>
+				</skills>
+				<no_flags>
+					<!-- Possible values (see structs.h): ITEM_NO_MONO, ITEM_NO_POLY, ITEM_NO_NEUTRAL, ITEM_NO_MAGIC_USER, ITEM_NO_CLERIC, ITEM_NO_THIEF, ITEM_NO_WARRIOR, ITEM_NO_ASSASINE, ITEM_NO_GUARD, ITEM_NO_PALADINE, ITEM_NO_RANGER, ITEM_NO_SMITH, ITEM_NO_MERCHANT, ITEM_NO_DRUID, ITEM_NO_BATTLEMAGE, ITEM_NO_CHARMMAGE, ITEM_NO_DEFENDERMAGE, ITEM_NO_NECROMANCER, ITEM_NO_KILLER, ITEM_NO_COLORED, ITEM_NO_BD, ITEM_NO_MALE, ITEM_NO_FEMALE, ITEM_NO_CHARMICE, ITEM_NO_POLOVCI, ITEM_NO_PECHENEGI, ITEM_NO_MONGOLI, ITEM_NO_YIGURI, ITEM_NO_KANGARI, ITEM_NO_XAZARI, ITEM_NO_SVEI, ITEM_NO_DATCHANE, ITEM_NO_GETTI, ITEM_NO_UTTI, ITEM_NO_XALEIGI, ITEM_NO_NORVEZCI, ITEM_NO_RUSICHI, ITEM_NO_STEPNYAKI, ITEM_NO_VIKINGI -->
+					<flag></flag>
+				</no_flags>
+				<val0>value</val0>
+				<val1>value</val1>
+				<val2>value</val2>
+				<val3>value</val3>
+				<trigger>Trigger's VNum</trigger>
 			</outcome>
 		</recipe>
 	</recipes>
