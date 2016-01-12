@@ -7,6 +7,8 @@
 #include "player_i.hpp"
 #include "morph.hpp"
 #include "obj_sets.hpp"
+#include "db.h"
+#include "room.hpp"
 #include "structs.h"
 #include "conf.h"
 
@@ -747,7 +749,7 @@ inline bool CHAR_DATA::in_used_zone() const
 {
 	if (IS_MOB(this))
 	{
-		return 0 != zone_table[mob_index[nr].zone].used;
+		return 0 != zone_table[world[in_room]->zone].used;
 	}
 	return false;
 }

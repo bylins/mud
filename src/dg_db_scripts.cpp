@@ -328,7 +328,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	char junk[8];
 	int vnum, rnum, count;
 	CHAR_DATA *mob;
-	room_data *room;
+	ROOM_DATA *room;
 	struct trig_proto_list *trg_proto, *new_trg;
 
 	get_line(fp, line);
@@ -372,7 +372,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 		CREATE(new_trg, struct trig_proto_list, 1);
 		new_trg->vnum = vnum;
 		new_trg->next = NULL;
-		room = (room_data *) proto;
+		room = (ROOM_DATA *) proto;
 		trg_proto = room->proto_script;
 		if (!trg_proto)
 		{

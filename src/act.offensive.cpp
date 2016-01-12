@@ -669,7 +669,9 @@ ACMD(do_order)
 					{
 						found = TRUE;
 						if (GET_WAIT_STATE(k->follower) <= 0)
+						{
 							command_interpreter(k->follower, message);
+						}
 						else if (k->follower->get_fighting())
 						{
 							if (k->follower->last_comm != NULL)

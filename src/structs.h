@@ -80,7 +80,6 @@ using std::bitset;
 
 // done
 typedef struct flag_data FLAG_DATA;
-typedef struct room_data ROOM_DATA;
 typedef struct index_data INDEX_DATA;
 typedef struct script_data SCRIPT_DATA;
 
