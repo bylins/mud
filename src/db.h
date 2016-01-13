@@ -15,13 +15,13 @@
 #ifndef _DB_H_
 #define _DB_H_
 
-#include "utils.h"
-#include "structs.h"
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+
 
 #include <boost/array.hpp>
 
 // arbitrary constants used by index_boot() (must be unique)
-#define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.
+#define MAX_PROTO_NUMBER 999999	//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫.О©╫.
 
 #define MIN_ZONE_LEVEL	1
 #define MAX_ZONE_LEVEL	50
@@ -160,9 +160,9 @@ enum SetStuffMode
 #define MESS_FILE       LIB_MISC "messages"	// damage messages
 #define SOCMESS_FILE    LIB_MISC "socials"	// messgs for social acts
 #define XNAME_FILE      LIB_MISC "xnames"	// invalid name substrings
-#define ANAME_FILE      LIB_MISC "apr_name" // одобренные имена
-#define DNAME_FILE      LIB_MISC "dis_name" // запрещенные имена
-#define NNAME_FILE      LIB_MISC "new_name" // ждущие одобрения
+#define ANAME_FILE      LIB_MISC "apr_name" // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+#define DNAME_FILE      LIB_MISC "dis_name" // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+#define NNAME_FILE      LIB_MISC "new_name" // О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 
 #define MAIL_FILE	    LIB_ETC "plrmail"	// for the mudmail system
 #define BAN_FILE	    LIB_ETC "badsites"	// for the siteban system
@@ -253,11 +253,11 @@ struct reset_com
 
 struct _case
 {
-	// внум сундука
+	// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	int vnum;
-	// шанс выпадаения
+	// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	int chance;
-	// внумы шмоток, которые выпадают из кейса
+	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	std::vector<int> vnum_objs;
 };
 
@@ -265,7 +265,7 @@ struct _case
 struct zone_data
 {
 	char *name;		// name of this zone
-	// автор, дата...
+	// О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫...
 	char *comment;
 //MZ.load
 	int level;	// level of this zone (is used in ingredient loading)
@@ -288,20 +288,20 @@ struct zone_data
 	 *   3: Multi reset.
 	 */
 	int typeA_count;
-	int *typeA_list;	// список номеров зон, которые сбрасываются одновременно с этой
+	int *typeA_list;	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫
 	int typeB_count;
-	int *typeB_list;	// список номеров зон, которые сбрасываются независимо, но они должны быть сброшены до сброса зон типа А
-	bool *typeB_flag;	// флаги, были ли сброшены зоны типа В
-	int under_construction;	// зона в процессе тестирования
+	int *typeB_list;	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫
+	bool *typeB_flag;	// О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫
+	int under_construction;	// О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	bool locked;
-	bool reset_idle;	// очищать ли зону, в которой никто не бывал
-	bool used;		// был ли кто-то в зоне после очистки
-	unsigned long long activity;	// параметр активности игроков в зоне
-	// <= 1 - обычная зона (соло), >= 2 - зона для группы из указанного кол-ва человек
+	bool reset_idle;	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+	bool used;		// О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	unsigned long long activity;	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫
+	// <= 1 - О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫), >= 2 - О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	int group;
-	// средний уровень мобов в зоне
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫
 	int mob_level;
-	// является ли зона городом
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	bool is_town;
 };
 
@@ -330,7 +330,7 @@ struct reset_q_type
 struct player_index_element
 {
 	char *name;
-	//added by WorM индексируюца еще мыло и последний айпи
+	//added by WorM О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 	char *mail;
 	char *last_ip;
 	//end by WorM
@@ -368,12 +368,12 @@ struct month_temperature_type
 	int med;
 };
 
-//Polud тестовый класс для хранения параметров различных рас мобов
+//Polud О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 struct ingredient
 {
 	int imtype;
 	std::string imname;
-	boost::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
+	boost::array<int, MAX_MOB_LEVEL + 1> prob; // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 };
 
 class MobRace{

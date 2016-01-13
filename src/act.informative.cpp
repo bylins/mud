@@ -12,16 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
-#include <string>
-#include <sstream>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -56,6 +47,17 @@
 #include "map.hpp"
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+
+#include <string>
+#include <sstream>
 
 using std::string;
 
@@ -541,7 +543,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 			}
 			else
 			{
-				if (object->timed_spell.is_spell_poisoned() != -1)
+				if (object->timed_spell().is_spell_poisoned() != -1)
 				{
 					sprintf(buf2, " %s*%s%s", CCGRN(ch, C_NRM),
 						CCNRM(ch, C_NRM), diag_obj_to_char(ch, object, 1));
@@ -638,7 +640,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		strcat(buf, diag_armor_type_to_char(object).c_str());
 		strcat(buf, diag_timer_to_char(object));
 		//strcat(buf, diag_uses_to_char(object, ch)); // commented by WorM перенес в obj_info чтобы заряды рун было видно на базаре/ауке
-		strcat(buf, object->timed_spell.diag_to_char(ch).c_str());
+		strcat(buf, object->diag_ts_to_char(ch).c_str());
 	}
 	page_string(ch->desc, buf, TRUE);
 	return 0;

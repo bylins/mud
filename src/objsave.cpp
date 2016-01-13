@@ -9,11 +9,9 @@
 
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
-#include <sstream>
-#include <boost/algorithm/string.hpp>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "objsave.h"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "handler.h"
 #include "db.h"
@@ -32,7 +30,13 @@
 #include "mail.h"
 #include "dg_scripts.h"
 #include "features.hpp"
-#include "objsave.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/algorithm/string.hpp>
+
+#include <sstream>
 
 #define LOC_INVENTORY	0
 #define MAX_BAG_ROWS	5
@@ -479,7 +483,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 						*error = 50;
 						return object;
 					}
-					object->timed_spell.add(object, t[0], t[1]);
+					object->add_timed_spell(t[0], t[1]);
 				}
 			}
 			else if (!strcmp(read_line, "Mort"))
@@ -1341,9 +1345,9 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		out << object->values.print_to_file();
 	}
 	// обкаст (если он есть) сохраняется в любом случае независимо от прототипа
-	if (!object->timed_spell.empty())
+	if (object->has_timed_spell())
 	{
-		out << object->timed_spell.print();
+		out << object->timed_spell().print();
 	}
 	// накладываемые энчанты
 	if (!object->enchants.empty())

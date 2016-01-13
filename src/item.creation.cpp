@@ -7,14 +7,13 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "item.creation.hpp"
+
+#include "obj.hpp"
 #include "screen.h"
 #include "spells.h"
 #include "skills.h"
 #include "constants.h"
-#include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -22,11 +21,14 @@
 #include "olc.h"
 #include "im.h"
 #include "features.hpp"
-#include "item.creation.hpp"
 #include "char.hpp"
 #include "modify.h"
 #include "room.hpp"
 #include "fight.h"
+#include "structs.h"
+#include "utils.h"
+#include "sysdep.h"
+#include "conf.h"
 
 #define SpINFO   spell_info[spellnum]
 

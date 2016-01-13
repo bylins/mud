@@ -9,25 +9,26 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "screen.h"
 #include "dg_scripts.h"
-#include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
 #include "spells.h"
 #include "im.h"
-#include "features.hpp"
 #include "char.hpp"
 #include "skills.h"
 #include "name_list.hpp"
 #include "room.hpp"
 #include "magic.h"
 #include "fight.h"
+#include "features.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 extern INDEX_DATA *obj_index;
 extern const char *dirs[];
@@ -38,7 +39,7 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name);
 OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
-room_data *get_room(char *name);
+ROOM_DATA *get_room(char *name);
 void asciiflag_conv(const char *flag, void *value);
 #define OCMD(name)  \
    void (name)(OBJ_DATA *obj, char *argument, int cmd, int subcmd)
@@ -614,7 +615,7 @@ OCMD(do_odoor)
 {
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
-	room_data *rm;
+	ROOM_DATA *rm;
 	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 

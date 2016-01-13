@@ -1,8 +1,8 @@
 // Part of Bylins http://www.mud.ru
 
+#include "obj.hpp"
 #include "fight.h"
 #include "fight_local.hpp"
-#include "utils.h"
 #include "char.hpp"
 #include "skills.h"
 #include "constants.h"
@@ -17,6 +17,7 @@
 #include "dps.hpp"
 #include "house_exp.hpp"
 #include "poison.hpp"
+#include "utils.h"
 
 // extern
 int extra_aco(int class_num, int level);
@@ -3016,10 +3017,10 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	else if (!MOB_FLAGGED(victim, MOB_PROTECT)
 		&& dam
 		&& wielded
-		&& !wielded->timed_spell.empty()
+		&& wielded->has_timed_spell()
 		&& ch->get_skill(SKILL_POISONED))
 	{
-		try_weap_poison(ch, victim, wielded->timed_spell.is_spell_poisoned());
+		try_weap_poison(ch, victim, wielded->timed_spell().is_spell_poisoned());
 	}
 	//* травящий ядом моб //
 	else if (dam

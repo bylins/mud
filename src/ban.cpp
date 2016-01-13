@@ -7,17 +7,6 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
-#include <map>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -25,14 +14,21 @@
 #include "ban.hpp"
 #include "char.hpp"
 #include "modify.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
-///////////////////////////////////////////////////////////////////////////
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include <map>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern BanList *ban;
-
-// external functions
-extern void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 
 // local functions
 void load_banned(void);

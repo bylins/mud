@@ -1637,7 +1637,7 @@ struct class_app_type class_app[NUM_CLASSES] =
 	{5,  40, 10, 12, 50, (struct extra_affects_type *) &DruidAffects}
 };
 
-const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	// 0
+const char *spell_wear_off_msg[SPELLS_COUNT + 1] = { "RESERVED DB.C",	// 0
 		"Вы почувствовали себя менее защищенно.",	// 1
 		"!Teleport!",
 		"Вы почувствовали себя менее доблестно.",
@@ -1843,7 +1843,7 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	// 0
 
 
 
-const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	// 0
+const char *cast_phrase[SPELLS_COUNT + 1][2] = { {"\nRESERVED DB.C",	// 0
 		"\n"},
 	{"буде во прибежище",		// 1
 	 "... Он - помощь наша и защита наша."},

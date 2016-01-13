@@ -10,10 +10,9 @@
 
 // Реализация ингредиентной магии
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "im.h"
+
+#include "obj.hpp"
 #include "handler.h"
 #include "db.h"
 #include "interpreter.h"
@@ -21,10 +20,13 @@
 #include "constants.h"
 #include "screen.h"
 #include "features.hpp"
-#include "im.h"
 #include "char.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 #define		VAR_CHAR	'@'
 

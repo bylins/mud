@@ -889,7 +889,7 @@ ACMD(do_reboot)
 		init_portals();
 		load_sheduled_reboot();
 		oload_table.init();
-		obj_data::init_set_table();
+		OBJ_DATA::init_set_table();
 		load_mobraces();
 		load_morphs();
 		GlobalDrop::init();
@@ -911,7 +911,7 @@ ACMD(do_reboot)
 		oload_table.init();
 	else if (!str_cmp(arg, "setstuff"))
 	{
-		obj_data::init_set_table();
+		OBJ_DATA::init_set_table();
 		HelpSystem::reload(HelpSystem::STATIC);
 	}
 	else if (!str_cmp(arg, "immlist"))
@@ -1384,7 +1384,7 @@ void init_zone_types()
 }
 //-MZ.load
 
-void obj_data::init_set_table()
+void OBJ_DATA::init_set_table()
 {
 	std::string cppstr, tag;
 	int mode = SETSTUFF_SNUM;
@@ -1394,7 +1394,7 @@ void obj_data::init_set_table()
 	class_to_act_map::iterator clss;
 	int appnum = 0;
 
-	obj_data::set_table.clear();
+	OBJ_DATA::set_table.clear();
 
 	std::ifstream fp(LIB_MISC "setstuff.lst");
 
@@ -1473,7 +1473,7 @@ void obj_data::init_set_table()
 				continue;
 			}
 
-			std::pair< id_to_set_info_map::iterator, bool > p = obj_data::set_table.insert(std::make_pair(tmpsnum, set_info()));
+			std::pair< id_to_set_info_map::iterator, bool > p = OBJ_DATA::set_table.insert(std::make_pair(tmpsnum, set_info()));
 
 			if (!p.second)
 			{
@@ -1903,11 +1903,11 @@ void obj_data::init_set_table()
 
 				id_to_set_info_map::iterator it;
 
-				for (it = obj_data::set_table.begin(); it != obj_data::set_table.end(); it++)
+				for (it = OBJ_DATA::set_table.begin(); it != OBJ_DATA::set_table.end(); it++)
 					if (it->second.find(tmpvnum) != it->second.end())
 						break;
 
-				if (it != obj_data::set_table.end())
+				if (it != OBJ_DATA::set_table.end())
 				{
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', object can exist only in one set";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
@@ -1962,7 +1962,7 @@ void obj_data::init_set_table()
 	if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
 	{
 		cppstr = "init_set_table:: Last set was deleted, because of unexpected end of file";
-		obj_data::set_table.erase(snum);
+		OBJ_DATA::set_table.erase(snum);
 		mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 	}
 }
@@ -2292,7 +2292,7 @@ void boot_db(void)
 	oload_table.init();
 
 	log("Booting setstuff table.");
-	obj_data::init_set_table();
+	OBJ_DATA::init_set_table();
 
 	log("Init item levels.");
 	ObjSystem::init_item_levels();

@@ -12,22 +12,12 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include <vector>
-#include <string>
-#include <fstream>
-#include <cmath>
-#include <iomanip>
-#include <algorithm>
-#include <sstream>
-#include <boost/bind.hpp>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
 #include "utils.h"
+
+#include "obj.hpp"
 #include "db.h"
 #include "comm.h"
 #include "screen.h"
-
 #include "spells.h"
 #include "handler.h"
 #include "interpreter.h"
@@ -48,6 +38,20 @@
 #include "skills.h"
 #include "exchange.h"
 #include "sets_drop.hpp"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/bind.hpp>
+
+#include <vector>
+#include <string>
+#include <fstream>
+#include <cmath>
+#include <iomanip>
+#include <algorithm>
+#include <sstream>
+
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern int top_of_p_table;
@@ -2871,8 +2875,8 @@ std::set<int> vnum_list;
 // * Заполнение списка фулл-сетов для последующих сверок.
 void init_set_list()
 {
-	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
-		iend = obj_data::set_table.end(); i != iend; ++i)
+	for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
+		iend = OBJ_DATA::set_table.end(); i != iend; ++i)
 	{
 		if (i->second.size() > BIG_SET_ITEMS)
 		{
@@ -2996,8 +3000,8 @@ bool is_big_set(const OBJ_DATA *obj,bool is_mini)
 	{
 		return false;
 	}
-	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
-		iend = obj_data::set_table.end(); i != iend; ++i)
+	for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
+		iend = OBJ_DATA::set_table.end(); i != iend; ++i)
 	{
 		if (i->second.find(GET_OBJ_VNUM(obj)) != i->second.end()
 			&& i->second.size() > sets_items)
@@ -3031,8 +3035,8 @@ bool find_set_item(OBJ_DATA *obj)
 void init_vnum_list(int vnum)
 {
 	vnum_list.clear();
-	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
-		iend = obj_data::set_table.end(); i != iend; ++i)
+	for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
+		iend = OBJ_DATA::set_table.end(); i != iend; ++i)
 	{
 		if (i->second.find(vnum) != i->second.end())
 			//&& i->second.size() > BIG_SET_ITEMS)

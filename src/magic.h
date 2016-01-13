@@ -14,6 +14,11 @@
 #ifndef _MAGIC_H_
 #define _MAGIC_H_
 
+#include <cstdlib>
+
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+
 // These mobiles do not exist.
 #define MOB_DOUBLE        3000 //внум прототипа для клона
 #define MOB_SKELETON      3001

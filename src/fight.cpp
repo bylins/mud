@@ -13,8 +13,9 @@
 ************************************************************************ */
 
 #include "fight.h"
+
+#include "obj.hpp"
 #include "fight_local.hpp"
-#include "utils.h"
 #include "comm.h"
 #include "handler.h"
 #include "interpreter.h"
@@ -34,6 +35,7 @@
 #include "genchar.h"
 #include "sets_drop.hpp"
 #include "olc.h"
+#include "utils.h"
 
 // Structures
 CHAR_DATA *combat_list = NULL;	// head of l-list of fighting chars

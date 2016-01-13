@@ -29,18 +29,9 @@
 
 #define __COMM_C__
 
-#include "conf.h"
-#include <string>
-#include <exception>
-#include <locale.h>
-#include <sys/stat.h>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
 #include "comm.h"
+
+#include "obj.hpp"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
@@ -75,6 +66,10 @@
 #include "help.hpp"
 #include "mail.h"
 #include "mob_stat.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -129,7 +124,16 @@
 #include <iconv.h>
 #endif
 
-// for epoll
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include <sys/stat.h>
+
+#include <string>
+#include <exception>
+#include <locale.h>
+
+ // for epoll
 #ifdef HAS_EPOLL
 #define MAXEVENTS 1024
 #endif

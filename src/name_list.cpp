@@ -2,15 +2,18 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "name_list.hpp"
+
+#include "obj.hpp"
+#include "char.hpp"
+#include "handler.h"
+#include "interpreter.h"
+#include "utils.h"
+
 #include <limits>
 #include <map>
 #include <string>
 #include <set>
-#include "name_list.hpp"
-#include "utils.h"
-#include "char.hpp"
-#include "handler.h"
-#include "interpreter.h"
 
 namespace
 {

@@ -14,6 +14,8 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+#include "pugixml.hpp"
+#include "structs.h"
 #include "conf.h"
 
 #include "features.hpp"
@@ -25,6 +27,9 @@
 #include <list>
 #include <new>
 #include <vector>
+
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // external declarations and prototypes *********************************
 
@@ -63,7 +68,7 @@ void temp_log(const char *format, ...);
 void ip_log(const char *ip);
 int touch(const char *path);
 void mudlog(const char *str, int type, int level, int channel, int file);
-void mudlog_python(const string& str, int type, int level, int channel, int file);
+void mudlog_python(const std::string& str, int type, int level, int channel, int file);
 int number(int from, int to);
 int dice(int number, int size);
 bool sprintbit(bitvector_t vektor, const char *names[], char *result, const int print_flag = 0);
@@ -506,7 +511,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define CLR_GOD_FLAG(ch,flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define GET_UNIQUE(ch)         ((ch)->get_uid())
 #define LAST_LOGON(ch)         ((ch)->get_last_logon())
-//структуры для подсчета количества рипов на морте (с) Василиса
+//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ (О©╫) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 #define GET_RIP_ARENA(ch)      ((ch)->player_specials->saved.Rip_arena)
 #define GET_RIP_PK(ch)         ((ch)->player_specials->saved.Rip_pk)
 #define GET_RIP_MOB(ch)        ((ch)->player_specials->saved.Rip_mob)
@@ -526,7 +531,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define GET_EXP_MOBTHIS(ch)    ((ch)->player_specials->saved.Exp_mob_this)
 #define GET_EXP_OTHERTHIS(ch)  ((ch)->player_specials->saved.Exp_other_this)
 #define GET_EXP_DTTHIS(ch)     ((ch)->player_specials->saved.Exp_dt_this)
-//конец правки (с) Василиса
+//О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 
 #define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
 #define NAME_ID_GOD(ch)  ((ch)->player_specials->saved.NameIDGod)
@@ -614,7 +619,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define GET_RESIST(ch,i)  ((ch)->add_abils.apply_resistance_throw[i])
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
-#define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
+#define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (О©╫О©╫О©╫О©╫О©╫О©╫О©╫) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫.О©╫О©╫О©╫О©╫О©╫ О©╫ %
 #define GET_CASTER(ch)    ((ch)->CasterLevel)
 #define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
@@ -625,12 +630,12 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
 
-// Макросы доступа к полям параметров комнат
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 #define GET_ROOM_BASE_POISON(room) ((room)->base_property.poison)
 #define GET_ROOM_ADD_POISON(room) ((room)->add_property.poison)
 #define GET_ROOM_POISON(room) (GET_ROOM_BASE_POISON(room)+GET_ROOM_ADD_POISON(room))
 
-// Получение кубиков урона - работает только для мобов!
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫!
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)
 #define GET_SDD(ch) ((ch)->mob_specials.damsizedice)
 
@@ -690,7 +695,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
                                 )                                                    \
                                )
 */
-//                                 CALC_ALIGNMENT(victim)==ALIG_GOOD ? 0 :              убрал эти строки, зачем они ведь наклонности у нас не используются? 
+//                                 CALC_ALIGNMENT(victim)==ALIG_GOOD ? 0 :              О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫? 
 //                                 (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        
 
 
@@ -808,63 +813,63 @@ inline void NEWCREATE(T*& result, const T& init_value)
                               (GET_ALIGNMENT(ch)-GET_ALIGNMENT(vict))<=ALIGN_DELTA:\
                               (GET_ALIGNMENT(vict)-GET_ALIGNMENT(ch))<=ALIGN_DELTA\
                              )
-#define GET_CH_SUF_1(ch) (IS_NOSEXY(ch) ? "о" :\
+#define GET_CH_SUF_1(ch) (IS_NOSEXY(ch) ? "О©╫" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "и")
-#define GET_CH_SUF_2(ch) (IS_NOSEXY(ch) ? "ось" :\
-                          IS_MALE(ch) ? "ся"  :\
-                          IS_FEMALE(ch) ? "ась" : "ись")
-#define GET_CH_SUF_3(ch) (IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ый"  :\
-                          IS_FEMALE(ch) ? "ая" : "ые")
-#define GET_CH_SUF_4(ch) (IS_NOSEXY(ch) ? "ло" :\
+                          IS_FEMALE(ch) ? "О©╫" : "О©╫")
+#define GET_CH_SUF_2(ch) (IS_NOSEXY(ch) ? "О©╫О©╫О©╫" :\
+                          IS_MALE(ch) ? "О©╫О©╫"  :\
+                          IS_FEMALE(ch) ? "О©╫О©╫О©╫" : "О©╫О©╫О©╫")
+#define GET_CH_SUF_3(ch) (IS_NOSEXY(ch) ? "О©╫О©╫" :\
+                          IS_MALE(ch) ? "О©╫О©╫"  :\
+                          IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_CH_SUF_4(ch) (IS_NOSEXY(ch) ? "О©╫О©╫" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_SUF_5(ch) (IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? "ел"  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_SUF_6(ch) (IS_NOSEXY(ch) ? "о" :\
+                          IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_CH_SUF_5(ch) (IS_NOSEXY(ch) ? "О©╫О©╫" :\
+                          IS_MALE(ch) ? "О©╫О©╫"  :\
+                          IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_CH_SUF_6(ch) (IS_NOSEXY(ch) ? "О©╫" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "ы")
-#define GET_CH_SUF_7(ch) (IS_NOSEXY(ch) ? "ым" :\
-                          IS_MALE(ch) ? "ым"  :\
-                          IS_FEMALE(ch) ? "ой" : "ыми")
-#define GET_CH_SUF_8(ch) (IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ая" : "ие")
+                          IS_FEMALE(ch) ? "О©╫" : "О©╫")
+#define GET_CH_SUF_7(ch) (IS_NOSEXY(ch) ? "О©╫О©╫" :\
+                          IS_MALE(ch) ? "О©╫О©╫"  :\
+                          IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫О©╫")
+#define GET_CH_SUF_8(ch) (IS_NOSEXY(ch) ? "О©╫О©╫" :\
+                          IS_MALE(ch) ? "О©╫О©╫"  :\
+                          IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫")
 
 #define GET_CH_VIS_SUF_1(ch,och) (!CAN_SEE(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "о" :\
+                          IS_NOSEXY(ch) ? "О©╫" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "и")
-#define GET_CH_VIS_SUF_2(ch,och) (!CAN_SEE(och,ch) ? "ся" :\
-                          IS_NOSEXY(ch) ? "ось" :\
-                          IS_MALE(ch) ? "ся"  :\
-                          IS_FEMALE(ch) ? "ась" : "ись")
-#define GET_CH_VIS_SUF_3(ch,och) (!CAN_SEE(och,ch) ? "ый" :\
-                          IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ый"  :\
-                          IS_FEMALE(ch) ? "ая" : "ые")
+                          IS_FEMALE(ch) ? "О©╫" : "О©╫")
+#define GET_CH_VIS_SUF_2(ch,och) (!CAN_SEE(och,ch) ? "О©╫О©╫" :\
+                          IS_NOSEXY(ch) ? "О©╫О©╫О©╫" :\
+                          IS_MALE(ch) ? "О©╫О©╫"  :\
+                          IS_FEMALE(ch) ? "О©╫О©╫О©╫" : "О©╫О©╫О©╫")
+#define GET_CH_VIS_SUF_3(ch,och) (!CAN_SEE(och,ch) ? "О©╫О©╫" :\
+                          IS_NOSEXY(ch) ? "О©╫О©╫" :\
+                          IS_MALE(ch) ? "О©╫О©╫"  :\
+                          IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫")
 #define GET_CH_VIS_SUF_4(ch,och) (!CAN_SEE(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "ло" :\
+                          IS_NOSEXY(ch) ? "О©╫О©╫" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_VIS_SUF_5(ch,och) (!CAN_SEE(och,ch) ? "ел" :\
-                          IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? "ел"  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
+                          IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_CH_VIS_SUF_5(ch,och) (!CAN_SEE(och,ch) ? "О©╫О©╫" :\
+                          IS_NOSEXY(ch) ? "О©╫О©╫" :\
+                          IS_MALE(ch) ? "О©╫О©╫"  :\
+                          IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫")
 #define GET_CH_VIS_SUF_6(ch,och) (!CAN_SEE(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "о" :\
+                          IS_NOSEXY(ch) ? "О©╫" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "ы")
-#define GET_CH_VIS_SUF_7(ch,och) (!CAN_SEE(och,ch) ? "ым" :\
-                          IS_NOSEXY(ch) ? "ым" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ым" : "ыми")
-#define GET_CH_VIS_SUF_8(ch,och) (!CAN_SEE(och,ch) ? "ой" :\
-                          IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ая" : "ие")
+                          IS_FEMALE(ch) ? "О©╫" : "О©╫")
+#define GET_CH_VIS_SUF_7(ch,och) (!CAN_SEE(och,ch) ? "О©╫О©╫" :\
+                          IS_NOSEXY(ch) ? "О©╫О©╫" :\
+                          IS_MALE(ch) ? "О©╫О©╫"  :\
+                          IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫О©╫")
+#define GET_CH_VIS_SUF_8(ch,och) (!CAN_SEE(och,ch) ? "О©╫О©╫" :\
+                          IS_NOSEXY(ch) ? "О©╫О©╫" :\
+                          IS_MALE(ch) ? "О©╫О©╫"  :\
+                          IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫")
 
 
 #define GET_OBJ_SEX(obj) ((obj)->obj_flags.Obj_sex)
@@ -874,72 +879,72 @@ inline void NEWCREATE(T*& result, const T& init_value)
 
 #define GET_OBJ_MIW(obj) ((obj)->max_in_world)
 
-#define GET_OBJ_SUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
+#define GET_OBJ_SUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "О©╫" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_SUF_2(obj) (IS_OBJ_NOSEXY(obj) ? "ось" :\
-                            IS_OBJ_MALE(obj) ? "ся"  :\
-                            IS_OBJ_FEMALE(obj) ? "ась" : "ись")
-#define GET_OBJ_SUF_3(obj) (IS_OBJ_NOSEXY(obj) ? "ое" :\
-                            IS_OBJ_MALE(obj) ? "ый"  :\
-                            IS_OBJ_FEMALE(obj) ? "ая" : "ые")
-#define GET_OBJ_SUF_4(obj) (IS_OBJ_NOSEXY(obj) ? "ло" :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫" : "О©╫")
+#define GET_OBJ_SUF_2(obj) (IS_OBJ_NOSEXY(obj) ? "О©╫О©╫О©╫" :\
+                            IS_OBJ_MALE(obj) ? "О©╫О©╫"  :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫О©╫О©╫" : "О©╫О©╫О©╫")
+#define GET_OBJ_SUF_3(obj) (IS_OBJ_NOSEXY(obj) ? "О©╫О©╫" :\
+                            IS_OBJ_MALE(obj) ? "О©╫О©╫"  :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_OBJ_SUF_4(obj) (IS_OBJ_NOSEXY(obj) ? "О©╫О©╫" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_SUF_5(obj) (IS_OBJ_NOSEXY(obj) ? "ло" :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_OBJ_SUF_5(obj) (IS_OBJ_NOSEXY(obj) ? "О©╫О©╫" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_SUF_6(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_OBJ_SUF_6(obj) (IS_OBJ_NOSEXY(obj) ? "О©╫" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "ы")
-#define GET_OBJ_SUF_7(obj) (IS_OBJ_NOSEXY(obj) ? "е" :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫" : "О©╫")
+#define GET_OBJ_SUF_7(obj) (IS_OBJ_NOSEXY(obj) ? "О©╫" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_SUF_8(ch) (IS_OBJ_NOSEXY(obj) ? "ое" :\
-                          IS_OBJ_MALE(obj) ? "ой"  :\
-                          IS_OBJ_FEMALE(obj) ? "ая" : "ие")
+                            IS_OBJ_FEMALE(obj) ? "О©╫" : "О©╫")
+#define GET_OBJ_SUF_8(ch) (IS_OBJ_NOSEXY(obj) ? "О©╫О©╫" :\
+                          IS_OBJ_MALE(obj) ? "О©╫О©╫"  :\
+                          IS_OBJ_FEMALE(obj) ? "О©╫О©╫" : "О©╫О©╫")
 
 
-#define GET_OBJ_VIS_SUF_1(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "о" :\
-                            IS_OBJ_NOSEXY(obj) ? "о" :\
+#define GET_OBJ_VIS_SUF_1(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "О©╫" :\
+                            IS_OBJ_NOSEXY(obj) ? "О©╫" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_VIS_SUF_2(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ось" :\
-                            IS_OBJ_NOSEXY(obj) ? "ось" :\
-                            IS_OBJ_MALE(obj) ? "ся"  :\
-                            IS_OBJ_FEMALE(obj) ? "ась" : "ись")
-#define GET_OBJ_VIS_SUF_3(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ый" :\
-                            IS_OBJ_NOSEXY(obj) ? "ое" :\
-                            IS_OBJ_MALE(obj) ? "ый"  :\
-                            IS_OBJ_FEMALE(obj) ? "ая" : "ые")
-#define GET_OBJ_VIS_SUF_4(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ло" :\
-                            IS_OBJ_NOSEXY(obj) ? "ло" :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫" : "О©╫")
+#define GET_OBJ_VIS_SUF_2(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "О©╫О©╫О©╫" :\
+                            IS_OBJ_NOSEXY(obj) ? "О©╫О©╫О©╫" :\
+                            IS_OBJ_MALE(obj) ? "О©╫О©╫"  :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫О©╫О©╫" : "О©╫О©╫О©╫")
+#define GET_OBJ_VIS_SUF_3(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "О©╫О©╫" :\
+                            IS_OBJ_NOSEXY(obj) ? "О©╫О©╫" :\
+                            IS_OBJ_MALE(obj) ? "О©╫О©╫"  :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_OBJ_VIS_SUF_4(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "О©╫О©╫" :\
+                            IS_OBJ_NOSEXY(obj) ? "О©╫О©╫" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_VIS_SUF_5(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ло" :\
-                            IS_OBJ_NOSEXY(obj) ? "ло" :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_OBJ_VIS_SUF_5(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "О©╫О©╫" :\
+                            IS_OBJ_NOSEXY(obj) ? "О©╫О©╫" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_VIS_SUF_6(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "о" :\
-                            IS_OBJ_NOSEXY(obj) ? "о" :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_OBJ_VIS_SUF_6(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "О©╫" :\
+                            IS_OBJ_NOSEXY(obj) ? "О©╫" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "ы")
-#define GET_OBJ_VIS_SUF_7(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "е" :\
-                            IS_OBJ_NOSEXY(obj) ? "е" :\
+                            IS_OBJ_FEMALE(obj) ? "О©╫" : "О©╫")
+#define GET_OBJ_VIS_SUF_7(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "О©╫" :\
+                            IS_OBJ_NOSEXY(obj) ? "О©╫" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_VIS_SUF_8(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ой" :\
-                          IS_OBJ_NOSEXY(obj) ? "ое" :\
-                          IS_OBJ_MALE(obj) ? "ой"  :\
-                          IS_OBJ_FEMALE(obj) ? "ая" : "ие")
+                            IS_OBJ_FEMALE(obj) ? "О©╫" : "О©╫")
+#define GET_OBJ_VIS_SUF_8(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "О©╫О©╫" :\
+                          IS_OBJ_NOSEXY(obj) ? "О©╫О©╫" :\
+                          IS_OBJ_MALE(obj) ? "О©╫О©╫"  :\
+                          IS_OBJ_FEMALE(obj) ? "О©╫О©╫" : "О©╫О©╫")
 
-#define GET_CH_EXSUF_1(ch) (IS_NOSEXY(ch) ? "им" :\
-                            IS_MALE(ch) ? "им"  :\
-                            IS_FEMALE(ch) ? "ей" : "ими")
-#define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
+#define GET_CH_EXSUF_1(ch) (IS_NOSEXY(ch) ? "О©╫О©╫" :\
+                            IS_MALE(ch) ? "О©╫О©╫"  :\
+                            IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫О©╫")
+#define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "О©╫О©╫" : "")
 
-#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
-#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
+#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == SEX_POLY) ? "О©╫О©╫" : "О©╫О©╫")
+#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "О©╫О©╫" : (GET_OBJ_SEX(obj) == SEX_POLY) ? "О©╫О©╫" : "О©╫О©╫")
 
 // These three deprecated
 #define WAIT_STATE(ch, cycle) if (GET_WAIT_STATE(ch)<(cycle)) { do { GET_WAIT_STATE(ch) = (cycle); } while(0);}
@@ -1018,8 +1023,8 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define CAN_WEAR(obj, part) (IS_SET((obj)->obj_flags.wear_flags, (part)))
 #define CAN_WEAR_ANY(obj) (((obj)->obj_flags.wear_flags>0) && ((obj)->obj_flags.wear_flags != ITEM_WEAR_TAKE) )
 
-// проверяет arg на совпадение с персональными или клановыми метками
-// чармис автора меток их тоже может использовать
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ arg О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 #define CHECK_CUSTOM_LABEL(arg, obj, ch) (                                                          \
 	(obj)->custom_label && (obj)->custom_label->label_text                                      \
 	&&                                                                                          \
@@ -1040,7 +1045,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 	((obj)->custom_label->author_mail && !strcmp(GET_EMAIL(ch), (obj)->custom_label->author_mail)) \
 	)
 
-// видит ли ch метки obj
+// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ ch О©╫О©╫О©╫О©╫О©╫ obj
 #define AUTH_CUSTOM_LABEL(obj, ch) (                                                                \
 	(obj)->custom_label && (obj)->custom_label->label_text                                      \
 	&&                                                                                          \
@@ -1060,15 +1065,15 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define CIRCLEMUD_VERSION(major, minor, patchlevel) \
    (((major) << 16) + ((minor) << 8) + (patchlevel))
 
-#define HSHR(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
+#define HSHR(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "О©╫О©╫О©╫": (IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫")) :"О©╫О©╫О©╫")
+#define HSSH(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "О©╫О©╫": (IS_FEMALE(ch) ? "О©╫О©╫О©╫" : "О©╫О©╫О©╫")) :"О©╫О©╫О©╫")
+#define HMHR(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "О©╫О©╫О©╫": (IS_FEMALE(ch) ? "О©╫О©╫" : "О©╫О©╫")) :"О©╫О©╫О©╫")
+#define HYOU(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "О©╫О©╫О©╫": (IS_FEMALE(ch) ? "О©╫О©╫О©╫О©╫" : (IS_NOSEXY(ch) ? "О©╫О©╫О©╫О©╫": "О©╫О©╫О©╫О©╫"))) :"О©╫О©╫О©╫")
 
-#define OSHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "его": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ее" : "их")) :"его")
-#define OSSH(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "он": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "она" : "они")) :"оно")
-#define OMHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ей" : "им")) :"ему")
-#define OYOU(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
+#define OSHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "О©╫О©╫О©╫": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "О©╫О©╫" : "О©╫О©╫")) :"О©╫О©╫О©╫")
+#define OSSH(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "О©╫О©╫": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "О©╫О©╫О©╫" : "О©╫О©╫О©╫")) :"О©╫О©╫О©╫")
+#define OMHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "О©╫О©╫О©╫": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "О©╫О©╫" : "О©╫О©╫")) :"О©╫О©╫О©╫")
+#define OYOU(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "О©╫О©╫О©╫": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "О©╫О©╫О©╫О©╫" : "О©╫О©╫О©╫О©╫")) :"О©╫О©╫О©╫О©╫")
 
 
 // Various macros building up to CAN_SEE
@@ -1086,8 +1091,8 @@ inline void NEWCREATE(T*& result, const T& init_value)
            GET_WAIT(sub) <= 0                     && \
            !sub->get_fighting()                   && \
            GET_POS(sub) >= POS_RESTING)
-// Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
-//пока здесь только чарм, как и было раньше
+// Polud О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ mob-О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ death, random О©╫ global
+//О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 #define CAN_START_MTRIG(ch) (!AFF_FLAGGED((ch),AFF_CHARM))
 //-Polud
 #define LIGHT_OK(sub)   (!AFF_FLAGGED(sub, AFF_BLIND) && \
@@ -1170,34 +1175,34 @@ inline void NEWCREATE(T*& result, const T& init_value)
     CAN_SEE_OBJ((ch),(obj))) && \
 	!(IS_NPC((ch))  && IS_OBJ_STAT((obj), ITEM_BLOODY))
 
-#define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
-                           (pad) == 4 ? "кем-то" :\
-                           (pad) == 3 ? "кого-то" :\
-                           (pad) == 2 ? "кому-то" :\
-                           (pad) == 1 ? "кого-то" : "кто-то")
+#define GET_PAD_PERS(pad) ((pad) == 5 ? "О©╫О©╫О©╫-О©╫О©╫" :\
+                           (pad) == 4 ? "О©╫О©╫О©╫-О©╫О©╫" :\
+                           (pad) == 3 ? "О©╫О©╫О©╫О©╫-О©╫О©╫" :\
+                           (pad) == 2 ? "О©╫О©╫О©╫О©╫-О©╫О©╫" :\
+                           (pad) == 1 ? "О©╫О©╫О©╫О©╫-О©╫О©╫" : "О©╫О©╫О©╫-О©╫О©╫")
 
 #define PERS(ch,vict,pad) (CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
-//для арены
+//О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 #define APERS(ch,vict,pad,arena) ((arena) || CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
 
 #define OBJS(obj,vict) (CAN_SEE_OBJ((vict), (obj)) ? \
-                      (obj)->short_description  : "что-то")
-//для арены
+                      (obj)->short_description  : "О©╫О©╫О©╫-О©╫О©╫")
+//О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 #define AOBJS(obj,vict,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
-                      (obj)->short_description  : "что-то")
+                      (obj)->short_description  : "О©╫О©╫О©╫-О©╫О©╫")
 
-#define GET_PAD_OBJ(pad)  ((pad) == 5 ? "чем-то" :\
-                           (pad) == 4 ? "чем-то" :\
-                           (pad) == 3 ? "что-то" :\
-                           (pad) == 2 ? "чему-то" :\
-                           (pad) == 1 ? "чего-то" : "что-то")
+#define GET_PAD_OBJ(pad)  ((pad) == 5 ? "О©╫О©╫О©╫-О©╫О©╫" :\
+                           (pad) == 4 ? "О©╫О©╫О©╫-О©╫О©╫" :\
+                           (pad) == 3 ? "О©╫О©╫О©╫-О©╫О©╫" :\
+                           (pad) == 2 ? "О©╫О©╫О©╫О©╫-О©╫О©╫" :\
+                           (pad) == 1 ? "О©╫О©╫О©╫О©╫-О©╫О©╫" : "О©╫О©╫О©╫-О©╫О©╫")
 
 #define OBJ_PAD(obj,pad)  ((obj)->PNames[pad])
 
 #define OBJN(obj,vict,pad) (CAN_SEE_OBJ((vict), (obj)) ? \
                            ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \
                            : GET_PAD_OBJ(pad))
-//для арены
+//О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 #define AOBJN(obj,vict,pad,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                            ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \
                            : GET_PAD_OBJ(pad))
@@ -1335,7 +1340,7 @@ const char * desc_count(long how_many, int of_what);
 #define WHAT_TSILVERu	35
 #define WHAT_TBRONZEu	36
 
-#undef AW_HIDE // конфликтует с winuser.h
+#undef AW_HIDE // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ winuser.h
 // some awaking cases
 #define AW_HIDE       (1 << 0)
 #define AW_INVIS      (1 << 1)
@@ -1383,7 +1388,7 @@ size_t strlen_no_colors(const char *str);
 #define SEEK_END  2
 #endif
 
-// бесконечный таймер
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 #define UTIMER 2147483647
 #define SENDOK(ch)   (((ch)->desc || SCRIPT_CHECK((ch), MTRIG_ACT)) && \
                (to_sleeping || AWAKE(ch)) && \
@@ -1396,7 +1401,7 @@ inline bool a_isspace(unsigned char c)
 	return (strchr(" \f\n\r\t\v", c) != NULL);
 }
 
-// Далеко не все из следующих функций используются в коде, но пусть будут (переписано с асма AL'ом)
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ AL'О©╫О©╫)
 inline bool a_isascii(unsigned char c)
 {
 	return c >= 32;
@@ -1598,13 +1603,13 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 #define OK_SHIELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
                           (2 * str_bonus(GET_REAL_STR(ch), STR_HOLD_W)))
 
-/// аналог sprintbitwd и производных
+/// О©╫О©╫О©╫О©╫О©╫О©╫ sprintbitwd О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 /// \param bits - bitset|boost::dynamic_bitset
-/// \param names - vector|array<string|const char*> список названий битов
-/// div - разделитель между битами при распечатке
-/// str - строка, куда печаются имена битов (добавлением в конец)
-/// print_num - печать номер бита рядом с его именем
-/// 	(для олц, счет битов начинается с 1), по дефолту = false
+/// \param names - vector|array<string|const char*> О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+/// div - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+/// str - О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫)
+/// print_num - О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+/// 	(О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ 1), О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ = false
 template <class T, class N>
 void print_bitset(const N& bits, const T& names,
 	const char* div, std::string& str, bool print_num = false)
@@ -1650,7 +1655,7 @@ const char *print_obj_state(int tm_pct);
 bool no_bad_affects(OBJ_DATA *obj);
 
 struct exchange_item_data;
-// для парса строки с фильтрами в клан-хранах и базаре
+// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 struct ParseFilter
 {
 	enum { CLAN, EXCHANGE };
@@ -1670,20 +1675,20 @@ struct ParseFilter
 	bool check(exchange_item_data *exch_obj);
 	std::string print() const;
 
-	std::string name;      // имя предмета
-	std::string owner;     // имя продавца (базар)
-	int type;              // тип оружия
-	int state;             // состояние
-	int wear;              // куда одевается
-	int wear_message;      // для названия куда одеть
-	int weap_class;        // класс оружие
-	int weap_message;      // для названия оружия
-	int cost;              // для цены
-	char cost_sign;        // знак цены +/-
+	std::string name;      // О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	std::string owner;     // О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫)
+	int type;              // О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	int state;             // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	int wear;              // О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	int wear_message;      // О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+	int weap_class;        // О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	int weap_message;      // О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	int cost;              // О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+	char cost_sign;        // О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ +/-
 	int filter_type;       // CLAN/EXCHANGE
-	std::vector<int> affect_apply; // аффекты apply_types
-	std::vector<int> affect_weap;  // аффекты weapon_affects
-	std::vector<int> affect_extra; // аффекты extra_bits
+	std::vector<int> affect_apply; // О©╫О©╫О©╫О©╫О©╫О©╫О©╫ apply_types
+	std::vector<int> affect_weap;  // О©╫О©╫О©╫О©╫О©╫О©╫О©╫ weapon_affects
+	std::vector<int> affect_extra; // О©╫О©╫О©╫О©╫О©╫О©╫О©╫ extra_bits
 
 private:
 	bool check_name(OBJ_DATA *obj, CHAR_DATA *ch = 0) const;

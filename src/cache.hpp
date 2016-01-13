@@ -6,8 +6,8 @@
 
 #include <boost/unordered_map.hpp>
 
-class CHAR_DATA;
-struct obj_data;
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 
 namespace caching
 {
@@ -61,7 +61,7 @@ static id_t max_id;
 typedef Cache<CHAR_DATA*> CharacterCache;
 extern CharacterCache character_cache;
 
-typedef Cache<obj_data*> ObjCache;
+typedef Cache<OBJ_DATA*> ObjCache;
 extern ObjCache obj_cache;
 }
 

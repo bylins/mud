@@ -1,9 +1,14 @@
 #ifndef CELEBRATES_HPP_INCLUDED
 #define CELEBRATES_HPP_INCLUDED
+
+#include <boost/shared_ptr.hpp>
+
 #include <string>
 #include <vector>
 #include <map>
-#include <boost/shared_ptr.hpp>
+
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct OBJ_DATA;		// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 
 namespace Celebrates
 {
@@ -38,8 +43,6 @@ struct CelebrateRoom
 typedef boost::shared_ptr<CelebrateRoom> CelebrateRoomPtr;
 typedef std::vector<CelebrateRoomPtr> CelebrateRoomsList;
 typedef std::map<int, CelebrateRoomsList> CelebrateZonList;//номер зоны, список комнат
-typedef std::map<long, CHAR_DATA *> CelebrateMobs;
-typedef std::map<long, OBJ_DATA *> CelebrateObjs;
 
 struct CelebrateData
 {

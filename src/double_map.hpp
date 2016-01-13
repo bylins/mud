@@ -11,6 +11,7 @@
 #define _DOUBLE_MAP_HPP_
 
 #include "conf.h"
+
 #include <map>
 
 template < typename _Key2, typename _Key1, typename _Tp2,

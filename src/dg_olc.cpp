@@ -14,17 +14,19 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "dg_olc.h"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
-#include "dg_olc.h"
 #include "dg_event.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 // declare externally defined globals
 extern INDEX_DATA **trig_index;

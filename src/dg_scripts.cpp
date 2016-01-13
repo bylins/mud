@@ -9,7 +9,8 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
-#include "utils.h"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -30,6 +31,7 @@
 #include "skills.h"
 #include "noob.hpp"
 #include "genchar.h"
+#include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -317,7 +319,7 @@ OBJ_DATA *find_obj(long n)
 }
 
 // return room with UID n
-room_data *find_room(long n)
+ROOM_DATA *find_room(long n)
 {
 	n = real_room(n - ROOM_ID_BASE);
 
@@ -453,7 +455,7 @@ OBJ_DATA *get_obj(char *name, int vnum)
 
 
 // finds room by with name.  returns NULL if not found
-room_data *get_room(char *name)
+ROOM_DATA *get_room(char *name)
 {
 	int nr;
 
@@ -515,7 +517,7 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name)
  * returns a pointer to the first character in world by name name,
  * or NULL if none found.  Starts searching in room room first
  */
-CHAR_DATA *get_char_by_room(room_data * room, char *name)
+CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name)
 {
 	CHAR_DATA *ch;
 
@@ -606,7 +608,7 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 
 
 // returns obj with name
-OBJ_DATA *get_obj_by_room(room_data * room, char *name)
+OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name)
 {
 	OBJ_DATA *obj;
 	long id;
@@ -4127,7 +4129,7 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 	TRIG_DATA *newtrig;
 	CHAR_DATA *c = NULL;
 	OBJ_DATA *o = NULL;
-	room_data *r = NULL;
+	ROOM_DATA *r = NULL;
 	long trignum;
 
 	id_p = two_arguments(cmd, arg, trignum_s);
@@ -4226,7 +4228,7 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 	char result[MAX_INPUT_LENGTH], *id_p;
 	CHAR_DATA *c = NULL;
 	OBJ_DATA *o = NULL;
-	room_data *r = NULL;
+	ROOM_DATA *r = NULL;
 	TRIG_DATA *retval = trig;
 
 
@@ -4321,7 +4323,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	struct trig_var_data *vd;
 	CHAR_DATA *c = NULL;
 	OBJ_DATA *o = NULL;
-	room_data *r = NULL;
+	ROOM_DATA *r = NULL;
 	void *trggo = NULL;
 	int trgtype = 0, string = FALSE, num = 0, n;
 
@@ -4794,7 +4796,7 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	char *line, *var, *uid_p;
 	char arg[MAX_INPUT_LENGTH];
 	long uid, context;
-	room_data *room;
+	ROOM_DATA *room;
 	CHAR_DATA *mob;
 	OBJ_DATA *obj;
 
@@ -4884,7 +4886,7 @@ ACMD(do_vdelete)
 	SCRIPT_DATA *sc_remote = NULL;
 	char *var, *uid_p;
 	long uid; //, context;
-	room_data *room;
+	ROOM_DATA *room;
 	CHAR_DATA *mob;
 	OBJ_DATA *obj;
 
@@ -4959,7 +4961,7 @@ void process_rdelete(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	char *line, *var, *uid_p;
 	char arg[MAX_INPUT_LENGTH];
 	long uid; //, context;
-	room_data *room;
+	ROOM_DATA *room;
 	CHAR_DATA *mob;
 	OBJ_DATA *obj;
 

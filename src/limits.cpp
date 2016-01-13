@@ -12,13 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include <boost/array.hpp>
-#include <boost/format.hpp>
-#include <boost/bind.hpp>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "comm.h"
@@ -45,6 +39,14 @@
 #include "fight.h"
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/array.hpp>
+#include <boost/format.hpp>
+#include <boost/bind.hpp>
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 

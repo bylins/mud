@@ -5,18 +5,22 @@
 #ifndef OBJ_HPP_INCLUDED
 #define OBJ_HPP_INCLUDED
 
+#include "obj_enchant.hpp"
+#include "features.hpp"
+#include "utils.h"
+#include "spells.h"
+#include "structs.h"
+#include "sysdep.h"
 #include "conf.h"
-#include <vector>
-#include <map>
-#include <string>
-//#include <unordered_map>
-#include <array>
+
 #include <boost/array.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
-#include "sysdep.h"
-#include "structs.h"
-#include "obj_enchant.hpp"
+
+#include <array>
+#include <vector>
+#include <string>
+#include <map>
 
 // object flags; used in obj_data //
 #define NUM_OBJ_VAL_POSITIONS 4
@@ -64,26 +68,8 @@ struct obj_flag_data
 	craft_timer; // таймер крафтовой вещи при создании
 };
 
-struct obj_affected_type
-{
-	int location;		// Which ability to change (APPLY_XXX) //
-	int modifier;		// How much it changes by              //
-
-	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
-
-	obj_affected_type(int __location, int __modifier)
-		: location(__location), modifier(__modifier) {}
-
-	// для сравнения в sedit
-	bool operator!=(const obj_affected_type &r) const
-	{
-		return (location != r.location || modifier != r.modifier);
-	}
-	bool operator==(const obj_affected_type &r) const
-	{
-		return !(*this != r);
-	}
-};
+std::string print_obj_affects(const obj_affected_type &affect);
+void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
 
 class activation
 {
@@ -384,11 +370,11 @@ private:
 	boost::unordered_map<unsigned, int> list_;
 };
 
-struct obj_data
+struct OBJ_DATA
 {
-	obj_data();
-	obj_data(const obj_data&);
-	~obj_data();
+	OBJ_DATA();
+	OBJ_DATA(const OBJ_DATA&);
+	~OBJ_DATA();
 
 	unsigned int uid;
 	obj_vnum item_number;	// Where in data-base            //
@@ -400,7 +386,7 @@ struct obj_data
 	char *aliases;		// Title of object :get etc.        //
 	char *description;	// When in room                     //
 	//boost::shared_ptr<char> short_description;
-        char *short_description;	// when worn/carry/in cont.         //
+	char *short_description;	// when worn/carry/in cont.         //
 	char *action_description;	// What to write when used          //
 	EXTRA_DESCR_DATA *ex_description;	// extra descriptions     //
 	CHAR_DATA *carried_by;	// Carried by :NULL in room/conta   //
@@ -409,7 +395,7 @@ struct obj_data
 	struct custom_label *custom_label;		// наносимая чаром метка //
 
 	short int
-	worn_on;		// Worn where?          //
+		worn_on;		// Worn where?          //
 
 	OBJ_DATA *in_obj;	// In what object NULL when none    //
 	OBJ_DATA *contains;	// Contains objects                 //
@@ -421,12 +407,11 @@ struct obj_data
 	OBJ_DATA *next_content;	// For 'contains' lists             //
 	OBJ_DATA *next;		// For the object list              //
 	int
-	room_was_in;
+		room_was_in;
 	boost::array<char *, 6> PNames;
 	int
-	max_in_world;		// max in world             //
+		max_in_world;		// max in world             //
 
-	TimedSpell timed_spell;    // временный обкаст
 	obj::Enchants enchants;
 	ObjVal values;
 
@@ -445,7 +430,7 @@ struct obj_data
 	void set_timer(int timer);
 	int get_timer() const;
 	void dec_timer(int time = 1, bool ingore_utimer = false);
-	
+
 	static id_to_set_info_map set_table;
 	static void init_set_table();
 
@@ -461,7 +446,6 @@ struct obj_data
 	float show_mort_req();
 	float show_koef_obj();
 
-	
 	int get_cost() const;
 	void set_cost(int x);
 	int get_rent() const;
@@ -472,8 +456,19 @@ struct obj_data
 	void set_activator(bool flag, int num);
 	std::pair<bool, int> get_activator() const;
 
+	// wrappers to access to timed_spell
+	const TimedSpell& timed_spell() const { return m_timed_spell; }
+	std::string diag_ts_to_char(CHAR_DATA* character) { return m_timed_spell.diag_to_char(character); }
+	bool has_timed_spell() const { return !m_timed_spell.empty(); }
+	void add_timed_spell(const int spell, const int time);
+	void del_timed_spell(const int spell, const bool message);
+
+	void set_extraflag(const bitvector_t flag) { obj_flags.extra_flags.set(flag); }
+
 private:
 	void zero_init();
+
+	TimedSpell m_timed_spell;    ///< временный обкаст
 	// если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
 	std::map<int, int>* skills;
 	// порядковый номер в списке чаров (для name_list)

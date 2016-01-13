@@ -1,26 +1,30 @@
-#include <boost/lexical_cast.hpp>
-#include <algorithm>
-#include "pugixml.hpp"
+#include "celebrates.hpp"
 
-#include "conf.h"
-#include "sysdep.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "db.h"
 #include "dg_scripts.h"
-#include "celebrates.hpp"
 #include "char.hpp"
 #include "room.hpp"
 #include "handler.h"
+#include "utils.h"
+#include "sysdep.h"
+#include "conf.h"
+#include "pugixml.hpp"
+
+#include <algorithm>
+
+#include <boost/lexical_cast.hpp>
 
 extern void extract_trigger(TRIG_DATA * trig);
 extern CHAR_DATA* character_list;
 extern OBJ_DATA *object_list;
 
-
 namespace Celebrates
 {
-
+typedef std::map<long, CHAR_DATA *> CelebrateMobs;
+typedef std::map<long, OBJ_DATA *> CelebrateObjs;
+	
 int tab_day [12]= {31,28,31,30,31,30,31,31,30,31,30,31};//да и хрен с ним, с 29 февраля!
 
 CelebrateList mono_celebrates, poly_celebrates, real_celebrates;

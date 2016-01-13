@@ -13,15 +13,12 @@
 
 #define __INTERPRETER_C__
 
-#include "conf.h"
-
-#include "sysdep.h"
-#include "structs.h"
-#include "comm.h"
 #include "interpreter.h"
+
+#include "obj.hpp"
+#include "comm.h"
 #include "constants.h"
 #include "db.h"
-#include "utils.h"
 #include "spells.h"
 #include "skills.h"
 #include "handler.h"
@@ -61,6 +58,10 @@
 #include "noob.hpp"
 #include "reset_stats.hpp"
 #include "obj_sets.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -438,12 +439,12 @@ cpp_extern const struct command_info cmd_info[] =
 	{"RESERVED", 0, 0, 0, 0, 0},	// this must be first -- for specprocs
 
 	// directions must come before other commands but after RESERVED
-	{"север", POS_STANDING, do_move, 0, SCMD_NORTH, -2},
-	{"восток", POS_STANDING, do_move, 0, SCMD_EAST, -2},
-	{"юг", POS_STANDING, do_move, 0, SCMD_SOUTH, -2},
-	{"запад", POS_STANDING, do_move, 0, SCMD_WEST, -2},
-	{"вверх", POS_STANDING, do_move, 0, SCMD_UP, -2},
-	{"вниз", POS_STANDING, do_move, 0, SCMD_DOWN, -2},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_move, 0, SCMD_NORTH, -2},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_move, 0, SCMD_EAST, -2},
+	{"О©╫О©╫", POS_STANDING, do_move, 0, SCMD_SOUTH, -2},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_move, 0, SCMD_WEST, -2},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_move, 0, SCMD_UP, -2},
+	{"О©╫О©╫О©╫О©╫", POS_STANDING, do_move, 0, SCMD_DOWN, -2},
 	{"north", POS_STANDING, do_move, 0, SCMD_NORTH, -2},
 	{"east", POS_STANDING, do_move, 0, SCMD_EAST, -2},
 	{"south", POS_STANDING, do_move, 0, SCMD_SOUTH, -2},
@@ -451,342 +452,342 @@ cpp_extern const struct command_info cmd_info[] =
 	{"up", POS_STANDING, do_move, 0, SCMD_UP, -2},
 	{"down", POS_STANDING, do_move, 0, SCMD_DOWN, -2},
 
-	{"аффекты", POS_DEAD, do_affects, 0, SCMD_AUCTION, 0},
-	{"авторы", POS_DEAD, do_gen_ps, 0, SCMD_CREDITS, 0},
-	{"атаковать", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
-	{"аукцион", POS_RESTING, do_gen_comm, 0, SCMD_AUCTION, 100},
-	{"анонсы", POS_DEAD, DoBoard, 1, Boards::NOTICE_BOARD, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_affects, 0, SCMD_AUCTION, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_gen_ps, 0, SCMD_CREDITS, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_gen_comm, 0, SCMD_AUCTION, 100},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::NOTICE_BOARD, -1},
 
-	{"базар", POS_RESTING, do_exchange, 1, 0, -1},
-	{"баланс", POS_STANDING, do_not_here, 1, 0, 0},
-	{"баги", POS_DEAD, DoBoard, 1, Boards::ERROR_BOARD, 0},
-	{"бежать", POS_FIGHTING, do_flee, 1, 0, -1},
-	{"бинтовать", POS_RESTING, do_bandage, 0, 0, 0},
-	{"билдер", POS_DEAD, DoBoard, 1,Boards:: GODBUILD_BOARD, -1},
-	{"блок", POS_FIGHTING, do_block, 0, 0, -1},
-	{"блокнот", POS_DEAD, DoBoard, 1, Boards::PERS_BOARD, -1},
-	{"боги", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
-	{"божества", POS_DEAD, DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
-	{"болтать", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
-	{"бонус", POS_DEAD, do_bonus, LVL_IMPL, 0, 0},
-	{"бросить", POS_RESTING, do_drop, 0, SCMD_DROP, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_exchange, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::ERROR_BOARD, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_flee, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_bandage, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1,Boards:: GODBUILD_BOARD, -1},
+	{"О©╫О©╫О©╫О©╫", POS_FIGHTING, do_block, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::PERS_BOARD, -1},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_bonus, LVL_IMPL, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_drop, 0, SCMD_DROP, -1},
 
-	{"варить", POS_RESTING, do_cook, 0, 0, 200},
-	{"версия", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
-	{"вече", POS_DEAD, DoBoard, 1, Boards::GENERAL_BOARD, -1},
-	{"взять", POS_RESTING, do_get, 0, 0, 200},
-	{"взглянуть", POS_RESTING, do_diagnose, 0, 0, 100},
-	{"взломать", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},
-	{"вихрь", POS_FIGHTING, do_iron_wind, 0, 0, -1},
-	{"вложить", POS_STANDING, do_not_here, 1, 0, -1},
-	{"вернуть", POS_STANDING, do_not_here, 0, 0, -1},
-	{"вернуться", POS_DEAD, do_return, 0, 0, -1},
-	{"войти", POS_STANDING, do_enter, 0, 0, -2},
-	{"война", POS_RESTING, DoShowWars, 0, 0, 0},
-	{"вооружиться", POS_RESTING, do_wield, 0, 0, 200},
-	{"возврат", POS_RESTING, do_recall, 0, 0, -1},
-	{"воззвать", POS_DEAD, do_pray_gods, 0, 0, -1},
-	{"вплавить", POS_STANDING, do_insertgem, 0, SKILL_INSERTGEM, -1},
-	{"время", POS_DEAD, do_time, 0, 0, 0},
-	{"врата", POS_SITTING, do_townportal, 1, 0, -1},
-	{"вскочить", POS_FIGHTING, do_horseon, 0, 0, 500},
-	{"встать", POS_RESTING, do_stand, 0, 0, 500},
-	{"вспомнить", POS_DEAD, do_remember_char, 0, 0, 0},
-	{"выбросить", POS_RESTING, do_drop, 0, 0 /*SCMD_DONATE */ , 300},
-	{"выследить", POS_STANDING, do_track, 0, 0, 500},
-	{"вылить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
-	{"выходы", POS_RESTING, do_exits, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_cook, 0, 0, 200},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::GENERAL_BOARD, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_get, 0, 0, 200},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_diagnose, 0, 0, 100},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_iron_wind, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_return, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_enter, 0, 0, -2},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, DoShowWars, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_wield, 0, 0, 200},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_recall, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_pray_gods, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_insertgem, 0, SKILL_INSERTGEM, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_time, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_SITTING, do_townportal, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_horseon, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_stand, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_remember_char, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_drop, 0, 0 /*SCMD_DONATE */ , 300},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_track, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_exits, 0, 0, 0},
 
-	{"говорить", POS_RESTING, do_say, 0, 0, -1},
-	{"ггруппа", POS_SLEEPING, do_gsay, 0, 0, 500},
-	{"гговорить", POS_SLEEPING, do_gsay, 0, 0, 500},
-	{"гдругам", POS_SLEEPING, DoClanChannel, 0, SCMD_CHANNEL, 0},
-	{"где", POS_RESTING, do_where, LVL_IMMORT, 0, 0},
-	{"гдея", POS_RESTING, do_zone, 0, 0, 0},
-	{"глоток", POS_RESTING, do_drink, 0, SCMD_SIP, 200},
-	{"группа", POS_SLEEPING, do_group, 1, 0, -1},
-	{"гсоюзникам", POS_SLEEPING, DoClanChannel, 0, SCMD_ACHANNEL, 0},
-	{"гэхо", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
-	{"гбогам", POS_DEAD, do_wiznet, LVL_IMMORT, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_say, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_gsay, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_gsay, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, DoClanChannel, 0, SCMD_CHANNEL, 0},
+	{"О©╫О©╫О©╫", POS_RESTING, do_where, LVL_IMMORT, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_RESTING, do_zone, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_drink, 0, SCMD_SIP, 200},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_group, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, DoClanChannel, 0, SCMD_ACHANNEL, 0},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_wiznet, LVL_IMMORT, 0, 0},
 
-	{"дать", POS_RESTING, do_give, 0, 0, 500},
-	{"дата", POS_DEAD, do_date, 0, SCMD_DATE, 0},
-	{"делить", POS_RESTING, do_split, 1, 0, 200},
-	{"держать", POS_RESTING, do_grab, 0, 0, 300},
-	{"дметр", POS_DEAD, do_dmeter, 0, 0, 0},
-	{"доложить", POS_RESTING, do_report, 0, 0, 500},
-	{"доски", POS_DEAD, DoBoardList, 0, 0, 0},
-	{"дружины", POS_DEAD, DoClanList, 0, 0, 0},
-	{"дрновости", POS_DEAD, DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
-	{"дрвече", POS_DEAD, DoBoard, 1, Boards::CLAN_BOARD, -1},
-	{"дрлист", POS_DEAD, DoClanPkList, 0, 1, 0},
+	{"О©╫О©╫О©╫О©╫", POS_RESTING, do_give, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, do_date, 0, SCMD_DATE, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_split, 1, 0, 200},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_grab, 0, 0, 300},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_dmeter, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_report, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoardList, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoClanList, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::CLAN_BOARD, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoClanPkList, 0, 1, 0},
 
-	{"есть", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
+	{"О©╫О©╫О©╫О©╫", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
 
-	{"жертвовать", POS_STANDING, do_pray, 1, SCMD_DONATE, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_pray, 1, SCMD_DONATE, -1},
 
-	{"заколоть", POS_STANDING, do_backstab, 1, 0, 1},
-	{"забыть", POS_RESTING, do_forget, 0, 0, 0},
-	{"задержать", POS_STANDING, do_not_here, 1, 0, -1},
-	{"заклинания", POS_SLEEPING, do_spells, 0, 0, 0},
-	{"заклстат", POS_DEAD, do_spellstat, LVL_GRGOD, 0, 0},
-	{"закрыть", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
-	{"замести", POS_STANDING, do_hidetrack, 1, 0, -1},
-	{"замолчать", POS_DEAD, do_wizutil, LVL_GOD, SCMD_MUTE, 0},
-	{"заморозить", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
-	{"занятость", POS_DEAD, do_check_occupation, LVL_GOD, 0, 0},
-	{"запомнить", POS_RESTING, do_remember, 0, 0, 0},
-	{"запереть", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
-	{"запрет", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
-	{"заснуть", POS_SLEEPING, do_sleep, 0, 0, -1},
-	{"заставка", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
-	{"заставить", POS_SLEEPING, do_force, LVL_GRGOD, 0, 0},
-	{"затоптать", POS_STANDING, do_extinguish, 0, 0, 0},
-	{"заточить", POS_RESTING, do_upgrade, 0, 0, 500},
-	{"заучить", POS_RESTING, do_remember, 0, 0, 0},
-	{"зачитать", POS_RESTING, do_use, 0, SCMD_RECITE, 500},
-	{"зачаровать", POS_STANDING, do_spell_capable, 1, 0, 0},
-	{"зачистить", POS_DEAD, do_sanitize, LVL_GRGOD, 0, 0},
-	{"золото", POS_RESTING, do_gold, 0, 0, 0},
-	{"зона", POS_RESTING, do_zone, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_backstab, 1, 0, 1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_forget, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_spells, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_spellstat, LVL_GRGOD, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_hidetrack, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_wizutil, LVL_GOD, SCMD_MUTE, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_check_occupation, LVL_GOD, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_remember, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_sleep, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_force, LVL_GRGOD, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_extinguish, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_upgrade, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_remember, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_use, 0, SCMD_RECITE, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_spell_capable, 1, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_sanitize, LVL_GRGOD, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_gold, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_RESTING, do_zone, 0, 0, 0},
 
-	{"инвентарь", POS_SLEEPING, do_inventory, 0, 0, 0},
-	{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
-	{"идеи", POS_DEAD, DoBoard, 1, Boards::IDEA_BOARD, 0},
-	{"изгнать нежить", POS_RESTING, do_turn_undead, 0, 0, -1},
-	{"изучить", POS_SITTING, do_learn, 0, 0, 0},
-	{"информация", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
-	{"испить", POS_RESTING, do_use, 0, SCMD_QUAFF, 500},
-	{"имя", POS_SLEEPING, do_name, LVL_IMMORT, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_inventory, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_ignore, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::IDEA_BOARD, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_turn_undead, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SITTING, do_learn, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_use, 0, SCMD_QUAFF, 500},
+	{"О©╫О©╫О©╫", POS_SLEEPING, do_name, LVL_IMMORT, 0, 0},
 
-	{"колдовать", POS_SITTING, do_cast, 1, 0, -1},
-	{"казна", POS_RESTING, do_not_here, 1, 0, 0},
-	{"карта", POS_RESTING, do_map, 0, 0, 0},
-	{"клан", POS_RESTING, DoHouse, 0, 0, 0},
-	{"клич", POS_FIGHTING, do_warcry, 1, 0, -1},
-	{"кодер", POS_DEAD, DoBoard, 1, Boards::CODER_BOARD, -1},
-	{"команды", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0},
-	{"коне", POS_SLEEPING, do_quit, 0, 0, 0},
-	{"конец", POS_SLEEPING, do_quit, 0, SCMD_QUIT, 0},
-	{"копать", POS_STANDING, do_dig, 0, SKILL_DIG, -1},
-	{"красться", POS_STANDING, do_hidemove, 1, 0, -2},
-	{"кричать", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
-	{"кто", POS_RESTING, do_who, 0, 0, 0},
-	{"ктодружина", POS_RESTING, DoWhoClan, 0, 0, 0},
-	{"ктоя", POS_DEAD, do_gen_ps, 0, SCMD_WHOAMI, 0},
-	{"купить", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SITTING, do_cast, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_not_here, 1, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_map, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_RESTING, DoHouse, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_FIGHTING, do_warcry, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::CODER_BOARD, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0},
+	{"О©╫О©╫О©╫О©╫", POS_SLEEPING, do_quit, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_quit, 0, SCMD_QUIT, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_dig, 0, SKILL_DIG, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_hidemove, 1, 0, -2},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
+	{"О©╫О©╫О©╫", POS_RESTING, do_who, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, DoWhoClan, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, do_gen_ps, 0, SCMD_WHOAMI, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
 
-	{"леваярука", POS_RESTING, do_grab, 1, 0, 300},
-	{"лечить", POS_STANDING, do_firstaid, 0, 0, -1},
-	{"лить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
-	{"лошадь", POS_STANDING, do_not_here, 1, 0, -1},
-	{"лучшие", POS_DEAD, DoBest, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_grab, 1, 0, 300},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_firstaid, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBest, 0, 0, 0},
 
-	{"маскировка", POS_RESTING, do_camouflage, 0, 0, 500},
-	{"магазины", POS_DEAD, do_shops_list, LVL_IMMORT, 0, 0},
-	{"метнуть", POS_FIGHTING, do_throw, 0, 0, -1},
-	{"менять", POS_STANDING, do_not_here, 0, 0, -1},
-	{"месть", POS_RESTING, do_revenge, 0, 0, 0},
-	{"молот", POS_FIGHTING, do_mighthit, 0, 0, -1},
-	{"молиться", POS_STANDING, do_pray, 1, SCMD_PRAY, -1},
-	{"моястатистика", POS_DEAD, do_mystat, 0, 0, 0},
-	{"мысл", POS_DEAD, do_quit, 0, 0, 0},
-	{"мысль", POS_DEAD, report_on_board, 0, Boards::SUGGEST_BOARD, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_camouflage, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_shops_list, LVL_IMMORT, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_throw, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_revenge, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_mighthit, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_pray, 1, SCMD_PRAY, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_mystat, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, do_quit, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_DEAD, report_on_board, 0, Boards::SUGGEST_BOARD, 0},
 
-	{"наказания", POS_DEAD, DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
-	{"налить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
-	{"наполнить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
-	{"найти", POS_STANDING, do_sense, 0, 0, 500},
-	{"нанять", POS_STANDING, do_findhelpee, 0, SCMD_BUYHELPEE, -1},
-	{"новичок", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
-	{"новости", POS_DEAD, DoBoard, 1, Boards::NEWS_BOARD, -1},
-	{"надеть", POS_RESTING, do_wear, 0, 0, 500},
-	{"нацарапать", POS_RESTING, do_custom_label, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_sense, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_findhelpee, 0, SCMD_BUYHELPEE, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::NEWS_BOARD, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_wear, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_custom_label, 0, 0, 0},
 
-	{"обезоружить", POS_FIGHTING, do_disarm, 0, 0, -1},
-	{"обернуться", POS_STANDING, do_morph, 0, 0, -1},
-	{"облачить", POS_RESTING, do_wear, 0, 0, 500},
-	{"обмен", POS_STANDING, do_not_here, 0, 0, 0},
-	{"обменять", POS_STANDING, do_not_here, 0, 0, 0},
-	{"оглядеться", POS_RESTING, do_sides, 0, 0, 0},
-	{"оглушить", POS_FIGHTING, do_stupor, 0, 0, -1},
-	{"одеть", POS_RESTING, do_wear, 0, 0, 500},
-	{"опознать", POS_RESTING, do_ident, 0, 0, 500},
-	{"опохмелиться", POS_RESTING, do_drunkoff, 0, 0, -1},
-	{"опечатк", POS_DEAD, do_quit, 0, 0, 0},
-	{"опечатка", POS_DEAD, report_on_board, 0, Boards::MISPRINT_BOARD, 0},
-	{"опустить", POS_RESTING, do_put, 0, 0, 500},
-	{"орать", POS_RESTING, do_gen_comm, 1, SCMD_HOLLER, -1},
-	{"осмотреть", POS_RESTING, do_examine, 0, 0, 0},
-	{"оседлать", POS_STANDING, do_horsetake, 1, 0, -1},
-	{"оскорбить", POS_RESTING, do_insult, 0, 0, -1},
-	{"осушить", POS_RESTING, do_use, 0, SCMD_QUAFF, 300},
-	{"освежевать", POS_STANDING, do_makefood, 0, 0, -1},
-	{"ответить", POS_RESTING, do_reply, 0, 0, -1},
-	{"отразить", POS_FIGHTING, do_multyparry, 0, 0, -1},
-	{"отвязать", POS_DEAD, do_horseget, 0, 0, -1},
-	{"отдохнуть", POS_RESTING, do_rest, 0, 0, -1},
-	{"открыть", POS_SITTING, do_gen_door, 0, SCMD_OPEN, 500},
-	{"отпереть", POS_SITTING, do_gen_door, 0, SCMD_UNLOCK, 500},
-	{"отпустить", POS_SITTING, do_stophorse, 0, 0, -1},
-	{"отравить", POS_FIGHTING, do_poisoned, 0, 0, -1},
-	{"отринуть", POS_RESTING, do_antigods, 1, 0, -1},
-	{"отступить", POS_FIGHTING, do_stopfight, 1, 0, -1},
-	{"отправить", POS_STANDING, do_not_here, 1, 0, -1},
-	{"оффтоп", POS_DEAD, do_offtop, 0, 0, -1},
-	{"оценить", POS_STANDING, do_not_here, 0, 0, 500},
-	{"очки", POS_DEAD, do_score, 0, 0, 0},
-	{"очепятки", POS_DEAD, DoBoard, 1, Boards::MISPRINT_BOARD, 0},
-	{"очистить", POS_DEAD, do_not_here, 0, SCMD_CLEAR, -1},
-	{"ошибк", POS_DEAD, do_quit, 0, 0, 0},
-	{"ошибка", POS_DEAD, report_on_board, 0, Boards::ERROR_BOARD, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_disarm, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_morph, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_wear, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_sides, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_stupor, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_wear, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_ident, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_drunkoff, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_quit, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, report_on_board, 0, Boards::MISPRINT_BOARD, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_put, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_gen_comm, 1, SCMD_HOLLER, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_examine, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_horsetake, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_insult, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_use, 0, SCMD_QUAFF, 300},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_makefood, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_reply, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_multyparry, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_horseget, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_rest, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SITTING, do_gen_door, 0, SCMD_OPEN, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SITTING, do_gen_door, 0, SCMD_UNLOCK, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SITTING, do_stophorse, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_poisoned, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_antigods, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_stopfight, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_offtop, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, do_score, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 1, Boards::MISPRINT_BOARD, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_not_here, 0, SCMD_CLEAR, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_quit, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, report_on_board, 0, Boards::ERROR_BOARD, 0},
 
-	{"парировать", POS_FIGHTING, do_parry, 0, 0, -1},
-	{"перехватить", POS_FIGHTING, do_touch, 0, 0, -1},
-	{"перековать", POS_STANDING, do_transform_weapon, 0, SKILL_TRANSFORMWEAPON, -1},
-	{"передать", POS_STANDING, do_givehorse, 0, 0, -1},
-	{"перевести", POS_STANDING, do_not_here, 1, 0, -1},
-	{"переместиться", POS_STANDING, do_relocate, 1, 0, 0},
-	{"перевоплотитьс", POS_STANDING, do_remort, 0, 0, -1},
-	{"перевоплотиться", POS_STANDING, do_remort, 0, 1, -1},
-	{"перелить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
-	{"перешить", POS_RESTING, do_fit, 0, SCMD_MAKE_OVER, 500},
-	{"пить", POS_RESTING, do_drink, 0, SCMD_DRINK, 400},
-	{"писать", POS_STANDING, do_write, 1, 0, -1},
-	{"пклист", POS_SLEEPING, DoClanPkList, 0, 0, 0},
-	{"пнуть", POS_FIGHTING, do_kick, 1, 0, -1},
-	{"погода", POS_RESTING, do_weather, 0, 0, 0},
-	{"подкрасться", POS_STANDING, do_sneak, 1, 0, 500},
-	{"подножка", POS_FIGHTING, do_chopoff, 0, 0, 500},
-	{"подняться", POS_RESTING, do_stand, 0, 0, -1},
-	{"перевязать", POS_RESTING, do_bandage, 0, 0, 0},
-	{"переделать", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
-	{"подсмотреть", POS_RESTING, do_look, 0, SCMD_LOOK_HIDE, 0},
-	{"положить", POS_RESTING, do_put, 0, 0, 400},
-	{"получить", POS_STANDING, do_not_here, 1, 0, -1},
-	{"политика", POS_SLEEPING, DoShowPolitics, 0, 0, 0},
-	{"помочь", POS_FIGHTING, do_assist, 1, 0, -1},
-	{"помощь", POS_DEAD, do_help, 0, 0, 0},
-	{"пометить", POS_DEAD, do_mark, LVL_IMPL, 0, 0},
-	{"поселиться", POS_STANDING, do_not_here, 1, 0, -1},
-	{"постой", POS_STANDING, do_not_here, 1, 0, -1},
-	{"почта", POS_STANDING, do_not_here, 1, 0, -1},
-	{"поручения", POS_RESTING, do_quest, 1, 0, -1},
-	{"появиться", POS_RESTING, do_visible, 1, 0, -1},
-	{"правила", POS_DEAD, do_gen_ps, 0, SCMD_POLICIES, 0},
-	{"предложение", POS_STANDING, do_not_here, 1, 0, 500},
-	//{"призвать", POS_STANDING, do_summon, 1, 0, -1},
-	{"приказ", POS_RESTING, do_order, 1, 0, -1},
-	{"привязать", POS_RESTING, do_horseput, 0, 0, 500},
-	{"приглядеться", POS_RESTING, do_looking, 0, 0, 250},
-	{"прикрыть", POS_FIGHTING, do_protect, 0, 0, -1},
-	{"применить", POS_SITTING, do_use, 1, SCMD_USE, 400},
-	{"присесть", POS_RESTING, do_sit, 0, 0, -1},
-	{"прислушаться", POS_RESTING, do_hearing, 0, 0, 300},
-	{"присмотреться", POS_RESTING, do_looking, 0, 0, 250},
-	{"придумки", POS_DEAD, DoBoard, 0, Boards::SUGGEST_BOARD, 0},
-	{"проверить", POS_DEAD, do_check, 0, 0, 0},
-	{"проснуться", POS_SLEEPING, do_wake, 0, SCMD_WAKE, -1},
-	{"простить", POS_RESTING, do_forgive, 0, 0, 0},
-	{"пробовать", POS_RESTING, do_eat, 0, SCMD_TASTE, 300},
-	{"сожрать", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
-	{"продать", POS_STANDING, do_not_here, 0, 0, -1},
-	{"фильтровать", POS_STANDING, do_not_here, 0, 0, -1},
-	{"прыжок", POS_SLEEPING, do_goto, LVL_GOD, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_parry, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_touch, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_transform_weapon, 0, SKILL_TRANSFORMWEAPON, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_givehorse, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_relocate, 1, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_remort, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_remort, 0, 1, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_fit, 0, SCMD_MAKE_OVER, 500},
+	{"О©╫О©╫О©╫О©╫", POS_RESTING, do_drink, 0, SCMD_DRINK, 400},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_write, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, DoClanPkList, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_kick, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_weather, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_sneak, 1, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_chopoff, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_stand, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_bandage, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_look, 0, SCMD_LOOK_HIDE, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_put, 0, 0, 400},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, DoShowPolitics, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_assist, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_help, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_mark, LVL_IMPL, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_quest, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_visible, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_gen_ps, 0, SCMD_POLICIES, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 1, 0, 500},
+	//{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_summon, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_order, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_horseput, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_looking, 0, 0, 250},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_protect, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SITTING, do_use, 1, SCMD_USE, 400},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_sit, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_hearing, 0, 0, 300},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_looking, 0, 0, 250},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBoard, 0, Boards::SUGGEST_BOARD, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_check, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_wake, 0, SCMD_WAKE, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_forgive, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_eat, 0, SCMD_TASTE, 300},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_goto, LVL_GOD, 0, 0},
 
-	{"разбудить", POS_RESTING, do_wake, 0, SCMD_WAKEUP, -1},
-	{"разгруппировать", POS_DEAD, do_ungroup, 0, 0, 500},
-	{"разделить", POS_RESTING, do_split, 1, 0, 500},
-	{"разделы", POS_RESTING, do_help, 1, 0, 500},
-	{"разжечь", POS_STANDING, do_fire, 0, 0, -1},
-	{"распустить", POS_DEAD, do_ungroup, 0, 0, 500},
-	{"рассмотреть", POS_STANDING, do_not_here, 0, 0, -1},
-	{"рассчитать", POS_RESTING, do_findhelpee, 0, SCMD_FREEHELPEE, -1},
-	{"режим", POS_DEAD, do_mode, 0, 0, 0},
-	{"ремонт", POS_RESTING, do_repair, 0, 0, -1},
-	{"рецепты", POS_RESTING, do_recipes, 0, 0, 0},
-	{"рекорды", POS_DEAD, DoBest, 0, 0, 0},
-	{"руны", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_wake, 0, SCMD_WAKEUP, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_ungroup, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_split, 1, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_help, 1, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_fire, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_ungroup, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_findhelpee, 0, SCMD_FREEHELPEE, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_mode, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_repair, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_recipes, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoBest, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
 
-	{"сбить", POS_FIGHTING, do_bash, 1, 0, -1},
-	{"свойства", POS_STANDING, do_not_here, 0, 0, -1},
-	{"сгруппа", POS_SLEEPING, do_gsay, 0, 0, -1},
-	{"сглазить", POS_FIGHTING, do_manadrain, 0, 0, -1},
-	{"сесть", POS_RESTING, do_sit, 0, 0, -1},
-	{"синоним", POS_DEAD, do_alias, 0, 0, 0},
-	{"сдемигодам", POS_DEAD, do_sdemigod, LVL_IMMORT, 0, 0},
-	{"сказать", POS_RESTING, do_tell, 0, 0, -1},
-	{"скользить", POS_STANDING, do_lightwalk, 0, 0, 0},
-	{"следовать", POS_RESTING, do_follow, 0, 0, 500},
-	{"сложить", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
-	{"слава", POS_STANDING, Glory::do_spend_glory, 0, 0, 0},
-	{"слава2", POS_STANDING, GloryConst::do_spend_glory, 0, 0, 0},
-	{"смотреть", POS_RESTING, do_look, 0, SCMD_LOOK, 0},
-	{"смешать", POS_STANDING, do_mixture, 0, SCMD_ITEMS, -1},
-//  { "смастерить",     POS_STANDING, do_transform_weapon, 0, SKILL_CREATEBOW, -1 },
-	{"снять", POS_RESTING, do_remove, 0, 0, 500},
-	{"создать", POS_SITTING, do_create, 0, 0, -1},
-	{"сон", POS_SLEEPING, do_sleep, 0, 0, -1},
-	{"соскочить", POS_FIGHTING, do_horseoff, 0, 0, -1},
-	{"состав", POS_RESTING, do_create, 0, SCMD_RECIPE, 0},
-	{"сохранить", POS_SLEEPING, do_save, 0, 0, 0},
-	{"социалы", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0},
-	{"спать", POS_SLEEPING, do_sleep, 0, 0, -1},
-	{"спасти", POS_FIGHTING, do_rescue, 1, 0, -1},
-	{"способности", POS_SLEEPING, do_features, 0, 0, 0},
-	{"список", POS_STANDING, do_not_here, 0, 0, -1},
-	{"справка", POS_DEAD, do_help, 0, 0, 0},
-	{"спросить", POS_RESTING, do_spec_comm, 0, SCMD_ASK, -1},
-	{"спрятаться", POS_STANDING, do_hide, 1, 0, 500},
-	{"сравнить", POS_RESTING, do_consider, 0, 0, 500},
-	{"ставка", POS_STANDING, do_not_here, 0, 0, -1},
-	{"статус", POS_DEAD, do_display, 0, 0, 0},
-	{"статистика", POS_DEAD, do_statistic, 0, 0, 0},
-	{"стереть", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
-	{"стиль", POS_RESTING, do_style, 0, 0, 0},
-	{"строка", POS_DEAD, do_display, 0, 0, 0},
-	{"счет", POS_DEAD, do_score, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_bash, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_gsay, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_manadrain, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_sit, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_alias, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_sdemigod, LVL_IMMORT, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_tell, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_lightwalk, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_follow, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_STANDING, Glory::do_spend_glory, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫2", POS_STANDING, GloryConst::do_spend_glory, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_look, 0, SCMD_LOOK, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_mixture, 0, SCMD_ITEMS, -1},
+//  { "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫",     POS_STANDING, do_transform_weapon, 0, SKILL_CREATEBOW, -1 },
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_remove, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SITTING, do_create, 0, 0, -1},
+	{"О©╫О©╫О©╫", POS_SLEEPING, do_sleep, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_horseoff, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_create, 0, SCMD_RECIPE, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_save, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_sleep, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_rescue, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_features, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_help, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_spec_comm, 0, SCMD_ASK, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_hide, 1, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_consider, 0, 0, 500},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_display, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_statistic, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_style, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_display, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, do_score, 0, 0, 0},
 
-	{"титул", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
-	{"трусость", POS_DEAD, do_wimpy, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_wimpy, 0, 0, 0},
 
-	{"убить", POS_FIGHTING, do_kill, 0, 0, -1},
-	{"убрать", POS_RESTING, do_remove, 0, 0, 400},
-	{"ударить", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
-	{"удавить", POS_FIGHTING, do_strangle, 0, 0, -1},
-	{ "удалить", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0 },
-	{"уклониться", POS_FIGHTING, do_deviate, 1, 0, -1},
-	{"украсть", POS_STANDING, do_steal, 1, 0, 0},
-	{"укрепить", POS_RESTING, do_armored, 0, 0, -1},
-	{"умения", POS_SLEEPING, do_skills, 0, 0, 0},
-	{"уровень", POS_DEAD, do_score, 0, 0, 0},
-	{"уровни", POS_DEAD, do_levels, 0, 0, 0},
-	{"учить", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_kill, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_remove, 0, 0, 400},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_strangle, 0, 0, -1},
+	{ "О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0 },
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_FIGHTING, do_deviate, 1, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_steal, 1, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_armored, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_skills, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_score, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_levels, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
 
-	{"хранилище", POS_DEAD, DoStoreHouse, 0, 0, 0},
-	{"характеристики", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, DoStoreHouse, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
 
-	{"цвет", POS_DEAD, do_color, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫", POS_DEAD, do_color, 0, 0, 0},
 
-	{"кланстаф", POS_STANDING, do_clanstuff, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_clanstuff, 0, 0, 0},
 
-	{"чинить", POS_STANDING, do_not_here, 0, 0, -1},
-	{"читать", POS_RESTING, do_look, 0, SCMD_READ, 200},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_not_here, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_look, 0, SCMD_READ, 200},
 
-	{"шептать", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
 
-	{"экипировка", POS_SLEEPING, do_equipment, 0, 0, 0},
-	{"эмоция", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
-	{"эхо", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_SLEEPING, do_equipment, 0, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
+	{"О©╫О©╫О©╫", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, -1},
 
-	{"ярость", POS_RESTING, do_courage, 0, 0, -1},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_RESTING, do_courage, 0, 0, -1},
 
 	// God commands for listing
-	{"мсписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST, 0},
-	{"осписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST, 0},
-	{"ксписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST, 0},
-	{"зсписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST, 0},
-	{"исписок", POS_DEAD, do_imlist, LVL_IMPL, 0, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_imlist, LVL_IMPL, 0, 0},
 
 	{"'", POS_RESTING, do_say, 0, 0, -1},
 	{":", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
@@ -901,9 +902,9 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mute", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_MUTE, 0},
 	{"medit", POS_DEAD, do_olc, 0, SCMD_OLC_MEDIT, 0},
 	{"name", POS_DEAD, do_wizutil, LVL_GOD, SCMD_NAME, 0},
-	{"nedit", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_EDIT, 0}, //Именной стаф редактирование
+	{"nedit", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_EDIT, 0}, //О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	{"news", POS_DEAD, DoBoard, 1, Boards::NEWS_BOARD, -1},
-	{"nlist", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_LIST, 0}, //Именной стаф список
+	{"nlist", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_LIST, 0}, //О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	{"notitle", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_NOTITLE, 0},
 	{"oedit", POS_DEAD, do_olc, 0, SCMD_OLC_OEDIT, 0},
 	{"offer", POS_STANDING, do_not_here, 1, 0, 0},
@@ -1007,7 +1008,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"version", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
 	{"visible", POS_RESTING, do_visible, 1, 0, -1},
 	{"vnum", POS_DEAD, do_vnum, LVL_GRGOD, 0, 0},
-	{"вномер", POS_DEAD, do_vnum, LVL_GRGOD, 0, 0},  //тупой копипаст для использования русского синтаксиса
+	{"О©╫О©╫О©╫О©╫О©╫О©╫", POS_DEAD, do_vnum, LVL_GRGOD, 0, 0},  //О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	{"vstat", POS_DEAD, do_vstat, LVL_GRGOD, 0, 0},
 	{"wake", POS_SLEEPING, do_wake, 0, 0, -1},
 	{"warcry", POS_FIGHTING, do_warcry, 1, 0, -1},
@@ -1034,12 +1035,12 @@ cpp_extern const struct command_info cmd_info[] =
 	{"godtest", POS_DEAD, do_godtest, LVL_IMPL, 0, 0},
 	{"armor", POS_DEAD, do_print_armor, LVL_IMPL, 0, 0},
 
-	// Команды крафтинга - для тестига пока уровня имма
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 	{"mrlist", POS_DEAD, do_list_make, LVL_BUILDER, 0, 0},
 	{"mredit", POS_DEAD, do_edit_make, LVL_BUILDER, 0, 0},
-	{"сшить", POS_STANDING, do_make_item, 0, MAKE_WEAR, 0},
-	{"выковать", POS_STANDING, do_make_item, 0, MAKE_METALL, 0},
-	{"смастерить", POS_STANDING, do_make_item, 0, MAKE_CRAFT, 0},
+	{"О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_make_item, 0, MAKE_WEAR, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_make_item, 0, MAKE_METALL, 0},
+	{"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫", POS_STANDING, do_make_item, 0, MAKE_CRAFT, 0},
 
 	// God commands for listing
 	{"mlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST, 0},
@@ -1129,8 +1130,8 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 			affect_from_char(ch, SPELL_HIDE);
 			if (!AFF_FLAGGED(ch, AFF_HIDE))
 			{
-				send_to_char("Вы прекратили прятаться.\r\n", ch);
-				act("$n прекратил$g прятаться.", FALSE, ch, 0, 0, TO_ROOM);
+				send_to_char("О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", ch);
+				act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫$g О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.", FALSE, ch, 0, 0, TO_ROOM);
 			}
 		}
 	}
@@ -1138,25 +1139,25 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 
 bool check_frozen_cmd(CHAR_DATA *ch, int cmd)
 {
-	if (!strcmp(cmd_info[cmd].command, "коне")
-		|| !strcmp(cmd_info[cmd].command, "конец")
+	if (!strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫О©╫")
 		|| !strcmp(cmd_info[cmd].command, "qui")
 		|| !strcmp(cmd_info[cmd].command, "quit")
-		|| !strcmp(cmd_info[cmd].command, "предложение")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫")
 		|| !strcmp(cmd_info[cmd].command, "offer")
-		|| !strcmp(cmd_info[cmd].command, "постой")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫О©╫О©╫")
 		|| !strcmp(cmd_info[cmd].command, "rent")
-		|| !strcmp(cmd_info[cmd].command, "поселиться")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫")
 		|| !strcmp(cmd_info[cmd].command, "settle")
-		|| !strcmp(cmd_info[cmd].command, "ктоя")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫")
 		|| !strcmp(cmd_info[cmd].command, "whoami")
-		|| !strcmp(cmd_info[cmd].command, "справка")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫")
 		|| !strcmp(cmd_info[cmd].command, "help")
-		|| !strcmp(cmd_info[cmd].command, "помощь")
-		|| !strcmp(cmd_info[cmd].command, "разделы")
-		|| !strcmp(cmd_info[cmd].command, "очки")
-		|| !strcmp(cmd_info[cmd].command, "счет")
-		|| !strcmp(cmd_info[cmd].command, "уровень")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫О©╫О©╫")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫")
+		|| !strcmp(cmd_info[cmd].command, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫")
 		|| !strcmp(cmd_info[cmd].command, "score"))
 	{
 		return true;
@@ -1187,7 +1188,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
 	}
 
-	//Polud спешиал для спешиалов добавим обработку числового префикса перед именем команды
+	//Polud О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 
 	int fnum = get_number(&argument);
 
@@ -1255,7 +1256,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 			social = TRUE;
 		else
 		{
-			send_to_char("Чаво?\r\n", ch);
+			send_to_char("О©╫О©╫О©╫О©╫?\r\n", ch);
 			return;
 		}
 	}
@@ -1266,19 +1267,19 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 			|| AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
 		&& !check_frozen_cmd(ch, cmd))
 	{
-		send_to_char("Вы попытались, но не смогли сдвинуться с места...\r\n", ch);
+		send_to_char("О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫...\r\n", ch);
 		return;
 	}
 
 	if (!social && cmd_info[cmd].command_pointer == NULL)
 	{
-		send_to_char("Извините, не смог разобрать команду.\r\n", ch);
+		send_to_char("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", ch);
 		return;
 	}
 
 	if (!social && IS_NPC(ch) && cmd_info[cmd].minimum_level >= LVL_IMMORT)
 	{
-		send_to_char("Вы еще не БОГ, чтобы делать это.\r\n", ch);
+		send_to_char("О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫.\r\n", ch);
 		return;
 	}
 
@@ -1287,29 +1288,29 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		switch (GET_POS(ch))
 		{
 		case POS_DEAD:
-			send_to_char("Очень жаль - ВЫ МЕРТВЫ!!! :-(\r\n", ch);
+			send_to_char("О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ - О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫!!! :-(\r\n", ch);
 			break;
 		case POS_INCAP:
 		case POS_MORTALLYW:
-			send_to_char("Вы в критическом состоянии и не можете ничего делать!\r\n", ch);
+			send_to_char("О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫!\r\n", ch);
 			break;
 		case POS_STUNNED:
-			send_to_char("Вы слишком слабы, чтобы сделать это!\r\n", ch);
+			send_to_char("О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫!\r\n", ch);
 			break;
 		case POS_SLEEPING:
-			send_to_char("Сделать это в ваших снах?\r\n", ch);
+			send_to_char("О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫?\r\n", ch);
 			break;
 		case POS_RESTING:
-			send_to_char("Нет... Вы слишком расслаблены...\r\n", ch);
+			send_to_char("О©╫О©╫О©╫... О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫...\r\n", ch);
 			break;
 		case POS_SITTING:
-			send_to_char("Пожалуй, вам лучше встать на ноги.\r\n", ch);
+			send_to_char("О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫.\r\n", ch);
 			break;
 		case POS_FIGHTING:
-			send_to_char("Ни за что! Вы сражаетесь за свою жизнь!\r\n", ch);
+			send_to_char("О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫! О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫!\r\n", ch);
 			break;
 		default:
-			send_to_char("Вы не в том состоянии, чтобы это сделать...\r\n", ch);
+			send_to_char("О©╫О©╫ О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫...\r\n", ch);
 			break;
 		}
 		return;
@@ -1382,9 +1383,9 @@ ACMD(do_alias)
 
 	if (!*arg)  		// no argument specified -- list currently defined aliases
 	{
-		send_to_char("Определены следующие алиасы:\r\n", ch);
+		send_to_char("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫:\r\n", ch);
 		if ((a = GET_ALIASES(ch)) == NULL)
-			send_to_char(" Нет алиасов.\r\n", ch);
+			send_to_char(" О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", ch);
 		else
 		{
 			while (a != NULL)
@@ -1407,15 +1408,15 @@ ACMD(do_alias)
 		if (!*repl)
 		{
 			if (a == NULL)
-				send_to_char("Такой алиас не определен.\r\n", ch);
+				send_to_char("О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", ch);
 			else
-				send_to_char("Алиас успешно удален.\r\n", ch);
+				send_to_char("О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", ch);
 		}
 		else  	// otherwise, either add or redefine an alias
 		{
 			if (!str_cmp(arg, "alias"))
 			{
-				send_to_char("Вы не можете определить алиас 'alias'.\r\n", ch);
+				send_to_char("О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ 'alias'.\r\n", ch);
 				return;
 			}
 			CREATE(a, 1);
@@ -1428,7 +1429,7 @@ ACMD(do_alias)
 				a->type = ALIAS_SIMPLE;
 			a->next = GET_ALIASES(ch);
 			GET_ALIASES(ch) = a;
-			send_to_char("Алиас успешно добавлен.\r\n", ch);
+			send_to_char("О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", ch);
 		}
 	}
 }
@@ -1717,7 +1718,7 @@ int find_command(const char *command)
 	return (-1);
 }
 
-// int fnum - номер найденного в комнате спешиал-моба, для обработки нескольких спешиал-мобов в одной комнате //
+// int fnum - О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ //
 int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 {
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
@@ -1760,8 +1761,8 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 			}
 
 	// special in mobile present? //
-//Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру
-	int specialNum = 1; //если номер не указан - по умолчанию берется первый
+//Polud О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	int specialNum = 1; //О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	for (k = world[ch->in_room]->people; k; k = k->next_in_room)
 	{
 		if (GET_MOB_SPEC(k) != NULL && (fnum == 1 || fnum == specialNum++))
@@ -1817,7 +1818,7 @@ int _parse_name(char *arg, char *name)
 
 	// skip whitespaces
 	for (i = 0; (*name = (i ? LOWER(*arg) : UPPER(*arg))); arg++, i++, name++)
-		if (*arg == 'ё' || *arg == 'Ё' || !a_isalpha(*arg) || *arg > 0)
+		if (*arg == 'О©╫' || *arg == 'О©╫' || !a_isalpha(*arg) || *arg > 0)
 			return (1);
 
 	if (!i)
@@ -1827,8 +1828,8 @@ int _parse_name(char *arg, char *name)
 }
 
 /**
-* Вобщем это пока дублер старого _parse_name для уже созданных ранее чаров,
-* чтобы их в игру вообще пускало, а новых с Ё/ё соответственно брило.
+* О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ _parse_name О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫,
+* О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫/О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫.
 */
 int parse_exist_name(char *arg, char *name)
 {
@@ -1877,12 +1878,12 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 			if (str_cmp(d->host, k->host))
 			{
 				sprintf(buf,
-						"ПОВТОРНЫЙ ВХОД !!! ID = %ld Персонаж = %s Хост = %s(был %s)",
+						"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ !!! ID = %ld О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ = %s О©╫О©╫О©╫О©╫ = %s(О©╫О©╫О©╫ %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), d->host, k->host);
 				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 				//send_to_gods(buf);
 			}
-			SEND_TO_Q("\r\nПопытка второго входа - отключаемся.\r\n", k);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", k);
 			STATE(k) = CON_CLOSE;
 			if (!target)
 			{
@@ -1899,7 +1900,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 			if (str_cmp(d->host, k->host))
 			{
 				sprintf(buf,
-						"ПОВТОРНЫЙ ВХОД !!! ID = %ld Name = %s Host = %s(was %s)",
+						"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ !!! ID = %ld Name = %s Host = %s(was %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), d->host, k->host);
 				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 				//send_to_gods(buf);
@@ -1907,14 +1908,14 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 
 			if (!target && STATE(k) == CON_PLAYING)
 			{
-				SEND_TO_Q("\r\nВаше тело уже кем-то занято!\r\n", k);
+				SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫!\r\n", k);
 				target = k->character;
 				mode = USURP;
 			}
 			k->character->desc = NULL;
 			k->character = NULL;
 			k->original = NULL;
-			SEND_TO_Q("\r\nПопытка второго входа - отключаемся.\r\n", k);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", k);
 			STATE(k) = CON_CLOSE;
 		}
 	}
@@ -1979,25 +1980,25 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 	{
 	case RECON:
 //    toggle_compression(d);
-		SEND_TO_Q("Пересоединяемся.\r\n", d);
+		SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 		check_light(d->character, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
-		act("$n восстановил$g связь.", TRUE, d->character, 0, 0, TO_ROOM);
+		act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫$g О©╫О©╫О©╫О©╫О©╫.", TRUE, d->character, 0, 0, TO_ROOM);
 		sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 		login_change_invoice(d->character);
 		break;
 	case USURP:
 //    toggle_compression(d);
-		SEND_TO_Q("Ваша душа вновь вернулась в тело, которое так ждало ее возвращения!\r\n", d);
-		act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
-			"Тело $s было захвачено новым духом!", TRUE, d->character, 0, 0, TO_ROOM);
+		SEND_TO_Q("О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!\r\n", d);
+		act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫$u О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫$w О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫...\r\n"
+			"О©╫О©╫О©╫О©╫ $s О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫!", TRUE, d->character, 0, 0, TO_ROOM);
 		sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
 		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 
 		break;
 	case UNSWITCH:
 //    toggle_compression(d);
-		SEND_TO_Q("Пересоединяемся для перевключения игрока.", d);
+		SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.", d);
 		sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 		break;
@@ -2014,7 +2015,7 @@ int pre_help(CHAR_DATA * ch, char *arg)
 
 	if (!*command || strlen(command) < 2 || !*topic || strlen(topic) < 2)
 		return (0);
-	if (isname(command, "помощь help справка"))
+	if (isname(command, "О©╫О©╫О©╫О©╫О©╫О©╫ help О©╫О©╫О©╫О©╫О©╫О©╫О©╫"))
 	{
 		do_help(ch, topic, 0, 0);
 		return (1);
@@ -2022,15 +2023,15 @@ int pre_help(CHAR_DATA * ch, char *arg)
 	return (0);
 }
 
-// вобщем флажок для зареганных ип, потому что при очередной автопроверке, если превышен
-// лимит коннектов с ип - сядут все сместе, что выглядит имхо странно, может там комп новый воткнули
-// и просто еще до иммов не достучались лимит поднять... вобщем сидит тот, кто не успел Ж)
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫... О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫)
 int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 {
 	if (!d->character || IS_IMMORTAL(d->character))
 		return 1;
 
-	// в случае авточекалки нужная проверка уже выполнена до входа в функцию
+	// О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	if (!autocheck)
 	{
 		if (RegisterSystem::is_registered(d->character))
@@ -2053,25 +2054,25 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 			switch (CheckProxy(d))
 			{
 			case 0:
-				// если уже сидим в проксе, то смысла спамить никакого
+				// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 				if (IN_ROOM(d->character) == r_unreg_start_room || d->character->get_was_in_room() == r_unreg_start_room)
 					return 0;
 				send_to_char(d->character,
-							 "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
-							 "Вам необходимо обратиться к Богам для регистрации.\r\n"
-							 "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
+							 "&RО©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %s О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ IP(%s)!\r\n"
+							 "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+							 "О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.&n\r\n",
 							 GET_PAD(i->character, 4), i->host);
 				sprintf(buf,
-						"! ВХОД С ОДНОГО IP ! незарегистрированного игрока.\r\n"
-						"Вошел - %s, в игре - %s, IP - %s.\r\n"
-						"Игрок помещен в комнату незарегистрированных игроков.",
+						"! О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ IP ! О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+						"О©╫О©╫О©╫О©╫О©╫ - %s, О©╫ О©╫О©╫О©╫О©╫ - %s, IP - %s.\r\n"
+						"О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.",
 						GET_NAME(d->character), GET_NAME(i->character), d->host);
 				mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 				return 0;
 			case 1:
 				if (autocheck) return 1;
-				send_to_char("&RС вашего IP адреса находится максимально допустимое количество игроков.\r\n"
-							 "Обратитесь к Богам для увеличения лимита игроков с вашего адреса.&n", d->character);
+				send_to_char("&RО©╫ О©╫О©╫О©╫О©╫О©╫О©╫ IP О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+							 "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.&n", d->character);
 				return 0;
 			default:
 				return 1;
@@ -2096,7 +2097,7 @@ int check_dupes_email(DESCRIPTOR_DATA * d)
 			continue;
 		if (!IS_IMMORTAL(ch) && (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character))))
 		{
-			sprintf(buf, "Персонаж с таким email уже находится в игре, вы не можете войти одновременно с ним!");
+			sprintf(buf, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ email О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫!");
 			send_to_char(buf, d->character);
 			return (0);
 		}
@@ -2106,7 +2107,7 @@ int check_dupes_email(DESCRIPTOR_DATA * d)
 void add_logon_record(DESCRIPTOR_DATA * d)
 {
 	log("Enter logon list");
-	// Добавляем запись в LOG_LIST
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ LOG_LIST
 	if (LOGON_LIST(d->character) == 0)
 	{
 		LOGON_LIST(d->character) = new(struct logon_data);
@@ -2117,7 +2118,7 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 	}
 	else
 	{
-		// Ищем есть ли запись в logon-е
+		// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ logon-О©╫
 		struct logon_data * cur_log = LOGON_LIST(d->character);
 		struct logon_data * last_log = cur_log;
 		bool ipfound = false;
@@ -2125,7 +2126,7 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 		{
 			if (!strcmp(cur_log->ip, d->host))
 			{
-				// Совпало
+				// О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 				cur_log->count++;
 				cur_log->lasttime = time(0);
 				ipfound = true;
@@ -2155,7 +2156,7 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 	log("Exit logon list");
 }
 
-// * Проверка на доступные религии конкретной профе (из текущей генерации чара).
+// * О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫).
 void check_religion(CHAR_DATA *ch)
 {
 	if (class_religion[ch->get_class()] == RELIGION_POLY && GET_RELIGION(ch) != RELIGION_POLY)
@@ -2236,9 +2237,9 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	}
 
 	OfftopSystem::set_flag(d->character);
-	// пересчет максимального хп, если нужно
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	check_max_hp(d->character);
-	// проверка и сет религии
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	check_religion(d->character);
 
 	/*
@@ -2300,7 +2301,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
 	char_to_room(d->character, load_room);
 
-	// а потом уже вычитаем за ренту
+	// О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	if (GET_LEVEL(d->character) != 0)
 	{
 		Crash_load(d->character);
@@ -2310,7 +2311,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	Glory::check_freeze(d->character);
 	Clan::clan_invoice(d->character, true);
 
-	// Чистим стили если не знаем их
+	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫
 	if (IS_SET(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL)
 			&& !d->character->get_skill(SKILL_PUNCTUAL))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL);
@@ -2335,7 +2336,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			&& !can_use_feat(d->character, GREAT_AIMING_ATTACK_FEAT))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
 
-	// Gorrah: сбрасываем флаг от скилла, если он каким-то чудом засэйвился
+	// Gorrah: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	if (IS_SET(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND);
 
@@ -2351,7 +2352,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		}
 	};
 	set_race_feats(d->character);
-	//нефиг левыми скиллами размахивать если не имм
+	//О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫
 	if (!IS_IMMORTAL(d->character))
 		for (int i = 1; i <= MAX_SKILL_NUM; i++)
 		{
@@ -2359,18 +2360,18 @@ void do_entergame(DESCRIPTOR_DATA * d)
 				(d->character)->set_skill(i, 0);
 		}
 
-	//Заменяем закл !переместиться! на способность
+	//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ !О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫! О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	if (GET_SPELL_TYPE(d->character, SPELL_RELOCATE) == SPELL_KNOW && !IS_GOD(d->character))
 	{
 		GET_SPELL_TYPE(d->character, SPELL_RELOCATE) = 0;
 		SET_FEAT(d->character, RELOCATE_FEAT);
 	}
 
-	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
 	REMOVE_BIT(AFF_FLAGS(d->character, AFF_GROUP), AFF_GROUP);
 	REMOVE_BIT(AFF_FLAGS(d->character, AFF_HORSE), AFF_HORSE);
 
-	// изменяем порталы
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	check_portals(d->character);
 
 	// with the copyover patch, this next line goes in enter_player_game()
@@ -2379,27 +2380,27 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	d->character->set_last_logon(time(0));
 	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
 	add_logon_record(d);
-	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
-	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
+	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ "О©╫О©╫О©╫" О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫; О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ save_char()
 	d->character->set_who_last(time(0));
 	d->character->save_char();
-	act("$n вступил$g в игру.", TRUE, d->character, 0, 0, TO_ROOM);
+	act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫$g О©╫ О©╫О©╫О©╫О©╫.", TRUE, d->character, 0, 0, TO_ROOM);
 	// with the copyover patch, this next line goes in enter_player_game()
 	read_saved_vars(d->character);
 	greet_mtrigger(d->character, -1);
 	greet_otrigger(d->character, -1);
 	greet_memory_mtrigger(d->character);
 	STATE(d) = CON_PLAYING;
-// режимы по дефолту у нового чара
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 	const bool new_char = GET_LEVEL(d->character) <= 0 ? true : false;
 	if (new_char)
 	{
-		SET_BIT(PRF_FLAGS(d->character, PRF_DRAW_MAP), PRF_DRAW_MAP); //рисовать миникарту
+		SET_BIT(PRF_FLAGS(d->character, PRF_DRAW_MAP), PRF_DRAW_MAP); //О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 		SET_BIT(PRF_FLAGS(d->character, PRF_GOAHEAD), PRF_GOAHEAD); //IAC GA
-		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOMEM), PRF_AUTOMEM); // автомем
-		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOLOOT), PRF_AUTOLOOT); // автолут
-		SET_BIT(PRF_FLAGS(d->character, PRF_PKL_MODE), PRF_PKL_MODE); // пклист
-		SET_BIT(PRF_FLAGS(d->character, PRF_WORKMATE_MODE), PRF_WORKMATE_MODE); // соклан
+		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOMEM), PRF_AUTOMEM); // О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOLOOT), PRF_AUTOLOOT); // О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		SET_BIT(PRF_FLAGS(d->character, PRF_PKL_MODE), PRF_PKL_MODE); // О©╫О©╫О©╫О©╫О©╫О©╫
+		SET_BIT(PRF_FLAGS(d->character, PRF_WORKMATE_MODE), PRF_WORKMATE_MODE); // О©╫О©╫О©╫О©╫О©╫О©╫
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
@@ -2410,24 +2411,24 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character);
 	}
-	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
+	// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character)) && (GET_LEVEL(d->character) < LVL_GOD))
 	{
 	    SET_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
-	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫ О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫, О©╫О©╫О©╫О©╫
 	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GET_LEVEL(d->character) >= LVL_GOD))
 	{
 	    CLR_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
 	if (GET_SEX(d->character) == 0)
-        sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
+        sprintf(buf, "%s О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫.", GET_NAME(d->character));
 	if (GET_SEX(d->character) == 1)
-        sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+        sprintf(buf, "%s О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫.", GET_NAME(d->character));
 	if (GET_SEX(d->character) == 2)
-        sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
+        sprintf(buf, "%s О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫.", GET_NAME(d->character));
 	if (GET_SEX(d->character) == 3)
-        sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+        sprintf(buf, "%s О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫.", GET_NAME(d->character));
 
 	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 	look_at_room(d->character, 0);
@@ -2438,49 +2439,49 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	if (new_char)
 	{
 		send_to_char(
-			"\r\nВоспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n",
+			"\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n",
 			d->character);
 		send_to_char(
-			"Включен режим автоматического показа карты, наберите 'справка карта' для ознакомления.\r\n"
-			"Если вы заблудились и не можете самостоятельно найти дорогу назад - прочтите 'справка возврат'.\r\n",
+			"О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 'О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫' О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+			"О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 'О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫'.\r\n",
 			d->character);
 	}
 
 	Noob::check_help_message(d->character);
 }
 
-//По кругу проверяем корректность параметров
-//Все это засунуто в одну функцию для того
-//Чтобы в случае некорректности сразу нескольких параметров
-//Они все были корректно обработаны
+//О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+//О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+//О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+//О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 bool ValidateStats(DESCRIPTOR_DATA * d)
 {
-	//Требуется рерол статов
+	//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
     if (!GloryMisc::check_stats(d->character))
 		return false;
-    //Некорректный номер расы
+    //О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
     if (PlayerRace::GetKinNameByNum(GET_KIN(d->character),GET_SEX(d->character)) == KIN_NAME_UNDEFINED)
     {
-        SEND_TO_Q("\r\nЧто-то заплутал ты, путник. Откуда бредешь?\r\nВыберите народ:\r\n", d);
+        SEND_TO_Q("\r\nО©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫?\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫:\r\n", d);
         SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
-		SEND_TO_Q("\r\nВыберите племя: ", d);
+		SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫: ", d);
 		STATE(d) = CON_RESET_KIN;
         return false;
     }
-    //Некорректный номер рода
+    //О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
     if (PlayerRace::GetRaceNameByNum(GET_KIN(d->character),GET_RACE(d->character),GET_SEX(d->character)) == RACE_NAME_UNDEFINED)
     {
-		SEND_TO_Q("\r\nКакого роду-племени вы будете?\r\n", d);
+		SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫?\r\n", d);
 		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-		SEND_TO_Q("\r\nИз чьих вы будете: ", d);
+		SEND_TO_Q("\r\nО©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫: ", d);
         STATE(d) = CON_RESET_RACE;
         return false;
     }
-    // не корректный номер религии
+    // О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
     if (GET_RELIGION(d->character) > RELIGION_MONO)
     {
         SEND_TO_Q(religion_menu, d);
-        SEND_TO_Q("\n\rРелигия :", d);
+        SEND_TO_Q("\n\rО©╫О©╫О©╫О©╫О©╫О©╫О©╫ :", d);
         STATE(d) = CON_RESET_RELIGION;
         return false;
     }
@@ -2498,7 +2499,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 
 	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !PLR_FLAGGED(d->character, PLR_SITEOK))
 	{
-		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
+		SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ IP!\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
@@ -2506,7 +2507,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	}
 	if (GET_LEVEL(d->character) < circle_restrict)
 	{
-		SEND_TO_Q("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
+		SEND_TO_Q("О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.. О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
@@ -2520,7 +2521,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		return;
 	}
 
-	// тут несколько вариантов как это проставить и все одинаково корявые с учетом релоада, без уверенности не трогать
+	// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	Clan::SetClanData(d->character);
 
 	log("%s [%s] has connected.", GET_NAME(d->character), d->host);
@@ -2535,7 +2536,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		GET_BAD_PWS(d->character) = 0;
 	}
 	time_t tmp_time = LAST_LOGON(d->character);
-	sprintf(buf, "\r\nПоследний раз вы заходили к нам в %s с адреса (%s).\r\n",
+	sprintf(buf, "\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫ %s О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (%s).\r\n",
 			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
 	SEND_TO_Q(buf, d);
 
@@ -2545,7 +2546,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		return;
 	}
 
-	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+	SEND_TO_Q("\r\n* О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ANYKEY О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ENTER *", d);
 	STATE(d) = CON_RMOTD;
 }
 
@@ -2618,7 +2619,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		catch (const std::out_of_range &e)
 		{
-			send_to_char(d->character, "Редактирование прервано: %s", e.what());
+			send_to_char(d->character, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: %s", e.what());
 			d->sedit.reset();
 			STATE(d) = CON_PLAYING;
 		}
@@ -2649,10 +2650,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			CreateChar(d);
 		if (!*arg)
 			STATE(d) = CON_CLOSE;
-		else if (!str_cmp("новый", arg))
+		else if (!str_cmp("О©╫О©╫О©╫О©╫О©╫", arg))
 		{
 			SEND_TO_Q(name_rules, d);
-			SEND_TO_Q("Введите имя: ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫: ", d);
 			STATE(d) = CON_NEW_CHAR;
 			return;
 		}
@@ -2663,12 +2664,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				if (parse_exist_name(pwd_name, tmp_name) ||
 						(player_i = load_char(tmp_name, d->character)) < 0)
 				{
-					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+					SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫ : ", d);
 					return;
 				}
 				if (PLR_FLAGGED(d->character, PLR_DELETED) || !Password::compare_password(d->character, pwd_pwd))
 				{
-					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+					SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫ : ", d);
 					if (!PLR_FLAGGED(d->character, PLR_DELETED))
 					{
 						sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
@@ -2688,11 +2689,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			}
 			else
 				if (parse_exist_name(arg, tmp_name) ||
-						strlen(tmp_name) < (MIN_NAME_LENGTH - 1) || // дабы можно было войти чарам с 4 буквами
+						strlen(tmp_name) < (MIN_NAME_LENGTH - 1) || // О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ 4 О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 						strlen(tmp_name) > MAX_NAME_LENGTH ||
 						!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name))
 				{
-					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+					SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫ : ", d);
 					return;
 				}
 				else if (!Is_Valid_Dc(tmp_name))
@@ -2701,14 +2702,14 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					d->character->set_pfilepos(player_i);
 					if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, PRF_CODERINFO))
 					{
-						SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
+						SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫.\r\n", d);
 					}
 					else
 					{
-						SEND_TO_Q("Игрок с подобным именем находится в игре.\r\n", d);
+						SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫.\r\n", d);
 					}
-					SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
-					SEND_TO_Q("Имя и пароль через пробел : ", d);
+					SEND_TO_Q("О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
+					SEND_TO_Q("О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 					delete d->character;
 					d->character = NULL;
 					return;
@@ -2723,13 +2724,13 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					// Check for multiple creations...
 					if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name))
 					{
-						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+						SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫ : ", d);
 						return;
 					}
-					// дополнительная проверка на длину имени чара
+					// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 					if (strlen(tmp_name) < (MIN_NAME_LENGTH))
 					{
-						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+						SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫ : ", d);
 						return;
 					}
 					CreateChar(d);
@@ -2737,7 +2738,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
 					strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 					d->character->set_pfilepos(player_i);
-					sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
+					sprintf(buf, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ %s [ Y(О©╫) / N(О©╫) ]? ", tmp_name);
 					SEND_TO_Q(buf, d);
 					STATE(d) = CON_NAME_CNFRM;
 				}
@@ -2745,9 +2746,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				{
 					if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, PRF_CODERINFO))
 					{
-						SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
-						SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
-						SEND_TO_Q("Имя и пароль через пробел : ", d);
+						SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫.\r\n", d);
+						SEND_TO_Q("О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
+						SEND_TO_Q("О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 						delete d->character;
 						d->character = NULL;
 						return;
@@ -2755,7 +2756,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);
-					SEND_TO_Q("Персонаж с таким именем уже существует. Введите пароль : ", d);
+					SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 					d->idle_tics = 0;
 					STATE(d) = CON_PASSWORD;
 				}
@@ -2763,54 +2764,54 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			else  	// player unknown -- make new character
 			{
 
-				// еще одна проверка
+				// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 				if (strlen(tmp_name) < (MIN_NAME_LENGTH))
 				{
-					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+					SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫ : ", d);
 					return;
 				}
 				// Check for multiple creations of a character.
 				if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name))
 				{
-					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+					SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫ : ", d);
 					return;
 				}
 				if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH) >= 0)
 				{
 					SEND_TO_Q
-					("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
-					 "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
-					 "Имя  : ", d);
+					("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+					 "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫.\r\n"
+					 "О©╫О©╫О©╫  : ", d);
 					return;
 				}
 				d->character->set_pc_name(CAP(tmp_name));
 				CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
 				strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 				SEND_TO_Q(name_rules, d);
-				sprintf(buf, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
+				sprintf(buf, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫  %s [ Y(О©╫) / N(О©╫) ]? ", tmp_name);
 				SEND_TO_Q(buf, d);
 				STATE(d) = CON_NAME_CNFRM;
 			}
 		}
 		break;
 	case CON_NAME_CNFRM:	// wait for conf. of new name
-		if (UPPER(*arg) == 'Y' || UPPER(*arg) == 'Д')
+		if (UPPER(*arg) == 'Y' || UPPER(*arg) == 'О©╫')
 		{
 			if (ban->is_banned(d->host) >= BanList::BAN_NEW)
 			{
 				sprintf(buf,
-						"Попытка создания персонажа %s отклонена для [%s] (siteban)",
+						"О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %s О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ [%s] (siteban)",
 						GET_PC_NAME(d->character), d->host);
 				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
-				SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
+				SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ IP !!! О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ !!!\r\n", d);
 				STATE(d) = CON_CLOSE;
 				return;
 			}
 			if (circle_restrict)
 			{
-				SEND_TO_Q("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
+				SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 				sprintf(buf,
-						"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
+						"О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %s О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ [%s] (wizlock)",
 						GET_PC_NAME(d->character), d->host);
 				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 				STATE(d) = CON_CLOSE;
@@ -2821,7 +2822,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			{
 			case 0:	// Auto - agree
 				sprintf(buf,
-						"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
+						"О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ %s (О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ '123' О©╫О©╫О©╫ 'qwe', О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫) : ",
 						GET_PAD(d->character, 1));
 				SEND_TO_Q(buf, d);
 				STATE(d) = CON_NEWPASSWD;
@@ -2832,20 +2833,20 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			default:
 				break;
 			};
-			SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ]? ", d);
+			SEND_TO_Q("О©╫О©╫О©╫ О©╫О©╫О©╫ [ О©╫(M)/О©╫(F) ]? ", d);
 			STATE(d) = CON_QSEX;
 			return;
 
 		}
-		else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'Н')
+		else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'О©╫')
 		{
-			SEND_TO_Q("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫? О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ :)\r\n" "О©╫О©╫О©╫ : ", d);
 			d->character->set_pc_name(0);
 			STATE(d) = CON_GET_NAME;
 		}
 		else
 		{
-			SEND_TO_Q("Ответьте Yes(Да) or No(Нет) : ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ Yes(О©╫О©╫) or No(О©╫О©╫О©╫) : ", d);
 		}
 		break;
 	case CON_NEW_CHAR:
@@ -2861,7 +2862,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				strlen(tmp_name) > MAX_NAME_LENGTH ||
 				!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name))
 		{
-			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫ : ", d);
 			return;
 		}
 		player_i = load_char(tmp_name, d->character);
@@ -2875,7 +2876,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			}
 			else
 			{
-				SEND_TO_Q("Такой персонаж уже существует. Выберите другое имя : ", d);
+				SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ : ", d);
 				delete d->character;
 				d->character = 0;
 				return;
@@ -2883,14 +2884,14 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if (!Valid_Name(tmp_name))
 		{
-			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫ : ", d);
 			return;
 		}
 		if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH + 1) >= 0)
 		{
-			SEND_TO_Q("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
-					  "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
-					  "Имя  : ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+					  "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫.\r\n"
+					  "О©╫О©╫О©╫  : ", d);
 			return;
 		}
 		d->character->set_pc_name(CAP(tmp_name));
@@ -2898,18 +2899,18 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 		if (ban->is_banned(d->host) >= BanList::BAN_NEW)
 		{
-			sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
+			sprintf(buf, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %s О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ [%s] (siteban)",
 					GET_PC_NAME(d->character), d->host);
 			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
-			SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ IP !!!О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!!!\r\n", d);
 			STATE(d) = CON_CLOSE;
 			return;
 		}
 		if (circle_restrict)
 		{
-			SEND_TO_Q("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 			sprintf(buf,
-					"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
+					"О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %s О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ [%s] (wizlock)",
 					GET_PC_NAME(d->character), d->host);
 			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 			STATE(d) = CON_CLOSE;
@@ -2919,7 +2920,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case 0:	// Auto - agree
 			sprintf(buf,
-					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
+					"О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ %s (О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ '123' О©╫О©╫О©╫ 'qwe', О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫) : ",
 					GET_PAD(d->character, 1));
 			SEND_TO_Q(buf, d);
 			STATE(d) = CON_NEWPASSWD;
@@ -2927,12 +2928,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		case 1:	// Auto -disagree
 			delete d->character;
 			d->character = NULL;
-			SEND_TO_Q("Выберите другое имя : ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ : ", d);
 			return;
 		default:
 			break;
 		};
-		SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ]? ", d);
+		SEND_TO_Q("О©╫О©╫О©╫ О©╫О©╫О©╫ [ О©╫(M)/О©╫(F) ]? ", d);
 		STATE(d) = CON_QSEX;
 		return;
 	case CON_PASSWORD:	// get pwd for known player
@@ -2960,12 +2961,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				d->character->save_char();
 				if (++(d->bad_pws) >= max_bad_pws)  	// 3 strikes and you're out.
 				{
-					SEND_TO_Q("Неверный пароль... Отсоединяемся.\r\n", d);
+					SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫... О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 					STATE(d) = CON_CLOSE;
 				}
 				else
 				{
-					SEND_TO_Q("Неверный пароль.\r\nПароль : ", d);
+					SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\nО©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 				}
 				return;
 			}
@@ -2979,12 +2980,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		{
 			sprintf(buf, "\r\n%s\r\n", Password::BAD_PASSWORD);
 			SEND_TO_Q(buf, d);
-			SEND_TO_Q("Пароль : ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 			return;
 		}
 		Password::set_password(d->character, arg);
 
-		SEND_TO_Q("\r\nПовторите пароль, пожалуйста : ", d);
+		SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 		if (STATE(d) == CON_NEWPASSWD)
 			STATE(d) = CON_CNFPASSWD;
 		else
@@ -2996,8 +2997,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_CHPWD_VRFY:
 		if (!Password::compare_password(d->character, arg))
 		{
-			SEND_TO_Q("\r\nПароли не соответствуют... повторим.\r\n", d);
-			SEND_TO_Q("Пароль: ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫... О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫: ", d);
 			if (STATE(d) == CON_CNFPASSWD)
 				STATE(d) = CON_NEWPASSWD;
 			else
@@ -3005,28 +3006,28 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 
-		// commented by WorM: убрал выбор расы раз уж делать их никто не собирается то и смущать людей выбором незачем
+		// commented by WorM: О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 		/*if (STATE(d) == CON_CNFPASSWD)
 		{
-            SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
+            SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫:\r\n", d);
 			SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 			SEND_TO_Q
-			("\r\nВаше Племя (Для более полной информации вы можете набрать"
-			 " \r\nсправка <интересующие племя>): ", d);
+			("\r\nО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫"
+			 " \r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫ <О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫>): ", d);
 			STATE(d) = CON_QKIN;
 		}*/
 		if (STATE(d) == CON_CNFPASSWD)
 		{
-			GET_KIN(d->character) = 0; // added by WorM: Выставляем расу в Русич(коммент выше)
+			GET_KIN(d->character) = 0; // added by WorM: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫(О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫)
         		SEND_TO_Q(class_menu, d);
-			SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
-				  " \r\nсправка <интересующая профессия>): ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫"
+				  " \r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫ <О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫>): ", d);
 			STATE(d) = CON_QCLASS;
 		}
 		else
 		{
 			d->character->save_char();
-			SEND_TO_Q("\r\nГотово.\r\n", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;
 		}
@@ -3036,27 +3037,27 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_QSEX:		// query sex of new user
 		if (pre_help(d->character, arg))
 		{
-			SEND_TO_Q("\r\nВаш пол [ М(M)/Ж(F) ]? ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫ О©╫О©╫О©╫ [ О©╫(M)/О©╫(F) ]? ", d);
 			STATE(d) = CON_QSEX;
 			return;
 		}
 		switch (UPPER(*arg))
 		{
-		case 'М':
+		case 'О©╫':
 		case 'M':
 			GET_SEX(d->character) = SEX_MALE;
 			break;
-		case 'Ж':
+		case 'О©╫':
 		case 'F':
 			GET_SEX(d->character) = SEX_FEMALE;
 			break;
 		default:
-			SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);
+			SEND_TO_Q("О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ :)\r\n" "О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫? ", d);
 			return;
 		}
-		SEND_TO_Q("Проверьте правильность склонения имени. В случае ошибки введите свой вариант.\r\n", d);
+		SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫. О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 		GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, tmp_name);
-		sprintf(buf, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
+		sprintf(buf, "О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫ О©╫О©╫О©╫О©╫?) [%s]: ", tmp_name);
 		SEND_TO_Q(buf, d);
 		STATE(d) = CON_NAME2;
 		return;
@@ -3064,35 +3065,35 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_QKIN:		// query rass
 		if (pre_help(d->character, arg))
 		{
-            SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
+            SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫:\r\n", d);
             SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
-			SEND_TO_Q("\r\nПлемя: ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫: ", d);
 			STATE(d) = CON_QKIN;
 			return;
 		}
         load_result = PlayerRace::CheckKin(arg);
 		if (load_result == KIN_UNDEFINED)
 		{
-			SEND_TO_Q("Стыдно не помнить предков.\r\n"
-					  "Какое Племя вам ближе по духу? ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+					  "О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫? ", d);
 			return;
 		}
 		GET_KIN(d->character) = load_result;
 /*
-Ахтунг-партизанен!
-Пока что убраны все вызовы парсилок _классов_ для отличных от русичей _рас_.
-Сами парсилки и списки классов оставлены для потомков.
-Проверка тоже убрана, так что при создании перса другой расы ему предложат выбрать "русские" классы.
-Теоретически это конечно неправильно, но я сомневаюсь, что в ближайшем будущем кто-то станет доделывать расы.
-Если же такой садомазо найдется, то для него это всеи пишется.
-В таком варианте надо в описания _рас_ в файле playerraces.xml
-Ввести список доступных расе классов. И уже от этого списка плясать с названиями и парсом, а не городить все в 3 экземплярах
-Сами классы при этом из кода можно и не выносить ж)
+О©╫О©╫О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!
+О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ _О©╫О©╫О©╫О©╫О©╫О©╫О©╫_ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ _О©╫О©╫О©╫_.
+О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ "О©╫О©╫О©╫О©╫О©╫О©╫О©╫" О©╫О©╫О©╫О©╫О©╫О©╫.
+О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.
+О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ _О©╫О©╫О©╫_ О©╫ О©╫О©╫О©╫О©╫О©╫ playerraces.xml
+О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ 3 О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫)
 Sventovit
  */
         SEND_TO_Q(class_menu, d);
-		SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
-				  " \r\nсправка <интересующая профессия>): ", d);
+		SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫"
+				  " \r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫ <О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫>): ", d);
 		STATE(d) = CON_QCLASS;
 		break;
 
@@ -3100,45 +3101,45 @@ Sventovit
 		if (pre_help(d->character, arg))
 		{
 			SEND_TO_Q(religion_menu, d);
-			SEND_TO_Q("\n\rРелигия :", d);
+			SEND_TO_Q("\n\rО©╫О©╫О©╫О©╫О©╫О©╫О©╫ :", d);
 			STATE(d) = CON_RELIGION;
 			return;
 		}
 
 		switch (UPPER(*arg))
 		{
-		case 'Я':
-		case 'З':
+		case 'О©╫':
+		case 'О©╫':
 		case 'P':
 			if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_MONO)
 			{
 				SEND_TO_Q
-				("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
-				 "Так каким Богам вы хотите служить? ", d);
+				("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!\r\n"
+				 "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫? ", d);
 				return;
 			}
 			GET_RELIGION(d->character) = RELIGION_POLY;
 			break;
-		case 'Х':
+		case 'О©╫':
 		case 'C':
 			if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_POLY)
 			{
 				SEND_TO_Q
-				("Персонажу выбранной вами профессии противно христианство!\r\n"
-				 "Так каким Богам вы хотите служить? ", d);
+				("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!\r\n"
+				 "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫? ", d);
 				return;
 			}
 			GET_RELIGION(d->character) = RELIGION_MONO;
 			break;
 		default:
-			SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ :)\r\n" "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫? ", d);
 			return;
 		}
-		SEND_TO_Q("\r\nКакой род вам ближе всего по духу:\r\n", d);
+		SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫:\r\n", d);
 		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-		sprintf(buf, "Для вашей профессией больше всего подходит %s", default_race[GET_CLASS(d->character)]);
+		sprintf(buf, "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %s", default_race[GET_CLASS(d->character)]);
 		SEND_TO_Q(buf, d);
-		SEND_TO_Q("\r\nИз чьих вы будете : ", d);
+		SEND_TO_Q("\r\nО©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 		STATE(d) = CON_RACE;
 		break;
 
@@ -3146,14 +3147,14 @@ Sventovit
 		if (pre_help(d->character, arg))
 		{
 			SEND_TO_Q(class_menu, d);
-			SEND_TO_Q("\r\nВаша профессия : ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 			STATE(d) = CON_QCLASS;
 			return;
 		}
 		load_result = parse_class(*arg);
 		if (load_result == CLASS_UNDEFINED)
 		{
-			SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 			return;
 		}
 		else
@@ -3161,7 +3162,7 @@ Sventovit
 			d->character->set_class(load_result);
 		}
 		SEND_TO_Q(religion_menu, d);
-		SEND_TO_Q("\n\rРелигия :", d);
+		SEND_TO_Q("\n\rО©╫О©╫О©╫О©╫О©╫О©╫О©╫ :", d);
 		STATE(d) = CON_RELIGION;
 		break;
 
@@ -3169,14 +3170,14 @@ Sventovit
 		if (pre_help(d->character, arg))
 		{
 			SEND_TO_Q(class_menu_step, d);
-			SEND_TO_Q("\r\nВаша профессия : ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 			STATE(d) = CON_QCLASSS;
 			return;
 		}
 		load_result = parse_class_step(*arg);
 		if (load_result == CLASS_UNDEFINED)
 		{
-			SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 			return;
 		}
 		else
@@ -3184,7 +3185,7 @@ Sventovit
 			d->character->set_class(load_result);
 		}
 		SEND_TO_Q(religion_menu, d);
-		SEND_TO_Q("\n\rРелигия :", d);
+		SEND_TO_Q("\n\rО©╫О©╫О©╫О©╫О©╫О©╫О©╫ :", d);
 		STATE(d) = CON_RELIGION;
 		break;
 
@@ -3192,14 +3193,14 @@ Sventovit
 		if (pre_help(d->character, arg))
 		{
 			SEND_TO_Q(class_menu_vik, d);
-			SEND_TO_Q("\r\nВаша профессия : ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 			STATE(d) = CON_QCLASSV;
 			return;
 		}
 		load_result = parse_class_vik(*arg);
 		if (load_result == CLASS_UNDEFINED)
 		{
-			SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 			return;
 		}
 		else
@@ -3207,28 +3208,28 @@ Sventovit
 			d->character->set_class(load_result);
 		}
 		SEND_TO_Q(religion_menu, d);
-		SEND_TO_Q("\n\rРелигия:", d);
+		SEND_TO_Q("\n\rО©╫О©╫О©╫О©╫О©╫О©╫О©╫:", d);
 		STATE(d) = CON_RELIGION;
 		break;
 
 	case CON_RACE:		// query race
 		if (pre_help(d->character, arg))
 		{
-			SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫:\r\n", d);
             SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-			SEND_TO_Q("\r\nРод: ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫: ", d);
 			STATE(d) = CON_RACE;
 			return;
 		}
         load_result = PlayerRace::CheckRace(GET_KIN(d->character), arg);
 		if (load_result == RACE_UNDEFINED)
 		{
-			SEND_TO_Q("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫? ", d);
 			return;
 		}
 		GET_RACE(d->character) = load_result;
         SEND_TO_Q(string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),GET_RACE(d->character)))).c_str(), d);
-        SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
+        SEND_TO_Q("\r\nО©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: ", d);
 		STATE(d) = CON_BIRTHPLACE;
 		break;
 
@@ -3236,23 +3237,23 @@ Sventovit
         if (pre_help(d->character, arg))
 		{
 			SEND_TO_Q(string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),GET_RACE(d->character)))).c_str(), d);
-			SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: ", d);
 			STATE(d) = CON_BIRTHPLACE;
 			return;
 		}
         load_result = PlayerRace::CheckBirthPlace(GET_KIN(d->character), GET_RACE(d->character), arg);
 		if (!BirthPlace::CheckId(load_result))
 		{
-			SEND_TO_Q("Не уверены? Бывает.\r\n"
-					  "Подумайте еще разок, и выберите:", d);
+			SEND_TO_Q("О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫? О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+					  "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫:", d);
 			return;
 		}
 		GET_LOADROOM(d->character) = calc_loadroom(d->character, load_result);
-//		sprintf(buf, "\r\nВаша загрузочная комната: %5d\r\n", GET_LOADROOM(d->character));
+//		sprintf(buf, "\r\nО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫: %5d\r\n", GET_LOADROOM(d->character));
 //		SEND_TO_Q(buf, d);
 		roll_real_abils(d->character);
 		SEND_TO_Q(genchar_help, d);
-		SEND_TO_Q("\r\n\r\nНажмите любую клавишу.\r\n", d);
+		SEND_TO_Q("\r\n\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
         STATE(d) = CON_ROLL_STATS;
         break;
 
@@ -3269,9 +3270,9 @@ Sventovit
 			genchar_disp_menu(d->character);
 			break;
 		default:
-			// Все. Генерация закончена
+			// О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 			SEND_TO_Q(color_menu, d);
-			SEND_TO_Q("\r\nРежим :", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫ :", d);
 			STATE(d) = CON_COLOR;
 		}
 		break;
@@ -3280,31 +3281,31 @@ Sventovit
 		if (pre_help(d->character, arg))
 		{
 			SEND_TO_Q(color_menu, d);
-			SEND_TO_Q("\n\rРежим :", d);
+			SEND_TO_Q("\n\rО©╫О©╫О©╫О©╫О©╫ :", d);
 			STATE(d) = CON_COLOR;
 			return;
 		}
 		switch (UPPER(*arg))
 		{
 		case '0':
-			snprintf(buf2, MAX_STRING_LENGTH, "выкл");
+			snprintf(buf2, MAX_STRING_LENGTH, "О©╫О©╫О©╫О©╫");
 			break;
 		case '1':
-			snprintf(buf2, MAX_STRING_LENGTH, "простой");
+			snprintf(buf2, MAX_STRING_LENGTH, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫");
 			break;
 		case '2':
-			snprintf(buf2, MAX_STRING_LENGTH, "обычный");
+			snprintf(buf2, MAX_STRING_LENGTH, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫");
 			break;
 		case '3':
-			snprintf(buf2, MAX_STRING_LENGTH, "полный");
+			snprintf(buf2, MAX_STRING_LENGTH, "О©╫О©╫О©╫О©╫О©╫О©╫");
 			break;
 		default:
-			SEND_TO_Q("Таких режимов нет, выберите из присутствующих!", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!", d);
 			return;
 		}
 		do_color(d->character, buf2, 0, 0);
-		SEND_TO_Q("\r\nВведите ваш E-mail"
-				  "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail): ", d);
+		SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ E-mail"
+				  "\r\n(О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ E-mail): ", d);
 		STATE(d) = CON_GET_EMAIL;
 		break;
 
@@ -3312,12 +3313,12 @@ Sventovit
 	case CON_GET_EMAIL:
 		if (!*arg)
 		{
-			SEND_TO_Q("\r\nВаш E-mail : ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫ E-mail : ", d);
 			return;
 		}
 		else if (!valid_email(arg))
 		{
-			SEND_TO_Q("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ E-mail!" "\r\nО©╫О©╫О©╫ E-mail :  ", d);
 			return;
 		}
 
@@ -3333,11 +3334,11 @@ Sventovit
 		lower_convert(GET_EMAIL(d->character));
 		d->character->save_char();
 
-		// добавляем в список ждущих одобрения
+		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 		if (!(int)NAME_FINE(d->character))
 		{
-			sprintf(buf, "%s - новый игрок. Падежи: %s/%s/%s/%s/%s/%s Email: %s Пол: %s. ]\r\n"
-					"[ %s ждет одобрения имени.",
+			sprintf(buf, "%s - О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫: %s/%s/%s/%s/%s/%s Email: %s О©╫О©╫О©╫: %s. ]\r\n"
+					"[ %s О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫.",
 					GET_NAME(d->character),	GET_PAD(d->character, 0),
 					GET_PAD(d->character, 1), GET_PAD(d->character, 2),
 					GET_PAD(d->character, 3), GET_PAD(d->character, 4),
@@ -3347,7 +3348,7 @@ Sventovit
 		}
 
 		SEND_TO_Q(motd, d);
-		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+		SEND_TO_Q("\r\n* О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ANYKEY О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ENTER *", d);
 		STATE(d) = CON_RMOTD;
 		d->character->set_who_mana(0);
 		d->character->set_who_last(time(0));
@@ -3372,7 +3373,7 @@ Sventovit
 		{
 		case '0':
 
-			SEND_TO_Q("\r\nДо встречи на земле Киевской.\r\n", d);
+			SEND_TO_Q("\r\nО©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 
 			if (GET_REMORT(d->character) == 0 && GET_LEVEL(d->character) <= 25
 					&& !IS_SET(PLR_FLAGS(d->character, PLR_NODELETE), PLR_NODELETE))
@@ -3386,7 +3387,7 @@ Sventovit
 				if (timeout > 0)
 				{
 					time_t deltime = time(NULL) + timeout * 60 * 60 * 24;
-					sprintf(buf, "В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
+					sprintf(buf, "О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ %s О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ :).\r\n",
 							rustime(localtime(&deltime)));
 					SEND_TO_Q(buf, d);
 				}
@@ -3407,7 +3408,7 @@ Sventovit
 		case '2':
 			if (d->character->player_data.description)
 			{
-				SEND_TO_Q("Ваше ТЕКУЩЕЕ описание:\r\n", d);
+				SEND_TO_Q("О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫:\r\n", d);
 				SEND_TO_Q(d->character->player_data.description, d);
 				/*
 				 * Don't free this now... so that the old description gets loaded
@@ -3420,8 +3421,8 @@ Sventovit
 				d->backstr = str_dup(d->character->player_data.description);
 			}
 			SEND_TO_Q
-			("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
-			SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
+			("О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ <О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫>.\r\n", d);
+			SEND_TO_Q("(/s О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ /h О©╫О©╫О©╫О©╫О©╫О©╫)\r\n", d);
 			d->str = &d->character->player_data.description;
 			d->max_str = EXDSCR_LENGTH;
 			STATE(d) = CON_EXDESC;
@@ -3433,24 +3434,24 @@ Sventovit
 			break;
 
 		case '4':
-			SEND_TO_Q("\r\nВведите СТАРЫЙ пароль : ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 			STATE(d) = CON_CHPWD_GETOLD;
 			break;
 
 		case '5':
 			if (IS_IMMORTAL(d->character))
 			{
-				SEND_TO_Q("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
+				SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫) О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ :)))\r\n", d);
 				SEND_TO_Q(MENU, d);
 				break;
 			}
 			if (IS_SET(PLR_FLAGS(d->character, PLR_NODELETE), PLR_NODELETE))
 			{
-				SEND_TO_Q("\r\nБоги запретили вам суицид\r\n", d);
+				SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫\r\n", d);
 				SEND_TO_Q(MENU, d);
 				break;
 			}
-			SEND_TO_Q("\r\nДля подтверждения введите свой пароль : ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 			STATE(d) = CON_DELCNF1;
 			break;
 
@@ -3458,7 +3459,7 @@ Sventovit
 		{
 			if (IS_IMMORTAL(d->character))
 			{
-				SEND_TO_Q("\r\nВам это ни к чему...\r\n", d);
+				SEND_TO_Q("\r\nО©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫...\r\n", d);
 				SEND_TO_Q(MENU, d);
 				STATE(d) = CON_MENU;
 			}
@@ -3473,21 +3474,21 @@ Sventovit
 		{	if (!PRF_FLAGGED(d->character, PRF_BLIND))
 			{
 				SET_BIT(PRF_FLAGS(d->character, PRF_BLIND), PRF_BLIND);
-				SEND_TO_Q("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
+				SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 				SEND_TO_Q(MENU, d);
 				STATE(d) = CON_MENU;
 			}
 			else
 			{
 				REMOVE_BIT(PRF_FLAGS(d->character, PRF_BLIND), PRF_BLIND);
-				SEND_TO_Q("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
+				SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 				SEND_TO_Q(MENU, d);
 				STATE(d) = CON_MENU;
 			}
 			break;
 		}
 		default:
-			SEND_TO_Q("\r\nЭто не есть правильный ответ!\r\n", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫!\r\n", d);
 			SEND_TO_Q(MENU, d);
 			break;
 		}
@@ -3497,13 +3498,13 @@ Sventovit
 	case CON_CHPWD_GETOLD:
 		if (!Password::compare_password(d->character, arg))
 		{
-			SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;
 		}
 		else
 		{
-			SEND_TO_Q("\r\nВведите НОВЫЙ пароль : ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ : ", d);
 			STATE(d) = CON_CHPWD_GETNEW;
 		}
 		return;
@@ -3511,33 +3512,33 @@ Sventovit
 	case CON_DELCNF1:
 		if (!Password::compare_password(d->character, arg))
 		{
-			SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;
 		}
 		else
 		{
-			SEND_TO_Q("\r\n!!! ВАШ ПЕРСОНАЖ БУДЕТ УДАЛЕН !!!\r\n"
-					  "Вы АБСОЛЮТНО В ЭТОМ УВЕРЕНЫ?\r\n\r\n"
-					  "Наберите \"YES / ДА\" для подтверждения: ", d);
+			SEND_TO_Q("\r\n!!! О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ !!!\r\n"
+					  "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫?\r\n\r\n"
+					  "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ \"YES / О©╫О©╫\" О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: ", d);
 			STATE(d) = CON_DELCNF2;
 		}
 		break;
 
 	case CON_DELCNF2:
-		if (!strcmp(arg, "yes") || !strcmp(arg, "YES") || !strcmp(arg, "да") || !strcmp(arg, "ДА"))
+		if (!strcmp(arg, "yes") || !strcmp(arg, "YES") || !strcmp(arg, "О©╫О©╫") || !strcmp(arg, "О©╫О©╫"))
 		{
 			if (PLR_FLAGGED(d->character, PLR_FROZEN))
 			{
-				SEND_TO_Q("Вы решились на суицид, но Боги остановили вас.\r\n", d);
-				SEND_TO_Q("Персонаж не удален.\r\n", d);
+				SEND_TO_Q("О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫.\r\n", d);
+				SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 				STATE(d) = CON_CLOSE;
 				return;
 			}
 			if (GET_LEVEL(d->character) >= LVL_GRGOD)
 				return;
 			delete_char(GET_NAME(d->character));
-			sprintf(buf, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
+			sprintf(buf, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ '%s' О©╫О©╫О©╫О©╫О©╫О©╫!\r\n" "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", GET_NAME(d->character));
 			SEND_TO_Q(buf, d);
 			sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GET_LEVEL(d->character));
 			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
@@ -3546,7 +3547,7 @@ Sventovit
 		}
 		else
 		{
-			SEND_TO_Q("\r\nПерсонаж не удален.\r\n", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;
 		}
@@ -3563,15 +3564,15 @@ Sventovit
 			CREATE(GET_PAD(d->character, 1), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 1), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
-			sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
+			sprintf(buf, "О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 			STATE(d) = CON_NAME3;
 		}
 		else
 		{
-			SEND_TO_Q("Некорректно.\r\n", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, tmp_name);
-			sprintf(buf, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
+			sprintf(buf, "О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫ О©╫О©╫О©╫О©╫?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 		};
 		break;
@@ -3587,15 +3588,15 @@ Sventovit
 			CREATE(GET_PAD(d->character, 2), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 2), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
-			sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
+			sprintf(buf, "О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 			STATE(d) = CON_NAME4;
 		}
 		else
 		{
-			SEND_TO_Q("Некорректно.\r\n", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d);
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
-			sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
+			sprintf(buf, "О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 		};
 		break;
@@ -3611,15 +3612,15 @@ Sventovit
 			CREATE(GET_PAD(d->character, 3), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 3), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
-			sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
+			sprintf(buf, "О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 			STATE(d) = CON_NAME5;
 		}
 		else
 		{
-			SEND_TO_Q("Некорректно.\n\r", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\n\r", d);
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
-			sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
+			sprintf(buf, "О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 		};
 		break;
@@ -3635,15 +3636,15 @@ Sventovit
 			CREATE(GET_PAD(d->character, 4), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 4), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
-			sprintf(buf, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
+			sprintf(buf, "О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 			STATE(d) = CON_NAME6;
 		}
 		else
 		{
-			SEND_TO_Q("Некорректно.\n\r", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\n\r", d);
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
-			sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
+			sprintf(buf, "О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 		};
 		break;
@@ -3659,16 +3660,16 @@ Sventovit
 			CREATE(GET_PAD(d->character, 5), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 5), CAP(tmp_name));
 			sprintf(buf,
-					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
+					"О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ %s (О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ '123' О©╫О©╫О©╫ 'qwe', О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫) : ",
 					GET_PAD(d->character, 1));
 			SEND_TO_Q(buf, d);
 			STATE(d) = CON_NEWPASSWD;
 		}
 		else
 		{
-			SEND_TO_Q("Некорректно.\n\r", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\n\r", d);
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
-			sprintf(buf, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
+			sprintf(buf, "О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 		};
 		break;
@@ -3687,17 +3688,17 @@ Sventovit
 			genchar_disp_menu(d->character);
 			break;
 		default:
-			// после перераспределения и сейва в genchar_parse стартовых статов надо учесть морты и славу
+			// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ genchar_parse О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫
 			GloryMisc::recalculate_stats(d->character);
-			// статы срезетили и новые выбрали
-			sprintf(buf, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n",
+			// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+			sprintf(buf, "\r\n%sО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫)%s\r\n",
 					CCIGRN(d->character, C_SPR), CCNRM(d->character, C_SPR));
 			SEND_TO_Q(buf, d);
-            // Проверяем корректность статов
-            // Если что-то некорректно, функция проверки сама вернет чара на доработку.
+            // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+            // О©╫О©╫О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
             if (!ValidateStats(d))
                 return;
-            SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+            SEND_TO_Q("\r\n* О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ANYKEY О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ENTER *", d);
             STATE(d) = CON_RMOTD;
 		}
 		break;
@@ -3705,46 +3706,46 @@ Sventovit
     case CON_RESET_KIN:
 		if (pre_help(d->character, arg))
 		{
-            SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
+            SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫:\r\n", d);
             SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
-			SEND_TO_Q("\r\nПлемя: ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫О©╫О©╫: ", d);
 			STATE(d) = CON_RESET_KIN;
 			return;
 		}
         load_result = PlayerRace::CheckKin(arg);
 		if (load_result == KIN_UNDEFINED)
 		{
-			SEND_TO_Q("Стыдно не помнить предков.\r\n"
-					  "Какое Племя вам ближе по духу? ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+					  "О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫? ", d);
 			return;
 		}
 		GET_KIN(d->character) = load_result;
         if (!ValidateStats(d))
             return;
-        SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+        SEND_TO_Q("\r\n* О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ANYKEY О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ENTER *", d);
         STATE(d) = CON_RMOTD;
         break;
 
     case CON_RESET_RACE:
 		if (pre_help(d->character, arg))
 		{
-			SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫:\r\n", d);
             SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-			SEND_TO_Q("\r\nРод: ", d);
+			SEND_TO_Q("\r\nО©╫О©╫О©╫: ", d);
 			STATE(d) = CON_RESET_RACE;
 			return;
 		}
         load_result = PlayerRace::CheckRace(GET_KIN(d->character), arg);
 		if (load_result == RACE_UNDEFINED)
 		{
-			SEND_TO_Q("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n" "О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫? ", d);
 			return;
 		}
 		GET_RACE(d->character) = load_result;
         if (!ValidateStats(d))
             return;
-		// способности нового рода проставятся дальше в do_entergame
-        SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ do_entergame
+        SEND_TO_Q("\r\n* О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ANYKEY О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ENTER *", d);
         STATE(d) = CON_RMOTD;
         break;
 
@@ -3756,42 +3757,42 @@ Sventovit
 		if (pre_help(d->character, arg))
 		{
 			SEND_TO_Q(religion_menu, d);
-			SEND_TO_Q("\n\rРелигия :", d);
+			SEND_TO_Q("\n\rО©╫О©╫О©╫О©╫О©╫О©╫О©╫ :", d);
 			return;
 		}
 
 		switch (UPPER(*arg))
 		{
-		case 'Я':
-		case 'З':
+		case 'О©╫':
+		case 'О©╫':
 		case 'P':
 			if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_MONO)
 			{
 				SEND_TO_Q
-				("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
-				 "Так каким Богам вы хотите служить? ", d);
+				("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!\r\n"
+				 "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫? ", d);
 				return;
 			}
 			GET_RELIGION(d->character) = RELIGION_POLY;
 			break;
-		case 'Х':
+		case 'О©╫':
 		case 'C':
 			if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_POLY)
 			{
 				SEND_TO_Q
-				("Персонажу выбранной вами профессии противно христианство!\r\n"
-				 "Так каким Богам вы хотите служить? ", d);
+				("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!\r\n"
+				 "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫? ", d);
 				return;
 			}
 			GET_RELIGION(d->character) = RELIGION_MONO;
 			break;
 		default:
-			SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
+			SEND_TO_Q("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ :)\r\n" "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫? ", d);
 			return;
 		}
 		if (!ValidateStats(d))
 			return;
-		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+		SEND_TO_Q("\r\n* О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ANYKEY О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ENTER *", d);
 		STATE(d) = CON_RMOTD;
 		break;
 
@@ -3803,7 +3804,7 @@ Sventovit
 	}
 }
 
-// берем из первой строки одно слово или подстроку в кавычках, результат удаляется из buffer
+// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ buffer
 void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 {
 	std::string::size_type beg_idx = 0, end_idx = 0;
@@ -3811,7 +3812,7 @@ void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 
 	if (beg_idx != std::string::npos)
 	{
-		// случай с кавычками
+		// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 		if (in_buffer[beg_idx] == '\'')
 		{
 			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of("\'", beg_idx)))
@@ -3827,7 +3828,7 @@ void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 					in_buffer.erase(0, ++end_idx);
 				}
 			}
-			// случай с одним параметром через пробел
+			// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 		}
 		else
 		{
@@ -3852,7 +3853,7 @@ void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 	out_buffer.clear();
 }
 
-// регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫)
 bool CompareParam(const std::string & buffer, const char *arg, bool full)
 {
 	if (!*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
@@ -3869,7 +3870,7 @@ bool CompareParam(const std::string & buffer, const char *arg, bool full)
 		return (0);
 }
 
-// тоже самое с обоими аргументами стринг
+// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 bool CompareParam(const std::string & buffer, const std::string & buffer2, bool full)
 {
 	if (buffer.empty() || buffer2.empty()
@@ -3887,7 +3888,7 @@ bool CompareParam(const std::string & buffer, const std::string & buffer2, bool 
 		return (0);
 }
 
-// ищет дескриптор игрока(онлайн состояние) по его УИДу
+// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫(О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫) О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 DESCRIPTOR_DATA *DescByUID(int uid)
 {
 	DESCRIPTOR_DATA *d = 0;
@@ -3899,9 +3900,9 @@ DESCRIPTOR_DATA *DescByUID(int uid)
 }
 
 /**
-* Ищем дескриптор игрока (онлайн) по ИД чара (в основном для писем, т.к. вообще уиды на пользовать)
-* \param id - ид, который ищем
-* \param playing - 0 если ищем игрока в любом состоянии, 1 (дефолт) если ищем только незанятых
+* О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫) О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ (О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫.О©╫. О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫)
+* \param id - О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+* \param playing - 0 О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, 1 (О©╫О©╫О©╫О©╫О©╫О©╫) О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 */
 DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing)
 {
@@ -3923,12 +3924,12 @@ DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing)
 }
 
 /**
-* ищет УИД игрока по его имени, второй необязательный параметр - учитывать или нет БОГОВ
-* проверка уида на -1 нужна потому, что при делете чара (через меню например), его имя
-* останется в плеер-листе, но все остальные параметры будут -1
-* TODO: т.к. за все это время понадобилось только при добавлении в пкл - встает вопрос нафига было это городить...
-* \param god по умолчанию = 0
-* \return >0 - уид чара, 0 - не нашли, -1 - нашли, но это оказался бог (только при god = true)
+* О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+* О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ -1 О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫), О©╫О©╫О©╫ О©╫О©╫О©╫
+* О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ -1
+* TODO: О©╫.О©╫. О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫...
+* \param god О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ = 0
+* \return >0 - О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, 0 - О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, -1 - О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ god = true)
 */
 long GetUniqueByName(const std::string & name, bool god)
 {
@@ -3951,7 +3952,7 @@ long GetUniqueByName(const std::string & name, bool god)
 	return 0;
 }
 
-// ищет имя игрока по его УИДу, второй необязательный параметр - учитывать или нет БОГОВ
+// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 std::string GetNameByUnique(long unique, bool god)
 {
 	std::string temp;
@@ -3971,7 +3972,7 @@ std::string GetNameByUnique(long unique, bool god)
 	return temp;
 }
 
-// замена в name русских символов на англ в нижнем регистре (для файлов)
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ name О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫)
 void CreateFileName(std::string &name)
 {
 	for (unsigned i = 0; i != name.length(); ++i)
@@ -3986,7 +3987,7 @@ void ReadEndString(std::ifstream &file)
 			return;
 }
 
-// замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫) О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 void StringReplace(std::string & buffer, char s, std::string d)
 {
 	for (size_t index = 0; index = buffer.find(s, index), index != std::string::npos;)
@@ -3996,7 +3997,7 @@ void StringReplace(std::string & buffer, char s, std::string d)
 	}
 }
 
-// вывод экспы аля диабла
+// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 std::string ExpFormat(long long exp)
 {
 	std::string prefix;
@@ -4008,21 +4009,21 @@ std::string ExpFormat(long long exp)
 	if (exp < 1000000)
 		return (prefix + boost::lexical_cast<std::string>(exp));
 	else if (exp < 1000000000)
-		return (prefix + boost::lexical_cast<std::string>(exp / 1000) + " тыс");
+		return (prefix + boost::lexical_cast<std::string>(exp / 1000) + " О©╫О©╫О©╫");
 	else if (exp < 1000000000000LL)
-		return (prefix + boost::lexical_cast<std::string>(exp / 1000000) + " млн");
+		return (prefix + boost::lexical_cast<std::string>(exp / 1000000) + " О©╫О©╫О©╫");
 	else
-		return (prefix + boost::lexical_cast<std::string>(exp / 1000000000LL) + " млрд");
+		return (prefix + boost::lexical_cast<std::string>(exp / 1000000000LL) + " О©╫О©╫О©╫О©╫");
 }
 
-// * Конвертация входной строки в нижний регистр
+// * О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 void lower_convert(std::string& text)
 {
 	for (std::string::iterator it = text.begin(); it != text.end(); ++it)
 		*it = LOWER(*it);
 }
 
-// * Конвертация входной строки в нижний регистр
+// * О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 void lower_convert(char* text)
 {
 	while (*text)
@@ -4032,7 +4033,7 @@ void lower_convert(char* text)
 	}
 }
 
-// * Конвертация имени в нижний регистр + первый сивмол в верхний (для единообразного поиска в контейнерах)
+// * О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ + О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫)
 void name_convert(std::string& text)
 {
 	if (!text.empty())
@@ -4042,14 +4043,14 @@ void name_convert(std::string& text)
 	}
 }
 
-// * Генерация списка неодобренных титулов и имен и вывод их имму
+// * О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫
 void single_god_invoice(CHAR_DATA* ch)
 {
 	TitleSystem::show_title_list(ch);
 	NewNameShow(ch);
 }
 
-// * Поиск незанятых иммов онлайн для вывода им неодобренных титулов и имен раз в 5 минут
+// * О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ 5 О©╫О©╫О©╫О©╫О©╫
 void god_work_invoice()
 {
 	for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next)
@@ -4058,7 +4059,7 @@ void god_work_invoice()
 			single_god_invoice(d->character);
 }
 
-// * Вывод оповещений о новых сообщениях на досках, письмах, (неодобренных имен и титулов для иммов) при логине и релогине
+// * О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫, (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫) О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 void login_change_invoice(CHAR_DATA* ch)
 {
 	Board::LoginInfo(ch);
@@ -4068,11 +4069,11 @@ void login_change_invoice(CHAR_DATA* ch)
 	}
 	if (mail::has_mail(ch->get_uid()))
 	{
-		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
+		send_to_char("&R\r\nО©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫!&n\r\n", ch);
 	}
 	if (Parcel::has_parcel(ch))
 	{
-		send_to_char("&R\r\nВас ожидает посылка. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
+		send_to_char("&R\r\nО©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫!&n\r\n", ch);
 	}
 	Depot::show_purged_message(ch);
 	if (CLAN(ch))
@@ -4081,10 +4082,10 @@ void login_change_invoice(CHAR_DATA* ch)
 	}
 }
 
-// спам-контроль для команды кто и списка по дружинам
-// работает аналогично восстановлению и расходованию маны у волхвов
-// константы пока определены через #define в interpreter.h
-// возвращает истину, если спамконтроль сработал и игроку придется подождать
+// О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ #define О©╫ interpreter.h
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 bool who_spamcontrol(CHAR_DATA *ch, unsigned short int mode = WHO_LISTALL)
 {
 	int cost = 0;
@@ -4112,14 +4113,14 @@ bool who_spamcontrol(CHAR_DATA *ch, unsigned short int mode = WHO_LISTALL)
 	int last = ch->get_who_last();
 
 #ifdef WHO_DEBUG
-	send_to_char(boost::str(boost::format("\r\nСпам-контроль:\r\n  было маны: %u, расход: %u\r\n") % ch->get_who_mana() % cost).c_str(), ch);
+	send_to_char(boost::str(boost::format("\r\nО©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫:\r\n  О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫: %u, О©╫О©╫О©╫О©╫О©╫О©╫: %u\r\n") % ch->get_who_mana() % cost).c_str(), ch);
 #endif
 
-	// рестим ману, в БД скорость реста маны удваивается
+	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	mana = MIN(WHO_MANA_MAX, mana + (ctime - last) * WHO_MANA_REST_PER_SECOND + (ctime - last) * WHO_MANA_REST_PER_SECOND * (RENTABLE(ch) ? 1 : 0));
 
 #ifdef WHO_DEBUG
-	send_to_char(boost::str(boost::format("  прошло %u с, восстановили %u, мана после регена: %u\r\n") %
+	send_to_char(boost::str(boost::format("  О©╫О©╫О©╫О©╫О©╫О©╫ %u О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %u, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫: %u\r\n") %
 	                                      (ctime - last) % (mana - ch->get_who_mana()) % mana).c_str(), ch);
 #endif
 
@@ -4128,7 +4129,7 @@ bool who_spamcontrol(CHAR_DATA *ch, unsigned short int mode = WHO_LISTALL)
 
 	if (mana < cost)
 	{
-		send_to_char("Запрос обрабатывается, ожидайте...\r\n", ch);
+		send_to_char("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫...\r\n", ch);
 		return true;
 	}
 	else
@@ -4137,7 +4138,7 @@ bool who_spamcontrol(CHAR_DATA *ch, unsigned short int mode = WHO_LISTALL)
 		ch->set_who_mana(mana);
 	}
 #ifdef WHO_DEBUG
-	send_to_char(boost::str(boost::format("  осталось маны: %u\r\n") % mana).c_str(), ch);
+	send_to_char(boost::str(boost::format("  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫: %u\r\n") % mana).c_str(), ch);
 #endif
 	return false;
 }

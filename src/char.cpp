@@ -2,11 +2,9 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <sstream>
-#include <list>
-#include <boost/format.hpp>
 #include "char.hpp"
-#include "utils.h"
+
+#include "obj.hpp"
 #include "db.h"
 #include "pk.h"
 #include "im.h"
@@ -26,6 +24,12 @@
 #include "fight.h"
 #include "house.h"
 #include "help.hpp"
+#include "utils.h"
+
+#include <boost/format.hpp>
+
+#include <sstream>
+#include <list>
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
