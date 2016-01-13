@@ -13,14 +13,8 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
-#include "conf.h"
-#include <algorithm>
-#include <stack>
-
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "dg_scripts.h"
-#include "utils.h"
 #include "db.h"
 #include "handler.h"
 #include "dg_event.h"
@@ -34,6 +28,13 @@
 #include "room.hpp"
 #include "magic.h"
 #include "boards.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <algorithm>
+#include <stack>
 
 void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void trig_data_free(TRIG_DATA * this_data);

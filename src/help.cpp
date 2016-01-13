@@ -2,18 +2,10 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <iterator>
-#include <sstream>
-#include <iomanip>
-#include <map>
-#include <boost/format.hpp>
-#include <boost/bind.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/range/algorithm/remove_if.hpp>
 #include "help.hpp"
-#include "structs.h"
+
+#include "obj.hpp"
 #include "db.h"
-#include "utils.h"
 #include "modify.h"
 #include "house.h"
 #include "sets_drop.hpp"
@@ -21,6 +13,18 @@
 #include "screen.h"
 #include "spells.h"
 #include "obj_sets.hpp"
+#include "utils.h"
+#include "structs.h"
+
+#include <boost/format.hpp>
+#include <boost/bind.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/range/algorithm/remove_if.hpp>
+
+#include <iterator>
+#include <sstream>
+#include <iomanip>
+#include <map>
 
 extern char *help;
 extern const char *weapon_affects[];
@@ -447,8 +451,8 @@ std::string print_fullset_stats(const set_info &set)
 // инициация распечатки справки по активаторам
 void process()
 {
-	for (id_to_set_info_map::const_iterator it = obj_data::set_table.begin(),
-		iend = obj_data::set_table.end(); it != iend; ++it)
+	for (id_to_set_info_map::const_iterator it = OBJ_DATA::set_table.begin(),
+		iend = OBJ_DATA::set_table.end(); it != iend; ++it)
 	{
 		std::stringstream out;
 		// it->first = int_id, it->second = set_info

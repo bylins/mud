@@ -13,12 +13,8 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include <boost/lexical_cast.hpp>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "dg_scripts.h"
-#include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -27,6 +23,12 @@
 #include "char.hpp"
 #include "room.hpp"
 #include "spells.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/lexical_cast.hpp>
 
 extern INDEX_DATA **trig_index;
 

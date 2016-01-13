@@ -4,17 +4,18 @@
  *  Copyright 1996 Harvey Gilpin.					*
  ************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "comm.h"
-#include "utils.h"
 #include "db.h"
 #include "olc.h"
 #include "dg_scripts.h"
 #include "char.hpp"
 #include "room.hpp"
 #include "help.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 /*
  * Turn on zedit debugging.  Please mail log results to greerga@van.ml.org

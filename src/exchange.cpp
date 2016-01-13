@@ -8,12 +8,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include <stdexcept>
-#include <sstream>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -31,6 +26,13 @@
 #include "mail.h"
 #include "objsave.h"
 #include "pk.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <stdexcept>
+#include <sstream>
 
 //Используемые внешние ф-ии.
 extern OBJ_DATA *read_one_object_new(char **data, int *error);

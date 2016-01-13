@@ -11,11 +11,12 @@
 #ifndef _SPELLS_H_
 #define _SPELLS_H_
 
+#include "structs.h"	// there was defined type "byte" if it had been missing
+
 #include <boost/tokenizer.hpp>
 #include <boost/array.hpp>
 
-// instead of #include "room.hpp"
-struct ROOM_DATA;
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 #define DEFAULT_STAFF_LVL	12
 #define DEFAULT_WAND_LVL	12
@@ -344,7 +345,7 @@ struct ROOM_DATA;
 #define SPELL_HYPNOTIC_PATTERN	200
 #define SPELL_SOLOBONUS		201
 #define SPELL_VAMPIRE		202
-#define LAST_USED_SPELL			203
+#define SPELLS_COUNT			203
 
 #define MAX_SLOT 13
 
@@ -595,8 +596,6 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
-std::string print_obj_affects(const obj_affected_type &affect);
-void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
 int get_magic_skill_number_by_spell(int spellnum);
 
 //Polud статистика использования заклинаний

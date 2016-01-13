@@ -12,10 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "db.h"
 #include "comm.h"
 #include "interpreter.h"
@@ -30,6 +27,10 @@
 #include "room.hpp"
 #include "shop_ext.hpp"
 #include "fight.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 // external structs
 extern INDEX_DATA *mob_index;

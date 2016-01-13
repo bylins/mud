@@ -9,10 +9,11 @@
 #ifndef __FEATURES_HPP__
 #define __FEATURES_HPP__
 
-#include <bitset>
-#include <boost/array.hpp>
+#include "structs.h"
 #include "conf.h"
-#include "obj.hpp"
+
+#include <array>
+#include <bitset>
 
 using std::bitset;
 
@@ -187,6 +188,27 @@ int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 void set_race_feats(CHAR_DATA *ch, bool flag = true);
 void set_natural_feats(CHAR_DATA *ch);
+
+struct obj_affected_type
+{
+	int location;		// Which ability to change (APPLY_XXX) //
+	int modifier;		// How much it changes by              //
+
+	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
+
+	obj_affected_type(int __location, int __modifier)
+		: location(__location), modifier(__modifier) {}
+
+	// для сравнения в sedit
+	bool operator!=(const obj_affected_type &r) const
+	{
+		return (location != r.location || modifier != r.modifier);
+	}
+	bool operator==(const obj_affected_type &r) const
+	{
+		return !(*this != r);
+	}
+};
 
 struct feat_info_type
 {

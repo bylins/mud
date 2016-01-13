@@ -8,11 +8,8 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "comm.h"
-#include "utils.h"
 #include "db.h"
 #include "olc.h"
 #include "dg_olc.h"
@@ -24,13 +21,15 @@
 #include "char_player.hpp"
 #include "room.hpp"
 #include "house.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 // List each room saved, was used for debugging.
 #if 0
 #define REDIT_LIST	1
 #endif
-
-//------------------------------------------------------------------------
 
 // * External data structures.
 extern vector < OBJ_DATA * >obj_proto;

@@ -14,19 +14,7 @@
 
 #define __ACT_OTHER_C__
 
-#include "conf.h"
-#include <sstream>
-#include <fstream>
-#include <string>
-#include <map>
-#include <iterator>
-#include <sys/stat.h>
-#include <set>
-#include <utility>
-
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -51,6 +39,20 @@
 #include "objsave.h"
 #include "shop_ext.hpp"
 #include "noob.hpp"
+#include "structs.h"
+#include "utils.h"
+#include "conf.h"
+#include "sysdep.h"
+
+#include <sys/stat.h>
+
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <map>
+#include <iterator>
+#include <set>
+#include <utility>
 
 using std::ifstream;
 using std::fstream;
@@ -3042,7 +3044,7 @@ int check_for_dig(CHAR_DATA *ch)
 	return 0;
 }
 
-void dig_obj(CHAR_DATA *ch, struct obj_data *obj)
+void dig_obj(CHAR_DATA *ch, struct OBJ_DATA *obj)
 {
 	char textbuf[300];
 
@@ -3071,7 +3073,7 @@ void dig_obj(CHAR_DATA *ch, struct obj_data *obj)
 ACMD(do_dig)
 {
 	CHAR_DATA *mob;
-	struct obj_data *obj;
+	struct OBJ_DATA *obj;
 	char textbuf[300];
 	int percent, prob;
 	int stone_num, random_stone;
@@ -3253,7 +3255,7 @@ ACMD(do_dig)
 		send_to_char("Не найден прототип обжекта!", ch);
 }
 
-void set_obj_aff(struct obj_data *itemobj, int bitv)
+void set_obj_aff(struct OBJ_DATA *itemobj, int bitv)
 {
 	int i;
 
@@ -3266,7 +3268,7 @@ void set_obj_aff(struct obj_data *itemobj, int bitv)
 	}
 }
 
-void set_obj_eff(struct obj_data *itemobj, int type, int mod)
+void set_obj_eff(struct OBJ_DATA *itemobj, int type, int mod)
 {
 	int i;
 
@@ -3307,7 +3309,7 @@ ACMD(do_insertgem)
 	char arg3[MAX_INPUT_LENGTH];
 	char buf[300];
 	char *gem, *item;
-	struct obj_data *gemobj, *itemobj;
+	struct OBJ_DATA *gemobj, *itemobj;
 
 	argument = two_arguments(argument, arg1, arg2);
 

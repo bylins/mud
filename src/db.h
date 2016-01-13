@@ -15,8 +15,7 @@
 #ifndef _DB_H_
 #define _DB_H_
 
-// instead of #include "room.hpp"
-struct ROOM_DATA;
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 #include "pugixml.hpp"
 

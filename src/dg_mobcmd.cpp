@@ -34,12 +34,9 @@
  *  such installation can be found in INSTALL.  Enjoy........    N'Atas-Ha *
  ***************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "dg_scripts.h"
 #include "db.h"
-#include "utils.h"
 #include "handler.h"
 #include "interpreter.h"
 #include "comm.h"
@@ -51,6 +48,10 @@
 #include "name_list.hpp"
 #include "room.hpp"
 #include "fight.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
 

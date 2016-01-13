@@ -4,20 +4,9 @@
 * (c) 2005 Krodo                                                              *
 ******************************************************************************/
 
-#include <algorithm>
-#include <fstream>
-#include <sstream>
-#include <cmath>
-#include <iomanip>
-#include <limits>
-#include <sys/stat.h>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/bind.hpp>
-#include <boost/lexical_cast.hpp>
-//#include <boost/range/algorithm/remove_if.hpp>
-#include "conf.h"
 #include "house.h"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "handler.h"
 #include "pk.h"
@@ -34,6 +23,21 @@
 #include "handler.h"
 #include "named_stuff.hpp"
 #include "help.hpp"
+#include "conf.h"
+
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <sys/stat.h>
+
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <cmath>
+#include <iomanip>
+#include <limits>
 
 using namespace ClanSystem;
 

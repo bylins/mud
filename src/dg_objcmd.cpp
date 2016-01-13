@@ -9,25 +9,26 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "screen.h"
 #include "dg_scripts.h"
-#include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
 #include "spells.h"
 #include "im.h"
-#include "features.hpp"
 #include "char.hpp"
 #include "skills.h"
 #include "name_list.hpp"
 #include "room.hpp"
 #include "magic.h"
 #include "fight.h"
+#include "features.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 extern INDEX_DATA *obj_index;
 extern const char *dirs[];

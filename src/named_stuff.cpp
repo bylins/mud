@@ -2,21 +2,9 @@
 // Copyright (c) 2010 WorM
 // Part of Bylins http://www.mud.ru
 
-#include <list>
-#include <map>
-#include <string>
-#include <iomanip>
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/array.hpp>
-#include "pugixml.hpp"
-#include <boost/algorithm/string.hpp>
-
 #include "named_stuff.hpp"
-#include "structs.h"
-#include "utils.h"
+
+#include "obj.hpp"
 #include "screen.h"
 #include "char.hpp"
 #include "comm.h"
@@ -24,6 +12,21 @@
 #include "handler.h"
 #include "house.h"
 #include "dg_scripts.h"
+#include "pugixml.hpp"
+#include "utils.h"
+#include "structs.h"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
+#include <boost/array.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include <list>
+#include <map>
+#include <string>
+#include <iomanip>
+#include <vector>
 
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;

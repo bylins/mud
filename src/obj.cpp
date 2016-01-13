@@ -2,27 +2,28 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "obj.hpp"
+
+#include "parse.hpp"
+#include "handler.h"
+#include "char.hpp"
+#include "constants.h"
+#include "db.h"
+#include "screen.h"
+#include "celebrates.hpp"
+#include "pk.h"
+#include "cache.hpp"
+#include "utils.h"
 #include "conf.h"
-#include <sstream>
-#include <cmath>
+
 #include <boost/algorithm/string.hpp>
 
-#include "obj.hpp"
-#include "utils.h"
-#include "pk.h"
-#include "celebrates.hpp"
-#include "cache.hpp"
-#include "screen.h"
-#include "comm.h"
-#include "char.hpp"
-#include "db.h"
-#include "constants.h"
-#include "handler.h"
-#include "parse.hpp"
+#include <cmath>
+#include <sstream>
 
 extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 
-id_to_set_info_map obj_data::set_table;
+id_to_set_info_map OBJ_DATA::set_table;
 
 namespace
 {
@@ -33,19 +34,19 @@ PurgedObjList purged_obj_list;
 
 } // namespace
 
-obj_data::obj_data()
+OBJ_DATA::OBJ_DATA()
 {
 	this->zero_init();
 	caching::obj_cache.add(this);
 }
 
-obj_data::obj_data(const obj_data& other)
+OBJ_DATA::OBJ_DATA(const OBJ_DATA& other)
 {
 	*this = other;
 	caching::obj_cache.add(this);
 }
 
-obj_data::~obj_data()
+OBJ_DATA::~OBJ_DATA()
 {
 	if (!purged_)
 	{
@@ -79,7 +80,7 @@ void free_custom_label(struct custom_label *custom_label) {
 }
 
 // * См. Character::zero_init()
-void obj_data::zero_init()
+void OBJ_DATA::zero_init()
 {
 	uid = 0;
 	item_number = NOTHING;
@@ -124,7 +125,7 @@ void obj_data::zero_init()
 }
 
 // * См. Character::purge()
-void obj_data::purge(bool destructor)
+void OBJ_DATA::purge(bool destructor)
 {
 	if (purged_)
 	{
@@ -149,22 +150,22 @@ void obj_data::purge(bool destructor)
 	}
 }
 
-bool obj_data::purged() const
+bool OBJ_DATA::purged() const
 {
 	return purged_;
 }
 
-int obj_data::get_serial_num()
+int OBJ_DATA::get_serial_num()
 {
 	return serial_num_;
 }
 
-void obj_data::set_serial_num(int num)
+void OBJ_DATA::set_serial_num(int num)
 {
 	serial_num_ = num;
 }
 
-const std::string obj_data::activate_obj(const activation& __act)
+const std::string OBJ_DATA::activate_obj(const activation& __act)
 {
 	if (item_number >= 0)
 	{
@@ -205,7 +206,7 @@ const std::string obj_data::activate_obj(const activation& __act)
 		return "\n";
 }
 
-const std::string obj_data::deactivate_obj(const activation& __act)
+const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 {
 	if (item_number >= 0)
 	{
@@ -236,7 +237,7 @@ const std::string obj_data::deactivate_obj(const activation& __act)
 		return "\n";
 }
 
-void obj_data::set_skill(int skill_num, int percent)
+void OBJ_DATA::set_skill(int skill_num, int percent)
 {
 	if (skills)
 	{
@@ -264,7 +265,7 @@ void obj_data::set_skill(int skill_num, int percent)
 	}
 }
 
-int obj_data::get_skill(int skill_num) const
+int OBJ_DATA::get_skill(int skill_num) const
 {
 	if (skills)
 	{
@@ -281,13 +282,13 @@ int obj_data::get_skill(int skill_num) const
 }
 
 // * @warning Предполагается, что __out_skills.empty() == true.
-void obj_data::get_skills(std::map<int, int>& out_skills) const
+void OBJ_DATA::get_skills(std::map<int, int>& out_skills) const
 {
 	if (skills)
 		out_skills.insert(skills->begin(), skills->end());
 }
 
-bool obj_data::has_skills() const
+bool OBJ_DATA::has_skills() const
 {
 	if (skills)
 		return !skills->empty();
@@ -295,12 +296,12 @@ bool obj_data::has_skills() const
 		return false;
 }
 
-void obj_data::set_timer(int timer)
+void OBJ_DATA::set_timer(int timer)
 {
 	timer_ = MAX(0, timer);	
 }
 
-int obj_data::get_timer() const
+int OBJ_DATA::get_timer() const
 {
 	return timer_;
 }
@@ -315,11 +316,11 @@ int obj_data::get_timer() const
 * Помимо таймера самой шмотки снимается таймер ее временного обкаста.
 * \param time по дефолту 1.
 */
-void obj_data::dec_timer(int time, bool ignore_utimer)
+void OBJ_DATA::dec_timer(int time, bool ignore_utimer)
 {
-	if (!timed_spell.empty())
+	if (!m_timed_spell.empty())
 	{
-		timed_spell.dec_timer(this, time);
+		m_timed_spell.dec_timer(this, time);
 	}
 
 	if (!ignore_utimer && check_unlimited_timer(this))
@@ -330,37 +331,37 @@ void obj_data::dec_timer(int time, bool ignore_utimer)
 	}
 }
 
-float obj_data::show_mort_req() 
+float OBJ_DATA::show_mort_req() 
 {
 	return count_remort_requred(this);
 }
 
-float obj_data::show_koef_obj() 
+float OBJ_DATA::show_koef_obj() 
 {
 	return count_unlimited_timer(this);
 }
 
-int obj_data::get_manual_mort_req() const
+int OBJ_DATA::get_manual_mort_req() const
 {
 	return manual_mort_req_;
 }
 
-void obj_data::set_manual_mort_req(int param)
+void OBJ_DATA::set_manual_mort_req(int param)
 {
 	manual_mort_req_ = param;
 }
 
-unsigned obj_data::get_ilevel() const
+unsigned OBJ_DATA::get_ilevel() const
 {
 	return ilevel_;
 }
 
-void obj_data::set_ilevel(unsigned ilvl)
+void OBJ_DATA::set_ilevel(unsigned ilvl)
 {
 	ilevel_ = ilvl;
 }
 
-int obj_data::get_mort_req() const
+int OBJ_DATA::get_mort_req() const
 {
 	if (manual_mort_req_ >= 0)
 	{
@@ -373,12 +374,12 @@ int obj_data::get_mort_req() const
 	return 0;
 }
 
-int obj_data::get_cost() const
+int OBJ_DATA::get_cost() const
 {
 	return cost_;
 }
 
-void obj_data::set_cost(int x)
+void OBJ_DATA::set_cost(int x)
 {
 	if (x >= 0)
 	{
@@ -386,14 +387,14 @@ void obj_data::set_cost(int x)
 	}
 }
 
-int obj_data::get_rent() const
+int OBJ_DATA::get_rent() const
 {
 	/* if (check_unlimited_timer(this))
 		return 0; */
 	return cost_per_day_off_;
 }
 
-void obj_data::set_rent(int x)
+void OBJ_DATA::set_rent(int x)
 {
 	if (x >= 0)
 	{
@@ -401,14 +402,14 @@ void obj_data::set_rent(int x)
 	}
 }
 
-int obj_data::get_rent_eq() const
+int OBJ_DATA::get_rent_eq() const
 {
 	/* if (check_unlimited_timer(this))
 		return 0; */
 	return cost_per_day_on_;
 }
 
-void obj_data::set_rent_eq(int x)
+void OBJ_DATA::set_rent_eq(int x)
 {
 	if (x >= 0)
 	{
@@ -416,15 +417,31 @@ void obj_data::set_rent_eq(int x)
 	}
 }
 
-void obj_data::set_activator(bool flag, int num)
+void OBJ_DATA::set_activator(bool flag, int num)
 {
 	activator_.first = flag;
 	activator_.second = num;
 }
 
-std::pair<bool, int> obj_data::get_activator() const
+std::pair<bool, int> OBJ_DATA::get_activator() const
 {
 	return activator_;
+}
+
+void OBJ_DATA::add_timed_spell(const int spell, const int time)
+{
+	if (spell < 0 || spell >= SPELLS_COUNT)
+	{
+		log("SYSERROR: func: %s, spell = %d, time = %d", __func__, spell, time);
+		return;
+	}
+	m_timed_spell.add(this, spell, time);
+	set_extraflag(ITEM_TICKTIMER);
+}
+
+void OBJ_DATA::del_timed_spell(const int spell, const bool message)
+{
+	m_timed_spell.del(this, spell, message);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -973,6 +990,62 @@ void ObjVal::remove_incorrect_keys(int type)
 			++i;
 		}
 	}
+}
+
+std::string print_obj_affects(const obj_affected_type &affect)
+{
+	sprinttype(affect.location, apply_types, buf2);
+	bool negative = false;
+	for (int j = 0; *apply_negative[j] != '\n'; j++)
+	{
+		if (!str_cmp(buf2, apply_negative[j]))
+		{
+			negative = true;
+			break;
+		}
+	}
+	if (!negative && affect.modifier < 0)
+	{
+		negative = true;
+	}
+	else if (negative && affect.modifier < 0)
+	{
+		negative = false;
+	}
+
+	sprintf(buf, "%s%s%s%s%s%d%s\r\n",
+		KCYN, buf2, KNRM,
+		KCYN, (negative ? " ухудшает на " : " улучшает на "),
+		abs(affect.modifier), KNRM);
+
+	return std::string(buf);
+}
+
+void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect)
+{
+	sprinttype(affect.location, apply_types, buf2);
+	bool negative = false;
+	for (int j = 0; *apply_negative[j] != '\n'; j++)
+	{
+		if (!str_cmp(buf2, apply_negative[j]))
+		{
+			negative = true;
+			break;
+		}
+	}
+	if (!negative && affect.modifier < 0)
+	{
+		negative = true;
+	}
+	else if (negative && affect.modifier < 0)
+	{
+		negative = false;
+	}
+	sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
+		CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
+		CCCYN(ch, C_NRM),
+		negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), CCNRM(ch, C_NRM));
+	send_to_char(buf, ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

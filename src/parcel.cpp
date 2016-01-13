@@ -2,12 +2,9 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <map>
-#include <list>
-#include <string>
-#include <sstream>
-#include <iomanip>
 #include "parcel.hpp"
+
+#include "obj.hpp"
 #include "db.h"
 #include "interpreter.h"
 #include "comm.h"
@@ -20,6 +17,12 @@
 #include "name_list.hpp"
 #include "room.hpp"
 #include "objsave.h"
+
+#include <map>
+#include <list>
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;

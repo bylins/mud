@@ -9,7 +9,8 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
-#include "utils.h"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -30,6 +31,7 @@
 #include "skills.h"
 #include "noob.hpp"
 #include "genchar.h"
+#include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

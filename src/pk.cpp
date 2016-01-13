@@ -11,21 +11,24 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include <map>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "constants.h"
-#include "utils.h"
+#include "pk.h"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
 #include "interpreter.h"
 #include "screen.h"
-#include "pk.h"
 #include "char.hpp"
 #include "room.hpp"
 #include "house.h"
+#include "constants.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <map>
 
 ACMD(do_revenge);
 
