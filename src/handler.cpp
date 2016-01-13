@@ -1523,8 +1523,10 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		{
-			if (!( check_unlimited_timer(object)))
-			    SET_BIT(GET_OBJ_EXTRA(object, ITEM_TICKTIMER), ITEM_TICKTIMER);
+			if (check_unlimited_timer(object))
+			{
+				object->set_extraflag(ITEM_TICKTIMER);	// set timer flag for unbreakable items.
+			}
 			insert_obj_and_group(object, &ch->carrying);
 		}
 		else
@@ -2693,8 +2695,6 @@ void extract_obj(OBJ_DATA * obj)
 // TODO: в дебаг log("Stop extract obj %s", name);
 }
 
-
-
 void update_object(OBJ_DATA * obj, int use)
 {
 	// dont update objects with a timer trigger
@@ -2707,7 +2707,6 @@ void update_object(OBJ_DATA * obj, int use)
 	if (obj->next_content)
 		update_object(obj->next_content, use);
 }
-
 
 void update_char_objects(CHAR_DATA * ch)
 {

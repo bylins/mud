@@ -463,9 +463,10 @@ struct OBJ_DATA
 	void add_timed_spell(const int spell, const int time);
 	void del_timed_spell(const int spell, const bool message);
 
+	void set_extraflag(const bitvector_t flag) { obj_flags.extra_flags.set(flag); }
+
 private:
 	void zero_init();
-	void set_extraflag(const uint32_t flag) { obj_flags.extra_flags.set(flag); }
 
 	TimedSpell m_timed_spell;    ///< временный обкаст
 	// если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"

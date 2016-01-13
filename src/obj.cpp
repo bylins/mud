@@ -436,7 +436,6 @@ void OBJ_DATA::add_timed_spell(const int spell, const int time)
 		return;
 	}
 	m_timed_spell.add(this, spell, time);
-	set_extraflag(ITEM_TICKTIMER);
 }
 
 void OBJ_DATA::del_timed_spell(const int spell, const bool message)
