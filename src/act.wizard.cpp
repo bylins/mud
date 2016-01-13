@@ -12,17 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "conf.h"
-#include <sstream>
-#include <iomanip>
-#include <fstream>
-#include <iostream>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -59,7 +49,6 @@
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "corpse.hpp"
-//#include "scripting.hpp"
 #include "pugixml.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
@@ -67,6 +56,19 @@
 #include "noob.hpp"
 #include "mail.h"
 #include "mob_stat.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <sstream>
+#include <iomanip>
+#include <fstream>
+#include <iostream>
 
 using std::ifstream;
 using std::fstream;

@@ -2,17 +2,9 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
-#include <map>
-#include <sstream>
-#include <iomanip>
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
-#include "boost/multi_array.hpp"
-#include <boost/format.hpp>
 #include "map.hpp"
-#include "utils.h"
+
+#include "obj.hpp"
 #include "screen.h"
 #include "room.hpp"
 #include "db.h"
@@ -20,6 +12,18 @@
 #include "handler.h"
 #include "shop_ext.hpp"
 #include "noob.hpp"
+#include "utils.h"
+#include "conf.h"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/algorithm/string.hpp>
+#include "boost/multi_array.hpp"
+#include <boost/format.hpp>
+
+#include <map>
+#include <sstream>
+#include <iomanip>
+#include <vector>
 
 SPECIAL(shop_ext);
 SPECIAL(receptionist);

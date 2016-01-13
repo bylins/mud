@@ -12,10 +12,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "magic.h"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "spells.h"
 #include "skills.h"
@@ -27,7 +26,6 @@
 #include "dg_scripts.h"
 #include "pk.h"
 #include "features.hpp"
-#include "magic.h"
 #include "fight.h"
 #include "deathtrap.hpp"
 #include "random.hpp"
@@ -36,6 +34,10 @@
 #include "modify.h"
 #include "room.hpp"
 #include "AffectHandler.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -44,7 +46,7 @@ extern struct spell_create_type spell_create[];
 extern int mini_mud;
 extern const char *spell_wear_off_msg[];
 extern bool check_unlimited_timer(OBJ_DATA *obj);
-extern const char *cast_phrase[LAST_USED_SPELL + 1][2];
+extern const char *cast_phrase[SPELLS_COUNT + 1][2];
 extern int interpolate(int min_value, int pulse);
 
 byte saving_throws(int class_num, int type, int level);	// class.cpp
@@ -196,7 +198,7 @@ void find_and_remove_room_affect(long id, int spellnum)
         {
 			if ((af->type == spellnum) && (af->caster_id == id))
 			{
-                if (af->type > 0 && af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
+                if (af->type > 0 && af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
 							show_room_spell_off(af->type, real_room((*it)->number));
                 affect_room_remove(*it, af);
                 return;
@@ -412,7 +414,7 @@ void room_affect_update(void)
 							|| (af->next->duration > 0))
 					{
 						if (af->type > 0 &&
-								af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
+								af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
 						{
 							show_room_spell_off(af->type, real_room((*it)->number));
 						}
@@ -835,7 +837,7 @@ void mobile_affect_update(void)
 							|| (af->next->duration > 0))
 					{
 						if (af->type > 0 &&
-								af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
+								af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
 						{
 							show_spell_off(af->type, i);
 							if (af->type == SPELL_CHARM || af->bitvector == AFF_CHARM)
@@ -927,7 +929,7 @@ void player_affect_update(void)
 							|| (af->next->duration > 0))
 					{
 						if (af->type > 0 &&
-								af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
+								af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
 						{
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
@@ -994,7 +996,7 @@ void battle_affect_update(CHAR_DATA * ch)
 						|| (af->next->duration > 0))
 				{
 					if (af->type > 0 &&
-							af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
+							af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
 					{
 						show_spell_off(af->type, ch);
 					}
@@ -1043,7 +1045,7 @@ void pulse_affect_update(CHAR_DATA * ch)
 						|| (af->next->duration > 0))
 				{
 					if (af->type > 0 &&
-							af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
+							af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
 					{
 						show_spell_off(af->type, ch);
 					}
@@ -4532,7 +4534,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 			GET_OBJ_MAX(obj) += MAX(GET_OBJ_MAX(obj) >> 2, 1);
 			GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
 			to_char = "$o вспыхнул$G голубым светом и тут же погас$Q.";
-			obj->timed_spell.add(obj, SPELL_BLESS, -1);
+			obj->add_timed_spell(SPELL_BLESS, -1);
 		}
 		break;
 	case SPELL_CURSE:
@@ -4647,7 +4649,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		break;
 	case SPELL_FLY:
 //		obj->timed_spell.add(obj, SPELL_FLY, 60 * 24 * 3);
-		obj->timed_spell.add(obj, SPELL_FLY, -1);
+		obj->add_timed_spell(SPELL_FLY, -1);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
 		//В связи с тем, что летающие вещи более не тонут, флаг плавает тут неуместен
 		//SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
@@ -4675,14 +4677,14 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_LIGHT:
-		obj->timed_spell.add(obj, SPELL_LIGHT, -1);
+		obj->add_timed_spell(SPELL_LIGHT, -1);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_GLOW), ITEM_GLOW);
 		to_char = "$o засветил$U ровным зеленоватым светом.";
 		break;
 	case SPELL_DARKNESS:
-		if (obj->timed_spell.check_spell(SPELL_LIGHT))
+		if (obj->timed_spell().check_spell(SPELL_LIGHT))
 		{
-			obj->timed_spell.del(obj, SPELL_LIGHT, true);
+			obj->del_timed_spell(SPELL_LIGHT, true);
 			return 1;
 		}
 		break;

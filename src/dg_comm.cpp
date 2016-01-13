@@ -8,16 +8,17 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "dg_scripts.h"
-#include "utils.h"
 #include "comm.h"
 #include "handler.h"
 #include "db.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 

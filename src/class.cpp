@@ -19,12 +19,9 @@
  * the appropriate new special cases for your new class.
  */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "db.h"
-#include "utils.h"
 #include "spells.h"
 #include "skills.h"
 #include "interpreter.h"
@@ -42,8 +39,13 @@
 #include "player_races.hpp"
 #include "noob.hpp"
 #include "exchange.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 #include <iostream>
+
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
 extern double exp_coefficients[];

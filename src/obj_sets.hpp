@@ -4,14 +4,15 @@
 #ifndef OBJ_SETS_HPP_INCLUDED
 #define OBJ_SETS_HPP_INCLUDED
 
+#include "features.hpp"
+#include "interpreter.h"
+#include "structs.h"
+#include "sysdep.h"
 #include "conf.h"
+
 #include <array>
 #include <vector>
 #include <set>
-
-#include "sysdep.h"
-#include "structs.h"
-#include "interpreter.h"
 
 /// версия сетовых наборов по принципу навешивания аффектов на чара, а не на
 /// конкретные предметы, подменяя их родные статы + как бонус полноценное олц

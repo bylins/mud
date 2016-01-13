@@ -9,8 +9,7 @@
 #include "sysdep.h"
 #include "conf.h"
 
-// instead of #include "room.hpp"
-struct ROOM_DATA;
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 /**
 * Список слоу-дт (включая проваливание под лед), чтобы не гонять каждые 2 секунды по 64к комнатам.

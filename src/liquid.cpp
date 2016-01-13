@@ -8,15 +8,17 @@
 ************************************************************************ */
 
 #include "liquid.hpp"
+
+#include "obj.hpp"
 #include "char.hpp"
 #include "db.h"
 #include "comm.h"
 #include "handler.h"
 #include "spells.h"
 #include "skills.h"
-#include "features.hpp"
 #include "room.hpp"
 #include "screen.h"
+#include "features.hpp"
 
 extern void weight_change_object(OBJ_DATA * obj, int weight);
 

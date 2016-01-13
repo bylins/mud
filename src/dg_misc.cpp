@@ -8,12 +8,9 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "constants.h"
 #include "dg_scripts.h"
-#include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -23,6 +20,10 @@
 #include "spells.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 // copied from spell_parser.c:
 #define SINFO spell_info[spellnum]

@@ -9,25 +9,26 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "screen.h"
 #include "dg_scripts.h"
-#include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "spells.h"
 #include "db.h"
 #include "im.h"
-#include "features.hpp"
 #include "deathtrap.hpp"
 #include "char.hpp"
 #include "skills.h"
 #include "room.hpp"
 #include "magic.h"
 #include "fight.h"
+#include "features.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 extern const char *dirs[];
 extern struct zone_data *zone_table;

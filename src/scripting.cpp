@@ -826,10 +826,10 @@ struct _arrayN
     }
 };
 
-class ObjWrapper: public Wrapper<obj_data>
+class ObjWrapper: public Wrapper<OBJ_DATA>
 {
 public:
-ObjWrapper(obj_data* obj):Wrapper<obj_data>(obj, caching::obj_cache) { }
+ObjWrapper(OBJ_DATA* obj):Wrapper<OBJ_DATA>(obj, caching::obj_cache) { }
 
 string get_aliases() const
 {
@@ -1251,7 +1251,7 @@ object get_char_equipment(const CharacterWrapper& c, const unsigned num)
 		throw_error_already_set();
 	}
 	CharacterWrapper::Ensurer ch(c);
-	obj_data* r = ch->equipment[num];
+	OBJ_DATA* r = ch->equipment[num];
 	if (!r)
 		return object();
 	else

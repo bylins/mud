@@ -1532,7 +1532,7 @@ void check_potion_proto(OBJ_DATA *obj)
 
 bool parse_val_spell_num(DESCRIPTOR_DATA *d, int key, int val)
 {
-	if (val <= 0 || val >= LAST_USED_SPELL)
+	if (val <= 0 || val >= SPELLS_COUNT)
 	{
 		if (val != 0)
 		{
@@ -2099,7 +2099,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case ITEM_SCROLL:
 		case ITEM_POTION:
-			if (number < 0 || number >= LAST_USED_SPELL)
+			if (number < 0 || number >= SPELLS_COUNT)
 				oedit_disp_val2_menu(d);
 			else
 			{
@@ -2190,7 +2190,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case ITEM_SCROLL:
 		case ITEM_POTION:
 			min_val = 0;
-			max_val = LAST_USED_SPELL - 1;
+			max_val = SPELLS_COUNT - 1;
 			break;
 		case ITEM_WEAPON:
 			min_val = 1;
@@ -2226,12 +2226,12 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case ITEM_SCROLL:
 		case ITEM_POTION:
 			min_val = 0;
-			max_val = LAST_USED_SPELL - 1;
+			max_val = SPELLS_COUNT - 1;
 			break;
 		case ITEM_WAND:
 		case ITEM_STAFF:
 			min_val = 1;
-			max_val = LAST_USED_SPELL - 1;
+			max_val = SPELLS_COUNT - 1;
 			break;
 		case ITEM_WEAPON:
 			min_val = 0;

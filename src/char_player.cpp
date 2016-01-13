@@ -360,7 +360,7 @@ void Player::save_char()
 	{
 		if (aff)
 		{
-			if (aff->type == SPELL_ARMAGEDDON || aff->type < 1 || aff->type > LAST_USED_SPELL)
+			if (aff->type == SPELL_ARMAGEDDON || aff->type < 1 || aff->type > SPELLS_COUNT)
 				i--;
 			else
 			{

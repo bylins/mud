@@ -15,9 +15,13 @@
 #ifndef _COMM_H_
 #define _COMM_H_
 
+#include "structs.h"
+
 #include <string>
 
 #define NUM_RESERVED_DESCS	8
+
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // comm.cpp
 void send_to_all(const char *messg);

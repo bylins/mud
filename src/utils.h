@@ -14,8 +14,8 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include "features.hpp"
 #include "pugixml.hpp"
+#include "structs.h"
 #include "conf.h"
 
 #include <boost/dynamic_bitset.hpp>
@@ -25,8 +25,8 @@
 #include <new>
 #include <vector>
 
-// instead of #include "room.hpp"
-struct ROOM_DATA;
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // external declarations and prototypes *********************************
 
@@ -64,7 +64,7 @@ void temp_log(const char *format, ...);
 void ip_log(const char *ip);
 int touch(const char *path);
 void mudlog(const char *str, int type, int level, int channel, int file);
-void mudlog_python(const string& str, int type, int level, int channel, int file);
+void mudlog_python(const std::string& str, int type, int level, int channel, int file);
 int number(int from, int to);
 int dice(int number, int size);
 bool sprintbit(bitvector_t vektor, const char *names[], char *result, const int print_flag = 0);

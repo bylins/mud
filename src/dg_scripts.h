@@ -14,8 +14,7 @@
 
 #include "structs.h"
 
-// instead of #include "room.hpp"
-struct ROOM_DATA;
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 #define DG_SCRIPT_VERSION "DG Scripts Version 0.99 Patch Level 7   12/98"
 

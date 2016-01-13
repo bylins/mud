@@ -12,12 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include <string>
-#include "conf.h"
-#include <boost/algorithm/string.hpp>
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -36,6 +31,14 @@
 #include "player_races.hpp"
 #include "magic.h"
 #include "fight.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/algorithm/string.hpp>
+
+#include <string>
 
 //   external vars
 extern DESCRIPTOR_DATA *descriptor_list;

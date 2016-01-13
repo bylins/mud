@@ -89,8 +89,8 @@ typedef struct extra_descr_data EXTRA_DESCR_DATA;
 typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct affect_data AFFECT_DATA;
 
-class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and mutual dependencies.
-typedef struct obj_data OBJ_DATA;
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 typedef struct trig_data TRIG_DATA;
 
 // preamble ************************************************************
@@ -1271,6 +1271,10 @@ struct flag_data
 		}
 		return true;
 	}
+	void set(const uint32_t flag)
+	{
+		flags[flag >> 30] |= flag & 0x3fffffff;
+	}
 
 	uint32_t flags[4];
 };
@@ -2120,3 +2124,4 @@ typedef map <int, mob_guardian> guardian_type;
 
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+

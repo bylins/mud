@@ -11,7 +11,7 @@ template<class t>
 caching::id_t caching::Cache<t>::max_id = 0;
 caching::CharacterCache caching::character_cache;
 
-template class caching::Cache<obj_data*>;
+template class caching::Cache<OBJ_DATA*>;
 caching::ObjCache caching::obj_cache;
 
 

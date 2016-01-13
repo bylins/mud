@@ -1,29 +1,33 @@
 // Copyright (c) 2005 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include "conf.h"
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
-#ifdef HAVE_ICONV
-#include <iconv.h>
-#endif
+#include "boards.h"
 
+#include "obj.hpp"
 #include "house.h"
 #include "screen.h"
 #include "comm.h"
 #include "privilege.hpp"
-#include "boards.h"
 #include "char.hpp"
 #include "modify.h"
 #include "room.hpp"
 #include "handler.h"
 #include "parse.hpp"
+#include "conf.h"
+
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
+#include <boost/make_shared.hpp>
+
+#include <fstream>
+#include <sstream>
+#include <iomanip>
 
 namespace Boards
 {

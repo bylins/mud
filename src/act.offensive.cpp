@@ -12,10 +12,7 @@
 *  $Revision$                                                             *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -25,12 +22,16 @@
 #include "spells.h"
 #include "skills.h"
 #include "pk.h"
-#include "features.hpp"
 #include "privilege.hpp"
 #include "random.hpp"
 #include "char.hpp"
 #include "room.hpp"
 #include "fight.h"
+#include "features.hpp"
+#include "structs.h"
+#include "utils.h"
+#include "sysdep.h"
+#include "conf.h"
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;

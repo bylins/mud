@@ -12,10 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -35,6 +32,10 @@
 #include "room.hpp"
 #include "named_stuff.hpp"
 #include "fight.h"
+#include "structs.h"
+#include "utils.h"
+#include "sysdep.h"
+#include "conf.h"
 
 // external functs
 void death_cry(CHAR_DATA * ch);

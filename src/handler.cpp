@@ -12,16 +12,11 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include <sstream>
-#include <math.h>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "constants.h"
-#include "utils.h"
+#include "handler.h"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "db.h"
-#include "handler.h"
 #include "glory_const.hpp"
 #include "interpreter.h"
 #include "spells.h"
@@ -45,8 +40,16 @@
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "obj_sets.hpp"
+#include "constants.h"
 #include "utils.h"
-  extern bool check_unlimited_timer(OBJ_DATA *obj);
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <sstream>
+#include <math.h>
+
+ extern bool check_unlimited_timer(OBJ_DATA *obj);
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
 int max_stats2[][6] =
@@ -1520,8 +1523,10 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		{
-			if (!( check_unlimited_timer(object)))
-			    SET_BIT(GET_OBJ_EXTRA(object, ITEM_TICKTIMER), ITEM_TICKTIMER);
+			if (check_unlimited_timer(object))
+			{
+				object->set_extraflag(ITEM_TICKTIMER);	// set timer flag for unbreakable items.
+			}
 			insert_obj_and_group(object, &ch->carrying);
 		}
 		else
@@ -2001,17 +2006,17 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (ch->in_room == NOWHERE)
 		log("SYSERR: ch->in_room = NOWHERE when equipping char %s.", GET_NAME(ch));
 
-	id_to_set_info_map::iterator it = obj_data::set_table.begin();
+	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 
 	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
-		for (; it != obj_data::set_table.end(); it++)
+		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
 				activate_stuff(ch, obj, it, 0 | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0), 0);
 				break;
 			}
 
-	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF) || it == obj_data::set_table.end())
+	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
 	{
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, TRUE);
@@ -2228,17 +2233,17 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 	if (ch->in_room == NOWHERE)
 		log("SYSERR: ch->in_room = NOWHERE when unequipping char %s.", GET_NAME(ch));
 
-	id_to_set_info_map::iterator it = obj_data::set_table.begin();
+	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 
 	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
-		for (; it != obj_data::set_table.end(); it++)
+		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
 				deactivate_stuff(ch, obj, it, 0 | (show_msg ? 0x40 : 0), 0);
 				break;
 			}
 
-	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF) || it == obj_data::set_table.end())
+	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
 	{
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, FALSE);
@@ -2690,8 +2695,6 @@ void extract_obj(OBJ_DATA * obj)
 // TODO: в дебаг log("Stop extract obj %s", name);
 }
 
-
-
 void update_object(OBJ_DATA * obj, int use)
 {
 	// dont update objects with a timer trigger
@@ -2704,7 +2707,6 @@ void update_object(OBJ_DATA * obj, int use)
 	if (obj->next_content)
 		update_object(obj->next_content, use);
 }
-
 
 void update_char_objects(CHAR_DATA * ch)
 {
