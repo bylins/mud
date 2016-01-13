@@ -1547,10 +1547,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		{
-			if (check_unlimited_timer(object))
-			{
-				object->set_extraflag(ITEM_TICKTIMER);	// set timer flag for unbreakable items.
-			}
+			object->set_extraflag(ITEM_TICKTIMER);	// start timer unconditionally when character picks item up.
 			insert_obj_and_group(object, &ch->carrying);
 		}
 		else
