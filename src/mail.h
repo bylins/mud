@@ -14,6 +14,8 @@
 #ifndef _MAIL_H_
 #define _MAIL_H_
 
+#include <cstring>
+
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 namespace mail
