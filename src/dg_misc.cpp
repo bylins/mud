@@ -402,7 +402,7 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	{
 		// add the affect
 		af.type = index_s;
-		af.modifier = value;
+
 		af.battleflag = battle;
 		if (battle == AF_PULSEDEC)
 		    af.duration = duration;
@@ -411,11 +411,13 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 		if (type == AFFECT_TYPE)
 		{
 			af.location = APPLY_NONE;
+			af.modifier = 0;
 			af.bitvector = index;
 		}
 		else
 		{
 			af.location = index;
+			af.modifier = value;
 			af.bitvector = 0;
 		}
 		affect_join_fspell(ch, &af); // перекастим аффект
