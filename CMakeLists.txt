@@ -367,26 +367,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     endif ()
 endif ()
 
-# Copy lib.template content here
-if (NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-    file(GLOB_RECURSE TEMPLATE_FILES RELATIVE ${CMAKE_SOURCE_DIR}/lib.template/ ${CMAKE_SOURCE_DIR}/lib.template/*)
-
-    # Replace files if they were changed in template
-    set(TEMPLATE_FILES_LIST)
-    foreach (FILE ${TEMPLATE_FILES})
-        add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/lib/${FILE}
-            DEPENDS ${CMAKE_SOURCE_DIR}/lib.template/${FILE}
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/${FILE} ${CMAKE_BINARY_DIR}/lib/${FILE})
-        list(APPEND TEMPLATE_FILES_LIST ${CMAKE_BINARY_DIR}/lib/${FILE})
-    endforeach ()
-
-    # Make target for lib directory
-    add_custom_target(lib_directory
-        DEPENDS ${TEMPLATE_FILES_LIST})
-endif ()
-
-add_dependencies(circle lib_directory)
-
 # Add custom defines
 set(LOG_STDERR NO CACHE STRING "Define LOG_STDERR. If defined, MUD will log messages additionally to stderr. Also here you can specify output encoding")
 if (LOG_STDERR)
