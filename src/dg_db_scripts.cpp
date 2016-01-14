@@ -611,12 +611,12 @@ void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff)
 	if (skill > ch->get_trained_skill(skillnum))
 	{
 		send_to_char(ch, "Ваше умение '%s' понизилось.\r\n", skill_name(skillnum));
-		log("Decrease %s from %s (trigskilladd)", skill_name(skillnum), GET_NAME(ch));
+		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd)", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff);
 	}
 	else if (skill < ch->get_trained_skill(skillnum))
 	{
 		send_to_char(ch, "Вы повысили свое умение '%s'.\r\n", skill_name(skillnum));
-		log("Raise %s to %s (trigskilladd)", skill_name(skillnum), GET_NAME(ch));
+		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd)", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff);
 	}
 	else
 	{
