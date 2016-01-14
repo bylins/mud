@@ -1,8 +1,87 @@
 <?xml version="1.0" encoding="koi8-r"?>
+<!--    
+    obj_vnum; // внум шмотки, если меньше -1 есть список внумов
+    mob_lvl;  // мин левел моба
+    max_mob_lvl; // макс. левел моба (0 - не учитывается)
+    chance;  // шансы дропа (каждые Х мобов)
+    // список внумов с общим дропом (дропается первый возможный)
+    // для внумов из списка учитывается поле максимума в мире
+    // необязательные параметры:
+    day_start; // начиная с какого дня (игрового) шмотка может выпасть с моба и ... 
+    day_end; // ... кончая тем днем, после которого, шмотка перестанет выпадать из моба
+    race_mob; // тип моба, с которого падает данная шмотка (-1 все)
+номера рас:
+ 100 Обычный
+ 101 Человек
+ 102 Человеко-зверь
+ 103 Птица
+ 104 Животное
+ 105 Пресмыкающееся
+ 106 Рыба
+ 107 Насекомое
+ 108 Растение
+ 109 Предмет
+ 110 Живой труп
+ 111 Призрак
+ 112 Нечисть
+ 113 Нематериальный дух
+ 114 Магическое создание
+-->
 <globaldrop>
-	<drop obj_vnum="1" mob_lvl="1" max_mob_lvl="0" />
-	<drop obj_vnum="-100" mob_lvl="1" max_mob_lvl="0" >
-		<obj vnum="123" />
-		<obj vnum="124" />
-	</drop>
+    <!-- свитки с наградами -->
+  <drop obj_vnum = "-2" mob_lvl="5" max_mob_lvl="20" chance="3400">
+	<obj vnum="2600" />
+	<obj vnum="2603" />
+	<obj vnum="2606" />
+	<obj vnum="2609" />
+	<obj vnum="2612" />
+   </drop>
+  <drop obj_vnum = "-3" mob_lvl="21" max_mob_lvl="35" chance="5000">
+	<obj vnum="2601" />
+	<obj vnum="2604" />
+	<obj vnum="2607" />
+	<obj vnum="2610" />
+	<obj vnum="2613" />
+   </drop>
+  <drop obj_vnum = "-4" mob_lvl="35" max_mob_lvl="0" chance="405">
+	<obj vnum="2602" />
+	<obj vnum="2605" />
+	<obj vnum="2608" />
+	<obj vnum="2611" />
+	<obj vnum="2614" />
+   </drop>
+    <!-- книжка умений -->
+    <drop obj_vnum="1920" mob_lvl="5" max_mob_lvl="0" chance="10000" />
+    <!-- Энчанты для батыров -->
+    <drop obj_vnum="1921" mob_lvl="6" max_mob_lvl="20" chance="3500" />
+    <drop obj_vnum="1922" mob_lvl="21" max_mob_lvl="35" chance="7000" />
+    <drop obj_vnum="1923" mob_lvl="36" max_mob_lvl="0" chance="400" />
+    <!-- Ингредиенты для спеллов -->
+    <drop obj_vnum="3006" mob_lvl="33" max_mob_lvl="0" chance="1000" />
+    <!-- нитки и пуговки и другие ингры для шитья -->
+    <!-- рарные пуговки -->
+    <drop obj_vnum="1672" mob_lvl="37" max_mob_lvl="0" chance="800" />
+    <!-- рарные нитки -->
+    <drop obj_vnum="1607" mob_lvl="37" max_mob_lvl="0" chance="750" />
+    <drop obj_vnum="1604" mob_lvl="25" max_mob_lvl="35" chance="4000" />
+    <!-- шпора + подкова -->
+    <drop obj_vnum="1678" mob_lvl="40" max_mob_lvl="0" chance="350" />
+    <drop obj_vnum="1677" mob_lvl="35" max_mob_lvl="0" chance="530" />
+    <!-- цепочка -->
+    <drop obj_vnum="1674" mob_lvl="36" max_mob_lvl="0" chance="450" />
+    <drop obj_vnum="1675" mob_lvl="38" max_mob_lvl="0" chance="520" />
+    <!-- перо -->
+    <drop obj_vnum="1681" mob_lvl="36" max_mob_lvl="0" chance="725" />
+    <!-- нефритовая пуговка -->
+    <drop obj_vnum="1673" mob_lvl="40" max_mob_lvl="0" chance="600" />
+    <!-- золотая заклепка -->
+    <drop obj_vnum="1679" mob_lvl="40" max_mob_lvl="0" chance="604" />
+    <!-- плюшевые нитки пуговки -->
+    <drop obj_vnum = "-5" mob_lvl="5" max_mob_lvl="20" chance="1405">
+	<obj vnum="1602" />
+	<obj vnum="1610" />
+	<obj vnum="1611" />
+     </drop>
+
+
 </globaldrop>

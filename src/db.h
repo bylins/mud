@@ -18,10 +18,13 @@
 #include "utils.h"
 #include "structs.h"
 
-struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
-
+#include "utils.h"
+#include "structs.h"
 
 #include <boost/array.hpp>
+
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // arbitrary constants used by index_boot() (must be unique)
 #define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.

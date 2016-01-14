@@ -1,13 +1,160 @@
 <?xml version="1.0" encoding="koi8-r"?>
-<!--- 	файл описания стражников
-    <wars><число></wars> - глобальная установка максимального количества войн, которое может вести клан без агров от стражников
-	0 - не будет агрить (по умолчанию)
-    <guard/> - описание стражников
-	vnum="VNUM" - VNUM моба, который будет стражником. ОБЯЗАТЕЛЬНО указывать.
-	wars=<число> - макс. кол-во войн, перекрывает глобальную установку <wars/>
-	killer="[yes/no]" агрить или нет на душегубов (по умолчанию yes)
-	agressor="[yes/no/list]" агрить агрессоров/не агрить агрессоров/агрить агрессоров, совершивших последний агр в одной из зон списка
-	по умолчанию "no"
-    <zone><VNUM></zone> - VNUM зоны для списка list стражника
--->
+<guardians>
+    <wars>2</wars>
+    <guard vnum="4054" wars="3" killer="yes" agressor="list">
+        <zone>41</zone>
+        <zone>42</zone>
+        <zone>43</zone>
+        <zone>45</zone>
+        <zone>48</zone>
+        <zone>59</zone>
+    </guard>
+    <guard vnum="5026" wars="3" killer="yes" agressor="list">
+        <zone>50</zone>
+        <zone>51</zone>
+        <zone>52</zone>
+        <zone>53</zone>
+        <zone>56</zone>
+        <zone>59</zone>
+    </guard>
+    <guard vnum="6006" wars="3" killer="yes" agressor="list">
+        <zone>60</zone>
+        <zone>62</zone>
+        <zone>63</zone>
+        <zone>64</zone>
+        <zone>66</zone>
+        <zone>67</zone>
+    </guard>
+    <guard vnum="6027" wars="3" killer="yes" agressor="list">
+        <zone>60</zone>
+        <zone>62</zone>
+        <zone>63</zone>
+        <zone>64</zone>
+        <zone>66</zone>
+        <zone>67</zone>
+    </guard>
+       <!-- 70
+        <guardians>
+            <wars>2</wars>
+            <guard vnum="" wars="3" killer="yes" agressor="list">
+                <zone>70</zone>
+                <zone>71</zone>
+                <zone>72</zone>
+                <zone>76</zone>
+            </guard>
+        </guardians>
+        -->
+    <guard vnum="8027" wars="3" killer="yes" agressor="list">
+        <zone>80</zone>
+        <zone>81</zone>
+        <zone>71</zone>
+    </guard>
+    <guard vnum="9027" wars="3" killer="yes" agressor="list">
+        <zone>90</zone>
+        <zone>92</zone>
+        <zone>95</zone>
+    </guard>
+    <guard vnum="13502" wars="3" killer="yes" agressor="list">
+        <zone>135</zone>
+    </guard>
+    <guard vnum="18213" wars="3" killer="yes" agressor="list">
+        <zone>182</zone>
+    </guard>
+    <guard vnum="18209" wars="3" killer="yes" agressor="list">
+        <zone>182</zone>
+    </guard>
+    <guard vnum="24001" wars="3" killer="yes" agressor="list">
+        <zone>240</zone>
+    </guard>
+    <guard vnum="25018" wars="3" killer="yes" agressor="list">
+        <zone>250</zone>
+    </guard>
+    <guard vnum="27008" wars="3" killer="yes" agressor="list">
+        <zone>270</zone>
+        <zone>271</zone>
+    </guard>
+    <guard vnum="27025" wars="3" killer="yes" agressor="list">
+        <zone>270</zone>
+        <zone>271</zone>
+    </guard>
+    <guard vnum="30218" wars="3" killer="yes" agressor="list">
+        <zone>302</zone>
+        <zone>303</zone>
+    </guard>
+    <guard vnum="30247" wars="3" killer="yes" agressor="list">
+        <zone>302</zone>
+        <zone>303</zone>
+    </guard>
+    <guard vnum="30249" wars="3" killer="yes" agressor="list">
+        <zone>302</zone>
+        <zone>303</zone>
+    </guard>
+    <guard vnum="32411" wars="3" killer="yes" agressor="list">
+        <zone>324</zone>
+    </guard>
+    <guard vnum="34424" wars="3" killer="yes" agressor="list">
+        <zone>324</zone>
+    </guard>
+    <guard vnum="49910" wars="3" killer="yes" agressor="yes"/>
+    <guard vnum="49912" wars="3" killer="yes" agressor="list">
+        <zone>499</zone>
+    </guard>
+    <guard vnum="49941" wars="3" killer="yes" agressor="list">
+        <zone>499</zone>
+    </guard>
+    <guard vnum="49954" wars="3" killer="yes" agressor="list">
+        <zone>499</zone>
+    </guard>
+    <guard vnum="60003" wars="3" killer="yes" agressor="list">
+        <zone>600</zone>
+    </guard>
+    <guard vnum="60007" wars="3" killer="yes" agressor="list">
+        <zone>600</zone>
+    </guard>
+    <guard vnum="60013" wars="3" killer="yes" agressor="list">
+        <zone>600</zone>
+    </guard>
+    <guard vnum="60206" wars="3" killer="yes" agressor="list">
+        <zone>602</zone>
+    </guard>
+    <guard vnum="60207" wars="3" killer="yes" agressor="list">
+        <zone>602</zone>
+    </guard>
+    <guard vnum="60209" wars="3" killer="yes" agressor="list">
+        <zone>602</zone>
+    </guard>
+    <guard vnum="62022" wars="3" killer="yes" agressor="list">
+        <zone>620</zone>
+    </guard>
+    <guard vnum="63007" wars="3" killer="yes" agressor="list">
+        <zone>6300</zone>
+    </guard>
+    <guard vnum="4021" wars="3" killer="yes" agressor="list">
+        <zone>40</zone>
+    </guard>
+    <guard vnum="64036" wars="3" killer="yes" agressor="list">
+        <zone>640</zone>
+    </guard>
+    <guard vnum="68007" wars="3" killer="yes" agressor="list">
+        <zone>680</zone>
+    </guard>
+    <guard vnum="69009" wars="3" killer="yes" agressor="list">
+        <zone>690</zone>
+    </guard>
+    <guard vnum="73004" wars="3" killer="yes" agressor="list">
+        <zone>7300</zone>
+    </guard>
+    <guard vnum="75015" wars="3" killer="yes" agressor="list">
+        <zone>750</zone>
+        <zone>751</zone>
+    </guard>
+    <guard vnum="76002" wars="3" killer="yes" agressor="list">
+        <zone>760</zone>
+    </guard>
+    <guard vnum="77019" wars="3" killer="yes" agressor="list">
+        <zone>7700</zone>
+    </guard>
+    <guard vnum="85142" wars="3" killer="yes" agressor="list">
+        <zone>851</zone>
+    </guard>
 </guardians>

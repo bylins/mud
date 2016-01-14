@@ -86,7 +86,6 @@ typedef struct script_data SCRIPT_DATA;
 typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 typedef struct extra_descr_data EXTRA_DESCR_DATA;
-typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct affect_data AFFECT_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -1188,17 +1187,13 @@ const short MAX_MOB_LEVEL = 50;
 // *********************************************************************
 
 
-typedef int8_t
-sbyte;
-typedef uint8_t
-ubyte;
-typedef int16_t
-sh_int;
-typedef uint16_t
-ush_int;
+typedef int8_t sbyte;
+typedef uint8_t ubyte;
+typedef int16_t sh_int;
+typedef uint16_t ush_int;
+
 #if !defined(__cplusplus)	// Anyone know a portable method?
-typedef char
-bool;
+typedef char bool;
 #endif
 
 #if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	// Hm, sysdep.h?
@@ -1598,7 +1593,7 @@ namespace obj_sets_olc
 
 class Board;
 
-struct descriptor_data
+struct DESCRIPTOR_DATA
 {
 	socket_t descriptor;	// file descriptor for socket    //
 	char
@@ -1673,7 +1668,7 @@ struct descriptor_data
 
 
 
-	descriptor_data(): bad_pws(0), idle_tics(0), connected(0), desc_num(0), input_time(0), login_time(0),
+	DESCRIPTOR_DATA(): bad_pws(0), idle_tics(0), connected(0), desc_num(0), input_time(0), login_time(0),
 	showstr_head(0), showstr_vector(0), showstr_count(0), showstr_page(0), str(0), max_str(0), backstr(0), mail_to(0),
 	has_prompt(0), output(0), history(0), history_pos(0), bufptr(0), bufspace(0), large_outbuf(0), character(0),
 	original(0), snooping(0), snoop_by(0),next(0), olc(0), keytable(0), options(0),

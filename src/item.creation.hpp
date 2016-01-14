@@ -57,9 +57,9 @@ using std::ofstream;
 using std::list;
 using std::endl;
 
-void mredit_parse(struct descriptor_data *d, char *arg);
-void mredit_disp_menu(struct descriptor_data *d);
-void mredit_disp_ingr_menu(struct descriptor_data *d);
+void mredit_parse(struct DESCRIPTOR_DATA *d, char *arg);
+void mredit_disp_menu(struct DESCRIPTOR_DATA *d);
+void mredit_disp_ingr_menu(struct DESCRIPTOR_DATA *d);
 
 ACMD(do_list_make);
 ACMD(do_edit_make);

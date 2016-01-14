@@ -133,7 +133,1083 @@
 
 <celebratesReal>
 
-<celebrate day="1" month="1" start="168" end="168" name="Новый год"></celebrate>
+<celebrate day="1" month="1" start="240" end="240" name="Новый год">
+<!-- летучий корабль -->
+    <room vnum="2501">
+		<trig vnum="2508"/>
+    </room>
+<!-- елка -->
+	<room vnum="100">
+		<obj vnum="11202" max="1">
+		</obj>
+	</room>
+	<room vnum="4056">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="5000">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="6049">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="7038">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="8010">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="9007">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="66069">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="60036">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="18253">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="63671">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="34404">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="61064">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="76601">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="25685">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="13589">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="27018">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="63030">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="30266">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="69091">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="77065">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="76000">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="49987">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="25075">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="72043">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="75000">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="64035">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="85123">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="35040">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="73050">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="60288">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="24074">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="62001">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="32480">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="68051">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="21017">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="20962">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="58123">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="30423">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="35738">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="14611">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="77501">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="31210">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="21186">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="13405">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="15906">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="85540">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="13101">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="77622">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="23744">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="71300">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="85146">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="42103">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="21211">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="12662">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="25327">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+	<room vnum="12510">
+		<obj vnum="2548" max="1">
+		</obj>
+	</room>
+<!-- венок из еловых лап -->
+	<room vnum="5000">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="7024">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="8007">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="63652">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="34404">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="61061">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="13589">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="63029">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="77037">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="49987">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="75076">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="35040">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="60271">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="32480">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="21019">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="31210">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="15906">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="23744">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="21211">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+	<room vnum="12662">
+		<obj vnum="2536" max="1">
+		</obj>
+	</room>
+<!-- ледяные фигурки -->
+	<room vnum="4011">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="6035">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="9018">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="60014">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="63608">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="76618">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="25683">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="27016">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="69075">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="25009">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="75153">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="85166">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="24002">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+	<room vnum="20978">
+		<obj vnum="2537" max="1">
+		</obj>
+	</room>
+<!-- искрящийся снег -->
+	<room vnum="4017">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="6034">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="8030">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="66002">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="18241">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="76616">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="63046">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="30282">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="76030">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="49908">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="25056">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="64039">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="73004">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="60216">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="24044">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+	<room vnum="62049">
+		<obj vnum="2538" max="1">
+		</obj>
+	</room>
+<!-- яркая гирлянда -->
+	<room vnum="4056">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="5031">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="7048">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="9007">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="60028">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="34425">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="13569">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="27018">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="77065">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="72043">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="75075">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="73050">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="24031">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="25327">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="68001">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="21017">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="77501">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="85540">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="71300">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+	<room vnum="85146">
+		<obj vnum="2539" max="1">
+		</obj>
+	</room>
+<!-- кукла деда мороза -->
+	<room vnum="4018">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="5001">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="8031">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="18257">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="63671">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="25684">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="63030">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="76035">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="25075">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="85120">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="60288">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="32478">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="58119">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="21186">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+	<room vnum="12510">
+		<obj vnum="2540" max="1">
+		</obj>
+	</room>
+<!-- ледяной узор на окне -->
+	<room vnum="6000">
+		<obj vnum="2541" max="1">
+		</obj>
+	</room>
+	<room vnum="66029">
+		<obj vnum="2541" max="1">
+		</obj>
+	</room>
+	<room vnum="34411">
+		<obj vnum="2541" max="1">
+		</obj>
+	</room>
+	<room vnum="27027">
+		<obj vnum="2541" max="1">
+		</obj>
+	</room>
+	<room vnum="30266">
+		<obj vnum="2541" max="1">
+		</obj>
+	</room>
+	<room vnum="75000">
+		<obj vnum="2541" max="1">
+		</obj>
+	</room>
+	<room vnum="32479">
+		<obj vnum="2541" max="1">
+		</obj>
+	</room>
+	<room vnum="68051">
+		<obj vnum="2541" max="1">
+		</obj>
+	</room>
+	<room vnum="20962">
+		<obj vnum="2541" max="1">
+		</obj>
+	</room>
+	<room vnum="42103">
+		<obj vnum="2541" max="1">
+		</obj>
+	</room>
+<!-- свеча в стеклянном шаре -->
+	<room vnum="4009">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="7027">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="9008">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="18253">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="13581">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="69091">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="49983">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="85123">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="62001">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="14611">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="13405">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+	<room vnum="13101">
+		<obj vnum="2542" max="1">
+		</obj>
+	</room>
+<!-- соломенная голова змея-горыныча -->
+	<room vnum="5034">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="6003">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="9001">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="60036">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="76601">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="27019">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="76000">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="49974">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="35008">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="73046">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="32428">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="30423">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="21108">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+	<room vnum="77622">
+		<obj vnum="2543" max="1">
+		</obj>
+	</room>
+<!-- снеговик и снежная баба -->
+	<room vnum="4014">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="66001">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="18244">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="34408">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="76624">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="13553">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="30224">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="77072">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="49947">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="64033">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="35026">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="60243">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="62027">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="68045">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+	<room vnum="58123">
+		<obj vnum="2544" max="1">
+		</obj>
+	</room>
+<!-- елочные иголки -->
+	<room vnum="4020">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="5009">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="7005">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="9032">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="63641">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="63042">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="69066">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="76032">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="64702">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="85110">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="35012">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="32409">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+	<room vnum="21024">
+		<obj vnum="2545" max="1">
+		</obj>
+	</room>
+<!-- гроздья шишек -->
+	<room vnum="4039">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="5900">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="8010">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="66069">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="61064">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="25685">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="30222">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="77030">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="49934">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="64035">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="73025">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="24074">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="68011">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+	<room vnum="35738">
+		<obj vnum="2546" max="1">
+		</obj>
+	</room>
+<!-- сосульки -->
+	<room vnum="5027">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="7009">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="60034">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="63649">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="34402">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="58100">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="27039">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="69030">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="25015">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="72037">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="64040">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+	<room vnum="62043">
+		<obj vnum="2547" max="1">
+		</obj>
+	</room>
+<!-- квесты потушить огни -->
+	<room vnum="4011">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="5004">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="6035">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="7048">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="8031">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="9023">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="13569">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="18244">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="24025">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="25009">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="27015">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="30224">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="32478">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="34420">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="35008">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="49974">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="60034">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="60222">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="62027">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="63029">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="63608">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="64049">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="66027">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="68087">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="69075">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="72008">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="73082">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="75075">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="76035">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="77046">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+	<room vnum="85148">
+		<mob vnum="58310" max="31">
+		</mob>
+	</room>
+<!-- дед мороз, лоадящий снежинки -->
+	<room vnum="2500">
+		<mob vnum="2500" max="1">
+		</mob>
+	</room>
+</celebrate>
 <celebrate day="14" month="1" start="0" end="0" name="Старый Новый год"></celebrate>
 <celebrate day="31" month="1" start="0" end="0" name="День рождения русской водки"></celebrate>
 <celebrate day="8" month="2" start="0" end="0" name="Масленица (Начало масленичной недели)"></celebrate>
@@ -152,7 +1228,7 @@
 <celebrate day="30" month="9" start="0" end="0" name="День интернета в России"></celebrate>
 <celebrate day="6" month="11" start="0" end="0" name="Всемирный день мужчин"></celebrate>
 
-ё</celebratesReal>
+</celebratesReal>
 
 </celebrates>
 

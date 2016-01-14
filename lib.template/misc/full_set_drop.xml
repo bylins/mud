@@ -23,4 +23,300 @@
 -->
 
 <set_list>
+    <set type="auto" help_alias="сетнс, сетневидимойсмерти">
+        <obj vnum="1222" />
+        <obj vnum="1223" />
+        <obj vnum="1224" />
+        <obj vnum="1225" />
+        <obj vnum="1226" />
+        <obj vnum="1227" />
+        <obj vnum="1228" />
+        <obj vnum="1229" />
+        <obj vnum="1230" />
+        <obj vnum="1231" />
+        <obj vnum="1232" />
+        <obj vnum="1233" />
+        <obj vnum="1234" />
+        <obj vnum="1235" />
+        <obj vnum="1236" />
+        <obj vnum="1237" />
+    </set>
+    <set type="auto" help_alias="сеттв сеттемнойвласти">
+        <obj vnum="1238" />
+        <obj vnum="1239" />
+        <obj vnum="1240" />
+        <obj vnum="1241" />
+        <obj vnum="1242" />
+        <obj vnum="1243" />
+        <obj vnum="1244" />
+        <obj vnum="1245" />
+        <obj vnum="1246" />
+        <obj vnum="1247" />
+        <obj vnum="1248" />
+        <obj vnum="1249" />
+        <obj vnum="1250" />
+        <obj vnum="1251" />
+        <obj vnum="1252" />
+        <obj vnum="1253" />
+    </set>
+    <set type="auto" help_alias="сетзм,сетзабытоймагии">
+        <obj vnum="1254" />
+        <obj vnum="1255" />
+        <obj vnum="1256" />
+        <obj vnum="1257" />
+        <obj vnum="1258" />
+        <obj vnum="1259" />
+        <obj vnum="1260" />
+        <obj vnum="1261" />
+        <obj vnum="1262" />
+        <obj vnum="1263" />
+        <obj vnum="1264" />
+        <obj vnum="1265" />
+        <obj vnum="1266" />
+        <obj vnum="1267" />
+    </set>
+    <set type="auto" help_alias="сетвалькирии">
+        <obj vnum="3300" />
+        <obj vnum="3301" />
+        <obj vnum="3302" />
+        <obj vnum="3303" />
+        <obj vnum="3304" />
+        <obj vnum="3305" />
+        <obj vnum="3306" />
+        <obj vnum="3307" />
+        <obj vnum="3308" />
+        <obj vnum="3309" />
+        <obj vnum="3310" />
+        <obj vnum="3311" />
+        <obj vnum="3312" />
+        <obj vnum="3313" />
+        <obj vnum="3314" />
+        <obj vnum="3392" />
+    </set>
+    <set type="auto" help_alias="сетвв,сетвеликоговоина">
+        <obj vnum="3315" />
+        <obj vnum="3316" />
+        <obj vnum="3317" />
+        <obj vnum="3318" />
+        <obj vnum="3319" />
+        <obj vnum="3320" />
+        <obj vnum="3321" />
+        <obj vnum="3322" />
+        <obj vnum="3323" />
+        <obj vnum="3324" />
+        <obj vnum="3325" />
+        <obj vnum="3326" />
+        <obj vnum="3327" />
+        <obj vnum="3328" />
+        <obj vnum="3359" />
+    </set>
+    <set type="auto" help_alias="сетгп,сетгеоргияпобедоносца">
+        <obj vnum="3329" />
+        <obj vnum="3330" />
+        <obj vnum="3331" />
+        <obj vnum="3332" />
+        <obj vnum="3333" />
+        <obj vnum="3334" />
+        <obj vnum="3335" />
+        <obj vnum="3336" />
+        <obj vnum="3337" />
+        <obj vnum="3338" />
+        <obj vnum="3339" />
+        <obj vnum="3340" />
+        <obj vnum="3341" />
+        <obj vnum="3342" />
+        <obj vnum="3357" />
+        <obj vnum="3358" />
+    </set>
+    <set type="auto" help_alias="сетдс,сетдальнихстранствий">
+        <obj vnum="3343" />
+        <obj vnum="3344" />
+        <obj vnum="3345" />
+        <obj vnum="3346" />
+        <obj vnum="3347" />
+        <obj vnum="3348" />
+        <obj vnum="3349" />
+        <obj vnum="3350" />
+        <obj vnum="3351" />
+        <obj vnum="3352" />
+        <obj vnum="3353" />
+        <obj vnum="3354" />
+        <obj vnum="3355" />
+        <obj vnum="3356" />
+    </set>
+    <set type="auto" help_alias="сетвр,сетвелесоваратания">
+        <obj vnum="3360" />
+        <obj vnum="3361" />
+        <obj vnum="3362" />
+        <obj vnum="3363" />
+        <obj vnum="3364" />
+        <obj vnum="3365" />
+        <obj vnum="3366" />
+        <obj vnum="3367" />
+        <obj vnum="3368" />
+        <obj vnum="3369" />
+        <obj vnum="3370" />
+        <obj vnum="3371" />
+        <obj vnum="3372" />
+        <obj vnum="3373" />
+        <obj vnum="3374" />
+        <obj vnum="3391" />
+    </set>
+    <set type="auto" help_alias="сетюд,сетюнойдзеваны">
+        <obj vnum="3375" />
+        <obj vnum="3376" />
+        <obj vnum="3377" />
+        <obj vnum="3378" />
+        <obj vnum="3379" />
+        <obj vnum="3380" />
+        <obj vnum="3381" />
+        <obj vnum="3382" />
+        <obj vnum="3383" />
+        <obj vnum="3384" />
+        <obj vnum="3385" />
+        <obj vnum="3386" />
+        <obj vnum="3387" />
+        <obj vnum="3388" />
+        <obj vnum="3389" />
+        <obj vnum="3390" />
+    </set>
+    <set type="manual" help_alias="сетлт,сетлуннойтени">
+        <obj vnum="1200" list="solo" />
+        <obj vnum="1201" list="solo" />
+        <obj vnum="1202" list="solo" />
+    </set>
+    <set type="manual" help_alias="сетпл,сетполнойлуны">
+        <obj vnum="1203" list="solo" />
+        <obj vnum="1204" list="solo" />
+        <obj vnum="1205" list="solo" />
+    </set>
+    <set type="manual" help_alias="сетсп,сетслепогопалача">
+        <obj vnum="1206" list="solo" />
+        <obj vnum="1207" list="solo" />
+        <obj vnum="1208" list="solo" />
+    </set>
+    <set type="manual" help_alias="сетсз,сетсолнечногозатмения">
+        <obj vnum="1209" list="solo" />
+        <obj vnum="1210" list="solo" />
+        <obj vnum="1211" list="solo" />
+        <obj vnum="1212" list="solo" />
+    </set>
+    <set type="manual" help_alias="сетпн,сетполуденногонеба">
+        <obj vnum="1213" list="solo" />
+        <obj vnum="1214" list="solo" />
+        <obj vnum="1215" list="solo" />
+        <obj vnum="1216" list="solo" />
+    </set>
+    <set type="manual" help_alias="сетвн,сетверногонаемника">
+        <obj vnum="1268" list="solo" />
+        <obj vnum="1269" list="solo" />
+        <obj vnum="1270" list="solo" />
+        <obj vnum="1271" list="solo" />
+    </set>
+    <set type="manual" help_alias="сетвс,сетвеликойсудьбы">
+        <obj vnum="1217" list="solo" />
+        <obj vnum="1218" list="solo" />
+        <obj vnum="1219" list="solo" />
+        <obj vnum="1220" list="solo" />
+        <obj vnum="1221" list="group" />
+    </set>
+    <set type="manual" help_alias="сетсц,сетстранствующегоцелителя">
+        <obj vnum="1272" list="solo" />
+        <obj vnum="1273" list="solo" />
+        <obj vnum="1274" list="solo" />
+        <obj vnum="1275" list="group" />
+    </set>
+    <set type="manual" help_alias="сетмл,сетметкоголучника">
+        <obj vnum="1276" list="group" />
+        <obj vnum="2342" list="group" />
+        <obj vnum="1277" list="solo" />
+        <obj vnum="1278" list="solo" />
+        <obj vnum="1279" list="solo" />
+    </set>
+    <set type="manual" help_alias="сетсч,сетслугичернобога">
+	 <obj vnum="1280" list="solo" />
+	 <obj vnum="1281" list="group" />
+	 <obj vnum="1282" list="group" />
+	 <obj vnum="1283" list="solo" />
+         <obj vnum="2341" list="solo" />
+
+    </set>
+    <set type="manual" help_alias="сеттт,сеттанцующейтени">
+	 <obj vnum="1284" list="group" />
+	 <obj vnum="1285" list="group" />
+	 <obj vnum="1286" list="solo" />
+	 <obj vnum="1287" list="solo" />
+    </set>
+
+    <set type="manual" help_alias="сетнд,сетнеизведанныхдорог">
+	 <obj vnum="1288" list="solo" />
+	 <obj vnum="1289" list="solo" />
+	 <obj vnum="1290" list="solo" />
+	 <obj vnum="1291" list="solo" />
+	 <obj vnum="1292" list="group" />	 
+    </set>    
+    <set type="manual" help_alias="сеткк,сетклеймокитовраса">
+	 <obj vnum="1293" list="solo" />
+	 <obj vnum="1294" list="solo" />
+	 <obj vnum="1295" list="solo" />
+	 <obj vnum="1296" list="group" />
+	 <obj vnum="1297" list="group" />	 
+    </set>    
+    <set type="manual" help_alias="сетвц,сетвеликогоцелителя">
+	 <obj vnum="2300" list="solo" />
+	 <obj vnum="2301" list="solo" />
+	 <obj vnum="2302" list="group" />
+	 <obj vnum="2303" list="solo" />
+	 <obj vnum="2304" list="solo" />	 
+    </set> 
+    <set type="manual" help_alias="сетап, сетповиновения, сетабсолютногоповиновения">
+	 <obj vnum="2305" list="solo" />
+	 <obj vnum="2306" list="solo" />
+	 <obj vnum="2307" list="solo" />
+	 <obj vnum="2308" list="group" />
+	 <obj vnum="2309" list="group" />	 
+    </set> 
+    <set type="manual" help_alias="сеткн,  сетковарногонаемника">
+	 <obj vnum="2310" list="solo" />
+	 <obj vnum="2311" list="solo" />
+	 <obj vnum="2312" list="solo" />
+	 <obj vnum="2313" list="solo" />
+	 <obj vnum="2314" list="solo" />	 
+    </set> 
+	<set type="manual" help_alias="сетнепоколебимойстойкости, сетстойкости">
+	 <obj vnum="2316" list="solo" />
+	 <obj vnum="2317" list="solo" />
+	 <obj vnum="2318" list="solo" />
+	 <obj vnum="2319" list="group" />
+	 <obj vnum="2320" list="group" />	 
+    </set>
+    <set type="manual" help_alias="сетчетырехстихий, сетчс">
+	 <obj vnum="2321" list="solo" />
+	 <obj vnum="2322" list="solo" />
+	 <obj vnum="2323" list="solo" />
+	 <obj vnum="2324" list="group" />
+	 <obj vnum="2325" list="group" />	 
+    </set>
+    <set type="manual" help_alias="сетсс, сетсвятогослова">
+	 <obj vnum="2326" list="solo" />
+	 <obj vnum="2327" list="group" />
+	 <obj vnum="2328" list="group" />
+	 <obj vnum="2329" list="solo" />
+	 <obj vnum="2330" list="solo" />	 
+    </set>	
+	<set type="manual" help_alias="сетжв, сетжелезноговихря">
+	 <obj vnum="2331" list="solo" />
+	 <obj vnum="2332" list="solo" />
+	 <obj vnum="2333" list="solo" />
+	 <obj vnum="2334" list="group" />
+	 <obj vnum="2335" list="group" />	 
+    </set>
+	<set type="manual" help_alias="сеттр, одеждытайныхрун">
+	 <obj vnum="2336" list="group" />
+	 <obj vnum="2337" list="solo" />
+	 <obj vnum="2338" list="solo" />
+	 <obj vnum="2339" list="group" />
+	 <obj vnum="2340" list="solo" />	 
+    </set>
+
 </set_list>

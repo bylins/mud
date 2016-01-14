@@ -8,14 +8,12 @@
 *  $Revision$                                                       *
 ***************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "olc.h"
+
+#include "obj.hpp"
 #include "interpreter.h"
 #include "comm.h"
-#include "utils.h"
 #include "db.h"
-#include "olc.h"
 #include "dg_olc.h"
 #include "screen.h"
 #include "item.creation.hpp"
@@ -23,6 +21,10 @@
 #include "privilege.hpp"
 #include "char.hpp"
 #include "room.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 // * External data structures.
 extern vector < OBJ_DATA * >obj_proto;
