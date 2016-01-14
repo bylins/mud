@@ -1,339 +1,10 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <skills>
   <race name="Русичи" num_kin="0">
-    <class name="лекарь" class_num="0" level_decrement="4">
+    <class name="лекарь" class_num="0">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="опознание" remort="0" level="10" improve="3000"/>
-      <skill name="лидерство" remort="0" level="1" improve="12000"/>
-      <skill name="лечить" remort="0" level="10" improve="38000"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="4000"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="секиры" remort="0" level="1" improve="150"/>
-      <skill name="иное оружие" remort="0" level="1" improve="100"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
-      <skill name="копья и рогатины" remort="0" level="1" improve="150"/>
-      <skill name="луки" remort="0" level="1" improve="150"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="54000"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="изгнать нежить" remort="0" level="1" improve="1200"/>
-      <skill name="магия воздуха" remort="0" level="1" improve="1200"/>
-      <skill name="магия огня" remort="0" level="1" improve="400"/>
-      <skill name="магия воды" remort="0" level="1" improve="400"/>
-      <skill name="магия земли" remort="0" level="1" improve="400"/>
-      <skill name="магия света" remort="0" level="1" improve="400"/>
-      <skill name="магия тьмы" remort="0" level="1" improve="400"/>
-      <skill name="магия разума" remort="0" level="1" improve="400"/>
-      <skill name="магия жизни" remort="0" level="1" improve="400"/>
-    </class>
-    <class name="колдун" class_num="1" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="опознание" remort="0" level="10" improve="3000"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="иное оружие" remort="0" level="1" improve="100"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="94000"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="магия воздуха" remort="0" level="1" improve="400"/>
-      <skill name="магия огня" remort="0" level="1" improve="400"/>
-      <skill name="магия воды" remort="0" level="1" improve="400"/>
-      <skill name="магия земли" remort="0" level="1" improve="400"/>
-      <skill name="магия тьмы" remort="0" level="1" improve="400"/>
-      <skill name="магия разума" remort="0" level="1" improve="400"/>
-      <skill name="магия света" remort="0" level="1" improve="400"/>
-    </class>
-    <class name="тать" class_num="2" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="подножка" remort="0" level="1" improve="3500"/>
-      <skill name="замести следы" remort="0" level="10" improve="4000"/>
-      <skill name="заколоть" remort="0" level="10" improve="4500"/>
-      <skill name="спрятаться" remort="0" level="5" improve="300"/>
-      <skill name="взломать" remort="0" level="5" improve="30000"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="200"/>
-      <skill name="подкрасться" remort="0" level="10" improve="3000"/>
-      <skill name="украсть" remort="0" level="5" improve="5000"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="проникающее" remort="0" level="1" improve="100"/>
-      <skill name="иное оружие" remort="0" level="1" improve="100"/>
-      <skill name="прислушаться" remort="0" level="10" improve="90"/>
-      <skill name="уклониться" remort="0" level="10" improve="4000"/>
-      <skill name="подсмотреть" remort="0" level="10" improve="300"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="94000"/>
-      <skill name="копья и рогатины" remort="0" level="1" improve="100"/>
-      <skill name="луки" remort="0" level="1" improve="200"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="сшить одежду" remort="0" level="1" improve="1000"/>
-      <skill name="освежевать" remort="0" level="10" improve="2500"/>
-    </class>
-    <class name="богатырь" class_num="3" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="перехватить" remort="0" level="10" improve="3000"/>
-      <skill name="прикрыть" remort="0" level="10" improve="3000"/>
-      <skill name="удар левой рукой" remort="0" level="5" improve="200"/>
-      <skill name="богатырский молот" remort="0" level="1" improve="1500"/>
-      <skill name="оглушить" remort="0" level="1" improve="3500"/>
-      <skill name="сражение верхом" remort="0" level="1" improve="100"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="94000"/>
-      <skill name="пнуть" remort="0" level="10" improve="1500"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="200"/>
-      <skill name="спасти" remort="0" level="10" improve="3500"/>
-      <skill name="выследить" remort="0" level="1" improve="3000"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="секиры" remort="0" level="1" improve="100"/>
-      <skill name="длинные лезвия" remort="0" level="1" improve="100"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="иное оружие" remort="0" level="1" improve="100"/>
-      <skill name="двуручники" remort="0" level="1" improve="100"/>
-      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
-      <skill name="копья и рогатины" remort="0" level="1" improve="100"/>
-      <skill name="обезоружить" remort="0" level="1" improve="3000"/>
-      <skill name="ярость" remort="0" level="1" improve="100"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="боевой клич" remort="0" level="10" improve="14000"/>
-    </class>
-    <class name="наемник" class_num="4" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="отравить" remort="0" level="1" improve="600"/>
-      <skill name="замести следы" remort="0" level="10" improve="2500"/>
-      <skill name="прислушаться" remort="0" level="10" improve="90"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="94000"/>
-      <skill name="заколоть" remort="0" level="5" improve="6000"/>
-      <skill name="спрятаться" remort="0" level="5" improve="200"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="подкрасться" remort="0" level="10" improve="30000"/>
-      <skill name="выследить" remort="0" level="1" improve="4000"/>
-      <skill name="подножка" remort="0" level="5" improve="3500"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="200"/>
-      <skill name="иное оружие" remort="0" level="1" improve="100"/>
-      <skill name="проникающее оружие" remort="0" level="1" improve="200"/>
-      <skill name="копья и рогатины" remort="0" level="1" improve="100"/>
-      <skill name="луки" remort="0" level="1" improve="200"/>
-      <skill name="скрытый удар" remort="0" level="1" improve="100"/>
-      <skill name="осторожный стиль" remort="0" level="1" improve="200"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="удавить" remort="0" level="20" improve="35000"/>
-      <skill name="сшить одежду" remort="0" level="1" improve="1000"/>
-      <skill name="освежевать" remort="0" level="10" improve="5500"/>
-    </class>
-    <class name="дружинник" class_num="5" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лечить" remort="0" level="10" improve="23500"/>
-      <skill name="сбить" remort="0" level="10" improve="3500"/>
-      <skill name="сражение верхом" remort="0" level="1" improve="100"/>
-      <skill name="веерная защита" remort="0" level="1" improve="150"/>
-      <skill name="лидерство" remort="0" level="1" improve="950"/>
-      <skill name="осторожный стиль" remort="0" level="1" improve="100"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="94000"/>
-      <skill name="пнуть" remort="0" level="10" improve="1500"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
-      <skill name="спасти" remort="0" level="10" improve="3500"/>
-      <skill name="выследить" remort="0" level="1" improve="3500"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="200"/>
-      <skill name="секиры" remort="0" level="1" improve="200"/>
-      <skill name="длинные лезвия" remort="0" level="1" improve="200"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="иное оружие" remort="0" level="1" improve="200"/>
-      <skill name="двуручники" remort="0" level="1" improve="200"/>
-      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
-      <skill name="копья и рогатины" remort="0" level="1" improve="300"/>
-      <skill name="обезоружить" remort="0" level="1" improve="3500"/>
-      <skill name="парировать" remort="0" level="10" improve="4000"/>
-      <skill name="луки" remort="0" level="1" improve="100"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="блокировать щитом" remort="0" level="10" improve="400"/>
-    </class>
-    <class name="волшебник" class_num="6" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="сражение верхом" remort="0" level="1" improve="100"/>
-      <skill name="опознание" remort="0" level="10" improve="3000"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="иное оружие" remort="0" level="1" improve="100"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="54000"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="магия воздуха" remort="0" level="1" improve="400"/>
-      <skill name="магия огня" remort="0" level="1" improve="400"/>
-      <skill name="магия воды" remort="0" level="1" improve="400"/>
-      <skill name="магия земли" remort="0" level="1" improve="400"/>
-      <skill name="магия света" remort="0" level="1" improve="400"/>
-      <skill name="магия разума" remort="0" level="1" improve="400"/>
-    </class>
-    <class name="кудесник" class_num="7" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="опознание" remort="0" level="10" improve="3000"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="иное оружие" remort="0" level="1" improve="100"/>
-      <skill name="врата" remort="0" level="1" improve="50000"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="54000"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="магия воздуха" remort="0" level="1" improve="400"/>
-      <skill name="магия огня" remort="0" level="1" improve="400"/>
-      <skill name="магия воды" remort="0" level="1" improve="400"/>
-      <skill name="магия земли" remort="0" level="1" improve="400"/>
-      <skill name="магия света" remort="0" level="1" improve="400"/>
-      <skill name="магия тьмы" remort="0" level="1" improve="400"/>
-      <skill name="магия разума" remort="0" level="1" improve="400"/>
-    </class>
-    <class name="чернокнижник" class_num="8" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="опознание" remort="0" level="10" improve="3000"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="300"/>
-      <skill name="иное оружие" remort="0" level="1" improve="300"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="54000"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="магия воздуха" remort="0" level="1" improve="400"/>
-      <skill name="магия огня" remort="0" level="1" improve="400"/>
-      <skill name="магия воды" remort="0" level="1" improve="400"/>
-      <skill name="магия земли" remort="0" level="1" improve="400"/>
-      <skill name="магия тьмы" remort="0" level="1" improve="400"/>
-      <skill name="магия разума" remort="0" level="1" improve="400"/>
-    </class>
-    <class name="витязь" class_num="9" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="сражение верхом" remort="0" level="1" improve="100"/>
-      <skill name="лидерство" remort="0" level="1" improve="950"/>
-      <skill name="точный стиль" remort="0" level="1" improve="900"/>
-      <skill name="опознание" remort="0" level="10" improve="2500"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="94000"/>
-      <skill name="лечить" remort="0" level="5" improve="30000"/>
-      <skill name="сбить" remort="0" level="12" improve="3500"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="блокировать щитом" remort="0" level="10" improve="1500"/>
-      <skill name="пнуть" remort="0" level="7" improve="1500"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
-      <skill name="спасти" remort="0" level="10" improve="3500"/>
-      <skill name="выследить" remort="0" level="1" improve="3500"/>
-      <skill name="секиры" remort="0" level="1" improve="200"/>
-      <skill name="длинные лезвия" remort="0" level="1" improve="200"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="иное оружие" remort="0" level="1" improve="100"/>
-      <skill name="двуручники" remort="0" level="1" improve="300"/>
-      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
-      <skill name="копья и рогатины" remort="0" level="1" improve="200"/>
-      <skill name="луки" remort="0" level="1" improve="100"/>
-      <skill name="обезоружить" remort="0" level="1" improve="3500"/>
-      <skill name="парировать" remort="0" level="10" improve="4000"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="изгнать нежить" remort="0" level="1" improve="25000"/>
-    </class>
-    <class name="охотник" class_num="10" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лечить" remort="0" level="5" improve="26000"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="найти" remort="0" level="1" improve="150"/>
-      <skill name="приглядеться" remort="0" level="5" improve="90"/>
-      <skill name="маскировка" remort="0" level="10" improve="3500"/>
-      <skill name="сражение верхом" remort="0" level="1" improve="300"/>
-      <skill name="замести следы" remort="0" level="10" improve="3000"/>
-      <skill name="освежевать" remort="0" level="5" improve="3000"/>
-      <skill name="опознание" remort="0" level="10" improve="3500"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="93500"/>
-      <skill name="пнуть" remort="0" level="7" improve="1500"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
-      <skill name="спасти" remort="0" level="10" improve="3500"/>
-      <skill name="выследить" remort="0" level="10" improve="3500"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="секиры" remort="0" level="1" improve="200"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="иное оружие" remort="0" level="1" improve="100"/>
-      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
-      <skill name="копья и рогатины" remort="0" level="1" improve="200"/>
-      <skill name="обезоружить" remort="0" level="1" improve="3500"/>
-      <skill name="уклониться" remort="0" level="15" improve="2500"/>
-      <skill name="разжечь костер" remort="0" level="10" improve="14500"/>
-      <skill name="луки" remort="0" level="1" improve="200"/>
-      <skill name="дополнительный выстрел" remort="0" level="1" improve="200"/>
-      <skill name="парировать" remort="0" level="10" improve="1500"/>
-      <skill name="смастерить лук" remort="0" level="1" improve="1000"/>
-      <skill name="сбить" remort="0" level="25" improve="1500"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="сшить одежду" remort="0" level="1" improve="1500"/>
-    </class>
-    <class name="кузнец" class_num="11" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="ремонт" remort="0" level="10" improve="4500"/>
-      <skill name="заточить" remort="0" level="10" improve="1000"/>
-      <skill name="укрепить" remort="0" level="10" improve="1000"/>
-      <skill name="сражение верхом" remort="0" level="1" improve="300"/>
-      <skill name="оглушить" remort="0" level="1" improve="3500"/>
-      <skill name="опознание" remort="0" level="10" improve="3500"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="95000"/>
-      <skill name="сбить" remort="0" level="10" improve="3500"/>
-      <skill name="пнуть" remort="0" level="7" improve="1500"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="200"/>
-      <skill name="спасти" remort="0" level="10" improve="3500"/>
-      <skill name="выследить" remort="0" level="1" improve="3500"/>
-      <skill name="палицы" remort="0" level="1" improve="200"/>
-      <skill name="парировать" remort="0" level="10" improve="2000"/>
-      <skill name="секиры" remort="0" level="1" improve="500"/>
-      <skill name="длинные лезвия" remort="0" level="1" improve="200"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="иное оружие" remort="0" level="1" improve="300"/>
-      <skill name="двуручники" remort="0" level="1" improve="300"/>
-      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
-      <skill name="копья и рогатины" remort="0" level="1" improve="200"/>
-      <skill name="перековать" remort="0" level="1" improve="2000"/>
-      <skill name="горное дело" remort="0" level="5" improve="1000"/>
-      <skill name="ювелир" remort="0" level="1" improve="600"/>
-      <skill name="обезоружить" remort="0" level="1" improve="3000"/>
-      <skill name="железный ветер" remort="0" level="1" improve="4500"/>
-    </class>
-    <class name="купец" class_num="12" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="опознание" remort="0" level="10" improve="4000"/>
-      <skill name="осторожный стиль" remort="0" level="1" improve="100"/>
-      <skill name="сражение верхом" remort="0" level="1" improve="200"/>
-      <skill name="прислушаться" remort="0" level="10" improve="3500"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="95000"/>
-      <skill name="спрятаться" remort="0" level="5" improve="200"/>
-      <skill name="пнуть" remort="0" level="8" improve="1500"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="300"/>
-      <skill name="украсть" remort="0" level="5" improve="500"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="200"/>
-      <skill name="иное оружие" remort="0" level="1" improve="300"/>
-      <skill name="проникающее оружие" remort="0" level="1" improve="300"/>
-      <skill name="метнуть" remort="0" level="1" improve="2000"/>
-      <skill name="копья и рогатины" remort="0" level="1" improve="100"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-    </class>
-    <class name="волхв" class_num="13" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
-      <skill name="опознание" remort="0" level="10" improve="3000"/>
-      <skill name="сглазить" remort="0" level="1" improve="10000"/>
-      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
-      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
-      <skill name="иное оружие" remort="0" level="1" improve="100"/>
-      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
-      <skill name="копья и рогатины" remort="0" level="1" improve="150"/>
-      <skill name="опохмелиться" remort="0" level="3" improve="54000"/>
-      <skill name="горное дело" remort="0" level="5" improve="600"/>
-      <skill name="оборотничество" remort="0" level="1" imrove="1000"/>
-    </class>
-  </race>
-  <race name="Викинги" num_kin="1">
-    <class name="лекарь" class_num="0" level_decrement="4">
-      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
-      <skill name="лидерство" remort="0" level="1" improve="12000"/>
       <skill name="опознание" remort="0" level="1" improve="3000"/>
+      <skill name="лидерство" remort="0" level="1" improve="12000"/>
       <skill name="лечить" remort="0" level="1" improve="38000"/>
       <skill name="кулачный бой" remort="0" level="1" improve="4000"/>
       <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
@@ -347,7 +18,7 @@
       <skill name="горное дело" remort="0" level="1" improve="600"/>
       <skill name="изгнать нежить" remort="0" level="1" improve="12000"/>
     </class>
-    <class name="колдун" class_num="1" level_decrement="4">
+    <class name="колдун" class_num="1">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="опознание" remort="0" level="1" improve="3000"/>
@@ -358,14 +29,14 @@
       <skill name="опохмелиться" remort="0" level="1" improve="94000"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="тать" class_num="2" level_decrement="4">
-      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+    <class name="тать" class_num="2">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="подножка" remort="0" level="1" improve="3500"/>
       <skill name="замести следы" remort="0" level="1" improve="4000"/>
       <skill name="заколоть" remort="0" level="1" improve="4500"/>
-      <skill name="спрятаться" remort="0" level="1" improve="200"/>
-      <skill name="взломать" remort="0" level="1" improve="5000"/>
+      <skill name="спрятаться" remort="0" level="1" improve="300"/>
+      <skill name="взломать" remort="0" level="1" improve="30000"/>
       <skill name="кулачный бой" remort="0" level="1" improve="200"/>
       <skill name="подкрасться" remort="0" level="1" improve="3000"/>
       <skill name="украсть" remort="0" level="1" improve="5000"/>
@@ -381,7 +52,7 @@
       <skill name="луки" remort="0" level="1" improve="200"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="богатырь" class_num="3" level_decrement="4">
+    <class name="богатырь" class_num="3">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="перехватить" remort="0" level="1" improve="3000"/>
@@ -408,7 +79,7 @@
       <skill name="горное дело" remort="0" level="1" improve="600"/>
       <skill name="боевой клич" remort="0" level="1" improve="14000"/>
     </class>
-    <class name="наемник" class_num="4" level_decrement="4">
+    <class name="наемник" class_num="4">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="отравить" remort="0" level="1" improve="600"/>
@@ -431,7 +102,7 @@
       <skill name="осторожный стиль" remort="0" level="1" improve="200"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="дружинник" class_num="5" level_decrement="4">
+    <class name="дружинник" class_num="5">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лечить" remort="0" level="1" improve="23500"/>
       <skill name="сбить" remort="0" level="1" improve="3500"/>
@@ -458,7 +129,7 @@
       <skill name="горное дело" remort="0" level="1" improve="600"/>
       <skill name="блокировать щитом" remort="0" level="1" improve="400"/>
     </class>
-    <class name="волшебник" class_num="6" level_decrement="4">
+    <class name="волшебник" class_num="6">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="сражение верхом" remort="0" level="1" improve="100"/>
@@ -470,7 +141,7 @@
       <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="кудесник" class_num="7" level_decrement="4">
+    <class name="кудесник" class_num="7">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="опознание" remort="0" level="1" improve="3000"/>
@@ -482,7 +153,7 @@
       <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="чернокнижник" class_num="8" level_decrement="4">
+    <class name="чернокнижник" class_num="8">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="опознание" remort="0" level="1" improve="3000"/>
@@ -493,7 +164,7 @@
       <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="витязь" class_num="9" level_decrement="4">
+    <class name="витязь" class_num="9">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="сражение верхом" remort="0" level="1" improve="100"/>
       <skill name="лидерство" remort="0" level="1" improve="950"/>
@@ -521,7 +192,7 @@
       <skill name="горное дело" remort="0" level="1" improve="600"/>
       <skill name="изгнать нежить" remort="0" level="1" improve="25000"/>
     </class>
-    <class name="охотник" class_num="10" level_decrement="4">
+    <class name="охотник" class_num="10">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="найти" remort="0" level="1" improve="150"/>
@@ -552,7 +223,7 @@
       <skill name="сбить" remort="0" level="1" improve="1500"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="кузнец" class_num="11" level_decrement="4">
+    <class name="кузнец" class_num="11">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="ремонт" remort="0" level="1" improve="4500"/>
@@ -582,7 +253,7 @@
       <skill name="обезоружить" remort="0" level="1" improve="3000"/>
       <skill name="железный ветер" remort="0" level="1" improve="4500"/>
     </class>
-    <class name="купец" class_num="12" level_decrement="4">
+    <class name="купец" class_num="12">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="опознание" remort="0" level="1" improve="4000"/>
@@ -602,7 +273,295 @@
       <skill name="копья и рогатины" remort="0" level="1" improve="100"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="волхв" class_num="13" level_decrement="4">
+    <class name="волхв" class_num="13">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="опознание" remort="0" level="1" improve="3000"/>
+      <skill name="сглазить" remort="0" level="1" improve="10000"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="иное оружие" remort="0" level="1" improve="100"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="копья и рогатины" remort="0" level="1" improve="150"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+      <skill name="оборотничество" remort="0" level="1" imrove="1000"/>
+    </class>
+  </race>
+  <race name="Викинги" num_kin="1">
+    <class name="лекарь" class_num="0">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="12000"/>
+      <skill name="опознание" remort="0" level="1" improve="3000"/>
+      <skill name="лечить" remort="0" level="1" improve="38000"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="4000"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="секиры" remort="0" level="1" improve="150"/>
+      <skill name="иное оружие" remort="0" level="1" improve="100"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
+      <skill name="копья и рогатины" remort="0" level="1" improve="150"/>
+      <skill name="луки" remort="0" level="1" improve="150"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+      <skill name="изгнать нежить" remort="0" level="1" improve="12000"/>
+    </class>
+    <class name="колдун" class_num="1">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="опознание" remort="0" level="1" improve="3000"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="иное оружие" remort="0" level="1" improve="100"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="94000"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+    </class>
+    <class name="тать" class_num="2">
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="подножка" remort="0" level="1" improve="3500"/>
+      <skill name="замести следы" remort="0" level="1" improve="4000"/>
+      <skill name="заколоть" remort="0" level="1" improve="4500"/>
+      <skill name="спрятаться" remort="0" level="1" improve="200"/>
+      <skill name="взломать" remort="0" level="1" improve="5000"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="200"/>
+      <skill name="подкрасться" remort="0" level="1" improve="3000"/>
+      <skill name="украсть" remort="0" level="1" improve="5000"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="проникающее" remort="0" level="1" improve="100"/>
+      <skill name="иное оружие" remort="0" level="1" improve="100"/>
+      <skill name="прислушаться" remort="0" level="1" improve="90"/>
+      <skill name="уклониться" remort="0" level="1" improve="4000"/>
+      <skill name="подсмотреть" remort="0" level="1" improve="300"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="94000"/>
+      <skill name="копья и рогатины" remort="0" level="1" improve="100"/>
+      <skill name="луки" remort="0" level="1" improve="200"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+    </class>
+    <class name="богатырь" class_num="3">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="перехватить" remort="0" level="1" improve="3000"/>
+      <skill name="прикрыть" remort="0" level="1" improve="3000"/>
+      <skill name="удар левой рукой" remort="0" level="1" improve="200"/>
+      <skill name="богатырский молот" remort="0" level="1" improve="1500"/>
+      <skill name="оглушить" remort="0" level="1" improve="3500"/>
+      <skill name="сражение верхом" remort="0" level="1" improve="100"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="94000"/>
+      <skill name="пнуть" remort="0" level="1" improve="1500"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="200"/>
+      <skill name="спасти" remort="0" level="1" improve="3500"/>
+      <skill name="выследить" remort="0" level="1" improve="3000"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="секиры" remort="0" level="1" improve="100"/>
+      <skill name="длинные лезвия" remort="0" level="1" improve="100"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="иное оружие" remort="0" level="1" improve="100"/>
+      <skill name="двуручники" remort="0" level="1" improve="100"/>
+      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
+      <skill name="копья и рогатины" remort="0" level="1" improve="100"/>
+      <skill name="обезоружить" remort="0" level="1" improve="3000"/>
+      <skill name="ярость" remort="0" level="1" improve="100"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+      <skill name="боевой клич" remort="0" level="1" improve="14000"/>
+    </class>
+    <class name="наемник" class_num="4">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="отравить" remort="0" level="1" improve="600"/>
+      <skill name="замести следы" remort="0" level="1" improve="2500"/>
+      <skill name="прислушаться" remort="0" level="1" improve="90"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="94000"/>
+      <skill name="заколоть" remort="0" level="1" improve="6000"/>
+      <skill name="спрятаться" remort="0" level="1" improve="200"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="подкрасться" remort="0" level="1" improve="30000"/>
+      <skill name="выследить" remort="0" level="1" improve="4000"/>
+      <skill name="подножка" remort="0" level="1" improve="3500"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="200"/>
+      <skill name="иное оружие" remort="0" level="1" improve="100"/>
+      <skill name="проникающее оружие" remort="0" level="1" improve="200"/>
+      <skill name="копья и рогатины" remort="0" level="1" improve="100"/>
+      <skill name="луки" remort="0" level="1" improve="200"/>
+      <skill name="скрытый удар" remort="0" level="1" improve="100"/>
+      <skill name="осторожный стиль" remort="0" level="1" improve="200"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+    </class>
+    <class name="дружинник" class_num="5">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лечить" remort="0" level="1" improve="23500"/>
+      <skill name="сбить" remort="0" level="1" improve="3500"/>
+      <skill name="сражение верхом" remort="0" level="1" improve="100"/>
+      <skill name="веерная защита" remort="0" level="1" improve="150"/>
+      <skill name="лидерство" remort="0" level="1" improve="950"/>
+      <skill name="осторожный стиль" remort="0" level="1" improve="100"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="94000"/>
+      <skill name="пнуть" remort="0" level="1" improve="1500"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
+      <skill name="спасти" remort="0" level="1" improve="3500"/>
+      <skill name="выследить" remort="0" level="1" improve="3500"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="200"/>
+      <skill name="секиры" remort="0" level="1" improve="200"/>
+      <skill name="длинные лезвия" remort="0" level="1" improve="200"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="иное оружие" remort="0" level="1" improve="200"/>
+      <skill name="двуручники" remort="0" level="1" improve="200"/>
+      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
+      <skill name="копья и рогатины" remort="0" level="1" improve="300"/>
+      <skill name="обезоружить" remort="0" level="1" improve="3500"/>
+      <skill name="парировать" remort="0" level="1" improve="4000"/>
+      <skill name="луки" remort="0" level="1" improve="100"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+      <skill name="блокировать щитом" remort="0" level="1" improve="400"/>
+    </class>
+    <class name="волшебник" class_num="6">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="сражение верхом" remort="0" level="1" improve="100"/>
+      <skill name="опознание" remort="0" level="1" improve="3000"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="иное оружие" remort="0" level="1" improve="100"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+    </class>
+    <class name="кудесник" class_num="7">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="опознание" remort="0" level="1" improve="3000"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="иное оружие" remort="0" level="1" improve="100"/>
+      <skill name="врата" remort="0" level="1" improve="50000"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+    </class>
+    <class name="чернокнижник" class_num="8">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="опознание" remort="0" level="1" improve="3000"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="300"/>
+      <skill name="иное оружие" remort="0" level="1" improve="300"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+    </class>
+    <class name="витязь" class_num="9">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="сражение верхом" remort="0" level="1" improve="100"/>
+      <skill name="лидерство" remort="0" level="1" improve="950"/>
+      <skill name="точный стиль" remort="0" level="1" improve="600"/>
+      <skill name="опознание" remort="0" level="1" improve="2500"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="94000"/>
+      <skill name="лечить" remort="0" level="1" improve="30000"/>
+      <skill name="сбить" remort="0" level="1" improve="3500"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="блокировать щитом" remort="0" level="1" improve="1500"/>
+      <skill name="пнуть" remort="0" level="1" improve="1500"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
+      <skill name="спасти" remort="0" level="1" improve="3500"/>
+      <skill name="выследить" remort="0" level="1" improve="3500"/>
+      <skill name="секиры" remort="0" level="1" improve="200"/>
+      <skill name="длинные лезвия" remort="0" level="1" improve="200"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="иное оружие" remort="0" level="1" improve="100"/>
+      <skill name="двуручники" remort="0" level="1" improve="300"/>
+      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
+      <skill name="копья и рогатины" remort="0" level="1" improve="200"/>
+      <skill name="луки" remort="0" level="1" improve="100"/>
+      <skill name="обезоружить" remort="0" level="1" improve="3500"/>
+      <skill name="парировать" remort="0" level="1" improve="4000"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+      <skill name="изгнать нежить" remort="0" level="1" improve="25000"/>
+    </class>
+    <class name="охотник" class_num="10">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="найти" remort="0" level="1" improve="150"/>
+      <skill name="приглядеться" remort="0" level="1" improve="90"/>
+      <skill name="маскировка" remort="0" level="1" improve="3500"/>
+      <skill name="сражение верхом" remort="0" level="1" improve="300"/>
+      <skill name="замести следы" remort="0" level="1" improve="3000"/>
+      <skill name="освежевать" remort="0" level="1" improve="3000"/>
+      <skill name="опознание" remort="0" level="1" improve="3500"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="93500"/>
+      <skill name="пнуть" remort="0" level="1" improve="1500"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="100"/>
+      <skill name="спасти" remort="0" level="1" improve="3500"/>
+      <skill name="выследить" remort="0" level="1" improve="3500"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="секиры" remort="0" level="1" improve="200"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="иное оружие" remort="0" level="1" improve="100"/>
+      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
+      <skill name="копья и рогатины" remort="0" level="1" improve="200"/>
+      <skill name="обезоружить" remort="0" level="1" improve="3500"/>
+      <skill name="уклониться" remort="0" level="1" improve="2500"/>
+      <skill name="разжечь костер" remort="0" level="1" improve="14500"/>
+      <skill name="луки" remort="0" level="1" improve="200"/>
+      <skill name="дополнительный выстрел" remort="0" level="1" improve="200"/>
+      <skill name="парировать" remort="0" level="1" improve="1500"/>
+      <skill name="смастерить лук" remort="0" level="1" improve="1000"/>
+      <skill name="сбить" remort="0" level="1" improve="1500"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+    </class>
+    <class name="кузнец" class_num="11">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="ремонт" remort="0" level="1" improve="4500"/>
+      <skill name="заточить" remort="0" level="1" improve="1000"/>
+      <skill name="укрепить" remort="0" level="1" improve="1000"/>
+      <skill name="сражение верхом" remort="0" level="1" improve="300"/>
+      <skill name="оглушить" remort="0" level="1" improve="3500"/>
+      <skill name="опознание" remort="0" level="1" improve="3500"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="95000"/>
+      <skill name="сбить" remort="0" level="1" improve="3500"/>
+      <skill name="пнуть" remort="0" level="1" improve="1500"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="200"/>
+      <skill name="спасти" remort="0" level="1" improve="3500"/>
+      <skill name="выследить" remort="0" level="1" improve="3500"/>
+      <skill name="палицы" remort="0" level="1" improve="200"/>
+      <skill name="парировать" remort="0" level="1" improve="2000"/>
+      <skill name="секиры" remort="0" level="1" improve="500"/>
+      <skill name="длинные лезвия" remort="0" level="1" improve="200"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
+      <skill name="иное оружие" remort="0" level="1" improve="300"/>
+      <skill name="двуручники" remort="0" level="1" improve="300"/>
+      <skill name="проникающее оружие" remort="0" level="1" improve="100"/>
+      <skill name="копья и рогатины" remort="0" level="1" improve="200"/>
+      <skill name="перековать" remort="0" level="1" improve="2000"/>
+      <skill name="горное дело" remort="0" level="1" improve="1000"/>
+      <skill name="ювелир" remort="0" level="1" improve="600"/>
+      <skill name="обезоружить" remort="0" level="1" improve="3000"/>
+      <skill name="железный ветер" remort="0" level="1" improve="4500"/>
+    </class>
+    <class name="купец" class_num="12">
+      <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
+      <skill name="лидерство" remort="0" level="1" improve="1200"/>
+      <skill name="опознание" remort="0" level="1" improve="4000"/>
+      <skill name="осторожный стиль" remort="0" level="1" improve="100"/>
+      <skill name="сражение верхом" remort="0" level="1" improve="200"/>
+      <skill name="прислушаться" remort="0" level="1" improve="3500"/>
+      <skill name="опохмелиться" remort="0" level="1" improve="95000"/>
+      <skill name="спрятаться" remort="0" level="1" improve="200"/>
+      <skill name="пнуть" remort="0" level="1" improve="1500"/>
+      <skill name="кулачный бой" remort="0" level="1" improve="300"/>
+      <skill name="украсть" remort="0" level="1" improve="500"/>
+      <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
+      <skill name="короткие лезвия" remort="0" level="1" improve="200"/>
+      <skill name="иное оружие" remort="0" level="1" improve="300"/>
+      <skill name="проникающее оружие" remort="0" level="1" improve="300"/>
+      <skill name="метнуть" remort="0" level="1" improve="2000"/>
+      <skill name="копья и рогатины" remort="0" level="1" improve="100"/>
+      <skill name="горное дело" remort="0" level="1" improve="600"/>
+    </class>
+    <class name="волхв" class_num="13">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="опознание" remort="0" level="1" improve="3000"/>
@@ -617,7 +576,7 @@
     </class>
   </race>
   <race name="Степняки" num_kin="2">
-    <class name="лекарь" class_num="0" level_decrement="4">
+    <class name="лекарь" class_num="0">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="12000"/>
       <skill name="опознание" remort="0" level="1" improve="3000"/>
@@ -634,7 +593,7 @@
       <skill name="горное дело" remort="0" level="1" improve="600"/>
       <skill name="изгнать нежить" remort="0" level="1" improve="12000"/>
     </class>
-    <class name="колдун" class_num="1" level_decrement="4">
+    <class name="колдун" class_num="1">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="опознание" remort="0" level="1" improve="3000"/>
@@ -645,7 +604,7 @@
       <skill name="опохмелиться" remort="0" level="1" improve="94000"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="тать" class_num="2" level_decrement="4">
+    <class name="тать" class_num="2">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="подножка" remort="0" level="1" improve="3500"/>
@@ -668,7 +627,7 @@
       <skill name="луки" remort="0" level="1" improve="200"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="богатырь" class_num="3" level_decrement="4">
+    <class name="богатырь" class_num="3">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="перехватить" remort="0" level="1" improve="3000"/>
@@ -695,7 +654,7 @@
       <skill name="горное дело" remort="0" level="1" improve="600"/>
       <skill name="боевой клич" remort="0" level="1" improve="14000"/>
     </class>
-    <class name="наемник" class_num="4" level_decrement="4">
+    <class name="наемник" class_num="4">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="отравить" remort="0" level="1" improve="600"/>
@@ -718,7 +677,7 @@
       <skill name="осторожный стиль" remort="0" level="1" improve="200"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="дружинник" class_num="5" level_decrement="4">
+    <class name="дружинник" class_num="5">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лечить" remort="0" level="1" improve="23500"/>
       <skill name="сбить" remort="0" level="1" improve="3500"/>
@@ -745,7 +704,7 @@
       <skill name="горное дело" remort="0" level="1" improve="600"/>
       <skill name="блокировать щитом" remort="0" level="1" improve="400"/>
     </class>
-    <class name="волшебник" class_num="6" level_decrement="4">
+    <class name="волшебник" class_num="6">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="сражение верхом" remort="0" level="1" improve="100"/>
@@ -757,7 +716,7 @@
       <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="кудесник" class_num="7" level_decrement="4">
+    <class name="кудесник" class_num="7">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="опознание" remort="0" level="1" improve="3000"/>
@@ -769,7 +728,7 @@
       <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="чернокнижник" class_num="8" level_decrement="4">
+    <class name="чернокнижник" class_num="8">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="опознание" remort="0" level="1" improve="3000"/>
@@ -780,7 +739,7 @@
       <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="витязь" class_num="9" level_decrement="4">
+    <class name="витязь" class_num="9">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="сражение верхом" remort="0" level="1" improve="100"/>
       <skill name="лидерство" remort="0" level="1" improve="950"/>
@@ -808,7 +767,7 @@
       <skill name="горное дело" remort="0" level="1" improve="600"/>
       <skill name="изгнать нежить" remort="0" level="1" improve="25000"/>
     </class>
-    <class name="охотник" class_num="10" level_decrement="4">
+    <class name="охотник" class_num="10">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="найти" remort="0" level="1" improve="150"/>
@@ -839,7 +798,7 @@
       <skill name="сбить" remort="0" level="1" improve="1500"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="кузнец" class_num="11" level_decrement="4">
+    <class name="кузнец" class_num="11">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="ремонт" remort="0" level="1" improve="4500"/>
@@ -869,7 +828,7 @@
       <skill name="обезоружить" remort="0" level="1" improve="3000"/>
       <skill name="железный ветер" remort="0" level="1" improve="4500"/>
     </class>
-    <class name="купец" class_num="12" level_decrement="4">
+    <class name="купец" class_num="12">
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="опознание" remort="0" level="1" improve="4000"/>
@@ -889,7 +848,7 @@
       <skill name="копья и рогатины" remort="0" level="1" improve="100"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
     </class>
-    <class name="волхв" class_num="13" level_decrement="4">
+    <class name="волхв" class_num="13">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лидерство" remort="0" level="1" improve="1200"/>
       <skill name="опознание" remort="0" level="1" improve="3000"/>
