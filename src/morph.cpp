@@ -1,7 +1,6 @@
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include "pugixml.hpp"
-#include "utils.h"
+#include "morph.hpp"
+
+#include "obj.hpp"
 #include "screen.h"
 #include "structs.h"
 #include "interpreter.h"
@@ -11,7 +10,11 @@
 #include "char.hpp"
 #include "comm.h"
 #include "db.h"
-#include "morph.hpp"
+#include "utils.h"
+#include "pugixml.hpp"
+
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 MorphListType MorphList;
 

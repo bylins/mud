@@ -10,12 +10,16 @@
 #ifndef __ITEM_CREATION_HPP__
 #define __ITEM_CREATION_HPP__
 
+#include "interpreter.h"
+#include "features.hpp"
+#include "conf.h"
+
+#include <boost/array.hpp>
+
 #include <string>
 #include <list>
 #include <iostream>
 #include <fstream>
-#include <boost/array.hpp>
-#include "conf.h"
 
 #define MAX_ITEMS 	9
 
@@ -138,13 +142,13 @@ class MakeRecept
 
 	int add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta);
 
-	int get_ingr_lev(struct obj_data *ingrobj);
+	int get_ingr_lev(struct OBJ_DATA *ingrobj);
 
 	void make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt);
 
 	void make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS]);
 
-	int get_ingr_pow(struct obj_data *ingrobj);
+	int get_ingr_pow(struct OBJ_DATA *ingrobj);
 
 	void add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to);
 

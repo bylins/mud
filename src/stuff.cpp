@@ -7,25 +7,28 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include <boost/array.hpp>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "stuff.hpp"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
-#include "utils.h"
 #include "dg_scripts.h"
-#include "stuff.hpp"
 #include "char.hpp"
 #include "room.hpp"
 #include "corpse.hpp"
 #include "screen.h"
 #include "skills.h"
 #include "sets_drop.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/array.hpp>
 
 extern const char *skill_name(int num);
-extern void set_obj_eff(struct obj_data *itemobj, int type, int mod);
+extern void set_obj_eff(struct OBJ_DATA *itemobj, int type, int mod);
 
 void oload_class::init()
 {

@@ -5,9 +5,11 @@
 #ifndef DEATHTRAP_HPP_INCLUDED
 #define DEATHTRAP_HPP_INCLUDED
 
-#include "conf.h"
-#include "sysdep.h"
 #include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 /**
 * Список слоу-дт (включая проваливание под лед), чтобы не гонять каждые 2 секунды по 64к комнатам.

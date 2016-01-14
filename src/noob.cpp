@@ -1,14 +1,10 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
-#include <array>
-#include <vector>
-#include <sstream>
-#include <boost/lambda/lambda.hpp>
 #include "noob.hpp"
-#include "structs.h"
-#include "utils.h"
+
+#include "char.hpp"
+#include "obj.hpp"
 #include "db.h"
 #include "comm.h"
 #include "pugixml.hpp"
@@ -17,6 +13,15 @@
 #include "birth_places.hpp"
 #include "handler.h"
 #include "skills.h"
+#include "utils.h"
+#include "structs.h"
+#include "conf.h"
+
+#include <boost/lambda/lambda.hpp>
+
+#include <array>
+#include <vector>
+#include <sstream>
 
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 

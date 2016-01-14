@@ -34,12 +34,9 @@
  *  such installation can be found in INSTALL.  Enjoy........    N'Atas-Ha *
  ***************************************************************************/
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "dg_scripts.h"
 #include "db.h"
-#include "utils.h"
 #include "handler.h"
 #include "interpreter.h"
 #include "comm.h"
@@ -51,6 +48,10 @@
 #include "name_list.hpp"
 #include "room.hpp"
 #include "fight.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
 
@@ -66,7 +67,7 @@ extern TRIG_DATA *cur_trig;
 
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void asciiflag_conv(const char *flag, void *value);
-room_data *get_room(char *name);
+ROOM_DATA *get_room(char *name);
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
 // * Local functions.
@@ -1221,7 +1222,7 @@ ACMD(do_mdoor)
 {
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
-	room_data *rm;
+	ROOM_DATA *rm;
 	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 

@@ -8,29 +8,32 @@
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
 
-#include "conf.h"
-#include <string>
-#include <ctime>
-#include <unordered_map>
-#include <unordered_set>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include "pugixml.hpp"
+#include "mail.h"
 
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "db.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "mail.h"
 #include "char.hpp"
 #include "parcel.hpp"
 #include "char_player.hpp"
 #include "named_stuff.hpp"
 #include "parse.hpp"
 #include "screen.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+#include "pugixml.hpp"
+
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <string>
+#include <ctime>
+#include <unordered_map>
+#include <unordered_set>
 
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;

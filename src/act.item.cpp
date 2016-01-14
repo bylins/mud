@@ -12,12 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include <boost/array.hpp>
-#include <boost/bind.hpp>
-
+#include "obj.hpp"
 #include "char.hpp"
 #include "comm.h"
-#include "conf.h"
 #include "constants.h"
 #include "db.h"
 #include "depot.hpp"
@@ -37,10 +34,14 @@
 #include "room.hpp"
 #include "skills.h"
 #include "spells.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "utils.h"
 #include "mobmax.hpp"
+#include "structs.h"
+#include "utils.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/array.hpp>
+#include <boost/bind.hpp>
 
 // extern variables
 extern vector < OBJ_DATA * >obj_proto;

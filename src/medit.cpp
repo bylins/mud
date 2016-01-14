@@ -7,14 +7,9 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
-#include "conf.h"
-#include <sstream>
-#include <boost/format.hpp>
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "comm.h"
 #include "spells.h"
-#include "utils.h"
 #include "db.h"
 #include "olc.h"
 #include "handler.h"
@@ -29,6 +24,14 @@
 #include "corpse.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/format.hpp>
+
+#include <sstream>
 
 // * Set this to 1 for debugging logs in medit_save_internally.
 #if 0

@@ -17,6 +17,11 @@
 #ifndef _HANDLER_H_
 #define _HANDLER_H_
 
+#include "structs.h"	// there was defined type "byte" if it had been missing
+
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+
 #define LIGHT_NO    0
 #define LIGHT_YES   1
 #define LIGHT_UNDEF 2

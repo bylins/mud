@@ -3,6 +3,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "poison.hpp"
+
+#include "obj.hpp"
 #include "char.hpp"
 #include "spells.h"
 #include "liquid.hpp"
@@ -418,13 +420,13 @@ void set_weap_poison(OBJ_DATA *weapon, int liquid_num)
 {
 	const int poison_timer = 30;
 	if (liquid_num == LIQ_POISON_ACONITUM)
-		weapon->timed_spell.add(weapon, SPELL_ACONITUM_POISON, poison_timer);
+		weapon->add_timed_spell(SPELL_ACONITUM_POISON, poison_timer);
 	else if (liquid_num == LIQ_POISON_SCOPOLIA)
-		weapon->timed_spell.add(weapon, SPELL_SCOPOLIA_POISON, poison_timer);
+		weapon->add_timed_spell(SPELL_SCOPOLIA_POISON, poison_timer);
 	else if (liquid_num == LIQ_POISON_BELENA)
-		weapon->timed_spell.add(weapon, SPELL_BELENA_POISON, poison_timer);
+		weapon->add_timed_spell(SPELL_BELENA_POISON, poison_timer);
 	else if (liquid_num == LIQ_POISON_DATURA)
-		weapon->timed_spell.add(weapon, SPELL_DATURA_POISON, poison_timer);
+		weapon->add_timed_spell(SPELL_DATURA_POISON, poison_timer);
 	else
 		log("SYSERROR: liquid_num == %d (%s %s %d)", liquid_num, __FILE__, __func__, __LINE__);
 }

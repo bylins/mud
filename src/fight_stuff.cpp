@@ -1,8 +1,8 @@
 // Part of Bylins http://www.mud.ru
 
+#include "obj.hpp"
 #include "fight.h"
 #include "fight_local.hpp"
-#include "utils.h"
 #include "char.hpp"
 #include "skills.h"
 #include "handler.h"
@@ -20,7 +20,8 @@
 #include "screen.h"
 #include "magic.h"
 #include "mob_stat.hpp"
-//#include "scripting.hpp"
+#include "utils.h"
+
 #include <algorithm>
 
 // extern

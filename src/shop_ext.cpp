@@ -2,15 +2,9 @@
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <vector>
-#include <string>
-#include <boost/bind.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <boost/array.hpp>
-#include "pugixml.hpp"
 #include "shop_ext.hpp"
+
+#include "obj.hpp"
 #include "char.hpp"
 #include "db.h"
 #include "comm.h"
@@ -27,6 +21,16 @@
 #include "liquid.hpp"
 #include "utils.h"
 #include "parse.hpp"
+#include "pugixml.hpp"
+
+#include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+#include <boost/array.hpp>
+
+#include <vector>
+#include <string>
 
 /*
 Пример конфига (plrstuff/shop/test.xml):

@@ -7,16 +7,14 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "skills.h"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "handler.h"
 #include "db.h"
 #include "interpreter.h"
-#include "utils.h"
 #include "spells.h"
-#include "skills.h"
 #include "screen.h"
 #include "dg_scripts.h"
 #include "constants.h"
@@ -25,6 +23,10 @@
 #include "random.hpp"
 #include "char.hpp"
 #include "room.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 /*
  * message for doing damage with a spell or skill

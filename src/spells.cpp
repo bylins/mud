@@ -12,12 +12,10 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
-#include "comm.h"
 #include "spells.h"
+
+#include "obj.hpp"
+#include "comm.h"
 #include "skills.h"
 #include "handler.h"
 #include "db.h"
@@ -39,6 +37,10 @@
 #include "room.hpp"
 #include "birth_places.hpp"
 #include "obj_sets.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 extern room_rnum r_mortal_start_room;
 
@@ -1372,62 +1374,6 @@ void print_book_uprgd_skill(CHAR_DATA *ch, const OBJ_DATA *obj)
 	}
 }
 
-void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect)
-{
-	sprinttype(affect.location, apply_types, buf2);
-	bool negative = false;
-	for (int j = 0; *apply_negative[j] != '\n'; j++)
-	{
-		if (!str_cmp(buf2, apply_negative[j]))
-		{
-			negative = true;
-			break;
-		}
-	}
-	if (!negative && affect.modifier < 0)
-	{
-		negative = true;
-	}
-	else if (negative && affect.modifier < 0)
-	{
-		negative = false;
-	}
-	sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
-			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
-			CCCYN(ch, C_NRM),
-			negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
-}
-
-std::string print_obj_affects(const obj_affected_type &affect)
-{
-	sprinttype(affect.location, apply_types, buf2);
-	bool negative = false;
-	for (int j = 0; *apply_negative[j] != '\n'; j++)
-	{
-		if (!str_cmp(buf2, apply_negative[j]))
-		{
-			negative = true;
-			break;
-		}
-	}
-	if (!negative && affect.modifier < 0)
-	{
-		negative = true;
-	}
-	else if (negative && affect.modifier < 0)
-	{
-		negative = false;
-	}
-
-	sprintf(buf, "%s%s%s%s%s%d%s\r\n",
-		KCYN, buf2, KNRM,
-		KCYN, (negative ? " ухудшает на " : " улучшает на "),
-		abs(affect.modifier), KNRM);
-
-	return std::string(buf);
-}
-
 void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 {
 	int i, found, drndice = 0, drsdice = 0, j;
@@ -1779,9 +1725,9 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		}
 	}
 	//added by WorM 2010.09.07 доп ифна о сете
-	id_to_set_info_map::iterator it = obj_data::set_table.begin();
+	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
-		for (; it != obj_data::set_table.end(); it++)
+		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
 				sprintf(buf, "Часть набора предметов: %s%s%s\r\n",CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
@@ -2107,9 +2053,9 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		}
 	}
 	//added by WorM 2010.09.07 доп ифна о сете
-	id_to_set_info_map::iterator it = obj_data::set_table.begin();
+	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
-		for (; it != obj_data::set_table.end(); it++)
+		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
 				sprintf(buf, "Часть набора предметов: %s%s%s\r\n",CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));

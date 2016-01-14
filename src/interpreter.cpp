@@ -13,15 +13,12 @@
 
 #define __INTERPRETER_C__
 
-#include "conf.h"
-
-#include "sysdep.h"
-#include "structs.h"
-#include "comm.h"
 #include "interpreter.h"
+
+#include "obj.hpp"
+#include "comm.h"
 #include "constants.h"
 #include "db.h"
-#include "utils.h"
 #include "spells.h"
 #include "skills.h"
 #include "handler.h"
@@ -61,6 +58,15 @@
 #include "noob.hpp"
 #include "reset_stats.hpp"
 #include "obj_sets.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
+
+#include <stdexcept>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>

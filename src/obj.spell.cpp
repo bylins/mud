@@ -2,20 +2,24 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <sstream>
-#include <string>
-#include <boost/format.hpp>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
 #include "spells.h"
-#include "utils.h"
+
+#include "obj.hpp"
 #include "comm.h"
 #include "screen.h"
 #include "poison.hpp"
 #include "char.hpp"
 #include "db.h"
 #include "room.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/format.hpp>
+
+#include <sstream>
+#include <string>
 
 /*
 Система следующая:
@@ -106,7 +110,7 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 // * Распечатка строки с заклинанием и таймером при осмотре шмотки.
 std::string print_spell_str(CHAR_DATA *ch, int spell, int timer)
 {
-	if (spell < 0 || spell >= LAST_USED_SPELL)
+	if (spell < 0 || spell >= SPELLS_COUNT)
 	{
 		log("SYSERROR: %s, spell = %d, time = %d", __func__, spell, timer);
 		return "";
@@ -172,13 +176,6 @@ void TimedSpell::del(OBJ_DATA *obj, int spell, bool message)
 */
 void TimedSpell::add(OBJ_DATA *obj, int spell, int time)
 {
-	if (!obj || spell < 0 || spell >= LAST_USED_SPELL)
-	{
-		log("SYSERROR: func: %s, obj = %s, spell = %d, time = %d",
-			__func__, obj ? "true" : "false", spell, time);
-		return;
-	}
-
 	// замещение ядов друг другом
 	if (spell == SPELL_ACONITUM_POISON
 		|| spell == SPELL_SCOPOLIA_POISON

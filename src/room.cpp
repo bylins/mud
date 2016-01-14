@@ -6,7 +6,7 @@
 
 #include "room.hpp"
 
-room_data::room_data()
+ROOM_DATA::ROOM_DATA()
 	: number(0),
 	zone(0),
 	sector_type(0),

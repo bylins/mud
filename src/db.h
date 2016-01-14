@@ -18,6 +18,9 @@
 #include "utils.h"
 #include "structs.h"
 
+struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+
+
 #include <boost/array.hpp>
 
 // arbitrary constants used by index_boot() (must be unique)

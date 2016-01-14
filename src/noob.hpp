@@ -4,12 +4,12 @@
 #ifndef NOOB_HPP_INCLUDED
 #define NOOB_HPP_INCLUDED
 
-#include "conf.h"
+#include "structs.h"
+
 #include <string>
 #include <vector>
-#include "sysdep.h"
-#include "structs.h"
-#include "char.hpp"
+
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 namespace Noob
 {

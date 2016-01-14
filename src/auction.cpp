@@ -8,11 +8,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "screen.h"
-#include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -23,6 +20,10 @@
 #include "room.hpp"
 #include "named_stuff.hpp"
 #include "pk.h"
+#include "utils.h"
+#include "structs.h"
+#include "conf.h"
+#include "sysdep.h"
 
 // external functions
 extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);

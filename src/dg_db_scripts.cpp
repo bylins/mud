@@ -13,14 +13,8 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
-#include "conf.h"
-#include <algorithm>
-#include <stack>
-
-#include "sysdep.h"
-#include "structs.h"
+#include "obj.hpp"
 #include "dg_scripts.h"
-#include "utils.h"
 #include "db.h"
 #include "handler.h"
 #include "dg_event.h"
@@ -34,6 +28,13 @@
 #include "room.hpp"
 #include "magic.h"
 #include "boards.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <algorithm>
+#include <stack>
 
 void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void trig_data_free(TRIG_DATA * this_data);
@@ -328,7 +329,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	char junk[8];
 	int vnum, rnum, count;
 	CHAR_DATA *mob;
-	room_data *room;
+	ROOM_DATA *room;
 	struct trig_proto_list *trg_proto, *new_trg;
 
 	get_line(fp, line);
@@ -372,7 +373,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 		CREATE(new_trg, 1);
 		new_trg->vnum = vnum;
 		new_trg->next = NULL;
-		room = (room_data *) proto;
+		room = (ROOM_DATA *) proto;
 		trg_proto = room->proto_script;
 		if (!trg_proto)
 		{

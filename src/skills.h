@@ -15,9 +15,13 @@
 #ifndef _SKILLS_H_
 #define _SKILLS_H_
 
-#include <map>
-#include <boost/shared_ptr.hpp>
 #include "pugixml.hpp"
+
+#include <boost/shared_ptr.hpp>
+
+#include <map>
+
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM //
 #define SKILL_THAC0                 0	// Internal //

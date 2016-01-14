@@ -899,8 +899,8 @@ unsigned int get_max_pers_slots(CHAR_DATA *ch)
 std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 {
 	cont.sort(boost::bind(std::less<char *>(),
-		boost::bind(&obj_data::aliases, _1),
-		boost::bind(&obj_data::aliases, _2)));
+		boost::bind(&OBJ_DATA::aliases, _1),
+		boost::bind(&OBJ_DATA::aliases, _2)));
 
 	// чтобы сначала вывести шмотки, а потом ингры
 	std::stringstream s_out, i_out;

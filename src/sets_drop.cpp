@@ -1,23 +1,10 @@
 // Copyright (c) 2012 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
-#include <sstream>
-#include <iostream>
-#include <set>
-#include <list>
-#include <map>
-#include <string>
-#include <vector>
-#include <iomanip>
-#include <algorithm>
-#include <boost/bind.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "sets_drop.hpp"
+
+#include "obj.hpp"
 #include "db.h"
-#include "utils.h"
 #include "char.hpp"
 #include "comm.h"
 #include "handler.h"
@@ -32,6 +19,22 @@
 #include "parse.hpp"
 #include "mob_stat.hpp"
 #include "obj_sets.hpp"
+#include "utils.h"
+#include "conf.h"
+
+#include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include <sstream>
+#include <iostream>
+#include <set>
+#include <list>
+#include <map>
+#include <string>
+#include <vector>
+#include <iomanip>
+#include <algorithm>
 
 namespace SetsDrop
 {
@@ -316,8 +319,8 @@ void init_obj_list()
 					}
 					else
 					{
-						for (auto it = obj_data::set_table.begin(),
-							iend = obj_data::set_table.end(); it != iend; ++it)
+						for (auto it = OBJ_DATA::set_table.begin(),
+							iend = OBJ_DATA::set_table.end(); it != iend; ++it)
 						{
 							auto k = it->second.find(obj_vnum);
 							if (k != it->second.end())
@@ -345,8 +348,8 @@ void init_obj_list()
 					continue;
 				}
 				// заполнение списка активаторов
-				for (id_to_set_info_map::const_iterator it = obj_data::set_table.begin(),
-					iend = obj_data::set_table.end(); it != iend; ++it)
+				for (id_to_set_info_map::const_iterator it = OBJ_DATA::set_table.begin(),
+					iend = OBJ_DATA::set_table.end(); it != iend; ++it)
 				{
 					set_info::const_iterator k = it->second.find(obj_vnum);
 					if (k != it->second.end() && !k->second.empty())

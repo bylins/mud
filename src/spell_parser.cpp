@@ -12,10 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "obj.hpp"
 #include "interpreter.h"
 #include "spells.h"
 #include "skills.h"
@@ -36,12 +33,16 @@
 #include "room.hpp"
 #include "magic.h"
 #include "fight.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
 struct skill_info_type skill_info[MAX_SKILL_NUM + 1];
 char cast_argument[MAX_STRING_LENGTH];
-extern const char *cast_phrase[LAST_USED_SPELL + 1][2];
+extern const char *cast_phrase[SPELLS_COUNT + 1][2];
 
 #define SpINFO spell_info[spellnum]
 #define SkINFO skill_info[skillnum]
@@ -3044,7 +3045,7 @@ ACMD(do_cast)
 					spell_subst = i;
 					break;
 				}
-			if (i >= LAST_USED_SPELL)
+			if (i >= SPELLS_COUNT)
 			{
 				send_to_char("У вас нет заученных заклинаний этого круга.\r\n", ch);
 				return;
@@ -3148,7 +3149,7 @@ ACMD(do_warcry)
 	if (tok_iter == tok.end())
 	{
 		sprintf(buf, "Вам доступны :\r\n");
-		for (cnt = spellnum = 1; spellnum < LAST_USED_SPELL; spellnum++)
+		for (cnt = spellnum = 1; spellnum < SPELLS_COUNT; spellnum++)
 		{
 			const char *realname = SpINFO.name && *SpINFO.name ? SpINFO.name : SpINFO.syn && *SpINFO.syn ? SpINFO.syn : NULL;
 
@@ -3612,7 +3613,7 @@ ACMD(do_learn)
 		send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) >= LAST_USED_SPELL))
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) >= SPELLS_COUNT))
 	{
 		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;

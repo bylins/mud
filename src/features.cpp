@@ -7,20 +7,15 @@
 *  $Revision$                	                                 *
 ************************************************************************ */
 
-#include <string>
-#include "conf.h"
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim_all.hpp>
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
+#include "features.hpp"
+
+#include "obj.hpp"
 #include "handler.h"
 #include "comm.h"
 #include "db.h"
 #include "interpreter.h"
 #include "skills.h"
 #include "spells.h"
-#include "features.hpp"
 #include "char.hpp"
 #include "player_races.hpp"
 #include "room.hpp"
@@ -33,7 +28,15 @@
 #include "screen.h"
 #include "pk.h"
 #include "dg_scripts.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim_all.hpp>
+
+#include <string>
 
 extern const char *unused_spellname;
 
