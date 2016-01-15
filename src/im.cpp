@@ -1336,7 +1336,7 @@ void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success)
 {
 	int prob, div, diff;
 
-	if (IS_NPC(ch))
+	if (IS_NPC(ch) || (rs->perc >=200))
 		return;
 
 	if (IS_IMMORTAL(ch) ||
