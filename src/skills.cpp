@@ -861,7 +861,7 @@ send_to_char(vict, "Skill == %d, Percent == %d, Bonus == %d, victim_sav == %d, v
 void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victim)
 {
 	const int trained_skill = ch->get_trained_skill(skill_no);
-	if (trained_skill == 0 || trained_skill == 200)
+	if (trained_skill == 0 || trained_skill >= 200)
 	{
 		// скила может и не быть, если получен только со шмоток
 		return;
@@ -925,7 +925,7 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 						CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
 								C_NRM));
 			send_to_char(buf, ch);
-			ch->set_morphed_skill(skill_no, (trained_skill + number(1, 2)));
+			ch->set_morphed_skill(skill_no, MAX(200, (trained_skill + number(1, 2))));
 			if (!IS_IMMORTAL(ch))
 				ch->set_morphed_skill(skill_no, (MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5, ch->get_trained_skill(skill_no))));
 // скилл прокачался, помечаю моба (если он есть)
