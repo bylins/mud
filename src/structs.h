@@ -86,7 +86,6 @@ typedef struct script_data SCRIPT_DATA;
 typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 typedef struct extra_descr_data EXTRA_DESCR_DATA;
-typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct affect_data AFFECT_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -128,7 +127,7 @@ typedef struct trig_data TRIG_DATA;
 // The cardinal directions: used as index to room_data.dir_option[]
 #define NORTH          0
 #define EAST           1
-#define SOUTH          2
+#define SOUTH          2	
 #define WEST           3
 #define UP             4
 #define DOWN           5
@@ -1206,24 +1205,15 @@ typedef char
 byte;
 #endif
 
-typedef int
-room_vnum;			// A room's vnum type //
-typedef int
-obj_vnum;			// An object's vnum type //
-typedef int
-mob_vnum;			// A mob's vnum type //
-typedef int
-zone_vnum;			// A virtual zone number.  //
+typedef int room_vnum;	// A room's vnum type //
+typedef int obj_vnum;	// An object's vnum type //
+typedef int mob_vnum;	// A mob's vnum type //
+typedef int zone_vnum;	// A virtual zone number.  //
 
-typedef int
-room_rnum;			// A room's real (internal) number type //
-typedef int
-obj_rnum;			// An object's real (internal) num type //
-typedef int
-mob_rnum;			// A mobile's real (internal) num type //
-typedef int
-zone_rnum;			// A zone's real (array index) number. //
-
+typedef int room_rnum;	// A room's real (internal) number type //
+typedef int obj_rnum;	// An object's real (internal) num type //
+typedef int mob_rnum;	// A mobile's real (internal) num type //
+typedef int zone_rnum;	// A zone's real (array index) number. //
 
 // ************ WARNING ******************************************* //
 // This structure describe new bitvector structure                  //
@@ -1233,7 +1223,6 @@ typedef uint32_t bitvector_t;
 #define INT_ONE   (1 << 30)
 #define INT_TWO   (2 << 30)
 #define INT_THREE (3 << 30)
-#define GET_FLAG(value,flag) (value.flags[(static_cast<uint32_t>(flag)) >> 30])
 
 struct flag_data
 {
@@ -1278,6 +1267,18 @@ struct flag_data
 
 	uint32_t flags[4];
 };
+
+inline const uint32_t& GET_FLAG(const flag_data& value, const uint32_t flag)
+{
+	size_t fnumber = flag >> 30;
+	return value.flags[fnumber];
+}
+
+inline uint32_t& GET_FLAG(flag_data& value, const uint32_t flag)
+{
+	size_t fnumber = flag >> 30;
+	return value.flags[fnumber];
+}
 
 extern const FLAG_DATA clear_flags;
 
@@ -1593,12 +1594,12 @@ namespace MapSystem
 
 namespace obj_sets_olc
 {
-	struct sedit;
+	class sedit;
 }
 
 class Board;
 
-struct descriptor_data
+struct DESCRIPTOR_DATA
 {
 	socket_t descriptor;	// file descriptor for socket    //
 	char
@@ -1633,8 +1634,7 @@ struct descriptor_data
 	char **history;		// History of commands, for ! mostly.  //
 	int
 	history_pos;		// Circular array position.      //
-	int
-	bufptr;		// ptr to end of current output     //
+	int bufptr;			// ptr to end of current output  //
 	int
 	bufspace;		// space left in the output buffer  //
 	struct txt_block *large_outbuf;	// ptr to large buffer, if we need it //
@@ -1674,7 +1674,7 @@ struct descriptor_data
 
 
 
-	descriptor_data(): bad_pws(0), idle_tics(0), connected(0), desc_num(0), input_time(0), login_time(0),
+	DESCRIPTOR_DATA(): bad_pws(0), idle_tics(0), connected(0), desc_num(0), input_time(0), login_time(0),
 	showstr_head(0), showstr_vector(0), showstr_count(0), showstr_page(0), str(0), max_str(0), backstr(0), mail_to(0),
 	has_prompt(0), output(0), history(0), history_pos(0), bufptr(0), bufspace(0), large_outbuf(0), character(0),
 	original(0), snooping(0), snoop_by(0),next(0), olc(0), keytable(0), options(0),

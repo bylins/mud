@@ -19,7 +19,11 @@
 
 #ifdef _MSC_VER
 #pragma comment(lib, "wsock32.lib")
+
+#ifndef _CRT_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_DEPRECATE
+#endif // _CRT_SECURE_NO_DEPRECATE
+
 #define _SCL_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable: 4996)

@@ -1627,10 +1627,16 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 		// depending on what patches you've got applied.
 		extern const struct command_info cmd_info[];
 		// on older source bases:    extern struct command_info *cmd_info;
-		int length, cmd;
-		for (length = strlen(vd->value), cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
+		int cmd = 0;
+		const size_t length = strlen(vd->value);
+		while (*cmd_info[cmd].command != '\n')
+		{
 			if (!strncmp(cmd_info[cmd].command, vd->value, length))
+			{
 				break;
+			}
+			cmd++;
+		}
 
 		if (*cmd_info[cmd].command == '\n')
 			strcpy(str, "");
@@ -1996,7 +2002,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			time_t now_time = time(0);
 			if (!str_cmp(field, "unix"))
 			{
-				sprintf(str, "%ld", now_time);
+				sprintf(str, "%ld", static_cast<long>(now_time));
 			}
 			else if (!str_cmp(field, "yday"))
 			{
@@ -3377,7 +3383,6 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 	char tmp[MAX_INPUT_LENGTH], repl_str[MAX_INPUT_LENGTH], *var, *field, *p;
 	char *subfield_p, subfield[MAX_INPUT_LENGTH];
 	char *local_p, local[MAX_INPUT_LENGTH];
-	int left = 0 , len = 0;
 	int paren_count = 0;
 
 	if (!strchr(line, '%'))
@@ -3389,8 +3394,7 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 	p = strcpy(tmp, line);
 	subfield_p = subfield;
 
-	left = MAX_INPUT_LENGTH - 1;
-
+	size_t left = MAX_INPUT_LENGTH - 1;
 	while (*p && (left > 0))
 	{
 		while (*p && (*p != '%') && (left > 0))
@@ -3458,7 +3462,7 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 			find_replacement(go, sc, trig, type, var, field, subfield, repl_str);
 
 			strncat(buf, repl_str, left);
-			len = strlen(repl_str);
+			size_t len = std::min(strlen(repl_str), left);
 			buf += len;
 			left -= len;
 		}

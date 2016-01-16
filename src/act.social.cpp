@@ -42,14 +42,16 @@ ACMD(do_insult);
 
 int find_action(char *cmd)
 {
-	int bot, top, mid, len, chk;
+	int bot, top, mid, chk;
 
 	bot = 0;
 	top = top_of_socialk;
-	len = strlen(cmd);
+	size_t len = strlen(cmd);
 
 	if (top < 0 || !len)
-		return (-1);
+	{
+		return -1;
+	}
 
 	for (;;)
 	{

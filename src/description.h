@@ -24,8 +24,8 @@
 class RoomDescription
 {
 public:
-	static int add_desc(const std::string &text);
-	static const std::string show_desc(int desc_num);
+	static size_t add_desc(const std::string &text);
+	static const std::string& show_desc(size_t desc_num);
 
 private:
 	RoomDescription();
@@ -34,7 +34,8 @@ private:
 	static std::vector<std::string> _desc_list;
 	// а это чтобы мад не грузился пол часа. из-за оптимизации копирования строк мап
 	// проще оставлять на все время работы мада для олц, а мож и дальнейшего релоада описаний
-	static std::map<std::string, int> _reboot_map;
+	typedef std::map<std::string, size_t> reboot_map_t;
+	static reboot_map_t _reboot_map;
 };
 
 #endif // _DESCRIPTION_H_INCLUDED

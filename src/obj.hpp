@@ -491,6 +491,24 @@ private:
 	std::pair<bool, int> activator_;
 };
 
+inline const uint32_t& GET_OBJ_AFF(const OBJ_DATA* obj, const uint32_t shifted_group_number)
+{
+	const uint32_t& flags = GET_FLAG(obj->obj_flags.affects, shifted_group_number);
+	return flags;
+}
+
+inline uint32_t& GET_OBJ_AFF(OBJ_DATA* obj, const uint32_t shifted_group_number)
+{
+	uint32_t& flags = GET_FLAG(obj->obj_flags.affects, shifted_group_number);
+	return flags;
+}
+
+inline bool OBJ_AFFECT(const OBJ_DATA* obj, const uint32_t affect)
+{
+	const uint32_t& affects = GET_OBJ_AFF(obj, affect);
+	return 0 != (affects & 0x3fffffff & affect);
+}
+
 namespace ObjSystem
 {
 

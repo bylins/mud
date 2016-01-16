@@ -540,7 +540,7 @@ void roll_real_abils(CHAR_DATA * ch)
 // result - результат
 void GetCase(const char *name, int sex, int caseNum, char *result)
 {
-	int len = strlen(name);
+	size_t len = strlen(name);
 
 	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != NULL && sex == SEX_MALE)
 	{

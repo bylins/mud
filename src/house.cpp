@@ -527,7 +527,9 @@ void Clan::ClanLoad()
 					}
 					// на случай, если рангов стало меньше
 					if (!tempClan->ranks.empty() && rank > tempClan->ranks.size() - 1)
-						rank = tempClan->ranks.size() - 1;
+					{
+						rank = static_cast<decltype(rank)>(tempClan->ranks.size()) - 1;
+					}
 
 					// удаленные персонажи просто игнорируются
 					ClanMemberPtr tempMember(new ClanMember);
@@ -1109,7 +1111,8 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 
 	std::ostringstream buffer;
 	buffer << "К замку приписаны:\r\n";
-	int char_num = 0;
+
+	size_t char_num = 0;
 	for (std::vector<ClanMemberPtr>::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
 	{
 		if (char_num >= 80)
@@ -1120,6 +1123,7 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 		buffer << (*it)->name << " ";
 		char_num += (*it)->name.size() + 1;
 	}
+
 	buffer << "\r\nПривилегии:\r\n";
 	int num = 0;
 
@@ -3342,11 +3346,15 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 			unsigned choise = num + CLAN_MEMBER(d->character)->rank_num;
 			if (choise >= d->clan_olc->clan->ranks.size())
 			{
-				unsigned i = choise - d->clan_olc->clan->ranks.size();
+				unsigned i = choise - static_cast<unsigned>(d->clan_olc->clan->ranks.size());
 				if (i == 0)
+				{
 					d->clan_olc->clan->AllMenu(d, i);
+				}
 				else if (i == 1)
+				{
 					d->clan_olc->clan->AllMenu(d, i);
+				}
 				else if (i == 2 && !CLAN_MEMBER(d->character)->rank_num)
 				{
 					if (d->clan_olc->clan->storehouse)

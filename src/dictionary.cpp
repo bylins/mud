@@ -14,7 +14,7 @@ Dictionary::Dictionary(DictionaryMode mode)
 
 }
 
-int Dictionary::Size()
+size_t Dictionary::Size()
 {
 	return dictionary_.size();
 }
@@ -24,19 +24,23 @@ DictionaryItemPtr DictionaryItem::GetDictionaryItem()
 	return DictionaryItemPtr(new DictionaryItem(this->GetDictionaryName(), this->GetDictionaryTID()));
 }
 
-std::string Dictionary::GetNameByNID(unsigned nid)
+std::string Dictionary::GetNameByNID(size_t nid)
 {
 	std::string result = std::string();
 	if (dictionary_.size() > nid)
+	{
 		result = dictionary_[nid]->GetDictionaryName();
+	}
 	return result;
 };
 
-std::string Dictionary::GetTIDByNID(unsigned nid)
+std::string Dictionary::GetTIDByNID(size_t nid)
 {
-	std::string result = std::string();
+	std::string result;
 	if (dictionary_.size() > nid)
+	{
 		result = dictionary_[nid]->GetDictionaryTID();
+	}
 	return result;
 };
 

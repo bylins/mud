@@ -8,6 +8,9 @@
 *  $Revision$                                                       *
 ***************************************************************************/
 
+#include "olc.h"
+
+#include "obj.hpp"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -15,7 +18,6 @@
 #include "comm.h"
 #include "utils.h"
 #include "db.h"
-#include "olc.h"
 #include "dg_olc.h"
 #include "screen.h"
 #include "item.creation.hpp"

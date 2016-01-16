@@ -507,7 +507,7 @@ void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 	obj->ex_description->keyword = str_dup("посылка бандероль пакет ящик parcel box case chest");
 	obj->ex_description->next = 0;
 
-	int size = MAX(strlen(GET_NAME(ch)), sender.size());
+	size_t size = std::max(strlen(GET_NAME(ch)), sender.size());
 	std::stringstream out;
 	out.setf(std::ios_base::left);
 

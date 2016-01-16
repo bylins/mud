@@ -356,7 +356,7 @@ void our_terminate();
 
 namespace
 {
-	static const bool SET_TERMINATE = std::set_terminate(our_terminate);
+	static const bool SET_TERMINATE = NULL != std::set_terminate(our_terminate);
 }
 
 void our_terminate()
@@ -2627,8 +2627,6 @@ void flush_queues(DESCRIPTOR_DATA * d)
 // Add a new string to a player's output queue
 void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 {
-	int size;
-
 	// if we're in the overflow state already, ignore this new output
 	if (t->bufptr < 0)
 		return;
@@ -2638,14 +2636,15 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 		return;
 	}
 
-	size = strlen(txt);
+	size_t size = strlen(txt);
 
 	// if we have enough space, just write to buffer and that's it!
 	if (t->bufspace >= size)
 	{
 		strcpy(t->output + t->bufptr, txt);
-		t->bufspace -= size;
-		t->bufptr += size;
+		t->bufspace -= static_cast<decltype(t->bufspace)>(size);
+		t->bufptr += static_cast<decltype(t->bufptr)>(size);
+
 		return;
 	}
 	/*
@@ -2678,7 +2677,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	strcat(t->output, txt);	// now add new text
 
 	// set the pointer for the next write
-	t->bufptr = strlen(t->output);
+	t->bufptr = static_cast<decltype(t->bufptr)>(strlen(t->output));
 	// calculate how much space is left in the buffer
 	t->bufspace = LARGE_BUFSIZE - 1 - t->bufptr;
 }
@@ -3053,7 +3052,7 @@ void utf8_to_koi(char *str_i, char *str_o)
 int process_output(DESCRIPTOR_DATA * t)
 {
 	char i[MAX_SOCK_BUF * 2], o[MAX_SOCK_BUF * 2 * 3], *pi, *po;
-	int written = 0, offset, result, c;
+	int written = 0, offset, result;
 
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
 	if (t == NULL)
@@ -3093,12 +3092,12 @@ int process_output(DESCRIPTOR_DATA * t)
 	{
 		// added by WorM (Видолюб)
 		//фикс сжатого режима добавляет в конец строки \r\n если его там нету, чтобы промпт был всегда на след. строке
-		for (c=strlen(i)-1; c>0; c--)
+		for (size_t c = strlen(i) - 1; c > 0; c--)
 		{
-			if (*(i+c)=='\n' || *(i+c)=='\r')
+			if (*(i + c) == '\n' || *(i + c) == '\r')
 				break;
-			else if (*(i+c)!=';' && *(i+c)!='\033' && *(i+c)!='m' && !(*(i+c)>='0' && *(i+c)<='9') &&
-			         *(i+c)!='[' && *(i+c)!='&' && *(i+c)!='n' && *(i+c)!='R' && *(i+c)!='Y' && *(i+c)!='Q' && *(i+c)!='q')
+			else if (*(i + c) != ';' && *(i + c) != '\033' && *(i + c) != 'm' && !(*(i + c) >= '0' && *(i + c) <= '9') &&
+				*(i + c) != '[' && *(i + c) != '&' && *(i + c) != 'n' && *(i + c) != 'R' && *(i + c) != 'Y' && *(i + c) != 'Q' && *(i + c) != 'q')
 			{
 				strcat(i, "\r\n");
 				break;
@@ -3117,7 +3116,6 @@ int process_output(DESCRIPTOR_DATA * t)
 		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
 	}
 
-
 	/*
 	 * now, send the output.  If this is an 'interruption', use the prepended
 	 * CRLF, otherwise send the straight output sans CRLF.
@@ -3134,8 +3132,12 @@ int process_output(DESCRIPTOR_DATA * t)
 		break;
 	case KT_WIN:
 		for (; *pi; *po = KtoW(*pi), pi++, po++)
+		{
 			if (*pi == 'я')
-				* (po++) = 255;
+			{
+				*reinterpret_cast<unsigned char*>(po++) = 255u;
+			}
+		}
 		break;
 	case KT_WINZ:
 		for (; *pi; *po = KtoW2(*pi), pi++, po++);
@@ -3158,7 +3160,8 @@ int process_output(DESCRIPTOR_DATA * t)
 		*po = '\0';
 	}
 
-	for (c = 0; o[c]; c++)
+	size_t c = 0;
+	for (; o[c]; c++)
 	{
 		i[c] = o[c];
 	}
@@ -3277,7 +3280,16 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 {
 	ssize_t result;
 
-	result = send(desc, txt, length, 0);
+	/* Windows signature: int send(SOCKET s, const char* buf, int len, int flags);
+	** ... -=>
+	**/
+#if defined WIN32
+	int l = static_cast<int>(length);
+#else
+	size_t l = length;
+#endif
+	/* >=- ... */
+	result = static_cast<decltype(result)>(send(desc, txt, l, 0));
 
 	if (result > 0)
 	{
@@ -3424,7 +3436,7 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left)
 #if defined(CIRCLE_ACORN)
 	ret = recv(desc, read_point, space_left, MSG_DONTWAIT);
 #elif defined(CIRCLE_WINDOWS)
-	ret = recv(desc, read_point, space_left, 0);
+	ret = recv(desc, read_point, static_cast<int>(space_left), 0);
 #else
 	ret = read(desc, read_point, space_left);
 #endif
@@ -3486,14 +3498,14 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left)
  */
 int process_input(DESCRIPTOR_DATA * t)
 {
-	int buf_length, failed_subst;
+	int failed_subst;
 	ssize_t bytes_read;
 	size_t space_left;
 	char *ptr, *read_point, *write_point, *nl_pos;
 	char tmp[MAX_INPUT_LENGTH];
 
 	// first, find the point where we left off reading data
-	buf_length = strlen(t->inbuf);
+	size_t buf_length = strlen(t->inbuf);
 	read_point = t->inbuf + buf_length;
 	space_left = MAX_RAW_INPUT_LENGTH - buf_length - 1;
 

@@ -48,7 +48,8 @@ void asciiflag_conv(const char *flag, void *value);
 struct obj_command_info
 {
 	const char *command;
-	void (*command_pointer)(OBJ_DATA * obj, char *argument, int cmd, int subcmd);
+	typedef void(*handler_f)(OBJ_DATA * obj, char *argument, int cmd, int subcmd);
+	handler_f command_pointer;
 	int subcmd;
 };
 
@@ -1083,7 +1084,6 @@ const struct obj_command_info obj_cmd_info[] =
 // *  This is the command interpreter used by objects, called by script_driver.
 void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 {
-	int cmd, length;
 	char *line, arg[MAX_INPUT_LENGTH];
 
 	skip_spaces(&argument);
@@ -1096,9 +1096,16 @@ void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 
 
 	// find the command
-	for (length = strlen(arg), cmd = 0; *obj_cmd_info[cmd].command != '\n'; cmd++)
+	int cmd = 0;
+	const size_t length = strlen(arg);
+	while (*obj_cmd_info[cmd].command != '\n')
+	{
 		if (!strncmp(obj_cmd_info[cmd].command, arg, length))
+		{
 			break;
+		}
+		cmd++;
+	}
 
 	if (*obj_cmd_info[cmd].command == '\n')
 	{
@@ -1106,8 +1113,10 @@ void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 		obj_log(obj, buf2, LGH);
 	}
 	else
-		((*obj_cmd_info[cmd].command_pointer)
-				(obj, line, cmd, obj_cmd_info[cmd].subcmd));
+	{
+		const obj_command_info::handler_f& command = obj_cmd_info[cmd].command_pointer;
+		command(obj, line, cmd, obj_cmd_info[cmd].subcmd);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

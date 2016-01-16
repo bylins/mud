@@ -666,18 +666,34 @@ void pk_list_sprintf(CHAR_DATA * ch, char *buff)
 	{
 		temp = get_name_by_unique(pk->unique);
 		sprintf(buff + strlen(buff), "%20s %4ld %4ld", temp ? temp : "<υδαμεξ>", pk->kill_num, pk->revenge_num);
+
 		if (pk->clan_exp > time(NULL))
-			sprintf(buff + strlen(buff), " %4ld", pk->clan_exp - time(NULL));
+		{
+			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk->clan_exp - time(NULL)));
+		}
 		else
+		{
 			strcat(buff, "    -");
+		}
+
 		if (pk->battle_exp > time(NULL))
-			sprintf(buff + strlen(buff), " %4ld", pk->battle_exp - time(NULL));
+		{
+			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk->battle_exp - time(NULL)));
+		}
 		else
+		{
 			strcat(buff, "    -");
+		}
+
 		if (pk->thief_exp > time(NULL))
-			sprintf(buff + strlen(buff), " %4ld", pk->thief_exp - time(NULL));
+		{
+			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk->thief_exp - time(NULL)));
+		}
 		else
+		{
 			strcat(buff, "    -");
+		}
+
 		strcat(buff, "\r\n");
 	}
 }

@@ -52,7 +52,7 @@ bool read_line(FILE * fl, std::string & line, bool cut_cr_lf);
 void tag_argument(char *argument, char *tag);
 int fbgetline(FBFILE * fbfl, char *line);
 FBFILE *fbopen(char *fname, int mode);
-int fbclose(FBFILE * fbfl);
+size_t fbclose(FBFILE * fbfl);
 int fbprintf(FBFILE * fbfl, const char *format, ...);
 void fbrewind(FBFILE * fbfl);
 int fbcat(char *fromfilename, FBFILE * tofile);

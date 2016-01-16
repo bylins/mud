@@ -2053,48 +2053,55 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		if (PLR_FLAGGED(k, PLR_FROZEN) && FREEZE_DURATION(k))
 		{
 			sprintf(buf, "Заморожен : %ld час [%s].\r\n",
-					(FREEZE_DURATION(k) - time(NULL)) / 3600, FREEZE_REASON(k) ? FREEZE_REASON(k) : "-");
+				static_cast<long>((FREEZE_DURATION(k) - time(NULL)) / 3600),
+				FREEZE_REASON(k) ? FREEZE_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_HELLED) && HELL_DURATION(k))
 		{
 			sprintf(buf, "Находится в темнице : %ld час [%s].\r\n",
-					(HELL_DURATION(k) - time(NULL)) / 3600, HELL_REASON(k) ? HELL_REASON(k) : "-");
+				static_cast<long>((HELL_DURATION(k) - time(NULL)) / 3600),
+				HELL_REASON(k) ? HELL_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_NAMED) && NAME_DURATION(k))
 		{
 			sprintf(buf, "Находится в комнате имени : %ld час.\r\n",
-					(NAME_DURATION(k) - time(NULL)) / 3600);
+				static_cast<long>((NAME_DURATION(k) - time(NULL)) / 3600));
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_MUTE) && MUTE_DURATION(k))
 		{
 			sprintf(buf, "Будет молчать : %ld час [%s].\r\n",
-					(MUTE_DURATION(k) - time(NULL)) / 3600, MUTE_REASON(k) ? MUTE_REASON(k) : "-");
+				static_cast<long>((MUTE_DURATION(k) - time(NULL)) / 3600),
+				MUTE_REASON(k) ? MUTE_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_DUMB) && DUMB_DURATION(k))
 		{
 			sprintf(buf, "Будет нем : %ld мин [%s].\r\n",
-					(DUMB_DURATION(k) - time(NULL)) / 60, DUMB_REASON(k) ? DUMB_REASON(k) : "-");
+				static_cast<long>((DUMB_DURATION(k) - time(NULL)) / 60),
+				DUMB_REASON(k) ? DUMB_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (!PLR_FLAGGED(k, PLR_REGISTERED) && UNREG_DURATION(k))
 		{
 			sprintf(buf, "Не будет зарегестрирован : %ld час [%s].\r\n",
-					(UNREG_DURATION(k) - time(NULL)) / 3600, UNREG_REASON(k) ? UNREG_REASON(k) : "-");
+				static_cast<long>((UNREG_DURATION(k) - time(NULL)) / 3600),
+				UNREG_REASON(k) ? UNREG_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 
 		if (GET_GOD_FLAG(k, GF_GODSLIKE) && GCURSE_DURATION(k))
 		{
-			sprintf(buf, "Под защитой Богов : %ld час.\r\n", (GCURSE_DURATION(k) - time(NULL)) / 3600);
+			sprintf(buf, "Под защитой Богов : %ld час.\r\n",
+				static_cast<long>((GCURSE_DURATION(k) - time(NULL)) / 3600));
 			send_to_char(buf, ch);
 		}
 		if (GET_GOD_FLAG(k, GF_GODSCURSE) && GCURSE_DURATION(k))
 		{
-			sprintf(buf, "Проклят Богами : %ld час.\r\n", (GCURSE_DURATION(k) - time(NULL)) / 3600);
+			sprintf(buf, "Проклят Богами : %ld час.\r\n",
+				static_cast<long>((GCURSE_DURATION(k) - time(NULL)) / 3600));
 			send_to_char(buf, ch);
 		}
 	}
@@ -2384,7 +2391,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			send_to_char("Помнит:\r\n", ch);
 			for (memchar = MEMORY(k); memchar; memchar = memchar->next)
 			{
-				sprintf(buf, "%10ld - %10ld\r\n", memchar->id, memchar->time - time(NULL));
+				sprintf(buf, "%10ld - %10ld\r\n",
+					static_cast<long>(memchar->id),
+					static_cast<long>(memchar->time - time(NULL)));
 				send_to_char(buf, ch);
 			}
 		}
@@ -4915,14 +4924,16 @@ ACMD(do_show)
 		sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", number_of_bytes_written);
 		sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
 		sprintf(buf + strlen(buf), "  Максимальный ID - %ld\r\n", max_id);
-		sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n", (cmd_cnt * 60) / (time(0) - boot_time));
+		sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n",
+			static_cast<unsigned long>((cmd_cnt * 60) / (time(0) - boot_time)));
 		send_to_char(buf, ch);
 		Depot::show_stats(ch);
 		Glory::show_stats(ch);
 		GloryConst::show_stats(ch);
 		Parcel::show_stats(ch);
 		send_to_char(ch, "  Сообщений на почте: %zu\r\n", mail::get_msg_count());
-		send_to_char(ch, "  Список полей сражающихся: %d\r\n", fighting_list_size());
+		send_to_char(ch, "  Список полей сражающихся: %d\r\n",
+			static_cast<int>(fighting_list_size()));
 		send_to_char(ch, "  Передвижения: %d\r\n", motion);
 		send_to_char(ch, "  Потрачено кун в магазинах2 за ребут: %d\r\n", ShopExt::get_spent_today());
 		mob_stat::show_stats(ch);
@@ -5002,34 +5013,34 @@ ACMD(do_show)
 			if (PLR_FLAGGED(d->character, PLR_FROZEN)
 					&& FREEZE_DURATION(d->character))
 				sprintf(buf + strlen(buf), "Заморожен : %ld час [%s].\r\n",
-						(FREEZE_DURATION(d->character) - time(NULL)) / 3600,
-						FREEZE_REASON(d->character) ? FREEZE_REASON(d->character)
-						: "-");
+					static_cast<long>((FREEZE_DURATION(d->character) - time(NULL)) / 3600),
+					FREEZE_REASON(d->character) ? FREEZE_REASON(d->character) : "-");
 
 			if (PLR_FLAGGED(d->character, PLR_MUTE)
 					&& MUTE_DURATION(d->character))
 				sprintf(buf + strlen(buf), "Будет молчать : %ld час [%s].\r\n",
-						(MUTE_DURATION(d->character) - time(NULL)) / 3600,
-						MUTE_REASON(d->character) ? MUTE_REASON(d->character) : "-");
+					static_cast<long>((MUTE_DURATION(d->character) - time(NULL)) / 3600),
+					MUTE_REASON(d->character) ? MUTE_REASON(d->character) : "-");
 
 			if (PLR_FLAGGED(d->character, PLR_DUMB)
 					&& DUMB_DURATION(d->character))
 				sprintf(buf + strlen(buf), "Будет нем : %ld час [%s].\r\n",
-						(DUMB_DURATION(d->character) - time(NULL)) / 3600,
-						DUMB_REASON(d->character) ? DUMB_REASON(d->character) : "-");
+					static_cast<long>((DUMB_DURATION(d->character) - time(NULL)) / 3600),
+					DUMB_REASON(d->character) ? DUMB_REASON(d->character) : "-");
 
 			if (PLR_FLAGGED(d->character, PLR_HELLED)
 					&& HELL_DURATION(d->character))
 				sprintf(buf + strlen(buf), "Будет в аду : %ld час [%s].\r\n",
-						(HELL_DURATION(d->character) - time(NULL)) / 3600,
-						HELL_REASON(d->character) ? HELL_REASON(d->character) : "-");
+					static_cast<long>((HELL_DURATION(d->character) - time(NULL)) / 3600),
+					HELL_REASON(d->character) ? HELL_REASON(d->character) : "-");
 
 			if (!PLR_FLAGGED(d->character, PLR_REGISTERED)
-					&& UNREG_DURATION(d->character))
+				&& UNREG_DURATION(d->character))
+			{
 				sprintf(buf + strlen(buf), "Не сможет заходить с одного IP : %ld час [%s].\r\n",
-						(UNREG_DURATION(d->character) - time(NULL)) / 3600,
-						UNREG_REASON(d->character) ? UNREG_REASON(d->character) : "-");
-
+					static_cast<long>((UNREG_DURATION(d->character) - time(NULL)) / 3600),
+					UNREG_REASON(d->character) ? UNREG_REASON(d->character) : "-");
+			}
 
 			if (buf[0])
 			{
@@ -5965,7 +5976,7 @@ ACMD(do_set)
 {
 	CHAR_DATA *vict = NULL, *cbuf = NULL;
 	char field[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH], val_arg[MAX_INPUT_LENGTH], OName[MAX_INPUT_LENGTH];
-	int mode, len, player_i = 0, retval;
+	int mode, player_i = 0, retval;
 	char is_file = 0, is_player = 0;
 
 	half_chop(argument, name, buf);
@@ -6088,7 +6099,7 @@ ACMD(do_set)
 	}
 
 	// find the command in the list
-	len = strlen(field);
+	size_t len = strlen(field);
 	for (mode = 0; *(set_fields[mode].cmd) != '\n'; mode++)
 		if (!strncmp(field, set_fields[mode].cmd, len))
 			break;
@@ -6365,10 +6376,9 @@ ACMD(do_liblist)
 		return;
 	}
 
-	if (first >= last)
+	if (first > last)
 	{
-		send_to_char("Второе значение должно быть больше первого.\n\r", ch);
-		return;
+		std::swap(first, last);
 	}
 
 	if (first + 200 < last)
@@ -6841,7 +6851,7 @@ ACMD(do_print_armor)
 				break;
 			}
 			lower_convert(tmpbuf);
-			unsigned int len = strlen(tmpbuf);
+			size_t len = strlen(tmpbuf);
 			int num = 0;
 
 			for (int flag = 0; flag < 4; ++flag)

@@ -314,7 +314,7 @@ void sedit::show_main(CHAR_DATA *ch)
 		CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
 	out += buf_;
 	out += main_menu_objlist(ch, olc_set, i);
-	i += olc_set.obj_list.size();
+	i += static_cast<int>(olc_set.obj_list.size());
 	// активаторы
 	snprintf(buf_, sizeof(buf_),
 		"\r\n%s%2d%s) Распечатать сумму активаторов\r\n",
@@ -919,9 +919,9 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 	}
 
 	const unsigned NUM_ADD_OBJ = MAIN_TOTAL;
-	const unsigned NUM_TOTAL_ACTIV = NUM_ADD_OBJ + olc_set.obj_list.size() + 1;
+	const unsigned NUM_TOTAL_ACTIV = NUM_ADD_OBJ + static_cast<unsigned>(olc_set.obj_list.size()) + 1;
 	const unsigned NUM_ADD_ACTIV = NUM_TOTAL_ACTIV + 1;
-	const unsigned NUM_QUIT = NUM_ADD_ACTIV + olc_set.activ_list.size() + 1;
+	const unsigned NUM_QUIT = NUM_ADD_ACTIV + static_cast<unsigned>(olc_set.activ_list.size()) + 1;
 
 	// после статичного меню идут предметы, за ними активаторы
 	if (num == NUM_ADD_OBJ)

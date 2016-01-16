@@ -287,7 +287,7 @@ int str_cmp(const std::string &arg1, const std::string &arg2)
  *
  * Scan until strings are found different, the end of both, or n is reached.
  */
-int strn_cmp(const char *arg1, const char *arg2, int n)
+int strn_cmp(const char *arg1, const char *arg2, size_t n)
 {
 	int chk, i;
 
@@ -303,7 +303,8 @@ int strn_cmp(const char *arg1, const char *arg2, int n)
 
 	return (0);
 }
-int strn_cmp(const std::string &arg1, const char *arg2, int n)
+
+int strn_cmp(const std::string &arg1, const char *arg2, size_t n)
 {
 	int chk;
 	std::string::size_type i;
@@ -326,7 +327,8 @@ int strn_cmp(const std::string &arg1, const char *arg2, int n)
 	else
 		return (LOWER(arg1[i]) - LOWER('\0'));
 }
-int strn_cmp(const char *arg1, const std::string &arg2, int n)
+
+int strn_cmp(const char *arg1, const std::string &arg2, size_t n)
 {
 	int chk;
 	std::string::size_type i;
@@ -349,7 +351,8 @@ int strn_cmp(const char *arg1, const std::string &arg2, int n)
 	else
 		return (LOWER('\0') - LOWER(arg2[i]));
 }
-int strn_cmp(const std::string &arg1, const std::string &arg2, int n)
+
+int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n)
 {
 	int chk;
 	std::string::size_type i;
@@ -714,7 +717,7 @@ void mudlog_python(const string& str, int type, int level, int channel, int file
  * to cast a non-const array as const than to cast a const one as non-const.
  * Doesn't really matter since this function doesn't change the array though.
  */
-const char *empty_string = "ничего";
+const static char *empty_string = "ничего";
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
 {
@@ -1405,9 +1408,10 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 	char *replace_buffer = NULL;
 	char *flow, *jetsam, temp;
 
-	if ((signed)((strlen(*string) - strlen(pattern)) + strlen(replacement))
-			> max_size)
+	if ((signed)((strlen(*string) - strlen(pattern)) + strlen(replacement)) > max_size)
+	{
 		return -1;
+	}
 
 	CREATE(replace_buffer, char, max_size);
 	int i = 0;
@@ -1464,7 +1468,7 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 
 // re-formats message type formatted char * //
 // (for strings edited with d->str) (mostly olc and mail)     //
-void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
+void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, size_t maxlen)
 {
 	size_t total_chars = 0;
 	int cap_next = TRUE, cap_next_next = FALSE;
@@ -1562,9 +1566,11 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 	}
 	strcat(formated, "\r\n");
 
-	if ((signed) strlen(formated) > maxlen)
+	if ((signed)strlen(formated) > maxlen)
+	{
 		formated[maxlen] = '\0';
-	RECREATE(*ptr_string, char, MIN(maxlen, static_cast<int>(strlen(formated) + 3)));
+	}
+	RECREATE(*ptr_string, char, std::min(maxlen, strlen(formated) + 3));
 	strcpy(*ptr_string, formated);
 }
 
@@ -2794,7 +2800,7 @@ long GetAffectNumByName(std::string affName)
 
 /// считает кол-во цветов &R и т.п. в строке
 /// size_t len = 0 - по дефолту считает strlen(str)
-int count_colors(const char * str, size_t len)
+size_t count_colors(const char * str, size_t len)
 {
 	unsigned int c, cc = 0;
 	len = len ? len : strlen(str);
@@ -2809,21 +2815,22 @@ int count_colors(const char * str, size_t len)
 
 //возвращает строку длины len + кол-во цветов*2 для того чтоб в табличке все было ровненько
 //left_align выравнивание строки влево
-char* colored_name(const char * str, int len, const bool left_align)
+char* colored_name(const char * str, size_t len, const bool left_align)
 {
 	static char cstr[128];
 	static char fmt[6];
-	unsigned int cc = len + count_colors(str) * 2;
+	size_t cc = len + count_colors(str) * 2;
 
-	if (strlen(str)<cc)
+	if (strlen(str) < cc)
 	{
-		snprintf(fmt, sizeof(fmt), "%%%s%ds", (left_align?"-":""), cc);
+		snprintf(fmt, sizeof(fmt), "%%%s%ds", (left_align ? "-" : ""), static_cast<int>(cc));
 		snprintf(cstr, sizeof(cstr), fmt, str);
 	}
 	else
 	{
 		snprintf(cstr, sizeof(cstr), "%s", str);
 	}
+
 	return cstr;
 }
 

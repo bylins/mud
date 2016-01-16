@@ -1713,7 +1713,7 @@ int paste_description(char *string, const char *tag, int need)
 
 void show_extend_room(const char * const description, CHAR_DATA * ch)
 {
-	int found = FALSE, i;
+	int found = FALSE;
 	char string[MAX_STRING_LENGTH], *pos;
 
 	if (!description || !*description)
@@ -1755,7 +1755,7 @@ void show_extend_room(const char * const description, CHAR_DATA * ch)
 	found = found || paste_description(string, TAG_DAY,
 									   (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT));
 
-	for (i = strlen(buf); i > 0 && *(buf + i) == '\n'; i--)
+	for (size_t i = strlen(buf); i > 0 && *(buf + i) == '\n'; i--)
 	{
 		*(buf + i) = '\0';
 		if (i > 0 && *(buf + i) == '\r')
