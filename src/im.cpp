@@ -1111,10 +1111,10 @@ OBJ_DATA* try_make_ingr(CHAR_DATA* mob, int prob_default, int prob_special)
 	const int vnum = GET_MOB_VNUM(mob);
 	if (it != mobraces_list.end())
 	{
-		int num_inrgs = it->second->ingrlist.size();
+		size_t num_inrgs = it->second->ingrlist.size();
 		int* ingr_to_load_list = NULL;
 		CREATE(ingr_to_load_list, int, num_inrgs * 2 + 1);
-		int j = 0;
+		size_t j = 0;
 		for (; j < num_inrgs; j++)
 		{
 			ingr_to_load_list[2*j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
@@ -1805,7 +1805,7 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd)
 void forget_recipe(CHAR_DATA * ch, char *argument, int subcmd)
 {
 	char name[MAX_STRING_LENGTH];
-	int i, qend, rcpt = -1;
+	int qend, rcpt = -1;
 	im_rskill *rs;
 
 	argument = one_argument(argument, arg);
@@ -1832,12 +1832,15 @@ void forget_recipe(CHAR_DATA * ch, char *argument, int subcmd)
 	strcpy(name, (argument + 1));
 	argument += qend + 1;
 	name[qend - 1] = '\0';
-	i = strlen(name);
 
+	size_t i = strlen(name);
 	for (rcpt = top_imrecipes; rcpt >= 0; --rcpt)
-//		if (is_abbrev(name, imrecipes[rcpt].name))
+	{
 		if (!strn_cmp(name, imrecipes[rcpt].name, i))
+		{
 			break;
+		}
+	}
 
 	if (rcpt < 0)
 	{

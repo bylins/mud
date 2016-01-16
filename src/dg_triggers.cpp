@@ -183,14 +183,16 @@ int is_substring(char *sub, char *string)
 
 	if ((s = str_str(string, sub)))
 	{
-		int len = strlen(string);
-		int sublen = strlen(sub);
+		size_t len = strlen(string);
+		size_t sublen = strlen(sub);
 
 		// check front
-		if ((s == string || a_isspace(*(s - 1)) || ispunct(*(s - 1))) &&
-				// check end
-				((s + sublen == string + len) || a_isspace(s[sublen]) || ispunct(s[sublen])))
+		if ((s == string || a_isspace(*(s - 1)) || ispunct(*(s - 1)))
+			// check end
+			&& ((s + sublen == string + len) || a_isspace(s[sublen]) || ispunct(s[sublen])))
+		{
 			return 1;
+		}
 	}
 
 	return 0;

@@ -118,7 +118,7 @@ public:
 	MakeReceptList *can_make(CHAR_DATA * ch, MakeReceptList * canlist, int use_skill);
 
 	// число элементов рецептов
-	int size();
+	size_t size();
 
 	MakeRecept *operator[](int i);
 

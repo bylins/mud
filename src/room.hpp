@@ -57,7 +57,7 @@ struct ROOM_DATA
 	int sector_state;		//*** External, change by weather     //
 
 	char *name;		// Rooms name 'You are ...'           //
-	int description_num;    // номер описания в глобальном списке
+	size_t description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
 	EXTRA_DESCR_DATA *ex_description;	// for examine/look       //
 	boost::array<EXIT_DATA *, NUM_OF_DIRS> dir_option;	// Directions //
