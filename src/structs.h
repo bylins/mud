@@ -86,7 +86,6 @@ typedef struct script_data SCRIPT_DATA;
 typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 typedef struct extra_descr_data EXTRA_DESCR_DATA;
-typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct affect_data AFFECT_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -1206,24 +1205,15 @@ typedef char
 byte;
 #endif
 
-typedef int
-room_vnum;			// A room's vnum type //
-typedef int
-obj_vnum;			// An object's vnum type //
-typedef int
-mob_vnum;			// A mob's vnum type //
-typedef int
-zone_vnum;			// A virtual zone number.  //
+typedef int room_vnum;	// A room's vnum type //
+typedef int obj_vnum;	// An object's vnum type //
+typedef int mob_vnum;	// A mob's vnum type //
+typedef int zone_vnum;	// A virtual zone number.  //
 
-typedef int
-room_rnum;			// A room's real (internal) number type //
-typedef int
-obj_rnum;			// An object's real (internal) num type //
-typedef int
-mob_rnum;			// A mobile's real (internal) num type //
-typedef int
-zone_rnum;			// A zone's real (array index) number. //
-
+typedef int room_rnum;	// A room's real (internal) number type //
+typedef int obj_rnum;	// An object's real (internal) num type //
+typedef int mob_rnum;	// A mobile's real (internal) num type //
+typedef int zone_rnum;	// A zone's real (array index) number. //
 
 // ************ WARNING ******************************************* //
 // This structure describe new bitvector structure                  //
@@ -1609,7 +1599,7 @@ namespace obj_sets_olc
 
 class Board;
 
-struct descriptor_data
+struct DESCRIPTOR_DATA
 {
 	socket_t descriptor;	// file descriptor for socket    //
 	char
@@ -1684,7 +1674,7 @@ struct descriptor_data
 
 
 
-	descriptor_data(): bad_pws(0), idle_tics(0), connected(0), desc_num(0), input_time(0), login_time(0),
+	DESCRIPTOR_DATA(): bad_pws(0), idle_tics(0), connected(0), desc_num(0), input_time(0), login_time(0),
 	showstr_head(0), showstr_vector(0), showstr_count(0), showstr_page(0), str(0), max_str(0), backstr(0), mail_to(0),
 	has_prompt(0), output(0), history(0), history_pos(0), bufptr(0), bufspace(0), large_outbuf(0), character(0),
 	original(0), snooping(0), snoop_by(0),next(0), olc(0), keytable(0), options(0),
