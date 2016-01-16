@@ -4932,7 +4932,8 @@ ACMD(do_show)
 		GloryConst::show_stats(ch);
 		Parcel::show_stats(ch);
 		send_to_char(ch, "  Сообщений на почте: %zu\r\n", mail::get_msg_count());
-		send_to_char(ch, "  Список полей сражающихся: %d\r\n", fighting_list_size());
+		send_to_char(ch, "  Список полей сражающихся: %d\r\n",
+			static_cast<int>(fighting_list_size()));
 		send_to_char(ch, "  Передвижения: %d\r\n", motion);
 		send_to_char(ch, "  Потрачено кун в магазинах2 за ребут: %d\r\n", ShopExt::get_spent_today());
 		mob_stat::show_stats(ch);

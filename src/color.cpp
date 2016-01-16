@@ -192,16 +192,18 @@ int is_colour(char code)
 int proc_color(char *inbuf, int colour)
 {
 	int j = 0, p = 0;
-	int k, max, c = 0, tmp = 0, nc = 0; // normal colour CNRM by default
+	int k, c = 0, tmp = 0, nc = 0; // normal colour CNRM by default
 	bool show_all = false;
 	char out_buf[MAX_SOCK_BUF * 2];
 
 	if (inbuf == NULL)
 		return -1;
 
-	int len = strlen(inbuf);
+	size_t len = strlen(inbuf);
 	if (len == 0)
+	{
 		return -2;
+	}
 
 	while (j < len)
 	{
@@ -247,20 +249,26 @@ int proc_color(char *inbuf, int colour)
 			continue;
 		}
 		if (c >= MAX_COLORS)
+		{
 			c = 0;
-		max = strlen(COLOURLIST[(c == 0 && nc != 0 ? nc : c)]);
+		}
+		size_t max = strlen(COLOURLIST[(c == 0 && nc != 0 ? nc : c)]);
 		if (colour || max == 1)
+		{
 			for (k = 0; k < max; k++)
 			{
 				out_buf[p] = COLOURLIST[(c == 0 && nc != 0 ? nc : c)][k];
 				p++;
 			}
+		}
 	}
 	out_buf[p] = '\0';
 
 	strcpy(inbuf, out_buf);
 	if (j > len)
+	{
 		return j;
+	}
 	return 0;
 }
 

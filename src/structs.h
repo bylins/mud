@@ -1644,8 +1644,7 @@ struct descriptor_data
 	char **history;		// History of commands, for ! mostly.  //
 	int
 	history_pos;		// Circular array position.      //
-	int
-	bufptr;		// ptr to end of current output     //
+	int bufptr;			// ptr to end of current output  //
 	int
 	bufspace;		// space left in the output buffer  //
 	struct txt_block *large_outbuf;	// ptr to large buffer, if we need it //

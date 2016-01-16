@@ -48,13 +48,17 @@ void write_aliases(CHAR_DATA * ch)
 
 	for (temp = GET_ALIASES(ch); temp; temp = temp->next)
 	{
-		int aliaslen = strlen(temp->alias);
-		int repllen = strlen(temp->replacement) - 1;
+		size_t aliaslen = strlen(temp->alias);
+		size_t repllen = strlen(temp->replacement) - 1;
 
 		fprintf(file, "%d\n%s\n"	// Alias
 				"%d\n%s\n"	// Replacement
 				"%d\n",	// Type
-				aliaslen, temp->alias, repllen, temp->replacement + 1, temp->type);
+			static_cast<int>(aliaslen),
+			temp->alias,
+			static_cast<int>(repllen),
+			temp->replacement + 1,
+			temp->type);
 	}
 
 	fclose(file);

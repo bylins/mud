@@ -287,7 +287,7 @@ int str_cmp(const std::string &arg1, const std::string &arg2)
  *
  * Scan until strings are found different, the end of both, or n is reached.
  */
-int strn_cmp(const char *arg1, const char *arg2, int n)
+int strn_cmp(const char *arg1, const char *arg2, size_t n)
 {
 	int chk, i;
 
@@ -303,7 +303,8 @@ int strn_cmp(const char *arg1, const char *arg2, int n)
 
 	return (0);
 }
-int strn_cmp(const std::string &arg1, const char *arg2, int n)
+
+int strn_cmp(const std::string &arg1, const char *arg2, size_t n)
 {
 	int chk;
 	std::string::size_type i;
@@ -326,7 +327,8 @@ int strn_cmp(const std::string &arg1, const char *arg2, int n)
 	else
 		return (LOWER(arg1[i]) - LOWER('\0'));
 }
-int strn_cmp(const char *arg1, const std::string &arg2, int n)
+
+int strn_cmp(const char *arg1, const std::string &arg2, size_t n)
 {
 	int chk;
 	std::string::size_type i;
@@ -349,7 +351,8 @@ int strn_cmp(const char *arg1, const std::string &arg2, int n)
 	else
 		return (LOWER('\0') - LOWER(arg2[i]));
 }
-int strn_cmp(const std::string &arg1, const std::string &arg2, int n)
+
+int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n)
 {
 	int chk;
 	std::string::size_type i;

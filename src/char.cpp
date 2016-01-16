@@ -548,7 +548,7 @@ void CHAR_DATA::clear_skills()
 
 int CHAR_DATA::get_skills_count() const
 {
-	return skills.size();
+	return static_cast<int>(skills.size());
 }
 
 int CHAR_DATA::get_obj_slot(int slot_num)
@@ -758,7 +758,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 	}
 }
 
-int fighting_list_size()
+size_t fighting_list_size()
 {
 	return fighting_list.size();
 }
@@ -1658,7 +1658,7 @@ std::string CHAR_DATA::race_or_title()
 	return result;
 }
 
-int CHAR_DATA::get_morphs_count() const
+size_t CHAR_DATA::get_morphs_count() const
 {
 	return morphs_.size();
 };
