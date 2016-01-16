@@ -128,7 +128,7 @@ typedef struct trig_data TRIG_DATA;
 // The cardinal directions: used as index to room_data.dir_option[]
 #define NORTH          0
 #define EAST           1
-#define SOUTH          2
+#define SOUTH          2	
 #define WEST           3
 #define UP             4
 #define DOWN           5
@@ -1233,7 +1233,6 @@ typedef uint32_t bitvector_t;
 #define INT_ONE   (1 << 30)
 #define INT_TWO   (2 << 30)
 #define INT_THREE (3 << 30)
-#define GET_FLAG(value,flag) (value.flags[(static_cast<uint32_t>(flag)) >> 30])
 
 struct flag_data
 {
@@ -1278,6 +1277,18 @@ struct flag_data
 
 	uint32_t flags[4];
 };
+
+inline const uint32_t& GET_FLAG(const flag_data& value, const uint32_t flag)
+{
+	size_t fnumber = flag >> 30;
+	return value.flags[fnumber];
+}
+
+inline uint32_t& GET_FLAG(flag_data& value, const uint32_t flag)
+{
+	size_t fnumber = flag >> 30;
+	return value.flags[fnumber];
+}
 
 extern const FLAG_DATA clear_flags;
 

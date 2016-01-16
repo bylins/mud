@@ -356,7 +356,6 @@ extern SPECIAL(shop_ext);
 #define OBJWEAR_FLAGGED(obj, flag)   (IS_SET((obj)->obj_flags.wear_flags, (flag)))
 #define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
 #define OBJ_FLAGGED(obj, flag)       (IS_SET(GET_OBJ_EXTRA(obj,flag), (flag)))
-#define OBJ_AFFECT(obj, aff)		 (IS_SET(GET_OBJ_AFF(obj, aff), (aff)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 #define IS_FLY(ch)                   (AFF_FLAGGED(ch,AFF_FLY))
 
@@ -366,10 +365,7 @@ extern SPECIAL(shop_ext);
 #define PLR_TOG_CHK(ch,flag) ((TOGGLE_BIT(PLR_FLAGS(ch, flag), (flag))) & (flag))
 #define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch, flag), (flag))) & (flag))
 
-
 // room utils ***********************************************************
-
-
 #define SECT(room)   (world[(room)]->sector_type)
 #define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? \
                             world[room]->weather.sky : weather_info.sky)
@@ -423,7 +419,6 @@ extern SPECIAL(shop_ext);
                                      weather_info.sunlight == SUN_RISE || \
                                      (weather_info.sunlight == SUN_DARK && \
                                       !IS_MOONLIGHT(room) )) ) ) )
-
 
 #define IS_LIGHT(room)     (!IS_DARK(room))
 
@@ -629,42 +624,6 @@ extern SPECIAL(shop_ext);
                                  (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        \
                                 )                                                    \
                                )
-
-
-/*
-#define OK_GAIN_EXP(ch,victim) (!NAME_BAD(ch) && \
-                                (NAME_FINE(ch) || !(GET_LEVEL(ch)==NAME_LEVEL)) && \
-                                !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && \
-                                ((IS_NPC(ch) ? \
-                                  (IS_NPC(victim) ? 1 : 0) : \
-                                  (IS_NPC(victim) && CALC_ALIGNMENT(victim) != ALIG_GOOD ? 1 : 0) \
-                                 ) \
-                                ) \
-                               )
-
-
-#define OK_GAIN_EXP(ch,victim) (!NAME_BAD(ch) &&                                     \
-                                (NAME_FINE(ch) || !(GET_LEVEL(ch)==NAME_LEVEL)) &&   \
-                                !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&            \
-            (IS_NPC(victim) && (GET_EXP(victim) > 0)) &&         \
-                                (!IS_NPC(victim)||                                   \
-                                 (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        \
-                                )                                                    \
-                               )
-
-
-#define OK_GAIN_EXP(ch,victim) (!NAME_BAD(ch) &&                                     \
-                                (NAME_FINE(ch) || !(GET_LEVEL(ch)==NAME_LEVEL)) &&   \
-                                !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&            \
-        			(IS_NPC(victim) && (GET_EXP(victim) > 0)) &&         \
-                                (!IS_NPC(victim)||                                   \
-                                 (IS_NPC(ch) && AFF_FLAGGED(ch,AFF_CHARM))	     \
-                                )                                                    \
-                               )
-*/
-//                                 CALC_ALIGNMENT(victim)==ALIG_GOOD ? 0 :              убрал эти строки, зачем они ведь наклонности у нас не используются? 
-//                                 (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        
-
 
 #define MAX_EXP_PERCENT   80
 #define MAX_EXP_RMRT_PERCENT(ch) (MAX_EXP_PERCENT+ch->get_remort()*5)
@@ -950,7 +909,6 @@ extern SPECIAL(shop_ext);
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent())
 #define GET_OBJ_RENTEQ(obj)     ((obj)->get_rent_eq())
 #define GET_OBJ_EXTRA(obj,flag)  (GET_FLAG((obj)->obj_flags.extra_flags,flag))
-#define GET_OBJ_AFF(obj,flag) (GET_FLAG((obj)->obj_flags.affects,flag))
 #define GET_OBJ_WEAR(obj)  ((obj)->obj_flags.wear_flags)
 #define GET_OBJ_OWNER(obj)      ((obj)->obj_flags.Obj_owner)
 #define GET_OBJ_MAKER(obj)      ((obj)->obj_flags.Obj_maker)
