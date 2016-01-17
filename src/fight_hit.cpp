@@ -1395,26 +1395,24 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (IS_NPC(victim))
 	{
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
-			bs_coeff *= GET_LEVEL(ch) / 8.0f +  GET_REMORT(ch) / 3.0f;
+			bs_coeff *= ch->get_skill(SKILL_BACKSTAB)/20;
 		else
-			bs_coeff *= GET_LEVEL(ch) / 10.0f +  GET_REMORT(ch) / 4.0f;
+			bs_coeff *= ch->get_skill(SKILL_BACKSTAB)/25;
 		// Читаем справку по скрытому: Если нанести такой удар в спину противника (ака стаб), то почти
 		// всегда для жертвы такой удар будет смертельным. Однако, в коде скрытый нигде не дает
 		// бонусов для стаба. Решил это исправить
 		// Проверяем, наем ли наш игрок
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && (ch->get_skill(SKILL_NOPARRYHIT)))
-		{
-				bs_coeff *= (1 + (ch->get_skill(SKILL_NOPARRYHIT) * 0.00125));
-		}
+			bs_coeff *= (1 + (ch->get_skill(SKILL_NOPARRYHIT) * 0.00125));
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 	{
 		if (victim->get_fighting()) //если враг в бою коэфф 1.125
-			bs_coeff *= (1 + (ch->get_skill(SKILL_BACKSTAB) * 0.00125));
+			bs_coeff *= (1.0 + (ch->get_skill(SKILL_BACKSTAB) * 0.00125));
 			// если стоит 1.25
 		else
-			bs_coeff *= (1 + (ch->get_skill(SKILL_BACKSTAB) * 0.00250));
+			bs_coeff *= (1.0 + (ch->get_skill(SKILL_BACKSTAB) * 0.00250));
 		// санку и призму при крите игнорим,
 		// чтобы дамаг был более-менее предсказуемым
 		flags.set(IGNORE_SANCT);
@@ -3854,10 +3852,15 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		// Наемы фигачат больше
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim))
-		    hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * (1.5 + GET_LEVEL(ch)/20.0);
+		    hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * (1.0 + ch->get_skill(SKILL_NOPARRYHIT) / 200.0);
 		else
-		    hit_params.dam *= backstab_mult(GET_LEVEL(ch));
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && (number(1,100) <6) && !victim->get_role(MOB_ROLE_BOSS))
+		{
+			if (victim->get_fighting())		
+				hit_params.dam *= backstab_mult(GET_LEVEL(ch));
+			else
+				hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * 1.3;
+		}
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && (number(1,100) <= 3) && !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
 			    hit_params.dam = 20;
@@ -3865,11 +3868,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			    hit_params.extdamage(ch, victim);
 			    return;
 		}
-		if (number(1, 100) < calculate_crit_backstab_percent(ch)
-			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
-		{
-			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
-		}
+		if (number(1, 100) < calculate_crit_backstab_percent(ch) && !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
+			    hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
 		//Adept: учитываем резисты от крит. повреждений
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		// режем стаб
@@ -3877,10 +3877,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		{
 			hit_params.dam = MIN(8000 + GET_REMORT(ch) * 20 * GET_LEVEL(ch), hit_params.dam);
 		}
+		if (IS_IMPL(ch) || IS_IMPL(victim))
+		{
 			sprintf(buf, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
 			send_to_char(buf,ch);
 			sprintf(buf, "&RДамага стаба  равна = %d&n\r\n", hit_params.dam);
 			send_to_char(buf,victim);
+		}
 		hit_params.extdamage(ch, victim);
 		return;
 	}
