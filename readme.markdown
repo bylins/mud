@@ -105,6 +105,9 @@
 
 Здесь `S:\repositories\hg\mud` - директория, куда выгружался проект и `S:\repositories\hg\mud\build` - директория, куда были сгенерированы файлы проекта.
 
+## Компиляция библиотек буста
+b2.exe link=shared --with-python --with-locale address-model=64
+b2.exe link=static --with-locale address-model=64
 ## По работе с репозиторием
 Чтобы перенести новые изменения из официального репозитория в свой рабочий, делаем следующее:
 
