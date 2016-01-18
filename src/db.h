@@ -18,9 +18,6 @@
 #include "utils.h"
 #include "structs.h"
 
-#include "utils.h"
-#include "structs.h"
-
 #include <boost/array.hpp>
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.

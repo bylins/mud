@@ -14,6 +14,7 @@
 #include <set>
 #include <map>
 #include <list>
+#include <vector>
 #include <string>
 
 namespace pugi
@@ -34,16 +35,44 @@ namespace craft
 
 	typedef std::string id_t;						///< Common type for IDs.
 
+	class CCases
+	{
+		const int CASES_COUNT = 6;
+
+		public:
+			CCases(): m_cases(CASES_COUNT) {}
+
+			bool load(const pugi::xml_node* node);
+
+		private:
+			std::vector<std::string> m_cases;
+			std::list<std::string> m_aliases;
+
+			friend class CMaterialClass;
+	};
+
 	/**
 	 * Describes one material class.
 	 */
 	class CMaterialClass
 	{
 		public:
-			CMaterialClass(const std::string& name): m_name(name) {}
+			CMaterialClass(const std::string& id): m_id(id) {}
 
 		private:
-			const std::string m_name;
+			bool load(const pugi::xml_node* node);
+
+			const std::string m_id;
+			std::string m_short_desc;	///< Short description
+			std::string m_long_desc;	///<Long description
+
+			CCases m_item_cases;		///< Item cases (including aliases)
+			CCases m_name_cases;		///< Name cases (including aliases)
+			CCases m_male_adjectives;	///< Male adjective cases
+			CCases m_female_adjectives;	///< Female adjective cases
+			CCases m_neuter_adjectives;	///< Neuter adjective cases
+
+			friend class CMaterial;
 	};
 
 	/**

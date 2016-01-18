@@ -53,6 +53,120 @@ namespace craft
 
 	const std::string CCraftModel::FILE_NAME = LIB_MISC_CRAFT "index.xml";
 
+	bool CCases::load(const pugi::xml_node* node)
+	{
+		for (int c = 0; c < CASES_COUNT; ++c)
+		{
+			const std::string node_name = std::string("case") + std::to_string(1 + c);
+			const pugi::xml_node case_node = node->child(node_name.c_str());
+			if (!case_node)
+			{
+				log("ERROR: could not find case '%s'.\n", node_name.c_str());
+				return false;
+			}
+			m_cases[c] = case_node.value();
+		}
+
+		const pugi::xml_node aliases_node = node->child("aliases");
+		if (aliases_node)
+		{
+			for (const pugi::xml_node alias_node: aliases_node.children("alias"))
+			{
+				m_aliases.push_back(alias_node.value());
+			}
+		}
+
+		return true;
+	}
+
+	bool CMaterialClass::load(const pugi::xml_node* node)
+	{
+		log("Loading class with ID '%s'.\n", m_id.c_str());
+
+		const pugi::xml_node desc_node = node->child("description");
+		if (!desc_node)
+		{
+			log("ERROR: material class with ID '%s' does not contain required \"description\" tag.\n",
+					m_id.c_str());
+			return false;
+		}
+
+		const pugi::xml_node short_desc = desc_node.child("short");
+		if (!short_desc)
+		{
+			log("ERROR: material class with ID '%s' does not contain required \"description/short\" tag.\n",
+					m_id.c_str());
+			return false;
+		}
+		m_short_desc = short_desc.value();
+
+		const pugi::xml_node long_desc = desc_node.child("long");
+		if (!long_desc)
+		{
+			log("ERROR: material class with ID '%s' does not contain required \"description/long\" tag.\n",
+					m_id.c_str());
+			return false;
+		}
+		m_long_desc = long_desc.value();
+
+		const pugi::xml_node item = node->child("item");
+		if (!item)
+		{
+			log("ERROR: material class with ID '%s' does not contain required \"item\" tag.\n", m_id.c_str());
+			return false;
+		}
+		if (!m_item_cases.load(&item))
+		{
+			log("ERROR: could not load item cases for material class '%s'.\n", m_id.c_str());
+			return false;
+		}
+
+		const pugi::xml_node adjectives = node->child("adjectives");
+		if (!adjectives)
+		{
+			log("ERROR: material class with ID '%s' does not contain required \"adjectives\" tag.\n", m_id.c_str());
+			return false;
+		}
+
+		const pugi::xml_node male = adjectives.child("male");
+		if (!male)
+		{
+			log("ERROR: material class with ID '%s' does not contain required \"adjectives/male\" tag.\n", m_id.c_str());
+			return false;
+		}
+		if (!m_male_adjectives.load(&male))
+		{
+			log("ERROR: could not load male adjective cases for material class '%s'.\n", m_id.c_str());
+			return false;
+		}
+
+		const pugi::xml_node female = adjectives.child("female");
+		if (!female)
+		{
+			log("ERROR: material class with ID '%s' does not contain required \"adjectives/female\" tag.\n", m_id.c_str());
+			return false;
+		}
+		if (!m_female_adjectives.load(&female))
+		{
+			log("ERROR: could not load female adjective cases for material class '%s'.\n", m_id.c_str());
+			return false;
+		}
+
+		const pugi::xml_node neuter = adjectives.child("neuter");
+		if (!neuter)
+		{
+			log("ERROR: material class with ID '%s' does not contain required \"adjectives/neuter\" tag.\n", m_id.c_str());
+			return false;
+		}
+		if (!m_neuter_adjectives.load(&neuter))
+		{
+			log("ERROR: could not load neuter adjective cases for material class '%s'.\n", m_id.c_str());
+			return false;
+		}
+
+		return true;
+	}
+
 	bool CMaterial::load(const pugi::xml_node* node)
 	{
 		log("Begin loading material with ID %s\n", m_id.c_str());
@@ -61,7 +175,7 @@ namespace craft
 		const pugi::xml_node node_name = node->child("name");
 		if (!node_name)
 		{
-			log("WARNING: could not find required node 'name' for material with ID '%s'. Material will be skipped\n", m_id.c_str());
+			log("ERROR: could not find required node 'name' for material with ID '%s'.\n", m_id.c_str());
 			return false;
 		}
 		const std::string name = node_name.value();
@@ -74,8 +188,9 @@ namespace craft
 				log("WARNING: class tag of material with ID '%s' does not contain ID of class. Class will be skipped.\n", m_id.c_str());
 				continue;
 			}
-			const std::string class_name = node_class.attribute("id").value();
-			log("Loading class with ID '%s'\n", class_name.c_str());
+			const std::string class_id = node_class.attribute("id").value();
+			CMaterialClass mc(class_id);
+			mc.load(&node_class);
 		}
 
 		log("End of loading material with ID '%s'.\n", m_id.c_str());

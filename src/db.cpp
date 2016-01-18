@@ -568,19 +568,11 @@ float count_unlimited_timer(OBJ_DATA *obj)
 float count_remort_requred(OBJ_DATA *obj)
 {
 	float result = 0.0;
-	bool type_item = false;
 	const float SQRT_MOD = 1.7095f;
 	const int AFF_SHIELD_MOD = 30;
 	const int AFF_BLINK_MOD = 10;
-	
-	if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_STAFF)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_WORN)   ||
-	    (GET_OBJ_TYPE(obj) == ITEM_WEAPON))
-		type_item = true;
+
 	// сумма для статов
-	
-	
 	result = 0.0;
 	
 	if (ObjSystem::is_mob_item(obj)
@@ -2037,67 +2029,6 @@ struct snoop_node
 // номер клан ренты -> список мыл
 typedef std::map<int, std::set<std::string> > ClanMailType;
 ClanMailType clan_list;
-
-/**
- * Инициализация списка мыл иммов для запрета снупа чаров из кланов,
- * находящихся в состоянии войны с ними (иммами).
- */
-void init_snoop_stop_list()
-{
-	std::vector<snoop_node> imm_list;
-
-	// формирование списка мыл иммов
-	for (int i = 0; i <= top_of_p_table; ++i)
-	{
-		if (player_table[i].level >= LVL_IMMORT && player_table[i].mail)
-		{
-			snoop_node tmp_node;
-			tmp_node.mail = player_table[i].mail;
-			imm_list.push_back(tmp_node);
-		}
-	}
-
-	// формирование списка чаров по каждому мылу
-	for (std::vector<snoop_node>::iterator i = imm_list.begin(),
-		iend = imm_list.end(); i != iend; ++i)
-	{
-		for (int k = 0; k <= top_of_p_table; ++k)
-		{
-			if (player_table[k].mail && !strcmp(player_table[k].mail, i->mail.c_str()))
-			{
-				i->uid_list.push_back(player_table[k].unique);
-			}
-		}
-	}
-
-	// формирование списка кланов с мылами из стоп-списка в них
-	for (std::vector<snoop_node>::const_iterator i = imm_list.begin(),
-		iend = imm_list.end(); i != iend; ++i)
-	{
-		for (std::vector<long>::const_iterator k = i->uid_list.begin(),
-			kend = i->uid_list.end(); k != kend; ++k)
-		{
-			for (ClanListType::const_iterator m = Clan::ClanList.begin(),
-				mend = Clan::ClanList.end(); m != mend; ++m)
-			{
-				if ((*m)->is_clan_member(*k))
-				{
-					ClanMailType::iterator clan = clan_list.find((*m)->GetRent());
-					if (clan != clan_list.end())
-					{
-						clan->second.insert(i->mail);
-					}
-					else
-					{
-						std::set<std::string> tmp_list;
-						tmp_list.insert(i->mail);
-						clan_list[(*m)->GetRent()] = tmp_list;
-					}
-				}
-			}
-		}
-	}
-}
 
 } // namespace
 
