@@ -38,7 +38,6 @@
 		<!-- See material_template.xml for details. -->
 		<material id="MT_TOUGH_LEATHER" filename="tough_leather.xml" />
 		<material id="MT_SOFT_LEATHER" filename="soft_leather.xml" />
-		<material id="MT_MOB_LEATHER" filename="mob_leather.xml" />
 		<material id="MT_INWROUGHT_FLAX" filename="inwrought_flax.xml" />
 		<material id="MT_THIN_SILK">
 			<name>тонкая шёлковая ткань</name>

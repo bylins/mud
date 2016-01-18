@@ -9,6 +9,8 @@
 #include "db.h"
 #include "pugixml.hpp"
 
+#include <boost/filesystem.hpp>
+
 #include <iostream>
 
 namespace craft
@@ -49,12 +51,34 @@ namespace craft
 		// ...TO HERE
 	}
 
-	const std::string CCraftModel::FILE_NAME = LIB_MISC_CRAFT "craft.xml";
+	const std::string CCraftModel::FILE_NAME = LIB_MISC_CRAFT "index.xml";
 
-	bool CMaterial::load(const pugi::xml_node* /*node*/)
+	bool CMaterial::load(const pugi::xml_node* node)
 	{
-		log("Loading material with ID %s\n", m_id.c_str());
+		log("Begin loading material with ID %s\n", m_id.c_str());
 
+		// load material name
+		const pugi::xml_node node_name = node->child("name");
+		if (!node_name)
+		{
+			log("WARNING: could not find required node 'name' for material with ID '%s'. Material will be skipped\n", m_id.c_str());
+			return false;
+		}
+		const std::string name = node_name.value();
+
+		// load meterial classes
+		for (const pugi::xml_node node_class: node->children("class"))
+		{
+			if (node_class.attribute("id").empty())
+			{
+				log("WARNING: class tag of material with ID '%s' does not contain ID of class. Class will be skipped.\n", m_id.c_str());
+				continue;
+			}
+			const std::string class_name = node_class.attribute("id").value();
+			log("Loading class with ID '%s'\n", class_name.c_str());
+		}
+
+		log("End of loading material with ID '%s'.\n", m_id.c_str());
 		return true;
 	}
 
@@ -81,12 +105,14 @@ namespace craft
 
 	bool CCraftModel::load()
 	{
+		log("Loading craft model from file '%s'.\n",
+				FILE_NAME.c_str());
 		pugi::xml_document doc;
 		pugi::xml_parse_result result = doc.load_file(FILE_NAME.c_str());
 
 		if (!result)
 		{
-			log("Craft load error: %s at offset %zu\n",
+			log("Craft load error: '%s' at offset %zu\n",
 					result.description(),
 					result.offset);
 			return false;
@@ -102,10 +128,10 @@ namespace craft
 		// TODO: load it.
 
 		// Load materials.
-		pugi::xml_node materials = model.child("materials");
+		const pugi::xml_node materials = model.child("materials");
 		if (materials)
 		{
-			for (pugi::xml_node material = materials.child("material"); material; material = material.next_sibling("material"))
+			for (const pugi::xml_node material: materials.children("material"))
 			{
 				if (material.attribute("id").empty())
 				{
@@ -114,7 +140,48 @@ namespace craft
 				}
 				id_t id = material.attribute("id").as_string();
 				CMaterial m(id);
-				m.load(&material);
+				if (material.attribute("filename").empty())
+				{
+					if (!m.load(&material))
+					{
+						log("WARNING: skipping material with ID '%s'.\n",
+								id.c_str());
+					}
+				}
+				else
+				{
+					using boost::filesystem::path;
+					const std::string filename = (path(FILE_NAME).parent_path() / material.attribute("filename").value()).string();
+					pugi::xml_document mdoc;
+					pugi::xml_parse_result mresult = mdoc.load_file(filename.c_str());
+					if (!mresult)
+					{
+						log("WARNING: could not load external file '%s' with material '%s': '%s' "
+								"at offset %zu. Material will be skipped.\n",
+								filename.c_str(),
+								id.c_str(),
+								mresult.description(),
+								mresult.offset);
+						continue;
+					}
+					const pugi::xml_node mroot = mdoc.child("material");
+					if (!mroot)
+					{
+						log("WARNING: could not find root \"material\" tag for material with ID "
+								"'%s' in the external file '%s'. Material will be skipped.\n",
+								id.c_str(),
+								filename.c_str());
+						continue;
+					}
+					log("Using external file '%s' for material with ID '%s'.\n",
+							filename.c_str(),
+							id.c_str());
+					if (!m.load(&mroot))
+					{
+						log("WARNING: skipping material with ID '%s'.\n",
+								id.c_str());
+					}
+				}
 			}
 		}
 
@@ -126,6 +193,9 @@ namespace craft
 
 		// Load crafts.
 		// TODO: load it.
+
+		log("End of loading craft model.\n");
+		// TODO: print statistics of the model (i. e. count of materials, recipes, crafts, missed entries and so on).
 
 		return true;
 	}

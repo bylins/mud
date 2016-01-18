@@ -1,59 +1,59 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <material>
 	<!-- This is a template for material description file.-->
-	<name>п╤я▒я│я┌п╨п╟я▐ п╨п╬п╤п╟</name>
+	<name>жёсткая кожа</name>
 	<class id="MC_NOOBOOK">
 		<description>
-			<short>п═я┐п╩п╬п╫ п╤я▒я│я┌п╨п╬п╧ п╠п╩п╣я│я┌я▐я┴п╣п╧ п╨п╬п╤п╦ п╩п╣п╤п╦я┌ я┌я┐я┌.</short>
-			<long>п√я▒я│я┌п╨п╟я▐, п©я─п╬п╢я┐п╠п╩я▒п╫п╫п╟я▐ п╦ п╬я┌я┬п╩п╦я└п╬п╡п╟п╫п╫п╟я▐ п©п╣я│п╨п╬п╪ п╨п╬п╤п╟.</long>
+			<short>Рулон жёсткой блестящей кожи лежит тут.</short>
+			<long>Жёсткая, продублённая и отшлифованная песком кожа.</long>
 		</description>
 		<item>
-			<case1>я─я┐п╩п╬п╫ п╫я┐п╠я┐п╨п╟</case1>
-			<case2>я─я┐п╩п╬п╫п╟ п╫я┐п╠я┐п╨п╟</case2>
-			<case3>я─я┐п╩п╬п╫я┐ п╫я┐п╠я┐п╨п╟</case3>
-			<case4>я─я┐п╩п╬п╫ п╫я┐п╠я┐п╨п╟</case4>
-			<case5>я─я┐п╩п╬п╫п╬п╪ п╫я┐п╠я┐п╨п╟</case5>
-			<case6>я─я┐п╩п╬п╫п╣ п╫я┐п╠я┐п╨п╟</case6>
+			<case1>рулон нубука</case1>
+			<case2>рулона нубука</case2>
+			<case3>рулону нубука</case3>
+			<case4>рулон нубука</case4>
+			<case5>рулоном нубука</case5>
+			<case6>рулоне нубука</case6>
 			<aliases>
-				<alias>я─я┐п╩п╬п╫</alias>
-				<alias>п╫я┐п╠я┐п╨</alias>
+				<alias>рулон</alias>
+				<alias>нубук</alias>
 			</aliases>
 		</item>
 		<names>
-			<case1>п╫я┐п╠я┐п╨</case1>
-			<case2>п╫я┐п╠я┐п╨п╟</case2>
-			<case3>п╫я┐п╠я┐п╨п╟</case3>
-			<case4>п╫я┐п╠я┐п╨</case4>
-			<case5>п╫я┐п╠я┐п╨п╬п╪</case5>
-			<case6>п╫я┐п╠я┐п╨п╣</case6>
+			<case1>нубук</case1>
+			<case2>нубука</case2>
+			<case3>нубука</case3>
+			<case4>нубук</case4>
+			<case5>нубуком</case5>
+			<case6>нубуке</case6>
 			<aliases>
-				<alias>п╫я┐п╠я┐п╨</alias>
+				<alias>нубук</alias>
 			</aliases>
 		</names>
 		<adjectives>
 			<male>
-				<case1>п╫я┐п╠я┐п╨п╬п╡я▀п╧</case1>
-				<case2>п╫я┐п╠я┐п╨п╬п╡п╬пЁп╬</case2>
-				<case3>п╫я┐п╠я┐п╨п╬п╡п╬п╪я┐</case3>
-				<case4>п╫я┐п╠я┐п╨п╬п╡я▀п╧</case4>
-				<case5>п╫я┐п╠я┐п╨п╬п╡я▀п╪</case5>
-				<case6>п╫я┐п╠я┐п╨п╬п╡п╬п╪</case6>
+				<case1>нубуковый</case1>
+				<case2>нубукового</case2>
+				<case3>нубуковому</case3>
+				<case4>нубуковый</case4>
+				<case5>нубуковым</case5>
+				<case6>нубуковом</case6>
 			</male>
 			<female>
-				<case1>п╫я┐п╠я┐п╨п╬п╡п╟я▐</case1>
-				<case2>п╫я┐п╠я┐п╨п╬п╡п╬п╧</case2>
-				<case3>п╫я┐п╠я┐п╨п╬п╡п╬п╧</case3>
-				<case4>п╫я┐п╠я┐п╨п╬п╡я┐я▌</case4>
-				<case5>п╫я┐п╠я┐п╨п╬п╡п╬п╧</case5>
-				<case6>п╫я┐п╠я┐п╨п╬п╡п╬п╧</case6>
+				<case1>нубуковая</case1>
+				<case2>нубуковой</case2>
+				<case3>нубуковой</case3>
+				<case4>нубуковую</case4>
+				<case5>нубуковой</case5>
+				<case6>нубуковой</case6>
 			</female>
 			<neuter>
-				<case1>п╫я┐п╠я┐п╨п╬п╡п╬п╣</case1>
-				<case2>п╫я┐п╠я┐п╨п╬п╡п╬пЁп╬</case2>
-				<case3>п╫я┐п╠я┐п╨п╬п╡п╬п╪я┐</case3>
-				<case4>п╫я┐п╠я┐п╨п╬п╡п╬п╣</case4>
-				<case5>п╫я┐п╠я┐п╨п╬п╡п╬пЁп╬</case5>
-				<case6>п╫я┐п╠я┐п╨п╬п╡п╬п╪</case6>
+				<case1>нубуковое</case1>
+				<case2>нубукового</case2>
+				<case3>нубуковому</case3>
+				<case4>нубуковое</case4>
+				<case5>нубукового</case5>
+				<case6>нубуковом</case6>
 			</neuter>
 		</adjectives>
 		<extraflags>

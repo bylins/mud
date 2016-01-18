@@ -262,7 +262,7 @@ else ()
 endif ()
 
 # Boost
-set(BOOST_MODULES python${BOOSTPYTHON_LIBS_SUFFIX})
+set(BOOST_MODULES python${BOOSTPYTHON_LIBS_SUFFIX} system filesystem)
 if (CMAKE_HOST_WIN32)
     list(APPEND BOOST_MODULES locale)
 endif ()
