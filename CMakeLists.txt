@@ -365,17 +365,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     endif ()
 endif ()
 
-# Copy lib.template content here
-add_custom_target(lib_directory)
-if (NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-    add_custom_command(TARGET lib_directory
-        POST_BUILD
-        DEPENDS ${CMAKEBINARY_DIR}/lib
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/lib.template ${CMAKE_BINARY_DIR}/lib)
-endif ()
-
-add_dependencies(circle lib_directory)
-
 # Add custom defines
 set(LOG_STDERR NO CACHE STRING "Define LOG_STDERR. If defined, MUD will log messages additionally to stderr. Also here you can specify output encoding")
 if (LOG_STDERR)
