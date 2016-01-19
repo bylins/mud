@@ -3617,7 +3617,6 @@ char *matching_paren(char *p)
 	return --p;
 }
 
-
 // evaluates line, and returns answer in result
 void eval_expr(char *line, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type)
 {
@@ -3759,7 +3758,7 @@ foreach i <список>
 	pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 	if (v)
 	{
-		char *ptr = strstr(list, v->value);
+		char* ptr = list;
 		// извращение еще то но я чото хезе чо еще можно сделать со списками типо %self.pc%,
 		// которые генеряцо на каждой итерации цикла и тригами на телепорт, которые уменьшают эти списки
 		// здесь мы проверяем строку в списке в нужной позиции на соотвествие со значением переменной
@@ -3769,7 +3768,9 @@ foreach i <список>
 			ptr = list + v_strpos;
 		}
 		else
+		{
 			v_strpos = ptr - list;
+		}
 		// Проверяем на наличие пробела перед найденой строкой и после нее
 		while (ptr)
 		{
