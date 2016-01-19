@@ -3758,7 +3758,7 @@ foreach i <список>
 	pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 	if (v)
 	{
-		char* ptr = list;
+		char *ptr = strstr(list, v->value);
 		// извращение еще то но я чото хезе чо еще можно сделать со списками типо %self.pc%,
 		// которые генеряцо на каждой итерации цикла и тригами на телепорт, которые уменьшают эти списки
 		// здесь мы проверяем строку в списке в нужной позиции на соотвествие со значением переменной
@@ -3809,6 +3809,7 @@ foreach i <список>
 	{
 		if (pos)
 		{
+			remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
 			strcat(name, "_strpos");
 			remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
 		}
