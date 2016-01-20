@@ -4018,7 +4018,10 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 				{
 					GET_OBJ_ZONE(tobj) = world[IN_ROOM(ch)]->zone;
 					GET_OBJ_PARENT(tobj) = GET_MOB_VNUM(ch);
-					trans_obj_name(tobj, ch);
+					if (DL_LOAD_TYPE == DL_SKIN)
+					{
+						trans_obj_name(tobj, ch);
+					}
 					// Добавлена проверка на отсутствие трупа
 					if (MOB_FLAGGED(ch, MOB_CORPSE))
 					{
