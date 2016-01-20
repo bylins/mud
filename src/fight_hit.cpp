@@ -3853,13 +3853,15 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		// Наемы фигачат больше
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim))
 		    hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * (1.0 + ch->get_skill(SKILL_NOPARRYHIT) / 200.0);
-		else
+		else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 		{
 			if (victim->get_fighting())		
 				hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 			else
 				hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * 1.3;
 		}
+		else
+			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && (number(1,100) <= 3) && !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
