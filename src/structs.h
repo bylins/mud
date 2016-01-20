@@ -1582,10 +1582,12 @@ struct stuff_node;
 
 }
 
+#if defined WITH_SCRIPTING
 namespace scripting
 {
 	class Console;
 }
+#endif
 
 namespace MapSystem
 {
@@ -1664,7 +1666,9 @@ struct DESCRIPTOR_DATA
 	boost::shared_ptr<class Glory::spend_glory> glory; // вливание славы
 	boost::shared_ptr<GloryConst::glory_olc> glory_const; // вливание славы2
 	boost::shared_ptr<NamedStuff::stuff_node> named_obj;	// редактируемая именная шмотка
+#if defined WITH_SCRIPTING
 	//boost::shared_ptr<scripting::Console> console;	// Скриптовая консоль
+#endif
 	unsigned long cur_vnum;					// текущий внум именной шмотки
 	unsigned long old_vnum;					// старый внум именной шмотки
     boost::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
