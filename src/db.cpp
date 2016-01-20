@@ -3892,7 +3892,7 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 	{
 		obj_pad = string(GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i));
 		size_t j = obj_pad.find("@p");
-		if (j > 0)
+		if (std::string::npos != j && 0 < j)
 		{
 			// Родитель найден прописываем его.
 			ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
