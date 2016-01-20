@@ -223,8 +223,6 @@ set(CMAKE_EXE_LINKER_FLAGS_RELEASE "")
 set(CMAKE_EXE_LINKER_FLAGS_TEST "")
 set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
 
-add_executable(circle ${SOURCES} ${HEADERS})
-
 ## Look for required components
 # Python
 # You can specify preferred Python version using cmake command line parameter. Like this:
@@ -271,6 +269,8 @@ else()
     set(BOOST_COMPONENTS)
     set(PYTHON_LIBRARIES)
 endif ()
+
+add_executable(circle ${SOURCES} ${HEADERS})
 
 # Boost
 set(BOOST_MODULES ${BOOST_COMPONENTS})
