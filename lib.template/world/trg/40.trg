@@ -623,4 +623,19 @@ done
 say Извини, для тебя у меня нет сказки...
 взд
 ~
+#4021
+Падучий Джимми~
+2 c0 0
+падай~
+eval outer 1 2 3
+eval inner 4 5 6
+foreach o %outer%
+	wecho %o%
+	wait 1s
+	foreach i %inner%
+		wecho %i%
+		wait 1s
+	done
+done
+~
 $~
