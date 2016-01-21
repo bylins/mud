@@ -2589,7 +2589,8 @@ ACMD(DoClanPkList)
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
-
+	send_to_char("Команда пклист\дрлист пока отключена.\r\n", ch);
+	return;
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 	std::ostringstream info;
