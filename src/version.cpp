@@ -8,6 +8,8 @@
 #include "comm.h"
 #include "utils.h"
 
+const char* revision = "$Revision$";
+
 // * Весь файл - исключительно как попытка автоматической вставки в код нормальной даты сборки.
 
 void show_code_date(CHAR_DATA *ch)
