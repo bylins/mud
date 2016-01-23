@@ -4676,6 +4676,37 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 			return 0;
 		}
 		break;
+	case SPELLS_RESTORATION:
+		{
+			if (!OBJ_FLAGGED(obj, ITEM_MAGIC))
+				break;
+			if (GET_OBJ_RNUM(obj) != NOTHING)
+			{
+				if (OBJ_FLAGGED(obj_proto.at(GET_OBJ_RNUM(obj)), ITEM_MAGIC))
+					break;
+				for (i = 0; i < MAX_OBJ_AFFECT; i++)
+				{
+					if (obj_proto.at(GET_OBJ_RNUM(obj))->affected[i].location != APPLY_NONE)
+					{
+						obj->affected[i].location = obj_proto.at(GET_OBJ_RNUM(obj))->affected[i].location;
+						obj->affected[i].modifier = obj_proto.at(GET_OBJ_RNUM(obj))->affected[i].modifier;
+					}
+					else
+					{
+						obj->affected[i].location = APPLY_NONE;
+					}
+					
+				}
+			}
+			else
+			{
+				to_char = "Этот предмет нельзя отреставрировать.";
+				return 0;
+			}
+		REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
+
+		}
+		break;
 	case SPELL_LIGHT:
 		obj->add_timed_spell(SPELL_LIGHT, -1);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_GLOW), ITEM_GLOW);
