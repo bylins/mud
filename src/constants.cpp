@@ -2282,6 +2282,11 @@ const char *cast_phrase[SPELLS_COUNT + 1][2] = { {"\nRESERVED DB.C",	// 0
 	 "\n"}, // SPELL_RECALL_SPELLS
 	{"ажбо супостаты блазнити да клюковати",
 	 "...и утроба его приготовляет обман."} //SPELL_HYPNOTIC_PATTERN
+	 "\n"}, // SPELL_SOLOBONUS
+	 {"\n",
+	 "\n"}, // SPELL_VAMPIRE
+	 {"Да прими ты прежний вид.",
+	 ".Да прими ты прежний вид."}, // SPELLS_RESTORATION
 };
 
 namespace
