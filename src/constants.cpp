@@ -1839,6 +1839,8 @@ const char *spell_wear_off_msg[SPELLS_COUNT + 1] = { "RESERVED DB.C",	// 0
 		"Вам стало не на чем концентрироваться.", //SPELL_RECALL_SPELLS
 		"Плывший в воздухе огненный узор потускнел и растаял струйками дыма.", //SPELL_HYPNOTIC_PATTERN
 		"Одна из наград прекратила действовать." //SPELL_SOLOBONUS
+		"!SPELL_VAMPIRE!",
+		"Заглянув в саму суть мира, Вы смогли вернуть первозданный вид предмету",
 };
 
 
