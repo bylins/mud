@@ -243,6 +243,8 @@ option(SCRIPTING "Turns on/off scripting engine" YES)
 if (SCRIPTING)
     list(APPEND HEADERS ${SCRIPTING_HEADERS})
     list(APPEND SOURCES ${SCRIPTING_SOURCES})
+	source_group("Scripting\\Headers" ${SCRIPTING_HEADERS})
+	source_group("Scripting\\Sources" ${SCRIPTING_SOURCES})
     add_definitions(-DWITH_SCRIPTING)
 
     find_package(PythonLibs)
@@ -272,7 +274,7 @@ else()
     set(PYTHON_LIBRARIES)
 endif ()
 
-add_executable(circle ${SOURCES} ${HEADERS})
+add_executable(circle ${SOURCES} ${HEADERS} readme.markdown)
 
 # Invalidate src/version.cpp
 add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp)
@@ -399,7 +401,7 @@ set(CRAFT_MATERIAL_FILES
     lib.template/misc/craft/soft_leather.xml
     lib.template/misc/craft/inwrought_flax.xml)
 set(CRAFT_CRAFT_FILES lib.template/misc/craft/craft1.xml)
-set(CRAFT_TEMPLAET_FILES lib.template/misc/craft/material_template.xml)
+set(CRAFT_TEMPLATE_FILES lib.template/misc/craft/material_template.xml)
 
 source_group("Craft" FILES ${CRAFT_GENERAL_FILES})
 source_group("Craft\\Templates" FILES ${CRAFT_TEMPLATE_FILES})

@@ -6,6 +6,7 @@
   1. Требования
   2. Сборка
   3. Запуск
+  4. Дополнительные опции
 
 ## Введение
 
@@ -23,25 +24,26 @@
 Перед началом сборки необходимо установить следующие компоненты:
 
   1. [CMake](https://cmake.org/download/) >= 2.8
-  2. [Boost](http://www.boost.org/users/download/) >= 1.54 with python library
+  2. [Boost](http://www.boost.org/users/download/) >= 1.54 with libraries: python, system, filesystem (plus locale on Windows)
   3. [Python](https://www.python.org/downloads/) >= 3.0
   4. [zlib](http://www.zlib.net/)
   5. Компилятор
 
 В действительности, если вы собираете под какой-нибудь Ubuntu, то всё необходимое есть в репозитории. Так, для Ubuntu 14.04 и 15.10 достаточно выполнить следующий набор команд:
 
-    $ sudo apt-get install libz-dev cmake g++ clang python3.4-dev libboost-python-dev mercurial
+    $ sudo apt-get install libz-dev cmake g++ clang python3.4-dev libboost-python-dev libboost-system-dev mercurial
 
 Здесь оптимистично взят и clang и g++, хотя нужен только один. В зависимости от ваших предпочтений.
 
-Также после установки Boost'а необходимо указать переменную окружения `BOOST_ROOT`, где находится сама библиотека Boost (заголовочные файлы) и как минимум её библиотека libboost-python.
+Также после установки Boost'а необходимо указать переменную окружения `BOOST_ROOT`, где находится сама библиотека Boost (заголовочные файлы), а также библиотеки python3, system и filesystem. Для Windows дополнительно должна быть собрана библиотека locale.
 
 Какой взять компилятор - зависит от платформы под которой вы собираете. В частности, проверялись clang++, g++ и Visual Studio 2015. Более старшие версии Visual Studio с компиляцией не справились.
 
 ### Компиляция библиотек Boost (Windows)
 
-    b2.exe link=shared --with-python --with-locale address-model=64
-    b2.exe link=static --with-locale address-model=64
+    > b2.exe --with-python --with-locale address-model=64 --with-system --with-filesystem link=static install --prefix=<boost installation directory>
+
+Параметр `--prefix` указывает куда необходимо будет установить самостоятельные заголовочные файлы и собранные библиотеки Boost. Задание этого параметра не обязательно, но позволяет явно указать нужную директорию. На эту же директорию должна указывать переменная BOOST_ROOT.
 
 ## Сборка
 
@@ -144,3 +146,26 @@
   - пройдите на свой репозиторий на bitbucked.com.
   - сверху справа будет большая кнопка «Create pull request», нажимайте на неё.
   - описывайте изменения в Title и Description и нажимайте на кнопку внизу «Send pull request». После этого на официальном репозитории, во вкладке «Pull requests» должна появится Ваша заявка. Теперь остается только ждать, когда её одобрят старшие админы.
+
+## Дополнительные опции
+
+  1. Встраивание ревизии сборки в исполняемый файл
+
+### Встраивание ревизии сборки в исполняемый файл
+
+Есть возможность вкомпилировать в исполняемы файл дату и время компиляции, а также номер ревизии и её дату и время, а также директорию, где располагался репозиторий. Для этого необходимо соответствующим образом настроить Mercurial.
+
+Для этого необходимо отредактировать файл .hg/hgrc в корне репозитория и добавить такие строки:
+
+    [extensions]
+    keyword =
+
+    [keyword]
+    src/version.cpp =
+
+    [keywordmaps]
+    Revision = {node|short}
+    RootDirectory = {root}
+    Date = {date|utcdate}
+
+`keyword =` включает расширение `keyword`, раздел `[keyword]` указывает в каких файлах необходимо выполнять водстановки, связанные с интересующей нас информацией, и раздел `[keywordmaps]` указывает, правила подстановок.
