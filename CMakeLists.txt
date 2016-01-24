@@ -215,14 +215,16 @@ set(HEADERS
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
 
-# Default build type will be Release.
-if (NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
-    set(DEFAULT_CMAKE_BUILD_TYPE "Release")
-    message(STATUS "Setting build type by default: ${DEFAULT_CMAKE_BUILD_TYPE}")
-    set(CMAKE_BUILD_TYPE ${DEFAULT_CMAKE_BUILD_TYPE} CACHE STRING "Chose the type of build: Debug, Release, Test, FastTest" FORCE)
-else ()
-    message(STATUS "Using build type \"${CMAKE_BUILD_TYPE}\"")
-endif()
+if (NOT MSVC)
+    # Default build type will be Release.
+    if (NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
+        set(DEFAULT_CMAKE_BUILD_TYPE "Release")
+        message(STATUS "Setting build type by default: ${DEFAULT_CMAKE_BUILD_TYPE}")
+        set(CMAKE_BUILD_TYPE ${DEFAULT_CMAKE_BUILD_TYPE} CACHE STRING "Chose the type of build: Debug, Release, Test, FastTest" FORCE)
+    else ()
+        message(STATUS "Using build type \"${CMAKE_BUILD_TYPE}\"")
+    endif()
+endif ()
 
 # Default flags
 set(CMAKE_CXX_FLAGS_DEBUG "")
