@@ -215,6 +215,11 @@ set(HEADERS
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
 
+# Default build type will be Release.
+if (NOT DEFINED CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Chose the type of build: Debug, Release, Test, FastTest" FORCE)
+endif()
+
 # Default flags
 set(CMAKE_CXX_FLAGS_DEBUG "")
 set(CMAKE_CXX_FLAGS_RELEASE "")
@@ -229,9 +234,7 @@ set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
 # Python
 # You can specify preferred Python version using cmake command line parameter. Like this:
 #     $ cmake -DPY_VERSION=3.4 ..
-# or 
-#     $ cmake -DPY_VERSION=3.2 ..
-option(PY_VERSION "Preferred Python version")
+set(PY_VERSION NO CACHE STRING "Preferred Python version")
 if (PY_VERSION)
     set(Python_ADDITIONAL_VERSIONS ${PY_VERSION})
 endif ()
@@ -239,6 +242,9 @@ endif ()
 set(SCRIPTING_HEADERS src/scripting.hpp)
 set(SCRIPTING_SOURCES src/scripting.cpp)
 
+# Turns on/off scripting. Use the option like:
+#     $ cmake -DSCRIPTING=NO ..
+# to turn scripting off.
 option(SCRIPTING "Turns on/off scripting engine" YES)
 if (SCRIPTING)
     list(APPEND HEADERS ${SCRIPTING_HEADERS})
@@ -257,7 +263,13 @@ if (SCRIPTING)
     endif ()
 
     if (NOT CYGWIN)
-        option(EXPLICIT_BP_VERSION "Try to find boost python library with explicit version suffix" NO)
+		if (UNIX)
+			set(DEFAULT_EXPLICIT_BP_VERSION YES)
+		else ()
+			set(DEFAULT_EXPLICIT_BP_VERSION NO)
+		endif ()
+		# Should we specify version of Boost python explicitly or not. Yes by default on Unix platforms.
+		option(EXPLICIT_BP_VERSION "Try to find boost python library with explicit version suffix" ${DEFAULT_EXPLICIT_BP_VERSION})
         if (EXPLICIT_BP_VERSION)
             string(REGEX REPLACE "^([0-9])\\.([0-9]).*$" "-py\\1\\2" BOOSTPYTHON_LIBS_SUFFIX ${PYTHONLIBS_VERSION_STRING})
             message(STATUS "Using explicit boostpython library suffix '${BOOSTPYTHON_LIBS_SUFFIX}'")
@@ -268,20 +280,25 @@ if (SCRIPTING)
         set(BOOSTPYTHON_LIBS_SUFFIX "3")
     endif ()
 
-    set(BOOST_PYTHON python${BOOSTPYTHON_LIBS_SUFFIX})
+    set(BOOST_PYTHON_MODULE python${BOOSTPYTHON_LIBS_SUFFIX})
 else()
-    set(BOOST_PYTHON)
+    set(BOOST_PYTHON_MODULE)
     set(PYTHON_LIBRARIES)
 endif ()
 
-add_executable(circle ${SOURCES} ${HEADERS} readme.markdown)
+# Main executable file.
+add_executable(circle
+	${SOURCES}
+	${HEADERS}
+	readme.markdown			# add into the project file to make possible edit it just in the IDE (Visual Studio, for example).
+	)
 
 # Invalidate src/version.cpp
 add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp)
 add_dependencies(circle versioning)
 
 # Boost
-set(BOOST_MODULES ${BOOST_COMPONENTS} system filesystem)
+set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)
 if (CMAKE_HOST_WIN32)
     list(APPEND BOOST_MODULES locale)
 endif ()
@@ -335,12 +352,19 @@ if (ICONV_FOUND)
     target_link_libraries(circle ${ICONV_LIBRARIES})
 endif ()
 
+# Prepare options for test build
+if (CMAKE_BUILD_TYPE STREQUAL "Test" OR CMAKE_BUILD_TYPE STREQUAL "FastTest")
+	set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
+else ()
+	set(TESTBUILD_DEFIINITIONS "")
+endif ()
+
 if (CMAKE_HOST_UNIX)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS_RELEASE "-ggdb3 -O2 -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER")
-        set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC")
-        set(CMAKE_CXX_FLAGS_TEST  "-ggdb3 -Wall -Wextra -Wno-unused-parameter -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH")
-        set(CMAKE_CXX_FLAGS_FASTTEST "-ggdb3 -O3 -Wall -DNOCRYPT -DTEST_BUILD")
+        set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -Og -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER")
+        set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0 -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC")
+        set(CMAKE_CXX_FLAGS_TEST     "-ggdb3 -O0 -Wall -Wextra -Wno-unused-parameter ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
+        set(CMAKE_CXX_FLAGS_FASTTEST "-ggdb3 -Og -Wall ${TESTBUILD_DEFINITIONS}")
 
         if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             add_definitions("-Wno-invalid-source-encoding")
@@ -363,10 +387,10 @@ if (CMAKE_HOST_UNIX)
         COMMAND LANGUAGE=en_US.UTF-8 HGENCODING=utf-8 hg log -v -M > changelog)
 elseif (CMAKE_HOST_WIN32)
     add_definitions("-D_SCL_SECURE_NO_WARNINGS")
-    set(CMAKE_CXX_FLAGS_RELEASE "-DBOOST_ENABLE_ASSERT_HANDLER")
-    set(CMAKE_CXX_FLAGS_DEBUG "")
-    set(CMAKE_CXX_FLAGS_TEST  "-DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH")
-    set(CMAKE_CXX_FLAGS_FASTTEST "-DNOCRYPT -DTEST_BUILD")
+    set(CMAKE_CXX_FLAGS_RELEASE  "-DBOOST_ENABLE_ASSERT_HANDLER")
+    set(CMAKE_CXX_FLAGS_DEBUG    "")
+    set(CMAKE_CXX_FLAGS_TEST     "${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
+    set(CMAKE_CXX_FLAGS_FASTTEST "${TESTBUILD_DEFINITIONS}")
 
     # EPOLL>>> ...and suppose that Windows does not
     option(HAS_EPOLL "Does system support epoll call?" OFF)
@@ -387,6 +411,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif ()
 
 # Add custom defines
+# Should we copy syslog to stderr? No by default.
 set(LOG_STDERR NO CACHE STRING "Define LOG_STDERR. If defined, MUD will log messages additionally to stderr. Also here you can specify output encoding")
 if (LOG_STDERR)
     add_definitions("-DLOG_STDERR=${LOG_STDERR}")
