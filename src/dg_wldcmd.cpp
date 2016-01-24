@@ -50,7 +50,7 @@ struct wld_command_info
 {
 	const char *command;
 	typedef void (*handler_f)(ROOM_DATA* room, char *argument, int cmd, int subcmd);
-	handler_f command_pointer;	
+	handler_f command_pointer;
 	int subcmd;
 };
 

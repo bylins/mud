@@ -593,6 +593,8 @@ ACMD(do_backstab)
 // ****************** CHARM ORDERS PROCEDURES
 ACMD(do_order)
 {
+	if (!ch)
+		return;
 	char name[MAX_INPUT_LENGTH], message[MAX_INPUT_LENGTH];
 	bool found = FALSE;
 	room_rnum org_room;

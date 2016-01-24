@@ -17,6 +17,7 @@
 
 #include "utils.h"
 #include "structs.h"
+#include "conf.h"	// to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
 
 #include <boost/array.hpp>
 

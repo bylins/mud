@@ -8,16 +8,22 @@
 #include "comm.h"
 #include "utils.h"
 
+volatile const char* revision = "$Revision$";
+volatile const char* root_directory = "$RootDirectory$";
+volatile const char* date = "$Date$";
+volatile const char* build_date = "$Build date: " __DATE__ " " __TIME__ "$";
+const char* build_datetime = __DATE__ " " __TIME__;
+
 // * Весь файл - исключительно как попытка автоматической вставки в код нормальной даты сборки.
 
 void show_code_date(CHAR_DATA *ch)
 {
-	send_to_char(ch, "МПМ Былины, версия от %s %s\r\n", __DATE__, __TIME__);
+	send_to_char(ch, "МПМ Былины, версия от %s, ревизия: %s\r\n", build_datetime, revision);
 }
 
 void log_code_date()
 {
-	log("Code version %s %s", __DATE__, __TIME__);
+	log("Code version %s, revision: %s", build_datetime, revision);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

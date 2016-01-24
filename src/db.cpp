@@ -3827,7 +3827,7 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 	{
 		obj_pad = string(GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i));
 		size_t j = obj_pad.find("@p");
-		if (j > 0)
+		if (std::string::npos != j && 0 < j)
 		{
 			// Родитель найден прописываем его.
 			ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
@@ -3953,12 +3953,16 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 				{
 					GET_OBJ_ZONE(tobj) = world[IN_ROOM(ch)]->zone;
 					GET_OBJ_PARENT(tobj) = GET_MOB_VNUM(ch);
-					trans_obj_name(tobj, ch);
+					if (DL_LOAD_TYPE == DL_SKIN)
+					{
+						trans_obj_name(tobj, ch);
+					}
 					// Добавлена проверка на отсутствие трупа
 					if (MOB_FLAGGED(ch, MOB_CORPSE))
 					{
 						act("На земле остал$U лежать $o.", FALSE, ch, tobj, 0, TO_ROOM);
 						obj_to_room(tobj, IN_ROOM(ch));
+						std::string::npos;
 					}
 					else
 					{
@@ -6352,7 +6356,7 @@ long cmp_ptable_by_name(char *name, int len)
 	for (i = 0; i <= top_of_p_table; i++)
 	{
 		const char* pname = player_table[i].name;
-		if (!strn_cmp(name, arg, MIN(len, static_cast<int>(strlen(pname)))))
+		if (!strn_cmp(pname, arg, MIN(len, static_cast<int>(strlen(pname)))))
 		{
 			return i;
 		}

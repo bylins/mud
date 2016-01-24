@@ -106,7 +106,6 @@ set(SOURCES
     src/remember.cpp
     src/reset_stats.cpp
     src/room.cpp
-    src/scripting.cpp
     src/sets_drop.cpp
     src/shop_ext.cpp
     src/skills.cpp
@@ -200,7 +199,6 @@ set(HEADERS
     src/reset_stats.hpp
     src/room.hpp
     src/screen.h
-    src/scripting.hpp
     src/sets_drop.hpp
     src/shop_ext.hpp
     src/skills.h
@@ -227,8 +225,6 @@ set(CMAKE_EXE_LINKER_FLAGS_RELEASE "")
 set(CMAKE_EXE_LINKER_FLAGS_TEST "")
 set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
 
-add_executable(circle ${SOURCES} ${HEADERS})
-
 ## Look for required components
 # Python
 # You can specify preferred Python version using cmake command line parameter. Like this:
@@ -240,29 +236,50 @@ if (PY_VERSION)
     set(Python_ADDITIONAL_VERSIONS ${PY_VERSION})
 endif ()
 
-find_package(PythonLibs)
-if (NOT PYTHONLIBS_FOUND)
-    message(FATAL_ERROR "Python not found.")
-endif ()
+set(SCRIPTING_HEADERS src/scripting.hpp)
+set(SCRIPTING_SOURCES src/scripting.cpp)
 
-if (PYTHONLIBS_VERSION_STRING STRLESS "3.0.0")
-    message(FATAL_ERROR "Python of version 3 or later has not been found (found ${PYTHONLIBS_VERSION_STRING})")
-endif ()
+option(SCRIPTING "Turns on/off scripting engine" YES)
+if (SCRIPTING)
+    list(APPEND HEADERS ${SCRIPTING_HEADERS})
+    list(APPEND SOURCES ${SCRIPTING_SOURCES})
+    add_definitions(-DWITH_SCRIPTING)
 
-if (NOT CYGWIN)
-    option(EXPLICIT_BP_VERSION "Try to find boost python library with explicit version suffix" NO)
-    if (EXPLICIT_BP_VERSION)
-        string(REGEX REPLACE "^([0-9])\\.([0-9]).*$" "-py\\1\\2" BOOSTPYTHON_LIBS_SUFFIX ${PYTHONLIBS_VERSION_STRING})
-        message(STATUS "Using explicit boostpython library suffix '${BOOSTPYTHON_LIBS_SUFFIX}'")
-    else ()
-        set(BOOSTPYTHON_LIBS_SUFFIX "")
+    find_package(PythonLibs)
+    if (NOT PYTHONLIBS_FOUND)
+        message(FATAL_ERROR "Python not found.")
     endif ()
-else ()
-    set(BOOSTPYTHON_LIBS_SUFFIX "3")
+
+    if (PYTHONLIBS_VERSION_STRING STRLESS "3.0.0")
+        message(FATAL_ERROR "Python of version 3 or later has not been found (found ${PYTHONLIBS_VERSION_STRING})")
+    endif ()
+
+    if (NOT CYGWIN)
+        option(EXPLICIT_BP_VERSION "Try to find boost python library with explicit version suffix" NO)
+        if (EXPLICIT_BP_VERSION)
+            string(REGEX REPLACE "^([0-9])\\.([0-9]).*$" "-py\\1\\2" BOOSTPYTHON_LIBS_SUFFIX ${PYTHONLIBS_VERSION_STRING})
+            message(STATUS "Using explicit boostpython library suffix '${BOOSTPYTHON_LIBS_SUFFIX}'")
+        else ()
+            set(BOOSTPYTHON_LIBS_SUFFIX "")
+        endif ()
+    else ()
+        set(BOOSTPYTHON_LIBS_SUFFIX "3")
+    endif ()
+
+    set(BOOST_PYTHON python${BOOSTPYTHON_LIBS_SUFFIX})
+else()
+    set(BOOST_PYTHON)
+    set(PYTHON_LIBRARIES)
 endif ()
+
+add_executable(circle ${SOURCES} ${HEADERS})
+
+# Invalidate src/version.cpp
+add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp)
+add_dependencies(circle versioning)
 
 # Boost
-set(BOOST_MODULES python${BOOSTPYTHON_LIBS_SUFFIX} system filesystem)
+set(BOOST_MODULES ${BOOST_COMPONENTS} system filesystem)
 if (CMAKE_HOST_WIN32)
     list(APPEND BOOST_MODULES locale)
 endif ()

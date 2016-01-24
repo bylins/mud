@@ -49,7 +49,9 @@
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
 #include "named_stuff.hpp"
+#if defined WITH_SCRIPTING
 #include "scripting.hpp"
+#endif
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "help.hpp"
@@ -1234,9 +1236,11 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		}
 	}
 
+#if defined WITH_SCRIPTING
 	// Try scripting
 	if (scripting::execute_player_command(ch, arg, line))
 		return;
+#endif
 
 	// otherwise, find the command
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)

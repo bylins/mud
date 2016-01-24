@@ -2588,7 +2588,6 @@ ACMD(DoClanPkList)
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
-
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 	std::ostringstream info;
@@ -2748,10 +2747,11 @@ ACMD(DoClanPkList)
 			send_to_char("Интересующий вас персонаж не найден.\r\n", ch);
 			return;
 		}
-		ClanPkList::iterator it;
 		// пкл, раздельно они мне больше нравятся, чем по пять раз subcmd проверять
+		bool removed = false;
 		if (!subcmd)
 		{
+			ClanPkList::iterator it;
 			it = CLAN(ch)->pkList.find(unique);
 			if (it != CLAN(ch)->pkList.end())
 			{
@@ -2762,11 +2762,13 @@ ACMD(DoClanPkList)
 					return;
 				}
 				CLAN(ch)->pkList.erase(it);
+				removed = true;
 			}
 			// дрл
 		}
 		else
 		{
+			ClanPkList::iterator it;
 			it = CLAN(ch)->frList.find(unique);
 			if (it != CLAN(ch)->frList.end())
 			{
@@ -2777,10 +2779,11 @@ ACMD(DoClanPkList)
 					return;
 				}
 				CLAN(ch)->frList.erase(it);
+				removed = true;
 			}
 		}
 
-		if (it != CLAN(ch)->pkList.end() && it != CLAN(ch)->frList.end())
+		if (removed)
 		{
 			send_to_char("Запись удалена.\r\n", ch);
 			DESCRIPTOR_DATA *d;
@@ -2794,7 +2797,9 @@ ACMD(DoClanPkList)
 			}
 		}
 		else
+		{
 			send_to_char("Запись не найдена.\r\n", ch);
+		}
 
 	}
 	else

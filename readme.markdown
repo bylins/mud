@@ -38,6 +38,11 @@
 
 Какой взять компилятор - зависит от платформы под которой вы собираете. В частности, проверялись clang++, g++ и Visual Studio 2015. Более старшие версии Visual Studio с компиляцией не справились.
 
+### Компиляция библиотек Boost (Windows)
+
+    b2.exe link=shared --with-python --with-locale address-model=64
+    b2.exe link=static --with-locale address-model=64
+
 ## Сборка
 
 Сборка состоит из двух этапов:

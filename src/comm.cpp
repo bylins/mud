@@ -59,7 +59,9 @@
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
 #include "celebrates.hpp"
-#include "scripting.hpp"
+#if defined WITH_SCRIPTING
+	#include "scripting.hpp"
+#endif
 #include "shop_ext.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
@@ -940,7 +942,9 @@ void init_game(ush_int port)
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
+#if defined WITH_SCRIPTING
 	scripting::init();
+#endif
 	boot_db();
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
@@ -1016,7 +1020,9 @@ void init_game(ush_int port)
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
+#if defined WITH_SCRIPTING
 	//scripting::terminate();
+#endif
 	mob_stat::save();
 	SetsDrop::save_drop_table();
 	mail::save();
@@ -1573,6 +1579,8 @@ void game_loop(int epoll, socket_t mother_desc)
 void game_loop(socket_t mother_desc)
 #endif
 {
+	printf("Game started.\n");
+
 #ifdef HAS_EPOLL
 	struct epoll_event *events;
 #else
@@ -2113,10 +2121,12 @@ inline void heartbeat(const int missed_pulses)
 		//  log("Stop it...");
 	}
 
+#if defined WITH_SCRIPTING
 	if (!(pulse % scripting::HEARTBEAT_PASSES))
 	{
 		scripting::heartbeat();
 	}
+#endif
 
 	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC))  	// 1 game secunde
 	{

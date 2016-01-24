@@ -3621,7 +3621,6 @@ char *matching_paren(char *p)
 	return --p;
 }
 
-
 // evaluates line, and returns answer in result
 void eval_expr(char *line, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type)
 {
@@ -3773,7 +3772,9 @@ foreach i <список>
 			ptr = list + v_strpos;
 		}
 		else
+		{
 			v_strpos = ptr - list;
+		}
 		// Проверяем на наличие пробела перед найденой строкой и после нее
 		while (ptr)
 		{
@@ -3812,6 +3813,7 @@ foreach i <список>
 	{
 		if (pos)
 		{
+			remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
 			strcat(name, "_strpos");
 			remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
 		}

@@ -575,7 +575,9 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		AGRESSOR(ch) = 0;
 		AGRO(ch) = 0;
 		ch->agrobd = false;
+#if defined WITH_SCRIPTING
 		//scripting::on_pc_dead(ch, killer, corpse);
+#endif
 	}
 	else
 	{
@@ -591,7 +593,9 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		}
 		dl_load_obj(corpse, ch, NULL, DL_ORDINARY);
 		dl_load_obj(corpse, ch, NULL, DL_PROGRESSION);
+#if defined WITH_SCRIPTING
 		//scripting::on_npc_dead(ch, killer, corpse);
+#endif
 	}
 
 	// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
