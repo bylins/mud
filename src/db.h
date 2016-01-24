@@ -438,7 +438,7 @@ public:
 	using parent_t::end;
 
 	void push_back(const value_type& val);	///< Will automatically reserve for the future
-	void insert(const_iterator _Where, const value_type& _Val) { parent_t::insert(_Where, _Val); }
+	void insert(iterator _Where, const value_type& _Val) { parent_t::insert(_Where, _Val); }
 };
 
 inline void CRooms::push_back(const value_type& val)
