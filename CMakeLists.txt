@@ -234,7 +234,12 @@ set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
 # Python
 # You can specify preferred Python version using cmake command line parameter. Like this:
 #     $ cmake -DPY_VERSION=3.4 ..
-set(PY_VERSION NO CACHE STRING "Preferred Python version")
+if (UNIX)
+    set(DEFAULT_PYTHON_VERSION "3.4" CACHE STRING "Default value for PY_VERSION")
+else ()
+    set(DEFAULT_PYTHON_VERSION NO CACHE STRING "Default value for PY_VERSION")
+endif ()
+set(PY_VERSION ${DEFAULT_PYTHON_VERSION} CACHE STRING "Preferred Python version")
 if (PY_VERSION)
     set(Python_ADDITIONAL_VERSIONS ${PY_VERSION})
 endif ()
@@ -249,8 +254,8 @@ option(SCRIPTING "Turns on/off scripting engine" YES)
 if (SCRIPTING)
     list(APPEND HEADERS ${SCRIPTING_HEADERS})
     list(APPEND SOURCES ${SCRIPTING_SOURCES})
-	source_group("Scripting\\Headers" ${SCRIPTING_HEADERS})
-	source_group("Scripting\\Sources" ${SCRIPTING_SOURCES})
+    source_group("Scripting\\Headers" ${SCRIPTING_HEADERS})
+    source_group("Scripting\\Sources" ${SCRIPTING_SOURCES})
     add_definitions(-DWITH_SCRIPTING)
 
     find_package(PythonLibs)
@@ -263,13 +268,13 @@ if (SCRIPTING)
     endif ()
 
     if (NOT CYGWIN)
-		if (UNIX)
-			set(DEFAULT_EXPLICIT_BP_VERSION YES)
-		else ()
-			set(DEFAULT_EXPLICIT_BP_VERSION NO)
-		endif ()
-		# Should we specify version of Boost python explicitly or not. Yes by default on Unix platforms.
-		option(EXPLICIT_BP_VERSION "Try to find boost python library with explicit version suffix" ${DEFAULT_EXPLICIT_BP_VERSION})
+        if (UNIX)
+            set(DEFAULT_EXPLICIT_BP_VERSION YES)
+        else ()
+            set(DEFAULT_EXPLICIT_BP_VERSION NO)
+        endif ()
+        # Should we specify version of Boost python explicitly or not. Yes by default on Unix platforms.
+        option(EXPLICIT_BP_VERSION "Try to find boost python library with explicit version suffix" ${DEFAULT_EXPLICIT_BP_VERSION})
         if (EXPLICIT_BP_VERSION)
             string(REGEX REPLACE "^([0-9])\\.([0-9]).*$" "-py\\1\\2" BOOSTPYTHON_LIBS_SUFFIX ${PYTHONLIBS_VERSION_STRING})
             message(STATUS "Using explicit boostpython library suffix '${BOOSTPYTHON_LIBS_SUFFIX}'")
@@ -288,10 +293,10 @@ endif ()
 
 # Main executable file.
 add_executable(circle
-	${SOURCES}
-	${HEADERS}
-	readme.markdown			# add into the project file to make possible edit it just in the IDE (Visual Studio, for example).
-	)
+    ${SOURCES}
+    ${HEADERS}
+    readme.markdown			# add into the project file to make possible edit it just in the IDE (Visual Studio, for example).
+    )
 
 # Invalidate src/version.cpp
 add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp)
@@ -299,8 +304,11 @@ add_dependencies(circle versioning)
 
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)
-if (CMAKE_HOST_WIN32)
+if (WIN32)
     list(APPEND BOOST_MODULES locale)
+elseif (UNIX)
+    set(BOOST_INCLUDEDIR "/usr/include")
+    set(BOOST_LIBRARYDIR "/usr/lib/x86_64-linux-gnu")
 endif ()
 
 set(Boost_NO_SYSTEM_PATHS ON)
@@ -334,7 +342,7 @@ find_package(ZLIB REQUIRED)
 find_path(ICONV_INCLUDE_DIR iconv.h) 
 find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
 if (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES) 
-	set(ICONV_FOUND TRUE) 
+    set(ICONV_FOUND TRUE) 
 endif () 
 
 include_directories(src
@@ -354,9 +362,9 @@ endif ()
 
 # Prepare options for test build
 if (CMAKE_BUILD_TYPE STREQUAL "Test" OR CMAKE_BUILD_TYPE STREQUAL "FastTest")
-	set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
+    set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
 else ()
-	set(TESTBUILD_DEFIINITIONS "")
+    set(TESTBUILD_DEFIINITIONS "")
 endif ()
 
 if (CMAKE_HOST_UNIX)
