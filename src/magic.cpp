@@ -4678,7 +4678,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		break;
 	case SPELLS_RESTORATION:
 		{
-			if ((OBJ_FLAGGED(obj, ITEM_MAGIC)) || (GET_OBJ_RNUM(obj) != NOTHING))
+			if ((OBJ_FLAGGED(obj, ITEM_MAGIC)) && (GET_OBJ_RNUM(obj) != NOTHING))
 			{
 				if (OBJ_FLAGGED(obj_proto.at(GET_OBJ_RNUM(obj)), ITEM_MAGIC))
 					{
