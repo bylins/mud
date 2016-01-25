@@ -272,6 +272,10 @@ endif ()
 
 add_executable(circle ${SOURCES} ${HEADERS})
 
+# Invalidate src/version.cpp
+add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp)
+add_dependencies(circle versioning)
+
 # Boost
 set(BOOST_MODULES ${BOOST_COMPONENTS})
 if (CMAKE_HOST_WIN32)
