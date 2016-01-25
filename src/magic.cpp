@@ -4682,7 +4682,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 			{
 				if (OBJ_FLAGGED(obj_proto.at(GET_OBJ_RNUM(obj)), ITEM_MAGIC))
 					{
-						to_char = "Ежели всё пробовать отреставрировать гляди и до Вас дойдет.";
+						to_char = "Не велено!";
 						return 0;
 					}
 				for (i = 0; i < MAX_OBJ_AFFECT; i++)
