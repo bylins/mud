@@ -4682,7 +4682,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 			{
 				if (OBJ_FLAGGED(obj_proto.at(GET_OBJ_RNUM(obj)), ITEM_MAGIC))
 					{
-						to_char = "Снять с предмета его свойства могут только Боги.";
+						to_char = "Ежели всё пробовать отреставрировать гляди и до Вас дойдет.";
 						return 0;
 					}
 				for (i = 0; i < MAX_OBJ_AFFECT; i++)
@@ -4701,7 +4701,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 			}
 			else
 			{
-				to_char = "Этот предмет нельзя отреставрировать.";
+				to_char = "Какая ж тяжкая заставила меня делать работу Богов.";
 				return 0;
 			}
 			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
