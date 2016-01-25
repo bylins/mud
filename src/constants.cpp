@@ -2287,7 +2287,7 @@ const char *cast_phrase[SPELLS_COUNT + 1][2] = { {"\nRESERVED DB.C",	// 0
 	 {"\n",
 	 "\n"}, // SPELL_VAMPIRE
 	 {"Да прими вид прежний, якой был.",
-	 ".. Возри на предмет сей Отче и верни ему силу прежнюю."}, // SPELLS_RESTORATION
+	 ".. Воззри на предмет сей Отче и верни ему силу прежнюю."}, // SPELLS_RESTORATION
 };
 
 namespace
