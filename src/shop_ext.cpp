@@ -835,6 +835,8 @@ bool init_type(const char *str)
 		type = ITEM_WEAPON;
 	else if (is_abbrev(str, "броня") || is_abbrev(str, "armor"))
 		type = ITEM_ARMOR;
+	else if (is_abbrev(str, "материал") || is_abbrev(str, "material"))
+		type = ITEM_MATERIAL;
 	else if (is_abbrev(str, "напиток") || is_abbrev(str, "potion"))
 		type = ITEM_POTION;
 	else if (is_abbrev(str, "прочее") || is_abbrev(str, "другое") || is_abbrev(str, "other"))

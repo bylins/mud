@@ -5107,6 +5107,9 @@ void mag_assign_spells(void)
 //202
 	spello(SPELL_VAMPIRE, "вампиризм", "vampire", 150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,
 		   3, STYPE_DARK);
+//203
+	spello(SPELLS_RESTORATION, "реконструкция", "reconstruction",
+		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
