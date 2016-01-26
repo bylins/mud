@@ -1839,6 +1839,8 @@ const char *spell_wear_off_msg[SPELLS_COUNT + 1] = { "RESERVED DB.C",	// 0
 		"Вам стало не на чем концентрироваться.", //SPELL_RECALL_SPELLS
 		"Плывший в воздухе огненный узор потускнел и растаял струйками дыма.", //SPELL_HYPNOTIC_PATTERN
 		"Одна из наград прекратила действовать." //SPELL_SOLOBONUS
+		"!SPELL_VAMPIRE!",
+		"!SPELLS_RESTORATION!",
 };
 
 
@@ -2279,7 +2281,13 @@ const char *cast_phrase[SPELLS_COUNT + 1][2] = { {"\nRESERVED DB.C",	// 0
 	 {"\n",
 	 "\n"}, // SPELL_RECALL_SPELLS
 	{"ажбо супостаты блазнити да клюковати",
-	 "...и утроба его приготовляет обман."} //SPELL_HYPNOTIC_PATTERN
+	 "...и утроба его приготовляет обман."}, //SPELL_HYPNOTIC_PATTERN
+	 {"\n",
+	 "\n"}, // SPELL_SOLOBONUS
+	 {"\n",
+	 "\n"}, // SPELL_VAMPIRE
+	 {"Да прими вид прежний, якой был.",
+	 ".. Воззри на предмет сей Отче и верни ему силу прежнюю."}, // SPELLS_RESTORATION
 };
 
 namespace

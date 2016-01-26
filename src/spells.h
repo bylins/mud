@@ -345,7 +345,8 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define SPELL_HYPNOTIC_PATTERN	200
 #define SPELL_SOLOBONUS		201
 #define SPELL_VAMPIRE		202
-#define SPELLS_COUNT			203
+#define SPELLS_RESTORATION		203  //очистка магических афектов
+#define SPELLS_COUNT			204
 
 #define MAX_SLOT 13
 
