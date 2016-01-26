@@ -5110,6 +5110,18 @@ void mag_assign_spells(void)
 //203
 	spello(SPELLS_RESTORATION, "реконструкция", "reconstruction",
 		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
+//204
+	spello(SPELL_AURA_DEATH, "аура смерти", "aura death",
+		   140, 120, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_DARK);
+//205
+	spello(SPELL_RECOVERY, "темное прикосновение", "recovery",
+		   110, 100, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_DARK);
+//206
+	spello(SPELL_MASS_RECOVERY, "прикосновение смерти", "mass recovery",
+		   110, 100, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 0, STYPE_DARK);
+//207
+	spello(SPELL_AURA_EVIL, "аура зла", "aura evil",
+		   150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,  3, STYPE_DARK);
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
