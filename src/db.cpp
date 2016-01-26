@@ -158,7 +158,7 @@ struct weather_data weather_info;	// the infomation about the weather
 struct player_special_data dummy_mob;	// dummy spec area for mobs
 struct reset_q_type reset_q;	// queue of zones to be reset
 
-const FLAG_DATA clear_flags = { {0, 0, 0, 0} };
+const FLAG_DATA clear_flags;
 
 struct portals_list_type *portals_list;	// Список проталов для townportal
 int now_entrycount = FALSE;
@@ -408,21 +408,22 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	if (item_wear == -1)
 	    return false;
 	// если шмотка магическая или энчантнута таймер обычный
-        if (OBJ_FLAGGED(obj, ITEM_MAGIC))
+    if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_MAGIC))
 	    return false;
 	// если это сетовый предмет
-	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))
 		return false;
 	// рассыпется вне зоны
-	if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_ZONEDECAY))
 		return false;
 
 	// если предмет требует реморты, то он явно овер
 	if (obj->get_mort_req() > 0)
 		return false;
 	// проверяем дырки в предмете
-	 if (OBJ_FLAGGED(obj, ITEM_WITH1SLOT) || OBJ_FLAGGED(obj, ITEM_WITH2SLOTS)
-                        || OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))
+	 if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH1SLOT)
+		 || OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH2SLOTS)
+		 || OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH3SLOTS))
 		return false;
 	// если у объекта таймер ноль, то облом. 
 	if (obj->get_timer() == 0)
@@ -576,7 +577,7 @@ float count_remort_requred(OBJ_DATA *obj)
 	result = 0.0;
 	
 	if (ObjSystem::is_mob_item(obj)
-		|| OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+		|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))
 	{
 		return result;
 	}
@@ -1135,19 +1136,19 @@ void convert_obj_values()
 	for (auto i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
 	{
 		save = std::max(save, convert_drinkcon_skill(*i, true));
-		if (IS_OBJ_STAT(*i, ITEM_1INLAID))
+		if (OBJ_FLAGGED(*i, EExtraFlags::ITEM_1INLAID))
 		{
-			REMOVE_BIT(GET_OBJ_EXTRA(*i, ITEM_1INLAID), ITEM_1INLAID);
+			(*i)->unset_extraflag(EExtraFlags::ITEM_1INLAID);
 			save = 1;
 		}
-		if (IS_OBJ_STAT(*i, ITEM_2INLAID))
+		if (OBJ_FLAGGED(*i, EExtraFlags::ITEM_2INLAID))
 		{
-			REMOVE_BIT(GET_OBJ_EXTRA(*i, ITEM_2INLAID), ITEM_2INLAID);
+			(*i)->unset_extraflag(EExtraFlags::ITEM_2INLAID);
 			save = 1;
 		}
-		if (IS_OBJ_STAT(*i, ITEM_3INLAID))
+		if (OBJ_FLAGGED(*i, EExtraFlags::ITEM_3INLAID))
 		{
-			REMOVE_BIT(GET_OBJ_EXTRA(*i, ITEM_3INLAID), ITEM_3INLAID);
+			(*i)->unset_extraflag(EExtraFlags::ITEM_3INLAID);
 			save = 1;
 		}
 		// ...
@@ -1545,7 +1546,7 @@ void OBJ_DATA::init_set_table()
 					continue;
 				}
 
-				flag_data tmpaffs = clear_flags;
+				FLAG_DATA tmpaffs = clear_flags;
 				asciiflag_conv(cppstr.c_str(), &tmpaffs);
 
 				clss->second.set_affects(tmpaffs);
@@ -1641,8 +1642,7 @@ void OBJ_DATA::init_set_table()
 				unique_bit_flag_data tmpclss;
 
 				if (cppstr == "all")
-					tmpclss.set_plane(0x3FFFFFFF).set_plane(INT_ONE | 0x3FFFFFFF).set_plane(INT_TWO |
-							0x3FFFFFFF).set_plane(INT_THREE | 0x3FFFFFFF);
+					tmpclss.set_all();
 				else
 				{
 					isstream.str(cppstr);
@@ -1653,7 +1653,7 @@ void OBJ_DATA::init_set_table()
 						if (i < 0 || i > NUM_CLASSES * NUM_KIN)
 							break;
 						else
-							tmpclss.set_plane(flag_data_by_num(i));
+							tmpclss.set(flag_data_by_num(i));
 
 					if (i < 0 || i > NUM_CLASSES * NUM_KIN)
 					{
@@ -2908,49 +2908,6 @@ void discrete_load(FILE * fl, int mode, char *filename)
 	}
 }
 
-void asciiflag_conv(const char *flag, void *value)
-{
-	int *flags = (int *) value;
-	int is_number = 1, block = 0, i;
-	const char *p;
-
-	for (p = flag; *p; p += i + 1)
-	{
-		i = 0;
-		if (islower(*p))
-		{
-			if (*(p + 1) >= '0' && *(p + 1) <= '9')
-			{
-				block = (int) * (p + 1) - '0';
-				i = 1;
-			}
-			else
-				block = 0;
-			*(flags + block) |= (0x3FFFFFFF & (1 << (*p - 'a')));
-		}
-		else if (isupper(*p))
-		{
-			if (*(p + 1) >= '0' && *(p + 1) <= '9')
-			{
-				block = (int) * (p + 1) - '0';
-				i = 1;
-			}
-			else
-				block = 0;
-			*(flags + block) |= (0x3FFFFFFF & (1 << (26 + (*p - 'A'))));
-		}
-		if (!isdigit(*p))
-			is_number = 0;
-	}
-
-	if (is_number)
-	{
-		is_number = atol(flag);
-		block = is_number < INT_ONE ? 0 : is_number < INT_TWO ? 1 : is_number < INT_THREE ? 2 : 3;
-		*(flags + block) = is_number & 0x3FFFFFFF;
-	}
-}
-
 char fread_letter(FILE * fp)
 {
 	char c;
@@ -2968,11 +2925,11 @@ void check_room_flags(int rnum)
 	if (DeathTrap::is_slow_dt(rnum))
 	{
 		// снятие номагик и прочих флагов, запрещающих чару выбраться из комнаты без выходов при наличии медленного дт
-		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOMAGIC), ROOM_NOMAGIC);
-		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOTELEPORTOUT), ROOM_NOTELEPORTOUT);
-		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOSUMMON), ROOM_NOSUMMON);
+		GET_ROOM(rnum)->unset_flag(ROOM_NOMAGIC);
+		GET_ROOM(rnum)->unset_flag(ROOM_NOTELEPORTOUT);
+		GET_ROOM(rnum)->unset_flag(ROOM_NOSUMMON);
 	}
-	if (ROOM_FLAGGED(rnum, ROOM_HOUSE)
+	if (GET_ROOM(rnum)->get_flag(ROOM_HOUSE)
 		&& (SECT(rnum) == SECT_MOUNTAIN || SECT(rnum) == SECT_HILLS))
 	{
 		// шоб в замках умные не копали
@@ -3016,10 +2973,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	{
 		world[room_nr]->name = str_dup("Виртуальная комната");
 		world[room_nr]->description_num = RoomDescription::add_desc("Похоже, здесь вам делать нечего.");
-		world[room_nr]->room_flags.flags[0] = 0;
-		world[room_nr]->room_flags.flags[1] = 0;
-		world[room_nr]->room_flags.flags[2] = 0;
-		world[room_nr]->room_flags.flags[3] = 0;
+		world[room_nr]->clear_flags();
 		world[room_nr]->sector_type = SECT_SECRET;
 	}
 	else
@@ -3055,7 +3009,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			exit(1);
 		}
 		// t[0] is the zone number; ignored with the zone-file system
-		asciiflag_conv(flags, &world[room_nr]->room_flags);
+		world[room_nr]->flags_from_string(flags);
 		world[room_nr]->sector_type = t[2];
 	}
 
@@ -3063,10 +3017,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 
 	// Обнуляем флаги от аффектов и сами аффекты на комнате.
 	world[room_nr]->affected = NULL;
-	world[room_nr]->affected_by.flags[0] = 0;
-	world[room_nr]->affected_by.flags[1] = 0;
-	world[room_nr]->affected_by.flags[2] = 0;
-	world[room_nr]->affected_by.flags[3] = 0;
+	world[room_nr]->affected_by.clear();
 	// Обнуляем базовые параметры (пока нет их загрузки)
 	memset(&world[room_nr]->base_property, 0, sizeof(room_property_data));
 
@@ -4205,9 +4156,9 @@ void parse_mobile(FILE * mob_f, int nr)
 			"...expecting line of form '# # # {S | E}'\n%s", nr, line);
 		exit(1);
 	}
-	asciiflag_conv(f1, &MOB_FLAGS(mob_proto + i, 0));
-	SET_BIT(MOB_FLAGS(mob_proto + i, MOB_ISNPC), MOB_ISNPC);
-	asciiflag_conv(f2, &AFF_FLAGS(mob_proto + i, 0));
+	MOB_FLAGS(&mob_proto[i]).asciiflag_conv(f1);
+	MOB_FLAGS(&mob_proto[i]).set(MOB_ISNPC);
+	AFF_FLAGS(&mob_proto[i]).asciiflag_conv(f2);
 	GET_ALIGNMENT(mob_proto + i) = t[2];
 	switch (UPPER(letter))
 	{
@@ -4356,7 +4307,7 @@ char *parse_object(FILE * obj_f, int nr)
 	if (timer == UTIMER)
 	{
 	    timer--;
-            SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_TICKTIMER), ITEM_TICKTIMER);
+		tobj->set_extraflag(EExtraFlags::ITEM_TICKTIMER);
 	}
 	tobj->set_timer(timer);
 	tobj->obj_flags.Obj_spell = t[2];
@@ -4856,7 +4807,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	{
 		for (nr = 0; nr <= top_of_objt; nr++)
 		{
-			if (obj_proto[nr]->obj_flags.extra_flags.flags[plane] & (1 << (plane_offset)))
+			if (obj_proto[nr]->get_extraflag(plane, 1 << plane_offset))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
 						++found, obj_index[nr].vnum,
@@ -4913,7 +4864,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	{
 		for (nr = 0; nr <= top_of_objt; nr++)
 		{
-			if (obj_proto[nr]->obj_flags.affects.flags[plane] & (1 << (plane_offset)))
+			if (obj_proto[nr]->get_extraflag(plane, 1 << (plane_offset)))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
 						++found, obj_index[nr].vnum,
@@ -5088,13 +5039,15 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	if (i != -1 && zone_table[i].under_construction)
 	{
 		// mobile принадлежит тестовой зоне
-		SET_BIT(MOB_FLAGS(mob, MOB_NOSUMMON), MOB_NOSUMMON);
+		MOB_FLAGS(mob).set(MOB_NOSUMMON);
 	}
 
 //Polud - поставим флаг стражнику
 	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(mob));
 	if (it != guardian_list.end())
-		SET_BIT(MOB_FLAGS(mob, MOB_GUARDIAN), MOB_GUARDIAN);
+	{
+		MOB_FLAGS(mob).set(MOB_GUARDIAN);
+	}
 
 	return (mob);
 }
@@ -5178,7 +5131,7 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	{
 		// модификация объектов тестовой зоны
 		obj->set_timer(TEST_OBJECT_TIMER);
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOLOCATE), ITEM_NOLOCATE);
+		obj->set_extraflag(EExtraFlags::ITEM_NOLOCATE);
 	}
 	obj->proto_script = NULL;
 	obj->next = object_list;
@@ -5453,21 +5406,21 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 	bool no_time = TRUE;
 	bool no_month = TRUE;
 
-	if (OBJ_FLAGGED(obj, ITEM_DAY))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_DAY))
 	{
 		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_NIGHT))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_NIGHT))
 	{
 		if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_FULLMOON))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_FULLMOON))
 	{
 		if ((weather_info.sunlight == SUN_SET ||
 				weather_info.sunlight == SUN_DARK) &&
@@ -5476,28 +5429,28 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_WINTER))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_WINTER))
 	{
 		if (weather_info.season == SEASON_WINTER)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_SPRING))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SPRING))
 	{
 		if (weather_info.season == SEASON_SPRING)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_SUMMER))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SUMMER))
 	{
 		if (weather_info.season == SEASON_SUMMER)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_AUTUMN))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_AUTUMN))
 	{
 		if (weather_info.season == SEASON_AUTUMN)
 			month_ok = TRUE;
@@ -5923,7 +5876,7 @@ void reset_zone(zone_rnum zone)
 					}
 					tobj = obj;
 					curr_state = 1;
-					if (!OBJ_FLAGGED(obj, ITEM_NODECAY))
+					if (!OBJ_FLAGGED(obj, EExtraFlags::ITEM_NODECAY))
 					{
 						sprintf(buf,
 								"&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
@@ -7013,13 +6966,13 @@ void init_char(CHAR_DATA * ch)
 	}
 	GET_LASTIP(ch)[0] = 0;
 //	GET_LOADROOM(ch) = start_room;
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
+	PRF_FLAGS(ch).set(PRF_DISPHP);
+	PRF_FLAGS(ch).set(PRF_DISPMANA);
+	PRF_FLAGS(ch).set(PRF_DISPEXITS);
+	PRF_FLAGS(ch).set(PRF_DISPMOVE);
+	PRF_FLAGS(ch).set(PRF_DISPEXP);
+	PRF_FLAGS(ch).set(PRF_DISPFIGHT);
+	PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 30;
 	NOTIFY_EXCH_PRICE(ch) = 0;
@@ -7139,13 +7092,13 @@ ACMD(do_remort)
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
 	GET_LOADROOM(ch) = calc_loadroom(ch, place_of_destination);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
+	PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
+	PRF_FLAGS(ch).unset(PRF_AWAKE);
+	PRF_FLAGS(ch).unset(PRF_PUNCTUAL);
+	PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+	PRF_FLAGS(ch).unset(PRF_AWAKE);
+	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
 	// Убираем все заученные порталы
 	check_portals(ch);
 
@@ -7183,11 +7136,11 @@ ACMD(do_remort)
 	char_from_room(ch);
 	char_to_room(ch, load_room);
 	look_at_room(ch, 0);
-	SET_BIT(PLR_FLAGS(ch, PLR_NODELETE), PLR_NODELETE);
+	PLR_FLAGS(ch).set(PLR_NODELETE);
 	remove_rune_label(ch);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_CAN_REMORT), PRF_CAN_REMORT);
+	PRF_FLAGS(ch).unset(PRF_CAN_REMORT);
 	ch->set_ext_money(ExtMoney::TORC_GOLD, 0);
 	ch->set_ext_money(ExtMoney::TORC_SILVER, 0);
 	ch->set_ext_money(ExtMoney::TORC_BRONZE, 0);
@@ -7430,14 +7383,18 @@ int must_be_deleted(CHAR_DATA * short_ch)
 {
 	int ci, timeout;
 
-	if (IS_SET(PLR_FLAGS(short_ch, PLR_NODELETE), PLR_NODELETE))
-		return (0);
+	if (PLR_FLAGS(short_ch).get(PLR_NODELETE))
+	{
+		return 0;
+	}
 
 	if (GET_REMORT(short_ch))
 		return (0);
 
-	if (IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED))
-		return (1);
+	if (PLR_FLAGS(short_ch).get(PLR_DELETED))
+	{
+		return 1;
+	}
 
 	timeout = -1;
 	for (ci = 0; ci == 0 || pclean_criteria[ci].level > pclean_criteria[ci - 1].level; ci++)
@@ -7502,7 +7459,7 @@ void entrycount(char *name)
 				player_table[top_of_p_table].unique = GET_UNIQUE(short_ch);
 				player_table[top_of_p_table].level = (GET_REMORT(short_ch) && !IS_IMMORTAL(short_ch)) ? 30 : GET_LEVEL(short_ch);
 				player_table[top_of_p_table].timer = NULL;
-				if (IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED))
+				if (PLR_FLAGS(short_ch).get(PLR_DELETED))
 				{
 					player_table[top_of_p_table].last_logon = -1;
 					player_table[top_of_p_table].activity = -1;
@@ -7703,7 +7660,7 @@ void delete_char(const char *name)
 
 	if (id >= 0)
 	{
-		SET_BIT(PLR_FLAGS(st, PLR_DELETED), PLR_DELETED);
+		PLR_FLAGS(st).set(PLR_DELETED);
 		NewNameRemove(st);
 		Clan::remove_from_clan(GET_UNIQUE(st));
 		st->save_char();
@@ -8052,11 +8009,11 @@ void set_flag(CHAR_DATA* ch)
 	auto i = std::find(block_list.begin(), block_list.end(), mail);
 	if (i != block_list.end())
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_IGVA_PRONA), PRF_IGVA_PRONA);
+		PRF_FLAGS(ch).set(PRF_IGVA_PRONA);
 	}
 	else
 	{
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_IGVA_PRONA), PRF_IGVA_PRONA);
+		PRF_FLAGS(ch).unset(PRF_IGVA_PRONA);
 	}
 }
 

@@ -216,7 +216,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_D
 	}
 	out << "\r\n";
 
-	flag_data affects = activ->second.get_affects();
+	FLAG_DATA affects = activ->second.get_affects();
 	if (sprintbits(affects, weapon_affects, buf2, ","))
 	{
 		out << " + Аффекты : " << buf2 << "\r\n";

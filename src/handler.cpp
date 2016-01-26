@@ -1798,7 +1798,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 
 				qty_info--;
 				if ((class_info =
-							qty_info->second.find(unique_bit_flag_data().set_plane(flag_data_by_char_class(ch)))) !=
+							qty_info->second.find(unique_bit_flag_data().set(flag_data_by_char_class(ch)))) !=
 						qty_info->second.end())
 				{
 					if (GET_EQ(ch, pos) != obj)
@@ -2101,7 +2101,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 
 				old_qty_info--;
 				if ((class_info =
-							old_qty_info->second.find(unique_bit_flag_data().set_plane(flag_data_by_char_class(ch)))) !=
+							old_qty_info->second.find(unique_bit_flag_data().set(flag_data_by_char_class(ch)))) !=
 						old_qty_info->second.end())
 				{
 					while (qty_info != set_obj_info->second.begin())
@@ -2110,7 +2110,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 
 						qty_info--;
 						if ((class_info2 =
-									qty_info->second.find(unique_bit_flag_data().set_plane(flag_data_by_char_class(ch)))) !=
+									qty_info->second.find(unique_bit_flag_data().set(flag_data_by_char_class(ch)))) !=
 								qty_info->second.end())
 						{
 							for (int i = 0; i < MAX_OBJ_AFFECT; i++)

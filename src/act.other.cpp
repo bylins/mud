@@ -130,7 +130,7 @@ ACMD(do_antigods)
 	{
 		if (affected_by_spell(ch, SPELL_SHIELD))
 			affect_from_char(ch, SPELL_SHIELD);
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_SHIELD), AFF_SHIELD);
+		AFF_FLAGS(ch).unset(AFF_SHIELD);
 		send_to_char("Голубой кокон вокруг вашего тела угас.\r\n", ch);
 		act("&W$n отринул$g защиту, дарованную богами.&n", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
@@ -282,10 +282,10 @@ int check_awake(CHAR_DATA * ch, int what)
 			if (!GET_EQ(ch, i))
 				continue;
 
-			if (IS_SET(what, ACHECK_HUMMING) && OBJ_FLAGGED(GET_EQ(ch, i), ITEM_HUM))
+			if (IS_SET(what, ACHECK_HUMMING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlags::ITEM_HUM))
 				SET_BIT(retval, ACHECK_HUMMING);
 
-			if (IS_SET(what, ACHECK_GLOWING) && OBJ_FLAGGED(GET_EQ(ch, i), ITEM_GLOW))
+			if (IS_SET(what, ACHECK_GLOWING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlags::ITEM_GLOW))
 				SET_BIT(retval, ACHECK_GLOWING);
 
 			if (IS_SET(what, ACHECK_LIGHT) &&
@@ -353,7 +353,7 @@ int char_humming(CHAR_DATA * ch)
 
 	for (i = 0; i < NUM_WEARS; i++)
 	{
-		if (GET_EQ(ch, i) && OBJ_FLAGGED(GET_EQ(ch, i), ITEM_HUM))
+		if (GET_EQ(ch, i) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlags::ITEM_HUM))
 			return (TRUE);
 	}
 	return (FALSE);
@@ -408,7 +408,7 @@ ACMD(do_sneak)
 	}
 
 	send_to_char("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
-	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILSNEAK), EXTRA_FAILSNEAK);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
 	percent = number(1, skill_info[SKILL_SNEAK].max_percent);
 	prob = calculate_skill(ch, SKILL_SNEAK, skill_info[SKILL_SNEAK].max_percent, 0);
 
@@ -465,7 +465,7 @@ ACMD(do_camouflage)
 	}
 
 	send_to_char("Вы начали усиленно маскироваться.\r\n", ch);
-	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILCAMOUFLAGE), EXTRA_FAILCAMOUFLAGE);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
 	percent = number(1, skill_info[SKILL_CAMOUFLAGE].max_percent);
 	prob = calculate_skill(ch, SKILL_CAMOUFLAGE, skill_info[SKILL_CAMOUFLAGE].max_percent, 0);
 
@@ -524,7 +524,7 @@ ACMD(do_hide)
 	}
 
 	send_to_char("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
-	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
 	percent = number(1, skill_info[SKILL_HIDE].max_percent);
 	prob = calculate_skill(ch, SKILL_HIDE, skill_info[SKILL_HIDE].max_percent, 0);
 
@@ -1016,7 +1016,7 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	if (vict)
 	{
 		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
+		AFF_FLAGS(ch).unset(AFF_GROUP);
 		add_follower(ch, leader, true);
 	}
 
@@ -1049,7 +1049,7 @@ int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 			AFF_FLAGGED(vict, AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || IS_HORSE(vict))
 		return (FALSE);
 
-	SET_BIT(AFF_FLAGS(vict, AFF_GROUP), AFF_GROUP);
+	AFF_FLAGS(vict).set(AFF_GROUP);
 	if (ch != vict)
 	{
 		act("$N принят$A в члены вашего кружка (тьфу-ты, группы :).", FALSE, ch, 0, vict, TO_CHAR);
@@ -1445,7 +1445,7 @@ ACMD(do_group)
 			act("$N исключен$A из состава вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, vict, TO_VICT);
 			act("$N был$G исключен$A из группы $n1!", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-			REMOVE_BIT(AFF_FLAGS(vict, AFF_GROUP), AFF_GROUP);
+			AFF_FLAGS(vict).unset(AFF_GROUP);
 		}
 	}
 }
@@ -1478,7 +1478,7 @@ ACMD(do_ungroup)
 					stop_follower(f->follower, SF_EMPTY);
 			}
 		}
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
+		AFF_FLAGS(ch).unset(AFF_GROUP);
 		send_to_char("Вы распустили группу.\r\n", ch);
 		return;
 	}
@@ -1488,7 +1488,7 @@ ACMD(do_ungroup)
 		tch = f->follower;
 		if (isname(buf, tch->get_pc_name()) && !AFF_FLAGGED(tch, AFF_CHARM) && !IS_HORSE(tch))
 		{
-			REMOVE_BIT(AFF_FLAGS(tch, AFF_GROUP), AFF_GROUP);
+			AFF_FLAGS(tch).unset(AFF_GROUP);
 			act("$N более не член вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, tch, TO_VICT);
 			act("$N был$G изгнан$A из группы $n1!", FALSE, ch, 0, tch, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -1728,7 +1728,7 @@ ACMD(do_use)
 		return;
 	}
 
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Вы в бою, и вам сейчас не до этих магических выкрутасов!\r\n", ch);
 		return;
@@ -1765,7 +1765,7 @@ ACMD(do_use)
 	switch (subcmd)
 	{
 	case SCMD_QUAFF:
-		if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+		if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 		{
 			send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
 			return;
@@ -1895,30 +1895,30 @@ void set_display_bits(CHAR_DATA *ch, bool flag)
 {
 	if (flag)
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
+		PRF_FLAGS(ch).set(PRF_DISPHP);
+		PRF_FLAGS(ch).set(PRF_DISPMANA);
+		PRF_FLAGS(ch).set(PRF_DISPMOVE);
+		PRF_FLAGS(ch).set(PRF_DISPEXITS);
+		PRF_FLAGS(ch).set(PRF_DISPGOLD);
+		PRF_FLAGS(ch).set(PRF_DISPLEVEL);
+		PRF_FLAGS(ch).set(PRF_DISPEXP);
+		PRF_FLAGS(ch).set(PRF_DISPFIGHT);
 		if (!IS_IMMORTAL(ch))
 		{
-			SET_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+			PRF_FLAGS(ch).set(PRF_DISP_TIMED);
 		}
 	}
 	else
 	{
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+		PRF_FLAGS(ch).unset(PRF_DISPHP);
+		PRF_FLAGS(ch).unset(PRF_DISPMANA);
+		PRF_FLAGS(ch).unset(PRF_DISPMOVE);
+		PRF_FLAGS(ch).unset(PRF_DISPEXITS);
+		PRF_FLAGS(ch).unset(PRF_DISPGOLD);
+		PRF_FLAGS(ch).unset(PRF_DISPLEVEL);
+		PRF_FLAGS(ch).unset(PRF_DISPEXP);
+		PRF_FLAGS(ch).unset(PRF_DISPFIGHT);
+		PRF_FLAGS(ch).unset(PRF_DISP_TIMED);
 	}
 }
 
@@ -1963,39 +1963,39 @@ ACMD(do_display)
 			{
 			case 'h':
 			case 'ж':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
+				PRF_FLAGS(ch).set(PRF_DISPHP);
 				break;
 			case 'w':
 			case 'з':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
+				PRF_FLAGS(ch).set(PRF_DISPMANA);
 				break;
 			case 'm':
 			case 'э':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
+				PRF_FLAGS(ch).set(PRF_DISPMOVE);
 				break;
 			case 'e':
 			case 'в':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
+				PRF_FLAGS(ch).set(PRF_DISPEXITS);
 				break;
 			case 'g':
 			case 'д':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
+				PRF_FLAGS(ch).set(PRF_DISPGOLD);
 				break;
 			case 'l':
 			case 'у':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
+				PRF_FLAGS(ch).set(PRF_DISPLEVEL);
 				break;
 			case 'x':
 			case 'о':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
+				PRF_FLAGS(ch).set(PRF_DISPEXP);
 				break;
 			case 'б':
 			case 'f':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
+				PRF_FLAGS(ch).set(PRF_DISPFIGHT);
 				break;
 			case 'п':
 			case 't':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+				PRF_FLAGS(ch).set(PRF_DISP_TIMED);
 				break;
 			case ' ':
 				break;
@@ -2224,20 +2224,20 @@ void set_autoloot_mode(CHAR_DATA *ch, char *argument)
 	}
 	else if (is_abbrev(argument, "все"))
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_AUTOLOOT), PRF_AUTOLOOT);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_NOINGR_LOOT), PRF_NOINGR_LOOT);
+		PRF_FLAGS(ch).set(PRF_AUTOLOOT);
+		PRF_FLAGS(ch).unset(PRF_NOINGR_LOOT);
 		send_to_char(message_on, ch);
 	}
 	else if (is_abbrev(argument, "ингредиенты"))
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_AUTOLOOT), PRF_AUTOLOOT);
-		SET_BIT(PRF_FLAGS(ch, PRF_NOINGR_LOOT), PRF_NOINGR_LOOT);
+		PRF_FLAGS(ch).set(PRF_AUTOLOOT);
+		PRF_FLAGS(ch).set(PRF_NOINGR_LOOT);
 		send_to_char(message_no_ingr, ch);
 	}
 	else if (is_abbrev(argument, "нет"))
 	{
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_AUTOLOOT), PRF_AUTOLOOT);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_NOINGR_LOOT), PRF_NOINGR_LOOT);
+		PRF_FLAGS(ch).unset(PRF_AUTOLOOT);
+		PRF_FLAGS(ch).unset(PRF_NOINGR_LOOT);
 		send_to_char(message_off, ch);
 	}
 	else
@@ -3153,7 +3153,7 @@ ACMD(do_dig)
 		{
 			if (GET_LEVEL(mob) <= GET_LEVEL(ch))
 			{
-				SET_BIT(MOB_FLAGS(mob, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
+				MOB_FLAGS(mob).set(MOB_AGGRESSIVE);
 				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3]);
 				send_to_char(textbuf, ch);
 				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3]);
@@ -3698,7 +3698,7 @@ ACMD(do_insertgem)
 					if ((CAN_WEAR(itemobj, ITEM_WEAR_WIELD) ||
 							CAN_WEAR(itemobj, ITEM_WEAR_HOLD) || CAN_WEAR(itemobj, ITEM_WEAR_BOTHS))
 							&& !OBJ_FLAGGED(itemobj, ITEM_NODISARM))
-						SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_NODISARM), ITEM_NODISARM);
+						GET_OBJ_EXTRA(itemobj).set(ITEM_NODISARM);
 					else
 						set_obj_eff(itemobj, APPLY_HITROLL, 3);
 					break;

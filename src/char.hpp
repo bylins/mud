@@ -341,12 +341,7 @@ class CHAR_DATA : public PlayerI
 public:
 	CHAR_DATA();
 	virtual ~CHAR_DATA();
-	// для ивентов
-	int get_event_score();
-	void inc_event_score(int score);
-	void set_event_score(int score);
-	// это все как обычно временно... =)
-	friend void save_char(CHAR_DATA *ch);
+
 	friend void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src);
 	friend void interpret_espec(const char *keyword, const char *value, int i, int nr);

@@ -1134,49 +1134,49 @@ void set_zone(const int v)
 	obj->obj_flags.Obj_zone = v;
 }
 
-flag_data get_affects() const
+FLAG_DATA get_affects() const
 {
 	Ensurer obj(*this);
 	return obj->obj_flags.affects;
 }
 
-void set_affects(const flag_data& f)
+void set_affects(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
 	obj->obj_flags.affects = f;
 }
 
-flag_data get_anti_flag() const
+FLAG_DATA get_anti_flag() const
 {
 	Ensurer obj(*this);
 	return obj->obj_flags.anti_flag;
 }
 
-void set_anti_flag(const flag_data& f)
+void set_anti_flag(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
 	obj->obj_flags.anti_flag = f;
 }
 
-flag_data get_no_flag() const
+FLAG_DATA get_no_flag() const
 {
 	Ensurer obj(*this);
 	return obj->obj_flags.no_flag;
 }
 
-void set_no_flag(const flag_data& f)
+void set_no_flag(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
 	obj->obj_flags.no_flag = f;
 }
 
-flag_data get_extra_flags() const
+FLAG_DATA get_extra_flags() const
 {
 	Ensurer obj(*this);
 	return obj->obj_flags.extra_flags;
 }
 
-void set_extra_flags(const flag_data& f)
+void set_extra_flags(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
 	obj->obj_flags.extra_flags = f;
@@ -1267,27 +1267,27 @@ void obj_to_char_wrap(const CharacterWrapper& c, ObjWrapper& o)
 	obj_to_char(obj, ch);
 }
 
-bool flag_is_set(const flag_data& flag, const unsigned f)
+bool flag_is_set(const FLAG_DATA& flag, const unsigned f)
 {
 	return IS_SET(GET_FLAG(flag, f), f);
 }
 
-void flag_set(flag_data& flag, const unsigned f)
+void flag_set(FLAG_DATA& flag, const unsigned f)
 {
 	SET_BIT(GET_FLAG(flag, f), f);
 }
 
-void flag_remove(flag_data& flag, const unsigned f)
+void flag_remove(FLAG_DATA& flag, const unsigned f)
 {
 	REMOVE_BIT(GET_FLAG(flag, f), f);
 }
 
-void flag_toggle(flag_data& flag, const unsigned f)
+void flag_toggle(FLAG_DATA& flag, const unsigned f)
 {
 	TOGGLE_BIT(GET_FLAG(flag, f), f);
 }
 
-str flag_str(const flag_data& flag)
+str flag_str(const FLAG_DATA& flag)
 {
 	char buf[MAX_STRING_LENGTH];
 	*buf='\0';
@@ -1571,7 +1571,7 @@ BOOST_PYTHON_MODULE(mud)
 		.def_readwrite("apply_time", &affect_data::apply_time, "Указывает сколько аффект висит (пока используется только в комнатах)")
 	;
 
-	class_<flag_data>("FlagData", "Флаги чего-нибудь.")
+	class_<FLAG_DATA>("FlagData", "Флаги чего-нибудь.")
 		.def("__contains__", flag_is_set, "Содержится ли флаг в этом поле?")
 		.def("set", flag_set, "Установить указанный флаг")
 		.def("remove", flag_remove, "Убрать указанный флаг")

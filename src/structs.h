@@ -78,7 +78,6 @@ using std::bitset;
 #define MAX_DEST         50
 
 // done
-typedef struct flag_data FLAG_DATA;
 typedef struct index_data INDEX_DATA;
 typedef struct script_data SCRIPT_DATA;
 
@@ -130,6 +129,14 @@ typedef struct trig_data TRIG_DATA;
 #define WEST           3
 #define UP             4
 #define DOWN           5
+
+// This structure describe new bitvector structure                  //
+typedef uint32_t bitvector_t;
+
+#define INT_ZERRO (0 << 30)
+#define INT_ONE   (1 << 30)
+#define INT_TWO   (2 << 30)
+#define INT_THREE (3 << 30)
 
 // Room flags: used in room_data.room_flags //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
@@ -832,52 +839,60 @@ enum
 #define ITEM_WEAR_HOLD     (1 << 14)	// Can be held      //
 #define ITEM_WEAR_BOTHS     (1 << 15)
 
+template <typename E>
+constexpr typename std::underlying_type<E>::type to_underlying(E e)
+{
+	return static_cast<typename std::underlying_type<E>::type>(e);
+}
 
 // Extra object flags: used by obj_data.obj_flags.extra_flags //
-#define ITEM_GLOW          (1 << 0)	// Item is glowing      //
-#define ITEM_HUM           (1 << 1)	// Item is humming      //
-#define ITEM_NORENT        (1 << 2)	// Item cannot be rented   //
-#define ITEM_NODONATE      (1 << 3)	// Item cannot be donated  //
-#define ITEM_NOINVIS    (1 << 4)	// Item cannot be made invis  //
-#define ITEM_INVISIBLE     (1 << 5)	// Item is invisible    //
-#define ITEM_MAGIC         (1 << 6)	// Item is magical      //
-#define ITEM_NODROP        (1 << 7)	// Item is cursed: can't drop //
-#define ITEM_BLESS         (1 << 8)	// Item is blessed      //
-#define ITEM_NOSELL        (1 << 9)	// Not usable by good people  //
-#define ITEM_DECAY         (1 << 10)	// Not usable by evil people  //
-#define ITEM_ZONEDECAY     (1 << 11)	// Not usable by neutral people  //
-#define ITEM_NODISARM      (1 << 12)	// Not usable by mages     //
-#define ITEM_NODECAY       (1 << 13)
-#define ITEM_POISONED      (1 << 14)
-#define ITEM_SHARPEN       (1 << 15)
-#define ITEM_ARMORED       (1 << 16)
-#define ITEM_DAY        (1 << 17)
-#define ITEM_NIGHT         (1 << 18)
-#define ITEM_FULLMOON      (1 << 19)
-#define ITEM_WINTER        (1 << 20)
-#define ITEM_SPRING        (1 << 21)
-#define ITEM_SUMMER        (1 << 22)
-#define ITEM_AUTUMN        (1 << 23)
-#define ITEM_SWIMMING      (1 << 24)
-#define ITEM_FLYING        (1 << 25)
-#define ITEM_THROWING      (1 << 26)
-#define ITEM_TICKTIMER     (1 << 27)
-#define ITEM_FIRE          (1 << 28)	// ...горит                   //
-#define ITEM_REPOP_DECAY   (1 << 29)	// рассыпется при репопе зоны //
-#define ITEM_NOLOCATE      (INT_ONE | (1 << 0))	// нельзя отлокейтить //
-#define ITEM_TIMEDLVL      (INT_ONE | (1 << 1))	// для маг.предметов уровень уменьшается со временем //
-#define ITEM_NOALTER       (INT_ONE | (1 << 2))	// свойства предмета не могут быть изменены магией //
-#define ITEM_WITH1SLOT     (INT_ONE | (1 << 3))	// в предмет можно вплавить 1 камень //
-#define ITEM_WITH2SLOTS    (INT_ONE | (1 << 4))	// в предмет можно вплавить 2 камня //
-#define ITEM_WITH3SLOTS    (INT_ONE | (1 << 5))	// в предмет можно вплавить 3 камня (овер) //
-#define ITEM_SETSTUFF      (INT_ONE | (1 << 6)) // Item is set object //
-#define ITEM_NO_FAIL       (INT_ONE | (1 << 7)) // не фейлится при изучении (в случае книги)
-#define ITEM_NAMED         (INT_ONE | (1 << 8)) // именной предмет
-#define ITEM_BLOODY        (INT_ONE | (1 << 9)) // окровавленная вещь (снятая с трупа)
-#define ITEM_1INLAID       (INT_ONE | (1 << 10)) // TODO: не используется, см convert_obj_values()
-#define ITEM_2INLAID       (INT_ONE | (1 << 11)) // -//-
-#define ITEM_3INLAID       (INT_ONE | (1 << 12)) // -//-
-#define ITEM_NOPOUR        (INT_ONE | (1 << 13))  // нельзя перелить
+enum class EExtraFlags: uint32_t
+{
+	ITEM_GLOW = 1 << 0,						///< Item is glowing
+	ITEM_HUM = 1 << 1,						///< Item is humming
+	ITEM_NORENT = 1 << 2,					///< Item cannot be rented
+	ITEM_NODONATE = 1 << 3,					///< Item cannot be donated
+	ITEM_NOINVIS = 1 << 4,					///< Item cannot be made invis
+	ITEM_INVISIBLE = 1 << 5,				///< Item is invisible
+	ITEM_MAGIC = 1 << 6,					///< Item is magical
+	ITEM_NODROP = 1 << 7,					///< Item is cursed: can't drop
+	ITEM_BLESS = 1 << 8,					///< Item is blessed
+	ITEM_NOSELL = 1 << 9,					///< Not usable by good people
+	ITEM_DECAY = 1 << 10,					///< Not usable by evil people
+	ITEM_ZONEDECAY = 1 << 11,				///< Not usable by neutral people
+	ITEM_NODISARM = 1 << 12,				///< Not usable by mages
+	ITEM_NODECAY = 1 << 13,
+	ITEM_POISONED = 1 << 14,
+	ITEM_SHARPEN = 1 << 15,
+	ITEM_ARMORED = 1 << 16,
+	ITEM_DAY = 1 << 17,
+	ITEM_NIGHT = 1 << 18,
+	ITEM_FULLMOON = 1 << 19,
+	ITEM_WINTER = 1 << 20,
+	ITEM_SPRING = 1 << 21,
+	ITEM_SUMMER = 1 << 22,
+	ITEM_AUTUMN = 1 << 23,
+	ITEM_SWIMMING = 1 << 24,
+	ITEM_FLYING = 1 << 25,
+	ITEM_THROWING = 1 << 26,
+	ITEM_TICKTIMER = 1 << 27,
+	ITEM_FIRE = 1 << 28,					///< ...горит
+	ITEM_REPOP_DECAY = 1 << 29,				///< рассыпется при репопе зоны
+	ITEM_NOLOCATE = INT_ONE | (1 << 0),		///< нельзя отлокейтить
+	ITEM_TIMEDLVL = INT_ONE | (1 << 1),		///< для маг.предметов уровень уменьшается со временем
+	ITEM_NOALTER = INT_ONE | (1 << 2),		///< свойства предмета не могут быть изменены магией
+	ITEM_WITH1SLOT = INT_ONE | (1 << 3),	///< в предмет можно вплавить 1 камень
+	ITEM_WITH2SLOTS = INT_ONE | (1 << 4),	///< в предмет можно вплавить 2 камня
+	ITEM_WITH3SLOTS = INT_ONE | (1 << 5),	///< в предмет можно вплавить 3 камня (овер)
+	ITEM_SETSTUFF = INT_ONE | (1 << 6),		///< Item is set object
+	ITEM_NO_FAIL = INT_ONE | (1 << 7),		///< не фейлится при изучении (в случае книги)
+	ITEM_NAMED = INT_ONE | (1 << 8),		///< именной предмет
+	ITEM_BLOODY = INT_ONE | (1 << 9),		///< окровавленная вещь (снятая с трупа)
+	ITEM_1INLAID = INT_ONE | (1 << 10),		///< TODO: не используется, см convert_obj_values()
+	ITEM_2INLAID = INT_ONE | (1 << 11),
+	ITEM_3INLAID = INT_ONE | (1 << 12),
+	ITEM_NOPOUR = INT_ONE | (1 << 13)		///< нельзя перелить
+};
 
 #define ITEM_NO_MONO       (1 << 0)
 #define ITEM_NO_POLY       (1 << 1)
@@ -1210,95 +1225,85 @@ typedef int obj_rnum;	// An object's real (internal) num type //
 typedef int mob_rnum;	// A mobile's real (internal) num type //
 typedef int zone_rnum;	// A zone's real (array index) number. //
 
-// ************ WARNING ******************************************* //
-// This structure describe new bitvector structure                  //
-typedef uint32_t bitvector_t;
-
-#define INT_ZERRO (0 << 30)
-#define INT_ONE   (1 << 30)
-#define INT_TWO   (2 << 30)
-#define INT_THREE (3 << 30)
-
-struct flag_data
+class FLAG_DATA
 {
-	flag_data& operator+=(const flag_data &r)
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			flags[i] |= r.flags[i];
-		}
-		return *this;
-	}
-	bool operator!=(const flag_data &r) const
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			if (flags[i] != r.flags[i])
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	bool operator==(const flag_data &r) const
-	{
-		return !(*this != r);
-	}
-	bool empty() const
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			if (flags[i] != 0)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-	void set(const uint32_t flag)
-	{
-		flags[flag >> 30] |= flag & 0x3fffffff;
-	}
+public:
+	FLAG_DATA() : m_flags(4, 0) {}
+	FLAG_DATA& operator+=(const FLAG_DATA &r);
+	bool operator!=(const FLAG_DATA& r) const { return m_flags[0] != r.m_flags[0] || m_flags[1] != r.m_flags[1] || m_flags[2] != r.m_flags[2] || m_flags[3] != r.m_flags[3]; }
+	bool operator==(const FLAG_DATA& r) const { return !(*this != r); }
+	bool operator<(const FLAG_DATA& r) const;
+	bool operator>(const FLAG_DATA& r) const;
+	bool empty() const { return 0 == m_flags[0] && 0 == m_flags[1] && 0 == m_flags[2] && 0 == m_flags[3]; }
 
-	uint32_t flags[4];
+	void clear() { m_flags[0] = m_flags[1] = m_flags[2] = m_flags[3] = 0; }
+	void set_all() { m_flags[0] = m_flags[1] = m_flags[2] = m_flags[3] = 0x3fffffff; }
+
+	template <class T>
+	bool get(const T packed_flag) const { return 0 != (m_flags[to_underlying(packed_flag) >> 30] & (to_underlying(packed_flag) & 0x3fffffff)); }
+	template <> bool get(const uint32_t packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
+	template <> bool get(const int packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
+	bool get_flag(const size_t plane, const uint32_t flag) const { return 0 != (m_flags[plane] & (flag & 0x3fffffff)); }
+	const uint32_t get_plane(const size_t number) const { return m_flags[number]; }
+
+	template <class T>
+	void set(const T packed_flag) { m_flags[to_underlying(packed_flag) >> 30] |= to_underlying(packed_flag) & 0x3fffffff; }
+	template <> void set(const uint32_t packed_flag) { m_flags[packed_flag >> 30] |= packed_flag & 0x3fffffff; }
+	template <> void set(const int packed_flag) { m_flags[packed_flag >> 30] |= packed_flag & 0x3fffffff; }
+	void set_flag(const size_t plane, const uint32_t flag) { m_flags[plane] |= flag; }
+	void set_plane(const size_t number, const uint32_t value) { m_flags[number] = value; }
+
+	template <class T>
+	void unset(const T packed_flag) { m_flags[to_underlying(packed_flag) >> 30] &= ~(to_underlying(packed_flag) & 0x3fffffff); }
+	template <> void unset(const uint32_t packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
+	template <> void unset(const int packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
+
+	void asciiflag_conv(const char *flag);
+
+private:
+	std::vector<uint32_t> m_flags;
 };
 
-inline const uint32_t& GET_FLAG(const flag_data& value, const uint32_t flag)
+inline FLAG_DATA& FLAG_DATA::operator+=(const FLAG_DATA &r)
 {
-	size_t fnumber = flag >> 30;
-	return value.flags[fnumber];
+	m_flags[0] |= r.m_flags[0];
+	m_flags[1] |= r.m_flags[1];
+	m_flags[2] |= r.m_flags[2];
+	m_flags[3] |= r.m_flags[3];
+
+	return *this;
 }
 
-inline uint32_t& GET_FLAG(flag_data& value, const uint32_t flag)
+inline bool FLAG_DATA::operator<(const FLAG_DATA& r) const
 {
-	size_t fnumber = flag >> 30;
-	return value.flags[fnumber];
+	return *this != r
+		&& (m_flags[0] < r.m_flags[0]
+			|| m_flags[1] < r.m_flags[1]
+			|| m_flags[2] < r.m_flags[2]
+			|| m_flags[3] < r.m_flags[3]);
+}
+
+inline bool FLAG_DATA::operator>(const FLAG_DATA& r) const
+{
+	return *this != r
+		&& (m_flags[0] > r.m_flags[0]
+			|| m_flags[1] > r.m_flags[1]
+			|| m_flags[2] > r.m_flags[2]
+			|| m_flags[3] > r.m_flags[3]);
+}
+
+inline const uint32_t GET_FLAG(const FLAG_DATA& value, const uint32_t flag)
+{
+	return value.get(flag);
 }
 
 extern const FLAG_DATA clear_flags;
 
-class unique_bit_flag_data : public flag_data
+class unique_bit_flag_data : public FLAG_DATA
 {
 public:
-	unique_bit_flag_data() : flag_data(clear_flags) {}
-
-	unique_bit_flag_data(const flag_data& __base) : flag_data(__base) {}
-
-	int
-	get_plane(int __plane) const
-	{
-		return *(flags + __plane) | __plane << 30;
-	}
-
-	unique_bit_flag_data&
-	set_plane(uint32_t __plane)
-	{
-		int num = __plane < static_cast<uint32_t>(INT_ONE)   ? 0 :
-				  __plane < static_cast<uint32_t>(INT_TWO)   ? 1 :
-				  __plane < static_cast<uint32_t>(INT_THREE) ? 2 : 3;
-		*(flags + num) |= 0x3FFFFFFF & __plane;
-		return *this;
-	}
+	unique_bit_flag_data() : FLAG_DATA(clear_flags) {}
+	unique_bit_flag_data(const FLAG_DATA& __base): FLAG_DATA(__base) {}
 };
 
 inline int
@@ -1311,50 +1316,14 @@ flag_data_by_num(const int& num)
 		   num < 120 ? (INT_THREE | (1 << (num - 90))) : 0;
 }
 
-inline bool
-operator==(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return *__lop.flags & *__rop.flags || *(__lop.flags + 1) & *(__rop.flags + 1) ||
-		   *(__lop.flags + 2) & *(__rop.flags + 2) || *(__lop.flags + 3) & *(__rop.flags + 3);
-}
-
-inline bool
-operator!=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return !(__lop == __rop);
-}
-
-inline bool
-operator<(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return __lop != __rop &&
-		   (*__lop.flags < *__rop.flags || *(__lop.flags + 1) < *(__rop.flags + 1) ||
-			*(__lop.flags + 2) < *(__rop.flags + 2) || *(__lop.flags + 3) < *(__rop.flags + 3));
-}
-
-inline bool
-operator>(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return __lop != __rop &&
-		   (*__lop.flags > *__rop.flags || *(__lop.flags + 1) > *(__rop.flags + 1) ||
-			*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
-}
-
-inline bool
-operator<=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return __lop == __rop ||
-		   (*__lop.flags < *__rop.flags || *(__lop.flags + 1) < *(__rop.flags + 1) ||
-			*(__lop.flags + 2) < *(__rop.flags + 2) || *(__lop.flags + 3) < *(__rop.flags + 3));
-}
-
-inline bool
-operator>=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return __lop == __rop ||
-		   (*__lop.flags > *__rop.flags || *(__lop.flags + 1) > *(__rop.flags + 1) ||
-			*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
-}
+/* remove me
+inline bool operator==(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop == __rop; }
+inline bool operator!=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop != __rop; }
+inline bool operator<(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop < __rop; }
+inline bool operator>(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop > __rop; }
+inline bool operator<=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop == __rop || __lop < __rop; }
+inline bool operator>=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop == __rop || __lop > __rop; }
+*/
 
 // Extra description: used in objects, mobiles, and rooms //
 struct extra_descr_data
