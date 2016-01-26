@@ -1164,7 +1164,7 @@ const int HISTORY_SIZE = 5;
 #define MAX_AFFECT            32
 #define MAX_OBJ_AFFECT        6
 #define MAX_TIMED_SKILLS      16
-#define MAX_FEATS             512 // Максимальное количество фитов //
+#define MAX_FEATS             256 // Максимальное количество фитов //
 #define MAX_TIMED_FEATS       16 // Макс. количество фитов с таймером //
 #define MAX_HITS              32000 // Максимальное количество хитов и дамага //
 // Количество запомненных предложений для воззваний //

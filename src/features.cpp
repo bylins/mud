@@ -597,6 +597,28 @@ void assign_feats(void)
 //124
 	// наем наносит серию сильных ударов, но быстро устает
 	feato(SNEAKRAGE_FEAT, "ярость змеи", NORMAL_FTYPE, TRUE, feat_app);
+// для чернокнижника способности по веткам
+//125
+	// наем наносит серию сильных ударов, но быстро устает
+	feato(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, TRUE, feat_app);
+//126
+	// наем наносит серию сильных ударов, но быстро устает
+	feato(ELDER_TASKMASTER_FEAT, "старший надсмотрщик", NORMAL_FTYPE, TRUE, feat_app);
+//127
+	// наем наносит серию сильных ударов, но быстро устает
+	feato(LORD_UNDEAD_FEAT, "повелитель нежити", NORMAL_FTYPE, TRUE, feat_app);
+//128
+	// наем наносит серию сильных ударов, но быстро устает
+	feato(DARK_WIZARD_FEAT, "темный маг", NORMAL_FTYPE, TRUE, feat_app);
+//129
+	// наем наносит серию сильных ударов, но быстро устает
+	feato(ELDER_PRIEST_FEAT, "старший жрец", NORMAL_FTYPE, TRUE, feat_app);
+//130
+	// наем наносит серию сильных ударов, но быстро устает
+	feato(HIGH_LICH_FEAT, "верховный лич", NORMAL_FTYPE, TRUE, feat_app);
+//131
+	// наем наносит серию сильных ударов, но быстро устает
+	feato(BLACK_RITUAL_FEAT, "темный ритуал", NORMAL_FTYPE, TRUE, feat_app);
 	
 	
 	/*

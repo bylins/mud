@@ -143,6 +143,27 @@ using std::bitset;
 #define HAUNTINGSPIRIT_FEAT		123 // блуждающий дух
 #define SNEAKRAGE_FEAT			124 // ярость змеи
 
+//новвоведения для чернока
+
+#define TEAMSTER_UNDEAD_FEAT	125 // Погонщик нежити 
+#define ELDER_TASKMASTER_FEAT	126 // Старший надсмотрщик 
+#define LORD_UNDEAD_FEAT		127 // Повелитель нежити
+#define DARK_WIZARD_FEAT		128 // Темный маг
+#define ELDER_PRIEST_FEAT		129 // Старший жрец
+#define HIGH_LICH_FEAT			130 // Верховный лич
+#define BLACK_RITUAL_FEAT		131 // Темный ритуал
+
+/*
+//новвоведения для татя
+
+#define RESERVED_FEAT_1			132 // 
+#define RESERVED_FEAT_2			133 // 
+#define RESERVED_FEAT_3			134 // 
+#define RESERVED_FEAT_4			135 // 
+#define RESERVED_FEAT_5			136 // 
+#define RESERVED_FEAT_6			137 // 
+*/
+
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
 #define FIRE_MAGIC_FOCUS_FEAT		  //любимая_магия: огонь
