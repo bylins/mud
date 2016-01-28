@@ -3892,22 +3892,14 @@ struct cmdlist_element *find_else_end(TRIG_DATA * trig,
 		for (p = cl->cmd; *p && a_isspace(*p); p++);
 
 		if (!strn_cmp("if ", p, 3))
-		{
 			cl = find_end(trig, cl);
-			break;
-		}
 		else if (!strn_cmp("elseif ", p, 7))
 		{
 			if (process_if(p + 7, go, sc, trig, type))
 			{
 				GET_TRIG_DEPTH(trig)++;
+				break;
 			}
-			else
-			{
-				cl = find_else_end(trig, cl, go, sc, type);
-			}
-
-			break;
 		}
 		else if (!strn_cmp("else", p, 4))
 		{
