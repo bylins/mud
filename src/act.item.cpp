@@ -2384,7 +2384,7 @@ ACMD(do_upgrade)
 	//Заточить повторно можно, но это уменьшает таймер шмотки на 16%
 	if (OBJ_FLAGGED(obj, ITEM_SHARPEN))
 	{
-		int timer = obj->get_timer() - obj->get_timer() / 6;
+		int timer = obj->get_timer() - MAX(1000, obj->get_timer() / 6); // абуз, таймер меньше 6 вычитается 0 бесконечная прокачка умелки
 		obj->set_timer(timer);
 		change_weight = 0;
 	}
