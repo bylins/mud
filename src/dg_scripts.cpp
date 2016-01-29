@@ -3907,7 +3907,9 @@ struct cmdlist_element *find_else_end(TRIG_DATA * trig,
 			break;
 		}
 		else if (!strn_cmp("end", p, 3))
+		{
 			break;
+		}
 	}
 
 #ifdef DG_CODE_ANALYZE
