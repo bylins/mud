@@ -1593,7 +1593,7 @@ ACMD(do_mskilladd)
 	};
 
 	if (isSkill)
-		trg_skilladd(victim, skillnum, skilldiff);
+		trg_skilladd(victim, skillnum, skilldiff, last_trig_vnum);
 	else
 		trg_recipeadd(victim, skillnum, skilldiff);
 }

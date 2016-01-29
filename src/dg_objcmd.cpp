@@ -903,7 +903,7 @@ OCMD(do_oskilladd)
 	}
 
 	if (isSkill)
-		trg_skilladd(ch, skillnum, skilldiff);
+		trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
 	else
 		trg_recipeadd(ch, skillnum, skilldiff);
 }

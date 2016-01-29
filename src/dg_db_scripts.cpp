@@ -603,7 +603,7 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 	}
 }
 
-void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff)
+void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum)
 {
 	int skill = ch->get_trained_skill(skillnum);
 	ch->set_skill(skillnum, (MAX(1, MIN(ch->get_trained_skill(skillnum) + skilldiff, 200))));
@@ -611,17 +611,17 @@ void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff)
 	if (skill > ch->get_trained_skill(skillnum))
 	{
 		send_to_char(ch, "Ваше умение '%s' понизилось.\r\n", skill_name(skillnum));
-		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd)", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff);
+		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) tvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 	else if (skill < ch->get_trained_skill(skillnum))
 	{
 		send_to_char(ch, "Вы повысили свое умение '%s'.\r\n", skill_name(skillnum));
-		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd)", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff);
+		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) tvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 	else
 	{
 		send_to_char(ch, "Ваше умение осталось неизменным '%s '.\r\n", skill_name(skillnum));
-		log("Unchanged %s on %s (trigskilladd)", skill_name(skillnum), GET_NAME(ch));
+		log("Unchanged %s on %s (trigskilladd) tvnum %d", skill_name(skillnum), GET_NAME(ch), vnum);
 	}
 }
 
