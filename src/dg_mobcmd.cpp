@@ -1514,7 +1514,7 @@ ACMD(do_mskillturn)
 	if (isSkill)
 	{
 		if (skill_info[skillnum].classknow[GET_CLASS(victim)][GET_KIN(victim)] == KNOW_SKILL)
-			trg_skillturn(victim, skillnum, skilldiff);
+			trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
 		else 
 		{
 			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
@@ -1669,7 +1669,7 @@ ACMD(do_mspellturn)
 		return;
 	};
 
-	trg_spellturn(victim, skillnum, skilldiff);
+	trg_spellturn(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
 ACMD(do_mspelladd)
@@ -1734,7 +1734,7 @@ ACMD(do_mspelladd)
 		return;
 	};
 
-	trg_spelladd(victim, skillnum, skilldiff);
+	trg_spelladd(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
 ACMD(do_mspellitem)

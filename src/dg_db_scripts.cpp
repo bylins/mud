@@ -581,7 +581,7 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
 	}
 }
 
-void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
+void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum)
 {
 	const int ch_kin = static_cast<int>(GET_KIN(ch));
 	const int ch_class = static_cast<int>(GET_CLASS(ch));
@@ -599,7 +599,7 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 	{
 		ch->set_skill(skillnum, 5);
 		send_to_char(ch, "Вы изучили умение '%s'.\r\n", skill_name(skillnum));
-		log("Add %s to %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
+		log("Add %s to %s (trigskillturn)trigvnum %d", skill_name(skillnum), GET_NAME(ch), vnum);
 	}
 }
 
@@ -611,21 +611,21 @@ void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum)
 	if (skill > ch->get_trained_skill(skillnum))
 	{
 		send_to_char(ch, "Ваше умение '%s' понизилось.\r\n", skill_name(skillnum));
-		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) tvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
+		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 	else if (skill < ch->get_trained_skill(skillnum))
 	{
 		send_to_char(ch, "Вы повысили свое умение '%s'.\r\n", skill_name(skillnum));
-		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) tvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
+		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 	else
 	{
 		send_to_char(ch, "Ваше умение осталось неизменным '%s '.\r\n", skill_name(skillnum));
-		log("Unchanged %s on %s (trigskilladd) tvnum %d", skill_name(skillnum), GET_NAME(ch), vnum);
+		log("Unchanged %s on %s (trigskilladd) trigvnum %d", skill_name(skillnum), GET_NAME(ch), vnum);
 	}
 }
 
-void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff)
+void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 {
 	int spell = GET_SPELL_TYPE(ch, spellnum);
 	if (spell & SPELL_KNOW)
@@ -636,17 +636,17 @@ void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff)
 		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP))
 			GET_SPELL_MEM(ch, spellnum) = 0;
 		send_to_char(ch, "Вы начисто забыли заклинание '%s'.\r\n", spell_name(spellnum));
-		log("Remove %s from %s (trigspell)", spell_name(spellnum), GET_NAME(ch));
+		log("Remove %s from %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 	}
 	else if (spelldiff)
 	{
 		SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW);
 		send_to_char(ch, "Вы постигли заклинание '%s'.\r\n", spell_name(spellnum));
-		log("Add %s to %s (trigspell)", spell_name(spellnum), GET_NAME(ch));
+		log("Add %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 	}
 }
 
-void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff)
+void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 {
 	int spell = GET_SPELL_MEM(ch, spellnum);
 	GET_SPELL_MEM(ch, spellnum) = MAX(0, MIN(spell + spelldiff, 50));
@@ -654,11 +654,15 @@ void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff)
 	if (spell > GET_SPELL_MEM(ch, spellnum))
 	{
 		if (GET_SPELL_MEM(ch, spellnum))
+		{
+			log("Remove custom spell %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 			sprintf(buf, "Вы забыли часть заклинаний '%s'.\r\n", spell_name(spellnum));
+		}
 		else
 		{
 			sprintf(buf, "Вы забыли все заклинания '%s'.\r\n", spell_name(spellnum));
 			REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
+			log("Remove all spells %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 		}
 		send_to_char(buf, ch);
 	}
@@ -667,6 +671,7 @@ void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff)
 		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
 			SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
 		send_to_char(ch, "Вы выучили несколько заклинаний '%s'.\r\n", spell_name(spellnum));
+		log("Add %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 	}
 }
 
