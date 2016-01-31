@@ -343,10 +343,16 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define SPELL_STRANGLE          198
 #define SPELL_RECALL_SPELLS     199
 #define SPELL_HYPNOTIC_PATTERN	200
-#define SPELL_SOLOBONUS		201
-#define SPELL_VAMPIRE		202
+#define SPELL_SOLOBONUS		    201
+#define SPELL_VAMPIRE		    202
 #define SPELLS_RESTORATION		203  //очистка магических афектов
-#define SPELLS_COUNT			204
+
+#define SPELL_AURA_DEATH        204  // аура смерти верховного лича
+#define SPELL_RECOVERY          205  // исцеление нежити
+#define SPELL_MASS_RECOVERY     206  // масовое исцеление нежити
+#define SPELL_AURA_EVIL         207  // аура зла для всей нежити в группе
+
+#define SPELLS_COUNT			208
 
 #define MAX_SLOT 13
 

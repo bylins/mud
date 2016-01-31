@@ -757,7 +757,7 @@ WCMD(do_wskillturn)
 	if (isSkill)
 	{
 		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == KNOW_SKILL)
-			trg_skillturn(ch, skillnum, skilldiff);
+			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
 		else 
 		{
 			sprintf(buf, "wskillturn: несоответсвие устанавливаемого умения классу игрока");
@@ -806,7 +806,7 @@ WCMD(do_wskilladd)
 	}
 
 	if (isSkill)
-		trg_skilladd(ch, skillnum, skilldiff);
+		trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
 	else
 		trg_recipeadd(ch, skillnum, skilldiff);
 }
@@ -852,7 +852,7 @@ WCMD(do_wspellturn)
 
 	if ((ch = get_char_by_room(room, name)))
 	{
-		trg_spellturn(ch, spellnum, spelldiff);
+		trg_spellturn(ch, spellnum, spelldiff, last_trig_vnum);
 	}
 	else
 	{
@@ -889,7 +889,7 @@ WCMD(do_wspelladd)
 
 	if ((ch = get_char_by_room(room, name)))
 	{
-		trg_spelladd(ch, spellnum, spelldiff);
+		trg_spelladd(ch, spellnum, spelldiff, last_trig_vnum);
 	}
 	else
 	{
