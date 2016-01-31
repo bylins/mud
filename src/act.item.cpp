@@ -2384,7 +2384,7 @@ ACMD(do_upgrade)
 	//Заточить повторно можно, но это уменьшает таймер шмотки на 16%
 	if (OBJ_FLAGGED(obj, ITEM_SHARPEN))
 	{
-		int timer = obj->get_timer() - obj->get_timer() / 6;
+		int timer = obj->get_timer() - MAX(1000, obj->get_timer() / 6); // абуз, таймер меньше 6 вычитается 0 бесконечная прокачка умелки
 		obj->set_timer(timer);
 		change_weight = 0;
 	}
@@ -2393,7 +2393,12 @@ ACMD(do_upgrade)
 
 	percent = number(1, skill_info[SKILL_UPGRADE].max_percent);
 	prob = train_skill(ch, SKILL_UPGRADE, skill_info[SKILL_UPGRADE].max_percent, 0);
-
+	if (obj->get_timer() == 0) // не ждем рассыпания на тике
+	{
+		act("$o не выдержал$G издевательств и рассыпал$U в мелкую пыль...", FALSE, ch, obj, 0, TO_CHAR);
+		extract_obj(obj);
+		return;
+	}
 	//При 200% заточки шмотка будет точиться на 4-5 хитролов и 4-5 дамролов
 	min_mod = ch->get_trained_skill(SKILL_UPGRADE) / 50;
 	//С мортами все меньший уровень требуется для макс. заточки

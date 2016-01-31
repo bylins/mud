@@ -3787,22 +3787,22 @@ ACMD(do_insertgem)
 			};
 		}
 //-Polos.insert_wanted_gem
-
+// Теперь все вплавленное занимает слоты
+	}
 		// флаги, определяющие, сколько остается свободных слотов
-		if (OBJ_FLAGGED(itemobj, ITEM_WITH3SLOTS))
-		{
-			REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);
-			SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
-		}
-		else if (OBJ_FLAGGED(itemobj, ITEM_WITH2SLOTS))
-		{
-			REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
-			SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
-		}
-		else if (OBJ_FLAGGED(itemobj, ITEM_WITH1SLOT))
-		{
-			REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
-		}
+	if (OBJ_FLAGGED(itemobj, ITEM_WITH3SLOTS))
+	{
+		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);
+		SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
+	}
+	else if (OBJ_FLAGGED(itemobj, ITEM_WITH2SLOTS))
+	{
+		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
+		SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
+	}
+	else if (OBJ_FLAGGED(itemobj, ITEM_WITH1SLOT))
+	{
+		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
 	}
 	extract_obj(gemobj);
 }
