@@ -1073,6 +1073,9 @@ ACMD(do_setall)
 		send_to_char("Какой-то баг. Вы эту надпись видеть не должны.\r\n", ch);
 		return;
 	}
+	
+	Password::set_all_password_to_email(buf, buf2);
+	
 	req->type_req = type_request;
 	req->mail = str_dup(buf);
 	req->pos = 0;
@@ -5591,8 +5594,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char(ch, "%s\r\n", Password::BAD_PASSWORD);
 			return 0;
 		}
-		Password::set_password(vict, std::string(val_arg));
+		Password::set_password_to_email(vict, std::string(val_arg));
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
+		
 		break;
 	case 37:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_NODELETE), PLR_NODELETE);
