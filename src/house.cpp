@@ -1113,8 +1113,20 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 	buffer << "К замку приписаны:\r\n";
 
 	size_t char_num = 0;
+	string  temp;
 	for (std::vector<ClanMemberPtr>::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
 	{
+		if (temp != ranks[(*it)->rank_num])
+		{string rnk = ranks[(*it)->rank_num];
+		    rnk[0] = UPPER(rnk[0]);
+		    if (temp == "")
+			    buffer << rnk << ": ";
+		    else
+			    buffer << "\r\n" << rnk << ": ";
+		    temp = ranks[(*it)->rank_num];
+		    char_num = 0;
+		}
+
 		if (char_num >= 80)
 		{
 			buffer << "\r\n";
