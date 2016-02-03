@@ -308,7 +308,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		{
 			if (can_use_feat(vict, SILVER_TONGUED_FEAT) &&
 					number(1, GET_LEVEL(vict) * GET_REAL_CHA(vict)) >
-					number(1, ((GET_LEVEL(ch) > 35) ? GET_LEVEL(ch) * 2 : GET_LEVEL(ch))  * GET_REAL_INT(ch)))
+					number(1, ((GET_LEVEL(ch) > 30) ? (GET_LEVEL(ch) * 2 * GET_REAL_INT(ch) + GET_REAL_INT(ch) * 20) : (GET_LEVEL(ch) * GET_REAL_INT(ch)))))
 				continue;
 			kill_this = TRUE;
 		}
