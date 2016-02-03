@@ -700,6 +700,14 @@ std::string clan_status()
 	Ensurer ch(*this);
 	return GET_CLAN_STATUS(ch);
 }
+
+bool set_password_wrapped(std::string name, std::string password)
+{
+	// заглушка
+	return true;
+}
+
+
 };
 
 CharacterWrapper create_mob_from_proto(mob_rnum proto_rnum, bool is_virtual=true)
