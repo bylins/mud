@@ -3862,7 +3862,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		else
 			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && (number(1,100) <= 3) && !victim->get_role(MOB_ROLE_BOSS))
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
 			    hit_params.dam = 20;
