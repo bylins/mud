@@ -760,7 +760,6 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
 	// 4. Последняя проверка
 	exp = MAX(1, exp);
-	exp = MIN(max_exp_gain_pc(ch), exp);
 	if (exp > 1)
 	{
 		if (is_bonus(1))
@@ -774,6 +773,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 					exp *= MIN( 3, aff->modifier); // бонус макс тройной
 			}
 		}
+		exp = MIN(max_exp_gain_pc(ch), exp);
 		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n",
 		exp, desc_count(exp, WHAT_POINT));
 	}
