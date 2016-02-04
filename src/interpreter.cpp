@@ -426,6 +426,7 @@ ACMD(do_bonus);
 ACMD(do_summon);
 ACMD(do_check_occupation);
 ACMD(do_delete_obj);
+ACMD(do_arena_restore);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -807,6 +808,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"assist", POS_FIGHTING, do_assist, 1, 0, -1},
 	{"attack", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
 	{"auction", POS_RESTING, do_gen_comm, 0, SCMD_AUCTION, -1},
+	{"arenarestore", POS_SLEEPING, do_arena_restore, LVL_GOD, 0, 0},
 	{"backstab", POS_STANDING, do_backstab, 1, 0, 1},
 	{"balance", POS_STANDING, do_not_here, 1, 0, -1},
 	{"ban", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},

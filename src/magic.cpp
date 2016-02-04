@@ -2417,9 +2417,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_AIRSHIELD;
 		af[0].battleflag = TRUE;
 		if (IS_NPC(victim) || victim == ch)
-			af[0].duration = pc_duration(victim, 10, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0);
 		else
-			af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 4 + GET_REMORT(ch), 0, 0, 0, 0);
 		to_room = "$n3 окутал воздушный щит.";
 		to_vict = "Вас окутал воздушный щит.";
 		break;
@@ -2432,9 +2432,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_FIRESHIELD;
 		af[0].battleflag = TRUE;
 		if (IS_NPC(victim) || victim == ch)
-			af[0].duration = pc_duration(victim, 10, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0);
 		else
-			af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 4 + GET_REMORT(ch), 0, 0, 0, 0);
 		to_room = "$n3 окутал огненный щит.";
 		to_vict = "Вас окутал огненный щит.";
 		break;
@@ -2447,9 +2447,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_ICESHIELD;
 		af[0].battleflag = TRUE;
 		if (IS_NPC(victim) || victim == ch)
-			af[0].duration = pc_duration(victim, 10, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0);
 		else
-			af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 4 + GET_REMORT(ch), 0, 0, 0, 0);
 		to_room = "$n3 окутал ледяной щит.";
 		to_vict = "Вас окутал ледяной щит.";
 		break;

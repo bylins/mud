@@ -137,6 +137,7 @@ extern void NewNameRemove(CHAR_DATA * ch);
 extern void NewNameRemove(const std::string& name, CHAR_DATA * ch);
 extern void print_rune_stats(CHAR_DATA *ch);
 extern int real_zone(int number);
+extern void reset_affects(CHAR_DATA *ch);
 // local functions
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
 void perform_immort_invis(CHAR_DATA * ch, int level);
@@ -189,6 +190,7 @@ ACMD(do_setall);
 ACMD(do_bonus);
 ACMD(do_check_occupation);
 ACMD(do_delete_obj);
+ACMD(do_arena_restore);
 // переменные для бонуса
 
 // время бонуса, в неактивном состоянии -1
@@ -272,6 +274,73 @@ ACMD(do_delete_obj)
 	
 }
 
+
+ACMD(do_arena_restore)
+{
+	CHAR_DATA *vict;
+
+	one_argument(argument, buf);
+	if (!*buf)
+		send_to_char("Кого вы хотите восстановить?\r\n", ch);
+	else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_WORLD)))
+		send_to_char(NOPERSON, ch);
+	else
+	{
+		GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
+		GET_MOVE(vict) = GET_REAL_MAX_MOVE(vict);
+		if (IS_MANA_CASTER(vict))
+		{
+			GET_MANA_STORED(vict) = GET_MAX_MANA(vict);
+		}
+		else
+		{
+			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
+		}
+		if (GET_CLASS(vict) == CLASS_WARRIOR)
+		{
+			struct timed_type wctimed;
+			wctimed.skill = SKILL_WARCRY;
+			wctimed.time = 0;
+			timed_to_char(vict, &wctimed);
+		}
+		if (IS_GRGOD(ch) && IS_IMMORTAL(vict))
+		{
+			vict->set_str(25);
+			vict->set_int(25);
+			vict->set_wis(25);
+			vict->set_dex(25);
+			vict->set_con(25);
+			vict->set_cha(25);
+		}
+		update_pos(vict);
+		affect_from_char(vict, SPELL_DRUNKED);
+		GET_DRUNK_STATE(vict)=GET_COND(vict, DRUNK)=0;
+		affect_from_char(vict, SPELL_ABSTINENT);
+
+		//сброс таймеров скиллов и фитов
+		while (vict->timed)
+			timed_from_char(vict, vict->timed);
+		while (vict->timed_feat)
+			timed_feat_from_char(vict, vict->timed_feat);
+		reset_affects(vict);
+		for (int i = 0; i < NUM_WEARS; i++)
+		{
+			if (GET_EQ(vict, i))
+			{
+				remove_otrigger(GET_EQ(vict, i), vict);
+				if (GET_EQ(vict, i)->purged()) continue;
+				extract_obj(unequip_char(vict, i));
+			}
+		}
+		OBJ_DATA *obj;
+		for (obj = vict->carrying; obj; obj = vict->carrying)
+		{
+			obj_from_char(obj);
+			extract_obj(obj);
+		}
+		act("Все ваши вещи были удалены и все аффекты сняты $N4!", FALSE, vict, 0, ch, TO_CHAR);
+	}
+}
 
 int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , long times)
 {
@@ -3751,69 +3820,7 @@ ACMD(do_advance)
 
 ACMD(do_restore)
 {
-	CHAR_DATA *vict;
-
-	one_argument(argument, buf);
-	if (!*buf)
-		send_to_char("Кого вы хотите восстановить?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_WORLD)))
-		send_to_char(NOPERSON, ch);
-	else
-	{
-		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене
-		// плюс исключается ситуация, когда они в одной зоне, но чар не в клетке арены
-		if (Privilege::check_flag(ch, Privilege::ARENA_MASTER))
-		{
-			if (!ROOM_FLAGGED(vict->in_room, ROOM_ARENA) || world[ch->in_room]->zone != world[vict->in_room]->zone)
-			{
-				send_to_char("Не положено...\r\n", ch);
-				return;
-			}
-		}
-
-		GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
-		GET_MOVE(vict) = GET_REAL_MAX_MOVE(vict);
-		if (IS_MANA_CASTER(vict))
-		{
-			GET_MANA_STORED(vict) = GET_MAX_MANA(vict);
-		}
-		else
-		{
-			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
-		}
-		if (GET_CLASS(vict) == CLASS_WARRIOR)
-		{
-			struct timed_type wctimed;
-			wctimed.skill = SKILL_WARCRY;
-			wctimed.time = 0;
-			timed_to_char(vict, &wctimed);
-		}
-		if (IS_GRGOD(ch) && IS_IMMORTAL(vict))
-		{
-			vict->set_str(25);
-			vict->set_int(25);
-			vict->set_wis(25);
-			vict->set_dex(25);
-			vict->set_con(25);
-			vict->set_cha(25);
-		}
-		update_pos(vict);
-		affect_from_char(vict, SPELL_DRUNKED);
-		GET_DRUNK_STATE(vict)=GET_COND(vict, DRUNK)=0;
-		affect_from_char(vict, SPELL_ABSTINENT);
-
-		//сброс таймеров скиллов и фитов
-		while (vict->timed)
-			timed_from_char(vict, vict->timed);
-		while (vict->timed_feat)
-			timed_feat_from_char(vict, vict->timed_feat);
-
-		if (subcmd == SCMD_RESTORE_GOD)
-		{
-			send_to_char(OK, ch);
-			act("Вы были полностью восстановлены $N4!", FALSE, vict, 0, ch, TO_CHAR);
-		}
-	}
+	
 }
 
 
