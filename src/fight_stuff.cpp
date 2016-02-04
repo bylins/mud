@@ -805,7 +805,7 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	CHAR_DATA *k;
 	struct follow_type *f;
 	int leader_inroom;
-	int partner_count = 0;
+	int partner_count = 0; bool use_partner_exp = false;
 	// если наем лидер, то тоже режем экспу
 	if (can_use_feat(ch, CYNIC_FEAT))
 	    maxlevel = 300;
@@ -880,12 +880,15 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 
 	// Раздача опыта
-
+	
+	// если групповой уровень зоны равняется единице
+	if  (zone_table[world[ch->in_room]->zone].group < 2)
+		use_partner_exp = true;
 	// если лидер группы в комнате
 	if (leader_inroom)
 	{
 	    // если у лидера группы есть способность напарник и лидер меньше 25 лева
-	    if (can_use_feat(k, PARTNER_FEAT) && (GET_LEVEL(k) <25))
+	    if (can_use_feat(k, PARTNER_FEAT) && use_partner_exp)
 	    {
 			// если в группе всего двое человек
 			// k - лидер, и один последователь
