@@ -1396,9 +1396,9 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (IS_NPC(victim))
 	{
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
-			bs_coeff *= ch->get_skill(SKILL_BACKSTAB)/20;
+			bs_coeff *= ch->get_skill(SKILL_BACKSTAB)/20.0;
 		else
-			bs_coeff *= ch->get_skill(SKILL_BACKSTAB)/25;
+			bs_coeff *= ch->get_skill(SKILL_BACKSTAB)/25.0;
 		// Читаем справку по скрытому: Если нанести такой удар в спину противника (ака стаб), то почти
 		// всегда для жертвы такой удар будет смертельным. Однако, в коде скрытый нигде не дает
 		// бонусов для стаба. Решил это исправить
