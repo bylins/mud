@@ -4628,9 +4628,6 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
-		// если шмотка перестала быть нерушимой ставим таймер из прототипа
-		if (!check_unlimited_timer(obj))
-		    obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
 		if (GET_RELIGION(ch) == RELIGION_MONO)
 			to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
 		else if (GET_RELIGION(ch) == RELIGION_POLY)

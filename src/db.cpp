@@ -81,7 +81,7 @@
 #include "mob_stat.hpp"
 #include "obj.hpp"
 #include "obj_sets.hpp"
-
+#include "bonus.h"
 #define  TEST_OBJECT_TIMER   30
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
@@ -900,6 +900,7 @@ ACMD(do_reboot)
 		Remort::init();
 		Noob::init();
 		ResetStats::init();
+		Bonus::bonus_log_load();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();

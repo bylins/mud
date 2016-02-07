@@ -21,7 +21,7 @@
 #include "magic.h"
 #include "mob_stat.hpp"
 #include "utils.h"
-
+#include "bonus.h"
 #include <algorithm>
 
 // extern
@@ -41,8 +41,6 @@ extern int max_exp_gain_npc;
 //интервал в секундах между восстановлением кругов после рипа
 extern const unsigned RECALL_SPELLS_INTERVAL;
 const unsigned RECALL_SPELLS_INTERVAL = 28;
-extern bool is_bonus(int type);
-extern int mult_bonus;
 void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	CHAR_DATA *master = 0;
@@ -762,8 +760,8 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	exp = MAX(1, exp);
 	if (exp > 1)
 	{
-		if (is_bonus(1))
-			exp *= mult_bonus;
+		if (Bonus::is_bonus(BONUS_EXP))
+			exp *= Bonus::get_mult_bonus();
 		if (!IS_NPC(ch) && ch->affected)
 		{ 
 			AFFECT_DATA *aff = ch->affected;
@@ -921,8 +919,8 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-		if (is_bonus(0))
-			battle_exp *= mult_bonus;
+		if (Bonus::is_bonus(BONUS_WEAPON_EXP))
+			battle_exp *= Bonus::get_mult_bonus();
 //		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
 //						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		gain_exp(ch, battle_exp);

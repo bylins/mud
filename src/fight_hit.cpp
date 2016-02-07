@@ -18,6 +18,7 @@
 #include "house_exp.hpp"
 #include "poison.hpp"
 #include "utils.h"
+#include "bonus.h"
 
 // extern
 int extra_aco(int class_num, int level);
@@ -1419,6 +1420,8 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		flags.set(IGNORE_PRISM);
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
+	if (bs_coeff < 1)
+		return 1;
 	return bs_coeff;
 }
 
@@ -2505,6 +2508,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			else if (dmg_type == MAGE_DMG)
 				dam *= 2;
 		}
+
+		if (IS_NPC(victim) && Bonus::is_bonus(BONUS_DAMAGE))
+		{
+			dam *= Bonus::get_mult_bonus();
+		}
+
 	}
 
 	// учет положения атакующего и жертвы
@@ -3862,7 +3871,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		else
 			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && !(AFF_FLAGGED(victim, AFF_SHIELD)) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
 			    hit_params.dam = 20;

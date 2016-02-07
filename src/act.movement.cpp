@@ -262,7 +262,7 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 		}
 		else if (affected_by_spell(ch, SPELL_SNEAK))
 		{
-			percent = number(1, 82 + GET_REAL_INT(vict));
+			percent = number(1, 82 + GET_REAL_INT(vict) + ((GET_LEVEL(vict) > 35 ) ? GET_LEVEL(vict) : 0));
 			prob = calculate_skill(ch, SKILL_SNEAK, percent, vict);
 			if (percent > prob)
 			{

@@ -187,23 +187,10 @@ ACMD(do_godtest);
 ACMD(do_sdemigod);
 ACMD(do_unfreeze);
 ACMD(do_setall);
-ACMD(do_bonus);
 ACMD(do_check_occupation);
 ACMD(do_delete_obj);
 ACMD(do_arena_restore);
-// переменные для бонуса
 
-// время бонуса, в неактивном состоянии -1
-int time_bonus = -1;
-// множитель бонуса
-int mult_bonus = 2;
-// типа бонуса
-// 0 - оружейный
-// 1 - опыт
-// 2 - куны
-int type_bonus = 0;
-bool is_bonus(int type);
-void timer_bonus();
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже
 void send_to_gods(char *text, bool demigod)
@@ -935,6 +922,8 @@ void setall_inspect()
 							continue;
 						}
 						set_punish(imm_d->character, d_vict->character, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
+						sprintf(buf, "Freeze ON (%ldh) by %s", it->second->freeze_time, GET_NAME(imm_d->character));
+						add_karma(d_vict->character, buf, it->second->reason);
 					}
 					else
 					{
@@ -954,6 +943,8 @@ void setall_inspect()
 								continue;
 							}
 							set_punish(imm_d->character, vict, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
+							sprintf(buf, "Freeze ON (%ldh) by %s", it->second->freeze_time, GET_NAME(imm_d->character));
+							add_karma(vict, buf, it->second->reason);
 							vict->save_char();
 						}
 					}
@@ -3083,108 +3074,6 @@ void send_to_all(char * buffer)
 	for (pt = descriptor_list; pt; pt = pt->next)
 			if (STATE(pt) == CON_PLAYING && pt->character)
 				send_to_char(buffer, pt->character);
-}
-
-
-ACMD(do_bonus)
-{
-	argument = two_arguments(argument, buf, buf2);
-	std::string out = "&W*** Объявляется ";
-	
-	if(!isname(buf, "двойной тройной отменить"))
-	{
-		send_to_char("Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт] [время]\r\n", ch);
-		return;
-	}
-	if (is_abbrev(buf, "отменить"))
-	{
-		sprintf(buf, "Бонус был отменен.\r\n");
-		send_to_all(buf);
-		time_bonus = -1;
-		return;
-	}	
-	if (!*buf || !*buf2 || !a_isascii(*buf2))
-	{
-		send_to_char("Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт] [время]\r\n", ch);
-		return;
-	}		
-	if(!isname(buf2, "оружейный опыт"))
-	{
-		send_to_char("Тип бонуса может быть &Wоружейный&n или &Wопыт&n&n.\r\n", ch);
-		return;
-	}
-	if (*argument) time_bonus = atol(argument);
-	
-	if ((time_bonus < 1) || (time_bonus > 30))
-	{
-		send_to_char("Возможный временной интервал: от 1 до 30 игровых часов.\r\n", ch);
-		return;
-	}
-	if (is_abbrev(buf, "двойной"))
-	{
-		out += "двойной бонус ";
-		mult_bonus = 2;
-	}	
-	else if (is_abbrev(buf, "тройной"))
-	{
-		out += "тройной бонус ";
-		mult_bonus = 3;
-	}
-	else
-	{
-		return;
-	}
-	if (is_abbrev(buf2, "оружейный")) 
-	{
-		out += "оружейного опыта ";
-		type_bonus = 0;
-	}
-	else if (is_abbrev(buf2, "опыт")) 
-	{
-		out += "опыта ";
-		type_bonus = 1;
-	}
-	else
-	{
-		return;
-	}
-	out += "на " + boost::lexical_cast<string>(time_bonus) + " часов. ***&n\r\n";
-	send_to_all(out.c_str());	
-}
-
-// таймер бонуса
-void timer_bonus()
-{
-	if (time_bonus <= -1)
-	{
-		return;
-	}
-	time_bonus--;
-	if (time_bonus < 1)
-	{
-		send_to_all("&WБонус закончился...&n\r\n");
-		time_bonus = -1;
-		return;
-	}
-	if (time_bonus > 4)
-		sprintf(buf, "&WДо конца бонуса осталось %d часов.&n\r\n", time_bonus);
-	else if (time_bonus == 4)
-		sprintf(buf, "&WДо конца бонуса осталось четыре часа.&n\r\n");
-	else if (time_bonus == 3)
-		sprintf(buf, "&WДо конца бонуса осталось три часа.&n\r\n");
-	else if (time_bonus == 2)
-		sprintf(buf, "&WДо конца бонуса осталось два часа.&n\r\n");
-	else 
-		sprintf(buf, "&WДо конца бонуса остался последний час!&n\r\n");
-	send_to_all(buf);
-}
-
-// проверка на тип бонуса
-bool is_bonus(int type)
-{
-	if (time_bonus <= -1) return false;
-	if (type == type_bonus) return true;
-	return false;
 }
 
 ACMD(do_vstat)

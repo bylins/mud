@@ -1468,6 +1468,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			"%sV%s) Макс.в мире : %s%d\r\n"
 			"%sW%s) Меню умений\r\n"
 			"%sX%s) Требует перевоплощений : %s%d\r\n"
+			"%sZ%s) Клонирование\r\n"
 			"%sQ%s) Quit\r\n"
 			"Ваш выбор : ",
 			grn, nrm, cyn, buf1,
@@ -1488,6 +1489,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, GET_OBJ_MIW(obj),
 			grn, nrm,
 			grn, nrm, cyn, obj->get_manual_mort_req(),
+			grn, nrm,
 			grn, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = OEDIT_MAIN_MENU;
@@ -1814,6 +1816,11 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'X':
 			send_to_char("Требует перевоплощений: (-1 для выключения поля) ", d->character);
 			OLC_MODE(d) = OEDIT_MORT_REQ;
+			break;
+		case 'z':
+		case 'Z':
+			OLC_MODE(d) = OEDIT_CLONE;
+			send_to_char("Введите VNUM объекта для клонирования:", d->character);
 			break;
 		default:
 			oedit_disp_menu(d);
@@ -2458,6 +2465,22 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = atoi(arg);
 		parse_val_spell_lvl(d, ObjVal::POTION_SPELL3_LVL, number);
 		return;
+	case OEDIT_CLONE:
+		obj_rnum rnum, old_rnum;
+		OBJ_DATA *obj_original;
+		int vnum;
+		vnum = atoi(arg);
+		if ((rnum = real_object(vnum)) < 0)
+		{
+			send_to_char("Нет объекта с таким внумом.\r\n", d->character);
+			return;
+		}
+		old_rnum = GET_OBJ_RNUM(OLC_OBJ(d));
+		obj_original = read_object(rnum, REAL);
+		oedit_object_copy(OLC_OBJ(d), obj_original);
+		oedit_object_free(obj_original);
+		GET_OBJ_RNUM(OLC_OBJ(d)) = old_rnum;
+		break;
 	default:
 		mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		send_to_char("Oops...\r\n", d->character);

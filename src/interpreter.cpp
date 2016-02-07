@@ -64,6 +64,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "bonus.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -422,11 +423,12 @@ ACMD(do_morphset);
 ACMD(do_console);
 ACMD(do_shops_list);
 ACMD(do_unfreeze);
-ACMD(do_bonus);
+ACMD(Bonus::do_bonus);
 ACMD(do_summon);
 ACMD(do_check_occupation);
 ACMD(do_delete_obj);
 ACMD(do_arena_restore);
+ACMD(Bonus::do_bonus_info);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -478,9 +480,9 @@ cpp_extern const struct command_info cmd_info[] =
 	{"боги", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
 	{"божества", POS_DEAD, DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
 	{"болтать", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
-	{"бонус", POS_DEAD, do_bonus, LVL_IMPL, 0, 0},
+	{"бонус", POS_DEAD, Bonus::do_bonus, LVL_IMPL, 0, 0},
+	{ "бонус", POS_DEAD, Bonus::do_bonus_info, LVL_IMPL, 0, 0 },
 	{"бросить", POS_RESTING, do_drop, 0, SCMD_DROP, -1},
-
 	{"варить", POS_RESTING, do_cook, 0, 0, 200},
 	{"версия", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
 	{"вече", POS_DEAD, DoBoard, 1, Boards::GENERAL_BOARD, -1},
