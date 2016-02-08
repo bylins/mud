@@ -208,7 +208,9 @@ set(HEADERS
     src/telnet.h
     src/title.hpp
     src/top.h
-    src/utils.h)
+    src/utils.h
+    src/bonus.cpp
+    src/bonus.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
