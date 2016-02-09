@@ -274,8 +274,22 @@ endif ()
 
 add_executable(circle ${SOURCES} ${HEADERS})
 
+# Versioning
+find_program(HG hg DOC "Mercurial executable file")
+
 # Invalidate src/version.cpp
-add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp)
+add_custom_target(versioning ALL)
+add_custom_command(TARGET versioning
+    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp)
+if (HG)
+    message(STATUS "Getting revision info...")
+    add_custom_command(TARGET versioning COMMAND ${CMAKE_COMMAND}
+        -Dinput_file=${CMAKE_SOURCE_DIR}/src/version.cpp.in
+        -Doutput_file=${CMAKE_SOURCE_DIR}/src/version.cpp
+        -DHG=${HG}
+        -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake)
+endif ()
+
 add_dependencies(circle versioning)
 
 # Boost

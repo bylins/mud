@@ -8,7 +8,7 @@
 #include "comm.h"
 #include "utils.h"
 
-volatile const char* revision = "$Revision$";
+volatile const char* revision = "${REVISION}";
 volatile const char* root_directory = "$RootDirectory$";
 volatile const char* date = "$Date$";
 volatile const char* build_date = "$Build date: " __DATE__ " " __TIME__ "$";
@@ -18,7 +18,7 @@ const char* build_datetime = __DATE__ " " __TIME__;
 
 void show_code_date(CHAR_DATA *ch)
 {
-	send_to_char(ch, "МПМ Былины, версия от %s, ревизия: %s\r\n", build_datetime, revision);
+	send_to_char(ch, "МПМ Былины, версия от %s, ревизия: %s", build_datetime, revision);
 }
 
 void log_code_date()
