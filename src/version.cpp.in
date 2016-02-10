@@ -8,9 +8,12 @@
 #include "comm.h"
 #include "utils.h"
 
-volatile const char* revision = "${REVISION}";
-volatile const char* root_directory = "${CMAKE_BINARY_DIR}";
-volatile const char* build_date = "$Build date: " __DATE__ " " __TIME__ "$";
+const char* revision = "${REVISION}";
+
+volatile const char* ROOT_DIRECTORY = "$Build revision: ${REVISION}$";
+volatile const char* REVISION = "Build directory: ${CMAKE_BINARY_DIR}$";
+volatile const char* BUILD_DATE = "$Build date: " __DATE__ " " __TIME__ "$";
+
 const char* build_datetime = __DATE__ " " __TIME__;
 
 // * Весь файл - исключительно как попытка автоматической вставки в код нормальной даты сборки.
