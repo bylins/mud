@@ -272,15 +272,18 @@ else()
     set(PYTHON_LIBRARIES)
 endif ()
 
-add_executable(circle ${SOURCES} ${HEADERS})
-
 # Versioning
 # Try to find hg executable, retrive revision if found and generate version.cpp from template
+set(VERSIONING_FILES src/versioning.cmake src/version.cpp.in)
 find_program(HG hg DOC "Mercurial executable file")
-add_custom_target(versioning ALL)
+add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp.in)	# invalidate template
 add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
-    COMMAND ${CMAKE_COMMAND} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DHG=${HG} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake)
+    COMMAND ${CMAKE_COMMAND} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DHG=${HG} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake
+    DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
+
+add_executable(circle ${SOURCES} ${HEADERS} ${VERSIONING_FILES})
 add_dependencies(circle versioning)
+source_group("Versioning" FILES ${VERSIONING_FILES})
 
 # Boost
 set(BOOST_MODULES ${BOOST_COMPONENTS})

@@ -3,6 +3,6 @@ if (HG)
 else ()
     set(REVISION "<undefined>")
 endif ()
-configure_file(${INPUT_FILE} ${OUTPUT_FILE})
+configure_file(${VERSION_INPUT} ${VERSION_OUTPUT})
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :
