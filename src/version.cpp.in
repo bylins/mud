@@ -9,8 +9,7 @@
 #include "utils.h"
 
 volatile const char* revision = "${REVISION}";
-volatile const char* root_directory = "$RootDirectory$";
-volatile const char* date = "$Date$";
+volatile const char* root_directory = "${CMAKE_BINARY_DIR}";
 volatile const char* build_date = "$Build date: " __DATE__ " " __TIME__ "$";
 const char* build_datetime = __DATE__ " " __TIME__;
 
