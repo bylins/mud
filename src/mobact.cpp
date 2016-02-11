@@ -280,7 +280,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		if (IS_SET(extmode, SKIP_SNEAKING))
 		{
 			skip_sneaking(vict, ch);
-			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) || (ch->get_role(MOB_ROLE_BOSS)))
+			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)))
 				REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
 			if (AFF_FLAGGED(vict, AFF_SNEAK))
 				continue;

@@ -2946,6 +2946,11 @@ void discrete_load(FILE * fl, int mode, char *filename)
 				log("SYSERR: Format error after %s #%d", modes[mode], last);
 				exit(1);
 			}
+			if (nr == 1)
+			{
+				log("SYSERR: Entity with vnum 1, filename=%s", filename);
+				exit(1);
+			}
 			if (nr >= MAX_PROTO_NUMBER)
 				return;
 			else

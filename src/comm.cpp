@@ -1861,6 +1861,7 @@ inline void heartbeat(const int missed_pulses)
 	{
 		DeathTrap::activity();
 		underwater_check();
+		ClanSystem::check_player_in_house();
 	}
 
 	if (!((pulse + 3) % PULSE_VIOLENCE))

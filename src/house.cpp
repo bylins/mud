@@ -91,6 +91,9 @@ const unsigned MAX_RANK_LENGHT = 10;
 enum { CLAN_MAIN_MENU = 0, CLAN_PRIVILEGE_MENU, CLAN_SAVE_MENU,
 		CLAN_ADDALL_MENU, CLAN_DELALL_MENU };
 
+
+
+
 void prepare_write_mod(CHAR_DATA *ch, std::string &param)
 {
 	boost::trim(param);
@@ -1749,6 +1752,16 @@ ACMD(DoClanChannel)
 		CLAN(ch)->CharToChannel(ch, buffer, subcmd);
 	}
 }
+
+
+/* if (!str_cmp(field, "contains"))  	// contains
+	{
+		if (str_str(vd->value, subfield))
+			sprintf(str, "1");
+		else
+			sprintf(str, "0");
+		return TRUE;
+	}*/
 
 // список зарегестрированных дружин с их онлайновым составом (опционально)
 ACMD(DoClanList)
@@ -5686,6 +5699,45 @@ void Clan::set_bank(unsigned num)
 unsigned Clan::get_bank() const
 {
 	return bank;
+}
+
+// проверка, находится ли левый чар в замке,
+// если да, то выпинываем его оттуда
+void ClanSystem::check_player_in_house()
+{
+	DESCRIPTOR_DATA *d;
+	for (d = descriptor_list; d; d = d->next)
+	{
+		if ((d->character) && (!Clan::MayEnter(d->character, IN_ROOM(d->character), HCE_ATRIUM)))
+		{
+			ClanListType::const_iterator clan = Clan::IsClanRoom(IN_ROOM(d->character));
+			if (clan != Clan::ClanList.end())
+			{
+				char_from_room(d->character);
+				act("$n был$g выдворен$a за пределы замка!", TRUE, d->character, 0, 0, TO_ROOM);
+				send_to_char("Вы были выдворены за пределы замка!\r\n", d->character);
+				char_to_room(d->character, real_room((*clan)->GetOutRent()));
+				look_at_room(d->character, real_room((*clan)->GetOutRent()));
+				act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, d->character, 0, 0, TO_ROOM);
+			}
+		}
+	}
+}
+
+// показывает, является ли чар союзником такой-то дружине
+bool ClanSystem::is_alliance(CHAR_DATA *ch, char *clan_abbr)
+{
+	ClanListType::const_iterator clan;
+	std::string abbrev = clan_abbr;
+	if (!CLAN(ch))
+		return false;
+	for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+		if (CompareParam(abbrev, (*clan)->get_abbrev()))
+		{
+			if ((*clan)->CheckPolitics(CLAN(ch)->GetRent()))
+				return true;
+		}
+	return false;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

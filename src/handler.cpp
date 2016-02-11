@@ -37,6 +37,7 @@
 #include "named_stuff.hpp"
 #include "glory_const.hpp"
 #include "fight.h"
+#include "pk.h"
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "obj_sets.hpp"
@@ -515,7 +516,8 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, bitvector_t bitv, bool add
 		GET_POISON(ch) += mod;
 		break;
 	case APPLY_HIT_GLORY: //вкачка +хп за славу
-		GET_HIT_ADD(ch) += mod * GloryConst::HP_FACTOR;
+		if ((!check_agrobd(ch)) && (!(INT_ONE >> 2)))
+			GET_HIT_ADD(ch) += mod * GloryConst::HP_FACTOR;
 		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
@@ -702,7 +704,8 @@ void affect_total(CHAR_DATA * ch)
 			affect_modify(ch, APPLY_MOVE, GET_LEVEL(ch) * 2, 0, TRUE);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
 			affect_modify(ch, APPLY_HIT, GET_LEVEL(ch) * 2, 0, TRUE);
-		GloryConst::apply_modifiers(ch);
+		if (!check_agrobd(ch) && (!(INT_ONE >> 2)))
+			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
 	}
 

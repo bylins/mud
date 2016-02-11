@@ -2702,12 +2702,28 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				}
 			}
 		}
-		else if (!str_cmp(field, "unsetquest"))
+		// все эти блоки надо переписать на что-нибудь другое, их слишком много
+		else if (!str_cmp(field, "unsetquest") || !str_cmp(field, "alliance"))
 		{
-			if (*subfield && (num = atoi(subfield)) > 0)
+			if (!str_cmp(field, "alliance"))
 			{
-				c->quested_remove(num);
-				strcpy(str, "1");
+				if (*subfield)
+				{
+					subfield = one_argument(subfield, buf);
+					skip_spaces(&subfield);
+					if (ClanSystem::is_alliance(c, subfield))
+						strcpy(str, "1");
+					else
+						strcpy(str, "0");
+				}
+			}
+			else
+			{
+				if (*subfield && (num = atoi(subfield)) > 0)
+				{
+					c->quested_remove(num);
+					strcpy(str, "1");
+				}
 			}
 		}
 		else if (!str_cmp(field, "eq"))

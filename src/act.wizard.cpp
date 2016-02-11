@@ -1133,8 +1133,8 @@ ACMD(do_setall)
 		send_to_char("Какой-то баг. Вы эту надпись видеть не должны.\r\n", ch);
 		return;
 	}
-	
-	Password::set_all_password_to_email(buf, buf2);
+	if (type_request == SETALL_PSWD)
+		Password::set_all_password_to_email(buf, buf2);
 	
 	req->type_req = type_request;
 	req->mail = str_dup(buf);

@@ -41,7 +41,7 @@ namespace Bonus
 
 		if (!isname(buf, "двойной тройной отменить"))
 		{
-			send_to_char("Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт] [время]\r\n", ch);
+			send_to_char("Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт|урон] [время]\r\n", ch);
 			return;
 		}
 		if (is_abbrev(buf, "отменить"))
@@ -84,24 +84,24 @@ namespace Bonus
 		}
 		if (is_abbrev(buf2, "оружейный"))
 		{
-			out += "оружейного опыта ";
-			type_bonus = 0;
+			out += "оружейного опыта";
+			type_bonus =  BONUS_WEAPON_EXP;
 		}
 		else if (is_abbrev(buf2, "опыт"))
 		{
-			out += "опыта ";
-			type_bonus = 1;
+			out += "опыта";
+			type_bonus = BONUS_EXP;
 		}
 		else if (is_abbrev(buf2, "уронт"))
 		{
 			out += "увеличенного урона";
-			type_bonus = 2;
+			type_bonus = BONUS_DAMAGE;
 		}
 		else
 		{
 			return;
 		}
-		out += "на " + boost::lexical_cast<string>(time_bonus) + " часов. ***&n\r\n";
+		out += " на " + boost::lexical_cast<string>(time_bonus) + " часов. ***&n\r\n";
 		bonus_log_add(out);
 		send_to_all(out.c_str());
 	}
@@ -172,7 +172,7 @@ namespace Bonus
 			return;
 		}
 		std::string buf_str = "";
-		for (size_t i = bonus_log.size(); i >= 0; i--)
+		for (size_t i = bonus_log.size() - 1; i >= 0; i--)
 		{
 			buf_str += bonus_log[i];
 		}
