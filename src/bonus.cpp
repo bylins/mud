@@ -70,12 +70,12 @@ namespace Bonus
 		}
 		if (is_abbrev(buf, "двойной"))
 		{
-			out += "двойной бонус ";
+			out += "двойной бонус";
 			mult_bonus = 2;
 		}
 		else if (is_abbrev(buf, "тройной"))
 		{
-			out += "тройной бонус ";
+			out += "тройной бонус";
 			mult_bonus = 3;
 		}
 		else
@@ -84,17 +84,17 @@ namespace Bonus
 		}
 		if (is_abbrev(buf2, "оружейный"))
 		{
-			out += "оружейного опыта";
+			out += " оружейного опыта";
 			type_bonus =  BONUS_WEAPON_EXP;
 		}
 		else if (is_abbrev(buf2, "опыт"))
 		{
-			out += "опыта";
+			out += " опыта";
 			type_bonus = BONUS_EXP;
 		}
-		else if (is_abbrev(buf2, "уронт"))
+		else if (is_abbrev(buf2, "урон"))
 		{
-			out += "увеличенного урона";
+			out += " увеличенного урона";
 			type_bonus = BONUS_DAMAGE;
 		}
 		else
