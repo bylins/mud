@@ -5734,7 +5734,9 @@ bool ClanSystem::is_alliance(CHAR_DATA *ch, char *clan_abbr)
 	for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 		if (CompareParam(abbrev, (*clan)->get_abbrev()))
 		{
-			if ((*clan)->CheckPolitics(CLAN(ch)->GetRent()))
+			if ((*clan) == CLAN(ch))
+				return true;
+			if (((*clan)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE) && (CLAN(ch)->CheckPolitics((*clan)->GetRent()) == POLITICS_ALLIANCE))
 				return true;
 		}
 	return false;

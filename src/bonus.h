@@ -12,6 +12,8 @@ namespace Bonus
 	ACMD(do_bonus_info);
 	bool is_bonus(int type);
 	void timer_bonus();
+	std::string bonus_end();
+	std::string str_type_bonus();
 	void bonus_log_add(std::string name);
 	int get_mult_bonus();
 	void bonus_log_load();

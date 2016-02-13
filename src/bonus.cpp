@@ -106,6 +106,37 @@ namespace Bonus
 		send_to_all(out.c_str());
 	}
 
+	// записывает в буффер сколько осталось до конца бонуса
+	std::string bonus_end()
+	{
+		if (time_bonus > 4)
+			sprintf(buf, "&WДо конца бонуса осталось %d часов.&n\r\n", time_bonus);
+		else if (time_bonus == 4)
+			sprintf(buf, "&WДо конца бонуса осталось четыре часа.&n\r\n");
+		else if (time_bonus == 3)
+			sprintf(buf, "&WДо конца бонуса осталось три часа.&n\r\n");
+		else if (time_bonus == 2)
+			sprintf(buf, "&WДо конца бонуса осталось два часа.&n\r\n");
+		else if (time_bonus == 1)
+			sprintf(buf, "&WДо конца бонуса остался последний час!&n\r\n");
+		else
+			sprintf(buf, "&WБонуса нет.&n\r\n");
+		return std::string(buf);
+	}
+
+	// Записывает в буфер тип бонуса
+	std::string str_type_bonus()
+	{
+		if (type_bonus == BONUS_DAMAGE)
+			return "&WСейчас идет бонус на повышенный урон&n";
+		if (type_bonus == BONUS_EXP)
+			return "&WСейчас идет бонус повышенный опыт за убийство моба.&n";
+		if (type_bonus == BONUS_DAMAGE)
+			return "&WСейчас идет бонус на повышенный опыт от урона оружия.&n";
+		return "";	
+	}
+
+
 	// таймер бонуса
 	void timer_bonus()
 	{
@@ -120,22 +151,16 @@ namespace Bonus
 			time_bonus = -1;
 			return;
 		}
-		if (time_bonus > 4)
-			sprintf(buf, "&WДо конца бонуса осталось %d часов.&n\r\n", time_bonus);
-		else if (time_bonus == 4)
-			sprintf(buf, "&WДо конца бонуса осталось четыре часа.&n\r\n");
-		else if (time_bonus == 3)
-			sprintf(buf, "&WДо конца бонуса осталось три часа.&n\r\n");
-		else if (time_bonus == 2)
-			sprintf(buf, "&WДо конца бонуса осталось два часа.&n\r\n");
-		else
-			sprintf(buf, "&WДо конца бонуса остался последний час!&n\r\n");
-		send_to_all(buf);
+		send_to_all(bonus_end().c_str());
 	}
 
 	// проверка на тип бонуса
 	bool is_bonus(int type)
 	{
+		if (type == NULL)
+		{
+			return time_bonus <= -1 ? false : true;
+		}
 		if (time_bonus <= -1) return false;
 		if (type == type_bonus) return true;
 		return false;
@@ -172,7 +197,7 @@ namespace Bonus
 			return;
 		}
 		std::string buf_str = "";
-		for (size_t i = bonus_log.size() - 1; i >= 0; i--)
+		for (size_t i = bonus_log.size() - 1; i > 0; i--)
 		{
 			buf_str += bonus_log[i];
 		}

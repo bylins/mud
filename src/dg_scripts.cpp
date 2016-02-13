@@ -2710,8 +2710,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (*subfield)
 				{
 					subfield = one_argument(subfield, buf);
-					skip_spaces(&subfield);
-					if (ClanSystem::is_alliance(c, subfield))
+					if (ClanSystem::is_alliance(c, buf))
 						strcpy(str, "1");
 					else
 						strcpy(str, "0");
