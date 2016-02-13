@@ -481,7 +481,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"божества", POS_DEAD, DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
 	{"болтать", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
 	{"бонус", POS_DEAD, Bonus::do_bonus, LVL_IMPL, 0, 0},
-	{ "бонус", POS_DEAD, Bonus::do_bonus_info, LVL_IMPL, 0, 0 },
+	{"бонусинфо", POS_DEAD, Bonus::do_bonus_info, LVL_IMPL, 0, 0 },
 	{"бросить", POS_RESTING, do_drop, 0, SCMD_DROP, -1},
 	{"варить", POS_RESTING, do_cook, 0, 0, 200},
 	{"версия", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
