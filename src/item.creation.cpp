@@ -505,7 +505,7 @@ ACMD(do_edit_make)
 
 	STATE(ch->desc) = CON_MREDIT;
 
-	OLC_MREC(ch->desc) = make_recepts[i];;
+	OLC_MREC(ch->desc) = make_recepts[i];
 
 	mredit_disp_menu(ch->desc);
 
@@ -1451,17 +1451,17 @@ void MakeReceptList::clear()
 	return;
 }
 
-MakeRecept *MakeReceptList::operator[](int i)
+MakeRecept *MakeReceptList::operator[](size_t i)
 {
-	list < MakeRecept * >::iterator p;
-	int j = 0;
+	list < MakeRecept * >::iterator p = recepts.begin();
 
-	p = recepts.begin();
-
+	size_t j = 0;
 	while (p != recepts.end())
 	{
 		if (i == j)
+		{
 			return (*p);
+		}
 		j++;
 		p++;
 	}

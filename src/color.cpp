@@ -268,7 +268,7 @@ int proc_color(char *inbuf, int colour)
 	strcpy(inbuf, out_buf);
 	if (j > len)
 	{
-		return j;
+		return static_cast<int>(j);
 	}
 	return 0;
 }
