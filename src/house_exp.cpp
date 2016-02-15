@@ -363,7 +363,7 @@ void ClanExpHistory::show(CHAR_DATA *ch) const
 {
 	send_to_char(ch, "\r\nОпыт, набранный за три последних календарных месяца без учета минусов:\r\n");
 	size_t size = list_.size();
-	int count = 0;
+	size_t count = 0;
 	for (HistoryExpListType::const_iterator i = list_.begin(), iend = list_.end(); i != iend; ++i, ++count)
 	{
 		if (3 + count >= size)

@@ -1274,7 +1274,6 @@ const int flags_door[] =
 extern std::vector<_case> cases;;
 void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 {
-	int rand_numb = 0;
 	int other_room = 0;
 	int r_num, chance, vnum;
 	EXIT_DATA *back = 0;
@@ -1354,7 +1353,6 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 						chance = cases[i].chance;						
 						for (unsigned long  int  k = 0; k < cases[i].vnum_objs.size(); k++)
 						{
-							rand_numb = number(0, 100);
 							if ((number(0, 100) < chance) || (k == cases[i].vnum_objs.size() - 1))
 							{
 								vnum = cases[i].vnum_objs[k];

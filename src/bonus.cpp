@@ -157,7 +157,7 @@ namespace Bonus
 	// проверка на тип бонуса
 	bool is_bonus(int type)
 	{
-		if (type == NULL)
+		if (type == 0)
 		{
 			return time_bonus <= -1 ? false : true;
 		}

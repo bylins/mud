@@ -115,7 +115,7 @@ void table_drop::reload_table()
 // возвратит true, если моб найден в таблице и прошел шанс
 bool table_drop::check_mob(int vnum)
 {
-	for (int i = 0; i < this->drop_mobs.size(); i++)
+	for (size_t i = 0; i < this->drop_mobs.size(); i++)
 	{
 		if (this->drop_mobs[i] == vnum)
 		{
@@ -132,7 +132,7 @@ int table_drop::get_vnum()
 
 void reload_tables()
 {
-	for (int i = 0; i < tables_drop.size(); i++)
+	for (size_t i = 0; i < tables_drop.size(); i++)
 	{
 		tables_drop[i].reload_table();
 	}
@@ -348,7 +348,7 @@ int get_obj_to_drop(DropListType::iterator &i)
  */
 bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 {
-	for (int i = 0; i < tables_drop.size(); i++)
+	for (size_t i = 0; i < tables_drop.size(); i++)
 	{
 		if (tables_drop[i].check_mob(GET_MOB_VNUM(mob)))
 		{			

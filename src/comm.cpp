@@ -1462,8 +1462,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			d->character->wait_dec();
 			GET_PUNCTUAL_WAIT_STATE(d->character) -=
 				(GET_PUNCTUAL_WAIT_STATE(d->character) > 0 ? 1 : 0);
-			if (WAITLESS(d->character)
-				|| d->character->get_wait() < 0)
+			if (WAITLESS(d->character))
 			{
 				d->character->set_wait(0u);
 			}
@@ -1724,7 +1723,7 @@ void game_loop(socket_t mother_desc)
 		// изменили на 1 сек -- слишком уж опасно лагает :)
 		if (missed_pulses > (1 * PASSES_PER_SEC))
 		{
-			log("SYSERR: Missed %d seconds worth of pulses (%d).", missed_pulses / PASSES_PER_SEC, missed_pulses);
+			log("SYSERR: Missed %d seconds worth of pulses (%d).", static_cast<int>(missed_pulses / PASSES_PER_SEC), missed_pulses);
 			missed_pulses = 1 * PASSES_PER_SEC;
 		}
 
@@ -2644,7 +2643,7 @@ void flush_queues(DESCRIPTOR_DATA * d)
 void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 {
 	// if we're in the overflow state already, ignore this new output
-	if (t->bufptr < 0)
+	if (t->bufptr == ~0ull)
 		return;
 
 	if ((ubyte) * txt == 255)
@@ -2658,8 +2657,8 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	if (t->bufspace >= size)
 	{
 		strcpy(t->output + t->bufptr, txt);
-		t->bufspace -= static_cast<decltype(t->bufspace)>(size);
-		t->bufptr += static_cast<decltype(t->bufptr)>(size);
+		t->bufspace -= size;
+		t->bufptr += size;
 
 		return;
 	}
@@ -2669,7 +2668,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	 */
 	if (size + t->bufptr > LARGE_BUFSIZE - 1)
 	{
-		t->bufptr = -1;
+		t->bufptr = ~0ull;
 		buf_overflows++;
 		return;
 	}
@@ -2693,7 +2692,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	strcat(t->output, txt);	// now add new text
 
 	// set the pointer for the next write
-	t->bufptr = static_cast<decltype(t->bufptr)>(strlen(t->output));
+	t->bufptr = strlen(t->output);
 	// calculate how much space is left in the buffer
 	t->bufspace = LARGE_BUFSIZE - 1 - t->bufptr;
 }
@@ -3096,8 +3095,10 @@ int process_output(DESCRIPTOR_DATA * t)
 	strcpy(i + 2, t->output);
 
 	// if we're in the overflow state, notify the user
-	if (t->bufptr < 0)
+	if (t->bufptr == ~0ull)
+	{
 		strcat(i, "**OVERFLOW**\r\n");
+	}
 
 	// add the extra CRLF if the person isn't in compact mode
 	if (STATE(t) == CON_PLAYING && t->character && !IS_NPC(t->character) && !PRF_FLAGGED(t->character, PRF_COMPACT))

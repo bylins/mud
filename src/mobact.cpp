@@ -401,7 +401,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	{
 		return find_best_stupidmob_victim(ch, extmode);
 	}
-	CHAR_DATA *vict, *victim,  *caster = NULL, *best = NULL, *min_hp = NULL;
+	CHAR_DATA *vict, *victim,  *caster = NULL, *best = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	int extra_aggr = 0;
 	bool kill_this;
@@ -421,8 +421,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if (IS_SET(extmode, CHECK_HITS) &&
 				MOB_FLAGGED(ch, MOB_WIMPY) && AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch))
 			continue;
-
-
 
 		// Mobile helpers... //ассист
 		if ((vict->get_fighting()) && (vict->get_fighting() != ch) &&
@@ -492,7 +490,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		// если у чара меньше 100 хп, то переключаемся на него
 		if (GET_HIT(vict) <= MIN_HP_MOBACT)
 		{
-			min_hp = vict;
 			continue;
 		}
 		if (IS_CASTER(vict))
@@ -502,8 +499,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		}
 		best = vict;
 	}
-
-
 
 	if (!best)
 		best = victim;
@@ -560,8 +555,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		best = druid;
 
 	return best;
-
-
 }
 
 int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
