@@ -686,13 +686,13 @@ string quested_print() const
 unsigned get_wait() const
 {
 	Ensurer ch(*this);
-	return ch->wait;
+	return ch->get_wait();
 }
 
 void set_wait(const unsigned v)
 {
 	Ensurer ch(*this);
-	ch->wait = v;
+	ch->set_wait(v);
 }
 
 std::string clan_status()

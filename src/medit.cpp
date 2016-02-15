@@ -2480,6 +2480,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		OLC_MODE(d) = MEDIT_DLIST_MENU;
 		disp_dl_list(d);
 		return;
+
 	case MEDIT_DLIST_ADD:
 		if (!dl_parse(&OLC_MOB(d)->dl_list, arg))
 			send_to_char("\r\nНеверный ввод.\r\n", d->character);
@@ -2524,10 +2525,9 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		disp_dl_list(d);
 
 		return;
-		//-------------------------------------------------------------------
+
 	case MEDIT_CLONE:
 		mob_rnum rnum, rnum_old;
-		CHAR_DATA *mob_original;
 		int vnum;
 		vnum = atoi(arg);
 		if ((rnum = real_mobile(vnum)) < 0)
@@ -2538,55 +2538,15 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		rnum_old = GET_MOB_RNUM(OLC_MOB(d));
 		medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum]);
 		GET_MOB_RNUM(OLC_MOB(d)) = rnum_old;
-		/*mob_original = read_mobile(rnum, REAL);
-		OLC_MOB(d)->char_specials.saved.act = mob_original->char_specials.saved.act;
-		OLC_MOB(d)->char_specials.saved.affected_by = mob_original->char_specials.saved.affected_by;
-		OLC_MOB(d)->mob_specials.npc_flags = mob_original->mob_specials.npc_flags;
-		GET_SEX(OLC_MOB(d)) = GET_SEX(mob_original);
-		OLC_MOB(d)->set_pc_name(GET_ALIAS(mob_original));
-		for (size_t k = 0; k < NUM_PADS; k++)
-			GET_PAD(OLC_MOB(d), k) = str_dup(GET_PAD(mob_original, k));
-		GET_LDESC(OLC_MOB(d)) = str_dup(GET_LDESC(mob_original));
-		GET_DDESC(OLC_MOB(d)) = str_dup(GET_DDESC(mob_original));
-		OLC_MOB(d)->set_level(GET_LEVEL(mob_original));
-		GET_ALIGNMENT(OLC_MOB(d)) = GET_ALIGNMENT(mob_original);
-		GET_HR(OLC_MOB(d)) = GET_HR(mob_original);
-		GET_DR(OLC_MOB(d)) = GET_DR(mob_original);
-		GET_NDD(OLC_MOB(d)) = GET_NDD(mob_original);
-		GET_SDD(OLC_MOB(d)) = GET_SDD(mob_original);
-		GET_MEM_TOTAL(OLC_MOB(d)) = GET_MEM_TOTAL(mob_original);
-		GET_MEM_COMPLETED(OLC_MOB(d)) =
-			GET_MEM_COMPLETED(mob_original);
-		GET_HIT(OLC_MOB(d)) = GET_HIT(mob_original);
-		GET_AC(OLC_MOB(d)) = GET_AC(mob_original);
-		OLC_MOB(d)->set_exp(GET_EXP(mob_original));
-		OLC_MOB(d)->set_gold(mob_original->get_gold());
-		GET_GOLD_NoDs(OLC_MOB(d)) = GET_GOLD_NoDs(mob_original);
-		GET_GOLD_SiDs(OLC_MOB(d)) = GET_GOLD_SiDs(mob_original);
-		GET_POS(OLC_MOB(d)) = GET_POS(mob_original);
-		GET_DEFAULT_POS(OLC_MOB(d)) = GET_DEFAULT_POS(mob_original);
-		GET_ATTACK(OLC_MOB(d)) = GET_ATTACK(mob_original);
-		OLC_MOB(d)->set_str(mob_original->get_str());
-		OLC_MOB(d)->set_wis(mob_original->get_wis());
-		OLC_MOB(d)->set_con(mob_original->get_con());
-		OLC_MOB(d)->set_int(mob_original->get_int());
-		OLC_MOB(d)->set_cha(mob_original->get_cha());
-		OLC_MOB(d)->set_dex(mob_original->get_dex());
-		GET_HEIGHT(OLC_MOB(d)) = GET_HEIGHT(mob_original);
-		GET_WEIGHT(OLC_MOB(d)) = GET_WEIGHT(mob_original);
-		GET_SIZE(OLC_MOB(d)) = GET_SIZE(mob_original);
-		OLC_MOB(d)->set_class(GET_CLASS(mob_original));
-		OLC_MODE(d) = MEDIT_DLIST_MENU;*/
 		break;
+
 	default:
 		// * We should never get here.
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		send_to_char("Oops...\r\n", d->character);
 		break;
-
 	}
-	//-------------------------------------------------------------------
 
 	/*
 	 * END OF CASE

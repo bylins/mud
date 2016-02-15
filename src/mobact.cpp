@@ -936,18 +936,12 @@ void mobile_activity(int activity_level, int missed_pulses)
 			pulse_affect_update(ch);
 		}
 
-		if (GET_WAIT(ch) > 0)
-			GET_WAIT(ch) -= missed_pulses;
-		else
-			GET_WAIT(ch) = 0;
+		ch->wait_dec(missed_pulses);
 
 		if (GET_PUNCTUAL_WAIT(ch) > 0)
 			GET_PUNCTUAL_WAIT(ch) -= missed_pulses;
 		else
 			GET_PUNCTUAL_WAIT(ch) = 0;
-
-		if (GET_WAIT(ch) < 0)
-			GET_WAIT(ch) = 0;
 
 		if (GET_PUNCTUAL_WAIT(ch) < 0)
 			GET_PUNCTUAL_WAIT(ch) = 0;

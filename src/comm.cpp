@@ -1459,17 +1459,23 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		 */
 		if (d->character)
 		{
-			GET_WAIT_STATE(d->character) -= (GET_WAIT_STATE(d->character) > 0 ? 1 : 0);
+			d->character->wait_dec();
 			GET_PUNCTUAL_WAIT_STATE(d->character) -=
 				(GET_PUNCTUAL_WAIT_STATE(d->character) > 0 ? 1 : 0);
 			if (WAITLESS(d->character)
-					|| GET_WAIT_STATE(d->character) < 0)
-				GET_WAIT_STATE(d->character) = 0;
+				|| d->character->get_wait() < 0)
+			{
+				d->character->set_wait(0u);
+			}
 			if (WAITLESS(d->character)
-					|| GET_PUNCTUAL_WAIT_STATE(d->character) < 0)
+				|| GET_PUNCTUAL_WAIT_STATE(d->character) < 0)
+			{
 				GET_PUNCTUAL_WAIT_STATE(d->character) = 0;
-			if (GET_WAIT_STATE(d->character))
+			}
+			if (d->character->get_wait())
+			{
 				continue;
+			}
 		}
 		// Шоб в меню долго не сидели !
 		if (!get_from_q(&d->input, comm, &aliased))
@@ -1495,7 +1501,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				char_to_room(d->character, d->character->get_was_in_room());
 				d->character->set_was_in_room(NOWHERE);
 				act("$n вернул$u.", TRUE, d->character, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				GET_WAIT_STATE(d->character) = 1;
+				d->character->set_wait(1u);
 			}
 		}
 		d->has_prompt = 0;

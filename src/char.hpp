@@ -572,6 +572,11 @@ public:
 	void set_next(CHAR_DATA* _) { next_ = _; }
 	void remove_from_list(CHAR_DATA*& list) const;
 
+	unsigned get_wait() const { return m_wait; }
+	void set_wait(const unsigned _) { m_wait = _; }
+	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
+	void wait_dec(const unsigned value) { m_wait -= value <= m_wait ? value : m_wait; }
+
 	void reset_char();
 
 private:
@@ -669,7 +674,11 @@ private:
 public:
 	mob_rnum nr;		// Mob's rnum
 	room_rnum in_room;	// Location (real room number)
-	int wait;			// wait for how many loops
+
+private:
+	unsigned m_wait;			// wait for how many loops
+
+public:
 	int punctual_wait;		// wait for how many loops (punctual style)
 	char *last_comm;		// последний приказ чармису перед окончанием лага
 
@@ -752,6 +761,14 @@ inline bool CHAR_DATA::in_used_zone() const
 		return 0 != zone_table[world[in_room]->zone].used;
 	}
 	return false;
+}
+
+inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
+{
+	if (ch->get_wait() < cycle)
+	{
+		ch->set_wait(cycle);
+	}
 }
 
 void change_fighting(CHAR_DATA * ch, int need_stop);

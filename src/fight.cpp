@@ -234,7 +234,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 	// секунды после подножки, чтобы моб всеравно встал только на 3й раунд)
 	if (IS_NPC(ch) && GET_WAIT(ch) > 0)
 	{
-		div_t tmp = div(GET_WAIT(ch), PULSE_VIOLENCE);
+		div_t tmp = div(static_cast<const int>(ch->get_wait()), PULSE_VIOLENCE);
 		if (tmp.rem > 0)
 		{
 			WAIT_STATE(ch, (tmp.quot + 1) * PULSE_VIOLENCE);
