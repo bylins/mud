@@ -90,7 +90,7 @@ void free_script(SCRIPT_DATA * sc);
 ACMD(do_restore);
 ACMD(do_mpurge);
 ACMD(do_mjunk);
-
+ACMD(do_arena_restore);
 // function protos from this file
 void extract_value(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
@@ -2353,10 +2353,19 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else
 				sprintf(str, "%d", GET_RELIGION(c));
 		}
-		else if (!str_cmp(field, "restore"))
+		else if ((!str_cmp(field, "restore")) || (!str_cmp(field, "fullrestore")))
 		{
-			do_restore(c, (char*)c->get_name(), 0, SCMD_RESTORE_TRIGGER);
-			trig_log(trig, "был произведен вызов do_restore!");
+			/* Так, тупо, но иначе ругается, мол слишком много блоков*/
+			 if (!str_cmp(field, "fullrestore"))
+			{
+				do_arena_restore(c, (char*)c->get_name(), 0, SCMD_RESTORE_TRIGGER);
+				trig_log(trig, "был произведен вызов do_arena_restore!");
+			}
+			else
+			{
+				do_restore(c, (char*)c->get_name(), 0, SCMD_RESTORE_TRIGGER);
+				trig_log(trig, "был произведен вызов do_restore!");
+			}
 		}
 		else if (!str_cmp(field, "dispel"))
 		{
@@ -2693,12 +2702,27 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				}
 			}
 		}
-		else if (!str_cmp(field, "unsetquest"))
+		// все эти блоки надо переписать на что-нибудь другое, их слишком много
+		else if (!str_cmp(field, "unsetquest") || !str_cmp(field, "alliance"))
 		{
-			if (*subfield && (num = atoi(subfield)) > 0)
+			if (!str_cmp(field, "alliance"))
 			{
-				c->quested_remove(num);
-				strcpy(str, "1");
+				if (*subfield)
+				{
+					subfield = one_argument(subfield, buf);
+					if (ClanSystem::is_alliance(c, buf))
+						strcpy(str, "1");
+					else
+						strcpy(str, "0");
+				}
+			}
+			else
+			{
+				if (*subfield && (num = atoi(subfield)) > 0)
+				{
+					c->quested_remove(num);
+					strcpy(str, "1");
+				}
 			}
 		}
 		else if (!str_cmp(field, "eq"))

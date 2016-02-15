@@ -18,6 +18,7 @@
 #include "house_exp.hpp"
 #include "poison.hpp"
 #include "utils.h"
+#include "bonus.h"
 
 // extern
 int extra_aco(int class_num, int level);
@@ -965,7 +966,7 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	// 4й доп - 20% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob + dex_mod * 100) * remort_mod * sit_mod > percent * 2 / 5 && ch->get_fighting())
+	if ((prob + dex_mod * 100) * remort_mod * sit_mod > percent * 5 / 2 && ch->get_fighting())
 		hit(ch, ch->get_fighting(), type, weapon);
 }
 
@@ -1395,9 +1396,9 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (IS_NPC(victim))
 	{
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
-			bs_coeff *= ch->get_skill(SKILL_BACKSTAB)/20;
+			bs_coeff *= ch->get_skill(SKILL_BACKSTAB)/20.0;
 		else
-			bs_coeff *= ch->get_skill(SKILL_BACKSTAB)/25;
+			bs_coeff *= ch->get_skill(SKILL_BACKSTAB)/25.0;
 		// Читаем справку по скрытому: Если нанести такой удар в спину противника (ака стаб), то почти
 		// всегда для жертвы такой удар будет смертельным. Однако, в коде скрытый нигде не дает
 		// бонусов для стаба. Решил это исправить
@@ -1419,6 +1420,8 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		flags.set(IGNORE_PRISM);
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
+	if (bs_coeff < 1)
+		return 1;
 	return bs_coeff;
 }
 
@@ -2505,6 +2508,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			else if (dmg_type == MAGE_DMG)
 				dam *= 2;
 		}
+
+		if (IS_NPC(victim) && Bonus::is_bonus(BONUS_DAMAGE))
+		{
+			dam *= Bonus::get_mult_bonus();
+		}
+
 	}
 
 	// учет положения атакующего и жертвы
@@ -3862,7 +3871,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		else
 			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && (number(1,100) <= 3) && !victim->get_role(MOB_ROLE_BOSS))
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && !(AFF_FLAGGED(victim, AFF_SHIELD)) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
 			    hit_params.dam = 20;

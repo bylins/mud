@@ -72,6 +72,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "bonus.h"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -689,8 +690,6 @@ void oedit_save_to_disk(int zone_num);
 void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
 void hour_update();
-// бонус
-extern void timer_bonus();
 int real_zone(int number);
 void Crash_rent_time(int dectime);
 void Crash_ldsave(CHAR_DATA * ch);
@@ -1862,6 +1861,7 @@ inline void heartbeat(const int missed_pulses)
 	{
 		DeathTrap::activity();
 		underwater_check();
+		ClanSystem::check_player_in_house();
 	}
 
 	if (!((pulse + 3) % PULSE_VIOLENCE))
@@ -1905,7 +1905,7 @@ inline void heartbeat(const int missed_pulses)
 	if (!(pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))  	//log("Hour msg update...");
 	{
 		hour_update();
-		timer_bonus();
+		Bonus::timer_bonus();
 		//log("Stop it...");
 		//log("Weather and time...");
 		weather_and_time(1);

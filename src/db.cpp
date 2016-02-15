@@ -81,7 +81,7 @@
 #include "mob_stat.hpp"
 #include "obj.hpp"
 #include "obj_sets.hpp"
-
+#include "bonus.h"
 #define  TEST_OBJECT_TIMER   30
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
@@ -900,6 +900,7 @@ ACMD(do_reboot)
 		Remort::init();
 		Noob::init();
 		ResetStats::init();
+		Bonus::bonus_log_load();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -2943,6 +2944,11 @@ void discrete_load(FILE * fl, int mode, char *filename)
 			if (sscanf(line, "#%d", &nr) != 1)
 			{
 				log("SYSERR: Format error after %s #%d", modes[mode], last);
+				exit(1);
+			}
+			if (nr == 1)
+			{
+				log("SYSERR: Entity with vnum 1, filename=%s", filename);
 				exit(1);
 			}
 			if (nr >= MAX_PROTO_NUMBER)

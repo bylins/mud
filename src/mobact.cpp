@@ -280,7 +280,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		if (IS_SET(extmode, SKIP_SNEAKING))
 		{
 			skip_sneaking(vict, ch);
-			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
+			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)))
 				REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
 			if (AFF_FLAGGED(vict, AFF_SNEAK))
 				continue;
@@ -308,7 +308,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		{
 			if (can_use_feat(vict, SILVER_TONGUED_FEAT) &&
 					number(1, GET_LEVEL(vict) * GET_REAL_CHA(vict)) >
-					number(1, ((GET_LEVEL(ch) > 35) ? GET_LEVEL(ch) * 2 : GET_LEVEL(ch))  * GET_REAL_INT(ch)))
+					number(1, ((GET_LEVEL(ch) > 30) ? (GET_LEVEL(ch) * 2 * GET_REAL_INT(ch) + GET_REAL_INT(ch) * 20) : (GET_LEVEL(ch) * GET_REAL_INT(ch)))))
 				continue;
 			kill_this = TRUE;
 		}
@@ -434,9 +434,8 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 				continue;
 		if (IS_SET(extmode, SKIP_SNEAKING))
 		{
-			if (skip_sneaking(vict, ch))
-			    continue;
-    			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
+			skip_sneaking(vict, ch);
+   			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) || (ch->get_role(MOB_ROLE_BOSS)))
 				REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
 			if (AFF_FLAGGED(vict, AFF_SNEAK))
 				continue;

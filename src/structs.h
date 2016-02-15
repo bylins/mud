@@ -1173,9 +1173,11 @@ const int HISTORY_SIZE = 5;
 #define MAX_REMEMBER_GOSSIP   15
 // планка на кол-во денег у чара на руках и в банке (раздельно)
 const long MAX_MONEY_KEPT = 1000000000;
+#define BONUS_EXP 0
+#define BONUS_WEAPON_EXP 1
+#define BONUS_DAMAGE 2
 
-
-#define INT_STUPID_MOD 20
+#define INT_STUPID_MOD 10
 #define INT_MIDDLE_AI 30
 #define INT_HIGH_AI 40
 #define MIN_HP_MOBACT 100

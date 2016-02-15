@@ -2417,9 +2417,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_AIRSHIELD;
 		af[0].battleflag = TRUE;
 		if (IS_NPC(victim) || victim == ch)
-			af[0].duration = pc_duration(victim, 10, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0);
 		else
-			af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 4 + GET_REMORT(ch), 0, 0, 0, 0);
 		to_room = "$n3 окутал воздушный щит.";
 		to_vict = "Вас окутал воздушный щит.";
 		break;
@@ -2432,9 +2432,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_FIRESHIELD;
 		af[0].battleflag = TRUE;
 		if (IS_NPC(victim) || victim == ch)
-			af[0].duration = pc_duration(victim, 10, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0);
 		else
-			af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 4 + GET_REMORT(ch), 0, 0, 0, 0);
 		to_room = "$n3 окутал огненный щит.";
 		to_vict = "Вас окутал огненный щит.";
 		break;
@@ -2447,9 +2447,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_ICESHIELD;
 		af[0].battleflag = TRUE;
 		if (IS_NPC(victim) || victim == ch)
-			af[0].duration = pc_duration(victim, 10, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0);
 		else
-			af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0);
+			af[0].duration = pc_duration(victim, 4 + GET_REMORT(ch), 0, 0, 0, 0);
 		to_room = "$n3 окутал ледяной щит.";
 		to_vict = "Вас окутал ледяной щит.";
 		break;
@@ -4628,9 +4628,6 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
-		// если шмотка перестала быть нерушимой ставим таймер из прототипа
-		if (!check_unlimited_timer(obj))
-		    obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
 		if (GET_RELIGION(ch) == RELIGION_MONO)
 			to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
 		else if (GET_RELIGION(ch) == RELIGION_POLY)

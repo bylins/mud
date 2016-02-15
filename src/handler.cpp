@@ -37,6 +37,7 @@
 #include "named_stuff.hpp"
 #include "glory_const.hpp"
 #include "fight.h"
+#include "pk.h"
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "obj_sets.hpp"

@@ -884,7 +884,8 @@ ACMD(do_mexp)
 		mob_log(ch, buf);
 		return;
 	}
-
+	sprintf(buf, "mexp: victim (%s) получил опыт %d", name, atoi(amount));
+	mob_log(ch, buf);
 	gain_exp(victim, atoi(amount));
 }
 

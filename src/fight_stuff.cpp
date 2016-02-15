@@ -21,7 +21,7 @@
 #include "magic.h"
 #include "mob_stat.hpp"
 #include "utils.h"
-
+#include "bonus.h"
 #include <algorithm>
 
 // extern
@@ -41,8 +41,6 @@ extern int max_exp_gain_npc;
 //интервал в секундах между восстановлением кругов после рипа
 extern const unsigned RECALL_SPELLS_INTERVAL;
 const unsigned RECALL_SPELLS_INTERVAL = 28;
-extern bool is_bonus(int type);
-extern int mult_bonus;
 void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	CHAR_DATA *master = 0;
@@ -760,11 +758,10 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
 	// 4. Последняя проверка
 	exp = MAX(1, exp);
-	exp = MIN(max_exp_gain_pc(ch), exp);
 	if (exp > 1)
 	{
-		if (is_bonus(1))
-			exp *= mult_bonus;
+		if (Bonus::is_bonus(BONUS_EXP))
+			exp *= Bonus::get_mult_bonus();
 		if (!IS_NPC(ch) && ch->affected)
 		{ 
 			AFFECT_DATA *aff = ch->affected;
@@ -774,6 +771,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 					exp *= MIN( 3, aff->modifier); // бонус макс тройной
 			}
 		}
+		exp = MIN(max_exp_gain_pc(ch), exp);
 		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n",
 		exp, desc_count(exp, WHAT_POINT));
 	}
@@ -805,7 +803,7 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	CHAR_DATA *k;
 	struct follow_type *f;
 	int leader_inroom;
-	int partner_count = 0;
+	int partner_count = 0; bool use_partner_exp = false;
 	// если наем лидер, то тоже режем экспу
 	if (can_use_feat(ch, CYNIC_FEAT))
 	    maxlevel = 300;
@@ -880,12 +878,15 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 
 	// Раздача опыта
-
+	
+	// если групповой уровень зоны равняется единице
+	if  (zone_table[world[ch->in_room]->zone].group < 2)
+		use_partner_exp = true;
 	// если лидер группы в комнате
 	if (leader_inroom)
 	{
 	    // если у лидера группы есть способность напарник и лидер меньше 25 лева
-	    if (can_use_feat(k, PARTNER_FEAT) && (GET_LEVEL(k) <25))
+	    if (can_use_feat(k, PARTNER_FEAT) && use_partner_exp)
 	    {
 			// если в группе всего двое человек
 			// k - лидер, и один последователь
@@ -918,8 +919,8 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-		if (is_bonus(0))
-			battle_exp *= mult_bonus;
+		if (Bonus::is_bonus(BONUS_WEAPON_EXP))
+			battle_exp *= Bonus::get_mult_bonus();
 //		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
 //						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		gain_exp(ch, battle_exp);
