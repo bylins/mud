@@ -467,7 +467,11 @@ WCMD(do_wexp)
 	}
 
 	if ((ch = get_char_by_room(room, name)))
+	{
 		gain_exp(ch, atoi(amount));
+		sprintf(buf, "wexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
+		wld_log(room, buf);
+	}
 	else
 	{
 		wld_log(room, "wexp: target not found");
