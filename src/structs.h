@@ -1265,6 +1265,7 @@ public:
 	template <> bool toggle(const int packed_flag) { return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & (packed_flag & 0x3fffffff)); }
 
 	void asciiflag_conv(const char *flag);
+	void tascii(int num_planes, char* ascii) const;
 
 private:
 	std::vector<uint32_t> m_flags;

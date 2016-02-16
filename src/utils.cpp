@@ -3159,27 +3159,6 @@ int can_carry_n(CHAR_DATA* ch)
 	return std::max(n, 1);
 }
 
-void tascii(const uint32_t* pointer, int num_planes, char* ascii)
-{
-	int i, c, found;
-
-	for (i = 0, found = FALSE; i < num_planes; i++)
-	{
-		for (c = 0; c < 30; c++)
-		{
-			if (*(pointer + i) & (1 << c))
-			{
-				found = TRUE;
-				sprintf(ascii + strlen(ascii), "%c%d", c < 26 ? c + 'a' : c - 26 + 'A', i);
-			}
-		}
-	}
-	if (!found)
-		strcat(ascii, "0 ");
-	else
-		strcat(ascii, " ");
-}
-
 bool ParseFilter::init_type(const char *str)
 {
 	if (is_abbrev(str, "свет") || is_abbrev(str, "light"))

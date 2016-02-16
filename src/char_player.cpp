@@ -429,7 +429,7 @@ void Player::save_char()
 		fprintf(saved, "Rmrt: %d\n", GET_REMORT(this));
 	// флаги
 	*buf = '\0';
-	tascii(&PLR_FLAGS(this, 0), 4, buf);
+	PLR_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Act : %s\n", buf);
 	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(this));
@@ -479,7 +479,7 @@ void Player::save_char()
 	// структуры
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(this));
 	*buf = '\0';
-	tascii(&AFF_FLAGS(this, 0), 4, buf);
+	AFF_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Aff : %s\n", buf);
 
 	// дальше не по порядку
@@ -624,7 +624,7 @@ void Player::save_char()
 	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(this));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
-	tascii(&PRF_FLAGS(this, 0), 4, buf);
+	PRF_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Pref: %s\n", buf);
 
 	if (MUTE_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_MUTE))
@@ -900,7 +900,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	set_remort(0);
 	GET_LASTIP(this)[0] = 0;
 	GET_EMAIL(this)[0] = 0;
-	asciiflag_conv("", &PLR_FLAGS(this, 0));
+	PLR_FLAGS(this).asciiflag_conv("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
 
 	bool skip_file = 0;
 
@@ -934,7 +934,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		{
 		case 'A':
 			if (!strcmp(tag, "Act "))
-				asciiflag_conv(line, &PLR_FLAGS(this, 0));
+			{
+				PLR_FLAGS(this).asciiflag_conv(line);
+			}
 			break;
 		case 'C':
 			if (!strcmp(tag, "Clas"))
@@ -1150,8 +1152,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_COND(this, THIRST) = 0;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
-	asciiflag_conv("", &PRF_FLAGS(this, 0));
-	asciiflag_conv("", &AFF_FLAGS(this, 0));
+	PRF_FLAGS(this).asciiflag_conv("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
+	AFF_FLAGS(this).asciiflag_conv("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	GET_PORTALS(this) = NULL;
 	EXCHANGE_FILTER(this) = NULL;
 	IGNORE_LIST(this) = NULL;
@@ -1186,7 +1188,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Ac  "))
 				GET_AC(this) = num;
 			else if (!strcmp(tag, "Aff "))
-				asciiflag_conv(line, &AFF_FLAGS(this, 0));
+			{
+				AFF_FLAGS(this).asciiflag_conv(line);
+			}
 			else if (!strcmp(tag, "Affs"))
 			{
 				i = 0;
@@ -1523,7 +1527,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			else if (!strcmp(tag, "PfOt"))
 				POOFOUT(this) = str_dup(line);
 			else if (!strcmp(tag, "Pref"))
-				asciiflag_conv(line, &PRF_FLAGS(this, 0));
+			{
+				PRF_FLAGS(this).asciiflag_conv(line);
+			}
 			else if (!strcmp(tag, "Pkil"))
 			{
 				do

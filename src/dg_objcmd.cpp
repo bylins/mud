@@ -349,10 +349,11 @@ OCMD(do_otransform)
 		//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
 		GET_OBJ_ZONE(obj) = GET_OBJ_ZONE(o);
 		GET_OBJ_ZONE(o) = GET_OBJ_ZONE(&tmpobj);
-//		ObjectAlias::remove(obj);
-//		ObjectAlias::add(obj);
-		if (OBJ_FLAGGED(o, ITEM_TICKTIMER))
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_TICKTIMER), ITEM_TICKTIMER);
+
+		if (OBJ_FLAGGED(o, EExtraFlags::ITEM_TICKTIMER))
+		{
+			obj->set_extraflag(EExtraFlags::ITEM_TICKTIMER);
+		}
 
 		if (wearer)
 		{

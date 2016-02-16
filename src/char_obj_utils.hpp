@@ -44,4 +44,9 @@ const char* OBJN(const OBJ_DATA* obj, const CHAR_DATA* vict, const size_t pad)
 		: GET_PAD_OBJ(pad);
 }
 
+const char* OBJS(const OBJ_DATA* obj, const CHAR_DATA* vict)
+{
+	return CAN_SEE_OBJ(vict, obj) ? obj->short_description : "что-то";
+}
+
 #endif // __CHAR_OBJ_UTILS_HPP__

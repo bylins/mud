@@ -15,6 +15,7 @@
 #include "db.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "char_obj_utils.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

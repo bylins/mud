@@ -56,6 +56,7 @@
 #include "noob.hpp"
 #include "mail.h"
 #include "mob_stat.hpp"
+#include "char_obj_utils.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -404,7 +405,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				send_to_char("Ваша жертва и так может кричать.\r\n", ch);
 				return (0);
 			};
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
+			PLR_FLAGS(vict).unset(PLR_MUTE);
 
 			sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -424,7 +425,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				send_to_char("Ваша жертва уже разморожена.\r\n", ch);
 				return (0);
 			};
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
+			PLR_FLAGS(vict).unset(PLR_FROZEN);
 			Glory::remove_freeze(GET_UNIQUE(vict));
 
 			sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
@@ -446,7 +447,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				send_to_char("Ваша жертва и так может издавать звуки.\r\n", ch);
 				return (0);
 			};
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_DUMB), PLR_DUMB);
+			PLR_FLAGS(vict).unset(PLR_DUMB);
 
 			sprintf(buf, "Dumb OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -468,7 +469,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				send_to_char("Ваша жертва и так на свободе.\r\n", ch);
 				return (0);
 			};
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_HELLED), PLR_HELLED);
+			PLR_FLAGS(vict).unset(PLR_HELLED);
 
 			sprintf(buf, "%s removed FROM hell by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -511,7 +512,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				send_to_char("Вашей жертвы там нет.\r\n", ch);
 				return (0);
 			};
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_NAMED), PLR_NAMED);
+			PLR_FLAGS(vict).unset(PLR_NAMED);
 
 			sprintf(buf, "%s removed FROM name room by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -618,7 +619,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 		switch (punish)
 		{
 		case SCMD_MUTE:
-			SET_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
+			PLR_FLAGS(vict).set(PLR_MUTE);
 			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
 
 			sprintf(buf, "Mute ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
@@ -636,7 +637,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			break;
 
 		case SCMD_FREEZE:
-			SET_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
+			PLR_FLAGS(vict).set(PLR_FROZEN);
 			Glory::set_freeze(GET_UNIQUE(vict));
 			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
 
@@ -655,8 +656,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 
 		case SCMD_DUMB:
-
-			SET_BIT(PLR_FLAGS(vict, PLR_DUMB), PLR_DUMB);
+			PLR_FLAGS(vict).set(PLR_DUMB);
 			pundata->duration = (times > 0) ? time(NULL) + times * 60 : MAX_TIME;
 
 			sprintf(buf, "Dumb ON for %s by %s(%ldm).", GET_NAME(vict), GET_NAME(ch), times);
@@ -672,10 +672,9 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf2, "$n дал$g обет молчания.");
 			break;
 		case SCMD_HELL:
-			SET_BIT(PLR_FLAGS(vict, PLR_HELLED), PLR_HELLED);
+			PLR_FLAGS(vict).set(PLR_HELLED);
 
 			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
-
 
 			if (IN_ROOM(vict) != NOWHERE)
 			{
@@ -699,8 +698,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			break;
 
 		case SCMD_NAME:
-
-			SET_BIT(PLR_FLAGS(vict, PLR_NAMED), PLR_NAMED);
+			PLR_FLAGS(vict).set(PLR_NAMED);
 
 			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
 
@@ -1628,7 +1626,7 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 			zone_table[rm->zone].number, CCGRN(ch, C_NRM), rm->number, CCNRM(ch, C_NRM), ch->in_room, buf2);
 	send_to_char(buf, ch);
 
-	sprintbits(rm->room_flags, room_bits, buf2, ",");
+	rm->sprintbits(buf2, ",");
 	sprintf(buf, "СпецПроцедура: %s, Флаги: %s\r\n", (rm->func == NULL) ? "None" : "Exists", buf2);
 	send_to_char(buf, ch);
 
@@ -5157,10 +5155,17 @@ ACMD(do_show)
 #define BINARY	1
 #define NUMBER	2
 
-#define SET_OR_REMOVE(flagset, flags) { \
-  	   if (on) SET_BIT(flagset, flags); \
-	      else \
-       if (off) REMOVE_BIT(flagset, flags);}
+inline void SET_OR_REMOVE(const bool on, const bool off, FLAG_DATA flagset, const uint32_t packed_flag)
+{
+	if (on)
+	{
+		flagset.set(packed_flag);
+	}
+	else if (off)
+	{
+		flagset.unset(packed_flag);
+	}
+}
 
 #define RANGE(low, high) (value = MAX((low), MIN((high), (value))))
 
@@ -5238,7 +5243,9 @@ struct set_struct		/*
 
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 {
-	int i, j, c, on = 0, off = 0, value = 0, return_code = 1, ptnum, times = 0;
+	int i, j, c, value = 0, return_code = 1, ptnum, times = 0;
+	bool on = false;
+	bool off = false;
 	char npad[NUM_PADS][256];
 	char *reason;
 	room_rnum rnum;
@@ -5313,13 +5320,13 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	switch (mode)
 	{
 	case 0:
-		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_BRIEF), PRF_BRIEF);
+		SET_OR_REMOVE(on, off, PRF_FLAGS(vict), PRF_BRIEF);
 		break;
 	case 1:
-		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_INVSTART), PLR_INVSTART);
+		SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_INVSTART);
 		break;
 	case 2:
-		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_SUMMONABLE), PRF_SUMMONABLE);
+		SET_OR_REMOVE(on, off, PRF_FLAGS(vict), PRF_SUMMONABLE);
 		sprintf(output, "Возможность призыва %s для %s.\r\n", ONOFF(!on), GET_PAD(vict, 1));
 		break;
 	case 3:
@@ -5397,7 +5404,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return (0);
 		}
-		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_NOHASSLE), PRF_NOHASSLE);
+		SET_OR_REMOVE(on, off, PRF_FLAGS(vict), PRF_NOHASSLE);
 		break;
 	case 19:
 		reason = one_argument(val_arg, num);
@@ -5438,7 +5445,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	}
 	case 25:
-		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_THIEF), PLR_THIEF);
+		SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_THIEF);
 		break;
 	case 26:
 		if (!PRF_FLAGGED(ch, PRF_CODERINFO)
@@ -5462,10 +5469,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		check_horse(vict);
 		break;
 	case 28:
-		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_ROOMFLAGS), PRF_ROOMFLAGS);
+		SET_OR_REMOVE(on, off, PRF_FLAGS(vict), PRF_ROOMFLAGS);
 		break;
 	case 29:
-		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_SITEOK), PLR_SITEOK);
+		SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_SITEOK);
 		break;
 	case 30:
 		if (IS_IMPL(vict) || PRF_FLAGGED(vict, PRF_CODERINFO))
@@ -5473,7 +5480,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char("Истинные боги вечны!\r\n", ch);
 			return 0;
 		}
-		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED);
+		SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_DELETED);
 		break;
 	case 31:
 		if ((i = parse_class(*val_arg)) == CLASS_UNDEFINED)
@@ -5524,8 +5531,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 	case 34:
-		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_COLOR_1), PRF_COLOR_1);
-		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_COLOR_2), PRF_COLOR_2);
+		SET_OR_REMOVE(on, off, PRF_FLAGS(vict), PRF_COLOR_1);
+		SET_OR_REMOVE(on, off, PRF_FLAGS(vict), PRF_COLOR_2);
 		break;
 	case 35:
 		if (!IS_IMPL(ch) || !IS_NPC(vict))
@@ -5555,7 +5562,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		
 		break;
 	case 37:
-		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_NODELETE), PLR_NODELETE);
+		SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_NODELETE);
 		break;
 	case 38:
 		if ((i = search_block(val_arg, genders, FALSE)) < 0)
@@ -5630,8 +5637,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 45:
 		// изменение имени !!!
 
-		if ((i =
-					sscanf(val_arg, "%s %s %s %s %s %s", npad[0], npad[1], npad[2], npad[3], npad[4], npad[5])) != 6)
+		if ((i = sscanf(val_arg, "%s %s %s %s %s %s", npad[0], npad[1], npad[2], npad[3], npad[4], npad[5])) != 6)
 		{
 			sprintf(buf, "Требуется указать 6 падежей, найдено %d\r\n", i);
 			send_to_char(buf, ch);
@@ -5678,7 +5684,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				return (0);
 			}
 
-			if ((get_id_by_name(npad[0]) >= 0) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED))
+			if ((get_id_by_name(npad[0]) >= 0) && !PLR_FLAGS(vict).get(PLR_DELETED))
 			{
 				send_to_char("Это имя совпадает с именем другого персонажа.\r\n"
 							 "Для исключения различного рода недоразумений имя отклонено.\r\n", ch);
@@ -5706,8 +5712,12 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			if (ptnum < 0)
 				return (0);
 
-			if (!IS_SET(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
+			if (!PLR_FLAGS(vict).get(PLR_FROZEN)
+				&& !PLR_FLAGS(vict).get(PLR_DELETED)
+				&& !IS_IMMORTAL(vict))
+			{
 				TopPlayer::Remove(vict);
+			}
 
 			for (i = 0; i < NUM_PADS; i++)
 			{
@@ -5723,15 +5733,19 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			vict->set_name(npad[0]);
 			add_karma(vict, buf, GET_NAME(ch));
 
-			if (!IS_SET(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
+			if (!PLR_FLAGS(vict).get(PLR_FROZEN)
+				&& !PLR_FLAGS(vict).get(PLR_DELETED)
+				&& !IS_IMMORTAL(vict))
+			{
 				TopPlayer::Refresh(vict);
+			}
 
 			free(player_table[ptnum].name);
 			CREATE<char>(player_table[ptnum].name, strlen(npad[0]) + 1);
 			for (i = 0, player_table[ptnum].name[i] = '\0'; npad[0][i]; i++)
 				player_table[ptnum].name[i] = LOWER(npad[0][i]);
 			return_code = 2;
-			SET_BIT(PLR_FLAGS(vict, PLR_CRASH), PLR_CRASH);
+			PLR_FLAGS(vict).set(PLR_CRASH);
 		}
 		break;
 
@@ -5901,16 +5915,16 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		add_karma(vict, buf, reason);
 		if (on)
 		{
-			SET_BIT(PRF_FLAGS(vict, PRF_EXECUTOR), PRF_EXECUTOR);
+			PRF_FLAGS(vict).set(PRF_EXECUTOR);
 		}
 		else if (off)
 		{
-			REMOVE_BIT(PRF_FLAGS(vict, PRF_EXECUTOR), PRF_EXECUTOR);
+			PRF_FLAGS(vict).unset(PRF_EXECUTOR);
 		}
 		break;
 
 	case 58: // Снятие или постановка флага !ДУШЕГУБ! только для имплементоров
-        SET_OR_REMOVE(PLR_FLAGS(vict, PLR_KILLER), PLR_KILLER);
+        SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_KILLER);
         break;
 	case 59: // флаг реморта
     		ch->remort();

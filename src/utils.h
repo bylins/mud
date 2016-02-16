@@ -1107,8 +1107,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 //для арены
 #define APERS(ch,vict,pad,arena) ((arena) || CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
 
-#define OBJS(obj,vict) (CAN_SEE_OBJ((vict), (obj)) ? \
-                      (obj)->short_description  : "что-то")
 //для арены
 #define AOBJS(obj,vict,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                       (obj)->short_description  : "что-то")

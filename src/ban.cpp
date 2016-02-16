@@ -1248,7 +1248,7 @@ bool need_save = 0;
 // * Добавления мыла в список + проставления флага PLR_REGISTERED, registered_email не выставляется
 void RegisterSystem::add(CHAR_DATA* ch, const char* text, const char* reason)
 {
-	SET_BIT(PLR_FLAGS(ch, PLR_REGISTERED), PLR_REGISTERED);
+	PLR_FLAGS(ch).set(PLR_REGISTERED);
 	if (!text || !reason) return;
 	std::stringstream out;
 	out << GET_NAME(ch) << " -> " << text << " [" << reason << "]";
@@ -1266,7 +1266,7 @@ void RegisterSystem::add(CHAR_DATA* ch, const char* text, const char* reason)
 */
 void RegisterSystem::remove(CHAR_DATA* ch)
 {
-	REMOVE_BIT(PLR_FLAGS(ch, PLR_REGISTERED), PLR_REGISTERED);
+	PLR_FLAGS(ch).unset(PLR_REGISTERED);
 	EmailListType::iterator it = email_list.find(GET_EMAIL(ch));
 	if (it != email_list.end())
 	{
