@@ -391,8 +391,8 @@ inline void NEWCREATE(T*& result, const T& init_value)
 // IS_AFFECTED for backwards compatibility
 #define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, skill))
 
-#define PLR_TOG_CHK(ch,flag) ((TOGGLE_BIT(PLR_FLAGS(ch, flag), (flag))) & (flag))
-#define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch, flag), (flag))) & (flag))
+#define PLR_TOG_CHK(ch, flag) (PLR_FLAGS(ch).toggle(flag))
+#define PRF_TOG_CHK(ch, flag) (PRF_FLAGS(ch).toggle(flag))
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
@@ -1024,7 +1024,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define OMHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ей" : "им")) :"ему")
 #define OYOU(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
 
-
 // Various macros building up to CAN_SEE
 #define MAY_SEE(sub,obj) (!(GET_INVIS_LEV(ch) > 30) && !AFF_FLAGGED((sub),AFF_BLIND) && \
                           (!IS_DARK(IN_ROOM(sub)) || AFF_FLAGGED((sub),AFF_INFRAVISION)) && \
@@ -1088,50 +1087,13 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
         ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
-
-
 // End of CAN_SEE
 
-//inline bool IS_OBJ_STAT(const OBJ_DATA* obj, const EExtraFlags stat) { return obj->get_extraflag(stat); }
-
-inline bool INVIS_OK_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
-{
-	return !obj->get_extraflag(EExtraFlags::ITEM_INVISIBLE)
-		|| AFF_FLAGGED(sub, AFF_DETECT_INVIS);
-}
 
 // Is anyone carrying this object and if so, are they visible?
-
 #define CAN_SEE_OBJ_CARRIER(sub, obj) \
   ((!obj->carried_by || CAN_SEE(sub, obj->carried_by)) && \
    (!obj->worn_by    || CAN_SEE(sub, obj->worn_by)))
-/*
-#define MORT_CAN_SEE_OBJ(sub, obj) \
-  (LIGHT_OK(sub) && INVIS_OK_OBJ(sub, obj) && CAN_SEE_OBJ_CARRIER(sub, obj))
- */
-
-inline bool MORT_CAN_SEE_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
-{
-	return INVIS_OK_OBJ(sub, obj)
-		&& !AFF_FLAGGED(sub, AFF_BLIND)
-		&& (IS_LIGHT(IN_ROOM(sub))
-			|| OBJ_FLAGGED(obj, ITEM_GLOW)
-			|| (IS_CORPSE(obj)
-				&& AFF_FLAGGED(sub, AFF_INFRAVISION))
-			|| can_use_feat(sub, DARK_READING_FEAT)));
-}
-
-inline bool CAN_SEE_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
-{
-	return (obj->worn_by == sub
-		|| obj->carried_by == sub
-		|| (obj->in_obj
-			&& (obj->in_obj->worn_by == sub
-				|| obj->in_obj->carried_by == sub))
-		|| MORT_CAN_SEE_OBJ(sub, obj)
-		|| (!IS_NPC(sub)
-			&& PRF_FLAGGED((sub), PRF_HOLYLIGHT)))
-}
 
 #define CAN_GET_OBJ(ch, obj)   \
    (CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
@@ -1162,9 +1124,6 @@ inline bool CAN_SEE_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
 
 #define OBJ_PAD(obj,pad)  ((obj)->PNames[pad])
 
-#define OBJN(obj,vict,pad) (CAN_SEE_OBJ((vict), (obj)) ? \
-                           ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \
-                           : GET_PAD_OBJ(pad))
 //для арены
 #define AOBJN(obj,vict,pad,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                            ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \

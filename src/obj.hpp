@@ -490,6 +490,11 @@ inline uint32_t GET_OBJ_AFF(const OBJ_DATA* obj, const uint32_t packed_flag)
 	return obj->obj_flags.affects.get(packed_flag);
 }
 
+inline void SET_OBJ_AFF(OBJ_DATA* obj, const uint32_t packed_flag)
+{
+	return obj->obj_flags.affects.set(packed_flag);
+}
+
 inline bool OBJ_AFFECT(const OBJ_DATA* obj, const uint32_t affect)
 {
 	const uint32_t& affects = GET_OBJ_AFF(obj, affect);

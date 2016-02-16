@@ -5,6 +5,7 @@
 #ifndef ROOM_HPP_INCLUDED
 #define ROOM_HPP_INCLUDED
 
+#include "constants.h"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -103,6 +104,7 @@ struct ROOM_DATA
 	void clear_flags() { m_room_flags.clear(); }
 
 	void flags_from_string(const char *flag) { m_room_flags.asciiflag_conv(flag); };
+	bool sprintbits(char *result, const char *div, const int print_flag = 0) { return ::sprintbits(m_room_flags, room_bits, result, div, print_flag); }
 
 private:
 	FLAG_DATA m_room_flags;	// DEATH,DARK ... etc //

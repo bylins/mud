@@ -132,6 +132,7 @@ set(HEADERS
     src/cache.hpp
     src/celebrates.hpp
     src/char.hpp
+	src/char_obj_utils.hpp
     src/char_player.hpp
     src/comm.h
     src/conf.h

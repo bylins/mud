@@ -43,6 +43,7 @@
 #include "utils.h"
 #include "conf.h"
 #include "sysdep.h"
+#include "char_obj_utils.hpp"
 
 #include <sys/stat.h>
 
@@ -612,7 +613,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					send_to_char("Вы не сможете унести такой вес.\r\n", ch);
 					return;
 				}
-				else if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+				else if (obj->get_extraflag(EExtraFlags::ITEM_BLOODY))
 				{
 					send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 					return;
@@ -627,7 +628,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		}
 		else  	// obj found in inventory
 		{
-			if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+			if (obj->get_extraflag(EExtraFlags::ITEM_BLOODY))
 			{
 				send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 				return;
@@ -1471,7 +1472,7 @@ ACMD(do_ungroup)
 			next_fol = f->next;
 			if (AFF_FLAGGED(f->follower, AFF_GROUP))
 			{
-				REMOVE_BIT(AFF_FLAGS(f->follower, AFF_GROUP), AFF_GROUP);
+				AFF_FLAGS(f->follower).unset(AFF_GROUP);
 				send_to_char(buf2, f->follower);
 				if (!AFF_FLAGGED(f->follower, AFF_CHARM) && !(IS_NPC(f->follower)
 						&& AFF_FLAGGED(f->follower, AFF_HORSE)))
@@ -1667,7 +1668,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 		return;
 	}
 
-	if (OBJ_FLAGGED(target, ITEM_SETSTUFF))
+	if (OBJ_FLAGGED(target, EExtraFlags::ITEM_SETSTUFF))
 	{
 		std::string name = GET_OBJ_PNAME(target, 0) ? GET_OBJ_PNAME(target, 0) : "<null>";
 		name[0] = UPPER(name[0]);
@@ -3263,7 +3264,7 @@ void set_obj_aff(struct OBJ_DATA *itemobj, int bitv)
 	{
 		if (weapon_affect[i].aff_bitvector == bitv)
 		{
-			SET_BIT(GET_OBJ_AFF(itemobj, weapon_affect[i].aff_pos), weapon_affect[i].aff_pos);
+			SET_OBJ_AFF(itemobj, weapon_affect[i].aff_pos);
 		}
 	}
 }
@@ -3400,8 +3401,8 @@ ACMD(do_insertgem)
 //      send_to_char("В этот предмет вплавлено максимальное количество камней.\r\n", ch);
 //        return;
 //       }
-	if (!OBJ_FLAGGED(itemobj, ITEM_WITH1SLOT) && !OBJ_FLAGGED(itemobj, ITEM_WITH2SLOTS)
-			&& !OBJ_FLAGGED(itemobj, ITEM_WITH3SLOTS))
+	if (!OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH1SLOT) && !OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH2SLOTS)
+			&& !OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH3SLOTS))
 	{
 		send_to_char("Вы не видите куда здесь можно вплавить камень.\r\n", ch);
 		return;
@@ -3695,12 +3696,17 @@ ACMD(do_insertgem)
 					set_obj_eff(itemobj, APPLY_HITROLL, 3);
 					break;
 				case 3:
-					if ((CAN_WEAR(itemobj, ITEM_WEAR_WIELD) ||
-							CAN_WEAR(itemobj, ITEM_WEAR_HOLD) || CAN_WEAR(itemobj, ITEM_WEAR_BOTHS))
-							&& !OBJ_FLAGGED(itemobj, ITEM_NODISARM))
-						GET_OBJ_EXTRA(itemobj).set(ITEM_NODISARM);
+					if (!OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_NODISARM)
+						&& (CAN_WEAR(itemobj, ITEM_WEAR_WIELD)
+							|| CAN_WEAR(itemobj, ITEM_WEAR_HOLD)
+							|| CAN_WEAR(itemobj, ITEM_WEAR_BOTHS)))
+					{
+						itemobj->set_extraflag(EExtraFlags::ITEM_NODISARM);
+					}
 					else
+					{
 						set_obj_eff(itemobj, APPLY_HITROLL, 3);
+					}
 					break;
 				case 4:
 					set_obj_eff(itemobj, APPLY_SAVING_WILL, -10);
@@ -3760,13 +3766,13 @@ ACMD(do_insertgem)
 		}
 		else
 		{
-			int tmp_type, tmp_bit, tmp_qty;
+			int tmp_type, tmp_qty;
+			int tmp_bit;
 			string str(arg3);
-
-			tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), str);
 
 			tmp_bit = iwg.get_bit(GET_OBJ_VNUM(gemobj), str);
 			tmp_qty = iwg.get_qty(GET_OBJ_VNUM(gemobj), str);
+			tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), str);
 			switch (tmp_type)
 			{
 			case 1:
@@ -3778,7 +3784,7 @@ ACMD(do_insertgem)
 				break;
 
 			case 3:
-				SET_BIT(GET_OBJ_EXTRA(itemobj, tmp_bit), tmp_bit);
+				itemobj->set_extraflag(static_cast<EExtraFlags>(tmp_bit));
 				break;
 
 			default:
@@ -3790,19 +3796,19 @@ ACMD(do_insertgem)
 // Теперь все вплавленное занимает слоты
 	}
 		// флаги, определяющие, сколько остается свободных слотов
-	if (OBJ_FLAGGED(itemobj, ITEM_WITH3SLOTS))
+	if (OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH3SLOTS))
 	{
-		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);
-		SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
+		itemobj->unset_extraflag(EExtraFlags::ITEM_WITH3SLOTS);
+		itemobj->set_extraflag(EExtraFlags::ITEM_WITH2SLOTS);
 	}
-	else if (OBJ_FLAGGED(itemobj, ITEM_WITH2SLOTS))
+	else if (OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH2SLOTS))
 	{
-		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
-		SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
+		itemobj->unset_extraflag(EExtraFlags::ITEM_WITH2SLOTS);
+		itemobj->set_extraflag(EExtraFlags::ITEM_WITH1SLOT);
 	}
-	else if (OBJ_FLAGGED(itemobj, ITEM_WITH1SLOT))
+	else if (OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH1SLOT))
 	{
-		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
+		itemobj->unset_extraflag(EExtraFlags::ITEM_WITH1SLOT);
 	}
 	extract_obj(gemobj);
 }

@@ -47,6 +47,7 @@
 #include "map.hpp"
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
+#include "char_obj_utils.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -584,32 +585,32 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		sprintf(buf + strlen(buf), " [%d]", how);
 	if (mode != 3 && how <= 1)
 	{
-		if (IS_OBJ_STAT(object, ITEM_INVISIBLE))
+		if (object->get_extraflag(EExtraFlags::ITEM_INVISIBLE))
 		{
 			sprintf(buf2, " (невидим%s)", GET_OBJ_SUF_6(object));
 			strcat(buf, buf2);
 		}
-		if (IS_OBJ_STAT(object, ITEM_BLESS)
+		if (object->get_extraflag(EExtraFlags::ITEM_BLESS)
 				&& AFF_FLAGGED(ch, AFF_DETECT_ALIGN))
 			strcat(buf, " ..голубая аура!");
-		if (IS_OBJ_STAT(object, ITEM_MAGIC)
+		if (object->get_extraflag(EExtraFlags::ITEM_MAGIC)
 				&& AFF_FLAGGED(ch, AFF_DETECT_MAGIC))
 			strcat(buf, " ..желтая аура!");
-		if (IS_OBJ_STAT(object, ITEM_POISONED)
+		if (object->get_extraflag(EExtraFlags::ITEM_POISONED)
 				&& AFF_FLAGGED(ch, AFF_DETECT_POISON))
 		{
 			sprintf(buf2, "..отравлен%s!", GET_OBJ_SUF_6(object));
 			strcat(buf, buf2);
 		}
-		if (IS_OBJ_STAT(object, ITEM_GLOW))
+		if (object->get_extraflag(EExtraFlags::ITEM_GLOW))
 			strcat(buf, " ..блестит!");
-		if (IS_OBJ_STAT(object, ITEM_HUM) && !AFF_FLAGGED(ch, AFF_SIELENCE))
+		if (object->get_extraflag(EExtraFlags::ITEM_HUM) && !AFF_FLAGGED(ch, AFF_SIELENCE))
 			strcat(buf, " ..шумит!");
-		if (IS_OBJ_STAT(object, ITEM_FIRE))
+		if (object->get_extraflag(EExtraFlags::ITEM_FIRE))
 			strcat(buf, " ..горит!");
-		if (IS_OBJ_STAT(object, ITEM_BLOODY))
-			{
-		sprintf(buf2, " %s..покрыт%s кровью!%s", CCIRED(ch, C_NRM), GET_OBJ_SUF_6(object), CCNRM(ch, C_NRM));
+		if (object->get_extraflag(EExtraFlags::ITEM_BLOODY))
+		{
+			sprintf(buf2, " %s..покрыт%s кровью!%s", CCIRED(ch, C_NRM), GET_OBJ_SUF_6(object), CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
 	}
@@ -1812,7 +1813,7 @@ void show_glow_objs(CHAR_DATA *ch)
 	for (OBJ_DATA *obj = world[ch->in_room]->contents;
 		obj; obj = obj->next_content)
 	{
-		if (IS_OBJ_STAT(obj, ITEM_GLOW))
+		if (obj->get_extraflag(EExtraFlags::ITEM_GLOW))
 		{
 			++cnt;
 			if (cnt > 1)
@@ -1867,15 +1868,15 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	{
 		// иммам рандомная * во флагах ломает мапер грят
 		const bool has_flag = ROOM_FLAGGED(ch->in_room, ROOM_BFS_MARK) ? true : false;
-		REMOVE_BIT(ROOM_FLAGS(ch->in_room, ROOM_BFS_MARK), ROOM_BFS_MARK);
+		GET_ROOM(ch->in_room)->unset_flag(ROOM_BFS_MARK);
 
-		sprintbits(world[ch->in_room]->room_flags, room_bits, buf, ";");
+		GET_ROOM(ch->in_room)->sprintbits(buf, ";");
 		sprintf(buf2, "[%5d] %s [%s]", GET_ROOM_VNUM(IN_ROOM(ch)), world[ch->in_room]->name, buf);
 		send_to_char(buf2, ch);
 
 		if (has_flag)
 		{
-			SET_BIT(ROOM_FLAGS(ch->in_room, ROOM_BFS_MARK), ROOM_BFS_MARK);
+			GET_ROOM(ch->in_room)->set_flag(ROOM_BFS_MARK);
 		}
 	}
 	else
@@ -2370,11 +2371,11 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 		if (can_use_feat(ch, MASTER_JEWELER_FEAT))
 		{
 			sprintf(buf+strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
-			if (OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))
+			if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH3SLOTS))
 				strcat(buf, "доступно 3 слота\r\n");
-			else if (OBJ_FLAGGED(obj, ITEM_WITH2SLOTS))
+			else if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH2SLOTS))
 				strcat(buf, "доступно 2 слота\r\n");
-			else if (OBJ_FLAGGED(obj, ITEM_WITH1SLOT))
+			else if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH1SLOT))
 				strcat(buf, "доступен 1 слот\r\n");
 			else
 				strcat(buf, "нет слотов\r\n");
@@ -5285,11 +5286,17 @@ ACMD(do_color)
 		send_to_char("Формат: [режим] цвет { выкл | простой | обычный | полный }\r\n", ch);
 		return;
 	}
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_COLOR_1), PRF_COLOR_1);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_COLOR_2), PRF_COLOR_2);
+	PRF_FLAGS(ch).unset(PRF_COLOR_1);
+	PRF_FLAGS(ch).unset(PRF_COLOR_2);
 
-	SET_BIT(PRF_FLAGS(ch, PRF_COLOR_1), (PRF_COLOR_1 * (tp & 1)));
-	SET_BIT(PRF_FLAGS(ch, PRF_COLOR_1), (PRF_COLOR_2 * (tp & 2) >> 1));
+	if (0 != (1 & tp))	// 1 or 3 (simple/full)
+	{
+		PRF_FLAGS(ch).set(PRF_COLOR_1);
+	}
+	if (0 != (2 & tp))	// 2 or 3 (normal/full)
+	{
+		PRF_FLAGS(ch).set(PRF_COLOR_2);
+	}
 
 	sprintf(buf, "%s %sцветовой%s режим.\r\n", ctypes[tp], CCRED(ch, C_SPR), CCNRM(ch, C_OFF));
 	send_to_char(CAP(buf), ch);
@@ -5560,16 +5567,18 @@ ACMD(do_affects)
 	saved = ch->char_specials.saved.affected_by;
 	for (i = 0; (j = hiding[i]); i++)
 	{
-		if (IS_SET(GET_FLAG(saved, j), j))
-			SET_BIT(GET_FLAG(saved, j), j);
-		REMOVE_BIT(AFF_FLAGS(ch, j), j);
+		AFF_FLAGS(ch).unset(j);
 	}
 	sprintbits(ch->char_specials.saved.affected_by, affected_bits, buf2, ",");
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 	for (i = 0; (j = hiding[i]); i++)
+	{
 		if (IS_SET(GET_FLAG(saved, j), j))
-			SET_BIT(AFF_FLAGS(ch, j), j);
+		{
+			AFF_FLAGS(ch).set(j);
+		}
+	}
 
 	// Routine to show what spells a char is affected by
 	if (ch->affected)

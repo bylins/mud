@@ -1258,6 +1258,10 @@ public:
 	template <> void unset(const uint32_t packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
 	template <> void unset(const int packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
 
+	template <class T>
+	bool toggle(const T packed_flag) { return 0 != ((m_flags[to_underlying(packed_flag) >> 30] ^= (to_underlying(packed_flag) & 0x3fffffff)) & (to_underlying(packed_flag) & 0x3fffffff)); }
+	template <> bool toggle(const int packed_flag) { return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & (packed_flag & 0x3fffffff)); }
+
 	void asciiflag_conv(const char *flag);
 
 private:
