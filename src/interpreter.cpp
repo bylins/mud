@@ -3455,9 +3455,9 @@ Sventovit
 				SEND_TO_Q(MENU, d);
 				break;
 			}
-			if (IS_SET(PLR_FLAGS(d->character, PLR_NODELETE), PLR_NODELETE))
+			if (GET_REMORT(d->character) > 5)
 			{
-				SEND_TO_Q("\r\nБоги запретили вам суицид\r\n", d);
+				SEND_TO_Q("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
 				SEND_TO_Q(MENU, d);
 				break;
 			}
