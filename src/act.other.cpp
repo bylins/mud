@@ -74,7 +74,7 @@ extern struct skillvariables_insgem insgem_vars;
 
 // extern procedures
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
-void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
+void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter = NULL);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 void appear(CHAR_DATA * ch);
 void write_aliases(CHAR_DATA * ch);
@@ -804,8 +804,35 @@ ACMD(do_features)
 ACMD(do_skills)
 {
 	if (IS_NPC(ch))
+	{
 		return;
-	list_skills(ch, ch);
+	}
+
+	if (argument)
+	{
+		// trim argument left
+		while ('\0' != *argument && a_isspace(*argument))
+		{
+			++argument;
+		}
+
+		if (*argument)
+		{
+			// trim argument right
+			size_t length = strlen(argument);
+			while (0 < length && a_isspace(argument[length - 1]))
+			{
+				argument[--length] = '\0';
+			}
+
+			if (0 == length)
+			{
+				argument = NULL;
+			}
+		}
+	}
+
+	list_skills(ch, ch, argument);
 }
 
 ACMD(do_spells)

@@ -72,6 +72,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "bonus.h"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -689,8 +690,6 @@ void oedit_save_to_disk(int zone_num);
 void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
 void hour_update();
-// бонус
-extern void timer_bonus();
 int real_zone(int number);
 void Crash_rent_time(int dectime);
 void Crash_ldsave(CHAR_DATA * ch);
@@ -1460,17 +1459,22 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		 */
 		if (d->character)
 		{
-			GET_WAIT_STATE(d->character) -= (GET_WAIT_STATE(d->character) > 0 ? 1 : 0);
+			d->character->wait_dec();
 			GET_PUNCTUAL_WAIT_STATE(d->character) -=
 				(GET_PUNCTUAL_WAIT_STATE(d->character) > 0 ? 1 : 0);
+			if (WAITLESS(d->character))
+			{
+				d->character->set_wait(0u);
+			}
 			if (WAITLESS(d->character)
-					|| GET_WAIT_STATE(d->character) < 0)
-				GET_WAIT_STATE(d->character) = 0;
-			if (WAITLESS(d->character)
-					|| GET_PUNCTUAL_WAIT_STATE(d->character) < 0)
+				|| GET_PUNCTUAL_WAIT_STATE(d->character) < 0)
+			{
 				GET_PUNCTUAL_WAIT_STATE(d->character) = 0;
-			if (GET_WAIT_STATE(d->character))
+			}
+			if (d->character->get_wait())
+			{
 				continue;
+			}
 		}
 		// Шоб в меню долго не сидели !
 		if (!get_from_q(&d->input, comm, &aliased))
@@ -1496,7 +1500,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				char_to_room(d->character, d->character->get_was_in_room());
 				d->character->set_was_in_room(NOWHERE);
 				act("$n вернул$u.", TRUE, d->character, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				GET_WAIT_STATE(d->character) = 1;
+				d->character->set_wait(1u);
 			}
 		}
 		d->has_prompt = 0;
@@ -1719,7 +1723,7 @@ void game_loop(socket_t mother_desc)
 		// изменили на 1 сек -- слишком уж опасно лагает :)
 		if (missed_pulses > (1 * PASSES_PER_SEC))
 		{
-			log("SYSERR: Missed %d seconds worth of pulses (%d).", missed_pulses / PASSES_PER_SEC, missed_pulses);
+			log("SYSERR: Missed %d seconds worth of pulses (%d).", static_cast<int>(missed_pulses / PASSES_PER_SEC), missed_pulses);
 			missed_pulses = 1 * PASSES_PER_SEC;
 		}
 
@@ -1862,6 +1866,7 @@ inline void heartbeat(const int missed_pulses)
 	{
 		DeathTrap::activity();
 		underwater_check();
+		ClanSystem::check_player_in_house();
 	}
 
 	if (!((pulse + 3) % PULSE_VIOLENCE))
@@ -1905,7 +1910,7 @@ inline void heartbeat(const int missed_pulses)
 	if (!(pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))  	//log("Hour msg update...");
 	{
 		hour_update();
-		timer_bonus();
+		Bonus::timer_bonus();
 		//log("Stop it...");
 		//log("Weather and time...");
 		weather_and_time(1);
@@ -2638,7 +2643,7 @@ void flush_queues(DESCRIPTOR_DATA * d)
 void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 {
 	// if we're in the overflow state already, ignore this new output
-	if (t->bufptr < 0)
+	if (t->bufptr == ~0ull)
 		return;
 
 	if ((ubyte) * txt == 255)
@@ -2652,8 +2657,8 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	if (t->bufspace >= size)
 	{
 		strcpy(t->output + t->bufptr, txt);
-		t->bufspace -= static_cast<decltype(t->bufspace)>(size);
-		t->bufptr += static_cast<decltype(t->bufptr)>(size);
+		t->bufspace -= size;
+		t->bufptr += size;
 
 		return;
 	}
@@ -2663,7 +2668,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	 */
 	if (size + t->bufptr > LARGE_BUFSIZE - 1)
 	{
-		t->bufptr = -1;
+		t->bufptr = ~0ull;
 		buf_overflows++;
 		return;
 	}
@@ -2687,7 +2692,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	strcat(t->output, txt);	// now add new text
 
 	// set the pointer for the next write
-	t->bufptr = static_cast<decltype(t->bufptr)>(strlen(t->output));
+	t->bufptr = strlen(t->output);
 	// calculate how much space is left in the buffer
 	t->bufspace = LARGE_BUFSIZE - 1 - t->bufptr;
 }
@@ -3089,8 +3094,10 @@ int process_output(DESCRIPTOR_DATA * t)
 	strcpy(i + 2, t->output);
 
 	// if we're in the overflow state, notify the user
-	if (t->bufptr < 0)
+	if (t->bufptr == ~0ull)
+	{
 		strcat(i, "**OVERFLOW**\r\n");
+	}
 
 	// add the extra CRLF if the person isn't in compact mode
 	if (STATE(t) == CON_PLAYING && t->character && !IS_NPC(t->character) && !PRF_FLAGGED(t->character, PRF_COMPACT))

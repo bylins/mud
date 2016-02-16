@@ -65,7 +65,7 @@ int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
 char *how_good(CHAR_DATA * ch, int percent);
 int feat_slot_lvl(int remort, int slot_for_remort, int slot);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
-void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
+void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter = NULL);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 int slot_for_char(CHAR_DATA * ch, int i);
 SPECIAL(guild_mono);
@@ -378,7 +378,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 		send_to_char(buf2, vict);
 }
 
-void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
+void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/)
 {
 	int i = 0, bonus = 0, sortpos;
 
@@ -394,17 +394,28 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 			bonus = aff->modifier; // сколько крут стал 
 		}
 	}
+
+	typedef std::list<std::string> skills_t;
+	skills_t skills;
+
 	for (sortpos = 1; sortpos <= MAX_SKILL_NUM; sortpos++)
 	{
-		if (strlen(buf2) >= MAX_STRING_LENGTH - 60)
-		{
-			strcat(buf2, "**OVERFLOW**\r\n");
-			break;
-		}
 		if (ch->get_skill(sortpos))
 		{
-			if (!skill_info[sortpos].name || *skill_info[sortpos].name == '!')
+			// filter out skills without name or name beginning with '!' character
+			if (!skill_info[sortpos].name
+				|| *skill_info[sortpos].name == '!')
+			{
 				continue;
+			}
+
+			// filter out skill that does not correspond to filter condition
+			if (filter
+				&& NULL == strstr(skill_info[sortpos].name, filter))
+			{
+				continue;
+			}
+
 			switch (sortpos)
 			{
 			case SKILL_WARCRY:
@@ -429,14 +440,43 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 			}
 			
 			sprintf(buf + strlen(buf), "%-23s %s\r\n",
-					skill_info[sortpos].name, how_good(ch, ch->get_skill(sortpos) + bonus));
-			strcat(buf2, buf);	// The above, ^ should always be safe to do.
+				skill_info[sortpos].name,
+				how_good(ch, ch->get_skill(sortpos) + bonus));
+
+			skills.push_back(buf);
+
 			i++;
 		}
 	}
+
 	if (!i)
-		sprintf(buf2 + strlen(buf2), "Нет умений.\r\n");
-//  page_string(ch->desc, buf2, 1);
+	{
+		if (NULL == filter)
+		{
+			sprintf(buf2 + strlen(buf2), "Нет умений.\r\n");
+		}
+		else
+		{
+			sprintf(buf2 + strlen(buf2), "Нет умений, удовлетворяющих фильтру.\r\n");
+		}
+	}
+	else
+	{
+		// output set of skills
+		size_t buf2_length = strlen(buf2);
+		for (skills_t::const_iterator i = skills.begin(); i != skills.end(); ++i)
+		{
+			if (buf2_length + i->length() >= MAX_STRING_LENGTH - 60)		// why 60?
+			{
+				strcat(buf2, "**OVERFLOW**\r\n");
+				break;
+			}
+
+			strncat(buf2 + buf2_length, i->c_str(), i->length());
+			buf2_length += i->length();
+		}
+	}
+
 	send_to_char(buf2, vict);
 }
 

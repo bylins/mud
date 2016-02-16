@@ -1130,8 +1130,8 @@ const short LVL_IMMORT = 31;
 #define NUM_OF_DIRS  6		// number of directions in a room (nsewud) //
 #define MAGIC_NUMBER (0x06)	// Arbitrary number that won't be in a string //
 
-constexpr unsigned long long OPT_USEC = 40000u;	// 25 passes per second //
-constexpr unsigned long long PASSES_PER_SEC = 1000000u / OPT_USEC;
+constexpr long long OPT_USEC = 40000;	// 25 passes per second //
+constexpr long long PASSES_PER_SEC = 1000000 / OPT_USEC;
 
 #define RL_SEC    * PASSES_PER_SEC
 
@@ -1172,9 +1172,11 @@ const int HISTORY_SIZE = 5;
 #define MAX_REMEMBER_GOSSIP   15
 // планка на кол-во денег у чара на руках и в банке (раздельно)
 const long MAX_MONEY_KEPT = 1000000000;
+#define BONUS_EXP 0
+#define BONUS_WEAPON_EXP 1
+#define BONUS_DAMAGE 2
 
-
-#define INT_STUPID_MOD 20
+#define INT_STUPID_MOD 10
 #define INT_MIDDLE_AI 30
 #define INT_HIGH_AI 40
 #define MIN_HP_MOBACT 100
@@ -1631,9 +1633,8 @@ struct DESCRIPTOR_DATA
 	char **history;		// History of commands, for ! mostly.  //
 	int
 	history_pos;		// Circular array position.      //
-	int bufptr;			// ptr to end of current output  //
-	int
-	bufspace;		// space left in the output buffer  //
+	size_t bufptr;			// ptr to end of current output  //
+	size_t bufspace;		// space left in the output buffer  //
 	struct txt_block *large_outbuf;	// ptr to large buffer, if we need it //
 	struct txt_q
 				input;			// q of unprocessed input     //

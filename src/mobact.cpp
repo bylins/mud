@@ -280,7 +280,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		if (IS_SET(extmode, SKIP_SNEAKING))
 		{
 			skip_sneaking(vict, ch);
-			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
+			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)))
 				REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
 			if (AFF_FLAGGED(vict, AFF_SNEAK))
 				continue;
@@ -308,7 +308,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		{
 			if (can_use_feat(vict, SILVER_TONGUED_FEAT) &&
 					number(1, GET_LEVEL(vict) * GET_REAL_CHA(vict)) >
-					number(1, ((GET_LEVEL(ch) > 35) ? GET_LEVEL(ch) * 2 : GET_LEVEL(ch))  * GET_REAL_INT(ch)))
+					number(1, ((GET_LEVEL(ch) > 30) ? (GET_LEVEL(ch) * 2 * GET_REAL_INT(ch) + GET_REAL_INT(ch) * 20) : (GET_LEVEL(ch) * GET_REAL_INT(ch)))))
 				continue;
 			kill_this = TRUE;
 		}
@@ -401,7 +401,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	{
 		return find_best_stupidmob_victim(ch, extmode);
 	}
-	CHAR_DATA *vict, *victim,  *caster = NULL, *best = NULL, *min_hp = NULL;
+	CHAR_DATA *vict, *victim,  *caster = NULL, *best = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	int extra_aggr = 0;
 	bool kill_this;
@@ -422,8 +422,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 				MOB_FLAGGED(ch, MOB_WIMPY) && AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch))
 			continue;
 
-
-
 		// Mobile helpers... //ассист
 		if ((vict->get_fighting()) && (vict->get_fighting() != ch) &&
 				(IS_NPC(vict->get_fighting())) && (!AFF_FLAGGED(vict->get_fighting(), AFF_CHARM)))
@@ -434,9 +432,8 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 				continue;
 		if (IS_SET(extmode, SKIP_SNEAKING))
 		{
-			if (skip_sneaking(vict, ch))
-			    continue;
-    			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
+			skip_sneaking(vict, ch);
+   			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) || (ch->get_role(MOB_ROLE_BOSS)))
 				REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
 			if (AFF_FLAGGED(vict, AFF_SNEAK))
 				continue;
@@ -493,7 +490,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		// если у чара меньше 100 хп, то переключаемся на него
 		if (GET_HIT(vict) <= MIN_HP_MOBACT)
 		{
-			min_hp = vict;
 			continue;
 		}
 		if (IS_CASTER(vict))
@@ -503,8 +499,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		}
 		best = vict;
 	}
-
-
 
 	if (!best)
 		best = victim;
@@ -561,8 +555,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		best = druid;
 
 	return best;
-
-
 }
 
 int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
@@ -937,18 +929,12 @@ void mobile_activity(int activity_level, int missed_pulses)
 			pulse_affect_update(ch);
 		}
 
-		if (GET_WAIT(ch) > 0)
-			GET_WAIT(ch) -= missed_pulses;
-		else
-			GET_WAIT(ch) = 0;
+		ch->wait_dec(missed_pulses);
 
 		if (GET_PUNCTUAL_WAIT(ch) > 0)
 			GET_PUNCTUAL_WAIT(ch) -= missed_pulses;
 		else
 			GET_PUNCTUAL_WAIT(ch) = 0;
-
-		if (GET_WAIT(ch) < 0)
-			GET_WAIT(ch) = 0;
 
 		if (GET_PUNCTUAL_WAIT(ch) < 0)
 			GET_PUNCTUAL_WAIT(ch) = 0;

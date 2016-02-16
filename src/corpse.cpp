@@ -115,7 +115,7 @@ void table_drop::reload_table()
 // возвратит true, если моб найден в таблице и прошел шанс
 bool table_drop::check_mob(int vnum)
 {
-	for (int i = 0; i < this->drop_mobs.size(); i++)
+	for (size_t i = 0; i < this->drop_mobs.size(); i++)
 	{
 		if (this->drop_mobs[i] == vnum)
 		{
@@ -132,7 +132,7 @@ int table_drop::get_vnum()
 
 void reload_tables()
 {
-	for (int i = 0; i < tables_drop.size(); i++)
+	for (size_t i = 0; i < tables_drop.size(); i++)
 	{
 		tables_drop[i].reload_table();
 	}
@@ -348,7 +348,7 @@ int get_obj_to_drop(DropListType::iterator &i)
  */
 bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 {
-	for (int i = 0; i < tables_drop.size(); i++)
+	for (size_t i = 0; i < tables_drop.size(); i++)
 	{
 		if (tables_drop[i].check_mob(GET_MOB_VNUM(mob)))
 		{			
@@ -370,15 +370,15 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 		    && (!i->max_mob_lvl || GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
 		    && ((i->race_mob < 0) || (GET_RACE(mob) == i->race_mob) || (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
 		    && ((i->day_start <= day) && (i->day_end >= day))			// временной промежуток
-		    && (!mob->master || IS_NPC(mob->master)) // не чармис	
-		    && (number(1, 1000) <= i->chance)) //если установлен рандом
+		    && (!mob->master || IS_NPC(mob->master))) // не чармис	
+
 		{
 			++(i->mobs);
 			if (i->mobs >= i->count_mob)
 			{
 				int obj_rnum = i->vnum > 0 ? i->rnum : get_obj_to_drop(i);
-				if (((obj_rnum >= 0) && (obj_index[obj_rnum].stored + obj_index[obj_rnum].number < GET_OBJ_MIW(obj_proto[obj_rnum])))
-                        || (GET_OBJ_MIW(obj_proto[obj_rnum]) == -1))
+				if ((((obj_rnum >= 0) && (obj_index[obj_rnum].stored + obj_index[obj_rnum].number < GET_OBJ_MIW(obj_proto[obj_rnum])))
+                        || (GET_OBJ_MIW(obj_proto[obj_rnum]) == -1)) && (number(1, 1000) <= i->chance))
 				{
 					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
 					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d", obj_proto[obj_rnum]->short_description, obj_index[obj_rnum].vnum, GET_NAME(mob), GET_MOB_VNUM(mob));

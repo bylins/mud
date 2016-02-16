@@ -204,6 +204,7 @@ extern struct olc_save_info *olc_save_list;
 #define OEDIT_POTION_SPELL2_LVL         47
 #define OEDIT_POTION_SPELL3_NUM         48
 #define OEDIT_POTION_SPELL3_LVL         49
+#define OEDIT_CLONE						50
 
 // * Submodes of REDIT connectedness.
 #define REDIT_MAIN_MENU 		1
@@ -253,7 +254,7 @@ extern struct olc_save_info *olc_save_list;
 #define ZEDIT_ZONE_GROUP         28
 
 // * Submodes of MEDIT connectedness.
-#define MEDIT_MAIN_MENU			0
+#define MEDIT_MAIN_MENU		0
 #define MEDIT_ALIAS			1
 #define MEDIT_PAD0			2
 #define MEDIT_PAD1			3
@@ -261,57 +262,58 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_PAD3			5
 #define MEDIT_PAD4			6
 #define MEDIT_PAD5			7
-#define MEDIT_L_DESC			8
-#define MEDIT_D_DESC			9
-#define MEDIT_MOB_FLAGS			10
-#define MEDIT_AFF_FLAGS			11
+#define MEDIT_L_DESC		8
+#define MEDIT_D_DESC		9
+#define MEDIT_MOB_FLAGS		10
+#define MEDIT_AFF_FLAGS		11
 #define MEDIT_CONFIRM_SAVESTRING	12
-#define MEDIT_NPC_FLAGS			13
+#define MEDIT_NPC_FLAGS		13
 #define MEDIT_ING			14
-#define MEDIT_DLIST_MENU		15
-#define MEDIT_DLIST_ADD			16
-#define MEDIT_DLIST_DEL			17
+#define MEDIT_DLIST_MENU	15
+#define MEDIT_DLIST_ADD		16
+#define MEDIT_DLIST_DEL		17
 // * Numerical responses.
 #define MEDIT_NUMERICAL_RESPONSE	20
 #define MEDIT_SEX			24
-#define MEDIT_HITROLL		        25
-#define MEDIT_DAMROLL		        26
-#define MEDIT_NDD		        27
-#define MEDIT_SDD		        28
-#define MEDIT_NUM_HP_DICE		29
-#define MEDIT_SIZE_HP_DICE		30
-#define MEDIT_ADD_HP			31
+#define MEDIT_HITROLL		25
+#define MEDIT_DAMROLL		26
+#define MEDIT_NDD		    27
+#define MEDIT_SDD		    28
+#define MEDIT_NUM_HP_DICE	29
+#define MEDIT_SIZE_HP_DICE	30
+#define MEDIT_ADD_HP		31
 #define MEDIT_AC			32
 #define MEDIT_EXP			33
 #define MEDIT_GOLD			34
-#define MEDIT_GOLD_DICE			35
-#define MEDIT_GOLD_SIZE			36
+#define MEDIT_GOLD_DICE		35
+#define MEDIT_GOLD_SIZE		36
 #define MEDIT_POS			37
-#define MEDIT_DEFAULT_POS		38
-#define MEDIT_ATTACK			39
+#define MEDIT_DEFAULT_POS	38
+#define MEDIT_ATTACK		39
 #define MEDIT_LEVEL			40
-#define MEDIT_ALIGNMENT			41
-#define MEDIT_DESTINATION		42
-#define MEDIT_HELPERS			43
-#define MEDIT_SKILLS			44
-#define MEDIT_SPELLS			45
+#define MEDIT_ALIGNMENT		41
+#define MEDIT_DESTINATION	42
+#define MEDIT_HELPERS		43
+#define MEDIT_SKILLS		44
+#define MEDIT_SPELLS		45
 #define MEDIT_STR			46
 #define MEDIT_DEX			47
 #define MEDIT_CON			48
 #define MEDIT_WIS			49
 #define MEDIT_INT			50
 #define MEDIT_CHA			51
-#define MEDIT_HEIGHT			52
-#define MEDIT_WEIGHT			53
+#define MEDIT_HEIGHT		52
+#define MEDIT_WEIGHT		53
 #define MEDIT_SIZE			54
 #define MEDIT_EXTRA			55
 #define MEDIT_SPEED			56
 #define MEDIT_LIKE			57
-#define MEDIT_ROLE                     58
-#define MEDIT_RESISTANCES		59
+#define MEDIT_ROLE          58
+#define MEDIT_RESISTANCES	59
 #define MEDIT_SAVES			60
 #define MEDIT_ADD_PARAMETERS		61
-#define MEDIT_FEATURES			62
+#define MEDIT_FEATURES		62
+#define MEDIT_CLONE			63
 
 #if defined(OASIS_MPROG)
 #define MEDIT_MPROG                     60

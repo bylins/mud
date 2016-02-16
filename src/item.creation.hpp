@@ -120,7 +120,7 @@ public:
 	// число элементов рецептов
 	size_t size();
 
-	MakeRecept *operator[](int i);
+	MakeRecept *operator[](size_t i);
 
 	// освобождение списка рецептов.
 	void clear();

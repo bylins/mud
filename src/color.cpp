@@ -191,8 +191,8 @@ int is_colour(char code)
 
 int proc_color(char *inbuf, int colour)
 {
-	int j = 0, p = 0;
-	int k, c = 0, tmp = 0, nc = 0; // normal colour CNRM by default
+	int p = 0;
+	int c = 0, tmp = 0, nc = 0; // normal colour CNRM by default
 	bool show_all = false;
 	char out_buf[MAX_SOCK_BUF * 2];
 
@@ -205,6 +205,7 @@ int proc_color(char *inbuf, int colour)
 		return -2;
 	}
 
+	size_t j = 0;
 	while (j < len)
 	{
 		// WorM: Добавил ключи &S и &s, начало и конец текста без обработки цветов и _
@@ -255,7 +256,7 @@ int proc_color(char *inbuf, int colour)
 		size_t max = strlen(COLOURLIST[(c == 0 && nc != 0 ? nc : c)]);
 		if (colour || max == 1)
 		{
-			for (k = 0; k < max; k++)
+			for (size_t k = 0; k < max; k++)
 			{
 				out_buf[p] = COLOURLIST[(c == 0 && nc != 0 ? nc : c)][k];
 				p++;
@@ -267,7 +268,7 @@ int proc_color(char *inbuf, int colour)
 	strcpy(inbuf, out_buf);
 	if (j > len)
 	{
-		return j;
+		return static_cast<int>(j);
 	}
 	return 0;
 }

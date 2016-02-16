@@ -73,7 +73,7 @@
 #include "mob_stat.hpp"
 #include "obj.hpp"
 #include "obj_sets.hpp"
-
+#include "bonus.h"
 #include <sys/stat.h>
 #include <sstream>
 #include <string>
@@ -572,7 +572,6 @@ float count_remort_requred(OBJ_DATA *obj)
 	const int AFF_SHIELD_MOD = 30;
 	const int AFF_BLINK_MOD = 10;
 
-	// сумма для статов
 	result = 0.0;
 	
 	if (ObjSystem::is_mob_item(obj)
@@ -892,6 +891,7 @@ ACMD(do_reboot)
 		Remort::init();
 		Noob::init();
 		ResetStats::init();
+		Bonus::bonus_log_load();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -2389,7 +2389,6 @@ void boot_db(void)
 
 	log("Load craft system.");
 	craft::load();
-
 	log("Check big sets in rent.");
 	SetSystem::check_rented();
 
@@ -2878,6 +2877,11 @@ void discrete_load(FILE * fl, int mode, char *filename)
 			if (sscanf(line, "#%d", &nr) != 1)
 			{
 				log("SYSERR: Format error after %s #%d", modes[mode], last);
+				exit(1);
+			}
+			if (nr == 1)
+			{
+				log("SYSERR: Entity with vnum 1, filename=%s", filename);
 				exit(1);
 			}
 			if (nr >= MAX_PROTO_NUMBER)
@@ -3962,7 +3966,6 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 					{
 						act("На земле остал$U лежать $o.", FALSE, ch, tobj, 0, TO_ROOM);
 						obj_to_room(tobj, IN_ROOM(ch));
-						std::string::npos;
 					}
 					else
 					{

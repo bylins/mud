@@ -46,7 +46,8 @@ enum Privileges: unsigned
 
 const unsigned MAX_GOLD_TAX_PCT = 25;
 const int MIN_GOLD_TAX_AMOUNT = 100;
-
+bool is_alliance(CHAR_DATA *ch, char *clan_abbr);
+void check_player_in_house();
 bool is_ingr_chest(OBJ_DATA *obj);
 void save_ingr_chests();
 bool show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch);
@@ -200,7 +201,6 @@ public:
 	static void clan_invoice(CHAR_DATA *ch, bool enter);
 	static int delete_obj(int vnum);
 	static void save_pk_log();
-
 	static bool put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest);
 	static bool take_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest);
 

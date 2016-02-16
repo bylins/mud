@@ -247,7 +247,11 @@ OCMD(do_oexp)
 	}
 
 	if ((ch = get_char_by_obj(obj, name)))
+	{
 		gain_exp(ch, atoi(amount));
+		sprintf(buf, "oexp: victim (%s) получил опыт %d", GET_NAME(ch) , atoi(amount));
+		obj_log(obj, buf);
+	}
 	else
 	{
 		obj_log(obj, "oexp: target not found");
