@@ -51,6 +51,7 @@
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
+#include "bonus.h"
 #include "conf.h"
 
 #include <boost/lexical_cast.hpp>
@@ -3342,6 +3343,10 @@ void print_do_score_all(CHAR_DATA *ch)
 	if (PRF_FLAGGED(ch, PRF_BLIND))
 		sprintf(buf + strlen(buf),
 				" || Режим слепого игрока включен.                                                   ||\r\n");
+	if (Bonus::is_bonus(0))
+		sprintf(buf + strlen(buf),
+			" || %-79s||\r\n || %-79s||\r\n", Bonus::str_type_bonus().c_str(), Bonus::bonus_end().c_str());
+
 
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL)
 	{

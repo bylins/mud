@@ -410,17 +410,17 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	trans_obj_name(skin, mob); // переносим падежи
 	for (i = 1; i <= GET_OBJ_VAL(skin, 3); i++) // топовая шкура до 4х афектов
 	{
-		if ((i == 2) && (number(1, 100) > 25))
+		if ((i == 2) && (number(1, 100) > 35))
 		{
 //			mudlog("в 25% не попало!",  NRM, LVL_GRGOD, SYSLOG, TRUE);
 			continue;
 		}
-		if ((i == 3) && (number(1, 100) > 10))
+		if ((i == 3) && (number(1, 100) > 20))
 		{
 //			mudlog("в 10% не попало!",  NRM, LVL_GRGOD, SYSLOG, TRUE);
 			continue;
 		}
-		if ((i == 4) && (number(1, 100) > 5))
+		if ((i == 4) && (number(1, 100) > 10))
 		{
 //			mudlog("в 5% не попало!",  NRM, LVL_GRGOD, SYSLOG, TRUE);
 			continue;

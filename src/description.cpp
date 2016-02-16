@@ -48,7 +48,7 @@ const std::string& RoomDescription::show_desc(size_t desc_num)
 	}
 	catch (const std::out_of_range&)
 	{
-		log("SYSERROR : bad room description num '%d' (%s %s %d)", desc_num, __FILE__, __func__, __LINE__);
+		log("SYSERROR : bad room description num '%zd' (%s %s %d)", desc_num, __FILE__, __func__, __LINE__);
 		return empty_string;
 	}
 }

@@ -212,7 +212,9 @@ set(HEADERS
     src/telnet.h
     src/title.hpp
     src/top.h
-    src/utils.h)
+    src/utils.h
+    src/bonus.cpp
+    src/bonus.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
@@ -301,16 +303,21 @@ else()
     set(PYTHON_LIBRARIES)
 endif ()
 
-# Main executable file.
-add_executable(circle
-    ${SOURCES}
-    ${HEADERS}
-    readme.markdown			# add into the project file to make possible edit it just in the IDE (Visual Studio, for example).
-    )
+# Versioning
+# Try to find hg executable, retrive revision if found and generate version.cpp from template
+set(VERSIONING_FILES src/versioning.cmake src/version.cpp.in)
+find_program(HG hg DOC "Mercurial executable file")
+# invalidate template
+add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp.in
+    SOURCES ${VERSIONING_FILES})
+add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
+    COMMAND ${CMAKE_COMMAND} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DHG=${HG} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake
+    DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 
-# Invalidate src/version.cpp
-add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp)
+# Main executable file.
+add_executable(circle ${SOURCES} ${HEADERS} readme.markdown)
 add_dependencies(circle versioning)
+source_group("" FILES ${VERSIONING_FILES})
 
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)
@@ -388,10 +395,10 @@ endif ()
 
 if (CMAKE_HOST_UNIX)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -Og -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER")
-        set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0 -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC")
-        set(CMAKE_CXX_FLAGS_TEST     "-ggdb3 -O0 -Wall -Wextra -Wno-unused-parameter ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
-        set(CMAKE_CXX_FLAGS_FASTTEST "-ggdb3 -Og -Wall ${TESTBUILD_DEFINITIONS}")
+        set(CMAKE_CXX_FLAGS_RELEASE  "       -Ofast -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER")
+        set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC")
+        set(CMAKE_CXX_FLAGS_TEST     "-ggdb3 -O0    -Wall -Wextra -Wno-unused-parameter ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
+        set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall ${TESTBUILD_DEFINITIONS}")
 
         if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             add_definitions("-Wno-invalid-source-encoding")

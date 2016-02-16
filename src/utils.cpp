@@ -1578,7 +1578,7 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, size_t maxlen
 	}
 	strcat(formated, "\r\n");
 
-	if ((signed)strlen(formated) > maxlen)
+	if (strlen(formated) > maxlen)
 	{
 		formated[maxlen] = '\0';
 	}
@@ -2076,7 +2076,7 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 //Gorrah
 int valid_email(const char *address)
 {
-	int i, count = 0;
+	int count = 0;
 	static string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
 	string addr = address;
 	string::size_type dog_pos = 0, pos = 0;
@@ -2085,9 +2085,13 @@ int valid_email(const char *address)
 	if (addr.find_first_of(special_symbols) != string::npos)
 		return 0;
 	size_t size = addr.size();
-	for (i = 0; i < size; i++)
+	for (size_t i = 0; i < size; i++)
+	{
 		if (addr[i] <= ' ' || addr[i] >= 127)
+		{
 			return 0;
+		}
+	}
 	// Собака должна быть только одна и на второй и далее позиции //
 	while ((pos = addr.find_first_of('@', pos)) != string::npos)
 	{

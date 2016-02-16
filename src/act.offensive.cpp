@@ -650,7 +650,7 @@ ACMD(do_order)
 			else
 			{
 				send_to_char(OK, ch);
-				if (GET_WAIT_STATE(vict) <= 0)
+				if (vict->get_wait() <= 0)
 					command_interpreter(vict, message);
 				else if (vict->get_fighting())
 				{
@@ -673,7 +673,7 @@ ACMD(do_order)
 							&& !AFF_FLAGGED(k->follower, AFF_DEAFNESS))
 					{
 						found = TRUE;
-						if (GET_WAIT_STATE(k->follower) <= 0)
+						if (k->follower->get_wait() <= 0)
 						{
 							command_interpreter(k->follower, message);
 						}
@@ -1849,7 +1849,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 	pk_agro_action(ch, vict);
 
 	appear(ch);
-	if (IS_NPC(vict) && CAN_SEE(vict, ch) && have_mind(vict) && GET_WAIT_STATE(vict) <= 0)
+	if (IS_NPC(vict) && CAN_SEE(vict, ch) && have_mind(vict) && vict->get_wait() <= 0)
 		set_hit(vict, ch);
 
 	set_wait(ch, prob, FALSE);

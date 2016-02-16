@@ -898,16 +898,13 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
 #define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
 
-// These three deprecated
-#define WAIT_STATE(ch, cycle) if (GET_WAIT_STATE(ch)<(cycle)) { do { GET_WAIT_STATE(ch) = (cycle); } while(0);}
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
-#define CHECK_WAIT(ch)        ((ch)->wait > 0)
-#define GET_WAIT(ch)          GET_WAIT_STATE(ch)
+#define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
+#define GET_WAIT(ch)          (ch)->get_wait()
 #define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
 #define GET_MOB_HOLD(ch)      (AFF_FLAGGED((ch),AFF_HOLD) ? 1 : 0)
 #define GET_MOB_SIELENCE(ch)  (AFF_FLAGGED((ch),AFF_SIELENCE) ? 1 : 0)
 // New, preferred macro
-#define GET_WAIT_STATE(ch)    ((ch)->wait)
 #define GET_PUNCTUAL_WAIT_STATE(ch)    ((ch)->punctual_wait)
 
 

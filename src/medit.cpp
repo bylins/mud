@@ -33,7 +33,7 @@
 
 #include <sstream>
 
-// * Set this to 1 for debugging logs in medit_save_internally.
+ // * Set this to 1 for debugging logs in medit_save_internally.
 #if 0
 #define DEBUG
 #endif
@@ -48,6 +48,7 @@ extern mob_rnum top_of_mobt;
 extern struct zone_data *zone_table;
 extern struct player_special_data dummy_mob;
 extern DESCRIPTOR_DATA *descriptor_list;
+extern void extract_mob(CHAR_DATA *ch);
 #if defined(OASIS_MPROG)
 extern const char *mobprog_types[];
 #endif
@@ -140,10 +141,10 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
    Функция делает создает копию ПРОТОТИПА моба.
    После вызова этой функции создается полностью независимая копия моба src.
    Все поля имеют те же значения, но занимают свои области памяти.
-      dst - "чистый" указатель на структуру char_data.
-      src - исходный моб
+	  dst - "чистый" указатель на структуру char_data.
+	  src - исходный моб
    Примечание: Неочищенный указатель dst приведет к утечке памяти.
-               Используйте medit_mobile_free() для очистки содержимого моба
+			   Используйте medit_mobile_free() для очистки содержимого моба
 
    Т.к. работа идет с прототипом, необходимо отслеживать только следующие поля
    (остальные будут в безопасном состоянии)
@@ -176,8 +177,8 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	for (j = 0; j < NUM_PADS; j++)
 		GET_PAD(dst, j) = str_dup(not_null(GET_PAD(src, j), "неопределен"));
 	dst->mob_specials.Questor = (src->mob_specials.Questor
-								 && *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
-								 : NULL);
+		&& *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
+		: NULL);
 
 	pdhd = &dst->helpers;
 	shd = src->helpers;
@@ -199,8 +200,8 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	dst->in_fighting_list_ = tmp.in_fighting_list_;
 	// для name_list
 	dst->set_serial_num(tmp.get_serial_num());
-//	CharacterAlias::remove(dst);
-//	CharacterAlias::add(dst);
+	//	CharacterAlias::remove(dst);
+	//	CharacterAlias::add(dst);
 }
 
 
@@ -208,7 +209,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 /*++
 	Функция полностью освобождает память, занимаемую данными моба.
 	ВНИМАНИЕ. Память самой структуры char_data не освобождается.
-             Необходимо дополнительно использовать free()
+			 Необходимо дополнительно использовать free()
 
 	add: вобщем если втыкаете здесь free, то надо обнулять указатель,
 	иначе потом при выходе из олц в деструкторе будет повторная попытка
@@ -300,8 +301,8 @@ void medit_mobile_free(CHAR_DATA * mob)
 void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 /*++
    Подготовка данных для редактирования моба.
-      d        - OLC дескриптор
-      real_num - RNUM исходного моба, новый -1
+	  d        - OLC дескриптор
+	  real_num - RNUM исходного моба, новый -1
 --*/
 {
 	CHAR_DATA *mob = new CHAR_DATA;
@@ -390,9 +391,9 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 	CHAR_DATA *live_mob;
 	DESCRIPTOR_DATA *dsc;
 
-//  rmob_num = real_mobile(OLC_NUM(d));
+	//  rmob_num = real_mobile(OLC_NUM(d));
 	rmob_num = GET_MOB_RNUM(OLC_MOB(d));
-//	set_test_data(OLC_MOB(d));
+	//	set_test_data(OLC_MOB(d));
 
 	if (rmob_num >= 0)
 	{
@@ -456,7 +457,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 					new_mob_num = rmob_num;
 					GET_MOB_RNUM(OLC_MOB(d)) = rmob_num;
 					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
-//					new_proto[rmob_num] = *(OLC_MOB(d));
+					//					new_proto[rmob_num] = *(OLC_MOB(d));
 					new_index[rmob_num].zone = real_zone(OLC_NUM(d));
 					new_index[rmob_num].set_idx = -1;
 					--rmob_num;
@@ -477,8 +478,8 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		}
 #if defined(DEBUG)
 		fprintf(stderr,
-				"rmob_num: %d, top_of_mobt: %d, array size: 0-%d (%d)\n",
-				rmob_num, top_of_mobt, top_of_mobt + 1, top_of_mobt + 2);
+			"rmob_num: %d, top_of_mobt: %d, array size: 0-%d (%d)\n",
+			rmob_num, top_of_mobt, top_of_mobt + 1, top_of_mobt + 2);
 #endif
 		if (!found)  	// Still not found, must add it to the top of the table.
 		{
@@ -491,7 +492,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			new_mob_num = rmob_num;
 			GET_MOB_RNUM(OLC_MOB(d)) = rmob_num;
 			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
-//			new_proto[rmob_num] = *(OLC_MOB(d));
+			//			new_proto[rmob_num] = *(OLC_MOB(d));
 			new_index[rmob_num].zone = real_zone(OLC_NUM(d));
 			new_index[rmob_num].set_idx = -1;
 		}
@@ -511,12 +512,12 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		fprintf(stderr, "Free ok.\n");
 #endif
 
-// Оновная проблема - перенумерация всех существующих RNUM
+		// Оновная проблема - перенумерация всех существующих RNUM
 
-// 1. Увеличение RNUM существующих в мире мобов
-		// Update live mobile rnums. //
-		// new_mob_num - индекс, куда вставлен новый моб //
-		// Для всех существующих мобов с RNUM>=new_mob_num нужно увеличить RNUM //
+		// 1. Увеличение RNUM существующих в мире мобов
+				// Update live mobile rnums. //
+				// new_mob_num - индекс, куда вставлен новый моб //
+				// Для всех существующих мобов с RNUM>=new_mob_num нужно увеличить RNUM //
 		for (live_mob = character_list; live_mob; live_mob = live_mob->get_next())
 		{
 			if (GET_MOB_RNUM(live_mob) >= new_mob_num)
@@ -525,8 +526,8 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			}
 		}
 
-// 2. Изменение параметров команд zon-файлов
-		// Update zone table. //
+		// 2. Изменение параметров команд zon-файлов
+				// Update zone table. //
 		for (zone = 0; zone <= top_of_zone_table; zone++)
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
 				if (ZCMD.command == 'M' || ZCMD.command == 'Q')
@@ -542,8 +543,8 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 						ZCMD.arg3++;
 				}
 
-// 4. Другие редактируемые мобы
-		// * Update keepers in shops being edited and other mobs being edited.
+		// 4. Другие редактируемые мобы
+				// * Update keepers in shops being edited and other mobs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next)
 		{
 			if (dsc->connected == CON_MEDIT)
@@ -552,7 +553,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 					GET_MOB_RNUM(OLC_MOB(dsc))++;
 			}
 		}
-// 5. Информация о выслеживании
+		// 5. Информация о выслеживании
 		for (j = FIRST_ROOM; j <= top_of_world; j++)
 		{
 			struct track_data *track;
@@ -629,14 +630,14 @@ void medit_save_to_disk(int zone_num)
 			strip_string(buf2);
 
 			fprintf(mob_file,
-					"%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
-					not_null(GET_ALIAS(mob), "неопределен"),
-					not_null(GET_PAD(mob, 0), "кто"),
-					not_null(GET_PAD(mob, 1), "кого"),
-					not_null(GET_PAD(mob, 2), "кому"),
-					not_null(GET_PAD(mob, 3), "кого"),
-					not_null(GET_PAD(mob, 4), "кем"),
-					not_null(GET_PAD(mob, 5), "о ком"), buf1, buf2);
+				"%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
+				not_null(GET_ALIAS(mob), "неопределен"),
+				not_null(GET_PAD(mob, 0), "кто"),
+				not_null(GET_PAD(mob, 1), "кого"),
+				not_null(GET_PAD(mob, 2), "кому"),
+				not_null(GET_PAD(mob, 3), "кого"),
+				not_null(GET_PAD(mob, 4), "кем"),
+				not_null(GET_PAD(mob, 5), "о ком"), buf1, buf2);
 			if (mob->mob_specials.Questor)
 				strcpy(buf1, mob->mob_specials.Questor);
 			else
@@ -647,15 +648,15 @@ void medit_save_to_disk(int zone_num)
 			tascii(&AFF_FLAGS(mob, 0), 4, buf2);
 
 			fprintf(mob_file,
-					// "%s~\n"
-					"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
-					// buf1,
-					buf2, GET_ALIGNMENT(mob),
-					GET_LEVEL(mob), 20 - GET_HR(mob), GET_AC(mob) / 10,
-					GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob), GET_HIT(mob),
-					GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
-					GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob),
-					GET_POS(mob), GET_DEFAULT_POS(mob), GET_SEX(mob));
+				// "%s~\n"
+				"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
+				// buf1,
+				buf2, GET_ALIGNMENT(mob),
+				GET_LEVEL(mob), 20 - GET_HR(mob), GET_AC(mob) / 10,
+				GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob), GET_HIT(mob),
+				GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
+				GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob),
+				GET_POS(mob), GET_DEFAULT_POS(mob), GET_SEX(mob));
 
 			// * Deal with Extra stats in case they are there.
 			sum = 0;
@@ -663,14 +664,14 @@ void medit_save_to_disk(int zone_num)
 				sum += GET_SAVE(mob, n);
 			if (sum != 0)
 				fprintf(mob_file, "Saves: %d %d %d %d\n",
-						GET_SAVE(mob, 0), GET_SAVE(mob, 1), GET_SAVE(mob, 2), GET_SAVE(mob, 3));
+					GET_SAVE(mob, 0), GET_SAVE(mob, 1), GET_SAVE(mob, 2), GET_SAVE(mob, 3));
 			sum = 0;
 			for (n = 0; n < MAX_NUMBER_RESISTANCE; n++)
 				sum += GET_RESIST(mob, n);
 			if (sum != 0)
 				fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d\n",
-						GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
-						GET_RESIST(mob, 4), GET_RESIST(mob, 5), GET_RESIST(mob, 6));
+					GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
+					GET_RESIST(mob, 4), GET_RESIST(mob, 5), GET_RESIST(mob, 6));
 			if (GET_HITREG(mob) != 0)
 				fprintf(mob_file, "HPreg: %d\n", GET_HITREG(mob));
 			if (GET_ARMOUR(mob) != 0)
@@ -768,7 +769,7 @@ void medit_save_to_disk(int zone_num)
 				while (p != mob->dl_list->end())
 				{
 					fprintf(mob_file, "L %d %d %d %d\n",
-							(*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
+						(*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
 					p++;
 				}
 			}
@@ -831,26 +832,26 @@ void medit_disp_add_parameters(DESCRIPTOR_DATA * d)
 	send_to_char("[H[J", d->character);
 #endif
 	sprintf(buf,
-			"%s1%s ) Регенерация : %s%d%s\r\n"
-			"%s2%s ) Броня : %s%d%s\r\n"
-			"%s3%s ) Запоминание : %s%d%s\r\n"
-			"%s4%s ) Успех колдовства : %s%d%s\r\n"
-			"%s5%s ) Удача : %s%d%s\r\n"
-			"%s6%s ) Инициатива : %s%d%s\r\n"
-			"%s7%s ) Поглощение : %s%d%s\r\n"
-			"%s8%s ) Иммунитет к магическим аффектам : %s%d%s\r\n"
-			"%s9%s ) Иммунитет к магическим повреждениям : %s%d%s\r\n"
-			"%s10%s) Иммунитет к физическим повреждениям : %s%d%s\r\n",
-			grn, nrm, cyn, GET_HITREG((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_ARMOUR((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_MANAREG((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_CAST_SUCCESS((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_MORALE((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_INITIATIVE((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_ABSORBE((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_AR((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_MR((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_PR((OLC_MOB(d))), nrm);
+		"%s1%s ) Регенерация : %s%d%s\r\n"
+		"%s2%s ) Броня : %s%d%s\r\n"
+		"%s3%s ) Запоминание : %s%d%s\r\n"
+		"%s4%s ) Успех колдовства : %s%d%s\r\n"
+		"%s5%s ) Удача : %s%d%s\r\n"
+		"%s6%s ) Инициатива : %s%d%s\r\n"
+		"%s7%s ) Поглощение : %s%d%s\r\n"
+		"%s8%s ) Иммунитет к магическим аффектам : %s%d%s\r\n"
+		"%s9%s ) Иммунитет к магическим повреждениям : %s%d%s\r\n"
+		"%s10%s) Иммунитет к физическим повреждениям : %s%d%s\r\n",
+		grn, nrm, cyn, GET_HITREG((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_ARMOUR((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_MANAREG((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_CAST_SUCCESS((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_MORALE((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_INITIATIVE((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_ABSORBE((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_AR((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_MR((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_PR((OLC_MOB(d))), nrm);
 	send_to_char(buf, d->character);
 	send_to_char("Введите номер и величину параметра (0 - конец) : ", d->character);
 }
@@ -869,7 +870,7 @@ void medit_disp_resistances(DESCRIPTOR_DATA * d)
 	for (i = 0; *resistance_types[i] != '\n'; i++)
 	{
 		sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
-				grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm);
+			grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm);
 		send_to_char(buf, d->character);
 	}
 	send_to_char("Введите номер и величину сопротивления (0 - конец) : ", d->character);
@@ -890,7 +891,7 @@ void medit_disp_saves(DESCRIPTOR_DATA * d)
 	for (i = 1; *apply_negative[i] != '\n'; i++)
 	{
 		sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
-				grn, i, nrm, apply_negative[i], cyn, GET_SAVE(OLC_MOB(d), i - 1), nrm);
+			grn, i, nrm, apply_negative[i], cyn, GET_SAVE(OLC_MOB(d), i - 1), nrm);
 		send_to_char(buf, d->character);
 	}
 	send_to_char("Введите номер и величину спас-броска (0 - конец) : ", d->character);
@@ -949,15 +950,15 @@ void medit_disp_mprog(DESCRIPTOR_DATA * d)
 	while (mprog)
 	{
 		sprintf(buf, "%d) %s %s\r\n", OLC_MTOTAL(d),
-				medit_get_mprog_type(mprog), (mprog->arglist ? mprog->arglist : "NONE"));
+			medit_get_mprog_type(mprog), (mprog->arglist ? mprog->arglist : "NONE"));
 		send_to_char(buf, d->character);
 		OLC_MTOTAL(d)++;
 		mprog = mprog->next;
 	}
 	sprintf(buf,
-			"%d) Создать новую Mob Prog\r\n"
-			"%d) Очистить Mob Prog\r\n"
-			"Введите номер для редактирования [0 - выход]:  ", OLC_MTOTAL(d), OLC_MTOTAL(d) + 1);
+		"%d) Создать новую Mob Prog\r\n"
+		"%d) Очистить Mob Prog\r\n"
+		"Введите номер для редактирования [0 - выход]:  ", OLC_MTOTAL(d), OLC_MTOTAL(d) + 1);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = MEDIT_MPROG;
 }
@@ -971,13 +972,13 @@ void medit_change_mprog(DESCRIPTOR_DATA * d)
 	send_to_char("^[[H^[[J", d->character);
 #endif
 	sprintf(buf,
-			"1) Type: %s\r\n"
-			"2) Args: %s\r\n"
-			"3) Commands:\r\n%s\r\n\r\n"
-			"Введите номер для редактирования [0 - выход]: ",
-			medit_get_mprog_type(OLC_MPROG(d)),
-			(OLC_MPROG(d)->arglist ? OLC_MPROG(d)->arglist : "NONE"),
-			(OLC_MPROG(d)->comlist ? OLC_MPROG(d)->comlist : "NONE"));
+		"1) Type: %s\r\n"
+		"2) Args: %s\r\n"
+		"3) Commands:\r\n%s\r\n\r\n"
+		"Введите номер для редактирования [0 - выход]: ",
+		medit_get_mprog_type(OLC_MPROG(d)),
+		(OLC_MPROG(d)->arglist ? OLC_MPROG(d)->arglist : "NONE"),
+		(OLC_MPROG(d)->comlist ? OLC_MPROG(d)->comlist : "NONE"));
 
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = MEDIT_CHANGE_MPROG;
@@ -1075,7 +1076,7 @@ void medit_disp_features(DESCRIPTOR_DATA * d)
 		else
 			strcpy(buf1, "     ");
 		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
-				feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+			feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	send_to_char("\r\nУкажите номер способности. (0 - конец) : ", d->character);
@@ -1095,7 +1096,7 @@ void medit_disp_race(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 0; i < NPC_RACE_LAST - NPC_RACE_BASIC ; i++)
+	for (i = 0; i < NPC_RACE_LAST - NPC_RACE_BASIC; i++)
 	{
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
 		send_to_char(buf, d->character);
@@ -1162,7 +1163,7 @@ void medit_disp_skills(DESCRIPTOR_DATA * d)
 		else
 			strcpy(buf1, "     ");
 		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
-				skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+			skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character);
@@ -1185,7 +1186,7 @@ void medit_disp_spells(DESCRIPTOR_DATA * d)
 		else
 			strcpy(buf1, "     ");
 		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
-				spell_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+			spell_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	send_to_char("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character);
@@ -1216,7 +1217,7 @@ void medit_disp_mob_flags(DESCRIPTOR_DATA * d)
 		else
 			c++;
 		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-				action_bits[counter], !(++columns % 2) ? "\r\n" : "");
+			action_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	sprintbits(OLC_MOB(d)->char_specials.saved.act, action_bits, buf1, ",", 1);
@@ -1246,7 +1247,7 @@ void medit_disp_npc_flags(DESCRIPTOR_DATA * d)
 		else
 			c++;
 		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-				function_bits[counter], !(++columns % 2) ? "\r\n" : "");
+			function_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	sprintbits(OLC_MOB(d)->mob_specials.npc_flags, function_bits, buf1, ",", 1);
@@ -1281,7 +1282,7 @@ void medit_disp_aff_flags(DESCRIPTOR_DATA * d)
 			c++;
 
 		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-				affected_bits[counter], !(++columns % 2) ? "\r\n" : "");
+			affected_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	sprintbits(OLC_MOB(d)->char_specials.saved.affected_by, affected_bits, buf1, ",", 1);
@@ -1303,62 +1304,62 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-			"[H[J"
+		"[H[J"
 #endif
-			"-- МОБ:  [%s%d%s]\r\n"
-			"%s1%s) Пол: %s%-7.7s%s\r\n"
-			"%s2%s) Синонимы: %s&S%s&s\r\n"
-			"%s3&n) Именительный (это кто)         : %s&e\r\n"
-			"%s4&n) Родительный (нет кого)         : %s&e\r\n"
-			"%s5&n) Дательный  (дать кому)         : %s&e\r\n"
-			"%s6&n) Винительный (ударить кого)     : %s&e\r\n"
-			"%s7&n) Творительный (сражаться с кем) : %s&e\r\n"
-			"%s8&n) Предложный (ехать на ком)      : %s&e\r\n"
-			"%s9&n) Короткое :-\r\n&R&q%s&e&Q"
-			"%sA&n) Детальное:-\r\n%s&e"
-			"%sB%s) Уровень    : [%s%4d%s],%sC%s) Наклонности:  [%s%4d%s]\r\n"
-			"%sD%s) Хитролы    : [%s%4d%s],%sE%s) Дамролы:      [%s%4d%s]\r\n"
-			"%sF%s) NumDamDice : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
-			"%sH%s) Num HP Dice: [%s%4d%s],%sI%s) Size HP Dice: [%s%4d%s],%sJ%s) HP Bonus:    [%s%5d%s]\r\n"
-			"%sK%s) ArmorClass : [%s%4d%s],%sL%s) Опыт:         [%s%9ld%s],\r\n"
-			"%sM%s) Gold       : [%s%4ld%s],%sN%s) NumGoldDice:  [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
-			cyn, OLC_NUM(d), nrm,
-			grn, nrm, yel, genders[(int) GET_SEX(mob)], nrm,
-			grn, nrm, yel, GET_ALIAS(mob),
-			grn, GET_PAD(mob, 0),
-			grn, GET_PAD(mob, 1),
-			grn, GET_PAD(mob, 2),
-			grn, GET_PAD(mob, 3),
-			grn, GET_PAD(mob, 4),
-			grn, GET_PAD(mob, 5),
-			grn, GET_LDESC(mob),
-			grn, GET_DDESC(mob),
-			grn, nrm, cyn, GET_LEVEL(mob), nrm,
-			grn, nrm, cyn, GET_ALIGNMENT(mob), nrm,
-			grn, nrm, cyn, GET_HR(mob), nrm,
-			grn, nrm, cyn, GET_DR(mob), nrm,
-			grn, nrm, cyn, GET_NDD(mob), nrm,
-			grn, nrm, cyn, GET_SDD(mob), nrm,
-			grn, nrm, cyn, GET_MEM_TOTAL(mob), nrm,
-			grn, nrm, cyn, GET_MEM_COMPLETED(mob), nrm,
-			grn, nrm, cyn, GET_HIT(mob), nrm,
-			grn, nrm, cyn, GET_AC(mob), nrm,
-			grn, nrm, cyn, GET_EXP(mob), nrm,
-			grn, nrm, cyn, mob->get_gold(), nrm,
-			grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
+		"-- МОБ:  [%s%d%s]\r\n"
+		"%s1%s) Пол: %s%-7.7s%s\r\n"
+		"%s2%s) Синонимы: %s&S%s&s\r\n"
+		"%s3&n) Именительный (это кто)         : %s&e\r\n"
+		"%s4&n) Родительный (нет кого)         : %s&e\r\n"
+		"%s5&n) Дательный  (дать кому)         : %s&e\r\n"
+		"%s6&n) Винительный (ударить кого)     : %s&e\r\n"
+		"%s7&n) Творительный (сражаться с кем) : %s&e\r\n"
+		"%s8&n) Предложный (ехать на ком)      : %s&e\r\n"
+		"%s9&n) Короткое :-\r\n&R&q%s&e&Q"
+		"%sA&n) Детальное:-\r\n%s&e"
+		"%sB%s) Уровень    : [%s%4d%s],%sC%s) Наклонности:  [%s%4d%s]\r\n"
+		"%sD%s) Хитролы    : [%s%4d%s],%sE%s) Дамролы:      [%s%4d%s]\r\n"
+		"%sF%s) NumDamDice : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
+		"%sH%s) Num HP Dice: [%s%4d%s],%sI%s) Size HP Dice: [%s%4d%s],%sJ%s) HP Bonus:    [%s%5d%s]\r\n"
+		"%sK%s) ArmorClass : [%s%4d%s],%sL%s) Опыт:         [%s%9ld%s],\r\n"
+		"%sM%s) Gold       : [%s%4ld%s],%sN%s) NumGoldDice:  [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
+		cyn, OLC_NUM(d), nrm,
+		grn, nrm, yel, genders[(int)GET_SEX(mob)], nrm,
+		grn, nrm, yel, GET_ALIAS(mob),
+		grn, GET_PAD(mob, 0),
+		grn, GET_PAD(mob, 1),
+		grn, GET_PAD(mob, 2),
+		grn, GET_PAD(mob, 3),
+		grn, GET_PAD(mob, 4),
+		grn, GET_PAD(mob, 5),
+		grn, GET_LDESC(mob),
+		grn, GET_DDESC(mob),
+		grn, nrm, cyn, GET_LEVEL(mob), nrm,
+		grn, nrm, cyn, GET_ALIGNMENT(mob), nrm,
+		grn, nrm, cyn, GET_HR(mob), nrm,
+		grn, nrm, cyn, GET_DR(mob), nrm,
+		grn, nrm, cyn, GET_NDD(mob), nrm,
+		grn, nrm, cyn, GET_SDD(mob), nrm,
+		grn, nrm, cyn, GET_MEM_TOTAL(mob), nrm,
+		grn, nrm, cyn, GET_MEM_COMPLETED(mob), nrm,
+		grn, nrm, cyn, GET_HIT(mob), nrm,
+		grn, nrm, cyn, GET_AC(mob), nrm,
+		grn, nrm, cyn, GET_EXP(mob), nrm,
+		grn, nrm, cyn, mob->get_gold(), nrm,
+		grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
 	send_to_char(buf, d->character);
 
 	sprintbits(mob->char_specials.saved.act, action_bits, buf1, ",");
 	sprintbits(mob->char_specials.saved.affected_by, affected_bits, buf2, ",");
 	sprintf(buf,
-			"%sP%s) Положение     : %s%s\r\n"
-			"%sR%s) По умолчанию  : %s%s\r\n"
-			"%sT%s) Тип атаки     : %s%s\r\n"
-			"%sU%s) Флаги   (MOB) : %s%s\r\n"
-			"%sV%s) Аффекты (AFF) : %s%s\r\n",
-			grn, nrm, yel, position_types[(int) GET_POS(mob)],
-			grn, nrm, yel, position_types[(int) GET_DEFAULT_POS(mob)],
-			grn, nrm, yel, attack_hit_text[GET_ATTACK(mob)].singular, grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
+		"%sP%s) Положение     : %s%s\r\n"
+		"%sR%s) По умолчанию  : %s%s\r\n"
+		"%sT%s) Тип атаки     : %s%s\r\n"
+		"%sU%s) Флаги   (MOB) : %s%s\r\n"
+		"%sV%s) Аффекты (AFF) : %s%s\r\n",
+		grn, nrm, yel, position_types[(int)GET_POS(mob)],
+		grn, nrm, yel, position_types[(int)GET_DEFAULT_POS(mob)],
+		grn, nrm, yel, attack_hit_text[GET_ATTACK(mob)].singular, grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	send_to_char(buf, d->character);
 
 	sprintbits(mob->mob_specials.npc_flags, function_bits, buf1, ",");
@@ -1382,53 +1383,56 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 
 	sprintf(buf, "%sW%s) Флаги   (NPC) : %s%s\r\n"
 #if defined(OASIS_MPROG)
-			"%sX%s) Mob Progs  : %s%s\r\n"
+		"%sX%s) Mob Progs  : %s%s\r\n"
 #endif
-			"%sY%s) Destination: %s%s\r\n"
-			"%sZ%s) Помогают   : %s%s\r\n"
-			"%sА%s) Умения     : \r\n"
-			"%sБ%s) Заклинания : \r\n"
-			"%sВ%s) Сила : [%s%4d%s],%sГ%s) Ловк : [%s%4d%s],%sД%s) Тело : [%s%4d%s]\r\n"
-			"%sЕ%s) Мудр : [%s%4d%s],%sЖ%s) Ум   : [%s%4d%s],%sЗ%s) Обая : [%s%4d%s]\r\n"
-			"%sИ%s) Рост : [%s%4d%s],%sК%s) Вес  : [%s%4d%s],%sЛ%s) Разм : [%s%4d%s]\r\n"
-			"%sМ%s) ДопА : [%s%4d%s]\n"
-			"%sН%s) Шансы использования умений: [%s%4d%s]\r\n"
-			"%sО%s) Ингредиенты: %s%s\r\n"
-			"%sП%s) Загружаемые объекты: %s%s\r\n"
-			"%sР%s) Роли моба: %s%s\r\n"
-			"%sС%s) Резисты:\r\n"
-			"%sТ%s) Спас-броски:\r\n"
-			"%sУ%s) Дополнительные параметры:\r\n"
-			"%sФ%s) Способности:\r\n"
-			"%sЦ%s) Раса моба: %s%s\r\n"
-			"%sS%s) Script     : %s%s\r\n" "%sQ%s) Quit\r\n" "Ваш выбор : ", grn, nrm, cyn, buf1,
+		"%sY%s) Destination: %s%s\r\n"
+		"%sZ%s) Помогают   : %s%s\r\n"
+		"%sА%s) Умения     : \r\n"
+		"%sБ%s) Заклинания : \r\n"
+		"%sВ%s) Сила : [%s%4d%s],%sГ%s) Ловк : [%s%4d%s],%sД%s) Тело : [%s%4d%s]\r\n"
+		"%sЕ%s) Мудр : [%s%4d%s],%sЖ%s) Ум   : [%s%4d%s],%sЗ%s) Обая : [%s%4d%s]\r\n"
+		"%sИ%s) Рост : [%s%4d%s],%sК%s) Вес  : [%s%4d%s],%sЛ%s) Разм : [%s%4d%s]\r\n"
+		"%sМ%s) ДопА : [%s%4d%s]\n"
+		"%sН%s) Шансы использования умений: [%s%4d%s]\r\n"
+		"%sО%s) Ингредиенты: %s%s\r\n"
+		"%sП%s) Загружаемые объекты: %s%s\r\n"
+		"%sР%s) Роли моба: %s%s\r\n"
+		"%sС%s) Резисты:\r\n"
+		"%sТ%s) Спас-броски:\r\n"
+		"%sУ%s) Дополнительные параметры:\r\n"
+		"%sФ%s) Способности:\r\n"
+		"%sЦ%s) Раса моба: %s%s\r\n"
+		"%sЧ%s) Клонирование%s\r\n"
+		"%sS%s) Script     : %s%s\r\n"
+		"%sQ%s) Quit\r\n" "Ваш выбор : ", grn, nrm, cyn, buf1,
 #if defined(OASIS_MPROG)
-			grn, nrm, cyn, (OLC_MPROGL(d) ? "Set." : "Not Set."),
+		grn, nrm, cyn, (OLC_MPROGL(d) ? "Set." : "Not Set."),
 #endif
-			grn, nrm, cyn, buf2,
-			grn, nrm, cyn, mob->helpers ? "Yes" : "No",
-			grn, nrm,
-			grn, nrm,
-			grn, nrm, cyn, mob->get_str(), nrm,
-			grn, nrm, cyn, mob->get_dex(), nrm,
-			grn, nrm, cyn, mob->get_con(), nrm,
-			grn, nrm, cyn, mob->get_wis(), nrm,
-			grn, nrm, cyn, mob->get_int(), nrm,
-			grn, nrm, cyn, mob->get_cha(), nrm,
-			grn, nrm, cyn, GET_HEIGHT(mob), nrm,
-			grn, nrm, cyn, GET_WEIGHT(mob), nrm,
-			grn, nrm, cyn, GET_SIZE(mob), nrm,
-			grn, nrm, cyn, mob->mob_specials.ExtraAttack, nrm,
-			grn, nrm, cyn, mob->mob_specials.LikeWork, nrm,
-			grn, nrm, cyn, mob->ing_list ? "Есть" : "Нет",
-			grn, nrm, cyn, mob->dl_list ? "Есть" : "Нет",
-			grn, nrm, cyn, roles_str.c_str(),
-			grn, nrm,
-			grn, nrm,
-			grn, nrm,
-			grn, nrm,
-			grn, nrm, cyn, npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC],
-			grn, nrm, cyn, mob->proto_script ? "Set." : "Not Set.", grn, nrm);
+		grn, nrm, cyn, buf2,
+		grn, nrm, cyn, mob->helpers ? "Yes" : "No",
+		grn, nrm,
+		grn, nrm,
+		grn, nrm, cyn, mob->get_str(), nrm,
+		grn, nrm, cyn, mob->get_dex(), nrm,
+		grn, nrm, cyn, mob->get_con(), nrm,
+		grn, nrm, cyn, mob->get_wis(), nrm,
+		grn, nrm, cyn, mob->get_int(), nrm,
+		grn, nrm, cyn, mob->get_cha(), nrm,
+		grn, nrm, cyn, GET_HEIGHT(mob), nrm,
+		grn, nrm, cyn, GET_WEIGHT(mob), nrm,
+		grn, nrm, cyn, GET_SIZE(mob), nrm,
+		grn, nrm, cyn, mob->mob_specials.ExtraAttack, nrm,
+		grn, nrm, cyn, mob->mob_specials.LikeWork, nrm,
+		grn, nrm, cyn, mob->ing_list ? "Есть" : "Нет",
+		grn, nrm, cyn, mob->dl_list ? "Есть" : "Нет",
+		grn, nrm, cyn, roles_str.c_str(),
+		grn, nrm,
+		grn, nrm,
+		grn, nrm,
+		grn, nrm,
+		grn, nrm, cyn, npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC],
+		grn, nrm, cyn,
+		grn, nrm, cyn, mob->proto_script ? "Set." : "Not Set.", grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = MEDIT_MAIN_MENU;
@@ -1451,10 +1455,10 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-			"[H[J"
+		"[H[J"
 #endif
-			"\r\n-- Объекты загружаемые посмертно в моба [%s%d%s]\r\n"
-			"-- Предмет (VNUM,Вероятность,Тип загрузки,Спец.параметр) -- \r\n", cyn, OLC_NUM(d), nrm);
+		"\r\n-- Объекты загружаемые посмертно в моба [%s%d%s]\r\n"
+		"-- Предмет (VNUM,Вероятность,Тип загрузки,Спец.параметр) -- \r\n", cyn, OLC_NUM(d), nrm);
 
 	send_to_char(buf, d->character);
 
@@ -1473,7 +1477,7 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 				objname = "Нет";
 
 			sprintf(buf, "%d. %s (%d,%d,%d,%d)\r\n",
-					i, objname.c_str(), (*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
+				i, objname.c_str(), (*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
 
 			send_to_char(buf, d->character);
 			p++;
@@ -1489,9 +1493,9 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 	// C) Изменить.
 	// Q) Выход.
 	sprintf(buf,
-			"\r\n"
-			"%sА%s) Добавить\r\n"
-			"%sБ%s) Удалить\r\n" "%sQ%s) Выход\r\n" "Ваш выбор:", grn, nrm, grn, nrm, grn, nrm);
+		"\r\n"
+		"%sА%s) Добавить\r\n"
+		"%sБ%s) Удалить\r\n" "%sQ%s) Выход\r\n" "Ваш выбор:", grn, nrm, grn, nrm, grn, nrm);
 
 	send_to_char(buf, d->character);
 }
@@ -1854,6 +1858,11 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = MEDIT_RACE;
 			medit_disp_race(d);
 			return;
+		case 'ч':
+		case 'Ч':
+			OLC_MODE(d) = MEDIT_CLONE;
+			send_to_char(d->character, "Введите VNUM моба с которого будут склонированы все характеристики:");
+			return;
 		default:
 			medit_disp_menu(d);
 			return;
@@ -1861,7 +1870,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		if (i != 0)
 		{
 			send_to_char(i == 1 ? "\r\nВведите новое значение : " :
-						 i == -1 ? "\r\nВведите новый текст :\r\n] " : "\r\nОпаньки...:\r\n", d->character);
+				i == -1 ? "\r\nВведите новый текст :\r\n] " : "\r\nОпаньки...:\r\n", d->character);
 			return;
 		}
 		break;
@@ -1893,7 +1902,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		if (number == 0)
 			break;
 		if (number > MAX_FEATS || number <= 0 ||
-				!feat_info[number].name || *feat_info[number].name == '!')
+			!feat_info[number].name || *feat_info[number].name == '!')
 			send_to_char("Неверный номер.\r\n", d->character);
 		else if (HAVE_FEAT(OLC_MOB(d), number))
 			UNSET_FEAT(OLC_MOB(d), number);
@@ -1924,40 +1933,40 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		if (sscanf(arg, "%d %d", &plane, &bit) < 2)
 			send_to_char("Не указана величина параметра.\r\n", d->character);
 		else switch (number)
-			{
-			case MEDIT_HPREG:
-				GET_HITREG(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
-				break;
-			case MEDIT_ARMOUR:
-				GET_ARMOUR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
-				break;
-			case MEDIT_MANAREG:
-				GET_MANAREG(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
-				break;
-			case MEDIT_CASTSUCCESS:
-				GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
-				break;
-			case MEDIT_SUCCESS:
-				GET_MORALE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
-				break;
-			case MEDIT_INITIATIVE:
-				GET_INITIATIVE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
-				break;
-			case MEDIT_ABSORBE:
-				GET_ABSORBE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
-				break;
-			case MEDIT_AR:
-				GET_AR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
-				break;
-			case MEDIT_MR:
-				GET_MR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
-				break;
-			case MEDIT_PR:
-				GET_PR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
-				break;
-			default:
-				send_to_char("Неверный номер.\r\n", d->character);
-			}
+		{
+		case MEDIT_HPREG:
+			GET_HITREG(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			break;
+		case MEDIT_ARMOUR:
+			GET_ARMOUR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
+			break;
+		case MEDIT_MANAREG:
+			GET_MANAREG(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			break;
+		case MEDIT_CASTSUCCESS:
+			GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			break;
+		case MEDIT_SUCCESS:
+			GET_MORALE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			break;
+		case MEDIT_INITIATIVE:
+			GET_INITIATIVE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			break;
+		case MEDIT_ABSORBE:
+			GET_ABSORBE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			break;
+		case MEDIT_AR:
+			GET_AR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
+			break;
+		case MEDIT_MR:
+			GET_MR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
+			break;
+		case MEDIT_PR:
+			GET_PR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
+			break;
+		default:
+			send_to_char("Неверный номер.\r\n", d->character);
+		}
 		medit_disp_add_parameters(d);
 		return;
 		break;
@@ -2186,355 +2195,368 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 #if defined(OASIS_MPROG)
 		/*
 		  David Klasinc suggests for MEDIT_MPROG_TYPE:
-		    switch (atoi(arg)) {
-		      case 0: OLC_MPROG(d)->type = 0; break;
-		      case 1: OLC_MPROG(d)->type = 1; break;
-		      case 2: OLC_MPROG(d)->type = 2; break;
-		      case 3: OLC_MPROG(d)->type = 4; break;
-		      case 4: OLC_MPROG(d)->type = 8; break;
-		      case 5: OLC_MPROG(d)->type = 16; break;
-		      case 6: OLC_MPROG(d)->type = 32; break;
-		      case 7: OLC_MPROG(d)->type = 64; break;
-		      case 8: OLC_MPROG(d)->type = 128; break;
-		      case 9: OLC_MPROG(d)->type = 256; break;
-		      case 10: OLC_MPROG(d)->type = 512; break;
-		      case 11: OLC_MPROG(d)->type = 1024; break;
-		      default: OLC_MPROG(d)->type = -1; break;
-		    }
+			switch (atoi(arg)) {
+			  case 0: OLC_MPROG(d)->type = 0; break;
+			  case 1: OLC_MPROG(d)->type = 1; break;
+			  case 2: OLC_MPROG(d)->type = 2; break;
+			  case 3: OLC_MPROG(d)->type = 4; break;
+			  case 4: OLC_MPROG(d)->type = 8; break;
+			  case 5: OLC_MPROG(d)->type = 16; break;
+			  case 6: OLC_MPROG(d)->type = 32; break;
+			  case 7: OLC_MPROG(d)->type = 64; break;
+			  case 8: OLC_MPROG(d)->type = 128; break;
+			  case 9: OLC_MPROG(d)->type = 256; break;
+			  case 10: OLC_MPROG(d)->type = 512; break;
+			  case 11: OLC_MPROG(d)->type = 1024; break;
+			  default: OLC_MPROG(d)->type = -1; break;
+			}
 		*/
 
-		case MEDIT_MPROG_TYPE:
-			OLC_MPROG(d)->type = (1 << MAX(0, MIN(atoi(arg), NUM_PROGS - 1)));
-			OLC_VAL(d) = 1;
-			medit_change_mprog(d);
-			return;
+	case MEDIT_MPROG_TYPE:
+		OLC_MPROG(d)->type = (1 << MAX(0, MIN(atoi(arg), NUM_PROGS - 1)));
+		OLC_VAL(d) = 1;
+		medit_change_mprog(d);
+		return;
 
-		case MEDIT_MPROG_ARGS:
-			OLC_MPROG(d)->arglist = str_dup(arg);
-			OLC_VAL(d) = 1;
-			medit_change_mprog(d);
-			return;
+	case MEDIT_MPROG_ARGS:
+		OLC_MPROG(d)->arglist = str_dup(arg);
+		OLC_VAL(d) = 1;
+		medit_change_mprog(d);
+		return;
 #endif
 
-		case MEDIT_SEX:
-			GET_SEX(OLC_MOB(d)) = MAX(0, MIN(NUM_GENDERS, atoi(arg)));
-			break;
+	case MEDIT_SEX:
+		GET_SEX(OLC_MOB(d)) = MAX(0, MIN(NUM_GENDERS, atoi(arg)));
+		break;
 
-		case MEDIT_HITROLL:
-			GET_HR(OLC_MOB(d)) = MAX(0, MIN(50, atoi(arg)));
-			break;
+	case MEDIT_HITROLL:
+		GET_HR(OLC_MOB(d)) = MAX(0, MIN(50, atoi(arg)));
+		break;
 
-		case MEDIT_DAMROLL:
-			GET_DR(OLC_MOB(d)) = MAX(0, MIN(50000, atoi(arg)));
-			break;
+	case MEDIT_DAMROLL:
+		GET_DR(OLC_MOB(d)) = MAX(0, MIN(50000, atoi(arg)));
+		break;
 
-		case MEDIT_NDD:
-			GET_NDD(OLC_MOB(d)) = MAX(0, MIN(30, atoi(arg)));
-			break;
+	case MEDIT_NDD:
+		GET_NDD(OLC_MOB(d)) = MAX(0, MIN(30, atoi(arg)));
+		break;
 
-		case MEDIT_SDD:
-			GET_SDD(OLC_MOB(d)) = MAX(0, MIN(127, atoi(arg)));
-			break;
+	case MEDIT_SDD:
+		GET_SDD(OLC_MOB(d)) = MAX(0, MIN(127, atoi(arg)));
+		break;
 
-		case MEDIT_NUM_HP_DICE:
-			GET_MEM_TOTAL(OLC_MOB(d)) = MAX(0, MIN(50, atoi(arg)));
-			break;
+	case MEDIT_NUM_HP_DICE:
+		GET_MEM_TOTAL(OLC_MOB(d)) = MAX(0, MIN(50, atoi(arg)));
+		break;
 
-		case MEDIT_SIZE_HP_DICE:
-			GET_MANA_STORED(OLC_MOB(d)) = MAX(0, MIN(100000, atoi(arg)));
-			break;
+	case MEDIT_SIZE_HP_DICE:
+		GET_MANA_STORED(OLC_MOB(d)) = MAX(0, MIN(100000, atoi(arg)));
+		break;
 
-		case MEDIT_ADD_HP:
-			GET_HIT(OLC_MOB(d)) = MAX(0, MIN(5000000, atoi(arg)));
-			break;
+	case MEDIT_ADD_HP:
+		GET_HIT(OLC_MOB(d)) = MAX(0, MIN(5000000, atoi(arg)));
+		break;
 
-		case MEDIT_AC:
-			GET_AC(OLC_MOB(d)) = MAX(-300, MIN(100, atoi(arg)));
-			break;
+	case MEDIT_AC:
+		GET_AC(OLC_MOB(d)) = MAX(-300, MIN(100, atoi(arg)));
+		break;
 
-		case MEDIT_EXP:
-			OLC_MOB(d)->set_exp(atoi(arg));
-			break;
+	case MEDIT_EXP:
+		OLC_MOB(d)->set_exp(atoi(arg));
+		break;
 
-		case MEDIT_GOLD:
-			OLC_MOB(d)->set_gold(atoi(arg));
-			break;
+	case MEDIT_GOLD:
+		OLC_MOB(d)->set_gold(atoi(arg));
+		break;
 
-		case MEDIT_GOLD_DICE:
-			GET_GOLD_NoDs(OLC_MOB(d)) = MAX(0, atoi(arg));
-			break;
+	case MEDIT_GOLD_DICE:
+		GET_GOLD_NoDs(OLC_MOB(d)) = MAX(0, atoi(arg));
+		break;
 
-		case MEDIT_GOLD_SIZE:
-			GET_GOLD_SiDs(OLC_MOB(d)) = MAX(0, atoi(arg));
-			break;
+	case MEDIT_GOLD_SIZE:
+		GET_GOLD_SiDs(OLC_MOB(d)) = MAX(0, atoi(arg));
+		break;
 
-		case MEDIT_POS:
-			GET_POS(OLC_MOB(d)) = MAX(0, MIN(NUM_POSITIONS - 1, atoi(arg)));
-			break;
+	case MEDIT_POS:
+		GET_POS(OLC_MOB(d)) = MAX(0, MIN(NUM_POSITIONS - 1, atoi(arg)));
+		break;
 
-		case MEDIT_DEFAULT_POS:
-			GET_DEFAULT_POS(OLC_MOB(d)) = MAX(0, MIN(NUM_POSITIONS - 1, atoi(arg)));
-			break;
+	case MEDIT_DEFAULT_POS:
+		GET_DEFAULT_POS(OLC_MOB(d)) = MAX(0, MIN(NUM_POSITIONS - 1, atoi(arg)));
+		break;
 
-		case MEDIT_ATTACK:
-			GET_ATTACK(OLC_MOB(d)) = MAX(0, MIN(NUM_ATTACK_TYPES - 1, atoi(arg)));
-			break;
+	case MEDIT_ATTACK:
+		GET_ATTACK(OLC_MOB(d)) = MAX(0, MIN(NUM_ATTACK_TYPES - 1, atoi(arg)));
+		break;
 
-		case MEDIT_LEVEL:
-			OLC_MOB(d)->set_level(atoi(arg));
-			break;
+	case MEDIT_LEVEL:
+		OLC_MOB(d)->set_level(atoi(arg));
+		break;
 
-		case MEDIT_ALIGNMENT:
-			GET_ALIGNMENT(OLC_MOB(d)) = MAX(-1000, MIN(1000, atoi(arg)));
-			break;
+	case MEDIT_ALIGNMENT:
+		GET_ALIGNMENT(OLC_MOB(d)) = MAX(-1000, MIN(1000, atoi(arg)));
+		break;
 
-		case MEDIT_DESTINATION:
-			number = atoi(arg);
-			if ((plane = real_room(number)) == NOWHERE)
-				send_to_char("Нет такой комнаты.\r\n", d->character);
-			else
-			{
-				for (plane = 0; plane < OLC_MOB(d)->mob_specials.dest_count; plane++)
-					if (number == OLC_MOB(d)->mob_specials.dest[plane])
-					{
-						OLC_MOB(d)->mob_specials.dest_count--;
-						for (; plane < OLC_MOB(d)->mob_specials.dest_count; plane++)
-							OLC_MOB(d)->mob_specials.dest[plane] =
-								OLC_MOB(d)->mob_specials.dest[plane + 1];
-						OLC_MOB(d)->mob_specials.dest[plane] = 0;
-						plane++;
-						break;
-					}
-				if (plane == OLC_MOB(d)->mob_specials.dest_count && plane < MAX_DEST)
+	case MEDIT_DESTINATION:
+		number = atoi(arg);
+		if ((plane = real_room(number)) == NOWHERE)
+			send_to_char("Нет такой комнаты.\r\n", d->character);
+		else
+		{
+			for (plane = 0; plane < OLC_MOB(d)->mob_specials.dest_count; plane++)
+				if (number == OLC_MOB(d)->mob_specials.dest[plane])
 				{
-					OLC_MOB(d)->mob_specials.dest_count++;
-					OLC_MOB(d)->mob_specials.dest[plane] = number;
+					OLC_MOB(d)->mob_specials.dest_count--;
+					for (; plane < OLC_MOB(d)->mob_specials.dest_count; plane++)
+						OLC_MOB(d)->mob_specials.dest[plane] =
+						OLC_MOB(d)->mob_specials.dest[plane + 1];
+					OLC_MOB(d)->mob_specials.dest[plane] = 0;
+					plane++;
+					break;
 				}
+			if (plane == OLC_MOB(d)->mob_specials.dest_count && plane < MAX_DEST)
+			{
+				OLC_MOB(d)->mob_specials.dest_count++;
+				OLC_MOB(d)->mob_specials.dest[plane] = number;
 			}
-			break;
+		}
+		break;
 
-		case MEDIT_HELPERS:
-			number = atoi(arg);
-			if (number == 0)
-				break;
-			if ((plane = real_mobile(number)) < 0)
-				send_to_char("Нет такого моба.", d->character);
+	case MEDIT_HELPERS:
+		number = atoi(arg);
+		if (number == 0)
+			break;
+		if ((plane = real_mobile(number)) < 0)
+			send_to_char("Нет такого моба.", d->character);
+		else
+		{
+			for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next_helper)
+				if (helper->mob_vnum == number)
+					break;
+			if (helper)
+			{
+				REMOVE_FROM_LIST(helper, OLC_MOB(d)->helpers, next_helper);
+			}
 			else
 			{
-				for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next_helper)
-					if (helper->mob_vnum == number)
-						break;
-				if (helper)
-				{
-					REMOVE_FROM_LIST(helper, OLC_MOB(d)->helpers, next_helper);
-				}
-				else
-				{
-					CREATE(helper, 1);
-					helper->mob_vnum = number;
-					helper->next_helper = OLC_MOB(d)->helpers;
-					OLC_MOB(d)->helpers = helper;
-				}
+				CREATE(helper, 1);
+				helper->mob_vnum = number;
+				helper->next_helper = OLC_MOB(d)->helpers;
+				OLC_MOB(d)->helpers = helper;
 			}
-			medit_disp_helpers(d);
-			return;
+		}
+		medit_disp_helpers(d);
+		return;
 
-		case MEDIT_SKILLS:
-			number = atoi(arg);
-			if (number == 0)
-				break;
-			if (number > MAX_SKILL_NUM
-				|| number < 0
-				|| !skill_info[number].name
-				|| *skill_info[number].name == '!')
+	case MEDIT_SKILLS:
+		number = atoi(arg);
+		if (number == 0)
+			break;
+		if (number > MAX_SKILL_NUM
+			|| number < 0
+			|| !skill_info[number].name
+			|| *skill_info[number].name == '!')
+		{
+			send_to_char("Неизвестное умение.\r\n", d->character);
+		}
+		else if (OLC_MOB(d)->get_skill(number))
+			OLC_MOB(d)->set_skill(number, 0);
+		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
+			send_to_char("Не указан уровень владения умением.\r\n", d->character);
+		else
+			OLC_MOB(d)->set_skill(number, (MIN(200, MAX(0, bit))));
+		medit_disp_skills(d);
+		return;
+
+	case MEDIT_SPELLS:
+		number = atoi(arg);
+		if (number == 0)
+			break;
+		if (number < 0 || (number > MAX_SPELLS || !spell_info[number].name || *spell_info[number].name == '!'))
+			send_to_char("Неизвестное заклинание.\r\n", d->character);
+		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
+			send_to_char("Не указано количество заклинаний.\r\n", d->character);
+		else
+			GET_SPELL_MEM(OLC_MOB(d), number) = MIN(200, MAX(0, bit));
+		medit_disp_spells(d);
+		return;
+
+	case MEDIT_STR:
+		OLC_MOB(d)->set_str(atoi(arg));
+		break;
+
+	case MEDIT_DEX:
+		OLC_MOB(d)->set_dex(atoi(arg));
+		break;
+
+	case MEDIT_CON:
+		OLC_MOB(d)->set_con(atoi(arg));
+		break;
+
+	case MEDIT_WIS:
+		OLC_MOB(d)->set_wis(MIN(50, MAX(1, atoi(arg))));
+		break;
+
+	case MEDIT_INT:
+		OLC_MOB(d)->set_int(MIN(50, MAX(1, atoi(arg))));
+		break;
+
+	case MEDIT_CHA:
+		OLC_MOB(d)->set_cha(MIN(50, MAX(1, atoi(arg))));
+		break;
+
+	case MEDIT_WEIGHT:
+		GET_WEIGHT(OLC_MOB(d)) = MIN(200, MAX(1, atoi(arg)));
+		break;
+
+	case MEDIT_HEIGHT:
+		GET_HEIGHT(OLC_MOB(d)) = MIN(200, MAX(50, atoi(arg)));
+		break;
+
+	case MEDIT_SIZE:
+		GET_SIZE(OLC_MOB(d)) = MIN(100, MAX(1, atoi(arg)));
+		break;
+
+	case MEDIT_EXTRA:
+		OLC_MOB(d)->mob_specials.ExtraAttack = MIN(5, MAX(0, atoi(arg)));
+		break;
+
+	case MEDIT_LIKE:
+		OLC_MOB(d)->mob_specials.LikeWork = MIN(100, MAX(0, atoi(arg)));
+		break;
+
+	case MEDIT_ING:
+		if (!xparse_ing(d, &OLC_MOB(d)->ing_list, arg))
+		{
+			medit_disp_menu(d);
+			return;
+		}
+		OLC_VAL(d) = 1;
+		xedit_disp_ing(d, OLC_MOB(d)->ing_list);
+		return;
+
+	case MEDIT_DLIST_MENU:
+		if (*arg)
+		{
+			// Обрабатываем комнады добавить удалить и.т.п
+			switch (*arg)
 			{
-				send_to_char("Неизвестное умение.\r\n", d->character);
-			}
-			else if (OLC_MOB(d)->get_skill(number))
-				OLC_MOB(d)->set_skill(number, 0);
-			else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
-				send_to_char("Не указан уровень владения умением.\r\n", d->character);
-			else
-				OLC_MOB(d)->set_skill(number, (MIN(200, MAX(0, bit))));
-			medit_disp_skills(d);
-			return;
+			case 'а':
+			case 'А':
+				// Добавляем запись.
+				OLC_MODE(d) = MEDIT_DLIST_ADD;
+				send_to_char("\r\nVNUM - виртуальный номер прототипа\r\n"
+					"LoadProb - процент загрузки\r\n"
+					"LoadType - \r\n"
+					"  0 - загружать всегда. \r\n"
+					"  1 - загружать если предыдущий предмет списка был загружен. \r\n"
+					"  2 - загружать всегда, не менять результата предыдущей загрузки. \r\n"
+					"  3 - загружать если был загружен предыдущий, не менять результата.\r\n"
+					"SpecParam - спец.параметр:\r\n"
+					"  0 - загружать всегда. \r\n"
+					"  1 - загружать с убывающей вероятностью. \r\n"
+					"  2 - загружать при освежевании трупа NPC. \r\n"
+					"Введите через пробел \r\n(VNUM LoadProb LoadType SpecParam):",
+					d->character);
 
-		case MEDIT_SPELLS:
-			number = atoi(arg);
-			if (number == 0)
-				break;
-			if (number < 0 || (number > MAX_SPELLS || !spell_info[number].name || *spell_info[number].name == '!'))
-				send_to_char("Неизвестное заклинание.\r\n", d->character);
-			else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
-				send_to_char("Не указано количество заклинаний.\r\n", d->character);
-			else
-				GET_SPELL_MEM(OLC_MOB(d), number) = MIN(200, MAX(0, bit));
-			medit_disp_spells(d);
-			return;
+				return;
 
-		case MEDIT_STR:
-			OLC_MOB(d)->set_str(atoi(arg));
-			break;
+			case 'б':
+			case 'Б':
+				// Удаляем запись.
+				OLC_MODE(d) = MEDIT_DLIST_DEL;
+				send_to_char("\r\nВведите номер удаляемой записи:", d->character);
+				return;
 
-		case MEDIT_DEX:
-			OLC_MOB(d)->set_dex(atoi(arg));
-			break;
-
-		case MEDIT_CON:
-			OLC_MOB(d)->set_con(atoi(arg));
-			break;
-
-		case MEDIT_WIS:
-			OLC_MOB(d)->set_wis(MIN(50, MAX(1, atoi(arg))));
-			break;
-
-		case MEDIT_INT:
-			OLC_MOB(d)->set_int(MIN(50, MAX(1, atoi(arg))));
-			break;
-
-		case MEDIT_CHA:
-			OLC_MOB(d)->set_cha(MIN(50, MAX(1, atoi(arg))));
-			break;
-
-		case MEDIT_WEIGHT:
-			GET_WEIGHT(OLC_MOB(d)) = MIN(200, MAX(1, atoi(arg)));
-			break;
-
-		case MEDIT_HEIGHT:
-			GET_HEIGHT(OLC_MOB(d)) = MIN(200, MAX(50, atoi(arg)));
-			break;
-
-		case MEDIT_SIZE:
-			GET_SIZE(OLC_MOB(d)) = MIN(100, MAX(1, atoi(arg)));
-			break;
-
-		case MEDIT_EXTRA:
-			OLC_MOB(d)->mob_specials.ExtraAttack = MIN(5, MAX(0, atoi(arg)));
-			break;
-
-		case MEDIT_LIKE:
-			OLC_MOB(d)->mob_specials.LikeWork = MIN(100, MAX(0, atoi(arg)));
-			break;
-
-		case MEDIT_ING:
-			if (!xparse_ing(d, &OLC_MOB(d)->ing_list, arg))
-			{
+			case 'q':
+			case 'Q':
+				OLC_MODE(d) = MEDIT_MAIN_MENU;
 				medit_disp_menu(d);
 				return;
 			}
-			OLC_VAL(d) = 1;
-			xedit_disp_ing(d, OLC_MOB(d)->ing_list);
-			return;
-
-		case MEDIT_DLIST_MENU:
-			if (*arg)
-			{
-				// Обрабатываем комнады добавить удалить и.т.п
-				switch (*arg)
-				{
-				case 'а':
-				case 'А':
-					// Добавляем запись.
-					OLC_MODE(d) = MEDIT_DLIST_ADD;
-					send_to_char("\r\nVNUM - виртуальный номер прототипа\r\n"
-								 "LoadProb - процент загрузки\r\n"
-								 "LoadType - \r\n"
-								 "  0 - загружать всегда. \r\n"
-								 "  1 - загружать если предыдущий предмет списка был загружен. \r\n"
-								 "  2 - загружать всегда, не менять результата предыдущей загрузки. \r\n"
-								 "  3 - загружать если был загружен предыдущий, не менять результата.\r\n"
-								 "SpecParam - спец.параметр:\r\n"
-								 "  0 - загружать всегда. \r\n"
-								 "  1 - загружать с убывающей вероятностью. \r\n"
-								 "  2 - загружать при освежевании трупа NPC. \r\n"
-								 "Введите через пробел \r\n(VNUM LoadProb LoadType SpecParam):",
-								 d->character);
-
-					return;
-
-				case 'б':
-				case 'Б':
-					// Удаляем запись.
-					OLC_MODE(d) = MEDIT_DLIST_DEL;
-					send_to_char("\r\nВведите номер удаляемой записи:", d->character);
-					return;
-
-				case 'q':
-				case 'Q':
-					OLC_MODE(d) = MEDIT_MAIN_MENU;
-					medit_disp_menu(d);
-					return;
-				}
-
-			}
-			send_to_char("\r\nНеверный выбор.\r\n", d->character);
-			OLC_MODE(d) = MEDIT_DLIST_MENU;
-			disp_dl_list(d);
-			return;
-		case MEDIT_DLIST_ADD:
-			if (!dl_parse(&OLC_MOB(d)->dl_list, arg))
-				send_to_char("\r\nНеверный ввод.\r\n", d->character);
-			else
-			{
-				send_to_char("\r\nЗапись добавлена.\r\n", d->character);
-				OLC_VAL(d) = 1;
-			}
-			OLC_MODE(d) = MEDIT_DLIST_MENU;
-			disp_dl_list(d);
-			return;
-
-		case MEDIT_DLIST_DEL:
-			number = atoi(arg);
-			if (number != 0)
-			{
-				if (OLC_MOB(d)->dl_list == NULL || OLC_MOB(d)->dl_list->empty())
-				{
-					send_to_char("Список пуст!\r\n", d->character);
-					OLC_MODE(d) = MEDIT_DLIST_MENU;
-					disp_dl_list(d);
-					return;
-				}
-				// Удаляем указаный элемент.
-				i = 0;
-				load_list::iterator p = OLC_MOB(d)->dl_list->begin();
-				while (p != OLC_MOB(d)->dl_list->end() && i < number - 1)
-				{
-					p++;
-					i++;
-				}
-				if (i == number - 1)
-				{
-					OLC_MOB(d)->dl_list->remove(*p);
-					send_to_char("\r\nЗапись удалена.\r\n", d->character);
-					OLC_VAL(d) = 1;
-				}
-				else
-					send_to_char("\r\nЗапись не найдена.\r\n", d->character);
-			}
-			OLC_MODE(d) = MEDIT_DLIST_MENU;
-			disp_dl_list(d);
-
-			return;
-			//-------------------------------------------------------------------
-		default:
-			// * We should never get here.
-			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-			send_to_char("Oops...\r\n", d->character);
-			break;
 
 		}
-		//-------------------------------------------------------------------
+		send_to_char("\r\nНеверный выбор.\r\n", d->character);
+		OLC_MODE(d) = MEDIT_DLIST_MENU;
+		disp_dl_list(d);
+		return;
 
-		/*
-		 * END OF CASE
-		 * If we get here, we have probably changed something, and now want to
-		 * return to main menu.  Use OLC_VAL as a 'has changed' flag
-		 */
+	case MEDIT_DLIST_ADD:
+		if (!dl_parse(&OLC_MOB(d)->dl_list, arg))
+			send_to_char("\r\nНеверный ввод.\r\n", d->character);
+		else
+		{
+			send_to_char("\r\nЗапись добавлена.\r\n", d->character);
+			OLC_VAL(d) = 1;
+		}
+		OLC_MODE(d) = MEDIT_DLIST_MENU;
+		disp_dl_list(d);
+		return;
 
-		OLC_VAL(d) = 1;
-		medit_disp_menu(d);
+	case MEDIT_DLIST_DEL:
+		number = atoi(arg);
+		if (number != 0)
+		{
+			if (OLC_MOB(d)->dl_list == NULL || OLC_MOB(d)->dl_list->empty())
+			{
+				send_to_char("Список пуст!\r\n", d->character);
+				OLC_MODE(d) = MEDIT_DLIST_MENU;
+				disp_dl_list(d);
+				return;
+			}
+			// Удаляем указаный элемент.
+			i = 0;
+			load_list::iterator p = OLC_MOB(d)->dl_list->begin();
+			while (p != OLC_MOB(d)->dl_list->end() && i < number - 1)
+			{
+				p++;
+				i++;
+			}
+			if (i == number - 1)
+			{
+				OLC_MOB(d)->dl_list->remove(*p);
+				send_to_char("\r\nЗапись удалена.\r\n", d->character);
+				OLC_VAL(d) = 1;
+			}
+			else
+				send_to_char("\r\nЗапись не найдена.\r\n", d->character);
+		}
+		OLC_MODE(d) = MEDIT_DLIST_MENU;
+		disp_dl_list(d);
+
+		return;
+
+	case MEDIT_CLONE:
+		mob_rnum rnum, rnum_old;
+		int vnum;
+		vnum = atoi(arg);
+		if ((rnum = real_mobile(vnum)) < 0)
+		{
+			send_to_char("Нет моба с таким внумом. Повторите ввод:", d->character);
+			return;
+		}
+		rnum_old = GET_MOB_RNUM(OLC_MOB(d));
+		medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum]);
+		GET_MOB_RNUM(OLC_MOB(d)) = rnum_old;
+		break;
+
+	default:
+		// * We should never get here.
+		cleanup_olc(d, CLEANUP_ALL);
+		mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+		send_to_char("Oops...\r\n", d->character);
+		break;
 	}
+
+	/*
+	 * END OF CASE
+	 * If we get here, we have probably changed something, and now want to
+	 * return to main menu.  Use OLC_VAL as a 'has changed' flag
+	 */
+
+	OLC_VAL(d) = 1;
+	medit_disp_menu(d);
+}
 	// * End of medit_parse(), thank god.
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

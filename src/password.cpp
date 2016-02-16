@@ -14,7 +14,6 @@
 #include "interpreter.h"
 #include "char.hpp"
 #include "char_player.hpp"
-
 // для ручного отключения крипования (на локалке лучше собирайте через make test и не парьтесь)
 //#define NOCRYPT
 // в случае сборки без криптования просто пишем пароль в открытом виде
@@ -67,6 +66,39 @@ void set_password(CHAR_DATA *ch, const std::string &pwd)
 {
 	ch->set_passwd(generate_md5_hash(pwd));
 }
+
+// отправляет пароль на мыло через внешний скрипт
+// такое, конечно же, правильнее делать через либу openssl прямо в плюсах
+// но там гемора много
+void send_password(std::string email, std::string password, std::string name)
+{
+	std::string cmd_line = "python3 change_pass.py " + email + " " + password + " " + name + " &";
+	system(cmd_line.c_str());
+}
+
+
+void send_password(std::string email, std::string password)
+{
+	std::string cmd_line = "python3 change_pass.py " + email + " " + password + " &";
+	system(cmd_line.c_str());
+}
+
+
+// Дубликат set_password, который отправляет пароль на мыло
+void set_password_to_email(CHAR_DATA *ch, const std::string &pwd)
+{
+	ch->set_passwd(generate_md5_hash(pwd));
+	send_password(std::string(GET_EMAIL(ch)), pwd.c_str(), std::string(GET_NAME(ch)));
+}
+
+// дубликат set_password, который отправляет пароль на мыло
+// и говорит, что всем его персонажам изменены пароли
+ void set_all_password_to_email(const char* email, const std::string &pwd)
+ {
+	send_password(std::string(email), pwd.c_str());
+ }
+
+
 
 /**
 * Тип хэша у плеера

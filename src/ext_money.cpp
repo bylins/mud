@@ -22,7 +22,6 @@ using namespace Remort;
 namespace
 {
 
-void donat_torc(CHAR_DATA *ch, unsigned type, int amount);
 void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_text);
 
 } // namespace
