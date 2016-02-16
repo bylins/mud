@@ -3969,7 +3969,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	//оглушить или молотить. Чтобы все это было похоже на
 	//действие скиллов экстраатак(пнуть, сбить и т.д.)
 	if (CHECK_WAIT(ch) && made_dam == -1 && (type == SKILL_STUPOR || type == SKILL_MIGHTHIT))
-			GET_WAIT(ch) = 0;
+	{
+		ch->set_wait(0u);
+	}
 
 	// check if the victim has a hitprcnt trigger
 	if (made_dam != -1)

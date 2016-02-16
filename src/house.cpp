@@ -162,8 +162,8 @@ Clan::Clan()
 	: guard(0), builtOn(time(0)), bankBuffer(0), entranceMode(0), bank(2000),
 	exp(0), clan_exp(0), exp_buf(0), clan_level(0), rent(0), out_rent(0),
 	chest_room(0), storehouse(1), exp_info(1), test_clan(0),
-	ingr_chest_room_rnum_(-1), gold_tax_pct_(0),
-	chest_objcount(0), chest_discount(0), chest_weight(0), reputation(10),
+	ingr_chest_room_rnum_(-1), gold_tax_pct_(0), reputation(10),
+	chest_objcount(0), chest_discount(0), chest_weight(0),
 	ingr_chest_objcount_(0)
 {
 

@@ -89,7 +89,7 @@ void release_purged_list()
 
 ////////////////////////////////////////////////////////////////////////////////
 //extern MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
-CHAR_DATA::CHAR_DATA() : role_(MOB_ROLE_TOTAL_NUM), next_(NULL)
+CHAR_DATA::CHAR_DATA() : role_(MOB_ROLE_TOTAL_NUM), next_(NULL), m_wait(~0u)
 {
 	this->zero_init();
 	current_morph_ = GetNormalMorphNew(this);
@@ -207,7 +207,7 @@ void CHAR_DATA::zero_init()
 	// char_data
 	nr = NOBODY;
 	in_room = 0;
-	wait = 0;
+	set_wait(0u);
 	punctual_wait = 0;
 	last_comm = 0;
 	player_specials = 0;

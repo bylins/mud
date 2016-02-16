@@ -2212,7 +2212,7 @@ int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min,
 
 bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum)
 {
-	int vnum;
+	int vnum = 0;
 	const char *missing = NULL, *use = NULL, *exhausted = NULL;
 	switch (spellnum)
 	{
@@ -2221,13 +2221,18 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 			use = "Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n";
 			missing = "Батюшки светы! А помаду-то я дома забыл$g.\r\n";
 			exhausted = "$o рассыпался в ваших руках от неловкого движения.\r\n";
-		break;
+			break;
+
 		case SPELL_HYPNOTIC_PATTERN:
 			vnum = 3006;
 			use = "Вы разожгли палочку заморских благовоний.\r\n";
 			missing = "Вы начали суматошно искать свои благовония, но тщетно.\r\n";
 			exhausted = "$o дотлели и рассыпались пеплом.\r\n";
-		break;
+			break;
+
+		default:
+			log("WARNING: wrong spellnum %d in %s:%d", spellnum, __FILE__, __LINE__);
+			return false;
 	}
 	OBJ_DATA *tobj = get_obj_in_list_vnum(vnum, caster->carrying);
 	if (!tobj)

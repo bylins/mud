@@ -130,7 +130,7 @@ int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 extern bool can_be_reset(zone_rnum zone);
 extern int is_empty(zone_rnum zone_nr);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
-void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
+void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter = NULL);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameRemove(CHAR_DATA * ch);
@@ -230,9 +230,8 @@ void add_karma(CHAR_DATA * ch, const char * punish , const char * reason)
 
 ACMD(do_delete_obj)
 {
-	char *iname;
 	int vnum;
-	iname = one_argument(argument, buf);
+	one_argument(argument, buf);
 	int num = 0;
 	if (!*buf || !isdigit(*buf))
 	{
@@ -922,7 +921,7 @@ void setall_inspect()
 							continue;
 						}
 						set_punish(imm_d->character, d_vict->character, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
-						sprintf(buf, "Freeze ON (%ldh) by %s", it->second->freeze_time, GET_NAME(imm_d->character));
+						sprintf(buf, "Freeze ON (%ldh) by %s", static_cast<long>(it->second->freeze_time), GET_NAME(imm_d->character));
 						add_karma(d_vict->character, buf, it->second->reason);
 					}
 					else
@@ -943,7 +942,7 @@ void setall_inspect()
 								continue;
 							}
 							set_punish(imm_d->character, vict, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
-							sprintf(buf, "Freeze ON (%ldh) by %s", it->second->freeze_time, GET_NAME(imm_d->character));
+							sprintf(buf, "Freeze ON (%ldh) by %s", static_cast<long>(it->second->freeze_time), GET_NAME(imm_d->character));
 							add_karma(vict, buf, it->second->reason);
 							vict->save_char();
 						}

@@ -456,8 +456,6 @@ ACMD(do_edit_make)
 
 	char tmpbuf[MAX_INPUT_LENGTH];
 
-	int i;
-
 	MakeRecept *trec;
 
 	// Проверяем не правит ли кто-то рецепты для исключения конфликтов
@@ -492,7 +490,7 @@ ACMD(do_edit_make)
 		return;
 	}
 
-	i = atoi(tmpbuf);
+	size_t i = atoi(tmpbuf);
 
 	if ((i > make_recepts.size()) || (i <= 0))
 	{
@@ -507,7 +505,7 @@ ACMD(do_edit_make)
 
 	STATE(ch->desc) = CON_MREDIT;
 
-	OLC_MREC(ch->desc) = make_recepts[i];;
+	OLC_MREC(ch->desc) = make_recepts[i];
 
 	mredit_disp_menu(ch->desc);
 
@@ -649,7 +647,7 @@ ACMD(do_list_make)
 	tmpstr = "###  Б  Умение  Предмет             Составляющие                         \r\n";
 	tmpstr += "------------------------------------------------------------------------------\r\n";
 
-	for (int i = 0; i < make_recepts.size(); i++)
+	for (size_t i = 0; i < make_recepts.size(); i++)
 	{
 		int j = 0;
 		skill_name = "Нет";
@@ -671,9 +669,8 @@ ACMD(do_list_make)
 			j++;
 		}
 
-		sprintf(tmpbuf, "%3d  %-1s  %-6s  %-12s(%5d) :",
+		sprintf(tmpbuf, "%3zd  %-1s  %-6s  %-12s(%5d) :",
 				i + 1, (trec->locked ? "*" : " "), skill_name.c_str(), obj_name.c_str(), trec->obj_proto);
-
 
 		tmpstr += string(tmpbuf);
 
@@ -740,7 +737,6 @@ ACMD(do_make_item)
 	MakeReceptList *canlist;
 	MakeRecept *trec;
 	char tmpbuf[MAX_INPUT_LENGTH];
-	int i;
 
 	//int used_skill = subcmd;
 	argument = one_argument(argument, tmpbuf);
@@ -795,12 +791,12 @@ ACMD(do_make_item)
 	if (!*tmpbuf)
 	{
 		// Выводим тут список предметов которые можем сделать.
-		for (i = 0; i < canlist->size(); i++)
+		for (size_t i = 0; i < canlist->size(); i++)
 		{
 			const OBJ_DATA *tobj = read_object_mirror((*canlist)[i]->obj_proto);
 			if (!tobj)
 				return;
-			sprintf(tmpbuf, "%d) %s\r\n", i + 1, tobj->PNames[0]);
+			sprintf(tmpbuf, "%zd) %s\r\n", i + 1, tobj->PNames[0]);
 			tmpstr += string(tmpbuf);
 		};
 		send_to_char(tmpstr.c_str(), ch);
@@ -810,8 +806,7 @@ ACMD(do_make_item)
 
 	tmpstr = string(tmpbuf);
 
-	i = atoi(tmpbuf);
-
+	size_t i = atoi(tmpbuf);
 	if ((i > 0) && (i <= canlist->size())
 			&& (tmpstr.find(".") > tmpstr.size()))
 	{
@@ -1456,17 +1451,17 @@ void MakeReceptList::clear()
 	return;
 }
 
-MakeRecept *MakeReceptList::operator[](int i)
+MakeRecept *MakeReceptList::operator[](size_t i)
 {
-	list < MakeRecept * >::iterator p;
-	int j = 0;
+	list < MakeRecept * >::iterator p = recepts.begin();
 
-	p = recepts.begin();
-
+	size_t j = 0;
 	while (p != recepts.end())
 	{
 		if (i == j)
+		{
 			return (*p);
+		}
 		j++;
 		p++;
 	}
