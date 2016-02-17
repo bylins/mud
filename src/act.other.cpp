@@ -43,7 +43,7 @@
 #include "utils.h"
 #include "conf.h"
 #include "sysdep.h"
-#include "char_obj_utils.hpp"
+#include "char_obj_utils.inl"
 
 #include <sys/stat.h>
 

@@ -894,6 +894,11 @@ enum class EExtraFlags: uint32_t
 	ITEM_NOPOUR = INT_ONE | (1 << 13)		///< нельзя перелить
 };
 
+template <typename E>
+const char* ITEM_NAME(const E item);
+
+template <> const char* ITEM_NAME<EExtraFlags>(const EExtraFlags item);
+
 #define ITEM_NO_MONO       (1 << 0)
 #define ITEM_NO_POLY       (1 << 1)
 #define ITEM_NO_NEUTRAL    (1 << 2)
@@ -1247,6 +1252,7 @@ public:
 	template <> bool get(const int packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
 	bool get_flag(const size_t plane, const uint32_t flag) const { return 0 != (m_flags[plane] & (flag & 0x3fffffff)); }
 	const uint32_t get_plane(const size_t number) const { return m_flags[number]; }
+	bool plane_not_empty(const int packet_flag) const { return 0 != m_flags[packet_flag >> 30]; }
 
 	template <class T>
 	void set(const T packed_flag) { m_flags[to_underlying(packed_flag) >> 30] |= to_underlying(packed_flag) & 0x3fffffff; }

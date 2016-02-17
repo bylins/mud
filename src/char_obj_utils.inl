@@ -50,3 +50,5 @@ const char* OBJS(const OBJ_DATA* obj, const CHAR_DATA* vict)
 }
 
 #endif // __CHAR_OBJ_UTILS_HPP__
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

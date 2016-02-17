@@ -41,6 +41,7 @@
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "obj_sets.hpp"
+#include "char_obj_utils.inl"
 #include "constants.h"
 #include "utils.h"
 #include "structs.h"
@@ -343,11 +344,11 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, bitvector_t bitv, bool add
 {
 	if (add)
 	{
-		SET_BIT(AFF_FLAGS(ch, bitv), bitv);
+		AFF_FLAGS(ch).set(bitv);
 	}
 	else
 	{
-		REMOVE_BIT(AFF_FLAGS(ch, bitv), bitv);
+		AFF_FLAGS(ch).unset(bitv);
 		mod = -mod;
 	}
 
@@ -529,11 +530,11 @@ void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv,
 {
 	if (add)
 	{
-		SET_BIT(ROOM_AFF_FLAGS(room, bitv), bitv);
+		ROOM_AFF_FLAGS(room).set(bitv);
 	}
 	else
 	{
-		REMOVE_BIT(ROOM_AFF_FLAGS(room, bitv), bitv);
+		ROOM_AFF_FLAGS(room).unset(bitv);
 		mod = -mod;
 	}
 
@@ -615,10 +616,7 @@ void affect_total(CHAR_DATA * ch)
 	FLAG_DATA saved;
 
 	// Init struct
-	saved.flags[0] = 0;
-	saved.flags[1] = 0;
-	saved.flags[2] = 0;
-	saved.flags[3] = 0;
+	saved.clear();
 
 	ch->clear_add_affects();
 
@@ -629,9 +627,9 @@ void affect_total(CHAR_DATA * ch)
 		ch->char_specials.saved.affected_by = clear_flags;
 		for (i = 0; (j = char_saved_aff[i]); i++)
 		{
-			if (IS_SET(GET_FLAG(saved, j), j))
+			if (saved.get(j))
 			{
-				SET_BIT(AFF_FLAGS(ch, j), j);
+				AFF_FLAGS(ch).set(j);
 			}
 		}
 	}
@@ -751,10 +749,10 @@ void affect_total(CHAR_DATA * ch)
 
 		if (!WAITLESS(ch) && on_horse(ch))
 		{
-			REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
-			REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
-			REMOVE_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
-			REMOVE_BIT(AFF_FLAGS(ch, AFF_INVISIBLE), AFF_INVISIBLE);
+			AFF_FLAGS(ch).unset(AFF_HIDE);
+			AFF_FLAGS(ch).unset(AFF_SNEAK);
+			AFF_FLAGS(ch).unset(AFF_CAMOUFLAGE);
+			AFF_FLAGS(ch).unset(AFF_INVISIBLE);
 		}
 	}
 
@@ -836,17 +834,17 @@ void affect_total(CHAR_DATA * ch)
 	// Check steal affects
 	for (i = 0; (j = char_stealth_aff[i]); i++)
 	{
-		if (IS_SET(GET_FLAG(saved, j), j) && !IS_SET(AFF_FLAGS(ch, j), j))
+		if (IS_SET(GET_FLAG(saved, j), j) && !AFF_FLAGS(ch).get(j))
 			CHECK_AGRO(ch) = TRUE;
 	}
 
 	check_berserk(ch);
 	if (ch->get_fighting() || affected_by_spell(ch, SPELL_GLITTERDUST))
 	{
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_INVISIBLE), AFF_INVISIBLE);
+		AFF_FLAGS(ch).unset(AFF_HIDE);
+		AFF_FLAGS(ch).unset(AFF_SNEAK);
+		AFF_FLAGS(ch).unset(AFF_CAMOUFLAGE);
+		AFF_FLAGS(ch).unset(AFF_INVISIBLE);
 	}
 }
 
@@ -892,8 +890,6 @@ void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * af)
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
-
-
 
 /*
  * Remove an affected_type structure from a char (called when duration
@@ -1305,9 +1301,9 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		world[room]->people = ch;
 		ch->in_room = room;
 		check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
-		REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
-		REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILSNEAK), EXTRA_FAILSNEAK);
-		REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILCAMOUFLAGE), EXTRA_FAILCAMOUFLAGE);
+		EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
+		EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
+		EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
 		if (PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
 			sprintf(buf,
@@ -1349,7 +1345,7 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 	int i;
 	if ((i = GET_OBJ_RNUM(obj)) < 0)
 		return;
-	if (GET_OBJ_OWNER(obj) && OBJ_FLAGGED(obj, ITEM_NODONATE) && (!ch || GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)))
+	if (GET_OBJ_OWNER(obj) && OBJ_FLAGGED(obj, EExtraFlags::ITEM_NODONATE) && (!ch || GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)))
 	{
 		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -1536,7 +1532,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					// Удаление предмета
 					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
 					object->set_timer(0); // Хана предмету
-					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL); // Ибо нефиг
+					object->set_extraflag(EExtraFlags::ITEM_NOSELL); // Ибо нефиг
 				}
 			} // Назначаем UID
 			else
@@ -1548,7 +1544,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		{
-			object->set_extraflag(ITEM_TICKTIMER);	// start timer unconditionally when character picks item up.
+			object->set_extraflag(EExtraFlags::ITEM_TICKTIMER);	// start timer unconditionally when character picks item up.
 			insert_obj_and_group(object, &ch->carrying);
 		}
 		else
@@ -1572,7 +1568,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		// set flag for crash-save system, but not on mobs!
 		if (!IS_NPC(ch))
 		{
-			SET_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
+			PLR_FLAGS(ch).set(PLR_CRASH);
 		}
 	}
 	else
@@ -1595,7 +1591,7 @@ void obj_from_char(OBJ_DATA * object)
 	// set flag for crash-save system, but not on mobs!
 	if (!IS_NPC(object->carried_by))
 	{
-		SET_BIT(PLR_FLAGS(object->carried_by, PLR_CRASH), PLR_CRASH);
+		PLR_FLAGS(object->carried_by).set(PLR_CRASH);
 		log("obj_from_char: %s -> %d", object->carried_by->get_name(),
 			GET_OBJ_VNUM(object));
 	}
@@ -1783,7 +1779,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 	{
 		set_info::const_iterator set_obj_info;
 
-		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), ITEM_SETSTUFF) &&
+		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlags::ITEM_SETSTUFF) &&
 				(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end())
 		{
 			unsigned int oqty = activate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0),
@@ -1798,9 +1794,9 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 				class_to_act_map::const_iterator class_info;
 
 				qty_info--;
-				if ((class_info =
-							qty_info->second.find(unique_bit_flag_data().set(flag_data_by_char_class(ch)))) !=
-						qty_info->second.end())
+				unique_bit_flag_data item;
+				item.set(flag_data_by_char_class(ch));
+				if ((class_info = qty_info->second.find(item)) != qty_info->second.end())
 				{
 					if (GET_EQ(ch, pos) != obj)
 					{
@@ -1959,7 +1955,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		obj_decay(obj);
 		return;
 	}
-	else if((!IS_NPC(ch) || IS_CHARMICE(ch)) && OBJ_FLAGGED(obj, ITEM_NAMED) && NamedStuff::check_named(ch, obj, true)) {
+	else if((!IS_NPC(ch) || IS_CHARMICE(ch)) && OBJ_FLAGGED(obj, EExtraFlags::ITEM_NAMED) && NamedStuff::check_named(ch, obj, true)) {
 		if(!NamedStuff::wear_msg(ch, obj))
 			send_to_char("Просьба не трогать! Частная собственность!\r\n", ch);
 		if (!obj->carried_by)
@@ -1967,8 +1963,11 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		return;
 	}
 
-	if ((!IS_NPC(ch) && invalid_align(ch, obj)) || invalid_no_class(ch, obj)
-			|| (AFF_FLAGGED(ch, AFF_CHARM) && (OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED))))
+	if ((!IS_NPC(ch) && invalid_align(ch, obj))
+		|| invalid_no_class(ch, obj)
+		|| (AFF_FLAGGED(ch, AFF_CHARM)
+			&& (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SHARPEN)
+				|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_ARMORED))))
 	{
 		act("$o0 явно не предназначен$A для вас.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
@@ -2021,7 +2020,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (show_msg)
 	{
 		wear_message(ch, obj, pos);
-		if (OBJ_FLAGGED(obj, ITEM_NAMED))
+		if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_NAMED))
 			NamedStuff::wear_msg(ch, obj);
 	}
 
@@ -2030,7 +2029,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 
-	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))
 		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
@@ -2038,7 +2037,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 				break;
 			}
 
-	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
+	if (!OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
 	{
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, TRUE);
@@ -2086,8 +2085,9 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 	{
 		set_info::const_iterator set_obj_info;
 
-		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), ITEM_SETSTUFF) &&
-				(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end())
+		if (GET_EQ(ch, pos)
+			&& OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlags::ITEM_SETSTUFF)
+			&& (set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end())
 		{
 			unsigned int oqty = deactivate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x40 : 0),
 												 set_obj_qty + 1);
@@ -2098,21 +2098,19 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 
 			while (old_qty_info != qty_info)
 			{
-				class_to_act_map::const_iterator class_info;
-
 				old_qty_info--;
-				if ((class_info =
-							old_qty_info->second.find(unique_bit_flag_data().set(flag_data_by_char_class(ch)))) !=
-						old_qty_info->second.end())
+				unique_bit_flag_data flags1;
+				flags1.set(flag_data_by_char_class(ch));
+				class_to_act_map::const_iterator class_info = old_qty_info->second.find(flags1);
+				if (class_info != old_qty_info->second.end())
 				{
 					while (qty_info != set_obj_info->second.begin())
 					{
-						class_to_act_map::const_iterator class_info2;
-
 						qty_info--;
-						if ((class_info2 =
-									qty_info->second.find(unique_bit_flag_data().set(flag_data_by_char_class(ch)))) !=
-								qty_info->second.end())
+						unique_bit_flag_data flags2;
+						flags2.set(flag_data_by_char_class(ch));
+						class_to_act_map::const_iterator class_info2 = qty_info->second.find(flags2);
+						if (class_info2 != qty_info->second.end())
 						{
 							for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 								affect_modify(ch, GET_EQ(ch, pos)->affected[i].location,
@@ -2257,7 +2255,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 
-	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))
 		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
@@ -2265,7 +2263,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 				break;
 			}
 
-	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
+	if (!OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
 	{
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, FALSE);
@@ -2280,7 +2278,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 				affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, FALSE);
 			}
 
-		if ((OBJ_FLAGGED(obj, ITEM_SETSTUFF))&&(SetSystem::is_big_set(obj)))
+		if ((OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))&&(SetSystem::is_big_set(obj)))
 			obj->deactivate_obj(activation());
 	}
 
@@ -2458,14 +2456,16 @@ bool obj_to_room(OBJ_DATA * object, room_rnum room)
 		object->carried_by = NULL;
 		object->worn_by = NULL;
 		if (ROOM_FLAGGED(room, ROOM_NOITEM))
-			SET_BIT(GET_OBJ_EXTRA(object, ITEM_DECAY), ITEM_DECAY);
+		{
+			object->set_extraflag(EExtraFlags::ITEM_DECAY);
+		}
 //		sect = real_sector(room);
 //      if (ROOM_FLAGGED(room, ROOM_HOUSE))
 //         SET_BIT(ROOM_FLAGS(room, ROOM_HOUSE_CRASH), ROOM_HOUSE_CRASH);
 //      if (object->proto_script || object->script)
 		if (object->script)
 			GET_OBJ_DESTROY(object) = script_destroy_timer;
-		else if (OBJ_FLAGGED(object, ITEM_NODECAY))
+		else if (OBJ_FLAGGED(object, EExtraFlags::ITEM_NODECAY))
 			GET_OBJ_DESTROY(object) = room_nodestroy_timer;
 		else
 			/*  Убрано упасть и утонуть, посколько уничтожение обьектов
@@ -2519,8 +2519,8 @@ int obj_decay(OBJ_DATA * object)
 	sect = real_sector(room);
 
 	if (((sect == SECT_WATER_SWIM || sect == SECT_WATER_NOSWIM) &&
-			!OBJ_FLAGGED(object, ITEM_SWIMMING) &&
-			!OBJ_FLAGGED(object, ITEM_FLYING) &&
+			!OBJ_FLAGGED(object, EExtraFlags::ITEM_SWIMMING) &&
+			!OBJ_FLAGGED(object, EExtraFlags::ITEM_FLYING) &&
 			!IS_CORPSE(object)))
 	{
 
@@ -2530,7 +2530,7 @@ int obj_decay(OBJ_DATA * object)
 		return (1);
 	}
 
-	if (((sect == SECT_FLYING) && !IS_CORPSE(object) && !OBJ_FLAGGED(object, ITEM_FLYING)))
+	if (((sect == SECT_FLYING) && !IS_CORPSE(object) && !OBJ_FLAGGED(object, EExtraFlags::ITEM_FLYING)))
 	{
 
 		act("$o0 упал$G вниз.", FALSE, world[room]->people, object, 0, TO_ROOM);
@@ -2540,8 +2540,8 @@ int obj_decay(OBJ_DATA * object)
 	}
 
 
-	if (OBJ_FLAGGED(object, ITEM_DECAY) ||
-			(OBJ_FLAGGED(object, ITEM_ZONEDECAY) &&
+	if (OBJ_FLAGGED(object, EExtraFlags::ITEM_DECAY) ||
+			(OBJ_FLAGGED(object, EExtraFlags::ITEM_ZONEDECAY) &&
 			 GET_OBJ_ZONE(object) != NOWHERE && GET_OBJ_ZONE(object) != world[room]->zone))
 	{
 
@@ -2726,7 +2726,7 @@ void update_object(OBJ_DATA * obj, int use)
 	// dont update objects with a timer trigger
 	const bool trig_timer = SCRIPT_CHECK(obj, OTRIG_TIMER);
 	const bool has_timer = obj->get_timer() > 0;
-	const bool tick_timer = 0 != OBJ_FLAGGED(obj, ITEM_TICKTIMER);
+	const bool tick_timer = 0 != OBJ_FLAGGED(obj, EExtraFlags::ITEM_TICKTIMER);
 	if (!trig_timer && has_timer && tick_timer)
 	{
 		obj->dec_timer(use);
@@ -2765,7 +2765,7 @@ void update_char_objects(CHAR_DATA * ch)
 							if (world[IN_ROOM(ch)]->light > 0)
 								world[IN_ROOM(ch)]->light -= 1;
 						}
-						if (OBJ_FLAGGED(GET_EQ(ch, wear_pos), ITEM_DECAY))
+						if (OBJ_FLAGGED(GET_EQ(ch, wear_pos), EExtraFlags::ITEM_DECAY))
 							extract_obj(GET_EQ(ch, wear_pos));
 					}
 				}
@@ -2791,7 +2791,7 @@ void update_char_objects(CHAR_DATA * ch)
 */
 void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 {
-	if (zone_reset && !OBJ_FLAGGED(obj, ITEM_TICKTIMER))
+	if (zone_reset && !OBJ_FLAGGED(obj, EExtraFlags::ITEM_TICKTIMER))
 		extract_obj(obj);
 	else
 	{
@@ -2985,9 +2985,8 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	ch->clear_fighing_list();
 
 	// pull the char from the list
-	SET_BIT(MOB_FLAGS(ch, MOB_DELETE), MOB_DELETE);
+	MOB_FLAGS(ch).set(MOB_DELETE);
 	ch->remove_from_list(character_list);
-//	CharacterAlias::remove(ch);
 
 	if (ch->desc && ch->desc->original)
 		do_return(ch, NULL, 0, 0);
@@ -3020,7 +3019,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 			mob_index[GET_MOB_RNUM(ch)].number--;
 		clearMemory(ch);	// Only NPC's can have memory
 
-		SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
+		MOB_FLAGS(ch).set(MOB_FREE);
 		ch->purge();
 		// delete ch;
 		freed = 1;
@@ -3042,7 +3041,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	{
 		if (!freed)
 		{
-			SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
+			MOB_FLAGS(ch).set(MOB_FREE);
 			ch->purge();
 			// delete ch;
 		}
@@ -3116,7 +3115,7 @@ void extract_mob(CHAR_DATA * ch)
 	ch->clear_fighing_list();
 
 	// pull the char from the list
-	SET_BIT(MOB_FLAGS(ch, MOB_DELETE), MOB_DELETE);
+	MOB_FLAGS(ch).set(MOB_DELETE);
 	ch->remove_from_list(character_list);
 //	CharacterAlias::remove(ch);
 
@@ -3136,7 +3135,7 @@ void extract_mob(CHAR_DATA * ch)
 		SCRIPT_MEM(ch) = NULL;
 	}
 
-	SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
+	MOB_FLAGS(ch).set(MOB_FREE);
 	ch->purge();
 //	delete ch;
 }
@@ -3633,8 +3632,8 @@ OBJ_DATA *create_money(int amount)
 	GET_OBJ_CUR(obj) = 100;
 	obj->set_timer(24 * 60 * 7);
 	GET_OBJ_WEIGHT(obj) = 1;
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODONATE), ITEM_NODONATE);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
+	obj->set_extraflag(EExtraFlags::ITEM_NODONATE);
+	obj->set_extraflag(EExtraFlags::ITEM_NOSELL);
 
 	return (obj);
 }

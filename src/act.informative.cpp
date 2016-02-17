@@ -47,7 +47,7 @@
 #include "map.hpp"
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
-#include "char_obj_utils.hpp"
+#include "char_obj_utils.inl"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

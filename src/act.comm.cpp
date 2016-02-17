@@ -27,7 +27,7 @@
 #include "obj.hpp"
 #include "room.hpp"
 #include "spam.hpp"
-#include "char_obj_utils.hpp"
+#include "char_obj_utils.inl"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

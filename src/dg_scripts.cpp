@@ -701,7 +701,7 @@ void script_trigger_check(void)
 
 	for (obj = object_list; obj; obj = obj->next)
 	{
-		if(OBJ_FLAGGED(obj, ITEM_NAMED))
+		if(OBJ_FLAGGED(obj, EExtraFlags::ITEM_NAMED))
 		{
 			if(obj->worn_by && number(1, 100) <= 5)
 				NamedStuff::wear_msg(obj->worn_by, obj);
@@ -1508,9 +1508,9 @@ long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 }
 
 // Изменение указанного флага
-void gm_flag(char *subfield, const char **list, FLAG_DATA & val, char *res)
+void gm_flag(char *subfield, const char **list, FLAG_DATA& val, char *res)
 {
-	long flag;
+	int flag;
 
 	strcpy(res, "0");
 
@@ -1519,21 +1519,34 @@ void gm_flag(char *subfield, const char **list, FLAG_DATA & val, char *res)
 		if (*subfield == '-')
 		{
 			flag = ext_search_block(subfield + 1, list, FALSE);
-			if (flag && REMOVE_BIT(GET_FLAG(val, flag), flag))
-				strcpy(res, "1");
+			if (flag)
+			{
+				val.unset(flag);
+				if (val.plane_not_empty(flag))	// looks like an error: we should check flag, but not whole plane
+				{
+					strcpy(res, "1");
+				}
+			}
 		}
 		else if (*subfield == '+')
 		{
 			flag = ext_search_block(subfield + 1, list, FALSE);
-			if (flag && SET_BIT(GET_FLAG(val, flag), flag))
-				strcpy(res, "1");
-
+			if (flag)
+			{
+				val.set(flag);
+				if (val.plane_not_empty(flag))	// looks like an error: we should check flag, but not whole plane
+				{
+					strcpy(res, "1");
+				}
+			}
 		}
 		else
 		{
 			flag = ext_search_block(subfield, list, FALSE);
-			if (flag && IS_SET(GET_FLAG(val, flag), flag))
+			if (flag && val.get(flag))
+			{
 				strcpy(res, "1");
+			}
 		}
 	}
 	return;
@@ -3318,7 +3331,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			sprintf(str, "%c%d", UID_ROOM, find_room_uid(r->number));
 		}
 		else if (!str_cmp(field, "flag"))
-			gm_flag(subfield, room_bits, r->room_flags, str);
+		{
+			r->gm_flag(subfield, room_bits, str);
+		}
 		else if (!str_cmp(field, "people"))
 		{
 			if (r->people)

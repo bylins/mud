@@ -20,7 +20,7 @@
 #include "features.hpp"
 #include "house.h"
 #include "obj.hpp"
-#include "char_obj_utils.hpp"
+#include "char_obj_utils.inl"
 #include "utils.h"
 
 #include <boost/lexical_cast.hpp>

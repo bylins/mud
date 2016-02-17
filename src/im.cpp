@@ -1046,8 +1046,11 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 		if (GET_OBJ_TYPE(o) == ITEM_MING)
 			extract_obj(o);
 	}
-	if (!zone_types[type].ingr_qty || IS_SET(GET_FLAG(room->room_flags, ROOM_DEATH), ROOM_DEATH))
+	if (!zone_types[type].ingr_qty
+		|| room->get_flag(ROOM_DEATH))
+	{
 		return;
+	}
 	for (i = 0; i < zone_types[type].ingr_qty; i++)
 //	3% - 1-17
 //	2% - 18-34

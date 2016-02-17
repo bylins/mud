@@ -39,7 +39,7 @@
 #include "utils.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "char_obj_utils.hpp"
+#include "char_obj_utils.inl"
 
 #include <boost/array.hpp>
 #include <boost/bind.hpp>

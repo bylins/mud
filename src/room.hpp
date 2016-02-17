@@ -48,6 +48,8 @@ struct room_property_data
 	int poison; //Пока только степень зараженности для SPELL_POISONED_FOG//
 };
 
+extern void gm_flag(char *subfield, const char **list, FLAG_DATA& val, char *res);
+
 struct ROOM_DATA
 {
 	ROOM_DATA();
@@ -105,6 +107,8 @@ struct ROOM_DATA
 
 	void flags_from_string(const char *flag) { m_room_flags.asciiflag_conv(flag); };
 	bool sprintbits(char *result, const char *div, const int print_flag = 0) { return ::sprintbits(m_room_flags, room_bits, result, div, print_flag); }
+
+	void gm_flag(char *subfield, const char **list, char *res) { ::gm_flag(subfield, list, m_room_flags, res); }
 
 private:
 	FLAG_DATA m_room_flags;	// DEATH,DARK ... etc //
