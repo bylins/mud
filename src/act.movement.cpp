@@ -265,7 +265,7 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 			if (can_use_feat(ch, WRIGGLER_FEAT)) //тать или наем
 				percent = number(1, 102 + GET_REAL_INT(vict));
 			else
-				percent = number(1, 102 + (GET_REAL_INT(vict) * vict->get_role(MOB_ROLE_BOSS) ? 3 : 1) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
+				percent = number(1, 102 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
 			prob = calculate_skill(ch, SKILL_SNEAK, percent, vict);
 			if (percent > prob)
 			{
