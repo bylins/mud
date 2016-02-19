@@ -1440,7 +1440,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Имеет экстрафлаги: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.extra_flags, extra_bits, buf, ",");
+	sprintbits(GET_OBJ_EXTRA(obj), extra_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1793,7 +1793,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	send_to_char("Имеет экстрафлаги: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.extra_flags, extra_bits, buf, ",");
+	sprintbits(GET_OBJ_EXTRA(obj), extra_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);

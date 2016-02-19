@@ -3066,7 +3066,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "maker"))
 			sprintf(str, "%d", GET_OBJ_MAKER(o));
 		else if (!str_cmp(field, "effect"))
-			gm_flag(subfield, extra_bits, (o)->obj_flags.extra_flags, str);
+			gm_flag(subfield, extra_bits, GET_OBJ_EXTRA(o), str);
 		else if (!str_cmp(field, "affect"))
 			gm_flag(subfield, weapon_affects, (o)->obj_flags.affects, str);
 		else if (!str_cmp(field, "carried_by"))

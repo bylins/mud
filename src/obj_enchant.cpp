@@ -39,8 +39,8 @@ enchant::enchant(OBJ_DATA *obj)
 	}
 
 	affects_flags_ = GET_OBJ_AFFECTS(obj);
-	extra_flags_ = obj->obj_flags.extra_flags;
-	REMOVE_BIT(GET_FLAG(extra_flags_, ITEM_TICKTIMER), ITEM_TICKTIMER);
+	extra_flags_ = GET_OBJ_EXTRA(obj);
+	extra_flags_.unset(EExtraFlags::ITEM_TICKTIMER);
 	no_flags_ = GET_OBJ_NO(obj);
 	weight_ = GET_OBJ_VAL(obj, 0);
 	ndice_ = 0;
@@ -114,15 +114,15 @@ std::string enchant::print_to_file() const
 	}
 
 	*buf = '\0';
-	tascii(&GET_FLAG(affects_flags_, 0), 4, buf);
+	affects_flags_.tascii(4, buf);
 	out << " F " << buf << "\n";
 
 	*buf = '\0';
-	tascii(&GET_FLAG(extra_flags_, 0), 4, buf);
+	extra_flags_.tascii(4, buf);
 	out << " E " << buf << "\n";
 
 	*buf = '\0';
-	tascii(&GET_FLAG(no_flags_, 0), 4, buf);
+	no_flags_.tascii(4, buf);
 	out << " N " << buf << "\n";
 
 	out << " W " << weight_ << "\n";
@@ -161,7 +161,7 @@ void enchant::apply_to_obj(OBJ_DATA *obj) const
 	}
 
 	GET_OBJ_AFFECTS(obj) += affects_flags_;
-	obj->obj_flags.extra_flags += extra_flags_;
+	GET_OBJ_EXTRA(obj) += extra_flags_;
 	obj->obj_flags.no_flag += no_flags_;
 
 	GET_OBJ_WEIGHT(obj) += weight_;

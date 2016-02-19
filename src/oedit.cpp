@@ -326,10 +326,14 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 			obj->values = tmp.values;
 		}
 	}
-	if (OBJ_FLAGGED(&tmp, ITEM_TICKTIMER))//если у старого объекта запущен таймер
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_TICKTIMER), ITEM_TICKTIMER);//ставим флаг таймер запущен
-	if (OBJ_FLAGGED(&tmp, ITEM_NAMED))//если у старого объекта стоит флаг именной предмет
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NAMED), ITEM_NAMED);//ставим флаг именной предмет
+	if (tmp.get_extraflag(EExtraFlags::ITEM_TICKTIMER))//если у старого объекта запущен таймер
+	{
+		obj->set_extraflag(EExtraFlags::ITEM_TICKTIMER);//ставим флаг таймер запущен
+	}
+	if (tmp.get_extraflag(EExtraFlags::ITEM_NAMED))//если у старого объекта стоит флаг именной предмет
+	{
+		obj->set_extraflag(EExtraFlags::ITEM_NAMED);//ставим флаг именной предмет
+	}
 //	ObjectAlias::remove(obj);
 //	ObjectAlias::add(obj);
 }
@@ -508,11 +512,11 @@ void oedit_save_to_disk(int zone_num)
 			else
 				*buf1 = '\0';
 			*buf2 = '\0';
-			tascii(&GET_FLAG(GET_OBJ_AFFECTS(obj), 0), 4, buf2);
-			tascii(&GET_FLAG(GET_OBJ_ANTI(obj), 0), 4, buf2);
-			tascii(&GET_FLAG(GET_OBJ_NO(obj), 0), 4, buf2);
+			GET_OBJ_AFFECTS(obj).tascii(4, buf2);
+			GET_OBJ_ANTI(obj).tascii(4, buf2);
+			GET_OBJ_NO(obj).tascii(4, buf2);
 			sprintf(buf2 + strlen(buf2), "\n%d ", GET_OBJ_TYPE(obj));
-			tascii(&GET_OBJ_EXTRA(obj, 0), 4, buf2);
+			GET_OBJ_EXTRA(obj).tascii(4, buf2);
 			tascii(&GET_OBJ_WEAR(obj), 1, buf2);
 			strcat(buf2, "\n");
 
@@ -1143,7 +1147,7 @@ void oedit_disp_extra_menu(DESCRIPTOR_DATA * d)
 				extra_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_OBJ(d)->obj_flags.extra_flags, extra_bits, buf1, ",", true);
+	sprintbits(GET_OBJ_EXTRA(OLC_OBJ(d)), extra_bits, buf1, ",", true);
 	sprintf(buf, "\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1411,7 +1415,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 	get_char_cols(d->character);
 
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf1);
-	sprintbits(obj->obj_flags.extra_flags, extra_bits, buf2, ",");
+	sprintbits(GET_OBJ_EXTRA(obj), extra_bits, buf2, ",");
 
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
@@ -1913,7 +1917,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		else
 		{
-			TOGGLE_BIT(OLC_OBJ(d)->obj_flags.extra_flags.flags[plane], 1 << (bit));
+			GET_OBJ_EXTRA(OLC_OBJ(d)).toggle_flag(plane, 1 << bit);
 			oedit_disp_extra_menu(d);
 			return;
 		}

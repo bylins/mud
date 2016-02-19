@@ -4344,7 +4344,7 @@ char *parse_object(FILE * obj_f, int nr)
 		exit(1);
 	}
 	tobj->obj_flags.type_flag = t[0];	    // ** What's a object
-	asciiflag_conv(f1, &tobj->obj_flags.extra_flags);
+	GET_OBJ_EXTRA(tobj).asciiflag_conv(f1);
 	// ** Its effects
 	asciiflag_conv(f2, &tobj->obj_flags.wear_flags);
 	// ** Wear on ...
@@ -7262,7 +7262,7 @@ bool check_object(OBJ_DATA * obj)
 		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->short_description);
 	}
 
-	sprintbits(obj->obj_flags.extra_flags, extra_bits, buf, ",");
+	sprintbits(GET_OBJ_EXTRA(obj), extra_bits, buf, ",");
 	if (strstr(buf, "UNDEFINED"))
 	{
 		error = true;

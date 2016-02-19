@@ -1268,7 +1268,9 @@ public:
 
 	template <class T>
 	bool toggle(const T packed_flag) { return 0 != ((m_flags[to_underlying(packed_flag) >> 30] ^= (to_underlying(packed_flag) & 0x3fffffff)) & (to_underlying(packed_flag) & 0x3fffffff)); }
-	template <> bool toggle(const int packed_flag) { return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & (packed_flag & 0x3fffffff)); }
+	template <> bool toggle(const uint32_t packed_flag) { return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & (packed_flag & 0x3fffffff)); }
+	template <> bool toggle(const int packed_flag) { return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & packed_flag & 0x3fffffff); }
+	bool toggle_flag(const size_t plane, const uint32_t flag) { return 0 != ((m_flags[plane] ^= flag) & flag); }
 
 	void asciiflag_conv(const char *flag);
 	void tascii(int num_planes, char* ascii) const;
@@ -1319,8 +1321,9 @@ public:
 	unique_bit_flag_data(const FLAG_DATA& __base): FLAG_DATA(__base) {}
 };
 
-inline int
-flag_data_by_num(const int& num)
+void tascii(const uint32_t* pointer, int num_planes, char* ascii);
+
+inline int flag_data_by_num(const int& num)
 {
 	return num < 0   ? 0 :
 		   num < 30  ? (1 << num) :
@@ -1328,15 +1331,6 @@ flag_data_by_num(const int& num)
 		   num < 90  ? (INT_TWO | (1 << (num - 60))) :
 		   num < 120 ? (INT_THREE | (1 << (num - 90))) : 0;
 }
-
-/* remove me
-inline bool operator==(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop == __rop; }
-inline bool operator!=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop != __rop; }
-inline bool operator<(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop < __rop; }
-inline bool operator>(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop > __rop; }
-inline bool operator<=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop == __rop || __lop < __rop; }
-inline bool operator>=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop) { return __lop == __rop || __lop > __rop; }
-*/
 
 // Extra description: used in objects, mobiles, and rooms //
 struct extra_descr_data

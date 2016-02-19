@@ -362,7 +362,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define PRF_FLAGS(ch)  ((ch)->player_specials->saved.pref)
 #define AFF_FLAGS(ch)  ((ch)->char_specials.saved.affected_by)
-#define NPC_FLAGS(ch,flag)  (GET_FLAG((ch)->mob_specials.npc_flags, flag))
+#define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
 #define ROOM_AFF_FLAGS(room)  ((room)->affected_by)
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
 #define GET_ROOM(loc) (world[(loc)])
@@ -377,8 +377,8 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && PLR_FLAGS(ch).get(flag))
 #define AFF_FLAGGED(ch, flag)   (AFF_FLAGS(ch).get(flag) || ch->isAffected(flag))
 #define PRF_FLAGGED(ch, flag)   (PRF_FLAGS(ch).get(flag))
-#define NPC_FLAGGED(ch, flag)   (IS_SET(NPC_FLAGS(ch,flag), (flag)))
-#define EXTRA_FLAGGED(ch, flag) (IS_SET(EXTRA_FLAGS(ch,flag), (flag)))
+#define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
+#define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
 #define ROOM_FLAGGED(loc, flag) (GET_ROOM((loc))->get_flag(flag))
 #define ROOM_AFFECTED(loc, flag) (ROOM_AFF_FLAGS((world[(loc)])).get(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
@@ -931,7 +931,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent())
 #define GET_OBJ_RENTEQ(obj)     ((obj)->get_rent_eq())
-#define GET_OBJ_EXTRA(obj,flag)  (GET_FLAG((obj)->obj_flags.extra_flags,flag))
+#define GET_OBJ_EXTRA(obj)  ((obj)->obj_flags.extra_flags)
 #define GET_OBJ_WEAR(obj)  ((obj)->obj_flags.wear_flags)
 #define GET_OBJ_OWNER(obj)      ((obj)->obj_flags.Obj_owner)
 #define GET_OBJ_MAKER(obj)      ((obj)->obj_flags.Obj_maker)
@@ -1565,9 +1565,7 @@ void print_bitset(const N& bits, const T& names,
 	}
 }
 
-void tascii(const uint32_t* pointer, int num_planes, char* ascii);
 const char *print_obj_state(int tm_pct);
-
 
 bool no_bad_affects(OBJ_DATA *obj);
 

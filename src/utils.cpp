@@ -3668,7 +3668,7 @@ bool ParseFilter::check_affect_extra(OBJ_DATA *obj) const
 	{
 		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it)
 		{
-			if (!CompareBits(obj->obj_flags.extra_flags, extra_bits, *it))
+			if (!CompareBits(GET_OBJ_EXTRA(obj), extra_bits, *it))
 			{
 				return false;
 			}

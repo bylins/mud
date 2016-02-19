@@ -102,7 +102,7 @@ struct ROOM_DATA
 
 	void set_flag(const uint32_t flag) { m_room_flags.set(flag); }
 	void unset_flag(const uint32_t flag) { m_room_flags.unset(flag); }
-	bool get_flag(const uint32_t flag) { return m_room_flags.get(flag); }
+	bool get_flag(const uint32_t flag) const { return m_room_flags.get(flag); }
 	void clear_flags() { m_room_flags.clear(); }
 
 	void flags_from_string(const char *flag) { m_room_flags.asciiflag_conv(flag); };

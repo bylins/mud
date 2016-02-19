@@ -1661,8 +1661,7 @@ void sedit::parse_activ_affects(CHAR_DATA *ch, const char *arg)
 	}
 	else
 	{
-		TOGGLE_BIT(olc_set.activ_list.at(activ_edit).affects.flags[plane],
-			1 << (bit));
+		olc_set.activ_list.at(activ_edit).affects.toggle_flag(plane, 1 << bit);
 		show_activ_affects(ch);
 		return;
 	}

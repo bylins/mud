@@ -1101,18 +1101,23 @@ void check_idling(CHAR_DATA * ch)
 	}
 }
 
-
-
 // Update PCs, NPCs, and objects
-#define NO_DESTROY(obj) ((obj)->carried_by   || \
-                         (obj)->worn_by      || \
-                         (obj)->in_obj       || \
-                         (obj)->script       || \
-                         GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN || \
-	                 obj->in_room == NOWHERE || \
-			 (OBJ_FLAGGED(obj, ITEM_NODECAY) && !ROOM_FLAGGED(obj->in_room, ROOM_DEATH)))
-#define NO_TIMER(obj)   (GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN)
-// || OBJ_FLAGGED(obj, ITEM_NODECAY))
+inline bool NO_DESTROY(const OBJ_DATA* obj)
+{
+	return (obj->carried_by
+		|| obj->worn_by
+		|| obj->in_obj
+		|| obj->script
+		|| GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN
+		|| obj->in_room == NOWHERE
+		|| (obj->get_extraflag(EExtraFlags::ITEM_NODECAY)
+			&& !ROOM_FLAGGED(obj->in_room, ROOM_DEATH)));
+}
+
+inline bool NO_TIMER(const OBJ_DATA* obj)
+{
+	return GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN;
+}
 
 int up_obj_where(OBJ_DATA * obj)
 {
@@ -1187,7 +1192,7 @@ void room_point_update()
 		if (world[count]->ices)
 			if (!--world[count]->ices)
 			{
-				REMOVE_BIT(ROOM_FLAGS(count, ROOM_ICEDEATH), ROOM_ICEDEATH);
+				GET_ROOM(count)->unset_flag(ROOM_ICEDEATH);
 				DeathTrap::remove(world[count]);
 			}
 
@@ -1350,16 +1355,16 @@ void clan_chest_point_update(OBJ_DATA *j)
 		if (!SetSystem::find_set_item(j->in_obj) && j->get_timer() > 0)
 			j->dec_timer();
 	}
-	if ((j->get_timer() > 0))
+	if (j->get_timer() > 0)
 	{
 		j->dec_timer();
 	}
 
-	if ((OBJ_FLAGGED(j, ITEM_ZONEDECAY)
+	if (j->get_timer() <= 0
+		|| (j->get_extraflag(EExtraFlags::ITEM_ZONEDECAY)
 			&& GET_OBJ_ZONE(j) != NOWHERE
 			&& up_obj_where(j->in_obj) != NOWHERE
-			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone)
-		|| j->get_timer() <= 0)
+			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone))
 	{
 		clan_chest_invoice(j);
 		obj_from_obj(j);
@@ -1428,7 +1433,7 @@ void obj_point_update()
 		if (j->in_obj
 				&& !j->in_obj->carried_by
 				&& !j->in_obj->worn_by
-				&& OBJ_FLAGGED(j->in_obj, ITEM_NODECAY)
+				&& j->in_obj->get_extraflag(EExtraFlags::ITEM_NODECAY)
 				&& GET_ROOM_VNUM(IN_ROOM(j->in_obj)) % 100 != 99)
 		{
 			int zone = world[j->in_obj->in_room]->zone;
@@ -1511,7 +1516,7 @@ void obj_point_update()
 		{
 			if (SCRIPT_CHECK(j, OTRIG_TIMER))
 			{
-				if (j->get_timer() > 0 && OBJ_FLAGGED(j, ITEM_TICKTIMER))
+				if (j->get_timer() > 0 && j->get_extraflag(EExtraFlags::ITEM_TICKTIMER))
 				{
 					j->dec_timer();
 				}
@@ -1529,13 +1534,15 @@ void obj_point_update()
 				j->dec_timer();
 			}
 
-			if (j && (
-					(OBJ_FLAGGED(j, ITEM_ZONEDECAY)
+			if (j
+				&& ((j->get_extraflag(EExtraFlags::ITEM_ZONEDECAY)
 					&& GET_OBJ_ZONE(j) != NOWHERE
 					&& up_obj_where(j) != NOWHERE
 					&& GET_OBJ_ZONE(j) != world[up_obj_where(j)]->zone)
-					|| (j->get_timer() <= 0 && !NO_TIMER(j))
-					|| (GET_OBJ_DESTROY(j) == 0 && !NO_DESTROY(j))))
+					|| (j->get_timer() <= 0
+						&& !NO_TIMER(j))
+					|| (GET_OBJ_DESTROY(j) == 0
+						&& !NO_DESTROY(j))))
 			{
 				// *** рассыпание объекта
 				for (jj = j->contains; jj; jj = next_thing2)
@@ -1880,13 +1887,13 @@ void repop_decay(zone_rnum zone)
 			cont = FALSE;
 		}
 		obj_zone_num = GET_OBJ_VNUM(j) / 100;
-		if (((obj_zone_num == zone_num) && IS_OBJ_STAT(j, ITEM_REPOP_DECAY)))
+		if (obj_zone_num == zone_num
+			&& j->get_extraflag(EExtraFlags::ITEM_REPOP_DECAY))
 		{
 			/* F@N
 			 * Если мне кто-нибудь объяснит глубинный смысл последующей строчки,
 			 * буду очень признателен
 			*/
-//                 || (GET_OBJ_TYPE(j) == ITEM_INGRADIENT && GET_OBJ_SKILL(j) > 19)
 			if (j->worn_by)
 				act("$o рассыпал$U, вспыхнув ярким светом...", FALSE, j->worn_by, j, 0, TO_CHAR);
 			else if (j->carried_by)

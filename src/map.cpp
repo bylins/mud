@@ -12,6 +12,7 @@
 #include "handler.h"
 #include "shop_ext.hpp"
 #include "noob.hpp"
+#include "char_obj_utils.inl"
 #include "utils.h"
 #include "conf.h"
 
@@ -511,7 +512,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			draw_objs(ch, ch->in_room, y, x);
 		}
 	}
-	else if (IS_SET(GET_FLAG(room->room_flags, ROOM_PEACEFUL), ROOM_PEACEFUL))
+	else if (room->get_flag(ROOM_PEACEFUL))
 	{
 		put_on_screen(y, x, SCREEN_PEACE, cur_depth);
 	}
@@ -581,8 +582,9 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			// здесь важна очередность, что первое отрисовалось - то и будет
 			const ROOM_DATA *next_room = world[room->dir_option[i]->to_room];
 			// дт иммам и нубам с 0 мортов
-			if (IS_SET(GET_FLAG(next_room->room_flags, ROOM_DEATH), ROOM_DEATH)
-				&& (GET_REMORT(ch) <= 5 || IS_IMMORTAL(ch)))
+			if (next_room->get_flag(ROOM_DEATH)
+				&& (GET_REMORT(ch) <= 5
+					|| IS_IMMORTAL(ch)))
 			{
 				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 			}

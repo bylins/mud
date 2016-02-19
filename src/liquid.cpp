@@ -11,6 +11,7 @@
 
 #include "obj.hpp"
 #include "char.hpp"
+#include "char_obj_utils.inl"
 #include "db.h"
 #include "comm.h"
 #include "handler.h"
@@ -327,7 +328,7 @@ ACMD(do_drink)
 		else
 			on_ground = 1;
 	}
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
 		return;
@@ -1004,7 +1005,7 @@ ACMD(do_pour)
 		send_to_char("Там нет места.\r\n", ch);
 		return;
 	}
-		if (OBJ_FLAGGED(from_obj, ITEM_NOPOUR))
+		if (OBJ_FLAGGED(from_obj, EExtraFlags::ITEM_NOPOUR))
 		{
 			send_to_char(ch,"Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n", GET_OBJ_PNAME(from_obj, 3));
 			return;

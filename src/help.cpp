@@ -99,11 +99,7 @@ inline bool bit_is_set(const uint32_t flags, const int bit)
 // проверка обратная flag_data_by_num()
 bool check_num_in_unique_bit_flag_data(const unique_bit_flag_data &data, const int num)
 {
-	return num < 0   ? false :
-		   num < 30  ? bit_is_set(*data.flags, num) :
-		   num < 60  ? bit_is_set(*(data.flags + 1), num - 30) :
-		   num < 90  ? bit_is_set(*(data.flags + 2), num - 60) :
-		   num < 120 ? bit_is_set(*(data.flags + 3), num - 90) : false;
+	return (0 <= num && num < 120) ? data.get_flag(num / 30, num) : false;
 }
 
 std::string print_skill(const std::pair<int, int> &skill, bool activ)

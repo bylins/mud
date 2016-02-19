@@ -1820,7 +1820,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	send_to_char(buf, ch);
 
 	send_to_char("Дополнительные флаги  : ", ch);
-	sprintbits(j->obj_flags.extra_flags, extra_bits, buf, ",");
+	sprintbits(GET_OBJ_EXTRA(j), extra_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
@@ -7009,7 +7009,7 @@ ACMD(do_print_armor)
 			for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it)
 			{
 				//find = true;
-				if (!CompareBits((*i)->obj_flags.extra_flags, extra_bits, *it))
+				if (!CompareBits(GET_OBJ_EXTRA(*i), extra_bits, *it))
 				{
 					find = false;
 					break;
