@@ -35,7 +35,7 @@ inline bool CAN_SEE_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
 			&& PRF_FLAGGED((sub), PRF_HOLYLIGHT)));
 }
 
-const char* OBJN(const OBJ_DATA* obj, const CHAR_DATA* vict, const size_t pad)
+inline const char* OBJN(const OBJ_DATA* obj, const CHAR_DATA* vict, const size_t pad)
 {
 	return CAN_SEE_OBJ(vict, obj)
 		? (obj->PNames[pad]
@@ -44,9 +44,18 @@ const char* OBJN(const OBJ_DATA* obj, const CHAR_DATA* vict, const size_t pad)
 		: GET_PAD_OBJ(pad);
 }
 
-const char* OBJS(const OBJ_DATA* obj, const CHAR_DATA* vict)
+inline const char* OBJS(const OBJ_DATA* obj, const CHAR_DATA* vict)
 {
 	return CAN_SEE_OBJ(vict, obj) ? obj->short_description : "что-то";
+}
+
+inline bool CAN_GET_OBJ(const CHAR_DATA* ch, const OBJ_DATA* obj)
+{
+	return (CAN_WEAR(obj, ITEM_WEAR_TAKE)
+		&& CAN_CARRY_OBJ(ch, obj)
+		&& CAN_SEE_OBJ(ch, obj))
+		&& !(IS_NPC(ch)
+			&& obj->get_extraflag(EExtraFlags::ITEM_BLOODY));
 }
 
 #endif // __CHAR_OBJ_UTILS_HPP__

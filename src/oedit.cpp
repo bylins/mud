@@ -1147,7 +1147,7 @@ void oedit_disp_extra_menu(DESCRIPTOR_DATA * d)
 				extra_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(GET_OBJ_EXTRA(OLC_OBJ(d)), extra_bits, buf1, ",", true);
+	GET_OBJ_EXTRA(OLC_OBJ(d)).sprintbits(extra_bits, buf1, ",", true);
 	sprintf(buf, "\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1178,7 +1178,7 @@ void oedit_disp_anti_menu(DESCRIPTOR_DATA * d)
 				anti_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_OBJ(d)->obj_flags.anti_flag, anti_bits, buf1, ",", true);
+	OLC_OBJ(d)->obj_flags.anti_flag.sprintbits(anti_bits, buf1, ",", true);
 	sprintf(buf, "\r\nПредмет запрещен для : %s%s%s\r\n" "Выберите флаг запрета (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1209,7 +1209,7 @@ void oedit_disp_no_menu(DESCRIPTOR_DATA * d)
 				no_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_OBJ(d)->obj_flags.no_flag, no_bits, buf1, ",", true);
+	OLC_OBJ(d)->obj_flags.no_flag.sprintbits(no_bits, buf1, ",", true);
 	sprintf(buf, "\r\nПредмет неудобен для : %s%s%s\r\n" "Выберите флаг неудобств (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1240,7 +1240,7 @@ void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags)
 				weapon_affects[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(flags, weapon_affects, buf1, ",", true);
+	flags.sprintbits(weapon_affects, buf1, ",", true);
 	sprintf(buf,
 		"\r\nНакладываемые аффекты : %s%s%s\r\n"
 		"Выберите аффект (0 - выход) : ", cyn, buf1, nrm);
@@ -1415,7 +1415,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 	get_char_cols(d->character);
 
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf1);
-	sprintbits(GET_OBJ_EXTRA(obj), extra_bits, buf2, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf2, ",");
 
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
@@ -1448,14 +1448,14 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character);
 
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf1);
-	sprintbits(obj->obj_flags.no_flag, no_bits, buf2, ",");
+	obj->obj_flags.no_flag.sprintbits(no_bits, buf2, ",");
 	sprintf(buf,
 			"%sC%s) Одевается  : %s%s\r\n"
 			"%sD%s) Неудобен    : %s%s\r\n", grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	send_to_char(buf, d->character);
 
-	sprintbits(obj->obj_flags.anti_flag, anti_bits, buf1, ",");
-	sprintbits(obj->obj_flags.affects, weapon_affects, buf2, ",");
+	obj->obj_flags.anti_flag.sprintbits(anti_bits, buf1, ",");
+	obj->obj_flags.affects.sprintbits(weapon_affects, buf2, ",");
 	sprintf(buf,
 			"%sE%s) Запрещен    : %s%s\r\n"
 			"%sF%s) Вес         : %s%8d   %sG%s) Цена        : %s%d\r\n"
@@ -1950,7 +1950,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		else
 		{
-			TOGGLE_BIT(OLC_OBJ(d)->obj_flags.no_flag.flags[plane], 1 << (bit));
+			OLC_OBJ(d)->obj_flags.no_flag.toggle_flag(plane, 1 << bit);
 			oedit_disp_no_menu(d);
 			return;
 		}
@@ -1966,7 +1966,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		else
 		{
-			TOGGLE_BIT(OLC_OBJ(d)->obj_flags.anti_flag.flags[plane], 1 << (bit));
+			OLC_OBJ(d)->obj_flags.anti_flag.toggle_flag(plane, 1 << bit);
 			oedit_disp_anti_menu(d);
 			return;
 		}
@@ -2275,7 +2275,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		else
 		{
-			TOGGLE_BIT(OLC_OBJ(d)->obj_flags.affects.flags[plane], 1 << (bit));
+			OLC_OBJ(d)->obj_flags.affects.toggle_flag(plane, 1 << bit);
 			oedit_disp_affects_menu(d);
 			return;
 		}

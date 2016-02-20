@@ -1871,7 +1871,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		const bool has_flag = ROOM_FLAGGED(ch->in_room, ROOM_BFS_MARK) ? true : false;
 		GET_ROOM(ch->in_room)->unset_flag(ROOM_BFS_MARK);
 
-		GET_ROOM(ch->in_room)->sprintbits(buf, ";");
+		GET_ROOM(ch->in_room)->flags_sprint(buf, ";");
 		sprintf(buf2, "[%5d] %s [%s]", GET_ROOM_VNUM(IN_ROOM(ch)), world[ch->in_room]->name, buf);
 		send_to_char(buf2, ch);
 
@@ -1907,9 +1907,9 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 
 	// Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер.
 	if (AFF_FLAGGED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch))
-		sprintbits(world[ch->in_room]->affected_by, room_aff_invis_bits, buf2, "\n");
+		world[ch->in_room]->affected_by.sprintbits(room_aff_invis_bits, buf2, "\n");
 	else
-		sprintbits(world[ch->in_room]->affected_by, room_aff_visib_bits, buf2, "\n");
+		world[ch->in_room]->affected_by.sprintbits(room_aff_visib_bits, buf2, "\n");
 
 	// подавляем если нет аффектов
 	if (strcmp(buf2, "ничего"))
@@ -3694,7 +3694,7 @@ ACMD(do_score)
 	/*
 	   strcat(buf, CCICYN(ch, C_NRM));
 	   strcat(buf,"Аффекты :\r\n");
-	   sprintbits((ch)->char_specials.saved.affected_by, affected_bits, buf2, "\r\n");
+	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
 	   strcat(buf,buf2);
 	 */
 	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
@@ -5574,7 +5574,7 @@ ACMD(do_affects)
 	{
 		AFF_FLAGS(ch).unset(j);
 	}
-	sprintbits(ch->char_specials.saved.affected_by, affected_bits, buf2, ",");
+	ch->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 	for (i = 0; (j = hiding[i]); i++)

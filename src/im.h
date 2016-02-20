@@ -103,13 +103,12 @@ struct _im_recipe_tag
 typedef struct _im_recipe_tag im_recipe;
 
 // Описание рецепта-умения
-struct _im_rskill_tag
+struct im_rskill
 {
 	int rid;		// индекс в главном массиве рецептов
 	int perc;		// уровень владения умением
-	struct _im_rskill_tag *link;	// указатель на следующее умение в цепочке
+	im_rskill *link;	// указатель на следующее умение в цепочке
 };
-typedef struct _im_rskill_tag im_rskill;
 
 extern im_recipe *imrecipes;
 

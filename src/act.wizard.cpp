@@ -330,7 +330,7 @@ ACMD(do_arena_restore)
 
 int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , long times)
 {
-	struct punish_data * pundata = 0;
+	punish_data * pundata = 0;
 	int result;
 	if (ch == vict)
 	{
@@ -1626,7 +1626,7 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 			zone_table[rm->zone].number, CCGRN(ch, C_NRM), rm->number, CCNRM(ch, C_NRM), ch->in_room, buf2);
 	send_to_char(buf, ch);
 
-	rm->sprintbits(buf2, ",");
+	rm->flags_sprint(buf2, ",");
 	sprintf(buf, "СпецПроцедура: %s, Флаги: %s\r\n", (rm->func == NULL) ? "None" : "Exists", buf2);
 	send_to_char(buf, ch);
 
@@ -1805,22 +1805,22 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	send_to_char(buf, ch);
 
 	send_to_char("Неудобства : ", ch);
-	sprintbits(j->obj_flags.no_flag, no_bits, buf, ",");
+	j->obj_flags.no_flag.sprintbits(no_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Запреты : ", ch);
-	sprintbits(j->obj_flags.anti_flag, anti_bits, buf, ",");
+	j->obj_flags.anti_flag.sprintbits(anti_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Устанавливает аффекты : ", ch);
-	sprintbits(j->obj_flags.affects, weapon_affects, buf, ",");
+	j->obj_flags.affects.sprintbits(weapon_affects, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Дополнительные флаги  : ", ch);
-	sprintbits(GET_OBJ_EXTRA(j), extra_bits, buf, ",");
+	GET_OBJ_EXTRA(j).sprintbits(extra_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
@@ -2337,20 +2337,20 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 
 	if (IS_NPC(k))
 	{
-		sprintbits(k->char_specials.saved.act, action_bits, buf2, ",");
+		k->char_specials.saved.act.sprintbits(action_bits, buf2, ",");
 		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		sprintbits(k->mob_specials.npc_flags, function_bits, buf2, ",");
+		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",");
 		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 	else
 	{
-		sprintbits(k->char_specials.saved.act, player_bits, buf2, ",");
+		k->char_specials.saved.act.sprintbits(player_bits, buf2, ",");
 		sprintf(buf, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 
-		sprintbits(k->player_specials->saved.pref, preference_bits, buf2, ",");
+		k->player_specials->saved.pref.sprintbits(preference_bits, buf2, ",");
 		sprintf(buf, "PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 
@@ -2410,7 +2410,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			send_to_char(strcat(buf, "\r\n"), ch);
 	}
 	// Showing the bitvector
-	sprintbits(k->char_specials.saved.affected_by, affected_bits, buf2, ",");
+	k->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 

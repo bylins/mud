@@ -68,9 +68,6 @@ void mudlog(const char *str, int type, int level, int channel, int file);
 void mudlog_python(const std::string& str, int type, int level, int channel, int file);
 int number(int from, int to);
 int dice(int number, int size);
-bool sprintbit(bitvector_t vektor, const char *names[], char *result, const int print_flag = 0);
-bool sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char *div, const int print_flag = 0);
-bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const int print_flag = 0);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
@@ -336,7 +333,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
    }              \
 
 // basic bitvector utils ************************************************
-
 
 #define IS_SET(flag,bit)  ((flag & 0x3FFFFFFF) & (bit))
 #define SET_BIT(var,bit)  ((var) |= (bit & 0x3FFFFFFF))
@@ -1092,11 +1088,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
   ((!obj->carried_by || CAN_SEE(sub, obj->carried_by)) && \
    (!obj->worn_by    || CAN_SEE(sub, obj->worn_by)))
 
-#define CAN_GET_OBJ(ch, obj)   \
-   (CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
-    CAN_SEE_OBJ((ch),(obj))) && \
-	!(IS_NPC((ch))  && IS_OBJ_STAT((obj), ITEM_BLOODY))
-
 #define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
                            (pad) == 4 ? "кем-то" :\
                            (pad) == 3 ? "кого-то" :\
@@ -1214,7 +1205,7 @@ int day_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int weather_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int complex_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj);
-bool CAN_CARRY_OBJ(CHAR_DATA *ch, OBJ_DATA *obj);
+bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj);
 bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
 
 // PADS for something ***************************************************
@@ -1491,7 +1482,7 @@ int dex_ac_bonus(int dex);
 int calc_str_req(int weight, int type);
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
 int wis_bonus(int stat, int type);
-int can_carry_n(CHAR_DATA* ch);
+int CAN_CARRY_N(const CHAR_DATA* ch);
 
 namespace SetSystem
 {
@@ -1506,7 +1497,6 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 } // namespace SetSystem
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
-#define CAN_CARRY_N(ch) (can_carry_n(ch))
 
 #define OK_BOTH(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
                           str_bonus(GET_REAL_STR(ch), STR_WIELD_W) + str_bonus(GET_REAL_STR(ch), STR_HOLD_W))

@@ -449,7 +449,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 		}	
-	sprintbits(obj->obj_flags.affects, weapon_affects, buf_temp1, ",");
+	obj->obj_flags.affects.sprintbits(weapon_affects, buf_temp1, ",");
 	
 	// проходим по всем аффектам в нашей таблице
 	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
@@ -500,7 +500,7 @@ float count_koef_obj(OBJ_DATA *obj,int item_wear)
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 		}
-	sprintbits(obj->obj_flags.affects, weapon_affects, buf_temp1, ",");
+	obj->obj_flags.affects.sprintbits(weapon_affects, buf_temp1, ",");
 	
 	// проходим по всем аффектам в нашей таблице
 	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
@@ -1547,7 +1547,7 @@ void OBJ_DATA::init_set_table()
 				}
 
 				FLAG_DATA tmpaffs = clear_flags;
-				asciiflag_conv(cppstr.c_str(), &tmpaffs);
+				tmpaffs.from_string(cppstr.c_str());
 
 				clss->second.set_affects(tmpaffs);
 				appnum = 0;
@@ -3645,7 +3645,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Special_Bitvector")
 	{
-		asciiflag_conv((char *) value, &mob_proto[i].mob_specials.npc_flags);
+		mob_proto[i].mob_specials.npc_flags.from_string((char *) value);
 		// *** Empty now
 	}
 
@@ -4159,9 +4159,9 @@ void parse_mobile(FILE * mob_f, int nr)
 			"...expecting line of form '# # # {S | E}'\n%s", nr, line);
 		exit(1);
 	}
-	MOB_FLAGS(&mob_proto[i]).asciiflag_conv(f1);
+	MOB_FLAGS(&mob_proto[i]).from_string(f1);
 	MOB_FLAGS(&mob_proto[i]).set(MOB_ISNPC);
-	AFF_FLAGS(&mob_proto[i]).asciiflag_conv(f2);
+	AFF_FLAGS(&mob_proto[i]).from_string(f2);
 	GET_ALIGNMENT(mob_proto + i) = t[2];
 	switch (UPPER(letter))
 	{
@@ -4326,11 +4326,11 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *3th* numeric line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	asciiflag_conv(f0, &tobj->obj_flags.affects);
+	tobj->obj_flags.affects.from_string(f0);
 	// ** Affects
-	asciiflag_conv(f1, &tobj->obj_flags.anti_flag);
+	tobj->obj_flags.anti_flag.from_string(f1);
 	// ** Miss for ...
-	asciiflag_conv(f2, &tobj->obj_flags.no_flag);
+	tobj->obj_flags.no_flag.from_string(f2);
 	// ** Deny for ...
 
 	if (!get_line(obj_f, line))
@@ -4344,7 +4344,7 @@ char *parse_object(FILE * obj_f, int nr)
 		exit(1);
 	}
 	tobj->obj_flags.type_flag = t[0];	    // ** What's a object
-	GET_OBJ_EXTRA(tobj).asciiflag_conv(f1);
+	GET_OBJ_EXTRA(tobj).from_string(f1);
 	// ** Its effects
 	asciiflag_conv(f2, &tobj->obj_flags.wear_flags);
 	// ** Wear on ...
@@ -7262,14 +7262,14 @@ bool check_object(OBJ_DATA * obj)
 		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->short_description);
 	}
 
-	sprintbits(GET_OBJ_EXTRA(obj), extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
 	if (strstr(buf, "UNDEFINED"))
 	{
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown extra flags.", GET_OBJ_VNUM(obj), obj->short_description);
 	}
 
-	sprintbits(obj->obj_flags.affects, affected_bits, buf, ",");
+	obj->obj_flags.affects.sprintbits(affected_bits, buf, ",");
 
 	if (strstr(buf, "UNDEFINED"))
 	{

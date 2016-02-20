@@ -25,9 +25,12 @@
 // object flags; used in obj_data //
 #define NUM_OBJ_VAL_POSITIONS 4
 
-struct obj_flag_data
+class obj_flag_data
 {
-	boost::array<int, NUM_OBJ_VAL_POSITIONS> value;
+public:
+	typedef boost::array<int, NUM_OBJ_VAL_POSITIONS> value_t;
+
+	value_t value;
 	int type_flag;		// Type of item               //
 	uint32_t wear_flags;		// Where you can wear it     //
 	FLAG_DATA extra_flags;	// If it hums, glows, etc.      //
@@ -365,7 +368,7 @@ struct OBJ_DATA
 	obj_vnum item_number;	// Where in data-base            //
 	room_rnum in_room;	// In what room -1 when conta/carr //
 
-	struct obj_flag_data obj_flags;		// Object information       //
+	obj_flag_data obj_flags;		// Object information       //
 	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected;	// affects //
 
 	char *aliases;		// Title of object :get etc.        //

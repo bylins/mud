@@ -6,9 +6,9 @@
 #define ROOM_HPP_INCLUDED
 
 #include "constants.h"
-#include "conf.h"
-#include "sysdep.h"
 #include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 struct exit_data
 {
@@ -100,13 +100,15 @@ struct ROOM_DATA
 
 	int poison;		// Степень заражения территории в SPELL_POISONED_FOG //
 
+	bool get_flag(const uint32_t flag) const { return m_room_flags.get(flag); }
 	void set_flag(const uint32_t flag) { m_room_flags.set(flag); }
 	void unset_flag(const uint32_t flag) { m_room_flags.unset(flag); }
-	bool get_flag(const uint32_t flag) const { return m_room_flags.get(flag); }
+	bool toggle_flag(const size_t plane, const uint32_t flag) { return m_room_flags.toggle_flag(plane, flag); }
 	void clear_flags() { m_room_flags.clear(); }
 
-	void flags_from_string(const char *flag) { m_room_flags.asciiflag_conv(flag); };
-	bool sprintbits(char *result, const char *div, const int print_flag = 0) { return ::sprintbits(m_room_flags, room_bits, result, div, print_flag); }
+	void flags_from_string(const char *flag) { m_room_flags.from_string(flag); };
+	bool flags_sprint(char *result, const char *div, const int print_flag = 0) const { return m_room_flags.sprintbits(room_bits, result, div, print_flag); }
+	void flags_tascii(int num_planes, char* ascii) { m_room_flags.tascii(num_planes, ascii); }
 
 	void gm_flag(char *subfield, const char **list, char *res) { ::gm_flag(subfield, list, m_room_flags, res); }
 

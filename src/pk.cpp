@@ -126,7 +126,9 @@ void pk_check_spamm(CHAR_DATA * ch)
 		act("Боги прокляли тот день, когда ты появился на свет!", FALSE, ch, 0, 0, TO_CHAR);
 	}
 	if (pk_player_count(ch) >= KillerPK)
-		SET_BIT(PLR_FLAGS(ch, PLR_KILLER), PLR_KILLER);
+	{
+		PLR_FLAGS(ch).set(PLR_KILLER);
+	}
 }
 
 // функция переводит переменные *pkiller и *pvictim на хозяев, если это чармы
@@ -1120,12 +1122,21 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 	set_bloody_flag(list->contains, ch);
 	set_bloody_flag(list->next_content, ch);
 	const int t = GET_OBJ_TYPE(list);
-	if ((t == ITEM_LIGHT || t == ITEM_WAND || t == ITEM_STAFF || t == ITEM_WEAPON
-		|| t == ITEM_ARMOR || (t == ITEM_CONTAINER && GET_OBJ_VAL(list, 0)) || t == ITEM_ARMOR_LIGHT
-		|| t == ITEM_ARMOR_MEDIAN || t == ITEM_ARMOR_HEAVY || t == ITEM_INGRADIENT
-		|| t == ITEM_WORN) && !IS_OBJ_STAT(list, ITEM_BLOODY))
+	if (list->get_extraflag(EExtraFlags::ITEM_BLOODY)
+		&& (t == ITEM_LIGHT
+			|| t == ITEM_WAND
+			|| t == ITEM_STAFF
+			|| t == ITEM_WEAPON
+			|| t == ITEM_ARMOR
+			|| (t == ITEM_CONTAINER
+				&& GET_OBJ_VAL(list, 0))
+			|| t == ITEM_ARMOR_LIGHT
+			|| t == ITEM_ARMOR_MEDIAN
+			|| t == ITEM_ARMOR_HEAVY
+			|| t == ITEM_INGRADIENT
+			|| t == ITEM_WORN))
 	{
-		SET_BIT(GET_OBJ_EXTRA(list, ITEM_BLOODY), ITEM_BLOODY);
+		list->set_extraflag(EExtraFlags::ITEM_BLOODY);
 		bloody_map[list].owner_unique = GET_UNIQUE(ch);
 		bloody_map[list].kill_at = time(NULL);
 		bloody_map[list].object = list;
@@ -1141,7 +1152,7 @@ void bloody::update()
 		BloodyInfoMap::iterator cur = it++;
 		if (t - cur->second.kill_at >= BLOODY_DURATION * 60) //Действие флага заканчивается
 		{
-			REMOVE_BIT(GET_OBJ_EXTRA(cur->second.object, ITEM_BLOODY), ITEM_BLOODY);
+			cur->second.object->unset_extraflag(EExtraFlags::ITEM_BLOODY);
 			bloody_map.erase(cur);
 		}
 	}
@@ -1152,7 +1163,7 @@ void bloody::remove_obj(const OBJ_DATA* obj)
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
 	if (it != bloody_map.end())
 	{
-		REMOVE_BIT(GET_OBJ_EXTRA(it->second.object, ITEM_BLOODY), ITEM_BLOODY);
+		it->second.object->unset_extraflag(EExtraFlags::ITEM_BLOODY);
 		bloody_map.erase(it);
 	}
 }
@@ -1165,36 +1176,55 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 	pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
-	if (!IS_OBJ_STAT(obj, ITEM_BLOODY) || it == bloody_map.end())
+	if (!obj->get_extraflag(EExtraFlags::ITEM_BLOODY)
+		|| it == bloody_map.end())
+	{
 		result = true;
+	}
 	else
-	//Если отдаем владельцу или берет владелец
-	if (victim && (GET_UNIQUE(victim) == it->second.owner_unique || (CLAN(victim) &&
-		(CLAN(victim)->is_clan_member(it->second.owner_unique) || CLAN(victim)->is_alli_member(it->second.owner_unique)))
-		|| strcmp(player_table[get_ptable_by_unique(it->second.owner_unique)].mail, GET_EMAIL(victim))==0))
 	{
-	remove_obj(obj); //снимаем флаг
-		result = true;
-	}
-	else if (!ch && victim && (!IS_GOD(victim))) //лут не владельцем
-	{
-		if (IS_NPC(initial_victim)) //чармисам брать нельзя
+		//Если отдаем владельцу или берет владелец
+		if (victim
+			&& (GET_UNIQUE(victim) == it->second.owner_unique
+				|| (CLAN(victim)
+					&& (CLAN(victim)->is_clan_member(it->second.owner_unique)
+						|| CLAN(victim)->is_alli_member(it->second.owner_unique)))
+				|| strcmp(player_table[get_ptable_by_unique(it->second.owner_unique)].mail, GET_EMAIL(victim)) == 0))
+		{
+			remove_obj(obj); //снимаем флаг
+			result = true;
+		}
+		else if (!ch && victim && (!IS_GOD(victim))) //лут не владельцем
+		{
+			if (IS_NPC(initial_victim)) //чармисам брать нельзя
+			{
+				return false;
+			}
+			AGRO(victim) = MAX(AGRO(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
+			RENTABLE(victim) = MAX(RENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
+			result = true;
+		}
+		else if (ch
+			&& container
+			&& (container->carried_by == ch
+				|| container->worn_by == ch)) //чар пытается положить в контейнер в инвентаре или экипировке
+		{
+			result = true;
+		}
+		else //нельзя передавать кровавый шмот
+		{
+			if (ch)
+			{
+				act("Кровь, покрывающая $o3, намертво въелась вам в руки, не давая избавиться от н$S.", FALSE, ch, obj, 0, TO_CHAR);
+			}
 			return false;
-		AGRO(victim) = MAX(AGRO(victim), KILLER_UNRENTABLE * 60 +it->second.kill_at);
-		RENTABLE(victim) = MAX(RENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
-		result = true;
-	}
-	else if (ch && container && (container->carried_by == ch || container->worn_by == ch)) //чар пытается положить в контейнер в инвентаре или экипировке
-		result = true;
-	else //нельзя передавать кровавый шмот
-	{
-		if (ch)
-		act("Кровь, покрывающая $o3, намертво въелась вам в руки, не давая избавиться от н$S.", FALSE, ch, obj, 0, TO_CHAR);
-		return false;
+		}
 	}
 	//обработка контейнеров
-	for (OBJ_DATA* nobj = obj->contains; nobj!=NULL && result; nobj = nobj->next_content)
+	for (OBJ_DATA* nobj = obj->contains; nobj != NULL && result; nobj = nobj->next_content)
+	{
 		result = handle_transfer(initial_ch, initial_victim, nobj);
+	}
 	return result;
 }
 
@@ -1223,10 +1253,15 @@ void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 
 bool bloody::is_bloody(const OBJ_DATA* obj)
 {
-	if (IS_OBJ_STAT(obj, ITEM_BLOODY)) return true;
+	if (obj->get_extraflag(EExtraFlags::ITEM_BLOODY))
+	{
+		return true;
+	}
 	bool result = false;
-	for (OBJ_DATA* nobj = obj->contains; nobj!=NULL && !result; nobj = nobj->next_content)
+	for (OBJ_DATA* nobj = obj->contains; nobj != NULL && !result; nobj = nobj->next_content)
+	{
 		result = is_bloody(nobj);
+	}
 	return result;
 }
 

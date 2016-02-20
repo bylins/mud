@@ -31,6 +31,7 @@
 #include "player_races.hpp"
 #include "magic.h"
 #include "fight.h"
+#include "char_obj_utils.inl"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -1530,7 +1531,7 @@ SPECIAL(horse_keeper)
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_ROOM);
 		ch->remove_gold(HORSE_COST);
-		SET_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
+		PLR_FLAGS(ch).set(PLR_CRASH);
 		return (TRUE);
 	}
 
@@ -1567,14 +1568,12 @@ SPECIAL(horse_keeper)
 		act(buf, FALSE, ch, 0, victim, TO_ROOM);
 		extract_char(horse, FALSE);
 		ch->add_gold((HORSE_COST >> 1));
-		SET_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
+		PLR_FLAGS(ch).set(PLR_CRASH);
 		return (TRUE);
 	}
 
 	return (0);
 }
-
-
 
 int npc_track(CHAR_DATA * ch)
 {
@@ -2439,7 +2438,7 @@ void npc_group(CHAR_DATA * ch)
 			continue;
 		if (vict == leader)
 		{
-			SET_BIT(AFF_FLAGS(vict, AFF_GROUP), AFF_GROUP);
+			AFF_FLAGS(vict).set(AFF_GROUP);
 			continue;
 		}
 		if (!vict->master)
@@ -2449,7 +2448,7 @@ void npc_group(CHAR_DATA * ch)
 			stop_follower(vict, SF_EMPTY);
 			add_follower(vict, leader);
 		}
-		SET_BIT(AFF_FLAGS(vict, AFF_GROUP), AFF_GROUP);
+		AFF_FLAGS(vict).set(AFF_GROUP);
 	}
 
 }
@@ -2908,7 +2907,7 @@ SPECIAL(pet_shops)
 
 		pet = read_mobile(GET_MOB_RNUM(pet), REAL);
 		pet->set_exp(0);
-		SET_BIT(AFF_FLAGS(pet, AFF_CHARM), AFF_CHARM);
+		AFF_FLAGS(pet).set(AFF_CHARM);
 
 		if (*pet_name)
 		{

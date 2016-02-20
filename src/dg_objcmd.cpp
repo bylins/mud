@@ -40,7 +40,6 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 ROOM_DATA *get_room(char *name);
-void asciiflag_conv(const char *flag, void *value);
 #define OCMD(name)  \
    void (name)(OBJ_DATA *obj, char *argument, int cmd, int subcmd)
 

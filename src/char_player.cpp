@@ -900,7 +900,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	set_remort(0);
 	GET_LASTIP(this)[0] = 0;
 	GET_EMAIL(this)[0] = 0;
-	PLR_FLAGS(this).asciiflag_conv("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
+	PLR_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
 
 	bool skip_file = 0;
 
@@ -935,7 +935,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		case 'A':
 			if (!strcmp(tag, "Act "))
 			{
-				PLR_FLAGS(this).asciiflag_conv(line);
+				PLR_FLAGS(this).from_string(line);
 			}
 			break;
 		case 'C':
@@ -1152,8 +1152,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_COND(this, THIRST) = 0;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
-	PRF_FLAGS(this).asciiflag_conv("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
-	AFF_FLAGS(this).asciiflag_conv("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
+	PRF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
+	AFF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	GET_PORTALS(this) = NULL;
 	EXCHANGE_FILTER(this) = NULL;
 	IGNORE_LIST(this) = NULL;
@@ -1189,7 +1189,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				GET_AC(this) = num;
 			else if (!strcmp(tag, "Aff "))
 			{
-				AFF_FLAGS(this).asciiflag_conv(line);
+				AFF_FLAGS(this).from_string(line);
 			}
 			else if (!strcmp(tag, "Affs"))
 			{
@@ -1528,7 +1528,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				POOFOUT(this) = str_dup(line);
 			else if (!strcmp(tag, "Pref"))
 			{
-				PRF_FLAGS(this).asciiflag_conv(line);
+				PRF_FLAGS(this).from_string(line);
 			}
 			else if (!strcmp(tag, "Pkil"))
 			{

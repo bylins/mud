@@ -973,7 +973,6 @@ template <> const char* ITEM_NAME<EExtraFlags>(const EExtraFlags item);
 //#define ITEM_AN_KILLERONLY (INT_ONE | (1 << 2))// // только для душиков //
 #define ITEM_AN_BD	   (INT_ONE | (1 << 2))
 
-
 #define ITEM_AN_SEVERANE   (INT_TWO | 1 << 0)  // недоступность по родам
 #define ITEM_AN_POLANE     (INT_TWO | 1 << 1)
 #define ITEM_AN_KRIVICHI   (INT_TWO | 1 << 2)
@@ -1222,6 +1221,9 @@ typedef char
 byte;
 #endif
 
+bool sprintbit(bitvector_t vektor, const char *names[], char *result, const int print_flag = 0);
+bool sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char *div, const int print_flag = 0);
+
 typedef int room_vnum;	// A room's vnum type //
 typedef int obj_vnum;	// An object's vnum type //
 typedef int mob_vnum;	// A mob's vnum type //
@@ -1232,10 +1234,20 @@ typedef int obj_rnum;	// An object's real (internal) num type //
 typedef int mob_rnum;	// A mobile's real (internal) num type //
 typedef int zone_rnum;	// A zone's real (array index) number. //
 
+/**
+** \brief Unpacks flags from string #flag into flags array #to
+**
+** \param [in] flag String that represents flags values.
+** \param [out] to  Pointer to the array of integers that will be populated by unpacked flags values.
+**
+** \note Be careful: this function does not perform any checks of bounds of #to array.
+*/
+void asciiflag_conv(const char *flag, void *to);
+
 class FLAG_DATA
 {
 public:
-	FLAG_DATA() : m_flags(4, 0) {}
+	FLAG_DATA() { clear(); }
 	FLAG_DATA& operator+=(const FLAG_DATA &r);
 	bool operator!=(const FLAG_DATA& r) const { return m_flags[0] != r.m_flags[0] || m_flags[1] != r.m_flags[1] || m_flags[2] != r.m_flags[2] || m_flags[3] != r.m_flags[3]; }
 	bool operator==(const FLAG_DATA& r) const { return !(*this != r); }
@@ -1249,7 +1261,7 @@ public:
 	template <class T>
 	bool get(const T packed_flag) const { return 0 != (m_flags[to_underlying(packed_flag) >> 30] & (to_underlying(packed_flag) & 0x3fffffff)); }
 	template <> bool get(const uint32_t packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
-	template <> bool get(const int packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
+	template <> bool get(const int packed_flag) const { return get(static_cast<uint32_t>(packed_flag)); }
 	bool get_flag(const size_t plane, const uint32_t flag) const { return 0 != (m_flags[plane] & (flag & 0x3fffffff)); }
 	const uint32_t get_plane(const size_t number) const { return m_flags[number]; }
 	bool plane_not_empty(const int packet_flag) const { return 0 != m_flags[packet_flag >> 30]; }
@@ -1257,26 +1269,28 @@ public:
 	template <class T>
 	void set(const T packed_flag) { m_flags[to_underlying(packed_flag) >> 30] |= to_underlying(packed_flag) & 0x3fffffff; }
 	template <> void set(const uint32_t packed_flag) { m_flags[packed_flag >> 30] |= packed_flag & 0x3fffffff; }
-	template <> void set(const int packed_flag) { m_flags[packed_flag >> 30] |= packed_flag & 0x3fffffff; }
+	template <> void set(const int packed_flag) { set(static_cast<uint32_t>(packed_flag)); }
 	void set_flag(const size_t plane, const uint32_t flag) { m_flags[plane] |= flag; }
 	void set_plane(const size_t number, const uint32_t value) { m_flags[number] = value; }
 
 	template <class T>
 	void unset(const T packed_flag) { m_flags[to_underlying(packed_flag) >> 30] &= ~(to_underlying(packed_flag) & 0x3fffffff); }
 	template <> void unset(const uint32_t packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
-	template <> void unset(const int packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
+	template <> void unset(const int packed_flag) { unset(static_cast<uint32_t>(packed_flag)); }
 
 	template <class T>
 	bool toggle(const T packed_flag) { return 0 != ((m_flags[to_underlying(packed_flag) >> 30] ^= (to_underlying(packed_flag) & 0x3fffffff)) & (to_underlying(packed_flag) & 0x3fffffff)); }
 	template <> bool toggle(const uint32_t packed_flag) { return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & (packed_flag & 0x3fffffff)); }
-	template <> bool toggle(const int packed_flag) { return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & packed_flag & 0x3fffffff); }
+	template <> bool toggle(const int packed_flag) { return toggle(static_cast<uint32_t>(packed_flag)); }
 	bool toggle_flag(const size_t plane, const uint32_t flag) { return 0 != ((m_flags[plane] ^= flag) & flag); }
 
-	void asciiflag_conv(const char *flag);
+	void from_string(const char *flag);
 	void tascii(int num_planes, char* ascii) const;
+	bool sprintbits(const char *names[], char *result, const char *div, const int print_flag) const;
+	bool sprintbits(const char *names[], char *result, const char *div) const { return sprintbits(names, result, div, 0); };
 
 private:
-	std::vector<uint32_t> m_flags;
+	boost::array<uint32_t, 4> m_flags;
 };
 
 inline FLAG_DATA& FLAG_DATA::operator+=(const FLAG_DATA &r)
@@ -1422,8 +1436,9 @@ struct logon_data
 	logon_data * next;
 };
 
-struct punish_data
+class punish_data
 {
+public:
 	long duration;
 	char * reason;
 	int  level;
@@ -2050,11 +2065,7 @@ struct set_struct
 
 extern int grouping[NUM_CLASSES][MAX_REMORT+1];
 
-
-
-
 //Polos.insert_wanted_gem
-
 struct int3
 {
 	int type;
@@ -2062,9 +2073,7 @@ struct int3
 	int qty;
 };
 
-
 typedef map< string, int3 > alias_type;
-
 
 class insert_wanted_gem
 {
@@ -2098,4 +2107,3 @@ typedef map <int, mob_guardian> guardian_type;
 
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-

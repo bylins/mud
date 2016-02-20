@@ -57,19 +57,19 @@ void enchant::print(CHAR_DATA *ch) const
 		print_obj_affects(ch, *i);
 	}
 
-	if (sprintbits(affects_flags_, weapon_affects, buf2, ","))
+	if (affects_flags_.sprintbits(weapon_affects, buf2, ","))
 	{
 		send_to_char(ch, "%s   аффекты: %s%s\r\n",
 			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	}
 
-	if (sprintbits(extra_flags_, extra_bits, buf2, ","))
+	if (extra_flags_.sprintbits(extra_bits, buf2, ","))
 	{
 		send_to_char(ch, "%s   экстрафлаги: %s%s\r\n",
 			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	}
 
-	if (sprintbits(no_flags_, no_bits, buf2, ","))
+	if (no_flags_.sprintbits(no_bits, buf2, ","))
 	{
 		send_to_char(ch, "%s   неудобен: %s%s\r\n",
 			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));

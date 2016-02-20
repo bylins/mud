@@ -432,7 +432,7 @@ void load()
 		{
 			activ_node tmp_activ;
 			// <affects>
-			asciiflag_conv(xml_activ.child_value("affects"), &tmp_activ.affects);
+			tmp_activ.affects.from_string(xml_activ.child_value("affects"));
 			// <apply>
 			for (pugi::xml_node xml_apply = xml_activ.child("apply"); xml_apply;
 				xml_apply = xml_apply.next_sibling("apply"))
@@ -596,7 +596,7 @@ void save()
 			{
 				pugi::xml_node xml_affects = xml_activ.append_child("affects");
 				*buf_ = '\0';
-				tascii(&GET_FLAG(k->second.affects, 0), 4, buf_);
+				k->second.affects.tascii(4, buf_);
 				xml_affects.append_child(pugi::node_pcdata).set_value(buf_);
 			}
 			// set/activ/apply
@@ -916,7 +916,7 @@ void do_slist(CHAR_DATA *ch)
 std::string print_activ_affects(const FLAG_DATA &aff)
 {
 	char buf_[2048];
-	if (sprintbits(aff, weapon_affects, buf_, ","))
+	if (aff.sprintbits(weapon_affects, buf_, ","))
 	{
 		// весь этот изврат, чтобы вывести аффекты с разбивкой на строки
 		// по 80 символов (не разбивая слова), при этом подписать впереди

@@ -724,112 +724,6 @@ void mudlog_python(const string& str, int type, int level, int channel, int file
 	mudlog(str.c_str(), type, level, channel, file);
 }
 
-/*
- * If you don't have a 'const' array, just cast it as such.  It's safer
- * to cast a non-const array as const than to cast a const one as non-const.
- * Doesn't really matter since this function doesn't change the array though.
- */
-const static char *empty_string = "ничего";
-
-bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
-{
-	long nr = 0, fail = 0, divider = FALSE;
-	int plane = 0;
-	char c='a';
-
-	*result = '\0';
-
-	if (bitvector < static_cast<uint32_t>(INT_ONE));
-	else if (bitvector < static_cast<uint32_t>(INT_TWO))
-		fail = 1;
-	else if (bitvector < static_cast<uint32_t>(INT_THREE))
-		fail = 2;
-	else
-		fail = 3;
-	bitvector &= 0x3FFFFFFF;
-	while (fail)
-	{
-		if (*names[nr] == '\n')
-		{
-			fail--;
-			plane++;
-		}
-		nr++;
-	}
-
-	for (; bitvector; bitvector >>= 1)
-	{
-		if (IS_SET(bitvector, 1))
-		{
-			if (*names[nr] != '\n')
-			{
-				if (print_flag == 1)
-					sprintf(result + strlen(result), "%c%d:", c, plane);
-				if ((print_flag == 2) && (!strcmp(names[nr], "UNUSED")))
-					sprintf(result + strlen(result), "%ld:", nr + 1);
-				strcat(result, names[nr]);
-				strcat(result, div);
-				divider = TRUE;
-			}
-			else
-			{
-				if (print_flag == 2)
-					sprintf(result + strlen(result), "%ld:", nr + 1);
-				else if (print_flag == 1)
-					sprintf(result + strlen(result), "%c%d:", c, plane);
-				strcat(result, "UNDEF");
-				strcat(result, div);
-				divider = TRUE;
-			}
-		}
-		if (print_flag == 1)
-		{
-			c++;
-			if(c > 'z')
-				c = 'A';
-		}
-		if (*names[nr] != '\n')
-			nr++;
-	}
-
-	if (!*result)
-	{
-		strcat(result, empty_string);
-		return false;
-	}
-	else if (divider)
-		*(result + strlen(result) - 1) = '\0';
-
-	return true;
-}
-
-bool sprintbit(bitvector_t bitvector, const char *names[], char *result, const int print_flag)
-{
-	return sprintbitwd(bitvector, names, result, ",", print_flag);
-}
-
-bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const int print_flag)
-{
-	bool have_flags = false;
-	char buffer[MAX_STRING_LENGTH];
-	int i;
-	*result = '\0';
-	for (i = 0; i < 4; i++)
-	{
-		if (sprintbitwd(flags.flags[i] | (i << 30), names, buffer, div, print_flag))
-		{
-			if (strlen(result))
-				strcat(result, div);
-			strcat(result, buffer);
-			have_flags = true;
-		}
-	}
-	if (!strlen(result))
-		strcat(result, buffer);
-
-	return have_flags;
-}
-
 void sprinttype(int type, const char *names[], char *result)
 {
 	int nr = 0;
@@ -926,14 +820,14 @@ bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 
 void make_horse(CHAR_DATA * horse, CHAR_DATA * ch)
 {
-	SET_BIT(AFF_FLAGS(horse, AFF_HORSE), AFF_HORSE);
+	AFF_FLAGS(horse).set(AFF_HORSE);
 	add_follower(horse, ch);
-	REMOVE_BIT(MOB_FLAGS(horse, MOB_WIMPY), MOB_WIMPY);
-	REMOVE_BIT(MOB_FLAGS(horse, MOB_SENTINEL), MOB_SENTINEL);
-	REMOVE_BIT(MOB_FLAGS(horse, MOB_HELPER), MOB_HELPER);
-	REMOVE_BIT(MOB_FLAGS(horse, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
-	REMOVE_BIT(MOB_FLAGS(horse, MOB_MOUNTING), MOB_MOUNTING);
-	REMOVE_BIT(AFF_FLAGS(horse, AFF_TETHERED), AFF_TETHERED);
+	MOB_FLAGS(horse).unset(MOB_WIMPY);
+	MOB_FLAGS(horse).unset(MOB_SENTINEL);
+	MOB_FLAGS(horse).unset(MOB_HELPER);
+	MOB_FLAGS(horse).unset(MOB_AGGRESSIVE);
+	MOB_FLAGS(horse).unset(MOB_MOUNTING);
+	AFF_FLAGS(horse).unset(AFF_TETHERED);
 }
 
 int on_horse(CHAR_DATA * ch)
@@ -977,7 +871,7 @@ void horse_drop(CHAR_DATA * ch)
 	if (ch->master)
 	{
 		act("$N сбросил$G вас со своей спины.", FALSE, ch->master, 0, ch, TO_CHAR);
-		REMOVE_BIT(AFF_FLAGS(ch->master, AFF_HORSE), AFF_HORSE);
+		AFF_FLAGS(ch->master).unset(AFF_HORSE);
 		WAIT_STATE(ch->master, 3 * PULSE_VIOLENCE);
 		if (GET_POS(ch->master) > POS_SITTING)
 			GET_POS(ch->master) = POS_SITTING;
@@ -986,8 +880,11 @@ void horse_drop(CHAR_DATA * ch)
 
 void check_horse(CHAR_DATA * ch)
 {
-	if (!IS_NPC(ch) && !has_horse(ch, TRUE))
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+	if (!IS_NPC(ch)
+		&& !has_horse(ch, TRUE))
+	{
+		AFF_FLAGS(ch).unset(AFF_HORSE);
+	}
 }
 
 
@@ -1031,8 +928,12 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	else if (ch->master->followers->follower == ch)  	// Head of follower-list?
 	{
 		k = ch->master->followers;
-		if (!(ch->master->followers = k->next) && !ch->master->master)
-			REMOVE_BIT(AFF_FLAGS(ch->master, AFF_GROUP), AFF_GROUP);
+		ch->master->followers = k->next;
+		if (!ch->master->followers
+			&& !ch->master->master)
+		{
+			AFF_FLAGS(ch->master).unset(AFF_GROUP);
+		}
 		free(k);
 	}
 	else  		// locate follower who is not head of list
@@ -1051,30 +952,27 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	master = ch->master;
 	ch->master = NULL;
 
-	REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
+	AFF_FLAGS(ch).unset(AFF_GROUP);
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_HORSE))
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+	{
+		AFF_FLAGS(ch).unset(AFF_HORSE);
+	}
 
 	//log("[Stop follower] Free charmee");
 	if (AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HELPER) || IS_SET(mode, SF_CHARMLOST))
 	{
 		if (affected_by_spell(ch, SPELL_CHARM))
+		{
 			affect_from_char(ch, SPELL_CHARM);
+		}
 		EXTRACT_TIMER(ch) = 5;
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_CHARM), AFF_CHARM);
-		// log("[Stop follower] Stop fight charmee");
+		AFF_FLAGS(ch).unset(AFF_CHARM);
+
 		if (ch->get_fighting())
+		{
 			stop_fighting(ch, TRUE);
-		/*
-		   log("[Stop follower] Stop fight charmee opponee");
-		   for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next)
-		   {if (vict->get_fighting() &&
-		   vict->get_fighting() == ch &&
-		   ch->get_fighting() != vict)
-		   stop_vict->get_fighting();
-		   }
-		 */
-		//log("[Stop follower] Charmee MOB reaction");
+		}
+
 		if (IS_NPC(ch))
 		{
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
@@ -1087,7 +985,9 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 				return (TRUE);
 			}
 			else if (AFF_FLAGGED(ch, AFF_HELPER))
-				REMOVE_BIT(AFF_FLAGS(ch, AFF_HELPER), AFF_HELPER);
+			{
+				AFF_FLAGS(ch).unset(AFF_HELPER);
+			}
 			else
 			{
 				if (master &&
@@ -1114,15 +1014,12 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			}
 		}
 	}
-	//log("[Stop follower] Restore mob flags");
+
 	if (IS_NPC(ch) && (i = GET_MOB_RNUM(ch)) >= 0)
 	{
-		MOB_FLAGS(ch, INT_ZERRO) = MOB_FLAGS(mob_proto + i, INT_ZERRO);
-		MOB_FLAGS(ch, INT_ONE) = MOB_FLAGS(mob_proto + i, INT_ONE);
-		MOB_FLAGS(ch, INT_TWO) = MOB_FLAGS(mob_proto + i, INT_TWO);
-		MOB_FLAGS(ch, INT_THREE) = MOB_FLAGS(mob_proto + i, INT_THREE);
+		MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
 	}
-	//log("[Stop follower] Stop function");
+
 	return (FALSE);
 }
 
@@ -1140,7 +1037,9 @@ bool die_follower(CHAR_DATA * ch)
 	}
 
 	if (on_horse(ch))
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+	{
+		AFF_FLAGS(ch).unset(AFF_HORSE);
+	}
 
 	for (k = ch->followers; k; k = j)
 	{
@@ -2031,7 +1930,7 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
    (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
     ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
  */
-bool CAN_CARRY_OBJ(CHAR_DATA *ch, OBJ_DATA *obj)
+bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj)
 {
 	// для анлимного лута мобами из трупов
 	if (IS_NPC(ch) && !IS_CHARMICE(ch))
@@ -3000,7 +2899,7 @@ void check_rented()
 bool is_big_set(const OBJ_DATA *obj,bool is_mini)
 {
 	unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
-	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (!obj->get_extraflag(EExtraFlags::ITEM_SETSTUFF))
 	{
 		return false;
 	}
@@ -3069,7 +2968,7 @@ void init_vnum_list(int vnum)
  */
 bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (!obj->get_extraflag(EExtraFlags::ITEM_SETSTUFF))
 	{
 		return false;
 	}
@@ -3141,7 +3040,7 @@ void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
 
-int can_carry_n(CHAR_DATA* ch)
+int CAN_CARRY_N(const CHAR_DATA* ch)
 {
 	int n = 5 + GET_REAL_DEX(ch) / 2 + GET_LEVEL(ch) / 2;
 	if (HAVE_FEAT(ch, JUGGLER_FEAT))
@@ -3582,16 +3481,9 @@ bool CompareBits(FLAG_DATA flags, const char *names[], int affect)
 	int i;
 	for (i = 0; i < 4; i++)
 	{
-		int nr = 0, fail = 0;
-		bitvector_t bitvector = flags.flags[i] | (i << 30);
-		if (bitvector < static_cast<uint32_t>(INT_ONE));
-		else if (bitvector < static_cast<uint32_t>(INT_TWO))
-			fail = 1;
-		else if (bitvector < static_cast<uint32_t>(INT_THREE))
-			fail = 2;
-		else
-			fail = 3;
-		bitvector &= 0x3FFFFFFF;
+		int nr = 0;
+		int fail = i;
+		bitvector_t bitvector = flags.get_plane(i);
 		while (fail)
 		{
 			if (*names[nr] == '\n')

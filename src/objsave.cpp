@@ -68,7 +68,6 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
-void asciiflag_conv(const char *flag, void *value);
 extern int convert_drinkcon_skill(OBJ_DATA *obj, bool proto);
 extern bool check_unlimited_timer(OBJ_DATA *obj);
 extern bool check_obj_in_system_zone(int vnum);
@@ -310,25 +309,25 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 23;
 				GET_OBJ_AFFECTS(object) = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_AFFECTS(object));
+				GET_OBJ_AFFECTS(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Anti"))
 			{
 				*error = 24;
 				GET_OBJ_ANTI(object) = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_ANTI(object));
+				GET_OBJ_ANTI(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Nofl"))
 			{
 				*error = 25;
 				GET_OBJ_NO(object) = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_NO(object));
+				GET_OBJ_NO(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Extr"))
 			{
 				*error = 26;
 				GET_OBJ_EXTRA(object) = clear_flags;
-				GET_OBJ_EXTRA(object).asciiflag_conv(buffer);
+				GET_OBJ_EXTRA(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Wear"))
 			{
@@ -539,7 +538,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							*error = 54;
 							return object;
 						}
-						asciiflag_conv(buf2, &tmp_aff.affects_flags_);
+						tmp_aff.affects_flags_.from_string(buf2);
 						break;
 					case 'E':
 						if (sscanf(tmp_buf.c_str(), "E %s", buf2) != 1)
@@ -547,7 +546,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							*error = 55;
 							return object;
 						}
-						asciiflag_conv(buf2, &tmp_aff.extra_flags_);
+						tmp_aff.extra_flags_.from_string(buf2);
 						break;
 					case 'N':
 						if (sscanf(tmp_buf.c_str(), "N %s", buf2) != 1)
@@ -555,7 +554,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							*error = 56;
 							return object;
 						}
-						asciiflag_conv(buf2, &tmp_aff.no_flags_);
+						tmp_aff.no_flags_.from_string(buf2);
 						break;
 					case 'W':
 						if (sscanf(tmp_buf.c_str(), "W %d", &tmp_aff.weight_) != 1)
@@ -758,9 +757,9 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	GET_OBJ_AFFECTS(object) = clear_flags;
 	GET_OBJ_ANTI(object) = clear_flags;
 	GET_OBJ_NO(object) = clear_flags;
-	asciiflag_conv(f0, &GET_OBJ_AFFECTS(object));
-	asciiflag_conv(f1, &GET_OBJ_ANTI(object));
-	asciiflag_conv(f2, &GET_OBJ_NO(object));
+	GET_OBJ_AFFECTS(object).from_string(f0);
+	GET_OBJ_ANTI(object).from_string(f1);
+	GET_OBJ_NO(object).from_string(f2);
 
 	*error = 12;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %s %s", t, f1, f2) != 3)
@@ -768,7 +767,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	GET_OBJ_TYPE(object) = t[0];
 	GET_OBJ_EXTRA(object) = clear_flags;
 	GET_OBJ_WEAR(object) = 0;
-	GET_OBJ_EXTRA(object).asciiflag_conv(f1);
+	GET_OBJ_EXTRA(object).from_string(f1);
 	asciiflag_conv(f2, &GET_OBJ_WEAR(object));
 
 	*error = 13;

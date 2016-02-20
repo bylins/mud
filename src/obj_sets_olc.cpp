@@ -418,7 +418,7 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	const activ_node &activ = i->second;
 
 	char buf_aff[2048];
-	sprintbits(activ.affects, weapon_affects, buf_aff, ",");
+	activ.affects.sprintbits(weapon_affects, buf_aff, ",");
 	std::string aff_str = line_split_str(buf_aff, ",", 80, 14);
 	std::string prof_str;
 	if (activ.prof.count() != activ.prof.size())

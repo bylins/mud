@@ -38,7 +38,6 @@
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int get_buf_line(char **source, char *target);
 extern int get_buf_lines(char **source, char *target);
-extern void asciiflag_conv(const char *flag, void *value);
 
 extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -1525,7 +1524,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 			|| is_abbrev("широкое серебряное обручье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0))
 			|| is_abbrev("медное запястье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)))
 		{
-			sprintbits(GET_EXCHANGE_ITEM(j)->obj_flags.affects, weapon_affects, buf, ",");
+			GET_EXCHANGE_ITEM(j)->obj_flags.affects.sprintbits(weapon_affects, buf, ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
 			if (!strcmp(buf, "ничего"))  // added by WorM (Видолюб) отображение не только аффектов, но и доп.свойств запястий
 			{

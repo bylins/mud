@@ -37,9 +37,7 @@ ROOM_DATA::ROOM_DATA()
 	{
 		dir_option[i] = 0;
 	}
-	memset(&room_flags, 0, sizeof(FLAG_DATA));
 	memset(&weather, 0, sizeof(weather_control));
-	memset(&affected_by, 0, sizeof(FLAG_DATA));
 	memset(&base_property, 0, sizeof(room_property_data));
 	memset(&add_property, 0, sizeof(room_property_data));
 }
