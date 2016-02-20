@@ -418,7 +418,7 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	const activ_node &activ = i->second;
 
 	char buf_aff[2048];
-	sprintbits(activ.affects, weapon_affects, buf_aff, ",");
+	activ.affects.sprintbits(weapon_affects, buf_aff, ",");
 	std::string aff_str = line_split_str(buf_aff, ",", 80, 14);
 	std::string prof_str;
 	if (activ.prof.count() != activ.prof.size())
@@ -1661,8 +1661,7 @@ void sedit::parse_activ_affects(CHAR_DATA *ch, const char *arg)
 	}
 	else
 	{
-		TOGGLE_BIT(olc_set.activ_list.at(activ_edit).affects.flags[plane],
-			1 << (bit));
+		olc_set.activ_list.at(activ_edit).affects.toggle_flag(plane, 1 << bit);
 		show_activ_affects(ch);
 		return;
 	}

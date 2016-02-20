@@ -930,7 +930,9 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 				ch->set_morphed_skill(skill_no, (MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5, ch->get_trained_skill(skill_no))));
 // скилл прокачался, помечаю моба (если он есть)
 			if (victim && IS_NPC(victim))
-				SET_BIT(MOB_FLAGS(victim, MOB_NOTRAIN), MOB_NOTRAIN);
+			{
+				MOB_FLAGS(victim).set(MOB_NOTRAIN);
+			}
 		}
 	}
 }

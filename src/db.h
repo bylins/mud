@@ -509,7 +509,6 @@ void set_flag(CHAR_DATA *ch);
 } // namespace OfftopSystem
 
 extern int now_entrycount;
-void asciiflag_conv(const char *flag, void *value);
 void load_ignores(CHAR_DATA * ch, char *line);
 void delete_char(const char *name);
 

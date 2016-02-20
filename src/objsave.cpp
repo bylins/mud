@@ -30,6 +30,7 @@
 #include "mail.h"
 #include "dg_scripts.h"
 #include "features.hpp"
+#include "char_obj_utils.inl"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -67,7 +68,6 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
-void asciiflag_conv(const char *flag, void *value);
 extern int convert_drinkcon_skill(OBJ_DATA *obj, bool proto);
 extern bool check_unlimited_timer(OBJ_DATA *obj);
 extern bool check_obj_in_system_zone(int vnum);
@@ -309,25 +309,25 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 23;
 				GET_OBJ_AFFECTS(object) = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_AFFECTS(object));
+				GET_OBJ_AFFECTS(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Anti"))
 			{
 				*error = 24;
 				GET_OBJ_ANTI(object) = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_ANTI(object));
+				GET_OBJ_ANTI(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Nofl"))
 			{
 				*error = 25;
 				GET_OBJ_NO(object) = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_NO(object));
+				GET_OBJ_NO(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Extr"))
 			{
 				*error = 26;
-				object->obj_flags.extra_flags = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_EXTRA(object, 0));
+				GET_OBJ_EXTRA(object) = clear_flags;
+				GET_OBJ_EXTRA(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Wear"))
 			{
@@ -538,7 +538,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							*error = 54;
 							return object;
 						}
-						asciiflag_conv(buf2, &tmp_aff.affects_flags_);
+						tmp_aff.affects_flags_.from_string(buf2);
 						break;
 					case 'E':
 						if (sscanf(tmp_buf.c_str(), "E %s", buf2) != 1)
@@ -546,7 +546,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							*error = 55;
 							return object;
 						}
-						asciiflag_conv(buf2, &tmp_aff.extra_flags_);
+						tmp_aff.extra_flags_.from_string(buf2);
 						break;
 					case 'N':
 						if (sscanf(tmp_buf.c_str(), "N %s", buf2) != 1)
@@ -554,7 +554,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							*error = 56;
 							return object;
 						}
-						asciiflag_conv(buf2, &tmp_aff.no_flags_);
+						tmp_aff.no_flags_.from_string(buf2);
 						break;
 					case 'W':
 						if (sscanf(tmp_buf.c_str(), "W %d", &tmp_aff.weight_) != 1)
@@ -663,7 +663,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 		if (err)
 			*error = 100 + err;
 	}
-	if (OBJ_FLAGGED(object, ITEM_NAMED))//Именной предмет
+	if (object->get_extraflag(EExtraFlags::ITEM_NAMED))//Именной предмет
 	{
 		free_script(SCRIPT(object));//детачим все триги, пока что так
 		SCRIPT(object) = NULL;
@@ -757,17 +757,17 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	GET_OBJ_AFFECTS(object) = clear_flags;
 	GET_OBJ_ANTI(object) = clear_flags;
 	GET_OBJ_NO(object) = clear_flags;
-	asciiflag_conv(f0, &GET_OBJ_AFFECTS(object));
-	asciiflag_conv(f1, &GET_OBJ_ANTI(object));
-	asciiflag_conv(f2, &GET_OBJ_NO(object));
+	GET_OBJ_AFFECTS(object).from_string(f0);
+	GET_OBJ_ANTI(object).from_string(f1);
+	GET_OBJ_NO(object).from_string(f2);
 
 	*error = 12;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %s %s", t, f1, f2) != 3)
 		return (object);
 	GET_OBJ_TYPE(object) = t[0];
-	object->obj_flags.extra_flags = clear_flags;
+	GET_OBJ_EXTRA(object) = clear_flags;
 	GET_OBJ_WEAR(object) = 0;
-	asciiflag_conv(f1, &GET_OBJ_EXTRA(object, 0));
+	GET_OBJ_EXTRA(object).from_string(f1);
 	asciiflag_conv(f2, &GET_OBJ_WEAR(object));
 
 	*error = 13;
@@ -1034,8 +1034,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Наводимые аффекты
 		*buf = '\0';
 		*buf2 = '\0';
-		tascii(&GET_FLAG(GET_OBJ_AFFECTS(object), 0), 4, buf);
-		tascii(&GET_FLAG(GET_OBJ_AFFECTS(proto), 0), 4, buf2);
+		GET_OBJ_AFFECTS(object).tascii(4, buf);
+		GET_OBJ_AFFECTS(proto).tascii(4, buf2);
 		if (str_cmp(buf, buf2))
 		{
 			out << "Affs: " << buf << "~\n";
@@ -1043,8 +1043,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Анти флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		tascii(&GET_FLAG(GET_OBJ_ANTI(object), 0), 4, buf);
-		tascii(&GET_FLAG(GET_OBJ_ANTI(proto), 0), 4, buf2);
+		GET_OBJ_ANTI(object).tascii(4, buf);
+		GET_OBJ_ANTI(proto).tascii(4, buf2);
 		if (str_cmp(buf, buf2))
 		{
 			out << "Anti: " << buf << "~\n";
@@ -1052,8 +1052,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Запрещающие флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		tascii(&GET_FLAG(GET_OBJ_NO(object), 0), 4, buf);
-		tascii(&GET_FLAG(GET_OBJ_NO(proto), 0), 4, buf2);
+		GET_OBJ_NO(object).tascii(4, buf);
+		GET_OBJ_NO(proto).tascii(4, buf2);
 		if (str_cmp(buf, buf2))
 		{
 			out << "Nofl: " << buf << "~\n";
@@ -1062,13 +1062,17 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		*buf = '\0';
 		*buf2 = '\0';
 		//Временно убираем флаг !окровавлен! с вещи, чтобы он не сохранялся
-		bool blooded = IS_OBJ_STAT(object, ITEM_BLOODY) != 0;
+		bool blooded = object->get_extraflag(EExtraFlags::ITEM_BLOODY);
 		if (blooded)
-			REMOVE_BIT(GET_OBJ_EXTRA(object, ITEM_BLOODY), ITEM_BLOODY);
-		tascii(&GET_OBJ_EXTRA(object, 0), 4, buf);
-		tascii(&GET_OBJ_EXTRA(proto, 0), 4, buf2);
+		{
+			object->unset_extraflag(EExtraFlags::ITEM_BLOODY);
+		}
+		GET_OBJ_EXTRA(object).tascii(4, buf);
+		GET_OBJ_EXTRA(proto).tascii(4, buf2);
 		if (blooded) //Возвращаем флаг назад
-			SET_BIT(GET_OBJ_EXTRA(object, ITEM_BLOODY), ITEM_BLOODY);
+		{
+			object->set_extraflag(EExtraFlags::ITEM_BLOODY);
+		}
 		if (str_cmp(buf, buf2))
 		{
 			out << "Extr: " << buf << "~\n";
@@ -1245,19 +1249,19 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		}
 		// Наводимые аффекты
 		*buf = '\0';
-		tascii(&GET_FLAG(GET_OBJ_AFFECTS(object), 0), 4, buf);
+		GET_OBJ_AFFECTS(object).tascii(4, buf);
 		out << "Affs: " << buf << "~\n";
 		// Анти флаги
 		*buf = '\0';
-		tascii(&GET_FLAG(GET_OBJ_ANTI(object), 0), 4, buf);
+		GET_OBJ_ANTI(object).tascii(4, buf);
 		out << "Anti: " << buf << "~\n";
 		// Запрещающие флаги
 		*buf = '\0';
-		tascii(&GET_FLAG(GET_OBJ_NO(object), 0), 4, buf);
+		GET_OBJ_NO(object).tascii(4, buf);
 		out << "Nofl: " << buf << "~\n";
 		// Экстра флаги
 		*buf = '\0';
-		tascii(&GET_OBJ_EXTRA(object, 0), 4, buf);
+		GET_OBJ_EXTRA(object).tascii(4, buf);
 		out << "Extr: " << buf << "~\n";
 		// Флаги слотов экипировки
 		*buf = '\0';
@@ -2188,7 +2192,7 @@ int Crash_load(CHAR_DATA * ch)
 			continue;
 		}
 		//очищаем ZoneDecay объедки
-		if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY))
+		if (obj->get_extraflag(EExtraFlags::ITEM_ZONEDECAY))
 		{
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", CAP(obj->PNames[0]), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
@@ -2205,9 +2209,9 @@ int Crash_load(CHAR_DATA * ch)
 			continue;
 		}
 		//очищаем от крови
-		if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+		if (obj->get_extraflag(EExtraFlags::ITEM_BLOODY))
 		{
-			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_BLOODY), ITEM_BLOODY);
+			obj->unset_extraflag(EExtraFlags::ITEM_BLOODY);
 		}
 		obj->next_content = obj_list;
 		obj_list = obj;
@@ -2319,7 +2323,7 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj)
 	if (!obj)
 		return FALSE;
 
-	if (IS_OBJ_STAT(obj, ITEM_NORENT)
+	if (obj->get_extraflag(EExtraFlags::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
 		|| ((GET_OBJ_RNUM(obj) <= NOTHING) && (GET_OBJ_TYPE(obj) != ITEM_MONEY))
 		|| GET_OBJ_TYPE(obj) == ITEM_KEY
@@ -3072,7 +3076,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 				"Вы потеряли связь с окружающими вас...", FALSE, recep, 0, ch, TO_VICT);
 			Crash_cryosave(ch, cost);
 			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
-			SET_BIT(PLR_FLAGS(ch, PLR_CRYO), PLR_CRYO);
+			PLR_FLAGS(ch).set(PLR_CRYO);
 		}
 
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -3136,7 +3140,7 @@ void Crash_frac_save_all(int frac_part)
 		{
 			Crash_crashsave(d->character);
 			d->character->save_char();
-			REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRASH), PLR_CRASH);
+			PLR_FLAGS(d->character).unset(PLR_CRASH);
 		}
 	}
 }
@@ -3150,7 +3154,7 @@ void Crash_save_all(void)
 		{
 			Crash_crashsave(d->character);
 			d->character->save_char();
-			REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRASH), PLR_CRASH);
+			PLR_FLAGS(d->character).unset(PLR_CRASH);
 		}
 	}
 }
@@ -3170,9 +3174,9 @@ void Crash_save_all_rent(void)
 		{
 			save_char_objects(ch, RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
-			REMOVE_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
-			REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
-			REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+			PLR_FLAGS(ch).unset(PLR_CRASH);
+			AFF_FLAGS(ch).unset(AFF_GROUP);
+			AFF_FLAGS(ch).unset(AFF_HORSE);
 			extract_char(ch, FALSE);
 		}
 	}

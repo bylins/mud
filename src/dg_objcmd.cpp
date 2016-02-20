@@ -40,7 +40,6 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 ROOM_DATA *get_room(char *name);
-void asciiflag_conv(const char *flag, void *value);
 #define OCMD(name)  \
    void (name)(OBJ_DATA *obj, char *argument, int cmd, int subcmd)
 
@@ -349,10 +348,11 @@ OCMD(do_otransform)
 		//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
 		GET_OBJ_ZONE(obj) = GET_OBJ_ZONE(o);
 		GET_OBJ_ZONE(o) = GET_OBJ_ZONE(&tmpobj);
-//		ObjectAlias::remove(obj);
-//		ObjectAlias::add(obj);
-		if (OBJ_FLAGGED(o, ITEM_TICKTIMER))
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_TICKTIMER), ITEM_TICKTIMER);
+
+		if (OBJ_FLAGGED(o, EExtraFlags::ITEM_TICKTIMER))
+		{
+			obj->set_extraflag(EExtraFlags::ITEM_TICKTIMER);
+		}
 
 		if (wearer)
 		{

@@ -428,7 +428,7 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 	if (to_room == NOWHERE)
 	{
-		SET_BIT(PLR_FLAGS(ch, PLR_HELLED), PLR_HELLED);
+		PLR_FLAGS(ch).set(PLR_HELLED);
 		HELL_DURATION(ch) = time(0) + 6;
 		to_room = r_helled_start_room;
 	}
@@ -718,7 +718,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
 	{
 		mob_stat::add_mob(victim, members);
-		SET_BIT(EXTRA_FLAGS(victim, EXTRA_GRP_KILL_COUNT), EXTRA_GRP_KILL_COUNT);
+		EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
 	}
 	else if (IS_NPC(ch) && !IS_NPC(victim)
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
@@ -935,8 +935,8 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance)
 		return;
 	dam = number(0, dam * (material_value[GET_OBJ_MATER(obj)] + 30) /
 				 MAX(1, GET_OBJ_MAX(obj) *
-					 (IS_OBJ_STAT(obj, ITEM_NODROP) ? 5 :
-					  IS_OBJ_STAT(obj, ITEM_BLESS) ? 15 : 10) * (GET_OBJ_SKILL(obj) == SKILL_BOWS ? 3 : 1)));
+					 (obj->get_extraflag(EExtraFlags::ITEM_NODROP) ? 5 :
+					  obj->get_extraflag(EExtraFlags::ITEM_BLESS) ? 15 : 10) * (GET_OBJ_SKILL(obj) == SKILL_BOWS ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100))
 	{

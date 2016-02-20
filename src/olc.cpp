@@ -355,7 +355,7 @@ ACMD(do_olc)
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
 		TRUE, d->character, 0, 0, TO_ROOM);
-	SET_BIT(PLR_FLAGS(ch, PLR_WRITING), PLR_WRITING);
+	PLR_FLAGS(ch).set(PLR_WRITING);
 }
 
 // ------------------------------------------------------------
@@ -551,7 +551,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		// Restore descriptor playing status.
 		if (d->character)
 		{
-			REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
+			PLR_FLAGS(d->character).unset(PLR_WRITING);
 			STATE(d) = CON_PLAYING;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
 				TRUE, d->character, 0, 0, TO_ROOM);

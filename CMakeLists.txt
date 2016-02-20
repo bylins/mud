@@ -115,6 +115,7 @@ set(SOURCES
     src/spell_parser.cpp
     src/spells.cpp
     src/stuff.cpp
+    src/structs.cpp
     src/title.cpp
     src/top.cpp
     src/utils.cpp
@@ -131,6 +132,7 @@ set(HEADERS
     src/cache.hpp
     src/celebrates.hpp
     src/char.hpp
+	src/char_obj_utils.inl
     src/char_player.hpp
     src/comm.h
     src/conf.h

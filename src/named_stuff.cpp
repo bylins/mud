@@ -71,8 +71,10 @@ void save()
 
 bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple)
 {
-	if (!OBJ_FLAGGED(obj, ITEM_NAMED))
+	if (!obj->get_extraflag(EExtraFlags::ITEM_NAMED))
+	{
 		return false; // если шмотка не именная - остальное и проверять не нужно
+	}
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
 	if (it != stuff_list.end())
 	{
@@ -511,7 +513,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 					"выдаем именной предмет %s Max:%d > Current:%d",
 					obj_proto[r_num]->short_description, GET_OBJ_MIW(obj_proto[r_num]), obj_index[r_num].stored + obj_index[r_num].number);
 				obj = read_object(r_num, REAL);
-				SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NAMED), ITEM_NAMED);
+				obj->set_extraflag(EExtraFlags::ITEM_NAMED);
 				obj_to_char(obj, ch);
 				free_script(SCRIPT(obj));//детачим все триги чтоб не обламывать соклановцев и т.п.
 				SCRIPT(obj) = NULL;

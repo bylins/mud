@@ -5,6 +5,7 @@
 #include "parcel.hpp"
 
 #include "obj.hpp"
+#include "char_obj_utils.inl"
 #include "db.h"
 #include "interpreter.h"
 #include "comm.h"
@@ -171,16 +172,16 @@ int total_sended(CHAR_DATA *ch)
 // * Проверка возможности отправить шмотку почтой.
 bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 {
-	if (IS_OBJ_STAT(obj, ITEM_NODROP)
-			|| IS_OBJ_STAT(obj, ITEM_NORENT)
-			|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
-			|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
-			|| OBJ_FLAGGED(obj, ITEM_DECAY)
-			|| OBJ_FLAGGED(obj, ITEM_NORENT)
-			|| GET_OBJ_TYPE(obj) == ITEM_KEY
-			|| GET_OBJ_RENT(obj) < 0
-			|| GET_OBJ_RNUM(obj) <= NOTHING
-			|| GET_OBJ_OWNER(obj))
+	if (obj->get_extraflag(EExtraFlags::ITEM_NODROP)
+		|| obj->get_extraflag(EExtraFlags::ITEM_NORENT)
+		|| obj->get_extraflag(EExtraFlags::ITEM_ZONEDECAY)
+		|| obj->get_extraflag(EExtraFlags::ITEM_REPOP_DECAY)
+		|| obj->get_extraflag(EExtraFlags::ITEM_DECAY)
+		|| obj->get_extraflag(EExtraFlags::ITEM_NORENT)
+		|| GET_OBJ_TYPE(obj) == ITEM_KEY
+		|| GET_OBJ_RENT(obj) < 0
+		|| GET_OBJ_RNUM(obj) <= NOTHING
+		|| GET_OBJ_OWNER(obj))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 				"$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
@@ -549,8 +550,8 @@ OBJ_DATA * create_parcel()
 	obj->set_rent(1);
 	obj->set_rent_eq(1);
 	obj->set_timer(24 * 60);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
+	obj->set_extraflag(EExtraFlags::ITEM_NOSELL);
+	obj->set_extraflag(EExtraFlags::ITEM_DECAY);
 	return obj;
 }
 

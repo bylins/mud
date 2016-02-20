@@ -241,10 +241,14 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 		}
 	}
 	if (!IS_NPC(ch) && (!ch->get_skill(SKILL_AWAKE)))
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
+	{
+		PRF_FLAGS(ch).unset(PRF_AWAKE);
+	}
 
 	if (!IS_NPC(ch) && (!ch->get_skill(SKILL_PUNCTUAL)))
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL);
+	{
+		PRF_FLAGS(ch).unset(PRF_PUNCTUAL);
+	}
 
 	// Set combat style
 	if (!AFF_FLAGGED(ch, AFF_COURAGE) && !AFF_FLAGGED(ch, AFF_DRUNKED) && !AFF_FLAGGED(ch, AFF_ABSTINENT))
@@ -324,9 +328,9 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 		update_pos(ch);
 
 		// проверка скилла "железный ветер" - снимаем флаг по окончанию боя
-		if ((ch->get_fighting() == NULL) && IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+		if ((ch->get_fighting() == NULL) && PRF_FLAGS(ch).get(PRF_IRON_WIND))
 		{
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
+			PRF_FLAGS(ch).unset(PRF_IRON_WIND);
 			if (GET_POS(ch) > POS_INCAP)
 			{
 				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);

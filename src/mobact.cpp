@@ -197,7 +197,10 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 			go_bash(ch, victim);
 			return (TRUE);
 		}
-		if (ch->get_skill(SKILL_THROW) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON && OBJ_FLAGGED(wielded, ITEM_THROWING))
+		if (ch->get_skill(SKILL_THROW)
+			&& wielded
+			&& GET_OBJ_TYPE(wielded) == ITEM_WEAPON
+			&& wielded->get_extraflag(EExtraFlags::ITEM_THROWING))
 		{
 			go_throw(ch, victim);
 		}
@@ -281,7 +284,9 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		{
 			skip_sneaking(vict, ch);
 			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)))
-				REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
+			{
+				AFF_FLAGS(vict).unset(AFF_SNEAK);
+			}
 			if (AFF_FLAGGED(vict, AFF_SNEAK))
 				continue;
 		}
@@ -290,14 +295,18 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		{
 			skip_hiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
-				REMOVE_BIT(AFF_FLAGS(vict, AFF_HIDE), AFF_HIDE);
+			{
+				AFF_FLAGS(vict).unset(AFF_HIDE);
+			}
 		}
 
 		if (IS_SET(extmode, SKIP_CAMOUFLAGE))
 		{
 			skip_camouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
-				REMOVE_BIT(AFF_FLAGS(vict, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
+			{
+				AFF_FLAGS(vict).unset(AFF_CAMOUFLAGE);
+			}
 		}
 
 		if (!CAN_SEE(ch, vict))
@@ -433,8 +442,10 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if (IS_SET(extmode, SKIP_SNEAKING))
 		{
 			skip_sneaking(vict, ch);
-   			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) || (ch->get_role(MOB_ROLE_BOSS)))
-				REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
+			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) || (ch->get_role(MOB_ROLE_BOSS)))
+			{
+				AFF_FLAGS(vict).unset(AFF_SNEAK);
+			}
 			if (AFF_FLAGGED(vict, AFF_SNEAK))
 				continue;
 		}
@@ -443,14 +454,18 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		{
 			skip_hiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
-				REMOVE_BIT(AFF_FLAGS(vict, AFF_HIDE), AFF_HIDE);
+			{
+				AFF_FLAGS(vict).unset(AFF_HIDE);
+			}
 		}
 
 		if (IS_SET(extmode, SKIP_CAMOUFLAGE))
 		{
 			skip_camouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
-				REMOVE_BIT(AFF_FLAGS(vict, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
+			{
+				AFF_FLAGS(vict).unset(AFF_CAMOUFLAGE);
+			}
 		}
 		if (!CAN_SEE(ch, vict))
 			continue;
@@ -729,21 +744,23 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 					}
 					if (check_sneak)
 					{
-	    					skip_sneaking(vict, ch);
+						skip_sneaking(vict, ch);
 						if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
-						    REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
+						{
+							AFF_FLAGS(vict).unset(AFF_SNEAK);
+						}
 						if (AFF_FLAGGED(vict, AFF_SNEAK))
 								continue;
 					}
 					skip_hiding(vict, ch);
 					if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
 					{
-						REMOVE_BIT(AFF_FLAGS(vict, AFF_HIDE), AFF_HIDE);
+						AFF_FLAGS(vict).unset(AFF_HIDE);
 					}
 					skip_camouflage(vict, ch);
 					if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
 					{
-						REMOVE_BIT(AFF_FLAGS(vict, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
+						AFF_FLAGS(vict).unset(AFF_CAMOUFLAGE);
 					}
 					if (CAN_SEE(ch, vict))
 					{
@@ -854,11 +871,11 @@ OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 	obj->set_rent(1);
 	obj->set_rent_eq(1);
 	obj->set_timer(24 * 60);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOLOCATE), ITEM_NOLOCATE);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODECAY), ITEM_NODECAY);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
+	obj->set_extraflag(EExtraFlags::ITEM_NOSELL);
+	obj->set_extraflag(EExtraFlags::ITEM_NOLOCATE);
+	obj->set_extraflag(EExtraFlags::ITEM_NODECAY);
+	obj->set_extraflag(EExtraFlags::ITEM_SWIMMING);
+	obj->set_extraflag(EExtraFlags::ITEM_FLYING);
 	return obj;
 }
 
@@ -968,7 +985,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			{
 				log("SYSERR: %s (#%d): Attempting to call non-existing mob function.",
 					GET_NAME(ch), GET_MOB_VNUM(ch));
-				REMOVE_BIT(MOB_FLAGS(ch, MOB_SPEC), MOB_SPEC);
+				MOB_FLAGS(ch).unset(MOB_SPEC);
 			}
 			else
 			{
@@ -1105,13 +1122,13 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 			if (grab_stuff)
 			{
-				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_DAY), MOB_LIKE_DAY);	//Взял из make_horse
-				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_NIGHT), MOB_LIKE_NIGHT);
-				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_FULLMOON), MOB_LIKE_FULLMOON);
-				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_WINTER), MOB_LIKE_WINTER);
-				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_SPRING), MOB_LIKE_SPRING);
-				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_SUMMER), MOB_LIKE_SUMMER);
-				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_AUTUMN), MOB_LIKE_AUTUMN);
+				MOB_FLAGS(ch).unset(MOB_LIKE_DAY);	//Взял из make_horse
+				MOB_FLAGS(ch).unset(MOB_LIKE_NIGHT);
+				MOB_FLAGS(ch).unset(MOB_LIKE_FULLMOON);
+				MOB_FLAGS(ch).unset(MOB_LIKE_WINTER);
+				MOB_FLAGS(ch).unset(MOB_LIKE_SPRING);
+				MOB_FLAGS(ch).unset(MOB_LIKE_SUMMER);
+				MOB_FLAGS(ch).unset(MOB_LIKE_AUTUMN);
 			}
 			//Niker: LootCR// End
 		}
@@ -1119,31 +1136,39 @@ void mobile_activity(int activity_level, int missed_pulses)
 		npc_armor(ch);
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_INVIS))
-			SET_BIT(AFF_FLAGS(ch, AFF_INVISIBLE), AFF_INVISIBLE);
+		{
+			AFF_FLAGS(ch).set(AFF_INVISIBLE);
+		}
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_MOVEFLY))
-			SET_BIT(AFF_FLAGS(ch, AFF_FLY), AFF_FLY);
+		{
+			AFF_FLAGS(ch).set(AFF_FLY);
+		}
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_SNEAK))
 		{
 			if (calculate_skill(ch, SKILL_SNEAK, 100, 0) >= number(0, 100))
-				SET_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
+			{
+				AFF_FLAGS(ch).set(AFF_SNEAK);
+			}
 			else
-				REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
-			//log("[MOBILE_ACTIVITY->AFFECT_TOTAL] Sneak start");
+			{
+				AFF_FLAGS(ch).unset(AFF_SNEAK);
+			}
 			affect_total(ch);
-			//log("[MOBILE_ACTIVITY->AFFECT_TOTAL] Sneak stop");
 		}
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_CAMOUFLAGE))
 		{
 			if (calculate_skill(ch, SKILL_CAMOUFLAGE, 100, 0) >= number(0, 100))
-				SET_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
+			{
+				AFF_FLAGS(ch).set(AFF_CAMOUFLAGE);
+			}
 			else
-				REMOVE_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
-			//log("[MOBILE_ACTIVITY->AFFECT_TOTAL] Camouflage start");
+			{
+				AFF_FLAGS(ch).unset(AFF_CAMOUFLAGE);
+			}
 			affect_total(ch);
-			//log("[MOBILE_ACTIVITY->AFFECT_TOTAL] Camouflage stop");
 		}
 
 		door = BFS_ERROR;

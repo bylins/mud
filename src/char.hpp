@@ -9,6 +9,7 @@
 #include "obj_sets.hpp"
 #include "db.h"
 #include "room.hpp"
+#include "im.h"
 #include "structs.h"
 #include "conf.h"
 
@@ -277,7 +278,7 @@ struct player_special_data
 	time_t may_rent;		// PK control
 	int agressor;		// Agression room(it is also a flag)
 	time_t agro_time;		// Last agression time (it is also a flag)
-	struct _im_rskill_tag *rskill;	// Известные рецепты
+	im_rskill *rskill;	// Известные рецепты
 	struct char_portal_type *portals;	// порталы теперь живут тут
 	int *logs;		// уровни подробности каналов log
 	
@@ -288,13 +289,13 @@ struct player_special_data
 	struct logon_data * logons; //Записи о входах чара
 
 // Punishments structs
-	struct punish_data pmute;
-	struct punish_data pdumb;
-	struct punish_data phell;
-	struct punish_data pname;
-	struct punish_data pfreeze;
-	struct punish_data pgcurse;
-	struct punish_data punreg;
+	punish_data pmute;
+	punish_data pdumb;
+	punish_data phell;
+	punish_data pname;
+	punish_data pfreeze;
+	punish_data pgcurse;
+	punish_data punreg;
 
 	char *clanStatus; // строка для отображения приписки по кто
 	// TODO: однозначно переписать
@@ -341,12 +342,7 @@ class CHAR_DATA : public PlayerI
 public:
 	CHAR_DATA();
 	virtual ~CHAR_DATA();
-	// для ивентов
-	int get_event_score();
-	void inc_event_score(int score);
-	void set_event_score(int score);
-	// это все как обычно временно... =)
-	friend void save_char(CHAR_DATA *ch);
+
 	friend void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src);
 	friend void interpret_espec(const char *keyword, const char *value, int i, int nr);

@@ -68,6 +68,7 @@
 #include "help.hpp"
 #include "mail.h"
 #include "mob_stat.hpp"
+#include "char_obj_utils.inl"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

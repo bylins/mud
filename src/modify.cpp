@@ -112,7 +112,9 @@ void smash_tilde(char *str)
 void string_write(DESCRIPTOR_DATA * d, char **writeto, size_t len, int mailto, void *data)
 {
 	if (d->character && !IS_NPC(d->character))
-		SET_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
+	{
+		PLR_FLAGS(d->character).set(PLR_WRITING);
+	}
 
 	if (data)
 		mudlog("SYSERR: string_write: I don't understand special data.", BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -974,8 +976,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		//log("[SA] 10s");
 		if (d->character && !IS_NPC(d->character))
 		{
-			REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
-			REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
+			PLR_FLAGS(d->character).unset(PLR_WRITING);
+			PLR_FLAGS(d->character).unset(PLR_MAILING);
 		}
 		if (d->backstr)
 			free(d->backstr);
