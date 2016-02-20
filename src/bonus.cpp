@@ -109,19 +109,32 @@ namespace Bonus
 	// записывает в буффер сколько осталось до конца бонуса
 	std::string bonus_end()
 	{
+		std::stringstream ss;
 		if (time_bonus > 4)
-			sprintf(buf, "&WДо конца бонуса осталось %d часов.&n\r\n", time_bonus);
+		{
+			ss << "&WДо конца бонуса осталось " << time_bonus <<" часов.&n\r\n";
+		}
 		else if (time_bonus == 4)
-			sprintf(buf, "&WДо конца бонуса осталось четыре часа.&n\r\n");
+		{
+			ss << "&WДо конца бонуса осталось четыре часа.&n\r\n";
+		}
 		else if (time_bonus == 3)
-			sprintf(buf, "&WДо конца бонуса осталось три часа.&n\r\n");
+		{
+			ss << "&WДо конца бонуса осталось три часа.&n\r\n";
+		}
 		else if (time_bonus == 2)
-			sprintf(buf, "&WДо конца бонуса осталось два часа.&n\r\n");
+		{
+			ss << "&WДо конца бонуса осталось два часа.&n\r\n";
+		}
 		else if (time_bonus == 1)
-			sprintf(buf, "&WДо конца бонуса остался последний час!&n\r\n");
+		{
+			ss << "&WДо конца бонуса остался последний час!&n\r\n";
+		}
 		else
-			sprintf(buf, "&WБонуса нет.&n\r\n");
-		return std::string(buf);
+		{
+			ss << "&WБонуса нет.&n\r\n";
+		}
+		return ss.str();
 	}
 
 	// Записывает в буфер тип бонуса
