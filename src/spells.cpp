@@ -14,6 +14,7 @@
 
 #include "spells.h"
 
+#include "char_obj_utils.inl"
 #include "obj.hpp"
 #include "comm.h"
 #include "skills.h"
@@ -450,7 +451,7 @@ void check_auto_nosummon(CHAR_DATA *ch)
 {
 	if (PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON) && PRF_FLAGGED(ch, PRF_SUMMONABLE))
 	{
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
+		PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
 		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
 	}
 }
@@ -878,25 +879,40 @@ ASPELL(spell_locate_object)
 			continue;
 
 		if (i->carried_by)
-			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
-					(OBJ_FLAGGED(i, ITEM_NOLOCATE) && IS_NPC(i->carried_by)) ||
-					IS_IMMORTAL(i->carried_by))
+		{
+			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET
+				|| (i->get_extraflag(EExtraFlags::ITEM_NOLOCATE)
+					&& IS_NPC(i->carried_by))
+				|| IS_IMMORTAL(i->carried_by))
+			{
 				continue;
+			}
+		}
 
 		if (i->carried_by)
 		{
-			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by))
+			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone
+				|| !IS_NPC(i->carried_by))
+			{
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n",
-						i->short_description, GET_OBJ_POLY_1(ch, i), PERS(i->carried_by, ch, 1));
+					i->short_description, GET_OBJ_POLY_1(ch, i), PERS(i->carried_by, ch, 1));
+			}
 			else
+			{
 				continue;
+			}
 		}
 		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
 		{
-			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, ITEM_NOLOCATE))
+			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone
+				&& !i->get_extraflag(EExtraFlags::ITEM_NOLOCATE))
+			{
 				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name);
+			}
 			else
+			{
 				continue;
+			}
 		}
 		else if (i->in_obj)
 		{
@@ -907,28 +923,50 @@ ASPELL(spell_locate_object)
 			else
 			{
 				if (i->in_obj->carried_by)
-					if (IS_NPC(i->in_obj->carried_by) && (OBJ_FLAGGED(i, ITEM_NOLOCATE) || world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
+				{
+					if (IS_NPC(i->in_obj->carried_by)
+						&& (i->get_extraflag(EExtraFlags::ITEM_NOLOCATE)
+							|| world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
+					{
 						continue;
-				if (IN_ROOM(i->in_obj) != NOWHERE && IN_ROOM(i->in_obj))
-					if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone || OBJ_FLAGGED(i, ITEM_NOLOCATE))
+					}
+				}
+				if (IN_ROOM(i->in_obj) != NOWHERE
+					&& IN_ROOM(i->in_obj))
+				{
+					if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone
+						|| i->get_extraflag(EExtraFlags::ITEM_NOLOCATE))
+					{
 						continue;
+					}
+				}
 				if (i->in_obj->worn_by)
+				{
 					if (IS_NPC(i->in_obj->worn_by)
-							&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
+						&& (i->get_extraflag(EExtraFlags::ITEM_NOLOCATE)
 							|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+					{
 						continue;
+					}
+				}
 				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), i->in_obj->PNames[5]);
 			}
 		}
 		else if (i->worn_by)
 		{
-			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
+			if ((IS_NPC(i->worn_by)
+					&& !i->get_extraflag(EExtraFlags::ITEM_NOLOCATE)
 					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
-					|| (!IS_NPC(i->worn_by) && GET_LEVEL(i->worn_by) < LVL_IMMORT))
+				|| (!IS_NPC(i->worn_by)
+					&& GET_LEVEL(i->worn_by) < LVL_IMMORT))
+			{
 				sprintf(buf, "%s надет%s на %s.\r\n", i->short_description,
-						GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
+					GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
+			}
 			else
+			{
 				continue;
+			}
 		}
 		else
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i, ch, 1));
@@ -1112,11 +1150,11 @@ ASPELL(spell_charm)
 					obj_to_char(unequip_char(victim, i | 0x40), victim);
 				}
 //Eli закончили раздеваться.
-			REMOVE_BIT(MOB_FLAGS(victim, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
-			REMOVE_BIT(MOB_FLAGS(victim, MOB_SPEC), MOB_SPEC);
-			REMOVE_BIT(PRF_FLAGS(victim, PRF_PUNCTUAL), PRF_PUNCTUAL);
+			MOB_FLAGS(victim).unset(MOB_AGGRESSIVE);
+			MOB_FLAGS(victim).unset(MOB_SPEC);
+			PRF_FLAGS(victim).unset(PRF_PUNCTUAL);
 // shapirus: !train для чармисов
-			SET_BIT(MOB_FLAGS(victim, MOB_NOTRAIN), MOB_NOTRAIN);
+			MOB_FLAGS(victim).set(MOB_NOTRAIN);
 			victim->set_skill(SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			Crash_crashsave(ch);
@@ -1308,7 +1346,7 @@ ACMD(do_findhelpee)
 		af.bitvector = AFF_CHARM;
 		af.battleflag = 0;
 		affect_to_char(helpee, &af);
-		SET_BIT(AFF_FLAGS(helpee, AFF_HELPER), AFF_HELPER);
+		AFF_FLAGS(helpee).set(AFF_HELPER);
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"",
 				GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
@@ -1323,11 +1361,11 @@ ACMD(do_findhelpee)
 					act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
 					obj_to_char(unequip_char(helpee, i | 0x40), helpee);
 				}
-			REMOVE_BIT(MOB_FLAGS(helpee, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
-			REMOVE_BIT(MOB_FLAGS(helpee, MOB_SPEC), MOB_SPEC);
-			REMOVE_BIT(PRF_FLAGS(helpee, PRF_PUNCTUAL), PRF_PUNCTUAL);
+			MOB_FLAGS(helpee).unset(MOB_AGGRESSIVE);
+			MOB_FLAGS(helpee).unset(MOB_SPEC);
+			PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
 			// shapirus: !train для чармисов
-			SET_BIT(MOB_FLAGS(helpee, MOB_NOTRAIN), MOB_NOTRAIN);
+			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
 			helpee->set_skill(SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			Crash_crashsave(ch);
@@ -1414,7 +1452,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Неудобен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.no_flag, no_bits, buf, ",");
+	obj->obj_flags.no_flag.sprintbits(no_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1424,7 +1462,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Недоступен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.anti_flag, anti_bits, buf, ",");
+	obj->obj_flags.anti_flag.sprintbits(anti_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1440,7 +1478,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Имеет экстрафлаги: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.extra_flags, extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1669,7 +1707,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.affects, weapon_affects, buf, ",");
+	obj->obj_flags.affects.sprintbits(weapon_affects, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1726,7 +1764,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	}
 	//added by WorM 2010.09.07 доп ифна о сете
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (obj->get_extraflag(EExtraFlags::ITEM_SETSTUFF))
 		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
@@ -1786,28 +1824,28 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.affects, weapon_affects, buf, ",");
+	obj->obj_flags.affects.sprintbits(weapon_affects, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Имеет экстрафлаги: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.extra_flags, extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Недоступен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.anti_flag, anti_bits, buf, ",");
+	obj->obj_flags.anti_flag.sprintbits(anti_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Неудобен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.no_flag, no_bits, buf, ",");
+	obj->obj_flags.no_flag.sprintbits(no_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -2052,28 +2090,34 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			send_to_char(buf, ch);
 		}
 	}
+
 	//added by WorM 2010.09.07 доп ифна о сете
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (obj->get_extraflag(EExtraFlags::ITEM_SETSTUFF))
+	{
 		for (; it != OBJ_DATA::set_table.end(); it++)
+		{
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
-				sprintf(buf, "Часть набора предметов: %s%s%s\r\n",CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch );
-	      for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
-	      {
+				sprintf(buf, "Часть набора предметов: %s%s%s\r\n", CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
+				send_to_char(buf, ch);
+				for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
+				{
 					int r_num;
-	      	if ((r_num = real_object(vnum->first)) < 0)
-	      	{
-	      		send_to_char("Неизвестный объект!!!\r\n",ch);
-	      		continue;
-	      	}
+					if ((r_num = real_object(vnum->first)) < 0)
+					{
+						send_to_char("Неизвестный объект!!!\r\n", ch);
+						continue;
+					}
 					sprintf(buf, "   %s\r\n", obj_proto[r_num]->short_description);
-	        send_to_char(buf, ch);
-	      }
+					send_to_char(buf, ch);
+				}
 				break;
 			}
+		}
+	}
 	//end by WorM
+
 	if (!obj->enchants.empty())
 	{
 		obj->enchants.print(ch);
@@ -2172,7 +2216,7 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCICYN(ch, C_NRM), ch);
-	sprintbits(victim->char_specials.saved.affected_by, affected_bits, buf2, "\r\n");
+	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
 	sprintf(buf, "%s\r\n", buf2);
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -2259,7 +2303,7 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCIBLU(ch, C_NRM), ch);
-	sprintbits(victim->char_specials.saved.affected_by, affected_bits, buf2, "\r\n");
+	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
 	sprintf(buf, "%s\r\n", buf2);
 	if (victim->followers)
 		sprintf(buf + strlen(buf), "Имеет последователей.\r\n");
@@ -2707,18 +2751,20 @@ ASPELL(spell_angel)
 
 //----------------------------------------------------------------------
 	if (mob->get_skill(SKILL_AWAKE))
-		SET_BIT(PRF_FLAGS(mob, PRF_AWAKE), PRF_AWAKE);
+	{
+		PRF_FLAGS(mob).set(PRF_AWAKE);
+	}
 
 	GET_LIKES(mob) = 100;
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
 
-	SET_BIT(MOB_FLAGS(mob, MOB_CORPSE), MOB_CORPSE);
-	SET_BIT(MOB_FLAGS(mob, MOB_ANGEL), MOB_ANGEL);
-	SET_BIT(MOB_FLAGS(mob, MOB_LIGHTBREATH), MOB_LIGHTBREATH);
+	MOB_FLAGS(mob).set(MOB_CORPSE);
+	MOB_FLAGS(mob).set(MOB_ANGEL);
+	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
 
-	SET_BIT(AFF_FLAGS(mob, AFF_FLY), AFF_FLY);
-	SET_BIT(AFF_FLAGS(mob, AFF_INFRAVISION), AFF_INFRAVISION);
+	AFF_FLAGS(mob).set(AFF_FLY);
+	AFF_FLAGS(mob).set(AFF_INFRAVISION);
 	mob->set_level(ch->get_level());
 //----------------------------------------------------------------------
 // добавляем зависимости от уровня и от обаяния
@@ -2763,17 +2809,14 @@ ASPELL(spell_angel)
 	}
 
 	if (get_effective_cha(ch, SPELL_ANGEL) >= 22)
-		SET_BIT(AFF_FLAGS(mob, AFF_SANCTUARY), AFF_SANCTUARY);
+	{
+		AFF_FLAGS(mob).set(AFF_SANCTUARY);
+	}
 
 	if (get_effective_cha(ch, SPELL_ANGEL) >= 30)
-		SET_BIT(AFF_FLAGS(mob, AFF_AIRSHIELD), AFF_AIRSHIELD);
-
-
-
-//sprintf(buf,"RESCUE= %d",get_skill(mob,SKILL_RESCUE));
-//send_to_char(buf, ch);
-
-//    GET_CLASS(mob)       = GET_CLASS(ch);
+	{
+		AFF_FLAGS(mob).set(AFF_AIRSHIELD);
+	}
 
 	char_to_room(mob, IN_ROOM(ch));
 

@@ -1985,8 +1985,8 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 	d->character->desc = d;
 	d->original = NULL;
 	d->character->char_specials.timer = 0;
-	REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
-	REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
+	PLR_FLAGS(d->character).unset(PLR_MAILING);
+	PLR_FLAGS(d->character).unset(PLR_WRITING);
 	STATE(d) = CON_PLAYING;
 
 	switch (mode)
@@ -2232,18 +2232,26 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			GET_INVIS_LEV(d->character) = GET_LEVEL(d->character);
 
 		if (PRF_FLAGGED(d->character, PRF_CODERINFO))
-			REMOVE_BIT(PRF_FLAGS(d->character, PRF_CODERINFO), PRF_CODERINFO);
+		{
+			PRF_FLAGS(d->character).unset(PRF_CODERINFO);
+		}
 		if (GET_LEVEL(d->character) < LVL_GOD)
 		{
 			if (PRF_FLAGGED(d->character, PRF_HOLYLIGHT))
-				REMOVE_BIT(PRF_FLAGS(d->character, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
+			{
+				PRF_FLAGS(d->character).unset(PRF_HOLYLIGHT);
+			}
 		}
 		if (GET_LEVEL(d->character) < LVL_GOD)
 		{
 			if (PRF_FLAGGED(d->character, PRF_NOHASSLE))
-				REMOVE_BIT(PRF_FLAGS(d->character, PRF_NOHASSLE), PRF_NOHASSLE);
+			{
+				PRF_FLAGS(d->character).unset(PRF_NOHASSLE);
+			}
 			if (PRF_FLAGGED(d->character, PRF_ROOMFLAGS))
-				REMOVE_BIT(PRF_FLAGS(d->character, PRF_ROOMFLAGS), PRF_ROOMFLAGS);
+			{
+				PRF_FLAGS(d->character).unset(PRF_ROOMFLAGS);
+			}
 		}
 		if (GET_INVIS_LEV(d->character) > 0 && GET_LEVEL(d->character) < LVL_IMMORT)
 			GET_INVIS_LEV(d->character) = 0;
@@ -2307,8 +2315,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	}
 	else
 	{
-		REMOVE_BIT(MOB_FLAGS(ch, MOB_DELETE), MOB_DELETE);
-		REMOVE_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
+		MOB_FLAGS(ch).unset(MOB_DELETE);
+		MOB_FLAGS(ch).unset(MOB_FREE);
 	}
 
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
@@ -2325,33 +2333,47 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	Clan::clan_invoice(d->character, true);
 
 	// Чистим стили если не знаем их
-	if (IS_SET(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL)
-			&& !d->character->get_skill(SKILL_PUNCTUAL))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL);
+	if (PRF_FLAGS(d->character).get(PRF_PUNCTUAL)
+		&& !d->character->get_skill(SKILL_PUNCTUAL))
+	{
+		PRF_FLAGS(d->character).unset(PRF_PUNCTUAL);
+	}
 
-	if (IS_SET(PRF_FLAGS(d->character, PRF_AWAKE), PRF_AWAKE)
-			&& !d->character->get_skill(SKILL_AWAKE))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_AWAKE), PRF_AWAKE);
+	if (PRF_FLAGS(d->character).get(PRF_AWAKE)
+		&& !d->character->get_skill(SKILL_AWAKE))
+	{
+		PRF_FLAGS(d->character).unset(PRF_AWAKE);
+	}
 
-	if (IS_SET(PRF_FLAGS(d->character, PRF_POWERATTACK), PRF_POWERATTACK)
-			&& !can_use_feat(d->character, POWER_ATTACK_FEAT))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_POWERATTACK), PRF_POWERATTACK);
+	if (PRF_FLAGS(d->character).get(PRF_POWERATTACK)
+		&& !can_use_feat(d->character, POWER_ATTACK_FEAT))
+	{
+		PRF_FLAGS(d->character).unset(PRF_POWERATTACK);
+	}
 
-	if (IS_SET(PRF_FLAGS(d->character, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK)
-			&& !can_use_feat(d->character, GREAT_POWER_ATTACK_FEAT))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+	if (PRF_FLAGS(d->character).get(PRF_GREATPOWERATTACK)
+		&& !can_use_feat(d->character, GREAT_POWER_ATTACK_FEAT))
+	{
+		PRF_FLAGS(d->character).unset(PRF_GREATPOWERATTACK);
+	}
 
-	if (IS_SET(PRF_FLAGS(d->character, PRF_AIMINGATTACK), PRF_AIMINGATTACK)
-			&& !can_use_feat(d->character, AIMING_ATTACK_FEAT))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+	if (PRF_FLAGS(d->character).get(PRF_AIMINGATTACK)
+		&& !can_use_feat(d->character, AIMING_ATTACK_FEAT))
+	{
+		PRF_FLAGS(d->character).unset(PRF_AIMINGATTACK);
+	}
 
-	if (IS_SET(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK)
-			&& !can_use_feat(d->character, GREAT_AIMING_ATTACK_FEAT))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+	if (PRF_FLAGS(d->character).get(PRF_GREATAIMINGATTACK)
+		&& !can_use_feat(d->character, GREAT_AIMING_ATTACK_FEAT))
+	{
+		PRF_FLAGS(d->character).unset(PRF_GREATAIMINGATTACK);
+	}
 
 	// Gorrah: сбрасываем флаг от скилла, если он каким-то чудом засэйвился
-	if (IS_SET(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND);
+	if (PRF_FLAGS(d->character).get(PRF_IRON_WIND))
+	{
+		PRF_FLAGS(d->character).unset(PRF_IRON_WIND);
+	}
 
 	// Check & remove/add natural, race & unavailable features
 	for (int i = 1; i < MAX_FEATS; i++)
@@ -2381,8 +2403,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	}
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
-	REMOVE_BIT(AFF_FLAGS(d->character, AFF_GROUP), AFF_GROUP);
-	REMOVE_BIT(AFF_FLAGS(d->character, AFF_HORSE), AFF_HORSE);
+	AFF_FLAGS(d->character).unset(AFF_GROUP);
+	AFF_FLAGS(d->character).unset(AFF_HORSE);
 
 	// изменяем порталы
 	check_portals(d->character);
@@ -2408,18 +2430,18 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	const bool new_char = GET_LEVEL(d->character) <= 0 ? true : false;
 	if (new_char)
 	{
-		SET_BIT(PRF_FLAGS(d->character, PRF_DRAW_MAP), PRF_DRAW_MAP); //рисовать миникарту
-		SET_BIT(PRF_FLAGS(d->character, PRF_GOAHEAD), PRF_GOAHEAD); //IAC GA
-		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOMEM), PRF_AUTOMEM); // автомем
-		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOLOOT), PRF_AUTOLOOT); // автолут
-		SET_BIT(PRF_FLAGS(d->character, PRF_PKL_MODE), PRF_PKL_MODE); // пклист
-		SET_BIT(PRF_FLAGS(d->character, PRF_WORKMATE_MODE), PRF_WORKMATE_MODE); // соклан
+		PRF_FLAGS(d->character).set(PRF_DRAW_MAP); //рисовать миникарту
+		PRF_FLAGS(d->character).set(PRF_GOAHEAD); //IAC GA
+		PRF_FLAGS(d->character).set(PRF_AUTOMEM); // автомем
+		PRF_FLAGS(d->character).set(PRF_AUTOLOOT); // автолут
+		PRF_FLAGS(d->character).set(PRF_PKL_MODE); // пклист
+		PRF_FLAGS(d->character).set(PRF_WORKMATE_MODE); // соклан
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_TEACH);
-		SET_BIT(PRF_FLAGS(d->character, PRF_ENTER_ZONE), PRF_ENTER_ZONE);
-		SET_BIT(PRF_FLAGS(d->character, PRF_BOARD_MODE), PRF_BOARD_MODE);
+		PRF_FLAGS(d->character).set(PRF_ENTER_ZONE);
+		PRF_FLAGS(d->character).set(PRF_BOARD_MODE);
 		do_start(d->character, TRUE);
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character);
@@ -2692,9 +2714,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					d->character = NULL;
 					return;
 				}
-				REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
-				REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
-				REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);
+				PLR_FLAGS(d->character).unset(PLR_MAILING);
+				PLR_FLAGS(d->character).unset(PLR_WRITING);
+				PLR_FLAGS(d->character).unset(PLR_CRYO);
 				d->character->set_pfilepos(player_i);
 				GET_ID(d->character) = GET_IDNUM(d->character);
 				DoAfterPassword(d);
@@ -2766,9 +2788,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 						d->character = NULL;
 						return;
 					}
-					REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
-					REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
-					REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);
+					PLR_FLAGS(d->character).unset(PLR_MAILING);
+					PLR_FLAGS(d->character).unset(PLR_WRITING);
+					PLR_FLAGS(d->character).unset(PLR_CRYO);
 					SEND_TO_Q("Персонаж с таким именем уже существует. Введите пароль : ", d);
 					d->idle_tics = 0;
 					STATE(d) = CON_PASSWORD;
@@ -3388,8 +3410,9 @@ Sventovit
 
 			SEND_TO_Q("\r\nДо встречи на земле Киевской.\r\n", d);
 
-			if (GET_REMORT(d->character) == 0 && GET_LEVEL(d->character) <= 25
-					&& !IS_SET(PLR_FLAGS(d->character, PLR_NODELETE), PLR_NODELETE))
+			if (GET_REMORT(d->character) == 0
+				&& GET_LEVEL(d->character) <= 25
+				&& !PLR_FLAGS(d->character).get(PLR_NODELETE))
 			{
 				int timeout = -1;
 				for (int ci = 0; GET_LEVEL(d->character) > pclean_criteria[ci].level; ci++)
@@ -3458,7 +3481,7 @@ Sventovit
 				SEND_TO_Q(MENU, d);
 				break;
 			}
-			if (IS_SET(PLR_FLAGS(d->character, PLR_NODELETE), PLR_NODELETE))
+			if (PLR_FLAGS(d->character).get(PLR_NODELETE))
 			{
 				SEND_TO_Q("\r\nБоги запретили вам суицид\r\n", d);
 				SEND_TO_Q(MENU, d);
@@ -3486,14 +3509,14 @@ Sventovit
 		case '7':
 		{	if (!PRF_FLAGGED(d->character, PRF_BLIND))
 			{
-				SET_BIT(PRF_FLAGS(d->character, PRF_BLIND), PRF_BLIND);
+				PRF_FLAGS(d->character).set(PRF_BLIND);
 				SEND_TO_Q("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
 				SEND_TO_Q(MENU, d);
 				STATE(d) = CON_MENU;
 			}
 			else
 			{
-				REMOVE_BIT(PRF_FLAGS(d->character, PRF_BLIND), PRF_BLIND);
+				PRF_FLAGS(d->character).unset(PRF_BLIND);
 				SEND_TO_Q("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
 				SEND_TO_Q(MENU, d);
 				STATE(d) = CON_MENU;

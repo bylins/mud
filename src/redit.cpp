@@ -289,7 +289,7 @@ void redit_save_to_disk(int zone_num)
 
 			// * Forget making a buffer, lets just write the thing now.
 			*buf2 = '\0';
-			tascii(&room->room_flags.flags[0], 4, buf2);
+			room->flags_tascii(4, buf2);
 			fprintf(fp, "#%d\n%s~\n%s~\n%d %s %d\n", counter,
 					room->name ? room->name : "неопределено", buf1,
 					zone_table[room->zone].number, buf2, room->sector_type);
@@ -482,7 +482,7 @@ void redit_disp_flag_menu(DESCRIPTOR_DATA * d)
 				room_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_ROOM(d)->room_flags, room_bits, buf1, ",", true);
+	OLC_ROOM(d)->flags_sprint(buf1, ",", true);
 	sprintf(buf, "\r\nФлаги комнаты: %s%s%s\r\n" "Введите флаг комнаты (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = REDIT_FLAGS;
@@ -514,7 +514,7 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 	get_char_cols(d->character);
 	room = OLC_ROOM(d);
 
-	sprintbits(room->room_flags, room_bits, buf1, ",");
+	room->flags_sprint(buf1, ",");
 	sprinttype(room->sector_type, sector_types, buf2);
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
@@ -727,7 +727,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else
 		{
 			// * Toggle the bit.
-			TOGGLE_BIT(OLC_ROOM(d)->room_flags.flags[plane], (1 << bit));
+			OLC_ROOM(d)->toggle_flag(plane, 1 << bit);
 			redit_disp_flag_menu(d);
 		}
 		return;

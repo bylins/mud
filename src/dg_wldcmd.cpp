@@ -36,7 +36,6 @@ extern struct zone_data *zone_table;
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void send_to_zone(char *messg, int zone_rnum);
-void asciiflag_conv(const char *flag, void *value);
 CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name);
 ROOM_DATA *get_room(char *name);
 OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name);

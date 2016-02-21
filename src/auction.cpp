@@ -154,15 +154,17 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		}
 		if (GET_OBJ_TYPE(obj) != ITEM_BOOK)
 		{
-			if (OBJ_FLAGGED(obj, ITEM_NORENT)
-					|| OBJ_FLAGGED(obj, ITEM_NOSELL))
+			if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_NORENT)
+					|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_NOSELL))
 			{
 				send_to_char("Этот предмет не предназначен для аукциона.\r\n", ch);
 				return false;
 			}
 		}
-		if (OBJ_FLAGGED(obj, ITEM_DECAY) ||
-				OBJ_FLAGGED(obj, ITEM_NODROP) || GET_OBJ_COST(obj) <= 0 || obj->obj_flags.Obj_owner > 0)
+		if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_DECAY)
+			|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_NODROP)
+			|| GET_OBJ_COST(obj) <= 0
+			|| obj->obj_flags.Obj_owner > 0)
 		{
 			send_to_char("Этот предмет не предназначен для аукциона.\r\n", ch);
 			return false;

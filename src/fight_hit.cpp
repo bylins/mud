@@ -115,8 +115,10 @@ int compute_armor_class(CHAR_DATA * ch)
 	}
 
 	// Gorrah: штраф к КЗ от применения умения "железный ветер"
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
+	{
 		armorclass += ch->get_skill(SKILL_IRON_WIND) / 2;
+	}
 
 	armorclass += (size_app[GET_POS_SIZE(ch)].ac * 10);
 
@@ -1796,10 +1798,10 @@ void appear(CHAR_DATA * ch)
 	if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 		affect_from_char(ch, SPELL_CAMOUFLAGE);
 
-	REMOVE_BIT(AFF_FLAGS(ch, AFF_INVISIBLE), AFF_INVISIBLE);
-	REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
-	REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
-	REMOVE_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
+	AFF_FLAGS(ch).unset(AFF_INVISIBLE);
+	AFF_FLAGS(ch).unset(AFF_HIDE);
+	AFF_FLAGS(ch).unset(AFF_SNEAK);
+	AFF_FLAGS(ch).unset(AFF_CAMOUFLAGE);
 
 	if (appear_msg)
 	{
@@ -2143,7 +2145,7 @@ void Damage::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 			// 50 брони = 50% снижение дамага
 			int max_armour = 50;
 			if (can_use_feat(victim, IMPREGNABLE_FEAT)
-				&& IS_SET(PRF_FLAGS(victim, PRF_AWAKE), PRF_AWAKE))
+				&& PRF_FLAGS(victim).get(PRF_AWAKE))
 			{
 				// непробиваемый в осторожке - до 75 брони
 				max_armour = 75;
@@ -2182,7 +2184,7 @@ bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
 		int chance = 10;
 		if (can_use_feat(victim, IMPREGNABLE_FEAT)
-			&& IS_SET(PRF_FLAGS(victim, PRF_AWAKE), PRF_AWAKE))
+			&& PRF_FLAGS(victim).get(PRF_AWAKE))
 		{
 			chance = 15;
 		}
@@ -4072,7 +4074,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 	первая дополнительная атака левой начинает наноситься сразу, но не более чем с 80% вероятностью
 	вторая дополнительная атака левей начинает наноситься с 170%+ скилла, но не более чем с 30% вероятности
 	*/
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		percent = ch->get_skill(SKILL_IRON_WIND);
 		moves = GET_MAX_MOVE(ch) / (6 + MAX(10, percent) / 10);

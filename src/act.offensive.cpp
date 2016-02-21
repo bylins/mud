@@ -99,7 +99,9 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 			free(victim->desc->str);
 		STATE(victim->desc) = CON_PLAYING;
 		if (!IS_NPC(victim))
-			REMOVE_BIT(PLR_FLAGS(victim, PLR_WRITING), PLR_WRITING);
+		{
+			PLR_FLAGS(victim).unset(PLR_WRITING);
+		}
 		if (victim->desc->backstr)
 			free(victim->desc->backstr);
 		victim->desc->backstr = NULL;
@@ -202,7 +204,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				act("Вы попытались напасть на того, кого прикрывали, и замерли в глубокой задумчивости.", FALSE, vict, 0, victim, TO_CHAR);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", FALSE, victim, 0, vict, TO_CHAR);
 				vict->set_protecting(0);
-				CLR_AF_BATTLE(vict, EAF_PROTECT);
+				vict->BattleAffects.unset(EAF_PROTECT);
 				WAIT_STATE(vict, PULSE_VIOLENCE);
 				AFFECT_DATA af;
 				af.type = SPELL_BATTLE;
@@ -734,7 +736,7 @@ void go_flee(CHAR_DATA * ch)
 
 	if (GET_MOB_HOLD(ch))
 		return;
-	if (AFF_FLAGGED(ch, AFF_NOFLEE) ||AFF_FLAGGED(ch, AFF_LACKY) || IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (AFF_FLAGGED(ch, AFF_NOFLEE) ||AFF_FLAGGED(ch, AFF_LACKY) || PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
@@ -785,7 +787,7 @@ void go_dir_flee(CHAR_DATA * ch, int direction)
 
 	if (GET_MOB_HOLD(ch))
 		return;
-	if (AFF_FLAGGED(ch, AFF_NOFLEE) ||AFF_FLAGGED(ch, AFF_LACKY)|| IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (AFF_FLAGGED(ch, AFF_NOFLEE) ||AFF_FLAGGED(ch, AFF_LACKY)|| PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
@@ -872,7 +874,7 @@ void drop_from_horse(CHAR_DATA *victim)
 	if (on_horse(victim))
 	{
 		act("Вы упали с $N1.", FALSE, victim, 0, get_horse(victim), TO_CHAR);
-		REMOVE_BIT(AFF_FLAGS(victim, AFF_HORSE), AFF_HORSE);
+		AFF_FLAGS(victim).unset(AFF_HORSE);
 	}
 	if (IS_HORSE(victim) && on_horse(victim->master))
 		horse_drop(victim);
@@ -890,7 +892,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
@@ -1678,7 +1680,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = 0;
 
 
-	if (percent > prob || OBJ_FLAGGED(GET_EQ(vict, pos), ITEM_NODISARM))
+	if (percent > prob || GET_EQ(vict, pos)->get_extraflag(EExtraFlags::ITEM_NODISARM))
 	{
 		sprintf(buf, "%sВы не сумели обезоружить %s...%s\r\n",
 				CCWHT(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
@@ -1790,7 +1792,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
@@ -1909,7 +1911,7 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
 		return;
 	}
 
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
@@ -1987,7 +1989,7 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 		return;
 	}
 
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
@@ -2096,10 +2098,7 @@ ACMD(do_style)
 	if (!*arg)
 	{
 		sprintf(buf, "Вы сражаетесь %s стилем.\r\n",
-				IS_SET(PRF_FLAGS(ch, PRF_PUNCTUAL),
-					   PRF_PUNCTUAL) ? "точным" : IS_SET(PRF_FLAGS(ch,
-															   PRF_AWAKE),
-															   PRF_AWAKE) ? "осторожным" : "обычным");
+				PRF_FLAGS(ch).get(PRF_PUNCTUAL) ? "точным" : PRF_FLAGS(ch).get(PRF_AWAKE) ? "осторожным" : "обычным");
 		send_to_char(buf, ch);
 		return;
 	}
@@ -2129,11 +2128,17 @@ ACMD(do_style)
 	case 0:
 	case 1:
 	case 2:
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
+		PRF_FLAGS(ch).unset(PRF_PUNCTUAL);
+		PRF_FLAGS(ch).unset(PRF_AWAKE);
 
-		SET_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL * (tp == 1));
-		SET_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE * (tp == 2));
+		if (tp == 1)
+		{
+			PRF_FLAGS(ch).set(PRF_PUNCTUAL);
+		}
+		if (tp == 2)
+		{
+			PRF_FLAGS(ch).set(PRF_AWAKE);
+		}
 
 		if (ch->get_fighting() && !(AFF_FLAGGED(ch, AFF_COURAGE) ||
 							  AFF_FLAGGED(ch, AFF_DRUNKED) || AFF_FLAGGED(ch, AFF_ABSTINENT)))
@@ -2150,69 +2155,69 @@ ACMD(do_style)
 				CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
 		break;
 	case 3:
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
 		if (PRF_FLAGGED(ch, PRF_POWERATTACK))
 		{
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
+			PRF_FLAGS(ch).unset(PRF_POWERATTACK);
 			sprintf(buf, "%sВы прекратили использовать мощную атаку.%s\r\n",
 					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
 		}
 		else
 		{
-			SET_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
+			PRF_FLAGS(ch).set(PRF_POWERATTACK);
 			sprintf(buf, "%sВы решили использовать мощную атаку.%s\r\n",
 					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
 		}
 		break;
 	case 4:
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
 		if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK))
 		{
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+			PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
 			sprintf(buf, "%sВы прекратили использовать улучшенную мощную атаку.%s\r\n",
 					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
 		}
 		else
 		{
-			SET_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+			PRF_FLAGS(ch).set(PRF_GREATPOWERATTACK);
 			sprintf(buf, "%sВы решили использовать улучшенную мощную атаку.%s\r\n",
 					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
 		}
 		break;
 	case 5:
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
 		if (PRF_FLAGGED(ch, PRF_AIMINGATTACK))
 		{
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+			PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
 			sprintf(buf, "%sВы прекратили использовать прицельную атаку.%s\r\n",
 					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
 		}
 		else
 		{
-			SET_BIT(PRF_FLAGS(ch, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+			PRF_FLAGS(ch).set(PRF_AIMINGATTACK);
 			sprintf(buf, "%sВы решили использовать прицельную атаку.%s\r\n",
 					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
 		}
 		break;
 	case 6:
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
 		if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK))
 		{
-			REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+			PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
 			sprintf(buf, "%sВы прекратили использовать улучшенную прицельную атаку.%s\r\n",
 					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
 		}
 		else
 		{
-			SET_BIT(PRF_FLAGS(ch, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+			PRF_FLAGS(ch).set(PRF_GREATAIMINGATTACK);
 			sprintf(buf, "%sВы решили использовать улучшенную прицельную атаку.%s\r\n",
 					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
 		}
@@ -2240,7 +2245,7 @@ ACMD(do_stopfight)
 		return;
 	}
 
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND) || AFF_FLAGGED(ch, AFF_LACKY))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND) || AFF_FLAGGED(ch, AFF_LACKY))
 	{
 		send_to_char("Вы не желаете отступать, не расправившись со всеми врагами!\r\n", ch);
 		return;
@@ -2283,7 +2288,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && !OBJ_FLAGGED(wielded, ITEM_THROWING))
+	if (!IS_IMMORTAL(ch) && !OBJ_FLAGGED(wielded, EExtraFlags::ITEM_THROWING))
 	{
 		act("$o не предназначен$A для метания.", FALSE, ch, wielded, 0, TO_CHAR);
 		return;
@@ -2629,7 +2634,7 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Вы уже впали в неистовство.\r\n", ch);
 		return;
@@ -2660,14 +2665,14 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (!ch->get_fighting())
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
+		PRF_FLAGS(ch).set(PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
 		hit(ch, victim, TYPE_UNDEFINED, 1);
 		set_wait(ch, 2, TRUE);
 	}
 	else
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
+		PRF_FLAGS(ch).set(PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
 	}
 }
@@ -2806,7 +2811,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 				act("Рванув на себя, $N стащил$G Вас на землю.", FALSE, vict, 0, ch, TO_CHAR);
 				act("Рванув на себя, Вы стащили $n3 на землю.", FALSE, vict, 0, ch, TO_VICT);
 				act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
-				REMOVE_BIT(AFF_FLAGS(vict, AFF_HORSE), AFF_HORSE);
+				AFF_FLAGS(vict).unset(AFF_HORSE);
 			}
 			if (ch->get_skill(SKILL_CHOPOFF) && (IN_ROOM(ch) == IN_ROOM(vict)))
 				go_chopoff(ch, vict);

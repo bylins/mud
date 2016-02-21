@@ -25,47 +25,35 @@
 // object flags; used in obj_data //
 #define NUM_OBJ_VAL_POSITIONS 4
 
-struct obj_flag_data
+class obj_flag_data
 {
-	boost::array<int, NUM_OBJ_VAL_POSITIONS> value;
+public:
+	typedef boost::array<int, NUM_OBJ_VAL_POSITIONS> value_t;
+
+	value_t value;
 	int type_flag;		// Type of item               //
 	uint32_t wear_flags;		// Where you can wear it     //
 	FLAG_DATA extra_flags;	// If it hums, glows, etc.      //
-	int
-	weight;		// Weigt what else              //
+	int weight;		// Weight what else              //
 	FLAG_DATA bitvector;	// To set chars bits            //
 
 	FLAG_DATA affects;
 	FLAG_DATA anti_flag;
 	FLAG_DATA no_flag;
-	int
-	Obj_sex;
-	int
-	Obj_spell;
-	int
-	Obj_level;
-	int
-	Obj_skill;
-	int
-	Obj_max;
-	int
-	Obj_cur;
-	int
-	Obj_mater;
-	int
-	Obj_owner;
-	int
-	Obj_destroyer;
-	int
-	Obj_zone;
-	int
-	Obj_maker;		// Unique number for object crafters //
-	int
-	Obj_parent;		// Vnum for object parent //
-	bool
-	Obj_is_rename;
-	int 
-	craft_timer; // таймер крафтовой вещи при создании
+	int Obj_sex;
+	int Obj_spell;
+	int Obj_level;
+	int Obj_skill;
+	int Obj_max;
+	int Obj_cur;
+	int Obj_mater;
+	int Obj_owner;
+	int Obj_destroyer;
+	int Obj_zone;
+	int Obj_maker;		// Unique number for object crafters //
+	int Obj_parent;		// Vnum for object parent //
+	bool Obj_is_rename;
+	int craft_timer; // таймер крафтовой вещи при создании
 };
 
 std::string print_obj_affects(const obj_affected_type &affect);
@@ -74,7 +62,7 @@ void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
 class activation
 {
 	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
-	flag_data affects;
+	FLAG_DATA affects;
 	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected;
 	int weight, ndices, nsides;
 	std::map<int, int> skills;
@@ -84,7 +72,7 @@ public:
 
 	activation(const std::string& __actmsg, const std::string& __deactmsg,
 			   const std::string& __room_actmsg, const std::string& __room_deactmsg,
-			   const flag_data& __affects, const obj_affected_type* __affected,
+			   const FLAG_DATA& __affects, const obj_affected_type* __affected,
 			   int __weight, int __ndices, int __nsides):
 			actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg),
 			room_deactmsg(__room_deactmsg), affects(__affects), weight(__weight),
@@ -203,14 +191,14 @@ public:
 		return *this;
 	}
 
-	const flag_data&
+	const FLAG_DATA&
 	get_affects() const
 	{
 		return affects;
 	}
 
 	activation&
-	set_affects(const flag_data& __affects)
+	set_affects(const FLAG_DATA& __affects)
 	{
 		affects = __affects;
 		return *this;
@@ -380,7 +368,7 @@ struct OBJ_DATA
 	obj_vnum item_number;	// Where in data-base            //
 	room_rnum in_room;	// In what room -1 when conta/carr //
 
-	struct obj_flag_data obj_flags;		// Object information       //
+	obj_flag_data obj_flags;		// Object information       //
 	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected;	// affects //
 
 	char *aliases;		// Title of object :get etc.        //
@@ -463,7 +451,11 @@ struct OBJ_DATA
 	void add_timed_spell(const int spell, const int time);
 	void del_timed_spell(const int spell, const bool message);
 
-	void set_extraflag(const bitvector_t flag) { obj_flags.extra_flags.set(flag); }
+	void set_extraflag(const EExtraFlags packed_flag) { obj_flags.extra_flags.set(packed_flag); }
+	void set_extraflag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.set_flag(plane, flag); }
+	void unset_extraflag(const EExtraFlags packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
+	bool get_extraflag(const EExtraFlags packed_flag) const { return obj_flags.extra_flags.get(packed_flag); }
+	bool get_extraflag(const size_t plane, const uint32_t flag) const { return obj_flags.extra_flags.get_flag(plane, flag); }
 
 private:
 	void zero_init();
@@ -491,16 +483,19 @@ private:
 	std::pair<bool, int> activator_;
 };
 
-inline const uint32_t& GET_OBJ_AFF(const OBJ_DATA* obj, const uint32_t shifted_group_number)
+inline bool OBJ_FLAGGED(const OBJ_DATA* obj, const EExtraFlags flag)
 {
-	const uint32_t& flags = GET_FLAG(obj->obj_flags.affects, shifted_group_number);
-	return flags;
+	return obj->get_extraflag(flag);
 }
 
-inline uint32_t& GET_OBJ_AFF(OBJ_DATA* obj, const uint32_t shifted_group_number)
+inline uint32_t GET_OBJ_AFF(const OBJ_DATA* obj, const uint32_t packed_flag)
 {
-	uint32_t& flags = GET_FLAG(obj->obj_flags.affects, shifted_group_number);
-	return flags;
+	return obj->obj_flags.affects.get(packed_flag);
+}
+
+inline void SET_OBJ_AFF(OBJ_DATA* obj, const uint32_t packed_flag)
+{
+	return obj->obj_flags.affects.set(packed_flag);
 }
 
 inline bool OBJ_AFFECT(const OBJ_DATA* obj, const uint32_t affect)

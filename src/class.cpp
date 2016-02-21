@@ -1979,8 +1979,8 @@ void do_start(CHAR_DATA * ch, int newbie)
         OBJ_DATA *obj = read_object(*i, VIRTUAL);
         if (obj)
 		{
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
+			obj->set_extraflag(EExtraFlags::ITEM_NOSELL);
+			obj->set_extraflag(EExtraFlags::ITEM_DECAY);
 			obj->set_cost(0);
 			obj->set_rent(0);
 			obj->set_rent_eq(0);
@@ -2028,7 +2028,9 @@ void do_start(CHAR_DATA * ch, int newbie)
 	GET_COND(ch, DRUNK) = 0;
 
 	if (siteok_everyone)
-		SET_BIT(PLR_FLAGS(ch, PLR_SITEOK), PLR_SITEOK);
+	{
+		PLR_FLAGS(ch).set(PLR_SITEOK);
+	}
 }
 
 // * Перерасчет максимальных родных хп персонажа.
@@ -2044,7 +2046,7 @@ void levelup_events(CHAR_DATA *ch)
 	if (SpamSystem::MIN_OFFTOP_LVL == GET_LEVEL(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE))
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_OFFTOP_MODE), PRF_OFFTOP_MODE);
+		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
 		send_to_char(ch,
 			"%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').\r\n",
@@ -2110,7 +2112,7 @@ void advance_level(CHAR_DATA * ch)
 	{
 		for (i = 0; i < 3; i++)
 			GET_COND(ch, i) = (char) - 1;
-		SET_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
+		PRF_FLAGS(ch).set(PRF_HOLYLIGHT);
 	}
 
 	TopPlayer::Refresh(ch);
@@ -2176,7 +2178,9 @@ void decrease_level(CHAR_DATA * ch)
 
 	GET_WIMP_LEV(ch) = MAX(0, MIN(GET_WIMP_LEV(ch), GET_REAL_MAX_HIT(ch) / 2));
 	if (!IS_IMMORTAL(ch))
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
+	{
+		PRF_FLAGS(ch).unset(PRF_HOLYLIGHT);
+	}
 
 	//check_max_skills(ch);
 	TopPlayer::Refresh(ch);
@@ -2275,14 +2279,7 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_NO(obj, ITEM_NO_DRUID) && IS_DRUID(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_BD) && check_agrobd(ch)) ||
-/*                (IS_OBJ_NO(obj, ITEM_NO_SEVERANE) && (GET_RACE(ch) == 0)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_POLANE) && (GET_RACE(ch) == 1)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_KRIVICHI) && (GET_RACE(ch) == 2)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_VATICHI) && (GET_RACE(ch) == 3)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_VELANE) && (GET_RACE(ch) == 4)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_DREVLANE) && (GET_RACE(ch) == 5)) ||
-*/		//(IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
-		((OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED)) && !IS_SMITH(ch)) ||
+		((OBJ_FLAGGED(obj, EExtraFlags::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlags::ITEM_ARMORED)) && !IS_SMITH(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch)))
 	{
 		return (TRUE);

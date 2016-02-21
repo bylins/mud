@@ -68,9 +68,6 @@ void mudlog(const char *str, int type, int level, int channel, int file);
 void mudlog_python(const std::string& str, int type, int level, int channel, int file);
 int number(int from, int to);
 int dice(int number, int size);
-bool sprintbit(bitvector_t vektor, const char *names[], char *result, const int print_flag = 0);
-bool sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char *div, const int print_flag = 0);
-bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const int print_flag = 0);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
@@ -337,7 +334,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 
 // basic bitvector utils ************************************************
 
-
 #define IS_SET(flag,bit)  ((flag & 0x3FFFFFFF) & (bit))
 #define SET_BIT(var,bit)  ((var) |= (bit & 0x3FFFFFFF))
 #define REMOVE_BIT(var,bit)  ((var) &= ~(bit & 0x3FFFFFFF))
@@ -358,42 +354,41 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define CHECK_PLAYER_SPECIAL(ch, var)  (var)
 #endif
 
-#define MOB_FLAGS(ch,flag)  (GET_FLAG((ch)->char_specials.saved.act,flag))
-#define PLR_FLAGS(ch,flag)  (GET_FLAG((ch)->char_specials.saved.act,flag))
-#define PRF_FLAGS(ch,flag)  (GET_FLAG((ch)->player_specials->saved.pref, flag))
-#define AFF_FLAGS(ch,flag)  (GET_FLAG((ch)->char_specials.saved.affected_by, flag))
-#define NPC_FLAGS(ch,flag)  (GET_FLAG((ch)->mob_specials.npc_flags, flag))
-#define ROOM_AFF_FLAGS(room,flag)  (GET_FLAG((room)->affected_by, flag))
-#define EXTRA_FLAGS(ch,flag)(GET_FLAG((ch)->Temporary, flag))
-#define ROOM_FLAGS(loc,flag)(GET_FLAG(world[(loc)]->room_flags, flag))
+#define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)
+#define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
+#define PRF_FLAGS(ch)  ((ch)->player_specials->saved.pref)
+#define AFF_FLAGS(ch)  ((ch)->char_specials.saved.affected_by)
+#define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
+#define ROOM_AFF_FLAGS(room)  ((room)->affected_by)
+#define EXTRA_FLAGS(ch) ((ch)->Temporary)
+#define GET_ROOM(loc) (world[(loc)])
 #define DESC_FLAGS(d)   ((d)->options)
 #define SPELL_ROUTINES(spl) (spell_info[spl].routines)
 
 // See http://www.circlemud.org/~greerga/todo.009 to eliminate MOB_ISNPC.
-#define IS_NPC(ch)           (IS_SET(MOB_FLAGS(ch, MOB_ISNPC), MOB_ISNPC))
+#define IS_NPC(ch)           (MOB_FLAGS(ch).get(MOB_ISNPC))
 #define IS_MOB(ch)          (IS_NPC(ch) && GET_MOB_RNUM(ch) >= 0)
 
-#define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && IS_SET(MOB_FLAGS(ch,flag), (flag)))
-#define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && IS_SET(PLR_FLAGS(ch,flag), (flag)))
-#define AFF_FLAGGED(ch, flag)   (IS_SET(AFF_FLAGS(ch,flag), (flag)) || (ch->isAffected(flag)))
-#define PRF_FLAGGED(ch, flag)   (IS_SET(PRF_FLAGS(ch,flag), (flag)))
-#define NPC_FLAGGED(ch, flag)   (IS_SET(NPC_FLAGS(ch,flag), (flag)))
-#define EXTRA_FLAGGED(ch, flag) (IS_SET(EXTRA_FLAGS(ch,flag), (flag)))
-#define ROOM_FLAGGED(loc, flag) (IS_SET(ROOM_FLAGS((loc),(flag)), (flag)))
-#define ROOM_AFFECTED(loc, flag) (IS_SET(ROOM_AFF_FLAGS((world[(loc)]),(flag)), (flag)))
+#define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && MOB_FLAGS(ch).get(flag))
+#define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && PLR_FLAGS(ch).get(flag))
+#define AFF_FLAGGED(ch, flag)   (AFF_FLAGS(ch).get(flag) || ch->isAffected(flag))
+#define PRF_FLAGGED(ch, flag)   (PRF_FLAGS(ch).get(flag))
+#define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
+#define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
+#define ROOM_FLAGGED(loc, flag) (GET_ROOM((loc))->get_flag(flag))
+#define ROOM_AFFECTED(loc, flag) (ROOM_AFF_FLAGS((world[(loc)])).get(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 #define OBJWEAR_FLAGGED(obj, flag)   (IS_SET((obj)->obj_flags.wear_flags, (flag)))
 #define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
-#define OBJ_FLAGGED(obj, flag)       (IS_SET(GET_OBJ_EXTRA(obj,flag), (flag)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 #define IS_FLY(ch)                   (AFF_FLAGGED(ch,AFF_FLY))
 
 // IS_AFFECTED for backwards compatibility
 #define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, skill))
 
-#define PLR_TOG_CHK(ch,flag) ((TOGGLE_BIT(PLR_FLAGS(ch, flag), (flag))) & (flag))
-#define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch, flag), (flag))) & (flag))
+#define PLR_TOG_CHK(ch, flag) (PLR_FLAGS(ch).toggle(flag))
+#define PRF_TOG_CHK(ch, flag) (PRF_FLAGS(ch).toggle(flag))
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
@@ -487,13 +482,10 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GET_LEVEL(ch)/3)+GET_REMORT(ch))
 
-#define GET_AF_BATTLE(ch,flag) (IS_SET(GET_FLAG((ch)->BattleAffects, flag),flag))
-#define SET_AF_BATTLE(ch,flag) (SET_BIT(GET_FLAG((ch)->BattleAffects,flag),flag))
-#define CLR_AF_BATTLE(ch,flag) (REMOVE_BIT(GET_FLAG((ch)->BattleAffects, flag),flag))
-#define NUL_AF_BATTLE(ch)      (GET_FLAG((ch)->BattleAffects, 0) = \
-                                GET_FLAG((ch)->BattleAffects, INT_ONE) = \
-                                GET_FLAG((ch)->BattleAffects, INT_TWO) = \
-                                GET_FLAG((ch)->BattleAffects, INT_THREE) = 0)
+#define GET_AF_BATTLE(ch,flag) ((ch)->BattleAffects.get(flag))
+#define SET_AF_BATTLE(ch,flag) ((ch)->BattleAffects.set(flag))
+#define CLR_AF_BATTLE(ch,flag) ((ch)->BattleAffects.unset(flag))
+#define NUL_AF_BATTLE(ch)      ((ch)->BattleAffects.clear())
 #define GET_REMORT(ch)         ((ch)->get_remort())
 #define GET_SKILL(ch, skill)   ((ch)->get_skill(skill))
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
@@ -935,7 +927,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent())
 #define GET_OBJ_RENTEQ(obj)     ((obj)->get_rent_eq())
-#define GET_OBJ_EXTRA(obj,flag)  (GET_FLAG((obj)->obj_flags.extra_flags,flag))
+#define GET_OBJ_EXTRA(obj)  ((obj)->obj_flags.extra_flags)
 #define GET_OBJ_WEAR(obj)  ((obj)->obj_flags.wear_flags)
 #define GET_OBJ_OWNER(obj)      ((obj)->obj_flags.Obj_owner)
 #define GET_OBJ_MAKER(obj)      ((obj)->obj_flags.Obj_maker)
@@ -956,8 +948,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
              obj_index[GET_OBJ_RNUM(obj)].vnum : -1)
 #define OBJ_WHERE(obj) ((obj)->worn_by    ? IN_ROOM(obj->worn_by) : \
                         (obj)->carried_by ? IN_ROOM(obj->carried_by) : (obj)->in_room)
-#define IS_OBJ_STAT(obj,stat) (IS_SET(GET_FLAG((obj)->obj_flags.extra_flags, \
-                                                  stat), stat))
 #define IS_OBJ_ANTI(obj,stat) (IS_SET(GET_FLAG((obj)->obj_flags.anti_flag, \
                                                   stat), stat))
 #define IS_OBJ_NO(obj,stat)       (IS_SET(GET_FLAG((obj)->obj_flags.no_flag, \
@@ -1027,7 +1017,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define OMHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ей" : "им")) :"ему")
 #define OYOU(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
 
-
 // Various macros building up to CAN_SEE
 #define MAY_SEE(sub,obj) (!(GET_INVIS_LEV(ch) > 30) && !AFF_FLAGGED((sub),AFF_BLIND) && \
                           (!IS_DARK(IN_ROOM(sub)) || AFF_FLAGGED((sub),AFF_INFRAVISION)) && \
@@ -1091,41 +1080,13 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
         ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
-
-
 // End of CAN_SEE
 
 
-#define INVIS_OK_OBJ(sub, obj) \
-  (!IS_OBJ_STAT((obj), ITEM_INVISIBLE) || AFF_FLAGGED((sub), AFF_DETECT_INVIS))
-
 // Is anyone carrying this object and if so, are they visible?
-
 #define CAN_SEE_OBJ_CARRIER(sub, obj) \
   ((!obj->carried_by || CAN_SEE(sub, obj->carried_by)) && \
    (!obj->worn_by    || CAN_SEE(sub, obj->worn_by)))
-/*
-#define MORT_CAN_SEE_OBJ(sub, obj) \
-  (LIGHT_OK(sub) && INVIS_OK_OBJ(sub, obj) && CAN_SEE_OBJ_CARRIER(sub, obj))
- */
-
-#define MORT_CAN_SEE_OBJ(sub, obj) \
-	(INVIS_OK_OBJ(sub, obj) && !AFF_FLAGGED(sub, AFF_BLIND) && \
-	(IS_LIGHT(IN_ROOM(sub)) || OBJ_FLAGGED(obj, ITEM_GLOW) || \
-	(IS_CORPSE(obj) && AFF_FLAGGED(sub, AFF_INFRAVISION)) || \
-	can_use_feat(sub, DARK_READING_FEAT)))
-
-#define CAN_SEE_OBJ(sub, obj) \
-   (obj->worn_by    == sub || \
-    obj->carried_by == sub || \
-    (obj->in_obj && (obj->in_obj->worn_by == sub || obj->in_obj->carried_by == sub)) || \
-    MORT_CAN_SEE_OBJ(sub, obj) || \
-    (!IS_NPC(sub) && PRF_FLAGGED((sub), PRF_HOLYLIGHT)))
-
-#define CAN_GET_OBJ(ch, obj)   \
-   (CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
-    CAN_SEE_OBJ((ch),(obj))) && \
-	!(IS_NPC((ch))  && IS_OBJ_STAT((obj), ITEM_BLOODY))
 
 #define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
                            (pad) == 4 ? "кем-то" :\
@@ -1137,8 +1098,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 //для арены
 #define APERS(ch,vict,pad,arena) ((arena) || CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
 
-#define OBJS(obj,vict) (CAN_SEE_OBJ((vict), (obj)) ? \
-                      (obj)->short_description  : "что-то")
 //для арены
 #define AOBJS(obj,vict,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                       (obj)->short_description  : "что-то")
@@ -1151,9 +1110,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 
 #define OBJ_PAD(obj,pad)  ((obj)->PNames[pad])
 
-#define OBJN(obj,vict,pad) (CAN_SEE_OBJ((vict), (obj)) ? \
-                           ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \
-                           : GET_PAD_OBJ(pad))
 //для арены
 #define AOBJN(obj,vict,pad,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                            ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \
@@ -1249,7 +1205,7 @@ int day_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int weather_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int complex_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj);
-bool CAN_CARRY_OBJ(CHAR_DATA *ch, OBJ_DATA *obj);
+bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj);
 bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
 
 // PADS for something ***************************************************
@@ -1526,7 +1482,7 @@ int dex_ac_bonus(int dex);
 int calc_str_req(int weight, int type);
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
 int wis_bonus(int stat, int type);
-int can_carry_n(CHAR_DATA* ch);
+int CAN_CARRY_N(const CHAR_DATA* ch);
 
 namespace SetSystem
 {
@@ -1541,7 +1497,6 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 } // namespace SetSystem
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
-#define CAN_CARRY_N(ch) (can_carry_n(ch))
 
 #define OK_BOTH(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
                           str_bonus(GET_REAL_STR(ch), STR_WIELD_W) + str_bonus(GET_REAL_STR(ch), STR_HOLD_W))
@@ -1600,9 +1555,7 @@ void print_bitset(const N& bits, const T& names,
 	}
 }
 
-void tascii(const uint32_t* pointer, int num_planes, char* ascii);
 const char *print_obj_state(int tm_pct);
-
 
 bool no_bad_affects(OBJ_DATA *obj);
 

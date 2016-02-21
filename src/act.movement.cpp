@@ -100,7 +100,7 @@ int check_death_ice(int room, CHAR_DATA * ch)
 		act("Лед проломился под вашей тяжестью.", FALSE, world[room]->people, 0, 0, TO_CHAR);
 		world[room]->weather.icelevel = 0;
 		world[room]->ices = 2;
-		SET_BIT(ROOM_FLAGS(room, ROOM_ICEDEATH), ROOM_ICEDEATH);
+		GET_ROOM(room)->set_flag(ROOM_ICEDEATH);
 		DeathTrap::add(world[room]);
 	}
 	else
@@ -160,7 +160,7 @@ void make_visible(CHAR_DATA * ch, int affect)
 		strcpy(to_room, "$n прекратил$g маскироваться.\r\n");
 		break;
 	}
-	REMOVE_BIT(AFF_FLAGS(ch, affect), affect);
+	AFF_FLAGS(ch).unset(affect);
 	CHECK_AGRO(ch) = TRUE;
 	if (*to_char)
 		send_to_char(to_char, ch);
@@ -180,7 +180,7 @@ int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict)
 			send_to_char("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
 			affect_from_char(ch, SPELL_HIDE);
 			make_visible(ch, AFF_HIDE);
-			SET_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
+			EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
 		}
 		else if (affected_by_spell(ch, SPELL_HIDE))
 		{
@@ -218,7 +218,7 @@ int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict)
 			send_to_char("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
 			affect_from_char(ch, SPELL_CAMOUFLAGE);
 			make_visible(ch, AFF_CAMOUFLAGE);
-			SET_BIT(EXTRA_FLAGS(ch, EXTRA_FAILCAMOUFLAGE), EXTRA_FAILCAMOUFLAGE);
+			EXTRA_FLAGS(ch).set(EXTRA_FAILCAMOUFLAGE);
 		}
 		else if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 		{
@@ -258,7 +258,7 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 			if (affected_by_spell(ch, SPELL_HIDE))
 				affect_from_char(ch, SPELL_HIDE);
 			make_visible(ch, AFF_SNEAK);
-			SET_BIT(EXTRA_FLAGS(ch, EXTRA_FAILSNEAK), EXTRA_FAILSNEAK);
+			EXTRA_FLAGS(ch).get(EXTRA_FAILSNEAK);
 		}
 		else if (affected_by_spell(ch, SPELL_SNEAK))
 		{
@@ -512,7 +512,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 					FALSE, ch, 0, get_horse(ch), TO_CHAR);
 				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-				REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+				AFF_FLAGS(ch).unset(AFF_HORSE);
 			}
 		}
 		//проверка на ванрум: скидываем игрока с коня, если там незанято
@@ -530,7 +530,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				act("$Z $N заупрямил$U, и вам пришлось соскочить.",
 					FALSE, ch, 0, get_horse(ch), TO_CHAR);
 				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-				REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+				AFF_FLAGS(ch).unset(AFF_HORSE);
 			}
 		}
 
@@ -1527,7 +1527,7 @@ ACMD(do_gen_door)
 		}
 	if ((obj) || (door >= 0))
 	{
-		if ((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
+		if ((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, EExtraFlags::ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
 		{
 			if (!NamedStuff::wear_msg(ch, obj))
 				send_to_char("Просьба не трогать! Частная собственность!\r\n", ch);
@@ -1603,7 +1603,7 @@ ACMD(do_enter)
 					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 						FALSE, ch, 0, get_horse(ch), TO_CHAR);
 					act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-					REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+					AFF_FLAGS(ch).unset(AFF_HORSE);
 				}
 				//проверка на ванрум и лошадь
 				if (ROOM_FLAGGED(door, ROOM_TUNNEL) &&
@@ -1619,7 +1619,7 @@ ACMD(do_enter)
 						act("$Z $N заупрямил$U, и вам пришлось соскочить.",
 							FALSE, ch, 0, get_horse(ch), TO_CHAR);
 						act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-						REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+						AFF_FLAGS(ch).unset(AFF_HORSE);
 					}
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
@@ -1933,7 +1933,7 @@ ACMD(do_horseon)
 			affect_from_char(ch, SPELL_CAMOUFLAGE);
 		act("Вы взобрались на спину $N1.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n вскочил$g на $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		SET_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+		AFF_FLAGS(ch).set(AFF_HORSE);
 	}
 }
 
@@ -1957,7 +1957,7 @@ ACMD(do_horseoff)
 
 	act("Вы слезли со спины $N1.", FALSE, ch, 0, horse, TO_CHAR);
 	act("$n соскочил$g с $N1.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-	REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+	AFF_FLAGS(ch).unset(AFF_HORSE);
 }
 
 ACMD(do_horseget)
@@ -1999,7 +1999,7 @@ ACMD(do_horseget)
 	{
 		act("Вы отвязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n отвязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		REMOVE_BIT(AFF_FLAGS(horse, AFF_TETHERED), AFF_TETHERED);
+		AFF_FLAGS(horse).unset(AFF_TETHERED);
 	}
 }
 
@@ -2041,7 +2041,7 @@ ACMD(do_horseput)
 	{
 		act("Вы привязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n привязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		SET_BIT(AFF_FLAGS(horse, AFF_TETHERED), AFF_TETHERED);
+		AFF_FLAGS(horse).set(AFF_TETHERED);
 	}
 }
 
@@ -2370,10 +2370,12 @@ ACMD(do_follow)
 			//log("[Follow] Stop last follow...");
 			if (ch->master)
 				stop_follower(ch, SF_EMPTY);
-			REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
+			AFF_FLAGS(ch).unset(AFF_GROUP);
 			//also removing AFF_GROUP flag from all followers
 			for (f = ch->followers; f; f = f->next)
-				REMOVE_BIT(AFF_FLAGS(f->follower, AFF_GROUP), AFF_GROUP);
+			{
+				AFF_FLAGS(f->follower).unset(AFF_GROUP);
+			}
 			//log("[Follow] Start new follow...");
 			add_follower(ch, leader);
 			//log("[Follow] Stop function...");

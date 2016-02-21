@@ -896,7 +896,7 @@ void donat_torc(CHAR_DATA *ch, const std::string &mob_name, unsigned type, int a
 {
 	const int balance = ch->get_ext_money(type) - amount;
 	ch->set_ext_money(type, balance);
-	SET_BIT(PRF_FLAGS(ch, PRF_CAN_REMORT), PRF_CAN_REMORT);
+	PRF_FLAGS(ch).set(PRF_CAN_REMORT);
 
 	send_to_char(ch, "Вы пожертвовали %d %s %s.\r\n",
 		amount, desc_count(amount, type_list[type].DESC_MESSAGE_NUM),

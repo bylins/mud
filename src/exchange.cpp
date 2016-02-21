@@ -38,7 +38,6 @@
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int get_buf_line(char **source, char *target);
 extern int get_buf_lines(char **source, char *target);
-extern void asciiflag_conv(const char *flag, void *value);
 
 extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -227,10 +226,10 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		return false;
 	if (GET_OBJ_TYPE(obj) != ITEM_BOOK)
 	{
-		if (OBJ_FLAGGED(obj, ITEM_NORENT)
-				|| OBJ_FLAGGED(obj, ITEM_NOSELL)
-				|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
-				|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
+		if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_NORENT)
+				|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_NOSELL)
+				|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_ZONEDECAY)
+				|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_REPOP_DECAY)
 				|| GET_OBJ_RNUM(obj) < 0)
 
 		{
@@ -238,8 +237,8 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 			return false;
 		}
 	}
-	if (OBJ_FLAGGED(obj, ITEM_DECAY) ||
-			OBJ_FLAGGED(obj, ITEM_NODROP) || GET_OBJ_COST(obj) <= 0 || obj->obj_flags.Obj_owner > 0)
+	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_DECAY) ||
+			OBJ_FLAGGED(obj, EExtraFlags::ITEM_NODROP) || GET_OBJ_COST(obj) <= 0 || obj->obj_flags.Obj_owner > 0)
 	{
 		send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
 		return false;
@@ -1525,7 +1524,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 			|| is_abbrev("широкое серебряное обручье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0))
 			|| is_abbrev("медное запястье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)))
 		{
-			sprintbits(GET_EXCHANGE_ITEM(j)->obj_flags.affects, weapon_affects, buf, ",");
+			GET_EXCHANGE_ITEM(j)->obj_flags.affects.sprintbits(weapon_affects, buf, ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
 			if (!strcmp(buf, "ничего"))  // added by WorM (Видолюб) отображение не только аффектов, но и доп.свойств запястий
 			{

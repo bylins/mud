@@ -28,6 +28,7 @@ str.cpp - PyUnicode_FromString �� PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 #include "scripting.hpp"
 
 #define DEFINE_CONSTANT(X) scope().attr(#X) = X
+#define DEFINE_ENUM_CONSTANT(X) scope().attr(ITEM_NAME(X)) = X
 
 using namespace boost::python;
 namespace py=boost::python;
@@ -1142,52 +1143,52 @@ void set_zone(const int v)
 	obj->obj_flags.Obj_zone = v;
 }
 
-flag_data get_affects() const
+FLAG_DATA get_affects() const
 {
 	Ensurer obj(*this);
 	return obj->obj_flags.affects;
 }
 
-void set_affects(const flag_data& f)
+void set_affects(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
 	obj->obj_flags.affects = f;
 }
 
-flag_data get_anti_flag() const
+FLAG_DATA get_anti_flag() const
 {
 	Ensurer obj(*this);
 	return obj->obj_flags.anti_flag;
 }
 
-void set_anti_flag(const flag_data& f)
+void set_anti_flag(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
 	obj->obj_flags.anti_flag = f;
 }
 
-flag_data get_no_flag() const
+FLAG_DATA get_no_flag() const
 {
 	Ensurer obj(*this);
 	return obj->obj_flags.no_flag;
 }
 
-void set_no_flag(const flag_data& f)
+void set_no_flag(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
 	obj->obj_flags.no_flag = f;
 }
 
-flag_data get_extra_flags() const
+FLAG_DATA get_extra_flags() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.extra_flags;
+	return GET_OBJ_EXTRA(obj);
 }
 
-void set_extra_flags(const flag_data& f)
+void set_extra_flags(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.extra_flags = f;
+	GET_OBJ_EXTRA(obj) = f;
 }
 
 affected_t& get_affected()
@@ -1275,31 +1276,31 @@ void obj_to_char_wrap(const CharacterWrapper& c, ObjWrapper& o)
 	obj_to_char(obj, ch);
 }
 
-bool flag_is_set(const flag_data& flag, const unsigned f)
+bool flag_is_set(const FLAG_DATA& flag, const unsigned f)
 {
 	return IS_SET(GET_FLAG(flag, f), f);
 }
 
-void flag_set(flag_data& flag, const unsigned f)
+void flag_set(FLAG_DATA& flag, const unsigned f)
 {
-	SET_BIT(GET_FLAG(flag, f), f);
+	flag.set(f);
 }
 
-void flag_remove(flag_data& flag, const unsigned f)
+void flag_remove(FLAG_DATA& flag, const unsigned f)
 {
-	REMOVE_BIT(GET_FLAG(flag, f), f);
+	flag.unset(f);
 }
 
-void flag_toggle(flag_data& flag, const unsigned f)
+void flag_toggle(FLAG_DATA& flag, const unsigned f)
 {
-	TOGGLE_BIT(GET_FLAG(flag, f), f);
+	flag.toggle(f);
 }
 
-str flag_str(const flag_data& flag)
+str flag_str(const FLAG_DATA& flag)
 {
 	char buf[MAX_STRING_LENGTH];
 	*buf='\0';
-	tascii(flag.flags, 4, buf);
+	flag.tascii(4, buf);
 	return str(buf);
 }
 
@@ -1579,7 +1580,7 @@ BOOST_PYTHON_MODULE(mud)
 		.def_readwrite("apply_time", &affect_data::apply_time, "Указывает сколько аффект висит (пока используется только в комнатах)")
 	;
 
-	class_<flag_data>("FlagData", "Флаги чего-нибудь.")
+	class_<FLAG_DATA>("FlagData", "Флаги чего-нибудь.")
 		.def("__contains__", flag_is_set, "Содержится ли флаг в этом поле?")
 		.def("set", flag_set, "Установить указанный флаг")
 		.def("remove", flag_remove, "Убрать указанный флаг")
@@ -2192,62 +2193,62 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(ITEM_WEAR_TAKE);
     DEFINE_CONSTANT(ITEM_WEAR_FINGER);
     DEFINE_CONSTANT(ITEM_WEAR_NECK);
-    DEFINE_CONSTANT(ITEM_WEAR_BODY);
-    DEFINE_CONSTANT(ITEM_WEAR_HEAD);
-    DEFINE_CONSTANT(ITEM_WEAR_LEGS);
-    DEFINE_CONSTANT(ITEM_WEAR_FEET);
-    DEFINE_CONSTANT(ITEM_WEAR_HANDS);
-    DEFINE_CONSTANT(ITEM_WEAR_ARMS);
-    DEFINE_CONSTANT(ITEM_WEAR_SHIELD);
-    DEFINE_CONSTANT(ITEM_WEAR_ABOUT);
-    DEFINE_CONSTANT(ITEM_WEAR_WAIST);
-    DEFINE_CONSTANT(ITEM_WEAR_WRIST);
-    DEFINE_CONSTANT(ITEM_WEAR_WIELD);
-    DEFINE_CONSTANT(ITEM_WEAR_HOLD);
-    DEFINE_CONSTANT(ITEM_WEAR_BOTHS);
-    DEFINE_CONSTANT(ITEM_GLOW);
-    DEFINE_CONSTANT(ITEM_HUM);
-    DEFINE_CONSTANT(ITEM_NORENT);
-    DEFINE_CONSTANT(ITEM_NODONATE);
-    DEFINE_CONSTANT(ITEM_NOINVIS);
-    DEFINE_CONSTANT(ITEM_INVISIBLE);
-    DEFINE_CONSTANT(ITEM_MAGIC);
-    DEFINE_CONSTANT(ITEM_NODROP);
-    DEFINE_CONSTANT(ITEM_BLESS);
-    DEFINE_CONSTANT(ITEM_NOSELL);
-    DEFINE_CONSTANT(ITEM_DECAY);
-    DEFINE_CONSTANT(ITEM_ZONEDECAY);
-    DEFINE_CONSTANT(ITEM_NODISARM);
-    DEFINE_CONSTANT(ITEM_NODECAY);
-    DEFINE_CONSTANT(ITEM_POISONED);
-    DEFINE_CONSTANT(ITEM_SHARPEN);
-    DEFINE_CONSTANT(ITEM_ARMORED);
-    DEFINE_CONSTANT(ITEM_DAY);
-    DEFINE_CONSTANT(ITEM_NIGHT);
-    DEFINE_CONSTANT(ITEM_FULLMOON);
-    DEFINE_CONSTANT(ITEM_WINTER);
-    DEFINE_CONSTANT(ITEM_SPRING);
-    DEFINE_CONSTANT(ITEM_SUMMER);
-    DEFINE_CONSTANT(ITEM_AUTUMN);
-    DEFINE_CONSTANT(ITEM_SWIMMING);
-    DEFINE_CONSTANT(ITEM_FLYING);
-    DEFINE_CONSTANT(ITEM_THROWING);
-    DEFINE_CONSTANT(ITEM_TICKTIMER);
-    DEFINE_CONSTANT(ITEM_FIRE);
-    DEFINE_CONSTANT(ITEM_REPOP_DECAY);
-    DEFINE_CONSTANT(ITEM_NOLOCATE);
-    DEFINE_CONSTANT(ITEM_TIMEDLVL);
-    DEFINE_CONSTANT(ITEM_NOALTER);
-    DEFINE_CONSTANT(ITEM_WITH1SLOT);
-    DEFINE_CONSTANT(ITEM_WITH2SLOTS);
-    DEFINE_CONSTANT(ITEM_WITH3SLOTS);
-    DEFINE_CONSTANT(ITEM_SETSTUFF);
-    DEFINE_CONSTANT(ITEM_NO_FAIL);
-    DEFINE_CONSTANT(ITEM_NAMED);
-    DEFINE_CONSTANT(ITEM_BLOODY);
-    DEFINE_CONSTANT(ITEM_1INLAID);
-    DEFINE_CONSTANT(ITEM_2INLAID);
-    DEFINE_CONSTANT(ITEM_3INLAID);
+	DEFINE_CONSTANT(ITEM_WEAR_BODY);
+	DEFINE_CONSTANT(ITEM_WEAR_HEAD);
+	DEFINE_CONSTANT(ITEM_WEAR_LEGS);
+	DEFINE_CONSTANT(ITEM_WEAR_FEET);
+	DEFINE_CONSTANT(ITEM_WEAR_HANDS);
+	DEFINE_CONSTANT(ITEM_WEAR_ARMS);
+	DEFINE_CONSTANT(ITEM_WEAR_SHIELD);
+	DEFINE_CONSTANT(ITEM_WEAR_ABOUT);
+	DEFINE_CONSTANT(ITEM_WEAR_WAIST);
+	DEFINE_CONSTANT(ITEM_WEAR_WRIST);
+	DEFINE_CONSTANT(ITEM_WEAR_WIELD);
+	DEFINE_CONSTANT(ITEM_WEAR_HOLD);
+	DEFINE_CONSTANT(ITEM_WEAR_BOTHS);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_GLOW);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_HUM);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NORENT);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NODONATE);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NOINVIS);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_INVISIBLE);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_MAGIC);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NODROP);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_BLESS);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NOSELL);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_DECAY);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_ZONEDECAY);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NODISARM);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NODECAY);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_POISONED);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_SHARPEN);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_ARMORED);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_DAY);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NIGHT);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_FULLMOON);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_WINTER);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_SPRING);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_SUMMER);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_AUTUMN);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_SWIMMING);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_FLYING);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_THROWING);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_TICKTIMER);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_FIRE);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_REPOP_DECAY);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NOLOCATE);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_TIMEDLVL);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NOALTER);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_WITH1SLOT);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_WITH2SLOTS);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_WITH3SLOTS);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_SETSTUFF);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NO_FAIL);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_NAMED);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_BLOODY);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_1INLAID);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_2INLAID);
+	DEFINE_ENUM_CONSTANT(EExtraFlags::ITEM_3INLAID);
     DEFINE_CONSTANT(ITEM_NO_MONO);
     DEFINE_CONSTANT(ITEM_NO_POLY);
     DEFINE_CONSTANT(ITEM_NO_NEUTRAL);
@@ -2268,13 +2269,7 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(ITEM_NO_NECROMANCER);
     DEFINE_CONSTANT(ITEM_NO_KILLER);
     DEFINE_CONSTANT(ITEM_NO_COLORED);
-/*    DEFINE_CONSTANT(ITEM_NO_SEVERANE); // ����
-    DEFINE_CONSTANT(ITEM_NO_POLANE);
-    DEFINE_CONSTANT(ITEM_NO_KRIVICHI);
-    DEFINE_CONSTANT(ITEM_NO_VATICHI);
-    DEFINE_CONSTANT(ITEM_NO_VELANE);
-    DEFINE_CONSTANT(ITEM_NO_DREVLANE); 
-*/   DEFINE_CONSTANT(ITEM_NO_MALE);
+    DEFINE_CONSTANT(ITEM_NO_MALE);
     DEFINE_CONSTANT(ITEM_NO_FEMALE);
     DEFINE_CONSTANT(ITEM_NO_CHARMICE);
     DEFINE_CONSTANT(ITEM_NO_POLOVCI);
@@ -2312,13 +2307,7 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(ITEM_AN_NECROMANCER);
     DEFINE_CONSTANT(ITEM_AN_KILLER);
     DEFINE_CONSTANT(ITEM_AN_COLORED);
-/*    DEFINE_CONSTANT(ITEM_AN_SEVERANE);  // ����
-    DEFINE_CONSTANT(ITEM_AN_POLANE);
-    DEFINE_CONSTANT(ITEM_AN_KRIVICHI);
-    DEFINE_CONSTANT(ITEM_AN_VATICHI);
-    DEFINE_CONSTANT(ITEM_AN_VELANE);
-    DEFINE_CONSTANT(ITEM_AN_DREVLANE);   
-*/    DEFINE_CONSTANT(ITEM_AN_MALE);
+    DEFINE_CONSTANT(ITEM_AN_MALE);
     DEFINE_CONSTANT(ITEM_AN_FEMALE);
     DEFINE_CONSTANT(ITEM_AN_CHARMICE);
     DEFINE_CONSTANT(ITEM_AN_POLOVCI);

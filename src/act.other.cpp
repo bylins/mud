@@ -43,6 +43,7 @@
 #include "utils.h"
 #include "conf.h"
 #include "sysdep.h"
+#include "char_obj_utils.inl"
 
 #include <sys/stat.h>
 
@@ -130,7 +131,7 @@ ACMD(do_antigods)
 	{
 		if (affected_by_spell(ch, SPELL_SHIELD))
 			affect_from_char(ch, SPELL_SHIELD);
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_SHIELD), AFF_SHIELD);
+		AFF_FLAGS(ch).unset(AFF_SHIELD);
 		send_to_char("Голубой кокон вокруг вашего тела угас.\r\n", ch);
 		act("&W$n отринул$g защиту, дарованную богами.&n", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
@@ -282,10 +283,10 @@ int check_awake(CHAR_DATA * ch, int what)
 			if (!GET_EQ(ch, i))
 				continue;
 
-			if (IS_SET(what, ACHECK_HUMMING) && OBJ_FLAGGED(GET_EQ(ch, i), ITEM_HUM))
+			if (IS_SET(what, ACHECK_HUMMING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlags::ITEM_HUM))
 				SET_BIT(retval, ACHECK_HUMMING);
 
-			if (IS_SET(what, ACHECK_GLOWING) && OBJ_FLAGGED(GET_EQ(ch, i), ITEM_GLOW))
+			if (IS_SET(what, ACHECK_GLOWING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlags::ITEM_GLOW))
 				SET_BIT(retval, ACHECK_GLOWING);
 
 			if (IS_SET(what, ACHECK_LIGHT) &&
@@ -353,7 +354,7 @@ int char_humming(CHAR_DATA * ch)
 
 	for (i = 0; i < NUM_WEARS; i++)
 	{
-		if (GET_EQ(ch, i) && OBJ_FLAGGED(GET_EQ(ch, i), ITEM_HUM))
+		if (GET_EQ(ch, i) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlags::ITEM_HUM))
 			return (TRUE);
 	}
 	return (FALSE);
@@ -408,7 +409,7 @@ ACMD(do_sneak)
 	}
 
 	send_to_char("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
-	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILSNEAK), EXTRA_FAILSNEAK);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
 	percent = number(1, skill_info[SKILL_SNEAK].max_percent);
 	prob = calculate_skill(ch, SKILL_SNEAK, skill_info[SKILL_SNEAK].max_percent, 0);
 
@@ -465,7 +466,7 @@ ACMD(do_camouflage)
 	}
 
 	send_to_char("Вы начали усиленно маскироваться.\r\n", ch);
-	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILCAMOUFLAGE), EXTRA_FAILCAMOUFLAGE);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
 	percent = number(1, skill_info[SKILL_CAMOUFLAGE].max_percent);
 	prob = calculate_skill(ch, SKILL_CAMOUFLAGE, skill_info[SKILL_CAMOUFLAGE].max_percent, 0);
 
@@ -524,7 +525,7 @@ ACMD(do_hide)
 	}
 
 	send_to_char("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
-	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
 	percent = number(1, skill_info[SKILL_HIDE].max_percent);
 	prob = calculate_skill(ch, SKILL_HIDE, skill_info[SKILL_HIDE].max_percent, 0);
 
@@ -612,7 +613,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					send_to_char("Вы не сможете унести такой вес.\r\n", ch);
 					return;
 				}
-				else if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+				else if (obj->get_extraflag(EExtraFlags::ITEM_BLOODY))
 				{
 					send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 					return;
@@ -627,7 +628,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		}
 		else  	// obj found in inventory
 		{
-			if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+			if (obj->get_extraflag(EExtraFlags::ITEM_BLOODY))
 			{
 				send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 				return;
@@ -1043,7 +1044,7 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	if (vict)
 	{
 		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
+		AFF_FLAGS(ch).unset(AFF_GROUP);
 		add_follower(ch, leader, true);
 	}
 
@@ -1076,7 +1077,7 @@ int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 			AFF_FLAGGED(vict, AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || IS_HORSE(vict))
 		return (FALSE);
 
-	SET_BIT(AFF_FLAGS(vict, AFF_GROUP), AFF_GROUP);
+	AFF_FLAGS(vict).set(AFF_GROUP);
 	if (ch != vict)
 	{
 		act("$N принят$A в члены вашего кружка (тьфу-ты, группы :).", FALSE, ch, 0, vict, TO_CHAR);
@@ -1472,7 +1473,7 @@ ACMD(do_group)
 			act("$N исключен$A из состава вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, vict, TO_VICT);
 			act("$N был$G исключен$A из группы $n1!", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-			REMOVE_BIT(AFF_FLAGS(vict, AFF_GROUP), AFF_GROUP);
+			AFF_FLAGS(vict).unset(AFF_GROUP);
 		}
 	}
 }
@@ -1498,14 +1499,14 @@ ACMD(do_ungroup)
 			next_fol = f->next;
 			if (AFF_FLAGGED(f->follower, AFF_GROUP))
 			{
-				REMOVE_BIT(AFF_FLAGS(f->follower, AFF_GROUP), AFF_GROUP);
+				AFF_FLAGS(f->follower).unset(AFF_GROUP);
 				send_to_char(buf2, f->follower);
 				if (!AFF_FLAGGED(f->follower, AFF_CHARM) && !(IS_NPC(f->follower)
 						&& AFF_FLAGGED(f->follower, AFF_HORSE)))
 					stop_follower(f->follower, SF_EMPTY);
 			}
 		}
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
+		AFF_FLAGS(ch).unset(AFF_GROUP);
 		send_to_char("Вы распустили группу.\r\n", ch);
 		return;
 	}
@@ -1515,7 +1516,7 @@ ACMD(do_ungroup)
 		tch = f->follower;
 		if (isname(buf, tch->get_pc_name()) && !AFF_FLAGGED(tch, AFF_CHARM) && !IS_HORSE(tch))
 		{
-			REMOVE_BIT(AFF_FLAGS(tch, AFF_GROUP), AFF_GROUP);
+			AFF_FLAGS(tch).unset(AFF_GROUP);
 			act("$N более не член вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, tch, TO_VICT);
 			act("$N был$G изгнан$A из группы $n1!", FALSE, ch, 0, tch, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -1694,7 +1695,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 		return;
 	}
 
-	if (OBJ_FLAGGED(target, ITEM_SETSTUFF))
+	if (OBJ_FLAGGED(target, EExtraFlags::ITEM_SETSTUFF))
 	{
 		std::string name = GET_OBJ_PNAME(target, 0) ? GET_OBJ_PNAME(target, 0) : "<null>";
 		name[0] = UPPER(name[0]);
@@ -1755,7 +1756,7 @@ ACMD(do_use)
 		return;
 	}
 
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Вы в бою, и вам сейчас не до этих магических выкрутасов!\r\n", ch);
 		return;
@@ -1792,7 +1793,7 @@ ACMD(do_use)
 	switch (subcmd)
 	{
 	case SCMD_QUAFF:
-		if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+		if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 		{
 			send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
 			return;
@@ -1922,30 +1923,30 @@ void set_display_bits(CHAR_DATA *ch, bool flag)
 {
 	if (flag)
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
-		SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
+		PRF_FLAGS(ch).set(PRF_DISPHP);
+		PRF_FLAGS(ch).set(PRF_DISPMANA);
+		PRF_FLAGS(ch).set(PRF_DISPMOVE);
+		PRF_FLAGS(ch).set(PRF_DISPEXITS);
+		PRF_FLAGS(ch).set(PRF_DISPGOLD);
+		PRF_FLAGS(ch).set(PRF_DISPLEVEL);
+		PRF_FLAGS(ch).set(PRF_DISPEXP);
+		PRF_FLAGS(ch).set(PRF_DISPFIGHT);
 		if (!IS_IMMORTAL(ch))
 		{
-			SET_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+			PRF_FLAGS(ch).set(PRF_DISP_TIMED);
 		}
 	}
 	else
 	{
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+		PRF_FLAGS(ch).unset(PRF_DISPHP);
+		PRF_FLAGS(ch).unset(PRF_DISPMANA);
+		PRF_FLAGS(ch).unset(PRF_DISPMOVE);
+		PRF_FLAGS(ch).unset(PRF_DISPEXITS);
+		PRF_FLAGS(ch).unset(PRF_DISPGOLD);
+		PRF_FLAGS(ch).unset(PRF_DISPLEVEL);
+		PRF_FLAGS(ch).unset(PRF_DISPEXP);
+		PRF_FLAGS(ch).unset(PRF_DISPFIGHT);
+		PRF_FLAGS(ch).unset(PRF_DISP_TIMED);
 	}
 }
 
@@ -1990,39 +1991,39 @@ ACMD(do_display)
 			{
 			case 'h':
 			case 'ж':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
+				PRF_FLAGS(ch).set(PRF_DISPHP);
 				break;
 			case 'w':
 			case 'з':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
+				PRF_FLAGS(ch).set(PRF_DISPMANA);
 				break;
 			case 'm':
 			case 'э':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
+				PRF_FLAGS(ch).set(PRF_DISPMOVE);
 				break;
 			case 'e':
 			case 'в':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
+				PRF_FLAGS(ch).set(PRF_DISPEXITS);
 				break;
 			case 'g':
 			case 'д':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPGOLD), PRF_DISPGOLD);
+				PRF_FLAGS(ch).set(PRF_DISPGOLD);
 				break;
 			case 'l':
 			case 'у':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
+				PRF_FLAGS(ch).set(PRF_DISPLEVEL);
 				break;
 			case 'x':
 			case 'о':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
+				PRF_FLAGS(ch).set(PRF_DISPEXP);
 				break;
 			case 'б':
 			case 'f':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
+				PRF_FLAGS(ch).set(PRF_DISPFIGHT);
 				break;
 			case 'п':
 			case 't':
-				SET_BIT(PRF_FLAGS(ch, PRF_DISP_TIMED), PRF_DISP_TIMED);
+				PRF_FLAGS(ch).set(PRF_DISP_TIMED);
 				break;
 			case ' ':
 				break;
@@ -2251,20 +2252,20 @@ void set_autoloot_mode(CHAR_DATA *ch, char *argument)
 	}
 	else if (is_abbrev(argument, "все"))
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_AUTOLOOT), PRF_AUTOLOOT);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_NOINGR_LOOT), PRF_NOINGR_LOOT);
+		PRF_FLAGS(ch).set(PRF_AUTOLOOT);
+		PRF_FLAGS(ch).unset(PRF_NOINGR_LOOT);
 		send_to_char(message_on, ch);
 	}
 	else if (is_abbrev(argument, "ингредиенты"))
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_AUTOLOOT), PRF_AUTOLOOT);
-		SET_BIT(PRF_FLAGS(ch, PRF_NOINGR_LOOT), PRF_NOINGR_LOOT);
+		PRF_FLAGS(ch).set(PRF_AUTOLOOT);
+		PRF_FLAGS(ch).set(PRF_NOINGR_LOOT);
 		send_to_char(message_no_ingr, ch);
 	}
 	else if (is_abbrev(argument, "нет"))
 	{
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_AUTOLOOT), PRF_AUTOLOOT);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_NOINGR_LOOT), PRF_NOINGR_LOOT);
+		PRF_FLAGS(ch).unset(PRF_AUTOLOOT);
+		PRF_FLAGS(ch).unset(PRF_NOINGR_LOOT);
 		send_to_char(message_off, ch);
 	}
 	else
@@ -3180,7 +3181,7 @@ ACMD(do_dig)
 		{
 			if (GET_LEVEL(mob) <= GET_LEVEL(ch))
 			{
-				SET_BIT(MOB_FLAGS(mob, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
+				MOB_FLAGS(mob).set(MOB_AGGRESSIVE);
 				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3]);
 				send_to_char(textbuf, ch);
 				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3]);
@@ -3290,7 +3291,7 @@ void set_obj_aff(struct OBJ_DATA *itemobj, int bitv)
 	{
 		if (weapon_affect[i].aff_bitvector == bitv)
 		{
-			SET_BIT(GET_OBJ_AFF(itemobj, weapon_affect[i].aff_pos), weapon_affect[i].aff_pos);
+			SET_OBJ_AFF(itemobj, weapon_affect[i].aff_pos);
 		}
 	}
 }
@@ -3427,8 +3428,8 @@ ACMD(do_insertgem)
 //      send_to_char("В этот предмет вплавлено максимальное количество камней.\r\n", ch);
 //        return;
 //       }
-	if (!OBJ_FLAGGED(itemobj, ITEM_WITH1SLOT) && !OBJ_FLAGGED(itemobj, ITEM_WITH2SLOTS)
-			&& !OBJ_FLAGGED(itemobj, ITEM_WITH3SLOTS))
+	if (!OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH1SLOT) && !OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH2SLOTS)
+			&& !OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH3SLOTS))
 	{
 		send_to_char("Вы не видите куда здесь можно вплавить камень.\r\n", ch);
 		return;
@@ -3722,12 +3723,17 @@ ACMD(do_insertgem)
 					set_obj_eff(itemobj, APPLY_HITROLL, 3);
 					break;
 				case 3:
-					if ((CAN_WEAR(itemobj, ITEM_WEAR_WIELD) ||
-							CAN_WEAR(itemobj, ITEM_WEAR_HOLD) || CAN_WEAR(itemobj, ITEM_WEAR_BOTHS))
-							&& !OBJ_FLAGGED(itemobj, ITEM_NODISARM))
-						SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_NODISARM), ITEM_NODISARM);
+					if (!OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_NODISARM)
+						&& (CAN_WEAR(itemobj, ITEM_WEAR_WIELD)
+							|| CAN_WEAR(itemobj, ITEM_WEAR_HOLD)
+							|| CAN_WEAR(itemobj, ITEM_WEAR_BOTHS)))
+					{
+						itemobj->set_extraflag(EExtraFlags::ITEM_NODISARM);
+					}
 					else
+					{
 						set_obj_eff(itemobj, APPLY_HITROLL, 3);
+					}
 					break;
 				case 4:
 					set_obj_eff(itemobj, APPLY_SAVING_WILL, -10);
@@ -3787,13 +3793,13 @@ ACMD(do_insertgem)
 		}
 		else
 		{
-			int tmp_type, tmp_bit, tmp_qty;
+			int tmp_type, tmp_qty;
+			int tmp_bit;
 			string str(arg3);
-
-			tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), str);
 
 			tmp_bit = iwg.get_bit(GET_OBJ_VNUM(gemobj), str);
 			tmp_qty = iwg.get_qty(GET_OBJ_VNUM(gemobj), str);
+			tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), str);
 			switch (tmp_type)
 			{
 			case 1:
@@ -3805,7 +3811,7 @@ ACMD(do_insertgem)
 				break;
 
 			case 3:
-				SET_BIT(GET_OBJ_EXTRA(itemobj, tmp_bit), tmp_bit);
+				itemobj->set_extraflag(static_cast<EExtraFlags>(tmp_bit));
 				break;
 
 			default:
@@ -3817,19 +3823,19 @@ ACMD(do_insertgem)
 // Теперь все вплавленное занимает слоты
 	}
 		// флаги, определяющие, сколько остается свободных слотов
-	if (OBJ_FLAGGED(itemobj, ITEM_WITH3SLOTS))
+	if (OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH3SLOTS))
 	{
-		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);
-		SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
+		itemobj->unset_extraflag(EExtraFlags::ITEM_WITH3SLOTS);
+		itemobj->set_extraflag(EExtraFlags::ITEM_WITH2SLOTS);
 	}
-	else if (OBJ_FLAGGED(itemobj, ITEM_WITH2SLOTS))
+	else if (OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH2SLOTS))
 	{
-		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
-		SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
+		itemobj->unset_extraflag(EExtraFlags::ITEM_WITH2SLOTS);
+		itemobj->set_extraflag(EExtraFlags::ITEM_WITH1SLOT);
 	}
-	else if (OBJ_FLAGGED(itemobj, ITEM_WITH1SLOT))
+	else if (OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH1SLOT))
 	{
-		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
+		itemobj->unset_extraflag(EExtraFlags::ITEM_WITH1SLOT);
 	}
 	extract_obj(gemobj);
 }

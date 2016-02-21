@@ -1188,7 +1188,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 				// книги за славу не фейлим
 				if (ITEM_BOOK == GET_OBJ_TYPE(obj))
 				{
-					SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NO_FAIL), ITEM_NO_FAIL);
+					obj->set_extraflag(EExtraFlags::ITEM_NO_FAIL);
 				}
 				// снятие и логирование славы
 				GloryConst::add_total_spent(price);
@@ -1324,14 +1324,17 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 {
 	if (!obj) return;
 	int rnum = GET_OBJ_RNUM(obj);
-	if (rnum < 0 || OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN) ||
-		//OBJ_FLAGGED(obj, ITEM_NODONATE) || //Реально не пойму почему все торгаши так ненавидят стаф !пожертовать?!!!
-		OBJ_FLAGGED(obj, ITEM_NODROP))
+	if (rnum < 0
+		|| obj->get_extraflag(EExtraFlags::ITEM_ARMORED)
+		|| obj->get_extraflag(EExtraFlags::ITEM_SHARPEN)
+		|| obj->get_extraflag(EExtraFlags::ITEM_NODROP))
 	{
 		tell_to_char(keeper, ch, string("Я не собираюсь иметь дела с этой вещью.").c_str());
 		return;
 	}
-	if ((GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF) && GET_OBJ_VAL(obj, 2) == 0)
+	if (GET_OBJ_VAL(obj, 2) == 0
+		&& (GET_OBJ_TYPE(obj) == ITEM_WAND
+			|| GET_OBJ_TYPE(obj) == ITEM_STAFF))
 	{
 		tell_to_char(keeper, ch, "Я не покупаю использованные вещи!");
 		return;
@@ -1365,7 +1368,10 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	if (cmd == "Оценить")
 	{
-		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED) || OBJ_FLAGGED(obj, ITEM_REPOP_DECAY) || OBJ_FLAGGED(obj, ITEM_ZONEDECAY))
+		if (obj->get_extraflag(EExtraFlags::ITEM_NOSELL)
+			|| obj->get_extraflag(EExtraFlags::ITEM_NAMED)
+			|| obj->get_extraflag(EExtraFlags::ITEM_REPOP_DECAY)
+			|| obj->get_extraflag(EExtraFlags::ITEM_ZONEDECAY))
 		{
 			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
 			return;
@@ -1375,11 +1381,16 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	if (cmd == "Продать")
 	{
-		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED) || OBJ_FLAGGED(obj, ITEM_REPOP_DECAY) || (buy_price  <= 1) || OBJ_FLAGGED(obj, ITEM_ZONEDECAY))
+		if (obj->get_extraflag(EExtraFlags::ITEM_NOSELL)
+			|| obj->get_extraflag(EExtraFlags::ITEM_NAMED)
+			|| obj->get_extraflag(EExtraFlags::ITEM_REPOP_DECAY)
+			|| (buy_price  <= 1)
+			|| obj->get_extraflag(EExtraFlags::ITEM_ZONEDECAY))
 		{
 			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
 			return;
-		}else
+		}
+		else
 		{
 			obj_from_char(obj);
 			tell_to_char(keeper, ch, string("Получи за " + string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
@@ -1423,9 +1434,10 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
             break;
 		}
 
-		if (repair_price <= 0 ||
-				OBJ_FLAGGED(obj, ITEM_DECAY) ||
-				OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NODROP))
+		if (repair_price <= 0
+			|| obj->get_extraflag(EExtraFlags::ITEM_DECAY)
+			|| obj->get_extraflag(EExtraFlags::ITEM_NOSELL)
+			|| obj->get_extraflag(EExtraFlags::ITEM_NODROP))
 		{
 			tell_to_char(keeper, ch, string("Я не буду тратить свое драгоценное время на " + string(GET_OBJ_PNAME(obj, 3))+".").c_str());
 			return;
