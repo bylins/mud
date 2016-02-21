@@ -141,11 +141,11 @@ namespace Bonus
 	std::string str_type_bonus()
 	{
 		if (type_bonus == BONUS_DAMAGE)
-			return "&WСейчас идет бонус на повышенный урон&n";
+			return "&WСейчас идет бонус: повышенный урон&n";
 		if (type_bonus == BONUS_EXP)
-			return "&WСейчас идет бонус повышенный опыт за убийство моба.&n";
+			return "&WСейчас идет бонус: повышенный опыт за убийство моба.&n";
 		if (type_bonus == BONUS_DAMAGE)
-			return "&WСейчас идет бонус на повышенный опыт от урона оружия.&n";
+			return "&WСейчас идет бонус: повышенный опыт от урона оружия.&n";
 		return "";	
 	}
 
