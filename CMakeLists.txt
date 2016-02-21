@@ -395,9 +395,9 @@ endif ()
 
 if (CMAKE_HOST_UNIX)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS_RELEASE  "       -Ofast -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER")
+        set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -Og    -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER")
         set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC")
-        set(CMAKE_CXX_FLAGS_TEST     "-ggdb3 -O0    -Wall -Wextra -Wno-unused-parameter ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
+        set(CMAKE_CXX_FLAGS_TEST     "       -O0    -Wall -Wextra -Wno-unused-parameter ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
         set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall ${TESTBUILD_DEFINITIONS}")
 
         if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
