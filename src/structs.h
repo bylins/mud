@@ -1221,8 +1221,12 @@ typedef char
 byte;
 #endif
 
-bool sprintbit(bitvector_t vektor, const char *names[], char *result, const int print_flag = 0);
-bool sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char *div, const int print_flag = 0);
+bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
+
+inline bool sprintbit(bitvector_t bitvector, const char *names[], char *result, const int print_flag = 0)
+{
+	return sprintbitwd(bitvector, names, result, ",", print_flag);
+}
 
 typedef int room_vnum;	// A room's vnum type //
 typedef int obj_vnum;	// An object's vnum type //

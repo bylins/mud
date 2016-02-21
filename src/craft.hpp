@@ -14,7 +14,7 @@
 #include <set>
 #include <map>
 #include <list>
-#include <vector>
+#include <array>
 #include <string>
 
 namespace pugi
@@ -37,18 +37,20 @@ namespace craft
 
 	class CCases
 	{
-		const int CASES_COUNT = 6;
+		const static int CASES_COUNT = 6;
 
-		public:
-			CCases(): m_cases(CASES_COUNT) {}
+		typedef std::array<std::string, CASES_COUNT> cases_t;
 
-			bool load(const pugi::xml_node* node);
+	public:
+		CCases() {}
 
-		private:
-			std::vector<std::string> m_cases;
-			std::list<std::string> m_aliases;
+		bool load(const pugi::xml_node* node);
 
-			friend class CMaterialClass;
+	private:
+		cases_t m_cases;
+		std::list<std::string> m_aliases;
+
+		friend class CMaterialClass;
 	};
 
 	/**

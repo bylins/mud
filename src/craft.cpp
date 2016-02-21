@@ -164,6 +164,15 @@ namespace craft
 			return false;
 		}
 
+		const pugi::xml_node extraflags = node->child("extraflags");
+		if (extraflags)
+		{
+			for (auto extraflag : extraflags.children("extraflag"))
+			{
+				const char* flag = extraflag.value();
+			}
+		}
+
 		return true;
 	}
 
