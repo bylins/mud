@@ -66,6 +66,7 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 // local functions
 bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum);
+bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum);
 int mag_materials(CHAR_DATA * ch, int item0, int item1, int item2, int extract, int verbose);
 void perform_mag_groups(int level, CHAR_DATA * ch, CHAR_DATA * tch, int spellnum, int savetype);
 void affect_update(void);
@@ -2232,7 +2233,6 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 			missing = "Батюшки светы! А помаду-то я дома забыл$g.\r\n";
 			exhausted = "$o рассыпался в ваших руках от неловкого движения.\r\n";
 			break;
-
 		case SPELL_HYPNOTIC_PATTERN:
 			vnum = 3006;
 			use = "Вы разожгли палочку заморских благовоний.\r\n";
@@ -2254,6 +2254,48 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 	if (!tobj)
 	{
 		act(missing, FALSE, victim, 0, caster, TO_CHAR);
+		return (TRUE);
+	}
+	GET_OBJ_VAL(tobj,2) -= 1;
+	act(use, FALSE, caster, tobj, 0, TO_CHAR);
+	if (GET_OBJ_VAL(tobj,2) < 1)
+	{
+		act(exhausted, FALSE, caster, tobj, 0, TO_CHAR);
+		obj_from_char(tobj);
+		extract_obj(tobj);
+	}
+	return (FALSE);
+}
+
+bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum)
+{
+	const char *missing = NULL, *use = NULL, *exhausted = NULL;
+	switch (spellnum)
+	{
+		case SPELL_FASCINATION:
+			use = "Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n";
+			missing = "Батюшки светы! А помаду-то я дома забыл$g.\r\n";
+			exhausted = "$o рассыпался в ваших руках от неловкого движения.\r\n";
+			break;
+		case SPELL_HYPNOTIC_PATTERN:
+			use = "Вы разожгли палочку заморских благовоний.\r\n";
+			missing = "Вы начали суматошно искать свои благовония, но тщетно.\r\n";
+			exhausted = "$o дотлели и рассыпались пеплом.\r\n";
+			break;
+		case SPELL_ENCHANT_WEAPON:
+			use = "Вы подготовили дополнительные компоненты для зачарования.\r\n";
+			missing = "Вы были уверены что положили его в этот карман.\r\n";
+			exhausted = "$o вспыхнул голубоватым светом, когда его вставили в предмет.\r\n";
+			break;
+
+		default:
+			log("WARNING: wrong spellnum %d in %s:%d", spellnum, __FILE__, __LINE__);
+			return false;
+	}
+	OBJ_DATA *tobj = get_obj_in_list_vnum(vnum, caster->carrying);
+	if (!tobj)
+	{
+		act(missing, FALSE, caster, 0, caster, TO_CHAR);
 		return (TRUE);
 	}
 	GET_OBJ_VAL(tobj,2) -= 1;
@@ -4654,6 +4696,9 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		};
 
 		reagobj = get_obj_in_list_vnum(1930, ch->carrying);
+		if (!reagobj)   reagobj = get_obj_in_list_vnum(1931, ch->carrying);
+		if (!reagobj)	reagobj = get_obj_in_list_vnum(1932, ch->carrying);
+
 		if (reagobj)
 		{
 			// у нас имеется доп символ для зачарования
@@ -4663,7 +4708,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 				 	    obj->affected[i+2].location = reagobj->affected[i].location;
 						obj->affected[i+2].modifier = reagobj->affected[i].modifier;
 					}
-			material_component_processing(ch, ch, spellnum);
+			material_component_processing(ch, reagobj->item_number, spellnum); //может неправильный вызов
 		}
 		
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
