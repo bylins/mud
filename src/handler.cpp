@@ -610,7 +610,6 @@ void affect_total(CHAR_DATA * ch)
 {
 	AFFECT_DATA *af;
 	OBJ_DATA *obj;
-	struct extra_affects_type *extra_affect = NULL;
 
 	int i, j;
 	FLAG_DATA saved;
@@ -714,15 +713,13 @@ void affect_total(CHAR_DATA * ch)
 	{
 		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_CLASSES)
 		{
-			extra_affect = class_app[(int) GET_CLASS(ch)].extra_affects;
-			//extra_modifier = class_app[(int) GET_CLASS(ch)].extra_modifiers;
+			const class_app_type::extra_affects_list_t* extra_affect = class_app[(int) GET_CLASS(ch)].extra_affects;
 
-			for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
-				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
-							  (extra_affect + i)->set_or_clear ? true : false);
-			/* for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
-				affect_modify(ch, (extra_modifier + i)->location,
-					      (extra_modifier + i)->modifier, 0, TRUE);*/
+			class_app_type::extra_affects_list_t::const_iterator i = extra_affect->begin();
+			for (; i != extra_affect->end(); ++i)
+			{
+				affect_modify(ch, APPLY_NONE, 0, to_underlying(i->affect), i->set_or_clear ? true : false);
+			}
 		}
 
 		// Apply other PC modifiers

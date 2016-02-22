@@ -1589,51 +1589,43 @@ struct weapon_app_type weapon_app[] =
 	{50, 50, 50}		// ww = 50
 };
 
-struct extra_affects_type ClericAffects[] = { { -1, -1} };
-struct extra_affects_type MageAffects[] = { {AFF_INFRAVISION, 1},
-	{ -1, -1}
-};
-struct extra_affects_type ThiefAffects[] = { {AFF_INFRAVISION, 1},
-	{AFF_SENSE_LIFE, 1},
-	{AFF_BLINK, 1},
-	{ -1, -1}
-};
-struct extra_affects_type WarriorAffects[] = { { -1, -1} };
-struct extra_affects_type AssasineAffects[] = { {AFF_INFRAVISION, 1},
-	{ -1, -1}
-};
-struct extra_affects_type GuardAffects[] = { { -1, -1} };
-struct extra_affects_type DefenderAffects[] = { { -1, -1} };
-struct extra_affects_type CharmerAffects[] = { { -1, -1} };
-struct extra_affects_type NecromancerAffects[] = { {AFF_INFRAVISION, 1},
-	{ -1, -1}
-};
-struct extra_affects_type PaladineAffects[] = { { -1, -1} };
-struct extra_affects_type RangerAffects[] = { {AFF_INFRAVISION, 1},
-	{AFF_SENSE_LIFE, 1},
-	{ -1, -1}
-};
-struct extra_affects_type SmithAffects[] = { { -1, -1} };
-struct extra_affects_type MerchantAffects[] = { { -1, -1} };
-struct extra_affects_type DruidAffects[] = { { -1, -1} };
+const class_app_type::extra_affects_list_t ClericAffects = {};
+const class_app_type::extra_affects_list_t MageAffects = { { EAffectFlags::AFF_INFRAVISION, 1}};
+const class_app_type::extra_affects_list_t ThiefAffects = {
+	{ EAffectFlags::AFF_INFRAVISION, 1},
+	{ EAffectFlags::AFF_SENSE_LIFE, 1},
+	{ EAffectFlags::AFF_BLINK, 1} };
+const class_app_type::extra_affects_list_t WarriorAffects = {};
+const class_app_type::extra_affects_list_t AssasineAffects = { { EAffectFlags::AFF_INFRAVISION, 1 } };
+const class_app_type::extra_affects_list_t GuardAffects = {};
+const class_app_type::extra_affects_list_t DefenderAffects = {};
+const class_app_type::extra_affects_list_t CharmerAffects = {};
+const class_app_type::extra_affects_list_t NecromancerAffects = { { EAffectFlags::AFF_INFRAVISION, 1} };
+const class_app_type::extra_affects_list_t PaladineAffects = { };
+const class_app_type::extra_affects_list_t RangerAffects = {
+	{ EAffectFlags::AFF_INFRAVISION, 1},
+	{ EAffectFlags::AFF_SENSE_LIFE, 1} };
+const class_app_type::extra_affects_list_t SmithAffects = {};
+const class_app_type::extra_affects_list_t MerchantAffects = {};
+const class_app_type::extra_affects_list_t DruidAffects = {};
 
-struct class_app_type class_app[NUM_CLASSES] =
+class_app_type class_app[NUM_CLASSES] =
 {
 // unknown_weapon_fault koef_con base_con min_con max_con extra_affects
-	{5,  40, 10, 12, 50, (struct extra_affects_type *) &ClericAffects},
-	{3,  35, 10, 10, 50, (struct extra_affects_type *) &MageAffects},
-	{3,  55, 10, 14, 50, (struct extra_affects_type *) &ThiefAffects},
-	{2, 105, 10, 22, 50, (struct extra_affects_type *) &WarriorAffects},
-	{3,  50, 10, 14, 50, (struct extra_affects_type *) &AssasineAffects},
-	{2, 105, 10, 17, 50, (struct extra_affects_type *) &GuardAffects},
-	{5,  35, 10, 10, 50, (struct extra_affects_type *) &DefenderAffects},
-	{5,  35, 10, 10, 50, (struct extra_affects_type *) &CharmerAffects},
-	{5,  35, 10, 11, 50, (struct extra_affects_type *) &NecromancerAffects},
-	{2, 100, 10, 14, 50, (struct extra_affects_type *) &PaladineAffects},
-	{2, 100, 10, 14, 50, (struct extra_affects_type *) &RangerAffects},
-	{2, 100, 10, 14, 50, (struct extra_affects_type *) &SmithAffects},
-	{3,  50, 10, 14, 50, (struct extra_affects_type *) &MerchantAffects},
-	{5,  40, 10, 12, 50, (struct extra_affects_type *) &DruidAffects}
+	{5,  40, 10, 12, 50, &ClericAffects},
+	{3,  35, 10, 10, 50, &MageAffects},
+	{3,  55, 10, 14, 50, &ThiefAffects},
+	{2, 105, 10, 22, 50, &WarriorAffects},
+	{3,  50, 10, 14, 50, &AssasineAffects},
+	{2, 105, 10, 17, 50, &GuardAffects},
+	{5,  35, 10, 10, 50, &DefenderAffects},
+	{5,  35, 10, 10, 50, &CharmerAffects},
+	{5,  35, 10, 11, 50, &NecromancerAffects},
+	{2, 100, 10, 14, 50, &PaladineAffects},
+	{2, 100, 10, 14, 50, &RangerAffects},
+	{2, 100, 10, 14, 50, &SmithAffects},
+	{3,  50, 10, 14, 50, &MerchantAffects},
+	{5,  40, 10, 12, 50, &DruidAffects}
 };
 
 const char *spell_wear_off_msg[SPELLS_COUNT + 1] = { "RESERVED DB.C",	// 0

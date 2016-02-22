@@ -1855,14 +1855,13 @@ struct weapon_app_type
 
 struct extra_affects_type
 {
-	int
-	affect;
-	int
-	set_or_clear;
+	EAffectFlags affect;
+	int set_or_clear;
 };
 
 struct class_app_type
 {
+	typedef std::vector<extra_affects_type> extra_affects_list_t;
 	int
 	unknown_weapon_fault;
 	int
@@ -1874,8 +1873,7 @@ struct class_app_type
 	int
 	max_con;
 
-	struct extra_affects_type *extra_affects;
-//	struct obj_affected_type *extra_modifiers;
+	const extra_affects_list_t* extra_affects;
 };
 
 struct race_app_type

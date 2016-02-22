@@ -1423,8 +1423,12 @@ ACMD(do_group)
 	
 // вычисляем количество последователей
 	for (f_number = 0, f = ch->followers; f; f = f->next)
-		if (AFF_FLAGGED(f->follower, AFF_GROUP))
+	{
+		if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP))
+		{
 			f_number++;
+		}
+	}
 
 	if (!str_cmp(buf, "all") || !str_cmp(buf, "все"))
 	{

@@ -1125,7 +1125,7 @@ ACMD(do_hidemove)
 		af.duration = 1;
 		const int calculated_skill = calculate_skill(ch, SKILL_SNEAK, skill_info[SKILL_SNEAK].max_percent, 0);
 		const int chance = number(1, skill_info[SKILL_SNEAK].max_percent);
-		af.bitvector = (chance < calculated_skill) ? EAffectFlags::AFF_SNEAK : EAffectFlags::AFF_WRONG;
+		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffectFlags::AFF_SNEAK) : 0;
 		af.battleflag = 0;
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 	}
@@ -1616,7 +1616,7 @@ ACMD(do_enter)
 					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 						FALSE, ch, 0, get_horse(ch), TO_CHAR);
 					act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-					AFF_FLAGS(ch).unset(AFF_HORSE);
+					AFF_FLAGS(ch).unset(EAffectFlags::AFF_HORSE);
 				}
 				//проверка на ванрум и лошадь
 				if (ROOM_FLAGGED(door, ROOM_TUNNEL) &&
@@ -1632,7 +1632,7 @@ ACMD(do_enter)
 						act("$Z $N заупрямил$U, и вам пришлось соскочить.",
 							FALSE, ch, 0, get_horse(ch), TO_CHAR);
 						act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-						AFF_FLAGS(ch).unset(AFF_HORSE);
+						AFF_FLAGS(ch).unset(EAffectFlags::AFF_HORSE);
 					}
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
@@ -1682,12 +1682,12 @@ ACMD(do_enter)
 							char_to_room(k->follower, door);
 						}
 					}
-					if (AFF_FLAGGED(k->follower, AFF_HELPER) &&
-							!GET_MOB_HOLD(k->follower) &&
-							MOB_FLAGGED(k->follower, MOB_ANGEL) &&
-							!k->follower->get_fighting() &&
-							IN_ROOM(k->follower) == from_room &&
-							AWAKE(k->follower))
+					if (AFF_FLAGGED(k->follower, EAffectFlags::AFF_HELPER)
+						&& !GET_MOB_HOLD(k->follower)
+						&& MOB_FLAGGED(k->follower, MOB_ANGEL)
+						&& !k->follower->get_fighting()
+						&& IN_ROOM(k->follower) == from_room
+						&& AWAKE(k->follower))
 					{
 						act("$n исчез$q в пентаграмме.", TRUE,
 							k->follower, 0, 0, TO_ROOM);
@@ -1946,7 +1946,7 @@ ACMD(do_horseon)
 			affect_from_char(ch, SPELL_CAMOUFLAGE);
 		act("Вы взобрались на спину $N1.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n вскочил$g на $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		AFF_FLAGS(ch).set(AFF_HORSE);
+		AFF_FLAGS(ch).set(EAffectFlags::AFF_HORSE);
 	}
 }
 
@@ -1970,7 +1970,7 @@ ACMD(do_horseoff)
 
 	act("Вы слезли со спины $N1.", FALSE, ch, 0, horse, TO_CHAR);
 	act("$n соскочил$g с $N1.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-	AFF_FLAGS(ch).unset(AFF_HORSE);
+	AFF_FLAGS(ch).unset(EAffectFlags::AFF_HORSE);
 }
 
 ACMD(do_horseget)
@@ -2012,7 +2012,7 @@ ACMD(do_horseget)
 	{
 		act("Вы отвязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n отвязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		AFF_FLAGS(horse).unset(AFF_TETHERED);
+		AFF_FLAGS(horse).unset(EAffectFlags::AFF_TETHERED);
 	}
 }
 
@@ -2054,7 +2054,7 @@ ACMD(do_horseput)
 	{
 		act("Вы привязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n привязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		AFF_FLAGS(horse).set(AFF_TETHERED);
+		AFF_FLAGS(horse).set(EAffectFlags::AFF_TETHERED);
 	}
 }
 
@@ -2383,11 +2383,11 @@ ACMD(do_follow)
 			//log("[Follow] Stop last follow...");
 			if (ch->master)
 				stop_follower(ch, SF_EMPTY);
-			AFF_FLAGS(ch).unset(AFF_GROUP);
+			AFF_FLAGS(ch).unset(EAffectFlags::AFF_GROUP);
 			//also removing AFF_GROUP flag from all followers
 			for (f = ch->followers; f; f = f->next)
 			{
-				AFF_FLAGS(f->follower).unset(AFF_GROUP);
+				AFF_FLAGS(f->follower).unset(EAffectFlags::AFF_GROUP);
 			}
 			//log("[Follow] Start new follow...");
 			add_follower(ch, leader);
