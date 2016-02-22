@@ -832,7 +832,7 @@ void make_horse(CHAR_DATA * horse, CHAR_DATA * ch)
 
 int on_horse(CHAR_DATA * ch)
 {
-	return (AFF_FLAGGED(ch, AFF_HORSE) && has_horse(ch, TRUE));
+	return (AFF_FLAGGED(ch, EAffectFlags::AFF_HORSE) && has_horse(ch, TRUE));
 }
 
 int has_horse(CHAR_DATA * ch, int same_room)
@@ -953,13 +953,13 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	ch->master = NULL;
 
 	AFF_FLAGS(ch).unset(AFF_GROUP);
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_HORSE))
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlags::AFF_HORSE))
 	{
 		AFF_FLAGS(ch).unset(AFF_HORSE);
 	}
 
 	//log("[Stop follower] Free charmee");
-	if (AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HELPER) || IS_SET(mode, SF_CHARMLOST))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlags::AFF_HELPER) || IS_SET(mode, SF_CHARMLOST))
 	{
 		if (affected_by_spell(ch, SPELL_CHARM))
 		{
@@ -984,7 +984,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 				extract_char(ch, FALSE);
 				return (TRUE);
 			}
-			else if (AFF_FLAGGED(ch, AFF_HELPER))
+			else if (AFF_FLAGGED(ch, EAffectFlags::AFF_HELPER))
 			{
 				AFF_FLAGS(ch).unset(AFF_HELPER);
 			}
@@ -1588,17 +1588,17 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 
 	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
 	if (IS_NPC(ch) && ch->master && !IS_NPC(ch->master)
-		&& (IS_HORSE(ch) || AFF_FLAGGED(ch, AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL)))
+		&& (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL)))
 		ch = ch->master;
 	if (IS_NPC(tch) && tch->master && !IS_NPC(tch->master)
-		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)))
+		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)))
 		tch = tch->master;
 
 	// NPC's always in same group
 	if ((IS_NPC(ch) && IS_NPC(tch)) || ch == tch)
 		return true;
 
-	if (!AFF_FLAGGED(ch, AFF_GROUP) || !AFF_FLAGGED(tch, AFF_GROUP))
+	if (!AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP) || !AFF_FLAGGED(tch, EAffectFlags::AFF_GROUP))
 		return false;
 
 	if (ch->master == tch || tch->master == ch || (ch->master && ch->master == tch->master))
@@ -1960,7 +1960,7 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 		return FALSE;
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
-	if (IS_NPC(whom) && AFF_FLAGGED(whom, AFF_CHARM))
+	if (IS_NPC(whom) && AFF_FLAGGED(whom, EAffectFlags::AFF_CHARM))
 		return ignores(who, whom->master, flag);
 
 	ign_id = GET_IDNUM(whom);
@@ -3031,7 +3031,7 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 // Симуляция телла от моба
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 {
-	if (AFF_FLAGGED(ch, AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
 		return;
 	char local_buf[MAX_INPUT_LENGTH];
 	snprintf(local_buf, MAX_INPUT_LENGTH,

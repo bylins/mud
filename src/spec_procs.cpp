@@ -2218,7 +2218,7 @@ void npc_light(CHAR_DATA * ch)
 	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_INFRAVISION))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_INFRAVISION))
 		return;
 
 	if ((obj = GET_EQ(ch, WEAR_LIGHT)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(IN_ROOM(ch))))
@@ -2399,7 +2399,7 @@ void npc_group(CHAR_DATA * ch)
 	if (!ch->master)
 		leader = ch;
 
-	if (leader && (AFF_FLAGGED(leader, AFF_CHARM) || GET_POS(leader) < POS_SLEEPING))
+	if (leader && (AFF_FLAGGED(leader, EAffectFlags::AFF_CHARM) || GET_POS(leader) < POS_SLEEPING))
 		leader = NULL;
 
 	// Find leader
@@ -2408,7 +2408,7 @@ void npc_group(CHAR_DATA * ch)
 		if (!IS_NPC(vict) ||
 				GET_DEST(vict) != GET_DEST(ch) ||
 				zone != ZONE(vict) ||
-				group != GROUP(vict) || AFF_FLAGGED(vict, AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
+				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlags::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
 			continue;
 		members++;
 		if (!leader || GET_REAL_INT(vict) > GET_REAL_INT(leader))
@@ -2434,7 +2434,7 @@ void npc_group(CHAR_DATA * ch)
 		if (!IS_NPC(vict) ||
 				GET_DEST(vict) != GET_DEST(ch) ||
 				zone != ZONE(vict) ||
-				group != GROUP(vict) || AFF_FLAGGED(vict, AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
+				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlags::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
 			continue;
 		if (vict == leader)
 		{
@@ -2459,7 +2459,7 @@ void npc_groupbattle(CHAR_DATA * ch)
 	CHAR_DATA *tch, *helper;
 
 	if (!IS_NPC(ch) ||
-			!ch->get_fighting() || AFF_FLAGGED(ch, AFF_CHARM) || !ch->master || IN_ROOM(ch) == NOWHERE || !ch->followers)
+			!ch->get_fighting() || AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) || !ch->master || IN_ROOM(ch) == NOWHERE || !ch->followers)
 		return;
 
 	k = ch->master ? ch->master->followers : ch->followers;
@@ -2735,8 +2735,8 @@ SPECIAL(guild_guard)
 	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
 	const char *buf2 = "Охранник остановил $n, преградив $m дорогу.";
 
-	if (!IS_MOVE(cmd) || AFF_FLAGGED(guard, AFF_BLIND)
-			|| AFF_FLAGGED(guard, AFF_HOLD))
+	if (!IS_MOVE(cmd) || AFF_FLAGGED(guard, EAffectFlags::AFF_BLIND)
+			|| AFF_FLAGGED(guard, EAffectFlags::AFF_HOLD))
 		return (FALSE);
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT)

@@ -1124,7 +1124,7 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 	{
 		if (percent == -2)
 		{
-			if (AFF_FLAGGED(ch, AFF_SNEAK))
+			if (AFF_FLAGGED(ch, EAffectFlags::AFF_SNEAK))
 				remove_hide = number(1, skill_info[SKILL_SNEAK].max_percent) >
 							  calculate_skill(ch, SKILL_SNEAK, skill_info[SKILL_SNEAK].max_percent, 0);
 			else
@@ -1139,7 +1139,7 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 		if (remove_hide)
 		{
 			affect_from_char(ch, SPELL_HIDE);
-			if (!AFF_FLAGGED(ch, AFF_HIDE))
+			if (!AFF_FLAGGED(ch, EAffectFlags::AFF_HIDE))
 			{
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", FALSE, ch, 0, 0, TO_ROOM);
@@ -1225,7 +1225,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		*(argument + length - 1) = ' ';
 	}
 
-	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_STOPFIGHT) && !AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)))
+	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_STOPFIGHT) && !AFF_FLAGGED(ch, EAffectFlags::AFF_MAGICSTOPFIGHT)))
 	{
 		int cont;	// continue the command checks
 		cont = command_wtrigger(ch, arg, line);
@@ -1276,8 +1276,8 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 
 	if (((!IS_NPC(ch) && (GET_FREEZE_LEV(ch) > GET_LEVEL(ch)) && (PLR_FLAGGED(ch, PLR_FROZEN)))
 			|| GET_MOB_HOLD(ch) > 0
-			|| AFF_FLAGGED(ch, AFF_STOPFIGHT)
-			|| AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
+			|| AFF_FLAGGED(ch, EAffectFlags::AFF_STOPFIGHT)
+			|| AFF_FLAGGED(ch, EAffectFlags::AFF_MAGICSTOPFIGHT))
 		&& !check_frozen_cmd(ch, cmd))
 	{
 		send_to_char("Вы попытались, но не смогли сдвинуться с места...\r\n", ch);

@@ -534,8 +534,8 @@ public:
 	std::string get_morph_desc();
 	int get_inborn_skill(int skill_num);
 	void set_morphed_skill(int skill_num, int percent);
-	bool isAffected(long flag) const;
-	std::vector<long> GetMorphAffects();
+	bool isAffected(const EAffectFlags flag) const;
+	const IMorph::affects_list_t& GetMorphAffects();
 
 	void set_who_mana(unsigned int);
 	void set_who_last(time_t);
@@ -759,12 +759,104 @@ inline bool CHAR_DATA::in_used_zone() const
 	return false;
 }
 
+inline int GET_INVIS_LEV(const CHAR_DATA* ch)
+{
+	return CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level);
+}
+
 inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 {
 	if (ch->get_wait() < cycle)
 	{
 		ch->set_wait(cycle);
 	}
+}
+
+inline bool IS_CHARMICE(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		&& (AFF_FLAGGED(ch, EAffectFlags::AFF_HELPER)
+			|| AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM));
+}
+
+inline bool IS_FLY(const CHAR_DATA* ch)
+{
+	return AFF_FLAGGED(ch, EAffectFlags::AFF_FLY);
+}
+
+inline bool INVIS_OK(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return !AFF_FLAGGED(sub, EAffectFlags::AFF_BLIND)
+		&& ((!AFF_FLAGGED(obj, EAffectFlags::AFF_INVISIBLE)
+				|| AFF_FLAGGED(sub, EAffectFlags::AFF_DETECT_INVIS))
+			&& ((!AFF_FLAGGED(obj, EAffectFlags::AFF_HIDE)
+					&& !AFF_FLAGGED(obj, EAffectFlags::AFF_CAMOUFLAGE))
+				|| AFF_FLAGGED(sub, EAffectFlags::AFF_SENSE_LIFE)));
+}
+
+inline bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return HERE(obj)
+		&& INVIS_OK(sub, obj)
+		&& (IS_LIGHT((obj)->in_room)
+			|| AFF_FLAGGED((sub), EAffectFlags::AFF_INFRAVISION));
+}
+
+inline bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return MORT_CAN_SEE(sub, obj)
+		|| (!IS_NPC(sub)
+			&& PRF_FLAGGED(sub, PRF_HOLYLIGHT));
+}
+
+/// Can subject see character "obj"?
+inline bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return SELF(sub, obj)
+		|| ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj)))
+			&& IMM_CAN_SEE(sub, obj));
+}
+
+inline bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return !(GET_INVIS_LEV(ch) > 30)
+		&& !AFF_FLAGGED(sub, EAffectFlags::AFF_BLIND)
+		&& (!IS_DARK(IN_ROOM(sub))
+			|| AFF_FLAGGED(sub, EAffectFlags::AFF_INFRAVISION))
+		&& (!AFF_FLAGGED(obj, EAffectFlags::AFF_INVISIBLE)
+			|| AFF_FLAGGED(sub, EAffectFlags::AFF_DETECT_INVIS));
+}
+
+inline bool IS_HORSE(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		&& ch->master
+		&& AFF_FLAGGED(ch, EAffectFlags::AFF_HORSE);
+}
+
+inline bool MAY_ATTACK(const CHAR_DATA* sub)
+{
+	return (!AFF_FLAGGED((sub), EAffectFlags::AFF_CHARM)
+		&& !IS_HORSE((sub))
+		&& !AFF_FLAGGED((sub), EAffectFlags::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED((sub), EAffectFlags::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED((sub), EAffectFlags::AFF_HOLD)
+		&& !AFF_FLAGGED((sub), EAffectFlags::AFF_SLEEP)
+		&& !MOB_FLAGGED((sub), MOB_NOFIGHT)
+		&& GET_WAIT(sub) <= 0
+		&& !sub->get_fighting()
+		&& GET_POS(sub) >= POS_RESTING);
+}
+
+inline bool GET_MOB_HOLD(const CHAR_DATA* ch)
+{
+	return AFF_FLAGGED(ch, EAffectFlags::AFF_HOLD);
+}
+
+inline bool AWAKE(const CHAR_DATA* ch)
+{
+	return GET_POS(ch) > POS_SLEEPING
+		&& !AFF_FLAGGED(ch, EAffectFlags::AFF_SLEEP);
 }
 
 void change_fighting(CHAR_DATA * ch, int need_stop);

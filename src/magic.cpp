@@ -730,7 +730,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	if (type != SAVING_REFLEX)
 	{
 		if ((save > 0) &&
-				(AFF_FLAGGED(victim, AFF_AIRAURA) || AFF_FLAGGED(victim, AFF_FIREAURA) || AFF_FLAGGED(victim, AFF_ICEAURA)))
+				(AFF_FLAGGED(victim, EAffectFlags::AFF_AIRAURA) || AFF_FLAGGED(victim, EAffectFlags::AFF_FIREAURA) || AFF_FLAGGED(victim, EAffectFlags::AFF_ICEAURA)))
 			save >>= 1;
 	}
 	// Учет осторожного стиля
@@ -934,9 +934,9 @@ void player_affect_update(void)
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
 							if (!(af->type == SPELL_MAGICBATTLE &&
-									AFF_FLAGGED(i, AFF_STOPFIGHT)))
+									AFF_FLAGGED(i, EAffectFlags::AFF_STOPFIGHT)))
 								if (!(af->type == SPELL_BATTLE &&
-										AFF_FLAGGED(i, AFF_MAGICSTOPFIGHT)))
+										AFF_FLAGGED(i, EAffectFlags::AFF_MAGICSTOPFIGHT)))
 									show_spell_off(af->type, i);
 						}
 					}
@@ -1570,7 +1570,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 	{
 		if (ch != victim && spellnum < MAX_SPELLS &&
-			((AFF_FLAGGED(victim, AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3))))
+			((AFF_FLAGGED(victim, EAffectFlags::AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3))))
 		{
 			act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
 			act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -1589,7 +1589,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 	}
 
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 100) < 21)
+	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, EAffectFlags::AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 100) < 21)
 	{
 		act("Густая тень вокруг $N1 жадно поглотила вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
 		act("Густая тень вокруг $N1 жадно поглотила магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -2020,7 +2020,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 
 	case SPELL_HOLYSTRIKE:
-		if (AFF_FLAGGED(victim, AFF_EVILESS))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_EVILESS))
 		{
 			dam = -1;
 			no_savings = TRUE;
@@ -2115,7 +2115,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 
 
-		if (AFF_FLAGGED(ch, AFF_DATURA_POISON))
+		if (AFF_FLAGGED(ch, EAffectFlags::AFF_DATURA_POISON))
 			dam -= dam * GET_POISON(ch) / 100;
 
 		if (!IS_SET(SpINFO.routines, MAG_WARCRY))
@@ -2289,7 +2289,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
         if (ch != victim
                 && SpINFO.violent
                 && ((!IS_GOD(ch)
-                        && AFF_FLAGGED(victim, AFF_MAGICGLASS)
+                        && AFF_FLAGGED(victim, EAffectFlags::AFF_MAGICGLASS)
                         && (IN_ROOM(ch) == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
                         && number(1, 100) < (GET_LEVEL(victim) / 3))
                     || (IS_GOD(victim)
@@ -2716,7 +2716,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
-		if (AFF_FLAGGED(victim, AFF_SANCTUARY))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_SANCTUARY))
 		{
 			success = FALSE;
 			break;
@@ -2812,7 +2812,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WEB:
 		savetype = SAVING_REFLEX;
-		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -2879,7 +2879,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_MASS_SLOW:
 	case SPELL_SLOW:
 		savetype = SAVING_STABILITY;
-		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -2989,7 +2989,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_POISON:
 		savetype = SAVING_CRITICAL;
-		if (ch != victim && (AFF_FLAGGED(victim, AFF_SHIELD) ||
+		if (ch != victim && (AFF_FLAGGED(victim, EAffectFlags::AFF_SHIELD) ||
 							 general_savingthrow(ch, victim, savetype, modi - GET_REAL_CON(victim) / 2)))
 		{
 			if (IN_ROOM(ch) == IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
@@ -3036,7 +3036,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
-		if (AFF_FLAGGED(victim, AFF_PRISMATICAURA))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_PRISMATICAURA))
 		{
 			success = FALSE;
 			break;
@@ -3051,7 +3051,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_SLEEP:
 		savetype = SAVING_WILL;
-		if (AFF_FLAGGED(victim, AFF_HOLD) || MOB_FLAGGED(victim, MOB_NOSLEEP)
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_HOLD) || MOB_FLAGGED(victim, MOB_NOSLEEP)
 				|| (ch != victim && general_savingthrow(ch, victim, SAVING_WILL, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -3143,7 +3143,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_HOLYSTRIKE:
-		if (AFF_FLAGGED(victim, AFF_EVILESS))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_EVILESS))
 		{
 			// все решится в дамадже части спелла
 			success = FALSE;
@@ -3153,8 +3153,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_MASS_HOLD:
 	case SPELL_POWER_HOLD:
 	case SPELL_HOLD:
-		if (AFF_FLAGGED(victim, AFF_SLEEP)
-				|| MOB_FLAGGED(victim, MOB_NOHOLD) || AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_SLEEP)
+				|| MOB_FLAGGED(victim, MOB_NOHOLD) || AFF_FLAGGED(victim, EAffectFlags::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, SAVING_WILL, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -3283,7 +3283,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_NOFLEE: // "приковать противника"
 		savetype = SAVING_WILL;
-		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -3428,7 +3428,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 //Заклинание плач. Далим.
 	case SPELL_CRYING:
-		if (AFF_FLAGGED(victim, AFF_CRYING) || (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_CRYING) || (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
@@ -3489,7 +3489,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_PEACEFUL:
-		if (AFF_FLAGGED(victim, AFF_PEACEFUL) || (IS_NPC(victim) && !AFF_FLAGGED(victim, AFF_CHARM)) ||
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_PEACEFUL) || (IS_NPC(victim) && !AFF_FLAGGED(victim, EAffectFlags::AFF_CHARM)) ||
 				(ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -4039,7 +4039,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		return 0;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 	{
 		send_to_char("Вы слишком зависимы, чтобы искать себе последователей!\r\n", ch);
 		return 0;
@@ -4105,7 +4105,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		}
 	}
 	char_to_room(mob, ch->in_room);
-	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, AFF_SANCTUARY) || MOB_FLAGGED(mob, MOB_PROTECT)))
+	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, EAffectFlags::AFF_SANCTUARY) || MOB_FLAGGED(mob, MOB_PROTECT)))
 	{
 		send_to_char("Оживляемый был освящен Богами и противится этому!\r\n", ch);
 		extract_char(mob, FALSE);
@@ -4118,7 +4118,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		return 0;
 	}
 // shapirus: нельзя оживить моба под ЗБ
-	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(mob, AFF_SHIELD))
+	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(mob, EAffectFlags::AFF_SHIELD))
 	{
 		send_to_char("Боги защищают это существо даже после смерти.\r\n", ch);
 		extract_char(mob, FALSE);
@@ -5059,7 +5059,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		if (SpINFO.violent && same_group(ch, ch_vict))
 			continue;
 		// пони не трогаем
-		if (AFF_FLAGGED(ch_vict, AFF_HORSE))
+		if (AFF_FLAGGED(ch_vict, EAffectFlags::AFF_HORSE))
 			continue;
 		add_to_tmp_char_list(ch_vict);
 	}

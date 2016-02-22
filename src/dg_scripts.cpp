@@ -38,7 +38,7 @@
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
-#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
+#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 
 // Вывод сообщений о неверных управляющих конструкциях DGScript
 #define	DG_CODE_ANALYZE
@@ -2177,7 +2177,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				{
 					can_use = 1;
 				}
-				else if (AFF_FLAGGED(k, AFF_GROUP))
+				else if (AFF_FLAGGED(k, EAffectFlags::AFF_GROUP))
 				{
 					if (!IS_NPC(k) && (GET_CLASS(k) == 8 || GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
 						&& world[IN_ROOM(k)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
@@ -2857,7 +2857,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		{
 			CHAR_DATA *l;
 			struct follow_type *f;
-			if (!AFF_FLAGGED(c, AFF_GROUP))
+			if (!AFF_FLAGGED(c, EAffectFlags::AFF_GROUP))
 				return;
 			l = c->master;
 			if (!l)

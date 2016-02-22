@@ -460,7 +460,7 @@ void CHAR_DATA::purge(bool destructor)
 int CHAR_DATA::get_skill(int skill_num) const
 {
 	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
-	if (AFF_FLAGGED(this, AFF_SKILLS_REDUCE))
+	if (AFF_FLAGGED(this, EAffectFlags::AFF_SKILLS_REDUCE))
 	{
 		skill -= skill * GET_POISON(this) / 100;
 	}
@@ -1689,7 +1689,7 @@ void CHAR_DATA::reset_morph()
 
 bool CHAR_DATA::is_morphed() const
 {
-	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, AFF_MORPH);
+	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, EAffectFlags::AFF_MORPH);
 };
 
 void CHAR_DATA::set_normal_morph()
@@ -1697,12 +1697,12 @@ void CHAR_DATA::set_normal_morph()
 	current_morph_ = GetNormalMorphNew(this);
 }
 
-bool CHAR_DATA::isAffected(long flag) const
+bool CHAR_DATA::isAffected(const EAffectFlags flag) const
 {
 	return current_morph_->isAffected(flag);
 }
 
-std::vector<long> CHAR_DATA::GetMorphAffects()
+const IMorph::affects_list_t& CHAR_DATA::GetMorphAffects()
 {
 	return current_morph_->GetAffects();
 }

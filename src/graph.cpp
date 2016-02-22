@@ -175,7 +175,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 {
 	int percent, dir;
 
-	if (AFF_FLAGGED(victim, AFF_NOTRACK) && (skill_no != SKILL_SENSE))
+	if (AFF_FLAGGED(victim, EAffectFlags::AFF_NOTRACK) && (skill_no != SKILL_SENSE))
 	{
 		return BFS_ERROR;
 	}
@@ -211,7 +211,7 @@ ACMD(do_sense)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_BLIND))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND))
 	{
 		send_to_char("Вы слепы как крот.\r\n", ch);
 		return;
@@ -235,7 +235,7 @@ ACMD(do_sense)
 	}
 
 	// We can't track the victim.
-//  if (AFF_FLAGGED(vict, AFF_NOTRACK))
+//  if (AFF_FLAGGED(vict, EAffectFlags::AFF_NOTRACK))
 //     {send_to_char("Вы не чувствуете его присутствия.\r\n", ch);
 //      return;
 //     }
@@ -313,7 +313,7 @@ ACMD(do_track)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_BLIND))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND))
 	{
 		send_to_char("Вы слепы как крот.\r\n", ch);
 		return;

@@ -1860,7 +1860,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	 * If you're not poisioned and you've been away for more than an hour of
 	 * real time, we'll set your HMV back to full
 	 */
-	if (!AFF_FLAGGED(this, AFF_POISON) && (((long)(time(0) - LAST_LOGON(this))) >= SECS_PER_REAL_HOUR))
+	if (!AFF_FLAGGED(this, EAffectFlags::AFF_POISON) && (((long)(time(0) - LAST_LOGON(this))) >= SECS_PER_REAL_HOUR))
 	{
 		GET_HIT(this) = GET_REAL_MAX_HIT(this);
 		GET_MOVE(this) = GET_REAL_MAX_MOVE(this);

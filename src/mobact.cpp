@@ -256,7 +256,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		if ((IS_NPC(vict) && !IS_SET(extmode, CHECK_OPPONENT) && !IS_CHARMICE(vict))
 				|| (IS_CHARMICE(vict) && !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
-				|| !MAY_SEE(ch, vict)
+				|| !MAY_SEE(ch, ch, vict)
 				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
 				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 			continue;
@@ -287,7 +287,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 			{
 				AFF_FLAGS(vict).unset(AFF_SNEAK);
 			}
-			if (AFF_FLAGGED(vict, AFF_SNEAK))
+			if (AFF_FLAGGED(vict, EAffectFlags::AFF_SNEAK))
 				continue;
 		}
 
@@ -331,9 +331,9 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 
 		if (IS_DEFAULTDARK(IN_ROOM(ch)) && ((GET_EQ(vict, ITEM_LIGHT)
 											 && GET_OBJ_VAL(GET_EQ(vict, ITEM_LIGHT), 2))
-											|| ((AFF_FLAGGED(vict, AFF_SINGLELIGHT)
-												 || AFF_FLAGGED(vict, AFF_HOLYLIGHT))
-												&& !AFF_FLAGGED(vict, AFF_HOLYDARK))) && (!use_light
+											|| ((AFF_FLAGGED(vict, EAffectFlags::AFF_SINGLELIGHT)
+												 || AFF_FLAGGED(vict, EAffectFlags::AFF_HOLYLIGHT))
+												&& !AFF_FLAGGED(vict, EAffectFlags::AFF_HOLYDARK))) && (!use_light
 														||
 														GET_REAL_CHA
 														(use_light) >
@@ -421,7 +421,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
 				|| (IS_CHARMICE(vict) && !vict->get_fighting() && find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
-				|| !MAY_SEE(ch, vict) // если не видим цель,
+				|| !MAY_SEE(ch, ch, vict) // если не видим цель,
 				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
 				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 			continue;
@@ -446,7 +446,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			{
 				AFF_FLAGS(vict).unset(AFF_SNEAK);
 			}
-			if (AFF_FLAGGED(vict, AFF_SNEAK))
+			if (AFF_FLAGGED(vict, EAffectFlags::AFF_SNEAK))
 				continue;
 		}
 
@@ -644,7 +644,7 @@ int perform_best_horde_attack(CHAR_DATA * ch, int extmode)
 
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
-		if (!IS_NPC(vict) || !MAY_SEE(ch, vict) || MOB_FLAGGED(vict, MOB_PROTECT))
+		if (!IS_NPC(vict) || !MAY_SEE(ch, ch, vict) || MOB_FLAGGED(vict, MOB_PROTECT))
 			continue;
 		if (!SAME_ALIGN(ch, vict))
 		{
@@ -694,7 +694,7 @@ int perform_mob_switch(CHAR_DATA * ch)
 void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 {
 	if (!ch || IN_ROOM(ch) == NOWHERE || !IS_NPC(ch)
-		|| !MAY_ATTACK(ch) || AFF_FLAGGED(ch, AFF_BLIND))
+		|| !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND))
 	{
 		return;
 	}
@@ -738,7 +738,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 			{
 				if (names->id == GET_IDNUM(vict))
 				{
-					if (!MAY_SEE(ch, vict) || !may_kill_here(ch, vict))
+					if (!MAY_SEE(ch, ch, vict) || !may_kill_here(ch, vict))
 					{
 						continue;
 					}
@@ -749,7 +749,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 						{
 							AFF_FLAGS(vict).unset(AFF_SNEAK);
 						}
-						if (AFF_FLAGGED(vict, AFF_SNEAK))
+						if (AFF_FLAGGED(vict, EAffectFlags::AFF_SNEAK))
 								continue;
 					}
 					skip_hiding(vict, ch);
@@ -1021,9 +1021,9 @@ void mobile_activity(int activity_level, int missed_pulses)
 		if (ch->get_fighting() ||
 				GET_POS(ch) <= POS_STUNNED ||
 				GET_WAIT(ch) > 0 ||
-				AFF_FLAGGED(ch, AFF_CHARM) ||
-				AFF_FLAGGED(ch, AFF_HOLD) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT) ||
-				AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_SLEEP))
+				AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) ||
+				AFF_FLAGGED(ch, EAffectFlags::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlags::AFF_MAGICSTOPFIGHT) ||
+				AFF_FLAGGED(ch, EAffectFlags::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlags::AFF_SLEEP))
 			continue;
 
 		if (IS_HORSE(ch))
@@ -1177,7 +1177,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		if (door == BFS_ERROR &&
 				MOB_FLAGGED(ch, MOB_HELPER) &&
 				!MOB_FLAGGED(ch, MOB_SENTINEL) &&
-				!AFF_FLAGGED(ch, AFF_BLIND) && !ch->master && GET_POS(ch) == POS_STANDING)
+				!AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND) && !ch->master && GET_POS(ch) == POS_STANDING)
 		{
 			for (found = FALSE, door = 0; door < NUM_OF_DIRS; door++)
 			{
@@ -1195,7 +1195,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 					for (first = world[rdata->to_room]->people, kw = 0;
 							first && kw < 25; first = first->next_in_room, kw++)
-						if (IS_NPC(first) && !AFF_FLAGGED(first, AFF_CHARM)
+						if (IS_NPC(first) && !AFF_FLAGGED(first, EAffectFlags::AFF_CHARM)
 								&& !IS_HORSE(first) && CAN_SEE(ch, first)
 								&& first->get_fighting() && SAME_ALIGN(ch, first))
 						{
@@ -1257,7 +1257,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		// *****************  Mob Memory
 		if (MOB_FLAGGED(ch, MOB_MEMORY) &&
-				MEMORY(ch) && GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch, AFF_BLIND) && !ch->get_fighting())
+				MEMORY(ch) && GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND) && !ch->get_fighting())
 		{
 			victim = NULL;
 			// Find memory in world
@@ -1306,7 +1306,7 @@ void remember(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (!IS_NPC(ch) ||
 			IS_NPC(victim) ||
-			PRF_FLAGGED(victim, PRF_NOHASSLE) || !MOB_FLAGGED(ch, MOB_MEMORY) || AFF_FLAGGED(ch, AFF_CHARM))
+			PRF_FLAGGED(victim, PRF_NOHASSLE) || !MOB_FLAGGED(ch, MOB_MEMORY) || AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		return;
 
 	for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
@@ -1341,7 +1341,7 @@ void forget(CHAR_DATA * ch, CHAR_DATA * victim)
 	memory_rec *curr, *prev = NULL;
 
 	// Момент спорный, но думаю, что так правильнее
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		return;
 
 	if (!(curr = MEMORY(ch)))

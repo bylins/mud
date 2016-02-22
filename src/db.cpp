@@ -5300,8 +5300,8 @@ void paste_mob(CHAR_DATA *ch, room_rnum room)
 	if (!IS_NPC(ch) || ch->get_fighting() || GET_POS(ch) < POS_STUNNED)
 		return;
 	if (IS_CHARMICE(ch)
-		|| AFF_FLAGGED(ch, AFF_HORSE)
-		|| AFF_FLAGGED(ch, AFF_HOLD)
+		|| AFF_FLAGGED(ch, EAffectFlags::AFF_HORSE)
+		|| AFF_FLAGGED(ch, EAffectFlags::AFF_HOLD)
 		|| (EXTRACT_TIMER(ch) > 0))
 	{
 		return;

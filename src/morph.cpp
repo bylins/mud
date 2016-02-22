@@ -170,23 +170,23 @@ void AnimalMorph::SetChar(CHAR_DATA *ch)
 	ch_=ch;
 };
 
-bool AnimalMorph::isAffected(long flag) const
+bool AnimalMorph::isAffected(const EAffectFlags flag) const
 {
 	return std::find(affects_.begin(), affects_.end(), flag) != affects_.end();
 }
 
-void AnimalMorph::AddAffect(long flag)
+void AnimalMorph::AddAffect(const EAffectFlags flag)
 {
 	if (std::find(affects_.begin(), affects_.end(), flag) == affects_.end())
 		affects_.push_back(flag);
 }
 
-std::vector<long> AnimalMorph::GetAffects()
+const AnimalMorph::affects_list_t& AnimalMorph::GetAffects()
 {
 	return affects_;
 }
 
-void AnimalMorph::SetAffects(std::vector<long> affs)
+void AnimalMorph::SetAffects(const affects_list_t& affs)
 {
 	affects_ = affs;
 }

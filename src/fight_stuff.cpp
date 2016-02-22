@@ -47,7 +47,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 	bool leader_partner = false;
 	int partner_feat = 0;
 	if (IS_NPC(killer)
-		&& (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (AFF_FLAGGED(killer, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
 		&& killer->master)
 	{
 		master = killer->master;
@@ -58,7 +58,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 	// На этот момент master - PC
 	if (master)
 	{
-		if (AFF_FLAGGED(master, AFF_GROUP))
+		if (AFF_FLAGGED(master, EAffectFlags::AFF_GROUP))
 		{
 			int cnt = 0;
 
@@ -202,7 +202,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 	if (IS_NPC(ch) && killer) // Убили моба
 	{
 		if (!IS_NPC(killer) // Убил загрупленный чар
-			&& AFF_FLAGGED(killer, AFF_GROUP)
+			&& AFF_FLAGGED(killer, EAffectFlags::AFF_GROUP)
 			&& killer->master
 			&& killer->master->get_skill(SKILL_LEADERSHIP) > 0
 			&& IN_ROOM(killer) == IN_ROOM(killer->master))
@@ -228,7 +228,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 	if (!IS_NPC(ch) // Член группы убит мобом
 		&& killer
 		&& IS_NPC(killer)
-		&& AFF_FLAGGED(ch, AFF_GROUP)
+		&& AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP)
 		&& ch->master
 		&& IN_ROOM(ch) == IN_ROOM(ch->master)
 		&& ch->master->get_inborn_skill(SKILL_LEADERSHIP) > 1)
@@ -375,8 +375,8 @@ int can_loot(CHAR_DATA * ch)
 	{
 		if (!IS_NPC(ch)
 			&& GET_MOB_HOLD(ch) == 0 // если под холдом
-			&& !AFF_FLAGGED(ch, AFF_STOPFIGHT) // парализован точкой
-			&& !AFF_FLAGGED(ch, AFF_BLIND)	// слеп
+			&& !AFF_FLAGGED(ch, EAffectFlags::AFF_STOPFIGHT) // парализован точкой
+			&& !AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND)	// слеп
 			&& (GET_POS(ch) >= POS_RESTING)) // мертв, умирает, без сознания, спит
 		{
 			return TRUE;
@@ -466,7 +466,7 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 	}
 	else if (IS_NPC(ch)
 		&& IS_NPC(killer)
-		&& (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (AFF_FLAGGED(killer, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
 		&& (corpse != NULL)
 		&& killer->master
 		&& killer->in_room == killer->master->in_room
@@ -479,7 +479,7 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 	else if (IS_NPC(ch)
 		&& IS_NPC(killer)
 		&& local_gold
-		&& (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (AFF_FLAGGED(killer, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
 		&& (corpse != NULL)
 		&& killer->master
 		&& killer->in_room == killer->master->in_room
@@ -814,7 +814,7 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 		k = ch;
 
 	// k - подозрение на лидера группы
-	leader_inroom = (AFF_FLAGGED(k, AFF_GROUP)
+	leader_inroom = (AFF_FLAGGED(k, EAffectFlags::AFF_GROUP)
 					 && (k->in_room == IN_ROOM(ch)));
 
 	// Количество согрупников в комнате
@@ -910,7 +910,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 	if (ch != victim
 		&& OK_GAIN_EXP(ch, victim)
 		&& GET_EXP(victim) > 0
-		&& !AFF_FLAGGED(victim, AFF_CHARM)
+		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_CHARM)
 		&& !MOB_FLAGGED(victim, MOB_ANGEL)
 		&& !IS_NPC(ch)
 		&& !MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP))
@@ -989,7 +989,7 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance)
 			pos = WEAR_HOLD;
 	}
 
-	if (pos <= 0 || pos > WEAR_BOTHS || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, AFF_SHIELD))
+	if (pos <= 0 || pos > WEAR_BOTHS || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffectFlags::AFF_SHIELD))
 		return; // Добавил: под "зб" не убивается стаф (Купала)
 	alterate_object(GET_EQ(ch, pos), dam, chance);
 }
@@ -1145,11 +1145,11 @@ void Damage::post_init_shields(CHAR_DATA *victim)
 {
 	if (IS_NPC(victim) && !IS_CHARMICE(victim))
 	{
-		if (AFF_FLAGGED(victim, AFF_FIRESHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_FIRESHIELD))
 			flags.set(VICTIM_FIRE_SHIELD);
-		if (AFF_FLAGGED(victim, AFF_ICESHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_ICESHIELD))
 			flags.set(VICTIM_ICE_SHIELD);
-		if (AFF_FLAGGED(victim, AFF_AIRSHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_AIRSHIELD))
 			flags.set(VICTIM_AIR_SHIELD);
 	}
 	else
@@ -1157,11 +1157,11 @@ void Damage::post_init_shields(CHAR_DATA *victim)
 		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
 		std::vector<int> shields;
 
-		if (AFF_FLAGGED(victim, AFF_FIRESHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_FIRESHIELD))
 			shields.push_back(FIRESHIELD);
-		if (AFF_FLAGGED(victim, AFF_AIRSHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_AIRSHIELD))
 			shields.push_back(AIRSHIELD);
-		if (AFF_FLAGGED(victim, AFF_ICESHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlags::AFF_ICESHIELD))
 			shields.push_back(ICESHIELD);
 
 		if (shields.empty())

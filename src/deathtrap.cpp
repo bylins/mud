@@ -234,7 +234,7 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 
 	if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH) && !IS_IMMORTAL(ch))
 		|| (real_sector(IN_ROOM(ch)) == SECT_FLYING && !IS_NPC(ch)
-			&& !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_FLY))
+			&& !IS_GOD(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_FLY))
 		|| (real_sector(IN_ROOM(ch)) == SECT_WATER_NOSWIM && !IS_NPC(ch)
 			&& !IS_GOD(ch) && !has_boat(ch)))
 	{
@@ -297,11 +297,11 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 	if (IN_ROOM(ch) != NOWHERE && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH) && !IS_IMMORTAL(ch)) ||
 				(real_sector(IN_ROOM(ch)) == SECT_FLYING && !IS_NPC(ch)
-				 && !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_FLY))
+				 && !IS_GOD(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_FLY))
 				|| (real_sector(IN_ROOM(ch)) == SECT_WATER_NOSWIM && !IS_NPC(ch)
 					&& !IS_GOD(ch) && !has_boat(ch))
 				/*|| (real_sector(IN_ROOM(ch)) == SECT_UNDERWATER && !IS_NPC(ch) //Тут надо закомментить.
-				&& !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_WATERBREATH))*/)
+				&& !IS_GOD(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_WATERBREATH))*/)
 		{
 			OBJ_DATA *corpse;
 			DeathTrap::log_death_trap(ch);

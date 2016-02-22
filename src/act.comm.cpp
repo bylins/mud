@@ -72,7 +72,8 @@ ACMD(do_say)
 	skip_spaces(&argument);
 	CHAR_DATA *to;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE)
+		|| AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -125,19 +126,12 @@ ACMD(do_gsay)
 	CHAR_DATA *k;
 	struct follow_type *f;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE)
+		|| AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
 	}
-
-	/* Непонятно нафига нужно
-	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
-	{
-		send_to_char(SOUNDPROOF, ch);
-		return;
-	}
-	*/
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
@@ -147,7 +141,7 @@ ACMD(do_gsay)
 
 	skip_spaces(&argument);
 
-	if (!AFF_FLAGGED(ch, AFF_GROUP))
+	if (!AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP))
 	{
 		send_to_char("Вы не являетесь членом группы!\r\n", ch);
 		return;
@@ -163,11 +157,11 @@ ACMD(do_gsay)
 
 		sprintf(buf, "$n сообщил$g группе : '%s'", argument);
 
-		if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && !ignores(k, ch, IGNORE_GROUP))
+		if (AFF_FLAGGED(k, EAffectFlags::AFF_GROUP) && (k != ch) && !ignores(k, ch, IGNORE_GROUP))
 		{
 			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
 			// added by WorM  групптелы 2010.10.13
-			if(!AFF_FLAGGED(k, AFF_DEAFNESS) && GET_POS(k) > POS_DEAD)
+			if(!AFF_FLAGGED(k, EAffectFlags::AFF_DEAFNESS) && GET_POS(k) > POS_DEAD)
 			{
 				sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, k) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, k), argument);
 				k->remember_add(buf1, Remember::ALL);
@@ -176,19 +170,23 @@ ACMD(do_gsay)
 			//end by WorM
 		}
 		for (f = k->followers; f; f = f->next)
-			if (AFF_FLAGGED(f->follower, AFF_GROUP) && (f->follower != ch) &&
-					!ignores(f->follower, ch, IGNORE_GROUP))
+		{
+			if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP)
+				&& (f->follower != ch)
+				&& !ignores(f->follower, ch, IGNORE_GROUP))
+			{
+				act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
+				// added by WorM  групптелы 2010.10.13
+				if (!AFF_FLAGGED(f->follower, EAffectFlags::AFF_DEAFNESS)
+					&& GET_POS(f->follower) > POS_DEAD)
 				{
-					act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
-					// added by WorM  групптелы 2010.10.13
-					if(!AFF_FLAGGED(f->follower, AFF_DEAFNESS) && GET_POS(f->follower) > POS_DEAD)
-					{
-						sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, f->follower), argument);
-						f->follower->remember_add(buf1, Remember::ALL);
-						f->follower->remember_add(buf1, Remember::GROUP);
-					}
-					//end by WorM
+					sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, f->follower), argument);
+					f->follower->remember_add(buf1, Remember::ALL);
+					f->follower->remember_add(buf1, Remember::GROUP);
 				}
+				//end by WorM
+			}
+		}
 
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
@@ -305,7 +303,7 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
 			  (PRF_FLAGGED(vict, PRF_NOTELL) || ignores(vict, ch, IGNORE_TELL))) ||
 			 ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
 		act("$N не сможет вас услышать.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
-	else if (GET_POS(vict) < POS_RESTING || AFF_FLAGGED(vict, AFF_DEAFNESS))
+	else if (GET_POS(vict) < POS_RESTING || AFF_FLAGGED(vict, EAffectFlags::AFF_DEAFNESS))
 		act("$N вас не услышит.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else
 		return (TRUE);
@@ -321,10 +319,10 @@ ACMD(do_tell)
 {
 	CHAR_DATA *vict = NULL;
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -366,7 +364,7 @@ ACMD(do_reply)
 	if (IS_NPC(ch))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -422,7 +420,7 @@ ACMD(do_spec_comm)
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
 	char vict3[MAX_INPUT_LENGTH];
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -712,10 +710,10 @@ ACMD(do_gen_comm)
 
 	// to keep pets, etc from being ordered to shout
 //  if (!ch->desc)
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -932,7 +930,7 @@ ACMD(do_mobshout)
 	// to keep pets, etc from being ordered to shout
 	if (!(IS_NPC(ch) || WAITLESS(ch)))
 		return;
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		return;
 
 	skip_spaces(&argument); //убираем пробел в начале сообщения

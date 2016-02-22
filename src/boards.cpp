@@ -587,7 +587,7 @@ ACMD(DoBoard)
 {
 	if (!ch->desc)
 		return;
-	if (AFF_FLAGGED(ch, AFF_BLIND))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND))
 	{
 		send_to_char("Вы ослеплены!\r\n", ch);
 		return;

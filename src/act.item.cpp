@@ -668,7 +668,7 @@ int other_pc_in_group(CHAR_DATA *ch)
 	CHAR_DATA *k = (ch->master ? ch->master : ch);
 	for (follow_type *f = k->followers; f; f = f->next)
 	{
-		if (AFF_FLAGGED(f->follower, AFF_GROUP)
+		if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP)
 			&& !IS_NPC(f->follower)
 			&& IN_ROOM(f->follower) == IN_ROOM(ch))
 		{
@@ -1722,14 +1722,14 @@ ACMD(do_eat)
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = 0;
 		af.location = APPLY_STR;
-		af.bitvector = AFF_POISON;
+		af.bitvector = to_underlying(EAffectFlags::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		af.type = SPELL_POISON;
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
-		af.bitvector = AFF_POISON;
+		af.bitvector = to_underlying(EAffectFlags::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		ch->Poisoner = 0;
@@ -1980,7 +1980,7 @@ ACMD(do_wear)
 
 	two_arguments(argument, arg1, arg2);
 
-	if (IS_NPC(ch) && (AFF_FLAGGED(ch, AFF_CHARM) && (!NPC_FLAGGED(ch, NPC_ARMORING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
+	if (IS_NPC(ch) && (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) && (!NPC_FLAGGED(ch, NPC_ARMORING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
 		return;
 
 	if (!*arg1)
@@ -2055,7 +2055,7 @@ ACMD(do_wield)
 	OBJ_DATA *obj;
 	int wear;
 
-	if (IS_NPC(ch) && (AFF_FLAGGED(ch, AFF_CHARM)&&(!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
+	if (IS_NPC(ch) && (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM)&&(!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
 		return;
 
 	if (ch->is_morphed())
@@ -2079,7 +2079,7 @@ ACMD(do_wield)
 			send_to_char("Вы не можете вооружиться этим.\r\n", ch);
 		else if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
 			send_to_char("Это не оружие.\r\n", ch);
-		else if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM) && MOB_FLAGGED(ch, MOB_CORPSE))
+		else if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) && MOB_FLAGGED(ch, MOB_CORPSE))
 			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
 		else
 		{
@@ -2165,7 +2165,7 @@ ACMD(do_grab)
 					return;
 				}
 			}
-			if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM) && MOB_FLAGGED(ch, MOB_CORPSE))
+			if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) && MOB_FLAGGED(ch, MOB_CORPSE))
 			{
 				send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
 				return;
@@ -2573,7 +2573,7 @@ ACMD(do_fire)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_BLIND))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND))
 	{
 		send_to_char("Вы ничего не видите!\r\n", ch);
 		return;
@@ -2660,7 +2660,7 @@ ACMD(do_extinguish)
         break;
     case 1:
 		AFFECT_DATA *aff = room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL);
-		if (aff && (AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
+		if (aff && (AFF_FLAGGED(ch, EAffectFlags::AFF_DETECT_MAGIC)
 				|| IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)))
         {
             send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
@@ -3155,7 +3155,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 
 	for (k = ch->master->followers; k; k = k->next)
 	{
-		if (AFF_FLAGGED(k->follower, AFF_CHARM)
+		if (AFF_FLAGGED(k->follower, EAffectFlags::AFF_CHARM)
 				&& k->follower->master == ch->master)
 		{
 			reformed_hp_summ += get_reformed_charmice_hp(ch->master, k->follower, SPELL_ANIMATE_DEAD);
@@ -3212,7 +3212,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	af.duration = MIN(max_charm_duration, (int)(mob_level * max_charm_duration / 30));
 	af.modifier = 0;
 	af.location = 0;
-	af.bitvector = AFF_CHARM;
+	af.bitvector = to_underlying(EAffectFlags::AFF_CHARM);
 	af.battleflag = 0;
 
 	affect_join_fspell(ch, &af);

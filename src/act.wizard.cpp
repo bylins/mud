@@ -1161,7 +1161,7 @@ ACMD(do_echo)
 		if (subcmd == SCMD_EMOTE)
 		{
 			// added by Pereplut
-			if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
+			if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 			{
 				if PLR_FLAGGED(ch->master, PLR_DUMB)
 				{
@@ -3774,7 +3774,7 @@ ACMD(do_restore)
 void perform_immort_vis(CHAR_DATA * ch)
 {
 	if (GET_INVIS_LEV(ch) == 0 &&
-			!AFF_FLAGGED(ch, AFF_HIDE) && !AFF_FLAGGED(ch, AFF_INVISIBLE) && !AFF_FLAGGED(ch, AFF_CAMOUFLAGE))
+			!AFF_FLAGGED(ch, EAffectFlags::AFF_HIDE) && !AFF_FLAGGED(ch, EAffectFlags::AFF_INVISIBLE) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CAMOUFLAGE))
 	{
 		send_to_char("Ну вот вас и заметили. Стало ли вам легче от этого?\r\n", ch);
 		return;

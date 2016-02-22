@@ -380,7 +380,7 @@ ACMD(do_drink)
 	}
 	//Конец изменений Adept'ом
 
-//	if ((GET_COND(ch, THIRST) > 0) && AFF_FLAGGED(ch, AFF_DRUNKED))  	// The pig is drunk
+//	if ((GET_COND(ch, THIRST) > 0) && AFF_FLAGGED(ch, EAffectFlags::AFF_DRUNKED))  	// The pig is drunk
 //	{
 //		send_to_char("Вы не смогли сделать и глотка.\r\n", ch);
 //		act("$n попытал$u выпить еще, но не смог$q сделать и глотка.", TRUE, ch, 0, 0, TO_ROOM);
@@ -390,7 +390,7 @@ ACMD(do_drink)
 	if (subcmd == SCMD_DRINK)
 	{
 		if (drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] > 0)
-			if (GET_DRUNK_STATE(ch)<MAX_COND_VALUE && !AFF_FLAGGED(ch, AFF_ABSTINENT))
+			if (GET_DRUNK_STATE(ch)<MAX_COND_VALUE && !AFF_FLAGGED(ch, EAffectFlags::AFF_ABSTINENT))
 				amount = 24 / drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK];
 			else
 				amount = 0;
@@ -432,7 +432,7 @@ ACMD(do_drink)
 
 
 	if ((GET_DRUNK_STATE(ch) < MAX_COND_VALUE && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
-		|| (GET_COND(ch, DRUNK) < CHAR_DRUNKED && !AFF_FLAGGED(ch, AFF_ABSTINENT)))
+		|| (GET_COND(ch, DRUNK) < CHAR_DRUNKED && !AFF_FLAGGED(ch, EAffectFlags::AFF_ABSTINENT)))
 	{
 		gain_condition(ch, DRUNK, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount) / 4);
 		GET_DRUNK_STATE(ch) = MAX(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
@@ -465,7 +465,7 @@ ACMD(do_drink)
 		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - CHAR_DRUNKED);
 		if (can_use_feat(ch, DRUNKARD_FEAT))
 			duration += duration/2;
-		if (!AFF_FLAGGED(ch, AFF_ABSTINENT)
+		if (!AFF_FLAGGED(ch, EAffectFlags::AFF_ABSTINENT)
 				&& GET_DRUNK_STATE(ch) < MAX_COND_VALUE
 					&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
 		{
@@ -548,13 +548,13 @@ ACMD(do_drunkoff)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_DRUNKED))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_DRUNKED))
 	{
 		send_to_char("Вы хотите испортить себе весь кураж?\r\n" "Это не есть по русски!\r\n", ch);
 		return;
 	}
 
-	if (!AFF_FLAGGED(ch, AFF_ABSTINENT) && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
+	if (!AFF_FLAGGED(ch, EAffectFlags::AFF_ABSTINENT) && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
 	{
 		send_to_char("Не стоит делать этого на трезвую голову.\r\n", ch);
 		return;

@@ -2201,7 +2201,7 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj)
 				return (TRUE);
 	if (!ch ||
 			!obj ||
-			(IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) ||
+			(IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM)) ||
 			IS_IMMORTAL(ch) || obj->obj_flags.Obj_owner == 0 || obj->obj_flags.Obj_owner == GET_UNIQUE(ch))
 		return (FALSE);
 	return (TRUE);
@@ -2214,7 +2214,7 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		for (object = obj->contains; object; object = object->next_content)
 			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0))
 				return (TRUE);
-	if (IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE) && AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE) && AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		return (TRUE);
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
 		return (FALSE);
@@ -2253,7 +2253,7 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
-	if (IS_OBJ_NO(obj, ITEM_NO_CHARMICE) && AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_OBJ_NO(obj, ITEM_NO_CHARMICE) && AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		return (TRUE);
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
 		return (FALSE);

@@ -33,6 +33,8 @@ typedef map<int, int> MorphSkillsList;
 
 class IMorph {
 public:
+	typedef std::vector<EAffectFlags> affects_list_t;
+
 	IMorph() {};
 	virtual ~IMorph() {};
 	virtual string Name()=0;
@@ -44,11 +46,10 @@ public:
 	virtual void SetAbilsParams(short toStr, short toDex, short toCon, short toInt, short toCha) {};
 	virtual void SetChar(CHAR_DATA *ch) {};
 	virtual string CoverDesc() {return "";};
-	virtual bool isAffected(long flag) const {return false;}
-	virtual std::vector<long> GetAffects() {return std::vector<long>();}
+	virtual bool isAffected(const EAffectFlags flag) const {return false;}
+	virtual const affects_list_t& GetAffects() {return affects_list_t();}
 	virtual string GetMessageToRoom() {return string();};
 	virtual string GetMessageToChar() {return string();};
-
 
 	virtual int GetStr() const =0;
 	virtual void SetStr(int str)=0;
@@ -63,10 +64,8 @@ public:
 	virtual int GetCon() const =0;
 	virtual void SetCon(int con)=0;
 
-
 	virtual void set_skill(int skill_num, int percent)=0;
 	virtual int get_trained_skill(int skill_num)=0;
-
 };
 
 
@@ -125,7 +124,7 @@ class AnimalMorph : public IMorph
 	int dex_;
 	int cha_;
 	int con_;
-	std::vector<long> affects_;
+	std::vector<EAffectFlags> affects_;
 	string messageToRoom_, messageToChar_;
 
 public:
@@ -157,10 +156,10 @@ public:
 		toCha_ = toCha;
 		toInt_ = toInt;
 	};
-	bool isAffected(long flag) const;
-	void AddAffect(long flag);
-	std::vector<long> GetAffects();
-	void SetAffects(std::vector<long>);
+	bool isAffected(const EAffectFlags flag) const;
+	void AddAffect(const EAffectFlags flag);
+	const affects_list_t& GetAffects();
+	void SetAffects(const affects_list_t&);
 	void SetMessages(string toRoom, string toChar) {
 		messageToRoom_ = toRoom;
 		messageToChar_ = toChar;

@@ -288,7 +288,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	}
 
 	// Singlelight affect
-	if (AFF_FLAGGED(ch, AFF_SINGLELIGHT))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SINGLELIGHT))
 	{
 		if (was_single == LIGHT_NO)
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light + koef);
@@ -300,7 +300,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	}
 
 	// Holylight affect
-	if (AFF_FLAGGED(ch, AFF_HOLYLIGHT))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYLIGHT))
 	{
 		if (was_holylight == LIGHT_NO)
 			world[ch->in_room]->glight = MAX(0, world[ch->in_room]->glight + koef);
@@ -318,7 +318,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	}*/
 
 	// Holydark affect
-	if (AFF_FLAGGED(ch, AFF_HOLYDARK))  	// if (IS_IMMORTAL(ch))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYDARK))  	// if (IS_IMMORTAL(ch))
 	{
 		/*if (IS_IMMORTAL(ch))
 			send_to_char("HOLYDARK ON\r\n",ch);*/
@@ -732,7 +732,7 @@ void affect_total(CHAR_DATA * ch)
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
 		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
-		if (!AFF_FLAGGED(ch, AFF_NOOB_REGEN))
+		if (!AFF_FLAGGED(ch, EAffectFlags::AFF_NOOB_REGEN))
 		{
 			GET_HITREG(ch) += ((int) GET_LEVEL(ch) + 4) / 5 * 10;
 		}
@@ -873,9 +873,9 @@ void affect_to_room(ROOM_DATA * room, AFFECT_DATA * af)
    Automatically sets apropriate bits and apply's */
 void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * af)
 {
-	long was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-				   was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-							  was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
+	long was_lgt = AFF_FLAGGED(ch, EAffectFlags::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
+				   was_hlgt = AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
+							  was_hdrk = AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
 	AFFECT_DATA *affected_alloc;
 
 	CREATE(affected_alloc, 1);
@@ -899,9 +899,9 @@ void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * af)
 
 void affect_remove(CHAR_DATA * ch, AFFECT_DATA * af)
 {
-	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-				  was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-							 was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
+	int was_lgt = AFF_FLAGGED(ch, EAffectFlags::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
+				  was_hlgt = AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
+							 was_hdrk = AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
 
 	AFFECT_DATA *temp;
 
@@ -1260,7 +1260,7 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 	if (affect_on_room)
 	{
 		CHAR_DATA *caster = find_char(affect_on_room->caster_id);
-		if (!same_group(ch, caster) && !AFF_FLAGGED(ch, AFF_BLIND) && (number(1,100) <= 30)) // 30% шанс что враг уснет
+		if (!same_group(ch, caster) && !AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND) && (number(1,100) <= 30)) // 30% шанс что враг уснет
 		{
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
@@ -1620,7 +1620,7 @@ int apply_ac(CHAR_DATA * ch, int eq_pos)
 		break;		// all others 10% //
 	}
 
-	if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		factor *= MOB_AC_MULT;
 
 	return (factor * GET_OBJ_VAL(GET_EQ(ch, eq_pos), 0));
@@ -1657,7 +1657,7 @@ int apply_armour(CHAR_DATA * ch, int eq_pos)
 		break;		// all others 10% //
 	}
 
-	if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		factor *= MOB_ARMOUR_MULT;
 
 	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
@@ -1739,7 +1739,7 @@ void wear_message(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	};
 
 	act(wear_messages[where][1], FALSE, ch, obj, 0, TO_CHAR);
-	act(wear_messages[where][0], IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+	act(wear_messages[where][0], IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) ? FALSE : TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 }
 
 int flag_data_by_char_class(const CHAR_DATA * ch)
@@ -1804,7 +1804,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 					{
 						act(act_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
 						act(act_msg.erase(0, delim + 1).c_str(),
-							IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE,
+							IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) ? FALSE : TRUE,
 							ch, GET_EQ(ch, pos), 0, TO_ROOM);
 					}
 
@@ -1898,9 +1898,9 @@ bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
 // 0x100 - show wear and activation messages
 void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 {
-	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-				  was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-							 was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO,
+	int was_lgt = AFF_FLAGGED(ch, EAffectFlags::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
+				  was_hlgt = AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
+							 was_hdrk = AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO,
 										was_lamp = FALSE;
 	int j, show_msg = IS_SET(pos, 0x100), skip_total = IS_SET(pos, 0x80),
 					  no_cast = IS_SET(pos, 0x40);
@@ -1948,7 +1948,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	if ((!IS_NPC(ch) && invalid_align(ch, obj))
 		|| invalid_no_class(ch, obj)
-		|| (AFF_FLAGGED(ch, AFF_CHARM)
+		|| (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM)
 			&& (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SHARPEN)
 				|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_ARMORED))))
 	{
@@ -2115,7 +2115,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 							{
 								act(act_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
 								act(act_msg.erase(0, delim + 1).c_str(),
-									IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE,
+									IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) ? FALSE : TRUE,
 									ch, GET_EQ(ch, pos), 0, TO_ROOM);
 							}
 
@@ -2156,7 +2156,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 					{
 						act(deact_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
 						act(deact_msg.erase(0, delim + 1).c_str(),
-							IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE,
+							IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) ? FALSE : TRUE,
 							ch, GET_EQ(ch, pos), 0, TO_ROOM);
 					}
 
@@ -2209,9 +2209,9 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 //  0x80 - no total affect update
 OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 {
-	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-				  was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-							 was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
+	int was_lgt = AFF_FLAGGED(ch, EAffectFlags::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
+				  was_hlgt = AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
+							 was_hdrk = AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
 
 	int j, skip_total = IS_SET(pos, 0x80), show_msg = IS_SET(pos, 0x40);
 
@@ -2934,7 +2934,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		ExtMoney::drop_torc(ch);
 	}
 
-	if (!IS_NPC(ch) && !ch->master && ch->followers && AFF_FLAGGED(ch, AFF_GROUP))
+	if (!IS_NPC(ch) && !ch->master && ch->followers && AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP))
 	{
 		log("[Extract char] Change group leader");
 		change_leader(ch, 0);
@@ -3994,7 +3994,7 @@ float get_damage_per_round(CHAR_DATA * victim)
 {
 	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
 			+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
-			+ (AFF_FLAGGED(victim, AFF_CLOUD_OF_ARROWS) ? 14 : 0);
+			+ (AFF_FLAGGED(victim, EAffectFlags::AFF_CLOUD_OF_ARROWS) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.ExtraAttack
 			+ (victim->get_skill(SKILL_ADDSHOT) ? 2 : 0);
 
@@ -4325,7 +4325,7 @@ int equip_in_metall(CHAR_DATA * ch)
 {
 	int i, wgt = 0;
 
-	if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		return (FALSE);
 	if (IS_GOD(ch))
 		return (FALSE);
@@ -4348,14 +4348,14 @@ int equip_in_metall(CHAR_DATA * ch)
 
 int awake_others(CHAR_DATA * ch)
 {
-	if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		return (FALSE);
 
 	if (IS_GOD(ch))
 		return (FALSE);
 
-	if (AFF_FLAGGED(ch, AFF_STAIRS) ||
-			AFF_FLAGGED(ch, AFF_SANCTUARY) || AFF_FLAGGED(ch, AFF_SINGLELIGHT) || AFF_FLAGGED(ch, AFF_HOLYLIGHT))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_STAIRS) ||
+			AFF_FLAGGED(ch, EAffectFlags::AFF_SANCTUARY) || AFF_FLAGGED(ch, EAffectFlags::AFF_SINGLELIGHT) || AFF_FLAGGED(ch, EAffectFlags::AFF_HOLYLIGHT))
 		return (TRUE);
 
 	return (FALSE);

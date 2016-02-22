@@ -234,7 +234,7 @@ void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 			thousands_sep(abs(lost_exp_)).c_str(), balance >= 0 ? "+" : "-",
 			thousands_sep(abs(balance)).c_str());
 
-	if (AFF_FLAGGED(ch, AFF_GROUP))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP))
 	{
 		tmp_total_dmg = 0;
 		CHAR_DATA *leader = ch->master ? ch->master : ch;
@@ -467,7 +467,7 @@ void check_round(CHAR_DATA *ch)
 	if (!IS_NPC(ch))
 	{
 		ch->dps_end_round(DpsSystem::PERS_DPS);
-		if (AFF_FLAGGED(ch, AFF_GROUP))
+		if (AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP))
 		{
 			CHAR_DATA *leader = ch->master ? ch->master : ch;
 			leader->dps_end_round(DpsSystem::GROUP_DPS, ch);
@@ -525,7 +525,7 @@ ACMD(do_dmeter)
 		}
 		else if (isname(name, "группа"))
 		{
-			if (!AFF_FLAGGED(ch, AFF_GROUP))
+			if (!AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP))
 			{
 				send_to_char("Вы не состоите в группе.\r\n", ch);
 				return;

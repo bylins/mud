@@ -382,10 +382,9 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define OBJWEAR_FLAGGED(obj, flag)   (IS_SET((obj)->obj_flags.wear_flags, (flag)))
 #define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
-#define IS_FLY(ch)                   (AFF_FLAGGED(ch,AFF_FLY))
 
 // IS_AFFECTED for backwards compatibility
-#define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, skill))
+#define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, EAffectFlags::skill))
 
 #define PLR_TOG_CHK(ch, flag) (PLR_FLAGS(ch).toggle(flag))
 #define PRF_TOG_CHK(ch, flag) (PRF_FLAGS(ch).toggle(flag))
@@ -652,7 +651,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 
 #define GET_COND(ch, i)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.conditions[(i)]))
 #define GET_LOADROOM(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.load_room))
-#define GET_INVIS_LEV(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.invis_level))
 #define GET_WIMP_LEV(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.wimp_level))
 #define GET_BAD_PWS(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.bad_pws))
 #define POOFIN(ch)              CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->poofin))
@@ -744,9 +742,8 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define GET_HORSESTATE(ch)  ((ch)->mob_specials.HorseState)
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
-#define AWAKE(ch) (GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch,AFF_SLEEP))
 #define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, AFF_INFRAVISION) || (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+   (AFF_FLAGGED(ch, EAffectFlags::AFF_INFRAVISION) || (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 
 #define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= ALIG_GOOD_MORE)
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= ALIG_EVIL_LESS)
@@ -898,7 +895,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
 #define GET_WAIT(ch)          (ch)->get_wait()
 #define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
-#define GET_MOB_HOLD(ch)      (AFF_FLAGGED((ch),AFF_HOLD) ? 1 : 0)
 #define GET_MOB_SIELENCE(ch)  (AFF_FLAGGED((ch),AFF_SIELENCE) ? 1 : 0)
 // New, preferred macro
 #define GET_PUNCTUAL_WAIT_STATE(ch)    ((ch)->punctual_wait)
@@ -1017,57 +1013,16 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define OMHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ей" : "им")) :"ему")
 #define OYOU(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
 
-// Various macros building up to CAN_SEE
-#define MAY_SEE(sub,obj) (!(GET_INVIS_LEV(ch) > 30) && !AFF_FLAGGED((sub),AFF_BLIND) && \
-                          (!IS_DARK(IN_ROOM(sub)) || AFF_FLAGGED((sub),AFF_INFRAVISION)) && \
-           (!AFF_FLAGGED((obj),AFF_INVISIBLE) || AFF_FLAGGED((sub),AFF_DETECT_INVIS)))
-
-#define MAY_ATTACK(sub)  (!AFF_FLAGGED((sub),AFF_CHARM)     && \
-                          !IS_HORSE((sub))                  && \
-           !AFF_FLAGGED((sub),AFF_STOPFIGHT)      && \
-           !AFF_FLAGGED((sub),AFF_MAGICSTOPFIGHT) && \
-           !AFF_FLAGGED((sub),AFF_HOLD)           && \
-           !AFF_FLAGGED((sub),AFF_SLEEP)          && \
-           !MOB_FLAGGED((sub),MOB_NOFIGHT)        && \
-           GET_WAIT(sub) <= 0                     && \
-           !sub->get_fighting()                   && \
-           GET_POS(sub) >= POS_RESTING)
 // Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
 //пока здесь только чарм, как и было раньше
 #define CAN_START_MTRIG(ch) (!AFF_FLAGGED((ch),AFF_CHARM))
 //-Polud
-#define LIGHT_OK(sub)   (!AFF_FLAGGED(sub, AFF_BLIND) && \
+#define LIGHT_OK(sub)   (!AFF_FLAGGED(sub, EAffectFlags::AFF_BLIND) && \
    (IS_LIGHT((sub)->in_room) || AFF_FLAGGED((sub), AFF_INFRAVISION)))
-
-#define INVIS_OK(sub, obj) \
- (!AFF_FLAGGED((sub), AFF_BLIND) && \
-  ((!AFF_FLAGGED((obj),AFF_INVISIBLE) || \
-    AFF_FLAGGED((sub),AFF_DETECT_INVIS) \
-   ) && \
-   ((!AFF_FLAGGED((obj), AFF_HIDE) && !AFF_FLAGGED((obj), AFF_CAMOUFLAGE)) || \
-    AFF_FLAGGED((sub), AFF_SENSE_LIFE) \
-   ) \
-  ) \
- )
 
 #define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || RENTABLE(ch)))
 
-#define MORT_CAN_SEE(sub, obj) (HERE(obj) && \
-                                INVIS_OK(sub,obj) && \
-                                (IS_LIGHT((obj)->in_room) || \
-                                 AFF_FLAGGED((sub), AFF_INFRAVISION) \
-                                ) \
-                               )
-
-#define IMM_CAN_SEE(sub, obj) \
-   (MORT_CAN_SEE(sub, obj) || (!IS_NPC(sub) && PRF_FLAGGED(sub, PRF_HOLYLIGHT)))
-
 #define SELF(sub, obj)  ((sub) == (obj))
-
-// Can subject see character "obj"?
-#define CAN_SEE(sub, obj) (SELF(sub, obj) || \
-   ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
-    IMM_CAN_SEE(sub, obj)))
 
 // Can subject see character "obj" without light
 #define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && \
@@ -1160,8 +1115,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define IS_NECROMANCER(ch) (!IS_NPC(ch) && \
             ((int) GET_CLASS(ch) == CLASS_NECROMANCER))
 
-#define IS_CHARMICE(ch)    (IS_NPC(ch) && (AFF_FLAGGED(ch,AFF_HELPER) || AFF_FLAGGED(ch,AFF_CHARM)))
-
 #define IS_UNDEAD(ch) (IS_NPC(ch) && \
 	(MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE)))
 
@@ -1178,9 +1131,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
                        (IS_DRUID(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
-#define IS_HORSE(ch) (IS_NPC(ch) && (ch->master) && AFF_FLAGGED(ch, AFF_HORSE))
-
-
 
 int on_horse(CHAR_DATA * ch);
 int has_horse(CHAR_DATA * ch, int same_room);

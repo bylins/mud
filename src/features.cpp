@@ -891,7 +891,7 @@ void check_berserk(CHAR_DATA * ch)
 	}
 //!IS_NPC(ch) &&
 	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
-			!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, AFF_BERSERK) &&
+			!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlags::AFF_BERSERK) &&
 			(GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
 	{
 
@@ -1120,10 +1120,10 @@ ACMD(do_spell_capable)
 	char *s;
 	int spellnum;
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
 	{
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
@@ -1321,7 +1321,7 @@ ACMD(do_relocate)
 			return;
 		}
 		// Нельзя перемещаться после того, как попал под заклинание "приковать противника".
-		if (AFF_FLAGGED(ch, AFF_NOTELEPORT))
+		if (AFF_FLAGGED(ch, EAffectFlags::AFF_NOTELEPORT))
 		{
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;

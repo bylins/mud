@@ -384,7 +384,7 @@ void pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
-	if (!AFF_FLAGGED(victim, AFF_GROUP))
+	if (!AFF_FLAGGED(victim, EAffectFlags::AFF_GROUP))
 	{
 		// нападение на одиночку
 		pk_increment_kill(agressor, victim, TRUE, false);
@@ -398,7 +398,7 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 		leader = victim->master ? victim->master : victim;
 
-		if (AFF_FLAGGED(leader, AFF_GROUP) &&
+		if (AFF_FLAGGED(leader, EAffectFlags::AFF_GROUP) &&
 				IN_ROOM(leader) == IN_ROOM(victim) && pk_action_type(agressor, leader) > PK_ACTION_FIGHT)
 			pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
 
@@ -966,7 +966,7 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)))
 	{
 		// Один из участников в мирной комнате
-		if (MOB_FLAGGED(victim, MOB_HORDE) || (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !AFF_FLAGGED(ch, AFF_CHARM)))
+		if (MOB_FLAGGED(victim, MOB_HORDE) || (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM)))
 		{
 			return TRUE;
 		}

@@ -4792,8 +4792,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		if (ch
 			&& SENDOK(ch)
 			&& IN_ROOM(ch) != NOWHERE
-			&& (!check_deaf || !AFF_FLAGGED(ch, AFF_DEAFNESS))
-			&& (!check_nodeaf || AFF_FLAGGED(ch, AFF_DEAFNESS))
+			&& (!check_deaf || !AFF_FLAGGED(ch, EAffectFlags::AFF_DEAFNESS))
+			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffectFlags::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)))
 		{
@@ -4807,8 +4807,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		if ((to = (CHAR_DATA *) vict_obj) != NULL
 			&& SENDOK(to)
 			&& IN_ROOM(to) != NOWHERE
-			&& (!check_deaf || !AFF_FLAGGED(to, AFF_DEAFNESS))
-			&& (!check_nodeaf || AFF_FLAGGED(to, AFF_DEAFNESS))
+			&& (!check_deaf || !AFF_FLAGGED(to, EAffectFlags::AFF_DEAFNESS))
+			&& (!check_nodeaf || AFF_FLAGGED(to, EAffectFlags::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS)))
 		{
@@ -4843,15 +4843,15 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 			//надо отдельно PRF_DEAF
 			//if (!IS_NPC(to) && check_deaf && PRF_FLAGGED(to, PRF_NOTELL))
 			//	continue;
-			if (check_deaf && AFF_FLAGGED(to, AFF_DEAFNESS))
+			if (check_deaf && AFF_FLAGGED(to, EAffectFlags::AFF_DEAFNESS))
 				continue;
-			if (check_nodeaf && !AFF_FLAGGED(to, AFF_DEAFNESS))
+			if (check_nodeaf && !AFF_FLAGGED(to, EAffectFlags::AFF_DEAFNESS))
 				continue;
 			if (to_brief_shields && !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 				continue;
 			if (to_no_brief_shields && PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 				continue;
-			if (type == TO_ROOM_HIDE && !AFF_FLAGGED(to, AFF_SENSE_LIFE) && (IS_NPC(to) || !PRF_FLAGGED(to, PRF_HOLYLIGHT)))
+			if (type == TO_ROOM_HIDE && !AFF_FLAGGED(to, EAffectFlags::AFF_SENSE_LIFE) && (IS_NPC(to) || !PRF_FLAGGED(to, PRF_HOLYLIGHT)))
 				continue;
 			if (type == TO_ROOM_HIDE && PRF_FLAGGED(to, PRF_HOLYLIGHT))
 			{

@@ -203,7 +203,7 @@ int mana_gain(CHAR_DATA * ch)
 	if (world[IN_ROOM(ch)]->fires)
 		percent += MAX(100, 10 + (world[IN_ROOM(ch)]->fires * 5) * 2);
 
-	if (AFF_FLAGGED(ch, AFF_DEAFNESS))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_DEAFNESS))
 		percent += 15;
 
 	// Skill/Spell calculations
@@ -241,9 +241,9 @@ int mana_gain(CHAR_DATA * ch)
 		}
 
 	if (!IS_MANA_CASTER(ch) &&
-			(AFF_FLAGGED(ch, AFF_HOLD) ||
-			 AFF_FLAGGED(ch, AFF_BLIND) ||
-			 AFF_FLAGGED(ch, AFF_SLEEP) ||
+			(AFF_FLAGGED(ch, EAffectFlags::AFF_HOLD) ||
+			 AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND) ||
+			 AFF_FLAGGED(ch, EAffectFlags::AFF_SLEEP) ||
 			 ((IN_ROOM(ch) != NOWHERE) && IS_DARK(IN_ROOM(ch)) && !can_use_feat(ch, DARK_READING_FEAT))))
 	{
 		stopmem = TRUE;
@@ -261,7 +261,7 @@ int mana_gain(CHAR_DATA * ch)
 
 	if (!IS_MANA_CASTER(ch))
 		percent += GET_MANAREG(ch);
-	if (AFF_FLAGGED(ch, AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_POISON) && percent > 0)
 		percent /= 4;
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
@@ -281,7 +281,7 @@ int hit_gain(CHAR_DATA * ch)
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
 
-		if (!AFF_FLAGGED(ch, AFF_NOOB_REGEN))
+		if (!AFF_FLAGGED(ch, EAffectFlags::AFF_NOOB_REGEN))
 		{
 			gain = graf(age(ch)->year, restore - 3, restore, restore, restore - 2,
 				restore - 3, restore - 5, restore - 7);
@@ -333,7 +333,7 @@ int hit_gain(CHAR_DATA * ch)
 	percent += GET_HITREG(ch);
 
 	// TODO: перевоткнуть на apply_аффект
-	if (AFF_FLAGGED(ch, AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_POISON) && percent > 0)
 		percent /= 4;
 
 	percent = MAX(0, MIN(250, percent));
@@ -407,7 +407,7 @@ int move_gain(CHAR_DATA * ch)
 	}
 
 	percent += GET_MOVEREG(ch);
-	if (AFF_FLAGGED(ch, AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_POISON) && percent > 0)
 		percent /= 4;
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
@@ -714,7 +714,7 @@ void beat_points_update(int pulse)
 		restore = hit_gain(i);
 		restore = interpolate(restore, pulse);
 
-		if (AFF_FLAGGED(i, AFF_BANDAGE))
+		if (AFF_FLAGGED(i, EAffectFlags::AFF_BANDAGE))
 		{
 			AFFECT_DATA* aff;
 			for(aff = i->affected; aff; aff = aff->next)
@@ -742,7 +742,7 @@ void beat_points_update(int pulse)
 			restore = interpolate(restore, pulse);
 			GET_MEM_COMPLETED(i) += restore;
 
-	if (AFF_FLAGGED(i, AFF_RECALL_SPELLS))
+	if (AFF_FLAGGED(i, EAffectFlags::AFF_RECALL_SPELLS))
 		handle_recall_spells(i);
 
 			while (GET_MEM_COMPLETED(i) > GET_MEM_CURRENT(i)
@@ -1706,7 +1706,7 @@ void point_update(void)
 		next_char = i->get_next();
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		   то он снова должен валиться в сон */
-		if (AFF_FLAGGED(i, AFF_SLEEP) && GET_POS(i) > POS_SLEEPING)
+		if (AFF_FLAGGED(i, EAffectFlags::AFF_SLEEP) && GET_POS(i) > POS_SLEEPING)
 		{
 			GET_POS(i) = POS_SLEEPING;
 			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
