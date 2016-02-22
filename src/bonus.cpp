@@ -112,27 +112,27 @@ namespace Bonus
 		std::stringstream ss;
 		if (time_bonus > 4)
 		{
-			ss << "&WäÏ ËÏÎÃÁ ÂÏÎÕÓÁ ÏÓÔÁÌÏÓØ " << time_bonus <<" ŞÁÓÏ×.&n\r\n";
+			ss << "&WäÏ ËÏÎÃÁ ÂÏÎÕÓÁ ÏÓÔÁÌÏÓØ " << time_bonus <<" ŞÁÓÏ×.&n";
 		}
 		else if (time_bonus == 4)
 		{
-			ss << "&WäÏ ËÏÎÃÁ ÂÏÎÕÓÁ ÏÓÔÁÌÏÓØ ŞÅÔÙÒÅ ŞÁÓÁ.&n\r\n";
+			ss << "&WäÏ ËÏÎÃÁ ÂÏÎÕÓÁ ÏÓÔÁÌÏÓØ ŞÅÔÙÒÅ ŞÁÓÁ.&n";
 		}
 		else if (time_bonus == 3)
 		{
-			ss << "&WäÏ ËÏÎÃÁ ÂÏÎÕÓÁ ÏÓÔÁÌÏÓØ ÔÒÉ ŞÁÓÁ.&n\r\n";
+			ss << "&WäÏ ËÏÎÃÁ ÂÏÎÕÓÁ ÏÓÔÁÌÏÓØ ÔÒÉ ŞÁÓÁ.&n";
 		}
 		else if (time_bonus == 2)
 		{
-			ss << "&WäÏ ËÏÎÃÁ ÂÏÎÕÓÁ ÏÓÔÁÌÏÓØ Ä×Á ŞÁÓÁ.&n\r\n";
+			ss << "&WäÏ ËÏÎÃÁ ÂÏÎÕÓÁ ÏÓÔÁÌÏÓØ Ä×Á ŞÁÓÁ.&n";
 		}
 		else if (time_bonus == 1)
 		{
-			ss << "&WäÏ ËÏÎÃÁ ÂÏÎÕÓÁ ÏÓÔÁÌÓÑ ĞÏÓÌÅÄÎÉÊ ŞÁÓ!&n\r\n";
+			ss << "&WäÏ ËÏÎÃÁ ÂÏÎÕÓÁ ÏÓÔÁÌÓÑ ĞÏÓÌÅÄÎÉÊ ŞÁÓ!&n";
 		}
 		else
 		{
-			ss << "&WâÏÎÕÓÁ ÎÅÔ.&n\r\n";
+			ss << "&WâÏÎÕÓÁ ÎÅÔ.&n";
 		}
 		return ss.str();
 	}
@@ -164,7 +164,8 @@ namespace Bonus
 			time_bonus = -1;
 			return;
 		}
-		send_to_all(bonus_end().c_str());
+		std::string bonus_str = bonus_end() + "\r\n";
+		send_to_all(bonus_str.c_str());
 	}
 
 	// ĞÒÏ×ÅÒËÁ ÎÁ ÔÉĞ ÂÏÎÕÓÁ
