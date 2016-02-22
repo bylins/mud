@@ -713,10 +713,7 @@ void affect_total(CHAR_DATA * ch)
 	{
 		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_CLASSES)
 		{
-			const class_app_type::extra_affects_list_t* extra_affect = class_app[(int) GET_CLASS(ch)].extra_affects;
-
-			class_app_type::extra_affects_list_t::const_iterator i = extra_affect->begin();
-			for (; i != extra_affect->end(); ++i)
+			for (auto i : *class_app[(int)GET_CLASS(ch)].extra_affects)
 			{
 				affect_modify(ch, APPLY_NONE, 0, to_underlying(i->affect), i->set_or_clear ? true : false);
 			}

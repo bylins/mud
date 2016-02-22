@@ -5555,31 +5555,27 @@ ACMD(do_commands)
 	send_to_char(buf, ch);
 }
 
-int hiding[] = { AFF_SNEAK,
-				 AFF_HIDE,
-				 AFF_CAMOUFLAGE,
-				 0
-			   };
+std::array<EAffectFlags, 3> hiding = { EAffectFlags::AFF_SNEAK, EAffectFlags::AFF_HIDE, EAffectFlags::AFF_CAMOUFLAGE };
 
 ACMD(do_affects)
 {
 	AFFECT_DATA *aff;
 	FLAG_DATA saved;
-	int i, j;
 	char sp_name[MAX_STRING_LENGTH];
 
 	// Showing the bitvector
 	saved = ch->char_specials.saved.affected_by;
-	for (i = 0; (j = hiding[i]); i++)
+	for (EAffectFlags j : hiding)
 	{
 		AFF_FLAGS(ch).unset(j);
 	}
 	ch->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-	for (i = 0; (j = hiding[i]); i++)
+	for (EAffectFlags j : hiding)
 	{
-		if (IS_SET(GET_FLAG(saved, j), j))
+		const uint32_t i = to_underlying(j);
+		if (IS_SET(GET_FLAG(saved, i), i))
 		{
 			AFF_FLAGS(ch).set(j);
 		}
@@ -5652,13 +5648,15 @@ ACMD(do_affects)
 	{
 		*buf2 = '\0';
 		send_to_char("Автоаффекты звериной формы: " , ch);
-		std::vector<long> affs = ch->GetMorphAffects();
-		for (std::vector<long>::const_iterator it = affs.begin();it!=affs.end();)
+		const IMorph::affects_list_t& affs = ch->GetMorphAffects();
+		for (IMorph::affects_list_t::const_iterator it = affs.begin(); it != affs.end();)
 		{
-			sprintbit(*it, affected_bits, buf2);
+			sprintbit(to_underlying(*it), affected_bits, buf2);
 			send_to_char(string(CCIYEL(ch, C_NRM))+ string(buf2)+ string(CCNRM(ch, C_NRM)), ch);
 			if (++it != affs.end())
+			{
 				send_to_char(", ", ch);
+			}
 		}
 	}
 }

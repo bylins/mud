@@ -1931,8 +1931,7 @@ struct weapon_affect_types
 {
 	int
 	aff_pos;
-	int
-	aff_bitvector;
+	uint32_t aff_bitvector;
 	int
 	aff_spell;
 };

@@ -1508,7 +1508,7 @@ ACMD(do_group)
 			act("$N исключен$A из состава вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, vict, TO_VICT);
 			act("$N был$G исключен$A из группы $n1!", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-			AFF_FLAGS(vict).unset(AFF_GROUP);
+			AFF_FLAGS(vict).unset(EAffectFlags::AFF_GROUP);
 		}
 	}
 }
@@ -1532,16 +1532,19 @@ ACMD(do_ungroup)
 		for (f = ch->followers; f; f = next_fol)
 		{
 			next_fol = f->next;
-			if (AFF_FLAGGED(f->follower, AFF_GROUP))
+			if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP))
 			{
-				AFF_FLAGS(f->follower).unset(AFF_GROUP);
+				AFF_FLAGS(f->follower).unset(EAffectFlags::AFF_GROUP);
 				send_to_char(buf2, f->follower);
-				if (!AFF_FLAGGED(f->follower, AFF_CHARM) && !(IS_NPC(f->follower)
-						&& AFF_FLAGGED(f->follower, AFF_HORSE)))
+				if (!AFF_FLAGGED(f->follower, EAffectFlags::AFF_CHARM)
+					&& !(IS_NPC(f->follower)
+						&& AFF_FLAGGED(f->follower, EAffectFlags::AFF_HORSE)))
+				{
 					stop_follower(f->follower, SF_EMPTY);
+				}
 			}
 		}
-		AFF_FLAGS(ch).unset(AFF_GROUP);
+		AFF_FLAGS(ch).unset(EAffectFlags::AFF_GROUP);
 		send_to_char("Вы распустили группу.\r\n", ch);
 		return;
 	}
@@ -1551,7 +1554,7 @@ ACMD(do_ungroup)
 		tch = f->follower;
 		if (isname(buf, tch->get_pc_name()) && !AFF_FLAGGED(tch, EAffectFlags::AFF_CHARM) && !IS_HORSE(tch))
 		{
-			AFF_FLAGS(tch).unset(AFF_GROUP);
+			AFF_FLAGS(tch).unset(EAffectFlags::AFF_GROUP);
 			act("$N более не член вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, tch, TO_VICT);
 			act("$N был$G изгнан$A из группы $n1!", FALSE, ch, 0, tch, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -1607,10 +1610,18 @@ ACMD(do_report)
 	CAP(buf);
 	k = (ch->master ? ch->master : ch);
 	for (f = k->followers; f; f = f->next)
-		if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower != ch && !AFF_FLAGGED(f->follower, AFF_DEAFNESS))
+	{
+		if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP)
+			&& f->follower != ch
+			&& !AFF_FLAGGED(f->follower, EAffectFlags::AFF_DEAFNESS))
+		{
 			send_to_char(buf, f->follower);
+		}
+	}
 	if (k != ch && !AFF_FLAGGED(k, EAffectFlags::AFF_DEAFNESS))
+	{
 		send_to_char(buf, k);
+	}
 	send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
 
@@ -1649,9 +1660,14 @@ ACMD(do_split)
 			num = 0;
 
 		for (f = k->followers; f; f = f->next)
-			if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
-					!IS_NPC(f->follower) && IN_ROOM(f->follower) == IN_ROOM(ch))
+		{
+			if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP)
+				&& !IS_NPC(f->follower)
+				&& IN_ROOM(f->follower) == IN_ROOM(ch))
+			{
 				num++;
+			}
+		}
 
 		if (num && AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP))
 		{
@@ -1675,8 +1691,10 @@ ACMD(do_split)
 		}
 		for (f = k->followers; f; f = f->next)
 		{
-			if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
-					!IS_NPC(f->follower) && IN_ROOM(f->follower) == IN_ROOM(ch) && f->follower != ch)
+			if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP)
+				&& !IS_NPC(f->follower)
+				&& IN_ROOM(f->follower) == IN_ROOM(ch)
+				&& f->follower != ch)
 			{
 				send_to_char(buf, f->follower);
 				f->follower->add_gold(share, true, true);
@@ -3318,7 +3336,7 @@ ACMD(do_dig)
 		send_to_char("Не найден прототип обжекта!", ch);
 }
 
-void set_obj_aff(struct OBJ_DATA *itemobj, int bitv)
+void set_obj_aff(struct OBJ_DATA *itemobj, const bitvector_t bitv)
 {
 	int i;
 
@@ -3604,19 +3622,19 @@ ACMD(do_insertgem)
 				switch (number(1, 6))
 				{
 				case 1:
-					set_obj_aff(itemobj, AFF_DETECT_INVIS);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_DETECT_INVIS));
 					break;
 				case 2:
-					set_obj_aff(itemobj, AFF_DETECT_MAGIC);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_DETECT_MAGIC));
 					break;
 				case 3:
-					set_obj_aff(itemobj, AFF_DETECT_ALIGN);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_DETECT_ALIGN));
 					break;
 				case 4:
-					set_obj_aff(itemobj, AFF_BLESS);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_BLESS));
 					break;
 				case 5:
-					set_obj_aff(itemobj, AFF_HASTE);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_HASTE));
 					break;
 
 				case 6:
@@ -3636,16 +3654,16 @@ ACMD(do_insertgem)
 					set_obj_eff(itemobj, APPLY_SAVING_STABILITY, -5);
 					break;
 				case 3:
-					set_obj_aff(itemobj, AFF_WATERWALK);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_WATERWALK));
 					break;
 				case 4:
-					set_obj_aff(itemobj, AFF_SINGLELIGHT);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_SINGLELIGHT));
 					break;
 				case 5:
-					set_obj_aff(itemobj, AFF_INFRAVISION);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_INFRAVISION));
 					break;
 				case 6:
-					set_obj_aff(itemobj, AFF_CURSE);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_CURSE));
 					break;
 
 				}
@@ -3659,13 +3677,13 @@ ACMD(do_insertgem)
 					set_obj_eff(itemobj, APPLY_MOVE, 20);
 					break;
 				case 3:
-					set_obj_aff(itemobj, AFF_PROTECT_EVIL);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_PROTECT_EVIL));
 					break;
 				case 4:
-					set_obj_aff(itemobj, AFF_PROTECT_GOOD);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_PROTECT_GOOD));
 					break;
 				case 5:
-					set_obj_aff(itemobj, AFF_AWARNESS);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_AWARNESS));
 					break;
 				case 6:
 					set_obj_eff(itemobj, APPLY_MOVEREG, -5);
@@ -3682,7 +3700,7 @@ ACMD(do_insertgem)
 					set_obj_eff(itemobj, APPLY_HITREG, 10);
 					break;
 				case 3:
-					set_obj_aff(itemobj, AFF_HOLYDARK);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_HOLYDARK));
 					break;
 				case 4:
 					if (!CAN_WEAR(itemobj, ITEM_WEAR_WIELD) &&
@@ -3726,10 +3744,10 @@ ACMD(do_insertgem)
 				switch (number(1, 6))
 				{
 				case 1:
-					set_obj_aff(itemobj, AFF_SANCTUARY);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_SANCTUARY));
 					break;
 				case 2:
-					set_obj_aff(itemobj, AFF_BLINK);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_BLINK));
 					break;
 				case 3:
 					if (!CAN_WEAR(itemobj, ITEM_WEAR_WIELD) &&
@@ -3739,7 +3757,7 @@ ACMD(do_insertgem)
 						set_obj_eff(itemobj, APPLY_HITREG, 25);
 					break;
 				case 4:
-					set_obj_aff(itemobj, AFF_FLY);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_FLY));
 					break;
 				case 5:
 					set_obj_eff(itemobj, APPLY_MANAREG, 10);
@@ -3774,7 +3792,7 @@ ACMD(do_insertgem)
 					set_obj_eff(itemobj, APPLY_SAVING_WILL, -10);
 					break;
 				case 5:
-					set_obj_aff(itemobj, AFF_INVISIBLE);
+					set_obj_aff(itemobj, to_underlying(EAffectFlags::AFF_INVISIBLE));
 					break;
 				case 6:
 					set_obj_eff(itemobj, APPLY_SAVING_WILL, 10);
@@ -3925,14 +3943,14 @@ ACMD(do_bandage)
 	af.location = APPLY_NONE;
 	af.modifier = GET_OBJ_VAL(bandage, 0);
 	af.duration = pc_duration(ch, 10, 0, 0, 0, 0);
-	af.bitvector = AFF_BANDAGE;
+	af.bitvector = to_underlying(EAffectFlags::AFF_BANDAGE);
 	af.battleflag = AF_PULSEDEC;
 	affect_join(ch, &af, 0, 0, 0, 0);
 
 	af.type = SPELL_NO_BANDAGE;
 	af.location = APPLY_NONE;
 	af.duration = pc_duration(ch, 60, 0, 0, 0, 0);
-	af.bitvector = AFF_NO_BANDAGE;
+	af.bitvector = to_underlying(EAffectFlags::AFF_NO_BANDAGE);
 	af.battleflag = AF_PULSEDEC;
 	affect_join(ch, &af, 0, 0, 0, 0);
 
