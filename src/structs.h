@@ -895,9 +895,13 @@ enum class EExtraFlags: uint32_t
 };
 
 template <typename E>
-const char* ITEM_NAME(const E item);
+const std::string& NAME_BY_ITEM(const E item);
+template <> const std::string& NAME_BY_ITEM<EExtraFlags>(const EExtraFlags item);
 
-template <> const char* ITEM_NAME<EExtraFlags>(const EExtraFlags item);
+template <typename E>
+E ITEM_BY_NAME(const std::string& name);
+template <> EExtraFlags ITEM_BY_NAME<EExtraFlags>(const std::string& name);
+template <typename E> inline E ITEM_BY_NAME(const char* name) { return ITEM_BY_NAME<E>(std::string(name)); }
 
 #define ITEM_NO_MONO       (1 << 0)
 #define ITEM_NO_POLY       (1 << 1)

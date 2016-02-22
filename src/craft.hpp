@@ -7,6 +7,7 @@
 #ifndef __CRAFT_HPP__
 #define __CRAFT_HPP__
 
+#include "structs.h"
 #include "sysdep.h"
 
 #include <stdarg.h>
@@ -73,6 +74,7 @@ namespace craft
 			CCases m_male_adjectives;	///< Male adjective cases
 			CCases m_female_adjectives;	///< Female adjective cases
 			CCases m_neuter_adjectives;	///< Neuter adjective cases
+			FLAG_DATA m_extraflags;
 
 			friend class CMaterial;
 	};
