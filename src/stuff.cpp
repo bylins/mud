@@ -256,6 +256,24 @@ void generate_warrior_enchant(OBJ_DATA *obj)
 	}
 }
 
+void generate_magic_enchant(OBJ_DATA *obj)
+{
+	const int main_count = 5;
+	boost::array<int, main_count> main_list = { {
+			APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_AC, APPLY_DAMROLL} };
+	const int other_count = 11;
+	boost::array<int, other_count> other_list = { {
+			APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
+			APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
+			APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR} };
+
+
+		int stat = main_list[number(0, main_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
+		stat = other_list[number(0, other_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat));
+}
+
 /**
  * \param setload = true - лоад через систему дропа сетов
  *        setload = false - лоад через глобал дроп
@@ -285,6 +303,11 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 		case GlobalDrop::WARR2_ENCHANT_VNUM:
 		case GlobalDrop::WARR3_ENCHANT_VNUM:
 			generate_warrior_enchant(o);
+			break;
+		case GlobalDrop::MAGIC1_ENCHANT_VNUM:
+		case GlobalDrop::MAGIC2_ENCHANT_VNUM:
+		case GlobalDrop::MAGIC3_ENCHANT_VNUM:
+			generate_magic_enchant(o);
 			break;
 		}
 	}

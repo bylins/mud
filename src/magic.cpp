@@ -686,6 +686,8 @@ int calc_anti_savings(CHAR_DATA * ch)
 
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply)
 {
+	int temp_save_stat = 0, temp_awake_mod = 0;
+
 	if (- GET_SAVE(victim, type) / 10 > number(1, 100))
 	{
 		return 1;
@@ -710,19 +712,23 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 
 	switch (type)
 	{
-	case SAVING_REFLEX:
+	case SAVING_REFLEX:      //3 реакция
 		if ((save > 0) && can_use_feat(victim, DODGER_FEAT))
 			save >>= 1;
 		save -= dex_bonus(GET_REAL_DEX(victim));
+		temp_save_stat = dex_bonus(GET_REAL_DEX(victim));
 		break;
-	case SAVING_STABILITY:
+	case SAVING_STABILITY:   //2  стойкость
 		save += -GET_REAL_CON(victim);
+		temp_save_stat = GET_REAL_CON(victim);
 		break;
-	case SAVING_WILL:
+	case SAVING_WILL:        //1  воля
 		save += -GET_REAL_WIS(victim);
+		temp_save_stat = GET_REAL_WIS(victim);
 		break;
-	case SAVING_CRITICAL:
+	case SAVING_CRITICAL:   //0   здоровье
 		save += -GET_REAL_CON(victim);
+		temp_save_stat = GET_REAL_CON(victim);
 		break;
 	}
 
@@ -737,7 +743,11 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	if (PRF_FLAGGED(victim, PRF_AWAKE))
 	{
 		if (can_use_feat(victim, IMPREGNABLE_FEAT))
+			{
 			save -= MAX(0, victim->get_skill(SKILL_AWAKE) - 80)  /  2;
+			temp_awake_mod = MAX(0, victim->get_skill(SKILL_AWAKE) - 80)  /  2;
+			}
+		temp_awake_mod +=calculate_awake_mod(killer, victim);
 		save -= calculate_awake_mod(killer, victim);
 	}
 
@@ -750,8 +760,8 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 		save -= 50;
 	else if (GET_GOD_FLAG(victim, GF_GODSCURSE))
 		save += 50;
-//  if (!IS_NPC(victim))
-//     log("SAVING: Name==%s type==%d save==%d ext_apply==%d",GET_NAME(victim),type,save, ext_apply);
+    if (IS_NPC(victim) && !IS_NPC(killer))
+		log("SAVING: Caster==%s  Mob==%s vnum==%d Level==%d type==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d cast_apply==%d result==%d new_random==%d", GET_NAME(killer), GET_NAME(victim), GET_MOB_VNUM(victim), GET_LEVEL(victim), type, extend_saving_throws(class_sav, type, GET_LEVEL(victim)), temp_save_stat, temp_awake_mod, GET_SAVE(victim, type), ext_apply, save, number(1, 200));
 	// Throwing a 0 is always a failure.
 	if (MAX(5, save) <= number(1, 100))
 		return (TRUE);
@@ -2228,6 +2238,12 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 			use = "Вы разожгли палочку заморских благовоний.\r\n";
 			missing = "Вы начали суматошно искать свои благовония, но тщетно.\r\n";
 			exhausted = "$o дотлели и рассыпались пеплом.\r\n";
+			break;
+		case SPELL_ENCHANT_WEAPON:
+			vnum = 1930;
+			use = "Вы подготовили дополнительные компоненты для зачарования.\r\n";
+			missing = "Вы были уверены что положили его в этот карман.\r\n";
+			exhausted = "$o вспыхнул голубоватым светом, когда его вставили в предмет.\r\n";
 			break;
 
 		default:
@@ -4511,8 +4527,9 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 
 int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int savetype)
 {
+	OBJ_DATA *reagobj;
 	const char *to_char = NULL, *to_room = NULL;
-	int real_skill_light_magic = 0;
+	int real_skill_light_magic = 0,random_drop = 0;
 	int i = 0;
 	
 	if (obj == NULL)
@@ -4605,24 +4622,28 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		if (real_skill_light_magic <= 4)
 		// 4 мортов (скил магия света 100)
 		{
+		   random_drop = 0;
 		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
 		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
 		}
 		else if (real_skill_light_magic <= 9)
 		// 8 мортов (скил магия света 125)
 		{
+		   random_drop = 1;
 		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
 		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
 		}
 		else if (real_skill_light_magic <= 16)
 		// 12 мортов (скил магия света 160)
 		{
+		   random_drop = 1;
 		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
 		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
 		}
 		else if (real_skill_light_magic >16)
 		// 16 мортов (скил магия света 160+)
 		{
+		   random_drop = 2;
 		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
 		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
 		}
@@ -4630,6 +4651,19 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		{  // лоуморт и волхвы
 		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
 		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
+		};
+
+		reagobj = get_obj_in_list_vnum(1930, ch->carrying);
+		if (reagobj)
+		{
+			// у нас имеется доп символ для зачарования
+			for (i = 0; i < random_drop; i++)
+				if (reagobj->affected[i].location != APPLY_NONE)
+					{
+				 	    obj->affected[i+2].location = reagobj->affected[i].location;
+						obj->affected[i+2].modifier = reagobj->affected[i].modifier;
+					}
+			material_component_processing(ch, ch, spellnum);
 		}
 		
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
@@ -4640,7 +4674,6 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		else
 			to_char = "$o вспыхнул$G на миг желтым светом и тут же потух$Q.";
 		break;
-
 	case SPELL_REMOVE_POISON:
 		if (((GET_OBJ_TYPE(obj) == ITEM_DRINKCON) ||
 				(GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN) || (GET_OBJ_TYPE(obj) == ITEM_FOOD)) && GET_OBJ_VAL(obj, 3))
