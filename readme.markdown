@@ -1,3 +1,5 @@
+[![Build Status](https://drone.io/bitbucket.org/bylins/mud/status.png)](https://drone.io/bitbucket.org/bylins/mud/latest)
+
 ﻿# BRus MUD Engine readme.
 
 ## Содержание
