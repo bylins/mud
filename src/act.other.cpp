@@ -3338,13 +3338,11 @@ ACMD(do_dig)
 
 void set_obj_aff(struct OBJ_DATA *itemobj, const bitvector_t bitv)
 {
-	int i;
-
-	for (i = 0; weapon_affect[i].aff_bitvector != -1; i++)
+	for (const auto& i : weapon_affect)
 	{
-		if (weapon_affect[i].aff_bitvector == bitv)
+		if (i.aff_bitvector == bitv)
 		{
-			SET_OBJ_AFF(itemobj, weapon_affect[i].aff_pos);
+			SET_OBJ_AFF(itemobj, i.aff_pos);
 		}
 	}
 }
@@ -3384,7 +3382,7 @@ bool is_dig_stone(OBJ_DATA *obj)
 
 ACMD(do_insertgem)
 {
-	int percent, prob, i;
+	int percent, prob;
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
 	char arg3[MAX_INPUT_LENGTH];
@@ -3512,16 +3510,18 @@ ACMD(do_insertgem)
 
 	WAIT_STATE(ch, PULSE_VIOLENCE);
 
-	for (i = 0; i < MAX_OBJ_AFFECT; i++)
+	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+	{
 		if (itemobj->affected[i].location == APPLY_NONE)
 		{
 			prob -= i * insgem_vars.minus_for_affect;
 			break;
 		}
+	}
 
-	for (i = 0; weapon_affect[i].aff_bitvector != -1; i++)
+	for (const auto& i : weapon_affect)
 	{
-		if (IS_SET(GET_OBJ_AFF(itemobj, weapon_affect[i].aff_pos), weapon_affect[i].aff_pos))
+		if (IS_SET(GET_OBJ_AFF(itemobj, i.aff_pos), i.aff_pos))
 		{
 			prob -= insgem_vars.minus_for_affect;
 		}

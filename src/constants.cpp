@@ -2528,7 +2528,7 @@ const char *weapon_affects[] = { "слепота",
 								 "\n"
 							   };
 
-std::vector<weapon_affect_types, !!! fix usage !!!> weapon_affect = {
+std::vector<weapon_affect_types> weapon_affect = {
 	{(0 | (1 << 0)), 0, SPELL_BLINDNESS},
 	{(0 | (1 << 1)), to_underlying(EAffectFlags::AFF_INVISIBLE), 0},
 	{(0 | (1 << 2)), to_underlying(EAffectFlags::AFF_DETECT_ALIGN), 0},

@@ -764,6 +764,11 @@ inline int GET_INVIS_LEV(const CHAR_DATA* ch)
 	return CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level);
 }
 
+inline void SET_INVIS_LEV(const CHAR_DATA* ch, const int level)
+{
+	CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level) = level;
+}
+
 inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 {
 	if (ch->get_wait() < cycle)

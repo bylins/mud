@@ -757,8 +757,8 @@ void Player::save_char()
 		for (k = this->followers; k; k = k->next)
 		{
 			if (k->follower
-				&& AFF_FLAGGED(k->follower, AFF_HELPER)
-				&& AFF_FLAGGED(k->follower, AFF_CHARM))
+				&& AFF_FLAGGED(k->follower, EAffectFlags::AFF_HELPER)
+				&& AFF_FLAGGED(k->follower, EAffectFlags::AFF_CHARM))
 			{
 				break;
 			}
@@ -1133,7 +1133,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_HEIGHT(this) = 50;
 	GET_HR(this) = 0;
 	GET_COND(this, FULL) = 0;
-	GET_INVIS_LEV(this) = 0;
+	SET_INVIS_LEV(this, 0);
 	this->player_data.time.logon = time(0);
 	GET_MOVE(this) = 44;
 	GET_MAX_MOVE(this) = 44;
@@ -1400,8 +1400,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Int "))
 				this->set_int(num);
 			else if (!strcmp(tag, "Invs"))
-				GET_INVIS_LEV(this) = num;
-// shapirus
+			{
+				SET_INVIS_LEV(this, num);
+			}
 			else if (!strcmp(tag, "Ignr"))
 				load_ignores(this, line);
 			break;

@@ -1976,17 +1976,19 @@ int npc_move(CHAR_DATA * ch, int dir, int need_specials_check)
 
 int has_curse(OBJ_DATA * obj)
 {
-	int i;
-
-	for (i = 0; weapon_affect[i].aff_bitvector >= 0; i++)
+	for (const auto& i : weapon_affect)
 	{
 		// Замена выражения на макрос
-		if (weapon_affect[i].aff_spell <= 0 || !IS_OBJ_AFF(obj, weapon_affect[i].aff_pos))
+		if (i.aff_spell <= 0 || !IS_OBJ_AFF(obj, i.aff_pos))
+		{
 			continue;
-		if (IS_SET(spell_info[weapon_affect[i].aff_spell].routines, NPC_AFFECT_PC | NPC_DAMAGE_PC))
-			return (TRUE);
+		}
+		if (IS_SET(spell_info[i.aff_spell].routines, NPC_AFFECT_PC | NPC_DAMAGE_PC))
+		{
+			return TRUE;
+		}
 	}
-	return (FALSE);
+	return FALSE;
 }
 
 int calculate_weapon_class(CHAR_DATA * ch, OBJ_DATA * weapon)

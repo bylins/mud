@@ -371,7 +371,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 
 #define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && MOB_FLAGS(ch).get(flag))
 #define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && PLR_FLAGS(ch).get(flag))
-#define AFF_FLAGGED(ch, flag)   (AFF_FLAGS(ch).get(flag) || ch->isAffected(flag))
+#define AFF_FLAGGED(ch, flag)   (AFF_FLAGS(ch).get(flag) || (ch)->isAffected(flag))
 #define PRF_FLAGGED(ch, flag)   (PRF_FLAGS(ch).get(flag))
 #define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
 #define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))

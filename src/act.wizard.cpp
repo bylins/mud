@@ -3780,7 +3780,7 @@ void perform_immort_vis(CHAR_DATA * ch)
 		return;
 	}
 
-	GET_INVIS_LEV(ch) = 0;
+	SET_INVIS_LEV(ch, 0);
 	appear(ch);
 	send_to_char("Вы теперь полностью видны.\r\n", ch);
 }
@@ -3803,7 +3803,7 @@ void perform_immort_invis(CHAR_DATA * ch, int level)
 			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, tch, TO_VICT);
 	}
 
-	GET_INVIS_LEV(ch) = level;
+	SET_INVIS_LEV(ch, level);
 	sprintf(buf, "Ваш уровень невидимости - %d.\r\n", level);
 	send_to_char(buf, ch);
 }
@@ -5396,7 +5396,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return (0);
 		}
-		GET_INVIS_LEV(vict) = RANGE(0, GET_LEVEL(vict));
+		SET_INVIS_LEV(vict, RANGE(0, GET_LEVEL(vict)));
 		break;
 	case 18:
 		if (!IS_IMPL(ch) && ch != vict && !PRF_FLAGGED(ch, PRF_CODERINFO))

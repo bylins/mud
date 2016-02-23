@@ -2545,19 +2545,20 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			if (PRF_FLAGGED(d->character, PRF_DISPEXITS))
 			{
 				count += sprintf(prompt + count, "Вых:");
-				if (!AFF_FLAGGED(d->character, AFF_BLIND))
+				if (!AFF_FLAGGED(d->character, EAffectFlags::AFF_BLIND))
+				{
 					for (door = 0; door < NUM_OF_DIRS; door++)
 					{
-						if (EXIT(d->character, door) &&
-								EXIT(d->character, door)->to_room != NOWHERE &&
-								!EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
-							count +=
-								EXIT_FLAGGED(EXIT(d->character, door),
-											 EX_CLOSED) ? sprintf(prompt + count,
-																  "(%s)",
-																  dirs[door]) :
-								sprintf(prompt + count, "%s", dirs[door]);
+						if (EXIT(d->character, door)
+							&& EXIT(d->character, door)->to_room != NOWHERE
+							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
+						{
+							count += EXIT_FLAGGED(EXIT(d->character, door), EX_CLOSED)
+								? sprintf(prompt + count, "(%s)", dirs[door])
+								: sprintf(prompt + count, "%s", dirs[door]);
+						}
 					}
+				}
 			}
 		}
 		else
@@ -4385,16 +4386,19 @@ void send_to_outdoor(const char *messg, int control)
 		if (!AWAKE(i->character) || !OUTSIDE(i->character))
 			continue;
 		room = IN_ROOM(i->character);
-		if (!control ||
-				(IS_SET(control, SUN_CONTROL) &&
-				 room != NOWHERE &&
-				 SECT(room) != SECT_UNDERWATER &&
-				 !AFF_FLAGGED(i->character, AFF_BLIND)) ||
-				(IS_SET(control, WEATHER_CONTROL) &&
-				 room != NOWHERE &&
-				 SECT(room) != SECT_UNDERWATER &&
-				 !ROOM_FLAGGED(room, ROOM_NOWEATHER) && world[IN_ROOM(i->character)]->weather.duration <= 0))
+		if (!control
+			|| (IS_SET(control, SUN_CONTROL)
+				&& room != NOWHERE
+				&& SECT(room) != SECT_UNDERWATER
+				&& !AFF_FLAGGED(i->character, EAffectFlags::AFF_BLIND))
+			|| (IS_SET(control, WEATHER_CONTROL)
+				&& room != NOWHERE
+				&& SECT(room) != SECT_UNDERWATER
+				&& !ROOM_FLAGGED(room, ROOM_NOWEATHER)
+				&& world[IN_ROOM(i->character)]->weather.duration <= 0))
+		{
 			SEND_TO_Q(messg, i);
+		}
 	}
 }
 
