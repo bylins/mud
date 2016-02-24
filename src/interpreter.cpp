@@ -2201,7 +2201,9 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		d->character->set_level(1);
 	}
 	if (GET_INVIS_LEV(d->character) > LVL_IMPL || GET_INVIS_LEV(d->character) < 0)
-		GET_INVIS_LEV(d->character) = 0;
+	{
+		SET_INVIS_LEV(d->character, 0);
+	}
 	if (GET_LEVEL(d->character) > LVL_IMMORT
 			&& GET_LEVEL(d->character) < LVL_BUILDER
 			&& (d->character->get_gold() > 0 || d->character->get_bank() > 0))
@@ -2227,9 +2229,13 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	if (GET_LEVEL(d->character) < LVL_IMPL)
 	{
 		if (PLR_FLAGGED(d->character, PLR_INVSTART))
-			GET_INVIS_LEV(d->character) = LVL_IMMORT;
+		{
+			SET_INVIS_LEV(d->character, LVL_IMMORT);
+		}
 		if (GET_INVIS_LEV(d->character) > GET_LEVEL(d->character))
-			GET_INVIS_LEV(d->character) = GET_LEVEL(d->character);
+		{
+			SET_INVIS_LEV(d->character, GET_LEVEL(d->character));
+		}
 
 		if (PRF_FLAGGED(d->character, PRF_CODERINFO))
 		{
@@ -2253,8 +2259,11 @@ void do_entergame(DESCRIPTOR_DATA * d)
 				PRF_FLAGS(d->character).unset(PRF_ROOMFLAGS);
 			}
 		}
-		if (GET_INVIS_LEV(d->character) > 0 && GET_LEVEL(d->character) < LVL_IMMORT)
-			GET_INVIS_LEV(d->character) = 0;
+		if (GET_INVIS_LEV(d->character) > 0
+			&& GET_LEVEL(d->character) < LVL_IMMORT)
+		{
+			SET_INVIS_LEV(d->character, 0);
+		}
 	}
 
 	OfftopSystem::set_flag(d->character);

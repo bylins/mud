@@ -2189,14 +2189,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						for (f = k->followers; f; f = f->next)
 						{
 							if (IS_NPC(f->follower)
-								|| !AFF_FLAGGED(f->follower, AFF_GROUP))
+								|| !AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP))
 							{
 								continue;
 							}
 							if ((GET_CLASS(f->follower) == 8
 									|| GET_CLASS(f->follower) == 13) //чернок или волхв может использовать ужи на согруппов
-								&& world[IN_ROOM(f->follower)]->zone
-									== world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
+								&& world[IN_ROOM(f->follower)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
 							{
 								can_use = 1;
 								break;
@@ -2866,10 +2865,11 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(l));
 			for (f = l->followers; f; f = f->next)
 			{
-				if (!AFF_FLAGGED(f->follower, AFF_GROUP))
+				if (!AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP))
+				{
 					continue;
-				sprintf(str + strlen(str), "%c%ld ", UID_CHAR,
-						GET_ID(f->follower));
+				}
+				sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(f->follower));
 			}
 		}
 		else if (!str_cmp(field, "attackers"))

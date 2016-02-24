@@ -17,11 +17,13 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <vector>
+
 // * External data structures.
 extern struct zone_data *zone_table;
 extern CHAR_DATA *mob_proto;
 extern INDEX_DATA *mob_index;
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern INDEX_DATA *obj_index;
 extern char const *equipment_types[];
 extern char const *dirs[];

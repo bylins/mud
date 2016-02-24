@@ -2598,15 +2598,16 @@ const char *pray_whom[] = { "Яриле",
 						  };
 
 // Fields : whom location modifier bitvector battleflag
-struct pray_affect_type pray_affect[] = { {0, APPLY_NONE, 0, AFF_INFRAVISION, 0},	// Ярило
+std::vector<pray_affect_type> pray_affect =
+{
+	{0, APPLY_NONE, 0, to_underlying(EAffectFlags::AFF_INFRAVISION), 0},	// Ярило
 	{1, APPLY_HITREG, 50, 0, 0},	// Мокошь
 	{2, APPLY_STR, 1, 0, 0},	// Перун
 	{3, APPLY_DEX, 1, 0, 0},	// Велес
 	{4, APPLY_MORALE, 5, 0, 0},	// Дева Мария
 	{5, APPLY_INT, 1, 0, 0},	// Никола Угодник
 	{6, APPLY_HITROLL, 2, 0, 0},	// Илия Пророк
-	{7, APPLY_DAMROLL, 1, 0, 0},	// Григорий Победоносец
-	{ -1, -1, -1, -1, -1}
+	{7, APPLY_DAMROLL, 1, 0, 0}	// Григорий Победоносец
 };
 
 // Количество маны волхва

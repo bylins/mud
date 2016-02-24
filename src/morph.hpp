@@ -1,15 +1,12 @@
 #ifndef MORPH_HPP_INCLUDED
 #define MORPH_HPP_INCLUDED
 
-#include <list>
-#include <vector>
-#include <boost/shared_ptr.hpp>
 #include "comm.h"
 
-using std::list;
-using std::string;
-using std::map;
-using std::vector;
+#include <boost/shared_ptr.hpp>
+
+#include <list>
+#include <set>
 
 extern short MIN_WIS_FOR_MORPH;
 
@@ -33,7 +30,7 @@ typedef map<int, int> MorphSkillsList;
 
 class IMorph {
 public:
-	typedef std::vector<EAffectFlags> affects_list_t;
+	typedef std::set<EAffectFlags> affects_list_t;
 
 	IMorph() {};
 	virtual ~IMorph() {};
@@ -124,7 +121,7 @@ class AnimalMorph : public IMorph
 	int dex_;
 	int cha_;
 	int con_;
-	std::vector<EAffectFlags> affects_;
+	affects_list_t affects_;
 	string messageToRoom_, messageToChar_;
 
 public:

@@ -77,7 +77,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 
 			for (struct follow_type *f = master->followers; f; f = f->next)
 			{
-				if (AFF_FLAGGED(f->follower, AFF_GROUP)
+				if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP)
 					&& IN_ROOM(f->follower) == IN_ROOM(killer))
 				{
 					if (!number(0, cnt))
@@ -212,7 +212,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 		else if (IS_NPC(killer) // Убил чармис загрупленного чара
 			&& IS_CHARMICE(killer)
 			&& killer->master
-			&& AFF_FLAGGED(killer->master, AFF_GROUP))
+			&& AFF_FLAGGED(killer->master, EAffectFlags::AFF_GROUP))
 		{
 			if (killer->master->master // Владелец чармиса НЕ лидер
 				&& killer->master->master->get_skill(SKILL_LEADERSHIP) > 0
@@ -361,7 +361,7 @@ void forget_all_spells(CHAR_DATA *ch)
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
 		af.duration = pc_duration(ch, max_slot*RECALL_SPELLS_INTERVAL+SECS_PER_PLAYER_AFFECT, 0, 0, 0, 0);
-		af.bitvector = AFF_RECALL_SPELLS;
+		af.bitvector = to_underlying(EAffectFlags::AFF_RECALL_SPELLS);
 		af.battleflag = AF_PULSEDEC | AF_DEADKEEP;
 		affect_join(ch, &af, 0, 0, 0, 0);
 	}
@@ -824,27 +824,31 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 		maxlevel = GET_LEVEL(k);
 	}
 	else
+	{
 		inroom_members = 0;
+	}
 
 	// Вычисляем максимальный уровень в группе
-	
-	
-	
 	for (f = k->followers; f; f = f->next)
-		if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
+	{
+		if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP)
+			&& f->follower->in_room == IN_ROOM(ch))
 		{
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
 			if (can_use_feat(f->follower, CYNIC_FEAT))
-			    maxlevel = 300;
+				maxlevel = 300;
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
 			maxlevel = MAX(maxlevel, GET_LEVEL(f->follower));
 			if (!IS_NPC(f->follower))
+			{
 				partner_count++;
+			}
 		}
+	}
 
 	// Вычисляем, надо ли резать экспу, смотрим сначала лидера, если он рядом
 	if (maxlevel - GET_LEVEL(k) > grouping[(int)GET_CLASS(k)][(int)GET_REMORT(k)] && leader_inroom)
@@ -855,13 +859,13 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	{
 		for (f = k->followers; f; f = f->next)
 		{
-			if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
+			if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP)
+				&& f->follower->in_room == IN_ROOM(ch))
 			{
-				if (maxlevel - GET_LEVEL(f->follower) >
-						grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)])
+				const int K = grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)];
+				if (maxlevel - GET_LEVEL(f->follower) > K)
 				{
-					koef -= 50 + (maxlevel - GET_LEVEL(f->follower)
-						- grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)]) * 2;
+					koef -= 50 + (maxlevel - GET_LEVEL(f->follower) - K) * 2;
 					break;
 				}
 			}
@@ -900,9 +904,15 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	    }
 		perform_group_gain(k, victim, inroom_members, koef);
 	}
+
 	for (f = k->followers; f; f = f->next)
-		if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
+	{
+		if (AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP)
+			&& f->follower->in_room == IN_ROOM(ch))
+		{
 			perform_group_gain(f->follower, victim, inroom_members, koef);
+		}
+	}
 }
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)

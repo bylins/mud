@@ -2689,7 +2689,7 @@ ACMD(do_gen_tog)
 
 ACMD(do_pray)
 {
-	int metter = -1, i;
+	int metter = -1;
 	OBJ_DATA *obj = NULL;
 	AFFECT_DATA af;
 	struct timed_type timed;
@@ -2793,17 +2793,19 @@ ACMD(do_pray)
 	timed.time = 12;
 	timed_to_char(ch, &timed);
 
-	for (i = 0; pray_affect[i].metter >= 0; i++)
-		if (pray_affect[i].metter == metter)
+	for (const auto& i : pray_affect)
+	{
+		if (i.metter == metter)
 		{
 			af.type = SPELL_RELIGION;
 			af.duration = pc_duration(ch, 12, 0, 0, 0, 0);
-			af.modifier = pray_affect[i].modifier;
-			af.location = pray_affect[i].location;
-			af.bitvector = pray_affect[i].bitvector;
-			af.battleflag = pray_affect[i].battleflag;
+			af.modifier = i.modifier;
+			af.location = i.location;
+			af.bitvector = i.bitvector;
+			af.battleflag = i.battleflag;
 			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		}
+	}
 
 	if (subcmd == SCMD_PRAY)
 	{

@@ -673,6 +673,7 @@ enum class EAffectFlags: uint32_t
 	AFF_NOOB_REGEN = INT_TWO | (1u << 19),
 	AFF_VAMPIRE = INT_TWO | (1u << 20)
 };
+typedef std::list<EAffectFlags> affects_list_t;
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)
@@ -2002,8 +2003,7 @@ struct pray_affect_type
 	location;
 	int
 	modifier;
-	long
-	bitvector;
+	uint32_t bitvector;
 	int
 	battleflag;
 };

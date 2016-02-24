@@ -226,7 +226,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				to_char = "замедлило движения $N1";
 				to_vict = "сломало вам ногу";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = AFF_NOFLEE;
+				af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 				SET_AF_BATTLE(victim, EAF_SLOW);
 			}
 			break;
@@ -235,7 +235,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "сильно замедлило движения $N1";
 			to_vict = "сломало вам бедро";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_NOFLEE;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -246,7 +246,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
-			af[0].bitvector = AFF_NOFLEE;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 11:	// femor damaged, no speed, no attack
@@ -254,11 +254,11 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "вывело $N3 из строя";
 			to_vict = "раздробило вам бедро";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = AFF_NOFLEE;
+			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -270,11 +270,11 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "вывело $N3 из строя";
 			to_vict = "изуродовало вам ногу";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = AFF_NOFLEE;
+			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			haemorragia(victim, 50);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -318,7 +318,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
-			af[0].bitvector = AFF_NOFLEE;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 9:	// armor damaged, abdomin damaged, speed/2, HR-2
@@ -329,7 +329,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
-			af[0].bitvector = AFF_NOFLEE;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -338,11 +338,11 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "повредило $N2 живот";
 			to_vict = "повредило вам живот";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = AFF_NOFLEE;
+			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -351,11 +351,11 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "разорвало $N2 живот";
 			to_vict = "разорвало вам живот";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = AFF_NOFLEE;
+			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			haemorragia(victim, 40);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -390,7 +390,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "повредило $N2 туловище";
 			to_vict = "повредило вам туловище";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_NOFLEE;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 6:	// shield damaged, chest damaged, speed/2
@@ -399,7 +399,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "повредило $N2 туловище";
 			to_vict = "повредило вам туловище";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_NOFLEE;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 7:	// srmor damaged, chest damaged, speed/2, HR-2
@@ -410,7 +410,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
-			af[0].bitvector = AFF_NOFLEE;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 8:	// chest damaged, no speed, no attack
@@ -418,11 +418,11 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "вывело $N3 из строя";
 			to_vict = "повредило вам туловище";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = AFF_NOFLEE;
+			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -434,7 +434,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = AFF_NOFLEE;
+			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -443,17 +443,17 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "вывело $N3 из строя";
 			to_vict = "сломало вам ребра";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = AFF_NOFLEE;
+			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			haemorragia(victim, 40);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 11:	// chest crushed, hits 0
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
@@ -463,7 +463,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			break;
 		default:	// chest crushed, killing
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
@@ -550,7 +550,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				to_char = "ослабило атаку $N1";
 				to_vict = "изуродовало вам правую руку";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = AFF_STOPRIGHT;
+				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPRIGHT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
@@ -559,7 +559,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				to_char = "ослабило атаку $N1";
 				to_vict = "изуродовало вам левую руку";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = AFF_STOPLEFT;
+				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPLEFT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
@@ -568,7 +568,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				to_char = "вывело $N3 из строя";
 				to_vict = "вывело вас из строя";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = AFF_STOPFIGHT;
+				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
@@ -580,7 +580,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				to_char = "ослабило натиск $N1";
 				to_vict = "изуродовало вам правую руку";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = AFF_STOPRIGHT;
+				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPRIGHT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
@@ -589,7 +589,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				to_char = "ослабило натиск $N1";
 				to_vict = "изуродовало вам левую руку";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = AFF_STOPLEFT;
+				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPLEFT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
@@ -598,12 +598,12 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				to_char = "вывело $N3 из строя";
 				to_vict = "вывело вас из строя";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = AFF_STOPFIGHT;
+				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = AFF_NOFLEE;
+			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			haemorragia(victim, 30);
 			if (dam_critic >= 13)
 				dam *= ch->get_skill(SKILL_PUNCTUAL) / 5;
@@ -653,7 +653,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -4;
-			af[0].bitvector = AFF_NOFLEE;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
 			to_char = "ранило $N3 в голову";
 			to_vict = "ранило вас в голову";
 			break;
@@ -668,7 +668,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			break;
 		case 9:	// head damaged, no speed, no attack
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			haemorragia(victim, 30);
@@ -694,7 +694,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[2].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[2].battleflag = AF_DEADKEEP;
 			af[3].type = SPELL_BATTLE;
-			af[3].bitvector = AFF_STOPFIGHT;
+			af[3].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 			af[3].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[3].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			haemorragia(victim, 50);
@@ -752,9 +752,9 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		if (af[i].type)
 		{
 			if (victim->get_role(MOB_ROLE_BOSS)
-				&& (af[i].bitvector == AFF_STOPFIGHT
-					|| af[i].bitvector == AFF_STOPRIGHT
-					|| af[i].bitvector == AFF_STOPLEFT))
+				&& (af[i].bitvector == to_underlying(EAffectFlags::AFF_STOPFIGHT)
+					|| af[i].bitvector == to_underlying(EAffectFlags::AFF_STOPRIGHT)
+					|| af[i].bitvector == to_underlying(EAffectFlags::AFF_STOPLEFT)))
 			{ 
 				af[i].duration /= 5;
 				// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
@@ -1787,7 +1787,9 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 
 void appear(CHAR_DATA * ch)
 {
-	int appear_msg = AFF_FLAGGED(ch, EAffectFlags::AFF_INVISIBLE) || AFF_FLAGGED(ch, EAffectFlags::AFF_CAMOUFLAGE) || AFF_FLAGGED(ch, EAffectFlags::AFF_HIDE);
+	const bool appear_msg = AFF_FLAGGED(ch, EAffectFlags::AFF_INVISIBLE)
+		|| AFF_FLAGGED(ch, EAffectFlags::AFF_CAMOUFLAGE)
+		|| AFF_FLAGGED(ch, EAffectFlags::AFF_HIDE);
 
 	if (affected_by_spell(ch, SPELL_INVISIBLE))
 		affect_from_char(ch, SPELL_INVISIBLE);
@@ -1798,17 +1800,22 @@ void appear(CHAR_DATA * ch)
 	if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 		affect_from_char(ch, SPELL_CAMOUFLAGE);
 
-	AFF_FLAGS(ch).unset(AFF_INVISIBLE);
-	AFF_FLAGS(ch).unset(AFF_HIDE);
-	AFF_FLAGS(ch).unset(AFF_SNEAK);
-	AFF_FLAGS(ch).unset(AFF_CAMOUFLAGE);
+	AFF_FLAGS(ch).unset(EAffectFlags::AFF_INVISIBLE);
+	AFF_FLAGS(ch).unset(EAffectFlags::AFF_HIDE);
+	AFF_FLAGS(ch).unset(EAffectFlags::AFF_SNEAK);
+	AFF_FLAGS(ch).unset(EAffectFlags::AFF_CAMOUFLAGE);
 
 	if (appear_msg)
 	{
-		if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
+		if (IS_NPC(ch)
+			|| GET_LEVEL(ch) < LVL_IMMORT)
+		{
 			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, 0, TO_ROOM);
+		}
 		else
+		{
 			act("Вы почувствовали странное присутствие $n1.", FALSE, ch, 0, 0, TO_ROOM);
+		}
 	}
 }
 
@@ -1818,7 +1825,7 @@ void Damage::dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const
 	int dam_msgnum;
 	int w_type = msg_num;
 
-	static struct dam_weapon_type
+	static const struct dam_weapon_type
 	{
 		const char *to_room;
 		const char *to_char;
@@ -1890,7 +1897,6 @@ void Damage::dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const
 			"$n СМЕРТЕЛЬНО #w$g вас."
 		}
 	};
-
 
 	if (w_type >= TYPE_HIT && w_type < TYPE_MAGIC)
 		w_type -= TYPE_HIT;	// Change to base of table with text //
@@ -2255,7 +2261,7 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 		ch->master->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
 		if (!IS_NPC(ch->master))
 		    log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d", GET_NAME(ch), GET_NAME(ch->master), GET_CLASS(ch->master), GET_REMORT(ch->master), GET_LEVEL(ch->master), real_dam, over_dam);
-		if (AFF_FLAGGED(ch->master, AFF_GROUP))
+		if (AFF_FLAGGED(ch->master, EAffectFlags::AFF_GROUP))
 		{
 			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
 			leader->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
@@ -2270,8 +2276,10 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		for (CHAR_DATA *keeper = world[IN_ROOM(victim)]->people; keeper; keeper = keeper->next_in_room)
 		{
-			if (IS_NPC(keeper) && MOB_FLAGGED(keeper, MOB_ANGEL)
-				&& keeper->master && AFF_FLAGGED(keeper->master, AFF_GROUP))
+			if (IS_NPC(keeper)
+				&& MOB_FLAGGED(keeper, MOB_ANGEL)
+				&& keeper->master
+				&& AFF_FLAGGED(keeper->master, EAffectFlags::AFF_GROUP))
 			{
 				CHAR_DATA *keeper_leader = keeper->master->master ? keeper->master->master : keeper->master;
 				CHAR_DATA *victim_leader = victim->master ? victim->master : victim;
@@ -2363,10 +2371,10 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			// кто-то из группы хозяина в клетке, то опыт накинуть согруппам,
 			// которые рядом с убившим моба чармисом.
 			if (!IS_NPC(killer->master)
-					&& AFF_FLAGGED(killer->master, AFF_GROUP)
-					&& IN_ROOM(killer) == IN_ROOM(killer->master))
+				&& AFF_FLAGGED(killer->master, EAffectFlags::AFF_GROUP)
+				&& IN_ROOM(killer) == IN_ROOM(killer->master))
 			{
-			// Хозяин - PC в группе => опыт группе
+				// Хозяин - PC в группе => опыт группе
 				group_gain(killer->master, victim);
 			}
 			else if (IN_ROOM(killer) == IN_ROOM(killer->master))
@@ -2815,7 +2823,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 		lag = 1;
 		WAIT_STATE(victim, PULSE_VIOLENCE);
 		af.type = SPELL_BATTLE;
-		af.bitvector = AFF_STOPFIGHT;
+		af.bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 		af.location = 0;
 		af.modifier = 0;
 		af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
@@ -2840,7 +2848,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 		dam += (dam / 1);
 		WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 		af.type = SPELL_BATTLE;
-		af.bitvector = AFF_STOPFIGHT;
+		af.bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 		af.location = 0;
 		af.modifier = 0;
 		af.duration = pc_duration(victim, 2, 0, 0, 0, 0);
@@ -2865,7 +2873,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 		dam *= 4;
 		WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 		af.type = SPELL_BATTLE;
-		af.bitvector = AFF_STOPFIGHT;
+		af.bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
 		af.location = 0;
 		af.modifier = 0;
 		af.duration = pc_duration(victim, 3, 0, 0, 0, 0);

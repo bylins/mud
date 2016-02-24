@@ -60,13 +60,14 @@
 
 #include <string>
 #include <sstream>
+#include <vector>
 
 using std::string;
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 extern OBJ_DATA *object_list;
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern int top_of_socialk;
 extern char *credits;
 extern char *info;

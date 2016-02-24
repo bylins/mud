@@ -172,13 +172,15 @@ void AnimalMorph::SetChar(CHAR_DATA *ch)
 
 bool AnimalMorph::isAffected(const EAffectFlags flag) const
 {
-	return std::find(affects_.begin(), affects_.end(), flag) != affects_.end();
+	return affects_.find(flag) != affects_.end();
 }
 
 void AnimalMorph::AddAffect(const EAffectFlags flag)
 {
-	if (std::find(affects_.begin(), affects_.end(), flag) == affects_.end())
-		affects_.push_back(flag);
+	if (affects_.find(flag) == affects_.end())
+	{
+		affects_.insert(flag);
+	}
 }
 
 const AnimalMorph::affects_list_t& AnimalMorph::GetAffects()

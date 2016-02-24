@@ -38,6 +38,8 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <vector>
+
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
 struct skill_info_type skill_info[MAX_SKILL_NUM + 1];
@@ -49,7 +51,7 @@ extern const char *cast_phrase[SPELLS_COUNT + 1][2];
 // Во сколько раз манакост манакастеров меньше манакоста НЕманакастеров
 #define DRUID_MANA_COST_MODIFIER 0.5
 
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern int what_sky;
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 

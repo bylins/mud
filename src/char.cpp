@@ -73,17 +73,16 @@ std::list<CHAR_DATA *> fighting_list;
 
 namespace CharacterSystem
 {
-
 // * Реальное удаление указателей.
-void release_purged_list()
-{
-	for (PurgedCharList::iterator i = purged_char_list.begin();
-		i != purged_char_list.end(); ++i)
+	void release_purged_list()
 	{
-		delete *i;
+		for (PurgedCharList::iterator i = purged_char_list.begin();
+		i != purged_char_list.end(); ++i)
+		{
+			delete *i;
+		}
+		purged_char_list.clear();
 	}
-	purged_char_list.clear();
-}
 
 } // namespace CharacterSystem
 
@@ -164,6 +163,19 @@ void CHAR_DATA::reset()
 	GET_DAMAGE(this) = 0;
 
 	PlayerI::reset();
+}
+
+bool CHAR_DATA::has_any_affect(const affects_list_t affects)
+{
+	for (const auto& affect : affects)
+	{
+		if (AFF_FLAGGED(this, affect))
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**

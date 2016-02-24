@@ -72,7 +72,7 @@ extern struct cha_app_type cha_app[];
 extern struct size_app_type size_app[];
 extern class_app_type class_app[];
 extern struct weapon_app_type weapon_app[];
-extern struct pray_affect_type pray_affect[];
+extern std::vector<pray_affect_type> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
 extern std::vector<weapon_affect_types> weapon_affect;

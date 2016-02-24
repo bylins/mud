@@ -573,7 +573,7 @@ public:
 	
 	virtual void reset();
 
-
+	bool has_any_affect(const affects_list_t affects);
 
 private:
 	std::string clan_for_title();
@@ -777,6 +777,15 @@ inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 	}
 }
 
+inline FLAG_DATA& AFF_FLAGS(CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
+inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
+
+inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlags flag)
+{
+	return AFF_FLAGS(ch).get(flag)
+		|| ch->isAffected(flag);
+}
+
 inline bool IS_CHARMICE(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
@@ -812,6 +821,11 @@ inline bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 	return MORT_CAN_SEE(sub, obj)
 		|| (!IS_NPC(sub)
 			&& PRF_FLAGGED(sub, PRF_HOLYLIGHT));
+}
+
+inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return sub == obj;
 }
 
 /// Can subject see character "obj"?
@@ -864,16 +878,33 @@ inline bool AWAKE(const CHAR_DATA* ch)
 		&& !AFF_FLAGGED(ch, EAffectFlags::AFF_SLEEP);
 }
 
+// Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
+//пока здесь только чарм, как и было раньше
+inline bool CAN_START_MTRIG(const CHAR_DATA *ch)
+{
+	return !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM);
+}
+//-Polud
+
+inline bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
+{
+	return !NAME_BAD(ch)
+		&& (NAME_FINE(ch)
+			|| !(GET_LEVEL(ch) == NAME_LEVEL))
+		&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+		&& IS_NPC(victim)
+		&& (GET_EXP(victim) > 0)
+		&& (!IS_NPC(victim)
+			|| !IS_NPC(ch)
+			|| AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM));
+}
+
 void change_fighting(CHAR_DATA * ch, int need_stop);
 size_t fighting_list_size();
 
 namespace CharacterSystem
 {
-
-void release_purged_list();
-void restore_mobs();
-int do_clan_tax(CHAR_DATA *ch, int gold);
-
+	extern void release_purged_list();
 } // namespace CharacterSystem
 
 #endif // CHAR_HPP_INCLUDED

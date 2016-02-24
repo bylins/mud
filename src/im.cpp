@@ -28,6 +28,8 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <vector>
+
 #define		VAR_CHAR	'@'
 
 #define imlog(lvl,str)	mudlog(str, lvl, LVL_BUILDER, IMLOG, TRUE)
@@ -35,9 +37,8 @@
 // из spec_proc.c
 char *how_good(CHAR_DATA * ch, int percent);
 
-
 extern CHAR_DATA *mob_proto;
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern INDEX_DATA *obj_index;
 extern INDEX_DATA *mob_index;
 

@@ -836,12 +836,16 @@ void mobile_affect_update(void)
 					if (!af->next || (af->next->type != af->type)
 							|| (af->next->duration > 0))
 					{
-						if (af->type > 0 &&
-								af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
+						if (af->type > 0
+							&& af->type <= SPELLS_COUNT
+							&& *spell_wear_off_msg[af->type])
 						{
 							show_spell_off(af->type, i);
-							if (af->type == SPELL_CHARM || af->bitvector == AFF_CHARM)
+							if (af->type == SPELL_CHARM
+								|| af->bitvector == EAffectFlags::AFF_CHARM)
+							{
 								was_charmed = TRUE;
+							}
 						}
 					}
 				}
@@ -4376,14 +4380,18 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	return 1;
 }
 
-#define NODISPELL(hjp) (!hjp || !spell_info[hjp->type].name    || \
-                        *spell_info[hjp->type].name == '!' || \
-			hjp->bitvector == AFF_CHARM  || \
-			hjp->type == SPELL_CHARM || \
-			hjp->type == SPELL_QUEST || \
-			hjp->type == SPELL_FASCINATION || \
-			hjp->type == SPELL_PATRONAGE || \
-			hjp->type == SPELL_SOLOBONUS)    
+inline bool NODISPELL(const AFFECT_DATA* hjp)
+{
+	return !hjp
+		|| !spell_info[hjp->type].name
+		|| *spell_info[hjp->type].name == '!'
+		|| hjp->bitvector == to_underlying(EAffectFlags::AFF_CHARM)
+		|| hjp->type == SPELL_CHARM
+		|| hjp->type == SPELL_QUEST
+		|| hjp->type == SPELL_FASCINATION
+		|| hjp->type == SPELL_PATRONAGE
+		|| hjp->type == SPELL_SOLOBONUS;
+}
 
 int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int type)
 {

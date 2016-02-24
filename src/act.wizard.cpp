@@ -95,7 +95,7 @@ extern mob_rnum top_of_mobt;
 extern obj_rnum top_of_objt;
 extern int top_of_p_table;
 extern int shutdown_time;
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern CHAR_DATA *mob_proto;
 extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
@@ -6672,11 +6672,11 @@ struct filter_type
 	// материал
 	int material;
 	// аффекты weap
-	vector<int> affect;
+	std::vector<int> affect;
 	// аффекты apply
-	vector<int> affect2;
+	std::vector<int> affect2;
 	// экстрафлаг
-	vector<int> affect3;
+	std::vector<int> affect3;
 };
 
 } // namespace
@@ -6922,7 +6922,7 @@ ACMD(do_print_armor)
 	}
 	if (!filter.affect.empty())
 	{
-		for (vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
+		for (std::vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
 		{
 			buffer += weapon_affects[*it];
 			buffer += " ";
@@ -6930,7 +6930,7 @@ ACMD(do_print_armor)
 	}
 	if (!filter.affect2.empty())
 	{
-		for (vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end(); ++it)
+		for (std::vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end(); ++it)
 		{
 			buffer += apply_types[*it];
 			buffer += " ";
@@ -6938,7 +6938,7 @@ ACMD(do_print_armor)
 	}
 	if (!filter.affect3.empty())
 	{
-		for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end(); ++it)
+		for (std::vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end(); ++it)
 		{
 			buffer += extra_bits[*it];
 			buffer += " ";
@@ -6969,7 +6969,7 @@ ACMD(do_print_armor)
 		bool find = true;
 		if (!filter.affect.empty())
 		{
-			for (vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
+			for (std::vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
 			{
 				if (!CompareBits((*i)->obj_flags.affects, weapon_affects, *it))
 				{
@@ -6986,7 +6986,7 @@ ACMD(do_print_armor)
 
 		if (!filter.affect2.empty())
 		{
-			for (vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end() && find; ++it)
+			for (std::vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end() && find; ++it)
 			{
 				find = false;
 				for (int k = 0; k < MAX_OBJ_AFFECT; ++k)
@@ -7006,7 +7006,7 @@ ACMD(do_print_armor)
 		}
 		if (!filter.affect3.empty())
 		{
-			for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it)
+			for (std::vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it)
 			{
 				//find = true;
 				if (!CompareBits(GET_OBJ_EXTRA(*i), extra_bits, *it))

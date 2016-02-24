@@ -41,7 +41,7 @@
 CHAR_DATA *combat_list = NULL;	// head of l-list of fighting chars
 CHAR_DATA *next_combat_list = NULL;
 
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
 extern CHAR_DATA *mob_proto;
@@ -481,49 +481,68 @@ CHAR_DATA *find_friend_cure(CHAR_DATA * caster, int spellnum)
 CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 {
 	CHAR_DATA *vict, *victim = NULL;
-	int vict_val = 0, AFF_USED = 0, spellreal = -1;
+	int vict_val = 0, spellreal = -1;
+	affects_list_t AFF_USED;
 	switch (spellnum)
 	{
 	case SPELL_CURE_BLIND:
-		SET_BIT(AFF_USED, AFF_BLIND);
+		AFF_USED.push_back(EAffectFlags::AFF_BLIND);
 		break;
+
 	case SPELL_REMOVE_POISON:
-		SET_BIT(AFF_USED, ((AFF_POISON) | (AFF_SCOPOLIA_POISON) | (AFF_BELENA_POISON) | (AFF_DATURA_POISON)));
+		AFF_USED.push_back(EAffectFlags::AFF_POISON);
+		AFF_USED.push_back(EAffectFlags::AFF_SCOPOLIA_POISON);
+		AFF_USED.push_back(EAffectFlags::AFF_BELENA_POISON);
+		AFF_USED.push_back(EAffectFlags::AFF_DATURA_POISON);
 		break;
+
 	case SPELL_REMOVE_HOLD:
-		SET_BIT(AFF_USED, AFF_HOLD);
+		AFF_USED.push_back(EAffectFlags::AFF_HOLD);
 		break;
+
 	case SPELL_REMOVE_CURSE:
-		SET_BIT(AFF_USED, AFF_CURSE);
+		AFF_USED.push_back(EAffectFlags::AFF_CURSE);
 		break;
+
 	case SPELL_REMOVE_SIELENCE:
-		SET_BIT(AFF_USED, AFF_SIELENCE);
+		AFF_USED.push_back(EAffectFlags::AFF_SIELENCE);
 		break;
+
 	case SPELL_CURE_PLAQUE:
 		spellreal = SPELL_PLAQUE;
 		break;
-
 	}
-	if ((AFF_FLAGGED(caster, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)) && AFF_FLAGGED(caster, EAffectFlags::AFF_HELPER))
+	if (AFF_FLAGGED(caster, EAffectFlags::AFF_HELPER)
+		&& (AFF_FLAGGED(caster, EAffectFlags::AFF_CHARM)
+			|| MOB_FLAGGED(caster, MOB_ANGEL)))
 	{
-		if (AFF_FLAGGED(caster, EAffectFlags::AFF_USED) || affected_by_spell(caster, spellreal))
-			return (caster);
-		else if (caster->master &&
-//         !IS_NPC(caster->master)                    &&
-				 CAN_SEE(caster, caster->master) && IN_ROOM(caster->master) == IN_ROOM(caster) &&
-				 (AFF_FLAGGED(caster->master, AFF_USED) || affected_by_spell(caster->master, spellreal)))
-			return (caster->master);
-		return (NULL);
+		if (caster->has_any_affect(AFF_USED)
+			|| affected_by_spell(caster, spellreal))
+		{
+			return caster;
+		}
+		else if (caster->master
+			&& CAN_SEE(caster, caster->master)
+			&& IN_ROOM(caster->master) == IN_ROOM(caster)
+			&& (caster->master->has_any_affect(AFF_USED)
+				|| affected_by_spell(caster->master, spellreal)))
+		{
+			return caster->master;
+		}
+
+		return NULL;
 	}
 
-	for (vict = world[IN_ROOM(caster)]->people; AFF_USED && vict; vict = vict->next_in_room)
+	for (vict = world[IN_ROOM(caster)]->people; !AFF_USED.empty() && vict; vict = vict->next_in_room)
 	{
 		if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlags::AFF_CHARM) || (MOB_FLAGGED(vict, MOB_ANGEL)
 				&& (vict->master && !IS_NPC(vict->master)))
 				|| !CAN_SEE(caster, vict))
 			continue;
-		if (!AFF_FLAGGED(vict, EAffectFlags::AFF_USED))
+		if (!vict->has_any_affect(AFF_USED))
+		{
 			continue;
+		}
 		if (!vict->get_fighting() && !MOB_FLAGGED(vict, MOB_HELPER))
 			continue;
 		if (!victim || vict_val < GET_MAXDAMAGE(vict))
@@ -534,69 +553,93 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 				break;
 		}
 	}
-	return (victim);
+	return victim;
 }
 
 CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 {
 	CHAR_DATA *vict = NULL, *victim = NULL;
-	int vict_val = 0, AFF_USED, spellreal = -1;
-	AFF_USED = 0;
+	int vict_val = 0, spellreal = -1;
+	affects_list_t AFF_USED;
 	switch (spellnum)
 	{
 	case SPELL_CURE_BLIND:
-		SET_BIT(AFF_USED, AFF_BLIND);
+		AFF_USED.push_back(EAffectFlags::AFF_BLIND);
 		break;
 	case SPELL_REMOVE_POISON:
-		SET_BIT(AFF_USED, ((AFF_POISON) | (AFF_SCOPOLIA_POISON) | (AFF_BELENA_POISON) | (AFF_DATURA_POISON)));
+		AFF_USED.push_back(EAffectFlags::AFF_POISON);
+		AFF_USED.push_back(EAffectFlags::AFF_SCOPOLIA_POISON);
+		AFF_USED.push_back(EAffectFlags::AFF_BELENA_POISON);
+		AFF_USED.push_back(EAffectFlags::AFF_DATURA_POISON);
 		break;
 	case SPELL_REMOVE_HOLD:
-		SET_BIT(AFF_USED, AFF_HOLD);
+		AFF_USED.push_back(EAffectFlags::AFF_HOLD);
 		break;
 	case SPELL_REMOVE_CURSE:
-		SET_BIT(AFF_USED, AFF_CURSE);
+		AFF_USED.push_back(EAffectFlags::AFF_CURSE);
 		break;
 	case SPELL_REMOVE_SIELENCE:
-		SET_BIT(AFF_USED, AFF_SIELENCE);
+		AFF_USED.push_back(EAffectFlags::AFF_SIELENCE);
 		break;
 	case SPELL_CURE_PLAQUE:
 		spellreal = SPELL_PLAQUE;
 		break;
 	}
 
-	if ((AFF_FLAGGED(caster, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)) && AFF_FLAGGED(caster, EAffectFlags::AFF_HELPER))
+	if (AFF_FLAGGED(caster, EAffectFlags::AFF_HELPER)
+		&& (AFF_FLAGGED(caster, EAffectFlags::AFF_CHARM)
+			|| MOB_FLAGGED(caster, MOB_ANGEL)))
 	{
-		if (AFF_FLAGGED(caster, EAffectFlags::AFF_USED) || affected_by_spell(caster, spellreal))
-			return (caster);
-		else if (caster->master &&
-//         !IS_NPC(caster->master)                    &&
-				 CAN_SEE(caster, caster->master) && IN_ROOM(caster->master) == IN_ROOM(caster) &&
-				 (AFF_FLAGGED(caster->master, AFF_USED) || affected_by_spell(caster->master, spellreal)))
-			return (caster->master);
-		return (NULL);
+		if (caster->has_any_affect(AFF_USED)
+			|| affected_by_spell(caster, spellreal))
+		{
+			return caster;
+		}
+		else if (caster->master
+			&& CAN_SEE(caster, caster->master)
+			&& IN_ROOM(caster->master) == IN_ROOM(caster)
+			&& (caster->master->has_any_affect(AFF_USED)
+				|| affected_by_spell(caster->master, spellreal)))
+		{
+			return caster->master;
+		}
+
+		return NULL;
 	}
 
-	for (vict = world[IN_ROOM(caster)]->people; AFF_USED && vict; vict = vict->next_in_room)
+	for (vict = world[IN_ROOM(caster)]->people; !AFF_USED.empty() && vict; vict = vict->next_in_room)
 	{
-		if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlags::AFF_CHARM) || (MOB_FLAGGED(vict, MOB_ANGEL)
+		if (!IS_NPC(vict)
+			|| AFF_FLAGGED(vict, EAffectFlags::AFF_CHARM)
+			|| (MOB_FLAGGED(vict, MOB_ANGEL)
 				&& (vict->master && !IS_NPC(vict->master)))
-				|| !CAN_SEE(caster, vict))
+			|| !CAN_SEE(caster, vict))
+		{
 			continue;
-		if (!AFF_FLAGGED(vict, EAffectFlags::AFF_USED))
+		}
+		if (!vict->has_any_affect(AFF_USED))
+		{
 			continue;
-		if (!vict->get_fighting() && !MOB_FLAGGED(vict, MOB_HELPER))
+		}
+		if (!vict->get_fighting()
+			&& !MOB_FLAGGED(vict, MOB_HELPER))
+		{
 			continue;
-		if (!victim || vict_val < GET_MAXCASTER(vict))
+		}
+		if (!victim
+			|| vict_val < GET_MAXCASTER(vict))
 		{
 			victim = vict;
 			vict_val = GET_MAXCASTER(vict);
 			if (GET_REAL_INT(caster) < number(10, 20))
+			{
 				break;
+			}
 		}
 	}
-	return (victim);
-}
 
+	return victim;
+}
 
 CHAR_DATA *find_affectee(CHAR_DATA * caster, int spellnum)
 {
@@ -1157,7 +1200,7 @@ void try_angel_rescue(CHAR_DATA *ch)
 	for (k = ch->followers; k; k = k_next)
 	{
 		k_next = k->next;
-		if (AFF_FLAGGED(k->follower, AFF_HELPER)
+		if (AFF_FLAGGED(k->follower, EAffectFlags::AFF_HELPER)
 			&& MOB_FLAGGED(k->follower, MOB_ANGEL)
 			&& !k->follower->get_fighting()
 			&& IN_ROOM(k->follower) == IN_ROOM(ch)
@@ -2048,69 +2091,88 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 // finding leaders
 	while (cleader->master)
 	{
-		if (IS_NPC(cleader) &&
-				!AFF_FLAGGED(cleader, EAffectFlags::AFF_CHARM) && !MOB_FLAGGED(cleader, MOB_ANGEL) && !IS_HORSE(cleader))
+		if (IS_NPC(cleader)
+			&& !AFF_FLAGGED(cleader, EAffectFlags::AFF_CHARM)
+			&& !MOB_FLAGGED(cleader, MOB_ANGEL)
+			&& !IS_HORSE(cleader))
+		{
 			break;
+		}
 		cleader = cleader->master;
 	}
 	while (vleader->master)
 	{
-		if (IS_NPC(vleader) &&
-				!AFF_FLAGGED(vleader, EAffectFlags::AFF_CHARM) && !MOB_FLAGGED(vleader, MOB_ANGEL) && !IS_HORSE(vleader))
+		if (IS_NPC(vleader)
+			&& !AFF_FLAGGED(vleader, EAffectFlags::AFF_CHARM)
+			&& !MOB_FLAGGED(vleader, MOB_ANGEL)
+			&& !IS_HORSE(vleader))
+		{
 			break;
+		}
 		vleader = vleader->master;
 	}
-	if (cleader != vleader)
-		return return_value;
 
+	if (cleader != vleader)
+	{
+		return return_value;
+	}
 
 // finding closest to the leader nongrouped agressor
 // it cannot be a charmice
-	while (ch->master && ch->master->master)
+	while (ch->master
+		&& ch->master->master)
 	{
-		if (!AFF_FLAGGED(ch->master, AFF_GROUP) && !IS_NPC(ch->master))
+		if (!AFF_FLAGGED(ch->master, EAffectFlags::AFF_GROUP)
+			&& !IS_NPC(ch->master))
 		{
 			ch = ch->master;
 			continue;
 		}
 		else if (IS_NPC(ch->master)
-				 && !AFF_FLAGGED(ch->master->master, AFF_GROUP)
-				 && !IS_NPC(ch->master->master) && ch->master->master->master)
+			&& !AFF_FLAGGED(ch->master->master, EAffectFlags::AFF_GROUP)
+			&& !IS_NPC(ch->master->master)
+			&& ch->master->master->master)
 		{
 			ch = ch->master->master;
 			continue;
 		}
 		else
+		{
 			break;
+		}
 	}
 
 // finding closest to the leader nongrouped victim
 // it cannot be a charmice
 	while (victim->master && victim->master->master)
 	{
-		if (!AFF_FLAGGED(victim->master, AFF_GROUP)
-				&& !IS_NPC(victim->master))
+		if (!AFF_FLAGGED(victim->master, EAffectFlags::AFF_GROUP)
+			&& !IS_NPC(victim->master))
 		{
 			victim = victim->master;
 			continue;
 		}
 		else if (IS_NPC(victim->master)
-				 && !AFF_FLAGGED(victim->master->master, AFF_GROUP)
-				 && !IS_NPC(victim->master->master)
-				 && victim->master->master->master)
+			&& !AFF_FLAGGED(victim->master->master, EAffectFlags::AFF_GROUP)
+			&& !IS_NPC(victim->master->master)
+			&& victim->master->master->master)
 		{
 			victim = victim->master->master;
 			continue;
 		}
 		else
+		{
 			break;
+		}
 	}
-	if (!AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP) || cleader == victim)
+	if (!AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP)
+		|| cleader == victim)
 	{
 		stop_follower(ch, SF_EMPTY);
 		return_value |= 1;
 	}
-	if (!AFF_FLAGGED(victim, EAffectFlags::AFF_GROUP) || vleader == ch)
+	if (!AFF_FLAGGED(victim, EAffectFlags::AFF_GROUP)
+		|| vleader == ch)
 	{
 		stop_follower(victim, SF_EMPTY);
 		return_value |= 2;

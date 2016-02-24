@@ -246,8 +246,11 @@ void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_CHECK(ch, MTRIG_BRIBE) || !CAN_START_MTRIG(ch))
+	if (!SCRIPT_CHECK(ch, MTRIG_BRIBE)
+		|| !CAN_START_MTRIG(ch))
+	{
 		return;
+	}
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 	{

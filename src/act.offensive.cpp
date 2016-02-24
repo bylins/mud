@@ -2527,7 +2527,7 @@ ACMD(do_turn_undead)
 	int percent, dam = 0;
 	int sum, max_level;
 	struct timed_type timed;
-	vector<CHAR_DATA*> ch_list;
+	std::vector<CHAR_DATA*> ch_list;
 	CHAR_DATA *ch_vict;
 
 	if (IS_NPC(ch))		// Cannot use on mobs.
@@ -2588,7 +2588,7 @@ ACMD(do_turn_undead)
 //Применяем.
 //Если уровень больше максимального, или отсэйвилось - фейл по этому персу
 //Если поражение - то дамаг+страх, если от страха спасла воля - просто дамаг.
-	for (vector<CHAR_DATA *>::iterator it=ch_list.begin();it!=ch_list.end();++it)
+	for (std::vector<CHAR_DATA *>::iterator it=ch_list.begin();it!=ch_list.end();++it)
 	{
 		if (sum <= 0)
 			break;
@@ -2625,11 +2625,12 @@ ACMD(do_turn_undead)
 		dmg.flags.set(FightSystem::IGNORE_FSHIELD);
 		dmg.process(ch, ch_vict);
 
-		if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR) &&
-				!general_savingthrow(ch, ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch)))
+		if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR)
+			&& !general_savingthrow(ch, ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch)))
+		{
 			go_flee(ch_vict);
+		}
 	}
-
 }
 
 // Умение "железный ветер"
@@ -2637,7 +2638,8 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	OBJ_DATA *weapon;
 
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlags::AFF_MAGICSTOPFIGHT))
+	if (AFF_FLAGGED(ch, EAffectFlags::AFF_STOPFIGHT)
+		|| AFF_FLAGGED(ch, EAffectFlags::AFF_MAGICSTOPFIGHT))
 	{
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;

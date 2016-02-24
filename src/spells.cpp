@@ -43,10 +43,12 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <vector>
+
 extern room_rnum r_mortal_start_room;
 
 extern OBJ_DATA *object_list;
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;

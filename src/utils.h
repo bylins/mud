@@ -357,7 +357,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define PRF_FLAGS(ch)  ((ch)->player_specials->saved.pref)
-#define AFF_FLAGS(ch)  ((ch)->char_specials.saved.affected_by)
 #define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
 #define ROOM_AFF_FLAGS(room)  ((room)->affected_by)
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
@@ -371,7 +370,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 
 #define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && MOB_FLAGS(ch).get(flag))
 #define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && PLR_FLAGS(ch).get(flag))
-#define AFF_FLAGGED(ch, flag)   (AFF_FLAGS(ch).get(flag) || (ch)->isAffected(flag))
 #define PRF_FLAGGED(ch, flag)   (PRF_FLAGS(ch).get(flag))
 #define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
 #define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
@@ -636,15 +634,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
 #define NAME_BAD(ch)           (NAME_GOD(ch)<1000 && NAME_GOD(ch))
 
-
-#define OK_GAIN_EXP(ch,victim) (!NAME_BAD(ch) &&                                     \
-                                (NAME_FINE(ch) || !(GET_LEVEL(ch)==NAME_LEVEL)) &&   \
-                                !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&            \
-            (IS_NPC(victim) && (GET_EXP(victim) > 0)) &&         \
-                                (!IS_NPC(victim)||                                   \
-                                 (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        \
-                                )                                                    \
-                               )
 
 #define MAX_EXP_PERCENT   80
 #define MAX_EXP_RMRT_PERCENT(ch) (MAX_EXP_PERCENT+ch->get_remort()*5)
@@ -1013,16 +1002,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define OMHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ей" : "им")) :"ему")
 #define OYOU(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
 
-// Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
-//пока здесь только чарм, как и было раньше
-#define CAN_START_MTRIG(ch) (!AFF_FLAGGED((ch),AFF_CHARM))
-//-Polud
-#define LIGHT_OK(sub)   (!AFF_FLAGGED(sub, EAffectFlags::AFF_BLIND) && \
-   (IS_LIGHT((sub)->in_room) || AFF_FLAGGED((sub), AFF_INFRAVISION)))
-
 #define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || RENTABLE(ch)))
-
-#define SELF(sub, obj)  ((sub) == (obj))
 
 // Can subject see character "obj" without light
 #define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && \
@@ -1036,7 +1016,6 @@ inline void NEWCREATE(T*& result, const T& init_value)
         ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
 // End of CAN_SEE
-
 
 // Is anyone carrying this object and if so, are they visible?
 #define CAN_SEE_OBJ_CARRIER(sub, obj) \

@@ -38,6 +38,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <sstream>
+#include <vector>
 
 #define LOC_INVENTORY	0
 #define MAX_BAG_ROWS	5
@@ -46,7 +47,7 @@
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *>obj_proto;
 extern int top_of_p_table;
 extern int rent_file_timeout, crash_file_timeout;
 extern int free_crashrent_period;
