@@ -1124,7 +1124,7 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 	{
 		if (percent == -2)
 		{
-			if (AFF_FLAGGED(ch, EAffectFlags::AFF_SNEAK))
+			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK))
 				remove_hide = number(1, skill_info[SKILL_SNEAK].max_percent) >
 							  calculate_skill(ch, SKILL_SNEAK, skill_info[SKILL_SNEAK].max_percent, 0);
 			else
@@ -1139,7 +1139,7 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 		if (remove_hide)
 		{
 			affect_from_char(ch, SPELL_HIDE);
-			if (!AFF_FLAGGED(ch, EAffectFlags::AFF_HIDE))
+			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
 			{
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", FALSE, ch, 0, 0, TO_ROOM);
@@ -1225,7 +1225,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		*(argument + length - 1) = ' ';
 	}
 
-	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_STOPFIGHT) && !AFF_FLAGGED(ch, EAffectFlags::AFF_MAGICSTOPFIGHT)))
+	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)))
 	{
 		int cont;	// continue the command checks
 		cont = command_wtrigger(ch, arg, line);
@@ -1274,10 +1274,12 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		}
 	}
 
-	if (((!IS_NPC(ch) && (GET_FREEZE_LEV(ch) > GET_LEVEL(ch)) && (PLR_FLAGGED(ch, PLR_FROZEN)))
-			|| GET_MOB_HOLD(ch) > 0
-			|| AFF_FLAGGED(ch, EAffectFlags::AFF_STOPFIGHT)
-			|| AFF_FLAGGED(ch, EAffectFlags::AFF_MAGICSTOPFIGHT))
+	if (((!IS_NPC(ch)
+				&& (GET_FREEZE_LEV(ch) > GET_LEVEL(ch))
+				&& (PLR_FLAGGED(ch, PLR_FROZEN)))
+			|| GET_MOB_HOLD(ch)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
 		&& !check_frozen_cmd(ch, cmd))
 	{
 		send_to_char("Вы попытались, но не смогли сдвинуться с места...\r\n", ch);
@@ -2175,12 +2177,12 @@ void check_religion(CHAR_DATA *ch)
 	if (class_religion[ch->get_class()] == RELIGION_POLY && GET_RELIGION(ch) != RELIGION_POLY)
 	{
 		GET_RELIGION(ch) = RELIGION_POLY;
-		log("Change religion to poly: %s", ch->get_name());
+		log("Change religion to poly: %s", ch->get_name().c_str());
 	}
 	else if (class_religion[ch->get_class()] == RELIGION_MONO && GET_RELIGION(ch) != RELIGION_MONO)
 	{
 		GET_RELIGION(ch) = RELIGION_MONO;
-		log("Change religion to mono: %s", ch->get_name());
+		log("Change religion to mono: %s", ch->get_name().c_str());
 	}
 }
 
@@ -2412,8 +2414,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	}
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
-	AFF_FLAGS(d->character).unset(AFF_GROUP);
-	AFF_FLAGS(d->character).unset(AFF_HORSE);
+	AFF_FLAGS(d->character).unset(EAffectFlag::AFF_GROUP);
+	AFF_FLAGS(d->character).unset(EAffectFlag::AFF_HORSE);
 
 	// изменяем порталы
 	check_portals(d->character);

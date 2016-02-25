@@ -97,8 +97,8 @@ public:
 	static std::vector<int> GetRaceFeatures(int Kin,int Race);
 	static void GetKinNamesList(CHAR_DATA *ch);
 	static bool FeatureCheck(int Kin,int Race,int Feat);
-	static int GetKinNumByName(string KinName);
-	static int GetRaceNumByName(int Kin,string RaceName);
+	static int GetKinNumByName(const std::string& KinName);
+	static int GetRaceNumByName(int Kin, const std::string& RaceName);
 	static std::string GetKinNameByNum(int KinNum,int Sex);
 	static std::string GetRaceNameByNum(int KinNum,int RaceNum,int Sex);
     static std::string ShowRacesMenu(int KinNum);

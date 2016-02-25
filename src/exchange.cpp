@@ -110,7 +110,7 @@ SPECIAL(exchange)
 	{
 		if (IS_NPC(ch))
 			return 0;
-		if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
 			send_to_char("Вы немы, как рыба об лед.\r\n", ch);
 			return 1;

@@ -78,8 +78,6 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location);
 int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj);
 void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj,
 					   int *cost, long *nitems, int display, int factor, int equip, int recursive);
-void update_obj_file(void);
-int Crash_write_rentcode(CHAR_DATA * ch, FILE * fl, struct save_rent_info *rent);
 int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int mode);
 void Crash_save(std::stringstream &write_buffer, int iplayer, OBJ_DATA * obj, int location, int savetype);
 void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost);
@@ -87,7 +85,6 @@ void Crash_restore_weight(OBJ_DATA * obj);
 void Crash_extract_objs(OBJ_DATA * obj);
 int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj);
 void Crash_extract_norents(CHAR_DATA *ch, OBJ_DATA * obj);
-void Crash_extract_expensive(OBJ_DATA * obj);
 int Crash_calculate_rent(OBJ_DATA * obj);
 int Crash_calculate_rent_eq(OBJ_DATA * obj);
 int Crash_delete_files(int index);
@@ -2538,7 +2535,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		num += charmee_items;
 	}
 
-	log("Save obj: %s -> %d (%d)", ch->get_name(), num, charmee_items);
+	log("Save obj: %s -> %d (%d)", ch->get_name().c_str(), num, charmee_items);
 	ObjSaveSync::check(ch->get_uid(), ObjSaveSync::CHAR_SAVE);
 
 	if (!num)
@@ -3176,28 +3173,35 @@ void Crash_save_all_rent(void)
 			save_char_objects(ch, RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
 			PLR_FLAGS(ch).unset(PLR_CRASH);
-			AFF_FLAGS(ch).unset(AFF_GROUP);
-			AFF_FLAGS(ch).unset(AFF_HORSE);
+			AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 			extract_char(ch, FALSE);
 		}
 	}
 }
 
-
 void Crash_frac_rent_time(int frac_part)
 {
-	int c;
-	for (c = 0; c <= top_of_p_table; c++)
-		if (player_table[c].activity == frac_part && player_table[c].unique != -1 && SAVEINFO(c))
+	for (int c = 0; c <= top_of_p_table; c++)
+	{
+		if (player_table[c].activity == frac_part
+			&& player_table[c].unique != -1
+			&& SAVEINFO(c))
+		{
 			Crash_timer_obj(c, time(0));
+		}
+	}
 }
 
 void Crash_rent_time(int dectime)
 {
-	int c;
-	for (c = 0; c <= top_of_p_table; c++)
+	for (int c = 0; c <= top_of_p_table; c++)
+	{
 		if (player_table[c].unique != -1)
+		{
 			Crash_timer_obj(c, time(0));
+		}
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

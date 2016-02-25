@@ -648,7 +648,7 @@ void CharNode::save_online_objs()
 {
 	if (need_save)
 	{
-		log("Save obj: %s depot", ch->get_name());
+		log("Save obj: %s depot", ch->get_name().c_str());
 		ObjSaveSync::check(ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
 		write_obj_file(name, PERS_DEPOT_FILE, pers_online);

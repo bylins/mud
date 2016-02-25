@@ -1590,21 +1590,21 @@ struct weapon_app_type weapon_app[] =
 };
 
 const class_app_type::extra_affects_list_t ClericAffects = {};
-const class_app_type::extra_affects_list_t MageAffects = { { EAffectFlags::AFF_INFRAVISION, 1}};
+const class_app_type::extra_affects_list_t MageAffects = { { EAffectFlag::AFF_INFRAVISION, 1}};
 const class_app_type::extra_affects_list_t ThiefAffects = {
-	{ EAffectFlags::AFF_INFRAVISION, 1},
-	{ EAffectFlags::AFF_SENSE_LIFE, 1},
-	{ EAffectFlags::AFF_BLINK, 1} };
+	{ EAffectFlag::AFF_INFRAVISION, 1},
+	{ EAffectFlag::AFF_SENSE_LIFE, 1},
+	{ EAffectFlag::AFF_BLINK, 1} };
 const class_app_type::extra_affects_list_t WarriorAffects = {};
-const class_app_type::extra_affects_list_t AssasineAffects = { { EAffectFlags::AFF_INFRAVISION, 1 } };
+const class_app_type::extra_affects_list_t AssasineAffects = { { EAffectFlag::AFF_INFRAVISION, 1 } };
 const class_app_type::extra_affects_list_t GuardAffects = {};
 const class_app_type::extra_affects_list_t DefenderAffects = {};
 const class_app_type::extra_affects_list_t CharmerAffects = {};
-const class_app_type::extra_affects_list_t NecromancerAffects = { { EAffectFlags::AFF_INFRAVISION, 1} };
+const class_app_type::extra_affects_list_t NecromancerAffects = { { EAffectFlag::AFF_INFRAVISION, 1} };
 const class_app_type::extra_affects_list_t PaladineAffects = { };
 const class_app_type::extra_affects_list_t RangerAffects = {
-	{ EAffectFlags::AFF_INFRAVISION, 1},
-	{ EAffectFlags::AFF_SENSE_LIFE, 1} };
+	{ EAffectFlag::AFF_INFRAVISION, 1},
+	{ EAffectFlag::AFF_SENSE_LIFE, 1} };
 const class_app_type::extra_affects_list_t SmithAffects = {};
 const class_app_type::extra_affects_list_t MerchantAffects = {};
 const class_app_type::extra_affects_list_t DruidAffects = {};
@@ -2528,51 +2528,51 @@ const char *weapon_affects[] = { "слепота",
 								 "\n"
 							   };
 
-std::vector<weapon_affect_types> weapon_affect = {
-	{(0 | (1 << 0)), 0, SPELL_BLINDNESS},
-	{(0 | (1 << 1)), to_underlying(EAffectFlags::AFF_INVISIBLE), 0},
-	{(0 | (1 << 2)), to_underlying(EAffectFlags::AFF_DETECT_ALIGN), 0},
-	{(0 | (1 << 3)), to_underlying(EAffectFlags::AFF_DETECT_INVIS), 0},
-	{(0 | (1 << 4)), to_underlying(EAffectFlags::AFF_DETECT_MAGIC), 0},
-	{(0 | (1 << 5)), to_underlying(EAffectFlags::AFF_SENSE_LIFE), 0},
-	{(0 | (1 << 6)), to_underlying(EAffectFlags::AFF_WATERWALK), 0},
-	{(0 | (1 << 7)), to_underlying(EAffectFlags::AFF_SANCTUARY), 0},
-	{(0 | (1 << 8)), to_underlying(EAffectFlags::AFF_CURSE), 0},
-	{(0 | (1 << 9)), to_underlying(EAffectFlags::AFF_INFRAVISION), 0},
-	{(0 | (1 << 10)), 0, SPELL_POISON},
-	{(0 | (1 << 11)), to_underlying(EAffectFlags::AFF_PROTECT_EVIL), 0},
-	{(0 | (1 << 12)), to_underlying(EAffectFlags::AFF_PROTECT_GOOD), 0},
-	{(0 | (1 << 13)), 0, SPELL_SLEEP},
-	{(0 | (1 << 14)), to_underlying(EAffectFlags::AFF_NOTRACK), 0},
-	{(0 | (1 << 15)), to_underlying(EAffectFlags::AFF_BLESS), 0},
-	{(0 | (1 << 16)), to_underlying(EAffectFlags::AFF_SNEAK), 0},
-	{(0 | (1 << 17)), to_underlying(EAffectFlags::AFF_HIDE), 0},
-	{(0 | (1 << 18)), 0, SPELL_HOLD},
-	{(0 | (1 << 19)), to_underlying(EAffectFlags::AFF_FLY), 0},
-	{(0 | (1 << 20)), to_underlying(EAffectFlags::AFF_SIELENCE), 0},
-	{(0 | (1 << 21)), to_underlying(EAffectFlags::AFF_AWARNESS), 0},
-	{(0 | (1 << 22)), to_underlying(EAffectFlags::AFF_BLINK), 0},
-	{(0 | (1 << 23)), to_underlying(EAffectFlags::AFF_NOFLEE), 0},
-	{(0 | (1 << 24)), to_underlying(EAffectFlags::AFF_SINGLELIGHT), 0},
-	{(0 | (1 << 25)), to_underlying(EAffectFlags::AFF_HOLYLIGHT), 0},
-	{(0 | (1 << 26)), to_underlying(EAffectFlags::AFF_HOLYDARK), 0},
-	{(0 | (1 << 27)), to_underlying(EAffectFlags::AFF_DETECT_POISON), 0},
-	{(0 | (1 << 28)), to_underlying(EAffectFlags::AFF_SLOW), 0},
-	{(0 | (1 << 29)), to_underlying(EAffectFlags::AFF_HASTE), 0},
-	{(INT_ONE | (1 << 0)), to_underlying(EAffectFlags::AFF_WATERBREATH), 0},
-	{(INT_ONE | (1 << 1)), to_underlying(EAffectFlags::AFF_HAEMORRAGIA), 0},
-	{(INT_ONE | (1 << 2)), to_underlying(EAffectFlags::AFF_CAMOUFLAGE), 0},
-	{(INT_ONE | (1 << 3)), to_underlying(EAffectFlags::AFF_SHIELD), 0 },
-	{(INT_ONE | (1 << 4)), to_underlying(EAffectFlags::AFF_AIRSHIELD), 0 },
-	{(INT_ONE | (1 << 5)), to_underlying(EAffectFlags::AFF_FIRESHIELD), 0},
-	{(INT_ONE | (1 << 6)), to_underlying(EAffectFlags::AFF_ICESHIELD), 0 },
-	{(INT_ONE | (1 << 7)), to_underlying(EAffectFlags::AFF_MAGICGLASS), 0 },
-	{(INT_ONE | (1 << 8)), to_underlying(EAffectFlags::AFF_STONEHAND), 0},
-	{(INT_ONE | (1 << 9)), to_underlying(EAffectFlags::AFF_PRISMATICAURA), 0},
-	{(INT_ONE | (1 << 10)), to_underlying(EAffectFlags::AFF_AIRAURA), 0 },
-	{(INT_ONE | (1 << 11)), to_underlying(EAffectFlags::AFF_FIREAURA), 0 },
-	{(INT_ONE | (1 << 12)), to_underlying(EAffectFlags::AFF_ICEAURA), 0},
-	{(INT_ONE | (1 << 13)), to_underlying(EAffectFlags::AFF_DEAFNESS), 0}
+weapon_affect_t weapon_affect = {
+	weapon_affect_types{ (0 | (1 << 0)), 0, SPELL_BLINDNESS },
+	weapon_affect_types{ (0 | (1 << 1)), to_underlying(EAffectFlag::AFF_INVISIBLE), 0 },
+	weapon_affect_types{ (0 | (1 << 2)), to_underlying(EAffectFlag::AFF_DETECT_ALIGN), 0 },
+	weapon_affect_types{ (0 | (1 << 3)), to_underlying(EAffectFlag::AFF_DETECT_INVIS), 0 },
+	weapon_affect_types{ (0 | (1 << 4)), to_underlying(EAffectFlag::AFF_DETECT_MAGIC), 0 },
+	weapon_affect_types{ (0 | (1 << 5)), to_underlying(EAffectFlag::AFF_SENSE_LIFE), 0 },
+	weapon_affect_types{ (0 | (1 << 6)), to_underlying(EAffectFlag::AFF_WATERWALK), 0 },
+	weapon_affect_types{ (0 | (1 << 7)), to_underlying(EAffectFlag::AFF_SANCTUARY), 0 },
+	weapon_affect_types{ (0 | (1 << 8)), to_underlying(EAffectFlag::AFF_CURSE), 0 },
+	weapon_affect_types{ (0 | (1 << 9)), to_underlying(EAffectFlag::AFF_INFRAVISION), 0 },
+	weapon_affect_types{ (0 | (1 << 10)), 0, SPELL_POISON },
+	weapon_affect_types{ (0 | (1 << 11)), to_underlying(EAffectFlag::AFF_PROTECT_EVIL), 0 },
+	weapon_affect_types{ (0 | (1 << 12)), to_underlying(EAffectFlag::AFF_PROTECT_GOOD), 0 },
+	weapon_affect_types{ (0 | (1 << 13)), 0, SPELL_SLEEP },
+	weapon_affect_types{ (0 | (1 << 14)), to_underlying(EAffectFlag::AFF_NOTRACK), 0 },
+	weapon_affect_types{ (0 | (1 << 15)), to_underlying(EAffectFlag::AFF_BLESS), 0 },
+	weapon_affect_types{ (0 | (1 << 16)), to_underlying(EAffectFlag::AFF_SNEAK), 0 },
+	weapon_affect_types{ (0 | (1 << 17)), to_underlying(EAffectFlag::AFF_HIDE), 0 },
+	weapon_affect_types{ (0 | (1 << 18)), 0, SPELL_HOLD },
+	weapon_affect_types{ (0 | (1 << 19)), to_underlying(EAffectFlag::AFF_FLY), 0 },
+	weapon_affect_types{ (0 | (1 << 20)), to_underlying(EAffectFlag::AFF_SIELENCE), 0},
+	weapon_affect_types{ (0 | (1 << 21)), to_underlying(EAffectFlag::AFF_AWARNESS), 0 },
+	weapon_affect_types{ (0 | (1 << 22)), to_underlying(EAffectFlag::AFF_BLINK), 0 },
+	weapon_affect_types{ (0 | (1 << 23)), to_underlying(EAffectFlag::AFF_NOFLEE), 0 },
+	weapon_affect_types{ (0 | (1 << 24)), to_underlying(EAffectFlag::AFF_SINGLELIGHT), 0 },
+	weapon_affect_types{ (0 | (1 << 25)), to_underlying(EAffectFlag::AFF_HOLYLIGHT), 0 },
+	weapon_affect_types{ (0 | (1 << 26)), to_underlying(EAffectFlag::AFF_HOLYDARK), 0 },
+	weapon_affect_types{ (0 | (1 << 27)), to_underlying(EAffectFlag::AFF_DETECT_POISON), 0},
+	weapon_affect_types{ (0 | (1 << 28)), to_underlying(EAffectFlag::AFF_SLOW), 0 },
+	weapon_affect_types{ (0 | (1 << 29)), to_underlying(EAffectFlag::AFF_HASTE), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 0)), to_underlying(EAffectFlag::AFF_WATERBREATH), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 1)), to_underlying(EAffectFlag::AFF_HAEMORRAGIA), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 2)), to_underlying(EAffectFlag::AFF_CAMOUFLAGE), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 3)), to_underlying(EAffectFlag::AFF_SHIELD), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 4)), to_underlying(EAffectFlag::AFF_AIRSHIELD), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 5)), to_underlying(EAffectFlag::AFF_FIRESHIELD), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 6)), to_underlying(EAffectFlag::AFF_ICESHIELD), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 7)), to_underlying(EAffectFlag::AFF_MAGICGLASS), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 8)), to_underlying(EAffectFlag::AFF_STONEHAND), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 9)), to_underlying(EAffectFlag::AFF_PRISMATICAURA), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 10)), to_underlying(EAffectFlag::AFF_AIRAURA), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 11)), to_underlying(EAffectFlag::AFF_FIREAURA), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 12)), to_underlying(EAffectFlag::AFF_ICEAURA), 0 },
+	weapon_affect_types{ (INT_ONE | (1 << 13)), to_underlying(EAffectFlag::AFF_DEAFNESS), 0}
 };
 
 const char *pray_metter[] = { "- Яриле",
@@ -2600,7 +2600,7 @@ const char *pray_whom[] = { "Яриле",
 // Fields : whom location modifier bitvector battleflag
 std::vector<pray_affect_type> pray_affect =
 {
-	{0, APPLY_NONE, 0, to_underlying(EAffectFlags::AFF_INFRAVISION), 0},	// Ярило
+	{0, APPLY_NONE, 0, to_underlying(EAffectFlag::AFF_INFRAVISION), 0},	// Ярило
 	{1, APPLY_HITREG, 50, 0, 0},	// Мокошь
 	{2, APPLY_STR, 1, 0, 0},	// Перун
 	{3, APPLY_DEX, 1, 0, 0},	// Велес

@@ -173,23 +173,33 @@ std::vector<int> PlayerRace::GetRaceFeatures(int Kin,int Race)
 }
 
 //Получение номера расы по названию
-int PlayerRace::GetKinNumByName(string KinName)
+int PlayerRace::GetKinNumByName(const std::string& KinName)
 {
-	for (PlayerKinListType::iterator it =  PlayerKinList.begin();it != PlayerKinList.end();++it)
+	for (PlayerKinListType::const_iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it)
+	{
 		if ((*it)->KinMenuStr == KinName)
+		{
 			return (*it)->KinNum;
+		}
+	}
 
 	return RACE_UNDEFINED;
 };
 
 //Получение номера рода по названию
-int PlayerRace::GetRaceNumByName(int Kin, string RaceName)
+int PlayerRace::GetRaceNumByName(int Kin, const std::string& RaceName)
 {
 	PlayerKinPtr KinPtr = PlayerRace::GetPlayerKin(Kin);
 	if (KinPtr != NULL)
-		for (PlayerRaceListType::iterator it =  KinPtr->PlayerRaceList.begin();it != KinPtr->PlayerRaceList.end();++it)
+	{
+		for (PlayerRaceListType::const_iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end(); ++it)
+		{
 			if ((*it)->_RaceMenuStr == RaceName)
+			{
 				return (*it)->_RaceNum;
+			}
+		}
+	}
 
 	return RACE_UNDEFINED;
 };

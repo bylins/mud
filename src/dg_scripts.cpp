@@ -38,7 +38,7 @@
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
-#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
+#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 
 // Вывод сообщений о неверных управляющих конструкциях DGScript
 #define	DG_CODE_ANALYZE
@@ -421,7 +421,9 @@ CHAR_DATA *get_char(char *name, int vnum)
 	{
 		for (i = character_list; i; i = i->get_next())
 		{
-			if (isname(name, i->get_pc_name()) && (IS_NPC(i) || !GET_INVIS_LEV(i)))
+			if (isname(name, i->get_pc_name().c_str())
+				&& (IS_NPC(i)
+					|| !GET_INVIS_LEV(i)))
 			{
 				return i;
 			}
@@ -491,18 +493,27 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name)
 	}
 	else
 	{
-		if (obj->carried_by &&
-				isname(name, obj->carried_by->get_pc_name()) &&
-				(IS_NPC(obj->carried_by) || !GET_INVIS_LEV(obj->carried_by)))
+		if (obj->carried_by
+			&& isname(name, obj->carried_by->get_pc_name().c_str())
+			&& (IS_NPC(obj->carried_by)
+				|| !GET_INVIS_LEV(obj->carried_by)))
+		{
 			return obj->carried_by;
+		}
 
-		if (obj->worn_by &&
-				isname(name, obj->worn_by->get_pc_name()) && (IS_NPC(obj->worn_by) || !GET_INVIS_LEV(obj->worn_by)))
+		if (obj->worn_by
+			&& isname(name, obj->worn_by->get_pc_name().c_str())
+			&& (IS_NPC(obj->worn_by)
+				|| !GET_INVIS_LEV(obj->worn_by)))
+		{
 			return obj->worn_by;
+		}
 
 		for (ch = character_list; ch; ch = ch->get_next())
 		{
-			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+			if (isname(name, ch->get_pc_name().c_str())
+				&& (IS_NPC(ch)
+					|| !GET_INVIS_LEV(ch)))
 			{
 				return ch;
 			}
@@ -521,25 +532,40 @@ CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name)
 {
 	CHAR_DATA *ch;
 
-	if ((*name == UID_ROOM) || (*name == UID_OBJ))
+	if (*name == UID_ROOM
+		|| *name == UID_OBJ)
+	{
 		return NULL;
+	}
 
 	if (*name == UID_CHAR)
 	{
 		ch = find_char(atoi(name + 1));
 
-		if (ch && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+		if (ch
+			&& (IS_NPC(ch)
+				|| !GET_INVIS_LEV(ch)))
+		{
 			return ch;
+		}
 	}
 	else
 	{
 		for (ch = room->people; ch; ch = ch->next_in_room)
-			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+		{
+			if (isname(name, ch->get_pc_name().c_str())
+				&& (IS_NPC(ch)
+					|| !GET_INVIS_LEV(ch)))
+			{
 				return ch;
+			}
+		}
 
 		for (ch = character_list; ch; ch = ch->get_next())
 		{
-			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+			if (isname(name, ch->get_pc_name().c_str())
+				&& (IS_NPC(ch)
+					|| !GET_INVIS_LEV(ch)))
 			{
 				return ch;
 			}
@@ -861,11 +887,17 @@ void find_uid_name(char *uid, char *name)
 	OBJ_DATA *obj;
 
 	if ((ch = get_char(uid)))
-		strcpy(name, ch->get_pc_name());
+	{
+		strcpy(name, ch->get_pc_name().c_str());
+	}
 	else if ((obj = get_obj(uid)))
+	{
 		strcpy(name, obj->aliases);
+	}
 	else
+	{
 		sprintf(name, "uid = %s, (not found)", uid + 1);
+	}
 }
 
 
@@ -2177,7 +2209,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				{
 					can_use = 1;
 				}
-				else if (AFF_FLAGGED(k, EAffectFlags::AFF_GROUP))
+				else if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP))
 				{
 					if (!IS_NPC(k) && (GET_CLASS(k) == 8 || GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
 						&& world[IN_ROOM(k)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
@@ -2189,7 +2221,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						for (f = k->followers; f; f = f->next)
 						{
 							if (IS_NPC(f->follower)
-								|| !AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP))
+								|| !AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
 							{
 								continue;
 							}
@@ -2374,12 +2406,12 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			/* Так, тупо, но иначе ругается, мол слишком много блоков*/
 			 if (!str_cmp(field, "fullrestore"))
 			{
-				do_arena_restore(c, (char*)c->get_name(), 0, SCMD_RESTORE_TRIGGER);
+				do_arena_restore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
 				trig_log(trig, "был произведен вызов do_arena_restore!");
 			}
 			else
 			{
-				do_restore(c, (char*)c->get_name(), 0, SCMD_RESTORE_TRIGGER);
+				do_restore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
 				trig_log(trig, "был произведен вызов do_restore!");
 			}
 		}
@@ -2856,7 +2888,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		{
 			CHAR_DATA *l;
 			struct follow_type *f;
-			if (!AFF_FLAGGED(c, EAffectFlags::AFF_GROUP))
+			if (!AFF_FLAGGED(c, EAffectFlag::AFF_GROUP))
 				return;
 			l = c->master;
 			if (!l)
@@ -2865,7 +2897,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(l));
 			for (f = l->followers; f; f = f->next)
 			{
-				if (!AFF_FLAGGED(f->follower, EAffectFlags::AFF_GROUP))
+				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
 				{
 					continue;
 				}

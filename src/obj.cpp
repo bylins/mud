@@ -682,22 +682,22 @@ void init_ilvl(OBJ_DATA *obj)
 	// аффекты AFF_x через weapon_affect
 	for (const auto& m : weapon_affect)
 	{
-		if (static_cast<EAffectFlags>(m.aff_bitvector) == EAffectFlags::AFF_AIRSHIELD
+		if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD
 			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
 		{
 			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
 		}
-		else if (static_cast<EAffectFlags>(m.aff_bitvector) == EAffectFlags::AFF_FIRESHIELD
+		else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD
 			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
 		{
 			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
 		}
-		else if (static_cast<EAffectFlags>(m.aff_bitvector) == EAffectFlags::AFF_ICESHIELD
+		else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD
 			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
 		{
 			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
 		}
-		else if (static_cast<EAffectFlags>(m.aff_bitvector) == EAffectFlags::AFF_BLINK
+		else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK
 			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
 		{
 			total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
@@ -779,7 +779,7 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)
 		"Владелец: %s\r\n"
 		"В случае потери просьба вернуть за вознаграждение.\r\n"
 		"--------------------------------------------------\r\n"
-		, ch->get_name());
+		, ch->get_name().c_str());
 	CREATE(obj->ex_description, 1);
 	obj->ex_description->keyword = str_dup(obj->PNames[0]);
 	obj->ex_description->description = str_dup(buf_);

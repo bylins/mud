@@ -30,10 +30,6 @@
 #include <iterator>
 #include <cstdint>
 
-using std::map;
-using std::iterator;
-using std::string;
-
 namespace ExtMoney
 {
 
@@ -589,7 +585,7 @@ enum
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
-enum class EAffectFlags: uint32_t
+enum class EAffectFlag: uint32_t
 {
 	AFF_BLIND = 1u << 0,					///< (R) Char is blind
 	AFF_INVISIBLE = 1u << 1,				///< Char is invisible
@@ -673,7 +669,7 @@ enum class EAffectFlags: uint32_t
 	AFF_NOOB_REGEN = INT_TWO | (1u << 19),
 	AFF_VAMPIRE = INT_TWO | (1u << 20)
 };
-typedef std::list<EAffectFlags> affects_list_t;
+typedef std::list<EAffectFlag> affects_list_t;
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)
@@ -1271,7 +1267,7 @@ public:
 	template <> bool get(const uint32_t packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
 	template <> bool get(const int packed_flag) const { return get(static_cast<uint32_t>(packed_flag)); }
 	bool get_flag(const size_t plane, const uint32_t flag) const { return 0 != (m_flags[plane] & (flag & 0x3fffffff)); }
-	const uint32_t get_plane(const size_t number) const { return m_flags[number]; }
+	uint32_t get_plane(const size_t number) const { return m_flags[number]; }
 	bool plane_not_empty(const int packet_flag) const { return 0 != m_flags[packet_flag >> 30]; }
 
 	template <class T>
@@ -1856,7 +1852,7 @@ struct weapon_app_type
 
 struct extra_affects_type
 {
-	EAffectFlags affect;
+	EAffectFlag affect;
 	int set_or_clear;
 };
 
@@ -2076,19 +2072,19 @@ struct int3
 	int qty;
 };
 
-typedef map< string, int3 > alias_type;
+typedef std::map<std::string, int3> alias_type;
 
 class insert_wanted_gem
 {
-	map< int, alias_type > content;
+	std::map<int, alias_type> content;
 
 public:
 	void init();
 	void show(CHAR_DATA *ch, int gem_vnum);
-	int get_type(int gem_vnum, string str);
-	int get_bit(int gem_vnum, string str);
-	int get_qty(int gem_vnum, string str);
-	int exist(int gem_vnum, string str);
+	int get_type(int gem_vnum, const std::string& str);
+	int get_bit(int gem_vnum, const std::string& str);
+	int get_qty(int gem_vnum, const std::string& str);
+	int exist(int gem_vnum, const std::string& str);
 };
 
 //-Polos.insert_wanted_gem
@@ -2102,7 +2098,7 @@ struct mob_guardian
 	std::vector<zone_vnum> agro_argressors_in_zones;
 };
 
-typedef map <int, mob_guardian> guardian_type;
+typedef std::map<int, mob_guardian> guardian_type;
 
 //-Polud
 

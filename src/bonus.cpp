@@ -101,7 +101,7 @@ namespace Bonus
 		{
 			return;
 		}
-		out += " на " + boost::lexical_cast<string>(time_bonus) + " часов. ***&n\r\n";
+		out += " на " + boost::lexical_cast<std::string>(time_bonus) + " часов. ***&n\r\n";
 		bonus_log_add(out);
 		send_to_all(out.c_str());
 	}

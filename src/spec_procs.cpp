@@ -2220,7 +2220,7 @@ void npc_light(CHAR_DATA * ch)
 	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_INFRAVISION))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION))
 		return;
 
 	if ((obj = GET_EQ(ch, WEAR_LIGHT)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(IN_ROOM(ch))))
@@ -2401,7 +2401,7 @@ void npc_group(CHAR_DATA * ch)
 	if (!ch->master)
 		leader = ch;
 
-	if (leader && (AFF_FLAGGED(leader, EAffectFlags::AFF_CHARM) || GET_POS(leader) < POS_SLEEPING))
+	if (leader && (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM) || GET_POS(leader) < POS_SLEEPING))
 		leader = NULL;
 
 	// Find leader
@@ -2410,7 +2410,7 @@ void npc_group(CHAR_DATA * ch)
 		if (!IS_NPC(vict) ||
 				GET_DEST(vict) != GET_DEST(ch) ||
 				zone != ZONE(vict) ||
-				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlags::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
+				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
 			continue;
 		members++;
 		if (!leader || GET_REAL_INT(vict) > GET_REAL_INT(leader))
@@ -2436,11 +2436,11 @@ void npc_group(CHAR_DATA * ch)
 		if (!IS_NPC(vict) ||
 				GET_DEST(vict) != GET_DEST(ch) ||
 				zone != ZONE(vict) ||
-				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlags::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
+				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
 			continue;
 		if (vict == leader)
 		{
-			AFF_FLAGS(vict).set(AFF_GROUP);
+			AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 			continue;
 		}
 		if (!vict->master)
@@ -2450,7 +2450,7 @@ void npc_group(CHAR_DATA * ch)
 			stop_follower(vict, SF_EMPTY);
 			add_follower(vict, leader);
 		}
-		AFF_FLAGS(vict).set(AFF_GROUP);
+		AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 	}
 
 }
@@ -2461,7 +2461,7 @@ void npc_groupbattle(CHAR_DATA * ch)
 	CHAR_DATA *tch, *helper;
 
 	if (!IS_NPC(ch) ||
-			!ch->get_fighting() || AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) || !ch->master || IN_ROOM(ch) == NOWHERE || !ch->followers)
+			!ch->get_fighting() || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || !ch->master || IN_ROOM(ch) == NOWHERE || !ch->followers)
 		return;
 
 	k = ch->master ? ch->master->followers : ch->followers;
@@ -2737,8 +2737,8 @@ SPECIAL(guild_guard)
 	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
 	const char *buf2 = "Охранник остановил $n, преградив $m дорогу.";
 
-	if (!IS_MOVE(cmd) || AFF_FLAGGED(guard, EAffectFlags::AFF_BLIND)
-			|| AFF_FLAGGED(guard, EAffectFlags::AFF_HOLD))
+	if (!IS_MOVE(cmd) || AFF_FLAGGED(guard, EAffectFlag::AFF_BLIND)
+			|| AFF_FLAGGED(guard, EAffectFlag::AFF_HOLD))
 		return (FALSE);
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
@@ -2909,11 +2909,11 @@ SPECIAL(pet_shops)
 
 		pet = read_mobile(GET_MOB_RNUM(pet), REAL);
 		pet->set_exp(0);
-		AFF_FLAGS(pet).set(AFF_CHARM);
+		AFF_FLAGS(pet).set(EAffectFlag::AFF_CHARM);
 
 		if (*pet_name)
 		{
-			sprintf(buf, "%s %s", pet->get_pc_name(), pet_name);
+			sprintf(buf, "%s %s", pet->get_pc_name().c_str(), pet_name);
 			// free(pet->get_pc_name()); don't free the prototype!
 			pet->set_pc_name(buf);
 
@@ -2949,8 +2949,10 @@ CHAR_DATA *get_player_of_name(const char *name)
 	{
 		if (IS_NPC(i))
 			continue;
-		if (!isname(name, i->get_pc_name()))
+		if (!isname(name, i->get_pc_name().c_str()))
+		{
 			continue;
+		}
 		return (i);
 	}
 

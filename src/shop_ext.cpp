@@ -730,12 +730,15 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 			}
 		}
 
-		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
+		std::string numToShow = count == -1
+			? "Навалом"
+			: boost::lexical_cast<std::string>(count);
 
 		// имхо вполне логично раз уж мы получаем эту надпись в ней и искать
 		if (arg.empty()
 			|| isname(arg.c_str(), print_value.c_str())
-			|| (!name_value.empty() && isname(arg.c_str(), name_value.c_str())))
+			|| (!name_value.empty()
+				&& isname(arg.c_str(), name_value.c_str())))
 		{
 			out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
 				% num++ % numToShow % print_value % (*k)->price);
@@ -950,7 +953,9 @@ void filter_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::st
 			}
 		}
 
-		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
+		std::string numToShow = count == -1
+			? "Навалом"
+			: boost::lexical_cast<std::string>(count);
 
 		// 
 		if ( show_name )
@@ -1329,7 +1334,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		|| obj->get_extraflag(EExtraFlags::ITEM_SHARPEN)
 		|| obj->get_extraflag(EExtraFlags::ITEM_NODROP))
 	{
-		tell_to_char(keeper, ch, string("Я не собираюсь иметь дела с этой вещью.").c_str());
+		tell_to_char(keeper, ch, std::string("Я не собираюсь иметь дела с этой вещью.").c_str());
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 2) == 0
@@ -1343,7 +1348,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	{
 		if (obj->contains)
 		{
-			tell_to_char(keeper, ch, string("Не надо предлагать мне кота в мешке.").c_str());
+			tell_to_char(keeper, ch, "Не надо предлагать мне кота в мешке.");
 			return;
 		}
 	}
@@ -1364,7 +1369,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	// если цена покупки, выше, чем стоймость предмета
 	if (buy_price > buy_price_old)
 		buy_price = buy_price_old;
-	std::string price_to_show = boost::lexical_cast<string>(buy_price) + " " + string(desc_count(buy_price, WHAT_MONEYu));
+	std::string price_to_show = boost::lexical_cast<std::string>(buy_price) + " " + std::string(desc_count(buy_price, WHAT_MONEYu));
 
 	if (cmd == "Оценить")
 	{
@@ -1373,10 +1378,10 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 			|| obj->get_extraflag(EExtraFlags::ITEM_REPOP_DECAY)
 			|| obj->get_extraflag(EExtraFlags::ITEM_ZONEDECAY))
 		{
-			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
+			tell_to_char(keeper, ch, "Такое я не покупаю.");
 			return;
 		}else
-			tell_to_char(keeper, ch, string("Я, пожалуй, куплю " + string(GET_OBJ_PNAME(obj, 3)) + " за " + price_to_show + ".").c_str());
+			tell_to_char(keeper, ch, ("Я, пожалуй, куплю " + std::string(GET_OBJ_PNAME(obj, 3)) + " за " + price_to_show + ".").c_str());
 	}
 
 	if (cmd == "Продать")
@@ -1387,13 +1392,13 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 			|| (buy_price  <= 1)
 			|| obj->get_extraflag(EExtraFlags::ITEM_ZONEDECAY))
 		{
-			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
+			tell_to_char(keeper, ch, "Такое я не покупаю.");
 			return;
 		}
 		else
 		{
 			obj_from_char(obj);
-			tell_to_char(keeper, ch, string("Получи за " + string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
+			tell_to_char(keeper, ch, ("Получи за " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
 			ch->add_gold(buy_price);
 			put_item_in_shop(shop, obj);
 		}
@@ -1402,7 +1407,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	{
 		if (repair <= 0)
 		{
-			tell_to_char(keeper, ch, string(string(GET_OBJ_PNAME(obj, 3))+" не нужно чинить.").c_str());
+			tell_to_char(keeper, ch, (std::string(GET_OBJ_PNAME(obj, 3))+" не нужно чинить.").c_str());
 			return;
 		}
 
@@ -1439,12 +1444,12 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 			|| obj->get_extraflag(EExtraFlags::ITEM_NOSELL)
 			|| obj->get_extraflag(EExtraFlags::ITEM_NODROP))
 		{
-			tell_to_char(keeper, ch, string("Я не буду тратить свое драгоценное время на " + string(GET_OBJ_PNAME(obj, 3))+".").c_str());
+			tell_to_char(keeper, ch, ("Я не буду тратить свое драгоценное время на " + std::string(GET_OBJ_PNAME(obj, 3))+".").c_str());
 			return;
 		}
 
-		tell_to_char(keeper, ch, string("Починка " + string(GET_OBJ_PNAME(obj, 1)) + " обойдется в "
-			+ boost::lexical_cast<string>(repair_price)+" " + desc_count(repair_price, WHAT_MONEYu)).c_str());
+		tell_to_char(keeper, ch, ("Починка " + std::string(GET_OBJ_PNAME(obj, 1)) + " обойдется в "
+			+ boost::lexical_cast<std::string>(repair_price)+" " + desc_count(repair_price, WHAT_MONEYu)).c_str());
 
 		if (!IS_GOD(ch) && repair_price > ch->get_gold())
 		{
@@ -1479,7 +1484,7 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 	if (!*argument)
 	{
-		tell_to_char(keeper, ch, string(cmd + " ЧТО?").c_str());
+		tell_to_char(keeper, ch, (cmd + " ЧТО?").c_str());
 		return;
 	}
 
@@ -1829,10 +1834,10 @@ ACMD(do_shops_list)
 {
 	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
 	size_t n = dic->Size();
-	std::string out = std::string();
+	std::string out;
 	for (size_t i = 0; i < n; i++)
 	{
-		out = out + boost::lexical_cast<string>(i + 1) + " " + dic->GetNameByNID(i) + " " + dic->GetTIDByNID(i) + "\r\n";
+		out = out + boost::lexical_cast<std::string>(i + 1) + " " + dic->GetNameByNID(i) + " " + dic->GetTIDByNID(i) + "\r\n";
 	}
 	send_to_char(out, ch);
 }

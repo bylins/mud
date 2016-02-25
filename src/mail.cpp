@@ -631,7 +631,7 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 			"Дата: %s\r\n"
 			"Кому: %s\r\n"
 			"  От: %s\r\n\r\n",
-			buf_date, ch->get_name(), get_author_name(i->second.from).c_str());
+			buf_date, ch->get_name().c_str(), get_author_name(i->second.from).c_str());
 
 		std::string text = coder::base64_decode(i->second.text);
 		boost::trim_if(text, ::isspace);

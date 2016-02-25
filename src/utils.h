@@ -94,7 +94,7 @@ bool die_follower(CHAR_DATA * ch);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 int get_real_dr(CHAR_DATA *ch);
-long GetAffectNumByName(std::string);
+extern bool GetAffectNumByName(const std::string& affName, EAffectFlag& result);
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
 bool is_head(std::string name);
 extern std::list<FILE *> opened_files;
@@ -382,7 +382,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 
 // IS_AFFECTED for backwards compatibility
-#define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, EAffectFlags::skill))
+#define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, EAffectFlag::skill))
 
 #define PLR_TOG_CHK(ch, flag) (PLR_FLAGS(ch).toggle(flag))
 #define PRF_TOG_CHK(ch, flag) (PRF_FLAGS(ch).toggle(flag))
@@ -454,8 +454,8 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
-#define GET_PC_NAME(ch) ((ch)->get_pc_name())
-#define GET_NAME(ch)    ((ch)->get_name())
+#define GET_PC_NAME(ch) ((ch)->get_pc_name().c_str())
+#define GET_NAME(ch)    ((ch)->get_name().c_str())
 #define GET_HELPER(ch)  ((ch)->helpers)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
@@ -732,7 +732,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
 #define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffectFlags::AFF_INFRAVISION) || (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+   (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION) || (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 
 #define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= ALIG_GOOD_MORE)
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= ALIG_EVIL_LESS)

@@ -714,7 +714,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	if (feat <= 0 || feat >= MAX_FEATS)
 	{
 		sprintf(buf, "Неверный номер способности (feat=%d, ch=%s) передан в features::can_get_feat!",
-			feat, ch->get_name());
+			feat, ch->get_name().c_str());
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
 	}
@@ -891,7 +891,7 @@ void check_berserk(CHAR_DATA * ch)
 	}
 //!IS_NPC(ch) &&
 	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
-			!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlags::AFF_BERSERK) &&
+			!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK) &&
 			(GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
 	{
 
@@ -911,7 +911,7 @@ void check_berserk(CHAR_DATA * ch)
 		prob = IS_NPC(ch) ? 601 : (751 - GET_LEVEL(ch) * 5);
 		if (number(1, 1000) <  prob)
 		{
-			af.bitvector = AFF_BERSERK;
+			af.bitvector = to_underlying(EAffectFlag::AFF_BERSERK);
 			act("Вас обуяла предсмертная ярость!", FALSE, ch, 0, 0, TO_CHAR);
 			act("$n0 исступленно взвыл$g и бросил$u на противника!", FALSE, ch, 0, 0, TO_ROOM);
 		}
@@ -973,7 +973,7 @@ ACMD(do_lightwalk)
 	}
 	else
 	{
-		af.bitvector = AFF_LIGHT_WALK;
+		af.bitvector = to_underlying(EAffectFlag::AFF_LIGHT_WALK);
 		send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
 	}
 	affect_to_char(ch, &af);
@@ -1120,10 +1120,10 @@ ACMD(do_spell_capable)
 	char *s;
 	int spellnum;
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
@@ -1177,10 +1177,11 @@ ACMD(do_spell_capable)
 	CHAR_DATA *follower = NULL;
 	for (k = ch->followers; k; k = k->next)
 	{
-		if (AFF_FLAGGED(k->follower, AFF_CHARM) && k->follower->master == ch &&
-			MOB_FLAGGED(k->follower, MOB_CLONE) &&
-			!affected_by_spell(k->follower, SPELL_CAPABLE) &&
-			IN_ROOM(ch) == IN_ROOM(k->follower))
+		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
+			&& k->follower->master == ch
+			&& MOB_FLAGGED(k->follower, MOB_CLONE)
+			&& !affected_by_spell(k->follower, SPELL_CAPABLE)
+			&& IN_ROOM(ch) == IN_ROOM(k->follower))
 		{
 			follower = k->follower;
 			break;
@@ -1321,7 +1322,7 @@ ACMD(do_relocate)
 			return;
 		}
 		// Нельзя перемещаться после того, как попал под заклинание "приковать противника".
-		if (AFF_FLAGGED(ch, EAffectFlags::AFF_NOTELEPORT))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT))
 		{
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;
@@ -1377,7 +1378,7 @@ ACMD(do_relocate)
 		//На время лага на чара нельзя ставить пенту
 			AFFECT_DATA af;
 			af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
-			af.bitvector = AFF_NOTELEPORT;
+			af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
 			af.battleflag = AF_PULSEDEC;
 			affect_to_char(ch, &af);
 	}

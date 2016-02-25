@@ -1780,7 +1780,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	for (i = world[IN_ROOM(ch)]->people; i; i = i->next_in_room)
 	{
 		if (i == ch || i == tch || !i->desc || !AWAKE(i)
-				|| AFF_FLAGGED(i, EAffectFlags::AFF_DEAFNESS))
+				|| AFF_FLAGGED(i, EAffectFlag::AFF_DEAFNESS))
 			continue;
 		if (IS_SET(GET_SPELL_TYPE(i, spellnum), SPELL_KNOW))
 			perform_act(buf1, ch, tobj, tch, i);
@@ -1790,7 +1790,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	act(buf1, 1, ch, tobj, tch, TO_ARENA_LISTEN);
 
 	if (tch != NULL && tch != ch && IN_ROOM(tch) == IN_ROOM(ch)
-			&& !AFF_FLAGGED(tch, EAffectFlags::AFF_DEAFNESS))
+			&& !AFF_FLAGGED(tch, EAffectFlag::AFF_DEAFNESS))
 	{
 		if (SpINFO.violent)
 			sprintf(buf1, damagee_vict,
@@ -1947,7 +1947,7 @@ int may_cast_in_nomagic(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 	// More than 33 level - may cast always
 	if (IS_GRGOD(caster) || IS_SET(SpINFO.routines, MAG_WARCRY))
 		return TRUE;
-	if (IS_NPC(caster) && !(AFF_FLAGGED(caster, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)))
+	if (IS_NPC(caster) && !(AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)))
 		return TRUE;
 
 	return FALSE;
@@ -2051,11 +2051,11 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 	if (!check_mobile_list(victim) || !SpINFO.violent)
 		return;
 
-	if (AFF_FLAGGED(victim, EAffectFlags::AFF_CHARM) ||
-			AFF_FLAGGED(victim, EAffectFlags::AFF_SLEEP) ||
-			AFF_FLAGGED(victim, EAffectFlags::AFF_BLIND) ||
-			AFF_FLAGGED(victim, EAffectFlags::AFF_STOPFIGHT) ||
-			AFF_FLAGGED(victim, EAffectFlags::AFF_MAGICSTOPFIGHT) || AFF_FLAGGED(victim, EAffectFlags::AFF_HOLD) || IS_HORSE(victim))
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM) ||
+			AFF_FLAGGED(victim, EAffectFlag::AFF_SLEEP) ||
+			AFF_FLAGGED(victim, EAffectFlag::AFF_BLIND) ||
+			AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT) ||
+			AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT) || AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD) || IS_HORSE(victim))
 		return;
 
 	if (IS_NPC(caster)
@@ -2080,13 +2080,13 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 	}
 	if (!CAN_SEE(victim, caster) && (GET_REAL_INT(victim) > 25 || GET_REAL_INT(victim) > number(10, 25)))
 	{
-		if (!AFF_FLAGGED(victim, EAffectFlags::AFF_DETECT_INVIS)
+		if (!AFF_FLAGGED(victim, EAffectFlag::AFF_DETECT_INVIS)
 				&& GET_SPELL_MEM(victim, SPELL_DETECT_INVIS) > 0)
 			cast_spell(victim, victim, 0, 0, SPELL_DETECT_INVIS,  SPELL_DETECT_INVIS);
-		else if (!AFF_FLAGGED(victim, EAffectFlags::AFF_SENSE_LIFE)
+		else if (!AFF_FLAGGED(victim, EAffectFlag::AFF_SENSE_LIFE)
 				 && GET_SPELL_MEM(victim, SPELL_SENSE_LIFE) > 0)
 			cast_spell(victim, victim, 0, 0, SPELL_SENSE_LIFE, SPELL_SENSE_LIFE);
-		else if (!AFF_FLAGGED(victim, EAffectFlags::AFF_INFRAVISION)
+		else if (!AFF_FLAGGED(victim, EAffectFlag::AFF_INFRAVISION)
 				 && GET_SPELL_MEM(victim, SPELL_LIGHT) > 0)
 			cast_spell(victim, victim, 0, 0, SPELL_LIGHT, SPELL_LIGHT);
 	}
@@ -2646,12 +2646,12 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		call_magic(ch, tch, tobj, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, 3), level, CAST_WAND);
 		break;
 	case ITEM_SCROLL:
-		if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
 			send_to_char("Вы немы, как рыба.\r\n", ch);
 			return;
 		}
-		if (AFF_FLAGGED(ch, EAffectFlags::AFF_BLIND))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 		{
 			send_to_char("Вы ослеплены.\r\n", ch);
 			return;
@@ -2682,7 +2682,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		break;
 
 	case ITEM_POTION:
-		if (AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
 			send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 			return;
@@ -2768,7 +2768,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		}
 		return (0);
 	}
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) && (ch->master == tch))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->master == tch))
 	{
 		send_to_char("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
 		return (0);
@@ -2805,17 +2805,11 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		}
 	}
 
-	/* Gorrah: убрал ограничение
-		if (IS_SET(SpINFO.routines, MAG_GROUPS) && !IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP)) {
-			send_to_char("Но вы же не член группы!\r\n", ch);
-			return (0);
-		} */
-
 	// Начало изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
 
 // Может-ли кастер зачитать заклинание если на нем эфект !смирение!?
 // Далее идет код _аналогичный_ коду функции may_cast_here()
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_PEACEFUL))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_PEACEFUL))
 		// Проверяю, что закл имеет одну из допустимых комбинаций параметров
 		// если игнорируется цель, то должен быть GROUP или MASS
 		// в противном случае на цель кастовать нельзя
@@ -2966,10 +2960,10 @@ ACMD(do_cast)
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE))
 	{
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
@@ -3127,7 +3121,7 @@ ACMD(do_warcry)
 {
 	int spellnum, cnt;
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (!ch->get_skill(SKILL_WARCRY))
@@ -3136,7 +3130,7 @@ ACMD(do_warcry)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlags::AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;

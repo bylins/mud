@@ -340,6 +340,8 @@ class CHAR_DATA : public PlayerI
 {
 // новое
 public:
+	typedef std::list<std::string> morphs_list_t;
+
 	CHAR_DATA();
 	virtual ~CHAR_DATA();
 
@@ -387,11 +389,11 @@ public:
 	void purge(bool destructor = false);
 	bool purged() const;
 
-	const char * get_name() const;
+	const std::string& get_name() const;
 	void set_name(const char *name);
-	const char * get_pc_name() const;
+	const std::string& get_pc_name() const { return name_; }
 	void set_pc_name(const char *name);
-	const char * get_npc_name() const;
+	const std::string& get_npc_name() const { return short_descr_; }
 	void set_npc_name(const char *name);
 	const std::string & get_name_str() const;
 	const char* get_pad(unsigned pad) const;
@@ -512,29 +514,29 @@ public:
 	**/
 	bool in_used_zone() const;
 
-	bool know_morph(string morph_id) const;
-	void add_morph(string morph_id);
+	bool know_morph(const std::string& morph_id) const;
+	void add_morph(const std::string& morph_id);
 	void clear_morphs();
 	void set_morph(MorphPtr morph);
 	void reset_morph();
 	size_t get_morphs_count() const;
-	std::list<string> get_morphs();
+	const morphs_list_t& get_morphs();
 	bool is_morphed() const;
 	void set_normal_morph();
 
 	std::string get_title();
-	std::string get_morphed_name();
+	std::string get_morphed_name() const;
 	std::string get_pretitle();
 	std::string get_race_name();
 	std::string only_title();
 	std::string noclan_title();
 	std::string race_or_title();
-	std::string get_morphed_title();
+	std::string get_morphed_title() const;
 	std::string get_cover_desc();
-	std::string get_morph_desc();
+	std::string get_morph_desc() const;
 	int get_inborn_skill(int skill_num);
 	void set_morphed_skill(int skill_num, int percent);
-	bool isAffected(const EAffectFlags flag) const;
+	bool isAffected(const EAffectFlag flag) const;
 	const IMorph::affects_list_t& GetMorphAffects();
 
 	void set_who_mana(unsigned int);
@@ -647,7 +649,7 @@ private:
 	// плюсы на харизму
 	int cha_add_;
 	//изученные формы
-	std::list<string> morphs_;
+	morphs_list_t morphs_;
 	//текущая форма
 	MorphPtr current_morph_;
 	// аналог класса у моба
@@ -780,7 +782,7 @@ inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 inline FLAG_DATA& AFF_FLAGS(CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
 inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
 
-inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlags flag)
+inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlag flag)
 {
 	return AFF_FLAGS(ch).get(flag)
 		|| ch->isAffected(flag);
@@ -789,23 +791,23 @@ inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlags flag)
 inline bool IS_CHARMICE(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
-		&& (AFF_FLAGGED(ch, EAffectFlags::AFF_HELPER)
-			|| AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM));
+		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
 }
 
 inline bool IS_FLY(const CHAR_DATA* ch)
 {
-	return AFF_FLAGGED(ch, EAffectFlags::AFF_FLY);
+	return AFF_FLAGGED(ch, EAffectFlag::AFF_FLY);
 }
 
 inline bool INVIS_OK(const CHAR_DATA* sub, const CHAR_DATA* obj)
 {
-	return !AFF_FLAGGED(sub, EAffectFlags::AFF_BLIND)
-		&& ((!AFF_FLAGGED(obj, EAffectFlags::AFF_INVISIBLE)
-				|| AFF_FLAGGED(sub, EAffectFlags::AFF_DETECT_INVIS))
-			&& ((!AFF_FLAGGED(obj, EAffectFlags::AFF_HIDE)
-					&& !AFF_FLAGGED(obj, EAffectFlags::AFF_CAMOUFLAGE))
-				|| AFF_FLAGGED(sub, EAffectFlags::AFF_SENSE_LIFE)));
+	return !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
+		&& ((!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
+				|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS))
+			&& ((!AFF_FLAGGED(obj, EAffectFlag::AFF_HIDE)
+					&& !AFF_FLAGGED(obj, EAffectFlag::AFF_CAMOUFLAGE))
+				|| AFF_FLAGGED(sub, EAffectFlag::AFF_SENSE_LIFE)));
 }
 
 inline bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
@@ -813,7 +815,7 @@ inline bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 	return HERE(obj)
 		&& INVIS_OK(sub, obj)
 		&& (IS_LIGHT((obj)->in_room)
-			|| AFF_FLAGGED((sub), EAffectFlags::AFF_INFRAVISION));
+			|| AFF_FLAGGED((sub), EAffectFlag::AFF_INFRAVISION));
 }
 
 inline bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
@@ -839,28 +841,28 @@ inline bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 inline bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj)
 {
 	return !(GET_INVIS_LEV(ch) > 30)
-		&& !AFF_FLAGGED(sub, EAffectFlags::AFF_BLIND)
+		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
 		&& (!IS_DARK(IN_ROOM(sub))
-			|| AFF_FLAGGED(sub, EAffectFlags::AFF_INFRAVISION))
-		&& (!AFF_FLAGGED(obj, EAffectFlags::AFF_INVISIBLE)
-			|| AFF_FLAGGED(sub, EAffectFlags::AFF_DETECT_INVIS));
+			|| AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
+		&& (!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
+			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS));
 }
 
 inline bool IS_HORSE(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
 		&& ch->master
-		&& AFF_FLAGGED(ch, EAffectFlags::AFF_HORSE);
+		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
 }
 
 inline bool MAY_ATTACK(const CHAR_DATA* sub)
 {
-	return (!AFF_FLAGGED((sub), EAffectFlags::AFF_CHARM)
+	return (!AFF_FLAGGED((sub), EAffectFlag::AFF_CHARM)
 		&& !IS_HORSE((sub))
-		&& !AFF_FLAGGED((sub), EAffectFlags::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED((sub), EAffectFlags::AFF_MAGICSTOPFIGHT)
-		&& !AFF_FLAGGED((sub), EAffectFlags::AFF_HOLD)
-		&& !AFF_FLAGGED((sub), EAffectFlags::AFF_SLEEP)
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_HOLD)
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_SLEEP)
 		&& !MOB_FLAGGED((sub), MOB_NOFIGHT)
 		&& GET_WAIT(sub) <= 0
 		&& !sub->get_fighting()
@@ -869,20 +871,20 @@ inline bool MAY_ATTACK(const CHAR_DATA* sub)
 
 inline bool GET_MOB_HOLD(const CHAR_DATA* ch)
 {
-	return AFF_FLAGGED(ch, EAffectFlags::AFF_HOLD);
+	return AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD);
 }
 
 inline bool AWAKE(const CHAR_DATA* ch)
 {
 	return GET_POS(ch) > POS_SLEEPING
-		&& !AFF_FLAGGED(ch, EAffectFlags::AFF_SLEEP);
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP);
 }
 
 // Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
 //пока здесь только чарм, как и было раньше
 inline bool CAN_START_MTRIG(const CHAR_DATA *ch)
 {
-	return !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM);
+	return !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM);
 }
 //-Polud
 
@@ -896,7 +898,7 @@ inline bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
 		&& (GET_EXP(victim) > 0)
 		&& (!IS_NPC(victim)
 			|| !IS_NPC(ch)
-			|| AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM));
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
 }
 
 void change_fighting(CHAR_DATA * ch, int need_stop);

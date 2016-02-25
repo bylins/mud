@@ -32,7 +32,7 @@ int calc_leadership(CHAR_DATA * ch)
 	int prob, percent;
 	CHAR_DATA *leader = 0;
 
-	if (IS_NPC(ch) || !AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP) || (!ch->master && !ch->followers))
+	if (IS_NPC(ch) || !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) || (!ch->master && !ch->followers))
 		return (FALSE);
 
 	if (ch->master)
@@ -109,7 +109,7 @@ int compute_armor_class(CHAR_DATA * ch)
 		armorclass += extra_aco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
 	};
 
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_BERSERK))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK))
 	{
 		armorclass -= (240 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
 	}
@@ -226,7 +226,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				to_char = "замедлило движения $N1";
 				to_vict = "сломало вам ногу";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+				af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 				SET_AF_BATTLE(victim, EAF_SLOW);
 			}
 			break;
@@ -235,7 +235,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "сильно замедлило движения $N1";
 			to_vict = "сломало вам бедро";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -246,7 +246,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 11:	// femor damaged, no speed, no attack
@@ -254,11 +254,11 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "вывело $N3 из строя";
 			to_vict = "раздробило вам бедро";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -270,11 +270,11 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "вывело $N3 из строя";
 			to_vict = "изуродовало вам ногу";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			haemorragia(victim, 50);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -318,7 +318,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 9:	// armor damaged, abdomin damaged, speed/2, HR-2
@@ -329,7 +329,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -338,11 +338,11 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "повредило $N2 живот";
 			to_vict = "повредило вам живот";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -351,11 +351,11 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "разорвало $N2 живот";
 			to_vict = "разорвало вам живот";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			haemorragia(victim, 40);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -390,7 +390,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "повредило $N2 туловище";
 			to_vict = "повредило вам туловище";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 6:	// shield damaged, chest damaged, speed/2
@@ -399,7 +399,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "повредило $N2 туловище";
 			to_vict = "повредило вам туловище";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 7:	// srmor damaged, chest damaged, speed/2, HR-2
@@ -410,7 +410,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 8:	// chest damaged, no speed, no attack
@@ -418,11 +418,11 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "вывело $N3 из строя";
 			to_vict = "повредило вам туловище";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -434,7 +434,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			haemorragia(victim, 20);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
@@ -443,17 +443,17 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_char = "вывело $N3 из строя";
 			to_vict = "сломало вам ребра";
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			haemorragia(victim, 40);
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 11:	// chest crushed, hits 0
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
@@ -463,7 +463,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			break;
 		default:	// chest crushed, killing
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
@@ -545,21 +545,21 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			to_vict = "повредило вам руку";
 			break;
 		case 10:	// hand damaged, no attack this
-			if (!AFF_FLAGGED(victim, EAffectFlags::AFF_STOPRIGHT))
+			if (!AFF_FLAGGED(victim, EAffectFlag::AFF_STOPRIGHT))
 			{
 				to_char = "ослабило атаку $N1";
 				to_vict = "изуродовало вам правую руку";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPRIGHT);
+				af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPRIGHT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
-			else if (!AFF_FLAGGED(victim, EAffectFlags::AFF_STOPLEFT))
+			else if (!AFF_FLAGGED(victim, EAffectFlag::AFF_STOPLEFT))
 			{
 				to_char = "ослабило атаку $N1";
 				to_vict = "изуродовало вам левую руку";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPLEFT);
+				af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPLEFT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
@@ -568,28 +568,28 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				to_char = "вывело $N3 из строя";
 				to_vict = "вывело вас из строя";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+				af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
 			haemorragia(victim, 20);
 			break;
 		default:	// no hand attack, no speed, dam*2 if >= 13
-			if (!AFF_FLAGGED(victim, EAffectFlags::AFF_STOPRIGHT))
+			if (!AFF_FLAGGED(victim, EAffectFlag::AFF_STOPRIGHT))
 			{
 				to_char = "ослабило натиск $N1";
 				to_vict = "изуродовало вам правую руку";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPRIGHT);
+				af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPRIGHT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
-			else if (!AFF_FLAGGED(victim, EAffectFlags::AFF_STOPLEFT))
+			else if (!AFF_FLAGGED(victim, EAffectFlag::AFF_STOPLEFT))
 			{
 				to_char = "ослабило натиск $N1";
 				to_vict = "изуродовало вам левую руку";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPLEFT);
+				af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPLEFT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
@@ -598,12 +598,12 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				to_char = "вывело $N3 из строя";
 				to_vict = "вывело вас из строя";
 				af[0].type = SPELL_BATTLE;
-				af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+				af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 				af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 				af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			}
 			af[1].type = SPELL_BATTLE;
-			af[1].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			haemorragia(victim, 30);
 			if (dam_critic >= 13)
 				dam *= ch->get_skill(SKILL_PUNCTUAL) / 5;
@@ -653,7 +653,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -4;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_NOFLEE);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			to_char = "ранило $N3 в голову";
 			to_vict = "ранило вас в голову";
 			break;
@@ -668,7 +668,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			break;
 		case 9:	// head damaged, no speed, no attack
 			af[0].type = SPELL_BATTLE;
-			af[0].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af[0].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			haemorragia(victim, 30);
@@ -694,7 +694,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			af[2].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[2].battleflag = AF_DEADKEEP;
 			af[3].type = SPELL_BATTLE;
-			af[3].bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+			af[3].bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af[3].duration = pc_duration(victim, 30, 0, 0, 0, 0);
 			af[3].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			haemorragia(victim, 50);
@@ -752,9 +752,9 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		if (af[i].type)
 		{
 			if (victim->get_role(MOB_ROLE_BOSS)
-				&& (af[i].bitvector == to_underlying(EAffectFlags::AFF_STOPFIGHT)
-					|| af[i].bitvector == to_underlying(EAffectFlags::AFF_STOPRIGHT)
-					|| af[i].bitvector == to_underlying(EAffectFlags::AFF_STOPLEFT)))
+				&& (af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPFIGHT)
+					|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPRIGHT)
+					|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT)))
 			{ 
 				af[i].duration /= 5;
 				// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
@@ -1518,9 +1518,9 @@ void HitData::check_weap_feats(CHAR_DATA *ch)
 void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam)
 {
 	if (vict->get_touching() == ch
-		&& !AFF_FLAGGED(vict, EAffectFlags::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED(vict, EAffectFlags::AFF_MAGICSTOPFIGHT)
-		&& !AFF_FLAGGED(vict, EAffectFlags::AFF_STOPRIGHT)
+		&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPRIGHT)
 		&& GET_WAIT(vict) <= 0
 		&& !GET_MOB_HOLD(vict)
 		&& (IS_IMMORTAL(vict) || IS_NPC(vict)
@@ -1787,9 +1787,9 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 
 void appear(CHAR_DATA * ch)
 {
-	const bool appear_msg = AFF_FLAGGED(ch, EAffectFlags::AFF_INVISIBLE)
-		|| AFF_FLAGGED(ch, EAffectFlags::AFF_CAMOUFLAGE)
-		|| AFF_FLAGGED(ch, EAffectFlags::AFF_HIDE);
+	const bool appear_msg = AFF_FLAGGED(ch, EAffectFlag::AFF_INVISIBLE)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE);
 
 	if (affected_by_spell(ch, SPELL_INVISIBLE))
 		affect_from_char(ch, SPELL_INVISIBLE);
@@ -1800,10 +1800,10 @@ void appear(CHAR_DATA * ch)
 	if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 		affect_from_char(ch, SPELL_CAMOUFLAGE);
 
-	AFF_FLAGS(ch).unset(EAffectFlags::AFF_INVISIBLE);
-	AFF_FLAGS(ch).unset(EAffectFlags::AFF_HIDE);
-	AFF_FLAGS(ch).unset(EAffectFlags::AFF_SNEAK);
-	AFF_FLAGS(ch).unset(EAffectFlags::AFF_CAMOUFLAGE);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_INVISIBLE);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_CAMOUFLAGE);
 
 	if (appear_msg)
 	{
@@ -2002,7 +2002,7 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim)
 		{
 			remember(victim, ch);
 		}
-		else if (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) && ch->master && !IS_NPC(ch->master))
+		else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->master && !IS_NPC(ch->master))
 		{
 			if (MOB_FLAGGED(ch, MOB_CLONE))
 			{
@@ -2022,7 +2022,7 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim)
 		{
 			remember(ch, victim);
 		}
-		else if (AFF_FLAGGED(victim, EAffectFlags::AFF_CHARM) && victim->master && !IS_NPC(victim->master))
+		else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM) && victim->master && !IS_NPC(victim->master))
 		{
 			if (MOB_FLAGGED(victim, MOB_CLONE))
 			{
@@ -2039,7 +2039,7 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim)
 bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	// защита богов
-	if (dam && AFF_FLAGGED(victim, EAffectFlags::AFF_SHIELD))
+	if (dam && AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD))
 	{
 		if (skill_num == SKILL_BASH)
 		{
@@ -2060,7 +2060,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	// отражение части маг дамага от зеркала
-	if (AFF_FLAGGED(victim, EAffectFlags::AFF_MAGICGLASS) && dmg_type == MAGE_DMG)
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS) && dmg_type == MAGE_DMG)
 	{
 		int pct = 6;
 		if (IS_NPC(victim) && !IS_CHARMICE(victim))
@@ -2167,7 +2167,7 @@ void Damage::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 		else if (flags[CRIT_HIT]
 			&& (GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
-			&& !AFF_FLAGGED(victim, EAffectFlags::AFF_PRISMATICAURA)
+			&& !AFF_FLAGGED(victim, EAffectFlag::AFF_PRISMATICAURA)
 			&& !flags[VICTIM_ICE_SHIELD])
 		{
 			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2));
@@ -2250,7 +2250,7 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 	{
 		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
 		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d", GET_NAME(ch), GET_CLASS(ch), GET_REMORT(ch), GET_LEVEL(ch), real_dam, over_dam);
-		if (AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 		{
 			CHAR_DATA *leader = ch->master ? ch->master : ch;
 			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
@@ -2261,7 +2261,7 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 		ch->master->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
 		if (!IS_NPC(ch->master))
 		    log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d", GET_NAME(ch), GET_NAME(ch->master), GET_CLASS(ch->master), GET_REMORT(ch->master), GET_LEVEL(ch->master), real_dam, over_dam);
-		if (AFF_FLAGGED(ch->master, EAffectFlags::AFF_GROUP))
+		if (AFF_FLAGGED(ch->master, EAffectFlag::AFF_GROUP))
 		{
 			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
 			leader->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
@@ -2272,14 +2272,14 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	// если виктим в группе с кем-то с ангелом - вместо смерти виктима умирает ангел
-	if (GET_HIT(victim) <= 0 && !IS_NPC(victim) && AFF_FLAGGED(victim, EAffectFlags::AFF_GROUP))
+	if (GET_HIT(victim) <= 0 && !IS_NPC(victim) && AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP))
 	{
 		for (CHAR_DATA *keeper = world[IN_ROOM(victim)]->people; keeper; keeper = keeper->next_in_room)
 		{
 			if (IS_NPC(keeper)
 				&& MOB_FLAGGED(keeper, MOB_ANGEL)
 				&& keeper->master
-				&& AFF_FLAGGED(keeper->master, EAffectFlags::AFF_GROUP))
+				&& AFF_FLAGGED(keeper->master, EAffectFlag::AFF_GROUP))
 			{
 				CHAR_DATA *keeper_leader = keeper->master->master ? keeper->master->master : keeper->master;
 				CHAR_DATA *victim_leader = victim->master ? victim->master : victim;
@@ -2313,7 +2313,7 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		mudlog(buf2, BRF, LVL_IMPL, SYSLOG, 0);
 		if (IS_NPC(ch)
-			&& (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) || IS_HORSE(ch))
+			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || IS_HORSE(ch))
 			&& ch->master && !IS_NPC(ch->master))
 		{
 			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->master, 2));
@@ -2359,19 +2359,19 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	if (killer)
 	{
-		if (AFF_FLAGGED(killer, EAffectFlags::AFF_GROUP))
+		if (AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP))
 		{
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
 		}
-		else if ((AFF_FLAGGED(killer, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)) && killer->master)
+		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)) && killer->master)
 			// killer - зачармленный NPC с хозяином
 		{
 			// по логике надо бы сделать, что если хозяина нет в клетке, но
 			// кто-то из группы хозяина в клетке, то опыт накинуть согруппам,
 			// которые рядом с убившим моба чармисом.
 			if (!IS_NPC(killer->master)
-				&& AFF_FLAGGED(killer->master, EAffectFlags::AFF_GROUP)
+				&& AFF_FLAGGED(killer->master, EAffectFlag::AFF_GROUP)
 				&& IN_ROOM(killer) == IN_ROOM(killer->master))
 			{
 				// Хозяин - PC в группе => опыт группе
@@ -2504,14 +2504,14 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	// санка/призма для физ и маг урона
 	if (dam >= 2)
 	{
-		if (AFF_FLAGGED(victim, EAffectFlags::AFF_PRISMATICAURA) &&  !(skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_PRISMATICAURA) &&  !(skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
 		{
 			if (dmg_type == PHYS_DMG)
 				dam *= 2;
 			else if (dmg_type == MAGE_DMG)
 				dam /= 2;
 		}
-		if (AFF_FLAGGED(victim, EAffectFlags::AFF_SANCTUARY) &&  !(skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_SANCTUARY) &&  !(skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
 		{
 			if (dmg_type == PHYS_DMG)
 				dam /= 2;
@@ -2569,7 +2569,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		dam = dam * 8 / 10;
 
 	// яд белены для физ урона
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_BELENA_POISON) && dmg_type == PHYS_DMG)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BELENA_POISON) && dmg_type == PHYS_DMG)
 		dam -= dam * GET_POISON(ch) / 100;
 
 	// added by WorM(Видолюб) поглощение физ.урона в %
@@ -2604,7 +2604,8 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	// яд скополии
-	if (skill_num != SKILL_BACKSTAB && AFF_FLAGGED(victim, EAffectFlags::AFF_SCOPOLIA_POISON))
+	if (skill_num != SKILL_BACKSTAB
+		&& AFF_FLAGGED(victim, EAffectFlag::AFF_SCOPOLIA_POISON))
 	{
 		dam += dam * GET_POISON(victim) / 100;
 	}
@@ -2653,7 +2654,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	GET_HIT(victim) -= dam;
 	// если на чармисе вампир
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_VAMPIRE))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_VAMPIRE))
 	{
 			GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam * 0.1), GET_REAL_MAX_HIT(ch)
 									   + GET_REAL_MAX_HIT(ch) * GET_LEVEL(ch) / 10));
@@ -2823,7 +2824,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 		lag = 1;
 		WAIT_STATE(victim, PULSE_VIOLENCE);
 		af.type = SPELL_BATTLE;
-		af.bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+		af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 		af.location = 0;
 		af.modifier = 0;
 		af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
@@ -2848,7 +2849,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 		dam += (dam / 1);
 		WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 		af.type = SPELL_BATTLE;
-		af.bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+		af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 		af.location = 0;
 		af.modifier = 0;
 		af.duration = pc_duration(victim, 2, 0, 0, 0, 0);
@@ -2873,7 +2874,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 		dam *= 4;
 		WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 		af.type = SPELL_BATTLE;
-		af.bitvector = to_underlying(EAffectFlags::AFF_STOPFIGHT);
+		af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 		af.location = 0;
 		af.modifier = 0;
 		af.duration = pc_duration(victim, 3, 0, 0, 0, 0);
@@ -3041,9 +3042,9 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	else if (dam
 		&& IS_NPC(ch)
 		&& NPC_FLAGGED(ch, NPC_POISON)
-		&& !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM)
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& GET_WAIT(ch) <= 0
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_POISON)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_POISON)
 		&& number(0, 100) < GET_LIKES(ch) + GET_LEVEL(ch) - GET_LEVEL(victim)
 		&& !general_savingthrow(ch, victim, SAVING_CRITICAL, - GET_REAL_CON(victim)))
 	{
@@ -3238,12 +3239,12 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 	}
 
 	// bless
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_BLESS))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLESS))
 	{
 		calc_thaco -= 4;
 	}
 	// curse
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_CURSE))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CURSE))
 	{
 		calc_thaco += 6;
 		dam -= 5;
@@ -3308,7 +3309,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 	//dzMUDiST Обработка !исступления! +Gorrah
 	if (affected_by_spell(ch, SPELL_BERSERK))
 	{
-		if (AFF_FLAGGED(ch, EAffectFlags::AFF_BERSERK))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK))
 		{
 			calc_thaco -= (12 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
 		}
@@ -3365,9 +3366,9 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 		calc_thaco -= (can_use_feat(victim, BLIND_FIGHT_FEAT) ? 2 : 8);
 
 	// some protects
-	if (AFF_FLAGGED(victim, EAffectFlags::AFF_PROTECT_EVIL) && IS_EVIL(ch))
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_PROTECT_EVIL) && IS_EVIL(ch))
 		calc_thaco += 2;
-	if (AFF_FLAGGED(victim, EAffectFlags::AFF_PROTECT_GOOD) && IS_GOOD(ch))
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_PROTECT_GOOD) && IS_GOOD(ch))
 		calc_thaco += 2;
 
 	// "Dirty" methods for battle
@@ -3386,8 +3387,8 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	// AWAKE style for victim
 	if (GET_AF_BATTLE(victim, EAF_AWAKE)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
 		&& !GET_MOB_HOLD(victim)
 		&& train_skill(victim, SKILL_AWAKE, skill_info[SKILL_AWAKE].max_percent,
 			ch) >= number(1, skill_info[SKILL_AWAKE].max_percent))
@@ -3462,9 +3463,9 @@ void HitData::calc_ac(CHAR_DATA *victim)
 		victim_ac += 4;
 	if (GET_POS(victim) < POS_RESTING)
 		victim_ac += 3;
-	if (AFF_FLAGGED(victim, EAffectFlags::AFF_HOLD))
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD))
 		victim_ac += 4;
-	if (AFF_FLAGGED(victim, EAffectFlags::AFF_CRYING))
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_CRYING))
 		victim_ac += 4;
 }
 
@@ -3485,8 +3486,8 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& !hit_no_parry
 		&& GET_AF_BATTLE(victim, EAF_DEVIATE)
 		&& GET_WAIT(victim) <= 0
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
 		&& GET_MOB_HOLD(victim) == 0
 		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 7) / 8)
 	{
@@ -3497,10 +3498,10 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (dam > 0
 		&& !hit_no_parry
 		&& GET_AF_BATTLE(victim, EAF_PARRY)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_MAGICSTOPFIGHT)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_STOPRIGHT)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_STOPLEFT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPRIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPLEFT)
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0)
 	{
@@ -3511,10 +3512,10 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (dam > 0
 		&& !hit_no_parry
 		&& GET_AF_BATTLE(victim, EAF_MULTYPARRY)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_MAGICSTOPFIGHT)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_STOPRIGHT)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_STOPLEFT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPRIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPLEFT)
 		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 4) / 5
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0)
@@ -3526,9 +3527,9 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (dam > 0
 		&& !hit_no_parry
 		&& ((GET_AF_BATTLE(victim, EAF_BLOCK) || can_auto_block(victim)) && GET_POS(victim) > POS_SITTING)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_MAGICSTOPFIGHT)
-		&& !AFF_FLAGGED(victim, EAffectFlags::AFF_STOPLEFT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPLEFT)
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0
 		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 8) / 9)
@@ -3549,7 +3550,7 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 		GET_OBJ_VAL(wielded, 2));
 
 	if (IS_NPC(ch)
-		&& !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM)
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& !MOB_FLAGGED(ch, MOB_ANGEL))
 	{
 		damroll *= MOB_DAMAGE_MULT;
@@ -3567,7 +3568,7 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 // * Добавление дамага от голых рук и молота.
 void HitData::add_hand_damage(CHAR_DATA *ch)
 {
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_STONEHAND))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STONEHAND))
 		dam += dice(2, 3);
 	else
 		dam += number(1, 3);
@@ -3603,7 +3604,7 @@ void HitData::calc_crit_chance(CHAR_DATA *ch)
 
 	// Маги, волхвы и не-купеческие чармисы не умеют критать //
 	if ((!IS_NPC(ch) && !IS_MAGIC_USER(ch) && !IS_DRUID(ch))
-		|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) && !AFF_FLAGGED(ch, EAffectFlags::AFF_HELPER))))
+		|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))))
 	{
 		calc_critic = MIN(ch->get_skill(weap_skill), 70);
 		// Мастерские фиты по оружию удваивают шанс критического попадания //
@@ -3627,7 +3628,7 @@ void HitData::calc_crit_chance(CHAR_DATA *ch)
 			calc_critic += (int)(ch->get_skill(SKILL_PUNCTUAL) / 2);
 			calc_critic += (int)(ch->get_skill(SKILL_NOPARRYHIT) / 3);
 		}
-		if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
+		if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		{
 			calc_critic += GET_LEVEL(ch);
 		}
@@ -3681,7 +3682,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		&& !victim->get_fighting()
 		&& ((IS_NPC(victim) && (GET_HIT(victim) < GET_MAX_HIT(victim)
 			|| MOB_FLAGGED(victim, MOB_AWARE)))
-			|| AFF_FLAGGED(victim, EAffectFlags::AFF_AWARNESS))
+			|| AFF_FLAGGED(victim, EAffectFlag::AFF_AWARNESS))
 		&& !GET_MOB_HOLD(victim) && GET_WAIT(victim) <= 0)
 	{
 		set_battle_pos(victim);
@@ -3696,7 +3697,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	hit_params.init(ch, victim);
 
 	//  дополнительный маг. дамаг независимо от попадания физ. атаки
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_CLOUD_OF_ARROWS) && hit_params.skill_num < 0
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CLOUD_OF_ARROWS) && hit_params.skill_num < 0
 		&& (ch->get_fighting()
 		|| (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR))))
 	{
@@ -3752,7 +3753,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 	// даже в случае попадания можно уклониться мигалкой
-	if (AFF_FLAGGED(victim, EAffectFlags::AFF_BLINK)
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK)
 		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
 		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
 		&& (!(hit_params.skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
@@ -3827,7 +3828,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	//dzMUDiST Обработка !исступления! +Gorrah
 	if (affected_by_spell(ch, SPELL_BERSERK))
 	{
-		if (AFF_FLAGGED(ch, EAffectFlags::AFF_BERSERK))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK))
 		{
 			hit_params.dam = (hit_params.dam * MAX(150, 150 + GET_LEVEL(ch) + dice(0, GET_REMORT(ch)) * 2)) / 100;
 		}
@@ -3881,7 +3882,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		else
 			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && !(AFF_FLAGGED(victim, EAffectFlags::AFF_SHIELD)) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
 			    hit_params.dam = 20;

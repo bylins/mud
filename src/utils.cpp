@@ -543,27 +543,27 @@ void imm_log(const char *format, ...)
 
 bool no_bad_affects(OBJ_DATA *obj)
 {
-	if (OBJ_AFFECT(obj, AFF_HOLD))
+	if (OBJ_AFFECT(obj, EAffectFlag::AFF_HOLD))
 		return false;
-	if (OBJ_AFFECT(obj, AFF_COURAGE))
+	if (OBJ_AFFECT(obj, EAffectFlag::AFF_COURAGE))
 		return false;
-	if (OBJ_AFFECT(obj, AFF_SANCTUARY))
+	if (OBJ_AFFECT(obj, EAffectFlag::AFF_SANCTUARY))
 		return false;
-	if (OBJ_AFFECT(obj, AFF_PRISMATICAURA))
+	if (OBJ_AFFECT(obj, EAffectFlag::AFF_PRISMATICAURA))
 		return false;
-	if(OBJ_AFFECT(obj, AFF_POISON))
+	if(OBJ_AFFECT(obj, EAffectFlag::AFF_POISON))
 		return false;
-	if (OBJ_AFFECT(obj, AFF_SIELENCE))
+	if (OBJ_AFFECT(obj, EAffectFlag::AFF_SIELENCE))
 		return false;
-	if (OBJ_AFFECT(obj, AFF_DEAFNESS))
+	if (OBJ_AFFECT(obj, EAffectFlag::AFF_DEAFNESS))
 		return false;
-	if (OBJ_AFFECT(obj, AFF_HAEMORRAGIA))
+	if (OBJ_AFFECT(obj, EAffectFlag::AFF_HAEMORRAGIA))
 		return false;
-	if (OBJ_AFFECT(obj, AFF_BLIND))
+	if (OBJ_AFFECT(obj, EAffectFlag::AFF_BLIND))
 		return false;
-	if (OBJ_AFFECT(obj, AFF_SLEEP))
+	if (OBJ_AFFECT(obj, EAffectFlag::AFF_SLEEP))
 		return false;
-	if (OBJ_AFFECT(obj, AFF_HOLYDARK))
+	if (OBJ_AFFECT(obj, EAffectFlag::AFF_HOLYDARK))
 		return false;
 	return true;
 }
@@ -719,7 +719,7 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 	}
 }
 
-void mudlog_python(const string& str, int type, int level, int channel, int file)
+void mudlog_python(const std::string& str, int type, int level, int channel, int file)
 {
 	mudlog(str.c_str(), type, level, channel, file);
 }
@@ -820,19 +820,19 @@ bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 
 void make_horse(CHAR_DATA * horse, CHAR_DATA * ch)
 {
-	AFF_FLAGS(horse).set(AFF_HORSE);
+	AFF_FLAGS(horse).set(EAffectFlag::AFF_HORSE);
 	add_follower(horse, ch);
 	MOB_FLAGS(horse).unset(MOB_WIMPY);
 	MOB_FLAGS(horse).unset(MOB_SENTINEL);
 	MOB_FLAGS(horse).unset(MOB_HELPER);
 	MOB_FLAGS(horse).unset(MOB_AGGRESSIVE);
 	MOB_FLAGS(horse).unset(MOB_MOUNTING);
-	AFF_FLAGS(horse).unset(AFF_TETHERED);
+	AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
 }
 
 int on_horse(CHAR_DATA * ch)
 {
-	return (AFF_FLAGGED(ch, EAffectFlags::AFF_HORSE) && has_horse(ch, TRUE));
+	return (AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE) && has_horse(ch, TRUE));
 }
 
 int has_horse(CHAR_DATA * ch, int same_room)
@@ -844,9 +844,13 @@ int has_horse(CHAR_DATA * ch, int same_room)
 
 	for (f = ch->followers; f; f = f->next)
 	{
-		if (IS_NPC(f->follower) && AFF_FLAGGED(f->follower, AFF_HORSE) &&
-				(!same_room || IN_ROOM(ch) == IN_ROOM(f->follower)))
+		if (IS_NPC(f->follower)
+			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE)
+			&& (!same_room
+				|| IN_ROOM(ch) == IN_ROOM(f->follower)))
+		{
 			return (TRUE);
+		}
 	}
 	return (FALSE);
 }
@@ -860,8 +864,11 @@ CHAR_DATA *get_horse(CHAR_DATA * ch)
 
 	for (f = ch->followers; f; f = f->next)
 	{
-		if (IS_NPC(f->follower) && AFF_FLAGGED(f->follower, AFF_HORSE))
+		if (IS_NPC(f->follower)
+			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE))
+		{
 			return (f->follower);
+		}
 	}
 	return (NULL);
 }
@@ -871,10 +878,12 @@ void horse_drop(CHAR_DATA * ch)
 	if (ch->master)
 	{
 		act("$N сбросил$G вас со своей спины.", FALSE, ch->master, 0, ch, TO_CHAR);
-		AFF_FLAGS(ch->master).unset(AFF_HORSE);
+		AFF_FLAGS(ch->master).unset(EAffectFlag::AFF_HORSE);
 		WAIT_STATE(ch->master, 3 * PULSE_VIOLENCE);
 		if (GET_POS(ch->master) > POS_SITTING)
+		{
 			GET_POS(ch->master) = POS_SITTING;
+		}
 	}
 }
 
@@ -883,7 +892,7 @@ void check_horse(CHAR_DATA * ch)
 	if (!IS_NPC(ch)
 		&& !has_horse(ch, TRUE))
 	{
-		AFF_FLAGS(ch).unset(AFF_HORSE);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 	}
 }
 
@@ -917,14 +926,21 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	}
 
 	//log("[Stop follower] Stop horse");
-	if (get_horse(ch->master) == ch && on_horse(ch->master))
+	if (get_horse(ch->master) == ch
+		&& on_horse(ch->master))
+	{
 		horse_drop(ch);
+	}
 	else
+	{
 		act("$n прекратил$g следовать за вами.", TRUE, ch, 0, ch->master, TO_VICT);
+	}
 
 	//log("[Stop follower] Remove from followers list");
 	if (!ch->master->followers)
+	{
 		log("[Stop follower] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->master));
+	}
 	else if (ch->master->followers->follower == ch)  	// Head of follower-list?
 	{
 		k = ch->master->followers;
@@ -932,7 +948,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		if (!ch->master->followers
 			&& !ch->master->master)
 		{
-			AFF_FLAGS(ch->master).unset(AFF_GROUP);
+			AFF_FLAGS(ch->master).unset(EAffectFlag::AFF_GROUP);
 		}
 		free(k);
 	}
@@ -940,8 +956,9 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	{
 		for (k = ch->master->followers; k->next && k->next->follower != ch; k = k->next);
 		if (!k->next)
-			log("[Stop follower] SYSERR: Undefined %s in %s followers list.",
-				GET_NAME(ch), GET_NAME(ch->master));
+		{
+			log("[Stop follower] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->master));
+		}
 		else
 		{
 			j = k->next;
@@ -952,21 +969,24 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	master = ch->master;
 	ch->master = NULL;
 
-	AFF_FLAGS(ch).unset(AFF_GROUP);
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlags::AFF_HORSE))
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+	if (IS_NPC(ch)
+		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE))
 	{
-		AFF_FLAGS(ch).unset(AFF_HORSE);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 	}
 
 	//log("[Stop follower] Free charmee");
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlags::AFF_HELPER) || IS_SET(mode, SF_CHARMLOST))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
+		|| IS_SET(mode, SF_CHARMLOST))
 	{
 		if (affected_by_spell(ch, SPELL_CHARM))
 		{
 			affect_from_char(ch, SPELL_CHARM);
 		}
 		EXTRACT_TIMER(ch) = 5;
-		AFF_FLAGS(ch).unset(AFF_CHARM);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CHARM);
 
 		if (ch->get_fighting())
 		{
@@ -984,9 +1004,9 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 				extract_char(ch, FALSE);
 				return (TRUE);
 			}
-			else if (AFF_FLAGGED(ch, EAffectFlags::AFF_HELPER))
+			else if (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))
 			{
-				AFF_FLAGS(ch).unset(AFF_HELPER);
+				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HELPER);
 			}
 			else
 			{
@@ -1007,15 +1027,20 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 					}
 				}
 				else
-					if (master &&
-							!IS_SET(mode, SF_MASTERDIE) &&
-							CAN_SEE(ch, master) && MOB_FLAGGED(ch, MOB_MEMORY))
+				{
+					if (master
+						&& !IS_SET(mode, SF_MASTERDIE)
+						&& CAN_SEE(ch, master) && MOB_FLAGGED(ch, MOB_MEMORY))
+					{
 						remember(ch, master);
+					}
+				}
 			}
 		}
 	}
 
-	if (IS_NPC(ch) && (i = GET_MOB_RNUM(ch)) >= 0)
+	if (IS_NPC(ch)
+		&& (i = GET_MOB_RNUM(ch)) >= 0)
 	{
 		MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
 	}
@@ -1038,7 +1063,7 @@ bool die_follower(CHAR_DATA * ch)
 
 	if (on_horse(ch))
 	{
-		AFF_FLAGS(ch).unset(AFF_HORSE);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 	}
 
 	for (k = ch->followers; k; k = j)
@@ -1588,17 +1613,17 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 
 	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
 	if (IS_NPC(ch) && ch->master && !IS_NPC(ch->master)
-		&& (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL)))
+		&& (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL)))
 		ch = ch->master;
 	if (IS_NPC(tch) && tch->master && !IS_NPC(tch->master)
-		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, EAffectFlags::AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)))
+		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)))
 		tch = tch->master;
 
 	// NPC's always in same group
 	if ((IS_NPC(ch) && IS_NPC(tch)) || ch == tch)
 		return true;
 
-	if (!AFF_FLAGGED(ch, EAffectFlags::AFF_GROUP) || !AFF_FLAGGED(tch, EAffectFlags::AFF_GROUP))
+	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) || !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP))
 		return false;
 
 	if (ch->master == tch || tch->master == ch || (ch->master && ch->master == tch->master))
@@ -1960,7 +1985,7 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 		return FALSE;
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
-	if (IS_NPC(whom) && AFF_FLAGGED(whom, EAffectFlags::AFF_CHARM))
+	if (IS_NPC(whom) && AFF_FLAGGED(whom, EAffectFlag::AFF_CHARM))
 		return ignores(who, whom->master, flag);
 
 	ign_id = GET_IDNUM(whom);
@@ -1976,12 +2001,12 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 int valid_email(const char *address)
 {
 	int count = 0;
-	static string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
-	string addr = address;
-	string::size_type dog_pos = 0, pos = 0;
+	static std::string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
+	std::string addr = address;
+	std::string::size_type dog_pos = 0, pos = 0;
 
 	// Наличие запрещенных символов или кириллицы //
-	if (addr.find_first_of(special_symbols) != string::npos)
+	if (addr.find_first_of(special_symbols) != std::string::npos)
 		return 0;
 	size_t size = addr.size();
 	for (size_t i = 0; i < size; i++)
@@ -1992,7 +2017,7 @@ int valid_email(const char *address)
 		}
 	}
 	// Собака должна быть только одна и на второй и далее позиции //
-	while ((pos = addr.find_first_of('@', pos)) != string::npos)
+	while ((pos = addr.find_first_of('@', pos)) != std::string::npos)
 	{
 		dog_pos = pos;
 		++count;
@@ -2005,7 +2030,7 @@ int valid_email(const char *address)
 	if (size - dog_pos <= 3)
 		return 0;
 	// Точка отсутствует, расположена сразу после собаки, или на последнем месте //
-	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == string::npos)
+	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == std::string::npos)
 		return 0;
 
 	return 1;
@@ -2692,14 +2717,17 @@ void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 		need_str, desc_count(need_str, WHAT_STR));
 }
 
-long GetAffectNumByName(std::string affName)
+bool GetAffectNumByName(const std::string& affName, EAffectFlag& result)
 {
 	int base = 0, offset = 0, counter = 0;
 	bool endOfArray = false;
 	while (!endOfArray)
 	{
-		if (affName == string(affected_bits[counter]))
-			return ((base << 30) | (1 << offset));
+		if (affName == std::string(affected_bits[counter]))
+		{
+			result = static_cast<EAffectFlag>((base << 30) | (1 << offset));
+			return true;
+		}
 		offset++;
 		if (*affected_bits[counter] == '\n')
 		{
@@ -2710,7 +2738,7 @@ long GetAffectNumByName(std::string affName)
 		}
 		counter++;
 	}
-	return -1;
+	return false;
 }
 
 /// считает кол-во цветов &R и т.п. в строке
@@ -3031,7 +3059,7 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 // Симуляция телла от моба
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 {
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
 		return;
 	char local_buf[MAX_INPUT_LENGTH];
 	snprintf(local_buf, MAX_INPUT_LENGTH,

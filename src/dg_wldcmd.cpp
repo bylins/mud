@@ -352,7 +352,7 @@ WCMD(do_wteleport)
 		{
 			next_ch = ch->next_in_room;
 			if (IS_NPC(ch)
-					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM)
+					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 						 || MOB_FLAGGED(ch, MOB_ANGEL)))
 				continue;
 			if (on_horse(ch) || has_horse(ch, TRUE))
@@ -383,7 +383,7 @@ WCMD(do_wteleport)
 			for (charmee = world[IN_ROOM(ch)]->people; charmee; charmee = ncharmee)
 			{
 				ncharmee = charmee->next_in_room;
-				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlags::AFF_CHARM)
+				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 										|| MOB_FLAGGED(charmee, MOB_ANGEL))
 						&& charmee->master == ch)
 				{

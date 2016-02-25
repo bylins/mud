@@ -380,17 +380,10 @@ ACMD(do_drink)
 	}
 	//Конец изменений Adept'ом
 
-//	if ((GET_COND(ch, THIRST) > 0) && AFF_FLAGGED(ch, EAffectFlags::AFF_DRUNKED))  	// The pig is drunk
-//	{
-//		send_to_char("Вы не смогли сделать и глотка.\r\n", ch);
-//		act("$n попытал$u выпить еще, но не смог$q сделать и глотка.", TRUE, ch, 0, 0, TO_ROOM);
-//		return;
-//	}
-
 	if (subcmd == SCMD_DRINK)
 	{
 		if (drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] > 0)
-			if (GET_DRUNK_STATE(ch)<MAX_COND_VALUE && !AFF_FLAGGED(ch, EAffectFlags::AFF_ABSTINENT))
+			if (GET_DRUNK_STATE(ch)<MAX_COND_VALUE && !AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT))
 				amount = 24 / drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK];
 			else
 				amount = 0;
@@ -432,7 +425,7 @@ ACMD(do_drink)
 
 
 	if ((GET_DRUNK_STATE(ch) < MAX_COND_VALUE && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
-		|| (GET_COND(ch, DRUNK) < CHAR_DRUNKED && !AFF_FLAGGED(ch, EAffectFlags::AFF_ABSTINENT)))
+		|| (GET_COND(ch, DRUNK) < CHAR_DRUNKED && !AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)))
 	{
 		gain_condition(ch, DRUNK, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount) / 4);
 		GET_DRUNK_STATE(ch) = MAX(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
@@ -465,7 +458,7 @@ ACMD(do_drink)
 		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - CHAR_DRUNKED);
 		if (can_use_feat(ch, DRUNKARD_FEAT))
 			duration += duration/2;
-		if (!AFF_FLAGGED(ch, EAffectFlags::AFF_ABSTINENT)
+		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)
 				&& GET_DRUNK_STATE(ch) < MAX_COND_VALUE
 					&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
 		{
@@ -475,7 +468,7 @@ ACMD(do_drink)
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -20;
 			af.location = APPLY_AC;
-			af.bitvector = AFF_DRUNKED;
+			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
 			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 			// **** Decrease HR ***** //
@@ -483,7 +476,7 @@ ACMD(do_drink)
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -2;
 			af.location = APPLY_HITROLL;
-			af.bitvector = AFF_DRUNKED;
+			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
 			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 			// **** Increase DR ***** //
@@ -491,7 +484,7 @@ ACMD(do_drink)
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = (GET_LEVEL(ch) + 4) / 5;
 			af.location = APPLY_DAMROLL;
-			af.bitvector = AFF_DRUNKED;
+			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
 			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		}
@@ -506,13 +499,13 @@ ACMD(do_drink)
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
 		af.modifier = -2;
 		af.location = APPLY_STR;
-		af.bitvector = AFF_POISON;
+		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		af.type = SPELL_POISON;
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
-		af.bitvector = AFF_POISON;
+		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		ch->Poisoner = 0;
@@ -548,13 +541,13 @@ ACMD(do_drunkoff)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlags::AFF_DRUNKED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DRUNKED))
 	{
 		send_to_char("Вы хотите испортить себе весь кураж?\r\n" "Это не есть по русски!\r\n", ch);
 		return;
 	}
 
-	if (!AFF_FLAGGED(ch, EAffectFlags::AFF_ABSTINENT) && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
+	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT) && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
 	{
 		send_to_char("Не стоит делать этого на трезвую голову.\r\n", ch);
 		return;
@@ -659,19 +652,19 @@ ACMD(do_drunkoff)
 		af[0].duration = pc_duration(ch, duration, 0, 0, 0, 0);
 		af[0].modifier = 0;
 		af[0].location = APPLY_DAMROLL;
-		af[0].bitvector = AFF_ABSTINENT;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
 		af[0].battleflag = 0;
 		af[1].type = SPELL_ABSTINENT;
 		af[1].duration = pc_duration(ch, duration, 0, 0, 0, 0);
 		af[1].modifier = 0;
 		af[1].location = APPLY_HITROLL;
-		af[1].bitvector = AFF_ABSTINENT;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
 		af[1].battleflag = 0;
 		af[2].type = SPELL_ABSTINENT;
 		af[2].duration = pc_duration(ch, duration, 0, 0, 0, 0);
 		af[2].modifier = 0;
 		af[2].location = APPLY_AC;
-		af[2].bitvector = AFF_ABSTINENT;
+		af[2].bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
 		af[2].battleflag = 0;
 		switch (number(0, ch->get_skill(SKILL_DRUNKOFF) / 20))
 		{
@@ -1201,7 +1194,7 @@ void set_abstinent(CHAR_DATA *ch)
 		duration /= 2;
 
 	af.type = SPELL_ABSTINENT;
-	af.bitvector = AFF_ABSTINENT;
+	af.bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
 	af.duration = duration;
 
 	af.location = APPLY_AC;

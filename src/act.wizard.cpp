@@ -1161,7 +1161,7 @@ ACMD(do_echo)
 		if (subcmd == SCMD_EMOTE)
 		{
 			// added by Pereplut
-			if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlags::AFF_CHARM))
+			if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 			{
 				if PLR_FLAGGED(ch->master, PLR_DUMB)
 				{
@@ -2063,13 +2063,11 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	send_to_char(strcat(buf, buf2), ch);
 	if (IS_MOB(k))
 	{
-		sprintf(buf, "Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
-				k->get_pc_name(), GET_MOB_VNUM(k), GET_MOB_RNUM(k));
+		sprintf(buf, "Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n", k->get_pc_name().c_str(), GET_MOB_VNUM(k), GET_MOB_RNUM(k));
 		send_to_char(buf, ch);
 	}
 
-	sprintf(buf, "Падежи: %s/%s/%s/%s/%s/%s ",
-			GET_PAD(k, 0), GET_PAD(k, 1), GET_PAD(k, 2), GET_PAD(k, 3), GET_PAD(k, 4), GET_PAD(k, 5));
+	sprintf(buf, "Падежи: %s/%s/%s/%s/%s/%s ", GET_PAD(k, 0), GET_PAD(k, 1), GET_PAD(k, 2), GET_PAD(k, 3), GET_PAD(k, 4), GET_PAD(k, 5));
 	send_to_char(buf, ch);
 
 
@@ -2177,7 +2175,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	{
 		sprinttype(k->get_class(), pc_class_types, buf2);
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
-			string(PlayerRace::GetKinNameByNum(GET_KIN(k),GET_SEX(k))).c_str(),
+			PlayerRace::GetKinNameByNum(GET_KIN(k),GET_SEX(k)).c_str(),
 			k->get_race_name().c_str(), buf2);
 		send_to_char(buf, ch);
 	}
@@ -3774,7 +3772,7 @@ ACMD(do_restore)
 void perform_immort_vis(CHAR_DATA * ch)
 {
 	if (GET_INVIS_LEV(ch) == 0 &&
-			!AFF_FLAGGED(ch, EAffectFlags::AFF_HIDE) && !AFF_FLAGGED(ch, EAffectFlags::AFF_INVISIBLE) && !AFF_FLAGGED(ch, EAffectFlags::AFF_CAMOUFLAGE))
+			!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_INVISIBLE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE))
 	{
 		send_to_char("Ну вот вас и заметили. Стало ли вам легче от этого?\r\n", ch);
 		return;
@@ -6644,7 +6642,7 @@ ACMD(do_godtest)
         send_to_char("Чувак, укажи ИД проверяемого скилла.\r\n", ch);
 		return;
 	}
-    skl = Skill::GetNumByID(string(argument));
+    skl = Skill::GetNumByID(std::string(argument));
     if (skl ==  SKILL_UNDEFINED)
 	{
         send_to_char("Извини, братан, не нашел. :(\r\n", ch);
