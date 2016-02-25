@@ -2545,19 +2545,20 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			if (PRF_FLAGGED(d->character, PRF_DISPEXITS))
 			{
 				count += sprintf(prompt + count, "Вых:");
-				if (!AFF_FLAGGED(d->character, AFF_BLIND))
+				if (!AFF_FLAGGED(d->character, EAffectFlag::AFF_BLIND))
+				{
 					for (door = 0; door < NUM_OF_DIRS; door++)
 					{
-						if (EXIT(d->character, door) &&
-								EXIT(d->character, door)->to_room != NOWHERE &&
-								!EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
-							count +=
-								EXIT_FLAGGED(EXIT(d->character, door),
-											 EX_CLOSED) ? sprintf(prompt + count,
-																  "(%s)",
-																  dirs[door]) :
-								sprintf(prompt + count, "%s", dirs[door]);
+						if (EXIT(d->character, door)
+							&& EXIT(d->character, door)->to_room != NOWHERE
+							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
+						{
+							count += EXIT_FLAGGED(EXIT(d->character, door), EX_CLOSED)
+								? sprintf(prompt + count, "(%s)", dirs[door])
+								: sprintf(prompt + count, "%s", dirs[door]);
+						}
 					}
+				}
 			}
 		}
 		else
@@ -4385,16 +4386,19 @@ void send_to_outdoor(const char *messg, int control)
 		if (!AWAKE(i->character) || !OUTSIDE(i->character))
 			continue;
 		room = IN_ROOM(i->character);
-		if (!control ||
-				(IS_SET(control, SUN_CONTROL) &&
-				 room != NOWHERE &&
-				 SECT(room) != SECT_UNDERWATER &&
-				 !AFF_FLAGGED(i->character, AFF_BLIND)) ||
-				(IS_SET(control, WEATHER_CONTROL) &&
-				 room != NOWHERE &&
-				 SECT(room) != SECT_UNDERWATER &&
-				 !ROOM_FLAGGED(room, ROOM_NOWEATHER) && world[IN_ROOM(i->character)]->weather.duration <= 0))
+		if (!control
+			|| (IS_SET(control, SUN_CONTROL)
+				&& room != NOWHERE
+				&& SECT(room) != SECT_UNDERWATER
+				&& !AFF_FLAGGED(i->character, EAffectFlag::AFF_BLIND))
+			|| (IS_SET(control, WEATHER_CONTROL)
+				&& room != NOWHERE
+				&& SECT(room) != SECT_UNDERWATER
+				&& !ROOM_FLAGGED(room, ROOM_NOWEATHER)
+				&& world[IN_ROOM(i->character)]->weather.duration <= 0))
+		{
 			SEND_TO_Q(messg, i);
+		}
 	}
 }
 
@@ -4792,8 +4796,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		if (ch
 			&& SENDOK(ch)
 			&& IN_ROOM(ch) != NOWHERE
-			&& (!check_deaf || !AFF_FLAGGED(ch, AFF_DEAFNESS))
-			&& (!check_nodeaf || AFF_FLAGGED(ch, AFF_DEAFNESS))
+			&& (!check_deaf || !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)))
 		{
@@ -4807,8 +4811,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		if ((to = (CHAR_DATA *) vict_obj) != NULL
 			&& SENDOK(to)
 			&& IN_ROOM(to) != NOWHERE
-			&& (!check_deaf || !AFF_FLAGGED(to, AFF_DEAFNESS))
-			&& (!check_nodeaf || AFF_FLAGGED(to, AFF_DEAFNESS))
+			&& (!check_deaf || !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
+			&& (!check_nodeaf || AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS)))
 		{
@@ -4843,15 +4847,15 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 			//надо отдельно PRF_DEAF
 			//if (!IS_NPC(to) && check_deaf && PRF_FLAGGED(to, PRF_NOTELL))
 			//	continue;
-			if (check_deaf && AFF_FLAGGED(to, AFF_DEAFNESS))
+			if (check_deaf && AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 				continue;
-			if (check_nodeaf && !AFF_FLAGGED(to, AFF_DEAFNESS))
+			if (check_nodeaf && !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 				continue;
 			if (to_brief_shields && !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 				continue;
 			if (to_no_brief_shields && PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 				continue;
-			if (type == TO_ROOM_HIDE && !AFF_FLAGGED(to, AFF_SENSE_LIFE) && (IS_NPC(to) || !PRF_FLAGGED(to, PRF_HOLYLIGHT)))
+			if (type == TO_ROOM_HIDE && !AFF_FLAGGED(to, EAffectFlag::AFF_SENSE_LIFE) && (IS_NPC(to) || !PRF_FLAGGED(to, PRF_HOLYLIGHT)))
 				continue;
 			if (type == TO_ROOM_HIDE && PRF_FLAGGED(to, PRF_HOLYLIGHT))
 			{

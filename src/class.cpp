@@ -2201,7 +2201,7 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj)
 				return (TRUE);
 	if (!ch ||
 			!obj ||
-			(IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) ||
+			(IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) ||
 			IS_IMMORTAL(ch) || obj->obj_flags.Obj_owner == 0 || obj->obj_flags.Obj_owner == GET_UNIQUE(ch))
 		return (FALSE);
 	return (TRUE);
@@ -2214,7 +2214,7 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		for (object = obj->contains; object; object = object->next_content)
 			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0))
 				return (TRUE);
-	if (IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE) && AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return (TRUE);
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
 		return (FALSE);
@@ -2253,7 +2253,7 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
-	if (IS_OBJ_NO(obj, ITEM_NO_CHARMICE) && AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_OBJ_NO(obj, ITEM_NO_CHARMICE) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return (TRUE);
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
 		return (FALSE);
@@ -2428,12 +2428,12 @@ void load_skills()
 			for (xNodeSkill = xNodeClass.child("skill"); xNodeSkill; xNodeSkill = xNodeSkill.next_sibling("skill"))
 			{
 				int sk_num;
-				string name = string(xNodeSkill.attribute("name").value());
+				std::string name = std::string(xNodeSkill.attribute("name").value());
 				if ((sk_num = find_skill_num(name.c_str())) < 0)
-					{
-						log("Skill '%s' not found...", name.c_str());
-						_exit(1);
-					}
+				{
+					log("Skill '%s' not found...", name.c_str());
+					_exit(1);
+				}
 				skill_info[sk_num].classknow[PCclass][PCkin] = KNOW_SKILL;
 				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > MAX_REMORT)
 				{
@@ -2441,7 +2441,9 @@ void load_skills()
 					skill_info[sk_num].level_decrement[PCclass][PCkin] = -1;
 				}
 				else
+				{
 					skill_info[sk_num].level_decrement[PCclass][PCkin] = level_decrement;
+				}
 				//log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, PCkin, PCclass);
 				int value = xNodeSkill.attribute("improve").as_int();
 				skill_info[sk_num].k_improove[PCclass][PCkin] = MAX(1, value);
@@ -2451,7 +2453,8 @@ void load_skills()
 				{
 					skill_info[sk_num].min_level[PCclass][PCkin] = value;
 					//log("Минимальный уровень изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, value);
-				}else
+				}
+				else
 				{
 					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d", skill_info[sk_num].name, value);
 					_exit(1);
@@ -2461,7 +2464,8 @@ void load_skills()
 				{
 					skill_info[sk_num].min_remort[PCclass][PCkin] = value;
 					//log("Минимальное количество ремортов для изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, skill_info[sk_num].min_remort[j][PCkin]);
-				}else
+				}
+				else
 				{
 					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d", skill_info[sk_num].name, value);
 					_exit(1);
@@ -2483,7 +2487,7 @@ void init_spell_levels(void)
 	int i[15], j, sp_num;
 	if (!(magic = fopen(LIB_MISC "magic.lst", "r")))
 	{
-		log("Cann't open magic list file...");
+		log("Can't open magic list file...");
 		_exit(1);
 	}
 	while (get_line(magic, name))

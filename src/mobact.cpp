@@ -253,31 +253,51 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 											   MOB_FLAGGED(vict, MOB_CLONE)   ? "1" : "0");
 											   act(buf,FALSE,ch,0,0,TO_ROOM); */
 
-		if ((IS_NPC(vict) && !IS_SET(extmode, CHECK_OPPONENT) && !IS_CHARMICE(vict))
-				|| (IS_CHARMICE(vict) && !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
-				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
-				|| !MAY_SEE(ch, vict)
-				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
-				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+		if ((IS_NPC(vict)
+				&& !IS_SET(extmode, CHECK_OPPONENT)
+				&& !IS_CHARMICE(vict))
+			|| (IS_CHARMICE(vict)
+				&& !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
+			|| PRF_FLAGGED(vict, PRF_NOHASSLE)
+			|| !MAY_SEE(ch, ch, vict)
+			|| (IS_SET(extmode, CHECK_OPPONENT)
+				&& ch != vict->get_fighting())
+			|| (!may_kill_here(ch, vict)
+				&& !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+		{
 			continue;
+		}
 
 		kill_this = FALSE;
 
 		// Mobile too damage //обработка флага ТРУС
-		if (IS_SET(extmode, CHECK_HITS) &&
-				MOB_FLAGGED(ch, MOB_WIMPY) && AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch))
+		if (IS_SET(extmode, CHECK_HITS)
+			&& MOB_FLAGGED(ch, MOB_WIMPY)
+			&& AWAKE(vict)
+			&& GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch))
+		{
 			continue;
+		}
 
 		// Mobile helpers... //ассист
-		if (IS_SET(extmode, KILL_FIGHTING) &&
-				vict->get_fighting() &&
-				vict->get_fighting() != ch &&
-				IS_NPC(vict->get_fighting()) && !AFF_FLAGGED(vict->get_fighting(), AFF_CHARM) && SAME_ALIGN(ch, vict->get_fighting()))
+		if (IS_SET(extmode, KILL_FIGHTING)
+			&& vict->get_fighting()
+			&& vict->get_fighting() != ch
+			&& IS_NPC(vict->get_fighting())
+			&& !AFF_FLAGGED(vict->get_fighting(), EAffectFlag::AFF_CHARM)
+			&& SAME_ALIGN(ch, vict->get_fighting()))
+		{
 			kill_this = TRUE;
+		}
 		else
+		{
 			// ... but no aggressive for this char
-			if (!(extra_aggr = extra_aggressive(ch, vict)) && !IS_SET(extmode, GUARD_ATTACK))
+			if (!(extra_aggr = extra_aggressive(ch, vict))
+				&& !IS_SET(extmode, GUARD_ATTACK))
+			{
 				continue;
+			}
+		}
 
 		// skip sneaking, hiding and camouflaging pc
 		if (IS_SET(extmode, SKIP_SNEAKING))
@@ -285,9 +305,9 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 			skip_sneaking(vict, ch);
 			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)))
 			{
-				AFF_FLAGS(vict).unset(AFF_SNEAK);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_SNEAK);
 			}
-			if (AFF_FLAGGED(vict, AFF_SNEAK))
+			if (AFF_FLAGGED(vict, EAffectFlag::AFF_SNEAK))
 				continue;
 		}
 
@@ -296,7 +316,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 			skip_hiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
 			{
-				AFF_FLAGS(vict).unset(AFF_HIDE);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HIDE);
 			}
 		}
 
@@ -305,7 +325,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 			skip_camouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
 			{
-				AFF_FLAGS(vict).unset(AFF_CAMOUFLAGE);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_CAMOUFLAGE);
 			}
 		}
 
@@ -315,10 +335,19 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		// Mobile aggresive
 		if (!kill_this && extra_aggr)
 		{
-			if (can_use_feat(vict, SILVER_TONGUED_FEAT) &&
-					number(1, GET_LEVEL(vict) * GET_REAL_CHA(vict)) >
-					number(1, ((GET_LEVEL(ch) > 30) ? (GET_LEVEL(ch) * 2 * GET_REAL_INT(ch) + GET_REAL_INT(ch) * 20) : (GET_LEVEL(ch) * GET_REAL_INT(ch)))))
-				continue;
+			if (can_use_feat(vict, SILVER_TONGUED_FEAT))
+			{
+				const int number1 = number(1, GET_LEVEL(vict) * GET_REAL_CHA(vict));
+				const int range = ((GET_LEVEL(ch) > 30)
+					? (GET_LEVEL(ch) * 2 * GET_REAL_INT(ch) + GET_REAL_INT(ch) * 20)
+					: (GET_LEVEL(ch) * GET_REAL_INT(ch)));
+				const int number2 = number(1, range);
+				const bool do_continue = number1 > number2;
+				if (do_continue)
+				{
+					continue;
+				}
+			}
 			kill_this = TRUE;
 		}
 
@@ -331,9 +360,9 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 
 		if (IS_DEFAULTDARK(IN_ROOM(ch)) && ((GET_EQ(vict, ITEM_LIGHT)
 											 && GET_OBJ_VAL(GET_EQ(vict, ITEM_LIGHT), 2))
-											|| ((AFF_FLAGGED(vict, AFF_SINGLELIGHT)
-												 || AFF_FLAGGED(vict, AFF_HOLYLIGHT))
-												&& !AFF_FLAGGED(vict, AFF_HOLYDARK))) && (!use_light
+											|| ((AFF_FLAGGED(vict, EAffectFlag::AFF_SINGLELIGHT)
+												 || AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYLIGHT))
+												&& !AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYDARK))) && (!use_light
 														||
 														GET_REAL_CHA
 														(use_light) >
@@ -421,33 +450,48 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
 				|| (IS_CHARMICE(vict) && !vict->get_fighting() && find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
-				|| !MAY_SEE(ch, vict) // если не видим цель,
+				|| !MAY_SEE(ch, ch, vict) // если не видим цель,
 				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
 				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 			continue;
 		kill_this = FALSE;
 		// Mobile too damage //обработка флага ТРУС
-		if (IS_SET(extmode, CHECK_HITS) &&
-				MOB_FLAGGED(ch, MOB_WIMPY) && AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch))
+		if (IS_SET(extmode, CHECK_HITS)
+			&& MOB_FLAGGED(ch, MOB_WIMPY)
+			&& AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch))
+		{
 			continue;
+		}
 
 		// Mobile helpers... //ассист
-		if ((vict->get_fighting()) && (vict->get_fighting() != ch) &&
-				(IS_NPC(vict->get_fighting())) && (!AFF_FLAGGED(vict->get_fighting(), AFF_CHARM)))
+		if ((vict->get_fighting())
+			&& (vict->get_fighting() != ch)
+			&& (IS_NPC(vict->get_fighting()))
+			&& (!AFF_FLAGGED(vict->get_fighting(), EAffectFlag::AFF_CHARM)))
+		{
 			kill_this = TRUE;
+		}
 		else
+		{
 			// ... but no aggressive for this char
-			if (!(extra_aggr = extra_aggressive(ch, vict)) && !IS_SET(extmode, GUARD_ATTACK))
+			if (!(extra_aggr = extra_aggressive(ch, vict))
+				&& !IS_SET(extmode, GUARD_ATTACK))
+			{
 				continue;
+			}
+		}
 		if (IS_SET(extmode, SKIP_SNEAKING))
 		{
 			skip_sneaking(vict, ch);
-			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) || (ch->get_role(MOB_ROLE_BOSS)))
+			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
+				|| (ch->get_role(MOB_ROLE_BOSS)))
 			{
-				AFF_FLAGS(vict).unset(AFF_SNEAK);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_SNEAK);
 			}
-			if (AFF_FLAGGED(vict, AFF_SNEAK))
+			if (AFF_FLAGGED(vict, EAffectFlag::AFF_SNEAK))
+			{
 				continue;
+			}
 		}
 
 		if (IS_SET(extmode, SKIP_HIDING))
@@ -455,7 +499,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			skip_hiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
 			{
-				AFF_FLAGS(vict).unset(AFF_HIDE);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HIDE);
 			}
 		}
 
@@ -464,7 +508,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			skip_camouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
 			{
-				AFF_FLAGS(vict).unset(AFF_CAMOUFLAGE);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_CAMOUFLAGE);
 			}
 		}
 		if (!CAN_SEE(ch, vict))
@@ -472,10 +516,11 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 
 		if (!kill_this && extra_aggr)
 		{
-			if (can_use_feat(vict, SILVER_TONGUED_FEAT) &&
-					number(1, GET_LEVEL(vict) * GET_REAL_CHA(vict)) >
-					number(1, GET_LEVEL(ch) * GET_REAL_INT(ch)))
+			if (can_use_feat(vict, SILVER_TONGUED_FEAT)
+				&& number(1, GET_LEVEL(vict) * GET_REAL_CHA(vict)) > number(1, GET_LEVEL(ch) * GET_REAL_INT(ch)))
+			{
 				continue;
+			}
 			kill_this = TRUE;
 		}
 
@@ -644,7 +689,7 @@ int perform_best_horde_attack(CHAR_DATA * ch, int extmode)
 
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
-		if (!IS_NPC(vict) || !MAY_SEE(ch, vict) || MOB_FLAGGED(vict, MOB_PROTECT))
+		if (!IS_NPC(vict) || !MAY_SEE(ch, ch, vict) || MOB_FLAGGED(vict, MOB_PROTECT))
 			continue;
 		if (!SAME_ALIGN(ch, vict))
 		{
@@ -694,7 +739,7 @@ int perform_mob_switch(CHAR_DATA * ch)
 void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 {
 	if (!ch || IN_ROOM(ch) == NOWHERE || !IS_NPC(ch)
-		|| !MAY_ATTACK(ch) || AFF_FLAGGED(ch, AFF_BLIND))
+		|| !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		return;
 	}
@@ -738,7 +783,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 			{
 				if (names->id == GET_IDNUM(vict))
 				{
-					if (!MAY_SEE(ch, vict) || !may_kill_here(ch, vict))
+					if (!MAY_SEE(ch, ch, vict) || !may_kill_here(ch, vict))
 					{
 						continue;
 					}
@@ -747,20 +792,20 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 						skip_sneaking(vict, ch);
 						if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
 						{
-							AFF_FLAGS(vict).unset(AFF_SNEAK);
+							AFF_FLAGS(vict).unset(EAffectFlag::AFF_SNEAK);
 						}
-						if (AFF_FLAGGED(vict, AFF_SNEAK))
+						if (AFF_FLAGGED(vict, EAffectFlag::AFF_SNEAK))
 								continue;
 					}
 					skip_hiding(vict, ch);
 					if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
 					{
-						AFF_FLAGS(vict).unset(AFF_HIDE);
+						AFF_FLAGS(vict).unset(EAffectFlag::AFF_HIDE);
 					}
 					skip_camouflage(vict, ch);
 					if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
 					{
-						AFF_FLAGS(vict).unset(AFF_CAMOUFLAGE);
+						AFF_FLAGS(vict).unset(EAffectFlag::AFF_CAMOUFLAGE);
 					}
 					if (CAN_SEE(ch, vict))
 					{
@@ -1021,9 +1066,9 @@ void mobile_activity(int activity_level, int missed_pulses)
 		if (ch->get_fighting() ||
 				GET_POS(ch) <= POS_STUNNED ||
 				GET_WAIT(ch) > 0 ||
-				AFF_FLAGGED(ch, AFF_CHARM) ||
-				AFF_FLAGGED(ch, AFF_HOLD) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT) ||
-				AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_SLEEP))
+				AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ||
+				AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT) ||
+				AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
 			continue;
 
 		if (IS_HORSE(ch))
@@ -1137,23 +1182,23 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_INVIS))
 		{
-			AFF_FLAGS(ch).set(AFF_INVISIBLE);
+			AFF_FLAGS(ch).set(EAffectFlag::AFF_INVISIBLE);
 		}
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_MOVEFLY))
 		{
-			AFF_FLAGS(ch).set(AFF_FLY);
+			AFF_FLAGS(ch).set(EAffectFlag::AFF_FLY);
 		}
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_SNEAK))
 		{
 			if (calculate_skill(ch, SKILL_SNEAK, 100, 0) >= number(0, 100))
 			{
-				AFF_FLAGS(ch).set(AFF_SNEAK);
+				AFF_FLAGS(ch).set(EAffectFlag::AFF_SNEAK);
 			}
 			else
 			{
-				AFF_FLAGS(ch).unset(AFF_SNEAK);
+				AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);
 			}
 			affect_total(ch);
 		}
@@ -1162,11 +1207,11 @@ void mobile_activity(int activity_level, int missed_pulses)
 		{
 			if (calculate_skill(ch, SKILL_CAMOUFLAGE, 100, 0) >= number(0, 100))
 			{
-				AFF_FLAGS(ch).set(AFF_CAMOUFLAGE);
+				AFF_FLAGS(ch).set(EAffectFlag::AFF_CAMOUFLAGE);
 			}
 			else
 			{
-				AFF_FLAGS(ch).unset(AFF_CAMOUFLAGE);
+				AFF_FLAGS(ch).unset(EAffectFlag::AFF_CAMOUFLAGE);
 			}
 			affect_total(ch);
 		}
@@ -1174,10 +1219,11 @@ void mobile_activity(int activity_level, int missed_pulses)
 		door = BFS_ERROR;
 
 		// Helpers go to some dest
-		if (door == BFS_ERROR &&
-				MOB_FLAGGED(ch, MOB_HELPER) &&
-				!MOB_FLAGGED(ch, MOB_SENTINEL) &&
-				!AFF_FLAGGED(ch, AFF_BLIND) && !ch->master && GET_POS(ch) == POS_STANDING)
+		if (door == BFS_ERROR
+			&& MOB_FLAGGED(ch, MOB_HELPER)
+			&& !MOB_FLAGGED(ch, MOB_SENTINEL)
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
+			&& !ch->master && GET_POS(ch) == POS_STANDING)
 		{
 			for (found = FALSE, door = 0; door < NUM_OF_DIRS; door++)
 			{
@@ -1195,7 +1241,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 					for (first = world[rdata->to_room]->people, kw = 0;
 							first && kw < 25; first = first->next_in_room, kw++)
-						if (IS_NPC(first) && !AFF_FLAGGED(first, AFF_CHARM)
+						if (IS_NPC(first) && !AFF_FLAGGED(first, EAffectFlag::AFF_CHARM)
 								&& !IS_HORSE(first) && CAN_SEE(ch, first)
 								&& first->get_fighting() && SAME_ALIGN(ch, first))
 						{
@@ -1257,7 +1303,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		// *****************  Mob Memory
 		if (MOB_FLAGGED(ch, MOB_MEMORY) &&
-				MEMORY(ch) && GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch, AFF_BLIND) && !ch->get_fighting())
+				MEMORY(ch) && GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) && !ch->get_fighting())
 		{
 			victim = NULL;
 			// Find memory in world
@@ -1306,7 +1352,7 @@ void remember(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (!IS_NPC(ch) ||
 			IS_NPC(victim) ||
-			PRF_FLAGGED(victim, PRF_NOHASSLE) || !MOB_FLAGGED(ch, MOB_MEMORY) || AFF_FLAGGED(ch, AFF_CHARM))
+			PRF_FLAGGED(victim, PRF_NOHASSLE) || !MOB_FLAGGED(ch, MOB_MEMORY) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
@@ -1341,7 +1387,7 @@ void forget(CHAR_DATA * ch, CHAR_DATA * victim)
 	memory_rec *curr, *prev = NULL;
 
 	// Момент спорный, но думаю, что так правильнее
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (!(curr = MEMORY(ch)))

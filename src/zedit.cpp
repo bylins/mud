@@ -17,11 +17,13 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <vector>
+
 // * External data structures.
 extern struct zone_data *zone_table;
 extern CHAR_DATA *mob_proto;
 extern INDEX_DATA *mob_index;
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern INDEX_DATA *obj_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
@@ -535,13 +537,13 @@ void zedit_save_to_disk(int zone_num)
 			arg2 = ZCMD.arg2;
 			arg3 = world[ZCMD.arg3]->number;
 			arg4 = ZCMD.arg4;
-			comment = mob_proto[ZCMD.arg1].get_npc_name();
+			comment = mob_proto[ZCMD.arg1].get_npc_name().c_str();
 			break;
 		case 'F':
 			arg1 = world[ZCMD.arg1]->number;
 			arg2 = mob_index[ZCMD.arg2].vnum;
 			arg3 = mob_index[ZCMD.arg3].vnum;
-			comment = mob_proto[ZCMD.arg2].get_npc_name();
+			comment = mob_proto[ZCMD.arg2].get_npc_name().c_str();
 			break;
 		case 'O':
 			arg1 = obj_index[ZCMD.arg1].vnum;
@@ -568,7 +570,7 @@ void zedit_save_to_disk(int zone_num)
 			arg1 = mob_index[ZCMD.arg1].vnum;
 			arg2 = -1;
 			arg3 = -1;
-			comment = mob_proto[ZCMD.arg1].get_npc_name();
+			comment = mob_proto[ZCMD.arg1].get_npc_name().c_str();
 			break;
 		case 'P':
 			arg1 = obj_index[ZCMD.arg1].vnum;
@@ -657,7 +659,7 @@ const char * name_by_vnum(int vnum, int type)
 	case MOB_NAME:
 		rnum = real_mobile(vnum);
 		if (rnum >= 0)
-			return mob_proto[rnum].get_npc_name();
+			return mob_proto[rnum].get_npc_name().c_str();
 		break;
 	case OBJ_NAME:
 		rnum = real_object(vnum);

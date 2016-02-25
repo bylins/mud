@@ -228,7 +228,7 @@ void random_mtrigger(CHAR_DATA * ch)
 {
 	TRIG_DATA *t;
 
-	if (!SCRIPT_CHECK(ch, MTRIG_RANDOM) || AFF_FLAGGED(ch, AFF_CHARM))
+	if (!SCRIPT_CHECK(ch, MTRIG_RANDOM) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
@@ -246,8 +246,11 @@ void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_CHECK(ch, MTRIG_BRIBE) || !CAN_START_MTRIG(ch))
+	if (!SCRIPT_CHECK(ch, MTRIG_BRIBE)
+		|| !CAN_START_MTRIG(ch))
+	{
 		return;
+	}
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 	{
@@ -587,7 +590,7 @@ void speech_mtrigger(CHAR_DATA * actor, char *str)
 		ch_next = ch->next_in_room;
 
 		if (SCRIPT_CHECK(ch, MTRIG_SPEECH) && AWAKE(ch) &&
-				!AFF_FLAGGED(ch, AFF_DEAFNESS) && CAN_START_MTRIG(ch) && (actor != ch))
+				!AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) && CAN_START_MTRIG(ch) && (actor != ch))
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 			{
 				if (!TRIGGER_CHECK(t, MTRIG_SPEECH))
@@ -779,7 +782,7 @@ int death_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_CHECK(ch, MTRIG_DEATH) || AFF_FLAGGED(ch, AFF_CHARM))
+	if (!SCRIPT_CHECK(ch, MTRIG_DEATH) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return 1;
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)

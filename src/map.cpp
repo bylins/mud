@@ -603,7 +603,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			// можно задохнуться
 			if (next_room->sector_type == SECT_UNDERWATER)
 			{
-				if (!AFF_FLAGGED(ch, AFF_WATERBREATH))
+				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_WATERBREATH))
 				{
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
 				}
@@ -615,7 +615,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			// Флай-дт
 			if (next_room->sector_type == SECT_FLYING)
 			{
-				if (!AFF_FLAGGED(ch, AFF_FLY))
+				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 				{
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING_RED, cur_depth, i);
 				}

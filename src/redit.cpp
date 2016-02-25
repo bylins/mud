@@ -26,13 +26,10 @@
 #include "sysdep.h"
 #include "conf.h"
 
-// List each room saved, was used for debugging.
-#if 0
-#define REDIT_LIST	1
-#endif
+#include <vector>
 
 // * External data structures.
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern CHAR_DATA *mob_proto;
 extern const char *room_bits[];
 extern const char *sector_types[];

@@ -464,7 +464,7 @@ void Player::save_char()
 	if (POOFOUT(this))
 		fprintf(saved, "PfOt: %s\n", POOFOUT(this));
 	fprintf(saved, "Sex : %d %s\n", GET_SEX(this), genders[(int) GET_SEX(this)]);
-	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), string(PlayerRace::GetKinNameByNum(GET_KIN(this),GET_SEX(this))).c_str());
+	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), PlayerRace::GetKinNameByNum(GET_KIN(this),GET_SEX(this)).c_str());
 	li = this->player_data.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	// Gunner
@@ -620,7 +620,7 @@ void Player::save_char()
 		fprintf(saved, "Drnk: %d\n", GET_COND(this, DRUNK));
 
 	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) GET_SEX(this)]);
-	fprintf(saved, "Race: %d %s\n", GET_RACE(this), string(PlayerRace::GetRaceNameByNum(GET_KIN(this),GET_RACE(this),GET_SEX(this))).c_str());
+	fprintf(saved, "Race: %d %s\n", GET_RACE(this), PlayerRace::GetRaceNameByNum(GET_KIN(this),GET_RACE(this),GET_SEX(this)).c_str());
 	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(this));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
@@ -757,8 +757,8 @@ void Player::save_char()
 		for (k = this->followers; k; k = k->next)
 		{
 			if (k->follower
-				&& AFF_FLAGGED(k->follower, AFF_HELPER)
-				&& AFF_FLAGGED(k->follower, AFF_CHARM))
+				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
 			{
 				break;
 			}
@@ -1133,7 +1133,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_HEIGHT(this) = 50;
 	GET_HR(this) = 0;
 	GET_COND(this, FULL) = 0;
-	GET_INVIS_LEV(this) = 0;
+	SET_INVIS_LEV(this, 0);
 	this->player_data.time.logon = time(0);
 	GET_MOVE(this) = 44;
 	GET_MAX_MOVE(this) = 44;
@@ -1400,8 +1400,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Int "))
 				this->set_int(num);
 			else if (!strcmp(tag, "Invs"))
-				GET_INVIS_LEV(this) = num;
-// shapirus
+			{
+				SET_INVIS_LEV(this, num);
+			}
 			else if (!strcmp(tag, "Ignr"))
 				load_ignores(this, line);
 			break;
@@ -1485,7 +1486,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			}
 			else if (!strcmp(tag, "Mrph"))
 			{
-				morphs_load(this, string(line));
+				morphs_load(this, std::string(line));
 			}
 			break;
 		case 'N':
@@ -1860,7 +1861,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	 * If you're not poisioned and you've been away for more than an hour of
 	 * real time, we'll set your HMV back to full
 	 */
-	if (!AFF_FLAGGED(this, AFF_POISON) && (((long)(time(0) - LAST_LOGON(this))) >= SECS_PER_REAL_HOUR))
+	if (!AFF_FLAGGED(this, EAffectFlag::AFF_POISON) && (((long)(time(0) - LAST_LOGON(this))) >= SECS_PER_REAL_HOUR))
 	{
 		GET_HIT(this) = GET_REAL_MAX_HIT(this);
 		GET_MOVE(this) = GET_REAL_MAX_MOVE(this);

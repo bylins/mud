@@ -1441,17 +1441,17 @@ void activ_sum::update(CHAR_DATA *ch)
 
 void activ_sum::apply_affects(CHAR_DATA *ch) const
 {
-	for (int j = 0; weapon_affect[j].aff_bitvector >= 0; j++)
+	for (const auto& j : weapon_affect)
 	{
-		if (weapon_affect[j].aff_bitvector != 0
-			&& IS_SET(GET_FLAG(affects, weapon_affect[j].aff_pos), weapon_affect[j].aff_pos))
+		if (j.aff_bitvector != 0
+			&& IS_SET(GET_FLAG(affects, j.aff_pos), j.aff_pos))
 		{
-			affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, TRUE);
+			affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
 		}
 	}
-	for (auto i = apply.begin(); i != apply.end(); ++i)
+	for (auto&& i : apply)
 	{
-		affect_modify(ch, i->location, i->modifier, 0, TRUE);
+		affect_modify(ch, i.location, i.modifier, static_cast<EAffectFlag>(0), TRUE);
 	}
 }
 

@@ -26,8 +26,10 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <vector>
+
 // * External data structures.
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern CHAR_DATA *mob_proto;
 
 extern struct zone_data *zone_table;

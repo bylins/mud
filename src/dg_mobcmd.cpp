@@ -53,7 +53,7 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
+#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
@@ -97,7 +97,7 @@ ACMD(do_masound)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (!*argument)
@@ -142,7 +142,7 @@ ACMD(do_mkill)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(argument, arg);
@@ -210,7 +210,7 @@ ACMD(do_mjunk)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(argument, arg);
@@ -269,7 +269,7 @@ ACMD(do_mechoaround)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	p = one_argument(argument, arg);
@@ -322,7 +322,7 @@ ACMD(do_msend)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	p = one_argument(argument, arg);
@@ -373,7 +373,7 @@ ACMD(do_mecho)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (!*argument)
@@ -413,7 +413,7 @@ ACMD(do_mload)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && GET_LEVEL(ch->desc->original) < LVL_IMPL)
@@ -478,7 +478,7 @@ ACMD(do_mpurge)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -555,7 +555,7 @@ ACMD(do_mgoto)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(argument, arg);
@@ -595,7 +595,7 @@ ACMD(do_mat)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	argument = one_argument(argument, arg);
@@ -647,7 +647,7 @@ ACMD(do_mteleport)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -675,7 +675,7 @@ ACMD(do_mteleport)
 		{
 			next_ch = vict->next_in_room;
 			if (IS_NPC(vict)
-					&& !(IS_HORSE(vict) || AFF_FLAGGED(vict, AFF_CHARM)
+					&& !(IS_HORSE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 						 || MOB_FLAGGED(vict, MOB_ANGEL)))
 				continue;
 			/*			if (on_horse(vict) || has_horse(vict, TRUE))
@@ -722,7 +722,7 @@ ACMD(do_mteleport)
 		for (charmee = world[IN_ROOM(vict)]->people; charmee; charmee = ncharmee)
 		{
 			ncharmee = charmee->next_in_room;
-			if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, AFF_CHARM)
+			if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 									|| MOB_FLAGGED(charmee, MOB_ANGEL))
 					&& charmee->master == vict)
 			{
@@ -775,7 +775,7 @@ ACMD(do_mforce)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -854,7 +854,7 @@ ACMD(do_mexp)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -904,7 +904,7 @@ ACMD(do_mgold)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -962,7 +962,7 @@ ACMD(do_mremember)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -1026,7 +1026,7 @@ ACMD(do_mforget)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -1101,7 +1101,7 @@ ACMD(do_mtransform)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc)
@@ -1245,7 +1245,7 @@ ACMD(do_mdoor)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	argument = two_arguments(argument, target, direction);
@@ -1375,7 +1375,7 @@ ACMD(do_mfeatturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(two_arguments(argument, name, featname), amount);
@@ -1409,7 +1409,7 @@ ACMD(do_mfeatturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -1449,7 +1449,7 @@ ACMD(do_mskillturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
@@ -1489,7 +1489,7 @@ ACMD(do_mskillturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -1538,7 +1538,7 @@ ACMD(do_mskilladd)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
@@ -1570,7 +1570,7 @@ ACMD(do_mskilladd)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -1610,7 +1610,7 @@ ACMD(do_mspellturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	argument = one_argument(argument, name);
@@ -1647,7 +1647,7 @@ ACMD(do_mspellturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -1684,7 +1684,7 @@ ACMD(do_mspelladd)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
@@ -1712,7 +1712,7 @@ ACMD(do_mspelladd)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -1749,7 +1749,7 @@ ACMD(do_mspellitem)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
@@ -1826,7 +1826,7 @@ ACMD(do_mdamage)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	two_arguments(argument, name, amount);

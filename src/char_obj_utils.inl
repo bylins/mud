@@ -9,17 +9,17 @@
 inline bool INVIS_OK_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
 {
 	return !obj->get_extraflag(EExtraFlags::ITEM_INVISIBLE)
-		|| AFF_FLAGGED(sub, AFF_DETECT_INVIS);
+		|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS);
 }
 
 inline bool MORT_CAN_SEE_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
 {
 	return INVIS_OK_OBJ(sub, obj)
-		&& !AFF_FLAGGED(sub, AFF_BLIND)
+		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
 		&& (IS_LIGHT(IN_ROOM(sub))
 			|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_GLOW)
 			|| (IS_CORPSE(obj)
-				&& AFF_FLAGGED(sub, AFF_INFRAVISION))
+				&& AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
 			|| can_use_feat(sub, DARK_READING_FEAT));
 }
 

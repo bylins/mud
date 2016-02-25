@@ -63,11 +63,8 @@ void clear_mob_charm(CHAR_DATA *mob);
 //-------------------------------------------------------------------
 
 // * Handy internal macros.
-
-//#define GET_NDD(mob) ((mob)->mob_specials.damnodice)
-//#define GET_SDD(mob) ((mob)->mob_specials.damsizedice)
-#define GET_ALIAS(mob) ((mob)->get_pc_name())
-#define GET_SDESC(mob) ((mob)->get_npc_name())
+#define GET_ALIAS(mob) ((mob)->get_pc_name().c_str())
+#define GET_SDESC(mob) ((mob)->get_npc_name().c_str())
 #define GET_LDESC(mob) ((mob)->player_data.long_descr)
 #define GET_DDESC(mob) ((mob)->player_data.description)
 #define GET_ATTACK(mob) ((mob)->mob_specials.attack_type)
@@ -417,8 +414,8 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		{
 			if (IS_MOB(live_mob) && GET_MOB_RNUM(live_mob) == rmob_num)
 			{
-				live_mob->set_pc_name((mob_proto + rmob_num)->get_pc_name());
-				live_mob->set_npc_name((mob_proto + rmob_num)->get_npc_name());
+				live_mob->set_pc_name((mob_proto + rmob_num)->get_pc_name().c_str());
+				live_mob->set_npc_name((mob_proto + rmob_num)->get_npc_name().c_str());
 				// Только строки. Остальное после ресета/ребута
 				// Возможна небольшая утечка памяти, но иначе очень большая запара
 				GET_LDESC(live_mob) = GET_LDESC(mob_proto + rmob_num);
@@ -1446,7 +1443,6 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 	// 2) ...
 	int i;
 	CHAR_DATA *mob;
-	string objname;
 
 	mob = OLC_MOB(d);
 	get_char_cols(d->character);
@@ -1469,13 +1465,14 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 			i++;
 
 			const OBJ_DATA *tobj = read_object_mirror((*p)->obj_vnum);
+			const char* objname = NULL;
 			if ((*p)->obj_vnum && tobj)
 				objname = tobj->PNames[0];
 			else
 				objname = "Нет";
 
 			sprintf(buf, "%d. %s (%d,%d,%d,%d)\r\n",
-				i, objname.c_str(), (*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
+				i, objname, (*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
 
 			send_to_char(buf, d->character);
 			p++;

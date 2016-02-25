@@ -288,7 +288,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	}
 
 	// Singlelight affect
-	if (AFF_FLAGGED(ch, AFF_SINGLELIGHT))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT))
 	{
 		if (was_single == LIGHT_NO)
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light + koef);
@@ -300,7 +300,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	}
 
 	// Holylight affect
-	if (AFF_FLAGGED(ch, AFF_HOLYLIGHT))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT))
 	{
 		if (was_holylight == LIGHT_NO)
 			world[ch->in_room]->glight = MAX(0, world[ch->in_room]->glight + koef);
@@ -318,7 +318,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	}*/
 
 	// Holydark affect
-	if (AFF_FLAGGED(ch, AFF_HOLYDARK))  	// if (IS_IMMORTAL(ch))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK))  	// if (IS_IMMORTAL(ch))
 	{
 		/*if (IS_IMMORTAL(ch))
 			send_to_char("HOLYDARK ON\r\n",ch);*/
@@ -340,7 +340,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	}*/
 }
 
-void affect_modify(CHAR_DATA * ch, byte loc, int mod, bitvector_t bitv, bool add)
+void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bool add)
 {
 	if (add)
 	{
@@ -522,7 +522,6 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, bitvector_t bitv, bool add
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
 		break;
-
 	}			// switch
 }
 
@@ -574,19 +573,17 @@ void affect_room_total(ROOM_DATA * room)
 
 }
 
-int char_saved_aff[] =
+std::array<EAffectFlag, 2> char_saved_aff =
 {
-	AFF_GROUP,
-	AFF_HORSE,
-	0
+	EAffectFlag::AFF_GROUP,
+	EAffectFlag::AFF_HORSE
 };
 
-int char_stealth_aff[] =
+std::array<EAffectFlag, 3> char_stealth_aff =
 {
-	AFF_HIDE,
-	AFF_SNEAK,
-	AFF_CAMOUFLAGE,
-	0
+	EAffectFlag::AFF_HIDE,
+	EAffectFlag::AFF_SNEAK,
+	EAffectFlag::AFF_CAMOUFLAGE
 };
 
 ///
@@ -598,9 +595,9 @@ void apply_natural_affects(CHAR_DATA *ch)
 {
 	if (GET_REMORT(ch) <= 3 && !IS_IMMORTAL(ch))
 	{
-		affect_modify(ch, APPLY_HITREG, 60 - (GET_REMORT(ch) * 10), AFF_NOOB_REGEN, TRUE);
-		affect_modify(ch, APPLY_MOVEREG, 100, AFF_NOOB_REGEN, TRUE);
-		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REMORT(ch) * 20), AFF_NOOB_REGEN, TRUE);
+		affect_modify(ch, APPLY_HITREG, 60 - (GET_REMORT(ch) * 10), EAffectFlag::AFF_NOOB_REGEN, TRUE);
+		affect_modify(ch, APPLY_MOVEREG, 100, EAffectFlag::AFF_NOOB_REGEN, TRUE);
+		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REMORT(ch) * 20), EAffectFlag::AFF_NOOB_REGEN, TRUE);
 	}
 }
 
@@ -610,9 +607,7 @@ void affect_total(CHAR_DATA * ch)
 {
 	AFFECT_DATA *af;
 	OBJ_DATA *obj;
-	struct extra_affects_type *extra_affect = NULL;
 
-	int i, j;
 	FLAG_DATA saved;
 
 	// Init struct
@@ -625,11 +620,11 @@ void affect_total(CHAR_DATA * ch)
 	{
 		saved = ch->char_specials.saved.affected_by;
 		ch->char_specials.saved.affected_by = clear_flags;
-		for (i = 0; (j = char_saved_aff[i]); i++)
+		for (const auto& i : char_saved_aff)
 		{
-			if (saved.get(j))
+			if (saved.get(i))
 			{
-				AFF_FLAGS(ch).set(j);
+				AFF_FLAGS(ch).set(i);
 			}
 		}
 	}
@@ -641,7 +636,7 @@ void affect_total(CHAR_DATA * ch)
 	}
 
 	// move object modifiers
-	for (i = 0; i < NUM_WEARS; i++)
+	for (int i = 0; i < NUM_WEARS; i++)
 	{
 		if ((obj = GET_EQ(ch, i)))
 		{
@@ -651,78 +646,82 @@ void affect_total(CHAR_DATA * ch)
 				GET_ARMOUR(ch) += apply_armour(ch, i);
 			}
 			// Update weapon applies
-			for (j = 0; j < MAX_OBJ_AFFECT; j++)
-				affect_modify(ch, GET_EQ(ch, i)->affected[j].location,
-							  GET_EQ(ch, i)->affected[j].modifier, 0, TRUE);
+			for (int j = 0; j < MAX_OBJ_AFFECT; j++)
+			{
+				affect_modify(ch, GET_EQ(ch, i)->affected[j].location, GET_EQ(ch, i)->affected[j].modifier, static_cast<EAffectFlag>(0), TRUE);
+			}
 			// Update weapon bitvectors
-			for (j = 0; weapon_affect[j].aff_bitvector >= 0; j++)
+			for (const auto& j : weapon_affect)
 			{
 				// То же самое, но переформулировал
-				if (weapon_affect[j].aff_bitvector == 0 || !IS_OBJ_AFF(obj, weapon_affect[j].aff_pos))
+				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos))
+				{
 					continue;
-				affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, TRUE);
+				}
+				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
 			}
 		}
 	}
 	ch->obj_bonus().apply_affects(ch);
 
 	// move features modifiers - added by Gorrah
-	for (i = 1; i < MAX_FEATS; i++)
+	for (int i = 1; i < MAX_FEATS; i++)
 	{
 		if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE))
-			for (j = 0; j < MAX_FEAT_AFFECT; j++)
-				affect_modify(ch, feat_info[i].affected[j].location,
-							  feat_info[i].affected[j].modifier, 0, TRUE);
+		{
+			for (int j = 0; j < MAX_FEAT_AFFECT; j++)
+			{
+				affect_modify(ch, feat_info[i].affected[j].location, feat_info[i].affected[j].modifier, static_cast<EAffectFlag>(0), TRUE);
+			}
+		}
 	}
 
 	// IMPREGNABLE_FEAT учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
 	if (can_use_feat(ch, IMPREGNABLE_FEAT))
 	{
-		for (j = 0; j < MAX_FEAT_AFFECT; j++)
+		for (int j = 0; j < MAX_FEAT_AFFECT; j++)
+		{
 			affect_modify(ch, feat_info[IMPREGNABLE_FEAT].affected[j].location,
-						  MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier*GET_REMORT(ch)), 0, TRUE);
+				MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier*GET_REMORT(ch)), static_cast<EAffectFlag>(0), TRUE);
+		}
 	};
 
 	        // Обработка изворотливости (с) Числобог
-        if (can_use_feat(ch, DODGER_FEAT))
-        {
-                        affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REMORT(ch) + GET_LEVEL(ch)), 0, TRUE);
-                        affect_modify(ch, APPLY_SAVING_WILL, -(GET_REMORT(ch) + GET_LEVEL(ch)), 0, TRUE);
-                        affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REMORT(ch) + GET_LEVEL(ch)), 0, TRUE);
-                        affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REMORT(ch) + GET_LEVEL(ch)), 0, TRUE);
-
-        };
+	if (can_use_feat(ch, DODGER_FEAT))
+	{
+		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
+		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
+		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
+		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
+	}
 
         // Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!IS_NPC(ch))
 	{
 		if (can_use_feat(ch, ENDURANCE_FEAT))
-			affect_modify(ch, APPLY_MOVE, GET_LEVEL(ch) * 2, 0, TRUE);
+			affect_modify(ch, APPLY_MOVE, GET_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
-			affect_modify(ch, APPLY_HIT, GET_LEVEL(ch) * 2, 0, TRUE);
+			affect_modify(ch, APPLY_HIT, GET_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
 		GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
 	}
 
 	// move affect modifiers
 	for (af = ch->affected; af; af = af->next)
-		affect_modify(ch, af->location, af->modifier, af->bitvector, TRUE);
+	{
+		affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
+	}
 
 	// move race and class modifiers
 	if (!IS_NPC(ch))
 	{
 		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_CLASSES)
 		{
-			extra_affect = class_app[(int) GET_CLASS(ch)].extra_affects;
-			//extra_modifier = class_app[(int) GET_CLASS(ch)].extra_modifiers;
-
-			for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
-				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
-							  (extra_affect + i)->set_or_clear ? true : false);
-			/* for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
-				affect_modify(ch, (extra_modifier + i)->location,
-					      (extra_modifier + i)->modifier, 0, TRUE);*/
+			for (auto i : *class_app[(int)GET_CLASS(ch)].extra_affects)
+			{
+				affect_modify(ch, APPLY_NONE, 0, i.affect, i.set_or_clear ? true : false);
+			}
 		}
 
 		// Apply other PC modifiers
@@ -732,7 +731,7 @@ void affect_total(CHAR_DATA * ch)
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
 		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
-		if (!AFF_FLAGGED(ch, AFF_NOOB_REGEN))
+		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))
 		{
 			GET_HITREG(ch) += ((int) GET_LEVEL(ch) + 4) / 5 * 10;
 		}
@@ -743,16 +742,19 @@ void affect_total(CHAR_DATA * ch)
 		if (GET_CON_ADD(ch))
 		{
 			GET_HIT_ADD(ch) += PlayerSystem::con_add_hp(ch);
-			if ((i = GET_MAX_HIT(ch) + GET_HIT_ADD(ch)) < 1)
+			int i = GET_MAX_HIT(ch) + GET_HIT_ADD(ch);
+			if (i < 1)
+			{
 				GET_HIT_ADD(ch) -= (i - 1);
+			}
 		}
 
 		if (!WAITLESS(ch) && on_horse(ch))
 		{
-			AFF_FLAGS(ch).unset(AFF_HIDE);
-			AFF_FLAGS(ch).unset(AFF_SNEAK);
-			AFF_FLAGS(ch).unset(AFF_CAMOUFLAGE);
-			AFF_FLAGS(ch).unset(AFF_INVISIBLE);
+			AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
+			AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);
+			AFF_FLAGS(ch).unset(EAffectFlag::AFF_CAMOUFLAGE);
+			AFF_FLAGS(ch).unset(EAffectFlag::AFF_INVISIBLE);
 		}
 	}
 
@@ -826,25 +828,37 @@ void affect_total(CHAR_DATA * ch)
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 	}
 
-	// Calculate CASTER value
-	for (GET_CASTER(ch) = 0, i = 1; !IS_NPC(ch) && i <= MAX_SPELLS; i++)
-		if (IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW | SPELL_TEMP))
-			GET_CASTER(ch) += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
-
-	// Check steal affects
-	for (i = 0; (j = char_stealth_aff[i]); i++)
 	{
-		if (IS_SET(GET_FLAG(saved, j), j) && !AFF_FLAGS(ch).get(j))
-			CHECK_AGRO(ch) = TRUE;
+		// Calculate CASTER value
+		int i = 1;
+		for (GET_CASTER(ch) = 0; !IS_NPC(ch) && i <= MAX_SPELLS; i++)
+		{
+			if (IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW | SPELL_TEMP))
+			{
+				GET_CASTER(ch) += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
+			}
+		}
+	}
+
+	{
+		// Check steal affects
+		for (const auto& i : char_stealth_aff)
+		{
+			if (saved.get(i)
+				&& !AFF_FLAGS(ch).get(i))
+			{
+				CHECK_AGRO(ch) = TRUE;
+			}
+		}
 	}
 
 	check_berserk(ch);
 	if (ch->get_fighting() || affected_by_spell(ch, SPELL_GLITTERDUST))
 	{
-		AFF_FLAGS(ch).unset(AFF_HIDE);
-		AFF_FLAGS(ch).unset(AFF_SNEAK);
-		AFF_FLAGS(ch).unset(AFF_CAMOUFLAGE);
-		AFF_FLAGS(ch).unset(AFF_INVISIBLE);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CAMOUFLAGE);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_INVISIBLE);
 	}
 }
 
@@ -873,9 +887,9 @@ void affect_to_room(ROOM_DATA * room, AFFECT_DATA * af)
    Automatically sets apropriate bits and apply's */
 void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * af)
 {
-	long was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-				   was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-							  was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
+	long was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
+				   was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
+							  was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
 	AFFECT_DATA *affected_alloc;
 
 	CREATE(affected_alloc, 1);
@@ -884,7 +898,7 @@ void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * af)
 	affected_alloc->next = ch->affected;
 	ch->affected = affected_alloc;
 
-	affect_modify(ch, af->location, af->modifier, af->bitvector, TRUE);
+	affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
@@ -899,9 +913,9 @@ void affect_to_char(CHAR_DATA * ch, AFFECT_DATA * af)
 
 void affect_remove(CHAR_DATA * ch, AFFECT_DATA * af)
 {
-	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-				  was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-							 was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
+	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
+				  was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
+							 was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
 
 	AFFECT_DATA *temp;
 
@@ -917,7 +931,7 @@ void affect_remove(CHAR_DATA * ch, AFFECT_DATA * af)
 		return;
 	}
 
-	affect_modify(ch, af->location, af->modifier, af->bitvector, FALSE);
+	affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
 	if (af->type == SPELL_ABSTINENT)
 	{
 		GET_DRUNK_STATE(ch) = GET_COND(ch, DRUNK) = MIN(GET_COND(ch, DRUNK), CHAR_DRUNKED - 1);
@@ -1260,7 +1274,7 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 	if (affect_on_room)
 	{
 		CHAR_DATA *caster = find_char(affect_on_room->caster_id);
-		if (!same_group(ch, caster) && !AFF_FLAGGED(ch, AFF_BLIND) && (number(1,100) <= 30)) // 30% шанс что враг уснет
+		if (!same_group(ch, caster) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) && (number(1,100) <= 30)) // 30% шанс что враг уснет
 		{
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
@@ -1545,8 +1559,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 		if (!IS_NPC(ch))
 		{
-			log("obj_to_char: %s -> %d", ch->get_name(),
-				GET_OBJ_VNUM(object));
+			log("obj_to_char: %s -> %d", ch->get_name().c_str(), GET_OBJ_VNUM(object));
 		}
 		// set flag for crash-save system, but not on mobs!
 		if (!IS_NPC(ch))
@@ -1575,8 +1588,7 @@ void obj_from_char(OBJ_DATA * object)
 	if (!IS_NPC(object->carried_by))
 	{
 		PLR_FLAGS(object->carried_by).set(PLR_CRASH);
-		log("obj_from_char: %s -> %d", object->carried_by->get_name(),
-			GET_OBJ_VNUM(object));
+		log("obj_from_char: %s -> %d", object->carried_by->get_name().c_str(), GET_OBJ_VNUM(object));
 	}
 
 	IS_CARRYING_W(object->carried_by) -= GET_OBJ_WEIGHT(object);
@@ -1620,7 +1632,7 @@ int apply_ac(CHAR_DATA * ch, int eq_pos)
 		break;		// all others 10% //
 	}
 
-	if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		factor *= MOB_AC_MULT;
 
 	return (factor * GET_OBJ_VAL(GET_EQ(ch, eq_pos), 0));
@@ -1657,7 +1669,7 @@ int apply_armour(CHAR_DATA * ch, int eq_pos)
 		break;		// all others 10% //
 	}
 
-	if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		factor *= MOB_ARMOUR_MULT;
 
 	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
@@ -1739,7 +1751,7 @@ void wear_message(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	};
 
 	act(wear_messages[where][1], FALSE, ch, obj, 0, TO_CHAR);
-	act(wear_messages[where][0], IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+	act(wear_messages[where][0], IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? FALSE : TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 }
 
 int flag_data_by_char_class(const CHAR_DATA * ch)
@@ -1784,17 +1796,23 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 					if (GET_EQ(ch, pos) != obj)
 					{
 						for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+						{
 							affect_modify(ch, GET_EQ(ch, pos)->affected[i].location, GET_EQ(ch, pos)->affected[i].modifier,
-										  0, FALSE);
+								static_cast<EAffectFlag>(0), FALSE);
+						}
 
 						if (IN_ROOM(ch) != NOWHERE)
-							for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++)
+						{
+							for (const auto& i : weapon_affect)
 							{
-								if (weapon_affect[i].aff_bitvector == 0 ||
-										!IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+								if (i.aff_bitvector == 0
+									|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos))
+								{
 									continue;
-								affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, FALSE);
+								}
+								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), FALSE);
 							}
+						}
 					}
 
 					std::string act_msg = GET_EQ(ch, pos)->activate_obj(class_info->second);
@@ -1804,18 +1822,24 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 					{
 						act(act_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
 						act(act_msg.erase(0, delim + 1).c_str(),
-							IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE,
+							IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? FALSE : TRUE,
 							ch, GET_EQ(ch, pos), 0, TO_ROOM);
 					}
 
 					for (int i = 0; i < MAX_OBJ_AFFECT; i++)
-						affect_modify(ch, GET_EQ(ch, pos)->affected[i].location, GET_EQ(ch, pos)->affected[i].modifier, 0, TRUE);
+					{
+						affect_modify(ch, GET_EQ(ch, pos)->affected[i].location,
+							GET_EQ(ch, pos)->affected[i].modifier, static_cast<EAffectFlag>(0), TRUE);
+					}
 
 					if (IN_ROOM(ch) != NOWHERE)
-						for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++)
+					{
+						for (const auto& i : weapon_affect)
 						{
-							if (weapon_affect[i].aff_spell == 0 || !IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+							if (i.aff_spell == 0 || !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos))
+							{
 								continue;
+							}
 							if (!no_cast)
 							{
 								if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
@@ -1826,10 +1850,12 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 										FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
 								}
 								else
-									mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[i].aff_spell,
-												SAVING_WILL);
+								{
+									mag_affects(GET_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
+								}
 							}
 						}
+					}
 
 					return oqty;
 				}
@@ -1838,13 +1864,17 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 			if (GET_EQ(ch, pos) == obj)
 			{
 				for (int i = 0; i < MAX_OBJ_AFFECT; i++)
-					affect_modify(ch, obj->affected[i].location, obj->affected[i].modifier, 0, TRUE);
+					affect_modify(ch, obj->affected[i].location, obj->affected[i].modifier, static_cast<EAffectFlag>(0), TRUE);
 
 				if (IN_ROOM(ch) != NOWHERE)
-					for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++)
+				{
+					for (const auto& i : weapon_affect)
 					{
-						if (weapon_affect[i].aff_spell == 0 || !IS_OBJ_AFF(obj, weapon_affect[i].aff_pos))
+						if (i.aff_spell == 0
+							|| !IS_OBJ_AFF(obj, i.aff_pos))
+						{
 							continue;
+						}
 						if (!no_cast)
 						{
 							if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
@@ -1855,10 +1885,12 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 									FALSE, ch, obj, 0, TO_CHAR);
 							}
 							else
-								mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[i].aff_spell,
-											SAVING_WILL);
+							{
+								mag_affects(GET_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
+							}
 						}
 					}
+				}
 			}
 
 			return oqty;
@@ -1898,9 +1930,9 @@ bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
 // 0x100 - show wear and activation messages
 void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 {
-	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-				  was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-							 was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO,
+	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
+				  was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
+							 was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO,
 										was_lamp = FALSE;
 	int j, show_msg = IS_SET(pos, 0x100), skip_total = IS_SET(pos, 0x80),
 					  no_cast = IS_SET(pos, 0x40);
@@ -1948,7 +1980,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	if ((!IS_NPC(ch) && invalid_align(ch, obj))
 		|| invalid_no_class(ch, obj)
-		|| (AFF_FLAGGED(ch, AFF_CHARM)
+		|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 			&& (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SHARPEN)
 				|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_ARMORED))))
 	{
@@ -2023,13 +2055,17 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (!OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
 	{
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, TRUE);
+			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, static_cast<EAffectFlag>(0), TRUE);
 
 		if (IN_ROOM(ch) != NOWHERE)
-			for (j = 0; weapon_affect[j].aff_bitvector >= 0; j++)
+		{
+			for (const auto& j : weapon_affect)
 			{
-				if (weapon_affect[j].aff_spell == 0 || !IS_OBJ_AFF(obj, weapon_affect[j].aff_pos))
+				if (j.aff_spell == 0
+					|| !IS_OBJ_AFF(obj, j.aff_pos))
+				{
 					continue;
+				}
 				if (!no_cast)
 				{
 					if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
@@ -2040,9 +2076,12 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 							FALSE, ch, obj, 0, TO_CHAR);
 					}
 					else
-						mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[j].aff_spell, SAVING_WILL);
+					{
+						mag_affects(GET_LEVEL(ch), ch, ch, j.aff_spell, SAVING_WILL);
+					}
 				}
 			}
+		}
 	}
 
 	if (!skip_total)
@@ -2096,17 +2135,23 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 						if (class_info2 != qty_info->second.end())
 						{
 							for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+							{
 								affect_modify(ch, GET_EQ(ch, pos)->affected[i].location,
-											  GET_EQ(ch, pos)->affected[i].modifier, 0, FALSE);
+									GET_EQ(ch, pos)->affected[i].modifier, static_cast<EAffectFlag>(0), FALSE);
+							}
 
 							if (IN_ROOM(ch) != NOWHERE)
-								for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++)
+							{
+								for (const auto& i : weapon_affect)
 								{
-									if (weapon_affect[i].aff_bitvector == 0 ||
-											!IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+									if (i.aff_bitvector == 0
+										|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos))
+									{
 										continue;
-									affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, FALSE);
+									}
+									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), FALSE);
 								}
+							}
 
 							std::string act_msg = GET_EQ(ch, pos)->activate_obj(class_info2->second);
 							delim = act_msg.find('\n');
@@ -2115,39 +2160,51 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 							{
 								act(act_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
 								act(act_msg.erase(0, delim + 1).c_str(),
-									IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE,
+									IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? FALSE : TRUE,
 									ch, GET_EQ(ch, pos), 0, TO_ROOM);
 							}
 
 							for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+							{
 								affect_modify(ch, GET_EQ(ch, pos)->affected[i].location,
-											  GET_EQ(ch, pos)->affected[i].modifier, 0, TRUE);
+									GET_EQ(ch, pos)->affected[i].modifier, static_cast<EAffectFlag>(0), TRUE);
+							}
 
 							if (IN_ROOM(ch) != NOWHERE)
-								for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++)
+							{
+								for (const auto& i : weapon_affect)
 								{
-									if (weapon_affect[i].aff_bitvector == 0 ||
-											!IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+									if (i.aff_bitvector == 0
+										|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos))
+									{
 										continue;
-									affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, TRUE);
+									}
+									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), TRUE);
 								}
+							}
 
 							return oqty;
 						}
 					}
 
 					for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+					{
 						affect_modify(ch, GET_EQ(ch, pos)->affected[i].location,
-									  GET_EQ(ch, pos)->affected[i].modifier, 0, FALSE);
+							GET_EQ(ch, pos)->affected[i].modifier, static_cast<EAffectFlag>(0), FALSE);
+					}
 
 					if (IN_ROOM(ch) != NOWHERE)
-						for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++)
+					{
+						for (const auto& i : weapon_affect)
 						{
-							if (weapon_affect[i].aff_bitvector == 0 ||
-									!IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+							if (i.aff_bitvector == 0
+								|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos))
+							{
 								continue;
-							affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, FALSE);
+							}
+							affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), FALSE);
 						}
+					}
 
 					std::string deact_msg = GET_EQ(ch, pos)->deactivate_obj(class_info->second);
 					delim = deact_msg.find('\n');
@@ -2156,24 +2213,30 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 					{
 						act(deact_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
 						act(deact_msg.erase(0, delim + 1).c_str(),
-							IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE,
+							IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? FALSE : TRUE,
 							ch, GET_EQ(ch, pos), 0, TO_ROOM);
 					}
 
 					if (GET_EQ(ch, pos) != obj)
 					{
 						for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+						{
 							affect_modify(ch, GET_EQ(ch, pos)->affected[i].location, GET_EQ(ch, pos)->affected[i].modifier,
-										  0, TRUE);
+								static_cast<EAffectFlag>(0), TRUE);
+						}
 
 						if (IN_ROOM(ch) != NOWHERE)
-							for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++)
+						{
+							for (const auto& i : weapon_affect)
 							{
-								if (weapon_affect[i].aff_bitvector == 0 ||
-										!IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+								if (i.aff_bitvector == 0 ||
+									!IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos))
+								{
 									continue;
-								affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, TRUE);
+								}
+								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), TRUE);
 							}
+						}
 					}
 
 					return oqty;
@@ -2183,15 +2246,20 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 			if (GET_EQ(ch, pos) == obj)
 			{
 				for (int i = 0; i < MAX_OBJ_AFFECT; i++)
-					affect_modify(ch, obj->affected[i].location, obj->affected[i].modifier, 0, FALSE);
+					affect_modify(ch, obj->affected[i].location, obj->affected[i].modifier, static_cast<EAffectFlag>(0), FALSE);
 
 				if (IN_ROOM(ch) != NOWHERE)
-					for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++)
+				{
+					for (const auto& i : weapon_affect)
 					{
-						if (weapon_affect[i].aff_bitvector == 0 || !IS_OBJ_AFF(obj, weapon_affect[i].aff_pos))
+						if (i.aff_bitvector == 0
+							|| !IS_OBJ_AFF(obj, i.aff_pos))
+						{
 							continue;
-						affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, FALSE);
+						}
+						affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), FALSE);
 					}
+				}
 
 				obj->deactivate_obj(activation());
 			}
@@ -2209,9 +2277,9 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 //  0x80 - no total affect update
 OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 {
-	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-				  was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-							 was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
+	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
+				  was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
+							 was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
 
 	int j, skip_total = IS_SET(pos, 0x80), show_msg = IS_SET(pos, 0x40);
 
@@ -2249,17 +2317,25 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 	if (!OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
 	{
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, FALSE);
+			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, static_cast<EAffectFlag>(0), FALSE);
 
 		if (IN_ROOM(ch) != NOWHERE)
-			for (j = 0; weapon_affect[j].aff_bitvector >= 0; j++)
+		{
+			for (const auto& j : weapon_affect)
 			{
-				if (weapon_affect[j].aff_bitvector == 0 || !IS_OBJ_AFF(obj, weapon_affect[j].aff_pos))
+				if (j.aff_bitvector == 0
+					|| !IS_OBJ_AFF(obj, j.aff_pos))
+				{
 					continue;
-				if (IS_NPC(ch) && AFF_FLAGGED((&mob_proto[GET_MOB_RNUM(ch)]), weapon_affect[j].aff_bitvector))
+				}
+				if (IS_NPC(ch)
+					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffectFlag>(j.aff_bitvector)))
+				{
 					continue;
-				affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, FALSE);
+				}
+				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), FALSE);
 			}
+		}
 
 		if ((OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))&&(SetSystem::is_big_set(obj)))
 			obj->deactivate_obj(activation());
@@ -2384,9 +2460,15 @@ CHAR_DATA *get_char_room(char *name, room_rnum room)
 		return (NULL);
 
 	for (i = world[room]->people; i && (j <= number); i = i->next_in_room)
-		if (isname(tmp, i->get_pc_name()))
+	{
+		if (isname(tmp, i->get_pc_name().c_str()))
+		{
 			if (++j == number)
+			{
 				return (i);
+			}
+		}
+	}
 
 	return (NULL);
 }
@@ -2934,7 +3016,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		ExtMoney::drop_torc(ch);
 	}
 
-	if (!IS_NPC(ch) && !ch->master && ch->followers && AFF_FLAGGED(ch, AFF_GROUP))
+	if (!IS_NPC(ch) && !ch->master && ch->followers && AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		log("[Extract char] Change group leader");
 		change_leader(ch, 0);
@@ -3150,8 +3232,10 @@ CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom)
 		//   continue;
 		if (!CAN_SEE_CHAR(ch, i))
 			continue;
-		if (!isname(name, i->get_pc_name()))
+		if (!isname(name, i->get_pc_name().c_str()))
+		{
 			continue;
+		}
 		return (i);
 	}
 
@@ -3175,8 +3259,10 @@ CHAR_DATA *get_player_vis(CHAR_DATA * ch, const std::string &name, int inroom)
 		//   continue;
 		if (!CAN_SEE_CHAR(ch, i))
 			continue;
-		if (!isname(name, i->get_pc_name()))
+		if (!isname(name, i->get_pc_name().c_str()))
+		{
 			continue;
+		}
 		return (i);
 	}
 
@@ -3194,8 +3280,10 @@ CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
 			continue;
 		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
 			continue;
-		if (!isname(name, i->get_pc_name()))
+		if (!isname(name, i->get_pc_name().c_str()))
+		{
 			continue;
+		}
 		return (i);
 	}
 
@@ -3211,8 +3299,10 @@ CHAR_DATA *get_player_pun(CHAR_DATA * ch, const std::string &name, int inroom)
 			continue;
 		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
 			continue;
-		if (!isname(name, i->get_pc_name()))
+		if (!isname(name, i->get_pc_name().c_str()))
+		{
 			continue;
+		}
 		return (i);
 	}
 
@@ -3235,9 +3325,16 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name)
 	if (!(number = get_number(&tmp)))
 		return (get_player_vis(ch, tmp, FIND_CHAR_ROOM));
 	for (i = world[ch->in_room]->people; i && j <= number; i = i->next_in_room)
-		if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->get_pc_name()))
+	{
+		if (HERE(i) && CAN_SEE(ch, i)
+			&& isname(tmp, i->get_pc_name().c_str()))
+		{
 			if (++j == number)
+			{
 				return (i);
+			}
+		}
+	}
 	return (NULL);
 }
 CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name)
@@ -3253,9 +3350,17 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name)
 	if (!(number = get_number(tmp)))
 		return (get_player_vis(ch, tmp, FIND_CHAR_ROOM));
 	for (i = world[ch->in_room]->people; i && j <= number; i = i->next_in_room)
-		if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->get_pc_name()))
+	{
+		if (HERE(i)
+			&& CAN_SEE(ch, i)
+			&& isname(tmp, i->get_pc_name().c_str()))
+		{
 			if (++j == number)
+			{
 				return (i);
+			}
+		}
+	}
 	return (NULL);
 }
 
@@ -3279,7 +3384,8 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 			return get_player_vis(ch, tmp, 0);
 		for (i = character_list; i && (j <= number); i = i->get_next())
 		{
-			if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->get_pc_name()))
+			if (HERE(i) && CAN_SEE(ch, i)
+				&& isname(tmp, i->get_pc_name().c_str()))
 			{
 				if (++j == number)
 				{
@@ -3310,7 +3416,9 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where)
 
 		for (i = character_list; i && (j <= number); i = i->get_next())
 		{
-			if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->get_pc_name()))
+			if (HERE(i)
+				&& CAN_SEE(ch, i)
+				&& isname(tmp, i->get_pc_name().c_str()))
 			{
 				if (++j == number)
 				{
@@ -3949,8 +4057,10 @@ int used_charm_points(CHAR_DATA * ch)
 	lp = 0;
 	for (f = ch->followers; f; f = f->next)
 	{
-		if (!AFF_FLAGGED(f->follower, AFF_CHARM))
+		if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM))
+		{
 			continue;
+		}
 		lp = lp + GET_LEVEL(f->follower);
 	}
 	return (lp);
@@ -3980,8 +4090,8 @@ CHAR_DATA *charm_mob(CHAR_DATA * victim)
 	GET_PAD(mob, 3) = str_dup(GET_PAD(victim, 3));
 	GET_PAD(mob, 4) = str_dup(GET_PAD(victim, 4));
 	GET_PAD(mob, 5) = str_dup(GET_PAD(victim, 5));
-	mob->set_pc_name(victim->get_pc_name());
-	mob->set_npc_name(victim->get_npc_name());
+	mob->set_pc_name(victim->get_pc_name().c_str());
+	mob->set_npc_name(victim->get_npc_name().c_str());
 	mob->player_data.long_descr = str_dup(victim->player_data.long_descr);
 	mob->player_data.description = str_dup(victim->player_data.description);
 	//Убираем моба victim
@@ -3994,7 +4104,7 @@ float get_damage_per_round(CHAR_DATA * victim)
 {
 	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
 			+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
-			+ (AFF_FLAGGED(victim, AFF_CLOUD_OF_ARROWS) ? 14 : 0);
+			+ (AFF_FLAGGED(victim, EAffectFlag::AFF_CLOUD_OF_ARROWS) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.ExtraAttack
 			+ (victim->get_skill(SKILL_ADDSHOT) ? 2 : 0);
 
@@ -4325,7 +4435,7 @@ int equip_in_metall(CHAR_DATA * ch)
 {
 	int i, wgt = 0;
 
-	if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return (FALSE);
 	if (IS_GOD(ch))
 		return (FALSE);
@@ -4348,14 +4458,14 @@ int equip_in_metall(CHAR_DATA * ch)
 
 int awake_others(CHAR_DATA * ch)
 {
-	if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return (FALSE);
 
 	if (IS_GOD(ch))
 		return (FALSE);
 
-	if (AFF_FLAGGED(ch, AFF_STAIRS) ||
-			AFF_FLAGGED(ch, AFF_SANCTUARY) || AFF_FLAGGED(ch, AFF_SINGLELIGHT) || AFF_FLAGGED(ch, AFF_HOLYLIGHT))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STAIRS) ||
+			AFF_FLAGGED(ch, EAffectFlag::AFF_SANCTUARY) || AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT))
 		return (TRUE);
 
 	return (FALSE);

@@ -89,7 +89,7 @@ struct global_drop_obj
 	// chance шмотки от 0 до 1000
 	int chance;
 	// здесь храним типы рум, в которых может загрузится объект
-	std::vector<int> sects;
+	std::list<int> sects;
 	int day_start;
 	int day_end;
 };
@@ -193,10 +193,12 @@ void init()
 			day_start = 0;
 		}
 		std::string tmp_str = Parse::attr_str(node, "sects");
-		std::vector<string> strs;
+		std::list<std::string> strs;
 		boost::split(strs, tmp_str, boost::is_any_of(" "));
-		for (size_t i = 0; i < strs.size(); i++)
-			tmp.sects.push_back(std::stoi( strs[i] ));
+		for (const auto& i : strs)
+		{
+			tmp.sects.push_back(std::stoi(i));
+		}
 		tmp.vnum = obj_vnum;
 		tmp.chance = chance;
 		tmp.day_start = day_start;

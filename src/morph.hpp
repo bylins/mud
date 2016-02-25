@@ -1,22 +1,19 @@
 #ifndef MORPH_HPP_INCLUDED
 #define MORPH_HPP_INCLUDED
 
-#include <list>
-#include <vector>
-#include <boost/shared_ptr.hpp>
 #include "comm.h"
 
-using std::list;
-using std::string;
-using std::map;
-using std::vector;
+#include <boost/shared_ptr.hpp>
+
+#include <list>
+#include <set>
 
 extern short MIN_WIS_FOR_MORPH;
 
 typedef struct
 {
 	int fromLevel;
-	string desc;
+	std::string desc;
 } DescNode;
 
 typedef list<DescNode> DescListType;
@@ -27,28 +24,29 @@ class AnimalMorph;
 typedef boost::shared_ptr<IMorph> MorphPtr;
 typedef boost::shared_ptr<AnimalMorph> AnimalMorphPtr;
 MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
-typedef map<string, AnimalMorphPtr> MorphListType;
+typedef std::map<std::string, AnimalMorphPtr> MorphListType;
 
-typedef map<int, int> MorphSkillsList;
+typedef std::map<int, int> MorphSkillsList;
 
 class IMorph {
 public:
+	typedef std::set<EAffectFlag> affects_list_t;
+
 	IMorph() {};
 	virtual ~IMorph() {};
-	virtual string Name()=0;
-	virtual string PadName()=0;
-	virtual string GetMorphDesc()=0;
-	virtual string GetMorphTitle()=0;
+	virtual std::string Name() const = 0;
+	virtual std::string PadName() const = 0;
+	virtual std::string GetMorphDesc() const = 0;
+	virtual std::string GetMorphTitle() const = 0;
 	virtual void InitSkills(int value) {};
 	virtual void InitAbils() {};
 	virtual void SetAbilsParams(short toStr, short toDex, short toCon, short toInt, short toCha) {};
 	virtual void SetChar(CHAR_DATA *ch) {};
-	virtual string CoverDesc() {return "";};
-	virtual bool isAffected(long flag) const {return false;}
-	virtual std::vector<long> GetAffects() {return std::vector<long>();}
-	virtual string GetMessageToRoom() {return string();};
-	virtual string GetMessageToChar() {return string();};
-
+	virtual std::string CoverDesc() { return ""; };
+	virtual bool isAffected(const EAffectFlag flag) const {return false;}
+	virtual const affects_list_t& GetAffects();
+	virtual std::string GetMessageToRoom() { return std::string(); }
+	virtual std::string GetMessageToChar() { return std::string(); }
 
 	virtual int GetStr() const =0;
 	virtual void SetStr(int str)=0;
@@ -63,10 +61,8 @@ public:
 	virtual int GetCon() const =0;
 	virtual void SetCon(int con)=0;
 
-
 	virtual void set_skill(int skill_num, int percent)=0;
 	virtual int get_trained_skill(int skill_num)=0;
-
 };
 
 
@@ -78,12 +74,11 @@ public:
 	CHAR_DATA *ch_;
 
 	~NormalMorph () {};
-	
 
-	string GetMorphDesc();
-	string GetMorphTitle();
-	string Name() {return "Обычная";}
-	string PadName() {return "Человеком";};
+	std::string GetMorphDesc() const;
+	std::string GetMorphTitle() const;
+	std::string Name() const { return "Обычная"; }
+	std::string PadName() const { return "Человеком"; }
 	void SetChar(CHAR_DATA *ch) {ch_=ch;};
 
 	void set_skill(int skill_num, int percent);
@@ -107,13 +102,13 @@ public:
 class AnimalMorph : public IMorph
 {
 	CHAR_DATA *ch_;
-	string id_;
-	string name_;
-	string padName_;
+	std::string id_;
+	std::string name_;
+	std::string padName_;
 	DescListType descList_;
 	MorphSkillsList skills_;
-	string coverDesc_;
-	string speech_;
+	std::string coverDesc_;
+	std::string speech_;
 	short toStr_;
 	short toDex_;
 	short toCon_;
@@ -125,11 +120,12 @@ class AnimalMorph : public IMorph
 	int dex_;
 	int cha_;
 	int con_;
-	std::vector<long> affects_;
-	string messageToRoom_, messageToChar_;
+	affects_list_t affects_;
+	std::string messageToRoom_, messageToChar_;
 
 public:
-	AnimalMorph(string id, string name, string padName, DescListType descList, MorphSkillsList skills, string coverDesc, string speech) :
+	AnimalMorph(const std::string& id, const std::string& name, const std::string& padName, DescListType descList,
+		MorphSkillsList skills, const std::string& coverDesc, const std::string& speech) :
 		id_(id),
 		name_(name),
 		padName_(padName),
@@ -141,11 +137,11 @@ public:
 
 	~AnimalMorph() {};
 
-	string GetMorphDesc();
-	string Name() {return name_;}
-	string PadName() {return padName_;}
-	string GetMorphTitle();
-	string CoverDesc() {return coverDesc_;}
+	std::string GetMorphDesc() const;
+	std::string Name() const { return name_; }
+	std::string PadName() const { return padName_; }
+	std::string GetMorphTitle() const;
+	std::string CoverDesc() { return coverDesc_; }
 	void InitSkills(int value);
 	void InitAbils();
 	void SetChar(CHAR_DATA *ch);
@@ -157,17 +153,16 @@ public:
 		toCha_ = toCha;
 		toInt_ = toInt;
 	};
-	bool isAffected(long flag) const;
-	void AddAffect(long flag);
-	std::vector<long> GetAffects();
-	void SetAffects(std::vector<long>);
-	void SetMessages(string toRoom, string toChar) {
+	bool isAffected(const EAffectFlag flag) const;
+	void AddAffect(const EAffectFlag flag);
+	const affects_list_t& GetAffects();
+	void SetAffects(const affects_list_t&);
+	void SetMessages(const std::string& toRoom, const std::string& toChar) {
 		messageToRoom_ = toRoom;
 		messageToChar_ = toChar;
 	};
-	string GetMessageToRoom() {return messageToRoom_;}
-	string GetMessageToChar() {return messageToChar_;}
-
+	std::string GetMessageToRoom() { return messageToRoom_; }
+	std::string GetMessageToChar() { return messageToChar_; }
 
 	virtual int GetStr() const {return str_;}
 	virtual void SetStr(int str) {str_=str;}

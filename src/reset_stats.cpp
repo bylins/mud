@@ -187,7 +187,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;
 			snprintf(buf_, sizeof(buf_), "%s failed to change %s",
-				d->character->get_name(), reset_prices.at(type).log_text.c_str());
+				d->character->get_name().c_str(), reset_prices.at(type).log_text.c_str());
 			mudlog(buf_, NRM, LVL_IMMORT, SYSLOG, TRUE);
 		}
 		else
@@ -201,7 +201,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 			ch->save_char();
 
 			snprintf(buf_, sizeof(buf_), "%s changed %s, price=%d",
-				ch->get_name(), reset_prices.at(type).log_text.c_str(), price);
+				ch->get_name().c_str(), reset_prices.at(type).log_text.c_str(), price);
 			mudlog(buf_, NRM, LVL_BUILDER, SYSLOG, TRUE);
 		}
 

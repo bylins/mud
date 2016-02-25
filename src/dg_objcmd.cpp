@@ -460,7 +460,7 @@ OCMD(do_oteleport)
 		{
 			next_ch = ch->next_in_room;
 			if (IS_NPC(ch)
-					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, AFF_CHARM)
+					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 						 || MOB_FLAGGED(ch, MOB_ANGEL)))
 				continue;
 
@@ -497,7 +497,7 @@ OCMD(do_oteleport)
 			for (charmee = world[IN_ROOM(ch)]->people; charmee; charmee = ncharmee)
 			{
 				ncharmee = charmee->next_in_room;
-				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, AFF_CHARM)
+				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 										|| MOB_FLAGGED(charmee, MOB_ANGEL))
 						&& charmee->master == ch)
 				{

@@ -135,18 +135,30 @@ void pk_check_spamm(CHAR_DATA * ch)
 void pk_translate_pair(CHAR_DATA * *pkiller, CHAR_DATA * *pvictim)
 {
 	if (pkiller != NULL && pkiller[0] != NULL)
-		if (IS_NPC(pkiller[0]) && pkiller[0]->master &&
-				AFF_FLAGGED(pkiller[0], AFF_CHARM) && IN_ROOM(pkiller[0]) == IN_ROOM(pkiller[0]->master))
+	{
+		if (IS_NPC(pkiller[0]) && pkiller[0]->master
+			&& AFF_FLAGGED(pkiller[0], EAffectFlag::AFF_CHARM)
+			&& IN_ROOM(pkiller[0]) == IN_ROOM(pkiller[0]->master))
+		{
 			pkiller[0] = pkiller[0]->master;
+		}
+	}
 
 	if (pvictim != NULL && pvictim[0] != NULL)
 	{
-		if (IS_NPC(pvictim[0]) && pvictim[0]->master &&
-				(AFF_FLAGGED(pvictim[0], AFF_CHARM) || IS_HORSE(pvictim[0])))
+		if (IS_NPC(pvictim[0]) && pvictim[0]->master
+			&& (AFF_FLAGGED(pvictim[0], EAffectFlag::AFF_CHARM)
+				|| IS_HORSE(pvictim[0])))
+		{
 			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->master))
+			{
 				pvictim[0] = pvictim[0]->master;
+			}
+		}
 		if (!HERE(pvictim[0]))
+		{
 			pvictim[0] = NULL;
+		}
 	}
 }
 
@@ -384,7 +396,7 @@ void pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
-	if (!AFF_FLAGGED(victim, AFF_GROUP))
+	if (!AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP))
 	{
 		// нападение на одиночку
 		pk_increment_kill(agressor, victim, TRUE, false);
@@ -398,12 +410,12 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 		leader = victim->master ? victim->master : victim;
 
-		if (AFF_FLAGGED(leader, AFF_GROUP) &&
+		if (AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP) &&
 				IN_ROOM(leader) == IN_ROOM(victim) && pk_action_type(agressor, leader) > PK_ACTION_FIGHT)
 			pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
 
 		for (f = leader->followers; f; f = f->next)
-			if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
+			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) &&
 					IN_ROOM(f->follower) == IN_ROOM(victim) &&
 					pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT)
 				pk_increment_kill(agressor, f->follower, f->follower == victim, has_clanmember);
@@ -966,7 +978,7 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)))
 	{
 		// Один из участников в мирной комнате
-		if (MOB_FLAGGED(victim, MOB_HORDE) || (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !AFF_FLAGGED(ch, AFF_CHARM)))
+		if (MOB_FLAGGED(victim, MOB_HORDE) || (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)))
 		{
 			return TRUE;
 		}
@@ -1081,12 +1093,20 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 
 	// проверяем, был ли в группе клановый чар
 	if (CLAN(leader))
+	{
 		return true;
+	}
 	else
+	{
 		for (f = leader->followers; f; f = f->next)
-			if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
-					IN_ROOM(f->follower) == IN_ROOM(ch) && CLAN(f->follower))
+		{
+			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+				&& IN_ROOM(f->follower) == IN_ROOM(ch) && CLAN(f->follower))
+			{
 				return true;
+			}
+		}
+	}
 	return false;
 }
 

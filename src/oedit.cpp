@@ -34,11 +34,10 @@
 #include "sets_drop.hpp"
 #include "obj.hpp"
 
-//------------------------------------------------------------------------
+#include <vector>
 
 // * External variable declarations.
-
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *>obj_proto;
 extern INDEX_DATA *obj_index;
 extern OBJ_DATA *object_list;
 extern obj_rnum top_of_objt;

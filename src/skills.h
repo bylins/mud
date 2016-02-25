@@ -237,8 +237,8 @@ class Skill
 public:
     Skill();
 
-    static int GetNumByID(std::string ID);   // Получение номера скилла по ИД
-    static void Load(pugi::xml_node XMLSkillList);  // Парсинг конфига скиллов
+    static int GetNumByID(const std::string& ID);   // Получение номера скилла по ИД
+    static void Load(const pugi::xml_node& XMLSkillList);  // Парсинг конфига скиллов
     static SkillListType SkillList;                 // Глобальный скилллист
 
     // Доступ к полям

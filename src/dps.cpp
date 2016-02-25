@@ -174,7 +174,7 @@ void Dps::clear(int type)
 // * Для сортировки вывода по нанесенной дамаге.
 struct sort_node
 {
-	sort_node(std::string in_name, int in_dps, unsigned in_round_dmg, unsigned in_over_dmg)
+	sort_node(const std::string& in_name, int in_dps, unsigned in_round_dmg, unsigned in_over_dmg)
 			: dps(in_dps), round_dmg(in_round_dmg), over_dmg(in_over_dmg)
 	{
 		name = in_name.substr(0, 25);
@@ -234,7 +234,7 @@ void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 			thousands_sep(abs(lost_exp_)).c_str(), balance >= 0 ? "+" : "-",
 			thousands_sep(abs(balance)).c_str());
 
-	if (AFF_FLAGGED(ch, AFF_GROUP))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		tmp_total_dmg = 0;
 		CHAR_DATA *leader = ch->master ? ch->master : ch;
@@ -260,7 +260,9 @@ void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 	CHAR_DATA *leader = ch->master ? ch->master : ch;
 	for (follow_type *f = leader->followers; f; f = f->next)
 	{
-		if (f->follower && !IS_NPC(f->follower) && AFF_FLAGGED(f->follower, AFF_GROUP))
+		if (f->follower
+			&& !IS_NPC(f->follower)
+			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
 		{
 			add_tmp_group_list(f->follower);
 		}
@@ -467,7 +469,7 @@ void check_round(CHAR_DATA *ch)
 	if (!IS_NPC(ch))
 	{
 		ch->dps_end_round(DpsSystem::PERS_DPS);
-		if (AFF_FLAGGED(ch, AFF_GROUP))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 		{
 			CHAR_DATA *leader = ch->master ? ch->master : ch;
 			leader->dps_end_round(DpsSystem::GROUP_DPS, ch);
@@ -476,7 +478,7 @@ void check_round(CHAR_DATA *ch)
 	else if (IS_CHARMICE(ch) && ch->master)
 	{
 		ch->master->dps_end_round(DpsSystem::PERS_CHARM_DPS, ch);
-		if (AFF_FLAGGED(ch->master, AFF_GROUP))
+		if (AFF_FLAGGED(ch->master, EAffectFlag::AFF_GROUP))
 		{
 			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
 			leader->dps_end_round(DpsSystem::GROUP_CHARM_DPS, ch);
@@ -525,7 +527,7 @@ ACMD(do_dmeter)
 		}
 		else if (isname(name, "группа"))
 		{
-			if (!AFF_FLAGGED(ch, AFF_GROUP))
+			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 			{
 				send_to_char("Вы не состоите в группе.\r\n", ch);
 				return;

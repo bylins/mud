@@ -350,7 +350,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 				bonus += 25;
 			if (GET_POS(vict) < POS_FIGHTING)
 				bonus += (20 * (POS_FIGHTING - GET_POS(vict)));
-			else if (AFF_FLAGGED(vict, AFF_AWARNESS))
+			else if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS))
 				victim_modi -= 30;
 			victim_modi += size_app[GET_POS_SIZE(vict)].ac;
 			victim_modi -= dex_bonus(GET_REAL_DEX(vict));
@@ -465,7 +465,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			if (AWAKE(vict))
 			{
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
-				if (AFF_FLAGGED(vict, AFF_AWARNESS))
+				if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS))
 					bonus -= 30;
 			}
 		}
@@ -490,7 +490,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
                 if (vict)
                 {
                         victim_modi += GET_REAL_CON(vict) / 2;
-                        if (AFF_FLAGGED(vict, AFF_NOTRACK)
+                        if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
                                         || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) victim_modi = -100;
                 }
                 break;
@@ -507,7 +507,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
                 if (vict)
                 {
                         victim_modi += GET_REAL_CON(vict) / 2;
-                        if (AFF_FLAGGED(vict, AFF_NOTRACK)
+                        if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
                                         || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) victim_modi = -100;
                 }
                 break;
@@ -653,7 +653,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 				bonus += 10;
 			if (GET_POS(vict) < POS_SITTING)
 				bonus -= 50;
-			if (AWAKE(vict) || AFF_FLAGGED(vict, AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
+			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
 				victim_modi -= 20;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
 				victim_modi -= calculate_awake_mod(ch, vict);
@@ -781,7 +781,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
                 if (!CAN_SEE(ch,vict))
                 bonus += (skill_is + bonus)/5;
                 if (vict->get_fighting() ||
-			(MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, AFF_AWARNESS) || AWAKE(vict) ))
+			(MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || AWAKE(vict) ))
                         bonus -= (skill_is + bonus)/10;
                 if (PRF_FLAGGED (vict, PRF_AWAKE))
 			victim_modi = -(vict->get_skill(SKILL_AWAKE)/5);
@@ -810,7 +810,7 @@ send_to_char(vict, "Skill == %d, Percent == %d, Bonus == %d, victim_sav == %d, v
 //		if (vict && percent > skill_info[skill_no].max_percent)
 //			victim_modi += percent - skill_info[skill_no].max_percent;
 
-		if (AFF_FLAGGED(ch, AFF_DEAFNESS))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			morale -= 20;	// у глухого мораль на 20 меньше
 		// Обработка способности "боевой дух"
 		if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
@@ -950,7 +950,7 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 												|| (IS_NPC(vict)
 													&& !MOB_FLAGGED(vict, MOB_PROTECT)
 													&& !MOB_FLAGGED(vict, MOB_NOTRAIN)
-													&& !AFF_FLAGGED(vict, AFF_CHARM)
+													&& !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 													&& !IS_HORSE(vict))))
 			improove_skill(ch, skill_no, percent >= max_value, vict);
 	}
@@ -1046,7 +1046,7 @@ void Skill::ParseSkill(pugi::xml_node SkillNode)
 
 // Парсинг скиллов
 // Вынесено в отдельную функцию, чтобы, если нам передали кривой XML лист, не создавался кривой скилл
-void Skill::Load(pugi::xml_node XMLSkillList)
+void Skill::Load(const pugi::xml_node& XMLSkillList)
 {
     pugi::xml_node CurNode;
 
@@ -1058,12 +1058,14 @@ void Skill::Load(pugi::xml_node XMLSkillList)
 
 // Получаем номер скилла по его иду
 // Отрыжка совместимости со старым кодом
-int Skill::GetNumByID(std::string ID)
+int Skill::GetNumByID(const std::string& ID)
 {
     SkillPtr TmpSkill = Skill::SkillList[ID];
-    //SkillPtr TmpSkill = Skill::SkillList.find(ID);
-    if (TmpSkill)
-        return TmpSkill->_Number ;
+
+	if (TmpSkill)
+	{
+		return TmpSkill->_Number;
+	}
 
     return SKILL_UNDEFINED;
 };

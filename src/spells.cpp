@@ -43,10 +43,12 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <vector>
+
 extern room_rnum r_mortal_start_room;
 
 extern OBJ_DATA *object_list;
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
@@ -230,7 +232,7 @@ ASPELL(spell_recall)
 		return;
 	}
 
-	if (!IS_GOD(ch) && (ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT) || AFF_FLAGGED(victim, AFF_NOTELEPORT)))
+	if (!IS_GOD(ch) && (ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT) || AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -300,7 +302,7 @@ ASPELL(spell_teleport)
 	room_rnum in_room = IN_ROOM(ch), fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
 
-	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, AFF_NOTELEPORT)))
+	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -350,29 +352,9 @@ ASPELL(spell_relocate)
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-		//Polud убираем все это, поскольку теперь за релокейт без режима и не в группе вешается агроБД
-		// Перемещаться можно только с отключенным "режимом призыв"
-		//if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
-		//{
-		//	send_to_char("При применении заклинания требуется отключить \"режим призыв\"!\r\n", ch);
-		//	send_to_char(SUMMON_FAIL, ch);
-		//	return;
-		//}
-		// Перемещаться нельзя состоя в группе (т.к. пента на согрупника и суммон идут без режима)
-		//if (AFF_FLAGGED(ch, AFF_GROUP))
-		//{
-		//	send_to_char("При применении заклинания нельзя состоять в группе!\r\n", ch);
-		//	send_to_char(SUMMON_FAIL, ch);
-		//	return;
-		//}
-		// Во избежания абьюза с заследованием а потом погрупливанием после перемещения и юзанием переместившегося как маяка
-		//if (ch->master)
-		//{
-		//	send_to_char(SUMMON_FAIL, ch);
-		//	return;
-		//}
+
 		// Нельзя перемещаться после того, как попал под заклинание "приковать противника".
-		if (AFF_FLAGGED(ch, AFF_NOTELEPORT))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT))
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -470,7 +452,7 @@ ASPELL(spell_portal)
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!IS_GOD(ch))
 	{
-		if ((!IS_NPC(victim) && GET_LEVEL(victim) <= 10) || IS_IMMORTAL(victim) || AFF_FLAGGED(victim, AFF_NOTELEPORT))
+		if ((!IS_NPC(victim) && GET_LEVEL(victim) <= 10) || IS_IMMORTAL(victim) || AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -620,7 +602,7 @@ ASPELL(spell_summon)
 		if (!IS_NPC(ch) || IS_CHARMICE(ch))
 		{
 			// Нельзя производить суммон под ЗБ
-			if (AFF_FLAGGED(ch, AFF_SHIELD))
+			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD))
 			{
 				send_to_char(SUMMON_FAIL3, ch);	// Про маг. кокон вокруг суммонера
 				return;
@@ -680,7 +662,7 @@ ASPELL(spell_summon)
 				ROOM_FLAGGED(vic_room, ROOM_GODROOM)||	// жертва в комнате для бессмертных
 				ROOM_FLAGGED(vic_room, ROOM_ARENA)	||	// жертва на арене
 				!Clan::MayEnter(ch, vic_room, HCE_PORTAL)||// жертва во внутренних покоях клан-замка
-				AFF_FLAGGED(victim, AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
+				AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -711,7 +693,7 @@ ASPELL(spell_summon)
 		if (IN_ROOM(k->follower) == vic_room)
 		{
 			// проверяем, чармис ли это вообще
-			if (AFF_FLAGGED(k->follower, AFF_CHARM))
+			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
 			{
 				// чармис не должен быть в бою
 				if (!k->follower->get_fighting())
@@ -1001,7 +983,8 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 
 	for (k = ch->followers; k; k = k->next)
 	{
-		if (AFF_FLAGGED(k->follower, AFF_CHARM) && k->follower->master == ch)
+		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
+			&& k->follower->master == ch)
 		{
 			cha_summ++;
 			//hp_summ += GET_REAL_MAX_HIT(k->follower);
@@ -1070,16 +1053,16 @@ ASPELL(spell_charm)
 		send_to_char("Вы не можете очаровать реального игрока!\r\n", ch);
 		pk_agro_action(ch, victim);
 	}
-	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, AFF_SANCTUARY) || MOB_FLAGGED(victim, MOB_PROTECT)))
+	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffectFlag::AFF_SANCTUARY) || MOB_FLAGGED(victim, MOB_PROTECT)))
 		send_to_char("Ваша жертва освящена Богами!\r\n", ch);
 // shapirus: нельзя почармить моба под ЗБ
-	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, AFF_SHIELD) || MOB_FLAGGED(victim, MOB_PROTECT)))
+	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) || MOB_FLAGGED(victim, MOB_PROTECT)))
 		send_to_char("Ваша жертва защищена Богами!\r\n", ch);
 	else if (!IS_IMMORTAL(ch) && MOB_FLAGGED(victim, MOB_NOCHARM))
 		send_to_char("Ваша жертва устойчива к этому!\r\n", ch);
-	else if (AFF_FLAGGED(ch, AFF_CHARM))
+	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		send_to_char("Вы сами очарованы кем-то и не можете иметь последователей.\r\n", ch);
-	else if (AFF_FLAGGED(victim, AFF_CHARM)
+	else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
 			 || MOB_FLAGGED(victim, MOB_AGGRESSIVE)
 			 || MOB_FLAGGED(victim, MOB_AGGRMONO)
 			 || MOB_FLAGGED(victim, MOB_AGGRPOLY)
@@ -1130,7 +1113,7 @@ ASPELL(spell_charm)
 			af.duration = pc_duration(victim, GET_REAL_CHA(ch) + number(1, 10) + GET_REMORT(ch) * 2, 0, 0, 0, 0);
 		af.modifier = 0;
 		af.location = 0;
-		af.bitvector = AFF_CHARM;
+		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(victim, &af);
 		if (GET_HELPER(victim))
@@ -1180,8 +1163,14 @@ ACMD(do_findhelpee)
 	if (subcmd == SCMD_FREEHELPEE)
 	{
 		for (k = ch->followers; k; k = k->next)
-			if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
+		{
+			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
+			{
 				break;
+			}
+		}
+
 		if (k)
 		{
 			if (IN_ROOM(ch) != IN_ROOM(k->follower))
@@ -1223,8 +1212,14 @@ ACMD(do_findhelpee)
 	if (!*arg)
 	{
 		for (k = ch->followers; k; k = k->next)
-			if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
+		{
+			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
+			{
 				break;
+			}
+		}
+
 		if (k)
 			act("Вашим наемником является $N.", FALSE, ch, 0, k->follower, TO_CHAR);
 		else
@@ -1238,8 +1233,13 @@ ACMD(do_findhelpee)
 		return;
 	}
 	for (k = ch->followers; k; k = k->next)
-		if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
+	{
+		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+			&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
+		{
 			break;
+		}
+	}
 
 	if (helpee == ch)
 		send_to_char("И как вы это представляете - нанять самого себя?\r\n", ch);
@@ -1247,9 +1247,9 @@ ACMD(do_findhelpee)
 		send_to_char("Вы не можете нанять реального игрока!\r\n", ch);
 	else if (!NPC_FLAGGED(helpee, NPC_HELPED))
 		act("$N не нанимается!", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (AFF_FLAGGED(helpee, AFF_CHARM) && (!k  || (k && helpee != k->follower)))
+	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_CHARM) && (!k  || (k && helpee != k->follower)))
 		act("$N под чьим-то контролем.", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (AFF_FLAGGED(helpee, AFF_DEAFNESS))
+	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_DEAFNESS))
 		act("$N не слышит вас.", FALSE, ch, 0, helpee, TO_CHAR);
 	else if (IS_HORSE(helpee))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
@@ -1343,10 +1343,10 @@ ACMD(do_findhelpee)
 		af.type = SPELL_CHARM;
 		af.modifier = 0;
 		af.location = 0;
-		af.bitvector = AFF_CHARM;
+		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(helpee, &af);
-		AFF_FLAGS(helpee).set(AFF_HELPER);
+		AFF_FLAGS(helpee).set(EAffectFlag::AFF_HELPER);
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"",
 				GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
@@ -1396,19 +1396,23 @@ void print_book_uprgd_skill(CHAR_DATA *ch, const OBJ_DATA *obj)
 	if (skill_num < 1 || skill_num >= MAX_SKILL_NUM)
 	{
 		log("SYSERR: invalid skill_num: %d, ch_name=%s, obj_vnum=%d (%s %s %d)",
-				skill_num, ch->get_name(), GET_OBJ_VNUM(obj),
-				__FILE__, __func__, __LINE__);
+			skill_num,
+			ch->get_name().c_str(),
+			GET_OBJ_VNUM(obj),
+			__FILE__,
+			__func__,
+			__LINE__);
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 3) > 0)
 	{
 		send_to_char(ch, "повышает умение \"%s\" (максимум %d)\r\n",
-				skill_info[skill_num].name, GET_OBJ_VAL(obj, 3));
+			skill_info[skill_num].name, GET_OBJ_VAL(obj, 3));
 	}
 	else
 	{
 		send_to_char(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
-				skill_info[skill_num].name);
+			skill_info[skill_num].name);
 	}
 }
 
@@ -2358,49 +2362,6 @@ ASPELL(spell_identify)
 	}
 }
 
-
-
-/*
- * Cannot use this spell on an equipped object or it will mess up the
- * wielding character's hit/dam totals.
- */
-
-/*
-ASPELL(spell_detect_poison)
-{
-  if (victim)
-     {if (victim == ch)
-         {if (AFF_FLAGGED(victim, AFF_POISON))
-             send_to_char("Вы чувствуете яд в своей крови.\r\n", ch);
-          else
-             send_to_char("Вы чувствуете себя здоровым.\r\n", ch);
-         }
-      else
-         {if (AFF_FLAGGED(victim, AFF_POISON))
-             act("Аура $N1 пропитана ядом.", FALSE, ch, 0, victim, TO_CHAR);
-          else
-             act("Аура $N1 имеет ровную окраску.", FALSE, ch, 0, victim, TO_CHAR);
-         }
-     }
-
-  if (obj)
-     {switch (GET_OBJ_TYPE(obj))
-      {
-    case ITEM_DRINKCON:
-    case ITEM_FOUNTAIN:
-    case ITEM_FOOD:
-      if (GET_OBJ_VAL(obj, 3))
-	act("Аура $o1 пропитана ядом.",FALSE,ch,obj,0,TO_CHAR);
-      else
-	act("Аура $o1 имеет ровную окраску.", FALSE, ch, obj, 0,TO_CHAR);
-      break;
-    default:
-      send_to_char("Этот предмет не может быть отравлен.\r\n", ch);
-      }
-     }
-}
-*/
-
 ASPELL(spell_control_weather)
 {
 	const char *sky_info = 0;
@@ -2480,7 +2441,7 @@ ASPELL(spell_fear)
 		modi += (GET_LEVEL(ch) - 10);
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
-	if (AFF_FLAGGED(victim, AFF_BLESS))
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLESS))
 		modi -= 25;
 
 	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(ch, victim, SAVING_WILL, modi))
@@ -2563,8 +2524,9 @@ ASPELL(spell_sacrifice)
 		for (f = ch->followers; f; f = f->next)
 		{
 			if (IS_NPC(f->follower)
-					&& AFF_FLAGGED(f->follower, AFF_CHARM)
-					&& MOB_FLAGGED(f->follower, MOB_CORPSE) && IN_ROOM(ch) == IN_ROOM(f->follower))
+				&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
+				&& MOB_FLAGGED(f->follower, MOB_CORPSE)
+				&& IN_ROOM(ch) == IN_ROOM(f->follower))
 			{
 				do_sacrifice(f->follower, dam);
 			}
@@ -2675,7 +2637,7 @@ ASPELL(spell_angel)
 		pc_duration(mob, 5 + (int) VPOSI((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = 0;
-	af.bitvector = AFF_HELPER;
+	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
 	affect_to_char(mob, &af);
 
@@ -2763,8 +2725,8 @@ ASPELL(spell_angel)
 	MOB_FLAGS(mob).set(MOB_ANGEL);
 	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
 
-	AFF_FLAGS(mob).set(AFF_FLY);
-	AFF_FLAGS(mob).set(AFF_INFRAVISION);
+	AFF_FLAGS(mob).set(EAffectFlag::AFF_FLY);
+	AFF_FLAGS(mob).set(EAffectFlag::AFF_INFRAVISION);
 	mob->set_level(ch->get_level());
 //----------------------------------------------------------------------
 // добавляем зависимости от уровня и от обаяния
@@ -2810,12 +2772,12 @@ ASPELL(spell_angel)
 
 	if (get_effective_cha(ch, SPELL_ANGEL) >= 22)
 	{
-		AFF_FLAGS(mob).set(AFF_SANCTUARY);
+		AFF_FLAGS(mob).set(EAffectFlag::AFF_SANCTUARY);
 	}
 
 	if (get_effective_cha(ch, SPELL_ANGEL) >= 30)
 	{
-		AFF_FLAGS(mob).set(AFF_AIRSHIELD);
+		AFF_FLAGS(mob).set(EAffectFlag::AFF_AIRSHIELD);
 	}
 
 	char_to_room(mob, IN_ROOM(ch));

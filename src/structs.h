@@ -30,10 +30,6 @@
 #include <iterator>
 #include <cstdint>
 
-using std::map;
-using std::iterator;
-using std::string;
-
 namespace ExtMoney
 {
 
@@ -84,7 +80,6 @@ typedef struct script_data SCRIPT_DATA;
 typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 typedef struct extra_descr_data EXTRA_DESCR_DATA;
-typedef struct affect_data AFFECT_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 struct OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
@@ -133,10 +128,10 @@ typedef struct trig_data TRIG_DATA;
 // This structure describe new bitvector structure                  //
 typedef uint32_t bitvector_t;
 
-#define INT_ZERRO (0 << 30)
-#define INT_ONE   (1 << 30)
-#define INT_TWO   (2 << 30)
-#define INT_THREE (3 << 30)
+#define INT_ZERRO (0u << 30)
+#define INT_ONE   (1u << 30)
+#define INT_TWO   (2u << 30)
+#define INT_THREE (3u << 30)
 
 // Room flags: used in room_data.room_flags //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
@@ -590,90 +585,91 @@ enum
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
-#define AFF_BLIND             (1 << 0)	// (R) Char is blind    //
-#define AFF_INVISIBLE         (1 << 1)	// Char is invisible    //
-#define AFF_DETECT_ALIGN      (1 << 2)	// Char is sensitive to align //
-#define AFF_DETECT_INVIS      (1 << 3)	// Char can see invis chars  //
-#define AFF_DETECT_MAGIC      (1 << 4)	// Char is sensitive to magic //
-#define AFF_SENSE_LIFE        (1 << 5)	// Char can sense hidden life //
-#define AFF_WATERWALK         (1 << 6)	// Char can walk on water  //
-#define AFF_SANCTUARY         (1 << 7)	// Char protected by sanct.   //
-#define AFF_GROUP             (1 << 8)	// (R) Char is grouped  //
-#define AFF_CURSE             (1 << 9)	// Char is cursed    //
-#define AFF_INFRAVISION       (1 << 10)	// Char can see in dark //
-#define AFF_POISON            (1 << 11)	// (R) Char is poisoned //
-#define AFF_PROTECT_EVIL      (1 << 12)	// Char protected from evil  //
-#define AFF_PROTECT_GOOD      (1 << 13)	// Char protected from good  //
-#define AFF_SLEEP             (1 << 14)	// (R) Char magically asleep  //
-#define AFF_NOTRACK           (1 << 15)	// Char can't be tracked   //
-#define AFF_TETHERED          (1 << 16)	// Room for future expansion  //
-#define AFF_BLESS             (1 << 17)	// Room for future expansion  //
-#define AFF_SNEAK             (1 << 18)	// Char can move quietly   //
-#define AFF_HIDE              (1 << 19)	// Char is hidden    //
-#define AFF_COURAGE           (1 << 20)	// Room for future expansion  //
-#define AFF_CHARM             (1 << 21)	// Char is charmed      //
-#define AFF_HOLD              (1 << 22)
-#define AFF_FLY               (1 << 23)
-#define AFF_SIELENCE          (1 << 24)
-#define AFF_AWARNESS          (1 << 25)
-#define AFF_BLINK             (1 << 26)
-#define AFF_HORSE             (1 << 27)	// NPC - is horse, PC - is horsed //
-#define AFF_NOFLEE            (1 << 28)
-#define AFF_SINGLELIGHT       (1 << 29)
-
-#define AFF_HOLYLIGHT         (INT_ONE | (1 << 0))
-#define AFF_HOLYDARK          (INT_ONE | (1 << 1))
-#define AFF_DETECT_POISON     (INT_ONE | (1 << 2))
-#define AFF_DRUNKED           (INT_ONE | (1 << 3))
-#define AFF_ABSTINENT         (INT_ONE | (1 << 4))
-#define AFF_STOPRIGHT         (INT_ONE | (1 << 5))
-#define AFF_STOPLEFT          (INT_ONE | (1 << 6))
-#define AFF_STOPFIGHT         (INT_ONE | (1 << 7))
-#define AFF_HAEMORRAGIA       (INT_ONE | (1 << 8))
-#define AFF_CAMOUFLAGE        (INT_ONE | (1 << 9))
-#define AFF_WATERBREATH       (INT_ONE | (1 << 10))
-#define AFF_SLOW              (INT_ONE | (1 << 11))
-#define AFF_HASTE             (INT_ONE | (1 << 12))
-#define AFF_SHIELD            (INT_ONE | (1 << 13))
-#define AFF_AIRSHIELD         (INT_ONE | (1 << 14))
-#define AFF_FIRESHIELD        (INT_ONE | (1 << 15))
-#define AFF_ICESHIELD         (INT_ONE | (1 << 16))
-#define AFF_MAGICGLASS        (INT_ONE | (1 << 17))
-#define AFF_STAIRS            (INT_ONE | (1 << 18))
-#define AFF_STONEHAND         (INT_ONE | (1 << 19))
-#define AFF_PRISMATICAURA     (INT_ONE | (1 << 20))
-#define AFF_HELPER            (INT_ONE | (1 << 21))
-#define AFF_EVILESS           (INT_ONE | (1 << 22))
-#define AFF_AIRAURA           (INT_ONE | (1 << 23))
-#define AFF_FIREAURA          (INT_ONE | (1 << 24))
-#define AFF_ICEAURA           (INT_ONE | (1 << 25))
-#define AFF_DEAFNESS          (INT_ONE | (1 << 26))
-#define AFF_CRYING            (INT_ONE | (1 << 27))
-#define AFF_PEACEFUL          (INT_ONE | (1 << 28))
-#define AFF_MAGICSTOPFIGHT    (INT_ONE | (1 << 29))
-
-
-#define AFF_BERSERK           (INT_TWO | (1 << 0))
-#define AFF_LIGHT_WALK        (INT_TWO | (1 << 1))
-#define AFF_BROKEN_CHAINS     (INT_TWO | (1 << 2))
-#define AFF_CLOUD_OF_ARROWS   (INT_TWO | (1 << 3))
-#define AFF_SHADOW_CLOAK      (INT_TWO | (1 << 4))
-#define AFF_GLITTERDUST       (INT_TWO | (1 << 5))
-#define AFF_AFFRIGHT          (INT_TWO | (1 << 6))
-#define AFF_SCOPOLIA_POISON   (INT_TWO | (1 << 7))
-#define AFF_DATURA_POISON     (INT_TWO | (1 << 8))
-#define AFF_SKILLS_REDUCE     (INT_TWO | (1 << 9))
-#define AFF_NOT_SWITCH        (INT_TWO | (1 << 10))
-#define AFF_BELENA_POISON     (INT_TWO | (1 << 11))
-#define AFF_NOTELEPORT        (INT_TWO | (1 << 12))
-#define AFF_LACKY             (INT_TWO | (1 << 13))
-#define AFF_BANDAGE           (INT_TWO | (1 << 14))
-#define AFF_NO_BANDAGE        (INT_TWO | (1 << 15))
-#define AFF_MORPH             (INT_TWO | (1 << 16))
-#define AFF_STRANGLED         (INT_TWO | (1 << 17))
-#define AFF_RECALL_SPELLS     (INT_TWO | (1 << 18))
-#define AFF_NOOB_REGEN        (INT_TWO | (1 << 19))
-#define AFF_VAMPIRE			  (INT_TWO | (1 << 20))	
+enum class EAffectFlag: uint32_t
+{
+	AFF_BLIND = 1u << 0,					///< (R) Char is blind
+	AFF_INVISIBLE = 1u << 1,				///< Char is invisible
+	AFF_DETECT_ALIGN = 1u << 2,				///< Char is sensitive to align
+	AFF_DETECT_INVIS = 1u << 3,				///< Char can see invis chars
+	AFF_DETECT_MAGIC = 1u << 4,				///< Char is sensitive to magic
+	AFF_SENSE_LIFE = 1u << 5,				///< Char can sense hidden life
+	AFF_WATERWALK = 1u << 6,				///< Char can walk on water
+	AFF_SANCTUARY = 1u << 7,				///< Char protected by sanct.
+	AFF_GROUP = 1u << 8,					///< (R) Char is grouped
+	AFF_CURSE = 1u << 9,					///< Char is cursed
+	AFF_INFRAVISION = 1u << 10,				///< Char can see in dark
+	AFF_POISON = 1u << 11,					///< (R) Char is poisoned
+	AFF_PROTECT_EVIL = 1u << 12,			///< Char protected from evil
+	AFF_PROTECT_GOOD = 1u << 13,			///< Char protected from good
+	AFF_SLEEP = 1u << 14,					///< (R) Char magically asleep
+	AFF_NOTRACK = 1u << 15,					///< Char can't be tracked
+	AFF_TETHERED = 1u << 16,				///< Room for future expansion
+	AFF_BLESS = 1u << 17,					///< Room for future expansion
+	AFF_SNEAK = 1u << 18,					///< Char can move quietly
+	AFF_HIDE = 1u << 19,					///< Char is hidden
+	AFF_COURAGE = 1u << 20,					///< Room for future expansion
+	AFF_CHARM = 1u << 21,					///< Char is charmed
+	AFF_HOLD = 1u << 22,
+	AFF_FLY = 1u << 23,
+	AFF_SIELENCE = 1u << 24,
+	AFF_AWARNESS = 1u << 25,
+	AFF_BLINK = 1u << 26,
+	AFF_HORSE = 1u << 27,					///< NPC - is horse, PC - is horsed
+	AFF_NOFLEE = 1u << 28,
+	AFF_SINGLELIGHT = 1u << 29,
+	AFF_HOLYLIGHT = INT_ONE | (1u << 0),
+	AFF_HOLYDARK = INT_ONE | (1u << 1),
+	AFF_DETECT_POISON = INT_ONE | (1u << 2),
+	AFF_DRUNKED = INT_ONE | (1u << 3),
+	AFF_ABSTINENT = INT_ONE | (1u << 4),
+	AFF_STOPRIGHT = INT_ONE | (1u << 5),
+	AFF_STOPLEFT = INT_ONE | (1u << 6),
+	AFF_STOPFIGHT = INT_ONE | (1u << 7),
+	AFF_HAEMORRAGIA = INT_ONE | (1u << 8),
+	AFF_CAMOUFLAGE = INT_ONE | (1u << 9),
+	AFF_WATERBREATH = INT_ONE | (1u << 10),
+	AFF_SLOW = INT_ONE | (1u << 11),
+	AFF_HASTE = INT_ONE | (1u << 12),
+	AFF_SHIELD = INT_ONE | (1u << 13),
+	AFF_AIRSHIELD = INT_ONE | (1u << 14),
+	AFF_FIRESHIELD = INT_ONE | (1u << 15),
+	AFF_ICESHIELD = INT_ONE | (1u << 16),
+	AFF_MAGICGLASS = INT_ONE | (1u << 17),
+	AFF_STAIRS = INT_ONE | (1u << 18),
+	AFF_STONEHAND = INT_ONE | (1u << 19),
+	AFF_PRISMATICAURA = INT_ONE | (1u << 20),
+	AFF_HELPER = INT_ONE | (1u << 21),
+	AFF_EVILESS = INT_ONE | (1u << 22),
+	AFF_AIRAURA = INT_ONE | (1u << 23),
+	AFF_FIREAURA = INT_ONE | (1u << 24),
+	AFF_ICEAURA = INT_ONE | (1u << 25),
+	AFF_DEAFNESS = INT_ONE | (1u << 26),
+	AFF_CRYING = INT_ONE | (1u << 27),
+	AFF_PEACEFUL = INT_ONE | (1u << 28),
+	AFF_MAGICSTOPFIGHT = INT_ONE | (1u << 29),
+	AFF_BERSERK = INT_TWO | (1u << 0),
+	AFF_LIGHT_WALK = INT_TWO | (1u << 1),
+	AFF_BROKEN_CHAINS = INT_TWO | (1u << 2),
+	AFF_CLOUD_OF_ARROWS = INT_TWO | (1u << 3),
+	AFF_SHADOW_CLOAK = INT_TWO | (1u << 4),
+	AFF_GLITTERDUST = INT_TWO | (1u << 5),
+	AFF_AFFRIGHT = INT_TWO | (1u << 6),
+	AFF_SCOPOLIA_POISON = INT_TWO | (1u << 7),
+	AFF_DATURA_POISON = INT_TWO | (1u << 8),
+	AFF_SKILLS_REDUCE = INT_TWO | (1u << 9),
+	AFF_NOT_SWITCH = INT_TWO | (1u << 10),
+	AFF_BELENA_POISON = INT_TWO | (1u << 11),
+	AFF_NOTELEPORT = INT_TWO | (1u << 12),
+	AFF_LACKY = INT_TWO | (1u << 13),
+	AFF_BANDAGE = INT_TWO | (1u << 14),
+	AFF_NO_BANDAGE = INT_TWO | (1u << 15),
+	AFF_MORPH = INT_TWO | (1u << 16),
+	AFF_STRANGLED = INT_TWO | (1u << 17),
+	AFF_RECALL_SPELLS = INT_TWO | (1u << 18),
+	AFF_NOOB_REGEN = INT_TWO | (1u << 19),
+	AFF_VAMPIRE = INT_TWO | (1u << 20)
+};
+typedef std::list<EAffectFlag> affects_list_t;
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)
@@ -1271,7 +1267,7 @@ public:
 	template <> bool get(const uint32_t packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
 	template <> bool get(const int packed_flag) const { return get(static_cast<uint32_t>(packed_flag)); }
 	bool get_flag(const size_t plane, const uint32_t flag) const { return 0 != (m_flags[plane] & (flag & 0x3fffffff)); }
-	const uint32_t get_plane(const size_t number) const { return m_flags[number]; }
+	uint32_t get_plane(const size_t number) const { return m_flags[number]; }
 	bool plane_not_empty(const int packet_flag) const { return 0 != m_flags[packet_flag >> 30]; }
 
 	template <class T>
@@ -1455,9 +1451,9 @@ public:
 
 // An affect structure. //
 class IAffectHandler;
-struct affect_data
+struct AFFECT_DATA
 {
-	affect_data() : type(0), duration(0), modifier(0), location(0),
+	AFFECT_DATA() : type(0), duration(0), modifier(0), location(0),
 		battleflag(0), bitvector(0), caster_id(0), must_handled(0),
 		apply_time(0), next(0) {};
 
@@ -1467,8 +1463,7 @@ struct affect_data
 	int location;		// Tells which ability to change(APPLY_XXX) //
 	long
 	battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
-	long
-	bitvector;		// Tells which bits to set (AFF_XXX) //
+	uint32_t bitvector;		// Tells which bits to set (AFF_XXX) //
 	long
 	caster_id; //Unique caster ID //
 	bool
@@ -1857,14 +1852,13 @@ struct weapon_app_type
 
 struct extra_affects_type
 {
-	int
-	affect;
-	int
-	set_or_clear;
+	EAffectFlag affect;
+	int set_or_clear;
 };
 
 struct class_app_type
 {
+	typedef std::vector<extra_affects_type> extra_affects_list_t;
 	int
 	unknown_weapon_fault;
 	int
@@ -1876,8 +1870,7 @@ struct class_app_type
 	int
 	max_con;
 
-	struct extra_affects_type *extra_affects;
-//	struct obj_affected_type *extra_modifiers;
+	const extra_affects_list_t* extra_affects;
 };
 
 struct race_app_type
@@ -1935,8 +1928,7 @@ struct weapon_affect_types
 {
 	int
 	aff_pos;
-	int
-	aff_bitvector;
+	uint32_t aff_bitvector;
 	int
 	aff_spell;
 };
@@ -2007,8 +1999,7 @@ struct pray_affect_type
 	location;
 	int
 	modifier;
-	long
-	bitvector;
+	uint32_t bitvector;
 	int
 	battleflag;
 };
@@ -2081,19 +2072,19 @@ struct int3
 	int qty;
 };
 
-typedef map< string, int3 > alias_type;
+typedef std::map<std::string, int3> alias_type;
 
 class insert_wanted_gem
 {
-	map< int, alias_type > content;
+	std::map<int, alias_type> content;
 
 public:
 	void init();
 	void show(CHAR_DATA *ch, int gem_vnum);
-	int get_type(int gem_vnum, string str);
-	int get_bit(int gem_vnum, string str);
-	int get_qty(int gem_vnum, string str);
-	int exist(int gem_vnum, string str);
+	int get_type(int gem_vnum, const std::string& str);
+	int get_bit(int gem_vnum, const std::string& str);
+	int get_qty(int gem_vnum, const std::string& str);
+	int exist(int gem_vnum, const std::string& str);
 };
 
 //-Polos.insert_wanted_gem
@@ -2107,7 +2098,7 @@ struct mob_guardian
 	std::vector<zone_vnum> agro_argressors_in_zones;
 };
 
-typedef map <int, mob_guardian> guardian_type;
+typedef std::map<int, mob_guardian> guardian_type;
 
 //-Polud
 

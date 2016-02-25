@@ -118,7 +118,7 @@ int global_uid = 0;
 OBJ_DATA *object_list = NULL;	// global linked list of objs
 INDEX_DATA *obj_index;		// index table for object file
 //OBJ_DATA *obj_proto;		// prototypes for objs
-vector < OBJ_DATA * >obj_proto;
+std::vector<OBJ_DATA *> obj_proto;
 obj_rnum top_of_objt = 0;	// top of object index table
 
 struct zone_data *zone_table;	// zone table
@@ -164,12 +164,9 @@ struct portals_list_type *portals_list;	// Список проталов для townportal
 int now_entrycount = FALSE;
 extern int reboot_uptime;
 
-//Polud
 guardian_type guardian_list;
-//-Polud
-//Polos.inserd_wanted_gem
-class insert_wanted_gem iwg;
-//-Polos.insert_wanted_gem
+
+insert_wanted_gem iwg;
 
 // local functions
 void SaveGlobalUID(void);
@@ -182,7 +179,6 @@ void discrete_load(FILE * fl, int mode, char *filename);
 bool check_object(OBJ_DATA *);
 void parse_trigger(FILE * fl, int virtual_nr);
 void parse_room(FILE * fl, int virtual_nr, int virt);
-void parse_mobile(FILE * mob_f, int nr);
 char *parse_object(FILE * obj_f, int nr);
 void load_zones(FILE * fl, char *zonename);
 void load_help(FILE * fl);
@@ -205,7 +201,6 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr);
 void parse_espec(char *buf, int i, int nr);
 void parse_enhanced_mob(FILE * mob_f, int i, int nr);
 void get_one_line(FILE * fl, char *buf);
-void save_etext(CHAR_DATA * ch);
 void check_start_rooms(void);
 void renum_world(void);
 void renum_zone_table(void);
@@ -223,7 +218,6 @@ void init_portals(void);
 void init_im(void);
 void init_zone_types();
 void load_guardians();
-pugi::xml_node XMLLoad(const string *PathToFile, const string *MainTag, const string *ErrorStr); // Базовая функция загрузки XML конфигов
 
 // external functions
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
@@ -231,8 +225,6 @@ void free_alias(struct alias_data *a);
 void load_messages(void);
 void weather_and_time(int mode);
 void mag_assign_spells(void);
-void boot_social_messages(void);
-void update_obj_file(void);	// In objsave.cpp
 void sort_commands(void);
 void Read_Invalid_List(void);
 int find_name(const char *name);
@@ -606,25 +598,25 @@ float count_remort_requred(OBJ_DATA *obj)
 		
 	}
 	// аффекты AFF_x через weapon_affect
-	for (int m = 0; weapon_affect[m].aff_bitvector != -1; ++m)
+	for (const auto& m : weapon_affect)
 	{
-		if (weapon_affect[m].aff_bitvector == AFF_AIRSHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD
+			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
 		{
 			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
 		}
-		else if (weapon_affect[m].aff_bitvector == AFF_FIRESHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD
+			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
 		{
 			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
 		}
-		else if (weapon_affect[m].aff_bitvector == AFF_ICESHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD
+			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
 		{
 			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
 		}
-		else if (weapon_affect[m].aff_bitvector == AFF_BLINK
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK
+			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
 		{
 			total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
 		}
@@ -1159,42 +1151,6 @@ void convert_obj_values()
 		}
 	}
 }
-
-/*
-void first_init_global_drop()
-{
-	for(int i = 0; i < world.size(); i++)
-	{
-		for (int  x = 0; x < drop_list_obj.size(); x++)
-		{
-			int stop = true;
-			for (int  k = 0; k < drop_list_obj.sects.size(); k++)
-			{
-				if (SECT(world[i] == drop_list_obj.sects[k]))
-					stop = false;
-			}
-			if (stop)
-				continue;
-			if (drop_list_obj[x].chance > number(0, 999))
-			{
-				obj_to_room(tobj, IN_ROOM(ch));
-				int obj_rnum = real_object(obj_vnum);
-				if (obj_rnum < 0)
-				{
-					snprintf(buf, MAX_STRING_LENGTH, "[FreeDropObj] Incorrect obj_vnum=%d", obj_vnum);
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-					return;
-				}
-				OBJ_DATA *obj= read_object(obj_rnum, REAL);
-				obj_to_room(obj, real_room(world[i].number));
-				dobj_decay(obj);
-				
-			}
-			
-		}
-	}
-}
-*/
 
 void boot_world(void)
 {
@@ -2833,6 +2789,139 @@ void index_boot(int mode)
 	}
 }
 
+char fread_letter(FILE * fp)
+{
+	char c;
+	do
+	{
+		c = getc(fp);
+	} while (isspace(c));
+	return c;
+}
+
+void parse_mobile(FILE * mob_f, int nr)
+{
+	static int i = 0;
+	int j, t[10];
+	char line[256], letter;
+	char f1[128], f2[128];
+
+	mob_index[i].vnum = nr;
+	mob_index[i].number = 0;
+	mob_index[i].func = NULL;
+	mob_index[i].set_idx = -1;
+
+	/*
+	* Mobiles should NEVER use anything in the 'player_specials' structure.
+	* The only reason we have every mob in the game share this copy of the
+	* structure is to save newbie coders from themselves. -gg 2/25/98
+	*/
+	mob_proto[i].player_specials = &dummy_mob;
+	sprintf(buf2, "mob vnum %d", nr);
+
+	// **** String data
+	char *tmp_str = fread_string(mob_f, buf2);
+	mob_proto[i].set_pc_name(tmp_str);
+	if (tmp_str)
+	{
+		free(tmp_str);
+	}
+	tmp_str = fread_string(mob_f, buf2);
+	mob_proto[i].set_npc_name(tmp_str);
+	if (tmp_str)
+	{
+		free(tmp_str);
+	}
+
+	// real name
+	CREATE(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().size() + 1);
+	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().c_str());
+	for (j = 1; j < NUM_PADS; j++)
+		GET_PAD(mob_proto + i, j) = fread_string(mob_f, buf2);
+
+	mob_proto[i].player_data.long_descr = fread_string(mob_f, buf2);
+	mob_proto[i].player_data.description = fread_string(mob_f, buf2);
+	mob_proto[i].mob_specials.Questor = NULL;
+	mob_proto[i].player_data.title = NULL;
+
+	// mob_proto[i].mob_specials.Questor = fread_string(mob_f, buf2);
+
+	// *** Numeric data ***
+	if (!get_line(mob_f, line))
+	{
+		log("SYSERR: Format error after string section of mob #%d\n"
+			"...expecting line of form '# # # {S | E}', but file ended!\n%s", nr, line);
+		exit(1);
+	}
+#ifdef CIRCLE_ACORN		// Ugh.
+	if (sscanf(line, "%s %s %d %s", f1, f2, t + 2, &letter) != 4)
+	{
+#else
+	if (sscanf(line, "%s %s %d %c", f1, f2, t + 2, &letter) != 4)
+	{
+#endif
+		log("SYSERR: Format error after string section of mob #%d\n"
+			"...expecting line of form '# # # {S | E}'\n%s", nr, line);
+		exit(1);
+	}
+	MOB_FLAGS(&mob_proto[i]).from_string(f1);
+	MOB_FLAGS(&mob_proto[i]).set(MOB_ISNPC);
+	AFF_FLAGS(&mob_proto[i]).from_string(f2);
+	GET_ALIGNMENT(mob_proto + i) = t[2];
+	switch (UPPER(letter))
+	{
+	case 'S':		// Simple monsters
+		parse_simple_mob(mob_f, i, nr);
+		break;
+	case 'E':		// Circle3 Enhanced monsters
+		parse_enhanced_mob(mob_f, i, nr);
+		break;
+		// add new mob types here..
+	default:
+		log("SYSERR: Unsupported mob type '%c' in mob #%d", letter, nr);
+		exit(1);
+	}
+
+	// DG triggers -- script info follows mob S/E section
+	// DG triggers -- script is defined after the end of the room 'T'
+	// Ингредиентная магия -- 'I'
+	// Объекты загружаемые по-смертно -- 'D'
+
+	do
+	{
+		letter = fread_letter(mob_f);
+		ungetc(letter, mob_f);
+		switch (letter)
+		{
+		case 'I':
+			get_line(mob_f, line);
+			im_parse(&mob_proto[i].ing_list, line + 1);
+			break;
+		case 'L':
+			get_line(mob_f, line);
+			dl_parse(&mob_proto[i].dl_list, line + 1);
+			break;
+		case 'T':
+			dg_read_trigger(mob_f, &mob_proto[i], MOB_TRIGGER);
+			break;
+		default:
+			letter = 0;
+			break;
+		}
+	} while (letter != 0);
+
+	for (j = 0; j < NUM_WEARS; j++)
+	{
+		mob_proto[i].equipment[j] = NULL;
+	}
+
+	mob_proto[i].nr = i;
+	mob_proto[i].desc = NULL;
+
+	set_test_data(mob_proto + i);
+
+	top_of_mobt = i++;
+}
 
 void discrete_load(FILE * fl, int mode, char *filename)
 {
@@ -2910,17 +2999,6 @@ void discrete_load(FILE * fl, int mode, char *filename)
 			exit(1);
 		}
 	}
-}
-
-char fread_letter(FILE * fp)
-{
-	char c;
-	do
-	{
-		c = getc(fp);
-	}
-	while (isspace(c));
-	return c;
 }
 
 // * Проверки всяких несочетаемых флагов на комнатах.
@@ -4094,131 +4172,6 @@ void set_test_data(CHAR_DATA *mob)
 	GET_ABSORBE(mob) = calc_boss_value(mob, mob->get_level());
 }
 
-void parse_mobile(FILE * mob_f, int nr)
-{
-	static int i = 0;
-	int j, t[10];
-	char line[256], letter;
-	char f1[128], f2[128];
-
-	mob_index[i].vnum = nr;
-	mob_index[i].number = 0;
-	mob_index[i].func = NULL;
-	mob_index[i].set_idx = -1;
-
-	/*
-	 * Mobiles should NEVER use anything in the 'player_specials' structure.
-	 * The only reason we have every mob in the game share this copy of the
-	 * structure is to save newbie coders from themselves. -gg 2/25/98
-	 */
-	mob_proto[i].player_specials = &dummy_mob;
-	sprintf(buf2, "mob vnum %d", nr);
-
-	// **** String data
-	char *tmp_str = fread_string(mob_f, buf2);
-	mob_proto[i].set_pc_name(tmp_str);
-	if (tmp_str)
-	{
-		free(tmp_str);
-	}
-	tmp_str = fread_string(mob_f, buf2);
-	mob_proto[i].set_npc_name(tmp_str);
-	if (tmp_str)
-	{
-		free(tmp_str);
-	}
-
-	// real name
-	CREATE(GET_PAD(mob_proto + i, 0), strlen(mob_proto[i].get_npc_name()) + 1);
-	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name());
-	for (j = 1; j < NUM_PADS; j++)
-		GET_PAD(mob_proto + i, j) = fread_string(mob_f, buf2);
-
-	mob_proto[i].player_data.long_descr = fread_string(mob_f, buf2);
-	mob_proto[i].player_data.description = fread_string(mob_f, buf2);
-	mob_proto[i].mob_specials.Questor = NULL;
-	mob_proto[i].player_data.title = NULL;
-
-	// mob_proto[i].mob_specials.Questor = fread_string(mob_f, buf2);
-
-	// *** Numeric data ***
-	if (!get_line(mob_f, line))
-	{
-		log("SYSERR: Format error after string section of mob #%d\n"
-			"...expecting line of form '# # # {S | E}', but file ended!\n%s", nr, line);
-		exit(1);
-	}
-#ifdef CIRCLE_ACORN		// Ugh.
-	if (sscanf(line, "%s %s %d %s", f1, f2, t + 2, &letter) != 4)
-	{
-#else
-	if (sscanf(line, "%s %s %d %c", f1, f2, t + 2, &letter) != 4)
-	{
-#endif
-		log("SYSERR: Format error after string section of mob #%d\n"
-			"...expecting line of form '# # # {S | E}'\n%s", nr, line);
-		exit(1);
-	}
-	MOB_FLAGS(&mob_proto[i]).from_string(f1);
-	MOB_FLAGS(&mob_proto[i]).set(MOB_ISNPC);
-	AFF_FLAGS(&mob_proto[i]).from_string(f2);
-	GET_ALIGNMENT(mob_proto + i) = t[2];
-	switch (UPPER(letter))
-	{
-	case 'S':		// Simple monsters
-		parse_simple_mob(mob_f, i, nr);
-		break;
-	case 'E':		// Circle3 Enhanced monsters
-		parse_enhanced_mob(mob_f, i, nr);
-		break;
-		// add new mob types here..
-	default:
-		log("SYSERR: Unsupported mob type '%c' in mob #%d", letter, nr);
-		exit(1);
-	}
-
-	// DG triggers -- script info follows mob S/E section
-	// DG triggers -- script is defined after the end of the room 'T'
-	// Ингредиентная магия -- 'I'
-	// Объекты загружаемые по-смертно -- 'D'
-
-	do
-	{
-		letter = fread_letter(mob_f);
-		ungetc(letter, mob_f);
-		switch (letter)
-		{
-		case 'I':
-			get_line(mob_f, line);
-			im_parse(&mob_proto[i].ing_list, line + 1);
-			break;
-		case 'L':
-			get_line(mob_f, line);
-			dl_parse(&mob_proto[i].dl_list, line + 1);
-			break;
-		case 'T':
-			dg_read_trigger(mob_f, &mob_proto[i], MOB_TRIGGER);
-			break;
-		default:
-			letter = 0;
-			break;
-		}
-	}
-	while (letter != 0);
-
-	for (j = 0; j < NUM_WEARS; j++)
-		mob_proto[i].equipment[j] = NULL;
-
-	mob_proto[i].nr = i;
-	mob_proto[i].desc = NULL;
-
-	set_test_data(mob_proto + i);
-
-	top_of_mobt = i++;
-}
-
-// #define SEVEN_DAYS 60*24*30
-
 // read all objects from obj file; generate index and prototypes
 char *parse_object(FILE * obj_f, int nr)
 {
@@ -4749,10 +4702,9 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch)
 
 	for (nr = 0; nr <= top_of_mobt; nr++)
 	{
-		if (isname(searchname, mob_proto[nr].get_pc_name()))
+		if (isname(searchname, mob_proto[nr].get_pc_name().c_str()))
 		{
-			sprintf(buf, "%3d. [%5d] %s\r\n", ++found,
-					mob_index[nr].vnum, mob_proto[nr].get_npc_name());
+			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str());
 			send_to_char(buf, ch);
 		}
 	}
@@ -5300,8 +5252,8 @@ void paste_mob(CHAR_DATA *ch, room_rnum room)
 	if (!IS_NPC(ch) || ch->get_fighting() || GET_POS(ch) < POS_STUNNED)
 		return;
 	if (IS_CHARMICE(ch)
-		|| AFF_FLAGGED(ch, AFF_HORSE)
-		|| AFF_FLAGGED(ch, AFF_HOLD)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
 		|| (EXTRACT_TIMER(ch) > 0))
 	{
 		return;

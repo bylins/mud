@@ -95,7 +95,7 @@ extern mob_rnum top_of_mobt;
 extern obj_rnum top_of_objt;
 extern int top_of_p_table;
 extern int shutdown_time;
-extern vector < OBJ_DATA * >obj_proto;
+extern std::vector<OBJ_DATA *> obj_proto;
 extern CHAR_DATA *mob_proto;
 extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
@@ -1161,7 +1161,7 @@ ACMD(do_echo)
 		if (subcmd == SCMD_EMOTE)
 		{
 			// added by Pereplut
-			if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
+			if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 			{
 				if PLR_FLAGGED(ch->master, PLR_DUMB)
 				{
@@ -2063,13 +2063,11 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	send_to_char(strcat(buf, buf2), ch);
 	if (IS_MOB(k))
 	{
-		sprintf(buf, "Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
-				k->get_pc_name(), GET_MOB_VNUM(k), GET_MOB_RNUM(k));
+		sprintf(buf, "Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n", k->get_pc_name().c_str(), GET_MOB_VNUM(k), GET_MOB_RNUM(k));
 		send_to_char(buf, ch);
 	}
 
-	sprintf(buf, "Падежи: %s/%s/%s/%s/%s/%s ",
-			GET_PAD(k, 0), GET_PAD(k, 1), GET_PAD(k, 2), GET_PAD(k, 3), GET_PAD(k, 4), GET_PAD(k, 5));
+	sprintf(buf, "Падежи: %s/%s/%s/%s/%s/%s ", GET_PAD(k, 0), GET_PAD(k, 1), GET_PAD(k, 2), GET_PAD(k, 3), GET_PAD(k, 4), GET_PAD(k, 5));
 	send_to_char(buf, ch);
 
 
@@ -2177,7 +2175,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	{
 		sprinttype(k->get_class(), pc_class_types, buf2);
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
-			string(PlayerRace::GetKinNameByNum(GET_KIN(k),GET_SEX(k))).c_str(),
+			PlayerRace::GetKinNameByNum(GET_KIN(k),GET_SEX(k)).c_str(),
 			k->get_race_name().c_str(), buf2);
 		send_to_char(buf, ch);
 	}
@@ -3774,13 +3772,13 @@ ACMD(do_restore)
 void perform_immort_vis(CHAR_DATA * ch)
 {
 	if (GET_INVIS_LEV(ch) == 0 &&
-			!AFF_FLAGGED(ch, AFF_HIDE) && !AFF_FLAGGED(ch, AFF_INVISIBLE) && !AFF_FLAGGED(ch, AFF_CAMOUFLAGE))
+			!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_INVISIBLE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE))
 	{
 		send_to_char("Ну вот вас и заметили. Стало ли вам легче от этого?\r\n", ch);
 		return;
 	}
 
-	GET_INVIS_LEV(ch) = 0;
+	SET_INVIS_LEV(ch, 0);
 	appear(ch);
 	send_to_char("Вы теперь полностью видны.\r\n", ch);
 }
@@ -3803,7 +3801,7 @@ void perform_immort_invis(CHAR_DATA * ch, int level)
 			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, tch, TO_VICT);
 	}
 
-	GET_INVIS_LEV(ch) = level;
+	SET_INVIS_LEV(ch, level);
 	sprintf(buf, "Ваш уровень невидимости - %d.\r\n", level);
 	send_to_char(buf, ch);
 }
@@ -5396,7 +5394,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return (0);
 		}
-		GET_INVIS_LEV(vict) = RANGE(0, GET_LEVEL(vict));
+		SET_INVIS_LEV(vict, RANGE(0, GET_LEVEL(vict)));
 		break;
 	case 18:
 		if (!IS_IMPL(ch) && ch != vict && !PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -6644,7 +6642,7 @@ ACMD(do_godtest)
         send_to_char("Чувак, укажи ИД проверяемого скилла.\r\n", ch);
 		return;
 	}
-    skl = Skill::GetNumByID(string(argument));
+    skl = Skill::GetNumByID(std::string(argument));
     if (skl ==  SKILL_UNDEFINED)
 	{
         send_to_char("Извини, братан, не нашел. :(\r\n", ch);
@@ -6672,11 +6670,11 @@ struct filter_type
 	// материал
 	int material;
 	// аффекты weap
-	vector<int> affect;
+	std::vector<int> affect;
 	// аффекты apply
-	vector<int> affect2;
+	std::vector<int> affect2;
 	// экстрафлаг
-	vector<int> affect3;
+	std::vector<int> affect3;
 };
 
 } // namespace
@@ -6922,7 +6920,7 @@ ACMD(do_print_armor)
 	}
 	if (!filter.affect.empty())
 	{
-		for (vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
+		for (std::vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
 		{
 			buffer += weapon_affects[*it];
 			buffer += " ";
@@ -6930,7 +6928,7 @@ ACMD(do_print_armor)
 	}
 	if (!filter.affect2.empty())
 	{
-		for (vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end(); ++it)
+		for (std::vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end(); ++it)
 		{
 			buffer += apply_types[*it];
 			buffer += " ";
@@ -6938,7 +6936,7 @@ ACMD(do_print_armor)
 	}
 	if (!filter.affect3.empty())
 	{
-		for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end(); ++it)
+		for (std::vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end(); ++it)
 		{
 			buffer += extra_bits[*it];
 			buffer += " ";
@@ -6969,7 +6967,7 @@ ACMD(do_print_armor)
 		bool find = true;
 		if (!filter.affect.empty())
 		{
-			for (vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
+			for (std::vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
 			{
 				if (!CompareBits((*i)->obj_flags.affects, weapon_affects, *it))
 				{
@@ -6986,7 +6984,7 @@ ACMD(do_print_armor)
 
 		if (!filter.affect2.empty())
 		{
-			for (vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end() && find; ++it)
+			for (std::vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end() && find; ++it)
 			{
 				find = false;
 				for (int k = 0; k < MAX_OBJ_AFFECT; ++k)
@@ -7006,7 +7004,7 @@ ACMD(do_print_armor)
 		}
 		if (!filter.affect3.empty())
 		{
-			for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it)
+			for (std::vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it)
 			{
 				//find = true;
 				if (!CompareBits(GET_OBJ_EXTRA(*i), extra_bits, *it))

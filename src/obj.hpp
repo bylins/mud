@@ -490,7 +490,7 @@ inline bool OBJ_FLAGGED(const OBJ_DATA* obj, const EExtraFlags flag)
 
 inline uint32_t GET_OBJ_AFF(const OBJ_DATA* obj, const uint32_t packed_flag)
 {
-	return obj->obj_flags.affects.get(packed_flag);
+	return obj->obj_flags.affects.get_plane(packed_flag >> 30);
 }
 
 inline void SET_OBJ_AFF(OBJ_DATA* obj, const uint32_t packed_flag)
@@ -502,6 +502,11 @@ inline bool OBJ_AFFECT(const OBJ_DATA* obj, const uint32_t affect)
 {
 	const uint32_t& affects = GET_OBJ_AFF(obj, affect);
 	return 0 != (affects & 0x3fffffff & affect);
+}
+
+inline bool OBJ_AFFECT(const OBJ_DATA* obj, const EAffectFlag affect)
+{
+	return OBJ_AFFECT(obj, static_cast<uint32_t>(affect));
 }
 
 namespace ObjSystem

@@ -672,7 +672,7 @@ void drop_torc(CHAR_DATA *mob)
 		return;
 	}
 
-	log("[Extract char] Checking %s for ExtMoney.", mob->get_name());
+	log("[Extract char] Checking %s for ExtMoney.", mob->get_name().c_str());
 
 	std::pair<int /* uid */, int /* rounds */> damager = mob->get_max_damager_in_room();
 	DESCRIPTOR_DATA *d = 0;
@@ -685,13 +685,14 @@ void drop_torc(CHAR_DATA *mob)
 		return;
 	}
 
-	CHAR_DATA *leader = (d->character->master && AFF_FLAGGED(d->character, AFF_GROUP))
-		? d->character->master : d->character;
+	CHAR_DATA *leader = (d->character->master && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
+		? d->character->master
+		: d->character;
 
 	int members = 1;
 	for (follow_type *f = leader->followers; f; f = f->next)
 	{
-		if (AFF_FLAGGED(f->follower, AFF_GROUP)
+		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 			&& f->follower->in_room == IN_ROOM(mob)
 			&& !IS_NPC(f->follower))
 		{
@@ -716,7 +717,7 @@ void drop_torc(CHAR_DATA *mob)
 
 	for (follow_type *f = leader->followers; f; f = f->next)
 	{
-		if (AFF_FLAGGED(f->follower, AFF_GROUP)
+		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 			&& f->follower->in_room == IN_ROOM(mob)
 			&& !IS_NPC(f->follower)
 			&& GET_GOD_FLAG(f->follower, GF_REMORT)
@@ -734,7 +735,9 @@ void player_drop_log(CHAR_DATA *ch, unsigned type, int diff)
 	total_bronze += ch->get_ext_money(TORC_GOLD) * TORC_EXCH_RATE * TORC_EXCH_RATE;
 
 	log("ExtMoney: %s%s%d%s, sum=%d",
-		ch->get_name(), (diff > 0 ? " +" : " "), diff,
+		ch->get_name().c_str(),
+		(diff > 0 ? " +" : " "),
+		diff,
 		((type == TORC_GOLD) ? "g" : (type == TORC_SILVER) ? "s" : "b"),
 		total_bronze);
 }
