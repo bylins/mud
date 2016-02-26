@@ -1244,8 +1244,10 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			dam = modi * dam / 100;
 		}
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
-		if (AFF_FLAGGED(ch, EAF_AWAKE))
+		if (GET_AF_BATTLE(ch, EAF_AWAKE))
+		{
 			dam >>= 2;	// в 4 раза меньше
+		}
 
 		Damage dmg(SkillDmg(SKILL_KICK), dam, FightSystem::PHYS_DMG);
 		dmg.process(ch, vict);
