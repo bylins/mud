@@ -268,37 +268,37 @@ void generate_magic_enchant(OBJ_DATA *obj)
 			APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
 			APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR,
 			APPLY_MANAREG, APPLY_CAST_SUCCESS, APPLY_RESIST_MIND, APPLY_DAMROLL} };
-	const int negativ_count = 8;
+	const int negativ_count = 7;
 	boost::array<int, other_count> negativ_list = { {
-			APPLY_POISON, AFF_CURSE, AFF_SLEEP, AFF_HOLD, AFF_SIELENCE, AFF_CRYING,
+			AFF_CURSE, AFF_SLEEP, AFF_HOLD, AFF_SIELENCE, AFF_CRYING,
 			AFF_BLIND, AFF_SLOW } };
 
 
 			
 	if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC1_ENCHANT_VNUM)
 	{
-		int stat = main_list[number(0, main_count - 1)];
-		set_obj_eff(obj, stat, get_stat_mod(stat));
-		stat = negativ_list[number(0, negativ_count - 1)];
+		int stat = negativ_list[number(0, negativ_count - 1)];
 		set_obj_aff(obj, stat);
+		stat = main_list[number(0, main_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC2_ENCHANT_VNUM)
 	{
-		int stat = main_list[number(0, main_count - 1)];
+		int stat = negativ_list[number(0, negativ_count - 1)];
+		set_obj_aff(obj, stat);
+		stat = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
 		stat = other_list[number(0, other_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
-		stat = negativ_list[number(0, negativ_count - 1)];
-		set_obj_aff(obj, stat);
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC3_ENCHANT_VNUM)
 	{
 		int stat = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
-		stat = other_list[number(0, other_count - 1)];
-		set_obj_eff(obj, stat, get_stat_mod(stat));
 		stat = negativ_list[number(0, negativ_count - 1)];
 		set_obj_aff(obj, stat);
+		stat = other_list[number(0, other_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat));
 		int add_random = number(0, 1);
 		if (add_random == 0 )
 			{

@@ -240,6 +240,7 @@ ACMD(do_sense)
 //     {send_to_char("Вы не чувствуете его присутствия.\r\n", ch);
 //      return;
 //     }
+	act("Похоже, $n кого-то ищет.", FALSE, ch, 0, 0, TO_ROOM);
 
 	dir = go_track(ch, vict, SKILL_SENSE);
 
