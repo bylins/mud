@@ -165,21 +165,42 @@ namespace craft
 			return false;
 		}
 
+		// load extra flags
 		const pugi::xml_node extraflags = node->child("extraflags");
 		if (extraflags)
 		{
 			for (const pugi::xml_node extraflag : extraflags.children())
 			{
-				const char* flag = extraflag.child_value();
+				const char* flag = extraflag.child_value("extraflag");
 				try
 				{
-					EExtraFlags value = ITEM_BY_NAME<EExtraFlags>(flag);
+					EExtraFlag value = ITEM_BY_NAME<EExtraFlag>(flag);
 					m_extraflags.set(value);
-					log("Setting flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str());
+					log("Setting extra flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str());
 				}
 				catch (const std::out_of_range&)
 				{
-					log("Skipping extraflag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str());
+					log("Skipping extra flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str());
+				}
+			}
+		}
+
+		// load extra flags
+		const pugi::xml_node affects = node->child("affects");
+		if (affects)
+		{
+			for (const pugi::xml_node affect : affects.children("affect"))
+			{
+				const char* flag = affect.child_value();
+				try
+				{
+					EAffectFlag value = ITEM_BY_NAME<EAffectFlag>(flag);
+					m_affect_flags.set(value);
+					log("Setting affect flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str());
+				}
+				catch (const std::out_of_range&)
+				{
+					log("Skipping affect flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str());
 				}
 			}
 		}

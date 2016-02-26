@@ -2521,7 +2521,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 	if (level == 0 && GET_OBJ_TYPE(obj) == ITEM_WAND)
 		level = DEFAULT_WAND_LVL;
 
-	if (obj->get_extraflag(EExtraFlags::ITEM_TIMEDLVL))
+	if (obj->get_extraflag(EExtraFlag::ITEM_TIMEDLVL))
 	{
 		int proto_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 		if (proto_timer != 0)
@@ -3720,7 +3720,7 @@ ACMD(do_learn)
 				(IS_MERCHANT(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MERCHANT)) ? 10 : 0;
 	addchance += (GET_OBJ_VAL(obj, 0) == BOOK_SPELL) ? 0 : 10;
 
-	if (!obj->get_extraflag(EExtraFlags::ITEM_NO_FAIL)
+	if (!obj->get_extraflag(EExtraFlag::ITEM_NO_FAIL)
 		&& number(1, 100) > int_app[POSI(GET_REAL_INT(ch))].spell_aknowlege + addchance)
 	{
 		sprintf(buf, "Вы взяли в руки %s и начали изучать. Непослушные\r\n"

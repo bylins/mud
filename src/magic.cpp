@@ -4530,7 +4530,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 	if (obj == NULL)
 		return 0;
 
-	if (obj->get_extraflag(EExtraFlags::ITEM_NOALTER))
+	if (obj->get_extraflag(EExtraFlag::ITEM_NOALTER))
 	{
 		act("$o устойчив$A к вашей магии.", TRUE, ch, obj, 0, TO_CHAR);
 		return 0;
@@ -4539,12 +4539,12 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 	switch (spellnum)
 	{
 	case SPELL_BLESS:
-		if (!obj->get_extraflag(EExtraFlags::ITEM_BLESS) && (GET_OBJ_WEIGHT(obj) <= 5 * GET_LEVEL(ch)))
+		if (!obj->get_extraflag(EExtraFlag::ITEM_BLESS) && (GET_OBJ_WEIGHT(obj) <= 5 * GET_LEVEL(ch)))
 		{
-			obj->set_extraflag(EExtraFlags::ITEM_BLESS);
-			if (obj->get_extraflag(EExtraFlags::ITEM_NODROP))
+			obj->set_extraflag(EExtraFlag::ITEM_BLESS);
+			if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
 			{
-				obj->unset_extraflag(EExtraFlags::ITEM_NODROP);
+				obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
 				if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
 					GET_OBJ_VAL(obj, 2)++;
 			}
@@ -4555,9 +4555,9 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_CURSE:
-		if (!obj->get_extraflag(EExtraFlags::ITEM_NODROP))
+		if (!obj->get_extraflag(EExtraFlag::ITEM_NODROP))
 		{
-			obj->set_extraflag(EExtraFlags::ITEM_NODROP);
+			obj->set_extraflag(EExtraFlag::ITEM_NODROP);
 			if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
 			{
 				if (GET_OBJ_VAL(obj, 2) > 0)
@@ -4574,10 +4574,10 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_INVISIBLE:
-		if (!obj->get_extraflag(EExtraFlags::ITEM_NOINVIS)
-				&& !obj->get_extraflag(EExtraFlags::ITEM_INVISIBLE))
+		if (!obj->get_extraflag(EExtraFlag::ITEM_NOINVIS)
+				&& !obj->get_extraflag(EExtraFlag::ITEM_INVISIBLE))
 		{
-			obj->set_extraflag(EExtraFlags::ITEM_INVISIBLE);
+			obj->set_extraflag(EExtraFlag::ITEM_INVISIBLE);
 			to_char = "$o растворил$U в пустоте.";
 		}
 		break;
@@ -4591,9 +4591,9 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_REMOVE_CURSE:
-		if (obj->get_extraflag(EExtraFlags::ITEM_NODROP))
+		if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
 		{
-			obj->unset_extraflag(EExtraFlags::ITEM_NODROP);
+			obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
 			if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
 				GET_OBJ_VAL(obj, 2)++;
 			to_char = "$o вспыхнул$G розовым светом и тут же погас$Q.";
@@ -4603,7 +4603,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		if (ch == NULL || obj == NULL)
 			return 0;
 		// Either already enchanted or not a weapon.
-		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON || OBJ_FLAGGED(obj, EExtraFlags::ITEM_MAGIC))
+		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON || OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
 			break;
 
 		for (i = 0; i < MAX_OBJ_AFFECT; i++)
@@ -4644,7 +4644,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
 		}
 		
-		obj->set_extraflag(EExtraFlags::ITEM_MAGIC);
+		obj->set_extraflag(EExtraFlag::ITEM_MAGIC);
 		if (GET_RELIGION(ch) == RELIGION_MONO)
 			to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
 		else if (GET_RELIGION(ch) == RELIGION_POLY)
@@ -4664,7 +4664,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 	case SPELL_FLY:
 //		obj->timed_spell.add(obj, SPELL_FLY, 60 * 24 * 3);
 		obj->add_timed_spell(SPELL_FLY, -1);
-		obj->set_extraflag(EExtraFlags::ITEM_FLYING);
+		obj->set_extraflag(EExtraFlag::ITEM_FLYING);
 		//В связи с тем, что летающие вещи более не тонут, флаг плавает тут неуместен
 		//SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 		to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
@@ -4692,9 +4692,9 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		break;
 	case SPELLS_RESTORATION:
 		{
-			if ((OBJ_FLAGGED(obj, EExtraFlags::ITEM_MAGIC)) && (GET_OBJ_RNUM(obj) != NOTHING))
+			if ((OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)) && (GET_OBJ_RNUM(obj) != NOTHING))
 			{
-				if (OBJ_FLAGGED(obj_proto.at(GET_OBJ_RNUM(obj)), EExtraFlags::ITEM_MAGIC))
+				if (OBJ_FLAGGED(obj_proto.at(GET_OBJ_RNUM(obj)), EExtraFlag::ITEM_MAGIC))
 					{
 						to_char = "Не велено!";
 						return 0;
@@ -4718,13 +4718,13 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 				to_char = "Какая ж тяжкая заставила меня делать работу Богов.";
 				return 0;
 			}
-			obj->unset_extraflag(EExtraFlags::ITEM_MAGIC);
+			obj->unset_extraflag(EExtraFlag::ITEM_MAGIC);
 			to_char = "$o осветил$G на миг внутренним светом и тут же потух$Q.";
 		}
 		break;
 	case SPELL_LIGHT:
 		obj->add_timed_spell(SPELL_LIGHT, -1);
-		obj->set_extraflag(EExtraFlags::ITEM_GLOW);
+		obj->set_extraflag(EExtraFlag::ITEM_GLOW);
 		to_char = "$o засветил$U ровным зеленоватым светом.";
 		break;
 	case SPELL_DARKNESS:

@@ -1979,8 +1979,8 @@ void do_start(CHAR_DATA * ch, int newbie)
         OBJ_DATA *obj = read_object(*i, VIRTUAL);
         if (obj)
 		{
-			obj->set_extraflag(EExtraFlags::ITEM_NOSELL);
-			obj->set_extraflag(EExtraFlags::ITEM_DECAY);
+			obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
+			obj->set_extraflag(EExtraFlag::ITEM_DECAY);
 			obj->set_cost(0);
 			obj->set_rent(0);
 			obj->set_rent_eq(0);
@@ -2279,7 +2279,7 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_NO(obj, ITEM_NO_DRUID) && IS_DRUID(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_BD) && check_agrobd(ch)) ||
-		((OBJ_FLAGGED(obj, EExtraFlags::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlags::ITEM_ARMORED)) && !IS_SMITH(ch)) ||
+		((OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)) && !IS_SMITH(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch)))
 	{
 		return (TRUE);

@@ -1689,7 +1689,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = 0;
 
 
-	if (percent > prob || GET_EQ(vict, pos)->get_extraflag(EExtraFlags::ITEM_NODISARM))
+	if (percent > prob || GET_EQ(vict, pos)->get_extraflag(EExtraFlag::ITEM_NODISARM))
 	{
 		sprintf(buf, "%sВы не сумели обезоружить %s...%s\r\n",
 				CCWHT(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
@@ -2301,7 +2301,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && !OBJ_FLAGGED(wielded, EExtraFlags::ITEM_THROWING))
+	if (!IS_IMMORTAL(ch) && !OBJ_FLAGGED(wielded, EExtraFlag::ITEM_THROWING))
 	{
 		act("$o не предназначен$A для метания.", FALSE, ch, wielded, 0, TO_CHAR);
 		return;

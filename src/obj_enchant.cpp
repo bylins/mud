@@ -40,7 +40,7 @@ enchant::enchant(OBJ_DATA *obj)
 
 	affects_flags_ = GET_OBJ_AFFECTS(obj);
 	extra_flags_ = GET_OBJ_EXTRA(obj);
-	extra_flags_.unset(EExtraFlags::ITEM_TICKTIMER);
+	extra_flags_.unset(EExtraFlag::ITEM_TICKTIMER);
 	no_flags_ = GET_OBJ_NO(obj);
 	weight_ = GET_OBJ_VAL(obj, 0);
 	ndice_ = 0;

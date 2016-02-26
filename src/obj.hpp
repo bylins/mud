@@ -451,10 +451,10 @@ struct OBJ_DATA
 	void add_timed_spell(const int spell, const int time);
 	void del_timed_spell(const int spell, const bool message);
 
-	void set_extraflag(const EExtraFlags packed_flag) { obj_flags.extra_flags.set(packed_flag); }
+	void set_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.set(packed_flag); }
 	void set_extraflag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.set_flag(plane, flag); }
-	void unset_extraflag(const EExtraFlags packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
-	bool get_extraflag(const EExtraFlags packed_flag) const { return obj_flags.extra_flags.get(packed_flag); }
+	void unset_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
+	bool get_extraflag(const EExtraFlag packed_flag) const { return obj_flags.extra_flags.get(packed_flag); }
 	bool get_extraflag(const size_t plane, const uint32_t flag) const { return obj_flags.extra_flags.get_flag(plane, flag); }
 
 private:
@@ -483,7 +483,7 @@ private:
 	std::pair<bool, int> activator_;
 };
 
-inline bool OBJ_FLAGGED(const OBJ_DATA* obj, const EExtraFlags flag)
+inline bool OBJ_FLAGGED(const OBJ_DATA* obj, const EExtraFlag flag)
 {
 	return obj->get_extraflag(flag);
 }

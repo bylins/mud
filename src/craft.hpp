@@ -75,6 +75,7 @@ namespace craft
 			CCases m_female_adjectives;	///< Female adjective cases
 			CCases m_neuter_adjectives;	///< Neuter adjective cases
 			FLAG_DATA m_extraflags;
+			FLAG_DATA m_affect_flags;
 
 			friend class CMaterial;
 	};

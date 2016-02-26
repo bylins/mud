@@ -1142,7 +1142,7 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 	set_bloody_flag(list->contains, ch);
 	set_bloody_flag(list->next_content, ch);
 	const int t = GET_OBJ_TYPE(list);
-	if (list->get_extraflag(EExtraFlags::ITEM_BLOODY)
+	if (list->get_extraflag(EExtraFlag::ITEM_BLOODY)
 		&& (t == ITEM_LIGHT
 			|| t == ITEM_WAND
 			|| t == ITEM_STAFF
@@ -1156,7 +1156,7 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 			|| t == ITEM_INGRADIENT
 			|| t == ITEM_WORN))
 	{
-		list->set_extraflag(EExtraFlags::ITEM_BLOODY);
+		list->set_extraflag(EExtraFlag::ITEM_BLOODY);
 		bloody_map[list].owner_unique = GET_UNIQUE(ch);
 		bloody_map[list].kill_at = time(NULL);
 		bloody_map[list].object = list;
@@ -1172,7 +1172,7 @@ void bloody::update()
 		BloodyInfoMap::iterator cur = it++;
 		if (t - cur->second.kill_at >= BLOODY_DURATION * 60) //Действие флага заканчивается
 		{
-			cur->second.object->unset_extraflag(EExtraFlags::ITEM_BLOODY);
+			cur->second.object->unset_extraflag(EExtraFlag::ITEM_BLOODY);
 			bloody_map.erase(cur);
 		}
 	}
@@ -1183,7 +1183,7 @@ void bloody::remove_obj(const OBJ_DATA* obj)
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
 	if (it != bloody_map.end())
 	{
-		it->second.object->unset_extraflag(EExtraFlags::ITEM_BLOODY);
+		it->second.object->unset_extraflag(EExtraFlag::ITEM_BLOODY);
 		bloody_map.erase(it);
 	}
 }
@@ -1196,7 +1196,7 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 	pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
-	if (!obj->get_extraflag(EExtraFlags::ITEM_BLOODY)
+	if (!obj->get_extraflag(EExtraFlag::ITEM_BLOODY)
 		|| it == bloody_map.end())
 	{
 		result = true;
@@ -1273,7 +1273,7 @@ void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 
 bool bloody::is_bloody(const OBJ_DATA* obj)
 {
-	if (obj->get_extraflag(EExtraFlags::ITEM_BLOODY))
+	if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
 	{
 		return true;
 	}

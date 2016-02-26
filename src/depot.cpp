@@ -1061,15 +1061,15 @@ void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_ZONEDECAY)
-			|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_REPOP_DECAY)
-			|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_NOSELL)
-			|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_DECAY)
-			|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_NORENT)
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_DECAY)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
 			|| GET_OBJ_TYPE(obj) == ITEM_KEY
 			|| GET_OBJ_RENT(obj) < 0
 			|| GET_OBJ_RNUM(obj) <= NOTHING
-			|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_NAMED))//added by WorM именные вещи нельзя положить в хран
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))//added by WorM именные вещи нельзя положить в хран
 	{
 		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", OBJ_PAD(obj, 3));
 		return 0;

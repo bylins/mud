@@ -727,7 +727,7 @@ void script_trigger_check(void)
 
 	for (obj = object_list; obj; obj = obj->next)
 	{
-		if(OBJ_FLAGGED(obj, EExtraFlags::ITEM_NAMED))
+		if(OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))
 		{
 			if(obj->worn_by && number(1, 100) <= 5)
 				NamedStuff::wear_msg(obj->worn_by, obj);

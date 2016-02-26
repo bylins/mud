@@ -647,7 +647,7 @@ bool is_mob_item(OBJ_DATA *obj)
 void init_ilvl(OBJ_DATA *obj)
 {
 	if (is_mob_item(obj)
-		|| obj->get_extraflag(EExtraFlags::ITEM_SETSTUFF)
+		|| obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF)
 		|| obj->get_manual_mort_req() >= 0)
 	{
 		obj->set_ilevel(0);
@@ -797,8 +797,8 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)
 	obj->set_rent_eq(0);
 	// чтобы скавенж мобов не трогать
 	obj->set_cost(2);
-	obj->set_extraflag(EExtraFlags::ITEM_NODONATE);
-	obj->set_extraflag(EExtraFlags::ITEM_NOSELL);
+	obj->set_extraflag(EExtraFlag::ITEM_NODONATE);
+	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
 
 	return obj;
 }

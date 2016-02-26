@@ -400,22 +400,22 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	if (item_wear == -1)
 	    return false;
 	// если шмотка магическая или энчантнута таймер обычный
-    if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_MAGIC))
+    if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
 	    return false;
 	// если это сетовый предмет
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 		return false;
 	// рассыпется вне зоны
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_ZONEDECAY))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY))
 		return false;
 
 	// если предмет требует реморты, то он явно овер
 	if (obj->get_mort_req() > 0)
 		return false;
 	// проверяем дырки в предмете
-	 if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH1SLOT)
-		 || OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH2SLOTS)
-		 || OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH3SLOTS))
+	 if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH1SLOT)
+		 || OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH2SLOTS)
+		 || OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH3SLOTS))
 		return false;
 	// если у объекта таймер ноль, то облом. 
 	if (obj->get_timer() == 0)
@@ -568,7 +568,7 @@ float count_remort_requred(OBJ_DATA *obj)
 	result = 0.0;
 	
 	if (ObjSystem::is_mob_item(obj)
-		|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))
+		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 	{
 		return result;
 	}
@@ -1128,19 +1128,19 @@ void convert_obj_values()
 	for (auto i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
 	{
 		save = std::max(save, convert_drinkcon_skill(*i, true));
-		if (OBJ_FLAGGED(*i, EExtraFlags::ITEM_1INLAID))
+		if (OBJ_FLAGGED(*i, EExtraFlag::ITEM_1INLAID))
 		{
-			(*i)->unset_extraflag(EExtraFlags::ITEM_1INLAID);
+			(*i)->unset_extraflag(EExtraFlag::ITEM_1INLAID);
 			save = 1;
 		}
-		if (OBJ_FLAGGED(*i, EExtraFlags::ITEM_2INLAID))
+		if (OBJ_FLAGGED(*i, EExtraFlag::ITEM_2INLAID))
 		{
-			(*i)->unset_extraflag(EExtraFlags::ITEM_2INLAID);
+			(*i)->unset_extraflag(EExtraFlag::ITEM_2INLAID);
 			save = 1;
 		}
-		if (OBJ_FLAGGED(*i, EExtraFlags::ITEM_3INLAID))
+		if (OBJ_FLAGGED(*i, EExtraFlag::ITEM_3INLAID))
 		{
-			(*i)->unset_extraflag(EExtraFlags::ITEM_3INLAID);
+			(*i)->unset_extraflag(EExtraFlag::ITEM_3INLAID);
 			save = 1;
 		}
 		// ...
@@ -4263,7 +4263,7 @@ char *parse_object(FILE * obj_f, int nr)
 	if (timer == UTIMER)
 	{
 	    timer--;
-		tobj->set_extraflag(EExtraFlags::ITEM_TICKTIMER);
+		tobj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);
 	}
 	tobj->set_timer(timer);
 	tobj->obj_flags.Obj_spell = t[2];
@@ -5086,7 +5086,7 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	{
 		// модификация объектов тестовой зоны
 		obj->set_timer(TEST_OBJECT_TIMER);
-		obj->set_extraflag(EExtraFlags::ITEM_NOLOCATE);
+		obj->set_extraflag(EExtraFlag::ITEM_NOLOCATE);
 	}
 	obj->proto_script = NULL;
 	obj->next = object_list;
@@ -5361,21 +5361,21 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 	bool no_time = TRUE;
 	bool no_month = TRUE;
 
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_DAY))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DAY))
 	{
 		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_NIGHT))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NIGHT))
 	{
 		if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_FULLMOON))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_FULLMOON))
 	{
 		if ((weather_info.sunlight == SUN_SET ||
 				weather_info.sunlight == SUN_DARK) &&
@@ -5384,28 +5384,28 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_WINTER))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WINTER))
 	{
 		if (weather_info.season == SEASON_WINTER)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SPRING))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SPRING))
 	{
 		if (weather_info.season == SEASON_SPRING)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SUMMER))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SUMMER))
 	{
 		if (weather_info.season == SEASON_SUMMER)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_AUTUMN))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_AUTUMN))
 	{
 		if (weather_info.season == SEASON_AUTUMN)
 			month_ok = TRUE;
@@ -5831,7 +5831,7 @@ void reset_zone(zone_rnum zone)
 					}
 					tobj = obj;
 					curr_state = 1;
-					if (!OBJ_FLAGGED(obj, EExtraFlags::ITEM_NODECAY))
+					if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODECAY))
 					{
 						sprintf(buf,
 								"&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",

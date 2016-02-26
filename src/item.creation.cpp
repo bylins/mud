@@ -875,15 +875,15 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		{
 			if (ch->get_skill(skill) >= 105 && number(1, 100) <= 2 + (ch->get_skill(skill) - 105) / 10)
 			{
-				tobj->set_extraflag(EExtraFlags::ITEM_WITH3SLOTS);
+				tobj->set_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
 			}
 			else if (number(1, 100) <= 5 + MAX((ch->get_skill(skill) - 80), 0) / 5)
 			{
-				tobj->set_extraflag(EExtraFlags::ITEM_WITH2SLOTS);
+				tobj->set_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
 			}
 			else if (number(1, 100) <= 20 + MAX((ch->get_skill(skill) - 80), 0) / 5 * 4)
 			{
-				tobj->set_extraflag(EExtraFlags::ITEM_WITH1SLOT);
+				tobj->set_extraflag(EExtraFlag::ITEM_WITH1SLOT);
 			}
 		}
 
@@ -956,9 +956,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			sdice += (GET_OBJ_WEIGHT(tobj) / 10);
 			GET_OBJ_VAL(tobj, 1) = ndice;
 			GET_OBJ_VAL(tobj, 2) = sdice;
-			tobj->set_extraflag(EExtraFlags::ITEM_NORENT);
-			tobj->set_extraflag(EExtraFlags::ITEM_DECAY);
-			tobj->set_extraflag(EExtraFlags::ITEM_NOSELL);
+			tobj->set_extraflag(EExtraFlag::ITEM_NORENT);
+			tobj->set_extraflag(EExtraFlag::ITEM_DECAY);
+			tobj->set_extraflag(EExtraFlag::ITEM_NOSELL);
 			SET_BIT(tobj->obj_flags.wear_flags, created_item[obj_type].wear);
 			to_room = "$n создал$g $o3.";
 			to_char = "Вы создали $o3.";
@@ -1765,7 +1765,7 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 	add_flags(ch, &GET_OBJ_EXTRA(obj), &GET_OBJ_EXTRA(ingrs[0]), get_ingr_pow(ingrs[0]));
 	add_affects(ch, obj->affected, ingrs[0]->affected, get_ingr_pow(ingrs[0]));
 	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
-	obj->set_extraflag(EExtraFlags::ITEM_NOALTER);  // нельзя сфрешить черным свитком
+	obj->set_extraflag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
 	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) * number(180, 220)); // таймер зависит в основном от умелки
 	GET_OBJ_CRAFTIMER(obj) = obj->get_timer(); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
 

@@ -38,7 +38,7 @@ namespace
 /// Удаление временного флага со шмотки obj (с проверкой прототипа).
 /// \param flag - ITEM_XXX
 ///
-void remove_tmp_extra(OBJ_DATA *obj, EExtraFlags flag)
+void remove_tmp_extra(OBJ_DATA *obj, EExtraFlag flag)
 {
 	const OBJ_DATA * const proto = read_object_mirror(GET_OBJ_VNUM(obj));
 	if (!proto->get_extraflag(flag))
@@ -70,12 +70,12 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 		break;
 	case SPELL_FLY:
 	{
-		remove_tmp_extra(obj, EExtraFlags::ITEM_FLYING);
+		remove_tmp_extra(obj, EExtraFlag::ITEM_FLYING);
 		break;
 	}
 	case SPELL_LIGHT:
 	{
-		remove_tmp_extra(obj, EExtraFlags::ITEM_GLOW);
+		remove_tmp_extra(obj, EExtraFlag::ITEM_GLOW);
 		break;
 	}
 	} // switch

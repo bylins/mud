@@ -863,7 +863,7 @@ ASPELL(spell_locate_object)
 		if (i->carried_by)
 		{
 			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET
-				|| (i->get_extraflag(EExtraFlags::ITEM_NOLOCATE)
+				|| (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
 					&& IS_NPC(i->carried_by))
 				|| IS_IMMORTAL(i->carried_by))
 			{
@@ -887,7 +887,7 @@ ASPELL(spell_locate_object)
 		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
 		{
 			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone
-				&& !i->get_extraflag(EExtraFlags::ITEM_NOLOCATE))
+				&& !i->get_extraflag(EExtraFlag::ITEM_NOLOCATE))
 			{
 				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name);
 			}
@@ -907,7 +907,7 @@ ASPELL(spell_locate_object)
 				if (i->in_obj->carried_by)
 				{
 					if (IS_NPC(i->in_obj->carried_by)
-						&& (i->get_extraflag(EExtraFlags::ITEM_NOLOCATE)
+						&& (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
 							|| world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
 					{
 						continue;
@@ -917,7 +917,7 @@ ASPELL(spell_locate_object)
 					&& IN_ROOM(i->in_obj))
 				{
 					if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone
-						|| i->get_extraflag(EExtraFlags::ITEM_NOLOCATE))
+						|| i->get_extraflag(EExtraFlag::ITEM_NOLOCATE))
 					{
 						continue;
 					}
@@ -925,7 +925,7 @@ ASPELL(spell_locate_object)
 				if (i->in_obj->worn_by)
 				{
 					if (IS_NPC(i->in_obj->worn_by)
-						&& (i->get_extraflag(EExtraFlags::ITEM_NOLOCATE)
+						&& (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
 							|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
 					{
 						continue;
@@ -937,7 +937,7 @@ ASPELL(spell_locate_object)
 		else if (i->worn_by)
 		{
 			if ((IS_NPC(i->worn_by)
-					&& !i->get_extraflag(EExtraFlags::ITEM_NOLOCATE)
+					&& !i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
 					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
 				|| (!IS_NPC(i->worn_by)
 					&& GET_LEVEL(i->worn_by) < LVL_IMMORT))
@@ -1768,7 +1768,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	}
 	//added by WorM 2010.09.07 доп ифна о сете
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-	if (obj->get_extraflag(EExtraFlags::ITEM_SETSTUFF))
+	if (obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
 		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
@@ -2097,7 +2097,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	//added by WorM 2010.09.07 доп ифна о сете
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-	if (obj->get_extraflag(EExtraFlags::ITEM_SETSTUFF))
+	if (obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
 	{
 		for (; it != OBJ_DATA::set_table.end(); it++)
 		{

@@ -2927,7 +2927,7 @@ void check_rented()
 bool is_big_set(const OBJ_DATA *obj,bool is_mini)
 {
 	unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
-	if (!obj->get_extraflag(EExtraFlags::ITEM_SETSTUFF))
+	if (!obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
 	{
 		return false;
 	}
@@ -2996,7 +2996,7 @@ void init_vnum_list(int vnum)
  */
 bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (!obj->get_extraflag(EExtraFlags::ITEM_SETSTUFF))
+	if (!obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
 	{
 		return false;
 	}

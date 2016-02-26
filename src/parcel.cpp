@@ -172,12 +172,12 @@ int total_sended(CHAR_DATA *ch)
 // * Проверка возможности отправить шмотку почтой.
 bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 {
-	if (obj->get_extraflag(EExtraFlags::ITEM_NODROP)
-		|| obj->get_extraflag(EExtraFlags::ITEM_NORENT)
-		|| obj->get_extraflag(EExtraFlags::ITEM_ZONEDECAY)
-		|| obj->get_extraflag(EExtraFlags::ITEM_REPOP_DECAY)
-		|| obj->get_extraflag(EExtraFlags::ITEM_DECAY)
-		|| obj->get_extraflag(EExtraFlags::ITEM_NORENT)
+	if (obj->get_extraflag(EExtraFlag::ITEM_NODROP)
+		|| obj->get_extraflag(EExtraFlag::ITEM_NORENT)
+		|| obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
+		|| obj->get_extraflag(EExtraFlag::ITEM_REPOP_DECAY)
+		|| obj->get_extraflag(EExtraFlag::ITEM_DECAY)
+		|| obj->get_extraflag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_TYPE(obj) == ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= NOTHING
@@ -550,8 +550,8 @@ OBJ_DATA * create_parcel()
 	obj->set_rent(1);
 	obj->set_rent_eq(1);
 	obj->set_timer(24 * 60);
-	obj->set_extraflag(EExtraFlags::ITEM_NOSELL);
-	obj->set_extraflag(EExtraFlags::ITEM_DECAY);
+	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extraflag(EExtraFlag::ITEM_DECAY);
 	return obj;
 }
 

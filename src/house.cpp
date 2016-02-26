@@ -2930,14 +2930,14 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 		send_to_char(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
 
 	}
-	else if (obj->get_extraflag(EExtraFlags::ITEM_NODROP)
-		|| obj->get_extraflag(EExtraFlags::ITEM_ZONEDECAY)
-		|| obj->get_extraflag(EExtraFlags::ITEM_REPOP_DECAY)
+	else if (obj->get_extraflag(EExtraFlag::ITEM_NODROP)
+		|| obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
+		|| obj->get_extraflag(EExtraFlag::ITEM_REPOP_DECAY)
 		|| GET_OBJ_TYPE(obj) == ITEM_KEY
-		|| obj->get_extraflag(EExtraFlags::ITEM_NORENT)
+		|| obj->get_extraflag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= NOTHING
-		|| obj->get_extraflag(EExtraFlags::ITEM_NAMED)
+		|| obj->get_extraflag(EExtraFlag::ITEM_NAMED)
 		|| GET_OBJ_OWNER(obj))
 	{
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
@@ -5331,9 +5331,9 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 				howmany, desc_count(howmany, WHAT_MONEYu));
 		}
 	}
-	else if (obj->get_extraflag(EExtraFlags::ITEM_NODROP)
-		|| obj->get_extraflag(EExtraFlags::ITEM_ZONEDECAY)
-		|| obj->get_extraflag(EExtraFlags::ITEM_NORENT)
+	else if (obj->get_extraflag(EExtraFlag::ITEM_NODROP)
+		|| obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
+		|| obj->get_extraflag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= NOTHING)
 	{

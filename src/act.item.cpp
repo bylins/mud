@@ -135,9 +135,9 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 		act("$O : $o не помещается туда.", FALSE, ch, obj, cont, TO_CHAR);
 	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
 		act("Невозможно положить контейнер в контейнер.", FALSE, ch, 0, 0, TO_CHAR);
-	else if (obj->get_extraflag(EExtraFlags::ITEM_NODROP))
+	else if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, cont, TO_CHAR);
-	else if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_ZONEDECAY)
+	else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
 			 || GET_OBJ_TYPE(obj) == ITEM_KEY)
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, cont, TO_CHAR);
 	else
@@ -171,9 +171,9 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 		act("$n положил$g $o3 в $O3.", TRUE, ch, obj, cont, TO_ROOM | TO_ARENA_LISTEN);
 
 		// Yes, I realize this is strange until we have auto-equip on rent. -gg
-		if (obj->get_extraflag(EExtraFlags::ITEM_NODROP) && !cont->get_extraflag(EExtraFlags::ITEM_NODROP))
+		if (obj->get_extraflag(EExtraFlag::ITEM_NODROP) && !cont->get_extraflag(EExtraFlag::ITEM_NODROP))
 		{
-			cont->set_extraflag(EExtraFlags::ITEM_NODROP);
+			cont->set_extraflag(EExtraFlag::ITEM_NODROP);
 			act("Вы почувствовали что-то странное, когда положили $o3 в $O3.",
 				FALSE, ch, obj, cont, TO_CHAR);
 		}
@@ -1221,7 +1221,7 @@ int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, roo
 		return 0;
 	if ((mode == SCMD_DROP && !drop_wtrigger(obj, ch)) || obj->purged())
 		return 0;
-	if (obj->get_extraflag(EExtraFlags::ITEM_NODROP))
+	if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
 	{
 		sprintf(buf, "Вы не можете %s $o3!", drop_op[sname][0]);
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
@@ -1233,7 +1233,7 @@ int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, roo
 	act(buf, TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 	obj_from_char(obj);
 
-	if ((mode == SCMD_DONATE) && obj->get_extraflag(EExtraFlags::ITEM_NODONATE))
+	if ((mode == SCMD_DONATE) && obj->get_extraflag(EExtraFlag::ITEM_NODONATE))
 		mode = SCMD_JUNK;
 
 	switch (mode)
@@ -1409,7 +1409,7 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 		act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
-	if (obj->get_extraflag(EExtraFlags::ITEM_NODROP))
+	if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
 	{
 		act("Вы не можете передать $o3!", FALSE, ch, obj, 0, TO_CHAR);
 		return;
@@ -2335,7 +2335,7 @@ ACMD(do_upgrade)
 		return;
 	}
 
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_MAGIC))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
 	{
 		send_to_char("Вы не можете заточить заколдованный предмет.\r\n", ch);
 		return;
@@ -2383,7 +2383,7 @@ ACMD(do_upgrade)
 	}
 	bool change_weight = 1;
 	//Заточить повторно можно, но это уменьшает таймер шмотки на 16%
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SHARPEN))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN))
 	{
 		int timer = obj->get_timer() - MAX(1000, obj->get_timer() / 6); // абуз, таймер меньше 6 вычитается 0 бесконечная прокачка умелки
 		obj->set_timer(timer);
@@ -2391,7 +2391,7 @@ ACMD(do_upgrade)
 	}
 	else
 	{
-		obj->set_extraflag(EExtraFlags::ITEM_SHARPEN);
+		obj->set_extraflag(EExtraFlag::ITEM_SHARPEN);
 	}
 
 	percent = number(1, skill_info[SKILL_UPGRADE].max_percent);
@@ -2472,8 +2472,8 @@ ACMD(do_armored)
 		return;
 	}
 
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_MAGIC)
-		|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_ARMORED))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)
+		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED))
 	{
 		send_to_char("Вы не можете укрепить этот предмет.\r\n", ch);
 		return;
@@ -2530,7 +2530,7 @@ ACMD(do_armored)
 		return;
 	}
 
-	obj->set_extraflag(EExtraFlags::ITEM_ARMORED);
+	obj->set_extraflag(EExtraFlag::ITEM_ARMORED);
 	percent = number(1, skill_info[SKILL_ARMORED].max_percent);
 	prob = train_skill(ch, SKILL_ARMORED, skill_info[SKILL_ARMORED].max_percent, 0);
 

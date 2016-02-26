@@ -276,10 +276,10 @@ int check_awake(CHAR_DATA * ch, int what)
 			if (!GET_EQ(ch, i))
 				continue;
 
-			if (IS_SET(what, ACHECK_HUMMING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlags::ITEM_HUM))
+			if (IS_SET(what, ACHECK_HUMMING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlag::ITEM_HUM))
 				SET_BIT(retval, ACHECK_HUMMING);
 
-			if (IS_SET(what, ACHECK_GLOWING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlags::ITEM_GLOW))
+			if (IS_SET(what, ACHECK_GLOWING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlag::ITEM_GLOW))
 				SET_BIT(retval, ACHECK_GLOWING);
 
 			if (IS_SET(what, ACHECK_LIGHT) &&
@@ -347,7 +347,7 @@ int char_humming(CHAR_DATA * ch)
 
 	for (i = 0; i < NUM_WEARS; i++)
 	{
-		if (GET_EQ(ch, i) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlags::ITEM_HUM))
+		if (GET_EQ(ch, i) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlag::ITEM_HUM))
 			return (TRUE);
 	}
 	return (FALSE);
@@ -601,7 +601,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					send_to_char("Вы не сможете унести такой вес.\r\n", ch);
 					return;
 				}
-				else if (obj->get_extraflag(EExtraFlags::ITEM_BLOODY))
+				else if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
 				{
 					send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 					return;
@@ -616,7 +616,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		}
 		else  	// obj found in inventory
 		{
-			if (obj->get_extraflag(EExtraFlags::ITEM_BLOODY))
+			if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
 			{
 				send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 				return;
@@ -1726,7 +1726,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 		return;
 	}
 
-	if (OBJ_FLAGGED(target, EExtraFlags::ITEM_SETSTUFF))
+	if (OBJ_FLAGGED(target, EExtraFlag::ITEM_SETSTUFF))
 	{
 		std::string name = GET_OBJ_PNAME(target, 0) ? GET_OBJ_PNAME(target, 0) : "<null>";
 		name[0] = UPPER(name[0]);
@@ -3468,8 +3468,8 @@ ACMD(do_insertgem)
 //      send_to_char("В этот предмет вплавлено максимальное количество камней.\r\n", ch);
 //        return;
 //       }
-	if (!OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH1SLOT) && !OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH2SLOTS)
-			&& !OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH3SLOTS))
+	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT) && !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS)
+			&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS))
 	{
 		send_to_char("Вы не видите куда здесь можно вплавить камень.\r\n", ch);
 		return;
@@ -3765,12 +3765,12 @@ ACMD(do_insertgem)
 					set_obj_eff(itemobj, APPLY_HITROLL, 3);
 					break;
 				case 3:
-					if (!OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_NODISARM)
+					if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_NODISARM)
 						&& (CAN_WEAR(itemobj, ITEM_WEAR_WIELD)
 							|| CAN_WEAR(itemobj, ITEM_WEAR_HOLD)
 							|| CAN_WEAR(itemobj, ITEM_WEAR_BOTHS)))
 					{
-						itemobj->set_extraflag(EExtraFlags::ITEM_NODISARM);
+						itemobj->set_extraflag(EExtraFlag::ITEM_NODISARM);
 					}
 					else
 					{
@@ -3852,7 +3852,7 @@ ACMD(do_insertgem)
 				break;
 
 			case 3:
-				itemobj->set_extraflag(static_cast<EExtraFlags>(tmp_bit));
+				itemobj->set_extraflag(static_cast<EExtraFlag>(tmp_bit));
 				break;
 
 			default:
@@ -3864,19 +3864,19 @@ ACMD(do_insertgem)
 // Теперь все вплавленное занимает слоты
 	}
 		// флаги, определяющие, сколько остается свободных слотов
-	if (OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH3SLOTS))
+	if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS))
 	{
-		itemobj->unset_extraflag(EExtraFlags::ITEM_WITH3SLOTS);
-		itemobj->set_extraflag(EExtraFlags::ITEM_WITH2SLOTS);
+		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
+		itemobj->set_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
 	}
-	else if (OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH2SLOTS))
+	else if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS))
 	{
-		itemobj->unset_extraflag(EExtraFlags::ITEM_WITH2SLOTS);
-		itemobj->set_extraflag(EExtraFlags::ITEM_WITH1SLOT);
+		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
+		itemobj->set_extraflag(EExtraFlag::ITEM_WITH1SLOT);
 	}
-	else if (OBJ_FLAGGED(itemobj, EExtraFlags::ITEM_WITH1SLOT))
+	else if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT))
 	{
-		itemobj->unset_extraflag(EExtraFlags::ITEM_WITH1SLOT);
+		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH1SLOT);
 	}
 	extract_obj(gemobj);
 }

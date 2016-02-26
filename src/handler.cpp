@@ -1359,7 +1359,7 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 	int i;
 	if ((i = GET_OBJ_RNUM(obj)) < 0)
 		return;
-	if (GET_OBJ_OWNER(obj) && OBJ_FLAGGED(obj, EExtraFlags::ITEM_NODONATE) && (!ch || GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)))
+	if (GET_OBJ_OWNER(obj) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODONATE) && (!ch || GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)))
 	{
 		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -1529,7 +1529,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					// Удаление предмета
 					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
 					object->set_timer(0); // Хана предмету
-					object->set_extraflag(EExtraFlags::ITEM_NOSELL); // Ибо нефиг
+					object->set_extraflag(EExtraFlag::ITEM_NOSELL); // Ибо нефиг
 				}
 			} // Назначаем UID
 			else
@@ -1541,7 +1541,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		{
-			object->set_extraflag(EExtraFlags::ITEM_TICKTIMER);	// start timer unconditionally when character picks item up.
+			object->set_extraflag(EExtraFlag::ITEM_TICKTIMER);	// start timer unconditionally when character picks item up.
 			insert_obj_and_group(object, &ch->carrying);
 		}
 		else
@@ -1774,7 +1774,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 	{
 		set_info::const_iterator set_obj_info;
 
-		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlags::ITEM_SETSTUFF) &&
+		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlag::ITEM_SETSTUFF) &&
 				(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end())
 		{
 			unsigned int oqty = activate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0),
@@ -1970,7 +1970,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		obj_decay(obj);
 		return;
 	}
-	else if((!IS_NPC(ch) || IS_CHARMICE(ch)) && OBJ_FLAGGED(obj, EExtraFlags::ITEM_NAMED) && NamedStuff::check_named(ch, obj, true)) {
+	else if((!IS_NPC(ch) || IS_CHARMICE(ch)) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED) && NamedStuff::check_named(ch, obj, true)) {
 		if(!NamedStuff::wear_msg(ch, obj))
 			send_to_char("Просьба не трогать! Частная собственность!\r\n", ch);
 		if (!obj->carried_by)
@@ -1981,8 +1981,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if ((!IS_NPC(ch) && invalid_align(ch, obj))
 		|| invalid_no_class(ch, obj)
 		|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			&& (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SHARPEN)
-				|| OBJ_FLAGGED(obj, EExtraFlags::ITEM_ARMORED))))
+			&& (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)
+				|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED))))
 	{
 		act("$o0 явно не предназначен$A для вас.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
@@ -2035,7 +2035,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (show_msg)
 	{
 		wear_message(ch, obj, pos);
-		if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_NAMED))
+		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))
 			NamedStuff::wear_msg(ch, obj);
 	}
 
@@ -2044,7 +2044,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
@@ -2052,7 +2052,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 				break;
 			}
 
-	if (!OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
+	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
 	{
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, static_cast<EAffectFlag>(0), TRUE);
@@ -2108,7 +2108,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 		set_info::const_iterator set_obj_info;
 
 		if (GET_EQ(ch, pos)
-			&& OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlags::ITEM_SETSTUFF)
+			&& OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlag::ITEM_SETSTUFF)
 			&& (set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end())
 		{
 			unsigned int oqty = deactivate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x40 : 0),
@@ -2306,7 +2306,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 
-	if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
@@ -2314,7 +2314,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 				break;
 			}
 
-	if (!OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
+	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
 	{
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, static_cast<EAffectFlag>(0), FALSE);
@@ -2337,7 +2337,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 			}
 		}
 
-		if ((OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))&&(SetSystem::is_big_set(obj)))
+		if ((OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))&&(SetSystem::is_big_set(obj)))
 			obj->deactivate_obj(activation());
 	}
 
@@ -2522,7 +2522,7 @@ bool obj_to_room(OBJ_DATA * object, room_rnum room)
 		object->worn_by = NULL;
 		if (ROOM_FLAGGED(room, ROOM_NOITEM))
 		{
-			object->set_extraflag(EExtraFlags::ITEM_DECAY);
+			object->set_extraflag(EExtraFlag::ITEM_DECAY);
 		}
 //		sect = real_sector(room);
 //      if (ROOM_FLAGGED(room, ROOM_HOUSE))
@@ -2530,7 +2530,7 @@ bool obj_to_room(OBJ_DATA * object, room_rnum room)
 //      if (object->proto_script || object->script)
 		if (object->script)
 			GET_OBJ_DESTROY(object) = script_destroy_timer;
-		else if (OBJ_FLAGGED(object, EExtraFlags::ITEM_NODECAY))
+		else if (OBJ_FLAGGED(object, EExtraFlag::ITEM_NODECAY))
 			GET_OBJ_DESTROY(object) = room_nodestroy_timer;
 		else
 			/*  Убрано упасть и утонуть, посколько уничтожение обьектов
@@ -2584,8 +2584,8 @@ int obj_decay(OBJ_DATA * object)
 	sect = real_sector(room);
 
 	if (((sect == SECT_WATER_SWIM || sect == SECT_WATER_NOSWIM) &&
-			!OBJ_FLAGGED(object, EExtraFlags::ITEM_SWIMMING) &&
-			!OBJ_FLAGGED(object, EExtraFlags::ITEM_FLYING) &&
+			!OBJ_FLAGGED(object, EExtraFlag::ITEM_SWIMMING) &&
+			!OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING) &&
 			!IS_CORPSE(object)))
 	{
 
@@ -2595,7 +2595,7 @@ int obj_decay(OBJ_DATA * object)
 		return (1);
 	}
 
-	if (((sect == SECT_FLYING) && !IS_CORPSE(object) && !OBJ_FLAGGED(object, EExtraFlags::ITEM_FLYING)))
+	if (((sect == SECT_FLYING) && !IS_CORPSE(object) && !OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING)))
 	{
 
 		act("$o0 упал$G вниз.", FALSE, world[room]->people, object, 0, TO_ROOM);
@@ -2605,8 +2605,8 @@ int obj_decay(OBJ_DATA * object)
 	}
 
 
-	if (OBJ_FLAGGED(object, EExtraFlags::ITEM_DECAY) ||
-			(OBJ_FLAGGED(object, EExtraFlags::ITEM_ZONEDECAY) &&
+	if (OBJ_FLAGGED(object, EExtraFlag::ITEM_DECAY) ||
+			(OBJ_FLAGGED(object, EExtraFlag::ITEM_ZONEDECAY) &&
 			 GET_OBJ_ZONE(object) != NOWHERE && GET_OBJ_ZONE(object) != world[room]->zone))
 	{
 
@@ -2791,7 +2791,7 @@ void update_object(OBJ_DATA * obj, int use)
 	// dont update objects with a timer trigger
 	const bool trig_timer = SCRIPT_CHECK(obj, OTRIG_TIMER);
 	const bool has_timer = obj->get_timer() > 0;
-	const bool tick_timer = 0 != OBJ_FLAGGED(obj, EExtraFlags::ITEM_TICKTIMER);
+	const bool tick_timer = 0 != OBJ_FLAGGED(obj, EExtraFlag::ITEM_TICKTIMER);
 	if (!trig_timer && has_timer && tick_timer)
 	{
 		obj->dec_timer(use);
@@ -2830,7 +2830,7 @@ void update_char_objects(CHAR_DATA * ch)
 							if (world[IN_ROOM(ch)]->light > 0)
 								world[IN_ROOM(ch)]->light -= 1;
 						}
-						if (OBJ_FLAGGED(GET_EQ(ch, wear_pos), EExtraFlags::ITEM_DECAY))
+						if (OBJ_FLAGGED(GET_EQ(ch, wear_pos), EExtraFlag::ITEM_DECAY))
 							extract_obj(GET_EQ(ch, wear_pos));
 					}
 				}
@@ -2856,7 +2856,7 @@ void update_char_objects(CHAR_DATA * ch)
 */
 void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 {
-	if (zone_reset && !OBJ_FLAGGED(obj, EExtraFlags::ITEM_TICKTIMER))
+	if (zone_reset && !OBJ_FLAGGED(obj, EExtraFlag::ITEM_TICKTIMER))
 		extract_obj(obj);
 	else
 	{
@@ -3723,8 +3723,8 @@ OBJ_DATA *create_money(int amount)
 	GET_OBJ_CUR(obj) = 100;
 	obj->set_timer(24 * 60 * 7);
 	GET_OBJ_WEIGHT(obj) = 1;
-	obj->set_extraflag(EExtraFlags::ITEM_NODONATE);
-	obj->set_extraflag(EExtraFlags::ITEM_NOSELL);
+	obj->set_extraflag(EExtraFlag::ITEM_NODONATE);
+	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
 
 	return (obj);
 }

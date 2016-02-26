@@ -1041,7 +1041,7 @@ ACMD(do_fit)
 	//предмет никуда не надевается, соответственно его не надо подгонять
 	//в принципе без этой проверки можно обойтись, но пусть будет ролеплея ради
 	//кроме того тут же сделаем проверку на сетстафф
-	if ((GET_OBJ_WEAR(obj) <= 1) || OBJ_FLAGGED(obj, EExtraFlags::ITEM_SETSTUFF))
+	if ((GET_OBJ_WEAR(obj) <= 1) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 	{
 		send_to_char("Этот предмет невозможно переделать.\r\n", ch);
 		return;

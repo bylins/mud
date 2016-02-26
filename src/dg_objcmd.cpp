@@ -349,9 +349,9 @@ OCMD(do_otransform)
 		GET_OBJ_ZONE(obj) = GET_OBJ_ZONE(o);
 		GET_OBJ_ZONE(o) = GET_OBJ_ZONE(&tmpobj);
 
-		if (OBJ_FLAGGED(o, EExtraFlags::ITEM_TICKTIMER))
+		if (OBJ_FLAGGED(o, EExtraFlag::ITEM_TICKTIMER))
 		{
-			obj->set_extraflag(EExtraFlags::ITEM_TICKTIMER);
+			obj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);
 		}
 
 		if (wearer)

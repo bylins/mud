@@ -1110,7 +1110,7 @@ inline bool NO_DESTROY(const OBJ_DATA* obj)
 		|| obj->script
 		|| GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN
 		|| obj->in_room == NOWHERE
-		|| (obj->get_extraflag(EExtraFlags::ITEM_NODECAY)
+		|| (obj->get_extraflag(EExtraFlag::ITEM_NODECAY)
 			&& !ROOM_FLAGGED(obj->in_room, ROOM_DEATH)));
 }
 
@@ -1361,7 +1361,7 @@ void clan_chest_point_update(OBJ_DATA *j)
 	}
 
 	if (j->get_timer() <= 0
-		|| (j->get_extraflag(EExtraFlags::ITEM_ZONEDECAY)
+		|| (j->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
 			&& GET_OBJ_ZONE(j) != NOWHERE
 			&& up_obj_where(j->in_obj) != NOWHERE
 			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone))
@@ -1433,7 +1433,7 @@ void obj_point_update()
 		if (j->in_obj
 				&& !j->in_obj->carried_by
 				&& !j->in_obj->worn_by
-				&& j->in_obj->get_extraflag(EExtraFlags::ITEM_NODECAY)
+				&& j->in_obj->get_extraflag(EExtraFlag::ITEM_NODECAY)
 				&& GET_ROOM_VNUM(IN_ROOM(j->in_obj)) % 100 != 99)
 		{
 			int zone = world[j->in_obj->in_room]->zone;
@@ -1516,7 +1516,7 @@ void obj_point_update()
 		{
 			if (SCRIPT_CHECK(j, OTRIG_TIMER))
 			{
-				if (j->get_timer() > 0 && j->get_extraflag(EExtraFlags::ITEM_TICKTIMER))
+				if (j->get_timer() > 0 && j->get_extraflag(EExtraFlag::ITEM_TICKTIMER))
 				{
 					j->dec_timer();
 				}
@@ -1535,7 +1535,7 @@ void obj_point_update()
 			}
 
 			if (j
-				&& ((j->get_extraflag(EExtraFlags::ITEM_ZONEDECAY)
+				&& ((j->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
 					&& GET_OBJ_ZONE(j) != NOWHERE
 					&& up_obj_where(j) != NOWHERE
 					&& GET_OBJ_ZONE(j) != world[up_obj_where(j)]->zone)
@@ -1888,7 +1888,7 @@ void repop_decay(zone_rnum zone)
 		}
 		obj_zone_num = GET_OBJ_VNUM(j) / 100;
 		if (obj_zone_num == zone_num
-			&& j->get_extraflag(EExtraFlags::ITEM_REPOP_DECAY))
+			&& j->get_extraflag(EExtraFlag::ITEM_REPOP_DECAY))
 		{
 			/* F@N
 			 * Если мне кто-нибудь объяснит глубинный смысл последующей строчки,

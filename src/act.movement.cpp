@@ -1540,7 +1540,7 @@ ACMD(do_gen_door)
 		}
 	if ((obj) || (door >= 0))
 	{
-		if ((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, EExtraFlags::ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
+		if ((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
 		{
 			if (!NamedStuff::wear_msg(ch, obj))
 				send_to_char("Просьба не трогать! Частная собственность!\r\n", ch);

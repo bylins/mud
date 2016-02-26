@@ -842,7 +842,7 @@ constexpr typename std::underlying_type<E>::type to_underlying(E e)
 }
 
 // Extra object flags: used by obj_data.obj_flags.extra_flags //
-enum class EExtraFlags: uint32_t
+enum class EExtraFlag: uint32_t
 {
 	ITEM_GLOW = 1 << 0,						///< Item is glowing
 	ITEM_HUM = 1 << 1,						///< Item is humming
@@ -892,11 +892,13 @@ enum class EExtraFlags: uint32_t
 
 template <typename E>
 const std::string& NAME_BY_ITEM(const E item);
-template <> const std::string& NAME_BY_ITEM<EExtraFlags>(const EExtraFlags item);
+template <> const std::string& NAME_BY_ITEM<EExtraFlag>(const EExtraFlag item);
+template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
 
 template <typename E>
 E ITEM_BY_NAME(const std::string& name);
-template <> EExtraFlags ITEM_BY_NAME<EExtraFlags>(const std::string& name);
+template <> EExtraFlag ITEM_BY_NAME<EExtraFlag>(const std::string& name);
+template <> EAffectFlag ITEM_BY_NAME<EAffectFlag>(const std::string& name);
 template <typename E> inline E ITEM_BY_NAME(const char* name) { return ITEM_BY_NAME<E>(std::string(name)); }
 
 #define ITEM_NO_MONO       (1 << 0)

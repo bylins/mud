@@ -587,30 +587,30 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		sprintf(buf + strlen(buf), " [%d]", how);
 	if (mode != 3 && how <= 1)
 	{
-		if (object->get_extraflag(EExtraFlags::ITEM_INVISIBLE))
+		if (object->get_extraflag(EExtraFlag::ITEM_INVISIBLE))
 		{
 			sprintf(buf2, " (невидим%s)", GET_OBJ_SUF_6(object));
 			strcat(buf, buf2);
 		}
-		if (object->get_extraflag(EExtraFlags::ITEM_BLESS)
+		if (object->get_extraflag(EExtraFlag::ITEM_BLESS)
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN))
 			strcat(buf, " ..голубая аура!");
-		if (object->get_extraflag(EExtraFlags::ITEM_MAGIC)
+		if (object->get_extraflag(EExtraFlag::ITEM_MAGIC)
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC))
 			strcat(buf, " ..желтая аура!");
-		if (object->get_extraflag(EExtraFlags::ITEM_POISONED)
+		if (object->get_extraflag(EExtraFlag::ITEM_POISONED)
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON))
 		{
 			sprintf(buf2, "..отравлен%s!", GET_OBJ_SUF_6(object));
 			strcat(buf, buf2);
 		}
-		if (object->get_extraflag(EExtraFlags::ITEM_GLOW))
+		if (object->get_extraflag(EExtraFlag::ITEM_GLOW))
 			strcat(buf, " ..блестит!");
-		if (object->get_extraflag(EExtraFlags::ITEM_HUM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE))
+		if (object->get_extraflag(EExtraFlag::ITEM_HUM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE))
 			strcat(buf, " ..шумит!");
-		if (object->get_extraflag(EExtraFlags::ITEM_FIRE))
+		if (object->get_extraflag(EExtraFlag::ITEM_FIRE))
 			strcat(buf, " ..горит!");
-		if (object->get_extraflag(EExtraFlags::ITEM_BLOODY))
+		if (object->get_extraflag(EExtraFlag::ITEM_BLOODY))
 		{
 			sprintf(buf2, " %s..покрыт%s кровью!%s", CCIRED(ch, C_NRM), GET_OBJ_SUF_6(object), CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
@@ -1815,7 +1815,7 @@ void show_glow_objs(CHAR_DATA *ch)
 	for (OBJ_DATA *obj = world[ch->in_room]->contents;
 		obj; obj = obj->next_content)
 	{
-		if (obj->get_extraflag(EExtraFlags::ITEM_GLOW))
+		if (obj->get_extraflag(EExtraFlag::ITEM_GLOW))
 		{
 			++cnt;
 			if (cnt > 1)
@@ -2373,11 +2373,11 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 		if (can_use_feat(ch, MASTER_JEWELER_FEAT))
 		{
 			sprintf(buf+strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
-			if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH3SLOTS))
+			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH3SLOTS))
 				strcat(buf, "доступно 3 слота\r\n");
-			else if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH2SLOTS))
+			else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH2SLOTS))
 				strcat(buf, "доступно 2 слота\r\n");
-			else if (OBJ_FLAGGED(obj, EExtraFlags::ITEM_WITH1SLOT))
+			else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH1SLOT))
 				strcat(buf, "доступен 1 слот\r\n");
 			else
 				strcat(buf, "нет слотов\r\n");
