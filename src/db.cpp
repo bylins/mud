@@ -7289,7 +7289,7 @@ bool check_object(OBJ_DATA * obj)
 			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_WEIGHT(obj));
 	}
 
-	if (GET_OBJ_RENT(obj))
+	if (GET_OBJ_RENT(obj) <=0 )
 	{
 		error = true;
 		log("SYSERR: Object #%d (%s) has negative cost/day (%d).",
