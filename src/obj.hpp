@@ -312,14 +312,28 @@ void free_custom_label(struct custom_label *);
 class ObjVal
 {
 public:
+	enum class EValueKey : uint32_t
+	{
+		// номер и уровень заклинаний в зелье/емкости с зельем
+		POTION_SPELL1_NUM = 0,
+		POTION_SPELL1_LVL = 1,
+		POTION_SPELL2_NUM = 2,
+		POTION_SPELL2_LVL = 3,
+		POTION_SPELL3_NUM = 4,
+		POTION_SPELL3_LVL = 5,
+		// внум прототипа зелья, перелитого в емкость
+		// 0 - если зелье в емкости проставлено через олц
+		POTION_PROTO_VNUM = 6
+	};
+
 	// \return -1 - ключ не был найден
-	int get(unsigned key) const;
+	int get(const EValueKey key) const;
 	// сет новой записи/обновление существующей
 	// \param val < 0 - запись (если была) удаляется
-	void set(unsigned key, int val);
+	void set(const EValueKey key, int val);
 	// если key не найден, то ничего не сетится
 	// \param val допускается +-
-	void inc(unsigned key, int val = 1);
+	void inc(const EValueKey key, int val = 1);
 	// save/load в файлы предметов
 	std::string print_to_file() const;
 	bool init_from_file(const char *str);
@@ -329,33 +343,18 @@ public:
 	// для сравнения с прототипом
 	bool operator==(const ObjVal &r) const
 	{
-		return list_ == r.list_;
+		return m_values == r.m_values;
 	}
 	bool operator!=(const ObjVal &r) const
 	{
-		return list_ != r.list_;
+		return m_values != r.m_values;
 	}
 	// чистка левых параметров (поменяли тип предмета в олц/файле и т.п.)
 	// дергается после редактирований в олц, лоада прототипов и просто шмоток
 	void remove_incorrect_keys(int type);
 
-	enum
-	{
-		// номер и уровень заклинаний в зелье/емкости с зельем
-		POTION_SPELL1_NUM,
-		POTION_SPELL1_LVL,
-		POTION_SPELL2_NUM,
-		POTION_SPELL2_LVL,
-		POTION_SPELL3_NUM,
-		POTION_SPELL3_LVL,
-		// внум прототипа зелья, перелитого в емкость
-		// 0 - если зелье в емкости проставлено через олц
-		POTION_PROTO_VNUM
-	};
-
 private:
-//	std::unordered_map<unsigned, int> list_;
-	boost::unordered_map<unsigned, int> list_;
+	boost::unordered_map<EValueKey, int> m_values;
 };
 
 struct OBJ_DATA

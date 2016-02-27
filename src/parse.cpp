@@ -62,13 +62,13 @@ void init_char_class()
 void init_obj_vals()
 {
 	TextIdNode &tmp = text_id_list.at(OBJ_VALS);
-	tmp.add(ObjVal::POTION_SPELL1_NUM, "POTION_SPELL1_NUM");
-	tmp.add(ObjVal::POTION_SPELL1_LVL, "POTION_SPELL1_LVL");
-	tmp.add(ObjVal::POTION_SPELL2_NUM, "POTION_SPELL2_NUM");
-	tmp.add(ObjVal::POTION_SPELL2_LVL, "POTION_SPELL2_LVL");
-	tmp.add(ObjVal::POTION_SPELL3_NUM, "POTION_SPELL3_NUM");
-	tmp.add(ObjVal::POTION_SPELL3_LVL, "POTION_SPELL3_LVL");
-	tmp.add(ObjVal::POTION_PROTO_VNUM, "POTION_PROTO_VNUM");
+	tmp.add(to_underlying(ObjVal::EValueKey::POTION_SPELL1_NUM), "POTION_SPELL1_NUM");
+	tmp.add(to_underlying(ObjVal::EValueKey::POTION_SPELL1_LVL), "POTION_SPELL1_LVL");
+	tmp.add(to_underlying(ObjVal::EValueKey::POTION_SPELL2_NUM), "POTION_SPELL2_NUM");
+	tmp.add(to_underlying(ObjVal::EValueKey::POTION_SPELL2_LVL), "POTION_SPELL2_LVL");
+	tmp.add(to_underlying(ObjVal::EValueKey::POTION_SPELL3_NUM), "POTION_SPELL3_NUM");
+	tmp.add(to_underlying(ObjVal::EValueKey::POTION_SPELL3_LVL), "POTION_SPELL3_LVL");
+	tmp.add(to_underlying(ObjVal::EValueKey::POTION_PROTO_VNUM), "POTION_PROTO_VNUM");
 }
 
 ///

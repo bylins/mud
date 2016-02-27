@@ -6,6 +6,7 @@
 
 #include "craft.hpp"
 
+#include "comm.h"
 #include "db.h"
 #include "pugixml.hpp"
 
@@ -20,6 +21,11 @@ namespace craft
 		CCraftModel model;
 
 		return model.load();
+	}
+	
+	void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+	{
+		send_to_char("&WCrafting...&n\r\n", ch);
 	}
 
 	void CLogger::operator()(const char* format, ...)
@@ -357,6 +363,12 @@ namespace craft
 	}
 
 	CLogger log;
+
+	void CCraftModel::create_item() const
+	{
+
+	}
+
 }
 
 /* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/

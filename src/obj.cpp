@@ -821,36 +821,36 @@ void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
 
 } // namespace system_obj
 
-int ObjVal::get(unsigned key) const
+int ObjVal::get(const EValueKey key) const
 {
-	auto i = list_.find(key);
-	if (i != list_.end())
+	auto i = m_values.find(key);
+	if (i != m_values.end())
 	{
 		return i->second;
 	}
 	return -1;
 }
 
-void ObjVal::set(unsigned key, int val)
+void ObjVal::set(const EValueKey key, int val)
 {
 	if (val >= 0)
 	{
-		list_[key] = val;
+		m_values[key] = val;
 	}
 	else
 	{
-		auto i = list_.find(key);
-		if (i != list_.end())
+		auto i = m_values.find(key);
+		if (i != m_values.end())
 		{
-			list_.erase(i);
+			m_values.erase(i);
 		}
 	}
 }
 
-void ObjVal::inc(unsigned key, int val)
+void ObjVal::inc(const ObjVal::EValueKey key, int val)
 {
-	auto i = list_.find(key);
-	if (i == list_.end() || val == 0) return;
+	auto i = m_values.find(key);
+	if (i == m_values.end() || val == 0) return;
 
 	if (val < 0 && i->second + val <= 0)
 	{
@@ -868,14 +868,14 @@ void ObjVal::inc(unsigned key, int val)
 
 std::string ObjVal::print_to_file() const
 {
-	if (list_.empty()) return "";
+	if (m_values.empty()) return "";
 
 	std::stringstream out;
 	out << "Vals:\n";
 
-	for(auto i = list_.begin(), iend = list_.end(); i != iend; ++i)
+	for(auto i = m_values.begin(), iend = m_values.end(); i != iend; ++i)
 	{
-		std::string key_str = TextId::to_str(TextId::OBJ_VALS, i->first);
+		std::string key_str = TextId::to_str(TextId::OBJ_VALS, to_underlying(i->first));
 		if (!key_str.empty())
 		{
 			out << key_str << " " << i->second << "\n";
@@ -888,7 +888,7 @@ std::string ObjVal::print_to_file() const
 
 bool ObjVal::init_from_file(const char *str)
 {
-	list_.clear();
+	m_values.clear();
 	std::stringstream text(str);
 	std::string key_str;
 	bool result = true;
@@ -896,10 +896,10 @@ bool ObjVal::init_from_file(const char *str)
 
 	while (text >> key_str >> val)
 	{
-		int key = TextId::to_num(TextId::OBJ_VALS, key_str);
+		const int key = TextId::to_num(TextId::OBJ_VALS, key_str);
 		if (key >= 0 && val >= 0)
 		{
-			list_.emplace(key, val);
+			m_values.emplace(static_cast<EValueKey>(key), val);
 			key_str.clear();
 			val = -1;
 		}
@@ -915,13 +915,13 @@ bool ObjVal::init_from_file(const char *str)
 
 std::string ObjVal::print_to_zone() const
 {
-	if (list_.empty()) return "";
+	if (m_values.empty()) return "";
 
 	std::stringstream out;
 
-	for(auto i = list_.begin(), iend = list_.end(); i != iend; ++i)
+	for(auto i = m_values.begin(), iend = m_values.end(); i != iend; ++i)
 	{
-		std::string key_str = TextId::to_str(TextId::OBJ_VALS, i->first);
+		std::string key_str = TextId::to_str(TextId::OBJ_VALS, to_underlying(i->first));
 		if (!key_str.empty())
 		{
 			out << "V " << key_str << " " << i->second << "\n";
@@ -939,10 +939,10 @@ void ObjVal::init_from_zone(const char *str)
 
 	if (text >> key_str >> val)
 	{
-		int key = TextId::to_num(TextId::OBJ_VALS, key_str);
+		const int key = TextId::to_num(TextId::OBJ_VALS, key_str);
 		if (key >= 0 && val >= 0)
 		{
-			list_.emplace(key, val);
+			m_values.emplace(static_cast<EValueKey>(key), val);
 		}
 		else
 		{
@@ -952,17 +952,17 @@ void ObjVal::init_from_zone(const char *str)
 	}
 }
 
-bool is_valid_drinkcon(unsigned key)
+bool is_valid_drinkcon(const ObjVal::EValueKey key)
 {
 	switch(key)
 	{
-	case ObjVal::POTION_SPELL1_NUM:
-	case ObjVal::POTION_SPELL1_LVL:
-	case ObjVal::POTION_SPELL2_NUM:
-	case ObjVal::POTION_SPELL2_LVL:
-	case ObjVal::POTION_SPELL3_NUM:
-	case ObjVal::POTION_SPELL3_LVL:
-	case ObjVal::POTION_PROTO_VNUM:
+	case ObjVal::EValueKey::POTION_SPELL1_NUM:
+	case ObjVal::EValueKey::POTION_SPELL1_LVL:
+	case ObjVal::EValueKey::POTION_SPELL2_NUM:
+	case ObjVal::EValueKey::POTION_SPELL2_LVL:
+	case ObjVal::EValueKey::POTION_SPELL3_NUM:
+	case ObjVal::EValueKey::POTION_SPELL3_LVL:
+	case ObjVal::EValueKey::POTION_PROTO_VNUM:
 		return true;
 	}
 	return false;
@@ -970,7 +970,7 @@ bool is_valid_drinkcon(unsigned key)
 
 void ObjVal::remove_incorrect_keys(int type)
 {
-	for (auto i = list_.begin(); i != list_.end(); /* empty */)
+	for (auto i = m_values.begin(); i != m_values.end(); /* empty */)
 	{
 		bool erased = false;
 		switch(type)
@@ -979,7 +979,7 @@ void ObjVal::remove_incorrect_keys(int type)
 		case ITEM_FOUNTAIN:
 			if (!is_valid_drinkcon(i->first))
 			{
-				i = list_.erase(i);
+				i = m_values.erase(i);
 				erased = true;
 			}
 			break;

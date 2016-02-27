@@ -39,6 +39,8 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <boost/format.hpp>
+
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
@@ -1133,9 +1135,6 @@ bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 
 	return true;
 }
-
-/////////////////////////////////////////////////////////////////////////////////
-#include <boost/format.hpp>
 
 std::map<int /* vnum */, int /* count */> rune_list;
 

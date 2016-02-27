@@ -64,7 +64,10 @@
 			<cost>5</cost>
 			<meta>
 				<applies>
-					<apply>APPLY_HIT</apply>
+					<apply>
+						<location>APPLY_HIT</location>
+						<modifier>10</modifier>
+					</apply>
 				</applies>
 				<skills>
 					<skill>SKILL_DISARM</skill>
@@ -139,7 +142,10 @@
 		<bonuses>
 			<meta>
 				<applies>
-					<apply>APPLY_MR</apply>
+					<apply>
+						<location>APPLY_MR</location>
+						<modifier>2</modifier>
+					</apply>
 				</applies>
 				<skills>
 					<skill>SKILL_CAMOUFLAGE</skill>

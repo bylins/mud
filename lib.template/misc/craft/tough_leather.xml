@@ -67,11 +67,24 @@
 			<cost>40</cost>
 			<meta>
 				<applies>
-					<apply>APPLY_STR</apply>
-					<apply>APPLY_DEX</apply>
-					<apply>APPLE_CON</apply>
-					<apply>APPLY_DAMROLL</apply>
+					<apply>
+						<location>APPLY_STR</location>
+						<modifier>1</modifier>
+					</apply>
+					<apply>
+						<location>APPLY_DEX</location>
+						<modifier>2</modifier>
+					</apply>
+					<apply>
+						<location>APPLE_CON</location>
+						<modifier>2</modifier>
+					</apply>
+					<apply>
+						<location>APPLY_DAMROLL</location>
+						<modifier>5</modifier>
+					</apply>
 				</applies>
+				
 				<skills>
 					<skill>SKILL_KICK</skill>
 				</skills>

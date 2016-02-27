@@ -1100,7 +1100,7 @@ int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 			GET_OBJ_PNAME(obj, 0), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
 		// из обж-скилл их не перекрывает, а просто удаляется
-		if (obj->values.get(ObjVal::POTION_PROTO_VNUM) < 0)
+		if (obj->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0)
 		{
 			OBJ_DATA *potion = read_object(GET_OBJ_SKILL(obj), VIRTUAL);
 			if (potion && GET_OBJ_TYPE(potion) == ITEM_POTION)
@@ -1111,7 +1111,7 @@ int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 					// copy_potion_values сетит до кучи и внум из пошена,
 					// поэтому уточним здесь, что зелье не перелито
 					// емкости из read_one_object_new идут как перелитые
-					obj->values.set(ObjVal::POTION_PROTO_VNUM, 0);
+					obj->values.set(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
 				}
 			}
 		}

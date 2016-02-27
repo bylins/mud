@@ -25,7 +25,29 @@ namespace pugi
 
 namespace craft
 {
+	/**
+	** \brief Loads Craft model.
+	**/
 	bool load();
+
+	// Subcommands for the "craft" command
+	const int SCMD_NOTHING = 0;
+
+	/// Defines for the "craft" command (base craft command)
+	namespace base_cmd
+	{
+		/// Minimal position for base craft command
+		const int MINIMAL_POSITION = POS_SITTING;
+
+		// Minimal level for base craft command
+		const int MINIMAL_LEVEL = 0;
+
+		// Probability to stop hide when using base craft command
+		const int UNHIDE_PROBABILITY = 0;	// -1 - always, 0 - never
+	}
+
+	extern void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+
 	class CLogger
 	{
 		public:
@@ -168,6 +190,8 @@ namespace craft
 			 *         false otherwise.
 			 */
 			bool load();
+
+			void create_item() const;
 
 		private:
 			std::list<CCraft> m_crafts;         ///< List of crafts defined for the game.

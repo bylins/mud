@@ -61,8 +61,12 @@
 			<cost>-50</cost>
 			<meta>
 				<applies>
-					<apply>APPLY_HITROLL</apply>
+					<apply>
+						<location>APPLY_HITROLL</location>
+						<modifier>5</modifier>
+					</apply>
 				</applies>
+				
 				<affects>
 					<affect>AFF_DETECT_INVIS</affect>
 				</affects>

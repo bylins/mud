@@ -71,7 +71,7 @@ struct command_info
 	void (*command_pointer)
 	(CHAR_DATA * ch, char *argument, int cmd, int subcmd);
 	sh_int minimum_level;
-	int subcmd;
+	int subcmd;				///< Subcommand. See SCMD_* constants.
 	int unhide_percent;
 };
 

@@ -469,13 +469,22 @@ set(CRAFT_MATERIAL_FILES
 set(CRAFT_CRAFT_FILES
     lib.template/misc/craft/craft1.xml)
 set(CRAFT_TEMPLATE_FILES
-    lib.template/misc/craft/material_template.xml)
+    lib.template/misc/craft/material_template.xml
+    lib.template/misc/craft/prototype_template.xml)
+set(CRAFT_PROTOTYPES)
 
 source_group("Craft" FILES ${CRAFT_GENERAL_FILES})
 source_group("Craft\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
 source_group("Craft\\Materials" FILES ${CRAFT_MATERIAL_FILES})
 source_group("Craft\\Crafts" FILES ${CRAFT_CRAFT_FILES})
+
 set(CRAFT_FILES ${CRAFT_GENERAL_FILES} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES} ${CRAFT_TEMPLATE_FILES})
-add_custom_target(world SOURCES ${CRAFT_FILES})
+
+set(MISC_FILES
+    lib.template/misc/noob_help.xml)
+
+source_group("Misc" FILES ${MISC_FILES})
+
+add_custom_target(world SOURCES ${CRAFT_FILES} ${MISC_FILES})
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :

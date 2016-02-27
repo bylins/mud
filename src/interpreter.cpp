@@ -15,6 +15,7 @@
 
 #include "interpreter.h"
 
+#include "craft.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "constants.h"
@@ -1091,9 +1092,11 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mspellitem", POS_DEAD, do_mspellitem, -1, 0, -1},
 	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
 
+	// Craft
+	{"craft", craft::base_cmd::MINIMAL_POSITION, craft::do_craft, craft::base_cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::base_cmd::UNHIDE_PROBABILITY},
+
 	{"\n", 0, 0, 0, 0, 0}
 };				// this must be last
-
 
 const char *dir_fill[] = { "in",
 						   "from",
