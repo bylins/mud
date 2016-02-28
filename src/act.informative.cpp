@@ -3344,8 +3344,7 @@ void print_do_score_all(CHAR_DATA *ch)
 				" || Режим слепого игрока включен.                                                   ||\r\n");
 	if (Bonus::is_bonus(0))
 		sprintf(buf + strlen(buf),
-			" || %-83s ||\r\n || %-83s ||\r\n", Bonus::str_type_bonus().c_str(), Bonus::bonus_end().c_str());
-
+			" || &W%-79s&c ||\r\n || &W%-79s&c ||\r\n", Bonus::str_type_bonus().c_str(), Bonus::bonus_end().c_str());
 
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL)
 	{
