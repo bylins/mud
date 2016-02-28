@@ -2,6 +2,7 @@
 // Part of Bylins http://www.bylins.su
 
 #include "bonus.h"
+
 #include "structs.h"
 #include "comm.h"
 #include "db.h"
@@ -11,7 +12,6 @@
 #include "char_player.hpp"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/trim.hpp>
 
 #include <iostream>
 #include <fstream>
