@@ -13,6 +13,7 @@
 #include <boost/filesystem.hpp>
 
 #include <iostream>
+#include <string>
 
 namespace craft
 {
@@ -39,26 +40,41 @@ namespace craft
 		send_to_char("&WCrafting...&n\r\n", ch);
 	}
 
+	const char* BODY_PREFIX = "| ";
+	const char* END_PREFIX = "> ";
+
 	void CLogger::operator()(const char* format, ...)
 	{
 		va_list args;
 		va_start(args, format);
-		// Use the following line to redirect craft log into syslog:
-		// ::log(format, args);
-		// instead of output just onto console:
-		// FROM HERE...
-		const size_t BUFFER_SIZE = 4096;
+		const size_t BUFFER_SIZE = 81;
 		char buffer[BUFFER_SIZE];
 		char* p = buffer;
-		const size_t length = vsnprintf(p, BUFFER_SIZE, format, args);
+		size_t free_space = BUFFER_SIZE;
+
+		std::string prefix;
+		for (const auto& part : m_prefix)
+		{
+			prefix += part;
+		}
+		const size_t plength = std::min(BUFFER_SIZE, prefix.length());
+		strncpy(p, prefix.c_str(), plength);
+		free_space -= plength;
+		p += plength;
+
+		const size_t length = vsnprintf(p, free_space, format, args);
 		va_end(args);
 
-		if (BUFFER_SIZE <= length)
+		if (free_space <= length)
 		{
-			std::cerr << "TRUNCATED: ";
-			p[BUFFER_SIZE - 1] = '\0';
+			const char truncated[] = " ...<TRUNCATED>\n";
+			strncpy(buffer + BUFFER_SIZE - sizeof(truncated), truncated, sizeof(truncated));
 		}
 
+		// Use the following line to redirect craft log into syslog:
+		// ::log("%s", buffer);
+		// instead of output just onto console:
+		// FROM HERE...
 		if (syslog_converter)
 		{
 			syslog_converter(buffer, static_cast<int>(length));
@@ -99,18 +115,33 @@ namespace craft
 
 	bool CPrototype::load(const pugi::xml_node* node)
 	{
+		log("Loading prototype with VNUM %d.\n", m_vnum);
+		CLogger::CPrefix prefix(log, BODY_PREFIX);
+
+		const auto description = node->child("description");
+		if (description)
+		{
+			m_short_desc = description.child_value("short");
+			m_long_desc = description.child_value("long");
+			m_keyword = description.child_value("keyword");
+			m_extended_desc = description.child_value("extended");
+		}
+
+		prefix.change_prefix(END_PREFIX);
+		log("End of loading prototype with VNUM %d.\n", m_vnum);
 		return true;
 	}
 
 	bool CMaterialClass::load(const pugi::xml_node* node)
 	{
-		log("Loading class with ID '%s'.\n", m_id.c_str());
+		log("Loading material class with ID '%s'.\n", m_id.c_str());
+		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
 		const pugi::xml_node desc_node = node->child("description");
 		if (!desc_node)
 		{
 			log("ERROR: material class with ID '%s' does not contain required \"description\" tag.\n",
-					m_id.c_str());
+				m_id.c_str());
 			return false;
 		}
 
@@ -227,12 +258,16 @@ namespace craft
 			}
 		}
 
+		prefix.change_prefix(END_PREFIX);
+		log("End of loading material class with ID '%s'.\n", m_id.c_str());
+
 		return true;
 	}
 
 	bool CMaterial::load(const pugi::xml_node* node)
 	{
 		log("Begin loading material with ID %s\n", m_id.c_str());
+		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
 		// load material name
 		const auto node_name = node->child("name");
@@ -256,13 +291,19 @@ namespace craft
 			mc.load(&node_class);
 		}
 
+		prefix.change_prefix(END_PREFIX);
 		log("End of loading material with ID '%s'.\n", m_id.c_str());
+
 		return true;
 	}
 
 	bool CRecipe::load(const pugi::xml_node* /*node*/)
 	{
 		log("Loading recipe with ID %s\n", m_id.c_str());
+		CLogger::CPrefix prefix(log, BODY_PREFIX);
+
+		prefix.change_prefix(END_PREFIX);
+		log("End of loading recipe with ID %s\n", m_id.c_str());
 
 		return true;
 	}
@@ -270,6 +311,10 @@ namespace craft
 	bool CSkillBase::load(const pugi::xml_node* /*node*/)
 	{
 		log("Loading skill with ID %s\n", m_id.c_str());
+		CLogger::CPrefix prefix(log, BODY_PREFIX);
+
+		prefix.change_prefix(END_PREFIX);
+		log("End of loading skill with ID %s\n", m_id.c_str());
 
 		return true;
 	}
@@ -277,6 +322,10 @@ namespace craft
 	bool CCraft::load(const pugi::xml_node* /*node*/)
 	{
 		log("Loading craft with ID %s\n", m_id.c_str());
+		CLogger::CPrefix prefix(log, BODY_PREFIX);
+
+		prefix.change_prefix(END_PREFIX);
+		log("End of loading craft with ID %s\n", m_id.c_str());
 
 		return true;
 	}
@@ -285,6 +334,8 @@ namespace craft
 	{
 		log("Loading craft model from file '%s'.\n",
 				FILE_NAME.c_str());
+		CLogger::CPrefix prefix(log, BODY_PREFIX);
+
 		pugi::xml_document doc;
 		const auto result = doc.load_file(FILE_NAME.c_str());
 
@@ -336,6 +387,7 @@ namespace craft
 			}
 		}
 
+		prefix.change_prefix(END_PREFIX);
 		log("End of loading craft model.\n");
 		// TODO: print statistics of the model (i. e. count of materials, recipes, crafts, missed entries and so on).
 
@@ -353,7 +405,6 @@ namespace craft
 	{
 		if (prototype->attribute("vnum").empty())
 		{
-
 			log("%d-%s prototype tag does not have VNUM attribute. Will be skipped.\n",
 				number, suffix(number));
 			return false;
