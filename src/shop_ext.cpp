@@ -22,6 +22,7 @@
 #include "utils.h"
 #include "parse.hpp"
 #include "pugixml.hpp"
+#include "pk.h"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
@@ -1365,6 +1366,12 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	if (cmd == "Оценить")
 	{
+		if (bloody::is_bloody(obj))
+		{
+			tell_to_char(keeper, ch, string("Иди от крови отмой сначала!").c_str());
+			return;
+		}
+
 		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED) || OBJ_FLAGGED(obj, ITEM_REPOP_DECAY) || OBJ_FLAGGED(obj, ITEM_ZONEDECAY))
 		{
 			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
@@ -1375,11 +1382,15 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	if (cmd == "Продать")
 	{
-		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED) || OBJ_FLAGGED(obj, ITEM_REPOP_DECAY) || (buy_price  <= 1) || OBJ_FLAGGED(obj, ITEM_ZONEDECAY))
+		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED) || OBJ_FLAGGED(obj, ITEM_REPOP_DECAY) || (buy_price  <= 1) || OBJ_FLAGGED(obj, ITEM_ZONEDECAY) || bloody::is_bloody(obj))
 		{
-			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
+			if (bloody::is_bloody(obj))
+				tell_to_char(keeper, ch, string("Пшел вон убивец, и руки от крови отмой!").c_str());
+			else
+				tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
 			return;
-		}else
+		}
+		else
 		{
 			obj_from_char(obj);
 			tell_to_char(keeper, ch, string("Получи за " + string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
@@ -1389,6 +1400,11 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	}
 	if (cmd == "Чинить")
 	{
+		if (bloody::is_bloody(obj))
+		{
+			tell_to_char(keeper, ch, string("Я не буду чинить окровавленные вещи!").c_str());
+			return;
+		}
 		if (repair <= 0)
 		{
 			tell_to_char(keeper, ch, string(string(GET_OBJ_PNAME(obj, 3))+" не нужно чинить.").c_str());
