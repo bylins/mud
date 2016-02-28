@@ -280,7 +280,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_IDNUM(ch))
 			((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) &&
-			 (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT)) ? counter++ : counter_ming++;
+			 (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGREDIENT)) ? counter++ : counter_ming++;
 	}
 
 	if (counter + (counter_ming / 20)  >= EXCHANGE_MAX_EXHIBIT_PER_CHAR)
@@ -1433,7 +1433,7 @@ void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j)
 			&& !ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF)
 			&& GET_POS(i->character) > POS_SLEEPING)
 		{
-			if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT
+			if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGREDIENT
 					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING)
 				&& !PRF_FLAGGED(i->character, PRF_NOINGR_MODE))
 			{
@@ -1495,7 +1495,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	{
 		if (!params.check(j)
 			|| ((show_type == 1) && (!isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j)))))
-			|| ((show_type == 2) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT)
+			|| ((show_type == 2) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGREDIENT)
 				|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) < 200)
 				|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) > 299)))
 			|| ((show_type == 3) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR)
@@ -1505,10 +1505,10 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 			|| ((show_type == 4) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_WEAPON))
 			|| ((show_type == 5) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_BOOK))
 			|| (show_type == 6 && GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGREDIENT
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200
 						&& GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
-			|| ((show_type == 7) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT)
+			|| ((show_type == 7) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGREDIENT)
 				|| ObjSystem::is_armor_type(GET_EXCHANGE_ITEM(j))
 				|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_WEAPON)
 				|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_BOOK)

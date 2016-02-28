@@ -1106,7 +1106,7 @@ ACMD(do_transform_weapon)
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT)
+	if (GET_OBJ_TYPE(obj) == ITEM_INGREDIENT)
 	{
 		for (i = 0, found = FALSE; i < MAX_PROTO; i++)
 			if (GET_OBJ_VAL(obj, 1) == created_item[obj_type].proto[i])
@@ -1158,7 +1158,7 @@ ACMD(do_transform_weapon)
 			}
 
 			for (coal = ch->carrying; coal; coal = coal->next_content)
-				if (GET_OBJ_TYPE(coal) == ITEM_INGRADIENT)
+				if (GET_OBJ_TYPE(coal) == ITEM_INGREDIENT)
 				{
 					for (i = 0; i < MAX_PROTO; i++)
 						if (proto[i] == coal)
@@ -1195,7 +1195,7 @@ ACMD(do_transform_weapon)
 		break;
 	case SKILL_CREATEBOW:
 		for (coal = ch->carrying; coal; coal = coal->next_content)
-			if (GET_OBJ_TYPE(coal) == ITEM_INGRADIENT)
+			if (GET_OBJ_TYPE(coal) == ITEM_INGREDIENT)
 			{
 				for (i = 0; i < MAX_PROTO; i++)
 					if (proto[i] == coal)
@@ -1559,7 +1559,7 @@ OBJ_DATA *get_obj_in_list_ingr(int num, OBJ_DATA * list) //Ингридиентом является
     {
 	if (GET_OBJ_VNUM(i) == num)
 	    return (i);
-	if ((GET_OBJ_VAL(i, 1) == num) && (GET_OBJ_TYPE(i) == ITEM_INGRADIENT || GET_OBJ_TYPE(i) == ITEM_MING || GET_OBJ_TYPE(i) == ITEM_MATERIAL))
+	if ((GET_OBJ_VAL(i, 1) == num) && (GET_OBJ_TYPE(i) == ITEM_INGREDIENT || GET_OBJ_TYPE(i) == ITEM_MING || GET_OBJ_TYPE(i) == ITEM_MATERIAL))
 	    return (i);
     }
     return (NULL);
@@ -1658,7 +1658,7 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 int MakeRecept::get_ingr_lev(OBJ_DATA * ingrobj)
 {
 	// Получаем уровень ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ITEM_INGRADIENT)
+	if (GET_OBJ_TYPE(ingrobj) == ITEM_INGREDIENT)
 	{
 		// Получаем уровень игредиента до 128
 		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
@@ -1680,7 +1680,7 @@ int MakeRecept::get_ingr_lev(OBJ_DATA * ingrobj)
 int MakeRecept::get_ingr_pow(OBJ_DATA * ingrobj)
 {
 	// Получаем силу ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ITEM_INGRADIENT || GET_OBJ_TYPE(ingrobj) == ITEM_MATERIAL)
+	if (GET_OBJ_TYPE(ingrobj) == ITEM_INGREDIENT || GET_OBJ_TYPE(ingrobj) == ITEM_MATERIAL)
 	{
 
 		return GET_OBJ_VAL(ingrobj, 2);
@@ -2197,7 +2197,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 	int sign = -1;
 
-	if ((GET_OBJ_TYPE(obj) == ITEM_WEAPON) || (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT))
+	if ((GET_OBJ_TYPE(obj) == ITEM_WEAPON) || (GET_OBJ_TYPE(obj) == ITEM_INGREDIENT))
 		sign = 1;
 
 	GET_OBJ_WEIGHT(obj) = stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign);
@@ -2282,7 +2282,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 		break;
 
-	case ITEM_INGRADIENT:
+	case ITEM_INGREDIENT:
 		// Для ингров ничего не трогаем ... ибо опасно. :)
 		break;
 	}
@@ -2322,7 +2322,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// Мочим истраченные ингры.
 	for (i = 0; i < ingr_cnt; i++)
 	{
-		if ((GET_OBJ_TYPE(ingrs[i]) != ITEM_INGRADIENT) && (GET_OBJ_TYPE(ingrs[i]) != ITEM_MING))
+		if ((GET_OBJ_TYPE(ingrs[i]) != ITEM_INGREDIENT) && (GET_OBJ_TYPE(ingrs[i]) != ITEM_MING))
 		{
 			// Если запрошенный вес 0 то  удаляем предмет выше не трогаем.
 			if (parts[i].min_weight == 0)
@@ -2344,7 +2344,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// шмотки по лучше (в целом это не так страшно).
 
 	// Ставим метку если все хорошо.
-	if (((GET_OBJ_TYPE(obj) != ITEM_INGRADIENT) &&
+	if (((GET_OBJ_TYPE(obj) != ITEM_INGREDIENT) &&
 			(GET_OBJ_TYPE(obj) != ITEM_MING)) &&
 			(number(1, 100) - calculate_skill(ch, skill, skill_info[skill].max_percent, 0) < 0))
 	{

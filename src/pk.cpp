@@ -1153,7 +1153,7 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 			|| t == ITEM_ARMOR_LIGHT
 			|| t == ITEM_ARMOR_MEDIAN
 			|| t == ITEM_ARMOR_HEAVY
-			|| t == ITEM_INGRADIENT
+			|| t == ITEM_INGREDIENT
 			|| t == ITEM_WORN))
 	{
 		list->set_extraflag(EExtraFlag::ITEM_BLOODY);

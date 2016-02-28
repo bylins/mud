@@ -851,7 +851,7 @@ bool init_type(const char *str)
 	else if (is_abbrev(str, "книга") || is_abbrev(str, "book"))
 		type = ITEM_BOOK;
 	else if (is_abbrev(str, "руна") || is_abbrev(str, "rune"))
-		type = ITEM_INGRADIENT;
+		type = ITEM_INGREDIENT;
 	else if (is_abbrev(str, "ингредиент") || is_abbrev(str, "ingradient"))
 		type = ITEM_MING;
 	else if (is_abbrev(str, "легкие") || is_abbrev(str, "легкая"))

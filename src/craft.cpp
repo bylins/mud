@@ -16,6 +16,17 @@
 
 namespace craft
 {
+	const char* suffix(const size_t number)
+	{
+		return 1 == number % 10
+			? "st"
+			: (2 == number % 10
+				? "nd"
+				: (3 == number % 10
+					? "rd"
+					: "th"));
+	}
+
 	bool load()
 	{
 		CCraftModel model;
@@ -83,6 +94,11 @@ namespace craft
 			}
 		}
 
+		return true;
+	}
+
+	bool CPrototype::load(const pugi::xml_node* node)
+	{
 		return true;
 	}
 
@@ -219,7 +235,7 @@ namespace craft
 		log("Begin loading material with ID %s\n", m_id.c_str());
 
 		// load material name
-		const pugi::xml_node node_name = node->child("name");
+		const auto node_name = node->child("name");
 		if (!node_name)
 		{
 			log("ERROR: could not find required node 'name' for material with ID '%s'.\n", m_id.c_str());
@@ -228,7 +244,7 @@ namespace craft
 		const std::string name = node_name.value();
 
 		// load meterial classes
-		for (const pugi::xml_node node_class: node->children("class"))
+		for (const auto node_class: node->children("class"))
 		{
 			if (node_class.attribute("id").empty())
 			{
@@ -270,7 +286,7 @@ namespace craft
 		log("Loading craft model from file '%s'.\n",
 				FILE_NAME.c_str());
 		pugi::xml_document doc;
-		pugi::xml_parse_result result = doc.load_file(FILE_NAME.c_str());
+		const auto result = doc.load_file(FILE_NAME.c_str());
 
 		if (!result)
 		{
@@ -280,7 +296,7 @@ namespace craft
 			return false;
 		}
 		
-		pugi::xml_node model = doc.child("craftmodel");
+		const auto model = doc.child("craftmodel");
 		if (!model)
 		{
 			log("Craft model is not defined in XML file %s\n", FILE_NAME.c_str());
@@ -290,60 +306,13 @@ namespace craft
 		// TODO: load it.
 
 		// Load materials.
-		const pugi::xml_node materials = model.child("materials");
+		const auto materials = model.child("materials");
 		if (materials)
 		{
-			for (const pugi::xml_node material: materials.children("material"))
+			size_t number = 0;
+			for (const auto material: materials.children("material"))
 			{
-				if (material.attribute("id").empty())
-				{
-					log("Material tag does not have ID attribute. Will be skipped.\n");
-					continue;
-				}
-				id_t id = material.attribute("id").as_string();
-				CMaterial m(id);
-				if (material.attribute("filename").empty())
-				{
-					if (!m.load(&material))
-					{
-						log("WARNING: skipping material with ID '%s'.\n",
-								id.c_str());
-					}
-				}
-				else
-				{
-					using boost::filesystem::path;
-					const std::string filename = (path(FILE_NAME).parent_path() / material.attribute("filename").value()).string();
-					pugi::xml_document mdoc;
-					pugi::xml_parse_result mresult = mdoc.load_file(filename.c_str());
-					if (!mresult)
-					{
-						log("WARNING: could not load external file '%s' with material '%s': '%s' "
-								"at offset %zu. Material will be skipped.\n",
-								filename.c_str(),
-								id.c_str(),
-								mresult.description(),
-								mresult.offset);
-						continue;
-					}
-					const pugi::xml_node mroot = mdoc.child("material");
-					if (!mroot)
-					{
-						log("WARNING: could not find root \"material\" tag for material with ID "
-								"'%s' in the external file '%s'. Material will be skipped.\n",
-								id.c_str(),
-								filename.c_str());
-						continue;
-					}
-					log("Using external file '%s' for material with ID '%s'.\n",
-							filename.c_str(),
-							id.c_str());
-					if (!m.load(&mroot))
-					{
-						log("WARNING: skipping material with ID '%s'.\n",
-								id.c_str());
-					}
-				}
+				load_material(&material, ++number);
 			}
 		}
 
@@ -356,6 +325,17 @@ namespace craft
 		// Load crafts.
 		// TODO: load it.
 
+		// Load prototypes
+		const auto prototypes = model.child("prototypes");
+		if (prototypes)
+		{
+			size_t number = 0;
+			for (const auto prototype : prototypes.children("prototype"))
+			{
+				load_prototype(&prototype, ++number);
+			}
+		}
+
 		log("End of loading craft model.\n");
 		// TODO: print statistics of the model (i. e. count of materials, recipes, crafts, missed entries and so on).
 
@@ -367,6 +347,133 @@ namespace craft
 	void CCraftModel::create_item() const
 	{
 
+	}
+
+	bool CCraftModel::load_prototype(const pugi::xml_node* prototype, const size_t number)
+	{
+		if (prototype->attribute("vnum").empty())
+		{
+
+			log("%d-%s prototype tag does not have VNUM attribute. Will be skipped.\n",
+				number, suffix(number));
+			return false;
+		}
+
+		vnum_t vnum = prototype->attribute("vnum").as_int(0);
+		if (0 == vnum)
+		{
+			log("Failed to get VNUM of the %d-%s prototype. This prototype entry will be skipped.\n",
+				number, suffix(number));
+		}
+
+		CPrototype p(vnum);
+		if (prototype->attribute("filename").empty())
+		{
+			if (!p.load(prototype))
+			{
+				log("WARNING: skipping %d-%s prototype with VNUM %d.\n",
+					number, suffix(number), vnum);
+				return false;
+			}
+		}
+		else
+		{
+			using boost::filesystem::path;
+			const std::string filename = (path(FILE_NAME).parent_path() / prototype->attribute("filename").value()).string();
+			pugi::xml_document pdoc;
+			const auto presult = pdoc.load_file(filename.c_str());
+			if (!presult)
+			{
+				log("WARNING: could not load external file '%s' with %d-%s prototype (ID: %d): '%s' "
+					"at offset %zu. Prototype will be skipped.\n",
+					filename.c_str(),
+					number,
+					suffix(number),
+					vnum,
+					presult.description(),
+					presult.offset);
+				return false;
+			}
+			const auto proot = pdoc.child("prototype");
+			if (!proot)
+			{
+				log("WARNING: could not find root \"prototype\" tag for prototype with VNUM "
+					"%d in the external file '%s'. Prototype will be skipped.\n",
+					vnum,
+					filename.c_str());
+				return false;
+			}
+			log("Using external file '%s' for %d-%s prototype with VNUM %d.\n",
+				filename.c_str(),
+				number,
+				suffix(number),
+				vnum);
+			if (!p.load(&proot))
+			{
+				log("WARNING: skipping %d-%s prototype with VNUM %d.\n",
+					number, suffix(number), vnum);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool CCraftModel::load_material(const pugi::xml_node* material, const size_t number)
+	{
+		if (material->attribute("id").empty())
+		{
+			log("%d-%s material tag does not have ID attribute. Will be skipped.\n",
+				number, suffix(number));
+			return false;
+		}
+		id_t id = material->attribute("id").as_string();
+		CMaterial m(id);
+		if (material->attribute("filename").empty())
+		{
+			if (!m.load(material))
+			{
+				log("WARNING: skipping material with ID '%s'.\n", id.c_str());
+				return false;
+			}
+		}
+		else
+		{
+			using boost::filesystem::path;
+			const std::string filename = (path(FILE_NAME).parent_path() / material->attribute("filename").value()).string();
+			pugi::xml_document mdoc;
+			const auto mresult = mdoc.load_file(filename.c_str());
+			if (!mresult)
+			{
+				log("WARNING: could not load external file '%s' with material '%s': '%s' "
+					"at offset %zu. Material will be skipped.\n",
+					filename.c_str(),
+					id.c_str(),
+					mresult.description(),
+					mresult.offset);
+				return false;
+			}
+			const auto mroot = mdoc.child("material");
+			if (!mroot)
+			{
+				log("WARNING: could not find root \"material\" tag for material with ID "
+					"'%s' in the external file '%s'. Material will be skipped.\n",
+					id.c_str(),
+					filename.c_str());
+				return false;
+			}
+			log("Using external file '%s' for material with ID '%s'.\n",
+				filename.c_str(),
+				id.c_str());
+			if (!m.load(&mroot))
+			{
+				log("WARNING: skipping material with ID '%s'.\n",
+					id.c_str());
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 }

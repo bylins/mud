@@ -56,7 +56,8 @@ namespace craft
 
 	extern CLogger log;
 
-	typedef std::string id_t;						///< Common type for IDs.
+	typedef std::string id_t;	///< Common type for IDs.
+	typedef int vnum_t;			///< Common type for VNUM. Actually this type should be declared at the project level.
 
 	class CCases
 	{
@@ -74,6 +75,20 @@ namespace craft
 		std::list<std::string> m_aliases;
 
 		friend class CMaterialClass;
+		friend class CPrototype;
+	};
+
+	class CPrototype
+	{
+	public:
+		CPrototype(const vnum_t vnum): m_vnum(vnum) {}
+
+		bool load(const pugi::xml_node* node);
+
+	private:
+		vnum_t m_vnum;
+
+		friend class CCraftModel;
 	};
 
 	/**
@@ -96,6 +111,7 @@ namespace craft
 			CCases m_male_adjectives;	///< Male adjective cases
 			CCases m_female_adjectives;	///< Female adjective cases
 			CCases m_neuter_adjectives;	///< Neuter adjective cases
+
 			FLAG_DATA m_extraflags;
 			FLAG_DATA m_affect_flags;
 
@@ -191,12 +207,28 @@ namespace craft
 			 */
 			bool load();
 
+			/**
+			** For debug purposes. Should be removed when feature will be done.
+			*/
 			void create_item() const;
 
 		private:
+			/**
+			** Loads N-th prototype from specified XML node and returns true
+			** if it was successful and false otherwise.
+			*/
+			bool load_prototype(const pugi::xml_node* prototype, const size_t number);
+
+			/**
+			** Loads N-th material from specified XML node and returns true
+			** if it was successful and false otherwise.
+			*/
+			bool load_material(const pugi::xml_node* material, const size_t number);
+
 			std::list<CCraft> m_crafts;         ///< List of crafts defined for the game.
 			std::list<CSkillBase> m_skills;     ///< List of skills defined for the game.
 			std::list<CRecipe> m_recipes;     	///< List of recipes defined for the game.
+			std::list<CPrototype> m_prototypes;	///< List of objects defined by the craft system.
 
 			// Properties
 			int m_base_count;						///< Base count of crafts (per character?).

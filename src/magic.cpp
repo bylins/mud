@@ -1077,11 +1077,11 @@ bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 {
 	int num = 0;
 
-	if (spelltype == SPELL_RUNES && GET_OBJ_TYPE(obj) != ITEM_INGRADIENT)
+	if (spelltype == SPELL_RUNES && GET_OBJ_TYPE(obj) != ITEM_INGREDIENT)
 	{
 		return false;
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT)
+	if (GET_OBJ_TYPE(obj) == ITEM_INGREDIENT)
 	{
 		if ((!IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype == SPELL_RUNES)
 			|| (IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype != SPELL_RUNES))

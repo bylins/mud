@@ -798,7 +798,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define ITEM_BOAT      22	// Item is a boat    //
 #define ITEM_FOUNTAIN  23	// Item is a fountain      //
 #define ITEM_BOOK      24	// Item is book //
-#define ITEM_INGRADIENT 25	// Item is magical ingradient //
+#define ITEM_INGREDIENT 25	// Item is magical ingradient //
 #define ITEM_MING      26	// Магический ингредиент //
 #define ITEM_MATERIAL  27	// Материал для крафтовых умений //
 #define ITEM_BANDAGE   28  	// бинты для перевязки

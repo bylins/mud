@@ -1910,7 +1910,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		sprintf(buf, "Монет: %d", GET_OBJ_VAL(j, 0));
 		break;
 
-	case ITEM_INGRADIENT:
+	case ITEM_INGREDIENT:
 		sprintbit(GET_OBJ_SKILL(j), ingradient_bits, buf2);
 		sprintf(buf, "%s\r\n", buf2);
 		send_to_char(buf, ch);

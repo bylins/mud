@@ -1623,7 +1623,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		}
 		break;
 // -newbook.patch (Alisher)
-	case ITEM_INGRADIENT:
+	case ITEM_INGREDIENT:
 
 		sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
 		sprintf(buf, "%s\r\n", buf2);
@@ -1994,7 +1994,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		}
 		break;
 // -newbook.patch (Alisher)
-	case ITEM_INGRADIENT:
+	case ITEM_INGREDIENT:
 
 		sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
 		sprintf(buf, "%s\r\n", buf2);

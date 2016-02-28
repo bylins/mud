@@ -378,13 +378,13 @@ void draw_objs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x)
 			{
 				continue;
 			}
-			if ((GET_OBJ_TYPE(obj) == ITEM_INGRADIENT || GET_OBJ_TYPE(obj) == ITEM_MING)
+			if ((GET_OBJ_TYPE(obj) == ITEM_INGREDIENT || GET_OBJ_TYPE(obj) == ITEM_MING)
 				&& !ch->map_check_option(MAP_MODE_INGREDIENTS))
 			{
 				continue;
 			}
 			if (!IS_CORPSE(obj)
-				&& GET_OBJ_TYPE(obj) != ITEM_INGRADIENT
+				&& GET_OBJ_TYPE(obj) != ITEM_INGREDIENT
 				&& GET_OBJ_TYPE(obj) != ITEM_MING
 				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS))
 			{

@@ -3115,7 +3115,7 @@ bool ParseFilter::init_type(const char *str)
 	else if (is_abbrev(str, "книга") || is_abbrev(str, "book"))
 		type = ITEM_BOOK;
 	else if (is_abbrev(str, "руна") || is_abbrev(str, "rune"))
-		type = ITEM_INGRADIENT;
+		type = ITEM_INGREDIENT;
 	else if (is_abbrev(str, "ингредиент") || is_abbrev(str, "ingradient"))
 		type = ITEM_MING;
 	else if (is_abbrev(str, "легкие") || is_abbrev(str, "легкая"))
@@ -3402,7 +3402,7 @@ bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const
 		result = true;
 	}
 	else if (((GET_OBJ_TYPE(obj) == ITEM_MING)
-			|| (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT))
+			|| (GET_OBJ_TYPE(obj) == ITEM_INGREDIENT))
 		&& GET_OBJ_RNUM(obj) >= 0
 		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->aliases))
 	{

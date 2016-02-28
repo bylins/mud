@@ -304,7 +304,7 @@
 				<minimal_remorts></minimal_remorts>
 				
 				<!-- Unnecessary attributes -->
-				<type>ITEM_WAND</type> <!-- Possible values (see structs.h): ITEM_LIGHT, ITEM_SCROLL, ITEM_WAND, ITEM_STAFF, ITEM_WEAPON, ITEM_FIREWEAPON, ITEM_MISSILE, ITEM_TREASURE, ITEM_ARMOR, ITEM_POTION, ITEM_WORN, ITEM_OTHER, ITEM_TRASH, ITEM_TRAP, ITEM_CONTAINER, ITEM_NOTE, ITEM_DRINKCON, ITEM_KEY, ITEM_FOOD, ITEM_MONEY, ITEM_PEN, ITEM_BOAT, ITEM_FOUNTAIN, ITEM_BOOK, ITEM_INGRADIENT, ITEM_MING, ITEM_MATERIAL, ITEM_BANDAGE, ITEM_ARMOR_LIGHT, ITEM_ARMOR_MEDIAN, ITEM_ARMOR_HEAVY, ITEM_ENCHANT -->
+				<type>ITEM_WAND</type> <!-- Possible values (see structs.h): ITEM_LIGHT, ITEM_SCROLL, ITEM_WAND, ITEM_STAFF, ITEM_WEAPON, ITEM_FIREWEAPON, ITEM_MISSILE, ITEM_TREASURE, ITEM_ARMOR, ITEM_POTION, ITEM_WORN, ITEM_OTHER, ITEM_TRASH, ITEM_TRAP, ITEM_CONTAINER, ITEM_NOTE, ITEM_DRINKCON, ITEM_KEY, ITEM_FOOD, ITEM_MONEY, ITEM_PEN, ITEM_BOAT, ITEM_FOUNTAIN, ITEM_BOOK, ITEM_INGREDIENT, ITEM_MING, ITEM_MATERIAL, ITEM_BANDAGE, ITEM_ARMOR_LIGHT, ITEM_ARMOR_MEDIAN, ITEM_ARMOR_HEAVY, ITEM_ENCHANT -->
 				<wearflags>
 					<!-- Possible values (see structs.h): ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_NECK, ITEM_WEAR_BODY, ITEM_WEAR_HEAD, ITEM_WEAR_LEGS, ITEM_WEAR_FEET, ITEM_WEAR_HANDS, ITEM_WEAR_ARMS, ITEM_WEAR_SHIELD, ITEM_WEAR_ABOUT, ITEM_WEAR_WAIST, ITEM_WEAR_WRIST, ITEM_WEAR_WIELD, ITEM_WEAR_HOLD, ITEM_WEAR_BOTHS -->
 					<wear></wear>
@@ -355,6 +355,98 @@
 
 	<prototypes>
 		<prototype vnum="100500">
+			<description>
+				<short>Палка-выручалка</short>
+				<long><![CDATA[
+				Длинный черенок от лопаты или другого сельско-хозяственного инструмента.
+				Местами обуглен, а с краю кто-то поставил нсколько зарубок.]]></long>
+				<keyword>Палка выручалка лежит, никому не нужная.</keyword>
+			</description>
+
+			<item>
+				<case1>палка-выручалка</case1>
+				<case2>палки-выручалки</case2>
+				<case3>палке-выручалке</case3>
+				<case4>палку-выручалку</case4>
+				<case5>палкой-выручалкой</case5>
+				<case6>палке-выручалке</case6>
+				<aliases>
+					<alias>палка</alias>
+					<alias>выручалка</alias>
+				</aliases>
+			</item>
+
+			<cost>100</cost>
+			<rent>
+				<on>10</on>
+				<off>100</off>
+			</rent>
+
+			<maximum_in_world>1</maximum_in_world>
+			<minimal_remorts>0</minimal_remorts>
+
+			<type>ITEM_WEAPON</type>
+
+			<durability>
+				<maximum>12000</maximum>
+				<current>1200</current>
+			</durability>
+
+			<sex>Female</sex>
+			<level>12</level>
+			<weight>120</weight>
+			<timer>unlimited</timer>
+			<skills>
+				<skill>SKILL_CLUBS</skill>
+			</skills>
+			<material>MAT_SUPERWOOD</material>
+			<spell>SPELL_SLEEP</spell>
+
+			<extraflags>
+				<extraflag>ITEM_BLESS</extraflag>
+				<extraflag>ITEM_NOSELL</extraflag>
+				<extraflag>ITEM_NODISARM</extraflag>
+				<extraflag>ITEM_NODONATE</extraflag>
+				<extraflag>ITEM_SWIMMING</extraflag>
+				<extraflag>ITEM_FLYING</extraflag>
+				<extraflag>ITEM_NO_FAIL</extraflag>
+				<extraflag>ITEM_WITH3SLOTS</extraflag>
+				<extraflag>ITEM_NODECAY</extraflag>
+			</extraflags>
+
+			<affects>
+				<affect>AFF_INVISIBLE</affect>
+				<affect>AFF_DETECT_ALIGN</affect>
+				<affect>AFF_DETECT_MAGIC</affect>
+				<affect>AFF_SENSE_LIFE</affect>
+				<affect>AFF_WATERWALK</affect>
+				<affect>AFF_INFRAVISION</affect>
+				<affect>AFF_NOTRACK</affect>
+				<affect>AFF_FLY</affect>
+				<affect>AFF_LIGHT_WALK</affect>
+				<affect>AFF_SCOPOLIA_POISON</affect>
+				<affect>AFF_SNEAK</affect>
+				<affect>AFF_BLINK</affect>
+			</affects>
+
+			<wearflags>
+				<wear>ITEM_WEAR_TAKE</wear>
+				<wear>ITEM_WEAR_WIELD</wear>
+				<wear>ITEM_WEAR_HOLD</wear>
+				<wear>ITEM_WEAR_BOTHS</wear>
+			</wearflags>
+
+			<skills>
+				<skill>
+					<id>SKILL_IDENTIFY</id>
+					<value>100</value>
+				</skill>
+			</skills>
+
+			<val0></val0>
+			<val1></val1>
+			<val2></val2>
+			<val3></val3>
 		</prototype>
 	</prototypes>
 </craftmodel>

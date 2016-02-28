@@ -909,7 +909,7 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 				"%sВыберите тип книги : ", grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, nrm);
 		send_to_char(buf, d->character);
 		break;
-	case ITEM_INGRADIENT:
+	case ITEM_INGREDIENT:
 		send_to_char("Первый байт - лаг после применения в сек, 5 бит - уровень : ", d->character);
 		break;
 	case ITEM_MING:
@@ -989,7 +989,7 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 			oedit_disp_val4_menu(d);
 		}
 		break;
-	case ITEM_INGRADIENT:
+	case ITEM_INGREDIENT:
 		send_to_char("Виртуальный номер прототипа  : ", d->character);
 		break;
 	case ITEM_MATERIAL:
@@ -1041,7 +1041,7 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 			oedit_disp_val4_menu(d);
 		}
 		break;
-	case ITEM_INGRADIENT:
+	case ITEM_INGREDIENT:
 		send_to_char("Сколько раз можно использовать : ", d->character);
 		break;
 	case ITEM_MATERIAL:
@@ -1368,7 +1368,7 @@ std::array<const char *, 9> wskill_bits =
 
 void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 {
-	if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGRADIENT)
+	if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGREDIENT)
 	{
 		oedit_disp_ingradient_menu(d);
 		return;
@@ -1752,7 +1752,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'n':
 		case 'N':
 			if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_WEAPON
-				|| GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGRADIENT)
+				|| GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGREDIENT)
 			{
 				oedit_disp_skills_menu(d);
 				OLC_MODE(d) = OEDIT_SKILL;
@@ -1901,7 +1901,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else
 		{
 			GET_OBJ_TYPE(OLC_OBJ(d)) = number;
-			if (number != ITEM_WEAPON && number != ITEM_INGRADIENT)
+			if (number != ITEM_WEAPON && number != ITEM_INGREDIENT)
 			{
 				GET_OBJ_SKILL(OLC_OBJ(d)) = 0;
 			}
@@ -2043,7 +2043,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if (number == 0)
 			break;
-		if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGRADIENT)
+		if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGREDIENT)
 		{
 			TOGGLE_BIT(GET_OBJ_SKILL(OLC_OBJ(d)), 1 << (number - 1));
 			oedit_disp_skills_menu(d);

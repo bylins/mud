@@ -404,7 +404,7 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 	static char out_str[MAX_STRING_LENGTH];
 
 	*out_str = 0;
-	if (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT && IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
+	if (GET_OBJ_TYPE(obj) == ITEM_INGREDIENT && IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
 			&& GET_CLASS(ch) == CLASS_DRUID)
 	{
 		int i = -1;
