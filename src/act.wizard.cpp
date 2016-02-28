@@ -2626,18 +2626,18 @@ ACMD(do_stat)
 		}
 		else
 		{
+			if ((victim = get_player_vis(ch, buf2, FIND_CHAR_WORLD)) != NULL)
+			{
+				do_statip(ch, victim);
+				return;
+			}
+			else
+				send_to_char("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
                  	Player t_vict;
 			if (load_char(buf2, &t_vict) > -1)
 			{
-				if (GET_LEVEL(&t_vict) > level)
-				{
-					send_to_char("Извините, вам это еще рано.\r\n", ch);
-				}
-				else
-				{
-					Clan::SetClanData(&t_vict);
-					do_statip(ch, &t_vict);
-				}
+//				Clan::SetClanData(&t_vict); не понял зачем проставлять клановый статус тут?
+				do_statip(ch, &t_vict);
 			}
 			else
 			{
