@@ -328,9 +328,9 @@ namespace craft
 		const auto extraflags = node->child("extraflags");
 		if (extraflags)
 		{
-			for (const auto extraflag : extraflags.children())
+			for (const auto extraflag : extraflags.children("extraflag"))
 			{
-				const char* flag = extraflag.child_value("extraflag");
+				const char* flag = extraflag.child_value();
 				try
 				{
 					auto value = ITEM_BY_NAME<EExtraFlag>(flag);
