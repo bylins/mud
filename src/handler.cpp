@@ -259,27 +259,31 @@ bool is_wear_light(CHAR_DATA *ch)
 {
 	bool wear_light = FALSE;
 	for (int wear_pos = 0; wear_pos < NUM_WEARS; wear_pos++)
-		if (GET_EQ(ch, wear_pos) && GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2))
+	{
+		if (GET_EQ(ch, wear_pos)
+			&& GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == obj_flag_data::ITEM_LIGHT
+			&& GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2))
+		{
 			wear_light = TRUE;
+		}
+	}
 	return wear_light;
 }
 
 void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef)
 {
 	if (IN_ROOM(ch) == NOWHERE)
-		return;
-
-	/*if (IS_IMMORTAL(ch))
 	{
-		sprintf(buf,"%d %d %d (%d)\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
-		send_to_char(buf,ch);
-	}*/
+		return;
+	}
 
 	// In equipment
 	if (is_wear_light(ch))
 	{
 		if (was_equip == LIGHT_NO)
+		{
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light + koef);
+		}
 	}
 	else
 	{
@@ -817,15 +821,23 @@ void affect_total(CHAR_DATA * ch)
 
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch)) * 2;
-	if ((obj = GET_EQ(ch, WEAR_BOTHS)) && GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+	if ((obj = GET_EQ(ch, WEAR_BOTHS))
+		&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+	{
 		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1; // правильный расчет среднего у оружия
+	}
 	else
 	{
 		if ((obj = GET_EQ(ch, WEAR_WIELD))
-				&& GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+			&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+		{
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
-		if ((obj = GET_EQ(ch, WEAR_HOLD)) && GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+		}
+		if ((obj = GET_EQ(ch, WEAR_HOLD))
+			&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+		{
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
+		}
 	}
 
 	{
@@ -1401,15 +1413,19 @@ bool stockable_custom_labels(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 {
 	if (GET_OBJ_VNUM(obj_one) != GET_OBJ_VNUM(obj_two)
-			|| strcmp(obj_one->short_description, obj_two->short_description)
-			|| (GET_OBJ_TYPE(obj_one) == ITEM_DRINKCON && GET_OBJ_VAL(obj_one, 2) != GET_OBJ_VAL(obj_two, 2))
-			|| (GET_OBJ_TYPE(obj_one) == ITEM_CONTAINER && (obj_one->contains || obj_two->contains))
-			|| GET_OBJ_VNUM(obj_two) == -1
-			|| (GET_OBJ_TYPE(obj_one) == ITEM_BOOK && GET_OBJ_VAL(obj_one, 1) != GET_OBJ_VAL(obj_two, 1))
-			|| !stockable_custom_labels(obj_one, obj_two))
+		|| strcmp(obj_one->short_description, obj_two->short_description)
+		|| (GET_OBJ_TYPE(obj_one) == obj_flag_data::ITEM_DRINKCON
+			&& GET_OBJ_VAL(obj_one, 2) != GET_OBJ_VAL(obj_two, 2))
+		|| (GET_OBJ_TYPE(obj_one) == obj_flag_data::ITEM_CONTAINER
+			&& (obj_one->contains || obj_two->contains))
+		|| GET_OBJ_VNUM(obj_two) == -1
+		|| (GET_OBJ_TYPE(obj_one) == obj_flag_data::ITEM_BOOK
+			&& GET_OBJ_VAL(obj_one, 1) != GET_OBJ_VAL(obj_two, 1))
+		|| !stockable_custom_labels(obj_one, obj_two))
 	{
 		return 0;
 	}
+
 	return 1;
 }
 
@@ -1904,24 +1920,30 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 
 bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_LIGHT && !can_use_feat(ch, ARMOR_LIGHT_FEAT))
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR_LIGHT
+		&& !can_use_feat(ch, ARMOR_LIGHT_FEAT))
 	{
 		act("Для использования $o1 требуется способность 'легкие доспехи'.",
-				FALSE, ch, obj, 0, TO_CHAR);
+			FALSE, ch, obj, 0, TO_CHAR);
 		return false;
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_MEDIAN && !can_use_feat(ch, ARMOR_MEDIAN_FEAT))
+
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR_MEDIAN
+		&& !can_use_feat(ch, ARMOR_MEDIAN_FEAT))
 	{
 		act("Для использования $o1 требуется способность 'средние доспехи'.",
-				FALSE, ch, obj, 0, TO_CHAR);
+			FALSE, ch, obj, 0, TO_CHAR);
 		return false;
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_HEAVY && !can_use_feat(ch, ARMOR_HEAVY_FEAT))
+
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR_HEAVY
+		&& !can_use_feat(ch, ARMOR_HEAVY_FEAT))
 	{
 		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
-				FALSE, ch, obj, 0, TO_CHAR);
+			FALSE, ch, obj, 0, TO_CHAR);
 		return false;
 	}
+
 	return true;
 }
 
@@ -2561,12 +2583,18 @@ bool obj_to_room(OBJ_DATA * object, room_rnum room)
 			   extract_obj(object);
 			   }
 			   else */
-			if (GET_OBJ_TYPE(object) == ITEM_MONEY)
+			if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_MONEY)
+			{
 				GET_OBJ_DESTROY(object) = money_destroy_timer;
+			}
 			else if (ROOM_FLAGGED(room, ROOM_DEATH))
+			{
 				GET_OBJ_DESTROY(object) = death_destroy_timer;
+			}
 			else
+			{
 				GET_OBJ_DESTROY(object) = room_destroy_timer;
+			}
 	}
 	return 1;
 }
@@ -2807,9 +2835,10 @@ void update_char_objects(CHAR_DATA * ch)
 	int i;
 //Polud раз уж светит любой источник света, то и гаснуть тоже должны все
 	for (int wear_pos = 0; wear_pos < NUM_WEARS; wear_pos++)
+	{
 		if (GET_EQ(ch, wear_pos) != NULL)
 		{
-			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == ITEM_LIGHT)
+			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == obj_flag_data::ITEM_LIGHT)
 			{
 				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0)
 				{
@@ -2836,14 +2865,21 @@ void update_char_objects(CHAR_DATA * ch)
 				}
 			}
 		}
+	}
 	//-Polud
 
 	for (i = 0; i < NUM_WEARS; i++)
+	{
 		if (GET_EQ(ch, i))
+		{
 			update_object(GET_EQ(ch, i), 1);
+		}
+	}
 
 	if (ch->carrying)
+	{
 		update_object(ch->carrying, 1);
+	}
 }
 
 /**
@@ -3714,7 +3750,7 @@ OBJ_DATA *create_money(int amount)
 	new_descr->next = NULL;
 	obj->ex_description = new_descr;
 
-	GET_OBJ_TYPE(obj) = ITEM_MONEY;
+	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_MONEY;
 	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
 	GET_OBJ_SEX(obj) = SEX_FEMALE;
 	GET_OBJ_VAL(obj, 0) = amount;

@@ -336,7 +336,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Type"))
 			{
 				*error = 28;
-				GET_OBJ_TYPE(object) = atoi(buffer);
+				GET_OBJ_TYPE(object) = static_cast<obj_flag_data::EObjectType>(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Val0"))
 			{
@@ -642,20 +642,21 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 	*error = 0;
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == ITEM_DRINKCON || GET_OBJ_TYPE(object) == ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(object) == obj_flag_data::ITEM_FOUNTAIN)
 	{
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1))
 			GET_OBJ_WEIGHT(object) = GET_OBJ_VAL(object, 1) + 5;
 	}
 	// проставляем имя жидкости
-	if (GET_OBJ_TYPE(object) == ITEM_DRINKCON)
+	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_DRINKCON)
 	{
 		name_from_drinkcon(object);
 		if (GET_OBJ_VAL(object, 1) && GET_OBJ_VAL(object, 2))
 			name_to_drinkcon(object, GET_OBJ_VAL(object, 2));
 	}
 	// Проверка на ингры
-	if (GET_OBJ_TYPE(object) == ITEM_MING)
+	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_MING)
 	{
 		int err = im_assign_power(object);
 		if (err)
@@ -762,7 +763,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	*error = 12;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %s %s", t, f1, f2) != 3)
 		return (object);
-	GET_OBJ_TYPE(object) = t[0];
+	GET_OBJ_TYPE(object) = static_cast<obj_flag_data::EObjectType>(t[0]);
 	GET_OBJ_EXTRA(object) = clear_flags;
 	GET_OBJ_WEAR(object) = 0;
 	GET_OBJ_EXTRA(object).from_string(f1);
@@ -792,10 +793,13 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	GET_OBJ_OWNER(object) = t[1];
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == ITEM_DRINKCON || GET_OBJ_TYPE(object) == ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(object) == obj_flag_data::ITEM_FOUNTAIN)
 	{
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1))
+		{
 			GET_OBJ_WEIGHT(object) = GET_OBJ_VAL(object, 1) + 5;
+		}
 	}
 
 	object->ex_description = NULL;	// Exclude doubling ex_description !!!
@@ -811,11 +815,13 @@ OBJ_DATA *read_one_object(char **data, int *error)
 				object->affected[j].location = APPLY_NONE;
 				object->affected[j].modifier = 0;
 			}
-			if (GET_OBJ_TYPE(object) == ITEM_MING)
+			if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_MING)
 			{
 				int err = im_assign_power(object);
 				if (err)
+				{
 					*error = 100 + err;
+				}
 			}
 			return (object);
 		}
@@ -2223,7 +2229,9 @@ int Crash_load(CHAR_DATA * ch)
 		obj->next_content = NULL;
 		if (obj->worn_on >= 0)  	// Equipped or in inventory
 		{
-			if (obj2 && obj2->worn_on < 0 && GET_OBJ_TYPE(obj) == ITEM_CONTAINER)  	// This is container and it is not free
+			if (obj2
+				&& obj2->worn_on < 0
+				&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)  	// This is container and it is not free
 			{
 				CREATE(tank, 1);
 				tank->next = tank_list;
@@ -2248,7 +2256,9 @@ int Crash_load(CHAR_DATA * ch)
 		}
 		else
 		{
-			if (obj2 && obj2->worn_on < obj->worn_on && GET_OBJ_TYPE(obj) == ITEM_CONTAINER)  	// This is container and it is not free
+			if (obj2
+				&& obj2->worn_on < obj->worn_on
+				&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)  	// This is container and it is not free
 			{
 				tank_to = tank_list;
 				CREATE(tank, 1);
@@ -2323,8 +2333,9 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj)
 
 	if (obj->get_extraflag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
-		|| ((GET_OBJ_RNUM(obj) <= NOTHING) && (GET_OBJ_TYPE(obj) != ITEM_MONEY))
-		|| GET_OBJ_TYPE(obj) == ITEM_KEY
+		|| (GET_OBJ_RNUM(obj) <= NOTHING
+			&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY)
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY
 		|| SetSystem::is_norent_set(ch, obj))
 	{
 		return TRUE;

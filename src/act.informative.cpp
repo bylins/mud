@@ -269,7 +269,7 @@ char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear)
 	*out_str = '\0';
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_WEAPON:
+	case obj_flag_data::ITEM_WEAPON:
 		switch (GET_OBJ_SKILL(obj))
 		{
 		case SKILL_BOWS:
@@ -303,7 +303,10 @@ char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear)
 			sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам !!\r\n");
 		}
 		if (skill)
+		{
 			sprintf(out_str, "Принадлежит к классу \"%s\".\r\n", weapon_class[skill - 1]);
+		}
+
 	default:
 		if (show_wear)
 		{
@@ -404,17 +407,18 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 	static char out_str[MAX_STRING_LENGTH];
 
 	*out_str = 0;
-	if (GET_OBJ_TYPE(obj) == ITEM_INGREDIENT && IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
-			&& GET_CLASS(ch) == CLASS_DRUID)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT
+		&& IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
+		&& GET_CLASS(ch) == CLASS_DRUID)
 	{
 		int i = -1;
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0)
 		{
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
-					CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
+				CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
 		}
 		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
-				GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
+			GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}
 	return (out_str);
 }
@@ -441,15 +445,15 @@ namespace
 
 std::string diag_armor_type_to_char(const OBJ_DATA *obj)
 {
-	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_LIGHT)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR_LIGHT)
 	{
 		return "Легкий тип доспехов.\r\n";
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_MEDIAN)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR_MEDIAN)
 	{
 		return "Средний тип доспехов.\r\n";
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_HEAVY)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR_HEAVY)
 	{
 		return "Тяжелый тип доспехов.\r\n";
 	}
@@ -501,7 +505,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 	}
 	else if (mode == 5)
 	{
-		if (GET_OBJ_TYPE(object) == ITEM_NOTE)
+		if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_NOTE)
 		{
 			if (object->action_description)
 			{
@@ -510,23 +514,26 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 				page_string(ch->desc, buf, 1);
 			}
 			else
+			{
 				send_to_char("Чисто.\r\n", ch);
+			}
 			return 0;
 		}
-		else if (GET_OBJ_TYPE(object) == ITEM_BANDAGE)
+		else if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_BANDAGE)
 		{
 			strcpy(buf, "Бинты для перевязки ран ('перевязать').\r\n");
-			snprintf(buf2, MAX_STRING_LENGTH,
-					"Осталось применений: %d, восстановление: %d",
-					GET_OBJ_WEIGHT(object), GET_OBJ_VAL(object, 0) * 10);
+			snprintf(buf2, MAX_STRING_LENGTH, "Осталось применений: %d, восстановление: %d",
+				GET_OBJ_WEIGHT(object), GET_OBJ_VAL(object, 0) * 10);
 			strcat(buf, buf2);
 		}
-		else if (GET_OBJ_TYPE(object) != ITEM_DRINKCON)
+		else if (GET_OBJ_TYPE(object) != obj_flag_data::ITEM_DRINKCON)
 		{
 			strcpy(buf, "Вы не видите ничего необычного.");
 		}
 		else		// ITEM_TYPE == ITEM_DRINKCON||FOUNTAIN
+		{
 			strcpy(buf, "Это емкость для жидкости.");
+		}
 	}
 
 	if (show_state && show_state != 3 && show_state != 4)
@@ -534,7 +541,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		*buf2 = '\0';
 		if (mode == 1 && how <= 1)
 		{
-			if (GET_OBJ_TYPE(object) == ITEM_LIGHT)
+			if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_LIGHT)
 			{
 				if (GET_OBJ_VAL(object, 2) == -1)
 					strcpy(buf2, " (вечный свет)");
@@ -556,7 +563,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 					sprintf(buf2, " %s", diag_obj_to_char(ch, object, 1));
 				}
 			}
-			if (GET_OBJ_TYPE(object) == ITEM_CONTAINER)
+			if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_CONTAINER)
 			{
 				if (object->contains)
 					strcat(buf2, " (есть содержимое)");
@@ -568,7 +575,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		{
 			std::string obj_name = OBJN(object, ch, 0);
 			obj_name[0] = UPPER(obj_name[0]);
-			if (GET_OBJ_TYPE(object) == ITEM_LIGHT)
+			if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_LIGHT)
 			{
 				if (GET_OBJ_VAL(object, 2) == -1)
 					sprintf(buf2, "\r\n%s дает вечный свет.", obj_name.c_str());
@@ -2208,10 +2215,12 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 		sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 	}
-	else if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON)
-			 && (GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN)
-			 && (GET_OBJ_TYPE(obj) != ITEM_CONTAINER))
+	else if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_DRINKCON
+		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_FOUNTAIN
+		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_CONTAINER)
+	{
 		send_to_char("Ничего в нем нет!\r\n", ch);
+	}
 	else
 	{
 		if (Clan::ChestShow(obj, ch))
@@ -2228,7 +2237,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 			return;
 		}
 
-		if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
+		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)
 		{
 			if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
 			{
@@ -2341,10 +2350,14 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 		}
 
-		if (GET_OBJ_TYPE(obj) == ITEM_MING && (can_use_feat(ch, BREW_POTION_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING
+			&& (can_use_feat(ch, BREW_POTION_FEAT)
+				|| PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 		{
-			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT)  && j <= top_imtypes;)
+			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;)
+			{
 				j++;
+			}
 			sprintf(buf+strlen(buf), "Это ингредиент вида '%s'.\r\n", imtypes[j].name);
 			int imquality = GET_OBJ_VAL(obj, IM_POWER_SLOT);
 			if (GET_LEVEL(ch) >= imquality)
@@ -2770,9 +2783,12 @@ ACMD(do_examine)
 	generic_find(arg, where_bits, ch, &tmp_char, &tmp_object);
 	if (tmp_object)
 	{
-		if ((GET_OBJ_TYPE(tmp_object) == ITEM_DRINKCON) ||
-				(GET_OBJ_TYPE(tmp_object) == ITEM_FOUNTAIN) || (GET_OBJ_TYPE(tmp_object) == ITEM_CONTAINER))
+		if (GET_OBJ_TYPE(tmp_object) == obj_flag_data::ITEM_DRINKCON
+			|| GET_OBJ_TYPE(tmp_object) == obj_flag_data::ITEM_FOUNTAIN
+			|| GET_OBJ_TYPE(tmp_object) == obj_flag_data::ITEM_CONTAINER)
+		{
 			look_in_obj(ch, argument);
+		}
 	}
 }
 
@@ -2950,7 +2966,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	OBJ_DATA* weapon = GET_EQ(ch, WEAR_BOTHS);
 	if (weapon)
 	{
-		if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
+		if (GET_OBJ_TYPE(weapon) == obj_flag_data::ITEM_WEAPON)
 		{
 			max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1);
 			skill = GET_OBJ_SKILL(weapon);
@@ -2969,7 +2985,7 @@ void print_do_score_all(CHAR_DATA *ch)
 		weapon = GET_EQ(ch, WEAR_WIELD);
 		if (weapon)
 		{
-			if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
+			if (GET_OBJ_TYPE(weapon) == obj_flag_data::ITEM_WEAPON)
 			{
 				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
 				skill = GET_OBJ_SKILL(weapon);
@@ -2986,7 +3002,7 @@ void print_do_score_all(CHAR_DATA *ch)
 		weapon = GET_EQ(ch, WEAR_HOLD);
 		if (weapon)
 		{
-			if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
+			if (GET_OBJ_TYPE(weapon) == obj_flag_data::ITEM_WEAPON)
 			{
 				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
 				skill = GET_OBJ_SKILL(weapon);

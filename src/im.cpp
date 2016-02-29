@@ -1044,8 +1044,10 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 	for (o = room->contents; o; o = next)
 	{
 		next = o->next_content;
-		if (GET_OBJ_TYPE(o) == ITEM_MING)
+		if (GET_OBJ_TYPE(o) == obj_flag_data::ITEM_MING)
+		{
 			extract_obj(o);
+		}
 	}
 	if (!zone_types[type].ingr_qty
 		|| room->get_flag(ROOM_DEATH))
@@ -1418,7 +1420,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 			sprintf(buf, "У вас нет %s.\r\n", name);
 			break;
 		}
-		if (GET_OBJ_TYPE(o) != ITEM_MING)
+		if (GET_OBJ_TYPE(o) != obj_flag_data::ITEM_MING)
 		{
 			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
 			break;
@@ -1596,18 +1598,20 @@ ACMD(do_cook)
 
 	switch (GET_OBJ_TYPE(obj_proto[tgt]))
 	{
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = 1;	// количество
 		param[2] = obj_proto[tgt]->get_timer();	// таймер
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);	// количество
 		param[2] = obj_proto[tgt]->get_timer();	// таймер
 		break;
+
 	default:
 		imlog(NRM, "Прототип имеет неверный тип");
 		send_to_char("Результат варева непредсказуем.\r\n", ch);
@@ -1615,10 +1619,9 @@ ACMD(do_cook)
 		return;
 	}
 
-	sprintf(name,
-			"Базовые параметры и курс перевода в магические Дж: %f,%f %f,%f %f,%f",
-			param[0], imrecipes[rs->rid].k[0],
-			param[1], imrecipes[rs->rid].k[1], param[2], imrecipes[rs->rid].k[2]);
+	sprintf(name, "Базовые параметры и курс перевода в магические Дж: %f,%f %f,%f %f,%f",
+		param[0], imrecipes[rs->rid].k[0],
+		param[1], imrecipes[rs->rid].k[1], param[2], imrecipes[rs->rid].k[2]);
 	imlog(CMP, name);
 
 	W2 *= imrecipes[rs->rid].kp;
@@ -1732,21 +1735,28 @@ ACMD(do_cook)
 		{
 			switch (GET_OBJ_TYPE(result))
 			{
-			case ITEM_SCROLL:
-			case ITEM_POTION:
+			case obj_flag_data::ITEM_SCROLL:
+			case obj_flag_data::ITEM_POTION:
 				if (val[0] > 0)
+				{
 					GET_OBJ_VAL(result, 0) = val[0];
+				}
 				if (val[2] > 0)
 				{
 					result->set_timer(val[2]);
 				}
 				break;
-			case ITEM_WAND:
-			case ITEM_STAFF:
+
+			case obj_flag_data::ITEM_WAND:
+			case obj_flag_data::ITEM_STAFF:
 				if (val[0] > 0)
+				{
 					GET_OBJ_VAL(result, 0) = val[0];
+				}
 				if (val[1] > 0)
+				{
 					GET_OBJ_VAL(result, 1) = GET_OBJ_VAL(result, 2) = val[1];
+				}
 				if (val[2] > 0)
 				{
 					result->set_timer(val[2]);
@@ -1756,13 +1766,6 @@ ACMD(do_cook)
 			obj_to_char(result, ch);
 		}
 	}
-
-	/*
-	  if ( mres == IM_MSG_DAM )
-	  {
-	    dam = dice(imrecipes[rs->rid].x,imrecipes[rs->rid].y);
-	  }
-	*/
 
 	return;
 }

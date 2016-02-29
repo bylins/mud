@@ -311,7 +311,8 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	if (obj->get_timer() > tmp.get_timer())
 		obj->set_timer(tmp.get_timer());
 	// емкостям сохраняем жидкость и кол-во глотков, во избежание жалоб
-	if ((GET_OBJ_TYPE(&tmp) == ITEM_DRINKCON) && (GET_OBJ_TYPE(obj) == ITEM_DRINKCON))
+	if (GET_OBJ_TYPE(&tmp) == obj_flag_data::ITEM_DRINKCON
+		&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
 	{
 		GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(&tmp, 1); //кол-во глотков
 		if (is_potion(&tmp))
@@ -862,43 +863,52 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = OEDIT_VALUE_1;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d)))
 	{
-	case ITEM_LIGHT:
+	case obj_flag_data::ITEM_LIGHT:
 		// * values 0 and 1 are unused.. jump to 2
 		oedit_disp_val3_menu(d);
 		break;
-	case ITEM_SCROLL:
-	case ITEM_WAND:
-	case ITEM_STAFF:
-	case ITEM_POTION:
+
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
+	case obj_flag_data::ITEM_POTION:
 		send_to_char("Уровень заклинания : ", d->character);
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		// * This doesn't seem to be used if I remember right.
 		send_to_char("Модификатор попадания : ", d->character);
 		break;
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		send_to_char("Изменяет АС на : ", d->character);
 		break;
-	case ITEM_CONTAINER:
+
+	case obj_flag_data::ITEM_CONTAINER:
 		send_to_char("Максимально вместимый вес : ", d->character);
 		break;
-	case ITEM_DRINKCON:
-	case ITEM_FOUNTAIN:
+
+	case obj_flag_data::ITEM_DRINKCON:
+	case obj_flag_data::ITEM_FOUNTAIN:
 		send_to_char("Количество глотков : ", d->character);
 		break;
-	case ITEM_FOOD:
+
+	case obj_flag_data::ITEM_FOOD:
 		send_to_char("На сколько часов насыщает : ", d->character);
 		break;
-	case ITEM_MONEY:
+
+	case obj_flag_data::ITEM_MONEY:
 		send_to_char("Сколько кун содержит : ", d->character);
 		break;
-	case ITEM_NOTE:
+
+	case obj_flag_data::ITEM_NOTE:
 		// * This is supposed to be language, but it's unused.
 		break;
-	case ITEM_BOOK:
+
+	case obj_flag_data::ITEM_BOOK:
 //		send_to_char("Тип книги (0-закл, 1-ум, 2-ум+, 3-рецепт, 4-фит): ", d->character);
 		sprintf(buf,
 				"%s0%s) %sКнига заклинаний\r\n"
@@ -909,19 +919,24 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 				"%sВыберите тип книги : ", grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, nrm);
 		send_to_char(buf, d->character);
 		break;
-	case ITEM_INGREDIENT:
+
+	case obj_flag_data::ITEM_INGREDIENT:
 		send_to_char("Первый байт - лаг после применения в сек, 5 бит - уровень : ", d->character);
 		break;
-	case ITEM_MING:
+
+	case obj_flag_data::ITEM_MING:
 		oedit_disp_val4_menu(d);
 		break;
-	case ITEM_MATERIAL:
+
+	case obj_flag_data::ITEM_MATERIAL:
 		send_to_char("Уровень игрока для использования + морт * 2: ", d->character);
 		break;
-	case ITEM_BANDAGE:
+
+	case obj_flag_data::ITEM_BANDAGE:
 		send_to_char("Хитов в секунду: ", d->character);
 		break;
-	case ITEM_ENCHANT:
+
+	case obj_flag_data::ITEM_ENCHANT:
 		send_to_char("Изменяет вес: ", d->character);
 		break;
 
@@ -936,36 +951,43 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = OEDIT_VALUE_2;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d)))
 	{
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		oedit_disp_spells_menu(d);
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		send_to_char("Количество зарядов : ", d->character);
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		send_to_char("Количество бросков кубика : ", d->character);
 		break;
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		send_to_char("Изменяет броню на : ", d->character);
 		break;
-	case ITEM_FOOD:
+
+	case obj_flag_data::ITEM_FOOD:
 		// * Values 2 and 3 are unused, jump to 4...Odd.
 		oedit_disp_val4_menu(d);
 		break;
-	case ITEM_CONTAINER:
+
+	case obj_flag_data::ITEM_CONTAINER:
 		// * These are flags, needs a bit of special handling.
 		oedit_disp_container_flags_menu(d);
 		break;
-	case ITEM_DRINKCON:
-	case ITEM_FOUNTAIN:
+
+	case obj_flag_data::ITEM_DRINKCON:
+	case obj_flag_data::ITEM_FOUNTAIN:
 		send_to_char("Начальное количество глотков : ", d->character);
 		break;
-	case ITEM_BOOK:
+
+	case obj_flag_data::ITEM_BOOK:
 		switch (GET_OBJ_VAL(OLC_OBJ(d), 0))
 		{
 		case BOOK_SPELL:
@@ -989,12 +1011,15 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 			oedit_disp_val4_menu(d);
 		}
 		break;
-	case ITEM_INGREDIENT:
+
+	case obj_flag_data::ITEM_INGREDIENT:
 		send_to_char("Виртуальный номер прототипа  : ", d->character);
 		break;
-	case ITEM_MATERIAL:
+
+	case obj_flag_data::ITEM_MATERIAL:
 		send_to_char("Введите VNUM прототипа: ", d->character);
 		break;
+
 	default:
 		oedit_disp_menu(d);
 	}
@@ -1006,28 +1031,34 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = OEDIT_VALUE_3;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d)))
 	{
-	case ITEM_LIGHT:
+	case obj_flag_data::ITEM_LIGHT:
 		send_to_char("Длительность горения (0 = погасла, -1 - вечный свет) : ", d->character);
 		break;
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		oedit_disp_spells_menu(d);
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		send_to_char("Осталось зарядов : ", d->character);
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		send_to_char("Количество граней кубика : ", d->character);
 		break;
-	case ITEM_CONTAINER:
+
+	case obj_flag_data::ITEM_CONTAINER:
 		send_to_char("Vnum ключа для контейнера (-1 - нет ключа) : ", d->character);
 		break;
-	case ITEM_DRINKCON:
-	case ITEM_FOUNTAIN:
+
+	case obj_flag_data::ITEM_DRINKCON:
+	case obj_flag_data::ITEM_FOUNTAIN:
 		oedit_liquid_type(d);
 		break;
-	case ITEM_BOOK:
+
+	case obj_flag_data::ITEM_BOOK:
 //		send_to_char("Уровень изучения (+ к умению если тип = 2 ) : ", d->character);
 		switch (GET_OBJ_VAL(OLC_OBJ(d), 0))
 		{
@@ -1041,12 +1072,15 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 			oedit_disp_val4_menu(d);
 		}
 		break;
-	case ITEM_INGREDIENT:
+
+	case obj_flag_data::ITEM_INGREDIENT:
 		send_to_char("Сколько раз можно использовать : ", d->character);
 		break;
-	case ITEM_MATERIAL:
+
+	case obj_flag_data::ITEM_MATERIAL:
 		send_to_char("Введите силу ингридиента: ", d->character);
 		break;
+
 	default:
 		oedit_disp_menu(d);
 	}
@@ -1058,21 +1092,24 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = OEDIT_VALUE_4;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d)))
 	{
-	case ITEM_SCROLL:
-	case ITEM_POTION:
-	case ITEM_WAND:
-	case ITEM_STAFF:
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		oedit_disp_spells_menu(d);
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		oedit_disp_weapon_menu(d);
 		break;
-	case ITEM_DRINKCON:
-	case ITEM_FOUNTAIN:
-	case ITEM_FOOD:
+
+	case obj_flag_data::ITEM_DRINKCON:
+	case obj_flag_data::ITEM_FOUNTAIN:
+	case obj_flag_data::ITEM_FOOD:
 		send_to_char("Отравлено (0 = не отравлено) : ", d->character);
 		break;
-	case ITEM_BOOK:
+
+	case obj_flag_data::ITEM_BOOK:
 //		send_to_char("Макс. уровень умения или тип способности (0-врожденная, 1) : ", d->character);
 		switch (GET_OBJ_VAL(OLC_OBJ(d), 0))
 		{
@@ -1087,15 +1124,19 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 			oedit_disp_menu(d);
 		}
 		break;
-	case ITEM_MING:
+
+	case obj_flag_data::ITEM_MING:
 		send_to_char("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character);
 		break;
-	case ITEM_MATERIAL:
+
+	case obj_flag_data::ITEM_MATERIAL:
 		send_to_char("Введите условный уровень: ", d->character);
 		break;
-	case ITEM_CONTAINER:
+
+	case obj_flag_data::ITEM_CONTAINER:
 		send_to_char("Введите сложность замка (0-255): ", d->character);
 		break;
+
 	default:
 		oedit_disp_menu(d);
 	}
@@ -1368,7 +1409,7 @@ std::array<const char *, 9> wskill_bits =
 
 void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 {
-	if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGREDIENT)
+	if (GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_INGREDIENT)
 	{
 		oedit_disp_ingradient_menu(d);
 		return;
@@ -1397,8 +1438,8 @@ void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 
 std::string print_values2_menu(OBJ_DATA *obj)
 {
-	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON
-		|| GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN)
 	{
 		return "Спец.параметры";
 	}
@@ -1751,14 +1792,14 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 'n':
 		case 'N':
-			if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_WEAPON
-				|| GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGREDIENT)
+			if (GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_WEAPON
+				|| GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_INGREDIENT)
 			{
 				oedit_disp_skills_menu(d);
 				OLC_MODE(d) = OEDIT_SKILL;
 			}
-			else if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_DRINKCON
-				|| GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_FOUNTAIN)
+			else if (GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_DRINKCON
+				|| GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_FOUNTAIN)
 			{
 				drinkcon_values_menu(d);
 				OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
@@ -1900,8 +1941,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			GET_OBJ_TYPE(OLC_OBJ(d)) = number;
-			if (number != ITEM_WEAPON && number != ITEM_INGREDIENT)
+			GET_OBJ_TYPE(OLC_OBJ(d)) = static_cast<obj_flag_data::EObjectType>(number);
+			if (number != obj_flag_data::ITEM_WEAPON
+				&& number != obj_flag_data::ITEM_INGREDIENT)
 			{
 				GET_OBJ_SKILL(OLC_OBJ(d)) = 0;
 			}
@@ -2043,13 +2085,13 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if (number == 0)
 			break;
-		if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_INGREDIENT)
+		if (GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_INGREDIENT)
 		{
 			TOGGLE_BIT(GET_OBJ_SKILL(OLC_OBJ(d)), 1 << (number - 1));
 			oedit_disp_skills_menu(d);
 			return;
 		}
-		if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_WEAPON)
+		if (GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_WEAPON)
 			switch (number)
 			{
 			case 1:
@@ -2093,7 +2135,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		// * Hmm, I'm not so sure - Rv
 		number = atoi(arg);
 
-		if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_BOOK && (number < 0 || number > 4))
+		if (GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_BOOK
+			&& (number < 0
+				|| number > 4))
 		{
 			send_to_char("Неправильный тип книги, повторите.\r\n", d->character);
 			oedit_disp_val1_menu(d);
@@ -2110,21 +2154,26 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = atoi(arg);
 		switch (GET_OBJ_TYPE(OLC_OBJ(d)))
 		{
-		case ITEM_SCROLL:
-		case ITEM_POTION:
+		case obj_flag_data::ITEM_SCROLL:
+		case obj_flag_data::ITEM_POTION:
 			if (number < 0 || number >= SPELLS_COUNT)
+			{
 				oedit_disp_val2_menu(d);
+			}
 			else
 			{
 				GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
 				oedit_disp_val3_menu(d);
 			}
 			return;
-		case ITEM_CONTAINER:
+
+		case obj_flag_data::ITEM_CONTAINER:
 			// Needs some special handling since we are dealing with flag values
 			// here.
 			if (number < 0 || number > 4)
+			{
 				oedit_disp_container_flags_menu(d);
+			}
 			else if (number != 0)
 			{
 				TOGGLE_BIT(GET_OBJ_VAL(OLC_OBJ(d), 1), 1 << (number - 1));
@@ -2132,9 +2181,12 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				oedit_disp_val2_menu(d);
 			}
 			else
+			{
 				oedit_disp_val3_menu(d);
+			}
 			return;
-		case ITEM_BOOK:
+
+		case obj_flag_data::ITEM_BOOK:
 			switch (GET_OBJ_VAL(OLC_OBJ(d), 0))
 			{
 			case BOOK_SPELL:
@@ -2200,29 +2252,34 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		// * Quick'n'easy error checking.
 		switch (GET_OBJ_TYPE(OLC_OBJ(d)))
 		{
-		case ITEM_SCROLL:
-		case ITEM_POTION:
+		case obj_flag_data::ITEM_SCROLL:
+		case obj_flag_data::ITEM_POTION:
 			min_val = 0;
 			max_val = SPELLS_COUNT - 1;
 			break;
-		case ITEM_WEAPON:
+
+		case obj_flag_data::ITEM_WEAPON:
 			min_val = 1;
 			max_val = 50;
 			break;
-		case ITEM_WAND:
-		case ITEM_STAFF:
+
+		case obj_flag_data::ITEM_WAND:
+		case obj_flag_data::ITEM_STAFF:
 			min_val = 0;
 			max_val = 20;
 			break;
-		case ITEM_DRINKCON:
-		case ITEM_FOUNTAIN:
+
+		case obj_flag_data::ITEM_DRINKCON:
+		case obj_flag_data::ITEM_FOUNTAIN:
 			min_val = 0;
 			max_val = NUM_LIQ_TYPES - 1;
 			break;
-		case ITEM_MATERIAL:
+
+		case obj_flag_data::ITEM_MATERIAL:
 			min_val = 0;
 			max_val = 1000;
 			break;
+
 		default:
 			min_val = -999999;
 			max_val = 999999;
@@ -2236,28 +2293,32 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = atoi(arg);
 		switch (GET_OBJ_TYPE(OLC_OBJ(d)))
 		{
-		case ITEM_SCROLL:
-		case ITEM_POTION:
+		case obj_flag_data::ITEM_SCROLL:
+		case obj_flag_data::ITEM_POTION:
 			min_val = 0;
 			max_val = SPELLS_COUNT - 1;
 			break;
-		case ITEM_WAND:
-		case ITEM_STAFF:
+
+		case obj_flag_data::ITEM_WAND:
+		case obj_flag_data::ITEM_STAFF:
 			min_val = 1;
 			max_val = SPELLS_COUNT - 1;
 			break;
-		case ITEM_WEAPON:
+
+		case obj_flag_data::ITEM_WEAPON:
 			min_val = 0;
 			max_val = NUM_ATTACK_TYPES - 1;
 			break;
-		case ITEM_MING:
+		case obj_flag_data::ITEM_MING:
 			min_val = 0;
 			max_val = 2;
 			break;
-		case ITEM_MATERIAL:
+
+		case obj_flag_data::ITEM_MATERIAL:
 			min_val = 0;
 			max_val = 100;
 			break;
+
 		default:
 			min_val = -999999;
 			max_val = 999999;
@@ -2274,7 +2335,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else if (number == 0)
+		{
 			break;
+		}
 		else
 		{
 			OLC_OBJ(d)->obj_flags.affects.toggle_flag(plane, 1 << bit);

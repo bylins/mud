@@ -338,17 +338,19 @@ ACMD(do_drink)
 		return;
 	}
 	//Сообщение на случай попытки проглотить ингры
-	if (GET_OBJ_TYPE(temp) == ITEM_MING)
+	if (GET_OBJ_TYPE(temp) == obj_flag_data::ITEM_MING)
 	{
 		send_to_char("Не можешь приготовить - покупай готовое!\r\n", ch);
 		return;
 	}
-	if ((GET_OBJ_TYPE(temp) != ITEM_DRINKCON) && (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN))
+	if (GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_DRINKCON
+		&& GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_FOUNTAIN)
 	{
 		send_to_char("Не стоит. Козлят и так много!\r\n", ch);
 		return;
 	}
-	if (on_ground && (GET_OBJ_TYPE(temp) == ITEM_DRINKCON))
+	if (on_ground
+		&& GET_OBJ_TYPE(temp) == obj_flag_data::ITEM_DRINKCON)
 	{
 		send_to_char("Прежде это стоит поднять.\r\n", ch);
 		return;
@@ -369,7 +371,7 @@ ACMD(do_drink)
 		GET_OBJ_WEIGHT(temp)--;
 		// все выпито
 		if (--GET_OBJ_VAL(temp, 1) <= 0
-			&& GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)
+			&& GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_FOUNTAIN)
 		{
 			name_from_drinkcon(temp);
 			GET_OBJ_SKILL(temp) = 0;
@@ -424,8 +426,10 @@ ACMD(do_drink)
 	// You can't subtract more than the object weighs
 	weight = MIN(amount, GET_OBJ_WEIGHT(temp));
 
-	if (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_FOUNTAIN)
+	{
 		weight_change_object(temp, -weight);	// Subtract amount
+	}
 
 
 	if ((GET_DRUNK_STATE(ch) < MAX_COND_VALUE && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
@@ -516,8 +520,11 @@ ACMD(do_drink)
 	}
 
 	// empty the container, and no longer poison. 999 - whole fountain //
-	if (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN || GET_OBJ_VAL(temp, 1) != 999)
+	if (GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_FOUNTAIN
+		|| GET_OBJ_VAL(temp, 1) != 999)
+	{
 		GET_OBJ_VAL(temp, 1) -= amount;
+	}
 	if (!GET_OBJ_VAL(temp, 1))  	// The last bit //
 	{
 		GET_OBJ_VAL(temp, 2) = 0;
@@ -569,8 +576,12 @@ ACMD(do_drunkoff)
 	if (!*arg)
 	{
 		for (obj = ch->carrying; obj; obj = obj->next_content)
-			if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
+		{
+			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
+			{
 				break;
+			}
+		}
 		if (!obj)
 		{
 			send_to_char("У вас нет подходящего напитка для похмелья.\r\n", ch);
@@ -588,13 +599,14 @@ ACMD(do_drunkoff)
 			on_ground = 1;
 	}
 
-	if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON) && (GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN))
+	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_DRINKCON
+		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_FOUNTAIN)
 	{
 		send_to_char("Этим вы вряд-ли сможете похмелиться.\r\n", ch);
 		return;
 	}
 
-	if (on_ground && (GET_OBJ_TYPE(obj) == ITEM_DRINKCON))
+	if (on_ground && (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON))
 	{
 		send_to_char("Прежде это стоит поднять.\r\n", ch);
 		return;
@@ -906,7 +918,8 @@ ACMD(do_pour)
 			send_to_char("У вас нет этого!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(from_obj) != ITEM_DRINKCON && GET_OBJ_TYPE(from_obj) != ITEM_POTION)
+		if (GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_DRINKCON
+			&& GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_POTION)
 		{
 			send_to_char("Вы не можете из этого переливать!\r\n", ch);
 			return;
@@ -924,7 +937,7 @@ ACMD(do_pour)
 			send_to_char("У вас этого нет!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON)
+		if (GET_OBJ_TYPE(to_obj) != obj_flag_data::ITEM_DRINKCON)
 		{
 			act("Вы не можете наполнить $o3!", FALSE, ch, to_obj, 0, TO_CHAR);
 			return;
@@ -940,7 +953,7 @@ ACMD(do_pour)
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(from_obj) != ITEM_FOUNTAIN)
+		if (GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_FOUNTAIN)
 		{
 			act("Вы не сможете ничего наполнить из $o1.", FALSE, ch, from_obj, 0, TO_CHAR);
 			return;
@@ -979,7 +992,8 @@ ACMD(do_pour)
 			send_to_char("Вы не можете этого найти!\r\n", ch);
 			return;
 		}
-		if ((GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON) && (GET_OBJ_TYPE(to_obj) != ITEM_FOUNTAIN))
+		if (GET_OBJ_TYPE(to_obj) != obj_flag_data::ITEM_DRINKCON
+			&& GET_OBJ_TYPE(to_obj) != obj_flag_data::ITEM_FOUNTAIN)
 		{
 			send_to_char("Вы не сможете в это налить.\r\n", ch);
 			return;
@@ -991,8 +1005,9 @@ ACMD(do_pour)
 		return;
 	}
 
-	if (GET_OBJ_VAL(to_obj, 1) != 0 &&
-			GET_OBJ_TYPE(from_obj) != ITEM_POTION && GET_OBJ_VAL(to_obj, 2) != GET_OBJ_VAL(from_obj, 2))
+	if (GET_OBJ_VAL(to_obj, 1) != 0
+		&& GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_POTION
+		&& GET_OBJ_VAL(to_obj, 2) != GET_OBJ_VAL(from_obj, 2))
 	{
 		send_to_char("Вы станете неплохим Химиком, но не в нашей игре.\r\n", ch);
 		return;
@@ -1010,7 +1025,7 @@ ACMD(do_pour)
 //Added by Adept - переливание зелья из бутылки или емкости в емкость
 
 	//Переливает из бутылки с зельем в емкость
-	if (GET_OBJ_TYPE(from_obj) == ITEM_POTION)
+	if (GET_OBJ_TYPE(from_obj) == obj_flag_data::ITEM_POTION)
 	{
 		int result = check_equal_potions(from_obj, to_obj);
 		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0)
@@ -1042,8 +1057,8 @@ ACMD(do_pour)
 	}
 
 	//Переливает из емкости или колодца с зельем куда-то
-	if ((GET_OBJ_TYPE(from_obj) == ITEM_DRINKCON ||
-			GET_OBJ_TYPE(from_obj) == ITEM_FOUNTAIN)
+	if ((GET_OBJ_TYPE(from_obj) == obj_flag_data::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(from_obj) == obj_flag_data::ITEM_FOUNTAIN)
 		&& is_potion(from_obj))
 	{
 		if (GET_OBJ_VAL(to_obj, 1) == 0)
@@ -1087,15 +1102,21 @@ ACMD(do_pour)
 		name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
 
 	// Then how much to pour //
-	if (GET_OBJ_TYPE(from_obj) != ITEM_FOUNTAIN || GET_OBJ_VAL(from_obj, 1) != 999)
+	if (GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_FOUNTAIN
+		|| GET_OBJ_VAL(from_obj, 1) != 999)
+	{
 		GET_OBJ_VAL(from_obj, 1) -= (amount = (GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1)));
+	}
 	else
+	{
 		amount = GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1);
+	}
 
 	GET_OBJ_VAL(to_obj, 1) = GET_OBJ_VAL(to_obj, 0);
 
 	// Then the poison boogie //
-	GET_OBJ_VAL(to_obj, 3) = (GET_OBJ_VAL(to_obj, 3) || GET_OBJ_VAL(from_obj, 3));
+	GET_OBJ_VAL(to_obj, 3) = (GET_OBJ_VAL(to_obj, 3)
+		|| GET_OBJ_VAL(from_obj, 3));
 
 	if (GET_OBJ_VAL(from_obj, 1) <= 0)  	// There was too little //
 	{
@@ -1109,8 +1130,10 @@ ACMD(do_pour)
 	}
 
 	// And the weight boogie //
-	if (GET_OBJ_TYPE(from_obj) != ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_FOUNTAIN)
+	{
 		weight_change_object(from_obj, -amount);
+	}
 	weight_change_object(to_obj, amount);	// Add weight //
 }
 

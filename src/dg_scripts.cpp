@@ -3150,7 +3150,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (*subfield == UID_OBJ)
 			{
 				obj_to = find_obj(atoi(subfield+1));
-				if (!(obj_to && GET_OBJ_TYPE(obj_to) == ITEM_CONTAINER))
+				if (!(obj_to
+					&& GET_OBJ_TYPE(obj_to) == obj_flag_data::ITEM_CONTAINER))
 				{
 					trig_log(trig, "object.put: объект-приемник не найден или не является контейнером");
 					return;

@@ -177,7 +177,7 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 		if (weight > 0)
 			obj_flags.weight = weight;
 
-		if (obj_flags.type_flag == ITEM_WEAPON)
+		if (obj_flags.type_flag == obj_flag_data::ITEM_WEAPON)
 		{
 			int nsides, ndices;
 			__act.get_dices(ndices, nsides);
@@ -216,7 +216,7 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 
 		obj_flags.weight = obj_proto[item_number]->obj_flags.weight;
 
-		if (obj_flags.type_flag == ITEM_WEAPON)
+		if (obj_flags.type_flag == obj_flag_data::ITEM_WEAPON)
 		{
 			obj_flags.value[1] = obj_proto[item_number]->obj_flags.value[1];
 			obj_flags.value[2] = obj_proto[item_number]->obj_flags.value[2];
@@ -526,14 +526,15 @@ float count_affect_weight(OBJ_DATA *obj, int num, int mod)
 
 bool is_armor_type(const OBJ_DATA *obj)
 {
-	switch GET_OBJ_TYPE(obj)
+	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		return true;
 	}
+
 	return false;
 }
 
@@ -785,7 +786,7 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)
 	obj->ex_description->description = str_dup(buf_);
 	obj->ex_description->next = 0;
 
-	GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
+	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
 	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
 	GET_OBJ_VAL(obj, 0) = 0;
 	// CLOSEABLE + CLOSED
@@ -975,8 +976,8 @@ void ObjVal::remove_incorrect_keys(int type)
 		bool erased = false;
 		switch(type)
 		{
-		case ITEM_DRINKCON:
-		case ITEM_FOUNTAIN:
+		case obj_flag_data::ITEM_DRINKCON:
+		case obj_flag_data::ITEM_FOUNTAIN:
 			if (!is_valid_drinkcon(i->first))
 			{
 				i = m_values.erase(i);
@@ -984,6 +985,7 @@ void ObjVal::remove_incorrect_keys(int type)
 			}
 			break;
 		} // switch
+
 		if (!erased)
 		{
 			++i;

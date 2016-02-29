@@ -212,7 +212,7 @@ void check_help_message(CHAR_DATA *ch)
 ///
 void equip_start_outfit(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR)
 	{
 		int where = find_eq_pos(ch, obj, 0);
 		if (where >= 0)
@@ -225,7 +225,7 @@ void equip_start_outfit(CHAR_DATA *ch, OBJ_DATA *obj)
 			}
 		}
 	}
-	else if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 	{
 		if (CAN_WEAR(obj, ITEM_WEAR_WIELD) && !GET_EQ(ch, WEAR_WIELD))
 		{

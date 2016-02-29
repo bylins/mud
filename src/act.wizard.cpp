@@ -1850,67 +1850,87 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	switch (GET_OBJ_TYPE(j))
 	{
-	case ITEM_LIGHT:
+	case obj_flag_data::ITEM_LIGHT:
 		if (GET_OBJ_VAL(j, 2) < 0)
+		{
 			strcpy(buf, "Вечный свет!");
+		}
 		else
+		{
 			sprintf(buf, "Осталось светить: [%d]", GET_OBJ_VAL(j, 2));
+		}
 		break;
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		sprintf(buf, "Заклинания: (Уровень %d) %s, %s, %s",
-				GET_OBJ_VAL(j, 0),
-				spell_name(GET_OBJ_VAL(j, 1)), spell_name(GET_OBJ_VAL(j, 2)), spell_name(GET_OBJ_VAL(j, 3)));
+			GET_OBJ_VAL(j, 0),
+			spell_name(GET_OBJ_VAL(j, 1)),
+			spell_name(GET_OBJ_VAL(j, 2)),
+			spell_name(GET_OBJ_VAL(j, 3)));
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		sprintf(buf, "Заклинание: %s уровень %d, %d (из %d) зарядов осталось",
-				spell_name(GET_OBJ_VAL(j, 3)), GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 1));
+			spell_name(GET_OBJ_VAL(j, 3)),
+			GET_OBJ_VAL(j, 0),
+			GET_OBJ_VAL(j, 2),
+			GET_OBJ_VAL(j, 1));
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		sprintf(buf, "Повреждения: %dd%d, Тип повреждения: %d",
-				GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
+			GET_OBJ_VAL(j, 1),
+			GET_OBJ_VAL(j, 2),
+			GET_OBJ_VAL(j, 3));
 		break;
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		sprintf(buf, "AC: [%d]  Броня: [%d]", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
 		break;
-	case ITEM_TRAP:
+
+	case obj_flag_data::ITEM_TRAP:
 		sprintf(buf, "Spell: %d, - Hitpoints: %d", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
 		break;
-	case ITEM_CONTAINER:
+
+	case obj_flag_data::ITEM_CONTAINER:
 		sprintbit(GET_OBJ_VAL(j, 1), container_bits, buf2);
 		sprintf(buf, "Объем: %d, Тип ключа: %s, Номер ключа: %d, Труп: %s",
-				GET_OBJ_VAL(j, 0), buf2, GET_OBJ_VAL(j, 2), YESNO(GET_OBJ_VAL(j, 3)));
+			GET_OBJ_VAL(j, 0), buf2, GET_OBJ_VAL(j, 2), YESNO(GET_OBJ_VAL(j, 3)));
 		break;
-	case ITEM_DRINKCON:
-	case ITEM_FOUNTAIN:
-	{
+
+	case obj_flag_data::ITEM_DRINKCON:
+	case obj_flag_data::ITEM_FOUNTAIN:
 		sprinttype(GET_OBJ_VAL(j, 2), drinks, buf2);
-		std::string spells = drinkcon::print_spells(ch, j);
-		boost::trim(spells);
-		sprintf(buf,
-			"Обьем: %d, Содержит: %d, Отравлен: %s, Жидкость: %s\r\n%s",
-			GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), YESNO(GET_OBJ_VAL(j, 3)),
-			buf2, spells.c_str());
+		{
+			std::string spells = drinkcon::print_spells(ch, j);
+			boost::trim(spells);
+			sprintf(buf, "Обьем: %d, Содержит: %d, Отравлен: %s, Жидкость: %s\r\n%s",
+				GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), YESNO(GET_OBJ_VAL(j, 3)), buf2, spells.c_str());
+		}
 		break;
-	}
-	case ITEM_NOTE:
+
+	case obj_flag_data::ITEM_NOTE:
 		sprintf(buf, "Tongue: %d", GET_OBJ_VAL(j, 0));
 		break;
-	case ITEM_KEY:
+
+	case obj_flag_data::ITEM_KEY:
 		strcpy(buf, "");
 		break;
-	case ITEM_FOOD:
+
+	case obj_flag_data::ITEM_FOOD:
 		sprintf(buf, "Насыщает(час): %d, Отравлен: %s", GET_OBJ_VAL(j, 0), YESNO(GET_OBJ_VAL(j, 3)));
 		break;
-	case ITEM_MONEY:
+
+	case obj_flag_data::ITEM_MONEY:
 		sprintf(buf, "Монет: %d", GET_OBJ_VAL(j, 0));
 		break;
 
-	case ITEM_INGREDIENT:
+	case obj_flag_data::ITEM_INGREDIENT:
 		sprintbit(GET_OBJ_SKILL(j), ingradient_bits, buf2);
 		sprintf(buf, "%s\r\n", buf2);
 		send_to_char(buf, ch);
@@ -6742,13 +6762,21 @@ ACMD(do_print_armor)
 		case 'Т':
 			argument = one_argument(++argument, tmpbuf);
 			if (is_abbrev(tmpbuf, "броня") || is_abbrev(tmpbuf, "armor"))
-				filter.type = ITEM_ARMOR;
+			{
+				filter.type = obj_flag_data::ITEM_ARMOR;
+			}
 			else if (is_abbrev(tmpbuf, "легкие") || is_abbrev(tmpbuf, "легкая"))
-				filter.type = ITEM_ARMOR_LIGHT;
+			{
+				filter.type = obj_flag_data::ITEM_ARMOR_LIGHT;
+			}
 			else if (is_abbrev(tmpbuf, "средние") || is_abbrev(tmpbuf, "средняя"))
-				filter.type = ITEM_ARMOR_MEDIAN;
+			{
+				filter.type = obj_flag_data::ITEM_ARMOR_MEDIAN;
+			}
 			else if (is_abbrev(tmpbuf, "тяжелые") || is_abbrev(tmpbuf, "тяжелая"))
-				filter.type = ITEM_ARMOR_HEAVY;
+			{
+				filter.type = obj_flag_data::ITEM_ARMOR_HEAVY;
+			}
 			else
 			{
 				send_to_char("Неверный тип предмета.\r\n", ch);

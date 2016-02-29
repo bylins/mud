@@ -1000,32 +1000,47 @@ void mob_casting(CHAR_DATA * ch)
 		if (GET_SPELL_MEM(ch, i) && IS_SET(spell_info[i].routines, NPC_CALCULATE))
 			battle_spells[spells++] = i;
 
-	for (item = ch->carrying;
-			spells < MAX_STRING_LENGTH &&
-			item &&
-			GET_RACE(ch) == NPC_RACE_HUMAN &&
-			!MOB_FLAGGED(ch, MOB_ANGEL) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM); item = item->next_content)
+	item = ch->carrying;
+	while (spells < MAX_STRING_LENGTH
+		&& item
+		&& GET_RACE(ch) == NPC_RACE_HUMAN
+		&& !MOB_FLAGGED(ch, MOB_ANGEL)
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		switch (GET_OBJ_TYPE(item))
 		{
-		case ITEM_WAND:
-		case ITEM_STAFF:
+		case obj_flag_data::ITEM_WAND:
+		case obj_flag_data::ITEM_STAFF:
 			if (GET_OBJ_VAL(item, 2) > 0 &&
-					IS_SET(spell_info[GET_OBJ_VAL(item, 3)].routines, NPC_CALCULATE))
+				IS_SET(spell_info[GET_OBJ_VAL(item, 3)].routines, NPC_CALCULATE))
+			{
 				battle_spells[spells++] = GET_OBJ_VAL(item, 3);
+			}
 			break;
-		case ITEM_POTION:
+
+		case obj_flag_data::ITEM_POTION:
 			for (i = 1; i <= 3; i++)
-				if (IS_SET
-						(spell_info[GET_OBJ_VAL(item, i)].routines,
-						 NPC_AFFECT_NPC | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER))
+			{
+				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_AFFECT_NPC | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER))
+				{
 					battle_spells[spells++] = GET_OBJ_VAL(item, i);
+				}
+			}
 			break;
-		case ITEM_SCROLL:
+
+		case obj_flag_data::ITEM_SCROLL:
 			for (i = 1; i <= 3; i++)
+			{
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_CALCULATE))
+				{
 					battle_spells[spells++] = GET_OBJ_VAL(item, i);
+				}
+			}
 			break;
 		}
+
+		item = item->next_content;
+	}
 
 	// перво-наперво  -  лечим себя
 	spellnum = 0;
@@ -1070,21 +1085,27 @@ void mob_casting(CHAR_DATA * ch)
 		}
 	if (spellnum && victim)  	// Is this object spell ?
 	{
-		for (item = ch->carrying;
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) &&
-				!MOB_FLAGGED(ch, MOB_ANGEL) && item && GET_RACE(ch) == NPC_RACE_HUMAN; item = item->next_content)
+		item = ch->carrying;
+		while (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			&& !MOB_FLAGGED(ch, MOB_ANGEL)
+			&& item
+			&& GET_RACE(ch) == NPC_RACE_HUMAN)
+		{
 			switch (GET_OBJ_TYPE(item))
 			{
-			case ITEM_WAND:
-			case ITEM_STAFF:
-				if (GET_OBJ_VAL(item, 2) > 0 && GET_OBJ_VAL(item, 3) == spellnum)
+			case obj_flag_data::ITEM_WAND:
+			case obj_flag_data::ITEM_STAFF:
+				if (GET_OBJ_VAL(item, 2) > 0
+					&& GET_OBJ_VAL(item, 3) == spellnum)
 				{
 					mag_objectmagic(ch, item, GET_NAME(victim));
 					return;
 				}
 				break;
-			case ITEM_POTION:
+
+			case obj_flag_data::ITEM_POTION:
 				for (i = 1; i <= 3; i++)
+				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
 					{
 						if (ch != victim)
@@ -1094,20 +1115,29 @@ void mob_casting(CHAR_DATA * ch)
 							obj_to_char(item, victim);
 						}
 						else
+						{
 							victim = ch;
+						}
 						mag_objectmagic(victim, item, GET_NAME(victim));
 						return;
 					}
+				}
 				break;
-			case ITEM_SCROLL:
+
+			case obj_flag_data::ITEM_SCROLL:
 				for (i = 1; i <= 3; i++)
+				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
 					{
 						mag_objectmagic(ch, item, GET_NAME(victim));
 						return;
 					}
+				}
 				break;
 			}
+
+			item = item->next_content;
+		}
 
 		cast_spell(ch, victim, 0, NULL, spellnum, spellnum);
 	}
@@ -1904,7 +1934,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (GET_EQ(ch, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ITEM_WEAPON
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON
 		&& GET_AF_BATTLE(ch, EAF_SECOND)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)
 		&& (IS_IMMORTAL(ch)
