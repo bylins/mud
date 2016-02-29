@@ -7,6 +7,7 @@
 #ifndef __CRAFT_HPP__
 #define __CRAFT_HPP__
 
+#include "obj.hpp"
 #include "structs.h"
 #include "sysdep.h"
 
@@ -115,7 +116,15 @@ namespace craft
 	class CPrototype
 	{
 	public:
-		CPrototype(const vnum_t vnum): m_vnum(vnum) {}
+		CPrototype(const vnum_t vnum):
+			m_vnum(vnum),
+			m_cost(OBJ_DATA::DEFAULT_COST),
+			m_rent_on(OBJ_DATA::DEFAULT_RENT_ON),
+			m_rent_off(OBJ_DATA::DEFAULT_RENT_OFF),
+			m_global_maximum(OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM),
+			m_minimum_remorts(OBJ_DATA::DEFAULT_MINIMUM_REMORTS)
+		{
+		}
 
 		bool load(const pugi::xml_node* node);
 
@@ -128,6 +137,12 @@ namespace craft
 		std::string m_extended_desc;
 
 		CCases m_cases;
+
+		int m_cost;
+		int m_rent_on;
+		int m_rent_off;
+		int m_global_maximum;
+		int m_minimum_remorts;
 
 		friend class CCraftModel;
 	};

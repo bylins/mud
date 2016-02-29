@@ -82,7 +82,7 @@ typedef struct time_info_data TIME_INFO_DATA;
 typedef struct extra_descr_data EXTRA_DESCR_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-struct OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 typedef struct trig_data TRIG_DATA;
 
 // preamble ************************************************************

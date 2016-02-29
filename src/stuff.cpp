@@ -28,7 +28,7 @@
 #include <boost/array.hpp>
 
 extern const char *skill_name(int num);
-extern void set_obj_eff(struct OBJ_DATA *itemobj, int type, int mod);
+extern void set_obj_eff(OBJ_DATA *itemobj, int type, int mod);
 
 void oload_class::init()
 {

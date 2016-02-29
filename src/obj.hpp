@@ -357,8 +357,16 @@ private:
 	boost::unordered_map<EValueKey, int> m_values;
 };
 
-struct OBJ_DATA
+class OBJ_DATA
 {
+public:
+	const static int DEFAULT_COST = 100;
+	const static int DEFAULT_RENT_ON = 100;
+	const static int DEFAULT_RENT_OFF = 100;
+	const static int UNLIMITED_GLOBAL_MAXIMUM = -1;
+	const static int DEFAULT_GLOBAL_MAXIMUM = UNLIMITED_GLOBAL_MAXIMUM;
+	const static int DEFAULT_MINIMUM_REMORTS = 0;
+
 	OBJ_DATA();
 	OBJ_DATA(const OBJ_DATA&);
 	~OBJ_DATA();
@@ -396,8 +404,7 @@ struct OBJ_DATA
 	int
 		room_was_in;
 	boost::array<char *, 6> PNames;
-	int
-		max_in_world;		// max in world             //
+	int max_in_world;	///< Maximum in the world
 
 	obj::Enchants enchants;
 	ObjVal values;

@@ -45,9 +45,10 @@ namespace craft
 
 	void CLogger::operator()(const char* format, ...)
 	{
+		const size_t BUFFER_SIZE = 4096;
+
 		va_list args;
 		va_start(args, format);
-		const size_t BUFFER_SIZE = 81;
 		char buffer[BUFFER_SIZE];
 		char* p = buffer;
 		size_t free_space = BUFFER_SIZE;
@@ -94,10 +95,10 @@ namespace craft
 			const pugi::xml_node case_node = node->child(node_name.c_str());
 			if (!case_node)
 			{
-				log("ERROR: could not find case '%s'.\n", node_name.c_str());
+				log("ERROR: Could not find case '%s'.\n", node_name.c_str());
 				return false;
 			}
-			m_cases[c] = case_node.value();
+			m_cases[c] = case_node.child_value();
 		}
 
 		const pugi::xml_node aliases_node = node->child("aliases");
@@ -115,29 +116,134 @@ namespace craft
 
 	bool CPrototype::load(const pugi::xml_node* node)
 	{
-		log("Loading prototype with VNUM %d.\n", m_vnum);
+		log("Loading prototype with VNUM %d...\n", m_vnum);
 		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
 		const auto description = node->child("description");
 		if (description)
 		{
+			// these fields are optional for prototypes
 			m_short_desc = description.child_value("short");
 			m_long_desc = description.child_value("long");
 			m_keyword = description.child_value("keyword");
 			m_extended_desc = description.child_value("extended");
 		}
 
+		const auto item = node->child("item");
+		if (!item)
+		{
+			log("ERROR: The prototype with VNUM %d does not contain required \"item\" tag.\n", m_vnum);
+			return false;
+		}
+
+		if (!m_cases.load(&item))
+		{
+			log("ERROR: could not load item cases for the prototype with VNUM.\n", m_vnum);
+			return false;
+		}
+
+		const auto cost = node->child("cost");
+		int cost_value = -1;
+		if (cost)
+		{
+			cost_value = std::atoi(cost.child_value());
+		}
+		else
+		{
+			log("WARNING: Could not find \"cost\" tag for the prototype with VNUM %d.\n", m_vnum);
+		}
+		if (0 > cost_value)
+		{
+			log("WARNING: Wrong \"cost\" value of the prototype with VNUM %d. Setting to the default value %d.\n",
+				m_vnum, OBJ_DATA::DEFAULT_COST);
+			cost_value = OBJ_DATA::DEFAULT_COST;
+		}
+		m_cost = cost_value;
+
+		const auto rent = node->child("rent");
+		int rent_on_value = -1;
+		int rent_off_value = -1;
+		if (rent)
+		{
+			const auto rent_on = rent.child("on");
+			if (!rent_on)
+			{
+				log("WARNING: Could not find \"on\" tag for prototype with VNUM %d.\n", m_vnum);
+			}
+			else
+			{
+				rent_on_value = std::atoi(rent_on.child_value());
+			}
+
+			const auto rent_off = rent.child("off");
+			if (!rent_off)
+			{
+				log("WARNING: Could not find \"off\" tag for prototype with VNUM %d.\n", m_vnum);
+			}
+			else
+			{
+				rent_off_value = std::atoi(rent_off.child_value());
+			}
+		}
+		else
+		{
+			log("WARNING: Could not find \"rent\" tag for the prototype with VNUM %d.\n", m_vnum);
+		}
+
+		if (0 > rent_on_value)
+		{
+			log("WARNING: Wrong \"rent/on\" value of the prototype with VNUM %d. Setting to the default value %d.\n",
+				m_vnum, OBJ_DATA::DEFAULT_RENT_ON);
+			rent_on_value = OBJ_DATA::DEFAULT_RENT_ON;
+		}
+		m_rent_on = rent_on_value;
+
+		if (0 > rent_off_value)
+		{
+			log("WARNING: Wrong \"rent/off\" value of the prototype with VNUM %d. Setting to the default value %d.\n",
+				m_vnum, OBJ_DATA::DEFAULT_RENT_OFF);
+			rent_off_value = OBJ_DATA::DEFAULT_RENT_OFF;
+		}
+		m_rent_off = rent_off_value;
+
+		const auto global_maximum = node->child("global_maximum");
+		if (global_maximum)
+		{
+			int global_maximum_value = std::atoi(global_maximum.child_value());
+			if (0 >= global_maximum_value)
+			{
+				log("WARNING: Wrong \"global_maximum\" value of the prototype with VNUM %d. Setting to the default value %d.\n",
+					m_vnum, OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM);
+				global_maximum_value = OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM;
+			}
+			m_global_maximum = global_maximum_value;
+		}
+
+		const auto minimum_remorts = node->child("minimal_remorts");
+		if (minimum_remorts)
+		{
+			int minimum_remorts_value = std::atoi(minimum_remorts.child_value());
+			if (0 > minimum_remorts_value)
+			{
+				log("WARNING: Wrong \"minimal_remorts\" value of the prototype with VNUM %d. Setting to the default value %d.\n",
+					m_vnum, OBJ_DATA::DEFAULT_MINIMUM_REMORTS);
+				minimum_remorts_value = OBJ_DATA::DEFAULT_MINIMUM_REMORTS;
+			}
+			m_minimum_remorts = minimum_remorts_value;
+		}
+
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
+
 		return true;
 	}
 
 	bool CMaterialClass::load(const pugi::xml_node* node)
 	{
-		log("Loading material class with ID '%s'.\n", m_id.c_str());
+		log("Loading material class with ID '%s'...\n", m_id.c_str());
 		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
-		const pugi::xml_node desc_node = node->child("description");
+		const auto desc_node = node->child("description");
 		if (!desc_node)
 		{
 			log("ERROR: material class with ID '%s' does not contain required \"description\" tag.\n",
@@ -145,7 +251,7 @@ namespace craft
 			return false;
 		}
 
-		const pugi::xml_node short_desc = desc_node.child("short");
+		const auto short_desc = desc_node.child("short");
 		if (!short_desc)
 		{
 			log("ERROR: material class with ID '%s' does not contain required \"description/short\" tag.\n",
@@ -154,7 +260,7 @@ namespace craft
 		}
 		m_short_desc = short_desc.value();
 
-		const pugi::xml_node long_desc = desc_node.child("long");
+		const auto long_desc = desc_node.child("long");
 		if (!long_desc)
 		{
 			log("ERROR: material class with ID '%s' does not contain required \"description/long\" tag.\n",
@@ -163,7 +269,7 @@ namespace craft
 		}
 		m_long_desc = long_desc.value();
 
-		const pugi::xml_node item = node->child("item");
+		const auto item = node->child("item");
 		if (!item)
 		{
 			log("ERROR: material class with ID '%s' does not contain required \"item\" tag.\n", m_id.c_str());
@@ -175,14 +281,14 @@ namespace craft
 			return false;
 		}
 
-		const pugi::xml_node adjectives = node->child("adjectives");
+		const auto adjectives = node->child("adjectives");
 		if (!adjectives)
 		{
 			log("ERROR: material class with ID '%s' does not contain required \"adjectives\" tag.\n", m_id.c_str());
 			return false;
 		}
 
-		const pugi::xml_node male = adjectives.child("male");
+		const auto male = adjectives.child("male");
 		if (!male)
 		{
 			log("ERROR: material class with ID '%s' does not contain required \"adjectives/male\" tag.\n", m_id.c_str());
@@ -194,7 +300,7 @@ namespace craft
 			return false;
 		}
 
-		const pugi::xml_node female = adjectives.child("female");
+		const auto female = adjectives.child("female");
 		if (!female)
 		{
 			log("ERROR: material class with ID '%s' does not contain required \"adjectives/female\" tag.\n", m_id.c_str());
@@ -206,7 +312,7 @@ namespace craft
 			return false;
 		}
 
-		const pugi::xml_node neuter = adjectives.child("neuter");
+		const auto neuter = adjectives.child("neuter");
 		if (!neuter)
 		{
 			log("ERROR: material class with ID '%s' does not contain required \"adjectives/neuter\" tag.\n", m_id.c_str());
@@ -219,41 +325,41 @@ namespace craft
 		}
 
 		// load extra flags
-		const pugi::xml_node extraflags = node->child("extraflags");
+		const auto extraflags = node->child("extraflags");
 		if (extraflags)
 		{
-			for (const pugi::xml_node extraflag : extraflags.children())
+			for (const auto extraflag : extraflags.children())
 			{
 				const char* flag = extraflag.child_value("extraflag");
 				try
 				{
-					EExtraFlag value = ITEM_BY_NAME<EExtraFlag>(flag);
+					auto value = ITEM_BY_NAME<EExtraFlag>(flag);
 					m_extraflags.set(value);
 					log("Setting extra flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str());
 				}
 				catch (const std::out_of_range&)
 				{
-					log("Skipping extra flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str());
+					log("WARNING: Skipping extra flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str());
 				}
 			}
 		}
 
 		// load extra flags
-		const pugi::xml_node affects = node->child("affects");
+		const auto affects = node->child("affects");
 		if (affects)
 		{
-			for (const pugi::xml_node affect : affects.children("affect"))
+			for (const auto affect : affects.children("affect"))
 			{
 				const char* flag = affect.child_value();
 				try
 				{
-					EAffectFlag value = ITEM_BY_NAME<EAffectFlag>(flag);
+					auto value = ITEM_BY_NAME<EAffectFlag>(flag);
 					m_affect_flags.set(value);
 					log("Setting affect flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str());
 				}
 				catch (const std::out_of_range&)
 				{
-					log("Skipping affect flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str());
+					log("WARNING: Skipping affect flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str());
 				}
 			}
 		}
@@ -266,7 +372,7 @@ namespace craft
 
 	bool CMaterial::load(const pugi::xml_node* node)
 	{
-		log("Begin loading material with ID %s\n", m_id.c_str());
+		log("Loading material with ID %s...\n", m_id.c_str());
 		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
 		// load material name
@@ -299,7 +405,7 @@ namespace craft
 
 	bool CRecipe::load(const pugi::xml_node* /*node*/)
 	{
-		log("Loading recipe with ID %s\n", m_id.c_str());
+		log("Loading recipe with ID %s...\n", m_id.c_str());
 		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
 		prefix.change_prefix(END_PREFIX);
@@ -310,7 +416,7 @@ namespace craft
 
 	bool CSkillBase::load(const pugi::xml_node* /*node*/)
 	{
-		log("Loading skill with ID %s\n", m_id.c_str());
+		log("Loading skill with ID %s...\n", m_id.c_str());
 		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
 		prefix.change_prefix(END_PREFIX);
@@ -321,7 +427,7 @@ namespace craft
 
 	bool CCraft::load(const pugi::xml_node* /*node*/)
 	{
-		log("Loading craft with ID %s\n", m_id.c_str());
+		log("Loading craft with ID %s...\n", m_id.c_str());
 		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
 		prefix.change_prefix(END_PREFIX);
@@ -332,7 +438,7 @@ namespace craft
 
 	bool CCraftModel::load()
 	{
-		log("Loading craft model from file '%s'.\n",
+		log("Loading craft model from file '%s'...\n",
 				FILE_NAME.c_str());
 		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
@@ -422,7 +528,7 @@ namespace craft
 		{
 			if (!p.load(prototype))
 			{
-				log("WARNING: skipping %d-%s prototype with VNUM %d.\n",
+				log("WARNING: Skipping %d-%s prototype with VNUM %d.\n",
 					number, suffix(number), vnum);
 				return false;
 			}
@@ -461,7 +567,7 @@ namespace craft
 				vnum);
 			if (!p.load(&proot))
 			{
-				log("WARNING: skipping %d-%s prototype with VNUM %d.\n",
+				log("WARNING: Skipping %d-%s prototype with VNUM %d.\n",
 					number, suffix(number), vnum);
 				return false;
 			}
@@ -484,7 +590,7 @@ namespace craft
 		{
 			if (!m.load(material))
 			{
-				log("WARNING: skipping material with ID '%s'.\n", id.c_str());
+				log("WARNING: Skipping material with ID '%s'.\n", id.c_str());
 				return false;
 			}
 		}
@@ -518,7 +624,7 @@ namespace craft
 				id.c_str());
 			if (!m.load(&mroot))
 			{
-				log("WARNING: skipping material with ID '%s'.\n",
+				log("WARNING: Skipping material with ID '%s'.\n",
 					id.c_str());
 				return false;
 			}

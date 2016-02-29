@@ -357,9 +357,10 @@
 		<prototype vnum="100500">
 			<description>
 				<short>Палка-выручалка</short>
-				<long><![CDATA[
-				Длинный черенок от лопаты или другого сельско-хозяственного инструмента.
-				Местами обуглен, а с краю кто-то поставил нсколько зарубок.]]></long>
+				<long>
+<![CDATA[Длинный черенок от лопаты или другого сельско-хозяственного инструмента.
+Местами обуглен, а с краю кто-то поставил нсколько зарубок.]]>
+				</long>
 				<keyword>Палка выручалка лежит, никому не нужная.</keyword>
 			</description>
 
@@ -376,14 +377,14 @@
 				</aliases>
 			</item>
 
-			<cost>100</cost>
+			<cost>1000</cost>
 			<rent>
 				<on>10</on>
 				<off>100</off>
 			</rent>
 
-			<maximum_in_world>1</maximum_in_world>
-			<minimal_remorts>0</minimal_remorts>
+			<global_maximum>1</global_maximum>
+			<minimum_remorts>0</minimum_remorts>
 
 			<type>ITEM_WEAPON</type>
 

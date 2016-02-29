@@ -15,7 +15,7 @@
 
 #include <boost/array.hpp>
 
-struct OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 struct ROOM_DATA;	//
 
 // Определение основных классов ингредиентов: росль, живь, твердь

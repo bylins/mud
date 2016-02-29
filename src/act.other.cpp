@@ -3114,12 +3114,12 @@ int check_for_dig(CHAR_DATA *ch)
 	return 0;
 }
 
-void dig_obj(CHAR_DATA *ch, struct OBJ_DATA *obj)
+void dig_obj(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	char textbuf[300];
 
-	if (GET_OBJ_MIW(obj) >=
-			obj_index[GET_OBJ_RNUM(obj)].stored + obj_index[GET_OBJ_RNUM(obj)].number || GET_OBJ_MIW(obj) == -1)
+	if (GET_OBJ_MIW(obj) >= obj_index[GET_OBJ_RNUM(obj)].stored + obj_index[GET_OBJ_RNUM(obj)].number
+		|| GET_OBJ_MIW(obj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
 	{
 		sprintf(textbuf, "Вы нашли %s!\r\n", obj->PNames[3]);
 		send_to_char(textbuf, ch);
@@ -3143,7 +3143,7 @@ void dig_obj(CHAR_DATA *ch, struct OBJ_DATA *obj)
 ACMD(do_dig)
 {
 	CHAR_DATA *mob;
-	struct OBJ_DATA *obj;
+	OBJ_DATA *obj;
 	char textbuf[300];
 	int percent, prob;
 	int stone_num, random_stone;
@@ -3325,7 +3325,7 @@ ACMD(do_dig)
 		send_to_char("Не найден прототип обжекта!", ch);
 }
 
-void set_obj_aff(struct OBJ_DATA *itemobj, const EAffectFlag bitv)
+void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv)
 {
 	for (const auto& i : weapon_affect)
 	{
@@ -3336,7 +3336,7 @@ void set_obj_aff(struct OBJ_DATA *itemobj, const EAffectFlag bitv)
 	}
 }
 
-void set_obj_eff(struct OBJ_DATA *itemobj, int type, int mod)
+void set_obj_eff(OBJ_DATA *itemobj, int type, int mod)
 {
 	int i;
 
@@ -3377,7 +3377,7 @@ ACMD(do_insertgem)
 	char arg3[MAX_INPUT_LENGTH];
 	char buf[300];
 	char *gem, *item;
-	struct OBJ_DATA *gemobj, *itemobj;
+	OBJ_DATA *gemobj, *itemobj;
 
 	argument = two_arguments(argument, arg1, arg2);
 
