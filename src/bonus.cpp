@@ -2,6 +2,7 @@
 // Part of Bylins http://www.bylins.su
 
 #include "bonus.h"
+
 #include "structs.h"
 #include "comm.h"
 #include "db.h"
@@ -10,24 +11,30 @@
 #include "char.hpp"
 #include "char_player.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 #include <iostream>
 #include <fstream>
-#include <boost/lexical_cast.hpp>
 
 namespace Bonus
 {
+	const size_t MAXIMUM_BONUS_RECORDS = 10;
+
 	// время бонуса, в неактивном состоянии -1
 	int time_bonus = -1;
+
 	// множитель бонуса
 	int mult_bonus = 2;
+
 	// типа бонуса
 	// 0 - оружейный
 	// 1 - опыт
 	// 2 - дамаг
-	int type_bonus = BONUS_EXP;;
-	// история бонусов
-	std::vector<std::string> bonus_log;
+	EBonusType type_bonus = BONUS_EXP;
 
+	// история бонусов
+	typedef std::list<std::string> bonus_log_t;
+	bonus_log_t bonus_log;
 
 	ACMD(do_bonus_info)
 	{
@@ -37,7 +44,7 @@ namespace Bonus
 	ACMD(do_bonus)
 	{
 		argument = two_arguments(argument, buf, buf2);
-		std::string out = "&W*** Объявляется ";
+		std::string out = "*** Объявляется ";
 
 		if (!isname(buf, "двойной тройной отменить"))
 		{
@@ -101,9 +108,9 @@ namespace Bonus
 		{
 			return;
 		}
-		out += " на " + boost::lexical_cast<string>(time_bonus) + " часов. ***&n\r\n";
+		out += " на " + boost::lexical_cast<string>(time_bonus) + " часов. ***";
 		bonus_log_add(out);
-		send_to_all(out.c_str());
+		send_to_all(("&W" + out + "&n\r\n").c_str());
 	}
 
 	// записывает в буффер сколько осталось до конца бонуса
@@ -112,27 +119,27 @@ namespace Bonus
 		std::stringstream ss;
 		if (time_bonus > 4)
 		{
-			ss << "&WДо конца бонуса осталось " << time_bonus <<" часов.&n";
+			ss << "До конца бонуса осталось " << time_bonus <<" часов.";
 		}
 		else if (time_bonus == 4)
 		{
-			ss << "&WДо конца бонуса осталось четыре часа.&n";
+			ss << "До конца бонуса осталось четыре часа.";
 		}
 		else if (time_bonus == 3)
 		{
-			ss << "&WДо конца бонуса осталось три часа.&n";
+			ss << "До конца бонуса осталось три часа.";
 		}
 		else if (time_bonus == 2)
 		{
-			ss << "&WДо конца бонуса осталось два часа.&n";
+			ss << "До конца бонуса осталось два часа.";
 		}
 		else if (time_bonus == 1)
 		{
-			ss << "&WДо конца бонуса остался последний час!&n";
+			ss << "До конца бонуса остался последний час!";
 		}
 		else
 		{
-			ss << "&WБонуса нет.&n";
+			ss << "Бонуса нет.";
 		}
 		return ss.str();
 	}
@@ -140,13 +147,20 @@ namespace Bonus
 	// Записывает в буфер тип бонуса
 	std::string str_type_bonus()
 	{
-		if (type_bonus == BONUS_DAMAGE)
-			return "&WСейчас идет бонус: повышенный урон.&n";
-		if (type_bonus == BONUS_EXP)
-			return "&WСейчас идет бонус: повышенный опыт за убийство моба.&n";
-		if (type_bonus == BONUS_DAMAGE)
-			return "&WСейчас идет бонус: повышенный опыт от урона оружия.&n";
-		return "";	
+		switch (type_bonus)
+		{
+		case BONUS_DAMAGE:
+			return "Сейчас идет бонус: повышенный урон.";
+
+		case BONUS_EXP:
+			return "Сейчас идет бонус: повышенный опыт за убийство моба.";
+
+		case BONUS_WEAPON_EXP:
+			return "Сейчас идет бонус: повышенный опыт от урона оружия.";
+
+		default:
+			return "";
+		}
 	}
 
 
@@ -164,7 +178,7 @@ namespace Bonus
 			time_bonus = -1;
 			return;
 		}
-		std::string bonus_str = bonus_end() + "\r\n";
+		std::string bonus_str = "&W" + bonus_end() + "&n\r\n";
 		send_to_all(bonus_str.c_str());
 	}
 
@@ -186,7 +200,7 @@ namespace Bonus
 		time_t nt = time(NULL);
 		bonus_log.push_back(std::string(rustime(localtime(&nt))) + " " + name);
 		std::ofstream fout("../log/bonus.log", std::ios_base::app);
-		fout << std::string(rustime(localtime(&nt))) + " " + name;
+		fout << std::string(rustime(localtime(&nt))) + " " + name << std::endl;
 		fout.close();
 	}
 
@@ -195,10 +209,15 @@ namespace Bonus
 	{
 		std::ifstream fin("../log/bonus.log");
 		if (!fin.is_open())
+		{
 			return;
+		}
 		std::string temp_buf;
+		bonus_log.clear();
 		while (std::getline(fin, temp_buf))
+		{
 			bonus_log.push_back(temp_buf);
+		}
 		fin.close();
 	}
 
@@ -210,12 +229,20 @@ namespace Bonus
 			send_to_char(ch, "Лог пустой!\r\n");
 			return;
 		}
-		std::string buf_str = "";
-		for (size_t i = bonus_log.size() - 1; i > 0; i--)
+
+		size_t counter = 0;
+		std::stringstream buf_str;
+		std::list<bonus_log_t::const_reverse_iterator> to_output;
+		for (bonus_log_t::const_reverse_iterator i = bonus_log.rbegin(); i != bonus_log.rend() && MAXIMUM_BONUS_RECORDS > counter; ++i, ++counter)
 		{
-			buf_str += bonus_log[i];
+			to_output.push_front(i);
 		}
-		page_string(ch->desc, buf_str);
+		counter = 0;
+		for (const auto i : to_output)
+		{
+			buf_str << "&G" << ++counter << ". &W" << *i << "&n\r\n";
+		}
+		page_string(ch->desc, buf_str.str());
 	}
 
 	// возвращает множитель бонуса

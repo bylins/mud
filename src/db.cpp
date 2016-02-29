@@ -2411,6 +2411,8 @@ void boot_db(void)
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	HelpSystem::reload_all();
 
+	Bonus::bonus_log_load();
+
 	boot_time = time(0);
 	log("Boot db -- DONE.");
 }
