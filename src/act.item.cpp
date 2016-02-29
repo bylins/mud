@@ -132,25 +132,34 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 	}
 
 	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0))
+	{
 		act("$O : $o не помещается туда.", FALSE, ch, obj, cont, TO_CHAR);
-	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
+	}
+	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)
+	{
 		act("Невозможно положить контейнер в контейнер.", FALSE, ch, 0, 0, TO_CHAR);
+	}
 	else if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
+	{
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, cont, TO_CHAR);
+	}
 	else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
-			 || GET_OBJ_TYPE(obj) == ITEM_KEY)
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY)
+	{
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, cont, TO_CHAR);
+	}
 	else
 	{
 		obj_from_char(obj);
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
-		if (GET_OBJ_TYPE(obj) == ITEM_MONEY && GET_OBJ_VNUM(obj) == -1)
+		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MONEY
+			&& GET_OBJ_VNUM(obj) == -1)
 		{
 			OBJ_DATA *temp, *obj_next;
 			for (temp = cont->contains; temp; temp = obj_next)
 			{
 				obj_next = temp->next_content;
-				if (GET_OBJ_TYPE(temp) == ITEM_MONEY)
+				if (GET_OBJ_TYPE(temp) == obj_flag_data::ITEM_MONEY)
 				{
 					// тут можно просто в поле прибавить, но там описание для кун разное от кол-ва
 					int money = GET_OBJ_VAL(temp, 0);
@@ -538,10 +547,14 @@ ACMD(do_put)
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", thecont);
 			send_to_char(buf, ch);
 		}
-		else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
+		else if (GET_OBJ_TYPE(cont) != obj_flag_data::ITEM_CONTAINER)
+		{
 			act("В $o3 нельзя ничего положить.", FALSE, ch, cont, 0, TO_CHAR);
+		}
 		else if (OBJVAL_FLAGGED(cont, CONT_CLOSED))
+		{
 			act("$o0 закрыт$A!", FALSE, ch, cont, 0, TO_CHAR);
+		}
 		else
 		{
 			if (obj_dotmode == FIND_INDIV)  	// put <obj> <container>
@@ -625,13 +638,14 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	if (!IS_NPC(ch) && CLAN(ch))
 		sprintf(buf, "clan%d!", CLAN(ch)->GetRent());
 
-	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch) && GET_OBJ_TYPE(obj) != ITEM_MONEY)
+	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)
+		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY)
 	{
 		act("$p: Вы не могете нести столько вещей.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
 	else if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)
-		&& GET_OBJ_TYPE(obj) != ITEM_MONEY)
+		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY)
 	{
 		act("$p: Вы не в состоянии нести еще и $S.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
@@ -706,8 +720,11 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 
 	const int value = GET_OBJ_VAL(obj, 0);
 
-	if (GET_OBJ_TYPE(obj) != ITEM_MONEY || value <= 0)
+	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY
+		|| value <= 0)
+	{
 		return;
+	}
 
 	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	send_to_char(buf, ch);
@@ -832,13 +849,18 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 			if (CAN_SEE_OBJ(ch, obj) && (obj_dotmode == FIND_ALL || isname(arg, obj->aliases) ||
 			    CHECK_CUSTOM_LABEL(arg, obj, ch)))
 			{
-				if (autoloot && (GET_OBJ_TYPE(obj) == ITEM_INGREDIENT || GET_OBJ_TYPE(obj) == ITEM_MING) && PRF_FLAGGED(ch, PRF_NOINGR_LOOT))
+				if (autoloot
+					&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT
+						|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING)
+					&& PRF_FLAGGED(ch, PRF_NOINGR_LOOT))
 				{
 					continue;
 				}
 				found = 1;
 				if (!perform_get_from_container(ch, obj, cont, mode))
+				{
 					return;
+				}
 			}
 		}
 		if (!found)
@@ -1068,23 +1090,31 @@ ACMD(do_get)
 				sprintf(buf, "Вы не видите '%s'.\r\n", arg2);
 				send_to_char(buf, ch);
 			}
-			else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
+			else if (GET_OBJ_TYPE(cont) != obj_flag_data::ITEM_CONTAINER)
+			{
 				act("$o - не контейнер.", FALSE, ch, cont, 0, TO_CHAR);
+			}
 			else
+			{
 				get_from_container(ch, cont, theobj, mode, amount, false);
+			}
 		}
 		else
 		{
-			if (cont_dotmode == FIND_ALLDOT && !*thecont)
+			if (cont_dotmode == FIND_ALLDOT
+				&& !*thecont)
 			{
 				send_to_char("Взять из чего \"всего\"?\r\n", ch);
 				return;
 			}
 			for (cont = ch->carrying; cont && IS_SET(where_bits, FIND_OBJ_INV); cont = cont->next_content)
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->aliases) ||
-					CHECK_CUSTOM_LABEL(thecont, cont, ch)))
+			{
+				if (CAN_SEE_OBJ(ch, cont)
+					&& (cont_dotmode == FIND_ALL
+						|| isname(thecont, cont->aliases)
+						|| CHECK_CUSTOM_LABEL(thecont, cont, ch)))
 				{
-					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER)
+					if (GET_OBJ_TYPE(cont) == obj_flag_data::ITEM_CONTAINER)
 					{
 						found = 1;
 						get_from_container(ch, cont, theobj, FIND_OBJ_INV, amount, false);
@@ -1095,12 +1125,15 @@ ACMD(do_get)
 						act("$o - не контейнер.", FALSE, ch, cont, 0, TO_CHAR);
 					}
 				}
-			for (cont = world[ch->in_room]->contents;
-					cont && IS_SET(where_bits, FIND_OBJ_ROOM); cont = cont->next_content)
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->aliases) ||
-					CHECK_CUSTOM_LABEL(thecont, cont, ch)))
+			}
+			for (cont = world[ch->in_room]->contents; cont && IS_SET(where_bits, FIND_OBJ_ROOM); cont = cont->next_content)
+			{
+				if (CAN_SEE_OBJ(ch, cont)
+					&& (cont_dotmode == FIND_ALL
+						|| isname(thecont, cont->aliases)
+						|| CHECK_CUSTOM_LABEL(thecont, cont, ch)))
 				{
-					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER)
+					if (GET_OBJ_TYPE(cont) == obj_flag_data::ITEM_CONTAINER)
 					{
 						get_from_container(ch, cont, theobj, FIND_OBJ_ROOM, amount, false);
 						found = 1;
@@ -1111,6 +1144,7 @@ ACMD(do_get)
 						found = 1;
 					}
 				}
+			}
 			if (!found)
 			{
 				if (cont_dotmode == FIND_ALL)
@@ -1147,10 +1181,11 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 			int additional_amount = 0;
 			OBJ_DATA* next_obj;
 			if (mode != SCMD_DONATE)
-				for (OBJ_DATA* existing_obj=world[ch->in_room]->contents; existing_obj; existing_obj = next_obj)
+			{
+				for (OBJ_DATA* existing_obj = world[ch->in_room]->contents; existing_obj; existing_obj = next_obj)
 				{
-					next_obj  = existing_obj->next_content;
-					if (GET_OBJ_TYPE(existing_obj) == ITEM_MONEY)
+					next_obj = existing_obj->next_content;
+					if (GET_OBJ_TYPE(existing_obj) == obj_flag_data::ITEM_MONEY)
 					{
 						//Запоминаем стоимость существующей кучки и удаляем ее
 						additional_amount = GET_OBJ_VAL(existing_obj, 0);
@@ -1158,6 +1193,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 						extract_obj(existing_obj);
 					}
 				}
+			}
 			obj = create_money(amount+additional_amount);
 			if (mode == SCMD_DONATE)
 			{
@@ -1670,7 +1706,9 @@ ACMD(do_eat)
 		send_to_char(buf, ch);
 		return;
 	}
-	if (subcmd == SCMD_TASTE && ((GET_OBJ_TYPE(food) == ITEM_DRINKCON) || (GET_OBJ_TYPE(food) == ITEM_FOUNTAIN)))
+	if (subcmd == SCMD_TASTE
+		&& ((GET_OBJ_TYPE(food) == obj_flag_data::ITEM_DRINKCON)
+			|| (GET_OBJ_TYPE(food) == obj_flag_data::ITEM_FOUNTAIN)))
 	{
 		do_drink(ch, argument, 0, SCMD_SIP);
 		return;
@@ -1678,23 +1716,27 @@ ACMD(do_eat)
 
 	if (!IS_GOD(ch))
 	{
-		if (GET_OBJ_TYPE(food) == ITEM_MING) //Сообщение на случай попытки проглотить ингры
+		if (GET_OBJ_TYPE(food) == obj_flag_data::ITEM_MING) //Сообщение на случай попытки проглотить ингры
 		{
 			send_to_char("Не можешь приготовить - покупай готовое!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(food) != ITEM_FOOD && GET_OBJ_TYPE(food) != ITEM_NOTE)
+		if (GET_OBJ_TYPE(food) != obj_flag_data::ITEM_FOOD
+			&& GET_OBJ_TYPE(food) != obj_flag_data::ITEM_NOTE)
 		{
 			send_to_char("Это несъедобно!\r\n", ch);
 			return;
 		}
 	}
-	if (GET_COND(ch, FULL) > 20 && GET_OBJ_TYPE(food) != ITEM_NOTE)  	// Stomach full
+	if (GET_COND(ch, FULL) > 20
+		&& GET_OBJ_TYPE(food) != obj_flag_data::ITEM_NOTE)  	// Stomach full
 	{
 		send_to_char("Вы слишком сыты для этого!\r\n", ch);
 		return;
 	}
-	if (subcmd == SCMD_EAT || (subcmd == SCMD_TASTE && GET_OBJ_TYPE(food) == ITEM_NOTE))
+	if (subcmd == SCMD_EAT
+		|| (subcmd == SCMD_TASTE
+			&& GET_OBJ_TYPE(food) == obj_flag_data::ITEM_NOTE))
 	{
 		act("Вы съели $o3.", FALSE, ch, food, 0, TO_CHAR);
 		act("$n съел$g $o3.", TRUE, ch, food, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -1705,15 +1747,19 @@ ACMD(do_eat)
 		act("$n попробовал$g $o3 на вкус.", TRUE, ch, food, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 
-	amount = ((subcmd == SCMD_EAT && GET_OBJ_TYPE(food) != ITEM_NOTE)
-			  ? GET_OBJ_VAL(food, 0) : 1);
+	amount = ((subcmd == SCMD_EAT && GET_OBJ_TYPE(food) != obj_flag_data::ITEM_NOTE)
+		? GET_OBJ_VAL(food, 0)
+		: 1);
 
 	gain_condition(ch, FULL, amount);
 
 	if (GET_COND(ch, FULL) > 20)
+	{
 		send_to_char("Вы наелись.\r\n", ch);
+	}
 
-	if (GET_OBJ_VAL(food, 3) && !IS_IMMORTAL(ch))  	// The shit was poisoned !
+	if (GET_OBJ_VAL(food, 3)
+		&& !IS_IMMORTAL(ch))  	// The shit was poisoned !
 	{
 		send_to_char("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -1734,8 +1780,12 @@ ACMD(do_eat)
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		ch->Poisoner = 0;
 	}
-	if (subcmd == SCMD_EAT || (subcmd == SCMD_TASTE && GET_OBJ_TYPE(food) == ITEM_NOTE))
+	if (subcmd == SCMD_EAT
+		|| (subcmd == SCMD_TASTE
+			&& GET_OBJ_TYPE(food) == obj_flag_data::ITEM_NOTE))
+	{
 		extract_obj(food);
+	}
 	else
 	{
 		if (!(--GET_OBJ_VAL(food, 0)))
@@ -2075,16 +2125,25 @@ ACMD(do_wield)
 	else
 	{
 		if (!CAN_WEAR(obj, ITEM_WEAR_WIELD)
-				&& !CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+			&& !CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+		{
 			send_to_char("Вы не можете вооружиться этим.\r\n", ch);
-		else if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
+		}
+		else if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON)
+		{
 			send_to_char("Это не оружие.\r\n", ch);
-		else if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && MOB_FLAGGED(ch, MOB_CORPSE))
+		}
+		else if (IS_NPC(ch)
+			&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			&& MOB_FLAGGED(ch, MOB_CORPSE))
+		{
 			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
+		}
 		else
 		{
 			one_argument(argument, arg);
-			if (!str_cmp(arg, "обе") && CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+			if (!str_cmp(arg, "обе")
+				&& CAN_WEAR(obj, ITEM_WEAR_BOTHS))
 			{
 				// иногда бывает надо
 				if (!IS_IMMORTAL(ch) && !OK_BOTH(ch, obj))
@@ -2145,32 +2204,39 @@ ACMD(do_grab)
 	}
 	else
 	{
-		if (GET_OBJ_TYPE(obj) == ITEM_LIGHT)
+		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_LIGHT)
+		{
 			perform_wear(ch, obj, WEAR_LIGHT);
+		}
 		else
 		{
 			if (!CAN_WEAR(obj, ITEM_WEAR_HOLD) &&
-					GET_OBJ_TYPE(obj) != ITEM_WAND &&
-					GET_OBJ_TYPE(obj) != ITEM_STAFF &&
-					GET_OBJ_TYPE(obj) != ITEM_SCROLL && GET_OBJ_TYPE(obj) != ITEM_POTION)
+				GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WAND &&
+				GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_STAFF &&
+				GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_SCROLL
+				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_POTION)
 			{
 				send_to_char("Вы не можете это держать.\r\n", ch);
 				return;
 			}
-			if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 			{
-				if (GET_OBJ_SKILL(obj) == SKILL_BOTHHANDS || GET_OBJ_SKILL(obj) == SKILL_BOWS)
+				if (GET_OBJ_SKILL(obj) == SKILL_BOTHHANDS
+					|| GET_OBJ_SKILL(obj) == SKILL_BOWS)
 				{
 					send_to_char("Данный тип оружия держать невозможно.", ch);
 					return;
 				}
 			}
-			if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && MOB_FLAGGED(ch, MOB_CORPSE))
+			if (IS_NPC(ch)
+				&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+				&& MOB_FLAGGED(ch, MOB_CORPSE))
 			{
 				send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
 				return;
 			}
-			if (!IS_IMMORTAL(ch) && !OK_HELD(ch, obj))
+			if (!IS_IMMORTAL(ch)
+				&& !OK_HELD(ch, obj))
 			{
 				act("Вам слишком тяжело держать $o3 в левой руке.", FALSE, ch, obj, 0, TO_CHAR);
 				message_str_need(ch, obj, STR_HOLD_W);
@@ -2323,7 +2389,7 @@ ACMD(do_upgrade)
 		return;
 	};
 
-	if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON)
 	{
 		send_to_char("Вы можете заточить только оружие.\r\n", ch);
 		return;
@@ -2848,7 +2914,7 @@ ACMD(do_poisoned)
 		send_to_char(ch, "У вас нет \'%s\'.\r\n", arg);
 		return;
 	}
-	else if (GET_OBJ_TYPE(weapon) != ITEM_WEAPON)
+	else if (GET_OBJ_TYPE(weapon) != obj_flag_data::ITEM_WEAPON)
 	{
 		send_to_char("Вы можете нанести яд только на оружие.\r\n", ch);
 		return;
@@ -2860,7 +2926,7 @@ ACMD(do_poisoned)
 		send_to_char(ch, "У вас нет \'%s\'.\r\n", argument);
 		return;
 	}
-	else if (GET_OBJ_TYPE(cont) != ITEM_DRINKCON)
+	else if (GET_OBJ_TYPE(cont) != obj_flag_data::ITEM_DRINKCON)
 	{
 		send_to_char(ch, "%s не является емкостью.\r\n", GET_OBJ_PNAME(cont, 0));
 		return;
@@ -2926,7 +2992,8 @@ ACMD(do_repair)
 		act("$o в ремонте не нуждается.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	if ((GET_OBJ_TYPE(obj) != ITEM_WEAPON) && !ObjSystem::is_armor_type(obj))
+	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON
+		&& !ObjSystem::is_armor_type(obj))
 	{
 		send_to_char("Вы можете отремонтировать только оружие или броню.\r\n", ch);
 		return;

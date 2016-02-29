@@ -232,6 +232,8 @@ namespace craft
 			m_minimum_remorts = minimum_remorts_value;
 		}
 
+		// TODO: Reading type
+
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
 
