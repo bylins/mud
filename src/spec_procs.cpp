@@ -1641,37 +1641,51 @@ bool item_nouse(OBJ_DATA * obj)
 {
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_LIGHT:
+	case obj_flag_data::ITEM_LIGHT:
 		if (GET_OBJ_VAL(obj, 2) == 0)
+		{
 			return true;
+		}
 		break;
-	case ITEM_SCROLL:
-	case ITEM_POTION:
-		if (!GET_OBJ_VAL(obj, 1) && !GET_OBJ_VAL(obj, 2) && !GET_OBJ_VAL(obj, 3))
+
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
+		if (!GET_OBJ_VAL(obj, 1)
+			&& !GET_OBJ_VAL(obj, 2)
+			&& !GET_OBJ_VAL(obj, 3))
+		{
 			return true;
+		}
 		break;
-	case ITEM_STAFF:
-	case ITEM_WAND:
+
+	case obj_flag_data::ITEM_STAFF:
+	case obj_flag_data::ITEM_WAND:
 		if (!GET_OBJ_VAL(obj, 2))
+		{
 			return true;
+		}
 		break;
-	case ITEM_CONTAINER:
+
+	case obj_flag_data::ITEM_CONTAINER:
 		if (!system_obj::is_purse(obj))
+		{
 			return true;
+		}
 		break;
-	case ITEM_OTHER:
-	case ITEM_TRASH:
-	case ITEM_TRAP:
-	case ITEM_NOTE:
-	case ITEM_DRINKCON:
-	case ITEM_FOOD:
-	case ITEM_PEN:
-	case ITEM_BOAT:
-	case ITEM_FOUNTAIN:
-	case ITEM_MING:
+
+	case obj_flag_data::ITEM_OTHER:
+	case obj_flag_data::ITEM_TRASH:
+	case obj_flag_data::ITEM_TRAP:
+	case obj_flag_data::ITEM_NOTE:
+	case obj_flag_data::ITEM_DRINKCON:
+	case obj_flag_data::ITEM_FOOD:
+	case obj_flag_data::ITEM_PEN:
+	case obj_flag_data::ITEM_BOAT:
+	case obj_flag_data::ITEM_FOUNTAIN:
+	case obj_flag_data::ITEM_MING:
 		return true;
-		break;
 	}
+
 	return false;
 }
 
@@ -1710,26 +1724,32 @@ int npc_scavenge(CHAR_DATA * ch)
 		best_cont = NULL;
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content)
 		{
-			if (GET_OBJ_TYPE(obj) == ITEM_MING
+			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING
 				|| Clan::is_clan_chest(obj)
 				|| ClanSystem::is_ingr_chest(obj))
 			{
 				continue;
 			}
-			if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER
+			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
 				&& !system_obj::is_purse(obj))
 			{
 				if (IS_CORPSE(obj))
+				{
 					continue;
+				}
 				// Заперто, открываем, если есть ключ
-				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
-						has_key(ch, GET_OBJ_VAL(obj, 2)))
+				if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
+					&& has_key(ch, GET_OBJ_VAL(obj, 2)))
+				{
 					do_doorcmd(ch, obj, 0, SCMD_UNLOCK);
+				}
 				// Заперто, взламываем, если умеем
-				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
-						ch->get_skill(SKILL_PICK_LOCK) &&
-						ok_pick(ch, 0, obj, 0, SCMD_PICK))
+				if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
+					&& ch->get_skill(SKILL_PICK_LOCK)
+					&& ok_pick(ch, 0, obj, 0, SCMD_PICK))
+				{
 					do_doorcmd(ch, obj, 0, SCMD_PICK);
+				}
 				// Все равно заперто, ну тогда фиг с ним
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
 					continue;
@@ -1757,7 +1777,7 @@ int npc_scavenge(CHAR_DATA * ch)
 			if (best_obj != best_cont)
 			{
 				act("$n поднял$g $o3.", FALSE, ch, best_obj, 0, TO_ROOM);
-				if (GET_OBJ_TYPE(best_obj) == ITEM_MONEY)
+				if (GET_OBJ_TYPE(best_obj) == obj_flag_data::ITEM_MONEY)
 				{
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					extract_obj(best_obj);
@@ -1772,7 +1792,7 @@ int npc_scavenge(CHAR_DATA * ch)
 			{
 				sprintf(buf, "$n достал$g $o3 из %s.", cont->PNames[1]);
 				act(buf, FALSE, ch, best_obj, 0, TO_ROOM);
-				if (GET_OBJ_TYPE(best_obj) == ITEM_MONEY)
+				if (GET_OBJ_TYPE(best_obj) == obj_flag_data::ITEM_MONEY)
 				{
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					extract_obj(best_obj);
@@ -1808,14 +1828,14 @@ int npc_loot(CHAR_DATA * ch)
 				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot)
 				{
 					next_loot = loot_obj->next_content;
-					if ((GET_OBJ_TYPE(loot_obj) != ITEM_CONTAINER
+					if ((GET_OBJ_TYPE(loot_obj) != obj_flag_data::ITEM_CONTAINER
 							|| system_obj::is_purse(loot_obj))
 						&& CAN_GET_OBJ(ch, loot_obj)
 						&& !item_nouse(loot_obj))
 					{
 						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
 						act(buf, FALSE, ch, loot_obj, 0, TO_ROOM);
-						if (GET_OBJ_TYPE(loot_obj) == ITEM_MONEY)
+						if (GET_OBJ_TYPE(loot_obj) == obj_flag_data::ITEM_MONEY)
 						{
 							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
 							extract_obj(loot_obj);
@@ -1832,7 +1852,7 @@ int npc_loot(CHAR_DATA * ch)
 				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot)
 				{
 					next_loot = loot_obj->next_content;
-					if (GET_OBJ_TYPE(loot_obj) == ITEM_CONTAINER)
+					if (GET_OBJ_TYPE(loot_obj) == obj_flag_data::ITEM_CONTAINER)
 					{
 						if (IS_CORPSE(loot_obj)
 							|| OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
@@ -1847,7 +1867,7 @@ int npc_loot(CHAR_DATA * ch)
 							{
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
 								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
-								if (GET_OBJ_TYPE(cobj) == ITEM_MONEY)
+								if (GET_OBJ_TYPE(cobj) == obj_flag_data::ITEM_MONEY)
 								{
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									extract_obj(cobj);
@@ -1866,7 +1886,7 @@ int npc_loot(CHAR_DATA * ch)
 				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot)
 				{
 					next_loot = loot_obj->next_content;
-					if (GET_OBJ_TYPE(loot_obj) == ITEM_CONTAINER)
+					if (GET_OBJ_TYPE(loot_obj) == obj_flag_data::ITEM_CONTAINER)
 					{
 						if (IS_CORPSE(loot_obj)
 							|| !OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
@@ -1894,7 +1914,7 @@ int npc_loot(CHAR_DATA * ch)
 							{
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
 								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
-								if (GET_OBJ_TYPE(cobj) == ITEM_MONEY)
+								if (GET_OBJ_TYPE(cobj) == obj_flag_data::ITEM_MONEY)
 								{
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									extract_obj(cobj);
@@ -1995,8 +2015,11 @@ int calculate_weapon_class(CHAR_DATA * ch, OBJ_DATA * weapon)
 {
 	int damage = 0, hits = 0, i;
 
-	if (!weapon || GET_OBJ_TYPE(weapon) != ITEM_WEAPON)
-		return (0);
+	if (!weapon
+		|| GET_OBJ_TYPE(weapon) != obj_flag_data::ITEM_WEAPON)
+	{
+		return 0;
+	}
 
 	hits = calculate_skill(ch, GET_OBJ_SKILL(weapon), 101, 0);
 	damage = (GET_OBJ_VAL(weapon, 1) + 1) * (GET_OBJ_VAL(weapon, 2)) / 2;
@@ -2042,14 +2065,20 @@ void npc_wield(CHAR_DATA * ch)
 		return;
 
 	if (GET_EQ(ch, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ITEM_WEAPON)
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON)
+	{
 		left = GET_EQ(ch, WEAR_HOLD);
+	}
 	if (GET_EQ(ch, WEAR_WIELD)
-			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == ITEM_WEAPON)
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == obj_flag_data::ITEM_WEAPON)
+	{
 		right = GET_EQ(ch, WEAR_WIELD);
+	}
 	if (GET_EQ(ch, WEAR_BOTHS)
-			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == ITEM_WEAPON)
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == obj_flag_data::ITEM_WEAPON)
+	{
 		both = GET_EQ(ch, WEAR_BOTHS);
+	}
 
 	if (GET_REAL_INT(ch) < 15 && ((left && right) || (both)))
 		return;
@@ -2057,8 +2086,11 @@ void npc_wield(CHAR_DATA * ch)
 	for (obj = ch->carrying; obj; obj = next)
 	{
 		next = obj->next_content;
-		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON || GET_OBJ_UID(obj) != 0)
+		if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON
+			|| GET_OBJ_UID(obj) != 0)
+		{
 			continue;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_HOLD) && OK_HELD(ch, obj))
 			best_weapon(ch, obj, &left);
 		else if (CAN_WEAR(obj, ITEM_WEAR_WIELD) && OK_WIELD(ch, obj))
@@ -2067,15 +2099,8 @@ void npc_wield(CHAR_DATA * ch)
 			best_weapon(ch, obj, &both);
 	}
 
-	// if (isname("палад",GET_NAME(ch)))
-	//    log("%s - %d, %s - %d, %s - %d",
-	//        both  ? both->PNames[0] : "Empty", calculate_weapon_class(ch,both),
-	//        right ? right->PNames[0] : "Empty", calculate_weapon_class(ch,right),
-	//        left  ? left->PNames[0] : "Empty", calculate_weapon_class(ch,left));
-
 	if (both
-			&& calculate_weapon_class(ch, both) > calculate_weapon_class(ch,
-					left) + calculate_weapon_class(ch, right))
+		&& calculate_weapon_class(ch, both) > calculate_weapon_class(ch, left) + calculate_weapon_class(ch, right))
 	{
 		if (both == GET_EQ(ch, WEAR_BOTHS))
 			return;
@@ -2230,11 +2255,14 @@ void npc_light(CHAR_DATA * ch)
 	}
 
 	if (!GET_EQ(ch, WEAR_LIGHT) && IS_DARK(IN_ROOM(ch)))
+	{
 		for (obj = ch->carrying; obj; obj = next)
 		{
 			next = obj->next_content;
-			if (GET_OBJ_TYPE(obj) != ITEM_LIGHT)
+			if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_LIGHT)
+			{
 				continue;
+			}
 			if (GET_OBJ_VAL(obj, 2) == 0)
 			{
 				act("$n выбросил$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
@@ -2246,6 +2274,7 @@ void npc_light(CHAR_DATA * ch)
 			equip_char(ch, obj, WEAR_LIGHT | 0x100);
 			return;
 		}
+	}
 }
 
 
@@ -2264,8 +2293,10 @@ int npc_battle_scavenge(CHAR_DATA * ch)
 		for (obj = world[IN_ROOM(ch)]->contents; obj; obj = next_obj)
 		{
 			next_obj = obj->next_content;
-			if (CAN_GET_OBJ(ch, obj) &&
-					!has_curse(obj) && (ObjSystem::is_armor_type(obj) || GET_OBJ_TYPE(obj) == ITEM_WEAPON))
+			if (CAN_GET_OBJ(ch, obj)
+				&& !has_curse(obj)
+				&& (ObjSystem::is_armor_type(obj)
+					|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON))
 			{
 				obj_from_room(obj);
 				obj_to_char(obj, ch);
@@ -2806,8 +2837,11 @@ SPECIAL(janitor)
 	{
 		if (!CAN_WEAR(i, ITEM_WEAR_TAKE))
 			continue;
-		if (GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 15)
+		if (GET_OBJ_TYPE(i) != obj_flag_data::ITEM_DRINKCON
+			&& GET_OBJ_COST(i) >= 15)
+		{
 			continue;
+		}
 		act("$n picks up some trash.", FALSE, ch, 0, 0, TO_ROOM);
 		obj_from_room(i);
 		obj_to_char(i, ch);
