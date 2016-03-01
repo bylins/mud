@@ -74,7 +74,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 			{
 				GET_PAD(d->character, i) = str_dup(mortname[i]);
 			}
-			GET_SEX(d->character) = sex;
+			GET_SEX(d->character) = static_cast<ESex>(sex);
 			// Auto-Agree char ...
 			NAME_GOD(d->character) = immlev + 1000;
 			NAME_ID_GOD(d->character) = get_id_by_name(immname);
@@ -186,7 +186,7 @@ struct NewName
 	std::string name4; // --//--
 	std::string name5; // --//--
 	std::string email; // мыло
-	short sex;         // часто не ясно, для какоо пола падежи вообще
+	ESex sex;         // часто не ясно, для какоо пола падежи вообще
 };
 
 typedef boost::shared_ptr<NewName> NewNamePtr;
@@ -227,7 +227,9 @@ void NewNameAdd(CHAR_DATA * ch, bool save = 1)
 
 	NewNameList[GET_NAME(ch)] = name;
 	if (save)
+	{
 		NewNameSave();
+	}
 }
 
 // поиск/удаление персонажа из списка неодобренных имен
@@ -292,7 +294,7 @@ void NewNameShow(CHAR_DATA * ch)
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 		<< "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
 		<< "/" << it->second->name5 << " Email: &S" << (GET_GOD_FLAG(ch, GF_DEMIGOD) ? "неопределен" : it->second->email) 
-		<< "&s Пол: " << genders[it->second->sex] << "\r\n";
+		<< "&s Пол: " << genders[to_underlying(it->second->sex)] << "\r\n";
 	buffer << CCNRM(ch, C_NRM);
 	send_to_char(buffer.str(), ch);
 }
@@ -428,14 +430,25 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		//send_to_char("Имя одобрено!\r\n", ch);
 		send_to_char(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
-		if(GET_SEX(ch) == 0)
-                sprintf(buf,  "&c%s одобрило имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-		if(GET_SEX(ch) == 1)
-                sprintf(buf,  "&c%s одобрил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-		if(GET_SEX(ch) == 2)
-                sprintf(buf,  "&c%s одобрила имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-		if(GET_SEX(ch) == 3)
-                sprintf(buf,  "&c%s одобрили имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+		switch (GET_SEX(ch))
+		{
+		case ESex::SEX_NEUTRAL:
+			sprintf(buf, "&c%s одобрило имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+			break;
+
+		case ESex::SEX_MALE:
+			sprintf(buf, "&c%s одобрил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+			break;
+
+		case ESex::SEX_FEMALE:
+			sprintf(buf, "&c%s одобрила имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+			break;
+
+		case ESex::SEX_POLY:
+			sprintf(buf, "&c%s одобрили имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+			break;
+		}
+
 		send_to_gods(buf, true);
 		// В этом теперь нет смысла
 		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
@@ -448,14 +461,25 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		//send_to_char("Имя запрещено!\r\n", ch);
 		send_to_char(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
-		if(GET_SEX(ch) ==0) 
-                sprintf(buf,  "&c%s запретило имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-		if(GET_SEX(ch) ==1) 
-                sprintf(buf,  "&c%s запретил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-		if(GET_SEX(ch) ==2) 
-                sprintf(buf,  "&c%s запретила имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-		if(GET_SEX(ch) ==3) 
-                sprintf(buf,  "&c%s запретили имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+
+		switch (GET_SEX(ch))
+		{
+		case ESex::SEX_NEUTRAL:
+			sprintf(buf, "&c%s запретило имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+			break;
+
+		case ESex::SEX_MALE:
+			sprintf(buf, "&c%s запретил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+			break;
+
+		case ESex::SEX_FEMALE:
+			sprintf(buf, "&c%s запретила имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+			break;
+
+		case ESex::SEX_POLY:
+			sprintf(buf, "&c%s запретили имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
+			break;
+		}
 
 		send_to_gods(buf, true);
 		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);

@@ -1148,7 +1148,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_LOADROOM(this) = NOWHERE;
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
-	GET_SEX(this) = 0;
+	GET_SEX(this) = ESex::SEX_NEUTRAL;
 	GET_COND(this, THIRST) = 0;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
@@ -1695,7 +1695,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Size"))
 				GET_SIZE(this) = num;
 			else if (!strcmp(tag, "Sex "))
-				GET_SEX(this) = num;
+			{
+				GET_SEX(this) = static_cast<ESex>(num);
+			}
 			else if (!strcmp(tag, "Skil"))
 			{
 				do

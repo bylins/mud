@@ -2221,7 +2221,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 #endif
 
 	case MEDIT_SEX:
-		GET_SEX(OLC_MOB(d)) = MAX(0, MIN(NUM_GENDERS, atoi(arg)));
+		GET_SEX(OLC_MOB(d)) = static_cast<ESex>(MAX(0, MIN(NUM_GENDERS, atoi(arg))));
 		break;
 
 	case MEDIT_HITROLL:

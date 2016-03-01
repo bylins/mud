@@ -2071,7 +2071,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	int k_room = -1;
 	if (!virt && (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k))))
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
-	sprinttype(GET_SEX(k), genders, buf);
+	sprinttype(to_underlying(GET_SEX(k)), genders, buf);
 	if (IS_NPC(k))
 	{
 		sprinttype(GET_RACE(k) - NPC_RACE_BASIC, npc_race_types, buf2);
@@ -4815,7 +4815,7 @@ ACMD(do_show)
 			return;
 		}
 		sprintf(buf, "&WИнформация по игроку %s:&n (", GET_NAME(vict));
-		sprinttype(GET_SEX(vict), genders, buf + strlen(buf));
+		sprinttype(to_underlying(GET_SEX(vict)), genders, buf + strlen(buf));
 		sprintf(buf + strlen(buf), ")&n\r\n");
 		sprintf(buf + strlen(buf), "Падежи : %s/%s/%s/%s/%s/%s\r\n",
 				GET_PAD(vict, 0), GET_PAD(vict, 1), GET_PAD(vict, 2),
@@ -5589,8 +5589,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			("Может быть 'мужчина', 'женщина', или 'бесполое'(а вот это я еще не оценил :).\r\n", ch);
 			return (0);
 		}
-		GET_SEX(vict) = i;
+		GET_SEX(vict) = static_cast<ESex>(i);
 		break;
+
 	case 39:		// set age
 		if (value < 2 || value > 200)  	// Arbitrary limits.
 		{

@@ -35,7 +35,7 @@ struct char_player_data
 	char *long_descr;	// for 'look'
 	char *description;	// Extra descriptions
 	char *title;		// PC / NPC's title
-	byte sex;		// PC / NPC's sex
+	ESex sex;		// PC / NPC's sex
 	struct time_data time;			// PC's AGE in days
 	ubyte weight;		// PC / NPC's weight
 	ubyte height;		// PC / NPC's height
@@ -423,8 +423,8 @@ public:
 	time_t get_last_logon() const;
 	void set_last_logon(time_t num);
 
-	byte get_sex() const;
-	void set_sex(const byte );
+	ESex get_sex() const;
+	void set_sex(const ESex sex );
 	ubyte get_weight() const;
 	void set_weight(const ubyte );
 	ubyte get_height() const;
@@ -899,6 +899,26 @@ inline bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
 		&& (!IS_NPC(victim)
 			|| !IS_NPC(ch)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
+}
+
+inline bool IS_MALE(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_MALE;
+}
+
+inline bool IS_FEMALE(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_FEMALE;
+}
+
+inline bool IS_NOSEXY(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_NEUTRAL;
+}
+
+inline bool IS_POLY(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_POLY;
 }
 
 void change_fighting(CHAR_DATA * ch, int need_stop);

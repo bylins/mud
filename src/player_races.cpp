@@ -205,33 +205,41 @@ int PlayerRace::GetRaceNumByName(int Kin, const std::string& RaceName)
 };
 
 //Получение названия расы по номеру и полу
-std::string PlayerRace::GetKinNameByNum(int KinNum, int Sex)
+std::string PlayerRace::GetKinNameByNum(int KinNum, const ESex Sex)
 {
-    for (PlayerKinListType::iterator it =  PlayerKinList.begin();it != PlayerKinList.end();++it)
-        if ((*it)->KinNum == KinNum)
-            switch (Sex)
-            {
-            case SEX_NEUTRAL:
-                return PlayerRace::PlayerKinList[KinNum]->KinItName;
-                break;
-            case SEX_MALE:
-                return PlayerRace::PlayerKinList[KinNum]->KinHeName;
-                break;
-            case SEX_FEMALE:
-                return PlayerRace::PlayerKinList[KinNum]->KinSheName;
-                break;
-            case SEX_POLY:
-                return PlayerRace::PlayerKinList[KinNum]->KinPluralName;
-                break;
-            default:
-                return PlayerRace::PlayerKinList[KinNum]->KinHeName;
-            }
+	for (PlayerKinListType::iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it)
+	{
+		if ((*it)->KinNum == KinNum)
+		{
+			switch (Sex)
+			{
+			case ESex::SEX_NEUTRAL:
+				return PlayerRace::PlayerKinList[KinNum]->KinItName;
+				break;
+
+			case ESex::SEX_MALE:
+				return PlayerRace::PlayerKinList[KinNum]->KinHeName;
+				break;
+
+			case ESex::SEX_FEMALE:
+				return PlayerRace::PlayerKinList[KinNum]->KinSheName;
+				break;
+
+			case ESex::SEX_POLY:
+				return PlayerRace::PlayerKinList[KinNum]->KinPluralName;
+				break;
+
+			default:
+				return PlayerRace::PlayerKinList[KinNum]->KinHeName;
+			}
+		}
+	}
 
 	return KIN_NAME_UNDEFINED;
 };
 
 //Получение названия рода по номеру и полу
-std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, int Sex)
+std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, const ESex Sex)
 {
     //static char out_str[MAX_STRING_LENGTH];
     //*out_str = '\0';
@@ -241,25 +249,33 @@ std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, int Sex)
 	if ((KinNum > KIN_UNDEFINED) && (static_cast<unsigned>(KinNum) < PlayerRace::PlayerKinList.size()))
     {
         KinPtr = PlayerRace::PlayerKinList[KinNum];
-        for (PlayerRaceListType::iterator it =  KinPtr->PlayerRaceList.begin();it != KinPtr->PlayerRaceList.end();++it)
-            if ((*it)->_RaceNum == RaceNum)
-                switch (Sex)
-                {
-                case SEX_NEUTRAL:
-                    return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceItName;
-                    break;
-                case SEX_MALE:
-                    return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
-                    break;
-                case SEX_FEMALE:
-                    return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceSheName;
-                    break;
-                case SEX_POLY:
-                    return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RacePluralName;
-                    break;
-                default:
-                    return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
-                };
+		for (PlayerRaceListType::iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end(); ++it)
+		{
+			if ((*it)->_RaceNum == RaceNum)
+			{
+				switch (Sex)
+				{
+				case ESex::SEX_NEUTRAL:
+					return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceItName;
+					break;
+
+				case ESex::SEX_MALE:
+					return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
+					break;
+
+				case ESex::SEX_FEMALE:
+					return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceSheName;
+					break;
+
+				case ESex::SEX_POLY:
+					return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RacePluralName;
+					break;
+
+				default:
+					return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
+				};
+			}
+		}
     }
 
 	return RACE_NAME_UNDEFINED;

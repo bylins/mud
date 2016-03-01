@@ -3507,7 +3507,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 
 	mob_proto[i].char_specials.position = t[0];
 	mob_proto[i].mob_specials.default_pos = t[1];
-	mob_proto[i].player_data.sex = t[2];
+	mob_proto[i].player_data.sex = static_cast<ESex>(t[2]);
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
 	mob_proto[i].set_class(CLASS_BASIC_NPC);
@@ -4203,9 +4203,9 @@ char *parse_object(FILE * obj_f, int nr)
 	tobj->item_number = i;
 
 	// *** Add some initialization fields
-	tobj->obj_flags.Obj_max = 100;
-	tobj->obj_flags.Obj_cur = 100;
-	tobj->obj_flags.Obj_sex = 1;
+	tobj->obj_flags.Obj_max = obj_flag_data::DEFAULT_MAXIMUM_DURABILITY;
+	tobj->obj_flags.Obj_cur = obj_flag_data::DEFAULT_CURRENT_DURABILITY;
+	tobj->obj_flags.Obj_sex = DEFAULT_SEX;
 	tobj->set_timer(SEVEN_DAYS);
 	tobj->obj_flags.Obj_level = 1;
 	tobj->obj_flags.Obj_destroyer = 60;
@@ -4265,7 +4265,7 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *2th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	tobj->obj_flags.Obj_sex = t[0];
+	tobj->obj_flags.Obj_sex = static_cast<ESex>(t[0]);
 	int timer = t[1] > 0 ? t[1] : SEVEN_DAYS;
 	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
 	// не должно быть
@@ -6877,7 +6877,7 @@ void init_char(CHAR_DATA * ch)
 	ch->player_data.time.logon = time(0);
 
 	// make favors for sex
-	if (ch->player_data.sex == SEX_MALE)
+	if (ch->player_data.sex == ESex::SEX_MALE)
 	{
 		ch->player_data.weight = number(120, 180);
 		ch->player_data.height = number(160, 200);

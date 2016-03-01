@@ -1734,10 +1734,10 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 		std::string name = GET_OBJ_PNAME(target, 0) ? GET_OBJ_PNAME(target, 0) : "<null>";
 		name[0] = UPPER(name[0]);
 		send_to_char(ch, "%s не %s быть зачарован%s, т.к. %s частью набора предметов.\r\n",
-				name.c_str(),
-				GET_OBJ_SEX(target) == SEX_POLY ? "могут" : "может",
-				GET_OBJ_VIS_SUF_6(target, ch),
-				GET_OBJ_SEX(target) == SEX_POLY ? "являются" : "является");
+			name.c_str(),
+			GET_OBJ_SEX(target) == ESex::SEX_POLY ? "могут" : "может",
+			GET_OBJ_VIS_SUF_6(target, ch),
+			GET_OBJ_SEX(target) == ESex::SEX_POLY ? "являются" : "является");
 		return;
 	}
 	if (GET_OBJ_TYPE(target) == obj_flag_data::ITEM_ENCHANT)

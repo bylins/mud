@@ -2470,14 +2470,25 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	{
 	    CLR_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
-	if (GET_SEX(d->character) == 0)
-        sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
-	if (GET_SEX(d->character) == 1)
-        sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
-	if (GET_SEX(d->character) == 2)
-        sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
-	if (GET_SEX(d->character) == 3)
-        sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+
+	switch (GET_SEX(d->character))
+	{
+	case ESex::SEX_NEUTRAL:
+		sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
+		break;
+
+	case ESex::SEX_MALE:
+		sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+		break;
+
+	case ESex::SEX_FEMALE:
+		sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
+		break;
+
+	case ESex::SEX_POLY:
+		sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+		break;
+	}
 
 	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 	look_at_room(d->character, 0);
@@ -3094,11 +3105,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case 'М':
 		case 'M':
-			GET_SEX(d->character) = SEX_MALE;
+			GET_SEX(d->character) = ESex::SEX_MALE;
 			break;
 		case 'Ж':
 		case 'F':
-			GET_SEX(d->character) = SEX_FEMALE;
+			GET_SEX(d->character) = ESex::SEX_FEMALE;
 			break;
 		default:
 			SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);

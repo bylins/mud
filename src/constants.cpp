@@ -190,15 +190,6 @@ const char *genders[] = { "бесполое",
 						  "\n"
 						};
 
-
-const char *religion_name[][NUM_SEXES] = { {"Язычник", "Язычник", "Язычница", "Язычники"},
-	{"Христианин", "Христианин", "Христианка", "Христиане"},
-	{"", "", ""} // for undefined religion
-};
-
-
-
-
 // POS_x
 const char *position_types[] = { "Мертв",
 								 "При смерти",

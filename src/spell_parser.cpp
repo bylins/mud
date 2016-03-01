@@ -3712,19 +3712,16 @@ ACMD(do_learn)
 
 	if (!spellnum)
 	{
+		const char* where = number(0, 1) ? "вон та" : (number(0, 1) ? "вот эта" : "пятая справа");
+		const char* what = number(0, 1) ? "жука" : (number(0, 1) ? "бабочку" : "русалку");
+		const char* whom = obj->obj_flags.Obj_sex == ESex::SEX_FEMALE ? "нее" : (obj->obj_flags.Obj_sex == ESex::SEX_POLY ? "них" : "него");
 		sprintf(buf,
-				"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
-				"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"
-				"долга закрыли %s. До %s вы еще не доросли.\r\n", number(0,
-						1) ?
-				"вон та" : number(0, 1) ? "вот эта" : "пятая справа",
-				number(0, 1) ? "жука" : number(0, 1) ? "бабочку" : "русалку",
-				obj->PNames[3],
-				obj->obj_flags.Obj_sex ==
-				SEX_FEMALE ? "нее" : obj->obj_flags.Obj_sex == SEX_POLY ? "них" : "него");
+			"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
+			"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"
+			"долга закрыли %s. До %s вы еще не доросли.\r\n",
+			where, what, obj->PNames[3], whom);
 		send_to_char(buf, ch);
-		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.",
-			FALSE, ch, obj, 0, TO_ROOM);
+		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.", FALSE, ch, obj, 0, TO_ROOM);
 		return;
 	}
 

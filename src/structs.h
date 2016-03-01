@@ -29,6 +29,7 @@
 #include <map>
 #include <iterator>
 #include <cstdint>
+#include <array>
 
 namespace ExtMoney
 {
@@ -293,9 +294,24 @@ enum
 #define MASK_MAGES        (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER)
 #define MASK_CASTER       (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER | MASK_CLERIC | MASK_DRUID)
 
+enum class ESex: byte
+{
+	SEX_NEUTRAL = 0,
+	SEX_MALE = 1,
+	SEX_FEMALE = 2,
+	SEX_POLY = 3
+};
+constexpr ESex DEFAULT_SEX = ESex::SEX_MALE;
+
+#define NUM_SEXES 4
+
 // PC religions //
 #define RELIGION_POLY    0
 #define RELIGION_MONO    1
+
+typedef std::array<const char*, NUM_SEXES> religion_genders_t;
+typedef std::array<religion_genders_t, 2> religion_names_t;
+extern const religion_names_t religion_name;
 
 #define MASK_RELIGION_POLY        (1 << RELIGION_POLY)
 #define MASK_RELIGION_MONO        (1 << RELIGION_MONO)
@@ -337,14 +353,6 @@ enum
 // Virtual NPC races
 #define NPC_BOSS				200
 #define NPC_UNIQUE				201
-
-// Sex
-#define SEX_NEUTRAL         0
-#define SEX_MALE            1
-#define SEX_FEMALE          2
-#define SEX_POLY            3
-
-#define NUM_SEXES           4
 
 #define MASK_SEX_NEUTRAL  (1 << SEX_NEUTRAL)
 #define MASK_SEX_MALE     (1 << SEX_MALE)

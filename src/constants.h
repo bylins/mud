@@ -56,7 +56,6 @@ extern const char *weekdays_poly[];
 extern const char *month_name_poly[];
 extern const char *ingradient_bits[];
 extern const char *function_bits[];
-extern const char *religion_name[][NUM_SEXES];
 extern const char *pray_metter[];
 extern const char *pray_whom[];
 extern const char *room_aff_visib_bits[];

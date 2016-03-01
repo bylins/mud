@@ -914,7 +914,7 @@ OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 	obj->PNames[3] = str_dup("узелок");
 	obj->PNames[4] = str_dup("узелком");
 	obj->PNames[5] = str_dup("узелке");
-	GET_OBJ_SEX(obj) = SEX_MALE;
+	GET_OBJ_SEX(obj) = ESex::SEX_MALE;
 	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
 	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
 	GET_OBJ_WEIGHT(obj) = 1;

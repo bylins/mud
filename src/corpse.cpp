@@ -426,7 +426,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	EXTRA_DESCR_DATA *exdesc;
 
 	corpse = create_obj();
-	GET_OBJ_SEX(corpse) = SEX_POLY;
+	GET_OBJ_SEX(corpse) = ESex::SEX_POLY;
 
 	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
 	corpse->description = str_dup(buf2);
@@ -483,7 +483,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse = create_obj(buf2);
 
-	GET_OBJ_SEX(corpse) = SEX_MALE;
+	GET_OBJ_SEX(corpse) = ESex::SEX_MALE;
 
 	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
 	corpse->description = str_dup(buf2);

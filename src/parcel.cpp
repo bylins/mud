@@ -212,18 +212,19 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 	{
 			switch (GET_SEX(&t_vict))
 			{
-				case SEX_MALE:
-			act("$n сказал$g вам : 'Знаю я такого добра молодца - эта вещь явно на него не налезет.'\r\n",
-				FALSE, mailman, 0, ch, TO_VICT);
-			break;
-			case SEX_FEMALE:
-			
-			act("$n сказал$g вам : 'Знаю я такую красну девицу - эта вещь явно на нее не налезет.'\r\n",
-				FALSE, mailman, 0, ch, TO_VICT);
-			break;
+			case ESex::SEX_MALE:
+				act("$n сказал$g вам : 'Знаю я такого добра молодца - эта вещь явно на него не налезет.'\r\n",
+					FALSE, mailman, 0, ch, TO_VICT);
+				break;
+
+			case ESex::SEX_FEMALE:
+				act("$n сказал$g вам : 'Знаю я такую красну девицу - эта вещь явно на нее не налезет.'\r\n",
+					FALSE, mailman, 0, ch, TO_VICT);
+				break;
+
 			default:
-			act("$n сказал$g вам : 'Знаю я сие чудо бесполое - эта вещь явно на него не налезет.'\r\n",
-				FALSE, mailman, 0, ch, TO_VICT);
+				act("$n сказал$g вам : 'Знаю я сие чудо бесполое - эта вещь явно на него не налезет.'\r\n",
+					FALSE, mailman, 0, ch, TO_VICT);
 		}
 		return 0;
 	}
@@ -543,7 +544,7 @@ OBJ_DATA * create_parcel()
 	obj->PNames[3] = str_dup("посылку");
 	obj->PNames[4] = str_dup("посылкой");
 	obj->PNames[5] = str_dup("посылке");
-	GET_OBJ_SEX(obj) = SEX_FEMALE;
+	GET_OBJ_SEX(obj) = ESex::SEX_FEMALE;
 	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
 	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
 	GET_OBJ_WEIGHT(obj) = 1;

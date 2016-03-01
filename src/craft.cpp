@@ -248,6 +248,22 @@ namespace craft
 			}
 		}
 
+		const auto durability = node->child("durability");
+		if (durability)
+		{
+			const auto maximum = durability.child("maximum");
+			if (maximum)
+			{
+				m_maximum_durability = std::max(std::atoi(maximum.child_value()), 0);
+			}
+
+			const auto current = durability.child("current");
+			if (current)
+			{
+				m_current_durability = std::min(std::max(std::atoi(current.child_value()), 0), m_maximum_durability);
+			}
+		}
+
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
 

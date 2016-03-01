@@ -316,7 +316,7 @@ int im_assign_power(OBJ_DATA * obj)
 	int j;
 	char *ptr;
 
-// Перевод номера index в rnum
+	// Перевод номера index в rnum
 	rind = im_type_rnum(GET_OBJ_VAL(obj, IM_TYPE_SLOT));
 	if (rind == -1)
 		return 1;	// неверный номер ТИПА ингредиента
@@ -335,15 +335,16 @@ int im_assign_power(OBJ_DATA * obj)
 			return 3;	// неверный VNUM базового моба
 		GET_OBJ_VAL(obj, IM_POWER_SLOT) = (GET_LEVEL(mob_proto + rnum) + 3) * 3 / 4;
 	}
-// Попробовать найти описатель ВИДА
-	for (p = imtypes[rind].head, sample = NULL;
-			p && p->power <= GET_OBJ_VAL(obj, IM_POWER_SLOT); sample = p, p = p->next);
+	// Попробовать найти описатель ВИДА
+	for (p = imtypes[rind].head, sample = NULL; p && p->power <= GET_OBJ_VAL(obj, IM_POWER_SLOT); sample = p, p = p->next);
 
 	if (sample)
+	{
 		GET_OBJ_SEX(obj) = sample->sex;
+	}
 
-// Замена описаний
-// Падежи, описание, alias
+	// Замена описаний
+	// Падежи, описание, alias
 	for (j = 0; j < 6; ++j)
 	{
 		ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], j);
@@ -366,8 +367,8 @@ int im_assign_power(OBJ_DATA * obj)
 		free(GET_OBJ_ALIAS(obj));
 	GET_OBJ_ALIAS(obj) = str_dup(replace_alias(ptr, sample, rnum, "m"));
 
-// Обработка других полей объекта
-// -- пока не сделано --
+	// Обработка других полей объекта
+	// -- пока не сделано --
 
 	return 0;
 }
@@ -625,7 +626,7 @@ void init_im(void)
 					im_memb *ins_after, *ins_before;
 					CREATE(mptr->aliases, 2 * (mptr->power + 1));
 					mptr->power = power;
-					mptr->sex = sex;
+					mptr->sex = static_cast<ESex>(sex);
 					p = mptr->aliases;
 					while (get_line(im_file, tmp))
 					{

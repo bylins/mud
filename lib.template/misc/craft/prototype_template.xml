@@ -36,7 +36,7 @@
 		<current></current>
 	</durability>
 	
-	<sex></sex>			<!-- Possible values: Male, Female, Neuter -->
+	<sex></sex>			<!-- Possible values: MALE, FEMALE, NEUTER, POLY -->
 	<level></level>
 	<weight></weight>
 	<!--

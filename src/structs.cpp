@@ -222,6 +222,12 @@ bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, c
 	return have_flags;
 }
 
+const religion_names_t religion_name =
+{
+	religion_genders_t{ "Язычник", "Язычник", "Язычница", "Язычники" },
+	religion_genders_t{ "Христианин", "Христианин", "Христианка", "Христиане" }
+};
+
 typedef std::map<EExtraFlag, std::string> EExtraFlag_name_by_value_t;
 typedef std::map<const std::string, EExtraFlag> EExtraFlag_value_by_name_t;
 EExtraFlag_name_by_value_t EExtraFlag_name_by_value;

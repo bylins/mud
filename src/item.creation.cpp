@@ -1801,16 +1801,20 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 		if (i == 0) // именительный падеж
 		{
 			obj->short_description = str_dup(buf);
-			if (GET_OBJ_SEX(obj) == 1)
+			if (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
+			{
 				sprintf(buf2, "Брошенный %s лежит тут.", buf);
-			else if (GET_OBJ_SEX(obj) == 2)
+			}
+			else if (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
+			{
 				sprintf(buf2, "Брошенная %s лежит тут.", buf);
-			else if (GET_OBJ_SEX(obj) == 3)
+			}
+			else if (GET_OBJ_SEX(obj) == ESex::SEX_POLY)
+			{
 				sprintf(buf2, "Брошенные %s лежат тут.", buf);
+			}
 			obj->description = str_dup(buf2); // описание на земле
 		}
-		//			sprintf(buf2, "Падежи %d  == %s \r\n", i, GET_OBJ_PNAME(obj, i));
-		//			send_to_char(buf2, ch);
 	}
 	obj->obj_flags.Obj_is_rename = true; // ставим флаг что объект переименован
 	add_flags(ch, &obj->obj_flags.affects, &ingrs[0]->obj_flags.affects, get_ingr_pow(ingrs[0]));

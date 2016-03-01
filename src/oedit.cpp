@@ -1532,7 +1532,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 			GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
 			nrm, cyn, obj->proto_script ? "Set." : "Not Set.",
-			grn, nrm, cyn, genders[GET_OBJ_SEX(obj)],
+			grn, nrm, cyn, genders[to_underlying(GET_OBJ_SEX(obj))],
 			grn, nrm, cyn, GET_OBJ_MIW(obj),
 			grn, nrm,
 			grn, nrm, cyn, obj->get_manual_mort_req(),
@@ -2037,8 +2037,11 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_SEXVALUE:
-		if ((number = atoi(arg)) >= 0 && number < 4)
-			GET_OBJ_SEX(OLC_OBJ(d)) = number;
+		if ((number = atoi(arg)) >= 0
+			&& number < NUM_SEXES)
+		{
+			GET_OBJ_SEX(OLC_OBJ(d)) = static_cast<ESex>(number);
+		}
 		else
 		{
 			send_to_char("Пол (0-3) : ", d->character);

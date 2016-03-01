@@ -286,7 +286,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Sexx"))
 			{
 				*error = 19;
-				GET_OBJ_SEX(object) = atoi(buffer);
+				GET_OBJ_SEX(object) = static_cast<ESex>(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Tmer"))
 			{
@@ -745,7 +745,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	*error = 10;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
 		return (object);
-	GET_OBJ_SEX(object) = t[0];
+	GET_OBJ_SEX(object) = static_cast<ESex>(t[0]);
 	object->set_timer(t[1]);
 	GET_OBJ_SPELL(object) = t[2];
 	GET_OBJ_LEVEL(object) = t[3];
@@ -1001,7 +1001,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Пол
 		if (GET_OBJ_SEX(object) != GET_OBJ_SEX(proto))
 		{
-			out << "Sexx: " << GET_OBJ_SEX(object) << "~\n";
+			out << "Sexx: " << to_underlying(GET_OBJ_SEX(object)) << "~\n";
 		}
 		// Таймер
 		if (object->get_timer() != proto->get_timer())
@@ -1232,9 +1232,9 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "Mter: " << GET_OBJ_MATER(object) << "~\n";
 		}
 		// Пол
-		if (GET_OBJ_SEX(object))
+		if (ESex::SEX_NEUTRAL != GET_OBJ_SEX(object))
 		{
-			out << "Sexx: " << GET_OBJ_SEX(object) << "~\n";
+			out << "Sexx: " << to_underlying(GET_OBJ_SEX(object)) << "~\n";
 		}
 		// Таймер
 		if (object->get_timer())

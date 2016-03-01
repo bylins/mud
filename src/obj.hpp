@@ -30,6 +30,9 @@ struct obj_flag_data
 public:
 	typedef boost::array<int, NUM_OBJ_VAL_POSITIONS> value_t;
 
+	const static int DEFAULT_MAXIMUM_DURABILITY = 100;
+	const static int DEFAULT_CURRENT_DURABILITY = DEFAULT_MAXIMUM_DURABILITY;
+
 	enum EObjectType
 	{
 		ITEM_LIGHT = 1,			// Item is a light source  //
@@ -76,7 +79,7 @@ public:
 	FLAG_DATA affects;
 	FLAG_DATA anti_flag;
 	FLAG_DATA no_flag;
-	int Obj_sex;
+	ESex Obj_sex;
 	int Obj_spell;
 	int Obj_level;
 	int Obj_skill;
@@ -429,8 +432,7 @@ public:
 
 	struct custom_label *custom_label;		// наносимая чаром метка //
 
-	short int
-		worn_on;		// Worn where?          //
+	short int worn_on;		// Worn where?          //
 
 	OBJ_DATA *in_obj;	// In what object NULL when none    //
 	OBJ_DATA *contains;	// Contains objects                 //
@@ -441,8 +443,7 @@ public:
 
 	OBJ_DATA *next_content;	// For 'contains' lists             //
 	OBJ_DATA *next;		// For the object list              //
-	int
-		room_was_in;
+	int room_was_in;
 	boost::array<char *, 6> PNames;
 	int max_in_world;	///< Maximum in the world
 

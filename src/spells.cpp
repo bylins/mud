@@ -1348,8 +1348,7 @@ ACMD(do_findhelpee)
 		af.battleflag = 0;
 		affect_to_char(helpee, &af);
 		AFF_FLAGS(helpee).set(EAffectFlag::AFF_HELPER);
-		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"",
-				GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
+		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 		if (IS_NPC(helpee))
 		{
@@ -2676,7 +2675,7 @@ ASPELL(spell_angel)
 
 	if (IS_FEMALE(ch))
 	{
-		GET_SEX(mob) = SEX_MALE;
+		GET_SEX(mob) = ESex::SEX_MALE;
 		mob->set_pc_name("Небесный защитник");
 		GET_PAD(mob, 0) = str_dup("Небесный защитник");
 		GET_PAD(mob, 1) = str_dup("Небесного защитника");
@@ -2690,7 +2689,7 @@ ASPELL(spell_angel)
 	}
 	else
 	{
-		GET_SEX(mob) = SEX_FEMALE;
+		GET_SEX(mob) = ESex::SEX_FEMALE;
 		mob->set_pc_name("Небесная защитница");
 		GET_PAD(mob, 0) = str_dup("Небесная защитница");
 		GET_PAD(mob, 1) = str_dup("Небесной защитницы");

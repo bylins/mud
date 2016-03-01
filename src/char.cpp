@@ -987,15 +987,18 @@ void CHAR_DATA::set_last_logon(time_t num)
 	last_logon_ = num;
 }
 
-byte CHAR_DATA::get_sex() const
+ESex CHAR_DATA::get_sex() const
 {
 	return player_data.sex;
 }
 
-void CHAR_DATA::set_sex(const byte v)
+void CHAR_DATA::set_sex(const ESex sex)
 {
-	if (v>=0 && v<NUM_SEXES)
-		player_data.sex = v;
+	if (to_underlying(sex) >= 0
+		&& to_underlying(sex) < NUM_SEXES)
+	{
+		player_data.sex = sex;
+	}
 }
 
 ubyte CHAR_DATA::get_weight() const

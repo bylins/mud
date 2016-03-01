@@ -3752,11 +3752,11 @@ OBJ_DATA *create_money(int amount)
 
 	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_MONEY;
 	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
-	GET_OBJ_SEX(obj) = SEX_FEMALE;
+	GET_OBJ_SEX(obj) = ESex::SEX_FEMALE;
 	GET_OBJ_VAL(obj, 0) = amount;
 	obj->set_cost(amount);
-	GET_OBJ_MAX(obj) = 100;
-	GET_OBJ_CUR(obj) = 100;
+	GET_OBJ_MAX(obj) = obj_flag_data::DEFAULT_MAXIMUM_DURABILITY;
+	GET_OBJ_CUR(obj) = obj_flag_data::DEFAULT_CURRENT_DURABILITY;
 	obj->set_timer(24 * 60 * 7);
 	GET_OBJ_WEIGHT(obj) = 1;
 	obj->set_extraflag(EExtraFlag::ITEM_NODONATE);

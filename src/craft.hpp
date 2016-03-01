@@ -122,7 +122,9 @@ namespace craft
 			m_rent_on(OBJ_DATA::DEFAULT_RENT_ON),
 			m_rent_off(OBJ_DATA::DEFAULT_RENT_OFF),
 			m_global_maximum(OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM),
-			m_minimum_remorts(OBJ_DATA::DEFAULT_MINIMUM_REMORTS)
+			m_minimum_remorts(OBJ_DATA::DEFAULT_MINIMUM_REMORTS),
+			m_maximum_durability(obj_flag_data::DEFAULT_MAXIMUM_DURABILITY),
+			m_current_durability(obj_flag_data::DEFAULT_CURRENT_DURABILITY)
 		{
 		}
 
@@ -138,13 +140,16 @@ namespace craft
 
 		CCases m_cases;
 
-		obj_flag_data::EObjectType m_type;
-
 		int m_cost;
 		int m_rent_on;
 		int m_rent_off;
 		int m_global_maximum;
 		int m_minimum_remorts;
+
+		obj_flag_data::EObjectType m_type;
+
+		int m_maximum_durability;
+		int m_current_durability;
 
 		friend class CCraftModel;
 	};
