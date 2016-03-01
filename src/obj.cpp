@@ -1049,4 +1049,72 @@ void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect)
 	send_to_char(buf, ch);
 }
 
+typedef std::map<obj_flag_data::EObjectType, std::string> EObjectType_name_by_value_t;
+typedef std::map<const std::string, obj_flag_data::EObjectType> EObjectType_value_by_name_t;
+EObjectType_name_by_value_t EObjectType_name_by_value;
+EObjectType_value_by_name_t EObjectType_value_by_name;
+void init_EObjectType_ITEM_NAMES()
+{
+	EObjectType_value_by_name.clear();
+	EObjectType_name_by_value.clear();
+
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_LIGHT] = "ITEM_LIGHT";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_SCROLL] = "ITEM_SCROLL";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_WAND] = "ITEM_WAND";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_STAFF] = "ITEM_STAFF";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_WEAPON] = "ITEM_WEAPON";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_FIREWEAPON] = "ITEM_FIREWEAPON";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MISSILE] = "ITEM_MISSILE";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_TREASURE] = "ITEM_TREASURE";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR] = "ITEM_ARMOR";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_POTION] = "ITEM_POTION";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_WORN] = "ITEM_WORN";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_OTHER] = "ITEM_OTHER";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_TRASH] = "ITEM_TRASH";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_TRAP] = "ITEM_TRAP";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_CONTAINER] = "ITEM_CONTAINER";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_NOTE] = "ITEM_NOTE";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_DRINKCON] = "ITEM_DRINKCON";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_KEY] = "ITEM_KEY";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_FOOD] = "ITEM_FOOD";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MONEY] = "ITEM_MONEY";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_PEN] = "ITEM_PEN";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_BOAT] = "ITEM_BOAT";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_FOUNTAIN] = "ITEM_FOUNTAIN";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_BOOK] = "ITEM_BOOK";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_INGREDIENT] = "ITEM_INGREDIENT";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MING] = "ITEM_MING";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MATERIAL] = "ITEM_MATERIAL";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_BANDAGE] = "ITEM_BANDAGE";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR_LIGHT] = "ITEM_ARMOR_LIGHT";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR_MEDIAN] = "ITEM_ARMOR_MEDIAN";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR_HEAVY] = "ITEM_ARMOR_HEAVY";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ENCHANT] = "ITEM_ENCHANT";
+
+	for (const auto& i : EObjectType_name_by_value)
+	{
+		EObjectType_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+const std::string& NAME_BY_ITEM<obj_flag_data::EObjectType>(const obj_flag_data::EObjectType item)
+{
+	if (EObjectType_name_by_value.empty())
+	{
+		init_EObjectType_ITEM_NAMES();
+	}
+	return EObjectType_name_by_value.at(item);
+}
+
+template <>
+obj_flag_data::EObjectType ITEM_BY_NAME(const std::string& name)
+{
+	if (EObjectType_name_by_value.empty())
+	{
+		init_EObjectType_ITEM_NAMES();
+	}
+	return EObjectType_value_by_name.at(name);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

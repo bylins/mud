@@ -229,6 +229,8 @@ EExtraFlag_value_by_name_t EExtraFlag_value_by_name;
 void init_EExtraFlag_ITEM_NAMES()
 {
 	EExtraFlag_name_by_value.clear();
+	EExtraFlag_value_by_name.clear();
+
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_GLOW] = "ITEM_GLOW";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_HUM] = "ITEM_HUM";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_NORENT] = "ITEM_NORENT";
@@ -296,6 +298,9 @@ EAffectFlag_name_by_value_t EAffectFlag_name_by_value;
 EAffectFlag_value_by_name_t EAffectFlag_value_by_name;
 void init_EAffectFlag_ITEM_NAMES()
 {
+	EAffectFlag_value_by_name.clear();
+	EAffectFlag_name_by_value.clear();
+
 	EAffectFlag_name_by_value[EAffectFlag::AFF_BLIND] = "AFF_BLIND";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_INVISIBLE] = "AFF_INVISIBLE";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_DETECT_ALIGN] = "AFF_DETECT_ALIGN";

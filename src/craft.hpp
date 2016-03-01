@@ -138,6 +138,8 @@ namespace craft
 
 		CCases m_cases;
 
+		obj_flag_data::EObjectType m_type;
+
 		int m_cost;
 		int m_rent_on;
 		int m_rent_off;

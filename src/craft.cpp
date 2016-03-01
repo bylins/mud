@@ -232,7 +232,21 @@ namespace craft
 			m_minimum_remorts = minimum_remorts_value;
 		}
 
-		// TODO: Reading type
+		const auto object_type = node->child("type");
+		if (object_type)
+		{
+			const char* name = object_type.child_value();
+			try
+			{
+				m_type = ITEM_BY_NAME<decltype(m_type)>(name);
+			}
+			catch (const std::out_of_range&)
+			{
+				log("WARNING: Failed to set object type '%s' for prototype with VNUM %d. Prototype will be skipped.\n",
+					name, m_vnum);
+				return false;
+			}
+		}
 
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);

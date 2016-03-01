@@ -92,6 +92,10 @@ public:
 	int craft_timer; // таймер крафтовой вещи при создании
 };
 
+template <> const std::string& NAME_BY_ITEM<obj_flag_data::EObjectType>(const obj_flag_data::EObjectType item);
+
+template <> obj_flag_data::EObjectType ITEM_BY_NAME<obj_flag_data::EObjectType>(const std::string& name);
+
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
 
