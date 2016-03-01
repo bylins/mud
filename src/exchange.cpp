@@ -224,21 +224,22 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	}
 	if (!bloody::handle_transfer(ch, NULL, obj))
 		return false;
-	if (GET_OBJ_TYPE(obj) != ITEM_BOOK)
+	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_BOOK)
 	{
 		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
-				|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL)
-				|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
-				|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
-				|| GET_OBJ_RNUM(obj) < 0)
-
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
+			|| GET_OBJ_RNUM(obj) < 0)
 		{
 			send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
 			return false;
 		}
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DECAY) ||
-			OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODROP) || GET_OBJ_COST(obj) <= 0 || obj->obj_flags.Obj_owner > 0)
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DECAY)
+		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODROP)
+		|| GET_OBJ_COST(obj) <= 0
+		|| obj->obj_flags.Obj_owner > 0)
 	{
 		send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
 		return false;
@@ -264,11 +265,11 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		item_cost = MAX(1, GET_OBJ_COST(obj));
 	}
 
-	(GET_OBJ_TYPE(obj) != ITEM_MING) ?
-	tax = EXCHANGE_EXHIBIT_PAY + (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF) :
-		  tax = (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
+	tax = (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MING)
+		? EXCHANGE_EXHIBIT_PAY + (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF)
+		: (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((ch->get_total_gold() < tax)
-			&& (GET_LEVEL(ch) < LVL_IMPL))
+		&& (GET_LEVEL(ch) < LVL_IMPL))
 	{
 		send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 		return false;
@@ -279,8 +280,17 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	{
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_IDNUM(ch))
-			((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) &&
-			 (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGREDIENT)) ? counter++ : counter_ming++;
+		{
+			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_MING
+				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_INGREDIENT)
+			{
+				counter++;
+			}
+			else
+			{
+				counter_ming++;
+			}
+		}
 	}
 
 	if (counter + (counter_ming / 20)  >= EXCHANGE_MAX_EXHIBIT_PER_CHAR)
@@ -499,8 +509,8 @@ int exchange_information(CHAR_DATA * ch, char *arg)
 	sprintf(buf, "Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
 
 	sprintf(buf + strlen(buf), "Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->short_description);
-	if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ITEM_WAND)
-			|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ITEM_STAFF))
+	if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == obj_flag_data::ITEM_WAND
+		|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == obj_flag_data::ITEM_STAFF)
 	{
 		if (GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) < GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1))
 			strcat(buf, "(б/у), ");
@@ -1433,9 +1443,9 @@ void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j)
 			&& !ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF)
 			&& GET_POS(i->character) > POS_SLEEPING)
 		{
-			if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGREDIENT
-					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING)
-				&& !PRF_FLAGGED(i->character, PRF_NOINGR_MODE))
+			if (!PRF_FLAGGED(i->character, PRF_NOINGR_MODE)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == obj_flag_data::ITEM_INGREDIENT
+					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == obj_flag_data::ITEM_MING))
 			{
 				continue;
 			}
@@ -1494,28 +1504,38 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	for (EXCHANGE_ITEM_DATA* j = exchange_item_list; j; j = j->next)
 	{
 		if (!params.check(j)
-			|| ((show_type == 1) && (!isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j)))))
-			|| ((show_type == 2) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGREDIENT)
-				|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) < 200)
-				|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) > 299)))
-			|| ((show_type == 3) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_LIGHT)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_MEDIAN)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_HEAVY))
-			|| ((show_type == 4) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_WEAPON))
-			|| ((show_type == 5) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_BOOK))
-			|| (show_type == 6 && GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGREDIENT
+			|| ((show_type == 1)
+				&& (!isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j)))))
+			|| ((show_type == 2)
+				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_INGREDIENT)
+					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) < 200)
+					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) > 299)))
+			|| ((show_type == 3)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_ARMOR)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_ARMOR_LIGHT)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_ARMOR_MEDIAN)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_ARMOR_HEAVY))
+			|| ((show_type == 4)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_WEAPON))
+			|| ((show_type == 5)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_BOOK))
+			|| (show_type == 6
+				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_MING
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_INGREDIENT
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200
 						&& GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
-			|| ((show_type == 7) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGREDIENT)
-				|| ObjSystem::is_armor_type(GET_EXCHANGE_ITEM(j))
-				|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_WEAPON)
-				|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_BOOK)
-				|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING)))
-			|| ((show_type == 8) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_LIGHT))
-			|| ((show_type == 9) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_MEDIAN))
-			|| ((show_type == 10) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_HEAVY)))
+			|| ((show_type == 7)
+				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == obj_flag_data::ITEM_INGREDIENT)
+					|| ObjSystem::is_armor_type(GET_EXCHANGE_ITEM(j))
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == obj_flag_data::ITEM_WEAPON)
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == obj_flag_data::ITEM_BOOK)
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == obj_flag_data::ITEM_MING)))
+			|| ((show_type == 8)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_ARMOR_LIGHT))
+			|| ((show_type == 9)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_ARMOR_MEDIAN))
+			|| ((show_type == 10)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != obj_flag_data::ITEM_ARMOR_HEAVY)))
 		{
 			continue;
 		}

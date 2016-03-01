@@ -282,10 +282,13 @@ int check_awake(CHAR_DATA * ch, int what)
 			if (IS_SET(what, ACHECK_GLOWING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlag::ITEM_GLOW))
 				SET_BIT(retval, ACHECK_GLOWING);
 
-			if (IS_SET(what, ACHECK_LIGHT) &&
-					IS_DEFAULTDARK(IN_ROOM(ch)) &&
-					GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, i), 2))
+			if (IS_SET(what, ACHECK_LIGHT)
+				&& IS_DEFAULTDARK(IN_ROOM(ch))
+				&& GET_OBJ_TYPE(GET_EQ(ch, i)) == obj_flag_data::ITEM_LIGHT
+				&& GET_OBJ_VAL(GET_EQ(ch, i), 2))
+			{
 				SET_BIT(retval, ACHECK_LIGHT);
+			}
 
 			if (ObjSystem::is_armor_type(GET_EQ(ch, i)) && GET_OBJ_MATER(GET_EQ(ch, i)) <= MAT_COLOR)
 				wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
@@ -1737,7 +1740,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 				GET_OBJ_SEX(target) == SEX_POLY ? "являются" : "является");
 		return;
 	}
-	if (GET_OBJ_TYPE(target) == ITEM_ENCHANT)
+	if (GET_OBJ_TYPE(target) == obj_flag_data::ITEM_ENCHANT)
 	{
 		send_to_char(ch, "Этот предмет уже магический и не может быть зачарован.\r\n");
 		return;
@@ -1809,7 +1812,8 @@ ACMD(do_use)
 			break;
 		case SCMD_USE:
 			mag_item = get_obj_in_list_vis(ch, arg, ch->carrying);
-			if (!mag_item || GET_OBJ_TYPE(mag_item) != ITEM_ENCHANT)
+			if (!mag_item
+				|| GET_OBJ_TYPE(mag_item) != obj_flag_data::ITEM_ENCHANT)
 			{
 				sprintf(buf2, "Возьмите в руку '%s' перед применением!\r\n", arg);
 				send_to_char(buf2, ch);
@@ -1829,7 +1833,7 @@ ACMD(do_use)
 			send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(mag_item) != ITEM_POTION)
+		if (GET_OBJ_TYPE(mag_item) != obj_flag_data::ITEM_POTION)
 		{
 			send_to_char("Осушить вы можете только напиток (ну, Богам еще пЫво по вкусу ;)\r\n", ch);
 			return;
@@ -1837,7 +1841,7 @@ ACMD(do_use)
 		do_hold = 1;
 		break;
 	case SCMD_RECITE:
-		if (GET_OBJ_TYPE(mag_item) != ITEM_SCROLL)
+		if (GET_OBJ_TYPE(mag_item) != obj_flag_data::ITEM_SCROLL)
 		{
 			send_to_char("Пригодны для зачитывания только свитки.\r\n", ch);
 			return;
@@ -1845,12 +1849,13 @@ ACMD(do_use)
 		do_hold = 1;
 		break;
 	case SCMD_USE:
-		if (GET_OBJ_TYPE(mag_item) == ITEM_ENCHANT)
+		if (GET_OBJ_TYPE(mag_item) == obj_flag_data::ITEM_ENCHANT)
 		{
 			apply_enchant(ch, mag_item, buf);
 			return;
 		}
-		if ((GET_OBJ_TYPE(mag_item) != ITEM_WAND) && (GET_OBJ_TYPE(mag_item) != ITEM_STAFF))
+		if (GET_OBJ_TYPE(mag_item) != obj_flag_data::ITEM_WAND
+			&& GET_OBJ_TYPE(mag_item) != obj_flag_data::ITEM_STAFF)
 		{
 			send_to_char("Применять можно только магические предметы!\r\n", ch);
 			return;
@@ -2743,7 +2748,8 @@ ACMD(do_pray)
 			send_to_char("Вы должны пожертвовать что-то стоящее.\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(obj) != ITEM_FOOD && GET_OBJ_TYPE(obj) != ITEM_TREASURE)
+		if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_FOOD
+			&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_TREASURE)
 		{
 			send_to_char("Богам неугодна эта жертва.\r\n", ch);
 			return;
@@ -3911,7 +3917,7 @@ ACMD(do_bandage)
 	OBJ_DATA *bandage = 0;
 	for (OBJ_DATA *i = ch->carrying; i ; i = i->next_content)
 	{
-		if (GET_OBJ_TYPE(i) == ITEM_BANDAGE)
+		if (GET_OBJ_TYPE(i) == obj_flag_data::ITEM_BANDAGE)
 		{
 			bandage = i;
 			break;

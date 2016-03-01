@@ -136,7 +136,8 @@ ASPELL(spell_create_water)
 		return;
 	// level = MAX(MIN(level, LVL_IMPL), 1);       - not used
 
-	if (obj && GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
+	if (obj
+		&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
 	{
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0))
 		{
@@ -1376,7 +1377,7 @@ ACMD(do_findhelpee)
 
 void show_weapon(CHAR_DATA * ch, OBJ_DATA * obj)
 {
-	if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 	{
 		*buf = '\0';
 		if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
@@ -1492,8 +1493,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		sprintf(buf, "Содержит заклинания: ");
 		if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
 			sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 1)));
@@ -1504,25 +1505,28 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		sprintf(buf, "Вызывает заклинания: ");
 		if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) < MAX_SPELLS)
 			sprintf(buf + strlen(buf), " %s\r\n", spell_name(GET_OBJ_VAL(obj, 3)));
 		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		drndice = GET_OBJ_VAL(obj, 1);
 		drsdice = GET_OBJ_VAL(obj, 2);
 		sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
 		sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		drndice = GET_OBJ_VAL(obj, 0);
 		drsdice = GET_OBJ_VAL(obj, 1);
 		sprintf(buf, "защита (AC) : %d\r\n", drndice);
@@ -1530,8 +1534,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		sprintf(buf, "броня       : %d\r\n", drsdice);
 		send_to_char(buf, ch);
 		break;
-	case ITEM_BOOK:
-// +newbook.patch (Alisher)
+
+	case obj_flag_data::ITEM_BOOK:
 		switch (GET_OBJ_VAL(obj, 0))
 		{
 		case BOOK_SPELL:
@@ -1548,6 +1552,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		case BOOK_SKILL:
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
 			{
@@ -1566,9 +1571,11 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		case BOOK_UPGRD:
 			print_book_uprgd_skill(ch, obj);
 			break;
+
 		case BOOK_RECPT:
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 			if (drndice >= 0)
@@ -1597,6 +1604,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				}
 			}
 			break;
+
 		case BOOK_FEAT:
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS)
 			{
@@ -1615,6 +1623,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		default:
 			send_to_char(CCIRED(ch, C_NRM), ch);
 			send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
@@ -1622,9 +1631,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			break;
 		}
 		break;
-// -newbook.patch (Alisher)
-	case ITEM_INGREDIENT:
 
+	case obj_flag_data::ITEM_INGREDIENT:
 		sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
 		sprintf(buf, "%s\r\n", buf2);
 		send_to_char(buf, ch);
@@ -1661,16 +1669,21 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			send_to_char(buf, ch);
 		}
 		break;
-// added by WorM  опознание магических ингров 2011.05.21
-	case ITEM_MING:
-		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT)  && j <= top_imtypes;)
+
+	case obj_flag_data::ITEM_MING:
+		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;)
+		{
 			j++;
+		}
 		sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", CCCYN(ch, C_NRM), imtypes[j].name, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
 		if (i > 30)
+		{
 			send_to_char("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
-		else {
+		}
+		else
+		{
 			sprintf(buf, "Качество ингредиента ");
 			if (i > 40)
 				strcat(buf, "божественное.\r\n");
@@ -1693,21 +1706,23 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			send_to_char(buf, ch);
 		}
 		break;
-//end by WorM
+
 //Информация о емкостях и контейнерах (Купала)
-	case ITEM_CONTAINER:
+	case obj_flag_data::ITEM_CONTAINER:
 		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_DRINKCON:
+
+	case obj_flag_data::ITEM_DRINKCON:
 		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
 	} // switch
 
-
 	if (fullness < 90)
+	{
 		return;
+	}
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
@@ -1717,12 +1732,15 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	if (fullness < 100)
+	{
 		return;
+	}
 
 	found = FALSE;
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if (obj->affected[i].location != APPLY_NONE && obj->affected[i].modifier != 0)
+		if (obj->affected[i].location != APPLY_NONE
+			&& obj->affected[i].modifier != 0)
 		{
 			if (!found)
 			{
@@ -1732,7 +1750,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			print_obj_affects(ch, obj->affected[i]);
 		}
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_ENCHANT && GET_OBJ_VAL(obj, 0) != 0)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ENCHANT
+		&& GET_OBJ_VAL(obj, 0) != 0)
 	{
 		if (!found)
 		{
@@ -1740,8 +1759,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			found = TRUE;
 		}
 		send_to_char(ch, "%s   %s вес предмета на %d%s\r\n", CCCYN(ch, C_NRM),
-				GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
-				abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
+			GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
+			abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
 	}
 
 	if (obj->has_skills())
@@ -1760,34 +1779,38 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				continue;
 
 			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
-					CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
-					CCCYN(ch, C_NRM),
-					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
+				CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
+				CCCYN(ch, C_NRM),
+				percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 	}
-	//added by WorM 2010.09.07 доп ифна о сете
+
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 	if (obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
+	{
 		for (; it != OBJ_DATA::set_table.end(); it++)
+		{
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
-				sprintf(buf, "Часть набора предметов: %s%s%s\r\n",CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch );
-	      for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
-	      {
-					int r_num;
-	      	if ((r_num = real_object(vnum->first)) < 0)
-	      	{
-	      		send_to_char("Неизвестный объект!!!\r\n",ch);
-	      		continue;
-	      	}
+				sprintf(buf, "Часть набора предметов: %s%s%s\r\n", CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
+				send_to_char(buf, ch);
+				for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
+				{
+					const int r_num = real_object(vnum->first);
+					if (r_num < 0)
+					{
+						send_to_char("Неизвестный объект!!!\r\n", ch);
+						continue;
+					}
 					sprintf(buf, "   %s\r\n", obj_proto[r_num]->short_description);
-	        send_to_char(buf, ch);
-	      }
+					send_to_char(buf, ch);
+				}
 				break;
 			}
-	//end by WorM
+		}
+	}
+
 	if (!obj->enchants.empty())
 	{
 		obj->enchants.print(ch);
@@ -1866,8 +1889,8 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		sprintf(buf, "Содержит заклинания: ");
 		if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
 			sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 1)));
@@ -1878,31 +1901,34 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		sprintf(buf, "Вызывает заклинания: ");
 		if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) < MAX_SPELLS)
 			sprintf(buf + strlen(buf), " %s\r\n", spell_name(GET_OBJ_VAL(obj, 3)));
 		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		sprintf(buf, "Наносимые повреждения '%dD%d'", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 		sprintf(buf + strlen(buf), " среднее %.1f.\r\n",
 				(((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj, 1)));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		sprintf(buf, "защита (AC) : %d\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		sprintf(buf, "броня       : %d\r\n", GET_OBJ_VAL(obj, 1));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_BOOK:
-// +newbook.patch (Alisher)
+
+	case obj_flag_data::ITEM_BOOK:
 		switch (GET_OBJ_VAL(obj, 0))
 		{
 		case BOOK_SPELL:
@@ -1919,6 +1945,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		case BOOK_SKILL:
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
 			{
@@ -1937,9 +1964,11 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		case BOOK_UPGRD:
 			print_book_uprgd_skill(ch, obj);
 			break;
+
 		case BOOK_RECPT:
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 			if (drndice >= 0)
@@ -1968,6 +1997,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				}
 			}
 			break;
+
 		case BOOK_FEAT:
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS)
 			{
@@ -1986,6 +2016,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		default:
 			send_to_char(CCIRED(ch, C_NRM), ch);
 			send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
@@ -1993,9 +2024,8 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			break;
 		}
 		break;
-// -newbook.patch (Alisher)
-	case ITEM_INGREDIENT:
 
+	case obj_flag_data::ITEM_INGREDIENT:
 		sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
 		sprintf(buf, "%s\r\n", buf2);
 		send_to_char(buf, ch);
@@ -2032,16 +2062,18 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			send_to_char(buf, ch);
 		}
 		break;
-	case ITEM_MING:
+
+	case obj_flag_data::ITEM_MING:
 		sprintf(buf, "Сила ингредиента = %d\r\n", GET_OBJ_VAL(obj, IM_POWER_SLOT));
 		send_to_char(buf, ch);
 		break;
+
 //Информация о емкостях и контейнерах (Купала)
-	case ITEM_CONTAINER:
+	case obj_flag_data::ITEM_CONTAINER:
 		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_DRINKCON:
+	case obj_flag_data::ITEM_DRINKCON:
 		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
@@ -2060,7 +2092,8 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			print_obj_affects(ch, obj->affected[i]);
 		}
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_ENCHANT && GET_OBJ_VAL(obj, 0) != 0)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ENCHANT
+		&& GET_OBJ_VAL(obj, 0) != 0)
 	{
 		if (!found)
 		{

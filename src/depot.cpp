@@ -875,8 +875,9 @@ bool is_depot(OBJ_DATA *obj)
 void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 	OBJ_DATA *obj, int count, CHAR_DATA *ch)
 {
-	std::stringstream &out = (GET_OBJ_TYPE(obj) == ITEM_MING
-		|| GET_OBJ_TYPE(obj) == ITEM_MATERIAL) ? i_out : s_out;
+	const bool output_to_i = GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MATERIAL;
+	std::stringstream &out = output_to_i ? i_out : s_out;
 
 	out << obj->short_description;
 	out << char_get_custom_label(obj, ch);
@@ -914,8 +915,8 @@ std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 	auto prev_obj_it = cont.cend();
 	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it)
 	{
-		if (GET_OBJ_TYPE(*obj_it) == ITEM_MING
-			|| GET_OBJ_TYPE(*obj_it) == ITEM_MATERIAL)
+		if (GET_OBJ_TYPE(*obj_it) == obj_flag_data::ITEM_MING
+			|| GET_OBJ_TYPE(*obj_it) == obj_flag_data::ITEM_MATERIAL)
 		{
 			++i_cnt;
 		}
@@ -1043,7 +1044,7 @@ void show_depot(CHAR_DATA *ch)
 */
 void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (GET_OBJ_TYPE(obj) != ITEM_MONEY)
+	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY)
 	{
 		return;
 	}
@@ -1066,7 +1067,7 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL)
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_DECAY)
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
-			|| GET_OBJ_TYPE(obj) == ITEM_KEY
+			|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY
 			|| GET_OBJ_RENT(obj) < 0
 			|| GET_OBJ_RNUM(obj) <= NOTHING
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))//added by WorM именные вещи нельзя положить в хран
@@ -1074,7 +1075,8 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", OBJ_PAD(obj, 3));
 		return 0;
 	}
-	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && obj->contains)
+	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
+		&& obj->contains)
 	{
 		send_to_char(ch, "В %s что-то лежит.\r\n", OBJ_PAD(obj, 5));
 		return 0;
@@ -1095,8 +1097,8 @@ unsigned count_inrg(const ObjListType &cont)
 	unsigned ingr_cnt = 0;
 	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it)
 	{
-		if (GET_OBJ_TYPE(*obj_it) == ITEM_MING
-			|| GET_OBJ_TYPE(*obj_it) == ITEM_MATERIAL)
+		if (GET_OBJ_TYPE(*obj_it) == obj_flag_data::ITEM_MING
+			|| GET_OBJ_TYPE(*obj_it) == obj_flag_data::ITEM_MATERIAL)
 		{
 			++ingr_cnt;
 		}
@@ -1125,7 +1127,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 		return 0;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ITEM_MONEY)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MONEY)
 	{
 		put_gold_chest(ch, obj);
 		return 1;
@@ -1145,26 +1147,23 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 
 	const size_t ingr_cnt = count_inrg(it->second.pers_online);
 	const size_t staff_cnt = it->second.pers_online.size() - ingr_cnt;
-	const bool is_ingr = (GET_OBJ_TYPE(obj) == ITEM_MING
-		|| GET_OBJ_TYPE(obj) == ITEM_MATERIAL) ? true : false;
+	const bool is_ingr = GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MATERIAL;
 
 	if (is_ingr && ingr_cnt >= MAX_PERS_INGR_SLOTS)
 	{
-		send_to_char(
-			"В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);
+		send_to_char("В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);
 		return 0;
 	}
 	else if (!is_ingr && staff_cnt >= get_max_pers_slots(ch))
 	{
-		send_to_char(
-			"В вашем хранилище совсем не осталось места для вещей :(.\r\n", ch);
+		send_to_char("В вашем хранилище совсем не осталось места для вещей :(.\r\n", ch);
 		return 0;
 	}
 
 	if (!ch->get_bank() && !ch->get_gold())
 	{
-		send_to_char(ch,
-			"У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n",
+		send_to_char(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n",
 			OBJ_PAD(obj, 5));
 		return 0;
 	}

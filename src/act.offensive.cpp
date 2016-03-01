@@ -1376,11 +1376,13 @@ ACMD(do_multyparry)
 		send_to_char("Но вы ни с кем не сражаетесь?\r\n", ch);
 		return;
 	}
-	if (!(IS_NPC(ch) ||	// моб
-			(primary && GET_OBJ_TYPE(primary) == ITEM_WEAPON && offhand && GET_OBJ_TYPE(offhand) == ITEM_WEAPON) ||	// два оружия
-			IS_IMMORTAL(ch) ||	// бессмертный
-			GET_GOD_FLAG(ch, GF_GODSLIKE)	// спецфлаг
-		 ))
+	if (!(IS_NPC(ch)	// моб
+		|| (primary
+			&& GET_OBJ_TYPE(primary) == obj_flag_data::ITEM_WEAPON
+			&& offhand
+			&& GET_OBJ_TYPE(offhand) == obj_flag_data::ITEM_WEAPON)	// два оружия
+		|| IS_IMMORTAL(ch)	// бессмертный
+		|| GET_GOD_FLAG(ch, GF_GODSLIKE)))	// спецфлаг
 	{
 		send_to_char("Вы не можете отражать атаки безоружным.\r\n", ch);
 		return;
@@ -1432,10 +1434,16 @@ ACMD(do_parry)
 		}
 
 		bool prim = 0, offh = 0;
-		if (GET_EQ(ch, WEAR_WIELD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == ITEM_WEAPON)
+		if (GET_EQ(ch, WEAR_WIELD)
+			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == obj_flag_data::ITEM_WEAPON)
+		{
 			prim = 1;
-		if (GET_EQ(ch, WEAR_HOLD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ITEM_WEAPON)
+		}
+		if (GET_EQ(ch, WEAR_HOLD)
+			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON)
+		{
 			offh = 1;
+		}
 
 		if (!prim && !offh)
 		{
@@ -1670,12 +1678,27 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 // shapirus: теперь сдизармить можно все, кроме света
-	if (!((wielded && GET_OBJ_TYPE(wielded) != ITEM_LIGHT) || (helded && GET_OBJ_TYPE(helded) != ITEM_LIGHT)))
+	if (!((wielded && GET_OBJ_TYPE(wielded) != obj_flag_data::ITEM_LIGHT)
+		|| (helded && GET_OBJ_TYPE(helded) != obj_flag_data::ITEM_LIGHT)))
+	{
 		return;
+	}
 	if (number(1, 100) > 30)
-		pos = wielded ? (GET_EQ(vict, WEAR_BOTHS) ? WEAR_BOTHS : WEAR_WIELD) : WEAR_HOLD;
+	{
+		pos = wielded
+			? (GET_EQ(vict, WEAR_BOTHS)
+				? WEAR_BOTHS
+				: WEAR_WIELD)
+			: WEAR_HOLD;
+	}
 	else
-		pos = helded ? WEAR_HOLD : (GET_EQ(vict, WEAR_BOTHS) ? WEAR_BOTHS : WEAR_WIELD);
+	{
+		pos = helded
+			? WEAR_HOLD
+			: (GET_EQ(vict, WEAR_BOTHS)
+				? WEAR_BOTHS
+				: WEAR_WIELD);
+	}
 
 	if (!pos || !GET_EQ(vict, pos))
 		return;
@@ -1771,18 +1794,21 @@ ACMD(do_disarm)
 
 // shapirus: теперь сдизармить можно все, кроме света
 	if (!((GET_EQ(vict, WEAR_WIELD)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != ITEM_LIGHT)
+			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != obj_flag_data::ITEM_LIGHT)
 			|| (GET_EQ(vict, WEAR_HOLD)
-				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != ITEM_LIGHT)
+				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != obj_flag_data::ITEM_LIGHT)
 			|| (GET_EQ(vict, WEAR_BOTHS)
-				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != ITEM_LIGHT)))
+				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != obj_flag_data::ITEM_LIGHT)))
 	{
 		send_to_char("Вы не можете обезоружить безоружное создание.\r\n", ch);
 		return;
 	}
 
-	if (IS_IMPL(ch) || !ch->get_fighting())
+	if (IS_IMPL(ch)
+		|| !ch->get_fighting())
+	{
 		go_disarm(ch, vict);
+	}
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь разоружить $N3.", FALSE, ch, 0, vict, TO_CHAR);
@@ -2295,7 +2321,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	if (!(wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON))
+	if (!(wielded && GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON))
 	{
 		send_to_char("Что вы хотите метнуть?\r\n", ch);
 		return;

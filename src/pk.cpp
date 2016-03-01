@@ -1143,18 +1143,18 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 	set_bloody_flag(list->next_content, ch);
 	const int t = GET_OBJ_TYPE(list);
 	if (list->get_extraflag(EExtraFlag::ITEM_BLOODY)
-		&& (t == ITEM_LIGHT
-			|| t == ITEM_WAND
-			|| t == ITEM_STAFF
-			|| t == ITEM_WEAPON
-			|| t == ITEM_ARMOR
-			|| (t == ITEM_CONTAINER
+		&& (t == obj_flag_data::ITEM_LIGHT
+			|| t == obj_flag_data::ITEM_WAND
+			|| t == obj_flag_data::ITEM_STAFF
+			|| t == obj_flag_data::ITEM_WEAPON
+			|| t == obj_flag_data::ITEM_ARMOR
+			|| (t == obj_flag_data::ITEM_CONTAINER
 				&& GET_OBJ_VAL(list, 0))
-			|| t == ITEM_ARMOR_LIGHT
-			|| t == ITEM_ARMOR_MEDIAN
-			|| t == ITEM_ARMOR_HEAVY
-			|| t == ITEM_INGREDIENT
-			|| t == ITEM_WORN))
+			|| t == obj_flag_data::ITEM_ARMOR_LIGHT
+			|| t == obj_flag_data::ITEM_ARMOR_MEDIAN
+			|| t == obj_flag_data::ITEM_ARMOR_HEAVY
+			|| t == obj_flag_data::ITEM_INGREDIENT
+			|| t == obj_flag_data::ITEM_WORN))
 	{
 		list->set_extraflag(EExtraFlag::ITEM_BLOODY);
 		bloody_map[list].owner_unique = GET_UNIQUE(ch);

@@ -351,11 +351,13 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	// куда одевается наш предмет
 	int item_wear = -1;
 	bool type_item = false;
-	if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_STAFF)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_WORN)   ||
-	    (GET_OBJ_TYPE(obj) == ITEM_WEAPON))
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WORN
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+	{
 		type_item = true;
+	}
 	// сумма для статов
 	double sum = 0;
 	// сумма для аффектов
@@ -512,13 +514,14 @@ float count_unlimited_timer(OBJ_DATA *obj)
 {
 	float result = 0.0;
 	bool type_item = false;
-	if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_STAFF)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_WORN)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_WEAPON))
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WORN
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+	{
 		type_item = true;
+	}
 	// сумма для статов
-	
 	
 	result = 0.0;
 	
@@ -1092,9 +1095,9 @@ void init_portals(void)
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 {
-	if ((GET_OBJ_TYPE(obj) == ITEM_DRINKCON
-			|| GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN)
-		&& GET_OBJ_SKILL(obj) > 0)
+	if (GET_OBJ_SKILL(obj) > 0
+		&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON
+			|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN))
 	{
 		log("obj_skill: %d - %s (%d)", GET_OBJ_SKILL(obj),
 			GET_OBJ_PNAME(obj, 0), GET_OBJ_VNUM(obj));
@@ -1103,7 +1106,8 @@ int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 		if (obj->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0)
 		{
 			OBJ_DATA *potion = read_object(GET_OBJ_SKILL(obj), VIRTUAL);
-			if (potion && GET_OBJ_TYPE(potion) == ITEM_POTION)
+			if (potion
+				&& GET_OBJ_TYPE(potion) == obj_flag_data::ITEM_POTION)
 			{
 				drinkcon::copy_potion_values(potion, obj);
 				if (proto)
@@ -4301,7 +4305,7 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *3th* misc line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	tobj->obj_flags.type_flag = t[0];	    // ** What's a object
+	tobj->obj_flags.type_flag = static_cast<obj_flag_data::EObjectType>(t[0]);	    // ** What's a object
 	GET_OBJ_EXTRA(tobj).from_string(f1);
 	// ** Its effects
 	asciiflag_conv(f2, &tobj->obj_flags.wear_flags);
@@ -4338,10 +4342,13 @@ char *parse_object(FILE * obj_f, int nr)
 	tobj->set_rent_eq(t[3]);
 
 	// check to make sure that weight of containers exceeds curr. quantity
-	if (tobj->obj_flags.type_flag == ITEM_DRINKCON || tobj->obj_flags.type_flag == ITEM_FOUNTAIN)
+	if (tobj->obj_flags.type_flag == obj_flag_data::ITEM_DRINKCON
+		|| tobj->obj_flags.type_flag == obj_flag_data::ITEM_FOUNTAIN)
 	{
 		if (tobj->obj_flags.weight < tobj->obj_flags.value[1])
+		{
 			tobj->obj_flags.weight = tobj->obj_flags.value[1] + 5;
+		}
 	}
 
 	// *** extra descriptions and affect fields ***
@@ -5098,10 +5105,13 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	object_list = obj;
 //	ObjectAlias::add(obj);
 	GET_ID(obj) = max_id++;
-	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
 	{
-		if (GET_OBJ_VAL(obj, 1) && GET_OBJ_VAL(obj, 2))
+		if (GET_OBJ_VAL(obj, 1)
+			&& GET_OBJ_VAL(obj, 2))
+		{
 			name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2));
+		}
 	}
 	assign_triggers(obj, OBJ_TRIGGER);
 
@@ -5602,7 +5612,8 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 							if (obj_index[rnum].number + obj_index[rnum].stored < obj_proto[rnum]->max_in_world)
 							{
 								obj_in = read_object(real_object((*load_in)->vnum), REAL);
-								if (obj_in && GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
+								if (obj_in
+									&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)
 			 					{
 									obj_to_obj(obj_in, obj);
 									GET_OBJ_ZONE(obj_in) = GET_OBJ_ZONE(obj);
@@ -5864,7 +5875,7 @@ void reset_zone(zone_rnum zone)
 //                 ZCMD.command = '*';
 						break;
 					}
-					if (GET_OBJ_TYPE(obj_to) != ITEM_CONTAINER)
+					if (GET_OBJ_TYPE(obj_to) != obj_flag_data::ITEM_CONTAINER)
 					{
 						ZONE_ERROR("attempt put obj to non container, omited");
 						ZCMD.command = '*';
@@ -7245,9 +7256,8 @@ bool check_object(OBJ_DATA * obj)
 
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_DRINKCON:
-		// Fall through.
-	case ITEM_FOUNTAIN:
+	case obj_flag_data::ITEM_DRINKCON:
+	case obj_flag_data::ITEM_FOUNTAIN:
 		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0))
 		{
 			error = true;
@@ -7255,18 +7265,21 @@ bool check_object(OBJ_DATA * obj)
 				GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 0));
 		}
 		break;
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		error = error || check_object_level(obj, 0);
 		error = error || check_object_spell_number(obj, 1);
 		error = error || check_object_spell_number(obj, 2);
 		error = error || check_object_spell_number(obj, 3);
 		break;
-	case ITEM_BOOK:
+
+	case obj_flag_data::ITEM_BOOK:
 		error = error || check_object_spell_number(obj, 1);
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		error = error || check_object_level(obj, 0);
 		error = error || check_object_spell_number(obj, 3);
 		if (GET_OBJ_VAL(obj, 2) > GET_OBJ_VAL(obj, 1))

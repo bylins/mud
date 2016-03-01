@@ -166,7 +166,7 @@ void enchant::apply_to_obj(OBJ_DATA *obj) const
 
 	GET_OBJ_WEIGHT(obj) += weight_;
 
-	if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 	{
 		GET_OBJ_VAL(obj, 1) += ndice_;
 		GET_OBJ_VAL(obj, 2) += sdice_;
@@ -229,7 +229,7 @@ void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type *set_en
 				// вес
 				GET_OBJ_WEIGHT(obj) += set_ench->weight - i->weight_;
 				// дайсы пушек
-				if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+				if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 				{
 					GET_OBJ_VAL(obj, 1) += set_ench->ndice - i->ndice_;
 					GET_OBJ_VAL(obj, 2) += set_ench->sdice - i->sdice_;

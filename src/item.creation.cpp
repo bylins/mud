@@ -1106,9 +1106,10 @@ ACMD(do_transform_weapon)
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ITEM_INGREDIENT)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT)
 	{
 		for (i = 0, found = FALSE; i < MAX_PROTO; i++)
+		{
 			if (GET_OBJ_VAL(obj, 1) == created_item[obj_type].proto[i])
 			{
 				if (proto[i])
@@ -1120,6 +1121,8 @@ ACMD(do_transform_weapon)
 					break;
 				}
 			}
+		}
+
 		if (i >= MAX_PROTO)
 		{
 			if (found)
@@ -1130,12 +1133,15 @@ ACMD(do_transform_weapon)
 		}
 	}
 	else
-		if (created_item[obj_type].material_bits &&
-				!IS_SET(created_item[obj_type].material_bits, (1 << GET_OBJ_MATER(obj))))
+	{
+		if (created_item[obj_type].material_bits
+			&& !IS_SET(created_item[obj_type].material_bits, (1 << GET_OBJ_MATER(obj))))
 		{
 			act("$o сделан$G из неподходящего материала.", FALSE, ch, obj, 0, TO_CHAR);
 			return;
 		}
+	}
+
 	switch (subcmd)
 	{
 	case SKILL_TRANSFORMWEAPON:
@@ -1158,30 +1164,47 @@ ACMD(do_transform_weapon)
 			}
 
 			for (coal = ch->carrying; coal; coal = coal->next_content)
-				if (GET_OBJ_TYPE(coal) == ITEM_INGREDIENT)
+			{
+				if (GET_OBJ_TYPE(coal) == obj_flag_data::ITEM_INGREDIENT)
 				{
 					for (i = 0; i < MAX_PROTO; i++)
+					{
 						if (proto[i] == coal)
+						{
 							break;
+						}
 						else if (!proto[i]
-								 && GET_OBJ_VAL(coal, 1) == created_item[obj_type].proto[i])
+							&& GET_OBJ_VAL(coal, 1) == created_item[obj_type].proto[i])
 						{
 							proto[i] = coal;
 							break;
 						}
+					}
 				}
+			}
+
 			for (i = 0, found = TRUE; i < MAX_PROTO; i++)
-				if (created_item[obj_type].proto[i] && !proto[i])
+			{
+				if (created_item[obj_type].proto[i]
+					&& !proto[i])
 				{
-					if ((rnum = real_object(created_item[obj_type].proto[i])) < 0)
+					rnum = real_object(created_item[obj_type].proto[i]);
+					if (rnum < 0)
+					{
 						act("У вас нет необходимого ингредиента.", FALSE, ch, 0, 0, TO_CHAR);
+					}
 					else
-						act("У вас не хватает $o1 для этого.", FALSE, ch,
-							obj_proto[rnum], 0, TO_CHAR);
+					{
+						act("У вас не хватает $o1 для этого.", FALSE, ch, obj_proto[rnum], 0, TO_CHAR);
+					}
 					found = FALSE;
 				}
+			}
+
 			if (!found)
+			{
 				return;
+			}
 		}
 		for (i = 0; i < MAX_PROTO; i++)
 		{
@@ -1195,36 +1218,57 @@ ACMD(do_transform_weapon)
 		break;
 	case SKILL_CREATEBOW:
 		for (coal = ch->carrying; coal; coal = coal->next_content)
-			if (GET_OBJ_TYPE(coal) == ITEM_INGREDIENT)
+		{
+			if (GET_OBJ_TYPE(coal) == obj_flag_data::ITEM_INGREDIENT)
 			{
 				for (i = 0; i < MAX_PROTO; i++)
+				{
 					if (proto[i] == coal)
+					{
 						break;
+					}
 					else if (!proto[i]
-							 && GET_OBJ_VAL(coal, 1) == created_item[obj_type].proto[i])
+						&& GET_OBJ_VAL(coal, 1) == created_item[obj_type].proto[i])
 					{
 						proto[i] = coal;
 						break;
 					}
+				}
 			}
+		}
+
 		for (i = 0, found = TRUE; i < MAX_PROTO; i++)
-			if (created_item[obj_type].proto[i] && !proto[i])
+		{
+			if (created_item[obj_type].proto[i]
+				&& !proto[i])
 			{
-				if ((rnum = real_object(created_item[obj_type].proto[i])) < 0)
+				rnum = real_object(created_item[obj_type].proto[i]);
+				if (rnum < 0)
+				{
 					act("У вас нет необходимого ингредиента.", FALSE, ch, 0, 0, TO_CHAR);
+				}
 				else
+				{
 					act("У вас не хватает $o1 для этого.", FALSE, ch, obj_proto[rnum], 0, TO_CHAR);
+				}
 				found = FALSE;
 			}
+		}
+
 		if (!found)
+		{
 			return;
+		}
+
 		for (i = 1; i < MAX_PROTO; i++)
+		{
 			if (proto[i])
 			{
 				GET_OBJ_WEIGHT(proto[0]) += GET_OBJ_WEIGHT(proto[i]);
 				proto[0]->set_cost(GET_OBJ_COST(proto[0]) + GET_OBJ_COST(proto[i]));
 				extract_obj(proto[i]);
 			}
+		}
 		go_create_weapon(ch, proto[0], obj_type, SKILL_CREATEBOW);
 		break;
 	}
@@ -1555,14 +1599,22 @@ OBJ_DATA *get_obj_in_list_ingr(int num, OBJ_DATA * list) //Ингридиентом является
 {
     OBJ_DATA *i;
 
-    for (i = list; i; i = i->next_content)
-    {
-	if (GET_OBJ_VNUM(i) == num)
-	    return (i);
-	if ((GET_OBJ_VAL(i, 1) == num) && (GET_OBJ_TYPE(i) == ITEM_INGREDIENT || GET_OBJ_TYPE(i) == ITEM_MING || GET_OBJ_TYPE(i) == ITEM_MATERIAL))
-	    return (i);
-    }
-    return (NULL);
+	for (i = list; i; i = i->next_content)
+	{
+		if (GET_OBJ_VNUM(i) == num)
+		{
+			return i;
+		}
+		if ((GET_OBJ_VAL(i, 1) == num)
+			&& (GET_OBJ_TYPE(i) == obj_flag_data::ITEM_INGREDIENT
+				|| GET_OBJ_TYPE(i) == obj_flag_data::ITEM_MING
+				|| GET_OBJ_TYPE(i) == obj_flag_data::ITEM_MATERIAL))
+		{
+			return i;
+		}
+	}
+
+    return NULL;
 }
 
 MakeRecept::MakeRecept()
@@ -1658,42 +1710,43 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 int MakeRecept::get_ingr_lev(OBJ_DATA * ingrobj)
 {
 	// Получаем уровень ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ITEM_INGREDIENT)
+	if (GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_INGREDIENT)
 	{
 		// Получаем уровень игредиента до 128
 		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
-
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MING)
+	else if (GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_MING)
 	{
 		// У ингров типа 26 совпадает уровень и сила.
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
-
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MATERIAL)
+	else if (GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_MATERIAL)
+	{
 		return GET_OBJ_VAL(ingrobj, 0);
+	}
 	else
-		return (-1);
+	{
+		return -1;
+	}
 }
 
 
 int MakeRecept::get_ingr_pow(OBJ_DATA * ingrobj)
 {
 	// Получаем силу ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ITEM_INGREDIENT || GET_OBJ_TYPE(ingrobj) == ITEM_MATERIAL)
+	if (GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_INGREDIENT
+		|| GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_MATERIAL)
 	{
-
 		return GET_OBJ_VAL(ingrobj, 2);
-
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MING)
+	else if (GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_MING)
 	{
-
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
-
 	}
 	else
-		return (-1);
+	{
+		return -1;
+	}
 }
 void MakeRecept::make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS])
 { int wearkoeff = 50;
@@ -2197,8 +2250,11 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 	int sign = -1;
 
-	if ((GET_OBJ_TYPE(obj) == ITEM_WEAPON) || (GET_OBJ_TYPE(obj) == ITEM_INGREDIENT))
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT)
+	{
 		sign = 1;
+	}
 
 	GET_OBJ_WEIGHT(obj) = stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign);
 
@@ -2217,72 +2273,60 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// Считаем среднюю силу ингров .
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_LIGHT:
+	case obj_flag_data::ITEM_LIGHT:
 		// Считаем длительность свечения.
 		if (GET_OBJ_VAL(obj, 2) != -1)
+		{
 			GET_OBJ_VAL(obj, 2) = stat_modify(ch, GET_OBJ_VAL(obj, 2), 1);
-
+		}
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
-		// Проверяем может
 
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		// Считаем уровень закла
 		GET_OBJ_VAL(obj, 0) = GET_LEVEL(ch);
-
-		// считаем заряды в палочке ... ставим число зарядов равное
-		// числу замемленых заклов ...
-		/*      if (!IS_IMMORTAL(ch))
-		      {
-		        GET_OBJ_VAL(obj,1) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));
-
-		      // палочка заряжена под самые ухи.
-		        GET_OBJ_VAL(obj,2) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));
-		      } else
-		      {
-		   GET_OBJ_VAL(obj,1) = 10;
-		   GET_OBJ_VAL(obj,2) = 10;
-		      }
-		*/
-//      affect_join(ch, &af, TRUE, FALSE, FALSE, FALSE);
-
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		// Считаем число xdy
 		// модифицируем XdY
 		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 2))
+		{
 			GET_OBJ_VAL(obj, 1) = stat_modify(ch, GET_OBJ_VAL(obj, 1), 1);
+		}
 		else
+		{
 			GET_OBJ_VAL(obj, 2) = stat_modify(ch, GET_OBJ_VAL(obj, 2) - 1, 1) + 1;
-
+		}
 		break;
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		// Считаем + АС
 		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 
 		// Считаем поглощение.
 		GET_OBJ_VAL(obj, 1) = stat_modify(ch, GET_OBJ_VAL(obj, 1), 1);
-
 		break;
-	case ITEM_POTION:
+
+	case obj_flag_data::ITEM_POTION:
 		// Считаем уровень итоговый напитка
 		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
-
 		break;
-	case ITEM_CONTAINER:
+
+	case obj_flag_data::ITEM_CONTAINER:
 		// Считаем объем контейнера.
 		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 		break;
 
-	case ITEM_DRINKCON:
+	case obj_flag_data::ITEM_DRINKCON:
 		// Считаем объем контейнера.
 		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 		break;
 
-	case ITEM_INGREDIENT:
+	case obj_flag_data::ITEM_INGREDIENT:
 		// Для ингров ничего не трогаем ... ибо опасно. :)
 		break;
 	}
@@ -2322,12 +2366,14 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// Мочим истраченные ингры.
 	for (i = 0; i < ingr_cnt; i++)
 	{
-		if ((GET_OBJ_TYPE(ingrs[i]) != ITEM_INGREDIENT) && (GET_OBJ_TYPE(ingrs[i]) != ITEM_MING))
+		if (GET_OBJ_TYPE(ingrs[i]) != obj_flag_data::ITEM_INGREDIENT
+			&& GET_OBJ_TYPE(ingrs[i]) != obj_flag_data::ITEM_MING)
 		{
 			// Если запрошенный вес 0 то  удаляем предмет выше не трогаем.
 			if (parts[i].min_weight == 0)
+			{
 				extract_obj(ingrs[i]);
-//			continue;
+			}
 		}
 // разобраться почему не мочатся ингры тима материал, если вес при производстве стал 0 
 		if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
@@ -2344,9 +2390,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// шмотки по лучше (в целом это не так страшно).
 
 	// Ставим метку если все хорошо.
-	if (((GET_OBJ_TYPE(obj) != ITEM_INGREDIENT) &&
-			(GET_OBJ_TYPE(obj) != ITEM_MING)) &&
-			(number(1, 100) - calculate_skill(ch, skill, skill_info[skill].max_percent, 0) < 0))
+	if ((GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_INGREDIENT
+		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MING)
+		&& (number(1, 100) - calculate_skill(ch, skill, skill_info[skill].max_percent, 0) < 0))
 	{
 		act(tagging.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 		// Прибавляем в экстра описание строчку.

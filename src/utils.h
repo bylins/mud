@@ -940,7 +940,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define IS_OBJ_AFF(obj,stat)    (IS_SET(GET_FLAG((obj)->obj_flags.affects, \
                                                   stat), stat))
 
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && \
+#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER && \
                GET_OBJ_VAL((obj), 3) == 1)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 

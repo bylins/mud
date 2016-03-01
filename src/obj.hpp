@@ -25,13 +25,49 @@
 // object flags; used in obj_data //
 #define NUM_OBJ_VAL_POSITIONS 4
 
-class obj_flag_data
+struct obj_flag_data
 {
 public:
 	typedef boost::array<int, NUM_OBJ_VAL_POSITIONS> value_t;
 
+	enum EObjectType
+	{
+		ITEM_LIGHT = 1,			// Item is a light source  //
+		ITEM_SCROLL = 2,		// Item is a scroll     //
+		ITEM_WAND = 3,			// Item is a wand    //
+		ITEM_STAFF = 4,			// Item is a staff      //
+		ITEM_WEAPON = 5,		// Item is a weapon     //
+		ITEM_FIREWEAPON = 6,	// Unimplemented     //
+		ITEM_MISSILE = 7,		// Unimplemented     //
+		ITEM_TREASURE = 8,		// Item is a treasure, not gold  //
+		ITEM_ARMOR = 9,			// Item is armor     //
+		ITEM_POTION = 10,		// Item is a potion     //
+		ITEM_WORN = 11,			// Unimplemented     //
+		ITEM_OTHER = 12,		// Misc object       //
+		ITEM_TRASH = 13,		// Trash - shopkeeps won't buy   //
+		ITEM_TRAP = 14,			// Unimplemented     //
+		ITEM_CONTAINER = 15,	// Item is a container     //
+		ITEM_NOTE = 16,			// Item is note      //
+		ITEM_DRINKCON = 17,		// Item is a drink container  //
+		ITEM_KEY = 18,			// Item is a key     //
+		ITEM_FOOD = 19,			// Item is food         //
+		ITEM_MONEY = 20,		// Item is money (gold)    //
+		ITEM_PEN = 21,			// Item is a pen     //
+		ITEM_BOAT = 22,			// Item is a boat    //
+		ITEM_FOUNTAIN = 23,		// Item is a fountain      //
+		ITEM_BOOK = 24,			// Item is book //
+		ITEM_INGREDIENT = 25,	// Item is magical ingradient //
+		ITEM_MING = 26,			// Магический ингредиент //
+		ITEM_MATERIAL = 27,		// Материал для крафтовых умений //
+		ITEM_BANDAGE = 28,		// бинты для перевязки
+		ITEM_ARMOR_LIGHT = 29,	// легкий тип брони
+		ITEM_ARMOR_MEDIAN = 30,	// средний тип брони
+		ITEM_ARMOR_HEAVY = 31,	// тяжелый тип брони
+		ITEM_ENCHANT = 32		// зачарование предмета
+	};
+
 	value_t value;
-	int type_flag;		// Type of item               //
+	EObjectType type_flag;		///< Type of item               //
 	uint32_t wear_flags;		// Where you can wear it     //
 	FLAG_DATA extra_flags;	// If it hums, glows, etc.      //
 	int weight;		// Weight what else              //

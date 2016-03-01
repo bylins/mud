@@ -2516,10 +2516,17 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 
 	one_argument(argument, cast_argument);
 	level = GET_OBJ_VAL(obj, 0);
-	if (level == 0 && GET_OBJ_TYPE(obj) == ITEM_STAFF)
-		level = DEFAULT_STAFF_LVL;
-	if (level == 0 && GET_OBJ_TYPE(obj) == ITEM_WAND)
-		level = DEFAULT_WAND_LVL;
+	if (level == 0)
+	{
+		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF)
+		{
+			level = DEFAULT_STAFF_LVL;
+		}
+		else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WAND)
+		{
+			level = DEFAULT_WAND_LVL;
+		}
+	}
 
 	if (obj->get_extraflag(EExtraFlag::ITEM_TIMEDLVL))
 	{
@@ -2532,15 +2539,24 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_STAFF:
+	case obj_flag_data::ITEM_STAFF:
 		if (obj->action_description)
+		{
 			act(obj->action_description, FALSE, ch, obj, 0, TO_CHAR);
+		}
 		else
+		{
 			act("Вы ударили $o4 о землю.", FALSE, ch, obj, 0, TO_CHAR);
+		}
+
 		if (obj->action_description)
+		{
 			act(obj->action_description, FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+		}
 		else
+		{
 			act("$n ударил$g $o4 о землю.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+		}
 
 		if (GET_OBJ_VAL(obj, 2) <= 0)
 		{
@@ -2576,7 +2592,8 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			}
 		}
 		break;
-	case ITEM_WAND:
+
+	case obj_flag_data::ITEM_WAND:
 		spellnum = GET_OBJ_VAL(obj, 3);
 
 		if (GET_OBJ_VAL(obj, 2) <= 0)
@@ -2588,10 +2605,13 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		}
 
 		if (!*argument)
+		{
 			tch = ch;
+		}
 		else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom))
+		{
 			return;
-
+		}
 
 		if (tch)
 		{
@@ -2645,7 +2665,8 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		call_magic(ch, tch, tobj, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, 3), level, CAST_WAND);
 		break;
-	case ITEM_SCROLL:
+
+	case obj_flag_data::ITEM_SCROLL:
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
 			send_to_char("Вы немы, как рыба.\r\n", ch);
@@ -2681,7 +2702,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			extract_obj(obj);
 		break;
 
-	case ITEM_POTION:
+	case obj_flag_data::ITEM_POTION:
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
 			send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
@@ -2696,18 +2717,24 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		for (i = 1; i <= 3; i++)
+		{
 			if (call_magic(ch, ch, NULL, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, i), level, CAST_POTION) <= 0)
+			{
 				break;
+			}
+		}
 
 		if (obj != NULL)
+		{
 			extract_obj(obj);
+		}
 		break;
+
 	default:
 		log("SYSERR: Unknown object_type %d in mag_objectmagic.", GET_OBJ_TYPE(obj));
 		break;
 	}
 }
-
 
 /*
  * cast_spell is used generically to cast any spoken spell, assuming we
@@ -2717,12 +2744,6 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-
-/*
-#define REMEMBER_SPELL(ch,spellnum) ({(ch)->Memory[spellnum]++; \
-                                      (ch)->ManaMemNeeded += mag_manacost(ch,spellnum);})
-*/
-
 int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * troom, int spellnum, int spell_subst)
 {
 	int ignore, skillnum;
@@ -3564,7 +3585,7 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) != ITEM_BOOK)
+	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_BOOK)
 	{
 		act("Вы уставились на $o3, как баран на новые ворота.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n начал$g внимательно изучать устройство $o1.", FALSE, ch, obj, 0, TO_ROOM);

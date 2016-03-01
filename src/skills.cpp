@@ -514,20 +514,17 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 	case SKILL_MULTYPARRY:  // веерная защита
 	case SKILL_PARRY:	//парировать
-                victim_sav = dex_bonus(GET_REAL_DEX(vict));
+		victim_sav = dex_bonus(GET_REAL_DEX(vict));
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
+		{
 			bonus += ch->get_skill(SKILL_AWAKE);
+		}
 
 		if (GET_EQ(ch, WEAR_HOLD)
-				&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ITEM_WEAPON)
+			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON)
 		{
-			bonus +=
-				weapon_app[MAX
-						   (0,
-							MIN(50,
-								GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))))].
-				parrying;
+			bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))))].parrying;
 		}
 		victim_modi = 100;
 		break;
@@ -537,14 +534,12 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		int shield_mod = GET_EQ(ch, WEAR_SHIELD) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
 		int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20)/3);
 		bonus = dex_mod + shield_mod;
-
-	        break;
+		break;
 }
 
 	case SKILL_TOUCH:	//захватить противника
-        victim_sav = dex_bonus(GET_REAL_DEX(vict));
-	bonus = dex_bonus(GET_REAL_DEX(ch)) +
-			size_app[GET_POS_SIZE(vict)].interpolate;
+		victim_sav = dex_bonus(GET_REAL_DEX(vict));
+		bonus = dex_bonus(GET_REAL_DEX(ch)) + size_app[GET_POS_SIZE(vict)].interpolate;
 
 		if (vict)
 		{
@@ -555,13 +550,13 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 	case SKILL_PROTECT:	//прикрыть грудью
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + size;
-
 		victim_modi = 50;
 		break;
 
 	case SKILL_BOWS:	//луки
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		break;
+
 	case SKILL_BOTHHANDS:	//двуручники
 	case SKILL_LONGS:	//длинные лезвия
 	case SKILL_SPADES:	//копья и пики
@@ -571,16 +566,20 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_NONSTANDART:	//разнообразное оружие
 	case SKILL_AXES:	//секиры
 //        victim_sav = GET_SAVE(vict, SAVING_REFLEX);
-	break;
+		break;
+
 	case SKILL_SATTACK:	//атака второй рукой
         victim_sav = GET_SAVE(vict, SAVING_REFLEX);
-	break;
+		break;
+
 	case SKILL_LOOKING:	//приглядеться
 		bonus = int_app[GET_REAL_INT(ch)].observation;
 		break;
+
 	case SKILL_HEARING:	//прислушаться
 		bonus = int_app[GET_REAL_INT(ch)].observation;
 		break;
+
 	case SKILL_DISARM:
 		victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
@@ -593,19 +592,23 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 				victim_modi -= calculate_awake_mod(ch, vict);
 		}
 		break;
+
 	case SKILL_HEAL:   // лечить
 		break;
+
 	case SKILL_ADDSHOT:   // дополнительный выстрел
 		if (equip_in_metall(ch))
 			bonus -= 5;
 		pass_mod = 1;
 		break;
+
 	case SKILL_NOPARRYHIT:
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		break;
+
 	case SKILL_CAMOUFLAGE: // маскировка
 		bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
-				  + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
 		if (awake_others(ch))
 			bonus -= 100;
@@ -628,6 +631,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
+
 	case SKILL_DEVIATE:  // уклониться
 		bonus = - size_app[GET_POS_SIZE(ch)].ac +
 			dex_bonus(GET_REAL_DEX(ch));

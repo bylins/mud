@@ -199,7 +199,7 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 		}
 		if (ch->get_skill(SKILL_THROW)
 			&& wielded
-			&& GET_OBJ_TYPE(wielded) == ITEM_WEAPON
+			&& GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON
 			&& wielded->get_extraflag(EExtraFlag::ITEM_THROWING))
 		{
 			go_throw(ch, victim);
@@ -358,30 +358,36 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		if (!victim)
 			victim = vict;
 
-		if (IS_DEFAULTDARK(IN_ROOM(ch)) && ((GET_EQ(vict, ITEM_LIGHT)
-											 && GET_OBJ_VAL(GET_EQ(vict, ITEM_LIGHT), 2))
-											|| ((AFF_FLAGGED(vict, EAffectFlag::AFF_SINGLELIGHT)
-												 || AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYLIGHT))
-												&& !AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYDARK))) && (!use_light
-														||
-														GET_REAL_CHA
-														(use_light) >
-														GET_REAL_CHA(vict)))
+		if (IS_DEFAULTDARK(IN_ROOM(ch))
+			&& ((GET_EQ(vict, obj_flag_data::ITEM_LIGHT)
+					&& GET_OBJ_VAL(GET_EQ(vict, obj_flag_data::ITEM_LIGHT), 2))
+				|| (!AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYDARK)
+					&& (AFF_FLAGGED(vict, EAffectFlag::AFF_SINGLELIGHT)
+						|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYLIGHT))))
+			&& (!use_light
+				|| GET_REAL_CHA(use_light) > GET_REAL_CHA(vict)))
+		{
 			use_light = vict;
+		}
 
-		if (!min_hp || GET_HIT(vict) + GET_REAL_CHA(vict) * 10 < GET_HIT(min_hp) + GET_REAL_CHA(min_hp) * 10)
+		if (!min_hp
+			|| GET_HIT(vict) + GET_REAL_CHA(vict) * 10 < GET_HIT(min_hp) + GET_REAL_CHA(min_hp) * 10)
+		{
 			min_hp = vict;
+		}
 
-		if (!min_lvl ||
-				GET_LEVEL(vict) + number(1, GET_REAL_CHA(vict)) <
-				GET_LEVEL(min_lvl) + number(1, GET_REAL_CHA(min_lvl)))
+		if (!min_lvl
+			|| GET_LEVEL(vict) + number(1, GET_REAL_CHA(vict)) < GET_LEVEL(min_lvl) + number(1, GET_REAL_CHA(min_lvl)))
+		{
 			min_lvl = vict;
+		}
 
-		if (IS_CASTER(vict) &&
-				(!caster || GET_CASTER(caster) * GET_REAL_CHA(vict) < GET_CASTER(vict) * GET_REAL_CHA(caster)))
+		if (IS_CASTER(vict)
+			&& (!caster
+				|| GET_CASTER(caster) * GET_REAL_CHA(vict) < GET_CASTER(vict) * GET_REAL_CHA(caster)))
+		{
 			caster = vict;
-		//   sprintf(buf,"%s here !",GET_NAME(vict));
-		//   act(buf,FALSE,ch,0,0,TO_ROOM);
+		}
 	}
 
 	if (GET_REAL_INT(ch) < 5 + number(1, 6))
@@ -909,7 +915,7 @@ OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 	obj->PNames[4] = str_dup("узелком");
 	obj->PNames[5] = str_dup("узелке");
 	GET_OBJ_SEX(obj) = SEX_MALE;
-	GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
+	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
 	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
 	GET_OBJ_WEIGHT(obj) = 1;
 	obj->set_cost(1);

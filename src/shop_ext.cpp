@@ -551,8 +551,10 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 		if ((*shop)->item_list[i]->temporary_ids.empty())
 		{
 			name_value = get_item_name((*shop)->item_list[i], keeper_vnum);
-			if (GET_OBJ_TYPE(obj_proto[(*shop)->item_list[i]->rnum]) == ITEM_DRINKCON)
+			if (GET_OBJ_TYPE(obj_proto[(*shop)->item_list[i]->rnum]) == obj_flag_data::ITEM_DRINKCON)
+			{
 				name_value += " " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*shop)->item_list[i]->rnum], 2)]);
+			}
 		}
 		else
 		{
@@ -711,8 +713,10 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		if ((*k)->temporary_ids.empty())
 		{
 			print_value = get_item_name((*k), keeper_vnum);
-			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == ITEM_DRINKCON)
+			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == obj_flag_data::ITEM_DRINKCON)
+			{
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
+			}
 		}
 		else
 		{
@@ -826,42 +830,96 @@ bool init_wear(const char *str)
 
 bool init_type(const char *str)
 {
-	if (is_abbrev(str, "свет") || is_abbrev(str, "light"))
-		type = ITEM_LIGHT;
-	else if (is_abbrev(str, "свиток") || is_abbrev(str, "scroll"))
-		type = ITEM_SCROLL;
-	else if (is_abbrev(str, "палочка") || is_abbrev(str, "wand"))
-		type = ITEM_WAND;
-	else if (is_abbrev(str, "посох") || is_abbrev(str, "staff"))
-		type = ITEM_STAFF;
-	else if (is_abbrev(str, "оружие") || is_abbrev(str, "weapon"))
-		type = ITEM_WEAPON;
-	else if (is_abbrev(str, "броня") || is_abbrev(str, "armor"))
-		type = ITEM_ARMOR;
-	else if (is_abbrev(str, "материал") || is_abbrev(str, "material"))
-		type = ITEM_MATERIAL;
-	else if (is_abbrev(str, "напиток") || is_abbrev(str, "potion"))
-		type = ITEM_POTION;
-	else if (is_abbrev(str, "прочее") || is_abbrev(str, "другое") || is_abbrev(str, "other"))
-		type = ITEM_OTHER;
-	else if (is_abbrev(str, "контейнер") || is_abbrev(str, "container"))
-		type = ITEM_CONTAINER;
-	else if (is_abbrev(str, "емкость") || is_abbrev(str, "tank"))
-		type = ITEM_DRINKCON;
-	else if (is_abbrev(str, "книга") || is_abbrev(str, "book"))
-		type = ITEM_BOOK;
-	else if (is_abbrev(str, "руна") || is_abbrev(str, "rune"))
-		type = ITEM_INGREDIENT;
-	else if (is_abbrev(str, "ингредиент") || is_abbrev(str, "ingradient"))
-		type = ITEM_MING;
-	else if (is_abbrev(str, "легкие") || is_abbrev(str, "легкая"))
-		type = ITEM_ARMOR_LIGHT;
-	else if (is_abbrev(str, "средние") || is_abbrev(str, "средняя"))
-		type = ITEM_ARMOR_MEDIAN;
-	else if (is_abbrev(str, "тяжелые") || is_abbrev(str, "тяжелая"))
-		type = ITEM_ARMOR_HEAVY;
+	if (is_abbrev(str, "свет")
+		|| is_abbrev(str, "light"))
+	{
+		type = obj_flag_data::ITEM_LIGHT;
+	}
+	else if (is_abbrev(str, "свиток")
+		|| is_abbrev(str, "scroll"))
+	{
+		type = obj_flag_data::ITEM_SCROLL;
+	}
+	else if (is_abbrev(str, "палочка")
+		|| is_abbrev(str, "wand"))
+	{
+		type = obj_flag_data::ITEM_WAND;
+	}
+	else if (is_abbrev(str, "посох")
+		|| is_abbrev(str, "staff"))
+	{
+		type = obj_flag_data::ITEM_STAFF;
+	}
+	else if (is_abbrev(str, "оружие")
+		|| is_abbrev(str, "weapon"))
+	{
+		type = obj_flag_data::ITEM_WEAPON;
+	}
+	else if (is_abbrev(str, "броня")
+		|| is_abbrev(str, "armor"))
+	{
+		type = obj_flag_data::ITEM_ARMOR;
+	}
+	else if (is_abbrev(str, "материал")
+		|| is_abbrev(str, "material"))
+	{
+		type = obj_flag_data::ITEM_MATERIAL;
+	}
+	else if (is_abbrev(str, "напиток")
+		|| is_abbrev(str, "potion"))
+	{
+		type = obj_flag_data::ITEM_POTION;
+	}
+	else if (is_abbrev(str, "прочее")
+		|| is_abbrev(str, "другое")
+		|| is_abbrev(str, "other"))
+	{
+		type = obj_flag_data::ITEM_OTHER;
+	}
+	else if (is_abbrev(str, "контейнер")
+		|| is_abbrev(str, "container"))
+	{
+		type = obj_flag_data::ITEM_CONTAINER;
+	}
+	else if (is_abbrev(str, "емкость")
+		|| is_abbrev(str, "tank"))
+	{
+		type = obj_flag_data::ITEM_DRINKCON;
+	}
+	else if (is_abbrev(str, "книга")
+		|| is_abbrev(str, "book"))
+	{
+		type = obj_flag_data::ITEM_BOOK;
+	}
+	else if (is_abbrev(str, "руна")
+		|| is_abbrev(str, "rune"))
+	{
+		type = obj_flag_data::ITEM_INGREDIENT;
+	}
+	else if (is_abbrev(str, "ингредиент")
+		|| is_abbrev(str, "ingradient"))
+	{
+		type = obj_flag_data::ITEM_MING;
+	}
+	else if (is_abbrev(str, "легкие")
+		|| is_abbrev(str, "легкая"))
+	{
+		type = obj_flag_data::ITEM_ARMOR_LIGHT;
+	}
+	else if (is_abbrev(str, "средние")
+		|| is_abbrev(str, "средняя"))
+	{
+		type = obj_flag_data::ITEM_ARMOR_MEDIAN;
+	}
+	else if (is_abbrev(str, "тяжелые")
+		|| is_abbrev(str, "тяжелая"))
+	{
+		type = obj_flag_data::ITEM_ARMOR_HEAVY;
+	}
 	else
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -925,12 +983,18 @@ void filter_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::st
 		if ((*k)->temporary_ids.empty())
 		{
 			print_value = get_item_name((*k), keeper_vnum);
-			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == ITEM_DRINKCON)
+			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == obj_flag_data::ITEM_DRINKCON)
+			{
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
+			}
 			
-				if (!( (wear > 0 && CAN_WEAR(obj_proto[(*k)->rnum], wear))
-					|| (type > 0 && type == GET_OBJ_TYPE(obj_proto[(*k)->rnum]))))
-					show_name = false;
+			if (!(wear > 0
+					&& CAN_WEAR(obj_proto[(*k)->rnum], wear)
+				|| (type > 0
+					&& type == GET_OBJ_TYPE(obj_proto[(*k)->rnum]))))
+			{
+				show_name = false;
+			}
 		
 		}
 		else
@@ -1013,8 +1077,11 @@ void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 	if (!item->descs[vnum].trigs.empty())
 		attach_triggers(obj, item->descs[vnum].trigs);
 	obj->ex_description = NULL; //Пока в конфиге нельзя указать экстраописания - убираем нафиг
-	if ((GET_OBJ_TYPE(obj) == ITEM_DRINKCON) && (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...
+	if ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
+		&& (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...
+	{
 		name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2)); //...Следует указать содержимое емкости
+	}
 }
 
 void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop)
@@ -1191,7 +1258,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 			if ((*shop)->currency == "слава")
 			{
 				// книги за славу не фейлим
-				if (ITEM_BOOK == GET_OBJ_TYPE(obj))
+				if (obj_flag_data::ITEM_BOOK == GET_OBJ_TYPE(obj))
 				{
 					obj->set_extraflag(EExtraFlag::ITEM_NO_FAIL);
 				}
@@ -1299,9 +1366,12 @@ void put_item_in_shop(ShopListType::const_iterator &shop, OBJ_DATA * obj)
 			else
 			{
 				OBJ_DATA * tmp_obj = get_obj_from_waste(shop, (*it)->temporary_ids);
-				if (!tmp_obj) continue;
-				if (GET_OBJ_TYPE(obj) != ITEM_MING || //а у них всех один рнум
-					std::string(obj->short_description) == std::string(tmp_obj->short_description))
+				if (!tmp_obj)
+				{
+					continue;
+				}
+				if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MING //а у них всех один рнум
+					|| std::string(obj->short_description) == std::string(tmp_obj->short_description))
 				{
 					(*it)->temporary_ids.push_back(obj->uid);
 					waste_node tmp_node;
@@ -1338,13 +1408,14 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 2) == 0
-		&& (GET_OBJ_TYPE(obj) == ITEM_WAND
-			|| GET_OBJ_TYPE(obj) == ITEM_STAFF))
+		&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WAND
+			|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF))
 	{
 		tell_to_char(keeper, ch, "Я не покупаю использованные вещи!");
 		return;
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && cmd != "Чинить")
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
+		&& cmd != "Чинить")
 	{
 		if (obj->contains)
 		{

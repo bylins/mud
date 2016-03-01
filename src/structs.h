@@ -772,41 +772,6 @@ typedef std::list<EAffectFlag> affects_list_t;
 
 // object-related defines ******************************************* //
 
-
-// Item types: used by obj_data.obj_flags.type_flag //
-#define ITEM_LIGHT      1	// Item is a light source  //
-#define ITEM_SCROLL     2	// Item is a scroll     //
-#define ITEM_WAND       3	// Item is a wand    //
-#define ITEM_STAFF      4	// Item is a staff      //
-#define ITEM_WEAPON     5	// Item is a weapon     //
-#define ITEM_FIREWEAPON 6	// Unimplemented     //
-#define ITEM_MISSILE    7	// Unimplemented     //
-#define ITEM_TREASURE   8	// Item is a treasure, not gold  //
-#define ITEM_ARMOR      9	// Item is armor     //
-#define ITEM_POTION    10	// Item is a potion     //
-#define ITEM_WORN      11	// Unimplemented     //
-#define ITEM_OTHER     12	// Misc object       //
-#define ITEM_TRASH     13	// Trash - shopkeeps won't buy   //
-#define ITEM_TRAP      14	// Unimplemented     //
-#define ITEM_CONTAINER 15	// Item is a container     //
-#define ITEM_NOTE      16	// Item is note      //
-#define ITEM_DRINKCON  17	// Item is a drink container  //
-#define ITEM_KEY       18	// Item is a key     //
-#define ITEM_FOOD      19	// Item is food         //
-#define ITEM_MONEY     20	// Item is money (gold)    //
-#define ITEM_PEN       21	// Item is a pen     //
-#define ITEM_BOAT      22	// Item is a boat    //
-#define ITEM_FOUNTAIN  23	// Item is a fountain      //
-#define ITEM_BOOK      24	// Item is book //
-#define ITEM_INGREDIENT 25	// Item is magical ingradient //
-#define ITEM_MING      26	// Магический ингредиент //
-#define ITEM_MATERIAL  27	// Материал для крафтовых умений //
-#define ITEM_BANDAGE   28  	// бинты для перевязки
-#define ITEM_ARMOR_LIGHT  29 	// легкий тип брони
-#define ITEM_ARMOR_MEDIAN 30 	// средний тип брони
-#define ITEM_ARMOR_HEAVY  31 	// тяжелый тип брони
-#define ITEM_ENCHANT      32	// зачарование предмета
-
 // +newbook.patch (Alisher)
 // Типы магических книг //
 #define BOOK_SPELL		0	// Книга заклинания //

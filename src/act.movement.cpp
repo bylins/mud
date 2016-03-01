@@ -132,15 +132,25 @@ int has_boat(CHAR_DATA * ch)
 
 	// non-wearable boats in inventory will do it
 	for (obj = ch->carrying; obj; obj = obj->next_content)
-		if (GET_OBJ_TYPE(obj) == ITEM_BOAT && (find_eq_pos(ch, obj, NULL) < 0))
-			return (TRUE);
+	{
+		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_BOAT
+			&& (find_eq_pos(ch, obj, NULL) < 0))
+		{
+			return TRUE;
+		}
+	}
 
 	// and any boat you're wearing will do it too
 	for (i = 0; i < NUM_WEARS; i++)
-		if (GET_EQ(ch, i) && GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_BOAT)
-			return (TRUE);
+	{
+		if (GET_EQ(ch, i)
+			&& GET_OBJ_TYPE(GET_EQ(ch, i)) == obj_flag_data::ITEM_BOAT)
+		{
+			return TRUE;
+		}
+	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 void make_visible(CHAR_DATA * ch, const EAffectFlag affect)
@@ -1135,7 +1145,7 @@ ACMD(do_hidemove)
 }
 
 #define DOOR_IS_OPENABLE(ch, obj, door)	((obj) ? \
-			((GET_OBJ_TYPE(obj) == ITEM_CONTAINER) && \
+			((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER) && \
 			OBJVAL_FLAGGED(obj, CONT_CLOSEABLE)) :\
 			(EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))
 #define DOOR_IS(ch, door)	((EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))

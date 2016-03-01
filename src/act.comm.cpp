@@ -532,12 +532,12 @@ ACMD(do_write)
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(paper) == ITEM_PEN)  	// oops, a pen..
+		if (GET_OBJ_TYPE(paper) == obj_flag_data::ITEM_PEN)  	// oops, a pen..
 		{
 			pen = paper;
 			paper = NULL;
 		}
-		else if (GET_OBJ_TYPE(paper) != ITEM_NOTE)
+		else if (GET_OBJ_TYPE(paper) != obj_flag_data::ITEM_NOTE)
 		{
 			send_to_char("Вы не можете на ЭТОМ писать.\r\n", ch);
 			return;
@@ -562,12 +562,18 @@ ACMD(do_write)
 
 
 	// ok.. now let's see what kind of stuff we've found
-	if (GET_OBJ_TYPE(pen) != ITEM_PEN)
+	if (GET_OBJ_TYPE(pen) != obj_flag_data::ITEM_PEN)
+	{
 		act("Вы не умеете писать $o4.", FALSE, ch, pen, 0, TO_CHAR);
-	else if (GET_OBJ_TYPE(paper) != ITEM_NOTE)
+	}
+	else if (GET_OBJ_TYPE(paper) != obj_flag_data::ITEM_NOTE)
+	{
 		act("Вы не можете писать на $o5.", FALSE, ch, paper, 0, TO_CHAR);
+	}
 	else if (paper->action_description)
+	{
 		send_to_char("Там уже что-то записано.\r\n", ch);
+	}
 	else  			// we can write - hooray!
 	{
 		/* this is the PERFECT code example of how to set up:

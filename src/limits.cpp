@@ -1108,7 +1108,7 @@ inline bool NO_DESTROY(const OBJ_DATA* obj)
 		|| obj->worn_by
 		|| obj->in_obj
 		|| obj->script
-		|| GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN
 		|| obj->in_room == NOWHERE
 		|| (obj->get_extraflag(EExtraFlag::ITEM_NODECAY)
 			&& !ROOM_FLAGGED(obj->in_room, ROOM_DEATH)));
@@ -1116,7 +1116,7 @@ inline bool NO_DESTROY(const OBJ_DATA* obj)
 
 inline bool NO_TIMER(const OBJ_DATA* obj)
 {
-	return GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN;
+	return GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN;
 }
 
 int up_obj_where(OBJ_DATA * obj)
