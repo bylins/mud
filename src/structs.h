@@ -48,9 +48,6 @@ const unsigned TOTAL_TYPES = 3;
 #define MAX_ALIAS_LENGTH 100
 //-Polos.insert_wanted_gem
 
-using std::list;
-using std::bitset;
-
 /*
  * Intended use of this macro is to allow external packages to work with
  * a variety of CircleMUD versions without modifications.  For instance,
@@ -249,6 +246,15 @@ typedef uint32_t bitvector_t;
 
 #define MAX_REMORT            50
 
+template <typename E>
+const std::string& NAME_BY_ITEM(const E item);
+
+template <typename E>
+E ITEM_BY_NAME(const std::string& name);
+
+template <typename E>
+inline E ITEM_BY_NAME(const char* name) { return ITEM_BY_NAME<E>(std::string(name)); }
+
 // char and mob-related defines ***************************************
 
 // PC classes //
@@ -301,7 +307,11 @@ enum class ESex: byte
 	SEX_FEMALE = 2,
 	SEX_POLY = 3
 };
+
 constexpr ESex DEFAULT_SEX = ESex::SEX_MALE;
+
+template <> ESex ITEM_BY_NAME<ESex>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM(const ESex item);
 
 #define NUM_SEXES 4
 
@@ -677,6 +687,10 @@ enum class EAffectFlag: uint32_t
 	AFF_NOOB_REGEN = INT_TWO | (1u << 19),
 	AFF_VAMPIRE = INT_TWO | (1u << 20)
 };
+
+template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
+template <> EAffectFlag ITEM_BY_NAME<EAffectFlag>(const std::string& name);
+
 typedef std::list<EAffectFlag> affects_list_t;
 
 // shapirus: modes of ignoring
@@ -863,16 +877,8 @@ enum class EExtraFlag: uint32_t
 	ITEM_NOPOUR = INT_ONE | (1 << 13)		///< нельзя перелить
 };
 
-template <typename E>
-const std::string& NAME_BY_ITEM(const E item);
 template <> const std::string& NAME_BY_ITEM<EExtraFlag>(const EExtraFlag item);
-template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
-
-template <typename E>
-E ITEM_BY_NAME(const std::string& name);
 template <> EExtraFlag ITEM_BY_NAME<EExtraFlag>(const std::string& name);
-template <> EAffectFlag ITEM_BY_NAME<EAffectFlag>(const std::string& name);
-template <typename E> inline E ITEM_BY_NAME(const char* name) { return ITEM_BY_NAME<E>(std::string(name)); }
 
 #define ITEM_NO_MONO       (1 << 0)
 #define ITEM_NO_POLY       (1 << 1)
@@ -1496,8 +1502,7 @@ struct load_data
 	spec_param;
 };
 
-typedef
-list < struct load_data *>load_list;
+typedef std::list<struct load_data *> load_list;
 
 struct spell_mem_queue_item
 {

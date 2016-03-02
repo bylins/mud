@@ -4206,7 +4206,7 @@ char *parse_object(FILE * obj_f, int nr)
 	tobj->obj_flags.Obj_max = obj_flag_data::DEFAULT_MAXIMUM_DURABILITY;
 	tobj->obj_flags.Obj_cur = obj_flag_data::DEFAULT_CURRENT_DURABILITY;
 	tobj->obj_flags.Obj_sex = DEFAULT_SEX;
-	tobj->set_timer(SEVEN_DAYS);
+	tobj->set_timer(OBJ_DATA::DEFAULT_TIMER);
 	tobj->obj_flags.Obj_level = 1;
 	tobj->obj_flags.Obj_destroyer = 60;
 
@@ -4266,10 +4266,10 @@ char *parse_object(FILE * obj_f, int nr)
 		exit(1);
 	}
 	tobj->obj_flags.Obj_sex = static_cast<ESex>(t[0]);
-	int timer = t[1] > 0 ? t[1] : SEVEN_DAYS;
+	int timer = t[1] > 0 ? t[1] : OBJ_DATA::SEVEN_DAYS;
 	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
 	// не должно быть
-	if (timer == UTIMER)
+	if (timer == OBJ_DATA::UNLIMITED_TIMER)
 	{
 	    timer--;
 		tobj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);

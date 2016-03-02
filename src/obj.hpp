@@ -32,6 +32,8 @@ public:
 
 	const static int DEFAULT_MAXIMUM_DURABILITY = 100;
 	const static int DEFAULT_CURRENT_DURABILITY = DEFAULT_MAXIMUM_DURABILITY;
+	const static int DEFAULT_LEVEL = 0;
+	const static int DEFAULT_WEIGHT = INT_MAX;
 
 	enum EObjectType
 	{
@@ -409,6 +411,12 @@ public:
 	const static int UNLIMITED_GLOBAL_MAXIMUM = -1;
 	const static int DEFAULT_GLOBAL_MAXIMUM = UNLIMITED_GLOBAL_MAXIMUM;
 	const static int DEFAULT_MINIMUM_REMORTS = 0;
+
+	// бесконечный таймер
+	const static int UNLIMITED_TIMER = 2147483647;
+	const static int ONE_DAY = 24 * 60;
+	const static int SEVEN_DAYS = 7 * ONE_DAY;
+	const static int DEFAULT_TIMER = SEVEN_DAYS;
 
 	OBJ_DATA();
 	OBJ_DATA(const OBJ_DATA&);

@@ -108,9 +108,6 @@ extern const char *ACTNULL;
 
 #define MIN_TITLE_LEV   25
 
-#define ONE_DAY      24*60
-#define SEVEN_DAYS   7*24*60
-
 // undefine MAX and MIN so that our functions are used instead
 #ifdef MAX
 #undef MAX
@@ -1220,8 +1217,6 @@ size_t strlen_no_colors(const char *str);
 #define SEEK_END  2
 #endif
 
-// бесконечный таймер
-#define UTIMER 2147483647
 #define SENDOK(ch)   (((ch)->desc || SCRIPT_CHECK((ch), MTRIG_ACT)) && \
                (to_sleeping || AWAKE(ch)) && \
                      !PLR_FLAGGED((ch), PLR_WRITING))

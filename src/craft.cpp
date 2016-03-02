@@ -238,7 +238,8 @@ namespace craft
 			const char* name = object_type.child_value();
 			try
 			{
-				m_type = ITEM_BY_NAME<decltype(m_type)>(name);
+				const obj_flag_data::EObjectType type = ITEM_BY_NAME<obj_flag_data::EObjectType>(name);
+				set_type(type);
 			}
 			catch (const std::out_of_range&)
 			{
@@ -261,6 +262,48 @@ namespace craft
 			if (current)
 			{
 				m_current_durability = std::min(std::max(std::atoi(current.child_value()), 0), m_maximum_durability);
+			}
+		}
+
+		const auto sex = node->child("sex");
+		if (sex)
+		{
+			const char* sex_value = sex.child_value();
+			try
+			{
+				m_sex = ITEM_BY_NAME<decltype(m_sex)>(sex_value);
+			}
+			catch (const std::out_of_range&)
+			{
+				log("WARNING: Failed to set sex '%s' for prototype with VNUM %d. Prototype will be skipped.\n",
+					sex_value, m_vnum);
+				return false;
+			}
+		}
+
+		const auto level = node->child("level");
+		if (level)
+		{
+			m_level = std::max(std::atoi(level.child_value()), 0);
+		}
+
+		const auto weight = node->child("weight");
+		{
+			const int weight_value = std::max(std::atoi(level.child_value()), 1);
+			set_weight(weight_value);
+		}
+
+		const auto timer = node->child("timer");
+		{
+			const std::string timer_value = timer.child_value();
+			if ("unlimited" == timer_value)
+			{
+				set_timer(OBJ_DATA::UNLIMITED_TIMER);
+			}
+			else
+			{
+				const int t = std::max(std::atoi(timer_value.c_str()), 0);
+				set_timer(t);
 			}
 		}
 

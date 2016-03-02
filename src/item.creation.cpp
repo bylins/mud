@@ -899,9 +899,8 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			// Карачун. Таймер должен зависить от таймера прототипа.
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// В минимуме один день реала, в максимуме таймер из прототипа
-			int timer = MAX(ONE_DAY,
-					tobj->get_timer() / 100 * ch->get_skill(skill)
-							- number(0, tobj->get_timer() / 100 * 25));
+			const int timer_value = tobj->get_timer() / 100 * ch->get_skill(skill) - number(0, tobj->get_timer() / 100 * 25);
+			const int timer = MAX(OBJ_DATA::ONE_DAY, timer_value);
 			tobj->set_timer(timer);
 			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
@@ -947,7 +946,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		}
 		case 5:	// mages weapon
 		case 6:
-			tobj->set_timer(ONE_DAY);
+			tobj->set_timer(OBJ_DATA::ONE_DAY);
 			GET_OBJ_MAX(tobj) = 50;
 			GET_OBJ_CUR(tobj) = 50;
 			ndice = MAX(2, MIN(4, GET_LEVEL(ch) / number(6, 8)));
@@ -971,9 +970,8 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			// Карачун. Таймер должен зависить от таймера прототипа.
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// В минимуме один день реала, в максимуме таймер из прототипа
-			int timer = MAX(ONE_DAY,
-					tobj->get_timer() / 100 * ch->get_skill(skill)
-							- number(0, tobj->get_timer() / 100 * 25));
+			const int timer_value = tobj->get_timer() / 100 * ch->get_skill(skill) - number(0, tobj->get_timer() / 100 * 25);
+			const int timer = MAX(OBJ_DATA::ONE_DAY, timer_value);
 			tobj->set_timer(timer);
 			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 			act(buf, FALSE, ch, tobj, 0, TO_CHAR);

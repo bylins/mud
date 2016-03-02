@@ -16,7 +16,7 @@ typedef struct
 	std::string desc;
 } DescNode;
 
-typedef list<DescNode> DescListType;
+typedef std::list<DescNode> DescListType;
 
 class IMorph;
 class AnimalMorph;

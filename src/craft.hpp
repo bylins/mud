@@ -113,10 +113,31 @@ namespace craft
 		friend class CPrototype;
 	};
 
-	class CPrototype
+	class CPrototypeBase
 	{
 	public:
-		CPrototype(const vnum_t vnum):
+		void set_type(const obj_flag_data::EObjectType _) { m_type = _; }
+		void set_weight(const int _) { m_weight = _; }
+		void set_timer(const int _) { m_timer = _; }
+
+	protected:
+		CPrototypeBase():
+			m_weight(obj_flag_data::DEFAULT_WEIGHT),
+			m_timer(OBJ_DATA::DEFAULT_TIMER)
+		{
+		}
+
+	private:
+		obj_flag_data::EObjectType m_type;
+
+		int m_weight;
+		int m_timer;
+	};
+
+	class CPrototype: public CPrototypeBase
+	{
+	public:
+		CPrototype(const vnum_t vnum) :
 			m_vnum(vnum),
 			m_cost(OBJ_DATA::DEFAULT_COST),
 			m_rent_on(OBJ_DATA::DEFAULT_RENT_ON),
@@ -124,7 +145,9 @@ namespace craft
 			m_global_maximum(OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM),
 			m_minimum_remorts(OBJ_DATA::DEFAULT_MINIMUM_REMORTS),
 			m_maximum_durability(obj_flag_data::DEFAULT_MAXIMUM_DURABILITY),
-			m_current_durability(obj_flag_data::DEFAULT_CURRENT_DURABILITY)
+			m_current_durability(obj_flag_data::DEFAULT_CURRENT_DURABILITY),
+			m_sex(DEFAULT_SEX),
+			m_level(obj_flag_data::DEFAULT_LEVEL)
 		{
 		}
 
@@ -146,10 +169,12 @@ namespace craft
 		int m_global_maximum;
 		int m_minimum_remorts;
 
-		obj_flag_data::EObjectType m_type;
-
 		int m_maximum_durability;
 		int m_current_durability;
+
+		ESex m_sex;
+
+		int m_level;
 
 		friend class CCraftModel;
 	};

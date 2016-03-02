@@ -37,8 +37,8 @@
 	</durability>
 	
 	<sex></sex>			<!-- Possible values: MALE, FEMALE, NEUTER, POLY -->
-	<level></level>
-	<weight></weight>
+	<level></level>		<!-- Non-negative value. -->
+	<weight></weight>	<!-- Positive value. -->
 	<!--
 	Destroy timer. Object will be destroyed after specified time. Measure unit is minute.
 	Possible values:

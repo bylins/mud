@@ -118,11 +118,15 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define   SPELL_ITEMS  (1 << 5)
 #define   SPELL_RUNES  (1 << 6)
 
-#define   ITEM_RUNES       (1 << 0)
-#define   ITEM_CHECK_USES  (1 << 1)
-#define   ITEM_CHECK_LAG   (1 << 2)
-#define   ITEM_CHECK_LEVEL (1 << 3)
-#define   ITEM_DECAY_EMPTY (1 << 4)
+/// Flags for ingredient items (ITEM_INGREDIENT)
+enum EIngredientItem
+{
+	ITEM_RUNES = 1 << 0,
+	ITEM_CHECK_USES = 1 << 1,
+	ITEM_CHECK_LAG = 1 << 2,
+	ITEM_CHECK_LEVEL = 1 << 3,
+	ITEM_DECAY_EMPTY = 1 << 4
+};
 
 #define   MI_LAG1s       (1 << 0)
 #define   MI_LAG2s       (1 << 1)

@@ -228,10 +228,52 @@ const religion_names_t religion_name =
 	religion_genders_t{ "Христианин", "Христианин", "Христианка", "Христиане" }
 };
 
+typedef std::map<ESex, std::string> ESex_name_by_value_t;
+typedef std::map<const std::string, ESex> ESex_value_by_name_t;
+ESex_name_by_value_t ESex_name_by_value;
+ESex_value_by_name_t ESex_value_by_name;
+
+void init_ESex_ITEM_NAMES()
+{
+	ESex_name_by_value.clear();
+	ESex_value_by_name.clear();
+
+	ESex_name_by_value[ESex::SEX_NEUTRAL] = "SEX_NEUTRAL";
+	ESex_name_by_value[ESex::SEX_MALE] = "SEX_MALE";
+	ESex_name_by_value[ESex::SEX_FEMALE] = "SEX_FEMALE";
+	ESex_name_by_value[ESex::SEX_POLY] = "SEX_POLY";
+
+	for (const auto& i : ESex_name_by_value)
+	{
+		ESex_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+ESex ITEM_BY_NAME(const std::string& name)
+{
+	if (ESex_name_by_value.empty())
+	{
+		init_ESex_ITEM_NAMES();
+	}
+	return ESex_value_by_name.at(name);
+}
+
+template <>
+const std::string& NAME_BY_ITEM(const ESex item)
+{
+	if (ESex_name_by_value.empty())
+	{
+		init_ESex_ITEM_NAMES();
+	}
+	return ESex_name_by_value.at(item);
+}
+
 typedef std::map<EExtraFlag, std::string> EExtraFlag_name_by_value_t;
 typedef std::map<const std::string, EExtraFlag> EExtraFlag_value_by_name_t;
 EExtraFlag_name_by_value_t EExtraFlag_name_by_value;
 EExtraFlag_value_by_name_t EExtraFlag_value_by_name;
+
 void init_EExtraFlag_ITEM_NAMES()
 {
 	EExtraFlag_name_by_value.clear();
