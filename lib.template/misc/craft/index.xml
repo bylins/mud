@@ -393,13 +393,13 @@
 				<current>1200</current>
 			</durability>
 
-			<sex>Female</sex>
+			<sex>FEMALE</sex>
 			<level>12</level>
 			<weight>120</weight>
 			<timer>unlimited</timer>
-			<skills>
-				<skill>SKILL_CLUBS</skill>
-			</skills>
+			<item_parameters>
+				<parameter>SKILL_CLUBS</parameter>
+			</item_parameters>
 			<material>MAT_SUPERWOOD</material>
 			<spell>SPELL_SLEEP</spell>
 

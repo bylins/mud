@@ -196,6 +196,129 @@ OBJ_DATA* init_weap(CHAR_DATA *ch, int dam, int attacktype)
 	return weap;
 }
 
+typedef std::map<ESkill, std::string> ESkill_name_by_value_t;
+typedef std::map<const std::string, ESkill> ESkill_value_by_name_t;
+ESkill_name_by_value_t ESkill_name_by_value;
+ESkill_value_by_name_t ESkill_value_by_name;
+
+void init_ESkill_ITEM_NAMES()
+{
+	ESkill_name_by_value.clear();
+	ESkill_value_by_name.clear();
+
+	ESkill_name_by_value[ESkill::SKILL_THAC0] = "SKILL_THAC0";
+	ESkill_name_by_value[ESkill::SKILL_PROTECT] = "SKILL_PROTECT";
+	ESkill_name_by_value[ESkill::SKILL_TOUCH] = "SKILL_TOUCH";
+	ESkill_name_by_value[ESkill::SKILL_SHIT] = "SKILL_SHIT";
+	ESkill_name_by_value[ESkill::SKILL_MIGHTHIT] = "SKILL_MIGHTHIT";
+	ESkill_name_by_value[ESkill::SKILL_STUPOR] = "SKILL_STUPOR";
+	ESkill_name_by_value[ESkill::SKILL_POISONED] = "SKILL_POISONED";
+	ESkill_name_by_value[ESkill::SKILL_SENSE] = "SKILL_SENSE";
+	ESkill_name_by_value[ESkill::SKILL_HORSE] = "SKILL_HORSE";
+	ESkill_name_by_value[ESkill::SKILL_HIDETRACK] = "SKILL_HIDETRACK";
+	ESkill_name_by_value[ESkill::SKILL_RELIGION] = "SKILL_RELIGION";
+	ESkill_name_by_value[ESkill::SKILL_MAKEFOOD] = "SKILL_MAKEFOOD";
+	ESkill_name_by_value[ESkill::SKILL_MULTYPARRY] = "SKILL_MULTYPARRY";
+	ESkill_name_by_value[ESkill::SKILL_TRANSFORMWEAPON] = "SKILL_TRANSFORMWEAPON";
+	ESkill_name_by_value[ESkill::SKILL_LEADERSHIP] = "SKILL_LEADERSHIP";
+	ESkill_name_by_value[ESkill::SKILL_PUNCTUAL] = "SKILL_PUNCTUAL";
+	ESkill_name_by_value[ESkill::SKILL_AWAKE] = "SKILL_AWAKE";
+	ESkill_name_by_value[ESkill::SKILL_IDENTIFY] = "SKILL_IDENTIFY";
+	ESkill_name_by_value[ESkill::SKILL_HEARING] = "SKILL_HEARING";
+	ESkill_name_by_value[ESkill::SKILL_CREATE_POTION] = "SKILL_CREATE_POTION";
+	ESkill_name_by_value[ESkill::SKILL_CREATE_SCROLL] = "SKILL_CREATE_SCROLL";
+	ESkill_name_by_value[ESkill::SKILL_CREATE_WAND] = "SKILL_CREATE_WAND";
+	ESkill_name_by_value[ESkill::SKILL_LOOK_HIDE] = "SKILL_LOOK_HIDE";
+	ESkill_name_by_value[ESkill::SKILL_ARMORED] = "SKILL_ARMORED";
+	ESkill_name_by_value[ESkill::SKILL_DRUNKOFF] = "SKILL_DRUNKOFF";
+	ESkill_name_by_value[ESkill::SKILL_AID] = "SKILL_AID";
+	ESkill_name_by_value[ESkill::SKILL_FIRE] = "SKILL_FIRE";
+	ESkill_name_by_value[ESkill::SKILL_CREATEBOW] = "SKILL_CREATEBOW";
+	ESkill_name_by_value[ESkill::SKILL_THROW] = "SKILL_THROW";
+	ESkill_name_by_value[ESkill::SKILL_BACKSTAB] = "SKILL_BACKSTAB";
+	ESkill_name_by_value[ESkill::SKILL_BASH] = "SKILL_BASH";
+	ESkill_name_by_value[ESkill::SKILL_HIDE] = "SKILL_HIDE";
+	ESkill_name_by_value[ESkill::SKILL_KICK] = "SKILL_KICK";
+	ESkill_name_by_value[ESkill::SKILL_PICK_LOCK] = "SKILL_PICK_LOCK";
+	ESkill_name_by_value[ESkill::SKILL_PUNCH] = "SKILL_PUNCH";
+	ESkill_name_by_value[ESkill::SKILL_RESCUE] = "SKILL_RESCUE";
+	ESkill_name_by_value[ESkill::SKILL_SNEAK] = "SKILL_SNEAK";
+	ESkill_name_by_value[ESkill::SKILL_STEAL] = "SKILL_STEAL";
+	ESkill_name_by_value[ESkill::SKILL_TRACK] = "SKILL_TRACK";
+	ESkill_name_by_value[ESkill::SKILL_CLUBS] = "SKILL_CLUBS";
+	ESkill_name_by_value[ESkill::SKILL_AXES] = "SKILL_AXES";
+	ESkill_name_by_value[ESkill::SKILL_LONGS] = "SKILL_LONGS";
+	ESkill_name_by_value[ESkill::SKILL_SHORTS] = "SKILL_SHORTS";
+	ESkill_name_by_value[ESkill::SKILL_NONSTANDART] = "SKILL_NONSTANDART";
+	ESkill_name_by_value[ESkill::SKILL_BOTHHANDS] = "SKILL_BOTHHANDS";
+	ESkill_name_by_value[ESkill::SKILL_PICK] = "SKILL_PICK";
+	ESkill_name_by_value[ESkill::SKILL_SPADES] = "SKILL_SPADES";
+	ESkill_name_by_value[ESkill::SKILL_SATTACK] = "SKILL_SATTACK";
+	ESkill_name_by_value[ESkill::SKILL_DISARM] = "SKILL_DISARM";
+	ESkill_name_by_value[ESkill::SKILL_PARRY] = "SKILL_PARRY";
+	ESkill_name_by_value[ESkill::SKILL_HEAL] = "SKILL_HEAL";
+	ESkill_name_by_value[ESkill::SKILL_MORPH] = "SKILL_MORPH";
+	ESkill_name_by_value[ESkill::SKILL_BOWS] = "SKILL_BOWS";
+	ESkill_name_by_value[ESkill::SKILL_ADDSHOT] = "SKILL_ADDSHOT";
+	ESkill_name_by_value[ESkill::SKILL_CAMOUFLAGE] = "SKILL_CAMOUFLAGE";
+	ESkill_name_by_value[ESkill::SKILL_DEVIATE] = "SKILL_DEVIATE";
+	ESkill_name_by_value[ESkill::SKILL_BLOCK] = "SKILL_BLOCK";
+	ESkill_name_by_value[ESkill::SKILL_LOOKING] = "SKILL_LOOKING";
+	ESkill_name_by_value[ESkill::SKILL_CHOPOFF] = "SKILL_CHOPOFF";
+	ESkill_name_by_value[ESkill::SKILL_REPAIR] = "SKILL_REPAIR";
+	ESkill_name_by_value[ESkill::SKILL_UPGRADE] = "SKILL_UPGRADE";
+	ESkill_name_by_value[ESkill::SKILL_COURAGE] = "SKILL_COURAGE";
+	ESkill_name_by_value[ESkill::SKILL_MANADRAIN] = "SKILL_MANADRAIN";
+	ESkill_name_by_value[ESkill::SKILL_NOPARRYHIT] = "SKILL_NOPARRYHIT";
+	ESkill_name_by_value[ESkill::SKILL_TOWNPORTAL] = "SKILL_TOWNPORTAL";
+	ESkill_name_by_value[ESkill::SKILL_MAKE_STAFF] = "SKILL_MAKE_STAFF";
+	ESkill_name_by_value[ESkill::SKILL_MAKE_BOW] = "SKILL_MAKE_BOW";
+	ESkill_name_by_value[ESkill::SKILL_MAKE_WEAPON] = "SKILL_MAKE_WEAPON";
+	ESkill_name_by_value[ESkill::SKILL_MAKE_ARMOR] = "SKILL_MAKE_ARMOR";
+	ESkill_name_by_value[ESkill::SKILL_MAKE_JEWEL] = "SKILL_MAKE_JEWEL";
+	ESkill_name_by_value[ESkill::SKILL_MAKE_WEAR] = "SKILL_MAKE_WEAR";
+	ESkill_name_by_value[ESkill::SKILL_MAKE_POTION] = "SKILL_MAKE_POTION";
+	ESkill_name_by_value[ESkill::SKILL_DIG] = "SKILL_DIG";
+	ESkill_name_by_value[ESkill::SKILL_INSERTGEM] = "SKILL_INSERTGEM";
+	ESkill_name_by_value[ESkill::SKILL_WARCRY] = "SKILL_WARCRY";
+	ESkill_name_by_value[ESkill::SKILL_TURN_UNDEAD] = "SKILL_TURN_UNDEAD";
+	ESkill_name_by_value[ESkill::SKILL_IRON_WIND] = "SKILL_IRON_WIND";
+	ESkill_name_by_value[ESkill::SKILL_STRANGLE] = "SKILL_STRANGLE";
+	ESkill_name_by_value[ESkill::SKILL_AIR_MAGIC] = "SKILL_AIR_MAGIC";
+	ESkill_name_by_value[ESkill::SKILL_FIRE_MAGIC] = "SKILL_FIRE_MAGIC";
+	ESkill_name_by_value[ESkill::SKILL_WATER_MAGIC] = "SKILL_WATER_MAGIC";
+	ESkill_name_by_value[ESkill::SKILL_EARTH_MAGIC] = "SKILL_EARTH_MAGIC";
+	ESkill_name_by_value[ESkill::SKILL_LIGHT_MAGIC] = "SKILL_LIGHT_MAGIC";
+	ESkill_name_by_value[ESkill::SKILL_DARK_MAGIC] = "SKILL_DARK_MAGIC";
+	ESkill_name_by_value[ESkill::SKILL_MIND_MAGIC] = "SKILL_MIND_MAGIC";
+	ESkill_name_by_value[ESkill::SKILL_LIFE_MAGIC] = "SKILL_LIFE_MAGIC";
+
+	for (const auto& i : ESkill_name_by_value)
+	{
+		ESkill_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+ESkill ITEM_BY_NAME(const std::string& name)
+{
+	if (ESkill_name_by_value.empty())
+	{
+		init_ESkill_ITEM_NAMES();
+	}
+	return ESkill_value_by_name.at(name);
+}
+
+template <>
+const std::string& NAME_BY_ITEM<ESkill>(const ESkill item)
+{
+	if (ESkill_name_by_value.empty())
+	{
+		init_ESkill_ITEM_NAMES();
+	}
+	return ESkill_name_by_value.at(item);
+}
+
 ///
 /// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)
 ///

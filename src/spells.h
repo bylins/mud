@@ -119,7 +119,7 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define   SPELL_RUNES  (1 << 6)
 
 /// Flags for ingredient items (ITEM_INGREDIENT)
-enum EIngredientItem
+enum EIngredientFlag
 {
 	ITEM_RUNES = 1 << 0,
 	ITEM_CHECK_USES = 1 << 1,
@@ -127,6 +127,9 @@ enum EIngredientItem
 	ITEM_CHECK_LEVEL = 1 << 3,
 	ITEM_DECAY_EMPTY = 1 << 4
 };
+
+template <> EIngredientFlag ITEM_BY_NAME<EIngredientFlag>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item);
 
 #define   MI_LAG1s       (1 << 0)
 #define   MI_LAG2s       (1 << 1)

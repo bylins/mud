@@ -15,6 +15,7 @@
 #ifndef _SKILLS_H_
 #define _SKILLS_H_
 
+#include "structs.h"
 #include "pugixml.hpp"
 
 #include <boost/shared_ptr.hpp>
@@ -116,6 +117,9 @@ enum ESkill
 
 // не забываем указывать максимальный номер скилла
 #define MAX_SKILL_NUM               189
+
+template <> ESkill ITEM_BY_NAME<ESkill>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM<ESkill>(const ESkill item);
 
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add = "");
 

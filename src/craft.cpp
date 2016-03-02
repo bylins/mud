@@ -6,6 +6,7 @@
 
 #include "craft.hpp"
 
+#include "skills.h"
 #include "comm.h"
 #include "db.h"
 #include "pugixml.hpp"
@@ -307,8 +308,65 @@ namespace craft
 			}
 		}
 
+		const auto item_parameters = node->child("item_parameters");
+		if (item_parameters)
+		{
+			const bool load_result = load_item_parameters(&item_parameters);
+			if (!load_result)
+			{
+				return false;
+			}
+		}
+
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
+
+		return true;
+	}
+
+	bool CPrototype::load_item_parameters(const pugi::xml_node* node)
+	{
+		switch (get_type())
+		{
+		case obj_flag_data::ITEM_INGREDIENT:
+			for (const auto flags : node->children("parameter"))
+			{
+				const char* flag = flags.child_value();
+				try
+				{
+					const auto value = ITEM_BY_NAME<EIngredientFlag>(flag);
+					m_item_params |= to_underlying(value);
+					log("Setting ingredient flag '%s' for prototype with VNUM %d.\n",
+						NAME_BY_ITEM(value).c_str(), m_vnum);
+				}
+				catch (const std::out_of_range&)
+				{
+					log("WARNING: Skipping ingredient flag '%s' of prototype with VNUM %d, because this value is not valid.\n",
+						flag, m_vnum);
+				}
+			}
+			break;
+
+		case obj_flag_data::ITEM_WEAPON:
+		{
+			const char* skill_value = node->child_value("parameter");
+			try
+			{
+				m_item_params = to_underlying(ITEM_BY_NAME<ESkill>(skill_value));
+			}
+			catch (const std::out_of_range&)
+			{
+				log("WARNING: Failed to set skill value '%s' for prototype with VNUM %d. Prototype will be skipped.\n",
+					skill_value, m_vnum);
+				return false;
+			}
+			break;
+		}
+
+		default:
+			// For other item types "skills" tag should be ignored.
+			break;
+		}
 
 		return true;
 	}

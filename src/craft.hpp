@@ -117,6 +117,8 @@ namespace craft
 	{
 	public:
 		void set_type(const obj_flag_data::EObjectType _) { m_type = _; }
+		obj_flag_data::EObjectType get_type() const { return m_type; }
+
 		void set_weight(const int _) { m_weight = _; }
 		void set_timer(const int _) { m_timer = _; }
 
@@ -147,13 +149,16 @@ namespace craft
 			m_maximum_durability(obj_flag_data::DEFAULT_MAXIMUM_DURABILITY),
 			m_current_durability(obj_flag_data::DEFAULT_CURRENT_DURABILITY),
 			m_sex(DEFAULT_SEX),
-			m_level(obj_flag_data::DEFAULT_LEVEL)
+			m_level(obj_flag_data::DEFAULT_LEVEL),
+			m_item_params(0)
 		{
 		}
 
 		bool load(const pugi::xml_node* node);
 
 	private:
+		bool load_item_parameters(const pugi::xml_node* node);
+
 		vnum_t m_vnum;
 
 		std::string m_short_desc;
@@ -175,6 +180,8 @@ namespace craft
 		ESex m_sex;
 
 		int m_level;
+
+		uint32_t m_item_params;
 
 		friend class CCraftModel;
 	};

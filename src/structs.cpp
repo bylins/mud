@@ -238,10 +238,10 @@ void init_ESex_ITEM_NAMES()
 	ESex_name_by_value.clear();
 	ESex_value_by_name.clear();
 
-	ESex_name_by_value[ESex::SEX_NEUTRAL] = "SEX_NEUTRAL";
-	ESex_name_by_value[ESex::SEX_MALE] = "SEX_MALE";
-	ESex_name_by_value[ESex::SEX_FEMALE] = "SEX_FEMALE";
-	ESex_name_by_value[ESex::SEX_POLY] = "SEX_POLY";
+	ESex_name_by_value[ESex::SEX_NEUTRAL] = "NEUTRAL";
+	ESex_name_by_value[ESex::SEX_MALE] = "MALE";
+	ESex_name_by_value[ESex::SEX_FEMALE] = "FEMALE";
+	ESex_name_by_value[ESex::SEX_POLY] = "POLY";
 
 	for (const auto& i : ESex_name_by_value)
 	{

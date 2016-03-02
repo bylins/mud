@@ -129,6 +129,48 @@ bool can_get_spell(CHAR_DATA *ch, int spellnum)
 	return TRUE;
 };
 
+typedef std::map<EIngredientFlag, std::string> EIngredientFlag_name_by_value_t;
+typedef std::map<const std::string, EIngredientFlag> EIngredientFlag_value_by_name_t;
+EIngredientFlag_name_by_value_t EIngredientFlag_name_by_value;
+EIngredientFlag_value_by_name_t EIngredientFlag_value_by_name;
+
+void init_EIngredientFlag_ITEM_NAMES()
+{
+	EIngredientFlag_name_by_value.clear();
+	EIngredientFlag_value_by_name.clear();
+
+	EIngredientFlag_name_by_value[EIngredientFlag::ITEM_RUNES] = "ITEM_RUNES";
+	EIngredientFlag_name_by_value[EIngredientFlag::ITEM_CHECK_USES] = "ITEM_CHECK_USES";
+	EIngredientFlag_name_by_value[EIngredientFlag::ITEM_CHECK_LAG] = "ITEM_CHECK_LAG";
+	EIngredientFlag_name_by_value[EIngredientFlag::ITEM_CHECK_LEVEL] = "ITEM_CHECK_LEVEL";
+	EIngredientFlag_name_by_value[EIngredientFlag::ITEM_DECAY_EMPTY] = "ITEM_DECAY_EMPTY";
+
+	for (const auto& i : EIngredientFlag_name_by_value)
+	{
+		EIngredientFlag_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+EIngredientFlag ITEM_BY_NAME(const std::string& name)
+{
+	if (EIngredientFlag_name_by_value.empty())
+	{
+		init_EIngredientFlag_ITEM_NAMES();
+	}
+	return EIngredientFlag_value_by_name.at(name);
+}
+
+template <>
+const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item)
+{
+	if (EIngredientFlag_name_by_value.empty())
+	{
+		init_EIngredientFlag_ITEM_NAMES();
+	}
+	return EIngredientFlag_name_by_value.at(item);
+}
+
 ASPELL(spell_create_water)
 {
 	int water;
