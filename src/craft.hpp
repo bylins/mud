@@ -125,7 +125,8 @@ namespace craft
 	protected:
 		CPrototypeBase():
 			m_weight(obj_flag_data::DEFAULT_WEIGHT),
-			m_timer(OBJ_DATA::DEFAULT_TIMER)
+			m_timer(OBJ_DATA::DEFAULT_TIMER),
+			m_type(obj_flag_data::DEFAULT_TYPE)
 		{
 		}
 
@@ -150,7 +151,8 @@ namespace craft
 			m_current_durability(obj_flag_data::DEFAULT_CURRENT_DURABILITY),
 			m_sex(DEFAULT_SEX),
 			m_level(obj_flag_data::DEFAULT_LEVEL),
-			m_item_params(0)
+			m_item_params(0),
+			m_material(obj_flag_data::DEFAULT_MATERIAL)
 		{
 		}
 
@@ -182,6 +184,8 @@ namespace craft
 		int m_level;
 
 		uint32_t m_item_params;
+
+		obj_flag_data::EObjectMaterial m_material;
 
 		friend class CCraftModel;
 	};

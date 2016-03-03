@@ -1117,4 +1117,59 @@ obj_flag_data::EObjectType ITEM_BY_NAME(const std::string& name)
 	return EObjectType_value_by_name.at(name);
 }
 
+typedef std::map<obj_flag_data::EObjectMaterial, std::string> EObjectMaterial_name_by_value_t;
+typedef std::map<const std::string, obj_flag_data::EObjectMaterial> EObjectMaterial_value_by_name_t;
+EObjectMaterial_name_by_value_t EObjectMaterial_name_by_value;
+EObjectMaterial_value_by_name_t EObjectMaterial_value_by_name;
+void init_EObjectMaterial_ITEM_NAMES()
+{
+	EObjectMaterial_value_by_name.clear();
+	EObjectMaterial_name_by_value.clear();
+
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_NONE] = "MAT_NONE";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_BULAT] = "MAT_BULAT";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_BRONZE] = "MAT_BRONZE";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_IRON] = "MAT_IRON";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_STEEL] = "MAT_STEEL";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_SWORDSSTEEL] = "MAT_SWORDSSTEEL";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_COLOR] = "MAT_COLOR";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_CRYSTALL] = "MAT_CRYSTALL";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_WOOD] = "MAT_WOOD";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_SUPERWOOD] = "MAT_SUPERWOOD";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_FARFOR] = "MAT_FARFOR";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_GLASS] = "MAT_GLASS";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_ROCK] = "MAT_ROCK";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_BONE] = "MAT_BONE";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_MATERIA] = "MAT_MATERIA";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_SKIN] = "MAT_SKIN";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_ORGANIC] = "MAT_ORGANIC";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_PAPER] = "MAT_PAPER";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_DIAMOND] = "MAT_DIAMOND";
+
+	for (const auto& i : EObjectMaterial_name_by_value)
+	{
+		EObjectMaterial_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+const std::string& NAME_BY_ITEM<obj_flag_data::EObjectMaterial>(const obj_flag_data::EObjectMaterial item)
+{
+	if (EObjectMaterial_name_by_value.empty())
+	{
+		init_EObjectMaterial_ITEM_NAMES();
+	}
+	return EObjectMaterial_name_by_value.at(item);
+}
+
+template <>
+obj_flag_data::EObjectMaterial ITEM_BY_NAME(const std::string& name)
+{
+	if (EObjectMaterial_name_by_value.empty())
+	{
+		init_EObjectMaterial_ITEM_NAMES();
+	}
+	return EObjectMaterial_value_by_name.at(name);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

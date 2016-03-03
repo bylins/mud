@@ -30,11 +30,6 @@ struct obj_flag_data
 public:
 	typedef boost::array<int, NUM_OBJ_VAL_POSITIONS> value_t;
 
-	const static int DEFAULT_MAXIMUM_DURABILITY = 100;
-	const static int DEFAULT_CURRENT_DURABILITY = DEFAULT_MAXIMUM_DURABILITY;
-	const static int DEFAULT_LEVEL = 0;
-	const static int DEFAULT_WEIGHT = INT_MAX;
-
 	enum EObjectType
 	{
 		ITEM_LIGHT = 1,			// Item is a light source  //
@@ -94,6 +89,13 @@ public:
 		MAT_DIAMOND = 18
 	};
 
+	const static int DEFAULT_MAXIMUM_DURABILITY = 100;
+	const static int DEFAULT_CURRENT_DURABILITY = DEFAULT_MAXIMUM_DURABILITY;
+	const static int DEFAULT_LEVEL = 0;
+	const static int DEFAULT_WEIGHT = INT_MAX;
+	const static EObjectType DEFAULT_TYPE = ITEM_OTHER;
+	const static EObjectMaterial DEFAULT_MATERIAL = MAT_NONE;
+
 	value_t value;
 	EObjectType type_flag;		///< Type of item               //
 	uint32_t wear_flags;		// Where you can wear it     //
@@ -121,8 +123,10 @@ public:
 };
 
 template <> const std::string& NAME_BY_ITEM<obj_flag_data::EObjectType>(const obj_flag_data::EObjectType item);
-
 template <> obj_flag_data::EObjectType ITEM_BY_NAME<obj_flag_data::EObjectType>(const std::string& name);
+
+template <> const std::string& NAME_BY_ITEM<obj_flag_data::EObjectMaterial>(const obj_flag_data::EObjectMaterial item);
+template <> obj_flag_data::EObjectMaterial ITEM_BY_NAME<obj_flag_data::EObjectMaterial>(const std::string& name);
 
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);

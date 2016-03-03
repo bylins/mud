@@ -249,6 +249,11 @@ namespace craft
 				return false;
 			}
 		}
+		else
+		{
+			log("WARNING: \"type\" tag not found for prototype with VNUM %d not found. Setting to default value: %s.\n",
+				m_vnum, NAME_BY_ITEM(get_type()));
+		}
 
 		const auto durability = node->child("durability");
 		if (durability)
@@ -280,6 +285,11 @@ namespace craft
 					sex_value, m_vnum);
 				return false;
 			}
+		}
+		else
+		{
+			log("WARNING: \"sex\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n",
+				m_vnum, NAME_BY_ITEM(m_sex));
 		}
 
 		const auto level = node->child("level");
@@ -316,6 +326,27 @@ namespace craft
 			{
 				return false;
 			}
+		}
+
+		const auto material = node->child("material");
+		if (material)
+		{
+			const char* material_value = material.child_value();
+			try
+			{
+				m_material = ITEM_BY_NAME<decltype(m_material)>(material_value);
+			}
+			catch (const std::out_of_range&)
+			{
+				log("WARNING: Failed to set material '%s' for prototype with VNUM %d. Prototype will be skipped.\n",
+					material_value, m_vnum);
+				return false;
+			}
+		}
+		else
+		{
+			log("WARNING: \"material\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n",
+				m_vnum, NAME_BY_ITEM(m_material));
 		}
 
 		prefix.change_prefix(END_PREFIX);
