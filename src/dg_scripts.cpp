@@ -2412,18 +2412,18 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				{
 					gain_exp(c, -MAX(1, atoi(subfield + 1)));
 					sprintf(buf, "SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d", GET_NAME(c), MAX(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig));
-					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 0);
+					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
 				}
 				else if (*subfield == '+')
 				{
 					gain_exp(c, + MAX(1, atoi(subfield + 1)));
 					sprintf(buf, "SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d", GET_NAME(c), MAX(1, atoi(subfield + 1)),  GET_TRIG_VNUM(trig));
-					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 0);
+					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
 				}
 				else 
 				{
 					sprintf(buf, "SCRIPT_LOG (exp) ОШИБКА! у %s напрямую указан опыт %d в триггере %d", GET_NAME(c), atoi(subfield + 1), GET_TRIG_VNUM(trig));
-					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 0);
+					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
 				}
 			}
 			else
