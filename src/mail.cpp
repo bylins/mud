@@ -615,7 +615,7 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 		GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_NOTE;
 		GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE | ITEM_WEAR_HOLD;
 		GET_OBJ_WEIGHT(obj) = 1;
-		GET_OBJ_MATER(obj) = MAT_PAPER;
+		GET_OBJ_MATER(obj) = obj_flag_data::MAT_PAPER;
 		obj->set_cost(0);
 		obj->set_rent(10);
 		obj->set_rent_eq(10);

@@ -1049,27 +1049,6 @@ template <> EExtraFlag ITEM_BY_NAME<EExtraFlag>(const std::string& name);
 #define APPLY_ROOM_FLAME       2 	// Изменяет в комнате уровень огня (для потомков) //
 #define NUM_ROOM_APPLIES       3
 
-#define MAT_NONE               0
-#define MAT_BULAT              1
-#define MAT_BRONZE             2
-#define MAT_IRON               3
-#define MAT_STEEL              4
-#define MAT_SWORDSSTEEL        5
-#define MAT_COLOR              6
-#define MAT_CRYSTALL           7
-#define MAT_WOOD               8
-#define MAT_SUPERWOOD          9
-#define MAT_FARFOR             10
-#define MAT_GLASS              11
-#define MAT_ROCK               12
-#define MAT_BONE               13
-#define MAT_MATERIA            14
-#define MAT_SKIN               15
-#define MAT_ORGANIC            16
-#define MAT_PAPER              17
-#define MAT_DIAMOND            18
-
-
 #define TRACK_NPC              (1 << 0)
 #define TRACK_HIDE             (1 << 1)
 

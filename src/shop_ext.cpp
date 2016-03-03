@@ -1484,27 +1484,30 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 		switch (obj->obj_flags.Obj_mater)
 		{
-		case MAT_BULAT:
-		case MAT_CRYSTALL:
-		case MAT_DIAMOND:
-		case MAT_SWORDSSTEEL:
+		case obj_flag_data::MAT_BULAT:
+		case obj_flag_data::MAT_CRYSTALL:
+		case obj_flag_data::MAT_DIAMOND:
+		case obj_flag_data::MAT_SWORDSSTEEL:
 			repair_price *= 2;
 			break;
-		case MAT_SUPERWOOD:
-		case MAT_COLOR:
-		case MAT_GLASS:
-		case MAT_BRONZE:
-		case MAT_FARFOR:
-		case MAT_BONE:
-		case MAT_ORGANIC:
+
+		case obj_flag_data::MAT_SUPERWOOD:
+		case obj_flag_data::MAT_COLOR:
+		case obj_flag_data::MAT_GLASS:
+		case obj_flag_data::MAT_BRONZE:
+		case obj_flag_data::MAT_FARFOR:
+		case obj_flag_data::MAT_BONE:
+		case obj_flag_data::MAT_ORGANIC:
 			repair_price += MAX(1, repair_price / 2);
 			break;
-		case MAT_IRON:
-		case MAT_STEEL:
-		case MAT_SKIN:
-		case MAT_MATERIA:
+
+		case obj_flag_data::MAT_IRON:
+		case obj_flag_data::MAT_STEEL:
+		case obj_flag_data::MAT_SKIN:
+		case obj_flag_data::MAT_MATERIA:
 			//repair_price = repair_price;
 			break;
+
 		default:
 			//repair_price = repair_price;
             break;

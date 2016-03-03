@@ -281,7 +281,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Mter"))
 			{
 				*error = 18;
-				GET_OBJ_MATER(object) = atoi(buffer);
+				GET_OBJ_MATER(object) = static_cast<obj_flag_data::EObjectMaterial>(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Sexx"))
 			{
@@ -740,7 +740,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	asciiflag_conv(f0, &GET_OBJ_SKILL(object));
 	GET_OBJ_MAX(object) = t[1];
 	GET_OBJ_CUR(object) = t[2];
-	GET_OBJ_MATER(object) = t[3];
+	GET_OBJ_MATER(object) = static_cast<obj_flag_data::EObjectMaterial>(t[3]);
 
 	*error = 10;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %d %d %d", t, t + 1, t + 2, t + 3) != 4)

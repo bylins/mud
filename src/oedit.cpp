@@ -2068,7 +2068,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else if (number > 0)
-			GET_OBJ_MATER(OLC_OBJ(d)) = number - 1;
+		{
+			GET_OBJ_MATER(OLC_OBJ(d)) = static_cast<obj_flag_data::EObjectMaterial>(number - 1);
+		}
 		break;
 
 	case OEDIT_COSTPERDAYEQ:

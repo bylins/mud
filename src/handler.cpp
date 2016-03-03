@@ -4480,7 +4480,7 @@ int equip_in_metall(CHAR_DATA * ch)
 	{
 		if (GET_EQ(ch, i)
 			&& ObjSystem::is_armor_type(GET_EQ(ch, i))
-			&& GET_OBJ_MATER(GET_EQ(ch, i)) <= MAT_COLOR)
+			&& GET_OBJ_MATER(GET_EQ(ch, i)) <= obj_flag_data::MAT_COLOR)
 		{
 			wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
 		}

@@ -6718,41 +6718,77 @@ ACMD(do_print_armor)
 		case 'М':
 			argument = one_argument(++argument, tmpbuf);
 			if (is_abbrev(tmpbuf, "булат"))
-				filter.material = MAT_BULAT;
+			{
+				filter.material = obj_flag_data::MAT_BULAT;
+			}
 			else if (is_abbrev(tmpbuf, "бронза"))
-				filter.material = MAT_BRONZE;
+			{
+				filter.material = obj_flag_data::MAT_BRONZE;
+			}
 			else if (is_abbrev(tmpbuf, "железо"))
-				filter.material = MAT_IRON;
+			{
+				filter.material = obj_flag_data::MAT_IRON;
+			}
 			else if (is_abbrev(tmpbuf, "сталь"))
-				filter.material = MAT_STEEL;
+			{
+				filter.material = obj_flag_data::MAT_STEEL;
+			}
 			else if (is_abbrev(tmpbuf, "кованая.сталь"))
-				filter.material = MAT_SWORDSSTEEL;
+			{
+				filter.material = obj_flag_data::MAT_SWORDSSTEEL;
+			}
 			else if (is_abbrev(tmpbuf, "драг.металл"))
-				filter.material = MAT_COLOR;
+			{
+				filter.material = obj_flag_data::MAT_COLOR;
+			}
 			else if (is_abbrev(tmpbuf, "кристалл"))
-				filter.material = MAT_CRYSTALL;
+			{
+				filter.material = obj_flag_data::MAT_CRYSTALL;
+			}
 			else if (is_abbrev(tmpbuf, "дерево"))
-				filter.material = MAT_WOOD;
+			{
+				filter.material = obj_flag_data::MAT_WOOD;
+			}
 			else if (is_abbrev(tmpbuf, "прочное.дерево"))
-				filter.material = MAT_SUPERWOOD;
+			{
+				filter.material = obj_flag_data::MAT_SUPERWOOD;
+			}
 			else if (is_abbrev(tmpbuf, "керамика"))
-				filter.material = MAT_FARFOR;
+			{
+				filter.material = obj_flag_data::MAT_FARFOR;
+			}
 			else if (is_abbrev(tmpbuf, "стекло"))
-				filter.material = MAT_GLASS;
+			{
+				filter.material = obj_flag_data::MAT_GLASS;
+			}
 			else if (is_abbrev(tmpbuf, "камень"))
-				filter.material = MAT_ROCK;
+			{
+				filter.material = obj_flag_data::MAT_ROCK;
+			}
 			else if (is_abbrev(tmpbuf, "кость"))
-				filter.material = MAT_BONE;
+			{
+				filter.material = obj_flag_data::MAT_BONE;
+			}
 			else if (is_abbrev(tmpbuf, "ткань"))
-				filter.material = MAT_MATERIA;
+			{
+				filter.material = obj_flag_data::MAT_MATERIA;
+			}
 			else if (is_abbrev(tmpbuf, "кожа"))
-				filter.material = MAT_SKIN;
+			{
+				filter.material = obj_flag_data::MAT_SKIN;
+			}
 			else if (is_abbrev(tmpbuf, "органика"))
-				filter.material = MAT_ORGANIC;
+			{
+				filter.material = obj_flag_data::MAT_ORGANIC;
+			}
 			else if (is_abbrev(tmpbuf, "береста"))
-				filter.material = MAT_PAPER;
+			{
+				filter.material = obj_flag_data::MAT_PAPER;
+			}
 			else if (is_abbrev(tmpbuf, "драг.камень"))
-				filter.material = MAT_DIAMOND;
+			{
+				filter.material = obj_flag_data::MAT_DIAMOND;
+			}
 			else
 			{
 				send_to_char("Неверный материал предмета.\r\n", ch);
@@ -6949,25 +6985,25 @@ ACMD(do_print_armor)
 	}
 	if (!filter.affect.empty())
 	{
-		for (std::vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
+		for (const auto it : filter.affect)
 		{
-			buffer += weapon_affects[*it];
+			buffer += weapon_affects[it];
 			buffer += " ";
 		}
 	}
 	if (!filter.affect2.empty())
 	{
-		for (std::vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end(); ++it)
+		for (const auto it : filter.affect2)
 		{
-			buffer += apply_types[*it];
+			buffer += apply_types[it];
 			buffer += " ";
 		}
 	}
 	if (!filter.affect3.empty())
 	{
-		for (std::vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end(); ++it)
+		for (const auto it : filter.affect3)
 		{
-			buffer += extra_bits[*it];
+			buffer += extra_bits[it];
 			buffer += " ";
 		}
 	}

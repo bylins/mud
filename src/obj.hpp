@@ -71,6 +71,29 @@ public:
 		ITEM_ENCHANT = 32		// зачарование предмета
 	};
 
+	enum EObjectMaterial
+	{
+		MAT_NONE = 0,
+		MAT_BULAT = 1,
+		MAT_BRONZE = 2,
+		MAT_IRON = 3,
+		MAT_STEEL = 4,
+		MAT_SWORDSSTEEL = 5,
+		MAT_COLOR = 6,
+		MAT_CRYSTALL = 7,
+		MAT_WOOD = 8,
+		MAT_SUPERWOOD = 9,
+		MAT_FARFOR = 10,
+		MAT_GLASS = 11,
+		MAT_ROCK = 12,
+		MAT_BONE = 13,
+		MAT_MATERIA = 14,
+		MAT_SKIN = 15,
+		MAT_ORGANIC = 16,
+		MAT_PAPER = 17,
+		MAT_DIAMOND = 18
+	};
+
 	value_t value;
 	EObjectType type_flag;		///< Type of item               //
 	uint32_t wear_flags;		// Where you can wear it     //
@@ -87,7 +110,7 @@ public:
 	int Obj_skill;
 	int Obj_max;
 	int Obj_cur;
-	int Obj_mater;
+	EObjectMaterial Obj_mater;
 	int Obj_owner;
 	int Obj_destroyer;
 	int Obj_zone;

@@ -4251,7 +4251,7 @@ char *parse_object(FILE * obj_f, int nr)
 	asciiflag_conv(f0, &tobj->obj_flags.Obj_skill);
 	tobj->obj_flags.Obj_max = t[1];
 	tobj->obj_flags.Obj_cur = MIN(t[1], t[2]);
-	tobj->obj_flags.Obj_mater = t[3];
+	tobj->obj_flags.Obj_mater = static_cast<obj_flag_data::EObjectMaterial>(t[3]);
 	
 	if ( tobj->obj_flags.Obj_cur > tobj->obj_flags.Obj_max)
 		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", nr);

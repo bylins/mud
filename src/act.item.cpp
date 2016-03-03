@@ -2420,28 +2420,31 @@ ACMD(do_upgrade)
 
 	switch (obj->obj_flags.Obj_mater)
 	{
-	case MAT_BRONZE:
-	case MAT_BULAT:
-	case MAT_IRON:
-	case MAT_STEEL:
-	case MAT_SWORDSSTEEL:
-	case MAT_COLOR:
-	case MAT_BONE:
+	case obj_flag_data::MAT_BRONZE:
+	case obj_flag_data::MAT_BULAT:
+	case obj_flag_data::MAT_IRON:
+	case obj_flag_data::MAT_STEEL:
+	case obj_flag_data::MAT_SWORDSSTEEL:
+	case obj_flag_data::MAT_COLOR:
+	case obj_flag_data::MAT_BONE:
 		act("Вы взялись точить $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n взял$u точить $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		weight = -1;
 		break;
-	case MAT_WOOD:
-	case MAT_SUPERWOOD:
+
+	case obj_flag_data::MAT_WOOD:
+	case obj_flag_data::MAT_SUPERWOOD:
 		act("Вы взялись стругать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n взял$u стругать $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		weight = -1;
 		break;
-	case MAT_SKIN:
+
+	case obj_flag_data::MAT_SKIN:
 		act("Вы взялись проклепывать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n взял$u проклепывать $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		weight = + 1;
 		break;
+
 	default:
 		sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, 0));
 		send_to_char(buf, ch);
@@ -2576,20 +2579,23 @@ ACMD(do_armored)
 
 	switch (obj->obj_flags.Obj_mater)
 	{
-	case MAT_IRON:
-	case MAT_STEEL:
+	case obj_flag_data::MAT_IRON:
+	case obj_flag_data::MAT_STEEL:
 		act("Вы принялись закалять $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n принял$u закалять $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
-	case MAT_WOOD:
-	case MAT_SUPERWOOD:
+
+	case obj_flag_data::MAT_WOOD:
+	case obj_flag_data::MAT_SUPERWOOD:
 		act("Вы принялись обшивать $o3 железом.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n принял$u обшивать $o3 железом.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
-	case MAT_SKIN:
+
+	case obj_flag_data::MAT_SKIN:
 		act("Вы принялись проклепывать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n принял$u проклепывать $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
+
 	default:
 		sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, 0));
 		send_to_char(buf, ch);
@@ -2603,7 +2609,8 @@ ACMD(do_armored)
 	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GET_LEVEL(ch) + 4) / 5);
 	add_armor = IS_IMMORTAL(ch) ? 5 : number(1, (GET_LEVEL(ch) + 4) / 5);
 
-	if (percent > prob || GET_GOD_FLAG(ch, GF_GODSCURSE))
+	if (percent > prob
+		|| GET_GOD_FLAG(ch, GF_GODSCURSE))
 	{
 		act("Но только испортили $S.", FALSE, ch, obj, 0, TO_CHAR);
 		add_ac = -add_ac;
@@ -2620,8 +2627,6 @@ ACMD(do_armored)
 
 	obj->affected[1].location = APPLY_ARMOUR;
 	obj->affected[1].modifier = add_armor;
-
-//obj->obj_flags.Obj_owner = GET_UNIQUE(ch);
 }
 
 ACMD(do_fire)

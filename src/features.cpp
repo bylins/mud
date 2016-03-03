@@ -1058,16 +1058,16 @@ ACMD(do_fit)
 	switch (subcmd)
 	{
 	case SCMD_DO_ADAPT:
-		if ((GET_OBJ_MATER(obj) != MAT_NONE) &&
-				(GET_OBJ_MATER(obj) != MAT_BULAT) &&
-				(GET_OBJ_MATER(obj) != MAT_BRONZE) &&
-				(GET_OBJ_MATER(obj) != MAT_IRON) &&
-				(GET_OBJ_MATER(obj) != MAT_STEEL) &&
-				(GET_OBJ_MATER(obj) != MAT_SWORDSSTEEL) &&
-				(GET_OBJ_MATER(obj) != MAT_COLOR) &&
-				(GET_OBJ_MATER(obj) != MAT_WOOD) &&
-				(GET_OBJ_MATER(obj) != MAT_SUPERWOOD) &&
-				(GET_OBJ_MATER(obj) != MAT_GLASS))
+		if (GET_OBJ_MATER(obj) != obj_flag_data::MAT_NONE
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_BULAT
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_BRONZE
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_IRON
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_STEEL
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_SWORDSSTEEL
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_COLOR
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_WOOD
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_SUPERWOOD
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_GLASS)
 		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));
@@ -1076,10 +1076,10 @@ ACMD(do_fit)
 		}
 		break;
 	case SCMD_MAKE_OVER:
-		if ((GET_OBJ_MATER(obj) != MAT_BONE) &&
-				(GET_OBJ_MATER(obj) != MAT_MATERIA) &&
-				(GET_OBJ_MATER(obj) != MAT_SKIN) &&
-				(GET_OBJ_MATER(obj) != MAT_ORGANIC))
+		if (GET_OBJ_MATER(obj) != obj_flag_data::MAT_BONE
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_MATERIA
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_SKIN
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_ORGANIC)
 		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));

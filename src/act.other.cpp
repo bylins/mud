@@ -290,8 +290,11 @@ int check_awake(CHAR_DATA * ch, int what)
 				SET_BIT(retval, ACHECK_LIGHT);
 			}
 
-			if (ObjSystem::is_armor_type(GET_EQ(ch, i)) && GET_OBJ_MATER(GET_EQ(ch, i)) <= MAT_COLOR)
+			if (ObjSystem::is_armor_type(GET_EQ(ch, i))
+				&& GET_OBJ_MATER(GET_EQ(ch, i)) <= obj_flag_data::MAT_COLOR)
+			{
 				wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
+			}
 		}
 
 		if (IS_SET(what, ACHECK_WEIGHT) && wgt > GET_REAL_STR(ch) * 2)
@@ -3321,14 +3324,20 @@ ACMD(do_dig)
 	if (obj)
 	{
 		if (number(1, dig_vars.glass_chance) != 1)
-			GET_OBJ_MATER(obj) = 11;
+		{
+			GET_OBJ_MATER(obj) = obj_flag_data::MAT_GLASS;
+		}
 		else
-			GET_OBJ_MATER(obj) = 18;
+		{
+			GET_OBJ_MATER(obj) = obj_flag_data::MAT_DIAMOND;
+		}
 
 		dig_obj(ch, obj);
 	}
 	else
+	{
 		send_to_char("Не найден прототип обжекта!", ch);
+	}
 }
 
 void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv)
