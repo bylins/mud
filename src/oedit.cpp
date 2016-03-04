@@ -1534,7 +1534,8 @@ void check_potion_proto(OBJ_DATA *obj)
 
 bool parse_val_spell_num(DESCRIPTOR_DATA *d, int key, int val)
 {
-	if (val <= 0 || val >= SPELLS_COUNT)
+	if (val < 1
+		|| val > SPELLS_COUNT)
 	{
 		if (val != 0)
 		{
@@ -1548,7 +1549,8 @@ bool parse_val_spell_num(DESCRIPTOR_DATA *d, int key, int val)
 	}
 	OLC_OBJ(d)->values.set(key, val);
 	send_to_char(d->character, "Выбранное заклинание: %s\r\n"
-		"Ведите уровень заклинания от 1 до 50 (0 - выход) :", spell_name(val));
+		"Ведите уровень заклинания от 1 до 50 (0 - выход) :",
+		spell_name(val));
 	return true;
 }
 
@@ -2106,19 +2108,26 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case ITEM_SCROLL:
 		case ITEM_POTION:
-			if (number < 0 || number >= SPELLS_COUNT)
+			if (number < 1
+				|| number > SPELLS_COUNT)
+			{
 				oedit_disp_val2_menu(d);
+			}
 			else
 			{
 				GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
 				oedit_disp_val3_menu(d);
 			}
 			return;
+
 		case ITEM_CONTAINER:
 			// Needs some special handling since we are dealing with flag values
 			// here.
-			if (number < 0 || number > 4)
+			if (number < 0
+				|| number > 4)
+			{
 				oedit_disp_container_flags_menu(d);
+			}
 			else if (number != 0)
 			{
 				TOGGLE_BIT(GET_OBJ_VAL(OLC_OBJ(d), 1), 1 << (number - 1));
@@ -2126,8 +2135,11 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				oedit_disp_val2_menu(d);
 			}
 			else
+			{
 				oedit_disp_val3_menu(d);
+			}
 			return;
+
 		case ITEM_BOOK:
 			switch (GET_OBJ_VAL(OLC_OBJ(d), 0))
 			{
@@ -2196,27 +2208,32 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case ITEM_SCROLL:
 		case ITEM_POTION:
-			min_val = 0;
-			max_val = SPELLS_COUNT - 1;
+			min_val = 1;
+			max_val = SPELLS_COUNT;
 			break;
+
 		case ITEM_WEAPON:
 			min_val = 1;
 			max_val = 50;
 			break;
+
 		case ITEM_WAND:
 		case ITEM_STAFF:
 			min_val = 0;
 			max_val = 20;
 			break;
+
 		case ITEM_DRINKCON:
 		case ITEM_FOUNTAIN:
 			min_val = 0;
 			max_val = NUM_LIQ_TYPES - 1;
 			break;
+
 		case ITEM_MATERIAL:
 			min_val = 0;
 			max_val = 1000;
 			break;
+
 		default:
 			min_val = -999999;
 			max_val = 999999;
@@ -2232,18 +2249,21 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case ITEM_SCROLL:
 		case ITEM_POTION:
-			min_val = 0;
-			max_val = SPELLS_COUNT - 1;
+			min_val = 1;
+			max_val = SPELLS_COUNT;
 			break;
+
 		case ITEM_WAND:
 		case ITEM_STAFF:
 			min_val = 1;
-			max_val = SPELLS_COUNT - 1;
+			max_val = SPELLS_COUNT;
 			break;
+
 		case ITEM_WEAPON:
 			min_val = 0;
 			max_val = NUM_ATTACK_TYPES - 1;
 			break;
+
 		case ITEM_MING:
 			min_val = 0;
 			max_val = 2;

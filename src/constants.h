@@ -46,7 +46,7 @@ extern const char *no_bits[];
 extern const char *material_type[];
 extern const char *container_bits[];
 extern const char *fullness[];
-extern const char *spell_wear_off_msg[];
+
 extern const std::vector<const char*> npc_role_types;
 extern const char *npc_race_types[];
 extern const char *places_of_birth[];
