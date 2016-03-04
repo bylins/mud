@@ -42,7 +42,6 @@ struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
 struct skill_info_type skill_info[MAX_SKILL_NUM + 1];
 char cast_argument[MAX_STRING_LENGTH];
-extern const char *cast_phrase[SPELLS_COUNT + 1][2];
 
 #define SpINFO spell_info[spellnum]
 #define SkINFO skill_info[skillnum]
@@ -3038,14 +3037,16 @@ ACMD(do_cast)
 		{
 
 			for (i = 1; i <= MAX_SPELLS; i++)
+			{
 				if (GET_SPELL_MEM(ch, i) &&
-						spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ==
-						spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+					spell_info[i].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] ==
+					spell_info[spellnum].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)])
 				{
 					spell_subst = i;
 					break;
 				}
-			if (i >= SPELLS_COUNT)
+			}
+			if (i > SPELLS_COUNT)
 			{
 				send_to_char("У вас нет заученных заклинаний этого круга.\r\n", ch);
 				return;
@@ -3149,14 +3150,18 @@ ACMD(do_warcry)
 	if (tok_iter == tok.end())
 	{
 		sprintf(buf, "Вам доступны :\r\n");
-		for (cnt = spellnum = 1; spellnum < SPELLS_COUNT; spellnum++)
+		for (cnt = spellnum = 1; spellnum <= SPELLS_COUNT; spellnum++)
 		{
 			const char *realname = SpINFO.name && *SpINFO.name ? SpINFO.name : SpINFO.syn && *SpINFO.syn ? SpINFO.syn : NULL;
 
-			if (realname && IS_SET(SpINFO.routines, MAG_WARCRY) && ch->get_skill(SKILL_WARCRY) >= SpINFO.mana_change)
+			if (realname
+				&& IS_SET(SpINFO.routines, MAG_WARCRY)
+				&& ch->get_skill(SKILL_WARCRY) >= SpINFO.mana_change)
+			{
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
-						CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
-						SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), realname, CCNRM(ch, C_NRM));
+					CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
+					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), realname, CCNRM(ch, C_NRM));
+			}
 		}
 		send_to_char(buf, ch);
 		return;
@@ -3583,15 +3588,18 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && slot_for_char(ch, 1) <= 0)
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
+		&& slot_for_char(ch, 1) <= 0)
 	{
 		send_to_char("Далась вам эта магия! Пошли-бы, водочки выпили...\r\n", ch);
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 2) < 1 && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD &&
-			GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT &&
-			GET_OBJ_VAL(obj, 0) != BOOK_RECPT)
+	if (GET_OBJ_VAL(obj, 2) < 1
+		&& GET_OBJ_VAL(obj, 0) != BOOK_UPGRD
+		&& GET_OBJ_VAL(obj, 0) != BOOK_SPELL
+		&& GET_OBJ_VAL(obj, 0) != BOOK_FEAT
+		&& GET_OBJ_VAL(obj, 0) != BOOK_RECPT)
 	{
 		send_to_char("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам!\r\n", ch);
 		return;
@@ -3602,23 +3610,30 @@ ACMD(do_learn)
 		rcpt = im_get_recipe(GET_OBJ_VAL(obj, 1));
 	}
 
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
-			&& GET_OBJ_VAL(obj, 1) < 1 && GET_OBJ_VAL(obj, 1) > MAX_SKILL_NUM)
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL
+			|| GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
+		&& GET_OBJ_VAL(obj, 1) < 1
+		&& GET_OBJ_VAL(obj, 1) > MAX_SKILL_NUM)
 	{
 		send_to_char("УМЕНИЕ НЕ ОПРЕДЕЛЕНО - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rcpt < 0)
+	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
+		&& rcpt < 0)
 	{
 		send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) >= SPELLS_COUNT))
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
+		&& (GET_OBJ_VAL(obj, 1) < 1
+			|| GET_OBJ_VAL(obj, 1) > SPELLS_COUNT))
 	{
 		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) >= MAX_FEATS))
+	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT
+		&& (GET_OBJ_VAL(obj, 1) < 1
+			|| GET_OBJ_VAL(obj, 1) >= MAX_FEATS))
 	{
 		send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;

@@ -44,9 +44,8 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
 extern struct spell_create_type spell_create[];
 extern int mini_mud;
-extern const char *spell_wear_off_msg[];
 extern bool check_unlimited_timer(OBJ_DATA *obj);
-extern const char *cast_phrase[SPELLS_COUNT + 1][2];
+
 extern int interpolate(int min_value, int pulse);
 
 byte saving_throws(int class_num, int type, int level);	// class.cpp
@@ -199,8 +198,12 @@ void find_and_remove_room_affect(long id, int spellnum)
         {
 			if ((af->type == spellnum) && (af->caster_id == id))
 			{
-                if (af->type > 0 && af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
-							show_room_spell_off(af->type, real_room((*it)->number));
+				if (af->type > 0
+					&& af->type <= SPELLS_COUNT
+					&& *spell_wear_off_msg[af->type])
+				{
+					show_room_spell_off(af->type, real_room((*it)->number));
+				}
                 affect_room_remove(*it, af);
                 return;
 			}
@@ -411,11 +414,13 @@ void room_affect_update(void)
 			{
 				if ((af->type > 0) && (af->type <= MAX_SPELLS))
 				{
-					if (!af->next || (af->next->type != af->type)
-							|| (af->next->duration > 0))
+					if (!af->next
+						|| af->next->type != af->type
+						|| af->next->duration > 0)
 					{
-						if (af->type > 0 &&
-								af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
+						if (af->type > 0
+							&& af->type <= SPELLS_COUNT
+							&& *spell_wear_off_msg[af->type])
 						{
 							show_room_spell_off(af->type, real_room((*it)->number));
 						}
@@ -844,11 +849,13 @@ void mobile_affect_update(void)
 			{
 				if ((af->type > 0) && (af->type <= MAX_SPELLS))
 				{
-					if (!af->next || (af->next->type != af->type)
-							|| (af->next->duration > 0))
+					if (!af->next
+						|| af->next->type != af->type
+						|| af->next->duration > 0)
 					{
-						if (af->type > 0 &&
-								af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
+						if (af->type > 0
+							&& af->type <= SPELLS_COUNT
+							&& *spell_wear_off_msg[af->type])
 						{
 							show_spell_off(af->type, i);
 							if (af->type == SPELL_CHARM || af->bitvector == AFF_CHARM)
@@ -936,11 +943,13 @@ void player_affect_update(void)
 			{
 				if ((af->type > 0) && (af->type <= MAX_SPELLS))
 				{
-					if (!af->next || (af->next->type != af->type)
-							|| (af->next->duration > 0))
+					if (!af->next
+						|| af->next->type != af->type
+						|| af->next->duration > 0)
 					{
-						if (af->type > 0 &&
-								af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
+						if (af->type > 0
+							&& af->type <= SPELLS_COUNT
+							&& *spell_wear_off_msg[af->type])
 						{
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
@@ -1003,11 +1012,13 @@ void battle_affect_update(CHAR_DATA * ch)
 		{
 			if ((af->type > 0) && (af->type <= MAX_SPELLS))
 			{
-				if (!af->next || (af->next->type != af->type)
-						|| (af->next->duration > 0))
+				if (!af->next
+					|| af->next->type != af->type
+					|| af->next->duration > 0)
 				{
-					if (af->type > 0 &&
-							af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
+					if (af->type > 0
+						&& af->type <= SPELLS_COUNT
+						&& *spell_wear_off_msg[af->type])
 					{
 						show_spell_off(af->type, ch);
 					}
@@ -1052,11 +1063,13 @@ void pulse_affect_update(CHAR_DATA * ch)
 		{
 			if ((af->type > 0) && (af->type <= MAX_SPELLS))
 			{
-				if (!af->next || (af->next->type != af->type)
-						|| (af->next->duration > 0))
+				if (!af->next
+					|| af->next->type != af->type
+					|| af->next->duration > 0)
 				{
-					if (af->type > 0 &&
-							af->type <= SPELLS_COUNT && *spell_wear_off_msg[af->type])
+					if (af->type > 0
+						&& af->type <= SPELLS_COUNT
+						&& *spell_wear_off_msg[af->type])
 					{
 						show_spell_off(af->type, ch);
 					}

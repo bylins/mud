@@ -360,8 +360,12 @@ void Player::save_char()
 	{
 		if (aff)
 		{
-			if (aff->type == SPELL_ARMAGEDDON || aff->type < 1 || aff->type > SPELLS_COUNT)
+			if (aff->type == SPELL_ARMAGEDDON
+				|| aff->type < 1
+				|| aff->type > SPELLS_COUNT)
+			{
 				i--;
+			}
 			else
 			{
 				tmp_aff[i] = *aff;
