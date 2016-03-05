@@ -353,10 +353,10 @@ enum ESpell
 	SPELLS_COUNT = SPELL_AURA_EVIL
 };
 
-typedef std::array<char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;
+typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;
 extern const spell_wear_off_msg_t spell_wear_off_msg;
 
-typedef std::array<char*, 2> cast_phrase_t;
+typedef std::array<const char*, 2> cast_phrase_t;
 typedef std::array<cast_phrase_t, SPELLS_COUNT + 1> cast_phrases_t;
 extern const cast_phrases_t cast_phrase;
 
