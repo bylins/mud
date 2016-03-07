@@ -3129,12 +3129,12 @@ ACMD(do_warcry)
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
 		return;
 
-/*	if (!ch->get_skill(SKILL_WARCRY))
+	if (!ch->get_skill(SKILL_WARCRY))
 	{
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-*/
+
 	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 	{
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
@@ -3158,8 +3158,8 @@ ACMD(do_warcry)
 				&& IS_SET(SpINFO.routines, MAG_WARCRY)
 				&& ch->get_skill(SKILL_WARCRY) >= SpINFO.mana_change)
 			{
-				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
-					continue;
+//				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+//					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
 					CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
 					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), realname, CCNRM(ch, C_NRM));
@@ -3187,7 +3187,8 @@ ACMD(do_warcry)
 	spellnum = find_spell_num(wc_name);
 
 	// Unknown warcry
-	if (spellnum < 1 || spellnum > MAX_SPELLS || (ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change) || !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+	if (spellnum < 1 || spellnum > MAX_SPELLS || (ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change))
+//|| !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
 	{
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
