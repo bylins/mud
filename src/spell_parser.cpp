@@ -3129,12 +3129,12 @@ ACMD(do_warcry)
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
 		return;
 
-	if (!ch->get_skill(SKILL_WARCRY))
+/*	if (!ch->get_skill(SKILL_WARCRY))
 	{
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-
+*/
 	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 	{
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
@@ -3158,6 +3158,8 @@ ACMD(do_warcry)
 				&& IS_SET(SpINFO.routines, MAG_WARCRY)
 				&& ch->get_skill(SKILL_WARCRY) >= SpINFO.mana_change)
 			{
+				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
 					CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
 					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), realname, CCNRM(ch, C_NRM));
@@ -3185,7 +3187,7 @@ ACMD(do_warcry)
 	spellnum = find_spell_num(wc_name);
 
 	// Unknown warcry
-	if (spellnum < 1 || spellnum > MAX_SPELLS || ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change)
+	if (spellnum < 1 || spellnum > MAX_SPELLS || (ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change) || !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
 	{
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
@@ -5056,11 +5058,12 @@ void mag_assign_spells(void)
 	spello(SPELL_WC_OF_THUNDER, "клич грома", "warcry of thunder", 140, 140, 141,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 0, STYPE_MIND);
+*/
 //183
-	spello(SPELL_WC_OF_FEAR, "клич устрашения", "warcry of fear", 80, 80, 101,
+	spello(SPELL_WC_OF_FEAR, "клич устрашения", "warcry of fear", 10, 10, 10,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_WARCRY | MAG_AREAS | MAG_MANUAL | NPC_AFFECT_PC, 0, STYPE_MIND);
-*/
+
 //184
 	spello(SPELL_WC_OF_BATTLE, "клич битвы", "warcry of battle", 20, 20, 50,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
