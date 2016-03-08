@@ -2408,6 +2408,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		SET_BIT(PRF_FLAGS(d->character, PRF_DRAW_MAP), PRF_DRAW_MAP); //рисовать миникарту
 		SET_BIT(PRF_FLAGS(d->character, PRF_GOAHEAD), PRF_GOAHEAD); //IAC GA
 		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOMEM), PRF_AUTOMEM); // автомем
+
 		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOLOOT), PRF_AUTOLOOT); // автолут
 		SET_BIT(PRF_FLAGS(d->character, PRF_PKL_MODE), PRF_PKL_MODE); // пклист
 		SET_BIT(PRF_FLAGS(d->character, PRF_WORKMATE_MODE), PRF_WORKMATE_MODE); // соклан
@@ -2425,6 +2426,16 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character)) && (GET_LEVEL(d->character) < LVL_GOD))
 	{
 	    SET_GOD_FLAG(d->character, GF_DEMIGOD);
+	}
+// проставляем в знание кличи (через файл guilds.lst показалось коряво выглядит)
+	if (GET_CLASS(d->character) == CLASS_GUARD)
+		SET_BIT(GET_SPELL_TYPE(d->character, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
+	if (GET_CLASS(d->character) == CLASS_WARRIOR)
+	{
+		SET_BIT(GET_SPELL_TYPE(d->character, SPELL_WC_OF_BATTLE), SPELL_KNOW); // клич призыв битвы
+		SET_BIT(GET_SPELL_TYPE(d->character, SPELL_WC_OF_POWER), SPELL_KNOW); // клич призыв мощи
+		SET_BIT(GET_SPELL_TYPE(d->character, SPELL_WC_OF_BLESS), SPELL_KNOW); // клич призывы доблести
+		SET_BIT(GET_SPELL_TYPE(d->character, SPELL_WC_OF_COURAGE), SPELL_KNOW); // клич призыв отваги
 	}
 	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
 	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GET_LEVEL(d->character) >= LVL_GOD))

@@ -325,7 +325,7 @@ enum ESpell
 	SPELL_WC_OF_RAGE = 180,
 	SPELL_WC_OF_MADNESS = 181,
 	SPELL_WC_OF_THUNDER = 182,
-	SPELL_WC_OF_FEAR = 183,
+	SPELL_WC_OF_DEFENSE = 183,
 	SPELL_WC_OF_BATTLE = 184,
 	SPELL_WC_OF_POWER = 185,
 	SPELL_WC_OF_BLESS = 186,
@@ -538,7 +538,6 @@ ASPELL(spell_eviless);
 ASPELL(spell_townportal);
 ASPELL(spell_energydrain);
 ASPELL(spell_fear);
-ASPELL(spell_wc_of_fear);
 ASPELL(spell_sacrifice);
 ASPELL(spell_forbidden);
 ASPELL(spell_identify);

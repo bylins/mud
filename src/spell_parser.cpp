@@ -1656,9 +1656,9 @@ void spell_prefix(int spellnum, const char **say_to_self, const char **say_to_ot
 		*say_to_other = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
 		*damagee_vict = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
 		break;
-	case SPELL_WC_OF_FEAR:
-		*say_to_other = "$n состроил$g страшную рожу и крикнул$g : '%s'.";
-		*damagee_vict = "$n состроил$g страшную рожу и крикнул$g : '%s'.";
+	case SPELL_WC_OF_DEFENSE:
+		*say_to_something = "$n поднял$g оружие вверх над головой и командным голосом сообщил$g : '%s'.";
+//		*damagee_vict = "$n поднял$g оружие вверх над головой и командным голосом сообщил$g : '%s'.";
 		break;
 	case SPELL_WC_OF_BATTLE:
 		*say_to_something = "$n смело выкрикнул$g : '%s'.";
@@ -3158,8 +3158,8 @@ ACMD(do_warcry)
 				&& IS_SET(SpINFO.routines, MAG_WARCRY)
 				&& ch->get_skill(SKILL_WARCRY) >= SpINFO.mana_change)
 			{
-//				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
-//					continue;
+				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
 					CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
 					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), realname, CCNRM(ch, C_NRM));
@@ -3187,8 +3187,7 @@ ACMD(do_warcry)
 	spellnum = find_spell_num(wc_name);
 
 	// Unknown warcry
-	if (spellnum < 1 || spellnum > MAX_SPELLS || (ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change))
-//|| !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+	if (spellnum < 1 || spellnum > MAX_SPELLS || (ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change) || !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
 	{
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
@@ -5061,10 +5060,9 @@ void mag_assign_spells(void)
 		   MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 0, STYPE_MIND);
 */
 //183
-	spello(SPELL_WC_OF_FEAR, "клич устрашения", "warcry of fear", 10, 10, 10,
-		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-		   MAG_WARCRY | MAG_AREAS | MAG_MANUAL | NPC_AFFECT_PC, 0, STYPE_MIND);
-
+	spello(SPELL_WC_OF_DEFENSE, "клич обороны", "warcry of defense", 10, 10, 10,
+		   POS_FIGHTING, TAR_IGNORE, FALSE,
+		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //184
 	spello(SPELL_WC_OF_BATTLE, "клич битвы", "warcry of battle", 20, 20, 50,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,

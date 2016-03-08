@@ -3791,6 +3791,23 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = NULL;
 		break;
 
+	case SPELL_WC_OF_DEFENSE:
+		af[0].location = APPLY_SAVING_CRITICAL;
+		af[0].modifier -= ch->get_skill(SKILL_WARCRY) / 10;
+		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 7, 0);
+		af[1].location = APPLY_SAVING_REFLEX;
+		af[1].modifier -= ch->get_skill(SKILL_WARCRY) / 10;
+		af[1].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 7, 0);
+		af[2].location = APPLY_SAVING_STABILITY;
+		af[2].modifier -= ch->get_skill(SKILL_WARCRY) / 10;
+		af[2].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 7, 0);
+		af[3].location = APPLY_SAVING_WILL;
+		af[3].modifier -= ch->get_skill(SKILL_WARCRY) / 10;
+		af[3].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 7, 0);
+//		to_vict = NULL;
+		to_room = NULL;
+		break;
+
 	case SPELL_WC_OF_POWER:
 		af[0].location = APPLY_HIT;
 		af[0].modifier = MIN(SCHAR_MAX, (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2);
@@ -4923,9 +4940,6 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 	case SPELL_FEAR:
 		MANUAL_SPELL(spell_fear);
 		break;
-	case SPELL_WC_OF_FEAR:
-		MANUAL_SPELL(spell_wc_of_fear);
-		break;
 	case SPELL_SACRIFICE:
 		MANUAL_SPELL(spell_sacrifice);
 		break;
@@ -5248,7 +5262,7 @@ const spl_message areas_messages[] =
 	 NULL,
 	 NULL,
 	 0},
-	{SPELL_WC_OF_FEAR,
+	{SPELL_WC_OF_DEFENSE,
 	 NULL,
 	 NULL,
 	 NULL,
@@ -5422,6 +5436,11 @@ const spl_message groups_messages[] =
 	 0},
 	{SPELL_GROUP_REFRESH,
 	 "Ваша магия наполнила воздух зеленоватым сиянием.\r\n",
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_WC_OF_DEFENSE,
+	 NULL,
 	 NULL,
 	 NULL,
 	 0},
