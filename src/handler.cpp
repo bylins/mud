@@ -1264,8 +1264,10 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 	if (affect_on_room)
 	{
 		CHAR_DATA *caster = find_char(affect_on_room->caster_id);
-		if (!same_group(ch, caster) && ((ch->master) && !IS_NPC(ch->master)) && !AFF_FLAGGED(ch, AFF_BLIND) && (number(1,100) <= 30)) // 30% шанс что враг уснет
+		if (!same_group(ch, caster) && !AFF_FLAGGED(ch, AFF_BLIND) && (number(1,100) <= 30)) // 30% шанс что враг уснет
 		{
+			if ((ch->master) && !IS_NPC(ch->master))
+				return;
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
