@@ -3665,7 +3665,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Class")
 	{
-		RANGE(CLASS_BASIC_NPC, CLASS_LAST_NPC);
+		RANGE(CLASS_BASIC_NPC, NPC_CLASS_NEXT - 1);
 		mob_proto[i].set_class(num_arg);
 	}
 
@@ -3684,7 +3684,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Race")
 	{
-		RANGE(NPC_RACE_BASIC, NPC_RACE_LAST);
+		RANGE(NPC_RACE_BASIC, NPC_RACE_NEXT - 1);
 		mob_proto[i].player_data.Race = num_arg;
 	}
 
