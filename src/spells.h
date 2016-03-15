@@ -146,7 +146,8 @@ template <> const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFl
 #define   MI_LEVEL16     (1 << 12)
 
 // PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS //
-
+enum ESpell
+{
 #define SPELL_ARMOR                   1	// Reserved Skill[] DO NOT CHANGE //
 #define SPELL_TELEPORT                2	// Reserved Skill[] DO NOT CHANGE //
 #define SPELL_BLESS                   3	// Reserved Skill[] DO NOT CHANGE //
@@ -199,7 +200,7 @@ template <> const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFl
 #define SPELL_INFRAVISION	     50	// Reserved Skill[] DO NOT CHANGE //
 #define SPELL_WATERWALK		     51	// Reserved Skill[] DO NOT CHANGE //
 
-// Insert new spells here, up to MAX_SPELLS //
+	// Insert new spells here, up to MAX_SPELLS //
 #define SPELL_CURE_SERIOUS       52
 #define SPELL_GROUP_STRENGTH     53
 #define SPELL_HOLD               54
@@ -358,8 +359,12 @@ template <> const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFl
 #define SPELL_RECOVERY          205  // исцеление нежити
 #define SPELL_MASS_RECOVERY     206  // масовое исцеление нежити
 #define SPELL_AURA_EVIL         207  // аура зла для всей нежити в группе
+};
 
 #define SPELLS_COUNT			208
+
+typedef std::array<char *, SPELLS_COUNT + 10> spell_wear_off_msg_t;
+extern const spell_wear_off_msg_t spell_wear_off_msg;
 
 #define MAX_SLOT 13
 

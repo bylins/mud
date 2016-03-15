@@ -46,7 +46,7 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
 extern struct spell_create_type spell_create[];
 extern int mini_mud;
-extern const char *spell_wear_off_msg[];
+extern const spell_wear_off_msg_t spell_wear_off_msg;
 extern bool check_unlimited_timer(OBJ_DATA *obj);
 extern const char *cast_phrase[SPELLS_COUNT + 1][2];
 extern int interpolate(int min_value, int pulse);

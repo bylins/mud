@@ -46,7 +46,6 @@ extern const char *no_bits[];
 extern const char *material_type[];
 extern const char *container_bits[];
 extern const char *fullness[];
-extern const char *spell_wear_off_msg[];
 extern const std::vector<const char*> npc_role_types;
 extern const char *npc_race_types[];
 extern const char *places_of_birth[];
@@ -74,8 +73,10 @@ extern struct weapon_app_type weapon_app[];
 extern std::vector<pray_affect_type> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
+
 typedef std::array<weapon_affect_types, 44> weapon_affect_t;
 extern weapon_affect_t weapon_affect;
+
 extern int mana[];
 extern int mana_gain_cs[];
 extern int mana_cost_cs[][9];
