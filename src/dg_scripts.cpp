@@ -2794,7 +2794,11 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (!*subfield || (pos = atoi(subfield)) <= POS_DEAD)
 				sprintf(str, "%d", GET_POS(c));
 			else if (!WAITLESS(c))
+			{
+				if (on_horse(c))
+					REMOVE_BIT(AFF_FLAGS(c, AFF_HORSE), AFF_HORSE);
 				GET_POS(c) = pos;
+			}
 		}
 		else if (!str_cmp(field, "wait"))
 		{
