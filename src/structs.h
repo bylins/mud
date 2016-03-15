@@ -250,11 +250,11 @@ typedef struct trig_data TRIG_DATA;
 // char and mob-related defines ***************************************
 
 // PC classes //
-const int CLASS_UNDEFINED = -1;
-
 enum
 {
-	CLASS_CLERIC,
+	CLASS_UNDEFINED = -1,
+	CLASS_BASIC_NPC = 0,
+	CLASS_CLERIC = CLASS_BASIC_NPC,
 	CLASS_BATTLEMAGE,
 	CLASS_THIEF,
 	CLASS_WARRIOR,
@@ -268,7 +268,8 @@ enum
 	CLASS_SMITH,
 	CLASS_MERCHANT,
 	CLASS_DRUID,
-	NUM_CLASSES
+	NUM_CLASSES,
+	NPC_CLASS_NEXT = NUM_CLASSES
 };
 
 // mobile class
@@ -305,16 +306,6 @@ enum
 // PC Kin
 #define NUM_KIN            3
 
-// NPC classes
-#define CLASS_BASIC_NPC    100
-//#define CLASS_UNDEAD       101 к классам не относится, перенесено в расы (типы) мобов
-//#define CLASS_HUMAN        102
-//#define CLASS_ANIMAL       103
-#define CLASS_HERO_WARRIOR 104
-#define CLASS_HERO_MAGIC   105
-#define CLASS_NPC_BATLEMAGE 106
-#define CLASS_LAST_NPC     107
-
 // NPC races
 #define NPC_RACE_BASIC			100
 #define NPC_RACE_HUMAN			101
@@ -331,7 +322,7 @@ enum
 #define NPC_RACE_EVIL_SPIRIT	112
 #define NPC_RACE_SPIRIT			113
 #define NPC_RACE_MAGIC_CREATURE	114
-#define NPC_RACE_LAST			115
+#define NPC_RACE_NEXT			115
 
 // Virtual NPC races
 #define NPC_BOSS				200

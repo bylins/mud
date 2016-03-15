@@ -6114,7 +6114,7 @@ namespace Mlist
 std::string print_race(CHAR_DATA *mob)
 {
 	std::string out;
-	if (GET_RACE(mob) < NPC_RACE_LAST)
+	if (GET_RACE(mob) < NPC_RACE_NEXT)
 	{
 		out += npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC];
 	}

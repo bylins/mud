@@ -1096,7 +1096,7 @@ void medit_disp_race(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 0; i < NPC_RACE_LAST - NPC_RACE_BASIC; i++)
+	for (i = 0; i < NPC_RACE_NEXT - NPC_RACE_BASIC; i++)
 	{
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
 		send_to_char(buf, d->character);
@@ -1882,7 +1882,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 		//-------------------------------------------------------------------
 	case MEDIT_RACE:
-		GET_RACE(OLC_MOB(d)) = MAX(NPC_RACE_BASIC, MIN(NPC_RACE_LAST - 1, atoi(arg) + NPC_RACE_BASIC));
+		GET_RACE(OLC_MOB(d)) = MAX(NPC_RACE_BASIC, MIN(NPC_RACE_NEXT - 1, atoi(arg) + NPC_RACE_BASIC));
 		break;
 		//-------------------------------------------------------------------
 	case MEDIT_ROLE:
