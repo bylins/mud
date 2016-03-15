@@ -27,7 +27,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 #include "modify.h"
 #include "scripting.hpp"
 
-#define DEFINE_CONSTANT(X) scope().attr(#X) = X
+#define DEFINE_CONSTANT(X) scope().attr(#X) = static_cast<int>(X);
 
 using namespace boost::python;
 namespace py=boost::python;
