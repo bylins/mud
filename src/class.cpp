@@ -1958,7 +1958,7 @@ int extra_damroll(int class_num, int level)
 }
 
 // Some initializations for characters, including initial skills
-void init_warcry(CHAR_DATA *ch)
+void init_warcry(CHAR_DATA *ch) // проставление кличей в обход античита
 {
 	if (GET_CLASS(ch) == CLASS_GUARD)
 		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
