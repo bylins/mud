@@ -143,7 +143,6 @@ extern int CheckProxy(DESCRIPTOR_DATA * ch);
 extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameAdd(CHAR_DATA * ch, bool save = 1);
 extern void check_max_hp(CHAR_DATA *ch);
-
 // local functions
 int perform_dupe_check(DESCRIPTOR_DATA * d);
 struct alias_data *find_alias(struct alias_data *alias_list, char *str);
@@ -158,6 +157,7 @@ int find_action(char *cmd);
 int do_social(CHAR_DATA * ch, char *argument);
 void single_god_invoice(CHAR_DATA* ch);
 void login_change_invoice(CHAR_DATA* ch);
+void init_warcry(CHAR_DATA *ch);
 
 ACMD(do_advance);
 ACMD(do_alias);
@@ -263,6 +263,7 @@ ACMD(do_pour);
 ACMD(do_skills);
 ACMD(do_statistic);
 ACMD(do_spells);
+//ACMD(do_stun);
 ACMD(do_spellstat);
 ACMD(do_remember);
 ACMD(do_learn);
@@ -646,6 +647,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"отступить", POS_FIGHTING, do_stopfight, 1, 0, -1},
 	{"отправить", POS_STANDING, do_not_here, 1, 0, -1},
 	{"оффтоп", POS_DEAD, do_offtop, 0, 0, -1},
+//	{"ошеломить", POS_STANDING, do_stun, 1, 0, -1},
 	{"оценить", POS_STANDING, do_not_here, 0, 0, 500},
 	{"очки", POS_DEAD, do_score, 0, 0, 0},
 	{"очепятки", POS_DEAD, DoBoard, 1, Boards::MISPRINT_BOARD, 0},
@@ -2422,20 +2424,11 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character);
 	}
+	init_warcry(d->character);
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
 	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character)) && (GET_LEVEL(d->character) < LVL_GOD))
 	{
 	    SET_GOD_FLAG(d->character, GF_DEMIGOD);
-	}
-// проставляем в знание кличи (через файл guilds.lst показалось коряво выглядит)
-	if (GET_CLASS(d->character) == CLASS_GUARD)
-		SET_BIT(GET_SPELL_TYPE(d->character, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
-	if (GET_CLASS(d->character) == CLASS_WARRIOR)
-	{
-		SET_BIT(GET_SPELL_TYPE(d->character, SPELL_WC_OF_BATTLE), SPELL_KNOW); // клич призыв битвы
-		SET_BIT(GET_SPELL_TYPE(d->character, SPELL_WC_OF_POWER), SPELL_KNOW); // клич призыв мощи
-		SET_BIT(GET_SPELL_TYPE(d->character, SPELL_WC_OF_BLESS), SPELL_KNOW); // клич призывы доблести
-		SET_BIT(GET_SPELL_TYPE(d->character, SPELL_WC_OF_COURAGE), SPELL_KNOW); // клич призыв отваги
 	}
 	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
 	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GET_LEVEL(d->character) >= LVL_GOD))

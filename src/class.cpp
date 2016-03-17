@@ -1958,6 +1958,20 @@ int extra_damroll(int class_num, int level)
 }
 
 // Some initializations for characters, including initial skills
+void init_warcry(CHAR_DATA *ch)
+{
+	if (GET_CLASS(ch) == CLASS_GUARD)
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
+	if (GET_CLASS(ch) == CLASS_WARRIOR)
+	{
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BATTLE), SPELL_KNOW); // клич призыв битвы
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_POWER), SPELL_KNOW); // клич призыв мощи
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BLESS), SPELL_KNOW); // клич призывы доблести
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_COURAGE), SPELL_KNOW); // клич призыв отваги
+	}
+
+}
+
 void do_start(CHAR_DATA * ch, int newbie)
 {
 	ch->set_level(1);
@@ -2026,7 +2040,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 	GET_COND(ch, THIRST) = 24;
 	GET_COND(ch, FULL) = 24;
 	GET_COND(ch, DRUNK) = 0;
-
+	// проставим кличи
+	init_warcry(ch);
 	if (siteok_everyone)
 		SET_BIT(PLR_FLAGS(ch, PLR_SITEOK), PLR_SITEOK);
 }
