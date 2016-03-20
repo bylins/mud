@@ -1537,7 +1537,7 @@ ACMD(do_report)
 		send_to_char("И перед кем вы отчитываетесь?\r\n", ch);
 		return;
 	}
-	if (IS_MANA_CASTER(ch))
+	if (ch->is_duid())
 	{
 		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch),

@@ -911,7 +911,7 @@ short CHAR_DATA::get_class() const
 
 void CHAR_DATA::set_class(short chclass)
 {
-	if (chclass < 0 || chclass > NPC_CLASS_NEXT)
+	if (chclass < 0 || chclass > PLAYER_CLASS_NEXT)
 	{
 		log("WARNING: chclass=%d (%s:%d %s)", chclass, __FILE__, __LINE__, __func__);
 	}

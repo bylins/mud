@@ -409,6 +409,8 @@ public:
 	short get_class() const;
 	void set_class(short chclass);
 
+	bool is_duid() const { return chclass_ == CLASS_DRUID; }
+
 	short get_level() const;
 	void set_level(short level);
 

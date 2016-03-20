@@ -428,7 +428,6 @@ extern SPECIAL(shop_ext);
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : NULL)
 
 // char utils ***********************************************************
-#define IS_MANA_CASTER(ch) (GET_CLASS(ch)==CLASS_DRUID)
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
