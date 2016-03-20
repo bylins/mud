@@ -1646,12 +1646,12 @@ void OBJ_DATA::init_set_table()
 					int i = 0;
 
 					while (isstream >> std::skipws >> i)
-						if (i < 0 || i > NUM_CLASSES * NUM_KIN)
+						if (i < 0 || i > NUM_PLAYER_CLASSES * NUM_KIN)
 							break;
 						else
 							tmpclss.set_plane(flag_data_by_num(i));
 
-					if (i < 0 || i > NUM_CLASSES * NUM_KIN)
+					if (i < 0 || i > NUM_PLAYER_CLASSES * NUM_KIN)
 					{
 						cppstr = "init_set_table:: Wrong class in line '" + tag + ":" + cppstr + "'";
 						mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
@@ -3473,7 +3473,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	mob_proto[i].player_data.sex = t[2];
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
-	mob_proto[i].set_class(CLASS_BASIC_NPC);
+	mob_proto[i].set_class(NPC_CLASS_BASE);
 	mob_proto[i].player_data.weight = 200;
 	mob_proto[i].player_data.height = 198;
 
@@ -3665,7 +3665,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Class")
 	{
-		RANGE(CLASS_BASIC_NPC, NPC_CLASS_NEXT - 1);
+		RANGE(NPC_CLASS_BASE, NPC_CLASS_LAST);
 		mob_proto[i].set_class(num_arg);
 	}
 

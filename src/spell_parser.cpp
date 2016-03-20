@@ -138,7 +138,7 @@ class MaxClassSlot
 public:
 	MaxClassSlot()
 	{
-		for (int i = 0; i < NUM_CLASSES; ++i)
+		for (int i = 0; i < NUM_PLAYER_CLASSES; ++i)
 		{
 			for (int k = 0; k < NUM_KIN; ++k)
 			{
@@ -160,7 +160,7 @@ public:
 		if (kin < 0
 			|| kin >= NUM_KIN
 			|| chclass < 0
-			|| chclass >=  NUM_CLASSES)
+			|| chclass >=  NUM_PLAYER_CLASSES)
 		{
 			return 0;
 		}
@@ -168,7 +168,7 @@ public:
 	};
 
 private:
-	int max_class_slot_[NUM_CLASSES][NUM_KIN];
+	int max_class_slot_[NUM_PLAYER_CLASSES][NUM_KIN];
 };
 
 MaxClassSlot max_slots;
@@ -4118,9 +4118,9 @@ void mspell_change(char *name, int spell, int kin, int chclass, int class_change
 		bad = 1;
 	}
 
-	if (chclass < 0 || chclass >= NUM_CLASSES)
+	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES)
 	{
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 	if (!bad)
@@ -4147,9 +4147,9 @@ mspell_remort(char *name, int spell, int kin, int chclass, int remort)
 		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
 		bad = 1;
 	}
-	if (chclass < 0 || chclass >= NUM_CLASSES)
+	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES)
 	{
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 	if (remort < 0 || remort > MAX_REMORT)
@@ -4181,9 +4181,9 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level)
 		bad = 1;
 	}
 
-	if (chclass < 0 || chclass >= NUM_CLASSES)
+	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES)
 	{
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 
@@ -4216,9 +4216,9 @@ void mspell_slot(char *name, int spell, int kin , int chclass, int slot)
 		bad = 1;
 	}
 
-	if (chclass < 0 || chclass >=  NUM_CLASSES)
+	if (chclass < 0 || chclass >=  NUM_PLAYER_CLASSES)
 	{
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 
@@ -4245,7 +4245,7 @@ spello(int spl, const char *name, const char *syn,
 	   int minpos, int targets, int violent, int routines, int danger, int spell_class)
 {
 	int i, j;
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			spell_info[spl].min_remort[i][j] = MAX_REMORT;
@@ -4276,7 +4276,7 @@ spello(int spl, const char *name, const char *syn,
 void unused_spell(int spl)
 {
 	int i, j;
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			spell_info[spl].min_remort[i][j] = MAX_REMORT;
@@ -4315,7 +4315,7 @@ void unused_spell(int spl)
 void skillo(int spl, const char *name, int max_percent)
 {
 	int i, j;
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			skill_info[spl].min_remort[i][j] = MAX_REMORT;
@@ -4331,7 +4331,7 @@ void unused_skill(int spl)
 {
 	int i, j;
 
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			skill_info[spl].min_remort[i][j] = MAX_REMORT;

@@ -146,7 +146,7 @@ int find_feat_num(const char *name, bool alias)
 void feato(int feat, const char *name, int type, bool can_up_slot, aff_array app)
 {
 	int i, j;
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			feat_info[feat].min_remort[i][j] = 0;
@@ -174,7 +174,7 @@ void unused_feat(int feat)
 {
 	int i, j;
 
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			feat_info[feat].min_remort[i][j] = 0;

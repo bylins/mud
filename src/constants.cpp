@@ -1618,7 +1618,7 @@ struct extra_affects_type SmithAffects[] = { { -1, -1} };
 struct extra_affects_type MerchantAffects[] = { { -1, -1} };
 struct extra_affects_type DruidAffects[] = { { -1, -1} };
 
-struct class_app_type class_app[NUM_CLASSES] =
+struct class_app_type class_app[NUM_PLAYER_CLASSES] =
 {
 // unknown_weapon_fault koef_con base_con min_con max_con extra_affects
 	{5,  40, 10, 12, 50, (struct extra_affects_type *) &ClericAffects},
@@ -2446,7 +2446,7 @@ const char *godslike_bits[] =
 	"\n"
 };
 
-std::array<const char *, NUM_CLASSES> pc_class_name =
+std::array<const char *, NUM_PLAYER_CLASSES> pc_class_name =
 {{
 	"лекарь",
 	"колдун",

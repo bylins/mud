@@ -437,10 +437,10 @@ struct spell_info_type
 	int mana_min;		// Min amount of mana used by a spell (highest lev) //
 	int mana_max;		// Max amount of mana used by a spell (lowest lev) //
 	int mana_change;	// Change in mana used by spell from lev to lev //
-	int min_remort[NUM_CLASSES][NUM_KIN];
-	int min_level[NUM_CLASSES][NUM_KIN];
-	int slot_forc[NUM_CLASSES][NUM_KIN];
-	int class_change[NUM_CLASSES][NUM_KIN];
+	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
+	int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
+	int slot_forc[NUM_PLAYER_CLASSES][NUM_KIN];
+	int class_change[NUM_PLAYER_CLASSES][NUM_KIN];
 	long danger;
 	long routines;
 	byte violent;
@@ -455,11 +455,11 @@ struct spell_info_type
 struct skill_info_type
 {
 	byte min_position;	// Position for caster //
-	int min_remort[NUM_CLASSES][NUM_KIN];
-	int min_level[NUM_CLASSES][NUM_KIN];
-	int level_decrement[NUM_CLASSES][NUM_KIN];
-	long int k_improove[NUM_CLASSES][NUM_KIN];
-	int classknow[NUM_CLASSES][NUM_KIN];
+	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
+	int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
+	int level_decrement[NUM_PLAYER_CLASSES][NUM_KIN];
+	long int k_improove[NUM_PLAYER_CLASSES][NUM_KIN];
+	int classknow[NUM_PLAYER_CLASSES][NUM_KIN];
 	int max_percent;
 	const char *name;
 };

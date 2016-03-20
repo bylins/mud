@@ -24,7 +24,7 @@
 
 extern const char *class_name[];
 
-TopListType TopPlayer::TopList(NUM_CLASSES);
+TopListType TopPlayer::TopList(NUM_PLAYER_CLASSES);
 
 // отдельное удаление из списка (для ренеймов, делетов и т.п.)
 // данная функция работает в том числе и с неполностью загруженным персонажем
@@ -68,7 +68,7 @@ void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 		TopPlayer::TopList[GET_CLASS(short_ch)].push_back(temp_player);
 }
 
-const char * TopPlayer::TopFormat[NUM_CLASSES + 1] =
+const char * TopPlayer::TopFormat[NUM_PLAYER_CLASSES + 1] =
 {
 	"лекари",
 	"колдуны",
@@ -99,7 +99,7 @@ ACMD(DoBest)
 	bool find = 0;
 	int class_num = 0;
 	// тут и далее <= для учета 'игроки' после классов
-	for (; class_num <= NUM_CLASSES; ++class_num)
+	for (; class_num <= NUM_PLAYER_CLASSES; ++class_num)
 	{
 		if (CompareParam(buffer, TopPlayer::TopFormat[class_num]))
 		{
@@ -113,7 +113,7 @@ ACMD(DoBest)
 		std::ostringstream out;
 		out << CCWHT(ch, C_NRM) << "Лучшие " << TopPlayer::TopFormat[class_num] << ":" << CCNRM(ch, C_NRM) << "\r\n";
 
-		if (class_num < NUM_CLASSES)   // конкретная профа
+		if (class_num < NUM_PLAYER_CLASSES)   // конкретная профа
 		{
 			boost::format class_format("\t%-20s %-2d %s\r\n");
 			int i = 0;
@@ -153,7 +153,7 @@ ACMD(DoBest)
 		std::ostringstream out;
 		out.setf(std::ios_base::left, std::ios_base::adjustfield);
 		out << "Лучшими могут быть:\r\n";
-		for (int i = 0, j = 1; i <= NUM_CLASSES; ++i, ++j)
+		for (int i = 0, j = 1; i <= NUM_PLAYER_CLASSES; ++i, ++j)
 			out << std::setw(15) << TopPlayer::TopFormat[i] << (j % 4 ? "" : "\r\n");
 
 		out << std::setw(15) << "прославленные\r\n";
