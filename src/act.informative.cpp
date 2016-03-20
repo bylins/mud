@@ -4471,10 +4471,10 @@ std::string print_server_uptime()
 ACMD(do_statistic)
 {
 	CHAR_DATA *tch;
-	int proff[NUM_CLASSES][2], ptot[NUM_CLASSES], i, clan = 0, noclan = 0, hilvl = 0, lowlvl = 0,
+	int proff[NUM_PLAYER_CLASSES][2], ptot[NUM_PLAYER_CLASSES], i, clan = 0, noclan = 0, hilvl = 0, lowlvl = 0,
 			all = 0, rem = 0, norem = 0, pk = 0, nopk = 0;
 
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 	{
 		proff[i][0] = 0;
 		proff[i][1] = 0;

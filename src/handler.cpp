@@ -714,7 +714,7 @@ void affect_total(CHAR_DATA * ch)
 	// move race and class modifiers
 	if (!IS_NPC(ch))
 	{
-		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_CLASSES)
+		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_PLAYER_CLASSES)
 		{
 			extra_affect = class_app[(int) GET_CLASS(ch)].extra_affects;
 			//extra_modifier = class_app[(int) GET_CLASS(ch)].extra_modifiers;
@@ -1770,7 +1770,7 @@ int flag_data_by_char_class(const CHAR_DATA * ch)
 	if (ch == NULL)
 		return 0;
 
-	return flag_data_by_num(IS_NPC(ch) ? NUM_CLASSES * NUM_KIN : GET_CLASS(ch) + NUM_CLASSES * GET_KIN(ch));
+	return flag_data_by_num(IS_NPC(ch) ? NUM_PLAYER_CLASSES * NUM_KIN : GET_CLASS(ch) + NUM_PLAYER_CLASSES * GET_KIN(ch));
 }
 
 unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,

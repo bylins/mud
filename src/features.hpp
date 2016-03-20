@@ -188,7 +188,7 @@ using std::bitset;
 
 //Раз в сколько ремортов появляется новый слот под способность
 
-const int feat_slot_for_remort[NUM_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4,5 };
+const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4,5 };
 // Количество пар "параметр-значение" у способности
 #define MAX_FEAT_AFFECT	5
 // Максимально доступное на морте количество не-врожденных способностей
@@ -233,10 +233,10 @@ struct obj_affected_type
 
 struct feat_info_type
 {
-	int min_remort[NUM_CLASSES][NUM_KIN];
-	int slot[NUM_CLASSES][NUM_KIN];
-	bool classknow[NUM_CLASSES][NUM_KIN];
-	bool natural_classfeat[NUM_CLASSES][NUM_KIN];
+	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
+	int slot[NUM_PLAYER_CLASSES][NUM_KIN];
+	bool classknow[NUM_PLAYER_CLASSES][NUM_KIN];
+	bool natural_classfeat[NUM_PLAYER_CLASSES][NUM_KIN];
 	std::array<obj_affected_type, MAX_FEAT_AFFECT> affected;
 	int type;
 	bool up_slot;

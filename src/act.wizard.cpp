@@ -6551,7 +6551,7 @@ void SpellUsage::AddSpellStat(int charClass, int spellNum)
 {
 	if (!isActive)
 		return;
-	if (charClass > NUM_CLASSES || spellNum > MAX_SPELLS)
+	if (charClass > NUM_PLAYER_CLASSES || spellNum > MAX_SPELLS)
 		return;
 	usage[charClass][spellNum]++;
 }

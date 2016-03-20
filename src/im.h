@@ -95,7 +95,7 @@ struct _im_recipe_tag
 	boost::array<char *, 3> msg_room;	// сообщения OK,FAIL,DAM
 	int x, y;		// XdY - повреждения
 // +newbook.patch (Alisher)
-	boost::array<int, NUM_CLASSES> classknow; // владеет ли класс данным рецептом
+	boost::array<int, NUM_PLAYER_CLASSES> classknow; // владеет ли класс данным рецептом
 	int level; // на каком уровне можно выучить рецепт
 	int remort; // сколько ремортов необходимо для рецепта
 // -newbook.patch (Alisher)

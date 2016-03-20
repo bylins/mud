@@ -66,7 +66,7 @@ struct activ_node
 	// а не bonus::skills, которое юзается для справки и складывании на чаре
 	std::pair<int, int> skill;
 	// список проф, на которых этот активатор сработает (по дефолту - все)
-	std::bitset<NUM_CLASSES> prof;
+	std::bitset<NUM_PLAYER_CLASSES> prof;
 	// числовые сетовые бонусы
 	bonus_type bonus;
 	// энчант на шмотку

@@ -709,7 +709,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	}
 	else
 	{
-		if (class_sav < 0 || class_sav >= NUM_CLASSES)
+		if (class_sav < 0 || class_sav >= NUM_PLAYER_CLASSES)
 			class_sav = CLASS_WARRIOR;	// неизвестный класс игрока
 	}
 

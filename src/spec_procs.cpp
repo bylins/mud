@@ -151,7 +151,7 @@ const char *prac_types[] = { "spell",
 #define PRAC_TYPE	3	// should it say 'spell' or 'skill'?     //
 
 // actual prac_params are in class.cpp //
-extern int prac_params[4][NUM_CLASSES];
+extern int prac_params[4][NUM_PLAYER_CLASSES];
 
 #define LEARNED(ch) (prac_params[LEARNED_LEVEL][(int)GET_CLASS(ch)])
 #define MINGAIN(ch) (prac_params[MIN_PER_PRAC][(int)GET_CLASS(ch)])
