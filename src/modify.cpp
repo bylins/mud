@@ -722,7 +722,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		{
 			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
 			str[80 - 3] = '\0';
-			*d->str = str_dup(str);
+			CREATE(*d->str, char, 80);
+			strcpy(*d->str, str);
 		}
 		else
 		{

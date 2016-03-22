@@ -55,7 +55,7 @@ struct skillvariables_insgem insgem_vars;
 
 // 14 проф, 0-14 мортов
 // grouping[class][remorts]
-int grouping[NUM_CLASSES][MAX_REMORT+1];
+int grouping[NUM_PLAYER_CLASSES][MAX_REMORT+1];
 
 // local functions
 int parse_class(char arg);
@@ -516,7 +516,7 @@ find_class_bitvector_step(char arg)
 // #define MIN_PER_PRAC		2  min percent gain in skill per practice
 // #define PRAC_TYPE		3  should it say 'spell' or 'skill'?
 
-int prac_params[4][NUM_CLASSES] =  	// MAG        CLE             THE             WAR
+int prac_params[4][NUM_PLAYER_CLASSES] =  	// MAG        CLE             THE             WAR
 {
 	{95, 95, 85, 80},	// learned level
 	{100, 100, 12, 12},	// max per prac
@@ -1958,6 +1958,20 @@ int extra_damroll(int class_num, int level)
 }
 
 // Some initializations for characters, including initial skills
+void init_warcry(CHAR_DATA *ch) // проставление кличей в обход античита
+{
+	if (GET_CLASS(ch) == CLASS_GUARD)
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
+	if (GET_CLASS(ch) == CLASS_WARRIOR)
+	{
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BATTLE), SPELL_KNOW); // клич призыв битвы
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_POWER), SPELL_KNOW); // клич призыв мощи
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BLESS), SPELL_KNOW); // клич призывы доблести
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_COURAGE), SPELL_KNOW); // клич призыв отваги
+	}
+
+}
+
 void do_start(CHAR_DATA * ch, int newbie)
 {
 	ch->set_level(1);
@@ -2026,7 +2040,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 	GET_COND(ch, THIRST) = 24;
 	GET_COND(ch, FULL) = 24;
 	GET_COND(ch, DRUNK) = 0;
-
+	// проставим кличи
+	init_warcry(ch);
 	if (siteok_everyone)
 	{
 		PLR_FLAGS(ch).set(PLR_SITEOK);
@@ -2326,7 +2341,7 @@ void load_skills_definitions()
 			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
 			_exit(1);
 		}
-		if (i[1] < 0 || i[1] >= NUM_CLASSES)
+		if (i[1] < 0 || i[1] >= NUM_PLAYER_CLASSES)
 		{
 			log("Bad class type for skill \"%s\"...", skill_info[sp_num].name);
 			_exit(1);
@@ -2381,7 +2396,7 @@ void load_skills_definitions()
 		{
 			if (!strchr("1xX!", line3[l]))
 				continue;
-			for (j = 0; line4[j] && j < NUM_CLASSES; j++)
+			for (j = 0; line4[j] && j < NUM_PLAYER_CLASSES; j++)
 			{
 				if (!strchr("1xX!", line4[j]))
 					continue;
@@ -2521,7 +2536,7 @@ void init_spell_levels(void)
 			log("Bad kin type for spell '%s' \"%d\"...", name, sp_num);
 			_exit(1);
 		}
-		if (i[1] < 0 || i[1] >= NUM_CLASSES)
+		if (i[1] < 0 || i[1] >= NUM_PLAYER_CLASSES)
 		{
 			log("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
 			_exit(1);
@@ -2660,7 +2675,7 @@ void init_spell_levels(void)
 				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
 				_exit(1);
 			}
-		if (i[3] < 0 || i[3] >= NUM_CLASSES)
+		if (i[3] < 0 || i[3] >= NUM_PLAYER_CLASSES)
 		{
 			log("Bad class type for feat \"%s\"...", feat_info[sp_num].name);
 			_exit(1);
@@ -2932,7 +2947,7 @@ int init_grouping(void)
 
 	// пре-инициализация
 	for (remorts = 0; remorts < max_rows; remorts++) //Строк в массиве должно быть на 1 больше, чем макс. морт
-		for (clss = 0; clss < NUM_CLASSES; clss++) //Столбцов в массиве должно быть ровно столько же, сколько есть классов
+		for (clss = 0; clss < NUM_PLAYER_CLASSES; clss++) //Столбцов в массиве должно быть ровно столько же, сколько есть классов
 			grouping[clss][remorts] = -1;
 
 	if (!(f = fopen(LIB_MISC "grouping", "r")))
@@ -2982,10 +2997,10 @@ int init_grouping(void)
 			while (buf[pos] != ' ' && buf[pos] != '\t' && buf[pos] != 0)
 				pos++; //Ищем следующее число в строке конфига
 		}
-		if (clss != NUM_CLASSES+1)
+		if (clss != NUM_PLAYER_CLASSES+1)
 		{
 			log("Ошибка при чтении файла %s: неверный формат строки '%s', должно быть %d "
-				"целых чисел, прочитали %d", LIB_MISC "grouping", buf, NUM_CLASSES+1, clss);
+				"целых чисел, прочитали %d", LIB_MISC "grouping", buf, NUM_PLAYER_CLASSES+1, clss);
 			return 4;
 		}
 		rows_assigned++;
@@ -2993,7 +3008,7 @@ int init_grouping(void)
 	if (rows_assigned < max_rows)
 	{
 		for (levels = remorts; levels < max_rows; levels++) //Берем свободную переменную
-			for (clss = 0; clss < NUM_CLASSES; clss++)
+			for (clss = 0; clss < NUM_PLAYER_CLASSES; clss++)
 			{
 				//log("Класс: %d, Мортов: %d, Группа: %d", clss, levels, grouping[clss][remorts]);
 				grouping[clss][levels] = grouping[clss][remorts]; //Копируем последнюю строку на все морты, для которых нет строк

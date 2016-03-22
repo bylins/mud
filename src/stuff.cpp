@@ -29,6 +29,7 @@
 
 extern const char *skill_name(int num);
 extern void set_obj_eff(OBJ_DATA *itemobj, int type, int mod);
+extern void set_obj_aff(struct OBJ_DATA *itemobj, int bitv);
 
 void oload_class::init()
 {
@@ -256,6 +257,64 @@ void generate_warrior_enchant(OBJ_DATA *obj)
 	}
 }
 
+void generate_magic_enchant(OBJ_DATA *obj)
+{
+	const int main_count = 10;
+	boost::array<int, main_count> main_list = { {
+			APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_INT , APPLY_WIS, APPLY_CHA, APPLY_AC, APPLY_DAMROLL, APPLY_AR, APPLY_MR} };
+	const int other_count = 15;
+	boost::array<int, other_count> other_list = { {
+			APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
+			APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
+			APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR,
+			APPLY_MANAREG, APPLY_CAST_SUCCESS, APPLY_RESIST_MIND, APPLY_DAMROLL} };
+	const int negativ_count = 7;
+	boost::array<int, other_count> negativ_list = { {
+			AFF_CURSE, AFF_SLEEP, AFF_HOLD, AFF_SIELENCE, AFF_CRYING,
+			AFF_BLIND, AFF_SLOW } };
+
+
+			
+	if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC1_ENCHANT_VNUM)
+	{
+		int stat = negativ_list[number(0, negativ_count - 1)];
+		set_obj_aff(obj, stat);
+		stat = main_list[number(0, main_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat));
+	}
+	else if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC2_ENCHANT_VNUM)
+	{
+		int stat = negativ_list[number(0, negativ_count - 1)];
+		set_obj_aff(obj, stat);
+		stat = main_list[number(0, main_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
+		stat = other_list[number(0, other_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat));
+	}
+	else if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC3_ENCHANT_VNUM)
+	{
+		int stat = main_list[number(0, main_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
+		stat = negativ_list[number(0, negativ_count - 1)];
+		set_obj_aff(obj, stat);
+		stat = other_list[number(0, other_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat));
+		int add_random = number(0, 1);
+		if (add_random == 0 )
+			{
+			stat = main_list[number(0, main_count - 1)];
+			set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
+			}
+		else
+			{
+			stat = other_list[number(0, other_count - 1)];
+			set_obj_eff(obj, stat, get_stat_mod(stat));
+			};
+	}
+			
+		
+}
+
 /**
  * \param setload = true - лоад через систему дропа сетов
  *        setload = false - лоад через глобал дроп
@@ -285,6 +344,11 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 		case GlobalDrop::WARR2_ENCHANT_VNUM:
 		case GlobalDrop::WARR3_ENCHANT_VNUM:
 			generate_warrior_enchant(o);
+			break;
+		case GlobalDrop::MAGIC1_ENCHANT_VNUM:
+		case GlobalDrop::MAGIC2_ENCHANT_VNUM:
+		case GlobalDrop::MAGIC3_ENCHANT_VNUM:
+			generate_magic_enchant(o);
 			break;
 		}
 	}

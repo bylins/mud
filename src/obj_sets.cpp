@@ -227,7 +227,7 @@ void verify_set(set_node &set)
 		}
 	}
 
-	std::bitset<NUM_CLASSES> prof_bits;
+	std::bitset<NUM_PLAYER_CLASSES> prof_bits;
 	bool prof_restrict = false;
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
 	{
@@ -484,7 +484,7 @@ void load()
 			pugi::xml_attribute xml_prof = xml_activ.attribute("prof");
 			if (xml_prof)
 			{
-				std::bitset<NUM_CLASSES> tmp_p(std::string(xml_prof.value()));
+				std::bitset<NUM_PLAYER_CLASSES> tmp_p(std::string(xml_prof.value()));
 				tmp_activ.prof = tmp_p;
 			}
 			tmp_set->activ_list[Parse::attr_int(xml_activ, "size")] = tmp_activ;

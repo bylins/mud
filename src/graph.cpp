@@ -234,6 +234,8 @@ ACMD(do_sense)
 		return;
 	}
 
+	act("Похоже, $n кого-то ищет.", FALSE, ch, 0, 0, TO_ROOM);
+
 	dir = go_track(ch, vict, SKILL_SENSE);
 
 	switch (dir)

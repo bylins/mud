@@ -136,7 +136,7 @@ void script_log(const char *msg, const int type)
 	// Чистим строчку от левых %-тов.
 	while ((pos = strchr(tmpbuf, '%')) != NULL)
 		* pos = '$';
-
+	log("%s", tmpbuf);
 	mudlog(tmpbuf, type ? type : NRM, LVL_BUILDER, ERRLOG, TRUE);
 
 }
@@ -2457,17 +2457,25 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (*subfield)
 			{
 				if (*subfield == '-')
-//                 GET_EXP(c) = MAX(1, GET_EXP(c) - atoi(subfield+1));
-					gain_exp(c, -MAX(1, atoi(subfield + 1)));
-				else if (*subfield == '+')
-//                   GET_EXP(c) = MAX(1, GET_EXP(c) + atoi(subfield+1));
-					gain_exp(c, + MAX(1, atoi(subfield + 1)));
-				else if ((value = atoi(subfield)) > 0)
 				{
-					c->set_exp(value);
+					gain_exp(c, -MAX(1, atoi(subfield + 1)));
+					sprintf(buf, "SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d", GET_NAME(c), MAX(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig));
+					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
+				}
+				else if (*subfield == '+')
+				{
+					gain_exp(c, + MAX(1, atoi(subfield + 1)));
+					sprintf(buf, "SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d", GET_NAME(c), MAX(1, atoi(subfield + 1)),  GET_TRIG_VNUM(trig));
+					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
+				}
+				else 
+				{
+					sprintf(buf, "SCRIPT_LOG (exp) ОШИБКА! у %s напрямую указан опыт %d в триггере %d", GET_NAME(c), atoi(subfield + 1), GET_TRIG_VNUM(trig));
+					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
 				}
 			}
-			sprintf(str, "%ld", GET_EXP(c));
+			else
+				sprintf(str, "%ld", GET_EXP(c));
 		}
 		else if (!str_cmp(field, "sex"))
 			sprintf(str, "%d", (int) GET_SEX(c));
@@ -2834,7 +2842,11 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (!*subfield || (pos = atoi(subfield)) <= POS_DEAD)
 				sprintf(str, "%d", GET_POS(c));
 			else if (!WAITLESS(c))
+			{
+				if (on_horse(c))
+					REMOVE_BIT(AFF_FLAGS(c, AFF_HORSE), AFF_HORSE);
 				GET_POS(c) = pos;
+			}
 		}
 		else if (!str_cmp(field, "wait"))
 		{

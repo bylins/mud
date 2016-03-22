@@ -1610,12 +1610,12 @@ void OBJ_DATA::init_set_table()
 					int i = 0;
 
 					while (isstream >> std::skipws >> i)
-						if (i < 0 || i > NUM_CLASSES * NUM_KIN)
+						if (i < 0 || i > NUM_PLAYER_CLASSES * NUM_KIN)
 							break;
 						else
 							tmpclss.set(flag_data_by_num(i));
 
-					if (i < 0 || i > NUM_CLASSES * NUM_KIN)
+					if (i < 0 || i > NUM_PLAYER_CLASSES * NUM_KIN)
 					{
 						cppstr = "init_set_table:: Wrong class in line '" + tag + ":" + cppstr + "'";
 						mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
@@ -2376,6 +2376,8 @@ void boot_db(void)
 	
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	HelpSystem::reload_all();
+
+	Bonus::bonus_log_load();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
@@ -3510,7 +3512,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	mob_proto[i].player_data.sex = static_cast<ESex>(t[2]);
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
-	mob_proto[i].set_class(CLASS_BASIC_NPC);
+	mob_proto[i].set_class(NPC_CLASS_BASE);
 	mob_proto[i].player_data.weight = 200;
 	mob_proto[i].player_data.height = 198;
 
@@ -3702,7 +3704,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Class")
 	{
-		RANGE(CLASS_BASIC_NPC, CLASS_LAST_NPC);
+		RANGE(NPC_CLASS_BASE, NPC_CLASS_LAST);
 		mob_proto[i].set_class(num_arg);
 	}
 
@@ -3721,7 +3723,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Race")
 	{
-		RANGE(NPC_RACE_BASIC, NPC_RACE_LAST);
+		RANGE(NPC_RACE_BASIC, NPC_RACE_NEXT - 1);
 		mob_proto[i].player_data.Race = num_arg;
 	}
 
@@ -7225,7 +7227,7 @@ bool check_object(OBJ_DATA * obj)
 			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_WEIGHT(obj));
 	}
 
-	if (GET_OBJ_RENT(obj))
+	if (GET_OBJ_RENT(obj) <=0 )
 	{
 		error = true;
 		log("SYSERR: Object #%d (%s) has negative cost/day (%d).",

@@ -111,7 +111,8 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 // * Распечатка строки с заклинанием и таймером при осмотре шмотки.
 std::string print_spell_str(CHAR_DATA *ch, int spell, int timer)
 {
-	if (spell < 0 || spell >= SPELLS_COUNT)
+	if (spell < 1
+		|| spell > SPELLS_COUNT)
 	{
 		log("SYSERROR: %s, spell = %d, time = %d", __func__, spell, timer);
 		return "";
@@ -124,32 +125,31 @@ std::string print_spell_str(CHAR_DATA *ch, int spell, int timer)
 	case SPELL_SCOPOLIA_POISON:
 	case SPELL_BELENA_POISON:
 	case SPELL_DATURA_POISON:
-		out = boost::str(boost::format(
-			"%1%Отравлено %2% еще %3% %4%.%5%\r\n")
-			% CCGRN(ch, C_NRM) % get_poison_by_spell(spell) % timer
-			% desc_count(timer, WHAT_MINu) % CCNRM(ch, C_NRM));
+		out = boost::str(boost::format("%1%Отравлено %2% еще %3% %4%.%5%\r\n")
+			% CCGRN(ch, C_NRM)
+			% get_poison_by_spell(spell)
+			% timer
+			% desc_count(timer, WHAT_MINu)
+			% CCNRM(ch, C_NRM));
 		break;
+
 	default:
-	{
 		if (timer == -1)
 		{
-			out = boost::str(boost::format(
-				"%1%Наложено постоянное заклинание '%2%'.%3%\r\n")
+			out = boost::str(boost::format("%1%Наложено постоянное заклинание '%2%'.%3%\r\n")
 				% CCCYN(ch, C_NRM)
 				% (spell_info[spell].name ? spell_info[spell].name : "<null>")
 				% CCNRM(ch, C_NRM));
 		}
 		else
 		{
-			out = boost::str(boost::format(
-				"%1%Наложено заклинание '%2%' (%3%).%4%\r\n")
+			out = boost::str(boost::format("%1%Наложено заклинание '%2%' (%3%).%4%\r\n")
 				% CCCYN(ch, C_NRM)
 				% (spell_info[spell].name ? spell_info[spell].name : "<null>")
 				% time_format(timer, true)
 				% CCNRM(ch, C_NRM));
 		}
 		break;
-	}
 	}
 	return out;
 }

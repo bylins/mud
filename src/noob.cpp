@@ -32,7 +32,7 @@ const char *CONFIG_FILE = LIB_MISC"noob_help.xml";
 // макс уровень чара, который считается нубом (is_noob в коде и тригах, из CONFIG_FILE)
 int MAX_LEVEL = 0;
 // список классов (по id) со списками шмоток (vnum) в каждом (из CONFIG_FILE)
-std::array<std::vector<int>, NUM_CLASSES> class_list;
+std::array<std::vector<int>, NUM_PLAYER_CLASSES> class_list;
 
 ///
 /// чтение конфига из misc/noob_help.xml (CONFIG_FILE)
@@ -40,7 +40,7 @@ std::array<std::vector<int>, NUM_CLASSES> class_list;
 void init()
 {
 	// для релоада на случай ошибок при чтении
-	std::array<std::vector<int>, NUM_CLASSES> tmp_class_list;
+	std::array<std::vector<int>, NUM_PLAYER_CLASSES> tmp_class_list;
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
@@ -148,7 +148,7 @@ std::vector<int> get_start_outfit(CHAR_DATA *ch)
 	// стаф из noob_help.xml
 	std::vector<int> out_list;
 	const int ch_class = ch->get_class();
-	if (ch_class < NUM_CLASSES)
+	if (ch_class < NUM_PLAYER_CLASSES)
 	{
 		out_list.insert(out_list.end(),
 			class_list.at(ch_class).begin(), class_list.at(ch_class).end());

@@ -720,7 +720,7 @@ void affect_total(CHAR_DATA * ch)
 	// move race and class modifiers
 	if (!IS_NPC(ch))
 	{
-		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_CLASSES)
+		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_PLAYER_CLASSES)
 		{
 			for (auto i : *class_app[(int)GET_CLASS(ch)].extra_affects)
 			{
@@ -1288,6 +1288,8 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 		CHAR_DATA *caster = find_char(affect_on_room->caster_id);
 		if (!same_group(ch, caster) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) && (number(1,100) <= 30)) // 30% шанс что враг уснет
 		{
+			if ((ch->master) && !IS_NPC(ch->master) && IS_NPC(ch))
+				return;
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
@@ -1775,7 +1777,7 @@ int flag_data_by_char_class(const CHAR_DATA * ch)
 	if (ch == NULL)
 		return 0;
 
-	return flag_data_by_num(IS_NPC(ch) ? NUM_CLASSES * NUM_KIN : GET_CLASS(ch) + NUM_CLASSES * GET_KIN(ch));
+	return flag_data_by_num(IS_NPC(ch) ? NUM_PLAYER_CLASSES * NUM_KIN : GET_CLASS(ch) + NUM_PLAYER_CLASSES * GET_KIN(ch));
 }
 
 unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,

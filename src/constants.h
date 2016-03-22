@@ -46,6 +46,7 @@ extern const char *no_bits[];
 extern const char *material_type[];
 extern const char *container_bits[];
 extern const char *fullness[];
+
 extern const std::vector<const char*> npc_role_types;
 extern const char *npc_race_types[];
 extern const char *places_of_birth[];
@@ -83,7 +84,7 @@ extern int mana_cost_cs[][9];
 extern const char *material_name[];
 extern struct attack_hit_type attack_hit_text[];
 extern const char *godslike_bits[];
-extern std::array<const char *, NUM_CLASSES> pc_class_name;
+extern std::array<const char *, NUM_PLAYER_CLASSES> pc_class_name;
 
 //MZ.load
 extern struct zone_type * zone_types;

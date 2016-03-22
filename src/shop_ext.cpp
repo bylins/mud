@@ -22,6 +22,7 @@
 #include "utils.h"
 #include "parse.hpp"
 #include "pugixml.hpp"
+#include "pk.h"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
@@ -1444,6 +1445,12 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	if (cmd == "Оценить")
 	{
+		if (bloody::is_bloody(obj))
+		{
+			tell_to_char(keeper, ch, string("Иди от крови отмой сначала!").c_str());
+			return;
+		}
+
 		if (obj->get_extraflag(EExtraFlag::ITEM_NOSELL)
 			|| obj->get_extraflag(EExtraFlag::ITEM_NAMED)
 			|| obj->get_extraflag(EExtraFlag::ITEM_REPOP_DECAY)
@@ -1461,9 +1468,13 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 			|| obj->get_extraflag(EExtraFlag::ITEM_NAMED)
 			|| obj->get_extraflag(EExtraFlag::ITEM_REPOP_DECAY)
 			|| (buy_price  <= 1)
-			|| obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY))
+			|| obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
+			|| bloody::is_bloody(obj))
 		{
-			tell_to_char(keeper, ch, "Такое я не покупаю.");
+			if (bloody::is_bloody(obj))
+				tell_to_char(keeper, ch, "Пшел вон убивец, и руки от крови отмой!");
+			else
+				tell_to_char(keeper, ch, "Такое я не покупаю.");
 			return;
 		}
 		else
@@ -1476,6 +1487,11 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	}
 	if (cmd == "Чинить")
 	{
+		if (bloody::is_bloody(obj))
+		{
+			tell_to_char(keeper, ch, string("Я не буду чинить окровавленные вещи!").c_str());
+			return;
+		}
 		if (repair <= 0)
 		{
 			tell_to_char(keeper, ch, (std::string(GET_OBJ_PNAME(obj, 3))+" не нужно чинить.").c_str());

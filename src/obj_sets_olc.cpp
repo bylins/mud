@@ -1415,7 +1415,7 @@ void sedit::show_activ_prof(CHAR_DATA *ch)
 	state = STATE_ACTIV_PROF;
 	char buf_[128];
 	std::string out;
-	std::bitset<NUM_CLASSES> &bits = olc_set.activ_list.at(activ_edit).prof;
+	std::bitset<NUM_PLAYER_CLASSES> &bits = olc_set.activ_list.at(activ_edit).prof;
 
 	for (size_t i = 0; i < bits.size(); ++i)
 	{
@@ -1458,7 +1458,7 @@ void sedit::parse_activ_prof(CHAR_DATA *ch, const char *arg)
 		return;
 	}
 
-	std::bitset<NUM_CLASSES> &bits = olc_set.activ_list.at(activ_edit).prof;
+	std::bitset<NUM_PLAYER_CLASSES> &bits = olc_set.activ_list.at(activ_edit).prof;
 	if (num > 0 && num <= bits.size())
 	{
 		bits.flip(num - 1);

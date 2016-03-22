@@ -44,7 +44,6 @@ struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
 struct skill_info_type skill_info[MAX_SKILL_NUM + 1];
 char cast_argument[MAX_STRING_LENGTH];
-extern const char *cast_phrase[SPELLS_COUNT + 1][2];
 
 #define SpINFO spell_info[spellnum]
 #define SkINFO skill_info[skillnum]
@@ -141,7 +140,7 @@ class MaxClassSlot
 public:
 	MaxClassSlot()
 	{
-		for (int i = 0; i < NUM_CLASSES; ++i)
+		for (int i = 0; i < NUM_PLAYER_CLASSES; ++i)
 		{
 			for (int k = 0; k < NUM_KIN; ++k)
 			{
@@ -163,7 +162,7 @@ public:
 		if (kin < 0
 			|| kin >= NUM_KIN
 			|| chclass < 0
-			|| chclass >=  NUM_CLASSES)
+			|| chclass >=  NUM_PLAYER_CLASSES)
 		{
 			return 0;
 		}
@@ -171,7 +170,7 @@ public:
 	};
 
 private:
-	int max_class_slot_[NUM_CLASSES][NUM_KIN];
+	int max_class_slot_[NUM_PLAYER_CLASSES][NUM_KIN];
 };
 
 MaxClassSlot max_slots;
@@ -1659,9 +1658,9 @@ void spell_prefix(int spellnum, const char **say_to_self, const char **say_to_ot
 		*say_to_other = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
 		*damagee_vict = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
 		break;
-	case SPELL_WC_OF_FEAR:
-		*say_to_other = "$n состроил$g страшную рожу и крикнул$g : '%s'.";
-		*damagee_vict = "$n состроил$g страшную рожу и крикнул$g : '%s'.";
+	case SPELL_WC_OF_DEFENSE:
+		*say_to_something = "$n поднял$g оружие вверх над головой и командным голосом сообщил$g : '%s'.";
+//		*damagee_vict = "$n поднял$g оружие вверх над головой и командным голосом сообщил$g : '%s'.";
 		break;
 	case SPELL_WC_OF_BATTLE:
 		*say_to_something = "$n смело выкрикнул$g : '%s'.";
@@ -3055,14 +3054,16 @@ ACMD(do_cast)
 		{
 
 			for (i = 1; i <= MAX_SPELLS; i++)
+			{
 				if (GET_SPELL_MEM(ch, i) &&
-						spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ==
-						spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+					spell_info[i].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] ==
+					spell_info[spellnum].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)])
 				{
 					spell_subst = i;
 					break;
 				}
-			if (i >= SPELLS_COUNT)
+			}
+			if (i > SPELLS_COUNT)
 			{
 				send_to_char("У вас нет заученных заклинаний этого круга.\r\n", ch);
 				return;
@@ -3166,14 +3167,20 @@ ACMD(do_warcry)
 	if (tok_iter == tok.end())
 	{
 		sprintf(buf, "Вам доступны :\r\n");
-		for (cnt = spellnum = 1; spellnum < SPELLS_COUNT; spellnum++)
+		for (cnt = spellnum = 1; spellnum <= SPELLS_COUNT; spellnum++)
 		{
 			const char *realname = SpINFO.name && *SpINFO.name ? SpINFO.name : SpINFO.syn && *SpINFO.syn ? SpINFO.syn : NULL;
 
-			if (realname && IS_SET(SpINFO.routines, MAG_WARCRY) && ch->get_skill(SKILL_WARCRY) >= SpINFO.mana_change)
+			if (realname
+				&& IS_SET(SpINFO.routines, MAG_WARCRY)
+				&& ch->get_skill(SKILL_WARCRY) >= SpINFO.mana_change)
+			{
+				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
-						CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
-						SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), realname, CCNRM(ch, C_NRM));
+					CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
+					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), realname, CCNRM(ch, C_NRM));
+			}
 		}
 		send_to_char(buf, ch);
 		return;
@@ -3197,7 +3204,7 @@ ACMD(do_warcry)
 	spellnum = find_spell_num(wc_name);
 
 	// Unknown warcry
-	if (spellnum < 1 || spellnum > MAX_SPELLS || ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change)
+	if (spellnum < 1 || spellnum > MAX_SPELLS || (ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change) || !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
 	{
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
@@ -3600,15 +3607,18 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && slot_for_char(ch, 1) <= 0)
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
+		&& slot_for_char(ch, 1) <= 0)
 	{
 		send_to_char("Далась вам эта магия! Пошли-бы, водочки выпили...\r\n", ch);
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 2) < 1 && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD &&
-			GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT &&
-			GET_OBJ_VAL(obj, 0) != BOOK_RECPT)
+	if (GET_OBJ_VAL(obj, 2) < 1
+		&& GET_OBJ_VAL(obj, 0) != BOOK_UPGRD
+		&& GET_OBJ_VAL(obj, 0) != BOOK_SPELL
+		&& GET_OBJ_VAL(obj, 0) != BOOK_FEAT
+		&& GET_OBJ_VAL(obj, 0) != BOOK_RECPT)
 	{
 		send_to_char("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам!\r\n", ch);
 		return;
@@ -3619,23 +3629,30 @@ ACMD(do_learn)
 		rcpt = im_get_recipe(GET_OBJ_VAL(obj, 1));
 	}
 
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
-			&& GET_OBJ_VAL(obj, 1) < 1 && GET_OBJ_VAL(obj, 1) > MAX_SKILL_NUM)
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL
+			|| GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
+		&& GET_OBJ_VAL(obj, 1) < 1
+		&& GET_OBJ_VAL(obj, 1) > MAX_SKILL_NUM)
 	{
 		send_to_char("УМЕНИЕ НЕ ОПРЕДЕЛЕНО - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rcpt < 0)
+	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
+		&& rcpt < 0)
 	{
 		send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) >= SPELLS_COUNT))
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
+		&& (GET_OBJ_VAL(obj, 1) < 1
+			|| GET_OBJ_VAL(obj, 1) > SPELLS_COUNT))
 	{
 		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) >= MAX_FEATS))
+	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT
+		&& (GET_OBJ_VAL(obj, 1) < 1
+			|| GET_OBJ_VAL(obj, 1) >= MAX_FEATS))
 	{
 		send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
@@ -4115,9 +4132,9 @@ void mspell_change(char *name, int spell, int kin, int chclass, int class_change
 		bad = 1;
 	}
 
-	if (chclass < 0 || chclass >= NUM_CLASSES)
+	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES)
 	{
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 	if (!bad)
@@ -4144,9 +4161,9 @@ mspell_remort(char *name, int spell, int kin, int chclass, int remort)
 		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
 		bad = 1;
 	}
-	if (chclass < 0 || chclass >= NUM_CLASSES)
+	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES)
 	{
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 	if (remort < 0 || remort > MAX_REMORT)
@@ -4178,9 +4195,9 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level)
 		bad = 1;
 	}
 
-	if (chclass < 0 || chclass >= NUM_CLASSES)
+	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES)
 	{
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 
@@ -4213,9 +4230,9 @@ void mspell_slot(char *name, int spell, int kin , int chclass, int slot)
 		bad = 1;
 	}
 
-	if (chclass < 0 || chclass >=  NUM_CLASSES)
+	if (chclass < 0 || chclass >=  NUM_PLAYER_CLASSES)
 	{
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 
@@ -4242,7 +4259,7 @@ spello(int spl, const char *name, const char *syn,
 	   int minpos, int targets, int violent, int routines, int danger, int spell_class)
 {
 	int i, j;
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			spell_info[spl].min_remort[i][j] = MAX_REMORT;
@@ -4273,7 +4290,7 @@ spello(int spl, const char *name, const char *syn,
 void unused_spell(int spl)
 {
 	int i, j;
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			spell_info[spl].min_remort[i][j] = MAX_REMORT;
@@ -4312,7 +4329,7 @@ void unused_spell(int spl)
 void skillo(int spl, const char *name, int max_percent)
 {
 	int i, j;
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			skill_info[spl].min_remort[i][j] = MAX_REMORT;
@@ -4328,7 +4345,7 @@ void unused_skill(int spl)
 {
 	int i, j;
 
-	for (i = 0; i < NUM_CLASSES; i++)
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			skill_info[spl].min_remort[i][j] = MAX_REMORT;
@@ -5055,11 +5072,11 @@ void mag_assign_spells(void)
 	spello(SPELL_WC_OF_THUNDER, "клич грома", "warcry of thunder", 140, 140, 141,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 0, STYPE_MIND);
-//183
-	spello(SPELL_WC_OF_FEAR, "клич устрашения", "warcry of fear", 80, 80, 101,
-		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-		   MAG_WARCRY | MAG_AREAS | MAG_MANUAL | NPC_AFFECT_PC, 0, STYPE_MIND);
 */
+//183
+	spello(SPELL_WC_OF_DEFENSE, "клич обороны", "warcry of defense", 10, 10, 10,
+		   POS_FIGHTING, TAR_IGNORE, FALSE,
+		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //184
 	spello(SPELL_WC_OF_BATTLE, "клич битвы", "warcry of battle", 20, 20, 50,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,

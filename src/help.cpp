@@ -196,11 +196,11 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_D
 	std::stringstream out;
 
 	out << " + Профессии :";
-	for (int i = 0; i <= NUM_CLASSES * NUM_KIN; ++i)
+	for (int i = 0; i <= NUM_PLAYER_CLASSES * NUM_KIN; ++i)
 	{
 		if (check_num_in_unique_bit_flag_data(activ->first, i))
 		{
-			if (i < NUM_CLASSES * NUM_KIN)
+			if (i < NUM_PLAYER_CLASSES * NUM_KIN)
 			{
 				out << " " << class_name[i];
 			}
@@ -292,7 +292,7 @@ void activators_obj::fill_class(set_info::const_iterator k)
 		for (class_to_act_map::const_iterator q = m->second.begin(),
 			qend = m->second.end(); q != qend; ++q)
 		{
-			for (int i = 0; i <= NUM_CLASSES * NUM_KIN; ++i)
+			for (int i = 0; i <= NUM_PLAYER_CLASSES * NUM_KIN; ++i)
 			{
 				if (check_num_in_unique_bit_flag_data(q->first, i))
 				{
@@ -353,7 +353,7 @@ std::string activators_obj::print()
 	{
 		// распечатка аффектов каждой профы
 		dup_node node;
-		node.clss += cls_it->first < NUM_CLASSES * NUM_KIN ? class_name[cls_it->first] : "чармисы";
+		node.clss += cls_it->first < NUM_PLAYER_CLASSES * NUM_KIN ? class_name[cls_it->first] : "чармисы";
 		// affects
 		cls_it->second.total_affects += native_affects;
 		if (cls_it->second.total_affects.sprintbits(weapon_affects, buf2, ","))

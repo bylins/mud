@@ -148,220 +148,224 @@ template <> const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFl
 // PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS //
 enum ESpell
 {
-#define SPELL_ARMOR                   1	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_TELEPORT                2	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_BLESS                   3	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_BLINDNESS               4	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_BURNING_HANDS           5	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CALL_LIGHTNING          6	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CHARM                   7	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CHILL_TOUCH             8	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CLONE                   9	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_COLOR_SPRAY            10	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CONTROL_WEATHER        11	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CREATE_FOOD            12	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CREATE_WATER           13	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CURE_BLIND             14	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CURE_CRITIC            15	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CURE_LIGHT             16	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_CURSE                  17	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_DETECT_ALIGN           18	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_DETECT_INVIS           19	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_DETECT_MAGIC           20	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_DETECT_POISON          21	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_DISPEL_EVIL            22	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_EARTHQUAKE             23	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_ENCHANT_WEAPON         24	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_ENERGY_DRAIN           25	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_FIREBALL               26	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_HARM                   27	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_HEAL                   28	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_INVISIBLE              29	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_LIGHTNING_BOLT         30	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_LOCATE_OBJECT          31	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_MAGIC_MISSILE          32	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_POISON                 33	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_PROT_FROM_EVIL         34	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_REMOVE_CURSE           35	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_SANCTUARY              36	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_SHOCKING_GRASP         37	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_SLEEP                  38	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_STRENGTH               39	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_SUMMON                 40	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_PATRONAGE              41	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_WORD_OF_RECALL         42	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_REMOVE_POISON          43	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_SENSE_LIFE             44	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_ANIMATE_DEAD	     45	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_DISPEL_GOOD	     46	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_GROUP_ARMOR	     47	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_GROUP_HEAL	     48	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_GROUP_RECALL	     49	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_INFRAVISION	     50	// Reserved Skill[] DO NOT CHANGE //
-#define SPELL_WATERWALK		     51	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_ARMOR = 1,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_TELEPORT = 2,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_BLESS = 3,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_BLINDNESS = 4,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_BURNING_HANDS = 5,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CALL_LIGHTNING = 6,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CHARM = 7,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CHILL_TOUCH = 8,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CLONE = 9,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_COLOR_SPRAY = 10,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CONTROL_WEATHER = 11,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CREATE_FOOD = 12,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CREATE_WATER = 13,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CURE_BLIND = 14,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CURE_CRITIC = 15,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CURE_LIGHT = 16,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_CURSE = 17,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_DETECT_ALIGN = 18,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_DETECT_INVIS = 19,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_DETECT_MAGIC = 20,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_DETECT_POISON = 21,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_DISPEL_EVIL = 22,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_EARTHQUAKE = 23,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_ENCHANT_WEAPON = 24,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_ENERGY_DRAIN = 25,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_FIREBALL = 26,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_HARM = 27,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_HEAL = 28,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_INVISIBLE = 29,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_LIGHTNING_BOLT = 30,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_LOCATE_OBJECT = 31,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_MAGIC_MISSILE = 32,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_POISON = 33,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_PROT_FROM_EVIL = 34,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_REMOVE_CURSE = 35,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_SANCTUARY = 36,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_SHOCKING_GRASP = 37,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_SLEEP = 38,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_STRENGTH = 39,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_SUMMON = 40,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_PATRONAGE = 41,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_WORD_OF_RECALL = 42,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_REMOVE_POISON = 43,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_SENSE_LIFE = 44,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_ANIMATE_DEAD = 45,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_DISPEL_GOOD = 46,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_GROUP_ARMOR = 47,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_GROUP_HEAL = 48,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_GROUP_RECALL = 49,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_INFRAVISION = 50,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_WATERWALK = 51,	// Reserved Skill[] DO NOT CHANGE //
 
 	// Insert new spells here, up to MAX_SPELLS //
-#define SPELL_CURE_SERIOUS       52
-#define SPELL_GROUP_STRENGTH     53
-#define SPELL_HOLD               54
-#define SPELL_POWER_HOLD         55
-#define SPELL_MASS_HOLD          56
-#define SPELL_FLY                57
-#define SPELL_BROKEN_CHAINS      58
-#define SPELL_NOFLEE             59
-#define SPELL_CREATE_LIGHT       60
-#define SPELL_DARKNESS           61
-#define SPELL_STONESKIN          62
-#define SPELL_CLOUDLY            63
-#define SPELL_SIELENCE           64
-#define SPELL_LIGHT              65
-#define SPELL_CHAIN_LIGHTNING    66
-#define SPELL_FIREBLAST          67
-#define SPELL_IMPLOSION          68
-#define SPELL_WEAKNESS           69
-#define SPELL_GROUP_INVISIBLE    70
-#define SPELL_SHADOW_CLOAK       71
-#define SPELL_ACID               72
-#define SPELL_REPAIR             73
-#define SPELL_ENLARGE            74
-#define SPELL_FEAR               75
-#define SPELL_SACRIFICE          76
-#define SPELL_WEB                77
-#define SPELL_BLINK              78
-#define SPELL_REMOVE_HOLD        79
-#define SPELL_CAMOUFLAGE         80
-#define SPELL_POWER_BLINDNESS    81
-#define SPELL_MASS_BLINDNESS     82
-#define SPELL_POWER_SIELENCE     83
-#define SPELL_EXTRA_HITS         84
-#define SPELL_RESSURECTION       85
-#define SPELL_MAGICSHIELD        86
-#define SPELL_FORBIDDEN          87
-#define SPELL_MASS_SIELENCE      88
-#define SPELL_REMOVE_SIELENCE    89
-#define SPELL_DAMAGE_LIGHT       90
-#define SPELL_DAMAGE_SERIOUS     91
-#define SPELL_DAMAGE_CRITIC      92
-#define SPELL_MASS_CURSE         93
-#define SPELL_ARMAGEDDON         94
-#define SPELL_GROUP_FLY          95
-#define SPELL_GROUP_BLESS        96
-#define SPELL_REFRESH            97
-#define SPELL_STUNNING           98
-#define SPELL_HIDE               99
-#define SPELL_SNEAK              100
-#define SPELL_DRUNKED            101
-#define SPELL_ABSTINENT          102
-#define SPELL_FULL               103
-#define SPELL_CONE_OF_COLD       104
-#define SPELL_BATTLE             105
-#define SPELL_HAEMORRAGIA        106
-#define SPELL_COURAGE            107
-#define SPELL_WATERBREATH        108
-#define SPELL_SLOW               109
-#define SPELL_HASTE              110
-#define SPELL_MASS_SLOW          111
-#define SPELL_GROUP_HASTE        112
-#define SPELL_SHIELD		 113
-#define SPELL_PLAQUE		 114
-#define SPELL_CURE_PLAQUE	 115
-#define SPELL_AWARNESS		 116
-#define SPELL_RELIGION           117
-#define SPELL_AIR_SHIELD         118
-#define SPELL_PORTAL             119
-#define SPELL_DISPELL_MAGIC      120
-#define SPELL_SUMMON_KEEPER      121
-#define SPELL_FAST_REGENERATION  122
-#define SPELL_CREATE_WEAPON      123
-#define SPELL_FIRE_SHIELD        124
-#define SPELL_RELOCATE           125
-#define SPELL_SUMMON_FIREKEEPER  126
-#define SPELL_ICE_SHIELD         127
-
-#define SPELL_ICESTORM			 128
-#define SPELL_ENLESS			 129
-#define	SPELL_SHINEFLASH		 130
-#define SPELL_MADNESS			 131
-#define SPELL_GROUP_MAGICGLASS           132
-#define SPELL_CLOUD_OF_ARROWS		 133
-#define SPELL_VACUUM			 134
-#define SPELL_METEORSTORM		 135
-#define SPELL_STONEHAND			 136
-#define SPELL_MINDLESS			 137
-#define SPELL_PRISMATICAURA              138
-#define SPELL_EVILESS                    139
-#define SPELL_AIR_AURA                   140
-#define SPELL_FIRE_AURA                  141
-#define SPELL_ICE_AURA                   142
-#define SPELL_SHOCK                      143
-#define SPELL_MAGICGLASS		144
-#define SPELL_GROUP_SANCTUARY           145
-#define SPELL_GROUP_PRISMATICAURA       146
-#define	SPELL_DEAFNESS			147
-#define	SPELL_POWER_DEAFNESS	 	148
-#define SPELL_REMOVE_DEAFNESS    	149
-#define	SPELL_MASS_DEAFNESS	     	150
-#define SPELL_DUSTSTORM          	151
-#define SPELL_EARTHFALL          	152
-#define SPELL_SONICWAVE          	153
-#define SPELL_HOLYSTRIKE         	154
-#define SPELL_ANGEL              	155
-#define SPELL_MASS_FEAR 	 	156	// Added by Niker //
-#define SPELL_FASCINATION 		157
-#define SPELL_CRYING			158
-#define SPELL_OBLIVION			159	// Забвение. Dalim //
-#define SPELL_BURDEN_OF_TIME		160	// Бремя времени. Dalim //
-#define SPELL_GROUP_REFRESH		161
-#define SPELL_PEACEFUL			162	// Усмирение. dzMUDiST //
-#define SPELL_MAGICBATTLE               163
-#define SPELL_BERSERK            	164
-#define SPELL_STONEBONES            	165
-#define SPELL_ROOM_LIGHT		166	// Закл освящения комнаты //
-#define SPELL_POISONED_FOG		167	// Закл отравленного тумана //
-#define SPELL_THUNDERSTORM		168	// Закл отравленного тумана //
-#define SPELL_LIGHT_WALK		169
-#define SPELL_FAILURE			170
-#define SPELL_CLANPRAY			171
-#define SPELL_GLITTERDUST		172
-#define SPELL_SCREAM			173
-#define SPELL_CATS_GRACE		174
-#define SPELL_BULL_BODY			175
-#define SPELL_SNAKE_WISDOM		176
-#define SPELL_GIMMICKRY			177
-#define SPELL_WC_OF_CHALLENGE		178
-#define SPELL_WC_OF_MENACE		179
-#define SPELL_WC_OF_RAGE		180
-#define SPELL_WC_OF_MADNESS		181
-#define SPELL_WC_OF_THUNDER		182
-#define SPELL_WC_OF_FEAR		183
-#define SPELL_WC_OF_BATTLE		184
-#define SPELL_WC_OF_POWER		185
-#define SPELL_WC_OF_BLESS		186
-#define SPELL_WC_OF_COURAGE		187
-#define SPELL_RUNE_LABEL                188
-#define SPELL_ACONITUM_POISON       189
-#define SPELL_SCOPOLIA_POISON   190
-#define SPELL_BELENA_POISON     191
-#define SPELL_DATURA_POISON     192
-#define SPELL_TIMER_REPAIR      193
-#define SPELL_LACKY				194
-#define SPELL_BANDAGE           195
-#define SPELL_NO_BANDAGE           196
-#define SPELL_CAPABLE           197
-#define SPELL_STRANGLE          198
-#define SPELL_RECALL_SPELLS     199
-#define SPELL_HYPNOTIC_PATTERN	200
-#define SPELL_SOLOBONUS		    201
-#define SPELL_VAMPIRE		    202
-#define SPELLS_RESTORATION		203  //очистка магических афектов
-
-#define SPELL_AURA_DEATH        204  // аура смерти верховного лича
-#define SPELL_RECOVERY          205  // исцеление нежити
-#define SPELL_MASS_RECOVERY     206  // масовое исцеление нежити
-#define SPELL_AURA_EVIL         207  // аура зла для всей нежити в группе
+	SPELL_CURE_SERIOUS = 52,
+	SPELL_GROUP_STRENGTH = 53,
+	SPELL_HOLD = 54,
+	SPELL_POWER_HOLD = 55,
+	SPELL_MASS_HOLD = 56,
+	SPELL_FLY = 57,
+	SPELL_BROKEN_CHAINS = 58,
+	SPELL_NOFLEE = 59,
+	SPELL_CREATE_LIGHT = 60,
+	SPELL_DARKNESS = 61,
+	SPELL_STONESKIN = 62,
+	SPELL_CLOUDLY = 63,
+	SPELL_SIELENCE = 64,
+	SPELL_LIGHT = 65,
+	SPELL_CHAIN_LIGHTNING = 66,
+	SPELL_FIREBLAST = 67,
+	SPELL_IMPLOSION = 68,
+	SPELL_WEAKNESS = 69,
+	SPELL_GROUP_INVISIBLE = 70,
+	SPELL_SHADOW_CLOAK = 71,
+	SPELL_ACID = 72,
+	SPELL_REPAIR = 73,
+	SPELL_ENLARGE = 74,
+	SPELL_FEAR = 75,
+	SPELL_SACRIFICE = 76,
+	SPELL_WEB = 77,
+	SPELL_BLINK = 78,
+	SPELL_REMOVE_HOLD = 79,
+	SPELL_CAMOUFLAGE = 80,
+	SPELL_POWER_BLINDNESS = 81,
+	SPELL_MASS_BLINDNESS = 82,
+	SPELL_POWER_SIELENCE = 83,
+	SPELL_EXTRA_HITS = 84,
+	SPELL_RESSURECTION = 85,
+	SPELL_MAGICSHIELD = 86,
+	SPELL_FORBIDDEN = 87,
+	SPELL_MASS_SIELENCE = 88,
+	SPELL_REMOVE_SIELENCE = 89,
+	SPELL_DAMAGE_LIGHT = 90,
+	SPELL_DAMAGE_SERIOUS = 91,
+	SPELL_DAMAGE_CRITIC = 92,
+	SPELL_MASS_CURSE = 93,
+	SPELL_ARMAGEDDON = 94,
+	SPELL_GROUP_FLY = 95,
+	SPELL_GROUP_BLESS = 96,
+	SPELL_REFRESH = 97,
+	SPELL_STUNNING = 98,
+	SPELL_HIDE = 99,
+	SPELL_SNEAK = 100,
+	SPELL_DRUNKED = 101,
+	SPELL_ABSTINENT = 102,
+	SPELL_FULL = 103,
+	SPELL_CONE_OF_COLD = 104,
+	SPELL_BATTLE = 105,
+	SPELL_HAEMORRAGIA = 106,
+	SPELL_COURAGE = 107,
+	SPELL_WATERBREATH = 108,
+	SPELL_SLOW = 109,
+	SPELL_HASTE = 110,
+	SPELL_MASS_SLOW = 111,
+	SPELL_GROUP_HASTE = 112,
+	SPELL_SHIELD = 113,
+	SPELL_PLAQUE = 114,
+	SPELL_CURE_PLAQUE = 115,
+	SPELL_AWARNESS = 116,
+	SPELL_RELIGION = 117,
+	SPELL_AIR_SHIELD = 118,
+	SPELL_PORTAL = 119,
+	SPELL_DISPELL_MAGIC = 120,
+	SPELL_SUMMON_KEEPER = 121,
+	SPELL_FAST_REGENERATION = 122,
+	SPELL_CREATE_WEAPON = 123,
+	SPELL_FIRE_SHIELD = 124,
+	SPELL_RELOCATE = 125,
+	SPELL_SUMMON_FIREKEEPER = 126,
+	SPELL_ICE_SHIELD = 127,
+	SPELL_ICESTORM = 128,
+	SPELL_ENLESS = 129,
+	SPELL_SHINEFLASH = 130,
+	SPELL_MADNESS = 131,
+	SPELL_GROUP_MAGICGLASS = 132,
+	SPELL_CLOUD_OF_ARROWS = 133,
+	SPELL_VACUUM = 134,
+	SPELL_METEORSTORM = 135,
+	SPELL_STONEHAND = 136,
+	SPELL_MINDLESS = 137,
+	SPELL_PRISMATICAURA = 138,
+	SPELL_EVILESS = 139,
+	SPELL_AIR_AURA = 140,
+	SPELL_FIRE_AURA = 141,
+	SPELL_ICE_AURA = 142,
+	SPELL_SHOCK = 143,
+	SPELL_MAGICGLASS = 144,
+	SPELL_GROUP_SANCTUARY = 145,
+	SPELL_GROUP_PRISMATICAURA = 146,
+	SPELL_DEAFNESS = 147,
+	SPELL_POWER_DEAFNESS = 148,
+	SPELL_REMOVE_DEAFNESS = 149,
+	SPELL_MASS_DEAFNESS = 150,
+	SPELL_DUSTSTORM = 151,
+	SPELL_EARTHFALL = 152,
+	SPELL_SONICWAVE = 153,
+	SPELL_HOLYSTRIKE = 154,
+	SPELL_ANGEL = 155,
+	SPELL_MASS_FEAR = 156,	// Added by Niker //
+	SPELL_FASCINATION = 157,
+	SPELL_CRYING = 158,
+	SPELL_OBLIVION = 159,	// Забвение. Dalim //
+	SPELL_BURDEN_OF_TIME = 160,	// Бремя времени. Dalim //
+	SPELL_GROUP_REFRESH = 161,
+	SPELL_PEACEFUL = 162,	// Усмирение. dzMUDiST //
+	SPELL_MAGICBATTLE = 163,
+	SPELL_BERSERK = 164,
+	SPELL_STONEBONES = 165,
+	SPELL_ROOM_LIGHT = 166,	// Закл освящения комнаты //
+	SPELL_POISONED_FOG = 167,	// Закл отравленного тумана //
+	SPELL_THUNDERSTORM = 168,	// Закл отравленного тумана //
+	SPELL_LIGHT_WALK = 169,
+	SPELL_FAILURE = 170,
+	SPELL_CLANPRAY = 171,
+	SPELL_GLITTERDUST = 172,
+	SPELL_SCREAM = 173,
+	SPELL_CATS_GRACE = 174,
+	SPELL_BULL_BODY = 175,
+	SPELL_SNAKE_WISDOM = 176,
+	SPELL_GIMMICKRY = 177,
+	SPELL_WC_OF_CHALLENGE = 178,
+	SPELL_WC_OF_MENACE = 179,
+	SPELL_WC_OF_RAGE = 180,
+	SPELL_WC_OF_MADNESS = 181,
+	SPELL_WC_OF_THUNDER = 182,
+	SPELL_WC_OF_DEFENSE = 183,
+	SPELL_WC_OF_BATTLE = 184,
+	SPELL_WC_OF_POWER = 185,
+	SPELL_WC_OF_BLESS = 186,
+	SPELL_WC_OF_COURAGE = 187,
+	SPELL_RUNE_LABEL = 188,
+	SPELL_ACONITUM_POISON = 189,
+	SPELL_SCOPOLIA_POISON = 190,
+	SPELL_BELENA_POISON = 191,
+	SPELL_DATURA_POISON = 192,
+	SPELL_TIMER_REPAIR = 193,
+	SPELL_LACKY = 194,
+	SPELL_BANDAGE = 195,
+	SPELL_NO_BANDAGE = 196,
+	SPELL_CAPABLE = 197,
+	SPELL_STRANGLE = 198,
+	SPELL_RECALL_SPELLS = 199,
+	SPELL_HYPNOTIC_PATTERN = 200,
+	SPELL_SOLOBONUS = 201,
+	SPELL_VAMPIRE = 202,
+	SPELLS_RESTORATION = 203,	//очистка магических афектов
+	SPELL_AURA_DEATH = 204,	// аура смерти верховного лича
+	SPELL_RECOVERY = 205,	// исцеление нежити
+	SPELL_MASS_RECOVERY = 206,	// масовое исцеление нежити
+	SPELL_AURA_EVIL = 207,	// аура зла для всей нежити в группе
+	SPELLS_COUNT = SPELL_AURA_EVIL	// Counter corresponds to the last value because we count spells from 1.
 };
 
-#define SPELLS_COUNT			208
+typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;
+extern const spell_wear_off_msg_t spell_wear_off_msg;
+
+typedef std::array<const char*, 2> cast_phrase_t;
+typedef std::array<cast_phrase_t, SPELLS_COUNT + 1> cast_phrases_t;
+extern const cast_phrases_t cast_phrase;
 
 typedef std::array<char *, SPELLS_COUNT + 10> spell_wear_off_msg_t;
 extern const spell_wear_off_msg_t spell_wear_off_msg;
@@ -443,10 +447,10 @@ struct spell_info_type
 	int mana_min;		// Min amount of mana used by a spell (highest lev) //
 	int mana_max;		// Max amount of mana used by a spell (lowest lev) //
 	int mana_change;	// Change in mana used by spell from lev to lev //
-	int min_remort[NUM_CLASSES][NUM_KIN];
-	int min_level[NUM_CLASSES][NUM_KIN];
-	int slot_forc[NUM_CLASSES][NUM_KIN];
-	int class_change[NUM_CLASSES][NUM_KIN];
+	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
+	int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
+	int slot_forc[NUM_PLAYER_CLASSES][NUM_KIN];
+	int class_change[NUM_PLAYER_CLASSES][NUM_KIN];
 	long danger;
 	long routines;
 	byte violent;
@@ -461,11 +465,11 @@ struct spell_info_type
 struct skill_info_type
 {
 	byte min_position;	// Position for caster //
-	int min_remort[NUM_CLASSES][NUM_KIN];
-	int min_level[NUM_CLASSES][NUM_KIN];
-	int level_decrement[NUM_CLASSES][NUM_KIN];
-	long int k_improove[NUM_CLASSES][NUM_KIN];
-	int classknow[NUM_CLASSES][NUM_KIN];
+	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
+	int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
+	int level_decrement[NUM_PLAYER_CLASSES][NUM_KIN];
+	long int k_improove[NUM_PLAYER_CLASSES][NUM_KIN];
+	int classknow[NUM_PLAYER_CLASSES][NUM_KIN];
 	int max_percent;
 	const char *name;
 };
@@ -544,7 +548,6 @@ ASPELL(spell_eviless);
 ASPELL(spell_townportal);
 ASPELL(spell_energydrain);
 ASPELL(spell_fear);
-ASPELL(spell_wc_of_fear);
 ASPELL(spell_sacrifice);
 ASPELL(spell_forbidden);
 ASPELL(spell_identify);

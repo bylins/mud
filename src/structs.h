@@ -258,11 +258,10 @@ inline E ITEM_BY_NAME(const char* name) { return ITEM_BY_NAME<E>(std::string(nam
 // char and mob-related defines ***************************************
 
 // PC classes //
-const int CLASS_UNDEFINED = -1;
-
 enum
 {
-	CLASS_CLERIC,
+	CLASS_UNDEFINED = -1,
+	CLASS_CLERIC = 0,
 	CLASS_BATTLEMAGE,
 	CLASS_THIEF,
 	CLASS_WARRIOR,
@@ -276,11 +275,12 @@ enum
 	CLASS_SMITH,
 	CLASS_MERCHANT,
 	CLASS_DRUID,
-	NUM_CLASSES
+	NUM_PLAYER_CLASSES,
+	PLAYER_CLASS_NEXT = NUM_PLAYER_CLASSES,
+	CLASS_MOB = 20,
+	NPC_CLASS_BASE = 100,
+	NPC_CLASS_LAST = 107
 };
-
-// mobile class
-#define CLASS_MOB      20
 
 #define MASK_BATTLEMAGE   (1 << CLASS_BATTLEMAGE)
 #define MASK_CLERIC       (1 << CLASS_CLERIC)
@@ -332,16 +332,6 @@ extern const religion_names_t religion_name;
 // PC Kin
 #define NUM_KIN            3
 
-// NPC classes
-#define CLASS_BASIC_NPC    100
-//#define CLASS_UNDEAD       101 к классам не относится, перенесено в расы (типы) мобов
-//#define CLASS_HUMAN        102
-//#define CLASS_ANIMAL       103
-#define CLASS_HERO_WARRIOR 104
-#define CLASS_HERO_MAGIC   105
-#define CLASS_NPC_BATLEMAGE 106
-#define CLASS_LAST_NPC     107
-
 // NPC races
 #define NPC_RACE_BASIC			100
 #define NPC_RACE_HUMAN			101
@@ -358,7 +348,7 @@ extern const religion_names_t religion_name;
 #define NPC_RACE_EVIL_SPIRIT	112
 #define NPC_RACE_SPIRIT			113
 #define NPC_RACE_MAGIC_CREATURE	114
-#define NPC_RACE_LAST			115
+#define NPC_RACE_NEXT			115
 
 // Virtual NPC races
 #define NPC_BOSS				200
@@ -1151,9 +1141,13 @@ const int HISTORY_SIZE = 5;
 #define MAX_REMEMBER_GOSSIP   15
 // планка на кол-во денег у чара на руках и в банке (раздельно)
 const long MAX_MONEY_KEPT = 1000000000;
-#define BONUS_EXP 0
-#define BONUS_WEAPON_EXP 1
-#define BONUS_DAMAGE 2
+
+enum EBonusType
+{
+	BONUS_EXP = 0,
+	BONUS_WEAPON_EXP = 1,
+	BONUS_DAMAGE = 2
+};
 
 #define INT_STUPID_MOD 10
 #define INT_MIDDLE_AI 30
@@ -2021,7 +2015,7 @@ struct set_struct
 	type;
 };
 
-extern int grouping[NUM_CLASSES][MAX_REMORT+1];
+extern int grouping[NUM_PLAYER_CLASSES][MAX_REMORT+1];
 
 //Polos.insert_wanted_gem
 struct int3
