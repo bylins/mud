@@ -2331,6 +2331,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 	case obj_flag_data::ITEM_INGREDIENT:
 		// Для ингров ничего не трогаем ... ибо опасно. :)
 		break;
+
+	default:
+		break;
 	}
 //  sprintf(tmpbuf,"VAL0 = %d ; VAL1 = %d ; VAL2 = %d ; VAL3 = %d \r\n",
 //     GET_OBJ_VAL(obj,0),GET_OBJ_VAL(obj,1),GET_OBJ_VAL(obj,2),GET_OBJ_VAL(obj,3));

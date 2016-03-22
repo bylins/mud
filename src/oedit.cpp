@@ -1621,6 +1621,8 @@ void parse_val_spell_lvl(DESCRIPTOR_DATA *d, const ObjVal::EValueKey key, int va
 		case ObjVal::EValueKey::POTION_SPELL3_LVL:
 			OLC_OBJ(d)->values.set(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
 			break;
+		default:
+			break;
 		}
 		check_potion_proto(OLC_OBJ(d));
 		OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
@@ -2250,6 +2252,8 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				}
 				break;
 			}
+		default:
+			break;
 		}
 		GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
 		OLC_VAL(d) = 1;

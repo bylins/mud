@@ -1758,6 +1758,9 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
+
+	default:
+		break;
 	} // switch
 
 	if (fullness < 90)
@@ -2118,6 +2121,9 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
+
+	default:
+		break;
 	} // switch
 
 	found = FALSE;

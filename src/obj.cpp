@@ -533,9 +533,10 @@ bool is_armor_type(const OBJ_DATA *obj)
 	case obj_flag_data::ITEM_ARMOR_MEDIAN:
 	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		return true;
-	}
 
-	return false;
+	default:
+		return false;
+	}
 }
 
 // * óÍ. CharacterSystem::release_purged_list()

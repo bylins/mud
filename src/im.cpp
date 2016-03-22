@@ -1763,6 +1763,9 @@ ACMD(do_cook)
 					result->set_timer(val[2]);
 				}
 				break;
+
+			default:
+				break;
 			}
 			obj_to_char(result, ch);
 		}

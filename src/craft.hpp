@@ -124,9 +124,9 @@ namespace craft
 
 	protected:
 		CPrototypeBase():
+			m_type(obj_flag_data::DEFAULT_TYPE),
 			m_weight(obj_flag_data::DEFAULT_WEIGHT),
-			m_timer(OBJ_DATA::DEFAULT_TIMER),
-			m_type(obj_flag_data::DEFAULT_TYPE)
+			m_timer(OBJ_DATA::DEFAULT_TIMER)
 		{
 		}
 

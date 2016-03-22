@@ -1037,6 +1037,9 @@ void mob_casting(CHAR_DATA * ch)
 				}
 			}
 			break;
+
+		default:
+			break;
 		}
 
 		item = item->next_content;
@@ -1133,6 +1136,9 @@ void mob_casting(CHAR_DATA * ch)
 						return;
 					}
 				}
+				break;
+
+			default:
 				break;
 			}
 

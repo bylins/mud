@@ -165,9 +165,13 @@ void make_visible(CHAR_DATA * ch, const EAffectFlag affect)
 		strcpy(to_char, "Вы прекратили прятаться.\r\n");
 		strcpy(to_room, "$n прекратил$g прятаться.\r\n");
 		break;
+
 	case EAffectFlag::AFF_CAMOUFLAGE:
 		strcpy(to_char, "Вы прекратили маскироваться.\r\n");
 		strcpy(to_room, "$n прекратил$g маскироваться.\r\n");
+		break;
+
+	default:
 		break;
 	}
 	AFF_FLAGS(ch).unset(affect);

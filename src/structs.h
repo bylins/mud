@@ -300,6 +300,19 @@ enum
 #define MASK_MAGES        (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER)
 #define MASK_CASTER       (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER | MASK_CLERIC | MASK_DRUID)
 
+typedef int8_t sbyte;
+typedef uint8_t ubyte;
+typedef int16_t sh_int;
+typedef uint16_t ush_int;
+
+#if !defined(__cplusplus)	// Anyone know a portable method?
+typedef char bool;
+#endif
+
+#if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	// Hm, sysdep.h?
+typedef char byte;
+#endif
+
 enum class ESex: byte
 {
 	SEX_NEUTRAL = 0,
@@ -1156,25 +1169,6 @@ enum EBonusType
 #define STRONG_MOB_LEVEL 30
 const short MAX_MOB_LEVEL = 50;
 
-// *********************************************************************
-// * Structures                                                        *
-// *********************************************************************
-
-
-typedef int8_t sbyte;
-typedef uint8_t ubyte;
-typedef int16_t sh_int;
-typedef uint16_t ush_int;
-
-#if !defined(__cplusplus)	// Anyone know a portable method?
-typedef char bool;
-#endif
-
-#if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	// Hm, sysdep.h?
-typedef char
-byte;
-#endif
-
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
 
 inline bool sprintbit(bitvector_t bitvector, const char *names[], char *result, const int print_flag = 0)
@@ -1218,28 +1212,20 @@ public:
 
 	template <class T>
 	bool get(const T packed_flag) const { return 0 != (m_flags[to_underlying(packed_flag) >> 30] & (to_underlying(packed_flag) & 0x3fffffff)); }
-	template <> bool get(const uint32_t packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
-	template <> bool get(const int packed_flag) const { return get(static_cast<uint32_t>(packed_flag)); }
 	bool get_flag(const size_t plane, const uint32_t flag) const { return 0 != (m_flags[plane] & (flag & 0x3fffffff)); }
 	uint32_t get_plane(const size_t number) const { return m_flags[number]; }
 	bool plane_not_empty(const int packet_flag) const { return 0 != m_flags[packet_flag >> 30]; }
 
 	template <class T>
 	void set(const T packed_flag) { m_flags[to_underlying(packed_flag) >> 30] |= to_underlying(packed_flag) & 0x3fffffff; }
-	template <> void set(const uint32_t packed_flag) { m_flags[packed_flag >> 30] |= packed_flag & 0x3fffffff; }
-	template <> void set(const int packed_flag) { set(static_cast<uint32_t>(packed_flag)); }
 	void set_flag(const size_t plane, const uint32_t flag) { m_flags[plane] |= flag; }
 	void set_plane(const size_t number, const uint32_t value) { m_flags[number] = value; }
 
 	template <class T>
 	void unset(const T packed_flag) { m_flags[to_underlying(packed_flag) >> 30] &= ~(to_underlying(packed_flag) & 0x3fffffff); }
-	template <> void unset(const uint32_t packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
-	template <> void unset(const int packed_flag) { unset(static_cast<uint32_t>(packed_flag)); }
 
 	template <class T>
 	bool toggle(const T packed_flag) { return 0 != ((m_flags[to_underlying(packed_flag) >> 30] ^= (to_underlying(packed_flag) & 0x3fffffff)) & (to_underlying(packed_flag) & 0x3fffffff)); }
-	template <> bool toggle(const uint32_t packed_flag) { return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & (packed_flag & 0x3fffffff)); }
-	template <> bool toggle(const int packed_flag) { return toggle(static_cast<uint32_t>(packed_flag)); }
 	bool toggle_flag(const size_t plane, const uint32_t flag) { return 0 != ((m_flags[plane] ^= flag) & flag); }
 
 	void from_string(const char *flag);
@@ -1250,6 +1236,15 @@ public:
 private:
 	boost::array<uint32_t, 4> m_flags;
 };
+
+template <> inline bool FLAG_DATA::get(const uint32_t packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
+template <> inline bool FLAG_DATA::get(const int packed_flag) const { return get(static_cast<uint32_t>(packed_flag)); }
+template <> inline void FLAG_DATA::set(const uint32_t packed_flag) { m_flags[packed_flag >> 30] |= packed_flag & 0x3fffffff; }
+template <> inline void FLAG_DATA::set(const int packed_flag) { set(static_cast<uint32_t>(packed_flag)); }
+template <> inline void FLAG_DATA::unset(const uint32_t packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
+template <> inline void FLAG_DATA::unset(const int packed_flag) { unset(static_cast<uint32_t>(packed_flag)); }
+template <> inline bool FLAG_DATA::toggle(const uint32_t packed_flag) { return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & (packed_flag & 0x3fffffff)); }
+template <> inline bool FLAG_DATA::toggle(const int packed_flag) { return toggle(static_cast<uint32_t>(packed_flag)); }
 
 inline FLAG_DATA& FLAG_DATA::operator+=(const FLAG_DATA &r)
 {
@@ -1279,7 +1274,7 @@ inline bool FLAG_DATA::operator>(const FLAG_DATA& r) const
 			|| m_flags[3] > r.m_flags[3]);
 }
 
-inline const uint32_t GET_FLAG(const FLAG_DATA& value, const uint32_t flag)
+inline uint32_t GET_FLAG(const FLAG_DATA& value, const uint32_t flag)
 {
 	return value.get(flag);
 }

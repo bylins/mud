@@ -139,7 +139,7 @@ namespace craft
 
 		if (!m_cases.load(&item))
 		{
-			log("ERROR: could not load item cases for the prototype with VNUM.\n", m_vnum);
+			log("ERROR: could not load item cases for the prototype with VNUM %d.\n", m_vnum);
 			return false;
 		}
 
@@ -252,7 +252,7 @@ namespace craft
 		else
 		{
 			log("WARNING: \"type\" tag not found for prototype with VNUM %d not found. Setting to default value: %s.\n",
-				m_vnum, NAME_BY_ITEM(get_type()));
+				m_vnum, NAME_BY_ITEM(get_type()).c_str());
 		}
 
 		const auto durability = node->child("durability");
@@ -289,7 +289,7 @@ namespace craft
 		else
 		{
 			log("WARNING: \"sex\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n",
-				m_vnum, NAME_BY_ITEM(m_sex));
+				m_vnum, NAME_BY_ITEM(m_sex).c_str());
 		}
 
 		const auto level = node->child("level");
@@ -299,8 +299,9 @@ namespace craft
 		}
 
 		const auto weight = node->child("weight");
+		if (weight)
 		{
-			const int weight_value = std::max(std::atoi(level.child_value()), 1);
+			const int weight_value = std::max(std::atoi(weight.child_value()), 1);
 			set_weight(weight_value);
 		}
 
@@ -346,7 +347,7 @@ namespace craft
 		else
 		{
 			log("WARNING: \"material\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n",
-				m_vnum, NAME_BY_ITEM(m_material));
+				m_vnum, NAME_BY_ITEM(m_material).c_str());
 		}
 
 		prefix.change_prefix(END_PREFIX);
@@ -675,7 +676,7 @@ namespace craft
 	{
 		if (prototype->attribute("vnum").empty())
 		{
-			log("%d-%s prototype tag does not have VNUM attribute. Will be skipped.\n",
+			log("%zd-%s prototype tag does not have VNUM attribute. Will be skipped.\n",
 				number, suffix(number));
 			return false;
 		}
@@ -683,7 +684,7 @@ namespace craft
 		vnum_t vnum = prototype->attribute("vnum").as_int(0);
 		if (0 == vnum)
 		{
-			log("Failed to get VNUM of the %d-%s prototype. This prototype entry will be skipped.\n",
+			log("Failed to get VNUM of the %zd-%s prototype. This prototype entry will be skipped.\n",
 				number, suffix(number));
 		}
 
@@ -692,7 +693,7 @@ namespace craft
 		{
 			if (!p.load(prototype))
 			{
-				log("WARNING: Skipping %d-%s prototype with VNUM %d.\n",
+				log("WARNING: Skipping %zd-%s prototype with VNUM %d.\n",
 					number, suffix(number), vnum);
 				return false;
 			}
@@ -705,7 +706,7 @@ namespace craft
 			const auto presult = pdoc.load_file(filename.c_str());
 			if (!presult)
 			{
-				log("WARNING: could not load external file '%s' with %d-%s prototype (ID: %d): '%s' "
+				log("WARNING: could not load external file '%s' with %zd-%s prototype (ID: %d): '%s' "
 					"at offset %zu. Prototype will be skipped.\n",
 					filename.c_str(),
 					number,
@@ -724,14 +725,14 @@ namespace craft
 					filename.c_str());
 				return false;
 			}
-			log("Using external file '%s' for %d-%s prototype with VNUM %d.\n",
+			log("Using external file '%s' for %zd-%s prototype with VNUM %d.\n",
 				filename.c_str(),
 				number,
 				suffix(number),
 				vnum);
 			if (!p.load(&proot))
 			{
-				log("WARNING: Skipping %d-%s prototype with VNUM %d.\n",
+				log("WARNING: Skipping %zd-%s prototype with VNUM %d.\n",
 					number, suffix(number), vnum);
 				return false;
 			}
@@ -744,7 +745,7 @@ namespace craft
 	{
 		if (material->attribute("id").empty())
 		{
-			log("%d-%s material tag does not have ID attribute. Will be skipped.\n",
+			log("%zd-%s material tag does not have ID attribute. Will be skipped.\n",
 				number, suffix(number));
 			return false;
 		}

@@ -1684,6 +1684,9 @@ bool item_nouse(OBJ_DATA * obj)
 	case obj_flag_data::ITEM_FOUNTAIN:
 	case obj_flag_data::ITEM_MING:
 		return true;
+
+	default:
+		break;
 	}
 
 	return false;

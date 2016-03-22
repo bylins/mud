@@ -7291,6 +7291,9 @@ bool check_object(OBJ_DATA * obj)
 				GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 1));
 		}
 		break;
+
+	default:
+		break;
 	}
 
 	obj->values.remove_incorrect_keys(GET_OBJ_TYPE(obj));
