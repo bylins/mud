@@ -2166,7 +2166,6 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			if (number < 1
 				|| number > SPELLS_COUNT)
 			{
-			{
 				oedit_disp_val2_menu(d);
 			}
 			else
@@ -2181,7 +2180,6 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			// here.
 			if (number < 0
 				|| number > 4)
-			{
 			{
 				oedit_disp_container_flags_menu(d);
 			}

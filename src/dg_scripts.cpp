@@ -2844,7 +2844,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!WAITLESS(c))
 			{
 				if (on_horse(c))
-					REMOVE_BIT(AFF_FLAGS(c, AFF_HORSE), AFF_HORSE);
+				{
+					AFF_FLAGS(c).unset(EAffectFlag::AFF_HORSE);
+				}
 				GET_POS(c) = pos;
 			}
 		}

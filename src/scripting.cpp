@@ -9,11 +9,6 @@ str.cpp - PyUnicode_FromString �� PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 � ���-�� ��� � ������ ���� ������� _PyUnicode_AsString( obj ), �� ������ �� PyBytes_AsString( PyUnicode_EncodeLocale(obj) )
 �.�. ������ ��� ��� ��, ��� � ����� http://habrahabr.ru/post/161931/
 */
-#include <string>
-#include <vector>
-#include <boost/python.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/locale.hpp>
 #include "utils.h"
 #include "comm.h"
 #include "char.hpp"
@@ -26,8 +21,15 @@ str.cpp - PyUnicode_FromString �� PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 #include "constants.h"
 #include "modify.h"
 #include "scripting.hpp"
+#include "structs.h"
 
-#define DEFINE_CONSTANT(X) scope().attr(#X) = X
+#include <boost/python.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/locale.hpp>
+
+#include <string>
+#include <vector>
+
 #define DEFINE_CONSTANT(X) scope().attr(#X) = static_cast<int>(X);
 #define DEFINE_ENUM_CONSTANT(X) scope().attr(ITEM_NAME(X)) = X
 
@@ -42,7 +44,6 @@ namespace
 	PyThreadState *_save = NULL;
 }
 
-
 class GILAcquirer
 {
 	PyGILState_STATE _state;
@@ -56,8 +57,8 @@ class GILAcquirer
 };
 
 std::string parse_python_exception();
-void register_global_command(const string& command, const string& command_koi8r, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent);
-void unregister_global_command(const string& command);
+void register_global_command(const std::string& command, const std::string& command_koi8r, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent);
+void unregister_global_command(const std::string& command);
 
 template <class t>
 inline t pass_through(const t& o) { return o; }
@@ -135,7 +136,7 @@ CharacterWrapper(CHAR_DATA* ch):Wrapper<CHAR_DATA>(ch, caching::character_cache)
 const char* get_name() const
 {
 	Ensurer ch(*this);
-	return ch->get_name();
+	return ch->get_name().c_str();
 }
 
 void set_name(const char* name)
@@ -144,13 +145,13 @@ void set_name(const char* name)
 	ch->set_name(name);
 }
 
-void send(const string& msg)
+void send(const std::string& msg)
 {
 	Ensurer ch(*this);
 	send_to_char(msg, (CHAR_DATA*)ch);
 }
 
-void _page_string(const string& msg)
+void _page_string(const std::string& msg)
 {
 	Ensurer ch(*this);
 	page_string(ch->desc, msg);
@@ -355,13 +356,13 @@ void set_cha(const int v)
 byte get_sex() const
 {
 	Ensurer ch(*this);
-	return ch->get_sex();
+	return to_underlying(ch->get_sex());
 }
 
 void set_sex(const byte v)
 {
 	Ensurer ch(*this);
-	ch->set_sex(v);
+	ch->set_sex(static_cast<ESex>(v));
 }
 
 ubyte get_weight() const
@@ -628,7 +629,7 @@ bool is_affected_by_spell(int spell_num) const
 	return affected_by_spell(ch, spell_num);
 }
 
-void add_affect(affect_data& af)
+void add_affect(AFFECT_DATA& af)
 {
 	Ensurer ch(*this);
 	affect_to_char(ch, &af);
@@ -673,13 +674,13 @@ bool quested_remove(int vnum)
 	return ch->quested_remove(vnum);
 }
 
-string quested_get_text(int vnum)
+std::string quested_get_text(int vnum)
 {
 	Ensurer ch(*this);
 	return ch->quested_get_text(vnum);
 }
 
-string quested_print() const
+std::string quested_print() const
 {
 	Ensurer ch(*this);
 	return ch->quested_print();
@@ -758,19 +759,19 @@ void character_set_master(CHAR_DATA* ch, CHAR_DATA* master)
 	ch->master = master;
 }
 
-string get_spell_type_str(const affect_data& af)
+std::string get_spell_type_str(const AFFECT_DATA& af)
 {
 	return spell_info[af.type].name;
 }
 
-string get_location_str(const affect_data& af)
+std::string get_location_str(const AFFECT_DATA& af)
 {
 	char buf[MAX_STRING_LENGTH];
 	sprinttype(af.location, apply_types, buf);
 	return buf;
 }
 
-string get_bitvector_str(const affect_data& af)
+std::string get_bitvector_str(const AFFECT_DATA& af)
 {
 	char buf[MAX_STRING_LENGTH];
 	sprintbitwd(af.bitvector, affected_bits, buf, ", ");
@@ -841,7 +842,7 @@ class ObjWrapper: public Wrapper<OBJ_DATA>
 public:
 ObjWrapper(OBJ_DATA* obj):Wrapper<OBJ_DATA>(obj, caching::obj_cache) { }
 
-string get_aliases() const
+std::string get_aliases() const
 {
 	Ensurer obj(*this);
 	return obj->aliases;
@@ -856,7 +857,7 @@ void set_aliases(const char* aliases)
 	obj->aliases = str_dup(aliases);
 }
 
-string get_description() const
+std::string get_description() const
 {
 	Ensurer obj(*this);
 	return obj->description;
@@ -870,7 +871,7 @@ void set_description(const char* description)
 		if (obj->description) free(obj->description);
 	obj->description = str_dup(description);
 }
-string get_short_description() const
+std::string get_short_description() const
 {
 	Ensurer obj(*this);
 	return obj->short_description;
@@ -884,7 +885,7 @@ void set_short_description(const char* short_description)
 		if (obj->short_description) free(obj->short_description);
 	obj->short_description = str_dup(short_description);
 }
-string get_action_description() const
+std::string get_action_description() const
 {
 	Ensurer obj(*this);
 	return obj->action_description;
@@ -898,7 +899,7 @@ void set_action_description(const char* action_description)
 		if (obj->action_description) free(obj->action_description);
 	obj->action_description = str_dup(action_description);
 }
-string get_pad(const unsigned pad) const
+std::string get_pad(const unsigned pad) const
 {
 	Ensurer obj(*this);
 	if (pad < 6)
@@ -947,7 +948,7 @@ int get_obj_type() const
 void set_obj_type(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.type_flag = v;
+	obj->obj_flags.type_flag = static_cast<obj_flag_data::EObjectType>(v);
 }
 
 int get_wear_flags() const
@@ -1009,7 +1010,7 @@ void set_cost_per_day_off(const unsigned v)
 int get_sex() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_sex;
+	return to_underlying(obj->obj_flags.Obj_sex);
 }
 
 int get_timer() const
@@ -1027,7 +1028,7 @@ void set_timer(const int timer) const
 void set_sex(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_sex = v;
+	obj->obj_flags.Obj_sex = static_cast<ESex>(v);
 }
 int get_spell() const
 {
@@ -1094,7 +1095,7 @@ int get_mater() const
 void set_mater(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_mater = v;
+	obj->obj_flags.Obj_mater = static_cast<obj_flag_data::EObjectMaterial>(v);
 }
 int get_owner() const
 {
@@ -1567,18 +1568,18 @@ BOOST_PYTHON_MODULE(mud)
 		.staticmethod("__iter__")
 	();
 
-	class_<affect_data, std::auto_ptr<affect_data> >("Affect", "Игровой аффект.")
-		.def_readwrite("spell_type", &affect_data::type, "Номер заклинания, которое наложило этот аффект")
+	class_<AFFECT_DATA, std::auto_ptr<AFFECT_DATA> >("Affect", "Игровой аффект.")
+		.def_readwrite("spell_type", &AFFECT_DATA::type, "Номер заклинания, которое наложило этот аффект")
 		.add_property("spell_type_str", get_spell_type_str, "Название заклинания (только для чтения)")
 		.add_property("location_str", get_location_str, "Название изменяемого параметра (только для чтения)")
 		.add_property("bitvector_str", get_bitvector_str, "Какие аффекты накладываем (в текстовом виде, только для чтения)")
-		.def_readwrite("duration", &affect_data::duration, "Продолжительность в секундах")
-		.def_readwrite("modifier", &affect_data::modifier, "Величина изменения параметра")
-		.def_readwrite("location", &affect_data::location, "Изменяемый параметр (constants.APLY_XXX)")
-		.def_readwrite("battleflag", &affect_data::battleflag, "Флаг для боя (холд, и т.п.)")
-		.def_readwrite("bitvector", &affect_data::bitvector, "Накладываемые аффекты")
-		.def_readwrite("caster_id", &affect_data::caster_id, "ID скастовавшего")
-		.def_readwrite("apply_time", &affect_data::apply_time, "Указывает сколько аффект висит (пока используется только в комнатах)")
+		.def_readwrite("duration", &AFFECT_DATA::duration, "Продолжительность в секундах")
+		.def_readwrite("modifier", &AFFECT_DATA::modifier, "Величина изменения параметра")
+		.def_readwrite("location", &AFFECT_DATA::location, "Изменяемый параметр (constants.APLY_XXX)")
+		.def_readwrite("battleflag", &AFFECT_DATA::battleflag, "Флаг для боя (холд, и т.п.)")
+		.def_readwrite("bitvector", &AFFECT_DATA::bitvector, "Накладываемые аффекты")
+		.def_readwrite("caster_id", &AFFECT_DATA::caster_id, "ID скастовавшего")
+		.def_readwrite("apply_time", &AFFECT_DATA::apply_time, "Указывает сколько аффект висит (пока используется только в комнатах)")
 	;
 
 	class_<FLAG_DATA>("FlagData", "Флаги чего-нибудь.")
@@ -1770,10 +1771,10 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(NPC_RACE_SPIRIT);
     DEFINE_CONSTANT(NPC_RACE_MAGIC_CREATURE);
     DEFINE_CONSTANT(NPC_RACE_NEXT);
-    DEFINE_CONSTANT(SEX_NEUTRAL);
-    DEFINE_CONSTANT(SEX_MALE);
-    DEFINE_CONSTANT(SEX_FEMALE);
-    DEFINE_CONSTANT(SEX_POLY);
+    DEFINE_ENUM_CONSTANT(ESex::SEX_NEUTRAL);
+	DEFINE_ENUM_CONSTANT(ESex::SEX_MALE);
+	DEFINE_ENUM_CONSTANT(ESex::SEX_FEMALE);
+	DEFINE_ENUM_CONSTANT(ESex::SEX_POLY);
     DEFINE_CONSTANT(NUM_SEXES);
     DEFINE_CONSTANT(MASK_SEX_NEUTRAL);
     DEFINE_CONSTANT(MASK_SEX_MALE);

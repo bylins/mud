@@ -1447,7 +1447,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	{
 		if (bloody::is_bloody(obj))
 		{
-			tell_to_char(keeper, ch, string("Иди от крови отмой сначала!").c_str());
+			tell_to_char(keeper, ch, "Иди от крови отмой сначала!");
 			return;
 		}
 
@@ -1489,7 +1489,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	{
 		if (bloody::is_bloody(obj))
 		{
-			tell_to_char(keeper, ch, string("Я не буду чинить окровавленные вещи!").c_str());
+			tell_to_char(keeper, ch, "Я не буду чинить окровавленные вещи!");
 			return;
 		}
 		if (repair <= 0)

@@ -367,9 +367,6 @@ typedef std::array<const char*, 2> cast_phrase_t;
 typedef std::array<cast_phrase_t, SPELLS_COUNT + 1> cast_phrases_t;
 extern const cast_phrases_t cast_phrase;
 
-typedef std::array<char *, SPELLS_COUNT + 10> spell_wear_off_msg_t;
-extern const spell_wear_off_msg_t spell_wear_off_msg;
-
 #define MAX_SLOT 13
 
 /*
