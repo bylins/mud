@@ -367,10 +367,10 @@ extern const religion_names_t religion_name;
 #define NPC_BOSS				200
 #define NPC_UNIQUE				201
 
-#define MASK_SEX_NEUTRAL  (1 << SEX_NEUTRAL)
-#define MASK_SEX_MALE     (1 << SEX_MALE)
-#define MASK_SEX_FEMALE   (1 << SEX_FEMALE)
-#define MASK_SEX_POLY     (1 << SEX_POLY)
+#define MASK_SEX_NEUTRAL  (1 << to_underlying(ESex::SEX_NEUTRAL))
+#define MASK_SEX_MALE     (1 << to_underlying(ESex::SEX_MALE))
+#define MASK_SEX_FEMALE   (1 << to_underlying(ESex::SEX_FEMALE))
+#define MASK_SEX_POLY     (1 << to_underlying(ESex::SEX_POLY))
 
 // GODs FLAGS
 #define GF_GODSLIKE   (1 << 0)
