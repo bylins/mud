@@ -373,9 +373,9 @@ else ()
 endif () 
 
 include_directories(src
-    ${Boost_INCLUDE_DIRS}
-    ${ZLIB_INCLUDE_DIRS}
-    ${PYTHON_INCLUDE_DIRS})
+    system ${Boost_INCLUDE_DIRS}
+    system ${ZLIB_INCLUDE_DIRS}
+    system ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(circle
     ${ZLIB_LIBRARIES}
     ${Boost_LIBRARIES}
@@ -383,7 +383,7 @@ target_link_libraries(circle
 
 if (ICONV_FOUND)
     add_definitions("-DHAVE_ICONV")
-    include_directories(${ICONV_INCLUDE_DIR})
+    include_directories(system ${ICONV_INCLUDE_DIR})
     target_link_libraries(circle ${ICONV_LIBRARIES})
 endif ()
 

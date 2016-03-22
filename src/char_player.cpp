@@ -863,7 +863,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
 	long int lnum = 0, lnum3 = 0;
 	unsigned long long llnum = 0;
-	FBFILE *fl;
+	FBFILE *fl = NULL;
 	char filename[40];
 	char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
 	char line1[MAX_RAW_INPUT_LENGTH];

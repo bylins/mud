@@ -1709,7 +1709,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	OBJ_DATA *obj, *o = NULL;
 	ROOM_DATA *room, *r = NULL;
 	char *name;
-	int num = 0, count = 0, value = 0, i;
+	int num = 0, count = 0, i;
 	char uid_type = '\0';
 
 	const char *send_cmd[] = { "msend", "osend", "wsend" };

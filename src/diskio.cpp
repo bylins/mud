@@ -171,7 +171,10 @@ FBFILE *fbopen_for_read(char *fname)
 	fbfl->ptr = fbfl->buf;
 	fbfl->flags = FB_READ;
 	strcpy(fbfl->name, fname);
-	fread(fbfl->buf, sizeof(char), fbfl->size, fl);
+
+	auto dummy = fread(fbfl->buf, sizeof(char), fbfl->size, fl);
+	UNUSED_ARG(dummy);
+
 	fclose(fl);
 
 	return fbfl;
@@ -366,7 +369,10 @@ int fbcat(char *fromfilename, FBFILE * tofile)
 	tofile->size += sb.st_size;
 	in_buf = (char *) malloc(sb.st_size + 1);
 	in_buf[0] = 0;
-	/*size_t amount = */fread(in_buf, sb.st_size, 1, fromfile);	// Anton Gorev (2015/12/29): maybe we have to check amount of read data
+
+	size_t amount = fread(in_buf, sb.st_size, 1, fromfile);
+	UNUSED_ARG(amount);
+
 	fbprintf(tofile, "%s", in_buf);
 	fclose(fromfile);
 	free(in_buf);

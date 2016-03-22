@@ -1678,7 +1678,7 @@ int Crash_read_timer(int index, int temp)
 	}
 
 	sprintf(buf, "[ReadTimer] Reading timer file %s for %s :", fname, name);
-	fread(&rent, sizeof(struct save_rent_info), 1, fl);
+	size_t dummy = fread(&rent, sizeof(struct save_rent_info), 1, fl);
 	switch (rent.rentcode)
 	{
 	case RENT_RENTED:
@@ -1711,7 +1711,7 @@ int Crash_read_timer(int index, int temp)
 	player_table[index].timer->rent = rent;
 	for (; count < rent.nitems && !feof(fl); count++)
 	{
-		fread(&info, sizeof(struct save_time_info), 1, fl);
+		dummy = fread(&info, sizeof(struct save_time_info), 1, fl);
 		if (ferror(fl))
 		{
 			log("SYSERR: I/O Error reading %s timer file.", name);
@@ -1735,6 +1735,8 @@ int Crash_read_timer(int index, int temp)
 			obj_index[rnum].stored++;
 		}
 	}
+	UNUSED_ARG(dummy);
+
 	fclose(fl);
 	FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
 

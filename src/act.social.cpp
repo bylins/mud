@@ -320,7 +320,9 @@ char *fread_action(FILE * fl, int nr)
 {
 	char buf[MAX_STRING_LENGTH];
 
-	fgets(buf, MAX_STRING_LENGTH, fl);
+	const char* result = fgets(buf, MAX_STRING_LENGTH, fl);
+	UNUSED_ARG(result);
+
 	if (feof(fl))
 	{
 		log("SYSERR: fread_action: unexpected EOF near action #%d", nr);

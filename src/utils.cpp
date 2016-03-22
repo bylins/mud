@@ -1126,7 +1126,9 @@ int get_line(FILE * fl, char *buf)
 
 	do
 	{
-		fgets(temp, 256, fl);
+		const char* dummy = fgets(temp, 256, fl);
+		UNUSED_ARG(dummy);
+
 		if (feof(fl))
 			return (0);
 		lines++;

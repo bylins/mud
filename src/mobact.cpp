@@ -974,7 +974,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 {
 	CHAR_DATA *ch, *next_ch, *vict, *first, *victim;
 	EXIT_DATA *rdata = NULL;
-	int door, found, max, was_in, kw, activity_lev, std_lev, i, ch_activity;
+	int door, found, max, was_in = -1, kw, activity_lev, std_lev, i, ch_activity;
 	memory_rec *names;
 
 	std_lev = activity_level % PULSE_MOBILE;

@@ -4971,7 +4971,8 @@ void setup_logs(void)
 		}
 #endif
 
-		getcwd(src_path, 4096);
+		const char* getcwd_result = getcwd(src_path, 4096);
+		UNUSED_ARG(getcwd_result);
 
 		if (!logs[i].filename || *logs[i].filename == '\0')
 		{

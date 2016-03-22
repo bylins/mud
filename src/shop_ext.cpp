@@ -989,8 +989,8 @@ void filter_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::st
 				print_value += " Ó " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
 			}
 			
-			if (!(wear > 0
-					&& CAN_WEAR(obj_proto[(*k)->rnum], wear)
+			if (!((wear > 0
+					&& CAN_WEAR(obj_proto[(*k)->rnum], wear))
 				|| (type > 0
 					&& type == GET_OBJ_TYPE(obj_proto[(*k)->rnum]))))
 			{

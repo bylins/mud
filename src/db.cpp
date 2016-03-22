@@ -2034,14 +2034,19 @@ void load_messages(void)
 	}
 
 
-	fgets(chk, 128, fl);
+	const char* dummyc = fgets(chk, 128, fl);
 	while (!feof(fl) && (*chk == '\n' || *chk == '*'))
-		fgets(chk, 128, fl);
+	{
+		dummyc = fgets(chk, 128, fl);
+	}
 
 	while (*chk == 'M')
 	{
-		fgets(chk, 128, fl);
-		sscanf(chk, " %d\n", &type);
+		dummyc = fgets(chk, 128, fl);
+
+		int dummyi = sscanf(chk, " %d\n", &type);
+		UNUSED_ARG(dummyi);
+
 		for (i = 0; (i < MAX_MESSAGES) &&
 				(fight_messages[i].a_type != type) && (fight_messages[i].a_type); i++);
 		if (i >= MAX_MESSAGES)
@@ -2068,10 +2073,13 @@ void load_messages(void)
 		messages->god_msg.attacker_msg = fread_action(fl, i);
 		messages->god_msg.victim_msg = fread_action(fl, i);
 		messages->god_msg.room_msg = fread_action(fl, i);
-		fgets(chk, 128, fl);
+		dummyc = fgets(chk, 128, fl);
 		while (!feof(fl) && (*chk == '\n' || *chk == '*'))
-			fgets(chk, 128, fl);
+		{
+			dummyc = fgets(chk, 128, fl);
+		}
 	}
+	UNUSED_ARG(dummyc);
 
 	fclose(fl);
 }
@@ -2660,14 +2668,14 @@ void index_boot(int mode)
 	}
 
 	// first, count the number of records in the file so we can malloc
-	fscanf(index, "%s\n", buf1);
+	int dummyi = fscanf(index, "%s\n", buf1);
 	while (*buf1 != '$')
 	{
 		sprintf(buf2, "%s%s", prefix, buf1);
 		if (!(db_file = fopen(buf2, "r")))
 		{
 			log("SYSERR: File '%s' listed in '%s/%s': %s", buf2, prefix, index_filename, strerror(errno));
-			fscanf(index, "%s\n", buf1);
+			dummyi = fscanf(index, "%s\n", buf1);
 			continue;
 		}
 		else
@@ -2692,7 +2700,7 @@ void index_boot(int mode)
 				rec_count += count_hash_records(db_file);
 		}
 		fclose(db_file);
-		fscanf(index, "%s\n", buf1);
+		dummyi = fscanf(index, "%s\n", buf1);
 	}
 
 	// Exit if 0 records, unless this is shops
@@ -2749,7 +2757,7 @@ void index_boot(int mode)
 	}
 
 	rewind(index);
-	fscanf(index, "%s\n", buf1);
+	dummyi = fscanf(index, "%s\n", buf1);
 	while (*buf1 != '$')
 	{
 		sprintf(buf2, "%s%s", prefix, buf1);
@@ -2783,8 +2791,10 @@ void index_boot(int mode)
 		if (mode == DB_BOOT_WLD)
 			parse_room(db_file, 0, TRUE);
 		fclose(db_file);
-		fscanf(index, "%s\n", buf1);
+		dummyi = fscanf(index, "%s\n", buf1);
 	}
+	UNUSED_ARG(dummyi);
+
 	fclose(index);
 	// Create virtual room for zone
 
@@ -6823,7 +6833,9 @@ int file_to_string(const char *name, char *buf)
 	}
 	do
 	{
-		fgets(tmp, READ_SIZE, fl);
+		const char* dummy = fgets(tmp, READ_SIZE, fl);
+		UNUSED_ARG(dummy);
+
 		tmp[strlen(tmp) - 1] = '\0';	// take off the trailing \n
 		strcat(tmp, "\r\n");
 

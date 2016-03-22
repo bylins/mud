@@ -1499,6 +1499,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 
 	obj->obj_flags.anti_flag.sprintbits(anti_bits, buf1, ",");
 	obj->obj_flags.affects.sprintbits(weapon_affects, buf2, ",");
+	const size_t gender = static_cast<size_t>(to_underlying(GET_OBJ_SEX(obj)));
 	sprintf(buf,
 			"%sE%s) Запрещен    : %s%s\r\n"
 			"%sF%s) Вес         : %s%8d   %sG%s) Цена        : %s%d\r\n"
@@ -1532,7 +1533,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 			GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
 			nrm, cyn, obj->proto_script ? "Set." : "Not Set.",
-			grn, nrm, cyn, genders[to_underlying(GET_OBJ_SEX(obj))],
+			grn, nrm, cyn, genders[gender],
 			grn, nrm, cyn, GET_OBJ_MIW(obj),
 			grn, nrm,
 			grn, nrm, cyn, obj->get_manual_mort_req(),

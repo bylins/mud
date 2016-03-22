@@ -291,10 +291,13 @@ void NewNameShow(CHAR_DATA * ch)
 	std::ostringstream buffer;
 	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << CCWHT(ch, C_NRM);
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it)
+	{
+		const size_t sex = static_cast<size_t>(to_underlying(it->second->sex));
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 		<< "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
 		<< "/" << it->second->name5 << " Email: &S" << (GET_GOD_FLAG(ch, GF_DEMIGOD) ? "неопределен" : it->second->email) 
-		<< "&s Пол: " << genders[to_underlying(it->second->sex)] << "\r\n";
+		<< "&s Пол: " << genders[sex] << "\r\n";
+	}
 	buffer << CCNRM(ch, C_NRM);
 	send_to_char(buffer.str(), ch);
 }

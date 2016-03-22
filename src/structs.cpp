@@ -5,7 +5,7 @@
 void asciiflag_conv(const char *flag, void *to)
 {
 	int *flags = (int *)to;
-	int is_number = 1, block = 0, i;
+	unsigned int is_number = 1, block = 0, i;
 	const char *p;
 
 	for (p = flag; *p; p += i + 1)
