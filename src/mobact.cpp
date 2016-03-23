@@ -1126,7 +1126,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_SNEAK))
 		{
-			if (calculate_skill(ch, SKILL_SNEAK, 100, 0) >= number(0, 100))
+			if (calculate_skill(ch, SKILL_SNEAK, 0) >= number(0, 100))
 				SET_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
 			else
 				REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
@@ -1137,7 +1137,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_CAMOUFLAGE))
 		{
-			if (calculate_skill(ch, SKILL_CAMOUFLAGE, 100, 0) >= number(0, 100))
+			if (calculate_skill(ch, SKILL_CAMOUFLAGE, 0) >= number(0, 100))
 				SET_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
 			else
 				REMOVE_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);

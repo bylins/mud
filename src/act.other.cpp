@@ -410,7 +410,7 @@ ACMD(do_sneak)
 	send_to_char("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILSNEAK), EXTRA_FAILSNEAK);
 	percent = number(1, skill_info[SKILL_SNEAK].max_percent);
-	prob = calculate_skill(ch, SKILL_SNEAK, skill_info[SKILL_SNEAK].max_percent, 0);
+	prob = calculate_skill(ch, SKILL_SNEAK, 0);
 
 	af.type = SPELL_SNEAK;
 	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 8, 0, 1);
@@ -467,7 +467,7 @@ ACMD(do_camouflage)
 	send_to_char("Вы начали усиленно маскироваться.\r\n", ch);
 	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILCAMOUFLAGE), EXTRA_FAILCAMOUFLAGE);
 	percent = number(1, skill_info[SKILL_CAMOUFLAGE].max_percent);
-	prob = calculate_skill(ch, SKILL_CAMOUFLAGE, skill_info[SKILL_CAMOUFLAGE].max_percent, 0);
+	prob = calculate_skill(ch, SKILL_CAMOUFLAGE, 0);
 
 	af.type = SPELL_CAMOUFLAGE;
 	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 6, 0, 2);
@@ -526,7 +526,7 @@ ACMD(do_hide)
 	send_to_char("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
 	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
 	percent = number(1, skill_info[SKILL_HIDE].max_percent);
-	prob = calculate_skill(ch, SKILL_HIDE, skill_info[SKILL_HIDE].max_percent, 0);
+	prob = calculate_skill(ch, SKILL_HIDE, 0);
 
 	af.type = SPELL_HIDE;
 	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 8, 0, 1);
@@ -633,7 +633,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				return;
 			}
 			percent += GET_OBJ_WEIGHT(obj);	// Make heavy harder
-			prob = calculate_skill(ch, SKILL_STEAL, percent, vict);
+			prob = calculate_skill(ch, SKILL_STEAL, vict);
 
 			if (AFF_FLAGGED(ch, AFF_HIDE))
 				prob += 5;	// Add by Alez - Improove in hide steal probability
@@ -675,7 +675,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 	}
 	else  		// Steal some coins
 	{
-		prob = calculate_skill(ch, SKILL_STEAL, percent, vict);
+		prob = calculate_skill(ch, SKILL_STEAL, vict);
 		if (AFF_FLAGGED(ch, AFF_HIDE))
 			prob += 5;	// Add by Alez - Improove in hide steal probability
 		if (!WAITLESS(ch) && AFF_FLAGGED(vict, AFF_SLEEP))
@@ -938,7 +938,7 @@ ACMD(do_courage)
 	 for (prob = 0; prob < 3; prob++)
 	     affect_join(ch,&af[prob],TRUE,FALSE,TRUE,FALSE);
 	 ************************************/
-	prob = calculate_skill(ch, SKILL_COURAGE, skill_info[SKILL_COURAGE].max_percent, 0) / 20;
+	prob = calculate_skill(ch, SKILL_COURAGE, 0) / 20;
 	af[0].type = SPELL_COURAGE;
 	af[0].duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	af[0].modifier = 40;

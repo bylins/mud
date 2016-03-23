@@ -2568,8 +2568,7 @@ void skip_hide_on_look(CHAR_DATA * ch)
 	if (AFF_FLAGGED(ch, AFF_HIDE) &&
 			((!ch->get_skill(SKILL_LOOK_HIDE) ||
 			  ((number(1, 100) -
-				calculate_skill(ch, SKILL_LOOK_HIDE,
-								skill_info[SKILL_LOOK_HIDE].max_percent, 0) - 2 * (ch->get_wis() - 9)) > 0))))
+				calculate_skill(ch, SKILL_LOOK_HIDE, 0) - 2 * (ch->get_wis() - 9)) > 0))))
 	{
 		affect_from_char(ch, SPELL_HIDE);
 		if (!AFF_FLAGGED(ch, AFF_HIDE))

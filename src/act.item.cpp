@@ -2597,7 +2597,7 @@ ACMD(do_fire)
 		return;
 
 	percent = number(1, skill_info[SKILL_FIRE].max_percent);
-	prob = calculate_skill(ch, SKILL_FIRE, skill_info[SKILL_FIRE].max_percent, 0);
+	prob = calculate_skill(ch, SKILL_FIRE, 0);
 	if (percent > prob)
 	{
 		send_to_char("Вы попытались разжечь костер, но у вас ничего не вышло.\r\n", ch);
@@ -2727,7 +2727,7 @@ ACMD(do_firstaid)
 	}
 
 	percent = number(1, skill_info[SKILL_AID].max_percent);
-	prob = calculate_skill(ch, SKILL_AID, skill_info[SKILL_AID].max_percent, vict);
+	prob = calculate_skill(ch, SKILL_AID, vict);
 
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_GOD_FLAG(vict, GF_GODSLIKE))
 		percent = prob;

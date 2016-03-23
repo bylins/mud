@@ -48,7 +48,7 @@ int calc_leadership(CHAR_DATA * ch)
 		return (FALSE);
 
 	percent = number(1, 101);
-	prob = calculate_skill(leader, SKILL_LEADERSHIP, 121, 0);
+	prob = calculate_skill(leader, SKILL_LEADERSHIP, 0);
 	if (percent > prob)
 		return (FALSE);
 	else
@@ -3901,7 +3901,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (hit_params.skill_num == SKILL_THROW)
 	{
 		hit_params.flags.set(IGNORE_FSHIELD);
-		hit_params.dam *= (calculate_skill(ch, SKILL_THROW, skill_info[SKILL_THROW].max_percent, victim) + 10) / 10;
+		hit_params.dam *= (calculate_skill(ch, SKILL_THROW, victim) + 10) / 10;
 		if (IS_NPC(ch))
 		{
 			hit_params.dam = MIN(300, hit_params.dam);

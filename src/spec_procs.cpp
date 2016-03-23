@@ -1922,7 +1922,7 @@ int npc_move(CHAR_DATA * ch, int dir, int need_specials_check)
 		if (EXIT_FLAGGED(rdata, EX_LOCKED))
 		{
 			if (has_key(ch, rdata->key) || (!EXIT_FLAGGED(rdata, EX_PICKPROOF) && !EXIT_FLAGGED(rdata, EX_BROKEN) &&
-											calculate_skill(ch, SKILL_PICK, 100, 0) >= number(0, 100)))
+											calculate_skill(ch, SKILL_PICK, 0) >= number(0, 100)))
 			{
 				do_doorcmd(ch, 0, dir, SCMD_UNLOCK);
 				need_lock = TRUE;
@@ -1982,7 +1982,7 @@ int calculate_weapon_class(CHAR_DATA * ch, OBJ_DATA * weapon)
 	if (!weapon || GET_OBJ_TYPE(weapon) != ITEM_WEAPON)
 		return (0);
 
-	hits = calculate_skill(ch, GET_OBJ_SKILL(weapon), 101, 0);
+	hits = calculate_skill(ch, GET_OBJ_SKILL(weapon), 0);
 	damage = (GET_OBJ_VAL(weapon, 1) + 1) * (GET_OBJ_VAL(weapon, 2)) / 2;
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
@@ -2331,7 +2331,7 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 			victim->remove_gold(gold);
 		}
 		// Steal something from equipment
-		if (IS_CARRYING_N(ch) < CAN_CARRY_N(ch) && calculate_skill(ch, SKILL_STEAL, 100, victim)
+		if (IS_CARRYING_N(ch) < CAN_CARRY_N(ch) && calculate_skill(ch, SKILL_STEAL, victim)
 			>= number(1, 100) - (AWAKE(victim) ? 100 : 0))
 		{
 			for (obj = victim->carrying; obj; obj = obj->next_content)
