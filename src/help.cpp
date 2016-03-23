@@ -649,7 +649,7 @@ void add_sets_drop(const std::string key, const std::string entry)
 }
 
 
-// пока заглушка
+
 void init_group_zones()
 {
 	std::stringstream out;
@@ -662,9 +662,9 @@ void init_group_zones()
 			++i;
 		}
 	}
-	add_static("списокзоны", out.str(), 0, true);
+	add_static("групповыезоны", out.str(), 0, true);
 }
-
+// пока заглушка
 void init_list_zones()
 {
 
