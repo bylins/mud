@@ -110,7 +110,17 @@ CHAR_DATA *find_char(long n)
 	}
 	return NULL;
 }
-
+bool check_spell_on_player(CHAR_DATA *ch, int spell_num)
+{
+	AFFECT_DATA *af, *next;
+	for (af = ch->affected; af; af = next)
+	{
+		next = af->next;
+		if (af->type == spell_num)
+			return true;
+	}
+	return false;
+}
 
 
 int MIN(int a, int b)
