@@ -3095,8 +3095,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 	//* обработка SKILL_NOPARRYHIT //
 	if (skill_num == TYPE_UNDEFINED && ch->get_skill(SKILL_NOPARRYHIT))
 	{
-		int tmp_skill = train_skill(ch, SKILL_NOPARRYHIT,
-				skill_info[SKILL_NOPARRYHIT].max_percent, ch->get_fighting());
+		int tmp_skill = train_skill(ch, SKILL_NOPARRYHIT, skill_info[SKILL_NOPARRYHIT].max_percent, victim);
 		// TODO: max_percent в данный момент 100 (хорошо бы не тупо 200, а с % фейла)
 		if (tmp_skill >= number(1, skill_info[SKILL_NOPARRYHIT].max_percent))
 		{

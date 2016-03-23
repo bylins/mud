@@ -9,11 +9,8 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 И где-то там в файлах есть функция _PyUnicode_AsString( obj ), ее меняем на PyBytes_AsString( PyUnicode_EncodeLocale(obj) )
 Т.е. делаем все так же, как и здесь http://habrahabr.ru/post/161931/
 */
-#include <string>
-#include <vector>
-#include <boost/python.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/locale.hpp>
+#include "scripting.hpp"
+
 #include "utils.h"
 #include "comm.h"
 #include "char.hpp"
@@ -25,7 +22,18 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 #include "handler.h"
 #include "constants.h"
 #include "modify.h"
-#include "scripting.hpp"
+
+// Required because pyconfig.h defines ssize_t by himself
+#if defined(ssize_t)
+#undef ssize_t
+#endif
+#include <boost/python.hpp>
+
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/locale.hpp>
+
+#include <string>
+#include <vector>
 
 #define DEFINE_CONSTANT(X) scope().attr(#X) = static_cast<int>(X);
 
