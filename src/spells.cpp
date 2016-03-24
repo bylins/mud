@@ -3311,4 +3311,248 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Возьми личину зла для жатвы славной.", "Надели силой злою во благо." }, // SPELL_AURA_EVIL
 };
 
+typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
+typedef std::map<const std::string, ESpell> ESpell_value_by_name_t;
+ESpell_name_by_value_t ESpell_name_by_value;
+ESpell_value_by_name_t ESpell_value_by_name;
+void init_ESpell_ITEM_NAMES()
+{
+	ESpell_value_by_name.clear();
+	ESpell_name_by_value.clear();
+
+	ESpell_name_by_value[ESpell::SPELL_ARMOR] = "SPELL_ARMOR";
+	ESpell_name_by_value[ESpell::SPELL_TELEPORT] = "SPELL_TELEPORT";
+	ESpell_name_by_value[ESpell::SPELL_BLESS] = "SPELL_BLESS";
+	ESpell_name_by_value[ESpell::SPELL_BLINDNESS] = "SPELL_BLINDNESS";
+	ESpell_name_by_value[ESpell::SPELL_BURNING_HANDS] = "SPELL_BURNING_HANDS";
+	ESpell_name_by_value[ESpell::SPELL_CALL_LIGHTNING] = "SPELL_CALL_LIGHTNING";
+	ESpell_name_by_value[ESpell::SPELL_CHARM] = "SPELL_CHARM";
+	ESpell_name_by_value[ESpell::SPELL_CHILL_TOUCH] = "SPELL_CHILL_TOUCH";
+	ESpell_name_by_value[ESpell::SPELL_CLONE] = "SPELL_CLONE";
+	ESpell_name_by_value[ESpell::SPELL_COLOR_SPRAY] = "SPELL_COLOR_SPRAY";
+	ESpell_name_by_value[ESpell::SPELL_CONTROL_WEATHER] = "SPELL_CONTROL_WEATHER";
+	ESpell_name_by_value[ESpell::SPELL_CREATE_FOOD] = "SPELL_CREATE_FOOD";
+	ESpell_name_by_value[ESpell::SPELL_CREATE_WATER] = "SPELL_CREATE_WATER";
+	ESpell_name_by_value[ESpell::SPELL_CURE_BLIND] = "SPELL_CURE_BLIND";
+	ESpell_name_by_value[ESpell::SPELL_CURE_CRITIC] = "SPELL_CURE_CRITIC";
+	ESpell_name_by_value[ESpell::SPELL_CURE_LIGHT] = "SPELL_CURE_LIGHT";
+	ESpell_name_by_value[ESpell::SPELL_CURSE] = "SPELL_CURSE";
+	ESpell_name_by_value[ESpell::SPELL_DETECT_ALIGN] = "SPELL_DETECT_ALIGN";
+	ESpell_name_by_value[ESpell::SPELL_DETECT_INVIS] = "SPELL_DETECT_INVIS";
+	ESpell_name_by_value[ESpell::SPELL_DETECT_MAGIC] = "SPELL_DETECT_MAGIC";
+	ESpell_name_by_value[ESpell::SPELL_DETECT_POISON] = "SPELL_DETECT_POISON";
+	ESpell_name_by_value[ESpell::SPELL_DISPEL_EVIL] = "SPELL_DISPEL_EVIL";
+	ESpell_name_by_value[ESpell::SPELL_EARTHQUAKE] = "SPELL_EARTHQUAKE";
+	ESpell_name_by_value[ESpell::SPELL_ENCHANT_WEAPON] = "SPELL_ENCHANT_WEAPON";
+	ESpell_name_by_value[ESpell::SPELL_ENERGY_DRAIN] = "SPELL_ENERGY_DRAIN";
+	ESpell_name_by_value[ESpell::SPELL_FIREBALL] = "SPELL_FIREBALL";
+	ESpell_name_by_value[ESpell::SPELL_HARM] = "SPELL_HARM";
+	ESpell_name_by_value[ESpell::SPELL_HEAL] = "SPELL_HEAL";
+	ESpell_name_by_value[ESpell::SPELL_INVISIBLE] = "SPELL_INVISIBLE";
+	ESpell_name_by_value[ESpell::SPELL_LIGHTNING_BOLT] = "SPELL_LIGHTNING_BOLT";
+	ESpell_name_by_value[ESpell::SPELL_LOCATE_OBJECT] = "SPELL_LOCATE_OBJECT";
+	ESpell_name_by_value[ESpell::SPELL_MAGIC_MISSILE] = "SPELL_MAGIC_MISSILE";
+	ESpell_name_by_value[ESpell::SPELL_POISON] = "SPELL_POISON";
+	ESpell_name_by_value[ESpell::SPELL_PROT_FROM_EVIL] = "SPELL_PROT_FROM_EVIL";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_CURSE] = "SPELL_REMOVE_CURSE";
+	ESpell_name_by_value[ESpell::SPELL_SANCTUARY] = "SPELL_SANCTUARY";
+	ESpell_name_by_value[ESpell::SPELL_SHOCKING_GRASP] = "SPELL_SHOCKING_GRASP";
+	ESpell_name_by_value[ESpell::SPELL_SLEEP] = "SPELL_SLEEP";
+	ESpell_name_by_value[ESpell::SPELL_STRENGTH] = "SPELL_STRENGTH";
+	ESpell_name_by_value[ESpell::SPELL_SUMMON] = "SPELL_SUMMON";
+	ESpell_name_by_value[ESpell::SPELL_PATRONAGE] = "SPELL_PATRONAGE";
+	ESpell_name_by_value[ESpell::SPELL_WORD_OF_RECALL] = "SPELL_WORD_OF_RECALL";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_POISON] = "SPELL_REMOVE_POISON";
+	ESpell_name_by_value[ESpell::SPELL_SENSE_LIFE] = "SPELL_SENSE_LIFE";
+	ESpell_name_by_value[ESpell::SPELL_ANIMATE_DEAD] = "SPELL_ANIMATE_DEAD";
+	ESpell_name_by_value[ESpell::SPELL_DISPEL_GOOD] = "SPELL_DISPEL_GOOD";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_ARMOR] = "SPELL_GROUP_ARMOR";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_HEAL] = "SPELL_GROUP_HEAL";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_RECALL] = "SPELL_GROUP_RECALL";
+	ESpell_name_by_value[ESpell::SPELL_INFRAVISION] = "SPELL_INFRAVISION";
+	ESpell_name_by_value[ESpell::SPELL_WATERWALK] = "SPELL_WATERWALK";
+	ESpell_name_by_value[ESpell::SPELL_CURE_SERIOUS] = "SPELL_CURE_SERIOUS";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_STRENGTH] = "SPELL_GROUP_STRENGTH";
+	ESpell_name_by_value[ESpell::SPELL_HOLD] = "SPELL_HOLD";
+	ESpell_name_by_value[ESpell::SPELL_POWER_HOLD] = "SPELL_POWER_HOLD";
+	ESpell_name_by_value[ESpell::SPELL_MASS_HOLD] = "SPELL_MASS_HOLD";
+	ESpell_name_by_value[ESpell::SPELL_FLY] = "SPELL_FLY";
+	ESpell_name_by_value[ESpell::SPELL_BROKEN_CHAINS] = "SPELL_BROKEN_CHAINS";
+	ESpell_name_by_value[ESpell::SPELL_NOFLEE] = "SPELL_NOFLEE";
+	ESpell_name_by_value[ESpell::SPELL_CREATE_LIGHT] = "SPELL_CREATE_LIGHT";
+	ESpell_name_by_value[ESpell::SPELL_DARKNESS] = "SPELL_DARKNESS";
+	ESpell_name_by_value[ESpell::SPELL_STONESKIN] = "SPELL_STONESKIN";
+	ESpell_name_by_value[ESpell::SPELL_CLOUDLY] = "SPELL_CLOUDLY";
+	ESpell_name_by_value[ESpell::SPELL_SIELENCE] = "SPELL_SIELENCE";
+	ESpell_name_by_value[ESpell::SPELL_LIGHT] = "SPELL_LIGHT";
+	ESpell_name_by_value[ESpell::SPELL_CHAIN_LIGHTNING] = "SPELL_CHAIN_LIGHTNING";
+	ESpell_name_by_value[ESpell::SPELL_FIREBLAST] = "SPELL_FIREBLAST";
+	ESpell_name_by_value[ESpell::SPELL_IMPLOSION] = "SPELL_IMPLOSION";
+	ESpell_name_by_value[ESpell::SPELL_WEAKNESS] = "SPELL_WEAKNESS";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_INVISIBLE] = "SPELL_GROUP_INVISIBLE";
+	ESpell_name_by_value[ESpell::SPELL_SHADOW_CLOAK] = "SPELL_SHADOW_CLOAK";
+	ESpell_name_by_value[ESpell::SPELL_ACID] = "SPELL_ACID";
+	ESpell_name_by_value[ESpell::SPELL_REPAIR] = "SPELL_REPAIR";
+	ESpell_name_by_value[ESpell::SPELL_ENLARGE] = "SPELL_ENLARGE";
+	ESpell_name_by_value[ESpell::SPELL_FEAR] = "SPELL_FEAR";
+	ESpell_name_by_value[ESpell::SPELL_SACRIFICE] = "SPELL_SACRIFICE";
+	ESpell_name_by_value[ESpell::SPELL_WEB] = "SPELL_WEB";
+	ESpell_name_by_value[ESpell::SPELL_BLINK] = "SPELL_BLINK";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_HOLD] = "SPELL_REMOVE_HOLD";
+	ESpell_name_by_value[ESpell::SPELL_CAMOUFLAGE] = "SPELL_CAMOUFLAGE";
+	ESpell_name_by_value[ESpell::SPELL_POWER_BLINDNESS] = "SPELL_POWER_BLINDNESS";
+	ESpell_name_by_value[ESpell::SPELL_MASS_BLINDNESS] = "SPELL_MASS_BLINDNESS";
+	ESpell_name_by_value[ESpell::SPELL_POWER_SIELENCE] = "SPELL_POWER_SIELENCE";
+	ESpell_name_by_value[ESpell::SPELL_EXTRA_HITS] = "SPELL_EXTRA_HITS";
+	ESpell_name_by_value[ESpell::SPELL_RESSURECTION] = "SPELL_RESSURECTION";
+	ESpell_name_by_value[ESpell::SPELL_MAGICSHIELD] = "SPELL_MAGICSHIELD";
+	ESpell_name_by_value[ESpell::SPELL_FORBIDDEN] = "SPELL_FORBIDDEN";
+	ESpell_name_by_value[ESpell::SPELL_MASS_SIELENCE] = "SPELL_MASS_SIELENCE";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_SIELENCE] = "SPELL_REMOVE_SIELENCE";
+	ESpell_name_by_value[ESpell::SPELL_DAMAGE_LIGHT] = "SPELL_DAMAGE_LIGHT";
+	ESpell_name_by_value[ESpell::SPELL_DAMAGE_SERIOUS] = "SPELL_DAMAGE_SERIOUS";
+	ESpell_name_by_value[ESpell::SPELL_DAMAGE_CRITIC] = "SPELL_DAMAGE_CRITIC";
+	ESpell_name_by_value[ESpell::SPELL_MASS_CURSE] = "SPELL_MASS_CURSE";
+	ESpell_name_by_value[ESpell::SPELL_ARMAGEDDON] = "SPELL_ARMAGEDDON";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_FLY] = "SPELL_GROUP_FLY";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_BLESS] = "SPELL_GROUP_BLESS";
+	ESpell_name_by_value[ESpell::SPELL_REFRESH] = "SPELL_REFRESH";
+	ESpell_name_by_value[ESpell::SPELL_STUNNING] = "SPELL_STUNNING";
+	ESpell_name_by_value[ESpell::SPELL_HIDE] = "SPELL_HIDE";
+	ESpell_name_by_value[ESpell::SPELL_SNEAK] = "SPELL_SNEAK";
+	ESpell_name_by_value[ESpell::SPELL_DRUNKED] = "SPELL_DRUNKED";
+	ESpell_name_by_value[ESpell::SPELL_ABSTINENT] = "SPELL_ABSTINENT";
+	ESpell_name_by_value[ESpell::SPELL_FULL] = "SPELL_FULL";
+	ESpell_name_by_value[ESpell::SPELL_CONE_OF_COLD] = "SPELL_CONE_OF_COLD";
+	ESpell_name_by_value[ESpell::SPELL_BATTLE] = "SPELL_BATTLE";
+	ESpell_name_by_value[ESpell::SPELL_HAEMORRAGIA] = "SPELL_HAEMORRAGIA";
+	ESpell_name_by_value[ESpell::SPELL_COURAGE] = "SPELL_COURAGE";
+	ESpell_name_by_value[ESpell::SPELL_WATERBREATH] = "SPELL_WATERBREATH";
+	ESpell_name_by_value[ESpell::SPELL_SLOW] = "SPELL_SLOW";
+	ESpell_name_by_value[ESpell::SPELL_HASTE] = "SPELL_HASTE";
+	ESpell_name_by_value[ESpell::SPELL_MASS_SLOW] = "SPELL_MASS_SLOW";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_HASTE] = "SPELL_GROUP_HASTE";
+	ESpell_name_by_value[ESpell::SPELL_SHIELD] = "SPELL_SHIELD";
+	ESpell_name_by_value[ESpell::SPELL_PLAQUE] = "SPELL_PLAQUE";
+	ESpell_name_by_value[ESpell::SPELL_CURE_PLAQUE] = "SPELL_CURE_PLAQUE";
+	ESpell_name_by_value[ESpell::SPELL_AWARNESS] = "SPELL_AWARNESS";
+	ESpell_name_by_value[ESpell::SPELL_RELIGION] = "SPELL_RELIGION";
+	ESpell_name_by_value[ESpell::SPELL_AIR_SHIELD] = "SPELL_AIR_SHIELD";
+	ESpell_name_by_value[ESpell::SPELL_PORTAL] = "SPELL_PORTAL";
+	ESpell_name_by_value[ESpell::SPELL_DISPELL_MAGIC] = "SPELL_DISPELL_MAGIC";
+	ESpell_name_by_value[ESpell::SPELL_SUMMON_KEEPER] = "SPELL_SUMMON_KEEPER";
+	ESpell_name_by_value[ESpell::SPELL_FAST_REGENERATION] = "SPELL_FAST_REGENERATION";
+	ESpell_name_by_value[ESpell::SPELL_CREATE_WEAPON] = "SPELL_CREATE_WEAPON";
+	ESpell_name_by_value[ESpell::SPELL_FIRE_SHIELD] = "SPELL_FIRE_SHIELD";
+	ESpell_name_by_value[ESpell::SPELL_RELOCATE] = "SPELL_RELOCATE";
+	ESpell_name_by_value[ESpell::SPELL_SUMMON_FIREKEEPER] = "SPELL_SUMMON_FIREKEEPER";
+	ESpell_name_by_value[ESpell::SPELL_ICE_SHIELD] = "SPELL_ICE_SHIELD";
+	ESpell_name_by_value[ESpell::SPELL_ICESTORM] = "SPELL_ICESTORM";
+	ESpell_name_by_value[ESpell::SPELL_ENLESS] = "SPELL_ENLESS";
+	ESpell_name_by_value[ESpell::SPELL_SHINEFLASH] = "SPELL_SHINEFLASH";
+	ESpell_name_by_value[ESpell::SPELL_MADNESS] = "SPELL_MADNESS";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_MAGICGLASS] = "SPELL_GROUP_MAGICGLASS";
+	ESpell_name_by_value[ESpell::SPELL_CLOUD_OF_ARROWS] = "SPELL_CLOUD_OF_ARROWS";
+	ESpell_name_by_value[ESpell::SPELL_VACUUM] = "SPELL_VACUUM";
+	ESpell_name_by_value[ESpell::SPELL_METEORSTORM] = "SPELL_METEORSTORM";
+	ESpell_name_by_value[ESpell::SPELL_STONEHAND] = "SPELL_STONEHAND";
+	ESpell_name_by_value[ESpell::SPELL_MINDLESS] = "SPELL_MINDLESS";
+	ESpell_name_by_value[ESpell::SPELL_PRISMATICAURA] = "SPELL_PRISMATICAURA";
+	ESpell_name_by_value[ESpell::SPELL_EVILESS] = "SPELL_EVILESS";
+	ESpell_name_by_value[ESpell::SPELL_AIR_AURA] = "SPELL_AIR_AURA";
+	ESpell_name_by_value[ESpell::SPELL_FIRE_AURA] = "SPELL_FIRE_AURA";
+	ESpell_name_by_value[ESpell::SPELL_ICE_AURA] = "SPELL_ICE_AURA";
+	ESpell_name_by_value[ESpell::SPELL_SHOCK] = "SPELL_SHOCK";
+	ESpell_name_by_value[ESpell::SPELL_MAGICGLASS] = "SPELL_MAGICGLASS";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_SANCTUARY] = "SPELL_GROUP_SANCTUARY";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_PRISMATICAURA] = "SPELL_GROUP_PRISMATICAURA";
+	ESpell_name_by_value[ESpell::SPELL_DEAFNESS] = "SPELL_DEAFNESS";
+	ESpell_name_by_value[ESpell::SPELL_POWER_DEAFNESS] = "SPELL_POWER_DEAFNESS";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_DEAFNESS] = "SPELL_REMOVE_DEAFNESS";
+	ESpell_name_by_value[ESpell::SPELL_MASS_DEAFNESS] = "SPELL_MASS_DEAFNESS";
+	ESpell_name_by_value[ESpell::SPELL_DUSTSTORM] = "SPELL_DUSTSTORM";
+	ESpell_name_by_value[ESpell::SPELL_EARTHFALL] = "SPELL_EARTHFALL";
+	ESpell_name_by_value[ESpell::SPELL_SONICWAVE] = "SPELL_SONICWAVE";
+	ESpell_name_by_value[ESpell::SPELL_HOLYSTRIKE] = "SPELL_HOLYSTRIKE";
+	ESpell_name_by_value[ESpell::SPELL_ANGEL] = "SPELL_ANGEL";
+	ESpell_name_by_value[ESpell::SPELL_MASS_FEAR] = "SPELL_MASS_FEAR";
+	ESpell_name_by_value[ESpell::SPELL_FASCINATION] = "SPELL_FASCINATION";
+	ESpell_name_by_value[ESpell::SPELL_CRYING] = "SPELL_CRYING";
+	ESpell_name_by_value[ESpell::SPELL_OBLIVION] = "SPELL_OBLIVION";
+	ESpell_name_by_value[ESpell::SPELL_BURDEN_OF_TIME] = "SPELL_BURDEN_OF_TIME";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_REFRESH] = "SPELL_GROUP_REFRESH";
+	ESpell_name_by_value[ESpell::SPELL_PEACEFUL] = "SPELL_PEACEFUL";
+	ESpell_name_by_value[ESpell::SPELL_MAGICBATTLE] = "SPELL_MAGICBATTLE";
+	ESpell_name_by_value[ESpell::SPELL_BERSERK] = "SPELL_BERSERK";
+	ESpell_name_by_value[ESpell::SPELL_STONEBONES] = "SPELL_STONEBONES";
+	ESpell_name_by_value[ESpell::SPELL_ROOM_LIGHT] = "SPELL_ROOM_LIGHT";
+	ESpell_name_by_value[ESpell::SPELL_POISONED_FOG] = "SPELL_POISONED_FOG";
+	ESpell_name_by_value[ESpell::SPELL_THUNDERSTORM] = "SPELL_THUNDERSTORM";
+	ESpell_name_by_value[ESpell::SPELL_LIGHT_WALK] = "SPELL_LIGHT_WALK";
+	ESpell_name_by_value[ESpell::SPELL_FAILURE] = "SPELL_FAILURE";
+	ESpell_name_by_value[ESpell::SPELL_CLANPRAY] = "SPELL_CLANPRAY";
+	ESpell_name_by_value[ESpell::SPELL_GLITTERDUST] = "SPELL_GLITTERDUST";
+	ESpell_name_by_value[ESpell::SPELL_SCREAM] = "SPELL_SCREAM";
+	ESpell_name_by_value[ESpell::SPELL_CATS_GRACE] = "SPELL_CATS_GRACE";
+	ESpell_name_by_value[ESpell::SPELL_BULL_BODY] = "SPELL_BULL_BODY";
+	ESpell_name_by_value[ESpell::SPELL_SNAKE_WISDOM] = "SPELL_SNAKE_WISDOM";
+	ESpell_name_by_value[ESpell::SPELL_GIMMICKRY] = "SPELL_GIMMICKRY";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_CHALLENGE] = "SPELL_WC_OF_CHALLENGE";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_MENACE] = "SPELL_WC_OF_MENACE";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_RAGE] = "SPELL_WC_OF_RAGE";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_MADNESS] = "SPELL_WC_OF_MADNESS";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_THUNDER] = "SPELL_WC_OF_THUNDER";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_DEFENSE] = "SPELL_WC_OF_DEFENSE";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_BATTLE] = "SPELL_WC_OF_BATTLE";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_POWER] = "SPELL_WC_OF_POWER";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_BLESS] = "SPELL_WC_OF_BLESS";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_COURAGE] = "SPELL_WC_OF_COURAGE";
+	ESpell_name_by_value[ESpell::SPELL_RUNE_LABEL] = "SPELL_RUNE_LABEL";
+	ESpell_name_by_value[ESpell::SPELL_ACONITUM_POISON] = "SPELL_ACONITUM_POISON";
+	ESpell_name_by_value[ESpell::SPELL_SCOPOLIA_POISON] = "SPELL_SCOPOLIA_POISON";
+	ESpell_name_by_value[ESpell::SPELL_BELENA_POISON] = "SPELL_BELENA_POISON";
+	ESpell_name_by_value[ESpell::SPELL_DATURA_POISON] = "SPELL_DATURA_POISON";
+	ESpell_name_by_value[ESpell::SPELL_TIMER_REPAIR] = "SPELL_TIMER_REPAIR";
+	ESpell_name_by_value[ESpell::SPELL_LACKY] = "SPELL_LACKY";
+	ESpell_name_by_value[ESpell::SPELL_BANDAGE] = "SPELL_BANDAGE";
+	ESpell_name_by_value[ESpell::SPELL_NO_BANDAGE] = "SPELL_NO_BANDAGE";
+	ESpell_name_by_value[ESpell::SPELL_CAPABLE] = "SPELL_CAPABLE";
+	ESpell_name_by_value[ESpell::SPELL_STRANGLE] = "SPELL_STRANGLE";
+	ESpell_name_by_value[ESpell::SPELL_RECALL_SPELLS] = "SPELL_RECALL_SPELLS";
+	ESpell_name_by_value[ESpell::SPELL_HYPNOTIC_PATTERN] = "SPELL_HYPNOTIC_PATTERN";
+	ESpell_name_by_value[ESpell::SPELL_SOLOBONUS] = "SPELL_SOLOBONUS";
+	ESpell_name_by_value[ESpell::SPELL_VAMPIRE] = "SPELL_VAMPIRE";
+	ESpell_name_by_value[ESpell::SPELLS_RESTORATION] = "SPELLS_RESTORATION";
+	ESpell_name_by_value[ESpell::SPELL_AURA_DEATH] = "SPELL_AURA_DEATH";
+	ESpell_name_by_value[ESpell::SPELL_RECOVERY] = "SPELL_RECOVERY";
+	ESpell_name_by_value[ESpell::SPELL_MASS_RECOVERY] = "SPELL_MASS_RECOVERY";
+	ESpell_name_by_value[ESpell::SPELL_AURA_EVIL] = "SPELL_AURA_EVIL";
+	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
+
+	for (const auto& i : ESpell_name_by_value)
+	{
+		ESpell_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+const std::string& NAME_BY_ITEM<ESpell>(const ESpell item)
+{
+	if (ESpell_name_by_value.empty())
+	{
+		init_ESpell_ITEM_NAMES();
+	}
+	return ESpell_name_by_value.at(item);
+}
+
+template <>
+ESpell ITEM_BY_NAME(const std::string& name)
+{
+	if (ESpell_name_by_value.empty())
+	{
+		init_ESpell_ITEM_NAMES();
+	}
+	return ESpell_value_by_name.at(name);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -186,6 +186,7 @@ namespace craft
 		uint32_t m_item_params;
 
 		obj_flag_data::EObjectMaterial m_material;
+		ESpell m_spell;
 
 		friend class CCraftModel;
 	};

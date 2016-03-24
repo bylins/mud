@@ -350,6 +350,21 @@ namespace craft
 				m_vnum, NAME_BY_ITEM(m_material).c_str());
 		}
 
+		const auto spell = node->child("spell");
+		if (spell)
+		{
+			const char* spell_value = spell.child_value();
+			try
+			{
+				m_spell = ITEM_BY_NAME<decltype(m_spell)>(spell_value);
+			}
+			catch (const std::out_of_range&)
+			{
+				log("WARNING: Failed to set spell '%s' for prototype with VNUM %d. Spell will not be set.\n",
+					spell_value, m_vnum);
+			}
+		}
+
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
 

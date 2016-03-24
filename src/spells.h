@@ -367,6 +367,9 @@ typedef std::array<const char*, 2> cast_phrase_t;
 typedef std::array<cast_phrase_t, SPELLS_COUNT + 1> cast_phrases_t;
 extern const cast_phrases_t cast_phrase;
 
+template <> ESpell ITEM_BY_NAME<ESpell>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM<ESpell>(const ESpell spell);
+
 #define MAX_SLOT 13
 
 /*
