@@ -408,6 +408,7 @@ void room_affect_update(void)
 
 			if (af->duration >= 1)
 				af->duration--;
+			// вот что это такое здесь ?
 			else if (af->duration == -1)
 				af->duration = -1;
 			else

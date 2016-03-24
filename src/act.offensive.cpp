@@ -1815,6 +1815,10 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 	percent = number(1, skill_info[SKILL_CHOPOFF].max_percent);
 	prob = train_skill(ch, SKILL_CHOPOFF, skill_info[SKILL_CHOPOFF].max_percent, vict);
 
+	if (check_spell_on_player(vict, SPELL_WEB))
+	{
+		prob /= 3;
+	}
 	if (GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_MOB_HOLD(vict) > 0 || GET_GOD_FLAG(vict, GF_GODSCURSE))
 		prob = percent;
 

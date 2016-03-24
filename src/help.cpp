@@ -648,6 +648,8 @@ void add_sets_drop(const std::string key, const std::string entry)
 	dynamic_help.push_back(tmp_node);
 }
 
+
+
 void init_group_zones()
 {
 	std::stringstream out;
@@ -661,6 +663,11 @@ void init_group_zones()
 		}
 	}
 	add_static("групповыезоны", out.str(), 0, true);
+}
+// пока заглушка
+void init_list_zones()
+{
+
 }
 
 void check_update_dynamic()
