@@ -1600,7 +1600,7 @@ const class_app_type::extra_affects_list_t SmithAffects = {};
 const class_app_type::extra_affects_list_t MerchantAffects = {};
 const class_app_type::extra_affects_list_t DruidAffects = {};
 
-class class_app_type class_app[NUM_PLAYER_CLASSES] =
+struct class_app_type class_app[NUM_PLAYER_CLASSES] =
 {
 // unknown_weapon_fault koef_con base_con min_con max_con extra_affects
 	{5,  40, 10, 12, 50, &ClericAffects},
