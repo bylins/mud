@@ -1218,6 +1218,11 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = percent;
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE) || on_horse(vict))
 		prob = 0;
+	// в сетке пинок хуже
+	if (check_spell_on_player(ch, SPELL_WEB))
+	{
+		prob /= 3;
+	}
 
 	if (percent > prob)
 	{
@@ -1814,8 +1819,8 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	percent = number(1, skill_info[SKILL_CHOPOFF].max_percent);
 	prob = train_skill(ch, SKILL_CHOPOFF, skill_info[SKILL_CHOPOFF].max_percent, vict);
-
-	if (check_spell_on_player(vict, SPELL_WEB))
+// в сетке хуже трипается
+	if (check_spell_on_player(ch, SPELL_WEB))
 	{
 		prob /= 3;
 	}
