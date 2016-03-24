@@ -219,7 +219,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				return victim;
 			}
 			percent = number(1, skill_info[SKILL_PROTECT].max_percent);
-			prob = calculate_skill(vict, SKILL_PROTECT, skill_info[SKILL_PROTECT].max_percent, victim);
+			prob = calculate_skill(vict, SKILL_PROTECT, victim);
 			prob = prob * 8 / 10;
 			improove_skill(vict, SKILL_PROTECT, prob >= percent, ch);
 
@@ -1097,7 +1097,7 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 	}
 
 	percent = number(1, skill_info[SKILL_RESCUE].max_percent);
-	prob = calculate_skill(ch, SKILL_RESCUE, skill_info[SKILL_RESCUE].max_percent, tmp_ch);
+	prob = calculate_skill(ch, SKILL_RESCUE, tmp_ch);
 	improove_skill(ch, SKILL_RESCUE, prob >= percent, tmp_ch);
 
 	if (GET_GOD_FLAG(ch, GF_GODSLIKE))

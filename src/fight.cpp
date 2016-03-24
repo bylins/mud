@@ -1590,7 +1590,7 @@ void using_mob_skills(CHAR_DATA *ch)
 //sprintf(buf, "%s башат предфункция\r\n",GET_NAME(caster));
 //mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 					if (GET_POS(caster) >= POS_FIGHTING
-						|| calculate_skill(ch, SKILL_BASH, 200, caster) > number(50, 80))
+						|| calculate_skill(ch, SKILL_BASH, caster) > number(50, 80))
 					{
 						sk_use = 0;
 						go_bash(ch, caster);
@@ -1603,7 +1603,7 @@ void using_mob_skills(CHAR_DATA *ch)
 //                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 
 					if (GET_POS(caster) >= POS_FIGHTING
-						|| calculate_skill(ch, SKILL_CHOPOFF, 200, caster) > number(50, 80))
+						|| calculate_skill(ch, SKILL_CHOPOFF, caster) > number(50, 80))
 					{
 						sk_use = 0;
 						go_chopoff(ch, caster);
@@ -1633,7 +1633,7 @@ void using_mob_skills(CHAR_DATA *ch)
 						}
 					}
 					else if (GET_POS(damager) >= POS_FIGHTING
-						|| calculate_skill(ch, SKILL_BASH, 200, damager) > number(50, 80))
+						|| calculate_skill(ch, SKILL_BASH, damager) > number(50, 80))
 					{
 						sk_use = 0;
 						go_bash(ch, damager);
@@ -1647,7 +1647,7 @@ void using_mob_skills(CHAR_DATA *ch)
 						go_chopoff(ch, get_horse(damager));
 					}
 					else if (GET_POS(damager) >= POS_FIGHTING
-						|| calculate_skill(ch, SKILL_CHOPOFF, 200, damager) > number(50, 80))
+						|| calculate_skill(ch, SKILL_CHOPOFF, damager) > number(50, 80))
 					{
 						sk_use = 0;
 						go_chopoff(ch, damager);

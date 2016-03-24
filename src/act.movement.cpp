@@ -199,7 +199,7 @@ int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict)
 		else if (affected_by_spell(ch, SPELL_HIDE))
 		{
 			percent = number(1, 82 + GET_REAL_INT(vict));
-			prob = calculate_skill(ch, SKILL_HIDE, percent, vict);
+			prob = calculate_skill(ch, SKILL_HIDE, vict);
 			if (percent > prob)
 			{
 				affect_from_char(ch, SPELL_HIDE);
@@ -238,7 +238,7 @@ int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict)
 		else if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 		{
 			percent = number(1, 82 + GET_REAL_INT(vict));
-			prob = calculate_skill(ch, SKILL_CAMOUFLAGE, percent, vict);
+			prob = calculate_skill(ch, SKILL_CAMOUFLAGE, vict);
 			if (percent > prob)
 			{
 				affect_from_char(ch, SPELL_CAMOUFLAGE);
@@ -281,7 +281,7 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 				percent = number(1, 102 + GET_REAL_INT(vict));
 			else
 				percent = number(1, 102 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
-			prob = calculate_skill(ch, SKILL_SNEAK, percent, vict);
+			prob = calculate_skill(ch, SKILL_SNEAK, vict);
 			if (percent > prob)
 			{
 				affect_from_char(ch, SPELL_SNEAK);
@@ -689,7 +689,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			affect_from_char(ch, SPELL_SNEAK);
 		}
 		else
-			if (!affected_by_spell(ch, SPELL_SNEAK) || calculate_skill(ch, SKILL_SNEAK, i, 0) >= number(1, i))
+			if (!affected_by_spell(ch, SPELL_SNEAK) || calculate_skill(ch, SKILL_SNEAK, 0) >= number(1, i))
 				invis = 1;
 	}
 
@@ -704,7 +704,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		}
 		else
 			if (!affected_by_spell(ch, SPELL_CAMOUFLAGE) ||
-					calculate_skill(ch, SKILL_CAMOUFLAGE, i, 0) >= number(1, i))
+					calculate_skill(ch, SKILL_CAMOUFLAGE, 0) >= number(1, i))
 				invis = 1;
 	}
 
@@ -1137,7 +1137,7 @@ ACMD(do_hidemove)
 		af.location = 0;
 		af.modifier = 0;
 		af.duration = 1;
-		const int calculated_skill = calculate_skill(ch, SKILL_SNEAK, skill_info[SKILL_SNEAK].max_percent, 0);
+		const int calculated_skill = calculate_skill(ch, SKILL_SNEAK, 0);
 		const int chance = number(1, skill_info[SKILL_SNEAK].max_percent);
 		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffectFlag::AFF_SNEAK) : 0;
 		af.battleflag = 0;

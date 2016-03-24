@@ -429,7 +429,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 }
 
 // *** This function return chance of skill
-int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
+int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 {
 	int skill_is, percent = 0, victim_sav = SAVING_REFLEX, victim_modi = 0; // текущее значение умения(прокачанность) / вычисляемый итоговый процент / савис жертвы,
                                                                     // который влияет на прохождение скила / другие модификаторы, влияющие на прохождение
@@ -1069,7 +1069,7 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 {
 	int percent = 0;
 
-	percent = calculate_skill(ch, skill_no, max_value, vict);
+	percent = calculate_skill(ch, skill_no, vict);
 	if (!IS_NPC(ch))
 	{
 		if (skill_no != SKILL_SATTACK &&

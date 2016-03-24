@@ -313,6 +313,7 @@ add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURC
     SOURCES ${VERSIONING_FILES})
 add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
     COMMAND ${CMAKE_COMMAND} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DHG=${HG} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 
 # Main executable file.

@@ -183,7 +183,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 	// 101 is a complete failure, no matter what the proficiency.
 	percent = number(0, skill_info[skill_no].max_percent);
 
-	if (percent > calculate_skill(ch, skill_no, skill_info[skill_no].max_percent, victim))
+	if (percent > calculate_skill(ch, skill_no, victim))
 	{
 		int tries = 10;
 		// Find a random direction. :)
@@ -266,7 +266,7 @@ const char *track_when[] = { "совсем свежие",
 							 "совсем старые"
 						   };
 
-#define CALC_TRACK(ch,vict) (calculate_skill(ch,SKILL_TRACK,skill_info[SKILL_TRACK].max_percent,0))
+#define CALC_TRACK(ch,vict) (calculate_skill(ch,SKILL_TRACK, 0))
 
 int age_track(CHAR_DATA * ch, int time, int calc_track)
 {
@@ -481,7 +481,7 @@ ACMD(do_hidetrack)
 	if (!check_moves(ch, can_use_feat(ch, STEALTHY_FEAT) ? HIDETRACK_MOVES / 2 : HIDETRACK_MOVES))
 		return;
 	percent = number(1, skill_info[SKILL_HIDETRACK].max_percent);
-	prob = calculate_skill(ch, SKILL_HIDETRACK, skill_info[SKILL_HIDETRACK].max_percent, 0);
+	prob = calculate_skill(ch, SKILL_HIDETRACK, 0);
 	if (percent > prob)
 	{
 		send_to_char("Вы безуспешно попытались замести свои следы.\r\n", ch);

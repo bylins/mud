@@ -22,7 +22,6 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 #include "handler.h"
 #include "constants.h"
 #include "modify.h"
-#include "structs.h"
 
 // Required because pyconfig.h defines ssize_t by himself
 #if defined(ssize_t)

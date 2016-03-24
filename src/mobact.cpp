@@ -1198,7 +1198,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_SNEAK))
 		{
-			if (calculate_skill(ch, SKILL_SNEAK, 100, 0) >= number(0, 100))
+			if (calculate_skill(ch, SKILL_SNEAK, 0) >= number(0, 100))
 			{
 				AFF_FLAGS(ch).set(EAffectFlag::AFF_SNEAK);
 			}
@@ -1211,7 +1211,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_CAMOUFLAGE))
 		{
-			if (calculate_skill(ch, SKILL_CAMOUFLAGE, 100, 0) >= number(0, 100))
+			if (calculate_skill(ch, SKILL_CAMOUFLAGE, 0) >= number(0, 100))
 			{
 				AFF_FLAGS(ch).set(EAffectFlag::AFF_CAMOUFLAGE);
 			}
