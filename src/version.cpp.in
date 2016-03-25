@@ -20,7 +20,7 @@ const char* build_datetime = __DATE__ " " __TIME__;
 
 void show_code_date(CHAR_DATA *ch)
 {
-	send_to_char(ch, "МПМ Былины, версия от %s, ревизия: %s", build_datetime, revision);
+	send_to_char(ch, "МПМ Былины, версия от %s, ревизия: %s\n", build_datetime, revision);
 }
 
 void log_code_date()
