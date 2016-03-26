@@ -4488,8 +4488,8 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 {
 	char tmpstr[255];
 	sprintf(tmpstr,
-			"%3d %-30.30s Level: %2d; Type: %-10.10s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
-			"    Top: %5d %s%s; ResetIdle: %s; Used: %s; Activity: %.2f; Group: %2d, Mob-level: %2d\r\n",
+			"%3d %-30.30s Приверный уровень: %2d; Type: %-10.10s; Репоп через: %3d минут; : Установлен репоп: %3d минут, Расшифровать: (%1d)(%1d)\r\n"
+			"    Top: %5d %s%s; Требуется репоп: %s; Пустая?: %s; Команд в секунду: %.2f; Group: %2d, Mob-level: %2d\r\n",
 			zone_table[zone].number, zone_table[zone].name,
 			zone_table[zone].level, zone_types[zone_table[zone].type].name,
 			zone_table[zone].age, zone_table[zone].lifespan,
@@ -4498,8 +4498,8 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 					zone_table[zone].top,
 					zone_table[zone].under_construction ? "T" : " ",
 					zone_table[zone].locked ? " L" : " ",
-					zone_table[zone].reset_idle ? "Y" : "N",
-					zone_table[zone].used ? "Y" : "N",
+					zone_table[zone].reset_idle ? "Да" : "Нет",
+					zone_table[zone].used ? "Да" : "Нет",
 					(double)zone_table[zone].activity / 1000,
 					zone_table[zone].group,
 					zone_table[zone].mob_level);

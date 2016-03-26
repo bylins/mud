@@ -178,6 +178,12 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			send_to_char(tmpbuf, ch);
 			return false;
 		}
+		if (IS_GOD(ch))
+		{
+			sprintf(tmpbuf, "Делай что-нибудь полезное для мада, фридроп или мобу подложи эту штуку!");
+			send_to_char(tmpbuf, ch);
+			return false;
+		}
 		if (value <= 0)
 		{
 			value = MAX(1, GET_OBJ_COST(obj));
