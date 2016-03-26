@@ -619,6 +619,8 @@ void assign_feats(void)
 //131
 	// наем наносит серию сильных ударов, но быстро устает
 	feato(BLACK_RITUAL_FEAT, "темный ритуал", NORMAL_FTYPE, TRUE, feat_app);
+//132
+	 feato(HORSE_STUN, "ошеломление", NORMAL_FTYPE, TRUE, feat_app);
 	
 	
 	/*
