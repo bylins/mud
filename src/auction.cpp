@@ -180,7 +180,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		}
 		if (IS_GOD(ch))
 		{
-			sprintf(tmpbuf, "Делай что-нибудь полезное для мада, фридроп или мобу подложи эту штуку!");
+			sprintf(tmpbuf, "&CДелай что-нибудь полезное для мада, фридроп или мобу подложи эту штуку!\n\r\n");
 			send_to_char(tmpbuf, ch);
 			return false;
 		}
