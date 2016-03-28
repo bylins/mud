@@ -38,12 +38,12 @@ public:
 	virtual std::string PadName() const = 0;
 	virtual std::string GetMorphDesc() const = 0;
 	virtual std::string GetMorphTitle() const = 0;
-	virtual void InitSkills(int value) {};
+	virtual void InitSkills(int/* value*/) {};
 	virtual void InitAbils() {};
-	virtual void SetAbilsParams(short toStr, short toDex, short toCon, short toInt, short toCha) {};
-	virtual void SetChar(CHAR_DATA *ch) {};
+	virtual void SetAbilsParams(short/* toStr*/, short/* toDex*/, short/* toCon*/, short/* toInt*/, short/* toCha*/) {};
+	virtual void SetChar(CHAR_DATA* /*ch*/) {};
 	virtual std::string CoverDesc() { return ""; };
-	virtual bool isAffected(const EAffectFlag flag) const {return false;}
+	virtual bool isAffected(const EAffectFlag/* flag*/) const { return false; }
 	virtual const affects_list_t& GetAffects();
 	virtual std::string GetMessageToRoom() { return std::string(); }
 	virtual std::string GetMessageToChar() { return std::string(); }
