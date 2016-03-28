@@ -33,12 +33,12 @@ extern BanList *ban;
 // local functions
 void load_banned(void);
 
-ACMD(do_ban);
-ACMD(do_unban);
+void do_ban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 int Valid_Name(char *newname);
 void Read_Invalid_List(void);
 
-ACMD(do_ban)
+void do_ban(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (!*argument)
 	{
@@ -150,7 +150,7 @@ ACMD(do_ban)
 }
 
 
-ACMD(do_unban)
+void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char site[MAX_INPUT_LENGTH];
 	one_argument(argument, site);
@@ -391,7 +391,7 @@ int CheckProxy(DESCRIPTOR_DATA * ch)
 }
 
 // команда proxy
-ACMD(do_proxy)
+void do_proxy(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);

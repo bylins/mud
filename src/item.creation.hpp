@@ -61,9 +61,9 @@ void mredit_parse(struct DESCRIPTOR_DATA *d, char *arg);
 void mredit_disp_menu(struct DESCRIPTOR_DATA *d);
 void mredit_disp_ingr_menu(struct DESCRIPTOR_DATA *d);
 
-ACMD(do_list_make);
-ACMD(do_edit_make);
-ACMD(do_make_item);
+void do_list_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_edit_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_make_item(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 void init_make_items();
 // Старая структура мы ее используем в перековке.

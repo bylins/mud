@@ -89,7 +89,7 @@ void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
 // mob commands
 
 // prints the argument to all the rooms aroud the mobile
-ACMD(do_masound)
+void do_masound(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -125,7 +125,7 @@ ACMD(do_masound)
 
 
 // lets the mobile kill any player or mobile without murder
-ACMD(do_mkill)
+void do_mkill(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
@@ -197,7 +197,7 @@ ACMD(do_mkill)
  * it can also destroy a worn object and it can destroy
  * items using all.xxxxx or just plain all of them
  */
-ACMD(do_mjunk)
+void do_mjunk(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg[MAX_INPUT_LENGTH];
 	int pos, junk_all = 0;
@@ -257,7 +257,7 @@ ACMD(do_mjunk)
 
 
 // prints the message to everyone in the room other than the mob and victim
-ACMD(do_mechoaround)
+void do_mechoaround(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
@@ -310,7 +310,7 @@ ACMD(do_mechoaround)
 
 
 // sends the message to only the victim
-ACMD(do_msend)
+void do_msend(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
@@ -363,7 +363,7 @@ ACMD(do_msend)
 
 
 // prints the message to the room at large
-ACMD(do_mecho)
+void do_mecho(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char *p;
 
@@ -400,7 +400,7 @@ ACMD(do_mecho)
  * lets the mobile load an item or mobile.  All items
  * are loaded into inventory, unless it is NO-TAKE.
  */
-ACMD(do_mload)
+void do_mload(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int number = 0;
@@ -466,7 +466,7 @@ ACMD(do_mload)
  * or purge a specified object or mob in the room.  It can purge
  *  itself, but this will be the last command it does.
  */
-ACMD(do_mpurge)
+void do_mpurge(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
@@ -543,7 +543,7 @@ ACMD(do_mpurge)
 
 
 // lets the mobile goto any location it wishes that is not private
-ACMD(do_mgoto)
+void do_mgoto(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg[MAX_INPUT_LENGTH];
 	char buf[MAX_INPUT_LENGTH];
@@ -582,7 +582,7 @@ ACMD(do_mgoto)
 
 
 // lets the mobile do a command at another location. Very useful
-ACMD(do_mat)
+void do_mat(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg[MAX_INPUT_LENGTH];
 	char buf[MAX_INPUT_LENGTH];
@@ -634,7 +634,7 @@ ACMD(do_mat)
  * lets the mobile transfer people.  the all argument transfers
  * everyone in the current room to the specified location
  */
-ACMD(do_mteleport)
+void do_mteleport(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int target;
@@ -765,7 +765,7 @@ ACMD(do_mteleport)
  * lets the mobile force someone to do something.  must be mortal level
  * and the all argument only affects those in the room with the mobile
  */
-ACMD(do_mforce)
+void do_mforce(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg[MAX_INPUT_LENGTH];
 
@@ -840,7 +840,7 @@ ACMD(do_mforce)
 
 
 // increases the target's exp
-ACMD(do_mexp)
+void do_mexp(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
@@ -890,7 +890,7 @@ ACMD(do_mexp)
 
 
 // increases the target's gold
-ACMD(do_mgold)
+void do_mgold(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
@@ -950,7 +950,7 @@ ACMD(do_mgold)
 }
 
 // place someone into the mob's memory list
-ACMD(do_mremember)
+void do_mremember(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *victim;
 	struct script_memory *mem;
@@ -1014,7 +1014,7 @@ ACMD(do_mremember)
 
 
 // remove someone from the list
-ACMD(do_mforget)
+void do_mforget(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *victim;
 	struct script_memory *mem, *prev;
@@ -1087,7 +1087,7 @@ ACMD(do_mforget)
 
 
 // transform into a different mobile
-ACMD(do_mtransform)
+void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *m;
@@ -1218,7 +1218,7 @@ ACMD(do_mtransform)
 }
 
 
-ACMD(do_mdoor)
+void do_mdoor(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
@@ -1362,7 +1362,7 @@ const char *spell_name(int num);
 int find_skill_num(const char *name);
 int find_spell_num(char *name);
 
-ACMD(do_mfeatturn)
+void do_mfeatturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int isFeat = 0;
 	CHAR_DATA *victim;
@@ -1436,7 +1436,7 @@ ACMD(do_mfeatturn)
 
 }
 
-ACMD(do_mskillturn)
+void do_mskillturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int isSkill = 0;
 	CHAR_DATA *victim;
@@ -1525,7 +1525,7 @@ ACMD(do_mskillturn)
 		trg_recipeturn(victim, skillnum, skilldiff);
 }
 
-ACMD(do_mskilladd)
+void do_mskilladd(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int isSkill = 0;
 	CHAR_DATA *victim;
@@ -1598,7 +1598,7 @@ ACMD(do_mskilladd)
 		trg_recipeadd(victim, skillnum, skilldiff);
 }
 
-ACMD(do_mspellturn)
+void do_mspellturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
@@ -1672,7 +1672,7 @@ ACMD(do_mspellturn)
 	trg_spellturn(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
-ACMD(do_mspelladd)
+void do_mspelladd(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
@@ -1737,7 +1737,7 @@ ACMD(do_mspelladd)
 	trg_spelladd(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
-ACMD(do_mspellitem)
+void do_mspellitem(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH], *pos;
@@ -1814,7 +1814,7 @@ ACMD(do_mspellitem)
 	trg_spellitem(victim, spellnum, spelldiff, spell);
 }
 
-ACMD(do_mdamage)
+void do_mdamage(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int dam = 0;

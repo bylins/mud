@@ -129,7 +129,7 @@ void add_map(std::map<int, T> &target, const std::map<int, T> &add)
 
 } // namespace PrintActivators
 
-ACMD(do_help);
+void do_help(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 #endif // HELP_HPP_INCLUDED
 

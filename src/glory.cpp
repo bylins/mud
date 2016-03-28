@@ -839,7 +839,7 @@ void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 }
 
 // * Команда 'слава' - вложение имеющейся у игрока славы в статы без участия иммов.
-ACMD(do_spend_glory)
+void do_spend_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end() || IS_IMMORTAL(ch))

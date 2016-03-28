@@ -31,8 +31,8 @@
 #include "room.hpp"
 
 // Externals
-ACMD(do_say);
-ACMD(do_sense);
+void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sense(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern const char *dirs[];
 extern const char *DirsTo[];
 extern int track_through_doors;
@@ -45,7 +45,7 @@ void bfs_enqueue(room_rnum room, int dir);
 void bfs_dequeue(void);
 void bfs_clear_queue(void);
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);
-ACMD(do_track);
+void do_track(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 struct bfs_queue_struct
 {
@@ -199,7 +199,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
-ACMD(do_sense)
+void do_sense(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 	int dir;
@@ -295,7 +295,7 @@ int age_track(CHAR_DATA * ch, int time, int calc_track)
 }
 
 
-ACMD(do_track)
+void do_track(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict = NULL;
 	struct track_data *track;
@@ -430,7 +430,7 @@ ACMD(do_track)
 }
 
 
-ACMD(do_hidetrack)
+void do_hidetrack(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	struct track_data *track[NUM_OF_DIRS + 1], *temp;
 	int percent, prob, i, croom, found = FALSE, dir, rdir;

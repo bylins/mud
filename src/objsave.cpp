@@ -62,7 +62,7 @@ extern room_rnum r_unreg_start_room;
 #define GET_INDEX(ch) (get_ptable_by_name(GET_NAME(ch)))
 
 // Extern functions
-ACMD(do_tell);
+void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 SPECIAL(receptionist);
 SPECIAL(cryogenicist);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);

@@ -50,24 +50,24 @@ bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
 extern char *diag_timer_to_char(OBJ_DATA * obj);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
-ACMD(do_say);
-ACMD(do_gsay);
-ACMD(do_tell);
-ACMD(do_reply);
-ACMD(do_spec_comm);
-ACMD(do_write);
-ACMD(do_page);
-ACMD(do_gen_comm);
-ACMD(do_pray_gods);
-ACMD(do_remember_char);
+void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gsay(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_reply(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_spec_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_write(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_page(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_pray_gods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 // shapirus
-ACMD(do_ignore);
+void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
 
-ACMD(do_say)
+void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
 	CHAR_DATA *to;
@@ -120,8 +120,7 @@ ACMD(do_say)
 	}
 }
 
-
-ACMD(do_gsay)
+void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *k;
 	struct follow_type *f;
@@ -315,7 +314,7 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
  * Yes, do_tell probably could be combined with whisper and ask, but
  * called frequently, and should IMHO be kept as tight as possible.
  */
-ACMD(do_tell)
+void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict = NULL;
 
@@ -356,8 +355,7 @@ ACMD(do_tell)
 	}
 }
 
-
-ACMD(do_reply)
+void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *tch = character_list;
 
@@ -413,8 +411,7 @@ ACMD(do_reply)
 	}
 }
 
-
-ACMD(do_spec_comm)
+void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *vict;
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
@@ -487,11 +484,9 @@ ACMD(do_spec_comm)
 	}
 }
 
-
-
 #define MAX_NOTE_LENGTH 4096	// arbitrary
 
-ACMD(do_write)
+void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *paper, *pen = NULL;
 	char *papername, *penname;
@@ -598,7 +593,7 @@ ACMD(do_write)
 	}
 }
 
-ACMD(do_page)
+void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *d;
 	CHAR_DATA *vict;
@@ -655,7 +650,7 @@ struct communication_type
 	int noflag;
 };
 
-ACMD(do_gen_comm)
+void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	DESCRIPTOR_DATA *i;
 	char color_on[24];
@@ -928,8 +923,7 @@ ACMD(do_gen_comm)
 	}
 }
 
-
-ACMD(do_mobshout)
+void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *i;
 
@@ -957,7 +951,7 @@ ACMD(do_mobshout)
 	}
 }
 
-ACMD(do_pray_gods)
+void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	DESCRIPTOR_DATA *i;
@@ -1056,7 +1050,7 @@ ACMD(do_pray_gods)
 /**
 * Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
 */
-ACMD(do_offtop)
+void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_IGVA_PRONA))
 	{
@@ -1195,7 +1189,7 @@ char *text_ignore_modes(unsigned long mode, char *buf)
 	return buf;
 }
 
-ACMD(do_ignore)
+void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];

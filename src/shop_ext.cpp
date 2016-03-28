@@ -71,7 +71,7 @@
 </shop_list>
 */
 
-extern ACMD(do_echo);
+extern void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern int do_social(CHAR_DATA * ch, char *argument);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -1920,7 +1920,7 @@ void town_shop_keepers()
 	}
 }
 
-ACMD(do_shops_list)
+void do_shops_list(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
 	size_t n = dic->Size();

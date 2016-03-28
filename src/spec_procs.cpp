@@ -50,9 +50,9 @@ extern struct spell_create_type spell_create[];
 extern int guild_info[][3];
 
 // extern functions
-ACMD(do_drop);
-ACMD(do_gen_door);
-ACMD(do_say);
+void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no);
 int has_key(CHAR_DATA * ch, obj_vnum key);
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);

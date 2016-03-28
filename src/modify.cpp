@@ -51,7 +51,7 @@ extern const char *unused_spellname;	// spell_parser.cpp
 
 // local functions
 void smash_tilde(char *str);
-ACMD(do_skillset);
+void do_skillset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 char *next_page(char *str, CHAR_DATA * ch);
 int count_pages(char *str, CHAR_DATA * ch);
 void paginate_string(char *str, DESCRIPTOR_DATA * d);
@@ -995,7 +995,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 // * Set of character features                                           *
 // ***********************************************************************
 
-ACMD(do_featset)
+void do_featset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];
@@ -1107,7 +1107,7 @@ ACMD(do_featset)
 // *  Modification of character skills                                  *
 // **********************************************************************
 
-ACMD(do_skillset)
+void do_skillset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];

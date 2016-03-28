@@ -41,7 +41,7 @@ extern guardian_type guardian_list;
 extern struct zone_data * zone_table;
 extern bool check_mighthit_weapon(CHAR_DATA *ch);
 
-ACMD(do_get);
+void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict);

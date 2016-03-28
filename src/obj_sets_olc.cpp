@@ -1960,7 +1960,7 @@ const char *SEDIT_HELP =
 } // namespace
 
 /// иммский sedit, см. SEDIT_HELP
-ACMD(do_sedit)
+void do_sedit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 	{

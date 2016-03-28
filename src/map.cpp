@@ -1221,7 +1221,7 @@ void Options::text_olc(CHAR_DATA *ch, const char *arg)
 
 } // namespace MapSystem
 
-ACMD(do_map)
+void do_map(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 	{

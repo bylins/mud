@@ -992,7 +992,7 @@ const char *HOUSE_FORMAT[] =
 };
 
 // обработка клановых привилегий (команда house)
-ACMD(DoHouse)
+void DoHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1709,7 +1709,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 // обработка клан-канала и канала союзников, как игрока, так и имма
 // клановые БОГи ниже 34 не могут говорить другим дружинам, и им и остальным спокойнее
 // для канала союзников нужен обоюдный альянс дружин
-ACMD(DoClanChannel)
+void DoClanChannel(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1768,7 +1768,7 @@ ACMD(DoClanChannel)
 	}*/
 
 // список зарегестрированных дружин с их онлайновым составом (опционально)
-ACMD(DoClanList)
+void DoClanList(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1902,7 +1902,7 @@ void Clan::SetPolitics(int victim, int state)
 const char *politicsnames[] = { "Нейтралитет", "Война", "Альянс" };
 
 //Polud будем показывать всем происходящие войны
-ACMD(DoShowWars)
+void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))	return;
 	ClanListType::const_iterator clan1, clan2;
@@ -1949,7 +1949,7 @@ ACMD(DoShowWars)
 //-Polud
 
 // выводим информацию об отношениях дружин между собой
-ACMD(DoShowPolitics)
+void DoShowPolitics(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
@@ -2327,7 +2327,7 @@ void Clan::hcontrol_set_ingr_chest(CHAR_DATA *ch, std::string &text)
 }
 
 // божественный hcontrol
-ACMD(DoHcontrol)
+void DoHcontrol(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 		return;
@@ -2545,7 +2545,7 @@ void Clan::HcontrolDestroy(CHAR_DATA * ch, std::string & buffer)
 }
 
 // ктодружина (список соклановцев, находящихся онлайн)
-ACMD(DoWhoClan)
+void DoWhoClan(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
@@ -2611,7 +2611,7 @@ void print_pkl(CHAR_DATA *ch, std::ostringstream &stream, ClanPkList::const_iter
 }
 
 // пкл/дрл
-ACMD(DoClanPkList)
+void DoClanPkList(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
@@ -4248,7 +4248,7 @@ void Clan::CheckPkList(CHAR_DATA * ch)
 }
 
 // вобщем это копи-паст из биржи + флаги
-ACMD(DoStoreHouse)
+void DoStoreHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
@@ -4847,7 +4847,7 @@ std::string GetChestMode(CHAR_DATA *ch)
 		return "выкл";
 }
 
-ACMD(do_clanstuff)
+void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	OBJ_DATA *obj;
 	int vnum, rnum;

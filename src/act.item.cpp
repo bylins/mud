@@ -79,20 +79,20 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 // from class.cpp
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 
-ACMD(do_split);
-ACMD(do_remove);
-ACMD(do_put);
-ACMD(do_get);
-ACMD(do_drop);
-ACMD(do_give);
-ACMD(do_drink);
-ACMD(do_eat);
-ACMD(do_drunkoff);
-ACMD(do_pour);
-ACMD(do_wear);
-ACMD(do_wield);
-ACMD(do_grab);
-ACMD(do_upgrade);
+void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_put(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_give(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_eat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_pour(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wear(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wield(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_grab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_upgrade(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 // чтобы словить невозможность положить в клан-сундук,
 // иначе при пол все сун будет спам на каждый предмет, мол низя
@@ -472,7 +472,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
    all objects to be put into container must be in inventory.
 */
 
-ACMD(do_put)
+void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
@@ -963,7 +963,7 @@ void get_from_room(CHAR_DATA * ch, char *arg, int howmany)
 	}
 }
 
-ACMD(do_mark)
+void do_mark(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
@@ -1029,8 +1029,7 @@ ACMD(do_mark)
 	}
 }
 
-
-ACMD(do_get)
+void do_get(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
@@ -1295,9 +1294,7 @@ int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, roo
 	return (0);
 }
 
-
-
-ACMD(do_drop)
+void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *obj, *next_obj;
 	room_rnum RDR = 0;
@@ -1542,8 +1539,7 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	bribe_mtrigger(vict, ch, amount);
 }
 
-
-ACMD(do_give)
+void do_give(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int amount, dotmode;
 	CHAR_DATA *vict;
@@ -1662,9 +1658,7 @@ void weight_change_object(OBJ_DATA * obj, int weight)
 	}
 }
 
-
-
-ACMD(do_eat)
+void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *food;
 	AFFECT_DATA af;
@@ -2019,9 +2013,7 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 	return (where);
 }
 
-
-
-ACMD(do_wear)
+void do_wear(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
@@ -2100,7 +2092,7 @@ ACMD(do_wear)
 	}
 }
 
-ACMD(do_wield)
+void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
 	int wear;
@@ -2180,7 +2172,7 @@ ACMD(do_wield)
 	}
 }
 
-ACMD(do_grab)
+void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int where = WEAR_HOLD;
 	OBJ_DATA *obj;
@@ -2287,9 +2279,7 @@ void perform_remove(CHAR_DATA * ch, int pos)
 		}
 }
 
-
-
-ACMD(do_remove)
+void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int i, dotmode, found;
 
@@ -2365,8 +2355,7 @@ ACMD(do_remove)
 	}
 }
 
-
-ACMD(do_upgrade)
+void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
 	int weight, add_hr, add_dr, prob, percent, min_mod, max_mod, i;
@@ -2511,8 +2500,7 @@ ACMD(do_upgrade)
 //obj->obj_flags.Obj_owner  = GET_UNIQUE(ch);
 }
 
-
-ACMD(do_armored)
+void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
 	int add_ac, add_armor, prob, percent, i, k_mul = 1, k_div = 1;
@@ -2629,7 +2617,7 @@ ACMD(do_armored)
 	obj->affected[1].modifier = add_armor;
 }
 
-ACMD(do_fire)
+void do_fire(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	int percent, prob;
 	if (!ch->get_skill(SKILL_FIRE))
@@ -2687,7 +2675,7 @@ ACMD(do_fire)
 	}
 }
 
-ACMD(do_extinguish)
+void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
     CHAR_DATA *caster;
     int tp, lag = 0;
@@ -2765,10 +2753,9 @@ ACMD(do_extinguish)
 #define MAX_REMOVE  12
 const int RemoveSpell[MAX_REMOVE] = { SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS, SPELL_CURSE, SPELL_PLAQUE,
 									  SPELL_SIELENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL, SPELL_CONE_OF_COLD,
-									  SPELL_DEAFNESS
-									};
+									  SPELL_DEAFNESS };
 
-ACMD(do_firstaid)
+void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int percent, prob, success = FALSE, need = FALSE, count, spellnum = 0;
 	struct timed_type timed;
@@ -2888,7 +2875,7 @@ ACMD(do_firstaid)
 	}
 }
 
-ACMD(do_poisoned)
+void do_poisoned(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (!ch->get_skill(SKILL_POISONED))
 	{
@@ -2960,7 +2947,7 @@ ACMD(do_poisoned)
 	act("$n осторожно нанес$q яд на $o3.", FALSE, ch, weapon, 0, TO_ROOM | TO_ARENA_LISTEN);
 }
 
-ACMD(do_repair)
+void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
 	int prob, percent = 0, decay;
@@ -3119,7 +3106,7 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	}
 	return false;
 }
-ACMD(do_makefood)
+void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj, *tobj;
 	CHAR_DATA *mob;
@@ -3309,7 +3296,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 
 // чтоб не абузили длину. персональные пофиг, а клановые не надо.
 #define MAX_LABEL_LENGTH 32
-ACMD(do_custom_label)
+void do_custom_label(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];

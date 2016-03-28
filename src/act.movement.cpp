@@ -55,14 +55,14 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd);
 int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
 extern int get_pick_chance(int skill_pick, int lock_complexity);
 
-ACMD(do_gen_door);
-ACMD(do_enter);
-ACMD(do_stand);
-ACMD(do_sit);
-ACMD(do_rest);
-ACMD(do_sleep);
-ACMD(do_wake);
-ACMD(do_follow);
+void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_enter(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_rest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sleep(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wake(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 const int Reverse[NUM_OF_DIRS] = { 2, 3, 0, 1, 5, 4 };
 const char *DirIs[] =
@@ -1093,7 +1093,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 }
 
 
-ACMD(do_move)
+void do_move(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	/*
 	 * This is basically a mapping of cmd numbers to perform_move indices.
@@ -1103,7 +1103,7 @@ ACMD(do_move)
 	perform_move(ch, subcmd - 1, 0, TRUE, 0);
 }
 
-ACMD(do_hidemove)
+void do_hidemove(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int dir = 0, sneaking = affected_by_spell(ch, SPELL_SNEAK);
 	AFFECT_DATA af;
@@ -1485,7 +1485,7 @@ int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd)
 }
 
 
-ACMD(do_gen_door)
+void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int door = -1;
 	obj_vnum keynum;
@@ -1586,7 +1586,7 @@ ACMD(do_gen_door)
 
 
 
-ACMD(do_enter)
+void do_enter(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int door, from_room;
 	const char *p_str = "пентаграмма";
@@ -1758,7 +1758,7 @@ ACMD(do_enter)
 }
 
 
-ACMD(do_stand)
+void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (GET_POS(ch) > POS_SLEEPING && AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
 	{
@@ -1803,7 +1803,7 @@ ACMD(do_stand)
 }
 
 
-ACMD(do_sit)
+void do_sit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (on_horse(ch))
 	{
@@ -1840,7 +1840,7 @@ ACMD(do_sit)
 }
 
 
-ACMD(do_rest)
+void do_rest(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (on_horse(ch))
 	{
@@ -1877,7 +1877,7 @@ ACMD(do_rest)
 }
 
 
-ACMD(do_sleep)
+void do_sleep(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
 	{
@@ -1912,7 +1912,7 @@ ACMD(do_sleep)
 	}
 }
 
-ACMD(do_horseon)
+void do_horseon(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *horse;
 
@@ -1964,7 +1964,7 @@ ACMD(do_horseon)
 	}
 }
 
-ACMD(do_horseoff)
+void do_horseoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *horse;
 
@@ -1987,7 +1987,7 @@ ACMD(do_horseoff)
 	AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 }
 
-ACMD(do_horseget)
+void do_horseget(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *horse;
 
@@ -2031,7 +2031,7 @@ ACMD(do_horseget)
 }
 
 
-ACMD(do_horseput)
+void do_horseput(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *horse;
 
@@ -2073,7 +2073,7 @@ ACMD(do_horseput)
 }
 
 
-ACMD(do_horsetake)
+void do_horsetake(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int percent, prob;
 	CHAR_DATA *horse = NULL;
@@ -2182,7 +2182,7 @@ ACMD(do_horsetake)
 	make_horse(horse, ch);
 }
 
-ACMD(do_givehorse)
+void do_givehorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *horse, *victim;
 
@@ -2239,7 +2239,7 @@ ACMD(do_givehorse)
 	make_horse(horse, victim);
 }
 
-ACMD(do_stophorse)
+void do_stophorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *horse;
 
@@ -2281,7 +2281,7 @@ ACMD(do_stophorse)
 
 
 
-ACMD(do_wake)
+void do_wake(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 	int self = 0;
@@ -2335,7 +2335,7 @@ ACMD(do_wake)
 }
 
 
-ACMD(do_follow)
+void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *leader;
 	struct follow_type *f;

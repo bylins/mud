@@ -449,7 +449,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 }
 
 // Входим в режим редактирования рецептов для предметов.
-ACMD(do_edit_make)
+void do_edit_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	string tmpstr;
 	DESCRIPTOR_DATA *d;
@@ -630,7 +630,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = MREDIT_MAIN_MENU;
 }
 
-ACMD(do_list_make)
+void do_list_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	string tmpstr, skill_name, obj_name;
 	char tmpbuf[MAX_INPUT_LENGTH];
@@ -716,7 +716,7 @@ ACMD(do_list_make)
 }
 
 // Создание любого предмета из компонента.
-ACMD(do_make_item)
+void do_make_item(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	// Тут творим предмет.
 
@@ -1024,7 +1024,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 }
 
 
-ACMD(do_transform_weapon)
+void do_transform_weapon(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];

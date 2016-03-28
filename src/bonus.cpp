@@ -36,12 +36,12 @@ namespace Bonus
 	typedef std::list<std::string> bonus_log_t;
 	bonus_log_t bonus_log;
 
-	ACMD(do_bonus_info)
+	void do_bonus_info(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	{
 		show_log(ch);
 	}
 
-	ACMD(do_bonus)
+	void do_bonus(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	{
 		argument = two_arguments(argument, buf, buf2);
 		std::string out = "*** Объявляется ";

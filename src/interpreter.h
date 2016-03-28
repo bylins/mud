@@ -19,10 +19,7 @@
 #include "conf.h"
 #include "utils.h"
 
-#define ACMD(name)  \
-   void name(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
-
-ACMD(do_move);
+void do_move(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 #define CMD_NAME (cmd_info[cmd].command)
 #define CMD_IS(cmd_name) (!strn_cmp(cmd_name, cmd_info[cmd].command, strlen(cmd_name)))

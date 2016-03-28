@@ -341,7 +341,7 @@ void nedit_menu(CHAR_DATA * ch)
 	send_to_char(out.str().c_str(), ch);
 }
 
-ACMD(do_named)
+void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	mob_rnum r_num;
 	std::string out;

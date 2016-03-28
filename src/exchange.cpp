@@ -75,7 +75,7 @@ void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot);
 extern void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH]);
 
 //Polud
-ACMD(do_exchange);
+void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 EXCHANGE_ITEM_DATA *create_exchange_item(void);
 
@@ -1694,7 +1694,7 @@ void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot)
 }
 
 //Polud дублируем кучку кода, чтобы можно было часть команд базара выполнять в любой комнате
-ACMD(do_exchange)
+void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 		char* arg = str_dup(argument);
 		argument = one_argument(argument, arg1);

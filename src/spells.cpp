@@ -74,7 +74,7 @@ int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 int calc_anti_savings(CHAR_DATA * ch);
 void go_flee(CHAR_DATA * ch);
 
-ACMD(do_tell);
+void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 void perform_remove(CHAR_DATA * ch, int pos);
 int get_zone_rooms(int, int *, int *);
@@ -1189,7 +1189,7 @@ ASPELL(spell_charm)
 	}
 }
 
-ACMD(do_findhelpee)
+void do_findhelpee(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *helpee;
 	struct follow_type *k;

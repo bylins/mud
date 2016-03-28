@@ -60,13 +60,13 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj);
 void spello(int spl, const char *name, const char *syn, int max_mana, int min_mana, int mana_change,
 			int minpos, int targets, int violent, int routines, int danger, int remort, int spell_class);
 int mag_manacost(CHAR_DATA * ch, int spellnum);
-ACMD(do_cast);
-ACMD(do_warcry);
-ACMD(do_ident);
-ACMD(do_create);
-ACMD(do_forget);
-ACMD(do_remember);
-ACMD(do_mixture);
+void do_cast(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_warcry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_ident(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_forget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_remember(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 void unused_spell(int spl);
 void unused_skill(int spl);
@@ -2176,7 +2176,7 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 }
 
 
-ACMD(do_ident)
+void do_ident(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *cvict = NULL, *caster = ch;
 	OBJ_DATA *ovict = NULL;
@@ -2971,7 +2971,7 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
  * the spell can be cast, checks for sufficient mana and subtracts it, and
  * passes control to cast_spell().
  */
-ACMD(do_cast)
+void do_cast(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *tch;
 	OBJ_DATA *tobj;
@@ -3139,7 +3139,7 @@ ACMD(do_cast)
 	}
 }
 
-ACMD(do_warcry)
+void do_warcry(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int spellnum, cnt;
 
@@ -3276,7 +3276,7 @@ ACMD(do_warcry)
 	}
 }
 
-ACMD(do_mixture)
+void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 		return;
@@ -3421,7 +3421,7 @@ ACMD(do_mixture)
 }
 
 
-ACMD(do_create)
+void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char *s;
 	int spellnum, itemnum = 0;
@@ -3540,7 +3540,7 @@ void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj)
 
 // +newbook.patch (Alisher)
 
-ACMD(do_learn)
+void do_learn(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	OBJ_DATA *obj;
 	int spellnum = 0, addchance = 10, rcpt = -1;
@@ -3956,7 +3956,7 @@ void show_wizdom(CHAR_DATA * ch, int bitset)
 }
 
 
-ACMD(do_remember)
+void do_remember(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char *s;
 	int spellnum;
@@ -4015,7 +4015,7 @@ inline bool in_mem(char* arg)
 		  !strn_cmp("резы", arg, strlen(arg)) || !strn_cmp("book", arg, strlen(arg)));
 }
 
-ACMD(do_forget)
+void do_forget(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char *s=0, *t=0;
 	int spellnum, is_in_mem;

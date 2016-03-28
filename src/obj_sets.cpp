@@ -1488,7 +1488,7 @@ bool is_set_item(OBJ_DATA *obj)
 } // namespace obj_sets
 
 /// иммский slist
-ACMD(do_slist)
+void do_slist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 	{

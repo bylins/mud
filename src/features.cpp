@@ -50,7 +50,7 @@ bool find_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 
-ACMD(do_lightwalk);
+void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 /*
    Служебный класс для удобства вбивания значений в массив affected структуры способности
@@ -926,7 +926,7 @@ void check_berserk(CHAR_DATA * ch)
 }
 
 // Легкая поступь
-ACMD(do_lightwalk)
+void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	AFFECT_DATA af;
 	struct timed_type timed;
@@ -980,7 +980,7 @@ ACMD(do_lightwalk)
 }
 
 //подгонка и перешивание
-ACMD(do_fit)
+void do_fit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	OBJ_DATA *obj;
 	CHAR_DATA *vict;
@@ -1100,7 +1100,7 @@ ACMD(do_fit)
 int slot_for_char(CHAR_DATA * ch, int i);
 #define SpINFO spell_info[spellnum]
 // Вложить закл в клона
-ACMD(do_spell_capable)
+void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	AFFECT_DATA af;
 	struct timed_type timed;
@@ -1270,7 +1270,7 @@ ACMD(do_spell_capable)
 */
 }
 
-ACMD(do_relocate)
+void do_relocate(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	struct timed_type timed;
 

@@ -115,7 +115,7 @@ olc_data::olc_data()
  * generic OLC stuff, then passes control to the sub-olc sections.
  */
 
-ACMD(do_olc)
+void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int number = -1, save = 0, real_num;
 	bool lock = 0, unlock = 0;

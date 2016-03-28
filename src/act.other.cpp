@@ -74,7 +74,7 @@ void appear(CHAR_DATA * ch);
 void write_aliases(CHAR_DATA * ch);
 void perform_immort_vis(CHAR_DATA * ch);
 int have_mind(CHAR_DATA * ch);
-ACMD(do_gen_comm);
+void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 int Crash_delete_file(char *name, int mask);
 int HaveMind(CHAR_DATA * ch);
 extern char *color_value(CHAR_DATA * ch, int real, int max);
@@ -84,36 +84,36 @@ extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
 extern bool is_wear_light(CHAR_DATA *ch);
 extern bool check_unlimited_timer(OBJ_DATA *obj);
 // local functions
-ACMD(do_antigods);
-ACMD(do_quit);
-ACMD(do_save);
-ACMD(do_not_here);
-ACMD(do_sneak);
-ACMD(do_hide);
-ACMD(do_steal);
-ACMD(do_spells);
-ACMD(do_features);
-ACMD(do_skills);
-ACMD(do_visible);
+void do_antigods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_quit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_save(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_not_here(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sneak(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_hide(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 int perform_group(CHAR_DATA * ch, CHAR_DATA * vict);
 void print_group(CHAR_DATA * ch);
-ACMD(do_group);
-ACMD(do_ungroup);
-ACMD(do_report);
-ACMD(do_split);
-ACMD(do_use);
-ACMD(do_wimpy);
-ACMD(do_display);
-ACMD(do_gen_tog);
-ACMD(do_courage);
-ACMD(do_toggle);
-ACMD(do_color);
-ACMD(do_recall);
-ACMD(do_dig);
-ACMD(do_summon);
+void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wimpy(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_display(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gen_tog(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_courage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_dig(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 bool is_dark(room_rnum room);
 
-ACMD(do_antigods)
+void do_antigods(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_IMMORTAL(ch))
 	{
@@ -132,7 +132,7 @@ ACMD(do_antigods)
 		send_to_char("Вы и так не под защитой богов.\r\n", ch);
 }
 
-ACMD(do_quit)
+void do_quit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	DESCRIPTOR_DATA *d, *next_d;
 
@@ -200,7 +200,7 @@ ACMD(do_quit)
 	}
 }
 
-ACMD(do_summon)
+void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	// для начала проверяем, есть ли вообще лошадь у чара
 	CHAR_DATA *horse = NULL;
@@ -221,7 +221,7 @@ ACMD(do_summon)
 }
 
 
-ACMD(do_save)
+void do_save(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch) || !ch->desc)
 		return;
@@ -253,7 +253,7 @@ ACMD(do_save)
 
 // generic function for commands which are normally overridden by
 // special procedures - i.e., shop commands, mail commands, etc.
-ACMD(do_not_here)
+void do_not_here(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	send_to_char("Эта команда недоступна в этом месте!\r\n", ch);
 }
@@ -359,7 +359,7 @@ int char_humming(CHAR_DATA * ch)
 	return (FALSE);
 }
 
-ACMD(do_sneak)
+void do_sneak(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	AFFECT_DATA af;
 	ubyte prob, percent;
@@ -411,7 +411,7 @@ ACMD(do_sneak)
 	affect_to_char(ch, &af);
 }
 
-ACMD(do_camouflage)
+void do_camouflage(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	AFFECT_DATA af;
 	struct timed_type timed;
@@ -478,7 +478,7 @@ ACMD(do_camouflage)
 	}
 }
 
-ACMD(do_hide)
+void do_hide(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	AFFECT_DATA af;
 	ubyte prob, percent;
@@ -738,7 +738,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 }
 
 
-ACMD(do_steal)
+void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 	char vict_name[MAX_INPUT_LENGTH], obj_name[MAX_INPUT_LENGTH];
@@ -785,7 +785,7 @@ ACMD(do_steal)
 	go_steal(ch, vict, obj_name);
 }
 
-ACMD(do_features)
+void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 		return;
@@ -796,7 +796,7 @@ ACMD(do_features)
 		list_feats(ch, ch, FALSE);
 }
 
-ACMD(do_skills)
+void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 	{
@@ -830,7 +830,7 @@ ACMD(do_skills)
 	list_skills(ch, ch, argument);
 }
 
-ACMD(do_spells)
+void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 		return;
@@ -842,7 +842,7 @@ ACMD(do_spells)
 }
 
 
-ACMD(do_visible)
+void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_IMMORTAL(ch))
 	{
@@ -862,7 +862,7 @@ ACMD(do_visible)
 		send_to_char("Вы и так видимы.\r\n", ch);
 }
 
-ACMD(do_courage)
+void do_courage(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	OBJ_DATA *obj;
 	AFFECT_DATA af[4];
@@ -1363,7 +1363,7 @@ void print_group(CHAR_DATA * ch)
 		}
 }
 
-ACMD(do_group)
+void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 	struct follow_type *f;
@@ -1495,7 +1495,7 @@ ACMD(do_group)
 	}
 }
 
-ACMD(do_ungroup)
+void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	struct follow_type *f, *next_fol;
 	CHAR_DATA *tch;
@@ -1550,7 +1550,7 @@ ACMD(do_ungroup)
 	return;
 }
 
-ACMD(do_report)
+void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *k;
 	struct follow_type *f;
@@ -1611,7 +1611,7 @@ ACMD(do_report)
 
 
 
-ACMD(do_split)
+void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int amount, num, share, rest;
 	CHAR_DATA *k;
@@ -1780,7 +1780,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 	}
 }
 
-ACMD(do_use)
+void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	OBJ_DATA *mag_item;
 	int do_hold = 0;	
@@ -1904,7 +1904,7 @@ ACMD(do_use)
 
 
 
-ACMD(do_wimpy)
+void do_wimpy(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int wimp_lev;
 
@@ -1992,7 +1992,7 @@ void set_display_bits(CHAR_DATA *ch, bool flag)
 const char *DISPLAY_HELP =
 	"Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П } | все | нет }\r\n";
 
-ACMD(do_display)
+void do_display(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 	{
@@ -2201,7 +2201,7 @@ struct gen_tog_param_type
 		0, SCMD_MAPPER}
 };
 
-ACMD(do_mode)
+void do_mode(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int i, showhelp = FALSE;
 	if (IS_NPC(ch))
@@ -2343,7 +2343,7 @@ void setNotifyEchange(CHAR_DATA* ch, char *argument)
 
 }
 //-Polud
-ACMD(do_gen_tog)
+void do_gen_tog(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	long result = 0;
 
@@ -2673,7 +2673,7 @@ ACMD(do_gen_tog)
 	return;
 }
 
-ACMD(do_pray)
+void do_pray(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int metter = -1;
 	OBJ_DATA *obj = NULL;
@@ -2813,7 +2813,7 @@ ACMD(do_pray)
 	}
 }
 
-ACMD(do_recall)
+void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 	{
@@ -2886,7 +2886,7 @@ void perform_beep(CHAR_DATA *ch, CHAR_DATA *vict)
 	}
 }
 
-ACMD(do_beep)
+void do_beep(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict = NULL;
 
@@ -3149,7 +3149,7 @@ void dig_obj(CHAR_DATA *ch, OBJ_DATA *obj)
 	}
 }
 
-ACMD(do_dig)
+void do_dig(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *mob;
 	OBJ_DATA *obj;
@@ -3384,7 +3384,7 @@ bool is_dig_stone(OBJ_DATA *obj)
 	return false;
 }
 
-ACMD(do_insertgem)
+void do_insertgem(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int percent, prob;
 	char arg1[MAX_INPUT_LENGTH];
@@ -3896,7 +3896,7 @@ ACMD(do_insertgem)
 	extract_obj(gemobj);
 }
 
-ACMD(do_bandage)
+void do_bandage(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 	{
@@ -4065,7 +4065,7 @@ void start_event()
 	
 	
 }
-ACMD(do_event)
+void do_event(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	start_event();
 }
@@ -4073,7 +4073,7 @@ ACMD(do_event)
 
 
 // Вывод лидерборда
-ACMD(do_leaderboard_event)
+void do_leaderboard_event(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	send_to_char("Список лидеров текущего события:\r\n", ch);
 	if (event_leaderboard.size() <= 0)

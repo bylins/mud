@@ -45,18 +45,18 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 void go_protect(CHAR_DATA * ch, CHAR_DATA * vict);
 
 // local functions
-ACMD(do_assist);
-ACMD(do_hit);
-ACMD(do_kill);
-ACMD(do_backstab);
-ACMD(do_order);
-ACMD(do_flee);
-ACMD(do_bash);
-ACMD(do_rescue);
-ACMD(do_kick);
-ACMD(do_manadrain);
-ACMD(do_coddle_out);
-ACMD(do_strangle);
+void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_hit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_backstab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_order(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_flee(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_bash(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_rescue(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_kick(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_coddle_out(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_strangle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 
 
@@ -317,7 +317,7 @@ int used_attack(CHAR_DATA * ch)
 	return (TRUE);
 }
 
-ACMD(do_assist)
+void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *helpee, *opponent;
 
@@ -378,7 +378,7 @@ ACMD(do_assist)
 }
 
 
-ACMD(do_hit)
+void do_hit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 
@@ -431,7 +431,7 @@ ACMD(do_hit)
 
 
 
-ACMD(do_kill)
+void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 
@@ -525,7 +525,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 }
 
 
-ACMD(do_backstab)
+void do_backstab(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 
@@ -595,7 +595,7 @@ ACMD(do_backstab)
 
 
 // ****************** CHARM ORDERS PROCEDURES
-ACMD(do_order)
+void do_order(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (!ch)
 		return;
@@ -849,7 +849,7 @@ const char *FleeDirs[] = { "север",
 						   "\n"
 						 };
 
-ACMD(do_flee)
+void do_flee(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int direction = -1;
 	if (!ch->get_fighting())
@@ -1039,7 +1039,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	set_wait(ch, prob, TRUE);
 }
 
-ACMD(do_bash)
+void do_bash(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict = NULL;
 
@@ -1133,7 +1133,7 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 	set_wait(vict, 2, FALSE);
 }
 
-ACMD(do_rescue)
+void do_rescue(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict, *tmp_ch;
 
@@ -1263,7 +1263,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 	set_wait(ch, prob, TRUE);
 }
 
-ACMD(do_kick)
+void do_kick(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict = NULL;
 
@@ -1319,7 +1319,7 @@ void go_block(CHAR_DATA * ch)
 	send_to_char("Хорошо, вы попробуете отразить щитом следующую атаку.\r\n", ch);
 }
 
-ACMD(do_block)
+void do_block(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_BLOCK))
 	{
@@ -1362,7 +1362,7 @@ void go_multyparry(CHAR_DATA * ch)
 	send_to_char("Вы попробуете использовать веерную защиту.\r\n", ch);
 }
 
-ACMD(do_multyparry)
+void do_multyparry(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	OBJ_DATA *primary = GET_EQ(ch, WEAR_WIELD), *offhand = GET_EQ(ch, WEAR_HOLD);
 
@@ -1412,7 +1412,7 @@ void go_parry(CHAR_DATA * ch)
 	send_to_char("Вы попробуете отклонить следующую атаку.\r\n", ch);
 }
 
-ACMD(do_parry)
+void do_parry(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_PARRY))
 	{
@@ -1479,7 +1479,7 @@ void go_protect(CHAR_DATA * ch, CHAR_DATA * vict)
 	SET_AF_BATTLE(ch, EAF_PROTECT);
 }
 
-ACMD(do_protect)
+void do_protect(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict, *tch;
 
@@ -1562,7 +1562,7 @@ void go_touch(CHAR_DATA * ch, CHAR_DATA * vict)
 	ch->set_touching(vict);
 }
 
-ACMD(do_touch)
+void do_touch(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	OBJ_DATA *primary = GET_EQ(ch, WEAR_WIELD) ? GET_EQ(ch, WEAR_WIELD) : GET_EQ(ch,
 						WEAR_BOTHS);
@@ -1640,7 +1640,7 @@ void go_deviate(CHAR_DATA * ch)
 	send_to_char("Хорошо, вы попытаетесь уклониться от следующей атаки!\r\n", ch);
 }
 
-ACMD(do_deviate)
+void do_deviate(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_DEVIATE))
 	{
@@ -1757,7 +1757,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 	set_wait(ch, prob, FALSE);
 }
 
-ACMD(do_disarm)
+void do_disarm(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict = NULL;
 
@@ -1895,7 +1895,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 }
 
 
-ACMD(do_chopoff)
+void do_chopoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict = NULL;
 
@@ -1977,7 +1977,7 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 }
 
-ACMD(do_stupor)
+void do_stupor(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict = NULL;
 
@@ -2057,7 +2057,7 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 }
 
-ACMD(do_mighthit)
+void do_mighthit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict = NULL;
 
@@ -2126,7 +2126,7 @@ const char *cstyles[] = { "normal",
 						  "\n"
 						};
 
-ACMD(do_style)
+void do_style(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int tp;
 
@@ -2268,7 +2268,7 @@ ACMD(do_style)
 }
 
 // ***************** STOPFIGHT
-ACMD(do_stopfight)
+void do_stopfight(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *tmp_ch;
 
@@ -2366,7 +2366,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 	// log("Stop throw");
 }
 
-ACMD(do_throw)
+void do_throw(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict = NULL;
 
@@ -2411,7 +2411,7 @@ ACMD(do_throw)
 	}
 }
 
-ACMD(do_manadrain)
+void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 	struct timed_type timed;
@@ -2501,7 +2501,7 @@ ACMD(do_manadrain)
 }
 
 extern char cast_argument[MAX_INPUT_LENGTH];
-ACMD(do_townportal)
+void do_townportal(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 
 	struct char_portal_type *tmp, *dlt = NULL;
@@ -2548,7 +2548,7 @@ ACMD(do_townportal)
 }
 
 // Added by Gorrah
-ACMD(do_turn_undead)
+void do_turn_undead(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int percent, dam = 0;
 	int sum, max_level;
@@ -2718,7 +2718,7 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 }
 
-ACMD(do_iron_wind)
+void do_iron_wind(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict = NULL;
 	int moves;
@@ -2867,7 +2867,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 }
 
-ACMD(do_strangle)
+void do_strangle(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 

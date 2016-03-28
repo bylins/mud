@@ -191,7 +191,7 @@ int is_empty(zone_rnum zone_nr);
 void reset_zone(zone_rnum zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
-ACMD(do_reboot);
+void do_reboot(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void boot_world(void);
 int count_alias_records(FILE * fl);
 int count_hash_records(FILE * fl);
@@ -852,7 +852,7 @@ void load_cases()
  * 'reload' command even when the string was not replaced.
  * To fix later, if desired. -gg 6/24/99
  */
-ACMD(do_reboot)
+void do_reboot(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	argument = one_argument(argument, arg);
 
@@ -6977,7 +6977,7 @@ void init_char(CHAR_DATA * ch)
 const char *remort_msg =
 	"  Если вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
 
-ACMD(do_remort)
+void do_remort(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int i, place_of_destination,load_room = NOWHERE;
 	struct helper_data_type *temp;

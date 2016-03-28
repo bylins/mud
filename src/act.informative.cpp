@@ -103,40 +103,40 @@ const char * print_god_or_player(int level);
 int get_pick_chance(int skill_pick, int lock_complexity);
 int thaco(int class_num, int level);
 
-ACMD(do_affects);
-ACMD(do_look);
-ACMD(do_examine);
-ACMD(do_gold);
-ACMD(do_score);
-ACMD(do_inventory);
-ACMD(do_equipment);
-ACMD(do_time);
-ACMD(do_weather);
-ACMD(do_who);
-ACMD(do_users);
-ACMD(do_gen_ps);
+void do_affects(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_look(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_examine(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gold(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_score(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_inventory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_equipment(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_time(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_weather(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_who(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_users(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gen_ps(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void perform_mortal_where(CHAR_DATA * ch, char *arg);
 void perform_immort_where(CHAR_DATA * ch, char *arg);
-ACMD(do_where);
-ACMD(do_levels);
-ACMD(do_consider);
-ACMD(do_diagnose);
-ACMD(do_color);
-ACMD(do_toggle);
+void do_where(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_levels(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_consider(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_diagnose(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void sort_commands(void);
-ACMD(do_commands);
-ACMD(do_looking);
-ACMD(do_hearing);
-ACMD(do_sides);
-ACMD(do_quest);
-ACMD(do_check);
+void do_commands(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_looking(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_hearing(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sides(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_quest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_check(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch);
 void look_at_char(CHAR_DATA * i, CHAR_DATA * ch);
 void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode);
 void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch);
 void do_auto_exits(CHAR_DATA * ch);
-ACMD(do_exits);
+void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void look_in_direction(CHAR_DATA * ch, int dir, int info_is);
 void look_in_obj(CHAR_DATA * ch, char *arg);
 char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
@@ -146,7 +146,7 @@ void do_blind_exits(CHAR_DATA *ch);
 #define EXIT_SHOW_WALL    (1 << 0)
 #define EXIT_SHOW_LOOKING (1 << 1)
 
-ACMD(do_quest)
+void do_quest(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
     send_to_char("У Вас нет никаких поручений.\r\n", ch);
 }
@@ -184,12 +184,12 @@ const char *Locks[4][2] =
 	{"%s Простой замок. Эка невидаль.%s\r\n", KGRN}
 };
 
-ACMD(do_check)
+void do_check(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
     login_change_invoice(ch);
 }
 
-char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode)
+char *diag_obj_to_char(CHAR_DATA* i, OBJ_DATA* obj, int mode)
 {
 	static char out_str[80] = "\0";
 	const char *color;
@@ -1589,8 +1589,7 @@ void do_auto_exits(CHAR_DATA * ch)
 	send_to_char(buf2, ch);
 }
 
-
-ACMD(do_exits)
+void do_exits(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	int door;
 
@@ -2595,8 +2594,7 @@ void skip_hide_on_look(CHAR_DATA * ch)
 	return;
 }
 
-
-ACMD(do_look)
+void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	char arg2[MAX_INPUT_LENGTH];
 	int look_type;
@@ -2645,7 +2643,7 @@ ACMD(do_look)
 	}
 }
 
-ACMD(do_sides)
+void do_sides(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	int i;
 
@@ -2662,15 +2660,12 @@ ACMD(do_sides)
 		send_to_char("Вы посмотрели по сторонам.\r\n", ch);
 		for (i = 0; i < NUM_OF_DIRS; i++)
 		{
-//         log("Look sides from %d to %d",world[IN_ROOM(ch)]->number, i);
 			look_in_direction(ch, i, 0);
-//           log("Look Ok !");
 		}
 	}
 }
 
-
-ACMD(do_looking)
+void do_looking(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	int i;
 
@@ -2698,7 +2693,7 @@ ACMD(do_looking)
 		send_to_char("Вам явно не хватает этого умения.\r\n", ch);
 }
 
-ACMD(do_hearing)
+void do_hearing(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	int i;
 
@@ -2730,9 +2725,7 @@ ACMD(do_hearing)
 		send_to_char("Выучите сначала как это следует делать.\r\n", ch);
 }
 
-
-
-ACMD(do_examine)
+void do_examine(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *tmp_char;
 	OBJ_DATA *tmp_object;
@@ -2791,7 +2784,7 @@ ACMD(do_examine)
 	}
 }
 
-ACMD(do_gold)
+void do_gold(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	int count = 0;
 	if (ch->get_gold() == 0)
@@ -3513,7 +3506,7 @@ void print_do_score_all(CHAR_DATA *ch)
 //	test_self_hitroll(ch);
 }
 
-ACMD(do_score)
+void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	TIME_INFO_DATA playing_time;
 	int ac, ac_t;
@@ -3838,16 +3831,13 @@ ACMD(do_score)
 				sprintf(buf, "Вы имеете %d чужих душ в запасе.\r\n", souls);
 				send_to_char(buf, ch);
 			}
-			
 		}
-		
 	}
-
 }
 
 //29.11.09 Отображение количества рипов (с) Василиса
 // edited by WorM 2011.05.21
-ACMD(do_mystat)
+void do_mystat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
 	if (is_abbrev(argument, "очистить") || is_abbrev(argument, "clear"))
@@ -3891,14 +3881,13 @@ ACMD(do_mystat)
 // end by WorM
 // конец правки (с) Василиса
 
-ACMD(do_inventory)
+void do_inventory(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	send_to_char("Вы несете:\r\n", ch);
 	list_obj_to_char(ch->carrying, ch, 1, 2);
 }
 
-
-ACMD(do_equipment)
+void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int i, found = 0;
 	skip_spaces(&argument);
@@ -3950,8 +3939,7 @@ ACMD(do_equipment)
 	}
 }
 
-
-ACMD(do_time)
+void do_time(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	int day, month, days_go;
 	if (IS_NPC(ch))
@@ -4077,9 +4065,7 @@ int get_moon(int sky)
 	return (0);
 }
 
-
-
-ACMD(do_weather)
+void do_weather(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	int sky = weather_info.sky, weather_type = weather_info.weather_type;
 	const char *sky_look[] = { "облачное",
@@ -4167,7 +4153,7 @@ const char* MORT_WHO_FORMAT = "Формат: кто [имя] [-?]\r\n";
 
 } // namespace
 
-ACMD(do_who)
+void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char name_search[MAX_INPUT_LENGTH];
 	name_search[0] = '\0';
@@ -4485,7 +4471,7 @@ std::string print_server_uptime()
 	return boost::str(boost::format("Времени с перезагрузки: %dд %02d:%02d:%02d\r\n") % d % h % m % s);
 }
 
-ACMD(do_statistic)
+void do_statistic(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *tch;
 	int proff[NUM_PLAYER_CLASSES][2];
@@ -4619,7 +4605,7 @@ ACMD(do_statistic)
 #define USERS_FORMAT \
 "Формат: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c classlist] [-o] [-p]\r\n"
 #define MAX_LIST_LEN 200
-ACMD(do_users)
+void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	const char *format = "%3d %-7s %-12s %-14s %-3s %-8s ";
 	char line[200], line2[220], idletime[10], classname[20];
@@ -4928,7 +4914,7 @@ ACMD(do_users)
 }
 
 // Generic page_string function for displaying text
-ACMD(do_gen_ps)
+void do_gen_ps(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 {
 	//DESCRIPTOR_DATA *d;
 	switch (subcmd)
@@ -5183,9 +5169,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 	}
 }
 
-
-
-ACMD(do_where)
+void do_where(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	one_argument(argument, arg);
 
@@ -5195,9 +5179,7 @@ ACMD(do_where)
 		perform_mortal_where(ch, arg);
 }
 
-
-
-ACMD(do_levels)
+void do_levels(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	int i;
 
@@ -5218,9 +5200,7 @@ ACMD(do_levels)
 	page_string(ch->desc, buf, 1);
 }
 
-
-
-ACMD(do_consider)
+void do_consider(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	int diff;
@@ -5269,9 +5249,7 @@ ACMD(do_consider)
 
 }
 
-
-
-ACMD(do_diagnose)
+void do_diagnose(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 
@@ -5293,11 +5271,9 @@ ACMD(do_diagnose)
 	}
 }
 
+const char *ctypes[] = { "выключен", "простой", "обычный", "полный", "\n" };
 
-const char *ctypes[] = { "выключен", "простой", "обычный", "полный", "\n"
-					   };
-
-ACMD(do_color)
+void do_color(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int tp;
 
@@ -5333,8 +5309,7 @@ ACMD(do_color)
 	send_to_char(CAP(buf), ch);
 }
 
-
-ACMD(do_toggle)
+void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -5463,7 +5438,7 @@ ACMD(do_toggle)
 	send_to_char(buf, ch);
 }
 
-ACMD(do_zone)
+void do_zone(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (ch->desc
 		&& !(IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT))
@@ -5529,9 +5504,7 @@ void sort_commands(void)
 			}
 }
 
-
-
-ACMD(do_commands)
+void do_commands(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	int no, i, cmd_num, num_of;
 	int wizhelp = 0, socials = 0;
@@ -5583,7 +5556,7 @@ ACMD(do_commands)
 
 std::array<EAffectFlag, 3> hiding = { EAffectFlag::AFF_SNEAK, EAffectFlag::AFF_HIDE, EAffectFlag::AFF_CAMOUFLAGE };
 
-ACMD(do_affects)
+void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	AFFECT_DATA *aff;
 	FLAG_DATA saved;

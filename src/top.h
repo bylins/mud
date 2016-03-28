@@ -39,7 +39,7 @@ private:
 
 	static TopListType TopList; // собсна топ
 
-	friend ACMD(DoBest);
+	friend void DoBest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 };
 
 #endif

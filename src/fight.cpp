@@ -47,7 +47,7 @@ extern MobRaceListType mobraces_list;
 extern CHAR_DATA *mob_proto;
 
 // External procedures
-// ACMD(do_assist);
+// void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void battle_affect_update(CHAR_DATA * ch);
 void go_throw(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);

@@ -110,7 +110,7 @@ void clearMemory(CHAR_DATA * ch);
 int extra_damroll(int class_num, int level);
 int Crash_delete_file(char *name, int mask);
 void do_entergame(DESCRIPTOR_DATA * d);
-ACMD(do_return);
+void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern bool check_unlimited_timer(OBJ_DATA *obj);
 extern void check_auction(CHAR_DATA * ch, OBJ_DATA * obj);
 extern void check_exchange(OBJ_DATA * obj);

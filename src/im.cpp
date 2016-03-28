@@ -42,10 +42,10 @@ extern std::vector<OBJ_DATA *> obj_proto;
 extern INDEX_DATA *obj_index;
 extern INDEX_DATA *mob_index;
 
-ACMD(do_rset);
-ACMD(do_recipes);
-ACMD(do_cook);
-ACMD(do_imlist);
+void do_rset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_imlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 im_type *imtypes = NULL;	// Список зарегестрированных ТИПОВ/МЕТАТИПОВ
 int top_imtypes = -1;		// Последний номер типа ИМ
@@ -1233,7 +1233,7 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 	page_string(ch->desc, buf2, 1);
 }
 
-ACMD(do_recipes)
+void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1244,7 +1244,7 @@ ACMD(do_recipes)
 		list_recipes(ch, FALSE);
 }
 
-ACMD(do_rset)
+void do_rset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];
@@ -1463,7 +1463,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 
 // Применение рецепта
 // варить 'рецепт' <ингредиенты>
-ACMD(do_cook)
+void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	char name[MAX_STRING_LENGTH];
 	int rcpt = -1, qend, mres;
@@ -2004,7 +2004,7 @@ void trg_recipeadd(CHAR_DATA * ch, int rid, int recipediff)
 	send_to_char(buf, ch);
 }
 
-ACMD(do_imlist)
+void do_imlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int zone, i, rnum;
 	int *ping;

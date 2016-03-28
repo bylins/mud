@@ -30,7 +30,7 @@
 
 #include <map>
 
-ACMD(do_revenge);
+void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 #define FirstPK  1
 #define SecondPK 5
@@ -713,7 +713,7 @@ void pk_list_sprintf(CHAR_DATA * ch, char *buff)
 }
 
 
-ACMD(do_revenge)
+void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *tch;
 	struct PK_Memory_type *pk;
@@ -821,7 +821,7 @@ ACMD(do_revenge)
 }
 
 
-ACMD(do_forgive)
+void do_forgive(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *tch;
 	struct PK_Memory_type *pk;

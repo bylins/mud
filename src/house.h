@@ -264,16 +264,16 @@ public:
 	void set_gold_tax_pct(unsigned num);
 	unsigned get_gold_tax_pct() const;
 
-	friend ACMD(DoHouse);
-	friend ACMD(DoClanChannel);
-	friend ACMD(DoClanList);
-	friend ACMD(DoShowPolitics);
-	friend ACMD(DoHcontrol);
-	friend ACMD(DoWhoClan);
-	friend ACMD(DoClanPkList);
-	friend ACMD(DoStoreHouse);
-	friend ACMD(do_clanstuff);
-	friend ACMD(DoShowWars);
+	friend void DoHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void DoClanChannel(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void DoClanList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void DoShowPolitics(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void DoHcontrol(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void DoWhoClan(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void DoClanPkList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void DoStoreHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 	// клан пк
 	ClanPkLog pk_log;

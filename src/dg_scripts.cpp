@@ -87,10 +87,10 @@ void reset_zone(int znum);
 
 void free_script(SCRIPT_DATA * sc);
 
-ACMD(do_restore);
-ACMD(do_mpurge);
-ACMD(do_mjunk);
-ACMD(do_arena_restore);
+void do_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mpurge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mjunk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 // function protos from this file
 void extract_value(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
@@ -1084,7 +1084,7 @@ void add_trigger(SCRIPT_DATA * sc, TRIG_DATA * t, int loc)
 }
 
 
-ACMD(do_attach)
+void do_attach(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *victim;
 	OBJ_DATA *object;
@@ -1272,7 +1272,7 @@ int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr)
 		return 0;
 }
 
-ACMD(do_detach)
+void do_detach(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *victim = NULL;
 	OBJ_DATA *object = NULL;
@@ -4977,7 +4977,7 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
  * command-line interface to rdelete
  * named vdelete so people didn't think it was to delete rooms
  */
-ACMD(do_vdelete)
+void do_vdelete(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 //  struct trig_var_data *vd, *vd_prev=NULL;
 	SCRIPT_DATA *sc_remote = NULL;
@@ -5546,7 +5546,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	return ret_val;
 }
 
-ACMD(do_tlist)
+void do_tlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 
 	int first, last, nr, found = 0;
@@ -5620,7 +5620,7 @@ int real_trigger(int vnum)
 	return (rnum);
 }
 
-ACMD(do_tstat)
+void do_tstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int vnum, rnum;
 	char str[MAX_INPUT_LENGTH];
