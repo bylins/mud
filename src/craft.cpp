@@ -365,7 +365,51 @@ namespace craft
 			}
 		}
 
-		prefix.change_prefix(END_PREFIX);
+        // loading prototype extraflags
+        const auto extraflags = node->child("extraflags");
+        if (extraflags)
+        {
+            for (const auto extraflag : extraflags.children("extraflag"))
+            {
+                const char* flag = extraflag.child_value();
+                try
+                {
+                    auto value = ITEM_BY_NAME<EExtraFlag>(flag);
+                    m_extraflags.set(value);
+                    log("Setting extra flag '%s' for prototype with VNUM %d.\n",
+                        NAME_BY_ITEM(value).c_str(), m_vnum);
+                }
+                catch (const std::out_of_range&)
+                {
+                    log("WARNING: Skipping extra flag '%s' of prototype with VNUM %d, because this value is not valid.\n",
+                        flag, m_vnum);
+                }
+            }
+        }
+
+        // loading prototype affect flags
+        const auto affects = node->child("affects");
+        if (affects)
+        {
+            for (const auto affect : affects.children("affect"))
+            {
+                const char* flag = affect.child_value();
+                try
+                {
+                    auto value = ITEM_BY_NAME<EAffectFlag>(flag);
+                    m_affect_flags.set(value);
+                    log("Setting affect flag '%s' for prototype with VNUM %d.\n",
+                        NAME_BY_ITEM(value).c_str(), m_vnum);
+                }
+                catch (const std::out_of_range&)
+                {
+                    log("WARNING: Skipping affect flag '%s' of prototype with VNUM %d, because this value is not valid.\n",
+                        flag, m_vnum);
+                }
+            }
+        }
+        
+        prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
 
 		return true;
@@ -524,7 +568,7 @@ namespace craft
 			}
 		}
 
-		// load extra flags
+		// load affects
 		const auto affects = node->child("affects");
 		if (affects)
 		{
