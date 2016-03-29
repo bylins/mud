@@ -1699,10 +1699,16 @@ int invalid_align(CHAR_DATA * ch, OBJ_DATA * obj)
 {
 	if (IS_NPC(ch) || IS_IMMORTAL(ch))
 		return (FALSE);
-	if (IS_OBJ_ANTI(obj, ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO)
-		return TRUE;
-	if (IS_OBJ_ANTI(obj, ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY)
-		return TRUE;
+    if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO)
+        && GET_RELIGION(ch) == RELIGION_MONO)
+    {
+        return TRUE;
+    }
+    if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY)
+        && GET_RELIGION(ch) == RELIGION_POLY)
+    {
+        return TRUE;
+    }
 	return FALSE;
 }
 

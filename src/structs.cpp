@@ -340,6 +340,16 @@ const std::string& NAME_BY_ITEM(const EExtraFlag item)
 	return EExtraFlag_name_by_value.at(item);
 }
 
+template <>
+EExtraFlag ITEM_BY_NAME(const std::string& name)
+{
+    if (EExtraFlag_name_by_value.empty())
+    {
+        init_EExtraFlag_ITEM_NAMES();
+    }
+    return EExtraFlag_value_by_name.at(name);
+}
+
 typedef std::map<EAffectFlag, std::string> EAffectFlag_name_by_value_t;
 typedef std::map<const std::string, EAffectFlag> EAffectFlag_value_by_name_t;
 EAffectFlag_name_by_value_t EAffectFlag_name_by_value;
@@ -448,16 +458,6 @@ const std::string& NAME_BY_ITEM(const EAffectFlag item)
 }
 
 template <>
-EExtraFlag ITEM_BY_NAME(const std::string& name)
-{
-	if (EExtraFlag_name_by_value.empty())
-	{
-		init_EExtraFlag_ITEM_NAMES();
-	}
-	return EExtraFlag_value_by_name.at(name);
-}
-
-template <>
 EAffectFlag ITEM_BY_NAME(const std::string& name)
 {
 	if (EAffectFlag_name_by_value.empty())
@@ -465,4 +465,85 @@ EAffectFlag ITEM_BY_NAME(const std::string& name)
 		init_EAffectFlag_ITEM_NAMES();
 	}
 	return EAffectFlag_value_by_name.at(name);
+}
+
+typedef std::map<EAntiFlag, std::string> EAntiFlag_name_by_value_t;
+typedef std::map<const std::string, EAntiFlag> EAntiFlag_value_by_name_t;
+EAntiFlag_name_by_value_t EAntiFlag_name_by_value;
+EAntiFlag_value_by_name_t EAntiFlag_value_by_name;
+void init_EAntiFlag_ITEM_NAMES()
+{
+    EAntiFlag_value_by_name.clear();
+    EAntiFlag_name_by_value.clear();
+
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MONO] = "ITEM_AN_MONO";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLY] = "ITEM_AN_POLY";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NEUTRAL] = "ITEM_AN_NEUTRAL";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MAGIC_USER] = "ITEM_AN_MAGIC_USER";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CLERIC] = "ITEM_AN_CLERIC";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_THIEF] = "ITEM_AN_THIEF";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_WARRIOR] = "ITEM_AN_WARRIOR";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_ASSASINE] = "ITEM_AN_ASSASINE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_GUARD] = "ITEM_AN_GUARD";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_PALADINE] = "ITEM_AN_PALADINE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_RANGER] = "ITEM_AN_RANGER";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SMITH] = "ITEM_AN_SMITH";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MERCHANT] = "ITEM_AN_MERCHANT";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DRUID] = "ITEM_AN_DRUID";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_BATTLEMAGE] = "ITEM_AN_BATTLEMAGE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CHARMMAGE] = "ITEM_AN_CHARMMAGE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DEFENDERMAGE] = "ITEM_AN_DEFENDERMAGE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NECROMANCER] = "ITEM_AN_NECROMANCER";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KILLER] = "ITEM_AN_KILLER";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_COLORED] = "ITEM_AN_COLORED";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_BD] = "ITEM_AN_BD";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SEVERANE] = "ITEM_AN_SEVERANE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLANE] = "ITEM_AN_POLANE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KRIVICHI] = "ITEM_AN_KRIVICHI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VATICHI] = "ITEM_AN_VATICHI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VELANE] = "ITEM_AN_VELANE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DREVLANE] = "ITEM_AN_DREVLANE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MALE] = "ITEM_AN_MALE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_FEMALE] = "ITEM_AN_FEMALE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CHARMICE] = "ITEM_AN_CHARMICE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLOVCI] = "ITEM_AN_POLOVCI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_PECHENEGI] = "ITEM_AN_PECHENEGI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MONGOLI] = "ITEM_AN_MONGOLI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_YIGURI] = "ITEM_AN_YIGURI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KANGARI] = "ITEM_AN_KANGARI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_XAZARI] = "ITEM_AN_XAZARI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SVEI] = "ITEM_AN_SVEI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DATCHANE] = "ITEM_AN_DATCHANE";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_GETTI] = "ITEM_AN_GETTI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_UTTI] = "ITEM_AN_UTTI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_XALEIGI] = "ITEM_AN_XALEIGI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NORVEZCI] = "ITEM_AN_NORVEZCI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_RUSICHI] = "ITEM_AN_RUSICHI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_STEPNYAKI] = "ITEM_AN_STEPNYAKI";
+    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VIKINGI] = "ITEM_AN_VIKINGI";
+
+    for (const auto& i : EAntiFlag_name_by_value)
+    {
+        EAntiFlag_value_by_name[i.second] = i.first;
+    }
+}
+
+template <>
+const std::string& NAME_BY_ITEM<EAntiFlag>(const EAntiFlag item)
+{
+    if (EAntiFlag_name_by_value.empty())
+    {
+        init_EAntiFlag_ITEM_NAMES();
+    }
+    return EAntiFlag_name_by_value.at(item);
+}
+
+template <>
+EAntiFlag ITEM_BY_NAME(const std::string& name)
+{
+    if (EAntiFlag_name_by_value.empty())
+    {
+        init_EAntiFlag_ITEM_NAMES();
+    }
+    return EAntiFlag_value_by_name.at(name);
 }

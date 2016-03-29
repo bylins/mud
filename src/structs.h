@@ -930,55 +930,57 @@ template <> EExtraFlag ITEM_BY_NAME<EExtraFlag>(const std::string& name);
 #define ITEM_NO_STEPNYAKI   (INT_THREE | 1 << 1)
 #define ITEM_NO_VIKINGI     (INT_THREE | 1 << 2)
 
-#define ITEM_AN_MONO       (1 << 0)
-#define ITEM_AN_POLY       (1 << 1)
-#define ITEM_AN_NEUTRAL    (1 << 2)
-#define ITEM_AN_MAGIC_USER (1 << 3)
-#define ITEM_AN_CLERIC     (1 << 4)
-#define ITEM_AN_THIEF      (1 << 5)
-#define ITEM_AN_WARRIOR    (1 << 6)
-#define ITEM_AN_ASSASINE   (1 << 7)
-#define ITEM_AN_GUARD      (1 << 8)
-#define ITEM_AN_PALADINE   (1 << 9)
-#define ITEM_AN_RANGER     (1 << 10)
-#define ITEM_AN_SMITH      (1 << 11)
-#define ITEM_AN_MERCHANT   (1 << 12)
-#define ITEM_AN_DRUID      (1 << 13)
-#define ITEM_AN_BATTLEMAGE (1 << 14)
-#define ITEM_AN_CHARMMAGE  (1 << 15)
-#define ITEM_AN_DEFENDERMAGE  (1 << 16)
-#define ITEM_AN_NECROMANCER   (1 << 17)
+enum class EAntiFlag: uint32_t
+{
+    ITEM_AN_MONO = 1 << 0,
+    ITEM_AN_POLY = 1 << 1,
+    ITEM_AN_NEUTRAL = 1 << 2,
+    ITEM_AN_MAGIC_USER = 1 << 3,
+    ITEM_AN_CLERIC = 1 << 4,
+    ITEM_AN_THIEF = 1 << 5,
+    ITEM_AN_WARRIOR = 1 << 6,
+    ITEM_AN_ASSASINE = 1 << 7,
+    ITEM_AN_GUARD = 1 << 8,
+    ITEM_AN_PALADINE = 1 << 9,
+    ITEM_AN_RANGER = 1 << 10,
+    ITEM_AN_SMITH = 1 << 11,
+    ITEM_AN_MERCHANT = 1 << 12,
+    ITEM_AN_DRUID = 1 << 13,
+    ITEM_AN_BATTLEMAGE = 1 << 14,
+    ITEM_AN_CHARMMAGE = 1 << 15,
+    ITEM_AN_DEFENDERMAGE = 1 << 16,
+    ITEM_AN_NECROMANCER = 1 << 17,
+    ITEM_AN_KILLER = INT_ONE | (1 << 0),
+    ITEM_AN_COLORED = INT_ONE | (1 << 1),	// нельзя цветным //
+    ITEM_AN_BD = INT_ONE | (1 << 2),
+    ITEM_AN_SEVERANE = INT_TWO | 1 << 0,  // недоступность по родам
+    ITEM_AN_POLANE = INT_TWO | 1 << 1,
+    ITEM_AN_KRIVICHI = INT_TWO | 1 << 2,
+    ITEM_AN_VATICHI = INT_TWO | 1 << 3,
+    ITEM_AN_VELANE = INT_TWO | 1 << 4,
+    ITEM_AN_DREVLANE = INT_TWO | 1 << 5,
+    ITEM_AN_MALE = INT_TWO | 1 << 6,
+    ITEM_AN_FEMALE = INT_TWO | 1 << 7,
+    ITEM_AN_CHARMICE = INT_TWO | 1 << 8,
+    ITEM_AN_POLOVCI = INT_TWO | 1 << 9,
+    ITEM_AN_PECHENEGI = INT_TWO | 1 << 10,
+    ITEM_AN_MONGOLI = INT_TWO | 1 << 11,
+    ITEM_AN_YIGURI = INT_TWO | 1 << 12,
+    ITEM_AN_KANGARI = INT_TWO | 1 << 13,
+    ITEM_AN_XAZARI = INT_TWO | 1 << 14,
+    ITEM_AN_SVEI = INT_TWO | 1 << 15,
+    ITEM_AN_DATCHANE = INT_TWO | 1 << 16,
+    ITEM_AN_GETTI = INT_TWO | 1 << 17,
+    ITEM_AN_UTTI = INT_TWO | 1 << 18,
+    ITEM_AN_XALEIGI = INT_TWO | 1 << 19,
+    ITEM_AN_NORVEZCI = INT_TWO | 1 << 20,
+    ITEM_AN_RUSICHI = INT_THREE | 1 << 0,
+    ITEM_AN_STEPNYAKI = INT_THREE | 1 << 1,
+    ITEM_AN_VIKINGI = INT_THREE | 1 << 2
+};
 
-#define ITEM_AN_KILLER     (INT_ONE | (1 << 0))
-#define ITEM_AN_COLORED    (INT_ONE | (1 << 1))	// нельзя цветным //
-//#define ITEM_AN_KILLERONLY (INT_ONE | (1 << 2))// // только для душиков //
-#define ITEM_AN_BD	   (INT_ONE | (1 << 2))
-
-#define ITEM_AN_SEVERANE   (INT_TWO | 1 << 0)  // недоступность по родам
-#define ITEM_AN_POLANE     (INT_TWO | 1 << 1)
-#define ITEM_AN_KRIVICHI   (INT_TWO | 1 << 2)
-#define ITEM_AN_VATICHI    (INT_TWO | 1 << 3)
-#define ITEM_AN_VELANE     (INT_TWO | 1 << 4)
-#define ITEM_AN_DREVLANE   (INT_TWO | 1 << 5)  
-#define ITEM_AN_MALE       (INT_TWO | 1 << 6)
-#define ITEM_AN_FEMALE     (INT_TWO | 1 << 7)
-#define ITEM_AN_CHARMICE   (INT_TWO | 1 << 8)
-#define ITEM_AN_POLOVCI    (INT_TWO | 1 << 9)
-#define ITEM_AN_PECHENEGI  (INT_TWO | 1 << 10)
-#define ITEM_AN_MONGOLI    (INT_TWO | 1 << 11)
-#define ITEM_AN_YIGURI     (INT_TWO | 1 << 12)
-#define ITEM_AN_KANGARI    (INT_TWO | 1 << 13)
-#define ITEM_AN_XAZARI     (INT_TWO | 1 << 14)
-#define ITEM_AN_SVEI       (INT_TWO | 1 << 15)
-#define ITEM_AN_DATCHANE   (INT_TWO | 1 << 16)
-#define ITEM_AN_GETTI      (INT_TWO | 1 << 17)
-#define ITEM_AN_UTTI       (INT_TWO | 1 << 18)
-#define ITEM_AN_XALEIGI    (INT_TWO | 1 << 19)
-#define ITEM_AN_NORVEZCI   (INT_TWO | 1 << 20)
-
-#define ITEM_AN_RUSICHI     (INT_THREE | 1 << 0)
-#define ITEM_AN_STEPNYAKI   (INT_THREE | 1 << 1)
-#define ITEM_AN_VIKINGI     (INT_THREE | 1 << 2)
+template <> const std::string& NAME_BY_ITEM<EAntiFlag>(const EAntiFlag item);
+template <> EAntiFlag ITEM_BY_NAME<EAntiFlag>(const std::string& name);
 
 // Modifier constants used with obj affects ('A' fields) //
 #define APPLY_NONE              0	// No effect         //

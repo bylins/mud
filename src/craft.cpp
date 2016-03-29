@@ -409,6 +409,28 @@ namespace craft
             }
         }
         
+        // loading prototype anti flags
+        const auto antiflags = node->child("antiflags");
+        if (antiflags)
+        {
+            for (const auto antiflag : antiflags.children("affect"))
+            {
+                const char* flag = antiflag.child_value();
+                try
+                {
+                    auto value = ITEM_BY_NAME<EAntiFlag>(flag);
+                    m_anti_flags.set(value);
+                    log("Setting anti flag '%s' for prototype with VNUM %d.\n",
+                        NAME_BY_ITEM(value).c_str(), m_vnum);
+                }
+                catch (const std::out_of_range&)
+                {
+                    log("WARNING: Skipping anti flag '%s' of prototype with VNUM %d, because this value is not valid.\n",
+                        flag, m_vnum);
+                }
+            }
+        }
+
         prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
 

@@ -190,6 +190,7 @@ namespace craft
 
         FLAG_DATA m_extraflags;
         FLAG_DATA m_affect_flags;
+        FLAG_DATA m_anti_flags;
 
 		friend class CCraftModel;
 	};

@@ -2229,40 +2229,38 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		for (object = obj->contains; object; object = object->next_content)
 			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0))
 				return (TRUE);
-	if (IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return (TRUE);
+    if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)
+        && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+    {
+        return (TRUE);
+    }
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
 		return (FALSE);
-	if ((IS_OBJ_ANTI(obj, ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_BATTLEMAGE) && IS_BATTLEMAGE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_CHARMMAGE) && IS_CHARMMAGE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_DEFENDERMAGE) && IS_DEFENDERMAGE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_NECROMANCER) && IS_NECROMANCER(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_MALE) && IS_MALE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_FEMALE) && IS_FEMALE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_CLERIC) && IS_CLERIC(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_WARRIOR) && IS_WARRIOR(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_GUARD) && IS_GUARD(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_THIEF) && IS_THIEF(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_ASSASINE) && IS_ASSASINE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_PALADINE) && IS_PALADINE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_RANGER) && IS_RANGER(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_SMITH) && IS_SMITH(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT) && IS_MERCHANT(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_DRUID) && IS_DRUID(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_BD) && check_agrobd(ch)) ||
-/*                (IS_OBJ_ANTI(obj, ITEM_AN_SEVERANE) &&(GET_RACE(ch) == 0)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_POLANE) && (GET_RACE(ch) == 1)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_KRIVICHI) && (GET_RACE(ch) == 2)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_VATICHI) && (GET_RACE(ch) == 3)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_VELANE) && (GET_RACE(ch) == 4)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_DREVLANE) && (GET_RACE(ch) == 5)) ||
-*/		// нелогичный флаг (IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch)))
-		return (TRUE);
+    if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO)
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY)
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE) && IS_BATTLEMAGE(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE) && IS_CHARMMAGE(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DEFENDERMAGE) && IS_DEFENDERMAGE(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_NECROMANCER) && IS_NECROMANCER(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MALE) && IS_MALE(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FEMALE) && IS_FEMALE(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CLERIC) && IS_CLERIC(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_WARRIOR) && IS_WARRIOR(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_GUARD) && IS_GUARD(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_THIEF) && IS_THIEF(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_ASSASINE) && IS_ASSASINE(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_PALADINE) && IS_PALADINE(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RANGER) && IS_RANGER(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH) && IS_SMITH(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MERCHANT) && IS_MERCHANT(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID) && IS_DRUID(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BD) && check_agrobd(ch))
+        || (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_COLORED) && IS_COLORED(ch)))
+    {
+        return (TRUE);
+    }
 	return (FALSE);
 }
 

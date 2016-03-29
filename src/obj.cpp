@@ -597,48 +597,48 @@ bool is_mob_item(OBJ_DATA *obj)
 	{
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, ITEM_AN_MALE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_FEMALE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MALE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FEMALE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, ITEM_AN_MONO)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_POLY)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, ITEM_AN_RUSICHI)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RUSICHI)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, ITEM_AN_CLERIC)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_THIEF)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_WARRIOR)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_ASSASINE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_GUARD)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_PALADINE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_RANGER)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_SMITH)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_DRUID)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_BATTLEMAGE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMMAGE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_DEFENDERMAGE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_NECROMANCER)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CLERIC)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_THIEF)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_WARRIOR)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_ASSASINE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_GUARD)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_PALADINE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RANGER)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MERCHANT)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DEFENDERMAGE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_NECROMANCER)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, ITEM_AN_SEVERANE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_POLANE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_KRIVICHI)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_VATICHI)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_VELANE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_DREVLANE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SEVERANE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLANE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KRIVICHI)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_VATICHI)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_VELANE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DREVLANE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE))
 	{
 		return true;
 	}
