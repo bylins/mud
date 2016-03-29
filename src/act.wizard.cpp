@@ -228,7 +228,7 @@ void add_karma(CHAR_DATA * ch, const char * punish , const char * reason)
 	};
 }
 
-void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int vnum;
 	one_argument(argument, buf);
@@ -260,8 +260,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	
 }
 
-
-void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_arena_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 
@@ -834,7 +833,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	}
 }
 
-void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int number;
 	zone_rnum zrn;
@@ -1046,7 +1045,7 @@ void setall_inspect()
 	setall_inspect_list.erase(it->first);		
 }
 
-void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int type_request = 0;
 	int times = 0;
@@ -1140,9 +1139,7 @@ void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	setall_inspect_list[ch->get_pfilepos()] = req;	
 }
 
-
-
-void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *to;
 
@@ -1196,7 +1193,7 @@ void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 #define SUB_TRANS 	4
 #define SUB_HIDE    5
 
-void do_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	// Команда простановки славы (оффлайн/онлайн)
 	// Без параметров выводит славу у игрока
@@ -1333,7 +1330,7 @@ void do_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	vict->save_char();
 }
 
-void do_send(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_send(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 
@@ -1427,9 +1424,7 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 	return (location);
 }
 
-
-
-void do_at(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_at(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char command[MAX_INPUT_LENGTH];
 	room_rnum location, original_loc;
@@ -1465,7 +1460,7 @@ void do_at(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	check_horse(ch);
 }
 
-void do_unfreeze(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_unfreeze(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
     /*Формат файл unfreeze.lst
     Первая строка email
@@ -1519,7 +1514,7 @@ void do_unfreeze(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
     
 }
 
-void do_goto(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_goto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	room_rnum location;
 
@@ -1545,7 +1540,7 @@ void do_goto(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	look_at_room(ch, 0);
 }
 
-void do_teleport(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_teleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	room_rnum target;
@@ -1575,9 +1570,7 @@ void do_teleport(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-
-void do_vnum(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_vnum(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	half_chop(argument, buf, buf2);
 
@@ -2577,8 +2570,7 @@ void do_statip(CHAR_DATA * ch, CHAR_DATA * k)
 	
 }
 
-
-void do_stat(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	OBJ_DATA *object;
@@ -2731,8 +2723,7 @@ void do_stat(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_shutdown(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_shutdown(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	static char const *help =
 		"Формат команды shutdown [reboot|die|pause] кол-во секунд\r\n"
@@ -2853,8 +2844,7 @@ void stop_snooping(CHAR_DATA * ch)
 	}
 }
 
-
-void do_snoop(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_snoop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim, *tch;
 
@@ -2912,9 +2902,7 @@ void do_snoop(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-
-void do_switch(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_switch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 
@@ -2981,9 +2969,7 @@ void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-
-void do_load(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *mob;
 	OBJ_DATA *obj;
@@ -3090,7 +3076,7 @@ void send_to_all(char * buffer)
 				send_to_char(buffer, pt->character);
 }
 
-void do_vstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *mob;
 	OBJ_DATA *obj;
@@ -3136,11 +3122,8 @@ void do_vstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		send_to_char("Тут должно быть что-то типа 'obj' или 'mob'.\r\n", ch);
 }
 
-
-
-
 // clean a room of all mobiles and objects
-void do_purge(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict, *next_v;
 	OBJ_DATA *obj, *next_o;
@@ -3424,7 +3407,7 @@ void inspecting()
 }
 
 //added by WorM Команда для поиска чаров с одинаковым(похожим) mail и/или ip
-void do_inspect(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *d_vict = 0;
 	CHAR_DATA *vict = 0;
@@ -3597,7 +3580,7 @@ const char *logtypes[] =
 };
 
 // subcmd - канал
-void do_syslog(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_syslog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	int tp;
 
@@ -3640,9 +3623,7 @@ void do_syslog(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	return;
 }
 
-
-
-void do_advance(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_advance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	char *name = arg, *level = buf2;
@@ -3720,9 +3701,7 @@ void do_advance(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	victim->save_char();
 }
 
-
-
-void do_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *vict;
 
@@ -3827,8 +3806,7 @@ void perform_immort_invis(CHAR_DATA * ch, int level)
 	send_to_char(buf, ch);
 }
 
-
-void do_invis(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_invis(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int level;
 
@@ -3865,8 +3843,7 @@ void do_invis(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_gecho(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_gecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *pt;
 
@@ -3888,8 +3865,7 @@ void do_gecho(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_poofset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_poofset(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	char **msg;
 
@@ -3918,9 +3894,7 @@ void do_poofset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	send_to_char(OK, ch);
 }
 
-
-
-void do_dc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_dc(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *d;
 	int num_to_dc;
@@ -3984,9 +3958,7 @@ void do_dc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-
-void do_wizlock(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_wizlock(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int value;
 	const char *when;
@@ -4024,8 +3996,7 @@ void do_wizlock(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	send_to_char(buf, ch);
 }
 
-
-void do_date(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_date(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 {
 	char *tmstr;
 	time_t mytime;
@@ -4055,7 +4026,7 @@ void do_date(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	send_to_char(buf, ch);
 }
 
-void do_last(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_last(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	one_argument(argument, arg);
 	if (!*arg)
@@ -4087,7 +4058,7 @@ void do_last(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-void do_force(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *i, *next_desc;
 	CHAR_DATA *vict, *next_force;
@@ -4157,8 +4128,7 @@ void do_force(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_sdemigod(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_sdemigod(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
     DESCRIPTOR_DATA *d;
     // убираем пробелы
@@ -4195,8 +4165,7 @@ void do_sdemigod(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
     }
 }
 
-
-void do_wiznet(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *d;
 	char emote = FALSE;
@@ -4347,9 +4316,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		send_to_char(OK, ch);
 }
 
-
-
-void do_zreset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	zone_rnum i;
 	zone_vnum j;
@@ -4392,19 +4359,16 @@ void do_zreset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		send_to_char("Нет такой зоны.\r\n", ch);
 }
 
-
 // Функции установки разных наказаний.
 
-
 // *  General fn for wizcommands of the sort: cmd <player>
-void do_wizutil(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *vict;
 	long result;
 	int times = 0;
 	char *reason;
 	char num[MAX_INPUT_LENGTH];
-
 
 //  one_argument(argument, arg);
 	reason = two_arguments(argument, arg, num);
@@ -4677,7 +4641,7 @@ struct show_struct show_fields[] =
 	{"\n", 0}
 };
 
-void do_show(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int i, j, k, l, con;	// i, j, k to specifics?
 
@@ -5964,9 +5928,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	return (return_code);
 }
 
-
-
-void do_set(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict = NULL, *cbuf = NULL;
 	char field[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH], val_arg[MAX_INPUT_LENGTH], OName[MAX_INPUT_LENGTH];
@@ -6322,7 +6284,7 @@ void print(CHAR_DATA *ch, int first, int last, const std::string &options)
 
 } // namespace Mlist
 
-void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 
 	int first, last, nr, found = 0;
@@ -6491,7 +6453,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	page_string(ch->desc, out);
 }
 
-void do_forcetime(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 
 	extern void heartbeat(const int missed_pulses);	// from comm.c
@@ -6589,8 +6551,7 @@ void SpellUsage::AddSpellStat(int charClass, int spellNum)
 	usage[charClass][spellNum]++;
 }
 
-
-void do_spellstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_spellstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
 
@@ -6643,16 +6604,14 @@ void do_spellstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	send_to_char("заклстат: неизвестный аргумент\r\n", ch);
 }
 
-void do_sanitize(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_sanitize(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	send_to_char("Запущена процедура сбора мусора после праздника...\r\n", ch);
 	Celebrates::sanitize();
 }
 
-//-Polud
-
 // This is test command for different testings
-void do_godtest(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_godtest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
     int skl;
     std::ostringstream buffer;
@@ -6701,7 +6660,7 @@ struct filter_type
 
 } // namespace
 
-void do_print_armor(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch) || (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))
 	{

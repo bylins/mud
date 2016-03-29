@@ -852,7 +852,7 @@ void load_cases()
  * 'reload' command even when the string was not replaced.
  * To fix later, if desired. -gg 6/24/99
  */
-void do_reboot(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	argument = one_argument(argument, arg);
 
@@ -6977,7 +6977,7 @@ void init_char(CHAR_DATA * ch)
 const char *remort_msg =
 	"  Если вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
 
-void do_remort(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	int i, place_of_destination,load_room = NOWHERE;
 	struct helper_data_type *temp;

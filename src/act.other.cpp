@@ -113,7 +113,7 @@ void do_dig(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 bool is_dark(room_rnum room);
 
-void do_antigods(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_antigods(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_IMMORTAL(ch))
 	{
@@ -132,7 +132,7 @@ void do_antigods(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		send_to_char("Вы и так не под защитой богов.\r\n", ch);
 }
 
-void do_quit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	DESCRIPTOR_DATA *d, *next_d;
 
@@ -200,7 +200,7 @@ void do_quit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_summon(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	// для начала проверяем, есть ли вообще лошадь у чара
 	CHAR_DATA *horse = NULL;
@@ -220,8 +220,7 @@ void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	act("$n появил$u из голубого пламени!", TRUE, horse, 0, 0, TO_ROOM);
 }
 
-
-void do_save(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_save(CHAR_DATA *ch, char* /*argument*/, int cmd, int/* subcmd*/)
 {
 	if (IS_NPC(ch) || !ch->desc)
 		return;
@@ -250,10 +249,9 @@ void do_save(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	Crash_crashsave(ch);
 }
 
-
 // generic function for commands which are normally overridden by
 // special procedures - i.e., shop commands, mail commands, etc.
-void do_not_here(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_not_here(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	send_to_char("Эта команда недоступна в этом месте!\r\n", ch);
 }
@@ -359,7 +357,7 @@ int char_humming(CHAR_DATA * ch)
 	return (FALSE);
 }
 
-void do_sneak(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	AFFECT_DATA af;
 	ubyte prob, percent;
@@ -411,7 +409,7 @@ void do_sneak(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	affect_to_char(ch, &af);
 }
 
-void do_camouflage(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	AFFECT_DATA af;
 	struct timed_type timed;
@@ -478,7 +476,7 @@ void do_camouflage(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-void do_hide(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	AFFECT_DATA af;
 	ubyte prob, percent;
@@ -737,8 +735,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		hit(vict, ch, TYPE_UNDEFINED, 1);
 }
 
-
-void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_steal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 	char vict_name[MAX_INPUT_LENGTH], obj_name[MAX_INPUT_LENGTH];
@@ -785,7 +782,7 @@ void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	go_steal(ch, vict, obj_name);
 }
 
-void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_features(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -796,7 +793,7 @@ void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		list_feats(ch, ch, FALSE);
 }
 
-void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_skills(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 	{
@@ -830,7 +827,7 @@ void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	list_skills(ch, ch, argument);
 }
 
-void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_spells(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -841,8 +838,7 @@ void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		list_spells(ch, ch, FALSE);
 }
 
-
-void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_visible(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_IMMORTAL(ch))
 	{
@@ -862,7 +858,7 @@ void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		send_to_char("Вы и так видимы.\r\n", ch);
 }
 
-void do_courage(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_courage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
 	AFFECT_DATA af[4];
@@ -1363,7 +1359,7 @@ void print_group(CHAR_DATA * ch)
 		}
 }
 
-void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 	struct follow_type *f;
@@ -1495,7 +1491,7 @@ void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	struct follow_type *f, *next_fol;
 	CHAR_DATA *tch;
@@ -1550,7 +1546,7 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	return;
 }
 
-void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *k;
 	struct follow_type *f;
@@ -1609,9 +1605,7 @@ void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
 
-
-
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int amount, num, share, rest;
 	CHAR_DATA *k;
@@ -1902,9 +1896,7 @@ void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		
 }
 
-
-
-void do_wimpy(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_wimpy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int wimp_lev;
 
@@ -1992,7 +1984,7 @@ void set_display_bits(CHAR_DATA *ch, bool flag)
 const char *DISPLAY_HELP =
 	"Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П } | все | нет }\r\n";
 
-void do_display(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_display(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 	{
@@ -2201,7 +2193,7 @@ struct gen_tog_param_type
 		0, SCMD_MAPPER}
 };
 
-void do_mode(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int i, showhelp = FALSE;
 	if (IS_NPC(ch))
@@ -2342,8 +2334,9 @@ void setNotifyEchange(CHAR_DATA* ch, char *argument)
 	}
 
 }
+
 //-Polud
-void do_gen_tog(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	long result = 0;
 
@@ -2673,7 +2666,7 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	return;
 }
 
-void do_pray(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	int metter = -1;
 	OBJ_DATA *obj = NULL;
@@ -2813,7 +2806,7 @@ void do_pray(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_recall(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 	{
@@ -2886,7 +2879,7 @@ void perform_beep(CHAR_DATA *ch, CHAR_DATA *vict)
 	}
 }
 
-void do_beep(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_beep(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict = NULL;
 
@@ -3149,7 +3142,7 @@ void dig_obj(CHAR_DATA *ch, OBJ_DATA *obj)
 	}
 }
 
-void do_dig(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *mob;
 	OBJ_DATA *obj;
@@ -3384,7 +3377,7 @@ bool is_dig_stone(OBJ_DATA *obj)
 	return false;
 }
 
-void do_insertgem(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 {
 	int percent, prob;
 	char arg1[MAX_INPUT_LENGTH];
@@ -3896,7 +3889,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	extract_obj(gemobj);
 }
 
-void do_bandage(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_bandage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 	{

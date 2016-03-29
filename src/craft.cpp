@@ -36,7 +36,7 @@ namespace craft
 		return model.load();
 	}
 	
-	void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+	void do_craft(CHAR_DATA *ch, char* /*argument*/, int /*cmd*/, int/* subcmd*/)
 	{
 		send_to_char("&WCrafting...&n\r\n", ch);
 	}

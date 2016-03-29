@@ -2341,7 +2341,7 @@ int posi_value(int real, int max)
 	return (real * 10 / MAX(max, 1));
 }
 
-char *color_value(CHAR_DATA * ch, int real, int max)
+char *color_value(CHAR_DATA* /*ch*/, int real, int max)
 {
 	static char color[8];
 	switch (posi_value(real, max))
@@ -4191,7 +4191,7 @@ void nonblock(socket_t s)
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 
-RETSIGTYPE unrestrict_game(int sig)
+RETSIGTYPE unrestrict_game(int/* sig*/)
 {
 	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, LVL_IMMORT, SYSLOG, TRUE);
 	ban->clear_all();
@@ -4202,14 +4202,14 @@ RETSIGTYPE unrestrict_game(int sig)
 #ifdef CIRCLE_UNIX
 
 // clean up our zombie kids to avoid defunct processes
-RETSIGTYPE reap(int sig)
+RETSIGTYPE reap(int/* sig*/)
 {
 	while (waitpid(-1, (int *)NULL, WNOHANG) > 0);
 
 	my_signal(SIGCHLD, reap);
 }
 
-RETSIGTYPE crash_handle(int sig)
+RETSIGTYPE crash_handle(int/* sig*/)
 {
 	log("Crash detected !");
 	// Сливаем файловые буферы.
@@ -4226,7 +4226,7 @@ RETSIGTYPE crash_handle(int sig)
 }
 
 
-RETSIGTYPE checkpointing(int sig)
+RETSIGTYPE checkpointing(int/* sig*/)
 {
 	if (!tics)
 	{
@@ -4237,7 +4237,7 @@ RETSIGTYPE checkpointing(int sig)
 		tics = 0;
 }
 
-RETSIGTYPE hupsig(int sig)
+RETSIGTYPE hupsig(int/* sig*/)
 {
 	log("SYSERR: Received SIGHUP, SIGINT, or SIGTERM.  Shutting down...");
 	exit(1);		// perhaps something more elegant should substituted
@@ -5041,12 +5041,12 @@ inline void circle_sleep(struct timeval *timeout)
 
 // Compression stuff.
 
-void *zlib_alloc(void *opaque, unsigned int items, unsigned int size)
+void *zlib_alloc(void* /*opaque*/, unsigned int items, unsigned int size)
 {
 	return calloc(items, size);
 }
 
-void zlib_free(void *opaque, void *address)
+void zlib_free(void* /*opaque*/, void *address)
 {
 	free(address);
 }

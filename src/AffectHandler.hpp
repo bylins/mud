@@ -37,10 +37,10 @@ class IAffectHandler
 public:
 	IAffectHandler(void) {};
 	virtual ~IAffectHandler(void) {};
-	virtual void Handle(DamageActorParameters& params) {};
-	virtual void Handle(DamageVictimParameters& params) {};
-	virtual void Handle(BattleRoundParameters& params) {};
-	virtual void Handle(StopFightParameters& params) {};
+	virtual void Handle(DamageActorParameters&/* params*/) {};
+	virtual void Handle(DamageVictimParameters&/* params*/) {};
+	virtual void Handle(BattleRoundParameters&/* params*/) {};
+	virtual void Handle(StopFightParameters&/* params*/) {};
 };
 
 class LackyAffectHandler : public IAffectHandler{

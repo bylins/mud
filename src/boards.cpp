@@ -583,7 +583,7 @@ bool is_spamer(CHAR_DATA *ch, const Board &board)
 	return true;
 }
 
-void DoBoard(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	if (!ch->desc)
 		return;
@@ -914,7 +914,7 @@ std::string Board::print_stats(CHAR_DATA *ch, int num)
 	return out;
 }
 
-void DoBoardList(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoBoardList(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1268,7 +1268,7 @@ void Board::LoginInfo(CHAR_DATA * ch)
 	}
 }
 
-void report_on_board(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	if (IS_NPC(ch)) return;
 	skip_spaces(&argument);

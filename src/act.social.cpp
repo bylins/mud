@@ -163,9 +163,7 @@ int do_social(CHAR_DATA * ch, char *argument)
 	return (TRUE);
 }
 
-
-
-void do_insult(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 

@@ -77,7 +77,7 @@ const char *DirIs[] =
 };
 
 // check ice in room
-int check_death_ice(int room, CHAR_DATA * ch)
+int check_death_ice(int room, CHAR_DATA* /*ch*/)
 {
 	int sector, mass = 0, result = FALSE;
 	CHAR_DATA *vict; // *next_vict
@@ -1092,8 +1092,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 	return (FALSE);
 }
 
-
-void do_move(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_move(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 {
 	/*
 	 * This is basically a mapping of cmd numbers to perform_move indices.
@@ -1103,7 +1102,7 @@ void do_move(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	perform_move(ch, subcmd - 1, 0, TRUE, 0);
 }
 
-void do_hidemove(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int dir = 0, sneaking = affected_by_spell(ch, SPELL_SNEAK);
 	AFFECT_DATA af;
@@ -1177,8 +1176,7 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 			(GET_OBJ_VAL(obj,3)) :\
 			(EXIT(ch, door)->lock_complexity))
 
-
-int find_door(CHAR_DATA * ch, const char *type, char *dir, const char *cmdname)
+int find_door(CHAR_DATA* ch, const char *type, char *dir, const char* /*cmdname*/)
 {
 	int door;
 
@@ -1451,8 +1449,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	}
 }
 
-
-int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd)
+int ok_pick(CHAR_DATA* ch, obj_vnum /*keynum*/, OBJ_DATA* obj, int door, int scmd)
 {
 	int percent;
 	int pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
@@ -1484,8 +1481,7 @@ int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd)
 	return (1);
 }
 
-
-void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_gen_door(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	int door = -1;
 	obj_vnum keynum;
@@ -1584,9 +1580,7 @@ void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	return;
 }
 
-
-
-void do_enter(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int door, from_room;
 	const char *p_str = "пентаграмма";
@@ -1757,8 +1751,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_stand(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (GET_POS(ch) > POS_SLEEPING && AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
 	{
@@ -1802,8 +1795,7 @@ void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_sit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_sit(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (on_horse(ch))
 	{
@@ -1839,8 +1831,7 @@ void do_sit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_rest(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_rest(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (on_horse(ch))
 	{
@@ -1876,8 +1867,7 @@ void do_rest(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_sleep(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_sleep(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
 	{
@@ -1912,7 +1902,7 @@ void do_sleep(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-void do_horseon(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse;
 
@@ -1964,7 +1954,7 @@ void do_horseon(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-void do_horseoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_horseoff(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse;
 
@@ -1987,7 +1977,7 @@ void do_horseoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 }
 
-void do_horseget(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse;
 
@@ -2030,8 +2020,7 @@ void do_horseget(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_horseput(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse;
 
@@ -2072,8 +2061,7 @@ void do_horseput(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_horsetake(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int percent, prob;
 	CHAR_DATA *horse = NULL;
@@ -2182,7 +2170,7 @@ void do_horsetake(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	make_horse(horse, ch);
 }
 
-void do_givehorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_givehorse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse, *victim;
 
@@ -2239,7 +2227,7 @@ void do_givehorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	make_horse(horse, victim);
 }
 
-void do_stophorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_stophorse(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse;
 
@@ -2277,11 +2265,7 @@ void do_stophorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-
-
-
-void do_wake(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_wake(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *vict;
 	int self = 0;
@@ -2334,8 +2318,7 @@ void do_wake(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *leader;
 	struct follow_type *f;

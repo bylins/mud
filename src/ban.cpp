@@ -38,7 +38,7 @@ void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 int Valid_Name(char *newname);
 void Read_Invalid_List(void);
 
-void do_ban(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_ban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (!*argument)
 	{
@@ -149,8 +149,7 @@ void do_ban(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	send_to_char("Site banned.\r\n", ch);
 }
 
-
-void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_unban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char site[MAX_INPUT_LENGTH];
 	one_argument(argument, site);
@@ -391,7 +390,7 @@ int CheckProxy(DESCRIPTOR_DATA * ch)
 }
 
 // команда proxy
-void do_proxy(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_proxy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
