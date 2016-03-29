@@ -32,7 +32,7 @@
 #include <cmath>
 #include <bitset>
 
-extern SPECIAL(bank);
+extern int bank(CHAR_DATA*, void*, int, char*);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);

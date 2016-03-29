@@ -1154,7 +1154,7 @@ bool act_board(CHAR_DATA *ch, int vnum, char *buf_)
 }
 
 // чтобы не травмировать народ спешиалы вешаем на старые доски с новым содержимым
-SPECIAL(Board::Special)
+int Board::Special(CHAR_DATA* ch, void* me, int cmd, char* argument)
 {
 	OBJ_DATA *board = (OBJ_DATA *) me;
 	if (!ch->desc)

@@ -1406,7 +1406,7 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 
 // re-formats message type formatted char * //
 // (for strings edited with d->str) (mostly olc and mail)     //
-void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, size_t maxlen)
+void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
 {
 	size_t total_chars = 0;
 	int cap_next = TRUE, cap_next_next = FALSE;

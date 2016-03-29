@@ -267,7 +267,7 @@ void parse_dec_exch(CHAR_DATA *ch, int amount, int num)
 }
 
 // кол-во меняемых гривен
-int check_input_amount(CHAR_DATA *ch, int num1, int num2)
+int check_input_amount(CHAR_DATA* /*ch*/, int num1, int num2)
 {
 	if ((num1 == 1 || num1 == 2) && num2 < TORC_EXCH_RATE)
 	{
@@ -948,7 +948,7 @@ void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_
 } // namespace
 
 // глашатаи
-SPECIAL(torc)
+int torc(CHAR_DATA *ch, void *me, int cmd, char* /*argument*/)
 {
 	if (!ch->desc || IS_NPC(ch))
 	{

@@ -36,7 +36,7 @@
 extern INDEX_DATA *mob_index;
 extern int no_specials;
 extern TIME_INFO_DATA time_info;
-extern SPECIAL(guild_poly);
+extern int guild_poly(CHAR_DATA*, void*, int, char*);
 extern guardian_type guardian_list;
 extern struct zone_data * zone_table;
 extern bool check_mighthit_weapon(CHAR_DATA *ch);

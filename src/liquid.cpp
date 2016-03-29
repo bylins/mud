@@ -304,7 +304,7 @@ void cast_potion(CHAR_DATA *ch, OBJ_DATA *obj)
 	}
 }
 
-void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *temp;
 	AFFECT_DATA af;
@@ -535,7 +535,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	return;
 }
 
-void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
 	AFFECT_DATA af[3];
@@ -897,7 +897,7 @@ void spells_to_drinkcon(OBJ_DATA *from_obj, OBJ_DATA *to_obj)
 	to_obj->values.set(ObjVal::EValueKey::POTION_PROTO_VNUM, proto_vnum);
 }
 
-void do_pour(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];

@@ -26,18 +26,18 @@
 #include <iomanip>
 #include <vector>
 
-SPECIAL(shop_ext);
-SPECIAL(receptionist);
-SPECIAL(postmaster);
-SPECIAL(bank);
-SPECIAL(exchange);
-SPECIAL(horse_keeper);
-SPECIAL(guild_mono);
-SPECIAL(guild_poly);
-SPECIAL(torc);
+int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int receptionist(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int postmaster(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int bank(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int exchange(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int torc(CHAR_DATA *ch, void *me, int cmd, char* argument);
 namespace Noob
 {
-SPECIAL(outfit);
+int outfit(CHAR_DATA *ch, void *me, int cmd, char* argument);
 }
 extern int has_boat(CHAR_DATA *ch);
 
@@ -413,7 +413,7 @@ void drow_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, 
 
 	for (CHAR_DATA *tch = world[room_rnum]->people; tch; tch = tch->next_in_room)
 	{
-		SPECIAL(*func) = GET_MOB_SPEC(tch);
+		auto func = GET_MOB_SPEC(tch);
 		if (func)
 		{
 			if (func == shop_ext
@@ -1221,7 +1221,7 @@ void Options::text_olc(CHAR_DATA *ch, const char *arg)
 
 } // namespace MapSystem
 
-void do_map(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_map(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 	{

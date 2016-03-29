@@ -504,7 +504,7 @@ const char *DMETR_FORMAT =
 * 'дметр очистить' - очистка своей статистики.
 * 'дметр очистить группа' - очистка групповой статистики (только лидер).
 */
-void do_dmeter(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_dmeter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 	{

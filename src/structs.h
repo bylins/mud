@@ -90,9 +90,6 @@ typedef struct trig_data TRIG_DATA;
 #define NOTHING      -1		// nil reference for objects
 #define NOBODY    -1		// nil reference for mobiles
 
-#define SPECIAL(name) \
-   int (name)(CHAR_DATA *ch, void *me, int cmd, char *argument)
-
 // misc editor defines *************************************************
 
 // format modes for format_text
@@ -1896,7 +1893,7 @@ struct index_data
 	int vnum;			// virtual number of this mob/obj       //
 	int number;		// number of existing units of this mob/obj //
 	int stored;		// number of things in rent file            //
-	SPECIAL(*func);
+	int (*func)(CHAR_DATA*, void*, int, char*);
 	char *farg;		// string argument for special function     //
 	struct trig_data *proto;	// for triggers... the trigger     //
 	int zone;			// mob/obj zone rnum //

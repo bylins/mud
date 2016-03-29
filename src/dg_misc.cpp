@@ -158,7 +158,7 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 // LIMITATION: a target MUST exist for the spell unless the spell is   
 // set to TAR_IGNORE. Also, group spells are not permitted             
 // code borrowed from do_cast() 
-void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
+void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char *cmd)
 {
 	CHAR_DATA *caster = NULL;
 	ROOM_DATA *caster_room = NULL;
@@ -314,7 +314,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
    if duration < 1 - function removes affect */
 #define APPLY_TYPE	1
 #define AFFECT_TYPE	2
-void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type, char *cmd)
+void do_dg_affect(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* script_type*/, char *cmd)
 {
 	CHAR_DATA *ch = NULL;
 	int value = 0, duration = 0, battle = 0;

@@ -49,7 +49,7 @@ void Dictionary::AddToDictionary(DictionaryItemPtr item)
 	this->dictionary_.push_back(item);
 };
 
-std::string Dictionary::GetNameByTID(std::string tid)
+std::string Dictionary::GetNameByTID(std::string/* tid*/)
 {
 	std::string result="";
 	return result;

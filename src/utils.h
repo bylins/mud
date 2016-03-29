@@ -239,11 +239,10 @@ void update_pos(CHAR_DATA * victim);
 #define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
 #define IS_MAGE(ch)          (IS_BITS(MASK_MAGES, GET_CLASS(ch)))
 
-
-extern SPECIAL(receptionist);
-extern SPECIAL(postmaster);
-extern SPECIAL(bank);
-extern SPECIAL(shop_ext);
+extern int receptionist(CHAR_DATA*, void*, int, char*);
+extern int postmaster(CHAR_DATA*, void*, int, char*);
+extern int bank(CHAR_DATA*, void*, int, char*);
+extern int shop_ext(CHAR_DATA*, void*, int, char*);
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)

@@ -525,36 +525,32 @@ struct attack_hit_type
 extern struct spell_info_type spell_info[];
 extern struct skill_info_type skill_info[];
 
-#define ASPELL(spellname) \
-void spellname(int level, CHAR_DATA *ch, \
-		  CHAR_DATA *victim, OBJ_DATA *obj)
-
 #define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict);
 
-ASPELL(spell_create_water);
-ASPELL(spell_recall);
-ASPELL(spell_teleport);
-ASPELL(spell_summon);
-ASPELL(spell_relocate);
-ASPELL(spell_portal);
-ASPELL(spell_locate_object);
-ASPELL(spell_charm);
-ASPELL(spell_information);
-ASPELL(spell_identify);
-ASPELL(spell_enchant_weapon);
-ASPELL(spell_control_weather);
-ASPELL(spell_create_weapon);
-ASPELL(spell_eviless);
-ASPELL(spell_townportal);
-ASPELL(spell_energydrain);
-ASPELL(spell_fear);
-ASPELL(spell_sacrifice);
-ASPELL(spell_forbidden);
-ASPELL(spell_identify);
-ASPELL(spell_holystrike);
-ASPELL(skill_identify);
-ASPELL(spell_angel);
-ASPELL(spell_vampire);
+void spell_create_water(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_recall(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_teleport(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_summon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_relocate(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_portal(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_charm(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_information(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_enchant_weapon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_control_weather(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_create_weapon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_eviless(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_townportal(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_energydrain(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_fear(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_sacrifice(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_forbidden(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_holystrike(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void skill_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_angel(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_vampire(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 
 // basic magic calling functions
 

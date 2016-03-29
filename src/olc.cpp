@@ -581,7 +581,7 @@ void xedit_disp_ing(DESCRIPTOR_DATA * d, int *ping)
 				 "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character);
 }
 
-int xparse_ing(DESCRIPTOR_DATA * d, int **pping, char *arg)
+int xparse_ing(DESCRIPTOR_DATA* /*d*/, int **pping, char *arg)
 {
 	switch (*arg)
 	{

@@ -424,12 +424,12 @@ void do_morphset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_console(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_shops_list(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_unfreeze(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-ACMD(Bonus::do_bonus);
+void Bonus::do_bonus(CHAR_DATA*, char*, int, int);
 void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-ACMD(Bonus::do_bonus_info);
+void Bonus::do_bonus_info(CHAR_DATA*, char*, int, int);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -1153,7 +1153,7 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 	}
 }
 
-bool check_frozen_cmd(CHAR_DATA *ch, int cmd)
+bool check_frozen_cmd(CHAR_DATA* /*ch*/, int cmd)
 {
 	if (!strcmp(cmd_info[cmd].command, "коне")
 		|| !strcmp(cmd_info[cmd].command, "конец")
@@ -1389,9 +1389,8 @@ void free_alias(struct alias_data *a)
 	free(a);
 }
 
-
 // The interface to the outside world: do_alias
-void do_alias(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char *repl;
 	struct alias_data *a, *temp;

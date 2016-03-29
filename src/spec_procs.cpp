@@ -49,6 +49,8 @@ extern TIME_INFO_DATA time_info;
 extern struct spell_create_type spell_create[];
 extern int guild_info[][3];
 
+typedef int special_f(CHAR_DATA*, void*, int, char*);
+
 // extern functions
 void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -57,7 +59,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no);
 int has_key(CHAR_DATA * ch, obj_vnum key);
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);
 void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd);
-void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info);
+void ASSIGNMASTER(mob_vnum mob, special_f, int learn_info);
 int mag_manacost(CHAR_DATA * ch, int spellnum);
 int has_key(CHAR_DATA * ch, obj_vnum key);
 int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
@@ -69,21 +71,20 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter = NULL);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 int slot_for_char(CHAR_DATA * ch, int i);
-SPECIAL(guild_mono);
-SPECIAL(guild_poly);
-SPECIAL(guild);
-SPECIAL(dump);
-SPECIAL(mayor);
-SPECIAL(snake);
-SPECIAL(thief);
-SPECIAL(magic_user);
-SPECIAL(guild_guard);
-SPECIAL(puff);
-SPECIAL(fido);
-SPECIAL(janitor);
-SPECIAL(cityguard);
-SPECIAL(pet_shops);
-SPECIAL(bank);
+int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int guild(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int dump(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int mayor(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int snake(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int thief(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int magic_user(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int guild_guard(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int fido(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int janitor(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int cityguard(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int pet_shops(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int bank(CHAR_DATA *ch, void *me, int cmd, char* argument);
 
 
 // ********************************************************************
@@ -890,7 +891,7 @@ void init_guilds(void)
 
 #define SCMD_LEARN 1
 
-SPECIAL(guild_mono)
+int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	int skill_no, command = 0, gcount = 0, info_num = 0, found = FALSE, sfound = FALSE, i, bits;
 	CHAR_DATA *victim = (CHAR_DATA *) me;
@@ -1164,8 +1165,7 @@ SPECIAL(guild_mono)
 	return (0);
 }
 
-
-SPECIAL(guild_poly)
+int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	int skill_no, command = 0, gcount = 0, info_num = 0, found = FALSE, sfound = FALSE, i, bits;
 	CHAR_DATA *victim = (CHAR_DATA *) me;
@@ -1472,8 +1472,7 @@ SPECIAL(guild_poly)
 	return (0);
 }
 
-
-SPECIAL(horse_keeper)
+int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	CHAR_DATA *victim = (CHAR_DATA *) me, *horse = NULL;
 
@@ -1938,7 +1937,7 @@ int npc_loot(CHAR_DATA * ch)
 	return (max);
 }
 
-int npc_move(CHAR_DATA * ch, int dir, int need_specials_check)
+int npc_move(CHAR_DATA * ch, int dir, int/* need_specials_check*/)
 {
 	int need_close = FALSE, need_lock = FALSE;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
@@ -2513,8 +2512,7 @@ void npc_groupbattle(CHAR_DATA * ch)
 	}
 }
 
-
-SPECIAL(dump)
+int dump(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 {
 	OBJ_DATA *k;
 	int value = 0;
@@ -2550,7 +2548,7 @@ SPECIAL(dump)
 }
 
 #if 0
-SPECIAL(mayor)
+void mayor(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	const char open_path[] = "W3a3003b33000c111d0d111Oe333333Oe22c222112212111a1S.";
 	const char close_path[] = "W3a3003b33000c111d0d111CE333333CE22c222112212111a1S.";
@@ -2646,9 +2644,7 @@ SPECIAL(mayor)
 // *  General special procedures for mobiles                          *
 // ********************************************************************
 
-
-
-SPECIAL(snake)
+int snake(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
 	if (cmd)
 		return (FALSE);
@@ -2666,8 +2662,7 @@ SPECIAL(snake)
 	return (FALSE);
 }
 
-
-SPECIAL(thief)
+int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
 	CHAR_DATA *cons;
 
@@ -2686,8 +2681,7 @@ SPECIAL(thief)
 	return (FALSE);
 }
 
-
-SPECIAL(magic_user)
+int magic_user(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
 	CHAR_DATA *vict;
 
@@ -2764,7 +2758,7 @@ SPECIAL(magic_user)
 // *  Special procedures for mobiles                                  *
 // ********************************************************************
 
-SPECIAL(guild_guard)
+int guild_guard(CHAR_DATA *ch, void *me, int cmd, char* /*argument*/)
 {
 	int i;
 	CHAR_DATA *guard = (CHAR_DATA *) me;
@@ -2792,18 +2786,14 @@ SPECIAL(guild_guard)
 	return (FALSE);
 }
 
-
 // TODO: повырезать все это
-SPECIAL(puff)
+int puff(CHAR_DATA* /*ch*/, void* /*me*/, int/* cmd*/, char* /*argument*/)
 {
 	return 0;
 }
 
-
-
-SPECIAL(fido)
+int fido(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
-
 	OBJ_DATA *i, *temp, *next_obj;
 
 	if (cmd || !AWAKE(ch))
@@ -2827,9 +2817,7 @@ SPECIAL(fido)
 	return (FALSE);
 }
 
-
-
-SPECIAL(janitor)
+int janitor(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
 	OBJ_DATA *i;
 
@@ -2854,8 +2842,7 @@ SPECIAL(janitor)
 	return (FALSE);
 }
 
-
-SPECIAL(cityguard)
+int cityguard(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
 	CHAR_DATA *tch, *evil;
 	int max_evil;
@@ -2910,7 +2897,7 @@ SPECIAL(cityguard)
 
 #define PET_PRICE(pet) (GET_LEVEL(pet) * 300)
 
-SPECIAL(pet_shops)
+int pet_shops(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 {
 	char buf[MAX_STRING_LENGTH], pet_name[256];
 	room_rnum pet_room;
@@ -2996,13 +2983,11 @@ CHAR_DATA *get_player_of_name(const char *name)
 	return (NULL);
 }
 
-
 // ********************************************************************
 // *  Special procedures for objects                                  *
 // ********************************************************************
 
-
-SPECIAL(bank)
+int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 {
 	int amount;
 	CHAR_DATA *vict;

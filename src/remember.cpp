@@ -227,7 +227,7 @@ unsigned int CharRemember::get_num_str() const
 	return num_str_;
 }
 
-void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 

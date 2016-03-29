@@ -327,7 +327,7 @@ void zedit_scroll_list(DESCRIPTOR_DATA * d, char *arg)
 	d->olc->bitmask |= pos;
 }
 
-void zedit_setup(DESCRIPTOR_DATA * d, int room_num)
+void zedit_setup(DESCRIPTOR_DATA * d, int/* room_num*/)
 {
 	struct zone_data *zone;
 	int i;

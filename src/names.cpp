@@ -497,7 +497,7 @@ const char* MORTAL_DO_TITLE_FORMAT = "\r\n"
 									 "имя <игрок> запретить - запретить имя данного игрока\r\n"
 									 "имя <игрок> удалить - удалить данное имя из списка без запрета или одобрения\r\n";
 
-void do_name(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	std::string name, command = argument;
 	GetOneParam(command, name);

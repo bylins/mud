@@ -926,7 +926,7 @@ void check_berserk(CHAR_DATA * ch)
 }
 
 // Легкая поступь
-void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	AFFECT_DATA af;
 	struct timed_type timed;
@@ -980,7 +980,7 @@ void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 }
 
 //подгонка и перешивание
-void do_fit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *obj;
 	CHAR_DATA *vict;
@@ -1100,7 +1100,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 int slot_for_char(CHAR_DATA * ch, int i);
 #define SpINFO spell_info[spellnum]
 // Вложить закл в клона
-void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	AFFECT_DATA af;
 	struct timed_type timed;
@@ -1257,20 +1257,9 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	af.bitvector = 0;
 	affect_to_char(follower, &af);
 	follower->mob_specials.capable_spell = spellnum;
-/*
-	af.type = SPELL_CAPABLE;
-	af.duration = 24;
-	af.modifier = spellnum;
-	af.location = APPLY_NONE;
-	af.battleflag = 0;
-	af.bitvector = 0;
-	affect_to_char(follower, &af);
-	follower->mob_specials.capable_cast = GET_REMORT(ch)*4;
-	follower->mob_specials.capable_spell = spellnum;
-*/
 }
 
-void do_relocate(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	struct timed_type timed;
 

@@ -195,7 +195,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 }
 
 // * Крит при отравлении с пушек.
-void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
+void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 {
 	int percent = number(1, skill_info[SKILL_POISONED].max_percent * 3);
 	int prob = calculate_skill(ch, SKILL_POISONED, vict);

@@ -98,10 +98,8 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 }
 
-
-void gift_new_year(CHAR_DATA *vict)
+void gift_new_year(CHAR_DATA* /*vict*/)
 {
-	
 }
 
 // 29.11.09 Увеличиваем счетчики рипов (с) Василиса

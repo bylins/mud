@@ -42,7 +42,7 @@ extern room_rnum r_unreg_start_room;
 void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg);
 void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg);
 void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg);
-SPECIAL(postmaster);
+int postmaster(CHAR_DATA *ch, void *me, int cmd, char* argument);
 
 namespace mail
 {
@@ -122,7 +122,7 @@ const int MAX_MAIL_SIZE = 4096;
 //* Below is the spec_proc for a postmaster using the above      *
 //* routines.  Written by Jeremy Elson (jelson@circlemud.org)    *
 //****************************************************************
-SPECIAL(postmaster)
+int postmaster(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	if (!ch->desc || IS_NPC(ch))
 		return (0);	// so mobs don't get caught here
@@ -161,7 +161,7 @@ SPECIAL(postmaster)
 		return (0);
 }
 
-void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg)
+void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char* /*arg*/)
 {
 	bool empty = true;
 	if (mail::has_mail(ch->get_uid()))
@@ -185,7 +185,7 @@ void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *a
 }
 
 
-void postmaster_receive_mail(CHAR_DATA* ch, CHAR_DATA* mailman, int cmd, char* arg)
+void postmaster_receive_mail(CHAR_DATA* ch, CHAR_DATA* mailman, int/* cmd*/, char* /*arg*/)
 {
 	if (!Parcel::has_parcel(ch) && !mail::has_mail(ch->get_uid()))
 	{
@@ -197,7 +197,7 @@ void postmaster_receive_mail(CHAR_DATA* ch, CHAR_DATA* mailman, int cmd, char* a
 	mail::receive(ch, mailman);
 }
 
-void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg)
+void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char *arg)
 {
 	int recipient;
 	int cost;

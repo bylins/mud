@@ -199,7 +199,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
-void do_sense(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 	int dir;
@@ -268,7 +268,7 @@ const char *track_when[] = { "совсем свежие",
 
 #define CALC_TRACK(ch,vict) (calculate_skill(ch,SKILL_TRACK, 0))
 
-int age_track(CHAR_DATA * ch, int time, int calc_track)
+int age_track(CHAR_DATA* /*ch*/, int time, int calc_track)
 {
 	int when = 0;
 
@@ -294,8 +294,7 @@ int age_track(CHAR_DATA * ch, int time, int calc_track)
 	return (when);
 }
 
-
-void do_track(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict = NULL;
 	struct track_data *track;
@@ -429,8 +428,7 @@ void do_track(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	return;
 }
 
-
-void do_hidetrack(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	struct track_data *track[NUM_OF_DIRS + 1], *temp;
 	int percent, prob, i, croom, found = FALSE, dir, rdir;

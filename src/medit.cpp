@@ -57,7 +57,7 @@ int planebit(const char *str, int *plane, int *bit);
 
 int real_zone(int number);
 
-SPECIAL(receptionist);
+int receptionist(CHAR_DATA *ch, void *me, int cmd, char* argument);
 void clear_mob_charm(CHAR_DATA *mob);
 
 //-------------------------------------------------------------------

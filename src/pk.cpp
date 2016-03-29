@@ -712,8 +712,7 @@ void pk_list_sprintf(CHAR_DATA * ch, char *buff)
 	}
 }
 
-
-void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *tch;
 	struct PK_Memory_type *pk;
@@ -820,8 +819,7 @@ void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		send_to_char("Вам некому мстить.\r\n", ch);
 }
 
-
-void do_forgive(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_forgive(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *tch;
 	struct PK_Memory_type *pk;

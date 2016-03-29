@@ -995,7 +995,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 // * Set of character features                                           *
 // ***********************************************************************
 
-void do_featset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];
@@ -1107,7 +1107,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 // *  Modification of character skills                                  *
 // **********************************************************************
 
-void do_skillset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];

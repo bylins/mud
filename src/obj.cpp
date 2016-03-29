@@ -459,7 +459,7 @@ const int AFF_BLINK_MOD = 10;
 namespace ObjSystem
 {
 
-float count_affect_weight(OBJ_DATA *obj, int num, int mod)
+float count_affect_weight(OBJ_DATA* /*obj*/, int num, int mod)
 {
 	float weight = 0;
 
@@ -756,7 +756,7 @@ void renumber(int rnum)
 	update_rnum(PERS_CHEST_RNUM, PERS_CHEST_VNUM, rnum);
 }
 
-OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)
+OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 {
 	OBJ_DATA *obj = read_object(PURSE_RNUM, REAL);
 	if (!obj)

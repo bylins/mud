@@ -709,7 +709,7 @@ std::string clan_status()
 	return GET_CLAN_STATUS(ch);
 }
 
-bool set_password_wrapped(std::string name, std::string password)
+bool set_password_wrapped(const std::string&/* name*/, const std::string&/* password*/)
 {
 	// заглушка
 	return true;
@@ -836,9 +836,9 @@ struct _arrayN
             t.append(self[i]);
         return t;
     }
-    static int size(arrayN const & self)
+    static int size(arrayN const &/* self*/)
     {
-     return N;
+		return N;
     }
 };
 

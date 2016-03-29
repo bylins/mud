@@ -1632,9 +1632,9 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 	   SpINFO.mana_min); */
 }
 
-void spell_prefix(int spellnum, const char **say_to_self, const char **say_to_other,
-				  const char **say_to_obj_vis, const char **say_to_something, const char **damagee_vict,
-				  const char **helpee_vict)
+void spell_prefix(int spellnum, const char** /*say_to_self*/, const char **say_to_other,
+				  const char** /*say_to_obj_vis*/, const char **say_to_something, const char **damagee_vict,
+				  const char** /*helpee_vict*/)
 {
 	switch (spellnum)
 	{
@@ -1941,7 +1941,7 @@ int find_spell_num(const std::string& name)
 	return (-1);
 }
 
-int may_cast_in_nomagic(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
+int may_cast_in_nomagic(CHAR_DATA * caster, CHAR_DATA* /*victim*/, int spellnum)
 {
 	// More than 33 level - may cast always
 	if (IS_GRGOD(caster) || IS_SET(SpINFO.routines, MAG_WARCRY))
@@ -2175,8 +2175,7 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 	return mag_single_target(level, caster, cvict, ovict, spellnum, savetype);
 }
 
-
-void do_ident(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_ident(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *cvict = NULL, *caster = ch;
 	OBJ_DATA *ovict = NULL;
@@ -2964,14 +2963,13 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 	return (prob > number(0, 100));
 }
 
-
 /*
  * do_cast is the entry point for PC-casted spells.  It parses the arguments,
  * determines the spell number and finds a target, throws the die to see if
  * the spell can be cast, checks for sufficient mana and subtracts it, and
  * passes control to cast_spell().
  */
-void do_cast(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 {
 	CHAR_DATA *tch;
 	OBJ_DATA *tobj;
@@ -3139,7 +3137,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-void do_warcry(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int spellnum, cnt;
 
@@ -3276,7 +3274,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	if (IS_NPC(ch))
 		return;
@@ -3420,8 +3418,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	char *s;
 	int spellnum, itemnum = 0;
@@ -3538,9 +3535,7 @@ void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj)
 			FALSE, ch, obj, 0, TO_ROOM);
 }
 
-// +newbook.patch (Alisher)
-
-void do_learn(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 {
 	OBJ_DATA *obj;
 	int spellnum = 0, addchance = 10, rcpt = -1;
@@ -3955,8 +3950,7 @@ void show_wizdom(CHAR_DATA * ch, int bitset)
 	send_to_char(buf2, ch);
 }
 
-
-void do_remember(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_remember(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char *s;
 	int spellnum;
@@ -4015,7 +4009,7 @@ inline bool in_mem(char* arg)
 		  !strn_cmp("резы", arg, strlen(arg)) || !strn_cmp("book", arg, strlen(arg)));
 }
 
-void do_forget(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char *s=0, *t=0;
 	int spellnum, is_in_mem;

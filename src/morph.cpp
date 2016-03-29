@@ -212,7 +212,7 @@ MorphPtr GetNormalMorphNew(CHAR_DATA *ch)
 	return MorphPtr(new NormalMorph(ch));
 }
 
-void do_morph(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_morph(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -282,7 +282,7 @@ void PrintAllMorphsList(CHAR_DATA *ch)
 		send_to_char("   " + it->second->Name() + "\r\n", ch);
 }
 
-void do_morphset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_morphset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA * vict;
 

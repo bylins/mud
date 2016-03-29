@@ -169,7 +169,7 @@ void init_obj_index()
 }
 
 /// сеты не вешаются на: кольца, ожерелья, браслеты, свет
-bool verify_wear_flag(OBJ_DATA *obj)
+bool verify_wear_flag(OBJ_DATA* /*obj*/)
 {
 /*	if (CAN_WEAR(obj, ITEM_WEAR_FINGER)
 		|| CAN_WEAR(obj, ITEM_WEAR_NECK)
@@ -1488,7 +1488,7 @@ bool is_set_item(OBJ_DATA *obj)
 } // namespace obj_sets
 
 /// иммский slist
-void do_slist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_slist(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 	{

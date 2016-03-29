@@ -165,17 +165,14 @@ Clan::Clan()
 	chest_objcount(0), chest_discount(0), chest_weight(0),
 	ingr_chest_objcount_(0)
 {
-
 }
 
 Clan::~Clan()
 {
-
 }
 
-void Clan::reload_one(std::string name)
+void Clan::reload_one(std::string/* name*/)
 {
-
 }
 
 
@@ -992,7 +989,7 @@ const char *HOUSE_FORMAT[] =
 };
 
 // обработка клановых привилегий (команда house)
-void DoHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1705,11 +1702,10 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 	} // switch
 }
 
-
 // обработка клан-канала и канала союзников, как игрока, так и имма
 // клановые БОГи ниже 34 не могут говорить другим дружинам, и им и остальным спокойнее
 // для канала союзников нужен обоюдный альянс дружин
-void DoClanChannel(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoClanChannel(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1757,18 +1753,8 @@ void DoClanChannel(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 }
 
-
-/* if (!str_cmp(field, "contains"))  	// contains
-	{
-		if (str_str(vd->value, subfield))
-			sprintf(str, "1");
-		else
-			sprintf(str, "0");
-		return TRUE;
-	}*/
-
 // список зарегестрированных дружин с их онлайновым составом (опционально)
-void DoClanList(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1902,7 +1888,7 @@ void Clan::SetPolitics(int victim, int state)
 const char *politicsnames[] = { "Нейтралитет", "Война", "Альянс" };
 
 //Polud будем показывать всем происходящие войны
-void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoShowWars(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))	return;
 	ClanListType::const_iterator clan1, clan2;
@@ -1949,7 +1935,7 @@ void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 //-Polud
 
 // выводим информацию об отношениях дружин между собой
-void DoShowPolitics(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoShowPolitics(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
@@ -2327,7 +2313,7 @@ void Clan::hcontrol_set_ingr_chest(CHAR_DATA *ch, std::string &text)
 }
 
 // божественный hcontrol
-void DoHcontrol(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoHcontrol(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -2545,7 +2531,7 @@ void Clan::HcontrolDestroy(CHAR_DATA * ch, std::string & buffer)
 }
 
 // ктодружина (список соклановцев, находящихся онлайн)
-void DoWhoClan(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoWhoClan(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
@@ -2611,7 +2597,7 @@ void print_pkl(CHAR_DATA *ch, std::ostringstream &stream, ClanPkList::const_iter
 }
 
 // пкл/дрл
-void DoClanPkList(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
@@ -4248,7 +4234,7 @@ void Clan::CheckPkList(CHAR_DATA * ch)
 }
 
 // вобщем это копи-паст из биржи + флаги
-void DoStoreHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoStoreHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
@@ -4847,7 +4833,7 @@ std::string GetChestMode(CHAR_DATA *ch)
 		return "выкл";
 }
 
-void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_clanstuff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
 	int vnum, rnum;

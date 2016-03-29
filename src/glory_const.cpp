@@ -564,7 +564,7 @@ const char *GLORY_CONST_FORMAT =
 	"        слава2 информация\r\n"
 	"        слава2 перевести <имя> <кол-во>\r\n";
 
-void do_spend_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	// До исправления баги
@@ -762,7 +762,7 @@ bool reset_glory(CHAR_DATA *ch)
 	return false;
 }
 
-void do_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (!*argument)
 	{

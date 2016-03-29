@@ -1330,7 +1330,7 @@ void reset_wtrigger(ROOM_DATA * room)
 	}
 }
 
-void random_wtrigger(ROOM_DATA * room, int num, void *s, int types, void *list, void *next)
+void random_wtrigger(ROOM_DATA * room, int/* num*/, void* /*s*/, int/* types*/, void* /*list*/, void* /*next*/)
 {
 	TRIG_DATA *t;
 

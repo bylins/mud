@@ -852,7 +852,7 @@ void UserSearch::search(const std::vector<help_node> &cont)
 
 using namespace HelpSystem;
 
-void do_help(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_help(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (!ch->desc)
 	{

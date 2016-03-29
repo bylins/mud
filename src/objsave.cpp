@@ -63,8 +63,8 @@ extern room_rnum r_unreg_start_room;
 
 // Extern functions
 void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-SPECIAL(receptionist);
-SPECIAL(cryogenicist);
+int receptionist(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int cryogenicist(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -1605,7 +1605,7 @@ void Crash_reload_timer(int index)
 
 }
 
-void Crash_create_timer(int index, int num)
+void Crash_create_timer(int index, int/* num*/)
 {
 	recreate_saveinfo(index);
 }
@@ -2986,9 +2986,7 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 	return (TRUE);
 }
 
-
-
-int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int mode)
+int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char* /*arg*/, int mode)
 {
 	room_rnum save_room;
 	int cost, rentshow = TRUE;
@@ -3128,18 +3126,15 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 	return (TRUE);
 }
 
-
-SPECIAL(receptionist)
+int receptionist(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	return (gen_receptionist(ch, (CHAR_DATA *) me, cmd, argument, RENT_FACTOR));
 }
 
-
-SPECIAL(cryogenicist)
+int cryogenicist(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	return (gen_receptionist(ch, (CHAR_DATA *) me, cmd, argument, CRYO_FACTOR));
 }
-
 
 void Crash_frac_save_all(int frac_part)
 {
@@ -3206,7 +3201,7 @@ void Crash_frac_rent_time(int frac_part)
 	}
 }
 
-void Crash_rent_time(int dectime)
+void Crash_rent_time(int/* dectime*/)
 {
 	for (int c = 0; c <= top_of_p_table; c++)
 	{

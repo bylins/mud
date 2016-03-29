@@ -451,7 +451,7 @@ void room_affect_update(void)
 // =============================================================== //
 
 // Применение заклинания к комнате //
-int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
+int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 {
 	// Специфика заклов на комнаты заключается в том, что
 	// практически все взаимодействие с персонажами осуществляется
@@ -4388,7 +4388,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	return 1;
 }
 
-int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
+int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/* savetype*/)
 {
 	int hit = 0, move = 0;
 
@@ -4484,7 +4484,7 @@ inline bool NODISPELL(const AFFECT_DATA* hjp)
 		|| hjp->type == SPELL_SOLOBONUS;
 }
 
-int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int type)
+int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/* type*/)
 {
 	AFFECT_DATA *hjp;
 	int spell = 0, remove = 0, rspell = 0;
@@ -4607,8 +4607,7 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 	return 1;
 }
 
-
-int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int savetype)
+int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int/* savetype*/)
 {
 	OBJ_DATA *reagobj;
 	const char *to_char = NULL, *to_room = NULL;
@@ -4866,8 +4865,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 	return 1;
 }
 
-
-int mag_creations(int level, CHAR_DATA * ch, int spellnum)
+int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 {
 	OBJ_DATA *tobj;
 	obj_vnum z;
@@ -4917,7 +4915,7 @@ int mag_creations(int level, CHAR_DATA * ch, int spellnum)
 	return 1;
 }
 
-int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int savetype)
+int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int/* savetype*/)
 {
 	switch (spellnum)
 	{

@@ -1799,7 +1799,7 @@ void renumber_obj_rnum(int rnum)
 
 using namespace ShopExt;
 
-SPECIAL(shop_ext)
+int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	if (!ch->desc || IS_NPC(ch))
 	{
@@ -1920,7 +1920,7 @@ void town_shop_keepers()
 	}
 }
 
-void do_shops_list(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_shops_list(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
 	size_t n = dic->Size();

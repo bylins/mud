@@ -104,7 +104,7 @@ char info_message[] = ("базар выставить <предмет> <цена>        - выставить пред
 					   "базар предложения аффект имя.аффекта    - поиск по аффекту (цена услуги 55 кун)\r\n"
 					   "базар фильтрация <фильтр>               - фильтрация товара на базаре\r\n");
 
-SPECIAL(exchange)
+int exchange(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 {
 	if (CMD_IS("exchange") || CMD_IS("базар"))
 	{
@@ -1694,7 +1694,7 @@ void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot)
 }
 
 //Polud дублируем кучку кода, чтобы можно было часть команд базара выполнять в любой комнате
-void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/)
 {
 		char* arg = str_dup(argument);
 		argument = one_argument(argument, arg1);

@@ -838,7 +838,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 * распределением 62.5% на силу и 37.5% на уровни + штрафы до 5 ремов.
 * Способность не плюсуется при железном ветре и оглушении.
 */
-int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA * wielded, int damage)
+int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA* /*wielded*/, int damage)
 {
 	if (IS_NPC(ch)
 		|| GET_REAL_STR(ch) <= 25
@@ -1332,7 +1332,7 @@ void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll)
 	*hitroll = calc_thaco;
 }
 
-int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
+int do_punctual(CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA *wielded)
 {
 	int dam_critic = 0, wapp = 0;
 

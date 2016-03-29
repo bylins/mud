@@ -92,7 +92,7 @@ const char * TopPlayer::TopFormat[NUM_PLAYER_CLASSES + 1] =
 };
 
 // команда 'лучшие'
-void DoBest(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;

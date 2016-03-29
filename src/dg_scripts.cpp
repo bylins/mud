@@ -402,7 +402,7 @@ int find_room_uid(long n)
  ************************************************************/
 
 // search the entire world for a char, and return a pointer
-CHAR_DATA *get_char(char *name, int vnum)
+CHAR_DATA *get_char(char *name, int/* vnum*/)
 {
 	CHAR_DATA *i;
 
@@ -432,8 +432,9 @@ CHAR_DATA *get_char(char *name, int vnum)
 
 	return NULL;
 }
+
 // returns the object in the world with name name, or NULL if not found
-OBJ_DATA *get_obj(char *name, int vnum)
+OBJ_DATA *get_obj(char *name, int/* vnum*/)
 {
 	long id;
 
@@ -1083,8 +1084,7 @@ void add_trigger(SCRIPT_DATA * sc, TRIG_DATA * t, int loc)
 	trigger_list = t;
 }
 
-
-void do_attach(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	OBJ_DATA *object;
@@ -1272,7 +1272,7 @@ int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr)
 		return 0;
 }
 
-void do_detach(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim = NULL;
 	OBJ_DATA *object = NULL;
@@ -3572,9 +3572,8 @@ int is_num(char *num)
 		return 0;
 }
 
-
 // evaluates 'lhs op rhs', and copies to result
-void eval_op(const char *op, char *lhs, char *rhs, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig)
+void eval_op(const char *op, char *lhs, char *rhs, char *result, void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* /*trig*/)
 {
 	char *p = 0;
 	int n;
@@ -4176,9 +4175,8 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, struct cmdlis
 	trig->curr_state = cl->next;
 }
 
-
 // processes a script set command
-void process_set(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
+void process_set(SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH], *value;
 
@@ -4618,7 +4616,7 @@ void makeuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 * calcuid <переменная куда пишется id> <внум> <room|mob|obj> <порядковый номер от 1 до х>
 * если порядковый не указан - возвращается первое вхождение.
 */
-void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
+void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type*/, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
 	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
@@ -4695,7 +4693,7 @@ void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
  * Возвращает в указанную переменную UID первого PC, с именем которого
  * совпадает аргумент
  */
-void charuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
+void charuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd)
 {
 	CHAR_DATA *tch;
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
@@ -4779,7 +4777,7 @@ bool find_all_obj_vnum(long n, char *str)
 }
 
 // * Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 25ти вхождений).
-void calcuidall_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
+void calcuidall_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type*/, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
 	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
@@ -4972,12 +4970,11 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	add_var_cntx(&(sc_remote->global_vars), vd->name, vd->value, context);
 }
 
-
 /*
  * command-line interface to rdelete
  * named vdelete so people didn't think it was to delete rooms
  */
-void do_vdelete(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_vdelete(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 //  struct trig_var_data *vd, *vd_prev=NULL;
 	SCRIPT_DATA *sc_remote = NULL;
@@ -5150,9 +5147,8 @@ void process_global(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd, long id)
 	remove_var_cntx(&GET_TRIG_VARS(trig), vd->name, 0);
 }
 
-
 // * makes a local variable into a world variable
-void process_worlds(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd, long id)
+void process_worlds(SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd, long id)
 {
 	struct trig_var_data *vd;
 	char arg[MAX_INPUT_LENGTH], *var;
@@ -5203,7 +5199,7 @@ void process_context(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	sc->context = atol(var);
 }
 
-void extract_value(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
+void extract_value(SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char* cmd)
 {
 	char buf2[MAX_INPUT_LENGTH];
 	char *buf3;
@@ -5546,7 +5542,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	return ret_val;
 }
 
-void do_tlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 
 	int first, last, nr, found = 0;
@@ -5620,7 +5616,7 @@ int real_trigger(int vnum)
 	return (rnum);
 }
 
-void do_tstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_tstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int vnum, rnum;
 	char str[MAX_INPUT_LENGTH];

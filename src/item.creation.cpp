@@ -449,7 +449,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 }
 
 // Входим в режим редактирования рецептов для предметов.
-void do_edit_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_edit_make(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	string tmpstr;
 	DESCRIPTOR_DATA *d;
@@ -630,7 +630,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = MREDIT_MAIN_MENU;
 }
 
-void do_list_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_list_make(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	string tmpstr, skill_name, obj_name;
 	char tmpbuf[MAX_INPUT_LENGTH];
@@ -716,7 +716,7 @@ void do_list_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 }
 
 // Создание любого предмета из компонента.
-void do_make_item(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	// Тут творим предмет.
 
@@ -1023,8 +1023,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 	}
 }
 
-
-void do_transform_weapon(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_transform_weapon(CHAR_DATA* ch, char *argument, int/* cmd*/, int subcmd)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
@@ -2562,7 +2561,7 @@ int MakeRecept::stat_modify(CHAR_DATA * ch, int value, float devider)
 	return res;
 }
 
-void MakeRecept::add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to)
+void MakeRecept::add_rnd_skills(CHAR_DATA* /*ch*/, OBJ_DATA * obj_from, OBJ_DATA *obj_to)
 {
 	if (obj_from->has_skills())
 	{
@@ -2595,7 +2594,8 @@ void MakeRecept::add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *o
 		}
 	}
 }
-int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add_flag, int delta)
+
+int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add_flag, int/* delta*/)
 {
 // БЕз вариантов вообще :(
 	int tmpprob;

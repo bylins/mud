@@ -122,7 +122,7 @@ bool is_noob(const CHAR_DATA *ch)
 ///
 /// Пустой спешиал, чтобы не морочить голову с перебором тригов в карте
 ///
-SPECIAL(outfit)
+int outfit(CHAR_DATA* /*ch*/, void* /*me*/, int/* cmd*/, char* /*argument*/)
 {
 	return 0;
 }

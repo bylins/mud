@@ -171,7 +171,7 @@ const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item)
 	return EIngredientFlag_name_by_value.at(item);
 }
 
-ASPELL(spell_create_water)
+void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* obj)
 {
 	int water;
 	if (ch == NULL || (obj == NULL && victim == NULL))
@@ -262,8 +262,7 @@ int get_teleport_target_room(CHAR_DATA * ch,	// ch - кого перемещают
 	return n ? fnd_room : NOWHERE;
 }
 
-
-ASPELL(spell_recall)
+void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
 	room_rnum to_room = NOWHERE, fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
@@ -338,9 +337,8 @@ ASPELL(spell_recall)
 	greet_memory_mtrigger(victim);
 }
 
-
 // ПРЫЖОК в рамках зоны
-ASPELL(spell_teleport)
+void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /* obj*/)
 {
 	room_rnum in_room = IN_ROOM(ch), fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
@@ -372,7 +370,7 @@ ASPELL(spell_teleport)
 }
 
 // ПЕРЕМЕСТИТЬСЯ
-ASPELL(spell_relocate)
+void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
 	room_rnum to_room, fnd_room;
 
@@ -481,7 +479,7 @@ void check_auto_nosummon(CHAR_DATA *ch)
 	}
 }
 
-ASPELL(spell_portal)
+void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
 	room_rnum to_room, fnd_room;
 
@@ -593,8 +591,7 @@ ASPELL(spell_portal)
 	}
 }
 
-
-ASPELL(spell_summon)
+void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
 	room_rnum ch_room, vic_room;
 	struct follow_type *k, *k_next;
@@ -759,7 +756,7 @@ ASPELL(spell_summon)
 	return;
 }
 
-ASPELL(spell_townportal)
+void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /* obj*/)
 {
 	int gcount = 0, cn = 0, ispr = 0;
 	bool has_label_portal = false;
@@ -870,8 +867,7 @@ ASPELL(spell_townportal)
 	page_string(ch->desc, buf2, 1);
 }
 
-
-ASPELL(spell_locate_object)
+void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* obj)
 {
 	OBJ_DATA *i;
 	char name[MAX_INPUT_LENGTH];
@@ -1012,7 +1008,7 @@ ASPELL(spell_locate_object)
 		send_to_char("Вы ничего не чувствуете.\r\n", ch);
 }
 
-ASPELL(spell_create_weapon)
+void spell_create_weapon(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_DATA* /* obj*/)
 {				//go_create_weapon(ch,NULL,what_sky);
 // отключено, так как не реализовано
 }
@@ -1081,7 +1077,7 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	return (TRUE);
 }
 
-ASPELL(spell_charm)
+void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
 	AFFECT_DATA af;
 	int i;
@@ -1189,7 +1185,7 @@ ASPELL(spell_charm)
 	}
 }
 
-void do_findhelpee(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *helpee;
 	struct follow_type *k;
@@ -2399,15 +2395,19 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }
 
-ASPELL(skill_identify)
+void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj)
 {
 	if (obj)
+	{
 		if (IS_IMMORTAL(ch))
+		{
 			imm_show_obj_values(obj, ch);
+		}
 		else
-			mort_show_obj_values(obj, ch,
-								 train_skill(ch, SKILL_IDENTIFY,
-											 skill_info[SKILL_IDENTIFY].max_percent, 0));
+		{
+			mort_show_obj_values(obj, ch, train_skill(ch, SKILL_IDENTIFY, skill_info[SKILL_IDENTIFY].max_percent, 0));
+		}
+	}
 	else if (victim)
 	{
 		if (IS_IMMORTAL(ch))
@@ -2422,7 +2422,7 @@ ASPELL(skill_identify)
 	}
 }
 
-ASPELL(spell_identify)
+void spell_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj)
 {
 	if (obj)
 		mort_show_obj_values(obj, ch, 100);
@@ -2442,7 +2442,7 @@ ASPELL(spell_identify)
 	}
 }
 
-ASPELL(spell_control_weather)
+void spell_control_weather(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 	const char *sky_info = 0;
 	int i, duration, zone, sky_type = 0;
@@ -2509,7 +2509,7 @@ ASPELL(spell_control_weather)
 	}
 }
 
-ASPELL(spell_fear)
+void spell_fear(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /*obj*/)
 {
 	int modi = 0;
 	if (ch != victim)
@@ -2528,7 +2528,7 @@ ASPELL(spell_fear)
 		go_flee(victim);
 }
 
-ASPELL(spell_energydrain)
+void spell_energydrain(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /*obj*/)
 {
 	// истощить энергию - круг 28 уровень 9 (1)
 	// для всех
@@ -2564,7 +2564,7 @@ void do_sacrifice(CHAR_DATA * ch, int dam)
 	update_pos(ch);
 }
 
-ASPELL(spell_sacrifice)
+void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /*obj*/)
 {
 	int dam, d0 = GET_HIT(victim);
 	struct follow_type *f;
@@ -2604,7 +2604,7 @@ ASPELL(spell_sacrifice)
 	}
 }
 
-ASPELL(spell_eviless)
+void spell_eviless(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 	CHAR_DATA *tch;
 
@@ -2619,7 +2619,7 @@ ASPELL(spell_eviless)
 	return;
 }
 
-ASPELL(spell_holystrike)
+void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 	const char *msg1 = "Земля под вами засветилась и всех поглотил плотный туман.";
 	const char *msg2 = "Вдруг туман стал уходить обратно в землю, забирая с собой тела поверженных.";
@@ -2667,7 +2667,7 @@ ASPELL(spell_holystrike)
 
 }
 
-ASPELL(spell_angel)
+void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 	mob_vnum mob_num = 108;
 	int modifier = 0;
@@ -2866,7 +2866,7 @@ ASPELL(spell_angel)
 	return;
 }
 
-ASPELL(spell_vampire)
+void spell_vampire(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 }
 

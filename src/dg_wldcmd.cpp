@@ -39,8 +39,6 @@ void send_to_zone(char *messg, int zone_rnum);
 CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name);
 ROOM_DATA *get_room(char *name);
 OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name);
-#define WCMD(name)  \
-    void (name)(ROOM_DATA *room, char *argument, int cmd, int subcmd)
 
 extern int reloc_target;
 extern TRIG_DATA *cur_trig;
@@ -86,12 +84,10 @@ void act_to_room(char *str, ROOM_DATA * room)
 	act(str, FALSE, room->people, 0, 0, TO_CHAR);
 }
 
-
-
 // World commands
 
 // prints the argument to all the rooms aroud the room
-WCMD(do_wasound)
+void do_wasound(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int door;
 
@@ -112,8 +108,7 @@ WCMD(do_wasound)
 	}
 }
 
-
-WCMD(do_wecho)
+void do_wecho(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
 
@@ -123,8 +118,7 @@ WCMD(do_wecho)
 		act_to_room(argument, room);
 }
 
-
-WCMD(do_wsend)
+void do_wsend(ROOM_DATA *room, char *argument, int/* cmd*/, int subcmd)
 {
 	char buf[MAX_INPUT_LENGTH], *msg;
 	CHAR_DATA *ch;
@@ -174,7 +168,7 @@ int real_zone(int number)
 	return -1;
 }
 
-WCMD(do_wzoneecho)
+void do_wzoneecho(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int zone;
 	char zone_name[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH], *msg;
@@ -193,8 +187,7 @@ WCMD(do_wzoneecho)
 	}
 }
 
-
-WCMD(do_wdoor)
+void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
@@ -209,9 +202,7 @@ WCMD(do_wdoor)
 								 "name",
 								 "room",
 								 "lock",
-								 "\n"
-							   };
-
+								 "\n" };
 
 	argument = two_arguments(argument, target, direction);
 	value = one_argument(argument, field);
@@ -321,7 +312,7 @@ WCMD(do_wdoor)
 	}
 }
 
-WCMD(do_wteleport)
+void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch, *next_ch, *horse, *charmee, *ncharmee;
 	int target, nr;
@@ -406,8 +397,7 @@ WCMD(do_wteleport)
 	}
 }
 
-
-WCMD(do_wforce)
+void do_wforce(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch, *next_ch;
 	char arg1[MAX_INPUT_LENGTH], *line;
@@ -449,9 +439,8 @@ WCMD(do_wforce)
 	}
 }
 
-
 // increases the target's exp //
-WCMD(do_wexp)
+void do_wexp(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
@@ -477,10 +466,8 @@ WCMD(do_wexp)
 	}
 }
 
-
-
 // purge all objects an npcs in room, or specified object or mob //
-WCMD(do_wpurge)
+void do_wpurge(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *ch /*, *next_ch */;
@@ -535,9 +522,8 @@ WCMD(do_wpurge)
 	extract_char(ch, FALSE);
 }
 
-
 // loads a mobile or object into the room //
-WCMD(do_wload)
+void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int number = 0;
@@ -585,9 +571,7 @@ const char *spell_name(int num);
 int find_skill_num(const char *name);
 int find_spell_num(char *name);
 
-
-
-WCMD(do_wdamage)
+void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int dam = 0;
@@ -637,7 +621,7 @@ WCMD(do_wdamage)
 		wld_log(room, "wdamage: target not found");
 }
 
-WCMD(do_wat)
+void do_wat(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char location[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int vnum, rnum = 0;
@@ -665,7 +649,7 @@ WCMD(do_wat)
 	reloc_target = -1;
 }
 
-WCMD(do_wfeatturn)
+void do_wfeatturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int isFeat = 0;
 	CHAR_DATA *ch;
@@ -713,7 +697,7 @@ WCMD(do_wfeatturn)
 		trg_featturn(ch, featnum, featdiff);
 }
 
-WCMD(do_wskillturn)
+void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int isSkill = 0;
 	CHAR_DATA *ch;
@@ -771,8 +755,7 @@ WCMD(do_wskillturn)
 		trg_recipeturn(ch, skillnum, skilldiff);
 }
 
-
-WCMD(do_wskilladd)
+void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int isSkill = 0;
 	CHAR_DATA *ch;
@@ -814,10 +797,7 @@ WCMD(do_wskilladd)
 		trg_recipeadd(ch, skillnum, skilldiff);
 }
 
-
-
-
-WCMD(do_wspellturn)
+void do_wspellturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
@@ -864,8 +844,7 @@ WCMD(do_wspellturn)
 	}
 }
 
-
-WCMD(do_wspelladd)
+void do_wspelladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
@@ -901,7 +880,7 @@ WCMD(do_wspelladd)
 	}
 }
 
-WCMD(do_wspellitem)
+void do_wspellitem(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH], *pos;
@@ -964,7 +943,7 @@ WCMD(do_wspellitem)
 /* Команда открывает пентаграмму из текущей комнаты в заданную комнату
    синтаксис wportal <номер комнаты> <длительность портала>
 */
-WCMD(do_wportal)
+void do_wportal(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int target, howlong, curroom, nr;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];

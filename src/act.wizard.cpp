@@ -6094,14 +6094,14 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 }
 
-SPECIAL(shop_ext);
-SPECIAL(receptionist);
-SPECIAL(postmaster);
-SPECIAL(bank);
-SPECIAL(exchange);
-SPECIAL(horse_keeper);
-SPECIAL(guild_mono);
-SPECIAL(guild_poly);
+int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int receptionist(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int postmaster(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int bank(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int exchange(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument);
 
 namespace Mlist
 {
@@ -6187,7 +6187,7 @@ std::string print_special(CHAR_DATA *mob)
 
 	if (mob_index[GET_MOB_RNUM(mob)].func)
 	{
-		SPECIAL(*func) = mob_index[GET_MOB_RNUM(mob)].func;
+		auto func = mob_index[GET_MOB_RNUM(mob)].func;
 		if (func == shop_ext)
 			out += "shop";
 		else if (func == receptionist)

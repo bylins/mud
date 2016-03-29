@@ -125,7 +125,7 @@ public:
 	static void clear_god_boards();
 	static void init_god_board(long uid, std::string name);
 	static void reload_all();
-	static SPECIAL(Special);
+	static int Special(CHAR_DATA*, void*, int, char*);
 	static void LoginInfo(CHAR_DATA * ch);
 
 	friend void DoBoard(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

@@ -1233,7 +1233,7 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 	page_string(ch->desc, buf2, 1);
 }
 
-void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_recipes(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1244,7 +1244,7 @@ void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		list_recipes(ch, FALSE);
 }
 
-void do_rset(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];
@@ -1463,7 +1463,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 
 // Применение рецепта
 // варить 'рецепт' <ингредиенты>
-void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char name[MAX_STRING_LENGTH];
 	int rcpt = -1, qend, mres;
@@ -1774,7 +1774,7 @@ void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	return;
 }
 
-void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd)
+void compose_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 {
 	char name[MAX_STRING_LENGTH];
 	int qend, rcpt = -1;
@@ -1834,7 +1834,7 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd)
 }
 
 // Поиск rid по имени
-void forget_recipe(CHAR_DATA * ch, char *argument, int subcmd)
+void forget_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 {
 	char name[MAX_STRING_LENGTH];
 	int qend, rcpt = -1;
@@ -2004,7 +2004,7 @@ void trg_recipeadd(CHAR_DATA * ch, int rid, int recipediff)
 	send_to_char(buf, ch);
 }
 
-void do_imlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_imlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int zone, i, rnum;
 	int *ping;

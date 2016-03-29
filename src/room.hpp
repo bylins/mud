@@ -69,7 +69,7 @@ struct ROOM_DATA
 	byte glight;		// Number of lightness person     //
 	byte gdark;		// Number of darkness  person     //
 	struct weather_control weather;		// Weather state for room //
-	SPECIAL(*func);
+	int (*func)(CHAR_DATA*, void*, int, char*);
 
 	struct trig_proto_list *proto_script;	// list of default triggers  //
 	struct script_data *script;	// script info for the object //
