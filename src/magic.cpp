@@ -410,6 +410,7 @@ void room_affect_update(void)
 
 			if (af->duration >= 1)
 				af->duration--;
+			// вот что это такое здесь ?
 			else if (af->duration == -1)
 				af->duration = -1;
 			else
@@ -562,6 +563,13 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		break;
 
 	case SPELL_RUNE_LABEL:
+		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_TUNNEL))
+		{
+			to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
+			to_room = "$n начертил$g на земле несколько рун, знаки вспыхунли, но ничего не произошло.";
+			lag = 2; //Чет много тут всяких циклов-искалок. Повесим-ка лаг на чара. И вобще может пригодиться.
+			break;
+		}
 		af[0].type = spellnum;
 		af[0].location = APPLY_ROOM_NONE;
 		af[0].modifier = 0;

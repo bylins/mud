@@ -1571,6 +1571,10 @@ void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 		prob = 0;
 	}
 	prob = prob * 100 / range;
+	if (check_spell_on_player(victim, SPELL_WEB))
+	{
+		prob /= 3;
+	}
 	if (prob < 60)
 	{
 		act("Вы не смогли уклониться от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);

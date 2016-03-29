@@ -182,6 +182,10 @@ void update_pos(CHAR_DATA * victim);
 #define LGH 4
 #define DEF 5
 
+// проверяет, висит ли заданный спелл на чаре
+bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
+
+
 // get_filename() //
 #define ALIAS_FILE        1
 #define SCRIPT_VARS_FILE  2
