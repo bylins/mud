@@ -43,6 +43,15 @@
     b2.exe link=shared --with-python --with-locale address-model=64
     b2.exe link=static --with-locale address-model=64
 
+### Использование скомпилированных библиотек Boost
+
+Скачать библиотеки с `https://sourceforge.net/projects/boost/files/boost-binaries/1.60.0/`: `boost_1_60_0-msvc-14.0-64.exe`.
+
+Далее, при условии, что `Boost` был установлен в директорию `c:\local`:
+
+    SET BOOST_ROOT=C:\local\boost_1_60_0
+    SET BOOST_LIBRARYDIR=C:\local\boost_1_60_0\lib64-msvc-14.0
+
 ## Сборка
 
 Сборка состоит из двух этапов:
