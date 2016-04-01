@@ -407,7 +407,7 @@ ACMD(do_reply)
 			tch = tch->get_next();
 
 		if (tch == NULL)
-			send_to_char("Этого игрока уже нет в игре.", ch);
+			send_to_char("Этого игрока уже нет в игре.\r\n", ch);
 		else if (is_tell_ok(ch, tch))
 			perform_tell(ch, tch, argument);
 	}
