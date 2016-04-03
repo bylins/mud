@@ -315,7 +315,7 @@ bool check_equal_exch(CHAR_DATA *ch)
 // парс ввода при обмене гривен
 void torc_exch_parse(CHAR_DATA *ch, const char *arg)
 {
-	if (!*arg || !isdigit(*arg))
+	if (!*arg || !iswdigit(*arg))
 	{
 		send_to_char("Неверный выбор!\r\n", ch);
 		torc_exch_menu(ch);

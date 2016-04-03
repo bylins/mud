@@ -233,7 +233,7 @@ ACMD(do_delete_obj)
 	int vnum;
 	one_argument(argument, buf);
 	int num = 0;
-	if (!*buf || !isdigit(*buf))
+	if (!*buf || !iswdigit(*buf))
 	{
 		send_to_char("Usage: delete <number>\r\n", ch);
 		return;
@@ -843,7 +843,7 @@ ACMD(do_check_occupation)
 	zone_rnum zrn;
 	one_argument(argument, buf);
 	bool is_found = false;
-	if (!*buf || !isdigit(*buf))
+	if (!*buf || !iswdigit(*buf))
 	{
 		send_to_char("Usage: занятость внумзоны\r\n", ch);
 		return;
@@ -1381,7 +1381,7 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 		send_to_char("Укажите номер или название комнаты.\r\n", ch);
 		return (NOWHERE);
 	}
-	if (isdigit(*roomstr) && !strchr(roomstr, '.'))
+	if (iswdigit(*roomstr) && !strchr(roomstr, '.'))
 	{
 		tmp = atoi(roomstr);
 		if ((location = real_room(tmp)) == NOWHERE)
@@ -2979,7 +2979,7 @@ ACMD(do_load)
 
 	iname = two_arguments(argument, buf, buf2);
 
-	if (!*buf || !*buf2 || !isdigit(*buf2))
+	if (!*buf || !*buf2 || !iswdigit(*buf2))
 	{
 		send_to_char("Usage: load { obj | mob } <number>\r\n"
 					 "       load ing { <сила> | <VNUM> } <имя>\r\n", ch);
@@ -3085,7 +3085,7 @@ ACMD(do_vstat)
 
 	two_arguments(argument, buf, buf2);
 
-	if (!*buf || !*buf2 || !isdigit(*buf2))
+	if (!*buf || !*buf2 || !iswdigit(*buf2))
 	{
 		send_to_char("Usage: vstat { obj | mob } <number>\r\n", ch);
 		return;
@@ -6321,7 +6321,7 @@ ACMD(do_liblist)
 		return;
 	}
 	first = atoi(buf);
-	if (*buf2 && isdigit(buf2[0]))
+	if (*buf2 && iswdigit(buf2[0]))
 	{
 		last = atoi(buf2);
 	}
@@ -6396,7 +6396,7 @@ ACMD(do_liblist)
 	case SCMD_MLIST:
 	{
 		std::string option;
-		if (*buf2 && !isdigit(buf2[0]))
+		if (*buf2 && !iswdigit(buf2[0]))
 		{
 			option = buf2;
 		}
@@ -6474,7 +6474,7 @@ ACMD(do_forcetime)
 			m = 60 * 60;
 		else if (m == 'm')	// minutes
 			m = 60;
-		else if (m == 's' || isdigit(m))	// seconds
+		else if (m == 's' || iswdigit(m))	// seconds
 			m = 1;
 		else
 			m = 0;

@@ -1512,7 +1512,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	if (OLC_MODE(d) > MEDIT_NUMERICAL_RESPONSE)
 	{
-		if (!*arg || (!isdigit(arg[0]) && ((*arg == '-') && (!isdigit(arg[1])))))
+		if (!*arg || (!iswdigit(arg[0]) && ((*arg == '-') && (!isdigit(arg[1])))))
 		{
 			send_to_char("Это числовое поле, повторите ввод : ", d->character);
 			return;

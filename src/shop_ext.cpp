@@ -522,7 +522,7 @@ std::string get_item_name(ItemNodePtr item, int keeper_vnum, int pad = 0)
 unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name, int keeper_vnum)
 {
 	int num = 1;
-	if (!item_name.empty() && isdigit(item_name[0]))
+	if (!item_name.empty() && iswdigit(item_name[0]))
 	{
 		std::string::size_type dot_idx = item_name.find_first_of(".");
 		if (dot_idx != std::string::npos)

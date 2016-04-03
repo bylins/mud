@@ -737,7 +737,7 @@ void sedit::parse_global_msg(CHAR_DATA *ch, const char *arg)
 		show_global_msg(ch);
 		return;
 	}
-	if (!isdigit(*arg))
+	if (!iswdigit(*arg))
 	{
 		switch(*arg)
 		{
@@ -845,7 +845,7 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 		show_main(ch);
 		return;
 	}
-	if (!isdigit(*arg))
+	if (!iswdigit(*arg))
 	{
 		switch(*arg)
 		{
@@ -1116,7 +1116,7 @@ void sedit::parse_activ_add(CHAR_DATA *ch, const char *arg)
 {
 	skip_spaces(&arg);
 	unsigned num = 0;
-	if (!*arg || !isdigit(*arg)
+	if (!*arg || !iswdigit(*arg)
 		|| (num = atoi(arg)) < MIN_ACTIVE_SIZE
 		|| num > MAX_ACTIVE_SIZE)
 	{
@@ -1154,7 +1154,7 @@ void sedit::parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg)
 {
 	skip_spaces(&arg);
 
-	if (!*arg || !isdigit(*arg))
+	if (!*arg || !iswdigit(*arg))
 	{
 		show_activ_edit(ch);
 		return;
@@ -1258,7 +1258,7 @@ void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
 {
 	skip_spaces(&arg);
 
-	if (!*arg || !isdigit(*arg))
+	if (!*arg || !iswdigit(*arg))
 	{
 		send_to_char("Некорректный виртуальный номер предмета.\r\n", ch);
 		show_main(ch);
@@ -1317,7 +1317,7 @@ void sedit::parse_obj_edit(CHAR_DATA *ch, const char *arg)
 		show_obj_edit(ch);
 		return;
 	}
-	if (!isdigit(*arg))
+	if (!iswdigit(*arg))
 	{
 		switch(*arg)
 		{
@@ -1443,7 +1443,7 @@ void sedit::show_activ_prof(CHAR_DATA *ch)
 void sedit::parse_activ_prof(CHAR_DATA *ch, const char *arg)
 {
 	skip_spaces(&arg);
-	if (!*arg || !isdigit(*arg))
+	if (!*arg || !iswdigit(*arg))
 	{
 		send_to_char("Некорректный ввод.\r\n", ch);
 		show_activ_prof(ch);
@@ -1571,7 +1571,7 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 		show_activ_edit(ch);
 		return;
 	}
-	if (!isdigit(*arg))
+	if (!iswdigit(*arg))
 	{
 		switch(*arg)
 		{
@@ -1719,7 +1719,7 @@ void sedit::parse_activ_apply_mod(CHAR_DATA *ch, const char *arg)
 void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 {
 	skip_spaces(&arg);
-	if (!*arg || !isdigit(*arg))
+	if (!*arg || !iswdigit(*arg))
 	{
 		send_to_char("Некорректный виртуальный номер предмета.\r\n", ch);
 		show_obj_edit(ch);
@@ -1774,7 +1774,7 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 void sedit::parse_activ_change(CHAR_DATA *ch, const char *arg)
 {
 	skip_spaces(&arg);
-	if (!*arg || !isdigit(*arg))
+	if (!*arg || !iswdigit(*arg))
 	{
 		send_to_char("Некорректное кол-во предметов для активации.\r\n", ch);
 		show_activ_edit(ch);
@@ -1973,7 +1973,7 @@ ACMD(do_sedit)
 		// создание нового сета
 		start_sedit(ch, -1);
 	}
-	else if (isdigit(*argument))
+	else if (iswdigit(*argument))
 	{
 		// редактирование существующего
 		unsigned num = atoi(argument);
