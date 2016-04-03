@@ -1636,7 +1636,7 @@ int search_block(const std::string &arg, const char **list, int exact)
 int is_number(const char *str)
 {
 	while (*str)
-		if (!iswdigit(*(str++)))
+		if (!isdigit(*(str++)))
 			return (0);
 
 	return (1);

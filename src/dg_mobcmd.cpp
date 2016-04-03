@@ -1115,11 +1115,11 @@ ACMD(do_mtransform)
 
 	if (!*arg)
 		mob_log(ch, "mtransform: missing argument");
-	else if (!iswdigit(*arg) && *arg != '-')
+	else if (!isdigit(*arg) && *arg != '-')
 		mob_log(ch, "mtransform: bad argument");
 	else
 	{
-		if (iswdigit(*arg))
+		if (isdigit(*arg))
 			m = read_mobile(atoi(arg), VIRTUAL);
 		else
 		{
@@ -1832,7 +1832,7 @@ ACMD(do_mdamage)
 
 	two_arguments(argument, name, amount);
 
-	if (!*name || !*amount || !iswdigit(*amount))
+	if (!*name || !*amount || !isdigit(*amount))
 	{
 		mob_log(ch, "mdamage: bad syntax");
 		return;

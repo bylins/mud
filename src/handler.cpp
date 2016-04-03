@@ -2320,7 +2320,7 @@ int get_number(char **name)
 	if ((ppos = strchr(*name, '.')) != NULL)
 	{
 		for (i = 0; *name + i != ppos; i++)
-			if (!iswdigit(*(*name + i)))
+			if (!isdigit(*(*name + i)))
 				return (1);
 		*ppos = '\0';
 		res = atoi(*name);
@@ -2338,7 +2338,7 @@ int get_number(std::string &name)
 	if (pos != std::string::npos)
 	{
 		for (std::string::size_type i = 0; i != pos; i++)
-			if (!iswdigit(name[i]))
+			if (!isdigit(name[i]))
 				return (1);
 		int res = atoi(name.substr(0, pos).c_str());
 		name.erase(0, pos + 1);
