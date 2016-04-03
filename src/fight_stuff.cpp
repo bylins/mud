@@ -442,7 +442,7 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 
   if(IS_DARK(IN_ROOM(killer)) && !can_use_feat(killer, DARK_READING_FEAT) 
 	  && !(IS_NPC(killer) && AFF_FLAGGED(killer, AFF_CHARM) 
-		  && can_use_feat(killer->master, DARK_READING_FEAT)))
+		  && ((killer->master) && can_use_feat(killer->master, DARK_READING_FEAT))))
      return;
      else
   {
