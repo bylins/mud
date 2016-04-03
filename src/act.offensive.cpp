@@ -1084,67 +1084,69 @@ ACMD(do_bash)
 }
 ACMD(do_stun)
 {
-       CHAR_DATA *vict = NULL;
-
-       if (IS_NPC(ch) || !can_use_feat(ch,HORSE_STUN))
-       {
-               send_to_char("Вы не способны сделать это.\r\n", ch);
-               return;
-       }
-       if (GET_SKILL(ch, SKILL_HORSE) < 151)
-       {
-               send_to_char("Вы слишком неуверенно управляете лошадью, чтоб попытаться ошеломить противника.\r\n", ch);
-               return;
-       }
-
-       if (!on_horse(ch))
-       {
-               send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
-               return;
-       }
-
-       one_argument(argument, arg);
-       if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-       {
-               if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
-                       vict = ch->get_fighting();
-               else
-               {
-                       send_to_char("Кто это так сильно путается под рукой?\r\n", ch);
-                       return;
-               }
-       }
-       if (vict == ch)
-       {
-               send_to_char("Вы БОЛЬНО стукнули себя по голове! 'А еще я туда ем', - подумали вы...\r\n", ch);
-               return;
-       }
-
-       if (!may_kill_here(ch, vict))
-               return;
-       if (!check_pkill(ch, vict, arg))
-               return;
-
-       if (IS_IMPL(ch) || !ch->get_fighting())
-               go_stun(ch, vict);
-       else
-       {
-               send_to_char("Вы не можете ошеломить врага находясь сами в бою...\r\n", ch);
-       }
+	CHAR_DATA *vict = NULL;
+	if (GET_SKILL(ch, SKILL_HORSE) < 151)
+	{
+		send_to_char("Вы слишком неуверенно управляете лошадью, чтоб попытаться ошеломить противника.\r\n", ch);
+		return;
+	}
+	 if (!on_horse(ch))
+	{
+		send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
+		return;
+	}
+	if (timed_by_skill(ch, SKILL_STUN))
+	{
+	send_to_char("Ваш грозный вид в данный момент не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
+	return;
+	}
+	one_argument(argument, arg);
+	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+	{
+		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+			vict = ch->get_fighting();
+		else
+		{
+			send_to_char("Кто это так сильно путается под рукой?\r\n", ch);
+                       
+			return;
+		}
+	}
+	if (vict == ch)
+	{
+		send_to_char("Вы БОЛЬНО стукнули себя по голове! 'А еще я туда ем', - подумали вы...\r\n", ch);
+		return;
+	}
+	if (!may_kill_here(ch, vict))
+		return;
+	if (!check_pkill(ch, vict, arg))
+		return;
+	if (IS_IMPL(ch) || !ch->get_fighting())
+		go_stun(ch, vict);
+	else
+	{
+		send_to_char("Вы не можете ошеломить врага находясь сами в бою...\r\n", ch);
+	}
 }
 
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 {
-       float num = MIN(95, (pow(GET_SKILL(ch, SKILL_HORSE), 2) + pow((GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0), 2) + pow(GET_REAL_STR(ch), 2)) /
-               (pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
-       send_to_char(ch, "&R Расчет ошеломить =%f\r\n&n", num);
-       if (number(1, 100) < num)
-       {
-//                 WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
-               send_to_char(ch, "&R Вы ебнули врага по голове!!!!\r\n&n", num);
-       }
-       else
-       send_to_char(ch, "&R Вы промазали по врагу!!!!\r\n&n", num);
+	struct timed_type timed;
+	calculate_skill(ch, SKILL_STUN, vict);
+	timed.skill = SKILL_STUN;
+	timed.time = 6;
+	timed_to_char(ch, &timed);
+
+	float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow((GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0), 2) + pow(GET_REAL_STR(ch), 2)) /
+		(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
+		send_to_char(ch, "&R Расчет ошеломить =%f\r\n&n", num);
+		if (number(1, 100) < num)
+		{
+// 			WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+			send_to_char(ch, "&R Вы ебнули врага по голове!!!!\r\n&n", num);
+		}
+		else
+			send_to_char(ch, "&R Вы промазали по врагу!!!!\r\n&n", num);
 }
 
 // ******************* RESCUE PROCEDURES

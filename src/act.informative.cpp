@@ -3182,7 +3182,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	sprintf(buf + strlen(buf),
 			" %sСтойкость:    %3d %s|"
 			" %s  %+4d%% (%+4d) %s||\r\n",
-			CCGRN(ch, C_NRM), GET_REAL_CON(ch) - GET_SAVE(ch, SAVING_STABILITY), CCCYN(ch, C_NRM),
+			CCGRN(ch, C_NRM), GET_REAL_CON(ch) - GET_SAVE(ch, SAVING_STABILITY) + (on_horse(ch)? -20:0), CCCYN(ch, C_NRM),
 			CCRED(ch, C_NRM), GET_HITREG(ch), hit_gain(ch), CCCYN(ch, C_NRM)
 		   );
 
@@ -3205,7 +3205,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	sprintf(buf + strlen(buf),
 			" %sРеакция:      %3d %s|"
 			" %sВосст. сил:    %s||\r\n",
-			CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_REFLEX) + dex_bonus(GET_REAL_DEX(ch)), CCCYN(ch, C_NRM),
+			CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_REFLEX) + dex_bonus(GET_REAL_DEX(ch)) + (on_horse(ch)? +20:0), CCCYN(ch, C_NRM),
 			CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)
