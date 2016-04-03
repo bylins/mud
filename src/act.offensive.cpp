@@ -1144,9 +1144,20 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		{
 // 			WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 			send_to_char(ch, "&R Вы ебнули врага по голове!!!!\r\n&n", num);
+			Damage dmg(SkillDmg(SKILL_STUN), 1000, FightSystem::PHYS_DMG);
+			dmg.process(ch, vict);
+			WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+
 		}
 		else
+		{
 			send_to_char(ch, "&R Вы промазали по врагу!!!!\r\n&n", num);
+			Damage dmg(SkillDmg(SKILL_STUN), 1, FightSystem::PHYS_DMG);
+			dmg.process(ch, vict);
+			WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+
+		}
+
 }
 
 // ******************* RESCUE PROCEDURES
