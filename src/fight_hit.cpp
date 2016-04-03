@@ -2687,7 +2687,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 	// сбивание надува черноков //
-	if (spell_num != SPELL_POISON && dam > 0)
+	if (spell_num != SPELL_POISON && dam > 0 && !flags[MAGIC_REFLECT])
 		try_remove_extrahits(ch, victim);
 
 	// сообщения о крит ударах //
