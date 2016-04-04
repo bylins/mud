@@ -405,7 +405,7 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			tch = tch->get_next();
 
 		if (tch == NULL)
-			send_to_char("Этого игрока уже нет в игре.", ch);
+			send_to_char("Этого игрока уже нет в игре.\r\n", ch);
 		else if (is_tell_ok(ch, tch))
 			perform_tell(ch, tch, argument);
 	}

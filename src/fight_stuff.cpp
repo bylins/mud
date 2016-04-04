@@ -436,12 +436,18 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 }
 
 void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gold)
-{      char obj[256];
+{
+	char obj[256];
 
-  if(IS_DARK(IN_ROOM(killer)) && !can_use_feat(killer, DARK_READING_FEAT))
-     return;
-     else
-  {
+	if (IS_DARK(IN_ROOM(killer))
+		&& !can_use_feat(killer, DARK_READING_FEAT)
+		&& !(IS_NPC(killer)
+			&& AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+			&& (killer->master
+				&& can_use_feat(killer->master, DARK_READING_FEAT))))
+	{
+		return;
+	}
 
 	if (IS_NPC(ch)
 		&& !IS_NPC(killer)
@@ -464,7 +470,8 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 	}
 	else if (IS_NPC(ch)
 		&& IS_NPC(killer)
-		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(killer, MOB_ANGEL))
 		&& (corpse != NULL)
 		&& killer->master
 		&& killer->in_room == killer->master->in_room
@@ -477,7 +484,8 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 	else if (IS_NPC(ch)
 		&& IS_NPC(killer)
 		&& local_gold
-		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(killer, MOB_ANGEL))
 		&& (corpse != NULL)
 		&& killer->master
 		&& killer->in_room == killer->master->in_room
@@ -487,7 +495,6 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 		sprintf(obj, "all.coin");
 		get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1, false);
 	}
-  }
 }
 
 void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
