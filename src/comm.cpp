@@ -781,6 +781,14 @@ int main(int argc, char **argv)
 	// для нормального вывода русского текста под cygwin 1.7 и выше
 	setlocale(LC_CTYPE, "ru_RU.KOI8-R");
 #endif
+	
+#ifdef CIRCLE_WINDOWS		// Includes for Win32
+# ifdef __BORLANDC__
+# else				// MSVC
+	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG); //assert in debug window
+# endif
+#endif
+	
 
 #ifdef OS_UNIX
 	extern char *malloc_options;
