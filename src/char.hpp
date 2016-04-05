@@ -857,6 +857,13 @@ inline bool IS_HORSE(const CHAR_DATA* ch)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
 }
 
+inline bool IS_MORTIFIER(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		&& ch->master
+		&& MOB_FLAGGED(ch, MOB_CORPSE);
+}
+
 inline bool MAY_ATTACK(const CHAR_DATA* sub)
 {
 	return (!AFF_FLAGGED((sub), EAffectFlag::AFF_CHARM)

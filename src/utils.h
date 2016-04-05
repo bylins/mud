@@ -562,7 +562,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
 #define GET_POS_SIZE(ch)  (POSI(GET_REAL_SIZE(ch) >> 1))
 #define GET_HR(ch)         ((ch)->real_abils.hitroll)
 #define GET_HR_ADD(ch)    ((ch)->add_abils.hr_add)
-#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, 50))
+#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, (IS_MORTIFIER(ch) ? 100 : 50)))
 #define GET_DR(ch)         ((ch)->real_abils.damroll)
 #define GET_DR_ADD(ch)    ((ch)->add_abils.dr_add)
 #define GET_REAL_DR(ch)   (get_real_dr(ch))
@@ -1538,6 +1538,23 @@ typedef void(*converter_t)(char*, int);
 extern converter_t syslog_converter;
 
 void setup_converters();
+
+#ifdef WIN32
+class CCheckTable
+{
+public:
+	typedef int(*original_t)(int);
+	typedef bool(*table_t) (unsigned char);
+	CCheckTable(original_t original, table_t table) : m_original(original), m_table(table) {}
+	bool test_values() const;
+	double test_time() const;
+	void check() const;
+
+private:
+	original_t m_original;
+	table_t m_table;
+};
+#endif
 
 #endif // _UTILS_H_
 
