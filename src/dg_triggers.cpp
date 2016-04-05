@@ -176,20 +176,19 @@ char *one_phrase(char *arg, char *first_arg)
 	return arg;
 }
 
-
 int is_substring(char *sub, char *string)
 {
-	char *s;
+	char *s = str_str(string, sub);
 
-	if ((s = str_str(string, sub)))
+	if (s)
 	{
 		size_t len = strlen(string);
 		size_t sublen = strlen(sub);
 
 		// check front
-		if ((s == string || a_isspace(*(s - 1)) || ispunct(*(s - 1)))
+		if ((s == string || a_isspace(*(s - 1)) || ispunct(static_cast<unsigned char>(*(s - 1))))
 			// check end
-			&& ((s + sublen == string + len) || a_isspace(s[sublen]) || ispunct(s[sublen])))
+			&& ((s + sublen == string + len) || a_isspace(s[sublen]) || ispunct(static_cast<unsigned char>(s[sublen]))))
 		{
 			return 1;
 		}
@@ -197,7 +196,6 @@ int is_substring(char *sub, char *string)
 
 	return 0;
 }
-
 
 /*
  * return 1 if str contains a word or phrase from wordlist.
