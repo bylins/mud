@@ -1641,6 +1641,23 @@ extern converter_t syslog_converter;
 
 void setup_converters();
 
+#ifdef WIN32
+class CCheckTable
+{
+public:
+	typedef int(*original_t)(int);
+	typedef bool(*table_t) (unsigned char);
+	CCheckTable(original_t original, table_t table) : m_original(original), m_table(table) {}
+	bool test_values() const;
+	double test_time() const;
+	void check() const;
+
+private:
+	original_t m_original;
+	table_t m_table;
+};
+#endif
+
 #endif // _UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

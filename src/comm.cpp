@@ -777,6 +777,9 @@ void gettimeofday(struct timeval *t, void *dummy)
 
 int main(int argc, char **argv)
 {
+	CCheckTable checker(isdigit, a_isdigit);
+	checker.check();
+
 #ifdef TEST_BUILD
 	// для нормального вывода русского текста под cygwin 1.7 и выше
 	setlocale(LC_CTYPE, "ru_RU.KOI8-R");

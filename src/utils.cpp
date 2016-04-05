@@ -3925,4 +3925,69 @@ void build_char_table(int(*func)(int c))
 	}
 }
 
+#ifdef WIN32
+bool CCheckTable::test_values() const
+{
+	unsigned i = 0;
+	do
+	{
+		if ((0 != m_original(i % 256)) != m_table(i % 256))
+		{
+			std::cout << static_cast<unsigned>(i % 256) << ": " << m_original(i % 256) << "; " << m_table(i % 256);
+			return false;
+		}
+		++i;
+	} while (0 < i);
+
+	return true;
+}
+
+double CCheckTable::test_time() const
+{
+	class CMeasurer
+	{
+	public:
+		CMeasurer(DWORD& duration) : m_start(GetTickCount()), m_output(duration) {}
+		~CMeasurer() { m_output = GetTickCount() - m_start; }
+
+	private:
+		DWORD m_start;
+		DWORD& m_output;
+	};
+
+	DWORD original_time = 0;
+	{
+		CMeasurer m(original_time);
+		unsigned i = 0;
+		do
+		{
+			bool result = 0 != m_original(i % 256);
+			++i;
+		} while (0 < i);
+	}
+
+	DWORD table_time = 0;
+	{
+		CMeasurer m(table_time);
+		unsigned i = 0;
+		do
+		{
+			m_table(i % 256);
+			++i;
+		} while (0 < i);
+	}
+
+	return static_cast<long double>(original_time) / table_time;
+}
+
+void CCheckTable::check() const
+{
+	std::cout << "Validity... " << std::endl;
+	std::cout << (test_values() ? "passed" : "failed") << std::endl;
+	std::cout << "Performance... " << std::endl;
+	std::cout << std::setprecision(2) << test_time() * 100 << std::endl;
+}
+
+#endif
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
