@@ -298,7 +298,7 @@ namespace craft
 		CLoadHelper helper;
 
 		CLoadHelper::ELoadFlagResult load_result = helper.load_flag<type_t>(*node, "type",
-			[&](const auto type) { set_type(type); },
+			[&](const auto type) { this->set_type(type); },
 			[&](const auto name) { log("WARNING: Failed to set object type '%s' for prototype with VNUM %d. Prototype will be skipped.\n", name, m_vnum); },
 			[&]() { log("WARNING: \"type\" tag not found for prototype with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(get_type()).c_str()); });
 		if (CLoadHelper::ELFR_FAIL == load_result)
