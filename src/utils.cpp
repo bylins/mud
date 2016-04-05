@@ -3985,7 +3985,7 @@ void CCheckTable::check() const
 	std::cout << "Validity... " << std::endl;
 	std::cout << (test_values() ? "passed" : "failed") << std::endl;
 	std::cout << "Performance... " << std::endl;
-	std::cout << std::setprecision(2) << test_time() * 100 << std::endl;
+	std::cout << std::setprecision(2) << std::fixed << test_time() * 100 << "%" << std::endl;
 }
 
 #endif
