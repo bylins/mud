@@ -2267,7 +2267,7 @@ int get_real_dr(CHAR_DATA *ch)
 	if (can_use_feat(ch, BOWS_FOCUS_FEAT) && ch->get_skill(SKILL_ADDSHOT))
 	    return  MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + dd * 2);
         else
-            return (VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50) + dd * 2);
+            return (VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, IS_MORTIFIER(ch)?100:50) + dd * 2);
 }
 
 // без ограничений
@@ -3867,5 +3867,103 @@ const bool a_isalnum_table[] = {
 	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,
 	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true
 };
+
+const bool a_isdigit_table[256] = {
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
+};
+
+#include <iostream>
+
+void build_char_table(int(*func)(int c))
+{
+	for (int c = 0; c < 256; c++)
+	{
+		std::cout << (func(c) ? " true" : "false") << (255 > c ? ", " : "");
+		if (0 < c && 0 == (1 + c) % 16)
+		{
+			std::cout << std::endl;
+		}
+	}
+}
+
+#ifdef WIN32
+bool CCheckTable::test_values() const
+{
+	unsigned i = 0;
+	do
+	{
+		if ((0 != m_original(i % 256)) != m_table(i % 256))
+		{
+			std::cout << static_cast<unsigned>(i % 256) << ": " << m_original(i % 256) << "; " << m_table(i % 256);
+			return false;
+		}
+		++i;
+	} while (0 < i);
+
+	return true;
+}
+
+double CCheckTable::test_time() const
+{
+	class CMeasurer
+	{
+	public:
+		CMeasurer(DWORD& duration) : m_start(GetTickCount()), m_output(duration) {}
+		~CMeasurer() { m_output = GetTickCount() - m_start; }
+
+	private:
+		DWORD m_start;
+		DWORD& m_output;
+	};
+
+	DWORD original_time = 0;
+	{
+		CMeasurer m(original_time);
+		unsigned i = 0;
+		do
+		{
+			bool result = 0 != m_original(i % 256);
+			++i;
+		} while (0 < i);
+	}
+
+	DWORD table_time = 0;
+	{
+		CMeasurer m(table_time);
+		unsigned i = 0;
+		do
+		{
+			m_table(i % 256);
+			++i;
+		} while (0 < i);
+	}
+
+	return static_cast<long double>(original_time) / table_time;
+}
+
+void CCheckTable::check() const
+{
+	std::cout << "Validity... " << std::endl;
+	std::cout << (test_values() ? "passed" : "failed") << std::endl;
+	std::cout << "Performance... " << std::endl;
+	std::cout << std::setprecision(2) << std::fixed << test_time() * 100 << "%" << std::endl;
+}
+
+#endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

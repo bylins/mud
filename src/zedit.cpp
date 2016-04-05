@@ -81,7 +81,7 @@ int is_signednumber(const char *str)
 	if (*str == '+' || *str == '-')
 		++str;
 	while (*str)
-		if (!isdigit(*(str++)))
+		if (!a_isdigit(*(str++)))
 			return (0);
 
 	return (1);

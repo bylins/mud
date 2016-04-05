@@ -1252,7 +1252,7 @@ void init_zone_types()
 				}
 				for (i = 4; tmp[i] != '\0'; i++)
 				{
-					if (!isdigit(tmp[i]) && !a_isspace(tmp[i]))
+					if (!a_isdigit(tmp[i]) && !a_isspace(tmp[i]))
 					{
 						log("Corrupted file : ztypes.lst");
 						return;
@@ -1298,7 +1298,7 @@ void init_zone_types()
 			if (a_isspace(tmp[j]))
 				continue;
 			zone_types[i].ingr_qty++;
-			for (; tmp[j] != '\0' && isdigit(tmp[j]); j++);
+			for (; tmp[j] != '\0' && a_isdigit(tmp[j]); j++);
 			j--;
 		}
 		i++;
@@ -1323,7 +1323,7 @@ void init_zone_types()
 		{
 			if (a_isspace(tmp[j]))
 				continue;
-			for (k = 0; tmp[j] != '\0' && isdigit(tmp[j]); j++)
+			for (k = 0; tmp[j] != '\0' && a_isdigit(tmp[j]); j++)
 				itype_num[k++] = tmp[j];
 			itype_num[k] = '\0';
 			zone_types[i].ingr_types[n] = atoi(itype_num);
@@ -1407,7 +1407,7 @@ void OBJ_DATA::init_set_table()
 
 			cppstr.erase(cppstr.begin());
 
-			if (cppstr.empty() || !isdigit(cppstr[0]))
+			if (cppstr.empty() || !a_isdigit(cppstr[0]))
 			{
 				cppstr = "init_set_table:: Error in line '#" + cppstr + "', expected set id after #";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);

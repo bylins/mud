@@ -1640,7 +1640,7 @@ int is_number(const char *str)
 {
 	while (*str)
 	{
-		if (!isdigit(static_cast<unsigned char>(*(str++))))
+		if (!a_isdigit(*(str++)))
 		{
 			return 0;
 		}

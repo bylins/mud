@@ -1096,11 +1096,11 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*arg)
 		mob_log(ch, "mtransform: missing argument");
-	else if (!isdigit(*arg) && *arg != '-')
+	else if (!a_isdigit(*arg) && *arg != '-')
 		mob_log(ch, "mtransform: bad argument");
 	else
 	{
-		if (isdigit(*arg))
+		if (a_isdigit(*arg))
 			m = read_mobile(atoi(arg), VIRTUAL);
 		else
 		{
@@ -1812,7 +1812,7 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	two_arguments(argument, name, amount);
 
-	if (!*name || !*amount || !isdigit(*amount))
+	if (!*name || !*amount || !a_isdigit(*amount))
 	{
 		mob_log(ch, "mdamage: bad syntax");
 		return;

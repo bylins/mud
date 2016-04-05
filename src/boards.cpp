@@ -1191,7 +1191,7 @@ int Board::Special(CHAR_DATA* ch, void* me, int cmd, char* argument)
 	}
 
 	// для писем
-	if ((CMD_IS("читать") || CMD_IS("read")) && !buffer2.empty() && isdigit(buffer2[0]))
+	if ((CMD_IS("читать") || CMD_IS("read")) && !buffer2.empty() && a_isdigit(buffer2[0]))
 	{
 		if (buffer2.find(".") != std::string::npos)
 		{
@@ -1200,7 +1200,7 @@ int Board::Special(CHAR_DATA* ch, void* me, int cmd, char* argument)
 	}
 
 	// вывод сообщения написать сообщение очистить сообщение
-	if (((CMD_IS("читать") || CMD_IS("read")) && !buffer2.empty() && isdigit(buffer2[0]))
+	if (((CMD_IS("читать") || CMD_IS("read")) && !buffer2.empty() && a_isdigit(buffer2[0]))
 			|| CMD_IS("писать") || CMD_IS("write") || CMD_IS("очистить") || CMD_IS("remove"))
 	{
 		// перехватываем запарки вида 'писать дрв' сидя на ренте с доской от вече

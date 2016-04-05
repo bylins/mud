@@ -233,7 +233,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int vnum;
 	one_argument(argument, buf);
 	int num = 0;
-	if (!*buf || !isdigit(*buf))
+	if (!*buf || !a_isdigit(*buf))
 	{
 		send_to_char("Usage: delete <number>\r\n", ch);
 		return;
@@ -839,7 +839,7 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 	zone_rnum zrn;
 	one_argument(argument, buf);
 	bool is_found = false;
-	if (!*buf || !isdigit(*buf))
+	if (!*buf || !a_isdigit(*buf))
 	{
 		send_to_char("Usage: занятость внумзоны\r\n", ch);
 		return;
@@ -1375,7 +1375,7 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 		send_to_char("Укажите номер или название комнаты.\r\n", ch);
 		return (NOWHERE);
 	}
-	if (isdigit(static_cast<unsigned char>(*roomstr)) && !strchr(roomstr, '.'))
+	if (a_isdigit(*roomstr) && !strchr(roomstr, '.'))
 	{
 		tmp = atoi(roomstr);
 		if ((location = real_room(tmp)) == NOWHERE)
@@ -2980,7 +2980,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	iname = two_arguments(argument, buf, buf2);
 
-	if (!*buf || !*buf2 || !isdigit(*buf2))
+	if (!*buf || !*buf2 || !a_isdigit(*buf2))
 	{
 		send_to_char("Usage: load { obj | mob } <number>\r\n"
 					 "       load ing { <сила> | <VNUM> } <имя>\r\n", ch);
@@ -3086,7 +3086,7 @@ void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	two_arguments(argument, buf, buf2);
 
-	if (!*buf || !*buf2 || !isdigit(*buf2))
+	if (!*buf || !*buf2 || !a_isdigit(*buf2))
 	{
 		send_to_char("Usage: vstat { obj | mob } <number>\r\n", ch);
 		return;
@@ -6316,7 +6316,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 	}
 	first = atoi(buf);
-	if (*buf2 && isdigit(buf2[0]))
+	if (*buf2 && a_isdigit(buf2[0]))
 	{
 		last = atoi(buf2);
 	}
@@ -6391,7 +6391,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	case SCMD_MLIST:
 	{
 		std::string option;
-		if (*buf2 && !isdigit(buf2[0]))
+		if (*buf2 && !a_isdigit(buf2[0]))
 		{
 			option = buf2;
 		}
@@ -6469,7 +6469,7 @@ void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			m = 60 * 60;
 		else if (m == 'm')	// minutes
 			m = 60;
-		else if (m == 's' || isdigit(m))	// seconds
+		else if (m == 's' || a_isdigit(m))	// seconds
 			m = 1;
 		else
 			m = 0;

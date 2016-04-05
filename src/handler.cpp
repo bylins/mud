@@ -2406,7 +2406,7 @@ int get_number(char **name)
 	{
 		for (i = 0; *name + i != ppos; i++)
 		{
-			if (!isdigit(static_cast<unsigned char>(*(*name + i))))
+			if (!a_isdigit(*(*name + i)))
 			{
 				return 1;
 			}
@@ -2427,7 +2427,7 @@ int get_number(std::string &name)
 	if (pos != std::string::npos)
 	{
 		for (std::string::size_type i = 0; i != pos; i++)
-			if (!isdigit(name[i]))
+			if (!a_isdigit(name[i]))
 				return (1);
 		int res = atoi(name.substr(0, pos).c_str());
 		name.erase(0, pos + 1);

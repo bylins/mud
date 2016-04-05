@@ -579,7 +579,7 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	two_arguments(argument, name, amount);
 
-	if (!*name || !*amount || !isdigit(*amount))
+	if (!*name || !*amount || !a_isdigit(*amount))
 	{
 		wld_log(room, "wdamage: bad syntax");
 		return;
@@ -631,7 +631,7 @@ void do_wat(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	half_chop(argument, location, arg2);
 
-	if (!*location || !*arg2 || !isdigit(*location))
+	if (!*location || !*arg2 || !a_isdigit(*location))
 	{
 		wld_log(room, "wat: bad syntax");
 		return;

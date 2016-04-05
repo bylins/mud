@@ -1920,7 +1920,7 @@ void do_wimpy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 	}
-	if (isdigit(*arg))
+	if (a_isdigit(*arg))
 	{
 		if ((wimp_lev = atoi(arg)) != 0)
 		{
