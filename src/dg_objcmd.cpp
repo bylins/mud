@@ -100,7 +100,7 @@ int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 	if (!*roomstr)
 		return NOWHERE;
 
-	if (isdigit(*roomstr) && !strchr(roomstr, '.'))
+	if (a_isdigit(*roomstr) && !strchr(roomstr, '.'))
 	{
 		tmp = atoi(roomstr);
 		if ((location = real_room(tmp)) == NOWHERE)
@@ -269,7 +269,7 @@ OCMD(do_otimer)
 
 	if (!*arg)
 		obj_log(obj, "otimer: missing argument");
-	else if (!isdigit(*arg))
+	else if (!a_isdigit(*arg))
 		obj_log(obj, "otimer: bad argument");
 	else
 	{
@@ -292,7 +292,7 @@ OCMD(do_otransform)
 
 	if (!*arg)
 		obj_log(obj, "otransform: missing argument");
-	else if (!isdigit(*arg))
+	else if (!a_isdigit(*arg))
 		obj_log(obj, "otransform: bad argument");
 	else
 	{
@@ -577,7 +577,7 @@ OCMD(do_odamage)
 
 	two_arguments(argument, name, amount);
 
-	if (!*name || !*amount || !isdigit(*amount))
+	if (!*name || !*amount || !a_isdigit(*amount))
 	{
 		obj_log(obj, "odamage: bad syntax");
 		return;

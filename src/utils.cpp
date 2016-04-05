@@ -3892,4 +3892,37 @@ const bool a_isalnum_table[] = {
 	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true
 };
 
+const bool a_isdigit_table[256] = {
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
+};
+
+#include <iostream>
+
+void build_char_table(int(*func)(int c))
+{
+	for (int c = 0; c < 256; c++)
+	{
+		std::cout << (func(c) ? " true" : "false") << (255 > c ? ", " : "");
+		if (0 < c && 0 == (1 + c) % 16)
+		{
+			std::cout << std::endl;
+		}
+	}
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

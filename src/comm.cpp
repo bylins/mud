@@ -873,7 +873,7 @@ int main(int argc, char **argv)
 
 	if (pos < argc)
 	{
-		if (!isdigit(*argv[pos]))
+		if (!a_isdigit(*argv[pos]))
 		{
 			printf("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n", argv[0]);
 			exit(1);

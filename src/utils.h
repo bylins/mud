@@ -1348,9 +1348,11 @@ inline bool a_isupper(unsigned char c)
 	return (c >= 'A' && c <= 'Z') || c >= 224 || c == 179;
 }
 
+extern const bool a_isdigit_table[];
+
 inline bool a_isdigit(unsigned char c)
 {
-	return c >= '0' && c <= '9';
+	return a_isdigit_table[c];
 }
 
 inline bool a_isalpha(unsigned char c)
@@ -1392,7 +1394,7 @@ enum separator_mode
 	A_ISPRINT,
 	A_ISLOWER,
 	A_ISUPPER,
-	A_ISDIGIT,
+	A_isdigit,
 	A_ISALPHA,
 	A_ISALNUM,
 	A_ISXDIGIT
@@ -1423,7 +1425,7 @@ public:
 		case A_ISUPPER:
 			pred = a_isupper;
 			break;
-		case A_ISDIGIT:
+		case A_isdigit:
 			pred = a_isdigit;
 			break;
 		case A_ISALPHA:
