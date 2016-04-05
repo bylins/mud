@@ -116,8 +116,9 @@ namespace craft
 	class CPrototypeBase
 	{
 	public:
-		void set_type(const obj_flag_data::EObjectType _) { m_type = _; }
-		obj_flag_data::EObjectType get_type() const { return m_type; }
+		typedef obj_flag_data::EObjectType type_t;
+		void set_type(const type_t _) { m_type = _; }
+		type_t get_type() const { return m_type; }
 
 		void set_weight(const int _) { m_weight = _; }
 		void set_timer(const int _) { m_timer = _; }
@@ -131,7 +132,7 @@ namespace craft
 		}
 
 	private:
-		obj_flag_data::EObjectType m_type;
+		type_t m_type;
 
 		int m_weight;
 		int m_timer;

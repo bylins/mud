@@ -115,6 +115,68 @@ namespace craft
 		return true;
 	}
 
+	class CLoadHelper
+	{
+	public:
+		template <class TFlags, typename TSuccess, typename TFail>
+		void load_flags(FLAG_DATA& flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
+			TSuccess success, TFail fail)
+		{
+			const auto node = root.child(node_name);
+			if (node)
+			{
+				for (const auto flag : node.children(node_flag))
+				{
+					const char* flag_value = flag.child_value();
+					try
+					{
+						auto value = ITEM_BY_NAME<TFlags>(flag_value);
+						flags.set(value);
+						success(value);
+					}
+					catch (...)
+					{
+						fail(flag_value);
+					}
+				}
+			}
+		}
+
+		enum ELoadFlagResult
+		{
+			ELFR_SUCCESS,
+			ELFR_NO_VALUE,
+			ELFR_FAIL
+		};
+
+		template <class TFlag, typename TSuccess, typename TFail, typename TNoValue>
+		ELoadFlagResult load_flag(const pugi::xml_node& root, const char* node_name, TSuccess success, TFail fail, TNoValue no_value)
+		{
+			const auto node = root.child(node_name);
+			if (node)
+			{
+				const char* value = node.child_value();
+				try
+				{
+					const TFlag type = ITEM_BY_NAME<TFlag>(value);
+					success(type);
+				}
+				catch (...)
+				{
+					fail(value);
+					return ELFR_FAIL;
+				}
+			}
+			else
+			{
+				no_value();
+				return ELFR_NO_VALUE;
+			}
+
+			return ELFR_SUCCESS;
+		}
+	};
+
 	bool CPrototype::load(const pugi::xml_node* node)
 	{
 		log("Loading prototype with VNUM %d...\n", m_vnum);
@@ -233,26 +295,15 @@ namespace craft
 			m_minimum_remorts = minimum_remorts_value;
 		}
 
-		const auto object_type = node->child("type");
-		if (object_type)
+		CLoadHelper helper;
+
+		CLoadHelper::ELoadFlagResult load_result = helper.load_flag<type_t>(*node, "type",
+			[&](const auto type) { set_type(type); },
+			[&](const auto name) { log("WARNING: Failed to set object type '%s' for prototype with VNUM %d. Prototype will be skipped.\n", name, m_vnum); },
+			[&]() { log("WARNING: \"type\" tag not found for prototype with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(get_type()).c_str()); });
+		if (CLoadHelper::ELFR_FAIL == load_result)
 		{
-			const char* name = object_type.child_value();
-			try
-			{
-				const obj_flag_data::EObjectType type = ITEM_BY_NAME<obj_flag_data::EObjectType>(name);
-				set_type(type);
-			}
-			catch (const std::out_of_range&)
-			{
-				log("WARNING: Failed to set object type '%s' for prototype with VNUM %d. Prototype will be skipped.\n",
-					name, m_vnum);
-				return false;
-			}
-		}
-		else
-		{
-			log("WARNING: \"type\" tag not found for prototype with VNUM %d not found. Setting to default value: %s.\n",
-				m_vnum, NAME_BY_ITEM(get_type()).c_str());
+			return false;
 		}
 
 		const auto durability = node->child("durability");
@@ -271,25 +322,13 @@ namespace craft
 			}
 		}
 
-		const auto sex = node->child("sex");
-		if (sex)
+		load_result = helper.load_flag<decltype(m_sex)>(*node, "sex",
+			[&](const auto sex) { m_sex = sex; },
+			[&](const auto name) { log("WARNING: Failed to set sex '%s' for prototype with VNUM %d. Prototype will be skipped.\n", name, m_vnum); },
+			[&]() { log("WARNING: \"sex\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(m_sex).c_str()); });
+		if (CLoadHelper::ELFR_FAIL == load_result)
 		{
-			const char* sex_value = sex.child_value();
-			try
-			{
-				m_sex = ITEM_BY_NAME<decltype(m_sex)>(sex_value);
-			}
-			catch (const std::out_of_range&)
-			{
-				log("WARNING: Failed to set sex '%s' for prototype with VNUM %d. Prototype will be skipped.\n",
-					sex_value, m_vnum);
-				return false;
-			}
-		}
-		else
-		{
-			log("WARNING: \"sex\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n",
-				m_vnum, NAME_BY_ITEM(m_sex).c_str());
+			return false;
 		}
 
 		const auto level = node->child("level");
@@ -329,107 +368,34 @@ namespace craft
 			}
 		}
 
-		const auto material = node->child("material");
-		if (material)
+		load_result = helper.load_flag<decltype(m_material)>(*node, "material",
+			[&](const auto material) { m_material = material; },
+			[&](const auto name) { log("WARNING: Failed to set material '%s' for prototype with VNUM %d. Prototype will be skipped.\n", name, m_vnum); },
+			[&]() { log("WARNING: \"material\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(m_material).c_str()); });
+		if (CLoadHelper::ELFR_FAIL == load_result)
 		{
-			const char* material_value = material.child_value();
-			try
-			{
-				m_material = ITEM_BY_NAME<decltype(m_material)>(material_value);
-			}
-			catch (const std::out_of_range&)
-			{
-				log("WARNING: Failed to set material '%s' for prototype with VNUM %d. Prototype will be skipped.\n",
-					material_value, m_vnum);
-				return false;
-			}
-		}
-		else
-		{
-			log("WARNING: \"material\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n",
-				m_vnum, NAME_BY_ITEM(m_material).c_str());
+			return false;
 		}
 
-		const auto spell = node->child("spell");
-		if (spell)
-		{
-			const char* spell_value = spell.child_value();
-			try
-			{
-				m_spell = ITEM_BY_NAME<decltype(m_spell)>(spell_value);
-			}
-			catch (const std::out_of_range&)
-			{
-				log("WARNING: Failed to set spell '%s' for prototype with VNUM %d. Spell will not be set.\n",
-					spell_value, m_vnum);
-			}
-		}
+		load_result = helper.load_flag<decltype(m_spell)>(*node, "spell",
+			[&](const auto spell) { m_spell = spell; },
+			[&](const auto value) { log("WARNING: Failed to set spell '%s' for prototype with VNUM %d. Spell will not be set.\n", value, m_vnum); },
+			[&]() {});
 
-        // loading prototype extraflags
-        const auto extraflags = node->child("extraflags");
-        if (extraflags)
-        {
-            for (const auto extraflag : extraflags.children("extraflag"))
-            {
-                const char* flag = extraflag.child_value();
-                try
-                {
-                    auto value = ITEM_BY_NAME<EExtraFlag>(flag);
-                    m_extraflags.set(value);
-                    log("Setting extra flag '%s' for prototype with VNUM %d.\n",
-                        NAME_BY_ITEM(value).c_str(), m_vnum);
-                }
-                catch (const std::out_of_range&)
-                {
-                    log("WARNING: Skipping extra flag '%s' of prototype with VNUM %d, because this value is not valid.\n",
-                        flag, m_vnum);
-                }
-            }
-        }
+		// loading prototype extraflags
+		helper.load_flags<EExtraFlag>(m_extraflags, *node, "extraflags", "extraflag",
+			[&](const auto value) { log("Setting extra flag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
         // loading prototype affect flags
-        const auto affects = node->child("affects");
-        if (affects)
-        {
-            for (const auto affect : affects.children("affect"))
-            {
-                const char* flag = affect.child_value();
-                try
-                {
-                    auto value = ITEM_BY_NAME<EAffectFlag>(flag);
-                    m_affect_flags.set(value);
-                    log("Setting affect flag '%s' for prototype with VNUM %d.\n",
-                        NAME_BY_ITEM(value).c_str(), m_vnum);
-                }
-                catch (const std::out_of_range&)
-                {
-                    log("WARNING: Skipping affect flag '%s' of prototype with VNUM %d, because this value is not valid.\n",
-                        flag, m_vnum);
-                }
-            }
-        }
+		helper.load_flags<EAffectFlag>(m_affect_flags, *node, "affects", "affect",
+			[&](const auto value) { log("Setting affect flag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping affect flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
         
         // loading prototype anti flags
-        const auto antiflags = node->child("antiflags");
-        if (antiflags)
-        {
-            for (const auto antiflag : antiflags.children("affect"))
-            {
-                const char* flag = antiflag.child_value();
-                try
-                {
-                    auto value = ITEM_BY_NAME<EAntiFlag>(flag);
-                    m_anti_flags.set(value);
-                    log("Setting anti flag '%s' for prototype with VNUM %d.\n",
-                        NAME_BY_ITEM(value).c_str(), m_vnum);
-                }
-                catch (const std::out_of_range&)
-                {
-                    log("WARNING: Skipping anti flag '%s' of prototype with VNUM %d, because this value is not valid.\n",
-                        flag, m_vnum);
-                }
-            }
-        }
+		helper.load_flags<EAffectFlag>(m_anti_flags, *node, "antiflags", "antiflag",
+			[&](const auto value) { log("Setting antiflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping anti flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
         prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
@@ -570,45 +536,17 @@ namespace craft
 			return false;
 		}
 
+		CLoadHelper helper;
+
 		// load extra flags
-		const auto extraflags = node->child("extraflags");
-		if (extraflags)
-		{
-			for (const auto extraflag : extraflags.children("extraflag"))
-			{
-				const char* flag = extraflag.child_value();
-				try
-				{
-					auto value = ITEM_BY_NAME<EExtraFlag>(flag);
-					m_extraflags.set(value);
-					log("Setting extra flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str());
-				}
-				catch (const std::out_of_range&)
-				{
-					log("WARNING: Skipping extra flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str());
-				}
-			}
-		}
+		helper.load_flags<EExtraFlag>(m_extraflags, *node, "extraflags", "extraflag",
+			[&](const auto value) { log("Setting extra flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str()); },
+			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str()); });
 
 		// load affects
-		const auto affects = node->child("affects");
-		if (affects)
-		{
-			for (const auto affect : affects.children("affect"))
-			{
-				const char* flag = affect.child_value();
-				try
-				{
-					auto value = ITEM_BY_NAME<EAffectFlag>(flag);
-					m_affect_flags.set(value);
-					log("Setting affect flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str());
-				}
-				catch (const std::out_of_range&)
-				{
-					log("WARNING: Skipping affect flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str());
-				}
-			}
-		}
+		helper.load_flags<EAffectFlag>(m_affect_flags, *node, "affects", "affect",
+			[&](const auto value) { log("Setting affect flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str()); },
+			[&](const auto flag) { log("WARNING: Skipping affect flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str()); });
 
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading material class with ID '%s'.\n", m_id.c_str());
