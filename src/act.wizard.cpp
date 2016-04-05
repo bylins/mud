@@ -5921,7 +5921,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		add_karma(ch, buf, GET_NAME(vict));
 		send_to_gods(buf);
         break;
-	case 59: // флаг тестера
+	case 60: // флаг тестера
 		SET_GOD_FLAG(vict, GF_TESTER);
 		sprintf(buf,"Иммортал %s установил флаг тестера для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);

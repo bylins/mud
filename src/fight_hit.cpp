@@ -3350,8 +3350,6 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 //		else
 //			calc_thaco -= ((prob - range) + 19 / 20);
 		calc_thaco += 10 - GET_SKILL(ch, SKILL_HORSE) / 20;
-		send_to_char(ch, "&BШтраф на хитролы == %d\r\n&n", 10 - GET_SKILL(ch, SKILL_HORSE) / 20);
-
 	}
 
 	// not can see (blind, dark, etc)
@@ -3834,7 +3832,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (GET_SKILL(ch, SKILL_HORSE) > 100 && on_horse(ch))
 	{
 		hit_params.dam *= 1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0; // на лошадке до +20%
-		send_to_char(ch, "&Yкоэфф  дамаги от сраженияверхом равен %f\r\n&n", 1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0);
 	}
 
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
