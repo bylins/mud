@@ -347,6 +347,7 @@ enum
 #define GF_REMORT     (1 << 3)
 #define GF_DEMIGOD    (1 << 4)	// Морталы с привилегиями богов //
 #define GF_PERSLOG    (1 << 5)	// Ведением отдельного лога команд персонажа //
+#define GF_TESTER     (1 << 6)	// тестер //
 
 // Positions
 #define POS_DEAD       0	// dead        //
