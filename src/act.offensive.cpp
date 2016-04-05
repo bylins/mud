@@ -1085,7 +1085,16 @@ ACMD(do_bash)
 ACMD(do_stun)
 {
 	CHAR_DATA *vict = NULL;
-	 if (!on_horse(ch))
+
+	one_argument(argument, arg);
+
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_STUN))
+	{
+		send_to_char("Вы не знаете как.\r\n", ch);
+		return;
+	}
+
+	if (!on_horse(ch))
 	{
 		send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
 		return;
@@ -1100,7 +1109,6 @@ ACMD(do_stun)
 		send_to_char("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
 		return;
 	}
-	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
 		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
@@ -1333,7 +1341,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			modi = 5 * (10 + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0));
 			dam = modi * dam / 100;
 		}
-               if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) > 0)) //бонусы от критпинка
+               if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) > 0) && GET_GOD_FLAG(ch, GF_TESTER)) //бонусы от критпинка
                {
                        af.location = APPLY_NONE;
                        af.type = SPELL_BATTLE;
