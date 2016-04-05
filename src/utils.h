@@ -513,7 +513,13 @@ extern SPECIAL(shop_ext);
     GET_LEVEL(ch))
 
 #define POSI(val)      ((val < 50) ? ((val > 0) ? val : 1) : 50)
-#define VPOSI(val,min,max)      ((val < max) ? ((val > min) ? val : min) : max)
+
+template <typename T>
+inline T VPOSI(const T val, const T min, const T max)
+{
+	return ((val < max) ? ((val > min) ? val : min) : max);
+}
+
 #define GET_CLASS(ch)   ((ch)->get_class())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
 #define GET_HEIGHT(ch)  ((ch)->player_data.height)
