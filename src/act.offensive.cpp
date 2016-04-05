@@ -1085,20 +1085,20 @@ ACMD(do_bash)
 ACMD(do_stun)
 {
 	CHAR_DATA *vict = NULL;
-	if (GET_SKILL(ch, SKILL_HORSE) < 151)
-	{
-		send_to_char("Вы слишком неуверенно управляете лошадью, чтоб попытаться ошеломить противника.\r\n", ch);
-		return;
-	}
 	 if (!on_horse(ch))
 	{
 		send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
 		return;
 	}
+	if (GET_SKILL(ch, SKILL_HORSE) < 151)
+	{
+		send_to_char("Вы слишком неуверенно управляете лошадью, чтоб на ней пытаться ошеломить противника.\r\n", ch);
+		return;
+	}
 	if (timed_by_skill(ch, SKILL_STUN))
 	{
-	send_to_char("Ваш грозный вид в данный момент не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
-	return;
+		send_to_char("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
+		return;
 	}
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
@@ -1125,7 +1125,8 @@ ACMD(do_stun)
 		go_stun(ch, vict);
 	else
 	{
-		send_to_char("Вы не можете ошеломить врага находясь сами в бою...\r\n", ch);
+		send_to_char("Вы не смогли сосредоточиться, чтобы ошеломить противника.\r\n", ch);
+		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 	}
 }
 
@@ -1134,24 +1135,22 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 	struct timed_type timed;
 	calculate_skill(ch, SKILL_STUN, vict);
 	timed.skill = SKILL_STUN;
-	timed.time = 6;
+	timed.time = 6 - (GET_SKILL(ch, SKILL_STUN) - 150) / 10; // 6..1 кулдаун
 	timed_to_char(ch, &timed);
 
 	float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow((GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0), 2) + pow(GET_REAL_STR(ch), 2)) /
 		(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
-		send_to_char(ch, "&R Расчет ошеломить =%f\r\n&n", num);
 		if (number(1, 100) < num)
 		{
-// 			WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
-			send_to_char(ch, "&R Вы ебнули врага по голове!!!!\r\n&n", num);
-			Damage dmg(SkillDmg(SKILL_STUN), 1000, FightSystem::PHYS_DMG);
-			dmg.process(ch, vict);
-			WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
-
+// кастуем аналог круга пустоты
+			send_to_char(ch, "&CМощным ударом вы ошеломили противника!!!\r\n&n", num);
+			GET_POS(victim) = POS_INCAP;
+//аффект "кома" действует (раундов) на цель 5+1*морты чара/3
+			WAIT_STATE(victim, adice * PULSE_VIOLENCE);
 		}
 		else
 		{
-			send_to_char(ch, "&R Вы промазали по врагу!!!!\r\n&n", num);
+			send_to_char(ch, "&RУ вас не получилось ошеломить противника, надо больше тренироваться.\r\n&n", num);
 			Damage dmg(SkillDmg(SKILL_STUN), 1, FightSystem::PHYS_DMG);
 			dmg.process(ch, vict);
 			WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
@@ -1334,7 +1333,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			modi = 5 * (10 + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0));
 			dam = modi * dam / 100;
 		}
-               if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) > 0))
+               if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) > 0)) //бонусы от критпинка
                {
                        af.location = APPLY_NONE;
                        af.type = SPELL_BATTLE;
@@ -1342,7 +1341,6 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
                        af.battleflag = 0;
 //             (%скила+сила персонажа*5+вес сапог*3)/размер жертвы/0,55
                        float modi = ((ch->get_skill(SKILL_KICK) + GET_REAL_STR(ch) * 5) + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0) * 3) / float(GET_SIZE(vict));
-                       send_to_char(ch, "Зашли в проверку критпинка вероятность спецкрита = %f\r\n", modi);
                        if (number(1,1000) < modi * 10 )
                        switch (number (0, (ch->get_skill(SKILL_KICK) - 150) / 10))
                        {
@@ -1350,48 +1348,41 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
                        case 1:
                            if (!AFF_FLAGGED(vict, AFF_STOPRIGHT))
                            {
-                               to_char = "ослабило атаку $N1";
-                               to_vict = "изуродовало вам правую руку";
+			       to_char = "След от вашего сапога надолго запомнится $N2, если доживет.";
+                               to_vict = "Мощный удар ногой $n1 изуродовал вам правую руку.";
                                af.type = SPELL_BATTLE;
                                af.bitvector = AFF_STOPRIGHT;
                                af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
                                af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-                               sprintf(buf, "&RКрит пинок дамаг  срубил правую руку&n\r\n");
                                send_to_char(buf, ch);
                            }
                            else if (!AFF_FLAGGED(vict, AFF_STOPLEFT))
                            {
-                               to_char = "ослабило атаку $N1";
-                               to_vict = "изуродовало вам левую руку";
+                               to_char = "След от вашего сапога надолго запомнится $N2, если доживет.";
+                               to_vict = "Мощный удар ногой $n1 изуродовал вам левую руку.";
                                af.bitvector = AFF_STOPLEFT;
                                af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
                                af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-                               sprintf(buf, "&RКрит пинок дамаг  срубил  левую руку&n\r\n");
-                               send_to_char(buf, ch);
                            }
                            else
                            {
-                               to_char = "вывело $N3 из строя";
-                               to_vict = "вывело вас из строя";
+                               to_char = "След от вашего сапога надолго запомнится $N1, $S теперь даже бить вас нечем.";
+                               to_vict = "Мощный удар ногой $n1 вывел вас из строя.";
                                af.bitvector = AFF_STOPFIGHT;
                                af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
                                af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-                               sprintf(buf, "&RКрит пинок дамаг  срубил обе руки\r\n");
-                               send_to_char(buf, ch);
                            }
                            flag = 1;
                        break;
                        case 2:
                        case 3:
-                               to_char = "заставило $N3 прикусить язык";
-                               to_vict = "заставило вас прикусить язык";
+                               to_char = "Сильно пнув в челюсть, вы заставили $N3 проглотить язык.";
+                               to_vict = "Мощный удар ногой $n1 попал точно в челюсть, заставив прикусить язык.";
                                af.type = SPELL_BATTLE;
                                af.bitvector = AFF_SIELENCE;
                                af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
                                af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
                                dam *= 2;
-                               sprintf(buf, "&RКрит пинок дамаг  отрубили язык&n\r\n");
-                               send_to_char(buf, ch);
                            flag = 1;
                        break;
                        case 4:
@@ -1399,11 +1390,9 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
                                WAIT_STATE(vict, number(2, 5) * PULSE_VIOLENCE);
                                if (GET_POS(vict) > POS_SITTING)
                                        GET_POS(vict) = POS_SITTING;
-                               to_char = "повредило $N2 грудь, свалив $S с ног";
-                               to_vict = "повредило вам грудь, свалив вас с ног";
+                               to_char = "Ваш мощный пинок выбил пару зубов $N1, усадив $S на землю!";
+                               to_vict = "Мощный удар ногой $n1 попал точно в голову, свалив вас с ног.";
                                dam *= 2;
-                               sprintf(buf, "&RКрит пинок дамаг  рубанули по башке&n\r\n");
-                               send_to_char(buf, ch);
                                flag = 1;
                        break;
                        default:
@@ -1411,34 +1400,28 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
                }
                if (to_char)
                {
-                       sprintf(buf, "&G&qВаше точное попадание %s.&Q&n", to_char);
+                       sprintf(buf, "&G&q%s&Q&n", to_char);
                        act(buf, FALSE, ch, 0, vict, TO_CHAR);
-                       sprintf(buf, "Точное попадание $n1 %s.", to_char);
+                       sprintf(buf, "%s", to_char);
                        act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
                }
                if (to_vict)
                {
-                       sprintf(buf, "&R&qМеткое попадание $n1 %s.&Q&n", to_vict);
+                       sprintf(buf, "&R&q%s&Q&n", to_vict);
                        act(buf, FALSE, ch, 0, vict, TO_VICT);
                }
                affect_join(vict, &af, TRUE, FALSE, TRUE, FALSE);
                if (flag == 1)
                {
                        dam += dam;
-                       sprintf(buf, "&RСпецКрит пинок дамаг умножен на 2&n\r\n");
-                       send_to_char(buf, ch);
 
                }
                else if (number(1,1000) < (ch->get_skill(SKILL_HORSE)/2) )
                {
                        dam += dam;
-                       sprintf(buf, "&RКрит пинок дамаг умножен на 2&n\r\n");
                        send_to_char(buf, ch);
                }
        }
-//      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
-               sprintf(buf, "&CДамаг пинка == %d&n\r\n", dam);
-               send_to_char(buf, ch);
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
 		{
