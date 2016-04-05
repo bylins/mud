@@ -147,7 +147,7 @@ ACMD(do_olc)
 			return;
 		}
 	}
-	else if (!a_isdigit_wrapped(*buf1))
+	else if (!a_isdigit(*buf1))
 	{
 		if (strn_cmp("save", buf1, 4) == 0
 				|| (lock = !strn_cmp("lock", buf1, 4)) == TRUE || (unlock = !strn_cmp("unlock", buf1, 6)) == TRUE)
@@ -593,7 +593,7 @@ int xparse_ing(DESCRIPTOR_DATA * d, int **pping, char *arg)
 				free(*pping);
 			*pping = NULL;
 		}
-		else if (isdigit_wrapped(arg[0]))
+		else if (isdigit(arg[0]))
 		{
 			im_extract_ing(pping, atoi(arg));
 		}

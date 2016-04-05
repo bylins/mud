@@ -228,7 +228,7 @@ void parse_menu(DESCRIPTOR_DATA *d, const char *arg)
 {
 	bool result = false;
 
-	if (arg && isdigit_wrapped(*arg))
+	if (arg && isdigit(*arg))
 	{
 		const int num = atoi(arg);
 

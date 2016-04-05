@@ -1348,7 +1348,7 @@ inline bool a_isupper(unsigned char c)
 	return (c >= 'A' && c <= 'Z') || c >= 224 || c == 179;
 }
 
-inline bool a_isdigit_wrapped(unsigned char c)
+inline bool a_isdigit(unsigned char c)
 {
 	return c >= '0' && c <= '9';
 }
@@ -1392,7 +1392,7 @@ enum separator_mode
 	A_ISPRINT,
 	A_ISLOWER,
 	A_ISUPPER,
-	A_isdigit_wrapped,
+	A_ISDIGIT,
 	A_ISALPHA,
 	A_ISALNUM,
 	A_ISXDIGIT
@@ -1423,8 +1423,8 @@ public:
 		case A_ISUPPER:
 			pred = a_isupper;
 			break;
-		case A_isdigit_wrapped:
-			pred = a_isdigit_wrapped;
+		case A_ISDIGIT:
+			pred = a_isdigit;
 			break;
 		case A_ISALPHA:
 			pred = a_isalpha;
@@ -1638,12 +1638,6 @@ typedef void(*converter_t)(char*, int);
 extern converter_t syslog_converter;
 
 void setup_converters();
-
-#ifdef WIN32
-inline int isdigit_wrapped(const int c) { return isdigit(static_cast<unsigned int>(c)); }
-#else
-#define isdigit_wrapped isdigit
-#endif
 
 #endif // _UTILS_H_
 

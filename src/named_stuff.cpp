@@ -201,7 +201,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 	switch (LOWER(*buf1))
 	{
 		case '1':
-			if (a_isdigit_wrapped(*buf2) && sscanf(buf2, "%d", &num))
+			if (a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
 			{
 				if (real_object(num) < 0)
 				{
@@ -224,14 +224,14 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			break;
 
 		case '3':
-			if (*buf2 && a_isdigit_wrapped(*buf2) && sscanf(buf2, "%d", &num))
+			if (*buf2 && a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
 			{
 				ch->desc->named_obj->can_clan = 0 == num ? 0 : 1;
 			}
 			break;
 
 		case '4':
-			if (*buf2 && a_isdigit_wrapped(*buf2) && sscanf(buf2, "%d", &num))
+			if (*buf2 && a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
 			{
 				ch->desc->named_obj->can_alli = 0 == num ? 0 : 1;
 			}

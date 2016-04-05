@@ -597,7 +597,7 @@ WCMD(do_wdamage)
 
 	two_arguments(argument, name, amount);
 
-	if (!*name || !*amount || !isdigit_wrapped(*amount))
+	if (!*name || !*amount || !isdigit(*amount))
 	{
 		wld_log(room, "wdamage: bad syntax");
 		return;
@@ -649,7 +649,7 @@ WCMD(do_wat)
 
 	half_chop(argument, location, arg2);
 
-	if (!*location || !*arg2 || !isdigit_wrapped(*location))
+	if (!*location || !*arg2 || !isdigit(*location))
 	{
 		wld_log(room, "wat: bad syntax");
 		return;
