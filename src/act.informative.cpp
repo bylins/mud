@@ -4173,7 +4173,7 @@ ACMD(do_who)
 			high = LVL_IMPL;
 			strcpy(buf, buf1);
 		}
-		else if (a_isdigit(*arg))
+		else if (a_isdigit_wrapped(*arg))
 		{
 			if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 				sscanf(arg, "%d-%d", &low, &high);

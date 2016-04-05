@@ -1135,7 +1135,7 @@ ACMD(do_attach)
 	}
 	else if (is_abbrev(arg, "wtr"))
 	{
-		if (isdigit(*targ_name) && !strchr(targ_name, '.'))
+		if (isdigit_wrapped(*targ_name) && !strchr(targ_name, '.'))
 		{
 			if ((room = find_target_room(ch, targ_name, 0)) != NOWHERE)  	// have a valid room, now get trigger
 			{
@@ -1180,7 +1180,7 @@ int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr)
 	if (!sc)
 		return 0;
 
-	if ((cname = strstr(name, ".")) || (!isdigit(*name)))
+	if ((cname = strstr(name, ".")) || (!isdigit_wrapped(*name)))
 	{
 		string = TRUE;
 		if (cname)
@@ -2736,7 +2736,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "eq"))
 		{
 			int pos = -1;
-			if (isdigit(*subfield))
+			if (isdigit_wrapped(*subfield))
 				pos = atoi(subfield);
 			else if (*subfield)
 				pos = find_eq_pos(c, NULL, subfield);
@@ -2753,7 +2753,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "haveobj"))
 		{
 			int pos;
-			if (isdigit(*subfield))
+			if (isdigit_wrapped(*subfield))
 			{
 				pos = atoi(subfield);
 				for (obj = c->carrying; obj; obj = obj->next_content)
@@ -3221,7 +3221,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "cost"))
 		{
-			if (*subfield && isdigit(*subfield))
+			if (*subfield && isdigit_wrapped(*subfield))
 			{
 				skip_spaces(&subfield);
 				o->set_cost(atoi(subfield));
@@ -3233,7 +3233,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "rent"))
 		{
-			if (*subfield && isdigit(*subfield))
+			if (*subfield && isdigit_wrapped(*subfield))
 			{
 				skip_spaces(&subfield);
 				o->set_rent(atoi(subfield));
@@ -3245,7 +3245,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "rent_eq"))
 		{
-			if (*subfield && isdigit(*subfield))
+			if (*subfield && isdigit_wrapped(*subfield))
 			{
 				skip_spaces(&subfield);
 				o->set_rent_eq(atoi(subfield));
@@ -3509,7 +3509,7 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 // returns 1 if string is all digits, else 0
 int is_num(char *num)
 {
-	while (*num && (isdigit(static_cast<unsigned char>(*num)) || *num == '-'))
+	while (*num && (isdigit_wrapped(static_cast<unsigned char>(*num)) || *num == '-'))
 		num++;
 
 	if (!*num || a_isspace(*num))
@@ -4423,7 +4423,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	};
 
 	name = trignum_s;
-	if ((cname = strstr(name, ".")) || (!isdigit(*name)))
+	if ((cname = strstr(name, ".")) || (!isdigit_wrapped(*name)))
 	{
 		string = TRUE;
 		if (cname)

@@ -967,7 +967,7 @@ void im_parse(int **ing_list, char *line)
 		skip_spaces(&line);
 		if (*line == 0)
 			break;
-		if (a_isdigit(*line))
+		if (a_isdigit_wrapped(*line))
 		{
 			n = strtol(line, &line, 10);
 			n = im_type_rnum(n);
