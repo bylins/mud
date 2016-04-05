@@ -1152,9 +1152,9 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		{
 // кастуем аналог круга пустоты
 			send_to_char(ch, "&CМощным ударом вы ошеломили противника!!!\r\n&n", num);
-			GET_POS(victim) = POS_INCAP;
+			GET_POS(vict) = POS_INCAP;
 //аффект "кома" действует (раундов) на цель 5+1*морты чара/3
-			WAIT_STATE(victim, adice * PULSE_VIOLENCE);
+			WAIT_STATE(vict, 10 * PULSE_VIOLENCE);
 		}
 		else
 		{
