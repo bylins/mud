@@ -430,6 +430,7 @@ ACMD(do_check_occupation);
 ACMD(do_delete_obj);
 ACMD(do_arena_restore);
 ACMD(Bonus::do_bonus_info);
+ACMD(do_stun);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -647,7 +648,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"отступить", POS_FIGHTING, do_stopfight, 1, 0, -1},
 	{"отправить", POS_STANDING, do_not_here, 1, 0, -1},
 	{"оффтоп", POS_DEAD, do_offtop, 0, 0, -1},
-//	{"ошеломить", POS_STANDING, do_stun, 1, 0, -1},
+	{"ошеломить", POS_STANDING, do_stun, 1, 0, -1},
 	{"оценить", POS_STANDING, do_not_here, 0, 0, 500},
 	{"очки", POS_DEAD, do_score, 0, 0, 0},
 	{"очепятки", POS_DEAD, DoBoard, 1, Boards::MISPRINT_BOARD, 0},

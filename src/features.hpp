@@ -142,7 +142,7 @@ using std::bitset;
 #define LOYALASSIST_FEAT		122 // верный помощник
 #define HAUNTINGSPIRIT_FEAT		123 // блуждающий дух
 #define SNEAKRAGE_FEAT			124 // ярость змеи
-
+#define HORSE_STUN			125 // ошеломить на лошади
 //новвоведения для чернока
 
 #define TEAMSTER_UNDEAD_FEAT	125 // Погонщик нежити 

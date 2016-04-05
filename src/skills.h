@@ -115,9 +115,10 @@ class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any d
 #define SKILL_DARK_MAGIC			187
 #define SKILL_MIND_MAGIC			188
 #define SKILL_LIFE_MAGIC			189
+#define SKILL_STUN				190
 
 // не забываем указывать максимальный номер скилла
-#define MAX_SKILL_NUM               189
+#define MAX_SKILL_NUM               190
 
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add = "");
 

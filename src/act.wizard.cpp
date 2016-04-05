@@ -5235,6 +5235,7 @@ struct set_struct		/*
 	{"executor", LVL_IMPL, PC, BINARY}, // 57
 	{"killer", LVL_IMPL, PC, BINARY}, // 58
 	{"remort", LVL_IMPL, PC, BINARY}, // 59
+	{"tester", LVL_IMPL, PC, BINARY}, // 60
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -5916,9 +5917,15 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
         break;
 	case 59: // флаг реморта
     		ch->remort();
-		sprintf(buf,"Иммортал %s установил реморт +1 для %s\r\n", GET_NAME(ch), GET_NAME(vict));
+		sprintf(buf,"Иммортал %s установил реморт +1 для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
 		add_karma(vict, buf, GET_NAME(ch));
 		add_karma(ch, buf, GET_NAME(vict));
+		send_to_gods(buf);
+        break;
+	case 60: // флаг тестера
+		SET_GOD_FLAG(vict, GF_TESTER);
+		sprintf(buf,"Иммортал %s установил флаг тестера для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
+		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		send_to_gods(buf);
         break;
 

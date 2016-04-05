@@ -65,6 +65,7 @@ ACMD(do_create);
 ACMD(do_forget);
 ACMD(do_remember);
 ACMD(do_mixture);
+ACMD(do_stun);
 
 void unused_spell(int spl);
 void unused_skill(int spl);
@@ -5251,6 +5252,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_DARK_MAGIC, "магия тьмы", 200);
 	skillo(SKILL_MIND_MAGIC, "магия разума", 200);
 	skillo(SKILL_LIFE_MAGIC, "магия жизни", 200);
+	skillo(SKILL_STUN, "ошеломление", 200);
 
 }
 
