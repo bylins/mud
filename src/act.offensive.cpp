@@ -1462,8 +1462,8 @@ ACMD(do_kick)
 		return;
 	}
 
-	if (onhorse(ch))
-		return;
+//	if (onhorse(ch))
+//		return;
 
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
