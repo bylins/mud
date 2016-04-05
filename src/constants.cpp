@@ -2443,6 +2443,7 @@ const char *godslike_bits[] =
 	"GF_REMORT",
 	"GF_DEMIGOD",
 	"GF_PERSLOG",
+	"GF_TESTER",
 	"\n"
 };
 
