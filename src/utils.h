@@ -1348,9 +1348,10 @@ inline bool a_isupper(unsigned char c)
 	return (c >= 'A' && c <= 'Z') || c >= 224 || c == 179;
 }
 
+extern const bool a_isdigit_table[];
 inline bool a_isdigit(unsigned char c)
 {
-	return c >= '0' && c <= '9';
+	return a_isdigit_table[c];
 }
 
 inline bool a_isalpha(unsigned char c)
@@ -1638,6 +1639,23 @@ typedef void(*converter_t)(char*, int);
 extern converter_t syslog_converter;
 
 void setup_converters();
+
+#ifdef WIN32
+class CCheckTable
+{
+public:
+	typedef int(*original_t)(int);
+	typedef bool(*table_t) (unsigned char);
+	CCheckTable(original_t original, table_t table) : m_original(original), m_table(table) {}
+	bool test_values() const;
+	double test_time() const;
+	void check() const;
+
+private:
+	original_t m_original;
+	table_t m_table;
+};
+#endif
 
 #endif // _UTILS_H_
 

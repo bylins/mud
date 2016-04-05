@@ -593,7 +593,7 @@ int xparse_ing(DESCRIPTOR_DATA * d, int **pping, char *arg)
 				free(*pping);
 			*pping = NULL;
 		}
-		else if (isdigit(arg[0]))
+		else if (a_isdigit(arg[0]))
 		{
 			im_extract_ing(pping, atoi(arg));
 		}
