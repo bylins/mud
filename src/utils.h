@@ -552,7 +552,7 @@ extern SPECIAL(shop_ext);
 #define GET_POS_SIZE(ch)  (POSI(GET_REAL_SIZE(ch) >> 1))
 #define GET_HR(ch)         ((ch)->real_abils.hitroll)
 #define GET_HR_ADD(ch)    ((ch)->add_abils.hr_add)
-#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, 50))
+#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, IS_MORTIFIER(ch)?100:50))
 #define GET_DR(ch)         ((ch)->real_abils.damroll)
 #define GET_DR_ADD(ch)    ((ch)->add_abils.dr_add)
 #define GET_REAL_DR(ch)   (get_real_dr(ch))
@@ -1197,6 +1197,7 @@ extern SPECIAL(shop_ext);
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
 #define IS_HORSE(ch) (IS_NPC(ch) && (ch->master) && AFF_FLAGGED(ch, AFF_HORSE))
+#define IS_MORTIFIER(ch) (IS_NPC(ch) && (ch->master) && MOB_FLAGGED(ch, MOB_CORPSE))
 
 
 

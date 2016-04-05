@@ -2329,7 +2329,7 @@ int get_real_dr(CHAR_DATA *ch)
 	if (can_use_feat(ch, BOWS_FOCUS_FEAT) && ch->get_skill(SKILL_ADDSHOT))
 	    return  MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + dd * 2);
         else
-            return (VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50) + dd * 2);
+            return (VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, IS_MORTIFIER(ch)?100:50) + dd * 2);
 }
 
 // без ограничений

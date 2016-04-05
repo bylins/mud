@@ -3414,7 +3414,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_EVILESS;
 		af[1].duration = af[0].duration;
 		af[1].location = APPLY_HITROLL;
-		af[1].modifier = 7 + (GET_REMORT(ch) > 8 ? (GET_REMORT(ch) - 8) : 0);;
+		af[1].modifier = 7 + (GET_REMORT(ch) > 8 ? (GET_REMORT(ch) - 8) : 0);
 		af[1].bitvector = AFF_EVILESS;
 		af[2].duration = af[0].duration;
 		af[2].location = APPLY_HIT;
