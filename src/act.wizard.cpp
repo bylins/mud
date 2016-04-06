@@ -2064,7 +2064,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 			GET_NAME(k), GET_IDNUM(k), k_room, GET_ID(k));
 	send_to_char(strcat(buf, buf2), ch);
-	send_to_char(ch, "ЛАГ: [%d]\r\n", k->get_wait());
+	send_to_char(ch, " ЛАГ: [%d]\r\n", k->get_wait());
 	if (IS_MOB(k))
 	{
 		sprintf(buf, "Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
