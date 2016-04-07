@@ -37,30 +37,27 @@ extern int material_value[];
 int slot_for_char(CHAR_DATA * ch, int i);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 
-struct create_item_type created_item[] = { {300, 0x7E, 15, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-		(ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{301, 0x7E, 12, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{304, 0x7E, 10, 35, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{305, 0, 8, 15, {{0, 0, 0}}, 0,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{306, 0, 8, 20, {{0, 0, 0}}, 0,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{307, 0x3A, 10, 20, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BODY)},
-	{308, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_ARMS)},
-	{309, 0x3A, 6, 12, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_LEGS)},
-	{310, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_HEAD)},
-	{312, 0, 4, 40, {{WOOD_PROTO, TETIVA_PROTO, 0}}, SKILL_CREATEBOW,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS)}
+constexpr auto WEAR_TAKE = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
+constexpr auto WEAR_TAKE_BOTHS_WIELD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS) | to_underlying(EWearFlag::ITEM_WEAR_WIELD);
+constexpr auto WEAR_TAKE_BODY = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BODY);
+constexpr auto WEAR_TAKE_ARMS= WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_ARMS);
+constexpr auto WEAR_TAKE_LEGS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_LEGS);
+constexpr auto WEAR_TAKE_HEAD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HEAD);
+constexpr auto WEAR_TAKE_BOTHS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS);
+struct create_item_type created_item[] =
+{
+	{300, 0x7E, 15, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD},
+	{301, 0x7E, 12, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
+	{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
+	{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
+	{304, 0x7E, 10, 35, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
+	{305, 0, 8, 15, {{0, 0, 0}}, 0, WEAR_TAKE_BOTHS_WIELD },
+	{306, 0, 8, 20, {{0, 0, 0}}, 0, WEAR_TAKE_BOTHS_WIELD },
+	{307, 0x3A, 10, 20, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BODY},
+	{308, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_ARMS},
+	{309, 0x3A, 6, 12, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_LEGS},
+	{310, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_HEAD},
+	{312, 0, 4, 40, {{WOOD_PROTO, TETIVA_PROTO, 0}}, SKILL_CREATEBOW, WEAR_TAKE_BOTHS}
 };
 
 const char *create_item_name[] = { "шелепуга",
@@ -925,7 +922,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			if (skill != SKILL_CREATEBOW)
 			{
 				if (GET_OBJ_WEIGHT(tobj) < 14 && percent * 4 > prob)
-					SET_BIT(tobj->obj_flags.wear_flags, ITEM_WEAR_HOLD);
+				{
+					SET_BIT(tobj->obj_flags.wear_flags, EWearFlag::ITEM_WEAR_HOLD);
+				}
 				to_room = "$n выковал$g $o3.";
 				average = (((float) sdice + 1) * (float) ndice / 2.0);
 				if (average < 3.0)
@@ -1746,37 +1745,67 @@ int MakeRecept::get_ingr_pow(OBJ_DATA * ingrobj)
 	}
 }
 void MakeRecept::make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS])
-{ int wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_BODY)) // 1.1
-			wearkoeff = 110;
-		if (CAN_WEAR(obj, ITEM_WEAR_HEAD)) //0.8
-			wearkoeff = 80;
-	        if (CAN_WEAR(obj, ITEM_WEAR_LEGS)) //0.5
-			wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_FEET)) //0.6
-			wearkoeff = 60;
-		if (CAN_WEAR(obj, ITEM_WEAR_ARMS)) //0.5
-			wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))//0.9
-			wearkoeff = 90;
-		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))//0.45
-			wearkoeff = 45;
-		GET_OBJ_VAL(obj, 0) = ((GET_REAL_INT(ch) * GET_REAL_INT(ch) /10 + ch->get_skill(SKILL_MAKE_WEAR)) / 100 + (GET_OBJ_VAL(ingrs[0],3) + 1)) * wearkoeff / 100; //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
-		if (CAN_WEAR(obj, ITEM_WEAR_BODY)) //0.9
-			wearkoeff = 90;
-		if (CAN_WEAR(obj, ITEM_WEAR_HEAD)) //0.7
-			wearkoeff = 70;
-	        if (CAN_WEAR(obj, ITEM_WEAR_LEGS)) //0.4
-			wearkoeff = 40;
-		if (CAN_WEAR(obj, ITEM_WEAR_FEET)) //0.5
-			wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_ARMS)) //0.4
-			wearkoeff = 40;
-		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))//0.8
-			wearkoeff = 80;
-		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))//0.31
-			wearkoeff = 31;
-		GET_OBJ_VAL(obj, 1) = (ch->get_skill(SKILL_MAKE_WEAR) / 25 + (GET_OBJ_VAL(ingrs[0],3) + 1)) * wearkoeff / 100; //броня=(%умелки/25+левл.шкуры)*коэф.части тела
+{
+	int wearkoeff = 50;
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) // 1.1
+	{
+		wearkoeff = 110;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.8
+	{
+		wearkoeff = 80;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.6
+	{
+		wearkoeff = 60;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.9
+	{
+		wearkoeff = 90;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.45
+	{
+		wearkoeff = 45;
+	}
+	GET_OBJ_VAL(obj, 0) = ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(SKILL_MAKE_WEAR)) / 100 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100; //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) //0.9
+	{
+		wearkoeff = 90;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.7
+	{
+		wearkoeff = 70;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.4
+	{
+		wearkoeff = 40;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.4
+	{
+		wearkoeff = 40;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.8
+	{
+		wearkoeff = 80;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.31
+	{
+		wearkoeff = 31;
+	}
+	GET_OBJ_VAL(obj, 1) = (ch->get_skill(SKILL_MAKE_WEAR) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100; //броня=(%умелки/25+левл.шкуры)*коэф.части тела
 }
 void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt)
 {

@@ -334,10 +334,55 @@ inline void NEWCREATE(T*& result, const T& init_value)
 
 // basic bitvector utils ************************************************
 
-#define IS_SET(flag,bit)  ((flag & 0x3FFFFFFF) & (bit))
-#define SET_BIT(var,bit)  ((var) |= (bit & 0x3FFFFFFF))
-#define REMOVE_BIT(var,bit)  ((var) &= ~(bit & 0x3FFFFFFF))
-#define TOGGLE_BIT(var,bit) ((var) = (var) ^ (bit & 0x3FFFFFFF))
+template <typename T> struct UNIMPLEMENTED { };
+
+template <typename T>
+inline bool IS_SET(const T flag, const uint32_t bit)
+{
+	return 0 != (flag & 0x3FFFFFFF & bit);
+}
+
+template <typename T, typename EnumType>
+inline void SET_BIT(T& var, const EnumType bit)
+{
+	var |= (to_underlying(bit) & 0x3FFFFFFF);
+}
+
+template <typename T>
+inline void SET_BIT(T& var, const uint32_t bit)
+{
+	var |= (bit & 0x3FFFFFFF);
+}
+
+template <typename T>
+inline void SET_BIT(T& var, const int bit)
+{
+	var |= (bit & 0x3FFFFFFF);
+}
+
+template <typename T, typename EnumType>
+inline void REMOVE_BIT(T& var, const EnumType bit)
+{
+	var &= ~(to_underlying(bit) & 0x3FFFFFFF);
+}
+
+template <typename T>
+inline void REMOVE_BIT(T& var, const uint32_t bit)
+{
+	var &= ~(bit & 0x3FFFFFFF);
+}
+
+template <typename T>
+inline void REMOVE_BIT(T& var, const int bit)
+{
+	var &= ~(bit & 0x3FFFFFFF);
+}
+
+template <typename T>
+inline void TOGGLE_BIT(T& var, const uint32_t bit)
+{
+	var = var ^ (bit & 0x3FFFFFFF);
+}
 
 /*
  * Accessing player specific data structures on a mobile is a very bad thing
@@ -946,9 +991,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_OBJ_SPEC(obj) ((obj)->item_number >= 0 ? \
    (obj_index[(obj)->item_number].func) : NULL)
 
-#define CAN_WEAR(obj, part) (IS_SET((obj)->obj_flags.wear_flags, (part)))
-#define CAN_WEAR_ANY(obj) (((obj)->obj_flags.wear_flags>0) && ((obj)->obj_flags.wear_flags != ITEM_WEAR_TAKE) )
-
 // проверяет arg на совпадение с персональными или клановыми метками
 // чармис автора меток их тоже может использовать
 #define CHECK_CUSTOM_LABEL(arg, obj, ch) (                                                          \
@@ -1491,7 +1533,7 @@ struct ParseFilter
 {
 	enum { CLAN, EXCHANGE };
 
-	ParseFilter(int type) : type(-1), state(-1), wear(-1), wear_message(-1),
+	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1),
 		weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'),
 		filter_type(type) {};
 
@@ -1510,7 +1552,7 @@ struct ParseFilter
 	std::string owner;     // имя продавца (базар)
 	int type;              // тип оружия
 	int state;             // состояние
-	int wear;              // куда одевается
+	EWearFlag wear;              // куда одевается
 	int wear_message;      // для названия куда одеть
 	int weap_class;        // класс оружие
 	int weap_message;      // для названия оружия

@@ -804,30 +804,36 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define BOOK_FEAT			4	// Книга способности (feats) //
 // -newbook.patch (Alisher)
 
-
-// Take/Wear flags: used by obj_data.obj_flags.wear_flags //
-#define ITEM_WEAR_TAKE     (1 << 0)	// Item can be takes      //
-#define ITEM_WEAR_FINGER   (1 << 1)	// Can be worn on finger  //
-#define ITEM_WEAR_NECK     (1 << 2)	// Can be worn around neck   //
-#define ITEM_WEAR_BODY     (1 << 3)	// Can be worn on body    //
-#define ITEM_WEAR_HEAD     (1 << 4)	// Can be worn on head    //
-#define ITEM_WEAR_LEGS     (1 << 5)	// Can be worn on legs //
-#define ITEM_WEAR_FEET     (1 << 6)	// Can be worn on feet //
-#define ITEM_WEAR_HANDS    (1 << 7)	// Can be worn on hands   //
-#define ITEM_WEAR_ARMS     (1 << 8)	// Can be worn on arms //
-#define ITEM_WEAR_SHIELD   (1 << 9)	// Can be used as a shield   //
-#define ITEM_WEAR_ABOUT    (1 << 10)	// Can be worn about body    //
-#define ITEM_WEAR_WAIST    (1 << 11)	// Can be worn around waist  //
-#define ITEM_WEAR_WRIST    (1 << 12)	// Can be worn on wrist   //
-#define ITEM_WEAR_WIELD    (1 << 13)	// Can be wielded      //
-#define ITEM_WEAR_HOLD     (1 << 14)	// Can be held      //
-#define ITEM_WEAR_BOTHS     (1 << 15)
-
 template <typename E>
 constexpr typename std::underlying_type<E>::type to_underlying(E e)
 {
 	return static_cast<typename std::underlying_type<E>::type>(e);
 }
+
+// Take/Wear flags: used by obj_data.obj_flags.wear_flags //
+enum class EWearFlag: uint32_t
+{
+	ITEM_WEAR_UNDEFINED = 0,	// Special value
+	ITEM_WEAR_TAKE = 1 << 0,	// Item can be takes      //
+	ITEM_WEAR_FINGER = 1 << 1,	// Can be worn on finger  //
+	ITEM_WEAR_NECK = 1 << 2,	// Can be worn around neck   //
+	ITEM_WEAR_BODY = 1 << 3,	// Can be worn on body    //
+	ITEM_WEAR_HEAD = 1 << 4,	// Can be worn on head    //
+	ITEM_WEAR_LEGS = 1 << 5,	// Can be worn on legs //
+	ITEM_WEAR_FEET = 1 << 6,	// Can be worn on feet //
+	ITEM_WEAR_HANDS = 1 << 7,	// Can be worn on hands   //
+	ITEM_WEAR_ARMS = 1 << 8,	// Can be worn on arms //
+	ITEM_WEAR_SHIELD = 1 << 9,	// Can be used as a shield   //
+	ITEM_WEAR_ABOUT = 1 << 10,	// Can be worn about body    //
+	ITEM_WEAR_WAIST = 1 << 11,	// Can be worn around waist  //
+	ITEM_WEAR_WRIST = 1 << 12,	// Can be worn on wrist   //
+	ITEM_WEAR_WIELD = 1 << 13,	// Can be wielded      //
+	ITEM_WEAR_HOLD = 1 << 14,	// Can be held      //
+	ITEM_WEAR_BOTHS = 1 << 15
+};
+
+template <> const std::string& NAME_BY_ITEM<EWearFlag>(const EWearFlag item);
+template <> EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string& name);
 
 // Extra object flags: used by obj_data.obj_flags.extra_flags //
 enum class EExtraFlag: uint32_t

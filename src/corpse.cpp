@@ -450,7 +450,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	corpse->PNames[5] = str_dup(buf2);
 
 	GET_OBJ_TYPE(corpse) = obj_flag_data::ITEM_CONTAINER;
-	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
+	GET_OBJ_WEAR(corpse) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 	corpse->set_extraflag(EExtraFlag::ITEM_NODONATE);
 	corpse->set_extraflag(EExtraFlag::ITEM_NOSELL);
 	GET_OBJ_VAL(corpse, 0) = 0;	// You can't store stuff in a corpse
@@ -505,7 +505,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	corpse->PNames[5] = str_dup(buf2);
 
 	GET_OBJ_TYPE(corpse) = obj_flag_data::ITEM_CONTAINER;
-	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
+	GET_OBJ_WEAR(corpse) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 	corpse->set_extraflag(EExtraFlag::ITEM_NODONATE);
 	corpse->set_extraflag(EExtraFlag::ITEM_NOSELL);
 	GET_OBJ_VAL(corpse, 0) = 0;	// You can't store stuff in a corpse

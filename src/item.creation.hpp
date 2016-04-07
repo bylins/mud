@@ -75,7 +75,7 @@ struct create_item_type
 	int max_weight;
 	boost::array<int, MAX_PROTO> proto;
 	int skill;
-	int wear;
+	std::underlying_type<EWearFlag>::type wear;
 };
 // Новая структура мы ее используем при создании вещей из ингридиентов
 struct ingr_part_type

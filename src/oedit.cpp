@@ -238,7 +238,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 		obj->PNames[3] = str_dup("взять что");
 		obj->PNames[4] = str_dup("вооружиться чем");
 		obj->PNames[5] = str_dup("говорить о чем");
-		GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
+		GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 	}
 	else
 	{

@@ -650,7 +650,7 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 		act("$p: Вы не в состоянии нести еще и $S.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
-	else if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)))
+	else if (!(CAN_WEAR(obj, EWearFlag::ITEM_WEAR_TAKE)))
 	{
 		act("$p: Вы не можете взять $S.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
@@ -1798,33 +1798,38 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	 * an object with a HOLD bit.)
 	 */
 
-	int wear_bitvectors[] = { ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_FINGER, ITEM_WEAR_NECK,
-							  ITEM_WEAR_NECK, ITEM_WEAR_BODY, ITEM_WEAR_HEAD, ITEM_WEAR_LEGS,
-							  ITEM_WEAR_FEET, ITEM_WEAR_HANDS, ITEM_WEAR_ARMS, ITEM_WEAR_SHIELD,
-							  ITEM_WEAR_ABOUT, ITEM_WEAR_WAIST, ITEM_WEAR_WRIST, ITEM_WEAR_WRIST,
-							  ITEM_WEAR_WIELD, ITEM_WEAR_TAKE, ITEM_WEAR_BOTHS
-							};
+	const EWearFlag wear_bitvectors[] =
+	{
+		EWearFlag::ITEM_WEAR_TAKE,
+		EWearFlag::ITEM_WEAR_FINGER,		EWearFlag::ITEM_WEAR_FINGER,
+		EWearFlag::ITEM_WEAR_NECK,		EWearFlag::ITEM_WEAR_NECK,		EWearFlag::ITEM_WEAR_BODY,		EWearFlag::ITEM_WEAR_HEAD,		EWearFlag::ITEM_WEAR_LEGS,
+		EWearFlag::ITEM_WEAR_FEET,		EWearFlag::ITEM_WEAR_HANDS,		EWearFlag::ITEM_WEAR_ARMS,		EWearFlag::ITEM_WEAR_SHIELD,
+		EWearFlag::ITEM_WEAR_ABOUT,		EWearFlag::ITEM_WEAR_WAIST,		EWearFlag::ITEM_WEAR_WRIST,		EWearFlag::ITEM_WEAR_WRIST,
+		EWearFlag::ITEM_WEAR_WIELD,		EWearFlag::ITEM_WEAR_TAKE,		EWearFlag::ITEM_WEAR_BOTHS
+	};
 
-	const char *already_wearing[] = { "Вы уже используете свет.\r\n",
-									  "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-									  "У вас уже что-то надето на пальцах.\r\n",
-									  "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-									  "У вас уже что-то надето на шею.\r\n",
-									  "У вас уже что-то надето на туловище.\r\n",
-									  "У вас уже что-то надето на голову.\r\n",
-									  "У вас уже что-то надето на ноги.\r\n",
-									  "У вас уже что-то надето на ступни.\r\n",
-									  "У вас уже что-то надето на кисти.\r\n",
-									  "У вас уже что-то надето на руки.\r\n",
-									  "Вы уже используете щит.\r\n",
-									  "Вы уже облачены во что-то.\r\n",
-									  "У вас уже что-то надето на пояс.\r\n",
-									  "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-									  "У вас уже что-то надето на запястья.\r\n",
-									  "Вы уже что-то держите в правой руке.\r\n",
-									  "Вы уже что-то держите в левой руке.\r\n",
-									  "Вы уже держите оружие в обеих руках.\r\n"
-									};
+	const std::array<char *, sizeof(wear_bitvectors)> already_wearing =
+	{
+		"Вы уже используете свет.\r\n",
+		"YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
+		"У вас уже что-то надето на пальцах.\r\n",
+		"YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
+		"У вас уже что-то надето на шею.\r\n",
+		"У вас уже что-то надето на туловище.\r\n",
+		"У вас уже что-то надето на голову.\r\n",
+		"У вас уже что-то надето на ноги.\r\n",
+		"У вас уже что-то надето на ступни.\r\n",
+		"У вас уже что-то надето на кисти.\r\n",
+		"У вас уже что-то надето на руки.\r\n",
+		"Вы уже используете щит.\r\n",
+		"Вы уже облачены во что-то.\r\n",
+		"У вас уже что-то надето на пояс.\r\n",
+		"YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
+		"У вас уже что-то надето на запястья.\r\n",
+		"Вы уже что-то держите в правой руке.\r\n",
+		"Вы уже что-то держите в левой руке.\r\n",
+		"Вы уже держите оружие в обеих руках.\r\n"
+	};
 
 	// first, make sure that the wear position is valid.
 	if (!CAN_WEAR(obj, wear_bitvectors[where]))
@@ -1873,8 +1878,6 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	equip_char(ch, obj, where | 0x100);
 }
 
-
-
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 {
 	int where = -1;
@@ -1906,103 +1909,171 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 	if (!arg || !*arg)
 	{
 		int tmp_where = -1;
-		if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
 		{
 			if (!GET_EQ(ch, WEAR_FINGER_R))
+			{
 				where = WEAR_FINGER_R;
+			}
 			else if (!GET_EQ(ch, WEAR_FINGER_L))
+			{
 				where = WEAR_FINGER_L;
+			}
 			else
+			{
 				tmp_where = WEAR_FINGER_R;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_NECK))
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
 		{
 			if (!GET_EQ(ch, WEAR_NECK_1))
+			{
 				where = WEAR_NECK_1;
+			}
 			else if (!GET_EQ(ch, WEAR_NECK_2))
+			{
 				where = WEAR_NECK_2;
+			}
 			else
+			{
 				tmp_where = WEAR_NECK_1;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_BODY))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
 		{
 			if (!GET_EQ(ch, WEAR_BODY))
+			{
 				where = WEAR_BODY;
+			}
 			else
+			{
 				tmp_where = WEAR_BODY;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_HEAD))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
 		{
 			if (!GET_EQ(ch, WEAR_HEAD))
+			{
 				where = WEAR_HEAD;
+			}
 			else
+			{
 				tmp_where = WEAR_HEAD;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_LEGS))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
 		{
 			if (!GET_EQ(ch, WEAR_LEGS))
+			{
 				where = WEAR_LEGS;
+			}
 			else
+			{
 				tmp_where = WEAR_LEGS;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_FEET))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
 		{
 			if (!GET_EQ(ch, WEAR_FEET))
+			{
 				where = WEAR_FEET;
+			}
 			else
+			{
 				tmp_where = WEAR_FEET;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
 		{
 			if (!GET_EQ(ch, WEAR_HANDS))
+			{
 				where = WEAR_HANDS;
+			}
 			else
+			{
 				tmp_where = WEAR_HANDS;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_ARMS))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
 		{
 			if (!GET_EQ(ch, WEAR_ARMS))
+			{
 				where = WEAR_ARMS;
+			}
 			else
+			{
 				tmp_where = WEAR_ARMS;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_SHIELD))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
 		{
 			if (!GET_EQ(ch, WEAR_SHIELD))
+			{
 				where = WEAR_SHIELD;
+			}
 			else
+			{
 				tmp_where = WEAR_SHIELD;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
 		{
 			if (!GET_EQ(ch, WEAR_ABOUT))
+			{
 				where = WEAR_ABOUT;
+			}
 			else
+			{
 				tmp_where = WEAR_ABOUT;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_WAIST))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
 		{
 			if (!GET_EQ(ch, WEAR_WAIST))
+			{
 				where = WEAR_WAIST;
+			}
 			else
+			{
 				tmp_where = WEAR_WAIST;
+			}
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
 		{
 			if (!GET_EQ(ch, WEAR_WRIST_R))
+			{
 				where = WEAR_WRIST_R;
+			}
 			else if (!GET_EQ(ch, WEAR_WRIST_L))
+			{
 				where = WEAR_WRIST_L;
+			}
 			else
+			{
 				tmp_where = WEAR_WRIST_R;
+			}
 		}
 
 		if (where == -1)
+		{
 			where = tmp_where;
+		}
 	}
 	else
 	{
-		if (((where = search_block(arg, keywords, FALSE)) < 0) || (*arg == '!'))
+		where = search_block(arg, keywords, FALSE);
+		if (where < 0
+			|| *arg == '!')
 		{
 			sprintf(buf, "'%s'? Странная анатомия у этих русских!\r\n", arg);
 			send_to_char(buf, ch);
@@ -2010,7 +2081,7 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 		}
 	}
 
-	return (where);
+	return where;
 }
 
 void do_wear(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2116,8 +2187,8 @@ void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		if (!CAN_WEAR(obj, ITEM_WEAR_WIELD)
-			&& !CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+		if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)
+			&& !CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
 		{
 			send_to_char("Вы не можете вооружиться этим.\r\n", ch);
 		}
@@ -2135,7 +2206,7 @@ void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			one_argument(argument, arg);
 			if (!str_cmp(arg, "обе")
-				&& CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+				&& CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
 			{
 				// иногда бывает надо
 				if (!IS_IMMORTAL(ch) && !OK_BOTH(ch, obj))
@@ -2147,20 +2218,31 @@ void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				perform_wear(ch, obj, WEAR_BOTHS);
 				return;
 			}
-			if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
+
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
+			{
 				wear = WEAR_WIELD;
+			}
 			else
+			{
 				wear = WEAR_BOTHS;
+			}
+
 			if (wear == WEAR_WIELD && !IS_IMMORTAL(ch) && !OK_WIELD(ch, obj))
 			{
 				act("Вам слишком тяжело держать $o3 в правой руке.", FALSE, ch, obj, 0, TO_CHAR);
 				message_str_need(ch, obj, STR_WIELD_W);
 
-				if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+				{
 					wear = WEAR_BOTHS;
+				}
 				else
+				{
 					return;
+				}
 			}
+
 			if (wear == WEAR_BOTHS && !IS_IMMORTAL(ch) && !OK_BOTH(ch, obj))
 			{
 				act("Вам слишком тяжело держать $o3 двумя руками.", FALSE, ch, obj, 0, TO_CHAR);
@@ -2202,15 +2284,16 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			if (!CAN_WEAR(obj, ITEM_WEAR_HOLD) &&
-				GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WAND &&
-				GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_STAFF &&
-				GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_SCROLL
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)
+				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WAND
+				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_STAFF
+				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_SCROLL
 				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_POTION)
 			{
 				send_to_char("Вы не можете это держать.\r\n", ch);
 				return;
 			}
+
 			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 			{
 				if (GET_OBJ_SKILL(obj) == SKILL_BOTHHANDS
@@ -2220,6 +2303,7 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					return;
 				}
 			}
+
 			if (IS_NPC(ch)
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 				&& MOB_FLAGGED(ch, MOB_CORPSE))
@@ -2233,7 +2317,7 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				act("Вам слишком тяжело держать $o3 в левой руке.", FALSE, ch, obj, 0, TO_CHAR);
 				message_str_need(ch, obj, STR_HOLD_W);
 
-				if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
 				{
 					if (!OK_BOTH(ch, obj))
 					{
@@ -2242,10 +2326,14 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						return;
 					}
 					else
+					{
 						where = WEAR_BOTHS;
+					}
 				}
 				else
+				{
 					return;
+				}
 			}
 			perform_wear(ch, obj, where);
 		}
@@ -2259,24 +2347,32 @@ void perform_remove(CHAR_DATA * ch, int pos)
 	OBJ_DATA *obj;
 
 	if (!(obj = GET_EQ(ch, pos)))
+	{
 		log("SYSERR: perform_remove: bad pos %d passed.", pos);
+	}
 	else
+	{
 		/*
 		   if (IS_OBJ_STAT(obj, ITEM_NODROP))
 		   act("Вы не можете снять $o3!", FALSE, ch, obj, 0, TO_CHAR);
 		   else
 		 */
 		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
+		{
 			act("$p: Вы не можете нести столько вещей!", FALSE, ch, obj, 0, TO_CHAR);
+		}
 		else
 		{
 			if (!remove_otrigger(obj, ch) || obj->purged())
+			{
 				return;
+			}
 
 			act("Вы прекратили использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n прекратил$g использовать $o3.", TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			obj_to_char(unequip_char(ch, pos | 0x40), ch);
 		}
+	}
 }
 
 void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2544,17 +2640,22 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-	if (OBJWEAR_FLAGGED(obj, (ITEM_WEAR_BODY | ITEM_WEAR_ABOUT)))
+	if (OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_BODY)
+		| to_underlying(EWearFlag::ITEM_WEAR_ABOUT))))
 	{
 		k_mul = 1;
 		k_div = 1;
 	}
-	else if (OBJWEAR_FLAGGED(obj, (ITEM_WEAR_SHIELD | ITEM_WEAR_HEAD | ITEM_WEAR_ARMS | ITEM_WEAR_LEGS)))
+	else if (OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_SHIELD)
+		| to_underlying(EWearFlag::ITEM_WEAR_HEAD)
+		| to_underlying(EWearFlag::ITEM_WEAR_ARMS)
+		| to_underlying(EWearFlag::ITEM_WEAR_LEGS))))
 	{
 		k_mul = 2;
 		k_div = 3;
 	}
-	else if (OBJWEAR_FLAGGED(obj, (ITEM_WEAR_HANDS | ITEM_WEAR_FEET)))
+	else if (OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_HANDS)
+		| to_underlying(EWearFlag::ITEM_WEAR_FEET))))
 	{
 		k_mul = 1;
 		k_div = 2;

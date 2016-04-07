@@ -311,21 +311,33 @@ struct Item_struct
 
 // массив для критерии, каждый элемент массива это отдельный слот
 Item_struct items_struct[17]; // = new Item_struct[16];
+
 // определение степени двойки
-int exp_two(int number)
+int exp_two_implementation(int number)
 {
-	int tmp = 1;
 	int count = 0;
 	while (true)
 	{
-		tmp = 1 << count;
+		const int tmp = 1 << count;
 		if (number < tmp)
+		{
 			return -1;
+		}
 		if (number == tmp)
+		{
 			return count;
+		}
 		count++;
 	}
 }
+
+template <typename EnumType>
+inline int exp_two(EnumType number)
+{
+	return exp_two_implementation(to_underlying(number));
+}
+
+template <> inline int exp_two(int number) { return exp_two_implementation(number); }
 
 bool check_obj_in_system_zone(int vnum)
 {
@@ -363,44 +375,95 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	// сумма для аффектов
 	double sum_aff = 0;
 	// по другому чот не получилось
-	if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
-		item_wear = exp_two(ITEM_WEAR_FINGER);
-	if (CAN_WEAR(obj, ITEM_WEAR_NECK))
-		item_wear = exp_two(ITEM_WEAR_NECK);
-	if (CAN_WEAR(obj, ITEM_WEAR_BODY))
-		item_wear = exp_two(ITEM_WEAR_BODY);
-	if (CAN_WEAR(obj, ITEM_WEAR_HEAD))
-		item_wear = exp_two(ITEM_WEAR_HEAD);
-	if (CAN_WEAR(obj, ITEM_WEAR_LEGS))
-		item_wear = exp_two(ITEM_WEAR_LEGS);
-	if (CAN_WEAR(obj, ITEM_WEAR_FEET))
-		item_wear = exp_two(ITEM_WEAR_FEET);
-	if (CAN_WEAR(obj, ITEM_WEAR_HANDS))
-		item_wear = exp_two(ITEM_WEAR_HANDS);
-	if (CAN_WEAR(obj, ITEM_WEAR_ARMS))
-		item_wear = exp_two(ITEM_WEAR_ARMS);
-	if (CAN_WEAR(obj, ITEM_WEAR_SHIELD))
-		item_wear = exp_two(ITEM_WEAR_SHIELD);
-	if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))
-		item_wear = exp_two(ITEM_WEAR_ABOUT);
-	if (CAN_WEAR(obj, ITEM_WEAR_WAIST))
-		item_wear = exp_two(ITEM_WEAR_WAIST);
-	if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
-		item_wear = exp_two(ITEM_WEAR_WRIST);
-	if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
-		item_wear = exp_two(ITEM_WEAR_WIELD);
-	if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
-		item_wear = exp_two(ITEM_WEAR_HOLD);
-	if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
-		item_wear = exp_two(ITEM_WEAR_BOTHS);
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_FINGER);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_NECK);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_BODY);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_HEAD);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_LEGS);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_FEET);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_HANDS);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_ARMS);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_SHIELD);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_ABOUT);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_WAIST);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_WRIST);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_WIELD);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_HOLD);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_BOTHS);
+	}
+
 	if (!type_item)
-	    return false;
+	{
+		return false;
+	}
 	// находится ли объект в системной зоне
 	if (check_obj_in_system_zone(GET_OBJ_VNUM(obj)))
-	    return false;
+	{
+		return false;
+	}
 	// если объект никуда не надевается, то все, облом
 	if (item_wear == -1)
-	    return false;
+	{
+		return false;
+	}
 	// если шмотка магическая или энчантнута таймер обычный
     if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
 	    return false;
@@ -525,38 +588,85 @@ float count_unlimited_timer(OBJ_DATA *obj)
 	
 	result = 0.0;
 	
-	if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_FINGER));
-	if (CAN_WEAR(obj, ITEM_WEAR_NECK))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_NECK));
-	if (CAN_WEAR(obj, ITEM_WEAR_BODY))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_BODY));
-	if (CAN_WEAR(obj, ITEM_WEAR_HEAD))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_HEAD));
-	if (CAN_WEAR(obj, ITEM_WEAR_LEGS))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_LEGS));
-	if (CAN_WEAR(obj, ITEM_WEAR_FEET))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_FEET));
-	if (CAN_WEAR(obj, ITEM_WEAR_HANDS))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_HANDS));
-	if (CAN_WEAR(obj, ITEM_WEAR_ARMS))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_ARMS));
-	if (CAN_WEAR(obj, ITEM_WEAR_SHIELD))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_SHIELD));
-	if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_ABOUT));
-	if (CAN_WEAR(obj, ITEM_WEAR_WAIST))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_WAIST));
-	if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_WRIST));
-	if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_WIELD));
-	if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_HOLD));
-	if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_BOTHS));
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_FINGER));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_NECK));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_BODY));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HEAD));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_LEGS));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_FEET));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HANDS));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_ARMS));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_SHIELD));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_ABOUT));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WAIST));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WRIST));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WIELD));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HOLD));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_BOTHS));
+	}
+
 	if (!type_item)
-	    return 0.0;
+	{
+		return 0.0;
+	}
 
 	return result;
 }
@@ -630,8 +740,7 @@ float count_remort_requred(OBJ_DATA *obj)
 	return result;
 }
 
-
-void Load_Criterion(pugi::xml_node XMLCriterion, int type)
+void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)
 {
 	int index = exp_two(type);
 	pugi::xml_node params, CurNode, affects;
@@ -651,13 +760,7 @@ void Load_Criterion(pugi::xml_node XMLCriterion, int type)
 		items_struct[index].affects.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
 		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
 	}	
-	
 }
-
-
-
-
-
 
 // Separate a 4-character id tag from the data it precedes
 void tag_argument(char *argument, char *tag)
@@ -2144,21 +2247,21 @@ void boot_db(void)
 	
 	log("Loading Criterion...");
 	pugi::xml_document doc1;
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1), ITEM_WEAR_FINGER);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1), ITEM_WEAR_NECK);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1), ITEM_WEAR_BODY);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "head", "Error Loading Criterion.xml: <head>", doc1), ITEM_WEAR_HEAD);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "legs", "Error Loading Criterion.xml: <legs>", doc1), ITEM_WEAR_LEGS);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "feet", "Error Loading Criterion.xml: <feet>", doc1), ITEM_WEAR_FEET);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hands", "Error Loading Criterion.xml: <hands>", doc1), ITEM_WEAR_HANDS);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "arms", "Error Loading Criterion.xml: <arms>", doc1), ITEM_WEAR_ARMS);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1), ITEM_WEAR_SHIELD);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1), ITEM_WEAR_ABOUT);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1), ITEM_WEAR_WAIST);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1), ITEM_WEAR_WRIST);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1), ITEM_WEAR_WIELD);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), ITEM_WEAR_HOLD);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), ITEM_WEAR_BOTHS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1), EWearFlag::ITEM_WEAR_FINGER);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1), EWearFlag::ITEM_WEAR_NECK);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1), EWearFlag::ITEM_WEAR_BODY);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "head", "Error Loading Criterion.xml: <head>", doc1), EWearFlag::ITEM_WEAR_HEAD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "legs", "Error Loading Criterion.xml: <legs>", doc1), EWearFlag::ITEM_WEAR_LEGS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "feet", "Error Loading Criterion.xml: <feet>", doc1), EWearFlag::ITEM_WEAR_FEET);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hands", "Error Loading Criterion.xml: <hands>", doc1), EWearFlag::ITEM_WEAR_HANDS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "arms", "Error Loading Criterion.xml: <arms>", doc1), EWearFlag::ITEM_WEAR_ARMS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1), EWearFlag::ITEM_WEAR_SHIELD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1), EWearFlag::ITEM_WEAR_ABOUT);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1), EWearFlag::ITEM_WEAR_WAIST);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1), EWearFlag::ITEM_WEAR_WRIST);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1), EWearFlag::ITEM_WEAR_WIELD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), EWearFlag::ITEM_WEAR_HOLD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), EWearFlag::ITEM_WEAR_BOTHS);
 
 	
 	log("Loading birth places definitions.");

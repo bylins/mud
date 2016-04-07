@@ -438,7 +438,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
 		GET_OBJ_ZONE(object) = world[IN_ROOM(ch)]->zone;
-		if (CAN_WEAR(object, ITEM_WEAR_TAKE))
+		if (CAN_WEAR(object, EWearFlag::ITEM_WEAR_TAKE))
 		{
 			obj_to_char(object, ch);
 		}

@@ -3226,77 +3226,77 @@ bool ParseFilter::init_wear(const char *str)
 {
 	if (is_abbrev(str, "палец"))
 	{
-		wear = ITEM_WEAR_FINGER;
+		wear = EWearFlag::ITEM_WEAR_FINGER;
 		wear_message = 1;
 	}
 	else if (is_abbrev(str, "шея") || is_abbrev(str, "грудь"))
 	{
-		wear = ITEM_WEAR_NECK;
+		wear = EWearFlag::ITEM_WEAR_NECK;
 		wear_message = 2;
 	}
 	else if (is_abbrev(str, "тело"))
 	{
-		wear = ITEM_WEAR_BODY;
+		wear = EWearFlag::ITEM_WEAR_BODY;
 		wear_message = 3;
 	}
 	else if (is_abbrev(str, "голова"))
 	{
-		wear = ITEM_WEAR_HEAD;
+		wear = EWearFlag::ITEM_WEAR_HEAD;
 		wear_message = 4;
 	}
 	else if (is_abbrev(str, "ноги"))
 	{
-		wear = ITEM_WEAR_LEGS;
+		wear = EWearFlag::ITEM_WEAR_LEGS;
 		wear_message = 5;
 	}
 	else if (is_abbrev(str, "ступни"))
 	{
-		wear = ITEM_WEAR_FEET;
+		wear = EWearFlag::ITEM_WEAR_FEET;
 		wear_message = 6;
 	}
 	else if (is_abbrev(str, "кисти"))
 	{
-		wear = ITEM_WEAR_HANDS;
+		wear = EWearFlag::ITEM_WEAR_HANDS;
 		wear_message = 7;
 	}
 	else if (is_abbrev(str, "руки"))
 	{
-		wear = ITEM_WEAR_ARMS;
+		wear = EWearFlag::ITEM_WEAR_ARMS;
 		wear_message = 8;
 	}
 	else if (is_abbrev(str, "щит"))
 	{
-		wear = ITEM_WEAR_SHIELD;
+		wear = EWearFlag::ITEM_WEAR_SHIELD;
 		wear_message = 9;
 	}
 	else if (is_abbrev(str, "плечи"))
 	{
-		wear = ITEM_WEAR_ABOUT;
+		wear = EWearFlag::ITEM_WEAR_ABOUT;
 		wear_message = 10;
 	}
 	else if (is_abbrev(str, "пояс"))
 	{
-		wear = ITEM_WEAR_WAIST;
+		wear = EWearFlag::ITEM_WEAR_WAIST;
 		wear_message = 11;
 	}
 	else if (is_abbrev(str, "запястья"))
 	{
-		wear = ITEM_WEAR_WRIST;
+		wear = EWearFlag::ITEM_WEAR_WRIST;
 		wear_message = 12;
 	}
 	else if (is_abbrev(str, "правая"))
 	{
-		wear = ITEM_WEAR_WIELD;
+		wear = EWearFlag::ITEM_WEAR_WIELD;
 		wear_message = 13;
 	}
 	else if (is_abbrev(str, "левая"))
 	{
-		wear = ITEM_WEAR_HOLD;
+		wear = EWearFlag::ITEM_WEAR_HOLD;
 		wear_message = 14;
 	}
 	else if (is_abbrev(str, "обе"))
 	{
-		wear = ITEM_WEAR_BOTHS;
+		wear = EWearFlag::ITEM_WEAR_BOTHS;
 		wear_message = 15;
 	}
 	else
@@ -3547,7 +3547,8 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const
 
 bool ParseFilter::check_wear(OBJ_DATA *obj) const
 {
-	if (wear < 0 || CAN_WEAR(obj, wear))
+	if (wear == EWearFlag::ITEM_WEAR_UNDEFINED
+		|| CAN_WEAR(obj, wear))
 	{
 		return true;
 	}
@@ -3788,7 +3789,7 @@ std::string ParseFilter::print() const
 		buffer += print_obj_state(state);
 		buffer += " ";
 	}
-	if (wear >= 0)
+	if (wear != EWearFlag::ITEM_WEAR_UNDEFINED)
 	{
 		buffer += wear_bits[wear_message];
 		buffer += " ";

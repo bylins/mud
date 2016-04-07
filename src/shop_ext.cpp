@@ -89,7 +89,7 @@ long get_sell_price(OBJ_DATA * obj);
 const int IDENTIFY_COST = 110;
 int spent_today = 0;
 const char *MSG_NO_STEAL_HERE = "$n, грязн$w воришка, чеши отседова!";
-int wear = -10;
+EWearFlag wear = EWearFlag::ITEM_WEAR_UNDEFINED;
 int type = -10;
 
 struct item_desc_node
@@ -763,63 +763,63 @@ bool init_wear(const char *str)
 {
 	if (is_abbrev(str, "палец"))
 	{
-		wear = ITEM_WEAR_FINGER;
+		wear = EWearFlag::ITEM_WEAR_FINGER;
 	}
 	else if (is_abbrev(str, "шея") || is_abbrev(str, "грудь"))
 	{
-		wear = ITEM_WEAR_NECK;
+		wear = EWearFlag::ITEM_WEAR_NECK;
 	}
 	else if (is_abbrev(str, "тело"))
 	{
-		wear = ITEM_WEAR_BODY;
+		wear = EWearFlag::ITEM_WEAR_BODY;
 	}
 	else if (is_abbrev(str, "голова"))
 	{
-		wear = ITEM_WEAR_HEAD;
+		wear = EWearFlag::ITEM_WEAR_HEAD;
 	}
 	else if (is_abbrev(str, "ноги"))
 	{
-		wear = ITEM_WEAR_LEGS;
+		wear = EWearFlag::ITEM_WEAR_LEGS;
 	}
 	else if (is_abbrev(str, "ступни"))
 	{
-		wear = ITEM_WEAR_FEET;
+		wear = EWearFlag::ITEM_WEAR_FEET;
 	}
 	else if (is_abbrev(str, "кисти"))
 	{
-		wear = ITEM_WEAR_HANDS;
+		wear = EWearFlag::ITEM_WEAR_HANDS;
 	}
 	else if (is_abbrev(str, "руки"))
 	{
-		wear = ITEM_WEAR_ARMS;
+		wear = EWearFlag::ITEM_WEAR_ARMS;
 	}
 	else if (is_abbrev(str, "щит"))
 	{
-		wear = ITEM_WEAR_SHIELD;
+		wear = EWearFlag::ITEM_WEAR_SHIELD;
 	}
 	else if (is_abbrev(str, "плечи"))
 	{
-		wear = ITEM_WEAR_ABOUT;
+		wear = EWearFlag::ITEM_WEAR_ABOUT;
 	}
 	else if (is_abbrev(str, "пояс"))
 	{
-		wear = ITEM_WEAR_WAIST;
+		wear = EWearFlag::ITEM_WEAR_WAIST;
 	}
 	else if (is_abbrev(str, "запястья"))
 	{
-		wear = ITEM_WEAR_WRIST;
+		wear = EWearFlag::ITEM_WEAR_WRIST;
 	}
 	else if (is_abbrev(str, "правая"))
 	{
-		wear = ITEM_WEAR_WIELD;
+		wear = EWearFlag::ITEM_WEAR_WIELD;
 	}
 	else if (is_abbrev(str, "левая"))
 	{
-		wear = ITEM_WEAR_HOLD;
+		wear = EWearFlag::ITEM_WEAR_HOLD;
 	}
 	else if (is_abbrev(str, "обе"))
 	{
-		wear = ITEM_WEAR_BOTHS;
+		wear = EWearFlag::ITEM_WEAR_BOTHS;
 	}
 	else
 	{
@@ -928,7 +928,7 @@ bool init_type(const char *str)
 void filter_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::string arg, int keeper_vnum)
 {
 	int num = 1;
-	wear = -10;
+	wear = EWearFlag::ITEM_WEAR_UNDEFINED;
 	type = -10;
 	
 	std::string out;
@@ -989,7 +989,7 @@ void filter_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::st
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
 			}
 			
-			if (!((wear > 0
+			if (!((wear != EWearFlag::ITEM_WEAR_UNDEFINED
 					&& CAN_WEAR(obj_proto[(*k)->rnum], wear))
 				|| (type > 0
 					&& type == GET_OBJ_TYPE(obj_proto[(*k)->rnum]))))
@@ -1003,9 +1003,11 @@ void filter_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::st
 			OBJ_DATA * tmp_obj = get_obj_from_waste(shop, (*k)->temporary_ids);
 			if (tmp_obj)
 			{
-				if (!( (wear > 0 && CAN_WEAR(tmp_obj, wear))
+				if (!( (wear != EWearFlag::ITEM_WEAR_UNDEFINED && CAN_WEAR(tmp_obj, wear))
 					|| (type > 0 && type == GET_OBJ_TYPE(tmp_obj))))
+				{
 					show_name = false;
+				}
 			
 				print_value = std::string(tmp_obj->short_description);
 				name_value = std::string(tmp_obj->aliases);

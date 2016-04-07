@@ -153,7 +153,8 @@ namespace craft
 			m_sex(DEFAULT_SEX),
 			m_level(obj_flag_data::DEFAULT_LEVEL),
 			m_item_params(0),
-			m_material(obj_flag_data::DEFAULT_MATERIAL)
+			m_material(obj_flag_data::DEFAULT_MATERIAL),
+			m_wear_flags(0)
 		{
 		}
 
@@ -193,6 +194,8 @@ namespace craft
         FLAG_DATA m_affect_flags;
         FLAG_DATA m_anti_flags;
 		FLAG_DATA m_no_flags;
+
+		std::underlying_type<EWearFlag>::type m_wear_flags;
 
 		friend class CCraftModel;
 	};

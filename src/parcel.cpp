@@ -546,7 +546,7 @@ OBJ_DATA * create_parcel()
 	obj->PNames[5] = str_dup("посылке");
 	GET_OBJ_SEX(obj) = ESex::SEX_FEMALE;
 	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
-	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
+	GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 	GET_OBJ_WEIGHT(obj) = 1;
 	obj->set_cost(1);
 	obj->set_rent(1);

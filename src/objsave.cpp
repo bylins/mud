@@ -1375,78 +1375,123 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 {
-	int j;
-
 	// Lots of checks...
 	if (location > 0)  	// Was wearing it.
 	{
-		switch (j = (location - 1))
+		const int j = location - 1;
+		switch (j)
 		{
 		case WEAR_LIGHT:
 			break;
+
 		case WEAR_FINGER_R:
 		case WEAR_FINGER_L:
-			if (!CAN_WEAR(obj, ITEM_WEAR_FINGER))	// not fitting
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))	// not fitting
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_NECK_1:
 		case WEAR_NECK_2:
-			if (!CAN_WEAR(obj, ITEM_WEAR_NECK))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_BODY:
-			if (!CAN_WEAR(obj, ITEM_WEAR_BODY))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_HEAD:
-			if (!CAN_WEAR(obj, ITEM_WEAR_HEAD))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_LEGS:
-			if (!CAN_WEAR(obj, ITEM_WEAR_LEGS))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_FEET:
-			if (!CAN_WEAR(obj, ITEM_WEAR_FEET))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_HANDS:
-			if (!CAN_WEAR(obj, ITEM_WEAR_HANDS))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_ARMS:
-			if (!CAN_WEAR(obj, ITEM_WEAR_ARMS))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_SHIELD:
-			if (!CAN_WEAR(obj, ITEM_WEAR_SHIELD))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_ABOUT:
-			if (!CAN_WEAR(obj, ITEM_WEAR_ABOUT))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_WAIST:
-			if (!CAN_WEAR(obj, ITEM_WEAR_WAIST))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_WRIST_R:
 		case WEAR_WRIST_L:
-			if (!CAN_WEAR(obj, ITEM_WEAR_WRIST))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_WIELD:
-			if (!CAN_WEAR(obj, ITEM_WEAR_WIELD))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_HOLD:
-			if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
+			{
 				break;
+			}
 			location = LOC_INVENTORY;
 			break;
+
 		case WEAR_BOTHS:
-			if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+			{
 				break;
+			}
+
 		default:
 			location = LOC_INVENTORY;
 		}
@@ -1458,7 +1503,9 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 				// Check the characters's alignment to prevent them from being
 				// zapped through the auto-equipping.
 				if (invalid_align(ch, obj) || invalid_anti_class(ch, obj) || invalid_no_class(ch, obj) || NamedStuff::check_named(ch, obj, 0))
+				{
 					location = LOC_INVENTORY;
+				}
 				else
 				{
 					equip_char(ch, obj, j | 0x80 | 0x40);
@@ -1468,16 +1515,16 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 			else  	// Oops, saved a player with double equipment?
 			{
 				char aeq[128];
-				sprintf(aeq,
-						"SYSERR: autoeq: '%s' already equipped in position %d.",
-						GET_NAME(ch), location);
+				sprintf(aeq, "SYSERR: autoeq: '%s' already equipped in position %d.", GET_NAME(ch), location);
 				mudlog(aeq, BRF, LVL_IMMORT, SYSLOG, TRUE);
 				location = LOC_INVENTORY;
 			}
 		}
 	}
 	if (location <= 0)	// Inventory
+	{
 		obj_to_char(obj, ch);
+	}
 	return (location);
 }
 

@@ -51,7 +51,7 @@ inline const char* OBJS(const OBJ_DATA* obj, const CHAR_DATA* vict)
 
 inline bool CAN_GET_OBJ(const CHAR_DATA* ch, const OBJ_DATA* obj)
 {
-	return (CAN_WEAR(obj, ITEM_WEAR_TAKE)
+	return (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_TAKE)
 		&& CAN_CARRY_OBJ(ch, obj)
 		&& CAN_SEE_OBJ(ch, obj))
 		&& !(IS_NPC(ch)

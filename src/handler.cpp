@@ -786,9 +786,12 @@ void affect_total(CHAR_DATA * ch)
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_WIELD), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
-			if (CAN_WEAR(obj, ITEM_WEAR_BOTHS) && OK_BOTH(ch, obj)
-				&& !GET_EQ(ch, WEAR_HOLD) && !GET_EQ(ch, WEAR_LIGHT)
-				&& !GET_EQ(ch, WEAR_SHIELD) && !GET_EQ(ch, WEAR_WIELD)
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
+				&& OK_BOTH(ch, obj)
+				&& !GET_EQ(ch, WEAR_HOLD)
+				&& !GET_EQ(ch, WEAR_LIGHT)
+				&& !GET_EQ(ch, WEAR_SHIELD)
+				&& !GET_EQ(ch, WEAR_WIELD)
 				&& !GET_EQ(ch, WEAR_BOTHS))
 			{
 				equip_char(ch, obj, WEAR_BOTHS | 0x100);
@@ -3759,7 +3762,7 @@ OBJ_DATA *create_money(int amount)
 	obj->ex_description = new_descr;
 
 	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_MONEY;
-	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
+	GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 	GET_OBJ_SEX(obj) = ESex::SEX_FEMALE;
 	GET_OBJ_VAL(obj, 0) = amount;
 	obj->set_cost(amount);

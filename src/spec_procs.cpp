@@ -2094,19 +2094,31 @@ void npc_wield(CHAR_DATA * ch)
 		{
 			continue;
 		}
-		if (CAN_WEAR(obj, ITEM_WEAR_HOLD) && OK_HELD(ch, obj))
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)
+			&& OK_HELD(ch, obj))
+		{
 			best_weapon(ch, obj, &left);
-		else if (CAN_WEAR(obj, ITEM_WEAR_WIELD) && OK_WIELD(ch, obj))
+		}
+		else if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)
+			&& OK_WIELD(ch, obj))
+		{
 			best_weapon(ch, obj, &right);
-		else if (CAN_WEAR(obj, ITEM_WEAR_BOTHS) && OK_BOTH(ch, obj))
+		}
+		else if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
+			&& OK_BOTH(ch, obj))
+		{
 			best_weapon(ch, obj, &both);
+		}
 	}
 
 	if (both
 		&& calculate_weapon_class(ch, both) > calculate_weapon_class(ch, left) + calculate_weapon_class(ch, right))
 	{
 		if (both == GET_EQ(ch, WEAR_BOTHS))
+		{
 			return;
+		}
 		if (GET_EQ(ch, WEAR_BOTHS))
 		{
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
@@ -2185,53 +2197,102 @@ void npc_armor(CHAR_DATA * ch)
 	{
 		next = obj->next_content;
 
-		if (!ObjSystem::is_armor_type(obj))
+		if (!ObjSystem::is_armor_type(obj)
+			|| !no_bad_affects(obj))
+		{
 			continue;
+		}
 
-
-		if (!no_bad_affects(obj))
-			continue;
-
-		if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
+		{
 			where = WEAR_FINGER_R;
-		if (CAN_WEAR(obj, ITEM_WEAR_NECK))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
+		{
 			where = WEAR_NECK_1;
-		if (CAN_WEAR(obj, ITEM_WEAR_BODY))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
+		{
 			where = WEAR_BODY;
-		if (CAN_WEAR(obj, ITEM_WEAR_HEAD))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
+		{
 			where = WEAR_HEAD;
-		if (CAN_WEAR(obj, ITEM_WEAR_LEGS))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
+		{
 			where = WEAR_LEGS;
-		if (CAN_WEAR(obj, ITEM_WEAR_FEET))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
+		{
 			where = WEAR_FEET;
-		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
+		{
 			where = WEAR_HANDS;
-		if (CAN_WEAR(obj, ITEM_WEAR_ARMS))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
+		{
 			where = WEAR_ARMS;
-		if (CAN_WEAR(obj, ITEM_WEAR_SHIELD))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
+		{
 			where = WEAR_SHIELD;
-		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
+		{
 			where = WEAR_ABOUT;
-		if (CAN_WEAR(obj, ITEM_WEAR_WAIST))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
+		{
 			where = WEAR_WAIST;
-		if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
+		{
 			where = WEAR_WRIST_R;
+		}
 
 		if (!where)
+		{
 			continue;
+		}
 
 		if ((where == WEAR_FINGER_R) || (where == WEAR_NECK_1) || (where == WEAR_WRIST_R))
+		{
 			if (GET_EQ(ch, where))
+			{
 				where++;
+			}
+		}
+
 		if (where == WEAR_SHIELD && (GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_HOLD)))
+		{
 			continue;
+		}
+
 		if (GET_EQ(ch, where))
 		{
 			if (GET_REAL_INT(ch) < 15)
+			{
 				continue;
-			if (GET_OBJ_VAL(obj, 0) + GET_OBJ_VAL(obj, 1) * 3 <=
-					GET_OBJ_VAL(GET_EQ(ch, where), 0) + GET_OBJ_VAL(GET_EQ(ch, where), 1) * 3 || has_curse(obj))
+			}
+
+			if (GET_OBJ_VAL(obj, 0) + GET_OBJ_VAL(obj, 1) * 3 <= GET_OBJ_VAL(GET_EQ(ch, where), 0) + GET_OBJ_VAL(GET_EQ(ch, where), 1) * 3
+				|| has_curse(obj))
+			{
 				continue;
+			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, where), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, where | 0x40), ch);
 		}
@@ -2827,20 +2888,25 @@ int janitor(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 
 	for (i = world[ch->in_room]->contents; i; i = i->next_content)
 	{
-		if (!CAN_WEAR(i, ITEM_WEAR_TAKE))
+		if (!CAN_WEAR(i, EWearFlag::ITEM_WEAR_TAKE))
+		{
 			continue;
+		}
+
 		if (GET_OBJ_TYPE(i) != obj_flag_data::ITEM_DRINKCON
 			&& GET_OBJ_COST(i) >= 15)
 		{
 			continue;
 		}
+
 		act("$n picks up some trash.", FALSE, ch, 0, 0, TO_ROOM);
 		obj_from_room(i);
 		obj_to_char(i, ch);
-		return (TRUE);
+
+		return TRUE;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 int cityguard(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)

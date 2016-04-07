@@ -269,6 +269,57 @@ const std::string& NAME_BY_ITEM(const ESex item)
 	return ESex_name_by_value.at(item);
 }
 
+typedef std::map<EWearFlag, std::string> EWearFlag_name_by_value_t;
+typedef std::map<const std::string, EWearFlag> EWearFlag_value_by_name_t;
+EWearFlag_name_by_value_t EWearFlag_name_by_value;
+EWearFlag_value_by_name_t EWearFlag_value_by_name;
+
+void init_EWearFlag_ITEM_NAMES()
+{
+	EWearFlag_name_by_value.clear();
+	EWearFlag_value_by_name.clear();
+
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_TAKE] = "ITEM_WEAR_TAKE";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_FINGER] = "ITEM_WEAR_FINGER";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_NECK] = "ITEM_WEAR_NECK";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_BODY] = "ITEM_WEAR_BODY";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HEAD] = "ITEM_WEAR_HEAD";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_LEGS] = "ITEM_WEAR_LEGS";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_FEET] = "ITEM_WEAR_FEET";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HANDS] = "ITEM_WEAR_HANDS";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_ARMS] = "ITEM_WEAR_ARMS";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_SHIELD] = "ITEM_WEAR_SHIELD";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_ABOUT] = "ITEM_WEAR_ABOUT";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WAIST] = "ITEM_WEAR_WAIST";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WRIST] = "ITEM_WEAR_WRIST";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WIELD] = "ITEM_WEAR_WIELD";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HOLD] = "ITEM_WEAR_HOLD";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_BOTHS] = "ITEM_WEAR_BOTHS";
+
+	for (const auto& i : EWearFlag_name_by_value)
+	{
+		EWearFlag_value_by_name[i.second] = i.first;
+	}
+}
+
+template <> const std::string& NAME_BY_ITEM<EWearFlag>(const EWearFlag item)
+{
+	if (EWearFlag_name_by_value.empty())
+	{
+		init_EWearFlag_ITEM_NAMES();
+	}
+	return EWearFlag_name_by_value.at(item);
+}
+
+template <> EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string& name)
+{
+	if (EWearFlag_name_by_value.empty())
+	{
+		init_EWearFlag_ITEM_NAMES();
+	}
+	return EWearFlag_value_by_name.at(name);
+}
+
 typedef std::map<EExtraFlag, std::string> EExtraFlag_name_by_value_t;
 typedef std::map<const std::string, EExtraFlag> EExtraFlag_value_by_name_t;
 EExtraFlag_name_by_value_t EExtraFlag_name_by_value;

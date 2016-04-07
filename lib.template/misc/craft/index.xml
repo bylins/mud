@@ -307,7 +307,7 @@
 				<type>ITEM_WAND</type> <!-- Possible values (see structs.h): ITEM_LIGHT, ITEM_SCROLL, ITEM_WAND, ITEM_STAFF, ITEM_WEAPON, ITEM_FIREWEAPON, ITEM_MISSILE, ITEM_TREASURE, ITEM_ARMOR, ITEM_POTION, ITEM_WORN, ITEM_OTHER, ITEM_TRASH, ITEM_TRAP, ITEM_CONTAINER, ITEM_NOTE, ITEM_DRINKCON, ITEM_KEY, ITEM_FOOD, ITEM_MONEY, ITEM_PEN, ITEM_BOAT, ITEM_FOUNTAIN, ITEM_BOOK, ITEM_INGREDIENT, ITEM_MING, ITEM_MATERIAL, ITEM_BANDAGE, ITEM_ARMOR_LIGHT, ITEM_ARMOR_MEDIAN, ITEM_ARMOR_HEAVY, ITEM_ENCHANT -->
 				<wearflags>
 					<!-- Possible values (see structs.h): ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_NECK, ITEM_WEAR_BODY, ITEM_WEAR_HEAD, ITEM_WEAR_LEGS, ITEM_WEAR_FEET, ITEM_WEAR_HANDS, ITEM_WEAR_ARMS, ITEM_WEAR_SHIELD, ITEM_WEAR_ABOUT, ITEM_WEAR_WAIST, ITEM_WEAR_WRIST, ITEM_WEAR_WIELD, ITEM_WEAR_HOLD, ITEM_WEAR_BOTHS -->
-					<wear></wear>
+					<wearflag></wearflag>
 				</wearflags>
 				
 				<extraflags>
@@ -431,10 +431,10 @@
 			</affects>
 
 			<wearflags>
-				<wear>ITEM_WEAR_TAKE</wear>
-				<wear>ITEM_WEAR_WIELD</wear>
-				<wear>ITEM_WEAR_HOLD</wear>
-				<wear>ITEM_WEAR_BOTHS</wear>
+				<wearflag>ITEM_WEAR_TAKE</wearflag>
+				<wearflag>ITEM_WEAR_WIELD</wearflag>
+				<wearflag>ITEM_WEAR_HOLD</wearflag>
+				<wearflag>ITEM_WEAR_BOTHS</wearflag>
 			</wearflags>
 
 			<skills>

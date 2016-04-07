@@ -117,9 +117,15 @@ namespace craft
 
 	class CLoadHelper
 	{
+	private:
+		template <typename EnumType>
+		void set_bit(FLAG_DATA& flags, const EnumType flag) { flags.set(flag); }
+		template <typename EnumType>
+		void set_bit(uint32_t& flags, const EnumType flag) { SET_BIT(flags, flag); }
+
 	public:
-		template <class TFlags, typename TSuccess, typename TFail>
-		void load_flags(FLAG_DATA& flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
+		template <class TFlags, typename TSuccess, typename TFail, typename TFlagsStorage>
+		void load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
 			TSuccess success, TFail fail)
 		{
 			const auto node = root.child(node_name);
@@ -131,7 +137,7 @@ namespace craft
 					try
 					{
 						auto value = ITEM_BY_NAME<TFlags>(flag_value);
-						flags.set(value);
+						set_bit(flags, value);
 						success(value);
 					}
 					catch (...)
@@ -401,6 +407,11 @@ namespace craft
 		helper.load_flags<ENoFlag>(m_no_flags, *node, "noflags", "noflag",
 			[&](const auto value) { log("Setting noflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
 			[&](const auto flag) { log("WARNING: Skipping noflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+
+		// loading prototype wearflags
+		helper.load_flags<EWearFlag>(m_wear_flags, *node, "wearflags", "wearflag",
+			[&](const auto value) { log("Setting wearflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping wearflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);

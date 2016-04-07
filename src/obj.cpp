@@ -782,7 +782,7 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 	obj->ex_description->next = 0;
 
 	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
-	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
+	GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 	GET_OBJ_VAL(obj, 0) = 0;
 	// CLOSEABLE + CLOSED
 	GET_OBJ_VAL(obj, 1) = 5;

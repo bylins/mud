@@ -98,7 +98,7 @@ public:
 
 	value_t value;
 	EObjectType type_flag;		///< Type of item               //
-	uint32_t wear_flags;		// Where you can wear it     //
+	std::underlying_type<EWearFlag>::type wear_flags;		// Where you can wear it     //
 	FLAG_DATA extra_flags;	// If it hums, glows, etc.      //
 	int weight;		// Weight what else              //
 	FLAG_DATA bitvector;	// To set chars bits            //
@@ -564,6 +564,17 @@ private:
 	// для сообщений сетов <активировано или нет, размер активатора>
 	std::pair<bool, int> activator_;
 };
+
+inline bool CAN_WEAR(const OBJ_DATA *obj, const EWearFlag part)
+{
+	return IS_SET(obj->obj_flags.wear_flags, to_underlying(part));
+}
+
+inline bool CAN_WEAR_ANY(const OBJ_DATA* obj)
+{
+	return obj->obj_flags.wear_flags > 0
+		&& obj->obj_flags.wear_flags != to_underlying(EWearFlag::ITEM_WEAR_TAKE);
+}
 
 inline bool OBJ_FLAGGED(const OBJ_DATA* obj, const EExtraFlag flag)
 {

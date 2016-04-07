@@ -1417,14 +1417,25 @@ void show_weapon(CHAR_DATA * ch, OBJ_DATA * obj)
 	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 	{
 		*buf = '\0';
-		if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
+		{
 			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, 3));
-		if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
+		{
 			sprintf(buf + strlen(buf), "Можно взять %s в левую руку.\r\n", OBJN(obj, ch, 3));
-		if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+		{
 			sprintf(buf + strlen(buf), "Можно взять %s в обе руки.\r\n", OBJN(obj, ch, 3));
+		}
+
 		if (*buf)
+		{
 			send_to_char(buf, ch);
+		}
 	}
 }
 

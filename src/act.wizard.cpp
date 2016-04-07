@@ -6648,12 +6648,12 @@ namespace
 
 struct filter_type
 {
-	filter_type() : type(-1), wear(-1), wear_message(-1), material(-1) {};
+	filter_type() : type(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1), material(-1) {};
 
 	// тип
 	int type;
 	// куда одевается
-	int wear;
+	EWearFlag wear;
 	// для названия куда одеть
 	int wear_message;
 	// материал
@@ -6793,32 +6793,32 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			argument = one_argument(++argument, tmpbuf);
 			if (is_abbrev(tmpbuf, "тело"))
 			{
-				filter.wear = ITEM_WEAR_BODY;
+				filter.wear = EWearFlag::ITEM_WEAR_BODY;
 				filter.wear_message = 3;
 			}
 			else if (is_abbrev(tmpbuf, "голова"))
 			{
-				filter.wear = ITEM_WEAR_HEAD;
+				filter.wear = EWearFlag::ITEM_WEAR_HEAD;
 				filter.wear_message = 4;
 			}
 			else if (is_abbrev(tmpbuf, "ноги"))
 			{
-				filter.wear = ITEM_WEAR_LEGS;
+				filter.wear = EWearFlag::ITEM_WEAR_LEGS;
 				filter.wear_message = 5;
 			}
 			else if (is_abbrev(tmpbuf, "ступни"))
 			{
-				filter.wear = ITEM_WEAR_FEET;
+				filter.wear = EWearFlag::ITEM_WEAR_FEET;
 				filter.wear_message = 6;
 			}
 			else if (is_abbrev(tmpbuf, "кисти"))
 			{
-				filter.wear = ITEM_WEAR_HANDS;
+				filter.wear = EWearFlag::ITEM_WEAR_HANDS;
 				filter.wear_message = 7;
 			}
 			else if (is_abbrev(tmpbuf, "руки"))
 			{
-				filter.wear = ITEM_WEAR_ARMS;
+				filter.wear = EWearFlag::ITEM_WEAR_ARMS;
 				filter.wear_message = 8;
 			}
 			else
@@ -6946,7 +6946,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		buffer += item_types[filter.type];
 		buffer += " ";
 	}
-	if (filter.wear >= 0)
+	if (filter.wear != EWearFlag::ITEM_WEAR_UNDEFINED)
 	{
 		buffer += wear_bits[filter.wear_message];
 		buffer += " ";
@@ -6992,7 +6992,8 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			continue;
 		}
 		// куда можно одеть
-		if (filter.wear >= 0 && !CAN_WEAR(*i, filter.wear))
+		if (filter.wear != EWearFlag::ITEM_WEAR_UNDEFINED
+			&& !CAN_WEAR(*i, filter.wear))
 		{
 			continue;
 		}

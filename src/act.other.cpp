@@ -1749,8 +1749,9 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 		return;
 	}
 
-	int check_slots = GET_OBJ_WEAR(obj) & GET_OBJ_WEAR(target);
-	if (check_slots > 0 && check_slots != ITEM_WEAR_TAKE)
+	auto check_slots = GET_OBJ_WEAR(obj) & GET_OBJ_WEAR(target);
+	if (check_slots > 0
+		&& check_slots != to_underlying(EWearFlag::ITEM_WEAR_TAKE))
 	{
 		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0));
 		obj::enchant ench(obj);
@@ -1760,7 +1761,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 	else
 	{
 		int slots = obj->obj_flags.wear_flags;
-		REMOVE_BIT(slots, ITEM_WEAR_TAKE);
+		REMOVE_BIT(slots, EWearFlag::ITEM_WEAR_TAKE);
 		if (sprintbit(slots, wear_bits, buf2))
 		{
 			send_to_char(ch,
@@ -3693,18 +3694,26 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				case 1:
 					set_obj_eff(itemobj, APPLY_SAVING_REFLEX, -10);
 					break;
+
 				case 2:
 					set_obj_eff(itemobj, APPLY_HITREG, 10);
 					break;
+
 				case 3:
 					set_obj_aff(itemobj, EAffectFlag::AFF_HOLYDARK);
 					break;
+
 				case 4:
-					if (!CAN_WEAR(itemobj, ITEM_WEAR_WIELD) &&
-							!CAN_WEAR(itemobj, ITEM_WEAR_HOLD) && !CAN_WEAR(itemobj, ITEM_WEAR_BOTHS))
+					if (!CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_WIELD)
+						&& !CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_HOLD)
+						&& !CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_BOTHS))
+					{
 						set_obj_eff(itemobj, APPLY_SIZE, 7);
+					}
 					else
+					{
 						set_obj_eff(itemobj, APPLY_MORALE, 3);
+					}
 					break;
 
 				case 5:
@@ -3721,18 +3730,23 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				case 1:
 					set_obj_eff(itemobj, APPLY_SAVING_STABILITY, -10);
 					break;
+
 				case 2:
 					set_obj_eff(itemobj, APPLY_SAVING_CRITICAL, -10);
 					break;
+
 				case 3:
 					set_obj_eff(itemobj, APPLY_RESIST_AIR, 15);
 					break;
+
 				case 4:
 					set_obj_eff(itemobj, APPLY_RESIST_WATER, 15);
 					break;
+
 				case 5:
 					set_obj_eff(itemobj, APPLY_RESIST_FIRE, 15);
 					break;
+
 				case 6:
 					set_obj_eff(itemobj, APPLY_SAVING_CRITICAL, 10);
 					break;
@@ -3743,22 +3757,32 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				case 1:
 					set_obj_aff(itemobj, EAffectFlag::AFF_SANCTUARY);
 					break;
+
 				case 2:
 					set_obj_aff(itemobj, EAffectFlag::AFF_BLINK);
 					break;
+
 				case 3:
-					if (!CAN_WEAR(itemobj, ITEM_WEAR_WIELD) &&
-							!CAN_WEAR(itemobj, ITEM_WEAR_HOLD) && !CAN_WEAR(itemobj, ITEM_WEAR_BOTHS))
+					if (!CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_WIELD)
+						&& !CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_HOLD)
+						&& !CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_BOTHS))
+					{
 						set_obj_eff(itemobj, APPLY_ABSORBE, 5);
+					}
 					else
+					{
 						set_obj_eff(itemobj, APPLY_HITREG, 25);
+					}
 					break;
+
 				case 4:
 					set_obj_aff(itemobj, EAffectFlag::AFF_FLY);
 					break;
+
 				case 5:
 					set_obj_eff(itemobj, APPLY_MANAREG, 10);
 					break;
+
 				case 6:
 					set_obj_eff(itemobj, APPLY_SAVING_STABILITY, -10);
 					break;
@@ -3769,14 +3793,16 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				case 1:
 					set_obj_eff(itemobj, APPLY_DAMROLL, 3);
 					break;
+
 				case 2:
 					set_obj_eff(itemobj, APPLY_HITROLL, 3);
 					break;
+
 				case 3:
 					if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_NODISARM)
-						&& (CAN_WEAR(itemobj, ITEM_WEAR_WIELD)
-							|| CAN_WEAR(itemobj, ITEM_WEAR_HOLD)
-							|| CAN_WEAR(itemobj, ITEM_WEAR_BOTHS)))
+						&& (CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_WIELD)
+							|| CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_HOLD)
+							|| CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_BOTHS)))
 					{
 						itemobj->set_extraflag(EExtraFlag::ITEM_NODISARM);
 					}
@@ -3785,12 +3811,15 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 						set_obj_eff(itemobj, APPLY_HITROLL, 3);
 					}
 					break;
+
 				case 4:
 					set_obj_eff(itemobj, APPLY_SAVING_WILL, -10);
 					break;
+
 				case 5:
 					set_obj_aff(itemobj, EAffectFlag::AFF_INVISIBLE);
 					break;
+
 				case 6:
 					set_obj_eff(itemobj, APPLY_SAVING_WILL, 10);
 					break;
@@ -3801,18 +3830,23 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				case 1:
 					set_obj_eff(itemobj, APPLY_INT, 1);
 					break;
+
 				case 2:
 					set_obj_eff(itemobj, APPLY_WIS, 1);
 					break;
+
 				case 3:
 					set_obj_eff(itemobj, APPLY_DEX, 1);
 					break;
+
 				case 4:
 					set_obj_eff(itemobj, APPLY_STR, 1);
 					break;
+
 				case 5:
 					set_obj_eff(itemobj, APPLY_CON, 1);
 					break;
+
 				case 6:
 					set_obj_eff(itemobj, APPLY_CHA, 1);
 					break;
@@ -3823,18 +3857,23 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				case 1:
 					set_obj_eff(itemobj, APPLY_INT, 2);
 					break;
+
 				case 2:
 					set_obj_eff(itemobj, APPLY_WIS, 2);
 					break;
+
 				case 3:
 					set_obj_eff(itemobj, APPLY_DEX, 2);
 					break;
+
 				case 4:
 					set_obj_eff(itemobj, APPLY_STR, 2);
 					break;
+
 				case 5:
 					set_obj_eff(itemobj, APPLY_CON, 2);
 					break;
+
 				case 6:
 					set_obj_eff(itemobj, APPLY_CHA, 2);
 					break;

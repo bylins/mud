@@ -613,7 +613,7 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 		obj->PNames[5] = str_dup("письме");
 
 		GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_NOTE;
-		GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE | ITEM_WEAR_HOLD;
+		GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD);
 		GET_OBJ_WEIGHT(obj) = 1;
 		GET_OBJ_MATER(obj) = obj_flag_data::MAT_PAPER;
 		obj->set_cost(0);
