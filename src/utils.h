@@ -935,8 +935,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define OBJ_WHERE(obj) ((obj)->worn_by    ? IN_ROOM(obj->worn_by) : \
                         (obj)->carried_by ? IN_ROOM(obj->carried_by) : (obj)->in_room)
 #define IS_OBJ_ANTI(obj,stat) ((obj)->obj_flags.anti_flag.get(stat))
-#define IS_OBJ_NO(obj,stat)       (IS_SET(GET_FLAG((obj)->obj_flags.no_flag, \
-                                                  stat), stat))
+#define IS_OBJ_NO(obj,stat)       ((obj)->obj_flags.no_flag.get(stat))
 #define IS_OBJ_AFF(obj,stat)    (IS_SET(GET_FLAG((obj)->obj_flags.affects, \
                                                   stat), stat))
 

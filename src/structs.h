@@ -881,55 +881,51 @@ enum class EExtraFlag: uint32_t
 template <> const std::string& NAME_BY_ITEM<EExtraFlag>(const EExtraFlag item);
 template <> EExtraFlag ITEM_BY_NAME<EExtraFlag>(const std::string& name);
 
-#define ITEM_NO_MONO       (1 << 0)
-#define ITEM_NO_POLY       (1 << 1)
-#define ITEM_NO_NEUTRAL    (1 << 2)
-#define ITEM_NO_MAGIC_USER (1 << 3)
-#define ITEM_NO_CLERIC     (1 << 4)
-#define ITEM_NO_THIEF      (1 << 5)
-#define ITEM_NO_WARRIOR    (1 << 6)
-#define ITEM_NO_ASSASINE   (1 << 7)
-#define ITEM_NO_GUARD      (1 << 8)
-#define ITEM_NO_PALADINE   (1 << 9)
-#define ITEM_NO_RANGER     (1 << 10)
-#define ITEM_NO_SMITH      (1 << 11)
-#define ITEM_NO_MERCHANT   (1 << 12)
-#define ITEM_NO_DRUID      (1 << 13)
-#define ITEM_NO_BATTLEMAGE (1 << 14)
-#define ITEM_NO_CHARMMAGE  (1 << 15)
-#define ITEM_NO_DEFENDERMAGE  (1 << 16)
-#define ITEM_NO_NECROMANCER   (1 << 17)
+enum class ENoFlag : uint32_t
+{
+	ITEM_NO_MONO = 1 << 0,
+	ITEM_NO_POLY = 1 << 1,
+	ITEM_NO_NEUTRAL = 1 << 2,
+	ITEM_NO_MAGIC_USER = 1 << 3,
+	ITEM_NO_CLERIC = 1 << 4,
+	ITEM_NO_THIEF = 1 << 5,
+	ITEM_NO_WARRIOR = 1 << 6,
+	ITEM_NO_ASSASINE = 1 << 7,
+	ITEM_NO_GUARD = 1 << 8,
+	ITEM_NO_PALADINE = 1 << 9,
+	ITEM_NO_RANGER = 1 << 10,
+	ITEM_NO_SMITH = 1 << 11,
+	ITEM_NO_MERCHANT = 1 << 12,
+	ITEM_NO_DRUID = 1 << 13,
+	ITEM_NO_BATTLEMAGE = 1 << 14,
+	ITEM_NO_CHARMMAGE = 1 << 15,
+	ITEM_NO_DEFENDERMAGE = 1 << 16,
+	ITEM_NO_NECROMANCER = 1 << 17,
+	ITEM_NO_KILLER = INT_ONE | 1 << 0,
+	ITEM_NO_COLORED = INT_ONE | 1 << 1,	// нельзя цветным //
+	ITEM_NO_BD = INT_ONE | 1 << 2,
+	ITEM_NO_MALE = INT_TWO | 1 << 6,
+	ITEM_NO_FEMALE = INT_TWO | 1 << 7,
+	ITEM_NO_CHARMICE = INT_TWO | 1 << 8,
+	ITEM_NO_POLOVCI = INT_TWO | 1 << 9,
+	ITEM_NO_PECHENEGI = INT_TWO | 1 << 10,
+	ITEM_NO_MONGOLI = INT_TWO | 1 << 11,
+	ITEM_NO_YIGURI = INT_TWO | 1 << 12,
+	ITEM_NO_KANGARI = INT_TWO | 1 << 13,
+	ITEM_NO_XAZARI = INT_TWO | 1 << 14,
+	ITEM_NO_SVEI = INT_TWO | 1 << 15,
+	ITEM_NO_DATCHANE = INT_TWO | 1 << 16,
+	ITEM_NO_GETTI = INT_TWO | 1 << 17,
+	ITEM_NO_UTTI = INT_TWO | 1 << 18,
+	ITEM_NO_XALEIGI = INT_TWO | 1 << 19,
+	ITEM_NO_NORVEZCI = INT_TWO | 1 << 20,
+	ITEM_NO_RUSICHI = INT_THREE | 1 << 0,
+	ITEM_NO_STEPNYAKI = INT_THREE | 1 << 1,
+	ITEM_NO_VIKINGI = INT_THREE | 1 << 2
+};
 
-#define ITEM_NO_KILLER     (INT_ONE | 1 << 0)
-#define ITEM_NO_COLORED    (INT_ONE | 1 << 1)	// нельзя цветным //
-//#define ITEM_NO_KILLERONLY (INT_ONE | 1 << 2)// // только для душиков //
-#define ITEM_NO_BD	   (INT_ONE | 1 << 2)
-
-/*#define ITEM_NO_SEVERANE   (INT_TWO | 1 << 0) // невозможность одеть родам
-#define ITEM_NO_POLANE     (INT_TWO | 1 << 1)
-#define ITEM_NO_KRIVICHI   (INT_TWO | 1 << 2)
-#define ITEM_NO_VATICHI    (INT_TWO | 1 << 3)
-#define ITEM_NO_VELANE     (INT_TWO | 1 << 4)
-#define ITEM_NO_DREVLANE   (INT_TWO | 1 << 5) */
-#define ITEM_NO_MALE       (INT_TWO | 1 << 6)
-#define ITEM_NO_FEMALE     (INT_TWO | 1 << 7)
-#define ITEM_NO_CHARMICE   (INT_TWO | 1 << 8)
-#define ITEM_NO_POLOVCI    (INT_TWO | 1 << 9)
-#define ITEM_NO_PECHENEGI  (INT_TWO | 1 << 10)
-#define ITEM_NO_MONGOLI    (INT_TWO | 1 << 11)
-#define ITEM_NO_YIGURI     (INT_TWO | 1 << 12)
-#define ITEM_NO_KANGARI    (INT_TWO | 1 << 13)
-#define ITEM_NO_XAZARI     (INT_TWO | 1 << 14)
-#define ITEM_NO_SVEI       (INT_TWO | 1 << 15)
-#define ITEM_NO_DATCHANE   (INT_TWO | 1 << 16)
-#define ITEM_NO_GETTI      (INT_TWO | 1 << 17)
-#define ITEM_NO_UTTI       (INT_TWO | 1 << 18)
-#define ITEM_NO_XALEIGI    (INT_TWO | 1 << 19)
-#define ITEM_NO_NORVEZCI   (INT_TWO | 1 << 20)
-
-#define ITEM_NO_RUSICHI     (INT_THREE | 1 << 0)
-#define ITEM_NO_STEPNYAKI   (INT_THREE | 1 << 1)
-#define ITEM_NO_VIKINGI     (INT_THREE | 1 << 2)
+template <> const std::string& NAME_BY_ITEM<ENoFlag>(const ENoFlag item);
+template <> ENoFlag ITEM_BY_NAME<ENoFlag>(const std::string& name);
 
 enum class EAntiFlag: uint32_t
 {

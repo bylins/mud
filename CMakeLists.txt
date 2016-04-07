@@ -316,8 +316,13 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown)
+
+# Sort source and header files. Just to convenience.
+list(SORT CIRCLE_FILES)
+
 # Main executable file.
-add_executable(circle ${SOURCES} ${HEADERS} readme.markdown)
+add_executable(circle ${CIRCLE_FILES})
 add_dependencies(circle versioning)
 source_group("" FILES ${VERSIONING_FILES})
 

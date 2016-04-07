@@ -387,17 +387,22 @@ namespace craft
 			[&](const auto value) { log("Setting extra flag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
 			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
-        // loading prototype affect flags
+        // loading prototype affectflags
 		helper.load_flags<EAffectFlag>(m_affect_flags, *node, "affects", "affect",
-			[&](const auto value) { log("Setting affect flag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping affect flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+			[&](const auto value) { log("Setting affectflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping affectflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
         
-        // loading prototype anti flags
-		helper.load_flags<EAffectFlag>(m_anti_flags, *node, "antiflags", "antiflag",
+        // loading prototype antiflags
+		helper.load_flags<EAntiFlag>(m_anti_flags, *node, "antiflags", "antiflag",
 			[&](const auto value) { log("Setting antiflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping anti flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+			[&](const auto flag) { log("WARNING: Skipping antiflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
-        prefix.change_prefix(END_PREFIX);
+		// loading prototype noflags
+		helper.load_flags<ENoFlag>(m_no_flags, *node, "noflags", "noflag",
+			[&](const auto value) { log("Setting noflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping noflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+
+		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
 
 		return true;

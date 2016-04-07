@@ -552,48 +552,42 @@ void release_purged_list()
 
 bool is_mob_item(OBJ_DATA *obj)
 {
-	if (IS_OBJ_NO(obj, ITEM_NO_MALE)
-		&& IS_OBJ_NO(obj, ITEM_NO_FEMALE)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ITEM_NO_MONO)
-		&& IS_OBJ_NO(obj, ITEM_NO_POLY)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ITEM_NO_RUSICHI)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RUSICHI)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ITEM_NO_CLERIC)
-		&& IS_OBJ_NO(obj, ITEM_NO_THIEF)
-		&& IS_OBJ_NO(obj, ITEM_NO_WARRIOR)
-		&& IS_OBJ_NO(obj, ITEM_NO_ASSASINE)
-		&& IS_OBJ_NO(obj, ITEM_NO_GUARD)
-		&& IS_OBJ_NO(obj, ITEM_NO_PALADINE)
-		&& IS_OBJ_NO(obj, ITEM_NO_RANGER)
-		&& IS_OBJ_NO(obj, ITEM_NO_SMITH)
-		&& IS_OBJ_NO(obj, ITEM_NO_MERCHANT)
-		&& IS_OBJ_NO(obj, ITEM_NO_DRUID)
-		&& IS_OBJ_NO(obj, ITEM_NO_BATTLEMAGE)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMMAGE)
-		&& IS_OBJ_NO(obj, ITEM_NO_DEFENDERMAGE)
-		&& IS_OBJ_NO(obj, ITEM_NO_NECROMANCER)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BATTLEMAGE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMMAGE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DEFENDERMAGE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_NECROMANCER)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE))
 	{
 		return true;
 	}
-	if (/*IS_OBJ_NO(obj, ITEM_NO_SEVERANE)
-		&& IS_OBJ_NO(obj, ITEM_NO_POLANE)
-		&& IS_OBJ_NO(obj, ITEM_NO_KRIVICHI)
-		&& IS_OBJ_NO(obj, ITEM_NO_VATICHI)
-		&& IS_OBJ_NO(obj, ITEM_NO_VELANE)
-		&& IS_OBJ_NO(obj, ITEM_NO_DREVLANE)  
-		&& */IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE))
 	{
 		return true;
 	}
