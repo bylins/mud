@@ -190,9 +190,9 @@ namespace craft
 		obj_flag_data::EObjectMaterial m_material;
 		ESpell m_spell;
 
-        FLAG_DATA m_extraflags;
-        FLAG_DATA m_affect_flags;
-        FLAG_DATA m_anti_flags;
+		FLAG_DATA m_extraflags;
+		FLAG_DATA m_affect_flags;
+		FLAG_DATA m_anti_flags;
 		FLAG_DATA m_no_flags;
 
 		std::underlying_type<EWearFlag>::type m_wear_flags;
