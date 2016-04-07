@@ -2533,6 +2533,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				count += sprintf(prompt + count, "íÓ:%d ", timed_by_skill(d->character, SKILL_CAMOUFLAGE));
 			if (d->character->get_skill(SKILL_TURN_UNDEAD))
 				count += sprintf(prompt + count, "éÚ:%d ", timed_by_skill(d->character, SKILL_TURN_UNDEAD));
+			if (d->character->get_skill(SKILL_STUN))
+				count += sprintf(prompt + count, "ïÛ:%d ", timed_by_skill(d->character, SKILL_STUN));
 			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
 				count += sprintf(prompt + count, "ðÒ:%d ", timed_by_feat(d->character, RELOCATE_FEAT));
 			if (HAVE_FEAT(d->character, SPELL_CAPABLE_FEAT))
