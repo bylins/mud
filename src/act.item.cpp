@@ -1808,7 +1808,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		EWearFlag::ITEM_WEAR_WIELD,		EWearFlag::ITEM_WEAR_TAKE,		EWearFlag::ITEM_WEAR_BOTHS
 	};
 
-	const std::array<char *, sizeof(wear_bitvectors)> already_wearing =
+	const std::array<const char *, sizeof(wear_bitvectors)> already_wearing =
 	{
 		"Вы уже используете свет.\r\n",
 		"YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",

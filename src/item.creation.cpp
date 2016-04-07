@@ -2092,6 +2092,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 		dam = 40;
 
 		break;
+	default:
+		break;
 	}
 
 	act(charwork.c_str(), FALSE, ch, tobj, 0, TO_CHAR);

@@ -1019,8 +1019,12 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			calc_thaco -= 0;
 			dam += 0;
 			break;
+
+		default:
+			break;
 		}
 		break;
+
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
@@ -1063,8 +1067,11 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			calc_thaco -= 0;
 			dam += 0;
 			break;
+		default:
+			break;
 		}
 		break;
+
 	case CLASS_WARRIOR:
 		switch (skill)
 		{
@@ -1104,8 +1111,11 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			calc_thaco -= 0;
 			dam += 0;
 			break;
+		default:
+			break;
 		}
 		break;
+
 	case CLASS_RANGER:
 		switch (skill)
 		{
@@ -1145,8 +1155,11 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			calc_thaco -= 0;
 			dam += 0;
 			break;
+		default:
+			break;
 		}
 		break;
+
 	case CLASS_GUARD:
 	case CLASS_THIEF:
 		switch (skill)
@@ -1187,8 +1200,11 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			calc_thaco -= 0;
 			dam += 0;
 			break;
+		default:
+			break;
 		}
 		break;
+
 	case CLASS_ASSASINE:
 		switch (skill)
 		{
@@ -1227,6 +1243,8 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 		case SKILL_BOWS:
 			calc_thaco -= 0;
 			dam += 0;
+			break;
+		default:
 			break;
 		}
 		break;
@@ -1283,8 +1301,11 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			calc_thaco -= 0;
 			dam += 0;
 			break;
+		default:
+			break;
 		}
 		break;
+
 	case CLASS_DRUID:
 		switch (skill)
 		{
@@ -1323,6 +1344,8 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 		case SKILL_BOWS:
 			calc_thaco += 1;
 			dam += 0;
+			break;
+		default:
 			break;
 		}
 		break;
@@ -1510,6 +1533,8 @@ void HitData::check_weap_feats(CHAR_DATA *ch)
 			calc_thaco -= 7;
 			dam += 4;
 		}
+		break;
+	default:
 		break;
 	}
 }
