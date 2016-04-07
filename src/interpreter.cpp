@@ -263,7 +263,6 @@ void do_pour(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_statistic(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-//ACMD(do_stun);
 void do_spellstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_remember(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_learn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -430,6 +429,7 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void Bonus::do_bonus_info(CHAR_DATA*, char*, int, int);
+void do_stun(CHAR_DATA*, char*, int, int);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -647,7 +647,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"отступить", POS_FIGHTING, do_stopfight, 1, 0, -1},
 	{"отправить", POS_STANDING, do_not_here, 1, 0, -1},
 	{"оффтоп", POS_DEAD, do_offtop, 0, 0, -1},
-//	{"ошеломить", POS_STANDING, do_stun, 1, 0, -1},
+	{"ошеломить", POS_STANDING, do_stun, 1, 0, -1},
 	{"оценить", POS_STANDING, do_not_here, 0, 0, 500},
 	{"очки", POS_DEAD, do_score, 0, 0, 0},
 	{"очепятки", POS_DEAD, DoBoard, 1, Boards::MISPRINT_BOARD, 0},

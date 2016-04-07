@@ -2074,7 +2074,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 			GET_NAME(k), GET_IDNUM(k), k_room, GET_ID(k));
 	send_to_char(strcat(buf, buf2), ch);
-	send_to_char(ch, "ЛАГ: [%d]\r\n", k->get_wait());
+	send_to_char(ch, " ЛАГ: [%d]\r\n", k->get_wait());
 	if (IS_MOB(k))
 	{
 		sprintf(buf, "Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n", k->get_pc_name().c_str(), GET_MOB_VNUM(k), GET_MOB_RNUM(k));
@@ -5222,6 +5222,7 @@ struct set_struct		/*
 	{"executor", LVL_IMPL, PC, BINARY}, // 57
 	{"killer", LVL_IMPL, PC, BINARY}, // 58
 	{"remort", LVL_IMPL, PC, BINARY}, // 59
+	{"tester", LVL_IMPL, PC, BINARY}, // 60
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -5913,9 +5914,15 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
         break;
 	case 59: // флаг реморта
     		ch->remort();
-		sprintf(buf,"Иммортал %s установил реморт +1 для %s\r\n", GET_NAME(ch), GET_NAME(vict));
+		sprintf(buf,"Иммортал %s установил реморт +1 для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
 		add_karma(vict, buf, GET_NAME(ch));
 		add_karma(ch, buf, GET_NAME(vict));
+		send_to_gods(buf);
+        break;
+	case 60: // флаг тестера
+		SET_GOD_FLAG(vict, GF_TESTER);
+		sprintf(buf,"Иммортал %s установил флаг тестера для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
+		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		send_to_gods(buf);
         break;
 

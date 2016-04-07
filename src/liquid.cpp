@@ -364,6 +364,11 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// Added by Adept - обкаст если в фонтане или емкости зелье
 	if (is_potion(temp) && temp->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0)
 	{
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
+		{
+			send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
+			return;
+		}
 		act("$n выпил$g зелья из $o1.", TRUE, ch, temp, 0, TO_ROOM);
 		send_to_char(ch, "Вы выпили зелья из %s.\r\n", OBJN(temp, ch, 1));
 		cast_potion(ch, temp);
@@ -411,6 +416,11 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 	else if (subcmd == SCMD_DRINK)
 	{
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
+		{
+			send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
+			return;
+		}
 		sprintf(buf, "$n выпил$g %s из $o1.", drinks[GET_OBJ_VAL(temp, 2)]);
 		act(buf, TRUE, ch, temp, 0, TO_ROOM);
 		sprintf(buf, "Вы выпили %s из %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)], OBJN(temp, ch, 1));

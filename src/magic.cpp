@@ -733,9 +733,13 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 			save >>= 1;
 		save -= dex_bonus(GET_REAL_DEX(victim));
 		temp_save_stat = dex_bonus(GET_REAL_DEX(victim));
+		if (on_horse(victim))
+			save += 20;
 		break;
 	case SAVING_STABILITY:   //2  стойкость
 		save += -GET_REAL_CON(victim);
+		if (on_horse(victim))
+			save -= 20;
 		temp_save_stat = GET_REAL_CON(victim);
 		break;
 	case SAVING_WILL:        //1  воля

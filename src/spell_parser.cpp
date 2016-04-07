@@ -67,6 +67,7 @@ void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_forget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_remember(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_stun(CHAR_DATA*, char*, int, int);
 
 void unused_spell(int spl);
 void unused_skill(int spl);
@@ -5259,6 +5260,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_DARK_MAGIC, "магия тьмы", 200);
 	skillo(SKILL_MIND_MAGIC, "магия разума", 200);
 	skillo(SKILL_LIFE_MAGIC, "магия жизни", 200);
+	skillo(SKILL_STUN, "ошеломление", 200);
 
 }
 

@@ -619,8 +619,6 @@ void assign_feats(void)
 //131
 	// наем наносит серию сильных ударов, но быстро устает
 	feato(BLACK_RITUAL_FEAT, "темный ритуал", NORMAL_FTYPE, TRUE, feat_app);
-	
-	
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);

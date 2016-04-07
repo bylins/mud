@@ -19,6 +19,7 @@ set(SOURCES
     src/ban.cpp
     src/birth_places.cpp
     src/boards.cpp
+    src/bonus.cpp
     src/cache.cpp
     src/celebrates.cpp
     src/char.cpp
@@ -129,6 +130,7 @@ set(HEADERS
     src/ban.hpp
     src/birth_places.hpp
     src/boards.h
+    src/bonus.h
     src/cache.hpp
     src/celebrates.hpp
     src/char.hpp
@@ -212,9 +214,7 @@ set(HEADERS
     src/telnet.h
     src/title.hpp
     src/top.h
-    src/utils.h
-    src/bonus.cpp
-    src/bonus.h)
+    src/utils.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

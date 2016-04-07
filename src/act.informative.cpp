@@ -3052,7 +3052,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			" %sВоде:      %3d %s||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_LEVEL(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), hr, CCCYN(ch, C_NRM),
+			CCIGRN(ch, C_NRM), hr + (on_horse(ch) ? (10 - GET_SKILL(ch, SKILL_HORSE) / 20) : 0) , CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	resist = MIN(GET_RESIST(ch, EARTH_RESISTANCE), 75);
@@ -3063,7 +3063,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			" %sЗемле:     %3d %s||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_REMORT(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_dex(), GET_REAL_DEX(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), max_dam, CCCYN(ch, C_NRM),
+			CCIGRN(ch, C_NRM), int (max_dam * (on_horse(ch) ? ((GET_SKILL(ch, SKILL_HORSE) > 100) ? (1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0) : 1 ) : 1)), CCCYN(ch, C_NRM),
 			CCYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	sprintf(buf + strlen(buf),
@@ -3193,7 +3193,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	sprintf(buf + strlen(buf),
 			" %sСтойкость:    %3d %s|"
 			" %s  %+4d%% (%+4d) %s||\r\n",
-			CCGRN(ch, C_NRM), GET_REAL_CON(ch) - GET_SAVE(ch, SAVING_STABILITY), CCCYN(ch, C_NRM),
+			CCGRN(ch, C_NRM), GET_REAL_CON(ch) - GET_SAVE(ch, SAVING_STABILITY) + (on_horse(ch)? 20:0), CCCYN(ch, C_NRM), // на лошади стойкость на 20 лучше
 			CCRED(ch, C_NRM), GET_HITREG(ch), hit_gain(ch), CCCYN(ch, C_NRM)
 		   );
 
@@ -3216,7 +3216,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	sprintf(buf + strlen(buf),
 			" %sРеакция:      %3d %s|"
 			" %sВосст. сил:    %s||\r\n",
-			CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_REFLEX) + dex_bonus(GET_REAL_DEX(ch)), CCCYN(ch, C_NRM),
+			CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_REFLEX) + dex_bonus(GET_REAL_DEX(ch)) + (on_horse(ch)? -20:0), CCCYN(ch, C_NRM), // налошади реакция на 20 хуже
 			CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)

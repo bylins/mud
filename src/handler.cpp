@@ -4234,7 +4234,7 @@ float calc_cha_for_hire(CHAR_DATA * victim)
 	needed_cha = i - 1 + (reformed_hp - cha_app[i - 1].charms) / (cha_app[i].charms - cha_app[i - 1].charms);
 //sprintf(buf,"check: charms = %d   rhp = %f\r\n",cha_app[i].charms,reformed_hp);
 //act(buf,FALSE,victim,0,0,TO_ROOM);
-	return VPOSI(needed_cha, 1.0, 50.0);
+	return VPOSI<float>(needed_cha, 1.0, 50.0);
 }
 
 
@@ -4246,7 +4246,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 	//                     1 - min_stats2[(int)GET_CLASS(ch)][5] +
 	//((e_int<(1+min_stats2[(int)GET_CLASS(ch)][2]))?MIN(ch->get_int(),(1+min_stats2[(int)GET_CLASS(ch)][2])):e_int)-
 	//                     1.0 - min_stats2[(int)GET_CLASS(ch)][2];
-	float stat_overlimit = VPOSI(e_cha + e_int - 1.0 -
+	float stat_overlimit = VPOSI<float>(e_cha + e_int - 1.0 -
 								 min_stats2[(int) GET_CLASS(ch)][5] - 1 -
 								 min_stats2[(int) GET_CLASS(ch)][2], 0, 100);
 

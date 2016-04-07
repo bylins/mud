@@ -446,6 +446,9 @@ const char *preference_bits[] = { "краткий",
 								  "опечатки",
 								  "сжатые маг.щиты",
 								  "авто.не.призыв",
+								  "канал.демигодов",
+								  "режим.слепого",
+								  "хеши.комнаты",
 								  "\n"
 								};
 
@@ -2424,6 +2427,7 @@ const char *godslike_bits[] =
 	"GF_REMORT",
 	"GF_DEMIGOD",
 	"GF_PERSLOG",
+	"GF_TESTER",
 	"\n"
 };
 

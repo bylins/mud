@@ -3363,13 +3363,14 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 	// Horse modifier for attacker
 	if (!IS_NPC(ch) && skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB && on_horse(ch))
 	{
-		int prob = train_skill(ch, SKILL_HORSE, skill_info[SKILL_HORSE].max_percent, victim);
-		dam += ((prob + 19) / 10);
-		int range = number(1, skill_info[SKILL_HORSE].max_percent);
-		if (range > prob)
-			calc_thaco += ((range - prob) + 19 / 20);
-		else
-			calc_thaco -= ((prob - range) + 19 / 20);
+//		int prob = train_skill(ch, SKILL_HORSE, skill_info[SKILL_HORSE].max_percent, victim);
+//		dam += ((prob + 19) / 10);
+//		int range = number(1, skill_info[SKILL_HORSE].max_percent);
+//		if (range > prob)
+//			calc_thaco += ((range - prob) + 19 / 20);
+//		else
+//			calc_thaco -= ((prob - range) + 19 / 20);
+		calc_thaco += 10 - GET_SKILL(ch, SKILL_HORSE) / 20;
 	}
 
 	// not can see (blind, dark, etc)
@@ -3850,6 +3851,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	// at least 1 hp damage min per hit
 	hit_params.dam = MAX(1, hit_params.dam);
+	if (GET_SKILL(ch, SKILL_HORSE) > 100 && on_horse(ch))
+	{
+		hit_params.dam *= 1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0; // на лошадке до +20%
+	}
 
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
 	if (damage_mtrigger(ch, victim))
@@ -3899,7 +3904,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
-			    hit_params.dam = 20;
+			    hit_params.dam = 2000; // для надежности
 			    send_to_char(ch, "&GПрямо в сердце, насмерть!&n\r\n");
 			    hit_params.extdamage(ch, victim);
 			    return;

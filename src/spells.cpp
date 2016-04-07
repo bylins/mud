@@ -2704,7 +2704,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	clear_char_skills(mob);
 	af.type = SPELL_CHARM;
 	af.duration =
-		pc_duration(mob, 5 + (int) VPOSI((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+		pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = 0;
 	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
@@ -2803,7 +2803,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 // level
 
 	modifier = (int)(5 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
-					 + 5 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+					 + 5 * VPOSI<float>(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 
 	mob->set_skill(SKILL_RESCUE, mob->get_skill(SKILL_RESCUE) + modifier);
 	mob->set_skill(SKILL_AWAKE, mob->get_skill(SKILL_AWAKE) + modifier);
@@ -2811,17 +2811,17 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	mob->set_skill(SKILL_BLOCK, mob->get_skill(SKILL_BLOCK) + modifier);
 
 	modifier = (int)(2 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
-					 + 1 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+					 + 1 * VPOSI<float>(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 	GET_HR(mob) += modifier;
 
 	modifier = VPOSI(GET_LEVEL(ch) - 26, 0, 50);
 	mob->inc_con(modifier);
 
-	modifier = (int)(20 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+	modifier = (int)(20 * VPOSI<float>(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 	GET_MAX_HIT(mob) += modifier;
 	GET_HIT(mob) += modifier;
 
-	modifier = (int)(3 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+	modifier = (int)(3 * VPOSI<float>(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 	GET_AC(mob) -= modifier;
 
 	modifier = 1 * VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 16) / 2), 0, 50);
