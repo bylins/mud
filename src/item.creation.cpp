@@ -844,9 +844,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 	else
 	{
 		if (!obj)
-        {
-            return;
-        }
+		{
+			return;
+		}
 		skill = created_item[obj_type].skill;
 		percent = number(1, skill_info[skill].max_percent);
 		prob = train_skill(ch, skill, skill_info[skill].max_percent, 0);
@@ -854,11 +854,17 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 	}
 
 	if (weight < created_item[obj_type].min_weight)
+	{
 		send_to_char("У вас не хватило материала.\r\n", ch);
+	}
 	else if (prob * 5 < percent)
+	{
 		send_to_char("У вас ничего не получилось.\r\n", ch);
+	}
 	else if (!(tobj = read_object(created_item[obj_type].obj_vnum, VIRTUAL)))
+	{
 		send_to_char("Образец был невозвратимо утерян.\r\n", ch);
+	}
 	else
 	{
 		GET_OBJ_WEIGHT(tobj) = MIN(weight, created_item[obj_type].max_weight);
@@ -1032,7 +1038,7 @@ void do_transform_weapon(CHAR_DATA* ch, char *argument, int/* cmd*/, int subcmd)
 	int obj_type, i, found, rnum;
 
 	if (IS_NPC(ch)
-        || !ch->get_skill(static_cast<ESkill>(subcmd)))
+		|| !ch->get_skill(static_cast<ESkill>(subcmd)))
 	{
 		send_to_char("Вас этому никто не научил.\r\n", ch);
 		return;

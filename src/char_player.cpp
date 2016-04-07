@@ -527,9 +527,9 @@ void Player::save_char()
 		{
 			skill = this->get_inborn_skill(i);
 			if (skill)
-            {
-                fprintf(saved, "%d %d %s\n", i, skill, skill_info[i].name);
-            }
+			{
+			    fprintf(saved, "%d %d %s\n", i, skill, skill_info[i].name);
+			}
 		}
 		fprintf(saved, "0 0\n");
 	}

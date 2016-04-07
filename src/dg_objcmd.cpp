@@ -805,9 +805,9 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	bool isSkill = false;
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-    ESkill skillnum = SKILL_INVALID;
-    int recipenum = 0;
-    int skilldiff = 0;
+	ESkill skillnum = SKILL_INVALID;
+	int recipenum = 0;
+	int skilldiff = 0;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -818,14 +818,18 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 	while ((pos = strchr(skillname, '_')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-    {
-        isSkill = true;
-    }
+	{
+		isSkill = true;
+	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		obj_log(obj, "oskillturn: skill/recipe not found");
@@ -833,13 +837,13 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(amount, "set"))
-    {
-        skilldiff = 1;
-    }
+	{
+		skilldiff = 1;
+	}
 	else if (!str_cmp(amount, "clear"))
-    {
-        skilldiff = 0;
-    }
+	{
+		skilldiff = 0;
+	}
 	else
 	{
 		obj_log(obj, "oskillturn: unknown set variable");
@@ -855,19 +859,19 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (isSkill)
 	{
 		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == KNOW_SKILL)
-        {
-            trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
-        }
-		else 
+		{
+			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
+		}
+		else
 		{
 			sprintf(buf, "oskillturn: несоответсвие устанавливаемого умения классу игрока");
 			obj_log(obj, buf);
 		}
 	}
 	else
-    {
-        trg_recipeturn(ch, recipenum, skilldiff);
-    }
+	{
+		trg_recipeturn(ch, recipenum, skilldiff);
+	}
 }
 
 void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -875,9 +879,9 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	bool isSkill = false;
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-    ESkill skillnum = SKILL_INVALID;
-    int recipenum = 0;
-    int skilldiff = 0;
+	ESkill skillnum = SKILL_INVALID;
+	int recipenum = 0;
+	int skilldiff = 0;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -888,18 +892,18 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-    {
-        *pos = ' ';
-    }
-    while ((pos = strchr(skillname, '_')))
-    {
-        *pos = ' ';
-    }
+	{
+		*pos = ' ';
+	}
+	while ((pos = strchr(skillname, '_')))
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-    {
-        isSkill = true;
-    }
+	{
+		isSkill = true;
+	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		obj_log(obj, "oskilladd: skill/recipe not found");
@@ -915,13 +919,13 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isSkill)
-    {
-        trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
-    }
+	{
+		trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
+	}
 	else
-    {
-        trg_recipeadd(ch, recipenum, skilldiff);
-    }
+	{
+		trg_recipeadd(ch, recipenum, skilldiff);
+	}
 }
 
 void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -939,9 +943,9 @@ void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-    {
-        *pos = ' ';
-    }
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -985,7 +989,9 @@ void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -1021,7 +1027,9 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -1030,15 +1038,25 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(type, "potion"))
+	{
 		spell = SPELL_POTION;
+	}
 	else if (!str_cmp(type, "wand"))
+	{
 		spell = SPELL_WAND;
+	}
 	else if (!str_cmp(type, "scroll"))
+	{
 		spell = SPELL_SCROLL;
+	}
 	else if (!str_cmp(type, "items"))
+	{
 		spell = SPELL_ITEMS;
+	}
 	else if (!str_cmp(type, "runes"))
+	{
 		spell = SPELL_RUNES;
+	}
 	else
 	{
 		obj_log(obj, "ospellitem: type spell not found");
@@ -1046,9 +1064,13 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(turn, "set"))
+	{
 		spelldiff = 1;
+	}
 	else if (!str_cmp(turn, "clear"))
+	{
 		spelldiff = 0;
+	}
 	else
 	{
 		obj_log(obj, "ospellitem: unknown set variable");
@@ -1066,12 +1088,9 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-
-
 const struct obj_command_info obj_cmd_info[] =
 {
 	{"RESERVED", 0, 0},	// this must be first -- for specprocs
-
 	{"oecho", do_oecho, 0},
 	{"oechoaround", do_osend, SCMD_OECHOAROUND},
 	{"oexp", do_oexp, 0},

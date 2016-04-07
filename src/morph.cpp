@@ -391,9 +391,9 @@ void load_morphs()
 		{
 			const ESkill skillNum = find_skill_num(skill.child_value());
 			if (skillNum != -SKILL_INVALID)
-            {
-                skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
-            }
+			{
+				skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
+			}
 			else
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "...skills read fail for morph %s", name.c_str());

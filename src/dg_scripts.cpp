@@ -2525,56 +2525,76 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "canbeseen"))
 		{
 			if ((type == MOB_TRIGGER) && !CAN_SEE(((CHAR_DATA *) go), c))
+			{
 				strcpy(str, "0");
+			}
 			else
+			{
 				strcpy(str, "1");
+			}
 		}
 		else if (!str_cmp(field, "class"))
-			sprintf(str, "%d", (int) GET_CLASS(c));
-
+		{
+			sprintf(str, "%d", (int)GET_CLASS(c));
+		}
 #ifdef GET_RACE
 		else if (!str_cmp(field, "race"))
-			sprintf(str, "%d", (int) GET_RACE(c));
+		{
+			sprintf(str, "%d", (int)GET_RACE(c));
+		}
 #endif
-
 		else if (!str_cmp(field, "fighting"))
 		{
 			if (c->get_fighting())
+			{
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_fighting()));
+			}
 		}
 		else if (!str_cmp(field, "is_killer"))
 		{
 			if (PLR_FLAGGED(c, PLR_KILLER))
+			{
 				strcpy(str, "1");
+			}
 			else
+			{
 				strcpy(str, "0");
+			}
 		}
 		else if (!str_cmp(field, "is_thief"))
 		{
 			if (PLR_FLAGGED(c, PLR_THIEF))
+			{
 				strcpy(str, "1");
+			}
 			else
+			{
 				strcpy(str, "0");
+			}
 		}
 		else if (!str_cmp(field, "rentable"))
 		{
 			if (!IS_NPC(c) && RENTABLE(c))
+			{
 				strcpy(str, "0");
+			}
 			else
+			{
 				strcpy(str, "1");
+			}
 		}
 		else if (!str_cmp(field, "can_get_skill"))
 		{
 			if ((num = find_skill_num(subfield)) > 0)
 			{
 				if (can_get_skill(c, num))
-                {
-                    strcpy(str, "1");
-                }
+				{
+					strcpy(str, "1");
+				}
 				else
-                {
-                    strcpy(str, "0");
-                }
+				{
+					strcpy(str, "0");
+				}
 			}
 			else
 			{
@@ -2588,9 +2608,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if ((num = find_spell_num(subfield)) > 0)
 			{
 				if (can_get_spell(c, num))
+				{
 					strcpy(str, "1");
+				}
 				else
+				{
 					strcpy(str, "0");
+				}
 			}
 			else
 			{

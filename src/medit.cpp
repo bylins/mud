@@ -733,17 +733,21 @@ void medit_save_to_disk(int zone_num)
 			for (const auto c : AVAILABLE_SKILLS)
 			{
 				if (mob->get_skill(c))
-                {
-                    fprintf(mob_file, "Skill: %d %d\n", c, mob->get_skill(c));
-                }
+				{
+					fprintf(mob_file, "Skill: %d %d\n", c, mob->get_skill(c));
+				}
 			}
 			for (c = 1; c <= MAX_SPELLS; c++)
 			{
 				for (j = 1; j <= GET_SPELL_MEM(mob, c); j++)
+				{
 					fprintf(mob_file, "Spell: %d\n", c);
+				}
 			}
 			for (helper = GET_HELPER(mob); helper; helper = helper->next_helper)
+			{
 				fprintf(mob_file, "Helper: %d\n", helper->mob_vnum);
+			}
 			if (mob->get_role_bits().any())
 			{
 				std::string tmp;
@@ -1154,19 +1158,19 @@ void medit_disp_skills(DESCRIPTOR_DATA * d)
 	for (const auto counter : AVAILABLE_SKILLS)
 	{
 		if (!skill_info[counter].name
-            || *skill_info[counter].name == '!')
-        {
-            continue;
-        }
+			|| *skill_info[counter].name == '!')
+		{
+			continue;
+		}
 
 		if (OLC_MOB(d)->get_skill(counter))
-        {
-            sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->get_skill(counter), nrm);
-        }
+		{
+			sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->get_skill(counter), nrm);
+		}
 		else
-        {
-            strcpy(buf1, "     ");
-        }
+		{
+			strcpy(buf1, "     ");
+		}
 
 		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 			skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
@@ -1185,20 +1189,25 @@ void medit_disp_spells(DESCRIPTOR_DATA * d)
 #endif
 	for (counter = 1; counter <= MAX_SPELLS; counter++)
 	{
-		if (!spell_info[counter].name || *spell_info[counter].name == '!')
+		if (!spell_info[counter].name
+			|| *spell_info[counter].name == '!')
+		{
 			continue;
+		}
 		if (GET_SPELL_MEM(OLC_MOB(d), counter))
+		{
 			sprintf(buf1, "%s[%3d]%s", cyn, GET_SPELL_MEM(OLC_MOB(d), counter), nrm);
+		}
 		else
+		{
 			strcpy(buf1, "     ");
+		}
 		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 			spell_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	send_to_char("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character);
 }
-
-
 
 // * Display mob-flags menu.
 void medit_disp_mob_flags(DESCRIPTOR_DATA * d)
@@ -2366,17 +2375,17 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			send_to_char("Неизвестное умение.\r\n", d->character);
 		}
 		else if (OLC_MOB(d)->get_skill(static_cast<ESkill>(number)))
-        {
-            OLC_MOB(d)->set_skill(static_cast<ESkill>(number), 0);
-        }
+		{
+			OLC_MOB(d)->set_skill(static_cast<ESkill>(number), 0);
+		}
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
-        {
-            send_to_char("Не указан уровень владения умением.\r\n", d->character);
-        }
+		{
+			send_to_char("Не указан уровень владения умением.\r\n", d->character);
+		}
 		else
-        {
-            OLC_MOB(d)->set_skill(static_cast<ESkill>(number), (MIN(200, MAX(0, bit))));
-        }
+		{
+			OLC_MOB(d)->set_skill(static_cast<ESkill>(number), (MIN(200, MAX(0, bit))));
+		}
 		medit_disp_skills(d);
 		return;
 

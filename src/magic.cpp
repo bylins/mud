@@ -1260,7 +1260,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 	OBJ_DATA *obj0 = NULL, *obj1 = NULL, *obj2 = NULL, *obj3 = NULL, *objo = NULL;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
 	int create = 0, obj_num = -1, percent = 0, num = 0;
-    ESkill skillnum = SKILL_INVALID;
+	ESkill skillnum = SKILL_INVALID;
 	struct spell_create_item *items;
 
 	if (spellnum <= 0 || spellnum > MAX_SPELLS)
@@ -1292,7 +1292,9 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 		items = &spell_create[spellnum].runes;
 	}
 	else
+	{
 		return (FALSE);
+	}
 
 	if (((spelltype == SPELL_RUNES || spelltype == SPELL_ITEMS) &&
 			(item3 = items->rnumber) +
@@ -1371,17 +1373,17 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 		if (create)
 		{
 			if (!(obj = read_object(obj_num, VIRTUAL)))
-            {
-                return (FALSE);
-            }
+			{
+				return (FALSE);
+			}
 			else
 			{
 				percent = number(1, 100);
 				if (skillnum > 0
-                    && percent > train_skill(ch, skillnum, percent, 0))
-                {
-                    percent = -1;
-                }
+					&& percent > train_skill(ch, skillnum, percent, 0))
+				{
+					percent = -1;
+				}
 			}
 		}
 		if (item0 == -2)
@@ -1441,9 +1443,9 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			else if (spelltype == SPELL_RUNES)
 			{
 				sprintf(buf + strlen(buf),
-						"котор%s вспыхнул%s ярким светом.%s",
-						num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
-						PRF_FLAGGED(ch, PRF_COMPACT) ? "" : "\r\n");
+					"котор%s вспыхнул%s ярким светом.%s",
+					num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
+					PRF_FLAGGED(ch, PRF_COMPACT) ? "" : "\r\n");
 				act(buf, FALSE, ch, 0, 0, TO_CHAR);
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					TRUE, ch, NULL, NULL, TO_ROOM);

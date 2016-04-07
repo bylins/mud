@@ -321,92 +321,92 @@ const std::string& NAME_BY_ITEM<ESkill>(const ESkill item)
 
 std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
 {
-    SKILL_PROTECT,
-    SKILL_TOUCH,
-    SKILL_SHIT,
-    SKILL_MIGHTHIT,
-    SKILL_STUPOR,
-    SKILL_POISONED,
-    SKILL_SENSE,
-    SKILL_HORSE,
-    SKILL_HIDETRACK,
-    SKILL_RELIGION,
-    SKILL_MAKEFOOD,
-    SKILL_MULTYPARRY,
-    SKILL_TRANSFORMWEAPON,
-    SKILL_LEADERSHIP,
-    SKILL_PUNCTUAL,
-    SKILL_AWAKE,
-    SKILL_IDENTIFY,
-    SKILL_HEARING,
-    SKILL_CREATE_POTION,
-    SKILL_CREATE_SCROLL,
-    SKILL_CREATE_WAND,
-    SKILL_LOOK_HIDE,
-    SKILL_ARMORED,
-    SKILL_DRUNKOFF,
-    SKILL_AID,
-    SKILL_FIRE,
-    SKILL_CREATEBOW,
-    SKILL_THROW,
-    SKILL_BACKSTAB,
-    SKILL_BASH,
-    SKILL_HIDE,
-    SKILL_KICK,
-    SKILL_PICK_LOCK,
-    SKILL_PUNCH,
-    SKILL_RESCUE,
-    SKILL_SNEAK,
-    SKILL_STEAL,
-    SKILL_TRACK,
-    SKILL_CLUBS,
-    SKILL_AXES,
-    SKILL_LONGS,
-    SKILL_SHORTS,
-    SKILL_NONSTANDART,
-    SKILL_BOTHHANDS,
-    SKILL_PICK,
-    SKILL_SPADES,
-    SKILL_SATTACK,
-    SKILL_DISARM,
-    SKILL_PARRY,
-    SKILL_HEAL,
-    SKILL_MORPH,
-    SKILL_BOWS,
-    SKILL_ADDSHOT,
-    SKILL_CAMOUFLAGE,
-    SKILL_DEVIATE,
-    SKILL_BLOCK,
-    SKILL_LOOKING,
-    SKILL_CHOPOFF,
-    SKILL_REPAIR,
-    SKILL_UPGRADE,
-    SKILL_COURAGE,
-    SKILL_MANADRAIN,
-    SKILL_NOPARRYHIT,
-    SKILL_TOWNPORTAL,
-    SKILL_MAKE_STAFF,
-    SKILL_MAKE_BOW,
-    SKILL_MAKE_WEAPON,
-    SKILL_MAKE_ARMOR,
-    SKILL_MAKE_JEWEL,
-    SKILL_MAKE_WEAR,
-    SKILL_MAKE_POTION,
-    SKILL_DIG,
-    SKILL_INSERTGEM,
-    SKILL_WARCRY,
-    SKILL_TURN_UNDEAD,
-    SKILL_IRON_WIND,
-    SKILL_STRANGLE,
-    SKILL_AIR_MAGIC,
-    SKILL_FIRE_MAGIC,
-    SKILL_WATER_MAGIC,
-    SKILL_EARTH_MAGIC,
-    SKILL_LIGHT_MAGIC,
-    SKILL_DARK_MAGIC,
-    SKILL_MIND_MAGIC,
-    SKILL_LIFE_MAGIC,
-    SKILL_STUN
+	SKILL_PROTECT,
+	SKILL_TOUCH,
+	SKILL_SHIT,
+	SKILL_MIGHTHIT,
+	SKILL_STUPOR,
+	SKILL_POISONED,
+	SKILL_SENSE,
+	SKILL_HORSE,
+	SKILL_HIDETRACK,
+	SKILL_RELIGION,
+	SKILL_MAKEFOOD,
+	SKILL_MULTYPARRY,
+	SKILL_TRANSFORMWEAPON,
+	SKILL_LEADERSHIP,
+	SKILL_PUNCTUAL,
+	SKILL_AWAKE,
+	SKILL_IDENTIFY,
+	SKILL_HEARING,
+	SKILL_CREATE_POTION,
+	SKILL_CREATE_SCROLL,
+	SKILL_CREATE_WAND,
+	SKILL_LOOK_HIDE,
+	SKILL_ARMORED,
+	SKILL_DRUNKOFF,
+	SKILL_AID,
+	SKILL_FIRE,
+	SKILL_CREATEBOW,
+	SKILL_THROW,
+	SKILL_BACKSTAB,
+	SKILL_BASH,
+	SKILL_HIDE,
+	SKILL_KICK,
+	SKILL_PICK_LOCK,
+	SKILL_PUNCH,
+	SKILL_RESCUE,
+	SKILL_SNEAK,
+	SKILL_STEAL,
+	SKILL_TRACK,
+	SKILL_CLUBS,
+	SKILL_AXES,
+	SKILL_LONGS,
+	SKILL_SHORTS,
+	SKILL_NONSTANDART,
+	SKILL_BOTHHANDS,
+	SKILL_PICK,
+	SKILL_SPADES,
+	SKILL_SATTACK,
+	SKILL_DISARM,
+	SKILL_PARRY,
+	SKILL_HEAL,
+	SKILL_MORPH,
+	SKILL_BOWS,
+	SKILL_ADDSHOT,
+	SKILL_CAMOUFLAGE,
+	SKILL_DEVIATE,
+	SKILL_BLOCK,
+	SKILL_LOOKING,
+	SKILL_CHOPOFF,
+	SKILL_REPAIR,
+	SKILL_UPGRADE,
+	SKILL_COURAGE,
+	SKILL_MANADRAIN,
+	SKILL_NOPARRYHIT,
+	SKILL_TOWNPORTAL,
+	SKILL_MAKE_STAFF,
+	SKILL_MAKE_BOW,
+	SKILL_MAKE_WEAPON,
+	SKILL_MAKE_ARMOR,
+	SKILL_MAKE_JEWEL,
+	SKILL_MAKE_WEAR,
+	SKILL_MAKE_POTION,
+	SKILL_DIG,
+	SKILL_INSERTGEM,
+	SKILL_WARCRY,
+	SKILL_TURN_UNDEAD,
+	SKILL_IRON_WIND,
+	SKILL_STRANGLE,
+	SKILL_AIR_MAGIC,
+	SKILL_FIRE_MAGIC,
+	SKILL_WATER_MAGIC,
+	SKILL_EARTH_MAGIC,
+	SKILL_LIGHT_MAGIC,
+	SKILL_DARK_MAGIC,
+	SKILL_MIND_MAGIC,
+	SKILL_LIFE_MAGIC,
+	SKILL_STUN
 };
 
 ///
@@ -528,15 +528,15 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
 
 	if (skill_no < SKILL_FIRST
-        || skill_no > MAX_SKILL_NUM)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
-    {
-        return 0;
-    }
+		|| skill_no > MAX_SKILL_NUM)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
+	{
+		return 0;
+	}
 
 	if ((skill_is = ch->get_skill(skill_no)) <= 0)
-    {
-        return 0;                                         // если скила нет возвращаем 0.
-    }
+	{
+		return 0;                                         // если скила нет возвращаем 0.
+	}
 
 	if (!IS_NPC(ch) && ch->affected)
 	{
@@ -544,21 +544,21 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		for (aff = ch->affected; aff; aff = aff->next)
 		{
 			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с эксп умелкой
-			skill_is +=  aff->modifier; 
+				skill_is += aff->modifier;
 		}
 	}
 	skill_is += int_app[GET_REAL_INT(ch)].to_skilluse;
 
-    if (!IS_NPC(ch))
-    {
-        size = size_app[GET_POS_SIZE(ch)].interpolate;
-    }
-    else
-    {
-        size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
-    }
+	if (!IS_NPC(ch))
+	{
+		size = size_app[GET_POS_SIZE(ch)].interpolate;
+	}
+	else
+	{
+		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
+	}
 
-    switch (skill_no)
+	switch (skill_no)
 	{
 	case SKILL_HIDETRACK:          // замести следы
 		bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
@@ -585,16 +585,18 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_BASH:	//сбить
 		victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		bonus = size + dex_bonus(GET_REAL_DEX(ch)) +
-				  (GET_EQ(ch, WEAR_SHIELD) ?
-				   weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
-				   bashing : 0);
+			(GET_EQ(ch, WEAR_SHIELD) ?
+				weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
+				bashing : 0);
 		if (vict)
-		{         if (!IS_NPC(vict)) {
-			victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
-			} else {
-                        victim_modi -= (size_app[GET_POS_SIZE(vict)].interpolate)/2;
-                        }
-                        if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING)
+		{
+			if (!IS_NPC(vict)) {
+				victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
+			}
+			else {
+				victim_modi -= (size_app[GET_POS_SIZE(vict)].interpolate) / 2;
+			}
+			if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING)
 				victim_modi -= 20;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
 				victim_modi -= calculate_awake_mod(ch, vict);
@@ -606,30 +608,44 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
 		if (awake_others(ch) || equip_in_metall(ch))
+		{
 			bonus -= 50;
+		}
 
 		if (IS_DARK(IN_ROOM(ch)))
+		{
 			bonus += 25;
+		}
 
 		if (SECT(IN_ROOM(ch)) == SECT_INSIDE)
+		{
 			bonus += 20;
+		}
 		else if (SECT(IN_ROOM(ch)) == SECT_CITY)
+		{
 			bonus -= 15;
+		}
 		else if (SECT(IN_ROOM(ch)) == SECT_FOREST)
+		{
 			bonus += 20;
+		}
 		else if (SECT(IN_ROOM(ch)) == SECT_HILLS
-				 || SECT(IN_ROOM(ch)) == SECT_MOUNTAIN) bonus += 10;
+			|| SECT(IN_ROOM(ch)) == SECT_MOUNTAIN)
+		{
+			bonus += 10;
+		}
 
 		if (vict)
 		{
 			if (AWAKE(vict))
+			{
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
+			}
 		}
 		break;
 	case SKILL_KICK:	//пнуть
 		victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
-		bonus = dex_bonus(GET_REAL_DEX(ch)) +
-				  dex_bonus(GET_REAL_STR(ch));
+		bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
 		if (vict)
 		{
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
@@ -1098,41 +1114,39 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 	}
 
 	if (IS_NPC(ch))
-    {
-        return;
-    }
+	{
+		return;
+	}
 
-	if (victim && (IS_HORSE(victim) || MOB_FLAGGED(victim, MOB_NOTRAIN)))
-    {
-        return;
-    }
+	if (victim && (IS_HORSE(victim)
+		|| MOB_FLAGGED(victim, MOB_NOTRAIN)))
+	{
+		return;
+	}
 
-    int skill_is, diff = 0, prob, div;
+	int skill_is, diff = 0, prob, div;
 
-    if (IS_IMMORTAL(ch) ||
-			((!victim ||
-			  OK_GAIN_EXP(ch, victim)) && IN_ROOM(ch) != NOWHERE
-			 && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) &&
-// Стрибог
-			 !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&
-//Свентовит
-			 !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE)
-			 && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ATRIUM) &&
-//
-			 (diff =
-				  wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20 -
-				  trained_skill) > 0
-			 && trained_skill < MAX_EXP_RMRT_PERCENT(ch)))
+	if (IS_IMMORTAL(ch)
+		|| ((!victim || OK_GAIN_EXP(ch, victim))
+			&& IN_ROOM(ch) != NOWHERE
+			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL)
+			// Стрибог
+			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+			//Свентовит
+			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE)
+			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ATRIUM)
+			&& (diff = wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20 - trained_skill) > 0
+			&& trained_skill < MAX_EXP_RMRT_PERCENT(ch)))
 	{
 		// Success - multy by 2
 		prob = success ? 20000 : 15000;
 
-		div = int_app[GET_REAL_INT(ch)].improove /* + diff */ ;
+		div = int_app[GET_REAL_INT(ch)].improove /* + diff */;
 
-		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_PLAYER_CLASSES)
-        {
-            div += (skill_info[skill_no].k_improove[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] / 100);
-        }
+		if ((int)GET_CLASS(ch) >= 0 && (int)GET_CLASS(ch) < NUM_PLAYER_CLASSES)
+		{
+			div += (skill_info[skill_no].k_improove[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] / 100);
+		}
 
 		prob /= (MAX(1, div));
 		// вариант бонуса мудрости без штрафов за кол-во умений
@@ -1145,25 +1159,28 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 //        log("Player %s skill '%d' - need to improove %d(%d-%d)",
 //            GET_NAME(ch), skill_no, skill_is, div, prob);
                 if ((skill_no == SKILL_STEAL) && (!IS_NPC(victim)))
-                   return;
-		if (
-			(victim
-			 && skill_is <= GET_REAL_INT(ch) * GET_LEVEL(victim) / GET_LEVEL(ch))
+		{
+			return;
+		}
+		if ((victim && skill_is <= GET_REAL_INT(ch) * GET_LEVEL(victim) / GET_LEVEL(ch))
 			|| (!victim && skill_is <= GET_REAL_INT(ch)))
 		{
 			if (success)
+			{
 				sprintf(buf, "%sВы повысили уровень умения \"%s\".%s\r\n",
-						CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
-								C_NRM));
+					CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
+			}
 			else
-				sprintf(buf,
-						"%sПоняв свои ошибки, вы повысили уровень умения \"%s\".%s\r\n",
-						CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
-								C_NRM));
+			{
+				sprintf(buf, "%sПоняв свои ошибки, вы повысили уровень умения \"%s\".%s\r\n",
+					CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
+			}
 			send_to_char(buf, ch);
 			ch->set_morphed_skill(skill_no, (trained_skill + number(1, 2)));
 			if (!IS_IMMORTAL(ch))
+			{
 				ch->set_morphed_skill(skill_no, (MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5, ch->get_trained_skill(skill_no))));
+			}
 // скилл прокачался, помечаю моба (если он есть)
 			if (victim && IS_NPC(victim))
 			{
@@ -1180,24 +1197,27 @@ int train_skill(CHAR_DATA * ch, const ESkill skill_no, int max_value, CHAR_DATA 
 	percent = calculate_skill(ch, skill_no, vict);
 	if (!IS_NPC(ch))
 	{
-		if (skill_no != SKILL_SATTACK &&
-				ch->get_trained_skill(skill_no) > 0 && (!vict
-												|| (IS_NPC(vict)
-													&& !MOB_FLAGGED(vict, MOB_PROTECT)
-													&& !MOB_FLAGGED(vict, MOB_NOTRAIN)
-													&& !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-													&& !IS_HORSE(vict))))
+		if (skill_no != SKILL_SATTACK
+			&& ch->get_trained_skill(skill_no) > 0
+			&& (!vict
+				|| (IS_NPC(vict)
+					&& !MOB_FLAGGED(vict, MOB_PROTECT)
+					&& !MOB_FLAGGED(vict, MOB_NOTRAIN)
+					&& !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+					&& !IS_HORSE(vict))))
+		{
 			improove_skill(ch, skill_no, percent >= max_value, vict);
+		}
 	}
 	else if (!IS_CHARMICE(ch))
-    {
-        if (ch->get_skill(skill_no) > 0
-            && GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch))
-            && ch->get_skill(skill_no) < skill_info[skill_no].max_percent)
-        {
-            ch->set_skill(skill_no, ch->get_skill(skill_no) + 1);
-        }
-    }
+	{
+		if (ch->get_skill(skill_no) > 0
+			&& GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch))
+			&& ch->get_skill(skill_no) < skill_info[skill_no].max_percent)
+		{
+			ch->set_skill(skill_no, ch->get_skill(skill_no) + 1);
+		}
+	}
 
 	return (percent);
 }
@@ -1212,7 +1232,9 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 {
 	int result = 0;
 	if (!killer || !victim)
+	{
 		log("SYSERROR: zero character in calculate_awake_mod.");
+	}
 	else if (IS_NPC(killer) || IS_NPC(victim))
 	{
 		// если чар наем, то не режем осторогу вообще, ибо нефиг
@@ -1235,21 +1257,24 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
  */
 int min_skill_level(CHAR_DATA *ch, int skill)
 {
-	return (skill_info[skill].min_level[ch->get_class()][ch->get_kin()] -
-		(MAX(0,ch->get_remort()/skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()])));
+	return (skill_info[skill].min_level[ch->get_class()][ch->get_kin()]
+		- (MAX(0,ch->get_remort()/skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()])));
 };
 
 bool can_get_skill(CHAR_DATA *ch, int skill)
 {
-	if (ch->get_remort() < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()] ||
-		(skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL))
+	if (ch->get_remort() < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
+		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL))
+	{
 		return FALSE;
+	}
 	if (ch->get_level() < min_skill_level(ch, skill))
+	{
 		return FALSE;
+	}
 
 	return TRUE;
-};
-
+}
 
 //  Реализация класса Skill
 
@@ -1265,22 +1290,22 @@ Skill::Skill() : _Name(SKILL_NAME_UNDEFINED), _Number(SKILL_UNDEFINED), _MaxPerc
 // Парсим блок описания скилла
 void Skill::ParseSkill(pugi::xml_node SkillNode)
 {
-    std::string SkillID;
-    pugi::xml_node CurNode;
-    SkillPtr TmpSkill(new Skill);
+	std::string SkillID;
+	pugi::xml_node CurNode;
+	SkillPtr TmpSkill(new Skill);
 
-    // Базовые параметры скилла (а пока боле ничего и нет)
-    SkillID = SkillNode.attribute("id").value();
+	// Базовые параметры скилла (а пока боле ничего и нет)
+	SkillID = SkillNode.attribute("id").value();
 
-    CurNode = SkillNode.child("number");
+	CurNode = SkillNode.child("number");
 	TmpSkill->_Number = CurNode.attribute("val").as_int();
-    CurNode = SkillNode.child("name");
+	CurNode = SkillNode.child("name");
 	TmpSkill->_Name = CurNode.attribute("text").value();
 	CurNode = SkillNode.child("max_percent");
 	TmpSkill->_MaxPercent = CurNode.attribute("val").as_int();
 
 	// Добавляем новый скилл в лист
-    Skill::SkillList.insert(make_pair(SkillID, TmpSkill));
+	Skill::SkillList.insert(make_pair(SkillID, TmpSkill));
 };
 
 // Парсинг скиллов

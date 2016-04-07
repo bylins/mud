@@ -1638,8 +1638,8 @@ void parse_val_spell_lvl(DESCRIPTOR_DATA *d, const ObjVal::EValueKey key, int va
 
 void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
-    int number = 0;
-    int max_val, min_val, plane, bit;
+	int number = 0;
+	int max_val, min_val, plane, bit;
 
 	switch (OLC_MODE(d))
 	{
@@ -2095,9 +2095,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		if (number == 0)
-        {
-            break;
-        }
+		{
+			break;
+		}
 		if (GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_INGREDIENT)
 		{
 			TOGGLE_BIT(GET_OBJ_SKILL(OLC_OBJ(d)), 1 << (number - 1));

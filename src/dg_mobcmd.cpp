@@ -1422,9 +1422,9 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	bool isSkill = false;
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-    ESkill skillnum = SKILL_INVALID;
-    int recipenum = 0;
-    int skilldiff = 0;
+	ESkill skillnum = SKILL_INVALID;
+	int recipenum = 0;
+	int skilldiff = 0;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -1433,9 +1433,9 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-    {
-        return;
-    }
+	{
+		return;
+	}
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -1446,18 +1446,18 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-    {
-        *pos = ' ';
-    }
+	{
+		*pos = ' ';
+	}
 	while ((pos = strchr(skillname, '_')))
-    {
-        *pos = ' ';
-    }
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-    {
-        isSkill = 1;
-    }
+	{
+		isSkill = 1;
+	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		mob_log(ch, "mskillturn: skill/recipe not found");
@@ -1465,13 +1465,13 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(amount, "set"))
-    {
-        skilldiff = 1;
-    }
+	{
+		skilldiff = 1;
+	}
 	else if (!str_cmp(amount, "clear"))
-    {
-        skilldiff = 0;
-    }
+	{
+		skilldiff = 0;
+	}
 	else
 	{
 		mob_log(ch, "mskillturn: unknown set variable");
@@ -1485,14 +1485,14 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-    {
-        return;
-    }
+	{
+		return;
+	}
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-    {
-        return;
-    }
+	{
+		return;
+	}
 
 	if (*name == UID_CHAR)
 	{
@@ -1523,9 +1523,9 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 	else
-    {
-        trg_recipeturn(victim, recipenum, skilldiff);
-    }
+	{
+		trg_recipeturn(victim, recipenum, skilldiff);
+	}
 }
 
 void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1533,9 +1533,9 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	bool isSkill = false;
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-    ESkill skillnum = SKILL_INVALID;
-    int recipenum = 0;
-    int skilldiff = 0;
+	ESkill skillnum = SKILL_INVALID;
+	int recipenum = 0;
+	int skilldiff = 0;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -1544,9 +1544,9 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-    {
-        return;
-    }
+	{
+		return;
+	}
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -1557,18 +1557,18 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-    {
-        *pos = ' ';
-    }
+	{
+		*pos = ' ';
+	}
 	while ((pos = strchr(skillname, '_')))
-    {
-        *pos = ' ';
-    }
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-    {
-        isSkill = true;
-    }
+	{
+		isSkill = true;
+	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		mob_log(ch, "mskilladd: skill/recipe not found");
@@ -1584,14 +1584,14 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-    {
-        return;
-    }
+	{
+		return;
+	}
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-    {
-        return;
-    }
+	{
+		return;
+	}
 
 	if (*name == UID_CHAR)
 	{
@@ -1610,13 +1610,13 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	};
 
 	if (isSkill)
-    {
-        trg_skilladd(victim, skillnum, skilldiff, last_trig_vnum);
-    }
+	{
+		trg_skilladd(victim, skillnum, skilldiff, last_trig_vnum);
+	}
 	else
-    {
-        trg_recipeadd(victim, recipenum, skilldiff);
-    }
+	{
+		trg_recipeadd(victim, recipenum, skilldiff);
+	}
 }
 
 void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1632,7 +1632,9 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	argument = one_argument(argument, name);
 	two_arguments(argument, skillname, amount);
@@ -1644,7 +1646,9 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
 	{
@@ -1653,9 +1657,13 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(amount, "set"))
+	{
 		skilldiff = 1;
+	}
 	else if (!str_cmp(amount, "clear"))
+	{
 		skilldiff = 0;
+	}
 	else
 	{
 		mob_log(ch, "mspellturn: unknown set variable");
@@ -1717,7 +1725,9 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
 	{
@@ -1734,10 +1744,14 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
+	{
 		return;
+	}
 
 	if (*name == UID_CHAR)
 	{
@@ -1771,7 +1785,9 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
 
@@ -1782,7 +1798,9 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -1791,15 +1809,25 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(type, "potion"))
+	{
 		spell = SPELL_POTION;
+	}
 	else if (!str_cmp(type, "wand"))
+	{
 		spell = SPELL_WAND;
+	}
 	else if (!str_cmp(type, "scroll"))
+	{
 		spell = SPELL_SCROLL;
+	}
 	else if (!str_cmp(type, "items"))
+	{
 		spell = SPELL_ITEMS;
+	}
 	else if (!str_cmp(type, "runes"))
+	{
 		spell = SPELL_RUNES;
+	}
 	else
 	{
 		mob_log(ch, "mspellitem: type spell not found");
@@ -1807,9 +1835,13 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(turn, "set"))
+	{
 		spelldiff = 1;
+	}
 	else if (!str_cmp(turn, "clear"))
+	{
 		spelldiff = 0;
+	}
 	else
 	{
 		mob_log(ch, "mspellitem: unknown set variable");
@@ -1848,7 +1880,9 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	two_arguments(argument, name, amount);
 
@@ -1863,7 +1897,9 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if ((victim = get_char(name)))
 	{
 		if (world[IN_ROOM(victim)]->zone != world[IN_ROOM(ch)]->zone)
+		{
 			return;
+		}
 
 		if (GET_LEVEL(victim) >= LVL_IMMORT && dam > 0)
 		{
@@ -1893,7 +1929,9 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 	else
+	{
 		mob_log(ch, "mdamage: target not found");
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

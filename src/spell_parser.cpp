@@ -1845,9 +1845,9 @@ ESkill find_skill_num(const char *name)
 	for (const auto index : AVAILABLE_SKILLS)
 	{
 		if (is_abbrev(name, skill_info[index].name))
-        {
-            return (index);
-        }
+		{
+			return (index);
+		}
 
 		ok = TRUE;
 		// It won't be changed, but other uses of this function elsewhere may.
@@ -1856,20 +1856,20 @@ ESkill find_skill_num(const char *name)
 		while (*first && *first2 && ok)
 		{
 			if (!is_abbrev(first2, first))
-            {
-                ok = FALSE;
-            }
+			{
+				ok = FALSE;
+			}
 			temp = any_one_arg(temp, first);
 			temp2 = any_one_arg(temp2, first2);
 		}
 
 		if (ok && !*first2)
-        {
-            return (index);
-        }
+		{
+			return (index);
+		}
 	}
 
-    return SKILL_INVALID;
+	return SKILL_INVALID;
 }
 
 int find_spell_num(char *name)
@@ -2752,7 +2752,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * troom, int spellnum, int spell_subst)
 {
 	int ignore;
-    ESkill skillnum = SKILL_INVALID;
+	ESkill skillnum = SKILL_INVALID;
 	CHAR_DATA *ch_vict;
 
 	if (spellnum < 0 || spellnum > TOP_SPELL_DEFINE)
@@ -2765,7 +2765,9 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	if (tch && ch)
 	{
 		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !SpINFO.violent)
+		{
 			return (0);
+		}
 	}
 	if (!troom)
 	{
@@ -2930,9 +2932,9 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 	int prob = 100;
 	int skill;
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-    {
-        return TRUE;
-    }
+	{
+		return TRUE;
+	}
 
 	switch (casting_type)
 	{
@@ -2941,43 +2943,43 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 		prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
 
 		if ((IS_MAGE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MAGE))
-				|| (IS_CLERIC(ch) && IN_ROOM(ch) != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_CLERIC))
-				|| (IS_PALADINE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PALADINE))
-				|| (IS_MERCHANT(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MERCHANT)))
-        {
-            prob += 10;
-        }
+			|| (IS_CLERIC(ch) && IN_ROOM(ch) != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_CLERIC))
+			|| (IS_PALADINE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PALADINE))
+			|| (IS_MERCHANT(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MERCHANT)))
+		{
+			prob += 10;
+		}
 
 		if (IS_MAGE(ch) && equip_in_metall(ch))
-        {
-            prob -= 50;
-        }
+		{
+			prob -= 50;
+		}
 		break;
 	}
 
 	if (equip_in_metall(ch) && !can_use_feat(ch, COMBAT_CASTING_FEAT))
-    {
-        prob -= 50;
-    }
+	{
+		prob -= 50;
+	}
 
 	prob = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_SUCCESS, prob);
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE) ||
-			(SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE)) ||
-			(!SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSCURSE)))
-    {
-        prob -= 50;
-    }
+		(SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE)) ||
+		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSCURSE)))
+	{
+		prob -= 50;
+	}
 
 	if ((SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSCURSE)) ||
-			(!SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE)))
-    {
-        prob += 50;
-    }
+		(!SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE)))
+	{
+		prob += 50;
+	}
 
 	if (IS_NPC(ch) && (GET_LEVEL(ch) >= STRONG_MOB_LEVEL))
-    {
-        prob += GET_LEVEL(ch) - 20;
-    }
+	{
+		prob += GET_LEVEL(ch) - 20;
+	}
 
 	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);
 	if (skill_number > 0)
@@ -3737,7 +3739,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	{
 		// апгрейд скилла без учета макс.скилла плеера (до макс в книге)
 		if (GET_OBJ_VAL(obj, 3) > 0
-            && ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= GET_OBJ_VAL(obj, 3))
+			&& ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= GET_OBJ_VAL(obj, 3))
 		{
 			book_upgrd_fail_message(ch, obj);
 			return;
@@ -3745,7 +3747,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 		// апгрейд скилла до макс.скилла плеера (без макса в книге)
 		if (GET_OBJ_VAL(obj, 3) <= 0
-            && ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= MAX_EXP_PERCENT + GET_REMORT(ch) * 5)
+			&& ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= MAX_EXP_PERCENT + GET_REMORT(ch) * 5)
 		{
 			book_upgrd_fail_message(ch, obj);
 			return;
@@ -3806,18 +3808,18 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			break;
 
 		case BOOK_UPGRD:
-            {
-                const ESkill skill = static_cast<ESkill>(spellnum);
-                const int left_skill_level = ch->get_trained_skill(static_cast<ESkill>(spellnum)) + GET_OBJ_VAL(obj, 2);
-                if (GET_OBJ_VAL(obj, 3) > 0)
-                {
-                    ch->set_skill(skill, MIN(left_skill_level, GET_OBJ_VAL(obj, 3)));
-                }
-                else
-                {
-                    ch->set_skill(skill, MIN(left_skill_level, MAX_EXP_PERCENT + GET_REMORT(ch) * 5));
-                }
-            }
+			{
+				const ESkill skill = static_cast<ESkill>(spellnum);
+				const int left_skill_level = ch->get_trained_skill(static_cast<ESkill>(spellnum)) + GET_OBJ_VAL(obj, 2);
+				if (GET_OBJ_VAL(obj, 3) > 0)
+				{
+					ch->set_skill(skill, MIN(left_skill_level, GET_OBJ_VAL(obj, 3)));
+				}
+				else
+				{
+					ch->set_skill(skill, MIN(left_skill_level, MAX_EXP_PERCENT + GET_REMORT(ch) * 5));
+				}
+			}
 			break;
 
 		case BOOK_RECPT:

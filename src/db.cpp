@@ -6667,9 +6667,9 @@ void load_ignores(CHAR_DATA * ch, char *line)
 void set_god_skills(CHAR_DATA *ch)
 {
 	for (const auto i : AVAILABLE_SKILLS)
-    {
-        ch->set_skill(i, 150);
-    }
+	{
+		ch->set_skill(i, 150);
+	}
 }
 
 #define NUM_OF_SAVE_THROWS	5

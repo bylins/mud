@@ -797,9 +797,9 @@ void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	bool isSkill = false;
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-    ESkill skillnum = SKILL_INVALID;
-    int recipenum = 0;
-    int skilldiff = 0;
+	ESkill skillnum = SKILL_INVALID;
+	int recipenum = 0;
+	int skilldiff = 0;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -810,18 +810,18 @@ void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-    {
-        *pos = ' ';
-    }
+	{
+		*pos = ' ';
+	}
 	while ((pos = strchr(skillname, '_')))
-    {
-        *pos = ' ';
-    }
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-    {
-        isSkill = true;
-    }
+	{
+		isSkill = true;
+	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		wld_log(room, "wskilladd: skill/recipe not found");
@@ -837,13 +837,13 @@ void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isSkill)
-    {
-        trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
-    }
+	{
+		trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
+	}
 	else
-    {
-        trg_recipeadd(ch, recipenum, skilldiff);
-    }
+	{
+		trg_recipeadd(ch, recipenum, skilldiff);
+	}
 }
 
 void do_wspellturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -856,7 +856,6 @@ void do_wspellturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	argument = one_argument(argument, name);
 	two_arguments(argument, spellname, amount);
 
-
 	if (!*name || !*spellname || !*amount)
 	{
 		wld_log(room, "wspellturn: too few arguments");
@@ -864,7 +863,9 @@ void do_wspellturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -873,9 +874,13 @@ void do_wspellturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(amount, "set"))
+	{
 		spelldiff = 1;
+	}
 	else if (!str_cmp(amount, "clear"))
+	{
 		spelldiff = 0;
+	}
 	else
 	{
 		wld_log(room, "wspellturn: unknown set variable");
@@ -908,7 +913,9 @@ void do_wspelladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -944,7 +951,9 @@ void do_wspellitem(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -953,15 +962,25 @@ void do_wspellitem(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(type, "potion"))
+	{
 		spell = SPELL_POTION;
+	}
 	else if (!str_cmp(type, "wand"))
+	{
 		spell = SPELL_WAND;
+	}
 	else if (!str_cmp(type, "scroll"))
+	{
 		spell = SPELL_SCROLL;
+	}
 	else if (!str_cmp(type, "items"))
+	{
 		spell = SPELL_ITEMS;
+	}
 	else if (!str_cmp(type, "runes"))
+	{
 		spell = SPELL_RUNES;
+	}
 	else
 	{
 		wld_log(room, "wspellitem: type spell not found");
@@ -969,9 +988,13 @@ void do_wspellitem(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(turn, "set"))
+	{
 		spelldiff = 1;
+	}
 	else if (!str_cmp(turn, "clear"))
+	{
 		spelldiff = 0;
+	}
 	else
 	{
 		wld_log(room, "wspellitem: unknown set variable");
@@ -1030,7 +1053,6 @@ void do_wportal(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 const struct wld_command_info wld_cmd_info[] =
 {
 	{"RESERVED", 0, 0},	// this must be first -- for specprocs
-
 	{"wasound", do_wasound, 0},
 	{"wdoor", do_wdoor, 0},
 	{"wecho", do_wecho, 0},

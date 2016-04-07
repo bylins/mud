@@ -27,9 +27,9 @@ class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any d
 // PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM //
 enum ESkill: int
 {
-    SKILL_INVALID = 0,
+	SKILL_INVALID = 0,
 	SKILL_THAC0 = 0,	// Internal //
-    SKILL_FIRST = 1,
+	SKILL_FIRST = 1,
 	SKILL_PROTECT = SKILL_FIRST,	// *** Protect groupers    //
 	SKILL_TOUCH = 2,	// *** Touch attacker       //
 	SKILL_SHIT = 3,
@@ -115,10 +115,10 @@ enum ESkill: int
 	SKILL_DARK_MAGIC = 187,
 	SKILL_MIND_MAGIC = 188,
 	SKILL_LIFE_MAGIC = 189,
-    SKILL_STUN = 190,
+	SKILL_STUN = 190,
 
-    // не забываем указывать максимальный номер скилла
-    MAX_SKILL_NUM = SKILL_STUN
+	// не забываем указывать максимальный номер скилла
+	MAX_SKILL_NUM = SKILL_STUN
 };
 
 template <> ESkill ITEM_BY_NAME<ESkill>(const std::string& name);

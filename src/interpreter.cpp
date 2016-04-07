@@ -1121,7 +1121,6 @@ const char *reserved[] = { "a",
 						   "\n"
 						 };
 
-
 void check_hiding_cmd(CHAR_DATA * ch, int percent)
 {
 	int remove_hide = FALSE;
@@ -1130,16 +1129,24 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 		if (percent == -2)
 		{
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK))
+			{
 				remove_hide = number(1, skill_info[SKILL_SNEAK].max_percent) >
-							  calculate_skill(ch, SKILL_SNEAK, 0);
+					calculate_skill(ch, SKILL_SNEAK, 0);
+			}
 			else
+			{
 				percent = 500;
+			}
 		}
 
 		if (percent == -1)
+		{
 			remove_hide = TRUE;
+		}
 		else if (percent > 0)
+		{
 			remove_hide = number(1, percent) > calculate_skill(ch, SKILL_HIDE, 0);
+		}
 
 		if (remove_hide)
 		{
@@ -2396,23 +2403,27 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		if(HAVE_FEAT(d->character,i) && !can_get_feat(d->character,i))
 		{
 			//UNSET_FEAT(d->character, i);
-		} else {
+		}
+		else
+		{
 			if (feat_info[i].natural_classfeat[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)])
+			{
 				SET_FEAT(d->character, i);
+			}
 		}
 	};
 	set_race_feats(d->character);
 	//нефиг левыми скиллами размахивать если не имм
 	if (!IS_IMMORTAL(d->character))
-    {
-        for (const auto i : AVAILABLE_SKILLS)
-        {
-            if (skill_info[i].classknow[(int)GET_CLASS(d->character)][(int)GET_KIN(d->character)] != KNOW_SKILL)
-            {
-                (d->character)->set_skill(i, 0);
-            }
-        }
-    }
+	{
+		for (const auto i : AVAILABLE_SKILLS)
+		{
+			if (skill_info[i].classknow[(int)GET_CLASS(d->character)][(int)GET_KIN(d->character)] != KNOW_SKILL)
+			{
+				(d->character)->set_skill(i, 0);
+			}
+		}
+	}
 
 	//Заменяем закл !переместиться! на способность
 	if (GET_SPELL_TYPE(d->character, SPELL_RELOCATE) == SPELL_KNOW && !IS_GOD(d->character))

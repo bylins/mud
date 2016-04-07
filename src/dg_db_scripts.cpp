@@ -593,16 +593,16 @@ void trg_skillturn(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnu
 	if (ch->get_trained_skill(skillnum))
 	{
 		if (skilldiff)
-        {
-            return;
-        }
+		{
+			return;
+		}
 
 		ch->set_skill(skillnum, 0);
 		send_to_char(ch, "Вас лишили умения '%s'.\r\n", skill_name(skillnum));
 		log("Remove %s from %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
 	}
 	else if (skilldiff
-			 && skill_info[skillnum].classknow[ch_class][ch_kin] == KNOW_SKILL)
+		&& skill_info[skillnum].classknow[ch_class][ch_kin] == KNOW_SKILL)
 	{
 		ch->set_skill(skillnum, 5);
 		send_to_char(ch, "Вы изучили умение '%s'.\r\n", skill_name(skillnum));
