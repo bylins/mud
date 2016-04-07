@@ -523,11 +523,13 @@ void Player::save_char()
 	{
 		fprintf(saved, "Skil:\n");
 		int skill;
-		for (i = 1; i <= MAX_SKILL_NUM; i++)
+		for (const auto i : AVAILABLE_SKILLS)
 		{
 			skill = this->get_inborn_skill(i);
 			if (skill)
-				fprintf(saved, "%d %d %s\n", i, skill, skill_info[i].name);
+            {
+                fprintf(saved, "%d %d %s\n", i, skill, skill_info[i].name);
+            }
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -1709,8 +1711,12 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					fbgetline(fl, line);
 					sscanf(line, "%d %d", &num, &num2);
 					if (num != 0)
-						if (skill_info[num].classknow[(int) GET_CLASS(this)][(int) GET_KIN(this)] == KNOW_SKILL)
-							this->set_skill(num, num2);
+                    {
+                        if (skill_info[num].classknow[(int)GET_CLASS(this)][(int)GET_KIN(this)] == KNOW_SKILL)
+                        {
+                            this->set_skill(static_cast<ESkill>(num), num2);
+                        }
+                    }
 				}
 				while (num != 0);
 			}

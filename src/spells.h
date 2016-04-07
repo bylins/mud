@@ -11,6 +11,7 @@
 #ifndef _SPELLS_H_
 #define _SPELLS_H_
 
+#include "skills.h"
 #include "structs.h"	// there was defined type "byte" if it had been missing
 
 #include <boost/tokenizer.hpp>
@@ -554,8 +555,6 @@ void spell_vampire(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 
 // basic magic calling functions
 
-int find_skill_num(const char *name);
-
 int find_spell_num(char *name);
 
 int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
@@ -614,7 +613,7 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
-int get_magic_skill_number_by_spell(int spellnum);
+ESkill get_magic_skill_number_by_spell(int spellnum);
 
 //Polud статистика использования заклинаний
 typedef std::map<int, int> SpellCountType;

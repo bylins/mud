@@ -7,8 +7,9 @@
 
 #include "obj_enchant.hpp"
 #include "features.hpp"
-#include "utils.h"
 #include "spells.h"
+#include "skills.h"
+#include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

@@ -379,7 +379,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			&& GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_FOUNTAIN)
 		{
 			name_from_drinkcon(temp);
-			GET_OBJ_SKILL(temp) = 0;
+			GET_OBJ_SKILL(temp) = SKILL_INVALID;
 			reset_potion_values(temp);
 		}
 		return;
@@ -991,7 +991,7 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			GET_OBJ_VAL(from_obj, 1) = 0;
 			GET_OBJ_VAL(from_obj, 2) = 0;
 			GET_OBJ_VAL(from_obj, 3) = 0;
-			GET_OBJ_SKILL(from_obj) = 0;
+			GET_OBJ_SKILL(from_obj) = SKILL_INVALID;
 			name_from_drinkcon(from_obj);
 			reset_potion_values(from_obj);
 

@@ -50,7 +50,7 @@ void check_purged(const CHAR_DATA *ch, const char *fnc)
 	}
 }
 
-int normolize_skill(int percent)
+int normalize_skill(int percent)
 {
 	const static int KMinSkillPercent = 0;
 	const static int KMaxSkillPercent = 200;
@@ -469,14 +469,14 @@ void CHAR_DATA::purge(bool destructor)
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
-int CHAR_DATA::get_skill(int skill_num) const
+int CHAR_DATA::get_skill(const ESkill skill_num) const
 {
 	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
 	if (AFF_FLAGGED(this, EAffectFlag::AFF_SKILLS_REDUCE))
 	{
 		skill -= skill * GET_POISON(this) / 100;
 	}
-	return normolize_skill(skill);
+	return normalize_skill(skill);
 }
 
 // * Скилл со шмоток.
@@ -505,30 +505,30 @@ int CHAR_DATA::get_equipped_skill(int skill_num) const
 }
 
 // * Родной тренированный скилл чара.
-int CHAR_DATA::get_inborn_skill(int skill_num)
+int CHAR_DATA::get_inborn_skill(const ESkill skill_num)
 {
 	if (Privilege::check_skills(this))
 	{
 		CharSkillsType::iterator it = skills.find(skill_num);
 		if (it != skills.end())
 		{
-			return normolize_skill(it->second);
+			return normalize_skill(it->second);
 		}
 	}
 	return 0;
 }
 
-int CHAR_DATA::get_trained_skill(int skill_num) const
+int CHAR_DATA::get_trained_skill(const ESkill skill_num) const
 {
 	if (Privilege::check_skills(this))
 	{
-		return normolize_skill(current_morph_->get_trained_skill(skill_num));
+		return normalize_skill(current_morph_->get_trained_skill(skill_num));
 	}
 	return 0;
 }
 
 // * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
-void CHAR_DATA::set_skill(int skill_num, int percent)
+void CHAR_DATA::set_skill(const ESkill skill_num, int percent)
 {
 	if (skill_num < 0 || skill_num > MAX_SKILL_NUM)
 	{
@@ -548,7 +548,7 @@ void CHAR_DATA::set_skill(int skill_num, int percent)
 		skills[skill_num] = percent;
 }
 
-void CHAR_DATA::set_morphed_skill(int skill_num, int percent)
+void CHAR_DATA::set_morphed_skill(const ESkill skill_num, int percent)
 {
 	current_morph_->set_skill(skill_num, percent);
 };

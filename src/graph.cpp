@@ -171,7 +171,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 
 
 // * Functions and Commands which use the above functions. *
-int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
+int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 {
 	int percent, dir;
 

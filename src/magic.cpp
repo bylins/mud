@@ -1259,7 +1259,8 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 	OBJ_DATA *obj;
 	OBJ_DATA *obj0 = NULL, *obj1 = NULL, *obj2 = NULL, *obj3 = NULL, *objo = NULL;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
-	int create = 0, obj_num = -1, skillnum = -1, percent = 0, num = 0;
+	int create = 0, obj_num = -1, percent = 0, num = 0;
+    ESkill skillnum = SKILL_INVALID;
 	struct spell_create_item *items;
 
 	if (spellnum <= 0 || spellnum > MAX_SPELLS)
@@ -1370,12 +1371,17 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 		if (create)
 		{
 			if (!(obj = read_object(obj_num, VIRTUAL)))
-				return (FALSE);
+            {
+                return (FALSE);
+            }
 			else
 			{
 				percent = number(1, 100);
-				if (skillnum > 0 && percent > train_skill(ch, skillnum, percent, 0))
-					percent = -1;
+				if (skillnum > 0
+                    && percent > train_skill(ch, skillnum, percent, 0))
+                {
+                    percent = -1;
+                }
 			}
 		}
 		if (item0 == -2)
@@ -1384,7 +1390,6 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			strcat(buf, obj0->PNames[3]);
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spelltype);
-
 		}
 		if (item1 == -2)
 		{
@@ -1558,7 +1563,6 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
 //функция увеличивает урон спеллов с учетом скилла соответствующей магии и параметра "мудрость"
 int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int dam)
 {
-	int skill_number;
 	float koeff, skill = 0.0;
 
 	//тупо костыль, пока всем актуальнгым мобам не воткнум магскиллы - 31/03/2014
@@ -1573,7 +1577,7 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 		return (dam);
 	}
 
-	skill_number = get_magic_skill_number_by_spell(spellnum);
+	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);
 	if (skill_number > 0)
 	{
 		skill = ch->get_skill(skill_number);

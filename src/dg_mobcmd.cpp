@@ -40,6 +40,7 @@
 #include "handler.h"
 #include "interpreter.h"
 #include "comm.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "im.h"
 #include "features.hpp"
@@ -1340,7 +1341,6 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // increases spells & skills 
 const char *skill_name(int num);
 const char *spell_name(int num);
-int find_skill_num(const char *name);
 int find_spell_num(char *name);
 
 void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1419,10 +1419,12 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int isSkill = 0;
+	bool isSkill = false;
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-	int skillnum = 0, skilldiff = 0;
+    ESkill skillnum = SKILL_INVALID;
+    int recipenum = 0;
+    int skilldiff = 0;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -1431,7 +1433,9 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
+    {
+        return;
+    }
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -1442,22 +1446,32 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+    {
+        *pos = ' ';
+    }
 	while ((pos = strchr(skillname, '_')))
-		* pos = ' ';
+    {
+        *pos = ' ';
+    }
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-		isSkill = 1;
-	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
+    {
+        isSkill = 1;
+    }
+	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		mob_log(ch, "mskillturn: skill/recipe not found");
 		return;
 	}
 
 	if (!str_cmp(amount, "set"))
-		skilldiff = 1;
+    {
+        skilldiff = 1;
+    }
 	else if (!str_cmp(amount, "clear"))
-		skilldiff = 0;
+    {
+        skilldiff = 0;
+    }
 	else
 	{
 		mob_log(ch, "mskillturn: unknown set variable");
@@ -1471,10 +1485,14 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
+    {
+        return;
+    }
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-		return;
+    {
+        return;
+    }
 
 	if (*name == UID_CHAR)
 	{
@@ -1495,7 +1513,9 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (isSkill)
 	{
 		if (skill_info[skillnum].classknow[GET_CLASS(victim)][GET_KIN(victim)] == KNOW_SKILL)
-			trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
+        {
+            trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
+        }
 		else 
 		{
 			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
@@ -1503,15 +1523,19 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 	else
-		trg_recipeturn(victim, skillnum, skilldiff);
+    {
+        trg_recipeturn(victim, recipenum, skilldiff);
+    }
 }
 
 void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int isSkill = 0;
+	bool isSkill = false;
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-	int skillnum = 0, skilldiff = 0;
+    ESkill skillnum = SKILL_INVALID;
+    int recipenum = 0;
+    int skilldiff = 0;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -1520,7 +1544,9 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
+    {
+        return;
+    }
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -1531,13 +1557,19 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+    {
+        *pos = ' ';
+    }
 	while ((pos = strchr(skillname, '_')))
-		* pos = ' ';
+    {
+        *pos = ' ';
+    }
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-		isSkill = 1;
-	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
+    {
+        isSkill = true;
+    }
+	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		mob_log(ch, "mskilladd: skill/recipe not found");
 		return;
@@ -1552,10 +1584,14 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
+    {
+        return;
+    }
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-		return;
+    {
+        return;
+    }
 
 	if (*name == UID_CHAR)
 	{
@@ -1574,9 +1610,13 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	};
 
 	if (isSkill)
-		trg_skilladd(victim, skillnum, skilldiff, last_trig_vnum);
+    {
+        trg_skilladd(victim, skillnum, skilldiff, last_trig_vnum);
+    }
 	else
-		trg_recipeadd(victim, skillnum, skilldiff);
+    {
+        trg_recipeadd(victim, recipenum, skilldiff);
+    }
 }
 
 void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)

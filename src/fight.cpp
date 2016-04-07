@@ -1403,7 +1403,8 @@ int calc_initiative(CHAR_DATA *ch)
 
 void using_mob_skills(CHAR_DATA *ch)
 {
-	for (int sk_num = 0, sk_use = GET_REAL_INT(ch);
+    ESkill sk_num = SKILL_INVALID;
+	for (int sk_use = GET_REAL_INT(ch);
 		MAY_LIKES(ch) && sk_use > 0; sk_use--)
 	{
 		int do_this = number(0, 100);
@@ -1412,27 +1413,51 @@ void using_mob_skills(CHAR_DATA *ch)
 
 		do_this = number(0, 100);
 		if (do_this < 10)
-			sk_num = SKILL_BASH;
+        {
+            sk_num = SKILL_BASH;
+        }
 		else if (do_this < 20)
-			sk_num = SKILL_DISARM;
+        {
+            sk_num = SKILL_DISARM;
+        }
 		else if (do_this < 30)
-			sk_num = SKILL_KICK;
+        {
+            sk_num = SKILL_KICK;
+        }
 		else if (do_this < 40)
-			sk_num = SKILL_PROTECT;
+        {
+            sk_num = SKILL_PROTECT;
+        }
 		else if (do_this < 50)
-			sk_num = SKILL_RESCUE;
+        {
+            sk_num = SKILL_RESCUE;
+        }
 		else if (do_this < 60 && !ch->get_touching())
-			sk_num = SKILL_TOUCH;
+        {
+            sk_num = SKILL_TOUCH;
+        }
 		else if (do_this < 70)
-			sk_num = SKILL_CHOPOFF;
+        {
+            sk_num = SKILL_CHOPOFF;
+        }
 		else if (do_this < 80)
-			sk_num = SKILL_THROW;
+        {
+            sk_num = SKILL_THROW;
+        }
 		else
-			sk_num = SKILL_BASH;
+        {
+            sk_num = SKILL_BASH;
+        }
+
 		if (ch->get_skill(sk_num) <= 0)
-			sk_num = 0;
+        {
+            sk_num = SKILL_INVALID;
+        }
+
 		if (!sk_num)
-			continue;
+        {
+            continue;
+        }
 
 		////////////////////////////////////////////////////////////////////////
 		if (sk_num == SKILL_TOUCH)

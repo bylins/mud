@@ -15,6 +15,7 @@
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "db.h"
 #include "im.h"
@@ -507,7 +508,9 @@ void do_wpurge(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			extract_obj(obj);
 		}
 		else
-			wld_log(room, "wpurge: bad argument");
+        {
+            wld_log(room, "wpurge: bad argument");
+        }
 		return;
 	}
 
@@ -518,7 +521,9 @@ void do_wpurge(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (ch->followers || ch->master)
-		die_follower(ch);
+    {
+        die_follower(ch);
+    }
 	extract_char(ch, FALSE);
 }
 
@@ -529,7 +534,6 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	int number = 0;
 	CHAR_DATA *mob;
 	OBJ_DATA *object;
-
 
 	two_arguments(argument, arg1, arg2);
 
@@ -562,13 +566,14 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		load_otrigger(object);
 	}
 	else
-		wld_log(room, "wload: bad type");
+    {
+        wld_log(room, "wload: bad type");
+    }
 }
 
 // increases spells & skills //
 const char *skill_name(int num);
 const char *spell_name(int num);
-int find_skill_num(const char *name);
 int find_spell_num(char *name);
 
 void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -590,7 +595,9 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	if ((ch = get_char_by_room(room, name)))
 	{
 		if (world[IN_ROOM(ch)]->zone != room->zone)
-			return;
+        {
+            return;
+        }
 
 		if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0)
 		{
@@ -618,7 +625,9 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 	else
-		wld_log(room, "wdamage: target not found");
+    {
+        wld_log(room, "wdamage: target not found");
+    }
 }
 
 void do_wat(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -665,12 +674,18 @@ void do_wfeatturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(featname, '.')))
-		* pos = ' ';
+    {
+        *pos = ' ';
+    }
 	while ((pos = strchr(featname, '_')))
-		* pos = ' ';
+    {
+        *pos = ' ';
+    }
 
 	if ((featnum = find_feat_num(featname)) > 0 && featnum <= MAX_FEATS)
-		isFeat = 1;
+    {
+        isFeat = 1;
+    }
 	else
 	{
 		wld_log(room, "wfeatturn: feature not found");
@@ -678,9 +693,13 @@ void do_wfeatturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(amount, "set"))
-		featdiff = 1;
+    {
+        featdiff = 1;
+    }
 	else if (!str_cmp(amount, "clear"))
-		featdiff = 0;
+    {
+        featdiff = 0;
+    }
 	else
 	{
 		wld_log(room, "wfeatturn: unknown set variable");
@@ -694,15 +713,19 @@ void do_wfeatturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isFeat)
-		trg_featturn(ch, featnum, featdiff);
+    {
+        trg_featturn(ch, featnum, featdiff);
+    }
 }
 
 void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int isSkill = 0;
+	bool isSkill = false;
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-	int skillnum = 0, skilldiff = 0;
+    ESkill skillnum = SKILL_INVALID;
+    int recipenum = 0;
+    int skilldiff = 0;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -713,22 +736,32 @@ void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+    {
+        *pos = ' ';
+    }
 	while ((pos = strchr(skillname, '_')))
-		* pos = ' ';
+    {
+        *pos = ' ';
+    }
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-		isSkill = 1;
-	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
+    {
+        isSkill = true;
+    }
+	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		wld_log(room, "wskillturn: skill/recipe not found");
 		return;
 	}
 
 	if (!str_cmp(amount, "set"))
-		skilldiff = 1;
+    {
+        skilldiff = 1;
+    }
 	else if (!str_cmp(amount, "clear"))
-		skilldiff = 0;
+    {
+        skilldiff = 0;
+    }
 	else
 	{
 		wld_log(room, "wskillturn: unknown set variable");
@@ -744,7 +777,9 @@ void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (isSkill)
 	{
 		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == KNOW_SKILL)
-			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
+        {
+            trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
+        }
 		else 
 		{
 			sprintf(buf, "wskillturn: несоответсвие устанавливаемого умения классу игрока");
@@ -752,15 +787,19 @@ void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 	else
-		trg_recipeturn(ch, skillnum, skilldiff);
+    {
+        trg_recipeturn(ch, recipenum, skilldiff);
+    }
 }
 
 void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int isSkill = 0;
+	bool isSkill = false;
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-	int skillnum = 0, skilldiff = 0;
+    ESkill skillnum = SKILL_INVALID;
+    int recipenum = 0;
+    int skilldiff = 0;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -771,13 +810,19 @@ void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+    {
+        *pos = ' ';
+    }
 	while ((pos = strchr(skillname, '_')))
-		* pos = ' ';
+    {
+        *pos = ' ';
+    }
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-		isSkill = 1;
-	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
+    {
+        isSkill = true;
+    }
+	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		wld_log(room, "wskilladd: skill/recipe not found");
 		return;
@@ -792,9 +837,13 @@ void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isSkill)
-		trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
+    {
+        trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
+    }
 	else
-		trg_recipeadd(ch, skillnum, skilldiff);
+    {
+        trg_recipeadd(ch, recipenum, skilldiff);
+    }
 }
 
 void do_wspellturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)

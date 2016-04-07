@@ -27,6 +27,7 @@
 #include "modify.h"
 #include "room.hpp"
 #include "named_stuff.hpp"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "noob.hpp"
@@ -2567,9 +2568,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if ((num = find_skill_num(subfield)) > 0)
 			{
 				if (can_get_skill(c, num))
-					strcpy(str, "1");
+                {
+                    strcpy(str, "1");
+                }
 				else
-					strcpy(str, "0");
+                {
+                    strcpy(str, "0");
+                }
 			}
 			else
 			{

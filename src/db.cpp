@@ -1222,7 +1222,7 @@ int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 				}
 			}
 		}
-		GET_OBJ_SKILL(obj) = 0;
+		GET_OBJ_SKILL(obj) = SKILL_INVALID;
 		return 1;
 	}
 	return 0;
@@ -3876,7 +3876,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 			return;
 		}
 		t[1] = MIN(200, MAX(0, t[1]));
-		(mob_proto + i)->set_skill(t[0], t[1]);
+		(mob_proto + i)->set_skill(static_cast<ESkill>(t[0]), t[1]);
 	}
 
 	CASE("Spell")
@@ -6666,10 +6666,11 @@ void load_ignores(CHAR_DATA * ch, char *line)
 */
 void set_god_skills(CHAR_DATA *ch)
 {
-	for (int i = 1; i <= MAX_SKILL_NUM; i++)
-		ch->set_skill(i, 150);
+	for (const auto i : AVAILABLE_SKILLS)
+    {
+        ch->set_skill(i, 150);
+    }
 }
-
 
 #define NUM_OF_SAVE_THROWS	5
 

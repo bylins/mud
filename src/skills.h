@@ -25,10 +25,12 @@
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM //
-enum ESkill
+enum ESkill: int
 {
+    SKILL_INVALID = 0,
 	SKILL_THAC0 = 0,	// Internal //
-	SKILL_PROTECT = 1,	// *** Protect groupers    //
+    SKILL_FIRST = 1,
+	SKILL_PROTECT = SKILL_FIRST,	// *** Protect groupers    //
 	SKILL_TOUCH = 2,	// *** Touch attacker       //
 	SKILL_SHIT = 3,
 	SKILL_MIGHTHIT = 4,
@@ -113,21 +115,23 @@ enum ESkill
 	SKILL_DARK_MAGIC = 187,
 	SKILL_MIND_MAGIC = 188,
 	SKILL_LIFE_MAGIC = 189,
-};
-#define SKILL_STUN				190
+    SKILL_STUN = 190,
 
-// не забываем указывать максимальный номер скилла
-#define MAX_SKILL_NUM               190
+    // не забываем указывать максимальный номер скилла
+    MAX_SKILL_NUM = SKILL_STUN
+};
 
 template <> ESkill ITEM_BY_NAME<ESkill>(const std::string& name);
 template <> const std::string& NAME_BY_ITEM<ESkill>(const ESkill item);
 
+extern std::array<ESkill, MAX_SKILL_NUM - SKILL_PROTECT> AVAILABLE_SKILLS;
+
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add = "");
 
-int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict);
-void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victim);
+int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict);
+void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DATA * victim);
 
-int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict);
+int train_skill(CHAR_DATA * ch, const ESkill skill_no, int max_value, CHAR_DATA * vict);
 int min_skill_level(CHAR_DATA *ch, int skill);
 bool can_get_skill(CHAR_DATA *ch, int skill);
 

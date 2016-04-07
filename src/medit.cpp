@@ -730,10 +730,12 @@ void medit_save_to_disk(int zone_num)
 				if (HAVE_FEAT(mob, c))
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
-			for (c = 1; c <= MAX_SKILL_NUM; c++)
+			for (const auto c : AVAILABLE_SKILLS)
 			{
 				if (mob->get_skill(c))
-					fprintf(mob_file, "Skill: %d %d\n", c, mob->get_skill(c));
+                {
+                    fprintf(mob_file, "Skill: %d %d\n", c, mob->get_skill(c));
+                }
 			}
 			for (c = 1; c <= MAX_SPELLS; c++)
 			{
@@ -1143,20 +1145,29 @@ void medit_disp_helpers(DESCRIPTOR_DATA * d)
 
 void medit_disp_skills(DESCRIPTOR_DATA * d)
 {
-	int columns = 0, counter;
+	int columns = 0;
 
 	get_char_cols(d->character);
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 1; counter <= MAX_SKILL_NUM; counter++)
+	for (const auto counter : AVAILABLE_SKILLS)
 	{
-		if (!skill_info[counter].name || *skill_info[counter].name == '!')
-			continue;
+		if (!skill_info[counter].name
+            || *skill_info[counter].name == '!')
+        {
+            continue;
+        }
+
 		if (OLC_MOB(d)->get_skill(counter))
-			sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->get_skill(counter), nrm);
+        {
+            sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->get_skill(counter), nrm);
+        }
 		else
-			strcpy(buf1, "     ");
+        {
+            strcpy(buf1, "     ");
+        }
+
 		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 			skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
@@ -2354,12 +2365,18 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 			send_to_char("Неизвестное умение.\r\n", d->character);
 		}
-		else if (OLC_MOB(d)->get_skill(number))
-			OLC_MOB(d)->set_skill(number, 0);
+		else if (OLC_MOB(d)->get_skill(static_cast<ESkill>(number)))
+        {
+            OLC_MOB(d)->set_skill(static_cast<ESkill>(number), 0);
+        }
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
-			send_to_char("Не указан уровень владения умением.\r\n", d->character);
+        {
+            send_to_char("Не указан уровень владения умением.\r\n", d->character);
+        }
 		else
-			OLC_MOB(d)->set_skill(number, (MIN(200, MAX(0, bit))));
+        {
+            OLC_MOB(d)->set_skill(static_cast<ESkill>(number), (MIN(200, MAX(0, bit))));
+        }
 		medit_disp_skills(d);
 		return;
 

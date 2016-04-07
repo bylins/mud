@@ -10,6 +10,7 @@
 #include "db.h"
 #include "room.hpp"
 #include "im.h"
+#include "skills.h"
 #include "structs.h"
 #include "conf.h"
 
@@ -332,7 +333,7 @@ enum
 	ATTACKER_ROUNDS
 };
 
-typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
+typedef std::map<ESkill/* номер скилла */, int/* значение скилла */> CharSkillsType;
 //typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
 // * Общий класс для игроков/мобов.
@@ -349,12 +350,12 @@ public:
 	friend void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src);
 	friend void interpret_espec(const char *keyword, const char *value, int i, int nr);
 
-	void set_skill(int skill_num, int percent);
+	void set_skill(const ESkill skill_num, int percent);
 	void clear_skills();
-	int get_skill(int skill_num) const;
+	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;
 	int get_equipped_skill(int skill_num) const;
-	int get_trained_skill(int skill_num) const;
+	int get_trained_skill(const ESkill skill_num) const;
 
 	int get_obj_slot(int slot_num);
 	void add_obj_slot(int slot_num, int count);
@@ -536,8 +537,8 @@ public:
 	std::string get_morphed_title() const;
 	std::string get_cover_desc();
 	std::string get_morph_desc() const;
-	int get_inborn_skill(int skill_num);
-	void set_morphed_skill(int skill_num, int percent);
+	int get_inborn_skill(const ESkill skill_num);
+	void set_morphed_skill(const ESkill skill_num, int percent);
 	bool isAffected(const EAffectFlag flag) const;
 	const IMorph::affects_list_t& GetMorphAffects();
 

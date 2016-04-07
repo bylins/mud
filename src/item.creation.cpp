@@ -51,8 +51,8 @@ struct create_item_type created_item[] =
 	{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
 	{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
 	{304, 0x7E, 10, 35, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
-	{305, 0, 8, 15, {{0, 0, 0}}, 0, WEAR_TAKE_BOTHS_WIELD },
-	{306, 0, 8, 20, {{0, 0, 0}}, 0, WEAR_TAKE_BOTHS_WIELD },
+	{305, 0, 8, 15, {{0, 0, 0}}, SKILL_INVALID, WEAR_TAKE_BOTHS_WIELD },
+	{306, 0, 8, 20, {{0, 0, 0}}, SKILL_INVALID, WEAR_TAKE_BOTHS_WIELD },
 	{307, 0x3A, 10, 20, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BODY},
 	{308, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_ARMS},
 	{309, 0x3A, 6, 12, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_LEGS},
@@ -84,7 +84,7 @@ const struct make_skill_type make_skills[] =
 	{"сшить одежду", "одежда", SKILL_MAKE_WEAR},
 	{"смастерить диковину", "артеф.", SKILL_MAKE_JEWEL},
 //  { "сварить отвар","варево", SKILL_MAKE_POTION },
-	{"\n", 0, 0}		// Терминатор
+	{"\n", 0, SKILL_INVALID}		// Терминатор
 };
 
 const char *create_weapon_quality[] = { "RESERVED",
@@ -827,7 +827,7 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	return;
 }
 
-void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
+void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill)
 {
 	OBJ_DATA *tobj;
 	char txtbuff[100];
@@ -844,7 +844,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 	else
 	{
 		if (!obj)
-			return;
+        {
+            return;
+        }
 		skill = created_item[obj_type].skill;
 		percent = number(1, skill_info[skill].max_percent);
 		prob = train_skill(ch, skill, skill_info[skill].max_percent, 0);
@@ -1029,7 +1031,8 @@ void do_transform_weapon(CHAR_DATA* ch, char *argument, int/* cmd*/, int subcmd)
 	OBJ_DATA *obj = NULL, *coal, *proto[MAX_PROTO];
 	int obj_type, i, found, rnum;
 
-	if (IS_NPC(ch) || !ch->get_skill(subcmd))
+	if (IS_NPC(ch)
+        || !ch->get_skill(static_cast<ESkill>(subcmd)))
 	{
 		send_to_char("Вас этому никто не научил.\r\n", ch);
 		return;
@@ -1613,10 +1616,9 @@ OBJ_DATA *get_obj_in_list_ingr(int num, OBJ_DATA * list) //Ингридиентом является
     return NULL;
 }
 
-MakeRecept::MakeRecept()
+MakeRecept::MakeRecept(): skill(SKILL_INVALID)
 {
 	locked = true;		// по умолчанию рецепт залочен.
-	skill = 0;
 	obj_proto = 0;
 	for (int i = 0; i < MAX_PARTS; i++)
 	{
@@ -2491,7 +2493,7 @@ int MakeRecept::load_from_str(string & rstr)
 	else
 		locked = false;
 
-	skill = atoi(rstr.substr(0, rstr.find(" ")).c_str());
+	skill = static_cast<ESkill>(atoi(rstr.substr(0, rstr.find(" ")).c_str()));
 	rstr = rstr.substr(rstr.find(" ") + 1);
 
 	obj_proto = atoi((rstr.substr(0, rstr.find(" "))).c_str());

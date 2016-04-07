@@ -231,19 +231,19 @@ void equip_start_outfit(CHAR_DATA *ch, OBJ_DATA *obj)
 			&& !GET_EQ(ch, WEAR_WIELD))
 		{
 			equip_char(ch, obj, WEAR_WIELD);
-			ch->set_skill(GET_OBJ_SKILL(obj), 10);
+			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
 		}
 		else if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
 			&& !GET_EQ(ch, WEAR_BOTHS))
 		{
 			equip_char(ch, obj, WEAR_BOTHS);
-			ch->set_skill(GET_OBJ_SKILL(obj), 10);
+			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
 		}
 		else if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)
 			&& !GET_EQ(ch, WEAR_HOLD))
 		{
 			equip_char(ch, obj, WEAR_HOLD);
-			ch->set_skill(GET_OBJ_SKILL(obj), 10);
+			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
 		}
 	}
 }

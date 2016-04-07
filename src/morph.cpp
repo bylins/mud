@@ -5,10 +5,11 @@
 #include "structs.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "skills.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "char.hpp"
 #include "comm.h"
+#include "skills.h"
 #include "db.h"
 #include "utils.h"
 #include "pugixml.hpp"
@@ -54,23 +55,23 @@ std::string AnimalMorph::GetMorphTitle() const
 	return ch_->get_name() + " - " + GetMorphDesc();
 };
 
-int NormalMorph::get_trained_skill(int skill_num)
+int NormalMorph::get_trained_skill(const ESkill skill_num)
 {
 	return ch_->get_inborn_skill(skill_num);
 }
 
-int AnimalMorph::get_trained_skill(int skill_num)
+int AnimalMorph::get_trained_skill(const ESkill skill_num)
 {
 	CharSkillsType::iterator it = skills_.find(skill_num);
 	return it != skills_.end() ? it->second : 0;
 }
 
-void NormalMorph::set_skill(int skill_num, int percent)
+void NormalMorph::set_skill(const ESkill skill_num, int percent)
 {
 	ch_->set_skill(skill_num, percent);
 }
 
-void AnimalMorph::set_skill(int skill_num, int percent)
+void AnimalMorph::set_skill(const ESkill skill_num, int percent)
 {
 	CharSkillsType::iterator it = skills_.find(skill_num);
 	if (it != skills_.end())
@@ -388,9 +389,11 @@ void load_morphs()
 
 		for (pugi::xml_node skill = skillsList.child("skill"); skill; skill = skill.next_sibling("skill"))
 		{
-			int skillNum = find_skill_num(skill.child_value());
-			if (skillNum != -1)
-				skills[skillNum]=0;//init-им скилы нулями, потом проставим при превращении
+			const ESkill skillNum = find_skill_num(skill.child_value());
+			if (skillNum != -SKILL_INVALID)
+            {
+                skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
+            }
 			else
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "...skills read fail for morph %s", name.c_str());

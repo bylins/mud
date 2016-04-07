@@ -12,6 +12,7 @@
 #ifndef _DG_SCRIPTS_H_
 #define _DG_SCRIPTS_H_
 
+#include "skills.h"
 #include "structs.h"
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
@@ -317,8 +318,8 @@ int close_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir, int lock);
 int timechange_wtrigger(ROOM_DATA * room, const int time);
 
 void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff);
-void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum);
-void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum);
+void trg_skillturn(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum);
+void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum);
 void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum);
 void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell);

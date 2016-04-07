@@ -2938,7 +2938,8 @@ const char *ac_text[] =
 
 void print_do_score_all(CHAR_DATA *ch)
 {
-	int ac, max_dam = 0, hr = 0, resist, modi = 0, skill = SKILL_BOTHHANDS, timer_room_label;
+	int ac, max_dam = 0, hr = 0, resist, modi = 0, timer_room_label;
+    ESkill skill = SKILL_BOTHHANDS;
 
 	std::string sum = string("Вы ") + string(GET_PAD(ch, 0)) + string(", ")
 		+ string(class_name[(int) GET_CLASS(ch)+14*GET_KIN(ch)]) + string(".");
@@ -3000,7 +3001,9 @@ void print_do_score_all(CHAR_DATA *ch)
 		max_dam += MAX(0, GET_REAL_STR(ch) - 25);
 	}
 	else
-		max_dam += 6 + 2 * GET_LEVEL(ch) / 3;
+    {
+        max_dam += 6 + 2 * GET_LEVEL(ch) / 3;
+    }
 
 	OBJ_DATA* weapon = GET_EQ(ch, WEAR_BOTHS);
 	if (weapon)
@@ -3008,15 +3011,16 @@ void print_do_score_all(CHAR_DATA *ch)
 		if (GET_OBJ_TYPE(weapon) == obj_flag_data::ITEM_WEAPON)
 		{
 			max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1);
-			skill = GET_OBJ_SKILL(weapon);
-			if (ch->get_skill(skill) == 0)
+			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
+			if (ch->get_skill(skill) == SKILL_INVALID)
 			{
 				hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 				max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
 			}
 			else
-				apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-
+            {
+                apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+            }
 		}
 	}
 	else
@@ -3027,14 +3031,16 @@ void print_do_score_all(CHAR_DATA *ch)
 			if (GET_OBJ_TYPE(weapon) == obj_flag_data::ITEM_WEAPON)
 			{
 				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
-				skill = GET_OBJ_SKILL(weapon);
-				if (ch->get_skill(skill) == 0)
+				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
+				if (ch->get_skill(skill) == SKILL_INVALID)
 				{
 					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 					max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
 				}
 				else
-					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+                {
+                    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+                }
 			}
 		}
 
@@ -3044,14 +3050,16 @@ void print_do_score_all(CHAR_DATA *ch)
 			if (GET_OBJ_TYPE(weapon) == obj_flag_data::ITEM_WEAPON)
 			{
 				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
-				skill = GET_OBJ_SKILL(weapon);
-				if (ch->get_skill(skill) == 0)
+				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
+				if (ch->get_skill(skill) == SKILL_INVALID)
 				{
 					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 					max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
 				}
 				else
-					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+                {
+                    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+                }
 			}
 		}
 	}

@@ -207,6 +207,7 @@ set(HEADERS
     src/shop_ext.hpp
     src/skills.h
     src/spam.hpp
+    src/spell_parser.hpp
     src/spells.h
     src/structs.h
     src/stuff.hpp

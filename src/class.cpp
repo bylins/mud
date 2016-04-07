@@ -22,6 +22,7 @@
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "interpreter.h"
@@ -2137,7 +2138,7 @@ void advance_level(CHAR_DATA * ch)
 
 void check_max_skills(CHAR_DATA *ch)
 {
-	for (int i = 1; i <= MAX_SKILL_NUM; i++)
+	for (const auto i : AVAILABLE_SKILLS)
 	{
 		if (ch->get_inborn_skill(i)  && i != SKILL_SATTACK)
 		{

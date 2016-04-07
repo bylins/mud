@@ -1,6 +1,7 @@
 #ifndef MORPH_HPP_INCLUDED
 #define MORPH_HPP_INCLUDED
 
+#include "skills.h"
 #include "comm.h"
 
 #include <boost/shared_ptr.hpp>
@@ -26,7 +27,7 @@ typedef boost::shared_ptr<AnimalMorph> AnimalMorphPtr;
 MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
 typedef std::map<std::string, AnimalMorphPtr> MorphListType;
 
-typedef std::map<int, int> MorphSkillsList;
+typedef std::map<ESkill, int> MorphSkillsList;
 
 class IMorph {
 public:
@@ -61,8 +62,8 @@ public:
 	virtual int GetCon() const =0;
 	virtual void SetCon(int con)=0;
 
-	virtual void set_skill(int skill_num, int percent)=0;
-	virtual int get_trained_skill(int skill_num)=0;
+	virtual void set_skill(const ESkill skill_num, int percent)=0;
+	virtual int get_trained_skill(const ESkill skill_num)=0;
 };
 
 
@@ -81,8 +82,8 @@ public:
 	std::string PadName() const { return "Человеком"; }
 	void SetChar(CHAR_DATA *ch) {ch_=ch;};
 
-	void set_skill(int skill_num, int percent);
-	int get_trained_skill(int skill_num);
+	void set_skill(const ESkill skill_num, int percent);
+	int get_trained_skill(const ESkill skill_num);
 
 	virtual int GetStr() const;
 	virtual void SetStr(int str);
@@ -177,8 +178,8 @@ public:
 	virtual int GetCon()  const {return con_;}
 	virtual void SetCon(int con) {con_=con;}
 
-	void set_skill(int skill_num, int percent);
-	int get_trained_skill(int skill_num);
+	void set_skill(const ESkill skill_num, int percent);
+	int get_trained_skill(const ESkill skill_num);
 };
 
 

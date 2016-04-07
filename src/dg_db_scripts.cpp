@@ -585,14 +585,17 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
 	}
 }
 
-void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum)
+void trg_skillturn(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum)
 {
 	const int ch_kin = static_cast<int>(GET_KIN(ch));
 	const int ch_class = static_cast<int>(GET_CLASS(ch));
 
 	if (ch->get_trained_skill(skillnum))
 	{
-		if (skilldiff) return;
+		if (skilldiff)
+        {
+            return;
+        }
 
 		ch->set_skill(skillnum, 0);
 		send_to_char(ch, "Вас лишили умения '%s'.\r\n", skill_name(skillnum));
@@ -607,7 +610,7 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum)
 	}
 }
 
-void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum)
+void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum)
 {
 	int skill = ch->get_trained_skill(skillnum);
 	ch->set_skill(skillnum, (MAX(1, MIN(ch->get_trained_skill(skillnum) + skilldiff, 200))));

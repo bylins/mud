@@ -12,16 +12,11 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
 #include "comm.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "mail.h"
 #include "boards.h"
@@ -34,6 +29,13 @@
 #include "skills.h"
 #include "modify.h"
 #include "genchar.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 void show_string(DESCRIPTOR_DATA * d, char *input);
 
@@ -1112,7 +1114,8 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];
 	char buf[MAX_INPUT_LENGTH], help[MAX_STRING_LENGTH];
-	int skill = -1, spell = -1, value, i, qend;
+	int spell = -1, value, i, qend;
+    ESkill skill = SKILL_INVALID;
 
 	argument = one_argument(argument, name);
 
@@ -1160,7 +1163,9 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// Locate the last quote and lowercase the magic words (if any)
 
 	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++)
-		argument[qend] = LOWER(argument[qend]);
+    {
+        argument[qend] = LOWER(argument[qend]);
+    }
 
 	if (argument[qend] != '\'')
 	{
@@ -1170,10 +1175,13 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	if ((skill = find_skill_num(help)) < 0)
-		spell = find_spell_num(help);
+	if (SKILL_INVALID == (skill = find_skill_num(help)))
+    {
+        spell = find_spell_num(help);
+    }
 
-	if (skill < 0 && spell < 0)
+	if (SKILL_INVALID == skill
+        && spell < 0)
 	{
 		send_to_char("Неизвестное умение/заклинание.\r\n", ch);
 		return;
@@ -1205,17 +1213,22 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	// * find_skill_num() guarantees a valid spell_info[] index, or -1, and we
 	// * checked for the -1 above so we are safe here.
-	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
-	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
-	imm_log("%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
+    sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
+        spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
+    mudlog(buf2, BRF, -1, SYSLOG, TRUE);
+    imm_log("%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
+        spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	if (spell >= 0 && spell <= MAX_SPELLS)
-		GET_SPELL_TYPE(vict, spell) = value;
-	else if (skill >= 0 && skill <= MAX_SKILL_NUM)
-		vict->set_skill(skill, value);
+    {
+        GET_SPELL_TYPE(vict, spell) = value;
+    }
+	else if (SKILL_INVALID != skill
+        && skill <= MAX_SKILL_NUM)
+    {
+        vict->set_skill(skill, value);
+    }
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
-			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
+        spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	send_to_char(buf2, ch);
 }
 

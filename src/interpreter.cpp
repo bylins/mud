@@ -2404,11 +2404,15 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	set_race_feats(d->character);
 	//нефиг левыми скиллами размахивать если не имм
 	if (!IS_IMMORTAL(d->character))
-		for (int i = 1; i <= MAX_SKILL_NUM; i++)
-		{
-			if (skill_info[i].classknow[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)] != KNOW_SKILL)
-				(d->character)->set_skill(i, 0);
-		}
+    {
+        for (const auto i : AVAILABLE_SKILLS)
+        {
+            if (skill_info[i].classknow[(int)GET_CLASS(d->character)][(int)GET_KIN(d->character)] != KNOW_SKILL)
+            {
+                (d->character)->set_skill(i, 0);
+            }
+        }
+    }
 
 	//Заменяем закл !переместиться! на способность
 	if (GET_SPELL_TYPE(d->character, SPELL_RELOCATE) == SPELL_KNOW && !IS_GOD(d->character))

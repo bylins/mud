@@ -18,6 +18,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 #include "obj.hpp"
 #include "db.h"
 #include "cache.hpp"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "handler.h"
 #include "constants.h"
@@ -551,13 +552,13 @@ short get_remort() const
 int get_skill(int skill_num) const
 {
 	Ensurer ch(*this);
-	return ch->get_skill(skill_num);
+	return ch->get_skill(static_cast<ESkill>(skill_num));
 }
 
 void set_skill(int skill_num, int percent)
 {
 	Ensurer ch(*this);
-	ch->set_skill(skill_num, percent);
+	ch->set_skill(static_cast<ESkill>(skill_num), percent);
 }
 
 void clear_skills()
@@ -581,7 +582,7 @@ int get_equipped_skill(int skill_num) const
 int get_trained_skill(int skill_num) const
 {
 	Ensurer ch(*this);
-	return ch->get_trained_skill(skill_num);
+	return ch->get_trained_skill(static_cast<ESkill>(skill_num));
 }
 
 ubyte get_spell(int spell_num) const

@@ -973,7 +973,7 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 }
 
 // бонусы/штрафы классам за юзание определенных видов оружия
-void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll)
+void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hitroll)
 {
 	int dam = *damroll;
 	int calc_thaco = *hitroll;
@@ -3099,7 +3099,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON)
 	{
 		// для всех типов атак скилл берется из пушки, если она есть
-		weap_skill = GET_OBJ_SKILL(wielded);
+		weap_skill = static_cast<ESkill>(GET_OBJ_SKILL(wielded));
 	}
 	else
 	{

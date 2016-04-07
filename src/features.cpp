@@ -792,37 +792,65 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	case PICK_FOCUS_FEAT:
 	case SPADES_FOCUS_FEAT:
 	case BOWS_FOCUS_FEAT:
-		if (!ch->get_skill((ubyte) feat_info[feat].affected[0].location))
-			return FALSE;
+		if (!ch->get_skill(static_cast<ESkill>(feat_info[feat].affected[0].location)))
+        {
+            return FALSE;
+        }
+
 		for (i = PUNCH_FOCUS_FEAT; i <= BOWS_FOCUS_FEAT; i++)
-			if (HAVE_FEAT(ch, i))
-				count++;
+        {
+            if (HAVE_FEAT(ch, i))
+            {
+                count++;
+            }
+        }
+
 		if (count >= 2+GET_REMORT(ch)/6)
-			return FALSE;
+        {
+            return FALSE;
+        }
 		break;
+
 	case GREAT_AIMING_ATTACK_FEAT:
 		if (!HAVE_FEAT(ch, AIMING_ATTACK_FEAT))
-			return FALSE;
+        {
+            return FALSE;
+        }
 		break;
+
 	case DOUBLESHOT_FEAT:
 		if (!HAVE_FEAT(ch, BOWS_FOCUS_FEAT) || ch->get_skill(SKILL_BOWS) < 40)
-			return FALSE;
+        {
+            return FALSE;
+        }
 		break;
+
 	case RUNE_USER_FEAT:
 		if (!HAVE_FEAT(ch, RUNE_NEWBIE_FEAT))
-			return FALSE;
+        {
+            return FALSE;
+        }
 		break;
+
 	case RUNE_MASTER_FEAT:
 		if (!HAVE_FEAT(ch, RUNE_USER_FEAT))
-			return FALSE;
+        {
+            return FALSE;
+        }
 		break;
+
 	case RUNE_ULTIMATE_FEAT:
 		if (!HAVE_FEAT(ch, RUNE_MASTER_FEAT))
-			return FALSE;
+        {
+            return FALSE;
+        }
 		break;
+
 	case MASTER_JEWELER_FEAT:
 		if (ch->get_skill(SKILL_INSERTGEM) < 60)
-			return FALSE;
+        {
+            return FALSE;
+        }
 		break;
 	}
 	return TRUE;

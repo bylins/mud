@@ -21,6 +21,7 @@
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "dg_event.h"
 #include "im.h"
@@ -93,9 +94,9 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 {
 	static char retval[256];
 	im_rskill *rs;
-	int skillnum, rid;
+    int rid;
 
-	skillnum = find_skill_num(skill);
+	const ESkill skillnum = find_skill_num(skill);
 	if (skillnum > 0)
 	{
 		//edited by WorM 2011.05.23 триги должны возвращать реальный скилл без бонусов от стафа

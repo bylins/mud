@@ -10,6 +10,7 @@
 #ifndef __ITEM_CREATION_HPP__
 #define __ITEM_CREATION_HPP__
 
+#include "skills.h"
 #include "interpreter.h"
 #include "features.hpp"
 #include "conf.h"
@@ -74,7 +75,7 @@ struct create_item_type
 	int min_weight;
 	int max_weight;
 	boost::array<int, MAX_PROTO> proto;
-	int skill;
+	ESkill skill;
 	std::underlying_type<EWearFlag>::type wear;
 };
 // Новая структура мы ее используем при создании вещей из ингридиентов
@@ -88,7 +89,7 @@ struct make_skill_type
 {
 	const char *name;
 	const char *short_name;
-	int num;
+	ESkill num;
 };
 
 class MakeRecept;
@@ -153,10 +154,9 @@ class MakeRecept
 	void add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to);
 
 public:
-
 	bool locked;
 
-	int skill;
+	ESkill skill;
 	int obj_proto;
 	boost::array<ingr_part_type, MAX_PARTS> parts;
 
