@@ -982,28 +982,28 @@ namespace craft
 		}
 
 		// Load model properties.
-		const auto base_count_node = doc.child("base_crafts");
+		const auto base_count_node = model.child("base_crafts");
 		if (base_count_node)
 		{
 			CLoadHelper::load_integer(base_count_node.child_value(), m_base_count,
 				[&]() { log("WARNING: \"base_crafts\" tag has wrong integer value. Leaving default value %d.\n", m_base_count); });
 		}
 
-		const auto remort_for_count_bonus_node = doc.child("crafts_bonus");
+		const auto remort_for_count_bonus_node = model.child("crafts_bonus");
 		if (remort_for_count_bonus_node)
 		{
 			CLoadHelper::load_integer(remort_for_count_bonus_node.child_value(), m_remort_for_count_bonus,
 				[&]() { log("WARNING: \"crafts_bonus\" tag has wrong integer value. Leaving default value %d.\n", m_remort_for_count_bonus); });
 		}
 
-		const auto base_top_node = doc.child("skills_cap");
+		const auto base_top_node = model.child("skills_cap");
 		if (base_top_node)
 		{
 			CLoadHelper::load_integer(base_top_node.child_value(), m_base_top,
 				[&]() { log("WARNING: \"skills_cap\" tag has wrong integer value. Leaving default value %d.\n", m_base_top); });
 		}
 
-		const auto remorts_bonus_node = doc.child("skills_bonus");
+		const auto remorts_bonus_node = model.child("skills_bonus");
 		if (remorts_bonus_node)
 		{
 			CLoadHelper::load_integer(remorts_bonus_node.child_value(), m_remorts_bonus,
