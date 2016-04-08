@@ -121,7 +121,10 @@ namespace craft
 		type_t get_type() const { return m_type; }
 
 		void set_weight(const int _) { m_weight = _; }
+		auto get_weight() const { return m_weight; }
+
 		void set_timer(const int _) { m_timer = _; }
+		auto get_timer() const { return m_timer; }
 
 	protected:
 		CPrototypeBase():
@@ -161,7 +164,10 @@ namespace craft
 		bool load(const pugi::xml_node* node);
 
 	private:
+		typedef std::map<ESkill, int> skills_t;
+
 		bool load_item_parameters(const pugi::xml_node* node);
+		void load_skills(const pugi::xml_node* node);
 
 		vnum_t m_vnum;
 
@@ -196,6 +202,8 @@ namespace craft
 		FLAG_DATA m_no_flags;
 
 		std::underlying_type<EWearFlag>::type m_wear_flags;
+
+		skills_t m_skills;
 
 		friend class CCraftModel;
 	};
