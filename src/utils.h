@@ -632,7 +632,7 @@ inline T VPOSI(const T val, const T min, const T max)
             (IS_NPC(victim) && (GET_EXP(victim) > 0)) &&         \
                                 (!IS_NPC(victim)||                                   \
                                  (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        \
-                                )                                                    \
+                                ) && !IS_HORSE(victim)                               \
                                )
 
 #define MAX_EXP_PERCENT   80

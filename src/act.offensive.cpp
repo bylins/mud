@@ -1164,10 +1164,10 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 			act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вас ошеломи$q и сбил с ног $N4, вы временно потеряли сознание.", FALSE, vict, 0, ch, TO_CHAR);
 			act("$n  мощным ударом ошеломи$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+			set_hit(ch, vict);
 			GET_POS(vict) = POS_INCAP;
 //аффект "кома" действует (раундов) на цель 5+морты чара/3
-			set_hit(ch, vict);
-			WAIT_STATE(vict, 5 + GET_REMORT(ch) / 3 * PULSE_VIOLENCE);
+			WAIT_STATE(vict, (5 + GET_REMORT(ch) / 3) * PULSE_VIOLENCE);
 		}
 		else
 		{
@@ -1376,7 +1376,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					to_vict = "Мощный удар ногой $n1 изуродовал вам правую руку.";
 					af.type = SPELL_BATTLE;
 					af.bitvector = AFF_STOPRIGHT;
-					af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
+					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
 					af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				}
 				else if (!AFF_FLAGGED(vict, AFF_STOPLEFT))
@@ -1384,7 +1384,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					to_char = "След от вашего сапога надолго запомнится $N2, если доживет.";
 					to_vict = "Мощный удар ногой $n1 изуродовал вам левую руку.";
 					af.bitvector = AFF_STOPLEFT;
-					af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
+					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
 					af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				}
 				else
@@ -1392,7 +1392,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					to_char = "След от вашего сапога надолго запомнится $N1, $S теперь даже бить вас нечем.";
 					to_vict = "Мощный удар ногой $n1 вывел вас из строя.";
 					af.bitvector = AFF_STOPFIGHT;
-					af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
+					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
 					af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				}
 				flag = 1;
@@ -1403,7 +1403,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
                                to_vict = "Мощный удар ногой $n1 попал точно в челюсть, заставив прикусить язык.";
                                af.type = SPELL_BATTLE;
                                af.bitvector = AFF_SIELENCE;
-                               af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
+                               af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
                                af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
                                dam *= 2;
                            flag = 1;
