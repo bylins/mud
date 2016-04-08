@@ -94,7 +94,7 @@ namespace craft
 		{
 			send_to_char(ch, "Craft properties...\nArguments: '%s'\n", arguments);
 			send_to_char(ch, "Base count:              &W%4d&n crafts\n", model.base_count());
-			send_to_char(ch, "Remorts for count bonus: &W%4d&n per remort\n", model.remort_for_count_bonus());
+			send_to_char(ch, "Remorts for count bonus: &W%4d&n remorts\n", model.remort_for_count_bonus());
 			send_to_char(ch, "Base top:                &W%4d&n percents\n", model.base_top());
 			send_to_char(ch, "Remorts bonus:           &W%4d&n percent\n", model.remorts_bonus());
 		}
