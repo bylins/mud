@@ -465,7 +465,7 @@ namespace craft
 			if (0 >= global_maximum_value)
 			{
 				log("WARNING: Wrong \"global_maximum\" value %d of the prototype with VNUM %d. Setting to the default value %d.\n",
-					global_maximum, m_vnum, OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM);
+					global_maximum_value, m_vnum, OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM);
 				global_maximum_value = OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM;
 			}
 
@@ -545,7 +545,7 @@ namespace craft
 		if (weight)
 		{
 			CLoadHelper::load_integer(weight.child_value(),
-				[&](const auto value) { set_weight(std::max(value, 1)); },
+				[&](const auto value) { this->set_weight(std::max(value, 1)); },
 				[&]() { log("WARNING: Wrong integer value of the \"weight\" tag for prototype with VNUM %d. Leaving default value %d.\n",
 					m_vnum, this->get_weight()); });
 		}
@@ -560,7 +560,7 @@ namespace craft
 			else
 			{
 				CLoadHelper::load_integer(weight.child_value(),
-					[&](const auto value) { set_timer(std::max(value, 0)); },
+					[&](const auto value) { this->set_timer(std::max(value, 0)); },
 					[&]() { log("WARNING: Wrong integer value of the \"timer\" tag for prototype with VNUM %d. Leaving default value %d.\n",
 						m_vnum, this->get_timer()); });
 			}
