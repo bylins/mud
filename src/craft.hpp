@@ -91,14 +91,14 @@ namespace craft
 
 	extern CLogger log;
 
-	typedef std::string id_t;	///< Common type for IDs.
-	typedef int vnum_t;			///< Common type for VNUM. Actually this type should be declared at the project level.
+	using id_t = std::string;	///< Common type for IDs.
+	using vnum_t = int;			///< Common type for VNUM. Actually this type should be declared at the project level.
 
 	class CCases
 	{
 		const static int CASES_COUNT = 6;
 
-		typedef std::array<std::string, CASES_COUNT> cases_t;
+		using cases_t = std::array<std::string, CASES_COUNT>;
 
 	public:
 		CCases() {}
@@ -116,7 +116,7 @@ namespace craft
 	class CPrototypeBase
 	{
 	public:
-		typedef obj_flag_data::EObjectType type_t;
+		using type_t = obj_flag_data::EObjectType;
 
 		void set_type(const type_t _) { m_type = _; }
 		type_t get_type() const { return m_type; }
@@ -164,6 +164,8 @@ namespace craft
 		}
 
 		bool load(const pugi::xml_node* node);
+
+		const std::string& short_desc() const { return m_short_desc; }
 
 	private:
 		constexpr static int VALS_COUNT = 4;
@@ -220,26 +222,26 @@ namespace craft
 	 */
 	class CMaterialClass
 	{
-		public:
-			CMaterialClass(const std::string& id): m_id(id) {}
+	public:
+		CMaterialClass(const std::string& id) : m_id(id) {}
 
-		private:
-			bool load(const pugi::xml_node* node);
+	private:
+		bool load(const pugi::xml_node* node);
 
-			const std::string m_id;
-			std::string m_short_desc;	///< Short description
-			std::string m_long_desc;	///<Long description
+		const std::string m_id;
+		std::string m_short_desc;	///< Short description
+		std::string m_long_desc;	///<Long description
 
-			CCases m_item_cases;		///< Item cases (including aliases)
-			CCases m_name_cases;		///< Name cases (including aliases)
-			CCases m_male_adjectives;	///< Male adjective cases
-			CCases m_female_adjectives;	///< Female adjective cases
-			CCases m_neuter_adjectives;	///< Neuter adjective cases
+		CCases m_item_cases;		///< Item cases (including aliases)
+		CCases m_name_cases;		///< Name cases (including aliases)
+		CCases m_male_adjectives;	///< Male adjective cases
+		CCases m_female_adjectives;	///< Female adjective cases
+		CCases m_neuter_adjectives;	///< Neuter adjective cases
 
-			FLAG_DATA m_extraflags;
-			FLAG_DATA m_affect_flags;
+		FLAG_DATA m_extraflags;
+		FLAG_DATA m_affect_flags;
 
-			friend class CMaterial;
+		friend class CMaterial;
 	};
 
 	/**
@@ -247,17 +249,17 @@ namespace craft
 	 */
 	class CMaterial
 	{
-		public:
-			CMaterial(const std::string& id): m_id(id) {}
+	public:
+		CMaterial(const std::string& id) : m_id(id) {}
 
-		private:
-			bool load(const pugi::xml_node* node);
+	private:
+		bool load(const pugi::xml_node* node);
 
-			const id_t m_id;						///< Meterial ID.
-			std::string m_name;						///< Material name.
-			std::list<CMaterialClass> m_classes;	///< List of material classes for this material.
+		const id_t m_id;						///< Meterial ID.
+		std::string m_name;						///< Material name.
+		std::list<CMaterialClass> m_classes;	///< List of material classes for this material.
 
-			friend class CCraftModel;
+		friend class CCraftModel;
 	};
 
 	/**
@@ -265,13 +267,16 @@ namespace craft
 	 */
 	class CRecipe
 	{
-		private:
-			bool load(const pugi::xml_node* node);
+	public:
+		const auto& id() const { return m_id; }
 
-			id_t m_id;                          ///< Recipe ID.
-			std::string m_name;					///< Recipe name.
+	private:
+		bool load(const pugi::xml_node* node);
 
-			friend class CCraftModel;
+		id_t m_id;                          ///< Recipe ID.
+		std::string m_name;					///< Recipe name.
+
+		friend class CCraftModel;
 	};
 
 	/**
@@ -279,17 +284,19 @@ namespace craft
 	 */
 	class CSkillBase
 	{
-		public:
-			CSkillBase(): m_threshold(0) {}
+	public:
+		CSkillBase() : m_threshold(0) {}
 
-		private:
-			bool load(const pugi::xml_node* node);
+		const auto& id() const { return m_id; }
 
-			id_t m_id;                          ///< Skill ID.
-			std::string m_name;                 ///< Skill Name.
-			int m_threshold;                    ///< Threshold to increase skill.
+	private:
+		bool load(const pugi::xml_node* node);
 
-			friend class CCraftModel;
+		id_t m_id;                          ///< Skill ID.
+		std::string m_name;                 ///< Skill Name.
+		int m_threshold;                    ///< Threshold to increase skill.
+
+		friend class CCraftModel;
 	};
 
 	/**
@@ -297,20 +304,22 @@ namespace craft
 	 */
 	class CCraft
 	{
-		public:
-			CCraft(): m_slots(0) {}
+	public:
+		CCraft() : m_slots(0) {}
 
-		private:
-			bool load(const pugi::xml_node* node);
+		const auto& id() const { return m_id; }
 
-			id_t m_id;                              ///< Craft ID.
-			std::string m_name;                     ///< Craft name.
-			std::set<id_t> m_skills;                ///< List of required skills for this craft.
-			std::set<id_t> m_recipes;               ///< List of available recipes for this craft.
-			std::set<id_t> m_material;              ///< List of meterials used by this craft.
-			int m_slots;                            ///< Number of slots for additional skills.
+	private:
+		bool load(const pugi::xml_node* node);
 
-			friend class CCraftModel;
+		id_t m_id;                              ///< Craft ID.
+		std::string m_name;                     ///< Craft name.
+		std::set<id_t> m_skills;                ///< List of required skills for this craft.
+		std::set<id_t> m_recipes;               ///< List of available recipes for this craft.
+		std::set<id_t> m_material;              ///< List of meterials used by this craft.
+		int m_slots;                            ///< Number of slots for additional skills.
+
+		friend class CCraftModel;
 	};
 
 	/**
@@ -318,58 +327,83 @@ namespace craft
 	 */
 	class CCraftModel
 	{
-		public:
-			typedef std::set<id_t> id_set_t;
+	public:
+		using id_set_t = std::set<id_t>;
+		using crafts_t = std::list<CCraft>;
+		using skills_t = std::list<CSkillBase>;
+		using recipes_t = std::list<CRecipe>;
+		using prototypes_t = std::list<CPrototype>;
 
-			const static std::string FILE_NAME;
+		const static std::string FILE_NAME;
+		constexpr static int DEFAULT_BASE_COUNT = 1;
+		constexpr static int DEFAULT_REMORT_FOR_COUNT_BONUS = 1;
+		constexpr static int DEFAULT_BASE_TOP = 75;
+		constexpr static int DEFAULT_REMORTS_BONUS = 12;
 
-			/**
-			 * Loads data from XML data files.
-			 *
-			 * \return true if all data loaded successfully.
-			 *         false otherwise.
-			 */
-			bool load();
+		CCraftModel(): m_base_count(DEFAULT_BASE_COUNT),
+			m_remort_for_count_bonus(DEFAULT_REMORT_FOR_COUNT_BONUS),
+			m_base_top(DEFAULT_BASE_TOP),
+			m_remorts_bonus(DEFAULT_REMORTS_BONUS)
+		{
+		}
 
-			/**
-			** For debug purposes. Should be removed when feature will be done.
-			*/
-			void create_item() const;
+		/**
+		 * Loads data from XML data files.
+		 *
+		 * \return true if all data loaded successfully.
+		 *         false otherwise.
+		 */
+		bool load();
 
-		private:
-			/**
-			** Loads N-th prototype from specified XML node and returns true
-			** if it was successful and false otherwise.
-			*/
-			bool load_prototype(const pugi::xml_node* prototype, const size_t number);
+		/**
+		** For debug purposes. Should be removed when feature will be done.
+		*/
+		void create_item() const;
 
-			/**
-			** Loads N-th material from specified XML node and returns true
-			** if it was successful and false otherwise.
-			*/
-			bool load_material(const pugi::xml_node* material, const size_t number);
+		const crafts_t& crafts() const { return m_crafts; }
+		const skills_t& skills() const { return m_skills; }
+		const recipes_t& recipes() const { return m_recipes; }
+		const prototypes_t& prototypes() const { return m_prototypes; }
 
-			std::list<CCraft> m_crafts;         ///< List of crafts defined for the game.
-			std::list<CSkillBase> m_skills;     ///< List of skills defined for the game.
-			std::list<CRecipe> m_recipes;     	///< List of recipes defined for the game.
-			std::list<CPrototype> m_prototypes;	///< List of objects defined by the craft system.
+		const auto base_count() const { return m_base_count; }
+		const auto remort_for_count_bonus() const { return m_remort_for_count_bonus; }
+		const auto base_top() const { return m_base_top; }
+		const auto remorts_bonus() const { return m_remorts_bonus; }
 
-			// Properties
-			int m_base_count;						///< Base count of crafts (per character?).
-			int m_remort_for_count_bonus;			///< Required remorts to take one more craft.
-			unsigned char m_base_top;				///< Base top of skill level.
-			unsigned char m_remorts_bonus;			///< Bonus to top skill level based on remorts count (how?)
-			
-			std::list<std::string> m_skill_files;		///< List of files with skill definitions.
-			std::list<std::string> m_craft_files;		///< List of files with craft definitions.
-			std::list<std::string> m_material_files;	///< List of files with material definitions.
-			std::list<std::string> m_recipe_files;		///< List of files with recipe definitions.
+	private:
+		/**
+		** Loads N-th prototype from specified XML node and returns true
+		** if it was successful and false otherwise.
+		*/
+		bool load_prototype(const pugi::xml_node* prototype, const size_t number);
 
-			// Helpers
-			std::map<id_t, id_set_t> m_skill2crafts;		///< Maps skill ID to set of crafts which this skill belongs to.
-			std::map<id_t, const CCraft*> m_id2craft;		///< Maps craft ID to pointer to craft descriptor.
-			std::map<id_t, const CSkillBase*> m_id2skill;	///< Maps skill ID to pointer to skill descriptor.
-			std::map<id_t, const CRecipe*> m_id2recipe;		///< Maps recipe ID to pointer to recipe descriptor.
+		/**
+		** Loads N-th material from specified XML node and returns true
+		** if it was successful and false otherwise.
+		*/
+		bool load_material(const pugi::xml_node* material, const size_t number);
+
+		crafts_t m_crafts;         ///< List of crafts defined for the game.
+		skills_t m_skills;     ///< List of skills defined for the game.
+		recipes_t m_recipes;     	///< List of recipes defined for the game.
+		prototypes_t m_prototypes;	///< List of objects defined by the craft system.
+
+		// Properties
+		int m_base_count;						///< Base count of crafts (per character?).
+		int m_remort_for_count_bonus;			///< Required remorts to take one more craft.
+		int m_base_top;							///< Base top of skill level.
+		int m_remorts_bonus;					///< Bonus to top skill level based on remorts count (how?)
+
+		std::list<std::string> m_skill_files;		///< List of files with skill definitions.
+		std::list<std::string> m_craft_files;		///< List of files with craft definitions.
+		std::list<std::string> m_material_files;	///< List of files with material definitions.
+		std::list<std::string> m_recipe_files;		///< List of files with recipe definitions.
+
+		// Helpers
+		std::map<id_t, id_set_t> m_skill2crafts;		///< Maps skill ID to set of crafts which this skill belongs to.
+		std::map<id_t, const CCraft*> m_id2craft;		///< Maps craft ID to pointer to craft descriptor.
+		std::map<id_t, const CSkillBase*> m_id2skill;	///< Maps skill ID to pointer to skill descriptor.
+		std::map<id_t, const CRecipe*> m_id2recipe;		///< Maps recipe ID to pointer to recipe descriptor.
 	};
 }
 

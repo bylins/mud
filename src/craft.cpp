@@ -12,6 +12,8 @@
 #include "pugixml.hpp"
 
 #include <boost/filesystem.hpp>
+#include <boost/token_functions.hpp>
+#include <boost/tokenizer.hpp>
 
 #include <iostream>
 #include <string>
@@ -30,16 +32,146 @@ namespace craft
 					: "th"));
 	}
 
+	CCraftModel model;
+
 	bool load()
 	{
-		CCraftModel model;
-
 		return model.load();
 	}
-	
-	void do_craft(CHAR_DATA *ch, char* /*argument*/, int /*cmd*/, int/* subcmd*/)
+
+	/// Contains handlers of craft subcommands
+	namespace subcommands
 	{
-		send_to_char("&WCrafting...&n\r\n", ch);
+		void list_crafts(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+		{
+			send_to_char(ch, "Listing crafts...\nArguments: '%s'\nCount:%d\n", arguments, model.crafts().size());
+
+			size_t counter = 0;
+			for (const auto& c : model.crafts())
+			{
+				++counter;
+				send_to_char(ch, "%2d. %s\n", counter, c.id().c_str());
+			}
+		}
+
+		void list_skills(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+		{
+			send_to_char(ch, "Listing craft skills...\nArguments: '%s'\nCount:%d\n", arguments, model.skills().size());
+
+			size_t counter = 0;
+			for (const auto& s : model.skills())
+			{
+				++counter;
+				send_to_char(ch, "%2d. %s\n", counter, s.id().c_str());
+			}
+		}
+
+		void list_recipes(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+		{
+			send_to_char(ch, "Listing craft recipes...\nArguments: '%s'\nCount:%d\n", arguments, model.recipes().size());
+
+			size_t counter = 0;
+			for (const auto& r : model.recipes())
+			{
+				++counter;
+				send_to_char(ch, "%2d. %s\n", counter, r.id().c_str());
+			}
+		}
+
+		void list_prototypes(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+		{
+			send_to_char(ch, "Listing craft prototypes...\nArguments: '%s'\nCount: %d\n", arguments, model.prototypes().size());
+
+			size_t counter = 0;
+			for (const auto& p : model.prototypes())
+			{
+				++counter;
+				send_to_char(ch, "%2d. %s\n", counter, p.short_desc().c_str());
+			}
+		}
+
+		void list_properties(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+		{
+			send_to_char(ch, "Craft properties...\nArguments: '%s'\n", arguments);
+			send_to_char(ch, "Base count:              &W%4d&n crafts\n", model.base_count());
+			send_to_char(ch, "Remorts for count bonus: &W%4d&n per remort\n", model.remort_for_count_bonus());
+			send_to_char(ch, "Base top:                &W%4d&n percents\n", model.base_top());
+			send_to_char(ch, "Remorts bonus:           &W%4d&n percent\n", model.remorts_bonus());
+		}
+	}
+
+	const char* first_argument(char*& command_line)
+	{
+		// skip leading spaces
+		while (*command_line && ' ' == *command_line)
+		{
+			++command_line;
+		}
+
+		// getting subcommand
+		const char* result = command_line;
+		while (*command_line && ' ' != *command_line)
+		{
+			++command_line;
+		}
+
+		// anchor subcommand and move argument pointer to the next one
+		if (*command_line)
+		{
+			*(command_line++) = '\0';
+		}
+
+		return result;
+	}
+	
+	/**
+	* "craft" command handler.
+	*
+	* Syntax:
+	* craft prototypes	- list of prototypes loaded by craft system.
+	*/
+	void do_craft(CHAR_DATA* ch, char* arguments, int cmd, int subcmd)
+	{
+		using subcommand_handler_t = void(*)(CHAR_DATA *, char*, int, int);
+		using subcommands_t = std::map<std::string, subcommand_handler_t>;
+
+		static subcommands_t subcommands =
+		{
+			{ "list", subcommands::list_crafts },
+			{ "properties", subcommands::list_properties },
+			{ "prototypes", subcommands::list_prototypes },
+			{ "recipes", subcommands::list_recipes },
+			{ "skills", subcommands::list_skills },
+		};
+
+		if (!arguments)
+		{
+			log("SYSERROR: argument passed into %s:%d is NULL.", __FILE__, __LINE__);
+			send_to_char(ch, "Something went wrong... Send bug report, please. :(\n");
+
+			return;
+		}
+
+		const char* subcommand = first_argument(arguments);
+		if (!*subcommand)
+		{
+			send_to_char(ch, "Crafting...\n");
+			// craft command with no arguments
+			return;
+		}
+
+		subcommands_t::const_iterator i = subcommands.lower_bound(subcommand);
+
+		if (i != subcommands.end()
+			&& i->first.c_str() == strstr(i->first.c_str(), subcommand))
+		{
+			// found subcommand handler
+			i->second(ch, arguments, cmd, subcmd);
+		}
+		else
+		{
+			send_to_char(ch, "Unknown subcommand '%s'.\n", subcommand);
+		}
 	}
 
 	const char* BODY_PREFIX = "| ";
@@ -848,8 +980,37 @@ namespace craft
 			log("Craft model is not defined in XML file %s\n", FILE_NAME.c_str());
 			return false;
 		}
+
 		// Load model properties.
-		// TODO: load it.
+		const auto base_count_node = doc.child("base_crafts");
+		if (base_count_node)
+		{
+			CLoadHelper::load_integer(base_count_node.child_value(), m_base_count,
+				[&]() { log("WARNING: \"base_crafts\" tag has wrong integer value. Leaving default value %d.\n", m_base_count); });
+		}
+
+		const auto remort_for_count_bonus_node = doc.child("crafts_bonus");
+		if (remort_for_count_bonus_node)
+		{
+			CLoadHelper::load_integer(remort_for_count_bonus_node.child_value(), m_remort_for_count_bonus,
+				[&]() { log("WARNING: \"crafts_bonus\" tag has wrong integer value. Leaving default value %d.\n", m_remort_for_count_bonus); });
+		}
+
+		const auto base_top_node = doc.child("skills_cap");
+		if (base_top_node)
+		{
+			CLoadHelper::load_integer(base_top_node.child_value(), m_base_top,
+				[&]() { log("WARNING: \"skills_cap\" tag has wrong integer value. Leaving default value %d.\n", m_base_top); });
+		}
+
+		const auto remorts_bonus_node = doc.child("skills_bonus");
+		if (remorts_bonus_node)
+		{
+			CLoadHelper::load_integer(remorts_bonus_node.child_value(), m_remorts_bonus,
+				[&]() { log("WARNING: \"skills_bonus\" tag has wrong integer value. Leaving default value %d.\n", m_remorts_bonus); });
+		}
+
+		// TODO: load remaining properties.
 
 		// Load materials.
 		const auto materials = model.child("materials");
@@ -961,6 +1122,8 @@ namespace craft
 				return false;
 			}
 		}
+
+		m_prototypes.push_back(p);
 
 		return true;
 	}
