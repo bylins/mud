@@ -443,11 +443,6 @@
 					<value>100</value>
 				</skill>
 			</skills>
-
-			<val0></val0>
-			<val1></val1>
-			<val2></val2>
-			<val3></val3>
 		</prototype>
 	</prototypes>
 </craftmodel>

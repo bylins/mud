@@ -125,30 +125,6 @@ namespace craft
 		static void set_bit(uint32_t& flags, const EnumType flag) { SET_BIT(flags, flag); }
 
 	public:
-		template <class TFlags, typename TSuccess, typename TFail, typename TFlagsStorage>
-		static void load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
-			TSuccess success, TFail fail)
-		{
-			const auto node = root.child(node_name);
-			if (node)
-			{
-				for (const auto flag : node.children(node_flag))
-				{
-					const char* flag_value = flag.child_value();
-					try
-					{
-						auto value = ITEM_BY_NAME<TFlags>(flag_value);
-						set_bit(flags, value);
-						success(value);
-					}
-					catch (...)
-					{
-						fail(flag_value);
-					}
-				}
-			}
-		}
-
 		enum ELoadFlagResult
 		{
 			ELFR_SUCCESS,
@@ -156,59 +132,98 @@ namespace craft
 			ELFR_FAIL
 		};
 
-		template <class TFlag, typename TSuccess, typename TFail, typename TNoValue>
-		static ELoadFlagResult load_flag(const pugi::xml_node& root, const char* node_name, TSuccess success, TFail fail, TNoValue no_value)
+		template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
+		static void load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
+			TSuccessHandler success_handler, TFailHandler fail_handler);
+
+		template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
+		static ELoadFlagResult load_flag(const pugi::xml_node& root, const char* node_name,
+			TSuccessHandler success_handler, TFailHandler fail_handler, TNoValueHandler no_value_handler);
+
+		template <typename TCatchHandler>
+		static void load_integer(const char* input, int& output, TCatchHandler catch_handler);
+
+		template <typename TSetHandler, typename TCatchHandler>
+		static void load_integer(const char* input, TSetHandler set_handler, TCatchHandler catch_handler);
+	};
+
+	template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
+	void CLoadHelper::load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name,
+		const char* node_flag, TSuccessHandler success_handler, TFailHandler fail_handler)
+	{
+		const auto node = root.child(node_name);
+		if (node)
 		{
-			const auto node = root.child(node_name);
-			if (node)
+			for (const auto flag : node.children(node_flag))
 			{
-				const char* value = node.child_value();
+				const char* flag_value = flag.child_value();
 				try
 				{
-					const TFlag type = ITEM_BY_NAME<TFlag>(value);
-					success(type);
+					auto value = ITEM_BY_NAME<TFlags>(flag_value);
+					set_bit(flags, value);
+					success_handler(value);
 				}
 				catch (...)
 				{
-					fail(value);
-					return ELFR_FAIL;
+					fail_handler(flag_value);
 				}
 			}
-			else
-			{
-				no_value();
-				return ELFR_NO_VALUE;
-			}
-
-			return ELFR_SUCCESS;
 		}
+	}
 
-		template <typename TCatchHandler>
-		static void load_integer(const char* input, int& output, TCatchHandler catch_handler)
+	template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
+	CLoadHelper::ELoadFlagResult CLoadHelper::load_flag(const pugi::xml_node& root, const char* node_name,
+		TSuccessHandler success_handler, TFailHandler fail_handler, TNoValueHandler no_value_handler)
+	{
+		const auto node = root.child(node_name);
+		if (node)
 		{
+			const char* value = node.child_value();
 			try
 			{
-				output = std::stoi(input);
+				const TFlag type = ITEM_BY_NAME<TFlag>(value);
+				success_handler(type);
 			}
 			catch (...)
 			{
-				catch_handler();
+				fail_handler(value);
+				return ELFR_FAIL;
 			}
+		}
+		else
+		{
+			no_value_handler();
+			return ELFR_NO_VALUE;
 		}
 
-		template <typename TSetHandler, typename TCatchHandler>
-		static void load_integer(const char* input, TSetHandler set_handler, TCatchHandler catch_handler)
+		return ELFR_SUCCESS;
+	}
+
+	template <typename TCatchHandler>
+	void CLoadHelper::load_integer(const char* input, int& output, TCatchHandler catch_handler)
+	{
+		try
 		{
-			try
-			{
-				set_handler(std::stoi(input));
-			}
-			catch (...)
-			{
-				catch_handler();
-			}
+			output = std::stoi(input);
 		}
-	};
+		catch (...)
+		{
+			catch_handler();
+		}
+	}
+
+	template <typename TSetHandler, typename TCatchHandler>
+	void CLoadHelper::load_integer(const char* input, TSetHandler set_handler, TCatchHandler catch_handler)
+	{
+		try
+		{
+			set_handler(std::stoi(input));
+		}
+		catch (...)
+		{
+			catch_handler();
+		}
+	}
 
 	bool CPrototype::load(const pugi::xml_node* node)
 	{
@@ -471,6 +486,28 @@ namespace craft
 		// loading of prototype skills
 		load_skills(node);
 
+		// load prototype vals
+		for (size_t i = 0; i < m_vals.size(); ++i)
+		{
+			std::stringstream val_name;
+			val_name << "val" << i;
+
+			const auto val_node = node->child(val_name.str().c_str());
+			if (val_node)
+			{
+				CLoadHelper::load_integer(val_node.child_value(), m_vals[i],
+					[&]() { log("WARNING: \"%s\" tag of prototype with VNUM %d has wrong integer value. Leaving default value %d.\n",
+						val_name.str().c_str(), m_vnum, m_vals[i]); });
+			}
+		}
+
+		if (!check_prototype_consistency())
+		{
+			log("WARNING: Prototype with VNUM %d has not passed consistency check.\n",
+				m_vnum);
+			return false;
+		}
+
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
 
@@ -609,6 +646,13 @@ namespace craft
 				}
 			}
 		}
+	}
+
+	bool CPrototype::check_prototype_consistency() const
+	{
+		// perform some checks here.
+
+		return true;
 	}
 
 	bool CMaterialClass::load(const pugi::xml_node* node)

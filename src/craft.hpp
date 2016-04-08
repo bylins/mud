@@ -117,6 +117,7 @@ namespace craft
 	{
 	public:
 		typedef obj_flag_data::EObjectType type_t;
+
 		void set_type(const type_t _) { m_type = _; }
 		type_t get_type() const { return m_type; }
 
@@ -157,18 +158,22 @@ namespace craft
 			m_level(obj_flag_data::DEFAULT_LEVEL),
 			m_item_params(0),
 			m_material(obj_flag_data::DEFAULT_MATERIAL),
-			m_wear_flags(0)
+			m_wear_flags(0),
+			m_vals({0, 0, 0, 0})
 		{
 		}
 
 		bool load(const pugi::xml_node* node);
 
 	private:
+		constexpr static int VALS_COUNT = 4;
+
 		typedef std::map<ESkill, int> skills_t;
+		typedef std::array<int, VALS_COUNT> vals_t;
 
 		bool load_item_parameters(const pugi::xml_node* node);
 		void load_skills(const pugi::xml_node* node);
-
+		bool check_prototype_consistency() const;
 		vnum_t m_vnum;
 
 		std::string m_short_desc;
@@ -204,6 +209,8 @@ namespace craft
 		std::underlying_type<EWearFlag>::type m_wear_flags;
 
 		skills_t m_skills;
+
+		vals_t m_vals;
 
 		friend class CCraftModel;
 	};
