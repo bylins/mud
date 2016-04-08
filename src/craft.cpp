@@ -564,86 +564,88 @@ namespace craft
 	void CPrototype::load_skills(const pugi::xml_node* node)
 	{
 		const auto skills = node->child("skills");
-		if (skills)
+		if (!skills)
 		{
-			int counter = 0;
-			for (const auto& skill : skills.children("skill"))
+			return;
+		}
+
+		int counter = 0;
+		for (const auto& skill : skills.children("skill"))
+		{
+			++counter;
+			std::stringstream determined_id;
+			determined_id << '#' << counter << '-' << suffix(counter);		// by default distinguish skills by number
+
+			bool fail = false;
+			const auto id_node = skill.child("id");
+
+			// check ID
+			ESkill skill_id = SKILL_INVALID;
+			do
 			{
-				++counter;
-				std::stringstream determined_id;
-				determined_id << '#' << counter << '-' << suffix(counter);		// by default distinguish skills by number
-
-				bool fail = false;
-				const auto id_node = skill.child("id");
-
-				// check ID
-				ESkill skill_id = SKILL_INVALID;
-				do
+				if (!id_node)
 				{
-					if (!id_node)
-					{
-						log("WARNING: Skill %s for VNUM %d does not have \"id\" tag.\n",
-							determined_id.str().c_str(), m_vnum);
-						fail = true;
-						break;
-					}
+					log("WARNING: Skill %s for VNUM %d does not have \"id\" tag.\n",
+						determined_id.str().c_str(), m_vnum);
+					fail = true;
+					break;
+				}
 
-					const auto skill_name = id_node.child_value();
-					try
-					{
-						skill_id = ITEM_BY_NAME<ESkill>(skill_name);
-
-						// store determined ID
-						determined_id.str(std::string());
-						determined_id << '"' << skill_name << '"';
-					}
-					catch (...)
-					{
-						log("WARNING: \"id\" value of skill \"%s\" for prototype with VNUM %d is not valid.\n",
-							skill_name, m_vnum);
-						fail = true;
-					}
-				} while (false);
-
-				// check value
-				int skill_value = -1;
-				do
+				const auto skill_name = id_node.child_value();
+				try
 				{
-					const auto value_node = skill.child("value");
-					if (!value_node)
-					{
-						log("WARNING: Skill %s for prototype with VNUM %d does not have \"value\" tag.\n",
-							determined_id.str().c_str(), m_vnum);
-						fail = true;
-						break;
-					}
+					skill_id = ITEM_BY_NAME<ESkill>(skill_name);
 
-					CLoadHelper::load_integer(value_node.child_value(), skill_value,
-						[&]() {
-						log("WARNING: Skill %s for prototype with VNUM %d has wrong integer value of \"value\" tag.\n",
-							determined_id.str().c_str(), m_vnum);
-						fail = true;
-					});
-				} while (false);
-
-				if (0 >= skill_value)
+					// store determined ID
+					determined_id.str(std::string());
+					determined_id << '"' << skill_name << '"';
+				}
+				catch (...)
 				{
-					log("WARNING: Skill %s for prototype with VNUM %d has wrong value %d of the \"value\" tag.\n",
-						determined_id.str().c_str(), m_vnum, skill_value);
+					log("WARNING: \"id\" value of skill \"%s\" for prototype with VNUM %d is not valid.\n",
+						skill_name, m_vnum);
 					fail = true;
 				}
+			} while (false);
 
-				if (fail)
+			// check value
+			int skill_value = -1;
+			do
+			{
+				const auto value_node = skill.child("value");
+				if (!value_node)
 				{
-					log("WARNING: Skipping skill %s for prototype with VNUM %d (see errors above).\n",
+					log("WARNING: Skill %s for prototype with VNUM %d does not have \"value\" tag.\n",
 						determined_id.str().c_str(), m_vnum);
+					fail = true;
+					break;
 				}
-				else
-				{
-					log("Adding the (skill, value) pair (%s, %d) to prototype with VNUM %d.\n",
-						determined_id.str().c_str(), skill_value, m_vnum);
-					m_skills.insert(skills_t::value_type(skill_id, skill_value));
-				}
+
+				CLoadHelper::load_integer(value_node.child_value(), skill_value,
+					[&]() {
+					log("WARNING: Skill %s for prototype with VNUM %d has wrong integer value of \"value\" tag.\n",
+						determined_id.str().c_str(), m_vnum);
+					fail = true;
+				});
+			} while (false);
+
+			if (0 >= skill_value)
+			{
+				log("WARNING: Skill %s for prototype with VNUM %d has wrong value %d of the \"value\" tag.\n",
+					determined_id.str().c_str(), m_vnum, skill_value);
+				fail = true;
+			}
+
+			if (fail)
+			{
+				log("WARNING: Skipping skill %s for prototype with VNUM %d (see errors above).\n",
+					determined_id.str().c_str(), m_vnum);
+			}
+			else
+			{
+				log("Adding the (skill, value) pair (%s, %d) to prototype with VNUM %d.\n",
+					determined_id.str().c_str(), skill_value, m_vnum);
+				m_skills.insert(skills_t::value_type(skill_id, skill_value));
 			}
 		}
 	}
