@@ -5178,6 +5178,8 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		// пони не трогаем
 		if (AFF_FLAGGED(ch_vict, AFF_HORSE))
 			continue;
+		if (MOB_FLAGGED(ch_vict, MOB_PROTECT))
+			continue;
 		add_to_tmp_char_list(ch_vict);
 	}
 
