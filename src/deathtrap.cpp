@@ -20,7 +20,7 @@
 
 extern int has_boat(CHAR_DATA * ch);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
-extern void death_cry(CHAR_DATA * ch);
+extern void death_cry(CHAR_DATA * ch, CHAR_DATA * killer);
 extern void reset_affects(CHAR_DATA *ch);
 
 namespace DeathTrap
@@ -313,7 +313,7 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 				GET_HIT(ch) = GET_MOVE(ch) = 0;
 				return TRUE;
 			}
-			death_cry(ch);
+			death_cry(ch, NULL);
 //29.11.09 Для счета количество рипов (с) Василиса
 			GET_RIP_DT(ch)= GET_RIP_DT(ch)+1;
             GET_RIP_DTTHIS(ch)= GET_RIP_DTTHIS(ch)+1;

@@ -385,11 +385,16 @@ int can_loot(CHAR_DATA * ch)
 	return FALSE;
 }
 
-void death_cry(CHAR_DATA * ch)
+void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 {
 	int door;
-	act("Кровушка стынет в жилах от предсмертного крика $n1.",
-		FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
+	if (killer)
+	{
+		act("Кровушка стынет в жилах от предсмертного крика $N1.",
+			FALSE, killer, 0, ch, TO_ROOM | CHECK_DEAF);
+	}
+//	act("Кровушка стынет в жилах от предсмертного крика $n1.",
+//		FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
 
 	for (door = 0; door < NUM_OF_DIRS; door++)
 	{
@@ -623,7 +628,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	// для начала проверяем, активны ли евенты
 	if ((!killer || death_mtrigger(ch, killer)) && IN_ROOM(ch) != NOWHERE)
 	{
-		death_cry(ch);
+		death_cry(ch, killer);
 	}
 	// добавляем одну душу киллеру
 	if (IS_NPC(ch) && killer)
