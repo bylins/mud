@@ -1429,7 +1429,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 
 	// Feature to 'goto' a page.  Just type the number of the page and you
 	// are there!
-	else if (isdigit(*buf))
+	else if (a_isdigit(*buf))
 		d->showstr_page = MAX(0, MIN(atoi(buf) - 1, d->showstr_count - 1));
 
 	else if (*buf)

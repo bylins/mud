@@ -781,6 +781,14 @@ int main(int argc, char **argv)
 	// для нормального вывода русского текста под cygwin 1.7 и выше
 	setlocale(LC_CTYPE, "ru_RU.KOI8-R");
 #endif
+	
+#ifdef CIRCLE_WINDOWS		// Includes for Win32
+# ifdef __BORLANDC__
+# else				// MSVC
+	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG); //assert in debug window
+# endif
+#endif
+	
 
 #ifdef OS_UNIX
 	extern char *malloc_options;
@@ -873,7 +881,7 @@ int main(int argc, char **argv)
 
 	if (pos < argc)
 	{
-		if (!isdigit(*argv[pos]))
+		if (!a_isdigit(*argv[pos]))
 		{
 			printf("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n", argv[0]);
 			exit(1);
@@ -2525,6 +2533,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				count += sprintf(prompt + count, "Мс:%d ", timed_by_skill(d->character, SKILL_CAMOUFLAGE));
 			if (d->character->get_skill(SKILL_TURN_UNDEAD))
 				count += sprintf(prompt + count, "Из:%d ", timed_by_skill(d->character, SKILL_TURN_UNDEAD));
+			if (d->character->get_skill(SKILL_STUN))
+				count += sprintf(prompt + count, "Ош:%d ", timed_by_skill(d->character, SKILL_STUN));
 			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
 				count += sprintf(prompt + count, "Пр:%d ", timed_by_feat(d->character, RELOCATE_FEAT));
 			if (HAVE_FEAT(d->character, SPELL_CAPABLE_FEAT))

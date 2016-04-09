@@ -233,7 +233,7 @@ ACMD(do_delete_obj)
 	int vnum;
 	one_argument(argument, buf);
 	int num = 0;
-	if (!*buf || !isdigit(*buf))
+	if (!*buf || !a_isdigit(*buf))
 	{
 		send_to_char("Usage: delete <number>\r\n", ch);
 		return;
@@ -843,7 +843,7 @@ ACMD(do_check_occupation)
 	zone_rnum zrn;
 	one_argument(argument, buf);
 	bool is_found = false;
-	if (!*buf || !isdigit(*buf))
+	if (!*buf || !a_isdigit(*buf))
 	{
 		send_to_char("Usage: занятость внумзоны\r\n", ch);
 		return;
@@ -1381,7 +1381,7 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 		send_to_char("Укажите номер или название комнаты.\r\n", ch);
 		return (NOWHERE);
 	}
-	if (isdigit(*roomstr) && !strchr(roomstr, '.'))
+	if (a_isdigit(*roomstr) && !strchr(roomstr, '.'))
 	{
 		tmp = atoi(roomstr);
 		if ((location = real_room(tmp)) == NOWHERE)
@@ -2060,10 +2060,11 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		sprinttype(GET_RACE(k) - NPC_RACE_BASIC, npc_race_types, buf2);
 		sprintf(buf,"%s %s", buf, buf2);
 	}
-	sprintf(buf2, " %s '%s' IDNum: [%ld] В комнате [%d] Текущий ID:[%ld]\r\n",
+	sprintf(buf2, " %s '%s' IDNum: [%ld] В комнате [%d] Текущий ID:[%ld]",
 			(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 			GET_NAME(k), GET_IDNUM(k), k_room, GET_ID(k));
 	send_to_char(strcat(buf, buf2), ch);
+	send_to_char(ch, " ЛАГ: [%d]\r\n", k->get_wait());
 	if (IS_MOB(k))
 	{
 		sprintf(buf, "Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
@@ -2978,7 +2979,7 @@ ACMD(do_load)
 
 	iname = two_arguments(argument, buf, buf2);
 
-	if (!*buf || !*buf2 || !isdigit(*buf2))
+	if (!*buf || !*buf2 || !a_isdigit(*buf2))
 	{
 		send_to_char("Usage: load { obj | mob } <number>\r\n"
 					 "       load ing { <сила> | <VNUM> } <имя>\r\n", ch);
@@ -3084,7 +3085,7 @@ ACMD(do_vstat)
 
 	two_arguments(argument, buf, buf2);
 
-	if (!*buf || !*buf2 || !isdigit(*buf2))
+	if (!*buf || !*buf2 || !a_isdigit(*buf2))
 	{
 		send_to_char("Usage: vstat { obj | mob } <number>\r\n", ch);
 		return;
@@ -6327,7 +6328,7 @@ ACMD(do_liblist)
 		return;
 	}
 	first = atoi(buf);
-	if (*buf2 && isdigit(buf2[0]))
+	if (*buf2 && a_isdigit(buf2[0]))
 	{
 		last = atoi(buf2);
 	}
@@ -6402,7 +6403,7 @@ ACMD(do_liblist)
 	case SCMD_MLIST:
 	{
 		std::string option;
-		if (*buf2 && !isdigit(buf2[0]))
+		if (*buf2 && !a_isdigit(buf2[0]))
 		{
 			option = buf2;
 		}
@@ -6480,7 +6481,7 @@ ACMD(do_forcetime)
 			m = 60 * 60;
 		else if (m == 'm')	// minutes
 			m = 60;
-		else if (m == 's' || isdigit(m))	// seconds
+		else if (m == 's' || a_isdigit(m))	// seconds
 			m = 1;
 		else
 			m = 0;

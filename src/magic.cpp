@@ -3417,7 +3417,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_EVILESS;
 		af[1].duration = af[0].duration;
 		af[1].location = APPLY_HITROLL;
-		af[1].modifier = 7 + (GET_REMORT(ch) > 8 ? (GET_REMORT(ch) - 8) : 0);;
+		af[1].modifier = 7 + (GET_REMORT(ch) > 8 ? (GET_REMORT(ch) - 8) : 0);
 		af[1].bitvector = AFF_EVILESS;
 		af[2].duration = af[0].duration;
 		af[2].location = APPLY_HIT;
@@ -5176,6 +5176,8 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 			continue;
 		// пони не трогаем
 		if (AFF_FLAGGED(ch_vict, AFF_HORSE))
+			continue;
+		if (MOB_FLAGGED(ch_vict, MOB_PROTECT))
 			continue;
 		add_to_tmp_char_list(ch_vict);
 	}

@@ -1888,7 +1888,7 @@ ACMD(do_wimpy)
 			return;
 		}
 	}
-	if (isdigit(*arg))
+	if (a_isdigit(*arg))
 	{
 		if ((wimp_lev = atoi(arg)) != 0)
 		{

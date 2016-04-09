@@ -445,7 +445,9 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gold)
 {      char obj[256];
 
-  if(IS_DARK(IN_ROOM(killer)) && !can_use_feat(killer, DARK_READING_FEAT))
+  if(IS_DARK(IN_ROOM(killer)) && !can_use_feat(killer, DARK_READING_FEAT) 
+	  && !(IS_NPC(killer) && AFF_FLAGGED(killer, AFF_CHARM) 
+		  && ((killer->master) && can_use_feat(killer->master, DARK_READING_FEAT))))
      return;
      else
   {

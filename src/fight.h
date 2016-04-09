@@ -188,6 +188,7 @@ private:
 void set_fighting(CHAR_DATA *ch, CHAR_DATA *victim);
 void stop_fighting(CHAR_DATA *ch, int switch_others);
 void perform_violence();
+int calc_initiative(CHAR_DATA *ch, bool mode);
 
 // fight_hit.cpp
 

@@ -2687,7 +2687,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 	// сбивание надува черноков //
-	if (spell_num != SPELL_POISON && dam > 0)
+	if (spell_num != SPELL_POISON && dam > 0 && !flags[MAGIC_REFLECT])
 		try_remove_extrahits(ch, victim);
 
 	// сообщения о крит ударах //
@@ -3882,7 +3882,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && !(AFF_FLAGGED(victim, AFF_SHIELD)) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
-			    hit_params.dam = 20;
+			    hit_params.dam = 2000; // для надежности
 			    send_to_char(ch, "&GПрямо в сердце, насмерть!&n\r\n");
 			    hit_params.extdamage(ch, victim);
 			    return;
