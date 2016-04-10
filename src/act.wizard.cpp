@@ -6375,7 +6375,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		snprintf(buf_, sizeof(buf_),
 			"Список объектов Vnum %d до %d\r\n", first, last);
 		out += buf_;
-		for (nr = 0; nr < obj_proto.size(); nr++)
+		for (size_t nr = 0; nr < obj_proto.size(); nr++)
 		{
 			if (obj_proto.vnum(nr) >= first && obj_proto.vnum(nr) <= last)
 			{

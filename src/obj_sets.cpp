@@ -144,7 +144,7 @@ void init_obj_index()
 	boost::unordered_map<int, int> tmp;
 	tmp.reserve(obj_proto.size());
 
-	for (int i = 0; i < obj_proto.size(); ++i)
+	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
 		obj_proto.set_idx(i, -1);
 		tmp.emplace(obj_proto.vnum(i), i);

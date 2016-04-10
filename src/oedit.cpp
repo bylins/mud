@@ -334,20 +334,19 @@ void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
 
 void oedit_save_internally(DESCRIPTOR_DATA * d)
 {
-	int robj_num, found = FALSE;
+	int robj_num;
 
-//  robj_num = real_object(OLC_NUM(d));
 	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
 	ObjSystem::init_ilvl(OLC_OBJ(d));
 
 	// * Write object to internal tables.
 	if (robj_num >= 0)
 	{	/*
-				 * We need to run through each and every object currently in the
-				 * game to see which ones are pointing to this prototype.
-				 * if object is pointing to this prototype, then we need to replace it
-				 * with the new one.
-				 */
+		 * We need to run through each and every object currently in the
+		 * game to see which ones are pointing to this prototype.
+		 * if object is pointing to this prototype, then we need to replace it
+		 * with the new one.
+		 */
 		log("[OEdit] Save object to mem %d", robj_num);
 		olc_update_objects(robj_num, OLC_OBJ(d));
 
@@ -367,7 +366,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 	else
 	{
 		// It's a new object, we must build new tables to contain it.
-		log("[OEdit] Save mem new %d(%d/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(OBJ_DATA));
+		log("[OEdit] Save mem new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(OBJ_DATA));
 
 		const size_t index = obj_proto.add(OLC_OBJ(d), OLC_NUM(d));
 		obj_proto.zone(index, real_zone(OLC_NUM(d)));

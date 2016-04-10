@@ -1250,7 +1250,7 @@ void set_vnum(const obj_vnum vnum)
 
 ObjWrapper get_obj_proto(const obj_rnum rnum)
 {
-	if (rnum>=0 && rnum < obj_proto.size())
+	if (rnum >= 0 && rnum < static_cast<int>(obj_proto.size()))
 	{
 		return obj_proto[rnum];
 	}

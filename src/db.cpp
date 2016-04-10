@@ -3442,8 +3442,7 @@ void renum_world(void)
 // Установка принадлежности к зоне в прототипах
 void renum_obj_zone(void)
 {
-	int i;
-	for (i = 0; i < obj_proto.size(); ++i)
+	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
 		obj_proto.zone(i, real_zone(obj_proto.vnum(i)));
 	}
@@ -4834,13 +4833,14 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch)
 
 int vnum_object(char *searchname, CHAR_DATA * ch)
 {
-	int nr, found = 0;
+	int found = 0;
 
-	for (nr = 0; nr < obj_proto.size(); nr++)
+	for (size_t nr = 0; nr < obj_proto.size(); nr++)
 	{
 		if (isname(searchname, obj_proto[nr]->aliases))
 		{
-			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, obj_proto.vnum(nr), obj_proto[nr]->short_description);
+			++found;
+			sprintf(buf, "%3d. [%5d] %s\r\n", found, obj_proto.vnum(nr), obj_proto[nr]->short_description);
 			send_to_char(buf, ch);
 		}
 	}
@@ -4849,7 +4849,7 @@ int vnum_object(char *searchname, CHAR_DATA * ch)
 
 int vnum_flag(char *searchname, CHAR_DATA * ch)
 {
-	int nr, found = 0, plane = 0, counter = 0, plane_offset = 0;
+	int found = 0, plane = 0, counter = 0, plane_offset = 0;
 	bool f = FALSE;
 // type:
 // 0 -- неизвестный тип
@@ -4879,7 +4879,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 
 	if (f)
 	{
-		for (nr = 0; nr < obj_proto.size(); nr++)
+		for (size_t nr = 0; nr < obj_proto.size(); nr++)
 		{
 			if (obj_proto[nr]->get_extraflag(plane, 1 << plane_offset))
 			{
@@ -4901,7 +4901,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	}
 	if (f)
 	{
-		for (nr = 0; nr < obj_proto.size(); nr++)
+		for (size_t nr = 0; nr < obj_proto.size(); nr++)
 		{
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++)
 			{
@@ -4935,7 +4935,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	}
 	if (f)
 	{
-		for (nr = 0; nr < obj_proto.size(); nr++)
+		for (size_t nr = 0; nr < obj_proto.size(); nr++)
 		{
 			if (obj_proto[nr]->get_extraflag(plane, 1 << (plane_offset)))
 			{
