@@ -37,7 +37,6 @@
 #include <vector>
 
 // * External variable declarations.
-extern INDEX_DATA *obj_index;
 extern OBJ_DATA *object_list;
 extern obj_rnum top_of_objt;
 extern struct zone_data *zone_table;
@@ -450,8 +449,6 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		free(obj_index);
 		obj_index = new_obj_index;
 		top_of_objt++;
-
-
 
 // נועוימהוכףבדיס ׀ֿ ׳׃ֵÊ ׀ֱֵַֽֽֿׂׂ
 

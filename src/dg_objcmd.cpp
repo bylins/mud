@@ -31,7 +31,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-extern INDEX_DATA *obj_index;
 extern const char *dirs[];
 extern int dg_owner_purged;
 extern int up_obj_where(OBJ_DATA * obj);

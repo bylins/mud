@@ -15,11 +15,13 @@
 #ifndef _DB_H_
 #define _DB_H_
 
+#include "obj.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "conf.h"	// to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
 
 #include <boost/array.hpp>
+#include <map>
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -455,7 +457,6 @@ extern CHAR_DATA *character_list;
 extern OBJ_DATA *object_list;
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
-extern INDEX_DATA *obj_index;
 
 class CObjectPrototypes
 {
@@ -463,10 +464,21 @@ public:
 	using prototypes_t = std::vector<OBJ_DATA *>;
 	using const_iterator = prototypes_t::const_iterator;
 
+	using index_t = std::vector<index_data>;
+
 	auto begin() const { return m_prototypes.begin(); }
 	auto end() const { return m_prototypes.end(); }
-	void reserve(const size_t count) { m_prototypes.reserve(count); }
-	void push_back(const prototypes_t::value_type& prototype) { m_prototypes.push_back(prototype); }
+	void reserve(const size_t count)
+	{
+		m_prototypes.reserve(count);
+		m_index.reserve(count);
+	}
+	void add(const prototypes_t::value_type& prototype, const obj_vnum vnum)
+	{
+		m_vnum2index[vnum] = m_index.size();
+		m_prototypes.push_back(prototype);
+		m_index.push_back(index_data(vnum));
+	}
 	auto size() const { return m_prototypes.size(); }
 	const auto& at(const size_t index) const { return m_prototypes.at(index); }
 	void insert(const size_t where, const prototypes_t::value_type& prototype) { m_prototypes.insert(m_prototypes.begin() + where, prototype); }
@@ -474,10 +486,45 @@ public:
 	const auto& operator[](size_t index) const { return m_prototypes[index]; }
 	auto& operator[](size_t index) { return m_prototypes[index]; }
 
+	obj_vnum vnum(const OBJ_DATA* object) const { return m_index[object->item_number].vnum; }
+	obj_vnum vnum(const size_t rnum) const { return m_index[rnum].vnum; }
+
+	void zone(const size_t index, const size_t zone_rnum) { m_index[index].zone = static_cast<int>(zone_rnum); }
+
+	auto stored(const size_t index) const { return m_index[index].stored; }
+	auto stored(const OBJ_DATA* object) const { return stored(object->item_number); }
+
+	auto number(const size_t index) const { return m_index[index].number; }
+	auto number(const OBJ_DATA* object) const { return number(object->item_number); }
+	void inc_number(const size_t index) { m_index[index].number++; }
+
+	auto zone(const size_t index) const { return m_index[index].zone; }
+
+	auto count(const size_t index) const { return number(index) + stored(index); }
+	auto count(const OBJ_DATA* object) const { return count(object->item_number); }
+
+	auto func(const size_t index) const { return m_index[index].func; }
+	auto func(const OBJ_DATA* object) const { return func(object->item_number); }
+
+	int rnum(const obj_vnum vnum) const
+	{
+		vnum2index_t::const_iterator i = m_vnum2index.find(vnum);
+		return i == m_vnum2index.end() ? -1 : static_cast<int>(i->second);
+	}
+
 private:
+	using vnum2index_t = std::map<obj_vnum, size_t>;
+
 	prototypes_t m_prototypes;
+	index_t m_index;
+	vnum2index_t m_vnum2index;
 };
 extern CObjectPrototypes obj_proto;
+
+inline obj_vnum GET_OBJ_VNUM(const OBJ_DATA* obj) { return obj_proto.vnum(obj); }
+
+// returns the real number of the object with given virtual number
+inline obj_rnum real_object(obj_vnum vnum) { return obj_proto.rnum(vnum); }
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;

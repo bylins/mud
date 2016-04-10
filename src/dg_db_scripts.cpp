@@ -43,7 +43,6 @@ extern INDEX_DATA **trig_index;
 extern int top_of_trigt;
 
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 

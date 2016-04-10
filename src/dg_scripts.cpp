@@ -60,7 +60,6 @@ extern const char *pc_class_types[];
 //extern const char *race_types[];
 extern const char *exit_bits[];
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern TIME_INFO_DATA time_info;
 extern struct zone_data *zone_table;
 const char *spell_name(int num);

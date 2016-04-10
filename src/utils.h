@@ -974,8 +974,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_OBJ_ZONE(obj)   ((obj)->obj_flags.Obj_zone)
 #define GET_OBJ_RNUM(obj)  ((obj)->item_number)
 #define OBJ_GET_LASTROOM(obj) ((obj)->room_was_in)
-#define GET_OBJ_VNUM(obj)  (GET_OBJ_RNUM(obj) >= 0 ? \
-             obj_index[GET_OBJ_RNUM(obj)].vnum : -1)
 #define OBJ_WHERE(obj) ((obj)->worn_by    ? IN_ROOM(obj->worn_by) : \
                         (obj)->carried_by ? IN_ROOM(obj->carried_by) : (obj)->in_room)
 #define IS_OBJ_ANTI(obj,stat) ((obj)->obj_flags.anti_flag.get(stat))

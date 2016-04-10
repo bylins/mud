@@ -45,7 +45,6 @@
 #define ITEM_DESTROYED  100
 
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_of_p_table;
 extern int rent_file_timeout, crash_file_timeout;

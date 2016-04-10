@@ -1891,10 +1891,12 @@ struct title_type
 	exp;
 };
 
-
 // element in monster and object index-tables   //
 struct index_data
 {
+	index_data() : vnum(0), number(0), stored(0), farg(NULL), proto(NULL), zone(0), set_idx(-1) {}
+	index_data(int _vnum) : vnum(_vnum), number(0), stored(0), farg(NULL), proto(NULL), zone(0), set_idx(-1) {}
+
 	int vnum;			// virtual number of this mob/obj       //
 	int number;		// number of existing units of this mob/obj //
 	int stored;		// number of things in rent file            //

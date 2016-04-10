@@ -116,7 +116,6 @@ void Load_Criterion(pugi::xml_node XMLCriterion, int type);
 int global_uid = 0;
 
 OBJ_DATA *object_list = NULL;	// global linked list of objs
-INDEX_DATA *obj_index;		// index table for object file
 CObjectPrototypes obj_proto;
 obj_rnum top_of_objt = 0;	// top of object index table
 
@@ -178,7 +177,7 @@ void discrete_load(FILE * fl, int mode, char *filename);
 bool check_object(OBJ_DATA *);
 void parse_trigger(FILE * fl, int virtual_nr);
 void parse_room(FILE * fl, int virtual_nr, int virt);
-char *parse_object(FILE * obj_f, int nr);
+char *parse_object(FILE * obj_f, const int nr);
 void load_zones(FILE * fl, char *zonename);
 void load_help(FILE * fl);
 void assign_mobiles(void);
@@ -2723,9 +2722,7 @@ void index_boot(int mode)
 	int rec_count = 0, counter;
 	int size[2];
 
-
 	log("Index booting %d", mode);
-
 
 	switch (mode)
 	{
@@ -2837,7 +2834,6 @@ void index_boot(int mode)
 		break;
 	case DB_BOOT_OBJ:
 		obj_proto.reserve(rec_count);
-		CREATE(obj_index, rec_count);
 		size[0] = sizeof(INDEX_DATA) * rec_count;
 		size[1] = sizeof(OBJ_DATA) * rec_count;
 		log("   %d objs, %d bytes in index, %d bytes in prototypes.", rec_count, size[0], size[1]);
@@ -3048,7 +3044,6 @@ void discrete_load(FILE * fl, int mode, char *filename)
 
 	const char *modes[] = { "world", "mob", "obj", "ZON", "SHP", "HLP", "trg" };
 	// modes positions correspond to DB_BOOT_xxx in db.h
-
 
 	for (;;)
 	{		/*
@@ -3442,7 +3437,7 @@ void renum_obj_zone(void)
 	int i;
 	for (i = 0; i <= top_of_objt; ++i)
 	{
-		obj_index[i].zone = real_zone(obj_index[i].vnum);
+		obj_proto.zone(i, real_zone(obj_proto.vnum(i)));
 	}
 }
 
@@ -4072,7 +4067,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			else
 			{
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
-				if (GET_OBJ_MIW(tobj) >= obj_index[GET_OBJ_RNUM(tobj)].stored + obj_index[GET_OBJ_RNUM(tobj)].number
+				if (GET_OBJ_MIW(tobj) >= obj_proto.count(tobj)
 					|| GET_OBJ_MIW(tobj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 					|| check_unlimited_timer(tobj))
 				{
@@ -4296,7 +4291,7 @@ void set_test_data(CHAR_DATA *mob)
 }
 
 // read all objects from obj file; generate index and prototypes
-char *parse_object(FILE * obj_f, int nr)
+char *parse_object(FILE * obj_f, const int nr)
 {
 	static int i = 0;
 	static char line[256];
@@ -4307,12 +4302,6 @@ char *parse_object(FILE * obj_f, int nr)
 	OBJ_DATA *tobj;
 
 	NEWCREATE(tobj);
-
-	obj_index[i].vnum = nr;
-	obj_index[i].number = 0;
-	obj_index[i].stored = 0;
-	obj_index[i].func = NULL;
-	obj_index[i].set_idx = -1;
 
 	tobj->item_number = i;
 
@@ -4550,7 +4539,7 @@ char *parse_object(FILE * obj_f, int nr)
 		case '$':
 		case '#':
 			check_object(tobj);		// Anton Gorev (2015/12/29): do we need the result of this check?
-			obj_proto.push_back(tobj);
+			obj_proto.add(tobj, nr);
 			top_of_objt = i++;
 			return (line);
 		default:
@@ -4847,7 +4836,7 @@ int vnum_object(char *searchname, CHAR_DATA * ch)
 	{
 		if (isname(searchname, obj_proto[nr]->aliases))
 		{
-			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, obj_index[nr].vnum, obj_proto[nr]->short_description);
+			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, obj_proto.vnum(nr), obj_proto[nr]->short_description);
 			send_to_char(buf, ch);
 		}
 	}
@@ -4884,6 +4873,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		}
 		plane_offset++;
 	}
+
 	if (f)
 	{
 		for (nr = 0; nr <= top_of_objt; nr++)
@@ -4891,8 +4881,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 			if (obj_proto[nr]->get_extraflag(plane, 1 << plane_offset))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-						++found, obj_index[nr].vnum,
-						obj_proto[nr]->short_description, extra_bits[counter]);
+					++found, obj_proto.vnum(nr), obj_proto[nr]->short_description, extra_bits[counter]);
 				out += buf;
 			}
 		}
@@ -4916,7 +4905,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 				if (obj_proto[nr]->affected[plane].location == counter)
 				{
 					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-							++found, obj_index[nr].vnum,
+							++found, obj_proto.vnum(nr),
 							obj_proto[nr]->short_description, apply_types[counter]);
 					out += buf;
 					continue;
@@ -4948,8 +4937,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 			if (obj_proto[nr]->get_extraflag(plane, 1 << (plane_offset)))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-						++found, obj_index[nr].vnum,
-						obj_proto[nr]->short_description, weapon_affects[counter]);
+						++found, obj_proto.vnum(nr), obj_proto[nr]->short_description, weapon_affects[counter]);
 				out += buf;
 			}
 		}
@@ -5206,8 +5194,8 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 		i = nr;
 
 	NEWCREATE(obj, *obj_proto[i]);
-	obj_index[i].number++;
-	i = obj_index[i].zone;
+	obj_proto.inc_number(i);
+	i = obj_proto.zone(i);
 	if (i != -1 && zone_table[i].under_construction)
 	{
 		// модификация объектов тестовой зоны
@@ -5661,7 +5649,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						{
 							obj_rnum rnum = real_object((*load_in)->vnum);
 
-							if (obj_index[rnum].number + obj_index[rnum].stored < obj_proto[rnum]->max_in_world)
+							if (obj_proto.count(rnum) < obj_proto[rnum]->max_in_world)
 							{
 								obj = read_object(real_object((*load_in)->vnum), REAL);
 								if (obj)
@@ -5703,7 +5691,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					if (rnum == GET_OBJ_RNUM(obj_room))
 						obj_in_room++;
 
-				if ((obj_index[rnum].number + obj_index[rnum].stored < obj_proto[rnum]->max_in_world)
+				if ((obj_proto.count(rnum) < obj_proto[rnum]->max_in_world)
 					&& (obj_in_room < (*load)->max))
 				{
 					obj = read_object(real_object((*load)->vnum), REAL);
@@ -5723,7 +5711,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						{
 							obj_rnum rnum = real_object((*load_in)->vnum);
 
-							if (obj_index[rnum].number + obj_index[rnum].stored < obj_proto[rnum]->max_in_world)
+							if (obj_proto.count(rnum) < obj_proto[rnum]->max_in_world)
 							{
 								obj_in = read_object(real_object((*load_in)->vnum), REAL);
 								if (obj_in
@@ -5939,7 +5927,7 @@ void reset_zone(zone_rnum zone)
 						if (ZCMD.arg1 == GET_OBJ_RNUM(obj_room))
 							obj_in_room++;
 				// Теперь грузим обьект если надо
-				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
+				if ((obj_proto.count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
 					&& (ZCMD.arg4 <= 0
@@ -5977,7 +5965,7 @@ void reset_zone(zone_rnum zone)
 			case 'P':
 				// object to object
 				// 'P' <flag> <obj_vnum> <max_in_world> <target_vnum> <load%|-1>
-				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
+				if ((obj_proto.count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
 					&& (ZCMD.arg4 <= 0
@@ -6020,7 +6008,7 @@ void reset_zone(zone_rnum zone)
 					// ZCMD.command = '*';
 					break;
 				}
-				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
+				if ((obj_proto.count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
 					&& (ZCMD.arg4 <= 0
@@ -6046,7 +6034,7 @@ void reset_zone(zone_rnum zone)
 					// ZCMD.command = '*';
 					break;
 				}
-				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
+				if ((obj_proto.count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->max_in_world
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
 					&& (ZCMD.arg4 <= 0
@@ -7294,32 +7282,6 @@ mob_rnum real_mobile(mob_vnum vnum)
 		if (bot >= top)
 			return (-1);
 		if ((mob_index + mid)->vnum > vnum)
-			top = mid - 1;
-		else
-			bot = mid + 1;
-	}
-}
-
-
-
-// returns the real number of the object with given virtual number
-obj_rnum real_object(obj_vnum vnum)
-{
-	obj_rnum bot, top, mid;
-
-	bot = 0;
-	top = top_of_objt;
-
-	// perform binary search on obj-table
-	for (;;)
-	{
-		mid = (bot + top) / 2;
-
-		if ((obj_index + mid)->vnum == vnum)
-			return (mid);
-		if (bot >= top)
-			return (-1);
-		if ((obj_index + mid)->vnum > vnum)
 			top = mid - 1;
 		else
 			bot = mid + 1;

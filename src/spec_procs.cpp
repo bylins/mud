@@ -45,7 +45,6 @@
 //   external vars
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern TIME_INFO_DATA time_info;
 extern struct spell_create_type spell_create[];
 extern int guild_info[][3];

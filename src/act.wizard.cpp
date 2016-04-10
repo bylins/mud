@@ -81,7 +81,6 @@ extern FILE *player_fl;
 extern OBJ_DATA *object_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern struct zone_data *zone_table;
 extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
@@ -1742,9 +1741,13 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
 
 	if (GET_OBJ_RNUM(j) >= 0)
-		strcpy(buf2, (obj_index[GET_OBJ_RNUM(j)].func ? "Есть" : "Нет"));
+	{
+		strcpy(buf2, (obj_proto.func(j) ? "Есть" : "Нет"));
+	}
 	else
+	{
 		strcpy(buf2, "None");
+	}
 
 	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d]\r\n",
 		CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j));
@@ -2044,7 +2047,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	if (is_grgod)
 	{
 		sprintf(buf, "Сейчас в мире : %d. На постое : %d\r\n",
-				rnum >= 0 ? obj_index[rnum].number - (virt ? 1 : 0) : -1, rnum >= 0 ? obj_index[rnum].stored : -1);
+				rnum >= 0 ? obj_proto.number(rnum) - (virt ? 1 : 0) : -1, rnum >= 0 ? obj_proto.stored(rnum) : -1);
 		send_to_char(buf, ch);
 		// check the object for a script
 		do_sstat_object(ch, j);
@@ -6375,16 +6378,16 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		out += buf_;
 		for (nr = 0; nr <= top_of_objt; nr++)
 		{
-			if (obj_index[nr].vnum >= first && obj_index[nr].vnum <= last)
+			if (obj_proto.vnum(nr) >= first && obj_proto.vnum(nr) <= last)
 			{
 				snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++found,
 					colored_name(obj_proto[nr]->short_description, 45),
-					obj_index[nr].vnum, obj_proto[nr]->get_ilevel());
+					obj_proto.vnum(nr), obj_proto[nr]->get_ilevel());
 				out += buf_;
 				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
 				{
 					snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d\r\n",
-						obj_index[nr].number, obj_index[nr].stored);
+						obj_proto.number(nr), obj_proto.stored(nr));
 					out += buf_;
 				}
 				else

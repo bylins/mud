@@ -23,7 +23,6 @@
 extern struct zone_data *zone_table;
 extern CHAR_DATA *mob_proto;
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
 extern INDEX_DATA **trig_index;

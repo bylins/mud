@@ -57,7 +57,6 @@ extern OBJ_DATA *object_list;
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
-extern INDEX_DATA *obj_index;
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;

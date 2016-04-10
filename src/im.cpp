@@ -38,7 +38,6 @@
 char *how_good(CHAR_DATA * ch, int percent);
 
 extern CHAR_DATA *mob_proto;
-extern INDEX_DATA *obj_index;
 extern INDEX_DATA *mob_index;
 
 void do_rset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

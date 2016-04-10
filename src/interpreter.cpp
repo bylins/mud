@@ -101,7 +101,6 @@ extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern const char *default_race[];
 
 extern struct pclean_criteria_data pclean_criteria[];
