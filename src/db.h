@@ -213,7 +213,6 @@ void reset_char(CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
 
-
 #define REAL          0
 #define VIRTUAL       (1 << 0)
 #define OBJ_NO_CALC   (1 << 1)
@@ -457,12 +456,37 @@ extern OBJ_DATA *object_list;
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
 extern INDEX_DATA *obj_index;
+
+class CObjectPrototypes
+{
+public:
+	using prototypes_t = std::vector<OBJ_DATA *>;
+	using const_iterator = prototypes_t::const_iterator;
+
+	auto begin() const { return m_prototypes.begin(); }
+	auto end() const { return m_prototypes.end(); }
+	void reserve(const size_t count) { m_prototypes.reserve(count); }
+	void push_back(const prototypes_t::value_type& prototype) { m_prototypes.push_back(prototype); }
+	auto size() const { return m_prototypes.size(); }
+	const auto& at(const size_t index) const { return m_prototypes.at(index); }
+	void insert(const size_t where, const prototypes_t::value_type& prototype) { m_prototypes.insert(m_prototypes.begin() + where, prototype); }
+
+	const auto& operator[](size_t index) const { return m_prototypes[index]; }
+	auto& operator[](size_t index) { return m_prototypes[index]; }
+
+private:
+	prototypes_t m_prototypes;
+};
+extern CObjectPrototypes obj_proto;
+
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern const char *MENU;
 
 extern struct portals_list_type *portals_list;
 extern TIME_INFO_DATA time_info;
+
+extern int convert_drinkcon_skill(OBJ_DATA *obj, bool proto);
 
 int dl_parse(load_list ** dl_list, char *line);
 int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_TYPE);

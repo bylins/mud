@@ -117,8 +117,7 @@ int global_uid = 0;
 
 OBJ_DATA *object_list = NULL;	// global linked list of objs
 INDEX_DATA *obj_index;		// index table for object file
-//OBJ_DATA *obj_proto;		// prototypes for objs
-std::vector<OBJ_DATA *> obj_proto;
+CObjectPrototypes obj_proto;
 obj_rnum top_of_objt = 0;	// top of object index table
 
 struct zone_data *zone_table;	// zone table
@@ -1232,28 +1231,28 @@ int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 void convert_obj_values()
 {
 	int save = 0;
-	for (auto i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
+	for (const auto i : obj_proto)
 	{
-		save = std::max(save, convert_drinkcon_skill(*i, true));
-		if (OBJ_FLAGGED(*i, EExtraFlag::ITEM_1INLAID))
+		save = std::max(save, convert_drinkcon_skill(i, true));
+		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_1INLAID))
 		{
-			(*i)->unset_extraflag(EExtraFlag::ITEM_1INLAID);
+			i->unset_extraflag(EExtraFlag::ITEM_1INLAID);
 			save = 1;
 		}
-		if (OBJ_FLAGGED(*i, EExtraFlag::ITEM_2INLAID))
+		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_2INLAID))
 		{
-			(*i)->unset_extraflag(EExtraFlag::ITEM_2INLAID);
+			i->unset_extraflag(EExtraFlag::ITEM_2INLAID);
 			save = 1;
 		}
-		if (OBJ_FLAGGED(*i, EExtraFlag::ITEM_3INLAID))
+		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_3INLAID))
 		{
-			(*i)->unset_extraflag(EExtraFlag::ITEM_3INLAID);
+			i->unset_extraflag(EExtraFlag::ITEM_3INLAID);
 			save = 1;
 		}
 		// ...
 		if (save)
 		{
-			olc_add_to_save_list(GET_OBJ_VNUM(*i)/100, OLC_SAVE_OBJ);
+			olc_add_to_save_list(GET_OBJ_VNUM(i)/100, OLC_SAVE_OBJ);
 			save = 0;
 		}
 	}

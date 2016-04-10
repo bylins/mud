@@ -441,7 +441,6 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 	}
 }
 
-extern std::vector<OBJ_DATA *> obj_proto;
 extern CHAR_DATA *mob_proto;
 
 void assign_triggers(void *i, int type)

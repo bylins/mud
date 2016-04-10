@@ -349,8 +349,6 @@ public:
 
 typedef std::map< int, set_info > id_to_set_info_map;
 
-extern std::vector < OBJ_DATA * >obj_proto;
-
 // * Временное заклинание на предмете (одно).
 class TimedSpell
 {

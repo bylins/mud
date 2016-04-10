@@ -45,7 +45,6 @@
 #include <boost/bind.hpp>
 
 // extern variables
-extern std::vector<OBJ_DATA *> obj_proto;
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
 extern bool check_unlimited_timer(OBJ_DATA *obj);

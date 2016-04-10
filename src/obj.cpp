@@ -705,10 +705,9 @@ void init_ilvl(OBJ_DATA *obj)
 
 void init_item_levels()
 {
-	for (std::vector <OBJ_DATA *>::iterator i = obj_proto.begin(),
-		iend = obj_proto.end(); i != iend; ++i)
+	for (const auto i : obj_proto)
 	{
-		init_ilvl(*i);
+		init_ilvl(i);
 	}
 }
 

@@ -47,7 +47,6 @@
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern std::vector<OBJ_DATA *>obj_proto;
 extern int top_of_p_table;
 extern int rent_file_timeout, crash_file_timeout;
 extern int free_crashrent_period;
@@ -69,7 +68,6 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
-extern int convert_drinkcon_skill(OBJ_DATA *obj, bool proto);
 extern bool check_unlimited_timer(OBJ_DATA *obj);
 extern bool check_obj_in_system_zone(int vnum);
 // local functions

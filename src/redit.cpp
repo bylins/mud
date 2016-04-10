@@ -29,7 +29,6 @@
 #include <vector>
 
 // * External data structures.
-extern std::vector<OBJ_DATA *> obj_proto;
 extern CHAR_DATA *mob_proto;
 extern const char *room_bits[];
 extern const char *sector_types[];

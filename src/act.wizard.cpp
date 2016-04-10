@@ -95,7 +95,6 @@ extern mob_rnum top_of_mobt;
 extern obj_rnum top_of_objt;
 extern int top_of_p_table;
 extern int shutdown_time;
-extern std::vector<OBJ_DATA *> obj_proto;
 extern CHAR_DATA *mob_proto;
 extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
@@ -6979,21 +6978,21 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	send_to_char(buffer, ch);
 
 	std::multimap<int /* zone lvl */, int /* obj rnum */> tmp_list;
-	for (std::vector <OBJ_DATA *>::iterator i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
+	for (const auto i : obj_proto)
 	{
 		// материал
-		if (filter.material >= 0 && filter.material != GET_OBJ_MATER(*i))
+		if (filter.material >= 0 && filter.material != GET_OBJ_MATER(i))
 		{
 			continue;
 		}
 		// тип
-		if (filter.type >= 0 && filter.type != GET_OBJ_TYPE(*i))
+		if (filter.type >= 0 && filter.type != GET_OBJ_TYPE(i))
 		{
 			continue;
 		}
 		// куда можно одеть
 		if (filter.wear != EWearFlag::ITEM_WEAR_UNDEFINED
-			&& !CAN_WEAR(*i, filter.wear))
+			&& !CAN_WEAR(i, filter.wear))
 		{
 			continue;
 		}
@@ -7003,7 +7002,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			for (std::vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
 			{
-				if (!CompareBits((*i)->obj_flags.affects, weapon_affects, *it))
+				if (!CompareBits(i->obj_flags.affects, weapon_affects, *it))
 				{
 					find = false;
 					break;
@@ -7023,7 +7022,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				find = false;
 				for (int k = 0; k < MAX_OBJ_AFFECT; ++k)
 				{
-					if ((*i)->affected[k].location == *it)
+					if (i->affected[k].location == *it)
 					{
 						find = true;
 						break;
@@ -7041,7 +7040,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			for (std::vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it)
 			{
 				//find = true;
-				if (!CompareBits(GET_OBJ_EXTRA(*i), extra_bits, *it))
+				if (!CompareBits(GET_OBJ_EXTRA(i), extra_bits, *it))
 				{
 					find = false;
 					break;
@@ -7055,12 +7054,12 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		if (find)
 		{
-			int vnum = GET_OBJ_VNUM(*i)/100;
+			int vnum = GET_OBJ_VNUM(i)/100;
 			for (int nr = 0; nr <= top_of_zone_table; nr++)
 			{
 				if (vnum == zone_table[nr].number)
 				{
-					tmp_list.insert(std::make_pair(zone_table[nr].mob_level, GET_OBJ_RNUM(*i)));
+					tmp_list.insert(std::make_pair(zone_table[nr].mob_level, GET_OBJ_RNUM(i)));
 				}
 			}
 		}

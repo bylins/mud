@@ -1245,12 +1245,7 @@ void set_vnum(const obj_vnum vnum) {
 }
 };
 
-
-
-
-
 extern obj_rnum top_of_objt;
-extern std::vector < OBJ_DATA * >obj_proto;
 ObjWrapper get_obj_proto(const obj_rnum rnum)
 {
 	if (rnum>=0 && rnum <= top_of_objt)

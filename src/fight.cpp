@@ -41,7 +41,6 @@
 CHAR_DATA *combat_list = NULL;	// head of l-list of fighting chars
 CHAR_DATA *next_combat_list = NULL;
 
-extern std::vector<OBJ_DATA *> obj_proto;
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
 extern CHAR_DATA *mob_proto;

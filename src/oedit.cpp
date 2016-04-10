@@ -37,7 +37,6 @@
 #include <vector>
 
 // * External variable declarations.
-extern std::vector<OBJ_DATA *>obj_proto;
 extern INDEX_DATA *obj_index;
 extern OBJ_DATA *object_list;
 extern obj_rnum top_of_objt;
@@ -356,7 +355,7 @@ void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
 
 void oedit_save_internally(DESCRIPTOR_DATA * d)
 {
-	int i, robj_num, found = FALSE, zone, cmd_no;
+	int robj_num, found = FALSE, zone, cmd_no;
 	INDEX_DATA *new_obj_index;
 
 //  robj_num = real_object(OLC_NUM(d));
@@ -396,8 +395,9 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 
 		CREATE(new_obj_index, top_of_objt + 2);
 
+		size_t i = 0;
 		// * Start counting through both tables.
-		for (i = 0; i <= top_of_objt; i++)  	// If we haven't found it.
+		for (; i <= top_of_objt; i++)  	// If we haven't found it.
 		{
 			if (!found)  	// Check if current virtual is bigger than our virtual number.
 			{
@@ -411,32 +411,35 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 					new_obj_index[i].number = 0;
 					new_obj_index[i].stored = 0;
 					new_obj_index[i].func = NULL;
-					robj_num = i;
+					robj_num = static_cast<int>(i);
 					GET_OBJ_RNUM(OLC_OBJ(d)) = robj_num;
-					obj_proto.insert(obj_proto.begin() + i, OLC_OBJ(d));
+					obj_proto.insert(i, OLC_OBJ(d));
 					new_obj_index[i].zone = real_zone(OLC_NUM(d));
 					new_obj_index[i].set_idx = -1;
 					--i;
 					continue;
 				}
 				else
+				{
 					// Just copy from old to new, no number change.
 					new_obj_index[i] = obj_index[i];
+				}
 			}
 			else
 			{
 				// * We HAVE already found it, therefore copy to object + 1
 				new_obj_index[i + 1] = obj_index[i];
-				obj_proto[i + 1]->item_number = i + 1;
+				obj_proto[i + 1]->item_number = static_cast<int>(i + 1);
 			}
 		}
+
 		if (!found)
 		{
 			new_obj_index[i].vnum = OLC_NUM(d);
 			new_obj_index[i].number = 0;
 			new_obj_index[i].stored = 0;
 			new_obj_index[i].func = NULL;
-			robj_num = i;
+			robj_num = static_cast<int>(i);
 			GET_OBJ_RNUM(OLC_OBJ(d)) = robj_num;
 			obj_proto.push_back(OLC_OBJ(d));
 			new_obj_index[i].zone = real_zone(OLC_NUM(d));

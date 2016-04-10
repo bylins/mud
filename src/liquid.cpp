@@ -244,7 +244,7 @@ void reset_potion_values(OBJ_DATA *obj)
 }
 
 /// уровень в зельях (GET_OBJ_VAL(from_obj, 0)) пока один на все заклы
-bool copy_value(OBJ_DATA *from_obj, OBJ_DATA *to_obj, int num)
+bool copy_value(const OBJ_DATA *from_obj, OBJ_DATA *to_obj, int num)
 {
 	if (GET_OBJ_VAL(from_obj, num) > 0)
 	{
@@ -256,7 +256,7 @@ bool copy_value(OBJ_DATA *from_obj, OBJ_DATA *to_obj, int num)
 }
 
 /// заполнение values емкости (to_obj) из зелья (from_obj)
-void copy_potion_values(OBJ_DATA *from_obj, OBJ_DATA *to_obj)
+void copy_potion_values(const OBJ_DATA *from_obj, OBJ_DATA *to_obj)
 {
 	reset_potion_values(to_obj);
 	bool copied = false;
