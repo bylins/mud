@@ -1162,7 +1162,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 			improove_skill(ch, SKILL_STUN, TRUE, 0);
 // кастуем аналог круга пустоты
 			act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
-			act("Вас ошеломи$q и сбил с ног $N4, вы временно потеряли сознание.", FALSE, vict, 0, ch, TO_CHAR);
+			act("Вас ошеломи$q и сби$q с ног $N1, вы временно потеряли сознание.", FALSE, vict, 0, ch, TO_CHAR);
 			act("$n  мощным ударом ошеломи$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			set_hit(ch, vict);
 			GET_POS(vict) = POS_INCAP;
@@ -1173,8 +1173,8 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		{
 			improove_skill(ch, SKILL_STUN, FALSE, 0);
 			act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n1 попытался ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
-			act("$n1 попытался ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+			act("$n1 попытал$u ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+			act("$n1 попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 //			Damage dmg(SkillDmg(SKILL_STUN), 1, FightSystem::PHYS_DMG);
 //			dmg.process(ch, vict);
 			set_hit(ch, vict);
