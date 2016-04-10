@@ -1807,9 +1807,10 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 	// special in object present? //
 	for (i = world[ch->in_room]->contents; i; i = i->next_content)
 	{
-		if (GET_OBJ_SPEC(i) != NULL)
+		auto spec = GET_OBJ_SPEC(i);
+		if (spec != NULL)
 		{
-			if (GET_OBJ_SPEC(i)(ch, i, cmd, arg))
+			if (spec(ch, i, cmd, arg))
 			{
 				check_hiding_cmd(ch, -1);
 				return (1);
