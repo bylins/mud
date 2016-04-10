@@ -1352,15 +1352,17 @@ void set_mob_skills_flags(CHAR_DATA *ch)
 	}
 }
 
-int calc_initiative(CHAR_DATA *ch)
+int calc_initiative(CHAR_DATA *ch, bool mode)
 {
 	int initiative = size_app[GET_POS_SIZE(ch)].initiative;
-
-	int i = number(1, 10);
-	if (i == 10)
-		initiative -= 1;
-	else
-		initiative += i;
+	if (mode) //Добавим булевую переменную, чтобы счет все выдавал постоянное значение, а не каждый раз рандом
+	{
+		int i = number(1, 10);
+		if (i == 10)
+			initiative -= 1;
+		else
+			initiative += i;
+	};
 
 	initiative += GET_INITIATIVE(ch);
 
@@ -1396,7 +1398,7 @@ int calc_initiative(CHAR_DATA *ch)
 	if (GET_AF_BATTLE(ch, EAF_SLOW))
 		initiative = 1;
 
-	initiative = MAX(initiative, 1);
+	//initiative = MAX(initiative, 1); //Почему инициатива не может быть отрицательной?
 
 	return initiative;
 }
@@ -2072,7 +2074,7 @@ bool stuff_before_round(CHAR_DATA *ch)
 // * Обработка текущих боев, дергается каждые 2 секунды.
 void perform_violence()
 {
-	int max_init = 0, min_init = 100;
+	int max_init = -100, min_init = 100;
 
 	//* суммон хелперов
 	check_mob_helpers();
@@ -2085,7 +2087,7 @@ void perform_violence()
 		if (!stuff_before_round(ch))
 			continue;
 
-		const int initiative = calc_initiative(ch);
+		const int initiative = calc_initiative(ch, true);
 		INITIATIVE(ch) = initiative;
 		SET_AF_BATTLE(ch, EAF_FIRST);
 		max_init = MAX(max_init, initiative);

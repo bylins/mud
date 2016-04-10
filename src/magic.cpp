@@ -56,7 +56,6 @@ void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void alterate_object(OBJ_DATA * obj, int dam, int chance);
-void death_cry(CHAR_DATA * ch);
 int has_boat(CHAR_DATA * ch);
 int check_death_trap(CHAR_DATA * ch);
 int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum);
@@ -5204,6 +5203,8 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 			continue;
 		// пони не трогаем
 		if (AFF_FLAGGED(ch_vict, EAffectFlag::AFF_HORSE))
+			continue;
+		if (MOB_FLAGGED(ch_vict, MOB_PROTECT))
 			continue;
 		add_to_tmp_char_list(ch_vict);
 	}

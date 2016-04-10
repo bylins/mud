@@ -3310,7 +3310,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	sprintf(buf + strlen(buf),
 		" %sИнициатива:  %4d %s|                ||\r\n"
 		" -------------------------------------------------------------------------------------\r\n",
-		CCGRN(ch, C_NRM), GET_INITIATIVE(ch), CCCYN(ch, C_NRM));
+		CCGRN(ch, C_NRM), calc_initiative(ch, false), CCCYN(ch, C_NRM));
 
 	if (has_horse(ch, FALSE))
 	{

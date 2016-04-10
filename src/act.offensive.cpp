@@ -1140,10 +1140,11 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 {
+
 	if (GET_SKILL(ch, SKILL_STUN) < 150)
 	{
+		improove_skill(ch, SKILL_STUN, TRUE, 0);
 		struct timed_type timed;
-		calculate_skill(ch, SKILL_STUN, vict);
 		timed.skill = SKILL_STUN;
 		timed.time = 7;
 		timed_to_char(ch, &timed);
@@ -1151,30 +1152,29 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 	        return;
 	}
 	struct timed_type timed;
-	calculate_skill(ch, SKILL_STUN, vict);
 	timed.skill = SKILL_STUN;
 	timed.time = 6 - (GET_SKILL(ch, SKILL_STUN) - 150) / 10; // 6..1 кулдаун
 	timed_to_char(ch, &timed);
-
 	float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow((GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0), 2) + pow(GET_REAL_STR(ch), 2)) /
 		(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
 		if (number(1, 100) < num)
 		{
+			improove_skill(ch, SKILL_STUN, TRUE, 0);
 // кастуем аналог круга пустоты
 			act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вас ошеломи$q и сбил с ног $N4, вы временно потеряли сознание.", FALSE, vict, 0, ch, TO_CHAR);
 			act("$n  мощным ударом ошеломи$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+			set_hit(ch, vict);
 			GET_POS(vict) = POS_INCAP;
 //аффект "кома" действует (раундов) на цель 5+морты чара/3
-			set_hit(ch, vict);
-			WAIT_STATE(vict, 5 + GET_REMORT(ch) / 3 * PULSE_VIOLENCE);
+			WAIT_STATE(vict, (5 + GET_REMORT(ch) / 3) * PULSE_VIOLENCE);
 		}
 		else
 		{
+			improove_skill(ch, SKILL_STUN, FALSE, 0);
 			act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
 			act("$n1 попытался ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
 			act("$n1 попытался ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-
 //			Damage dmg(SkillDmg(SKILL_STUN), 1, FightSystem::PHYS_DMG);
 //			dmg.process(ch, vict);
 			set_hit(ch, vict);
@@ -1306,7 +1306,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	AFFECT_DATA af;
 	int percent, prob, flag = 0;
-	const char *to_char = NULL, *to_vict = NULL;
+	const char *to_char = NULL, *to_vict = NULL, *to_room = NULL;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
 	{
@@ -1377,59 +1377,63 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 				{
 					to_char = "След от вашего сапога надолго запомнится $N2, если доживет.";
 					to_vict = "Мощный удар ногой $n1 изуродовал вам правую руку.";
+					to_room = "След сапога $n1 надолго запомнится $N2, если доживет.";
 					af.type = SPELL_BATTLE;
 					af.bitvector = to_underlying(EAffectFlag::AFF_STOPRIGHT);
-					af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
+					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
 					af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				}
 				else if (!AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT))
 				{
 					to_char = "След от вашего сапога надолго запомнится $N2, если доживет.";
 					to_vict = "Мощный удар ногой $n1 изуродовал вам левую руку.";
+					to_room = "След сапога $n1 надолго запомнится $N2, если доживет.";
 					af.bitvector = to_underlying(EAffectFlag::AFF_STOPLEFT);
-					af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
+					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
 					af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				}
 				else
 				{
-					to_char = "След от вашего сапога надолго запомнится $N1, $S теперь даже бить вас нечем.";
+					to_char = "След от вашего сапога надолго запомнится $N2, $S теперь даже бить вас нечем.";
 					to_vict = "Мощный удар ногой $n1 вывел вас из строя.";
+					to_room = "След сапога $n1 надолго запомнится $N2, $S теперь даже биться нечем.";
 					af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
-					af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
+					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
 					af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				}
 				flag = 1;
-                        break;
-                        case 2:
-                        case 3:
-                               to_char = "Сильно пнув в челюсть, вы заставили $N3 проглотить язык.";
-                               to_vict = "Мощный удар ногой $n1 попал точно в челюсть, заставив прикусить язык.";
-                               af.type = SPELL_BATTLE;
-                               af.bitvector = to_underlying(EAffectFlag::AFF_SIELENCE);
-                               af.duration = pc_duration(vict, 30, 0, 0, 0, 0);
-                               af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-                               dam *= 2;
-                           flag = 1;
-                        break;
-                        case 4:
-                        case 5:
-                               WAIT_STATE(vict, number(2, 5) * PULSE_VIOLENCE);
-                               if (GET_POS(vict) > POS_SITTING)
-                                       GET_POS(vict) = POS_SITTING;
-                               to_char = "Ваш мощный пинок выбил пару зубов $N1, усадив $S на землю!";
-                               to_vict = "Мощный удар ногой $n1 попал точно в голову, свалив вас с ног.";
-                               dam *= 2;
-                               flag = 1;
-                        break;
-                        default:
-                        break;
-            		}
-               
+			break;
+			case 2:
+			case 3:
+				to_char = "Сильно пнув в челюсть, вы заставили $N1 замолчать.";
+				to_vict = "Мощный удар ногой $n1 попал точно в челюсть, заставив вас замолчать.";
+				to_room = "Сильно пнув ногой в челюсть $N1, $n застави&q $S замолчать.";
+				af.type = SPELL_BATTLE;
+				af.bitvector = to_underlying(EAffectFlag::AFF_SIELENCE);
+				af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+				dam *= 2;
+				flag = 1;
+			break;
+			case 4:
+			case 5:
+				WAIT_STATE(vict, number(2, 5) * PULSE_VIOLENCE);
+				if (GET_POS(vict) > POS_SITTING)
+					GET_POS(vict) = POS_SITTING;
+				to_char = "Ваш мощный пинок выбил пару зубов $N1, усадив $S на землю!";
+				to_vict = "Мощный удар ногой $n1 попал точно в голову, свалив вас с ног.";
+				to_room = "Мощный пинок $n1 выбил пару зубов $N1, усадив $S на землю!";
+				dam *= 2;
+				flag = 1;
+			break;
+			default:
+			break;
+			}
 			if (to_char)
-            		{
+			{
 				sprintf(buf, "&G&q%s&Q&n", to_char);
 				act(buf, FALSE, ch, 0, vict, TO_CHAR);
-				sprintf(buf, "%s", to_char);
+				sprintf(buf, "%s", to_room);
 				act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			}
 			if (to_vict)

@@ -908,7 +908,8 @@ inline bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
 		&& (GET_EXP(victim) > 0)
 		&& (!IS_NPC(victim)
 			|| !IS_NPC(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		&& !IS_HORSE(victim);
 }
 
 inline bool IS_MALE(const CHAR_DATA* ch)

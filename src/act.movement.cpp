@@ -38,7 +38,6 @@
 #include "conf.h"
 
 // external functs
-void death_cry(CHAR_DATA * ch);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
