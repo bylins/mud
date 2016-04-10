@@ -985,9 +985,6 @@ inline T VPOSI(const T val, const T min, const T max)
                GET_OBJ_VAL((obj), 3) == 1)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
-#define GET_OBJ_SPEC(obj) ((obj)->item_number >= 0 ? \
-   (obj_index[(obj)->item_number].func) : NULL)
-
 // проверяет arg на совпадение с персональными или клановыми метками
 // чармис автора меток их тоже может использовать
 #define CHECK_CUSTOM_LABEL(arg, obj, ch) (                                                          \

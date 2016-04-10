@@ -74,7 +74,7 @@ void ASSIGNOBJ(obj_vnum obj, special_f fname)
 	obj_rnum rnum;
 
 	if ((rnum = real_object(obj)) >= 0)
-		obj_index[rnum].func = fname;
+		obj_proto.func(rnum, fname);
 	else if (!mini_mud)
 		log("SYSERR: Attempt to assign spec to non-existant obj #%d", obj);
 }

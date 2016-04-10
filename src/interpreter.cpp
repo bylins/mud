@@ -1769,12 +1769,16 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 
 	// special in equipment list? //
 	for (j = 0; j < NUM_WEARS; j++)
+	{
 		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != NULL)
+		{
 			if (GET_OBJ_SPEC(GET_EQ(ch, j))(ch, GET_EQ(ch, j), cmd, arg))
 			{
 				check_hiding_cmd(ch, -1);
 				return (1);
 			}
+		}
+	}
 
 	// special in inventory? //
 	for (i = ch->carrying; i; i = i->next_content)

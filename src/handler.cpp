@@ -2817,7 +2817,9 @@ void extract_obj(OBJ_DATA * obj)
 //	ObjectAlias::remove(obj);
 
 	if (GET_OBJ_RNUM(obj) >= 0)
-		(obj_index[GET_OBJ_RNUM(obj)].number)--;
+	{
+		obj_proto.dec_number(GET_OBJ_RNUM(obj));
+	}
 
 	free_script(SCRIPT(obj));	// без комментариев
 

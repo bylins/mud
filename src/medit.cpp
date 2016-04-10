@@ -562,7 +562,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			}
 		}
 
-		SetsDrop::renumber_obj_rnum(-1, new_mob_num);
+		SetsDrop::renumber_obj_rnum(new_mob_num);
 	}			// совершенно новый моб
 
 #if defined(OASIS_MPROG)

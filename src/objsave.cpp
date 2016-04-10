@@ -1618,7 +1618,7 @@ void Crash_clear_objects(int index)
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
 				(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
 			{
-				obj_index[rnum].stored--;
+				obj_proto.dec_stored(rnum);
 			}
 		}
 		clear_saveinfo(index);
@@ -1635,7 +1635,7 @@ void Crash_reload_timer(int index)
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
 				(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
 			{
-				obj_index[rnum].stored--;
+				obj_proto.dec_stored(rnum);
 			}
 		}
 		clear_saveinfo(index);
@@ -1776,7 +1776,7 @@ int Crash_read_timer(int index, int temp)
 		}
 		if (info.timer >= 0 && (rnum = real_object(info.vnum)) >= 0 && !temp)
 		{
-			obj_index[rnum].stored++;
+			obj_proto.inc_stored(rnum);
 		}
 	}
 	UNUSED_ARG(dummy);
@@ -1863,7 +1863,7 @@ void Crash_timer_obj(int index, long time)
 				idelete++;
 				if (rnum >= 0)
 				{
-					obj_index[rnum].stored--;
+					obj_proto.dec_stored(rnum);
 					log("[TO] Player %s : item %s deleted - time outted", name,
 						obj_proto[rnum]->PNames[0]);
 				}
@@ -2222,7 +2222,7 @@ int Crash_load(CHAR_DATA * ch)
 		if (SAVEINFO(index)->time[fsize].timer > 0
 				&& (rnum = real_object(SAVEINFO(index)->time[fsize].vnum)) >= 0)
 		{
-			obj_index[rnum].stored--;
+			obj_proto.dec_stored(rnum);
 		}
 		// в два действия, чтобы заодно снять и таймер обкаста
 		if (!check_unlimited_timer(obj))
@@ -2367,7 +2367,9 @@ void Crash_extract_objs(OBJ_DATA *obj)
 		next = obj->next_content;
 		Crash_extract_objs(obj->contains);
 		if (GET_OBJ_RNUM(obj) >= 0 && obj->get_timer() >= 0)
-			obj_index[GET_OBJ_RNUM(obj)].stored++;
+		{
+			obj_proto.inc_stored(GET_OBJ_RNUM(obj));
+		}
 		extract_obj(obj);
 	}
 }

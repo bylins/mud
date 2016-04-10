@@ -118,16 +118,18 @@ oload_class oload_table;
 
 obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info>& it)
 {
-	obj_rnum i;
-	obj_rnum resutl_obj = number(1, MAX_LOAD_PROB) <= it.second.load_prob ?
-						  (it.first >= 0 && (i = real_object(it.first)) >= 0 ?
-						   (obj_index[i].stored + obj_index[i].number < it.second.obj_qty ?
-							i :
-							NOTHING) :
-								   NOTHING) :
-								  NOTHING;
+	obj_rnum i = real_object(it.first);
+	obj_rnum resutl_obj = number(1, MAX_LOAD_PROB) <= it.second.load_prob
+		? (it.first >= 0 && i >= 0
+			? (obj_proto.actual_count(i) < it.second.obj_qty
+				? i
+				: NOTHING)
+			: NOTHING)
+		: NOTHING;
 	if (resutl_obj != NOTHING)
+	{
 		log("Current load_prob: %d/%d, obj #%d (setload)", it.second.load_prob, MAX_LOAD_PROB, it.first);
+	}
 	return resutl_obj;
 }
 

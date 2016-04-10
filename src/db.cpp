@@ -117,7 +117,6 @@ int global_uid = 0;
 
 OBJ_DATA *object_list = NULL;	// global linked list of objs
 CObjectPrototypes obj_proto;
-obj_rnum top_of_objt = 0;	// top of object index table
 
 struct zone_data *zone_table;	// zone table
 zone_rnum top_of_zone_table = 0;	// top element of zone tab
@@ -2720,7 +2719,6 @@ void index_boot(int mode)
 	FILE *index, *db_file;
 
 	int rec_count = 0, counter;
-	int size[2];
 
 	log("Index booting %d", mode);
 
@@ -2818,40 +2816,52 @@ void index_boot(int mode)
 	case DB_BOOT_TRG:
 		CREATE(trig_index, rec_count);
 		break;
+
 	case DB_BOOT_WLD:
-		// Creating empty world with NOWHERE room.
-		world.push_back(new ROOM_DATA);
-		top_of_world = FIRST_ROOM;
-		size[0] = sizeof(ROOM_DATA) * rec_count;
-		log("   %d rooms, %d bytes.", rec_count, size[0]);
+		{
+			// Creating empty world with NOWHERE room.
+			world.push_back(new ROOM_DATA);
+			top_of_world = FIRST_ROOM;
+			const size_t rooms_bytes = sizeof(ROOM_DATA) * rec_count;
+			log("   %d rooms, %zd bytes.", rec_count, rooms_bytes);
+		}
 		break;
+
 	case DB_BOOT_MOB:
-		mob_proto = new CHAR_DATA[rec_count]; // TODO: переваять на вектор (+в medit)
-		CREATE(mob_index, rec_count);
-		size[0] = sizeof(INDEX_DATA) * rec_count;
-		size[1] = sizeof(CHAR_DATA) * rec_count;
-		log("   %d mobs, %d bytes in index, %d bytes in prototypes.", rec_count, size[0], size[1]);
+		{
+			mob_proto = new CHAR_DATA[rec_count]; // TODO: переваять на вектор (+в medit)
+			CREATE(mob_index, rec_count);
+			const size_t index_size = sizeof(INDEX_DATA) * rec_count;
+			const size_t characters_size = sizeof(CHAR_DATA) * rec_count;
+			log("   %d mobs, %zd bytes in index, %zd bytes in prototypes.", rec_count, index_size, characters_size);
+		}
 		break;
+
 	case DB_BOOT_OBJ:
-		obj_proto.reserve(rec_count);
-		size[0] = sizeof(INDEX_DATA) * rec_count;
-		size[1] = sizeof(OBJ_DATA) * rec_count;
-		log("   %d objs, %d bytes in index, %d bytes in prototypes.", rec_count, size[0], size[1]);
+		log("   %d objs, ~%zd bytes in index, ~%zd bytes in prototypes.", rec_count, obj_proto.index_size(), obj_proto.prototypes_size());
 		break;
+
 	case DB_BOOT_ZON:
-		CREATE(zone_table, rec_count);
-		size[0] = sizeof(struct zone_data) * rec_count;
-		log("   %d zones, %d bytes.", rec_count, size[0]);
+		{
+			CREATE(zone_table, rec_count);
+			const size_t zones_size = sizeof(struct zone_data) * rec_count;
+			log("   %d zones, %zd bytes.", rec_count, zones_size);
+		}
 		break;
+
 	case DB_BOOT_HLP:
 		break;
+
 	case DB_BOOT_SOCIAL:
-		CREATE(soc_mess_list, top_of_socialm + 1);
-		CREATE(soc_keys_list, top_of_socialk + 1);
-		size[0] = sizeof(struct social_messg) * (top_of_socialm + 1);
-		size[1] = sizeof(struct social_keyword) * (top_of_socialk + 1);
-		log("   %d entries(%d keywords), %d(%d) bytes.", top_of_socialm + 1,
-			top_of_socialk + 1, size[0], size[1]);
+		{
+			CREATE(soc_mess_list, top_of_socialm + 1);
+			CREATE(soc_keys_list, top_of_socialk + 1);
+			const size_t messages_size = sizeof(struct social_messg) * (top_of_socialm + 1);
+			const size_t keywords_size = sizeof(struct social_keyword) * (top_of_socialk + 1);
+			log("   %d entries(%d keywords), %zd(%zd) bytes.", top_of_socialm + 1,
+				top_of_socialk + 1, messages_size, keywords_size);
+		}
+		break;
 	}
 
 	rewind(index);
@@ -3304,8 +3314,6 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	}
 }
 
-
-
 // read direction data
 void setup_dir(FILE * fl, int room, unsigned dir)
 {
@@ -3435,7 +3443,7 @@ void renum_world(void)
 void renum_obj_zone(void)
 {
 	int i;
-	for (i = 0; i <= top_of_objt; ++i)
+	for (i = 0; i < obj_proto.size(); ++i)
 	{
 		obj_proto.zone(i, real_zone(obj_proto.vnum(i)));
 	}
@@ -3450,8 +3458,6 @@ void renum_mob_zone(void)
 		mob_index[i].zone = real_zone(mob_index[i].vnum);
 	}
 }
-
-
 
 #define ZCMD zone_table[zone].cmd[cmd_no]
 #define ZCMD_CMD(cmd_nom) zone_table[zone].cmd[cmd_nom]
@@ -4067,7 +4073,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			else
 			{
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
-				if (GET_OBJ_MIW(tobj) >= obj_proto.count(tobj)
+				if (GET_OBJ_MIW(tobj) >= obj_proto.actual_count(tobj)
 					|| GET_OBJ_MIW(tobj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 					|| check_unlimited_timer(tobj))
 				{
@@ -4536,19 +4542,19 @@ char *parse_object(FILE * obj_f, const int nr)
 		case 'V':
 			tobj->values.init_from_zone(line + 1);
 			break;
+
 		case '$':
 		case '#':
 			check_object(tobj);		// Anton Gorev (2015/12/29): do we need the result of this check?
 			obj_proto.add(tobj, nr);
-			top_of_objt = i++;
-			return (line);
+			return line;
+
 		default:
 			log("SYSERR: Format error in %s", buf2);
 			exit(1);
 		}
 	}
 }
-
 
 #define Z       zone_table[zone]
 
@@ -4826,13 +4832,11 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch)
 	return (found);
 }
 
-
-
 int vnum_object(char *searchname, CHAR_DATA * ch)
 {
 	int nr, found = 0;
 
-	for (nr = 0; nr <= top_of_objt; nr++)
+	for (nr = 0; nr < obj_proto.size(); nr++)
 	{
 		if (isname(searchname, obj_proto[nr]->aliases))
 		{
@@ -4842,7 +4846,6 @@ int vnum_object(char *searchname, CHAR_DATA * ch)
 	}
 	return (found);
 }
-
 
 int vnum_flag(char *searchname, CHAR_DATA * ch)
 {
@@ -4876,7 +4879,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 
 	if (f)
 	{
-		for (nr = 0; nr <= top_of_objt; nr++)
+		for (nr = 0; nr < obj_proto.size(); nr++)
 		{
 			if (obj_proto[nr]->get_extraflag(plane, 1 << plane_offset))
 			{
@@ -4898,7 +4901,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	}
 	if (f)
 	{
-		for (nr = 0; nr <= top_of_objt; nr++)
+		for (nr = 0; nr < obj_proto.size(); nr++)
 		{
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++)
 			{
@@ -4932,7 +4935,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	}
 	if (f)
 	{
-		for (nr = 0; nr <= top_of_objt; nr++)
+		for (nr = 0; nr < obj_proto.size(); nr++)
 		{
 			if (obj_proto[nr]->get_extraflag(plane, 1 << (plane_offset)))
 			{
@@ -5649,7 +5652,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						{
 							obj_rnum rnum = real_object((*load_in)->vnum);
 
-							if (obj_proto.count(rnum) < obj_proto[rnum]->max_in_world)
+							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->max_in_world)
 							{
 								obj = read_object(real_object((*load_in)->vnum), REAL);
 								if (obj)
@@ -5691,7 +5694,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					if (rnum == GET_OBJ_RNUM(obj_room))
 						obj_in_room++;
 
-				if ((obj_proto.count(rnum) < obj_proto[rnum]->max_in_world)
+				if ((obj_proto.actual_count(rnum) < obj_proto[rnum]->max_in_world)
 					&& (obj_in_room < (*load)->max))
 				{
 					obj = read_object(real_object((*load)->vnum), REAL);
@@ -5711,7 +5714,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						{
 							obj_rnum rnum = real_object((*load_in)->vnum);
 
-							if (obj_proto.count(rnum) < obj_proto[rnum]->max_in_world)
+							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->max_in_world)
 							{
 								obj_in = read_object(real_object((*load_in)->vnum), REAL);
 								if (obj_in
@@ -5927,7 +5930,7 @@ void reset_zone(zone_rnum zone)
 						if (ZCMD.arg1 == GET_OBJ_RNUM(obj_room))
 							obj_in_room++;
 				// Теперь грузим обьект если надо
-				if ((obj_proto.count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
+				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
 					&& (ZCMD.arg4 <= 0
@@ -5965,7 +5968,7 @@ void reset_zone(zone_rnum zone)
 			case 'P':
 				// object to object
 				// 'P' <flag> <obj_vnum> <max_in_world> <target_vnum> <load%|-1>
-				if ((obj_proto.count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
+				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
 					&& (ZCMD.arg4 <= 0
@@ -6008,7 +6011,7 @@ void reset_zone(zone_rnum zone)
 					// ZCMD.command = '*';
 					break;
 				}
-				if ((obj_proto.count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
+				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
 					&& (ZCMD.arg4 <= 0
@@ -6034,7 +6037,7 @@ void reset_zone(zone_rnum zone)
 					// ZCMD.command = '*';
 					break;
 				}
-				if ((obj_proto.count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->max_in_world
+				if ((obj_proto.actual_count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->max_in_world
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
 					&& (ZCMD.arg4 <= 0

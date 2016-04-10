@@ -1238,19 +1238,23 @@ obj_vnum get_vnum() const {
 	return GET_OBJ_VNUM(obj);
 }
 
-void set_vnum(const obj_vnum vnum) {
+void set_vnum(const obj_vnum vnum)
+{
 	Ensurer obj(*this);
 	if (GET_OBJ_RNUM(obj) >=0)
-		obj_index[GET_OBJ_RNUM(obj)].vnum = vnum;
+	{
+		obj_proto.vnum(GET_OBJ_RNUM(obj), vnum);
+	}
 }
 };
 
-extern obj_rnum top_of_objt;
 ObjWrapper get_obj_proto(const obj_rnum rnum)
 {
-	if (rnum>=0 && rnum <= top_of_objt)
+	if (rnum>=0 && rnum < obj_proto.size())
+	{
 		return obj_proto[rnum];
-		PyErr_SetString(PyExc_ValueError, "obj rnum is out of range");
+	}
+	PyErr_SetString(PyExc_ValueError, "obj rnum is out of range");
 	throw_error_already_set();
 	return ObjWrapper(NULL);
 }

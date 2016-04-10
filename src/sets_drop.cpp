@@ -184,7 +184,7 @@ bool Linked::need_reset() const
 		std::map<int, DropNode>::iterator k = drop_list.find(*i);
 		if (k != drop_list.end())
 		{
-			const int num = obj_index[k->second.obj_rnum].stored + obj_index[k->second.obj_rnum].number;
+			const int num = obj_proto.actual_count(k->second.obj_rnum);
 			if (num < GET_OBJ_MIW(obj_proto[k->second.obj_rnum]) && !k->second.can_drop)
 			{
 				flag = true;
@@ -312,20 +312,18 @@ void init_obj_list()
 				// имя сета
 				if (node.title.empty())
 				{
-					if (obj_index[obj_rnum].set_idx != static_cast<size_t>(-1))
+					if (obj_proto.set_idx(obj_rnum) != static_cast<size_t>(-1))
 					{
-						node.title =
-							obj_sets::get_name(obj_index[obj_rnum].set_idx);
+						node.title = obj_sets::get_name(obj_proto.set_idx(obj_rnum));
 					}
 					else
 					{
-						for (auto it = OBJ_DATA::set_table.begin(),
-							iend = OBJ_DATA::set_table.end(); it != iend; ++it)
+						for (const auto& it : OBJ_DATA::set_table)
 						{
-							auto k = it->second.find(obj_vnum);
-							if (k != it->second.end())
+							const auto k = it.second.find(obj_vnum);
+							if (k != it.second.end())
 							{
-								node.title = it->second.get_name();
+								node.title = it.second.get_name();
 							}
 						}
 					}
@@ -452,10 +450,9 @@ void init_mob_name_list()
 	// города
 	int curr_zone = 0;
 	bool rent = false, mail = false, banker = false;
-	for (std::vector<ROOM_DATA *>::const_iterator i = world.begin(),
-		iend = world.end(); i != iend; ++i)
+	for (const auto i : world)
 	{
-		if (curr_zone != zone_table[(*i)->zone].number)
+		if (curr_zone != zone_table[i->zone].number)
 		{
 			if (rent && mail && banker)
 			{
@@ -464,9 +461,9 @@ void init_mob_name_list()
 			rent = false;
 			mail = false;
 			banker = false;
-			curr_zone = zone_table[(*i)->zone].number;
+			curr_zone = zone_table[i->zone].number;
 		}
-		for (CHAR_DATA *ch = (*i)->people; ch; ch = ch->next_in_room)
+		for (CHAR_DATA *ch = i->people; ch; ch = ch->next_in_room)
 		{
 			if (IS_RENTKEEPER(ch))
 			{
@@ -960,18 +957,16 @@ std::string print_current_set(const HelpNode &node)
 	out << print_solo_list(node.solo_list_1);
 	out << print_solo_list(node.solo_list_2);
 
-	for (std::set<int>::const_iterator l = node.group_list.begin(),
-		lend = node.group_list.end(); l != lend; ++l)
+	for (const auto l : node.group_list)
 	{
-		for (std::map<int, DropNode>::iterator k = drop_list.begin(),
-				kend = drop_list.end(); k != kend; ++k)
+		for (const auto& k : drop_list)
 		{
-			if (obj_index[k->second.obj_rnum].vnum == *l && k->second.chance > 0)
+			if (obj_proto.vnum(k.second.obj_rnum) == l && k.second.chance > 0)
 			{
-				out << "   " << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0)
-					<< " - " << mob_proto[k->first].get_name()
-					<< " (" << zone_table[mob_index[k->first].zone].name << ")"
-					<< " - " << std::fixed << k->second.chance / 10.0 << "%\r\n";
+				out << "   " << GET_OBJ_PNAME(obj_proto[k.second.obj_rnum], 0)
+					<< " - " << mob_proto[k.first].get_name()
+					<< " (" << zone_table[mob_index[k.first].zone].name << ")"
+					<< " - " << std::fixed << k.second.chance / 10.0 << "%\r\n";
 				break;
 			}
 		}
@@ -1184,7 +1179,7 @@ void save_drop_table()
 	{
 		pugi::xml_node mob_node = node_list.append_child();
 		mob_node.set_name("item");
-		mob_node.append_attribute("vnum") = obj_index[i->second.obj_rnum].vnum;
+		mob_node.append_attribute("vnum") = obj_proto.vnum(i->second.obj_rnum);
 		mob_node.append_attribute("mob") = mob_index[i->first].vnum;
 		mob_node.append_attribute("chance") = i->second.chance;
 		mob_node.append_attribute("solo") = i->second.solo ? "true" : "false";
@@ -1289,9 +1284,10 @@ int check_mob(int mob_rnum)
 	int rnum = -1;
 
 	std::map<int, DropNode>::iterator it = drop_list.find(mob_rnum);
-	if (it != drop_list.end() && it->second.chance > 0)
+	if (it != drop_list.end()
+		&& it->second.chance > 0)
 	{
-		const int num = obj_index[it->second.obj_rnum].stored + obj_index[it->second.obj_rnum].number;
+		const int num = obj_proto.actual_count(it->second.obj_rnum);
 		// груп сетины по старой системе
 		if (!it->second.solo)
 		{
@@ -1302,11 +1298,11 @@ int check_mob(int mob_rnum)
 			}
 			return rnum;
 		}
-log("->sd: %d", it->second.obj_vnum);
+		log("->sd: %d", it->second.obj_vnum);
 		// соло сетины - на необходимость резета проверяется вся группа
 		if (it->second.linked_mobs.need_reset())
 		{
-log("reset");
+			log("reset");
 			it->second.linked_mobs.reset();
 		}
 		// +0% если все 4 шмотки в лоаде
@@ -1354,26 +1350,16 @@ log("reset");
 	return rnum;
 }
 
-void renumber_obj_rnum(const int rnum, const int mob_rnum)
+void renumber_obj_rnum(const int mob_rnum)
 {
-	if(rnum < 0 && mob_rnum < 0)
+	if(mob_rnum < 0)
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 			"SetsDrop: renumber_obj_rnum wrong parameters...");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-	if (rnum > -1)
-	{
-		for (std::map<int, DropNode>::iterator it = drop_list.begin(),
-			iend = drop_list.end(); it != iend; ++it)
-		{
-			if (it->second.obj_rnum >= rnum)
-			{
-				it->second.obj_rnum += 1;
-			}
-		}
-	}
+
 	if (mob_rnum > -1)
 	{
 		std::map<int, DropNode> tmp_list;

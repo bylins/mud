@@ -425,32 +425,9 @@ extern const int Reverse[];
 extern CHAR_DATA *combat_list;
 
 #include <vector>
+#include <deque>
 
-class CRooms : protected std::vector<ROOM_DATA*>
-{
-	typedef std::vector<ROOM_DATA*> parent_t;
-
-	const size_t RESERVATION_STEP = 100;
-
-public:
-	using parent_t::value_type;
-	using parent_t::operator[];
-	using parent_t::begin;
-	using parent_t::end;
-
-	void push_back(const value_type& val);	///< Will automatically reserve for the future
-	void insert(iterator _Where, const value_type& _Val) { parent_t::insert(_Where, _Val); }
-};
-
-inline void CRooms::push_back(const value_type& val)
-{
-	const size_t s = size();
-	if (capacity() == s)
-	{
-		reserve(RESERVATION_STEP + s);
-	}
-	parent_t::push_back(val);
-}
+using CRooms = std::deque<ROOM_DATA*>;
 
 extern CRooms world;
 extern CHAR_DATA *character_list;
@@ -461,56 +438,78 @@ extern mob_rnum top_of_mobt;
 class CObjectPrototypes
 {
 public:
-	using prototypes_t = std::vector<OBJ_DATA *>;
+	using prototypes_t = std::deque<OBJ_DATA *>;
 	using const_iterator = prototypes_t::const_iterator;
 
-	using index_t = std::vector<index_data>;
+	using index_t = std::deque<index_data>;
 
 	auto begin() const { return m_prototypes.begin(); }
 	auto end() const { return m_prototypes.end(); }
-	void reserve(const size_t count)
+	auto add(const prototypes_t::value_type& prototype, const obj_vnum vnum)
 	{
-		m_prototypes.reserve(count);
-		m_index.reserve(count);
-	}
-	void add(const prototypes_t::value_type& prototype, const obj_vnum vnum)
-	{
-		m_vnum2index[vnum] = m_index.size();
+		const auto index = m_index.size();
+		m_vnum2index[vnum] = index;
 		m_prototypes.push_back(prototype);
 		m_index.push_back(index_data(vnum));
+		return index;
 	}
 	auto size() const { return m_prototypes.size(); }
 	const auto& at(const size_t index) const { return m_prototypes.at(index); }
-	void insert(const size_t where, const prototypes_t::value_type& prototype) { m_prototypes.insert(m_prototypes.begin() + where, prototype); }
 
 	const auto& operator[](size_t index) const { return m_prototypes[index]; }
-	auto& operator[](size_t index) { return m_prototypes[index]; }
 
 	obj_vnum vnum(const OBJ_DATA* object) const { return m_index[object->item_number].vnum; }
 	obj_vnum vnum(const size_t rnum) const { return m_index[rnum].vnum; }
+	void vnum(const size_t rnum, const obj_vnum value)
+	{
+		const auto i = m_vnum2index.find(m_index[rnum].vnum);
+		m_vnum2index.erase(i);
+
+		m_index[rnum].vnum = value;
+		m_vnum2index[value] = rnum;
+	}
 
 	void zone(const size_t index, const size_t zone_rnum) { m_index[index].zone = static_cast<int>(zone_rnum); }
 
 	auto stored(const size_t index) const { return m_index[index].stored; }
 	auto stored(const OBJ_DATA* object) const { return stored(object->item_number); }
+	void dec_stored(const size_t index) { --m_index[index].stored; }
+	void inc_stored(const size_t index) { ++m_index[index].stored; }
 
 	auto number(const size_t index) const { return m_index[index].number; }
 	auto number(const OBJ_DATA* object) const { return number(object->item_number); }
-	void inc_number(const size_t index) { m_index[index].number++; }
+	void dec_number(const size_t index) { --m_index[index].number; }
+	void inc_number(const size_t index) { ++m_index[index].number; }
 
 	auto zone(const size_t index) const { return m_index[index].zone; }
 
-	auto count(const size_t index) const { return number(index) + stored(index); }
-	auto count(const OBJ_DATA* object) const { return count(object->item_number); }
+	auto actual_count(const size_t index) const { return number(index) + stored(index); }
+	auto actual_count(const OBJ_DATA* object) const { return actual_count(object->item_number); }
 
 	auto func(const size_t index) const { return m_index[index].func; }
 	auto func(const OBJ_DATA* object) const { return func(object->item_number); }
+	void func(const size_t index, const decltype(index_data::func) function) { m_index[index].func = function; }
+
+	auto spec(const OBJ_DATA* object) const { return object->item_number >= 0 ? func(object->item_number) : nullptr; }
+
+	auto set_idx(const size_t index) const { return m_index[index].set_idx; }
+	void set_idx(const size_t index, const decltype(index_data::set_idx) value) { m_index[index].set_idx = value; }
 
 	int rnum(const obj_vnum vnum) const
 	{
 		vnum2index_t::const_iterator i = m_vnum2index.find(vnum);
 		return i == m_vnum2index.end() ? -1 : static_cast<int>(i->second);
 	}
+
+	auto swap(const size_t index, const prototypes_t::value_type& new_value)
+	{
+		auto result = m_prototypes[index];
+		m_prototypes[index] = new_value;
+		return result;
+	}
+
+	auto index_size() const { return m_index.size()*(sizeof(index_t::value_type) + sizeof(vnum2index_t::value_type)); }
+	auto prototypes_size() const { return m_prototypes.size()*sizeof(prototypes_t::value_type); }
 
 private:
 	using vnum2index_t = std::map<obj_vnum, size_t>;
@@ -522,6 +521,7 @@ private:
 extern CObjectPrototypes obj_proto;
 
 inline obj_vnum GET_OBJ_VNUM(const OBJ_DATA* obj) { return obj_proto.vnum(obj); }
+inline auto GET_OBJ_SPEC(const OBJ_DATA* obj) { return obj_proto.spec(obj); }
 
 // returns the real number of the object with given virtual number
 inline obj_rnum real_object(obj_vnum vnum) { return obj_proto.rnum(vnum); }

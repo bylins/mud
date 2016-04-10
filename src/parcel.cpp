@@ -909,23 +909,6 @@ void show_stats(CHAR_DATA *ch)
 	send_to_char(ch, "  Почта: предметов в ожидании %d, доставлено с ребута %d\r\n", objs, was_sended);
 }
 
-// * Пересчет рнумов шмоток на почте в случае добавления новых через олц.
-void renumber_obj_rnum(int rnum)
-{
-	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
-	{
-		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
-		{
-			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
-			{
-				if (GET_OBJ_RNUM(it3->obj_) >= rnum)
-					GET_OBJ_RNUM(it3->obj_)++;
-			}
-		}
-	}
-}
-
-
 int delete_obj(int vnum)
 {
 	int num = 0;

@@ -465,7 +465,7 @@ void init_depot()
 			int rnum = real_object(tmp_obj.vnum);
 			if (rnum >= 0)
 			{
-				obj_index[rnum].stored++;
+				obj_proto.inc_stored(rnum);
 				tmp_node.add_cost_per_day(tmp_obj.rent_cost);
 				tmp_node.offline_list.push_back(tmp_obj);
 			}
@@ -812,7 +812,9 @@ void CharNode::update_offline_item(long uid)
 			add_purged_message(uid, obj_it->vnum, obj_it->uid);
 			// шмотка уходит в лоад			
 			if (rnum >= 0)
-				obj_index[rnum].stored--;
+			{
+				obj_proto.dec_stored(rnum);
+			}
 			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
 			offline_list.erase(obj_it++);
 		}
@@ -844,7 +846,9 @@ void CharNode::reset()
 		depot_log("reset_%s: offline erase %d %d", name.c_str(), obj->vnum, obj->uid);
 		int rnum = real_object(obj->vnum);
 		if (rnum >= 0)
-			obj_index[rnum].stored--;
+		{
+			obj_proto.dec_stored(rnum);
+		}
 	}
 	offline_list.clear();
 
@@ -1422,7 +1426,9 @@ void CharNode::load_online_objs(int file_type, bool reload)
 				// увеличивается в read_one_object_new через read_object
 				int rnum = real_object(GET_OBJ_VNUM(obj));
 				if (rnum >= 0)
-					obj_index[rnum].stored--;
+				{
+					obj_proto.dec_stored(rnum);
+				}
 			}
 			else
 			{
@@ -1500,19 +1506,11 @@ void CharNode::online_to_offline(ObjListType &cont)
 		// из макс.в мире в игре она уходит в ренту
 		int rnum = real_object(tmp_obj.vnum);
 		if (rnum >= 0)
-			obj_index[rnum].stored++;
+		{
+			obj_proto.inc_stored(rnum);
+		}
 	}
 	cont.clear();
-}
-
-// * Пересчет рнумов шмоток в хранилищах в случае добавления новых через олц.
-void renumber_obj_rnum(int rnum)
-{
-	depot_log("renumber_obj_rnum");
-	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
-		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
-			if (GET_OBJ_RNUM(*obj_it) >= rnum)
-				GET_OBJ_RNUM(*obj_it)++;
 }
 
 /**

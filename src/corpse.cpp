@@ -361,7 +361,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				return true;
 			}
 			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
-			log("Фридроп: упал предмет %s с VNUM: %d", obj_proto[rnum]->short_description, obj_index[rnum].vnum);
+			log("Фридроп: упал предмет %s с VNUM: %d", obj_proto[rnum]->short_description, obj_proto.vnum(rnum));
 			obj_to_corpse(corpse, mob, rnum, false);
 			return true;
 		}
@@ -382,10 +382,11 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				if (number(1, 1000) <= i->chance
 					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
 						|| (obj_rnum >= 0
-							&& obj_index[obj_rnum].stored + obj_index[obj_rnum].number < GET_OBJ_MIW(obj_proto[obj_rnum]))))
+							&& obj_proto.actual_count(obj_rnum) < GET_OBJ_MIW(obj_proto[obj_rnum]))))
 				{
 					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
-					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d", obj_proto[obj_rnum]->short_description, obj_index[obj_rnum].vnum, GET_NAME(mob), GET_MOB_VNUM(mob));
+					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d",
+						obj_proto[obj_rnum]->short_description, obj_proto.vnum(obj_rnum), GET_NAME(mob), GET_MOB_VNUM(mob));
 					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
 					obj_to_corpse(corpse, mob, obj_rnum, false);
 				}
@@ -395,27 +396,6 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 		}
 	}
 	return false;
-}
-void renumber_obj_rnum(int rnum)
-{
-	for (DropListType::iterator i = drop_list.begin(); i != drop_list.end(); ++i)
-	{
-		if (i->vnum >= 0 && i->rnum >= rnum)
-		{
-			i->rnum += 1;
-		}
-		else if (i->vnum < 0)
-		{
-			for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end();
-				k != kend; ++k)
-			{
-				if (k->second >= rnum)
-				{
-					k->second += 1;
-				}
-			}
-		}
-	}
 }
 
 } // namespace GlobalDrop
