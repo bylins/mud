@@ -138,10 +138,7 @@ void update_char_sets()
 /// здесь же обновляется справка по активаторам сетов
 void init_obj_index()
 {
-	// obj vnum, obj_index idx
-	// GCC 4.4
-	//std::unordered_map<int, int> tmp;
-	boost::unordered_map<int, int> tmp;
+	boost::unordered_map<int, size_t> tmp;
 	tmp.reserve(obj_proto.size());
 
 	for (size_t i = 0; i < obj_proto.size(); ++i)

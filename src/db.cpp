@@ -8112,4 +8112,35 @@ void init()
 } // namespace OfftopSystem
 ////////////////////////////////////////////////////////////////////////////////
 
+size_t CObjectPrototypes::add(const prototypes_t::value_type& prototype, const obj_vnum vnum)
+{
+	const auto index = m_index.size();
+	m_vnum2index[vnum] = index;
+	m_prototypes.push_back(prototype);
+	m_index.push_back(index_data(vnum));
+	return index;
+}
+
+void CObjectPrototypes::vnum(const size_t rnum, const obj_vnum value)
+{
+	const auto i = m_vnum2index.find(m_index[rnum].vnum);
+	m_vnum2index.erase(i);
+
+	m_index[rnum].vnum = value;
+	m_vnum2index[value] = rnum;
+}
+
+int CObjectPrototypes::rnum(const obj_vnum vnum) const
+{
+	vnum2index_t::const_iterator i = m_vnum2index.find(vnum);
+	return i == m_vnum2index.end() ? -1 : static_cast<int>(i->second);
+}
+
+CObjectPrototypes::prototypes_t::value_type CObjectPrototypes::swap(const size_t index, const prototypes_t::value_type& new_value)
+{
+	auto result = m_prototypes[index];
+	m_prototypes[index] = new_value;
+	return result;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

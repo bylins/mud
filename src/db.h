@@ -443,31 +443,26 @@ public:
 
 	using index_t = std::deque<index_data>;
 
+	/**
+	** \name Proxy calls to std::vector member functions.
+	**
+	** This methods just perform proxy calls to corresponding functions of the m_prototype field.
+	**
+	** @{
+	*/
 	auto begin() const { return m_prototypes.begin(); }
 	auto end() const { return m_prototypes.end(); }
-	auto add(const prototypes_t::value_type& prototype, const obj_vnum vnum)
-	{
-		const auto index = m_index.size();
-		m_vnum2index[vnum] = index;
-		m_prototypes.push_back(prototype);
-		m_index.push_back(index_data(vnum));
-		return index;
-	}
 	auto size() const { return m_prototypes.size(); }
 	const auto& at(const size_t index) const { return m_prototypes.at(index); }
 
 	const auto& operator[](size_t index) const { return m_prototypes[index]; }
+	/** @} */
+
+	size_t add(const prototypes_t::value_type& prototype, const obj_vnum vnum);
 
 	obj_vnum vnum(const OBJ_DATA* object) const { return m_index[object->item_number].vnum; }
 	obj_vnum vnum(const size_t rnum) const { return m_index[rnum].vnum; }
-	void vnum(const size_t rnum, const obj_vnum value)
-	{
-		const auto i = m_vnum2index.find(m_index[rnum].vnum);
-		m_vnum2index.erase(i);
-
-		m_index[rnum].vnum = value;
-		m_vnum2index[value] = rnum;
-	}
+	void vnum(const size_t rnum, const obj_vnum value);
 
 	void zone(const size_t index, const size_t zone_rnum) { m_index[index].zone = static_cast<int>(zone_rnum); }
 
@@ -495,18 +490,9 @@ public:
 	auto set_idx(const size_t index) const { return m_index[index].set_idx; }
 	void set_idx(const size_t index, const decltype(index_data::set_idx) value) { m_index[index].set_idx = value; }
 
-	int rnum(const obj_vnum vnum) const
-	{
-		vnum2index_t::const_iterator i = m_vnum2index.find(vnum);
-		return i == m_vnum2index.end() ? -1 : static_cast<int>(i->second);
-	}
+	int rnum(const obj_vnum vnum) const;
 
-	auto swap(const size_t index, const prototypes_t::value_type& new_value)
-	{
-		auto result = m_prototypes[index];
-		m_prototypes[index] = new_value;
-		return result;
-	}
+	prototypes_t::value_type swap(const size_t index, const prototypes_t::value_type& new_value);
 
 	auto index_size() const { return m_index.size()*(sizeof(index_t::value_type) + sizeof(vnum2index_t::value_type)); }
 	auto prototypes_size() const { return m_prototypes.size()*sizeof(prototypes_t::value_type); }
