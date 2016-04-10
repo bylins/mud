@@ -2880,7 +2880,7 @@ void delete_item(int pt_num, int vnum)
 				int rnum = real_object(i->vnum);
 				if (rnum >= 0)
 				{
-					obj_index[rnum].stored--;
+					obj_proto.dec_stored(rnum);
 				}
 				need_save = true;
 			}

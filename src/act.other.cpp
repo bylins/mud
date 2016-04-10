@@ -3121,7 +3121,7 @@ void dig_obj(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	char textbuf[300];
 
-	if (GET_OBJ_MIW(obj) >= obj_index[GET_OBJ_RNUM(obj)].stored + obj_index[GET_OBJ_RNUM(obj)].number
+	if (GET_OBJ_MIW(obj) >= obj_proto.actual_count(obj)
 		|| GET_OBJ_MIW(obj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
 	{
 		sprintf(textbuf, "Вы нашли %s!\r\n", obj->PNames[3]);

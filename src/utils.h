@@ -974,8 +974,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_OBJ_ZONE(obj)   ((obj)->obj_flags.Obj_zone)
 #define GET_OBJ_RNUM(obj)  ((obj)->item_number)
 #define OBJ_GET_LASTROOM(obj) ((obj)->room_was_in)
-#define GET_OBJ_VNUM(obj)  (GET_OBJ_RNUM(obj) >= 0 ? \
-             obj_index[GET_OBJ_RNUM(obj)].vnum : -1)
 #define OBJ_WHERE(obj) ((obj)->worn_by    ? IN_ROOM(obj->worn_by) : \
                         (obj)->carried_by ? IN_ROOM(obj->carried_by) : (obj)->in_room)
 #define IS_OBJ_ANTI(obj,stat) ((obj)->obj_flags.anti_flag.get(stat))
@@ -986,9 +984,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER && \
                GET_OBJ_VAL((obj), 3) == 1)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
-
-#define GET_OBJ_SPEC(obj) ((obj)->item_number >= 0 ? \
-   (obj_index[(obj)->item_number].func) : NULL)
 
 // проверяет arg на совпадение с персональными или клановыми метками
 // чармис автора меток их тоже может использовать

@@ -619,10 +619,13 @@ int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 	{
 		int numToSell = obj_proto[(*shop)->item_list[item_num]->rnum]->max_in_world;
 		if (numToSell == 0)
+		{
 			return numToSell;
+		}
 		if (numToSell != -1)
-			numToSell -= MIN(numToSell, obj_index[(*shop)->item_list[item_num]->rnum].number
-					+ obj_index[(*shop)->item_list[item_num]->rnum].stored);//считаем не только онлайн, но и то что в ренте
+		{
+			numToSell -= MIN(numToSell, obj_proto.actual_count((*shop)->item_list[item_num]->rnum));//считаем не только онлайн, но и то что в ренте
+		}
 		return numToSell;
 	}
 }
@@ -1781,20 +1784,6 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 int get_spent_today()
 {
 	return spent_today;
-}
-
-void renumber_obj_rnum(int rnum)
-{
-	for (ShopListType::iterator i = shop_list.begin(); i != shop_list.end(); ++i)
-	{
-		for (ItemListType::iterator k = (*i)->item_list.begin(); k != (*i)->item_list.end(); ++k)
-		{
-			if ((*k)->rnum >= rnum)
-			{
-				(*k)->rnum += 1;
-			}
-		}
-	}
 }
 
 } // namespace ShopExt

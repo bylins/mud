@@ -37,9 +37,7 @@
 #include <vector>
 
 // * External variable declarations.
-extern INDEX_DATA *obj_index;
 extern OBJ_DATA *object_list;
-extern obj_rnum top_of_objt;
 extern struct zone_data *zone_table;
 extern const char *item_types[];
 extern const char *wear_bits[];
@@ -250,25 +248,6 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	OLC_VAL(d) = 0;
 }
 
-// * Пересчет рнумов объектов (больше нигде не меняются).
-void renumber_obj_rnum(int rnum)
-{
-	for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
-	{
-		if (GET_OBJ_RNUM(obj) >= rnum)
-		{
-			GET_OBJ_RNUM(obj)++;
-		}
-	}
-	Clan::init_chest_rnum();
-	Depot::renumber_obj_rnum(rnum);
-	Parcel::renumber_obj_rnum(rnum);
-	GlobalDrop::renumber_obj_rnum(rnum);
-	ShopExt::renumber_obj_rnum(rnum);
-	SetsDrop::renumber_obj_rnum(rnum);
-	system_obj::renumber(rnum);
-}
-
 // * Обновление данных у конкретной шмотки (для update_online_objects).
 void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 {
@@ -355,21 +334,19 @@ void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
 
 void oedit_save_internally(DESCRIPTOR_DATA * d)
 {
-	int robj_num, found = FALSE, zone, cmd_no;
-	INDEX_DATA *new_obj_index;
+	int robj_num;
 
-//  robj_num = real_object(OLC_NUM(d));
 	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
 	ObjSystem::init_ilvl(OLC_OBJ(d));
 
 	// * Write object to internal tables.
 	if (robj_num >= 0)
 	{	/*
-				 * We need to run through each and every object currently in the
-				 * game to see which ones are pointing to this prototype.
-				 * if object is pointing to this prototype, then we need to replace it
-				 * with the new one.
-				 */
+		 * We need to run through each and every object currently in the
+		 * game to see which ones are pointing to this prototype.
+		 * if object is pointing to this prototype, then we need to replace it
+		 * with the new one.
+		 */
 		log("[OEdit] Save object to mem %d", robj_num);
 		olc_update_objects(robj_num, OLC_OBJ(d));
 
@@ -379,109 +356,20 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		// Теперь возьмусь за прототип.
 		// Уничтожаю старый прототип
 		oedit_object_free(obj_proto[robj_num]);
-		delete obj_proto[robj_num];
 		// Копирую новый прототип в массив
 		// Использовать функцию oedit_object_copy() нельзя,
 		// т.к. будут изменены указатели на данные прототипа
-		obj_proto[robj_num] = OLC_OBJ(d);
+		delete obj_proto.swap(robj_num, OLC_OBJ(d));
 		// OLC_OBJ(d) удалять не нужно, т.к. он перенесен в массив
 		// прототипов
 	}
 	else
 	{
 		// It's a new object, we must build new tables to contain it.
-		log("[OEdit] Save mem new %d(%d/%lu)",
-			OLC_NUM(d), (top_of_objt + 2), static_cast<unsigned long>(sizeof(OBJ_DATA)));
+		log("[OEdit] Save mem new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(OBJ_DATA));
 
-		CREATE(new_obj_index, top_of_objt + 2);
-
-		size_t i = 0;
-		// * Start counting through both tables.
-		for (; i <= top_of_objt; i++)  	// If we haven't found it.
-		{
-			if (!found)  	// Check if current virtual is bigger than our virtual number.
-			{
-				if (obj_index[i].vnum > OLC_NUM(d))
-				{
-					found = TRUE;
-#if defined(DEBUG)
-					fprintf(stderr, "Inserted: robj_num: %d\n", i);
-#endif
-					new_obj_index[i].vnum = OLC_NUM(d);
-					new_obj_index[i].number = 0;
-					new_obj_index[i].stored = 0;
-					new_obj_index[i].func = NULL;
-					robj_num = static_cast<int>(i);
-					GET_OBJ_RNUM(OLC_OBJ(d)) = robj_num;
-					obj_proto.insert(i, OLC_OBJ(d));
-					new_obj_index[i].zone = real_zone(OLC_NUM(d));
-					new_obj_index[i].set_idx = -1;
-					--i;
-					continue;
-				}
-				else
-				{
-					// Just copy from old to new, no number change.
-					new_obj_index[i] = obj_index[i];
-				}
-			}
-			else
-			{
-				// * We HAVE already found it, therefore copy to object + 1
-				new_obj_index[i + 1] = obj_index[i];
-				obj_proto[i + 1]->item_number = static_cast<int>(i + 1);
-			}
-		}
-
-		if (!found)
-		{
-			new_obj_index[i].vnum = OLC_NUM(d);
-			new_obj_index[i].number = 0;
-			new_obj_index[i].stored = 0;
-			new_obj_index[i].func = NULL;
-			robj_num = static_cast<int>(i);
-			GET_OBJ_RNUM(OLC_OBJ(d)) = robj_num;
-			obj_proto.push_back(OLC_OBJ(d));
-			new_obj_index[i].zone = real_zone(OLC_NUM(d));
-			new_obj_index[i].set_idx = -1;
-		}
-
-		// * Free and replace old table.
-		free(obj_index);
-		obj_index = new_obj_index;
-		top_of_objt++;
-
-
-
-// ПЕРЕИНДЕКСАЦИЯ по всей программе
-
-		// Renumber live objects
-		renumber_obj_rnum(robj_num);
-
-		// Renumber zone table.
-		for (zone = 0; zone <= top_of_zone_table; zone++)
-		{
-			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
-			{
-				switch (ZCMD.command)
-				{
-				case 'P':
-					if (ZCMD.arg3 >= robj_num)
-						ZCMD.arg3++;
-					// break; - no break here
-				case 'O':
-				case 'G':
-				case 'E':
-					if (ZCMD.arg1 >= robj_num)
-						ZCMD.arg1++;
-					break;
-				case 'R':
-					if (ZCMD.arg2 >= robj_num)
-						ZCMD.arg2++;
-					break;
-				}
-			}
-		}
+		const size_t index = obj_proto.add(OLC_OBJ(d), OLC_NUM(d));
+		obj_proto.zone(index, real_zone(OLC_NUM(d)));
 	}
 
 	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_OBJ);

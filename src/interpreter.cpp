@@ -101,7 +101,6 @@ extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern const char *default_race[];
 
 extern struct pclean_criteria_data pclean_criteria[];
@@ -1770,12 +1769,16 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 
 	// special in equipment list? //
 	for (j = 0; j < NUM_WEARS; j++)
+	{
 		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != NULL)
+		{
 			if (GET_OBJ_SPEC(GET_EQ(ch, j))(ch, GET_EQ(ch, j), cmd, arg))
 			{
 				check_hiding_cmd(ch, -1);
 				return (1);
 			}
+		}
+	}
 
 	// special in inventory? //
 	for (i = ch->carrying; i; i = i->next_content)
@@ -1804,9 +1807,10 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 	// special in object present? //
 	for (i = world[ch->in_room]->contents; i; i = i->next_content)
 	{
-		if (GET_OBJ_SPEC(i) != NULL)
+		auto spec = GET_OBJ_SPEC(i);
+		if (spec != NULL)
 		{
-			if (GET_OBJ_SPEC(i)(ch, i, cmd, arg))
+			if (spec(ch, i, cmd, arg))
 			{
 				check_hiding_cmd(ch, -1);
 				return (1);

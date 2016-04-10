@@ -81,7 +81,6 @@ extern FILE *player_fl;
 extern OBJ_DATA *object_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern struct zone_data *zone_table;
 extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
@@ -92,7 +91,6 @@ extern int circle_restrict;
 extern int load_into_inventory;
 extern int buf_switches, buf_largecount, buf_overflows;
 extern mob_rnum top_of_mobt;
-extern obj_rnum top_of_objt;
 extern int top_of_p_table;
 extern int shutdown_time;
 extern CHAR_DATA *mob_proto;
@@ -1742,9 +1740,13 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
 
 	if (GET_OBJ_RNUM(j) >= 0)
-		strcpy(buf2, (obj_index[GET_OBJ_RNUM(j)].func ? "Есть" : "Нет"));
+	{
+		strcpy(buf2, (obj_proto.func(j) ? "Есть" : "Нет"));
+	}
 	else
+	{
 		strcpy(buf2, "None");
+	}
 
 	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d]\r\n",
 		CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j));
@@ -2044,7 +2046,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	if (is_grgod)
 	{
 		sprintf(buf, "Сейчас в мире : %d. На постое : %d\r\n",
-				rnum >= 0 ? obj_index[rnum].number - (virt ? 1 : 0) : -1, rnum >= 0 ? obj_index[rnum].stored : -1);
+				rnum >= 0 ? obj_proto.number(rnum) - (virt ? 1 : 0) : -1, rnum >= 0 ? obj_proto.stored(rnum) : -1);
 		send_to_char(buf, ch);
 		// check the object for a script
 		do_sstat_object(ch, j);
@@ -4857,7 +4859,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		sprintf(buf + strlen(buf), "  Игроков в игре - %5d, соединений - %5d\r\n", i, con);
 		sprintf(buf + strlen(buf), "  Всего зарегистрировано игроков - %5d\r\n", top_of_p_table + 1);
 		sprintf(buf + strlen(buf), "  Мобов - %5d,  прообразов мобов - %5d\r\n", j, top_of_mobt + 1);
-		sprintf(buf + strlen(buf), "  Предметов - %5d, прообразов предметов - %5d\r\n", k, top_of_objt + 1);
+		sprintf(buf + strlen(buf), "  Предметов - %5d, прообразов предметов - %5zd\r\n", k, obj_proto.size());
 		sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5d\r\n", top_of_world + 1, top_of_zone_table + 1);
 		sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", buf_largecount);
 		sprintf(buf + strlen(buf), "  Переключенных буферов - %5d, переполненных - %5d\r\n", buf_switches, buf_overflows);
@@ -6373,18 +6375,18 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		snprintf(buf_, sizeof(buf_),
 			"Список объектов Vnum %d до %d\r\n", first, last);
 		out += buf_;
-		for (nr = 0; nr <= top_of_objt; nr++)
+		for (size_t nr = 0; nr < obj_proto.size(); nr++)
 		{
-			if (obj_index[nr].vnum >= first && obj_index[nr].vnum <= last)
+			if (obj_proto.vnum(nr) >= first && obj_proto.vnum(nr) <= last)
 			{
 				snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++found,
 					colored_name(obj_proto[nr]->short_description, 45),
-					obj_index[nr].vnum, obj_proto[nr]->get_ilevel());
+					obj_proto.vnum(nr), obj_proto[nr]->get_ilevel());
 				out += buf_;
 				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
 				{
 					snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d\r\n",
-						obj_index[nr].number, obj_index[nr].stored);
+						obj_proto.number(nr), obj_proto.stored(nr));
 					out += buf_;
 				}
 				else

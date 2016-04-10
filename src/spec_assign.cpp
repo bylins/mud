@@ -29,7 +29,6 @@ extern int dts_are_dumps;
 extern int mini_mud;
 
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 
 int dump(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int puff(CHAR_DATA *ch, void *me, int cmd, char* argument);
@@ -75,7 +74,7 @@ void ASSIGNOBJ(obj_vnum obj, special_f fname)
 	obj_rnum rnum;
 
 	if ((rnum = real_object(obj)) >= 0)
-		obj_index[rnum].func = fname;
+		obj_proto.func(rnum, fname);
 	else if (!mini_mud)
 		log("SYSERR: Attempt to assign spec to non-existant obj #%d", obj);
 }

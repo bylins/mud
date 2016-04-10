@@ -624,7 +624,6 @@ extern int PURSE_RNUM;
 extern int PERS_CHEST_RNUM;
 
 void init();
-void renumber(int rnum);
 OBJ_DATA* create_purse(CHAR_DATA *ch, int gold);
 bool is_purse(OBJ_DATA *obj);
 void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj);

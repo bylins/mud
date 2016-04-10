@@ -181,14 +181,17 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 	size_t l_max_name = 0, l_max_vnum = 0;
 	bool left = true;
 
-	for (auto i = set.obj_list.begin(); i != set.obj_list.end(); ++i)
+	for (const auto i : set.obj_list)
 	{
-		const int rnum = real_object(i->first);
-		if (rnum < 0 || !obj_proto[rnum]->short_description) continue;
+		const int rnum = real_object(i.first);
+		if (rnum < 0
+			|| !obj_proto[rnum]->short_description)
+		{
+			continue;
+		}
 
-		const size_t curr_name =
-			strlen_no_colors(obj_proto[rnum]->short_description);
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_index[rnum].vnum);
+		const size_t curr_name = strlen_no_colors(obj_proto[rnum]->short_description);
+		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto.vnum(rnum));
 		const size_t curr_vnum = strlen(buf_vnum);
 
 		if (left)
@@ -206,13 +209,12 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 	}
 
 	left = true;
-	for (auto i = rnum_list.begin(); i != rnum_list.end(); ++i)
+	for (const auto i : rnum_list)
 	{
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_index[*i].vnum);
+		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto.vnum(i));
 		snprintf(format, sizeof(format), "%s%2d%s) %s : %s%%-%zus%s   ",
 			CCGRN(ch, C_NRM), menu++, CCNRM(ch, C_NRM),
-			colored_name(obj_proto[*i]->short_description,
-				left ? l_max_name : r_max_name, true),
+			colored_name(obj_proto[i]->short_description, left ? l_max_name : r_max_name, true),
 			CCCYN(ch, C_NRM), (left ? l_max_vnum : r_max_vnum), CCNRM(ch, C_NRM));
 		snprintf(buf_, sizeof(buf_), format, buf_vnum);
 		out += buf_;

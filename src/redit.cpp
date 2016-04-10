@@ -122,10 +122,10 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 	else
 	{
 		// если комнаты не было - добавляем новую
-		std::vector<ROOM_DATA *>::iterator it = world.begin();
+		auto it = world.cbegin();
 		advance(it, FIRST_ROOM);
 		int i = FIRST_ROOM;
-		for (; it != world.end(); ++it, ++i)
+		for (; it != world.cend(); ++it, ++i)
 			if ((*it)->number > OLC_NUM(d))
 				break;
 
@@ -136,7 +136,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		new_room->func = NULL;
 		room_num = i; // рнум новой комнаты
 
-		if (it != world.end())
+		if (it != world.cend())
 		{
 			world.insert(it, new_room);
 			// если комната потеснила рнумы, то их надо переписать у людей/шмота в этих комнатах
@@ -151,7 +151,9 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 			}
 		}
 		else
+		{
 			world.push_back(new_room);
+		}
 		fix_ingr_chest_rnum(room_num);//Фиксим позиции сундуков с инграми
 
 		// Copy world table over to new one.
