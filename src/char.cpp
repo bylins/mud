@@ -315,7 +315,7 @@ void CHAR_DATA::purge(bool destructor)
 
 	if (!IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1))
 	{	// if this is a player, or a non-prototyped non-player, free all
-		for (j = 0; j < NUM_PADS; j++)
+		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
 			if (GET_PAD(this, j))
 				free(GET_PAD(this, j));
 
@@ -338,7 +338,7 @@ void CHAR_DATA::purge(bool destructor)
 	}
 	else if ((i = GET_MOB_RNUM(this)) >= 0)
 	{	// otherwise, free strings only if the string is not pointing at proto
-		for (j = 0; j < NUM_PADS; j++)
+		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
 			if (GET_PAD(this, j)
 					&& (this->player_data.PNames[j] != mob_proto[i].player_data.PNames[j]))
 				free(this->player_data.PNames[j]);

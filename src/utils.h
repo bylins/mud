@@ -200,7 +200,7 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define BFS_ERROR        -1
 #define BFS_ALREADY_THERE  -2
 #define BFS_NO_PATH         -3
-#define NUM_PADS             6
+
 /*
  * XXX: These constants should be configurable. See act.informative.c
  * and utils.cpp for other places to change.
@@ -291,14 +291,21 @@ inline void RECREATE(T*& result, const size_t number)
 }
 
 template <typename T>
-inline void NEWCREATE(T*& result)
+inline T* NEWCREATE()
 {
-	result = new(std::nothrow) T;
+	T* result = new(std::nothrow) T;
 	if (!result)
 	{
 		perror("SYSERR: new failure");
 		abort();
 	}
+	return result;
+}
+
+template <typename T>
+inline void NEWCREATE(T*& result)
+{
+	result = NEWCREATE<T>();
 }
 
 template <typename T>

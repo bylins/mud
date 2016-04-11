@@ -212,7 +212,9 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 	{
 		obj_flags.affects = obj_proto[item_number]->obj_flags.affects;
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+		{
 			affected[i] = obj_proto[item_number]->affected[i];
+		}
 
 		obj_flags.weight = obj_proto[item_number]->obj_flags.weight;
 
@@ -241,18 +243,24 @@ void OBJ_DATA::set_skill(int skill_num, int percent)
 {
 	if (skills)
 	{
-		std::map<int, int>::iterator skill = skills->find(skill_num);
+		const auto skill = skills->find(skill_num);
 		if (skill == skills->end())
 		{
 			if (percent != 0)
+			{
 				skills->insert(std::make_pair(skill_num, percent));
+			}
 		}
 		else
 		{
 			if (percent != 0)
+			{
 				skill->second = percent;
+			}
 			else
+			{
 				skills->erase(skill);
+			}
 		}
 	}
 	else

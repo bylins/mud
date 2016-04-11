@@ -1184,7 +1184,7 @@ void name_from_drinkcon(OBJ_DATA * obj)
 	obj->short_description = str_dup(new_name);
 
 
-	for (int c = 0; c < NUM_PADS; c++)
+	for (int c = 0; c < OBJ_DATA::NUM_PADS; c++)
 	{
 		pos = find_liquid_name(obj->PNames[c]);
 		if (pos == std::string::npos) return;
@@ -1212,7 +1212,7 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 	obj->short_description = str_dup(new_name);
 
 
-	for (c = 0; c < NUM_PADS; c++)
+	for (c = 0; c < OBJ_DATA::NUM_PADS; c++)
 	{
 		sprintf(new_name, "%s Ó %s", obj->PNames[c], drinknames[type]);
 		if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])

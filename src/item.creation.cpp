@@ -1822,7 +1822,7 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 	sprintf(buf, "%s %s %s %s", GET_OBJ_PNAME(obj, 0), GET_OBJ_PNAME(ingrs[0], 0), GET_OBJ_PNAME(ingrs[1], 0), GET_OBJ_PNAME(ingrs[2], 0));
 	obj->aliases = str_dup(buf);
 
-	for (i = 0; i < NUM_PADS; i++) // ставим падежи в имя с учетов ингров
+	for (i = 0; i < OBJ_DATA::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
 	{
 		sprintf(buf, "%s", GET_OBJ_PNAME(obj, i));
 		strcat(buf, " из ");

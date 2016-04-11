@@ -705,13 +705,17 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		object->aliases = str_dup(buffer);
 		// Падежи
 		*error = 5;
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 		{
 			if (!get_buf_lines(data, buffer))
+			{
 				return (object);
+			}
 			GET_OBJ_PNAME(object, i) = str_dup(buffer);
 			if (i==0)
+			{
 				object->short_description = str_dup(buffer);
+			}
 		}
 		// Описание когда на земле
 		*error = 6;
@@ -944,7 +948,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
 		}
 		// Падежи
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 		{
 			if (str_cmp(GET_OBJ_PNAME(object, i), GET_OBJ_PNAME(proto, i)))
 			{
@@ -1186,7 +1190,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
 		}
 		// Падежи
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 		{
 			if (GET_OBJ_PNAME(object, i))
 			{

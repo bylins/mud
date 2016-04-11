@@ -7,6 +7,7 @@
 #ifndef __CRAFT_HPP__
 #define __CRAFT_HPP__
 
+#include "utils.h"
 #include "obj.hpp"
 #include "structs.h"
 #include "sysdep.h"
@@ -29,7 +30,7 @@ namespace craft
 	/**
 	** \brief Loads Craft model.
 	**/
-	bool load();
+	bool start();
 
 	// Subcommands for the "craft" command
 	const int SCMD_NOTHING = 0;
@@ -92,11 +93,10 @@ namespace craft
 	extern CLogger log;
 
 	using id_t = std::string;	///< Common type for IDs.
-	using vnum_t = int;			///< Common type for VNUM. Actually this type should be declared at the project level.
 
 	class CCases
 	{
-		const static int CASES_COUNT = 6;
+		const static int CASES_COUNT = OBJ_DATA::NUM_PADS;
 
 		using cases_t = std::array<std::string, CASES_COUNT>;
 
@@ -105,9 +105,13 @@ namespace craft
 
 		bool load(const pugi::xml_node* node);
 
+		const std::string& aliases() const { return m_joined_aliases; }
+		OBJ_DATA::pnames_t build_pnames() const;
+
 	private:
 		cases_t m_cases;
 		std::list<std::string> m_aliases;
+		std::string m_joined_aliases;
 
 		friend class CMaterialClass;
 		friend class CPrototype;
@@ -145,7 +149,7 @@ namespace craft
 	class CPrototype: public CPrototypeBase
 	{
 	public:
-		CPrototype(const vnum_t vnum) :
+		CPrototype(const obj_vnum vnum) :
 			m_vnum(vnum),
 			m_cost(OBJ_DATA::DEFAULT_COST),
 			m_rent_on(OBJ_DATA::DEFAULT_RENT_ON),
@@ -165,7 +169,17 @@ namespace craft
 
 		bool load(const pugi::xml_node* node);
 
+		obj_vnum vnum() const { return m_vnum; }
 		const std::string& short_desc() const { return m_short_desc; }
+
+		/**
+		 * Builds OBJ_DATA instance suitable for add it into the list of objects prototypes.
+		 *
+		 * Allocates memory for OBJ_DATA instance and fill this memory by appropriate values.
+		 *
+		 * \return Pointer to created instance.
+		 */
+		OBJ_DATA* build_object() const;
 
 	private:
 		constexpr static int VALS_COUNT = 4;
@@ -176,10 +190,14 @@ namespace craft
 		bool load_item_parameters(const pugi::xml_node* node);
 		void load_skills(const pugi::xml_node* node);
 		bool check_prototype_consistency() const;
-		vnum_t m_vnum;
+
+		const std::string& aliases() const { return m_cases.aliases(); }
+
+		obj_vnum m_vnum;
 
 		std::string m_short_desc;
 		std::string m_long_desc;
+		std::string m_action_desc;
 		std::string m_keyword;
 		std::string m_extended_desc;
 
@@ -354,6 +372,11 @@ namespace craft
 		 *         false otherwise.
 		 */
 		bool load();
+
+		/**
+		 * Merges loaded craft model into MUD world.
+		 */
+		bool merge();
 
 		/**
 		** For debug purposes. Should be removed when feature will be done.

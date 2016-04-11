@@ -34,9 +34,16 @@ namespace craft
 
 	CCraftModel model;
 
-	bool load()
+	bool start()
 	{
-		return model.load();
+		const bool load_result = model.load();
+		if (!load_result)
+		{
+			log("ERROR: Failed to load craft model.\n");
+			return false;
+		}
+
+		return model.merge();
 	}
 
 	/// Contains handlers of craft subcommands
@@ -241,11 +248,22 @@ namespace craft
 			for (const pugi::xml_node alias_node : aliases_node.children("alias"))
 			{
 				const char* value = alias_node.child_value();
+				m_joined_aliases.append(std::string(m_aliases.empty() ? "" : " ") + value);
 				m_aliases.push_back(value);
 			}
 		}
 
 		return true;
+	}
+
+	OBJ_DATA::pnames_t CCases::build_pnames() const
+	{
+		OBJ_DATA::pnames_t result;
+		for (size_t n = 0; n < CASES_COUNT; ++n)
+		{
+			result[n] = str_dup(m_cases[n].c_str());
+		}
+		return result;
 	}
 
 	class CLoadHelper
@@ -640,10 +658,75 @@ namespace craft
 			return false;
 		}
 
+		/* TODO:
+		** 1. Load triggers
+		** 2. Load affects
+		** 3. Load values
+		**/
+
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
 
 		return true;
+	}
+
+	OBJ_DATA* CPrototype::build_object() const
+	{
+		const auto result = NEWCREATE<OBJ_DATA>();
+		
+		result->obj_flags.type_flag = get_type();
+
+		result->obj_flags.Obj_max = m_maximum_durability;
+		result->obj_flags.Obj_cur = m_current_durability;
+		result->obj_flags.Obj_mater = m_material;
+		result->obj_flags.Obj_sex = m_sex;
+		result->set_timer(get_timer());
+		result->obj_flags.Obj_skill = m_item_params;
+		result->obj_flags.Obj_spell = m_spell;
+		result->obj_flags.Obj_level = m_level;
+		result->obj_flags.Obj_destroyer = 60;	// I don't know why it is constant. But seems like it is the same for all prototypes.
+		result->obj_flags.weight = get_weight();
+		result->set_cost(m_cost);
+		result->set_rent(m_rent_off);
+		result->set_rent_eq(m_rent_on);
+
+		result->obj_flags.affects = m_affect_flags;
+		result->obj_flags.anti_flag = m_anti_flags;
+		result->obj_flags.no_flag = m_no_flags;
+		result->obj_flags.extra_flags = m_extraflags;
+
+		result->obj_flags.wear_flags = m_wear_flags;
+
+		result->aliases = str_dup(aliases().c_str());
+		result->short_description = str_dup(m_short_desc.c_str());
+		result->description = str_dup(m_long_desc.c_str());
+		result->PNames = m_cases.build_pnames();
+		result->action_description = str_dup(m_action_desc.c_str());
+
+		CREATE(result->ex_description, 1);
+		result->ex_description->keyword = str_dup(m_keyword.c_str());
+		result->ex_description->description = str_dup(m_extended_desc.c_str());
+
+		result->max_in_world = m_global_maximum;
+		result->set_manual_mort_req(m_minimum_remorts);
+
+		for (size_t i = 0; i < m_vals.size(); ++i)
+		{
+			result->obj_flags.value[i] = m_vals[i];
+		}
+
+		for (const auto& s : m_skills)
+		{
+			result->set_skill(s.first, s.second);
+		}
+
+		/* TODO:
+		** 1. Copy triggers
+		** 2. Copy affects
+		** 3. Copy values
+		**/
+
+		return result;
 	}
 
 	bool CPrototype::load_item_parameters(const pugi::xml_node* node)
@@ -1050,11 +1133,21 @@ namespace craft
 		return true;
 	}
 
+	bool CCraftModel::merge()
+	{
+		for (const auto& p : m_prototypes)
+		{
+			OBJ_DATA* object = p.build_object();
+			obj_proto.add(object, p.vnum());
+		}
+
+		return true;
+	}
+
 	CLogger log;
 
 	void CCraftModel::create_item() const
 	{
-
 	}
 
 	bool CCraftModel::load_prototype(const pugi::xml_node* prototype, const size_t number)
@@ -1066,7 +1159,7 @@ namespace craft
 			return false;
 		}
 
-		vnum_t vnum = prototype->attribute("vnum").as_int(0);
+		obj_vnum vnum = prototype->attribute("vnum").as_int(0);
 		if (0 == vnum)
 		{
 			log("Failed to get VNUM of the %zd-%s prototype. This prototype entry will be skipped.\n",

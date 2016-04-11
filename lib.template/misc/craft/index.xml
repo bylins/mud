@@ -357,11 +357,7 @@
 		<prototype vnum="100500">
 			<description>
 				<short>Палка-выручалка</short>
-				<long>
-<![CDATA[Длинный черенок от лопаты или другого сельско-хозяственного инструмента.
-Местами обуглен, а с краю кто-то поставил несколько зарубок.]]>
-				</long>
-				<keyword>Палка выручалка лежит, никому не нужная.</keyword>
+				<long>Палка-выручалка лежит, никому не нужная.</long>
 			</description>
 
 			<item>
@@ -390,12 +386,12 @@
 
 			<durability>
 				<maximum>12000</maximum>
-				<current>1200</current>
+				<current>12000</current>
 			</durability>
 
 			<sex>FEMALE</sex>
 			<level>12</level>
-			<weight>120</weight>
+			<weight>10</weight>
 			<timer>unlimited</timer>
 			<item_parameters>
 				<parameter>SKILL_CLUBS</parameter>
@@ -410,7 +406,6 @@
 				<extraflag>ITEM_NODONATE</extraflag>
 				<extraflag>ITEM_SWIMMING</extraflag>
 				<extraflag>ITEM_FLYING</extraflag>
-				<extraflag>ITEM_NO_FAIL</extraflag>
 				<extraflag>ITEM_WITH3SLOTS</extraflag>
 				<extraflag>ITEM_NODECAY</extraflag>
 			</extraflags>
@@ -443,6 +438,10 @@
 					<value>100</value>
 				</skill>
 			</skills>
+
+			<val0>5</val0>
+			<val1>6</val1>
+			<val2>7</val2>
 		</prototype>
 	</prototypes>
 </craftmodel>

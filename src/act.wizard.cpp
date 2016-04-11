@@ -5232,7 +5232,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	int i, j, c, value = 0, return_code = 1, ptnum, times = 0;
 	bool on = false;
 	bool off = false;
-	char npad[NUM_PADS][256];
+	char npad[OBJ_DATA::NUM_PADS][256];
 	char *reason;
 	room_rnum rnum;
 	room_vnum rvnum;
@@ -5633,7 +5633,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 		if (*npad[0] == '*')  	// Only change pads
 		{
-			for (i = 1; i < NUM_PADS; i++)
+			for (i = 1; i < OBJ_DATA::NUM_PADS; i++)
 				if (!_parse_name(npad[i], npad[i]))
 				{
 					if (GET_PAD(vict, i))
@@ -5646,7 +5646,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		else
 		{
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 		{
 			if (strlen(npad[i]) < MIN_NAME_LENGTH || strlen(npad[i]) > MAX_NAME_LENGTH)
 			{
@@ -5706,7 +5706,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				TopPlayer::Remove(vict);
 			}
 
-			for (i = 0; i < NUM_PADS; i++)
+			for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 			{
 				if (!_parse_name(npad[i], npad[i]))
 				{

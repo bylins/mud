@@ -2050,7 +2050,9 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	//} Нафиг недоделки (Купала)
 
 	if (obj->carried_by)
+	{
 		obj_from_char(obj);
+	}
 
 	//if (GET_EQ(ch, WEAR_LIGHT) &&
 	//  GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
@@ -2069,26 +2071,36 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	{
 		wear_message(ch, obj, pos);
 		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))
+		{
 			NamedStuff::wear_msg(ch, obj);
+		}
 	}
 
 	if (ch->in_room == NOWHERE)
+	{
 		log("SYSERR: ch->in_room = NOWHERE when equipping char %s.", GET_NAME(ch));
+	}
 
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
+	{
 		for (; it != OBJ_DATA::set_table.end(); it++)
+		{
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
 				activate_stuff(ch, obj, it, 0 | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0), 0);
 				break;
 			}
+		}
+	}
 
 	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
 	{
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
+		{
 			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, static_cast<EAffectFlag>(0), TRUE);
+		}
 
 		if (IN_ROOM(ch) != NOWHERE)
 		{
@@ -2099,6 +2111,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 				{
 					continue;
 				}
+
 				if (!no_cast)
 				{
 					if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
@@ -3743,16 +3756,20 @@ OBJ_DATA *create_money(int amount)
 		obj->description = str_dup("Одна куна лежит здесь.");
 		new_descr->keyword = str_dup("coin gold монет кун денег");
 		new_descr->description = str_dup("Всего лишь одна куна.");
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		{
 			obj->PNames[i] = str_dup(money_desc(amount, i));
+		}
 	}
 	else
 	{
 		sprintf(buf, "coins gold кун денег %s", money_desc(amount, 0));
 		obj->aliases = str_dup(buf);
 		obj->short_description = str_dup(money_desc(amount, 0));
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		{
 			obj->PNames[i] = str_dup(money_desc(amount, i));
+		}
 
 		sprintf(buf, "Здесь лежит %s.", money_desc(amount, 0));
 		obj->description = str_dup(CAP(buf));

@@ -117,8 +117,12 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 	dst->short_description = str_dup(src->short_description ? src->short_description : "неопределено");
 	dst->description = str_dup(src->description ? src->description : "неопределено");
 	dst->action_description = (src->action_description ? str_dup(src->action_description) : NULL);
-	for (i = 0; i < NUM_PADS; i++)
-		GET_OBJ_PNAME(dst, i) = str_dup(GET_OBJ_PNAME(src, i) ? GET_OBJ_PNAME(src, i) : "неопределен");
+	for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+	{
+		GET_OBJ_PNAME(dst, i) = str_dup(GET_OBJ_PNAME(src, i)
+			? GET_OBJ_PNAME(src, i)
+			: "неопределен");
+	}
 
 	// Дополнительные описания, если есть
 	pddd = &dst->ex_description;
@@ -165,9 +169,13 @@ void oedit_object_free(OBJ_DATA * obj)
 			free(obj->short_description);
 		if (obj->action_description)
 			free(obj->action_description);
-		for (j = 0; j < NUM_PADS; j++)
+		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+		{
 			if (GET_OBJ_PNAME(obj, j))
+			{
 				free(GET_OBJ_PNAME(obj, j));
+			}
+		}
 		for (lthis = obj->ex_description; lthis; lthis = next)
 		{
 			next = lthis->next;
@@ -189,10 +197,14 @@ void oedit_object_free(OBJ_DATA * obj)
 			free(obj->short_description);
 		if (obj->action_description && obj->action_description != obj_proto[i]->action_description)
 			free(obj->action_description);
-		for (j = 0; j < NUM_PADS; j++)
+		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+		{
 			if (GET_OBJ_PNAME(obj, j)
-					&& GET_OBJ_PNAME(obj, j) != GET_OBJ_PNAME(obj_proto[i], j))
+				&& GET_OBJ_PNAME(obj, j) != GET_OBJ_PNAME(obj_proto[i], j))
+			{
 				free(GET_OBJ_PNAME(obj, j));
+			}
+		}
 		if (obj->ex_description && obj->ex_description != obj_proto[i]->ex_description)
 			for (lthis = obj->ex_description; lthis; lthis = next)
 			{

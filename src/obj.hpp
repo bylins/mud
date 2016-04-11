@@ -431,18 +431,22 @@ private:
 class OBJ_DATA
 {
 public:
-	const static int DEFAULT_COST = 100;
-	const static int DEFAULT_RENT_ON = 100;
-	const static int DEFAULT_RENT_OFF = 100;
-	const static int UNLIMITED_GLOBAL_MAXIMUM = -1;
-	const static int DEFAULT_GLOBAL_MAXIMUM = UNLIMITED_GLOBAL_MAXIMUM;
-	const static int DEFAULT_MINIMUM_REMORTS = 0;
+	constexpr static int NUM_PADS = 6;
+
+	constexpr static int DEFAULT_COST = 100;
+	constexpr static int DEFAULT_RENT_ON = 100;
+	constexpr static int DEFAULT_RENT_OFF = 100;
+	constexpr static int UNLIMITED_GLOBAL_MAXIMUM = -1;
+	constexpr static int DEFAULT_GLOBAL_MAXIMUM = UNLIMITED_GLOBAL_MAXIMUM;
+	constexpr static int DEFAULT_MINIMUM_REMORTS = 0;
 
 	// бесконечный таймер
-	const static int UNLIMITED_TIMER = 2147483647;
-	const static int ONE_DAY = 24 * 60;
-	const static int SEVEN_DAYS = 7 * ONE_DAY;
-	const static int DEFAULT_TIMER = SEVEN_DAYS;
+	constexpr static int UNLIMITED_TIMER = 2147483647;
+	constexpr static int ONE_DAY = 24 * 60;
+	constexpr static int SEVEN_DAYS = 7 * ONE_DAY;
+	constexpr static int DEFAULT_TIMER = SEVEN_DAYS;
+
+	using pnames_t = boost::array<char *, NUM_PADS>;
 
 	OBJ_DATA();
 	OBJ_DATA(const OBJ_DATA&);
@@ -478,7 +482,7 @@ public:
 	OBJ_DATA *next_content;	// For 'contains' lists             //
 	OBJ_DATA *next;		// For the object list              //
 	int room_was_in;
-	boost::array<char *, 6> PNames;
+	pnames_t PNames;
 	int max_in_world;	///< Maximum in the world
 
 	obj::Enchants enchants;

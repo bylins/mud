@@ -2455,8 +2455,12 @@ void boot_db(void)
 	log("Init town shop_keepers.");
 	town_shop_keepers();
 
-	log("Load craft system.");
-	craft::load();
+	log("Starting craft system.");
+	if (!craft::start())
+	{
+		log("ERROR: Failed to start craft system.\n");
+	}
+
 	log("Check big sets in rent.");
 	SetSystem::check_rented();
 
@@ -2960,8 +2964,10 @@ void parse_mobile(FILE * mob_f, int nr)
 	// real name
 	CREATE(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().size() + 1);
 	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().c_str());
-	for (j = 1; j < NUM_PADS; j++)
+	for (j = 1; j < OBJ_DATA::NUM_PADS; j++)
+	{
 		GET_PAD(mob_proto + i, j) = fread_string(mob_f, buf2);
+	}
 
 	mob_proto[i].player_data.long_descr = fread_string(mob_f, buf2);
 	mob_proto[i].player_data.description = fread_string(mob_f, buf2);
@@ -3974,7 +3980,7 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 	string obj_pad;
 	char *ptr;
 	int i, k;
-	for (i = 0; i < NUM_PADS; i++)
+	for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 	{
 		obj_pad = string(GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i));
 		size_t j = obj_pad.find("@p");
@@ -3983,7 +3989,9 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 			// Родитель найден прописываем его.
 			ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
 			if (GET_OBJ_PNAME(obj, i) != ptr)
+			{
 				free(GET_OBJ_PNAME(obj, i));
+			}
 
 			k = atoi(obj_pad.substr(j + 2, j + 3).c_str());
 			obj_pad.replace(j, 3, GET_PAD(ch, k));
@@ -4304,8 +4312,8 @@ char *parse_object(FILE * obj_f, const int nr)
 	char *tmpptr;
 	char f0[256], f1[256], f2[256];
 	EXTRA_DESCR_DATA *new_descr;
-	OBJ_DATA *tobj;
 
+	OBJ_DATA *tobj;
 	NEWCREATE(tobj);
 
 	tobj->item_number = i;
@@ -4331,7 +4339,7 @@ char *parse_object(FILE * obj_f, const int nr)
 	CREATE(tobj->PNames[0], strlen(tobj->short_description) + 1);
 	strcpy(tobj->PNames[0], tobj->short_description);
 
-	for (j = 1; j < NUM_PADS; j++)
+	for (j = 1; j < OBJ_DATA::NUM_PADS; j++)
 	{
 		tobj->PNames[j] = fread_string(obj_f, buf2);
 		*tobj->PNames[j] = LOWER(*tobj->PNames[j]);
@@ -6802,9 +6810,13 @@ void free_obj(OBJ_DATA * obj)
 		if (obj->aliases)
 			free(obj->aliases);
 
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		{
 			if (obj->PNames[i])
+			{
 				free(obj->PNames[i]);
+			}
+		}
 
 		if (obj->description)
 			free(obj->description);
@@ -6831,9 +6843,13 @@ void free_obj(OBJ_DATA * obj)
 		if (obj->aliases && obj->aliases != obj_proto[nr]->aliases)
 			free(obj->aliases);
 
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		{
 			if (obj->PNames[i] && obj->PNames[i] != obj_proto[nr]->PNames[i])
+			{
 				free(obj->PNames[i]);
+			}
+		}
 
 		if (obj->description && obj->description != obj_proto[nr]->description)
 			free(obj->description);
@@ -8115,6 +8131,7 @@ void init()
 size_t CObjectPrototypes::add(const prototypes_t::value_type& prototype, const obj_vnum vnum)
 {
 	const auto index = m_index.size();
+	prototype->item_number = static_cast<int>(index);
 	m_vnum2index[vnum] = index;
 	m_prototypes.push_back(prototype);
 	m_index.push_back(index_data(vnum));
@@ -8139,7 +8156,9 @@ int CObjectPrototypes::rnum(const obj_vnum vnum) const
 CObjectPrototypes::prototypes_t::value_type CObjectPrototypes::swap(const size_t index, const prototypes_t::value_type& new_value)
 {
 	auto result = m_prototypes[index];
+	new_value->item_number = static_cast<int>(index);
 	m_prototypes[index] = new_value;
+
 	return result;
 }
 

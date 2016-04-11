@@ -167,7 +167,7 @@ void generate_book_upgrd(OBJ_DATA *obj)
 	}
 	obj->description = str_dup(("Книга секретов умения: " + book_name + " лежит здесь.").c_str());
 
-	for (int i = 0; i < NUM_PADS; ++i)
+	for (int i = 0; i < OBJ_DATA::NUM_PADS; ++i)
 	{
 		if (GET_OBJ_PNAME(obj, i)
 			&& (GET_OBJ_RNUM(obj) < 0
