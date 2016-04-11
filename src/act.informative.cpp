@@ -3041,7 +3041,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			" %sВоде:      %3d %s||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_LEVEL(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), hr + (on_horse(ch) ? (10 - GET_SKILL(ch, SKILL_HORSE) / 20) : 0) , CCCYN(ch, C_NRM),
+			CCIGRN(ch, C_NRM), hr - (on_horse(ch) ? (10 - GET_SKILL(ch, SKILL_HORSE) / 20) : 0) , CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	resist = MIN(GET_RESIST(ch, EARTH_RESISTANCE), 75);
