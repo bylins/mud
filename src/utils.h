@@ -985,8 +985,7 @@ inline T VPOSI(const T val, const T min, const T max)
                         (obj)->carried_by ? IN_ROOM(obj->carried_by) : (obj)->in_room)
 #define IS_OBJ_ANTI(obj,stat) ((obj)->obj_flags.anti_flag.get(stat))
 #define IS_OBJ_NO(obj,stat)       ((obj)->obj_flags.no_flag.get(stat))
-#define IS_OBJ_AFF(obj,stat)    (IS_SET(GET_FLAG((obj)->obj_flags.affects, \
-                                                  stat), stat))
+#define IS_OBJ_AFF(obj,stat)    (obj->obj_flags.affects.get(stat))
 
 #define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER && \
                GET_OBJ_VAL((obj), 3) == 1)

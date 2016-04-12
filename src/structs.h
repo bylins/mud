@@ -1275,12 +1275,6 @@ inline bool FLAG_DATA::operator>(const FLAG_DATA& r) const
 			|| m_flags[2] > r.m_flags[2]
 			|| m_flags[3] > r.m_flags[3]);
 }
-
-inline uint32_t GET_FLAG(const FLAG_DATA& value, const uint32_t flag)
-{
-	return value.get(flag);
-}
-
 extern const FLAG_DATA clear_flags;
 
 class unique_bit_flag_data : public FLAG_DATA

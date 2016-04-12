@@ -422,7 +422,6 @@
 				<affect>AFF_LIGHT_WALK</affect>
 				<affect>AFF_SCOPOLIA_POISON</affect>
 				<affect>AFF_SNEAK</affect>
-				<affect>AFF_BLINK</affect>
 			</affects>
 
 			<wearflags>

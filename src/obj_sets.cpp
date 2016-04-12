@@ -1443,7 +1443,7 @@ void activ_sum::apply_affects(CHAR_DATA *ch) const
 	for (const auto& j : weapon_affect)
 	{
 		if (j.aff_bitvector != 0
-			&& IS_SET(GET_FLAG(affects, j.aff_pos), j.aff_pos))
+			&& affects.get(j.aff_pos))
 		{
 			affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
 		}

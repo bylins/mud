@@ -5628,7 +5628,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	for (EAffectFlag j : hiding)
 	{
 		const uint32_t i = to_underlying(j);
-		if (IS_SET(GET_FLAG(saved, i), i))
+		if (saved.get(i))
 		{
 			AFF_FLAGS(ch).set(j);
 		}

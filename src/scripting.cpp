@@ -1285,7 +1285,7 @@ void obj_to_char_wrap(const CharacterWrapper& c, ObjWrapper& o)
 
 bool flag_is_set(const FLAG_DATA& flag, const unsigned f)
 {
-	return IS_SET(GET_FLAG(flag, f), f);
+	return flag.get(f);
 }
 
 void flag_set(FLAG_DATA& flag, const unsigned f)
