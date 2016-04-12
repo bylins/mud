@@ -519,21 +519,11 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		}
 		//проверка на ванрум: скидываем игрока с коня, если там незанято
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_TUNNEL) &&
-				(num_pc_in_room((world[EXIT(ch, dir)->to_room])) > 0 || on_horse(ch)))
+				(num_pc_in_room((world[EXIT(ch, dir)->to_room])) > 0))
 		{
-			if (num_pc_in_room((world[EXIT(ch, dir)->to_room])) > 0)
-			{
-				if (show_msg)
-					send_to_char("Слишком мало места.\r\n", ch);
-				return (FALSE);
-			}
-			else if (show_msg)
-			{
-				act("$Z $N заупрямил$U, и вам пришлось соскочить.",
-					FALSE, ch, 0, get_horse(ch), TO_CHAR);
-				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-				REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
-			}
+			if (show_msg)
+				send_to_char("Слишком мало места.\r\n", ch);
+			return (FALSE);
 		}
 
 		if (on_horse(ch) && GET_HORSESTATE(get_horse(ch)) <= 0)

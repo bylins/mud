@@ -5057,7 +5057,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 
 	mob->points.hit = mob->points.max_hit;
 	GET_MEM_TOTAL(mob) = GET_MEM_COMPLETED(mob) = 0;
-	GET_HORSESTATE(mob) = 200;
+	GET_HORSESTATE(mob) = 800;
 	GET_LASTROOM(mob) = NOWHERE;
 	if (mob->mob_specials.speed <= -1)
 		GET_ACTIVITY(mob) = number(0, PULSE_MOBILE - 1);

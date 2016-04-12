@@ -1139,7 +1139,7 @@ ACMD(do_stun)
 }
 
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
-{
+{	int weap_weight;
 
 	if (GET_SKILL(ch, SKILL_STUN) < 150)
 	{
@@ -1155,7 +1155,14 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 	timed.skill = SKILL_STUN;
 	timed.time = 6 - (GET_SKILL(ch, SKILL_STUN) - 150) / 10; // 6..1 кулдаун
 	timed_to_char(ch, &timed);
-	float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow((GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0), 2) + pow(GET_REAL_STR(ch), 2)) /
+	if (GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS))
+		weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
+	else
+	{
+		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
+		return;
+	}
+	float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
 		(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
 		if (number(1, 100) < num)
 		{
@@ -1173,8 +1180,8 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		{
 			improove_skill(ch, SKILL_STUN, FALSE, 0);
 			act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n1 попытал$u ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
-			act("$n1 попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+			act("$n попытал$u ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+			act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 //			Damage dmg(SkillDmg(SKILL_STUN), 1, FightSystem::PHYS_DMG);
 //			dmg.process(ch, vict);
 			set_hit(ch, vict);

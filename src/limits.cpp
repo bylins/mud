@@ -1784,7 +1784,7 @@ void point_update(void)
 					}
 					if (on_horse(i->master))
 						mana /= 2;
-					GET_HORSESTATE(i) = MIN(200, GET_HORSESTATE(i) + mana);
+					GET_HORSESTATE(i) = MIN(800, GET_HORSESTATE(i) + mana);
 				}
 				// Forget PC's
 				for (mem = MEMORY(i), pmem = NULL; mem; mem = nmem)
