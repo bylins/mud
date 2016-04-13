@@ -447,7 +447,7 @@ public:
 	constexpr static int DEFAULT_TIMER = SEVEN_DAYS;
 
 	using pnames_t = boost::array<char *, NUM_PADS>;
-	using scripts_t = std::list<obj_vnum>;
+	using triggers_list_t = std::list<obj_vnum>;
 
 	OBJ_DATA();
 	OBJ_DATA(const OBJ_DATA&);
@@ -477,7 +477,7 @@ public:
 	OBJ_DATA *contains;	// Contains objects                 //
 
 	long id;			// used by DG triggers              //
-	scripts_t proto_script;	// list of default triggers  //
+	triggers_list_t proto_script;	// list of default triggers  //
 	struct script_data *script;	// script info for the object       //
 
 	OBJ_DATA *next_content;	// For 'contains' lists             //

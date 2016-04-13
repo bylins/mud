@@ -47,7 +47,7 @@ void trigedit_save(DESCRIPTOR_DATA * d);
 void trigedit_create_index(int znum, const char *type);
 char * indent_trigger(char * cmd , int * level);
 
-inline void fprint_script(FILE * fp, const OBJ_DATA::scripts_t& scripts)
+inline void fprint_script(FILE * fp, const OBJ_DATA::triggers_list_t& scripts)
 {
 	for (const auto vnum : scripts)
 	{
@@ -840,7 +840,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		{
 			// add the new info in position
-			OBJ_DATA::scripts_t::const_iterator t = OLC_SCRIPT(d).begin();
+			OBJ_DATA::triggers_list_t::const_iterator t = OLC_SCRIPT(d).begin();
 			while (--pos && t != OLC_SCRIPT(d).end())
 			{
 				++t;
@@ -858,7 +858,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 
 		{
-			OBJ_DATA::scripts_t::const_iterator t = OLC_SCRIPT(d).begin();
+			OBJ_DATA::triggers_list_t::const_iterator t = OLC_SCRIPT(d).begin();
 			while (--pos && t != OLC_SCRIPT(d).end())
 			{
 				++t;

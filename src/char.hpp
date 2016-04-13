@@ -700,7 +700,7 @@ public:
 	OBJ_DATA *carrying;	// Head of list
 	DESCRIPTOR_DATA *desc;	// NULL for mobiles
 	long id;			// used by DG triggers
-	OBJ_DATA::scripts_t proto_script;	// list of default triggers
+	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers
 	struct script_data *script;	// script info for the object
 	struct script_memory *memory;	// for mob memory triggers
 

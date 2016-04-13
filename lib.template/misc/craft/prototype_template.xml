@@ -107,6 +107,7 @@
 	</extended_values>
 
 	<triggers>
+		<!-- List of trigger's VNUMs related to this prototype -->
 		<trigger></trigger>
 	</triggers>
 </prototype>

@@ -232,6 +232,8 @@ namespace craft
 
 		vals_t m_vals;
 
+		OBJ_DATA::triggers_list_t m_triggers_list;
+
 		friend class CCraftModel;
 	};
 

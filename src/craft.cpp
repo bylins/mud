@@ -658,8 +658,17 @@ namespace craft
 			return false;
 		}
 
+		const auto triggers_node = node->child("triggers");
+		for (const auto trigger_node : triggers_node.children("trigger"))
+		{
+			const char* vnum_str = trigger_node.child_value();
+			CLoadHelper::load_integer(vnum_str,
+				[&](const auto value) { m_triggers_list.push_back(value); },
+				[&]() { log("WARNING: Invalid trigger's VNUM value \"%s\" for prototype with VNUM %d. Skipping.\n",
+					vnum_str, m_vnum); });
+		}
+
 		/* TODO:
-		** 1. Load triggers
 		** 2. Load affects
 		** 3. Load values
 		**/
@@ -720,8 +729,9 @@ namespace craft
 			result->set_skill(s.first, s.second);
 		}
 
+		result->proto_script = m_triggers_list;
+
 		/* TODO:
-		** 1. Copy triggers
 		** 2. Copy applies
 		** 3. Copy values
 		**/
