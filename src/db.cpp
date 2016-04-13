@@ -710,25 +710,24 @@ float count_remort_requred(OBJ_DATA *obj)
 	// аффекты AFF_x через weapon_affect
 	for (const auto& m : weapon_affect)
 	{
-		if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
+		if (IS_OBJ_AFF(obj, m.aff_pos))
 		{
-			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-		}
-		else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
-		{
-			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-		}
-		else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
-		{
-			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-		}
-		else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK
-			&& IS_SET(GET_OBJ_AFF(obj, m.aff_pos), m.aff_pos))
-		{
-			total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
+			{
+				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+			}
 		}
 	}
 

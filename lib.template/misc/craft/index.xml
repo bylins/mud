@@ -129,11 +129,11 @@
 							</skill>
 						</skills>
 						
-						<affects>
+						<weapon_affects>
 							<!-- For possible values see material/class/affects -->
-							<affect>AFF_SANCTUARY</affect>
-							<affect>AFF_FIREAURA</affect>
-						</affects>
+							<weapon_affect>WAFF_SANCTUARY</weapon_affect>
+								<weapon_affect>WAFF_FIRE_AURA</weapon_affect>
+						</weapon_affects>
 						
 						<extraflags>
 							<!-- For possible values see material/class/extraflags -->
@@ -148,9 +148,9 @@
 					<extraflag>ITEM_NORENT</extraflag>
 					<extraflag>ITEM_WITH1SLOT</extraflag>
 				</extraflags>
-				<affects>
-					<affect>AFF_SANCTUARY</affect>
-				</affects>
+				<weapon_affects>
+					<weapon_affect>WAFF_SANCTUARY</weapon_affect>
+				</weapon_affects>
 			</class>
 			<class id="MC_ORGANDY">
 				<description>
@@ -229,9 +229,9 @@
 								<value>15</value>
 							</skill>
 						</skills>
-						<affects>
-							<affect>AFF_FLY</affect>
-						</affects>
+						<weapon_affects>
+							<weapon_affect>WAFF_FLY</weapon_affect>
+						</weapon_affects>
 						<extraflags>
 							<extraflag>ITEM_NORENT</extraflag>
 						</extraflags>
@@ -322,11 +322,11 @@
 						<modifier></modifier>
 					</apply>
 				</applies>
-				
-				<affects>
-					<!-- Possible values (see structs.h): AFF_BLIND, AFF_INVISIBLE, AFF_DETECT_ALIGN, AFF_DETECT_INVIS, AFF_DETECT_MAGIC, AFF_SENSE_LIFE, AFF_WATERWALK, AFF_SANCTUARY, AFF_GROUP, AFF_CURSE, AFF_INFRAVISION, AFF_POISON, AFF_PROTECT_EVIL, AFF_PROTECT_GOOD, AFF_SLEEP, AFF_NOTRACK, AFF_TETHERED, AFF_BLESS, AFF_SNEAK, AFF_HIDE, AFF_COURAGE, AFF_CHARM, AFF_HOLD, AFF_FLY, AFF_SIELENCE, AFF_AWARNESS, AFF_BLINK, AFF_HORSE, AFF_NOFLEE, AFF_SINGLELIGHT, AFF_HOLYLIGHT, AFF_HOLYDARK, AFF_DETECT_POISON, AFF_DRUNKED, AFF_ABSTINENT, AFF_STOPRIGHT, AFF_STOPLEFT, AFF_STOPFIGHT, AFF_HAEMORRAGIA, AFF_CAMOUFLAGE, AFF_WATERBREATH, AFF_SLOW, AFF_HASTE, AFF_SHIELD, AFF_AIRSHIELD, AFF_FIRESHIELD, AFF_ICESHIELD, AFF_MAGICGLASS, AFF_STAIRS, AFF_STONEHAND, AFF_PRISMATICAURA, AFF_HELPER, AFF_EVILESS, AFF_AIRAURA, AFF_FIREAURA, AFF_ICEAURA, AFF_DEAFNESS, AFF_CRYING, AFF_PEACEFUL, AFF_MAGICSTOPFIGHT, AFF_BERSERK, AFF_LIGHT_WALK, AFF_BROKEN_CHAINS, AFF_CLOUD_OF_ARROWS, AFF_SHADOW_CLOAK, AFF_GLITTERDUST, AFF_AFFRIGHT, AFF_SCOPOLIA_POISON, AFF_DATURA_POISON, AFF_SKILLS_REDUCE, AFF_NOT_SWITCH, AFF_BELENA_POISON, AFF_NOTELEPORT, AFF_LACKY, AFF_BANDAGE, AFF_NO_BANDAGE, AFF_MORPH, AFF_STRANGLED, AFF_RECALL_SPELLS, AFF_NOOB_REGEN, AFF_VAMPIRE -->
-					<affect></affect>
-				</affects>
+
+				<weapon_affects>
+					<!-- Possible values (see structs.h): WAFF_BLINDNESS, WAFF_INVISIBLE, WAFF_DETECT_ALIGN, WAFF_DETECT_INVISIBLE, WAFF_DETECT_MAGIC, WAFF_SENSE_LIFE, WAFF_WATER_WALK, WAFF_SANCTUARY, WAFF_CURSE, WAFF_INFRAVISION, WAFF_POISON, WAFF_PROTECT_EVIL, WAFF_PROTECT_GOOD, WAFF_SLEEP, WAFF_NOTRACK, WAFF_BLESS, WAFF_SNEAK, WAFF_HIDE, WAFF_HOLD, WAFF_FLY, WAFF_SILENCE, WAFF_AWARENESS, WAFF_BLINK, WAFF_NOFLEE, WAFF_SINGLE_LIGHT, WAFF_HOLY_LIGHT, WAFF_HOL_YDARK, WAFF_DETECT_POISON, WAFF_SLOW, WAFF_HASTE, WAFF_WATER_BREATH, WAFF_HAEMORRAGIA, WAFF_CAMOUFLAGE, WAFF_SHIELD, WAFF_AIR_SHIELD, WAFF_FIRE_SHIELD, WAFF_ICE_SHIELD, WAFF_MAGIC_GLASS, WAFF_STONE_HAND, WAFF_PRISMATIC_AURA, WAFF_AIR_AURA, WAFF_FIRE_AURA, WAFF_ICE_AURA, WAFF_DEAFNESS -->
+					<weapon_affect></weapon_affect>
+				</weapon_affects>
 
 				<skills>
 					<skill>
@@ -410,19 +410,17 @@
 				<extraflag>ITEM_NODECAY</extraflag>
 			</extraflags>
 
-			<affects>
-				<affect>AFF_INVISIBLE</affect>
-				<affect>AFF_DETECT_ALIGN</affect>
-				<affect>AFF_DETECT_MAGIC</affect>
-				<affect>AFF_SENSE_LIFE</affect>
-				<affect>AFF_WATERWALK</affect>
-				<affect>AFF_INFRAVISION</affect>
-				<affect>AFF_NOTRACK</affect>
-				<affect>AFF_FLY</affect>
-				<affect>AFF_LIGHT_WALK</affect>
-				<affect>AFF_SCOPOLIA_POISON</affect>
-				<affect>AFF_SNEAK</affect>
-			</affects>
+			<weapon_affects>
+				<weapon_affect>WAFF_INVISIBLE</weapon_affect>
+				<weapon_affect>WAFF_DETECT_ALIGN</weapon_affect>
+				<weapon_affect>WAFF_DETECT_MAGIC</weapon_affect>
+				<weapon_affect>WAFF_SENSE_LIFE</weapon_affect>
+				<weapon_affect>WAFF_WATER_WALK</weapon_affect>
+				<weapon_affect>WAFF_INFRAVISION</weapon_affect>
+				<weapon_affect>WAFF_NOTRACK</weapon_affect>
+				<weapon_affect>WAFF_FLY</weapon_affect>
+				<weapon_affect>WAFF_SNEAK</weapon_affect>
+			</weapon_affects>
 
 			<wearflags>
 				<wearflag>ITEM_WEAR_TAKE</wearflag>

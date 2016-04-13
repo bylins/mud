@@ -609,7 +609,7 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы прокляты Богами и никто не слушается вас!\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
 		send_to_char("Вы не в состоянии приказывать сейчас.\r\n", ch);
 		return;
@@ -1409,7 +1409,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 				to_vict = "Мощный удар ногой $n1 попал точно в челюсть, заставив вас замолчать.";
 				to_room = "Сильно пнув ногой в челюсть $N1, $n застави&q $S замолчать.";
 				af.type = SPELL_BATTLE;
-				af.bitvector = to_underlying(EAffectFlag::AFF_SIELENCE);
+				af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 				af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				dam *= 2;

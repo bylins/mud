@@ -276,7 +276,7 @@ void generate_magic_enchant(OBJ_DATA *obj)
 		EAffectFlag::AFF_CURSE,
 		EAffectFlag::AFF_SLEEP,
 		EAffectFlag::AFF_HOLD,
-		EAffectFlag::AFF_SIELENCE,
+		EAffectFlag::AFF_SILENCE,
 		EAffectFlag::AFF_CRYING,
 		EAffectFlag::AFF_BLIND,
 		EAffectFlag::AFF_SLOW

@@ -222,7 +222,7 @@ namespace craft
 		ESpell m_spell;
 
 		FLAG_DATA m_extraflags;
-		FLAG_DATA m_affect_flags;
+		FLAG_DATA m_waffect_flags;
 		FLAG_DATA m_anti_flags;
 		FLAG_DATA m_no_flags;
 
@@ -257,7 +257,7 @@ namespace craft
 		CCases m_neuter_adjectives;	///< Neuter adjective cases
 
 		FLAG_DATA m_extraflags;
-		FLAG_DATA m_affect_flags;
+		FLAG_DATA m_waffect_flags;
 
 		friend class CMaterial;
 	};

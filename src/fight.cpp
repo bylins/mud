@@ -349,7 +349,7 @@ int GET_MAXDAMAGE(CHAR_DATA * ch)
 
 int GET_MAXCASTER(CHAR_DATA * ch)
 {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
 			|| GET_WAIT(ch) > 0)
 		return 0;
 	else
@@ -504,7 +504,7 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 		break;
 
 	case SPELL_REMOVE_SIELENCE:
-		AFF_USED.push_back(EAffectFlag::AFF_SIELENCE);
+		AFF_USED.push_back(EAffectFlag::AFF_SILENCE);
 		break;
 
 	case SPELL_CURE_PLAQUE:
@@ -578,7 +578,7 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 		AFF_USED.push_back(EAffectFlag::AFF_CURSE);
 		break;
 	case SPELL_REMOVE_SIELENCE:
-		AFF_USED.push_back(EAffectFlag::AFF_SIELENCE);
+		AFF_USED.push_back(EAffectFlag::AFF_SILENCE);
 		break;
 	case SPELL_CURE_PLAQUE:
 		spellreal = SPELL_PLAQUE;
@@ -751,7 +751,7 @@ CHAR_DATA *find_opp_caster(CHAR_DATA * caster)
 		if ((!vict->get_fighting()
 				&& (GET_REAL_INT(caster) < number(15, 25)
 					|| !in_same_battle(caster, vict, TRUE)))
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(vict, EAffectFlag::AFF_SIELENCE) || AFF_FLAGGED(vict, EAffectFlag::AFF_STRANGLED)
+				|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(vict, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(vict, EAffectFlag::AFF_STRANGLED)
 				|| (!CAN_SEE(caster, vict) && caster->get_fighting() != vict))
 			continue;
 		if (vict_val < GET_MAXCASTER(vict))
@@ -991,7 +991,7 @@ void mob_casting(CHAR_DATA * ch)
 	int lag = GET_WAIT(ch), i, spellnum, spells, sp_num;
 	OBJ_DATA *item;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED) || lag > 0)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED) || lag > 0)
 		return;
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
@@ -1218,7 +1218,7 @@ void check_mob_helpers()
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
 			|| PRF_FLAGGED(ch->get_fighting(), PRF_NOHASSLE))
 		{
@@ -1587,7 +1587,7 @@ void using_mob_skills(CHAR_DATA *ch)
 					if ((AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD) && GET_POS(vict) < POS_FIGHTING)
 						|| (IS_CASTER(vict)
 							&& (AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
-							|| AFF_FLAGGED(vict, EAffectFlag::AFF_SIELENCE)
+							|| AFF_FLAGGED(vict, EAffectFlag::AFF_SILENCE)
 							|| AFF_FLAGGED(vict, EAffectFlag::AFF_STRANGLED)
 							|| GET_WAIT(vict) > 0)))
 					{
@@ -1891,7 +1891,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	//* каст заклинания
 	if (ch->get_cast_spell() && GET_WAIT(ch) <= 0)
 	{
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
 			send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 			ch->set_cast(0, 0, 0, 0, 0);

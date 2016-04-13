@@ -630,7 +630,7 @@ enum class EAffectFlag: uint32_t
 	AFF_CHARM = 1u << 21,					///< Char is charmed
 	AFF_HOLD = 1u << 22,
 	AFF_FLY = 1u << 23,
-	AFF_SIELENCE = 1u << 24,
+	AFF_SILENCE = 1u << 24,
 	AFF_AWARNESS = 1u << 25,
 	AFF_BLINK = 1u << 26,
 	AFF_HORSE = 1u << 27,					///< NPC - is horse, PC - is horsed
@@ -1868,13 +1868,64 @@ struct weather_data
 	week_day_poly;
 };
 
+enum class EWeaponAffectFlag : uint32_t
+{
+	WAFF_BLINDNESS = (1 << 0),
+	WAFF_INVISIBLE = (1 << 1),
+	WAFF_DETECT_ALIGN = (1 << 2),
+	WAFF_DETECT_INVISIBLE = (1 << 3),
+	WAFF_DETECT_MAGIC = (1 << 4),
+	WAFF_SENSE_LIFE = (1 << 5),
+	WAFF_WATER_WALK = (1 << 6),
+	WAFF_SANCTUARY = (1 << 7),
+	WAFF_CURSE = (1 << 8),
+	WAFF_INFRAVISION = (1 << 9),
+	WAFF_POISON = (1 << 10),
+	WAFF_PROTECT_EVIL = (1 << 11),
+	WAFF_PROTECT_GOOD = (1 << 12),
+	WAFF_SLEEP = (1 << 13),
+	WAFF_NOTRACK = (1 << 14),
+	WAFF_BLESS = (1 << 15),
+	WAFF_SNEAK = (1 << 16),
+	WAFF_HIDE = (1 << 17),
+	WAFF_HOLD = (1 << 18),
+	WAFF_FLY = (1 << 19),
+	WAFF_SILENCE = (1 << 20),
+	WAFF_AWARENESS = (1 << 21),
+	WAFF_BLINK = (1 << 22),
+	WAFF_NOFLEE = (1 << 23),
+	WAFF_SINGLE_LIGHT = (1 << 24),
+	WAFF_HOLY_LIGHT = (1 << 25),
+	WAFF_HOLY_DARK = (1 << 26),
+	WAFF_DETECT_POISON = (1 << 27),
+	WAFF_SLOW = (1 << 28),
+	WAFF_HASTE = (1 << 29),
+	WAFF_WATER_BREATH = INT_ONE | (1 << 0),
+	WAFF_HAEMORRAGIA = INT_ONE | (1 << 1),
+	WAFF_CAMOUFLAGE = INT_ONE | (1 << 2),
+	WAFF_SHIELD = INT_ONE | (1 << 3),
+	WAFF_AIR_SHIELD = INT_ONE | (1 << 4),
+	WAFF_FIRE_SHIELD = INT_ONE | (1 << 5),
+	WAFF_ICE_SHIELD = INT_ONE | (1 << 6),
+	WAFF_MAGIC_GLASS = INT_ONE | (1 << 7),
+	WAFF_STONE_HAND = INT_ONE | (1 << 8),
+	WAFF_PRISMATIC_AURA = INT_ONE | (1 << 9),
+	WAFF_AIR_AURA = INT_ONE | (1 << 10),
+	WAFF_FIRE_AURA = INT_ONE | (1 << 11),
+	WAFF_ICE_AURA = INT_ONE | (1 << 12),
+	WAFF_DEAFNESS = INT_ONE | (1 << 13),
+};
+
+constexpr size_t WAFF_COUNT = 44;
+
+template <> EWeaponAffectFlag ITEM_BY_NAME<EWeaponAffectFlag>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM(const EWeaponAffectFlag item);
+
 struct weapon_affect_types
 {
-	int
-	aff_pos;
+	EWeaponAffectFlag aff_pos;
 	uint32_t aff_bitvector;
-	int
-	aff_spell;
+	int aff_spell;
 };
 
 struct title_type

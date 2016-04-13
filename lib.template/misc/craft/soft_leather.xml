@@ -147,12 +147,14 @@
 						<modifier>2</modifier>
 					</apply>
 				</applies>
+				
 				<skills>
 					<skill>SKILL_CAMOUFLAGE</skill>
 				</skills>
-				<affects>
-					<affect>AFF_NOTRACK</affect>
-				</affects>
+				
+				<weapon_affects>
+					<weapon_affect>WAFF_NOTRACK</weapon_affect>
+				</weapon_affects>
 
 				<val0 />
 			</meta>

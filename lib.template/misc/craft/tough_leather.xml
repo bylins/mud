@@ -56,12 +56,15 @@
 				<case6>нубуковом</case6>
 			</neuter>
 		</adjectives>
+		
 		<extraflags>
 			<extraflag>ITEM_FIRE</extraflag>
 		</extraflags>
-		<affects>
-			<affect>AFF_STONEHAND</affect>
-		</affects>
+		
+		<weapon_affects>
+			<weapon_affect>WAFF_STONE_HAND</weapon_affect>
+		</weapon_affects>
+		
 		<bonuses>
 			<durability>50</durability>
 			<cost>40</cost>
@@ -88,10 +91,10 @@
 				<skills>
 					<skill>SKILL_KICK</skill>
 				</skills>
-				<affects>
+				<weapon_affects>
 					<!-- For possible values see material/class/affects -->
-					<affect>AFF_SANCTUARY</affect>
-				</affects>
+					<weapon_affect>WAFF_SANCTUARY</weapon_affect>
+				</weapon_affects>
 				<val0 />
 				<val1 />
 			</meta>

@@ -3326,7 +3326,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 spellnum == SPELL_POWER_SIELENCE ? pc_duration(victim, 2, level + 3, 4, 6, 0)
 						 : pc_duration(victim, 2, level + 7, 8, 3, 0));
-		af[0].bitvector = to_underlying(EAffectFlag::AFF_SIELENCE);
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 		af[0].battleflag = AF_BATTLEDEC;
 		to_room = "$n0 прикусил$g язык!";
 		to_vict = "Вы не в состоянии вымолвить ни слова.";

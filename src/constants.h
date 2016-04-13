@@ -75,7 +75,7 @@ extern std::vector<pray_affect_type> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
 
-typedef std::array<weapon_affect_types, 44> weapon_affect_t;
+typedef std::array<weapon_affect_types, WAFF_COUNT> weapon_affect_t;
 extern weapon_affect_t weapon_affect;
 
 extern int mana[];

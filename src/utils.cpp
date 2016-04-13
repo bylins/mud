@@ -553,28 +553,26 @@ void imm_log(const char *format, ...)
 
 bool no_bad_affects(OBJ_DATA *obj)
 {
-	if (OBJ_AFFECT(obj, EAffectFlag::AFF_HOLD))
-		return false;
-	if (OBJ_AFFECT(obj, EAffectFlag::AFF_COURAGE))
-		return false;
-	if (OBJ_AFFECT(obj, EAffectFlag::AFF_SANCTUARY))
-		return false;
-	if (OBJ_AFFECT(obj, EAffectFlag::AFF_PRISMATICAURA))
-		return false;
-	if(OBJ_AFFECT(obj, EAffectFlag::AFF_POISON))
-		return false;
-	if (OBJ_AFFECT(obj, EAffectFlag::AFF_SIELENCE))
-		return false;
-	if (OBJ_AFFECT(obj, EAffectFlag::AFF_DEAFNESS))
-		return false;
-	if (OBJ_AFFECT(obj, EAffectFlag::AFF_HAEMORRAGIA))
-		return false;
-	if (OBJ_AFFECT(obj, EAffectFlag::AFF_BLIND))
-		return false;
-	if (OBJ_AFFECT(obj, EAffectFlag::AFF_SLEEP))
-		return false;
-	if (OBJ_AFFECT(obj, EAffectFlag::AFF_HOLYDARK))
-		return false;
+	static std::list<EWeaponAffectFlag> bad_waffects =
+	{
+		EWeaponAffectFlag::WAFF_HOLD,
+		EWeaponAffectFlag::WAFF_SANCTUARY,
+		EWeaponAffectFlag::WAFF_PRISMATIC_AURA,
+		EWeaponAffectFlag::WAFF_POISON,
+		EWeaponAffectFlag::WAFF_SILENCE,
+		EWeaponAffectFlag::WAFF_DEAFNESS,
+		EWeaponAffectFlag::WAFF_HAEMORRAGIA,
+		EWeaponAffectFlag::WAFF_BLINDNESS,
+		EWeaponAffectFlag::WAFF_SLEEP,
+		EWeaponAffectFlag::WAFF_HOLY_DARK
+	};
+	for (const auto wa : bad_waffects)
+	{
+		if (OBJ_AFFECT(obj, wa))
+		{
+			return false;
+		}
+	}
 	return true;
 }
 

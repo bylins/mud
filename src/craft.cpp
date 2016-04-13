@@ -613,10 +613,10 @@ namespace craft
 			[&](const auto value) { log("Setting extra flag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
 			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
-        // loading of prototype affectflags
-		CLoadHelper::load_flags<EAffectFlag>(m_affect_flags, *node, "affects", "affect",
-			[&](const auto value) { log("Setting affectflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping affectflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+        // loading of prototype weapon affect flags
+		CLoadHelper::load_flags<EWeaponAffectFlag>(m_waffect_flags, *node, "weapon_affects", "weapon_affect",
+			[&](const auto value) { log("Setting weapon affect flag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
         
         // loading of prototype antiflags
 		CLoadHelper::load_flags<EAntiFlag>(m_anti_flags, *node, "antiflags", "antiflag",
@@ -690,7 +690,7 @@ namespace craft
 		result->set_rent(m_rent_off);
 		result->set_rent_eq(m_rent_on);
 
-		result->obj_flags.affects = m_affect_flags;
+		result->obj_flags.affects = m_waffect_flags;
 		result->obj_flags.anti_flag = m_anti_flags;
 		result->obj_flags.no_flag = m_no_flags;
 		result->obj_flags.extra_flags = m_extraflags;
@@ -963,10 +963,10 @@ namespace craft
 			[&](const auto value) { log("Setting extra flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str()); },
 			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str()); });
 
-		// load affects
-		CLoadHelper::load_flags<EAffectFlag>(m_affect_flags, *node, "affects", "affect",
-			[&](const auto value) { log("Setting affect flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str()); },
-			[&](const auto flag) { log("WARNING: Skipping affect flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str()); });
+		// load weapon affects
+		CLoadHelper::load_flags<EWeaponAffectFlag>(m_waffect_flags, *node, "weapon_affects", "weapon_affect",
+			[&](const auto value) { log("Setting weapon affect flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str()); },
+			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str()); });
 
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading material class with ID '%s'.\n", m_id.c_str());

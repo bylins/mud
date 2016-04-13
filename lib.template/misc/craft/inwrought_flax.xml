@@ -66,10 +66,10 @@
 						<modifier>5</modifier>
 					</apply>
 				</applies>
-				
-				<affects>
-					<affect>AFF_DETECT_INVIS</affect>
-				</affects>
+
+				<weapon_affects>
+					<weapon_affect>WAFF_DETECT_INVIS</weapon_affect>
+				</weapon_affects>
 			</meta>
 		</bonuses>
 	</class>

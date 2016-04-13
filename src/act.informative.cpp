@@ -659,7 +659,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		}
 		if (object->get_extraflag(EExtraFlag::ITEM_GLOW))
 			strcat(buf, " ..блестит!");
-		if (object->get_extraflag(EExtraFlag::ITEM_HUM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE))
+		if (object->get_extraflag(EExtraFlag::ITEM_HUM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE))
 			strcat(buf, " ..шумит!");
 		if (object->get_extraflag(EExtraFlag::ITEM_FIRE))
 			strcat(buf, " ..горит!");
@@ -1155,7 +1155,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		}
 		if (IS_SET(skill_mode, ACHECK_GLOWING)
 				&& IS_SET(skill_mode, ACHECK_HUMMING)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE))
+				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE))
 		{
 			REMOVE_BIT(skill_mode, ACHECK_GLOWING);
 			REMOVE_BIT(skill_mode, ACHECK_HUMMING);
@@ -1167,13 +1167,13 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 			sprintf(buf + strlen(buf), "блеск экипировки%s", skill_mode ? ", " : " ");
 		}
 		if (IS_SET(skill_mode, ACHECK_HUMMING)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE))
+				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE))
 		{
 			REMOVE_BIT(skill_mode, ACHECK_HUMMING);
 			sprintf(buf + strlen(buf), "шум экипировки%s", skill_mode ? ", " : " ");
 		}
 		if (IS_SET(skill_mode, ACHECK_WEIGHT)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SIELENCE))
+				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE))
 		{
 			REMOVE_BIT(skill_mode, ACHECK_WEIGHT);
 			sprintf(buf + strlen(buf), "бряцание металла%s", skill_mode ? ", " : " ");
@@ -1339,7 +1339,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		{
 			if (AFF_FLAGGED(i, EAffectFlag::AFF_HOLD))
 				strcat(aura_txt, "...парализован$a");
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_SIELENCE))
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_SILENCE))
 				strcat(aura_txt, "...нем$a");
 		}
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_BLIND))
@@ -1581,7 +1581,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	{
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_HOLD))
 			strcat(aura_txt, " ...парализован$a");
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_SIELENCE))
+		if (AFF_FLAGGED(i, EAffectFlag::AFF_SILENCE))
 			strcat(aura_txt, " ...нем$a");
 	}
 	if (AFF_FLAGGED(i, EAffectFlag::AFF_BLIND))

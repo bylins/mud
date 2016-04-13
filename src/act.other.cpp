@@ -3340,7 +3340,7 @@ void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv)
 	{
 		if (i.aff_bitvector == static_cast<uint32_t>(bitv))
 		{
-			SET_OBJ_AFF(itemobj, i.aff_pos);
+			SET_OBJ_AFF(itemobj, to_underlying(i.aff_pos));
 		}
 	}
 }
@@ -3519,7 +3519,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	for (const auto& i : weapon_affect)
 	{
-		if (IS_SET(GET_OBJ_AFF(itemobj, i.aff_pos), i.aff_pos))
+		if (IS_OBJ_AFF(itemobj, i.aff_pos))
 		{
 			prob -= insgem_vars.minus_for_affect;
 		}
