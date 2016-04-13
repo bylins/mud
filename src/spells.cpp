@@ -879,7 +879,7 @@ ASPELL(spell_locate_object)
 
 		if (i->carried_by)
 			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
-					(OBJ_FLAGGED(i, ITEM_NOLOCATE) && IS_NPC(i->carried_by)) ||
+					(OBJ_FLAGGED(i, ITEM_NOLOCATE) && !IS_GOD(ch)) ||
 					IS_IMMORTAL(i->carried_by))
 				continue;
 

@@ -1405,7 +1405,6 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		// Проверяем, наем ли наш игрок
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && (ch->get_skill(SKILL_NOPARRYHIT)))
 			bs_coeff *= (1 + (ch->get_skill(SKILL_NOPARRYHIT) * 0.00125));
-		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 	{
@@ -1418,7 +1417,6 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		// чтобы дамаг был более-менее предсказуемым
 		flags.set(IGNORE_SANCT);
 		flags.set(IGNORE_PRISM);
-		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	if (bs_coeff < 1)
 		return 1;
@@ -3879,7 +3877,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		else
 			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && !(AFF_FLAGGED(victim, AFF_SHIELD)) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && !(AFF_FLAGGED(victim, AFF_SHIELD) && !(MOB_FLAGGED(victim, MOB_PROTECT))) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
 			    hit_params.dam = 2000; // для надежности
@@ -3888,7 +3886,11 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			    return;
 		}
 		if (number(1, 100) < calculate_crit_backstab_percent(ch) && !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
-			    hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
+			{
+				hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
+				if ((hit_params.dam >0) && !AFF_FLAGGED(victim, AFF_SHIELD) && !(MOB_FLAGGED(victim, MOB_PROTECT)))
+					send_to_char("&GПрямо в сердце!&n\r\n", ch);
+			}
 		//Adept: учитываем резисты от крит. повреждений
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		// режем стаб
@@ -3923,7 +3925,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			send_to_char(buf,ch);
 			sprintf(buf, "&RДамага метнуть равна = %d&n\r\n", hit_params.dam);
 			send_to_char(buf,victim);
-		}
+		}               
 		return;
 	}
 
