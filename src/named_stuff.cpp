@@ -33,6 +33,7 @@ extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
 
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
+extern void free_script(SCRIPT_DATA * sc);
 
 namespace NamedStuff
 {

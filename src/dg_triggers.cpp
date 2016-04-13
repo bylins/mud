@@ -512,6 +512,7 @@ int compare_cmd(int mode, char *source, char *dest)
 	return (result);
 }
 
+extern void free_script(SCRIPT_DATA * sc);
 
 int command_mtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 {

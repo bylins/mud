@@ -497,6 +497,8 @@ public:
 	auto index_size() const { return m_index.size()*(sizeof(index_t::value_type) + sizeof(vnum2index_t::value_type)); }
 	auto prototypes_size() const { return m_prototypes.size()*sizeof(prototypes_t::value_type); }
 
+	const auto& proto_script(const size_t index) const { return m_prototypes[index]->proto_script; }
+
 private:
 	using vnum2index_t = std::map<obj_vnum, size_t>;
 

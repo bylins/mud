@@ -722,7 +722,7 @@ namespace craft
 
 		/* TODO:
 		** 1. Copy triggers
-		** 2. Copy affects
+		** 2. Copy applies
 		** 3. Copy values
 		**/
 

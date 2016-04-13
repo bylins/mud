@@ -96,7 +96,7 @@ void OBJ_DATA::zero_init()
 	in_obj = NULL;
 	contains = NULL;
 	id = 0;
-	proto_script = NULL;
+	proto_script.clear();
 	script = NULL;
 	next_content = NULL;
 	next = NULL;

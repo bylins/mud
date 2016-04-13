@@ -96,38 +96,6 @@ void extract_value(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 int trgvar_in_room(int vnum);
 
-void proto_script_copy(struct trig_proto_list **pdst, struct trig_proto_list *src)
-/*++
-   Создает список прототипов и копирует в него прототипы из src.
-   Считается, что pdst уже не содержит списка
-   При необходимости воспользуйтесь функцией proto_script_free();
-
-     pdst - адрес переменной, в которой будет размещена копия
-     src - список, копию которого нужно создать
---*/
-{
-	for (pdst[0] = NULL; src; src = src->next, pdst = &(pdst[0]->next))
-	{
-		CREATE(pdst[0], 1);
-		pdst[0]->vnum = src->vnum;
-		// pdst[0]->next обнуляется в макросе CREATE()
-	}
-}
-
-void proto_script_free(struct trig_proto_list *src)
-/*++
-   Освобождает память, занимаемую списком прототипов
-     src - голова списка прототипов
---*/
-{
-	struct trig_proto_list *tmp;
-	while (src)
-	{
-		src = ((tmp = src)->next);
-		free(tmp);
-	}
-}
-
 void script_log(const char *msg, const int type)
 {
 	char tmpbuf[MAX_INPUT_LENGTH];

@@ -17,6 +17,7 @@
 #include <boost/lexical_cast.hpp>
 
 extern void extract_trigger(TRIG_DATA * trig);
+extern void free_script(SCRIPT_DATA * sc);
 extern CHAR_DATA* character_list;
 extern OBJ_DATA *object_list;
 
@@ -468,7 +469,6 @@ bool make_clean(CelebrateDataPtr celebrate)
 	CelebrateObjs::iterator obj_it;
 	CelebrateMobs::iterator mob_it;
 	
-
 	for (mob_it = attached_mobs.begin(); mob_it != attached_mobs.end(); ++mob_it)
 	{
 		int vnum = mob_index[mob_it->second->nr].vnum;	

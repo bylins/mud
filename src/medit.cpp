@@ -190,8 +190,8 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 	// Копирую скрипт и прототипы
 	SCRIPT(dst) = NULL;
-	dst->proto_script = NULL;
-	proto_script_copy(&dst->proto_script, src->proto_script);
+	dst->proto_script.clear();
+	dst->proto_script = src->proto_script;
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 	dl_list_copy(&dst->dl_list, src->dl_list);
 	dst->in_fighting_list_ = tmp.in_fighting_list_;
@@ -218,7 +218,9 @@ void medit_mobile_free(CHAR_DATA * mob)
 	int i, j;
 
 	if (!mob)
+	{
 		return;
+	}
 
 	i = GET_MOB_RNUM(mob);	// задается в функции medit_setup
 
@@ -274,10 +276,10 @@ void medit_mobile_free(CHAR_DATA * mob)
 	}
 
 	while (mob->helpers)
+	{
 		REMOVE_FROM_LIST(mob->helpers, mob->helpers, next_helper);
+	}
 
-	// Прототип
-	proto_script_free(mob->proto_script);
 	// Скрипт уже NULL
 
 	if (mob->ing_list)
@@ -1449,7 +1451,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm,
 		grn, nrm, cyn, npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC],
 		grn, nrm, cyn,
-		grn, nrm, cyn, mob->proto_script ? "Set." : "Not Set.", grn, nrm);
+		grn, nrm, cyn, !mob->proto_script.empty() ? "Set." : "Not Set.", grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = MEDIT_MAIN_MENU;

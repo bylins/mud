@@ -6153,13 +6153,12 @@ std::string print_script(CHAR_DATA *mob, const std::string &key)
 		print_name = true;
 	}
 
-	if (mob_proto[GET_MOB_RNUM(mob)].proto_script)
+	if (!mob_proto[GET_MOB_RNUM(mob)].proto_script.empty())
 	{
 		bool first = true;
-		for (trig_proto_list *trg_proto = mob_proto[GET_MOB_RNUM(mob)].proto_script;
-			trg_proto; trg_proto = trg_proto->next)
+		for (const auto trigger_vnum : mob_proto[GET_MOB_RNUM(mob)].proto_script)
 		{
-			const int trg_rnum = real_trigger(trg_proto->vnum);
+			const int trg_rnum = real_trigger(trigger_vnum);
 			if (trg_rnum >= 0)
 			{
 				if (!first)

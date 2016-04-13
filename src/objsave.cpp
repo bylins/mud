@@ -156,6 +156,8 @@ int get_buf_lines(char **source, char *target)
 	return (FALSE);
 }
 
+extern void free_script(SCRIPT_DATA * sc);
+
 // Данная процедура выбирает предмет из буфера.
 // с поддержкой нового формата вещей игроков [от 10.12.04].
 OBJ_DATA *read_one_object_new(char **data, int *error)

@@ -47,28 +47,34 @@ void trigedit_save(DESCRIPTOR_DATA * d);
 void trigedit_create_index(int znum, const char *type);
 char * indent_trigger(char * cmd , int * level);
 
+inline void fprint_script(FILE * fp, const OBJ_DATA::scripts_t& scripts)
+{
+	for (const auto vnum : scripts)
+	{
+		fprintf(fp, "T %d\n", vnum);
+	}
+}
+
 // called when a mob or object is being saved to disk, so its script can
 // be saved
 void script_save_to_disk(FILE * fp, void *item, int type)
 {
-	struct trig_proto_list *t;
-
 	if (type == MOB_TRIGGER)
-		t = ((CHAR_DATA *) item)->proto_script;
+	{
+		fprint_script(fp, ((CHAR_DATA *)item)->proto_script);
+	}
 	else if (type == OBJ_TRIGGER)
-		t = ((OBJ_DATA *) item)->proto_script;
+	{
+		fprint_script(fp, ((OBJ_DATA *)item)->proto_script);
+	}
 	else if (type == WLD_TRIGGER)
-		t = ((ROOM_DATA *) item)->proto_script;
+	{
+		fprint_script(fp, ((ROOM_DATA *)item)->proto_script);
+	}
 	else
 	{
 		log("SYSERR: Invalid type passed to script_save_mobobj_to_disk()");
 		return;
-	}
-
-	while (t)
-	{
-		fprintf(fp, "T %d\n", t->vnum);
-		t = t->next;
 	}
 }
 
@@ -698,31 +704,29 @@ void trigedit_create_index(int znum, const char *type)
 void dg_olc_script_free(DESCRIPTOR_DATA * d)
 //   Удаление прототипа в OLC_SCRIPT
 {
-	proto_script_free(OLC_SCRIPT(d));
-	OLC_SCRIPT(d) = NULL;
+	OLC_SCRIPT(d).clear();
 }
-
 
 void dg_olc_script_copy(DESCRIPTOR_DATA * d)
 //   Создание копии прототипа скрипта для текщего редактируемого моба/объекта/комнаты
 {
-	struct trig_proto_list *origscript;
+	switch (OLC_ITEM_TYPE(d))
+	{
+	case MOB_TRIGGER:
+		OLC_SCRIPT(d) = OLC_MOB(d)->proto_script;
+		break;
 
-	if (OLC_ITEM_TYPE(d) == MOB_TRIGGER)
-		origscript = OLC_MOB(d)->proto_script;
-	else if (OLC_ITEM_TYPE(d) == OBJ_TRIGGER)
-		origscript = OLC_OBJ(d)->proto_script;
-	else
-		origscript = OLC_ROOM(d)->proto_script;
-
-	// OLC_SCRIPT должен быть NULL (наверное так и есть)
-	proto_script_copy(&OLC_SCRIPT(d), origscript);
+	case OBJ_TRIGGER:
+		OLC_SCRIPT(d) = OLC_OBJ(d)->proto_script;
+		break;
+	
+	default:
+		OLC_SCRIPT(d) = OLC_ROOM(d)->proto_script;
+	}
 }
-
 
 void dg_script_menu(DESCRIPTOR_DATA * d)
 {
-	struct trig_proto_list *editscript;
 	int i = 0;
 
 	// make sure our input parser gets used
@@ -738,22 +742,22 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 	send_to_char(FMT, d->character);
 #undef FMT
 
-	editscript = OLC_SCRIPT(d);
-	while (editscript)
+	for (const auto trigger_vnum : OLC_SCRIPT(d))
 	{
 		sprintf(buf, "     %2d) [%s%d%s] %s%s%s", ++i, cyn,
-				editscript->vnum, nrm, cyn, trig_index[real_trigger(editscript->vnum)]->proto->name, nrm);
+			trigger_vnum, nrm, cyn, trig_index[real_trigger(trigger_vnum)]->proto->name, nrm);
 		send_to_char(buf, d->character);
-		if (trig_index[real_trigger(editscript->vnum)]->proto->attach_type != OLC_ITEM_TYPE(d))
+		if (trig_index[real_trigger(trigger_vnum)]->proto->attach_type != OLC_ITEM_TYPE(d))
 			sprintf(buf, "   %s** Mis-matched Trigger Type **%s\r\n", grn, nrm);
 		else
 			sprintf(buf, "\r\n");
 		send_to_char(buf, d->character);
-
-		editscript = editscript->next;
 	}
+
 	if (i == 0)
+	{
 		send_to_char("     <none>\r\n", d->character);
+	}
 
 	sprintf(buf, "\r\n"
 			" %sN%s)  New trigger for this script\r\n"
@@ -766,7 +770,6 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 
 int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
-	struct trig_proto_list *trig, *currtrig;
 	int count, pos, vnum;
 
 	switch (OLC_SCRIPT_EDIT_MODE(d))
@@ -777,32 +780,32 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'x':
 			if (OLC_ITEM_TYPE(d) == MOB_TRIGGER)
 			{
-				trig = OLC_MOB(d)->proto_script;
-				OLC_MOB(d)->proto_script = OLC_SCRIPT(d);
+				OLC_SCRIPT(d).swap(OLC_MOB(d)->proto_script);
 			}
 			else if (OLC_ITEM_TYPE(d) == OBJ_TRIGGER)
 			{
-				trig = OLC_OBJ(d)->proto_script;
-				OLC_OBJ(d)->proto_script = OLC_SCRIPT(d);
+				OLC_SCRIPT(d).swap(OLC_OBJ(d)->proto_script);
 			}
 			else
 			{
-				trig = OLC_ROOM(d)->proto_script;
-				OLC_ROOM(d)->proto_script = OLC_SCRIPT(d);
+				OLC_SCRIPT(d).swap(OLC_ROOM(d)->proto_script);
 			}
-			OLC_SCRIPT(d) = trig;
+
 			// тут break не нужен
 		case 'q':
 			dg_olc_script_free(d);
 			return 0;
+
 		case 'n':
 			send_to_char("\r\nPlease enter position, vnum   (ex: 1, 200):", d->character);
 			OLC_SCRIPT_EDIT_MODE(d) = SCRIPT_NEW_TRIGGER;
 			break;
+
 		case 'd':
 			send_to_char("     Which entry should be deleted?  0 to abort :", d->character);
 			OLC_SCRIPT_EDIT_MODE(d) = SCRIPT_DEL_TRIGGER;
 			break;
+
 		default:
 			dg_script_menu(d);
 			break;
@@ -819,10 +822,14 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 
 		if (pos <= 0)
+		{
 			break;	// this aborts a new trigger entry
+		}
 
 		if (vnum == 0)
+		{
 			break;	// this aborts a new trigger entry
+		}
 
 		if (real_trigger(vnum) < 0)
 		{
@@ -831,54 +838,38 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return 1;
 		}
 
-		// add the new info in position
-		currtrig = OLC_SCRIPT(d);
-		CREATE(trig, 1);
-		trig->vnum = vnum;
-
-		if (pos == 1 || !currtrig)
 		{
-			trig->next = OLC_SCRIPT(d);
-			OLC_SCRIPT(d) = trig;
-		}
-		else
-		{
-			while (currtrig->next && --pos)
+			// add the new info in position
+			OBJ_DATA::scripts_t::const_iterator t = OLC_SCRIPT(d).begin();
+			while (--pos && t != OLC_SCRIPT(d).end())
 			{
-				currtrig = currtrig->next;
+				++t;
 			}
-			trig->next = currtrig->next;
-			currtrig->next = trig;
+			OLC_SCRIPT(d).insert(t, vnum);
+			OLC_VAL(d)++;
 		}
-		OLC_VAL(d)++;
 		break;
 
 	case SCRIPT_DEL_TRIGGER:
 		pos = atoi(arg);
 		if (pos <= 0)
-			break;
-
-		if (pos == 1 && OLC_SCRIPT(d))
 		{
-			OLC_VAL(d)++;
-			currtrig = OLC_SCRIPT(d);
-			OLC_SCRIPT(d) = currtrig->next;
-			free(currtrig);
 			break;
 		}
 
-		pos--;
-		currtrig = OLC_SCRIPT(d);
-		while (--pos && currtrig)
-			currtrig = currtrig->next;
-		// now curtrig points one before the target
-		if (currtrig && currtrig->next)
 		{
-			OLC_VAL(d)++;
-			trig = currtrig->next;
-			currtrig->next = trig->next;
-			free(trig);
+			OBJ_DATA::scripts_t::const_iterator t = OLC_SCRIPT(d).begin();
+			while (--pos && t != OLC_SCRIPT(d).end())
+			{
+				++t;
+			}
+
+			if (t != OLC_SCRIPT(d).end())
+			{
+				OLC_SCRIPT(d).erase(t);
+			}
 		}
+
 		break;
 	}
 

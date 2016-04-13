@@ -1952,14 +1952,6 @@ struct index_data
 	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 };
 
-// linked list for mob/object prototype trigger lists //
-struct trig_proto_list
-{
-	int
-	vnum;			// vnum of the trigger   //
-	struct trig_proto_list *next;	// next trigger          //
-};
-
 struct social_messg  		// No argument was supplied //
 {
 	int

@@ -5,6 +5,7 @@
 #ifndef ROOM_HPP_INCLUDED
 #define ROOM_HPP_INCLUDED
 
+#include "obj.hpp"
 #include "constants.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -71,7 +72,7 @@ struct ROOM_DATA
 	struct weather_control weather;		// Weather state for room //
 	int (*func)(CHAR_DATA*, void*, int, char*);
 
-	struct trig_proto_list *proto_script;	// list of default triggers  //
+	OBJ_DATA::scripts_t proto_script;	// list of default triggers  //
 	struct script_data *script;	// script info for the object //
 	struct track_data *track;
 

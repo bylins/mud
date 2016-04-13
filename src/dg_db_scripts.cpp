@@ -236,7 +236,6 @@ void free_varlist(struct trig_var_data *vd)
 	}
 }
 
-
 // release memory allocated for a script
 void free_script(SCRIPT_DATA * sc)
 {
@@ -327,7 +326,6 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	int vnum, rnum, count;
 	CHAR_DATA *mob;
 	ROOM_DATA *room;
-	struct trig_proto_list *trg_proto, *new_trg;
 
 	get_line(fp, line);
 	count = sscanf(line, "%s %d", junk, &vnum);
@@ -349,39 +347,13 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	switch (type)
 	{
 	case MOB_TRIGGER:
-		CREATE(new_trg, 1);
-		new_trg->vnum = vnum;
-		new_trg->next = NULL;
-
 		mob = (CHAR_DATA *) proto;
-		trg_proto = mob->proto_script;
-		if (!trg_proto)
-		{
-			mob->proto_script = trg_proto = new_trg;
-		}
-		else
-		{
-			while (trg_proto->next)
-				trg_proto = trg_proto->next;
-			trg_proto->next = new_trg;
-		}
+		mob->proto_script.push_back(vnum);
 		break;
+
 	case WLD_TRIGGER:
-		CREATE(new_trg, 1);
-		new_trg->vnum = vnum;
-		new_trg->next = NULL;
 		room = (ROOM_DATA *) proto;
-		trg_proto = room->proto_script;
-		if (!trg_proto)
-		{
-			room->proto_script = trg_proto = new_trg;
-		}
-		else
-		{
-			while (trg_proto->next)
-				trg_proto = trg_proto->next;
-			trg_proto->next = new_trg;
-		}
+		room->proto_script.push_back(vnum);
 
 		if (rnum >= 0)
 		{
@@ -395,6 +367,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 			log("%s",line);
 		}
 		break;
+
 	default:
 		sprintf(line, "SYSERR: Trigger vnum #%d assigned to non-mob/obj/room", vnum);
 		log("%s",line);
@@ -405,7 +378,6 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 {
 	char junk[8];
 	int vnum, rnum, count;
-	struct trig_proto_list *trg_proto, *new_trg;
 
 	count = sscanf(line, "%s %d", junk, &vnum);
 
@@ -423,21 +395,7 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 		return;
 	}
 
-	CREATE(new_trg, 1);
-	new_trg->vnum = vnum;
-	new_trg->next = NULL;
-
-	trg_proto = obj->proto_script;
-	if (!trg_proto)
-	{
-		obj->proto_script = trg_proto = new_trg;
-	}
-	else
-	{
-		while (trg_proto->next)
-			trg_proto = trg_proto->next;
-		trg_proto->next = new_trg;
-	}
+	obj->proto_script.push_back(vnum);
 }
 
 extern CHAR_DATA *mob_proto;
@@ -449,20 +407,18 @@ void assign_triggers(void *i, int type)
 	ROOM_DATA *room;
 	int rnum;
 	char buf[256];
-	struct trig_proto_list *trg_proto;
 
 	switch (type)
 	{
 	case MOB_TRIGGER:
 		mob = (CHAR_DATA *) i;
-		trg_proto = mob_proto[GET_MOB_RNUM(mob)].proto_script;
-		while (trg_proto)
+		for (const auto trigger_vnum : mob_proto[GET_MOB_RNUM(mob)].proto_script)
 		{
-			rnum = real_trigger(trg_proto->vnum);
+			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for mob #%d",
-						trg_proto->vnum, mob_index[mob->nr].vnum);
+					trigger_vnum, mob_index[mob->nr].vnum);
 				log("%s",buf);
 			}
 			else
@@ -470,7 +426,7 @@ void assign_triggers(void *i, int type)
 				if (trig_index[rnum]->proto->attach_type != MOB_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for mob #%d",
-						trg_proto->vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
 						mob_index[mob->nr].vnum);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
@@ -483,19 +439,18 @@ void assign_triggers(void *i, int type)
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
 				}
 			}
-			trg_proto = trg_proto->next;
 		}
 		break;
+
 	case OBJ_TRIGGER:
 		obj = (OBJ_DATA *) i;
-		trg_proto = obj_proto[GET_OBJ_RNUM(obj)]->proto_script;
-		while (trg_proto)
+		for (const auto trigger_vnum : obj_proto.proto_script(GET_OBJ_RNUM(obj)))
 		{
-			rnum = real_trigger(trg_proto->vnum);
+			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for obj #%d",
-						trg_proto->vnum, obj_proto.vnum(obj));
+					trigger_vnum, obj_proto.vnum(obj));
 				log("%s",buf);
 			}
 			else
@@ -503,7 +458,7 @@ void assign_triggers(void *i, int type)
 				if (trig_index[rnum]->proto->attach_type != OBJ_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for obj #%d",
-						trg_proto->vnum,
+						trigger_vnum,
 						static_cast<int>(trig_index[rnum]->proto->attach_type),
 						obj_proto.vnum(obj->item_number));
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
@@ -517,19 +472,18 @@ void assign_triggers(void *i, int type)
 					add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
 				}
 			}
-			trg_proto = trg_proto->next;
 		}
 		break;
+
 	case WLD_TRIGGER:
 		room = (ROOM_DATA *) i;
-		trg_proto = room->proto_script;
-		while (trg_proto)
+		for (const auto trigger_vnum : room->proto_script)
 		{
-			rnum = real_trigger(trg_proto->vnum);
+			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for room #%d",
-						trg_proto->vnum, room->number);
+					trigger_vnum, room->number);
 				log("%s",buf);
 			}
 			else
@@ -537,7 +491,7 @@ void assign_triggers(void *i, int type)
 				if (trig_index[rnum]->proto->attach_type != WLD_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for room #%d",
-						trg_proto->vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
 						room->number);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
@@ -550,9 +504,9 @@ void assign_triggers(void *i, int type)
 					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
 				}
 			}
-			trg_proto = trg_proto->next;
 		}
 		break;
+
 	default:
 		log("SYSERR: unknown type for assign_triggers()");
 		break;

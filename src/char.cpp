@@ -229,7 +229,7 @@ void CHAR_DATA::zero_init()
 	carrying = 0;
 	desc = 0;
 	id = 0;
-	proto_script = 0;
+	proto_script.clear();
 	script = 0;
 	memory = 0;
 	next_in_room = 0;

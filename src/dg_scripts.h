@@ -296,12 +296,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 		         sprintf(buf, "%c%ld", UID_ROOM, GET_ID(go)); \
                          add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
 
-
 #define SCRIPT(o)		  ((o)->script)
-
-void proto_script_copy(struct trig_proto_list **pdst, struct trig_proto_list *src);
-void proto_script_free(struct trig_proto_list *src);
-void free_script(struct script_data *sc);
 
 // typedefs that the dg functions rely on //
 typedef INDEX_DATA index_data;

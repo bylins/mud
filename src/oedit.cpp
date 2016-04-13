@@ -139,8 +139,7 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 
 	// Копирую скрипт и прототипы
 	SCRIPT(dst) = NULL;
-	dst->proto_script = NULL;
-	proto_script_copy(&dst->proto_script, src->proto_script);
+	dst->proto_script = src->proto_script;
 }
 
 void oedit_object_free(OBJ_DATA * obj)
@@ -216,10 +215,6 @@ void oedit_object_free(OBJ_DATA * obj)
 				free(lthis);
 			}
 	}
-
-	// Прототип
-	proto_script_free(obj->proto_script);
-	// Скрипт уже NULL
 }
 
 
@@ -278,7 +273,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 
 	// Нужно скопировать все новое, сохранив определенную информацию
 	*obj = *olc_proto;
-	obj->proto_script = NULL;
+	obj->proto_script.clear();
 	// Восстанавливаю игровую информацию
 	obj->uid = tmp.uid;
 	obj->id = tmp.id; // аук работает не по рнум а по id объекта, поэтому вернем и его
@@ -1435,7 +1430,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn,
 			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 			GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
-			nrm, cyn, obj->proto_script ? "Set." : "Not Set.",
+			nrm, cyn, !obj->proto_script.empty() ? "Set." : "Not Set.",
 			grn, nrm, cyn, genders[gender],
 			grn, nrm, cyn, GET_OBJ_MIW(obj),
 			grn, nrm,

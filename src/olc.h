@@ -105,7 +105,7 @@ struct olc_data
 	int script_mode;
 	int trigger_position;
 	int item_type;
-	struct trig_proto_list *script;
+	OBJ_DATA::scripts_t script;
 	char *storage;		// for holding commands etc..
 };
 

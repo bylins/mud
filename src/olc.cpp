@@ -494,11 +494,13 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		{
 			free(OLC_STORAGE(d));
 		}
+
 		// Освободить прототип
-		if (OLC_SCRIPT(d))
+		if (!OLC_SCRIPT(d).empty())
 		{
 			dg_olc_script_free(d);
 		}
+
 		// Освободить комнату
 		if (OLC_ROOM(d))
 		{
