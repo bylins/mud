@@ -3311,9 +3311,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		spellnum = SPELL_DEAFNESS;
 		break;
 
-	case SPELL_MASS_SIELENCE:
-	case SPELL_POWER_SIELENCE:
-	case SPELL_SIELENCE:
+	case SPELL_MASS_SILENCE:
+	case SPELL_POWER_SILENCE:
+	case SPELL_SILENCE:
 		savetype = SAVING_WILL;
 		if (MOB_FLAGGED(victim, MOB_NOSIELENCE) ||
 				(ch != victim && general_savingthrow(ch, victim, savetype, modi)))
@@ -3324,13 +3324,13 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-						 spellnum == SPELL_POWER_SIELENCE ? pc_duration(victim, 2, level + 3, 4, 6, 0)
+						 spellnum == SPELL_POWER_SILENCE ? pc_duration(victim, 2, level + 3, 4, 6, 0)
 						 : pc_duration(victim, 2, level + 7, 8, 3, 0));
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 		af[0].battleflag = AF_BATTLEDEC;
 		to_room = "$n0 прикусил$g язык!";
 		to_vict = "Вы не в состоянии вымолвить ни слова.";
-		spellnum = SPELL_SIELENCE;
+		spellnum = SPELL_SILENCE;
 		break;
 
 	case SPELL_GROUP_FLY:
@@ -4534,8 +4534,8 @@ int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnu
 		spell = SPELL_HOLD;
 		to_vict = "К вам вернулась способность двигаться.";
 		break;
-	case SPELL_REMOVE_SIELENCE:
-		spell = SPELL_SIELENCE;
+	case SPELL_REMOVE_SILENCE:
+		spell = SPELL_SILENCE;
 		to_vict = "К вам вернулась способность разговаривать.";
 		break;
 	case SPELL_REMOVE_DEAFNESS:
@@ -5074,7 +5074,7 @@ const spl_message masses_messages[] =
 	 NULL,
 	 "$n злобно посмотрел$g на вас и начал$g шептать древние слова.",
 	 0},
-	{SPELL_MASS_SIELENCE,
+	{SPELL_MASS_SILENCE,
 	 "Поведя вокруг грозным взглядом, вы заставили всех замолчать.",
 	 NULL,
 	 "Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает.",

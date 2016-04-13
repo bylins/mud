@@ -4661,7 +4661,7 @@ void mag_assign_spells(void)
 	spello(SPELL_CLOUDLY, "затуманивание", "cloudly", 55, 40, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_WATER);
 //64
-	spello(SPELL_SIELENCE, "молчание", "sielence",
+	spello(SPELL_SILENCE, "молчание", "sielence",
 		   100, 40, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
 		   MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 1, STYPE_MIND);
@@ -4734,7 +4734,7 @@ void mag_assign_spells(void)
 	spello(SPELL_MASS_BLINDNESS, "массовая слепота", "mass blind", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 4, STYPE_DARK);
 //83
-	spello(SPELL_POWER_SIELENCE, "длительное молчание", "power sielence",
+	spello(SPELL_POWER_SILENCE, "длительное молчание", "power sielence",
 		   120, 90, 4, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
 		   MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 2, STYPE_MIND);
@@ -4752,10 +4752,10 @@ void mag_assign_spells(void)
 	spello(SPELL_FORBIDDEN, "запечатать комнату", "forbidden",
 		125, 110, 2, POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_ROOM, 0, STYPE_MIND);
 //88
-	spello(SPELL_MASS_SIELENCE, "массовое молчание", "mass sielence", 140, 120, 2,
+	spello(SPELL_MASS_SILENCE, "массовое молчание", "mass sielence", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 3, STYPE_MIND);
 //89
-	spello(SPELL_REMOVE_SIELENCE, "снять молчание", "remove sielence",
+	spello(SPELL_REMOVE_SILENCE, "снять молчание", "remove sielence",
 		   70, 55, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_UNAFFECTS | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER,
 		   1, STYPE_LIGHT);

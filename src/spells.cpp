@@ -3399,7 +3399,7 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_DARKNESS] = "SPELL_DARKNESS";
 	ESpell_name_by_value[ESpell::SPELL_STONESKIN] = "SPELL_STONESKIN";
 	ESpell_name_by_value[ESpell::SPELL_CLOUDLY] = "SPELL_CLOUDLY";
-	ESpell_name_by_value[ESpell::SPELL_SIELENCE] = "SPELL_SIELENCE";
+	ESpell_name_by_value[ESpell::SPELL_SILENCE] = "SPELL_SILENCE";
 	ESpell_name_by_value[ESpell::SPELL_LIGHT] = "SPELL_LIGHT";
 	ESpell_name_by_value[ESpell::SPELL_CHAIN_LIGHTNING] = "SPELL_CHAIN_LIGHTNING";
 	ESpell_name_by_value[ESpell::SPELL_FIREBLAST] = "SPELL_FIREBLAST";
@@ -3418,13 +3418,13 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_CAMOUFLAGE] = "SPELL_CAMOUFLAGE";
 	ESpell_name_by_value[ESpell::SPELL_POWER_BLINDNESS] = "SPELL_POWER_BLINDNESS";
 	ESpell_name_by_value[ESpell::SPELL_MASS_BLINDNESS] = "SPELL_MASS_BLINDNESS";
-	ESpell_name_by_value[ESpell::SPELL_POWER_SIELENCE] = "SPELL_POWER_SIELENCE";
+	ESpell_name_by_value[ESpell::SPELL_POWER_SILENCE] = "SPELL_POWER_SILENCE";
 	ESpell_name_by_value[ESpell::SPELL_EXTRA_HITS] = "SPELL_EXTRA_HITS";
 	ESpell_name_by_value[ESpell::SPELL_RESSURECTION] = "SPELL_RESSURECTION";
 	ESpell_name_by_value[ESpell::SPELL_MAGICSHIELD] = "SPELL_MAGICSHIELD";
 	ESpell_name_by_value[ESpell::SPELL_FORBIDDEN] = "SPELL_FORBIDDEN";
-	ESpell_name_by_value[ESpell::SPELL_MASS_SIELENCE] = "SPELL_MASS_SIELENCE";
-	ESpell_name_by_value[ESpell::SPELL_REMOVE_SIELENCE] = "SPELL_REMOVE_SIELENCE";
+	ESpell_name_by_value[ESpell::SPELL_MASS_SILENCE] = "SPELL_MASS_SILENCE";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_SILENCE] = "SPELL_REMOVE_SILENCE";
 	ESpell_name_by_value[ESpell::SPELL_DAMAGE_LIGHT] = "SPELL_DAMAGE_LIGHT";
 	ESpell_name_by_value[ESpell::SPELL_DAMAGE_SERIOUS] = "SPELL_DAMAGE_SERIOUS";
 	ESpell_name_by_value[ESpell::SPELL_DAMAGE_CRITIC] = "SPELL_DAMAGE_CRITIC";

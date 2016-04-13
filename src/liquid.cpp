@@ -765,7 +765,7 @@ void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
 	case SPELL_CURE_BLIND:
 	case SPELL_REMOVE_CURSE:
 	case SPELL_REMOVE_HOLD:
-	case SPELL_REMOVE_SIELENCE:
+	case SPELL_REMOVE_SILENCE:
 	case SPELL_CURE_PLAQUE:
 	case SPELL_REMOVE_DEAFNESS:
 	case SPELL_REMOVE_POISON:

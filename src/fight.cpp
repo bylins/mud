@@ -503,7 +503,7 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 		AFF_USED.push_back(EAffectFlag::AFF_CURSE);
 		break;
 
-	case SPELL_REMOVE_SIELENCE:
+	case SPELL_REMOVE_SILENCE:
 		AFF_USED.push_back(EAffectFlag::AFF_SILENCE);
 		break;
 
@@ -577,7 +577,7 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 	case SPELL_REMOVE_CURSE:
 		AFF_USED.push_back(EAffectFlag::AFF_CURSE);
 		break;
-	case SPELL_REMOVE_SIELENCE:
+	case SPELL_REMOVE_SILENCE:
 		AFF_USED.push_back(EAffectFlag::AFF_SILENCE);
 		break;
 	case SPELL_CURE_PLAQUE:
@@ -702,8 +702,8 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 		spellreal = SPELL_HOLD;
 	else if (spellreal == SPELL_POWER_BLINDNESS || spellreal == SPELL_MASS_BLINDNESS)
 		spellreal = SPELL_BLINDNESS;
-	else if (spellreal == SPELL_POWER_SIELENCE || spellreal == SPELL_MASS_SIELENCE)
-		spellreal = SPELL_SIELENCE;
+	else if (spellreal == SPELL_POWER_SILENCE || spellreal == SPELL_MASS_SILENCE)
+		spellreal = SPELL_SILENCE;
 	else if (spellreal == SPELL_MASS_CURSE)
 		spellreal = SPELL_CURSE;
 	else if (spellreal == SPELL_MASS_SLOW)

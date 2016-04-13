@@ -515,7 +515,7 @@ void init_EAffectFlag_ITEM_NAMES()
 	EAffectFlag_name_by_value[EAffectFlag::AFF_CHARM] = "AFF_CHARM";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_HOLD] = "AFF_HOLD";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_FLY] = "AFF_FLY";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_SILENCE] = "AFF_SIELENCE";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_SILENCE] = "AFF_SILENCE";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_AWARNESS] = "AFF_AWARNESS";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_BLINK] = "AFF_BLINK";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_HORSE] = "AFF_HORSE";

@@ -1030,8 +1030,8 @@ bool affected_by_spell(CHAR_DATA * ch, int type)
 
 	if (type == SPELL_POWER_HOLD)
 		type = SPELL_HOLD;
-	else if (type == SPELL_POWER_SIELENCE)
-		type = SPELL_SIELENCE;
+	else if (type == SPELL_POWER_SILENCE)
+		type = SPELL_SILENCE;
 	else if (type == SPELL_POWER_BLINDNESS)
 		type = SPELL_BLINDNESS;
 
