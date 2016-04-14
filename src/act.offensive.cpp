@@ -1169,7 +1169,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 			improove_skill(ch, SKILL_STUN, TRUE, 0);
 // кастуем аналог круга пустоты
 			act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
-			act("Вас ошеломи$q и сби$q с ног $N1, вы временно потеряли сознание.", FALSE, vict, 0, ch, TO_CHAR);
+			act("Ошеломительный удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
 			act("$n  мощным ударом ошеломи$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			set_hit(ch, vict);
 			GET_POS(vict) = POS_INCAP;
@@ -1411,7 +1411,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			case 3:
 				to_char = "Сильно пнув в челюсть, вы заставили $N1 замолчать.";
 				to_vict = "Мощный удар ногой $n1 попал точно в челюсть, заставив вас замолчать.";
-				to_room = "Сильно пнув ногой в челюсть $N1, $n застави&q $S замолчать.";
+				to_room = "Сильно пнув ногой в челюсть $N1, $n застави$q $S замолчать.";
 				af.type = SPELL_BATTLE;
 				af.bitvector = AFF_SIELENCE;
 				af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);

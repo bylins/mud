@@ -978,7 +978,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			}
 		}
 		// Extract free horses
-		if (GET_MOB_VNUM(ch) == HORSE_VNUM && !ch->master)
+		if (AFF_FLAGGED(ch, AFF_HORSE) && !ch->master)
 		{
 			act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
 				FALSE, ch, 0, 0, TO_ROOM);

@@ -1050,8 +1050,9 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	ch->master = NULL;
 
 	REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_HORSE))
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+// лошать сопрут в мобакте
+//	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_HORSE))
+//		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
 
 	//log("[Stop follower] Free charmee");
 	if (AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HELPER) || IS_SET(mode, SF_CHARMLOST))

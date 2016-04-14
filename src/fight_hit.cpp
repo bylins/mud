@@ -3340,7 +3340,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 	// Horse modifier for attacker
 	if (!IS_NPC(ch) && skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB && on_horse(ch))
 	{
-		int prob = train_skill(ch, SKILL_HORSE, skill_info[SKILL_HORSE].max_percent, victim);
+		train_skill(ch, SKILL_HORSE, skill_info[SKILL_HORSE].max_percent, victim);
 //		dam += ((prob + 19) / 10);
 //		int range = number(1, skill_info[SKILL_HORSE].max_percent);
 //		if (range > prob)
