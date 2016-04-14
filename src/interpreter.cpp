@@ -1399,7 +1399,7 @@ void free_alias(struct alias_data *a)
 void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char *repl;
-	struct alias_data *a, *temp;
+	struct alias_data *a;
 
 	if (IS_NPC(ch))
 		return;
@@ -1426,7 +1426,7 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		// is this an alias we've already defined?
 		if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL)
 		{
-			REMOVE_FROM_LIST(a, GET_ALIASES(ch), next);
+			REMOVE_FROM_LIST(a, GET_ALIASES(ch));
 			free_alias(a);
 		}
 		// if no replacement string is specified, assume we want to delete

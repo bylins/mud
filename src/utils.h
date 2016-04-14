@@ -329,7 +329,7 @@ inline void NEWCREATE(T*& result, const T& init_value)
  * CircleMUD 4.0 will be...
  */
 template <typename ListType, typename GetNextFunc>
-inline void REMOVE_FROM_LIST(ListType* item, ListType* head, GetNextFunc next)
+inline void REMOVE_FROM_LIST(ListType* item, ListType*& head, GetNextFunc next)
 {
 	if ((item) == (head))
 	{
@@ -341,10 +341,6 @@ inline void REMOVE_FROM_LIST(ListType* item, ListType* head, GetNextFunc next)
 		while (temp && (next(temp) != (item)))
 		{
 			temp = next(temp);
-			if (temp && temp == next(temp))
-			{
-				temp;
-			}
 		}
 		if (temp)
 		{

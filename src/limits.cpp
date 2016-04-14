@@ -112,14 +112,19 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 
 void handle_recall_spells(CHAR_DATA* ch)
 {
-	AFFECT_DATA* aff = NULL;
-	for(AFFECT_DATA* af = ch->affected; af; af = af->next)
+	AFFECT_DATA<EApplyLocation>* aff;
+	for (auto af = ch->affected; af; af = af->next)
+	{
 		if (af->type == SPELL_RECALL_SPELLS)
 		{
 			aff = af;
 			break;
 		}
-	if (!aff) return;
+	}
+	if (!aff)
+	{
+		return;
+	}
 	//максимальный доступный чару круг
 	unsigned max_slot = get_max_slot(ch);
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
@@ -715,8 +720,7 @@ void beat_points_update(int pulse)
 
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_BANDAGE))
 		{
-			AFFECT_DATA* aff;
-			for(aff = i->affected; aff; aff = aff->next)
+			for (auto aff = i->affected; aff; aff = aff->next)
 			{
 				if (aff->type == SPELL_BANDAGE)
 				{

@@ -283,8 +283,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
 	check_auction(NULL, obj);
-	OBJ_DATA *temp;
-	REMOVE_FROM_LIST(obj, object_list, next);
+	REMOVE_FROM_LIST(obj, object_list);
 //	ObjectAlias::remove(obj);
 }
 
@@ -785,8 +784,7 @@ void load()
 		}
 		add_parcel(node.target, node.sender, node.obj_node);
 		// из глобального списка изымаем
-		OBJ_DATA *temp;
-		REMOVE_FROM_LIST(node.obj_node.obj_, object_list, next);
+		REMOVE_FROM_LIST(node.obj_node.obj_, object_list);
 //		ObjectAlias::remove(node.obj_node.obj_);
 	}
 

@@ -214,7 +214,6 @@ void medit_mobile_free(CHAR_DATA * mob)
 	TODO: вообще канеш переделывать все это надо теперь
 --*/
 {
-	struct helper_data_type *temp;
 	int i, j;
 
 	if (!mob)
@@ -277,7 +276,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 
 	while (mob->helpers)
 	{
-		REMOVE_FROM_LIST(mob->helpers, mob->helpers, next_helper);
+		REMOVE_FROM_LIST(mob->helpers, mob->helpers, [](auto list) -> auto& { return list->next_helper; });
 	}
 
 	// Скрипт уже NULL
@@ -2354,7 +2353,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 					break;
 			if (helper)
 			{
-				REMOVE_FROM_LIST(helper, OLC_MOB(d)->helpers, next_helper);
+				REMOVE_FROM_LIST(helper, OLC_MOB(d)->helpers, [](auto list) -> auto& { return list->next_helper; });
 			}
 			else
 			{

@@ -540,11 +540,12 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 
 	if (!IS_NPC(ch) && ch->affected)
 	{
-		AFFECT_DATA *aff = ch->affected;
-		for (aff = ch->affected; aff; aff = aff->next)
+		for (auto aff = ch->affected; aff; aff = aff->next)
 		{
 			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с эксп умелкой
+			{
 				skill_is += aff->modifier;
+			}
 		}
 	}
 	skill_is += int_app[GET_REAL_INT(ch)].to_skilluse;

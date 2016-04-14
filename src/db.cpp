@@ -7089,7 +7089,6 @@ const char *remort_msg =
 void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	int i, place_of_destination,load_room = NOWHERE;
-	struct helper_data_type *temp;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
 
@@ -7163,10 +7162,14 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	die_follower(ch);
 
 	while (ch->helpers)
-		REMOVE_FROM_LIST(ch->helpers, ch->helpers, next_helper);
+	{
+		REMOVE_FROM_LIST(ch->helpers, ch->helpers, [](auto list) -> auto& { return list->next_helper; });
+	}
 
 	while (ch->affected)
+	{
 		affect_remove(ch, ch->affected);
+	}
 
 // Снимаем весь стафф
 	for (i = 0; i < NUM_WEARS; i++)
@@ -7781,7 +7784,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		struct track_data *track = dst->track;
 		OBJ_DATA *contents = dst->contents;
 		CHAR_DATA *people = dst->people;
-		AFFECT_DATA *affected = dst->affected;
+		auto affected = dst->affected;
 
 		// Копирую все поверх
 		*dst = *src;
@@ -7890,8 +7893,8 @@ void room_free(ROOM_DATA * room)
 		room->ing_list = NULL;
 	}
 
-	AFFECT_DATA *af, *next_af;
-	for (af = room->affected; af; af = next_af)
+	AFFECT_DATA<ERoomApplyLocation> *next_af;
+	for (auto af = room->affected; af; af = next_af)
 	{
 		next_af = af->next;
 		free(af);

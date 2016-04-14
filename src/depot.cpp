@@ -1441,7 +1441,6 @@ void CharNode::load_online_objs(int file_type, bool reload)
 
 		pers_online.push_front(obj);
 		// убираем ее из глобального листа, в который она добавилась еще на стадии чтения из файла
-		OBJ_DATA *temp;
 		REMOVE_FROM_LIST(obj, object_list);
 //		ObjectAlias::remove(obj);
 	}

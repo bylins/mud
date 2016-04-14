@@ -929,7 +929,7 @@ void save_pkills(CHAR_DATA * ch, FILE * saved)
 			if (pk->kill_num <= 0)
 			{
 				tpk = pk->next;
-				REMOVE_FROM_LIST(pk, ch->pk_list, next);
+				REMOVE_FROM_LIST(pk, ch->pk_list);
 				free(pk);
 				pk = tpk;
 				continue;

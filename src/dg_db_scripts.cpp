@@ -280,7 +280,9 @@ void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg)
 	this_data->cmdlist = trg->cmdlist;
 	this_data->narg = trg->narg;
 	if (trg->arglist)
+	{
 		this_data->arglist = str_dup(trg->arglist);
+	}
 }
 
 
