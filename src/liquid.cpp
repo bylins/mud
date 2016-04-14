@@ -307,7 +307,6 @@ void cast_potion(CHAR_DATA *ch, OBJ_DATA *obj)
 void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *temp;
-	AFFECT_DATA af;
 	int amount, weight, duration;
 	int on_ground = 0;
 
@@ -464,7 +463,9 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		if (GET_DRUNK_STATE(ch) == MAX_COND_VALUE || GET_COND(ch, DRUNK) < GET_DRUNK_STATE(ch))
 		{
 			send_to_char("На сегодня вам достаточно, крошки уже плавают...\r\n", ch);
-		}else
+		}
+		else
+		{
 			if (GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED)
 			{
 				send_to_char("Напилися вы пьяны, не дойти вам до дому....\r\n", ch);
@@ -473,6 +474,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			{
 				send_to_char("Приятное тепло разлилось по вашему телу.\r\n", ch);
 			}
+		}
 		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - CHAR_DRUNKED);
 		if (can_use_feat(ch, DRUNKARD_FEAT))
 			duration += duration/2;
@@ -482,6 +484,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			send_to_char("Винные пары ударили вам в голову.\r\n", ch);
 			// **** Decrease AC ***** //
+			AFFECT_DATA<EApplyLocation> af;
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -20;
@@ -513,6 +516,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
 
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_POISON;
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
 		af.modifier = -2;
@@ -548,7 +552,6 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
-	AFFECT_DATA af[3];
 	struct timed_type timed;
 	int amount, weight, prob, percent, duration;
 	int on_ground = 0;
@@ -674,6 +677,7 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", FALSE, ch, 0, 0, TO_ROOM);
 		duration = MAX(1, amount / 3);
+		AFFECT_DATA<EApplyLocation> af[3];
 		af[0].type = SPELL_ABSTINENT;
 		af[0].duration = pc_duration(ch, duration, 0, 0, 0, 0);
 		af[0].modifier = 0;
@@ -704,7 +708,9 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			af[2].modifier = 10;
 		}
 		for (prob = 0; prob < 3; prob++)
+		{
 			affect_join(ch, &af[prob], TRUE, FALSE, TRUE, FALSE);
+		}
 		gain_condition(ch, DRUNK, amount);
 	}
 	else
@@ -1223,13 +1229,14 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 
 void set_abstinent(CHAR_DATA *ch)
 {
-	AFFECT_DATA af;
-
 	int duration = pc_duration(ch, 2, MAX(0, GET_DRUNK_STATE(ch) - CHAR_DRUNKED), 4, 2, 5);
 
 	if (can_use_feat(ch, DRUNKARD_FEAT))
+	{
 		duration /= 2;
+	}
 
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_ABSTINENT;
 	af.bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
 	af.duration = duration;

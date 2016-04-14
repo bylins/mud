@@ -766,17 +766,19 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	CHAR_DATA *c, *caster;
 //Проверим, нет ли в зоне метки для врат, чтоб не абузили.
 	for (std::list<ROOM_DATA*>::iterator it = RoomSpells::aff_room_list.begin();it != RoomSpells::aff_room_list.end();++it)
-	    if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
-    	    {
-    		// если в зоне метка
-		AFFECT_DATA *aff = room_affected_by_spell(*it, SPELL_RUNE_LABEL);
-		caster = find_char(aff->caster_id);	   
-		if (caster)
-		{ 
-    			sprintf(buf2, "В зоне vnum:%d клетка vnum: %d находится рунная метка игрока: %s.\r\n", zone_table[zone_nr].number, (*it)->number, GET_NAME(caster));
-			send_to_char(buf2, ch);
-	    }
-        }
+	{
+		if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
+		{
+			// если в зоне метка
+			auto aff = room_affected_by_spell(*it, SPELL_RUNE_LABEL);
+			caster = find_char(aff->caster_id);
+			if (caster)
+			{
+				sprintf(buf2, "В зоне vnum:%d клетка vnum: %d находится рунная метка игрока: %s.\r\n", zone_table[zone_nr].number, (*it)->number, GET_NAME(caster));
+				send_to_char(buf2, ch);
+			}
+		}
+	}
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING)
@@ -1603,9 +1605,10 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 	int i, found;
 	OBJ_DATA *j;
 	CHAR_DATA *k;
-	AFFECT_DATA *aff;
 	if(rnum != 0)
+	{
 		rm = world[rnum];
+	}
 
 	sprintf(buf, "Комната : %s%s%s\r\n", CCCYN(ch, C_NRM), rm->name, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
@@ -1706,13 +1709,14 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 	if (rm->affected)
 	{
 		sprintf(buf1," Аффекты на комнате:\r\n");
-		for (aff = rm->affected; aff; aff = aff->next)
+		for (auto aff = rm->affected; aff; aff = aff->next)
 		{
-			sprintf(buf1+strlen(buf1),
-				"       Заклинание \"%s\" (%d) - %s.\r\n",
-			spell_name(aff->type),
-			aff->duration,
-			((k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно"));
+			sprintf(buf1 + strlen(buf1), "       Заклинание \"%s\" (%d) - %s.\r\n",
+				spell_name(aff->type),
+				aff->duration,
+				((k = find_char(aff->caster_id))
+					? GET_NAME(k)
+					: "неизвестно"));
 		}
 		send_to_char(buf1, ch);
 	}
@@ -2059,12 +2063,13 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	int i, i2, found = 0;
 	OBJ_DATA *j;
 	struct follow_type *fol;
-	AFFECT_DATA *aff;
 
 	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
 	int k_room = -1;
 	if (!virt && (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k))))
+	{
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
+	}
 	sprinttype(to_underlying(GET_SEX(k)), genders, buf);
 	if (IS_NPC(k))
 	{
@@ -2430,7 +2435,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	// Routine to show what spells a char is affected by
 	if (k->affected)
 	{
-		for (aff = k->affected; aff; aff = aff->next)
+		for (auto aff = k->affected; aff; aff = aff->next)
 		{
 			*buf2 = '\0';
 			sprintf(buf, "Заклинания: (%3dsec) %s%-21s%s ", aff->duration + 1,
@@ -2443,9 +2448,13 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			if (aff->bitvector)
 			{
 				if (*buf2)
+				{
 					strcat(buf, ", sets ");
+				}
 				else
+				{
 					strcat(buf, "sets ");
+				}
 				sprintbit(aff->bitvector, affected_bits, buf2);
 				strcat(buf, buf2);
 			}

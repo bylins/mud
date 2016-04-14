@@ -1084,9 +1084,6 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 
 void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
-	AFFECT_DATA af;
-	int i;
-
 	if (victim == NULL || ch == NULL)
 		return;
 
@@ -1150,13 +1147,14 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 
 		affect_from_char(victim, SPELL_CHARM);
 		add_follower(victim, ch);
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_CHARM;
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch))
 			af.duration = pc_duration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
 		else
 			af.duration = pc_duration(victim, GET_REAL_CHA(ch) + number(1, 10) + GET_REMORT(ch) * 2, 0, 0, 0, 0);
 		af.modifier = 0;
-		af.location = 0;
+		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(victim, &af);
@@ -1167,7 +1165,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 		if (IS_NPC(victim))
 		{
 //Eli. Раздеваемся.
-			for (i = 0; i < NUM_WEARS; i++)
+			for (int i = 0; i < NUM_WEARS; i++)
 				if (GET_EQ(victim, i))
 				{
 					if (!remove_otrigger(GET_EQ(victim, i), victim))
@@ -1194,7 +1192,6 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *helpee;
 	struct follow_type *k;
-	AFFECT_DATA af, *aff;
 	int cost=0, times, i;
 	char isbank[MAX_INPUT_LENGTH];
 
@@ -1226,18 +1223,20 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				// added by WorM (Видолюб) 2010.06.04 Cохраняем цену найма моба
 				if (!IS_IMMORTAL(ch))
 				{
-					for (aff = k->follower->affected; aff; aff = aff->next)
-					 if (aff->type==SPELL_CHARM)
+					for (auto aff = k->follower->affected; aff; aff = aff->next)
 					{
-						cost = MAX(0,(int)((aff->duration-1)/2)*(int)abs(k->follower->mob_specials.hire_price));
-						if(cost>0)
+						if (aff->type == SPELL_CHARM)
 						{
-							if(k->follower->mob_specials.hire_price < 0)
-								ch->add_bank(cost);
-							else
-								ch->add_gold(cost);
+							cost = MAX(0, (int)((aff->duration - 1) / 2)*(int)abs(k->follower->mob_specials.hire_price));
+							if (cost > 0)
+							{
+								if (k->follower->mob_specials.hire_price < 0)
+									ch->add_bank(cost);
+								else
+									ch->add_gold(cost);
+							}
+							break;
 						}
-					        break;
 					}
 				}
 				act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
@@ -1357,6 +1356,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				return;
 		}
 
+		AFFECT_DATA<EApplyLocation> af;
 		if (!(k && k->follower == helpee))
 		{
 			add_follower(helpee, ch);
@@ -1364,11 +1364,18 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		else
 		{
-			for (aff = k->follower->affected; aff; aff = aff->next)
-			if (aff->type==SPELL_CHARM)
-				break;
+			auto aff = k->follower->affected;
+			for (; aff; aff = aff->next)
+			{
+				if (aff->type == SPELL_CHARM)
+				{
+					break;
+				}
+			}
 			if (aff)
+			{
 				af.duration = aff->duration + pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
+			}
 		}
 
 		affect_from_char(helpee, SPELL_CHARM);
@@ -1386,7 +1393,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 		af.type = SPELL_CHARM;
 		af.modifier = 0;
-		af.location = 0;
+		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(helpee, &af);
@@ -2225,8 +2232,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 {
-	AFFECT_DATA *aff;
-	int found, val0, val1, val2;
+	int val0, val1, val2;
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
 	send_to_char(buf, ch);
@@ -2293,7 +2299,8 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	if (fullness < 120 || (ch != victim && !IS_NPC(victim)))
 		return;
 
-	for (aff = victim->affected, found = FALSE; aff; aff = aff->next)
+	int found = FALSE;
+	for (auto aff = victim->affected; aff; aff = aff->next)
 	{
 		if (aff->location != APPLY_NONE && aff->modifier != 0)
 		{
@@ -2320,9 +2327,6 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 
 void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 {
-	AFFECT_DATA *aff;
-	int found;
-
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
 	send_to_char(buf, ch);
 	sprintf(buf, "Написание : %s/%s/%s/%s/%s/%s\r\n",
@@ -2380,7 +2384,8 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 			CCIRED(ch, C_NRM), GET_REAL_CHA(victim), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
-	for (aff = victim->affected, found = FALSE; aff; aff = aff->next)
+	int found = FALSE;
+	for (auto aff = victim->affected; aff; aff = aff->next)
 	{
 		if (aff->location != APPLY_NONE && aff->modifier != 0)
 		{
@@ -2689,7 +2694,6 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	int modifier = 0;
 
 	CHAR_DATA *mob = NULL;
-	AFFECT_DATA af;
 	struct follow_type *k, *k_next;
 	for (k = ch->followers; k; k = k_next)
 	{
@@ -2718,11 +2722,12 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	}
 	//reset_char(mob);
 	clear_char_skills(mob);
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
 	af.duration =
 		pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
-	af.location = 0;
+	af.location = APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
 	affect_to_char(mob, &af);

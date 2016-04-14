@@ -1104,7 +1104,6 @@ void do_move(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int dir = 0, sneaking = affected_by_spell(ch, SPELL_SNEAK);
-	AFFECT_DATA af;
 
 	skip_spaces(&argument);
 	if (!ch->get_skill(SKILL_SNEAK))
@@ -1131,8 +1130,9 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (!sneaking)
 	{
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_SNEAK;
-		af.location = 0;
+		af.location = EApplyLocation::APPLY_NONE;
 		af.modifier = 0;
 		af.duration = 1;
 		const int calculated_skill = calculate_skill(ch, SKILL_SNEAK, 0);
@@ -1143,7 +1143,9 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	perform_move(ch, dir, 0, TRUE, 0);
 	if (!sneaking || affected_by_spell(ch, SPELL_GLITTERDUST))
+	{
 		affect_from_char(ch, SPELL_SNEAK);
+	}
 }
 
 #define DOOR_IS_OPENABLE(ch, obj, door)	((obj) ? \

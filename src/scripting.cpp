@@ -635,7 +635,7 @@ bool is_affected_by_spell(int spell_num) const
 	return affected_by_spell(ch, spell_num);
 }
 
-void add_affect(AFFECT_DATA& af)
+void add_affect(AFFECT_DATA<EApplyLocation>& af)
 {
 	Ensurer ch(*this);
 	affect_to_char(ch, &af);
@@ -765,19 +765,19 @@ void character_set_master(CHAR_DATA* ch, CHAR_DATA* master)
 	ch->master = master;
 }
 
-std::string get_spell_type_str(const AFFECT_DATA& af)
+std::string get_spell_type_str(const AFFECT_DATA<EApplyLocation>& af)
 {
 	return spell_info[af.type].name;
 }
 
-std::string get_location_str(const AFFECT_DATA& af)
+std::string get_location_str(const AFFECT_DATA<EApplyLocation>& af)
 {
 	char buf[MAX_STRING_LENGTH];
 	sprinttype(af.location, apply_types, buf);
 	return buf;
 }
 
-std::string get_bitvector_str(const AFFECT_DATA& af)
+std::string get_bitvector_str(const AFFECT_DATA<EApplyLocation>& af)
 {
 	char buf[MAX_STRING_LENGTH];
 	sprintbitwd(af.bitvector, affected_bits, buf, ", ");
@@ -1573,18 +1573,18 @@ BOOST_PYTHON_MODULE(mud)
 		.staticmethod("__iter__")
 	();
 
-	class_<AFFECT_DATA, std::auto_ptr<AFFECT_DATA> >("Affect", "Игровой аффект.")
-		.def_readwrite("spell_type", &AFFECT_DATA::type, "Номер заклинания, которое наложило этот аффект")
+	class_<AFFECT_DATA<EApplyLocation>, std::auto_ptr<AFFECT_DATA<EApplyLocation>> >("Affect", "Игровой аффект.")
+		.def_readwrite("spell_type", &AFFECT_DATA<EApplyLocation>::type, "Номер заклинания, которое наложило этот аффект")
 		.add_property("spell_type_str", get_spell_type_str, "Название заклинания (только для чтения)")
 		.add_property("location_str", get_location_str, "Название изменяемого параметра (только для чтения)")
 		.add_property("bitvector_str", get_bitvector_str, "Какие аффекты накладываем (в текстовом виде, только для чтения)")
-		.def_readwrite("duration", &AFFECT_DATA::duration, "Продолжительность в секундах")
-		.def_readwrite("modifier", &AFFECT_DATA::modifier, "Величина изменения параметра")
-		.def_readwrite("location", &AFFECT_DATA::location, "Изменяемый параметр (constants.APLY_XXX)")
-		.def_readwrite("battleflag", &AFFECT_DATA::battleflag, "Флаг для боя (холд, и т.п.)")
-		.def_readwrite("bitvector", &AFFECT_DATA::bitvector, "Накладываемые аффекты")
-		.def_readwrite("caster_id", &AFFECT_DATA::caster_id, "ID скастовавшего")
-		.def_readwrite("apply_time", &AFFECT_DATA::apply_time, "Указывает сколько аффект висит (пока используется только в комнатах)")
+		.def_readwrite("duration", &AFFECT_DATA<EApplyLocation>::duration, "Продолжительность в секундах")
+		.def_readwrite("modifier", &AFFECT_DATA<EApplyLocation>::modifier, "Величина изменения параметра")
+		.def_readwrite("location", &AFFECT_DATA<EApplyLocation>::location, "Изменяемый параметр (constants.APLY_XXX)")
+		.def_readwrite("battleflag", &AFFECT_DATA<EApplyLocation>::battleflag, "Флаг для боя (холд, и т.п.)")
+		.def_readwrite("bitvector", &AFFECT_DATA<EApplyLocation>::bitvector, "Накладываемые аффекты")
+		.def_readwrite("caster_id", &AFFECT_DATA<EApplyLocation>::caster_id, "ID скастовавшего")
+		.def_readwrite("apply_time", &AFFECT_DATA<EApplyLocation>::apply_time, "Указывает сколько аффект висит (пока используется только в комнатах)")
 	;
 
 	class_<FLAG_DATA>("FlagData", "Флаги чего-нибудь.")

@@ -303,13 +303,15 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 // * Снятие аффектов с чара при смерти/уходе в дт.
 void reset_affects(CHAR_DATA *ch)
 {
-	AFFECT_DATA *af, *naf;
+	AFFECT_DATA<EApplyLocation> *naf;
 
-	for (af = ch->affected; af; af = naf)
+	for (auto af = ch->affected; af; af = naf)
 	{
 		naf = af->next;
 		if (!IS_SET(af->battleflag, AF_DEADKEEP))
+		{
 			affect_remove(ch, af);
+		}
 	}
 
 	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
@@ -353,7 +355,7 @@ void forget_all_spells(CHAR_DATA *ch)
 	}
 	if (max_slot)
 	{
-		AFFECT_DATA af;
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_RECALL_SPELLS;
 		af.location = APPLY_NONE;
 		af.modifier = 1; // номер круга, который восстанавливаем
@@ -771,14 +773,17 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	if (exp > 1)
 	{
 		if (Bonus::is_bonus(BONUS_EXP))
+		{
 			exp *= Bonus::get_mult_bonus();
+		}
 		if (!IS_NPC(ch) && ch->affected)
 		{ 
-			AFFECT_DATA *aff = ch->affected;
-			for (aff = ch->affected; aff; aff = aff->next)
+			for (auto aff = ch->affected; aff; aff = aff->next)
 			{
 				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
-					exp *= MIN( 3, aff->modifier); // бонус макс тройной
+				{
+					exp *= MIN(3, aff->modifier); // бонус макс тройной
+				}
 			}
 		}
 		exp = MIN(max_exp_gain_pc(ch), exp);

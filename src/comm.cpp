@@ -3941,8 +3941,6 @@ void close_socket(DESCRIPTOR_DATA * d, int direct, int epoll, struct epoll_event
 void close_socket(DESCRIPTOR_DATA * d, int direct)
 #endif
 {
-	DESCRIPTOR_DATA *temp;
-
 	if (d == NULL)
 	{
 		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
@@ -3959,7 +3957,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			return;
 	}
 
-	REMOVE_FROM_LIST(d, descriptor_list, next);
+	REMOVE_FROM_LIST(d, descriptor_list);
 #ifdef HAS_EPOLL
 	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, NULL) == -1)
 		log("SYSERR: EPOLL_CTL_DEL failed in close_socket()");

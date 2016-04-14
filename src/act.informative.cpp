@@ -987,22 +987,25 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	else
 		act("\r\nНичего необычного в $n5 вы не заметили.", FALSE, i, 0, ch, TO_VICT);
 
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_CHARM) && i->master == ch)
+	if (AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
+		&& i->master == ch)
 	{
 		if (low_charm(i))
+		{
 			act("$n скоро перестанет следовать за вами.", FALSE, i, 0, ch, TO_VICT);
+		}
 		else
 		{
-			AFFECT_DATA *aff;
-			for (aff = i->affected; aff; aff = aff->next)
+			for (auto aff = i->affected; aff; aff = aff->next)
+			{
 				if (aff->type == SPELL_CHARM)
 				{
 					sprintf(buf, IS_POLY(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.", aff->duration / 2, desc_count(aff->duration / 2, 1));
 					act(buf, FALSE, i, 0, ch, TO_VICT);
 					break;
 				}
+			}
 		}
-
 	}
 
 	if (IS_HORSE(i) && i->master == ch)
@@ -5612,7 +5615,6 @@ std::array<EAffectFlag, 3> hiding = { EAffectFlag::AFF_SNEAK, EAffectFlag::AFF_H
 
 void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	AFFECT_DATA *aff;
 	FLAG_DATA saved;
 	char sp_name[MAX_STRING_LENGTH];
 
@@ -5637,16 +5639,26 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	// Routine to show what spells a char is affected by
 	if (ch->affected)
 	{
-		for (aff = ch->affected; aff; aff = aff->next)
-		{	int mod;
+		for (auto aff = ch->affected; aff; aff = aff->next)
+		{
+			int mod;
 			if (aff->type == SPELL_SOLOBONUS)
+			{
 				continue;
+			}
 			*buf2 = '\0';
 			strcpy(sp_name, spell_name(aff->type));
 			if (aff->battleflag == AF_PULSEDEC)
-					mod = aff->duration /51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
-			else mod = aff->duration;
-			(mod + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
+			{
+				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
+			}
+			else
+			{
+				mod = aff->duration;
+			}
+			(mod + 1) / SECS_PER_MUD_HOUR
+				? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR))
+				: sprintf(buf2, "(менее часа)");
 			sprintf(buf, "%s%s%-21s %-12s%s ",
 					*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					CCICYN(ch, C_NRM), sp_name, buf2, CCNRM(ch, C_NRM));
@@ -5654,7 +5666,9 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			if (!IS_IMMORTAL(ch))
 			{
 				if (aff->next && aff->type == aff->next->type)
+				{
 					continue;
+				}
 			}
 			else
 			{
@@ -5666,9 +5680,13 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 				if (aff->bitvector)
 				{
 					if (*buf2)
+					{
 						strcat(buf, ", устанавливает ");
+					}
 					else
+					{
 						strcat(buf, "устанавливает ");
+					}
 					strcat(buf, CCIRED(ch, C_NRM));
 					sprintbit(aff->bitvector, affected_bits, buf2);
 					strcat(buf, buf2);
@@ -5678,14 +5696,22 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			send_to_char(strcat(buf, "\r\n"), ch);
 		}
 // отображение наград
-		for (aff = ch->affected; aff; aff = aff->next)
+		for (auto aff = ch->affected; aff; aff = aff->next)
 		{
 		    if (aff->type == SPELL_SOLOBONUS)
-		    {	int mod;
+		    {
+				int mod;
 				if (aff->battleflag == AF_PULSEDEC)
-						mod = aff->duration /51; //если в пульсах приводим к тикам	25.5 в сек 2 минуты
-				else mod = aff->duration;
-				(mod + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "(менее часа)");
+				{
+					mod = aff->duration / 51; //если в пульсах приводим к тикам	25.5 в сек 2 минуты
+				}
+				else
+				{
+					mod = aff->duration;
+				}
+				(mod + 1) / SECS_PER_MUD_HOUR
+					? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR))
+					: sprintf(buf2, "(менее часа)");
 			    sprintf(buf, "Заклинание : %s%-21s %-12s%s ", CCICYN(ch, C_NRM),  "награда",  buf2, CCNRM(ch, C_NRM));
 			    *buf2 = '\0';
 			    if (aff->modifier)

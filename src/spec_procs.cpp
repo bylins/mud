@@ -389,8 +389,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 	strcpy(buf2, buf);
 	if (!IS_NPC(ch) && ch->affected)
 	{
-		AFFECT_DATA *aff = ch->affected;
-		for (aff = ch->affected; aff; aff = aff->next)
+		for (auto aff = ch->affected; aff; aff = aff->next)
 		{
 			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с скилл бонусом
 			bonus = aff->modifier; // сколько крут стал 

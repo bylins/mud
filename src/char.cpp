@@ -300,7 +300,6 @@ void CHAR_DATA::purge(bool destructor)
 
 	int i, j, id = -1;
 	struct alias_data *a;
-	struct helper_data_type *temp;
 
 	if (!IS_NPC(this) && GET_NAME(this))
 	{
@@ -334,7 +333,9 @@ void CHAR_DATA::purge(bool destructor)
 		pk_free_list(this);
 
 		while (this->helpers)
-			REMOVE_FROM_LIST(this->helpers, this->helpers, next_helper);
+		{
+			REMOVE_FROM_LIST(this->helpers, this->helpers, [](auto list) -> auto& { return list->next_helper; });
+		}
 	}
 	else if ((i = GET_MOB_RNUM(this)) >= 0)
 	{	// otherwise, free strings only if the string is not pointing at proto

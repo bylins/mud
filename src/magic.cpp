@@ -119,10 +119,14 @@ CHAR_DATA * random_char_in_room(ROOM_DATA *room)
 
 bool is_room_forbidden(ROOM_DATA * room)
 {
-	AFFECT_DATA* af;
-	for (af = room->affected ; af ; af = af->next)
-		if (af->type == SPELL_FORBIDDEN && (number(1, 100) <= af->modifier))
+	for (auto af = room->affected ; af ; af = af->next)
+	{
+		if (af->type == SPELL_FORBIDDEN
+			&& (number(1, 100) <= af->modifier))
+		{
 			return true;
+		}
+	}
 	return false;
 }
 
@@ -140,7 +144,7 @@ void ShowRooms(CHAR_DATA *ch);
 // Поиск и удаление первого аффекта от спелла spellnum и кастером с идом id //
 void find_and_remove_room_affect(long id, int spellnum);
  // Обработка самих аффектов т.е. их влияния на персонажей в комнате раз в 2 секунды //
-void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff);
+void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA<ERoomApplyLocation> * aff);
 // Сообщение при снятии аффекта //
 void show_room_spell_off(int aff, room_rnum room);
 // Добавление новой комнаты в список //
@@ -156,13 +160,14 @@ int timer_affected_roomt(CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
 void ShowRooms(CHAR_DATA *ch)
 {
 	buf[0] = '\0';
-	AFFECT_DATA *af;
     strcpy(buf, "Список комнат под аффектами:\r\n" "-------------------\r\n");
     for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
 	{
 		buf1[0] = '\0';
-		for (af = (*it)->affected ; af ; af = af->next)
-			sprintf(buf1 + strlen(buf1),  " !%s! (%s) [%d] ", spell_info[af->type].name, get_name_by_id(af->caster_id), af->duration);
+		for (auto af = (*it)->affected ; af ; af = af->next)
+		{
+			sprintf(buf1 + strlen(buf1), " !%s! (%s) [%d] ", spell_info[af->type].name, get_name_by_id(af->caster_id), af->duration);
+		}
         sprintf(buf + strlen(buf),  "   [%d] %s\r\n", (*it)->number, buf1);
 	}
     page_string(ch->desc, buf, TRUE);
@@ -173,14 +178,14 @@ void ShowRooms(CHAR_DATA *ch)
 // Поиск первой комнаты с аффектом от spellnum и кастером с идом Id //
 ROOM_DATA * find_affected_roomt(long id, int spellnum)
 {
-    AFFECT_DATA *af;
-
     for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
     {
-        for (af = (*it)->affected ; af ; af = af->next)
+        for (auto af = (*it)->affected ; af ; af = af->next)
         {
 			if ((af->type == spellnum) && (af->caster_id == id))
-                return *it;
+			{
+				return *it;
+			}
         }
     }
     return NULL;
@@ -191,11 +196,9 @@ ROOM_DATA * find_affected_roomt(long id, int spellnum)
 // Поиск и удаление первого аффекта от спелла spellnum и кастером с идом id //
 void find_and_remove_room_affect(long id, int spellnum)
 {
-    AFFECT_DATA *af;
-
     for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
     {
-        for (af = (*it)->affected ; af ; af = af->next)
+        for (auto af = (*it)->affected ; af ; af = af->next)
         {
 			if ((af->type == spellnum) && (af->caster_id == id))
 			{
@@ -233,7 +236,7 @@ void AddRoom(ROOM_DATA* room)
 // =============================================================== //
 
 // Раз в 2 секунды идет вызов обработчиков аффектов//
-void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA * aff)
+void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA<ERoomApplyLocation>* aff)
 {
 	// Аффект в комнате.
 	// Проверяем на то что нам передали бяку в параметрах.
@@ -356,7 +359,6 @@ void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA * a
 // Gorrah: Вынес в отдельный лист обкастованные комнаты - теперь думаю не прикончит //
 void room_affect_update(void)
 {
-	AFFECT_DATA *af, *next;
 	CHAR_DATA *ch;
 	int spellnum;
 	//std::list<ROOM_DATA*>::iterator i = aff_room_list.begin();
@@ -364,7 +366,8 @@ void room_affect_update(void)
 	for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();)
 	{
 		assert(*it);
-		for (af = (*it)->affected ; af ; af = next)
+		AFFECT_DATA<ERoomApplyLocation> *next;
+		for (auto af = (*it)->affected ; af ; af = next)
 		{
 			next = af->next;
 			spellnum = af->type;
@@ -437,7 +440,9 @@ void room_affect_update(void)
 			// Учитываем что время выдается в пульсах а не в секундах  т.е. надо умножать на 2
 			af->apply_time++;
 			if (af->must_handled)
-                pulse_room_affect_handler(*it, ch, af);
+			{
+				pulse_room_affect_handler(*it, ch, af);
+			}
 		}
         //если больше аффектов нет, удаляем комнату из списка обкастованных
         if ((*it)->affected == NULL)
@@ -459,7 +464,6 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	// поэтому любой каст на комнату это прежде всего вешание
 	// на нее какого-то определенного аффекта.
 
-	AFFECT_DATA af[MAX_SPELL_AFFECTS];
 	bool accum_affect = FALSE, accum_duration = FALSE, success = TRUE;
 	//Данный флажок говорит можно ли обновлять закл
 	//или  оно должно висеть пока не спадет
@@ -471,16 +475,19 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	int i = 0, lag = 0;
 	// Sanity check
 	if (room == NULL || IN_ROOM(ch) == NOWHERE || ch == NULL)
+	{
 		return 0;
+	}
 
 	// Нулим все аффекты в массиве.
+	AFFECT_DATA<ERoomApplyLocation> af[MAX_SPELL_AFFECTS];
 	for (i = 0; i < MAX_SPELL_AFFECTS; i++)
 	{
 		af[i].type = spellnum;
 		af[i].bitvector = 0;
 		af[i].modifier = 0;
 		af[i].battleflag = 0;
-		af[i].location = APPLY_NONE;
+		af[i].location = APPLY_ROOM_NONE;
 		af[i].caster_id = 0;
 		af[i].must_handled = false;
 		af[i].apply_time = 0;
@@ -620,8 +627,9 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++)
 	{
 		af[i].type = spellnum;
-		if (af[i].bitvector || af[i].location != APPLY_ROOM_NONE
-				|| af[i].must_handled)
+		if (af[i].bitvector
+			|| af[i].location != APPLY_ROOM_NONE
+			|| af[i].must_handled)
 		{
 			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (update_spell)
@@ -654,14 +662,14 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 // Время существования заклинания в комнате //
 int timer_affected_roomt(long id, int spellnum)
 {
-   AFFECT_DATA *af;
-
     for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
     {
-        for (af = (*it)->affected ; af ; af = af->next)
+        for (auto af = (*it)->affected ; af ; af = af->next)
         {
 			if ((af->type == spellnum) && (af->caster_id == id))
-                return af->duration;
+			{
+				return af->duration;
+			}
         }
     }
     return 0;
@@ -821,7 +829,6 @@ void show_spell_off(int aff, CHAR_DATA * ch)
 
 void mobile_affect_update(void)
 {
-	AFFECT_DATA *af, *next;
 	struct timed_type *timed, *timed_next;
 	CHAR_DATA *i, *i_next;
 	int was_charmed = 0, charmed_msg = FALSE;
@@ -834,7 +841,8 @@ void mobile_affect_update(void)
 
 		bool was_purged = false;
 
-		for (af = i->affected; IS_NPC(i) && af; af = next)
+		AFFECT_DATA<EApplyLocation> *next;
+		for (auto af = i->affected; IS_NPC(i) && af; af = next)
 		{
 			next = af->next;
 			if (af->duration >= 1)
@@ -857,7 +865,9 @@ void mobile_affect_update(void)
 				}
 			}
 			else if (af->duration == -1)
+			{
 				af->duration = -1;	// GODS - unlimited
+			}
 			else
 			{
 				if ((af->type > 0) && (af->type <= MAX_SPELLS))
@@ -917,7 +927,6 @@ void mobile_affect_update(void)
 
 void player_affect_update(void)
 {
-	AFFECT_DATA *af, *next;
 	CHAR_DATA *i, *i_next;
 
 	for (i = character_list; i; i = i_next)
@@ -938,7 +947,8 @@ void player_affect_update(void)
 
 		bool was_purged = false;
 
-		for (af = i->affected; af; af = next)
+		AFFECT_DATA<EApplyLocation> *next;
+		for (auto af = i->affected; af; af = next)
 		{
 			next = af->next;
 			if (af->duration >= 1)
@@ -997,14 +1007,14 @@ void player_affect_update(void)
 // This file update battle affects only
 void battle_affect_update(CHAR_DATA * ch)
 {
-	AFFECT_DATA *af, *next;
-
-
-	for (af = ch->affected; af; af = next)
+	AFFECT_DATA<EApplyLocation> *next;
+	for (auto af = ch->affected; af; af = next)
 	{
 		next = af->next;
 		if (!IS_SET(af->battleflag, AF_BATTLEDEC) && !IS_SET(af->battleflag, AF_SAME_TIME))
+		{
 			continue;
+		}
 		if (IS_NPC(ch) && af->location == APPLY_POISON)
 			continue;
 		if (af->duration >= 1)
@@ -1053,18 +1063,21 @@ void battle_affect_update(CHAR_DATA * ch)
 // This file update pulse affects only
 void pulse_affect_update(CHAR_DATA * ch)
 {
-	AFFECT_DATA *af, *next;
 	bool pulse_aff = FALSE;
 
 	if (ch->get_fighting())
+	{
 		return;
+	}
 
-
-	for (af = ch->affected; af; af = next)
+	AFFECT_DATA<EApplyLocation> *next;
+	for (auto af = ch->affected; af; af = next)
 	{
 		next = af->next;
 		if (!IS_SET(af->battleflag, AF_PULSEDEC))
+		{
 			continue;
+		}
 		pulse_aff = TRUE;
 		if (af->duration >= 1)
 		{
@@ -1074,7 +1087,9 @@ void pulse_affect_update(CHAR_DATA * ch)
 				af->duration -= MIN(af->duration, SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC);
 		}
 		else if (af->duration == -1)	// No action //
+		{
 			af->duration = -1;	// GODs only! unlimited //
+		}
 		else
 		{
 			if ((af->type > 0) && (af->type <= MAX_SPELLS))
@@ -2345,15 +2360,18 @@ bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum)
 
 int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
 {
-	AFFECT_DATA af[MAX_SPELL_AFFECTS];
 	bool accum_affect = FALSE, accum_duration = FALSE, success = TRUE;
 	bool update_spell = FALSE;
 	const char *to_vict = NULL, *to_room = NULL;
 	int i, modi = 0;
 	int rnd = 0;
 	int decline_mod = 0;
-	if (victim == NULL || IN_ROOM(victim) == NOWHERE || ch == NULL)
+	if (victim == NULL
+		|| IN_ROOM(victim) == NOWHERE
+		|| ch == NULL)
+	{
 		return 0;
+	}
 
 	// Calculate PKILL's affects
 	//   1) "NPC affect PC spellflag"  for victim
@@ -2412,7 +2430,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		return 0;
 	}
 
-
+	AFFECT_DATA<EApplyLocation> af[MAX_SPELL_AFFECTS];
 	for (i = 0; i < MAX_SPELL_AFFECTS; i++)
 	{
 		af[i].type = spellnum;
@@ -2429,7 +2447,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	}
 
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
+	{
 		modi = modi - 50;
+	}
 
 //  log("[MAG Affect] Modifier value for %s (caster %s) = %d(spell %d)",
 //      GET_NAME(victim), GET_NAME(ch), modi, spellnum);
@@ -3628,7 +3648,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 2, level, 2, 0, 0));
 		af[0].modifier = -5 - (GET_LEVEL(ch) + GET_REMORT(ch)) / 2;
-		af[1].location = number(1, 6);
+		af[1].location = static_cast<EApplyLocation>(number(1, 6));
 		af[1].duration = af[0].duration;
 		af[1].modifier = - (GET_LEVEL(ch) + GET_REMORT(ch) * 3) / 15;
 		to_room = "Тяжелое бурое облако сгустилось над $n4.";
@@ -4025,13 +4045,14 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 {
 	CHAR_DATA *tmp_mob, *mob = NULL;
 	OBJ_DATA *tobj, *next_obj;
-	AFFECT_DATA af;
 	struct follow_type *k;
 	int pfail = 0, msg = 0, fmsg = 0, handle_corpse = FALSE, keeper = FALSE, cha_num = 0, modifier = 0;
 	mob_vnum mob_num;
 
 	if (ch == NULL)
+	{
 		return 0;
+	}
 
 	switch (spellnum)
 	{
@@ -4257,6 +4278,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 //-Polud
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
 	if (weather_info.moon_day < 14)
 		af.duration = pc_duration(mob, GET_REAL_WIS(ch) + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
@@ -4264,7 +4286,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		af.duration =
 			pc_duration(mob, GET_REAL_WIS(ch) + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
 	af.modifier = 0;
-	af.location = 0;
+	af.location = EApplyLocation::APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 	af.battleflag = 0;
 	affect_to_char(mob, &af);
@@ -4488,7 +4510,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/
 	return 1;
 }
 
-inline bool NODISPELL(const AFFECT_DATA* hjp)
+inline bool NODISPELL(const AFFECT_DATA<EApplyLocation>* hjp)
 {
 	return !hjp
 		|| !spell_info[hjp->type].name
@@ -4503,13 +4525,13 @@ inline bool NODISPELL(const AFFECT_DATA* hjp)
 
 int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/* type*/)
 {
-	AFFECT_DATA *hjp;
 	int spell = 0, remove = 0, rspell = 0;
 	const char *to_vict = NULL, *to_room = NULL;
 
 	if (victim == NULL)
 		return 0;
 
+	AFFECT_DATA<EApplyLocation> *hjp;
 	switch (spellnum)
 	{
 	case SPELL_CURE_BLIND:
@@ -4573,6 +4595,7 @@ int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnu
 		spell = hjp->type;
 		remove = TRUE;
 		break;
+
 	default:
 		log("SYSERR: unknown spellnum %d passed to mag_unaffects.", spellnum);
 		return 0;

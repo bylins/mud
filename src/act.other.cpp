@@ -359,7 +359,6 @@ int char_humming(CHAR_DATA * ch)
 
 void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	AFFECT_DATA af;
 	ubyte prob, percent;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_SNEAK))
@@ -393,6 +392,7 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	percent = number(1, skill_info[SKILL_SNEAK].max_percent);
 	prob = calculate_skill(ch, SKILL_SNEAK, 0);
 
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_SNEAK;
 	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 8, 0, 1);
 	af.modifier = 0;
@@ -411,7 +411,6 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	AFFECT_DATA af;
 	struct timed_type timed;
 	ubyte prob, percent;
 
@@ -454,6 +453,7 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	percent = number(1, skill_info[SKILL_CAMOUFLAGE].max_percent);
 	prob = calculate_skill(ch, SKILL_CAMOUFLAGE, 0);
 
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CAMOUFLAGE;
 	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 6, 0, 2);
 	af.modifier = world[IN_ROOM(ch)]->zone;
@@ -478,7 +478,6 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 
 void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	AFFECT_DATA af;
 	ubyte prob, percent;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDE))
@@ -517,6 +516,7 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	percent = number(1, skill_info[SKILL_HIDE].max_percent);
 	prob = calculate_skill(ch, SKILL_HIDE, 0);
 
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_HIDE;
 	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 8, 0, 1);
 	af.modifier = 0;
@@ -861,7 +861,6 @@ void do_visible(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_courage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
-	AFFECT_DATA af[4];
 	int prob;
 	struct timed_type timed;
 	int i;
@@ -930,6 +929,7 @@ void do_courage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	     affect_join(ch,&af[prob],TRUE,FALSE,TRUE,FALSE);
 	 ************************************/
 	prob = calculate_skill(ch, SKILL_COURAGE, 0) / 20;
+	AFFECT_DATA<EApplyLocation> af[4];
 	af[0].type = SPELL_COURAGE;
 	af[0].duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	af[0].modifier = 40;
@@ -1079,10 +1079,13 @@ int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 
 int low_charm(CHAR_DATA * ch)
 {
-	AFFECT_DATA *aff;
-	for (aff = ch->affected; aff; aff = aff->next)
+	for (auto aff = ch->affected; aff; aff = aff->next)
+	{
 		if (aff->type == SPELL_CHARM && aff->duration <= 1)
+		{
 			return (TRUE);
+		}
+	}
 	return (FALSE);
 }
 
@@ -1566,14 +1569,15 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
-		AFFECT_DATA *aff;
 		int loyalty = 0;
-		for (aff = ch->affected; aff; aff = aff->next)
+		for (auto aff = ch->affected; aff; aff = aff->next)
+		{
 			if (aff->type == SPELL_CHARM)
 			{
 				loyalty = aff->duration / 2;
 				break;
 			}
+		}
 		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %dL\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch),
 				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
@@ -2671,16 +2675,18 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	int metter = -1;
 	OBJ_DATA *obj = NULL;
-	AFFECT_DATA af;
 	struct timed_type timed;
 
-
 	if (IS_NPC(ch))
+	{
 		return;
+	}
 
-	if (!IS_IMMORTAL(ch) &&
-			((subcmd == SCMD_DONATE && GET_RELIGION(ch) != RELIGION_POLY) ||
-			 (subcmd == SCMD_PRAY && GET_RELIGION(ch) != RELIGION_MONO)))
+	if (!IS_IMMORTAL(ch)
+		&& ((subcmd == SCMD_DONATE
+				&& GET_RELIGION(ch) != RELIGION_POLY)
+			|| (subcmd == SCMD_PRAY
+				&& GET_RELIGION(ch) != RELIGION_MONO)))
 	{
 		send_to_char("Не кощунствуйте!\r\n", ch);
 		return;
@@ -2705,11 +2711,13 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			send_to_char("Вы можете принести жертву :\r\n", ch);
 			for (metter = 0; *(pray_metter[metter]) != '\n'; metter++)
+			{
 				if (*(pray_metter[metter]) == '-')
 				{
 					send_to_char(pray_metter[metter], ch);
 					send_to_char("\r\n", ch);
 				}
+			}
 			send_to_char("Укажите, кому и что вы хотите жертвовать.\r\n", ch);
 		}
 		else if (subcmd == SCMD_PRAY)
@@ -2778,6 +2786,7 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		if (i.metter == metter)
 		{
+			AFFECT_DATA<EApplyLocation> af;
 			af.type = SPELL_RELIGION;
 			af.duration = pc_duration(ch, 12, 0, 0, 0, 0);
 			af.modifier = i.modifier;
@@ -3973,7 +3982,7 @@ void do_bandage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	send_to_char("Вы достали бинты и начали оказывать себе первую помощь...\r\n", ch);
 	act("$n начал$g перевязывать свои раны.&n", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
-	AFFECT_DATA af;
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_BANDAGE;
 	af.location = APPLY_NONE;
 	af.modifier = GET_OBJ_VAL(bandage, 0);

@@ -905,7 +905,6 @@ int feature_mod(int feat, int location)
 
 void check_berserk(CHAR_DATA * ch)
 {
-	AFFECT_DATA af;
 	struct timed_type timed;
 	int prob;
 
@@ -928,6 +927,7 @@ void check_berserk(CHAR_DATA * ch)
 		timed_feat_to_char(ch, &timed);
 //		}
 
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_BERSERK;
 		af.duration = pc_duration(ch, 1, 60, 30, 0, 0);
 		af.modifier = 0;
@@ -954,7 +954,6 @@ void check_berserk(CHAR_DATA * ch)
 // Легкая поступь
 void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	AFFECT_DATA af;
 	struct timed_type timed;
 
 	if (IS_NPC(ch) || !can_use_feat(ch, LIGHT_WALK_FEAT))
@@ -987,6 +986,7 @@ void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 	timed_feat_to_char(ch, &timed);
 
 	send_to_char("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_LIGHT_WALK;
 	af.duration = pc_duration(ch, 2, GET_LEVEL(ch), 5, 2, 8);
 	af.modifier = 0;
@@ -1128,7 +1128,6 @@ int slot_for_char(CHAR_DATA * ch, int i);
 // Вложить закл в клона
 void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	AFFECT_DATA af;
 	struct timed_type timed;
 
 	if (!IS_IMPL(ch) && (IS_NPC(ch) || !can_use_feat(ch, SPELL_CAPABLE_FEAT)))
@@ -1270,6 +1269,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	timed_feat_to_char(ch, &timed);
 
 	GET_CAST_SUCCESS(follower) = GET_REMORT(ch)*4;
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CAPABLE;
 	af.duration = 48;
 	if(GET_REMORT(ch)>0) {
@@ -1391,13 +1391,14 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		timed.time = 18 - MIN(GET_REMORT(ch),15);
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
 		//На время лага на чара нельзя ставить пенту
-			AFFECT_DATA af;
-			af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
-			af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
-			af.battleflag = AF_PULSEDEC;
-			affect_to_char(ch, &af);
+		AFFECT_DATA<EApplyLocation> af;
+		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
+		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
+		af.battleflag = AF_PULSEDEC;
+		affect_to_char(ch, &af);
 	}
-	else {
+	else
+	{
 		timed.time = 2;
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 	}

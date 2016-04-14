@@ -323,7 +323,6 @@ void Player::save_char()
 	char filename[MAX_STRING_LENGTH];
 	int i;
 	time_t li;
-	AFFECT_DATA *aff, tmp_aff[MAX_AFFECT];
 	OBJ_DATA *char_eq[NUM_WEARS];
 	struct timed_type *skj;
 	struct char_portal_type *prt;
@@ -357,7 +356,9 @@ void Player::save_char()
 			char_eq[i] = NULL;
 	}
 
-	for (aff = this->affected, i = 0; i < MAX_AFFECT; i++)
+	auto aff = this->affected;
+	AFFECT_DATA<EApplyLocation> tmp_aff[MAX_AFFECT];
+	for (i = 0; i < MAX_AFFECT; i++)
 	{
 		if (aff)
 		{
@@ -379,7 +380,7 @@ void Player::save_char()
 			tmp_aff[i].type = 0;	// Zero signifies not used
 			tmp_aff[i].duration = 0;
 			tmp_aff[i].modifier = 0;
-			tmp_aff[i].location = 0;
+			tmp_aff[i].location = EApplyLocation::APPLY_NONE;
 			tmp_aff[i].bitvector = 0;
 			tmp_aff[i].next = 0;
 		}
@@ -390,20 +391,28 @@ void Player::save_char()
 	 * effects are doubled when the char logs back in.
 	 */
 	while (this->affected)
+	{
 		affect_remove(this, this->affected);
+	}
 
 	if ((i >= MAX_AFFECT) && aff && aff->next)
+	{
 		log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
+	}
 
 	// первыми идут поля, необходимые при ребуте мада, тут без необходимости трогать ничего не надо
 	if (GET_NAME(this))
+	{
 		fprintf(saved, "Name: %s\n", GET_NAME(this));
+	}
 	fprintf(saved, "Levl: %d\n", GET_LEVEL(this));
 	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
 	if (this->desc)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
+	{
 		strcpy(buf, this->desc->host);
+	}
 	else//по сути так должен норм сохраняцо последний айпи
 	{
 		li = 0;
@@ -430,13 +439,17 @@ void Player::save_char()
 	fprintf(saved, "Id  : %ld\n", GET_IDNUM(this));
 	fprintf(saved, "Exp : %ld\n", GET_EXP(this));
 	if (GET_REMORT(this) > 0)
+	{
 		fprintf(saved, "Rmrt: %d\n", GET_REMORT(this));
+	}
 	// флаги
 	*buf = '\0';
 	PLR_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Act : %s\n", buf);
 	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
+	{
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(this));
+	}
 	// это пишем обязательно посленим, потому что после него ничего не прочитается
 	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
 	// дальше пишем как хотим и что хотим
@@ -771,7 +784,7 @@ void Player::save_char()
 		}
 		if(k && k->follower && k->follower->affected)
 		{
-			for (AFFECT_DATA *aff = k->follower->affected; aff; aff = aff->next)
+			for (auto aff = k->follower->affected; aff; aff = aff->next)
 			{
 				if (aff->type == SPELL_CHARM)
 				{
@@ -869,9 +882,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	char filename[40];
 	char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
 	char line1[MAX_RAW_INPUT_LENGTH];
-	AFFECT_DATA af;
 	struct timed_type timed;
-
 
 	*filename = '\0';
 	log("Load ascii char %s", name);
@@ -1206,10 +1217,11 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
 					if (num > 0)
 					{
+						AFFECT_DATA<EApplyLocation> af;
 						af.type = num;
 						af.duration = num2;
 						af.modifier = num3;
-						af.location = num4;
+						af.location = static_cast<EApplyLocation>(num4);
 						af.bitvector = num5;
 						af.battleflag = num6;
 						if (af.type == SPELL_LACKY)
