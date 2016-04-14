@@ -189,10 +189,10 @@ namespace craft
 
 		bool load_item_parameters(const pugi::xml_node* node);
 		void load_skills(const pugi::xml_node* node);
+		void load_extended_values(const pugi::xml_node* node);
 		bool check_prototype_consistency() const;
 
 		const std::string& aliases() const { return m_cases.aliases(); }
-
 		obj_vnum m_vnum;
 
 		std::string m_short_desc;
@@ -229,10 +229,9 @@ namespace craft
 		std::underlying_type<EWearFlag>::type m_wear_flags;
 
 		skills_t m_skills;
-
 		vals_t m_vals;
-
 		OBJ_DATA::triggers_list_t m_triggers_list;
+		ObjVal m_extended_values;
 
 		friend class CCraftModel;
 	};

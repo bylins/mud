@@ -6,6 +6,7 @@
 
 #include "craft.hpp"
 
+#include "parse.hpp"
 #include "skills.h"
 #include "comm.h"
 #include "db.h"
@@ -668,9 +669,10 @@ namespace craft
 					vnum_str, m_vnum); });
 		}
 
+		load_extended_values(node);
+
 		/* TODO:
-		** 2. Load affects
-		** 3. Load values
+		** 2. Load applies
 		**/
 
 		prefix.change_prefix(END_PREFIX);
@@ -730,10 +732,10 @@ namespace craft
 		}
 
 		result->proto_script = m_triggers_list;
+		result->values = m_extended_values;
 
 		/* TODO:
 		** 2. Copy applies
-		** 3. Copy values
 		**/
 
 		return result;
@@ -871,6 +873,51 @@ namespace craft
 				log("Adding the (skill, value) pair (%s, %d) to prototype with VNUM %d.\n",
 					determined_id.str().c_str(), skill_value, m_vnum);
 				m_skills.insert(skills_t::value_type(skill_id, skill_value));
+			}
+		}
+	}
+
+	void CPrototype::load_extended_values(const pugi::xml_node* node)
+	{
+		const auto extended_values_node = node->child("extended_values");
+		if (extended_values_node)
+		{
+			size_t number = 0;
+			for (const auto entry_node : extended_values_node.children("entry"))
+			{
+				++number;
+				const auto key_node = entry_node.child("key");
+				if (!key_node)
+				{
+					log("WARNING: %d-%s \"entry\" tag of \"extended_values\" group does not have the \"key\" tag. Prototype with VNUM %d.\n",
+						number, suffix(number), m_vnum);
+					continue;
+				}
+
+				ObjVal::EValueKey key;
+				try
+				{
+					key = static_cast<ObjVal::EValueKey>(TextId::to_num(TextId::OBJ_VALS, key_node.child_value()));
+				}
+				catch (...)
+				{
+					log("WARNING: Could not convert value \"%s\" to key value. Prototype with VNUM %d.\n Skipping entry.\n",
+						key_node.child_value(), m_vnum);
+					continue;
+				}
+
+				const auto value_node = entry_node.child("value");
+				if (!value_node)
+				{
+					log("WARNING: entry with key \"%s\" does not have \"value\" tag. Prototype with VNUM %d. Skipping entry.\n",
+						key_node.child_value(), m_vnum);
+					continue;
+				}
+
+				CLoadHelper::load_integer(value_node.child_value(),
+					[&](const auto value) { m_extended_values.set(key, value); },
+					[&]() { log("WARNIGN: Could not convert value of \"value\" tag to integer. Entry key value \"%s\". Prototype with VNUM %d",
+						key_node.child_value(), m_vnum); });
 			}
 		}
 	}
