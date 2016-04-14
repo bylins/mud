@@ -1082,9 +1082,7 @@ EXCHANGE_ITEM_DATA *create_exchange_item(void)
 
 void extract_exchange_item(EXCHANGE_ITEM_DATA * item)
 {
-
-	EXCHANGE_ITEM_DATA *temp;
-	REMOVE_FROM_LIST(item, exchange_item_list, next);
+	REMOVE_FROM_LIST(item, exchange_item_list);
 	if (GET_EXCHANGE_ITEM_LOT(item) > 0 && GET_EXCHANGE_ITEM_LOT(item) <= (int) lot_usage.size())
 		lot_usage[GET_EXCHANGE_ITEM_LOT(item) - 1] = false;
 	if (item->comment)
@@ -1098,18 +1096,22 @@ void extract_exchange_item(EXCHANGE_ITEM_DATA * item)
 void check_exchange(OBJ_DATA * obj)
 {
 	if (!obj)
+	{
 		return;
-	EXCHANGE_ITEM_DATA *j, *next_thing, *temp;
+	}
+	EXCHANGE_ITEM_DATA *j, *next_thing;
 
 	for (j = exchange_item_list; j; j = next_thing)
 	{
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM(j) == obj)
 		{
-			REMOVE_FROM_LIST(j, exchange_item_list, next);
+			REMOVE_FROM_LIST(j, exchange_item_list);
 			lot_usage[GET_EXCHANGE_ITEM_LOT(j) - 1] = false;
 			if (j->comment)
+			{
 				free(j->comment);
+			}
 			free(j);
 			break;
 		}
@@ -1681,15 +1683,17 @@ int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects)
 
 void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot)
 {
-	EXCHANGE_ITEM_DATA *temp;
 	if (lot == NULL)
+	{
 		return;
+	}
 
-
-	REMOVE_FROM_LIST(lot, exchange_item_list, next);
+	REMOVE_FROM_LIST(lot, exchange_item_list);
 	lot_usage[GET_EXCHANGE_ITEM_LOT(lot) - 1] = false;
 	if (lot->comment)
+	{
 		free(lot->comment);
+	}
 	free(lot);
 }
 

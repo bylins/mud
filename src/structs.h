@@ -986,73 +986,79 @@ template <> const std::string& NAME_BY_ITEM<EAntiFlag>(const EAntiFlag item);
 template <> EAntiFlag ITEM_BY_NAME<EAntiFlag>(const std::string& name);
 
 // Modifier constants used with obj affects ('A' fields) //
-#define APPLY_NONE              0	// No effect         //
-#define APPLY_STR               1	// Apply to strength    //
-#define APPLY_DEX               2	// Apply to dexterity      //
-#define APPLY_INT               3	// Apply to constitution   //
-#define APPLY_WIS               4	// Apply to wisdom      //
-#define APPLY_CON               5	// Apply to constitution   //
-#define APPLY_CHA		6	// Apply to charisma    //
-#define APPLY_CLASS             7	// Reserved       //
-#define APPLY_LEVEL             8	// Reserved       //
-#define APPLY_AGE               9	// Apply to age         //
-#define APPLY_CHAR_WEIGHT      10	// Apply to weight      //
-#define APPLY_CHAR_HEIGHT      11	// Apply to height      //
-#define APPLY_MANAREG          12	// Apply to max mana    //
-#define APPLY_HIT              13	// Apply to max hit points //
-#define APPLY_MOVE             14	// Apply to max move points   //
-#define APPLY_GOLD             15	// Reserved       //
-#define APPLY_EXP              16	// Reserved       //
-#define APPLY_AC               17	// Apply to Armor Class    //
-#define APPLY_HITROLL          18	// Apply to hitroll     //
-#define APPLY_DAMROLL          19	// Apply to damage roll    //
-#define APPLY_SAVING_WILL      20	// Apply to save throw: paralz   //
-#define APPLY_RESIST_FIRE      21	// Apply to RESIST throw: fire  //
-#define APPLY_RESIST_AIR       22	// Apply to RESIST throw: air   //
-#define APPLY_SAVING_CRITICAL  23	// Apply to save throw: breath   //
-#define APPLY_SAVING_STABILITY 24	// Apply to save throw: spells   //
-#define APPLY_HITREG           25
-#define APPLY_MOVEREG          26
-#define APPLY_C1               27
-#define APPLY_C2               28
-#define APPLY_C3               29
-#define APPLY_C4               30
-#define APPLY_C5               31
-#define APPLY_C6               32
-#define APPLY_C7               33
-#define APPLY_C8               34
-#define APPLY_C9               35
-#define APPLY_SIZE             36
-#define APPLY_ARMOUR           37
-#define APPLY_POISON           38
-#define APPLY_SAVING_REFLEX    39
-#define APPLY_CAST_SUCCESS     40
-#define APPLY_MORALE           41
-#define APPLY_INITIATIVE       42
-#define APPLY_RELIGION         43
-#define APPLY_ABSORBE          44
-#define APPLY_LIKES	       45
-#define APPLY_RESIST_WATER     46	// Apply to RESIST throw: water  //
-#define APPLY_RESIST_EARTH     47	// Apply to RESIST throw: earth  //
-#define APPLY_RESIST_VITALITY  48	// Apply to RESIST throw: light, dark, critical damage  //
-#define APPLY_RESIST_MIND      49	// Apply to RESIST throw: mind magic  //
-#define APPLY_RESIST_IMMUNITY  50	// Apply to RESIST throw: poison, disease etc.  //
-#define APPLY_AR	           51	// Apply to Magic affect resist //
-#define APPLY_MR	           52	// Apply to Magic damage resist //
-#define APPLY_ACONITUM_POISON  53
-#define APPLY_SCOPOLIA_POISON  54
-#define APPLY_BELENA_POISON    55
-#define APPLY_DATURA_POISON    56
-#define APPLY_HIT_GLORY        57
-#define APPLY_BONUS_EXP		58
-#define APPLY_BONUS_SKILLS      59
-#define NUM_APPLIES	        60
+enum EApplyLocation
+{
+	APPLY_NONE = 0,	// No effect         //
+	APPLY_STR = 1,	// Apply to strength    //
+	APPLY_DEX = 2,	// Apply to dexterity      //
+	APPLY_INT = 3,	// Apply to constitution   //
+	APPLY_WIS = 4,	// Apply to wisdom      //
+	APPLY_CON = 5,	// Apply to constitution   //
+	APPLY_CHA = 6,	// Apply to charisma    //
+	APPLY_CLASS = 7,	// Reserved       //
+	APPLY_LEVEL = 8,	// Reserved       //
+	APPLY_AGE = 9,	// Apply to age         //
+	APPLY_CHAR_WEIGHT = 10,	// Apply to weight      //
+	APPLY_CHAR_HEIGHT = 11,	// Apply to height      //
+	APPLY_MANAREG = 12,	// Apply to max mana    //
+	APPLY_HIT = 13,	// Apply to max hit points //
+	APPLY_MOVE = 14,	// Apply to max move points   //
+	APPLY_GOLD = 15,	// Reserved       //
+	APPLY_EXP = 16,	// Reserved       //
+	APPLY_AC = 17,	// Apply to Armor Class    //
+	APPLY_HITROLL = 18,	// Apply to hitroll     //
+	APPLY_DAMROLL = 19,	// Apply to damage roll    //
+	APPLY_SAVING_WILL = 20,	// Apply to save throw: paralz   //
+	APPLY_RESIST_FIRE = 21,	// Apply to RESIST throw: fire  //
+	APPLY_RESIST_AIR = 22,	// Apply to RESIST throw: air   //
+	APPLY_SAVING_CRITICAL = 23,	// Apply to save throw: breath   //
+	APPLY_SAVING_STABILITY = 24,	// Apply to save throw: spells   //
+	APPLY_HITREG = 25,
+	APPLY_MOVEREG = 26,
+	APPLY_C1 = 27,
+	APPLY_C2 = 28,
+	APPLY_C3 = 29,
+	APPLY_C4 = 30,
+	APPLY_C5 = 31,
+	APPLY_C6 = 32,
+	APPLY_C7 = 33,
+	APPLY_C8 = 34,
+	APPLY_C9 = 35,
+	APPLY_SIZE = 36,
+	APPLY_ARMOUR = 37,
+	APPLY_POISON = 38,
+	APPLY_SAVING_REFLEX = 39,
+	APPLY_CAST_SUCCESS = 40,
+	APPLY_MORALE = 41,
+	APPLY_INITIATIVE = 42,
+	APPLY_RELIGION = 43,
+	APPLY_ABSORBE = 44,
+	APPLY_LIKES = 45,
+	APPLY_RESIST_WATER = 46,	// Apply to RESIST throw: water  //
+	APPLY_RESIST_EARTH = 47,	// Apply to RESIST throw: earth  //
+	APPLY_RESIST_VITALITY = 48,	// Apply to RESIST throw: light, dark, critical damage  //
+	APPLY_RESIST_MIND = 49,	// Apply to RESIST throw: mind magic  //
+	APPLY_RESIST_IMMUNITY = 50,	// Apply to RESIST throw: poison, disease etc.  //
+	APPLY_AR = 51,	// Apply to Magic affect resist //
+	APPLY_MR = 52,	// Apply to Magic damage resist //
+	APPLY_ACONITUM_POISON = 53,
+	APPLY_SCOPOLIA_POISON = 54,
+	APPLY_BELENA_POISON = 55,
+	APPLY_DATURA_POISON = 56,
+	APPLY_HIT_GLORY = 57,
+	APPLY_BONUS_EXP = 58,
+	APPLY_BONUS_SKILLS = 59,
+	NUM_APPLIES = 60
+};
 
 // APPLY - эффекты для комнат //
-#define APPLY_ROOM_NONE        0
-#define APPLY_ROOM_POISON      1 	// Изменяет в комнате уровень ядности //
-#define APPLY_ROOM_FLAME       2 	// Изменяет в комнате уровень огня (для потомков) //
-#define NUM_ROOM_APPLIES       3
+enum ERoomApplyLocation
+{
+	APPLY_ROOM_NONE = 0,
+	APPLY_ROOM_POISON = 1,	// Изменяет в комнате уровень ядности //
+	APPLY_ROOM_FLAME = 2,	// Изменяет в комнате уровень огня (для потомков) //
+	NUM_ROOM_APPLIES = 3
+};
 
 #define TRACK_NPC              (1 << 0)
 #define TRACK_HIDE             (1 << 1)
@@ -1396,18 +1402,19 @@ public:
 
 // An affect structure. //
 class IAffectHandler;
+
+template<typename TLocation>
 struct AFFECT_DATA
 {
-	AFFECT_DATA() : type(0), duration(0), modifier(0), location(0),
+	AFFECT_DATA() : type(0), duration(0), modifier(0), location(static_cast<TLocation>(0)),
 		battleflag(0), bitvector(0), caster_id(0), must_handled(0),
-		apply_time(0), next(0) {};
+		apply_time(0), next(nullptr) {};
 
 	sh_int type;		// The type of spell that caused this      //
 	int duration;	// For how long its effects will last      //
-	int modifier;		// This is added to apropriate ability     //
-	int location;		// Tells which ability to change(APPLY_XXX) //
-	long
-	battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
+	int modifier;		// This is added to appropriate ability     //
+	TLocation location;		// Tells which ability to change(APPLY_XXX) //
+	long battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
 	uint32_t bitvector;		// Tells which bits to set (AFF_XXX) //
 	long
 	caster_id; //Unique caster ID //
@@ -1415,7 +1422,7 @@ struct AFFECT_DATA
 	must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
 	sh_int
 	apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
-	AFFECT_DATA *next;
+	AFFECT_DATA<TLocation> *next;
 	boost::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 };
 
@@ -1984,8 +1991,7 @@ struct pray_affect_type
 {
 	int
 	metter;
-	int
-	location;
+	EApplyLocation location;
 	int
 	modifier;
 	uint32_t bitvector;

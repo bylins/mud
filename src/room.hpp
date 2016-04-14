@@ -79,7 +79,7 @@ struct ROOM_DATA
 	OBJ_DATA *contents;	// List of items in room              //
 	CHAR_DATA *people;	// List of NPC / PC in room           //
 
-	AFFECT_DATA *affected;	// affected by what spells       //
+	AFFECT_DATA<ERoomApplyLocation> *affected;	// affected by what spells       //
 	FLAG_DATA affected_by;	// флаги которые в отличии от room_flags появляются от аффектов
 							//и не могут быть записаны на диск
 

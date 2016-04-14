@@ -692,7 +692,7 @@ public:
 
 	struct player_special_data *player_specials;	// PC specials
 
-	AFFECT_DATA *affected;	// affected by what spells
+	AFFECT_DATA<EApplyLocation>* affected;	// affected by what spells
 	struct timed_type *timed;	// use which timed skill/spells
 	struct timed_type *timed_feat;	// use which timed feats
 	OBJ_DATA *equipment[NUM_WEARS];	// Equipment array

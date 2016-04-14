@@ -1660,7 +1660,6 @@ void weight_change_object(OBJ_DATA * obj, int weight)
 void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *food;
-	AFFECT_DATA af;
 	int amount;
 
 	one_argument(argument, arg);
@@ -1757,6 +1756,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_POISON;
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = 0;
@@ -2791,7 +2791,9 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
                                                 };
 
     if (IS_NPC(ch))
-        return;
+	{
+		return;
+	}
 
 	one_argument(argument, arg);
 
@@ -2818,9 +2820,11 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
         }
         break;
     case 1:
-		AFFECT_DATA *aff = room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL);
-		if (aff && (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
-				|| IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)))
+		auto aff = room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL);
+		if (aff
+			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
+				|| IS_IMMORTAL(ch)
+				|| PRF_FLAGGED(ch, PRF_CODERINFO)))
         {
             send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
             act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -2847,7 +2851,9 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
     }
     //Выдадим-ка лаг за эти дела.
     if (!WAITLESS(ch))
-            WAIT_STATE(ch, lag * PULSE_VIOLENCE);
+	{
+		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
+	}
 }
 
 #define MAX_REMOVE  12
@@ -3299,7 +3305,6 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void feed_charmice(CHAR_DATA * ch, char *arg)
 {
 	OBJ_DATA *obj;
-	AFFECT_DATA af;
 	int max_charm_duration = 1;
 	int chance_to_eat = 0;
 	struct follow_type *k;
@@ -3367,10 +3372,11 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 						GET_REAL_WIS(ch->master) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
 	}
 
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
 	af.duration = MIN(max_charm_duration, (int)(mob_level * max_charm_duration / 30));
 	af.modifier = 0;
-	af.location = 0;
+	af.location = EApplyLocation::APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 	af.battleflag = 0;
 

@@ -328,16 +328,36 @@ inline void NEWCREATE(T*& result, const T& init_value)
  * a great application for C++ templates but, alas, this is not C++.  Maybe
  * CircleMUD 4.0 will be...
  */
-#define REMOVE_FROM_LIST(item, head, next)   \
-   if ((item) == (head))      \
-      head = (item)->next;    \
-   else {            \
-      temp = head;         \
-      while (temp && (temp->next != (item))) \
-    temp = temp->next;     \
-      if (temp)            \
-         temp->next = (item)->next; \
-   }              \
+template <typename ListType, typename GetNextFunc>
+inline void REMOVE_FROM_LIST(ListType* item, ListType* head, GetNextFunc next)
+{
+	if ((item) == (head))
+	{
+		head = next(item);
+	}
+	else
+	{
+		auto temp = head;
+		while (temp && (next(temp) != (item)))
+		{
+			temp = next(temp);
+			if (temp && temp == next(temp))
+			{
+				temp;
+			}
+		}
+		if (temp)
+		{
+			next(temp) = next(item);
+		}
+	}
+}
+
+template <typename ListType>
+inline void REMOVE_FROM_LIST(ListType* item, ListType* head)
+{
+	REMOVE_FROM_LIST(item, head, [](ListType* list) -> ListType*& { return list->next; });
+}
 
 // basic bitvector utils ************************************************
 

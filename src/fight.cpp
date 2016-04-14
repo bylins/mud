@@ -275,7 +275,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	if (ch == next_combat_list)
 		next_combat_list = ch->next_fighting;
 
-	REMOVE_FROM_LIST(ch, combat_list, next_fighting);
+	REMOVE_FROM_LIST(ch, combat_list, [](auto list) -> auto& { return list->next_fighting; });
 	ch->next_fighting = NULL;
 	if (ch->last_comm != NULL)
 		free(ch->last_comm);

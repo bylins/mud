@@ -209,10 +209,10 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				vict->set_protecting(0);
 				vict->BattleAffects.unset(EAF_PROTECT);
 				WAIT_STATE(vict, PULSE_VIOLENCE);
-				AFFECT_DATA af;
+				AFFECT_DATA<EApplyLocation> af;
 				af.type = SPELL_BATTLE;
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
-				af.location = 0;
+				af.location = EApplyLocation::APPLY_NONE;
 				af.modifier = 0;
 				af.duration = pc_duration(vict, 1, 0, 0, 0, 0);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
@@ -1304,7 +1304,6 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // ******************  KICK PROCEDURES
 void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 {
-	AFFECT_DATA af;
 	int percent, prob, flag = 0;
 	const char *to_char = NULL, *to_vict = NULL, *to_room = NULL;
 
@@ -1361,6 +1360,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 		}
 		if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) > 0) && GET_GOD_FLAG(ch, GF_TESTER)) //бонусы от критпинка
 		{
+			AFFECT_DATA<EApplyLocation> af;
 			af.location = APPLY_NONE;
 			af.type = SPELL_BATTLE;
 			af.modifier = 0;
@@ -1454,13 +1454,13 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			}
 		}
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
-	if (GET_AF_BATTLE(ch, EAF_AWAKE))
-	{
-		dam >>= 2;	// в 4 раза меньше
-	}
-	Damage dmg(SkillDmg(SKILL_KICK), dam, FightSystem::PHYS_DMG);
-	dmg.process(ch, vict);
-	prob = 2;
+		if (GET_AF_BATTLE(ch, EAF_AWAKE))
+		{
+			dam >>= 2;	// в 4 раза меньше
+		}
+		Damage dmg(SkillDmg(SKILL_KICK), dam, FightSystem::PHYS_DMG);
+		dmg.process(ch, vict);
+		prob = 2;
 	}
 	set_wait(ch, prob, TRUE);
 }
@@ -2978,7 +2978,6 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob, dam, delay;
 //	int visibl=0, aware=0, awake=0, react=0;
-	AFFECT_DATA af;
 	struct timed_type timed;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
@@ -3030,6 +3029,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 	else
 	{
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_STRANGLE;
 		af.duration = IS_NPC(vict) ? 8 : 15;
 		af.modifier = 0;

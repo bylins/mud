@@ -44,8 +44,6 @@ void free_trigger(TRIG_DATA * trig)
 // remove a single trigger from a mob/obj/room 
 void extract_trigger(TRIG_DATA * trig)
 {
-	TRIG_DATA *temp;
-
 	if (GET_TRIG_WAIT(trig))
 	{
 		// см. объяснения в вызове trig_data_free()
@@ -57,7 +55,7 @@ void extract_trigger(TRIG_DATA * trig)
 	trig_index[trig->nr]->number--;
 
 	// walk the trigger list and remove this one 
-	REMOVE_FROM_LIST(trig, trigger_list, next_in_world);
+	REMOVE_FROM_LIST(trig, trigger_list, [](auto list) -> auto& { return list->next_in_world; });
 
 	free_trigger(trig);
 }
