@@ -6,7 +6,6 @@
 #define OBJ_HPP_INCLUDED
 
 #include "obj_enchant.hpp"
-#include "features.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "utils.h"

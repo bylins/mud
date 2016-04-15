@@ -436,7 +436,33 @@
 				</skill>
 			</skills>
 
-			<val0>5</val0>
+			<applies>
+				<apply>
+					<location>APPLY_STR</location>
+					<modifier>12</modifier>
+				</apply>
+				<apply>
+					<location>APPLY_DEX</location>
+					<modifier>12</modifier>
+				</apply>
+				<apply>
+					<location>APPLY_INT</location>
+					<modifier>12</modifier>
+				</apply>
+				<apply>
+					<location>APPLY_WIS</location>
+					<modifier>12</modifier>
+				</apply>
+				<apply>
+					<location>APPLY_ABSORBE</location>
+					<modifier>12</modifier>
+				</apply>
+				<apply>
+					<location>APPLY_AC</location>
+					<modifier>-120</modifier>
+				</apply>
+			</applies>
+
 			<val1>6</val1>
 			<val2>7</val2>
 		</prototype>

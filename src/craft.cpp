@@ -296,6 +296,24 @@ namespace craft
 
 		template <typename TSetHandler, typename TCatchHandler>
 		static void load_integer(const char* input, TSetHandler set_handler, TCatchHandler catch_handler);
+
+		template <typename KeyType,
+			typename TNoKeyHandler,
+			typename TKeyConverter,
+			typename TConverFailHandler,
+			typename TNoValueHandler,
+			typename TSetHandler>
+		static void load_pairs_list(
+			const pugi::xml_node* node,
+			const char* group_name,
+			const char* entry_name,
+			const char* key_name,
+			const char* value_name,
+			TNoKeyHandler no_key_handler,
+			TKeyConverter key_converter,
+			TConverFailHandler convert_fail_handler,
+			TNoValueHandler no_value_handler,
+			TSetHandler set_handler);
 	};
 
 	template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
@@ -373,6 +391,53 @@ namespace craft
 		catch (...)
 		{
 			catch_handler();
+		}
+	}
+
+	template <typename KeyType,
+		typename TNoKeyHandler,
+		typename TKeyConverter,
+		typename TConverFailHandler,
+		typename TNoValueHandler,
+		typename TSetHandler>
+	void CLoadHelper::load_pairs_list(const pugi::xml_node* node, const char* group_name, const char* entry_name, const char* key_name, const char* value_name, TNoKeyHandler no_key_handler, TKeyConverter key_converter, TConverFailHandler convert_fail_handler, TNoValueHandler no_value_handler, TSetHandler set_handler)
+	{
+		const auto group_node = node->child(group_name);
+		if (!group_node)
+		{
+			return;
+		}
+
+		size_t number = 0;
+		for (const auto entry_node : group_node.children(entry_name))
+		{
+			++number;
+			const auto key_node = entry_node.child(key_name);
+			if (!key_node)
+			{
+				no_key_handler(number);
+				continue;
+			}
+
+			KeyType key;
+			try
+			{
+				key = key_converter(key_node.child_value());
+			}
+			catch (...)
+			{
+				convert_fail_handler(key_node.child_value());
+				continue;
+			}
+
+			const auto value_node = entry_node.child(value_name);
+			if (!value_node)
+			{
+				no_value_handler(key_node.child_value());
+				continue;
+			}
+
+			set_handler(key, value_node.child_value());
 		}
 	}
 
@@ -652,13 +717,6 @@ namespace craft
 			}
 		}
 
-		if (!check_prototype_consistency())
-		{
-			log("WARNING: Prototype with VNUM %d has not passed consistency check.\n",
-				m_vnum);
-			return false;
-		}
-
 		const auto triggers_node = node->child("triggers");
 		for (const auto trigger_node : triggers_node.children("trigger"))
 		{
@@ -670,10 +728,14 @@ namespace craft
 		}
 
 		load_extended_values(node);
+		load_applies(node);
 
-		/* TODO:
-		** 2. Load applies
-		**/
+		if (!check_prototype_consistency())
+		{
+			log("WARNING: Prototype with VNUM %d has not passed consistency check.\n",
+				m_vnum);
+			return false;
+		}
 
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
@@ -734,9 +796,11 @@ namespace craft
 		result->proto_script = m_triggers_list;
 		result->values = m_extended_values;
 
-		/* TODO:
-		** 2. Copy applies
-		**/
+		size_t number = 0;
+		for (const auto& apply : m_applies)
+		{
+			result->affected[number++] = apply;
+		}
 
 		return result;
 	}
@@ -790,135 +854,76 @@ namespace craft
 
 	void CPrototype::load_skills(const pugi::xml_node* node)
 	{
-		const auto skills = node->child("skills");
-		if (!skills)
-		{
-			return;
-		}
-
-		int counter = 0;
-		for (const auto& skill : skills.children("skill"))
-		{
-			++counter;
-			std::stringstream determined_id;
-			determined_id << '#' << counter << '-' << suffix(counter);		// by default distinguish skills by number
-
-			bool fail = false;
-			const auto id_node = skill.child("id");
-
-			// check ID
-			ESkill skill_id = SKILL_INVALID;
-			do
-			{
-				if (!id_node)
-				{
-					log("WARNING: Skill %s for VNUM %d does not have \"id\" tag.\n",
-						determined_id.str().c_str(), m_vnum);
-					fail = true;
-					break;
-				}
-
-				const auto skill_name = id_node.child_value();
-				try
-				{
-					skill_id = ITEM_BY_NAME<ESkill>(skill_name);
-
-					// store determined ID
-					determined_id.str(std::string());
-					determined_id << '"' << skill_name << '"';
-				}
-				catch (...)
-				{
-					log("WARNING: \"id\" value of skill \"%s\" for prototype with VNUM %d is not valid.\n",
-						skill_name, m_vnum);
-					fail = true;
-				}
-			} while (false);
-
-			// check value
-			int skill_value = -1;
-			do
-			{
-				const auto value_node = skill.child("value");
-				if (!value_node)
-				{
-					log("WARNING: Skill %s for prototype with VNUM %d does not have \"value\" tag.\n",
-						determined_id.str().c_str(), m_vnum);
-					fail = true;
-					break;
-				}
-
-				CLoadHelper::load_integer(value_node.child_value(), skill_value,
-					[&]() {
-					log("WARNING: Skill %s for prototype with VNUM %d has wrong integer value of \"value\" tag.\n",
-						determined_id.str().c_str(), m_vnum);
-					fail = true;
-				});
-			} while (false);
-
-			if (0 >= skill_value)
-			{
-				log("WARNING: Skill %s for prototype with VNUM %d has wrong value %d of the \"value\" tag.\n",
-					determined_id.str().c_str(), m_vnum, skill_value);
-				fail = true;
-			}
-
-			if (fail)
-			{
-				log("WARNING: Skipping skill %s for prototype with VNUM %d (see errors above).\n",
-					determined_id.str().c_str(), m_vnum);
-			}
-			else
-			{
-				log("Adding the (skill, value) pair (%s, %d) to prototype with VNUM %d.\n",
-					determined_id.str().c_str(), skill_value, m_vnum);
-				m_skills.insert(skills_t::value_type(skill_id, skill_value));
-			}
-		}
+		CLoadHelper::load_pairs_list<ESkill>(node, "skills", "skill", "id", "value",
+			[&](const size_t number) { log("WARNING: %d-%s \"skill\" tag of \"skills\" group does not have the \"id\" tag. Prototype with VNUM %d.\n",
+				number, suffix(number), m_vnum); },
+			[&](const auto value) -> auto { return ITEM_BY_NAME<ESkill>(value); },
+			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to skill ID. Prototype with VNUM %d.\n Skipping entry.\n",
+				key, m_vnum); },
+			[&](const auto key) { log("WARNING: skill with key \"%s\" does not have \"value\" tag. Prototype with VNUM %d. Skipping entry.\n",
+				key, m_vnum); },
+			[&](const auto key, const auto value) { CLoadHelper::load_integer(value,
+				[&](const auto int_value) {
+					m_skills.emplace(key, int_value);
+					log("Adding skill pair (%s, %d) to prototype with VNUM %d.\n",
+						NAME_BY_ITEM(key).c_str(), int_value, m_vnum);
+				},
+				[&]() { log("WARNIGN: Could not convert skill value of \"value\" tag to integer. Entry key value \"%s\". Prototype with VNUM %d",
+					NAME_BY_ITEM(key).c_str(), m_vnum); }); });
 	}
 
 	void CPrototype::load_extended_values(const pugi::xml_node* node)
 	{
-		const auto extended_values_node = node->child("extended_values");
-		if (extended_values_node)
+		CLoadHelper::load_pairs_list<ObjVal::EValueKey>(node, "extended_values", "entry", "key", "value",
+			[&](const size_t number) { log("WARNING: %d-%s \"entry\" tag of \"extended_values\" group does not have the \"key\" tag. Prototype with VNUM %d.\n",
+				number, suffix(number), m_vnum); },
+			[&](const auto value) -> auto { return static_cast<ObjVal::EValueKey>(TextId::to_num(TextId::OBJ_VALS, value)); },
+			[&](const auto key) { log("WARNING: Could not convert extended value \"%s\" to key value. Prototype with VNUM %d.\n Skipping entry.\n",
+				key, m_vnum); },
+			[&](const auto key) { log("WARNING: entry with key \"%s\" does not have \"value\" tag. Prototype with VNUM %d. Skipping entry.\n",
+				key, m_vnum); },
+			[&](const auto key, const auto value) { CLoadHelper::load_integer(value,
+				[&](const auto int_value) {
+					m_extended_values.set(key, int_value);
+					log("Adding extended values pair (%s, %d) to prototype with VNUM %d.\n",
+						TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), int_value, m_vnum);
+				},
+				[&]() { log("WARNIGN: Could not convert extended value of \"value\" tag to integer. Entry key value \"%s\". Prototype with VNUM %d",
+					TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), m_vnum); }); });
+	}
+
+	void CPrototype::load_applies(const pugi::xml_node* node)
+	{
+		CLoadHelper::load_pairs_list<EApplyLocation>(node, "applies", "apply", "location", "modifier",
+			[&](const size_t number) { log("WARNING: %d-%s \"apply\" tag of \"applies\" group does not have the \"location\" tag. Prototype with VNUM %d.\n",
+				number, suffix(number), m_vnum); },
+			[&](const auto value) -> auto { return ITEM_BY_NAME<EApplyLocation>(value); },
+			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to apply location. Prototype with VNUM %d.\n Skipping entry.\n",
+				key, m_vnum); },
+			[&](const auto key) { log("WARNING: apply with key \"%s\" does not have \"modifier\" tag. Prototype with VNUM %d. Skipping entry.\n",
+				key, m_vnum); },
+			[&](const auto key, const auto value) { CLoadHelper::load_integer(value,
+				[&](const auto int_value) {
+					m_applies.push_back(decltype(m_applies)::value_type(key, int_value));
+					log("Adding apply pair (%s, %d) to prototype with VNUM %d.\n",
+						NAME_BY_ITEM(key).c_str(), int_value, m_vnum);
+				},
+				[&]() { log("WARNIGN: Could not convert apply value of \"modifier\" tag to integer. Entry key value \"%s\". Prototype with VNUM %d",
+					NAME_BY_ITEM(key).c_str(), m_vnum); }); });
+		if (m_applies.size() > MAX_OBJ_AFFECT)
 		{
-			size_t number = 0;
-			for (const auto entry_node : extended_values_node.children("entry"))
+			std::stringstream ignored_applies;
+			bool first = true;
+			while (m_applies.size() > MAX_OBJ_AFFECT)
 			{
-				++number;
-				const auto key_node = entry_node.child("key");
-				if (!key_node)
-				{
-					log("WARNING: %d-%s \"entry\" tag of \"extended_values\" group does not have the \"key\" tag. Prototype with VNUM %d.\n",
-						number, suffix(number), m_vnum);
-					continue;
-				}
-
-				ObjVal::EValueKey key;
-				try
-				{
-					key = static_cast<ObjVal::EValueKey>(TextId::to_num(TextId::OBJ_VALS, key_node.child_value()));
-				}
-				catch (...)
-				{
-					log("WARNING: Could not convert value \"%s\" to key value. Prototype with VNUM %d.\n Skipping entry.\n",
-						key_node.child_value(), m_vnum);
-					continue;
-				}
-
-				const auto value_node = entry_node.child("value");
-				if (!value_node)
-				{
-					log("WARNING: entry with key \"%s\" does not have \"value\" tag. Prototype with VNUM %d. Skipping entry.\n",
-						key_node.child_value(), m_vnum);
-					continue;
-				}
-
-				CLoadHelper::load_integer(value_node.child_value(),
-					[&](const auto value) { m_extended_values.set(key, value); },
-					[&]() { log("WARNIGN: Could not convert value of \"value\" tag to integer. Entry key value \"%s\". Prototype with VNUM %d",
-						key_node.child_value(), m_vnum); });
+				const auto& apply = m_applies.back();
+				ignored_applies << (first ? "" : ", ") << NAME_BY_ITEM(apply.location);
+				m_applies.pop_back();
+				first = false;
 			}
+
+			log("WARNING: prototype with VNUM %d has applies over limit %d. The following applies is ignored: { %s }.\n",
+				m_vnum, MAX_OBJ_AFFECT, ignored_applies.str().c_str());
 		}
 	}
 

@@ -446,7 +446,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 						concidence = TRUE;
 				}
 			}
-			(skin)->affected[k].location = effects_l[GET_OBJ_VAL(skin,3)][num][0];
+			(skin)->affected[k].location = static_cast<EApplyLocation>(effects_l[GET_OBJ_VAL(skin,3)][num][0]);
 			effect = effects_l[GET_OBJ_VAL(skin,3)][num][1];
 			if (number(0, 1000) <= (250 / (GET_OBJ_VAL(skin,3) + 1))) //  чем круче шкура тем реже  отрицательный аффект
 				effect *= -1;

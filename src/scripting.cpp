@@ -1596,7 +1596,7 @@ BOOST_PYTHON_MODULE(mud)
 	;
 
 	class_<obj_affected_type>("ObjectModifier", "Модификатор персонажа, накладываемый объектом.")
-	.def(py::init<int, int>(py::args("location", "modifier")))
+	.def(py::init<EApplyLocation, int>(py::args("location", "modifier")))
 		.def_readwrite("location", &obj_affected_type::location, "Атрибут, который изменяем")
 		.def_readwrite("modifier", &obj_affected_type::modifier, "Величина изменения")
 		.def("__str__", obj_affected_type_str, "Переводит модификатор в строку вида (XXX улучшает на YYY)")

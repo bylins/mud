@@ -906,7 +906,7 @@ void pk_free_list(CHAR_DATA * ch)
 // сохранение списка пк-местей в файл персонажа
 void save_pkills(CHAR_DATA * ch, FILE * saved)
 {
-	struct PK_Memory_type *pk, *temp, *tpk;
+	struct PK_Memory_type *pk, *tpk;
 	CHAR_DATA *tch = NULL;
 
 	fprintf(saved, "Pkil:\n");

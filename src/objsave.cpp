@@ -396,42 +396,42 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 40;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[0].location = t[0];
+				object->affected[0].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[0].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Afc1"))
 			{
 				*error = 41;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[1].location = t[0];
+				object->affected[1].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[1].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Afc2"))
 			{
 				*error = 42;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[2].location = t[0];
+				object->affected[2].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[2].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Afc3"))
 			{
 				*error = 43;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[3].location = t[0];
+				object->affected[3].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[3].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Afc4"))
 			{
 				*error = 44;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[4].location = t[0];
+				object->affected[4].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[4].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Afc5"))
 			{
 				*error = 45;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[5].location = t[0];
+				object->affected[5].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[5].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Edes"))
@@ -863,7 +863,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 			}
 			if (sscanf(buffer, " %d %d ", t, t + 1) == 2)
 			{
-				object->affected[j].location = t[0];
+				object->affected[j].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[j].modifier = t[1];
 				j++;
 			}

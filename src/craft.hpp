@@ -184,12 +184,14 @@ namespace craft
 	private:
 		constexpr static int VALS_COUNT = 4;
 
-		typedef std::map<ESkill, int> skills_t;
-		typedef std::array<int, VALS_COUNT> vals_t;
+		using skills_t = std::map<ESkill, int>;
+		using vals_t = std::array<int, VALS_COUNT>;
+		using applies_t = std::list<obj_affected_type>;
 
 		bool load_item_parameters(const pugi::xml_node* node);
 		void load_skills(const pugi::xml_node* node);
 		void load_extended_values(const pugi::xml_node* node);
+		void load_applies(const pugi::xml_node* node);
 		bool check_prototype_consistency() const;
 
 		const std::string& aliases() const { return m_cases.aliases(); }
@@ -232,6 +234,7 @@ namespace craft
 		vals_t m_vals;
 		OBJ_DATA::triggers_list_t m_triggers_list;
 		ObjVal m_extended_values;
+		applies_t m_applies;
 
 		friend class CCraftModel;
 	};

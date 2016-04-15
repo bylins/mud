@@ -1051,6 +1051,9 @@ enum EApplyLocation
 	NUM_APPLIES = 60
 };
 
+template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
+template <> EApplyLocation ITEM_BY_NAME<EApplyLocation>(const std::string& name);
+
 // APPLY - эффекты для комнат //
 enum ERoomApplyLocation
 {
@@ -1058,6 +1061,27 @@ enum ERoomApplyLocation
 	APPLY_ROOM_POISON = 1,	// Изменяет в комнате уровень ядности //
 	APPLY_ROOM_FLAME = 2,	// Изменяет в комнате уровень огня (для потомков) //
 	NUM_ROOM_APPLIES = 3
+};
+
+struct obj_affected_type
+{
+	EApplyLocation location;	// Which ability to change (APPLY_XXX) //
+	int modifier;				// How much it changes by              //
+
+	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
+
+	obj_affected_type(EApplyLocation __location, int __modifier)
+		: location(__location), modifier(__modifier) {}
+
+	// для сравнения в sedit
+	bool operator!=(const obj_affected_type &r) const
+	{
+		return (location != r.location || modifier != r.modifier);
+	}
+	bool operator==(const obj_affected_type &r) const
+	{
+		return !(*this != r);
+	}
 };
 
 #define TRACK_NPC              (1 << 0)

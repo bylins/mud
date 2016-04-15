@@ -1632,7 +1632,7 @@ void OBJ_DATA::init_set_table()
 					continue;
 				}
 
-				obj_affected_type tmpafcn((byte)tmploc, (sbyte)tmpmodi);
+				obj_affected_type tmpafcn(static_cast<EApplyLocation>(tmploc), (sbyte)tmpmodi);
 
 				if (!isstream.eof())
 				{
@@ -4516,7 +4516,7 @@ char *parse_object(FILE * obj_f, const int nr)
 					"...offending line: '%s'", buf2, retval, line);
 				exit(1);
 			}
-			tobj->affected[j].location = t[0];
+			tobj->affected[j].location = static_cast<EApplyLocation>(t[0]);
 			tobj->affected[j].modifier = t[1];
 			j++;
 			break;

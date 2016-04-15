@@ -28,7 +28,7 @@
 #include <boost/array.hpp>
 
 extern const char *skill_name(int num);
-extern void set_obj_eff(OBJ_DATA *itemobj, int type, int mod);
+extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
 extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
 
 void oload_class::init()
@@ -230,29 +230,29 @@ int get_stat_mod(int stat)
 void generate_warrior_enchant(OBJ_DATA *obj)
 {
 	const int main_count = 5;
-	boost::array<int, main_count> main_list = { {
+	boost::array<EApplyLocation, main_count> main_list = { {
 			APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_AC, APPLY_DAMROLL} };
 	const int other_count = 11;
-	boost::array<int, other_count> other_list = { {
+	boost::array<EApplyLocation, other_count> other_list = { {
 			APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
 			APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
 			APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR} };
 
 	if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR1_ENCHANT_VNUM)
 	{
-		int stat = main_list[number(0, main_count - 1)];
+		const auto stat = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR2_ENCHANT_VNUM)
 	{
-		int stat = main_list[number(0, main_count - 1)];
+		auto stat = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 		stat = other_list[number(0, other_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR3_ENCHANT_VNUM)
 	{
-		int stat = main_list[number(0, main_count - 1)];
+		auto stat = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
 		stat = other_list[number(0, other_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
@@ -262,10 +262,10 @@ void generate_warrior_enchant(OBJ_DATA *obj)
 void generate_magic_enchant(OBJ_DATA *obj)
 {
 	const int main_count = 10;
-	boost::array<int, main_count> main_list = { {
+	boost::array<EApplyLocation, main_count> main_list = { {
 			APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_INT , APPLY_WIS, APPLY_CHA, APPLY_AC, APPLY_DAMROLL, APPLY_AR, APPLY_MR} };
 	const int other_count = 15;
-	boost::array<int, other_count> other_list = { {
+	boost::array<EApplyLocation, other_count> other_list = { {
 			APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
 			APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
 			APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR,
@@ -287,7 +287,7 @@ void generate_magic_enchant(OBJ_DATA *obj)
 		EAffectFlag affect = negativ_list[number(0, negativ_count - 1)];
 		set_obj_aff(obj, affect);
 
-		int effect = main_list[number(0, main_count - 1)];
+		auto effect = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, effect, get_stat_mod(effect));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC2_ENCHANT_VNUM)
@@ -295,14 +295,14 @@ void generate_magic_enchant(OBJ_DATA *obj)
 		EAffectFlag affect = negativ_list[number(0, negativ_count - 1)];
 		set_obj_aff(obj, affect);
 
-		int effect = main_list[number(0, main_count - 1)];
+		auto effect = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, effect, get_stat_mod(effect) * 2);
 		effect = other_list[number(0, other_count - 1)];
 		set_obj_eff(obj, effect, get_stat_mod(effect));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC3_ENCHANT_VNUM)
 	{
-		int stat = main_list[number(0, main_count - 1)];
+		auto stat = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
 		
 		EAffectFlag affect = negativ_list[number(0, negativ_count - 1)];

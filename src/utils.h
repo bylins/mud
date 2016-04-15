@@ -1619,6 +1619,19 @@ private:
 };
 #endif
 
+// global buffering system
+#ifdef __DB_C__
+char buf[MAX_STRING_LENGTH];
+char buf1[MAX_STRING_LENGTH];
+char buf2[MAX_STRING_LENGTH];
+char arg[MAX_STRING_LENGTH];
+#else
+extern char buf[MAX_STRING_LENGTH];
+extern char buf1[MAX_STRING_LENGTH];
+extern char buf2[MAX_STRING_LENGTH];
+extern char arg[MAX_STRING_LENGTH];
+#endif
+
 #endif // _UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

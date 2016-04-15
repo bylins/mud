@@ -9,6 +9,7 @@
 #ifndef __FEATURES_HPP__
 #define __FEATURES_HPP__
 
+#include "utils.h"
 #include "structs.h"
 #include "conf.h"
 
@@ -198,7 +199,7 @@ const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4
 #define FEAT_TIMER 1
 #define FEAT_SKILL 2
 
-extern struct feat_info_type feat_info[MAX_FEATS];
+extern struct SFeatInfo feat_info[MAX_FEATS];
 
 int find_feat_num(const char *name, bool alias = false);
 void assign_feats(void);
@@ -210,34 +211,87 @@ void check_berserk(CHAR_DATA * ch);
 void set_race_feats(CHAR_DATA *ch, bool flag = true);
 void set_natural_feats(CHAR_DATA *ch);
 
-struct obj_affected_type
+/*
+Служебный класс для удобства вбивания значений в массив affected структуры способности
+Если у кого-то есть желание, можно вместо массива использовать сам этот класс, реализовав
+методы доступа к значениям, выдачу нужного поля и копирующий конструктор
+Только тогда придется править обращения к структурам feat_info по коду
+*/
+class CFeatArray
 {
-	int location;		// Which ability to change (APPLY_XXX) //
-	int modifier;		// How much it changes by              //
+public:
+	explicit CFeatArray() : _pos(0), i(MAX_FEAT_AFFECT) {}
 
-	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
-
-	obj_affected_type(int __location, int __modifier)
-		: location(__location), modifier(__modifier) {}
-
-	// для сравнения в sedit
-	bool operator!=(const obj_affected_type &r) const
+	int pos(int pos = -1)
 	{
-		return (location != r.location || modifier != r.modifier);
+		if (pos == -1)
+		{
+			return _pos;
+		}
+		else if (pos >= 0 && pos < MAX_FEAT_AFFECT)
+		{
+			_pos = pos;
+			return _pos;
+		}
+		sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos (argument value: %d)!", pos);
+		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+		return _pos;
 	}
-	bool operator==(const obj_affected_type &r) const
+
+	void insert(const int location, sbyte modifier)
 	{
-		return !(*this != r);
+		affected[_pos].location = location;
+		affected[_pos].modifier = modifier;
+		_pos++;
+		if (_pos >= MAX_FEAT_AFFECT)
+		{
+			_pos = 0;
+		}
 	}
+
+	void clear()
+	{
+		_pos = 0;
+		for (i = 0; i < MAX_FEAT_AFFECT; i++)
+		{
+			affected[i].location = APPLY_NONE;
+			affected[i].modifier = 0;
+		}
+	}
+
+	struct CFeatAffect
+	{
+		int location;
+		int modifier;
+
+		CFeatAffect() : location(APPLY_NONE), modifier(0) {}
+
+		CFeatAffect(int __location, int __modifier)
+			: location(__location), modifier(__modifier) {}
+
+		bool operator!=(const CFeatAffect &r) const
+		{
+			return (location != r.location || modifier != r.modifier);
+		}
+		bool operator==(const CFeatAffect &r) const
+		{
+			return !(*this != r);
+		}
+	};
+
+	struct CFeatAffect affected[MAX_FEAT_AFFECT];
+
+private:
+	int _pos, i;
 };
 
-struct feat_info_type
+struct SFeatInfo
 {
 	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
 	int slot[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool classknow[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool natural_classfeat[NUM_PLAYER_CLASSES][NUM_KIN];
-	std::array<obj_affected_type, MAX_FEAT_AFFECT> affected;
+	std::array<CFeatArray::CFeatAffect, MAX_FEAT_AFFECT> affected;
 	int type;
 	bool up_slot;
 	const char *name;

@@ -3354,7 +3354,7 @@ void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv)
 	}
 }
 
-void set_obj_eff(OBJ_DATA *itemobj, int type, int mod)
+extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod)
 {
 	int i;
 
@@ -3900,7 +3900,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			switch (tmp_type)
 			{
 			case 1:
-				set_obj_eff(itemobj, tmp_bit, tmp_qty);
+				set_obj_eff(itemobj, static_cast<EApplyLocation>(tmp_bit), tmp_qty);
 				break;
 
 			case 2:

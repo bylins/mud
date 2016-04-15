@@ -2276,7 +2276,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case OEDIT_APPLY:
 		if ((number = atoi(arg)) == 0)
 		{
-			OLC_OBJ(d)->affected[OLC_VAL(d)].location = 0;
+			OLC_OBJ(d)->affected[OLC_VAL(d)].location = EApplyLocation::APPLY_NONE;
 			OLC_OBJ(d)->affected[OLC_VAL(d)].modifier = 0;
 			oedit_disp_prompt_apply_menu(d);
 		}
@@ -2284,7 +2284,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			oedit_disp_apply_menu(d);
 		else
 		{
-			OLC_OBJ(d)->affected[OLC_VAL(d)].location = number;
+			OLC_OBJ(d)->affected[OLC_VAL(d)].location = static_cast<EApplyLocation>(number);
 			send_to_char("Modifier : ", d->character);
 			OLC_MODE(d) = OEDIT_APPLYMOD;
 		}

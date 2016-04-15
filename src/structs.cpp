@@ -752,3 +752,101 @@ EAntiFlag ITEM_BY_NAME(const std::string& name)
     }
     return EAntiFlag_value_by_name.at(name);
 }
+
+typedef std::map<EApplyLocation, std::string> EApplyLocation_name_by_value_t;
+typedef std::map<const std::string, EApplyLocation> EApplyLocation_value_by_name_t;
+EApplyLocation_name_by_value_t EApplyLocation_name_by_value;
+EApplyLocation_value_by_name_t EApplyLocation_value_by_name;
+
+void init_EApplyLocation_ITEM_NAMES()
+{
+	EApplyLocation_name_by_value.clear();
+	EApplyLocation_value_by_name.clear();
+	
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_NONE] = "APPLY_NONE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_STR] = "APPLY_STR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_DEX] = "APPLY_DEX";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_INT] = "APPLY_INT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_WIS] = "APPLY_WIS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CON] = "APPLY_CON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHA] = "APPLY_CHA";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CLASS] = "APPLY_CLASS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_LEVEL] = "APPLY_LEVEL";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_AGE] = "APPLY_AGE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHAR_WEIGHT] = "APPLY_CHAR_WEIGHT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHAR_HEIGHT] = "APPLY_CHAR_HEIGHT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MANAREG] = "APPLY_MANAREG";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_HIT] = "APPLY_HIT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MOVE] = "APPLY_MOVE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_GOLD] = "APPLY_GOLD";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_EXP] = "APPLY_EXP";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_AC] = "APPLY_AC";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_HITROLL] = "APPLY_HITROLL";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_DAMROLL] = "APPLY_DAMROLL";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_WILL] = "APPLY_SAVING_WILL";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_FIRE] = "APPLY_RESIST_FIRE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_AIR] = "APPLY_RESIST_AIR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_CRITICAL] = "APPLY_SAVING_CRITICAL";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_STABILITY] = "APPLY_SAVING_STABILITY";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_HITREG] = "APPLY_HITREG";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MOVEREG] = "APPLY_MOVEREG";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C1] = "APPLY_C1";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C2] = "APPLY_C2";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C3] = "APPLY_C3";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C4] = "APPLY_C4";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C5] = "APPLY_C5";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C6] = "APPLY_C6";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C7] = "APPLY_C7";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C8] = "APPLY_C8";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C9] = "APPLY_C9";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SIZE] = "APPLY_SIZE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_ARMOUR] = "APPLY_ARMOUR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_POISON] = "APPLY_POISON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_REFLEX] = "APPLY_SAVING_REFLEX";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CAST_SUCCESS] = "APPLY_CAST_SUCCESS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MORALE] = "APPLY_MORALE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_INITIATIVE] = "APPLY_INITIATIVE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RELIGION] = "APPLY_RELIGION";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_ABSORBE] = "APPLY_ABSORBE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_LIKES] = "APPLY_LIKES";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_WATER] = "APPLY_RESIST_WATER";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_EARTH] = "APPLY_RESIST_EARTH";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_VITALITY] = "APPLY_RESIST_VITALITY";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_MIND] = "APPLY_RESIST_MIND";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_IMMUNITY] = "APPLY_RESIST_IMMUNITY";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_AR] = "APPLY_AR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MR] = "APPLY_MR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_ACONITUM_POISON] = "APPLY_ACONITUM_POISON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SCOPOLIA_POISON] = "APPLY_SCOPOLIA_POISON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_BELENA_POISON] = "APPLY_BELENA_POISON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_DATURA_POISON] = "APPLY_DATURA_POISON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_HIT_GLORY] = "APPLY_HIT_GLORY";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_EXP] = "APPLY_BONUS_EXP";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_SKILLS] = "APPLY_BONUS_SKILLS";
+	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
+
+	for (const auto& i : EApplyLocation_name_by_value)
+	{
+		EApplyLocation_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+EApplyLocation ITEM_BY_NAME(const std::string& name)
+{
+	if (EApplyLocation_name_by_value.empty())
+	{
+		init_EApplyLocation_ITEM_NAMES();
+	}
+	return EApplyLocation_value_by_name.at(name);
+}
+
+template <>
+const std::string& NAME_BY_ITEM(const EApplyLocation item)
+{
+	if (EApplyLocation_name_by_value.empty())
+	{
+		init_EApplyLocation_ITEM_NAMES();
+	}
+	return EApplyLocation_name_by_value.at(item);
+}

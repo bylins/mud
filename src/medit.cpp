@@ -1525,7 +1525,7 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 
 void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
-	struct helper_data_type *helper, *temp;
+	struct helper_data_type *helper;
 	int i, number, plane, bit;
 
 	if (OLC_MODE(d) > MEDIT_NUMERICAL_RESPONSE)

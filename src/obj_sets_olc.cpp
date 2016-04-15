@@ -1680,7 +1680,7 @@ void sedit::parse_activ_apply_loc(CHAR_DATA *ch, const char *arg)
 
 	if (num == 0)
 	{
-		apply.location = 0;
+		apply.location = EApplyLocation::APPLY_NONE;
 		apply.modifier = 0;
 		show_activ_edit(ch);
 	}
@@ -1691,7 +1691,7 @@ void sedit::parse_activ_apply_loc(CHAR_DATA *ch, const char *arg)
 	}
 	else
 	{
-		apply.location = num;
+		apply.location = static_cast<EApplyLocation>(num);
 		state = STATE_ACTIV_APPLY_MOD;
 		send_to_char("Введите модификатор : ", ch);
 	}
@@ -1707,7 +1707,7 @@ void sedit::parse_activ_apply_mod(CHAR_DATA *ch, const char *arg)
 
 	if (num == 0)
 	{
-		apply.location = 0;
+		apply.location = EApplyLocation::APPLY_NONE;
 		apply.modifier = 0;
 		show_activ_edit(ch);
 	}

@@ -438,7 +438,7 @@ void load()
 				{
 					if (i->location <= 0)
 					{
-						i->location = Parse::attr_int(xml_apply, "loc");
+						i->location = static_cast<EApplyLocation>(Parse::attr_int(xml_apply, "loc"));
 						i->modifier = Parse::attr_int(xml_apply, "mod");
 						break;
 					}

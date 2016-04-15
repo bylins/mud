@@ -40,7 +40,7 @@
 
 extern const char *unused_spellname;
 
-struct feat_info_type feat_info[MAX_FEATS];
+struct SFeatInfo feat_info[MAX_FEATS];
 
 void unused_feat(int feat);
 void assign_feats(void);
@@ -51,58 +51,6 @@ int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 
 void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-
-/*
-   Служебный класс для удобства вбивания значений в массив affected структуры способности
-   Если у кого-то есть желание, можно вместо массива использовать сам этот класс, реализовав
-   методы доступа к значениям, выдачу нужного поля и копирующий конструктор
-   Только тогда придется править обращения к структурам feat_info по коду
-*/
-class aff_array
-{
-public:
-	explicit aff_array() : _pos(0), i(MAX_FEAT_AFFECT) {}
-
-	int pos(int pos = -1)
-	{
-		if (pos == -1)
-		{
-			return _pos;
-		}
-		else if (pos >= 0 && pos < MAX_FEAT_AFFECT)
-		{
-			_pos = pos;
-			return _pos;
-		}
-		sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos (argument value: %d)!", pos);
-		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
-		return _pos;
-	}
-
-	void insert(byte location, sbyte modifier)
-	{
-		affected[_pos].location = location;
-		affected[_pos].modifier = modifier;
-		_pos++;
-		if (_pos >= MAX_FEAT_AFFECT)
-			_pos = 0;
-	}
-
-	void clear()
-	{
-		_pos = 0;
-		for (i = 0; i < MAX_FEAT_AFFECT; i++)
-		{
-			affected[i].location = APPLY_NONE;
-			affected[i].modifier = 0;
-		}
-	}
-
-	struct obj_affected_type
-				affected[MAX_FEAT_AFFECT];
-private:
-	int _pos, i;
-};
 
 ///
 /// Поиск номера способности по имени
@@ -143,7 +91,7 @@ int find_feat_num(const char *name, bool alias)
 }
 
 // Инициализация способности заданными значениями
-void feato(int feat, const char *name, int type, bool can_up_slot, aff_array app)
+void feato(int feat, const char *name, int type, bool can_up_slot, CFeatArray app)
 {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
@@ -198,7 +146,7 @@ void unused_feat(int feat)
 void assign_feats(void)
 {
 	int i;
-	aff_array feat_app;
+	CFeatArray feat_app;
 	for (i = 0; i < MAX_FEATS; i++)
 	{
 		unused_feat(i);

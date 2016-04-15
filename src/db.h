@@ -394,21 +394,8 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 
 //-Polud
 
-// global buffering system
-
-#ifdef __DB_C__
-char buf[MAX_STRING_LENGTH];
-char buf1[MAX_STRING_LENGTH];
-char buf2[MAX_STRING_LENGTH];
-char arg[MAX_STRING_LENGTH];
-#else
 extern room_rnum top_of_world;
 extern struct player_special_data dummy_mob;
-extern char buf[MAX_STRING_LENGTH];
-extern char buf1[MAX_STRING_LENGTH];
-extern char buf2[MAX_STRING_LENGTH];
-extern char arg[MAX_STRING_LENGTH];
-#endif
 
 #ifndef __CONFIG_C__
 extern char const *OK;
