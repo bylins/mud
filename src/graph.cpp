@@ -175,6 +175,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 {
 	int percent, dir;
+	int num, current_skillpercent;
 
 	if (AFF_FLAGGED(victim, AFF_NOTRACK) && (skill_no != SKILL_SENSE))
 	{
@@ -182,7 +183,22 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 	}
 
 	// 101 is a complete failure, no matter what the proficiency.
-	percent = number(0, skill_info[skill_no].max_percent);
+	//Аоекеллчз цчпьбич. Неоеаеъпу лч оецуъпь.
+	//Уцкелуй кчиъ ъиуйй ъм 100 дм 200, бпмюь ле ймкчпщ чйжмоупк, а дчллмк цлчбелуу аеолек ъпчоме цлчбелуе.
+	percent = number(0, skill_info[skill_no].max_percent-100);	
+	
+	current_skillpercent = GET_SKILL(ch, SKILL_SENSE);
+	if ((!IS_NPC(victim)) && (!IS_GOD(ch))) //Еъйу фейщ бчо у ушеп ле юмж
+	{ 
+		if (current_skillpercent < 80) //Дм 80% дм 4с кмопма
+			num = 4;
+		else
+			num = ((current_skillpercent - 80) / 5) + 4; //Ичтдье 5% ъиуййч + кмоп
+		if ((GET_REMORT(victim) >= num) && (num < 28)) //200% ъиуййч ушеп аъес
+			return BFS_NO_PATH; //Бяаъпач кмйбчп
+	}
+	
+
 
 	if (percent > calculate_skill(ch, skill_no, victim))
 	{
@@ -236,10 +252,12 @@ ACMD(do_sense)
 	}
 
 	// We can't track the victim.
-//  if (AFF_FLAGGED(vict, AFF_NOTRACK))
-//     {send_to_char("Вы не чувствуете его присутствия.\r\n", ch);
-//      return;
-//     }
+	//Цчбек имккелпуомачйу? Ленмлзплм...
+	if (AFF_FLAGGED(vict, AFF_NOTRACK))
+	{
+		send_to_char("Ваши чувства молчат.\r\n", ch);
+		return;
+	}
 	act("Похоже, $n кого-то ищет.", FALSE, ch, 0, 0, TO_ROOM);
 
 	dir = go_track(ch, vict, SKILL_SENSE);
