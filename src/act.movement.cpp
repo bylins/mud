@@ -246,7 +246,8 @@ int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict)
 
 int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 {
-	int percent, prob;
+	int percent, prob, absolute_fail;
+	bool try_fail;
 
 	if (MAY_SEE(vict, ch) && (AFF_FLAGGED(ch, AFF_SNEAK) || affected_by_spell(ch, SPELL_SNEAK)))
 	{
@@ -261,12 +262,18 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 		}
 		else if (affected_by_spell(ch, SPELL_SNEAK))
 		{
-			if (can_use_feat(ch, WRIGGLER_FEAT)) //тать или наем
-				percent = number(1, 102 + GET_REAL_INT(vict));
-			else
-				percent = number(1, 102 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
+			//if (can_use_feat(ch, STEALTHY_FEAT)) //тать или наем
+				//percent = number(1, 140 + GET_REAL_INT(vict));
+			//else
+			percent = number(1, (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 140) + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
 			prob = calculate_skill(ch, SKILL_SNEAK, vict);
-			if (percent > prob)
+
+			//5% шанс фэйла при prob==200 всегда, при prob = 100 - 10%, если босс, шанс множим на 5
+			absolute_fail = ((200 - prob) / 20 + 5)*(vict->get_role(MOB_ROLE_BOSS) ? 5 : 1 );
+			try_fail = number(1, 100) < absolute_fail;
+
+
+			if ((percent > prob) || try_fail)
 			{
 				affect_from_char(ch, SPELL_SNEAK);
 				if (affected_by_spell(ch, SPELL_HIDE))
