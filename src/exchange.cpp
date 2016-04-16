@@ -299,6 +299,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	GET_EXCHANGE_ITEM_LOT(item) = lot;
 	GET_EXCHANGE_ITEM_SELLERID(item) = GET_IDNUM(ch);
 	GET_EXCHANGE_ITEM_COST(item) = item_cost;
+	GET_EXCHANGE_ITEM_TIME(item) = time(0);
 	skip_spaces(&arg);
 	if (*arg)
 		GET_EXCHANGE_ITEM_COMMENT(item) = str_dup(arg);
@@ -1064,6 +1065,7 @@ EXCHANGE_ITEM_DATA *create_exchange_item(void)
 	GET_EXCHANGE_ITEM_LOT(item) = -1;
 	GET_EXCHANGE_ITEM_SELLERID(item) = -1;
 	GET_EXCHANGE_ITEM_COST(item) = 0;
+	GET_EXCHANGE_ITEM_TIME(item) = time(NULL);
 	GET_EXCHANGE_ITEM_COMMENT(item) = NULL;
 	GET_EXCHANGE_ITEM(item) = NULL;
 	item->next = exchange_item_list;
@@ -1140,16 +1142,21 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 	*error = 5;
 	if (!(GET_EXCHANGE_ITEM_SELLERID(item) = atoi(buffer)))
 		return (item);
-
 	*error = 6;
 	// Считаем цену предмета
 	if (!get_buf_line(data, buffer))
 		return (item);
+
 	*error = 7;
 	if (!(GET_EXCHANGE_ITEM_COST(item) = atoi(buffer)))
 		return (item);
 
+	if (!get_buf_line(data, buffer))
+		return (item);
 	*error = 8;
+	if (!(GET_EXCHANGE_ITEM_TIME(item) = atoi(buffer)))
+		return (item);
+	*error = 9;
 	// Считаем comment предмета
 	char *str_last_symb = strchr(*data, '\n');
 	strncpy(buffer, *data, str_last_symb - *data);
@@ -1174,6 +1181,7 @@ void exchange_write_one_object_new(std::stringstream &out, EXCHANGE_ITEM_DATA * 
 	out << "#" << GET_EXCHANGE_ITEM_LOT(item) << "\n"
 		<< GET_EXCHANGE_ITEM_SELLERID(item) << "\n"
 		<< GET_EXCHANGE_ITEM_COST(item) << "\n"
+		<< GET_EXCHANGE_ITEM_TIME(item) << "\n"
 		<< (GET_EXCHANGE_ITEM_COMMENT(item) ? GET_EXCHANGE_ITEM_COMMENT(item) : "EMPTY\n")
 		<< "\n";
 	write_one_object(out, GET_EXCHANGE_ITEM(item), 0);
@@ -1578,8 +1586,9 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		{
 			sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
 		}
-
-		sprintf(tmpbuf, "%s %9d  %-s\r\n", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)));
+		char *tmstr;
+		tmstr = (char *) asctime(localtime(&GET_EXCHANGE_ITEM_TIME(j)));
+		sprintf(tmpbuf, "%s %9d  %-s %s\r\n", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)), IS_GOOD(ch) ? tmstr : "");
 		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
 		buffer += tmpbuf;
 		any_item = 1;
@@ -1685,17 +1694,12 @@ ACMD(do_exchange)
 
 		if (IS_NPC(ch)) {
 			send_to_char("Торговать?! Да вы же не человек!\r\n", ch);
-		} else if (is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit")
+		} else if ((is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit")
 		|| is_abbrev(arg1, "цена") || is_abbrev(arg1, "cost")
 		|| is_abbrev(arg1, "снять") || is_abbrev(arg1, "withdraw")
-		|| is_abbrev(arg1, "купить") || is_abbrev(arg1, "purchase")
-		//commented by WorM 2011.05.21 а нафиг чтоб сохранить/загрузить базар быть у базарного торговца?
-		/*|| (is_abbrev(arg1, "save") && (GET_LEVEL(ch) >= LVL_IMPL))
-		|| (is_abbrev(arg1, "savebackup") && (GET_LEVEL(ch) >= LVL_IMPL))
-		|| (is_abbrev(arg1, "reload") && (GET_LEVEL(ch) >= LVL_IMPL))
-		|| (is_abbrev(arg1, "reloadbackup") && (GET_LEVEL(ch) >= LVL_IMPL))*/)
+		|| is_abbrev(arg1, "купить") || is_abbrev(arg1, "purchase")) && !IS_IMPL(ch))
 		{
-			send_to_char("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.", ch);
+			send_to_char("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.\r\n", ch);
 		} else
 			exchange(ch,NULL,cmd,arg);
 		free(arg);
