@@ -666,7 +666,7 @@ void init_guilds(void)
 			if (lines < 5)
 			{
 				log("Bad format for monoguild header, #s #s #s #s #s need...");
-				_exit(1);
+				graceful_exit(1);
 			}
 			mono_guild.learn_info = NULL;
 			mono_guild.races = 0;
@@ -699,15 +699,15 @@ void init_guilds(void)
 		{
 			if ((num = atoi(line1)) == 0 || real_mobile(num) < 0)
 			{
-				log("Cann't assign master %s in guilds.lst", line1);
-				_exit(1);
+				log("WARNING: Can't assign master %s in guilds.lst. Skipped.", line1);
+				continue;
 			}
 
 			if (!((type == 1 || type == 11) && mono_guild.learn_info) &&
 					!((type == 2 || type == 12) && poly_guild))
 			{
-				log("Cann't define guild info for master %s", line1);
-				_exit(1);
+				log("WARNING: Can't define guild info for master %s. Skipped.", line1);
+				continue;
 			}
 			if (type == 1 || type == 11)
 			{
@@ -769,7 +769,7 @@ void init_guilds(void)
 			if (lines < 3)
 			{
 				log("You need use 3 arguments for monoguild");
-				_exit(1);
+				graceful_exit(1);
 			}
 			if ((spellnum = atoi(line)) == 0 || spellnum > MAX_SPELLS)
 			{
@@ -794,12 +794,12 @@ void init_guilds(void)
 			if (skillnum <= 0 && spellnum <= 0 && featnum <= 0)
 			{
 				log("Unknown skill, spell or feat for monoguild");
-				_exit(1);
+				graceful_exit(1);
 			}
 			if ((level = atoi(line2)) == 0 || level >= LVL_IMMORT)
 			{
 				log("Use 1-%d level for guilds", LVL_IMMORT);
-				_exit(1);
+				graceful_exit(1);
 			}
 			if (!mono_guild.learn_info)
 			{
@@ -821,7 +821,7 @@ void init_guilds(void)
 			if (lines < 7)
 			{
 				log("You need use 7 arguments for poluguild");
-				_exit(1);
+				graceful_exit(1);
 			}
 			if (!poly_guild)
 			{
@@ -872,12 +872,12 @@ void init_guilds(void)
 			if (skillnum <= 0 && spellnum <= 0 && featnum <= 0)
 			{
 				log("Unknown skill, spell or feat for polyguild");
-				_exit(1);
+				graceful_exit(1);
 			}
 			if ((level = atoi(line6)) == 0 || level >= LVL_IMMORT)
 			{
 				log("Use 1-%d level for guilds", LVL_IMMORT);
-				_exit(1);
+				graceful_exit(1);
 			}
 			(poly_guild + pgcount)->spell_no = MAX(0, spellnum);
 			(poly_guild + pgcount)->skill_no = static_cast<ESkill>(MAX(0, skillnum));

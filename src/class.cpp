@@ -2309,7 +2309,7 @@ void load_skills_definitions()
 	if (!(magic = fopen(LIB_MISC "skills.lst", "r")))
 	{
 		log("Cann't open skills list file...");
-		_exit(1);
+		graceful_exit(1);
 	}
 	while (get_line(magic, name))
 	{
@@ -2319,7 +2319,7 @@ void load_skills_definitions()
 		{
 			log("Bad format for skill string!\r\n"
 				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <minlevel> <improove (%%d)> !");
-			_exit(1);
+			graceful_exit(1);
 		}
 		name[0] = '\0';
 		strcat(name, line1);
@@ -2332,22 +2332,22 @@ void load_skills_definitions()
 		if ((sp_num = find_skill_num(name)) < 0)
 		{
 			log("Skill '%s' not found...", name);
-			_exit(1);
+			graceful_exit(1);
 		}
         if (PlayerRace::GetKinNameByNum(i[0], ESex::SEX_MALE) == RACE_NAME_UNDEFINED)
 		{
 			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[1] < 0 || i[1] >= NUM_PLAYER_CLASSES)
 		{
 			log("Bad class type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[2] < 0 || i[2] >= MAX_REMORT)
 		{
 			log("Bad remort type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[4])
 		{
@@ -2366,7 +2366,7 @@ void load_skills_definitions()
 	if (!(magic = fopen(LIB_MISC "classskill.lst", "r")))
 	{
 		log("Cann't open classskill list file...");
-		_exit(1);
+		graceful_exit(1);
 	}
 	while (get_line(magic, name))
 	{
@@ -2375,7 +2375,7 @@ void load_skills_definitions()
 		if (sscanf(name, "%s %s %s %s", line1, line2, line3, line4) != 4)
 		{
 			log("Bad format for skill string!\r\n" "Format : <skill name (%%s %%s)> <kin (%%s)> <skills (%%s)> !");
-			_exit(1);
+			graceful_exit(1);
 		}
 		name[0] = '\0';
 		strcat(name, line1);
@@ -2388,7 +2388,7 @@ void load_skills_definitions()
 		if ((sp_num = find_skill_num(name)) < 0)
 		{
 			log("Skill '%s' not found...", name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		for (l = 0; line3[l] && l < NUM_KIN; l++)
 		{
@@ -2445,7 +2445,7 @@ void load_skills()
 				if ((sk_num = find_skill_num(name.c_str())) < 0)
 				{
 					log("Skill '%s' not found...", name.c_str());
-					_exit(1);
+					graceful_exit(1);
 				}
 				skill_info[sk_num].classknow[PCclass][PCkin] = KNOW_SKILL;
 				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > MAX_REMORT)
@@ -2462,7 +2462,7 @@ void load_skills()
 				skill_info[sk_num].k_improove[PCclass][PCkin] = MAX(1, value);
 				//log("Коэффициент улучшения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, (int)skill_info[sk_num].k_improove[PCclass][PCkin]);
 				value = xNodeSkill.attribute("level").as_int();
-				if (value>0 && value<LVL_IMMORT)
+				if (value > 0 && value < LVL_IMMORT)
 				{
 					skill_info[sk_num].min_level[PCclass][PCkin] = value;
 					//log("Минимальный уровень изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, value);
@@ -2470,10 +2470,10 @@ void load_skills()
 				else
 				{
 					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d", skill_info[sk_num].name, value);
-					_exit(1);
+					graceful_exit(1);
 				}
 				value = xNodeSkill.attribute("remort").as_int();
-				if (value>=0 && value<MAX_REMORT)
+				if (value >= 0 && value < MAX_REMORT)
 				{
 					skill_info[sk_num].min_remort[PCclass][PCkin] = value;
 					//log("Минимальное количество ремортов для изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, skill_info[sk_num].min_remort[j][PCkin]);
@@ -2481,13 +2481,13 @@ void load_skills()
 				else
 				{
 					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d", skill_info[sk_num].name, value);
-					_exit(1);
+					graceful_exit(1);
 				}
 			}
 		}
-
 	}
 }
+
 /*
  * SPELLS AND SKILLS.  This area defines which spells are assigned to
  * which classes, and the minimum level the character must be to use
@@ -2498,11 +2498,14 @@ void init_spell_levels(void)
 	FILE *magic;
 	char line1[256], line2[256], line3[256], name[256];
 	int i[15], j, sp_num;
+
 	if (!(magic = fopen(LIB_MISC "magic.lst", "r")))
 	{
 		log("Can't open magic list file...");
-		_exit(1);
+		perror("fopen");
+		graceful_exit(1);
 	}
+
 	while (get_line(magic, name))
 	{
 		if (!name[0] || name[0] == ';')
@@ -2511,7 +2514,7 @@ void init_spell_levels(void)
 		{
 			log("Bad format for magic string!\r\n"
 				"Format : <spell name (%%s %%s)> <kin (%%d)> <classes (%%d)> <remort (%%d)> <slot (%%d)> <level (%%d)>");
-			_exit(1);
+			graceful_exit(1);
 		}
 
 		name[0] = '\0';
@@ -2526,23 +2529,23 @@ void init_spell_levels(void)
 		if ((sp_num = find_spell_num(name)) < 0)
 		{
 			log("Spell '%s' not found...", name);
-			_exit(1);
+			graceful_exit(1);
 		}
 
 		if (i[0] < 0 || i[0] >= NUM_KIN)
 		{
 			log("Bad kin type for spell '%s' \"%d\"...", name, sp_num);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[1] < 0 || i[1] >= NUM_PLAYER_CLASSES)
 		{
 			log("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[2] < 0 || i[2] >= MAX_REMORT)
 		{
 			log("Bad remort type for spell '%s'  \"%d\"...", name, sp_num);
-			_exit(1);
+			graceful_exit(1);
 		}
 		mspell_remort(name, sp_num, i[0], i[1], i[2]);
 		mspell_level(name, sp_num, i[0] , i[1], i[4]);
@@ -2554,7 +2557,7 @@ void init_spell_levels(void)
 	if (!(magic = fopen(LIB_MISC "items.lst", "r")))
 	{
 		log("Cann't open items list file...");
-		_exit(1);
+		graceful_exit(1);
 	}
 	while (get_line(magic, name))
 	{
@@ -2564,7 +2567,7 @@ void init_spell_levels(void)
 		{
 			log("Bad format for magic string!\r\n"
 				"Format : <spell name (%%s %%s)> <type (%%s)> <items_vnum (%%d %%d %%d %%d)>");
-			_exit(1);
+			graceful_exit(1);
 		}
 
 		if (i[4] > 34)
@@ -2583,7 +2586,7 @@ void init_spell_levels(void)
 		if ((sp_num = find_spell_num(name)) < 0)
 		{
 			log("Spell '%s' not found...", name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		size_t c = strlen(line3);
 		if (!strn_cmp(line3, "potion", c))
@@ -2634,7 +2637,7 @@ void init_spell_levels(void)
 		else
 		{
 			log("Unknown items option : %s", line3);
-			_exit(1);
+			graceful_exit(1);
 		}
 	}
 	fclose(magic);
@@ -2642,7 +2645,7 @@ void init_spell_levels(void)
 	if (!(magic = fopen(LIB_MISC "features.lst", "r")))
 	{
 		log("Cann't open features list file...");
-		_exit(1);
+		graceful_exit(1);
 	}
 	while (get_line(magic, name))
 	{
@@ -2652,7 +2655,7 @@ void init_spell_levels(void)
 		{
 			log("Bad format for feature string!\r\n"
 				"Format : <feature name (%%s %%s)>  <kin (%%d %%d %%d)> <class (%%d)> <remort (%%d)> <level (%%d)> <naturalfeat (%%d)>!");
-			_exit(1);
+			graceful_exit(1);
 		}
 		name[0] = '\0';
 		strcat(name, line1);
@@ -2665,28 +2668,28 @@ void init_spell_levels(void)
 		if ((sp_num = find_feat_num(name)) <= 0)
 		{
 			log("Feat '%s' not found...", name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		for (j = 0; j < NUM_KIN; j++)
 			if (i[j] < 0 || i[j] > 1)
 			{
 				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
-				_exit(1);
+				graceful_exit(1);
 			}
 		if (i[3] < 0 || i[3] >= NUM_PLAYER_CLASSES)
 		{
 			log("Bad class type for feat \"%s\"...", feat_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[4] < 0 || i[4] >= MAX_REMORT)
 		{
 			log("Bad remort type for feat \"%s\"...", feat_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[6] < 0 || i[6] > 1)
 		{
 			log("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		for (j = 0; j < NUM_KIN; j++)
 			if (i[j] == 1)
@@ -2714,7 +2717,7 @@ void init_spell_levels(void)
 	if (!(magic = fopen(LIB_MISC "skillvariables.lst", "r")))
 	{
 		log("Cann't open skillvariables list file...");
-		_exit(1);
+		graceful_exit(1);
 	}
 
 	// Загружаем переменные скилов из файла
@@ -2811,7 +2814,7 @@ void init_spell_levels(void)
 	// +newbook.patch (Alisher)
 		if (!(magic = fopen(LIB_MISC "classrecipe.lst", "r"))) {
 			log("Cann't open classrecipe list file...");
-			_exit(1);
+			graceful_exit(1);
 		}
 		while (get_line(magic, name)) {
 			if (!name[0] || name[0] == ';')
@@ -2819,14 +2822,14 @@ void init_spell_levels(void)
 			if (sscanf(name, "%d %s %s", i, line1, line2) != 3) {
 				log("Bad format for magic string!\r\n"
 				    "Format : <recipe number (%%d)> <races (%%s)> <classes (%%d)>");
-				_exit(1);
+				graceful_exit(1);
 			}
 
 			rcpt = im_get_recipe(i[0]);
 
 			if (rcpt < 0) {
 				log("Invalid recipe (%d)", i[0]);
-				_exit(1);
+				graceful_exit(1);
 			}
 
 	// line1 - ограничения для рас еще не реализованы

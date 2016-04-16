@@ -350,7 +350,7 @@ inline void REMOVE_FROM_LIST(ListType* item, ListType*& head, GetNextFunc next)
 }
 
 template <typename ListType>
-inline void REMOVE_FROM_LIST(ListType* item, ListType* head)
+inline void REMOVE_FROM_LIST(ListType* item, ListType*& head)
 {
 	REMOVE_FROM_LIST(item, head, [](ListType* list) -> ListType*& { return list->next; });
 }
@@ -1631,6 +1631,11 @@ extern char buf1[MAX_STRING_LENGTH];
 extern char buf2[MAX_STRING_LENGTH];
 extern char arg[MAX_STRING_LENGTH];
 #endif
+
+inline void graceful_exit(int retcode)
+{
+	_exit(retcode);
+}
 
 #endif // _UTILS_H_
 
