@@ -604,7 +604,9 @@ void Player::save_char()
 	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(this));
 	fprintf(saved, "Invs: %d\n", GET_INVIS_LEV(this));
 	fprintf(saved, "Room: %d\n", GET_LOADROOM(this));
-
+//	li = this->player_data.time.birth;
+//	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
+	fprintf(saved, "Lexc: %ld\n", LAST_EXCHANGE(this));
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(this));
 
 	for (unsigned i = 0; i < board_date_.size(); ++i)
@@ -1446,6 +1448,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				if (num >= 0 && num < NLOG)
 					GET_LOGS(this)[num] = num2;
 			}
+			else if (!strcmp(tag, "Lexc"))
+				this->set_last_exchange(num);
 			break;
 
 		case 'M':

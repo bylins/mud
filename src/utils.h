@@ -477,6 +477,7 @@ extern SPECIAL(shop_ext);
 #define CLR_GOD_FLAG(ch,flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define GET_UNIQUE(ch)         ((ch)->get_uid())
 #define LAST_LOGON(ch)         ((ch)->get_last_logon())
+#define LAST_EXCHANGE(ch)         ((ch)->get_last_exchange())
 //структуры для подсчета количества рипов на морте (с) Василиса
 #define GET_RIP_ARENA(ch)      ((ch)->player_specials->saved.Rip_arena)
 #define GET_RIP_PK(ch)         ((ch)->player_specials->saved.Rip_pk)
