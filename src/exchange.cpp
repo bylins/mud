@@ -1191,7 +1191,7 @@ int exchange_database_load()
 
 	log("Exchange: loading database... (exchange.cpp)");
 
-	if (!(fl = fopen(EXCHANGE_DATABASE_FILE, "rb")))
+	if (!(fl = fopen(EXCHANGE_DATABASE_FILE, "r")))
 	{
 		log("SYSERR: Error opening exchange database. (exchange.cpp)");
 		return (0);
