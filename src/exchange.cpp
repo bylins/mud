@@ -1588,7 +1588,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		}
 		char *tmstr;
 		tmstr = (char *) asctime(localtime(&GET_EXCHANGE_ITEM_TIME(j)));
-		sprintf(tmpbuf, "%s %9d  %-s %s\r\n", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)), IS_GOOD(ch) ? tmstr : "");
+		sprintf(tmpbuf, "%s %9d  %-s %s\r\n", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)), IS_GOD(ch) ? tmstr : "");
 		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
 		buffer += tmpbuf;
 		any_item = 1;
