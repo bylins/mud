@@ -1371,7 +1371,6 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			af.battleflag = 0;
 //             (%скила+сила персонажа*5+вес сапог*3)/размер жертвы/0,55
 			float modi = ((ch->get_skill(SKILL_KICK) + GET_REAL_STR(ch) * 5) + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0) * 3) / float(GET_SIZE(vict));                       
-			send_to_char(ch, "&RЗашли в проверку спецпинка\r\n&n");
 			if (number(1,1000) < modi * 10 )
 			switch (number (0, (ch->get_skill(SKILL_KICK) - 150) / 10))
 			{
@@ -1454,7 +1453,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			{
 				dam += dam;
 				if (GET_GOD_FLAG(ch, GF_TESTER))
-					send_to_char(ch, "&RУдвоенный дамаг от спецпинка %d \r\n&n", dam);
+					send_to_char("Вы привстали на стременах.\r\n", ch);
 			}
 		}
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
