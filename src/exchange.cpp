@@ -92,6 +92,7 @@ char info_message[] = ("базар выставить <предмет> <цена>        - выставить пред
 					   "базар характеристики <#лот>             - характеристики лота (цена услуги 110 кун)\r\n"
 					   "базар купить <#лот>                     - купить лот\r\n"
 					   "базар предложения все <предмет>         - все предложения\r\n"
+					   "базар предложения последние             - последние\r\n"
 					   "базар предложения мои <предмет>         - мои предложения\r\n"
 					   "базар предложения руны <предмет>        - предложения рун\r\n"
 					   "базар предложения броня <предмет>       - предложения одежды и брони\r\n"
@@ -789,6 +790,7 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 	5 - книги
 	6 - ингры
 	7 - прочее
+	8 - последние
 	*/
 
 	memset(filter, 0, FILTER_LENGTH);
@@ -903,21 +905,12 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 			sprintf(filter, "%s И%s", filter, arg2);
 		}
 	}
-/*
-	else if (is_abbrev(arg1, "легкие") || is_abbrev(arg1, "легкая"))
+	else if (is_abbrev(arg1, "последние") || is_abbrev(arg1, "last"))
 	{
 		show_type = 8;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
-		{
-			sprintf(filter, "%s И%s", filter, arg2);
-		}
-		if (*multifilter)
-		{
-			strcat(filter, " О");
-			strcat(filter, multifilter);
-		}
+		// я х3 как тут писать сравнение времен
 	}
-	else if (is_abbrev(arg1, "средние") || is_abbrev(arg1, "средняя"))
+/*	else if (is_abbrev(arg1, "средние") || is_abbrev(arg1, "средняя"))
 	{
 		show_type = 9;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
@@ -1588,7 +1581,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		}
 		char *tmstr;
 		tmstr = (char *) asctime(localtime(&GET_EXCHANGE_ITEM_TIME(j)));
-		sprintf(tmpbuf, "%s %9d  %-s %s\r\n", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)), IS_GOOD(ch) ? tmstr : "");
+		sprintf(tmpbuf, "%s %9d  %-s %s\r\n", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)), IS_GOD(ch) ? tmstr : "");
 		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
 		buffer += tmpbuf;
 		any_item = 1;
