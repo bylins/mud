@@ -1191,7 +1191,7 @@ int exchange_database_load()
 
 	log("Exchange: loading database... (exchange.cpp)");
 
-	if (!(fl = fopen(EXCHANGE_DATABASE_FILE, "r")))
+	if (!(fl = fopen(EXCHANGE_DATABASE_FILE, "rb")))
 	{
 		log("SYSERR: Error opening exchange database. (exchange.cpp)");
 		return (0);
@@ -1202,7 +1202,7 @@ int exchange_database_load()
 
 	CREATE(readdata, char, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
-	if (!fread(readdata, fsize, 1, fl) || ferror(fl))
+	if (!fread(readdata, 1, fsize, fl) || ferror(fl))
 	{
 		fclose(fl);
 		log("SYSERR: Memory error or cann't read exchange database file. (exchange.cpp)");
@@ -1299,7 +1299,7 @@ int exchange_database_reload(bool loadbackup)
 
 	CREATE(readdata, char, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
-	if (!fread(readdata, fsize, 1, fl) || ferror(fl))
+	if (!fread(readdata, 1, fsize, fl) || ferror(fl))
 	{
 		fclose(fl);
 		if (loadbackup)
