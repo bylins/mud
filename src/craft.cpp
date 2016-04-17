@@ -13,8 +13,9 @@
 #include "pugixml.hpp"
 
 #include <boost/filesystem.hpp>
-#include <boost/token_functions.hpp>
-#include <boost/tokenizer.hpp>
+#include <boost/algorithm/string/detail/util.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 #include <iostream>
 #include <string>
@@ -47,22 +48,240 @@ namespace craft
 		return model.merge();
 	}
 
-	/// Contains handlers of craft subcommands
-	namespace subcommands
+	class CHelper
 	{
-		void list_crafts(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
-		{
-			send_to_char(ch, "Listing crafts...\nArguments: '%s'\nCount:%d\n", arguments, model.crafts().size());
+	private:
+		template <typename EnumType>
+		static void set_bit(FLAG_DATA& flags, const EnumType flag) { flags.set(flag); }
+		template <typename EnumType>
+		static void set_bit(uint32_t& flags, const EnumType flag) { SET_BIT(flags, flag); }
 
-			size_t counter = 0;
-			for (const auto& c : model.crafts())
+	public:
+		enum ELoadFlagResult
+		{
+			ELFR_SUCCESS,
+			ELFR_NO_VALUE,
+			ELFR_FAIL
+		};
+
+		template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
+		static void load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
+			TSuccessHandler success_handler, TFailHandler fail_handler);
+
+		template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
+		static ELoadFlagResult load_flag(const pugi::xml_node& root, const char* node_name,
+			TSuccessHandler success_handler, TFailHandler fail_handler, TNoValueHandler no_value_handler);
+
+		template <typename TCatchHandler>
+		static void load_integer(const char* input, int& output, TCatchHandler catch_handler);
+
+		template <typename TSetHandler, typename TCatchHandler>
+		static void load_integer(const char* input, TSetHandler set_handler, TCatchHandler catch_handler);
+
+		template <typename KeyType,
+			typename TNoKeyHandler,
+			typename TKeyConverter,
+			typename TConverFailHandler,
+			typename TNoValueHandler,
+			typename TSetHandler>
+			static void load_pairs_list(
+				const pugi::xml_node* node,
+				const char* group_name,
+				const char* entry_name,
+				const char* key_name,
+				const char* value_name,
+				TNoKeyHandler no_key_handler,
+				TKeyConverter key_converter,
+				TConverFailHandler convert_fail_handler,
+				TNoValueHandler no_value_handler,
+				TSetHandler set_handler);
+
+		template <typename TFailHandler>
+		static void save_string(pugi::xml_node& node, const char* node_name, const char* value, TFailHandler fail_handler);
+	};
+
+	template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
+	void CHelper::load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name,
+		const char* node_flag, TSuccessHandler success_handler, TFailHandler fail_handler)
+	{
+		const auto node = root.child(node_name);
+		if (node)
+		{
+			for (const auto flag : node.children(node_flag))
 			{
-				++counter;
-				send_to_char(ch, "%2d. %s\n", counter, c.id().c_str());
+				const char* flag_value = flag.child_value();
+				try
+				{
+					auto value = ITEM_BY_NAME<TFlags>(flag_value);
+					set_bit(flags, value);
+					success_handler(value);
+				}
+				catch (...)
+				{
+					fail_handler(flag_value);
+				}
 			}
 		}
+	}
 
-		void list_skills(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+	template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
+	CHelper::ELoadFlagResult CHelper::load_flag(const pugi::xml_node& root, const char* node_name,
+		TSuccessHandler success_handler, TFailHandler fail_handler, TNoValueHandler no_value_handler)
+	{
+		const auto node = root.child(node_name);
+		if (node)
+		{
+			const char* value = node.child_value();
+			try
+			{
+				const TFlag type = ITEM_BY_NAME<TFlag>(value);
+				success_handler(type);
+			}
+			catch (...)
+			{
+				fail_handler(value);
+				return ELFR_FAIL;
+			}
+		}
+		else
+		{
+			no_value_handler();
+			return ELFR_NO_VALUE;
+		}
+
+		return ELFR_SUCCESS;
+	}
+
+	template <typename TCatchHandler>
+	void CHelper::load_integer(const char* input, int& output, TCatchHandler catch_handler)
+	{
+		try
+		{
+			output = std::stoi(input);
+		}
+		catch (...)
+		{
+			catch_handler();
+		}
+	}
+
+	template <typename TSetHandler, typename TCatchHandler>
+	void CHelper::load_integer(const char* input, TSetHandler set_handler, TCatchHandler catch_handler)
+	{
+		try
+		{
+			set_handler(std::stoi(input));
+		}
+		catch (...)
+		{
+			catch_handler();
+		}
+	}
+
+	template <typename KeyType,
+		typename TNoKeyHandler,
+		typename TKeyConverter,
+		typename TConverFailHandler,
+		typename TNoValueHandler,
+		typename TSetHandler>
+		void CHelper::load_pairs_list(const pugi::xml_node* node, const char* group_name, const char* entry_name, const char* key_name, const char* value_name, TNoKeyHandler no_key_handler, TKeyConverter key_converter, TConverFailHandler convert_fail_handler, TNoValueHandler no_value_handler, TSetHandler set_handler)
+	{
+		const auto group_node = node->child(group_name);
+		if (!group_node)
+		{
+			return;
+		}
+
+		size_t number = 0;
+		for (const auto entry_node : group_node.children(entry_name))
+		{
+			++number;
+			const auto key_node = entry_node.child(key_name);
+			if (!key_node)
+			{
+				no_key_handler(number);
+				continue;
+			}
+
+			KeyType key;
+			try
+			{
+				key = key_converter(key_node.child_value());
+			}
+			catch (...)
+			{
+				convert_fail_handler(key_node.child_value());
+				continue;
+			}
+
+			const auto value_node = entry_node.child(value_name);
+			if (!value_node)
+			{
+				no_value_handler(key_node.child_value());
+				continue;
+			}
+
+			set_handler(key, value_node.child_value());
+		}
+	}
+
+	template <typename TFailHandler>
+	void CHelper::save_string(pugi::xml_node& node, const char* node_name, const char* value, TFailHandler fail_handler)
+	{
+		auto new_node = node.append_child(node_name);
+		if (!new_node)
+		{
+			log("Failed to create node \"%s\".\n", node_name);
+			fail_handler();
+		}
+
+		auto cdate_node = new_node.append_child(pugi::node_pcdata);
+		if (!cdate_node)
+		{
+			log("WARNING: Could not add PCDATA child node to node \"%s\".\n", node_name);
+			fail_handler();
+		}
+
+		if (!cdate_node.set_value(value))
+		{
+			log("WARNING: Failed to set value to node \"%s\".\n", node_name);
+			fail_handler();
+		}
+	}
+
+	/// Contains handlers of craft subcommands
+	namespace cmd
+	{
+		/**
+		 * Returns pointer to the first argument, moves command_line to the beginning of the next argument.
+		 * 
+		 * \note This routine changes a passed buffer: puts '\0' chrater after the first argument.
+		 */
+		const char* first_argument(char*& command_line)
+		{
+			// skip leading spaces
+			while (*command_line && ' ' == *command_line)
+			{
+				++command_line;
+			}
+
+			// getting subcommand
+			const char* result = command_line;
+			while (*command_line && ' ' != *command_line)
+			{
+				++command_line;
+			}
+
+			// anchor subcommand and move argument pointer to the next one
+			if (*command_line)
+			{
+				*(command_line++) = '\0';
+			}
+
+			return result;
+		}
+
+		void list_skills(CHAR_DATA* ch, char* arguments, void* /*data*/)
 		{
 			send_to_char(ch, "Listing craft skills...\nArguments: '%s'\nCount:%d\n", arguments, model.skills().size());
 
@@ -74,7 +293,7 @@ namespace craft
 			}
 		}
 
-		void list_recipes(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+		void list_recipes(CHAR_DATA* ch, char* arguments, void* /*data*/)
 		{
 			send_to_char(ch, "Listing craft recipes...\nArguments: '%s'\nCount:%d\n", arguments, model.recipes().size());
 
@@ -86,7 +305,7 @@ namespace craft
 			}
 		}
 
-		void list_prototypes(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+		void list_prototypes(CHAR_DATA* ch, char* arguments, void* /*data*/)
 		{
 			send_to_char(ch, "Listing craft prototypes...\nArguments: '%s'\nCount: %d\n", arguments, model.prototypes().size());
 
@@ -98,7 +317,7 @@ namespace craft
 			}
 		}
 
-		void list_properties(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+		void list_properties(CHAR_DATA* ch, char* arguments, void* /*data*/)
 		{
 			send_to_char(ch, "Craft properties...\nArguments: '%s'\n", arguments);
 			send_to_char(ch, "Base count:              &W%4d&n crafts\n", model.base_count());
@@ -106,80 +325,148 @@ namespace craft
 			send_to_char(ch, "Base top:                &W%4d&n percents\n", model.base_top());
 			send_to_char(ch, "Remorts bonus:           &W%4d&n percent\n", model.remorts_bonus());
 		}
-	}
 
-	const char* first_argument(char*& command_line)
-	{
-		// skip leading spaces
-		while (*command_line && ' ' == *command_line)
-		{
-			++command_line;
-		}
-
-		// getting subcommand
-		const char* result = command_line;
-		while (*command_line && ' ' != *command_line)
-		{
-			++command_line;
-		}
-
-		// anchor subcommand and move argument pointer to the next one
-		if (*command_line)
-		{
-			*(command_line++) = '\0';
-		}
-
-		return result;
-	}
-	
-	/**
-	* "craft" command handler.
-	*
-	* Syntax:
-	* craft prototypes	- list of prototypes loaded by craft system.
-	*/
-	void do_craft(CHAR_DATA* ch, char* arguments, int cmd, int subcmd)
-	{
-		using subcommand_handler_t = void(*)(CHAR_DATA *, char*, int, int);
+		using subcommand_handler_t = void(*)(CHAR_DATA *, char*, void*);
 		using subcommands_t = std::map<std::string, subcommand_handler_t>;
 
-		static subcommands_t subcommands =
+		class CSubcommands
 		{
-			{ "list", subcommands::list_crafts },
-			{ "properties", subcommands::list_properties },
-			{ "prototypes", subcommands::list_prototypes },
-			{ "recipes", subcommands::list_recipes },
-			{ "skills", subcommands::list_skills },
+		public:
+			enum EProcessResult
+			{
+				EPR_PROCESSED,
+				EPR_UNKNOWN,
+				EPR_NO_SUBCOMMAND,
+				EPR_WRONG_ARGUMENT
+			};
+
+			static EProcessResult process(const subcommands_t& subcommands_table, CHAR_DATA* ch, char*arguments, void* data);
 		};
 
-		if (!arguments)
+		CSubcommands::EProcessResult CSubcommands::process(const subcommands_t& subcommands_table, CHAR_DATA* ch, char*arguments, void* data)
 		{
-			log("SYSERROR: argument passed into %s:%d is NULL.", __FILE__, __LINE__);
-			send_to_char(ch, "Something went wrong... Send bug report, please. :(\n");
+			if (!arguments)
+			{
+				log("SYSERROR: argument passed into %s:%d is NULL.", __FILE__, __LINE__);
+				send_to_char(ch, "Something went wrong... Send bug report, please. :(\n");
 
-			return;
-		}
+				return EPR_WRONG_ARGUMENT;
+			}
 
-		const char* subcommand = first_argument(arguments);
-		if (!*subcommand)
-		{
-			send_to_char(ch, "Crafting...\n");
-			// craft command with no arguments
-			return;
-		}
+			const char* subcommand = first_argument(arguments);
+			if (!*subcommand)
+			{
+				return EPR_NO_SUBCOMMAND;
+			}
 
-		subcommands_t::const_iterator i = subcommands.lower_bound(subcommand);
+			subcommands_t::const_iterator i = subcommands_table.lower_bound(subcommand);
 
-		if (i != subcommands.end()
-			&& i->first.c_str() == strstr(i->first.c_str(), subcommand))
-		{
-			// found subcommand handler
-			i->second(ch, arguments, cmd, subcmd);
-		}
-		else
-		{
+			if (i != subcommands_table.end()
+				&& i->first.c_str() == strstr(i->first.c_str(), subcommand))
+			{
+				// found subcommand handler
+				i->second(ch, arguments, nullptr);
+				return EPR_PROCESSED;
+			}
+
 			send_to_char(ch, "Unknown subcommand '%s'.\n", subcommand);
+			return EPR_UNKNOWN;
 		}
+
+		void do_craft_list(CHAR_DATA* ch, char* arguments, void* /*data*/)
+		{
+			static subcommands_t subcommands =
+			{
+				{ "properties", cmd::list_properties },
+				{ "prototypes", cmd::list_prototypes },
+				{ "recipes", cmd::list_recipes },
+				{ "skills", cmd::list_skills }
+			};
+
+			send_to_char(ch, "Listing crafts...\nArguments: '%s'\nCount:%d\n", arguments, model.crafts().size());
+
+			const auto result = CSubcommands::process(subcommands, ch, arguments, nullptr);
+			if (CSubcommands::EPR_NO_SUBCOMMAND == result)
+			{
+				size_t counter = 0;
+				for (const auto& c : model.crafts())
+				{
+					++counter;
+					send_to_char(ch, "%2d. %s\n", counter, c.id().c_str());
+				}
+			}
+		}
+
+		void do_craft_export_prototype(CHAR_DATA* ch, char* arguments, void* /*data*/)
+		{
+			const auto vnum_str = first_argument(arguments);
+			obj_vnum vnum = 0;
+			try
+			{
+				CHelper::load_integer(vnum_str, vnum,
+					[&]() { throw std::runtime_error("wrong VNUM value"); });
+			}
+			catch (...)
+			{
+				send_to_char(ch, "Could not convert prototype VNUM value '%s' to integer number.\n", vnum_str);
+				return;
+			}
+
+			const auto filename = first_argument(arguments);
+			if (!*filename)
+			{
+				send_to_char(ch, "File name to export is not specified.");
+				return;
+			}
+
+			if (!model.export_object(vnum, filename))
+			{
+				send_to_char(ch, "Failed to export prototype.");
+			}
+			else
+			{
+				send_to_char(ch, "Prototype with VNUM %d successfully exported into file '%s'.", vnum, filename);
+			}
+		}
+
+		void do_craft_export(CHAR_DATA* ch, char* arguments, void* /*data*/)
+		{
+			static subcommands_t subcommands =
+			{
+				{ "prototype", do_craft_export_prototype }
+			};
+
+			const auto result = CSubcommands::process(subcommands, ch, arguments, nullptr);
+		}
+
+		/**
+		* "craft" command handler.
+		*
+		* Syntax:
+		* craft list								- list of crafts
+		* craft list prototypes						- list of prototypes loaded by craft system.
+		* craft list properties						- list of properties loaded by craft system.
+		* craft list recipes						- list of recipes loaded by craft system.
+		* craft list skills							- list of skills loaded by craft system.
+		* craft export prototype <vnum> <filename>	- exports prototype with <vnum> into file <filename>
+		*/
+		void do_craft(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+		{
+			static subcommands_t subcommands =
+			{
+				{ "list", do_craft_list },
+				{ "export", do_craft_export }
+			};
+
+			const auto result = CSubcommands::process(subcommands, ch, arguments, nullptr);
+
+			if (CSubcommands::EPR_NO_SUBCOMMAND == result)
+			{
+				send_to_char(ch, "Crafting...\n");
+				return;
+			}
+		}
+
 	}
 
 	const char* BODY_PREFIX = "| ";
@@ -229,7 +516,7 @@ namespace craft
 
 	const std::string CCraftModel::FILE_NAME = LIB_MISC_CRAFT "index.xml";
 
-	bool CCases::load(const pugi::xml_node* node)
+	bool CCases::load_from_node(const pugi::xml_node* node)
 	{
 		for (int c = 0; c < CASES_COUNT; ++c)
 		{
@@ -257,6 +544,49 @@ namespace craft
 		return true;
 	}
 
+	void CCases::load_from_object(const OBJ_DATA* object)
+	{
+		boost::algorithm::split(m_aliases, std::string(object->aliases), boost::algorithm::is_any_of(" "), boost::token_compress_on);
+		for (size_t n = 0; n < CASES_COUNT; ++n)
+		{
+			m_cases[n] = object->PNames[n];
+		}
+	}
+
+	bool CCases::save_to_node(pugi::xml_node* node) const
+	{
+		try
+		{
+			size_t number = 0;
+			for (const auto& c : m_cases)
+			{
+				++number;
+				const auto case_str = std::string("case") + std::to_string(number);
+				CHelper::save_string(*node, case_str.c_str(), c.c_str(),
+					[&]() { throw std::runtime_error("failed to save case value"); });
+			}
+
+			auto aliases = node->append_child("aliases");
+			if (!aliases)
+			{
+				log("WARNING: Failed to create aliases node");
+				return false;
+			}
+
+			for (const auto& a : m_aliases)
+			{
+				CHelper::save_string(aliases, "alias", a.c_str(),
+					[&]() { throw std::runtime_error("failed to save alias value"); });
+			}
+		}
+		catch (...)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	OBJ_DATA::pnames_t CCases::build_pnames() const
 	{
 		OBJ_DATA::pnames_t result;
@@ -267,181 +597,7 @@ namespace craft
 		return result;
 	}
 
-	class CLoadHelper
-	{
-	private:
-		template <typename EnumType>
-		static void set_bit(FLAG_DATA& flags, const EnumType flag) { flags.set(flag); }
-		template <typename EnumType>
-		static void set_bit(uint32_t& flags, const EnumType flag) { SET_BIT(flags, flag); }
-
-	public:
-		enum ELoadFlagResult
-		{
-			ELFR_SUCCESS,
-			ELFR_NO_VALUE,
-			ELFR_FAIL
-		};
-
-		template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
-		static void load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
-			TSuccessHandler success_handler, TFailHandler fail_handler);
-
-		template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
-		static ELoadFlagResult load_flag(const pugi::xml_node& root, const char* node_name,
-			TSuccessHandler success_handler, TFailHandler fail_handler, TNoValueHandler no_value_handler);
-
-		template <typename TCatchHandler>
-		static void load_integer(const char* input, int& output, TCatchHandler catch_handler);
-
-		template <typename TSetHandler, typename TCatchHandler>
-		static void load_integer(const char* input, TSetHandler set_handler, TCatchHandler catch_handler);
-
-		template <typename KeyType,
-			typename TNoKeyHandler,
-			typename TKeyConverter,
-			typename TConverFailHandler,
-			typename TNoValueHandler,
-			typename TSetHandler>
-		static void load_pairs_list(
-			const pugi::xml_node* node,
-			const char* group_name,
-			const char* entry_name,
-			const char* key_name,
-			const char* value_name,
-			TNoKeyHandler no_key_handler,
-			TKeyConverter key_converter,
-			TConverFailHandler convert_fail_handler,
-			TNoValueHandler no_value_handler,
-			TSetHandler set_handler);
-	};
-
-	template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
-	void CLoadHelper::load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name,
-		const char* node_flag, TSuccessHandler success_handler, TFailHandler fail_handler)
-	{
-		const auto node = root.child(node_name);
-		if (node)
-		{
-			for (const auto flag : node.children(node_flag))
-			{
-				const char* flag_value = flag.child_value();
-				try
-				{
-					auto value = ITEM_BY_NAME<TFlags>(flag_value);
-					set_bit(flags, value);
-					success_handler(value);
-				}
-				catch (...)
-				{
-					fail_handler(flag_value);
-				}
-			}
-		}
-	}
-
-	template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
-	CLoadHelper::ELoadFlagResult CLoadHelper::load_flag(const pugi::xml_node& root, const char* node_name,
-		TSuccessHandler success_handler, TFailHandler fail_handler, TNoValueHandler no_value_handler)
-	{
-		const auto node = root.child(node_name);
-		if (node)
-		{
-			const char* value = node.child_value();
-			try
-			{
-				const TFlag type = ITEM_BY_NAME<TFlag>(value);
-				success_handler(type);
-			}
-			catch (...)
-			{
-				fail_handler(value);
-				return ELFR_FAIL;
-			}
-		}
-		else
-		{
-			no_value_handler();
-			return ELFR_NO_VALUE;
-		}
-
-		return ELFR_SUCCESS;
-	}
-
-	template <typename TCatchHandler>
-	void CLoadHelper::load_integer(const char* input, int& output, TCatchHandler catch_handler)
-	{
-		try
-		{
-			output = std::stoi(input);
-		}
-		catch (...)
-		{
-			catch_handler();
-		}
-	}
-
-	template <typename TSetHandler, typename TCatchHandler>
-	void CLoadHelper::load_integer(const char* input, TSetHandler set_handler, TCatchHandler catch_handler)
-	{
-		try
-		{
-			set_handler(std::stoi(input));
-		}
-		catch (...)
-		{
-			catch_handler();
-		}
-	}
-
-	template <typename KeyType,
-		typename TNoKeyHandler,
-		typename TKeyConverter,
-		typename TConverFailHandler,
-		typename TNoValueHandler,
-		typename TSetHandler>
-	void CLoadHelper::load_pairs_list(const pugi::xml_node* node, const char* group_name, const char* entry_name, const char* key_name, const char* value_name, TNoKeyHandler no_key_handler, TKeyConverter key_converter, TConverFailHandler convert_fail_handler, TNoValueHandler no_value_handler, TSetHandler set_handler)
-	{
-		const auto group_node = node->child(group_name);
-		if (!group_node)
-		{
-			return;
-		}
-
-		size_t number = 0;
-		for (const auto entry_node : group_node.children(entry_name))
-		{
-			++number;
-			const auto key_node = entry_node.child(key_name);
-			if (!key_node)
-			{
-				no_key_handler(number);
-				continue;
-			}
-
-			KeyType key;
-			try
-			{
-				key = key_converter(key_node.child_value());
-			}
-			catch (...)
-			{
-				convert_fail_handler(key_node.child_value());
-				continue;
-			}
-
-			const auto value_node = entry_node.child(value_name);
-			if (!value_node)
-			{
-				no_value_handler(key_node.child_value());
-				continue;
-			}
-
-			set_handler(key, value_node.child_value());
-		}
-	}
-
-	bool CPrototype::load(const pugi::xml_node* node)
+	bool CPrototype::load_from_node(const pugi::xml_node* node)
 	{
 		log("Loading prototype with VNUM %d...\n", m_vnum);
 		CLogger::CPrefix prefix(log, BODY_PREFIX);
@@ -463,7 +619,7 @@ namespace craft
 			return false;
 		}
 
-		if (!m_cases.load(&item))
+		if (!m_cases.load_from_node(&item))
 		{
 			log("ERROR: could not load item cases for the prototype with VNUM %d.\n", m_vnum);
 			return false;
@@ -473,7 +629,7 @@ namespace craft
 		int cost_value = -1;
 		if (cost)
 		{
-			CLoadHelper::load_integer(cost.child_value(), cost_value, [&]() { /* just do nothing: keep default value */});
+			CHelper::load_integer(cost.child_value(), cost_value, [&]() { /* just do nothing: keep default value */});
 		}
 		else
 		{
@@ -500,7 +656,7 @@ namespace craft
 			}
 			else
 			{
-				CLoadHelper::load_integer(rent_on.child_value(), rent_on_value,
+				CHelper::load_integer(rent_on.child_value(), rent_on_value,
 					[&]() { log("WARNING: Wrong value \"%s\" of the \"rent\"/\"on\" tag for prototype with VNUM %d.\n",
 						rent_on.child_value(), m_vnum); });
 			}
@@ -512,7 +668,7 @@ namespace craft
 			}
 			else
 			{
-				CLoadHelper::load_integer(rent_off.child_value(), rent_off_value,
+				CHelper::load_integer(rent_off.child_value(), rent_off_value,
 					[&]() { log("WARNING: Wrong value \"%s\" of the \"rent\"/\"off\" tag for prototype with VNUM %d.\n",
 						rent_off.child_value(), m_vnum); });
 			}
@@ -542,7 +698,7 @@ namespace craft
 		if (global_maximum)
 		{
 			int global_maximum_value = OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM;
-			CLoadHelper::load_integer(global_maximum.child_value(), global_maximum_value,
+			CHelper::load_integer(global_maximum.child_value(), global_maximum_value,
 				[&]() { log("WARNING: \"global_maximum\" value of the prototype with VNUM %d is not valid integer. Setting to the default value %d.\n",
 					m_vnum, global_maximum_value); });
 
@@ -560,7 +716,7 @@ namespace craft
 		if (minimum_remorts)
 		{
 			int minimum_remorts_value = OBJ_DATA::DEFAULT_MINIMUM_REMORTS; 
-			CLoadHelper::load_integer(minimum_remorts.child_value(), minimum_remorts_value,
+			CHelper::load_integer(minimum_remorts.child_value(), minimum_remorts_value,
 				[&]() { log("WARNING: \"minimal_remorts\" value of the prototype with VNUM %d is not valid integer. Setting to the default value %d.\n",
 					m_vnum, minimum_remorts_value); });
 
@@ -573,11 +729,11 @@ namespace craft
 			m_minimum_remorts = minimum_remorts_value;
 		}
 
-		CLoadHelper::ELoadFlagResult load_result = CLoadHelper::load_flag<type_t>(*node, "type",
+		CHelper::ELoadFlagResult load_result = CHelper::load_flag<type_t>(*node, "type",
 			[&](const auto type) { this->set_type(type); },
 			[&](const auto name) { log("WARNING: Failed to set object type '%s' for prototype with VNUM %d. Prototype will be skipped.\n", name, m_vnum); },
 			[&]() { log("WARNING: \"type\" tag not found for prototype with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(get_type()).c_str()); });
-		if (CLoadHelper::ELFR_FAIL == load_result)
+		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
 		}
@@ -588,7 +744,7 @@ namespace craft
 			const auto maximum = durability.child("maximum");
 			if (maximum)
 			{
-				CLoadHelper::load_integer(maximum.child_value(),
+				CHelper::load_integer(maximum.child_value(),
 					[&](const auto value) { m_maximum_durability = std::max(value, 0); },
 					[&]() { log("WARNING: Wrong integer value of tag \"maximum_durability\" for prototype with VNUM %d. Leaving default value %d\n",
 						m_vnum, m_maximum_durability); });
@@ -597,7 +753,7 @@ namespace craft
 			const auto current = durability.child("current");
 			if (current)
 			{
-				CLoadHelper::load_integer(current.child_value(),
+				CHelper::load_integer(current.child_value(),
 					[&](const auto value) { m_current_durability = std::min(std::max(value, 0), m_maximum_durability); },
 					[&]() {
 					log("WARNING: Wrong integer value of tag \"current_durability\" for prototype with VNUM %d. Setting to value of \"maximum_durability\" %d\n",
@@ -607,11 +763,11 @@ namespace craft
 			}
 		}
 
-		load_result = CLoadHelper::load_flag<decltype(m_sex)>(*node, "sex",
+		load_result = CHelper::load_flag<decltype(m_sex)>(*node, "sex",
 			[&](const auto sex) { m_sex = sex; },
 			[&](const auto name) { log("WARNING: Failed to set sex '%s' for prototype with VNUM %d. Prototype will be skipped.\n", name, m_vnum); },
 			[&]() { log("WARNING: \"sex\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(m_sex).c_str()); });
-		if (CLoadHelper::ELFR_FAIL == load_result)
+		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
 		}
@@ -619,7 +775,7 @@ namespace craft
 		const auto level = node->child("level");
 		if (level)
 		{
-			CLoadHelper::load_integer(level.child_value(),
+			CHelper::load_integer(level.child_value(),
 				[&](const auto value) { m_level = std::max(value, 0); },
 				[&]() { log("WARNING: Wrong integer value of the \"level\" tag for prototype with VNUM %d. Leaving default value %d.\n",
 					m_vnum, m_level); });
@@ -628,7 +784,7 @@ namespace craft
 		const auto weight = node->child("weight");
 		if (weight)
 		{
-			CLoadHelper::load_integer(weight.child_value(),
+			CHelper::load_integer(weight.child_value(),
 				[&](const auto value) { this->set_weight(std::max(value, 1)); },
 				[&]() { log("WARNING: Wrong integer value of the \"weight\" tag for prototype with VNUM %d. Leaving default value %d.\n",
 					m_vnum, this->get_weight()); });
@@ -643,7 +799,7 @@ namespace craft
 			}
 			else
 			{
-				CLoadHelper::load_integer(weight.child_value(),
+				CHelper::load_integer(weight.child_value(),
 					[&](const auto value) { this->set_timer(std::max(value, 0)); },
 					[&]() { log("WARNING: Wrong integer value of the \"timer\" tag for prototype with VNUM %d. Leaving default value %d.\n",
 						m_vnum, this->get_timer()); });
@@ -660,42 +816,42 @@ namespace craft
 			}
 		}
 
-		load_result = CLoadHelper::load_flag<decltype(m_material)>(*node, "material",
+		load_result = CHelper::load_flag<decltype(m_material)>(*node, "material",
 			[&](const auto material) { m_material = material; },
 			[&](const auto name) { log("WARNING: Failed to set material '%s' for prototype with VNUM %d. Prototype will be skipped.\n", name, m_vnum); },
 			[&]() { log("WARNING: \"material\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(m_material).c_str()); });
-		if (CLoadHelper::ELFR_FAIL == load_result)
+		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
 		}
 
-		load_result = CLoadHelper::load_flag<decltype(m_spell)>(*node, "spell",
+		load_result = CHelper::load_flag<decltype(m_spell)>(*node, "spell",
 			[&](const auto spell) { m_spell = spell; },
 			[&](const auto value) { log("WARNING: Failed to set spell '%s' for prototype with VNUM %d. Spell will not be set.\n", value, m_vnum); },
 			[&]() {});
 
 		// loading of prototype extraflags
-		CLoadHelper::load_flags<EExtraFlag>(m_extraflags, *node, "extraflags", "extraflag",
+		CHelper::load_flags<EExtraFlag>(m_extraflags, *node, "extraflags", "extraflag",
 			[&](const auto value) { log("Setting extra flag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
 			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
         // loading of prototype weapon affect flags
-		CLoadHelper::load_flags<EWeaponAffectFlag>(m_waffect_flags, *node, "weapon_affects", "weapon_affect",
+		CHelper::load_flags<EWeaponAffectFlag>(m_waffect_flags, *node, "weapon_affects", "weapon_affect",
 			[&](const auto value) { log("Setting weapon affect flag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
 			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
         
         // loading of prototype antiflags
-		CLoadHelper::load_flags<EAntiFlag>(m_anti_flags, *node, "antiflags", "antiflag",
+		CHelper::load_flags<EAntiFlag>(m_anti_flags, *node, "antiflags", "antiflag",
 			[&](const auto value) { log("Setting antiflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
 			[&](const auto flag) { log("WARNING: Skipping antiflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
 		// loading of prototype noflags
-		CLoadHelper::load_flags<ENoFlag>(m_no_flags, *node, "noflags", "noflag",
+		CHelper::load_flags<ENoFlag>(m_no_flags, *node, "noflags", "noflag",
 			[&](const auto value) { log("Setting noflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
 			[&](const auto flag) { log("WARNING: Skipping noflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
 		// loading of prototype wearflags
-		CLoadHelper::load_flags<EWearFlag>(m_wear_flags, *node, "wearflags", "wearflag",
+		CHelper::load_flags<EWearFlag>(m_wear_flags, *node, "wearflags", "wearflag",
 			[&](const auto value) { log("Setting wearflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
 			[&](const auto flag) { log("WARNING: Skipping wearflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
@@ -711,7 +867,7 @@ namespace craft
 			const auto val_node = node->child(val_name.str().c_str());
 			if (val_node)
 			{
-				CLoadHelper::load_integer(val_node.child_value(), m_vals[i],
+				CHelper::load_integer(val_node.child_value(), m_vals[i],
 					[&]() { log("WARNING: \"%s\" tag of prototype with VNUM %d has wrong integer value. Leaving default value %d.\n",
 						val_name.str().c_str(), m_vnum, m_vals[i]); });
 			}
@@ -721,7 +877,7 @@ namespace craft
 		for (const auto trigger_node : triggers_node.children("trigger"))
 		{
 			const char* vnum_str = trigger_node.child_value();
-			CLoadHelper::load_integer(vnum_str,
+			CHelper::load_integer(vnum_str,
 				[&](const auto value) { m_triggers_list.push_back(value); },
 				[&]() { log("WARNING: Invalid trigger's VNUM value \"%s\" for prototype with VNUM %d. Skipping.\n",
 					vnum_str, m_vnum); });
@@ -739,6 +895,108 @@ namespace craft
 
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading prototype with VNUM %d.\n", m_vnum);
+
+		return true;
+	}
+
+	void CPrototype::load_from_object(const OBJ_DATA* object)
+	{
+		set_type(object->obj_flags.type_flag);
+
+		m_maximum_durability = object->obj_flags.Obj_max;
+		m_current_durability = object->obj_flags.Obj_cur;
+		m_material = object->obj_flags.Obj_mater;
+		m_sex = object->obj_flags.Obj_sex;
+		set_timer(object->get_timer());
+		m_item_params = object->obj_flags.Obj_skill;
+		m_spell = static_cast<ESpell>(object->obj_flags.Obj_spell);
+		m_level= object->obj_flags.Obj_level;
+		set_weight(object->obj_flags.weight);
+		m_cost = object->get_cost();
+		m_rent_off = object->get_rent();
+		m_rent_on = object->get_rent_eq();
+
+		m_waffect_flags = object->obj_flags.affects;
+		m_anti_flags = object->obj_flags.anti_flag;
+		m_no_flags = object->obj_flags.no_flag;
+		m_extraflags = object->obj_flags.extra_flags;
+
+		m_wear_flags = object->obj_flags.wear_flags;
+
+		m_cases.load_from_object(object);
+		m_short_desc = object->short_description;
+		m_long_desc = object->description;
+		m_action_desc = object->action_description;
+
+		if (nullptr != object->ex_description)
+		{
+			m_keyword = object->ex_description->keyword;
+			m_extended_desc = object->ex_description->description;
+		}
+
+		m_global_maximum = object->max_in_world;
+		m_minimum_remorts = object->get_manual_mort_req();
+
+		for (size_t i = 0; i < m_vals.size(); ++i)
+		{
+			m_vals[i]= object->obj_flags.value[i];
+		}
+
+		const auto& skills = object->get_skills();
+		for (const auto& s : skills)
+		{
+			m_skills[static_cast<ESkill>(s.first)] = s.second;
+		}
+
+		m_triggers_list = object->proto_script;
+		m_extended_values = object->values;
+
+		size_t number = 0;
+		for (const auto& apply : object->affected)
+		{
+			m_applies.push_back(apply);
+		}
+	}
+
+	bool CPrototype::save_to_node(pugi::xml_node* node) const
+	{
+		auto description = node->append_child("description");
+		if (!description)
+		{
+			log("WARNIGN: Failed to create description node.\n");
+			return false;
+		}
+
+		try
+		{
+			CHelper::save_string(description, "short", m_short_desc.c_str(),
+				[&]() { throw std::runtime_error("failed to save short description"); });
+			CHelper::save_string(description, "long", m_long_desc.c_str(),
+				[&]() { throw std::runtime_error("failed to save long description"); });
+			CHelper::save_string(description, "action", m_action_desc.c_str(),
+				[&]() { throw std::runtime_error("failed to save action description"); });
+			CHelper::save_string(description, "keyword", m_keyword.c_str(),
+				[&]() { throw std::runtime_error("failed to save keyword"); });
+			CHelper::save_string(description, "extended", m_extended_desc.c_str(),
+				[&]() { throw std::runtime_error("failed to save extended description"); });
+
+			auto item = node->append_child("item");
+			if (!item)
+			{
+				log("Failed to create item node.\n");
+				return false;
+			}
+
+			if (!m_cases.save_to_node(&item))
+			{
+				// Error message was output inside m_cases.save_to_node
+				return false;
+			}
+		}
+		catch (...)
+		{
+			return false;
+		}
 
 		return true;
 	}
@@ -854,7 +1112,7 @@ namespace craft
 
 	void CPrototype::load_skills(const pugi::xml_node* node)
 	{
-		CLoadHelper::load_pairs_list<ESkill>(node, "skills", "skill", "id", "value",
+		CHelper::load_pairs_list<ESkill>(node, "skills", "skill", "id", "value",
 			[&](const size_t number) { log("WARNING: %d-%s \"skill\" tag of \"skills\" group does not have the \"id\" tag. Prototype with VNUM %d.\n",
 				number, suffix(number), m_vnum); },
 			[&](const auto value) -> auto { return ITEM_BY_NAME<ESkill>(value); },
@@ -862,7 +1120,7 @@ namespace craft
 				key, m_vnum); },
 			[&](const auto key) { log("WARNING: skill with key \"%s\" does not have \"value\" tag. Prototype with VNUM %d. Skipping entry.\n",
 				key, m_vnum); },
-			[&](const auto key, const auto value) { CLoadHelper::load_integer(value,
+			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
 					m_skills.emplace(key, int_value);
 					log("Adding skill pair (%s, %d) to prototype with VNUM %d.\n",
@@ -874,7 +1132,7 @@ namespace craft
 
 	void CPrototype::load_extended_values(const pugi::xml_node* node)
 	{
-		CLoadHelper::load_pairs_list<ObjVal::EValueKey>(node, "extended_values", "entry", "key", "value",
+		CHelper::load_pairs_list<ObjVal::EValueKey>(node, "extended_values", "entry", "key", "value",
 			[&](const size_t number) { log("WARNING: %d-%s \"entry\" tag of \"extended_values\" group does not have the \"key\" tag. Prototype with VNUM %d.\n",
 				number, suffix(number), m_vnum); },
 			[&](const auto value) -> auto { return static_cast<ObjVal::EValueKey>(TextId::to_num(TextId::OBJ_VALS, value)); },
@@ -882,7 +1140,7 @@ namespace craft
 				key, m_vnum); },
 			[&](const auto key) { log("WARNING: entry with key \"%s\" does not have \"value\" tag. Prototype with VNUM %d. Skipping entry.\n",
 				key, m_vnum); },
-			[&](const auto key, const auto value) { CLoadHelper::load_integer(value,
+			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
 					m_extended_values.set(key, int_value);
 					log("Adding extended values pair (%s, %d) to prototype with VNUM %d.\n",
@@ -894,7 +1152,7 @@ namespace craft
 
 	void CPrototype::load_applies(const pugi::xml_node* node)
 	{
-		CLoadHelper::load_pairs_list<EApplyLocation>(node, "applies", "apply", "location", "modifier",
+		CHelper::load_pairs_list<EApplyLocation>(node, "applies", "apply", "location", "modifier",
 			[&](const size_t number) { log("WARNING: %d-%s \"apply\" tag of \"applies\" group does not have the \"location\" tag. Prototype with VNUM %d.\n",
 				number, suffix(number), m_vnum); },
 			[&](const auto value) -> auto { return ITEM_BY_NAME<EApplyLocation>(value); },
@@ -902,7 +1160,7 @@ namespace craft
 				key, m_vnum); },
 			[&](const auto key) { log("WARNING: apply with key \"%s\" does not have \"modifier\" tag. Prototype with VNUM %d. Skipping entry.\n",
 				key, m_vnum); },
-			[&](const auto key, const auto value) { CLoadHelper::load_integer(value,
+			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
 					m_applies.push_back(decltype(m_applies)::value_type(key, int_value));
 					log("Adding apply pair (%s, %d) to prototype with VNUM %d.\n",
@@ -971,7 +1229,7 @@ namespace craft
 			log("ERROR: material class with ID '%s' does not contain required \"item\" tag.\n", m_id.c_str());
 			return false;
 		}
-		if (!m_item_cases.load(&item))
+		if (!m_item_cases.load_from_node(&item))
 		{
 			log("ERROR: could not load item cases for material class '%s'.\n", m_id.c_str());
 			return false;
@@ -990,7 +1248,7 @@ namespace craft
 			log("ERROR: material class with ID '%s' does not contain required \"adjectives/male\" tag.\n", m_id.c_str());
 			return false;
 		}
-		if (!m_male_adjectives.load(&male))
+		if (!m_male_adjectives.load_from_node(&male))
 		{
 			log("ERROR: could not load male adjective cases for material class '%s'.\n", m_id.c_str());
 			return false;
@@ -1002,7 +1260,7 @@ namespace craft
 			log("ERROR: material class with ID '%s' does not contain required \"adjectives/female\" tag.\n", m_id.c_str());
 			return false;
 		}
-		if (!m_female_adjectives.load(&female))
+		if (!m_female_adjectives.load_from_node(&female))
 		{
 			log("ERROR: could not load female adjective cases for material class '%s'.\n", m_id.c_str());
 			return false;
@@ -1014,19 +1272,19 @@ namespace craft
 			log("ERROR: material class with ID '%s' does not contain required \"adjectives/neuter\" tag.\n", m_id.c_str());
 			return false;
 		}
-		if (!m_neuter_adjectives.load(&neuter))
+		if (!m_neuter_adjectives.load_from_node(&neuter))
 		{
 			log("ERROR: could not load neuter adjective cases for material class '%s'.\n", m_id.c_str());
 			return false;
 		}
 
 		// load extra flags
-		CLoadHelper::load_flags<EExtraFlag>(m_extraflags, *node, "extraflags", "extraflag",
+		CHelper::load_flags<EExtraFlag>(m_extraflags, *node, "extraflags", "extraflag",
 			[&](const auto value) { log("Setting extra flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str()); },
 			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str()); });
 
 		// load weapon affects
-		CLoadHelper::load_flags<EWeaponAffectFlag>(m_waffect_flags, *node, "weapon_affects", "weapon_affect",
+		CHelper::load_flags<EWeaponAffectFlag>(m_waffect_flags, *node, "weapon_affects", "weapon_affect",
 			[&](const auto value) { log("Setting weapon affect flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str()); },
 			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str()); });
 
@@ -1130,28 +1388,28 @@ namespace craft
 		const auto base_count_node = model.child("base_crafts");
 		if (base_count_node)
 		{
-			CLoadHelper::load_integer(base_count_node.child_value(), m_base_count,
+			CHelper::load_integer(base_count_node.child_value(), m_base_count,
 				[&]() { log("WARNING: \"base_crafts\" tag has wrong integer value. Leaving default value %d.\n", m_base_count); });
 		}
 
 		const auto remort_for_count_bonus_node = model.child("crafts_bonus");
 		if (remort_for_count_bonus_node)
 		{
-			CLoadHelper::load_integer(remort_for_count_bonus_node.child_value(), m_remort_for_count_bonus,
+			CHelper::load_integer(remort_for_count_bonus_node.child_value(), m_remort_for_count_bonus,
 				[&]() { log("WARNING: \"crafts_bonus\" tag has wrong integer value. Leaving default value %d.\n", m_remort_for_count_bonus); });
 		}
 
 		const auto base_top_node = model.child("skills_cap");
 		if (base_top_node)
 		{
-			CLoadHelper::load_integer(base_top_node.child_value(), m_base_top,
+			CHelper::load_integer(base_top_node.child_value(), m_base_top,
 				[&]() { log("WARNING: \"skills_cap\" tag has wrong integer value. Leaving default value %d.\n", m_base_top); });
 		}
 
 		const auto remorts_bonus_node = model.child("skills_bonus");
 		if (remorts_bonus_node)
 		{
-			CLoadHelper::load_integer(remorts_bonus_node.child_value(), m_remorts_bonus,
+			CHelper::load_integer(remorts_bonus_node.child_value(), m_remorts_bonus,
 				[&]() { log("WARNING: \"skills_bonus\" tag has wrong integer value. Leaving default value %d.\n", m_remorts_bonus); });
 		}
 
@@ -1231,7 +1489,7 @@ namespace craft
 		CPrototype p(vnum);
 		if (prototype->attribute("filename").empty())
 		{
-			if (!p.load(prototype))
+			if (!p.load_from_node(prototype))
 			{
 				log("WARNING: Skipping %zd-%s prototype with VNUM %d.\n",
 					number, suffix(number), vnum);
@@ -1270,7 +1528,7 @@ namespace craft
 				number,
 				suffix(number),
 				vnum);
-			if (!p.load(&proot))
+			if (!p.load_from_node(&proot))
 			{
 				log("WARNING: Skipping %zd-%s prototype with VNUM %d.\n",
 					number, suffix(number), vnum);
@@ -1339,6 +1597,35 @@ namespace craft
 
 		return true;
 	}
+
+	bool CCraftModel::export_object(const obj_vnum vnum, const char* filename)
+	{
+		const auto rnum = obj_proto.rnum(vnum);
+		if (-1 == rnum)
+		{
+			log("WARNING: Failed to export prototype with VNUM %d", vnum);
+			return false;
+		}
+
+		const auto object = obj_proto[rnum];
+		pugi::xml_document document;
+		pugi::xml_node root = document.append_child("prototype");
+		CPrototype prototype(vnum);
+		prototype.load_from_object(object);
+
+		if (!prototype.save_to_node(&root))
+		{
+			log("WARNING: Could not save prototype to XML.");
+			return false;
+		}
+
+		pugi::xml_node decl = document.prepend_child(pugi::node_declaration);
+		decl.append_attribute("version") = "1.0";
+		decl.append_attribute("encoding") = "koi8-r";
+
+		return document.save_file(filename);
+	}
+
 }
 
 /* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/

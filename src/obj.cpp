@@ -102,7 +102,7 @@ void OBJ_DATA::zero_init()
 	next = NULL;
 	room_was_in = NOWHERE;
 	max_in_world = 0;
-	skills = NULL;
+	m_skills.clear();
 	serial_num_ = 0;
 	timer_ = 0;
 	manual_mort_req_ = -1;
@@ -196,8 +196,8 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 			// массив. И у прототипов. Поэтому тут надо создавать новый,
 			// если нет желания "активировать" сразу все такие объекты.
 			// Умения, проставленные в сете, заменяют родные умения предмета.
-			skills = new std::map<int, int>;
-			__act.get_skills(*skills);
+			m_skills.clear();
+			__act.get_skills(m_skills);
 		}
 
 		return __act.get_actmsg() + "\n" + __act.get_room_actmsg();
@@ -229,8 +229,8 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 		{
 			// При активации мы создавали новый массив с умениями. Его
 			// можно смело удалять.
-			delete skills;
-			skills = obj_proto[item_number]->skills;
+			m_skills.clear();
+			m_skills = obj_proto[item_number]->m_skills;
 		}
 
 		return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();
@@ -241,14 +241,14 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 
 void OBJ_DATA::set_skill(int skill_num, int percent)
 {
-	if (skills)
+	if (!m_skills.empty())
 	{
-		const auto skill = skills->find(skill_num);
-		if (skill == skills->end())
+		const auto skill = m_skills.find(skill_num);
+		if (skill == m_skills.end())
 		{
 			if (percent != 0)
 			{
-				skills->insert(std::make_pair(skill_num, percent));
+				m_skills.insert(std::make_pair(skill_num, percent));
 			}
 		}
 		else
@@ -259,7 +259,7 @@ void OBJ_DATA::set_skill(int skill_num, int percent)
 			}
 			else
 			{
-				skills->erase(skill);
+				m_skills.erase(skill);
 			}
 		}
 	}
@@ -267,41 +267,35 @@ void OBJ_DATA::set_skill(int skill_num, int percent)
 	{
 		if (percent != 0)
 		{
-			skills = new std::map<int, int>;
-			skills->insert(std::make_pair(skill_num, percent));
+			m_skills.clear();
+			m_skills.insert(std::make_pair(skill_num, percent));
 		}
 	}
 }
 
 int OBJ_DATA::get_skill(int skill_num) const
 {
-	if (skills)
+	const auto skill = m_skills.find(skill_num);
+	if (skill != m_skills.end())
 	{
-		std::map<int, int>::iterator skill = skills->find(skill_num);
-		if (skill != skills->end())
-			return skill->second;
-		else
-			return 0;
+		return skill->second;
 	}
-	else
-	{
-		return 0;
-	}
+
+	return 0;
 }
 
 // * @warning Предполагается, что __out_skills.empty() == true.
 void OBJ_DATA::get_skills(std::map<int, int>& out_skills) const
 {
-	if (skills)
-		out_skills.insert(skills->begin(), skills->end());
+	if (!m_skills.empty())
+	{
+		out_skills.insert(m_skills.begin(), m_skills.end());
+	}
 }
 
 bool OBJ_DATA::has_skills() const
 {
-	if (skills)
-		return !skills->empty();
-	else
-		return false;
+	return !m_skills.empty();
 }
 
 void OBJ_DATA::set_timer(int timer)

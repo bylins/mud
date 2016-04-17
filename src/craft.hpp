@@ -36,7 +36,7 @@ namespace craft
 	const int SCMD_NOTHING = 0;
 
 	/// Defines for the "craft" command (base craft command)
-	namespace base_cmd
+	namespace cmd
 	{
 		/// Minimal position for base craft command
 		const int MINIMAL_POSITION = POS_SITTING;
@@ -46,9 +46,9 @@ namespace craft
 
 		// Probability to stop hide when using base craft command
 		const int UNHIDE_PROBABILITY = 0;	// -1 - always, 0 - never
-	}
 
-	extern void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+		extern void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	}
 
 	class CLogger
 	{
@@ -103,7 +103,9 @@ namespace craft
 	public:
 		CCases() {}
 
-		bool load(const pugi::xml_node* node);
+		bool load_from_node(const pugi::xml_node* node);
+		void load_from_object(const OBJ_DATA* object);
+		bool save_to_node(pugi::xml_node* node) const;
 
 		const std::string& aliases() const { return m_joined_aliases; }
 		OBJ_DATA::pnames_t build_pnames() const;
@@ -167,7 +169,10 @@ namespace craft
 		{
 		}
 
-		bool load(const pugi::xml_node* node);
+		bool load_from_node(const pugi::xml_node* node);
+		void load_from_object(const OBJ_DATA* object);
+
+		bool save_to_node(pugi::xml_node* node) const;
 
 		obj_vnum vnum() const { return m_vnum; }
 		const std::string& short_desc() const { return m_short_desc; }
@@ -396,6 +401,8 @@ namespace craft
 		const auto remort_for_count_bonus() const { return m_remort_for_count_bonus; }
 		const auto base_top() const { return m_base_top; }
 		const auto remorts_bonus() const { return m_remorts_bonus; }
+
+		bool export_object(const obj_vnum vnum, const  char* filename);
 
 	private:
 		/**

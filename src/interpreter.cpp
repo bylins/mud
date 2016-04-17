@@ -1094,7 +1094,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
 
 	// Craft
-	{"craft", craft::base_cmd::MINIMAL_POSITION, craft::do_craft, craft::base_cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::base_cmd::UNHIDE_PROBABILITY},
+	{"craft", craft::cmd::MINIMAL_POSITION, craft::cmd::do_craft, craft::cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::cmd::UNHIDE_PROBABILITY},
 
 	{"\n", 0, 0, 0, 0, 0}
 };				// this must be last

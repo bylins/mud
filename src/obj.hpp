@@ -493,6 +493,7 @@ public:
 
 	void set_skill(int skill_num, int percent);
 	int get_skill(int skill_num) const;
+	auto& get_skills() const { return m_skills; }
 
 	void get_skills(std::map<int, int>& out_skills) const;
 	bool has_skills() const;
@@ -547,7 +548,7 @@ private:
 
 	TimedSpell m_timed_spell;    ///< временный обкаст
 	// если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
-	std::map<int, int>* skills;
+	std::map<int, int> m_skills;
 	// порядковый номер в списке чаров (для name_list)
 	int serial_num_;
 	// таймер (в минутах рл)
