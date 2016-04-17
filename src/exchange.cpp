@@ -1663,6 +1663,11 @@ int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects)
 			else if (!filter.init_affect(tmpbuf, strlen(tmpbuf)))
 				return 0;
 			break;
+		case 'ò':
+			buf = one_argument(++buf, tmpbuf);
+			if (!filter.init_realtime(tmpbuf))
+				return 0;
+			break;
 		default:
 			return 0;
 		}

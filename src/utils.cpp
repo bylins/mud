@@ -3397,6 +3397,91 @@ bool ParseFilter::init_weap_class(const char *str)
 	return true;
 }
 
+bool ParseFilter::init_realtime(const char *str)
+{
+	tm trynewtimeup, trynewtimedown;
+	int day, month, year;
+	string tmp_string;
+	if (strlen(str) != 11)
+		return false;
+	if ((str[2] != '.') || (str[5] != '.') || (str[10] != '<' && str[10] != '>' && str[10] != '='))
+		return false;
+	if (!isdigit(static_cast<unsigned int>(str[0])) 
+		|| !isdigit(static_cast<unsigned int>(str[1]))
+		|| !isdigit(static_cast<unsigned int>(str[3]))
+		|| !isdigit(static_cast<unsigned int>(str[4]))
+		|| !isdigit(static_cast<unsigned int>(str[6]))
+		|| !isdigit(static_cast<unsigned int>(str[7]))
+		|| !isdigit(static_cast<unsigned int>(str[8]))
+		|| !isdigit(static_cast<unsigned int>(str[9]))
+		)
+		return false;
+
+	tmp_string = "";
+	tmp_string.push_back(str[0]);
+	tmp_string.push_back(str[1]);
+	day = std::stoi(tmp_string);
+	tmp_string = "";
+	tmp_string.push_back(str[3]);
+	tmp_string.push_back(str[4]);
+	month = std::stoi(tmp_string);
+	tmp_string = "";
+	tmp_string.push_back(str[6]);
+	tmp_string.push_back(str[7]);
+	tmp_string.push_back(str[8]);
+	tmp_string.push_back(str[9]);
+	year = std::stoi(tmp_string);
+	if (year <= 1900)
+		return false;
+	if (month > 12)
+		return false;
+	if (year % 4 == 0 && month == 2 && day > 29)
+		return false;
+	else if (month == 1 && day > 31)
+		return false;
+	else if (year % 4 != 0 && month == 2 && day > 28)
+		return false;
+	else if (month == 3 && day > 31)
+		return false;
+	else if (month == 4 && day > 30)
+		return false;
+	else if (month == 5 && day > 31)
+		return false;
+	else if (month == 6 && day > 30)
+		return false;
+	else if (month == 7 && day > 31)
+		return false;
+	else if (month == 8 && day > 31)
+		return false;
+	else if (month == 9 && day > 30)
+		return false;
+	else if (month == 10 && day > 31)
+		return false;
+	else if (month == 11 && day > 30)
+		return false;
+	else if (month == 12 && day > 31)
+		return false;
+	trynewtimedown.tm_sec = 0;
+	trynewtimedown.tm_hour = 0;
+	trynewtimedown.tm_min = 0;
+	trynewtimedown.tm_mday = day;
+	trynewtimedown.tm_mon = month-1;
+	trynewtimedown.tm_year = year-1900;
+	new_timedown = mktime(&trynewtimedown);
+
+	trynewtimeup.tm_sec = 59;
+	trynewtimeup.tm_hour = 23;
+	trynewtimeup.tm_min = 59;
+	trynewtimeup.tm_mday = day;
+	trynewtimeup.tm_mon = month-1;
+	trynewtimeup.tm_year = year - 1900;
+	new_timeup= mktime(&trynewtimeup);
+
+	new_timesign = str[10];
+
+	return true;
+}
+
 size_t ParseFilter::affects_cnt() const
 {
 	return affect_weap.size() + affect_apply.size() + affect_extra.size();
@@ -3707,6 +3792,22 @@ bool ParseFilter::check_owner(exchange_item_data *exch_obj) const
 	return false;
 }
 
+bool ParseFilter::check_realtime(exchange_item_data *exch_obj) const
+{
+	bool result = false;
+
+	if (new_timesign == '\0')
+		result = true;
+	else if (new_timesign == '=' && (new_timedown <= GET_EXCHANGE_ITEM_TIME(exch_obj)) && (new_timeup >= GET_EXCHANGE_ITEM_TIME(exch_obj)))
+		result = true;
+	else if (new_timesign == '<' && (new_timeup >= GET_EXCHANGE_ITEM_TIME(exch_obj)))
+		result = true;
+	else if (new_timesign == '>' && (new_timedown <= GET_EXCHANGE_ITEM_TIME(exch_obj)))
+		result = true;
+
+	return result;
+}
+
 bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch)
 {
 	if (check_name(obj, ch)
@@ -3737,7 +3838,8 @@ bool ParseFilter::check(exchange_item_data *exch_obj)
 		&& check_cost(GET_EXCHANGE_ITEM_COST(exch_obj))
 		&& check_affect_apply(obj)
 		&& check_affect_weap(obj)
-		&& check_affect_extra(obj))
+		&& check_affect_extra(obj)
+		&& check_realtime(exch_obj))
 	{
 		return true;
 	}

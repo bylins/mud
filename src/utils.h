@@ -1596,6 +1596,7 @@ struct ParseFilter
 
 	ParseFilter(int type) : type(-1), state(-1), wear(-1), wear_message(-1),
 		weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'),
+		new_timesign('\0'), new_timedown(NULL), new_timeup(NULL),
 		filter_type(type) {};
 
 	bool init_type(const char *str);
@@ -1604,6 +1605,7 @@ struct ParseFilter
 	bool init_cost(const char *str);
 	bool init_weap_class(const char *str);
 	bool init_affect(char *str, size_t str_len);
+	bool init_realtime(const char *str);
 	size_t affects_cnt() const;
 	bool check(OBJ_DATA *obj, CHAR_DATA *ch);
 	bool check(exchange_item_data *exch_obj);
@@ -1620,6 +1622,9 @@ struct ParseFilter
 	int cost;              // для цены
 	char cost_sign;        // знак цены +/-
 	int filter_type;       // CLAN/EXCHANGE
+	time_t new_timedown;
+	time_t new_timeup;
+	char new_timesign;
 	std::vector<int> affect_apply; // аффекты apply_types
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
@@ -1635,6 +1640,7 @@ private:
 	bool check_affect_apply(OBJ_DATA *obj) const;
 	bool check_affect_extra(OBJ_DATA *obj) const;
 	bool check_owner(exchange_item_data *exch_obj) const;
+	bool check_realtime(exchange_item_data *exch_obj) const;
 };
 
 int get_virtual_race(CHAR_DATA *mob);
