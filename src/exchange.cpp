@@ -1202,7 +1202,8 @@ int exchange_database_load()
 
 	CREATE(readdata, char, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
-	if (!fread(readdata, 1, fsize, fl) || ferror(fl))
+	auto actual_size = fread(readdata, 1, fsize, fl);
+	if (!actual_size || ferror(fl))
 	{
 		fclose(fl);
 		log("SYSERR: Memory error or cann't read exchange database file. (exchange.cpp)");
@@ -1212,7 +1213,7 @@ int exchange_database_load()
 	fclose(fl);
 
 	data = readdata;
-	*(data + fsize) = '\0';
+	*(data + actual_size) = '\0';
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);
@@ -1299,7 +1300,8 @@ int exchange_database_reload(bool loadbackup)
 
 	CREATE(readdata, char, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
-	if (!fread(readdata, 1, fsize, fl) || ferror(fl))
+	auto actual_size = fread(readdata, 1, fsize, fl);
+	if (!actual_size || ferror(fl))
 	{
 		fclose(fl);
 		if (loadbackup)
@@ -1312,7 +1314,7 @@ int exchange_database_reload(bool loadbackup)
 	fclose(fl);
 
 	data = readdata;
-	*(data + fsize) = '\0';
+	*(data + actual_size) = '\0';
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);
