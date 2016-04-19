@@ -133,7 +133,7 @@ set(HEADERS
     src/char_player.hpp
     src/comm.h
     src/conf.h
-	src/config.hpp
+    src/config.hpp
     src/constants.h
     src/corpse.hpp
     src/db.h
