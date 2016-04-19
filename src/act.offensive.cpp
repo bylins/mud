@@ -1109,6 +1109,13 @@ ACMD(do_stun)
 		send_to_char("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
 		return;
 	}
+
+	if (!(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS)))
+	{
+		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
+		return;
+	}
+
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
 		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
@@ -1125,6 +1132,7 @@ ACMD(do_stun)
 		send_to_char("Вы БОЛЬНО стукнули себя по голове! 'А еще я туда ем', - подумали вы...\r\n", ch);
 		return;
 	}
+
 	if (!may_kill_here(ch, vict))
 		return;
 	if (!check_pkill(ch, vict, arg))
@@ -1133,14 +1141,15 @@ ACMD(do_stun)
 		go_stun(ch, vict);
 	else
 	{
-		send_to_char("Вы не смогли сосредоточиться, чтобы ошеломить противника.\r\n", ch);
+		act("Вы не смогли сосредоточиться, чтобы ошеломить $N3.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$n попытал$u ошеломить вас, но не смог$q сосредоточиться.", FALSE, vict, 0, ch, TO_CHAR);
+		act("$n попытал$u ошеломить $N3, но не удалось. ", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 	}
 }
 
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 {	int weap_weight;
-
 	if (GET_SKILL(ch, SKILL_STUN) < 150)
 	{
 		improove_skill(ch, SKILL_STUN, TRUE, 0);
@@ -1148,20 +1157,17 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		timed.skill = SKILL_STUN;
 		timed.time = 7;
 		timed_to_char(ch, &timed);
-		send_to_char("Вы слишком слабо владеете умением 'ошеломить'\r\n", ch);
+		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
+		act("$n попытал$u ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+		act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		set_hit(ch, vict);
 	        return;
 	}
 	struct timed_type timed;
 	timed.skill = SKILL_STUN;
 	timed.time = 6 - (GET_SKILL(ch, SKILL_STUN) - 150) / 10; // 6..1 кулдаун
 	timed_to_char(ch, &timed);
-	if (GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS))
-		weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
-	else
-	{
-		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
-		return;
-	}
+	weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
 	float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
 		(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
 		if (number(1, 100) < num)
@@ -1329,6 +1335,8 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 	// 101% is a complete failure
 	percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, skill_info[SKILL_KICK].max_percent);
 	prob = train_skill(ch, SKILL_KICK, skill_info[SKILL_KICK].max_percent, vict);
+	if (GET_GOD_FLAG(ch, GF_TESTER))
+		send_to_char(ch, "&CРасчет удачи пинка, если  percent %d > prob %d пинка нет, АС простивника %d!&n\r\n", percent, prob, compute_armor_class(vict)); 
 	if (GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_MOB_HOLD(vict) > 0)
 		prob = percent;
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE) || (!on_horse(ch) && on_horse(vict)))
@@ -1363,7 +1371,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			modi = 5 * (10 + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0));
 			dam = modi * dam / 100;
 		}
-		if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) > 0) && GET_GOD_FLAG(ch, GF_TESTER)) //бонусы от критпинка
+		if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) > 150) && GET_GOD_FLAG(ch, GF_TESTER)) //бонусы от критпинка
 		{
 			af.location = APPLY_NONE;
 			af.type = SPELL_BATTLE;
@@ -1452,7 +1460,6 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			else if (number(1,1000) < (ch->get_skill(SKILL_HORSE)/2) )
 			{
 				dam += dam;
-				if (GET_GOD_FLAG(ch, GF_TESTER))
 					send_to_char("Вы привстали на стременах.\r\n", ch);
 			}
 		}
