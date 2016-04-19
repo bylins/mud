@@ -1110,7 +1110,7 @@ ACMD(do_stun)
 		return;
 	}
 
-	if (!GET_EQ(ch, WEAR_WIELD) || !GET_EQ(ch, WEAR_BOTHS))
+	if (!(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS)))
 	{
 		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
@@ -1460,7 +1460,6 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			else if (number(1,1000) < (ch->get_skill(SKILL_HORSE)/2) )
 			{
 				dam += dam;
-				if (GET_GOD_FLAG(ch, GF_TESTER))
 					send_to_char("Вы привстали на стременах.\r\n", ch);
 			}
 		}

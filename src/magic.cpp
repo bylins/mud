@@ -3821,7 +3821,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WC_OF_POWER:
 		af[0].location = APPLY_HIT;
-		af[0].modifier = MIN(SCHAR_MAX, (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2);
+		af[0].modifier = MIN(200, (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2);
 		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0);
 		to_vict = NULL;
 		to_room = NULL;

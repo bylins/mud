@@ -1920,9 +1920,10 @@ ACMD(do_horseon)
 		act("$N не сможет вас нести в таком состоянии.", FALSE, ch, 0, horse, TO_CHAR);
 	else if (AFF_FLAGGED(horse, AFF_TETHERED))
 		act("Вам стоит отвязать $N3.", FALSE, ch, 0, horse, TO_CHAR);
-	//чтоб не вскакивали в ванрумах
-	else if (ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
-		send_to_char("Слишком мало места.\r\n", ch);
+//	//чтоб не вскакивали в ванрумах
+// и зачем?
+//	else if (ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
+//		send_to_char("Слишком мало места.\r\n", ch);
 	else
 	{
 		if (affected_by_spell(ch, SPELL_SNEAK))

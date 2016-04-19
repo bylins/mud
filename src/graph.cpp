@@ -195,7 +195,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 			num = 4;
 		else
 			num = ((current_skillpercent - 80) / 5) + 4; //Каждые 5% скилла + морт
-		if ((GET_REMORT(victim) >= num) && (num < 28)) //200% скилла ищет всех
+		if ((GET_REMORT(victim) > num) && (num < 28))
 			return BFS_NO_PATH; //Чувства молчат
 	}
 	
