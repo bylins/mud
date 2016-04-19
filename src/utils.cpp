@@ -1357,8 +1357,10 @@ void core_dump_real(const char *who, int line)
 	// These would be duplicated otherwise...
 	fflush(stdout);
 	fflush(stderr);
-	for (int i = 0; i < NLOG; ++i)
-		fflush(logs[i].logfile);
+	for (int i = 0; i < 1 + LAST_LOG; ++i)
+	{
+		fflush(runtime_config::logs(static_cast<EOutputStream>(i)).handle());
+	}
 
 	/*
 	 * Kill the child so the debugger or script doesn't think the MUD
@@ -3872,12 +3874,12 @@ void setup_converters()
 	if (!runtime_config::log_stderr().empty())
 	{
 		// set up converter
-		const char* encoding = QUOTE(LOG_STDERR);
-		if ("cp1251" == runtime_config::log_stderr())
+		const auto& encoding = runtime_config::log_stderr();
+		if ("cp1251" == encoding)
 		{
 			syslog_converter = koi_to_win;
 		}
-		else if ("alt" == runtime_config::log_stderr())
+		else if ("alt" == encoding)
 		{
 			syslog_converter = koi_to_alt;
 		}

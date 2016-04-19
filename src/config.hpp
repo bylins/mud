@@ -56,7 +56,7 @@ public:
 
 	const std::string& filename() const { return m_filename; }
 	const std::string& title() const { return m_human_readable_name; }
-	auto handle() const { return m_handle; }
+	FILE* handle() const { return m_handle; }
 
 private:
 	static constexpr size_t BUFFER_SIZE = 1024;

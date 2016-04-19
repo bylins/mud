@@ -4147,8 +4147,10 @@ RETSIGTYPE crash_handle(int sig)
 	fflush(stdout);
 	fflush(stderr);
 
-	for (int i = 0; i < NLOG; ++i)
-		fflush(logs[i].logfile);
+	for (int i = 0; i < 1 + LAST_LOG; ++i)
+	{
+		fflush(runtime_config::logs(static_cast<EOutputStream>(i)).handle());
+	}
 	for (std::list<FILE *>::const_iterator it = opened_files.begin(); it != opened_files.end(); ++it)
 		fflush(*it);
 

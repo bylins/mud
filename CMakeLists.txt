@@ -406,7 +406,7 @@ if (CMAKE_HOST_UNIX)
             add_definitions("-Wno-invalid-source-encoding")
         endif ()
         target_link_libraries(circle crypt)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=gnu++0x")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=gnu++14")
     endif()
 
     # Suppose that UNIX hosts support epoll by default EPOLL>>>
