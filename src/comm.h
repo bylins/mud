@@ -74,23 +74,6 @@ int toggle_compression(DESCRIPTOR_DATA * d);
 
 typedef RETSIGTYPE sigfunc(int);
 
-// файлы логов и их количество
-#define		NLOG	3
-
-struct log_info_tag
-{
-	FILE *logfile;
-	const char *filename;
-	const char *name;
-};
-typedef struct log_info_tag log_info;
-
-extern const int SYSLOG;
-extern const int ERRLOG;
-extern const int IMLOG;
-
-extern log_info logs[NLOG];
-
 extern unsigned long cmd_cnt;
 
 #define DEFAULT_REBOOT_UPTIME 60*24*6	//время до ближайшего ребута по умолчанию в минутах

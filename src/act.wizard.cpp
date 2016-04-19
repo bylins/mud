@@ -60,6 +60,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "config.hpp"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -3586,8 +3587,10 @@ ACMD(do_syslog)
 {
 	int tp;
 
-	if (subcmd < 0 || subcmd >= NLOG)
+	if (subcmd < 0 || subcmd > LAST_LOG)
+	{
 		return;
+	}
 
 	tp = GET_LOGS(ch)[subcmd];
 	if (tp > 4)
@@ -3620,7 +3623,7 @@ ACMD(do_syslog)
 		}
 		GET_LOGS(ch)[subcmd] = tp;
 	}
-	sprintf(buf, "Тип вашего лога (%s) сейчас %s.\r\n", logs[subcmd].name, logtypes[tp]);
+	sprintf(buf, "Тип вашего лога (%s) сейчас %s.\r\n", runtime_config::logs(static_cast<EOutputStream>(subcmd)).title().c_str(), logtypes[tp]);
 	send_to_char(buf, ch);
 	return;
 }
