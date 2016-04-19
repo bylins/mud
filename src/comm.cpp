@@ -443,17 +443,6 @@ unsigned long int number_of_bytes_written = 0;
 
 int reboot_uptime = DEFAULT_REBOOT_UPTIME;	// uptime until reboot in minutes
 
-const int SYSLOG = 0;
-const int ERRLOG = 1;
-const int IMLOG = 2;
-
-log_info logs[NLOG] =
-{
-	{NULL, "syslog", "СИСТЕМНЫЙ"},
-	{NULL, "log/errlog.txt", "ОШИБКИ МИРА"},
-	{NULL, "log/imlog.txt", "ИНГРЕДИЕНТНАЯ МАГИЯ"}
-};
-
 char src_path[4096];
 
 // Для нового года
@@ -660,8 +649,6 @@ struct in_addr *get_bind_addr(void);
 int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
 void setup_logs(void);
-int open_logfile(log_info * li, FILE * stderr_fp);
-//void make_who2html();
 
 #if defined(POSIX)
 sigfunc *my_signal(int signo, sigfunc * func);
@@ -788,7 +775,6 @@ int main(int argc, char **argv)
 	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG); //assert in debug window
 # endif
 #endif
-	
 
 #ifdef OS_UNIX
 	extern char *malloc_options;
@@ -817,6 +803,8 @@ int main(int argc, char **argv)
 
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
+
+	runtime_config::load();
 
 	while ((pos < argc) && (*(argv[pos]) == '-'))
 	{
@@ -1326,47 +1314,6 @@ int shutting_down(void)
 		lastmessage = time(NULL);
 	}
 	return (FALSE);
-}
-
-// log rotation
-inline void rotate(log_info * li, long pos, struct tm *time)
-{
-	char newpath[256];
-	char cwd[4096];
-	int rc;
-
-	if (pos != ftell(li->logfile))
-	{
-		log("[ROTATE] Rotating %s", li->filename);
-	}
-	else
-	{
-		log("[ROTATE] No need to rotate %s, it's unchanged", li->filename);
-		return;
-	}
-
-// o.k., let's rotate
-	fclose(li->logfile);
-
-	snprintf(newpath, 256, "%s.%d-%.2d-%.2d_%.2d-%.2d",
-			 li->filename, time->tm_year + 1900, time->tm_mon + 1, time->tm_mday, time->tm_hour, time->tm_min);
-
-	getcwd(cwd, 4096);
-	chdir(src_path);
-	rc = rename(li->filename, newpath);
-
-	if (rc != 0)
-	{
-		fprintf(stderr, "SYSERR: Log rotation has caused an error: '%s', exiting.\n", strerror(errno));
-		exit(1);
-	}
-
-	if (!open_logfile(li, NULL))
-	{
-		fprintf(stderr, "SYSERR: Couldn't open %s, giving up.\n", li->filename);
-		exit(1);
-	}
-	chdir(cwd);
 }
 
 #ifdef HAS_EPOLL
@@ -2206,31 +2153,6 @@ inline void heartbeat(const int missed_pulses)
 		Clan::SyncTopExp();
 	}
 
-// shapirus: ротация логов. сислог каждые 2 часа, остальные раз в сутки.
-/*
-	if (!((pulse + 19) % PULSE_LOGROTATE))
-	{
-		time_t r_now = time(NULL);
-		syslog_n = localtime(&r_now);
-
-// инициализируем
-		if (lr_firstrun)
-		{
-			memcpy(&syslog_o, syslog_n, sizeof(struct tm));
-			lr_firstrun = 0;
-		}
-// проверка необходимости ротации и ротация
-		if ((syslog_n->tm_year != syslog_o.tm_year ||
-				syslog_n->tm_mon != syslog_o.tm_mon ||
-				syslog_n->tm_mday != syslog_o.tm_mday ||
-				syslog_n->tm_hour != syslog_o.tm_hour) && syslog_n->tm_hour % 5 == 0)
-		{
-			rotate(&logs[0], syslog_pos, syslog_n);
-			syslog_pos = ftell(logs[0].logfile);
-			memcpy(&syslog_o, syslog_n, sizeof(struct tm));
-		}
-	}
-*/
 	// сохранение файла чексумм, если в нем были изменения
 	if (!((pulse + 23) % (PASSES_PER_SEC)))
 	{
@@ -4952,70 +4874,28 @@ void setup_logs(void)
 	mkdir("log", 0700);
 	mkdir("log/perslog", 0700);
 
-	FILE *s_fp;
-	int i;
-
-	for (i = 0; i < NLOG; ++i)
+	for (int i = 0; i < 1 + LAST_LOG; ++i)
 	{
-
-#if defined(__MWERKS__) || defined(__GNUC__)
-		s_fp = stderr;
-#else
-		if ((s_fp = fdopen(STDERR_FILENO, "w")) == NULL)
-		{
-			puts("SYSERR: Error opening stderr, trying stdout.");
-
-			if ((s_fp = fdopen(STDOUT_FILENO, "w")) == NULL)
-			{
-				puts("SYSERR: Error opening stdout, trying a file.");
-				if (logs[i].filename == NULL || *logs[i].filename == '\0')
-				{
-					puts("SYSERR: No filename specified.");
-					exit(1);
-				}
-			}
-		}
-#endif
-
+		EOutputStream stream = static_cast<EOutputStream>(i);
 		getcwd(src_path, 4096);
 
-		if (!logs[i].filename || *logs[i].filename == '\0')
+		if (runtime_config::logs(stream).filename().empty())
 		{
-			logs[i].logfile = s_fp;
+			runtime_config::handle(stream, stderr);
 			puts("Using file descriptor for logging.");
 			continue;
 		}
 
-		if (!open_logfile(logs + i, NULL))	//s_fp
+		if (!runtime_config::open_log(stream))	//s_fp
 		{
 			puts("SYSERR: Couldn't open anything to log to, giving up.");
 			exit(1);
 		}
 	}
-	logfile = logs[SYSLOG].logfile;
+
+	logfile = runtime_config::logs(SYSLOG).handle();
 
 	setup_converters();
-}
-
-int open_logfile(log_info * li, FILE * stderr_fp)
-{
-	if (stderr_fp)		// freopen() the descriptor.
-	{
-		li->logfile = freopen(li->filename, "w", stderr_fp);
-	}
-	else
-	{
-		li->logfile = fopen(li->filename, "w");
-	}
-
-	if (li->logfile)
-	{
-		printf("Using log file '%s'%s.\n", li->filename, stderr_fp ? " with redirection" : "");
-		return (TRUE);
-	}
-
-	printf("SYSERR: Error opening file '%s': %s\n", li->filename, strerror(errno));
-	return (FALSE);
 }
 
 // * This may not be pretty but it keeps game_loop() neater than if it was inline.

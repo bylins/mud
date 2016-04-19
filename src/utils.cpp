@@ -427,44 +427,44 @@ void log(const char *format, ...)
 	time_s[strlen(time_s) - 1] = '\0';
 	fprintf(logfile, "%-15.15s :: ", time_s + 4);
 
-#ifdef LOG_STDERR
-	fprintf(stderr, "%-15.15s :: ", time_s + 4);
-#endif
+	if (!runtime_config::log_stderr().empty())
+	{
+		fprintf(stderr, "%-15.15s :: ", time_s + 4);
+	}
 
 	va_list args;
 	va_start(args, format);
 	vfprintf(logfile, format, args);
-#ifdef LOG_STDERR
-	const size_t BUFFER_SIZE = 4096;
-	char buffer[BUFFER_SIZE];
-	char* p = buffer;
-	const size_t length = vsnprintf(p, BUFFER_SIZE, format, args);
 
-	if (BUFFER_SIZE <= length)
+	if (!runtime_config::log_stderr().empty())
 	{
-		fputs("TRUNCATED: ", stderr);
-		p[BUFFER_SIZE - 1] = '\0';
-	}
+		const size_t BUFFER_SIZE = 4096;
+		char buffer[BUFFER_SIZE];
+		char* p = buffer;
+		const size_t length = vsnprintf(p, BUFFER_SIZE, format, args);
 
-	if (syslog_converter)
-	{
-		syslog_converter(buffer, length);
-	}
+		if (BUFFER_SIZE <= length)
+		{
+			fputs("TRUNCATED: ", stderr);
+			p[BUFFER_SIZE - 1] = '\0';
+		}
 
-	fputs(p, stderr);
-#endif
+		if (syslog_converter)
+		{
+			syslog_converter(buffer, static_cast<int>(length));
+		}
+
+		fputs(p, stderr);
+	}
 
 	va_end(args);
 
 	fprintf(logfile, "\n");
-#ifdef LOG_STDERR
-	fprintf(stderr, "\n");
-#endif
 
-// shapirus: для дебаггинга
-#ifdef LOG_AUTOFLUSH
-	fflush(logfile);
-#endif
+	if (!runtime_config::log_stderr().empty())
+	{
+		fprintf(stderr, "\n");
+	}
 }
 
 void shop_log(const char *format, ...)
@@ -677,26 +677,30 @@ int touch(const char *path)
  * based on syslog by Fen Jul 3, 1992
  * file - номер файла для вывода (0..NLOG), -1 не выводить в файл
  */
-void mudlog(const char *str, int type, int level, int channel, int file)
+void mudlog(const char *str, int type, int level, EOutputStream channel, int file)
 {
 	char tmpbuf[MAX_STRING_LENGTH];
 	DESCRIPTOR_DATA *i;
 
 	if (str == NULL)
 		return;		// eh, oh well.
-	if (channel < 0 || channel >= NLOG)
+	if (channel < 0 || channel > LAST_LOG)
+	{
 		return;
+	}
 	if (file)
 	{
-		logfile = logs[channel].logfile;
+		logfile = runtime_config::logs(channel).handle();
 		log("%s", str);
-		logfile = logs[SYSLOG].logfile;
+		logfile = runtime_config::logs(SYSLOG).handle();
 	}
 	if (level < 0)
+	{
 		return;
+	}
 	char time_buf[20];
-        time_t ct = time(0);
-        strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
+	time_t ct = time(0);
+	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
 	sprintf(tmpbuf, "[%s][ %s ]\r\n", time_buf, str);
 	for (i = descriptor_list; i; i = i->next)
 	{
@@ -717,7 +721,7 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 	}
 }
 
-void mudlog_python(const string& str, int type, int level, int channel, int file)
+void mudlog_python(const std::string& str, int type, int level, const EOutputStream channel, int file)
 {
 	mudlog(str.c_str(), type, level, channel, file);
 }
@@ -3865,18 +3869,19 @@ const char *print_obj_state(int tm_pct)
 
 void setup_converters()
 {
-#if defined LOG_STDERR
-	// set up converter
-	const char* encoding = QUOTE(LOG_STDERR);
-	if (0 == strcmp("cp1251", encoding))
+	if (!runtime_config::log_stderr().empty())
 	{
-		syslog_converter = koi_to_win;
+		// set up converter
+		const char* encoding = QUOTE(LOG_STDERR);
+		if ("cp1251" == runtime_config::log_stderr())
+		{
+			syslog_converter = koi_to_win;
+		}
+		else if ("alt" == runtime_config::log_stderr())
+		{
+			syslog_converter = koi_to_alt;
+		}
 	}
-	else if (0 == strcmp("alt", encoding))
-	{
-		syslog_converter = koi_to_alt;
-	}
-#endif
 }
 
 std::string ParseFilter::print() const

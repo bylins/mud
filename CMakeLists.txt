@@ -133,6 +133,7 @@ set(HEADERS
     src/char_player.hpp
     src/comm.h
     src/conf.h
+	src/config.hpp
     src/constants.h
     src/corpse.hpp
     src/db.h
@@ -211,6 +212,8 @@ set(HEADERS
     src/utils.h
     src/bonus.cpp
     src/bonus.h)
+
+set(CONFIGURATION_FILES lib.template/configuration.xml)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
@@ -300,6 +303,8 @@ else()
     set(PYTHON_LIBRARIES)
 endif ()
 
+source_group("Configuration files" FILES ${CONFIGURATION_FILES})
+
 # Versioning
 # Try to find hg executable, retrive revision if found and generate version.cpp from template
 set(VERSIONING_FILES src/versioning.cmake src/version.cpp.in)
@@ -313,9 +318,8 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
     DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 
 # Main executable file.
-add_executable(circle ${SOURCES} ${HEADERS} readme.markdown)
+add_executable(circle ${SOURCES} ${HEADERS} readme.markdown ${CONFIGURATION_FILES})
 add_dependencies(circle versioning)
-source_group("" FILES ${VERSIONING_FILES})
 
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE})
@@ -443,16 +447,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     else ()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
     endif ()
-endif ()
-
-# Add custom defines
-# Should we copy syslog to stderr? No by default.
-set(LOG_STDERR NO CACHE STRING "Define LOG_STDERR. If defined, MUD will log messages additionally to stderr. Also here you can specify output encoding")
-if (LOG_STDERR)
-    message(STATUS "syslog wil be copied to STDERR")
-    add_definitions("-DLOG_STDERR=${LOG_STDERR}")
-else ()
-    message(STATUS "syslog will NOT be copied to STDERR")
 endif ()
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :

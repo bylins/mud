@@ -6934,7 +6934,7 @@ void init_char(CHAR_DATA * ch)
 	}
 #endif
 	GET_PORTALS(ch) = NULL;
-	CREATE(GET_LOGS(ch), int, NLOG);
+	CREATE(GET_LOGS(ch), int, 1 + LAST_LOG);
 	ch->set_npc_name(0);
 	ch->player_data.long_descr = NULL;
 	ch->player_data.description = NULL;
