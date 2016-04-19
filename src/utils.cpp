@@ -427,21 +427,20 @@ void log(const char *format, ...)
 	time_s[strlen(time_s) - 1] = '\0';
 	fprintf(logfile, "%-15.15s :: ", time_s + 4);
 
+	va_list args;
+	va_start(args, format);
+
 	if (!runtime_config::log_stderr().empty())
 	{
 		fprintf(stderr, "%-15.15s :: ", time_s + 4);
-	}
-
-	va_list args;
-	va_start(args, format);
-	vfprintf(logfile, format, args);
-
-	if (!runtime_config::log_stderr().empty())
-	{
 		const size_t BUFFER_SIZE = 4096;
 		char buffer[BUFFER_SIZE];
 		char* p = buffer;
-		const size_t length = vsnprintf(p, BUFFER_SIZE, format, args);
+
+		va_list args_copy;
+		va_copy(args_copy, args);
+		const size_t length = vsnprintf(p, BUFFER_SIZE, format, args_copy);
+		va_end(args_copy);
 
 		if (BUFFER_SIZE <= length)
 		{
@@ -457,6 +456,7 @@ void log(const char *format, ...)
 		fputs(p, stderr);
 	}
 
+	vfprintf(logfile, format, args);
 	va_end(args);
 
 	fprintf(logfile, "\n");
