@@ -213,7 +213,7 @@ set(HEADERS
     src/bonus.cpp
     src/bonus.h)
 
-set(CONFIGURATION_FILES lib.template/configuration.xml)
+set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

@@ -429,7 +429,7 @@ const std::string& NAME_BY_ITEM<CLogInfo::EBuffered>(const CLogInfo::EBuffered i
 	return EBuffered_name_by_value.at(item);
 }
 
-const char* runtime_config::CONFIGURATION_FILE_NAME = "lib/configuration.xml";
+const char* runtime_config::CONFIGURATION_FILE_NAME = "lib/misc/configuration.xml";
 
 void runtime_config::load_from_file(const char* filename)
 {
