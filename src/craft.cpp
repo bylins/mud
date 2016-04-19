@@ -84,17 +84,17 @@ namespace craft
 			typename TConverFailHandler,
 			typename TNoValueHandler,
 			typename TSetHandler>
-			static void load_pairs_list(
-				const pugi::xml_node* node,
-				const char* group_name,
-				const char* entry_name,
-				const char* key_name,
-				const char* value_name,
-				TNoKeyHandler no_key_handler,
-				TKeyConverter key_converter,
-				TConverFailHandler convert_fail_handler,
-				TNoValueHandler no_value_handler,
-				TSetHandler set_handler);
+		static void load_pairs_list(
+			const pugi::xml_node* node,
+			const char* group_name,
+			const char* entry_name,
+			const char* key_name,
+			const char* value_name,
+			TNoKeyHandler no_key_handler,
+			TKeyConverter key_converter,
+			TConverFailHandler convert_fail_handler,
+			TNoValueHandler no_value_handler,
+			TSetHandler set_handler);
 
 		template <typename TFailHandler>
 		static void save_string(pugi::xml_node& node, const char* node_name, const char* value, TFailHandler fail_handler);
@@ -184,7 +184,7 @@ namespace craft
 		typename TConverFailHandler,
 		typename TNoValueHandler,
 		typename TSetHandler>
-		void CHelper::load_pairs_list(const pugi::xml_node* node, const char* group_name, const char* entry_name, const char* key_name, const char* value_name, TNoKeyHandler no_key_handler, TKeyConverter key_converter, TConverFailHandler convert_fail_handler, TNoValueHandler no_value_handler, TSetHandler set_handler)
+	void CHelper::load_pairs_list(const pugi::xml_node* node, const char* group_name, const char* entry_name, const char* key_name, const char* value_name, TNoKeyHandler no_key_handler, TKeyConverter key_converter, TConverFailHandler convert_fail_handler, TNoValueHandler no_value_handler, TSetHandler set_handler)
 	{
 		const auto group_node = node->child(group_name);
 		if (!group_node)
