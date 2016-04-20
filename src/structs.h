@@ -247,6 +247,15 @@ typedef struct trig_data TRIG_DATA;
 
 #define MAX_REMORT            50
 
+template <typename E>
+const std::string& NAME_BY_ITEM(const E item);
+
+template <typename E>
+E ITEM_BY_NAME(const std::string& name);
+
+template <typename E>
+inline E ITEM_BY_NAME(const char* name) { return ITEM_BY_NAME<E>(std::string(name)); }
+
 // char and mob-related defines ***************************************
 
 // PC classes //
