@@ -5261,7 +5261,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_LEADERSHIP, "лидерство", 100);
 	skillo(SKILL_PUNCTUAL, "точный стиль", 110);
 	skillo(SKILL_AWAKE, "осторожный стиль", 100);
-	skillo(SKILL_SENSE, "найти", 100);
+	skillo(SKILL_SENSE, "найти", 200);
 	skillo(SKILL_HORSE, "сражение верхом", 100);
 	skillo(SKILL_HIDETRACK, "замести следы", 120);
 	skillo(SKILL_RELIGION, "!молитва или жертва!", 100);

@@ -138,6 +138,7 @@ set(HEADERS
     src/char_player.hpp
     src/comm.h
     src/conf.h
+    src/config.hpp
     src/constants.h
     src/corpse.hpp
     src/craft.hpp
@@ -217,6 +218,8 @@ set(HEADERS
     src/top.h
     src/utils.h)
 
+set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
+
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
 
@@ -261,7 +264,7 @@ set(SCRIPTING_SOURCES src/scripting.cpp)
 # Turns on/off scripting. Use the option like:
 #     $ cmake -DSCRIPTING=NO ..
 # to turn scripting off.
-option(SCRIPTING "Turns on/off scripting engine" YES)
+option(SCRIPTING "Turns on/off scripting engine" NO)
 if (SCRIPTING)
     message(STATUS "Turning scripting ON")
     list(APPEND HEADERS ${SCRIPTING_HEADERS})
@@ -317,7 +320,33 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown)
+set(CRAFT_GENERAL_FILES
+    lib.template/misc/craft/index.xml)
+set(CRAFT_MATERIAL_FILES
+    lib.template/misc/craft/tough_leather.xml
+    lib.template/misc/craft/soft_leather.xml
+    lib.template/misc/craft/inwrought_flax.xml)
+set(CRAFT_CRAFT_FILES
+    lib.template/misc/craft/craft1.xml)
+set(CRAFT_TEMPLATE_FILES
+    lib.template/misc/craft/material_template.xml
+    lib.template/misc/craft/prototype_template.xml)
+set(CRAFT_PROTOTYPES)
+
+source_group("Misc\\Craft" FILES ${CRAFT_GENERAL_FILES})
+source_group("Misc\\Craft\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
+source_group("Misc\\Craft\\Materials" FILES ${CRAFT_MATERIAL_FILES})
+source_group("Misc\\Craft\\Crafts" FILES ${CRAFT_CRAFT_FILES})
+
+set(CRAFT_FILES ${CRAFT_GENERAL_FILES} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES} ${CRAFT_TEMPLATE_FILES})
+
+set(MISC_FILES
+    lib.template/misc/noob_help.xml
+	lib.template/misc/configuration.xml)
+
+source_group("Misc" FILES ${MISC_FILES})
+
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown ${CRAFT_FILES} ${MISC_FILES})
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
@@ -325,7 +354,6 @@ list(SORT CIRCLE_FILES)
 # Main executable file.
 add_executable(circle ${CIRCLE_FILES})
 add_dependencies(circle versioning)
-source_group("" FILES ${VERSIONING_FILES})
 
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)
@@ -450,45 +478,5 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
     endif ()
 endif ()
-
-# Add custom defines
-# Should we copy syslog to stderr? No by default.
-set(LOG_STDERR NO CACHE STRING "Define LOG_STDERR. If defined, MUD will log messages additionally to stderr. Also here you can specify output encoding")
-if (LOG_STDERR)
-    message(STATUS "syslog wil be copied to STDERR")
-    add_definitions("-DLOG_STDERR=${LOG_STDERR}")
-else ()
-    message(STATUS "syslog will NOT be copied to STDERR")
-endif ()
-
-#
-# Fake project for game descriptors.
-#
-set(CRAFT_GENERAL_FILES
-    lib.template/misc/craft/index.xml)
-set(CRAFT_MATERIAL_FILES
-    lib.template/misc/craft/tough_leather.xml
-    lib.template/misc/craft/soft_leather.xml
-    lib.template/misc/craft/inwrought_flax.xml)
-set(CRAFT_CRAFT_FILES
-    lib.template/misc/craft/craft1.xml)
-set(CRAFT_TEMPLATE_FILES
-    lib.template/misc/craft/material_template.xml
-    lib.template/misc/craft/prototype_template.xml)
-set(CRAFT_PROTOTYPES)
-
-source_group("Craft" FILES ${CRAFT_GENERAL_FILES})
-source_group("Craft\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
-source_group("Craft\\Materials" FILES ${CRAFT_MATERIAL_FILES})
-source_group("Craft\\Crafts" FILES ${CRAFT_CRAFT_FILES})
-
-set(CRAFT_FILES ${CRAFT_GENERAL_FILES} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES} ${CRAFT_TEMPLATE_FILES})
-
-set(MISC_FILES
-    lib.template/misc/noob_help.xml)
-
-source_group("Misc" FILES ${MISC_FILES})
-
-add_custom_target(world SOURCES ${CRAFT_FILES} ${MISC_FILES})
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :

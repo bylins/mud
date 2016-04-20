@@ -5092,7 +5092,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 
 	mob->points.hit = mob->points.max_hit;
 	GET_MEM_TOTAL(mob) = GET_MEM_COMPLETED(mob) = 0;
-	GET_HORSESTATE(mob) = 200;
+	GET_HORSESTATE(mob) = 800;
 	GET_LASTROOM(mob) = NOWHERE;
 	if (mob->mob_specials.speed <= -1)
 		GET_ACTIVITY(mob) = number(0, PULSE_MOBILE - 1);
@@ -6991,7 +6991,7 @@ void init_char(CHAR_DATA * ch)
 #endif
 
 	GET_PORTALS(ch) = NULL;
-	CREATE(GET_LOGS(ch), NLOG);
+	CREATE(GET_LOGS(ch), 1 + LAST_LOG);
 	ch->set_npc_name(0);
 	ch->player_data.long_descr = NULL;
 	ch->player_data.description = NULL;

@@ -620,7 +620,9 @@ void Player::save_char()
 	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(this));
 	fprintf(saved, "Invs: %d\n", GET_INVIS_LEV(this));
 	fprintf(saved, "Room: %d\n", GET_LOADROOM(this));
-
+//	li = this->player_data.time.birth;
+//	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
+	fprintf(saved, "Lexc: %ld\n", static_cast<long>(LAST_EXCHANGE(this)));
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(this));
 
 	for (unsigned i = 0; i < board_date_.size(); ++i)
@@ -729,7 +731,7 @@ void Player::save_char()
 	{
 		fprintf(saved, "Prtl: %d\n", prt->vnum);
 	}
-	for (i = 0; i < NLOG; ++i)
+	for (i = 0; i < 1 + LAST_LOG; ++i)
 	{
 		if (!GET_LOGS(this))
 		{
@@ -1174,7 +1176,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_PORTALS(this) = NULL;
 	EXCHANGE_FILTER(this) = NULL;
 	IGNORE_LIST(this) = NULL;
-	CREATE(GET_LOGS(this), NLOG);
+	CREATE(GET_LOGS(this), 1 + LAST_LOG);
 	NOTIFY_EXCH_PRICE(this) = 0;
 	this->player_specials->saved.HiredCost = 0;
 	this->set_who_mana(WHO_MANA_MAX);
@@ -1465,9 +1467,11 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			else if (!strcmp(tag, "Logs"))
 			{
 				sscanf(line, "%d %d", &num, &num2);
-				if (num >= 0 && num < NLOG)
+				if (num >= 0 && num < 1 + LAST_LOG)
 					GET_LOGS(this)[num] = num2;
 			}
+			else if (!strcmp(tag, "Lexc"))
+				this->set_last_exchange(num);
 			break;
 
 		case 'M':

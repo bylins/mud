@@ -39,6 +39,7 @@ const int EXCHANGE_MIN_CHAR_LEV = 8;
 #define GET_EXCHANGE_ITEM_COST(item)  ((item)->obj_cost)
 #define GET_EXCHANGE_ITEM_COMMENT(item)  ((item)->comment)
 #define GET_EXCHANGE_ITEM(item)  ((item)->obj)
+#define GET_EXCHANGE_ITEM_TIME(item)  ((item)->time)
 
 
 void extract_exchange_item(EXCHANGE_ITEM_DATA * item);
@@ -49,6 +50,7 @@ struct exchange_item_data
 	int lot_id;		//Номер лота
 	int seller_id;		//Номер продавца
 	int obj_cost;		//цена лота
+	time_t time; // время
 	char *comment;		//коментарий
 	OBJ_DATA *obj;		//собственно предмет
 	EXCHANGE_ITEM_DATA *next;	//для списка объектов базара

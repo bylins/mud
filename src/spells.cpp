@@ -907,8 +907,8 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		if (i->carried_by)
 		{
 			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET
-				|| (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
-					&& IS_NPC(i->carried_by))
+				|| (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
+					&& !IS_GOD(ch))
 				|| IS_IMMORTAL(i->carried_by))
 			{
 				continue;

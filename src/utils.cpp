@@ -427,48 +427,40 @@ void vlog(const char *format, va_list args)
 
 	time_s[strlen(time_s) - 1] = '\0';
 	fprintf(logfile, "%-15.15s :: ", time_s + 4);
-#ifdef LOG_STDERR
-	fprintf(stderr, "%-15.15s :: ", time_s + 4);
-#endif
 
-#ifdef LOG_STDERR
-	fprintf(stderr, "%-15.15s :: ", time_s + 4);
-	va_list log_args;
-	va_copy(log_args, args);
-#endif
+	if (!runtime_config::log_stderr().empty())
+	{
+		fprintf(stderr, "%-15.15s :: ", time_s + 4);
+		const size_t BUFFER_SIZE = 4096;
+		char buffer[BUFFER_SIZE];
+		char* p = buffer;
+
+		va_list args_copy;
+		va_copy(args_copy, args);
+		const size_t length = vsnprintf(p, BUFFER_SIZE, format, args_copy);
+		va_end(args_copy);
+
+		if (BUFFER_SIZE <= length)
+		{
+			fputs("TRUNCATED: ", stderr);
+			p[BUFFER_SIZE - 1] = '\0';
+		}
+
+		if (syslog_converter)
+		{
+			syslog_converter(buffer, static_cast<int>(length));
+		}
+
+		fputs(p, stderr);
+	}
 
 	vfprintf(logfile, format, args);
-
-#ifdef LOG_STDERR
-	const size_t BUFFER_SIZE = 4096;
-	char buffer[BUFFER_SIZE];
-	char* p = buffer;
-	const size_t length = vsnprintf(p, BUFFER_SIZE, format, log_args);
-	va_end(log_args);
-
-	if (BUFFER_SIZE <= length)
-	{
-		fputs("TRUNCATED: ", stderr);
-		p[BUFFER_SIZE - 1] = '\0';
-	}
-
-	if (syslog_converter)
-	{
-		syslog_converter(buffer, static_cast<int>(length));
-	}
-
-	fputs(p, stderr);
-#endif
-
 	fprintf(logfile, "\n");
-#ifdef LOG_STDERR
-	fprintf(stderr, "\n");
-#endif
 
-// shapirus: для дебаггинга
-#ifdef LOG_AUTOFLUSH
-	fflush(logfile);
-#endif
+	if (!runtime_config::log_stderr().empty())
+	{
+		fprintf(stderr, "\n");
+	}
 }
 
 void log(const char *format, ...)
@@ -687,26 +679,30 @@ int touch(const char *path)
  * based on syslog by Fen Jul 3, 1992
  * file - номер файла для вывода (0..NLOG), -1 не выводить в файл
  */
-void mudlog(const char *str, int type, int level, int channel, int file)
+void mudlog(const char *str, int type, int level, EOutputStream channel, int file)
 {
 	char tmpbuf[MAX_STRING_LENGTH];
 	DESCRIPTOR_DATA *i;
 
 	if (str == NULL)
 		return;		// eh, oh well.
-	if (channel < 0 || channel >= NLOG)
+	if (channel < 0 || channel > LAST_LOG)
+	{
 		return;
+	}
 	if (file)
 	{
-		logfile = logs[channel].logfile;
+		logfile = runtime_config::logs(channel).handle();
 		log("%s", str);
-		logfile = logs[SYSLOG].logfile;
+		logfile = runtime_config::logs(SYSLOG).handle();
 	}
 	if (level < 0)
+	{
 		return;
+	}
 	char time_buf[20];
-        time_t ct = time(0);
-        strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
+	time_t ct = time(0);
+	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
 	sprintf(tmpbuf, "[%s][ %s ]\r\n", time_buf, str);
 	for (i = descriptor_list; i; i = i->next)
 	{
@@ -727,7 +723,7 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 	}
 }
 
-void mudlog_python(const std::string& str, int type, int level, int channel, int file)
+void mudlog_python(const std::string& str, int type, int level, const EOutputStream channel, int file)
 {
 	mudlog(str.c_str(), type, level, channel, file);
 }
@@ -978,11 +974,6 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	ch->master = NULL;
 
 	AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-	if (IS_NPC(ch)
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE))
-	{
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
-	}
 
 	//log("[Stop follower] Free charmee");
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
@@ -1288,8 +1279,10 @@ void core_dump_real(const char *who, int line)
 	// These would be duplicated otherwise...
 	fflush(stdout);
 	fflush(stderr);
-	for (int i = 0; i < NLOG; ++i)
-		fflush(logs[i].logfile);
+	for (int i = 0; i < 1 + LAST_LOG; ++i)
+	{
+		fflush(runtime_config::logs(static_cast<EOutputStream>(i)).handle());
+	}
 
 	/*
 	 * Kill the child so the debugger or script doesn't think the MUD
@@ -3376,6 +3369,136 @@ bool ParseFilter::init_weap_class(const char *str)
 	return true;
 }
 
+bool ParseFilter::init_realtime(const char *str)
+{
+	tm trynewtimeup;
+	tm trynewtimedown;
+	int day, month, year;
+	std::string tmp_string;
+
+	if (strlen(str) != 11)
+	{
+		return false;
+	}
+
+	if ((str[2] != '.')
+		|| (str[5] != '.')
+		|| (str[10] != '<'
+			&& str[10] != '>'
+			&& str[10] != '='))
+	{
+		return false;
+	}
+
+	if (!isdigit(static_cast<unsigned int>(str[0])) 
+		|| !isdigit(static_cast<unsigned int>(str[1]))
+		|| !isdigit(static_cast<unsigned int>(str[3]))
+		|| !isdigit(static_cast<unsigned int>(str[4]))
+		|| !isdigit(static_cast<unsigned int>(str[6]))
+		|| !isdigit(static_cast<unsigned int>(str[7]))
+		|| !isdigit(static_cast<unsigned int>(str[8]))
+		|| !isdigit(static_cast<unsigned int>(str[9])))
+	{
+		return false;
+	}
+
+	tmp_string = "";
+	tmp_string.push_back(str[0]);
+	tmp_string.push_back(str[1]);
+	day = std::stoi(tmp_string);
+	tmp_string = "";
+	tmp_string.push_back(str[3]);
+	tmp_string.push_back(str[4]);
+	month = std::stoi(tmp_string);
+	tmp_string = "";
+	tmp_string.push_back(str[6]);
+	tmp_string.push_back(str[7]);
+	tmp_string.push_back(str[8]);
+	tmp_string.push_back(str[9]);
+	year = std::stoi(tmp_string);
+
+	if (year <= 1900)
+	{
+		return false;
+	}
+	if (month > 12)
+	{
+		return false;
+	}
+	if (year % 4 == 0 && month == 2 && day > 29)
+	{
+		return false;
+	}
+	else if (month == 1 && day > 31)
+	{
+		return false;
+	}
+	else if (year % 4 != 0 && month == 2 && day > 28)
+	{
+		return false;
+	}
+	else if (month == 3 && day > 31)
+	{
+		return false;
+	}
+	else if (month == 4 && day > 30)
+	{
+		return false;
+	}
+	else if (month == 5 && day > 31)
+	{
+		return false;
+	}
+	else if (month == 6 && day > 30)
+	{
+		return false;
+	}
+	else if (month == 7 && day > 31)
+	{
+		return false;
+	}
+	else if (month == 8 && day > 31)
+	{
+		return false;
+	}
+	else if (month == 9 && day > 30)
+	{
+		return false;
+	}
+	else if (month == 10 && day > 31)
+	{
+		return false;
+	}
+	else if (month == 11 && day > 30)
+	{
+		return false;
+	}
+	else if (month == 12 && day > 31)
+	{
+		return false;
+	}
+
+	trynewtimedown.tm_sec = 0;
+	trynewtimedown.tm_hour = 0;
+	trynewtimedown.tm_min = 0;
+	trynewtimedown.tm_mday = day;
+	trynewtimedown.tm_mon = month-1;
+	trynewtimedown.tm_year = year-1900;
+	new_timedown = mktime(&trynewtimedown);
+
+	trynewtimeup.tm_sec = 59;
+	trynewtimeup.tm_hour = 23;
+	trynewtimeup.tm_min = 59;
+	trynewtimeup.tm_mday = day;
+	trynewtimeup.tm_mon = month-1;
+	trynewtimeup.tm_year = year - 1900;
+	new_timeup= mktime(&trynewtimeup);
+
+	new_timesign = str[10];
+
+	return true;
+}
+
 size_t ParseFilter::affects_cnt() const
 {
 	return affect_weap.size() + affect_apply.size() + affect_extra.size();
@@ -3685,6 +3808,22 @@ bool ParseFilter::check_owner(exchange_item_data *exch_obj) const
 	return false;
 }
 
+bool ParseFilter::check_realtime(exchange_item_data *exch_obj) const
+{
+	bool result = false;
+
+	if (new_timesign == '\0')
+		result = true;
+	else if (new_timesign == '=' && (new_timedown <= GET_EXCHANGE_ITEM_TIME(exch_obj)) && (new_timeup >= GET_EXCHANGE_ITEM_TIME(exch_obj)))
+		result = true;
+	else if (new_timesign == '<' && (new_timeup >= GET_EXCHANGE_ITEM_TIME(exch_obj)))
+		result = true;
+	else if (new_timesign == '>' && (new_timedown <= GET_EXCHANGE_ITEM_TIME(exch_obj)))
+		result = true;
+
+	return result;
+}
+
 bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch)
 {
 	if (check_name(obj, ch)
@@ -3715,7 +3854,8 @@ bool ParseFilter::check(exchange_item_data *exch_obj)
 		&& check_cost(GET_EXCHANGE_ITEM_COST(exch_obj))
 		&& check_affect_apply(obj)
 		&& check_affect_weap(obj)
-		&& check_affect_extra(obj))
+		&& check_affect_extra(obj)
+		&& check_realtime(exch_obj))
 	{
 		return true;
 	}
@@ -3741,18 +3881,19 @@ const char *print_obj_state(int tm_pct)
 
 void setup_converters()
 {
-#if defined LOG_STDERR
-	// set up converter
-	const char* encoding = QUOTE(LOG_STDERR);
-	if (0 == strcmp("cp1251", encoding))
+	if (!runtime_config::log_stderr().empty())
 	{
-		syslog_converter = koi_to_win;
+		// set up converter
+		const auto& encoding = runtime_config::log_stderr();
+		if ("cp1251" == encoding)
+		{
+			syslog_converter = koi_to_win;
+		}
+		else if ("alt" == encoding)
+		{
+			syslog_converter = koi_to_alt;
+		}
 	}
-	else if (0 == strcmp("alt", encoding))
-	{
-		syslog_converter = koi_to_alt;
-	}
-#endif
 }
 
 std::string ParseFilter::print() const

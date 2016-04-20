@@ -1109,6 +1109,13 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 		send_to_char("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
 		return;
 	}
+
+	if (!(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS)))
+	{
+		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
+		return;
+	}
+
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
 		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
@@ -1125,6 +1132,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 		send_to_char("Вы БОЛЬНО стукнули себя по голове! 'А еще я туда ем', - подумали вы...\r\n", ch);
 		return;
 	}
+
 	if (!may_kill_here(ch, vict))
 		return;
 	if (!check_pkill(ch, vict, arg))
@@ -1133,14 +1141,15 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 		go_stun(ch, vict);
 	else
 	{
-		send_to_char("Вы не смогли сосредоточиться, чтобы ошеломить противника.\r\n", ch);
+		act("Вы не смогли сосредоточиться, чтобы ошеломить $N3.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$n попытал$u ошеломить вас, но не смог$q сосредоточиться.", FALSE, vict, 0, ch, TO_CHAR);
+		act("$n попытал$u ошеломить $N3, но не удалось. ", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 	}
 }
 
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
-{
-
+{	int weap_weight;
 	if (GET_SKILL(ch, SKILL_STUN) < 150)
 	{
 		improove_skill(ch, SKILL_STUN, TRUE, 0);
@@ -1148,21 +1157,25 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		timed.skill = SKILL_STUN;
 		timed.time = 7;
 		timed_to_char(ch, &timed);
-		send_to_char("Вы слишком слабо владеете умением 'ошеломить'\r\n", ch);
+		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
+		act("$n попытал$u ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+		act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		set_hit(ch, vict);
 	        return;
 	}
 	struct timed_type timed;
 	timed.skill = SKILL_STUN;
 	timed.time = 6 - (GET_SKILL(ch, SKILL_STUN) - 150) / 10; // 6..1 кулдаун
 	timed_to_char(ch, &timed);
-	float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow((GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0), 2) + pow(GET_REAL_STR(ch), 2)) /
+	weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
+	float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
 		(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
 		if (number(1, 100) < num)
 		{
 			improove_skill(ch, SKILL_STUN, TRUE, 0);
 // кастуем аналог круга пустоты
 			act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
-			act("Вас ошеломи$q и сбил с ног $N4, вы временно потеряли сознание.", FALSE, vict, 0, ch, TO_CHAR);
+			act("Ошеломительный удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
 			act("$n  мощным ударом ошеломи$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			set_hit(ch, vict);
 			GET_POS(vict) = POS_INCAP;
@@ -1173,8 +1186,8 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		{
 			improove_skill(ch, SKILL_STUN, FALSE, 0);
 			act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n1 попытался ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
-			act("$n1 попытался ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+			act("$n попытал$u ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+			act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 //			Damage dmg(SkillDmg(SKILL_STUN), 1, FightSystem::PHYS_DMG);
 //			dmg.process(ch, vict);
 			set_hit(ch, vict);
@@ -1321,13 +1334,21 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 	// 101% is a complete failure
 	percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, skill_info[SKILL_KICK].max_percent);
 	prob = train_skill(ch, SKILL_KICK, skill_info[SKILL_KICK].max_percent, vict);
+	if (GET_GOD_FLAG(ch, GF_TESTER))
+	{
+		send_to_char(ch, "&CРасчет удачи пинка, если  percent %d > prob %d пинка нет, АС простивника %d!&n\r\n", percent, prob, compute_armor_class(vict));
+	}
 	if (GET_GOD_FLAG(vict, GF_GODSCURSE)
 		|| GET_MOB_HOLD(vict))
 	{
 		prob = percent;
 	}
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) || (!on_horse(ch) && on_horse(vict)))
+	if (GET_GOD_FLAG(ch, GF_GODSCURSE)
+		|| (!on_horse(ch)
+			&& on_horse(vict)))
+	{
 		prob = 0;
+	}
 	// в сетке пинок хуже
 	if (check_spell_on_player(ch, SPELL_WEB))
 	{
@@ -1358,7 +1379,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			modi = 5 * (10 + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0));
 			dam = modi * dam / 100;
 		}
-		if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) > 0) && GET_GOD_FLAG(ch, GF_TESTER)) //бонусы от критпинка
+		if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) > 150) && GET_GOD_FLAG(ch, GF_TESTER)) //бонусы от критпинка
 		{
 			AFFECT_DATA<EApplyLocation> af;
 			af.location = APPLY_NONE;
@@ -1367,7 +1388,6 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			af.battleflag = 0;
 //             (%скила+сила персонажа*5+вес сапог*3)/размер жертвы/0,55
 			float modi = ((ch->get_skill(SKILL_KICK) + GET_REAL_STR(ch) * 5) + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0) * 3) / float(GET_SIZE(vict));                       
-			send_to_char(ch, "&RЗашли в проверку спецпинка\r\n&n");
 			if (number(1,1000) < modi * 10 )
 			switch (number (0, (ch->get_skill(SKILL_KICK) - 150) / 10))
 			{
@@ -1407,7 +1427,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			case 3:
 				to_char = "Сильно пнув в челюсть, вы заставили $N1 замолчать.";
 				to_vict = "Мощный удар ногой $n1 попал точно в челюсть, заставив вас замолчать.";
-				to_room = "Сильно пнув ногой в челюсть $N1, $n застави&q $S замолчать.";
+				to_room = "Сильно пнув ногой в челюсть $N1, $n застави$q $S замолчать.";
 				af.type = SPELL_BATTLE;
 				af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 				af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
@@ -1449,8 +1469,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			else if (number(1,1000) < (ch->get_skill(SKILL_HORSE)/2) )
 			{
 				dam += dam;
-				if (GET_GOD_FLAG(ch, GF_TESTER))
-					send_to_char(ch, "&RУдвоенный дамаг от спецпинка %d \r\n&n", dam);
+					send_to_char("Вы привстали на стременах.\r\n", ch);
 			}
 		}
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);

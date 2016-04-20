@@ -261,7 +261,8 @@ int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict)
 
 int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 {
-	int percent, prob;
+	int percent, prob, absolute_fail;
+	bool try_fail;
 
 	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK) || affected_by_spell(ch, SPELL_SNEAK)))
 	{
@@ -276,12 +277,18 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 		}
 		else if (affected_by_spell(ch, SPELL_SNEAK))
 		{
-			if (can_use_feat(ch, WRIGGLER_FEAT)) //тать или наем
-				percent = number(1, 102 + GET_REAL_INT(vict));
-			else
-				percent = number(1, 102 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
+			//if (can_use_feat(ch, STEALTHY_FEAT)) //тать или наем
+				//percent = number(1, 140 + GET_REAL_INT(vict));
+			//else
+			percent = number(1, (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 140) + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
 			prob = calculate_skill(ch, SKILL_SNEAK, vict);
-			if (percent > prob)
+
+			//5% шанс фэйла при prob==200 всегда, при prob = 100 - 10%, если босс, шанс множим на 5
+			absolute_fail = ((200 - prob) / 20 + 5)*(vict->get_role(MOB_ROLE_BOSS) ? 5 : 1 );
+			try_fail = number(1, 100) < absolute_fail;
+
+
+			if ((percent > prob) || try_fail)
 			{
 				affect_from_char(ch, SPELL_SNEAK);
 				if (affected_by_spell(ch, SPELL_HIDE))
@@ -534,21 +541,11 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		}
 		//проверка на ванрум: скидываем игрока с коня, если там незанято
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_TUNNEL) &&
-				(num_pc_in_room((world[EXIT(ch, dir)->to_room])) > 0 || on_horse(ch)))
+				(num_pc_in_room((world[EXIT(ch, dir)->to_room])) > 0))
 		{
-			if (num_pc_in_room((world[EXIT(ch, dir)->to_room])) > 0)
-			{
-				if (show_msg)
-					send_to_char("Слишком мало места.\r\n", ch);
-				return (FALSE);
-			}
-			else if (show_msg)
-			{
-				act("$Z $N заупрямил$U, и вам пришлось соскочить.",
-					FALSE, ch, 0, get_horse(ch), TO_CHAR);
-				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
-			}
+			if (show_msg)
+				send_to_char("Слишком мало места.\r\n", ch);
+			return (FALSE);
 		}
 
 		if (on_horse(ch) && GET_HORSESTATE(get_horse(ch)) <= 0)
@@ -1940,9 +1937,10 @@ void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		act("$N не сможет вас нести в таком состоянии.", FALSE, ch, 0, horse, TO_CHAR);
 	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
 		act("Вам стоит отвязать $N3.", FALSE, ch, 0, horse, TO_CHAR);
-	//чтоб не вскакивали в ванрумах
-	else if (ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
-		send_to_char("Слишком мало места.\r\n", ch);
+//	//чтоб не вскакивали в ванрумах
+// и зачем?
+//	else if (ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
+//		send_to_char("Слишком мало места.\r\n", ch);
 	else
 	{
 		if (affected_by_spell(ch, SPELL_SNEAK))

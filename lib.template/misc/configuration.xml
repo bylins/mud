@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<configuration>
+	<logging>
+		<!--
+		If not empty then syslog will be copied into STDERR. Value of this tag is output encoding.
+		Could be: cp1251 or alt. Other values means no conversion.
+		-->
+		<!-- <log_stderr></log_stderr> -->
+		
+		<syslog>
+			<filename>syslog</filename>
+			<buffered>LINE</buffered>
+		</syslog>
+		
+		<errlog>
+			<buffered>NO</buffered>
+		</errlog>
+			
+		<imlog>
+			<buffered>FULL</buffered>
+		</imlog>
+	</logging>
+</configuration>

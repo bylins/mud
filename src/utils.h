@@ -14,6 +14,7 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+#include "config.hpp"
 #include "structs.h"
 #include "conf.h"
 #include "pugixml.hpp"
@@ -38,7 +39,6 @@ extern char WinToKoi[];
 extern char KoiToWin[];
 extern char KoiToWin2[];
 extern char AltToLat[];
-extern const int SYSLOG;
 
 // public functions in utils.cpp
 CHAR_DATA *find_char(long n);
@@ -64,8 +64,8 @@ void pers_log(CHAR_DATA *ch, const char *format, ...);
 void temp_log(const char *format, ...);
 void ip_log(const char *ip);
 int touch(const char *path);
-void mudlog(const char *str, int type, int level, int channel, int file);
-void mudlog_python(const std::string& str, int type, int level, int channel, int file);
+void mudlog(const char *str, int type, int level, EOutputStream channel, int file);
+void mudlog_python(const std::string& str, int type, int level, const EOutputStream channel, int file);
 int number(int from, int to);
 int dice(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
@@ -560,6 +560,7 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define CLR_GOD_FLAG(ch,flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define GET_UNIQUE(ch)         ((ch)->get_uid())
 #define LAST_LOGON(ch)         ((ch)->get_last_logon())
+#define LAST_EXCHANGE(ch)         ((ch)->get_last_exchange())
 //структуры для подсчета количества рипов на морте (с) Василиса
 #define GET_RIP_ARENA(ch)      ((ch)->player_specials->saved.Rip_arena)
 #define GET_RIP_PK(ch)         ((ch)->player_specials->saved.Rip_pk)
@@ -1551,6 +1552,7 @@ struct ParseFilter
 
 	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1),
 		weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'),
+		new_timesign('\0'), new_timedown(time(0)), new_timeup(time(0)),
 		filter_type(type) {};
 
 	bool init_type(const char *str);
@@ -1559,6 +1561,7 @@ struct ParseFilter
 	bool init_cost(const char *str);
 	bool init_weap_class(const char *str);
 	bool init_affect(char *str, size_t str_len);
+	bool init_realtime(const char *str);
 	size_t affects_cnt() const;
 	bool check(OBJ_DATA *obj, CHAR_DATA *ch);
 	bool check(exchange_item_data *exch_obj);
@@ -1574,7 +1577,11 @@ struct ParseFilter
 	int weap_message;      // для названия оружия
 	int cost;              // для цены
 	char cost_sign;        // знак цены +/-
-	int filter_type;       // CLAN/EXCHANGE
+	char new_timesign;	   // знак времени < > =
+	time_t new_timedown;   // нижняя граница времени
+	time_t new_timeup;	   // верхняя граница времени
+	int filter_type;       // CLAN/EXCHANGE	
+	
 	std::vector<int> affect_apply; // аффекты apply_types
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
@@ -1590,6 +1597,7 @@ private:
 	bool check_affect_apply(OBJ_DATA *obj) const;
 	bool check_affect_extra(OBJ_DATA *obj) const;
 	bool check_owner(exchange_item_data *exch_obj) const;
+	bool check_realtime(exchange_item_data *exch_obj) const;
 };
 
 int get_virtual_race(CHAR_DATA *mob);

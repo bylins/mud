@@ -2476,6 +2476,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_TEACH);
 		PRF_FLAGS(d->character).set(PRF_ENTER_ZONE);
 		PRF_FLAGS(d->character).set(PRF_BOARD_MODE);
+		d->character->set_last_exchange(time(0)); // когда последний раз базар
 		do_start(d->character, TRUE);
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character);

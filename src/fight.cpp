@@ -276,26 +276,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 		next_combat_list = ch->next_fighting;
 
 	REMOVE_FROM_LIST(ch, combat_list, [](auto list) -> auto& { return list->next_fighting; });
-	ch->next_fighting = NULL;
-	if (ch->last_comm != NULL)
-		free(ch->last_comm);
-	ch->last_comm = NULL;
-	ch->set_touching(0);
-	ch->set_fighting(0);
-	INITIATIVE(ch) = 0;
-	BATTLECNTR(ch) = 0;
-	ROUND_COUNTER(ch) = 0;
-	ch->set_extra_attack(0, 0);
-	ch->set_cast(0, 0, 0, 0, 0);
-	restore_battle_pos(ch);
-	NUL_AF_BATTLE(ch);
-	DpsSystem::check_round(ch);
-	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
-	handle_affects(params);
-	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
-	// send_to_gods(buf);
-	//*** switch others ***
-
+	//Попробуем сперва очистить ссылку у врага, потом уже у самой цели
 	if (switch_others != 2)
 	{
 		for (temp = combat_list; temp; temp = temp->next_fighting)
@@ -334,9 +315,31 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 			{
 				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
 				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			};                                                   
+			};
 		};
-	}
+	};
+
+	ch->next_fighting = NULL;
+	if (ch->last_comm != NULL)
+		free(ch->last_comm);
+	ch->last_comm = NULL;
+	ch->set_touching(0);
+	ch->set_fighting(0);
+	INITIATIVE(ch) = 0;
+	BATTLECNTR(ch) = 0;
+	ROUND_COUNTER(ch) = 0;
+	ch->set_extra_attack(0, 0);
+	ch->set_cast(0, 0, 0, 0, 0);
+	restore_battle_pos(ch);
+	NUL_AF_BATTLE(ch);
+	DpsSystem::check_round(ch);
+	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
+	handle_affects(params);
+	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
+	// send_to_gods(buf);
+	//*** switch others ***
+
+
 }
 
 int GET_MAXDAMAGE(CHAR_DATA * ch)

@@ -14,15 +14,20 @@
 
 #define __CONFIG_C__
 
-#include <boost/version.hpp>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
+#include "config.hpp"
+
 #include "interpreter.h"	// alias_data definition for structs.h
 #include "utils.h"
 #include "constants.h"
 #include "char.hpp"
 #include "birth_places.hpp"
+#include "structs.h"
+#include "conf.h"
+#include "sysdep.h"
+
+#include <boost/version.hpp>
+
+#include <iostream>
 
 #define YES	    1
 #define FALSE	0
@@ -343,5 +348,156 @@ void boost::assertion_failed_msg(char const * expr, char const * msg, char const
 }
 #endif
 #endif
+
+runtime_config::logs_t runtime_config::m_logs =
+{
+	CLogInfo("syslog", "ףיףפוםמשך"),
+	CLogInfo("log/errlog.txt", "ןûיגכי םיעב"),
+	CLogInfo("log/imlog.txt", "ימחעוהיומפמבס םבחיס")
+};
+
+std::string runtime_config::m_log_stderr;
+
+bool runtime_config::open_log(const EOutputStream stream)
+{
+	return m_logs[stream].open();
+}
+
+void runtime_config::handle(const EOutputStream stream, FILE* handle)
+{
+	m_logs[stream].handle(handle);
+}
+
+void runtime_config::load_stream_config(CLogInfo& log, const pugi::xml_node* node)
+{
+	const auto filename = node->child("filename");
+	if (filename)
+	{
+		log.filename(filename.child_value());
+	}
+	const auto buffered = node->child("buffered");
+	if (buffered)
+	{
+		try
+		{
+			log.buffered(ITEM_BY_NAME<CLogInfo::EBuffered>(buffered.child_value()));
+		}
+		catch (...)
+		{
+			std::cerr << "Could not set value \"" << buffered.child_value() << "\" as buffered option." << std::endl;
+		}
+	}
+}
+
+typedef std::map<CLogInfo::EBuffered, std::string> EBuffered_name_by_value_t;
+typedef std::map<const std::string, CLogInfo::EBuffered> EBuffered_value_by_name_t;
+EBuffered_name_by_value_t EBuffered_name_by_value;
+EBuffered_value_by_name_t EBuffered_value_by_name;
+
+void init_EBuffered_ITEM_NAMES()
+{
+	EBuffered_name_by_value.clear();
+	EBuffered_value_by_name.clear();
+
+	EBuffered_name_by_value[CLogInfo::EBuffered::EB_FULL] = "FULL";
+	EBuffered_name_by_value[CLogInfo::EBuffered::EB_LINE] = "LINE";
+	EBuffered_name_by_value[CLogInfo::EBuffered::EB_NO] = "NO";
+
+	for (const auto& i : EBuffered_name_by_value)
+	{
+		EBuffered_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+CLogInfo::EBuffered ITEM_BY_NAME(const std::string& name)
+{
+	if (EBuffered_name_by_value.empty())
+	{
+		init_EBuffered_ITEM_NAMES();
+	}
+	return EBuffered_value_by_name.at(name);
+}
+
+template <>
+const std::string& NAME_BY_ITEM<CLogInfo::EBuffered>(const CLogInfo::EBuffered item)
+{
+	if (EBuffered_name_by_value.empty())
+	{
+		init_EBuffered_ITEM_NAMES();
+	}
+	return EBuffered_name_by_value.at(item);
+}
+
+const char* runtime_config::CONFIGURATION_FILE_NAME = "lib/misc/configuration.xml";
+
+void runtime_config::load_from_file(const char* filename)
+{
+	try
+	{
+		pugi::xml_document document;
+		if (!document.load_file(filename))
+		{
+			throw std::runtime_error("could not load XML configuration file");
+		}
+
+		const auto root = document.child("configuration");
+		if (!root)
+		{
+			throw std::runtime_error("Root tag \"configuration\" not found");
+		}
+
+		const auto logging = root.child("logging");
+		if (logging)
+		{
+			const auto log_stderr = logging.child("log_stderr");
+			m_log_stderr = log_stderr.child_value();
+
+			const auto syslog = logging.child("syslog");
+			if (syslog)
+			{
+				load_stream_config(m_logs[SYSLOG], &syslog);
+			}
+
+			const auto errlog = logging.child("errlog");
+			if (errlog)
+			{
+				load_stream_config(m_logs[ERRLOG], &errlog);
+			}
+
+			const auto imlog = logging.child("imlog");
+			if (imlog)
+			{
+				load_stream_config(m_logs[IMLOG], &imlog);
+			}
+		}
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Error when loading configuration file " << filename << ": " << e.what() << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "Unexpected error when loading configuration file " << filename << std::endl;
+	}
+}
+
+bool CLogInfo::open()
+{
+	FILE* handle = fopen(m_filename.c_str(), "w");
+
+	if (handle)
+	{
+		setvbuf(handle, m_buffer, m_buffered, BUFFER_SIZE);
+
+		m_handle = handle;
+		printf("Using log file '%s' with %s buffering.\n", m_filename.c_str(), NAME_BY_ITEM(m_buffered).c_str());
+		return true;
+	}
+
+	fprintf(stderr, "SYSERR: Error opening file '%s': %s\n", m_filename.c_str(), strerror(errno));
+
+	return false;
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

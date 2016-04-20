@@ -174,6 +174,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 {
 	int percent, dir;
+	int num, current_skillpercent, if_sense;
 
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_NOTRACK) && (skill_no != SKILL_SENSE))
 	{
@@ -181,7 +182,23 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 	}
 
 	// 101 is a complete failure, no matter what the proficiency.
-	percent = number(0, skill_info[skill_no].max_percent);
+	//Временная затычка. Перевести на резисты
+	//Изменил макс скилл со 100 до 200, чтобы не ломать алгоритм, в данном значении вернем старое значение.
+	if_sense = (skill_no == SKILL_SENSE) ? 100 : 0;
+	percent = number(0, skill_info[skill_no].max_percent - if_sense);
+	
+	current_skillpercent = GET_SKILL(ch, SKILL_SENSE);
+	if ((!IS_NPC(victim)) && (!IS_GOD(ch)) && (!IS_NPC(ch))) //Если цель чар и ищет не бог
+	{ 
+		if (current_skillpercent < 80) //До 80% до 4х мортов
+			num = 4;
+		else
+			num = ((current_skillpercent - 80) / 5) + 4; //Каждые 5% скилла + морт
+		if ((GET_REMORT(victim) > num) && (num < 28))
+			return BFS_NO_PATH; //Чувства молчат
+	}
+	
+
 
 	if (percent > calculate_skill(ch, skill_no, victim))
 	{
@@ -234,6 +251,13 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
+	// We can't track the victim.
+	//Старый комментарий. Раньше было много !трека, теперь его мало
+	if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK))
+	{
+		send_to_char("Ваши чувства молчат.\r\n", ch);
+		return;
+	}
 	act("Похоже, $n кого-то ищет.", FALSE, ch, 0, 0, TO_ROOM);
 
 	dir = go_track(ch, vict, SKILL_SENSE);

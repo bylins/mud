@@ -91,6 +91,7 @@ char info_message[] = ("базар выставить <предмет> <цена>        - выставить пред
 					   "базар характеристики <#лот>             - характеристики лота (цена услуги 110 кун)\r\n"
 					   "базар купить <#лот>                     - купить лот\r\n"
 					   "базар предложения все <предмет>         - все предложения\r\n"
+					   "базар предложения последние             - последние\r\n"
 					   "базар предложения мои <предмет>         - мои предложения\r\n"
 					   "базар предложения руны <предмет>        - предложения рун\r\n"
 					   "базар предложения броня <предмет>       - предложения одежды и брони\r\n"
@@ -308,6 +309,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	GET_EXCHANGE_ITEM_LOT(item) = lot;
 	GET_EXCHANGE_ITEM_SELLERID(item) = GET_IDNUM(ch);
 	GET_EXCHANGE_ITEM_COST(item) = item_cost;
+	GET_EXCHANGE_ITEM_TIME(item) = time(0);
 	skip_spaces(&arg);
 	if (*arg)
 		GET_EXCHANGE_ITEM_COMMENT(item) = str_dup(arg);
@@ -797,6 +799,7 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 	5 - книги
 	6 - ингры
 	7 - прочее
+	8 - последние
 	*/
 
 	memset(filter, 0, FILTER_LENGTH);
@@ -911,21 +914,12 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 			sprintf(filter, "%s И%s", filter, arg2);
 		}
 	}
-/*
-	else if (is_abbrev(arg1, "легкие") || is_abbrev(arg1, "легкая"))
+	else if (is_abbrev(arg1, "последние") || is_abbrev(arg1, "last"))
 	{
 		show_type = 8;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
-		{
-			sprintf(filter, "%s И%s", filter, arg2);
-		}
-		if (*multifilter)
-		{
-			strcat(filter, " О");
-			strcat(filter, multifilter);
-		}
+		// я х3 как тут писать сравнение времен
 	}
-	else if (is_abbrev(arg1, "средние") || is_abbrev(arg1, "средняя"))
+/*	else if (is_abbrev(arg1, "средние") || is_abbrev(arg1, "средняя"))
 	{
 		show_type = 9;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
@@ -1073,6 +1067,7 @@ EXCHANGE_ITEM_DATA *create_exchange_item(void)
 	GET_EXCHANGE_ITEM_LOT(item) = -1;
 	GET_EXCHANGE_ITEM_SELLERID(item) = -1;
 	GET_EXCHANGE_ITEM_COST(item) = 0;
+	GET_EXCHANGE_ITEM_TIME(item) = time(NULL);
 	GET_EXCHANGE_ITEM_COMMENT(item) = NULL;
 	GET_EXCHANGE_ITEM(item) = NULL;
 	item->next = exchange_item_list;
@@ -1151,16 +1146,21 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 	*error = 5;
 	if (!(GET_EXCHANGE_ITEM_SELLERID(item) = atoi(buffer)))
 		return (item);
-
 	*error = 6;
 	// Считаем цену предмета
 	if (!get_buf_line(data, buffer))
 		return (item);
+
 	*error = 7;
 	if (!(GET_EXCHANGE_ITEM_COST(item) = atoi(buffer)))
 		return (item);
 
+	if (!get_buf_line(data, buffer))
+		return (item);
 	*error = 8;
+	if (!(GET_EXCHANGE_ITEM_TIME(item) = atoi(buffer)))
+		return (item);
+	*error = 9;
 	// Считаем comment предмета
 	char *str_last_symb = strchr(*data, '\n');
 	strncpy(buffer, *data, str_last_symb - *data);
@@ -1185,6 +1185,7 @@ void exchange_write_one_object_new(std::stringstream &out, EXCHANGE_ITEM_DATA * 
 	out << "#" << GET_EXCHANGE_ITEM_LOT(item) << "\n"
 		<< GET_EXCHANGE_ITEM_SELLERID(item) << "\n"
 		<< GET_EXCHANGE_ITEM_COST(item) << "\n"
+		<< GET_EXCHANGE_ITEM_TIME(item) << "\n"
 		<< (GET_EXCHANGE_ITEM_COMMENT(item) ? GET_EXCHANGE_ITEM_COMMENT(item) : "EMPTY\n")
 		<< "\n";
 	write_one_object(out, GET_EXCHANGE_ITEM(item), 0);
@@ -1212,7 +1213,8 @@ int exchange_database_load()
 
 	CREATE(readdata, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
-	if (!fread(readdata, fsize, 1, fl) || ferror(fl))
+	auto actual_size = fread(readdata, 1, fsize, fl);
+	if (!actual_size || ferror(fl))
 	{
 		fclose(fl);
 		log("SYSERR: Memory error or cann't read exchange database file. (exchange.cpp)");
@@ -1222,7 +1224,7 @@ int exchange_database_load()
 	fclose(fl);
 
 	data = readdata;
-	*(data + fsize) = '\0';
+	*(data + actual_size) = '\0';
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);
@@ -1309,7 +1311,8 @@ int exchange_database_reload(bool loadbackup)
 
 	CREATE(readdata, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
-	if (!fread(readdata, fsize, 1, fl) || ferror(fl))
+	auto actual_size = fread(readdata, 1, fsize, fl);
+	if (!actual_size || ferror(fl))
 	{
 		fclose(fl);
 		if (loadbackup)
@@ -1322,7 +1325,7 @@ int exchange_database_reload(bool loadbackup)
 	fclose(fl);
 
 	data = readdata;
-	*(data + fsize) = '\0';
+	*(data + actual_size) = '\0';
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);
@@ -1596,8 +1599,9 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		{
 			sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
 		}
-
-		sprintf(tmpbuf, "%s %9d  %-s\r\n", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)));
+		char *tmstr;
+		tmstr = (char *) asctime(localtime(&GET_EXCHANGE_ITEM_TIME(j)));
+		sprintf(tmpbuf, "%s %9d  %-s %s\r\n", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)), IS_GOD(ch) ? tmstr : "");
 		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
 		buffer += tmpbuf;
 		any_item = 1;
@@ -1672,6 +1676,11 @@ int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects)
 			else if (!filter.init_affect(tmpbuf, strlen(tmpbuf)))
 				return 0;
 			break;
+		case 'Р':
+			buf = one_argument(++buf, tmpbuf);
+			if (!filter.init_realtime(tmpbuf))
+				return 0;
+			break;
 		default:
 			return 0;
 		}
@@ -1705,17 +1714,12 @@ void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/)
 
 		if (IS_NPC(ch)) {
 			send_to_char("Торговать?! Да вы же не человек!\r\n", ch);
-		} else if (is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit")
+		} else if ((is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit")
 		|| is_abbrev(arg1, "цена") || is_abbrev(arg1, "cost")
 		|| is_abbrev(arg1, "снять") || is_abbrev(arg1, "withdraw")
-		|| is_abbrev(arg1, "купить") || is_abbrev(arg1, "purchase")
-		//commented by WorM 2011.05.21 а нафиг чтоб сохранить/загрузить базар быть у базарного торговца?
-		/*|| (is_abbrev(arg1, "save") && (GET_LEVEL(ch) >= LVL_IMPL))
-		|| (is_abbrev(arg1, "savebackup") && (GET_LEVEL(ch) >= LVL_IMPL))
-		|| (is_abbrev(arg1, "reload") && (GET_LEVEL(ch) >= LVL_IMPL))
-		|| (is_abbrev(arg1, "reloadbackup") && (GET_LEVEL(ch) >= LVL_IMPL))*/)
+		|| is_abbrev(arg1, "купить") || is_abbrev(arg1, "purchase")) && !IS_IMPL(ch))
 		{
-			send_to_char("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.", ch);
+			send_to_char("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.\r\n", ch);
 		} else
 			exchange(ch,NULL,cmd,arg);
 		free(arg);

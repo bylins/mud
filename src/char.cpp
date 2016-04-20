@@ -988,6 +988,16 @@ void CHAR_DATA::set_last_logon(time_t num)
 	last_logon_ = num;
 }
 
+time_t CHAR_DATA::get_last_exchange() const
+{
+	return last_exchange_;
+}
+
+void CHAR_DATA::set_last_exchange(time_t num)
+{
+	last_exchange_ = num;
+}
+
 ESex CHAR_DATA::get_sex() const
 {
 	return player_data.sex;

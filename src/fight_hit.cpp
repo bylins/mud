@@ -1431,7 +1431,6 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		// Проверяем, наем ли наш игрок
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && (ch->get_skill(SKILL_NOPARRYHIT)))
 			bs_coeff *= (1 + (ch->get_skill(SKILL_NOPARRYHIT) * 0.00125));
-		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 	{
@@ -1444,7 +1443,6 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		// чтобы дамаг был более-менее предсказуемым
 		flags.set(IGNORE_SANCT);
 		flags.set(IGNORE_PRISM);
-		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	if (bs_coeff < 1)
 		return 1;
@@ -2394,7 +2392,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
 		}
-		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)) && killer->master)
+		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_HORSE) || AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)) && killer->master)
 			// killer - зачармленный NPC с хозяином
 		{
 			// по логике надо бы сделать, что если хозяина нет в клетке, но
@@ -3385,7 +3383,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 	// Horse modifier for attacker
 	if (!IS_NPC(ch) && skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB && on_horse(ch))
 	{
-//		int prob = train_skill(ch, SKILL_HORSE, skill_info[SKILL_HORSE].max_percent, victim);
+		train_skill(ch, SKILL_HORSE, skill_info[SKILL_HORSE].max_percent, victim);
 //		dam += ((prob + 19) / 10);
 //		int range = number(1, skill_info[SKILL_HORSE].max_percent);
 //		if (range > prob)
@@ -3922,8 +3920,16 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 				hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * 1.3;
 		}
 		else
+		{
 			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim) && !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)) && (number(1,100) <= 6) && !victim->get_role(MOB_ROLE_BOSS))
+		}
+
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT)
+			&& IS_NPC(victim)
+			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)
+				&& !(MOB_FLAGGED(victim, MOB_PROTECT)))
+			&& (number(1,100) <= 6)
+			&& !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
 			    hit_params.dam = 2000; // для надежности
@@ -3931,8 +3937,19 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			    hit_params.extdamage(ch, victim);
 			    return;
 		}
-		if (number(1, 100) < calculate_crit_backstab_percent(ch) && !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
-			    hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
+
+		if (number(1, 100) < calculate_crit_backstab_percent(ch)
+			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
+		{
+			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
+			if ((hit_params.dam > 0)
+				&& !AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)
+				&& !(MOB_FLAGGED(victim, MOB_PROTECT)))
+			{
+				send_to_char("&GПрямо в сердце!&n\r\n", ch);
+			}
+		}
+
 		//Adept: учитываем резисты от крит. повреждений
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		// режем стаб
@@ -3967,7 +3984,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			send_to_char(buf,ch);
 			sprintf(buf, "&RДамага метнуть равна = %d&n\r\n", hit_params.dam);
 			send_to_char(buf,victim);
-		}
+		}               
 		return;
 	}
 

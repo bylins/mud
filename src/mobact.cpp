@@ -489,11 +489,11 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if (IS_SET(extmode, SKIP_SNEAKING))
 		{
 			skip_sneaking(vict, ch);
-			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
-				|| (ch->get_role(MOB_ROLE_BOSS)))
+			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
 			{
 				AFF_FLAGS(vict).unset(EAffectFlag::AFF_SNEAK);
 			}
+
 			if (AFF_FLAGGED(vict, EAffectFlag::AFF_SNEAK))
 			{
 				continue;
@@ -1046,7 +1046,9 @@ void mobile_activity(int activity_level, int missed_pulses)
 			}
 		}
 		// Extract free horses
-		if (GET_MOB_VNUM(ch) == HORSE_VNUM && !ch->master)
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
+			&& MOB_FLAGGED(ch, MOB_MOUNTING)
+			&& !ch->master) // если скакун, под седлом но нет хозяина
 		{
 			act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
 				FALSE, ch, 0, 0, TO_ROOM);

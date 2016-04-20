@@ -426,8 +426,11 @@ public:
 	time_t get_last_logon() const;
 	void set_last_logon(time_t num);
 
+	time_t get_last_exchange() const;
+	void set_last_exchange(time_t num);
+
 	ESex get_sex() const;
-	void set_sex(const ESex sex );
+	void set_sex(const ESex sex);
 	ubyte get_weight() const;
 	void set_weight(const ubyte );
 	ubyte get_height() const;
@@ -621,6 +624,8 @@ private:
 	short remorts_;
 	// время последнего входа в игру //by kilnik
 	time_t last_logon_;
+	// последний вызов базара
+	time_t last_exchange_;
 	// деньги на руках
 	long gold_;
 	// деньги в банке
