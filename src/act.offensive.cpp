@@ -1371,7 +1371,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			modi = 5 * (10 + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0));
 			dam = modi * dam / 100;
 		}
-		if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) > 150) && GET_GOD_FLAG(ch, GF_TESTER)) //бонусы от критпинка
+		if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) >= 150) && (ch->get_skill(SKILL_KICK) >= 150) && GET_GOD_FLAG(ch, GF_TESTER)) //бонусы от критпинка
 		{
 			af.location = APPLY_NONE;
 			af.type = SPELL_BATTLE;
@@ -1468,6 +1468,15 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 	{
 		dam >>= 2;	// в 4 раза меньше
 	}
+	if (GET_AF_BATTLE(vict, EAF_AWAKE))
+	{
+		if (on_horse(ch))
+			dam >>= 1;
+		else
+			dam >>= 2;	// в 4 раза меньше
+	}
+
+
 	Damage dmg(SkillDmg(SKILL_KICK), dam, FightSystem::PHYS_DMG);
 	dmg.process(ch, vict);
 	prob = 2;

@@ -655,8 +655,9 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 				bonus -= 50;
 			if (AWAKE(vict) || AFF_FLAGGED(vict, AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
 				victim_modi -= 20;
-			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= calculate_awake_mod(ch, vict);
+// в пинке режем дамаг
+//			if (GET_AF_BATTLE(vict, EAF_AWAKE))
+//				victim_modi -= calculate_awake_mod(ch, vict);
 //			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
