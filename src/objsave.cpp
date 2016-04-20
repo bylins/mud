@@ -521,11 +521,13 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 					case 'A':
 					{
 						obj_affected_type tmp_affected;
-						if (sscanf(tmp_buf.c_str(), "A %d %d", &tmp_affected.location, &tmp_affected.modifier) != 2)
+						int location = 0;
+						if (sscanf(tmp_buf.c_str(), "A %d %d", &location, &tmp_affected.modifier) != 2)
 						{
 							*error = 53;
 							return object;
 						}
+						tmp_affected.location = static_cast<EApplyLocation>(location);
 						tmp_aff.affected_.push_back(tmp_affected);
 						break;
 					}

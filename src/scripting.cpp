@@ -1393,7 +1393,7 @@ BOOST_PYTHON_MODULE(mud)
 {
 	def("get_players", get_players, "return players online");
 	def("check_ingame", check_ingame, "check player in game");
-	def("log", mudlog_python, ( py::arg("msg"), py::arg("msg_type")=DEF, py::arg("level")=LVL_IMMORT, py::arg("channel")=SYSLOG, py::arg("to_file")=TRUE ) ,
+	def("log", mudlog_python, ( py::arg("msg"), py::arg("msg_type")=DEF, py::arg("level")=LVL_IMMORT, py::arg("channel")=static_cast<int>(SYSLOG), py::arg("to_file")=TRUE ) ,
 	"Записывает сообщение msg типа msg_type в канал лога channel для уровня level.\n"
 	"\n"
 	"msg_type принимает значения констант из utils.h, defines for mudlog.\n"
@@ -1607,9 +1607,9 @@ BOOST_PYTHON_MODULE(mud)
 BOOST_PYTHON_MODULE(constants)
 {
 	//log channels
-	DEFINE_CONSTANT(SYSLOG);
-	DEFINE_CONSTANT(ERRLOG);
-	DEFINE_CONSTANT(IMLOG);
+	DEFINE_ENUM_CONSTANT(SYSLOG);
+	DEFINE_ENUM_CONSTANT(ERRLOG);
+	DEFINE_ENUM_CONSTANT(IMLOG);
 
 	//act
 	DEFINE_CONSTANT(TO_ROOM);

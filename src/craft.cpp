@@ -343,7 +343,7 @@ namespace craft
 			static EProcessResult process(const subcommands_t& subcommands_table, CHAR_DATA* ch, char*arguments, void* data);
 		};
 
-		CSubcommands::EProcessResult CSubcommands::process(const subcommands_t& subcommands_table, CHAR_DATA* ch, char*arguments, void* data)
+		CSubcommands::EProcessResult CSubcommands::process(const subcommands_t& subcommands_table, CHAR_DATA* ch, char*arguments, void* /*data*/)
 		{
 			if (!arguments)
 			{
@@ -437,6 +437,10 @@ namespace craft
 			};
 
 			const auto result = CSubcommands::process(subcommands, ch, arguments, nullptr);
+			if (CSubcommands::EPR_NO_SUBCOMMAND == result)
+			{
+				send_to_char(ch, "Usage: craft export prototype <vnum> <filename>\n");
+			}
 		}
 
 		/**
@@ -546,7 +550,8 @@ namespace craft
 
 	void CCases::load_from_object(const OBJ_DATA* object)
 	{
-		boost::algorithm::split(m_aliases, std::string(object->aliases), boost::algorithm::is_any_of(" "), boost::token_compress_on);
+		const std::string aliases = object->aliases;
+		boost::algorithm::split(m_aliases, aliases, boost::algorithm::is_any_of(" "), boost::token_compress_on);
 		for (size_t n = 0; n < CASES_COUNT; ++n)
 		{
 			m_cases[n] = object->PNames[n];
@@ -951,7 +956,6 @@ namespace craft
 		m_triggers_list = object->proto_script;
 		m_extended_values = object->values;
 
-		size_t number = 0;
 		for (const auto& apply : object->affected)
 		{
 			m_applies.push_back(apply);
@@ -1113,7 +1117,7 @@ namespace craft
 	void CPrototype::load_skills(const pugi::xml_node* node)
 	{
 		CHelper::load_pairs_list<ESkill>(node, "skills", "skill", "id", "value",
-			[&](const size_t number) { log("WARNING: %d-%s \"skill\" tag of \"skills\" group does not have the \"id\" tag. Prototype with VNUM %d.\n",
+			[&](const size_t number) { log("WARNING: %zd-%s \"skill\" tag of \"skills\" group does not have the \"id\" tag. Prototype with VNUM %d.\n",
 				number, suffix(number), m_vnum); },
 			[&](const auto value) -> auto { return ITEM_BY_NAME<ESkill>(value); },
 			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to skill ID. Prototype with VNUM %d.\n Skipping entry.\n",
@@ -1133,7 +1137,7 @@ namespace craft
 	void CPrototype::load_extended_values(const pugi::xml_node* node)
 	{
 		CHelper::load_pairs_list<ObjVal::EValueKey>(node, "extended_values", "entry", "key", "value",
-			[&](const size_t number) { log("WARNING: %d-%s \"entry\" tag of \"extended_values\" group does not have the \"key\" tag. Prototype with VNUM %d.\n",
+			[&](const size_t number) { log("WARNING: %zd-%s \"entry\" tag of \"extended_values\" group does not have the \"key\" tag. Prototype with VNUM %d.\n",
 				number, suffix(number), m_vnum); },
 			[&](const auto value) -> auto { return static_cast<ObjVal::EValueKey>(TextId::to_num(TextId::OBJ_VALS, value)); },
 			[&](const auto key) { log("WARNING: Could not convert extended value \"%s\" to key value. Prototype with VNUM %d.\n Skipping entry.\n",
@@ -1153,7 +1157,7 @@ namespace craft
 	void CPrototype::load_applies(const pugi::xml_node* node)
 	{
 		CHelper::load_pairs_list<EApplyLocation>(node, "applies", "apply", "location", "modifier",
-			[&](const size_t number) { log("WARNING: %d-%s \"apply\" tag of \"applies\" group does not have the \"location\" tag. Prototype with VNUM %d.\n",
+			[&](const size_t number) { log("WARNING: %zd-%s \"apply\" tag of \"applies\" group does not have the \"location\" tag. Prototype with VNUM %d.\n",
 				number, suffix(number), m_vnum); },
 			[&](const auto value) -> auto { return ITEM_BY_NAME<EApplyLocation>(value); },
 			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to apply location. Prototype with VNUM %d.\n Skipping entry.\n",

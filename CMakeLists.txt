@@ -264,7 +264,7 @@ set(SCRIPTING_SOURCES src/scripting.cpp)
 # Turns on/off scripting. Use the option like:
 #     $ cmake -DSCRIPTING=NO ..
 # to turn scripting off.
-option(SCRIPTING "Turns on/off scripting engine" NO)
+option(SCRIPTING "Turns on/off scripting engine" YES)
 if (SCRIPTING)
     message(STATUS "Turning scripting ON")
     list(APPEND HEADERS ${SCRIPTING_HEADERS})

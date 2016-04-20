@@ -389,6 +389,46 @@ void runtime_config::load_stream_config(CLogInfo& log, const pugi::xml_node* nod
 	}
 }
 
+typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
+typedef std::map<const std::string, EOutputStream> EOutputStream_value_by_name_t;
+EOutputStream_name_by_value_t EOutputStream_name_by_value;
+EOutputStream_value_by_name_t EOutputStream_value_by_name;
+
+void init_EOutputStream_ITEM_NAMES()
+{
+	EOutputStream_name_by_value.clear();
+	EOutputStream_value_by_name.clear();
+
+	EOutputStream_name_by_value[SYSLOG] = "SYSLOG";
+	EOutputStream_name_by_value[IMLOG] = "IMLOG";
+	EOutputStream_name_by_value[ERRLOG] = "ERRLOG";
+
+	for (const auto& i : EOutputStream_name_by_value)
+	{
+		EOutputStream_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+EOutputStream ITEM_BY_NAME(const std::string& name)
+{
+	if (EOutputStream_name_by_value.empty())
+	{
+		init_EOutputStream_ITEM_NAMES();
+	}
+	return EOutputStream_value_by_name.at(name);
+}
+
+template <>
+const std::string& NAME_BY_ITEM<EOutputStream>(const EOutputStream item)
+{
+	if (EOutputStream_name_by_value.empty())
+	{
+		init_EOutputStream_ITEM_NAMES();
+	}
+	return EOutputStream_name_by_value.at(item);
+}
+
 typedef std::map<CLogInfo::EBuffered, std::string> EBuffered_name_by_value_t;
 typedef std::map<const std::string, CLogInfo::EBuffered> EBuffered_value_by_name_t;
 EBuffered_name_by_value_t EBuffered_name_by_value;
