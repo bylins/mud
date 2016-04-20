@@ -313,6 +313,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 	int morale, max_percent = 200, bonus = 0, size = 0;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
 	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
+	bool try_morale = false;
+	bool absolute_fail = false;
 
 	if (skill_no < 1 || skill_no > MAX_SKILL_NUM)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
 		return 0;
@@ -796,13 +798,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
             return percent;
         else
             percent = skill_is + bonus + victim_sav + victim_modi/2;   // вычисление процента прохождения скила
-/*if(IS_NPC(ch) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT || skill_no == SKILL_STUPOR))
-{
-sprintf(buf, "Противник %s: Skill == %d, Percent == %d,bonus == %d, victim_sav == %d, victim_modi == %d\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi);
-mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-send_to_char(vict, "Skill == %d, Percent == %d, Bonus == %d, victim_sav == %d, victim_modi == %d\r\n", skill_is, percent, bonus, victim_sav, victim_modi);
-}
-*/	// не все умения надо модифицировать из-за внешних факторов и морали
+
+	// не все умения надо модифицировать из-за внешних факторов и морали
 	if (!pass_mod)
 	{
 //		percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
@@ -832,9 +829,11 @@ send_to_char(vict, "Skill == %d, Percent == %d, Bonus == %d, victim_sav == %d, v
 			fail_limit = 999;
 		if (prob >= fail_limit) {   // Абсолютный фейл 4.9 процента
 			percent = 0;
+			bool absolute_fail = true;
 		} else if (prob < bonus_limit) {
 //			percent = skill_info[skill_no].max_percent;
                         percent = max_percent + bonus;
+						bool try_morale = true;
 		}// else if (vict && general_savingthrow(ch, vict, victim_sav, victim_modi)) {
 		//	percent = 0;
 //		}
@@ -855,6 +854,20 @@ send_to_char(vict, "Skill == %d, Percent == %d, Bonus == %d, victim_sav == %d, v
 		percent = MAX(percent, max_percent);
 	else
 		percent = MIN(MAX(0, percent), max_percent);
+
+	if (vict && IS_NPC(vict) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT
+		|| skill_no == SKILL_STUPOR || skill_no == SKILL_CHOPOFF || skill_no == SKILL_BACKSTAB || skill_no == SKILL_KICK
+		|| skill_no == SKILL_PUNCTUAL) && GET_GOD_FLAG(ch, GF_TESTER))
+	{
+		//sprintf(buf, "Противник %s: скилл == %d, итоговый == %d,бонус == %d, сэйвы == %d, сэйвы/2 == %d\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi);
+		//mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		if (absolute_fail)
+			send_to_char(ch, "попали в Абсолютный фейл\r\n");
+		else if (try_morale)
+			send_to_char(ch, "попали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль =%d\r\n", percent, skill_is, bonus, victim_sav, victim_modi, morale);
+		else
+			send_to_char(ch, "итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d\r\n", percent, skill_is, bonus, victim_sav, victim_modi);
+	}
 
 	return (percent);
 }
