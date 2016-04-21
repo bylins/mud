@@ -858,7 +858,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 	else
 		percent = MIN(MAX(0, percent), max_percent);
 
-	if (ch && vict && !IS_NPC(ch) && IS_NPC(vict) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT
+	if (ch && vict && !IS_NPC(ch) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT
 		|| skill_no == SKILL_STUPOR || skill_no == SKILL_CHOPOFF || skill_no == SKILL_BACKSTAB || skill_no == SKILL_KICK
 		|| skill_no == SKILL_PUNCTUAL) && PRF_FLAGGED(ch, PRF_TESTER))
 	{
