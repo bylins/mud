@@ -775,23 +775,23 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 	case SKILL_MORPH:
 		break;
 	case SKILL_STRANGLE: // удавить
-                victim_sav = GET_SAVE(vict, SAVING_REFLEX) -dex_bonus(GET_REAL_DEX(vict));
-                bonus += MAX(0, dex_bonus(GET_REAL_DEX(ch)) - 25);
-                pass_mod = 1;
-             if (GET_MOB_HOLD(vict))
-                bonus += (skill_is + bonus)/2;
-             else {
-                if (!CAN_SEE(ch,vict))
-                bonus += (skill_is + bonus)/5;
-                if (vict->get_fighting() ||
-			(MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, AFF_AWARNESS) || AWAKE(vict) ))
-                        bonus -= (skill_is + bonus)/10;
-                if (PRF_FLAGGED (vict, PRF_AWAKE))
-			victim_modi = -(vict->get_skill(SKILL_AWAKE)/5);
-                  }
-                        default:
-                        break;
-			}
+		victim_sav = GET_SAVE(vict, SAVING_REFLEX) -dex_bonus(GET_REAL_DEX(vict));
+		bonus = dex_bonus(GET_REAL_DEX(ch));
+		//pass_mod = 1;
+		if (GET_MOB_HOLD(vict))
+			bonus += (skill_is + bonus)/2;
+		else 
+		{
+			if (!CAN_SEE(ch,vict))
+				bonus += (skill_is + bonus)/5;
+			//if (vict->get_fighting() || (MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, AFF_AWARNESS) || AWAKE(vict) ))
+				//victim_modi -= 40;
+			if (PRF_FLAGGED (vict, PRF_AWAKE))
+				victim_modi = -(vict->get_skill(SKILL_AWAKE)/5);
+		}
+        //default:
+		break;
+}
 //        if(IS_NPC(ch))
 //        bonus = 0;
         if ((skill_no == SKILL_SENSE) || (skill_no == SKILL_TRACK))
@@ -827,13 +827,16 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 		// все решают спас-броски.
 		if (morale >= 50)   // от 50 удачи абсолютный фейл не работает
 			fail_limit = 999;
-		if (prob >= fail_limit) {   // Абсолютный фейл 4.9 процента
+		if (prob >= fail_limit) 
+		{   // Абсолютный фейл 4.9 процента
 			percent = 0;
-			bool absolute_fail = true;
-		} else if (prob < bonus_limit) {
+			absolute_fail = true;
+		} 
+		else if (prob < bonus_limit) 
+		{
 //			percent = skill_info[skill_no].max_percent;
-                        percent = max_percent + bonus;
-						bool try_morale = true;
+			percent = max_percent + bonus;
+			try_morale = true;
 		}// else if (vict && general_savingthrow(ch, vict, victim_sav, victim_modi)) {
 		//	percent = 0;
 //		}
@@ -857,16 +860,16 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 
 	if (ch && vict && !IS_NPC(ch) && IS_NPC(vict) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT
 		|| skill_no == SKILL_STUPOR || skill_no == SKILL_CHOPOFF || skill_no == SKILL_BACKSTAB || skill_no == SKILL_KICK
-		|| skill_no == SKILL_PUNCTUAL) && GET_GOD_FLAG(ch, GF_TESTER))
+		|| skill_no == SKILL_PUNCTUAL) && PRF_FLAGGED(ch, PRF_TESTER))
 	{
 		//sprintf(buf, "Противник %s: скилл == %d, итоговый == %d,бонус == %d, сэйвы == %d, сэйвы/2 == %d\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi);
 		//mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		if (absolute_fail)
 			send_to_char(ch, "попали в Абсолютный фейл\r\n");
 		else if (try_morale)
-			send_to_char(ch, "попали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль =%d\r\n", percent, skill_is, bonus, victim_sav, victim_modi, morale);
+			send_to_char(ch, "&Cпопали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2, morale);
 		else
-			send_to_char(ch, "итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d\r\n", percent, skill_is, bonus, victim_sav, victim_modi);
+			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2);
 	}
 
 	return (percent);

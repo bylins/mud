@@ -1336,8 +1336,8 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 	// 101% is a complete failure
 	percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, skill_info[SKILL_KICK].max_percent);
 	prob = train_skill(ch, SKILL_KICK, skill_info[SKILL_KICK].max_percent, vict);
-	if (GET_GOD_FLAG(ch, GF_TESTER))
-		send_to_char(ch, "&CРасчет удачи пинка, если  percent %d > prob %d пинка нет, АС простивника %d!&n\r\n", percent, prob, compute_armor_class(vict)); 
+	//if (GET_GOD_FLAG(ch, GF_TESTER))
+		//send_to_char(ch, "&CРасчет удачи пинка, если  percent %d > prob %d пинка нет, АС простивника %d!&n\r\n", percent, prob, compute_armor_class(vict)); 
 	if (GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_MOB_HOLD(vict) > 0)
 		prob = percent;
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE) || (!on_horse(ch) && on_horse(vict)))
