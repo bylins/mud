@@ -447,35 +447,35 @@ public:
 
 	size_t add(const prototypes_t::value_type& prototype, const obj_vnum vnum);
 
-	obj_vnum vnum(const OBJ_DATA* object) const { return m_index[object->item_number].vnum; }
-	obj_vnum vnum(const size_t rnum) const { return m_index[rnum].vnum; }
+	obj_vnum vnum(const size_t rnum) const { return rnum < m_index.size() ? m_index[rnum].vnum : -1; }
+	obj_vnum vnum(const OBJ_DATA* object) const { return vnum(object->item_number); }
 	void vnum(const size_t rnum, const obj_vnum value);
 
-	void zone(const size_t index, const size_t zone_rnum) { m_index[index].zone = static_cast<int>(zone_rnum); }
+	void zone(const size_t rnum, const size_t zone_rnum) { m_index[rnum].zone = static_cast<int>(zone_rnum); }
 
-	auto stored(const size_t index) const { return m_index[index].stored; }
+	auto stored(const size_t rnum) const { return rnum < m_index.size() ? m_index[rnum].stored : -1; }
 	auto stored(const OBJ_DATA* object) const { return stored(object->item_number); }
-	void dec_stored(const size_t index) { --m_index[index].stored; }
-	void inc_stored(const size_t index) { ++m_index[index].stored; }
+	void dec_stored(const size_t rnum) { --m_index[rnum].stored; }
+	void inc_stored(const size_t rnum) { ++m_index[rnum].stored; }
 
-	auto number(const size_t index) const { return m_index[index].number; }
+	auto number(const size_t rnum) const { return rnum < m_index.size() ? m_index[rnum].number : -1; }
 	auto number(const OBJ_DATA* object) const { return number(object->item_number); }
-	void dec_number(const size_t index) { --m_index[index].number; }
-	void inc_number(const size_t index) { ++m_index[index].number; }
+	void dec_number(const size_t rnum) { --m_index[rnum].number; }
+	void inc_number(const size_t rnum) { ++m_index[rnum].number; }
 
-	auto zone(const size_t index) const { return m_index[index].zone; }
+	auto zone(const size_t rnum) const { return rnum < m_index.size() ? m_index[rnum].zone : -1; }
 
-	auto actual_count(const size_t index) const { return number(index) + stored(index); }
+	auto actual_count(const size_t rnum) const { return number(rnum) + stored(rnum); }
 	auto actual_count(const OBJ_DATA* object) const { return actual_count(object->item_number); }
 
-	auto func(const size_t index) const { return m_index[index].func; }
+	auto func(const size_t rnum) const { return rnum < m_index.size() ? m_index[rnum].func : nullptr; }
 	auto func(const OBJ_DATA* object) const { return func(object->item_number); }
-	void func(const size_t index, const decltype(index_data::func) function) { m_index[index].func = function; }
+	void func(const size_t rnum, const decltype(index_data::func) function) { m_index[rnum].func = function; }
 
-	auto spec(const OBJ_DATA* object) const { return object->item_number >= 0 ? func(object->item_number) : nullptr; }
+	auto spec(const OBJ_DATA* object) const { return func(object->item_number); }
 
-	auto set_idx(const size_t index) const { return m_index[index].set_idx; }
-	void set_idx(const size_t index, const decltype(index_data::set_idx) value) { m_index[index].set_idx = value; }
+	auto set_idx(const size_t rnum) const { return rnum < m_index.size() ? m_index[rnum].set_idx : ~0; }
+	void set_idx(const size_t rnum, const decltype(index_data::set_idx) value) { m_index[rnum].set_idx = value; }
 
 	int rnum(const obj_vnum vnum) const;
 
