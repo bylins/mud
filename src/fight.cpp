@@ -318,14 +318,24 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 						break;
 					}
 				if (!found)
+				{
 					stop_fighting(temp, FALSE);
+					if (temp && IS_SET(PRF_FLAGS(temp, PRF_IRON_WIND), PRF_IRON_WIND))
+					{
+						REMOVE_BIT(PRF_FLAGS(temp, PRF_IRON_WIND), PRF_IRON_WIND);
+						if (GET_POS(temp) > POS_INCAP)
+						{
+							send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", temp);
+							act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, temp, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+						};
+					};
+				};
 			}
 		}
 
 		update_pos(ch);
-
 		// проверка скилла "железный ветер" - снимаем флаг по окончанию боя
-		if ((ch->get_fighting() == NULL) && IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+		/*if ((ch->get_fighting() == NULL) && IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
 		{
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
 			if (GET_POS(ch) > POS_INCAP)
@@ -333,7 +343,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
 				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			};
-		};
+		};*/
 	};
 
 }
