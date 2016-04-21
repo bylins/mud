@@ -2092,6 +2092,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "сдемигодам", "sdemigod",
 							   "незрячий", "blind",
 							   "маппер", "mapper",
+							   "тестер", "tester",
 							   "\n"
 							 };
 
@@ -2158,7 +2159,8 @@ struct gen_tog_param_type
 		0, SCMD_AUTO_NOSUMMON}, {
 		LVL_IMPL, SCMD_SDEMIGOD}, {
 		0, SCMD_BLIND}, {
-		0, SCMD_MAPPER}
+		0, SCMD_MAPPER}, {
+		0, SCMD_TESTER}
 };
 
 ACMD(do_mode)
@@ -2413,7 +2415,9 @@ ACMD(do_gen_tog)
 		{"Режим слепого игрока недоступен. Выключайте его в главном меню.\r\n",
 		 "Режим слепого игрока недоступен. Включайте его в главном меню.\r\n"},
 		{"Режим для мапперов выключен.\r\n",
-		 "Режим для мапперов включен.\r\n"}
+		 "Режим для мапперов включен.\r\n"},
+		{"Режим вывода тестовой информации выключен.\r\n",
+		 "Режим вывода тестовой информации включен.\r\n"}
 	};
 
 	if (IS_NPC(ch))
@@ -2489,6 +2493,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_MAPPER:
 		result = PRF_TOG_CHK(ch, PRF_MAPPER);
+		break;
+	case SCMD_TESTER:
+		result = PRF_TOG_CHK(ch, PRF_TESTER);
 		break;
 #if defined(HAVE_ZLIB)
 	case SCMD_COMPRESS:

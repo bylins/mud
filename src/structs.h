@@ -580,6 +580,7 @@ enum
 #define PRF_SDEMIGOD      (INT_TWO | 1 << 8) // Для канала демигодов
 #define PRF_BLIND         (INT_TWO | 1 << 9)  // примочки для слепых
 #define PRF_MAPPER	  (INT_TWO | 1 << 10) // Показывает хеши рядом с названием комнаты
+#define PRF_TESTER	  (INT_TWO | 1 << 11) // отображать допинфу при годсфлаге тестер
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //

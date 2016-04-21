@@ -1137,15 +1137,16 @@ ACMD(do_stun)
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
-	if (IS_IMPL(ch) || !ch->get_fighting())
+//	if (IS_IMPL(ch) || !ch->get_fighting())
 		go_stun(ch, vict);
-	else
+/*	else
 	{
 		act("Вы не смогли сосредоточиться, чтобы ошеломить $N3.", FALSE, ch, 0, vict, TO_CHAR);
 		act("$n попытал$u ошеломить вас, но не смог$q сосредоточиться.", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n попытал$u ошеломить $N3, но не удалось. ", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 	}
+*/
 }
 
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
