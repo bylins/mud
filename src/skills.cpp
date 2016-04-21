@@ -866,8 +866,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 		//mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		if (absolute_fail)
 			send_to_char(ch, "попали в Абсолютный фейл\r\n");
-		else if (try_morale)
-			send_to_char(ch, "&Cпопали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2, morale_bonus);
+		else if (!pass_mod && try_morale)
+			send_to_char(ch, "&Cпопали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2, morale);
 		else
 			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2);
 	}
