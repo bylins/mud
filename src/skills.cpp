@@ -1026,7 +1026,9 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		//pass_mod = 1;
 		if (GET_MOB_HOLD(vict))
+		{
 			bonus += (skill_is + bonus)/2;
+		}
 		else 
 		{
 			if (!CAN_SEE(ch,vict))
@@ -1036,15 +1038,21 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			if (PRF_FLAGGED (vict, PRF_AWAKE))
 				victim_modi = -(vict->get_skill(SKILL_AWAKE)/5);
 		}
-        //default:
 		break;
-}
+
+	default:
+		break;
+	}
 //        if(IS_NPC(ch))
 //        bonus = 0;
-        if ((skill_no == SKILL_SENSE) || (skill_no == SKILL_TRACK))
-            return percent;
-        else
-            percent = skill_is + bonus + victim_sav + victim_modi/2;   // вычисление процента прохождения скила
+	if ((skill_no == SKILL_SENSE) || (skill_no == SKILL_TRACK))
+	{
+		return percent;
+	}
+	else
+	{
+		percent = skill_is + bonus + victim_sav + victim_modi/2;   // вычисление процента прохождения скила
+	}
 
 	// не все умения надо модифицировать из-за внешних факторов и морали
 	if (!pass_mod)
