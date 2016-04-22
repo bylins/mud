@@ -14,6 +14,7 @@
 
 #include "spells.h"
 
+#include "char_obj_utils.inl"
 #include "obj.hpp"
 #include "comm.h"
 #include "skills.h"
@@ -42,11 +43,11 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <vector>
+
 extern room_rnum r_mortal_start_room;
 
 extern OBJ_DATA *object_list;
-extern vector < OBJ_DATA * >obj_proto;
-extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
 extern const char *material_name[];
@@ -60,7 +61,7 @@ extern im_type *imtypes;
 extern int top_imtypes;
 //end by WorM
 
-int get_magic_skill_number_by_spell(int spellnum);
+ESkill get_magic_skill_number_by_spell(int spellnum);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
 void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
@@ -71,7 +72,7 @@ int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 int calc_anti_savings(CHAR_DATA * ch);
 void go_flee(CHAR_DATA * ch);
 
-ACMD(do_tell);
+void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 void perform_remove(CHAR_DATA * ch, int pos);
 int get_zone_rooms(int, int *, int *);
@@ -82,40 +83,47 @@ void pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim);
 int what_sky = SKY_CLOUDLESS;
 // * Special spells appear below.
 
-int get_magic_skill_number_by_spell(int spellnum)
+ESkill get_magic_skill_number_by_spell(int spellnum)
 {
 	switch (spell_info[spellnum].spell_class)
 	{
 	case STYPE_AIR:
 		return SKILL_AIR_MAGIC;
 		break;
+
 	case STYPE_FIRE:
 		return SKILL_FIRE_MAGIC;
 		break;
+
 	case STYPE_WATER:
 		return SKILL_WATER_MAGIC;
 		break;
+
 	case STYPE_EARTH:
 		return SKILL_EARTH_MAGIC;
 		break;
+
 	case STYPE_LIGHT:
 		return SKILL_LIGHT_MAGIC;
 		break;
+
 	case STYPE_DARK:
 		return SKILL_DARK_MAGIC;
 		break;
+
 	case STYPE_MIND:
 		return SKILL_MIND_MAGIC;
 		break;
+
 	case STYPE_LIFE:
 		return SKILL_LIFE_MAGIC;
 		break;
+
 	case STYPE_NEUTRAL:
 	default:
-		return 0;
+		return SKILL_INVALID;
 	}
 }
-
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool can_get_spell(CHAR_DATA *ch, int spellnum)
@@ -126,14 +134,57 @@ bool can_get_spell(CHAR_DATA *ch, int spellnum)
 	return TRUE;
 };
 
-ASPELL(spell_create_water)
+typedef std::map<EIngredientFlag, std::string> EIngredientFlag_name_by_value_t;
+typedef std::map<const std::string, EIngredientFlag> EIngredientFlag_value_by_name_t;
+EIngredientFlag_name_by_value_t EIngredientFlag_name_by_value;
+EIngredientFlag_value_by_name_t EIngredientFlag_value_by_name;
+
+void init_EIngredientFlag_ITEM_NAMES()
+{
+	EIngredientFlag_name_by_value.clear();
+	EIngredientFlag_value_by_name.clear();
+
+	EIngredientFlag_name_by_value[EIngredientFlag::ITEM_RUNES] = "ITEM_RUNES";
+	EIngredientFlag_name_by_value[EIngredientFlag::ITEM_CHECK_USES] = "ITEM_CHECK_USES";
+	EIngredientFlag_name_by_value[EIngredientFlag::ITEM_CHECK_LAG] = "ITEM_CHECK_LAG";
+	EIngredientFlag_name_by_value[EIngredientFlag::ITEM_CHECK_LEVEL] = "ITEM_CHECK_LEVEL";
+	EIngredientFlag_name_by_value[EIngredientFlag::ITEM_DECAY_EMPTY] = "ITEM_DECAY_EMPTY";
+
+	for (const auto& i : EIngredientFlag_name_by_value)
+	{
+		EIngredientFlag_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+EIngredientFlag ITEM_BY_NAME(const std::string& name)
+{
+	if (EIngredientFlag_name_by_value.empty())
+	{
+		init_EIngredientFlag_ITEM_NAMES();
+	}
+	return EIngredientFlag_value_by_name.at(name);
+}
+
+template <>
+const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item)
+{
+	if (EIngredientFlag_name_by_value.empty())
+	{
+		init_EIngredientFlag_ITEM_NAMES();
+	}
+	return EIngredientFlag_name_by_value.at(item);
+}
+
+void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* obj)
 {
 	int water;
 	if (ch == NULL || (obj == NULL && victim == NULL))
 		return;
 	// level = MAX(MIN(level, LVL_IMPL), 1);       - not used
 
-	if (obj && GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
+	if (obj
+		&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
 	{
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0))
 		{
@@ -216,8 +267,7 @@ int get_teleport_target_room(CHAR_DATA * ch,	// ch - кого перемещают
 	return n ? fnd_room : NOWHERE;
 }
 
-
-ASPELL(spell_recall)
+void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
 	room_rnum to_room = NOWHERE, fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
@@ -229,7 +279,7 @@ ASPELL(spell_recall)
 		return;
 	}
 
-	if (!IS_GOD(ch) && (ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT) || AFF_FLAGGED(victim, AFF_NOTELEPORT)))
+	if (!IS_GOD(ch) && (ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT) || AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -292,14 +342,13 @@ ASPELL(spell_recall)
 	greet_memory_mtrigger(victim);
 }
 
-
 // ПРЫЖОК в рамках зоны
-ASPELL(spell_teleport)
+void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /* obj*/)
 {
 	room_rnum in_room = IN_ROOM(ch), fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
 
-	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, AFF_NOTELEPORT)))
+	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -326,7 +375,7 @@ ASPELL(spell_teleport)
 }
 
 // ПЕРЕМЕСТИТЬСЯ
-ASPELL(spell_relocate)
+void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
 	room_rnum to_room, fnd_room;
 
@@ -349,29 +398,9 @@ ASPELL(spell_relocate)
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-		//Polud убираем все это, поскольку теперь за релокейт без режима и не в группе вешается агроБД
-		// Перемещаться можно только с отключенным "режимом призыв"
-		//if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
-		//{
-		//	send_to_char("При применении заклинания требуется отключить \"режим призыв\"!\r\n", ch);
-		//	send_to_char(SUMMON_FAIL, ch);
-		//	return;
-		//}
-		// Перемещаться нельзя состоя в группе (т.к. пента на согрупника и суммон идут без режима)
-		//if (AFF_FLAGGED(ch, AFF_GROUP))
-		//{
-		//	send_to_char("При применении заклинания нельзя состоять в группе!\r\n", ch);
-		//	send_to_char(SUMMON_FAIL, ch);
-		//	return;
-		//}
-		// Во избежания абьюза с заследованием а потом погрупливанием после перемещения и юзанием переместившегося как маяка
-		//if (ch->master)
-		//{
-		//	send_to_char(SUMMON_FAIL, ch);
-		//	return;
-		//}
+
 		// Нельзя перемещаться после того, как попал под заклинание "приковать противника".
-		if (AFF_FLAGGED(ch, AFF_NOTELEPORT))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT))
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -450,12 +479,12 @@ void check_auto_nosummon(CHAR_DATA *ch)
 {
 	if (PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON) && PRF_FLAGGED(ch, PRF_SUMMONABLE))
 	{
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
+		PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
 		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
 	}
 }
 
-ASPELL(spell_portal)
+void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
 	room_rnum to_room, fnd_room;
 
@@ -469,7 +498,7 @@ ASPELL(spell_portal)
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!IS_GOD(ch))
 	{
-		if ((!IS_NPC(victim) && GET_LEVEL(victim) <= 10) || IS_IMMORTAL(victim) || AFF_FLAGGED(victim, AFF_NOTELEPORT))
+		if ((!IS_NPC(victim) && GET_LEVEL(victim) <= 10) || IS_IMMORTAL(victim) || AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -567,8 +596,7 @@ ASPELL(spell_portal)
 	}
 }
 
-
-ASPELL(spell_summon)
+void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
 	room_rnum ch_room, vic_room;
 	struct follow_type *k, *k_next;
@@ -619,7 +647,7 @@ ASPELL(spell_summon)
 		if (!IS_NPC(ch) || IS_CHARMICE(ch))
 		{
 			// Нельзя производить суммон под ЗБ
-			if (AFF_FLAGGED(ch, AFF_SHIELD))
+			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD))
 			{
 				send_to_char(SUMMON_FAIL3, ch);	// Про маг. кокон вокруг суммонера
 				return;
@@ -679,7 +707,7 @@ ASPELL(spell_summon)
 				ROOM_FLAGGED(vic_room, ROOM_GODROOM)||	// жертва в комнате для бессмертных
 				ROOM_FLAGGED(vic_room, ROOM_ARENA)	||	// жертва на арене
 				!Clan::MayEnter(ch, vic_room, HCE_PORTAL)||// жертва во внутренних покоях клан-замка
-				AFF_FLAGGED(victim, AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
+				AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -710,7 +738,7 @@ ASPELL(spell_summon)
 		if (IN_ROOM(k->follower) == vic_room)
 		{
 			// проверяем, чармис ли это вообще
-			if (AFF_FLAGGED(k->follower, AFF_CHARM))
+			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
 			{
 				// чармис не должен быть в бою
 				if (!k->follower->get_fighting())
@@ -733,7 +761,7 @@ ASPELL(spell_summon)
 	return;
 }
 
-ASPELL(spell_townportal)
+void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /* obj*/)
 {
 	int gcount = 0, cn = 0, ispr = 0;
 	bool has_label_portal = false;
@@ -844,8 +872,7 @@ ASPELL(spell_townportal)
 	page_string(ch->desc, buf2, 1);
 }
 
-
-ASPELL(spell_locate_object)
+void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* obj)
 {
 	OBJ_DATA *i;
 	char name[MAX_INPUT_LENGTH];
@@ -878,25 +905,40 @@ ASPELL(spell_locate_object)
 			continue;
 
 		if (i->carried_by)
-			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
-					(OBJ_FLAGGED(i, ITEM_NOLOCATE) && !IS_GOD(ch)) ||
-					IS_IMMORTAL(i->carried_by))
+		{
+			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET
+				|| (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
+					&& !IS_GOD(ch))
+				|| IS_IMMORTAL(i->carried_by))
+			{
 				continue;
+			}
+		}
 
 		if (i->carried_by)
 		{
-			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by))
+			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone
+				|| !IS_NPC(i->carried_by))
+			{
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n",
-						i->short_description, GET_OBJ_POLY_1(ch, i), PERS(i->carried_by, ch, 1));
+					i->short_description, GET_OBJ_POLY_1(ch, i), PERS(i->carried_by, ch, 1));
+			}
 			else
+			{
 				continue;
+			}
 		}
 		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
 		{
-			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, ITEM_NOLOCATE))
+			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone
+				&& !i->get_extraflag(EExtraFlag::ITEM_NOLOCATE))
+			{
 				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name);
+			}
 			else
+			{
 				continue;
+			}
 		}
 		else if (i->in_obj)
 		{
@@ -907,28 +949,50 @@ ASPELL(spell_locate_object)
 			else
 			{
 				if (i->in_obj->carried_by)
-					if (IS_NPC(i->in_obj->carried_by) && (OBJ_FLAGGED(i, ITEM_NOLOCATE) || world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
+				{
+					if (IS_NPC(i->in_obj->carried_by)
+						&& (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
+							|| world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
+					{
 						continue;
-				if (IN_ROOM(i->in_obj) != NOWHERE && IN_ROOM(i->in_obj))
-					if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone || OBJ_FLAGGED(i, ITEM_NOLOCATE))
+					}
+				}
+				if (IN_ROOM(i->in_obj) != NOWHERE
+					&& IN_ROOM(i->in_obj))
+				{
+					if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone
+						|| i->get_extraflag(EExtraFlag::ITEM_NOLOCATE))
+					{
 						continue;
+					}
+				}
 				if (i->in_obj->worn_by)
+				{
 					if (IS_NPC(i->in_obj->worn_by)
-							&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
+						&& (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
 							|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+					{
 						continue;
+					}
+				}
 				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), i->in_obj->PNames[5]);
 			}
 		}
 		else if (i->worn_by)
 		{
-			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
+			if ((IS_NPC(i->worn_by)
+					&& !i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
 					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
-					|| (!IS_NPC(i->worn_by) && GET_LEVEL(i->worn_by) < LVL_IMMORT))
+				|| (!IS_NPC(i->worn_by)
+					&& GET_LEVEL(i->worn_by) < LVL_IMMORT))
+			{
 				sprintf(buf, "%s надет%s на %s.\r\n", i->short_description,
-						GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
+					GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
+			}
 			else
+			{
 				continue;
+			}
 		}
 		else
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i, ch, 1));
@@ -949,7 +1013,7 @@ ASPELL(spell_locate_object)
 		send_to_char("Вы ничего не чувствуете.\r\n", ch);
 }
 
-ASPELL(spell_create_weapon)
+void spell_create_weapon(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_DATA* /* obj*/)
 {				//go_create_weapon(ch,NULL,what_sky);
 // отключено, так как не реализовано
 }
@@ -963,7 +1027,8 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 
 	for (k = ch->followers; k; k = k->next)
 	{
-		if (AFF_FLAGGED(k->follower, AFF_CHARM) && k->follower->master == ch)
+		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
+			&& k->follower->master == ch)
 		{
 			cha_summ++;
 			//hp_summ += GET_REAL_MAX_HIT(k->follower);
@@ -1017,11 +1082,8 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	return (TRUE);
 }
 
-ASPELL(spell_charm)
+void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* obj*/)
 {
-	AFFECT_DATA af;
-	int i;
-
 	if (victim == NULL || ch == NULL)
 		return;
 
@@ -1032,16 +1094,16 @@ ASPELL(spell_charm)
 		send_to_char("Вы не можете очаровать реального игрока!\r\n", ch);
 		pk_agro_action(ch, victim);
 	}
-	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, AFF_SANCTUARY) || MOB_FLAGGED(victim, MOB_PROTECT)))
+	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffectFlag::AFF_SANCTUARY) || MOB_FLAGGED(victim, MOB_PROTECT)))
 		send_to_char("Ваша жертва освящена Богами!\r\n", ch);
 // shapirus: нельзя почармить моба под ЗБ
-	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, AFF_SHIELD) || MOB_FLAGGED(victim, MOB_PROTECT)))
+	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) || MOB_FLAGGED(victim, MOB_PROTECT)))
 		send_to_char("Ваша жертва защищена Богами!\r\n", ch);
 	else if (!IS_IMMORTAL(ch) && MOB_FLAGGED(victim, MOB_NOCHARM))
 		send_to_char("Ваша жертва устойчива к этому!\r\n", ch);
-	else if (AFF_FLAGGED(ch, AFF_CHARM))
+	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		send_to_char("Вы сами очарованы кем-то и не можете иметь последователей.\r\n", ch);
-	else if (AFF_FLAGGED(victim, AFF_CHARM)
+	else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
 			 || MOB_FLAGGED(victim, MOB_AGGRESSIVE)
 			 || MOB_FLAGGED(victim, MOB_AGGRMONO)
 			 || MOB_FLAGGED(victim, MOB_AGGRPOLY)
@@ -1085,14 +1147,15 @@ ASPELL(spell_charm)
 
 		affect_from_char(victim, SPELL_CHARM);
 		add_follower(victim, ch);
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_CHARM;
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch))
 			af.duration = pc_duration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
 		else
 			af.duration = pc_duration(victim, GET_REAL_CHA(ch) + number(1, 10) + GET_REMORT(ch) * 2, 0, 0, 0, 0);
 		af.modifier = 0;
-		af.location = 0;
-		af.bitvector = AFF_CHARM;
+		af.location = APPLY_NONE;
+		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(victim, &af);
 		if (GET_HELPER(victim))
@@ -1102,7 +1165,7 @@ ASPELL(spell_charm)
 		if (IS_NPC(victim))
 		{
 //Eli. Раздеваемся.
-			for (i = 0; i < NUM_WEARS; i++)
+			for (int i = 0; i < NUM_WEARS; i++)
 				if (GET_EQ(victim, i))
 				{
 					if (!remove_otrigger(GET_EQ(victim, i), victim))
@@ -1112,11 +1175,11 @@ ASPELL(spell_charm)
 					obj_to_char(unequip_char(victim, i | 0x40), victim);
 				}
 //Eli закончили раздеваться.
-			REMOVE_BIT(MOB_FLAGS(victim, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
-			REMOVE_BIT(MOB_FLAGS(victim, MOB_SPEC), MOB_SPEC);
-			REMOVE_BIT(PRF_FLAGS(victim, PRF_PUNCTUAL), PRF_PUNCTUAL);
+			MOB_FLAGS(victim).unset(MOB_AGGRESSIVE);
+			MOB_FLAGS(victim).unset(MOB_SPEC);
+			PRF_FLAGS(victim).unset(PRF_PUNCTUAL);
 // shapirus: !train для чармисов
-			SET_BIT(MOB_FLAGS(victim, MOB_NOTRAIN), MOB_NOTRAIN);
+			MOB_FLAGS(victim).set(MOB_NOTRAIN);
 			victim->set_skill(SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			Crash_crashsave(ch);
@@ -1125,11 +1188,10 @@ ASPELL(spell_charm)
 	}
 }
 
-ACMD(do_findhelpee)
+void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *helpee;
 	struct follow_type *k;
-	AFFECT_DATA af, *aff;
 	int cost=0, times, i;
 	char isbank[MAX_INPUT_LENGTH];
 
@@ -1142,8 +1204,14 @@ ACMD(do_findhelpee)
 	if (subcmd == SCMD_FREEHELPEE)
 	{
 		for (k = ch->followers; k; k = k->next)
-			if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
+		{
+			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
+			{
 				break;
+			}
+		}
+
 		if (k)
 		{
 			if (IN_ROOM(ch) != IN_ROOM(k->follower))
@@ -1155,18 +1223,20 @@ ACMD(do_findhelpee)
 				// added by WorM (Видолюб) 2010.06.04 Cохраняем цену найма моба
 				if (!IS_IMMORTAL(ch))
 				{
-					for (aff = k->follower->affected; aff; aff = aff->next)
-					 if (aff->type==SPELL_CHARM)
+					for (auto aff = k->follower->affected; aff; aff = aff->next)
 					{
-						cost = MAX(0,(int)((aff->duration-1)/2)*(int)abs(k->follower->mob_specials.hire_price));
-						if(cost>0)
+						if (aff->type == SPELL_CHARM)
 						{
-							if(k->follower->mob_specials.hire_price < 0)
-								ch->add_bank(cost);
-							else
-								ch->add_gold(cost);
+							cost = MAX(0, (int)((aff->duration - 1) / 2)*(int)abs(k->follower->mob_specials.hire_price));
+							if (cost > 0)
+							{
+								if (k->follower->mob_specials.hire_price < 0)
+									ch->add_bank(cost);
+								else
+									ch->add_gold(cost);
+							}
+							break;
 						}
-					        break;
 					}
 				}
 				act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
@@ -1185,8 +1255,14 @@ ACMD(do_findhelpee)
 	if (!*arg)
 	{
 		for (k = ch->followers; k; k = k->next)
-			if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
+		{
+			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
+			{
 				break;
+			}
+		}
+
 		if (k)
 			act("Вашим наемником является $N.", FALSE, ch, 0, k->follower, TO_CHAR);
 		else
@@ -1200,8 +1276,13 @@ ACMD(do_findhelpee)
 		return;
 	}
 	for (k = ch->followers; k; k = k->next)
-		if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
+	{
+		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+			&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
+		{
 			break;
+		}
+	}
 
 	if (helpee == ch)
 		send_to_char("И как вы это представляете - нанять самого себя?\r\n", ch);
@@ -1209,9 +1290,9 @@ ACMD(do_findhelpee)
 		send_to_char("Вы не можете нанять реального игрока!\r\n", ch);
 	else if (!NPC_FLAGGED(helpee, NPC_HELPED))
 		act("$N не нанимается!", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (AFF_FLAGGED(helpee, AFF_CHARM) && (!k  || (k && helpee != k->follower)))
+	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_CHARM) && (!k  || (k && helpee != k->follower)))
 		act("$N под чьим-то контролем.", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (AFF_FLAGGED(helpee, AFF_DEAFNESS))
+	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_DEAFNESS))
 		act("$N не слышит вас.", FALSE, ch, 0, helpee, TO_CHAR);
 	else if (IS_HORSE(helpee))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
@@ -1275,6 +1356,7 @@ ACMD(do_findhelpee)
 				return;
 		}
 
+		AFFECT_DATA<EApplyLocation> af;
 		if (!(k && k->follower == helpee))
 		{
 			add_follower(helpee, ch);
@@ -1282,11 +1364,18 @@ ACMD(do_findhelpee)
 		}
 		else
 		{
-			for (aff = k->follower->affected; aff; aff = aff->next)
-			if (aff->type==SPELL_CHARM)
-				break;
+			auto aff = k->follower->affected;
+			for (; aff; aff = aff->next)
+			{
+				if (aff->type == SPELL_CHARM)
+				{
+					break;
+				}
+			}
 			if (aff)
+			{
 				af.duration = aff->duration + pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
+			}
 		}
 
 		affect_from_char(helpee, SPELL_CHARM);
@@ -1304,13 +1393,12 @@ ACMD(do_findhelpee)
 
 		af.type = SPELL_CHARM;
 		af.modifier = 0;
-		af.location = 0;
-		af.bitvector = AFF_CHARM;
+		af.location = APPLY_NONE;
+		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(helpee, &af);
-		SET_BIT(AFF_FLAGS(helpee, AFF_HELPER), AFF_HELPER);
-		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"",
-				GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
+		AFF_FLAGS(helpee).set(EAffectFlag::AFF_HELPER);
+		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 		if (IS_NPC(helpee))
 		{
@@ -1323,11 +1411,11 @@ ACMD(do_findhelpee)
 					act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
 					obj_to_char(unequip_char(helpee, i | 0x40), helpee);
 				}
-			REMOVE_BIT(MOB_FLAGS(helpee, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
-			REMOVE_BIT(MOB_FLAGS(helpee, MOB_SPEC), MOB_SPEC);
-			REMOVE_BIT(PRF_FLAGS(helpee, PRF_PUNCTUAL), PRF_PUNCTUAL);
+			MOB_FLAGS(helpee).unset(MOB_AGGRESSIVE);
+			MOB_FLAGS(helpee).unset(MOB_SPEC);
+			PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
 			// shapirus: !train для чармисов
-			SET_BIT(MOB_FLAGS(helpee, MOB_NOTRAIN), MOB_NOTRAIN);
+			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
 			helpee->set_skill(SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			Crash_crashsave(ch);
@@ -1338,17 +1426,28 @@ ACMD(do_findhelpee)
 
 void show_weapon(CHAR_DATA * ch, OBJ_DATA * obj)
 {
-	if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 	{
 		*buf = '\0';
-		if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
+		{
 			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, 3));
-		if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
+		{
 			sprintf(buf + strlen(buf), "Можно взять %s в левую руку.\r\n", OBJN(obj, ch, 3));
-		if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+		{
 			sprintf(buf + strlen(buf), "Можно взять %s в обе руки.\r\n", OBJN(obj, ch, 3));
+		}
+
 		if (*buf)
+		{
 			send_to_char(buf, ch);
+		}
 	}
 }
 
@@ -1358,19 +1457,23 @@ void print_book_uprgd_skill(CHAR_DATA *ch, const OBJ_DATA *obj)
 	if (skill_num < 1 || skill_num >= MAX_SKILL_NUM)
 	{
 		log("SYSERR: invalid skill_num: %d, ch_name=%s, obj_vnum=%d (%s %s %d)",
-				skill_num, ch->get_name(), GET_OBJ_VNUM(obj),
-				__FILE__, __func__, __LINE__);
+			skill_num,
+			ch->get_name().c_str(),
+			GET_OBJ_VNUM(obj),
+			__FILE__,
+			__func__,
+			__LINE__);
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 3) > 0)
 	{
 		send_to_char(ch, "повышает умение \"%s\" (максимум %d)\r\n",
-				skill_info[skill_num].name, GET_OBJ_VAL(obj, 3));
+			skill_info[skill_num].name, GET_OBJ_VAL(obj, 3));
 	}
 	else
 	{
 		send_to_char(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
-				skill_info[skill_num].name);
+			skill_info[skill_num].name);
 	}
 }
 
@@ -1414,7 +1517,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Неудобен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.no_flag, no_bits, buf, ",");
+	obj->obj_flags.no_flag.sprintbits(no_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1424,7 +1527,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Недоступен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.anti_flag, anti_bits, buf, ",");
+	obj->obj_flags.anti_flag.sprintbits(anti_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1440,7 +1543,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Имеет экстрафлаги: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.extra_flags, extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1450,8 +1553,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		sprintf(buf, "Содержит заклинания: ");
 		if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
 			sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 1)));
@@ -1462,25 +1565,28 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		sprintf(buf, "Вызывает заклинания: ");
 		if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) < MAX_SPELLS)
 			sprintf(buf + strlen(buf), " %s\r\n", spell_name(GET_OBJ_VAL(obj, 3)));
 		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		drndice = GET_OBJ_VAL(obj, 1);
 		drsdice = GET_OBJ_VAL(obj, 2);
 		sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
 		sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		drndice = GET_OBJ_VAL(obj, 0);
 		drsdice = GET_OBJ_VAL(obj, 1);
 		sprintf(buf, "защита (AC) : %d\r\n", drndice);
@@ -1488,8 +1594,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		sprintf(buf, "броня       : %d\r\n", drsdice);
 		send_to_char(buf, ch);
 		break;
-	case ITEM_BOOK:
-// +newbook.patch (Alisher)
+
+	case obj_flag_data::ITEM_BOOK:
 		switch (GET_OBJ_VAL(obj, 0))
 		{
 		case BOOK_SPELL:
@@ -1506,6 +1612,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		case BOOK_SKILL:
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
 			{
@@ -1524,9 +1631,11 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		case BOOK_UPGRD:
 			print_book_uprgd_skill(ch, obj);
 			break;
+
 		case BOOK_RECPT:
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 			if (drndice >= 0)
@@ -1555,6 +1664,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				}
 			}
 			break;
+
 		case BOOK_FEAT:
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS)
 			{
@@ -1573,6 +1683,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		default:
 			send_to_char(CCIRED(ch, C_NRM), ch);
 			send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
@@ -1580,9 +1691,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			break;
 		}
 		break;
-// -newbook.patch (Alisher)
-	case ITEM_INGRADIENT:
 
+	case obj_flag_data::ITEM_INGREDIENT:
 		sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
 		sprintf(buf, "%s\r\n", buf2);
 		send_to_char(buf, ch);
@@ -1619,16 +1729,21 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			send_to_char(buf, ch);
 		}
 		break;
-// added by WorM  опознание магических ингров 2011.05.21
-	case ITEM_MING:
-		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT)  && j <= top_imtypes;)
+
+	case obj_flag_data::ITEM_MING:
+		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;)
+		{
 			j++;
+		}
 		sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", CCCYN(ch, C_NRM), imtypes[j].name, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
 		if (i > 30)
+		{
 			send_to_char("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
-		else {
+		}
+		else
+		{
 			sprintf(buf, "Качество ингредиента ");
 			if (i > 40)
 				strcat(buf, "божественное.\r\n");
@@ -1651,36 +1766,44 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			send_to_char(buf, ch);
 		}
 		break;
-//end by WorM
+
 //Информация о емкостях и контейнерах (Купала)
-	case ITEM_CONTAINER:
+	case obj_flag_data::ITEM_CONTAINER:
 		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_DRINKCON:
+
+	case obj_flag_data::ITEM_DRINKCON:
 		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
+
+	default:
+		break;
 	} // switch
 
-
 	if (fullness < 90)
+	{
 		return;
+	}
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.affects, weapon_affects, buf, ",");
+	obj->obj_flags.affects.sprintbits(weapon_affects, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	if (fullness < 100)
+	{
 		return;
+	}
 
 	found = FALSE;
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if (obj->affected[i].location != APPLY_NONE && obj->affected[i].modifier != 0)
+		if (obj->affected[i].location != APPLY_NONE
+			&& obj->affected[i].modifier != 0)
 		{
 			if (!found)
 			{
@@ -1690,7 +1813,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			print_obj_affects(ch, obj->affected[i]);
 		}
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_ENCHANT && GET_OBJ_VAL(obj, 0) != 0)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ENCHANT
+		&& GET_OBJ_VAL(obj, 0) != 0)
 	{
 		if (!found)
 		{
@@ -1698,8 +1822,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			found = TRUE;
 		}
 		send_to_char(ch, "%s   %s вес предмета на %d%s\r\n", CCCYN(ch, C_NRM),
-				GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
-				abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
+			GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
+			abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
 	}
 
 	if (obj->has_skills())
@@ -1718,34 +1842,38 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				continue;
 
 			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
-					CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
-					CCCYN(ch, C_NRM),
-					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
+				CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
+				CCCYN(ch, C_NRM),
+				percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 	}
-	//added by WorM 2010.09.07 доп ифна о сете
+
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
+	{
 		for (; it != OBJ_DATA::set_table.end(); it++)
+		{
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
-				sprintf(buf, "Часть набора предметов: %s%s%s\r\n",CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch );
-	      for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
-	      {
-					int r_num;
-	      	if ((r_num = real_object(vnum->first)) < 0)
-	      	{
-	      		send_to_char("Неизвестный объект!!!\r\n",ch);
-	      		continue;
-	      	}
+				sprintf(buf, "Часть набора предметов: %s%s%s\r\n", CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
+				send_to_char(buf, ch);
+				for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
+				{
+					const int r_num = real_object(vnum->first);
+					if (r_num < 0)
+					{
+						send_to_char("Неизвестный объект!!!\r\n", ch);
+						continue;
+					}
 					sprintf(buf, "   %s\r\n", obj_proto[r_num]->short_description);
-	        send_to_char(buf, ch);
-	      }
+					send_to_char(buf, ch);
+				}
 				break;
 			}
-	//end by WorM
+		}
+	}
+
 	if (!obj->enchants.empty())
 	{
 		obj->enchants.print(ch);
@@ -1786,28 +1914,28 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.affects, weapon_affects, buf, ",");
+	obj->obj_flags.affects.sprintbits(weapon_affects, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Имеет экстрафлаги: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.extra_flags, extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Недоступен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.anti_flag, anti_bits, buf, ",");
+	obj->obj_flags.anti_flag.sprintbits(anti_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Неудобен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprintbits(obj->obj_flags.no_flag, no_bits, buf, ",");
+	obj->obj_flags.no_flag.sprintbits(no_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1824,8 +1952,8 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		sprintf(buf, "Содержит заклинания: ");
 		if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
 			sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 1)));
@@ -1836,31 +1964,34 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		sprintf(buf, "Вызывает заклинания: ");
 		if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) < MAX_SPELLS)
 			sprintf(buf + strlen(buf), " %s\r\n", spell_name(GET_OBJ_VAL(obj, 3)));
 		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		sprintf(buf, "Наносимые повреждения '%dD%d'", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 		sprintf(buf + strlen(buf), " среднее %.1f.\r\n",
 				(((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj, 1)));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		sprintf(buf, "защита (AC) : %d\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		sprintf(buf, "броня       : %d\r\n", GET_OBJ_VAL(obj, 1));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_BOOK:
-// +newbook.patch (Alisher)
+
+	case obj_flag_data::ITEM_BOOK:
 		switch (GET_OBJ_VAL(obj, 0))
 		{
 		case BOOK_SPELL:
@@ -1877,6 +2008,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		case BOOK_SKILL:
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
 			{
@@ -1895,9 +2027,11 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		case BOOK_UPGRD:
 			print_book_uprgd_skill(ch, obj);
 			break;
+
 		case BOOK_RECPT:
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 			if (drndice >= 0)
@@ -1926,6 +2060,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				}
 			}
 			break;
+
 		case BOOK_FEAT:
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS)
 			{
@@ -1944,6 +2079,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				send_to_char(buf, ch);
 			}
 			break;
+
 		default:
 			send_to_char(CCIRED(ch, C_NRM), ch);
 			send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
@@ -1951,9 +2087,8 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			break;
 		}
 		break;
-// -newbook.patch (Alisher)
-	case ITEM_INGRADIENT:
 
+	case obj_flag_data::ITEM_INGREDIENT:
 		sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
 		sprintf(buf, "%s\r\n", buf2);
 		send_to_char(buf, ch);
@@ -1990,19 +2125,24 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			send_to_char(buf, ch);
 		}
 		break;
-	case ITEM_MING:
+
+	case obj_flag_data::ITEM_MING:
 		sprintf(buf, "Сила ингредиента = %d\r\n", GET_OBJ_VAL(obj, IM_POWER_SLOT));
 		send_to_char(buf, ch);
 		break;
+
 //Информация о емкостях и контейнерах (Купала)
-	case ITEM_CONTAINER:
+	case obj_flag_data::ITEM_CONTAINER:
 		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		break;
-	case ITEM_DRINKCON:
+	case obj_flag_data::ITEM_DRINKCON:
 		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
+
+	default:
+		break;
 	} // switch
 
 	found = FALSE;
@@ -2018,7 +2158,8 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			print_obj_affects(ch, obj->affected[i]);
 		}
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_ENCHANT && GET_OBJ_VAL(obj, 0) != 0)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ENCHANT
+		&& GET_OBJ_VAL(obj, 0) != 0)
 	{
 		if (!found)
 		{
@@ -2052,28 +2193,34 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			send_to_char(buf, ch);
 		}
 	}
+
 	//added by WorM 2010.09.07 доп ифна о сете
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
+	{
 		for (; it != OBJ_DATA::set_table.end(); it++)
+		{
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
 			{
-				sprintf(buf, "Часть набора предметов: %s%s%s\r\n",CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch );
-	      for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
-	      {
+				sprintf(buf, "Часть набора предметов: %s%s%s\r\n", CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
+				send_to_char(buf, ch);
+				for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
+				{
 					int r_num;
-	      	if ((r_num = real_object(vnum->first)) < 0)
-	      	{
-	      		send_to_char("Неизвестный объект!!!\r\n",ch);
-	      		continue;
-	      	}
+					if ((r_num = real_object(vnum->first)) < 0)
+					{
+						send_to_char("Неизвестный объект!!!\r\n", ch);
+						continue;
+					}
 					sprintf(buf, "   %s\r\n", obj_proto[r_num]->short_description);
-	        send_to_char(buf, ch);
-	      }
+					send_to_char(buf, ch);
+				}
 				break;
 			}
+		}
+	}
 	//end by WorM
+
 	if (!obj->enchants.empty())
 	{
 		obj->enchants.print(ch);
@@ -2085,8 +2232,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 {
-	AFFECT_DATA *aff;
-	int found, val0, val1, val2;
+	int val0, val1, val2;
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
 	send_to_char(buf, ch);
@@ -2153,7 +2299,8 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	if (fullness < 120 || (ch != victim && !IS_NPC(victim)))
 		return;
 
-	for (aff = victim->affected, found = FALSE; aff; aff = aff->next)
+	int found = FALSE;
+	for (auto aff = victim->affected; aff; aff = aff->next)
 	{
 		if (aff->location != APPLY_NONE && aff->modifier != 0)
 		{
@@ -2172,7 +2319,7 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCICYN(ch, C_NRM), ch);
-	sprintbits(victim->char_specials.saved.affected_by, affected_bits, buf2, "\r\n");
+	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
 	sprintf(buf, "%s\r\n", buf2);
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -2180,9 +2327,6 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 
 void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 {
-	AFFECT_DATA *aff;
-	int found;
-
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
 	send_to_char(buf, ch);
 	sprintf(buf, "Написание : %s/%s/%s/%s/%s/%s\r\n",
@@ -2240,7 +2384,8 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 			CCIRED(ch, C_NRM), GET_REAL_CHA(victim), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
-	for (aff = victim->affected, found = FALSE; aff; aff = aff->next)
+	int found = FALSE;
+	for (auto aff = victim->affected; aff; aff = aff->next)
 	{
 		if (aff->location != APPLY_NONE && aff->modifier != 0)
 		{
@@ -2259,7 +2404,7 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCIBLU(ch, C_NRM), ch);
-	sprintbits(victim->char_specials.saved.affected_by, affected_bits, buf2, "\r\n");
+	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
 	sprintf(buf, "%s\r\n", buf2);
 	if (victim->followers)
 		sprintf(buf + strlen(buf), "Имеет последователей.\r\n");
@@ -2271,15 +2416,19 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }
 
-ASPELL(skill_identify)
+void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj)
 {
 	if (obj)
+	{
 		if (IS_IMMORTAL(ch))
+		{
 			imm_show_obj_values(obj, ch);
+		}
 		else
-			mort_show_obj_values(obj, ch,
-								 train_skill(ch, SKILL_IDENTIFY,
-											 skill_info[SKILL_IDENTIFY].max_percent, 0));
+		{
+			mort_show_obj_values(obj, ch, train_skill(ch, SKILL_IDENTIFY, skill_info[SKILL_IDENTIFY].max_percent, 0));
+		}
+	}
 	else if (victim)
 	{
 		if (IS_IMMORTAL(ch))
@@ -2294,7 +2443,7 @@ ASPELL(skill_identify)
 	}
 }
 
-ASPELL(spell_identify)
+void spell_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj)
 {
 	if (obj)
 		mort_show_obj_values(obj, ch, 100);
@@ -2314,50 +2463,7 @@ ASPELL(spell_identify)
 	}
 }
 
-
-
-/*
- * Cannot use this spell on an equipped object or it will mess up the
- * wielding character's hit/dam totals.
- */
-
-/*
-ASPELL(spell_detect_poison)
-{
-  if (victim)
-     {if (victim == ch)
-         {if (AFF_FLAGGED(victim, AFF_POISON))
-             send_to_char("Вы чувствуете яд в своей крови.\r\n", ch);
-          else
-             send_to_char("Вы чувствуете себя здоровым.\r\n", ch);
-         }
-      else
-         {if (AFF_FLAGGED(victim, AFF_POISON))
-             act("Аура $N1 пропитана ядом.", FALSE, ch, 0, victim, TO_CHAR);
-          else
-             act("Аура $N1 имеет ровную окраску.", FALSE, ch, 0, victim, TO_CHAR);
-         }
-     }
-
-  if (obj)
-     {switch (GET_OBJ_TYPE(obj))
-      {
-    case ITEM_DRINKCON:
-    case ITEM_FOUNTAIN:
-    case ITEM_FOOD:
-      if (GET_OBJ_VAL(obj, 3))
-	act("Аура $o1 пропитана ядом.",FALSE,ch,obj,0,TO_CHAR);
-      else
-	act("Аура $o1 имеет ровную окраску.", FALSE, ch, obj, 0,TO_CHAR);
-      break;
-    default:
-      send_to_char("Этот предмет не может быть отравлен.\r\n", ch);
-      }
-     }
-}
-*/
-
-ASPELL(spell_control_weather)
+void spell_control_weather(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 	const char *sky_info = 0;
 	int i, duration, zone, sky_type = 0;
@@ -2424,7 +2530,7 @@ ASPELL(spell_control_weather)
 	}
 }
 
-ASPELL(spell_fear)
+void spell_fear(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /*obj*/)
 {
 	int modi = 0;
 	if (ch != victim)
@@ -2436,14 +2542,14 @@ ASPELL(spell_fear)
 		modi += (GET_LEVEL(ch) - 10);
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
-	if (AFF_FLAGGED(victim, AFF_BLESS))
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLESS))
 		modi -= 25;
 
 	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(ch, victim, SAVING_WILL, modi))
 		go_flee(victim);
 }
 
-ASPELL(spell_energydrain)
+void spell_energydrain(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /*obj*/)
 {
 	// истощить энергию - круг 28 уровень 9 (1)
 	// для всех
@@ -2479,7 +2585,7 @@ void do_sacrifice(CHAR_DATA * ch, int dam)
 	update_pos(ch);
 }
 
-ASPELL(spell_sacrifice)
+void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /*obj*/)
 {
 	int dam, d0 = GET_HIT(victim);
 	struct follow_type *f;
@@ -2509,8 +2615,9 @@ ASPELL(spell_sacrifice)
 		for (f = ch->followers; f; f = f->next)
 		{
 			if (IS_NPC(f->follower)
-					&& AFF_FLAGGED(f->follower, AFF_CHARM)
-					&& MOB_FLAGGED(f->follower, MOB_CORPSE) && IN_ROOM(ch) == IN_ROOM(f->follower))
+				&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
+				&& MOB_FLAGGED(f->follower, MOB_CORPSE)
+				&& IN_ROOM(ch) == IN_ROOM(f->follower))
 			{
 				do_sacrifice(f->follower, dam);
 			}
@@ -2518,7 +2625,7 @@ ASPELL(spell_sacrifice)
 	}
 }
 
-ASPELL(spell_eviless)
+void spell_eviless(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 	CHAR_DATA *tch;
 
@@ -2533,7 +2640,7 @@ ASPELL(spell_eviless)
 	return;
 }
 
-ASPELL(spell_holystrike)
+void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 	const char *msg1 = "Земля под вами засветилась и всех поглотил плотный туман.";
 	const char *msg2 = "Вдруг туман стал уходить обратно в землю, забирая с собой тела поверженных.";
@@ -2581,13 +2688,12 @@ ASPELL(spell_holystrike)
 
 }
 
-ASPELL(spell_angel)
+void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 	mob_vnum mob_num = 108;
 	int modifier = 0;
 
 	CHAR_DATA *mob = NULL;
-	AFFECT_DATA af;
 	struct follow_type *k, *k_next;
 	for (k = ch->followers; k; k = k_next)
 	{
@@ -2616,18 +2722,19 @@ ASPELL(spell_angel)
 	}
 	//reset_char(mob);
 	clear_char_skills(mob);
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
 	af.duration =
 		pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
-	af.location = 0;
-	af.bitvector = AFF_HELPER;
+	af.location = APPLY_NONE;
+	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
 	affect_to_char(mob, &af);
 
 	if (IS_FEMALE(ch))
 	{
-		GET_SEX(mob) = SEX_MALE;
+		GET_SEX(mob) = ESex::SEX_MALE;
 		mob->set_pc_name("Небесный защитник");
 		GET_PAD(mob, 0) = str_dup("Небесный защитник");
 		GET_PAD(mob, 1) = str_dup("Небесного защитника");
@@ -2641,7 +2748,7 @@ ASPELL(spell_angel)
 	}
 	else
 	{
-		GET_SEX(mob) = SEX_FEMALE;
+		GET_SEX(mob) = ESex::SEX_FEMALE;
 		mob->set_pc_name("Небесная защитница");
 		GET_PAD(mob, 0) = str_dup("Небесная защитница");
 		GET_PAD(mob, 1) = str_dup("Небесной защитницы");
@@ -2697,18 +2804,20 @@ ASPELL(spell_angel)
 
 //----------------------------------------------------------------------
 	if (mob->get_skill(SKILL_AWAKE))
-		SET_BIT(PRF_FLAGS(mob, PRF_AWAKE), PRF_AWAKE);
+	{
+		PRF_FLAGS(mob).set(PRF_AWAKE);
+	}
 
 	GET_LIKES(mob) = 100;
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
 
-	SET_BIT(MOB_FLAGS(mob, MOB_CORPSE), MOB_CORPSE);
-	SET_BIT(MOB_FLAGS(mob, MOB_ANGEL), MOB_ANGEL);
-	SET_BIT(MOB_FLAGS(mob, MOB_LIGHTBREATH), MOB_LIGHTBREATH);
+	MOB_FLAGS(mob).set(MOB_CORPSE);
+	MOB_FLAGS(mob).set(MOB_ANGEL);
+	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
 
-	SET_BIT(AFF_FLAGS(mob, AFF_FLY), AFF_FLY);
-	SET_BIT(AFF_FLAGS(mob, AFF_INFRAVISION), AFF_INFRAVISION);
+	AFF_FLAGS(mob).set(EAffectFlag::AFF_FLY);
+	AFF_FLAGS(mob).set(EAffectFlag::AFF_INFRAVISION);
 	mob->set_level(ch->get_level());
 //----------------------------------------------------------------------
 // добавляем зависимости от уровня и от обаяния
@@ -2753,17 +2862,14 @@ ASPELL(spell_angel)
 	}
 
 	if (get_effective_cha(ch, SPELL_ANGEL) >= 22)
-		SET_BIT(AFF_FLAGS(mob, AFF_SANCTUARY), AFF_SANCTUARY);
+	{
+		AFF_FLAGS(mob).set(EAffectFlag::AFF_SANCTUARY);
+	}
 
 	if (get_effective_cha(ch, SPELL_ANGEL) >= 30)
-		SET_BIT(AFF_FLAGS(mob, AFF_AIRSHIELD), AFF_AIRSHIELD);
-
-
-
-//sprintf(buf,"RESCUE= %d",get_skill(mob,SKILL_RESCUE));
-//send_to_char(buf, ch);
-
-//    GET_CLASS(mob)       = GET_CLASS(ch);
+	{
+		AFF_FLAGS(mob).set(EAffectFlag::AFF_AIRSHIELD);
+	}
 
 	char_to_room(mob, IN_ROOM(ch));
 
@@ -2780,7 +2886,8 @@ ASPELL(spell_angel)
 	add_follower(mob, ch);
 	return;
 }
-ASPELL(spell_vampire)
+
+void spell_vampire(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 }
 
@@ -3224,5 +3331,249 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Обрастите плотью сызнова.", "... прости Господи грехи, верни плоть созданиям." }, // SPELL_MASS_RECOVERY
 	cast_phrase_t{ "Возьми личину зла для жатвы славной.", "Надели силой злою во благо." }, // SPELL_AURA_EVIL
 };
+
+typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
+typedef std::map<const std::string, ESpell> ESpell_value_by_name_t;
+ESpell_name_by_value_t ESpell_name_by_value;
+ESpell_value_by_name_t ESpell_value_by_name;
+void init_ESpell_ITEM_NAMES()
+{
+	ESpell_value_by_name.clear();
+	ESpell_name_by_value.clear();
+
+	ESpell_name_by_value[ESpell::SPELL_ARMOR] = "SPELL_ARMOR";
+	ESpell_name_by_value[ESpell::SPELL_TELEPORT] = "SPELL_TELEPORT";
+	ESpell_name_by_value[ESpell::SPELL_BLESS] = "SPELL_BLESS";
+	ESpell_name_by_value[ESpell::SPELL_BLINDNESS] = "SPELL_BLINDNESS";
+	ESpell_name_by_value[ESpell::SPELL_BURNING_HANDS] = "SPELL_BURNING_HANDS";
+	ESpell_name_by_value[ESpell::SPELL_CALL_LIGHTNING] = "SPELL_CALL_LIGHTNING";
+	ESpell_name_by_value[ESpell::SPELL_CHARM] = "SPELL_CHARM";
+	ESpell_name_by_value[ESpell::SPELL_CHILL_TOUCH] = "SPELL_CHILL_TOUCH";
+	ESpell_name_by_value[ESpell::SPELL_CLONE] = "SPELL_CLONE";
+	ESpell_name_by_value[ESpell::SPELL_COLOR_SPRAY] = "SPELL_COLOR_SPRAY";
+	ESpell_name_by_value[ESpell::SPELL_CONTROL_WEATHER] = "SPELL_CONTROL_WEATHER";
+	ESpell_name_by_value[ESpell::SPELL_CREATE_FOOD] = "SPELL_CREATE_FOOD";
+	ESpell_name_by_value[ESpell::SPELL_CREATE_WATER] = "SPELL_CREATE_WATER";
+	ESpell_name_by_value[ESpell::SPELL_CURE_BLIND] = "SPELL_CURE_BLIND";
+	ESpell_name_by_value[ESpell::SPELL_CURE_CRITIC] = "SPELL_CURE_CRITIC";
+	ESpell_name_by_value[ESpell::SPELL_CURE_LIGHT] = "SPELL_CURE_LIGHT";
+	ESpell_name_by_value[ESpell::SPELL_CURSE] = "SPELL_CURSE";
+	ESpell_name_by_value[ESpell::SPELL_DETECT_ALIGN] = "SPELL_DETECT_ALIGN";
+	ESpell_name_by_value[ESpell::SPELL_DETECT_INVIS] = "SPELL_DETECT_INVIS";
+	ESpell_name_by_value[ESpell::SPELL_DETECT_MAGIC] = "SPELL_DETECT_MAGIC";
+	ESpell_name_by_value[ESpell::SPELL_DETECT_POISON] = "SPELL_DETECT_POISON";
+	ESpell_name_by_value[ESpell::SPELL_DISPEL_EVIL] = "SPELL_DISPEL_EVIL";
+	ESpell_name_by_value[ESpell::SPELL_EARTHQUAKE] = "SPELL_EARTHQUAKE";
+	ESpell_name_by_value[ESpell::SPELL_ENCHANT_WEAPON] = "SPELL_ENCHANT_WEAPON";
+	ESpell_name_by_value[ESpell::SPELL_ENERGY_DRAIN] = "SPELL_ENERGY_DRAIN";
+	ESpell_name_by_value[ESpell::SPELL_FIREBALL] = "SPELL_FIREBALL";
+	ESpell_name_by_value[ESpell::SPELL_HARM] = "SPELL_HARM";
+	ESpell_name_by_value[ESpell::SPELL_HEAL] = "SPELL_HEAL";
+	ESpell_name_by_value[ESpell::SPELL_INVISIBLE] = "SPELL_INVISIBLE";
+	ESpell_name_by_value[ESpell::SPELL_LIGHTNING_BOLT] = "SPELL_LIGHTNING_BOLT";
+	ESpell_name_by_value[ESpell::SPELL_LOCATE_OBJECT] = "SPELL_LOCATE_OBJECT";
+	ESpell_name_by_value[ESpell::SPELL_MAGIC_MISSILE] = "SPELL_MAGIC_MISSILE";
+	ESpell_name_by_value[ESpell::SPELL_POISON] = "SPELL_POISON";
+	ESpell_name_by_value[ESpell::SPELL_PROT_FROM_EVIL] = "SPELL_PROT_FROM_EVIL";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_CURSE] = "SPELL_REMOVE_CURSE";
+	ESpell_name_by_value[ESpell::SPELL_SANCTUARY] = "SPELL_SANCTUARY";
+	ESpell_name_by_value[ESpell::SPELL_SHOCKING_GRASP] = "SPELL_SHOCKING_GRASP";
+	ESpell_name_by_value[ESpell::SPELL_SLEEP] = "SPELL_SLEEP";
+	ESpell_name_by_value[ESpell::SPELL_STRENGTH] = "SPELL_STRENGTH";
+	ESpell_name_by_value[ESpell::SPELL_SUMMON] = "SPELL_SUMMON";
+	ESpell_name_by_value[ESpell::SPELL_PATRONAGE] = "SPELL_PATRONAGE";
+	ESpell_name_by_value[ESpell::SPELL_WORD_OF_RECALL] = "SPELL_WORD_OF_RECALL";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_POISON] = "SPELL_REMOVE_POISON";
+	ESpell_name_by_value[ESpell::SPELL_SENSE_LIFE] = "SPELL_SENSE_LIFE";
+	ESpell_name_by_value[ESpell::SPELL_ANIMATE_DEAD] = "SPELL_ANIMATE_DEAD";
+	ESpell_name_by_value[ESpell::SPELL_DISPEL_GOOD] = "SPELL_DISPEL_GOOD";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_ARMOR] = "SPELL_GROUP_ARMOR";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_HEAL] = "SPELL_GROUP_HEAL";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_RECALL] = "SPELL_GROUP_RECALL";
+	ESpell_name_by_value[ESpell::SPELL_INFRAVISION] = "SPELL_INFRAVISION";
+	ESpell_name_by_value[ESpell::SPELL_WATERWALK] = "SPELL_WATERWALK";
+	ESpell_name_by_value[ESpell::SPELL_CURE_SERIOUS] = "SPELL_CURE_SERIOUS";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_STRENGTH] = "SPELL_GROUP_STRENGTH";
+	ESpell_name_by_value[ESpell::SPELL_HOLD] = "SPELL_HOLD";
+	ESpell_name_by_value[ESpell::SPELL_POWER_HOLD] = "SPELL_POWER_HOLD";
+	ESpell_name_by_value[ESpell::SPELL_MASS_HOLD] = "SPELL_MASS_HOLD";
+	ESpell_name_by_value[ESpell::SPELL_FLY] = "SPELL_FLY";
+	ESpell_name_by_value[ESpell::SPELL_BROKEN_CHAINS] = "SPELL_BROKEN_CHAINS";
+	ESpell_name_by_value[ESpell::SPELL_NOFLEE] = "SPELL_NOFLEE";
+	ESpell_name_by_value[ESpell::SPELL_CREATE_LIGHT] = "SPELL_CREATE_LIGHT";
+	ESpell_name_by_value[ESpell::SPELL_DARKNESS] = "SPELL_DARKNESS";
+	ESpell_name_by_value[ESpell::SPELL_STONESKIN] = "SPELL_STONESKIN";
+	ESpell_name_by_value[ESpell::SPELL_CLOUDLY] = "SPELL_CLOUDLY";
+	ESpell_name_by_value[ESpell::SPELL_SILENCE] = "SPELL_SILENCE";
+	ESpell_name_by_value[ESpell::SPELL_LIGHT] = "SPELL_LIGHT";
+	ESpell_name_by_value[ESpell::SPELL_CHAIN_LIGHTNING] = "SPELL_CHAIN_LIGHTNING";
+	ESpell_name_by_value[ESpell::SPELL_FIREBLAST] = "SPELL_FIREBLAST";
+	ESpell_name_by_value[ESpell::SPELL_IMPLOSION] = "SPELL_IMPLOSION";
+	ESpell_name_by_value[ESpell::SPELL_WEAKNESS] = "SPELL_WEAKNESS";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_INVISIBLE] = "SPELL_GROUP_INVISIBLE";
+	ESpell_name_by_value[ESpell::SPELL_SHADOW_CLOAK] = "SPELL_SHADOW_CLOAK";
+	ESpell_name_by_value[ESpell::SPELL_ACID] = "SPELL_ACID";
+	ESpell_name_by_value[ESpell::SPELL_REPAIR] = "SPELL_REPAIR";
+	ESpell_name_by_value[ESpell::SPELL_ENLARGE] = "SPELL_ENLARGE";
+	ESpell_name_by_value[ESpell::SPELL_FEAR] = "SPELL_FEAR";
+	ESpell_name_by_value[ESpell::SPELL_SACRIFICE] = "SPELL_SACRIFICE";
+	ESpell_name_by_value[ESpell::SPELL_WEB] = "SPELL_WEB";
+	ESpell_name_by_value[ESpell::SPELL_BLINK] = "SPELL_BLINK";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_HOLD] = "SPELL_REMOVE_HOLD";
+	ESpell_name_by_value[ESpell::SPELL_CAMOUFLAGE] = "SPELL_CAMOUFLAGE";
+	ESpell_name_by_value[ESpell::SPELL_POWER_BLINDNESS] = "SPELL_POWER_BLINDNESS";
+	ESpell_name_by_value[ESpell::SPELL_MASS_BLINDNESS] = "SPELL_MASS_BLINDNESS";
+	ESpell_name_by_value[ESpell::SPELL_POWER_SILENCE] = "SPELL_POWER_SILENCE";
+	ESpell_name_by_value[ESpell::SPELL_EXTRA_HITS] = "SPELL_EXTRA_HITS";
+	ESpell_name_by_value[ESpell::SPELL_RESSURECTION] = "SPELL_RESSURECTION";
+	ESpell_name_by_value[ESpell::SPELL_MAGICSHIELD] = "SPELL_MAGICSHIELD";
+	ESpell_name_by_value[ESpell::SPELL_FORBIDDEN] = "SPELL_FORBIDDEN";
+	ESpell_name_by_value[ESpell::SPELL_MASS_SILENCE] = "SPELL_MASS_SILENCE";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_SILENCE] = "SPELL_REMOVE_SILENCE";
+	ESpell_name_by_value[ESpell::SPELL_DAMAGE_LIGHT] = "SPELL_DAMAGE_LIGHT";
+	ESpell_name_by_value[ESpell::SPELL_DAMAGE_SERIOUS] = "SPELL_DAMAGE_SERIOUS";
+	ESpell_name_by_value[ESpell::SPELL_DAMAGE_CRITIC] = "SPELL_DAMAGE_CRITIC";
+	ESpell_name_by_value[ESpell::SPELL_MASS_CURSE] = "SPELL_MASS_CURSE";
+	ESpell_name_by_value[ESpell::SPELL_ARMAGEDDON] = "SPELL_ARMAGEDDON";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_FLY] = "SPELL_GROUP_FLY";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_BLESS] = "SPELL_GROUP_BLESS";
+	ESpell_name_by_value[ESpell::SPELL_REFRESH] = "SPELL_REFRESH";
+	ESpell_name_by_value[ESpell::SPELL_STUNNING] = "SPELL_STUNNING";
+	ESpell_name_by_value[ESpell::SPELL_HIDE] = "SPELL_HIDE";
+	ESpell_name_by_value[ESpell::SPELL_SNEAK] = "SPELL_SNEAK";
+	ESpell_name_by_value[ESpell::SPELL_DRUNKED] = "SPELL_DRUNKED";
+	ESpell_name_by_value[ESpell::SPELL_ABSTINENT] = "SPELL_ABSTINENT";
+	ESpell_name_by_value[ESpell::SPELL_FULL] = "SPELL_FULL";
+	ESpell_name_by_value[ESpell::SPELL_CONE_OF_COLD] = "SPELL_CONE_OF_COLD";
+	ESpell_name_by_value[ESpell::SPELL_BATTLE] = "SPELL_BATTLE";
+	ESpell_name_by_value[ESpell::SPELL_HAEMORRAGIA] = "SPELL_HAEMORRAGIA";
+	ESpell_name_by_value[ESpell::SPELL_COURAGE] = "SPELL_COURAGE";
+	ESpell_name_by_value[ESpell::SPELL_WATERBREATH] = "SPELL_WATERBREATH";
+	ESpell_name_by_value[ESpell::SPELL_SLOW] = "SPELL_SLOW";
+	ESpell_name_by_value[ESpell::SPELL_HASTE] = "SPELL_HASTE";
+	ESpell_name_by_value[ESpell::SPELL_MASS_SLOW] = "SPELL_MASS_SLOW";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_HASTE] = "SPELL_GROUP_HASTE";
+	ESpell_name_by_value[ESpell::SPELL_SHIELD] = "SPELL_SHIELD";
+	ESpell_name_by_value[ESpell::SPELL_PLAQUE] = "SPELL_PLAQUE";
+	ESpell_name_by_value[ESpell::SPELL_CURE_PLAQUE] = "SPELL_CURE_PLAQUE";
+	ESpell_name_by_value[ESpell::SPELL_AWARNESS] = "SPELL_AWARNESS";
+	ESpell_name_by_value[ESpell::SPELL_RELIGION] = "SPELL_RELIGION";
+	ESpell_name_by_value[ESpell::SPELL_AIR_SHIELD] = "SPELL_AIR_SHIELD";
+	ESpell_name_by_value[ESpell::SPELL_PORTAL] = "SPELL_PORTAL";
+	ESpell_name_by_value[ESpell::SPELL_DISPELL_MAGIC] = "SPELL_DISPELL_MAGIC";
+	ESpell_name_by_value[ESpell::SPELL_SUMMON_KEEPER] = "SPELL_SUMMON_KEEPER";
+	ESpell_name_by_value[ESpell::SPELL_FAST_REGENERATION] = "SPELL_FAST_REGENERATION";
+	ESpell_name_by_value[ESpell::SPELL_CREATE_WEAPON] = "SPELL_CREATE_WEAPON";
+	ESpell_name_by_value[ESpell::SPELL_FIRE_SHIELD] = "SPELL_FIRE_SHIELD";
+	ESpell_name_by_value[ESpell::SPELL_RELOCATE] = "SPELL_RELOCATE";
+	ESpell_name_by_value[ESpell::SPELL_SUMMON_FIREKEEPER] = "SPELL_SUMMON_FIREKEEPER";
+	ESpell_name_by_value[ESpell::SPELL_ICE_SHIELD] = "SPELL_ICE_SHIELD";
+	ESpell_name_by_value[ESpell::SPELL_ICESTORM] = "SPELL_ICESTORM";
+	ESpell_name_by_value[ESpell::SPELL_ENLESS] = "SPELL_ENLESS";
+	ESpell_name_by_value[ESpell::SPELL_SHINEFLASH] = "SPELL_SHINEFLASH";
+	ESpell_name_by_value[ESpell::SPELL_MADNESS] = "SPELL_MADNESS";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_MAGICGLASS] = "SPELL_GROUP_MAGICGLASS";
+	ESpell_name_by_value[ESpell::SPELL_CLOUD_OF_ARROWS] = "SPELL_CLOUD_OF_ARROWS";
+	ESpell_name_by_value[ESpell::SPELL_VACUUM] = "SPELL_VACUUM";
+	ESpell_name_by_value[ESpell::SPELL_METEORSTORM] = "SPELL_METEORSTORM";
+	ESpell_name_by_value[ESpell::SPELL_STONEHAND] = "SPELL_STONEHAND";
+	ESpell_name_by_value[ESpell::SPELL_MINDLESS] = "SPELL_MINDLESS";
+	ESpell_name_by_value[ESpell::SPELL_PRISMATICAURA] = "SPELL_PRISMATICAURA";
+	ESpell_name_by_value[ESpell::SPELL_EVILESS] = "SPELL_EVILESS";
+	ESpell_name_by_value[ESpell::SPELL_AIR_AURA] = "SPELL_AIR_AURA";
+	ESpell_name_by_value[ESpell::SPELL_FIRE_AURA] = "SPELL_FIRE_AURA";
+	ESpell_name_by_value[ESpell::SPELL_ICE_AURA] = "SPELL_ICE_AURA";
+	ESpell_name_by_value[ESpell::SPELL_SHOCK] = "SPELL_SHOCK";
+	ESpell_name_by_value[ESpell::SPELL_MAGICGLASS] = "SPELL_MAGICGLASS";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_SANCTUARY] = "SPELL_GROUP_SANCTUARY";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_PRISMATICAURA] = "SPELL_GROUP_PRISMATICAURA";
+	ESpell_name_by_value[ESpell::SPELL_DEAFNESS] = "SPELL_DEAFNESS";
+	ESpell_name_by_value[ESpell::SPELL_POWER_DEAFNESS] = "SPELL_POWER_DEAFNESS";
+	ESpell_name_by_value[ESpell::SPELL_REMOVE_DEAFNESS] = "SPELL_REMOVE_DEAFNESS";
+	ESpell_name_by_value[ESpell::SPELL_MASS_DEAFNESS] = "SPELL_MASS_DEAFNESS";
+	ESpell_name_by_value[ESpell::SPELL_DUSTSTORM] = "SPELL_DUSTSTORM";
+	ESpell_name_by_value[ESpell::SPELL_EARTHFALL] = "SPELL_EARTHFALL";
+	ESpell_name_by_value[ESpell::SPELL_SONICWAVE] = "SPELL_SONICWAVE";
+	ESpell_name_by_value[ESpell::SPELL_HOLYSTRIKE] = "SPELL_HOLYSTRIKE";
+	ESpell_name_by_value[ESpell::SPELL_ANGEL] = "SPELL_ANGEL";
+	ESpell_name_by_value[ESpell::SPELL_MASS_FEAR] = "SPELL_MASS_FEAR";
+	ESpell_name_by_value[ESpell::SPELL_FASCINATION] = "SPELL_FASCINATION";
+	ESpell_name_by_value[ESpell::SPELL_CRYING] = "SPELL_CRYING";
+	ESpell_name_by_value[ESpell::SPELL_OBLIVION] = "SPELL_OBLIVION";
+	ESpell_name_by_value[ESpell::SPELL_BURDEN_OF_TIME] = "SPELL_BURDEN_OF_TIME";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_REFRESH] = "SPELL_GROUP_REFRESH";
+	ESpell_name_by_value[ESpell::SPELL_PEACEFUL] = "SPELL_PEACEFUL";
+	ESpell_name_by_value[ESpell::SPELL_MAGICBATTLE] = "SPELL_MAGICBATTLE";
+	ESpell_name_by_value[ESpell::SPELL_BERSERK] = "SPELL_BERSERK";
+	ESpell_name_by_value[ESpell::SPELL_STONEBONES] = "SPELL_STONEBONES";
+	ESpell_name_by_value[ESpell::SPELL_ROOM_LIGHT] = "SPELL_ROOM_LIGHT";
+	ESpell_name_by_value[ESpell::SPELL_POISONED_FOG] = "SPELL_POISONED_FOG";
+	ESpell_name_by_value[ESpell::SPELL_THUNDERSTORM] = "SPELL_THUNDERSTORM";
+	ESpell_name_by_value[ESpell::SPELL_LIGHT_WALK] = "SPELL_LIGHT_WALK";
+	ESpell_name_by_value[ESpell::SPELL_FAILURE] = "SPELL_FAILURE";
+	ESpell_name_by_value[ESpell::SPELL_CLANPRAY] = "SPELL_CLANPRAY";
+	ESpell_name_by_value[ESpell::SPELL_GLITTERDUST] = "SPELL_GLITTERDUST";
+	ESpell_name_by_value[ESpell::SPELL_SCREAM] = "SPELL_SCREAM";
+	ESpell_name_by_value[ESpell::SPELL_CATS_GRACE] = "SPELL_CATS_GRACE";
+	ESpell_name_by_value[ESpell::SPELL_BULL_BODY] = "SPELL_BULL_BODY";
+	ESpell_name_by_value[ESpell::SPELL_SNAKE_WISDOM] = "SPELL_SNAKE_WISDOM";
+	ESpell_name_by_value[ESpell::SPELL_GIMMICKRY] = "SPELL_GIMMICKRY";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_CHALLENGE] = "SPELL_WC_OF_CHALLENGE";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_MENACE] = "SPELL_WC_OF_MENACE";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_RAGE] = "SPELL_WC_OF_RAGE";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_MADNESS] = "SPELL_WC_OF_MADNESS";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_THUNDER] = "SPELL_WC_OF_THUNDER";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_DEFENSE] = "SPELL_WC_OF_DEFENSE";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_BATTLE] = "SPELL_WC_OF_BATTLE";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_POWER] = "SPELL_WC_OF_POWER";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_BLESS] = "SPELL_WC_OF_BLESS";
+	ESpell_name_by_value[ESpell::SPELL_WC_OF_COURAGE] = "SPELL_WC_OF_COURAGE";
+	ESpell_name_by_value[ESpell::SPELL_RUNE_LABEL] = "SPELL_RUNE_LABEL";
+	ESpell_name_by_value[ESpell::SPELL_ACONITUM_POISON] = "SPELL_ACONITUM_POISON";
+	ESpell_name_by_value[ESpell::SPELL_SCOPOLIA_POISON] = "SPELL_SCOPOLIA_POISON";
+	ESpell_name_by_value[ESpell::SPELL_BELENA_POISON] = "SPELL_BELENA_POISON";
+	ESpell_name_by_value[ESpell::SPELL_DATURA_POISON] = "SPELL_DATURA_POISON";
+	ESpell_name_by_value[ESpell::SPELL_TIMER_REPAIR] = "SPELL_TIMER_REPAIR";
+	ESpell_name_by_value[ESpell::SPELL_LACKY] = "SPELL_LACKY";
+	ESpell_name_by_value[ESpell::SPELL_BANDAGE] = "SPELL_BANDAGE";
+	ESpell_name_by_value[ESpell::SPELL_NO_BANDAGE] = "SPELL_NO_BANDAGE";
+	ESpell_name_by_value[ESpell::SPELL_CAPABLE] = "SPELL_CAPABLE";
+	ESpell_name_by_value[ESpell::SPELL_STRANGLE] = "SPELL_STRANGLE";
+	ESpell_name_by_value[ESpell::SPELL_RECALL_SPELLS] = "SPELL_RECALL_SPELLS";
+	ESpell_name_by_value[ESpell::SPELL_HYPNOTIC_PATTERN] = "SPELL_HYPNOTIC_PATTERN";
+	ESpell_name_by_value[ESpell::SPELL_SOLOBONUS] = "SPELL_SOLOBONUS";
+	ESpell_name_by_value[ESpell::SPELL_VAMPIRE] = "SPELL_VAMPIRE";
+	ESpell_name_by_value[ESpell::SPELLS_RESTORATION] = "SPELLS_RESTORATION";
+	ESpell_name_by_value[ESpell::SPELL_AURA_DEATH] = "SPELL_AURA_DEATH";
+	ESpell_name_by_value[ESpell::SPELL_RECOVERY] = "SPELL_RECOVERY";
+	ESpell_name_by_value[ESpell::SPELL_MASS_RECOVERY] = "SPELL_MASS_RECOVERY";
+	ESpell_name_by_value[ESpell::SPELL_AURA_EVIL] = "SPELL_AURA_EVIL";
+	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
+
+	for (const auto& i : ESpell_name_by_value)
+	{
+		ESpell_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+const std::string& NAME_BY_ITEM<ESpell>(const ESpell item)
+{
+	if (ESpell_name_by_value.empty())
+	{
+		init_ESpell_ITEM_NAMES();
+	}
+	return ESpell_name_by_value.at(item);
+}
+
+template <>
+ESpell ITEM_BY_NAME(const std::string& name)
+{
+	if (ESpell_name_by_value.empty())
+	{
+		init_ESpell_ITEM_NAMES();
+	}
+	return ESpell_value_by_name.at(name);
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

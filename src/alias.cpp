@@ -84,31 +84,35 @@ void read_aliases(CHAR_DATA * ch)
 		return;
 	}
 
-	CREATE(GET_ALIASES(ch), struct alias_data, 1);
+	CREATE(GET_ALIASES(ch), 1);
 	t2 = GET_ALIASES(ch);
 
+	const char* dummyc;
+	int dummyi;
 	for (;;)  		// Read the aliased command.
 	{
-		fscanf(file, "%d\n", &length);
-		fgets(xbuf, length + 1, file);
+		dummyi = fscanf(file, "%d\n", &length);
+		dummyc = fgets(xbuf, length + 1, file);
 		t2->alias = str_dup(xbuf);
 
 		// Build the replacement.
-		fscanf(file, "%d\n", &length);
+		dummyi = fscanf(file, "%d\n", &length);
 		*xbuf = ' ';	// Doesn't need terminated, fgets() will.
-		fgets(xbuf + 1, length + 1, file);
+		dummyc = fgets(xbuf + 1, length + 1, file);
 		t2->replacement = str_dup(xbuf);
 
 		// Figure out the alias type.
-		fscanf(file, "%d\n", &length);
+		dummyi = fscanf(file, "%d\n", &length);
 		t2->type = length;
 
 		if (feof(file))
 			break;
 
-		CREATE(t2->next, struct alias_data, 1);
+		CREATE(t2->next, 1);
 		t2 = t2->next;
 	};
+	UNUSED_ARG(dummyc);
+	UNUSED_ARG(dummyi);
 
 	fclose(file);
 }

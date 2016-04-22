@@ -73,7 +73,7 @@ std::string& format_news_message(std::string &text);
 
 } // namespace BoardSystem
 
-ACMD(report_on_board);
+void report_on_board(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 typedef boost::shared_ptr<struct Message> MessagePtr;
 typedef std::vector<MessagePtr> MessageListType;
@@ -125,12 +125,12 @@ public:
 	static void clear_god_boards();
 	static void init_god_board(long uid, std::string name);
 	static void reload_all();
-	static SPECIAL(Special);
+	static int Special(CHAR_DATA*, void*, int, char*);
 	static void LoginInfo(CHAR_DATA * ch);
 
-	friend ACMD(DoBoard);
-	friend ACMD(DoBoardList);
-	friend ACMD(report_on_board);
+	friend void DoBoard(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void DoBoardList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void report_on_board(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 private:
 	Boards::BoardTypes type_;  // тип доски

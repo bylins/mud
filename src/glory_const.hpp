@@ -39,8 +39,8 @@ int get_glory(long uid);
 void add_glory(long uid, int amount);
 int remove_glory(long uid, int amount);
 
-ACMD(do_glory);
-ACMD(do_spend_glory);
+void do_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_spend_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void spend_glory_menu(CHAR_DATA *ch);
 bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg);
 

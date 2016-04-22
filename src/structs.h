@@ -16,7 +16,6 @@
 #define _STRUCTS_H_
 
 #include "sysdep.h"
-#include "conf.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -30,10 +29,7 @@
 #include <map>
 #include <iterator>
 #include <cstdint>
-
-using std::map;
-using std::iterator;
-using std::string;
+#include <array>
 
 namespace ExtMoney
 {
@@ -51,9 +47,6 @@ const unsigned TOTAL_TYPES = 3;
 
 #define MAX_ALIAS_LENGTH 100
 //-Polos.insert_wanted_gem
-
-using std::list;
-using std::bitset;
 
 /*
  * Intended use of this macro is to allow external packages to work with
@@ -79,17 +72,15 @@ using std::bitset;
 #define MAX_DEST         50
 
 // done
-typedef struct flag_data FLAG_DATA;
 typedef struct index_data INDEX_DATA;
 typedef struct script_data SCRIPT_DATA;
 
 typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 typedef struct extra_descr_data EXTRA_DESCR_DATA;
-typedef struct affect_data AFFECT_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-struct OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 typedef struct trig_data TRIG_DATA;
 
 // preamble ************************************************************
@@ -98,9 +89,6 @@ typedef struct trig_data TRIG_DATA;
 #define NOWHERE    0		// nil reference for room-database
 #define NOTHING      -1		// nil reference for objects
 #define NOBODY    -1		// nil reference for mobiles
-
-#define SPECIAL(name) \
-   int (name)(CHAR_DATA *ch, void *me, int cmd, char *argument)
 
 // misc editor defines *************************************************
 
@@ -131,6 +119,14 @@ typedef struct trig_data TRIG_DATA;
 #define WEST           3
 #define UP             4
 #define DOWN           5
+
+// This structure describe new bitvector structure                  //
+typedef uint32_t bitvector_t;
+
+#define INT_ZERRO (0u << 30)
+#define INT_ONE   (1u << 30)
+#define INT_TWO   (2u << 30)
+#define INT_THREE (3u << 30)
 
 // Room flags: used in room_data.room_flags //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
@@ -301,9 +297,41 @@ enum
 #define MASK_MAGES        (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER)
 #define MASK_CASTER       (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER | MASK_CLERIC | MASK_DRUID)
 
+typedef int8_t sbyte;
+typedef uint8_t ubyte;
+typedef int16_t sh_int;
+typedef uint16_t ush_int;
+
+#if !defined(__cplusplus)	// Anyone know a portable method?
+typedef char bool;
+#endif
+
+#if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	// Hm, sysdep.h?
+typedef char byte;
+#endif
+
+enum class ESex: byte
+{
+	SEX_NEUTRAL = 0,
+	SEX_MALE = 1,
+	SEX_FEMALE = 2,
+	SEX_POLY = 3
+};
+
+constexpr ESex DEFAULT_SEX = ESex::SEX_MALE;
+
+template <> ESex ITEM_BY_NAME<ESex>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM(const ESex item);
+
+#define NUM_SEXES 4
+
 // PC religions //
 #define RELIGION_POLY    0
 #define RELIGION_MONO    1
+
+typedef std::array<const char*, NUM_SEXES> religion_genders_t;
+typedef std::array<religion_genders_t, 2> religion_names_t;
+extern const religion_names_t religion_name;
 
 #define MASK_RELIGION_POLY        (1 << RELIGION_POLY)
 #define MASK_RELIGION_MONO        (1 << RELIGION_MONO)
@@ -336,18 +364,10 @@ enum
 #define NPC_BOSS				200
 #define NPC_UNIQUE				201
 
-// Sex
-#define SEX_NEUTRAL         0
-#define SEX_MALE            1
-#define SEX_FEMALE          2
-#define SEX_POLY            3
-
-#define NUM_SEXES           4
-
-#define MASK_SEX_NEUTRAL  (1 << SEX_NEUTRAL)
-#define MASK_SEX_MALE     (1 << SEX_MALE)
-#define MASK_SEX_FEMALE   (1 << SEX_FEMALE)
-#define MASK_SEX_POLY     (1 << SEX_POLY)
+#define MASK_SEX_NEUTRAL  (1 << to_underlying(ESex::SEX_NEUTRAL))
+#define MASK_SEX_MALE     (1 << to_underlying(ESex::SEX_MALE))
+#define MASK_SEX_FEMALE   (1 << to_underlying(ESex::SEX_FEMALE))
+#define MASK_SEX_POLY     (1 << to_underlying(ESex::SEX_POLY))
 
 // GODs FLAGS
 #define GF_GODSLIKE   (1 << 0)
@@ -585,90 +605,95 @@ enum
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
-#define AFF_BLIND             (1 << 0)	// (R) Char is blind    //
-#define AFF_INVISIBLE         (1 << 1)	// Char is invisible    //
-#define AFF_DETECT_ALIGN      (1 << 2)	// Char is sensitive to align //
-#define AFF_DETECT_INVIS      (1 << 3)	// Char can see invis chars  //
-#define AFF_DETECT_MAGIC      (1 << 4)	// Char is sensitive to magic //
-#define AFF_SENSE_LIFE        (1 << 5)	// Char can sense hidden life //
-#define AFF_WATERWALK         (1 << 6)	// Char can walk on water  //
-#define AFF_SANCTUARY         (1 << 7)	// Char protected by sanct.   //
-#define AFF_GROUP             (1 << 8)	// (R) Char is grouped  //
-#define AFF_CURSE             (1 << 9)	// Char is cursed    //
-#define AFF_INFRAVISION       (1 << 10)	// Char can see in dark //
-#define AFF_POISON            (1 << 11)	// (R) Char is poisoned //
-#define AFF_PROTECT_EVIL      (1 << 12)	// Char protected from evil  //
-#define AFF_PROTECT_GOOD      (1 << 13)	// Char protected from good  //
-#define AFF_SLEEP             (1 << 14)	// (R) Char magically asleep  //
-#define AFF_NOTRACK           (1 << 15)	// Char can't be tracked   //
-#define AFF_TETHERED          (1 << 16)	// Room for future expansion  //
-#define AFF_BLESS             (1 << 17)	// Room for future expansion  //
-#define AFF_SNEAK             (1 << 18)	// Char can move quietly   //
-#define AFF_HIDE              (1 << 19)	// Char is hidden    //
-#define AFF_COURAGE           (1 << 20)	// Room for future expansion  //
-#define AFF_CHARM             (1 << 21)	// Char is charmed      //
-#define AFF_HOLD              (1 << 22)
-#define AFF_FLY               (1 << 23)
-#define AFF_SIELENCE          (1 << 24)
-#define AFF_AWARNESS          (1 << 25)
-#define AFF_BLINK             (1 << 26)
-#define AFF_HORSE             (1 << 27)	// NPC - is horse, PC - is horsed //
-#define AFF_NOFLEE            (1 << 28)
-#define AFF_SINGLELIGHT       (1 << 29)
+enum class EAffectFlag: uint32_t
+{
+	AFF_BLIND = 1u << 0,					///< (R) Char is blind
+	AFF_INVISIBLE = 1u << 1,				///< Char is invisible
+	AFF_DETECT_ALIGN = 1u << 2,				///< Char is sensitive to align
+	AFF_DETECT_INVIS = 1u << 3,				///< Char can see invis chars
+	AFF_DETECT_MAGIC = 1u << 4,				///< Char is sensitive to magic
+	AFF_SENSE_LIFE = 1u << 5,				///< Char can sense hidden life
+	AFF_WATERWALK = 1u << 6,				///< Char can walk on water
+	AFF_SANCTUARY = 1u << 7,				///< Char protected by sanct.
+	AFF_GROUP = 1u << 8,					///< (R) Char is grouped
+	AFF_CURSE = 1u << 9,					///< Char is cursed
+	AFF_INFRAVISION = 1u << 10,				///< Char can see in dark
+	AFF_POISON = 1u << 11,					///< (R) Char is poisoned
+	AFF_PROTECT_EVIL = 1u << 12,			///< Char protected from evil
+	AFF_PROTECT_GOOD = 1u << 13,			///< Char protected from good
+	AFF_SLEEP = 1u << 14,					///< (R) Char magically asleep
+	AFF_NOTRACK = 1u << 15,					///< Char can't be tracked
+	AFF_TETHERED = 1u << 16,				///< Room for future expansion
+	AFF_BLESS = 1u << 17,					///< Room for future expansion
+	AFF_SNEAK = 1u << 18,					///< Char can move quietly
+	AFF_HIDE = 1u << 19,					///< Char is hidden
+	AFF_COURAGE = 1u << 20,					///< Room for future expansion
+	AFF_CHARM = 1u << 21,					///< Char is charmed
+	AFF_HOLD = 1u << 22,
+	AFF_FLY = 1u << 23,
+	AFF_SILENCE = 1u << 24,
+	AFF_AWARNESS = 1u << 25,
+	AFF_BLINK = 1u << 26,
+	AFF_HORSE = 1u << 27,					///< NPC - is horse, PC - is horsed
+	AFF_NOFLEE = 1u << 28,
+	AFF_SINGLELIGHT = 1u << 29,
+	AFF_HOLYLIGHT = INT_ONE | (1u << 0),
+	AFF_HOLYDARK = INT_ONE | (1u << 1),
+	AFF_DETECT_POISON = INT_ONE | (1u << 2),
+	AFF_DRUNKED = INT_ONE | (1u << 3),
+	AFF_ABSTINENT = INT_ONE | (1u << 4),
+	AFF_STOPRIGHT = INT_ONE | (1u << 5),
+	AFF_STOPLEFT = INT_ONE | (1u << 6),
+	AFF_STOPFIGHT = INT_ONE | (1u << 7),
+	AFF_HAEMORRAGIA = INT_ONE | (1u << 8),
+	AFF_CAMOUFLAGE = INT_ONE | (1u << 9),
+	AFF_WATERBREATH = INT_ONE | (1u << 10),
+	AFF_SLOW = INT_ONE | (1u << 11),
+	AFF_HASTE = INT_ONE | (1u << 12),
+	AFF_SHIELD = INT_ONE | (1u << 13),
+	AFF_AIRSHIELD = INT_ONE | (1u << 14),
+	AFF_FIRESHIELD = INT_ONE | (1u << 15),
+	AFF_ICESHIELD = INT_ONE | (1u << 16),
+	AFF_MAGICGLASS = INT_ONE | (1u << 17),
+	AFF_STAIRS = INT_ONE | (1u << 18),
+	AFF_STONEHAND = INT_ONE | (1u << 19),
+	AFF_PRISMATICAURA = INT_ONE | (1u << 20),
+	AFF_HELPER = INT_ONE | (1u << 21),
+	AFF_EVILESS = INT_ONE | (1u << 22),
+	AFF_AIRAURA = INT_ONE | (1u << 23),
+	AFF_FIREAURA = INT_ONE | (1u << 24),
+	AFF_ICEAURA = INT_ONE | (1u << 25),
+	AFF_DEAFNESS = INT_ONE | (1u << 26),
+	AFF_CRYING = INT_ONE | (1u << 27),
+	AFF_PEACEFUL = INT_ONE | (1u << 28),
+	AFF_MAGICSTOPFIGHT = INT_ONE | (1u << 29),
+	AFF_BERSERK = INT_TWO | (1u << 0),
+	AFF_LIGHT_WALK = INT_TWO | (1u << 1),
+	AFF_BROKEN_CHAINS = INT_TWO | (1u << 2),
+	AFF_CLOUD_OF_ARROWS = INT_TWO | (1u << 3),
+	AFF_SHADOW_CLOAK = INT_TWO | (1u << 4),
+	AFF_GLITTERDUST = INT_TWO | (1u << 5),
+	AFF_AFFRIGHT = INT_TWO | (1u << 6),
+	AFF_SCOPOLIA_POISON = INT_TWO | (1u << 7),
+	AFF_DATURA_POISON = INT_TWO | (1u << 8),
+	AFF_SKILLS_REDUCE = INT_TWO | (1u << 9),
+	AFF_NOT_SWITCH = INT_TWO | (1u << 10),
+	AFF_BELENA_POISON = INT_TWO | (1u << 11),
+	AFF_NOTELEPORT = INT_TWO | (1u << 12),
+	AFF_LACKY = INT_TWO | (1u << 13),
+	AFF_BANDAGE = INT_TWO | (1u << 14),
+	AFF_NO_BANDAGE = INT_TWO | (1u << 15),
+	AFF_MORPH = INT_TWO | (1u << 16),
+	AFF_STRANGLED = INT_TWO | (1u << 17),
+	AFF_RECALL_SPELLS = INT_TWO | (1u << 18),
+	AFF_NOOB_REGEN = INT_TWO | (1u << 19),
+	AFF_VAMPIRE = INT_TWO | (1u << 20)
+};
 
-#define AFF_HOLYLIGHT         (INT_ONE | (1 << 0))
-#define AFF_HOLYDARK          (INT_ONE | (1 << 1))
-#define AFF_DETECT_POISON     (INT_ONE | (1 << 2))
-#define AFF_DRUNKED           (INT_ONE | (1 << 3))
-#define AFF_ABSTINENT         (INT_ONE | (1 << 4))
-#define AFF_STOPRIGHT         (INT_ONE | (1 << 5))
-#define AFF_STOPLEFT          (INT_ONE | (1 << 6))
-#define AFF_STOPFIGHT         (INT_ONE | (1 << 7))
-#define AFF_HAEMORRAGIA       (INT_ONE | (1 << 8))
-#define AFF_CAMOUFLAGE        (INT_ONE | (1 << 9))
-#define AFF_WATERBREATH       (INT_ONE | (1 << 10))
-#define AFF_SLOW              (INT_ONE | (1 << 11))
-#define AFF_HASTE             (INT_ONE | (1 << 12))
-#define AFF_SHIELD            (INT_ONE | (1 << 13))
-#define AFF_AIRSHIELD         (INT_ONE | (1 << 14))
-#define AFF_FIRESHIELD        (INT_ONE | (1 << 15))
-#define AFF_ICESHIELD         (INT_ONE | (1 << 16))
-#define AFF_MAGICGLASS        (INT_ONE | (1 << 17))
-#define AFF_STAIRS            (INT_ONE | (1 << 18))
-#define AFF_STONEHAND         (INT_ONE | (1 << 19))
-#define AFF_PRISMATICAURA     (INT_ONE | (1 << 20))
-#define AFF_HELPER            (INT_ONE | (1 << 21))
-#define AFF_EVILESS           (INT_ONE | (1 << 22))
-#define AFF_AIRAURA           (INT_ONE | (1 << 23))
-#define AFF_FIREAURA          (INT_ONE | (1 << 24))
-#define AFF_ICEAURA           (INT_ONE | (1 << 25))
-#define AFF_DEAFNESS          (INT_ONE | (1 << 26))
-#define AFF_CRYING            (INT_ONE | (1 << 27))
-#define AFF_PEACEFUL          (INT_ONE | (1 << 28))
-#define AFF_MAGICSTOPFIGHT    (INT_ONE | (1 << 29))
+template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
+template <> EAffectFlag ITEM_BY_NAME<EAffectFlag>(const std::string& name);
 
-
-#define AFF_BERSERK           (INT_TWO | (1 << 0))
-#define AFF_LIGHT_WALK        (INT_TWO | (1 << 1))
-#define AFF_BROKEN_CHAINS     (INT_TWO | (1 << 2))
-#define AFF_CLOUD_OF_ARROWS   (INT_TWO | (1 << 3))
-#define AFF_SHADOW_CLOAK      (INT_TWO | (1 << 4))
-#define AFF_GLITTERDUST       (INT_TWO | (1 << 5))
-#define AFF_AFFRIGHT          (INT_TWO | (1 << 6))
-#define AFF_SCOPOLIA_POISON   (INT_TWO | (1 << 7))
-#define AFF_DATURA_POISON     (INT_TWO | (1 << 8))
-#define AFF_SKILLS_REDUCE     (INT_TWO | (1 << 9))
-#define AFF_NOT_SWITCH        (INT_TWO | (1 << 10))
-#define AFF_BELENA_POISON     (INT_TWO | (1 << 11))
-#define AFF_NOTELEPORT        (INT_TWO | (1 << 12))
-#define AFF_LACKY             (INT_TWO | (1 << 13))
-#define AFF_BANDAGE           (INT_TWO | (1 << 14))
-#define AFF_NO_BANDAGE        (INT_TWO | (1 << 15))
-#define AFF_MORPH             (INT_TWO | (1 << 16))
-#define AFF_STRANGLED         (INT_TWO | (1 << 17))
-#define AFF_RECALL_SPELLS     (INT_TWO | (1 << 18))
-#define AFF_NOOB_REGEN        (INT_TWO | (1 << 19))
-#define AFF_VAMPIRE			  (INT_TWO | (1 << 20))	
+typedef std::list<EAffectFlag> affects_list_t;
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)
@@ -771,41 +796,6 @@ enum
 
 // object-related defines ******************************************* //
 
-
-// Item types: used by obj_data.obj_flags.type_flag //
-#define ITEM_LIGHT      1	// Item is a light source  //
-#define ITEM_SCROLL     2	// Item is a scroll     //
-#define ITEM_WAND       3	// Item is a wand    //
-#define ITEM_STAFF      4	// Item is a staff      //
-#define ITEM_WEAPON     5	// Item is a weapon     //
-#define ITEM_FIREWEAPON 6	// Unimplemented     //
-#define ITEM_MISSILE    7	// Unimplemented     //
-#define ITEM_TREASURE   8	// Item is a treasure, not gold  //
-#define ITEM_ARMOR      9	// Item is armor     //
-#define ITEM_POTION    10	// Item is a potion     //
-#define ITEM_WORN      11	// Unimplemented     //
-#define ITEM_OTHER     12	// Misc object       //
-#define ITEM_TRASH     13	// Trash - shopkeeps won't buy   //
-#define ITEM_TRAP      14	// Unimplemented     //
-#define ITEM_CONTAINER 15	// Item is a container     //
-#define ITEM_NOTE      16	// Item is note      //
-#define ITEM_DRINKCON  17	// Item is a drink container  //
-#define ITEM_KEY       18	// Item is a key     //
-#define ITEM_FOOD      19	// Item is food         //
-#define ITEM_MONEY     20	// Item is money (gold)    //
-#define ITEM_PEN       21	// Item is a pen     //
-#define ITEM_BOAT      22	// Item is a boat    //
-#define ITEM_FOUNTAIN  23	// Item is a fountain      //
-#define ITEM_BOOK      24	// Item is book //
-#define ITEM_INGRADIENT 25	// Item is magical ingradient //
-#define ITEM_MING      26	// Магический ингредиент //
-#define ITEM_MATERIAL  27	// Материал для крафтовых умений //
-#define ITEM_BANDAGE   28  	// бинты для перевязки
-#define ITEM_ARMOR_LIGHT  29 	// легкий тип брони
-#define ITEM_ARMOR_MEDIAN 30 	// средний тип брони
-#define ITEM_ARMOR_HEAVY  31 	// тяжелый тип брони
-#define ITEM_ENCHANT      32	// зачарование предмета
-
 // +newbook.patch (Alisher)
 // Типы магических книг //
 #define BOOK_SPELL		0	// Книга заклинания //
@@ -815,262 +805,285 @@ enum
 #define BOOK_FEAT			4	// Книга способности (feats) //
 // -newbook.patch (Alisher)
 
+template <typename E>
+constexpr typename std::underlying_type<E>::type to_underlying(E e)
+{
+	return static_cast<typename std::underlying_type<E>::type>(e);
+}
 
 // Take/Wear flags: used by obj_data.obj_flags.wear_flags //
-#define ITEM_WEAR_TAKE     (1 << 0)	// Item can be takes      //
-#define ITEM_WEAR_FINGER   (1 << 1)	// Can be worn on finger  //
-#define ITEM_WEAR_NECK     (1 << 2)	// Can be worn around neck   //
-#define ITEM_WEAR_BODY     (1 << 3)	// Can be worn on body    //
-#define ITEM_WEAR_HEAD     (1 << 4)	// Can be worn on head    //
-#define ITEM_WEAR_LEGS     (1 << 5)	// Can be worn on legs //
-#define ITEM_WEAR_FEET     (1 << 6)	// Can be worn on feet //
-#define ITEM_WEAR_HANDS    (1 << 7)	// Can be worn on hands   //
-#define ITEM_WEAR_ARMS     (1 << 8)	// Can be worn on arms //
-#define ITEM_WEAR_SHIELD   (1 << 9)	// Can be used as a shield   //
-#define ITEM_WEAR_ABOUT    (1 << 10)	// Can be worn about body    //
-#define ITEM_WEAR_WAIST    (1 << 11)	// Can be worn around waist  //
-#define ITEM_WEAR_WRIST    (1 << 12)	// Can be worn on wrist   //
-#define ITEM_WEAR_WIELD    (1 << 13)	// Can be wielded      //
-#define ITEM_WEAR_HOLD     (1 << 14)	// Can be held      //
-#define ITEM_WEAR_BOTHS     (1 << 15)
+enum class EWearFlag: uint32_t
+{
+	ITEM_WEAR_UNDEFINED = 0,	// Special value
+	ITEM_WEAR_TAKE = 1 << 0,	// Item can be takes      //
+	ITEM_WEAR_FINGER = 1 << 1,	// Can be worn on finger  //
+	ITEM_WEAR_NECK = 1 << 2,	// Can be worn around neck   //
+	ITEM_WEAR_BODY = 1 << 3,	// Can be worn on body    //
+	ITEM_WEAR_HEAD = 1 << 4,	// Can be worn on head    //
+	ITEM_WEAR_LEGS = 1 << 5,	// Can be worn on legs //
+	ITEM_WEAR_FEET = 1 << 6,	// Can be worn on feet //
+	ITEM_WEAR_HANDS = 1 << 7,	// Can be worn on hands   //
+	ITEM_WEAR_ARMS = 1 << 8,	// Can be worn on arms //
+	ITEM_WEAR_SHIELD = 1 << 9,	// Can be used as a shield   //
+	ITEM_WEAR_ABOUT = 1 << 10,	// Can be worn about body    //
+	ITEM_WEAR_WAIST = 1 << 11,	// Can be worn around waist  //
+	ITEM_WEAR_WRIST = 1 << 12,	// Can be worn on wrist   //
+	ITEM_WEAR_WIELD = 1 << 13,	// Can be wielded      //
+	ITEM_WEAR_HOLD = 1 << 14,	// Can be held      //
+	ITEM_WEAR_BOTHS = 1 << 15
+};
 
+template <> const std::string& NAME_BY_ITEM<EWearFlag>(const EWearFlag item);
+template <> EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string& name);
 
 // Extra object flags: used by obj_data.obj_flags.extra_flags //
-#define ITEM_GLOW          (1 << 0)	// Item is glowing      //
-#define ITEM_HUM           (1 << 1)	// Item is humming      //
-#define ITEM_NORENT        (1 << 2)	// Item cannot be rented   //
-#define ITEM_NODONATE      (1 << 3)	// Item cannot be donated  //
-#define ITEM_NOINVIS    (1 << 4)	// Item cannot be made invis  //
-#define ITEM_INVISIBLE     (1 << 5)	// Item is invisible    //
-#define ITEM_MAGIC         (1 << 6)	// Item is magical      //
-#define ITEM_NODROP        (1 << 7)	// Item is cursed: can't drop //
-#define ITEM_BLESS         (1 << 8)	// Item is blessed      //
-#define ITEM_NOSELL        (1 << 9)	// Not usable by good people  //
-#define ITEM_DECAY         (1 << 10)	// Not usable by evil people  //
-#define ITEM_ZONEDECAY     (1 << 11)	// Not usable by neutral people  //
-#define ITEM_NODISARM      (1 << 12)	// Not usable by mages     //
-#define ITEM_NODECAY       (1 << 13)
-#define ITEM_POISONED      (1 << 14)
-#define ITEM_SHARPEN       (1 << 15)
-#define ITEM_ARMORED       (1 << 16)
-#define ITEM_DAY        (1 << 17)
-#define ITEM_NIGHT         (1 << 18)
-#define ITEM_FULLMOON      (1 << 19)
-#define ITEM_WINTER        (1 << 20)
-#define ITEM_SPRING        (1 << 21)
-#define ITEM_SUMMER        (1 << 22)
-#define ITEM_AUTUMN        (1 << 23)
-#define ITEM_SWIMMING      (1 << 24)
-#define ITEM_FLYING        (1 << 25)
-#define ITEM_THROWING      (1 << 26)
-#define ITEM_TICKTIMER     (1 << 27)
-#define ITEM_FIRE          (1 << 28)	// ...горит                   //
-#define ITEM_REPOP_DECAY   (1 << 29)	// рассыпется при репопе зоны //
-#define ITEM_NOLOCATE      (INT_ONE | (1 << 0))	// нельзя отлокейтить //
-#define ITEM_TIMEDLVL      (INT_ONE | (1 << 1))	// для маг.предметов уровень уменьшается со временем //
-#define ITEM_NOALTER       (INT_ONE | (1 << 2))	// свойства предмета не могут быть изменены магией //
-#define ITEM_WITH1SLOT     (INT_ONE | (1 << 3))	// в предмет можно вплавить 1 камень //
-#define ITEM_WITH2SLOTS    (INT_ONE | (1 << 4))	// в предмет можно вплавить 2 камня //
-#define ITEM_WITH3SLOTS    (INT_ONE | (1 << 5))	// в предмет можно вплавить 3 камня (овер) //
-#define ITEM_SETSTUFF      (INT_ONE | (1 << 6)) // Item is set object //
-#define ITEM_NO_FAIL       (INT_ONE | (1 << 7)) // не фейлится при изучении (в случае книги)
-#define ITEM_NAMED         (INT_ONE | (1 << 8)) // именной предмет
-#define ITEM_BLOODY        (INT_ONE | (1 << 9)) // окровавленная вещь (снятая с трупа)
-#define ITEM_1INLAID       (INT_ONE | (1 << 10)) // TODO: не используется, см convert_obj_values()
-#define ITEM_2INLAID       (INT_ONE | (1 << 11)) // -//-
-#define ITEM_3INLAID       (INT_ONE | (1 << 12)) // -//-
-#define ITEM_NOPOUR        (INT_ONE | (1 << 13))  // нельзя перелить
+enum class EExtraFlag: uint32_t
+{
+	ITEM_GLOW = 1 << 0,						///< Item is glowing
+	ITEM_HUM = 1 << 1,						///< Item is humming
+	ITEM_NORENT = 1 << 2,					///< Item cannot be rented
+	ITEM_NODONATE = 1 << 3,					///< Item cannot be donated
+	ITEM_NOINVIS = 1 << 4,					///< Item cannot be made invis
+	ITEM_INVISIBLE = 1 << 5,				///< Item is invisible
+	ITEM_MAGIC = 1 << 6,					///< Item is magical
+	ITEM_NODROP = 1 << 7,					///< Item is cursed: can't drop
+	ITEM_BLESS = 1 << 8,					///< Item is blessed
+	ITEM_NOSELL = 1 << 9,					///< Not usable by good people
+	ITEM_DECAY = 1 << 10,					///< Not usable by evil people
+	ITEM_ZONEDECAY = 1 << 11,				///< Not usable by neutral people
+	ITEM_NODISARM = 1 << 12,				///< Not usable by mages
+	ITEM_NODECAY = 1 << 13,
+	ITEM_POISONED = 1 << 14,
+	ITEM_SHARPEN = 1 << 15,
+	ITEM_ARMORED = 1 << 16,
+	ITEM_DAY = 1 << 17,
+	ITEM_NIGHT = 1 << 18,
+	ITEM_FULLMOON = 1 << 19,
+	ITEM_WINTER = 1 << 20,
+	ITEM_SPRING = 1 << 21,
+	ITEM_SUMMER = 1 << 22,
+	ITEM_AUTUMN = 1 << 23,
+	ITEM_SWIMMING = 1 << 24,
+	ITEM_FLYING = 1 << 25,
+	ITEM_THROWING = 1 << 26,
+	ITEM_TICKTIMER = 1 << 27,
+	ITEM_FIRE = 1 << 28,					///< ...горит
+	ITEM_REPOP_DECAY = 1 << 29,				///< рассыпется при репопе зоны
+	ITEM_NOLOCATE = INT_ONE | (1 << 0),		///< нельзя отлокейтить
+	ITEM_TIMEDLVL = INT_ONE | (1 << 1),		///< для маг.предметов уровень уменьшается со временем
+	ITEM_NOALTER = INT_ONE | (1 << 2),		///< свойства предмета не могут быть изменены магией
+	ITEM_WITH1SLOT = INT_ONE | (1 << 3),	///< в предмет можно вплавить 1 камень
+	ITEM_WITH2SLOTS = INT_ONE | (1 << 4),	///< в предмет можно вплавить 2 камня
+	ITEM_WITH3SLOTS = INT_ONE | (1 << 5),	///< в предмет можно вплавить 3 камня (овер)
+	ITEM_SETSTUFF = INT_ONE | (1 << 6),		///< Item is set object
+	ITEM_NO_FAIL = INT_ONE | (1 << 7),		///< не фейлится при изучении (в случае книги)
+	ITEM_NAMED = INT_ONE | (1 << 8),		///< именной предмет
+	ITEM_BLOODY = INT_ONE | (1 << 9),		///< окровавленная вещь (снятая с трупа)
+	ITEM_1INLAID = INT_ONE | (1 << 10),		///< TODO: не используется, см convert_obj_values()
+	ITEM_2INLAID = INT_ONE | (1 << 11),
+	ITEM_3INLAID = INT_ONE | (1 << 12),
+	ITEM_NOPOUR = INT_ONE | (1 << 13)		///< нельзя перелить
+};
 
-#define ITEM_NO_MONO       (1 << 0)
-#define ITEM_NO_POLY       (1 << 1)
-#define ITEM_NO_NEUTRAL    (1 << 2)
-#define ITEM_NO_MAGIC_USER (1 << 3)
-#define ITEM_NO_CLERIC     (1 << 4)
-#define ITEM_NO_THIEF      (1 << 5)
-#define ITEM_NO_WARRIOR    (1 << 6)
-#define ITEM_NO_ASSASINE   (1 << 7)
-#define ITEM_NO_GUARD      (1 << 8)
-#define ITEM_NO_PALADINE   (1 << 9)
-#define ITEM_NO_RANGER     (1 << 10)
-#define ITEM_NO_SMITH      (1 << 11)
-#define ITEM_NO_MERCHANT   (1 << 12)
-#define ITEM_NO_DRUID      (1 << 13)
-#define ITEM_NO_BATTLEMAGE (1 << 14)
-#define ITEM_NO_CHARMMAGE  (1 << 15)
-#define ITEM_NO_DEFENDERMAGE  (1 << 16)
-#define ITEM_NO_NECROMANCER   (1 << 17)
+template <> const std::string& NAME_BY_ITEM<EExtraFlag>(const EExtraFlag item);
+template <> EExtraFlag ITEM_BY_NAME<EExtraFlag>(const std::string& name);
 
-#define ITEM_NO_KILLER     (INT_ONE | 1 << 0)
-#define ITEM_NO_COLORED    (INT_ONE | 1 << 1)	// нельзя цветным //
-//#define ITEM_NO_KILLERONLY (INT_ONE | 1 << 2)// // только для душиков //
-#define ITEM_NO_BD	   (INT_ONE | 1 << 2)
+enum class ENoFlag : uint32_t
+{
+	ITEM_NO_MONO = 1 << 0,
+	ITEM_NO_POLY = 1 << 1,
+	ITEM_NO_NEUTRAL = 1 << 2,
+	ITEM_NO_MAGIC_USER = 1 << 3,
+	ITEM_NO_CLERIC = 1 << 4,
+	ITEM_NO_THIEF = 1 << 5,
+	ITEM_NO_WARRIOR = 1 << 6,
+	ITEM_NO_ASSASINE = 1 << 7,
+	ITEM_NO_GUARD = 1 << 8,
+	ITEM_NO_PALADINE = 1 << 9,
+	ITEM_NO_RANGER = 1 << 10,
+	ITEM_NO_SMITH = 1 << 11,
+	ITEM_NO_MERCHANT = 1 << 12,
+	ITEM_NO_DRUID = 1 << 13,
+	ITEM_NO_BATTLEMAGE = 1 << 14,
+	ITEM_NO_CHARMMAGE = 1 << 15,
+	ITEM_NO_DEFENDERMAGE = 1 << 16,
+	ITEM_NO_NECROMANCER = 1 << 17,
+	ITEM_NO_KILLER = INT_ONE | 1 << 0,
+	ITEM_NO_COLORED = INT_ONE | 1 << 1,	// нельзя цветным //
+	ITEM_NO_BD = INT_ONE | 1 << 2,
+	ITEM_NO_MALE = INT_TWO | 1 << 6,
+	ITEM_NO_FEMALE = INT_TWO | 1 << 7,
+	ITEM_NO_CHARMICE = INT_TWO | 1 << 8,
+	ITEM_NO_POLOVCI = INT_TWO | 1 << 9,
+	ITEM_NO_PECHENEGI = INT_TWO | 1 << 10,
+	ITEM_NO_MONGOLI = INT_TWO | 1 << 11,
+	ITEM_NO_YIGURI = INT_TWO | 1 << 12,
+	ITEM_NO_KANGARI = INT_TWO | 1 << 13,
+	ITEM_NO_XAZARI = INT_TWO | 1 << 14,
+	ITEM_NO_SVEI = INT_TWO | 1 << 15,
+	ITEM_NO_DATCHANE = INT_TWO | 1 << 16,
+	ITEM_NO_GETTI = INT_TWO | 1 << 17,
+	ITEM_NO_UTTI = INT_TWO | 1 << 18,
+	ITEM_NO_XALEIGI = INT_TWO | 1 << 19,
+	ITEM_NO_NORVEZCI = INT_TWO | 1 << 20,
+	ITEM_NO_RUSICHI = INT_THREE | 1 << 0,
+	ITEM_NO_STEPNYAKI = INT_THREE | 1 << 1,
+	ITEM_NO_VIKINGI = INT_THREE | 1 << 2
+};
 
-/*#define ITEM_NO_SEVERANE   (INT_TWO | 1 << 0) // невозможность одеть родам
-#define ITEM_NO_POLANE     (INT_TWO | 1 << 1)
-#define ITEM_NO_KRIVICHI   (INT_TWO | 1 << 2)
-#define ITEM_NO_VATICHI    (INT_TWO | 1 << 3)
-#define ITEM_NO_VELANE     (INT_TWO | 1 << 4)
-#define ITEM_NO_DREVLANE   (INT_TWO | 1 << 5) */
-#define ITEM_NO_MALE       (INT_TWO | 1 << 6)
-#define ITEM_NO_FEMALE     (INT_TWO | 1 << 7)
-#define ITEM_NO_CHARMICE   (INT_TWO | 1 << 8)
-#define ITEM_NO_POLOVCI    (INT_TWO | 1 << 9)
-#define ITEM_NO_PECHENEGI  (INT_TWO | 1 << 10)
-#define ITEM_NO_MONGOLI    (INT_TWO | 1 << 11)
-#define ITEM_NO_YIGURI     (INT_TWO | 1 << 12)
-#define ITEM_NO_KANGARI    (INT_TWO | 1 << 13)
-#define ITEM_NO_XAZARI     (INT_TWO | 1 << 14)
-#define ITEM_NO_SVEI       (INT_TWO | 1 << 15)
-#define ITEM_NO_DATCHANE   (INT_TWO | 1 << 16)
-#define ITEM_NO_GETTI      (INT_TWO | 1 << 17)
-#define ITEM_NO_UTTI       (INT_TWO | 1 << 18)
-#define ITEM_NO_XALEIGI    (INT_TWO | 1 << 19)
-#define ITEM_NO_NORVEZCI   (INT_TWO | 1 << 20)
+template <> const std::string& NAME_BY_ITEM<ENoFlag>(const ENoFlag item);
+template <> ENoFlag ITEM_BY_NAME<ENoFlag>(const std::string& name);
 
-#define ITEM_NO_RUSICHI     (INT_THREE | 1 << 0)
-#define ITEM_NO_STEPNYAKI   (INT_THREE | 1 << 1)
-#define ITEM_NO_VIKINGI     (INT_THREE | 1 << 2)
+enum class EAntiFlag: uint32_t
+{
+    ITEM_AN_MONO = 1 << 0,
+    ITEM_AN_POLY = 1 << 1,
+    ITEM_AN_NEUTRAL = 1 << 2,
+    ITEM_AN_MAGIC_USER = 1 << 3,
+    ITEM_AN_CLERIC = 1 << 4,
+    ITEM_AN_THIEF = 1 << 5,
+    ITEM_AN_WARRIOR = 1 << 6,
+    ITEM_AN_ASSASINE = 1 << 7,
+    ITEM_AN_GUARD = 1 << 8,
+    ITEM_AN_PALADINE = 1 << 9,
+    ITEM_AN_RANGER = 1 << 10,
+    ITEM_AN_SMITH = 1 << 11,
+    ITEM_AN_MERCHANT = 1 << 12,
+    ITEM_AN_DRUID = 1 << 13,
+    ITEM_AN_BATTLEMAGE = 1 << 14,
+    ITEM_AN_CHARMMAGE = 1 << 15,
+    ITEM_AN_DEFENDERMAGE = 1 << 16,
+    ITEM_AN_NECROMANCER = 1 << 17,
+    ITEM_AN_KILLER = INT_ONE | (1 << 0),
+    ITEM_AN_COLORED = INT_ONE | (1 << 1),	// нельзя цветным //
+    ITEM_AN_BD = INT_ONE | (1 << 2),
+    ITEM_AN_SEVERANE = INT_TWO | 1 << 0,  // недоступность по родам
+    ITEM_AN_POLANE = INT_TWO | 1 << 1,
+    ITEM_AN_KRIVICHI = INT_TWO | 1 << 2,
+    ITEM_AN_VATICHI = INT_TWO | 1 << 3,
+    ITEM_AN_VELANE = INT_TWO | 1 << 4,
+    ITEM_AN_DREVLANE = INT_TWO | 1 << 5,
+    ITEM_AN_MALE = INT_TWO | 1 << 6,
+    ITEM_AN_FEMALE = INT_TWO | 1 << 7,
+    ITEM_AN_CHARMICE = INT_TWO | 1 << 8,
+    ITEM_AN_POLOVCI = INT_TWO | 1 << 9,
+    ITEM_AN_PECHENEGI = INT_TWO | 1 << 10,
+    ITEM_AN_MONGOLI = INT_TWO | 1 << 11,
+    ITEM_AN_YIGURI = INT_TWO | 1 << 12,
+    ITEM_AN_KANGARI = INT_TWO | 1 << 13,
+    ITEM_AN_XAZARI = INT_TWO | 1 << 14,
+    ITEM_AN_SVEI = INT_TWO | 1 << 15,
+    ITEM_AN_DATCHANE = INT_TWO | 1 << 16,
+    ITEM_AN_GETTI = INT_TWO | 1 << 17,
+    ITEM_AN_UTTI = INT_TWO | 1 << 18,
+    ITEM_AN_XALEIGI = INT_TWO | 1 << 19,
+    ITEM_AN_NORVEZCI = INT_TWO | 1 << 20,
+    ITEM_AN_RUSICHI = INT_THREE | 1 << 0,
+    ITEM_AN_STEPNYAKI = INT_THREE | 1 << 1,
+    ITEM_AN_VIKINGI = INT_THREE | 1 << 2
+};
 
-#define ITEM_AN_MONO       (1 << 0)
-#define ITEM_AN_POLY       (1 << 1)
-#define ITEM_AN_NEUTRAL    (1 << 2)
-#define ITEM_AN_MAGIC_USER (1 << 3)
-#define ITEM_AN_CLERIC     (1 << 4)
-#define ITEM_AN_THIEF      (1 << 5)
-#define ITEM_AN_WARRIOR    (1 << 6)
-#define ITEM_AN_ASSASINE   (1 << 7)
-#define ITEM_AN_GUARD      (1 << 8)
-#define ITEM_AN_PALADINE   (1 << 9)
-#define ITEM_AN_RANGER     (1 << 10)
-#define ITEM_AN_SMITH      (1 << 11)
-#define ITEM_AN_MERCHANT   (1 << 12)
-#define ITEM_AN_DRUID      (1 << 13)
-#define ITEM_AN_BATTLEMAGE (1 << 14)
-#define ITEM_AN_CHARMMAGE  (1 << 15)
-#define ITEM_AN_DEFENDERMAGE  (1 << 16)
-#define ITEM_AN_NECROMANCER   (1 << 17)
-
-#define ITEM_AN_KILLER     (INT_ONE | (1 << 0))
-#define ITEM_AN_COLORED    (INT_ONE | (1 << 1))	// нельзя цветным //
-//#define ITEM_AN_KILLERONLY (INT_ONE | (1 << 2))// // только для душиков //
-#define ITEM_AN_BD	   (INT_ONE | (1 << 2))
-
-
-#define ITEM_AN_SEVERANE   (INT_TWO | 1 << 0)  // недоступность по родам
-#define ITEM_AN_POLANE     (INT_TWO | 1 << 1)
-#define ITEM_AN_KRIVICHI   (INT_TWO | 1 << 2)
-#define ITEM_AN_VATICHI    (INT_TWO | 1 << 3)
-#define ITEM_AN_VELANE     (INT_TWO | 1 << 4)
-#define ITEM_AN_DREVLANE   (INT_TWO | 1 << 5)  
-#define ITEM_AN_MALE       (INT_TWO | 1 << 6)
-#define ITEM_AN_FEMALE     (INT_TWO | 1 << 7)
-#define ITEM_AN_CHARMICE   (INT_TWO | 1 << 8)
-#define ITEM_AN_POLOVCI    (INT_TWO | 1 << 9)
-#define ITEM_AN_PECHENEGI  (INT_TWO | 1 << 10)
-#define ITEM_AN_MONGOLI    (INT_TWO | 1 << 11)
-#define ITEM_AN_YIGURI     (INT_TWO | 1 << 12)
-#define ITEM_AN_KANGARI    (INT_TWO | 1 << 13)
-#define ITEM_AN_XAZARI     (INT_TWO | 1 << 14)
-#define ITEM_AN_SVEI       (INT_TWO | 1 << 15)
-#define ITEM_AN_DATCHANE   (INT_TWO | 1 << 16)
-#define ITEM_AN_GETTI      (INT_TWO | 1 << 17)
-#define ITEM_AN_UTTI       (INT_TWO | 1 << 18)
-#define ITEM_AN_XALEIGI    (INT_TWO | 1 << 19)
-#define ITEM_AN_NORVEZCI   (INT_TWO | 1 << 20)
-
-#define ITEM_AN_RUSICHI     (INT_THREE | 1 << 0)
-#define ITEM_AN_STEPNYAKI   (INT_THREE | 1 << 1)
-#define ITEM_AN_VIKINGI     (INT_THREE | 1 << 2)
+template <> const std::string& NAME_BY_ITEM<EAntiFlag>(const EAntiFlag item);
+template <> EAntiFlag ITEM_BY_NAME<EAntiFlag>(const std::string& name);
 
 // Modifier constants used with obj affects ('A' fields) //
-#define APPLY_NONE              0	// No effect         //
-#define APPLY_STR               1	// Apply to strength    //
-#define APPLY_DEX               2	// Apply to dexterity      //
-#define APPLY_INT               3	// Apply to constitution   //
-#define APPLY_WIS               4	// Apply to wisdom      //
-#define APPLY_CON               5	// Apply to constitution   //
-#define APPLY_CHA		6	// Apply to charisma    //
-#define APPLY_CLASS             7	// Reserved       //
-#define APPLY_LEVEL             8	// Reserved       //
-#define APPLY_AGE               9	// Apply to age         //
-#define APPLY_CHAR_WEIGHT      10	// Apply to weight      //
-#define APPLY_CHAR_HEIGHT      11	// Apply to height      //
-#define APPLY_MANAREG          12	// Apply to max mana    //
-#define APPLY_HIT              13	// Apply to max hit points //
-#define APPLY_MOVE             14	// Apply to max move points   //
-#define APPLY_GOLD             15	// Reserved       //
-#define APPLY_EXP              16	// Reserved       //
-#define APPLY_AC               17	// Apply to Armor Class    //
-#define APPLY_HITROLL          18	// Apply to hitroll     //
-#define APPLY_DAMROLL          19	// Apply to damage roll    //
-#define APPLY_SAVING_WILL      20	// Apply to save throw: paralz   //
-#define APPLY_RESIST_FIRE      21	// Apply to RESIST throw: fire  //
-#define APPLY_RESIST_AIR       22	// Apply to RESIST throw: air   //
-#define APPLY_SAVING_CRITICAL  23	// Apply to save throw: breath   //
-#define APPLY_SAVING_STABILITY 24	// Apply to save throw: spells   //
-#define APPLY_HITREG           25
-#define APPLY_MOVEREG          26
-#define APPLY_C1               27
-#define APPLY_C2               28
-#define APPLY_C3               29
-#define APPLY_C4               30
-#define APPLY_C5               31
-#define APPLY_C6               32
-#define APPLY_C7               33
-#define APPLY_C8               34
-#define APPLY_C9               35
-#define APPLY_SIZE             36
-#define APPLY_ARMOUR           37
-#define APPLY_POISON           38
-#define APPLY_SAVING_REFLEX    39
-#define APPLY_CAST_SUCCESS     40
-#define APPLY_MORALE           41
-#define APPLY_INITIATIVE       42
-#define APPLY_RELIGION         43
-#define APPLY_ABSORBE          44
-#define APPLY_LIKES	       45
-#define APPLY_RESIST_WATER     46	// Apply to RESIST throw: water  //
-#define APPLY_RESIST_EARTH     47	// Apply to RESIST throw: earth  //
-#define APPLY_RESIST_VITALITY  48	// Apply to RESIST throw: light, dark, critical damage  //
-#define APPLY_RESIST_MIND      49	// Apply to RESIST throw: mind magic  //
-#define APPLY_RESIST_IMMUNITY  50	// Apply to RESIST throw: poison, disease etc.  //
-#define APPLY_AR	           51	// Apply to Magic affect resist //
-#define APPLY_MR	           52	// Apply to Magic damage resist //
-#define APPLY_ACONITUM_POISON  53
-#define APPLY_SCOPOLIA_POISON  54
-#define APPLY_BELENA_POISON    55
-#define APPLY_DATURA_POISON    56
-#define APPLY_HIT_GLORY        57
-#define APPLY_BONUS_EXP		58
-#define APPLY_BONUS_SKILLS      59
-#define NUM_APPLIES	        60
+enum EApplyLocation
+{
+	APPLY_NONE = 0,	// No effect         //
+	APPLY_STR = 1,	// Apply to strength    //
+	APPLY_DEX = 2,	// Apply to dexterity      //
+	APPLY_INT = 3,	// Apply to constitution   //
+	APPLY_WIS = 4,	// Apply to wisdom      //
+	APPLY_CON = 5,	// Apply to constitution   //
+	APPLY_CHA = 6,	// Apply to charisma    //
+	APPLY_CLASS = 7,	// Reserved       //
+	APPLY_LEVEL = 8,	// Reserved       //
+	APPLY_AGE = 9,	// Apply to age         //
+	APPLY_CHAR_WEIGHT = 10,	// Apply to weight      //
+	APPLY_CHAR_HEIGHT = 11,	// Apply to height      //
+	APPLY_MANAREG = 12,	// Apply to max mana    //
+	APPLY_HIT = 13,	// Apply to max hit points //
+	APPLY_MOVE = 14,	// Apply to max move points   //
+	APPLY_GOLD = 15,	// Reserved       //
+	APPLY_EXP = 16,	// Reserved       //
+	APPLY_AC = 17,	// Apply to Armor Class    //
+	APPLY_HITROLL = 18,	// Apply to hitroll     //
+	APPLY_DAMROLL = 19,	// Apply to damage roll    //
+	APPLY_SAVING_WILL = 20,	// Apply to save throw: paralz   //
+	APPLY_RESIST_FIRE = 21,	// Apply to RESIST throw: fire  //
+	APPLY_RESIST_AIR = 22,	// Apply to RESIST throw: air   //
+	APPLY_SAVING_CRITICAL = 23,	// Apply to save throw: breath   //
+	APPLY_SAVING_STABILITY = 24,	// Apply to save throw: spells   //
+	APPLY_HITREG = 25,
+	APPLY_MOVEREG = 26,
+	APPLY_C1 = 27,
+	APPLY_C2 = 28,
+	APPLY_C3 = 29,
+	APPLY_C4 = 30,
+	APPLY_C5 = 31,
+	APPLY_C6 = 32,
+	APPLY_C7 = 33,
+	APPLY_C8 = 34,
+	APPLY_C9 = 35,
+	APPLY_SIZE = 36,
+	APPLY_ARMOUR = 37,
+	APPLY_POISON = 38,
+	APPLY_SAVING_REFLEX = 39,
+	APPLY_CAST_SUCCESS = 40,
+	APPLY_MORALE = 41,
+	APPLY_INITIATIVE = 42,
+	APPLY_RELIGION = 43,
+	APPLY_ABSORBE = 44,
+	APPLY_LIKES = 45,
+	APPLY_RESIST_WATER = 46,	// Apply to RESIST throw: water  //
+	APPLY_RESIST_EARTH = 47,	// Apply to RESIST throw: earth  //
+	APPLY_RESIST_VITALITY = 48,	// Apply to RESIST throw: light, dark, critical damage  //
+	APPLY_RESIST_MIND = 49,	// Apply to RESIST throw: mind magic  //
+	APPLY_RESIST_IMMUNITY = 50,	// Apply to RESIST throw: poison, disease etc.  //
+	APPLY_AR = 51,	// Apply to Magic affect resist //
+	APPLY_MR = 52,	// Apply to Magic damage resist //
+	APPLY_ACONITUM_POISON = 53,
+	APPLY_SCOPOLIA_POISON = 54,
+	APPLY_BELENA_POISON = 55,
+	APPLY_DATURA_POISON = 56,
+	APPLY_HIT_GLORY = 57,
+	APPLY_BONUS_EXP = 58,
+	APPLY_BONUS_SKILLS = 59,
+	NUM_APPLIES = 60
+};
+
+template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
+template <> EApplyLocation ITEM_BY_NAME<EApplyLocation>(const std::string& name);
 
 // APPLY - эффекты для комнат //
-#define APPLY_ROOM_NONE        0
-#define APPLY_ROOM_POISON      1 	// Изменяет в комнате уровень ядности //
-#define APPLY_ROOM_FLAME       2 	// Изменяет в комнате уровень огня (для потомков) //
-#define NUM_ROOM_APPLIES       3
+enum ERoomApplyLocation
+{
+	APPLY_ROOM_NONE = 0,
+	APPLY_ROOM_POISON = 1,	// Изменяет в комнате уровень ядности //
+	APPLY_ROOM_FLAME = 2,	// Изменяет в комнате уровень огня (для потомков) //
+	NUM_ROOM_APPLIES = 3
+};
 
-#define MAT_NONE               0
-#define MAT_BULAT              1
-#define MAT_BRONZE             2
-#define MAT_IRON               3
-#define MAT_STEEL              4
-#define MAT_SWORDSSTEEL        5
-#define MAT_COLOR              6
-#define MAT_CRYSTALL           7
-#define MAT_WOOD               8
-#define MAT_SUPERWOOD          9
-#define MAT_FARFOR             10
-#define MAT_GLASS              11
-#define MAT_ROCK               12
-#define MAT_BONE               13
-#define MAT_MATERIA            14
-#define MAT_SKIN               15
-#define MAT_ORGANIC            16
-#define MAT_PAPER              17
-#define MAT_DIAMOND            18
+struct obj_affected_type
+{
+	EApplyLocation location;	// Which ability to change (APPLY_XXX) //
+	int modifier;				// How much it changes by              //
 
+	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
+
+	obj_affected_type(EApplyLocation __location, int __modifier)
+		: location(__location), modifier(__modifier) {}
+
+	// для сравнения в sedit
+	bool operator!=(const obj_affected_type &r) const
+	{
+		return (location != r.location || modifier != r.modifier);
+	}
+	bool operator==(const obj_affected_type &r) const
+	{
+		return !(*this != r);
+	}
+};
 
 #define TRACK_NPC              (1 << 0)
 #define TRACK_HIDE             (1 << 1)
@@ -1189,28 +1202,12 @@ enum EBonusType
 #define STRONG_MOB_LEVEL 30
 const short MAX_MOB_LEVEL = 50;
 
-// *********************************************************************
-// * Structures                                                        *
-// *********************************************************************
+bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
 
-
-typedef int8_t
-sbyte;
-typedef uint8_t
-ubyte;
-typedef int16_t
-sh_int;
-typedef uint16_t
-ush_int;
-#if !defined(__cplusplus)	// Anyone know a portable method?
-typedef char
-bool;
-#endif
-
-#if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	// Hm, sysdep.h?
-typedef char
-byte;
-#endif
+inline bool sprintbit(bitvector_t bitvector, const char *names[], char *result, const int print_flag = 0)
+{
+	return sprintbitwd(bitvector, names, result, ",", print_flag);
+}
 
 typedef int room_vnum;	// A room's vnum type //
 typedef int obj_vnum;	// An object's vnum type //
@@ -1222,150 +1219,111 @@ typedef int obj_rnum;	// An object's real (internal) num type //
 typedef int mob_rnum;	// A mobile's real (internal) num type //
 typedef int zone_rnum;	// A zone's real (array index) number. //
 
-// ************ WARNING ******************************************* //
-// This structure describe new bitvector structure                  //
-typedef uint32_t bitvector_t;
+/**
+** \brief Unpacks flags from string #flag into flags array #to
+**
+** \param [in] flag String that represents flags values.
+** \param [out] to  Pointer to the array of integers that will be populated by unpacked flags values.
+**
+** \note Be careful: this function does not perform any checks of bounds of #to array.
+*/
+void asciiflag_conv(const char *flag, void *to);
 
-#define INT_ZERRO (0 << 30)
-#define INT_ONE   (1 << 30)
-#define INT_TWO   (2 << 30)
-#define INT_THREE (3 << 30)
-
-struct flag_data
-{
-	flag_data& operator+=(const flag_data &r)
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			flags[i] |= r.flags[i];
-		}
-		return *this;
-	}
-	bool operator!=(const flag_data &r) const
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			if (flags[i] != r.flags[i])
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	bool operator==(const flag_data &r) const
-	{
-		return !(*this != r);
-	}
-	bool empty() const
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			if (flags[i] != 0)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-	void set(const uint32_t flag)
-	{
-		flags[flag >> 30] |= flag & 0x3fffffff;
-	}
-
-	uint32_t flags[4];
-};
-
-inline const uint32_t& GET_FLAG(const flag_data& value, const uint32_t flag)
-{
-	size_t fnumber = flag >> 30;
-	return value.flags[fnumber];
-}
-
-inline uint32_t& GET_FLAG(flag_data& value, const uint32_t flag)
-{
-	size_t fnumber = flag >> 30;
-	return value.flags[fnumber];
-}
-
-extern const FLAG_DATA clear_flags;
-
-class unique_bit_flag_data : public flag_data
+class FLAG_DATA
 {
 public:
-	unique_bit_flag_data() : flag_data(clear_flags) {}
+	FLAG_DATA() { clear(); }
+	FLAG_DATA& operator+=(const FLAG_DATA &r);
+	bool operator!=(const FLAG_DATA& r) const { return m_flags[0] != r.m_flags[0] || m_flags[1] != r.m_flags[1] || m_flags[2] != r.m_flags[2] || m_flags[3] != r.m_flags[3]; }
+	bool operator==(const FLAG_DATA& r) const { return !(*this != r); }
+	bool operator<(const FLAG_DATA& r) const;
+	bool operator>(const FLAG_DATA& r) const;
+	bool empty() const { return 0 == m_flags[0] && 0 == m_flags[1] && 0 == m_flags[2] && 0 == m_flags[3]; }
 
-	unique_bit_flag_data(const flag_data& __base) : flag_data(__base) {}
+	void clear() { m_flags[0] = m_flags[1] = m_flags[2] = m_flags[3] = 0; }
+	void set_all() { m_flags[0] = m_flags[1] = m_flags[2] = m_flags[3] = 0x3fffffff; }
 
-	int
-	get_plane(int __plane) const
-	{
-		return *(flags + __plane) | __plane << 30;
-	}
+	template <class T>
+	bool get(const T packed_flag) const { return 0 != (m_flags[to_underlying(packed_flag) >> 30] & (to_underlying(packed_flag) & 0x3fffffff)); }
+	bool get_flag(const size_t plane, const uint32_t flag) const { return 0 != (m_flags[plane] & (flag & 0x3fffffff)); }
+	uint32_t get_plane(const size_t number) const { return m_flags[number]; }
+	bool plane_not_empty(const int packet_flag) const { return 0 != m_flags[packet_flag >> 30]; }
 
-	unique_bit_flag_data&
-	set_plane(uint32_t __plane)
-	{
-		int num = __plane < static_cast<uint32_t>(INT_ONE)   ? 0 :
-				  __plane < static_cast<uint32_t>(INT_TWO)   ? 1 :
-				  __plane < static_cast<uint32_t>(INT_THREE) ? 2 : 3;
-		*(flags + num) |= 0x3FFFFFFF & __plane;
-		return *this;
-	}
+	template <class T>
+	void set(const T packed_flag) { m_flags[to_underlying(packed_flag) >> 30] |= to_underlying(packed_flag) & 0x3fffffff; }
+	void set_flag(const size_t plane, const uint32_t flag) { m_flags[plane] |= flag; }
+	void set_plane(const size_t number, const uint32_t value) { m_flags[number] = value; }
+
+	template <class T>
+	void unset(const T packed_flag) { m_flags[to_underlying(packed_flag) >> 30] &= ~(to_underlying(packed_flag) & 0x3fffffff); }
+
+	template <class T>
+	bool toggle(const T packed_flag) { return 0 != ((m_flags[to_underlying(packed_flag) >> 30] ^= (to_underlying(packed_flag) & 0x3fffffff)) & (to_underlying(packed_flag) & 0x3fffffff)); }
+	bool toggle_flag(const size_t plane, const uint32_t flag) { return 0 != ((m_flags[plane] ^= flag) & flag); }
+
+	void from_string(const char *flag);
+	void tascii(int num_planes, char* ascii) const;
+	bool sprintbits(const char *names[], char *result, const char *div, const int print_flag) const;
+	bool sprintbits(const char *names[], char *result, const char *div) const { return sprintbits(names, result, div, 0); };
+
+private:
+	boost::array<uint32_t, 4> m_flags;
 };
 
-inline int
-flag_data_by_num(const int& num)
+template <> inline bool FLAG_DATA::get(const uint32_t packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
+template <> inline bool FLAG_DATA::get(const int packed_flag) const { return get(static_cast<uint32_t>(packed_flag)); }
+template <> inline void FLAG_DATA::set(const uint32_t packed_flag) { m_flags[packed_flag >> 30] |= packed_flag & 0x3fffffff; }
+template <> inline void FLAG_DATA::set(const int packed_flag) { set(static_cast<uint32_t>(packed_flag)); }
+template <> inline void FLAG_DATA::unset(const uint32_t packed_flag) { m_flags[packed_flag >> 30] &= ~(packed_flag & 0x3fffffff); }
+template <> inline void FLAG_DATA::unset(const int packed_flag) { unset(static_cast<uint32_t>(packed_flag)); }
+template <> inline bool FLAG_DATA::toggle(const uint32_t packed_flag) { return 0 != ((m_flags[packed_flag >> 30] ^= (packed_flag & 0x3fffffff)) & (packed_flag & 0x3fffffff)); }
+template <> inline bool FLAG_DATA::toggle(const int packed_flag) { return toggle(static_cast<uint32_t>(packed_flag)); }
+
+inline FLAG_DATA& FLAG_DATA::operator+=(const FLAG_DATA &r)
+{
+	m_flags[0] |= r.m_flags[0];
+	m_flags[1] |= r.m_flags[1];
+	m_flags[2] |= r.m_flags[2];
+	m_flags[3] |= r.m_flags[3];
+
+	return *this;
+}
+
+inline bool FLAG_DATA::operator<(const FLAG_DATA& r) const
+{
+	return *this != r
+		&& (m_flags[0] < r.m_flags[0]
+			|| m_flags[1] < r.m_flags[1]
+			|| m_flags[2] < r.m_flags[2]
+			|| m_flags[3] < r.m_flags[3]);
+}
+
+inline bool FLAG_DATA::operator>(const FLAG_DATA& r) const
+{
+	return *this != r
+		&& (m_flags[0] > r.m_flags[0]
+			|| m_flags[1] > r.m_flags[1]
+			|| m_flags[2] > r.m_flags[2]
+			|| m_flags[3] > r.m_flags[3]);
+}
+extern const FLAG_DATA clear_flags;
+
+class unique_bit_flag_data : public FLAG_DATA
+{
+public:
+	unique_bit_flag_data() : FLAG_DATA(clear_flags) {}
+	unique_bit_flag_data(const FLAG_DATA& __base): FLAG_DATA(__base) {}
+};
+
+void tascii(const uint32_t* pointer, int num_planes, char* ascii);
+
+inline int flag_data_by_num(const int& num)
 {
 	return num < 0   ? 0 :
 		   num < 30  ? (1 << num) :
 		   num < 60  ? (INT_ONE | (1 << (num - 30))) :
 		   num < 90  ? (INT_TWO | (1 << (num - 60))) :
 		   num < 120 ? (INT_THREE | (1 << (num - 90))) : 0;
-}
-
-inline bool
-operator==(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return *__lop.flags & *__rop.flags || *(__lop.flags + 1) & *(__rop.flags + 1) ||
-		   *(__lop.flags + 2) & *(__rop.flags + 2) || *(__lop.flags + 3) & *(__rop.flags + 3);
-}
-
-inline bool
-operator!=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return !(__lop == __rop);
-}
-
-inline bool
-operator<(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return __lop != __rop &&
-		   (*__lop.flags < *__rop.flags || *(__lop.flags + 1) < *(__rop.flags + 1) ||
-			*(__lop.flags + 2) < *(__rop.flags + 2) || *(__lop.flags + 3) < *(__rop.flags + 3));
-}
-
-inline bool
-operator>(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return __lop != __rop &&
-		   (*__lop.flags > *__rop.flags || *(__lop.flags + 1) > *(__rop.flags + 1) ||
-			*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
-}
-
-inline bool
-operator<=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return __lop == __rop ||
-		   (*__lop.flags < *__rop.flags || *(__lop.flags + 1) < *(__rop.flags + 1) ||
-			*(__lop.flags + 2) < *(__rop.flags + 2) || *(__lop.flags + 3) < *(__rop.flags + 3));
-}
-
-inline bool
-operator>=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
-{
-	return __lop == __rop ||
-		   (*__lop.flags > *__rop.flags || *(__lop.flags + 1) > *(__rop.flags + 1) ||
-			*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
 }
 
 // Extra description: used in objects, mobiles, and rooms //
@@ -1458,8 +1416,9 @@ struct logon_data
 	logon_data * next;
 };
 
-struct punish_data
+class punish_data
 {
+public:
 	long duration;
 	char * reason;
 	int  level;
@@ -1468,27 +1427,27 @@ struct punish_data
 
 // An affect structure. //
 class IAffectHandler;
-struct affect_data
+
+template<typename TLocation>
+struct AFFECT_DATA
 {
-	affect_data() : type(0), duration(0), modifier(0), location(0),
+	AFFECT_DATA() : type(0), duration(0), modifier(0), location(static_cast<TLocation>(0)),
 		battleflag(0), bitvector(0), caster_id(0), must_handled(0),
-		apply_time(0), next(0) {};
+		apply_time(0), next(nullptr) {};
 
 	sh_int type;		// The type of spell that caused this      //
 	int duration;	// For how long its effects will last      //
-	int modifier;		// This is added to apropriate ability     //
-	int location;		// Tells which ability to change(APPLY_XXX) //
-	long
-	battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
-	long
-	bitvector;		// Tells which bits to set (AFF_XXX) //
+	int modifier;		// This is added to appropriate ability     //
+	TLocation location;		// Tells which ability to change(APPLY_XXX) //
+	long battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
+	uint32_t bitvector;		// Tells which bits to set (AFF_XXX) //
 	long
 	caster_id; //Unique caster ID //
 	bool
 	must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
 	sh_int
 	apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
-	AFFECT_DATA *next;
+	AFFECT_DATA<TLocation> *next;
 	boost::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 };
 
@@ -1539,8 +1498,7 @@ struct load_data
 	spec_param;
 };
 
-typedef
-list < struct load_data *>load_list;
+typedef std::list<struct load_data *> load_list;
 
 struct spell_mem_queue_item
 {
@@ -1870,14 +1828,13 @@ struct weapon_app_type
 
 struct extra_affects_type
 {
-	int
-	affect;
-	int
-	set_or_clear;
+	EAffectFlag affect;
+	int set_or_clear;
 };
 
 struct class_app_type
 {
+	typedef std::vector<extra_affects_type> extra_affects_list_t;
 	int
 	unknown_weapon_fault;
 	int
@@ -1889,8 +1846,7 @@ struct class_app_type
 	int
 	max_con;
 
-	struct extra_affects_type *extra_affects;
-//	struct obj_affected_type *extra_modifiers;
+	const extra_affects_list_t* extra_affects;
 };
 
 struct race_app_type
@@ -1944,14 +1900,64 @@ struct weather_data
 	week_day_poly;
 };
 
+enum class EWeaponAffectFlag : uint32_t
+{
+	WAFF_BLINDNESS = (1 << 0),
+	WAFF_INVISIBLE = (1 << 1),
+	WAFF_DETECT_ALIGN = (1 << 2),
+	WAFF_DETECT_INVISIBLE = (1 << 3),
+	WAFF_DETECT_MAGIC = (1 << 4),
+	WAFF_SENSE_LIFE = (1 << 5),
+	WAFF_WATER_WALK = (1 << 6),
+	WAFF_SANCTUARY = (1 << 7),
+	WAFF_CURSE = (1 << 8),
+	WAFF_INFRAVISION = (1 << 9),
+	WAFF_POISON = (1 << 10),
+	WAFF_PROTECT_EVIL = (1 << 11),
+	WAFF_PROTECT_GOOD = (1 << 12),
+	WAFF_SLEEP = (1 << 13),
+	WAFF_NOTRACK = (1 << 14),
+	WAFF_BLESS = (1 << 15),
+	WAFF_SNEAK = (1 << 16),
+	WAFF_HIDE = (1 << 17),
+	WAFF_HOLD = (1 << 18),
+	WAFF_FLY = (1 << 19),
+	WAFF_SILENCE = (1 << 20),
+	WAFF_AWARENESS = (1 << 21),
+	WAFF_BLINK = (1 << 22),
+	WAFF_NOFLEE = (1 << 23),
+	WAFF_SINGLE_LIGHT = (1 << 24),
+	WAFF_HOLY_LIGHT = (1 << 25),
+	WAFF_HOLY_DARK = (1 << 26),
+	WAFF_DETECT_POISON = (1 << 27),
+	WAFF_SLOW = (1 << 28),
+	WAFF_HASTE = (1 << 29),
+	WAFF_WATER_BREATH = INT_ONE | (1 << 0),
+	WAFF_HAEMORRAGIA = INT_ONE | (1 << 1),
+	WAFF_CAMOUFLAGE = INT_ONE | (1 << 2),
+	WAFF_SHIELD = INT_ONE | (1 << 3),
+	WAFF_AIR_SHIELD = INT_ONE | (1 << 4),
+	WAFF_FIRE_SHIELD = INT_ONE | (1 << 5),
+	WAFF_ICE_SHIELD = INT_ONE | (1 << 6),
+	WAFF_MAGIC_GLASS = INT_ONE | (1 << 7),
+	WAFF_STONE_HAND = INT_ONE | (1 << 8),
+	WAFF_PRISMATIC_AURA = INT_ONE | (1 << 9),
+	WAFF_AIR_AURA = INT_ONE | (1 << 10),
+	WAFF_FIRE_AURA = INT_ONE | (1 << 11),
+	WAFF_ICE_AURA = INT_ONE | (1 << 12),
+	WAFF_DEAFNESS = INT_ONE | (1 << 13),
+};
+
+constexpr size_t WAFF_COUNT = 44;
+
+template <> EWeaponAffectFlag ITEM_BY_NAME<EWeaponAffectFlag>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM(const EWeaponAffectFlag item);
+
 struct weapon_affect_types
 {
-	int
-	aff_pos;
-	int
-	aff_bitvector;
-	int
-	aff_spell;
+	EWeaponAffectFlag aff_pos;
+	uint32_t aff_bitvector;
+	int aff_spell;
 };
 
 struct title_type
@@ -1962,26 +1968,20 @@ struct title_type
 	exp;
 };
 
-
 // element in monster and object index-tables   //
 struct index_data
 {
+	index_data() : vnum(0), number(0), stored(0), func(NULL), farg(NULL), proto(NULL), zone(0), set_idx(-1) {}
+	index_data(int _vnum) : vnum(_vnum), number(0), stored(0), func(NULL), farg(NULL), proto(NULL), zone(0), set_idx(-1) {}
+
 	int vnum;			// virtual number of this mob/obj       //
 	int number;		// number of existing units of this mob/obj //
 	int stored;		// number of things in rent file            //
-	SPECIAL(*func);
+	int (*func)(CHAR_DATA*, void*, int, char*);
 	char *farg;		// string argument for special function     //
 	struct trig_data *proto;	// for triggers... the trigger     //
 	int zone;			// mob/obj zone rnum //
 	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
-};
-
-// linked list for mob/object prototype trigger lists //
-struct trig_proto_list
-{
-	int
-	vnum;			// vnum of the trigger   //
-	struct trig_proto_list *next;	// next trigger          //
 };
 
 struct social_messg  		// No argument was supplied //
@@ -2016,12 +2016,10 @@ struct pray_affect_type
 {
 	int
 	metter;
-	int
-	location;
+	EApplyLocation location;
 	int
 	modifier;
-	long
-	bitvector;
+	uint32_t bitvector;
 	int
 	battleflag;
 };
@@ -2086,11 +2084,7 @@ struct set_struct
 
 extern int grouping[NUM_PLAYER_CLASSES][MAX_REMORT+1];
 
-
-
-
 //Polos.insert_wanted_gem
-
 struct int3
 {
 	int type;
@@ -2098,21 +2092,19 @@ struct int3
 	int qty;
 };
 
-
-typedef map< string, int3 > alias_type;
-
+typedef std::map<std::string, int3> alias_type;
 
 class insert_wanted_gem
 {
-	map< int, alias_type > content;
+	std::map<int, alias_type> content;
 
 public:
 	void init();
 	void show(CHAR_DATA *ch, int gem_vnum);
-	int get_type(int gem_vnum, string str);
-	int get_bit(int gem_vnum, string str);
-	int get_qty(int gem_vnum, string str);
-	int exist(int gem_vnum, string str);
+	int get_type(int gem_vnum, const std::string& str);
+	int get_bit(int gem_vnum, const std::string& str);
+	int get_qty(int gem_vnum, const std::string& str);
+	int exist(int gem_vnum, const std::string& str);
 };
 
 //-Polos.insert_wanted_gem
@@ -2126,7 +2118,7 @@ struct mob_guardian
 	std::vector<zone_vnum> agro_argressors_in_zones;
 };
 
-typedef map <int, mob_guardian> guardian_type;
+typedef std::map<int, mob_guardian> guardian_type;
 
 //-Polud
 
@@ -2134,4 +2126,3 @@ typedef map <int, mob_guardian> guardian_type;
 
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-

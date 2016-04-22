@@ -26,13 +26,9 @@
 #include "sysdep.h"
 #include "conf.h"
 
-// List each room saved, was used for debugging.
-#if 0
-#define REDIT_LIST	1
-#endif
+#include <vector>
 
 // * External data structures.
-extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern const char *room_bits[];
 extern const char *sector_types[];
@@ -126,10 +122,10 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 	else
 	{
 		// если комнаты не было - добавляем новую
-		std::vector<ROOM_DATA *>::iterator it = world.begin();
+		auto it = world.cbegin();
 		advance(it, FIRST_ROOM);
 		int i = FIRST_ROOM;
-		for (; it != world.end(); ++it, ++i)
+		for (; it != world.cend(); ++it, ++i)
 			if ((*it)->number > OLC_NUM(d))
 				break;
 
@@ -140,7 +136,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		new_room->func = NULL;
 		room_num = i; // рнум новой комнаты
 
-		if (it != world.end())
+		if (it != world.cend())
 		{
 			world.insert(it, new_room);
 			// если комната потеснила рнумы, то их надо переписать у людей/шмота в этих комнатах
@@ -155,7 +151,9 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 			}
 		}
 		else
+		{
 			world.push_back(new_room);
+		}
 		fix_ingr_chest_rnum(room_num);//Фиксим позиции сундуков с инграми
 
 		// Copy world table over to new one.
@@ -289,7 +287,7 @@ void redit_save_to_disk(int zone_num)
 
 			// * Forget making a buffer, lets just write the thing now.
 			*buf2 = '\0';
-			tascii(&room->room_flags.flags[0], 4, buf2);
+			room->flags_tascii(4, buf2);
 			fprintf(fp, "#%d\n%s~\n%s~\n%d %s %d\n", counter,
 					room->name ? room->name : "неопределено", buf1,
 					zone_table[room->zone].number, buf2, room->sector_type);
@@ -391,7 +389,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	// * if exit doesn't exist, alloc/create it
 	if (!OLC_EXIT(d))
 	{
-		CREATE(OLC_EXIT(d), EXIT_DATA, 1);
+		CREATE(OLC_EXIT(d), 1);
 		OLC_EXIT(d)->to_room = NOWHERE;
 	}
 
@@ -482,7 +480,7 @@ void redit_disp_flag_menu(DESCRIPTOR_DATA * d)
 				room_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_ROOM(d)->room_flags, room_bits, buf1, ",", true);
+	OLC_ROOM(d)->flags_sprint(buf1, ",", true);
 	sprintf(buf, "\r\nФлаги комнаты: %s%s%s\r\n" "Введите флаг комнаты (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = REDIT_FLAGS;
@@ -514,7 +512,7 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 	get_char_cols(d->character);
 	room = OLC_ROOM(d);
 
-	sprintbits(room->room_flags, room_bits, buf1, ",");
+	room->flags_sprint(buf1, ",");
 	sprinttype(room->sector_type, sector_types, buf2);
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
@@ -557,7 +555,7 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 			&& room->dir_option[DOWN]->to_room !=
 			NOWHERE ? world[room->dir_option[DOWN]->to_room]->
 			number : NOWHERE, grn, nrm, grn, nrm, cyn,
-			room->ing_list ? "Есть" : "Нет", grn, nrm, cyn, room->proto_script ? "Set." : "Not Set.", grn, nrm);
+			room->ing_list ? "Есть" : "Нет", grn, nrm, cyn, !room->proto_script.empty() ? "Set." : "Not Set.", grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = REDIT_MAIN_MENU;
@@ -671,7 +669,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			// * If the extra description doesn't exist.
 			if (!OLC_ROOM(d)->ex_description)
 			{
-				CREATE(OLC_ROOM(d)->ex_description, EXTRA_DESCR_DATA, 1);
+				CREATE(OLC_ROOM(d)->ex_description, 1);
 				OLC_ROOM(d)->ex_description->next = NULL;
 			}
 			OLC_DESC(d) = OLC_ROOM(d)->ex_description;
@@ -727,7 +725,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else
 		{
 			// * Toggle the bit.
-			TOGGLE_BIT(OLC_ROOM(d)->room_flags.flags[plane], (1 << bit));
+			OLC_ROOM(d)->toggle_flag(plane, 1 << bit);
 			redit_disp_flag_menu(d);
 		}
 		return;
@@ -964,7 +962,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				else
 				{
 					// * Make new extra description and attach at end.
-					CREATE(new_extra, EXTRA_DESCR_DATA, 1);
+					CREATE(new_extra, 1);
 					OLC_DESC(d)->next = new_extra;
 					OLC_DESC(d) = new_extra;
 				}

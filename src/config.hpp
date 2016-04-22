@@ -19,6 +19,9 @@ enum EOutputStream
 	LAST_LOG = IMLOG
 };
 
+template <> EOutputStream ITEM_BY_NAME<EOutputStream>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM<EOutputStream>(const EOutputStream spell);
+
 class CLogInfo
 {
 private:

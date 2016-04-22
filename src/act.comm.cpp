@@ -12,13 +12,6 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include <sstream>
-#include <list>
-#include <string>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -34,6 +27,15 @@
 #include "obj.hpp"
 #include "room.hpp"
 #include "spam.hpp"
+#include "char_obj_utils.inl"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <sstream>
+#include <list>
+#include <string>
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -48,29 +50,30 @@ bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
 extern char *diag_timer_to_char(OBJ_DATA * obj);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
-ACMD(do_say);
-ACMD(do_gsay);
-ACMD(do_tell);
-ACMD(do_reply);
-ACMD(do_spec_comm);
-ACMD(do_write);
-ACMD(do_page);
-ACMD(do_gen_comm);
-ACMD(do_pray_gods);
-ACMD(do_remember_char);
+void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gsay(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_reply(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_spec_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_write(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_page(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_pray_gods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 // shapirus
-ACMD(do_ignore);
+void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
 
-ACMD(do_say)
+void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
 	CHAR_DATA *to;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -117,25 +120,17 @@ ACMD(do_say)
 	}
 }
 
-
-ACMD(do_gsay)
+void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *k;
 	struct follow_type *f;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
 	}
-
-	/* Непонятно нафига нужно
-	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
-	{
-		send_to_char(SOUNDPROOF, ch);
-		return;
-	}
-	*/
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
@@ -145,7 +140,7 @@ ACMD(do_gsay)
 
 	skip_spaces(&argument);
 
-	if (!AFF_FLAGGED(ch, AFF_GROUP))
+	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		send_to_char("Вы не являетесь членом группы!\r\n", ch);
 		return;
@@ -161,11 +156,11 @@ ACMD(do_gsay)
 
 		sprintf(buf, "$n сообщил$g группе : '%s'", argument);
 
-		if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && !ignores(k, ch, IGNORE_GROUP))
+		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && (k != ch) && !ignores(k, ch, IGNORE_GROUP))
 		{
 			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
 			// added by WorM  групптелы 2010.10.13
-			if(!AFF_FLAGGED(k, AFF_DEAFNESS) && GET_POS(k) > POS_DEAD)
+			if(!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS) && GET_POS(k) > POS_DEAD)
 			{
 				sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, k) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, k), argument);
 				k->remember_add(buf1, Remember::ALL);
@@ -174,19 +169,23 @@ ACMD(do_gsay)
 			//end by WorM
 		}
 		for (f = k->followers; f; f = f->next)
-			if (AFF_FLAGGED(f->follower, AFF_GROUP) && (f->follower != ch) &&
-					!ignores(f->follower, ch, IGNORE_GROUP))
+		{
+			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+				&& (f->follower != ch)
+				&& !ignores(f->follower, ch, IGNORE_GROUP))
+			{
+				act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
+				// added by WorM  групптелы 2010.10.13
+				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_DEAFNESS)
+					&& GET_POS(f->follower) > POS_DEAD)
 				{
-					act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
-					// added by WorM  групптелы 2010.10.13
-					if(!AFF_FLAGGED(f->follower, AFF_DEAFNESS) && GET_POS(f->follower) > POS_DEAD)
-					{
-						sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, f->follower), argument);
-						f->follower->remember_add(buf1, Remember::ALL);
-						f->follower->remember_add(buf1, Remember::GROUP);
-					}
-					//end by WorM
+					sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, f->follower), argument);
+					f->follower->remember_add(buf1, Remember::ALL);
+					f->follower->remember_add(buf1, Remember::GROUP);
 				}
+				//end by WorM
+			}
+		}
 
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
@@ -303,7 +302,7 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
 			  (PRF_FLAGGED(vict, PRF_NOTELL) || ignores(vict, ch, IGNORE_TELL))) ||
 			 ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
 		act("$N не сможет вас услышать.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
-	else if (GET_POS(vict) < POS_RESTING || AFF_FLAGGED(vict, AFF_DEAFNESS))
+	else if (GET_POS(vict) < POS_RESTING || AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
 		act("$N вас не услышит.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else
 		return (TRUE);
@@ -315,14 +314,14 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
  * Yes, do_tell probably could be combined with whisper and ask, but
  * called frequently, and should IMHO be kept as tight as possible.
  */
-ACMD(do_tell)
+void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict = NULL;
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -356,15 +355,14 @@ ACMD(do_tell)
 	}
 }
 
-
-ACMD(do_reply)
+void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *tch = character_list;
 
 	if (IS_NPC(ch))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -413,14 +411,13 @@ ACMD(do_reply)
 	}
 }
 
-
-ACMD(do_spec_comm)
+void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *vict;
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
 	char vict3[MAX_INPUT_LENGTH];
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -487,11 +484,9 @@ ACMD(do_spec_comm)
 	}
 }
 
-
-
 #define MAX_NOTE_LENGTH 4096	// arbitrary
 
-ACMD(do_write)
+void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *paper, *pen = NULL;
 	char *papername, *penname;
@@ -532,12 +527,12 @@ ACMD(do_write)
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(paper) == ITEM_PEN)  	// oops, a pen..
+		if (GET_OBJ_TYPE(paper) == obj_flag_data::ITEM_PEN)  	// oops, a pen..
 		{
 			pen = paper;
 			paper = NULL;
 		}
-		else if (GET_OBJ_TYPE(paper) != ITEM_NOTE)
+		else if (GET_OBJ_TYPE(paper) != obj_flag_data::ITEM_NOTE)
 		{
 			send_to_char("Вы не можете на ЭТОМ писать.\r\n", ch);
 			return;
@@ -562,12 +557,18 @@ ACMD(do_write)
 
 
 	// ok.. now let's see what kind of stuff we've found
-	if (GET_OBJ_TYPE(pen) != ITEM_PEN)
+	if (GET_OBJ_TYPE(pen) != obj_flag_data::ITEM_PEN)
+	{
 		act("Вы не умеете писать $o4.", FALSE, ch, pen, 0, TO_CHAR);
-	else if (GET_OBJ_TYPE(paper) != ITEM_NOTE)
+	}
+	else if (GET_OBJ_TYPE(paper) != obj_flag_data::ITEM_NOTE)
+	{
 		act("Вы не можете писать на $o5.", FALSE, ch, paper, 0, TO_CHAR);
+	}
 	else if (paper->action_description)
+	{
 		send_to_char("Там уже что-то записано.\r\n", ch);
+	}
 	else  			// we can write - hooray!
 	{
 		/* this is the PERFECT code example of how to set up:
@@ -592,7 +593,7 @@ ACMD(do_write)
 	}
 }
 
-ACMD(do_page)
+void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *d;
 	CHAR_DATA *vict;
@@ -649,7 +650,7 @@ struct communication_type
 	int noflag;
 };
 
-ACMD(do_gen_comm)
+void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	DESCRIPTOR_DATA *i;
 	char color_on[24];
@@ -710,10 +711,10 @@ ACMD(do_gen_comm)
 
 	// to keep pets, etc from being ordered to shout
 //  if (!ch->desc)
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -922,15 +923,14 @@ ACMD(do_gen_comm)
 	}
 }
 
-
-ACMD(do_mobshout)
+void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *i;
 
 	// to keep pets, etc from being ordered to shout
 	if (!(IS_NPC(ch) || WAITLESS(ch)))
 		return;
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	skip_spaces(&argument); //убираем пробел в начале сообщения
@@ -951,7 +951,7 @@ ACMD(do_mobshout)
 	}
 }
 
-ACMD(do_pray_gods)
+void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	DESCRIPTOR_DATA *i;
@@ -1050,7 +1050,7 @@ ACMD(do_pray_gods)
 /**
 * Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
 */
-ACMD(do_offtop)
+void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_IGVA_PRONA))
 	{
@@ -1131,7 +1131,6 @@ void ignore_usage(CHAR_DATA * ch)
 
 int ign_find_id(char *name, long *id)
 {
-	extern struct player_index_element *player_table;
 	extern int top_of_p_table;
 	int i;
 
@@ -1150,7 +1149,6 @@ int ign_find_id(char *name, long *id)
 
 const char * ign_find_name(long id)
 {
-	extern struct player_index_element *player_table;
 	extern int top_of_p_table;
 	int i;
 
@@ -1191,7 +1189,7 @@ char *text_ignore_modes(unsigned long mode, char *buf)
 	return buf;
 }
 
-ACMD(do_ignore)
+void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
@@ -1307,7 +1305,7 @@ ACMD(do_ignore)
 // создаем новый элемент списка в хвосте, если не нашли
 		if (!ignore || ignore->id != vict_id)
 		{
-			CREATE(cur, struct ignore_data, 1);
+			CREATE(cur, 1);
 			cur->next = NULL;
 			if (!ignore)	// создаем вообще новый список, если еще нет
 				IGNORE_LIST(ch) = cur;

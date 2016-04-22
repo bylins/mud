@@ -5,6 +5,7 @@
 #include "parcel.hpp"
 
 #include "obj.hpp"
+#include "char_obj_utils.inl"
 #include "db.h"
 #include "interpreter.h"
 #include "comm.h"
@@ -171,16 +172,16 @@ int total_sended(CHAR_DATA *ch)
 // * Проверка возможности отправить шмотку почтой.
 bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 {
-	if (IS_OBJ_STAT(obj, ITEM_NODROP)
-			|| IS_OBJ_STAT(obj, ITEM_NORENT)
-			|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
-			|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
-			|| OBJ_FLAGGED(obj, ITEM_DECAY)
-			|| OBJ_FLAGGED(obj, ITEM_NORENT)
-			|| GET_OBJ_TYPE(obj) == ITEM_KEY
-			|| GET_OBJ_RENT(obj) < 0
-			|| GET_OBJ_RNUM(obj) <= NOTHING
-			|| GET_OBJ_OWNER(obj))
+	if (obj->get_extraflag(EExtraFlag::ITEM_NODROP)
+		|| obj->get_extraflag(EExtraFlag::ITEM_NORENT)
+		|| obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
+		|| obj->get_extraflag(EExtraFlag::ITEM_REPOP_DECAY)
+		|| obj->get_extraflag(EExtraFlag::ITEM_DECAY)
+		|| obj->get_extraflag(EExtraFlag::ITEM_NORENT)
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY
+		|| GET_OBJ_RENT(obj) < 0
+		|| GET_OBJ_RNUM(obj) <= NOTHING
+		|| GET_OBJ_OWNER(obj))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 				"$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
@@ -188,7 +189,8 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	}
-	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && obj->contains)
+	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
+		&& obj->contains)
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 				"$n сказал$g вам : 'В %s что-то лежит.'\r\n", OBJ_PAD(obj, 5));
@@ -210,18 +212,19 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 	{
 			switch (GET_SEX(&t_vict))
 			{
-				case SEX_MALE:
-			act("$n сказал$g вам : 'Знаю я такого добра молодца - эта вещь явно на него не налезет.'\r\n",
-				FALSE, mailman, 0, ch, TO_VICT);
-			break;
-			case SEX_FEMALE:
-			
-			act("$n сказал$g вам : 'Знаю я такую красну девицу - эта вещь явно на нее не налезет.'\r\n",
-				FALSE, mailman, 0, ch, TO_VICT);
-			break;
+			case ESex::SEX_MALE:
+				act("$n сказал$g вам : 'Знаю я такого добра молодца - эта вещь явно на него не налезет.'\r\n",
+					FALSE, mailman, 0, ch, TO_VICT);
+				break;
+
+			case ESex::SEX_FEMALE:
+				act("$n сказал$g вам : 'Знаю я такую красну девицу - эта вещь явно на нее не налезет.'\r\n",
+					FALSE, mailman, 0, ch, TO_VICT);
+				break;
+
 			default:
-			act("$n сказал$g вам : 'Знаю я сие чудо бесполое - эта вещь явно на него не налезет.'\r\n",
-				FALSE, mailman, 0, ch, TO_VICT);
+				act("$n сказал$g вам : 'Знаю я сие чудо бесполое - эта вещь явно на него не налезет.'\r\n",
+					FALSE, mailman, 0, ch, TO_VICT);
 		}
 		return 0;
 	}
@@ -280,8 +283,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
 	check_auction(NULL, obj);
-	OBJ_DATA *temp;
-	REMOVE_FROM_LIST(obj, object_list, next);
+	REMOVE_FROM_LIST(obj, object_list);
 //	ObjectAlias::remove(obj);
 }
 
@@ -503,7 +505,7 @@ void return_money(std::string const &name, int money, bool add)
 // * Экстра-описание на самой посылке при получении.
 void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 {
-	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
+	CREATE(obj->ex_description, 1);
 	obj->ex_description->keyword = str_dup("посылка бандероль пакет ящик parcel box case chest");
 	obj->ex_description->next = 0;
 
@@ -541,16 +543,16 @@ OBJ_DATA * create_parcel()
 	obj->PNames[3] = str_dup("посылку");
 	obj->PNames[4] = str_dup("посылкой");
 	obj->PNames[5] = str_dup("посылке");
-	GET_OBJ_SEX(obj) = SEX_FEMALE;
-	GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
-	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
+	GET_OBJ_SEX(obj) = ESex::SEX_FEMALE;
+	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
+	GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 	GET_OBJ_WEIGHT(obj) = 1;
 	obj->set_cost(1);
 	obj->set_rent(1);
 	obj->set_rent_eq(1);
 	obj->set_timer(24 * 60);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
+	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extraflag(EExtraFlag::ITEM_DECAY);
 	return obj;
 }
 
@@ -750,7 +752,7 @@ void load()
 	int fsize = ftell(fl);
 
 	char *data, *readdata;
-	CREATE(readdata, char, fsize + 1);
+	CREATE(readdata, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl))
 	{
@@ -782,8 +784,7 @@ void load()
 		}
 		add_parcel(node.target, node.sender, node.obj_node);
 		// из глобального списка изымаем
-		OBJ_DATA *temp;
-		REMOVE_FROM_LIST(node.obj_node.obj_, object_list, next);
+		REMOVE_FROM_LIST(node.obj_node.obj_, object_list);
 //		ObjectAlias::remove(node.obj_node.obj_);
 	}
 
@@ -905,23 +906,6 @@ void show_stats(CHAR_DATA *ch)
 	}
 	send_to_char(ch, "  Почта: предметов в ожидании %d, доставлено с ребута %d\r\n", objs, was_sended);
 }
-
-// * Пересчет рнумов шмоток на почте в случае добавления новых через олц.
-void renumber_obj_rnum(int rnum)
-{
-	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
-	{
-		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
-		{
-			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
-			{
-				if (GET_OBJ_RNUM(it3->obj_) >= rnum)
-					GET_OBJ_RNUM(it3->obj_)++;
-			}
-		}
-	}
-}
-
 
 int delete_obj(int vnum)
 {

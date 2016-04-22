@@ -2,18 +2,10 @@
 // Copyright (c) 2007 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <map>
-#include <list>
-#include <sstream>
-#include <cmath>
-#include <bitset>
-#include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
-
 #include "depot.hpp"
+
 #include "db.h"
 #include "handler.h"
-#include "utils.h"
 #include "comm.h"
 #include "auction.h"
 #include "exchange.h"
@@ -28,8 +20,19 @@
 #include "features.hpp"
 #include "house.h"
 #include "obj.hpp"
+#include "char_obj_utils.inl"
+#include "utils.h"
 
-extern SPECIAL(bank);
+#include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
+
+#include <map>
+#include <list>
+#include <sstream>
+#include <cmath>
+#include <bitset>
+
+extern int bank(CHAR_DATA*, void*, int, char*);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
@@ -462,7 +465,7 @@ void init_depot()
 			int rnum = real_object(tmp_obj.vnum);
 			if (rnum >= 0)
 			{
-				obj_index[rnum].stored++;
+				obj_proto.inc_stored(rnum);
 				tmp_node.add_cost_per_day(tmp_obj.rent_cost);
 				tmp_node.offline_list.push_back(tmp_obj);
 			}
@@ -645,7 +648,7 @@ void CharNode::save_online_objs()
 {
 	if (need_save)
 	{
-		log("Save obj: %s depot", ch->get_name());
+		log("Save obj: %s depot", ch->get_name().c_str());
 		ObjSaveSync::check(ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
 		write_obj_file(name, PERS_DEPOT_FILE, pers_online);
@@ -809,7 +812,9 @@ void CharNode::update_offline_item(long uid)
 			add_purged_message(uid, obj_it->vnum, obj_it->uid);
 			// шмотка уходит в лоад			
 			if (rnum >= 0)
-				obj_index[rnum].stored--;
+			{
+				obj_proto.dec_stored(rnum);
+			}
 			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
 			offline_list.erase(obj_it++);
 		}
@@ -841,7 +846,9 @@ void CharNode::reset()
 		depot_log("reset_%s: offline erase %d %d", name.c_str(), obj->vnum, obj->uid);
 		int rnum = real_object(obj->vnum);
 		if (rnum >= 0)
-			obj_index[rnum].stored--;
+		{
+			obj_proto.dec_stored(rnum);
+		}
 	}
 	offline_list.clear();
 
@@ -872,8 +879,9 @@ bool is_depot(OBJ_DATA *obj)
 void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 	OBJ_DATA *obj, int count, CHAR_DATA *ch)
 {
-	std::stringstream &out = (GET_OBJ_TYPE(obj) == ITEM_MING
-		|| GET_OBJ_TYPE(obj) == ITEM_MATERIAL) ? i_out : s_out;
+	const bool output_to_i = GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MATERIAL;
+	std::stringstream &out = output_to_i ? i_out : s_out;
 
 	out << obj->short_description;
 	out << char_get_custom_label(obj, ch);
@@ -911,8 +919,8 @@ std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 	auto prev_obj_it = cont.cend();
 	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it)
 	{
-		if (GET_OBJ_TYPE(*obj_it) == ITEM_MING
-			|| GET_OBJ_TYPE(*obj_it) == ITEM_MATERIAL)
+		if (GET_OBJ_TYPE(*obj_it) == obj_flag_data::ITEM_MING
+			|| GET_OBJ_TYPE(*obj_it) == obj_flag_data::ITEM_MATERIAL)
 		{
 			++i_cnt;
 		}
@@ -1040,7 +1048,7 @@ void show_depot(CHAR_DATA *ch)
 */
 void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (GET_OBJ_TYPE(obj) != ITEM_MONEY)
+	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY)
 	{
 		return;
 	}
@@ -1058,20 +1066,21 @@ void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
-	if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
-			|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
-			|| OBJ_FLAGGED(obj, ITEM_NOSELL)
-			|| OBJ_FLAGGED(obj, ITEM_DECAY)
-			|| OBJ_FLAGGED(obj, ITEM_NORENT)
-			|| GET_OBJ_TYPE(obj) == ITEM_KEY
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_DECAY)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
+			|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY
 			|| GET_OBJ_RENT(obj) < 0
 			|| GET_OBJ_RNUM(obj) <= NOTHING
-			|| OBJ_FLAGGED(obj, ITEM_NAMED))//added by WorM именные вещи нельзя положить в хран
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))//added by WorM именные вещи нельзя положить в хран
 	{
 		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", OBJ_PAD(obj, 3));
 		return 0;
 	}
-	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && obj->contains)
+	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
+		&& obj->contains)
 	{
 		send_to_char(ch, "В %s что-то лежит.\r\n", OBJ_PAD(obj, 5));
 		return 0;
@@ -1092,8 +1101,8 @@ unsigned count_inrg(const ObjListType &cont)
 	unsigned ingr_cnt = 0;
 	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it)
 	{
-		if (GET_OBJ_TYPE(*obj_it) == ITEM_MING
-			|| GET_OBJ_TYPE(*obj_it) == ITEM_MATERIAL)
+		if (GET_OBJ_TYPE(*obj_it) == obj_flag_data::ITEM_MING
+			|| GET_OBJ_TYPE(*obj_it) == obj_flag_data::ITEM_MATERIAL)
 		{
 			++ingr_cnt;
 		}
@@ -1122,7 +1131,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 		return 0;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ITEM_MONEY)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MONEY)
 	{
 		put_gold_chest(ch, obj);
 		return 1;
@@ -1142,26 +1151,23 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 
 	const size_t ingr_cnt = count_inrg(it->second.pers_online);
 	const size_t staff_cnt = it->second.pers_online.size() - ingr_cnt;
-	const bool is_ingr = (GET_OBJ_TYPE(obj) == ITEM_MING
-		|| GET_OBJ_TYPE(obj) == ITEM_MATERIAL) ? true : false;
+	const bool is_ingr = GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MATERIAL;
 
 	if (is_ingr && ingr_cnt >= MAX_PERS_INGR_SLOTS)
 	{
-		send_to_char(
-			"В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);
+		send_to_char("В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);
 		return 0;
 	}
 	else if (!is_ingr && staff_cnt >= get_max_pers_slots(ch))
 	{
-		send_to_char(
-			"В вашем хранилище совсем не осталось места для вещей :(.\r\n", ch);
+		send_to_char("В вашем хранилище совсем не осталось места для вещей :(.\r\n", ch);
 		return 0;
 	}
 
 	if (!ch->get_bank() && !ch->get_gold())
 	{
-		send_to_char(ch,
-			"У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n",
+		send_to_char(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n",
 			OBJ_PAD(obj, 5));
 		return 0;
 	}
@@ -1177,8 +1183,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 
 	obj_from_char(obj);
 	check_auction(NULL, obj);
-	OBJ_DATA *temp;
-	REMOVE_FROM_LIST(obj, object_list, next);
+	REMOVE_FROM_LIST(obj, object_list);
 //	ObjectAlias::remove(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
@@ -1420,7 +1425,9 @@ void CharNode::load_online_objs(int file_type, bool reload)
 				// увеличивается в read_one_object_new через read_object
 				int rnum = real_object(GET_OBJ_VNUM(obj));
 				if (rnum >= 0)
-					obj_index[rnum].stored--;
+				{
+					obj_proto.dec_stored(rnum);
+				}
 			}
 			else
 			{
@@ -1434,8 +1441,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 
 		pers_online.push_front(obj);
 		// убираем ее из глобального листа, в который она добавилась еще на стадии чтения из файла
-		OBJ_DATA *temp;
-		REMOVE_FROM_LIST(obj, object_list, next);
+		REMOVE_FROM_LIST(obj, object_list);
 //		ObjectAlias::remove(obj);
 	}
 	delete [] databuf;
@@ -1498,19 +1504,11 @@ void CharNode::online_to_offline(ObjListType &cont)
 		// из макс.в мире в игре она уходит в ренту
 		int rnum = real_object(tmp_obj.vnum);
 		if (rnum >= 0)
-			obj_index[rnum].stored++;
+		{
+			obj_proto.inc_stored(rnum);
+		}
 	}
 	cont.clear();
-}
-
-// * Пересчет рнумов шмоток в хранилищах в случае добавления новых через олц.
-void renumber_obj_rnum(int rnum)
-{
-	depot_log("renumber_obj_rnum");
-	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
-		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
-			if (GET_OBJ_RNUM(*obj_it) >= rnum)
-				GET_OBJ_RNUM(*obj_it)++;
 }
 
 /**

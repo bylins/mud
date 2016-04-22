@@ -31,13 +31,12 @@
 #include "room.hpp"
 
 // Externals
-ACMD(do_say);
-ACMD(do_sense);
+void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sense(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern const char *dirs[];
 extern const char *DirsTo[];
 extern int track_through_doors;
 extern CHAR_DATA *mob_proto;
-extern struct player_index_element *player_table;
 extern int top_of_p_table;
 int attack_best(CHAR_DATA * ch, CHAR_DATA * vict);
 
@@ -46,7 +45,7 @@ void bfs_enqueue(room_rnum room, int dir);
 void bfs_dequeue(void);
 void bfs_clear_queue(void);
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);
-ACMD(do_track);
+void do_track(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 struct bfs_queue_struct
 {
@@ -58,8 +57,8 @@ struct bfs_queue_struct
 #define EDGE_WORLD  2
 
 // Utility macros
-#define MARK(room)	(SET_BIT(ROOM_FLAGS(room, ROOM_BFS_MARK), ROOM_BFS_MARK))
-#define UNMARK(room)	(REMOVE_BIT(ROOM_FLAGS(room, ROOM_BFS_MARK), ROOM_BFS_MARK))
+#define MARK(room)	(GET_ROOM(room)->set_flag(ROOM_BFS_MARK))
+#define UNMARK(room)	(GET_ROOM(room)->unset_flag(ROOM_BFS_MARK))
 #define IS_MARKED(room)	(ROOM_FLAGGED(room, ROOM_BFS_MARK))
 #define TOROOM(x, y)	(world[(x)]->dir_option[(y)]->to_room)
 #define IS_CLOSED(x, y)	(EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_CLOSED))
@@ -172,12 +171,12 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 
 
 // * Functions and Commands which use the above functions. *
-int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
+int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 {
 	int percent, dir;
 	int num, current_skillpercent, if_sense;
 
-	if (AFF_FLAGGED(victim, AFF_NOTRACK) && (skill_no != SKILL_SENSE))
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_NOTRACK) && (skill_no != SKILL_SENSE))
 	{
 		return BFS_ERROR;
 	}
@@ -217,7 +216,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
-ACMD(do_sense)
+void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 	int dir;
@@ -229,7 +228,7 @@ ACMD(do_sense)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_BLIND))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		send_to_char("Вы слепы как крот.\r\n", ch);
 		return;
@@ -254,7 +253,7 @@ ACMD(do_sense)
 
 	// We can't track the victim.
 	//Старый комментарий. Раньше было много !трека, теперь его мало
-	if (AFF_FLAGGED(vict, AFF_NOTRACK))
+	if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK))
 	{
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
@@ -293,7 +292,7 @@ const char *track_when[] = { "совсем свежие",
 
 #define CALC_TRACK(ch,vict) (calculate_skill(ch,SKILL_TRACK, 0))
 
-int age_track(CHAR_DATA * ch, int time, int calc_track)
+int age_track(CHAR_DATA* /*ch*/, int time, int calc_track)
 {
 	int when = 0;
 
@@ -319,8 +318,7 @@ int age_track(CHAR_DATA * ch, int time, int calc_track)
 	return (when);
 }
 
-
-ACMD(do_track)
+void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict = NULL;
 	struct track_data *track;
@@ -334,7 +332,7 @@ ACMD(do_track)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_BLIND))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		send_to_char("Вы слепы как крот.\r\n", ch);
 		return;
@@ -454,8 +452,7 @@ ACMD(do_track)
 	return;
 }
 
-
-ACMD(do_hidetrack)
+void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	struct track_data *track[NUM_OF_DIRS + 1], *temp;
 	int percent, prob, i, croom, found = FALSE, dir, rdir;

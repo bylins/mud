@@ -10,6 +10,7 @@
 #ifndef __ITEM_CREATION_HPP__
 #define __ITEM_CREATION_HPP__
 
+#include "skills.h"
 #include "interpreter.h"
 #include "features.hpp"
 #include "conf.h"
@@ -61,9 +62,9 @@ void mredit_parse(struct DESCRIPTOR_DATA *d, char *arg);
 void mredit_disp_menu(struct DESCRIPTOR_DATA *d);
 void mredit_disp_ingr_menu(struct DESCRIPTOR_DATA *d);
 
-ACMD(do_list_make);
-ACMD(do_edit_make);
-ACMD(do_make_item);
+void do_list_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_edit_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_make_item(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 void init_make_items();
 // Старая структура мы ее используем в перековке.
@@ -74,8 +75,8 @@ struct create_item_type
 	int min_weight;
 	int max_weight;
 	boost::array<int, MAX_PROTO> proto;
-	int skill;
-	int wear;
+	ESkill skill;
+	std::underlying_type<EWearFlag>::type wear;
 };
 // Новая структура мы ее используем при создании вещей из ингридиентов
 struct ingr_part_type
@@ -88,7 +89,7 @@ struct make_skill_type
 {
 	const char *name;
 	const char *short_name;
-	int num;
+	ESkill num;
 };
 
 class MakeRecept;
@@ -142,21 +143,20 @@ class MakeRecept
 
 	int add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta);
 
-	int get_ingr_lev(struct OBJ_DATA *ingrobj);
+	int get_ingr_lev(OBJ_DATA *ingrobj);
 
 	void make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt);
 
 	void make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS]);
 
-	int get_ingr_pow(struct OBJ_DATA *ingrobj);
+	int get_ingr_pow(OBJ_DATA *ingrobj);
 
 	void add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to);
 
 public:
-
 	bool locked;
 
-	int skill;
+	ESkill skill;
 	int obj_proto;
 	boost::array<ingr_part_type, MAX_PARTS> parts;
 

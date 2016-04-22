@@ -28,6 +28,8 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <vector>
+
 #define		VAR_CHAR	'@'
 
 #define imlog(lvl,str)	mudlog(str, lvl, LVL_BUILDER, IMLOG, TRUE)
@@ -35,16 +37,13 @@
 // из spec_proc.c
 char *how_good(CHAR_DATA * ch, int percent);
 
-
 extern CHAR_DATA *mob_proto;
-extern vector < OBJ_DATA * >obj_proto;
-extern INDEX_DATA *obj_index;
 extern INDEX_DATA *mob_index;
 
-ACMD(do_rset);
-ACMD(do_recipes);
-ACMD(do_cook);
-ACMD(do_imlist);
+void do_rset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_imlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 im_type *imtypes = NULL;	// Список зарегестрированных ТИПОВ/МЕТАТИПОВ
 int top_imtypes = -1;		// Последний номер типа ИМ
@@ -143,7 +142,7 @@ void TypeListAllocate(im_tlist * tl, int size)
 	if (tl->size < size)
 	{
 		long *ptr;
-		CREATE(ptr, long, size);
+		CREATE(ptr, size);
 		if (tl->size)
 		{
 			memcpy(ptr, tl->types, size * 4);
@@ -315,7 +314,7 @@ int im_assign_power(OBJ_DATA * obj)
 	int j;
 	char *ptr;
 
-// Перевод номера index в rnum
+	// Перевод номера index в rnum
 	rind = im_type_rnum(GET_OBJ_VAL(obj, IM_TYPE_SLOT));
 	if (rind == -1)
 		return 1;	// неверный номер ТИПА ингредиента
@@ -334,15 +333,16 @@ int im_assign_power(OBJ_DATA * obj)
 			return 3;	// неверный VNUM базового моба
 		GET_OBJ_VAL(obj, IM_POWER_SLOT) = (GET_LEVEL(mob_proto + rnum) + 3) * 3 / 4;
 	}
-// Попробовать найти описатель ВИДА
-	for (p = imtypes[rind].head, sample = NULL;
-			p && p->power <= GET_OBJ_VAL(obj, IM_POWER_SLOT); sample = p, p = p->next);
+	// Попробовать найти описатель ВИДА
+	for (p = imtypes[rind].head, sample = NULL; p && p->power <= GET_OBJ_VAL(obj, IM_POWER_SLOT); sample = p, p = p->next);
 
 	if (sample)
+	{
 		GET_OBJ_SEX(obj) = sample->sex;
+	}
 
-// Замена описаний
-// Падежи, описание, alias
+	// Замена описаний
+	// Падежи, описание, alias
 	for (j = 0; j < 6; ++j)
 	{
 		ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], j);
@@ -365,8 +365,8 @@ int im_assign_power(OBJ_DATA * obj)
 		free(GET_OBJ_ALIAS(obj));
 	GET_OBJ_ALIAS(obj) = str_dup(replace_alias(ptr, sample, rnum, "m"));
 
-// Обработка других полей объекта
-// -- пока не сделано --
+	// Обработка других полей объекта
+	// -- пока не сделано --
 
 	return 0;
 }
@@ -533,12 +533,12 @@ void init_im(void)
 		{
 			if (mbs == NULL)
 			{
-				CREATE(mbs, im_memb, 1);
+				CREATE(mbs, 1);
 				mptr = mbs;
 			}
 			else
 			{
-				CREATE(mptr->next, im_memb, 1);
+				CREATE(mptr->next, 1);
 				mptr = mptr->next;
 			}
 			// Количество пар alias
@@ -553,11 +553,11 @@ void init_im(void)
 	}
 
 	// Выделение памяти для imtypes и заполнение массива
-	CREATE(imtypes, im_type, top_imtypes + 1);
+	CREATE(imtypes, top_imtypes + 1);
 	top_imtypes = -1;
 
 	// Выделение пямяти для imrecipes и заполнение массива
-	CREATE(imrecipes, im_recipe, top_imrecipes + 1);
+	CREATE(imrecipes, top_imrecipes + 1);
 	top_imrecipes = -1;
 
 	// ПРОХОД 2
@@ -622,9 +622,9 @@ void init_im(void)
 				{
 					char **p;
 					im_memb *ins_after, *ins_before;
-					CREATE(mptr->aliases, char *, 2 * (mptr->power + 1));
+					CREATE(mptr->aliases, 2 * (mptr->power + 1));
 					mptr->power = power;
-					mptr->sex = sex;
+					mptr->sex = static_cast<ESex>(sex);
 					p = mptr->aliases;
 					while (get_line(im_file, tmp))
 					{
@@ -812,7 +812,7 @@ void init_im(void)
 							break;
 						while (n--)
 						{
-							CREATE(adi, im_addon, 1);
+							CREATE(adi, 1);
 							adi->id = id;
 							adi->k0 = k0;
 							adi->k1 = k1;
@@ -987,14 +987,25 @@ void im_parse(int **ing_list, char *line)
 			l = strtol(line, &line, 10);
 		}
 		if (*line++ != ':')
+		{
 			break;
+		}
+
 		p = strtol(line, &line, 10);
 		if (!p)
+		{
 			break;
+		}
+
 		if (!local_count)
-			CREATE(local_list, int, 2);
+		{
+			CREATE(local_list, 2);
+		}
 		else
-			RECREATE(local_list, int, local_count + 2);
+		{
+			RECREATE(local_list, local_count + 2);
+		}
+
 		local_list[local_count++] = n;
 		local_list[local_count++] = (l << 16) | p;
 	}
@@ -1003,13 +1014,17 @@ void im_parse(int **ing_list, char *line)
 		for (ptr = *ing_list; (*ptr++ != -1););
 		count = ptr - *ing_list - 1;
 	}
-	CREATE(res, int, local_count + count + 1);
+	CREATE(res, local_count + count + 1);
 	if (count)
+	{
 		memcpy(res, *ing_list, count * sizeof(int));
+	}
 	memcpy(res + count, local_list, local_count * sizeof(int));
 	res[count + local_count] = -1;
 	if (*ing_list)
+	{
 		free(*ing_list);
+	}
 	free(local_list);
 	*ing_list = res;
 }
@@ -1028,11 +1043,16 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 	for (o = room->contents; o; o = next)
 	{
 		next = o->next_content;
-		if (GET_OBJ_TYPE(o) == ITEM_MING)
+		if (GET_OBJ_TYPE(o) == obj_flag_data::ITEM_MING)
+		{
 			extract_obj(o);
+		}
 	}
-	if (!zone_types[type].ingr_qty || IS_SET(GET_FLAG(room->room_flags, ROOM_DEATH), ROOM_DEATH))
+	if (!zone_types[type].ingr_qty
+		|| room->get_flag(ROOM_DEATH))
+	{
 		return;
+	}
 	for (i = 0; i < zone_types[type].ingr_qty; i++)
 //	3% - 1-17
 //	2% - 18-34
@@ -1113,7 +1133,7 @@ OBJ_DATA* try_make_ingr(CHAR_DATA* mob, int prob_default, int prob_special)
 	{
 		size_t num_inrgs = it->second->ingrlist.size();
 		int* ingr_to_load_list = NULL;
-		CREATE(ingr_to_load_list, int, num_inrgs * 2 + 1);
+		CREATE(ingr_to_load_list, num_inrgs * 2 + 1);
 		size_t j = 0;
 		for (; j < num_inrgs; j++)
 		{
@@ -1211,7 +1231,7 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 	page_string(ch->desc, buf2, 1);
 }
 
-ACMD(do_recipes)
+void do_recipes(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1222,7 +1242,7 @@ ACMD(do_recipes)
 		list_recipes(ch, FALSE);
 }
 
-ACMD(do_rset)
+void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];
@@ -1319,7 +1339,7 @@ ACMD(do_rset)
 	rs = im_get_char_rskill(vict, rcpt);
 	if (!rs)
 	{
-		CREATE(rs, im_rskill, 1);
+		CREATE(rs, 1);
 		rs->rid = rcpt;
 		rs->link = GET_RSKILL(vict);
 		GET_RSKILL(vict) = rs;
@@ -1399,7 +1419,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 			sprintf(buf, "У вас нет %s.\r\n", name);
 			break;
 		}
-		if (GET_OBJ_TYPE(o) != ITEM_MING)
+		if (GET_OBJ_TYPE(o) != obj_flag_data::ITEM_MING)
 		{
 			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
 			break;
@@ -1417,11 +1437,17 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 			break;
 		}
 		if (i != n)
+		{
 			break;
+		}
 		if (!array)
-			CREATE(array, OBJ_DATA *, 1);
+		{
+			CREATE(array, 1);
+		}
 		else
-			RECREATE(array, OBJ_DATA *, n + 1);
+		{
+			RECREATE(array, n + 1);
+		}
 		array[n++] = o;
 	}
 	if (array)
@@ -1435,7 +1461,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 
 // Применение рецепта
 // варить 'рецепт' <ингредиенты>
-ACMD(do_cook)
+void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char name[MAX_STRING_LENGTH];
 	int rcpt = -1, qend, mres;
@@ -1571,18 +1597,20 @@ ACMD(do_cook)
 
 	switch (GET_OBJ_TYPE(obj_proto[tgt]))
 	{
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = 1;	// количество
 		param[2] = obj_proto[tgt]->get_timer();	// таймер
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);	// количество
 		param[2] = obj_proto[tgt]->get_timer();	// таймер
 		break;
+
 	default:
 		imlog(NRM, "Прототип имеет неверный тип");
 		send_to_char("Результат варева непредсказуем.\r\n", ch);
@@ -1590,10 +1618,9 @@ ACMD(do_cook)
 		return;
 	}
 
-	sprintf(name,
-			"Базовые параметры и курс перевода в магические Дж: %f,%f %f,%f %f,%f",
-			param[0], imrecipes[rs->rid].k[0],
-			param[1], imrecipes[rs->rid].k[1], param[2], imrecipes[rs->rid].k[2]);
+	sprintf(name, "Базовые параметры и курс перевода в магические Дж: %f,%f %f,%f %f,%f",
+		param[0], imrecipes[rs->rid].k[0],
+		param[1], imrecipes[rs->rid].k[1], param[2], imrecipes[rs->rid].k[2]);
 	imlog(CMP, name);
 
 	W2 *= imrecipes[rs->rid].kp;
@@ -1707,42 +1734,45 @@ ACMD(do_cook)
 		{
 			switch (GET_OBJ_TYPE(result))
 			{
-			case ITEM_SCROLL:
-			case ITEM_POTION:
+			case obj_flag_data::ITEM_SCROLL:
+			case obj_flag_data::ITEM_POTION:
 				if (val[0] > 0)
+				{
 					GET_OBJ_VAL(result, 0) = val[0];
+				}
 				if (val[2] > 0)
 				{
 					result->set_timer(val[2]);
 				}
 				break;
-			case ITEM_WAND:
-			case ITEM_STAFF:
+
+			case obj_flag_data::ITEM_WAND:
+			case obj_flag_data::ITEM_STAFF:
 				if (val[0] > 0)
+				{
 					GET_OBJ_VAL(result, 0) = val[0];
+				}
 				if (val[1] > 0)
+				{
 					GET_OBJ_VAL(result, 1) = GET_OBJ_VAL(result, 2) = val[1];
+				}
 				if (val[2] > 0)
 				{
 					result->set_timer(val[2]);
 				}
+				break;
+
+			default:
 				break;
 			}
 			obj_to_char(result, ch);
 		}
 	}
 
-	/*
-	  if ( mres == IM_MSG_DAM )
-	  {
-	    dam = dice(imrecipes[rs->rid].x,imrecipes[rs->rid].y);
-	  }
-	*/
-
 	return;
 }
 
-void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd)
+void compose_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 {
 	char name[MAX_STRING_LENGTH];
 	int qend, rcpt = -1;
@@ -1802,7 +1832,7 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd)
 }
 
 // Поиск rid по имени
-void forget_recipe(CHAR_DATA * ch, char *argument, int subcmd)
+void forget_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 {
 	char name[MAX_STRING_LENGTH];
 	int qend, rcpt = -1;
@@ -1881,7 +1911,7 @@ void im_inglist_copy(int **pdst, int *src)
 		return;
 	for (i = 0; src[i] != -1; i += 2);
 	++i;
-	CREATE(*pdst, int, i);
+	CREATE(*pdst, i);
 	memcpy(*pdst, src, i * sizeof(int));
 	return;
 }
@@ -1939,7 +1969,7 @@ void trg_recipeturn(CHAR_DATA * ch, int rid, int recipediff)
 // +newbook.patch (Alisher)
 		if (imrecipes[rid].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE)
 		{
-			CREATE(rs, im_rskill, 1);
+			CREATE(rs, 1);
 			rs->rid = rid;
 			rs->link = GET_RSKILL(ch);
 			GET_RSKILL(ch) = rs;
@@ -1972,7 +2002,7 @@ void trg_recipeadd(CHAR_DATA * ch, int rid, int recipediff)
 	send_to_char(buf, ch);
 }
 
-ACMD(do_imlist)
+void do_imlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int zone, i, rnum;
 	int *ping;

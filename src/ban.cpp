@@ -33,12 +33,12 @@ extern BanList *ban;
 // local functions
 void load_banned(void);
 
-ACMD(do_ban);
-ACMD(do_unban);
+void do_ban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 int Valid_Name(char *newname);
 void Read_Invalid_List(void);
 
-ACMD(do_ban)
+void do_ban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (!*argument)
 	{
@@ -149,8 +149,7 @@ ACMD(do_ban)
 	send_to_char("Site banned.\r\n", ch);
 }
 
-
-ACMD(do_unban)
+void do_unban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char site[MAX_INPUT_LENGTH];
 	one_argument(argument, site);
@@ -391,7 +390,7 @@ int CheckProxy(DESCRIPTOR_DATA * ch)
 }
 
 // команда proxy
-ACMD(do_proxy)
+void do_proxy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
@@ -1248,7 +1247,7 @@ bool need_save = 0;
 // * Добавления мыла в список + проставления флага PLR_REGISTERED, registered_email не выставляется
 void RegisterSystem::add(CHAR_DATA* ch, const char* text, const char* reason)
 {
-	SET_BIT(PLR_FLAGS(ch, PLR_REGISTERED), PLR_REGISTERED);
+	PLR_FLAGS(ch).set(PLR_REGISTERED);
 	if (!text || !reason) return;
 	std::stringstream out;
 	out << GET_NAME(ch) << " -> " << text << " [" << reason << "]";
@@ -1266,7 +1265,7 @@ void RegisterSystem::add(CHAR_DATA* ch, const char* text, const char* reason)
 */
 void RegisterSystem::remove(CHAR_DATA* ch)
 {
-	REMOVE_BIT(PLR_FLAGS(ch, PLR_REGISTERED), PLR_REGISTERED);
+	PLR_FLAGS(ch).unset(PLR_REGISTERED);
 	EmailListType::iterator it = email_list.find(GET_EMAIL(ch));
 	if (it != email_list.end())
 	{

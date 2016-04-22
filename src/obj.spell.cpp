@@ -15,6 +15,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "char_obj_utils.inl"
 
 #include <boost/format.hpp>
 
@@ -37,12 +38,12 @@ namespace
 /// Удаление временного флага со шмотки obj (с проверкой прототипа).
 /// \param flag - ITEM_XXX
 ///
-void remove_tmp_extra(OBJ_DATA *obj, bitvector_t flag)
+void remove_tmp_extra(OBJ_DATA *obj, EExtraFlag flag)
 {
 	const OBJ_DATA * const proto = read_object_mirror(GET_OBJ_VNUM(obj));
-	if (!OBJ_FLAGGED(proto, flag))
+	if (!proto->get_extraflag(flag))
 	{
-		REMOVE_BIT(GET_OBJ_EXTRA(obj, flag), flag);
+		obj->unset_extraflag(flag);
 	}
 }
 
@@ -69,12 +70,12 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 		break;
 	case SPELL_FLY:
 	{
-		remove_tmp_extra(obj, ITEM_FLYING);
+		remove_tmp_extra(obj, EExtraFlag::ITEM_FLYING);
 		break;
 	}
 	case SPELL_LIGHT:
 	{
-		remove_tmp_extra(obj, ITEM_GLOW);
+		remove_tmp_extra(obj, EExtraFlag::ITEM_GLOW);
 		break;
 	}
 	} // switch

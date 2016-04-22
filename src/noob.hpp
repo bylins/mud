@@ -15,7 +15,7 @@ namespace Noob
 {
 
 void init();
-SPECIAL(outfit);
+int outfit(CHAR_DATA *ch, void *me, int cmd, char* argument);
 
 bool is_noob(const CHAR_DATA *ch);
 std::string print_start_outfit(CHAR_DATA *ch);

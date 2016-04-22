@@ -5,10 +5,11 @@
 #include "structs.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "skills.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "char.hpp"
 #include "comm.h"
+#include "skills.h"
 #include "db.h"
 #include "utils.h"
 #include "pugixml.hpp"
@@ -16,58 +17,61 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
-MorphListType MorphList;
+MorphListType IdToMorphMap;
 
 short MIN_WIS_FOR_MORPH=0;
 void perform_remove(CHAR_DATA * ch, int pos);
 
-string AnimalMorph::GetMorphDesc()
+std::string AnimalMorph::GetMorphDesc() const
 {
-	string desc = "Неведома зверушка";
-	for (DescListType::const_iterator it = descList_.begin();it != descList_.end(); ++it)
-		if (it->fromLevel <= ch_->get_level()+ch_->get_remort())
+	std::string desc = "Неведома зверушка";
+	for (DescListType::const_iterator it = descList_.begin(); it != descList_.end(); ++it)
+	{
+		if (it->fromLevel <= ch_->get_level() + ch_->get_remort())
+		{
 			desc = it->desc;
-		else break;
+		}
+		else
+		{
+			break;
+		}
+	}
 
 	return desc;
 }
 
-string NormalMorph::GetMorphDesc()
+std::string NormalMorph::GetMorphDesc() const
 {
 	return ch_->get_name();
 }
 
-string NormalMorph::GetMorphTitle()
+std::string NormalMorph::GetMorphTitle() const
 {
 	return ch_->race_or_title();
 };
 
-string AnimalMorph::GetMorphTitle()
+std::string AnimalMorph::GetMorphTitle() const
 {
-	return string(ch_->get_name()) + " - " + GetMorphDesc();
+	return ch_->get_name() + " - " + GetMorphDesc();
 };
 
-int NormalMorph::get_trained_skill(int skill_num)
+int NormalMorph::get_trained_skill(const ESkill skill_num)
 {
 	return ch_->get_inborn_skill(skill_num);
 }
 
-int AnimalMorph::get_trained_skill(int skill_num)
+int AnimalMorph::get_trained_skill(const ESkill skill_num)
 {
 	CharSkillsType::iterator it = skills_.find(skill_num);
-	if (it != skills_.end())
-	{
-		return it->second;
-	}
-	return 0;
+	return it != skills_.end() ? it->second : 0;
 }
 
-void NormalMorph::set_skill(int skill_num, int percent)
+void NormalMorph::set_skill(const ESkill skill_num, int percent)
 {
 	ch_->set_skill(skill_num, percent);
 }
 
-void AnimalMorph::set_skill(int skill_num, int percent)
+void AnimalMorph::set_skill(const ESkill skill_num, int percent)
 {
 	CharSkillsType::iterator it = skills_.find(skill_num);
 	if (it != skills_.end())
@@ -95,7 +99,6 @@ void NormalMorph::SetCha(int cha) {ch_->set_cha(cha);}
 int NormalMorph::GetCon() const {return ch_->get_inborn_con();}
 void NormalMorph::SetCon(int con) {ch_->set_con(con);}
 
-
 void ShowKnownMorphs(CHAR_DATA *ch)
 {
 	if (ch->is_morphed())
@@ -103,35 +106,47 @@ void ShowKnownMorphs(CHAR_DATA *ch)
 		send_to_char("Чтобы вернуть себе человеческий облик - нужно 'обернуться назад'\r\n", ch);
 		return;
 	}
-	std::list<string> knownMorphs = ch->get_morphs();
+	const CHAR_DATA::morphs_list_t& knownMorphs = ch->get_morphs();
 	if (knownMorphs.empty())
+	{
 		send_to_char("На сей момент никакие формы вам неизвестны...\r\n", ch);
+	}
 	else
+	{
 		send_to_char("Вы можете обернуться:\r\n", ch);
 
-	for(std::list<string>::const_iterator it = knownMorphs.begin(); it!= knownMorphs.end(); ++it)
-		send_to_char("   "+MorphList[*it]->PadName()+"\r\n", ch);
-};
-
-string FindMorphId(CHAR_DATA * ch, char *arg)
-{
-	std::list<string> morphsList = ch->get_morphs();
-	for(std::list<string>::const_iterator it = morphsList.begin(); it != morphsList.end(); ++it)
-	{
-		if (is_abbrev(arg, MorphList[*it]->PadName().c_str()) || is_abbrev(arg, MorphList[*it]->Name().c_str()))
-			return *it;
+		for (const auto& it : knownMorphs)
+		{
+			send_to_char("   " + IdToMorphMap[it]->PadName() + "\r\n", ch);
+		}
 	}
-	return string();
 }
 
-string GetMorphIdByName(char *arg)
+std::string FindMorphId(CHAR_DATA * ch, char *arg)
 {
-	for(MorphListType::const_iterator it = MorphList.begin(); it != MorphList.end(); ++it)
+	std::list<std::string> morphsList = ch->get_morphs();
+	for(std::list<std::string>::const_iterator it = morphsList.begin(); it != morphsList.end(); ++it)
 	{
-		if (is_abbrev(arg, it->second->PadName().c_str()) || is_abbrev(arg, it->second->Name().c_str()))
-			return it->first;
+		if (is_abbrev(arg, IdToMorphMap[*it]->PadName().c_str())
+			|| is_abbrev(arg, IdToMorphMap[*it]->Name().c_str()))
+		{
+			return *it;
+		}
 	}
-	return string();
+	return std::string();
+}
+
+std::string GetMorphIdByName(char *arg)
+{
+	for(MorphListType::const_iterator it = IdToMorphMap.begin(); it != IdToMorphMap.end(); ++it)
+	{
+		if (is_abbrev(arg, it->second->PadName().c_str())
+			|| is_abbrev(arg, it->second->Name().c_str()))
+		{
+			return it->first;
+		}
+	}
+	return std::string();
 }
 
 void AnimalMorph::InitSkills(int value)
@@ -170,23 +185,25 @@ void AnimalMorph::SetChar(CHAR_DATA *ch)
 	ch_=ch;
 };
 
-bool AnimalMorph::isAffected(long flag) const
+bool AnimalMorph::isAffected(const EAffectFlag flag) const
 {
-	return std::find(affects_.begin(), affects_.end(), flag) != affects_.end();
+	return affects_.find(flag) != affects_.end();
 }
 
-void AnimalMorph::AddAffect(long flag)
+void AnimalMorph::AddAffect(const EAffectFlag flag)
 {
-	if (std::find(affects_.begin(), affects_.end(), flag) == affects_.end())
-		affects_.push_back(flag);
+	if (affects_.find(flag) == affects_.end())
+	{
+		affects_.insert(flag);
+	}
 }
 
-std::vector<long> AnimalMorph::GetAffects()
+const AnimalMorph::affects_list_t& AnimalMorph::GetAffects()
 {
 	return affects_;
 }
 
-void AnimalMorph::SetAffects(std::vector<long> affs)
+void AnimalMorph::SetAffects(const affects_list_t& affs)
 {
 	affects_ = affs;
 }
@@ -196,7 +213,7 @@ MorphPtr GetNormalMorphNew(CHAR_DATA *ch)
 	return MorphPtr(new NormalMorph(ch));
 }
 
-ACMD(do_morph)
+void do_morph(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -228,14 +245,14 @@ ACMD(do_morph)
 		return;
 	}
 
-	string morphId = FindMorphId(ch, arg);
+	std::string morphId = FindMorphId(ch, arg);
 	if (morphId.empty())
 	{
 		send_to_char("Обернуться в ЭТО вы не можете!\r\n", ch);
 		return;
 	}
 
-	MorphPtr newMorph = MorphPtr(new AnimalMorph(*MorphList[morphId]));
+	MorphPtr newMorph = MorphPtr(new AnimalMorph(*IdToMorphMap[morphId]));
 
 	send_to_char(str(boost::format(newMorph->GetMessageToChar()) % newMorph->PadName()) + "\r\n", ch);
 	act(str(boost::format(newMorph->GetMessageToRoom()) % newMorph->PadName()).c_str(), TRUE, ch, 0, 0, TO_ROOM);
@@ -243,17 +260,17 @@ ACMD(do_morph)
 	ch->set_morph(newMorph);
 	if (ch->equipment[WEAR_BOTHS])
 	{
-		send_to_char("Вы не можете держать в лапах " + string(ch->equipment[WEAR_BOTHS]->PNames[3])+".\r\n", ch);
+		send_to_char("Вы не можете держать в лапах " + std::string(ch->equipment[WEAR_BOTHS]->PNames[3])+".\r\n", ch);
 		perform_remove(ch, WEAR_BOTHS);
 	}
 	if (ch->equipment[WEAR_WIELD])
 	{
-		send_to_char("Ваша правая лапа бессильно опустила " + string(ch->equipment[WEAR_WIELD]->PNames[3])+".\r\n", ch);
+		send_to_char("Ваша правая лапа бессильно опустила " + std::string(ch->equipment[WEAR_WIELD]->PNames[3])+".\r\n", ch);
 		perform_remove(ch, WEAR_WIELD);
 	}
 	if (ch->equipment[WEAR_HOLD])
 	{
-		send_to_char("Ваша левая лапа не удержала " + string(ch->equipment[WEAR_HOLD]->PNames[3])+".\r\n", ch);
+		send_to_char("Ваша левая лапа не удержала " + std::string(ch->equipment[WEAR_HOLD]->PNames[3])+".\r\n", ch);
 		perform_remove(ch, WEAR_HOLD);
 	}
 	WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
@@ -262,11 +279,11 @@ ACMD(do_morph)
 void PrintAllMorphsList(CHAR_DATA *ch)
 {
 	send_to_char("Существующие формы: \r\n", ch);
-	for (MorphListType::const_iterator it = MorphList.begin();it != MorphList.end();++it)
+	for (MorphListType::const_iterator it = IdToMorphMap.begin();it != IdToMorphMap.end();++it)
 		send_to_char("   " + it->second->Name() + "\r\n", ch);
 }
 
-ACMD(do_morphset)
+void do_morphset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA * vict;
 
@@ -287,28 +304,28 @@ ACMD(do_morphset)
 
 	skip_spaces(&argument);
 
-	string morphId = GetMorphIdByName(argument);
+	std::string morphId = GetMorphIdByName(argument);
 
 	if (morphId.empty())
 	{
-		send_to_char("Форма '"+string(argument)+"' не найдена. \r\n", ch);
+		send_to_char("Форма '"+ std::string(argument)+"' не найдена. \r\n", ch);
 		PrintAllMorphsList(ch);
 		return;
 	}
 
 	if (vict->know_morph(morphId))
 	{
-		send_to_char(string(vict->get_name()) + " уже знает эту форму. \r\n", ch);
+		send_to_char(vict->get_name() + " уже знает эту форму. \r\n", ch);
 		return;
 	}
 
 	vict->add_morph(morphId);
 
-	sprintf(buf2, "%s add morph %s to %s.", GET_NAME(ch), MorphList[morphId]->Name().c_str(), GET_NAME(vict));
+	sprintf(buf2, "%s add morph %s to %s.", GET_NAME(ch), IdToMorphMap[morphId]->Name().c_str(), GET_NAME(vict));
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
-	imm_log("%s add morph %s to %s.", GET_NAME(ch), MorphList[morphId]->Name().c_str(), GET_NAME(vict));
+	imm_log("%s add morph %s to %s.", GET_NAME(ch), IdToMorphMap[morphId]->Name().c_str(), GET_NAME(vict));
 
-	send_to_char("Вы добавили форму '"+ MorphList[morphId]->Name() +"' персонажу "+string(vict->get_name())+" \r\n", ch);
+	send_to_char(std::string("Вы добавили форму '") + IdToMorphMap[morphId]->Name() + "' персонажу " + vict->get_name()+" \r\n", ch);
 }
 
 void load_morphs()
@@ -332,7 +349,7 @@ void load_morphs()
 
 	for (pugi::xml_node morph = node_list.child("morph");morph; morph = morph.next_sibling("morph"))
 	{
-		string id = string(morph.attribute("id").value());
+		std::string id = std::string(morph.attribute("id").value());
 		if (id.empty())
 		{
 			snprintf(buf, MAX_STRING_LENGTH, "...morph id read fail");
@@ -343,35 +360,40 @@ void load_morphs()
 		for (pugi::xml_node desc = morph.child("description"); desc; desc = desc.next_sibling("description"))
 		{
 			DescNode node;
-			node.desc = string(desc.child_value());
+			node.desc = std::string(desc.child_value());
 			node.fromLevel = desc.attribute("lvl").as_int();
 			descList.push_back(node);
 		}
 		CharSkillsType skills;
-		std::vector<long> affs;
+		IMorph::affects_list_t affs;
 		pugi::xml_node skillsList=morph.child("skills");
 		pugi::xml_node affectsList=morph.child("affects");
 		pugi::xml_node messagesList=morph.child("messages");
-		string name = morph.child_value("name");
-		string padName = morph.child_value("padName");
-		string coverDesc = morph.child_value("cover");
-		string speech = morph.child_value("speech");
-		string messageToChar, messageToRoom;
+		std::string name = morph.child_value("name");
+		std::string padName = morph.child_value("padName");
+		std::string coverDesc = morph.child_value("cover");
+		std::string speech = morph.child_value("speech");
+		std::string messageToChar, messageToRoom;
 
 		for (pugi::xml_node mess = messagesList.child("message"); mess; mess = mess.next_sibling("message"))
 		{
-			if (string(mess.attribute("destination").value()) == "room")
-				messageToRoom = string(mess.child_value());
-			if (string(mess.attribute("destination").value()) == "char")
-				messageToChar = string(mess.child_value());
+			if (std::string(mess.attribute("destination").value()) == "room")
+			{
+				messageToRoom = std::string(mess.child_value());
+			}
+			if (std::string(mess.attribute("destination").value()) == "char")
+			{
+				messageToChar = std::string(mess.child_value());
+			}
 		}
-
 
 		for (pugi::xml_node skill = skillsList.child("skill"); skill; skill = skill.next_sibling("skill"))
 		{
-			int skillNum = find_skill_num(skill.child_value());
-			if (skillNum != -1)
-				skills[skillNum]=0;//init-им скилы нулями, потом проставим при превращении
+			const ESkill skillNum = find_skill_num(skill.child_value());
+			if (skillNum != -SKILL_INVALID)
+			{
+				skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
+			}
 			else
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "...skills read fail for morph %s", name.c_str());
@@ -382,9 +404,12 @@ void load_morphs()
 
 		for (pugi::xml_node aff = affectsList.child("affect"); aff; aff = aff.next_sibling("affect"))
 		{
-			int affNum = GetAffectNumByName(aff.child_value());
-			if (affNum != -1)
-				affs.push_back(affNum);
+			EAffectFlag affNum;
+			const bool found = GetAffectNumByName(aff.child_value(), affNum);
+			if (found)
+			{
+				affs.insert(affNum);
+			}
 			else
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "...affects read fail for morph %s", name.c_str());
@@ -401,46 +426,53 @@ void load_morphs()
 		newMorph->SetAbilsParams(toStr, toDex, toCon, toInt, toCha);
 		newMorph->SetAffects(affs);
 		newMorph->SetMessages(messageToRoom, messageToChar);
-		MorphList[id] = newMorph;
+		IdToMorphMap[id] = newMorph;
 	}
 };
 
 void set_god_morphs(CHAR_DATA *ch)
 {
-	for (MorphListType::const_iterator it= MorphList.begin(); it != MorphList.end();++it)
+	for (MorphListType::const_iterator it= IdToMorphMap.begin(); it != IdToMorphMap.end();++it)
 	{
 		if (!ch->know_morph(it->first))
 			ch->add_morph(it->first);
 	}
 }
 
-bool ExistsMorph(string morphId)
+bool ExistsMorph(const std::string& morphId)
 {
-	for (MorphListType::const_iterator it = MorphList.begin(); it != MorphList.end(); ++it)
-		if (it->first == morphId) return true;
-	return false;
+	return IdToMorphMap.find(morphId) != IdToMorphMap.end();
 }
 
 void morphs_save(CHAR_DATA* ch, FILE* saved)
 {
-	std::list<string> morphs = ch->get_morphs();
-	string line;
-	for (std::list<string>::const_iterator morph = morphs.begin(); morph != morphs.end(); ++morph)
-		line += ("#"+(*morph));
+	const auto& morphs = ch->get_morphs();
+	std::string line;
+	for (const auto& morph : morphs)
+	{
+		line += ("#" + morph);
+	}
 	fprintf(saved, "Mrph: %s\n", line.c_str());
 };
 
 void morphs_load(CHAR_DATA* ch, std::string line)
 {
-	std::vector<string> morphs;
-	std::vector<string>::const_iterator it;
-	boost::split( morphs, line, boost::is_any_of(std::string("#")), boost::token_compress_on );
-	for (it = morphs.begin(), ++it;it!=morphs.end();++it)
+	std::list<std::string> morphs;
+	boost::split(morphs, line, boost::is_any_of(std::string("#")), boost::token_compress_on);
+	for (const auto& it : morphs)
 	{
-		if (ExistsMorph(*it) && !ch->know_morph(*it))
-			ch->add_morph(*it);
+		if (ExistsMorph(it)
+			&& !ch->know_morph(it))
+		{
+			ch->add_morph(it);
+		}
 	}
-};
+}
 
+const IMorph::affects_list_t empty_list;
+const IMorph::affects_list_t& IMorph::GetAffects()
+{
+	return empty_list;
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -18,6 +18,7 @@ str.cpp - PyUnicode_FromString �� PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 #include "obj.hpp"
 #include "db.h"
 #include "cache.hpp"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "handler.h"
 #include "constants.h"
@@ -36,6 +37,7 @@ str.cpp - PyUnicode_FromString �� PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 #include <vector>
 
 #define DEFINE_CONSTANT(X) scope().attr(#X) = static_cast<int>(X);
+#define DEFINE_ENUM_CONSTANT(X) scope().attr(NAME_BY_ITEM(X).c_str()) = to_underlying(X)
 
 using namespace boost::python;
 namespace py=boost::python;
@@ -47,7 +49,6 @@ namespace
 	object events;
 	PyThreadState *_save = NULL;
 }
-
 
 class GILAcquirer
 {
@@ -62,8 +63,8 @@ class GILAcquirer
 };
 
 std::string parse_python_exception();
-void register_global_command(const string& command, const string& command_koi8r, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent);
-void unregister_global_command(const string& command);
+void register_global_command(const std::string& command, const std::string& command_koi8r, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent);
+void unregister_global_command(const std::string& command);
 
 template <class t>
 inline t pass_through(const t& o) { return o; }
@@ -141,7 +142,7 @@ CharacterWrapper(CHAR_DATA* ch):Wrapper<CHAR_DATA>(ch, caching::character_cache)
 const char* get_name() const
 {
 	Ensurer ch(*this);
-	return ch->get_name();
+	return ch->get_name().c_str();
 }
 
 void set_name(const char* name)
@@ -150,13 +151,13 @@ void set_name(const char* name)
 	ch->set_name(name);
 }
 
-void send(const string& msg)
+void send(const std::string& msg)
 {
 	Ensurer ch(*this);
 	send_to_char(msg, (CHAR_DATA*)ch);
 }
 
-void _page_string(const string& msg)
+void _page_string(const std::string& msg)
 {
 	Ensurer ch(*this);
 	page_string(ch->desc, msg);
@@ -361,13 +362,13 @@ void set_cha(const int v)
 byte get_sex() const
 {
 	Ensurer ch(*this);
-	return ch->get_sex();
+	return to_underlying(ch->get_sex());
 }
 
 void set_sex(const byte v)
 {
 	Ensurer ch(*this);
-	ch->set_sex(v);
+	ch->set_sex(static_cast<ESex>(v));
 }
 
 ubyte get_weight() const
@@ -551,13 +552,13 @@ short get_remort() const
 int get_skill(int skill_num) const
 {
 	Ensurer ch(*this);
-	return ch->get_skill(skill_num);
+	return ch->get_skill(static_cast<ESkill>(skill_num));
 }
 
 void set_skill(int skill_num, int percent)
 {
 	Ensurer ch(*this);
-	ch->set_skill(skill_num, percent);
+	ch->set_skill(static_cast<ESkill>(skill_num), percent);
 }
 
 void clear_skills()
@@ -581,7 +582,7 @@ int get_equipped_skill(int skill_num) const
 int get_trained_skill(int skill_num) const
 {
 	Ensurer ch(*this);
-	return ch->get_trained_skill(skill_num);
+	return ch->get_trained_skill(static_cast<ESkill>(skill_num));
 }
 
 ubyte get_spell(int spell_num) const
@@ -634,7 +635,7 @@ bool is_affected_by_spell(int spell_num) const
 	return affected_by_spell(ch, spell_num);
 }
 
-void add_affect(affect_data& af)
+void add_affect(AFFECT_DATA<EApplyLocation>& af)
 {
 	Ensurer ch(*this);
 	affect_to_char(ch, &af);
@@ -679,13 +680,13 @@ bool quested_remove(int vnum)
 	return ch->quested_remove(vnum);
 }
 
-string quested_get_text(int vnum)
+std::string quested_get_text(int vnum)
 {
 	Ensurer ch(*this);
 	return ch->quested_get_text(vnum);
 }
 
-string quested_print() const
+std::string quested_print() const
 {
 	Ensurer ch(*this);
 	return ch->quested_print();
@@ -709,7 +710,7 @@ std::string clan_status()
 	return GET_CLAN_STATUS(ch);
 }
 
-bool set_password_wrapped(std::string name, std::string password)
+bool set_password_wrapped(const std::string&/* name*/, const std::string&/* password*/)
 {
 	// ��������
 	return true;
@@ -764,19 +765,19 @@ void character_set_master(CHAR_DATA* ch, CHAR_DATA* master)
 	ch->master = master;
 }
 
-string get_spell_type_str(const affect_data& af)
+std::string get_spell_type_str(const AFFECT_DATA<EApplyLocation>& af)
 {
 	return spell_info[af.type].name;
 }
 
-string get_location_str(const affect_data& af)
+std::string get_location_str(const AFFECT_DATA<EApplyLocation>& af)
 {
 	char buf[MAX_STRING_LENGTH];
 	sprinttype(af.location, apply_types, buf);
 	return buf;
 }
 
-string get_bitvector_str(const affect_data& af)
+std::string get_bitvector_str(const AFFECT_DATA<EApplyLocation>& af)
 {
 	char buf[MAX_STRING_LENGTH];
 	sprintbitwd(af.bitvector, affected_bits, buf, ", ");
@@ -836,9 +837,9 @@ struct _arrayN
             t.append(self[i]);
         return t;
     }
-    static int size(arrayN const & self)
+    static int size(arrayN const &/* self*/)
     {
-     return N;
+		return N;
     }
 };
 
@@ -847,7 +848,7 @@ class ObjWrapper: public Wrapper<OBJ_DATA>
 public:
 ObjWrapper(OBJ_DATA* obj):Wrapper<OBJ_DATA>(obj, caching::obj_cache) { }
 
-string get_aliases() const
+std::string get_aliases() const
 {
 	Ensurer obj(*this);
 	return obj->aliases;
@@ -862,7 +863,7 @@ void set_aliases(const char* aliases)
 	obj->aliases = str_dup(aliases);
 }
 
-string get_description() const
+std::string get_description() const
 {
 	Ensurer obj(*this);
 	return obj->description;
@@ -876,7 +877,7 @@ void set_description(const char* description)
 		if (obj->description) free(obj->description);
 	obj->description = str_dup(description);
 }
-string get_short_description() const
+std::string get_short_description() const
 {
 	Ensurer obj(*this);
 	return obj->short_description;
@@ -890,7 +891,7 @@ void set_short_description(const char* short_description)
 		if (obj->short_description) free(obj->short_description);
 	obj->short_description = str_dup(short_description);
 }
-string get_action_description() const
+std::string get_action_description() const
 {
 	Ensurer obj(*this);
 	return obj->action_description;
@@ -904,7 +905,7 @@ void set_action_description(const char* action_description)
 		if (obj->action_description) free(obj->action_description);
 	obj->action_description = str_dup(action_description);
 }
-string get_pad(const unsigned pad) const
+std::string get_pad(const unsigned pad) const
 {
 	Ensurer obj(*this);
 	if (pad < 6)
@@ -953,7 +954,7 @@ int get_obj_type() const
 void set_obj_type(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.type_flag = v;
+	obj->obj_flags.type_flag = static_cast<obj_flag_data::EObjectType>(v);
 }
 
 int get_wear_flags() const
@@ -1015,7 +1016,7 @@ void set_cost_per_day_off(const unsigned v)
 int get_sex() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_sex;
+	return to_underlying(obj->obj_flags.Obj_sex);
 }
 
 int get_timer() const
@@ -1033,7 +1034,7 @@ void set_timer(const int timer) const
 void set_sex(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_sex = v;
+	obj->obj_flags.Obj_sex = static_cast<ESex>(v);
 }
 int get_spell() const
 {
@@ -1100,7 +1101,7 @@ int get_mater() const
 void set_mater(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_mater = v;
+	obj->obj_flags.Obj_mater = static_cast<obj_flag_data::EObjectMaterial>(v);
 }
 int get_owner() const
 {
@@ -1150,52 +1151,52 @@ void set_zone(const int v)
 	obj->obj_flags.Obj_zone = v;
 }
 
-flag_data get_affects() const
+FLAG_DATA get_affects() const
 {
 	Ensurer obj(*this);
 	return obj->obj_flags.affects;
 }
 
-void set_affects(const flag_data& f)
+void set_affects(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
 	obj->obj_flags.affects = f;
 }
 
-flag_data get_anti_flag() const
+FLAG_DATA get_anti_flag() const
 {
 	Ensurer obj(*this);
 	return obj->obj_flags.anti_flag;
 }
 
-void set_anti_flag(const flag_data& f)
+void set_anti_flag(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
 	obj->obj_flags.anti_flag = f;
 }
 
-flag_data get_no_flag() const
+FLAG_DATA get_no_flag() const
 {
 	Ensurer obj(*this);
 	return obj->obj_flags.no_flag;
 }
 
-void set_no_flag(const flag_data& f)
+void set_no_flag(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
 	obj->obj_flags.no_flag = f;
 }
 
-flag_data get_extra_flags() const
+FLAG_DATA get_extra_flags() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.extra_flags;
+	return GET_OBJ_EXTRA(obj);
 }
 
-void set_extra_flags(const flag_data& f)
+void set_extra_flags(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.extra_flags = f;
+	GET_OBJ_EXTRA(obj) = f;
 }
 
 affected_t& get_affected()
@@ -1237,24 +1238,23 @@ obj_vnum get_vnum() const {
 	return GET_OBJ_VNUM(obj);
 }
 
-void set_vnum(const obj_vnum vnum) {
+void set_vnum(const obj_vnum vnum)
+{
 	Ensurer obj(*this);
 	if (GET_OBJ_RNUM(obj) >=0)
-		obj_index[GET_OBJ_RNUM(obj)].vnum = vnum;
+	{
+		obj_proto.vnum(GET_OBJ_RNUM(obj), vnum);
+	}
 }
 };
 
-
-
-
-
-extern obj_rnum top_of_objt;
-extern std::vector < OBJ_DATA * >obj_proto;
 ObjWrapper get_obj_proto(const obj_rnum rnum)
 {
-	if (rnum>=0 && rnum <= top_of_objt)
+	if (rnum >= 0 && rnum < static_cast<int>(obj_proto.size()))
+	{
 		return obj_proto[rnum];
-		PyErr_SetString(PyExc_ValueError, "obj rnum is out of range");
+	}
+	PyErr_SetString(PyExc_ValueError, "obj rnum is out of range");
 	throw_error_already_set();
 	return ObjWrapper(NULL);
 }
@@ -1283,31 +1283,31 @@ void obj_to_char_wrap(const CharacterWrapper& c, ObjWrapper& o)
 	obj_to_char(obj, ch);
 }
 
-bool flag_is_set(const flag_data& flag, const unsigned f)
+bool flag_is_set(const FLAG_DATA& flag, const unsigned f)
 {
-	return IS_SET(GET_FLAG(flag, f), f);
+	return flag.get(f);
 }
 
-void flag_set(flag_data& flag, const unsigned f)
+void flag_set(FLAG_DATA& flag, const unsigned f)
 {
-	SET_BIT(GET_FLAG(flag, f), f);
+	flag.set(f);
 }
 
-void flag_remove(flag_data& flag, const unsigned f)
+void flag_remove(FLAG_DATA& flag, const unsigned f)
 {
-	REMOVE_BIT(GET_FLAG(flag, f), f);
+	flag.unset(f);
 }
 
-void flag_toggle(flag_data& flag, const unsigned f)
+void flag_toggle(FLAG_DATA& flag, const unsigned f)
 {
-	TOGGLE_BIT(GET_FLAG(flag, f), f);
+	flag.toggle(f);
 }
 
-str flag_str(const flag_data& flag)
+str flag_str(const FLAG_DATA& flag)
 {
 	char buf[MAX_STRING_LENGTH];
 	*buf='\0';
-	tascii(flag.flags, 4, buf);
+	flag.tascii(4, buf);
 	return str(buf);
 }
 
@@ -1393,7 +1393,7 @@ BOOST_PYTHON_MODULE(mud)
 {
 	def("get_players", get_players, "return players online");
 	def("check_ingame", check_ingame, "check player in game");
-	def("log", mudlog_python, ( py::arg("msg"), py::arg("msg_type")=DEF, py::arg("level")=LVL_IMMORT, py::arg("channel")=SYSLOG, py::arg("to_file")=TRUE ) ,
+	def("log", mudlog_python, ( py::arg("msg"), py::arg("msg_type")=DEF, py::arg("level")=LVL_IMMORT, py::arg("channel")=static_cast<int>(SYSLOG), py::arg("to_file")=TRUE ) ,
 	"Записывает сообщение msg типа msg_type в канал лога channel для уровня level.\n"
 	"\n"
 	"msg_type принимает значения констант из utils.h, defines for mudlog.\n"
@@ -1573,21 +1573,21 @@ BOOST_PYTHON_MODULE(mud)
 		.staticmethod("__iter__")
 	();
 
-	class_<affect_data, std::auto_ptr<affect_data> >("Affect", "Игровой аффект.")
-		.def_readwrite("spell_type", &affect_data::type, "Номер заклинания, которое наложило этот аффект")
+	class_<AFFECT_DATA<EApplyLocation>, std::auto_ptr<AFFECT_DATA<EApplyLocation>> >("Affect", "Игровой аффект.")
+		.def_readwrite("spell_type", &AFFECT_DATA<EApplyLocation>::type, "Номер заклинания, которое наложило этот аффект")
 		.add_property("spell_type_str", get_spell_type_str, "Название заклинания (только для чтения)")
 		.add_property("location_str", get_location_str, "Название изменяемого параметра (только для чтения)")
 		.add_property("bitvector_str", get_bitvector_str, "Какие аффекты накладываем (в текстовом виде, только для чтения)")
-		.def_readwrite("duration", &affect_data::duration, "Продолжительность в секундах")
-		.def_readwrite("modifier", &affect_data::modifier, "Величина изменения параметра")
-		.def_readwrite("location", &affect_data::location, "Изменяемый параметр (constants.APLY_XXX)")
-		.def_readwrite("battleflag", &affect_data::battleflag, "Флаг для боя (холд, и т.п.)")
-		.def_readwrite("bitvector", &affect_data::bitvector, "Накладываемые аффекты")
-		.def_readwrite("caster_id", &affect_data::caster_id, "ID скастовавшего")
-		.def_readwrite("apply_time", &affect_data::apply_time, "Указывает сколько аффект висит (пока используется только в комнатах)")
+		.def_readwrite("duration", &AFFECT_DATA<EApplyLocation>::duration, "Продолжительность в секундах")
+		.def_readwrite("modifier", &AFFECT_DATA<EApplyLocation>::modifier, "Величина изменения параметра")
+		.def_readwrite("location", &AFFECT_DATA<EApplyLocation>::location, "Изменяемый параметр (constants.APLY_XXX)")
+		.def_readwrite("battleflag", &AFFECT_DATA<EApplyLocation>::battleflag, "Флаг для боя (холд, и т.п.)")
+		.def_readwrite("bitvector", &AFFECT_DATA<EApplyLocation>::bitvector, "Накладываемые аффекты")
+		.def_readwrite("caster_id", &AFFECT_DATA<EApplyLocation>::caster_id, "ID скастовавшего")
+		.def_readwrite("apply_time", &AFFECT_DATA<EApplyLocation>::apply_time, "Указывает сколько аффект висит (пока используется только в комнатах)")
 	;
 
-	class_<flag_data>("FlagData", "Флаги чего-нибудь.")
+	class_<FLAG_DATA>("FlagData", "Флаги чего-нибудь.")
 		.def("__contains__", flag_is_set, "Содержится ли флаг в этом поле?")
 		.def("set", flag_set, "Установить указанный флаг")
 		.def("remove", flag_remove, "Убрать указанный флаг")
@@ -1596,7 +1596,7 @@ BOOST_PYTHON_MODULE(mud)
 	;
 
 	class_<obj_affected_type>("ObjectModifier", "Модификатор персонажа, накладываемый объектом.")
-	.def(py::init<int, int>(py::args("location", "modifier")))
+	.def(py::init<EApplyLocation, int>(py::args("location", "modifier")))
 		.def_readwrite("location", &obj_affected_type::location, "Атрибут, который изменяем")
 		.def_readwrite("modifier", &obj_affected_type::modifier, "Величина изменения")
 		.def("__str__", obj_affected_type_str, "Переводит модификатор в строку вида (XXX улучшает на YYY)")
@@ -1607,9 +1607,9 @@ BOOST_PYTHON_MODULE(mud)
 BOOST_PYTHON_MODULE(constants)
 {
 	//log channels
-	DEFINE_CONSTANT(SYSLOG);
-	DEFINE_CONSTANT(ERRLOG);
-	DEFINE_CONSTANT(IMLOG);
+	DEFINE_ENUM_CONSTANT(SYSLOG);
+	DEFINE_ENUM_CONSTANT(ERRLOG);
+	DEFINE_ENUM_CONSTANT(IMLOG);
 
 	//act
 	DEFINE_CONSTANT(TO_ROOM);
@@ -1776,10 +1776,10 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(NPC_RACE_SPIRIT);
     DEFINE_CONSTANT(NPC_RACE_MAGIC_CREATURE);
     DEFINE_CONSTANT(NPC_RACE_NEXT);
-    DEFINE_CONSTANT(SEX_NEUTRAL);
-    DEFINE_CONSTANT(SEX_MALE);
-    DEFINE_CONSTANT(SEX_FEMALE);
-    DEFINE_CONSTANT(SEX_POLY);
+    DEFINE_ENUM_CONSTANT(ESex::SEX_NEUTRAL);
+	DEFINE_ENUM_CONSTANT(ESex::SEX_MALE);
+	DEFINE_ENUM_CONSTANT(ESex::SEX_FEMALE);
+	DEFINE_ENUM_CONSTANT(ESex::SEX_POLY);
     DEFINE_CONSTANT(NUM_SEXES);
     DEFINE_CONSTANT(MASK_SEX_NEUTRAL);
     DEFINE_CONSTANT(MASK_SEX_MALE);
@@ -1989,86 +1989,86 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(PRF_MISPRINT);
     DEFINE_CONSTANT(PRF_BRIEF_SHIELDS);
     DEFINE_CONSTANT(PRF_AUTO_NOSUMMON);
-    DEFINE_CONSTANT(AFF_BLIND);
-    DEFINE_CONSTANT(AFF_INVISIBLE);
-    DEFINE_CONSTANT(AFF_DETECT_ALIGN);
-    DEFINE_CONSTANT(AFF_DETECT_INVIS);
-    DEFINE_CONSTANT(AFF_DETECT_MAGIC);
-    DEFINE_CONSTANT(AFF_SENSE_LIFE);
-    DEFINE_CONSTANT(AFF_WATERWALK);
-    DEFINE_CONSTANT(AFF_SANCTUARY);
-    DEFINE_CONSTANT(AFF_GROUP);
-    DEFINE_CONSTANT(AFF_CURSE);
-    DEFINE_CONSTANT(AFF_INFRAVISION);
-    DEFINE_CONSTANT(AFF_POISON);
-    DEFINE_CONSTANT(AFF_PROTECT_EVIL);
-    DEFINE_CONSTANT(AFF_PROTECT_GOOD);
-    DEFINE_CONSTANT(AFF_SLEEP);
-    DEFINE_CONSTANT(AFF_NOTRACK);
-    DEFINE_CONSTANT(AFF_TETHERED);
-    DEFINE_CONSTANT(AFF_BLESS);
-    DEFINE_CONSTANT(AFF_SNEAK);
-    DEFINE_CONSTANT(AFF_HIDE);
-    DEFINE_CONSTANT(AFF_COURAGE);
-    DEFINE_CONSTANT(AFF_CHARM);
-    DEFINE_CONSTANT(AFF_HOLD);
-    DEFINE_CONSTANT(AFF_FLY);
-    DEFINE_CONSTANT(AFF_SIELENCE);
-    DEFINE_CONSTANT(AFF_AWARNESS);
-    DEFINE_CONSTANT(AFF_BLINK);
-    DEFINE_CONSTANT(AFF_HORSE);
-    DEFINE_CONSTANT(AFF_NOFLEE);
-    DEFINE_CONSTANT(AFF_SINGLELIGHT);
-    DEFINE_CONSTANT(AFF_HOLYLIGHT);
-    DEFINE_CONSTANT(AFF_HOLYDARK);
-    DEFINE_CONSTANT(AFF_DETECT_POISON);
-    DEFINE_CONSTANT(AFF_DRUNKED);
-    DEFINE_CONSTANT(AFF_ABSTINENT);
-    DEFINE_CONSTANT(AFF_STOPRIGHT);
-    DEFINE_CONSTANT(AFF_STOPLEFT);
-    DEFINE_CONSTANT(AFF_STOPFIGHT);
-    DEFINE_CONSTANT(AFF_HAEMORRAGIA);
-    DEFINE_CONSTANT(AFF_CAMOUFLAGE);
-    DEFINE_CONSTANT(AFF_WATERBREATH);
-    DEFINE_CONSTANT(AFF_SLOW);
-    DEFINE_CONSTANT(AFF_HASTE);
-    DEFINE_CONSTANT(AFF_SHIELD);
-    DEFINE_CONSTANT(AFF_AIRSHIELD);
-    DEFINE_CONSTANT(AFF_FIRESHIELD);
-    DEFINE_CONSTANT(AFF_ICESHIELD);
-    DEFINE_CONSTANT(AFF_MAGICGLASS);
-    DEFINE_CONSTANT(AFF_STAIRS);
-    DEFINE_CONSTANT(AFF_STONEHAND);
-    DEFINE_CONSTANT(AFF_PRISMATICAURA);
-    DEFINE_CONSTANT(AFF_HELPER);
-    DEFINE_CONSTANT(AFF_EVILESS);
-    DEFINE_CONSTANT(AFF_AIRAURA);
-    DEFINE_CONSTANT(AFF_FIREAURA);
-    DEFINE_CONSTANT(AFF_ICEAURA);
-    DEFINE_CONSTANT(AFF_DEAFNESS);
-    DEFINE_CONSTANT(AFF_CRYING);
-    DEFINE_CONSTANT(AFF_PEACEFUL);
-    DEFINE_CONSTANT(AFF_MAGICSTOPFIGHT);
-    DEFINE_CONSTANT(AFF_BERSERK);
-    DEFINE_CONSTANT(AFF_LIGHT_WALK);
-    DEFINE_CONSTANT(AFF_BROKEN_CHAINS);
-    DEFINE_CONSTANT(AFF_CLOUD_OF_ARROWS);
-    DEFINE_CONSTANT(AFF_SHADOW_CLOAK);
-    DEFINE_CONSTANT(AFF_GLITTERDUST);
-    DEFINE_CONSTANT(AFF_AFFRIGHT);
-    DEFINE_CONSTANT(AFF_SCOPOLIA_POISON);
-    DEFINE_CONSTANT(AFF_DATURA_POISON);
-    DEFINE_CONSTANT(AFF_SKILLS_REDUCE);
-    DEFINE_CONSTANT(AFF_NOT_SWITCH);
-    DEFINE_CONSTANT(AFF_BELENA_POISON);
-    DEFINE_CONSTANT(AFF_NOTELEPORT);
-    DEFINE_CONSTANT(AFF_LACKY);
-    DEFINE_CONSTANT(AFF_BANDAGE);
-    DEFINE_CONSTANT(AFF_NO_BANDAGE);
-    DEFINE_CONSTANT(AFF_MORPH);
-    DEFINE_CONSTANT(AFF_STRANGLED);
-    DEFINE_CONSTANT(AFF_RECALL_SPELLS);
-    DEFINE_CONSTANT(AFF_NOOB_REGEN);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_BLIND);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_INVISIBLE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_DETECT_ALIGN);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_DETECT_INVIS);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_DETECT_MAGIC);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SENSE_LIFE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_WATERWALK);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SANCTUARY);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_GROUP);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_CURSE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_INFRAVISION);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_POISON);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_PROTECT_EVIL);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_PROTECT_GOOD);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SLEEP);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_NOTRACK);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_TETHERED);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_BLESS);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SNEAK);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_HIDE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_COURAGE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_CHARM);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_HOLD);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_FLY);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SILENCE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_AWARNESS);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_BLINK);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_HORSE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_NOFLEE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SINGLELIGHT);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_HOLYLIGHT);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_HOLYDARK);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_DETECT_POISON);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_DRUNKED);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_ABSTINENT);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_STOPRIGHT);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_STOPLEFT);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_STOPFIGHT);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_HAEMORRAGIA);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_CAMOUFLAGE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_WATERBREATH);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SLOW);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_HASTE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SHIELD);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_AIRSHIELD);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_FIRESHIELD);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_ICESHIELD);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_MAGICGLASS);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_STAIRS);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_STONEHAND);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_PRISMATICAURA);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_HELPER);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_EVILESS);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_AIRAURA);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_FIREAURA);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_ICEAURA);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_DEAFNESS);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_CRYING);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_PEACEFUL);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_MAGICSTOPFIGHT);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_BERSERK);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_LIGHT_WALK);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_BROKEN_CHAINS);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_CLOUD_OF_ARROWS);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SHADOW_CLOAK);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_GLITTERDUST);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_AFFRIGHT);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SCOPOLIA_POISON);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_DATURA_POISON);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_SKILLS_REDUCE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_NOT_SWITCH);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_BELENA_POISON);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_NOTELEPORT);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_LACKY);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_BANDAGE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_NO_BANDAGE);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_MORPH);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_STRANGLED);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_RECALL_SPELLS);
+    DEFINE_ENUM_CONSTANT(EAffectFlag::AFF_NOOB_REGEN);
     DEFINE_CONSTANT(IGNORE_TELL);
     DEFINE_CONSTANT(IGNORE_SAY);
     DEFINE_CONSTANT(IGNORE_CLAN);
@@ -2157,190 +2157,178 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(WEAR_HOLD);
     DEFINE_CONSTANT(WEAR_BOTHS);
     DEFINE_CONSTANT(NUM_WEARS);
-    DEFINE_CONSTANT(ITEM_LIGHT);
-    DEFINE_CONSTANT(ITEM_SCROLL);
-    DEFINE_CONSTANT(ITEM_WAND);
-    DEFINE_CONSTANT(ITEM_STAFF);
-    DEFINE_CONSTANT(ITEM_WEAPON);
-    DEFINE_CONSTANT(ITEM_FIREWEAPON);
-    DEFINE_CONSTANT(ITEM_MISSILE);
-    DEFINE_CONSTANT(ITEM_TREASURE);
-    DEFINE_CONSTANT(ITEM_ARMOR);
-    DEFINE_CONSTANT(ITEM_POTION);
-    DEFINE_CONSTANT(ITEM_WORN);
-    DEFINE_CONSTANT(ITEM_OTHER);
-    DEFINE_CONSTANT(ITEM_TRASH);
-    DEFINE_CONSTANT(ITEM_TRAP);
-    DEFINE_CONSTANT(ITEM_CONTAINER);
-    DEFINE_CONSTANT(ITEM_NOTE);
-    DEFINE_CONSTANT(ITEM_DRINKCON);
-    DEFINE_CONSTANT(ITEM_KEY);
-    DEFINE_CONSTANT(ITEM_FOOD);
-    DEFINE_CONSTANT(ITEM_MONEY);
-    DEFINE_CONSTANT(ITEM_PEN);
-    DEFINE_CONSTANT(ITEM_BOAT);
-    DEFINE_CONSTANT(ITEM_FOUNTAIN);
-    DEFINE_CONSTANT(ITEM_BOOK);
-    DEFINE_CONSTANT(ITEM_INGRADIENT);
-    DEFINE_CONSTANT(ITEM_MING);
-    DEFINE_CONSTANT(ITEM_MATERIAL);
-    DEFINE_CONSTANT(ITEM_BANDAGE);
-    DEFINE_CONSTANT(ITEM_ARMOR_LIGHT);
-    DEFINE_CONSTANT(ITEM_ARMOR_MEDIAN);
-    DEFINE_CONSTANT(ITEM_ARMOR_HEAVY);
-    DEFINE_CONSTANT(ITEM_ENCHANT);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_LIGHT);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_SCROLL);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_WAND);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_STAFF);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_WEAPON);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_FIREWEAPON);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_MISSILE);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_TREASURE);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_ARMOR);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_POTION);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_WORN);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_OTHER);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_TRASH);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_TRAP);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_CONTAINER);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_NOTE);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_DRINKCON);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_KEY);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_FOOD);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_MONEY);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_PEN);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_BOAT);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_FOUNTAIN);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_BOOK);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_INGREDIENT);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_MING);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_MATERIAL);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_BANDAGE);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_ARMOR_LIGHT);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_ARMOR_MEDIAN);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_ARMOR_HEAVY);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_ENCHANT);
     DEFINE_CONSTANT(BOOK_SPELL);
     DEFINE_CONSTANT(BOOK_SKILL);
     DEFINE_CONSTANT(BOOK_UPGRD);
     DEFINE_CONSTANT(BOOK_RECPT);
     DEFINE_CONSTANT(BOOK_FEAT);
-    DEFINE_CONSTANT(ITEM_WEAR_TAKE);
-    DEFINE_CONSTANT(ITEM_WEAR_FINGER);
-    DEFINE_CONSTANT(ITEM_WEAR_NECK);
-    DEFINE_CONSTANT(ITEM_WEAR_BODY);
-    DEFINE_CONSTANT(ITEM_WEAR_HEAD);
-    DEFINE_CONSTANT(ITEM_WEAR_LEGS);
-    DEFINE_CONSTANT(ITEM_WEAR_FEET);
-    DEFINE_CONSTANT(ITEM_WEAR_HANDS);
-    DEFINE_CONSTANT(ITEM_WEAR_ARMS);
-    DEFINE_CONSTANT(ITEM_WEAR_SHIELD);
-    DEFINE_CONSTANT(ITEM_WEAR_ABOUT);
-    DEFINE_CONSTANT(ITEM_WEAR_WAIST);
-    DEFINE_CONSTANT(ITEM_WEAR_WRIST);
-    DEFINE_CONSTANT(ITEM_WEAR_WIELD);
-    DEFINE_CONSTANT(ITEM_WEAR_HOLD);
-    DEFINE_CONSTANT(ITEM_WEAR_BOTHS);
-    DEFINE_CONSTANT(ITEM_GLOW);
-    DEFINE_CONSTANT(ITEM_HUM);
-    DEFINE_CONSTANT(ITEM_NORENT);
-    DEFINE_CONSTANT(ITEM_NODONATE);
-    DEFINE_CONSTANT(ITEM_NOINVIS);
-    DEFINE_CONSTANT(ITEM_INVISIBLE);
-    DEFINE_CONSTANT(ITEM_MAGIC);
-    DEFINE_CONSTANT(ITEM_NODROP);
-    DEFINE_CONSTANT(ITEM_BLESS);
-    DEFINE_CONSTANT(ITEM_NOSELL);
-    DEFINE_CONSTANT(ITEM_DECAY);
-    DEFINE_CONSTANT(ITEM_ZONEDECAY);
-    DEFINE_CONSTANT(ITEM_NODISARM);
-    DEFINE_CONSTANT(ITEM_NODECAY);
-    DEFINE_CONSTANT(ITEM_POISONED);
-    DEFINE_CONSTANT(ITEM_SHARPEN);
-    DEFINE_CONSTANT(ITEM_ARMORED);
-    DEFINE_CONSTANT(ITEM_DAY);
-    DEFINE_CONSTANT(ITEM_NIGHT);
-    DEFINE_CONSTANT(ITEM_FULLMOON);
-    DEFINE_CONSTANT(ITEM_WINTER);
-    DEFINE_CONSTANT(ITEM_SPRING);
-    DEFINE_CONSTANT(ITEM_SUMMER);
-    DEFINE_CONSTANT(ITEM_AUTUMN);
-    DEFINE_CONSTANT(ITEM_SWIMMING);
-    DEFINE_CONSTANT(ITEM_FLYING);
-    DEFINE_CONSTANT(ITEM_THROWING);
-    DEFINE_CONSTANT(ITEM_TICKTIMER);
-    DEFINE_CONSTANT(ITEM_FIRE);
-    DEFINE_CONSTANT(ITEM_REPOP_DECAY);
-    DEFINE_CONSTANT(ITEM_NOLOCATE);
-    DEFINE_CONSTANT(ITEM_TIMEDLVL);
-    DEFINE_CONSTANT(ITEM_NOALTER);
-    DEFINE_CONSTANT(ITEM_WITH1SLOT);
-    DEFINE_CONSTANT(ITEM_WITH2SLOTS);
-    DEFINE_CONSTANT(ITEM_WITH3SLOTS);
-    DEFINE_CONSTANT(ITEM_SETSTUFF);
-    DEFINE_CONSTANT(ITEM_NO_FAIL);
-    DEFINE_CONSTANT(ITEM_NAMED);
-    DEFINE_CONSTANT(ITEM_BLOODY);
-    DEFINE_CONSTANT(ITEM_1INLAID);
-    DEFINE_CONSTANT(ITEM_2INLAID);
-    DEFINE_CONSTANT(ITEM_3INLAID);
-    DEFINE_CONSTANT(ITEM_NO_MONO);
-    DEFINE_CONSTANT(ITEM_NO_POLY);
-    DEFINE_CONSTANT(ITEM_NO_NEUTRAL);
-    DEFINE_CONSTANT(ITEM_NO_MAGIC_USER);
-    DEFINE_CONSTANT(ITEM_NO_CLERIC);
-    DEFINE_CONSTANT(ITEM_NO_THIEF);
-    DEFINE_CONSTANT(ITEM_NO_WARRIOR);
-    DEFINE_CONSTANT(ITEM_NO_ASSASINE);
-    DEFINE_CONSTANT(ITEM_NO_GUARD);
-    DEFINE_CONSTANT(ITEM_NO_PALADINE);
-    DEFINE_CONSTANT(ITEM_NO_RANGER);
-    DEFINE_CONSTANT(ITEM_NO_SMITH);
-    DEFINE_CONSTANT(ITEM_NO_MERCHANT);
-    DEFINE_CONSTANT(ITEM_NO_DRUID);
-    DEFINE_CONSTANT(ITEM_NO_BATTLEMAGE);
-    DEFINE_CONSTANT(ITEM_NO_CHARMMAGE);
-    DEFINE_CONSTANT(ITEM_NO_DEFENDERMAGE);
-    DEFINE_CONSTANT(ITEM_NO_NECROMANCER);
-    DEFINE_CONSTANT(ITEM_NO_KILLER);
-    DEFINE_CONSTANT(ITEM_NO_COLORED);
-/*    DEFINE_CONSTANT(ITEM_NO_SEVERANE); // ����
-    DEFINE_CONSTANT(ITEM_NO_POLANE);
-    DEFINE_CONSTANT(ITEM_NO_KRIVICHI);
-    DEFINE_CONSTANT(ITEM_NO_VATICHI);
-    DEFINE_CONSTANT(ITEM_NO_VELANE);
-    DEFINE_CONSTANT(ITEM_NO_DREVLANE); 
-*/   DEFINE_CONSTANT(ITEM_NO_MALE);
-    DEFINE_CONSTANT(ITEM_NO_FEMALE);
-    DEFINE_CONSTANT(ITEM_NO_CHARMICE);
-    DEFINE_CONSTANT(ITEM_NO_POLOVCI);
-    DEFINE_CONSTANT(ITEM_NO_PECHENEGI);
-    DEFINE_CONSTANT(ITEM_NO_MONGOLI);
-    DEFINE_CONSTANT(ITEM_NO_YIGURI);
-    DEFINE_CONSTANT(ITEM_NO_KANGARI);
-    DEFINE_CONSTANT(ITEM_NO_XAZARI);
-    DEFINE_CONSTANT(ITEM_NO_SVEI);
-    DEFINE_CONSTANT(ITEM_NO_DATCHANE);
-    DEFINE_CONSTANT(ITEM_NO_GETTI);
-    DEFINE_CONSTANT(ITEM_NO_UTTI);
-    DEFINE_CONSTANT(ITEM_NO_XALEIGI);
-    DEFINE_CONSTANT(ITEM_NO_NORVEZCI);
-    DEFINE_CONSTANT(ITEM_NO_RUSICHI);
-    DEFINE_CONSTANT(ITEM_NO_STEPNYAKI);
-    DEFINE_CONSTANT(ITEM_NO_VIKINGI);
-    DEFINE_CONSTANT(ITEM_AN_MONO);
-    DEFINE_CONSTANT(ITEM_AN_POLY);
-    DEFINE_CONSTANT(ITEM_AN_NEUTRAL);
-    DEFINE_CONSTANT(ITEM_AN_MAGIC_USER);
-    DEFINE_CONSTANT(ITEM_AN_CLERIC);
-    DEFINE_CONSTANT(ITEM_AN_THIEF);
-    DEFINE_CONSTANT(ITEM_AN_WARRIOR);
-    DEFINE_CONSTANT(ITEM_AN_ASSASINE);
-    DEFINE_CONSTANT(ITEM_AN_GUARD);
-    DEFINE_CONSTANT(ITEM_AN_PALADINE);
-    DEFINE_CONSTANT(ITEM_AN_RANGER);
-    DEFINE_CONSTANT(ITEM_AN_SMITH);
-    DEFINE_CONSTANT(ITEM_AN_MERCHANT);
-    DEFINE_CONSTANT(ITEM_AN_DRUID);
-    DEFINE_CONSTANT(ITEM_AN_BATTLEMAGE);
-    DEFINE_CONSTANT(ITEM_AN_CHARMMAGE);
-    DEFINE_CONSTANT(ITEM_AN_DEFENDERMAGE);
-    DEFINE_CONSTANT(ITEM_AN_NECROMANCER);
-    DEFINE_CONSTANT(ITEM_AN_KILLER);
-    DEFINE_CONSTANT(ITEM_AN_COLORED);
-/*    DEFINE_CONSTANT(ITEM_AN_SEVERANE);  // ����
-    DEFINE_CONSTANT(ITEM_AN_POLANE);
-    DEFINE_CONSTANT(ITEM_AN_KRIVICHI);
-    DEFINE_CONSTANT(ITEM_AN_VATICHI);
-    DEFINE_CONSTANT(ITEM_AN_VELANE);
-    DEFINE_CONSTANT(ITEM_AN_DREVLANE);   
-*/    DEFINE_CONSTANT(ITEM_AN_MALE);
-    DEFINE_CONSTANT(ITEM_AN_FEMALE);
-    DEFINE_CONSTANT(ITEM_AN_CHARMICE);
-    DEFINE_CONSTANT(ITEM_AN_POLOVCI);
-    DEFINE_CONSTANT(ITEM_AN_PECHENEGI);
-    DEFINE_CONSTANT(ITEM_AN_MONGOLI);
-    DEFINE_CONSTANT(ITEM_AN_YIGURI);
-    DEFINE_CONSTANT(ITEM_AN_KANGARI);
-    DEFINE_CONSTANT(ITEM_AN_XAZARI);
-    DEFINE_CONSTANT(ITEM_AN_SVEI);
-    DEFINE_CONSTANT(ITEM_AN_DATCHANE);
-    DEFINE_CONSTANT(ITEM_AN_GETTI);
-    DEFINE_CONSTANT(ITEM_AN_UTTI);
-    DEFINE_CONSTANT(ITEM_AN_XALEIGI);
-    DEFINE_CONSTANT(ITEM_AN_NORVEZCI);
-    DEFINE_CONSTANT(ITEM_AN_RUSICHI);
-    DEFINE_CONSTANT(ITEM_AN_STEPNYAKI);
-    DEFINE_CONSTANT(ITEM_AN_VIKINGI);
+    DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_TAKE);
+    DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_FINGER);
+    DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_NECK);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_BODY);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_HEAD);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_LEGS);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_FEET);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_HANDS);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_ARMS);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_SHIELD);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_ABOUT);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_WAIST);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_WRIST);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_WIELD);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_HOLD);
+	DEFINE_ENUM_CONSTANT(EWearFlag::ITEM_WEAR_BOTHS);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_GLOW);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_HUM);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NORENT);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NODONATE);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NOINVIS);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_INVISIBLE);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_MAGIC);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NODROP);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_BLESS);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NOSELL);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_DECAY);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_ZONEDECAY);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NODISARM);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NODECAY);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_POISONED);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_SHARPEN);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_ARMORED);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_DAY);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NIGHT);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_FULLMOON);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_WINTER);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_SPRING);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_SUMMER);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_AUTUMN);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_SWIMMING);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_FLYING);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_THROWING);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_TICKTIMER);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_FIRE);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_REPOP_DECAY);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NOLOCATE);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_TIMEDLVL);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NOALTER);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_WITH1SLOT);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_WITH2SLOTS);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_WITH3SLOTS);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_SETSTUFF);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NO_FAIL);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_NAMED);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_BLOODY);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_1INLAID);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_2INLAID);
+	DEFINE_ENUM_CONSTANT(EExtraFlag::ITEM_3INLAID);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_MONO);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_POLY);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_NEUTRAL);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_MAGIC_USER);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_CLERIC);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_THIEF);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_WARRIOR);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_ASSASINE);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_GUARD);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_PALADINE);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_RANGER);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_SMITH);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_MERCHANT);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_DRUID);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_BATTLEMAGE);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_CHARMMAGE);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_DEFENDERMAGE);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_NECROMANCER);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_KILLER);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_COLORED);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_MALE);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_FEMALE);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_CHARMICE);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_POLOVCI);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_PECHENEGI);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_MONGOLI);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_YIGURI);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_KANGARI);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_XAZARI);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_SVEI);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_DATCHANE);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_GETTI);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_UTTI);
+	DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_XALEIGI);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_NORVEZCI);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_RUSICHI);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_STEPNYAKI);
+    DEFINE_ENUM_CONSTANT(ENoFlag::ITEM_NO_VIKINGI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_MONO);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_POLY);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_NEUTRAL);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_MAGIC_USER);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_CLERIC);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_THIEF);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_WARRIOR);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_ASSASINE);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_GUARD);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_PALADINE);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_RANGER);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_SMITH);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_MERCHANT);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_DRUID);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_BATTLEMAGE);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_CHARMMAGE);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_DEFENDERMAGE);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_NECROMANCER);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_KILLER);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_COLORED);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_MALE);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_FEMALE);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_CHARMICE);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_POLOVCI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_PECHENEGI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_MONGOLI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_YIGURI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_KANGARI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_XAZARI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_SVEI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_DATCHANE);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_GETTI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_UTTI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_XALEIGI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_NORVEZCI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_RUSICHI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_STEPNYAKI);
+    DEFINE_ENUM_CONSTANT(EAntiFlag::ITEM_AN_VIKINGI);
     DEFINE_CONSTANT(APPLY_NONE);
     DEFINE_CONSTANT(APPLY_STR);
     DEFINE_CONSTANT(APPLY_DEX);
@@ -2404,25 +2392,25 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(APPLY_ROOM_POISON);
     DEFINE_CONSTANT(APPLY_ROOM_FLAME);
     DEFINE_CONSTANT(NUM_ROOM_APPLIES);
-    DEFINE_CONSTANT(MAT_NONE);
-    DEFINE_CONSTANT(MAT_BULAT);
-    DEFINE_CONSTANT(MAT_BRONZE);
-    DEFINE_CONSTANT(MAT_IRON);
-    DEFINE_CONSTANT(MAT_STEEL);
-    DEFINE_CONSTANT(MAT_SWORDSSTEEL);
-    DEFINE_CONSTANT(MAT_COLOR);
-    DEFINE_CONSTANT(MAT_CRYSTALL);
-    DEFINE_CONSTANT(MAT_WOOD);
-    DEFINE_CONSTANT(MAT_SUPERWOOD);
-    DEFINE_CONSTANT(MAT_FARFOR);
-    DEFINE_CONSTANT(MAT_GLASS);
-    DEFINE_CONSTANT(MAT_ROCK);
-    DEFINE_CONSTANT(MAT_BONE);
-    DEFINE_CONSTANT(MAT_MATERIA);
-    DEFINE_CONSTANT(MAT_SKIN);
-    DEFINE_CONSTANT(MAT_ORGANIC);
-    DEFINE_CONSTANT(MAT_PAPER);
-    DEFINE_CONSTANT(MAT_DIAMOND);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_NONE);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_BULAT);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_BRONZE);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_IRON);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_STEEL);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_SWORDSSTEEL);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_COLOR);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_CRYSTALL);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_WOOD);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_SUPERWOOD);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_FARFOR);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_GLASS);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_ROCK);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_BONE);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_MATERIA);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_SKIN);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_ORGANIC);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_PAPER);
+    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_DIAMOND);
     DEFINE_CONSTANT(TRACK_NPC);
     DEFINE_CONSTANT(TRACK_HIDE);
     DEFINE_CONSTANT(CONT_CLOSEABLE);
@@ -2607,13 +2595,13 @@ result_t CIterator<t, nextfunc, getfunc, result_t>::next()
 
 struct PythonUserCommand
 {
-	string command;
-	string command_koi8r;
+	std::string command;
+	std::string command_koi8r;
 	object callable;
 	byte minimum_position;
 	sh_int minimum_level;
 	int unhide_percent;
-	PythonUserCommand(const string& command_, const string& command____, const object& callable_, byte minimum_position_, sh_int minimum_level_, int unhide_percent_):
+	PythonUserCommand(const std::string& command_, const std::string& command____, const object& callable_, byte minimum_position_, sh_int minimum_level_, int unhide_percent_):
 		command(command_), command_koi8r(command____), callable(callable_), minimum_position(minimum_position_), minimum_level(minimum_level_), unhide_percent(unhide_percent_) { }
 };
 typedef std::vector<PythonUserCommand> python_command_list_t;
@@ -2621,7 +2609,7 @@ typedef std::vector<PythonUserCommand> python_command_list_t;
 
  extern void check_hiding_cmd(CHAR_DATA * ch, int percent);
 
- bool check_command_on_list(const python_command_list_t& lst, CHAR_DATA* ch, const string& command, const string& args)
+ bool check_command_on_list(const python_command_list_t& lst, CHAR_DATA* ch, const std::string& command, const std::string& args)
 {
 	for (python_command_list_t::const_iterator i = lst.begin(); i != lst.end(); ++i)
 	{
@@ -2686,12 +2674,12 @@ typedef std::vector<PythonUserCommand> python_command_list_t;
 	return false;
 }
 
-void register_global_command(const string& command, const string& command_koi8r, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent)
+void register_global_command(const std::string& command, const std::string& command_koi8r, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent)
 {
 	global_commands.push_back(PythonUserCommand(command, command_koi8r, callable, minimum_position, minimum_level, unhide_percent));
 }
 
-void unregister_global_command(const string& command)
+void unregister_global_command(const std::string& command)
 {
 	python_command_list_t::iterator found = global_commands.end();
 	for (python_command_list_t::iterator i = global_commands.begin(); i != global_commands.end() && found == global_commands.end(); ++i)

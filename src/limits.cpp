@@ -57,7 +57,6 @@ extern OBJ_DATA *object_list;
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
-extern INDEX_DATA *obj_index;
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
@@ -113,14 +112,19 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 
 void handle_recall_spells(CHAR_DATA* ch)
 {
-	AFFECT_DATA* aff = NULL;
-	for(AFFECT_DATA* af = ch->affected; af; af = af->next)
+	AFFECT_DATA<EApplyLocation>* aff;
+	for (auto af = ch->affected; af; af = af->next)
+	{
 		if (af->type == SPELL_RECALL_SPELLS)
 		{
 			aff = af;
 			break;
 		}
-	if (!aff) return;
+	}
+	if (!aff)
+	{
+		return;
+	}
 	//максимальный доступный чару круг
 	unsigned max_slot = get_max_slot(ch);
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
@@ -203,7 +207,7 @@ int mana_gain(CHAR_DATA * ch)
 	if (world[IN_ROOM(ch)]->fires)
 		percent += MAX(100, 10 + (world[IN_ROOM(ch)]->fires * 5) * 2);
 
-	if (AFF_FLAGGED(ch, AFF_DEAFNESS))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 		percent += 15;
 
 	// Skill/Spell calculations
@@ -241,9 +245,9 @@ int mana_gain(CHAR_DATA * ch)
 		}
 
 	if (!IS_MANA_CASTER(ch) &&
-			(AFF_FLAGGED(ch, AFF_HOLD) ||
-			 AFF_FLAGGED(ch, AFF_BLIND) ||
-			 AFF_FLAGGED(ch, AFF_SLEEP) ||
+			(AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) ||
+			 AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) ||
+			 AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP) ||
 			 ((IN_ROOM(ch) != NOWHERE) && IS_DARK(IN_ROOM(ch)) && !can_use_feat(ch, DARK_READING_FEAT))))
 	{
 		stopmem = TRUE;
@@ -261,7 +265,7 @@ int mana_gain(CHAR_DATA * ch)
 
 	if (!IS_MANA_CASTER(ch))
 		percent += GET_MANAREG(ch);
-	if (AFF_FLAGGED(ch, AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
@@ -281,7 +285,7 @@ int hit_gain(CHAR_DATA * ch)
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
 
-		if (!AFF_FLAGGED(ch, AFF_NOOB_REGEN))
+		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))
 		{
 			gain = graf(age(ch)->year, restore - 3, restore, restore, restore - 2,
 				restore - 3, restore - 5, restore - 7);
@@ -333,7 +337,7 @@ int hit_gain(CHAR_DATA * ch)
 	percent += GET_HITREG(ch);
 
 	// TODO: перевоткнуть на apply_аффект
-	if (AFF_FLAGGED(ch, AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
 
 	percent = MAX(0, MIN(250, percent));
@@ -407,7 +411,7 @@ int move_gain(CHAR_DATA * ch)
 	}
 
 	percent += GET_MOVEREG(ch);
-	if (AFF_FLAGGED(ch, AFF_POISON) && percent > 0)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
@@ -714,10 +718,9 @@ void beat_points_update(int pulse)
 		restore = hit_gain(i);
 		restore = interpolate(restore, pulse);
 
-		if (AFF_FLAGGED(i, AFF_BANDAGE))
+		if (AFF_FLAGGED(i, EAffectFlag::AFF_BANDAGE))
 		{
-			AFFECT_DATA* aff;
-			for(aff = i->affected; aff; aff = aff->next)
+			for (auto aff = i->affected; aff; aff = aff->next)
 			{
 				if (aff->type == SPELL_BANDAGE)
 				{
@@ -742,7 +745,7 @@ void beat_points_update(int pulse)
 			restore = interpolate(restore, pulse);
 			GET_MEM_COMPLETED(i) += restore;
 
-	if (AFF_FLAGGED(i, AFF_RECALL_SPELLS))
+	if (AFF_FLAGGED(i, EAffectFlag::AFF_RECALL_SPELLS))
 		handle_recall_spells(i);
 
 			while (GET_MEM_COMPLETED(i) > GET_MEM_CURRENT(i)
@@ -1032,7 +1035,7 @@ void underwater_check(void)
 		if (d->character
 			&& SECT(d->character->in_room) == SECT_UNDERWATER
 			&& !IS_GOD(d->character)
-			&& !AFF_FLAGGED(d->character, AFF_WATERBREATH))
+			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_WATERBREATH))
 		{
 			sprintf(buf, "Player %s died under water (room %d)",
 				GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
@@ -1101,18 +1104,23 @@ void check_idling(CHAR_DATA * ch)
 	}
 }
 
-
-
 // Update PCs, NPCs, and objects
-#define NO_DESTROY(obj) ((obj)->carried_by   || \
-                         (obj)->worn_by      || \
-                         (obj)->in_obj       || \
-                         (obj)->script       || \
-                         GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN || \
-	                 obj->in_room == NOWHERE || \
-			 (OBJ_FLAGGED(obj, ITEM_NODECAY) && !ROOM_FLAGGED(obj->in_room, ROOM_DEATH)))
-#define NO_TIMER(obj)   (GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN)
-// || OBJ_FLAGGED(obj, ITEM_NODECAY))
+inline bool NO_DESTROY(const OBJ_DATA* obj)
+{
+	return (obj->carried_by
+		|| obj->worn_by
+		|| obj->in_obj
+		|| obj->script
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN
+		|| obj->in_room == NOWHERE
+		|| (obj->get_extraflag(EExtraFlag::ITEM_NODECAY)
+			&& !ROOM_FLAGGED(obj->in_room, ROOM_DEATH)));
+}
+
+inline bool NO_TIMER(const OBJ_DATA* obj)
+{
+	return GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN;
+}
 
 int up_obj_where(OBJ_DATA * obj)
 {
@@ -1187,7 +1195,7 @@ void room_point_update()
 		if (world[count]->ices)
 			if (!--world[count]->ices)
 			{
-				REMOVE_BIT(ROOM_FLAGS(count, ROOM_ICEDEATH), ROOM_ICEDEATH);
+				GET_ROOM(count)->unset_flag(ROOM_ICEDEATH);
 				DeathTrap::remove(world[count]);
 			}
 
@@ -1311,7 +1319,7 @@ void clan_chest_invoice(OBJ_DATA *j)
 	{
 		if (d->character
 			&& STATE(d) == CON_PLAYING
-			&& !AFF_FLAGGED(d->character, AFF_DEAFNESS)
+			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
 			&& PRF_FLAGGED(d->character, PRF_DECAY_MODE)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room)
@@ -1350,16 +1358,16 @@ void clan_chest_point_update(OBJ_DATA *j)
 		if (!SetSystem::find_set_item(j->in_obj) && j->get_timer() > 0)
 			j->dec_timer();
 	}
-	if ((j->get_timer() > 0))
+	if (j->get_timer() > 0)
 	{
 		j->dec_timer();
 	}
 
-	if ((OBJ_FLAGGED(j, ITEM_ZONEDECAY)
+	if (j->get_timer() <= 0
+		|| (j->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
 			&& GET_OBJ_ZONE(j) != NOWHERE
 			&& up_obj_where(j->in_obj) != NOWHERE
-			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone)
-		|| j->get_timer() <= 0)
+			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone))
 	{
 		clan_chest_invoice(j);
 		obj_from_obj(j);
@@ -1428,7 +1436,7 @@ void obj_point_update()
 		if (j->in_obj
 				&& !j->in_obj->carried_by
 				&& !j->in_obj->worn_by
-				&& OBJ_FLAGGED(j->in_obj, ITEM_NODECAY)
+				&& j->in_obj->get_extraflag(EExtraFlag::ITEM_NODECAY)
 				&& GET_ROOM_VNUM(IN_ROOM(j->in_obj)) % 100 != 99)
 		{
 			int zone = world[j->in_obj->in_room]->zone;
@@ -1511,7 +1519,7 @@ void obj_point_update()
 		{
 			if (SCRIPT_CHECK(j, OTRIG_TIMER))
 			{
-				if (j->get_timer() > 0 && OBJ_FLAGGED(j, ITEM_TICKTIMER))
+				if (j->get_timer() > 0 && j->get_extraflag(EExtraFlag::ITEM_TICKTIMER))
 				{
 					j->dec_timer();
 				}
@@ -1529,13 +1537,15 @@ void obj_point_update()
 				j->dec_timer();
 			}
 
-			if (j && (
-					(OBJ_FLAGGED(j, ITEM_ZONEDECAY)
+			if (j
+				&& ((j->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
 					&& GET_OBJ_ZONE(j) != NOWHERE
 					&& up_obj_where(j) != NOWHERE
 					&& GET_OBJ_ZONE(j) != world[up_obj_where(j)]->zone)
-					|| (j->get_timer() <= 0 && !NO_TIMER(j))
-					|| (GET_OBJ_DESTROY(j) == 0 && !NO_DESTROY(j))))
+					|| (j->get_timer() <= 0
+						&& !NO_TIMER(j))
+					|| (GET_OBJ_DESTROY(j) == 0
+						&& !NO_DESTROY(j))))
 			{
 				// *** рассыпание объекта
 				for (jj = j->contains; jj; jj = next_thing2)
@@ -1699,7 +1709,7 @@ void point_update(void)
 		next_char = i->get_next();
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		   то он снова должен валиться в сон */
-		if (AFF_FLAGGED(i, AFF_SLEEP) && GET_POS(i) > POS_SLEEPING)
+		if (AFF_FLAGGED(i, EAffectFlag::AFF_SLEEP) && GET_POS(i) > POS_SLEEPING)
 		{
 			GET_POS(i) = POS_SLEEPING;
 			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
@@ -1880,13 +1890,13 @@ void repop_decay(zone_rnum zone)
 			cont = FALSE;
 		}
 		obj_zone_num = GET_OBJ_VNUM(j) / 100;
-		if (((obj_zone_num == zone_num) && IS_OBJ_STAT(j, ITEM_REPOP_DECAY)))
+		if (obj_zone_num == zone_num
+			&& j->get_extraflag(EExtraFlag::ITEM_REPOP_DECAY))
 		{
 			/* F@N
 			 * Если мне кто-нибудь объяснит глубинный смысл последующей строчки,
 			 * буду очень признателен
 			*/
-//                 || (GET_OBJ_TYPE(j) == ITEM_INGRADIENT && GET_OBJ_SKILL(j) > 19)
 			if (j->worn_by)
 				act("$o рассыпал$U, вспыхнув ярким светом...", FALSE, j->worn_by, j, 0, TO_CHAR);
 			else if (j->carried_by)

@@ -42,7 +42,7 @@ extern room_rnum r_unreg_start_room;
 void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg);
 void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg);
 void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg);
-SPECIAL(postmaster);
+int postmaster(CHAR_DATA *ch, void *me, int cmd, char* argument);
 
 namespace mail
 {
@@ -122,7 +122,7 @@ const int MAX_MAIL_SIZE = 4096;
 //* Below is the spec_proc for a postmaster using the above      *
 //* routines.  Written by Jeremy Elson (jelson@circlemud.org)    *
 //****************************************************************
-SPECIAL(postmaster)
+int postmaster(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	if (!ch->desc || IS_NPC(ch))
 		return (0);	// so mobs don't get caught here
@@ -161,7 +161,7 @@ SPECIAL(postmaster)
 		return (0);
 }
 
-void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg)
+void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char* /*arg*/)
 {
 	bool empty = true;
 	if (mail::has_mail(ch->get_uid()))
@@ -185,7 +185,7 @@ void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *a
 }
 
 
-void postmaster_receive_mail(CHAR_DATA* ch, CHAR_DATA* mailman, int cmd, char* arg)
+void postmaster_receive_mail(CHAR_DATA* ch, CHAR_DATA* mailman, int/* cmd*/, char* /*arg*/)
 {
 	if (!Parcel::has_parcel(ch) && !mail::has_mail(ch->get_uid()))
 	{
@@ -197,7 +197,7 @@ void postmaster_receive_mail(CHAR_DATA* ch, CHAR_DATA* mailman, int cmd, char* a
 	mail::receive(ch, mailman);
 }
 
-void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg)
+void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char *arg)
 {
 	int recipient;
 	int cost;
@@ -276,10 +276,10 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
 	ch->remove_gold(cost);
-	SET_BIT(PLR_FLAGS(ch, PLR_MAILING), PLR_MAILING);	// string_write() sets writing.
+	PLR_FLAGS(ch).set(PLR_MAILING);	// string_write() sets writing.
 
 	// Start writing!
-	CREATE(write, char *, 1);
+	CREATE(write, 1);
 	string_write(ch->desc, write, MAX_MAIL_SIZE, recipient, NULL);
 }
 
@@ -612,10 +612,10 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 		obj->PNames[4] = str_dup("письмом");
 		obj->PNames[5] = str_dup("письме");
 
-		GET_OBJ_TYPE(obj) = ITEM_NOTE;
-		GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE | ITEM_WEAR_HOLD;
+		GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_NOTE;
+		GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD);
 		GET_OBJ_WEIGHT(obj) = 1;
-		GET_OBJ_MATER(obj) = MAT_PAPER;
+		GET_OBJ_MATER(obj) = obj_flag_data::MAT_PAPER;
 		obj->set_cost(0);
 		obj->set_rent(10);
 		obj->set_rent_eq(10);
@@ -631,7 +631,7 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 			"Дата: %s\r\n"
 			"Кому: %s\r\n"
 			"  От: %s\r\n\r\n",
-			buf_date, ch->get_name(), get_author_name(i->second.from).c_str());
+			buf_date, ch->get_name().c_str(), get_author_name(i->second.from).c_str());
 
 		std::string text = coder::base64_decode(i->second.text);
 		boost::trim_if(text, ::isspace);

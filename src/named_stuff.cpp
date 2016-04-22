@@ -33,6 +33,7 @@ extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
 
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
+extern void free_script(SCRIPT_DATA * sc);
 
 namespace NamedStuff
 {
@@ -71,8 +72,10 @@ void save()
 
 bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple)
 {
-	if (!OBJ_FLAGGED(obj, ITEM_NAMED))
+	if (!obj->get_extraflag(EExtraFlag::ITEM_NAMED))
+	{
 		return false; // если шмотка не именная - остальное и проверять не нужно
+	}
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
 	if (it != stuff_list.end())
 	{
@@ -339,7 +342,7 @@ void nedit_menu(CHAR_DATA * ch)
 	send_to_char(out.str().c_str(), ch);
 }
 
-ACMD(do_named)
+void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	mob_rnum r_num;
 	std::string out;
@@ -392,20 +395,29 @@ ACMD(do_named)
 					}
 					else
 					{
-						if ((*buf && strstr(it->second->mail.c_str(), buf)) ||
-						   (uid != -1 && uid == it->second->uid) ||
-						   (uid == -1 && obj_index[r_num].vnum >= first && obj_index[r_num].vnum <= last))
+						if ((*buf && strstr(it->second->mail.c_str(), buf))
+							|| (uid != -1
+								&& uid == it->second->uid)
+							|| (uid == -1
+								&& obj_proto.vnum(r_num) >= first
+								&& obj_proto.vnum(r_num) <= last))
 						{
 							sprintf(buf2, "%6d) %s",
-									obj_index[r_num].vnum, colored_name(obj_proto[r_num]->short_description, 50));
+								obj_proto.vnum(r_num), colored_name(obj_proto[r_num]->short_description, 50));
 							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+							{
 								sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%16s e-mail:&S%s&s\r\n", buf2,
-									obj_index[r_num].number, obj_index[r_num].stored,
-									GetNameByUnique(it->second->uid,false).c_str(), it->second->mail.c_str());
+									obj_proto.number(r_num), obj_proto.stored(r_num),
+									GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
+							}
 							else
+							{
 								sprintf(buf2, "%s\r\n", buf2);
+							}
 							if (found == 0)
+							{
 								out += buf1;
+							}
 							found++;
 							out += buf2;
 						}
@@ -503,15 +515,14 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 				snprintf(buf1, MAX_STRING_LENGTH, "объект не существует!!!");
 				continue;
 			}
-			if((GET_OBJ_MIW(obj_proto[r_num]) > obj_index[r_num].stored + obj_index[r_num].number) ||//Проверка на макс в мире
-			  (obj_index[r_num].stored + obj_index[r_num].number < 1))//Пока что если в мире нету то тоже загрузить
+			if ((GET_OBJ_MIW(obj_proto[r_num]) > obj_proto.actual_count(r_num))	//Проверка на макс в мире
+				|| (obj_proto.actual_count(r_num) < 1))//Пока что если в мире нету то тоже загрузить
 			{
 				found++;
-				snprintf(buf1, MAX_STRING_LENGTH,
-					"выдаем именной предмет %s Max:%d > Current:%d",
-					obj_proto[r_num]->short_description, GET_OBJ_MIW(obj_proto[r_num]), obj_index[r_num].stored + obj_index[r_num].number);
+				snprintf(buf1, MAX_STRING_LENGTH, "выдаем именной предмет %s Max:%d > Current:%d",
+					obj_proto[r_num]->short_description, GET_OBJ_MIW(obj_proto[r_num]), obj_proto.actual_count(r_num));
 				obj = read_object(r_num, REAL);
-				SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NAMED), ITEM_NAMED);
+				obj->set_extraflag(EExtraFlag::ITEM_NAMED);
 				obj_to_char(obj, ch);
 				free_script(SCRIPT(obj));//детачим все триги чтоб не обламывать соклановцев и т.п.
 				SCRIPT(obj) = NULL;
@@ -522,9 +533,8 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 			}
 			else
 			{
-				snprintf(buf1, MAX_STRING_LENGTH,
-					"не выдаем именной предмет %s Max:%d <= Current:%d",
-					obj_proto[r_num]->short_description, GET_OBJ_MIW(obj_proto[r_num]), obj_index[r_num].stored + obj_index[r_num].number);
+				snprintf(buf1, MAX_STRING_LENGTH, "не выдаем именной предмет %s Max:%d <= Current:%d",
+					obj_proto[r_num]->short_description, GET_OBJ_MIW(obj_proto[r_num]), obj_proto.actual_count(r_num));
 				in_world++;
 			}
 			snprintf(buf, MAX_STRING_LENGTH,
@@ -533,12 +543,19 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
 		}
 	}
-	if(!found) {
+
+	if(!found)
+	{
 		if(!in_world)
+		{
 			act("$n сказал$g вам : 'Кажется для тебя ничего нет'", FALSE, mailman, 0, ch, TO_VICT);
+		}
 		else
+		{
 			act("$n сказал$g вам : 'Забрал кто-то твои вещи'", FALSE, mailman, 0, ch, TO_VICT);
+		}
 	}
+
 	set_wait(ch, 3, FALSE);
 }
 

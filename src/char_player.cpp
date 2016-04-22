@@ -128,6 +128,7 @@ void Player::reset()
 	remember_.reset();
 	last_tell_ = "";
 	answer_id_ = NOBODY;
+	CHAR_DATA::reset();
 }
 
 room_rnum Player::get_from_room() const
@@ -322,7 +323,6 @@ void Player::save_char()
 	char filename[MAX_STRING_LENGTH];
 	int i;
 	time_t li;
-	AFFECT_DATA *aff, tmp_aff[MAX_AFFECT];
 	OBJ_DATA *char_eq[NUM_WEARS];
 	struct timed_type *skj;
 	struct char_portal_type *prt;
@@ -356,7 +356,9 @@ void Player::save_char()
 			char_eq[i] = NULL;
 	}
 
-	for (aff = this->affected, i = 0; i < MAX_AFFECT; i++)
+	auto aff = this->affected;
+	AFFECT_DATA<EApplyLocation> tmp_aff[MAX_AFFECT];
+	for (i = 0; i < MAX_AFFECT; i++)
 	{
 		if (aff)
 		{
@@ -378,7 +380,7 @@ void Player::save_char()
 			tmp_aff[i].type = 0;	// Zero signifies not used
 			tmp_aff[i].duration = 0;
 			tmp_aff[i].modifier = 0;
-			tmp_aff[i].location = 0;
+			tmp_aff[i].location = EApplyLocation::APPLY_NONE;
 			tmp_aff[i].bitvector = 0;
 			tmp_aff[i].next = 0;
 		}
@@ -389,20 +391,28 @@ void Player::save_char()
 	 * effects are doubled when the char logs back in.
 	 */
 	while (this->affected)
+	{
 		affect_remove(this, this->affected);
+	}
 
 	if ((i >= MAX_AFFECT) && aff && aff->next)
+	{
 		log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
+	}
 
 	// первыми идут поля, необходимые при ребуте мада, тут без необходимости трогать ничего не надо
 	if (GET_NAME(this))
+	{
 		fprintf(saved, "Name: %s\n", GET_NAME(this));
+	}
 	fprintf(saved, "Levl: %d\n", GET_LEVEL(this));
 	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
 	if (this->desc)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
+	{
 		strcpy(buf, this->desc->host);
+	}
 	else//по сути так должен норм сохраняцо последний айпи
 	{
 		li = 0;
@@ -429,13 +439,17 @@ void Player::save_char()
 	fprintf(saved, "Id  : %ld\n", GET_IDNUM(this));
 	fprintf(saved, "Exp : %ld\n", GET_EXP(this));
 	if (GET_REMORT(this) > 0)
+	{
 		fprintf(saved, "Rmrt: %d\n", GET_REMORT(this));
+	}
 	// флаги
 	*buf = '\0';
-	tascii(&PLR_FLAGS(this, 0), 4, buf);
+	PLR_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Act : %s\n", buf);
 	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
+	{
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(this));
+	}
 	// это пишем обязательно посленим, потому что после него ничего не прочитается
 	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
 	// дальше пишем как хотим и что хотим
@@ -467,7 +481,7 @@ void Player::save_char()
 	if (POOFOUT(this))
 		fprintf(saved, "PfOt: %s\n", POOFOUT(this));
 	fprintf(saved, "Sex : %d %s\n", GET_SEX(this), genders[(int) GET_SEX(this)]);
-	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), string(PlayerRace::GetKinNameByNum(GET_KIN(this),GET_SEX(this))).c_str());
+	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), PlayerRace::GetKinNameByNum(GET_KIN(this),GET_SEX(this)).c_str());
 	li = this->player_data.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	// Gunner
@@ -482,7 +496,7 @@ void Player::save_char()
 	// структуры
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(this));
 	*buf = '\0';
-	tascii(&AFF_FLAGS(this, 0), 4, buf);
+	AFF_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Aff : %s\n", buf);
 
 	// дальше не по порядку
@@ -522,11 +536,13 @@ void Player::save_char()
 	{
 		fprintf(saved, "Skil:\n");
 		int skill;
-		for (i = 1; i <= MAX_SKILL_NUM; i++)
+		for (const auto i : AVAILABLE_SKILLS)
 		{
 			skill = this->get_inborn_skill(i);
 			if (skill)
-				fprintf(saved, "%d %d %s\n", i, skill, skill_info[i].name);
+			{
+			    fprintf(saved, "%d %d %s\n", i, skill, skill_info[i].name);
+			}
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -625,11 +641,11 @@ void Player::save_char()
 		fprintf(saved, "Drnk: %d\n", GET_COND(this, DRUNK));
 
 	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) GET_SEX(this)]);
-	fprintf(saved, "Race: %d %s\n", GET_RACE(this), string(PlayerRace::GetRaceNameByNum(GET_KIN(this),GET_RACE(this),GET_SEX(this))).c_str());
+	fprintf(saved, "Race: %d %s\n", GET_RACE(this), PlayerRace::GetRaceNameByNum(GET_KIN(this),GET_RACE(this),GET_SEX(this)).c_str());
 	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(this));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
-	tascii(&PRF_FLAGS(this, 0), 4, buf);
+	PRF_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Pref: %s\n", buf);
 
 	if (MUTE_DURATION(this) > 0 && PLR_FLAGGED(this, PLR_MUTE))
@@ -762,15 +778,15 @@ void Player::save_char()
 		for (k = this->followers; k; k = k->next)
 		{
 			if (k->follower
-				&& AFF_FLAGGED(k->follower, AFF_HELPER)
-				&& AFF_FLAGGED(k->follower, AFF_CHARM))
+				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
 			{
 				break;
 			}
 		}
 		if(k && k->follower && k->follower->affected)
 		{
-			for (AFFECT_DATA *aff = k->follower->affected; aff; aff = aff->next)
+			for (auto aff = k->follower->affected; aff; aff = aff->next)
 			{
 				if (aff->type == SPELL_CHARM)
 				{
@@ -864,13 +880,11 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
 	long int lnum = 0, lnum3 = 0;
 	unsigned long long llnum = 0;
-	FBFILE *fl;
+	FBFILE *fl = NULL;
 	char filename[40];
 	char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
 	char line1[MAX_RAW_INPUT_LENGTH];
-	AFFECT_DATA af;
 	struct timed_type timed;
-
 
 	*filename = '\0';
 	log("Load ascii char %s", name);
@@ -892,7 +906,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 	// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
 	if (this->player_specials == NULL)
-		CREATE(this->player_specials, struct player_special_data, 1);
+	{
+		CREATE(this->player_specials, 1);
+	}
 
 	set_level(1);
 	set_class(1);
@@ -903,7 +919,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	set_remort(0);
 	GET_LASTIP(this)[0] = 0;
 	GET_EMAIL(this)[0] = 0;
-	asciiflag_conv("", &PLR_FLAGS(this, 0));
+	PLR_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
 
 	bool skip_file = 0;
 
@@ -937,7 +953,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		{
 		case 'A':
 			if (!strcmp(tag, "Act "))
-				asciiflag_conv(line, &PLR_FLAGS(this, 0));
+			{
+				PLR_FLAGS(this).from_string(line);
+			}
 			break;
 		case 'C':
 			if (!strcmp(tag, "Clas"))
@@ -1134,7 +1152,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_HEIGHT(this) = 50;
 	GET_HR(this) = 0;
 	GET_COND(this, FULL) = 0;
-	GET_INVIS_LEV(this) = 0;
+	SET_INVIS_LEV(this, 0);
 	this->player_data.time.logon = time(0);
 	GET_MOVE(this) = 44;
 	GET_MAX_MOVE(this) = 44;
@@ -1149,16 +1167,16 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_LOADROOM(this) = NOWHERE;
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
-	GET_SEX(this) = 0;
+	GET_SEX(this) = ESex::SEX_NEUTRAL;
 	GET_COND(this, THIRST) = 0;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
-	asciiflag_conv("", &PRF_FLAGS(this, 0));
-	asciiflag_conv("", &AFF_FLAGS(this, 0));
+	PRF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
+	AFF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	GET_PORTALS(this) = NULL;
 	EXCHANGE_FILTER(this) = NULL;
 	IGNORE_LIST(this) = NULL;
-	CREATE(GET_LOGS(this), int, 1 + LAST_LOG);
+	CREATE(GET_LOGS(this), 1 + LAST_LOG);
 	NOTIFY_EXCH_PRICE(this) = 0;
 	this->player_specials->saved.HiredCost = 0;
 	this->set_who_mana(WHO_MANA_MAX);
@@ -1189,7 +1207,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Ac  "))
 				GET_AC(this) = num;
 			else if (!strcmp(tag, "Aff "))
-				asciiflag_conv(line, &AFF_FLAGS(this, 0));
+			{
+				AFF_FLAGS(this).from_string(line);
+			}
 			else if (!strcmp(tag, "Affs"))
 			{
 				i = 0;
@@ -1199,10 +1219,11 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
 					if (num > 0)
 					{
+						AFFECT_DATA<EApplyLocation> af;
 						af.type = num;
 						af.duration = num2;
 						af.modifier = num3;
-						af.location = num4;
+						af.location = static_cast<EApplyLocation>(num4);
 						af.bitvector = num5;
 						af.battleflag = num6;
 						if (af.type == SPELL_LACKY)
@@ -1399,8 +1420,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Int "))
 				this->set_int(num);
 			else if (!strcmp(tag, "Invs"))
-				GET_INVIS_LEV(this) = num;
-// shapirus
+			{
+				SET_INVIS_LEV(this, num);
+			}
 			else if (!strcmp(tag, "Ignr"))
 				load_ignores(this, line);
 			break;
@@ -1486,7 +1508,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			}
 			else if (!strcmp(tag, "Mrph"))
 			{
-				morphs_load(this, string(line));
+				morphs_load(this, std::string(line));
 			}
 			break;
 		case 'N':
@@ -1528,7 +1550,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			else if (!strcmp(tag, "PfOt"))
 				POOFOUT(this) = str_dup(line);
 			else if (!strcmp(tag, "Pref"))
-				asciiflag_conv(line, &PRF_FLAGS(this, 0));
+			{
+				PRF_FLAGS(this).from_string(line);
+			}
 			else if (!strcmp(tag, "Pkil"))
 			{
 				do
@@ -1551,7 +1575,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 						continue;
 					}
 
-					CREATE(pk_one, struct PK_Memory_type, 1);
+					CREATE(pk_one, 1);
 					pk_one->unique = lnum;
 					pk_one->kill_num = num;
 					pk_one->next = this->pk_list;
@@ -1676,7 +1700,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					if (num < 0 || imrecipes[num].classknow[(int) GET_CLASS(this)] != KNOW_RECIPE)
 // -newbook.patch (Alisher)
 						continue;
-					CREATE(rs, im_rskill, 1);
+					CREATE(rs,  1);
 					rs->rid = num;
 					rs->perc = num2;
 					rs->link = NULL;
@@ -1693,7 +1717,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Size"))
 				GET_SIZE(this) = num;
 			else if (!strcmp(tag, "Sex "))
-				GET_SEX(this) = num;
+			{
+				GET_SEX(this) = static_cast<ESex>(num);
+			}
 			else if (!strcmp(tag, "Skil"))
 			{
 				do
@@ -1701,8 +1727,12 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					fbgetline(fl, line);
 					sscanf(line, "%d %d", &num, &num2);
 					if (num != 0)
-						if (skill_info[num].classknow[(int) GET_CLASS(this)][(int) GET_KIN(this)] == KNOW_SKILL)
-							this->set_skill(num, num2);
+                    {
+                        if (skill_info[num].classknow[(int)GET_CLASS(this)][(int)GET_KIN(this)] == KNOW_SKILL)
+                        {
+                            this->set_skill(static_cast<ESkill>(num), num2);
+                        }
+                    }
 				}
 				while (num != 0);
 			}
@@ -1754,7 +1784,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					sscanf(line, "%d", &num);
 					if (num != 0)
 					{
-						CREATE(qi_cur, struct spell_mem_queue_item, 1);
+						CREATE(qi_cur, 1);
 						*qi = qi_cur;
 						qi_cur->spellnum = num;
 						qi_cur->link = NULL;
@@ -1859,7 +1889,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	 * If you're not poisioned and you've been away for more than an hour of
 	 * real time, we'll set your HMV back to full
 	 */
-	if (!AFF_FLAGGED(this, AFF_POISON) && (((long)(time(0) - LAST_LOGON(this))) >= SECS_PER_REAL_HOUR))
+	if (!AFF_FLAGGED(this, EAffectFlag::AFF_POISON) && (((long)(time(0) - LAST_LOGON(this))) >= SECS_PER_REAL_HOUR))
 	{
 		GET_HIT(this) = GET_REAL_MAX_HIT(this);
 		GET_MOVE(this) = GET_REAL_MAX_MOVE(this);

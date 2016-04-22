@@ -19,6 +19,7 @@ set(SOURCES
     src/ban.cpp
     src/birth_places.cpp
     src/boards.cpp
+    src/bonus.cpp
     src/cache.cpp
     src/celebrates.cpp
     src/char.cpp
@@ -29,6 +30,7 @@ set(SOURCES
     src/config.cpp
     src/constants.cpp
     src/corpse.cpp
+    src/craft.cpp
     src/db.cpp
     src/deathtrap.cpp
     src/depot.cpp
@@ -114,6 +116,7 @@ set(SOURCES
     src/spell_parser.cpp
     src/spells.cpp
     src/stuff.cpp
+    src/structs.cpp
     src/title.cpp
     src/top.cpp
     src/utils.cpp
@@ -127,15 +130,18 @@ set(HEADERS
     src/ban.hpp
     src/birth_places.hpp
     src/boards.h
+    src/bonus.h
     src/cache.hpp
     src/celebrates.hpp
     src/char.hpp
+	src/char_obj_utils.inl
     src/char_player.hpp
     src/comm.h
     src/conf.h
     src/config.hpp
     src/constants.h
     src/corpse.hpp
+    src/craft.hpp
     src/db.h
     src/deathtrap.hpp
     src/depot.hpp
@@ -202,6 +208,7 @@ set(HEADERS
     src/shop_ext.hpp
     src/skills.h
     src/spam.hpp
+    src/spell_parser.hpp
     src/spells.h
     src/structs.h
     src/stuff.hpp
@@ -209,9 +216,7 @@ set(HEADERS
     src/telnet.h
     src/title.hpp
     src/top.h
-    src/utils.h
-    src/bonus.cpp
-    src/bonus.h)
+    src/utils.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 
@@ -223,7 +228,7 @@ if (NOT MSVC)
     if (NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
         set(DEFAULT_CMAKE_BUILD_TYPE "Release")
         message(STATUS "Setting build type by default: ${DEFAULT_CMAKE_BUILD_TYPE}")
-        set(CMAKE_BUILD_TYPE ${DEFAULT_CMAKE_BUILD_TYPE} CACHE STRING "Chose the type of build: Debug, Release, Test, FastTest" FORCE)
+        set(CMAKE_BUILD_TYPE ${DEFAULT_CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of build: Debug, Release, Test, FastTest" FORCE)
     else ()
         message(STATUS "Using build type \"${CMAKE_BUILD_TYPE}\"")
     endif()
@@ -303,8 +308,6 @@ else()
     set(PYTHON_LIBRARIES)
 endif ()
 
-source_group("Configuration files" FILES ${CONFIGURATION_FILES})
-
 # Versioning
 # Try to find hg executable, retrive revision if found and generate version.cpp from template
 set(VERSIONING_FILES src/versioning.cmake src/version.cpp.in)
@@ -317,12 +320,43 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 
+set(CRAFT_GENERAL_FILES
+    lib.template/misc/craft/index.xml)
+set(CRAFT_MATERIAL_FILES
+    lib.template/misc/craft/tough_leather.xml
+    lib.template/misc/craft/soft_leather.xml
+    lib.template/misc/craft/inwrought_flax.xml)
+set(CRAFT_CRAFT_FILES
+    lib.template/misc/craft/craft1.xml)
+set(CRAFT_TEMPLATE_FILES
+    lib.template/misc/craft/material_template.xml
+    lib.template/misc/craft/prototype_template.xml)
+set(CRAFT_PROTOTYPES)
+
+source_group("Misc\\Craft" FILES ${CRAFT_GENERAL_FILES})
+source_group("Misc\\Craft\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
+source_group("Misc\\Craft\\Materials" FILES ${CRAFT_MATERIAL_FILES})
+source_group("Misc\\Craft\\Crafts" FILES ${CRAFT_CRAFT_FILES})
+
+set(CRAFT_FILES ${CRAFT_GENERAL_FILES} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES} ${CRAFT_TEMPLATE_FILES})
+
+set(MISC_FILES
+    lib.template/misc/noob_help.xml
+	lib.template/misc/configuration.xml)
+
+source_group("Misc" FILES ${MISC_FILES})
+
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown ${CRAFT_FILES} ${MISC_FILES})
+
+# Sort source and header files. Just to convenience.
+list(SORT CIRCLE_FILES)
+
 # Main executable file.
-add_executable(circle ${SOURCES} ${HEADERS} readme.markdown ${CONFIGURATION_FILES})
+add_executable(circle ${CIRCLE_FILES})
 add_dependencies(circle versioning)
 
 # Boost
-set(BOOST_MODULES ${BOOST_PYTHON_MODULE})
+set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)
 if (WIN32)
     list(APPEND BOOST_MODULES locale)
 elseif (UNIX)
@@ -374,9 +408,9 @@ else ()
 endif () 
 
 include_directories(src
-    ${Boost_INCLUDE_DIRS}
-    ${ZLIB_INCLUDE_DIRS}
-    ${PYTHON_INCLUDE_DIRS})
+    system ${Boost_INCLUDE_DIRS}
+    system ${ZLIB_INCLUDE_DIRS}
+    system ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(circle
     ${ZLIB_LIBRARIES}
     ${Boost_LIBRARIES}
@@ -384,23 +418,19 @@ target_link_libraries(circle
 
 if (ICONV_FOUND)
     add_definitions("-DHAVE_ICONV")
-    include_directories(${ICONV_INCLUDE_DIR})
+    include_directories(system ${ICONV_INCLUDE_DIR})
     target_link_libraries(circle ${ICONV_LIBRARIES})
 endif ()
 
 # Prepare options for test build
-if (CMAKE_BUILD_TYPE STREQUAL "Test" OR CMAKE_BUILD_TYPE STREQUAL "FastTest")
-    set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
-else ()
-    set(TESTBUILD_DEFIINITIONS "")
-endif ()
+set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
 
 if (CMAKE_HOST_UNIX)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -Og    -Wall -Wextra -Wno-unused-parameter -DBOOST_ENABLE_ASSERT_HANDLER")
+        set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -Og    -Wall -Wextra -DBOOST_ENABLE_ASSERT_HANDLER")
         set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC")
-        set(CMAKE_CXX_FLAGS_TEST     "       -O0    -Wall -Wextra -Wno-unused-parameter ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
-        set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall ${TESTBUILD_DEFINITIONS}")
+        set(CMAKE_CXX_FLAGS_TEST     "       -O0    -Wall -Wextra ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
+        set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall -Wextra ${TESTBUILD_DEFINITIONS}")
 
         if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             add_definitions("-Wno-invalid-source-encoding")

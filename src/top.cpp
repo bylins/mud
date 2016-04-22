@@ -46,9 +46,13 @@ void TopPlayer::Remove(CHAR_DATA * short_ch)
 // подробности в комментарии к load_char_ascii
 void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 {
-	if (IS_NPC(short_ch) || IS_SET(PLR_FLAGS(short_ch, PLR_FROZEN), PLR_FROZEN)
-			|| IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED) || IS_IMMORTAL(short_ch))
+	if (IS_NPC(short_ch)
+		|| PLR_FLAGS(short_ch).get(PLR_FROZEN)
+		|| PLR_FLAGS(short_ch).get(PLR_DELETED)
+		|| IS_IMMORTAL(short_ch))
+	{
 		return;
+	}
 
 	if (!reboot)
 		TopPlayer::Remove(short_ch);
@@ -88,7 +92,7 @@ const char * TopPlayer::TopFormat[NUM_PLAYER_CLASSES + 1] =
 };
 
 // команда 'лучшие'
-ACMD(DoBest)
+void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;

@@ -68,6 +68,7 @@
 #include "help.hpp"
 #include "mail.h"
 #include "mob_stat.hpp"
+#include "char_obj_utils.inl"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -2270,7 +2271,7 @@ int posi_value(int real, int max)
 	return (real * 10 / MAX(max, 1));
 }
 
-char *color_value(CHAR_DATA * ch, int real, int max)
+char *color_value(CHAR_DATA* /*ch*/, int real, int max)
 {
 	static char color[8];
 	switch (posi_value(real, max))
@@ -2476,19 +2477,20 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			if (PRF_FLAGGED(d->character, PRF_DISPEXITS))
 			{
 				count += sprintf(prompt + count, "Вых:");
-				if (!AFF_FLAGGED(d->character, AFF_BLIND))
+				if (!AFF_FLAGGED(d->character, EAffectFlag::AFF_BLIND))
+				{
 					for (door = 0; door < NUM_OF_DIRS; door++)
 					{
-						if (EXIT(d->character, door) &&
-								EXIT(d->character, door)->to_room != NOWHERE &&
-								!EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
-							count +=
-								EXIT_FLAGGED(EXIT(d->character, door),
-											 EX_CLOSED) ? sprintf(prompt + count,
-																  "(%s)",
-																  dirs[door]) :
-								sprintf(prompt + count, "%s", dirs[door]);
+						if (EXIT(d->character, door)
+							&& EXIT(d->character, door)->to_room != NOWHERE
+							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
+						{
+							count += EXIT_FLAGGED(EXIT(d->character, door), EX_CLOSED)
+								? sprintf(prompt + count, "(%s)", dirs[door])
+								: sprintf(prompt + count, "%s", dirs[door]);
+						}
 					}
+				}
 			}
 		}
 		else
@@ -2517,7 +2519,7 @@ void write_to_q(const char *txt, struct txt_q *queue, int aliased)
 {
 	struct txt_block *newt;
 
-	CREATE(newt, struct txt_block, 1);
+	CREATE(newt, 1);
 	newt->text = str_dup(txt);
 	newt->aliased = aliased;
 
@@ -2614,8 +2616,8 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	}
 	else  		// else create a new one
 	{
-		CREATE(t->large_outbuf, struct txt_block, 1);
-		CREATE(t->large_outbuf->text, char, LARGE_BUFSIZE);
+		CREATE(t->large_outbuf, 1);
+		CREATE(t->large_outbuf->text, LARGE_BUFSIZE);
 		buf_largecount++;
 	}
 
@@ -2802,7 +2804,7 @@ int new_descriptor(socket_t s)
 		return (-3);
 	}
 	// create a new descriptor
-	NEWCREATE(newd, DESCRIPTOR_DATA);
+	NEWCREATE(newd);
 
 	// find the sitename
 	if (nameserver_is_slow || !(from = gethostbyaddr((char *) & peer.sin_addr, sizeof(peer.sin_addr), AF_INET)))  	// resolution failed
@@ -2904,7 +2906,7 @@ int new_descriptor(socket_t s)
 	 * Do we embed the history in descriptor_data or keep it dynamically
 	 * allocated and allow a user defined history size?
 	 */
-	CREATE(newd->history, char *, HISTORY_SIZE);
+	CREATE(newd->history, HISTORY_SIZE);
 
 	if (++last_desc == 1000)
 		last_desc = 1;
@@ -2975,18 +2977,17 @@ void utf8_to_koi(char *str_i, char *str_o)
 
 	if ((cd = iconv_open("KOI8-R", "UTF-8")) == (iconv_t) - 1)
 	{
-		printf("utf8_to_koi: iconv_open error\n");
+		perror("utf8_to_koi: iconv_open error");
 		return;
 	}
 	len_i = strlen(str_i);
 	if ((i=iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
 	{
-		printf("utf8_to_koi: iconv error\n");
-		// return;
+		perror("utf8_to_koi: iconv error");
 	}
 	if (iconv_close(cd) == -1)
 	{
-		printf("utf8_to_koi: iconv_close error\n");
+		perror("utf8_to_koi: iconv_close error");
 		return;
 	}
 }
@@ -3862,8 +3863,6 @@ void close_socket(DESCRIPTOR_DATA * d, int direct, int epoll, struct epoll_event
 void close_socket(DESCRIPTOR_DATA * d, int direct)
 #endif
 {
-	DESCRIPTOR_DATA *temp;
-
 	if (d == NULL)
 	{
 		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
@@ -3880,7 +3879,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			return;
 	}
 
-	REMOVE_FROM_LIST(d, descriptor_list, next);
+	REMOVE_FROM_LIST(d, descriptor_list);
 #ifdef HAS_EPOLL
 	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, NULL) == -1)
 		log("SYSERR: EPOLL_CTL_DEL failed in close_socket()");
@@ -4122,7 +4121,7 @@ void nonblock(socket_t s)
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 
-RETSIGTYPE unrestrict_game(int sig)
+RETSIGTYPE unrestrict_game(int/* sig*/)
 {
 	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, LVL_IMMORT, SYSLOG, TRUE);
 	ban->clear_all();
@@ -4133,14 +4132,14 @@ RETSIGTYPE unrestrict_game(int sig)
 #ifdef CIRCLE_UNIX
 
 // clean up our zombie kids to avoid defunct processes
-RETSIGTYPE reap(int sig)
+RETSIGTYPE reap(int/* sig*/)
 {
 	while (waitpid(-1, (int *)NULL, WNOHANG) > 0);
 
 	my_signal(SIGCHLD, reap);
 }
 
-RETSIGTYPE crash_handle(int sig)
+RETSIGTYPE crash_handle(int/* sig*/)
 {
 	log("Crash detected !");
 	// Сливаем файловые буферы.
@@ -4159,7 +4158,7 @@ RETSIGTYPE crash_handle(int sig)
 }
 
 
-RETSIGTYPE checkpointing(int sig)
+RETSIGTYPE checkpointing(int/* sig*/)
 {
 	if (!tics)
 	{
@@ -4170,7 +4169,7 @@ RETSIGTYPE checkpointing(int sig)
 		tics = 0;
 }
 
-RETSIGTYPE hupsig(int sig)
+RETSIGTYPE hupsig(int/* sig*/)
 {
 	log("SYSERR: Received SIGHUP, SIGINT, or SIGTERM.  Shutting down...");
 	exit(1);		// perhaps something more elegant should substituted
@@ -4319,16 +4318,19 @@ void send_to_outdoor(const char *messg, int control)
 		if (!AWAKE(i->character) || !OUTSIDE(i->character))
 			continue;
 		room = IN_ROOM(i->character);
-		if (!control ||
-				(IS_SET(control, SUN_CONTROL) &&
-				 room != NOWHERE &&
-				 SECT(room) != SECT_UNDERWATER &&
-				 !AFF_FLAGGED(i->character, AFF_BLIND)) ||
-				(IS_SET(control, WEATHER_CONTROL) &&
-				 room != NOWHERE &&
-				 SECT(room) != SECT_UNDERWATER &&
-				 !ROOM_FLAGGED(room, ROOM_NOWEATHER) && world[IN_ROOM(i->character)]->weather.duration <= 0))
+		if (!control
+			|| (IS_SET(control, SUN_CONTROL)
+				&& room != NOWHERE
+				&& SECT(room) != SECT_UNDERWATER
+				&& !AFF_FLAGGED(i->character, EAffectFlag::AFF_BLIND))
+			|| (IS_SET(control, WEATHER_CONTROL)
+				&& room != NOWHERE
+				&& SECT(room) != SECT_UNDERWATER
+				&& !ROOM_FLAGGED(room, ROOM_NOWEATHER)
+				&& world[IN_ROOM(i->character)]->weather.duration <= 0))
+		{
 			SEND_TO_Q(messg, i);
+		}
 	}
 }
 
@@ -4726,8 +4728,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		if (ch
 			&& SENDOK(ch)
 			&& IN_ROOM(ch) != NOWHERE
-			&& (!check_deaf || !AFF_FLAGGED(ch, AFF_DEAFNESS))
-			&& (!check_nodeaf || AFF_FLAGGED(ch, AFF_DEAFNESS))
+			&& (!check_deaf || !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)))
 		{
@@ -4741,8 +4743,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		if ((to = (CHAR_DATA *) vict_obj) != NULL
 			&& SENDOK(to)
 			&& IN_ROOM(to) != NOWHERE
-			&& (!check_deaf || !AFF_FLAGGED(to, AFF_DEAFNESS))
-			&& (!check_nodeaf || AFF_FLAGGED(to, AFF_DEAFNESS))
+			&& (!check_deaf || !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
+			&& (!check_nodeaf || AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS)))
 		{
@@ -4777,15 +4779,15 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 			//надо отдельно PRF_DEAF
 			//if (!IS_NPC(to) && check_deaf && PRF_FLAGGED(to, PRF_NOTELL))
 			//	continue;
-			if (check_deaf && AFF_FLAGGED(to, AFF_DEAFNESS))
+			if (check_deaf && AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 				continue;
-			if (check_nodeaf && !AFF_FLAGGED(to, AFF_DEAFNESS))
+			if (check_nodeaf && !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 				continue;
 			if (to_brief_shields && !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 				continue;
 			if (to_no_brief_shields && PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 				continue;
-			if (type == TO_ROOM_HIDE && !AFF_FLAGGED(to, AFF_SENSE_LIFE) && (IS_NPC(to) || !PRF_FLAGGED(to, PRF_HOLYLIGHT)))
+			if (type == TO_ROOM_HIDE && !AFF_FLAGGED(to, EAffectFlag::AFF_SENSE_LIFE) && (IS_NPC(to) || !PRF_FLAGGED(to, PRF_HOLYLIGHT)))
 				continue;
 			if (type == TO_ROOM_HIDE && PRF_FLAGGED(to, PRF_HOLYLIGHT))
 			{
@@ -4879,7 +4881,8 @@ void setup_logs(void)
 	for (int i = 0; i < 1 + LAST_LOG; ++i)
 	{
 		EOutputStream stream = static_cast<EOutputStream>(i);
-		getcwd(src_path, 4096);
+		const char* getcwd_result = getcwd(src_path, 4096);
+		UNUSED_ARG(getcwd_result);
 
 		if (runtime_config::logs(stream).filename().empty())
 		{
@@ -4928,12 +4931,12 @@ inline void circle_sleep(struct timeval *timeout)
 
 // Compression stuff.
 
-void *zlib_alloc(void *opaque, unsigned int items, unsigned int size)
+void *zlib_alloc(void* /*opaque*/, unsigned int items, unsigned int size)
 {
 	return calloc(items, size);
 }
 
-void zlib_free(void *opaque, void *address)
+void zlib_free(void* /*opaque*/, void *address)
 {
 	free(address);
 }
@@ -4951,7 +4954,7 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver)
 		return 1;	// компрессия уже включена
 
 	// Set up zlib structures.
-	CREATE(t->deflate, z_stream, 1);
+	CREATE(t->deflate, 1);
 	t->deflate->zalloc = zlib_alloc;
 	t->deflate->zfree = zlib_free;
 	t->deflate->opaque = NULL;

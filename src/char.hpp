@@ -9,6 +9,8 @@
 #include "obj_sets.hpp"
 #include "db.h"
 #include "room.hpp"
+#include "im.h"
+#include "skills.h"
 #include "structs.h"
 #include "conf.h"
 
@@ -34,7 +36,7 @@ struct char_player_data
 	char *long_descr;	// for 'look'
 	char *description;	// Extra descriptions
 	char *title;		// PC / NPC's title
-	byte sex;		// PC / NPC's sex
+	ESex sex;		// PC / NPC's sex
 	struct time_data time;			// PC's AGE in days
 	ubyte weight;		// PC / NPC's weight
 	ubyte height;		// PC / NPC's height
@@ -277,7 +279,7 @@ struct player_special_data
 	time_t may_rent;		// PK control
 	int agressor;		// Agression room(it is also a flag)
 	time_t agro_time;		// Last agression time (it is also a flag)
-	struct _im_rskill_tag *rskill;	// Известные рецепты
+	im_rskill *rskill;	// Известные рецепты
 	struct char_portal_type *portals;	// порталы теперь живут тут
 	int *logs;		// уровни подробности каналов log
 	
@@ -288,13 +290,13 @@ struct player_special_data
 	struct logon_data * logons; //Записи о входах чара
 
 // Punishments structs
-	struct punish_data pmute;
-	struct punish_data pdumb;
-	struct punish_data phell;
-	struct punish_data pname;
-	struct punish_data pfreeze;
-	struct punish_data pgcurse;
-	struct punish_data punreg;
+	punish_data pmute;
+	punish_data pdumb;
+	punish_data phell;
+	punish_data pname;
+	punish_data pfreeze;
+	punish_data pgcurse;
+	punish_data punreg;
 
 	char *clanStatus; // строка для отображения приписки по кто
 	// TODO: однозначно переписать
@@ -331,9 +333,7 @@ enum
 	ATTACKER_ROUNDS
 };
 
-class Player;
-typedef boost::shared_ptr<Player> PlayerPtr;
-typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
+typedef std::map<ESkill/* номер скилла */, int/* значение скилла */> CharSkillsType;
 //typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
 // * Общий класс для игроков/мобов.
@@ -341,24 +341,21 @@ class CHAR_DATA : public PlayerI
 {
 // новое
 public:
+	typedef std::list<std::string> morphs_list_t;
+
 	CHAR_DATA();
 	virtual ~CHAR_DATA();
-	// для ивентов
-	int get_event_score();
-	void inc_event_score(int score);
-	void set_event_score(int score);
-	// это все как обычно временно... =)
-	friend void save_char(CHAR_DATA *ch);
+
 	friend void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src);
 	friend void interpret_espec(const char *keyword, const char *value, int i, int nr);
 
-	void set_skill(int skill_num, int percent);
+	void set_skill(const ESkill skill_num, int percent);
 	void clear_skills();
-	int get_skill(int skill_num) const;
+	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;
 	int get_equipped_skill(int skill_num) const;
-	int get_trained_skill(int skill_num) const;
+	int get_trained_skill(const ESkill skill_num) const;
 
 	int get_obj_slot(int slot_num);
 	void add_obj_slot(int slot_num, int count);
@@ -393,11 +390,11 @@ public:
 	void purge(bool destructor = false);
 	bool purged() const;
 
-	const char * get_name() const;
+	const std::string& get_name() const;
 	void set_name(const char *name);
-	const char * get_pc_name() const;
+	const std::string& get_pc_name() const { return name_; }
 	void set_pc_name(const char *name);
-	const char * get_npc_name() const;
+	const std::string& get_npc_name() const { return short_descr_; }
 	void set_npc_name(const char *name);
 	const std::string & get_name_str() const;
 	const char* get_pad(unsigned pad) const;
@@ -432,8 +429,8 @@ public:
 	time_t get_last_exchange() const;
 	void set_last_exchange(time_t num);
 
-	byte get_sex() const;
-	void set_sex(const byte );
+	ESex get_sex() const;
+	void set_sex(const ESex sex);
 	ubyte get_weight() const;
 	void set_weight(const ubyte );
 	ubyte get_height() const;
@@ -523,30 +520,30 @@ public:
 	**/
 	bool in_used_zone() const;
 
-	bool know_morph(string morph_id) const;
-	void add_morph(string morph_id);
+	bool know_morph(const std::string& morph_id) const;
+	void add_morph(const std::string& morph_id);
 	void clear_morphs();
 	void set_morph(MorphPtr morph);
 	void reset_morph();
 	size_t get_morphs_count() const;
-	std::list<string> get_morphs();
+	const morphs_list_t& get_morphs();
 	bool is_morphed() const;
 	void set_normal_morph();
 
 	std::string get_title();
-	std::string get_morphed_name();
+	std::string get_morphed_name() const;
 	std::string get_pretitle();
 	std::string get_race_name();
 	std::string only_title();
 	std::string noclan_title();
 	std::string race_or_title();
-	std::string get_morphed_title();
+	std::string get_morphed_title() const;
 	std::string get_cover_desc();
-	std::string get_morph_desc();
-	int get_inborn_skill(int skill_num);
-	void set_morphed_skill(int skill_num, int percent);
-	bool isAffected(long flag) const;
-	std::vector<long> GetMorphAffects();
+	std::string get_morph_desc() const;
+	int get_inborn_skill(const ESkill skill_num);
+	void set_morphed_skill(const ESkill skill_num, int percent);
+	bool isAffected(const EAffectFlag flag) const;
+	const IMorph::affects_list_t& GetMorphAffects();
 
 	void set_who_mana(unsigned int);
 	void set_who_last(time_t);
@@ -581,8 +578,10 @@ public:
 	void set_wait(const unsigned _) { m_wait = _; }
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
 	void wait_dec(const unsigned value) { m_wait -= value <= m_wait ? value : m_wait; }
+	
+	virtual void reset();
 
-	void reset_char();
+	bool has_any_affect(const affects_list_t affects);
 
 private:
 	std::string clan_for_title();
@@ -658,7 +657,7 @@ private:
 	// плюсы на харизму
 	int cha_add_;
 	//изученные формы
-	std::list<string> morphs_;
+	morphs_list_t morphs_;
 	//текущая форма
 	MorphPtr current_morph_;
 	// аналог класса у моба
@@ -698,7 +697,7 @@ public:
 
 	struct player_special_data *player_specials;	// PC specials
 
-	AFFECT_DATA *affected;	// affected by what spells
+	AFFECT_DATA<EApplyLocation>* affected;	// affected by what spells
 	struct timed_type *timed;	// use which timed skill/spells
 	struct timed_type *timed_feat;	// use which timed feats
 	OBJ_DATA *equipment[NUM_WEARS];	// Equipment array
@@ -706,7 +705,7 @@ public:
 	OBJ_DATA *carrying;	// Head of list
 	DESCRIPTOR_DATA *desc;	// NULL for mobiles
 	long id;			// used by DG triggers
-	struct trig_proto_list *proto_script;	// list of default triggers
+	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers
 	struct script_data *script;	// script info for the object
 	struct script_memory *memory;	// for mob memory triggers
 
@@ -770,6 +769,16 @@ inline bool CHAR_DATA::in_used_zone() const
 	return false;
 }
 
+inline int GET_INVIS_LEV(const CHAR_DATA* ch)
+{
+	return CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level);
+}
+
+inline void SET_INVIS_LEV(const CHAR_DATA* ch, const int level)
+{
+	CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level) = level;
+}
+
 inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 {
 	if (ch->get_wait() < cycle)
@@ -778,16 +787,162 @@ inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 	}
 }
 
+inline FLAG_DATA& AFF_FLAGS(CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
+inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
+
+inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlag flag)
+{
+	return AFF_FLAGS(ch).get(flag)
+		|| ch->isAffected(flag);
+}
+
+inline bool IS_CHARMICE(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
+}
+
+inline bool IS_FLY(const CHAR_DATA* ch)
+{
+	return AFF_FLAGGED(ch, EAffectFlag::AFF_FLY);
+}
+
+inline bool INVIS_OK(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
+		&& ((!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
+				|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS))
+			&& ((!AFF_FLAGGED(obj, EAffectFlag::AFF_HIDE)
+					&& !AFF_FLAGGED(obj, EAffectFlag::AFF_CAMOUFLAGE))
+				|| AFF_FLAGGED(sub, EAffectFlag::AFF_SENSE_LIFE)));
+}
+
+inline bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return HERE(obj)
+		&& INVIS_OK(sub, obj)
+		&& (IS_LIGHT((obj)->in_room)
+			|| AFF_FLAGGED((sub), EAffectFlag::AFF_INFRAVISION));
+}
+
+inline bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return MORT_CAN_SEE(sub, obj)
+		|| (!IS_NPC(sub)
+			&& PRF_FLAGGED(sub, PRF_HOLYLIGHT));
+}
+
+inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return sub == obj;
+}
+
+/// Can subject see character "obj"?
+inline bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return SELF(sub, obj)
+		|| ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj)))
+			&& IMM_CAN_SEE(sub, obj));
+}
+
+inline bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return !(GET_INVIS_LEV(ch) > 30)
+		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
+		&& (!IS_DARK(IN_ROOM(sub))
+			|| AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
+		&& (!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
+			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS));
+}
+
+inline bool IS_HORSE(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		&& ch->master
+		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
+}
+
+inline bool IS_MORTIFIER(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		&& ch->master
+		&& MOB_FLAGGED(ch, MOB_CORPSE);
+}
+
+inline bool MAY_ATTACK(const CHAR_DATA* sub)
+{
+	return (!AFF_FLAGGED((sub), EAffectFlag::AFF_CHARM)
+		&& !IS_HORSE((sub))
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_HOLD)
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_SLEEP)
+		&& !MOB_FLAGGED((sub), MOB_NOFIGHT)
+		&& GET_WAIT(sub) <= 0
+		&& !sub->get_fighting()
+		&& GET_POS(sub) >= POS_RESTING);
+}
+
+inline bool GET_MOB_HOLD(const CHAR_DATA* ch)
+{
+	return AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD);
+}
+
+inline bool AWAKE(const CHAR_DATA* ch)
+{
+	return GET_POS(ch) > POS_SLEEPING
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP);
+}
+
+// Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
+//пока здесь только чарм, как и было раньше
+inline bool CAN_START_MTRIG(const CHAR_DATA *ch)
+{
+	return !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM);
+}
+//-Polud
+
+inline bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
+{
+	return !NAME_BAD(ch)
+		&& (NAME_FINE(ch)
+			|| !(GET_LEVEL(ch) == NAME_LEVEL))
+		&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+		&& IS_NPC(victim)
+		&& (GET_EXP(victim) > 0)
+		&& (!IS_NPC(victim)
+			|| !IS_NPC(ch)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		&& !IS_HORSE(victim);
+}
+
+inline bool IS_MALE(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_MALE;
+}
+
+inline bool IS_FEMALE(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_FEMALE;
+}
+
+inline bool IS_NOSEXY(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_NEUTRAL;
+}
+
+inline bool IS_POLY(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_POLY;
+}
+
 void change_fighting(CHAR_DATA * ch, int need_stop);
 size_t fighting_list_size();
 
 namespace CharacterSystem
 {
-
-void release_purged_list();
-void restore_mobs();
-int do_clan_tax(CHAR_DATA *ch, int gold);
-
+	extern void release_purged_list();
 } // namespace CharacterSystem
 
 #endif // CHAR_HPP_INCLUDED

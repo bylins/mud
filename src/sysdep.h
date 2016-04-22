@@ -567,6 +567,21 @@ ssize_t write(int fildes, const void *buf, size_t nbyte);
 
 #endif				// NO_LIBRARY_PROTOTYPES
 
+/* Definition of UNUSED_ARG was taken from ACE library as is and was renamed. */
+#if !defined (UNUSED_ARG)
+# if defined (__GNUC__) && ((__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2)))
+#   define UNUSED_ARG(a) (void) (a)
+# elif defined (__GNUC__) || defined (ghs) || defined (__hpux) || defined (__sgi) || defined (__DECCXX) || defined (__rational__) || defined (__USLC__) || defined (RM544) || defined (__DCC__) || defined (__PGI) || defined (__TANDEM)
+#  define UNUSED_ARG(a) do {/* null */} while (&a == 0)
+# elif defined (__DMC__)
+#define UNUSED_ID(identifier)
+template <class T>
+inline void UNUSED_ARG(const T& UNUSED_ID(t)) { }
+# else /* ghs || __GNUC__ || ..... */
+#  define UNUSED_ARG(a) (a)
+# endif /* ghs || __GNUC__ || ..... */
+#endif /* !UNUSED_ARG */
+
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

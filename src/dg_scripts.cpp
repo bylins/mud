@@ -27,6 +27,7 @@
 #include "modify.h"
 #include "room.hpp"
 #include "named_stuff.hpp"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "noob.hpp"
@@ -38,7 +39,7 @@
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
-#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
+#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 
 // Вывод сообщений о неверных управляющих конструкциях DGScript
 #define	DG_CODE_ANALYZE
@@ -59,7 +60,6 @@ extern const char *pc_class_types[];
 //extern const char *race_types[];
 extern const char *exit_bits[];
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern TIME_INFO_DATA time_info;
 extern struct zone_data *zone_table;
 const char *spell_name(int num);
@@ -87,46 +87,14 @@ void reset_zone(int znum);
 
 void free_script(SCRIPT_DATA * sc);
 
-ACMD(do_restore);
-ACMD(do_mpurge);
-ACMD(do_mjunk);
-ACMD(do_arena_restore);
+void do_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mpurge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mjunk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 // function protos from this file
 void extract_value(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 int trgvar_in_room(int vnum);
-
-void proto_script_copy(struct trig_proto_list **pdst, struct trig_proto_list *src)
-/*++
-   Создает список прототипов и копирует в него прототипы из src.
-   Считается, что pdst уже не содержит списка
-   При необходимости воспользуйтесь функцией proto_script_free();
-
-     pdst - адрес переменной, в которой будет размещена копия
-     src - список, копию которого нужно создать
---*/
-{
-	for (pdst[0] = NULL; src; src = src->next, pdst = &(pdst[0]->next))
-	{
-		CREATE(pdst[0], struct trig_proto_list, 1);
-		pdst[0]->vnum = src->vnum;
-		// pdst[0]->next обнуляется в макросе CREATE()
-	}
-}
-
-void proto_script_free(struct trig_proto_list *src)
-/*++
-   Освобождает память, занимаемую списком прототипов
-     src - голова списка прототипов
---*/
-{
-	struct trig_proto_list *tmp;
-	while (src)
-	{
-		src = ((tmp = src)->next);
-		free(tmp);
-	}
-}
 
 void script_log(const char *msg, const int type)
 {
@@ -256,7 +224,7 @@ const char * get_objs_in_world(OBJ_DATA * obj)
 		log("DG_SCRIPTS : attemp count unknown object");
 		return "";
 	}
-	sprintf(retval, "%d", obj_index[i].number + obj_index[i].stored);
+	sprintf(retval, "%d", obj_proto.actual_count(i));
 	return retval;
 }
 
@@ -285,23 +253,31 @@ int count_char_vnum(long n)
 	return (mob_index[i].number);
 }
 
-int gcount_obj_vnum(long n)
+inline auto gcount_obj_vnum(long n)
 {
-	int i;
-	if ((i = real_object(n)) < 0)
+	const auto i = real_object(n);
+
+	if (i < 0)
+	{
 		return 0;
-	return (obj_index[i].number);
+	}
+
+	return obj_proto.number(i);
 }
 
-int count_obj_vnum(long n)
+inline auto count_obj_vnum(long n)
 {
-	int i;
-	if ((i = real_object(n)) < 0)
+	const auto i = real_object(n);
+
+	if (i < 0)
+	{
 		return 0;
+	}
+
 // Чот косячит таймер, решили переделать тригги, хоть и дольше
 //	if (check_unlimited_timer(obj_proto[i]))
 //		return 0;
-	return (obj_index[i].number + obj_index[i].stored);
+	return obj_proto.actual_count(i);
 }
 
 /************************************************************
@@ -402,7 +378,7 @@ int find_room_uid(long n)
  ************************************************************/
 
 // search the entire world for a char, and return a pointer
-CHAR_DATA *get_char(char *name, int vnum)
+CHAR_DATA *get_char(char *name, int/* vnum*/)
 {
 	CHAR_DATA *i;
 
@@ -421,7 +397,9 @@ CHAR_DATA *get_char(char *name, int vnum)
 	{
 		for (i = character_list; i; i = i->get_next())
 		{
-			if (isname(name, i->get_pc_name()) && (IS_NPC(i) || !GET_INVIS_LEV(i)))
+			if (isname(name, i->get_pc_name().c_str())
+				&& (IS_NPC(i)
+					|| !GET_INVIS_LEV(i)))
 			{
 				return i;
 			}
@@ -430,8 +408,9 @@ CHAR_DATA *get_char(char *name, int vnum)
 
 	return NULL;
 }
+
 // returns the object in the world with name name, or NULL if not found
-OBJ_DATA *get_obj(char *name, int vnum)
+OBJ_DATA *get_obj(char *name, int/* vnum*/)
 {
 	long id;
 
@@ -491,18 +470,27 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name)
 	}
 	else
 	{
-		if (obj->carried_by &&
-				isname(name, obj->carried_by->get_pc_name()) &&
-				(IS_NPC(obj->carried_by) || !GET_INVIS_LEV(obj->carried_by)))
+		if (obj->carried_by
+			&& isname(name, obj->carried_by->get_pc_name().c_str())
+			&& (IS_NPC(obj->carried_by)
+				|| !GET_INVIS_LEV(obj->carried_by)))
+		{
 			return obj->carried_by;
+		}
 
-		if (obj->worn_by &&
-				isname(name, obj->worn_by->get_pc_name()) && (IS_NPC(obj->worn_by) || !GET_INVIS_LEV(obj->worn_by)))
+		if (obj->worn_by
+			&& isname(name, obj->worn_by->get_pc_name().c_str())
+			&& (IS_NPC(obj->worn_by)
+				|| !GET_INVIS_LEV(obj->worn_by)))
+		{
 			return obj->worn_by;
+		}
 
 		for (ch = character_list; ch; ch = ch->get_next())
 		{
-			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+			if (isname(name, ch->get_pc_name().c_str())
+				&& (IS_NPC(ch)
+					|| !GET_INVIS_LEV(ch)))
 			{
 				return ch;
 			}
@@ -521,25 +509,40 @@ CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name)
 {
 	CHAR_DATA *ch;
 
-	if ((*name == UID_ROOM) || (*name == UID_OBJ))
+	if (*name == UID_ROOM
+		|| *name == UID_OBJ)
+	{
 		return NULL;
+	}
 
 	if (*name == UID_CHAR)
 	{
 		ch = find_char(atoi(name + 1));
 
-		if (ch && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+		if (ch
+			&& (IS_NPC(ch)
+				|| !GET_INVIS_LEV(ch)))
+		{
 			return ch;
+		}
 	}
 	else
 	{
 		for (ch = room->people; ch; ch = ch->next_in_room)
-			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+		{
+			if (isname(name, ch->get_pc_name().c_str())
+				&& (IS_NPC(ch)
+					|| !GET_INVIS_LEV(ch)))
+			{
 				return ch;
+			}
+		}
 
 		for (ch = character_list; ch; ch = ch->get_next())
 		{
-			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+			if (isname(name, ch->get_pc_name().c_str())
+				&& (IS_NPC(ch)
+					|| !GET_INVIS_LEV(ch)))
 			{
 				return ch;
 			}
@@ -701,7 +704,7 @@ void script_trigger_check(void)
 
 	for (obj = object_list; obj; obj = obj->next)
 	{
-		if(OBJ_FLAGGED(obj, ITEM_NAMED))
+		if(OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))
 		{
 			if(obj->worn_by && number(1, 100) <= 5)
 				NamedStuff::wear_msg(obj->worn_by, obj);
@@ -861,11 +864,17 @@ void find_uid_name(char *uid, char *name)
 	OBJ_DATA *obj;
 
 	if ((ch = get_char(uid)))
-		strcpy(name, ch->get_pc_name());
+	{
+		strcpy(name, ch->get_pc_name().c_str());
+	}
 	else if ((obj = get_obj(uid)))
+	{
 		strcpy(name, obj->aliases);
+	}
 	else
+	{
 		sprintf(name, "uid = %s, (not found)", uid + 1);
+	}
 }
 
 
@@ -1051,8 +1060,7 @@ void add_trigger(SCRIPT_DATA * sc, TRIG_DATA * t, int loc)
 	trigger_list = t;
 }
 
-
-ACMD(do_attach)
+void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	OBJ_DATA *object;
@@ -1095,7 +1103,7 @@ ACMD(do_attach)
 				if ((rn >= 0) && (trig = read_trigger(rn)))
 				{
 					if (!SCRIPT(victim))
-						CREATE(SCRIPT(victim), SCRIPT_DATA, 1);
+						CREATE(SCRIPT(victim), 1);
 					add_trigger(SCRIPT(victim), trig, loc);
 
 					sprintf(buf, "Trigger %d (%s) attached to %s.\r\n",
@@ -1119,7 +1127,9 @@ ACMD(do_attach)
 			if ((rn >= 0) && (trig = read_trigger(rn)))
 			{
 				if (!SCRIPT(object))
-					CREATE(SCRIPT(object), SCRIPT_DATA, 1);
+				{
+					CREATE(SCRIPT(object), 1);
+				}
 				add_trigger(SCRIPT(object), trig, loc);
 
 				sprintf(buf, "Trigger %d (%s) attached to %s.\r\n",
@@ -1143,7 +1153,9 @@ ACMD(do_attach)
 				if ((rn >= 0) && (trig = read_trigger(rn)))
 				{
 					if (!(world[room]->script))
-						CREATE(world[room]->script, SCRIPT_DATA, 1);
+					{
+						CREATE(world[room]->script, 1);
+					}
 					add_trigger(world[room]->script, trig, loc);
 
 					sprintf(buf, "Trigger %d (%s) attached to room %d.\r\n",
@@ -1236,7 +1248,7 @@ int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr)
 		return 0;
 }
 
-ACMD(do_detach)
+void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim = NULL;
 	OBJ_DATA *object = NULL;
@@ -1399,8 +1411,8 @@ void add_var_cntx(struct trig_var_data **var_list, const char *name, const char 
 	else
 	{
 // Создать новую переменную
-		CREATE(vd, struct trig_var_data, 1);
-		CREATE(vd->name, char, strlen(name) + 1);
+		CREATE(vd, 1);
+		CREATE(vd->name, strlen(name) + 1);
 		strcpy(vd->name, name);
 
 		vd->context = id;
@@ -1422,7 +1434,7 @@ void add_var_cntx(struct trig_var_data **var_list, const char *name, const char 
 		}
 	}
 
-	CREATE(vd->value, char, strlen(value) + 1);
+	CREATE(vd->value, strlen(value) + 1);
 	strcpy(vd->value, value);
 }
 
@@ -1504,9 +1516,9 @@ long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 }
 
 // Изменение указанного флага
-void gm_flag(char *subfield, const char **list, FLAG_DATA & val, char *res)
+void gm_flag(char *subfield, const char **list, FLAG_DATA& val, char *res)
 {
-	long flag;
+	int flag;
 
 	strcpy(res, "0");
 
@@ -1515,21 +1527,34 @@ void gm_flag(char *subfield, const char **list, FLAG_DATA & val, char *res)
 		if (*subfield == '-')
 		{
 			flag = ext_search_block(subfield + 1, list, FALSE);
-			if (flag && REMOVE_BIT(GET_FLAG(val, flag), flag))
-				strcpy(res, "1");
+			if (flag)
+			{
+				val.unset(flag);
+				if (val.plane_not_empty(flag))	// looks like an error: we should check flag, but not whole plane
+				{
+					strcpy(res, "1");
+				}
+			}
 		}
 		else if (*subfield == '+')
 		{
 			flag = ext_search_block(subfield + 1, list, FALSE);
-			if (flag && SET_BIT(GET_FLAG(val, flag), flag))
-				strcpy(res, "1");
-
+			if (flag)
+			{
+				val.set(flag);
+				if (val.plane_not_empty(flag))	// looks like an error: we should check flag, but not whole plane
+				{
+					strcpy(res, "1");
+				}
+			}
 		}
 		else
 		{
 			flag = ext_search_block(subfield, list, FALSE);
-			if (flag && IS_SET(GET_FLAG(val, flag), flag))
+			if (flag && val.get(flag))
+			{
 				strcpy(res, "1");
+			}
 		}
 	}
 	return;
@@ -1660,7 +1685,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	OBJ_DATA *obj, *o = NULL;
 	ROOM_DATA *room, *r = NULL;
 	char *name;
-	int num = 0, count = 0, value = 0, i;
+	int num = 0, count = 0, i;
 	char uid_type = '\0';
 
 	const char *send_cmd[] = { "msend", "osend", "wsend" };
@@ -2160,7 +2185,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				{
 					can_use = 1;
 				}
-				else if (AFF_FLAGGED(k, AFF_GROUP))
+				else if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP))
 				{
 					if (!IS_NPC(k) && (GET_CLASS(k) == 8 || GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
 						&& world[IN_ROOM(k)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
@@ -2172,14 +2197,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						for (f = k->followers; f; f = f->next)
 						{
 							if (IS_NPC(f->follower)
-								|| !AFF_FLAGGED(f->follower, AFF_GROUP))
+								|| !AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
 							{
 								continue;
 							}
 							if ((GET_CLASS(f->follower) == 8
 									|| GET_CLASS(f->follower) == 13) //чернок или волхв может использовать ужи на согруппов
-								&& world[IN_ROOM(f->follower)]->zone
-									== world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
+								&& world[IN_ROOM(f->follower)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
 							{
 								can_use = 1;
 								break;
@@ -2358,12 +2382,12 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			/* Так, тупо, но иначе ругается, мол слишком много блоков*/
 			 if (!str_cmp(field, "fullrestore"))
 			{
-				do_arena_restore(c, (char*)c->get_name(), 0, SCMD_RESTORE_TRIGGER);
+				do_arena_restore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
 				trig_log(trig, "был произведен вызов do_arena_restore!");
 			}
 			else
 			{
-				do_restore(c, (char*)c->get_name(), 0, SCMD_RESTORE_TRIGGER);
+				do_restore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
 				trig_log(trig, "был произведен вызов do_restore!");
 			}
 		}
@@ -2476,52 +2500,76 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "canbeseen"))
 		{
 			if ((type == MOB_TRIGGER) && !CAN_SEE(((CHAR_DATA *) go), c))
+			{
 				strcpy(str, "0");
+			}
 			else
+			{
 				strcpy(str, "1");
+			}
 		}
 		else if (!str_cmp(field, "class"))
-			sprintf(str, "%d", (int) GET_CLASS(c));
-
+		{
+			sprintf(str, "%d", (int)GET_CLASS(c));
+		}
 #ifdef GET_RACE
 		else if (!str_cmp(field, "race"))
-			sprintf(str, "%d", (int) GET_RACE(c));
+		{
+			sprintf(str, "%d", (int)GET_RACE(c));
+		}
 #endif
-
 		else if (!str_cmp(field, "fighting"))
 		{
 			if (c->get_fighting())
+			{
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_fighting()));
+			}
 		}
 		else if (!str_cmp(field, "is_killer"))
 		{
 			if (PLR_FLAGGED(c, PLR_KILLER))
+			{
 				strcpy(str, "1");
+			}
 			else
+			{
 				strcpy(str, "0");
+			}
 		}
 		else if (!str_cmp(field, "is_thief"))
 		{
 			if (PLR_FLAGGED(c, PLR_THIEF))
+			{
 				strcpy(str, "1");
+			}
 			else
+			{
 				strcpy(str, "0");
+			}
 		}
 		else if (!str_cmp(field, "rentable"))
 		{
 			if (!IS_NPC(c) && RENTABLE(c))
+			{
 				strcpy(str, "0");
+			}
 			else
+			{
 				strcpy(str, "1");
+			}
 		}
 		else if (!str_cmp(field, "can_get_skill"))
 		{
 			if ((num = find_skill_num(subfield)) > 0)
 			{
 				if (can_get_skill(c, num))
+				{
 					strcpy(str, "1");
+				}
 				else
+				{
 					strcpy(str, "0");
+				}
 			}
 			else
 			{
@@ -2535,9 +2583,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if ((num = find_spell_num(subfield)) > 0)
 			{
 				if (can_get_spell(c, num))
+				{
 					strcpy(str, "1");
+				}
 				else
+				{
 					strcpy(str, "0");
+				}
 			}
 			else
 			{
@@ -2796,7 +2848,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!WAITLESS(c))
 			{
 				if (on_horse(c))
-					REMOVE_BIT(AFF_FLAGS(c, AFF_HORSE), AFF_HORSE);
+				{
+					AFF_FLAGS(c).unset(EAffectFlag::AFF_HORSE);
+				}
 				GET_POS(c) = pos;
 			}
 		}
@@ -2852,7 +2906,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		{
 			CHAR_DATA *l;
 			struct follow_type *f;
-			if (!AFF_FLAGGED(c, AFF_GROUP))
+			if (!AFF_FLAGGED(c, EAffectFlag::AFF_GROUP))
 				return;
 			l = c->master;
 			if (!l)
@@ -2861,10 +2915,11 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(l));
 			for (f = l->followers; f; f = f->next)
 			{
-				if (!AFF_FLAGGED(f->follower, AFF_GROUP))
+				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
+				{
 					continue;
-				sprintf(str + strlen(str), "%c%ld ", UID_CHAR,
-						GET_ID(f->follower));
+				}
+				sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(f->follower));
 			}
 		}
 		else if (!str_cmp(field, "attackers"))
@@ -3061,7 +3116,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "maker"))
 			sprintf(str, "%d", GET_OBJ_MAKER(o));
 		else if (!str_cmp(field, "effect"))
-			gm_flag(subfield, extra_bits, (o)->obj_flags.extra_flags, str);
+			gm_flag(subfield, extra_bits, GET_OBJ_EXTRA(o), str);
 		else if (!str_cmp(field, "affect"))
 			gm_flag(subfield, weapon_affects, (o)->obj_flags.affects, str);
 		else if (!str_cmp(field, "carried_by"))
@@ -3113,7 +3168,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (*subfield == UID_OBJ)
 			{
 				obj_to = find_obj(atoi(subfield+1));
-				if (!(obj_to && GET_OBJ_TYPE(obj_to) == ITEM_CONTAINER))
+				if (!(obj_to
+					&& GET_OBJ_TYPE(obj_to) == obj_flag_data::ITEM_CONTAINER))
 				{
 					trig_log(trig, "object.put: объект-приемник не найден или не является контейнером");
 					return;
@@ -3326,7 +3382,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			sprintf(str, "%c%d", UID_ROOM, find_room_uid(r->number));
 		}
 		else if (!str_cmp(field, "flag"))
-			gm_flag(subfield, room_bits, r->room_flags, str);
+		{
+			r->gm_flag(subfield, room_bits, str);
+		}
 		else if (!str_cmp(field, "people"))
 		{
 			if (r->people)
@@ -3505,22 +3563,21 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 	}
 }
 
-
 // returns 1 if string is all digits, else 0
 int is_num(char *num)
 {
-	while (*num && (a_isdigit(static_cast<unsigned char>(*num)) || *num == '-'))
+	while (*num
+		&& (a_isdigit(*num)
+			|| *num == '-'))
+	{
 		num++;
+	}
 
-	if (!*num || a_isspace(*num))
-		return 1;
-	else
-		return 0;
+	return (!*num || a_isspace(*num)) ? 1 : 0;
 }
 
-
 // evaluates 'lhs op rhs', and copies to result
-void eval_op(const char *op, char *lhs, char *rhs, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig)
+void eval_op(const char *op, char *lhs, char *rhs, char *result, void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* /*trig*/)
 {
 	char *p = 0;
 	int n;
@@ -4108,7 +4165,7 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, struct cmdlis
 		}
 	}
 
-	CREATE(wait_event_obj, struct wait_event_data, 1);
+	CREATE(wait_event_obj, 1);
 	wait_event_obj->trigger = trig;
 	wait_event_obj->go = go;
 	wait_event_obj->type = type;
@@ -4122,9 +4179,8 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, struct cmdlis
 	trig->curr_state = cl->next;
 }
 
-
 // processes a script set command
-void process_set(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
+void process_set(SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH], *value;
 
@@ -4233,7 +4289,9 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 	if (c)
 	{
 		if (!SCRIPT(c))
-			CREATE(SCRIPT(c), SCRIPT_DATA, 1);
+		{
+			CREATE(SCRIPT(c), 1);
+		}
 		add_trigger(SCRIPT(c), newtrig, -1);
 		return;
 	}
@@ -4241,7 +4299,9 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 	if (o)
 	{
 		if (!SCRIPT(o))
-			CREATE(SCRIPT(o), SCRIPT_DATA, 1);
+		{
+			CREATE(SCRIPT(o), 1);
+		}
 		add_trigger(SCRIPT(o), newtrig, -1);
 		return;
 	}
@@ -4249,7 +4309,9 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 	if (r)
 	{
 		if (!SCRIPT(r))
-			CREATE(SCRIPT(r), SCRIPT_DATA, 1);
+		{
+			CREATE(SCRIPT(r), 1);
+		}
 		add_trigger(SCRIPT(r), newtrig, -1);
 		return;
 	}
@@ -4558,7 +4620,7 @@ void makeuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 * calcuid <переменная куда пишется id> <внум> <room|mob|obj> <порядковый номер от 1 до х>
 * если порядковый не указан - возвращается первое вхождение.
 */
-void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
+void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type*/, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
 	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
@@ -4635,7 +4697,7 @@ void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
  * Возвращает в указанную переменную UID первого PC, с именем которого
  * совпадает аргумент
  */
-void charuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
+void charuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd)
 {
 	CHAR_DATA *tch;
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
@@ -4719,7 +4781,7 @@ bool find_all_obj_vnum(long n, char *str)
 }
 
 // * Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 25ти вхождений).
-void calcuidall_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
+void calcuidall_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type*/, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
 	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
@@ -4912,12 +4974,11 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	add_var_cntx(&(sc_remote->global_vars), vd->name, vd->value, context);
 }
 
-
 /*
  * command-line interface to rdelete
  * named vdelete so people didn't think it was to delete rooms
  */
-ACMD(do_vdelete)
+void do_vdelete(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 //  struct trig_var_data *vd, *vd_prev=NULL;
 	SCRIPT_DATA *sc_remote = NULL;
@@ -5090,9 +5151,8 @@ void process_global(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd, long id)
 	remove_var_cntx(&GET_TRIG_VARS(trig), vd->name, 0);
 }
 
-
 // * makes a local variable into a world variable
-void process_worlds(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd, long id)
+void process_worlds(SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd, long id)
 {
 	struct trig_var_data *vd;
 	char arg[MAX_INPUT_LENGTH], *var;
@@ -5143,7 +5203,7 @@ void process_context(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	sc->context = atol(var);
 }
 
-void extract_value(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
+void extract_value(SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char* cmd)
 {
 	char buf2[MAX_INPUT_LENGTH];
 	char *buf3;
@@ -5486,7 +5546,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	return ret_val;
 }
 
-ACMD(do_tlist)
+void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 
 	int first, last, nr, found = 0;
@@ -5560,7 +5620,7 @@ int real_trigger(int vnum)
 	return (rnum);
 }
 
-ACMD(do_tstat)
+void do_tstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int vnum, rnum;
 	char str[MAX_INPUT_LENGTH];
@@ -5616,7 +5676,7 @@ void read_saved_vars(CHAR_DATA * ch)
 	char context_str[16], *c;
 
 	// create the space for the script structure which holds the vars
-	CREATE(SCRIPT(ch), SCRIPT_DATA, 1);
+	CREATE(SCRIPT(ch), 1);
 
 	// find the file that holds the saved variables and open it
 	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);

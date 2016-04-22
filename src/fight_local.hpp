@@ -16,17 +16,18 @@ using namespace FightSystem;
 //Polud функция, вызывающая обработчики аффектов, если они есть
 template <class S> void handle_affects( S& params ) //тип params определяется при вызове функции
 {
-	AFFECT_DATA* aff;
-	for (aff=params.ch->affected; aff; aff = aff->next)
+	for (auto aff = params.ch->affected; aff; aff = aff->next)
 	{
 		if (aff->handler)
+		{
 			aff->handler->Handle(params); //в зависимости от типа params вызовется нужный Handler
+		}
 	}
 }
 
 struct HitData
 {
-	HitData() : weapon(0), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(0),
+	HitData() : weapon(0), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),
 		weap_skill_is(0), skill_num(-1), hit_type(0), hit_no_parry(false),
 		ch_start_pos(-1), victim_start_pos(-1), victim_ac(0), calc_thaco(0),
 		dam(0), dam_critic(0)
@@ -62,7 +63,7 @@ struct HitData
 	// номер позиции (NUM_WEARS) пушки
 	int weapon_pos;
 	// номер скила, взятый из пушки или голых рук
-	int weap_skill;
+	ESkill weap_skill;
 	// очки скила weap_skill у чара, взятые через train_skill (могут быть сфейлены)
 	int weap_skill_is;
 	// брошенные кубики на момент расчета попадания

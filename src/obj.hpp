@@ -6,9 +6,9 @@
 #define OBJ_HPP_INCLUDED
 
 #include "obj_enchant.hpp"
-#include "features.hpp"
-#include "utils.h"
 #include "spells.h"
+#include "skills.h"
+#include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -27,46 +27,106 @@
 
 struct obj_flag_data
 {
-	boost::array<int, NUM_OBJ_VAL_POSITIONS> value;
-	int type_flag;		// Type of item               //
-	uint32_t wear_flags;		// Where you can wear it     //
+public:
+	typedef boost::array<int, NUM_OBJ_VAL_POSITIONS> value_t;
+
+	enum EObjectType
+	{
+		ITEM_LIGHT = 1,			// Item is a light source  //
+		ITEM_SCROLL = 2,		// Item is a scroll     //
+		ITEM_WAND = 3,			// Item is a wand    //
+		ITEM_STAFF = 4,			// Item is a staff      //
+		ITEM_WEAPON = 5,		// Item is a weapon     //
+		ITEM_FIREWEAPON = 6,	// Unimplemented     //
+		ITEM_MISSILE = 7,		// Unimplemented     //
+		ITEM_TREASURE = 8,		// Item is a treasure, not gold  //
+		ITEM_ARMOR = 9,			// Item is armor     //
+		ITEM_POTION = 10,		// Item is a potion     //
+		ITEM_WORN = 11,			// Unimplemented     //
+		ITEM_OTHER = 12,		// Misc object       //
+		ITEM_TRASH = 13,		// Trash - shopkeeps won't buy   //
+		ITEM_TRAP = 14,			// Unimplemented     //
+		ITEM_CONTAINER = 15,	// Item is a container     //
+		ITEM_NOTE = 16,			// Item is note      //
+		ITEM_DRINKCON = 17,		// Item is a drink container  //
+		ITEM_KEY = 18,			// Item is a key     //
+		ITEM_FOOD = 19,			// Item is food         //
+		ITEM_MONEY = 20,		// Item is money (gold)    //
+		ITEM_PEN = 21,			// Item is a pen     //
+		ITEM_BOAT = 22,			// Item is a boat    //
+		ITEM_FOUNTAIN = 23,		// Item is a fountain      //
+		ITEM_BOOK = 24,			// Item is book //
+		ITEM_INGREDIENT = 25,	// Item is magical ingradient //
+		ITEM_MING = 26,			// Магический ингредиент //
+		ITEM_MATERIAL = 27,		// Материал для крафтовых умений //
+		ITEM_BANDAGE = 28,		// бинты для перевязки
+		ITEM_ARMOR_LIGHT = 29,	// легкий тип брони
+		ITEM_ARMOR_MEDIAN = 30,	// средний тип брони
+		ITEM_ARMOR_HEAVY = 31,	// тяжелый тип брони
+		ITEM_ENCHANT = 32		// зачарование предмета
+	};
+
+	enum EObjectMaterial
+	{
+		MAT_NONE = 0,
+		MAT_BULAT = 1,
+		MAT_BRONZE = 2,
+		MAT_IRON = 3,
+		MAT_STEEL = 4,
+		MAT_SWORDSSTEEL = 5,
+		MAT_COLOR = 6,
+		MAT_CRYSTALL = 7,
+		MAT_WOOD = 8,
+		MAT_SUPERWOOD = 9,
+		MAT_FARFOR = 10,
+		MAT_GLASS = 11,
+		MAT_ROCK = 12,
+		MAT_BONE = 13,
+		MAT_MATERIA = 14,
+		MAT_SKIN = 15,
+		MAT_ORGANIC = 16,
+		MAT_PAPER = 17,
+		MAT_DIAMOND = 18
+	};
+
+	const static int DEFAULT_MAXIMUM_DURABILITY = 100;
+	const static int DEFAULT_CURRENT_DURABILITY = DEFAULT_MAXIMUM_DURABILITY;
+	const static int DEFAULT_LEVEL = 0;
+	const static int DEFAULT_WEIGHT = INT_MAX;
+	const static EObjectType DEFAULT_TYPE = ITEM_OTHER;
+	const static EObjectMaterial DEFAULT_MATERIAL = MAT_NONE;
+
+	value_t value;
+	EObjectType type_flag;		///< Type of item               //
+	std::underlying_type<EWearFlag>::type wear_flags;		// Where you can wear it     //
 	FLAG_DATA extra_flags;	// If it hums, glows, etc.      //
-	int
-	weight;		// Weigt what else              //
+	int weight;		// Weight what else              //
 	FLAG_DATA bitvector;	// To set chars bits            //
 
 	FLAG_DATA affects;
 	FLAG_DATA anti_flag;
 	FLAG_DATA no_flag;
-	int
-	Obj_sex;
-	int
-	Obj_spell;
-	int
-	Obj_level;
-	int
-	Obj_skill;
-	int
-	Obj_max;
-	int
-	Obj_cur;
-	int
-	Obj_mater;
-	int
-	Obj_owner;
-	int
-	Obj_destroyer;
-	int
-	Obj_zone;
-	int
-	Obj_maker;		// Unique number for object crafters //
-	int
-	Obj_parent;		// Vnum for object parent //
-	bool
-	Obj_is_rename;
-	int 
-	craft_timer; // таймер крафтовой вещи при создании
+	ESex Obj_sex;
+	int Obj_spell;
+	int Obj_level;
+	int Obj_skill;
+	int Obj_max;
+	int Obj_cur;
+	EObjectMaterial Obj_mater;
+	int Obj_owner;
+	int Obj_destroyer;
+	int Obj_zone;
+	int Obj_maker;		// Unique number for object crafters //
+	int Obj_parent;		// Vnum for object parent //
+	bool Obj_is_rename;
+	int craft_timer; // таймер крафтовой вещи при создании
 };
+
+template <> const std::string& NAME_BY_ITEM<obj_flag_data::EObjectType>(const obj_flag_data::EObjectType item);
+template <> obj_flag_data::EObjectType ITEM_BY_NAME<obj_flag_data::EObjectType>(const std::string& name);
+
+template <> const std::string& NAME_BY_ITEM<obj_flag_data::EObjectMaterial>(const obj_flag_data::EObjectMaterial item);
+template <> obj_flag_data::EObjectMaterial ITEM_BY_NAME<obj_flag_data::EObjectMaterial>(const std::string& name);
 
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
@@ -74,7 +134,7 @@ void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
 class activation
 {
 	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
-	flag_data affects;
+	FLAG_DATA affects;
 	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected;
 	int weight, ndices, nsides;
 	std::map<int, int> skills;
@@ -84,7 +144,7 @@ public:
 
 	activation(const std::string& __actmsg, const std::string& __deactmsg,
 			   const std::string& __room_actmsg, const std::string& __room_deactmsg,
-			   const flag_data& __affects, const obj_affected_type* __affected,
+			   const FLAG_DATA& __affects, const obj_affected_type* __affected,
 			   int __weight, int __ndices, int __nsides):
 			actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg),
 			room_deactmsg(__room_deactmsg), affects(__affects), weight(__weight),
@@ -203,14 +263,14 @@ public:
 		return *this;
 	}
 
-	const flag_data&
+	const FLAG_DATA&
 	get_affects() const
 	{
 		return affects;
 	}
 
 	activation&
-	set_affects(const flag_data& __affects)
+	set_affects(const FLAG_DATA& __affects)
 	{
 		affects = __affects;
 		return *this;
@@ -288,8 +348,6 @@ public:
 
 typedef std::map< int, set_info > id_to_set_info_map;
 
-extern std::vector < OBJ_DATA * >obj_proto;
-
 // * Временное заклинание на предмете (одно).
 class TimedSpell
 {
@@ -324,14 +382,28 @@ void free_custom_label(struct custom_label *);
 class ObjVal
 {
 public:
+	enum class EValueKey : uint32_t
+	{
+		// номер и уровень заклинаний в зелье/емкости с зельем
+		POTION_SPELL1_NUM = 0,
+		POTION_SPELL1_LVL = 1,
+		POTION_SPELL2_NUM = 2,
+		POTION_SPELL2_LVL = 3,
+		POTION_SPELL3_NUM = 4,
+		POTION_SPELL3_LVL = 5,
+		// внум прототипа зелья, перелитого в емкость
+		// 0 - если зелье в емкости проставлено через олц
+		POTION_PROTO_VNUM = 6
+	};
+
 	// \return -1 - ключ не был найден
-	int get(unsigned key) const;
+	int get(const EValueKey key) const;
 	// сет новой записи/обновление существующей
 	// \param val < 0 - запись (если была) удаляется
-	void set(unsigned key, int val);
+	void set(const EValueKey key, int val);
 	// если key не найден, то ничего не сетится
 	// \param val допускается +-
-	void inc(unsigned key, int val = 1);
+	void inc(const EValueKey key, int val = 1);
 	// save/load в файлы предметов
 	std::string print_to_file() const;
 	bool init_from_file(const char *str);
@@ -341,37 +413,41 @@ public:
 	// для сравнения с прототипом
 	bool operator==(const ObjVal &r) const
 	{
-		return list_ == r.list_;
+		return m_values == r.m_values;
 	}
 	bool operator!=(const ObjVal &r) const
 	{
-		return list_ != r.list_;
+		return m_values != r.m_values;
 	}
 	// чистка левых параметров (поменяли тип предмета в олц/файле и т.п.)
 	// дергается после редактирований в олц, лоада прототипов и просто шмоток
 	void remove_incorrect_keys(int type);
 
-	enum
-	{
-		// номер и уровень заклинаний в зелье/емкости с зельем
-		POTION_SPELL1_NUM,
-		POTION_SPELL1_LVL,
-		POTION_SPELL2_NUM,
-		POTION_SPELL2_LVL,
-		POTION_SPELL3_NUM,
-		POTION_SPELL3_LVL,
-		// внум прототипа зелья, перелитого в емкость
-		// 0 - если зелье в емкости проставлено через олц
-		POTION_PROTO_VNUM
-	};
-
 private:
-//	std::unordered_map<unsigned, int> list_;
-	boost::unordered_map<unsigned, int> list_;
+	boost::unordered_map<EValueKey, int> m_values;
 };
 
-struct OBJ_DATA
+class OBJ_DATA
 {
+public:
+	constexpr static int NUM_PADS = 6;
+
+	constexpr static int DEFAULT_COST = 100;
+	constexpr static int DEFAULT_RENT_ON = 100;
+	constexpr static int DEFAULT_RENT_OFF = 100;
+	constexpr static int UNLIMITED_GLOBAL_MAXIMUM = -1;
+	constexpr static int DEFAULT_GLOBAL_MAXIMUM = UNLIMITED_GLOBAL_MAXIMUM;
+	constexpr static int DEFAULT_MINIMUM_REMORTS = 0;
+
+	// бесконечный таймер
+	constexpr static int UNLIMITED_TIMER = 2147483647;
+	constexpr static int ONE_DAY = 24 * 60;
+	constexpr static int SEVEN_DAYS = 7 * ONE_DAY;
+	constexpr static int DEFAULT_TIMER = SEVEN_DAYS;
+
+	using pnames_t = boost::array<char *, NUM_PADS>;
+	using triggers_list_t = std::list<obj_vnum>;
+
 	OBJ_DATA();
 	OBJ_DATA(const OBJ_DATA&);
 	~OBJ_DATA();
@@ -380,7 +456,7 @@ struct OBJ_DATA
 	obj_vnum item_number;	// Where in data-base            //
 	room_rnum in_room;	// In what room -1 when conta/carr //
 
-	struct obj_flag_data obj_flags;		// Object information       //
+	obj_flag_data obj_flags;		// Object information       //
 	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected;	// affects //
 
 	char *aliases;		// Title of object :get etc.        //
@@ -394,23 +470,20 @@ struct OBJ_DATA
 
 	struct custom_label *custom_label;		// наносимая чаром метка //
 
-	short int
-		worn_on;		// Worn where?          //
+	short int worn_on;		// Worn where?          //
 
 	OBJ_DATA *in_obj;	// In what object NULL when none    //
 	OBJ_DATA *contains;	// Contains objects                 //
 
 	long id;			// used by DG triggers              //
-	struct trig_proto_list *proto_script;	// list of default triggers  //
+	triggers_list_t proto_script;	// list of default triggers  //
 	struct script_data *script;	// script info for the object       //
 
 	OBJ_DATA *next_content;	// For 'contains' lists             //
 	OBJ_DATA *next;		// For the object list              //
-	int
-		room_was_in;
-	boost::array<char *, 6> PNames;
-	int
-		max_in_world;		// max in world             //
+	int room_was_in;
+	pnames_t PNames;
+	int max_in_world;	///< Maximum in the world
 
 	obj::Enchants enchants;
 	ObjVal values;
@@ -420,6 +493,7 @@ struct OBJ_DATA
 
 	void set_skill(int skill_num, int percent);
 	int get_skill(int skill_num) const;
+	auto& get_skills() const { return m_skills; }
 
 	void get_skills(std::map<int, int>& out_skills) const;
 	bool has_skills() const;
@@ -463,14 +537,18 @@ struct OBJ_DATA
 	void add_timed_spell(const int spell, const int time);
 	void del_timed_spell(const int spell, const bool message);
 
-	void set_extraflag(const bitvector_t flag) { obj_flags.extra_flags.set(flag); }
+	void set_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.set(packed_flag); }
+	void set_extraflag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.set_flag(plane, flag); }
+	void unset_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
+	bool get_extraflag(const EExtraFlag packed_flag) const { return obj_flags.extra_flags.get(packed_flag); }
+	bool get_extraflag(const size_t plane, const uint32_t flag) const { return obj_flags.extra_flags.get_flag(plane, flag); }
 
 private:
 	void zero_init();
 
 	TimedSpell m_timed_spell;    ///< временный обкаст
 	// если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
-	std::map<int, int>* skills;
+	std::map<int, int> m_skills;
 	// порядковый номер в списке чаров (для name_list)
 	int serial_num_;
 	// таймер (в минутах рл)
@@ -491,22 +569,35 @@ private:
 	std::pair<bool, int> activator_;
 };
 
-inline const uint32_t& GET_OBJ_AFF(const OBJ_DATA* obj, const uint32_t shifted_group_number)
+inline bool CAN_WEAR(const OBJ_DATA *obj, const EWearFlag part)
 {
-	const uint32_t& flags = GET_FLAG(obj->obj_flags.affects, shifted_group_number);
-	return flags;
+	return IS_SET(obj->obj_flags.wear_flags, to_underlying(part));
 }
 
-inline uint32_t& GET_OBJ_AFF(OBJ_DATA* obj, const uint32_t shifted_group_number)
+inline bool CAN_WEAR_ANY(const OBJ_DATA* obj)
 {
-	uint32_t& flags = GET_FLAG(obj->obj_flags.affects, shifted_group_number);
-	return flags;
+	return obj->obj_flags.wear_flags > 0
+		&& obj->obj_flags.wear_flags != to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 }
 
-inline bool OBJ_AFFECT(const OBJ_DATA* obj, const uint32_t affect)
+inline bool OBJ_FLAGGED(const OBJ_DATA* obj, const EExtraFlag flag)
 {
-	const uint32_t& affects = GET_OBJ_AFF(obj, affect);
-	return 0 != (affects & 0x3fffffff & affect);
+	return obj->get_extraflag(flag);
+}
+
+inline void SET_OBJ_AFF(OBJ_DATA* obj, const uint32_t packed_flag)
+{
+	return obj->obj_flags.affects.set(packed_flag);
+}
+
+inline bool OBJ_AFFECT(const OBJ_DATA* obj, const uint32_t weapon_affect)
+{
+	return obj->obj_flags.affects.get(weapon_affect);
+}
+
+inline bool OBJ_AFFECT(const OBJ_DATA* obj, const EWeaponAffectFlag weapon_affect)
+{
+	return OBJ_AFFECT(obj, static_cast<uint32_t>(weapon_affect));
 }
 
 namespace ObjSystem
@@ -532,7 +623,6 @@ extern int PURSE_RNUM;
 extern int PERS_CHEST_RNUM;
 
 void init();
-void renumber(int rnum);
 OBJ_DATA* create_purse(CHAR_DATA *ch, int gold);
 bool is_purse(OBJ_DATA *obj);
 void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj);

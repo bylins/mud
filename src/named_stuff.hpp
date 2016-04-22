@@ -14,7 +14,7 @@
 namespace NamedStuff
 {
 
-ACMD(do_named);
+void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void nedit_menu(CHAR_DATA *ch);
 bool parse_nedit_menu(CHAR_DATA *ch, char *arg);
 

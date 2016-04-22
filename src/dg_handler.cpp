@@ -21,6 +21,7 @@
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "dg_event.h"
 #include "im.h"
@@ -43,8 +44,6 @@ void free_trigger(TRIG_DATA * trig)
 // remove a single trigger from a mob/obj/room 
 void extract_trigger(TRIG_DATA * trig)
 {
-	TRIG_DATA *temp;
-
 	if (GET_TRIG_WAIT(trig))
 	{
 		// см. объяснения в вызове trig_data_free()
@@ -56,7 +55,7 @@ void extract_trigger(TRIG_DATA * trig)
 	trig_index[trig->nr]->number--;
 
 	// walk the trigger list and remove this one 
-	REMOVE_FROM_LIST(trig, trigger_list, next_in_world);
+	REMOVE_FROM_LIST(trig, trigger_list, [](auto list) -> auto& { return list->next_in_world; });
 
 	free_trigger(trig);
 }
@@ -93,9 +92,9 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 {
 	static char retval[256];
 	im_rskill *rs;
-	int skillnum, rid;
+    int rid;
 
-	skillnum = find_skill_num(skill);
+	const ESkill skillnum = find_skill_num(skill);
 	if (skillnum > 0)
 	{
 		//edited by WorM 2011.05.23 триги должны возвращать реальный скилл без бонусов от стафа
