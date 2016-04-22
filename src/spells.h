@@ -149,6 +149,7 @@ template <> const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFl
 // PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS //
 enum ESpell
 {
+	SPELL_NO_SPELL = 0,
 	SPELL_ARMOR = 1,	// Reserved Skill[] DO NOT CHANGE //
 	SPELL_TELEPORT = 2,	// Reserved Skill[] DO NOT CHANGE //
 	SPELL_BLESS = 3,	// Reserved Skill[] DO NOT CHANGE //
