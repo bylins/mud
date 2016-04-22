@@ -871,6 +871,9 @@ ASPELL(spell_locate_object)
 		if (IS_CORPSE(i))
 			continue;
 
+		if (OBJ_FLAGGED(i, ITEM_NOLOCATE) && !IS_GOD(ch) && i->carried_by != ch) //!локейт стаф может локейтить только имм или тот кто его держит
+			continue;
+
 		if (!isname(name, i->aliases))
 			continue;
 
@@ -879,7 +882,6 @@ ASPELL(spell_locate_object)
 
 		if (i->carried_by)
 			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
-					(OBJ_FLAGGED(i, ITEM_NOLOCATE) && !IS_GOD(ch)) ||
 					IS_IMMORTAL(i->carried_by))
 				continue;
 
