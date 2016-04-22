@@ -243,11 +243,19 @@ typedef uint32_t bitvector_t;
 
 #define MAX_REMORT            50
 
-template <typename E>
-const std::string& NAME_BY_ITEM(const E item);
+template <typename T> struct Unimplemented { };
 
 template <typename E>
-E ITEM_BY_NAME(const std::string& name);
+const std::string& NAME_BY_ITEM(const E item)
+{
+	Unimplemented<E>::FAIL;
+}
+
+template <typename E>
+E ITEM_BY_NAME(const std::string& name)
+{
+	Unimplemented<E>::FAIL;
+}
 
 template <typename E>
 inline E ITEM_BY_NAME(const char* name) { return ITEM_BY_NAME<E>(std::string(name)); }
@@ -1232,12 +1240,17 @@ void asciiflag_conv(const char *flag, void *to);
 class FLAG_DATA
 {
 public:
+	static constexpr size_t PLANES_NUMBER = 4;
+	using flags_t = boost::array<uint32_t, PLANES_NUMBER>;
+	static constexpr size_t PLANE_SIZE = 8*sizeof(flags_t::value_type) - 2;	// 2 bits spent for plane number
+
 	FLAG_DATA() { clear(); }
 	FLAG_DATA& operator+=(const FLAG_DATA &r);
 	bool operator!=(const FLAG_DATA& r) const { return m_flags[0] != r.m_flags[0] || m_flags[1] != r.m_flags[1] || m_flags[2] != r.m_flags[2] || m_flags[3] != r.m_flags[3]; }
 	bool operator==(const FLAG_DATA& r) const { return !(*this != r); }
 	bool operator<(const FLAG_DATA& r) const;
 	bool operator>(const FLAG_DATA& r) const;
+
 	bool empty() const { return 0 == m_flags[0] && 0 == m_flags[1] && 0 == m_flags[2] && 0 == m_flags[3]; }
 
 	void clear() { m_flags[0] = m_flags[1] = m_flags[2] = m_flags[3] = 0; }
@@ -1267,7 +1280,7 @@ public:
 	bool sprintbits(const char *names[], char *result, const char *div) const { return sprintbits(names, result, div, 0); };
 
 private:
-	boost::array<uint32_t, 4> m_flags;
+	boost::array<uint32_t, PLANES_NUMBER> m_flags;
 };
 
 template <> inline bool FLAG_DATA::get(const uint32_t packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }

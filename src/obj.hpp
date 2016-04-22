@@ -396,6 +396,12 @@ public:
 		POTION_PROTO_VNUM = 6
 	};
 
+	using values_t = boost::unordered_map<EValueKey, int>;
+	using const_iterator = values_t::const_iterator;
+	const_iterator begin() const { return m_values.begin(); }
+	const_iterator end() const { return m_values.end(); }
+	bool empty() const { return m_values.empty(); }
+
 	// \return -1 - ключ не был найден
 	int get(const EValueKey key) const;
 	// сет новой записи/обновление существующей
@@ -424,7 +430,7 @@ public:
 	void remove_incorrect_keys(int type);
 
 private:
-	boost::unordered_map<EValueKey, int> m_values;
+	values_t m_values;
 };
 
 class OBJ_DATA

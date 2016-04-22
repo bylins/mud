@@ -66,17 +66,17 @@ namespace craft
 
 		template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
 		static void load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
-			TSuccessHandler success_handler, TFailHandler fail_handler);
+			const TSuccessHandler success_handler, const TFailHandler fail_handler);
 
 		template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
 		static ELoadFlagResult load_flag(const pugi::xml_node& root, const char* node_name,
-			TSuccessHandler success_handler, TFailHandler fail_handler, TNoValueHandler no_value_handler);
+			const TSuccessHandler success_handler, const TFailHandler fail_handler, const TNoValueHandler no_value_handler);
 
 		template <typename TCatchHandler>
-		static void load_integer(const char* input, int& output, TCatchHandler catch_handler);
+		static void load_integer(const char* input, int& output, const TCatchHandler catch_handler);
 
 		template <typename TSetHandler, typename TCatchHandler>
-		static void load_integer(const char* input, TSetHandler set_handler, TCatchHandler catch_handler);
+		static void load_integer(const char* input, const TSetHandler set_handler, const TCatchHandler catch_handler);
 
 		template <typename KeyType,
 			typename TNoKeyHandler,
@@ -90,19 +90,144 @@ namespace craft
 			const char* entry_name,
 			const char* key_name,
 			const char* value_name,
-			TNoKeyHandler no_key_handler,
-			TKeyConverter key_converter,
-			TConverFailHandler convert_fail_handler,
-			TNoValueHandler no_value_handler,
-			TSetHandler set_handler);
+			const TNoKeyHandler no_key_handler,
+			const TKeyConverter key_converter,
+			const TConverFailHandler convert_fail_handler,
+			const TNoValueHandler no_value_handler,
+			const TSetHandler set_handler);
 
 		template <typename TFailHandler>
-		static void save_string(pugi::xml_node& node, const char* node_name, const char* value, TFailHandler fail_handler);
+		static void save_string(pugi::xml_node& node, const char* node_name, const char* value, const TFailHandler fail_handler);
+
+		template <typename ListType, typename TGetItemValue, typename TListNodeFailHandler, typename TItemNodeFailHandler>
+		static void save_list(
+			pugi::xml_node& node,
+			const char* node_name,
+			const char* item_name,
+			const ListType& list,
+			const TGetItemValue get_item_value,
+			const TListNodeFailHandler list_node_fail_handler,
+			const TItemNodeFailHandler item_node_fail_handler);
+
+		template <typename ListType, typename TListNodeFailHandler, typename TItemNodeFailHandler>
+		static void save_list(
+			pugi::xml_node& node,
+			const char* node_name,
+			const char* item_name,
+			const ListType& list,
+			const TListNodeFailHandler list_node_fail_handler,
+			const TItemNodeFailHandler item_node_fail_handler)
+		{
+			save_list(node, node_name, item_name, list,
+				[&](const auto value) -> auto { return NAME_BY_ITEM(value).c_str(); },
+				list_node_fail_handler,
+				item_node_fail_handler);
+		}
+
+		template <typename FlagType, typename TListNodeFailHandler, typename TItemNodeFailHandler>
+		static void save_list(
+			pugi::xml_node& node,
+			const char* node_name,
+			const char* item_name,
+			const FLAG_DATA& flags,
+			const TListNodeFailHandler list_node_fail_handler,
+			const TItemNodeFailHandler item_node_fail_handler);
+
+		template <typename FlagType, typename TListNodeFailHandler, typename TItemNodeFailHandler>
+		static void save_list(
+			pugi::xml_node& node,
+			const char* node_name,
+			const char* item_name,
+			const uint32_t flags,
+			const TListNodeFailHandler list_node_fail_handler,
+			const TItemNodeFailHandler item_node_fail_handler)
+		{
+			std::list<FlagType> list;
+			uint32_t flag = 1;
+			while (flag < flags)
+			{
+				if (IS_SET(flags, flag))
+				{
+					list.push_back(static_cast<FlagType>(flag));
+				}
+				flag <<= 1;
+			}
+
+			save_list(node, node_name, item_name, list,
+				list_node_fail_handler,
+				item_node_fail_handler);
+		}
+
+		template <typename ListType, typename TGetKeyHandler, typename TGetValueHandler, typename TListNodeFailHandler, typename TItemFailHandler>
+		static void save_pairs_list(
+			pugi::xml_node& node,
+			const char* node_name,
+			const char* item_node_name,
+			const char* key_node_name,
+			const char* value_node_name,
+			const ListType& list,
+			const TGetKeyHandler get_key_handler,
+			const TGetValueHandler get_value_handler,
+			const TListNodeFailHandler list_node_fail_handler,
+			const TItemFailHandler item_fail_handler)
+		{
+			if (list.empty())
+			{
+				return;
+			}
+
+			auto list_node = node.append_child(node_name);
+			if (!node_name)
+			{
+				log("WARNING: Couldn't create node \"%s\".\n", node_name);
+				list_node_fail_handler();
+				return;
+			}
+
+			for (const auto& i : list)
+			{
+				try
+				{
+					auto item_node = list_node.append_child(item_node_name);
+					if (!item_node)
+					{
+						log("WARNING: Could not create item node. Will be skipped.\n");
+						item_fail_handler(i);
+						continue;
+					}
+
+					save_string(item_node, key_node_name, get_key_handler(i).c_str(),
+						[&]() { throw std::runtime_error("failed to save key"); });
+					save_string(item_node, value_node_name, get_value_handler(i).c_str(),
+						[&]() { throw std::runtime_error("failed to save value"); });
+				}
+				catch (...)
+				{
+					item_fail_handler(i);
+				}
+			}
+		}
+
+		template <typename ListType, typename TGetKeyHandler, typename TGetValueHandler, typename TListNodeFailHandler>
+		static void save_pairs_list(
+			pugi::xml_node& node,
+			const char* node_name,
+			const char* item_node_name,
+			const char* key_node_name,
+			const char* value_node_name,
+			const ListType& list,
+			const TGetKeyHandler get_key_handler,
+			const TGetValueHandler get_value_handler,
+			const TListNodeFailHandler list_node_fail_handler)
+		{
+			save_pairs_list(node, node_name, item_node_name, key_node_name, value_node_name, list,
+				get_key_handler, get_value_handler, list_node_fail_handler, [](const auto) {});
+		}
 	};
 
 	template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
 	void CHelper::load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name,
-		const char* node_flag, TSuccessHandler success_handler, TFailHandler fail_handler)
+		const char* node_flag, const TSuccessHandler success_handler, const TFailHandler fail_handler)
 	{
 		const auto node = root.child(node_name);
 		if (node)
@@ -126,7 +251,7 @@ namespace craft
 
 	template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
 	CHelper::ELoadFlagResult CHelper::load_flag(const pugi::xml_node& root, const char* node_name,
-		TSuccessHandler success_handler, TFailHandler fail_handler, TNoValueHandler no_value_handler)
+		const TSuccessHandler success_handler, const TFailHandler fail_handler, const TNoValueHandler no_value_handler)
 	{
 		const auto node = root.child(node_name);
 		if (node)
@@ -153,7 +278,7 @@ namespace craft
 	}
 
 	template <typename TCatchHandler>
-	void CHelper::load_integer(const char* input, int& output, TCatchHandler catch_handler)
+	void CHelper::load_integer(const char* input, int& output, const TCatchHandler catch_handler)
 	{
 		try
 		{
@@ -166,7 +291,7 @@ namespace craft
 	}
 
 	template <typename TSetHandler, typename TCatchHandler>
-	void CHelper::load_integer(const char* input, TSetHandler set_handler, TCatchHandler catch_handler)
+	void CHelper::load_integer(const char* input, const TSetHandler set_handler, const TCatchHandler catch_handler)
 	{
 		try
 		{
@@ -184,7 +309,17 @@ namespace craft
 		typename TConverFailHandler,
 		typename TNoValueHandler,
 		typename TSetHandler>
-	void CHelper::load_pairs_list(const pugi::xml_node* node, const char* group_name, const char* entry_name, const char* key_name, const char* value_name, TNoKeyHandler no_key_handler, TKeyConverter key_converter, TConverFailHandler convert_fail_handler, TNoValueHandler no_value_handler, TSetHandler set_handler)
+	void CHelper::load_pairs_list(
+		const pugi::xml_node* node,
+		const char* group_name,
+		const char* entry_name,
+		const char* key_name,
+		const char* value_name,
+		const TNoKeyHandler no_key_handler,
+		const TKeyConverter key_converter,
+		const TConverFailHandler convert_fail_handler,
+		const TNoValueHandler no_value_handler,
+		const TSetHandler set_handler)
 	{
 		const auto group_node = node->child(group_name);
 		if (!group_node)
@@ -226,12 +361,12 @@ namespace craft
 	}
 
 	template <typename TFailHandler>
-	void CHelper::save_string(pugi::xml_node& node, const char* node_name, const char* value, TFailHandler fail_handler)
+	void CHelper::save_string(pugi::xml_node& node, const char* node_name, const char* value, const TFailHandler fail_handler)
 	{
 		auto new_node = node.append_child(node_name);
 		if (!new_node)
 		{
-			log("Failed to create node \"%s\".\n", node_name);
+			log("WARNING: Failed to create node \"%s\".\n", node_name);
 			fail_handler();
 		}
 
@@ -247,6 +382,55 @@ namespace craft
 			log("WARNING: Failed to set value to node \"%s\".\n", node_name);
 			fail_handler();
 		}
+	}
+
+	template <typename ListType, typename TGetItemValue, typename TListNodeFailHandler, typename TItemNodeFailHandler>
+	void CHelper::save_list(pugi::xml_node& node, const char* node_name, const char* item_name, const ListType& list, const TGetItemValue get_item_value, const TListNodeFailHandler list_node_fail_handler, const TItemNodeFailHandler item_node_fail_handler)
+	{
+		if (list.empty())
+		{
+			return;
+		}
+
+		auto list_node = node.append_child(node_name);
+		if (!node_name)
+		{
+			list_node_fail_handler();
+		}
+
+		for (const auto& i : list)
+		{
+			try
+			{
+				save_string(list_node, item_name, get_item_value(i), [&]() { throw std::runtime_error("failed to save item value"); });
+			}
+			catch (...)
+			{
+				item_node_fail_handler(i);
+			}
+		}
+	}
+
+	template <typename FlagType, typename TListNodeFailHandler, typename TItemNodeFailHandler>
+	void CHelper::save_list(pugi::xml_node& node, const char* node_name, const char* item_name, const FLAG_DATA& flags, const TListNodeFailHandler list_node_fail_handler, const TItemNodeFailHandler item_node_fail_handler)
+	{
+		std::list<FlagType> list;
+		for (uint32_t i = 0; i < FLAG_DATA::PLANES_NUMBER; ++i)
+		{
+			const auto plane = flags.get_plane(i);
+			for (uint32_t j = 0; j < FLAG_DATA::PLANE_SIZE; ++j)
+			{
+				if (IS_SET(plane, 1 << j))
+				{
+					const uint32_t flag_bit = (i << 30) | (1 << j);
+					list.push_back(static_cast<FlagType>(flag_bit));
+				}
+			}
+		}
+
+		save_list(node, node_name, item_name, list,
+			list_node_fail_handler,
+			item_node_fail_handler);
 	}
 
 	/// Contains handlers of craft subcommands
@@ -931,7 +1115,7 @@ namespace craft
 		m_cases.load_from_object(object);
 		m_short_desc = object->short_description;
 		m_long_desc = object->description;
-		m_action_desc = object->action_description;
+		m_action_desc = object->action_description ? object->action_description : "";
 
 		if (nullptr != object->ex_description)
 		{
@@ -964,30 +1148,30 @@ namespace craft
 
 	bool CPrototype::save_to_node(pugi::xml_node* node) const
 	{
-		auto description = node->append_child("description");
-		if (!description)
-		{
-			log("WARNIGN: Failed to create description node.\n");
-			return false;
-		}
-
 		try
 		{
+			auto description = node->append_child("description");
+			if (!description)
+			{
+				log("WARNIGN: Failed to create node \"description\".\n");
+				return false;
+			}
+
 			CHelper::save_string(description, "short", m_short_desc.c_str(),
-				[&]() { throw std::runtime_error("failed to save short description"); });
+				[&]() { throw std::runtime_error("WARNING: Failed to save short description"); });
 			CHelper::save_string(description, "long", m_long_desc.c_str(),
-				[&]() { throw std::runtime_error("failed to save long description"); });
+				[&]() { throw std::runtime_error("WARNING: Failed to save long description"); });
 			CHelper::save_string(description, "action", m_action_desc.c_str(),
-				[&]() { throw std::runtime_error("failed to save action description"); });
+				[&]() { throw std::runtime_error("WARNING: Failed to save action description"); });
 			CHelper::save_string(description, "keyword", m_keyword.c_str(),
-				[&]() { throw std::runtime_error("failed to save keyword"); });
+				[&]() { throw std::runtime_error("WARNING: Failed to save keyword"); });
 			CHelper::save_string(description, "extended", m_extended_desc.c_str(),
-				[&]() { throw std::runtime_error("failed to save extended description"); });
+				[&]() { throw std::runtime_error("WARNING: Failed to save extended description"); });
 
 			auto item = node->append_child("item");
 			if (!item)
 			{
-				log("Failed to create item node.\n");
+				log("WARNIGN: Failed to create node\"item\".\n");
 				return false;
 			}
 
@@ -996,6 +1180,144 @@ namespace craft
 				// Error message was output inside m_cases.save_to_node
 				return false;
 			}
+
+			CHelper::save_string(*node, "cost", std::to_string(m_cost).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save object cost"); });
+
+			auto rent = node->append_child("rent");
+			if (!rent)
+			{
+				log("WARNIGN: Failed to create node \"rent\".\n");
+				return false;
+			}
+
+			CHelper::save_string(rent, "on", std::to_string(m_rent_on).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save rent/on value"); });
+			CHelper::save_string(rent, "off", std::to_string(m_rent_off).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save rent/off value"); });
+
+			CHelper::save_string(*node, "global_maximum", std::to_string(m_global_maximum).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save global maximum"); });
+			CHelper::save_string(*node, "minimum_remorts", std::to_string(m_minimum_remorts).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save minimal remorts"); });
+
+			CHelper::save_string(*node, "type", NAME_BY_ITEM(get_type()).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save object type"); });
+
+			auto durability = node->append_child("durability");
+			if (!durability)
+			{
+				log("WARNIGN: Failed to create node \"durability\".\n");
+				return false;
+			}
+
+			CHelper::save_string(durability, "maximum", std::to_string(m_maximum_durability).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save maximum durability"); });
+			CHelper::save_string(durability, "current", std::to_string(m_current_durability).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save current durability"); });
+
+			CHelper::save_string(*node, "sex", NAME_BY_ITEM(m_sex).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save gender"); });
+			CHelper::save_string(*node, "level", std::to_string(m_level).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save object level"); });
+			CHelper::save_string(*node, "weight", std::to_string(get_weight()).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save object weight"); });
+
+			if (OBJ_DATA::UNLIMITED_TIMER != get_timer())
+			{
+				CHelper::save_string(*node, "timer", std::to_string(get_timer()).c_str(),
+					[&]() { throw std::runtime_error("WARNING: Failed to save object timer"); });
+			}
+			else
+			{
+				CHelper::save_string(*node, "timer", "unlimited",
+					[&]() { throw std::runtime_error("WARNING: Failed to save object timer"); });
+			}
+
+			{
+				// unpack item_parameters
+				std::list<std::string> item_parameters;
+				switch (get_type())
+				{
+				case obj_flag_data::ITEM_INGREDIENT:
+					{
+						decltype(m_item_params) flag = 1;
+						while (flag <= m_item_params)
+						{
+							if (IS_SET(m_item_params, flag))
+							{
+								item_parameters.push_back(NAME_BY_ITEM(static_cast<EIngredientFlag>(flag)));
+							}
+							flag <<= 1;
+						}
+					}
+					break;
+
+				case obj_flag_data::ITEM_WEAPON:
+					item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(m_item_params)));
+					break;
+
+				default:
+					break;
+				}
+				// and save them
+				CHelper::save_list(*node, "item_parameters", "parameter", item_parameters,
+					[&](const auto& value) -> auto { return value.c_str(); },
+					[&]() { throw std::runtime_error("WARNING: Failed to create node \"item_parameters\".\n"); },
+					[&](const auto value) { throw std::runtime_error("WARNING: Could not save item parameter value " + value); });
+			}
+
+			CHelper::save_string(*node, "material", NAME_BY_ITEM(m_material).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save object material"); });
+			CHelper::save_string(*node, "spell", NAME_BY_ITEM(m_spell).c_str(),
+				[&]() { throw std::runtime_error("WARNING: Failed to save object spell"); });
+
+			CHelper::save_list<EExtraFlag>(*node, "extraflags", "extraflag", m_extraflags,
+				[&]() { throw std::runtime_error("WARNING: Failed to create node \"extraflags\".\n"); },
+				[&](const auto value) { throw std::runtime_error("WARNING: Could not save extraflag " + NAME_BY_ITEM(value)); });
+
+			CHelper::save_list<EWeaponAffectFlag>(*node, "weapon_affects", "weapon_affect", m_waffect_flags,
+				[&]() { throw std::runtime_error("WARNING: Failed to create node \"weapon_affects\".\n"); },
+				[&](const auto value) { throw std::runtime_error("WARNING: Could not save weapon affect " + NAME_BY_ITEM(value)); });
+
+			CHelper::save_list<EAntiFlag>(*node, "antiflags", "antiflag", m_anti_flags,
+				[&]() { throw std::runtime_error("WARNING: Failed to create node \"antiflags\".\n"); },
+				[&](const auto value) { throw std::runtime_error("WARNING: Could not save antiflag " + NAME_BY_ITEM(value)); });
+
+			CHelper::save_list<ENoFlag>(*node, "noflags", "noflag", m_no_flags,
+				[&]() { throw std::runtime_error("WARNING: Failed to create node \"noflags\".\n"); },
+				[&](const auto value) { throw std::runtime_error("WARNING: Could not save noflag " + NAME_BY_ITEM(value)); });
+
+			CHelper::save_list<EWearFlag>(*node, "wearflags", "wearflag", m_wear_flags,
+				[&]() { throw std::runtime_error("WARNING: Failed to create node \"wearflags\".\n"); },
+				[&](const auto value) { throw std::runtime_error("WARNING: Could not save wear flag " + NAME_BY_ITEM(value)); });
+
+			CHelper::save_pairs_list(*node, "skills", "skill", "id", "value", m_skills,
+				[&](const auto& value) -> auto { return NAME_BY_ITEM(value.first); },
+				[&](const auto& value) -> auto { return std::to_string(value.second); },
+				[&]() { throw std::runtime_error("WARNING: Could not save skills"); });
+
+			CHelper::save_pairs_list(*node, "applies", "apply", "location", "modifier", m_applies,
+				[&](const auto& value) -> auto { return NAME_BY_ITEM(value.location); },
+				[&](const auto& value) -> auto { return std::to_string(value.modifier); },
+				[&]() { throw std::runtime_error("WARNING: Could not save applies"); });
+
+			for (size_t i = 0; i < m_vals.size(); ++i)
+			{
+				const auto node_name = "val" + std::to_string(i);
+				CHelper::save_string(*node, node_name.c_str(), std::to_string(m_vals[i]).c_str(),
+					[&]() { throw std::runtime_error("WARNING: Failed to save " + node_name + " value"); });
+			}
+
+			CHelper::save_pairs_list(*node, "extended_values", "entry", "key", "value", m_extended_values,
+				[&](const auto& value) -> auto { return TextId::to_str(TextId::OBJ_VALS, static_cast<int>(value.first)); },
+				[&](const auto& value) -> auto { return std::to_string(value.second); },
+				[&]() { throw std::runtime_error("WARNING: Could not save extended values"); });
+		}
+		catch (const std::runtime_error& error)
+		{
+			log("%s\n", error.what());
+			return false;
 		}
 		catch (...)
 		{
@@ -1619,7 +1941,7 @@ namespace craft
 
 		if (!prototype.save_to_node(&root))
 		{
-			log("WARNING: Could not save prototype to XML.");
+			log("WARNING: Could not save prototype to XML.\n");
 			return false;
 		}
 

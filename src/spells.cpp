@@ -3340,7 +3340,8 @@ void init_ESpell_ITEM_NAMES()
 {
 	ESpell_value_by_name.clear();
 	ESpell_name_by_value.clear();
-
+	
+	ESpell_name_by_value[ESpell::SPELL_NO_SPELL] = "SPELL_NO_SPELL";
 	ESpell_name_by_value[ESpell::SPELL_ARMOR] = "SPELL_ARMOR";
 	ESpell_name_by_value[ESpell::SPELL_TELEPORT] = "SPELL_TELEPORT";
 	ESpell_name_by_value[ESpell::SPELL_BLESS] = "SPELL_BLESS";
