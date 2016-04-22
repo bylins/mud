@@ -2129,6 +2129,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "сдемигодам", "sdemigod",
 							   "незрячий", "blind",
 							   "маппер", "mapper",
+							   "тестер", "tester",
 							   "\n"
 							 };
 
@@ -2195,7 +2196,8 @@ struct gen_tog_param_type
 		0, SCMD_AUTO_NOSUMMON}, {
 		LVL_IMPL, SCMD_SDEMIGOD}, {
 		0, SCMD_BLIND}, {
-		0, SCMD_MAPPER}
+		0, SCMD_MAPPER}, {
+		0, SCMD_TESTER}
 };
 
 void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2451,7 +2453,9 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{"Режим слепого игрока недоступен. Выключайте его в главном меню.\r\n",
 		 "Режим слепого игрока недоступен. Включайте его в главном меню.\r\n"},
 		{"Режим для мапперов выключен.\r\n",
-		 "Режим для мапперов включен.\r\n"}
+		 "Режим для мапперов включен.\r\n"},
+		{"Режим вывода тестовой информации выключен.\r\n",
+		 "Режим вывода тестовой информации включен.\r\n"}
 	};
 
 	if (IS_NPC(ch))
@@ -2527,6 +2531,11 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		break;
 	case SCMD_MAPPER:
 		result = PRF_TOG_CHK(ch, PRF_MAPPER);
+		break;
+	case SCMD_TESTER:
+		if (GET_GOD_FLAG(ch, GF_TESTER))
+			result = PRF_TOG_CHK(ch, PRF_TESTER);
+		return;
 		break;
 #if defined(HAVE_ZLIB)
 	case SCMD_COMPRESS:

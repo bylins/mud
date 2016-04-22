@@ -277,6 +277,8 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 
 	REMOVE_FROM_LIST(ch, combat_list, [](auto list) -> auto& { return list->next_fighting; });
 	//Попробуем сперва очистить ссылку у врага, потом уже у самой цели
+
+
 	if (switch_others != 2)
 	{
 		for (temp = combat_list; temp; temp = temp->next_fighting)
@@ -301,14 +303,25 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 						break;
 					}
 				if (!found)
+				{
 					stop_fighting(temp, FALSE);
+					if (temp
+						&& PRF_FLAGS(temp).get(PRF_IRON_WIND))
+					{
+						PRF_FLAGS(temp).unset(PRF_IRON_WIND);
+						if (GET_POS(temp) > POS_INCAP)
+						{
+							send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", temp);
+							act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, temp, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+						};
+					};
+				};
 			}
 		}
 
 		update_pos(ch);
-
 		// проверка скилла "железный ветер" - снимаем флаг по окончанию боя
-		if ((ch->get_fighting() == NULL) && PRF_FLAGS(ch).get(PRF_IRON_WIND))
+		/*if ((ch->get_fighting() == NULL) && PRF_FLAGS(ch).get(PRF_IRON_WIND))
 		{
 			PRF_FLAGS(ch).unset(PRF_IRON_WIND);
 			if (GET_POS(ch) > POS_INCAP)
@@ -316,7 +329,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
 				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			};
-		};
+		};*/
 	};
 
 	ch->next_fighting = NULL;
@@ -338,7 +351,6 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
 	// send_to_gods(buf);
 	//*** switch others ***
-
 
 }
 

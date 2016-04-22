@@ -5933,10 +5933,20 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		send_to_gods(buf);
         break;
 	case 60: // флаг тестера
-		SET_GOD_FLAG(vict, GF_TESTER);
-		sprintf(buf,"Иммортал %s установил флаг тестера для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
-		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-		send_to_gods(buf);
+		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл"))
+		{
+			CLR_GOD_FLAG(vict, GF_TESTER);
+			PRF_FLAGS(ch).unset(PRF_TESTER); // обнулим реж тестер
+			sprintf(buf,"%s убрал флаг тестера для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+		}
+		else
+		{
+			SET_GOD_FLAG(vict, GF_TESTER);
+			sprintf(buf,"%s установил флаг тестера для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+//			send_to_gods(buf);
+		}
         break;
 
 	default:

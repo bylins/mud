@@ -5485,13 +5485,18 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		" Карта         : %-3s     "
 		" Вход в зону   : %-3s     "
 		" Магщиты (вид) : %s\r\n"
-		" Автопризыв    : %-3s\r\n"
-		" Маппер        : %-3s\r\n",
+		" Автопризыв    : %-3s     "
+		" Маппер        : %-3s     ",
 		ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)),
 		ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)),
 		(PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS) ? "краткий" : "полный"),
 		ONOFF(PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON)),
 		ONOFF(PRF_FLAGGED(ch, PRF_MAPPER)));
+	send_to_char(buf, ch);
+	if (GET_GOD_FLAG(ch, GF_TESTER))
+		sprintf(buf, " Тестер        : %-3s\r\n", ONOFF(PRF_FLAGGED(ch, PRF_TESTER)));
+	else
+		sprintf(buf, "\r\n");
 	send_to_char(buf, ch);
 }
 

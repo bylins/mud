@@ -280,7 +280,7 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 			//if (can_use_feat(ch, STEALTHY_FEAT)) //тать или наем
 				//percent = number(1, 140 + GET_REAL_INT(vict));
 			//else
-			percent = number(1, (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 140) + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
+			percent = number(1, (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 112) + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
 			prob = calculate_skill(ch, SKILL_SNEAK, vict);
 
 			//5% шанс фэйла при prob==200 всегда, при prob = 100 - 10%, если босс, шанс множим на 5

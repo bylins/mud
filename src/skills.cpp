@@ -523,9 +523,11 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 {
 	int skill_is, percent = 0, victim_sav = SAVING_REFLEX, victim_modi = 0; // текущее значение умения(прокачанность) / вычисляемый итоговый процент / савис жертвы,
                                                                     // который влияет на прохождение скила / другие модификаторы, влияющие на прохождение
-	int morale, max_percent = 200, bonus = 0, size = 0;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
+	int morale = 0, max_percent = 200, bonus = 0, size = 0;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
 	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
+	bool try_morale = false;
+	bool absolute_fail = false;
 
 	if (skill_no < SKILL_FIRST
 		|| skill_no > MAX_SKILL_NUM)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
@@ -902,8 +904,9 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				bonus -= 50;
 			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
 				victim_modi -= 20;
-			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= calculate_awake_mod(ch, vict);
+// в пинке режем дамаг
+//			if (GET_AF_BATTLE(vict, EAF_AWAKE))
+//				victim_modi -= calculate_awake_mod(ch, vict);
 //			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
@@ -1019,36 +1022,31 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_MORPH:
 		break;
 	case SKILL_STRANGLE: // удавить
-                victim_sav = GET_SAVE(vict, SAVING_REFLEX) -dex_bonus(GET_REAL_DEX(vict));
-                bonus += MAX(0, dex_bonus(GET_REAL_DEX(ch)) - 25);
-                pass_mod = 1;
-             if (GET_MOB_HOLD(vict))
-                bonus += (skill_is + bonus)/2;
-             else {
-                if (!CAN_SEE(ch,vict))
-                bonus += (skill_is + bonus)/5;
-                if (vict->get_fighting() ||
-			(MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || AWAKE(vict) ))
-                        bonus -= (skill_is + bonus)/10;
-                if (PRF_FLAGGED (vict, PRF_AWAKE))
-			victim_modi = -(vict->get_skill(SKILL_AWAKE)/5);
-                  }
-                        default:
-                        break;
-			}
+		victim_sav = GET_SAVE(vict, SAVING_REFLEX) -dex_bonus(GET_REAL_DEX(vict));
+		bonus = dex_bonus(GET_REAL_DEX(ch));
+		//pass_mod = 1;
+		if (GET_MOB_HOLD(vict))
+			bonus += (skill_is + bonus)/2;
+		else 
+		{
+			if (!CAN_SEE(ch,vict))
+				bonus += (skill_is + bonus)/5;
+			//if (vict->get_fighting() || (MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, AFF_AWARNESS) || AWAKE(vict) ))
+				//victim_modi -= 40;
+			if (PRF_FLAGGED (vict, PRF_AWAKE))
+				victim_modi = -(vict->get_skill(SKILL_AWAKE)/5);
+		}
+        //default:
+		break;
+}
 //        if(IS_NPC(ch))
 //        bonus = 0;
         if ((skill_no == SKILL_SENSE) || (skill_no == SKILL_TRACK))
             return percent;
         else
             percent = skill_is + bonus + victim_sav + victim_modi/2;   // вычисление процента прохождения скила
-/*if(IS_NPC(ch) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT || skill_no == SKILL_STUPOR))
-{
-sprintf(buf, "Противник %s: Skill == %d, Percent == %d,bonus == %d, victim_sav == %d, victim_modi == %d\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi);
-mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-send_to_char(vict, "Skill == %d, Percent == %d, Bonus == %d, victim_sav == %d, victim_modi == %d\r\n", skill_is, percent, bonus, victim_sav, victim_modi);
-}
-*/	// не все умения надо модифицировать из-за внешних факторов и морали
+
+	// не все умения надо модифицировать из-за внешних факторов и морали
 	if (!pass_mod)
 	{
 //		percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
@@ -1076,11 +1074,16 @@ send_to_char(vict, "Skill == %d, Percent == %d, Bonus == %d, victim_sav == %d, v
 		// все решают спас-броски.
 		if (morale >= 50)   // от 50 удачи абсолютный фейл не работает
 			fail_limit = 999;
-		if (prob >= fail_limit) {   // Абсолютный фейл 4.9 процента
+		if (prob >= fail_limit) 
+		{   // Абсолютный фейл 4.9 процента
 			percent = 0;
-		} else if (prob < bonus_limit) {
+			absolute_fail = true;
+		} 
+		else if (prob < bonus_limit) 
+		{
 //			percent = skill_info[skill_no].max_percent;
-                        percent = max_percent + bonus;
+			percent = max_percent + bonus;
+			try_morale = true;
 		}// else if (vict && general_savingthrow(ch, vict, victim_sav, victim_modi)) {
 		//	percent = 0;
 //		}
@@ -1101,6 +1104,20 @@ send_to_char(vict, "Skill == %d, Percent == %d, Bonus == %d, victim_sav == %d, v
 		percent = MAX(percent, max_percent);
 	else
 		percent = MIN(MAX(0, percent), max_percent);
+
+	if (ch && vict && !IS_NPC(ch) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT
+		|| skill_no == SKILL_STUPOR || skill_no == SKILL_CHOPOFF || skill_no == SKILL_BACKSTAB || skill_no == SKILL_KICK
+		|| skill_no == SKILL_PUNCTUAL) && PRF_FLAGGED(ch, PRF_TESTER))
+	{
+		//sprintf(buf, "Противник %s: скилл == %d, итоговый == %d,бонус == %d, сэйвы == %d, сэйвы/2 == %d\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi);
+		//mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		if (absolute_fail)
+			send_to_char(ch, "попали в Абсолютный фейл\r\n");
+		else if (!pass_mod && try_morale)
+			send_to_char(ch, "&Cпопали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2, morale);
+		else
+			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2);
+	}
 
 	return (percent);
 }
