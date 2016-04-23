@@ -2103,64 +2103,65 @@ struct gen_tog_param_type
 {
 	int level;
 	int subcmd;
+	bool tester;
 } gen_tog_param[] =
 {
 	{
-		0, SCMD_AUTOEXIT}, {
-		0, SCMD_BRIEF}, {
-		0, SCMD_COMPACT}, {
-		0, SCMD_COLOR}, {
-		0, SCMD_NOREPEAT}, {
-		0, SCMD_NOTELL}, {
-		0, SCMD_NOINVISTELL}, {
-		0, SCMD_NOGOSSIP}, {
-		0, SCMD_NOSHOUT}, {
-		0, SCMD_NOHOLLER}, {
-		0, SCMD_NOGRATZ}, {
-		0, SCMD_NOAUCTION}, {
-		0, SCMD_NOEXCHANGE}, {
-		0, SCMD_QUEST}, {
-		0, SCMD_AUTOMEM}, {
-		LVL_GRGOD, SCMD_NOHASSLE}, {
-		0, SCMD_NOSUMMON}, {
-		LVL_GOD, SCMD_NOWIZ}, {
-		LVL_GRGOD, SCMD_ROOMFLAGS}, {
-		LVL_IMPL, SCMD_SLOWNS}, {
-		LVL_GOD, SCMD_TRACK}, {
-		LVL_GOD, SCMD_HOLYLIGHT}, {
-		LVL_IMPL, SCMD_CODERINFO}, {
-		0, SCMD_GOAHEAD}, {
-		0, SCMD_SHOWGROUP}, {
-		0, SCMD_NOCLONES}, {
-		0, SCMD_AUTOASSIST}, {
-		0, SCMD_AUTOLOOT}, {
-		0, SCMD_AUTOSPLIT}, {
-		0, SCMD_AUTOMONEY}, {
-		0, SCMD_NOARENA}, {
-		0, SCMD_LENGTH}, {
-		0, SCMD_WIDTH}, {
-		0, SCMD_SCREEN}, {
-		0, SCMD_NEWS_MODE}, {
-		0, SCMD_BOARD_MODE}, {
-		0, SCMD_CHEST_MODE}, {
-		0, SCMD_PKL_MODE}, {
-		0, SCMD_POLIT_MODE} , {
-		0, SCMD_PKFORMAT_MODE}, {
-		0, SCMD_WORKMATE_MODE}, {
-		0, SCMD_OFFTOP_MODE}, {
-		0, SCMD_ANTIDC_MODE}, {
-		0, SCMD_NOINGR_MODE}, {
-		0, SCMD_REMEMBER}, {
-		0, SCMD_NOTIFY_EXCH}, {
-		0, SCMD_DRAW_MAP}, {
-		0, SCMD_ENTER_ZONE}, {
-		LVL_GOD, SCMD_MISPRINT}, {
-		0, SCMD_BRIEF_SHIELDS}, {
-		0, SCMD_AUTO_NOSUMMON}, {
-		LVL_IMPL, SCMD_SDEMIGOD}, {
-		0, SCMD_BLIND}, {
-		0, SCMD_MAPPER}, {
-		0, SCMD_TESTER}
+		0, SCMD_AUTOEXIT, false}, {
+		0, SCMD_BRIEF, false}, {
+		0, SCMD_COMPACT, false}, {
+		0, SCMD_COLOR, false}, {
+		0, SCMD_NOREPEAT, false}, {
+		0, SCMD_NOTELL, false}, {
+		0, SCMD_NOINVISTELL, false}, {
+		0, SCMD_NOGOSSIP, false}, {
+		0, SCMD_NOSHOUT, false}, {
+		0, SCMD_NOHOLLER, false}, {
+		0, SCMD_NOGRATZ, false}, {
+		0, SCMD_NOAUCTION, false}, {
+		0, SCMD_NOEXCHANGE, false}, {
+		0, SCMD_QUEST, false}, {
+		0, SCMD_AUTOMEM, false}, {
+		LVL_GRGOD, SCMD_NOHASSLE, false}, {
+		0, SCMD_NOSUMMON, false}, {
+		LVL_GOD, SCMD_NOWIZ, false}, {
+		LVL_GRGOD, SCMD_ROOMFLAGS, false}, {
+		LVL_IMPL, SCMD_SLOWNS, false}, {
+		LVL_GOD, SCMD_TRACK, false}, {
+		LVL_GOD, SCMD_HOLYLIGHT, false}, {
+		LVL_IMPL, SCMD_CODERINFO, false}, {
+		0, SCMD_GOAHEAD, false}, {
+		0, SCMD_SHOWGROUP, false}, {
+		0, SCMD_NOCLONES, false}, {
+		0, SCMD_AUTOASSIST, false}, {
+		0, SCMD_AUTOLOOT, false}, {
+		0, SCMD_AUTOSPLIT, false}, {
+		0, SCMD_AUTOMONEY, false}, {
+		0, SCMD_NOARENA, false}, {
+		0, SCMD_LENGTH, false}, {
+		0, SCMD_WIDTH, false}, {
+		0, SCMD_SCREEN, false}, {
+		0, SCMD_NEWS_MODE, false}, {
+		0, SCMD_BOARD_MODE, false}, {
+		0, SCMD_CHEST_MODE, false}, {
+		0, SCMD_PKL_MODE, false}, {
+		0, SCMD_POLIT_MODE, false} , {
+		0, SCMD_PKFORMAT_MODE, false}, {
+		0, SCMD_WORKMATE_MODE, false}, {
+		0, SCMD_OFFTOP_MODE, false}, {
+		0, SCMD_ANTIDC_MODE, false}, {
+		0, SCMD_NOINGR_MODE, false}, {
+		0, SCMD_REMEMBER, false}, {
+		0, SCMD_NOTIFY_EXCH, false}, {
+		0, SCMD_DRAW_MAP, false}, {
+		0, SCMD_ENTER_ZONE, false}, {
+		LVL_GOD, SCMD_MISPRINT, false}, {
+		0, SCMD_BRIEF_SHIELDS, false}, {
+		0, SCMD_AUTO_NOSUMMON, false}, {
+		LVL_IMPL, SCMD_SDEMIGOD, false}, {
+		0, SCMD_BLIND, false}, {
+		0, SCMD_MAPPER, false}, {
+		0, SCMD_TESTER, true}
 };
 
 ACMD(do_mode)
@@ -2179,10 +2180,10 @@ ACMD(do_mode)
 		showhelp = TRUE;
 	else if ((i = search_block(arg, gen_tog_type, FALSE)) < 0)
 		showhelp = TRUE;
-	else if (GET_LEVEL(ch) < gen_tog_param[i >> 1].level && !Privilege::check_flag(ch, Privilege::KRODER))
+	else if ((GET_LEVEL(ch) < gen_tog_param[i >> 1].level) || (!GET_GOD_FLAG(ch, GF_TESTER) && gen_tog_param[i >> 1].tester))
 	{
 		send_to_char("Эта команда вам недоступна.\r\n", ch);
-		showhelp = TRUE;
+		//showhelp = TRUE;
 	}
 	else
 		do_gen_tog(ch, argument, 0, gen_tog_param[i >> 1].subcmd);
@@ -2191,8 +2192,8 @@ ACMD(do_mode)
 	{
 		strcpy(buf, "Вы можете установить следующее.\r\n");
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++)
-			if (GET_LEVEL(ch) >= gen_tog_param[i].level || Privilege::check_flag(ch, Privilege::KRODER))
-				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);
+			if ((GET_LEVEL(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester))
+				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);					
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
@@ -2495,11 +2496,11 @@ ACMD(do_gen_tog)
 		result = PRF_TOG_CHK(ch, PRF_MAPPER);
 		break;
 	case SCMD_TESTER:
-		if (GET_GOD_FLAG(ch, GF_TESTER))
-		{
-			result = PRF_TOG_CHK(ch, PRF_TESTER);
-			return;
-		}
+		//if (GET_GOD_FLAG(ch, GF_TESTER))
+		//{
+		result = PRF_TOG_CHK(ch, PRF_TESTER);
+			//return;
+		//}
 		break;
 #if defined(HAVE_ZLIB)
 	case SCMD_COMPRESS:
