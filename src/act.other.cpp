@@ -2092,6 +2092,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "сдемигодам", "sdemigod",
 							   "незрячий", "blind",
 							   "маппер", "mapper",
+							   "тестер", "tester",
 							   "\n"
 							 };
 
@@ -2159,7 +2160,7 @@ struct gen_tog_param_type
 		LVL_IMPL, SCMD_SDEMIGOD}, {
 		0, SCMD_BLIND}, {
 		0, SCMD_MAPPER}, {
-		50, SCMD_TESTER} //небывалый лев
+		0, SCMD_TESTER}
 };
 
 ACMD(do_mode)
@@ -2178,12 +2179,7 @@ ACMD(do_mode)
 		showhelp = TRUE;
 	else if ((i = search_block(arg, gen_tog_type, FALSE)) < 0)
 		showhelp = TRUE;
-	else if (gen_tog_param[i >> 1].level == 50 && !GET_GOD_FLAG(ch, GF_TESTER))
-	{
-		send_to_char("Эта команда вам недоступна.\r\n", ch);
-		showhelp = TRUE;
-	}
-	else if (GET_LEVEL(ch) < gen_tog_param[i >> 1].level)
+	else if (GET_LEVEL(ch) < gen_tog_param[i >> 1].level && !Privilege::check_flag(ch, Privilege::KRODER))
 	{
 		send_to_char("Эта команда вам недоступна.\r\n", ch);
 		showhelp = TRUE;
@@ -2499,7 +2495,9 @@ ACMD(do_gen_tog)
 		result = PRF_TOG_CHK(ch, PRF_MAPPER);
 		break;
 	case SCMD_TESTER:
-		result = PRF_TOG_CHK(ch, PRF_TESTER);
+		if (GET_GOD_FLAG(ch, GF_TESTER))
+			result = PRF_TOG_CHK(ch, PRF_TESTER);
+		return;
 		break;
 #if defined(HAVE_ZLIB)
 	case SCMD_COMPRESS:
