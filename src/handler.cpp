@@ -3474,6 +3474,11 @@ bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
 			return true;
 		else
 			return false;
+	else if (i->worn_by && IS_NPC(i->worn_by))
+		if (world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
+			return true;
+		else
+			return false;
 	else
 		return true;
 }
