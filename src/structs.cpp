@@ -126,6 +126,8 @@ void tascii(const uint32_t* pointer, int num_planes, char* ascii)
 	strcat(ascii, found ? " " : "0 ");
 }
 
+const char* nothing_string = "ничего";
+
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
 {
 	long nr = 0;
@@ -197,7 +199,13 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 		}
 	}
 
-	return '\0' != *result;
+	if ('\0' == *result)
+	{
+		strcat(result, nothing_string);
+		return false;
+	}
+
+	return true;
 }
 
 bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, const int print_flag) const
@@ -217,6 +225,11 @@ bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, c
 			strcat(result, buffer);
 			have_flags = true;
 		}
+	}
+
+	if ('\0' == *result)
+	{
+		strcat(result, nothing_string);
 	}
 
 	return have_flags;
