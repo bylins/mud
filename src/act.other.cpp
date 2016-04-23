@@ -2496,8 +2496,10 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_TESTER:
 		if (GET_GOD_FLAG(ch, GF_TESTER))
+		{
 			result = PRF_TOG_CHK(ch, PRF_TESTER);
-		return;
+			return;
+		}
 		break;
 #if defined(HAVE_ZLIB)
 	case SCMD_COMPRESS:
