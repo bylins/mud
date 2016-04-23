@@ -177,7 +177,7 @@ int Player::get_answer_id() const
 	return answer_id_;
 }
 
-void Player::remember_add(std::string text, int flag)
+void Player::remember_add(const std::string& text, int flag)
 {
 	remember_.add_str(text, flag);
 }
