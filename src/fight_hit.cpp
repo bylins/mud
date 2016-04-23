@@ -2794,88 +2794,92 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		prob = 0;
 	}
-        might = prob * 50 / percent;
+        
 /*  Логирование шанса молота.
 send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Stab == %d\r\n", prob, percent, might, stab);
  sprintf(buf, "%s молотит : Percent == %d,Prob == %d, Might == %d, Stability == %d\r\n",GET_NAME(ch), percent, prob, might, stab);
                 mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 */
-        if (might < 130 || dam == 0)
+	if (percent > prob || dam == 0)
 	{
 		sprintf(buf, "&c&qВаш богатырский удар пропал впустую.&Q&n\r\n");
 		send_to_char(buf, ch);
 		lag = 3;
 		dam = 0;
 	}
-	else if (might < 180)
-	{
-		sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n",
-				PERS(victim, ch, 3));
-		send_to_char(buf, ch);
-		lag = 1;
-		WAIT_STATE(victim, PULSE_VIOLENCE);
-		af.type = SPELL_BATTLE;
-		af.bitvector = AFF_STOPFIGHT;
-		af.location = 0;
-		af.modifier = 0;
-		af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
-		sprintf(buf,
-				"&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n",
-				PERS(ch, victim, 1));
-		send_to_char(buf, victim);
-		act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-		if (!number(0, 2))
-		{
-			might_hit_bash(ch, victim);
-		}
-	}
-	else if (might < 800)
-	{
-		sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n",
-				PERS(victim, ch, 3));
-		send_to_char(buf, ch);
-		lag = 2;
-		dam += (dam / 1);
-		WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
-		af.type = SPELL_BATTLE;
-		af.bitvector = AFF_STOPFIGHT;
-		af.location = 0;
-		af.modifier = 0;
-		af.duration = pc_duration(victim, 2, 0, 0, 0, 0);
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
-		sprintf(buf,
-				"&R&qВаше сознание помутилось после удара %s.&Q&n\r\n",
-				PERS(ch, victim, 1));
-		send_to_char(buf, victim);
-		act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-		if (!number(0, 1))
-		{
-			might_hit_bash(ch, victim);
-		}
-	}
 	else
 	{
-		sprintf(buf, "&G&qВаш богатырский удар сотряс %s.&Q&n\r\n",
+		might = prob * 100 / percent;
+		if (might < 180)
+		{
+			sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n",
 				PERS(victim, ch, 3));
-		send_to_char(buf, ch);
-		lag = 2;
-		dam *= 4;
-		WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
-		af.type = SPELL_BATTLE;
-		af.bitvector = AFF_STOPFIGHT;
-		af.location = 0;
-		af.modifier = 0;
-		af.duration = pc_duration(victim, 3, 0, 0, 0, 0);
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
-		sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n",
+			send_to_char(buf, ch);
+			lag = 1;
+			WAIT_STATE(victim, PULSE_VIOLENCE);
+			af.type = SPELL_BATTLE;
+			af.bitvector = AFF_STOPFIGHT;
+			af.location = 0;
+			af.modifier = 0;
+			af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			sprintf(buf,
+				"&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n",
 				PERS(ch, victim, 1));
-		send_to_char(buf, victim);
-		act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-		might_hit_bash(ch, victim);
+			send_to_char(buf, victim);
+			act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			if (!number(0, 2))
+			{
+				might_hit_bash(ch, victim);
+			}
+		}
+		else if (might < 800)
+		{
+			sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n",
+				PERS(victim, ch, 3));
+			send_to_char(buf, ch);
+			lag = 2;
+			dam += (dam / 1);
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+			af.type = SPELL_BATTLE;
+			af.bitvector = AFF_STOPFIGHT;
+			af.location = 0;
+			af.modifier = 0;
+			af.duration = pc_duration(victim, 2, 0, 0, 0, 0);
+			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			sprintf(buf,
+				"&R&qВаше сознание помутилось после удара %s.&Q&n\r\n",
+				PERS(ch, victim, 1));
+			send_to_char(buf, victim);
+			act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			if (!number(0, 1))
+			{
+				might_hit_bash(ch, victim);
+			}
+		}
+		else
+		{
+			sprintf(buf, "&G&qВаш богатырский удар сотряс %s.&Q&n\r\n",
+				PERS(victim, ch, 3));
+			send_to_char(buf, ch);
+			lag = 2;
+			dam *= 4;
+			WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
+			af.type = SPELL_BATTLE;
+			af.bitvector = AFF_STOPFIGHT;
+			af.location = 0;
+			af.modifier = 0;
+			af.duration = pc_duration(victim, 3, 0, 0, 0, 0);
+			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n",
+				PERS(ch, victim, 1));
+			send_to_char(buf, victim);
+			act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			might_hit_bash(ch, victim);
+		}
 	}
 	set_wait(ch, lag, TRUE);
 }
