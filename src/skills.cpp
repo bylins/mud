@@ -801,6 +801,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 			victim_modi -= calculate_awake_mod(ch, vict);
 
 		break;
+	default:
+		break;
 }
 //        if(IS_NPC(ch))
 //        bonus = 0;

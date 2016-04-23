@@ -3563,6 +3563,23 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 // * Добавление дамага от голых рук и молота.
 void HitData::add_hand_damage(CHAR_DATA *ch)
 {
+	// Мультипликатор повреждений без оружия и в перчатках (линейная интерполяция)
+	// <вес перчаток> <увеличение>
+	// 0  50%
+	// 5 100%
+	// 10 150%
+	// 15 200%
+	// НА МОЛОТ НЕ ВЛИЯЕТ
+	if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) || flags[CRIT_HIT]) //в метком молоте идет учет перчаток
+	{
+		int modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 18) : 0)); //вес перчаток больше 18 не учитывается
+		if (IS_NPC(ch) || can_use_feat(ch, BULLY_FEAT))
+		{
+			modi = MAX(100, modi);
+		}
+		dam = modi * dam / 100;
+	}
+
 	if (AFF_FLAGGED(ch, AFF_STONEHAND))
 		dam += dice(2, 3);
 	else
@@ -3573,22 +3590,7 @@ void HitData::add_hand_damage(CHAR_DATA *ch)
 		dam += GET_LEVEL(ch) / 5;
 		dam += MAX(0, GET_REAL_STR(ch) - 25);
 	}
-	// Мультипликатор повреждений без оружия и в перчатках (линейная интерполяция)
-	// <вес перчаток> <увеличение>
-	// 0  50%
-	// 5 100%
-	// 10 150%
-	// 15 200%
-	// НА МОЛОТ НЕ ВЛИЯЕТ
-	if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT))
-	{
-		int modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)) : 0));
-		if (IS_NPC(ch) || can_use_feat(ch, BULLY_FEAT))
-		{
-			modi = MAX(100, modi);
-		}
-		dam = modi * dam / 100;
-	}
+
 }
 
 // * Расчет шанса на критический удар (не точкой).
@@ -3784,6 +3786,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		hit_params.dam += dice(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
 	}
 
+	// расчет критических ударов
+	hit_params.calc_crit_chance(ch);
+
 	// оружие/руки и модификаторы урона скилов, с ними связанных
 	if (hit_params.wielded && GET_OBJ_TYPE(hit_params.wielded) == ITEM_WEAPON)
 	{
@@ -3851,8 +3856,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	// расчет критических ударов
-	hit_params.calc_crit_chance(ch);
 
 	if (hit_params.skill_num == SKILL_BACKSTAB)
 	{
