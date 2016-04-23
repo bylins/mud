@@ -176,19 +176,30 @@ namespace craft
 				return;
 			}
 
-			auto list_node = node.append_child(node_name);
-			if (!node_name)
-			{
-				log("WARNING: Couldn't create node \"%s\".\n", node_name);
-				list_node_fail_handler();
-				return;
-			}
+			pugi::xml_node* list_node = NULL;
 
 			for (const auto& i : list)
 			{
 				try
 				{
-					auto item_node = list_node.append_child(item_node_name);
+					const std::string key = get_key_handler(i);
+					if (key.empty())
+					{
+						continue;
+					}
+
+					if (NULL == list_node)
+					{
+						list_node = &node.append_child(node_name);
+						if (!*list_node)
+						{
+							log("WARNING: Couldn't create node \"%s\".\n", node_name);
+							list_node_fail_handler();
+							return;
+						}
+					}
+
+					auto item_node = list_node->append_child(item_node_name);
 					if (!item_node)
 					{
 						log("WARNING: Could not create item node. Will be skipped.\n");
@@ -196,7 +207,7 @@ namespace craft
 						continue;
 					}
 
-					save_string(item_node, key_node_name, get_key_handler(i).c_str(),
+					save_string(item_node, key_node_name, key.c_str(),
 						[&]() { throw std::runtime_error("failed to save key"); });
 					save_string(item_node, value_node_name, get_value_handler(i).c_str(),
 						[&]() { throw std::runtime_error("failed to save value"); });
@@ -1286,7 +1297,7 @@ namespace craft
 
 			CHelper::save_list<ENoFlag>(*node, "noflags", "noflag", m_no_flags,
 				[&]() { throw std::runtime_error("WARNING: Failed to create node \"noflags\".\n"); },
-				[&](const auto value) { throw std::runtime_error("WARNING: Could not save noflag " + NAME_BY_ITEM(value)); });
+				[&](const auto value) { log("%s", ("WARNING: Could not save noflag " + std::to_string(static_cast<unsigned int>(value)) + ". Will be skipped.\n").c_str()); });
 
 			CHelper::save_list<EWearFlag>(*node, "wearflags", "wearflag", m_wear_flags,
 				[&]() { throw std::runtime_error("WARNING: Failed to create node \"wearflags\".\n"); },
@@ -1298,7 +1309,7 @@ namespace craft
 				[&]() { throw std::runtime_error("WARNING: Could not save skills"); });
 
 			CHelper::save_pairs_list(*node, "applies", "apply", "location", "modifier", m_applies,
-				[&](const auto& value) -> auto { return NAME_BY_ITEM(value.location); },
+				[&](const auto& value) -> auto { return APPLY_NONE != value.location ? NAME_BY_ITEM(value.location) : ""; },
 				[&](const auto& value) -> auto { return std::to_string(value.modifier); },
 				[&]() { throw std::runtime_error("WARNING: Could not save applies"); });
 

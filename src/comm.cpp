@@ -3135,7 +3135,7 @@ int process_output(DESCRIPTOR_DATA * t)
 		result = 1;
 
 		// First we set up our input data.
-		t->deflate->avail_in = strlen(i + offset);
+		t->deflate->avail_in = static_cast<decltype(t->deflate->avail_in)>(strlen(i + offset));
 		t->deflate->next_in = (Bytef *)(i + offset);
 
 		do
