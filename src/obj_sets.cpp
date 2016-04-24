@@ -2,19 +2,6 @@
 // Part of Bylins http://www.mud.ru
 
 #include "conf.h"
-#include <string>
-#include <vector>
-#include <map>
-#include <array>
-#include <algorithm>
-#include <sstream>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
-#include <boost/algorithm/string.hpp>
-// GCC 4.4
-#include <boost/tr1/unordered_map.hpp>
 
 #include "obj_sets.hpp"
 #include "obj_sets_stuff.hpp"
@@ -31,6 +18,21 @@
 #include "modify.h"
 #include "spells.h"
 #include "help.hpp"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
+#include <boost/algorithm/string.hpp>
+// GCC 4.4
+
+#include <string>
+#include <vector>
+#include <map>
+#include <array>
+#include <algorithm>
+#include <sstream>
+#include <unordered_map>
 
 namespace obj_sets
 {
@@ -138,13 +140,14 @@ void update_char_sets()
 /// здесь же обновляется справка по активаторам сетов
 void init_obj_index()
 {
-	boost::unordered_map<int, size_t> tmp;
+	std::unordered_map<obj_vnum, size_t> tmp;
 	tmp.reserve(obj_proto.size());
 
 	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
 		obj_proto.set_idx(i, -1);
-		tmp.emplace(obj_proto.vnum(i), i);
+		const auto vnum = obj_proto.vnum(i);
+		tmp.emplace(vnum, i);
 	}
 
 	for (size_t i = 0; i < sets_list.size(); ++i)
