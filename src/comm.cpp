@@ -763,6 +763,8 @@ void gettimeofday(struct timeval *t, void *dummy)
 #define plant_magic(x)	do { (x)[sizeof(x) - 1] = MAGIC_NUMBER; } while (0)
 #define test_magic(x)	((x)[sizeof(x) - 1])
 
+#include <iostream>
+
 int main(int argc, char **argv)
 {
 #ifdef TEST_BUILD
