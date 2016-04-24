@@ -1660,9 +1660,8 @@ struct DESCRIPTOR_DATA
 
 	void msdp_support(bool on)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		m_msdp_support = on;
 	}
-
 
 	socket_t descriptor;	// file descriptor for socket    //
 	char host[HOST_LENGTH + 1];	// hostname          //
