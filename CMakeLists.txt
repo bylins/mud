@@ -77,6 +77,7 @@ set(SOURCES
     src/mob_stat.cpp
     src/modify.cpp
     src/morph.cpp
+	src/msdp.cpp
     src/named_stuff.cpp
     src/name_list.cpp
     src/names.cpp
@@ -172,6 +173,7 @@ set(HEADERS
     src/mob_stat.hpp
     src/modify.h
     src/morph.hpp
+	src/msdp.hpp
     src/named_stuff.hpp
     src/name_list.hpp
     src/noob.hpp

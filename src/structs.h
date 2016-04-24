@@ -1607,47 +1607,90 @@ namespace obj_sets_olc
 }
 
 class Board;
+#ifndef HAVE_ZLIB
+struct z_stream;
+#endif
 
 struct DESCRIPTOR_DATA
 {
+	DESCRIPTOR_DATA() : bad_pws(0),
+		idle_tics(0),
+		connected(0),
+		desc_num(0),
+		input_time(0),
+		login_time(0),
+		showstr_head(0),
+		showstr_vector(0),
+		showstr_count(0),
+		showstr_page(0),
+		str(0),
+		max_str(0),
+		backstr(0),
+		mail_to(0),
+		has_prompt(0),
+		output(0),
+		history(0),
+		history_pos(0),
+		bufptr(0),
+		bufspace(0),
+		large_outbuf(0),
+		character(0),
+		original(0),
+		snooping(0),
+		snoop_by(0),
+		next(0),
+		olc(0),
+		keytable(0),
+		options(0),
+		deflate(nullptr),
+		mccp_version(0),
+		ip(0),
+		registered_email(0),
+		pers_log(0),
+		cur_vnum(0),
+		old_vnum(0),
+		snoop_with_map(0),
+		m_msdp_support(false)
+	{
+		host[0] = 0;
+		inbuf[0] = 0;
+		last_input[0] = 0;
+		small_outbuf[0] = 0;
+	}
+
+	void msdp_support(bool on)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+
 	socket_t descriptor;	// file descriptor for socket    //
-	char
-	host[HOST_LENGTH + 1];	// hostname          //
+	char host[HOST_LENGTH + 1];	// hostname          //
 	byte bad_pws;		// number of bad pw attemps this login //
 	byte idle_tics;		// tics idle at password prompt     //
-	int
-	connected;		// mode of 'connectedness'    //
-	int
-	desc_num;		// unique num assigned to desc      //
+	int connected;		// mode of 'connectedness'    //
+	int desc_num;		// unique num assigned to desc      //
 	time_t input_time;
 	time_t login_time;	// when the person connected     //
 	char *showstr_head;	// for keeping track of an internal str   //
 	char **showstr_vector;	// for paging through texts      //
-	int
-	showstr_count;		// number of pages to page through  //
-	int
-	showstr_page;		// which page are we currently showing?   //
+	int showstr_count;		// number of pages to page through  //
+	int showstr_page;		// which page are we currently showing?   //
 	char **str;		// for the modify-str system     //
 	size_t max_str;		//      -        //
 	char *backstr;		// added for handling abort buffers //
 	int mail_to;		// uid for mail system
-	int
-	has_prompt;		// is the user at a prompt?             //
-	char
-	inbuf[MAX_RAW_INPUT_LENGTH];	// buffer for raw input    //
-	char
-	last_input[MAX_INPUT_LENGTH];	// the last input       //
-	char
-	small_outbuf[SMALL_BUFSIZE];	// standard output buffer      //
+	int has_prompt;		// is the user at a prompt?             //
+	char inbuf[MAX_RAW_INPUT_LENGTH];	// buffer for raw input    //
+	char last_input[MAX_INPUT_LENGTH];	// the last input       //
+	char small_outbuf[SMALL_BUFSIZE];	// standard output buffer      //
 	char *output;		// ptr to the current output buffer //
 	char **history;		// History of commands, for ! mostly.  //
-	int
-	history_pos;		// Circular array position.      //
+	int history_pos;		// Circular array position.      //
 	size_t bufptr;			// ptr to end of current output  //
 	size_t bufspace;		// space left in the output buffer  //
 	struct txt_block *large_outbuf;	// ptr to large buffer, if we need it //
-	struct txt_q
-				input;			// q of unprocessed input     //
+	struct txt_q input;			// q of unprocessed input     //
 	CHAR_DATA *character;	// linked to char       //
 	CHAR_DATA *original;	// original char if switched     //
 	DESCRIPTOR_DATA *snooping;	// Who is this char snooping  //
@@ -1655,13 +1698,9 @@ struct DESCRIPTOR_DATA
 	DESCRIPTOR_DATA *next;	// link to next descriptor     //
 	struct olc_data *olc;	//. OLC info - defined in olc.h   . //
 	ubyte keytable;
-	int
-	options;		// descriptor flags       //
-#if defined(HAVE_ZLIB)
+	int options;		// descriptor flags       //
 	z_stream *deflate;	// compression engine        //
-	int
-	mccp_version;
-#endif
+	int mccp_version;
 	unsigned long ip; // ип адрес в виде числа для внутреннего пользования
 	boost::weak_ptr<Board> board; // редактируемая доска
 	boost::shared_ptr<struct Message> message; // редактируемое сообщение
@@ -1681,24 +1720,10 @@ struct DESCRIPTOR_DATA
     bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
     boost::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
     boost::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
-
-
-
-	DESCRIPTOR_DATA(): bad_pws(0), idle_tics(0), connected(0), desc_num(0), input_time(0), login_time(0),
-	showstr_head(0), showstr_vector(0), showstr_count(0), showstr_page(0), str(0), max_str(0), backstr(0), mail_to(0),
-	has_prompt(0), output(0), history(0), history_pos(0), bufptr(0), bufspace(0), large_outbuf(0), character(0),
-	original(0), snooping(0), snoop_by(0),next(0), olc(0), keytable(0), options(0),
-	#if defined(HAVE_ZLIB)
-	deflate(0), mccp_version(0),
-	#endif
-	ip(0), registered_email(0), pers_log(0), cur_vnum(0), old_vnum(0), snoop_with_map(0)
-	{
-		host[0] = 0;
-		inbuf[0] = 0;
-		last_input[0] = 0;
-		small_outbuf[0] = 0;
-	}
 	bool mxp; // Для MXP
+
+private:
+	bool m_msdp_support;
 };
 
 
@@ -1715,24 +1740,18 @@ struct msg_type
 
 struct message_type
 {
-	struct msg_type
-				die_msg;		// messages when death        //
-	struct msg_type
-				miss_msg;		// messages when miss         //
-	struct msg_type
-				hit_msg;		// messages when hit       //
-	struct msg_type
-				god_msg;		// messages when hit on god      //
+	struct msg_type die_msg;		// messages when death        //
+	struct msg_type miss_msg;		// messages when miss         //
+	struct msg_type hit_msg;		// messages when hit       //
+	struct msg_type god_msg;		// messages when hit on god      //
 	struct message_type *next;	// to next messages of this kind.   //
 };
 
 
 struct message_list
 {
-	int
-	a_type;		// Attack type          //
-	int
-	number_of_attacks;	// How many attack messages to chose from. //
+	int a_type;		// Attack type          //
+	int number_of_attacks;	// How many attack messages to chose from. //
 	struct message_type *msg;	// List of messages.       //
 };
 
@@ -1745,149 +1764,98 @@ struct zone_type
 };
 //-MZ.load
 
-
 struct dex_skill_type
 {
-	int
-	p_pocket;
-	int
-	p_locks;
-	int
-	traps;
-	int
-	sneak;
-	int
-	hide;
+	int p_pocket;
+	int p_locks;
+	int traps;
+	int sneak;
+	int hide;
 };
-
 
 struct dex_app_type
 {
-	int
-	reaction;
-	int
-	miss_att;
-	int
-	defensive;
+	int reaction;
+	int miss_att;
+	int defensive;
 };
 
 
 struct str_app_type
 {
-	int
-	tohit;			// To Hit (THAC0) Bonus/Penalty        //
-	int
-	todam;			// Damage Bonus/Penalty                //
-	int
-	carry_w;		// Maximum weight that can be carrried //
-	int
-	wield_w;		// Maximum weight that can be wielded  //
-	int
-	hold_w;		// MAXIMUM WEIGHT THAT CAN BE HELDED   //
+	int tohit;			// To Hit (THAC0) Bonus/Penalty        //
+	int todam;			// Damage Bonus/Penalty                //
+	int carry_w;		// Maximum weight that can be carrried //
+	int wield_w;		// Maximum weight that can be wielded  //
+	int hold_w;		// MAXIMUM WEIGHT THAT CAN BE HELDED   //
 };
 
 
 struct wis_app_type
 {
-	int
-	spell_additional;	// bitvector //
-	int
-	max_learn_l20;		// MAX SKILL on LEVEL 20        //
-	int
-	spell_success;		// spell using success          //
-	int
-	char_savings;		// saving spells (damage)       //
-	int
-	max_skills;
+	int spell_additional;	// bitvector //
+	int max_learn_l20;		// MAX SKILL on LEVEL 20        //
+	int spell_success;		// spell using success          //
+	int char_savings;		// saving spells (damage)       //
+	int max_skills;
 };
-
 
 struct int_app_type
 {
-	int
-	spell_aknowlege;	// chance to know spell               //
-	int
-	to_skilluse;		// ADD CHANSE FOR USING SKILL         //
-	int
-	mana_per_tic;
-	int
-	spell_success;		//  max count of spell on 1s level    //
-	int
-	improove;		// chance to improove skill           //
-	int
-	observation;		// chance to use SKILL_AWAKE/CRITICAL //
+	int spell_aknowlege;	// chance to know spell               //
+	int to_skilluse;		// ADD CHANSE FOR USING SKILL         //
+	int mana_per_tic;
+	int spell_success;		//  max count of spell on 1s level    //
+	int improove;		// chance to improove skill           //
+	int observation;		// chance to use SKILL_AWAKE/CRITICAL //
 };
 
 struct con_app_type
 {
-	int
-	hitp;
-	int
-	ressurection;
-	int
-	affect_saving;		// saving spells (affects)  //
-	int
-	poison_saving;
-	int
-	critic_saving;
+	int hitp;
+	int ressurection;
+	int affect_saving;		// saving spells (affects)  //
+	int poison_saving;
+	int critic_saving;
 };
 
 struct cha_app_type
 {
-	int
-	leadership;
-	int
-	charms;
-	int
-	morale;
-	int
-	illusive;
-	int
-	dam_to_hit_rate;
+	int leadership;
+	int charms;
+	int morale;
+	int illusive;
+	int dam_to_hit_rate;
 };
 
 struct size_app_type
 {
-	int
-	ac;			// ADD VALUE FOR AC           //
-	int
-	interpolate;		// ADD VALUE FOR SOME SKILLS  //
-	int
-	initiative;
-	int
-	shocking;
+	int ac;			// ADD VALUE FOR AC           //
+	int interpolate;		// ADD VALUE FOR SOME SKILLS  //
+	int initiative;
+	int shocking;
 };
 
 struct weapon_app_type
 {
-	int
-	shocking;
-	int
-	bashing;
-	int
-	parrying;
+	int shocking;
+	int bashing;
+	int parrying;
 };
 
 struct extra_affects_type
 {
-	int
-	affect;
-	int
-	set_or_clear;
+	int affect;
+	int set_or_clear;
 };
 
 struct class_app_type
 {
-	int
-	unknown_weapon_fault;
-	int
-	koef_con;
-	int
-	base_con;
-	int
-	min_con;
-	int
-	max_con;
+	int unknown_weapon_fault;
+	int koef_con;
+	int base_con;
+	int min_con;
+	int max_con;
 
 	struct extra_affects_type *extra_affects;
 //	struct obj_affected_type *extra_modifiers;
@@ -1901,65 +1869,43 @@ struct race_app_type
 
 struct weather_data
 {
-	int
-	hours_go;		// Time life from reboot //
+	int hours_go;		// Time life from reboot //
 
-	int
-	pressure;		// How is the pressure ( Mb )            //
-	int
-	press_last_day;	// Average pressure last day             //
-	int
-	press_last_week;	// Average pressure last week            //
+	int pressure;		// How is the pressure ( Mb )            //
+	int press_last_day;	// Average pressure last day             //
+	int press_last_week;	// Average pressure last week            //
 
-	int
-	temperature;		// How is the temperature (C)            //
-	int
-	temp_last_day;		// Average temperature last day          //
-	int
-	temp_last_week;	// Average temperature last week         //
+	int temperature;		// How is the temperature (C)            //
+	int temp_last_day;		// Average temperature last day          //
+	int temp_last_week;	// Average temperature last week         //
 
-	int
-	rainlevel;		// Level of water from rains             //
-	int
-	snowlevel;		// Level of snow                         //
-	int
-	icelevel;		// Level of ice                          //
+	int rainlevel;		// Level of water from rains             //
+	int snowlevel;		// Level of snow                         //
+	int icelevel;		// Level of ice                          //
 
-	int
-	weather_type;		// bitvector - some values for month     //
+	int weather_type;		// bitvector - some values for month     //
 
-	int
-	change;		// How fast and what way does it change. //
-	int
-	sky;			// How is the sky.   //
-	int
-	sunlight;		// And how much sun. //
-	int
-	moon_day;		// And how much moon //
-	int
-	season;
-	int
-	week_day_mono;
-	int
-	week_day_poly;
+	int change;		// How fast and what way does it change. //
+	int sky;			// How is the sky.   //
+	int sunlight;		// And how much sun. //
+	int moon_day;		// And how much moon //
+	int season;
+	int week_day_mono;
+	int week_day_poly;
 };
 
 struct weapon_affect_types
 {
-	int
-	aff_pos;
-	int
-	aff_bitvector;
-	int
-	aff_spell;
+	int aff_pos;
+	int aff_bitvector;
+	int aff_spell;
 };
 
 struct title_type
 {
 	char *title_m;
 	char *title_f;
-	int
-	exp;
+	int exp;
 };
 
 
@@ -1979,15 +1925,16 @@ struct index_data
 // linked list for mob/object prototype trigger lists //
 struct trig_proto_list
 {
-	int
-	vnum;			// vnum of the trigger   //
+	int vnum;			// vnum of the trigger   //
 	struct trig_proto_list *next;	// next trigger          //
 };
 
 struct social_messg  		// No argument was supplied //
 {
-	int
-	ch_min_pos, ch_max_pos, vict_min_pos, vict_max_pos;
+	int ch_min_pos;
+	int ch_max_pos;
+	int vict_min_pos;
+	int vict_max_pos;
 	char *char_no_arg;
 	char *others_no_arg;
 
@@ -2005,8 +1952,7 @@ struct social_messg  		// No argument was supplied //
 struct social_keyword
 {
 	char *keyword;
-	int
-	social_message;
+	int social_message;
 };
 
 extern struct social_messg *soc_mess_list;
@@ -2014,16 +1960,11 @@ extern struct social_keyword *soc_keys_list;
 
 struct pray_affect_type
 {
-	int
-	metter;
-	int
-	location;
-	int
-	modifier;
-	long
-	bitvector;
-	int
-	battleflag;
+	int metter;
+	int location;
+	int modifier;
+	long bitvector;
+	int battleflag;
 };
 
 #define  DAY_EASTER     -1
@@ -2040,27 +1981,22 @@ struct pray_affect_type
 */
 struct pclean_criteria_data
 {
-	int
-	level;			// max уровень для этого временного лимита //
-	int
-	days;			// временной лимит в днях        //
+	int level;			// max уровень для этого временного лимита //
+	int days;			// временной лимит в днях        //
 };
 
 // Структрура для описания проталов для спела townportal //
 struct portals_list_type
 {
 	char *wrd;		// кодовое слово //
-	int
-	vnum;			// vnum комнаты для портала (раньше был rnum, но зачем тут rnum?) //
-	int
-	level;			// минимальный уровень для запоминания портала //
+	int vnum;			// vnum комнаты для портала (раньше был rnum, но зачем тут rnum?) //
+	int level;			// минимальный уровень для запоминания портала //
 	struct portals_list_type *next_portal;
 };
 
 struct char_portal_type
 {
-	int
-	vnum;			// vnum комнаты для портала //
+	int vnum;			// vnum комнаты для портала //
 	struct char_portal_type *next;
 };
 
@@ -2069,25 +2005,18 @@ struct char_portal_type
 struct show_struct
 {
 	const char *cmd;
-	const char
-	level;
+	const char level;
 };
 
 struct set_struct
 {
 	const char *cmd;
-	const char
-	level;
-	const char
-	pcnpc;
-	const char
-	type;
+	const char level;
+	const char pcnpc;
+	const char type;
 };
 
 extern int grouping[NUM_PLAYER_CLASSES][MAX_REMORT+1];
-
-
-
 
 //Polos.insert_wanted_gem
 

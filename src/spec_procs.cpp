@@ -664,8 +664,8 @@ void init_guilds(void)
 			type = 1;
 			if (lines < 5)
 			{
-				log("Bad format for monoguild header, #s #s #s #s #s need...");
-				_exit(1);
+				log("Bad format for monoguild header, #s #s #s #s #s need... Skipping.");
+				continue;
 			}
 			mono_guild.learn_info = NULL;
 			mono_guild.races = 0;
@@ -698,15 +698,15 @@ void init_guilds(void)
 		{
 			if ((num = atoi(line1)) == 0 || real_mobile(num) < 0)
 			{
-				log("Cann't assign master %s in guilds.lst", line1);
-				_exit(1);
+				log("Can't assign master %s in guilds.lst. Skipping.", line1);
+				continue;
 			}
 
 			if (!((type == 1 || type == 11) && mono_guild.learn_info) &&
 					!((type == 2 || type == 12) && poly_guild))
 			{
-				log("Cann't define guild info for master %s", line1);
-				_exit(1);
+				log("Can't define guild info for master %s. Skipping.", line1);
+				continue;
 			}
 			if (type == 1 || type == 11)
 			{
@@ -758,8 +758,8 @@ void init_guilds(void)
 		{
 			if (lines < 3)
 			{
-				log("You need use 3 arguments for monoguild");
-				_exit(1);
+				log("You need use 3 arguments for monoguild. Skipping.");
+				continue;
 			}
 			if ((spellnum = atoi(line)) == 0 || spellnum > MAX_SPELLS)
 			{
