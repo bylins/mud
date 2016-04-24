@@ -5049,6 +5049,8 @@ int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 						continue;
 					if (!isname(name.c_str(), temp->aliases))
 						continue;
+					if (OBJ_FLAGGED(temp, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch))
+						continue;
 
 					snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся в хранилище дружины '%s'.\r\n",
 							temp->short_description, GET_OBJ_POLY_1(ch, temp), (*clan)->GetAbbrev());

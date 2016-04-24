@@ -898,6 +898,9 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		if (IS_CORPSE(i))
 			continue;
 
+		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch) && i->carried_by != ch) //!локейт стаф может локейтить только имм или тот кто его держит
+			continue;
+
 		if (!isname(name, i->aliases))
 			continue;
 
@@ -906,10 +909,8 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 		if (i->carried_by)
 		{
-			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET
-				|| (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
-					&& !IS_GOD(ch))
-				|| IS_IMMORTAL(i->carried_by))
+			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
+					IS_IMMORTAL(i->carried_by))
 			{
 				continue;
 			}

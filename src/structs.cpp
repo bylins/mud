@@ -863,3 +863,5 @@ const std::string& NAME_BY_ITEM(const EApplyLocation item)
 	}
 	return EApplyLocation_name_by_value.at(item);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

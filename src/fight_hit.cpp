@@ -2830,85 +2830,95 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		prob = 0;
 	}
-	might = prob * 50 / percent;
-
-	if (might < 130 || dam == 0)
+        
+/*  Логирование шанса молота.
+send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Stab == %d\r\n", prob, percent, might, stab);
+ sprintf(buf, "%s молотит : Percent == %d,Prob == %d, Might == %d, Stability == %d\r\n",GET_NAME(ch), percent, prob, might, stab);
+                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+*/
+	if (percent > prob || dam == 0)
 	{
 		sprintf(buf, "&c&qВаш богатырский удар пропал впустую.&Q&n\r\n");
 		send_to_char(buf, ch);
 		lag = 3;
 		dam = 0;
 	}
-	else if (might < 180)
-	{
-		sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n",
-				PERS(victim, ch, 3));
-		send_to_char(buf, ch);
-		lag = 1;
-		WAIT_STATE(victim, PULSE_VIOLENCE);
-		AFFECT_DATA<EApplyLocation> af;
-		af.type = SPELL_BATTLE;
-		af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
-		af.location = EApplyLocation::APPLY_NONE;
-		af.modifier = 0;
-		af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
-		sprintf(buf, "&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n",
-			PERS(ch, victim, 1));
-		send_to_char(buf, victim);
-		act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-		if (!number(0, 2))
-		{
-			might_hit_bash(ch, victim);
-		}
-	}
-	else if (might < 800)
-	{
-		sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n",
-				PERS(victim, ch, 3));
-		send_to_char(buf, ch);
-		lag = 2;
-		dam += (dam / 1);
-		WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
-		AFFECT_DATA<EApplyLocation> af;
-		af.type = SPELL_BATTLE;
-		af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
-		af.location = EApplyLocation::APPLY_NONE;
-		af.modifier = 0;
-		af.duration = pc_duration(victim, 2, 0, 0, 0, 0);
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
-		sprintf(buf, "&R&qВаше сознание помутилось после удара %s.&Q&n\r\n",
-			PERS(ch, victim, 1));
-		send_to_char(buf, victim);
-		act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-		if (!number(0, 1))
-		{
-			might_hit_bash(ch, victim);
-		}
-	}
 	else
 	{
-		sprintf(buf, "&G&qВаш богатырский удар сотряс %s.&Q&n\r\n",
+		might = prob * 100 / percent;
+		if (might < 180)
+		{
+			sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n",
 				PERS(victim, ch, 3));
-		send_to_char(buf, ch);
-		lag = 2;
-		dam *= 4;
-		WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
-		AFFECT_DATA<EApplyLocation> af;
-		af.type = SPELL_BATTLE;
-		af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
-		af.location = EApplyLocation::APPLY_NONE;
-		af.modifier = 0;
-		af.duration = pc_duration(victim, 3, 0, 0, 0, 0);
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
-		sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n",
-			PERS(ch, victim, 1));
-		send_to_char(buf, victim);
-		act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-		might_hit_bash(ch, victim);
+			send_to_char(buf, ch);
+			lag = 1;
+			WAIT_STATE(victim, PULSE_VIOLENCE);
+			AFFECT_DATA<EApplyLocation> af;
+			af.type = SPELL_BATTLE;
+			af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
+			af.location = APPLY_NONE;
+			af.modifier = 0;
+			af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			sprintf(buf,
+				"&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n",
+				PERS(ch, victim, 1));
+			send_to_char(buf, victim);
+			act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			if (!number(0, 2))
+			{
+				might_hit_bash(ch, victim);
+			}
+		}
+		else if (might < 800)
+		{
+			sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n",
+				PERS(victim, ch, 3));
+			send_to_char(buf, ch);
+			lag = 2;
+			dam += (dam / 1);
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+			AFFECT_DATA<EApplyLocation> af;
+			af.type = SPELL_BATTLE;
+			af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
+			af.location = APPLY_NONE;
+			af.modifier = 0;
+			af.duration = pc_duration(victim, 2, 0, 0, 0, 0);
+			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			sprintf(buf,
+				"&R&qВаше сознание помутилось после удара %s.&Q&n\r\n",
+				PERS(ch, victim, 1));
+			send_to_char(buf, victim);
+			act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			if (!number(0, 1))
+			{
+				might_hit_bash(ch, victim);
+			}
+		}
+		else
+		{
+			sprintf(buf, "&G&qВаш богатырский удар сотряс %s.&Q&n\r\n",
+				PERS(victim, ch, 3));
+			send_to_char(buf, ch);
+			lag = 2;
+			dam *= 4;
+			WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
+			AFFECT_DATA<EApplyLocation> af;
+			af.type = SPELL_BATTLE;
+			af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
+			af.location = APPLY_NONE;
+			af.modifier = 0;
+			af.duration = pc_duration(victim, 3, 0, 0, 0, 0);
+			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n",
+				PERS(ch, victim, 1));
+			send_to_char(buf, victim);
+			act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			might_hit_bash(ch, victim);
+		}
 	}
 	set_wait(ch, lag, TRUE);
 }
@@ -3602,6 +3612,23 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 // * Добавление дамага от голых рук и молота.
 void HitData::add_hand_damage(CHAR_DATA *ch)
 {
+	// Мультипликатор повреждений без оружия и в перчатках (линейная интерполяция)
+	// <вес перчаток> <увеличение>
+	// 0  50%
+	// 5 100%
+	// 10 150%
+	// 15 200%
+	// НА МОЛОТ НЕ ВЛИЯЕТ
+	if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) || flags[CRIT_HIT]) //в метком молоте идет учет перчаток
+	{
+		int modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 18) : 0)); //вес перчаток больше 18 не учитывается
+		if (IS_NPC(ch) || can_use_feat(ch, BULLY_FEAT))
+		{
+			modi = MAX(100, modi);
+		}
+		dam = modi * dam / 100;
+	}
+
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STONEHAND))
 		dam += dice(2, 3);
 	else
@@ -3612,22 +3639,7 @@ void HitData::add_hand_damage(CHAR_DATA *ch)
 		dam += GET_LEVEL(ch) / 5;
 		dam += MAX(0, GET_REAL_STR(ch) - 25);
 	}
-	// Мультипликатор повреждений без оружия и в перчатках (линейная интерполяция)
-	// <вес перчаток> <увеличение>
-	// 0  50%
-	// 5 100%
-	// 10 150%
-	// 15 200%
-	// НА МОЛОТ НЕ ВЛИЯЕТ
-	if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT))
-	{
-		int modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)) : 0));
-		if (IS_NPC(ch) || can_use_feat(ch, BULLY_FEAT))
-		{
-			modi = MAX(100, modi);
-		}
-		dam = modi * dam / 100;
-	}
+
 }
 
 // * Расчет шанса на критический удар (не точкой).
@@ -3823,6 +3835,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		hit_params.dam += dice(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
 	}
 
+	// расчет критических ударов
+	hit_params.calc_crit_chance(ch);
+
 	// оружие/руки и модификаторы урона скилов, с ними связанных
 	if (hit_params.wielded
 		&& GET_OBJ_TYPE(hit_params.wielded) == obj_flag_data::ITEM_WEAPON)
@@ -3891,8 +3906,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	// расчет критических ударов
-	hit_params.calc_crit_chance(ch);
 
 	if (hit_params.skill_num == SKILL_BACKSTAB)
 	{

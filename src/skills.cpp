@@ -924,14 +924,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = size + dex_bonus(GET_REAL_STR(ch));
 
 		if (IS_NPC(vict))
-		{
 			victim_modi -= (size_app[GET_POS_SIZE(vict)].shocking)/2;
-		}
-		else if (!IS_NPC(vict))
-		{
-                	victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
-                }
-               break;
+		else
+			victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
+		break;
 	case SKILL_STUPOR:  // оглушить
 		victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		bonus = dex_bonus(GET_REAL_STR(ch));
@@ -1039,10 +1035,23 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				victim_modi = -(vict->get_skill(SKILL_AWAKE)/5);
 		}
 		break;
+	case SKILL_STUN: //ошеломить
+		victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict)) - GET_LEVEL(vict);
+		bonus = dex_bonus(GET_REAL_STR(ch));
+		if (GET_EQ(ch, WEAR_WIELD))
+			bonus +=
+			weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
+		else if (GET_EQ(ch, WEAR_BOTHS))
+			bonus +=
+			weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
 
+		if (GET_AF_BATTLE(vict, EAF_AWAKE))
+			victim_modi -= calculate_awake_mod(ch, vict);
+
+		break;
 	default:
 		break;
-	}
+}
 //        if(IS_NPC(ch))
 //        bonus = 0;
 	if ((skill_no == SKILL_SENSE) || (skill_no == SKILL_TRACK))
@@ -1115,13 +1124,13 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 
 	if (ch && vict && !IS_NPC(ch) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT
 		|| skill_no == SKILL_STUPOR || skill_no == SKILL_CHOPOFF || skill_no == SKILL_BACKSTAB || skill_no == SKILL_KICK
-		|| skill_no == SKILL_PUNCTUAL) && PRF_FLAGGED(ch, PRF_TESTER))
+		|| skill_no == SKILL_PUNCTUAL || skill_no == SKILL_STUN) && PRF_FLAGGED(ch, PRF_TESTER))
 	{
 		//sprintf(buf, "Противник %s: скилл == %d, итоговый == %d,бонус == %d, сэйвы == %d, сэйвы/2 == %d\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi);
 		//mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		if (absolute_fail)
 			send_to_char(ch, "попали в Абсолютный фейл\r\n");
-		else if (!pass_mod && try_morale)
+		else if (try_morale)
 			send_to_char(ch, "&Cпопали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2, morale);
 		else
 			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2);

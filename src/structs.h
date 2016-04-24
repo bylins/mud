@@ -1248,8 +1248,6 @@ public:
 	FLAG_DATA& operator+=(const FLAG_DATA &r);
 	bool operator!=(const FLAG_DATA& r) const { return m_flags[0] != r.m_flags[0] || m_flags[1] != r.m_flags[1] || m_flags[2] != r.m_flags[2] || m_flags[3] != r.m_flags[3]; }
 	bool operator==(const FLAG_DATA& r) const { return !(*this != r); }
-	bool operator<(const FLAG_DATA& r) const;
-	bool operator>(const FLAG_DATA& r) const;
 
 	bool empty() const { return 0 == m_flags[0] && 0 == m_flags[1] && 0 == m_flags[2] && 0 == m_flags[3]; }
 
@@ -1279,7 +1277,7 @@ public:
 	bool sprintbits(const char *names[], char *result, const char *div, const int print_flag) const;
 	bool sprintbits(const char *names[], char *result, const char *div) const { return sprintbits(names, result, div, 0); };
 
-private:
+protected:
 	boost::array<uint32_t, PLANES_NUMBER> m_flags;
 };
 
@@ -1302,7 +1300,29 @@ inline FLAG_DATA& FLAG_DATA::operator+=(const FLAG_DATA &r)
 	return *this;
 }
 
-inline bool FLAG_DATA::operator<(const FLAG_DATA& r) const
+extern const FLAG_DATA clear_flags;
+
+class unique_bit_flag_data : public FLAG_DATA
+{
+public:
+	bool operator==(const unique_bit_flag_data& r) const;
+	bool operator!=(const unique_bit_flag_data& r) const { return !(*this == r); }
+	bool operator<(const unique_bit_flag_data& r) const;
+	bool operator>(const unique_bit_flag_data& r) const;
+
+	unique_bit_flag_data() : FLAG_DATA(clear_flags) {}
+	unique_bit_flag_data(const FLAG_DATA& __base): FLAG_DATA(__base) {}
+};
+
+inline bool unique_bit_flag_data::operator==(const unique_bit_flag_data& r) const
+{
+	return 0 != (m_flags[0] & r.m_flags[0])
+		|| 0 != (m_flags[1] & r.m_flags[1])
+		|| 0 != (m_flags[2] & r.m_flags[2])
+		|| 0 != (m_flags[3] & r.m_flags[3]);
+}
+
+inline bool unique_bit_flag_data::operator<(const unique_bit_flag_data& r) const
 {
 	return *this != r
 		&& (m_flags[0] < r.m_flags[0]
@@ -1311,7 +1331,7 @@ inline bool FLAG_DATA::operator<(const FLAG_DATA& r) const
 			|| m_flags[3] < r.m_flags[3]);
 }
 
-inline bool FLAG_DATA::operator>(const FLAG_DATA& r) const
+inline bool unique_bit_flag_data::operator>(const unique_bit_flag_data& r) const
 {
 	return *this != r
 		&& (m_flags[0] > r.m_flags[0]
@@ -1319,14 +1339,6 @@ inline bool FLAG_DATA::operator>(const FLAG_DATA& r) const
 			|| m_flags[2] > r.m_flags[2]
 			|| m_flags[3] > r.m_flags[3]);
 }
-extern const FLAG_DATA clear_flags;
-
-class unique_bit_flag_data : public FLAG_DATA
-{
-public:
-	unique_bit_flag_data() : FLAG_DATA(clear_flags) {}
-	unique_bit_flag_data(const FLAG_DATA& __base): FLAG_DATA(__base) {}
-};
 
 void tascii(const uint32_t* pointer, int num_planes, char* ascii);
 
@@ -2136,6 +2148,5 @@ typedef std::map<int, mob_guardian> guardian_type;
 //-Polud
 
 #endif // __STRUCTS_H__ //
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -445,6 +445,8 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 					continue;
 				if (!isname(name.c_str(), it3->obj_->aliases))
 					continue;
+				if (OBJ_FLAGGED(it3->obj_, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch))
+					continue;
 
 				snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у почтового голубя в инвентаре.\r\n",
 						it3->obj_->short_description, GET_OBJ_POLY_1(ch, it3->obj_));

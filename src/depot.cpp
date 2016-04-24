@@ -1592,6 +1592,8 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 				continue;
 			if (!isname(name.c_str(), (*obj_it)->aliases))
 				continue;
+			if (OBJ_FLAGGED(*obj_it, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch))
+				continue;
 
 			snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у кого-то в персональном хранилище.\r\n",
 					(*obj_it)->short_description, GET_OBJ_POLY_1(ch, (*obj_it)));
