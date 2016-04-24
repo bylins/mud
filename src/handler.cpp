@@ -1799,7 +1799,8 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 
 				qty_info--;
 				unique_bit_flag_data item;
-				item.set(flag_data_by_char_class(ch));
+				const auto flags = flag_data_by_char_class(ch);
+				item.set(flags);
 				if ((class_info = qty_info->second.find(item)) != qty_info->second.end())
 				{
 					if (GET_EQ(ch, pos) != obj)
@@ -3477,7 +3478,7 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where)
 }
 
 
-OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list)
+OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list, bool locate_item)
 {
 	OBJ_DATA *i;
 	int j = 0, number;
@@ -3494,7 +3495,15 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list)
 				if (++j == number)  	// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
 				{
 					// send_to_char(buf,ch);
-					return (i);
+					if (!locate_item)
+						return (i);
+					else
+					{
+						if (try_locate_obj(ch,i))
+							return (i);
+						else
+							continue;
+					}
 				}
 
 	return (NULL);
@@ -3524,7 +3533,7 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA 
 
 
 // search the entire world for an object, and return a pointer
-OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name)
+OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 {
 	OBJ_DATA *i;
 	int j = 0, number;
@@ -3548,10 +3557,19 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name)
 		if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch))
 			if (CAN_SEE_OBJ(ch, i))
 				if (++j == number)
-					return (i);
+					if (!locate_item)
+						return (i);
+					else
+					{
+						if (try_locate_obj(ch,i))
+							return (i);
+						else
+							continue;
+					}
 
 	return (NULL);
 }
+
 // search the entire world for an object, and return a pointer  //
 OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
 {
@@ -3581,6 +3599,30 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
 }
 
 
+bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
+{
+	if (IS_CORPSE(i) || IS_GOD(ch)) //имм может локейтить и можно локейтить трупы
+		return true;
+	else if (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
+		return false;
+	else if (i->carried_by && IS_NPC(i->carried_by))
+		if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone) //шмотки у моба можно локейтить только в одной зоне
+			return true;
+		else
+			return false;
+	else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
+		if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone) //шмотки в клетке можно локейтить только в одной зоне
+			return true;
+		else
+			return false;
+	else if (i->worn_by && IS_NPC(i->worn_by))
+		if (world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
+			return true;
+		else
+			return false;
+	else
+		return true;
+}
 
 OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * equipment[], int *j)
 {

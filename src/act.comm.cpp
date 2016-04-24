@@ -965,7 +965,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD))
+	if (IS_IMMORTAL(ch))
 	{
 		// Выделяем чара кому отвечают иммы
 		argument = one_argument(argument, arg1);
@@ -979,11 +979,6 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (victim == NULL)
 		{
 			send_to_char("Такого нет в игре!\r\n", ch);
-			return;
-		}
-		if (GET_GOD_FLAG(ch, GF_DEMIGOD) && (GET_LEVEL(victim) > 5))
-		{
-			send_to_char("Персонаж выше пятого уровня, качайтесь в Боги для ответа ему.\r\n", ch);
 			return;
 		}
 	}

@@ -1150,7 +1150,8 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 }
 
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
-{	int weap_weight;
+{	
+	int percent = 0, prob = 0;
 	if (GET_SKILL(ch, SKILL_STUN) < 150)
 	{
 		improove_skill(ch, SKILL_STUN, TRUE, 0);
@@ -1168,10 +1169,14 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 	timed.skill = SKILL_STUN;
 	timed.time = 6 - (GET_SKILL(ch, SKILL_STUN) - 150) / 10; // 6..1 кулдаун
 	timed_to_char(ch, &timed);
-	weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
-	float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
-		(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
-		if (number(1, 100) < num)
+	//weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
+	//float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
+		//(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
+	
+	percent = number(1, skill_info[SKILL_STUN].max_percent);
+	prob = calculate_skill(ch, SKILL_STUN, vict);
+
+	if (percent < prob)
 		{
 			improove_skill(ch, SKILL_STUN, TRUE, 0);
 // кастуем аналог круга пустоты
@@ -1183,7 +1188,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 //аффект "кома" действует (раундов) на цель 5+морты чара/3
 			WAIT_STATE(vict, (5 + GET_REMORT(ch) / 3) * PULSE_VIOLENCE);
 		}
-		else
+	else
 		{
 			improove_skill(ch, SKILL_STUN, FALSE, 0);
 			act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
@@ -1480,8 +1485,17 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			}
 		}
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
-		if (GET_AF_BATTLE(ch, EAF_AWAKE))
-		{
+	//Пиная из осторожки моба в осторожке получаешь всего лишь резанье дамага в 16 раз...
+	//Уберем проверку на пинок из осторожки, а то в итоге дружи лишены единственного дамага, который могли выдавать
+/*if (GET_AF_BATTLE(ch, EAF_AWAKE))
+	{
+		dam >>= 2;	// в 4 раза меньше
+	}*/
+	if (GET_AF_BATTLE(vict, EAF_AWAKE))
+	{
+		if (on_horse(ch))
+			dam >>= 1;
+		else
 			dam >>= 2;	// в 4 раза меньше
 		}
 		if (GET_AF_BATTLE(vict, EAF_AWAKE))

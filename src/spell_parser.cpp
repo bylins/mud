@@ -2257,7 +2257,7 @@ const char *what_weapon[] = { "плеть",
 OBJ_DATA *find_obj_for_locate(CHAR_DATA *ch, const char *name)
 {
 //	OBJ_DATA *obj = ObjectAlias::locate_object(name);
-	OBJ_DATA *obj = get_obj_vis(ch, name);
+	OBJ_DATA *obj = get_obj_vis(ch, name, true);
 	if (!obj)
 	{
 		obj = Depot::locate_object(name);
@@ -5255,7 +5255,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_AID, "лечить", 100);
 	skillo(SKILL_FIRE, "разжечь костер", 100);
 	skillo(SKILL_SHIT, "удар левой рукой", 100);
-	skillo(SKILL_MIGHTHIT, "богатырский молот", 100);
+	skillo(SKILL_MIGHTHIT, "богатырский молот", 200);
 	skillo(SKILL_STUPOR, "оглушить", 160);
 	skillo(SKILL_POISONED, "отравить", 200);
 	skillo(SKILL_LEADERSHIP, "лидерство", 100);
