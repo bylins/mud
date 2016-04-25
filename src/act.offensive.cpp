@@ -2877,7 +2877,8 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 			continue;
 		if ((GET_LEVEL(ch_vict) > max_level) ||
-				(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) + GET_REAL_CON(ch_vict)) >
+			//(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) + GET_REAL_CON(ch_vict)) >
+			(dice(1, GET_REAL_SAVING_STABILITY(ch_vict)) >
 				 dice(1, GET_REAL_WIS(ch))))
 		{
 			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);

@@ -2062,7 +2062,6 @@ void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int percent, prob;
 	CHAR_DATA *horse = NULL;
 
 	if (IS_NPC(ch))
@@ -2115,51 +2114,10 @@ void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (IS_HORSE(horse))
 	{
-		if (!IS_IMMORTAL(ch) && !(ch->get_skill(SKILL_STEAL)))
+		if (!IS_IMMORTAL(ch))
 		{
 			send_to_char("Это не ваш скакун.\r\n", ch);
 			return;
-		}
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
-		{
-			send_to_char("Вам не хочется заниматься конокрадством в таком мирном месте.\r\n", ch);
-			return;
-		}
-		if (on_horse(horse->master))
-		{
-			send_to_char("Вы не сможете увести скакуна из-под седока.\r\n", ch);
-			return;
-		}
-		if (!IS_IMMORTAL(ch))
-		{
-			if (!ch->get_skill(SKILL_STEAL))
-			{
-				send_to_char("Вы не умеете воровать.\r\n", ch);
-				return;
-			}
-			if (IS_IMMORTAL(horse->master) || GET_GOD_FLAG(horse->master, GF_GODSLIKE))
-			{
-				send_to_char("Вы постеснялись уводить скакуна у такого хорошего человека.\r\n", ch);
-				return;
-			}
-			pk_thiefs_action(ch, horse->master);
-			percent = number(1, skill_info[SKILL_STEAL].max_percent);
-			if (AWAKE(horse->master) && (IN_ROOM(ch) == IN_ROOM(horse->master)))
-				percent += 50;
-			if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
-				percent += 10;
-			prob = train_skill(ch, SKILL_STEAL, skill_info[SKILL_STEAL].max_percent, 0);
-			if (percent > prob)
-			{
-				act("Вы неудачно попытались украсть скакуна у $N1.", FALSE, ch,
-					0, horse->master, TO_CHAR);
-				act("$n неудачно попытал$u украсть скакуна у $N1.", TRUE, ch,
-					0, horse->master, TO_NOTVICT | TO_ARENA_LISTEN);
-				if (IN_ROOM(ch) == IN_ROOM(horse->master))
-					act("$n пытал$u увести вашего скакуна!", FALSE, ch, 0, horse->master, TO_VICT);
-				WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
-				return;
-			}
 		}
 	}
 	if (stop_follower(horse, SF_EMPTY))

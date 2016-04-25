@@ -568,7 +568,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 
 	case SKILL_BACKSTAB:	//заколоть
-                victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+        //victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
 		if (awake_others(ch) || equip_in_metall(ch))
 			bonus -= 50;
@@ -586,7 +587,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 	case SKILL_BASH:	//сбить
-		victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+		//ictim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = size + dex_bonus(GET_REAL_DEX(ch)) +
 			(GET_EQ(ch, WEAR_SHIELD) ?
 				weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
@@ -647,7 +649,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 	case SKILL_KICK:	//пнуть
-		victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
+		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
+		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
 		if (vict)
 		{
@@ -662,7 +665,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 	        break;
 	case SKILL_PUNCH:	//удар левой рукой
-        victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+        //victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		break;
 	case SKILL_RESCUE:	//спасти
 		bonus = dex_bonus(GET_REAL_DEX(ch));
@@ -693,7 +697,6 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 	case SKILL_STEAL:	// Украсть
-                victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		bonus = dex_bonus(GET_REAL_DEX(ch))
 				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
@@ -705,6 +708,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 
 		if (vict)
 		{
+			//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			if (!CAN_SEE(vict, ch))
 				bonus += 25;
 			if (AWAKE(vict))
@@ -715,51 +720,57 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-        case SKILL_TRACK:       //выследить
-                percent = skill_is + int_app[GET_REAL_INT(ch)].observation
-                                  + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
+    case SKILL_TRACK:       //выследить
+            percent = skill_is + int_app[GET_REAL_INT(ch)].observation
+                                + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
-                if (SECT(IN_ROOM(ch)) == SECT_FOREST || SECT(IN_ROOM(ch)) == SECT_FIELD)
-                        percent += 10;
+            if (SECT(IN_ROOM(ch)) == SECT_FOREST || SECT(IN_ROOM(ch)) == SECT_FIELD)
+                    percent += 10;
 
-                percent = complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
+            percent = complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
 
-                if (SECT(IN_ROOM(ch)) == SECT_WATER_SWIM ||
-                                SECT(IN_ROOM(ch)) == SECT_WATER_NOSWIM ||
-                                SECT(IN_ROOM(ch)) == SECT_FLYING ||
-                                SECT(IN_ROOM(ch)) == SECT_UNDERWATER ||
-                                SECT(IN_ROOM(ch)) == SECT_SECRET
-                                || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) percent = 0;
+            if (SECT(IN_ROOM(ch)) == SECT_WATER_SWIM ||
+                            SECT(IN_ROOM(ch)) == SECT_WATER_NOSWIM ||
+                            SECT(IN_ROOM(ch)) == SECT_FLYING ||
+                            SECT(IN_ROOM(ch)) == SECT_UNDERWATER ||
+                            SECT(IN_ROOM(ch)) == SECT_SECRET
+                            || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) percent = 0;
 
 
-                if (vict)
-                {
-                        victim_modi += GET_REAL_CON(vict) / 2;
-                        if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
-                                        || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) victim_modi = -100;
-                }
-                break;
-        case SKILL_SENSE: // приглядеться
-                percent = skill_is + int_app[GET_REAL_INT(ch)].observation
-                                  + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
+            if (vict)
+            {
+				victim_modi += GET_REAL_CON(vict) / 2;
+				if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
+					|| ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK))
+				{
+					victim_modi = -100;
+				}
+            }
+            break;
+    case SKILL_SENSE: // приглядеться
+            percent = skill_is + int_app[GET_REAL_INT(ch)].observation
+                                + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
-                percent =
-                        complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
+            percent =
+                    complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
 
-                if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK))
-                        percent = 0;
+            if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK))
+                    percent = 0;
 
-                if (vict)
-                {
-                        victim_modi += GET_REAL_CON(vict) / 2;
-                        if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
-                                        || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) victim_modi = -100;
-                }
-                break;
+            if (vict)
+            {
+				victim_modi += GET_REAL_CON(vict) / 2;
+				if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
+					|| ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK))
+				{
+					victim_modi = -100;
+				}
+            }
+            break;
 
 	case SKILL_MULTYPARRY:  // веерная защита
 	case SKILL_PARRY:	//парировать
-		victim_sav = dex_bonus(GET_REAL_DEX(vict));
+        victim_sav = dex_bonus(GET_REAL_DEX(vict));
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
 		{
@@ -783,8 +794,9 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 }
 
 	case SKILL_TOUCH:	//захватить противника
-		victim_sav = dex_bonus(GET_REAL_DEX(vict));
-		bonus = dex_bonus(GET_REAL_DEX(ch)) + size_app[GET_POS_SIZE(vict)].interpolate;
+    victim_sav = dex_bonus(GET_REAL_DEX(vict));
+	bonus = dex_bonus(GET_REAL_DEX(ch)) +
+			size_app[GET_POS_SIZE(vict)].interpolate;
 
 		if (vict)
 		{
@@ -814,7 +826,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 
 	case SKILL_SATTACK:	//атака второй рукой
-        victim_sav = GET_SAVE(vict, SAVING_REFLEX);
+        //victim_sav = GET_SAVE(vict, SAVING_REFLEX);
+		victim_sav = -GET_REAL_SAVING_REFLEX(vict) + GET_REAL_DEX(ch); //equal
 		break;
 
 	case SKILL_LOOKING:	//приглядеться
@@ -826,7 +839,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 
 	case SKILL_DISARM:
-		victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
 		if (vict)
 		{
@@ -890,7 +904,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 	case SKILL_CHOPOFF:  // подножка
-		victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + size_app[GET_POS_SIZE(ch)].ac;
 
 		if (equip_in_metall(ch))
@@ -920,7 +935,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_SHIT:
 		break;
 	case SKILL_MIGHTHIT: // богатырский молот
-		victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
+		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
+		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 		bonus = size + dex_bonus(GET_REAL_STR(ch));
 
 		if (IS_NPC(vict))
@@ -929,7 +945,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
 		break;
 	case SKILL_STUPOR:  // оглушить
-		victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
+		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
+		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 		bonus = dex_bonus(GET_REAL_STR(ch));
 		if (GET_EQ(ch, WEAR_WIELD))
 			bonus +=
@@ -949,7 +966,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = cha_app[GET_REAL_CHA(ch)].leadership;
 		break;
 	case SKILL_PUNCTUAL:  // точный стиль
-		victim_sav = GET_SAVE(vict, SAVING_CRITICAL) - dex_bonus(GET_REAL_CON(vict));
+		//victim_sav = GET_SAVE(vict, SAVING_CRITICAL) - dex_bonus(GET_REAL_CON(vict));
+		victim_sav = -GET_REAL_SAVING_CRITICAL(vict);
 		bonus = dex_bonus(GET_REAL_INT(ch));
 		if (GET_EQ(ch, WEAR_WIELD))
 			bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
@@ -1018,7 +1036,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_MORPH:
 		break;
 	case SKILL_STRANGLE: // удавить
-		victim_sav = GET_SAVE(vict, SAVING_REFLEX) -dex_bonus(GET_REAL_DEX(vict));
+		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) -dex_bonus(GET_REAL_DEX(vict));
+		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		//pass_mod = 1;
 		if (GET_MOB_HOLD(vict))
@@ -1036,7 +1055,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 	case SKILL_STUN: //ошеломить
-		victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict)) - GET_LEVEL(vict);
+		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict)) - GET_LEVEL(vict);
+		victim_sav = -GET_REAL_SAVING_STABILITY(vict) - GET_LEVEL(vict);
 		bonus = dex_bonus(GET_REAL_STR(ch));
 		if (GET_EQ(ch, WEAR_WIELD))
 			bonus +=

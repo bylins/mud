@@ -2314,7 +2314,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	sprintf(buf,
 			"Защитн.аффекты: [Para:%d/Breath:%d/Spell:%d/Basic:%d], Поглощ: [%d], Стойк: [%d], Реакц: [%d], Воля: [%d]\r\n",
 			GET_SAVE(k, 0), GET_SAVE(k, 1), GET_SAVE(k, 2), GET_SAVE(k, 3),
-			GET_ABSORBE(k), (GET_REAL_CON(k)-GET_SAVE(k, SAVING_STABILITY)), (-GET_SAVE(k, SAVING_REFLEX)+dex_bonus(GET_REAL_DEX(k))), (-GET_SAVE(k, SAVING_WILL)+GET_REAL_WIS(k)));
+			GET_ABSORBE(k), GET_REAL_SAVING_STABILITY(k), GET_REAL_SAVING_REFLEX(k), GET_REAL_SAVING_WILL(k));
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d]\r\n",
