@@ -12,7 +12,7 @@
 #include <memory>
 #include <deque>
 
-#include <boost\algorithm\string\classification.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 namespace msdp
 {
