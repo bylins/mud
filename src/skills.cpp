@@ -450,7 +450,6 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 		}
 		break;
 	case SKILL_STEAL:	// Украсть
-                victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		bonus = dex_bonus(GET_REAL_DEX(ch))
 				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
@@ -462,6 +461,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 
 		if (vict)
 		{
+			victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 			if (!CAN_SEE(vict, ch))
 				bonus += 25;
 			if (AWAKE(vict))
