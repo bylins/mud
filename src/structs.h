@@ -30,6 +30,7 @@
 #include <map>
 #include <iterator>
 #include <cstdint>
+#include <set>
 
 using std::map;
 using std::iterator;
@@ -1658,10 +1659,10 @@ struct DESCRIPTOR_DATA
 		small_outbuf[0] = 0;
 	}
 
-	void msdp_support(bool on)
-	{
-		m_msdp_support = on;
-	}
+	void msdp_support(bool on);
+	void msdp_add_report_variable(const std::string& name) { m_msdp_requested_report.insert(name); }
+	bool msdp_need_report(const std::string& name) { return m_msdp_requested_report.find(name) != m_msdp_requested_report.end(); }
+	void msdp_report(const std::string& name);
 
 	socket_t descriptor;	// file descriptor for socket    //
 	char host[HOST_LENGTH + 1];	// hostname          //
@@ -1723,6 +1724,7 @@ struct DESCRIPTOR_DATA
 
 private:
 	bool m_msdp_support;
+	std::set<std::string> m_msdp_requested_report;
 };
 
 
@@ -2060,6 +2062,4 @@ typedef map <int, mob_guardian> guardian_type;
 
 #endif // __STRUCTS_H__ //
 
-
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-

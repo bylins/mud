@@ -1,5 +1,8 @@
 #include "msdp.hpp"
 
+#include "char.hpp"
+#include "comm.h"
+#include "constants.h"
 #include "utils.h"
 #include "structs.h"
 #include "telnet.h"
@@ -21,6 +24,10 @@ namespace msdp
 
 	const char MSDP_ARRAY_OPEN = 5;
 	const char MSDP_ARRAY_CLOSE = 6;
+
+	const size_t HEAD_LENGTH = 3;	// IAC SB TELOPT_MSDP
+	const size_t TAIL_LENGTH = 2;	// IAC SE
+	const size_t WRAPPER_LENGTH = HEAD_LENGTH + TAIL_LENGTH;
 	/** @} */
 
 	class CSerializeable
@@ -43,6 +50,7 @@ namespace msdp
 			EVT_ARRAY
 		};
 
+		virtual ~CValue() {}
 		virtual EValueType type() const = 0;
 	};
 
@@ -52,7 +60,7 @@ namespace msdp
 		using value_ptr_t = CValue::value_ptr_t;
 		using variable_ptr_t = std::shared_ptr<CVariable>;
 
-		CVariable(const std::string& name, const value_ptr_t value) : m_name(name), m_value(value), m_size(1 + m_name.size() + 1 + m_value->required_size()) {}
+		CVariable(const std::string& name, const value_ptr_t value) : m_name(name), m_value(value), m_size(1 + m_name.size() + m_value->required_size()) {}
 		const std::string& name() const { return m_name; }
 		value_ptr_t value() const { return m_value; }
 		virtual size_t required_size() const override { return m_size; }
@@ -83,8 +91,9 @@ namespace msdp
 	public:
 		CStringValue(const std::string& value) : m_value(value) {}
 		virtual EValueType type() const override { return EVT_STRING; }
-		virtual size_t required_size() const override { return m_value.size(); }
+		virtual size_t required_size() const override { return 1 + m_value.size(); }
 		virtual size_t serialize(char* buffer, size_t size) const override;
+		const std::string& value() const { return m_value; }
 
 	private:
 		const std::string m_value;
@@ -97,23 +106,35 @@ namespace msdp
 			return 0;
 		}
 
-		memcpy(static_cast<void*>(buffer), m_value.c_str(), required_size());
+		buffer[0] = MSDP_VAL;
+		memcpy(static_cast<void*>(1 + buffer), m_value.c_str(), required_size() - 1);
 		return required_size();
 	}
 
 	class CTableValue : public CValue
 	{
 	public:
-		CTableValue() : m_size(0) {}
+		using table_t = std::list<CVariable::variable_ptr_t>;
+		CTableValue() : m_size(3) {}	// 3 - MSDP_VAL MSDP_TABLE_OPEN ... MSDP_TABLE_CLOSE
+		CTableValue(const table_t& table);
 		virtual EValueType type() const override { return EVT_TABLE; }
 		void add(const CVariable::variable_ptr_t& variable);
 		virtual size_t required_size() const override { return m_size; }
 		virtual size_t serialize(char* buffer, size_t size) const override;
 
 	private:
-		std::list<CVariable::variable_ptr_t> m_data;
+		table_t m_data;
 		size_t m_size;
 	};
+
+	CTableValue::CTableValue(const table_t& table) : m_size(3)
+	{
+		for (const auto& t : table)
+		{
+			m_size += t->required_size();
+		}
+		m_data = table;
+	}
 
 	void CTableValue::add(const CVariable::variable_ptr_t& variable)
 	{
@@ -128,12 +149,17 @@ namespace msdp
 			return 0;
 		}
 
+		buffer[0] = MSDP_VAL;
+		buffer[1] = MSDP_TABLE_OPEN;
+		buffer += 2;
+
 		for (const auto& i : m_data)
 		{
 			i->serialize(buffer, size);
 			size -= i->required_size();
 			buffer += i->required_size();
 		}
+		buffer[0] = MSDP_TABLE_CLOSE;
 
 		return required_size();
 	}
@@ -141,7 +167,9 @@ namespace msdp
 	class CArrayValue : public CValue
 	{
 	public:
-		CArrayValue() : m_size(0) {}
+		using array_t = std::list<value_ptr_t>;
+		CArrayValue() : m_size(3) {}	// 3 - MSDP_VAL MSDP_ARRAY_OPEN ... MSDP_ARRAY_CLOSE
+		CArrayValue(const array_t& array);
 		virtual EValueType type() const override { return EVT_TABLE; }
 		void add(const value_ptr_t& value) { m_data.push_back(value); }
 		virtual size_t required_size() const override { return m_size; }
@@ -152,12 +180,25 @@ namespace msdp
 		size_t m_size;
 	};
 
+	CArrayValue::CArrayValue(const array_t& array) : m_size(3)
+	{
+		for (const auto& i : array)
+		{
+			m_size += i->required_size();
+		}
+		m_data = array;
+	}
+
 	size_t CArrayValue::serialize(char* buffer, size_t size) const
 	{
 		if (size < required_size())
 		{
 			return 0;
 		}
+
+		buffer[0] = MSDP_VAL;
+		buffer[1] = MSDP_ARRAY_OPEN;
+		buffer += 2;
 
 		for (const auto& i : m_data)
 		{
@@ -166,12 +207,14 @@ namespace msdp
 			buffer += i->required_size();
 		}
 
+		buffer[0] = MSDP_ARRAY_CLOSE;
+
 		return required_size();
 	}
 
 	inline bool is_stop_byte(const char c)
 	{
-		return c == IAC || c == MSDP_ARRAY_CLOSE || c == MSDP_TABLE_CLOSE;
+		return c == char(IAC) || c == MSDP_ARRAY_CLOSE || c == MSDP_TABLE_CLOSE;
 	}
 
 	size_t parse_value(const char* buffer, size_t length, CValue::value_ptr_t& value);
@@ -270,7 +313,7 @@ namespace msdp
 			return 0;
 		}
 
-		const auto value_length = buffer - pos;
+		const auto value_length = pos - buffer;
 		value.reset(new CStringValue(std::string(buffer, value_length)));
 		return value_length;
 	}
@@ -302,10 +345,10 @@ namespace msdp
 			break;
 
 		default:
-			parse_string(pos, end - pos, value);
+			value_length = parse_string(pos, end - pos, value);
 		}
 
-		return false;
+		return value_length;
 	}
 
 	size_t parse_variable(const char* buffer, const size_t length, CVariable::variable_ptr_t& result)
@@ -320,8 +363,10 @@ namespace msdp
 			return 0;
 		}
 
+		const size_t MSDP_VAR_LENGTH = 1;	// actually, length of byte MSDP_VAR: always 1.
 		const auto end = buffer + length;
-		auto name_end = buffer;
+		auto name_begin = MSDP_VAR_LENGTH + buffer;
+		auto name_end = name_begin;
 
 		while (name_end != end && MSDP_VAL != *name_end)
 		{
@@ -331,7 +376,7 @@ namespace msdp
 		{
 			return 0;
 		}
-		std::string name(buffer, name_end - buffer);
+		std::string name(name_begin, name_end - name_begin);
 
 		CVariable::value_ptr_t value = nullptr;
 		size_t value_length = parse_value(name_end, end - name_end, value);
@@ -342,7 +387,7 @@ namespace msdp
 
 		result.reset(new CVariable(name, value));
 
-		return buffer - (name_end + value_length);
+		return MSDP_VAR_LENGTH + value_length + (name_end - buffer);
 	}
 
 	bool parse_request(const char* buffer, const size_t length, size_t& conversation_length, std::shared_ptr<CVariable>& request)
@@ -350,27 +395,84 @@ namespace msdp
 		size_t var_length = parse_variable(buffer, length, request);
 
 		// check result and remaining space
-		if (0 == conversation_length
-			|| 2 + conversation_length > length)
+		if (0 == var_length
+			|| TAIL_LENGTH + var_length > length)
 		{
 			return false;
 		}
 
-		auto pos = buffer + conversation_length;
+		auto pos = buffer + var_length;
 		// check tail
-		if (IAC != pos[0]
-			|| SE != pos[1])
+		if (char(IAC) != pos[0]
+			|| char(SE) != pos[1])
 		{
 			return false;
 		}
 
-		conversation_length = var_length + 2;
+		conversation_length = var_length + TAIL_LENGTH;
 		return true;
 	}
 
-	bool handle_request(DESCRIPTOR_DATA* t, const std::shared_ptr<CVariable> request)
+	bool handle_request(DESCRIPTOR_DATA* t, std::shared_ptr<CVariable> request)
 	{
-		log("MSDP request ignored.");
+		log("INFO: MSDP request %s.\n", request->name().c_str());
+
+		CVariable::variable_ptr_t response;
+		if ("LIST" == request->name())
+		{
+			if (CValue::EVT_STRING == request->value()->type())
+			{
+				CStringValue* string = dynamic_cast<CStringValue*>(request->value().get());
+				if ("COMMANDS" == string->value())
+				{
+					log("INFO: Client asked for MSDP \"COMMANDS\" list");
+
+					response.reset(new CVariable("COMMANDS",
+						std::shared_ptr<CValue>(new CArrayValue({
+						std::shared_ptr<CValue>(new CStringValue("LIST")),
+						std::shared_ptr<CValue>(new CStringValue("REPORT")),
+						std::shared_ptr<CValue>(new CStringValue("SEND"))
+					}))));
+				}
+				else if ("REPORTABLE_VARIABLES" == string->value())
+				{
+					log("INFO: Client asked for MSDP \"REPORTABLE_VARIABLES\" list");
+
+					response.reset(new CVariable("REPORTABLE_VARIABLES",
+						std::shared_ptr<CValue>(new CArrayValue({
+						std::shared_ptr<CValue>(new CStringValue("ROOM"))
+					}))));
+				}
+				else if ("REPORT" == string->value())
+				{
+					log("INFO: Client asked for report of changing the variable \"%s\".\n", string->value().c_str());
+
+					t->msdp_need_report(string->value());
+				}
+			}
+		}
+
+		if (nullptr != response.get())
+		{
+			const size_t buffer_size = WRAPPER_LENGTH + response->required_size();
+			std::shared_ptr<char> buffer(new char[1 + buffer_size]);	// 1 byte for NULL terminator
+			buffer.get()[0] = char(IAC);
+			buffer.get()[1] = char(SB);
+			buffer.get()[2] = TELOPT_MSDP;
+			response->serialize(HEAD_LENGTH + buffer.get(), buffer_size - WRAPPER_LENGTH);
+			buffer.get()[buffer_size - 2] = char(IAC);
+			buffer.get()[buffer_size - 1] = char(SE);
+			buffer.get()[buffer_size] = '\0';
+
+			int written = 0;
+			write_to_descriptor_with_options(t, buffer.get(), written);
+
+			if (written != buffer_size)
+			{
+				log("WARNING: Logic error: actual size of written data is not equal to calculated buffer size (while responding).\n");
+				return false;
+			}
+		}
 
 		return true;
 	}
@@ -379,13 +481,13 @@ namespace msdp
 	{
 		size_t actual_length = 0;
 		std::shared_ptr<CVariable> request;
-		if (3 > length)
+		if (4 > length)
 		{
 			log("WARNING: Logic error: MSDP block is too small.\n");
 			return 0;
 		}
 
-		if (!parse_request(buffer + 2, length - 2, actual_length, request))
+		if (!parse_request(buffer + HEAD_LENGTH, length - HEAD_LENGTH, actual_length, request))
 		{
 			log("WARNING: Could not parse MSDP request.\n");
 			return 0;
@@ -397,7 +499,80 @@ namespace msdp
 			return 0;
 		}
 
-		return actual_length;
+		return HEAD_LENGTH + actual_length;
+	}
+
+	void report_room(DESCRIPTOR_DATA* d, CVariable::variable_ptr_t& response)
+	{
+		const auto rnum = IN_ROOM(d->character);
+		const auto vnum = GET_ROOM_VNUM(rnum);
+		if (NOWHERE == vnum)
+		{
+			return;
+		}
+
+		CTableValue* room_descriptor = new CTableValue();
+		CValue::value_ptr_t room_value(room_descriptor);
+
+		CTableValue* exits = new CTableValue();
+		CValue::value_ptr_t exits_value(exits);
+		const auto directions = world[rnum]->dir_option;
+		for (int i = 0; i < NUM_OF_DIRS; ++i)
+		{
+			if (directions[i]
+				&& !EXIT_FLAGGED(directions[i], EX_HIDDEN))
+			{
+				const auto to_rnum = directions[i]->to_room;
+				const auto to_vnum = GET_ROOM_VNUM(to_rnum);
+				exits->add(CVariable::variable_ptr_t(new CVariable(dirs[i],
+					CValue::value_ptr_t(new CStringValue(std::to_string(to_vnum))))));
+			}
+		}
+
+		room_descriptor->add(CVariable::variable_ptr_t(new CVariable("VNUM",
+			CValue::value_ptr_t(new CStringValue(std::to_string(vnum))))));
+		room_descriptor->add(CVariable::variable_ptr_t(new CVariable("ZONE",
+			CValue::value_ptr_t(new CStringValue(std::to_string(vnum / 100))))));
+		room_descriptor->add(CVariable::variable_ptr_t(new CVariable("EXITS", exits_value)));
+
+		response.reset(new CVariable("ROOM", room_value));
+	}
+
+	void msdp_report(DESCRIPTOR_DATA* d, const std::string& name)
+	{
+		//report
+		if (!d->character)
+		{
+			return;
+		}
+
+		CVariable::variable_ptr_t response;
+		if ("ROOM" == name)
+		{
+			report_room(d, response);
+		}
+
+		if (nullptr != response.get())
+		{
+			const size_t buffer_size = WRAPPER_LENGTH + response->required_size();
+			std::shared_ptr<char> buffer(new char[1 + buffer_size]);	// 1 byte for NULL terminator
+			buffer.get()[0] = char(IAC);
+			buffer.get()[1] = char(SB);
+			buffer.get()[2] = TELOPT_MSDP;
+			response->serialize(HEAD_LENGTH + buffer.get(), buffer_size - WRAPPER_LENGTH);
+			buffer.get()[buffer_size - 2] = char(IAC);
+			buffer.get()[buffer_size - 1] = char(SE);
+			buffer.get()[buffer_size] = '\0';
+
+			int written = 0;
+			write_to_descriptor_with_options(d, buffer.get(), written);
+
+			if (written != buffer_size)
+			{
+				log("WARNING: Logic error: actual size of written data is not equal to calculated buffer size (while reporting).\n");
+				return;
+			}
+		}
 	}
 }
 

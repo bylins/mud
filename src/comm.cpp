@@ -704,7 +704,6 @@ void underwater_check(void);
 // Telnet options
 #define TELOPT_COMPRESS     85
 #define TELOPT_COMPRESS2    86
-#define TELOPT_MSDP         69
 
 #if defined(HAVE_ZLIB)
 /*
@@ -3589,12 +3588,12 @@ int process_input(DESCRIPTOR_DATA * t)
 				bytes_read -= 3;
 				--ptr;
 			}
-			else if (ptr[1] == SB)
+			else if (ptr[1] == char(SB))
 			{
 				size_t sb_length = 0;
 				switch (ptr[2])
 				{
-				case TELOPT_MSDP:
+				case char(TELOPT_MSDP):
 					sb_length = msdp::handle_conversation(t, ptr, bytes_read);
 					break;
 

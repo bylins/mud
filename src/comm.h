@@ -59,6 +59,7 @@ unsigned long get_ip(const char *addr);
 
 // I/O functions
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);
+bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, int& written);
 void write_to_q(const char *txt, struct txt_q *queue, int aliased);
 void write_to_output(const char *txt, DESCRIPTOR_DATA * d);
 void string_add(DESCRIPTOR_DATA * d, char *str);

@@ -1293,56 +1293,64 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 void char_to_room(CHAR_DATA * ch, room_rnum room)
 {
 	if (ch == NULL || room < NOWHERE + 1 || room > top_of_world)
+	{
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
+		return;
+	}
+
+	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
+		char_to_room(ch, ch->get_from_room());
+		return;
+	}
+
+	ch->next_in_room = world[room]->people;
+	world[room]->people = ch;
+	ch->in_room = room;
+	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
+	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
+	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILSNEAK), EXTRA_FAILSNEAK);
+	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILCAMOUFLAGE), EXTRA_FAILCAMOUFLAGE);
+	if (PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
+		sprintf(buf,
+			"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
+			"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
+			CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
+			CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
+			CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
+			CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
+			CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->ices,
+			CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
+			CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
+			CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
+			CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+	// Stop fighting now, if we left.
+	if (ch->get_fighting() && IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
+	{
+		stop_fighting(ch->get_fighting(), FALSE);
+		stop_fighting(ch, TRUE);
+	}
+
+	if (!IS_NPC(ch))
+	{
+		zone_table[world[room]->zone].used = 1;
+		zone_table[world[room]->zone].activity++;
+	}
 	else
 	{
-		if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
-		{
-			send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
-			char_to_room(ch, ch->get_from_room());
-			return;
-		}
+		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
+		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
+		room_affect_process_on_entry(ch, IN_ROOM(ch));
+	}
 
-		ch->next_in_room = world[room]->people;
-		world[room]->people = ch;
-		ch->in_room = room;
-		check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
-		REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
-		REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILSNEAK), EXTRA_FAILSNEAK);
-		REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILCAMOUFLAGE), EXTRA_FAILCAMOUFLAGE);
-		if (PRF_FLAGGED(ch, PRF_CODERINFO))
-		{
-			sprintf(buf,
-					"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
-					"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-					CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
-					CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
-					CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->ices,
-					CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
-					CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
-					CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
-		}
-		// Stop fighting now, if we left.
-		if (ch->get_fighting() && IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
-		{
-			stop_fighting(ch->get_fighting(), FALSE);
-			stop_fighting(ch, TRUE);
-		}
-
-		if (!IS_NPC(ch))
-		{
-			zone_table[world[room]->zone].used = 1;
-			zone_table[world[room]->zone].activity++;
-		} else
-		{
-			//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
-			//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
-			room_affect_process_on_entry(ch, IN_ROOM(ch));
-		}
+	// report room changing
+	if (ch->desc)
+	{
+		ch->desc->msdp_report("ROOM");
 	}
 }
 
