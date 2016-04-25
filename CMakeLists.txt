@@ -114,6 +114,7 @@ set(SOURCES
     src/spec_procs.cpp
     src/spell_parser.cpp
     src/spells.cpp
+    src/structs.cpp
     src/stuff.cpp
     src/title.cpp
     src/top.cpp
