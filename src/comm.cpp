@@ -3601,9 +3601,12 @@ int process_input(DESCRIPTOR_DATA * t)
 					continue;
 				}
 
-				memmove(ptr, ptr + sb_length, bytes_read - (ptr - read_point) - sb_length + 1);
-				bytes_read -= static_cast<int>(sb_length);
-				--ptr;
+				if (0 < sb_length)
+				{
+					memmove(ptr, ptr + sb_length, bytes_read - (ptr - read_point) - sb_length + 1);
+					bytes_read -= static_cast<int>(sb_length);
+					--ptr;
+				}
 			}
 		}
 
