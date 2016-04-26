@@ -849,7 +849,7 @@ ASPELL(spell_locate_object)
 {
 	OBJ_DATA *i;
 	char name[MAX_INPUT_LENGTH];
-	int j;
+	int j, tmp_lvl;
 
 	/*
 	 * FIXME: This is broken.  The spell parser routines took the argument
@@ -861,33 +861,37 @@ ASPELL(spell_locate_object)
 		return;
 
 	strcpy(name, cast_argument);
-	j = level;
+	tmp_lvl = (IS_GOD(ch)) ? 300 : level;
+	j = tmp_lvl;
 
 	for (i = object_list; i && (j > 0); i = i->next)
 	{
-		if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
-			continue;
+		if (!IS_GOD(ch))
+		{
+			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
+				continue;
 
-		if (IS_CORPSE(i))
-			continue;
+			if (IS_CORPSE(i))
+				continue;
 
-		if (OBJ_FLAGGED(i, ITEM_NOLOCATE) && !IS_GOD(ch) && i->carried_by != ch) //!локейт стаф может локейтить только имм или тот кто его держит
-			continue;
+			if (OBJ_FLAGGED(i, ITEM_NOLOCATE) && i->carried_by != ch) //!локейт стаф может локейтить только имм или тот кто его держит
+				continue;
 
-		if (!isname(name, i->aliases))
-			continue;
-
-		if (SECT(IN_ROOM(i)) == SECT_SECRET)
-			continue;
+			if (SECT(IN_ROOM(i)) == SECT_SECRET)
+				continue;
 
 		if (i->carried_by)
 			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
 					IS_IMMORTAL(i->carried_by))
 				continue;
+		}
+
+		if (!isname(name, i->aliases))
+			continue;
 
 		if (i->carried_by)
 		{
-			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by))
+			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by) || IS_GOD(ch))
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n",
 						i->short_description, GET_OBJ_POLY_1(ch, i), PERS(i->carried_by, ch, 1));
 			else
@@ -895,7 +899,7 @@ ASPELL(spell_locate_object)
 		}
 		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
 		{
-			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, ITEM_NOLOCATE))
+			if ((world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, ITEM_NOLOCATE) )|| IS_GOD(ch))
 				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name);
 			else
 				continue;
@@ -908,25 +912,29 @@ ASPELL(spell_locate_object)
 			}
 			else
 			{
-				if (i->in_obj->carried_by)
-					if (IS_NPC(i->in_obj->carried_by) && (OBJ_FLAGGED(i, ITEM_NOLOCATE) || world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
-						continue;
-				if (IN_ROOM(i->in_obj) != NOWHERE && IN_ROOM(i->in_obj))
-					if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone || OBJ_FLAGGED(i, ITEM_NOLOCATE))
-						continue;
-				if (i->in_obj->worn_by)
-					if (IS_NPC(i->in_obj->worn_by)
+				if (!IS_GOD(ch))
+				{
+					if (i->in_obj->carried_by)
+						if (IS_NPC(i->in_obj->carried_by) && (OBJ_FLAGGED(i, ITEM_NOLOCATE) || world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
+							continue;
+					if (IN_ROOM(i->in_obj) != NOWHERE && IN_ROOM(i->in_obj))
+						if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone || OBJ_FLAGGED(i, ITEM_NOLOCATE))
+							continue;
+					if (i->in_obj->worn_by)
+						if (IS_NPC(i->in_obj->worn_by)
 							&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
-							|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
-						continue;
+								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+							continue;
+				}
 				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), i->in_obj->PNames[5]);
 			}
 		}
 		else if (i->worn_by)
 		{
-			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
+			if (((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
 					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
 					|| (!IS_NPC(i->worn_by) && GET_LEVEL(i->worn_by) < LVL_IMMORT))
+					|| IS_GOD(ch))
 				sprintf(buf, "%s надет%s на %s.\r\n", i->short_description,
 						GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
 			else
@@ -947,7 +955,7 @@ ASPELL(spell_locate_object)
 	if (j > 0)
 		j = Parcel::print_spell_locate_object(ch, j, std::string(name));
 
-	if (j == level)
+	if (j == tmp_lvl)
 		send_to_char("Вы ничего не чувствуете.\r\n", ch);
 }
 
