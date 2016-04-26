@@ -1650,6 +1650,8 @@ inline void graceful_exit(int retcode)
 	_exit(retcode);
 }
 
+void hexdump(const char *ptr, int buflen);
+
 #endif // _UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1302,15 +1302,17 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 void char_to_room(CHAR_DATA * ch, room_rnum room)
 {
 	if (ch == NULL || room < NOWHERE + 1 || room > top_of_world)
-		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
-	else
 	{
-		if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
-		{
-			send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
-			char_to_room(ch, ch->get_from_room());
-			return;
-		}
+		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
+		return;
+	}
+
+	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
+		char_to_room(ch, ch->get_from_room());
+		return;
+	}
 
 		ch->next_in_room = world[room]->people;
 		world[room]->people = ch;
@@ -1342,16 +1344,22 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 			stop_fighting(ch, TRUE);
 		}
 
-		if (!IS_NPC(ch))
-		{
-			zone_table[world[room]->zone].used = 1;
-			zone_table[world[room]->zone].activity++;
-		} else
-		{
-			//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
-			//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
-			room_affect_process_on_entry(ch, IN_ROOM(ch));
-		}
+	if (!IS_NPC(ch))
+	{
+		zone_table[world[room]->zone].used = 1;
+		zone_table[world[room]->zone].activity++;
+	}
+	else
+	{
+		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
+		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
+		room_affect_process_on_entry(ch, IN_ROOM(ch));
+	}
+
+	// report room changing
+	if (ch->desc)
+	{
+		ch->desc->msdp_report("ROOM");
 	}
 }
 

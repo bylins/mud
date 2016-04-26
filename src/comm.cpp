@@ -74,6 +74,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "bonus.h"
+#include "msdp.hpp"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -701,6 +702,10 @@ void underwater_check(void);
 #define FD_CLR(x, y)
 #endif
 
+// Telnet options
+#define TELOPT_COMPRESS     85
+#define TELOPT_COMPRESS2    86
+
 #if defined(HAVE_ZLIB)
 /*
  * MUD Client for Linux and mcclient compression support.
@@ -721,15 +726,15 @@ void underwater_check(void);
 int mccp_start(DESCRIPTOR_DATA * t, int ver);
 int mccp_end(DESCRIPTOR_DATA * t, int ver);
 
-#define TELOPT_COMPRESS        85
-#define TELOPT_COMPRESS2       86
 const char compress_will[] = { (char)IAC, (char)WILL, (char)TELOPT_COMPRESS2,
-							   (char)IAC, (char)WILL, (char)TELOPT_COMPRESS, '\0'
+							   (char)IAC, (char)WILL, (char)TELOPT_COMPRESS
 							 };
-const char compress_start_v1[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS, (char)WILL, (char)SE, '\0' };
-const char compress_start_v2[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS2, (char)IAC, (char)SE, '\0' };
+const char compress_start_v1[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS, (char)WILL, (char)SE };
+const char compress_start_v2[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS2, (char)IAC, (char)SE };
 
 #endif
+
+const char will_msdp[] = { char(IAC), char(WILL), char(TELOPT_MSDP) };
 
 const char str_goahead[] = { (char)IAC, (char)GA, 0 };
 
@@ -2842,6 +2847,7 @@ int new_descriptor(socket_t s)
 		time_t bantime = ban->getBanDate(newd->host);
 		sprintf(buf, "Sorry, your IP is banned till %s",
 				bantime == -1 ? "Infinite duration\r\n" : asctime(localtime(&bantime)));
+		int dummy = 0;
 		write_to_descriptor(desc, buf, strlen(buf));
 		CLOSE_SOCKET(desc);
 		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
@@ -2920,11 +2926,11 @@ int new_descriptor(socket_t s)
 
 #ifdef HAVE_ICONV
 	SEND_TO_Q("Using keytable\r\n"
-		  "  0) Koi-8\r\n"
-		  "  1) Alt\r\n"
-		  "  2) Windows(JMC,MMC)\r\n"
-		  "  3) Windows(zMUD)\r\n"
-		  "  4) Windows(zMUD ver. 6+)\r\n"
+		"  0) Koi-8\r\n"
+		"  1) Alt\r\n"
+		"  2) Windows(JMC,MMC)\r\n"
+		"  3) Windows(zMUD)\r\n"
+		"  4) Windows(zMUD ver. 6+)\r\n"
 		  "  5) UTF-8\r\n"
 		  "Select one : ", newd);
 #else
@@ -2937,9 +2943,11 @@ int new_descriptor(socket_t s)
 		  "Select one : ", newd);
 #endif
 
+	// trying to turn on MSDP
+	write_to_descriptor(newd->descriptor, will_msdp, sizeof(will_msdp));
+
 #if defined(HAVE_ZLIB)
-//  write_to_descriptor(newd->descriptor, will_sig, strlen(will_sig));
-	write_to_descriptor(newd->descriptor, compress_will, strlen(compress_will));
+	write_to_descriptor(newd->descriptor, compress_will, sizeof(compress_will));
 #endif
 
 	return newd->descriptor;
@@ -2994,6 +3002,64 @@ void utf8_to_koi(char *str_i, char *str_o)
 	}
 }
 #endif // HAVE_ICONV
+
+bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, size_t buffer_size, int& written)
+{
+#if defined(HAVE_ZLIB)
+	if (t->deflate)  	// Complex case, compression, write it out.
+	{
+		written = 0;
+
+		// First we set up our input data.
+		t->deflate->avail_in = static_cast<uInt>(buffer_size);
+		t->deflate->next_in = (Bytef *)(buffer);
+
+		int counter = 0;
+		do
+		{
+			++counter;
+			int df, prevsize = SMALL_BUFSIZE - t->deflate->avail_out;
+
+			// If there is input or the output has reset from being previously full, run compression again.
+			if (t->deflate->avail_in
+				|| t->deflate->avail_out == SMALL_BUFSIZE)
+			{
+				if ((df = deflate(t->deflate, Z_SYNC_FLUSH)) != Z_OK)
+				{
+					log("SYSERR: process_output: deflate() returned %d.", df);
+				}
+			}
+
+			// There should always be something new to write out.
+			written = write_to_descriptor(t->descriptor, t->small_outbuf + prevsize,
+				SMALL_BUFSIZE - t->deflate->avail_out - prevsize);
+
+			// Wrap the buffer when we've run out of buffer space for the output.
+			if (t->deflate->avail_out == 0)
+			{
+				t->deflate->avail_out = SMALL_BUFSIZE;
+				t->deflate->next_out = (Bytef *)t->small_outbuf;
+			}
+
+			// Oops. This shouldn't happen, I hope. -gg 2/19/99
+			if (written <= 0)
+			{
+				return false;
+			}
+
+			// Need to loop while we still have input or when the output buffer was previously full.
+		} while (t->deflate->avail_out == SMALL_BUFSIZE || t->deflate->avail_in);
+	}
+	else
+	{
+		written = write_to_descriptor(t->descriptor, buffer, buffer_size);
+	}
+#else
+	written = write_to_descriptor(t->descriptor, buffer, buffer_size);
+#endif
+
+	return true;
+}
 
 /*
  * Send all of the output that we've accumulated for a player out to
@@ -3077,40 +3143,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	/*for (c = 0; *(pi + c); c++)
 		*(pi + c) = (*(pi + c) == '_') ? ' ' : *(pi + c);*/
 
-	switch (t->keytable)
-	{
-	case KT_ALT:
-		for (; *pi; *po = KtoA(*pi), pi++, po++);
-		break;
-	case KT_WIN:
-		for (; *pi; *po = KtoW(*pi), pi++, po++)
-		{
-			if (*pi == 'я')
-			{
-				*reinterpret_cast<unsigned char*>(po++) = 255u;
-			}
-		}
-		break;
-	case KT_WINZ:
-		for (; *pi; *po = KtoW2(*pi), pi++, po++);
-		break;
-	case KT_WINZ6:
-		for (; *pi; *po = KtoW2(*pi), pi++, po++);
-		break;
-#ifdef HAVE_ICONV
-	case KT_UTF8:
-		koi_to_utf8(pi, po);
-		break;
-#endif
-	default:
-		for (; *pi; *po = *pi, pi++, po++);
-		break;
-	}
-
-	if (t->keytable != KT_UTF8)
-	{
-		*po = '\0';
-	}
+	t->string_to_client_encoding(pi, po);
 
 	size_t c = 0;
 	for (; o[c]; c++)
@@ -3127,51 +3160,10 @@ int process_output(DESCRIPTOR_DATA * t)
 	if (t->character && PRF_FLAGGED(t->character, PRF_GOAHEAD))
 		strncat(i, str_goahead, MAX_PROMPT_LENGTH);
 
-	/*
-	 * This huge #ifdef could be a function of its own, if desired. -gg 2/27/99
-	 */
-#if defined(HAVE_ZLIB)
-	if (t->deflate)  	// Complex case, compression, write it out.
+	if (!write_to_descriptor_with_options(t, i + offset, strlen(i + offset), result))
 	{
-		// Keep compiler happy, and MUD, just in case we don't write anything.
-		result = 1;
-
-		// First we set up our input data.
-		t->deflate->avail_in = strlen(i + offset);
-		t->deflate->next_in = (Bytef *)(i + offset);
-
-		do
-		{
-			int df, prevsize = SMALL_BUFSIZE - t->deflate->avail_out;
-
-			// If there is input or the output has reset from being previously full, run compression again.
-			if (t->deflate->avail_in || t->deflate->avail_out == SMALL_BUFSIZE)
-				if ((df = deflate(t->deflate, Z_SYNC_FLUSH)) != 0)
-					log("SYSERR: process_output: deflate() returned %d.", df);
-
-			// There should always be something new to write out.
-			result =
-				write_to_descriptor(t->descriptor, t->small_outbuf + prevsize,
-									SMALL_BUFSIZE - t->deflate->avail_out - prevsize);
-
-			// Wrap the buffer when we've run out of buffer space for the output.
-			if (t->deflate->avail_out == 0)
-			{
-				t->deflate->avail_out = SMALL_BUFSIZE;
-				t->deflate->next_out = (Bytef *) t->small_outbuf;
-			}
-
-			// Oops. This shouldn't happen, I hope. -gg 2/19/99
-			if (result <= 0)
-				return -1;
-
-			// Need to loop while we still have input or when the output buffer was previously full.
-		}
-		while (t->deflate->avail_out == SMALL_BUFSIZE || t->deflate->avail_in);
+		return -1;
 	}
-	else
-#endif
-		result = write_to_descriptor(t->descriptor, i + offset, strlen(i + offset));
 
 	written = result >= 0 ? result : -result;
 
@@ -3320,7 +3312,6 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 }
 
 #endif				// CIRCLE_WINDOWS
-
 
 /*
  * write_to_descriptor takes a descriptor, and text to write to the
@@ -3484,18 +3475,21 @@ int process_input(DESCRIPTOR_DATA * t)
 			return (-1);
 		}
 		else if (bytes_read == 0)	// Just blocking, no problems.
+		{
 			return (0);
+		}
 
 		// at this point, we know we got some data from the read
 
 		read_point[bytes_read] = '\0';	// terminate the string
 
-#if defined(HAVE_ZLIB)
 		// Search for an "Interpret As Command" marker.
 		for (ptr = read_point; *ptr; ptr++)
 		{
 			if (ptr[0] != (char) IAC)
+			{
 				continue;
+			}
 			if (ptr[1] == (char) IAC)
 			{
 				// последовательность IAC IAC
@@ -3506,30 +3500,81 @@ int process_input(DESCRIPTOR_DATA * t)
 			}
 			else if (ptr[1] == (char) DO)
 			{
-				if (ptr[2] == (char) TELOPT_COMPRESS)
+				switch (ptr[2])
+				{
+				case TELOPT_COMPRESS:
+#if defined HAVE_ZLIB
 					mccp_start(t, 1);
-				else if (ptr[2] == (char) TELOPT_COMPRESS2)
+#endif
+					break;
+
+				case TELOPT_COMPRESS2:
+#if defined HAVE_ZLIB
 					mccp_start(t, 2);
-				else
+#endif
+					break;
+
+				case TELOPT_MSDP:
+					t->msdp_support(true);
+					break;
+
+				default:
 					continue;
+				}
+
 				memmove(ptr, ptr + 3, bytes_read - (ptr - read_point) - 3 + 1);
 				bytes_read -= 3;
 				--ptr;
 			}
 			else if (ptr[1] == (char) DONT)
 			{
-				if (ptr[2] == (char) TELOPT_COMPRESS)
+				switch (ptr[2])
+				{
+				case TELOPT_COMPRESS:
+#if defined HAVE_ZLIB
 					mccp_end(t, 1);
-				else if (ptr[2] == (char) TELOPT_COMPRESS2)
+#endif
+					break;
+
+				case TELOPT_COMPRESS2:
+#if defined HAVE_ZLIB
 					mccp_end(t, 2);
-				else
+#endif
+					break;
+
+				case TELOPT_MSDP:
+					t->msdp_support(false);
+					break;
+
+				default:
 					continue;
+				}
+
 				memmove(ptr, ptr + 3, bytes_read - (ptr - read_point) - 3 + 1);
 				bytes_read -= 3;
 				--ptr;
 			}
+			else if (ptr[1] == char(SB))
+			{
+				size_t sb_length = 0;
+				switch (ptr[2])
+				{
+				case char(TELOPT_MSDP):
+					sb_length = msdp::handle_conversation(t, ptr, bytes_read);
+					break;
+
+				default:
+					continue;
+				}
+
+				if (0 < sb_length)
+				{
+					memmove(ptr, ptr + sb_length, bytes_read - (ptr - read_point) - sb_length + 1);
+					bytes_read -= static_cast<int>(sb_length);
+					--ptr;
+				}
+			}
 		}
-#endif
 
 		// search for a newline in the data we just read
 		for (ptr = read_point, nl_pos = NULL; *ptr && !nl_pos;)
@@ -4974,10 +5019,15 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver)
 		return 0;
 	}
 
+	int dummy = 0;
 	if (ver != 2)
-		write_to_descriptor(t->descriptor, compress_start_v1, strlen(compress_start_v1));
+	{
+		write_to_descriptor(t->descriptor, compress_start_v1, sizeof(compress_start_v1));
+	}
 	else
-		write_to_descriptor(t->descriptor, compress_start_v2, strlen(compress_start_v2));
+	{
+		write_to_descriptor(t->descriptor, compress_start_v2, sizeof(compress_start_v2));
+	}
 
 	t->mccp_version = ver;
 	return 1;
