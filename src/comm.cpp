@@ -726,10 +726,10 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver);
 int mccp_end(DESCRIPTOR_DATA * t, int ver);
 
 const char compress_will[] = { (char)IAC, (char)WILL, (char)TELOPT_COMPRESS2,
-							   (char)IAC, (char)WILL, (char)TELOPT_COMPRESS, '\0'
+							   (char)IAC, (char)WILL, (char)TELOPT_COMPRESS
 							 };
-const char compress_start_v1[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS, (char)WILL, (char)SE, '\0' };
-const char compress_start_v2[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS2, (char)IAC, (char)SE, '\0' };
+const char compress_start_v1[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS, (char)WILL, (char)SE };
+const char compress_start_v2[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS2, (char)IAC, (char)SE };
 
 #endif
 
@@ -3005,9 +3005,6 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, s
 #if defined(HAVE_ZLIB)
 	if (t->deflate)  	// Complex case, compression, write it out.
 	{
-		printf("Packing buffer of length %d:\n", buffer_size);
-		hexdump(buffer, buffer_size);
-
 		written = 0;
 
 		// First we set up our input data.
@@ -3391,9 +3388,6 @@ int write_to_descriptor(socket_t desc, const char *txt, size_t total)
 		}
 		else
 		{
-			printf("Written %d bytes:\n", bytes_written);
-			hexdump(txt, bytes_written);
-
 			txt += bytes_written;
 			total -= bytes_written;
 			total_written += bytes_written;

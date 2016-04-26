@@ -12,7 +12,10 @@ void DESCRIPTOR_DATA::msdp_support(bool on)
 
 void DESCRIPTOR_DATA::msdp_report(const std::string& name)
 {
-	msdp::msdp_report(this, name);
+	if (msdp_need_report(name))
+	{
+		msdp::msdp_report(this, name);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

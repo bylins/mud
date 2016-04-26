@@ -447,12 +447,16 @@ namespace msdp
 						new CStringValue("ROOM")
 					})));
 				}
-				else if ("REPORT" == string->value())
-				{
-					log("INFO: Client asked for report of changing the variable \"%s\".\n", string->value().c_str());
+			}
+		}
+		else if ("REPORT" == request->name())
+		{
+			if (CValue::EVT_STRING == request->value()->type())
+			{
+				CStringValue* string = dynamic_cast<CStringValue*>(request->value().get());
+				log("INFO: Client asked for report of changing the variable \"%s\".\n", string->value().c_str());
 
-					t->msdp_need_report(string->value());
-				}
+				t->msdp_add_report_variable(string->value());
 			}
 		}
 
@@ -473,12 +477,6 @@ namespace msdp
 
 		int written = 0;
 		write_to_descriptor_with_options(t, buffer.get(), 1 + buffer_size, written);	// +1 - including NULL terminator
-
-		if (written != buffer_size)
-		{
-			log("WARNING: Logic error: actual size of written data is not equal to calculated buffer size (while responding).\n");
-			return false;
-		}
 
 		return true;
 	}
@@ -577,12 +575,6 @@ namespace msdp
 
 		int written = 0;
 		write_to_descriptor_with_options(d, buffer.get(), 1 + buffer_size, written);	// +1 - including NULL terminator
-
-		if (written != buffer_size)
-		{
-			log("WARNING: Logic error: actual size of written data is not equal to calculated buffer size (while reporting).\n");
-			return;
-		}
 	}
 }
 
