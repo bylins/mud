@@ -683,7 +683,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 	case SKILL_MIGHTHIT: // богатырский молот
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
-		bonus = size + dex_bonus(GET_REAL_STR(ch));
+		//bonus = size + dex_bonus(GET_REAL_STR(ch));
+		bonus = dex_bonus(GET_REAL_STR(ch));
 
 		if (IS_NPC(vict))
 			victim_modi -= (size_app[GET_POS_SIZE(vict)].shocking)/2;
