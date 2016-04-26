@@ -3140,40 +3140,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	/*for (c = 0; *(pi + c); c++)
 		*(pi + c) = (*(pi + c) == '_') ? ' ' : *(pi + c);*/
 
-	switch (t->keytable)
-	{
-	case KT_ALT:
-		for (; *pi; *po = KtoA(*pi), pi++, po++);
-		break;
-	case KT_WIN:
-		for (; *pi; *po = KtoW(*pi), pi++, po++)
-		{
-			if (*pi == 'Ñ')
-			{
-				*reinterpret_cast<unsigned char*>(po++) = 255u;
-			}
-		}
-		break;
-	case KT_WINZ:
-		for (; *pi; *po = KtoW2(*pi), pi++, po++);
-		break;
-	case KT_WINZ6:
-		for (; *pi; *po = KtoW2(*pi), pi++, po++);
-		break;
-#ifdef HAVE_ICONV
-	case KT_UTF8:
-		koi_to_utf8(pi, po);
-		break;
-#endif
-	default:
-		for (; *pi; *po = *pi, pi++, po++);
-		break;
-	}
-
-	if (t->keytable != KT_UTF8)
-	{
-		*po = '\0';
-	}
+	t->string_to_client_encoding(pi, po);
 
 	size_t c = 0;
 	for (; o[c]; c++)

@@ -1661,9 +1661,10 @@ struct DESCRIPTOR_DATA
 
 	void msdp_support(bool on);
 	void msdp_add_report_variable(const std::string& name) { m_msdp_requested_report.insert(name); }
+	void msdp_remove_report_variable(const std::string& name) { m_msdp_requested_report.erase(name); }
 	bool msdp_need_report(const std::string& name) { return m_msdp_requested_report.find(name) != m_msdp_requested_report.end(); }
 	void msdp_report(const std::string& name);
-
+	void string_to_client_encoding(const char* input, char* output);
 	socket_t descriptor;	// file descriptor for socket    //
 	char host[HOST_LENGTH + 1];	// hostname          //
 	byte bad_pws;		// number of bad pw attemps this login //

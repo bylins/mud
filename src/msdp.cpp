@@ -419,7 +419,7 @@ namespace msdp
 
 	bool handle_request(DESCRIPTOR_DATA* t, std::shared_ptr<CVariable> request)
 	{
-		log("INFO: MSDP request %s.\n", request->name().c_str());
+		log("INFO: MSDP request %s.", request->name().c_str());
 
 		CVariable::variable_ptr_t response;
 		if ("LIST" == request->name())
@@ -429,7 +429,7 @@ namespace msdp
 				CStringValue* string = dynamic_cast<CStringValue*>(request->value().get());
 				if ("COMMANDS" == string->value())
 				{
-					log("INFO: Client asked for MSDP \"COMMANDS\" list");
+					log("INFO: Client asked for MSDP \"COMMANDS\" list.");
 
 					response.reset(new CVariable("COMMANDS",
 						new CArrayValue({
@@ -440,12 +440,22 @@ namespace msdp
 				}
 				else if ("REPORTABLE_VARIABLES" == string->value())
 				{
-					log("INFO: Client asked for MSDP \"REPORTABLE_VARIABLES\" list");
+					log("INFO: Client asked for MSDP \"REPORTABLE_VARIABLES\" list.");
 
 					response.reset(new CVariable("REPORTABLE_VARIABLES",
 						new CArrayValue({
 						new CStringValue("ROOM")
 					})));
+				}
+				else if ("CONFIGURABLE_VARIABLES" == string->value())
+				{
+					log("INFO: Client asked for MSDP \"CONFIGURABLE_VARIABLES\" list.");
+
+					response.reset(new CVariable("CONFIGURABLE_VARIABLES", new CArrayValue()));
+				}
+				else
+				{
+					log("INFO: Client asked for unknown MSDP list \"%s\".", string->value().c_str());
 				}
 			}
 		}
@@ -454,9 +464,19 @@ namespace msdp
 			if (CValue::EVT_STRING == request->value()->type())
 			{
 				CStringValue* string = dynamic_cast<CStringValue*>(request->value().get());
-				log("INFO: Client asked for report of changing the variable \"%s\".\n", string->value().c_str());
+				log("INFO: Client asked for report of changing the variable \"%s\".", string->value().c_str());
 
 				t->msdp_add_report_variable(string->value());
+			}
+		}
+		else if ("UNREPORT" == request->name())
+		{
+			if (CValue::EVT_STRING == request->value()->type())
+			{
+				CStringValue* string = dynamic_cast<CStringValue*>(request->value().get());
+				log("INFO: Client asked for unreport of changing the variable \"%s\".", string->value().c_str());
+
+				t->msdp_remove_report_variable(string->value());
 			}
 		}
 
@@ -487,21 +507,17 @@ namespace msdp
 		std::shared_ptr<CVariable> request;
 		if (4 > length)
 		{
-			log("WARNING: Logic error: MSDP block is too small.\n");
+			log("WARNING: Logic error: MSDP block is too small.");
 			return 0;
 		}
 
 		if (!parse_request(buffer + HEAD_LENGTH, length - HEAD_LENGTH, actual_length, request))
 		{
-			log("WARNING: Could not parse MSDP request.\n");
+			log("WARNING: Could not parse MSDP request.");
 			return 0;
 		}
 
-		if (!handle_request(t, request))
-		{
-			log("WARNING: failed to handle MSDP request.\n");
-			return 0;
-		}
+		handle_request(t, request);
 
 		return HEAD_LENGTH + actual_length;
 	}
@@ -524,19 +540,29 @@ namespace msdp
 			if (directions[i]
 				&& !EXIT_FLAGGED(directions[i], EX_HIDDEN))
 			{
+				const static std::string direction_commands[NUM_OF_DIRS] = { "n", "e", "s", "w", "u", "d" };
 				const auto to_rnum = directions[i]->to_room;
 				const auto to_vnum = GET_ROOM_VNUM(to_rnum);
-				const std::string direction(dirs[i], 1);
-				exits->add(new CVariable(direction,
+				exits->add(new CVariable(direction_commands[i],
 					new CStringValue(std::to_string(to_vnum))));
 			}
 		}
+
+		/* convert string date into client's encoding */
+		// output might be more than input up to 4 times (in case of utf-8) plus NULL terminator.
+		std::shared_ptr<char> room_name(new char[1 + 4*strlen(world[rnum]->name)]);
+		d->string_to_client_encoding(world[rnum]->name, room_name.get());
+
+		// output might be more than input up to 4 times (in case of utf-8) plus NULL terminator.
+		std::shared_ptr<char> zone_name(new char[4 * strlen(zone_table[world[rnum]->zone].name)]);
+		d->string_to_client_encoding(zone_table[world[rnum]->zone].name, zone_name.get());
+
 		room_descriptor->add(new CVariable("VNUM",
 			new CStringValue(std::to_string(vnum))));
 		room_descriptor->add(new CVariable("NAME",
-			new CStringValue(world[rnum]->name)));
+			new CStringValue(room_name.get())));
 		room_descriptor->add(new CVariable("AREA",
-			new CStringValue(zone_table[world[rnum]->zone].name)));
+			new CStringValue(zone_name.get())));
 		room_descriptor->add(new CVariable("ZONE",
 			new CStringValue(std::to_string(vnum / 100))));
 		room_descriptor->add(new CVariable("EXITS", exits));
