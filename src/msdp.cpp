@@ -472,7 +472,7 @@ namespace msdp
 		buffer.get()[buffer_size] = '\0';
 
 		int written = 0;
-		write_to_descriptor_with_options(t, buffer.get(), written);
+		write_to_descriptor_with_options(t, buffer.get(), 1 + buffer_size, written);	// +1 - including NULL terminator
 
 		if (written != buffer_size)
 		{
@@ -576,7 +576,7 @@ namespace msdp
 		buffer.get()[buffer_size] = '\0';
 
 		int written = 0;
-		write_to_descriptor_with_options(d, buffer.get(), written);
+		write_to_descriptor_with_options(d, buffer.get(), 1 + buffer_size, written);	// +1 - including NULL terminator
 
 		if (written != buffer_size)
 		{

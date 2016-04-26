@@ -2843,6 +2843,7 @@ int new_descriptor(socket_t s)
 		time_t bantime = ban->getBanDate(newd->host);
 		sprintf(buf, "Sorry, your IP is banned till %s",
 				bantime == -1 ? "Infinite duration\r\n" : asctime(localtime(&bantime)));
+		int dummy = 0;
 		write_to_descriptor(desc, buf, strlen(buf));
 		CLOSE_SOCKET(desc);
 		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
@@ -2921,11 +2922,11 @@ int new_descriptor(socket_t s)
 
 #ifdef HAVE_ICONV
 	SEND_TO_Q("Using keytable\r\n"
-		  "  0) Koi-8\r\n"
-		  "  1) Alt\r\n"
-		  "  2) Windows(JMC,MMC)\r\n"
-		  "  3) Windows(zMUD)\r\n"
-		  "  4) Windows(zMUD ver. 6+)\r\n"
+		"  0) Koi-8\r\n"
+		"  1) Alt\r\n"
+		"  2) Windows(JMC,MMC)\r\n"
+		"  3) Windows(zMUD)\r\n"
+		"  4) Windows(zMUD ver. 6+)\r\n"
 		  "  5) UTF-8\r\n"
 		  "Select one : ", newd);
 #else
@@ -2938,12 +2939,12 @@ int new_descriptor(socket_t s)
 		  "Select one : ", newd);
 #endif
 
+	// trying to turn on MSDP
+	write_to_descriptor(newd->descriptor, will_msdp, sizeof(will_msdp));
+
 #if defined(HAVE_ZLIB)
 	write_to_descriptor(newd->descriptor, compress_will, sizeof(compress_will));
 #endif
-
-	// trying to turn on MSDP
-	write_to_descriptor(newd->descriptor, will_msdp, sizeof(will_msdp));
 
 	return newd->descriptor;
 }
@@ -2999,15 +3000,18 @@ void utf8_to_koi(char *str_i, char *str_o)
 }
 #endif // HAVE_ICONV
 
-bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, int& written)
+bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, size_t buffer_size, int& written)
 {
 #if defined(HAVE_ZLIB)
 	if (t->deflate)  	// Complex case, compression, write it out.
 	{
+		printf("Packing buffer of length %d:\n", buffer_size);
+		hexdump(buffer, buffer_size);
+
 		written = 0;
 
 		// First we set up our input data.
-		t->deflate->avail_in = static_cast<uInt>(strlen(buffer));
+		t->deflate->avail_in = static_cast<uInt>(buffer_size);
 		t->deflate->next_in = (Bytef *)(buffer);
 
 		int counter = 0;
@@ -3020,10 +3024,6 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, i
 			if (t->deflate->avail_in
 				|| t->deflate->avail_out == SMALL_BUFSIZE)
 			{
-				if (!t->deflate->avail_in && t->deflate->avail_out == SMALL_BUFSIZE)
-				{
-					log("checkpoint");	// remove me before commit
-				}
 				if ((df = deflate(t->deflate, Z_SYNC_FLUSH)) != Z_OK)
 				{
 					log("SYSERR: process_output: deflate() returned %d.", df);
@@ -3032,7 +3032,7 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, i
 
 			// There should always be something new to write out.
 			written = write_to_descriptor(t->descriptor, t->small_outbuf + prevsize,
-					SMALL_BUFSIZE - t->deflate->avail_out - prevsize);
+				SMALL_BUFSIZE - t->deflate->avail_out - prevsize);
 
 			// Wrap the buffer when we've run out of buffer space for the output.
 			if (t->deflate->avail_out == 0)
@@ -3052,10 +3052,10 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, i
 	}
 	else
 	{
-		written = write_to_descriptor(t->descriptor, buffer, strlen(buffer));
+		written = write_to_descriptor(t->descriptor, buffer, buffer_size);
 	}
 #else
-	written = write_to_descriptor(t->descriptor, buffer, strlen(buffer));
+	written = write_to_descriptor(t->descriptor, buffer, buffer_size);
 #endif
 
 	return true;
@@ -3193,7 +3193,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	if (t->character && PRF_FLAGGED(t->character, PRF_GOAHEAD))
 		strncat(i, str_goahead, MAX_PROMPT_LENGTH);
 
-	if (!write_to_descriptor_with_options(t, i + offset, result))
+	if (!write_to_descriptor_with_options(t, i + offset, strlen(i + offset), result))
 	{
 		return -1;
 	}
@@ -3346,7 +3346,6 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 
 #endif				// CIRCLE_WINDOWS
 
-
 /*
  * write_to_descriptor takes a descriptor, and text to write to the
  * descriptor.  It keeps calling the system-level send() until all
@@ -3392,6 +3391,9 @@ int write_to_descriptor(socket_t desc, const char *txt, size_t total)
 		}
 		else
 		{
+			printf("Written %d bytes:\n", bytes_written);
+			hexdump(txt, bytes_written);
+
 			txt += bytes_written;
 			total -= bytes_written;
 			total_written += bytes_written;
@@ -5051,6 +5053,7 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver)
 		return 0;
 	}
 
+	int dummy = 0;
 	if (ver != 2)
 	{
 		write_to_descriptor(t->descriptor, compress_start_v1, sizeof(compress_start_v1));

@@ -3886,6 +3886,41 @@ void setup_converters()
 	}
 }
 
+void hexdump(const char *ptr, int buflen)
+{
+	unsigned char *buf = (unsigned char*)ptr;
+	int i, j;
+
+	fprintf(stderr, "        | 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f\n");
+	fprintf(stderr, "--------+------------------------------------------------\n");
+
+	for (i = 0; i < buflen; i += 16)
+	{
+		fprintf(stderr, "%06x: | ", i);
+		for (j = 0; j < 16; j++)
+		{
+			if (i + j < buflen)
+			{
+				fprintf(stderr, "%02x ", buf[i + j]);
+			}
+			else
+			{
+				fprintf(stderr, "   ");
+			}
+		}
+
+		fprintf(stderr, " ");
+		for (j = 0; j < 16; j++)
+		{
+			if (i + j < buflen)
+			{
+				fprintf(stderr, "%c", isprint(buf[i + j]) ? buf[i + j] : '.');
+			}
+		}
+		fprintf(stderr, "\n");
+	}
+}
+
 std::string ParseFilter::print() const
 {
 	std::string buffer = "Выборка: ";
