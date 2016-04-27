@@ -390,8 +390,12 @@ void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 	int door;
 	if (killer)
 	{
-		act("Кровушка стынет в жилах от предсмертного крика $N1.",
-			FALSE, killer, 0, ch, TO_ROOM | CHECK_DEAF);
+		if (IS_CHARMICE(killer))
+			act("Кровушка стынет в жилах от предсмертного крика $N1.",
+				FALSE, killer->master, 0, ch, TO_ROOM | CHECK_DEAF);
+		else
+			act("Кровушка стынет в жилах от предсмертного крика $N1.",
+				FALSE, killer, 0, ch, TO_ROOM | CHECK_DEAF);
 	}
 //	act("Кровушка стынет в жилах от предсмертного крика $n1.",
 //		FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
