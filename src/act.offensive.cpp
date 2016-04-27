@@ -928,8 +928,8 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	percent = number(1, skill_info[SKILL_BASH].max_percent);
 	prob = train_skill(ch, SKILL_BASH, skill_info[SKILL_BASH].max_percent, vict);
 
-	if (PRF_FLAGGED(ch, PRF_AWAKE))
-		prob /= 2;
+	//if (PRF_FLAGGED(ch, PRF_AWAKE)) //Проверка в skills.cpp->calculate_skills
+	//	prob /= 2;
 	if (GET_MOB_HOLD(vict))
 		prob = percent;
 	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
