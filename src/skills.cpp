@@ -331,14 +331,17 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 		}
 	}
 	skill_is += int_app[GET_REAL_INT(ch)].to_skilluse;
-	
 	if (!IS_NPC(ch))
 		size = size_app[GET_POS_SIZE(ch)].interpolate;
 	else
 		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
 
-	switch (skill_no)
+	size = 0; //Временно криво работает. Разберусь
+
+        switch (skill_no)
 	{
+
+
 	case SKILL_HIDETRACK:          // замести следы
 		bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 		break;
@@ -371,9 +374,9 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 		if (vict)
 		{         
 			//if (!IS_NPC(vict)) 
-			//	victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate; 
+				//victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
 			//else 
-			//	victim_modi -= (size_app[GET_POS_SIZE(vict)].interpolate)/2;
+				//victim_modi -= (size_app[GET_POS_SIZE(vict)].interpolate)/2;
 			if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING)
 				victim_modi -= 20;
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
@@ -414,7 +417,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 		if (vict)
 		{
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
-			//victim_modi -= GET_REAL_CON(vict);
+			victim_modi -= GET_REAL_CON(vict);
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
 				victim_modi -= calculate_awake_mod(ch, vict);
 		}
@@ -542,16 +545,18 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 		break;
 
 	case SKILL_BLOCK:	//закрыться щитом
-						// по 10 бонусом со щита (21-30) и дексы (21-50)
+{		// по 10 бонусом со щита (21-30) и дексы (21-50)
 		int shield_mod = GET_EQ(ch, WEAR_SHIELD) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
 		int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20)/3);
 		bonus = dex_mod + shield_mod;
-		break;
+
+	        break;
+}
 
 	case SKILL_TOUCH:	//захватить противника
-		victim_sav = dex_bonus(GET_REAL_DEX(vict));
-		bonus = dex_bonus(GET_REAL_DEX(ch)) +
-				size_app[GET_POS_SIZE(vict)].interpolate;
+    victim_sav = dex_bonus(GET_REAL_DEX(vict));
+	bonus = dex_bonus(GET_REAL_DEX(ch)) +
+			size_app[GET_POS_SIZE(vict)].interpolate;
 
 		if (vict)
 		{
@@ -665,12 +670,12 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 				bonus -= 50;
 			if (AWAKE(vict) || AFF_FLAGGED(vict, AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
 				victim_modi -= 20;
+			if (PRF_FLAGGED(vict, PRF_AWAKE))
+				victim_modi -= calculate_awake_mod(ch, vict);
 // в пинке режем дамаг
 //			if (GET_AF_BATTLE(vict, EAF_AWAKE))
 //				victim_modi -= calculate_awake_mod(ch, vict);
 //			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
-			if (PRF_FLAGGED(vict, PRF_AWAKE))
-				victim_modi -= calculate_awake_mod(ch, vict);
 		}
 		break;
 	case SKILL_REPAIR: // починка
@@ -685,6 +690,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 	case SKILL_MIGHTHIT: // богатырский молот
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+		//bonus = size + dex_bonus(GET_REAL_STR(ch));
 		bonus = size + dex_bonus(GET_REAL_STR(ch));
 
 		if (IS_NPC(vict))
@@ -826,8 +832,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
         else
             percent = skill_is + bonus + victim_sav + victim_modi/2;   // вычисление процента прохождения скила
 
-		if (PRF_FLAGGED(ch, PRF_AWAKE) && skill_no == SKILL_BASH) //В будущем все "грязные" скиллы сделать здесь
-			percent /= 2; //Проверку на уменьшения скиллы надо делать здесь, потому что иначе идет в обход удачи и процент очень сильно режется
+		if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill_no == SKILL_BASH))
+			percent /= 2;
 
 	// не все умения надо модифицировать из-за внешних факторов и морали
 	if (!pass_mod)
