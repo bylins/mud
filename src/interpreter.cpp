@@ -3461,6 +3461,12 @@ Sventovit
 				SEND_TO_Q(MENU, d);
 				break;
 			}
+			if (PLR_FLAGGED(d->character, PLR_HELLED) || PLR_FLAGGED(d->character, PLR_FROZEN))
+			{
+				SEND_TO_Q("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
+				SEND_TO_Q(MENU, d);
+				break;
+			}
 			if (GET_REMORT(d->character) > 5)
 			{
 				SEND_TO_Q("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
