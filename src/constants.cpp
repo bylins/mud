@@ -1862,7 +1862,7 @@ weapon_affect_t weapon_affect = {
 	weapon_affect_types{ EWeaponAffectFlag::WAFF_BLINDNESS, 0, SPELL_BLINDNESS },
 	weapon_affect_types{ EWeaponAffectFlag::WAFF_INVISIBLE, to_underlying(EAffectFlag::AFF_INVISIBLE), 0 },
 	weapon_affect_types{ EWeaponAffectFlag::WAFF_DETECT_ALIGN, to_underlying(EAffectFlag::AFF_DETECT_ALIGN), 0 },
-	weapon_affect_types{ EWeaponAffectFlag::WAFF_DETECT_ALIGN, to_underlying(EAffectFlag::AFF_DETECT_INVIS), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_DETECT_INVISIBLE, to_underlying(EAffectFlag::AFF_DETECT_INVIS), 0 },
 	weapon_affect_types{ EWeaponAffectFlag::WAFF_DETECT_MAGIC, to_underlying(EAffectFlag::AFF_DETECT_MAGIC), 0 },
 	weapon_affect_types{ EWeaponAffectFlag::WAFF_SENSE_LIFE, to_underlying(EAffectFlag::AFF_SENSE_LIFE), 0 },
 	weapon_affect_types{ EWeaponAffectFlag::WAFF_WATER_WALK, to_underlying(EAffectFlag::AFF_WATERWALK), 0 },
