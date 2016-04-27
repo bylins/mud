@@ -82,6 +82,10 @@ void from_koi(char *str, int to);
 void koi_to_alt(char *str, int len);
 void koi_to_win(char *str, int len);
 void koi_to_winz(char *str, int len);
+#ifdef HAVE_ICONV
+void koi_to_utf8(char *str_i, char *str_o);
+void utf8_to_koi(char *str_i, char *str_o);
+#endif
 int real_sector(int room);
 char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj);
 int roundup(float fl);

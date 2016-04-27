@@ -125,10 +125,6 @@
 #define SOCKET_ERROR -1
 #endif
 
-#ifdef HAVE_ICONV
-#include <iconv.h>
-#endif
-
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -2847,7 +2843,6 @@ int new_descriptor(socket_t s)
 		time_t bantime = ban->getBanDate(newd->host);
 		sprintf(buf, "Sorry, your IP is banned till %s",
 				bantime == -1 ? "Infinite duration\r\n" : asctime(localtime(&bantime)));
-		int dummy = 0;
 		write_to_descriptor(desc, buf, strlen(buf));
 		CLOSE_SOCKET(desc);
 		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
@@ -2952,56 +2947,6 @@ int new_descriptor(socket_t s)
 
 	return newd->descriptor;
 }
-
-#ifdef HAVE_ICONV
-void koi_to_utf8(char *str_i, char *str_o)
-{
-	iconv_t cd;
-	size_t len_i, len_o = MAX_SOCK_BUF * 6;
-	size_t i;
-
-	if ((cd = iconv_open("UTF-8","KOI8-R")) == (iconv_t) - 1)
-	{
-		printf("koi_to_utf8: iconv_open error\n");
-		return;
-	}
-	len_i = strlen(str_i);
-	if ((i = iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
-	{
-		printf("koi_to_utf8: iconv error\n");
-		return;
-	}
-	*str_o = 0;
-	if (iconv_close(cd) == -1)
-	{
-		printf("koi_to_utf8: iconv_close error\n");
-		return;
-	}
-}
-
-void utf8_to_koi(char *str_i, char *str_o)
-{
-	iconv_t cd;
-	size_t len_i, len_o = MAX_SOCK_BUF * 6;
-	size_t i;
-
-	if ((cd = iconv_open("KOI8-R", "UTF-8")) == (iconv_t) - 1)
-	{
-		perror("utf8_to_koi: iconv_open error");
-		return;
-	}
-	len_i = strlen(str_i);
-	if ((i=iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
-	{
-		perror("utf8_to_koi: iconv error");
-	}
-	if (iconv_close(cd) == -1)
-	{
-		perror("utf8_to_koi: iconv_close error");
-		return;
-	}
-}
-#endif // HAVE_ICONV
 
 bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, size_t buffer_size, int& written)
 {
@@ -5019,7 +4964,6 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver)
 		return 0;
 	}
 
-	int dummy = 0;
 	if (ver != 2)
 	{
 		write_to_descriptor(t->descriptor, compress_start_v1, sizeof(compress_start_v1));

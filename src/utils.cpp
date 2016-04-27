@@ -42,6 +42,10 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
 #include <boost/bind.hpp>
 
 #include <vector>
@@ -4142,7 +4146,57 @@ void CCheckTable::check() const
 	std::cout << "Performance... " << std::endl;
 	std::cout << std::setprecision(2) << std::fixed << test_time() * 100 << "%" << std::endl;
 }
+#endif	// WIN32
 
-#endif
+#ifdef HAVE_ICONV
+void koi_to_utf8(char *str_i, char *str_o)
+{
+	iconv_t cd;
+	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t i;
+
+	if ((cd = iconv_open("UTF-8","KOI8-R")) == (iconv_t) - 1)
+	{
+		printf("koi_to_utf8: iconv_open error\n");
+		return;
+	}
+	len_i = strlen(str_i);
+	// const_cast at the next line is required for Linux, because there iconv has non-const input argument.
+	if ((i = iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
+	{
+		printf("koi_to_utf8: iconv error\n");
+		return;
+	}
+	*str_o = 0;
+	if (iconv_close(cd) == -1)
+	{
+		printf("koi_to_utf8: iconv_close error\n");
+		return;
+	}
+}
+
+void utf8_to_koi(char *str_i, char *str_o)
+{
+	iconv_t cd;
+	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t i;
+
+	if ((cd = iconv_open("KOI8-R", "UTF-8")) == (iconv_t) - 1)
+	{
+		perror("utf8_to_koi: iconv_open error");
+		return;
+	}
+	len_i = strlen(str_i);
+	if ((i=iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
+	{
+		perror("utf8_to_koi: iconv error");
+	}
+	if (iconv_close(cd) == -1)
+	{
+		perror("utf8_to_koi: iconv_close error");
+		return;
+	}
+}
+#endif // HAVE_ICONV
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

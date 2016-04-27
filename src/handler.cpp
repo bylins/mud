@@ -3502,8 +3502,11 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list,
 		return (NULL);
 
 	for (i = list; i && (j <= number); i = i->next_content)
+	{
 		if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch))
+		{
 			if (CAN_SEE_OBJ(ch, i))
+			{
 				// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
 				// send_to_char(buf,ch);
 				if (!locate_item)
@@ -3518,6 +3521,9 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list,
 					else
 						continue;
 				}
+			}
+		}
+	}
 
 	return (NULL);
 }
@@ -3571,8 +3577,11 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 
 	// ok.. no luck yet. scan the entire obj list   //
 	for (i = object_list; i && (j <= number); i = i->next)
+	{
 		if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch))
+		{
 			if (CAN_SEE_OBJ(ch, i))
+			{
 				if (!locate_item)
 				{
 					if (++j == number)
@@ -3585,6 +3594,9 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 					else
 						continue;
 				}
+			}
+		}
+	}
 
 	return (NULL);
 }
