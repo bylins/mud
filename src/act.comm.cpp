@@ -995,7 +995,7 @@ ACMD(do_pray_gods)
 	{
 		if (IS_NPC(ch))
 			return;
-		if (IS_IMMORTAL(ch) || (GET_GOD_FLAG(ch, GF_DEMIGOD)))
+		if (IS_IMMORTAL(ch))
 		{
 			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n\r\n", GET_PAD(victim, 3), argument);
 		}
