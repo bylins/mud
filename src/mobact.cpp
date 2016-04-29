@@ -490,7 +490,9 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		// если у чара меньше 100 хп, то переключаемся на него
 		if (GET_HIT(vict) <= MIN_HP_MOBACT)
 		{
-			continue;
+			//continue;
+			//Кто-то сильно очепятался. Теперь тем у кого меньше 100 хп меньше повезет
+			return vict;
 		}
 		if (IS_CASTER(vict))
 		{
