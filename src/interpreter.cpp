@@ -3939,7 +3939,7 @@ void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 // регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
 bool CompareParam(const std::string & buffer, const char *arg, bool full)
 {
-	if (!*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
+	if (!arg || !*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
 		return 0;
 
 	std::string::size_type i;
