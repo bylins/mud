@@ -809,7 +809,13 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict)
 		break;
 	case SKILL_STUN: //ошеломить
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict)) - GET_LEVEL(vict);
-		victim_sav = -GET_REAL_SAVING_STABILITY(vict) - GET_LEVEL(vict);
+		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+		
+		if (!IS_NPC(vict))
+			victim_sav *= 2;
+		else
+			victim_sav -= GET_LEVEL(vict);
+
 		bonus = dex_bonus(GET_REAL_STR(ch));
 		if (GET_EQ(ch, WEAR_WIELD))
 			bonus +=
