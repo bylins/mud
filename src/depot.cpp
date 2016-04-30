@@ -1588,11 +1588,19 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 	{
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
 		{
-			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
-				continue;
+			if (!IS_GOD(ch))
+			{
+				if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
+				{
+					continue;
+				}
+				if (OBJ_FLAGGED(*obj_it, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch))
+				{
+					continue;
+				}
+			}
+
 			if (!isname(name.c_str(), (*obj_it)->aliases))
-				continue;
-			if (OBJ_FLAGGED(*obj_it, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch))
 				continue;
 
 			snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у кого-то в персональном хранилище.\r\n",

@@ -5045,11 +5045,19 @@ int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 			{
 				for (temp = chest->contains; temp; temp = temp->next_content)
 				{
-					if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
-						continue;
+					if (!IS_GOD(ch))
+					{
+						if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
+						{
+							continue;
+						}
+						if (OBJ_FLAGGED(temp, EExtraFlag::ITEM_NOLOCATE))
+						{
+							continue;
+						}
+					}
+
 					if (!isname(name.c_str(), temp->aliases))
-						continue;
-					if (OBJ_FLAGGED(temp, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch))
 						continue;
 
 					snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся в хранилище дружины '%s'.\r\n",

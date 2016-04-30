@@ -5212,7 +5212,7 @@ void mag_assign_spells(void)
 	 */
 
 	skillo(SKILL_BACKSTAB, "заколоть", 140);
-	skillo(SKILL_BASH, "сбить", 140);
+	skillo(SKILL_BASH, "сбить", 200);
 	skillo(SKILL_HIDE, "спрятаться", 100);
 	skillo(SKILL_KICK, "пнуть", 100);
 	skillo(SKILL_PICK_LOCK, "взломать", 120);
@@ -5244,7 +5244,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_ADDSHOT, "дополнительный выстрел", 200);
 	skillo(SKILL_CAMOUFLAGE, "маскировка", 100);
 	skillo(SKILL_DEVIATE, "уклониться", 100);
-	skillo(SKILL_CHOPOFF, "подножка", 100);
+	skillo(SKILL_CHOPOFF, "подножка", 200);
 	skillo(SKILL_REPAIR, "ремонт", 100);
 	skillo(SKILL_COURAGE, "ярость", 100);
 	skillo(SKILL_IDENTIFY, "опознание", 100);
