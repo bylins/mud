@@ -544,7 +544,7 @@ namespace msdp
 				const auto to_rnum = directions[i]->to_room;
 				const auto to_vnum = GET_ROOM_VNUM(to_rnum);
 				exits->add(new CVariable(direction_commands[i],
-					new CStringValue(std::to_string(to_vnum ^ 228))));
+					new CStringValue(std::to_string(to_vnum))));
 			}
 		}
 
@@ -558,7 +558,7 @@ namespace msdp
 		d->string_to_client_encoding(zone_table[world[rnum]->zone].name, zone_name.get());
 
 		room_descriptor->add(new CVariable("VNUM",
-			new CStringValue(std::to_string(vnum ^ 228))));
+			new CStringValue(std::to_string(vnum))));
 		room_descriptor->add(new CVariable("NAME",
 			new CStringValue(room_name.get())));
 		room_descriptor->add(new CVariable("AREA",
