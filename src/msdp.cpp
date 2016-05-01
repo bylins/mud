@@ -543,8 +543,11 @@ namespace msdp
 				const static std::string direction_commands[NUM_OF_DIRS] = { "n", "e", "s", "w", "u", "d" };
 				const auto to_rnum = directions[i]->to_room;
 				const auto to_vnum = GET_ROOM_VNUM(to_rnum);
-				exits->add(new CVariable(direction_commands[i],
-					new CStringValue(std::to_string(to_vnum))));
+				if (NOWHERE != to_vnum)	// Anton Gorev (2016-05-01): Some rooms has exits that  lead to nowhere. It is a workaround.
+				{
+					exits->add(new CVariable(direction_commands[i],
+						new CStringValue(std::to_string(to_vnum))));
+				}
 			}
 		}
 
