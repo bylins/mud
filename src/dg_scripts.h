@@ -12,6 +12,7 @@
 #ifndef _DG_SCRIPTS_H_
 #define _DG_SCRIPTS_H_
 
+#include "skills.h"
 #include "structs.h"
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
@@ -278,7 +279,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 #define SCRIPT_TYPES(s)		  ((s)->types)
 #define TRIGGERS(s)		  ((s)->trig_list)
 
-#define GET_SHORT(ch)    ((ch)->get_npc_name())
+#define GET_SHORT(ch)    ((ch)->get_npc_name().c_str())
 
 #define SCRIPT_CHECK(go, type)   (SCRIPT(go) && \
 				  IS_SET(SCRIPT_TYPES(SCRIPT(go)), type))
@@ -295,12 +296,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 		         sprintf(buf, "%c%ld", UID_ROOM, GET_ID(go)); \
                          add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
 
-
 #define SCRIPT(o)		  ((o)->script)
-
-void proto_script_copy(struct trig_proto_list **pdst, struct trig_proto_list *src);
-void proto_script_free(struct trig_proto_list *src);
-void free_script(struct script_data *sc);
 
 // typedefs that the dg functions rely on //
 typedef INDEX_DATA index_data;
@@ -317,8 +313,8 @@ int close_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir, int lock);
 int timechange_wtrigger(ROOM_DATA * room, const int time);
 
 void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff);
-void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum);
-void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum);
+void trg_skillturn(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum);
+void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum);
 void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum);
 void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell);

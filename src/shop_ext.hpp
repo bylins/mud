@@ -14,15 +14,14 @@
 namespace ShopExt
 {
 
-ACMD(do_shops_list);
+void do_shops_list(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void load(bool reload);
 int get_spent_today();
-void renumber_obj_rnum(int rnum);
 void update_timers();
 
 } // namespace ShopExt
 
-SPECIAL(shop_ext);
+int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument);
 void town_shop_keepers();
 void fill_shop_dictionary(DictionaryType &dic);
 

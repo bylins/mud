@@ -18,7 +18,6 @@ namespace GlobalDrop
 
 void init();
 void save();
-void renumber_obj_rnum(int rnum);
 bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch);
 void reload_tables();
 

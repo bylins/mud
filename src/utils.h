@@ -14,10 +14,10 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include "pugixml.hpp"
 #include "config.hpp"
 #include "structs.h"
 #include "conf.h"
+#include "pugixml.hpp"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -54,6 +54,7 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
 int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 void write_time(FILE *file);
+void vlog(const char* format, va_list args) __attribute__((format(printf, 1, 0)));
 void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void olc_log(const char *format, ...);
 void shop_log(const char *format, ...);
@@ -67,9 +68,6 @@ void mudlog(const char *str, int type, int level, EOutputStream channel, int fil
 void mudlog_python(const std::string& str, int type, int level, const EOutputStream channel, int file);
 int number(int from, int to);
 int dice(int number, int size);
-bool sprintbit(bitvector_t vektor, const char *names[], char *result, const int print_flag = 0);
-bool sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char *div, const int print_flag = 0);
-bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const int print_flag = 0);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
@@ -84,6 +82,10 @@ void from_koi(char *str, int to);
 void koi_to_alt(char *str, int len);
 void koi_to_win(char *str, int len);
 void koi_to_winz(char *str, int len);
+#ifdef HAVE_ICONV
+void koi_to_utf8(char *str_i, char *str_o);
+void utf8_to_koi(char *str_i, char *str_o);
+#endif
 int real_sector(int room);
 char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj);
 int roundup(float fl);
@@ -96,7 +98,7 @@ bool die_follower(CHAR_DATA * ch);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 int get_real_dr(CHAR_DATA *ch);
-long GetAffectNumByName(std::string);
+extern bool GetAffectNumByName(const std::string& affName, EAffectFlag& result);
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
 bool is_head(std::string name);
 extern std::list<FILE *> opened_files;
@@ -109,9 +111,6 @@ extern const char *ACTNULL;
   if ((pointer) == NULL) i = ACTNULL; else i = (expression);
 
 #define MIN_TITLE_LEV   25
-
-#define ONE_DAY      24*60
-#define SEVEN_DAYS   7*24*60
 
 // undefine MAX and MIN so that our functions are used instead
 #ifdef MAX
@@ -205,7 +204,7 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define BFS_ERROR        -1
 #define BFS_ALREADY_THERE  -2
 #define BFS_NO_PATH         -3
-#define NUM_PADS             6
+
 /*
  * XXX: These constants should be configurable. See act.informative.c
  * and utils.cpp for other places to change.
@@ -248,11 +247,10 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
 #define IS_MAGE(ch)          (IS_BITS(MASK_MAGES, GET_CLASS(ch)))
 
-
-extern SPECIAL(receptionist);
-extern SPECIAL(postmaster);
-extern SPECIAL(bank);
-extern SPECIAL(shop_ext);
+extern int receptionist(CHAR_DATA*, void*, int, char*);
+extern int postmaster(CHAR_DATA*, void*, int, char*);
+extern int bank(CHAR_DATA*, void*, int, char*);
+extern int shop_ext(CHAR_DATA*, void*, int, char*);
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
@@ -274,20 +272,56 @@ extern SPECIAL(shop_ext);
 
 // memory utils *********************************************************
 
+template <typename T>
+inline void CREATE(T*& result, const size_t number)
+{
+	result = static_cast<T*>(calloc(number, sizeof(T)));
+	if (!result)
+	{
+		perror("SYSERR: calloc failure");
+		abort();
+	}
+}
 
-#define CREATE(result, type, number)  do {\
-   if ((number) * sizeof(type) <= 0)   \
-      log("SYSERR: Zero bytes or less requested at %s:%d.", __FILE__, __LINE__); \
-   if (!((result) = (type *) calloc ((number), sizeof(type)))) \
-      { perror("SYSERR: malloc failure"); abort(); } } while(0)
+template <typename T>
+inline void RECREATE(T*& result, const size_t number)
+{
+	result = static_cast<T*>(realloc(result, number*sizeof(T)));
+	if (!result)
+	{
+		perror("SYSERR: realloc failure");
+		abort();
+	}
+}
 
-#define RECREATE(result,type,number) do {\
-  if (!((result) = (type *) realloc ((result), sizeof(type) * (number))))\
-      { perror("SYSERR: realloc failure"); abort(); } } while(0)
+template <typename T>
+inline T* NEWCREATE()
+{
+	T* result = new(std::nothrow) T;
+	if (!result)
+	{
+		perror("SYSERR: new failure");
+		abort();
+	}
+	return result;
+}
 
-#define NEWCREATE(result, constructor) do {\
-   if (!((result) = new(std::nothrow) constructor)) \
-      { perror("SYSERR: new operator failure"); abort(); } } while(0)
+template <typename T>
+inline void NEWCREATE(T*& result)
+{
+	result = NEWCREATE<T>();
+}
+
+template <typename T>
+inline void NEWCREATE(T*& result, const T& init_value)
+{
+	result = new(std::nothrow) T(init_value);
+	if (!result)
+	{
+		perror("SYSERR: new failure");
+		abort();
+	}
+}
 
 /*
  * the source previously used the same code in many places to remove an item
@@ -298,24 +332,84 @@ extern SPECIAL(shop_ext);
  * a great application for C++ templates but, alas, this is not C++.  Maybe
  * CircleMUD 4.0 will be...
  */
-#define REMOVE_FROM_LIST(item, head, next)   \
-   if ((item) == (head))      \
-      head = (item)->next;    \
-   else {            \
-      temp = head;         \
-      while (temp && (temp->next != (item))) \
-    temp = temp->next;     \
-      if (temp)            \
-         temp->next = (item)->next; \
-   }              \
+template <typename ListType, typename GetNextFunc>
+inline void REMOVE_FROM_LIST(ListType* item, ListType*& head, GetNextFunc next)
+{
+	if ((item) == (head))
+	{
+		head = next(item);
+	}
+	else
+	{
+		auto temp = head;
+		while (temp && (next(temp) != (item)))
+		{
+			temp = next(temp);
+		}
+		if (temp)
+		{
+			next(temp) = next(item);
+		}
+	}
+}
+
+template <typename ListType>
+inline void REMOVE_FROM_LIST(ListType* item, ListType*& head)
+{
+	REMOVE_FROM_LIST(item, head, [](ListType* list) -> ListType*& { return list->next; });
+}
 
 // basic bitvector utils ************************************************
 
+template <typename T> struct UNIMPLEMENTED { };
 
-#define IS_SET(flag,bit)  ((flag & 0x3FFFFFFF) & (bit))
-#define SET_BIT(var,bit)  ((var) |= (bit & 0x3FFFFFFF))
-#define REMOVE_BIT(var,bit)  ((var) &= ~(bit & 0x3FFFFFFF))
-#define TOGGLE_BIT(var,bit) ((var) = (var) ^ (bit & 0x3FFFFFFF))
+template <typename T>
+inline bool IS_SET(const T flag, const uint32_t bit)
+{
+	return 0 != (flag & 0x3FFFFFFF & bit);
+}
+
+template <typename T, typename EnumType>
+inline void SET_BIT(T& var, const EnumType bit)
+{
+	var |= (to_underlying(bit) & 0x3FFFFFFF);
+}
+
+template <typename T>
+inline void SET_BIT(T& var, const uint32_t bit)
+{
+	var |= (bit & 0x3FFFFFFF);
+}
+
+template <typename T>
+inline void SET_BIT(T& var, const int bit)
+{
+	var |= (bit & 0x3FFFFFFF);
+}
+
+template <typename T, typename EnumType>
+inline void REMOVE_BIT(T& var, const EnumType bit)
+{
+	var &= ~(to_underlying(bit) & 0x3FFFFFFF);
+}
+
+template <typename T>
+inline void REMOVE_BIT(T& var, const uint32_t bit)
+{
+	var &= ~(bit & 0x3FFFFFFF);
+}
+
+template <typename T>
+inline void REMOVE_BIT(T& var, const int bit)
+{
+	var &= ~(bit & 0x3FFFFFFF);
+}
+
+template <typename T>
+inline void TOGGLE_BIT(T& var, const uint32_t bit)
+{
+	var = var ^ (bit & 0x3FFFFFFF);
+}
 
 /*
  * Accessing player specific data structures on a mobile is a very bad thing
@@ -332,42 +426,38 @@ extern SPECIAL(shop_ext);
 #define CHECK_PLAYER_SPECIAL(ch, var)  (var)
 #endif
 
-#define MOB_FLAGS(ch,flag)  (GET_FLAG((ch)->char_specials.saved.act,flag))
-#define PLR_FLAGS(ch,flag)  (GET_FLAG((ch)->char_specials.saved.act,flag))
-#define PRF_FLAGS(ch,flag)  (GET_FLAG((ch)->player_specials->saved.pref, flag))
-#define AFF_FLAGS(ch,flag)  (GET_FLAG((ch)->char_specials.saved.affected_by, flag))
-#define NPC_FLAGS(ch,flag)  (GET_FLAG((ch)->mob_specials.npc_flags, flag))
-#define ROOM_AFF_FLAGS(room,flag)  (GET_FLAG((room)->affected_by, flag))
-#define EXTRA_FLAGS(ch,flag)(GET_FLAG((ch)->Temporary, flag))
-#define ROOM_FLAGS(loc,flag)(GET_FLAG(world[(loc)]->room_flags, flag))
+#define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)
+#define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
+#define PRF_FLAGS(ch)  ((ch)->player_specials->saved.pref)
+#define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
+#define ROOM_AFF_FLAGS(room)  ((room)->affected_by)
+#define EXTRA_FLAGS(ch) ((ch)->Temporary)
+#define GET_ROOM(loc) (world[(loc)])
 #define DESC_FLAGS(d)   ((d)->options)
 #define SPELL_ROUTINES(spl) (spell_info[spl].routines)
 
 // See http://www.circlemud.org/~greerga/todo.009 to eliminate MOB_ISNPC.
-#define IS_NPC(ch)           (IS_SET(MOB_FLAGS(ch, MOB_ISNPC), MOB_ISNPC))
+#define IS_NPC(ch)           (MOB_FLAGS(ch).get(MOB_ISNPC))
 #define IS_MOB(ch)          (IS_NPC(ch) && GET_MOB_RNUM(ch) >= 0)
 
-#define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && IS_SET(MOB_FLAGS(ch,flag), (flag)))
-#define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && IS_SET(PLR_FLAGS(ch,flag), (flag)))
-#define AFF_FLAGGED(ch, flag)   (IS_SET(AFF_FLAGS(ch,flag), (flag)) || (ch->isAffected(flag)))
-#define PRF_FLAGGED(ch, flag)   (IS_SET(PRF_FLAGS(ch,flag), (flag)))
-#define NPC_FLAGGED(ch, flag)   (IS_SET(NPC_FLAGS(ch,flag), (flag)))
-#define EXTRA_FLAGGED(ch, flag) (IS_SET(EXTRA_FLAGS(ch,flag), (flag)))
-#define ROOM_FLAGGED(loc, flag) (IS_SET(ROOM_FLAGS((loc),(flag)), (flag)))
-#define ROOM_AFFECTED(loc, flag) (IS_SET(ROOM_AFF_FLAGS((world[(loc)]),(flag)), (flag)))
+#define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && MOB_FLAGS(ch).get(flag))
+#define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && PLR_FLAGS(ch).get(flag))
+#define PRF_FLAGGED(ch, flag)   (PRF_FLAGS(ch).get(flag))
+#define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
+#define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
+#define ROOM_FLAGGED(loc, flag) (GET_ROOM((loc))->get_flag(flag))
+#define ROOM_AFFECTED(loc, flag) (ROOM_AFF_FLAGS((world[(loc)])).get(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 #define OBJWEAR_FLAGGED(obj, flag)   (IS_SET((obj)->obj_flags.wear_flags, (flag)))
 #define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
-#define OBJ_FLAGGED(obj, flag)       (IS_SET(GET_OBJ_EXTRA(obj,flag), (flag)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
-#define IS_FLY(ch)                   (AFF_FLAGGED(ch,AFF_FLY))
 
 // IS_AFFECTED for backwards compatibility
-#define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, skill))
+#define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, EAffectFlag::skill))
 
-#define PLR_TOG_CHK(ch,flag) ((TOGGLE_BIT(PLR_FLAGS(ch, flag), (flag))) & (flag))
-#define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch, flag), (flag))) & (flag))
+#define PLR_TOG_CHK(ch, flag) (PLR_FLAGS(ch).toggle(flag))
+#define PRF_TOG_CHK(ch, flag) (PRF_FLAGS(ch).toggle(flag))
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
@@ -436,8 +526,8 @@ extern SPECIAL(shop_ext);
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
-#define GET_PC_NAME(ch) ((ch)->get_pc_name())
-#define GET_NAME(ch)    ((ch)->get_name())
+#define GET_PC_NAME(ch) ((ch)->get_pc_name().c_str())
+#define GET_NAME(ch)    ((ch)->get_name().c_str())
 #define GET_HELPER(ch)  ((ch)->helpers)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
@@ -461,13 +551,10 @@ extern SPECIAL(shop_ext);
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GET_LEVEL(ch)/3)+GET_REMORT(ch))
 
-#define GET_AF_BATTLE(ch,flag) (IS_SET(GET_FLAG((ch)->BattleAffects, flag),flag))
-#define SET_AF_BATTLE(ch,flag) (SET_BIT(GET_FLAG((ch)->BattleAffects,flag),flag))
-#define CLR_AF_BATTLE(ch,flag) (REMOVE_BIT(GET_FLAG((ch)->BattleAffects, flag),flag))
-#define NUL_AF_BATTLE(ch)      (GET_FLAG((ch)->BattleAffects, 0) = \
-                                GET_FLAG((ch)->BattleAffects, INT_ONE) = \
-                                GET_FLAG((ch)->BattleAffects, INT_TWO) = \
-                                GET_FLAG((ch)->BattleAffects, INT_THREE) = 0)
+#define GET_AF_BATTLE(ch,flag) ((ch)->BattleAffects.get(flag))
+#define SET_AF_BATTLE(ch,flag) ((ch)->BattleAffects.set(flag))
+#define CLR_AF_BATTLE(ch,flag) ((ch)->BattleAffects.unset(flag))
+#define NUL_AF_BATTLE(ch)      ((ch)->BattleAffects.clear())
 #define GET_REMORT(ch)         ((ch)->get_remort())
 #define GET_SKILL(ch, skill)   ((ch)->get_skill(skill))
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
@@ -531,11 +618,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_REAL_WEIGHT(ch) (GET_WEIGHT(ch) + GET_WEIGHT_ADD(ch))
 #define GET_SEX(ch)  ((ch)->player_data.sex)
 
-#define IS_MALE(ch)     (GET_SEX(ch) == SEX_MALE)
-#define IS_FEMALE(ch)   (GET_SEX(ch) == SEX_FEMALE)
-#define IS_NOSEXY(ch)   (GET_SEX(ch) == SEX_NEUTRAL)
-#define IS_POLY(ch)     (GET_SEX(ch) == SEX_POLY)
-
 #define GET_RELIGION(ch) ((ch)->player_data.Religion)
 #define GET_RACE(ch) ((ch)->player_data.Race)
 #define GET_PAD(ch,i)    ((ch)->player_data.PNames[i])
@@ -559,7 +641,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_POS_SIZE(ch)  (POSI(GET_REAL_SIZE(ch) >> 1))
 #define GET_HR(ch)         ((ch)->real_abils.hitroll)
 #define GET_HR_ADD(ch)    ((ch)->add_abils.hr_add)
-#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, IS_MORTIFIER(ch)?100:50))
+#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, (IS_MORTIFIER(ch) ? 100 : 50)))
 #define GET_DR(ch)         ((ch)->real_abils.damroll)
 #define GET_DR_ADD(ch)    ((ch)->add_abils.dr_add)
 #define GET_REAL_DR(ch)   (get_real_dr(ch))
@@ -631,22 +713,11 @@ inline T VPOSI(const T val, const T min, const T max)
 #define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
 #define NAME_BAD(ch)           (NAME_GOD(ch)<1000 && NAME_GOD(ch))
 
-
-#define OK_GAIN_EXP(ch,victim) (!NAME_BAD(ch) &&                                     \
-                                (NAME_FINE(ch) || !(GET_LEVEL(ch)==NAME_LEVEL)) &&   \
-                                !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&            \
-            (IS_NPC(victim) && (GET_EXP(victim) > 0)) &&         \
-                                (!IS_NPC(victim)||                                   \
-                                 (IS_NPC(ch)&&!AFF_FLAGGED(ch,AFF_CHARM)?0:1)        \
-                                ) && !IS_HORSE(victim)                               \
-                               )
-
 #define MAX_EXP_PERCENT   80
 #define MAX_EXP_RMRT_PERCENT(ch) (MAX_EXP_PERCENT+ch->get_remort()*5)
 
 #define GET_COND(ch, i)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.conditions[(i)]))
 #define GET_LOADROOM(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.load_room))
-#define GET_INVIS_LEV(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.invis_level))
 #define GET_WIMP_LEV(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.wimp_level))
 #define GET_BAD_PWS(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.bad_pws))
 #define POOFIN(ch)              CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->poofin))
@@ -738,9 +809,8 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_HORSESTATE(ch)  ((ch)->mob_specials.HorseState)
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
-#define AWAKE(ch) (GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch,AFF_SLEEP))
 #define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, AFF_INFRAVISION) || (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+   (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION) || (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 
 #define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= ALIG_GOOD_MORE)
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= ALIG_EVIL_LESS)
@@ -815,9 +885,9 @@ inline T VPOSI(const T val, const T min, const T max)
 
 
 #define GET_OBJ_SEX(obj) ((obj)->obj_flags.Obj_sex)
-#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == SEX_NEUTRAL)
-#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == SEX_MALE)
-#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == SEX_FEMALE)
+#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_NEUTRAL)
+#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
+#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
 
 #define GET_OBJ_MIW(obj) ((obj)->max_in_world)
 
@@ -885,15 +955,14 @@ inline T VPOSI(const T val, const T min, const T max)
                             IS_FEMALE(ch) ? "ей" : "ими")
 #define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
 
-#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
-#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
+#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "ят" : "ит")
+#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
 #define GET_WAIT(ch)          (ch)->get_wait()
 #define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
-#define GET_MOB_HOLD(ch)      (AFF_FLAGGED((ch),AFF_HOLD) ? 1 : 0)
-#define GET_MOB_SIELENCE(ch)  (AFF_FLAGGED((ch),AFF_SIELENCE) ? 1 : 0)
+#define GET_MOB_SILENCE(ch)  (AFF_FLAGGED((ch),AFF_SILENCE) ? 1 : 0)
 // New, preferred macro
 #define GET_PUNCTUAL_WAIT_STATE(ch)    ((ch)->punctual_wait)
 
@@ -921,7 +990,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent())
 #define GET_OBJ_RENTEQ(obj)     ((obj)->get_rent_eq())
-#define GET_OBJ_EXTRA(obj,flag)  (GET_FLAG((obj)->obj_flags.extra_flags,flag))
+#define GET_OBJ_EXTRA(obj)  ((obj)->obj_flags.extra_flags)
 #define GET_OBJ_WEAR(obj)  ((obj)->obj_flags.wear_flags)
 #define GET_OBJ_OWNER(obj)      ((obj)->obj_flags.Obj_owner)
 #define GET_OBJ_MAKER(obj)      ((obj)->obj_flags.Obj_maker)
@@ -938,28 +1007,15 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_OBJ_ZONE(obj)   ((obj)->obj_flags.Obj_zone)
 #define GET_OBJ_RNUM(obj)  ((obj)->item_number)
 #define OBJ_GET_LASTROOM(obj) ((obj)->room_was_in)
-#define GET_OBJ_VNUM(obj)  (GET_OBJ_RNUM(obj) >= 0 ? \
-             obj_index[GET_OBJ_RNUM(obj)].vnum : -1)
 #define OBJ_WHERE(obj) ((obj)->worn_by    ? IN_ROOM(obj->worn_by) : \
                         (obj)->carried_by ? IN_ROOM(obj->carried_by) : (obj)->in_room)
-#define IS_OBJ_STAT(obj,stat) (IS_SET(GET_FLAG((obj)->obj_flags.extra_flags, \
-                                                  stat), stat))
-#define IS_OBJ_ANTI(obj,stat) (IS_SET(GET_FLAG((obj)->obj_flags.anti_flag, \
-                                                  stat), stat))
-#define IS_OBJ_NO(obj,stat)       (IS_SET(GET_FLAG((obj)->obj_flags.no_flag, \
-                                                  stat), stat))
-#define IS_OBJ_AFF(obj,stat)    (IS_SET(GET_FLAG((obj)->obj_flags.affects, \
-                                                  stat), stat))
+#define IS_OBJ_ANTI(obj,stat) ((obj)->obj_flags.anti_flag.get(stat))
+#define IS_OBJ_NO(obj,stat)       ((obj)->obj_flags.no_flag.get(stat))
+#define IS_OBJ_AFF(obj,stat)    (obj->obj_flags.affects.get(stat))
 
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && \
+#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER && \
                GET_OBJ_VAL((obj), 3) == 1)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
-
-#define GET_OBJ_SPEC(obj) ((obj)->item_number >= 0 ? \
-   (obj_index[(obj)->item_number].func) : NULL)
-
-#define CAN_WEAR(obj, part) (IS_SET((obj)->obj_flags.wear_flags, (part)))
-#define CAN_WEAR_ANY(obj) (((obj)->obj_flags.wear_flags>0) && ((obj)->obj_flags.wear_flags != ITEM_WEAR_TAKE) )
 
 // проверяет arg на совпадение с персональными или клановыми метками
 // чармис автора меток их тоже может использовать
@@ -1003,68 +1059,17 @@ inline T VPOSI(const T val, const T min, const T max)
 #define CIRCLEMUD_VERSION(major, minor, patchlevel) \
    (((major) << 16) + ((minor) << 8) + (patchlevel))
 
-#define HSHR(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
+#define HSHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
+#define HSSH(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
+#define HMHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
+#define HYOU(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
 
-#define OSHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "его": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ее" : "их")) :"его")
-#define OSSH(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "он": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "она" : "они")) :"оно")
-#define OMHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ей" : "им")) :"ему")
-#define OYOU(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
-
-
-// Various macros building up to CAN_SEE
-#define MAY_SEE(sub,obj) (!(GET_INVIS_LEV(ch) > 30) && !AFF_FLAGGED((sub),AFF_BLIND) && \
-                          (!IS_DARK(IN_ROOM(sub)) || AFF_FLAGGED((sub),AFF_INFRAVISION)) && \
-           (!AFF_FLAGGED((obj),AFF_INVISIBLE) || AFF_FLAGGED((sub),AFF_DETECT_INVIS)))
-
-#define MAY_ATTACK(sub)  (!AFF_FLAGGED((sub),AFF_CHARM)     && \
-                          !IS_HORSE((sub))                  && \
-           !AFF_FLAGGED((sub),AFF_STOPFIGHT)      && \
-           !AFF_FLAGGED((sub),AFF_MAGICSTOPFIGHT) && \
-           !AFF_FLAGGED((sub),AFF_HOLD)           && \
-           !AFF_FLAGGED((sub),AFF_SLEEP)          && \
-           !MOB_FLAGGED((sub),MOB_NOFIGHT)        && \
-           GET_WAIT(sub) <= 0                     && \
-           !sub->get_fighting()                   && \
-           GET_POS(sub) >= POS_RESTING)
-// Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
-//пока здесь только чарм, как и было раньше
-#define CAN_START_MTRIG(ch) (!AFF_FLAGGED((ch),AFF_CHARM))
-//-Polud
-#define LIGHT_OK(sub)   (!AFF_FLAGGED(sub, AFF_BLIND) && \
-   (IS_LIGHT((sub)->in_room) || AFF_FLAGGED((sub), AFF_INFRAVISION)))
-
-#define INVIS_OK(sub, obj) \
- (!AFF_FLAGGED((sub), AFF_BLIND) && \
-  ((!AFF_FLAGGED((obj),AFF_INVISIBLE) || \
-    AFF_FLAGGED((sub),AFF_DETECT_INVIS) \
-   ) && \
-   ((!AFF_FLAGGED((obj), AFF_HIDE) && !AFF_FLAGGED((obj), AFF_CAMOUFLAGE)) || \
-    AFF_FLAGGED((sub), AFF_SENSE_LIFE) \
-   ) \
-  ) \
- )
+#define OSHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "его": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ее" : "их")) :"его")
+#define OSSH(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "он": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "она" : "они")) :"оно")
+#define OMHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ей" : "им")) :"ему")
+#define OYOU(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
 
 #define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || RENTABLE(ch)))
-
-#define MORT_CAN_SEE(sub, obj) (HERE(obj) && \
-                                INVIS_OK(sub,obj) && \
-                                (IS_LIGHT((obj)->in_room) || \
-                                 AFF_FLAGGED((sub), AFF_INFRAVISION) \
-                                ) \
-                               )
-
-#define IMM_CAN_SEE(sub, obj) \
-   (MORT_CAN_SEE(sub, obj) || (!IS_NPC(sub) && PRF_FLAGGED(sub, PRF_HOLYLIGHT)))
-
-#define SELF(sub, obj)  ((sub) == (obj))
-
-// Can subject see character "obj"?
-#define CAN_SEE(sub, obj) (SELF(sub, obj) || \
-   ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
-    IMM_CAN_SEE(sub, obj)))
 
 // Can subject see character "obj" without light
 #define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && \
@@ -1077,41 +1082,12 @@ inline T VPOSI(const T val, const T min, const T max)
 #define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
         ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
-
-
 // End of CAN_SEE
 
-
-#define INVIS_OK_OBJ(sub, obj) \
-  (!IS_OBJ_STAT((obj), ITEM_INVISIBLE) || AFF_FLAGGED((sub), AFF_DETECT_INVIS))
-
 // Is anyone carrying this object and if so, are they visible?
-
 #define CAN_SEE_OBJ_CARRIER(sub, obj) \
   ((!obj->carried_by || CAN_SEE(sub, obj->carried_by)) && \
    (!obj->worn_by    || CAN_SEE(sub, obj->worn_by)))
-/*
-#define MORT_CAN_SEE_OBJ(sub, obj) \
-  (LIGHT_OK(sub) && INVIS_OK_OBJ(sub, obj) && CAN_SEE_OBJ_CARRIER(sub, obj))
- */
-
-#define MORT_CAN_SEE_OBJ(sub, obj) \
-	(INVIS_OK_OBJ(sub, obj) && !AFF_FLAGGED(sub, AFF_BLIND) && \
-	(IS_LIGHT(IN_ROOM(sub)) || OBJ_FLAGGED(obj, ITEM_GLOW) || \
-	(IS_CORPSE(obj) && AFF_FLAGGED(sub, AFF_INFRAVISION)) || \
-	can_use_feat(sub, DARK_READING_FEAT)))
-
-#define CAN_SEE_OBJ(sub, obj) \
-   (obj->worn_by    == sub || \
-    obj->carried_by == sub || \
-    (obj->in_obj && (obj->in_obj->worn_by == sub || obj->in_obj->carried_by == sub)) || \
-    MORT_CAN_SEE_OBJ(sub, obj) || \
-    (!IS_NPC(sub) && PRF_FLAGGED((sub), PRF_HOLYLIGHT)))
-
-#define CAN_GET_OBJ(ch, obj)   \
-   (CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
-    CAN_SEE_OBJ((ch),(obj))) && \
-	!(IS_NPC((ch))  && IS_OBJ_STAT((obj), ITEM_BLOODY))
 
 #define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
                            (pad) == 4 ? "кем-то" :\
@@ -1123,8 +1099,6 @@ inline T VPOSI(const T val, const T min, const T max)
 //для арены
 #define APERS(ch,vict,pad,arena) ((arena) || CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
 
-#define OBJS(obj,vict) (CAN_SEE_OBJ((vict), (obj)) ? \
-                      (obj)->short_description  : "что-то")
 //для арены
 #define AOBJS(obj,vict,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                       (obj)->short_description  : "что-то")
@@ -1137,9 +1111,6 @@ inline T VPOSI(const T val, const T min, const T max)
 
 #define OBJ_PAD(obj,pad)  ((obj)->PNames[pad])
 
-#define OBJN(obj,vict,pad) (CAN_SEE_OBJ((vict), (obj)) ? \
-                           ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \
-                           : GET_PAD_OBJ(pad))
 //для арены
 #define AOBJN(obj,vict,pad,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                            ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \
@@ -1190,8 +1161,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define IS_NECROMANCER(ch) (!IS_NPC(ch) && \
             ((int) GET_CLASS(ch) == CLASS_NECROMANCER))
 
-#define IS_CHARMICE(ch)    (IS_NPC(ch) && (AFF_FLAGGED(ch,AFF_HELPER) || AFF_FLAGGED(ch,AFF_CHARM)))
-
 #define IS_UNDEAD(ch) (IS_NPC(ch) && \
 	(MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE)))
 
@@ -1208,10 +1177,6 @@ inline T VPOSI(const T val, const T min, const T max)
                        (IS_DRUID(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
-#define IS_HORSE(ch) (IS_NPC(ch) && (ch->master) && AFF_FLAGGED(ch, AFF_HORSE))
-#define IS_MORTIFIER(ch) (IS_NPC(ch) && (ch->master) && MOB_FLAGGED(ch, MOB_CORPSE))
-
-
 
 int on_horse(CHAR_DATA * ch);
 int has_horse(CHAR_DATA * ch, int same_room);
@@ -1236,7 +1201,7 @@ int day_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int weather_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int complex_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj);
-bool CAN_CARRY_OBJ(CHAR_DATA *ch, OBJ_DATA *obj);
+bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj);
 bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
 
 // PADS for something ***************************************************
@@ -1327,8 +1292,6 @@ size_t strlen_no_colors(const char *str);
 #define SEEK_END  2
 #endif
 
-// бесконечный таймер
-#define UTIMER 2147483647
 #define SENDOK(ch)   (((ch)->desc || SCRIPT_CHECK((ch), MTRIG_ACT)) && \
                (to_sleeping || AWAKE(ch)) && \
                      !PLR_FLAGGED((ch), PLR_WRITING))
@@ -1361,10 +1324,9 @@ inline bool a_isupper(unsigned char c)
 	return (c >= 'A' && c <= 'Z') || c >= 224 || c == 179;
 }
 
-extern const bool a_isdigit_table[];
 inline bool a_isdigit(unsigned char c)
 {
-	return a_isdigit_table[c];
+	return c >= '0' && c <= '9';
 }
 
 inline bool a_isalpha(unsigned char c)
@@ -1514,7 +1476,7 @@ int dex_ac_bonus(int dex);
 int calc_str_req(int weight, int type);
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
 int wis_bonus(int stat, int type);
-int can_carry_n(CHAR_DATA* ch);
+int CAN_CARRY_N(const CHAR_DATA* ch);
 
 namespace SetSystem
 {
@@ -1529,7 +1491,6 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 } // namespace SetSystem
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
-#define CAN_CARRY_N(ch) (can_carry_n(ch))
 
 #define OK_BOTH(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
                           str_bonus(GET_REAL_STR(ch), STR_WIELD_W) + str_bonus(GET_REAL_STR(ch), STR_HOLD_W))
@@ -1588,9 +1549,7 @@ void print_bitset(const N& bits, const T& names,
 	}
 }
 
-void tascii(const uint32_t* pointer, int num_planes, char* ascii);
 const char *print_obj_state(int tm_pct);
-
 
 bool no_bad_affects(OBJ_DATA *obj);
 
@@ -1600,7 +1559,7 @@ struct ParseFilter
 {
 	enum { CLAN, EXCHANGE };
 
-	ParseFilter(int type) : type(-1), state(-1), wear(-1), wear_message(-1),
+	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1),
 		weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'),
 		new_timesign('\0'), new_timedown(time(0)), new_timeup(time(0)),
 		filter_type(type) {};
@@ -1621,7 +1580,7 @@ struct ParseFilter
 	std::string owner;     // имя продавца (базар)
 	int type;              // тип оружия
 	int state;             // состояние
-	int wear;              // куда одевается
+	EWearFlag wear;              // куда одевается
 	int wear_message;      // для названия куда одеть
 	int weap_class;        // класс оружие
 	int weap_message;      // для названия оружия
@@ -1676,6 +1635,26 @@ private:
 	table_t m_table;
 };
 #endif
+
+// global buffering system
+#ifdef __DB_C__
+char buf[MAX_STRING_LENGTH];
+char buf1[MAX_STRING_LENGTH];
+char buf2[MAX_STRING_LENGTH];
+char arg[MAX_STRING_LENGTH];
+#else
+extern char buf[MAX_STRING_LENGTH];
+extern char buf1[MAX_STRING_LENGTH];
+extern char buf2[MAX_STRING_LENGTH];
+extern char arg[MAX_STRING_LENGTH];
+#endif
+
+inline void graceful_exit(int retcode)
+{
+	_exit(retcode);
+}
+
+void hexdump(const char *ptr, int buflen);
 
 #endif // _UTILS_H_
 

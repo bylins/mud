@@ -40,7 +40,7 @@
 
 extern const char *unused_spellname;
 
-struct feat_info_type feat_info[MAX_FEATS];
+struct SFeatInfo feat_info[MAX_FEATS];
 
 void unused_feat(int feat);
 void assign_feats(void);
@@ -50,59 +50,7 @@ bool find_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 
-ACMD(do_lightwalk);
-
-/*
-   Служебный класс для удобства вбивания значений в массив affected структуры способности
-   Если у кого-то есть желание, можно вместо массива использовать сам этот класс, реализовав
-   методы доступа к значениям, выдачу нужного поля и копирующий конструктор
-   Только тогда придется править обращения к структурам feat_info по коду
-*/
-class aff_array
-{
-public:
-	explicit aff_array() : _pos(0), i(MAX_FEAT_AFFECT) {}
-
-	int pos(int pos = -1)
-	{
-		if (pos == -1)
-		{
-			return _pos;
-		}
-		else if (pos >= 0 && pos < MAX_FEAT_AFFECT)
-		{
-			_pos = pos;
-			return _pos;
-		}
-		sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos (argument value: %d)!", pos);
-		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
-		return _pos;
-	}
-
-	void insert(byte location, sbyte modifier)
-	{
-		affected[_pos].location = location;
-		affected[_pos].modifier = modifier;
-		_pos++;
-		if (_pos >= MAX_FEAT_AFFECT)
-			_pos = 0;
-	}
-
-	void clear()
-	{
-		_pos = 0;
-		for (i = 0; i < MAX_FEAT_AFFECT; i++)
-		{
-			affected[i].location = APPLY_NONE;
-			affected[i].modifier = 0;
-		}
-	}
-
-	struct obj_affected_type
-				affected[MAX_FEAT_AFFECT];
-private:
-	int _pos, i;
-};
+void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 ///
 /// Поиск номера способности по имени
@@ -143,7 +91,7 @@ int find_feat_num(const char *name, bool alias)
 }
 
 // Инициализация способности заданными значениями
-void feato(int feat, const char *name, int type, bool can_up_slot, aff_array app)
+void feato(int feat, const char *name, int type, bool can_up_slot, CFeatArray app)
 {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
@@ -198,7 +146,7 @@ void unused_feat(int feat)
 void assign_feats(void)
 {
 	int i;
-	aff_array feat_app;
+	CFeatArray feat_app;
 	for (i = 0; i < MAX_FEATS; i++)
 	{
 		unused_feat(i);
@@ -712,7 +660,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	if (feat <= 0 || feat >= MAX_FEATS)
 	{
 		sprintf(buf, "Неверный номер способности (feat=%d, ch=%s) передан в features::can_get_feat!",
-			feat, ch->get_name());
+			feat, ch->get_name().c_str());
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
 	}
@@ -792,37 +740,65 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	case PICK_FOCUS_FEAT:
 	case SPADES_FOCUS_FEAT:
 	case BOWS_FOCUS_FEAT:
-		if (!ch->get_skill((ubyte) feat_info[feat].affected[0].location))
+		if (!ch->get_skill(static_cast<ESkill>(feat_info[feat].affected[0].location)))
+		{
 			return FALSE;
+		}
+
 		for (i = PUNCH_FOCUS_FEAT; i <= BOWS_FOCUS_FEAT; i++)
+		{
 			if (HAVE_FEAT(ch, i))
+			{
 				count++;
-		if (count >= 2+GET_REMORT(ch)/6)
+			}
+		}
+
+		if (count >= 2 + GET_REMORT(ch) / 6)
+		{
 			return FALSE;
+		}
 		break;
+
 	case GREAT_AIMING_ATTACK_FEAT:
 		if (!HAVE_FEAT(ch, AIMING_ATTACK_FEAT))
+		{
 			return FALSE;
+		}
 		break;
+
 	case DOUBLESHOT_FEAT:
 		if (!HAVE_FEAT(ch, BOWS_FOCUS_FEAT) || ch->get_skill(SKILL_BOWS) < 40)
+		{
 			return FALSE;
+		}
 		break;
+
 	case RUNE_USER_FEAT:
 		if (!HAVE_FEAT(ch, RUNE_NEWBIE_FEAT))
+		{
 			return FALSE;
+		}
 		break;
+
 	case RUNE_MASTER_FEAT:
 		if (!HAVE_FEAT(ch, RUNE_USER_FEAT))
+		{
 			return FALSE;
+		}
 		break;
+
 	case RUNE_ULTIMATE_FEAT:
 		if (!HAVE_FEAT(ch, RUNE_MASTER_FEAT))
+		{
 			return FALSE;
+		}
 		break;
+
 	case MASTER_JEWELER_FEAT:
 		if (ch->get_skill(SKILL_INSERTGEM) < 60)
+		{
 			return FALSE;
+		}
 		break;
 	}
 	return TRUE;
@@ -877,7 +853,6 @@ int feature_mod(int feat, int location)
 
 void check_berserk(CHAR_DATA * ch)
 {
-	AFFECT_DATA af;
 	struct timed_type timed;
 	int prob;
 
@@ -889,7 +864,7 @@ void check_berserk(CHAR_DATA * ch)
 	}
 //!IS_NPC(ch) &&
 	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
-			!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, AFF_BERSERK) &&
+			!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK) &&
 			(GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
 	{
 
@@ -900,6 +875,7 @@ void check_berserk(CHAR_DATA * ch)
 		timed_feat_to_char(ch, &timed);
 //		}
 
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_BERSERK;
 		af.duration = pc_duration(ch, 1, 60, 30, 0, 0);
 		af.modifier = 0;
@@ -909,7 +885,7 @@ void check_berserk(CHAR_DATA * ch)
 		prob = IS_NPC(ch) ? 601 : (751 - GET_LEVEL(ch) * 5);
 		if (number(1, 1000) <  prob)
 		{
-			af.bitvector = AFF_BERSERK;
+			af.bitvector = to_underlying(EAffectFlag::AFF_BERSERK);
 			act("Вас обуяла предсмертная ярость!", FALSE, ch, 0, 0, TO_CHAR);
 			act("$n0 исступленно взвыл$g и бросил$u на противника!", FALSE, ch, 0, 0, TO_ROOM);
 		}
@@ -924,9 +900,8 @@ void check_berserk(CHAR_DATA * ch)
 }
 
 // Легкая поступь
-ACMD(do_lightwalk)
+void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	AFFECT_DATA af;
 	struct timed_type timed;
 
 	if (IS_NPC(ch) || !can_use_feat(ch, LIGHT_WALK_FEAT))
@@ -959,6 +934,7 @@ ACMD(do_lightwalk)
 	timed_feat_to_char(ch, &timed);
 
 	send_to_char("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_LIGHT_WALK;
 	af.duration = pc_duration(ch, 2, GET_LEVEL(ch), 5, 2, 8);
 	af.modifier = 0;
@@ -971,14 +947,14 @@ ACMD(do_lightwalk)
 	}
 	else
 	{
-		af.bitvector = AFF_LIGHT_WALK;
+		af.bitvector = to_underlying(EAffectFlag::AFF_LIGHT_WALK);
 		send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
 	}
 	affect_to_char(ch, &af);
 }
 
 //подгонка и перешивание
-ACMD(do_fit)
+void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *obj;
 	CHAR_DATA *vict;
@@ -1039,7 +1015,7 @@ ACMD(do_fit)
 	//предмет никуда не надевается, соответственно его не надо подгонять
 	//в принципе без этой проверки можно обойтись, но пусть будет ролеплея ради
 	//кроме того тут же сделаем проверку на сетстафф
-	if ((GET_OBJ_WEAR(obj) <= 1) || OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if ((GET_OBJ_WEAR(obj) <= 1) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 	{
 		send_to_char("Этот предмет невозможно переделать.\r\n", ch);
 		return;
@@ -1056,16 +1032,16 @@ ACMD(do_fit)
 	switch (subcmd)
 	{
 	case SCMD_DO_ADAPT:
-		if ((GET_OBJ_MATER(obj) != MAT_NONE) &&
-				(GET_OBJ_MATER(obj) != MAT_BULAT) &&
-				(GET_OBJ_MATER(obj) != MAT_BRONZE) &&
-				(GET_OBJ_MATER(obj) != MAT_IRON) &&
-				(GET_OBJ_MATER(obj) != MAT_STEEL) &&
-				(GET_OBJ_MATER(obj) != MAT_SWORDSSTEEL) &&
-				(GET_OBJ_MATER(obj) != MAT_COLOR) &&
-				(GET_OBJ_MATER(obj) != MAT_WOOD) &&
-				(GET_OBJ_MATER(obj) != MAT_SUPERWOOD) &&
-				(GET_OBJ_MATER(obj) != MAT_GLASS))
+		if (GET_OBJ_MATER(obj) != obj_flag_data::MAT_NONE
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_BULAT
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_BRONZE
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_IRON
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_STEEL
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_SWORDSSTEEL
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_COLOR
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_WOOD
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_SUPERWOOD
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_GLASS)
 		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));
@@ -1074,10 +1050,10 @@ ACMD(do_fit)
 		}
 		break;
 	case SCMD_MAKE_OVER:
-		if ((GET_OBJ_MATER(obj) != MAT_BONE) &&
-				(GET_OBJ_MATER(obj) != MAT_MATERIA) &&
-				(GET_OBJ_MATER(obj) != MAT_SKIN) &&
-				(GET_OBJ_MATER(obj) != MAT_ORGANIC))
+		if (GET_OBJ_MATER(obj) != obj_flag_data::MAT_BONE
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_MATERIA
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_SKIN
+			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_ORGANIC)
 		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));
@@ -1098,9 +1074,8 @@ ACMD(do_fit)
 int slot_for_char(CHAR_DATA * ch, int i);
 #define SpINFO spell_info[spellnum]
 // Вложить закл в клона
-ACMD(do_spell_capable)
+void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	AFFECT_DATA af;
 	struct timed_type timed;
 
 	if (!IS_IMPL(ch) && (IS_NPC(ch) || !can_use_feat(ch, SPELL_CAPABLE_FEAT)))
@@ -1118,10 +1093,10 @@ ACMD(do_spell_capable)
 	char *s;
 	int spellnum;
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
@@ -1175,10 +1150,11 @@ ACMD(do_spell_capable)
 	CHAR_DATA *follower = NULL;
 	for (k = ch->followers; k; k = k->next)
 	{
-		if (AFF_FLAGGED(k->follower, AFF_CHARM) && k->follower->master == ch &&
-			MOB_FLAGGED(k->follower, MOB_CLONE) &&
-			!affected_by_spell(k->follower, SPELL_CAPABLE) &&
-			IN_ROOM(ch) == IN_ROOM(k->follower))
+		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
+			&& k->follower->master == ch
+			&& MOB_FLAGGED(k->follower, MOB_CLONE)
+			&& !affected_by_spell(k->follower, SPELL_CAPABLE)
+			&& IN_ROOM(ch) == IN_ROOM(k->follower))
 		{
 			follower = k->follower;
 			break;
@@ -1241,6 +1217,7 @@ ACMD(do_spell_capable)
 	timed_feat_to_char(ch, &timed);
 
 	GET_CAST_SUCCESS(follower) = GET_REMORT(ch)*4;
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CAPABLE;
 	af.duration = 48;
 	if(GET_REMORT(ch)>0) {
@@ -1254,20 +1231,9 @@ ACMD(do_spell_capable)
 	af.bitvector = 0;
 	affect_to_char(follower, &af);
 	follower->mob_specials.capable_spell = spellnum;
-/*
-	af.type = SPELL_CAPABLE;
-	af.duration = 24;
-	af.modifier = spellnum;
-	af.location = APPLY_NONE;
-	af.battleflag = 0;
-	af.bitvector = 0;
-	affect_to_char(follower, &af);
-	follower->mob_specials.capable_cast = GET_REMORT(ch)*4;
-	follower->mob_specials.capable_spell = spellnum;
-*/
 }
 
-ACMD(do_relocate)
+void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	struct timed_type timed;
 
@@ -1319,7 +1285,7 @@ ACMD(do_relocate)
 			return;
 		}
 		// Нельзя перемещаться после того, как попал под заклинание "приковать противника".
-		if (AFF_FLAGGED(ch, AFF_NOTELEPORT))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT))
 		{
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;
@@ -1373,13 +1339,14 @@ ACMD(do_relocate)
 		timed.time = 18 - MIN(GET_REMORT(ch),15);
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
 		//На время лага на чара нельзя ставить пенту
-			AFFECT_DATA af;
-			af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
-			af.bitvector = AFF_NOTELEPORT;
-			af.battleflag = AF_PULSEDEC;
-			affect_to_char(ch, &af);
+		AFFECT_DATA<EApplyLocation> af;
+		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
+		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
+		af.battleflag = AF_PULSEDEC;
+		affect_to_char(ch, &af);
 	}
-	else {
+	else
+	{
 		timed.time = 2;
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 	}

@@ -70,7 +70,7 @@ DESCRIPTOR_DATA* send_result_message(long unique, bool action);
 } // namespace TitleSystem
 
 // * Команда титул, title. ACMD(do_title), для игроков и для иммов все одной командой.
-void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch)) return;
 

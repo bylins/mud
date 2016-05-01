@@ -35,7 +35,7 @@ bool need_torc(CHAR_DATA *ch);
 
 } // namespace Remort
 
-SPECIAL(torc);
+int torc(CHAR_DATA *ch, void *me, int cmd, char* argument);
 
 #endif // EXT_MONEY_HPP_INCLUDED
 

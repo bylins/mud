@@ -31,7 +31,7 @@ struct event_info *add_event(int time, EVENT(*func), void *info)
 {
 	struct event_info *this_data, *prev, *curr;
 
-	CREATE(this_data, struct event_info, 1);
+	CREATE(this_data, 1);
 	this_data->time_remaining = time;
 	this_data->func = func;
 	this_data->info = info;

@@ -15,7 +15,7 @@
 
 #include <boost/array.hpp>
 
-struct OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 struct ROOM_DATA;	//
 
 // Определение основных классов ингредиентов: росль, живь, твердь
@@ -39,7 +39,7 @@ typedef struct _im_tlist_tag im_tlist;
 struct _im_memb_tag
 {
 	int power;		// сила ингредиента
-	int sex;		// род описателя (0-сред,1-муж,2-жен,3-мн.ч)
+	ESex sex;		// род описателя (0-сред,1-муж,2-жен,3-мн.ч)
 	char **aliases;		// массив пар алиасов
 	struct _im_memb_tag *next;	// ссылка на следующий
 };
@@ -103,13 +103,12 @@ struct _im_recipe_tag
 typedef struct _im_recipe_tag im_recipe;
 
 // Описание рецепта-умения
-struct _im_rskill_tag
+struct im_rskill
 {
 	int rid;		// индекс в главном массиве рецептов
 	int perc;		// уровень владения умением
-	struct _im_rskill_tag *link;	// указатель на следующее умение в цепочке
+	im_rskill *link;	// указатель на следующее умение в цепочке
 };
-typedef struct _im_rskill_tag im_rskill;
 
 extern im_recipe *imrecipes;
 

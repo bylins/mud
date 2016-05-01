@@ -54,14 +54,14 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd);
 int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
 extern int get_pick_chance(int skill_pick, int lock_complexity);
 
-ACMD(do_gen_door);
-ACMD(do_enter);
-ACMD(do_stand);
-ACMD(do_sit);
-ACMD(do_rest);
-ACMD(do_sleep);
-ACMD(do_wake);
-ACMD(do_follow);
+void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_enter(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_rest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sleep(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wake(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 const int Reverse[NUM_OF_DIRS] = { 2, 3, 0, 1, 5, 4 };
 const char *DirIs[] =
@@ -76,7 +76,7 @@ const char *DirIs[] =
 };
 
 // check ice in room
-int check_death_ice(int room, CHAR_DATA * ch)
+int check_death_ice(int room, CHAR_DATA* /*ch*/)
 {
 	int sector, mass = 0, result = FALSE;
 	CHAR_DATA *vict; // *next_vict
@@ -89,7 +89,7 @@ int check_death_ice(int room, CHAR_DATA * ch)
 	if ((sector = real_sector(room)) != SECT_THIN_ICE && sector != SECT_NORMAL_ICE)
 		return (FALSE);
 	for (vict = world[room]->people; vict; vict = vict->next_in_room)
-		if (!IS_NPC(vict) && !AFF_FLAGGED(vict, AFF_FLY))
+		if (!IS_NPC(vict) && !AFF_FLAGGED(vict, EAffectFlag::AFF_FLY))
 			mass += GET_WEIGHT(vict) + IS_CARRYING_W(vict);
 	if (!mass)
 		return (FALSE);
@@ -99,7 +99,7 @@ int check_death_ice(int room, CHAR_DATA * ch)
 		act("Лед проломился под вашей тяжестью.", FALSE, world[room]->people, 0, 0, TO_CHAR);
 		world[room]->weather.icelevel = 0;
 		world[room]->ices = 2;
-		SET_BIT(ROOM_FLAGS(room, ROOM_ICEDEATH), ROOM_ICEDEATH);
+		GET_ROOM(room)->set_flag(ROOM_ICEDEATH);
 		DeathTrap::add(world[room]);
 	}
 	else
@@ -120,29 +120,39 @@ int has_boat(CHAR_DATA * ch)
 	if (IS_IMMORTAL(ch))
 		return (TRUE);
 
-	if (AFF_FLAGGED(ch, AFF_WATERWALK))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_WATERWALK))
 		return (TRUE);
 
-	if (AFF_FLAGGED(ch, AFF_WATERBREATH))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_WATERBREATH))
 		return (TRUE);
 
-	if (AFF_FLAGGED(ch, AFF_FLY))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 		return (TRUE);
 
 	// non-wearable boats in inventory will do it
 	for (obj = ch->carrying; obj; obj = obj->next_content)
-		if (GET_OBJ_TYPE(obj) == ITEM_BOAT && (find_eq_pos(ch, obj, NULL) < 0))
-			return (TRUE);
+	{
+		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_BOAT
+			&& (find_eq_pos(ch, obj, NULL) < 0))
+		{
+			return TRUE;
+		}
+	}
 
 	// and any boat you're wearing will do it too
 	for (i = 0; i < NUM_WEARS; i++)
-		if (GET_EQ(ch, i) && GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_BOAT)
-			return (TRUE);
+	{
+		if (GET_EQ(ch, i)
+			&& GET_OBJ_TYPE(GET_EQ(ch, i)) == obj_flag_data::ITEM_BOAT)
+		{
+			return TRUE;
+		}
+	}
 
-	return (FALSE);
+	return FALSE;
 }
 
-void make_visible(CHAR_DATA * ch, int affect)
+void make_visible(CHAR_DATA * ch, const EAffectFlag affect)
 {
 	char to_room[MAX_STRING_LENGTH], to_char[MAX_STRING_LENGTH];
 
@@ -150,16 +160,20 @@ void make_visible(CHAR_DATA * ch, int affect)
 
 	switch (affect)
 	{
-	case AFF_HIDE:
+	case EAffectFlag::AFF_HIDE:
 		strcpy(to_char, "Вы прекратили прятаться.\r\n");
 		strcpy(to_room, "$n прекратил$g прятаться.\r\n");
 		break;
-	case AFF_CAMOUFLAGE:
+
+	case EAffectFlag::AFF_CAMOUFLAGE:
 		strcpy(to_char, "Вы прекратили маскироваться.\r\n");
 		strcpy(to_room, "$n прекратил$g маскироваться.\r\n");
 		break;
+
+	default:
+		break;
 	}
-	REMOVE_BIT(AFF_FLAGS(ch, affect), affect);
+	AFF_FLAGS(ch).unset(affect);
 	CHECK_AGRO(ch) = TRUE;
 	if (*to_char)
 		send_to_char(to_char, ch);
@@ -172,14 +186,14 @@ int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob;
 
-	if (MAY_SEE(vict, ch) && (AFF_FLAGGED(ch, AFF_HIDE) || affected_by_spell(ch, SPELL_HIDE)))
+	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE) || affected_by_spell(ch, SPELL_HIDE)))
 	{
 		if (awake_hide(ch))  	//if (affected_by_spell(ch, SPELL_HIDE))
 		{
 			send_to_char("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
 			affect_from_char(ch, SPELL_HIDE);
-			make_visible(ch, AFF_HIDE);
-			SET_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
+			make_visible(ch, EAffectFlag::AFF_HIDE);
+			EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
 		}
 		else if (affected_by_spell(ch, SPELL_HIDE))
 		{
@@ -188,7 +202,7 @@ int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict)
 			if (percent > prob)
 			{
 				affect_from_char(ch, SPELL_HIDE);
-				if (!AFF_FLAGGED(ch, AFF_HIDE))
+				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
 				{
 					improove_skill(ch, SKILL_HIDE, FALSE, vict);
 					act("Вы не сумели остаться незаметным.", FALSE, ch, 0, vict, TO_CHAR);
@@ -209,15 +223,16 @@ int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob;
 
-	if (MAY_SEE(vict, ch) && (AFF_FLAGGED(ch, AFF_CAMOUFLAGE)
-							  || affected_by_spell(ch, SPELL_CAMOUFLAGE)))
+	if (MAY_SEE(ch, vict, ch)
+		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)
+			|| affected_by_spell(ch, SPELL_CAMOUFLAGE)))
 	{
 		if (awake_camouflage(ch))  	//if (affected_by_spell(ch,SPELL_CAMOUFLAGE))
 		{
 			send_to_char("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
 			affect_from_char(ch, SPELL_CAMOUFLAGE);
-			make_visible(ch, AFF_CAMOUFLAGE);
-			SET_BIT(EXTRA_FLAGS(ch, EXTRA_FAILCAMOUFLAGE), EXTRA_FAILCAMOUFLAGE);
+			make_visible(ch, EAffectFlag::AFF_CAMOUFLAGE);
+			EXTRA_FLAGS(ch).set(EXTRA_FAILCAMOUFLAGE);
 		}
 		else if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 		{
@@ -226,7 +241,7 @@ int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict)
 			if (percent > prob)
 			{
 				affect_from_char(ch, SPELL_CAMOUFLAGE);
-				if (!AFF_FLAGGED(ch, AFF_CAMOUFLAGE))
+				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE))
 				{
 					improove_skill(ch, SKILL_CAMOUFLAGE, FALSE, vict);
 					act("Вы не сумели правильно замаскироваться.", FALSE, ch, 0, vict, TO_CHAR);
@@ -249,7 +264,7 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 	int percent, prob, absolute_fail;
 	bool try_fail;
 
-	if (MAY_SEE(vict, ch) && (AFF_FLAGGED(ch, AFF_SNEAK) || affected_by_spell(ch, SPELL_SNEAK)))
+	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK) || affected_by_spell(ch, SPELL_SNEAK)))
 	{
 		if (awake_sneak(ch))  	//if (affected_by_spell(ch,SPELL_SNEAK))
 		{
@@ -257,8 +272,8 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 			affect_from_char(ch, SPELL_SNEAK);
 			if (affected_by_spell(ch, SPELL_HIDE))
 				affect_from_char(ch, SPELL_HIDE);
-			make_visible(ch, AFF_SNEAK);
-			SET_BIT(EXTRA_FLAGS(ch, EXTRA_FAILSNEAK), EXTRA_FAILSNEAK);
+			make_visible(ch, EAffectFlag::AFF_SNEAK);
+			EXTRA_FLAGS(ch).get(EXTRA_FAILSNEAK);
 		}
 		else if (affected_by_spell(ch, SPELL_SNEAK))
 		{
@@ -278,7 +293,7 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 				affect_from_char(ch, SPELL_SNEAK);
 				if (affected_by_spell(ch, SPELL_HIDE))
 					affect_from_char(ch, SPELL_HIDE);
-				if (!AFF_FLAGGED(ch, AFF_SNEAK))
+				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK))
 				{
 					improove_skill(ch, SKILL_SNEAK, FALSE, vict);
 					act("Вы не сумели пробраться незаметно.", FALSE, ch, 0, vict, TO_CHAR);
@@ -367,7 +382,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	}
 
 	// charmed
-	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && ch->in_room == ch->master->in_room)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->master && ch->in_room == ch->master->in_room)
 	{
 		if (show_msg)
 		{
@@ -385,7 +400,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		//  if this room or the one we're going to needs a boat, check for one */
 		if (!MOB_FLAGGED(ch, MOB_SWIMMING) &&
 				!MOB_FLAGGED(ch, MOB_FLYING) &&
-				!AFF_FLAGGED(ch, AFF_FLY) &&
+				!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY) &&
 				(real_sector(ch->in_room) == SECT_WATER_NOSWIM ||
 				 real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM))
 		{
@@ -399,7 +414,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			return (FALSE);
 
 		if (!MOB_FLAGGED(ch, MOB_FLYING) &&
-				!AFF_FLAGGED(ch, AFF_FLY) && SECT(EXIT(ch, dir)->to_room) == SECT_FLYING)
+				!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY) && SECT(EXIT(ch, dir)->to_room) == SECT_FLYING)
 			return (FALSE);
 
 		if (MOB_FLAGGED(ch, MOB_ONLYSWIMMING) &&
@@ -410,7 +425,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_NOMOB) &&
 				!IS_HORSE(ch) &&
-				!AFF_FLAGGED(ch, AFF_CHARM) && !MOB_FLAGGED(ch, MOB_ANGEL) && !MOB_FLAGGED(ch, MOB_IGNORNOMOB))
+				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !MOB_FLAGGED(ch, MOB_ANGEL) && !MOB_FLAGGED(ch, MOB_IGNORNOMOB))
 			return (FALSE);
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_DEATH) && !IS_HORSE(ch))
@@ -441,7 +456,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		}
 		if (real_sector(EXIT(ch, dir)->to_room) == SECT_FLYING
 			&& !IS_GOD(ch)
-			&& !AFF_FLAGGED(ch, AFF_FLY))
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 		{
 			if (show_msg)
 			{
@@ -521,7 +536,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 					FALSE, ch, 0, get_horse(ch), TO_CHAR);
 				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-				REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 			}
 		}
 		//проверка на ванрум: скидываем игрока с коня, если там незанято
@@ -541,7 +556,9 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			return (FALSE);
 		}
 
-		if (on_horse(ch) && (AFF_FLAGGED(get_horse(ch), AFF_HOLD) || AFF_FLAGGED(get_horse(ch), AFF_SLEEP)))
+		if (on_horse(ch)
+			&& (AFF_FLAGGED(get_horse(ch), EAffectFlag::AFF_HOLD)
+				|| AFF_FLAGGED(get_horse(ch), EAffectFlag::AFF_SLEEP)))
 		{
 			if (show_msg)
 				act("$Z $N не в состоянии нести вас на себе.\r\n", FALSE, ch, 0, get_horse(ch),
@@ -565,10 +582,12 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		{
 			if (!IS_NPC(tch))
 				continue;
-			if (NPC_FLAGGED(tch, 1 << dir) &&
-					AWAKE(tch) &&
-					GET_POS(tch) > POS_SLEEPING && CAN_SEE(tch, ch) &&
-					!AFF_FLAGGED(tch, AFF_CHARM) && !AFF_FLAGGED(tch, AFF_HOLD))
+			if (NPC_FLAGGED(tch, 1 << dir)
+				&& AWAKE(tch)
+				&& GET_POS(tch) > POS_SLEEPING
+				&& CAN_SEE(tch, ch)
+				&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
+				&& !AFF_FLAGGED(tch, EAffectFlag::AFF_HOLD))
 			{
 				if (show_msg)
 					act("$N преградил$G вам путь.", FALSE, ch, 0, tch, TO_CHAR);
@@ -657,7 +676,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		GET_MOVE(ch) -= need_movement;
 
 	i = skill_info[SKILL_SNEAK].max_percent;
-	if (AFF_FLAGGED(ch, AFF_SNEAK) && !IsFlee)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK) && !IsFlee)
 	{
 		if (IS_NPC(ch))
 			invis = 1;
@@ -671,7 +690,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	}
 
 	i = skill_info[SKILL_CAMOUFLAGE].max_percent;
-	if (AFF_FLAGGED(ch, AFF_CAMOUFLAGE) && !IsFlee)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE) && !IsFlee)
 	{
 		if (IS_NPC(ch))
 			invis = 1;
@@ -694,11 +713,15 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room;
 	direction = dir + 1;
-	use_horse = AFF_FLAGGED(ch, AFF_HORSE) && has_horse(ch, FALSE) &&
-				(IN_ROOM(get_horse(ch)) == was_in || IN_ROOM(get_horse(ch)) == go_to);
-	is_horse = IS_HORSE(ch) && (ch->master)
-			   && !AFF_FLAGGED(ch->master, AFF_INVISIBLE)
-			   && (IN_ROOM(ch->master) == was_in || IN_ROOM(ch->master) == go_to);
+	use_horse = AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
+		&& has_horse(ch, FALSE)
+		&& (IN_ROOM(get_horse(ch)) == was_in
+			|| IN_ROOM(get_horse(ch)) == go_to);
+	is_horse = IS_HORSE(ch)
+		&& (ch->master)
+		&& !AFF_FLAGGED(ch->master, EAffectFlag::AFF_INVISIBLE)
+		&& (IN_ROOM(ch->master) == was_in
+			|| IN_ROOM(ch->master) == go_to);
 
 	if (!invis && !is_horse)
 	{
@@ -706,7 +729,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			strcpy(buf1, "сбежал$g");
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN))
 			strcpy(buf1, "убежал$g");
-		else if ((!use_horse && AFF_FLAGGED(ch, AFF_FLY))
+		else if ((!use_horse && AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 			|| (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY)))
 		{
 			strcpy(buf1, "улетел$g");
@@ -732,7 +755,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		else if (use_horse)
 		{
 			CHAR_DATA *horse = get_horse(ch);
-			if (horse && AFF_FLAGGED(horse, AFF_FLY))
+			if (horse && AFF_FLAGGED(horse, EAffectFlag::AFF_FLY))
 			{
 				strcpy(buf1, "улетел$g");
 			}
@@ -801,7 +824,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	{
 		if (IsFlee || (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN)))
 			strcpy(buf1, "прибежал$g");
-		else if ((!use_horse && AFF_FLAGGED(ch, AFF_FLY))
+		else if ((!use_horse && AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 			|| (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY)))
 		{
 			strcpy(buf1, "прилетел$g");
@@ -826,7 +849,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		else if (use_horse)
 		{
 			CHAR_DATA *horse = get_horse(ch);
-			if (horse && AFF_FLAGGED(horse, AFF_FLY))
+			if (horse && AFF_FLAGGED(horse, EAffectFlag::AFF_FLY))
 			{
 				strcpy(buf1, "прилетел$g");
 			}
@@ -890,7 +913,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	{
 		greet_memory_mtrigger(ch);
 		// add track info
-		if (!AFF_FLAGGED(ch, AFF_NOTRACK) && (!IS_NPC(ch) || (mob_rnum = GET_MOB_RNUM(ch)) >= 0))
+		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOTRACK) && (!IS_NPC(ch) || (mob_rnum = GET_MOB_RNUM(ch)) >= 0))
 		{
 			for (track = world[go_to]->track; track; track = track->next)
 				if ((IS_NPC(ch) && IS_SET(track->track_info, TRACK_NPC)
@@ -901,7 +924,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 			if (!track && !ROOM_FLAGGED(go_to, ROOM_NOTRACK))
 			{
-				CREATE(track, struct track_data, 1);
+				CREATE(track, 1);
 				track->track_info = IS_NPC(ch) ? TRACK_NPC : 0;
 				track->who = IS_NPC(ch) ? mob_rnum : GET_IDNUM(ch);
 				track->next = world[go_to]->track;
@@ -912,7 +935,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			{
 				SET_BIT(track->time_income[Reverse[dir]], 1);
 				if (affected_by_spell(ch, SPELL_LIGHT_WALK) && !on_horse(ch))
-					if (AFF_FLAGGED(ch, AFF_LIGHT_WALK))
+					if (AFF_FLAGGED(ch, EAffectFlag::AFF_LIGHT_WALK))
 						track->time_income[Reverse[dir]] <<= number(15, 30);
 				REMOVE_BIT(track->track_info, TRACK_HIDE);
 			}
@@ -926,7 +949,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 			if (!track && !ROOM_FLAGGED(was_in, ROOM_NOTRACK))
 			{
-				CREATE(track, struct track_data, 1);
+				CREATE(track, 1);
 				track->track_info = IS_NPC(ch) ? TRACK_NPC : 0;
 				track->who = IS_NPC(ch) ? mob_rnum : GET_IDNUM(ch);
 				track->next = world[was_in]->track;
@@ -936,7 +959,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			{
 				SET_BIT(track->time_outgone[dir], 1);
 				if (affected_by_spell(ch, SPELL_LIGHT_WALK) && !on_horse(ch))
-					if (AFF_FLAGGED(ch, AFF_LIGHT_WALK))
+					if (AFF_FLAGGED(ch, EAffectFlag::AFF_LIGHT_WALK))
 						track->time_outgone[dir] <<= number(15, 30);
 				REMOVE_BIT(track->track_info, TRACK_HIDE);
 			}
@@ -961,13 +984,13 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			continue;
 
 		if (!CAN_SEE(vict, ch) ||
-				AFF_FLAGGED(ch, AFF_SNEAK) ||
-				AFF_FLAGGED(ch, AFF_CAMOUFLAGE) || vict->get_fighting() || GET_POS(vict) < POS_RESTING)
+				AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK) ||
+				AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE) || vict->get_fighting() || GET_POS(vict) < POS_RESTING)
 			continue;
 
 		// AWARE mobs
 		if (MOB_FLAGGED(vict, MOB_AWARE) &&
-				GET_POS(vict) < POS_FIGHTING && !AFF_FLAGGED(vict, AFF_HOLD) && GET_POS(vict) > POS_SLEEPING)
+				GET_POS(vict) < POS_FIGHTING && !AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD) && GET_POS(vict) > POS_SLEEPING)
 		{
 			act("$n поднял$u.", FALSE, vict, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			GET_POS(vict) = POS_STANDING;
@@ -984,7 +1007,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, CHAR_DATA *master)
 {
-	if (AFF_FLAGGED(ch, AFF_BANDAGE))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BANDAGE))
 	{
 		send_to_char("Перевязка была прервана!\r\n", ch);
 		affect_from_char(ch, SPELL_BANDAGE);
@@ -1026,15 +1049,16 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 			for (k = ch->followers; k && k->follower->master; k = next)
 			{
 				next = k->next;
-				if (k->follower->in_room == was_in &&
-						!k->follower->get_fighting() &&
-						HERE(k->follower) &&
-						!GET_MOB_HOLD(k->follower) &&
-						AWAKE(k->follower) &&
-						(IS_NPC(k->follower) ||
-						 (!PLR_FLAGGED(k->follower, PLR_MAILING) &&
-						  !PLR_FLAGGED(k->follower, PLR_WRITING))) &&
-						(!IS_HORSE(k->follower) || !AFF_FLAGGED(k->follower, AFF_TETHERED)))
+				if (k->follower->in_room == was_in
+					&& !k->follower->get_fighting()
+					&& HERE(k->follower)
+					&& !GET_MOB_HOLD(k->follower)
+					&& AWAKE(k->follower)
+					&& (IS_NPC(k->follower)
+						|| (!PLR_FLAGGED(k->follower, PLR_MAILING)
+							&& !PLR_FLAGGED(k->follower, PLR_WRITING)))
+					&& (!IS_HORSE(k->follower)
+						|| !AFF_FLAGGED(k->follower, EAffectFlag::AFF_TETHERED)))
 				{
 					if (GET_POS(k->follower) < POS_STANDING)
 					{
@@ -1064,8 +1088,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 	return (FALSE);
 }
 
-
-ACMD(do_move)
+void do_move(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 {
 	/*
 	 * This is basically a mapping of cmd numbers to perform_move indices.
@@ -1075,10 +1098,9 @@ ACMD(do_move)
 	perform_move(ch, subcmd - 1, 0, TRUE, 0);
 }
 
-ACMD(do_hidemove)
+void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int dir = 0, sneaking = affected_by_spell(ch, SPELL_SNEAK);
-	AFFECT_DATA af;
 
 	skip_spaces(&argument);
 	if (!ch->get_skill(SKILL_SNEAK))
@@ -1105,22 +1127,26 @@ ACMD(do_hidemove)
 	}
 	if (!sneaking)
 	{
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_SNEAK;
-		af.location = 0;
+		af.location = EApplyLocation::APPLY_NONE;
 		af.modifier = 0;
 		af.duration = 1;
-		af.bitvector = (number(1, skill_info[SKILL_SNEAK].max_percent) <
-						calculate_skill(ch, SKILL_SNEAK, 0)) ? AFF_SNEAK : 0;
+		const int calculated_skill = calculate_skill(ch, SKILL_SNEAK, 0);
+		const int chance = number(1, skill_info[SKILL_SNEAK].max_percent);
+		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffectFlag::AFF_SNEAK) : 0;
 		af.battleflag = 0;
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 	}
 	perform_move(ch, dir, 0, TRUE, 0);
 	if (!sneaking || affected_by_spell(ch, SPELL_GLITTERDUST))
+	{
 		affect_from_char(ch, SPELL_SNEAK);
+	}
 }
 
 #define DOOR_IS_OPENABLE(ch, obj, door)	((obj) ? \
-			((GET_OBJ_TYPE(obj) == ITEM_CONTAINER) && \
+			((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER) && \
 			OBJVAL_FLAGGED(obj, CONT_CLOSEABLE)) :\
 			(EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))
 #define DOOR_IS(ch, door)	((EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))
@@ -1148,8 +1174,7 @@ ACMD(do_hidemove)
 			(GET_OBJ_VAL(obj,3)) :\
 			(EXIT(ch, door)->lock_complexity))
 
-
-int find_door(CHAR_DATA * ch, const char *type, char *dir, const char *cmdname)
+int find_door(CHAR_DATA* ch, const char *type, char *dir, const char* /*cmdname*/)
 {
 	int door;
 
@@ -1338,7 +1363,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		LOCK_DOOR(ch->in_room, obj, door);
 		if (back)
 			LOCK_DOOR(other_room, obj, rev_dir[door]);
-		if (!AFF_FLAGGED(ch, AFF_DEAFNESS))
+		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 		{
 			send_to_char("*Щелк*\r\n", ch);
 			if (obj)
@@ -1422,8 +1447,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	}
 }
 
-
-int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd)
+int ok_pick(CHAR_DATA* ch, obj_vnum /*keynum*/, OBJ_DATA* obj, int door, int scmd)
 {
 	int percent;
 	int pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
@@ -1455,8 +1479,7 @@ int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd)
 	return (1);
 }
 
-
-ACMD(do_gen_door)
+void do_gen_door(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	int door = -1;
 	obj_vnum keynum;
@@ -1465,7 +1488,7 @@ ACMD(do_gen_door)
 	CHAR_DATA *victim = NULL;
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP;
 
-	if (AFF_FLAGGED(ch, AFF_BLIND))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		send_to_char("Очнитесь, вы же слепы!\r\n", ch);
 		return;
@@ -1525,7 +1548,7 @@ ACMD(do_gen_door)
 		}
 	if ((obj) || (door >= 0))
 	{
-		if ((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
+		if ((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
 		{
 			if (!NamedStuff::wear_msg(ch, obj))
 				send_to_char("Просьба не трогать! Частная собственность!\r\n", ch);
@@ -1555,9 +1578,7 @@ ACMD(do_gen_door)
 	return;
 }
 
-
-
-ACMD(do_enter)
+void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int door, from_room;
 	const char *p_str = "пентаграмма";
@@ -1601,7 +1622,7 @@ ACMD(do_enter)
 					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 						FALSE, ch, 0, get_horse(ch), TO_CHAR);
 					act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-					REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+					AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 				}
 				//проверка на ванрум и лошадь
 				if (ROOM_FLAGGED(door, ROOM_TUNNEL) &&
@@ -1617,7 +1638,7 @@ ACMD(do_enter)
 						act("$Z $N заупрямил$U, и вам пришлось соскочить.",
 							FALSE, ch, 0, get_horse(ch), TO_CHAR);
 						act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-						REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+						AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 					}
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
@@ -1625,7 +1646,7 @@ ACMD(do_enter)
 											|| (GET_LEVEL(ch) <= 10 && world[door]->portal_time)))
 											|| (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT)
 												|| ROOM_FLAGGED(door, ROOM_NOTELEPORTIN))
-											|| AFF_FLAGGED(ch, AFF_NOTELEPORT)
+											|| AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)
 											|| (world[door]->pkPenterUnique && (ROOM_FLAGGED(door, ROOM_ARENA) || ROOM_FLAGGED(door, ROOM_HOUSE)))
 											))
 				{
@@ -1667,12 +1688,12 @@ ACMD(do_enter)
 							char_to_room(k->follower, door);
 						}
 					}
-					if (AFF_FLAGGED(k->follower, AFF_HELPER) &&
-							!GET_MOB_HOLD(k->follower) &&
-							MOB_FLAGGED(k->follower, MOB_ANGEL) &&
-							!k->follower->get_fighting() &&
-							IN_ROOM(k->follower) == from_room &&
-							AWAKE(k->follower))
+					if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+						&& !GET_MOB_HOLD(k->follower)
+						&& MOB_FLAGGED(k->follower, MOB_ANGEL)
+						&& !k->follower->get_fighting()
+						&& IN_ROOM(k->follower) == from_room
+						&& AWAKE(k->follower))
 					{
 						act("$n исчез$q в пентаграмме.", TRUE,
 							k->follower, 0, 0, TO_ROOM);
@@ -1728,10 +1749,9 @@ ACMD(do_enter)
 	}
 }
 
-
-ACMD(do_stand)
+void do_stand(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	if (GET_POS(ch) > POS_SLEEPING && AFF_FLAGGED(ch, AFF_SLEEP))
+	if (GET_POS(ch) > POS_SLEEPING && AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
 	{
 		send_to_char("Вы сладко зевнули и решили еще немного подремать.\r\n", ch);
 		act("$n сладко зевнул$a и решил$a еще немного подремать.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -1773,8 +1793,7 @@ ACMD(do_stand)
 	}
 }
 
-
-ACMD(do_sit)
+void do_sit(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (on_horse(ch))
 	{
@@ -1810,8 +1829,7 @@ ACMD(do_sit)
 	}
 }
 
-
-ACMD(do_rest)
+void do_rest(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (on_horse(ch))
 	{
@@ -1847,8 +1865,7 @@ ACMD(do_rest)
 	}
 }
 
-
-ACMD(do_sleep)
+void do_sleep(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
 	{
@@ -1883,7 +1900,7 @@ ACMD(do_sleep)
 	}
 }
 
-ACMD(do_horseon)
+void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse;
 
@@ -1918,7 +1935,7 @@ ACMD(do_horseon)
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (GET_POS(horse) < POS_FIGHTING)
 		act("$N не сможет вас нести в таком состоянии.", FALSE, ch, 0, horse, TO_CHAR);
-	else if (AFF_FLAGGED(horse, AFF_TETHERED))
+	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
 		act("Вам стоит отвязать $N3.", FALSE, ch, 0, horse, TO_CHAR);
 //	//чтоб не вскакивали в ванрумах
 // и зачем?
@@ -1932,11 +1949,11 @@ ACMD(do_horseon)
 			affect_from_char(ch, SPELL_CAMOUFLAGE);
 		act("Вы взобрались на спину $N1.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n вскочил$g на $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		SET_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+		AFF_FLAGS(ch).set(EAffectFlag::AFF_HORSE);
 	}
 }
 
-ACMD(do_horseoff)
+void do_horseoff(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse;
 
@@ -1956,10 +1973,10 @@ ACMD(do_horseoff)
 
 	act("Вы слезли со спины $N1.", FALSE, ch, 0, horse, TO_CHAR);
 	act("$n соскочил$g с $N1.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-	REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 }
 
-ACMD(do_horseget)
+void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse;
 
@@ -1992,18 +2009,17 @@ ACMD(do_horseget)
 		send_to_char("Это не скакун.\r\n", ch);
 	else if (horse->master != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
-	else if (!AFF_FLAGGED(horse, AFF_TETHERED))
+	else if (!AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
 		act("А $N и не привязан$A.", FALSE, ch, 0, horse, TO_CHAR);
 	else
 	{
 		act("Вы отвязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n отвязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		REMOVE_BIT(AFF_FLAGS(horse, AFF_TETHERED), AFF_TETHERED);
+		AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
 	}
 }
 
-
-ACMD(do_horseput)
+void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse;
 
@@ -2034,18 +2050,17 @@ ACMD(do_horseput)
 		send_to_char("Это не скакун.\r\n", ch);
 	else if (horse->master != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
-	else if (AFF_FLAGGED(horse, AFF_TETHERED))
+	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
 		act("А $N уже и так привязан$A.", FALSE, ch, 0, horse, TO_CHAR);
 	else
 	{
 		act("Вы привязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n привязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		SET_BIT(AFF_FLAGS(horse, AFF_TETHERED), AFF_TETHERED);
+		AFF_FLAGS(horse).set(EAffectFlag::AFF_TETHERED);
 	}
 }
 
-
-ACMD(do_horsetake)
+void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse = NULL;
 
@@ -2079,7 +2094,7 @@ ACMD(do_horsetake)
 		return;
 	}
 	// Исправил ошибку не дававшую воровать коняжек. -- Четырь (13.10.10)
-	else if (!IS_GOD(ch) && !MOB_FLAGGED(horse, MOB_MOUNTING) && !((horse->master) && AFF_FLAGGED(horse, AFF_HORSE)))
+	else if (!IS_GOD(ch) && !MOB_FLAGGED(horse, MOB_MOUNTING) && !((horse->master) && AFF_FLAGGED(horse, EAffectFlag::AFF_HORSE)))
 	{
 		act("Вы не сможете оседлать $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		return;
@@ -2112,7 +2127,7 @@ ACMD(do_horsetake)
 	make_horse(horse, ch);
 }
 
-ACMD(do_givehorse)
+void do_givehorse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse, *victim;
 
@@ -2155,7 +2170,7 @@ ACMD(do_givehorse)
 		send_to_char("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(horse, AFF_TETHERED))
+	if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
 	{
 		send_to_char("Вам стоит прежде отвязать своего скакуна.\r\n", ch);
 		return;
@@ -2169,7 +2184,7 @@ ACMD(do_givehorse)
 	make_horse(horse, victim);
 }
 
-ACMD(do_stophorse)
+void do_stophorse(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *horse;
 
@@ -2191,7 +2206,7 @@ ACMD(do_stophorse)
 		send_to_char("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(horse, AFF_TETHERED))
+	if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
 	{
 		send_to_char("Вам стоит прежде отвязать своего скакуна.\r\n", ch);
 		return;
@@ -2207,11 +2222,7 @@ ACMD(do_stophorse)
 	}
 }
 
-
-
-
-
-ACMD(do_wake)
+void do_wake(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	CHAR_DATA *vict;
 	int self = 0;
@@ -2252,7 +2263,7 @@ ACMD(do_wake)
 		if (!self)
 			return;
 	}
-	if (AFF_FLAGGED(ch, AFF_SLEEP))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
 		send_to_char("Вы не можете проснуться!\r\n", ch);
 	else if (GET_POS(ch) > POS_SLEEPING)
 		send_to_char("А вы и не спали...\r\n", ch);
@@ -2264,15 +2275,14 @@ ACMD(do_wake)
 	}
 }
 
-
-ACMD(do_follow)
+void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *leader;
 	struct follow_type *f;
 
 	one_argument(argument, buf);
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM) && ch->get_fighting())
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_fighting())
 		return;
 
 	if (*buf)
@@ -2302,7 +2312,7 @@ ACMD(do_follow)
 		act("Вы уже следуете за $N4.", FALSE, ch, 0, leader, TO_CHAR);
 		return;
 	}
-	if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->master))
 	{
 		act("Но вы можете следовать только за $N4!", FALSE, ch, 0, ch->master, TO_CHAR);
 	}
@@ -2327,10 +2337,12 @@ ACMD(do_follow)
 			//log("[Follow] Stop last follow...");
 			if (ch->master)
 				stop_follower(ch, SF_EMPTY);
-			REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
+			AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 			//also removing AFF_GROUP flag from all followers
 			for (f = ch->followers; f; f = f->next)
-				REMOVE_BIT(AFF_FLAGS(f->follower, AFF_GROUP), AFF_GROUP);
+			{
+				AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
+			}
 			//log("[Follow] Start new follow...");
 			add_follower(ch, leader);
 			//log("[Follow] Stop function...");

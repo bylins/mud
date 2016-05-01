@@ -89,7 +89,7 @@ struct global_drop_obj
 	// chance шмотки от 0 до 1000
 	int chance;
 	// здесь храним типы рум, в которых может загрузится объект
-	std::vector<int> sects;
+	std::list<int> sects;
 	int day_start;
 	int day_end;
 };
@@ -193,10 +193,12 @@ void init()
 			day_start = 0;
 		}
 		std::string tmp_str = Parse::attr_str(node, "sects");
-		std::vector<string> strs;
+		std::list<std::string> strs;
 		boost::split(strs, tmp_str, boost::is_any_of(" "));
-		for (size_t i = 0; i < strs.size(); i++)
-			tmp.sects.push_back(std::stoi( strs[i] ));
+		for (const auto& i : strs)
+		{
+			tmp.sects.push_back(std::stoi(i));
+		}
 		tmp.vnum = obj_vnum;
 		tmp.chance = chance;
 		tmp.day_start = day_start;
@@ -359,7 +361,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				return true;
 			}
 			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
-			log("Фридроп: упал предмет %s с VNUM: %d", obj_proto[rnum]->short_description, obj_index[rnum].vnum);
+			log("Фридроп: упал предмет %s с VNUM: %d", obj_proto[rnum]->short_description, obj_proto.vnum(rnum));
 			obj_to_corpse(corpse, mob, rnum, false);
 			return true;
 		}
@@ -377,11 +379,14 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 			if (i->mobs >= i->count_mob)
 			{
 				int obj_rnum = i->vnum > 0 ? i->rnum : get_obj_to_drop(i);
-				if ((((obj_rnum >= 0) && (obj_index[obj_rnum].stored + obj_index[obj_rnum].number < GET_OBJ_MIW(obj_proto[obj_rnum])))
-                        || (GET_OBJ_MIW(obj_proto[obj_rnum]) == -1)) && (number(1, 1000) <= i->chance))
+				if (number(1, 1000) <= i->chance
+					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
+						|| (obj_rnum >= 0
+							&& obj_proto.actual_count(obj_rnum) < GET_OBJ_MIW(obj_proto[obj_rnum]))))
 				{
 					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
-					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d", obj_proto[obj_rnum]->short_description, obj_index[obj_rnum].vnum, GET_NAME(mob), GET_MOB_VNUM(mob));
+					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d",
+						obj_proto[obj_rnum]->short_description, obj_proto.vnum(obj_rnum), GET_NAME(mob), GET_MOB_VNUM(mob));
 					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
 					obj_to_corpse(corpse, mob, obj_rnum, false);
 				}
@@ -392,27 +397,6 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 	}
 	return false;
 }
-void renumber_obj_rnum(int rnum)
-{
-	for (DropListType::iterator i = drop_list.begin(); i != drop_list.end(); ++i)
-	{
-		if (i->vnum >= 0 && i->rnum >= rnum)
-		{
-			i->rnum += 1;
-		}
-		else if (i->vnum < 0)
-		{
-			for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end();
-				k != kend; ++k)
-			{
-				if (k->second >= rnum)
-				{
-					k->second += 1;
-				}
-			}
-		}
-	}
-}
 
 } // namespace GlobalDrop
 
@@ -422,7 +406,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	EXTRA_DESCR_DATA *exdesc;
 
 	corpse = create_obj();
-	GET_OBJ_SEX(corpse) = SEX_POLY;
+	GET_OBJ_SEX(corpse) = ESex::SEX_POLY;
 
 	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
 	corpse->description = str_dup(buf2);
@@ -445,17 +429,17 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
 	corpse->PNames[5] = str_dup(buf2);
 
-	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
-	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
-	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NODONATE), ITEM_NODONATE);
-	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NOSELL), ITEM_NOSELL);
+	GET_OBJ_TYPE(corpse) = obj_flag_data::ITEM_CONTAINER;
+	GET_OBJ_WEAR(corpse) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
+	corpse->set_extraflag(EExtraFlag::ITEM_NODONATE);
+	corpse->set_extraflag(EExtraFlag::ITEM_NOSELL);
 	GET_OBJ_VAL(corpse, 0) = 0;	// You can't store stuff in a corpse
 	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
 	GET_OBJ_VAL(corpse, 3) = 1;	// corpse identifier
 	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch);
 	corpse->set_rent(100000);
 	corpse->set_timer(max_pc_corpse_time * 2);
-	CREATE(exdesc, EXTRA_DESCR_DATA, 1);
+	CREATE(exdesc, 1);
 	exdesc->keyword = str_dup(corpse->PNames[0]);	// косметика
 	if (killer)
 		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
@@ -479,7 +463,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse = create_obj(buf2);
 
-	GET_OBJ_SEX(corpse) = SEX_MALE;
+	GET_OBJ_SEX(corpse) = ESex::SEX_MALE;
 
 	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
 	corpse->description = str_dup(buf2);
@@ -500,10 +484,10 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
 	corpse->PNames[5] = str_dup(buf2);
 
-	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
-	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
-	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NODONATE), ITEM_NODONATE);
-	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NOSELL), ITEM_NOSELL);
+	GET_OBJ_TYPE(corpse) = obj_flag_data::ITEM_CONTAINER;
+	GET_OBJ_WEAR(corpse) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
+	corpse->set_extraflag(EExtraFlag::ITEM_NODONATE);
+	corpse->set_extraflag(EExtraFlag::ITEM_NOSELL);
 	GET_OBJ_VAL(corpse, 0) = 0;	// You can't store stuff in a corpse
 	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
 	GET_OBJ_VAL(corpse, 3) = 1;	// corpse identifier

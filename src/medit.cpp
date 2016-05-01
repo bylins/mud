@@ -57,17 +57,14 @@ int planebit(const char *str, int *plane, int *bit);
 
 int real_zone(int number);
 
-SPECIAL(receptionist);
+int receptionist(CHAR_DATA *ch, void *me, int cmd, char* argument);
 void clear_mob_charm(CHAR_DATA *mob);
 
 //-------------------------------------------------------------------
 
 // * Handy internal macros.
-
-//#define GET_NDD(mob) ((mob)->mob_specials.damnodice)
-//#define GET_SDD(mob) ((mob)->mob_specials.damsizedice)
-#define GET_ALIAS(mob) ((mob)->get_pc_name())
-#define GET_SDESC(mob) ((mob)->get_npc_name())
+#define GET_ALIAS(mob) ((mob)->get_pc_name().c_str())
+#define GET_SDESC(mob) ((mob)->get_npc_name().c_str())
 #define GET_LDESC(mob) ((mob)->player_data.long_descr)
 #define GET_DDESC(mob) ((mob)->player_data.description)
 #define GET_ATTACK(mob) ((mob)->mob_specials.attack_type)
@@ -128,7 +125,7 @@ void medit_mobile_init(CHAR_DATA * mob)
 	mob->set_cha(11);
 	mob->set_con(11);
 
-	SET_BIT(MOB_FLAGS(mob, MOB_ISNPC), MOB_ISNPC);
+	MOB_FLAGS(mob).set(MOB_ISNPC);
 	mob->player_specials = &dummy_mob;
 
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
@@ -174,7 +171,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	// Теперь дублирую память
 	GET_LDESC(dst) = str_dup(not_null(GET_LDESC(src), "неопределен"));
 	GET_DDESC(dst) = str_dup(not_null(GET_DDESC(src), "неопределен"));
-	for (j = 0; j < NUM_PADS; j++)
+	for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
 		GET_PAD(dst, j) = str_dup(not_null(GET_PAD(src, j), "неопределен"));
 	dst->mob_specials.Questor = (src->mob_specials.Questor
 		&& *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
@@ -185,7 +182,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 	while (shd)
 	{
-		CREATE(pdhd[0], struct helper_data_type, 1);
+		CREATE(pdhd[0], 1);
 		pdhd[0]->mob_vnum = shd->mob_vnum;
 		pdhd = &(pdhd[0]->next_helper);
 		shd = shd->next_helper;
@@ -193,8 +190,8 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 	// Копирую скрипт и прототипы
 	SCRIPT(dst) = NULL;
-	dst->proto_script = NULL;
-	proto_script_copy(&dst->proto_script, src->proto_script);
+	dst->proto_script.clear();
+	dst->proto_script = src->proto_script;
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 	dl_list_copy(&dst->dl_list, src->dl_list);
 	dst->in_fighting_list_ = tmp.in_fighting_list_;
@@ -217,11 +214,12 @@ void medit_mobile_free(CHAR_DATA * mob)
 	TODO: вообще канеш переделывать все это надо теперь
 --*/
 {
-	struct helper_data_type *temp;
 	int i, j;
 
 	if (!mob)
+	{
 		return;
+	}
 
 	i = GET_MOB_RNUM(mob);	// задается в функции medit_setup
 
@@ -238,7 +236,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 			free(GET_DDESC(mob));
 			GET_DDESC(mob) = 0;
 		}
-		for (j = 0; j < NUM_PADS; j++)
+		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
 			if (GET_PAD(mob, j))
 			{
 				free(GET_PAD(mob, j));
@@ -263,7 +261,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 			free(GET_DDESC(mob));
 			GET_DDESC(mob) = 0;
 		}
-		for (j = 0; j < NUM_PADS; j++)
+		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
 			if (GET_PAD(mob, j) && GET_PAD(mob, j) != GET_PAD(&mob_proto[i], j))
 			{
 				free(GET_PAD(mob, j));
@@ -277,10 +275,10 @@ void medit_mobile_free(CHAR_DATA * mob)
 	}
 
 	while (mob->helpers)
-		REMOVE_FROM_LIST(mob->helpers, mob->helpers, next_helper);
+	{
+		REMOVE_FROM_LIST(mob->helpers, mob->helpers, [](auto list) -> auto& { return list->next_helper; });
+	}
 
-	// Прототип
-	proto_script_free(mob->proto_script);
 	// Скрипт уже NULL
 
 	if (mob->ing_list)
@@ -345,7 +343,7 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 		 * try it with the braces and report to greerga@van.ml.org on if that works.
 		 */
 		if (GET_MPROG(mob))
-			CREATE(OLC_MPROGL(d), MPROG_DATA, 1);
+			CREATE(OLC_MPROGL(d), 1);
 		head = OLC_MPROGL(d);
 		for (temp = GET_MPROG(mob); temp; temp = temp->next)
 		{
@@ -354,7 +352,7 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 			OLC_MPROGL(d)->comlist = str_dup(temp->comlist);
 			if (temp->next)
 			{
-				CREATE(OLC_MPROGL(d)->next, MPROG_DATA, 1);
+				CREATE(OLC_MPROGL(d)->next, 1);
 				OLC_MPROGL(d) = OLC_MPROGL(d)->next;
 			}
 		}
@@ -417,14 +415,16 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		{
 			if (IS_MOB(live_mob) && GET_MOB_RNUM(live_mob) == rmob_num)
 			{
-				live_mob->set_pc_name((mob_proto + rmob_num)->get_pc_name());
-				live_mob->set_npc_name((mob_proto + rmob_num)->get_npc_name());
+				live_mob->set_pc_name((mob_proto + rmob_num)->get_pc_name().c_str());
+				live_mob->set_npc_name((mob_proto + rmob_num)->get_npc_name().c_str());
 				// Только строки. Остальное после ресета/ребута
 				// Возможна небольшая утечка памяти, но иначе очень большая запара
 				GET_LDESC(live_mob) = GET_LDESC(mob_proto + rmob_num);
 				GET_DDESC(live_mob) = GET_DDESC(mob_proto + rmob_num);
-				for (j = 0; j < NUM_PADS; j++)
+				for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+				{
 					GET_PAD(live_mob, j) = GET_PAD(mob_proto + rmob_num, j);
+				}
 				live_mob->helpers = (mob_proto + rmob_num)->helpers;
 				live_mob->mob_specials.Questor = (mob_proto + rmob_num)->mob_specials.Questor;
 				// Скрипты и прототипы остаются от старого моба
@@ -439,7 +439,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 #endif
 
 		new_proto = new CHAR_DATA[top_of_mobt + 2];
-		CREATE(new_index, INDEX_DATA, top_of_mobt + 2);
+		CREATE(new_index, top_of_mobt + 2);
 
 		for (rmob_num = 0; rmob_num <= top_of_mobt; rmob_num++)
 		{
@@ -565,7 +565,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			}
 		}
 
-		SetsDrop::renumber_obj_rnum(-1, new_mob_num);
+		SetsDrop::renumber_obj_rnum(new_mob_num);
 	}			// совершенно новый моб
 
 #if defined(OASIS_MPROG)
@@ -644,13 +644,11 @@ void medit_save_to_disk(int zone_num)
 				strcpy(buf1, "");
 			strip_string(buf1);
 			*buf2 = 0;
-			tascii(&MOB_FLAGS(mob, 0), 4, buf2);
-			tascii(&AFF_FLAGS(mob, 0), 4, buf2);
+			MOB_FLAGS(mob).tascii(4, buf2);
+			AFF_FLAGS(mob).tascii(4, buf2);
 
 			fprintf(mob_file,
-				// "%s~\n"
 				"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
-				// buf1,
 				buf2, GET_ALIGNMENT(mob),
 				GET_LEVEL(mob), 20 - GET_HR(mob), GET_AC(mob) / 10,
 				GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob), GET_HIT(mob),
@@ -728,25 +726,31 @@ void medit_save_to_disk(int zone_num)
 			if (GET_WEIGHT(mob))
 				fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
 			strcpy(buf1, "Special_Bitvector: ");
-			tascii(&NPC_FLAGS(mob, 0), 4, buf1);
+			NPC_FLAGS(mob).tascii(4, buf2);
 			fprintf(mob_file, "%s\n", buf1);
 			for (c = 1; c < MAX_FEATS; c++)
 			{
 				if (HAVE_FEAT(mob, c))
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
-			for (c = 1; c <= MAX_SKILL_NUM; c++)
+			for (const auto c : AVAILABLE_SKILLS)
 			{
 				if (mob->get_skill(c))
+				{
 					fprintf(mob_file, "Skill: %d %d\n", c, mob->get_skill(c));
+				}
 			}
 			for (c = 1; c <= MAX_SPELLS; c++)
 			{
 				for (j = 1; j <= GET_SPELL_MEM(mob, c); j++)
+				{
 					fprintf(mob_file, "Spell: %d\n", c);
+				}
 			}
 			for (helper = GET_HELPER(mob); helper; helper = helper->next_helper)
+			{
 				fprintf(mob_file, "Helper: %d\n", helper->mob_vnum);
+			}
 			if (mob->get_role_bits().any())
 			{
 				std::string tmp;
@@ -1148,20 +1152,29 @@ void medit_disp_helpers(DESCRIPTOR_DATA * d)
 
 void medit_disp_skills(DESCRIPTOR_DATA * d)
 {
-	int columns = 0, counter;
+	int columns = 0;
 
 	get_char_cols(d->character);
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 1; counter <= MAX_SKILL_NUM; counter++)
+	for (const auto counter : AVAILABLE_SKILLS)
 	{
-		if (!skill_info[counter].name || *skill_info[counter].name == '!')
+		if (!skill_info[counter].name
+			|| *skill_info[counter].name == '!')
+		{
 			continue;
+		}
+
 		if (OLC_MOB(d)->get_skill(counter))
+		{
 			sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->get_skill(counter), nrm);
+		}
 		else
+		{
 			strcpy(buf1, "     ");
+		}
+
 		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 			skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
@@ -1179,20 +1192,25 @@ void medit_disp_spells(DESCRIPTOR_DATA * d)
 #endif
 	for (counter = 1; counter <= MAX_SPELLS; counter++)
 	{
-		if (!spell_info[counter].name || *spell_info[counter].name == '!')
+		if (!spell_info[counter].name
+			|| *spell_info[counter].name == '!')
+		{
 			continue;
+		}
 		if (GET_SPELL_MEM(OLC_MOB(d), counter))
+		{
 			sprintf(buf1, "%s[%3d]%s", cyn, GET_SPELL_MEM(OLC_MOB(d), counter), nrm);
+		}
 		else
+		{
 			strcpy(buf1, "     ");
+		}
 		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 			spell_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	send_to_char("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character);
 }
-
-
 
 // * Display mob-flags menu.
 void medit_disp_mob_flags(DESCRIPTOR_DATA * d)
@@ -1220,7 +1238,7 @@ void medit_disp_mob_flags(DESCRIPTOR_DATA * d)
 			action_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_MOB(d)->char_specials.saved.act, action_bits, buf1, ",", 1);
+	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 1);
 	sprintf(buf, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1250,7 +1268,7 @@ void medit_disp_npc_flags(DESCRIPTOR_DATA * d)
 			function_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_MOB(d)->mob_specials.npc_flags, function_bits, buf1, ",", 1);
+	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",", 1);
 	sprintf(buf, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1285,7 +1303,7 @@ void medit_disp_aff_flags(DESCRIPTOR_DATA * d)
 			affected_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_MOB(d)->char_specials.saved.affected_by, affected_bits, buf1, ",", 1);
+	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, ",", 1);
 	sprintf(buf, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1349,8 +1367,8 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
 	send_to_char(buf, d->character);
 
-	sprintbits(mob->char_specials.saved.act, action_bits, buf1, ",");
-	sprintbits(mob->char_specials.saved.affected_by, affected_bits, buf2, ",");
+	mob->char_specials.saved.act.sprintbits(action_bits, buf1, ",");
+	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
 	sprintf(buf,
 		"%sP%s) Положение     : %s%s\r\n"
 		"%sR%s) По умолчанию  : %s%s\r\n"
@@ -1362,7 +1380,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, yel, attack_hit_text[GET_ATTACK(mob)].singular, grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	send_to_char(buf, d->character);
 
-	sprintbits(mob->mob_specials.npc_flags, function_bits, buf1, ",");
+	mob->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",");
 	*buf2 = '\0';
 	if (GET_DEST(mob) == NOWHERE)
 		strcpy(buf2, "-1,");
@@ -1432,7 +1450,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm,
 		grn, nrm, cyn, npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC],
 		grn, nrm, cyn,
-		grn, nrm, cyn, mob->proto_script ? "Set." : "Not Set.", grn, nrm);
+		grn, nrm, cyn, !mob->proto_script.empty() ? "Set." : "Not Set.", grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = MEDIT_MAIN_MENU;
@@ -1448,7 +1466,6 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 	// 2) ...
 	int i;
 	CHAR_DATA *mob;
-	string objname;
 
 	mob = OLC_MOB(d);
 	get_char_cols(d->character);
@@ -1471,13 +1488,14 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 			i++;
 
 			const OBJ_DATA *tobj = read_object_mirror((*p)->obj_vnum);
+			const char* objname = NULL;
 			if ((*p)->obj_vnum && tobj)
 				objname = tobj->PNames[0];
 			else
 				objname = "Нет";
 
 			sprintf(buf, "%d. %s (%d,%d,%d,%d)\r\n",
-				i, objname.c_str(), (*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
+				i, objname, (*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
 
 			send_to_char(buf, d->character);
 			p++;
@@ -1507,7 +1525,7 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 
 void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
-	struct helper_data_type *helper, *temp;
+	struct helper_data_type *helper;
 	int i, number, plane, bit;
 
 	if (OLC_MODE(d) > MEDIT_NUMERICAL_RESPONSE)
@@ -1524,7 +1542,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		//-------------------------------------------------------------------
 	case MEDIT_CONFIRM_SAVESTRING:
 		// * Ensure mob has MOB_ISNPC set or things will go pair shaped.
-		SET_BIT(MOB_FLAGS(OLC_MOB(d), MOB_ISNPC), MOB_ISNPC);
+		MOB_FLAGS(OLC_MOB(d)).set(MOB_ISNPC);
 		switch (*arg)
 		{
 		case 'y':
@@ -2065,7 +2083,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		else
 		{
-			TOGGLE_BIT(OLC_MOB(d)->char_specials.saved.act.flags[plane], 1 << (bit));
+			OLC_MOB(d)->char_specials.saved.act.toggle_flag(plane, 1 << bit);
 			medit_disp_mob_flags(d);
 			return;
 		}
@@ -2082,7 +2100,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		else
 		{
-			TOGGLE_BIT(OLC_MOB(d)->mob_specials.npc_flags.flags[plane], 1 << (bit));
+			OLC_MOB(d)->mob_specials.npc_flags.toggle_flag(plane, 1 << bit);
 			medit_disp_npc_flags(d);
 			return;
 		}
@@ -2098,7 +2116,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		else
 		{
-			TOGGLE_BIT(OLC_MOB(d)->char_specials.saved.affected_by.flags[plane], 1 << (bit));
+			OLC_MOB(d)->char_specials.saved.affected_by.toggle_flag(plane, 1 << bit);
 			medit_disp_aff_flags(d);
 			return;
 		}
@@ -2110,7 +2128,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else if (i == OLC_MTOTAL(d))
 		{
 			struct mob_prog_data *temp;
-			CREATE(temp, struct mob_prog_data, 1);
+			CREATE(temp, 1);
 			temp->next = OLC_MPROGL(d);
 			temp->type = -1;
 			temp->arglist = NULL;
@@ -2226,7 +2244,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 #endif
 
 	case MEDIT_SEX:
-		GET_SEX(OLC_MOB(d)) = MAX(0, MIN(NUM_GENDERS, atoi(arg)));
+		GET_SEX(OLC_MOB(d)) = static_cast<ESex>(MAX(0, MIN(NUM_GENDERS, atoi(arg))));
 		break;
 
 	case MEDIT_HITROLL:
@@ -2335,11 +2353,11 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 					break;
 			if (helper)
 			{
-				REMOVE_FROM_LIST(helper, OLC_MOB(d)->helpers, next_helper);
+				REMOVE_FROM_LIST(helper, OLC_MOB(d)->helpers, [](auto list) -> auto& { return list->next_helper; });
 			}
 			else
 			{
-				CREATE(helper, struct helper_data_type, 1);
+				CREATE(helper, 1);
 				helper->mob_vnum = number;
 				helper->next_helper = OLC_MOB(d)->helpers;
 				OLC_MOB(d)->helpers = helper;
@@ -2359,12 +2377,18 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 			send_to_char("Неизвестное умение.\r\n", d->character);
 		}
-		else if (OLC_MOB(d)->get_skill(number))
-			OLC_MOB(d)->set_skill(number, 0);
+		else if (OLC_MOB(d)->get_skill(static_cast<ESkill>(number)))
+		{
+			OLC_MOB(d)->set_skill(static_cast<ESkill>(number), 0);
+		}
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
+		{
 			send_to_char("Не указан уровень владения умением.\r\n", d->character);
+		}
 		else
-			OLC_MOB(d)->set_skill(number, (MIN(200, MAX(0, bit))));
+		{
+			OLC_MOB(d)->set_skill(static_cast<ESkill>(number), (MIN(200, MAX(0, bit))));
+		}
 		medit_disp_skills(d);
 		return;
 

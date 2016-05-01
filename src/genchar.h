@@ -49,7 +49,7 @@ extern const char *genchar_help;
 void genchar_disp_menu(CHAR_DATA * ch);
 int genchar_parse(CHAR_DATA * ch, char *arg);
 void roll_real_abils(CHAR_DATA * ch);
-void GetCase(const char *name, int sex, int caseNum, char *result);
+void GetCase(const char *name, const ESex sex, int caseNum, char *result);
 
 extern int max_stats[][6];
 extern int min_stats[][6];

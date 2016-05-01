@@ -12,12 +12,12 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
+#include "structs.h"
+#include "sysdep.h"
 #include "conf.h"
+
 #include <vector>
 #include <array>
-
-#include "sysdep.h"
-#include "structs.h"
 
 extern const char *circlemud_version;
 extern const char *dirs[];
@@ -56,7 +56,6 @@ extern const char *weekdays_poly[];
 extern const char *month_name_poly[];
 extern const char *ingradient_bits[];
 extern const char *function_bits[];
-extern const char *religion_name[][NUM_SEXES];
 extern const char *pray_metter[];
 extern const char *pray_whom[];
 extern const char *room_aff_visib_bits[];
@@ -70,12 +69,15 @@ extern struct int_app_type int_app[];
 extern struct wis_app_type wis_app[];
 extern struct cha_app_type cha_app[];
 extern struct size_app_type size_app[];
-extern struct class_app_type class_app[];
+extern class_app_type class_app[];
 extern struct weapon_app_type weapon_app[];
-extern struct pray_affect_type pray_affect[];
+extern std::vector<pray_affect_type> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
-extern struct weapon_affect_types weapon_affect[];
+
+typedef std::array<weapon_affect_types, WAFF_COUNT> weapon_affect_t;
+extern weapon_affect_t weapon_affect;
+
 extern int mana[];
 extern int mana_gain_cs[];
 extern int mana_cost_cs[][9];

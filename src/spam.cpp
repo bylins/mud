@@ -41,7 +41,7 @@ void add_to_list(UidListType &list, long uid)
 	}
 };
 
-int check_list(const UidListType &list, long uid)
+int check_list(const UidListType& /*list*/, long uid)
 {
 	int total = 0, running = 0;
 	time_t first_message = time(0);

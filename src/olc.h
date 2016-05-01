@@ -13,7 +13,7 @@
 
 #include "db.h"
 #include "structs.h"
-#include "conf.h"
+
 
 // * If you don't want a short explanation of each field in your zone files,
 // * change the number below to a 0 instead of a 1.
@@ -105,7 +105,7 @@ struct olc_data
 	int script_mode;
 	int trigger_position;
 	int item_type;
-	struct trig_proto_list *script;
+	OBJ_DATA::triggers_list_t script;
 	char *storage;		// for holding commands etc..
 };
 

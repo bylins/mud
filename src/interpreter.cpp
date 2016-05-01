@@ -15,6 +15,7 @@
 
 #include "interpreter.h"
 
+#include "craft.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "constants.h"
@@ -95,13 +96,11 @@ extern const char *MENU;
 extern const char *WELC_MESSG;
 extern const char *START_MESSG;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern struct player_index_element *player_table;
 extern int top_of_p_table;
 extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern const char *default_race[];
 
 extern struct pclean_criteria_data pclean_criteria[];
@@ -159,278 +158,277 @@ void single_god_invoice(CHAR_DATA* ch);
 void login_change_invoice(CHAR_DATA* ch);
 void init_warcry(CHAR_DATA *ch);
 
-ACMD(do_advance);
-ACMD(do_alias);
-ACMD(do_antigods);
-ACMD(do_assist);
-ACMD(do_at);
-ACMD(do_affects);
-ACMD(do_backstab);
-ACMD(do_ban);
-ACMD(do_bash);
-ACMD(do_beep);
-ACMD(do_cast);
-ACMD(do_warcry);
-ACMD(do_clanstuff);
-ACMD(do_create);
-ACMD(do_mixture);
-ACMD(do_color);
-ACMD(do_courage);
-ACMD(do_commands);
-ACMD(do_consider);
-ACMD(do_credits);
-ACMD(do_date);
-ACMD(do_dc);
-ACMD(do_diagnose);
-ACMD(do_display);
-ACMD(do_drink);
-ACMD(do_drunkoff);
-ACMD(do_features);
-ACMD(do_featset);
-ACMD(do_findhelpee);
-ACMD(do_firstaid);
-ACMD(do_fire);
-ACMD(do_drop);
-ACMD(do_eat);
-ACMD(do_echo);
-ACMD(do_enter);
-ACMD(do_manadrain);
-ACMD(do_equipment);
-ACMD(do_examine);
-ACMD(do_revenge);
-ACMD(do_remort);
-ACMD(do_remember_char);
-ACMD(do_exit);
-ACMD(do_exits);
-ACMD(do_flee);
-ACMD(do_follow);
-ACMD(do_horseon);
-ACMD(do_horseoff);
-ACMD(do_horseput);
-ACMD(do_horseget);
-ACMD(do_horsetake);
-ACMD(do_hidetrack);
-ACMD(do_hidemove);
-ACMD(do_fit);
-ACMD(do_force);
-ACMD(do_extinguish);
-ACMD(do_forcetime);
-ACMD(do_glory);
-ACMD(do_gecho);
-ACMD(do_gen_comm);
-ACMD(do_mobshout);
-ACMD(do_gen_door);
-ACMD(do_gen_ps);
-ACMD(do_get);
-ACMD(do_give);
-ACMD(do_givehorse);
-ACMD(do_gold);
-ACMD(do_goto);
-ACMD(do_grab);
-ACMD(do_group);
-ACMD(do_gsay);
-ACMD(do_hide);
-ACMD(do_hit);
-ACMD(do_info);
-ACMD(do_inspect);
-ACMD(do_insult);
-ACMD(do_inventory);
-ACMD(do_invis);
-ACMD(do_kick);
-ACMD(do_kill);
-ACMD(do_last);
-ACMD(do_mode);
-ACMD(do_mark);
-ACMD(do_makefood);
-ACMD(do_name);
-ACMD(do_disarm);
-ACMD(do_chopoff);
-ACMD(do_deviate);
-ACMD(do_levels);
-ACMD(do_liblist);
-ACMD(do_lightwalk);
-ACMD(do_load);
-ACMD(do_look);
-ACMD(do_sides);
-ACMD(do_not_here);
-ACMD(do_offer);
-ACMD(do_olc);
-ACMD(do_order);
-ACMD(do_page);
-ACMD(do_pray);
-ACMD(do_poofset);
-ACMD(do_pour);
-ACMD(do_skills);
-ACMD(do_statistic);
-ACMD(do_spells);
-//ACMD(do_stun);
-ACMD(do_spellstat);
-ACMD(do_remember);
-ACMD(do_learn);
-ACMD(do_forget);
-ACMD(do_purge);
-ACMD(do_put);
-ACMD(do_quit);
-ACMD(do_reboot);
-ACMD(do_remove);
-ACMD(do_rent);
-ACMD(do_reply);
-ACMD(do_report);
-ACMD(do_rescue);
-ACMD(do_stopfight);
-ACMD(do_setall);
-ACMD(do_stophorse);
-ACMD(do_rest);
-ACMD(do_restore);
-ACMD(do_return);
-ACMD(do_save);
-ACMD(do_say);
-ACMD(do_score);
-ACMD(do_sdemigod);
-ACMD(do_send);
-ACMD(do_set);
-ACMD(do_show);
-ACMD(do_shutdown);
-ACMD(do_sit);
-ACMD(do_skillset);
-ACMD(do_sleep);
-ACMD(do_sneak);
-ACMD(do_snoop);
-ACMD(do_spec_comm);
-ACMD(do_spell_capable);
-ACMD(do_split);
-ACMD(do_stand);
-ACMD(do_stat);
-ACMD(do_steal);
-ACMD(do_switch);
-ACMD(do_syslog);
-ACMD(do_throw);
-ACMD(do_teleport);
-ACMD(do_tell);
-ACMD(do_time);
-ACMD(do_toggle);
-ACMD(do_track);
-ACMD(do_sense);
-ACMD(do_unban);
-ACMD(do_ungroup);
-ACMD(do_use);
-ACMD(do_users);
-ACMD(do_visible);
-ACMD(do_vnum);
-ACMD(do_vstat);
-ACMD(do_wake);
-ACMD(do_wear);
-ACMD(do_weather);
-ACMD(do_where);
-ACMD(do_who);
-ACMD(do_wield);
-ACMD(do_wimpy);
-ACMD(do_wizlock);
-ACMD(do_wiznet);
-ACMD(do_wizutil);
-ACMD(do_write);
-ACMD(do_zreset);
-ACMD(do_parry);
-ACMD(do_multyparry);
-ACMD(do_style);
-ACMD(do_poisoned);
-ACMD(do_repair);
-ACMD(do_camouflage);
-ACMD(do_stupor);
-ACMD(do_mighthit);
-ACMD(do_block);
-ACMD(do_touch);
-ACMD(do_transform_weapon);
-ACMD(do_protect);
-ACMD(do_dig);
-ACMD(do_insertgem);
-ACMD(do_ignore);
-ACMD(do_proxy);
-ACMD(do_turn_undead);
-ACMD(do_iron_wind);
-ACMD(do_exchange);
-ACMD(do_godtest);
-ACMD(do_print_armor);
-ACMD(do_relocate);
-ACMD(do_strangle);
-ACMD(do_custom_label);
-ACMD(do_quest);
-ACMD(do_check);
+void do_advance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_alias(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_antigods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_at(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_affects(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_backstab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_ban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_bash(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_beep(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_cast(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_warcry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_courage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_commands(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_consider(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_credits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_date(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_dc(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_diagnose(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_display(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_featset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_findhelpee(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_firstaid(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_fire(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_eat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_enter(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_equipment(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_examine(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_remort(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_exit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_flee(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_horseon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_horseoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_horseput(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_horseget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_horsetake(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_hidetrack(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_hidemove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_fit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_force(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_extinguish(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_forcetime(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gecho(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mobshout(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gen_ps(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_give(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_givehorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gold(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_goto(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_grab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_gsay(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_hide(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_hit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_info(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_inspect(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_insult(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_inventory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_invis(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_kick(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_last(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mode(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mark(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_makefood(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_name(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_disarm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_chopoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_deviate(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_levels(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_load(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_look(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sides(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_not_here(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_offer(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_order(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_page(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_pray(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_poofset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_pour(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_statistic(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_spellstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_remember(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_learn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_forget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_purge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_put(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_quit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_reboot(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_rent(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_reply(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_rescue(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_stopfight(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_stophorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_rest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_save(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_score(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sdemigod(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_send(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_set(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_show(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_shutdown(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_skillset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sleep(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sneak(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_snoop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_spec_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_stat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_switch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_syslog(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_throw(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_teleport(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_time(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_track(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sense(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_users(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_vnum(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_vstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wake(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wear(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_weather(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_where(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_who(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wield(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wimpy(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wizlock(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wiznet(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_wizutil(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_write(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_zreset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_parry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_multyparry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_style(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_poisoned(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_repair(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_camouflage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_stupor(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mighthit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_block(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_touch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_transform_weapon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_protect(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_dig(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_insertgem(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_proxy(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_turn_undead(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_iron_wind(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_godtest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_print_armor(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_relocate(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_strangle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_custom_label(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_quest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_check(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 // DG Script ACMD's
-ACMD(do_attach);
-ACMD(do_detach);
-ACMD(do_tlist);
-ACMD(do_tstat);
-ACMD(do_masound);
-ACMD(do_mkill);
-ACMD(do_mjunk);
-ACMD(do_mdamage);
-ACMD(do_mdoor);
-ACMD(do_mechoaround);
-ACMD(do_msend);
-ACMD(do_mecho);
-ACMD(do_mload);
-ACMD(do_mpurge);
-ACMD(do_mgoto);
-ACMD(do_mat);
-ACMD(do_mteleport);
-ACMD(do_mforce);
-ACMD(do_mexp);
-ACMD(do_mgold);
-ACMD(do_mremember);
-ACMD(do_mforget);
-ACMD(do_mfeatturn);
-ACMD(do_mtransform);
-ACMD(do_mskillturn);
-ACMD(do_mskilladd);
-ACMD(do_mspellturn);
-ACMD(do_mspelladd);
-ACMD(do_mspellitem);
-ACMD(do_vdelete);
-ACMD(do_hearing);
-ACMD(do_looking);
-ACMD(do_ident);
-ACMD(do_upgrade);
-ACMD(do_armored);
-ACMD(do_recall);
-ACMD(do_pray_gods);
-ACMD(do_rset);
-ACMD(do_recipes);
-ACMD(do_cook);
-ACMD(do_forgive);
-ACMD(do_imlist);
-ACMD(do_townportal);
-ACMD(DoBoard);
-ACMD(DoBoardList);
-ACMD(DoHouse);
-ACMD(DoClanChannel);
-ACMD(DoClanList);
-ACMD(DoShowPolitics);
-ACMD(DoShowWars);
-ACMD(DoHcontrol);
-ACMD(DoWhoClan);
-ACMD(DoClanPkList);
-ACMD(DoStoreHouse);
-ACMD(do_clanstuff);
-ACMD(DoBest);
-ACMD(do_offtop);
-ACMD(do_dmeter);
-ACMD(do_mystat);
-ACMD(do_zone);
-ACMD(do_bandage);
-ACMD(do_sanitize);
-ACMD(do_morph);
-ACMD(do_morphset);
-ACMD(do_console);
-ACMD(do_shops_list);
-ACMD(do_unfreeze);
-ACMD(Bonus::do_bonus);
-ACMD(do_summon);
-ACMD(do_check_occupation);
-ACMD(do_delete_obj);
-ACMD(do_arena_restore);
-ACMD(Bonus::do_bonus_info);
-ACMD(do_stun);
+void do_attach(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_detach(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_tlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_tstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_masound(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mkill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mjunk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mdamage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mdoor(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mechoaround(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_msend(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mecho(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mload(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mpurge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mgoto(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mteleport(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mforce(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mexp(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mgold(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mremember(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mforget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mfeatturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mskillturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mskilladd(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mspellturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mspelladd(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mspellitem(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_vdelete(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_hearing(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_looking(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_ident(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_upgrade(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_armored(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_pray_gods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_rset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_forgive(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_imlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_townportal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoBoard(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoBoardList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoClanChannel(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoClanList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoShowPolitics(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoHcontrol(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoWhoClan(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoClanPkList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoStoreHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoBest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_offtop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_dmeter(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mystat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_zone(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_bandage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sanitize(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_morph(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_morphset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_console(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_shops_list(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_unfreeze(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void Bonus::do_bonus(CHAR_DATA*, char*, int, int);
+void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void Bonus::do_bonus_info(CHAR_DATA*, char*, int, int);
+void do_stun(CHAR_DATA*, char*, int, int);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -1095,9 +1093,11 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mspellitem", POS_DEAD, do_mspellitem, -1, 0, -1},
 	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
 
+	// Craft
+	//{"craft", craft::cmd::MINIMAL_POSITION, craft::cmd::do_craft, craft::cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::cmd::UNHIDE_PROBABILITY},
+
 	{"\n", 0, 0, 0, 0, 0}
 };				// this must be last
-
 
 const char *dir_fill[] = { "in",
 						   "from",
@@ -1120,7 +1120,6 @@ const char *reserved[] = { "a",
 						   "\n"
 						 };
 
-
 void check_hiding_cmd(CHAR_DATA * ch, int percent)
 {
 	int remove_hide = FALSE;
@@ -1128,22 +1127,30 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 	{
 		if (percent == -2)
 		{
-			if (AFF_FLAGGED(ch, AFF_SNEAK))
+			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK))
+			{
 				remove_hide = number(1, skill_info[SKILL_SNEAK].max_percent) >
-							  calculate_skill(ch, SKILL_SNEAK, 0);
+					calculate_skill(ch, SKILL_SNEAK, 0);
+			}
 			else
+			{
 				percent = 500;
+			}
 		}
 
 		if (percent == -1)
+		{
 			remove_hide = TRUE;
+		}
 		else if (percent > 0)
+		{
 			remove_hide = number(1, percent) > calculate_skill(ch, SKILL_HIDE, 0);
+		}
 
 		if (remove_hide)
 		{
 			affect_from_char(ch, SPELL_HIDE);
-			if (!AFF_FLAGGED(ch, AFF_HIDE))
+			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
 			{
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", FALSE, ch, 0, 0, TO_ROOM);
@@ -1152,7 +1159,7 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 	}
 }
 
-bool check_frozen_cmd(CHAR_DATA *ch, int cmd)
+bool check_frozen_cmd(CHAR_DATA* /*ch*/, int cmd)
 {
 	if (!strcmp(cmd_info[cmd].command, "коне")
 		|| !strcmp(cmd_info[cmd].command, "конец")
@@ -1229,7 +1236,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		*(argument + length - 1) = ' ';
 	}
 
-	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_STOPFIGHT) && !AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)))
+	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)))
 	{
 		int cont;	// continue the command checks
 		cont = command_wtrigger(ch, arg, line);
@@ -1278,10 +1285,12 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		}
 	}
 
-	if (((!IS_NPC(ch) && (GET_FREEZE_LEV(ch) > GET_LEVEL(ch)) && (PLR_FLAGGED(ch, PLR_FROZEN)))
-			|| GET_MOB_HOLD(ch) > 0
-			|| AFF_FLAGGED(ch, AFF_STOPFIGHT)
-			|| AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
+	if (((!IS_NPC(ch)
+				&& (GET_FREEZE_LEV(ch) > GET_LEVEL(ch))
+				&& (PLR_FLAGGED(ch, PLR_FROZEN)))
+			|| GET_MOB_HOLD(ch)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
 		&& !check_frozen_cmd(ch, cmd))
 	{
 		send_to_char("Вы попытались, но не смогли сдвинуться с места...\r\n", ch);
@@ -1386,12 +1395,11 @@ void free_alias(struct alias_data *a)
 	free(a);
 }
 
-
 // The interface to the outside world: do_alias
-ACMD(do_alias)
+void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char *repl;
-	struct alias_data *a, *temp;
+	struct alias_data *a;
 
 	if (IS_NPC(ch))
 		return;
@@ -1418,7 +1426,7 @@ ACMD(do_alias)
 		// is this an alias we've already defined?
 		if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL)
 		{
-			REMOVE_FROM_LIST(a, GET_ALIASES(ch), next);
+			REMOVE_FROM_LIST(a, GET_ALIASES(ch));
 			free_alias(a);
 		}
 		// if no replacement string is specified, assume we want to delete
@@ -1436,7 +1444,7 @@ ACMD(do_alias)
 				send_to_char("Вы не можете определить алиас 'alias'.\r\n", ch);
 				return;
 			}
-			CREATE(a, struct alias_data, 1);
+			CREATE(a, 1);
 			a->alias = str_dup(arg);
 			delete_doubledollar(repl);
 			a->replacement = str_dup(repl);
@@ -1637,10 +1645,14 @@ int search_block(const std::string &arg, const char **list, int exact)
 int is_number(const char *str)
 {
 	while (*str)
-		if (!a_isdigit(static_cast<unsigned char>(*(str++))))
-			return (0);
+	{
+		if (!a_isdigit(*(str++)))
+		{
+			return 0;
+		}
+	}
 
-	return (1);
+	return 1;
 }
 
 /*
@@ -1757,12 +1769,16 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 
 	// special in equipment list? //
 	for (j = 0; j < NUM_WEARS; j++)
+	{
 		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != NULL)
+		{
 			if (GET_OBJ_SPEC(GET_EQ(ch, j))(ch, GET_EQ(ch, j), cmd, arg))
 			{
 				check_hiding_cmd(ch, -1);
 				return (1);
 			}
+		}
+	}
 
 	// special in inventory? //
 	for (i = ch->carrying; i; i = i->next_content)
@@ -1791,9 +1807,10 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 	// special in object present? //
 	for (i = world[ch->in_room]->contents; i; i = i->next_content)
 	{
-		if (GET_OBJ_SPEC(i) != NULL)
+		auto spec = GET_OBJ_SPEC(i);
+		if (spec != NULL)
 		{
-			if (GET_OBJ_SPEC(i)(ch, i, cmd, arg))
+			if (spec(ch, i, cmd, arg))
 			{
 				check_hiding_cmd(ch, -1);
 				return (1);
@@ -1985,8 +2002,8 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 	d->character->desc = d;
 	d->original = NULL;
 	d->character->char_specials.timer = 0;
-	REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
-	REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
+	PLR_FLAGS(d->character).unset(PLR_MAILING);
+	PLR_FLAGS(d->character).unset(PLR_WRITING);
 	STATE(d) = CON_PLAYING;
 
 	switch (mode)
@@ -2175,12 +2192,12 @@ void check_religion(CHAR_DATA *ch)
 	if (class_religion[ch->get_class()] == RELIGION_POLY && GET_RELIGION(ch) != RELIGION_POLY)
 	{
 		GET_RELIGION(ch) = RELIGION_POLY;
-		log("Change religion to poly: %s", ch->get_name());
+		log("Change religion to poly: %s", ch->get_name().c_str());
 	}
 	else if (class_religion[ch->get_class()] == RELIGION_MONO && GET_RELIGION(ch) != RELIGION_MONO)
 	{
 		GET_RELIGION(ch) = RELIGION_MONO;
-		log("Change religion to mono: %s", ch->get_name());
+		log("Change religion to mono: %s", ch->get_name().c_str());
 	}
 }
 
@@ -2189,7 +2206,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	int load_room, cmd, flag = 0;
 	CHAR_DATA *ch;
 
-	reset_char(d->character);
+	d->character->reset();
 	read_aliases(d->character);
 
 	if (GET_LEVEL(d->character) == LVL_IMMORT)
@@ -2201,7 +2218,9 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		d->character->set_level(1);
 	}
 	if (GET_INVIS_LEV(d->character) > LVL_IMPL || GET_INVIS_LEV(d->character) < 0)
-		GET_INVIS_LEV(d->character) = 0;
+	{
+		SET_INVIS_LEV(d->character, 0);
+	}
 	if (GET_LEVEL(d->character) > LVL_IMMORT
 			&& GET_LEVEL(d->character) < LVL_BUILDER
 			&& (d->character->get_gold() > 0 || d->character->get_bank() > 0))
@@ -2227,26 +2246,41 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	if (GET_LEVEL(d->character) < LVL_IMPL)
 	{
 		if (PLR_FLAGGED(d->character, PLR_INVSTART))
-			GET_INVIS_LEV(d->character) = LVL_IMMORT;
+		{
+			SET_INVIS_LEV(d->character, LVL_IMMORT);
+		}
 		if (GET_INVIS_LEV(d->character) > GET_LEVEL(d->character))
-			GET_INVIS_LEV(d->character) = GET_LEVEL(d->character);
+		{
+			SET_INVIS_LEV(d->character, GET_LEVEL(d->character));
+		}
 
 		if (PRF_FLAGGED(d->character, PRF_CODERINFO))
-			REMOVE_BIT(PRF_FLAGS(d->character, PRF_CODERINFO), PRF_CODERINFO);
+		{
+			PRF_FLAGS(d->character).unset(PRF_CODERINFO);
+		}
 		if (GET_LEVEL(d->character) < LVL_GOD)
 		{
 			if (PRF_FLAGGED(d->character, PRF_HOLYLIGHT))
-				REMOVE_BIT(PRF_FLAGS(d->character, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
+			{
+				PRF_FLAGS(d->character).unset(PRF_HOLYLIGHT);
+			}
 		}
 		if (GET_LEVEL(d->character) < LVL_GOD)
 		{
 			if (PRF_FLAGGED(d->character, PRF_NOHASSLE))
-				REMOVE_BIT(PRF_FLAGS(d->character, PRF_NOHASSLE), PRF_NOHASSLE);
+			{
+				PRF_FLAGS(d->character).unset(PRF_NOHASSLE);
+			}
 			if (PRF_FLAGGED(d->character, PRF_ROOMFLAGS))
-				REMOVE_BIT(PRF_FLAGS(d->character, PRF_ROOMFLAGS), PRF_ROOMFLAGS);
+			{
+				PRF_FLAGS(d->character).unset(PRF_ROOMFLAGS);
+			}
 		}
-		if (GET_INVIS_LEV(d->character) > 0 && GET_LEVEL(d->character) < LVL_IMMORT)
-			GET_INVIS_LEV(d->character) = 0;
+		if (GET_INVIS_LEV(d->character) > 0
+			&& GET_LEVEL(d->character) < LVL_IMMORT)
+		{
+			SET_INVIS_LEV(d->character, 0);
+		}
 	}
 
 	OfftopSystem::set_flag(d->character);
@@ -2307,8 +2341,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	}
 	else
 	{
-		REMOVE_BIT(MOB_FLAGS(ch, MOB_DELETE), MOB_DELETE);
-		REMOVE_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
+		MOB_FLAGS(ch).unset(MOB_DELETE);
+		MOB_FLAGS(ch).unset(MOB_FREE);
 	}
 
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
@@ -2325,33 +2359,47 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	Clan::clan_invoice(d->character, true);
 
 	// Чистим стили если не знаем их
-	if (IS_SET(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL)
-			&& !d->character->get_skill(SKILL_PUNCTUAL))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL);
+	if (PRF_FLAGS(d->character).get(PRF_PUNCTUAL)
+		&& !d->character->get_skill(SKILL_PUNCTUAL))
+	{
+		PRF_FLAGS(d->character).unset(PRF_PUNCTUAL);
+	}
 
-	if (IS_SET(PRF_FLAGS(d->character, PRF_AWAKE), PRF_AWAKE)
-			&& !d->character->get_skill(SKILL_AWAKE))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_AWAKE), PRF_AWAKE);
+	if (PRF_FLAGS(d->character).get(PRF_AWAKE)
+		&& !d->character->get_skill(SKILL_AWAKE))
+	{
+		PRF_FLAGS(d->character).unset(PRF_AWAKE);
+	}
 
-	if (IS_SET(PRF_FLAGS(d->character, PRF_POWERATTACK), PRF_POWERATTACK)
-			&& !can_use_feat(d->character, POWER_ATTACK_FEAT))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_POWERATTACK), PRF_POWERATTACK);
+	if (PRF_FLAGS(d->character).get(PRF_POWERATTACK)
+		&& !can_use_feat(d->character, POWER_ATTACK_FEAT))
+	{
+		PRF_FLAGS(d->character).unset(PRF_POWERATTACK);
+	}
 
-	if (IS_SET(PRF_FLAGS(d->character, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK)
-			&& !can_use_feat(d->character, GREAT_POWER_ATTACK_FEAT))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+	if (PRF_FLAGS(d->character).get(PRF_GREATPOWERATTACK)
+		&& !can_use_feat(d->character, GREAT_POWER_ATTACK_FEAT))
+	{
+		PRF_FLAGS(d->character).unset(PRF_GREATPOWERATTACK);
+	}
 
-	if (IS_SET(PRF_FLAGS(d->character, PRF_AIMINGATTACK), PRF_AIMINGATTACK)
-			&& !can_use_feat(d->character, AIMING_ATTACK_FEAT))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+	if (PRF_FLAGS(d->character).get(PRF_AIMINGATTACK)
+		&& !can_use_feat(d->character, AIMING_ATTACK_FEAT))
+	{
+		PRF_FLAGS(d->character).unset(PRF_AIMINGATTACK);
+	}
 
-	if (IS_SET(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK)
-			&& !can_use_feat(d->character, GREAT_AIMING_ATTACK_FEAT))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+	if (PRF_FLAGS(d->character).get(PRF_GREATAIMINGATTACK)
+		&& !can_use_feat(d->character, GREAT_AIMING_ATTACK_FEAT))
+	{
+		PRF_FLAGS(d->character).unset(PRF_GREATAIMINGATTACK);
+	}
 
 	// Gorrah: сбрасываем флаг от скилла, если он каким-то чудом засэйвился
-	if (IS_SET(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND))
-		REMOVE_BIT(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND);
+	if (PRF_FLAGS(d->character).get(PRF_IRON_WIND))
+	{
+		PRF_FLAGS(d->character).unset(PRF_IRON_WIND);
+	}
 
 	// Check & remove/add natural, race & unavailable features
 	for (int i = 1; i < MAX_FEATS; i++)
@@ -2359,19 +2407,27 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		if(HAVE_FEAT(d->character,i) && !can_get_feat(d->character,i))
 		{
 			//UNSET_FEAT(d->character, i);
-		} else {
+		}
+		else
+		{
 			if (feat_info[i].natural_classfeat[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)])
+			{
 				SET_FEAT(d->character, i);
+			}
 		}
 	};
 	set_race_feats(d->character);
 	//нефиг левыми скиллами размахивать если не имм
 	if (!IS_IMMORTAL(d->character))
-		for (int i = 1; i <= MAX_SKILL_NUM; i++)
+	{
+		for (const auto i : AVAILABLE_SKILLS)
 		{
-			if (skill_info[i].classknow[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)] != KNOW_SKILL)
+			if (skill_info[i].classknow[(int)GET_CLASS(d->character)][(int)GET_KIN(d->character)] != KNOW_SKILL)
+			{
 				(d->character)->set_skill(i, 0);
+			}
 		}
+	}
 
 	//Заменяем закл !переместиться! на способность
 	if (GET_SPELL_TYPE(d->character, SPELL_RELOCATE) == SPELL_KNOW && !IS_GOD(d->character))
@@ -2381,8 +2437,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	}
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
-	REMOVE_BIT(AFF_FLAGS(d->character, AFF_GROUP), AFF_GROUP);
-	REMOVE_BIT(AFF_FLAGS(d->character, AFF_HORSE), AFF_HORSE);
+	AFF_FLAGS(d->character).unset(EAffectFlag::AFF_GROUP);
+	AFF_FLAGS(d->character).unset(EAffectFlag::AFF_HORSE);
 
 	// изменяем порталы
 	check_portals(d->character);
@@ -2408,19 +2464,18 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	const bool new_char = GET_LEVEL(d->character) <= 0 ? true : false;
 	if (new_char)
 	{
-		SET_BIT(PRF_FLAGS(d->character, PRF_DRAW_MAP), PRF_DRAW_MAP); //рисовать миникарту
-		SET_BIT(PRF_FLAGS(d->character, PRF_GOAHEAD), PRF_GOAHEAD); //IAC GA
-		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOMEM), PRF_AUTOMEM); // автомем
-
-		SET_BIT(PRF_FLAGS(d->character, PRF_AUTOLOOT), PRF_AUTOLOOT); // автолут
-		SET_BIT(PRF_FLAGS(d->character, PRF_PKL_MODE), PRF_PKL_MODE); // пклист
-		SET_BIT(PRF_FLAGS(d->character, PRF_WORKMATE_MODE), PRF_WORKMATE_MODE); // соклан
+		PRF_FLAGS(d->character).set(PRF_DRAW_MAP); //рисовать миникарту
+		PRF_FLAGS(d->character).set(PRF_GOAHEAD); //IAC GA
+		PRF_FLAGS(d->character).set(PRF_AUTOMEM); // автомем
+		PRF_FLAGS(d->character).set(PRF_AUTOLOOT); // автолут
+		PRF_FLAGS(d->character).set(PRF_PKL_MODE); // пклист
+		PRF_FLAGS(d->character).set(PRF_WORKMATE_MODE); // соклан
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_TEACH);
-		SET_BIT(PRF_FLAGS(d->character, PRF_ENTER_ZONE), PRF_ENTER_ZONE);
-		SET_BIT(PRF_FLAGS(d->character, PRF_BOARD_MODE), PRF_BOARD_MODE);
+		PRF_FLAGS(d->character).set(PRF_ENTER_ZONE);
+		PRF_FLAGS(d->character).set(PRF_BOARD_MODE);
 		d->character->set_last_exchange(time(0)); // когда последний раз базар
 		do_start(d->character, TRUE);
 		GET_MANA_STORED(d->character) = 0;
@@ -2437,14 +2492,25 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	{
 	    CLR_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
-	if (GET_SEX(d->character) == 0)
-        sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
-	if (GET_SEX(d->character) == 1)
-        sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
-	if (GET_SEX(d->character) == 2)
-        sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
-	if (GET_SEX(d->character) == 3)
-        sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+
+	switch (GET_SEX(d->character))
+	{
+	case ESex::SEX_NEUTRAL:
+		sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
+		break;
+
+	case ESex::SEX_MALE:
+		sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+		break;
+
+	case ESex::SEX_FEMALE:
+		sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
+		break;
+
+	case ESex::SEX_POLY:
+		sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+		break;
+	}
 
 	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 	look_at_room(d->character, 0);
@@ -2571,7 +2637,7 @@ void CreateChar(DESCRIPTOR_DATA * d)
 	if (d->character != NULL) return;
 
 	d->character = new Player;
-	CREATE(d->character->player_specials, struct player_special_data, 1);
+	CREATE(d->character->player_specials, 1);
 	memset(d->character->player_specials, 0, sizeof(struct player_special_data));
 	d->character->desc = d;
 }
@@ -2695,9 +2761,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					d->character = NULL;
 					return;
 				}
-				REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
-				REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
-				REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);
+				PLR_FLAGS(d->character).unset(PLR_MAILING);
+				PLR_FLAGS(d->character).unset(PLR_WRITING);
+				PLR_FLAGS(d->character).unset(PLR_CRYO);
 				d->character->set_pfilepos(player_i);
 				GET_ID(d->character) = GET_IDNUM(d->character);
 				DoAfterPassword(d);
@@ -2751,7 +2817,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					}
 					CreateChar(d);
 					d->character->set_pc_name(CAP(tmp_name));
-					CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
+					CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
 					strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 					d->character->set_pfilepos(player_i);
 					sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
@@ -2769,9 +2835,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 						d->character = NULL;
 						return;
 					}
-					REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
-					REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
-					REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);
+					PLR_FLAGS(d->character).unset(PLR_MAILING);
+					PLR_FLAGS(d->character).unset(PLR_WRITING);
+					PLR_FLAGS(d->character).unset(PLR_CRYO);
 					SEND_TO_Q("Персонаж с таким именем уже существует. Введите пароль : ", d);
 					d->idle_tics = 0;
 					STATE(d) = CON_PASSWORD;
@@ -2801,7 +2867,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					return;
 				}
 				d->character->set_pc_name(CAP(tmp_name));
-				CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
+				CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
 				strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 				SEND_TO_Q(name_rules, d);
 				sprintf(buf, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
@@ -2911,7 +2977,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		d->character->set_pc_name(CAP(tmp_name));
-		CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
+		CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
 		strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 		if (ban->is_banned(d->host) >= BanList::BAN_NEW)
 		{
@@ -3061,11 +3127,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case 'М':
 		case 'M':
-			GET_SEX(d->character) = SEX_MALE;
+			GET_SEX(d->character) = ESex::SEX_MALE;
 			break;
 		case 'Ж':
 		case 'F':
-			GET_SEX(d->character) = SEX_FEMALE;
+			GET_SEX(d->character) = ESex::SEX_FEMALE;
 			break;
 		default:
 			SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);
@@ -3391,8 +3457,9 @@ Sventovit
 
 			SEND_TO_Q("\r\nДо встречи на земле Киевской.\r\n", d);
 
-			if (GET_REMORT(d->character) == 0 && GET_LEVEL(d->character) <= 25
-					&& !IS_SET(PLR_FLAGS(d->character, PLR_NODELETE), PLR_NODELETE))
+			if (GET_REMORT(d->character) == 0
+				&& GET_LEVEL(d->character) <= 25
+				&& !PLR_FLAGS(d->character).get(PLR_NODELETE))
 			{
 				int timeout = -1;
 				for (int ci = 0; GET_LEVEL(d->character) > pclean_criteria[ci].level; ci++)
@@ -3495,14 +3562,14 @@ Sventovit
 		case '7':
 		{	if (!PRF_FLAGGED(d->character, PRF_BLIND))
 			{
-				SET_BIT(PRF_FLAGS(d->character, PRF_BLIND), PRF_BLIND);
+				PRF_FLAGS(d->character).set(PRF_BLIND);
 				SEND_TO_Q("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
 				SEND_TO_Q(MENU, d);
 				STATE(d) = CON_MENU;
 			}
 			else
 			{
-				REMOVE_BIT(PRF_FLAGS(d->character, PRF_BLIND), PRF_BLIND);
+				PRF_FLAGS(d->character).unset(PRF_BLIND);
 				SEND_TO_Q("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
 				SEND_TO_Q(MENU, d);
 				STATE(d) = CON_MENU;
@@ -3583,7 +3650,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 1), char, strlen(tmp_name) + 1);
+			CREATE(GET_PAD(d->character, 1), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 1), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
 			sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
@@ -3607,7 +3674,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 2), char, strlen(tmp_name) + 1);
+			CREATE(GET_PAD(d->character, 2), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 2), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
 			sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
@@ -3631,7 +3698,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 3), char, strlen(tmp_name) + 1);
+			CREATE(GET_PAD(d->character, 3), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 3), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
 			sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
@@ -3655,7 +3722,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 4), char, strlen(tmp_name) + 1);
+			CREATE(GET_PAD(d->character, 4), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 4), CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
 			sprintf(buf, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
@@ -3679,7 +3746,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 5), char, strlen(tmp_name) + 1);
+			CREATE(GET_PAD(d->character, 5), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 5), CAP(tmp_name));
 			sprintf(buf,
 					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
@@ -3878,7 +3945,7 @@ void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 // регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
 bool CompareParam(const std::string & buffer, const char *arg, bool full)
 {
-	if (!*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
+	if (!arg || !*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
 		return 0;
 
 	std::string::size_type i;

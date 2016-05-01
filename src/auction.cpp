@@ -65,15 +65,14 @@ const char *auction_cmd[] = { "поставить", "set",
 
 void showlots(CHAR_DATA * ch)
 {
-	int i;
-	string tmpstr;
+	std::string tmpstr;
 	char tmpbuf[MAX_INPUT_LENGTH];
 
 	CHAR_DATA *sch;
 	//CHAR_DATA *bch;
 	OBJ_DATA *obj;
 
-	for (i = 0; i < MAX_AUCTION_LOT; i++)
+	for (int i = 0; i < MAX_AUCTION_LOT; i++)
 	{
 		sch = GET_LOT(i)->seller;
 		//bch = GET_LOT(i)->buyer;
@@ -152,17 +151,19 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			send_to_char("У вас этого нет.\r\n", ch);
 			return false;
 		}
-		if (GET_OBJ_TYPE(obj) != ITEM_BOOK)
+		if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_BOOK)
 		{
-			if (OBJ_FLAGGED(obj, ITEM_NORENT)
-					|| OBJ_FLAGGED(obj, ITEM_NOSELL))
+			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
+					|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL))
 			{
 				send_to_char("Этот предмет не предназначен для аукциона.\r\n", ch);
 				return false;
 			}
 		}
-		if (OBJ_FLAGGED(obj, ITEM_DECAY) ||
-				OBJ_FLAGGED(obj, ITEM_NODROP) || GET_OBJ_COST(obj) <= 0 || obj->obj_flags.Obj_owner > 0)
+		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DECAY)
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODROP)
+			|| GET_OBJ_COST(obj) <= 0
+			|| obj->obj_flags.Obj_owner > 0)
 		{
 			send_to_char("Этот предмет не предназначен для аукциона.\r\n", ch);
 			return false;
@@ -441,11 +442,13 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		}
 		obj = GET_LOT(lot)->item;
 		sprintf(buf, "Предмет \"%s\", ", obj->short_description);
-		if ((GET_OBJ_TYPE(obj) == ITEM_WAND)
-				|| (GET_OBJ_TYPE(obj) == ITEM_STAFF))
+		if ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WAND)
+			|| (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF))
 		{
 			if (GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1))
+			{
 				strcat(buf, "(б/у), ");
+			}
 		}
 		strcat(buf, " тип ");
 		sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
@@ -620,7 +623,7 @@ void trans_auction(int lot)
 {
 	CHAR_DATA *ch, *tch;
 	OBJ_DATA *obj;
-	string tmpstr;
+	std::string tmpstr;
 	char tmpbuff[MAX_INPUT_LENGTH];
 
 	ch = GET_LOT(lot)->seller;
@@ -655,12 +658,12 @@ void trans_auction(int lot)
 	// Оба чара без БД
 	if (RENTABLE(ch))
 	{
-		tmpstr = "Завершите боевые действия для передачи " + string(obj->PNames[1]) + " $N2.\r\n";
+		tmpstr = "Завершите боевые действия для передачи " + std::string(obj->PNames[1]) + " $N2.\r\n";
 
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
 
 		tmpstr = "$n2 необходимо завершить боевые действия для передачи " +
-				 string(obj->PNames[1]) + " вам.\r\n";
+			std::string(obj->PNames[1]) + " вам.\r\n";
 
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_VICT | TO_SLEEP);
 		return;
@@ -686,11 +689,11 @@ void trans_auction(int lot)
 	if (!is_post(IN_ROOM(ch)))
 	{
 		// Проверка на то что продавец на ренте.
-		tmpstr = "Вам необходимо прибыть к ближайшей яме для передачи " + string(obj->PNames[1]) + " $N2.\r\n";
+		tmpstr = "Вам необходимо прибыть к ближайшей яме для передачи " + std::string(obj->PNames[1]) + " $N2.\r\n";
 
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
 
-		tmpstr = "$N2 необходимо прибыть к ближайшей яме для передачи " + string(obj->PNames[1]) + " вам.\r\n";
+		tmpstr = "$N2 необходимо прибыть к ближайшей яме для передачи " + std::string(obj->PNames[1]) + " вам.\r\n";
 
 		act(tmpstr.c_str(), FALSE, tch, 0, ch, TO_CHAR | TO_SLEEP);
 		return;
@@ -730,20 +733,20 @@ void trans_auction(int lot)
 	act("Иван-Царевич дал вам кучку кун.", FALSE, ch, 0, ch, TO_CHAR);
 	act("Иван-Царевич дал гору кун $n2", FALSE, ch, 0, ch, TO_ROOM);
 
-	tmpstr = "Вы отдали " + string(obj->PNames[3]) + " Ивану-Царевичу.";
+	tmpstr = "Вы отдали " + std::string(obj->PNames[3]) + " Ивану-Царевичу.";
 	act(tmpstr.c_str(), FALSE, ch, 0, ch, TO_CHAR);
 
-	tmpstr = "$n отдал$g " + string(obj->PNames[3]) + " Ивану-Царевичу.";
+	tmpstr = "$n отдал$g " + std::string(obj->PNames[3]) + " Ивану-Царевичу.";
 	act(tmpstr.c_str(), FALSE, ch, 0, ch, TO_ROOM);
 
 	act("Вы дали кучку кун Ивану-Царевичу.", FALSE, tch, 0, tch, TO_CHAR);
 	act("$n дал$g гору кун Ивану-Царевичу.", FALSE, tch, 0, tch, TO_ROOM);
 
 
-	tmpstr = "Иван-Царевич отдал " + string(obj->PNames[3]) + " вам.";
+	tmpstr = "Иван-Царевич отдал " + std::string(obj->PNames[3]) + " вам.";
 	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_CHAR);
 
-	tmpstr = "Иван-Царевич отдал " + string(obj->PNames[3]) + " $n2.";
+	tmpstr = "Иван-Царевич отдал " + std::string(obj->PNames[3]) + " $n2.";
 	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_ROOM);
 
 	tmpstr = "Иван-Царевич исчез в клубах пыли. На его суме вы заметили надпись:\r\n";
@@ -757,9 +760,9 @@ void trans_auction(int lot)
 
 	// Фонить закончили осуществляем обмен.
 
-	tmpstr = "Вы продали " + string(obj->PNames[3]) + " с аукциона.\r\n";
+	tmpstr = "Вы продали " + std::string(obj->PNames[3]) + " с аукциона.\r\n";
 	send_to_char(tmpstr.c_str(), ch);
-	tmpstr = "Вы купили " + string(obj->PNames[3]) + " на аукционе.\r\n";
+	tmpstr = "Вы купили " + std::string(obj->PNames[3]) + " на аукционе.\r\n";
 	send_to_char(tmpstr.c_str(), tch);
 
 	obj_from_char(obj);
@@ -776,7 +779,7 @@ void sell_auction(int lot)
 {
 	CHAR_DATA *ch, *tch;
 	OBJ_DATA *obj;
-	string tmpstr;
+	std::string tmpstr;
 	char tmpbuff[MAX_INPUT_LENGTH];
 
 	ch = GET_LOT(lot)->seller;
@@ -791,22 +794,19 @@ void sell_auction(int lot)
 	{
 		if (GET_LOT(lot)->tact >= MAX_AUCTION_TACT_PRESENT)
 		{
-			sprintf(tmpbuff,
-					"Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.", lot, obj->PNames[0]);
+			sprintf(tmpbuff, "Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.", lot, obj->PNames[0]);
 
 			message_auction(tmpbuff, NULL);
 			clear_auction(lot);
 			return;
 		}
-		tmpstr =
-			"Вам необходимо прибыть в комнату аукциона к $n2 для получения " +
-			string(obj->PNames[1]) + "\r\nили воспользоваться услугами ямщика.";
+		tmpstr = "Вам необходимо прибыть в комнату аукциона к $n2 для получения " +
+			std::string(obj->PNames[1]) + "\r\nили воспользоваться услугами ямщика.";
 
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_VICT | TO_SLEEP);
 
-		tmpstr =
-			"Вам необходимо прибыть в комнату аукциона к $N2 для получения денег за "
-			+ string(obj->PNames[3]) + ".";
+		tmpstr = "Вам необходимо прибыть в комнату аукциона к $N2 для получения денег за "
+			+ std::string(obj->PNames[3]) + ".";
 
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
 		GET_LOT(lot)->tact = MAX(GET_LOT(lot)->tact, MAX_AUCTION_TACT_BUY);
@@ -820,10 +820,10 @@ void sell_auction(int lot)
 		return;
 	}
 
-	tmpstr = "Вы продали " + string(obj->PNames[3]) + " с аукциона.\r\n";
+	tmpstr = "Вы продали " + std::string(obj->PNames[3]) + " с аукциона.\r\n";
 	send_to_char(tmpstr.c_str(), ch);
 
-	tmpstr = "Вы купили " + string(obj->PNames[3]) + " на аукционе.\r\n";
+	tmpstr = "Вы купили " + std::string(obj->PNames[3]) + " на аукционе.\r\n";
 	send_to_char(tmpstr.c_str(), tch);
 
 	obj_from_char(obj);

@@ -16,6 +16,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "im.h"
 #include "char.hpp"
@@ -30,7 +31,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-extern INDEX_DATA *obj_index;
 extern const char *dirs[];
 extern int dg_owner_purged;
 extern int up_obj_where(OBJ_DATA * obj);
@@ -40,10 +40,6 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 ROOM_DATA *get_room(char *name);
-void asciiflag_conv(const char *flag, void *value);
-#define OCMD(name)  \
-   void (name)(OBJ_DATA *obj, char *argument, int cmd, int subcmd)
-
 
 struct obj_command_info
 {
@@ -133,7 +129,7 @@ int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 
 // Object commands 
 
-OCMD(do_oecho)
+void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int room;
 
@@ -151,8 +147,7 @@ OCMD(do_oecho)
 	//	obj_log(obj, "oecho called by object in NOWHERE");
 }
 
-
-OCMD(do_oforce)
+void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch, *next_ch;
 	int room;
@@ -200,8 +195,7 @@ OCMD(do_oforce)
 	}
 }
 
-
-OCMD(do_osend)
+void do_osend(OBJ_DATA *obj, char *argument, int/* cmd*/, int subcmd)
 {
 	char buf[MAX_INPUT_LENGTH], *msg;
 	CHAR_DATA *ch;
@@ -233,7 +227,7 @@ OCMD(do_osend)
 }
 
 // increases the target's exp 
-OCMD(do_oexp)
+void do_oexp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
@@ -259,9 +253,8 @@ OCMD(do_oexp)
 	}
 }
 
-
 // set the object's timer value 
-OCMD(do_otimer)
+void do_otimer(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 
@@ -277,11 +270,10 @@ OCMD(do_otimer)
 	}
 }
 
-
 // transform into a different object 
 // note: this shouldn't be used with containers unless both objects 
 // are containers! 
-OCMD(do_otransform)
+void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	OBJ_DATA *o;
@@ -349,10 +341,11 @@ OCMD(do_otransform)
 		//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
 		GET_OBJ_ZONE(obj) = GET_OBJ_ZONE(o);
 		GET_OBJ_ZONE(o) = GET_OBJ_ZONE(&tmpobj);
-//		ObjectAlias::remove(obj);
-//		ObjectAlias::add(obj);
-		if (OBJ_FLAGGED(o, ITEM_TICKTIMER))
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_TICKTIMER), ITEM_TICKTIMER);
+
+		if (OBJ_FLAGGED(o, EExtraFlag::ITEM_TICKTIMER))
+		{
+			obj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);
+		}
 
 		if (wearer)
 		{
@@ -363,9 +356,8 @@ OCMD(do_otransform)
 	}
 }
 
-
 // purge all objects an npcs in room, or specified object or mob 
-OCMD(do_opurge)
+void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *ch /*, *next_ch*/;
@@ -425,8 +417,7 @@ OCMD(do_opurge)
 	extract_char(ch, FALSE);
 }
 
-
-OCMD(do_oteleport)
+void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch, *next_ch, *horse, *charmee, *ncharmee;
 	int target, rm;
@@ -460,7 +451,7 @@ OCMD(do_oteleport)
 		{
 			next_ch = ch->next_in_room;
 			if (IS_NPC(ch)
-					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, AFF_CHARM)
+					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 						 || MOB_FLAGGED(ch, MOB_ANGEL)))
 				continue;
 
@@ -497,7 +488,7 @@ OCMD(do_oteleport)
 			for (charmee = world[IN_ROOM(ch)]->people; charmee; charmee = ncharmee)
 			{
 				ncharmee = charmee->next_in_room;
-				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, AFF_CHARM)
+				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 										|| MOB_FLAGGED(charmee, MOB_ANGEL))
 						&& charmee->master == ch)
 				{
@@ -521,8 +512,7 @@ OCMD(do_oteleport)
 	}
 }
 
-
-OCMD(do_dgoload)
+void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int number = 0, room;
@@ -569,7 +559,7 @@ OCMD(do_dgoload)
 		obj_log(obj, "oload: bad type");
 }
 
-OCMD(do_odamage)
+void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int dam = 0;
@@ -614,8 +604,7 @@ OCMD(do_odamage)
 		obj_log(obj, "odamage: target not found");
 }
 
-
-OCMD(do_odoor)
+void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
@@ -683,7 +672,7 @@ OCMD(do_odoor)
 	{
 		if (!exit)
 		{
-			CREATE(exit, EXIT_DATA, 1);
+			CREATE(exit, 1);
 			rm->dir_option[dir] = exit;
 		}
 
@@ -694,8 +683,10 @@ OCMD(do_odoor)
 		{
 		case 1:	// description 
 			if (exit->general_description)
+			{
 				free(exit->general_description);
-			CREATE(exit->general_description, char, strlen(value) + 3);
+			}
+			CREATE(exit->general_description, strlen(value) + 3);
 			strcpy(exit->general_description, value);
 			strcat(exit->general_description, "\r\n");
 			break;
@@ -722,8 +713,6 @@ OCMD(do_odoor)
 				exit->keyword = str_dup(buffer.c_str());
 				exit->vkeyword = str_dup(buffer.c_str());
 			}
-//			CREATE(exit->keyword, char, strlen(value) + 1);
-//			strcpy(exit->keyword, value);
 			break;
 		case 5:	// room        
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
@@ -742,8 +731,7 @@ OCMD(do_odoor)
 	}
 }
 
-
-OCMD(do_osetval)
+void do_osetval(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int position, new_value;
@@ -763,7 +751,7 @@ OCMD(do_osetval)
 		obj_log(obj, "osetval: position out of bounds!");
 }
 
-OCMD(do_ofeatturn)
+void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int isFeat = 0;
 	CHAR_DATA *ch;
@@ -811,12 +799,14 @@ OCMD(do_ofeatturn)
 		trg_featturn(ch, featnum, featdiff);
 }
 
-OCMD(do_oskillturn)
+void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int isSkill = 0;
+	bool isSkill = false;
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-	int skillnum = 0, skilldiff = 0;
+	ESkill skillnum = SKILL_INVALID;
+	int recipenum = 0;
+	int skilldiff = 0;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -827,22 +817,32 @@ OCMD(do_oskillturn)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 	while ((pos = strchr(skillname, '_')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-		isSkill = 1;
-	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
+	{
+		isSkill = true;
+	}
+	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		obj_log(obj, "oskillturn: skill/recipe not found");
 		return;
 	}
 
 	if (!str_cmp(amount, "set"))
+	{
 		skilldiff = 1;
+	}
 	else if (!str_cmp(amount, "clear"))
+	{
 		skilldiff = 0;
+	}
 	else
 	{
 		obj_log(obj, "oskillturn: unknown set variable");
@@ -858,24 +858,29 @@ OCMD(do_oskillturn)
 	if (isSkill)
 	{
 		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == KNOW_SKILL)
+		{
 			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
-		else 
+		}
+		else
 		{
 			sprintf(buf, "oskillturn: несоответсвие устанавливаемого умения классу игрока");
 			obj_log(obj, buf);
 		}
 	}
 	else
-		trg_recipeturn(ch, skillnum, skilldiff);
+	{
+		trg_recipeturn(ch, recipenum, skilldiff);
+	}
 }
 
-
-OCMD(do_oskilladd)
+void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int isSkill = 0;
+	bool isSkill = false;
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-	int skillnum = 0, skilldiff = 0;
+	ESkill skillnum = SKILL_INVALID;
+	int recipenum = 0;
+	int skilldiff = 0;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -886,13 +891,19 @@ OCMD(do_oskilladd)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 	while ((pos = strchr(skillname, '_')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-		isSkill = 1;
-	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
+	{
+		isSkill = true;
+	}
+	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		obj_log(obj, "oskilladd: skill/recipe not found");
 		return;
@@ -907,13 +918,16 @@ OCMD(do_oskilladd)
 	}
 
 	if (isSkill)
+	{
 		trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
+	}
 	else
-		trg_recipeadd(ch, skillnum, skilldiff);
+	{
+		trg_recipeadd(ch, recipenum, skilldiff);
+	}
 }
 
-
-OCMD(do_ospellturn)
+void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
@@ -928,7 +942,9 @@ OCMD(do_ospellturn)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -957,8 +973,7 @@ OCMD(do_ospellturn)
 	}
 }
 
-
-OCMD(do_ospelladd)
+void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
@@ -973,7 +988,9 @@ OCMD(do_ospelladd)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -994,7 +1011,7 @@ OCMD(do_ospelladd)
 	}
 }
 
-OCMD(do_ospellitem)
+void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH], *pos;
@@ -1009,7 +1026,9 @@ OCMD(do_ospellitem)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -1018,15 +1037,25 @@ OCMD(do_ospellitem)
 	}
 
 	if (!str_cmp(type, "potion"))
+	{
 		spell = SPELL_POTION;
+	}
 	else if (!str_cmp(type, "wand"))
+	{
 		spell = SPELL_WAND;
+	}
 	else if (!str_cmp(type, "scroll"))
+	{
 		spell = SPELL_SCROLL;
+	}
 	else if (!str_cmp(type, "items"))
+	{
 		spell = SPELL_ITEMS;
+	}
 	else if (!str_cmp(type, "runes"))
+	{
 		spell = SPELL_RUNES;
+	}
 	else
 	{
 		obj_log(obj, "ospellitem: type spell not found");
@@ -1034,9 +1063,13 @@ OCMD(do_ospellitem)
 	}
 
 	if (!str_cmp(turn, "set"))
+	{
 		spelldiff = 1;
+	}
 	else if (!str_cmp(turn, "clear"))
+	{
 		spelldiff = 0;
+	}
 	else
 	{
 		obj_log(obj, "ospellitem: unknown set variable");
@@ -1054,12 +1087,9 @@ OCMD(do_ospellitem)
 	}
 }
 
-
-
 const struct obj_command_info obj_cmd_info[] =
 {
 	{"RESERVED", 0, 0},	// this must be first -- for specprocs
-
 	{"oecho", do_oecho, 0},
 	{"oechoaround", do_osend, SCMD_OECHOAROUND},
 	{"oexp", do_oexp, 0},

@@ -194,7 +194,7 @@ int calc_initiative(CHAR_DATA *ch, bool mode);
 
 int compute_armor_class(CHAR_DATA *ch);
 bool check_mighthit_weapon(CHAR_DATA *ch);
-void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll);
+void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hitroll);
 
 void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon);
 

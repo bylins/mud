@@ -32,8 +32,6 @@
 #include "spells.h"
 #include "help.hpp"
 
-extern obj_rnum top_of_objt;
-
 namespace obj_sets
 {
 
@@ -140,16 +138,13 @@ void update_char_sets()
 /// здесь же обновляется справка по активаторам сетов
 void init_obj_index()
 {
-	// obj vnum, obj_index idx
-	// GCC 4.4
-	//std::unordered_map<int, int> tmp;
-	boost::unordered_map<int, int> tmp;
-	tmp.reserve(top_of_objt + 1);
+	boost::unordered_map<int, size_t> tmp;
+	tmp.reserve(obj_proto.size());
 
-	for (int i = 0; i <= top_of_objt; ++i)
+	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
-		obj_index[i].set_idx = -1;
-		tmp.emplace(obj_index[i].vnum, i);
+		obj_proto.set_idx(i, -1);
+		tmp.emplace(obj_proto.vnum(i), i);
 	}
 
 	for (size_t i = 0; i < sets_list.size(); ++i)
@@ -160,7 +155,7 @@ void init_obj_index()
 			auto m = tmp.find(k->first);
 			if (m != tmp.end())
 			{
-				obj_index[m->second].set_idx = i;
+				obj_proto.set_idx(m->second, i);
 			}
 		}
 	}
@@ -169,7 +164,7 @@ void init_obj_index()
 }
 
 /// сеты не вешаются на: кольца, ожерелья, браслеты, свет
-bool verify_wear_flag(OBJ_DATA *obj)
+bool verify_wear_flag(OBJ_DATA* /*obj*/)
 {
 /*	if (CAN_WEAR(obj, ITEM_WEAR_FINGER)
 		|| CAN_WEAR(obj, ITEM_WEAR_NECK)
@@ -432,7 +427,7 @@ void load()
 		{
 			activ_node tmp_activ;
 			// <affects>
-			asciiflag_conv(xml_activ.child_value("affects"), &tmp_activ.affects);
+			tmp_activ.affects.from_string(xml_activ.child_value("affects"));
 			// <apply>
 			for (pugi::xml_node xml_apply = xml_activ.child("apply"); xml_apply;
 				xml_apply = xml_apply.next_sibling("apply"))
@@ -443,7 +438,7 @@ void load()
 				{
 					if (i->location <= 0)
 					{
-						i->location = Parse::attr_int(xml_apply, "loc");
+						i->location = static_cast<EApplyLocation>(Parse::attr_int(xml_apply, "loc"));
 						i->modifier = Parse::attr_int(xml_apply, "mod");
 						break;
 					}
@@ -596,7 +591,7 @@ void save()
 			{
 				pugi::xml_node xml_affects = xml_activ.append_child("affects");
 				*buf_ = '\0';
-				tascii(&GET_FLAG(k->second.affects, 0), 4, buf_);
+				k->second.affects.tascii(4, buf_);
 				xml_affects.append_child(pugi::node_pcdata).set_value(buf_);
 			}
 			// set/activ/apply
@@ -736,8 +731,9 @@ void print_msg(CHAR_DATA *ch, OBJ_DATA *obj, size_t set_idx, bool activated)
 /// сообщение деактивации предмета
 void print_off_msg(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	const size_t set_idx = GET_OBJ_RNUM(obj) >= 0
-		? obj_index[GET_OBJ_RNUM(obj)].set_idx : ~0ull;
+	const auto set_idx = GET_OBJ_RNUM(obj) >= 0
+		? obj_proto.set_idx(GET_OBJ_RNUM(obj))
+		: ~0ull;
 	if (set_idx == ~0ull)
 	{
 		obj_sets::print_msg(ch, obj, set_idx, false);
@@ -849,11 +845,15 @@ std::string print_obj_list(const set_node &set)
 void print_identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 {
 	const size_t set_idx = GET_OBJ_RNUM(obj) >= 0
-		? obj_index[GET_OBJ_RNUM(obj)].set_idx : sets_list.size();
+		? obj_proto.set_idx(GET_OBJ_RNUM(obj))
+		: sets_list.size();
 	if (set_idx < sets_list.size())
 	{
 		const set_node &cur_set = *(sets_list.at(set_idx));
-		if (!cur_set.enabled) return;
+		if (!cur_set.enabled)
+		{
+			return;
+		}
 
 		std::string out;
 		char buf_[256], buf_2[128];
@@ -871,8 +871,7 @@ void print_identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 				i.second, desc_count(i.second, WHAT_OBJECT));
 		}
 
-		snprintf(buf_, sizeof(buf_),
-			"Свойства набора%s: %sсправка %s%s\r\n",
+		snprintf(buf_, sizeof(buf_), "Свойства набора%s: %sсправка %s%s\r\n",
 			(i.second > 0 ? buf_2 : ""),
 			CCWHT(ch, C_NRM), cur_set.help.c_str(), CCNRM(ch, C_NRM));
 		out += buf_;
@@ -916,7 +915,7 @@ void do_slist(CHAR_DATA *ch)
 std::string print_activ_affects(const FLAG_DATA &aff)
 {
 	char buf_[2048];
-	if (sprintbits(aff, weapon_affects, buf_, ","))
+	if (aff.sprintbits(weapon_affects, buf_, ","))
 	{
 		// весь этот изврат, чтобы вывести аффекты с разбивкой на строки
 		// по 80 символов (не разбивая слова), при этом подписать впереди
@@ -1220,7 +1219,7 @@ void WornSets::add(OBJ_DATA *obj)
 {
 	if (obj && is_set_item(obj))
 	{
-		const size_t cur_idx = obj_index[GET_OBJ_RNUM(obj)].set_idx;
+		const size_t cur_idx = obj_proto.set_idx(GET_OBJ_RNUM(obj));
 		for (auto i = idx_list_.begin(); i != idx_list_.end(); ++i)
 		{
 			if (i->set_idx == static_cast<size_t>(-1))
@@ -1441,17 +1440,17 @@ void activ_sum::update(CHAR_DATA *ch)
 
 void activ_sum::apply_affects(CHAR_DATA *ch) const
 {
-	for (int j = 0; weapon_affect[j].aff_bitvector >= 0; j++)
+	for (const auto& j : weapon_affect)
 	{
-		if (weapon_affect[j].aff_bitvector != 0
-			&& IS_SET(GET_FLAG(affects, weapon_affect[j].aff_pos), weapon_affect[j].aff_pos))
+		if (j.aff_bitvector != 0
+			&& affects.get(j.aff_pos))
 		{
-			affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, TRUE);
+			affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
 		}
 	}
-	for (auto i = apply.begin(); i != apply.end(); ++i)
+	for (auto&& i : apply)
 	{
-		affect_modify(ch, i->location, i->modifier, 0, TRUE);
+		affect_modify(ch, i.location, i.modifier, static_cast<EAffectFlag>(0), TRUE);
 	}
 }
 
@@ -1478,7 +1477,7 @@ int activ_sum::get_skill(int num) const
 bool is_set_item(OBJ_DATA *obj)
 {
 	if (GET_OBJ_RNUM(obj) >= 0
-		&& obj_index[GET_OBJ_RNUM(obj)].set_idx != static_cast<size_t>(-1))
+		&& obj_proto.set_idx(GET_OBJ_RNUM(obj)) != static_cast<size_t>(-1))
 	{
 		return true;
 	}
@@ -1488,7 +1487,7 @@ bool is_set_item(OBJ_DATA *obj)
 } // namespace obj_sets
 
 /// иммский slist
-ACMD(do_slist)
+void do_slist(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 	{

@@ -144,7 +144,7 @@ bool PlayerRace::FeatureCheck(int Kin,int Race,int Feat)
 	return false;
 };
 
-void PlayerRace::GetKinNamesList(CHAR_DATA *ch)
+void PlayerRace::GetKinNamesList(CHAR_DATA* /*ch*/)
 {
 	//char buf[MAX_INPUT_LENGTH];
 	//snprintf(buf, MAX_STRING_LENGTH, " %d \r\n", PlayerKinList[0]->PlayerRaceList[0]->GetFeatNum());
@@ -173,55 +173,73 @@ std::vector<int> PlayerRace::GetRaceFeatures(int Kin,int Race)
 }
 
 //Получение номера расы по названию
-int PlayerRace::GetKinNumByName(string KinName)
+int PlayerRace::GetKinNumByName(const std::string& KinName)
 {
-	for (PlayerKinListType::iterator it =  PlayerKinList.begin();it != PlayerKinList.end();++it)
+	for (PlayerKinListType::const_iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it)
+	{
 		if ((*it)->KinMenuStr == KinName)
+		{
 			return (*it)->KinNum;
+		}
+	}
 
 	return RACE_UNDEFINED;
 };
 
 //Получение номера рода по названию
-int PlayerRace::GetRaceNumByName(int Kin, string RaceName)
+int PlayerRace::GetRaceNumByName(int Kin, const std::string& RaceName)
 {
 	PlayerKinPtr KinPtr = PlayerRace::GetPlayerKin(Kin);
 	if (KinPtr != NULL)
-		for (PlayerRaceListType::iterator it =  KinPtr->PlayerRaceList.begin();it != KinPtr->PlayerRaceList.end();++it)
+	{
+		for (PlayerRaceListType::const_iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end(); ++it)
+		{
 			if ((*it)->_RaceMenuStr == RaceName)
+			{
 				return (*it)->_RaceNum;
+			}
+		}
+	}
 
 	return RACE_UNDEFINED;
 };
 
 //Получение названия расы по номеру и полу
-std::string PlayerRace::GetKinNameByNum(int KinNum, int Sex)
+std::string PlayerRace::GetKinNameByNum(int KinNum, const ESex Sex)
 {
-    for (PlayerKinListType::iterator it =  PlayerKinList.begin();it != PlayerKinList.end();++it)
-        if ((*it)->KinNum == KinNum)
-            switch (Sex)
-            {
-            case SEX_NEUTRAL:
-                return PlayerRace::PlayerKinList[KinNum]->KinItName;
-                break;
-            case SEX_MALE:
-                return PlayerRace::PlayerKinList[KinNum]->KinHeName;
-                break;
-            case SEX_FEMALE:
-                return PlayerRace::PlayerKinList[KinNum]->KinSheName;
-                break;
-            case SEX_POLY:
-                return PlayerRace::PlayerKinList[KinNum]->KinPluralName;
-                break;
-            default:
-                return PlayerRace::PlayerKinList[KinNum]->KinHeName;
-            }
+	for (PlayerKinListType::iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it)
+	{
+		if ((*it)->KinNum == KinNum)
+		{
+			switch (Sex)
+			{
+			case ESex::SEX_NEUTRAL:
+				return PlayerRace::PlayerKinList[KinNum]->KinItName;
+				break;
+
+			case ESex::SEX_MALE:
+				return PlayerRace::PlayerKinList[KinNum]->KinHeName;
+				break;
+
+			case ESex::SEX_FEMALE:
+				return PlayerRace::PlayerKinList[KinNum]->KinSheName;
+				break;
+
+			case ESex::SEX_POLY:
+				return PlayerRace::PlayerKinList[KinNum]->KinPluralName;
+				break;
+
+			default:
+				return PlayerRace::PlayerKinList[KinNum]->KinHeName;
+			}
+		}
+	}
 
 	return KIN_NAME_UNDEFINED;
 };
 
 //Получение названия рода по номеру и полу
-std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, int Sex)
+std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, const ESex Sex)
 {
     //static char out_str[MAX_STRING_LENGTH];
     //*out_str = '\0';
@@ -231,25 +249,33 @@ std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, int Sex)
 	if ((KinNum > KIN_UNDEFINED) && (static_cast<unsigned>(KinNum) < PlayerRace::PlayerKinList.size()))
     {
         KinPtr = PlayerRace::PlayerKinList[KinNum];
-        for (PlayerRaceListType::iterator it =  KinPtr->PlayerRaceList.begin();it != KinPtr->PlayerRaceList.end();++it)
-            if ((*it)->_RaceNum == RaceNum)
-                switch (Sex)
-                {
-                case SEX_NEUTRAL:
-                    return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceItName;
-                    break;
-                case SEX_MALE:
-                    return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
-                    break;
-                case SEX_FEMALE:
-                    return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceSheName;
-                    break;
-                case SEX_POLY:
-                    return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RacePluralName;
-                    break;
-                default:
-                    return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
-                };
+		for (PlayerRaceListType::iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end(); ++it)
+		{
+			if ((*it)->_RaceNum == RaceNum)
+			{
+				switch (Sex)
+				{
+				case ESex::SEX_NEUTRAL:
+					return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceItName;
+					break;
+
+				case ESex::SEX_MALE:
+					return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
+					break;
+
+				case ESex::SEX_FEMALE:
+					return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceSheName;
+					break;
+
+				case ESex::SEX_POLY:
+					return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RacePluralName;
+					break;
+
+				default:
+					return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
+				};
+			}
+		}
     }
 
 	return RACE_NAME_UNDEFINED;

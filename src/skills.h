@@ -15,6 +15,7 @@
 #ifndef _SKILLS_H_
 #define _SKILLS_H_
 
+#include "structs.h"
 #include "pugixml.hpp"
 
 #include <boost/shared_ptr.hpp>
@@ -24,108 +25,113 @@
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM //
-#define SKILL_THAC0                 0	// Internal //
-#define SKILL_PROTECT               1 // *** Protect grouppers    //
-#define SKILL_TOUCH                 2 // *** Touch attacker       //
-#define SKILL_SHIT                  3
-#define SKILL_MIGHTHIT              4
-#define SKILL_STUPOR                5
-#define SKILL_POISONED              6
-#define SKILL_SENSE                 7
-#define SKILL_HORSE                 8
-#define SKILL_HIDETRACK             9
-#define SKILL_RELIGION              10
-#define SKILL_MAKEFOOD              11
-#define SKILL_MULTYPARRY            12
-#define SKILL_TRANSFORMWEAPON       13
-//и щито?
-#define SKILL_LEADERSHIP            20
-#define SKILL_PUNCTUAL              21
-#define SKILL_AWAKE                 22
-#define SKILL_IDENTIFY              23
-#define SKILL_HEARING               24
-#define SKILL_CREATE_POTION         25
-#define SKILL_CREATE_SCROLL         26
-#define SKILL_CREATE_WAND           27
-#define SKILL_LOOK_HIDE             28
-#define SKILL_ARMORED               29
-#define SKILL_DRUNKOFF              30
-#define SKILL_AID                   31
-#define SKILL_FIRE                  32
-#define SKILL_CREATEBOW             33
-// и че тут?
-#define SKILL_THROW                 130
-#define SKILL_BACKSTAB              131	// Reserved Skill[] DO NOT CHANGE //
-#define SKILL_BASH                  132	// Reserved Skill[] DO NOT CHANGE //
-#define SKILL_HIDE                  133	// Reserved Skill[] DO NOT CHANGE //
-#define SKILL_KICK                  134	// Reserved Skill[] DO NOT CHANGE //
-#define SKILL_PICK_LOCK             135	// Reserved Skill[] DO NOT CHANGE //
-#define SKILL_PUNCH                 136	// Reserved Skill[] DO NOT CHANGE //
-#define SKILL_RESCUE                137	// Reserved Skill[] DO NOT CHANGE //
-#define SKILL_SNEAK                 138	// Reserved Skill[] DO NOT CHANGE //
-#define SKILL_STEAL                 139	// Reserved Skill[] DO NOT CHANGE //
-#define SKILL_TRACK                 140	// Reserved Skill[] DO NOT CHANGE //
-#define SKILL_CLUBS                 141	// *** Weapon is club, etc    //
-#define SKILL_AXES                  142	// *** Weapon is axe, etc     //
-#define SKILL_LONGS                 143	// *** Weapon is long blades  //
-#define SKILL_SHORTS                144	// *** Weapon is short blades //
-#define SKILL_NONSTANDART           145	// *** Weapon is non-standart //
-#define SKILL_BOTHHANDS             146	// *** Weapon in both hands   //
-#define SKILL_PICK                  147	// *** Weapon is pick         //
-#define SKILL_SPADES                148	// *** Weapon is spades       //
-#define SKILL_SATTACK               149
-#define SKILL_DISARM                150
-#define SKILL_PARRY                 151
-#define SKILL_HEAL                  152
-#define SKILL_MORPH		            153
-#define SKILL_BOWS                  154
-#define SKILL_ADDSHOT               155
-#define SKILL_CAMOUFLAGE            156
-#define SKILL_DEVIATE               157
-#define SKILL_BLOCK                 158
-#define SKILL_LOOKING               159
-#define SKILL_CHOPOFF               160
-#define SKILL_REPAIR                161
-#define SKILL_UPGRADE               164
-#define SKILL_COURAGE               165
-#define SKILL_MANADRAIN             166
-#define SKILL_NOPARRYHIT            167
-#define SKILL_TOWNPORTAL            168
-// Crafting skills
-#define SKILL_MAKE_STAFF            169
-#define SKILL_MAKE_BOW              170
-#define SKILL_MAKE_WEAPON           171
-#define SKILL_MAKE_ARMOR            172
-#define SKILL_MAKE_JEWEL            173
-#define SKILL_MAKE_WEAR             174
-#define SKILL_MAKE_POTION           175
-#define SKILL_DIG                   176
-#define SKILL_INSERTGEM             177
-// Other skills
-#define SKILL_WARCRY                178
-#define SKILL_TURN_UNDEAD           179
-#define SKILL_IRON_WIND             180
-#define SKILL_STRANGLE              181
-//Магические скиллы
-#define SKILL_AIR_MAGIC				182
-#define SKILL_FIRE_MAGIC			183
-#define SKILL_WATER_MAGIC			184
-#define SKILL_EARTH_MAGIC			185
-#define SKILL_LIGHT_MAGIC			186
-#define SKILL_DARK_MAGIC			187
-#define SKILL_MIND_MAGIC			188
-#define SKILL_LIFE_MAGIC			189
-#define SKILL_STUN				190
+enum ESkill: int
+{
+	SKILL_INVALID = 0,
+	SKILL_THAC0 = 0,	// Internal //
+	SKILL_FIRST = 1,
+	SKILL_PROTECT = SKILL_FIRST,	// *** Protect groupers    //
+	SKILL_TOUCH = 2,	// *** Touch attacker       //
+	SKILL_SHIT = 3,
+	SKILL_MIGHTHIT = 4,
+	SKILL_STUPOR = 5,
+	SKILL_POISONED = 6,
+	SKILL_SENSE = 7,
+	SKILL_HORSE = 8,
+	SKILL_HIDETRACK = 9,
+	SKILL_RELIGION = 10,
+	SKILL_MAKEFOOD = 11,
+	SKILL_MULTYPARRY = 12,
+	SKILL_TRANSFORMWEAPON = 13,
+	SKILL_LEADERSHIP = 20,
+	SKILL_PUNCTUAL = 21,
+	SKILL_AWAKE = 22,
+	SKILL_IDENTIFY = 23,
+	SKILL_HEARING = 24,
+	SKILL_CREATE_POTION = 25,
+	SKILL_CREATE_SCROLL = 26,
+	SKILL_CREATE_WAND = 27,
+	SKILL_LOOK_HIDE = 28,
+	SKILL_ARMORED = 29,
+	SKILL_DRUNKOFF = 30,
+	SKILL_AID = 31,
+	SKILL_FIRE = 32,
+	SKILL_CREATEBOW = 33,
+	SKILL_THROW = 130,
+	SKILL_BACKSTAB = 131,	// Reserved Skill[] DO NOT CHANGE //
+	SKILL_BASH = 132,	// Reserved Skill[] DO NOT CHANGE //
+	SKILL_HIDE = 133,	// Reserved Skill[] DO NOT CHANGE //
+	SKILL_KICK = 134,	// Reserved Skill[] DO NOT CHANGE //
+	SKILL_PICK_LOCK = 135,	// Reserved Skill[] DO NOT CHANGE //
+	SKILL_PUNCH = 136,	// Reserved Skill[] DO NOT CHANGE //
+	SKILL_RESCUE = 137,	// Reserved Skill[] DO NOT CHANGE //
+	SKILL_SNEAK = 138,	// Reserved Skill[] DO NOT CHANGE //
+	SKILL_STEAL = 139,	// Reserved Skill[] DO NOT CHANGE //
+	SKILL_TRACK = 140,	// Reserved Skill[] DO NOT CHANGE //
+	SKILL_CLUBS = 141,	// *** Weapon is club, etc    //
+	SKILL_AXES = 142,	// *** Weapon is axe, etc     //
+	SKILL_LONGS = 143,	// *** Weapon is long blades  //
+	SKILL_SHORTS = 144,	// *** Weapon is short blades //
+	SKILL_NONSTANDART = 145,	// *** Weapon is non-standart //
+	SKILL_BOTHHANDS = 146,	// *** Weapon in both hands   //
+	SKILL_PICK = 147,	// *** Weapon is pick         //
+	SKILL_SPADES = 148,	// *** Weapon is spades       //
+	SKILL_SATTACK = 149,
+	SKILL_DISARM = 150,
+	SKILL_PARRY = 151,
+	SKILL_HEAL = 152,
+	SKILL_MORPH = 153,
+	SKILL_BOWS = 154,
+	SKILL_ADDSHOT = 155,
+	SKILL_CAMOUFLAGE = 156,
+	SKILL_DEVIATE = 157,
+	SKILL_BLOCK = 158,
+	SKILL_LOOKING = 159,
+	SKILL_CHOPOFF = 160,
+	SKILL_REPAIR = 161,
+	SKILL_UPGRADE = 164,
+	SKILL_COURAGE = 165,
+	SKILL_MANADRAIN = 166,
+	SKILL_NOPARRYHIT = 167,
+	SKILL_TOWNPORTAL = 168,
+	SKILL_MAKE_STAFF = 169,
+	SKILL_MAKE_BOW = 170,
+	SKILL_MAKE_WEAPON = 171,
+	SKILL_MAKE_ARMOR = 172,
+	SKILL_MAKE_JEWEL = 173,
+	SKILL_MAKE_WEAR = 174,
+	SKILL_MAKE_POTION = 175,
+	SKILL_DIG = 176,
+	SKILL_INSERTGEM = 177,
+	SKILL_WARCRY = 178,
+	SKILL_TURN_UNDEAD = 179,
+	SKILL_IRON_WIND = 180,
+	SKILL_STRANGLE = 181,
+	SKILL_AIR_MAGIC = 182,
+	SKILL_FIRE_MAGIC = 183,
+	SKILL_WATER_MAGIC = 184,
+	SKILL_EARTH_MAGIC = 185,
+	SKILL_LIGHT_MAGIC = 186,
+	SKILL_DARK_MAGIC = 187,
+	SKILL_MIND_MAGIC = 188,
+	SKILL_LIFE_MAGIC = 189,
+	SKILL_STUN = 190,
 
-// не забываем указывать максимальный номер скилла
-#define MAX_SKILL_NUM               190
+	// не забываем указывать максимальный номер скилла
+	MAX_SKILL_NUM = SKILL_STUN
+};
+
+template <> ESkill ITEM_BY_NAME<ESkill>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM<ESkill>(const ESkill item);
+
+extern std::array<ESkill, MAX_SKILL_NUM - SKILL_PROTECT> AVAILABLE_SKILLS;
 
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add = "");
 
-int calculate_skill(CHAR_DATA * ch, int skill_no, CHAR_DATA * vict);
-void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victim);
+int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict);
+void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DATA * victim);
 
-int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict);
+int train_skill(CHAR_DATA * ch, const ESkill skill_no, int max_value, CHAR_DATA * vict);
 int min_skill_level(CHAR_DATA *ch, int skill);
 bool can_get_skill(CHAR_DATA *ch, int skill);
 
@@ -238,8 +244,8 @@ class Skill
 public:
     Skill();
 
-    static int GetNumByID(std::string ID);   // Получение номера скилла по ИД
-    static void Load(pugi::xml_node XMLSkillList);  // Парсинг конфига скиллов
+    static int GetNumByID(const std::string& ID);   // Получение номера скилла по ИД
+    static void Load(const pugi::xml_node& XMLSkillList);  // Парсинг конфига скиллов
     static SkillListType SkillList;                 // Глобальный скилллист
 
     // Доступ к полям

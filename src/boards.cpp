@@ -583,11 +583,11 @@ bool is_spamer(CHAR_DATA *ch, const Board &board)
 	return true;
 }
 
-ACMD(DoBoard)
+void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	if (!ch->desc)
 		return;
-	if (AFF_FLAGGED(ch, AFF_BLIND))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		send_to_char("Вы ослеплены!\r\n", ch);
 		return;
@@ -771,7 +771,7 @@ ACMD(DoBoard)
 		ch->desc->board = *board_it;
 
 		char **text;
-		CREATE(text, char *, 1);
+		CREATE<char*>(text, 1);
 		send_to_char(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
 		STATE(ch->desc) = CON_WRITEBOARD;
 		string_write(ch->desc, text, MAX_MESSAGE_LENGTH, 0, NULL);
@@ -914,7 +914,7 @@ std::string Board::print_stats(CHAR_DATA *ch, int num)
 	return out;
 }
 
-ACMD(DoBoardList)
+void DoBoardList(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;
@@ -1154,7 +1154,7 @@ bool act_board(CHAR_DATA *ch, int vnum, char *buf_)
 }
 
 // чтобы не травмировать народ спешиалы вешаем на старые доски с новым содержимым
-SPECIAL(Board::Special)
+int Board::Special(CHAR_DATA* ch, void* me, int cmd, char* argument)
 {
 	OBJ_DATA *board = (OBJ_DATA *) me;
 	if (!ch->desc)
@@ -1268,7 +1268,7 @@ void Board::LoginInfo(CHAR_DATA * ch)
 	}
 }
 
-ACMD(report_on_board)
+void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	if (IS_NPC(ch)) return;
 	skip_spaces(&argument);

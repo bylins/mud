@@ -8,8 +8,8 @@
 
 namespace Bonus
 {
-	ACMD(do_bonus);
-	ACMD(do_bonus_info);
+	void do_bonus(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	void do_bonus_info(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	bool is_bonus(int type);
 	void timer_bonus();
 	std::string bonus_end();

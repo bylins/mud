@@ -128,8 +128,8 @@ void parse_input(CHAR_DATA *ch, const char *arg);
 
 } // namespace obj_sets_olc
 
-ACMD(do_slist);
-ACMD(do_sedit);
+void do_slist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_sedit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 #endif // OBJ_SETS_HPP_INCLUDED
 

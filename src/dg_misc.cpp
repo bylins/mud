@@ -158,7 +158,7 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 // LIMITATION: a target MUST exist for the spell unless the spell is   
 // set to TAR_IGNORE. Also, group spells are not permitted             
 // code borrowed from do_cast() 
-void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
+void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char *cmd)
 {
 	CHAR_DATA *caster = NULL;
 	ROOM_DATA *caster_room = NULL;
@@ -314,7 +314,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
    if duration < 1 - function removes affect */
 #define APPLY_TYPE	1
 #define AFFECT_TYPE	2
-void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type, char *cmd)
+void do_dg_affect(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* script_type*/, char *cmd)
 {
 	CHAR_DATA *ch = NULL;
 	int value = 0, duration = 0, battle = 0;
@@ -324,8 +324,6 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	char battle_p[MAX_INPUT_LENGTH];
 	char spell[MAX_INPUT_LENGTH];
 	int index = 0, type = 0, index_s = 0, i;
-	AFFECT_DATA af;
-
 
 	half_chop(cmd, junk, cmd);
 	half_chop(cmd, charname, cmd);
@@ -362,7 +360,9 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	}
 	// find the property -- first search apply_types
 	if ((index = search_block(property, apply_types, FALSE)) != -1)
+	{
 		type = APPLY_TYPE;
+	}
 	else
 	{
 		//search affect_types now
@@ -401,13 +401,18 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	if (duration > 0)
 	{
 		// add the affect
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = index_s;
 
 		af.battleflag = battle;
 		if (battle == AF_PULSEDEC)
-		    af.duration = duration;
+		{
+			af.duration = duration;
+		}
 		else 
-		    af.duration = pc_duration(ch, duration * 2, 0, 0, 0, 0);
+		{
+			af.duration = pc_duration(ch, duration * 2, 0, 0, 0, 0);
+		}
 		if (type == AFFECT_TYPE)
 		{
 			af.location = APPLY_NONE;
@@ -416,7 +421,7 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 		}
 		else
 		{
-			af.location = index;
+			af.location = static_cast<EApplyLocation>(index);
 			af.modifier = value;
 			af.bitvector = 0;
 		}

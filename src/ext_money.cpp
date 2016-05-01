@@ -267,7 +267,7 @@ void parse_dec_exch(CHAR_DATA *ch, int amount, int num)
 }
 
 // кол-во меняемых гривен
-int check_input_amount(CHAR_DATA *ch, int num1, int num2)
+int check_input_amount(CHAR_DATA* /*ch*/, int num1, int num2)
 {
 	if ((num1 == 1 || num1 == 2) && num2 < TORC_EXCH_RATE)
 	{
@@ -672,7 +672,7 @@ void drop_torc(CHAR_DATA *mob)
 		return;
 	}
 
-	log("[Extract char] Checking %s for ExtMoney.", mob->get_name());
+	log("[Extract char] Checking %s for ExtMoney.", mob->get_name().c_str());
 
 	std::pair<int /* uid */, int /* rounds */> damager = mob->get_max_damager_in_room();
 	DESCRIPTOR_DATA *d = 0;
@@ -685,13 +685,14 @@ void drop_torc(CHAR_DATA *mob)
 		return;
 	}
 
-	CHAR_DATA *leader = (d->character->master && AFF_FLAGGED(d->character, AFF_GROUP))
-		? d->character->master : d->character;
+	CHAR_DATA *leader = (d->character->master && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
+		? d->character->master
+		: d->character;
 
 	int members = 1;
 	for (follow_type *f = leader->followers; f; f = f->next)
 	{
-		if (AFF_FLAGGED(f->follower, AFF_GROUP)
+		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 			&& f->follower->in_room == IN_ROOM(mob)
 			&& !IS_NPC(f->follower))
 		{
@@ -716,7 +717,7 @@ void drop_torc(CHAR_DATA *mob)
 
 	for (follow_type *f = leader->followers; f; f = f->next)
 	{
-		if (AFF_FLAGGED(f->follower, AFF_GROUP)
+		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 			&& f->follower->in_room == IN_ROOM(mob)
 			&& !IS_NPC(f->follower)
 			&& GET_GOD_FLAG(f->follower, GF_REMORT)
@@ -734,7 +735,9 @@ void player_drop_log(CHAR_DATA *ch, unsigned type, int diff)
 	total_bronze += ch->get_ext_money(TORC_GOLD) * TORC_EXCH_RATE * TORC_EXCH_RATE;
 
 	log("ExtMoney: %s%s%d%s, sum=%d",
-		ch->get_name(), (diff > 0 ? " +" : " "), diff,
+		ch->get_name().c_str(),
+		(diff > 0 ? " +" : " "),
+		diff,
 		((type == TORC_GOLD) ? "g" : (type == TORC_SILVER) ? "s" : "b"),
 		total_bronze);
 }
@@ -896,7 +899,7 @@ void donat_torc(CHAR_DATA *ch, const std::string &mob_name, unsigned type, int a
 {
 	const int balance = ch->get_ext_money(type) - amount;
 	ch->set_ext_money(type, balance);
-	SET_BIT(PRF_FLAGS(ch, PRF_CAN_REMORT), PRF_CAN_REMORT);
+	PRF_FLAGS(ch).set(PRF_CAN_REMORT);
 
 	send_to_char(ch, "Вы пожертвовали %d %s %s.\r\n",
 		amount, desc_count(amount, type_list[type].DESC_MESSAGE_NUM),
@@ -945,7 +948,7 @@ void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_
 } // namespace
 
 // глашатаи
-SPECIAL(torc)
+int torc(CHAR_DATA *ch, void *me, int cmd, char* /*argument*/)
 {
 	if (!ch->desc || IS_NPC(ch))
 	{

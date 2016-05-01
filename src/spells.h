@@ -11,6 +11,7 @@
 #ifndef _SPELLS_H_
 #define _SPELLS_H_
 
+#include "skills.h"
 #include "structs.h"	// there was defined type "byte" if it had been missing
 
 #include <boost/tokenizer.hpp>
@@ -118,11 +119,18 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define   SPELL_ITEMS  (1 << 5)
 #define   SPELL_RUNES  (1 << 6)
 
-#define   ITEM_RUNES       (1 << 0)
-#define   ITEM_CHECK_USES  (1 << 1)
-#define   ITEM_CHECK_LAG   (1 << 2)
-#define   ITEM_CHECK_LEVEL (1 << 3)
-#define   ITEM_DECAY_EMPTY (1 << 4)
+/// Flags for ingredient items (ITEM_INGREDIENT)
+enum EIngredientFlag
+{
+	ITEM_RUNES = 1 << 0,
+	ITEM_CHECK_USES = 1 << 1,
+	ITEM_CHECK_LAG = 1 << 2,
+	ITEM_CHECK_LEVEL = 1 << 3,
+	ITEM_DECAY_EMPTY = 1 << 4
+};
+
+template <> EIngredientFlag ITEM_BY_NAME<EIngredientFlag>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item);
 
 #define   MI_LAG1s       (1 << 0)
 #define   MI_LAG2s       (1 << 1)
@@ -141,6 +149,7 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 // PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS //
 enum ESpell
 {
+	SPELL_NO_SPELL = 0,
 	SPELL_ARMOR = 1,	// Reserved Skill[] DO NOT CHANGE //
 	SPELL_TELEPORT = 2,	// Reserved Skill[] DO NOT CHANGE //
 	SPELL_BLESS = 3,	// Reserved Skill[] DO NOT CHANGE //
@@ -206,7 +215,7 @@ enum ESpell
 	SPELL_DARKNESS = 61,
 	SPELL_STONESKIN = 62,
 	SPELL_CLOUDLY = 63,
-	SPELL_SIELENCE = 64,
+	SPELL_SILENCE = 64,
 	SPELL_LIGHT = 65,
 	SPELL_CHAIN_LIGHTNING = 66,
 	SPELL_FIREBLAST = 67,
@@ -225,13 +234,13 @@ enum ESpell
 	SPELL_CAMOUFLAGE = 80,
 	SPELL_POWER_BLINDNESS = 81,
 	SPELL_MASS_BLINDNESS = 82,
-	SPELL_POWER_SIELENCE = 83,
+	SPELL_POWER_SILENCE = 83,
 	SPELL_EXTRA_HITS = 84,
 	SPELL_RESSURECTION = 85,
 	SPELL_MAGICSHIELD = 86,
 	SPELL_FORBIDDEN = 87,
-	SPELL_MASS_SIELENCE = 88,
-	SPELL_REMOVE_SIELENCE = 89,
+	SPELL_MASS_SILENCE = 88,
+	SPELL_REMOVE_SILENCE = 89,
 	SPELL_DAMAGE_LIGHT = 90,
 	SPELL_DAMAGE_SERIOUS = 91,
 	SPELL_DAMAGE_CRITIC = 92,
@@ -359,6 +368,9 @@ extern const spell_wear_off_msg_t spell_wear_off_msg;
 typedef std::array<const char*, 2> cast_phrase_t;
 typedef std::array<cast_phrase_t, SPELLS_COUNT + 1> cast_phrases_t;
 extern const cast_phrases_t cast_phrase;
+
+template <> ESpell ITEM_BY_NAME<ESpell>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM<ESpell>(const ESpell spell);
 
 #define MAX_SLOT 13
 
@@ -515,40 +527,34 @@ struct attack_hit_type
 extern struct spell_info_type spell_info[];
 extern struct skill_info_type skill_info[];
 
-#define ASPELL(spellname) \
-void spellname(int level, CHAR_DATA *ch, \
-		  CHAR_DATA *victim, OBJ_DATA *obj)
-
 #define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict);
 
-ASPELL(spell_create_water);
-ASPELL(spell_recall);
-ASPELL(spell_teleport);
-ASPELL(spell_summon);
-ASPELL(spell_relocate);
-ASPELL(spell_portal);
-ASPELL(spell_locate_object);
-ASPELL(spell_charm);
-ASPELL(spell_information);
-ASPELL(spell_identify);
-ASPELL(spell_enchant_weapon);
-ASPELL(spell_control_weather);
-ASPELL(spell_create_weapon);
-ASPELL(spell_eviless);
-ASPELL(spell_townportal);
-ASPELL(spell_energydrain);
-ASPELL(spell_fear);
-ASPELL(spell_sacrifice);
-ASPELL(spell_forbidden);
-ASPELL(spell_identify);
-ASPELL(spell_holystrike);
-ASPELL(skill_identify);
-ASPELL(spell_angel);
-ASPELL(spell_vampire);
+void spell_create_water(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_recall(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_teleport(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_summon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_relocate(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_portal(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_charm(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_information(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_enchant_weapon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_control_weather(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_create_weapon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_eviless(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_townportal(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_energydrain(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_fear(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_sacrifice(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_forbidden(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_holystrike(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void skill_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_angel(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_vampire(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 
 // basic magic calling functions
-
-int find_skill_num(const char *name);
 
 int find_spell_num(char *name);
 
@@ -608,7 +614,7 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
-int get_magic_skill_number_by_spell(int spellnum);
+ESkill get_magic_skill_number_by_spell(int spellnum);
 
 //Polud статистика использования заклинаний
 typedef std::map<int, int> SpellCountType;

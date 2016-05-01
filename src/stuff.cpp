@@ -28,8 +28,8 @@
 #include <boost/array.hpp>
 
 extern const char *skill_name(int num);
-extern void set_obj_eff(struct OBJ_DATA *itemobj, int type, int mod);
-extern void set_obj_aff(struct OBJ_DATA *itemobj, int bitv);
+extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
+extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
 
 void oload_class::init()
 {
@@ -118,16 +118,18 @@ oload_class oload_table;
 
 obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info>& it)
 {
-	obj_rnum i;
-	obj_rnum resutl_obj = number(1, MAX_LOAD_PROB) <= it.second.load_prob ?
-						  (it.first >= 0 && (i = real_object(it.first)) >= 0 ?
-						   (obj_index[i].stored + obj_index[i].number < it.second.obj_qty ?
-							i :
-							NOTHING) :
-								   NOTHING) :
-								  NOTHING;
+	obj_rnum i = real_object(it.first);
+	obj_rnum resutl_obj = number(1, MAX_LOAD_PROB) <= it.second.load_prob
+		? (it.first >= 0 && i >= 0
+			? (obj_proto.actual_count(i) < it.second.obj_qty
+				? i
+				: NOTHING)
+			: NOTHING)
+		: NOTHING;
 	if (resutl_obj != NOTHING)
+	{
 		log("Current load_prob: %d/%d, obj #%d (setload)", it.second.load_prob, MAX_LOAD_PROB, it.first);
+	}
 	return resutl_obj;
 }
 
@@ -165,7 +167,7 @@ void generate_book_upgrd(OBJ_DATA *obj)
 	}
 	obj->description = str_dup(("Книга секретов умения: " + book_name + " лежит здесь.").c_str());
 
-	for (int i = 0; i < NUM_PADS; ++i)
+	for (int i = 0; i < OBJ_DATA::NUM_PADS; ++i)
 	{
 		if (GET_OBJ_PNAME(obj, i)
 			&& (GET_OBJ_RNUM(obj) < 0
@@ -228,29 +230,29 @@ int get_stat_mod(int stat)
 void generate_warrior_enchant(OBJ_DATA *obj)
 {
 	const int main_count = 5;
-	boost::array<int, main_count> main_list = { {
+	boost::array<EApplyLocation, main_count> main_list = { {
 			APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_AC, APPLY_DAMROLL} };
 	const int other_count = 11;
-	boost::array<int, other_count> other_list = { {
+	boost::array<EApplyLocation, other_count> other_list = { {
 			APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
 			APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
 			APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR} };
 
 	if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR1_ENCHANT_VNUM)
 	{
-		int stat = main_list[number(0, main_count - 1)];
+		const auto stat = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR2_ENCHANT_VNUM)
 	{
-		int stat = main_list[number(0, main_count - 1)];
+		auto stat = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 		stat = other_list[number(0, other_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR3_ENCHANT_VNUM)
 	{
-		int stat = main_list[number(0, main_count - 1)];
+		auto stat = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
 		stat = other_list[number(0, other_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
@@ -260,59 +262,66 @@ void generate_warrior_enchant(OBJ_DATA *obj)
 void generate_magic_enchant(OBJ_DATA *obj)
 {
 	const int main_count = 10;
-	boost::array<int, main_count> main_list = { {
+	boost::array<EApplyLocation, main_count> main_list = { {
 			APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_INT , APPLY_WIS, APPLY_CHA, APPLY_AC, APPLY_DAMROLL, APPLY_AR, APPLY_MR} };
 	const int other_count = 15;
-	boost::array<int, other_count> other_list = { {
+	boost::array<EApplyLocation, other_count> other_list = { {
 			APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
 			APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
 			APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR,
 			APPLY_MANAREG, APPLY_CAST_SUCCESS, APPLY_RESIST_MIND, APPLY_DAMROLL} };
 	const int negativ_count = 7;
-	boost::array<int, other_count> negativ_list = { {
-			AFF_CURSE, AFF_SLEEP, AFF_HOLD, AFF_SIELENCE, AFF_CRYING,
-			AFF_BLIND, AFF_SLOW } };
-
-
+	boost::array<EAffectFlag, other_count> negativ_list =
+	{
+		EAffectFlag::AFF_CURSE,
+		EAffectFlag::AFF_SLEEP,
+		EAffectFlag::AFF_HOLD,
+		EAffectFlag::AFF_SILENCE,
+		EAffectFlag::AFF_CRYING,
+		EAffectFlag::AFF_BLIND,
+		EAffectFlag::AFF_SLOW
+	};
 			
 	if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC1_ENCHANT_VNUM)
 	{
-		int stat = negativ_list[number(0, negativ_count - 1)];
-		set_obj_aff(obj, stat);
-		stat = main_list[number(0, main_count - 1)];
-		set_obj_eff(obj, stat, get_stat_mod(stat));
+		EAffectFlag affect = negativ_list[number(0, negativ_count - 1)];
+		set_obj_aff(obj, affect);
+
+		auto effect = main_list[number(0, main_count - 1)];
+		set_obj_eff(obj, effect, get_stat_mod(effect));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC2_ENCHANT_VNUM)
 	{
-		int stat = negativ_list[number(0, negativ_count - 1)];
-		set_obj_aff(obj, stat);
-		stat = main_list[number(0, main_count - 1)];
-		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
-		stat = other_list[number(0, other_count - 1)];
-		set_obj_eff(obj, stat, get_stat_mod(stat));
+		EAffectFlag affect = negativ_list[number(0, negativ_count - 1)];
+		set_obj_aff(obj, affect);
+
+		auto effect = main_list[number(0, main_count - 1)];
+		set_obj_eff(obj, effect, get_stat_mod(effect) * 2);
+		effect = other_list[number(0, other_count - 1)];
+		set_obj_eff(obj, effect, get_stat_mod(effect));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC3_ENCHANT_VNUM)
 	{
-		int stat = main_list[number(0, main_count - 1)];
+		auto stat = main_list[number(0, main_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
-		stat = negativ_list[number(0, negativ_count - 1)];
-		set_obj_aff(obj, stat);
+		
+		EAffectFlag affect = negativ_list[number(0, negativ_count - 1)];
+		set_obj_aff(obj, affect);
+
 		stat = other_list[number(0, other_count - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 		int add_random = number(0, 1);
-		if (add_random == 0 )
-			{
+		if (add_random == 0)
+		{
 			stat = main_list[number(0, main_count - 1)];
 			set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
-			}
+		}
 		else
-			{
+		{
 			stat = other_list[number(0, other_count - 1)];
 			set_obj_eff(obj, stat, get_stat_mod(stat));
-			};
+		};
 	}
-			
-		
 }
 
 /**

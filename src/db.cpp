@@ -14,16 +14,6 @@
 
 #define __DB_C__
 
-#include "conf.h"
-#include "sys/stat.h"
-#include <sstream>
-#include <string>
-#include <cmath>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <boost/dynamic_bitset.hpp>
-
-#include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
 #include "db.h"
@@ -40,6 +30,8 @@
 #include "diskio.h"
 #include "im.h"
 #include "top.h"
+
+#include "craft.hpp"
 #include "stuff.hpp"
 #include "ban.hpp"
 #include "item.creation.hpp"
@@ -82,6 +74,14 @@
 #include "obj.hpp"
 #include "obj_sets.hpp"
 #include "bonus.h"
+#include <sys/stat.h>
+#include <sstream>
+#include <string>
+#include <cmath>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+#include <boost/dynamic_bitset.hpp>
+
 #define  TEST_OBJECT_TIMER   30
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
@@ -116,10 +116,7 @@ void Load_Criterion(pugi::xml_node XMLCriterion, int type);
 int global_uid = 0;
 
 OBJ_DATA *object_list = NULL;	// global linked list of objs
-INDEX_DATA *obj_index;		// index table for object file
-//OBJ_DATA *obj_proto;		// prototypes for objs
-vector < OBJ_DATA * >obj_proto;
-obj_rnum top_of_objt = 0;	// top of object index table
+CObjectPrototypes obj_proto;
 
 struct zone_data *zone_table;	// zone table
 zone_rnum top_of_zone_table = 0;	// top element of zone tab
@@ -158,18 +155,15 @@ struct weather_data weather_info;	// the infomation about the weather
 struct player_special_data dummy_mob;	// dummy spec area for mobs
 struct reset_q_type reset_q;	// queue of zones to be reset
 
-const FLAG_DATA clear_flags = { {0, 0, 0, 0} };
+const FLAG_DATA clear_flags;
 
 struct portals_list_type *portals_list;	// Список проталов для townportal
 int now_entrycount = FALSE;
 extern int reboot_uptime;
 
-//Polud
 guardian_type guardian_list;
-//-Polud
-//Polos.inserd_wanted_gem
-class insert_wanted_gem iwg;
-//-Polos.insert_wanted_gem
+
+insert_wanted_gem iwg;
 
 // local functions
 void SaveGlobalUID(void);
@@ -182,8 +176,7 @@ void discrete_load(FILE * fl, int mode, char *filename);
 bool check_object(OBJ_DATA *);
 void parse_trigger(FILE * fl, int virtual_nr);
 void parse_room(FILE * fl, int virtual_nr, int virt);
-void parse_mobile(FILE * mob_f, int nr);
-char *parse_object(FILE * obj_f, int nr);
+char *parse_object(FILE * obj_f, const int nr);
 void load_zones(FILE * fl, char *zonename);
 void load_help(FILE * fl);
 void assign_mobiles(void);
@@ -195,7 +188,7 @@ int is_empty(zone_rnum zone_nr);
 void reset_zone(zone_rnum zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
-ACMD(do_reboot);
+void do_reboot(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void boot_world(void);
 int count_alias_records(FILE * fl);
 int count_hash_records(FILE * fl);
@@ -205,7 +198,6 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr);
 void parse_espec(char *buf, int i, int nr);
 void parse_enhanced_mob(FILE * mob_f, int i, int nr);
 void get_one_line(FILE * fl, char *buf);
-void save_etext(CHAR_DATA * ch);
 void check_start_rooms(void);
 void renum_world(void);
 void renum_zone_table(void);
@@ -223,7 +215,6 @@ void init_portals(void);
 void init_im(void);
 void init_zone_types();
 void load_guardians();
-pugi::xml_node XMLLoad(const string *PathToFile, const string *MainTag, const string *ErrorStr); // Базовая функция загрузки XML конфигов
 
 // external functions
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
@@ -231,8 +222,6 @@ void free_alias(struct alias_data *a);
 void load_messages(void);
 void weather_and_time(int mode);
 void mag_assign_spells(void);
-void boot_social_messages(void);
-void update_obj_file(void);	// In objsave.cpp
 void sort_commands(void);
 void Read_Invalid_List(void);
 int find_name(const char *name);
@@ -319,21 +308,33 @@ struct Item_struct
 
 // массив для критерии, каждый элемент массива это отдельный слот
 Item_struct items_struct[17]; // = new Item_struct[16];
+
 // определение степени двойки
-int exp_two(int number)
+int exp_two_implementation(int number)
 {
-	int tmp = 1;
 	int count = 0;
 	while (true)
 	{
-		tmp = 1 << count;
+		const int tmp = 1 << count;
 		if (number < tmp)
+		{
 			return -1;
+		}
 		if (number == tmp)
+		{
 			return count;
+		}
 		count++;
 	}
 }
+
+template <typename EnumType>
+inline int exp_two(EnumType number)
+{
+	return exp_two_implementation(to_underlying(number));
+}
+
+template <> inline int exp_two(int number) { return exp_two_implementation(number); }
 
 bool check_obj_in_system_zone(int vnum)
 {
@@ -359,70 +360,124 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 	// куда одевается наш предмет
 	int item_wear = -1;
 	bool type_item = false;
-	if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_STAFF)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_WORN)   ||
-	    (GET_OBJ_TYPE(obj) == ITEM_WEAPON))
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WORN
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+	{
 		type_item = true;
+	}
 	// сумма для статов
 	double sum = 0;
 	// сумма для аффектов
 	double sum_aff = 0;
 	// по другому чот не получилось
-	if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
-		item_wear = exp_two(ITEM_WEAR_FINGER);
-	if (CAN_WEAR(obj, ITEM_WEAR_NECK))
-		item_wear = exp_two(ITEM_WEAR_NECK);
-	if (CAN_WEAR(obj, ITEM_WEAR_BODY))
-		item_wear = exp_two(ITEM_WEAR_BODY);
-	if (CAN_WEAR(obj, ITEM_WEAR_HEAD))
-		item_wear = exp_two(ITEM_WEAR_HEAD);
-	if (CAN_WEAR(obj, ITEM_WEAR_LEGS))
-		item_wear = exp_two(ITEM_WEAR_LEGS);
-	if (CAN_WEAR(obj, ITEM_WEAR_FEET))
-		item_wear = exp_two(ITEM_WEAR_FEET);
-	if (CAN_WEAR(obj, ITEM_WEAR_HANDS))
-		item_wear = exp_two(ITEM_WEAR_HANDS);
-	if (CAN_WEAR(obj, ITEM_WEAR_ARMS))
-		item_wear = exp_two(ITEM_WEAR_ARMS);
-	if (CAN_WEAR(obj, ITEM_WEAR_SHIELD))
-		item_wear = exp_two(ITEM_WEAR_SHIELD);
-	if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))
-		item_wear = exp_two(ITEM_WEAR_ABOUT);
-	if (CAN_WEAR(obj, ITEM_WEAR_WAIST))
-		item_wear = exp_two(ITEM_WEAR_WAIST);
-	if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
-		item_wear = exp_two(ITEM_WEAR_WRIST);
-	if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
-		item_wear = exp_two(ITEM_WEAR_WIELD);
-	if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
-		item_wear = exp_two(ITEM_WEAR_HOLD);
-	if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
-		item_wear = exp_two(ITEM_WEAR_BOTHS);
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_FINGER);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_NECK);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_BODY);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_HEAD);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_LEGS);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_FEET);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_HANDS);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_ARMS);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_SHIELD);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_ABOUT);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_WAIST);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_WRIST);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_WIELD);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_HOLD);
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_BOTHS);
+	}
+
 	if (!type_item)
-	    return false;
+	{
+		return false;
+	}
 	// находится ли объект в системной зоне
 	if (check_obj_in_system_zone(GET_OBJ_VNUM(obj)))
-	    return false;
+	{
+		return false;
+	}
 	// если объект никуда не надевается, то все, облом
 	if (item_wear == -1)
-	    return false;
+	{
+		return false;
+	}
 	// если шмотка магическая или энчантнута таймер обычный
-        if (OBJ_FLAGGED(obj, ITEM_MAGIC))
+    if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
 	    return false;
 	// если это сетовый предмет
-	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 		return false;
 	// рассыпется вне зоны
-	if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY))
 		return false;
 
 	// если предмет требует реморты, то он явно овер
 	if (obj->get_mort_req() > 0)
 		return false;
 	// проверяем дырки в предмете
-	 if (OBJ_FLAGGED(obj, ITEM_WITH1SLOT) || OBJ_FLAGGED(obj, ITEM_WITH2SLOTS)
-                        || OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))
+	 if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH1SLOT)
+		 || OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH2SLOTS)
+		 || OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH3SLOTS))
 		return false;
 	// если у объекта таймер ноль, то облом. 
 	if (obj->get_timer() == 0)
@@ -448,7 +503,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 		}	
-	sprintbits(obj->obj_flags.affects, weapon_affects, buf_temp1, ",");
+	obj->obj_flags.affects.sprintbits(weapon_affects, buf_temp1, ",");
 	
 	// проходим по всем аффектам в нашей таблице
 	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
@@ -499,7 +554,7 @@ float count_koef_obj(OBJ_DATA *obj,int item_wear)
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 		}
-	sprintbits(obj->obj_flags.affects, weapon_affects, buf_temp1, ",");
+	obj->obj_flags.affects.sprintbits(weapon_affects, buf_temp1, ",");
 	
 	// проходим по всем аффектам в нашей таблице
 	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
@@ -519,48 +574,96 @@ float count_unlimited_timer(OBJ_DATA *obj)
 {
 	float result = 0.0;
 	bool type_item = false;
-	if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_STAFF)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_WORN)  ||
-	    (GET_OBJ_TYPE(obj) == ITEM_WEAPON))
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WORN
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+	{
 		type_item = true;
+	}
 	// сумма для статов
-	
 	
 	result = 0.0;
 	
-	if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_FINGER));
-	if (CAN_WEAR(obj, ITEM_WEAR_NECK))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_NECK));
-	if (CAN_WEAR(obj, ITEM_WEAR_BODY))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_BODY));
-	if (CAN_WEAR(obj, ITEM_WEAR_HEAD))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_HEAD));
-	if (CAN_WEAR(obj, ITEM_WEAR_LEGS))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_LEGS));
-	if (CAN_WEAR(obj, ITEM_WEAR_FEET))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_FEET));
-	if (CAN_WEAR(obj, ITEM_WEAR_HANDS))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_HANDS));
-	if (CAN_WEAR(obj, ITEM_WEAR_ARMS))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_ARMS));
-	if (CAN_WEAR(obj, ITEM_WEAR_SHIELD))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_SHIELD));
-	if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_ABOUT));
-	if (CAN_WEAR(obj, ITEM_WEAR_WAIST))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_WAIST));
-	if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_WRIST));
-	if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_WIELD));
-	if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_HOLD));
-	if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
-		result += count_koef_obj(obj,exp_two(ITEM_WEAR_BOTHS));
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_FINGER));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_NECK));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_BODY));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HEAD));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_LEGS));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_FEET));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HANDS));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_ARMS));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_SHIELD));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_ABOUT));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WAIST));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WRIST));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WIELD));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HOLD));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_BOTHS));
+	}
+
 	if (!type_item)
-	    return 0.0;
+	{
+		return 0.0;
+	}
 
 	return result;
 }
@@ -571,11 +674,11 @@ float count_remort_requred(OBJ_DATA *obj)
 	const float SQRT_MOD = 1.7095f;
 	const int AFF_SHIELD_MOD = 30;
 	const int AFF_BLINK_MOD = 10;
-	
+
 	result = 0.0;
 	
 	if (ObjSystem::is_mob_item(obj)
-		|| OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 	{
 		return result;
 	}
@@ -605,27 +708,26 @@ float count_remort_requred(OBJ_DATA *obj)
 		
 	}
 	// аффекты AFF_x через weapon_affect
-	for (int m = 0; weapon_affect[m].aff_bitvector != -1; ++m)
+	for (const auto& m : weapon_affect)
 	{
-		if (weapon_affect[m].aff_bitvector == AFF_AIRSHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		if (IS_OBJ_AFF(obj, m.aff_pos))
 		{
-			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-		}
-		else if (weapon_affect[m].aff_bitvector == AFF_FIRESHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
-		{
-			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-		}
-		else if (weapon_affect[m].aff_bitvector == AFF_ICESHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
-		{
-			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-		}
-		else if (weapon_affect[m].aff_bitvector == AFF_BLINK
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
-		{
-			total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
+			{
+				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+			}
 		}
 	}
 
@@ -634,8 +736,7 @@ float count_remort_requred(OBJ_DATA *obj)
 	return result;
 }
 
-
-void Load_Criterion(pugi::xml_node XMLCriterion, int type)
+void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)
 {
 	int index = exp_two(type);
 	pugi::xml_node params, CurNode, affects;
@@ -655,13 +756,7 @@ void Load_Criterion(pugi::xml_node XMLCriterion, int type)
 		items_struct[index].affects.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
 		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
 	}	
-	
 }
-
-
-
-
-
 
 // Separate a 4-character id tag from the data it precedes
 void tag_argument(char *argument, char *tag)
@@ -856,7 +951,7 @@ void load_cases()
  * 'reload' command even when the string was not replaced.
  * To fix later, if desired. -gg 6/24/99
  */
-ACMD(do_reboot)
+void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	argument = one_argument(argument, arg);
 
@@ -1077,8 +1172,8 @@ void init_portals(void)
 		for (i = 0; !(i == 10 || wrd[i] == ' ' || wrd[i] == '\0'); i++);
 		wrd[i] = '\0';
 		// добавляем портал в список - rnm - комната, wrd - слово
-		CREATE(curr, struct portals_list_type, 1);
-		CREATE(curr->wrd, char, strlen(wrd) + 1);
+		CREATE(curr, 1);
+		CREATE(curr->wrd, strlen(wrd) + 1);
 		curr->vnum = rnm;
 		curr->level = level;
 		for (i = 0, curr->wrd[i] = '\0'; wrd[i]; i++)
@@ -1099,18 +1194,19 @@ void init_portals(void)
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 {
-	if ((GET_OBJ_TYPE(obj) == ITEM_DRINKCON
-			|| GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN)
-		&& GET_OBJ_SKILL(obj) > 0)
+	if (GET_OBJ_SKILL(obj) > 0
+		&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON
+			|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN))
 	{
 		log("obj_skill: %d - %s (%d)", GET_OBJ_SKILL(obj),
 			GET_OBJ_PNAME(obj, 0), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
 		// из обж-скилл их не перекрывает, а просто удаляется
-		if (obj->values.get(ObjVal::POTION_PROTO_VNUM) < 0)
+		if (obj->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0)
 		{
 			OBJ_DATA *potion = read_object(GET_OBJ_SKILL(obj), VIRTUAL);
-			if (potion && GET_OBJ_TYPE(potion) == ITEM_POTION)
+			if (potion
+				&& GET_OBJ_TYPE(potion) == obj_flag_data::ITEM_POTION)
 			{
 				drinkcon::copy_potion_values(potion, obj);
 				if (proto)
@@ -1118,11 +1214,11 @@ int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 					// copy_potion_values сетит до кучи и внум из пошена,
 					// поэтому уточним здесь, что зелье не перелито
 					// емкости из read_one_object_new идут как перелитые
-					obj->values.set(ObjVal::POTION_PROTO_VNUM, 0);
+					obj->values.set(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
 				}
 			}
 		}
-		GET_OBJ_SKILL(obj) = 0;
+		GET_OBJ_SKILL(obj) = SKILL_INVALID;
 		return 1;
 	}
 	return 0;
@@ -1132,68 +1228,32 @@ int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 void convert_obj_values()
 {
 	int save = 0;
-	for (auto i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
+	for (const auto i : obj_proto)
 	{
-		save = std::max(save, convert_drinkcon_skill(*i, true));
-		if (IS_OBJ_STAT(*i, ITEM_1INLAID))
+		save = std::max(save, convert_drinkcon_skill(i, true));
+		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_1INLAID))
 		{
-			REMOVE_BIT(GET_OBJ_EXTRA(*i, ITEM_1INLAID), ITEM_1INLAID);
+			i->unset_extraflag(EExtraFlag::ITEM_1INLAID);
 			save = 1;
 		}
-		if (IS_OBJ_STAT(*i, ITEM_2INLAID))
+		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_2INLAID))
 		{
-			REMOVE_BIT(GET_OBJ_EXTRA(*i, ITEM_2INLAID), ITEM_2INLAID);
+			i->unset_extraflag(EExtraFlag::ITEM_2INLAID);
 			save = 1;
 		}
-		if (IS_OBJ_STAT(*i, ITEM_3INLAID))
+		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_3INLAID))
 		{
-			REMOVE_BIT(GET_OBJ_EXTRA(*i, ITEM_3INLAID), ITEM_3INLAID);
+			i->unset_extraflag(EExtraFlag::ITEM_3INLAID);
 			save = 1;
 		}
 		// ...
 		if (save)
 		{
-			olc_add_to_save_list(GET_OBJ_VNUM(*i)/100, OLC_SAVE_OBJ);
+			olc_add_to_save_list(GET_OBJ_VNUM(i)/100, OLC_SAVE_OBJ);
 			save = 0;
 		}
 	}
 }
-
-/*
-void first_init_global_drop()
-{
-	for(int i = 0; i < world.size(); i++)
-	{
-		for (int  x = 0; x < drop_list_obj.size(); x++)
-		{
-			int stop = true;
-			for (int  k = 0; k < drop_list_obj.sects.size(); k++)
-			{
-				if (SECT(world[i] == drop_list_obj.sects[k]))
-					stop = false;
-			}
-			if (stop)
-				continue;
-			if (drop_list_obj[x].chance > number(0, 999))
-			{
-				obj_to_room(tobj, IN_ROOM(ch));
-				int obj_rnum = real_object(obj_vnum);
-				if (obj_rnum < 0)
-				{
-					snprintf(buf, MAX_STRING_LENGTH, "[FreeDropObj] Incorrect obj_vnum=%d", obj_vnum);
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-					return;
-				}
-				OBJ_DATA *obj= read_object(obj_rnum, REAL);
-				obj_to_room(obj, real_room(world[i].number));
-				dobj_decay(obj);
-				
-			}
-			
-		}
-	}
-}
-*/
 
 void boot_world(void)
 {
@@ -1313,7 +1373,7 @@ void init_zone_types()
 	}
 	names++;
 
-	CREATE(zone_types, struct zone_type, names);
+	CREATE(zone_types, names);
 	for (i = 0; i < names; i++)
 	{
 		zone_types[i].name = NULL;
@@ -1345,8 +1405,12 @@ void init_zone_types()
 	zone_types[i].name = str_dup("\n");
 
 	for (i = 0; *zone_types[i].name != '\n'; i++)
+	{
 		if (zone_types[i].ingr_qty > 0)
-			CREATE(zone_types[i].ingr_types, int, zone_types[i].ingr_qty);
+		{
+			CREATE(zone_types[i].ingr_types, zone_types[i].ingr_qty);
+		}
+	}
 
 	rewind(zt_file);
 	i = 0;
@@ -1541,8 +1605,8 @@ void OBJ_DATA::init_set_table()
 					continue;
 				}
 
-				flag_data tmpaffs = clear_flags;
-				asciiflag_conv(cppstr.c_str(), &tmpaffs);
+				FLAG_DATA tmpaffs = clear_flags;
+				tmpaffs.from_string(cppstr.c_str());
 
 				clss->second.set_affects(tmpaffs);
 				appnum = 0;
@@ -1568,7 +1632,7 @@ void OBJ_DATA::init_set_table()
 					continue;
 				}
 
-				obj_affected_type tmpafcn((byte)tmploc, (sbyte)tmpmodi);
+				obj_affected_type tmpafcn(static_cast<EApplyLocation>(tmploc), (sbyte)tmpmodi);
 
 				if (!isstream.eof())
 				{
@@ -1637,8 +1701,7 @@ void OBJ_DATA::init_set_table()
 				unique_bit_flag_data tmpclss;
 
 				if (cppstr == "all")
-					tmpclss.set_plane(0x3FFFFFFF).set_plane(INT_ONE | 0x3FFFFFFF).set_plane(INT_TWO |
-							0x3FFFFFFF).set_plane(INT_THREE | 0x3FFFFFFF);
+					tmpclss.set_all();
 				else
 				{
 					isstream.str(cppstr);
@@ -1649,7 +1712,7 @@ void OBJ_DATA::init_set_table()
 						if (i < 0 || i > NUM_PLAYER_CLASSES * NUM_KIN)
 							break;
 						else
-							tmpclss.set_plane(flag_data_by_num(i));
+							tmpclss.set(flag_data_by_num(i));
 
 					if (i < 0 || i > NUM_PLAYER_CLASSES * NUM_KIN)
 					{
@@ -2070,14 +2133,19 @@ void load_messages(void)
 	}
 
 
-	fgets(chk, 128, fl);
+	const char* dummyc = fgets(chk, 128, fl);
 	while (!feof(fl) && (*chk == '\n' || *chk == '*'))
-		fgets(chk, 128, fl);
+	{
+		dummyc = fgets(chk, 128, fl);
+	}
 
 	while (*chk == 'M')
 	{
-		fgets(chk, 128, fl);
-		sscanf(chk, " %d\n", &type);
+		dummyc = fgets(chk, 128, fl);
+
+		int dummyi = sscanf(chk, " %d\n", &type);
+		UNUSED_ARG(dummyi);
+
 		for (i = 0; (i < MAX_MESSAGES) &&
 				(fight_messages[i].a_type != type) && (fight_messages[i].a_type); i++);
 		if (i >= MAX_MESSAGES)
@@ -2086,7 +2154,7 @@ void load_messages(void)
 			exit(1);
 		}
 		log("BATTLE MESSAGE %d(%d)", i, type);
-		CREATE(messages, struct message_type, 1);
+		CREATE(messages, 1);
 		fight_messages[i].number_of_attacks++;
 		fight_messages[i].a_type = type;
 		messages->next = fight_messages[i].msg;
@@ -2104,10 +2172,13 @@ void load_messages(void)
 		messages->god_msg.attacker_msg = fread_action(fl, i);
 		messages->god_msg.victim_msg = fread_action(fl, i);
 		messages->god_msg.room_msg = fread_action(fl, i);
-		fgets(chk, 128, fl);
+		dummyc = fgets(chk, 128, fl);
 		while (!feof(fl) && (*chk == '\n' || *chk == '*'))
-			fgets(chk, 128, fl);
+		{
+			dummyc = fgets(chk, 128, fl);
+		}
 	}
+	UNUSED_ARG(dummyc);
 
 	fclose(fl);
 }
@@ -2172,21 +2243,21 @@ void boot_db(void)
 	
 	log("Loading Criterion...");
 	pugi::xml_document doc1;
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1), ITEM_WEAR_FINGER);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1), ITEM_WEAR_NECK);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1), ITEM_WEAR_BODY);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "head", "Error Loading Criterion.xml: <head>", doc1), ITEM_WEAR_HEAD);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "legs", "Error Loading Criterion.xml: <legs>", doc1), ITEM_WEAR_LEGS);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "feet", "Error Loading Criterion.xml: <feet>", doc1), ITEM_WEAR_FEET);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hands", "Error Loading Criterion.xml: <hands>", doc1), ITEM_WEAR_HANDS);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "arms", "Error Loading Criterion.xml: <arms>", doc1), ITEM_WEAR_ARMS);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1), ITEM_WEAR_SHIELD);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1), ITEM_WEAR_ABOUT);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1), ITEM_WEAR_WAIST);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1), ITEM_WEAR_WRIST);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1), ITEM_WEAR_WIELD);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), ITEM_WEAR_HOLD);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), ITEM_WEAR_BOTHS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1), EWearFlag::ITEM_WEAR_FINGER);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1), EWearFlag::ITEM_WEAR_NECK);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1), EWearFlag::ITEM_WEAR_BODY);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "head", "Error Loading Criterion.xml: <head>", doc1), EWearFlag::ITEM_WEAR_HEAD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "legs", "Error Loading Criterion.xml: <legs>", doc1), EWearFlag::ITEM_WEAR_LEGS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "feet", "Error Loading Criterion.xml: <feet>", doc1), EWearFlag::ITEM_WEAR_FEET);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hands", "Error Loading Criterion.xml: <hands>", doc1), EWearFlag::ITEM_WEAR_HANDS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "arms", "Error Loading Criterion.xml: <arms>", doc1), EWearFlag::ITEM_WEAR_ARMS);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1), EWearFlag::ITEM_WEAR_SHIELD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1), EWearFlag::ITEM_WEAR_ABOUT);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1), EWearFlag::ITEM_WEAR_WAIST);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1), EWearFlag::ITEM_WEAR_WRIST);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1), EWearFlag::ITEM_WEAR_WIELD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), EWearFlag::ITEM_WEAR_HOLD);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), EWearFlag::ITEM_WEAR_BOTHS);
 
 	
 	log("Loading birth places definitions.");
@@ -2382,6 +2453,14 @@ void boot_db(void)
 
 	log("Init town shop_keepers.");
 	town_shop_keepers();
+
+	/*
+	log("Starting craft system.");
+	if (!craft::start())
+	{
+		log("ERROR: Failed to start craft system.\n");
+	}
+	*/
 
 	log("Check big sets in rent.");
 	SetSystem::check_rented();
@@ -2645,11 +2724,8 @@ void index_boot(int mode)
 	FILE *index, *db_file;
 
 	int rec_count = 0, counter;
-	int size[2];
-
 
 	log("Index booting %d", mode);
-
 
 	switch (mode)
 	{
@@ -2694,14 +2770,14 @@ void index_boot(int mode)
 	}
 
 	// first, count the number of records in the file so we can malloc
-	fscanf(index, "%s\n", buf1);
+	int dummyi = fscanf(index, "%s\n", buf1);
 	while (*buf1 != '$')
 	{
 		sprintf(buf2, "%s%s", prefix, buf1);
 		if (!(db_file = fopen(buf2, "r")))
 		{
 			log("SYSERR: File '%s' listed in '%s/%s': %s", buf2, prefix, index_filename, strerror(errno));
-			fscanf(index, "%s\n", buf1);
+			dummyi = fscanf(index, "%s\n", buf1);
 			continue;
 		}
 		else
@@ -2726,7 +2802,7 @@ void index_boot(int mode)
 				rec_count += count_hash_records(db_file);
 		}
 		fclose(db_file);
-		fscanf(index, "%s\n", buf1);
+		dummyi = fscanf(index, "%s\n", buf1);
 	}
 
 	// Exit if 0 records, unless this is shops
@@ -2743,47 +2819,58 @@ void index_boot(int mode)
 	switch (mode)
 	{
 	case DB_BOOT_TRG:
-		CREATE(trig_index, INDEX_DATA *, rec_count);
+		CREATE(trig_index, rec_count);
 		break;
+
 	case DB_BOOT_WLD:
-		// Creating empty world with NOWHERE room.
-		world.push_back(new ROOM_DATA);
-		top_of_world = FIRST_ROOM;
-		size[0] = sizeof(ROOM_DATA) * rec_count;
-		log("   %d rooms, %d bytes.", rec_count, size[0]);
+		{
+			// Creating empty world with NOWHERE room.
+			world.push_back(new ROOM_DATA);
+			top_of_world = FIRST_ROOM;
+			const size_t rooms_bytes = sizeof(ROOM_DATA) * rec_count;
+			log("   %d rooms, %zd bytes.", rec_count, rooms_bytes);
+		}
 		break;
+
 	case DB_BOOT_MOB:
-		mob_proto = new CHAR_DATA[rec_count]; // TODO: переваять на вектор (+в medit)
-		CREATE(mob_index, INDEX_DATA, rec_count);
-		size[0] = sizeof(INDEX_DATA) * rec_count;
-		size[1] = sizeof(CHAR_DATA) * rec_count;
-		log("   %d mobs, %d bytes in index, %d bytes in prototypes.", rec_count, size[0], size[1]);
+		{
+			mob_proto = new CHAR_DATA[rec_count]; // TODO: переваять на вектор (+в medit)
+			CREATE(mob_index, rec_count);
+			const size_t index_size = sizeof(INDEX_DATA) * rec_count;
+			const size_t characters_size = sizeof(CHAR_DATA) * rec_count;
+			log("   %d mobs, %zd bytes in index, %zd bytes in prototypes.", rec_count, index_size, characters_size);
+		}
 		break;
+
 	case DB_BOOT_OBJ:
-		obj_proto.reserve(rec_count);
-		CREATE(obj_index, INDEX_DATA, rec_count);
-		size[0] = sizeof(INDEX_DATA) * rec_count;
-		size[1] = sizeof(OBJ_DATA) * rec_count;
-		log("   %d objs, %d bytes in index, %d bytes in prototypes.", rec_count, size[0], size[1]);
+		log("   %d objs, ~%zd bytes in index, ~%zd bytes in prototypes.", rec_count, obj_proto.index_size(), obj_proto.prototypes_size());
 		break;
+
 	case DB_BOOT_ZON:
-		CREATE(zone_table, struct zone_data, rec_count);
-		size[0] = sizeof(struct zone_data) * rec_count;
-		log("   %d zones, %d bytes.", rec_count, size[0]);
+		{
+			CREATE(zone_table, rec_count);
+			const size_t zones_size = sizeof(struct zone_data) * rec_count;
+			log("   %d zones, %zd bytes.", rec_count, zones_size);
+		}
 		break;
+
 	case DB_BOOT_HLP:
 		break;
+
 	case DB_BOOT_SOCIAL:
-		CREATE(soc_mess_list, struct social_messg, top_of_socialm + 1);
-		CREATE(soc_keys_list, struct social_keyword, top_of_socialk + 1);
-		size[0] = sizeof(struct social_messg) * (top_of_socialm + 1);
-		size[1] = sizeof(struct social_keyword) * (top_of_socialk + 1);
-		log("   %d entries(%d keywords), %d(%d) bytes.", top_of_socialm + 1,
-			top_of_socialk + 1, size[0], size[1]);
+		{
+			CREATE(soc_mess_list, top_of_socialm + 1);
+			CREATE(soc_keys_list, top_of_socialk + 1);
+			const size_t messages_size = sizeof(struct social_messg) * (top_of_socialm + 1);
+			const size_t keywords_size = sizeof(struct social_keyword) * (top_of_socialk + 1);
+			log("   %d entries(%d keywords), %zd(%zd) bytes.", top_of_socialm + 1,
+				top_of_socialk + 1, messages_size, keywords_size);
+		}
+		break;
 	}
 
 	rewind(index);
-	fscanf(index, "%s\n", buf1);
+	dummyi = fscanf(index, "%s\n", buf1);
 	while (*buf1 != '$')
 	{
 		sprintf(buf2, "%s%s", prefix, buf1);
@@ -2817,8 +2904,10 @@ void index_boot(int mode)
 		if (mode == DB_BOOT_WLD)
 			parse_room(db_file, 0, TRUE);
 		fclose(db_file);
-		fscanf(index, "%s\n", buf1);
+		dummyi = fscanf(index, "%s\n", buf1);
 	}
+	UNUSED_ARG(dummyi);
+
 	fclose(index);
 	// Create virtual room for zone
 
@@ -2829,6 +2918,141 @@ void index_boot(int mode)
 	}
 }
 
+char fread_letter(FILE * fp)
+{
+	char c;
+	do
+	{
+		c = getc(fp);
+	} while (isspace(c));
+	return c;
+}
+
+void parse_mobile(FILE * mob_f, int nr)
+{
+	static int i = 0;
+	int j, t[10];
+	char line[256], letter;
+	char f1[128], f2[128];
+
+	mob_index[i].vnum = nr;
+	mob_index[i].number = 0;
+	mob_index[i].func = NULL;
+	mob_index[i].set_idx = -1;
+
+	/*
+	* Mobiles should NEVER use anything in the 'player_specials' structure.
+	* The only reason we have every mob in the game share this copy of the
+	* structure is to save newbie coders from themselves. -gg 2/25/98
+	*/
+	mob_proto[i].player_specials = &dummy_mob;
+	sprintf(buf2, "mob vnum %d", nr);
+
+	// **** String data
+	char *tmp_str = fread_string(mob_f, buf2);
+	mob_proto[i].set_pc_name(tmp_str);
+	if (tmp_str)
+	{
+		free(tmp_str);
+	}
+	tmp_str = fread_string(mob_f, buf2);
+	mob_proto[i].set_npc_name(tmp_str);
+	if (tmp_str)
+	{
+		free(tmp_str);
+	}
+
+	// real name
+	CREATE(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().size() + 1);
+	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().c_str());
+	for (j = 1; j < OBJ_DATA::NUM_PADS; j++)
+	{
+		GET_PAD(mob_proto + i, j) = fread_string(mob_f, buf2);
+	}
+
+	mob_proto[i].player_data.long_descr = fread_string(mob_f, buf2);
+	mob_proto[i].player_data.description = fread_string(mob_f, buf2);
+	mob_proto[i].mob_specials.Questor = NULL;
+	mob_proto[i].player_data.title = NULL;
+
+	// mob_proto[i].mob_specials.Questor = fread_string(mob_f, buf2);
+
+	// *** Numeric data ***
+	if (!get_line(mob_f, line))
+	{
+		log("SYSERR: Format error after string section of mob #%d\n"
+			"...expecting line of form '# # # {S | E}', but file ended!\n%s", nr, line);
+		exit(1);
+	}
+#ifdef CIRCLE_ACORN		// Ugh.
+	if (sscanf(line, "%s %s %d %s", f1, f2, t + 2, &letter) != 4)
+	{
+#else
+	if (sscanf(line, "%s %s %d %c", f1, f2, t + 2, &letter) != 4)
+	{
+#endif
+		log("SYSERR: Format error after string section of mob #%d\n"
+			"...expecting line of form '# # # {S | E}'\n%s", nr, line);
+		exit(1);
+	}
+	MOB_FLAGS(&mob_proto[i]).from_string(f1);
+	MOB_FLAGS(&mob_proto[i]).set(MOB_ISNPC);
+	AFF_FLAGS(&mob_proto[i]).from_string(f2);
+	GET_ALIGNMENT(mob_proto + i) = t[2];
+	switch (UPPER(letter))
+	{
+	case 'S':		// Simple monsters
+		parse_simple_mob(mob_f, i, nr);
+		break;
+	case 'E':		// Circle3 Enhanced monsters
+		parse_enhanced_mob(mob_f, i, nr);
+		break;
+		// add new mob types here..
+	default:
+		log("SYSERR: Unsupported mob type '%c' in mob #%d", letter, nr);
+		exit(1);
+	}
+
+	// DG triggers -- script info follows mob S/E section
+	// DG triggers -- script is defined after the end of the room 'T'
+	// Ингредиентная магия -- 'I'
+	// Объекты загружаемые по-смертно -- 'D'
+
+	do
+	{
+		letter = fread_letter(mob_f);
+		ungetc(letter, mob_f);
+		switch (letter)
+		{
+		case 'I':
+			get_line(mob_f, line);
+			im_parse(&mob_proto[i].ing_list, line + 1);
+			break;
+		case 'L':
+			get_line(mob_f, line);
+			dl_parse(&mob_proto[i].dl_list, line + 1);
+			break;
+		case 'T':
+			dg_read_trigger(mob_f, &mob_proto[i], MOB_TRIGGER);
+			break;
+		default:
+			letter = 0;
+			break;
+		}
+	} while (letter != 0);
+
+	for (j = 0; j < NUM_WEARS; j++)
+	{
+		mob_proto[i].equipment[j] = NULL;
+	}
+
+	mob_proto[i].nr = i;
+	mob_proto[i].desc = NULL;
+
+	set_test_data(mob_proto + i);
+
+	top_of_mobt = i++;
+}
 
 void discrete_load(FILE * fl, int mode, char *filename)
 {
@@ -2837,7 +3061,6 @@ void discrete_load(FILE * fl, int mode, char *filename)
 
 	const char *modes[] = { "world", "mob", "obj", "ZON", "SHP", "HLP", "trg" };
 	// modes positions correspond to DB_BOOT_xxx in db.h
-
 
 	for (;;)
 	{		/*
@@ -2908,71 +3131,17 @@ void discrete_load(FILE * fl, int mode, char *filename)
 	}
 }
 
-void asciiflag_conv(const char *flag, void *value)
-{
-	int *flags = (int *) value;
-	int is_number = 1, block = 0, i;
-	const char *p;
-
-	for (p = flag; *p; p += i + 1)
-	{
-		i = 0;
-		if (islower(*p))
-		{
-			if (*(p + 1) >= '0' && *(p + 1) <= '9')
-			{
-				block = (int) * (p + 1) - '0';
-				i = 1;
-			}
-			else
-				block = 0;
-			*(flags + block) |= (0x3FFFFFFF & (1 << (*p - 'a')));
-		}
-		else if (isupper(*p))
-		{
-			if (*(p + 1) >= '0' && *(p + 1) <= '9')
-			{
-				block = (int) * (p + 1) - '0';
-				i = 1;
-			}
-			else
-				block = 0;
-			*(flags + block) |= (0x3FFFFFFF & (1 << (26 + (*p - 'A'))));
-		}
-		if (!a_isdigit(*p))
-			is_number = 0;
-	}
-
-	if (is_number)
-	{
-		is_number = atol(flag);
-		block = is_number < INT_ONE ? 0 : is_number < INT_TWO ? 1 : is_number < INT_THREE ? 2 : 3;
-		*(flags + block) = is_number & 0x3FFFFFFF;
-	}
-}
-
-char fread_letter(FILE * fp)
-{
-	char c;
-	do
-	{
-		c = getc(fp);
-	}
-	while (isspace(c));
-	return c;
-}
-
 // * Проверки всяких несочетаемых флагов на комнатах.
 void check_room_flags(int rnum)
 {
 	if (DeathTrap::is_slow_dt(rnum))
 	{
 		// снятие номагик и прочих флагов, запрещающих чару выбраться из комнаты без выходов при наличии медленного дт
-		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOMAGIC), ROOM_NOMAGIC);
-		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOTELEPORTOUT), ROOM_NOTELEPORTOUT);
-		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOSUMMON), ROOM_NOSUMMON);
+		GET_ROOM(rnum)->unset_flag(ROOM_NOMAGIC);
+		GET_ROOM(rnum)->unset_flag(ROOM_NOTELEPORTOUT);
+		GET_ROOM(rnum)->unset_flag(ROOM_NOSUMMON);
 	}
-	if (ROOM_FLAGGED(rnum, ROOM_HOUSE)
+	if (GET_ROOM(rnum)->get_flag(ROOM_HOUSE)
 		&& (SECT(rnum) == SECT_MOUNTAIN || SECT(rnum) == SECT_HILLS))
 	{
 		// шоб в замках умные не копали
@@ -3016,10 +3185,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	{
 		world[room_nr]->name = str_dup("Виртуальная комната");
 		world[room_nr]->description_num = RoomDescription::add_desc("Похоже, здесь вам делать нечего.");
-		world[room_nr]->room_flags.flags[0] = 0;
-		world[room_nr]->room_flags.flags[1] = 0;
-		world[room_nr]->room_flags.flags[2] = 0;
-		world[room_nr]->room_flags.flags[3] = 0;
+		world[room_nr]->clear_flags();
 		world[room_nr]->sector_type = SECT_SECRET;
 	}
 	else
@@ -3037,7 +3203,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		{
 			std::string buffer(temp_buf);
 			boost::trim_right_if(buffer, boost::is_any_of(std::string(" _"))); //убираем пробелы в конце строки
-			RECREATE(temp_buf, char, strlen(buffer.c_str()) + 1);
+			RECREATE(temp_buf, strlen(buffer.c_str()) + 1);
 			strcpy(temp_buf, buffer.c_str());
 		}
 		world[room_nr]->description_num = RoomDescription::add_desc(temp_buf);
@@ -3055,7 +3221,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			exit(1);
 		}
 		// t[0] is the zone number; ignored with the zone-file system
-		asciiflag_conv(flags, &world[room_nr]->room_flags);
+		world[room_nr]->flags_from_string(flags);
 		world[room_nr]->sector_type = t[2];
 	}
 
@@ -3063,10 +3229,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 
 	// Обнуляем флаги от аффектов и сами аффекты на комнате.
 	world[room_nr]->affected = NULL;
-	world[room_nr]->affected_by.flags[0] = 0;
-	world[room_nr]->affected_by.flags[1] = 0;
-	world[room_nr]->affected_by.flags[2] = 0;
-	world[room_nr]->affected_by.flags[3] = 0;
+	world[room_nr]->affected_by.clear();
 	// Обнуляем базовые параметры (пока нет их загрузки)
 	memset(&world[room_nr]->base_property, 0, sizeof(room_property_data));
 
@@ -3083,7 +3246,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	world[room_nr]->gdark = 0;
 	world[room_nr]->glight = 0;
 	world[room_nr]->ing_list = NULL;	// ингредиентов нет
-	world[room_nr]->proto_script = NULL;
+	world[room_nr]->proto_script.clear();
 
 	for (i = 0; i < NUM_OF_DIRS; i++)
 		world[room_nr]->dir_option[i] = NULL;
@@ -3110,7 +3273,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			setup_dir(fl, room_nr, atoi(line + 1));
 			break;
 		case 'E':
-			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+			CREATE(new_descr, 1);
 			new_descr->keyword = NULL;
 			new_descr->description = NULL;
 			new_descr->keyword = fread_string(fl, buf2);
@@ -3158,8 +3321,6 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	}
 }
 
-
-
 // read direction data
 void setup_dir(FILE * fl, int room, unsigned dir)
 {
@@ -3174,7 +3335,7 @@ void setup_dir(FILE * fl, int room, unsigned dir)
 
 	sprintf(buf2, "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
 
-	CREATE(world[room]->dir_option[dir], EXIT_DATA, 1);
+	CREATE(world[room]->dir_option[dir], 1);
 	world[room]->dir_option[dir]->general_description = fread_string(fl, buf2);
 
 	// парс строки алиаса двери на имя;вининельный падеж, если он есть
@@ -3288,10 +3449,9 @@ void renum_world(void)
 // Установка принадлежности к зоне в прототипах
 void renum_obj_zone(void)
 {
-	int i;
-	for (i = 0; i <= top_of_objt; ++i)
+	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
-		obj_index[i].zone = real_zone(obj_index[i].vnum);
+		obj_proto.zone(i, real_zone(obj_proto.vnum(i)));
 	}
 }
 
@@ -3304,8 +3464,6 @@ void renum_mob_zone(void)
 		mob_index[i].zone = real_zone(mob_index[i].vnum);
 	}
 }
-
-
 
 #define ZCMD zone_table[zone].cmd[cmd_no]
 #define ZCMD_CMD(cmd_nom) zone_table[zone].cmd[cmd_nom]
@@ -3470,7 +3628,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 
 	mob_proto[i].char_specials.position = t[0];
 	mob_proto[i].mob_specials.default_pos = t[1];
-	mob_proto[i].player_data.sex = t[2];
+	mob_proto[i].player_data.sex = static_cast<ESex>(t[2]);
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
 	mob_proto[i].set_class(NPC_CLASS_BASE);
@@ -3690,7 +3848,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Special_Bitvector")
 	{
-		asciiflag_conv((char *) value, &mob_proto[i].mob_specials.npc_flags);
+		mob_proto[i].mob_specials.npc_flags.from_string((char *) value);
 		// *** Empty now
 	}
 
@@ -3724,7 +3882,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 			return;
 		}
 		t[1] = MIN(200, MAX(0, t[1]));
-		(mob_proto + i)->set_skill(t[0], t[1]);
+		(mob_proto + i)->set_skill(static_cast<ESkill>(t[0]), t[1]);
 	}
 
 	CASE("Spell")
@@ -3746,7 +3904,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Helper")
 	{
-		CREATE(helper, struct helper_data_type, 1);
+		CREATE(helper, 1);
 		helper->mob_vnum = num_arg;
 		helper->next_helper = GET_HELPER(mob_proto + i);
 		GET_HELPER(mob_proto + i) = helper;
@@ -3823,7 +3981,7 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 	string obj_pad;
 	char *ptr;
 	int i, k;
-	for (i = 0; i < NUM_PADS; i++)
+	for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 	{
 		obj_pad = string(GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i));
 		size_t j = obj_pad.find("@p");
@@ -3832,7 +3990,9 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 			// Родитель найден прописываем его.
 			ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
 			if (GET_OBJ_PNAME(obj, i) != ptr)
+			{
 				free(GET_OBJ_PNAME(obj, i));
+			}
 
 			k = atoi(obj_pad.substr(j + 2, j + 3).c_str());
 			obj_pad.replace(j, 3, GET_PAD(ch, k));
@@ -3921,11 +4081,16 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			else
 			{
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
-				if (GET_OBJ_MIW(tobj) >= obj_index[GET_OBJ_RNUM(tobj)].stored +
-						obj_index[GET_OBJ_RNUM(tobj)].number || GET_OBJ_MIW(tobj) == -1 || check_unlimited_timer(tobj))
+				if (GET_OBJ_MIW(tobj) >= obj_proto.actual_count(tobj)
+					|| GET_OBJ_MIW(tobj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
+					|| check_unlimited_timer(tobj))
+				{
 					miw = true;
+				}
 				else
+				{
 					miw = false;
+				}
 				switch (DL_LOAD_TYPE)
 				{
 				case DL_ORDINARY:	//Обычная загрузка - без выкрутасов
@@ -4004,7 +4169,7 @@ int dl_parse(load_list ** dl_list, char *line)
 		*dl_list = new load_list;
 	}
 
-	CREATE(new_item, struct load_data, 1);
+	CREATE(new_item, 1);
 	new_item->obj_vnum = vnum;
 	new_item->load_prob = prob;
 	new_item->load_type = type;
@@ -4139,133 +4304,8 @@ void set_test_data(CHAR_DATA *mob)
 	GET_ABSORBE(mob) = calc_boss_value(mob, mob->get_level());
 }
 
-void parse_mobile(FILE * mob_f, int nr)
-{
-	static int i = 0;
-	int j, t[10];
-	char line[256], letter;
-	char f1[128], f2[128];
-
-	mob_index[i].vnum = nr;
-	mob_index[i].number = 0;
-	mob_index[i].func = NULL;
-	mob_index[i].set_idx = -1;
-
-	/*
-	 * Mobiles should NEVER use anything in the 'player_specials' structure.
-	 * The only reason we have every mob in the game share this copy of the
-	 * structure is to save newbie coders from themselves. -gg 2/25/98
-	 */
-	mob_proto[i].player_specials = &dummy_mob;
-	sprintf(buf2, "mob vnum %d", nr);
-
-	// **** String data
-	char *tmp_str = fread_string(mob_f, buf2);
-	mob_proto[i].set_pc_name(tmp_str);
-	if (tmp_str)
-	{
-		free(tmp_str);
-	}
-	tmp_str = fread_string(mob_f, buf2);
-	mob_proto[i].set_npc_name(tmp_str);
-	if (tmp_str)
-	{
-		free(tmp_str);
-	}
-
-	// real name
-	CREATE(GET_PAD(mob_proto + i, 0), char, strlen(mob_proto[i].get_npc_name()) + 1);
-	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name());
-	for (j = 1; j < NUM_PADS; j++)
-		GET_PAD(mob_proto + i, j) = fread_string(mob_f, buf2);
-
-	mob_proto[i].player_data.long_descr = fread_string(mob_f, buf2);
-	mob_proto[i].player_data.description = fread_string(mob_f, buf2);
-	mob_proto[i].mob_specials.Questor = NULL;
-	mob_proto[i].player_data.title = NULL;
-
-	// mob_proto[i].mob_specials.Questor = fread_string(mob_f, buf2);
-
-	// *** Numeric data ***
-	if (!get_line(mob_f, line))
-	{
-		log("SYSERR: Format error after string section of mob #%d\n"
-			"...expecting line of form '# # # {S | E}', but file ended!\n%s", nr, line);
-		exit(1);
-	}
-#ifdef CIRCLE_ACORN		// Ugh.
-	if (sscanf(line, "%s %s %d %s", f1, f2, t + 2, &letter) != 4)
-	{
-#else
-	if (sscanf(line, "%s %s %d %c", f1, f2, t + 2, &letter) != 4)
-	{
-#endif
-		log("SYSERR: Format error after string section of mob #%d\n"
-			"...expecting line of form '# # # {S | E}'\n%s", nr, line);
-		exit(1);
-	}
-	asciiflag_conv(f1, &MOB_FLAGS(mob_proto + i, 0));
-	SET_BIT(MOB_FLAGS(mob_proto + i, MOB_ISNPC), MOB_ISNPC);
-	asciiflag_conv(f2, &AFF_FLAGS(mob_proto + i, 0));
-	GET_ALIGNMENT(mob_proto + i) = t[2];
-	switch (UPPER(letter))
-	{
-	case 'S':		// Simple monsters
-		parse_simple_mob(mob_f, i, nr);
-		break;
-	case 'E':		// Circle3 Enhanced monsters
-		parse_enhanced_mob(mob_f, i, nr);
-		break;
-		// add new mob types here..
-	default:
-		log("SYSERR: Unsupported mob type '%c' in mob #%d", letter, nr);
-		exit(1);
-	}
-
-	// DG triggers -- script info follows mob S/E section
-	// DG triggers -- script is defined after the end of the room 'T'
-	// Ингредиентная магия -- 'I'
-	// Объекты загружаемые по-смертно -- 'D'
-
-	do
-	{
-		letter = fread_letter(mob_f);
-		ungetc(letter, mob_f);
-		switch (letter)
-		{
-		case 'I':
-			get_line(mob_f, line);
-			im_parse(&mob_proto[i].ing_list, line + 1);
-			break;
-		case 'L':
-			get_line(mob_f, line);
-			dl_parse(&mob_proto[i].dl_list, line + 1);
-			break;
-		case 'T':
-			dg_read_trigger(mob_f, &mob_proto[i], MOB_TRIGGER);
-			break;
-		default:
-			letter = 0;
-			break;
-		}
-	}
-	while (letter != 0);
-
-	for (j = 0; j < NUM_WEARS; j++)
-		mob_proto[i].equipment[j] = NULL;
-
-	mob_proto[i].nr = i;
-	mob_proto[i].desc = NULL;
-
-	set_test_data(mob_proto + i);
-
-	top_of_mobt = i++;
-}
-
-// #define SEVEN_DAYS 60*24*30
-
 // read all objects from obj file; generate index and prototypes
-char *parse_object(FILE * obj_f, int nr)
+char *parse_object(FILE * obj_f, const int nr)
 {
 	static int i = 0;
 	static char line[256];
@@ -4273,23 +4313,17 @@ char *parse_object(FILE * obj_f, int nr)
 	char *tmpptr;
 	char f0[256], f1[256], f2[256];
 	EXTRA_DESCR_DATA *new_descr;
+
 	OBJ_DATA *tobj;
-
-	NEWCREATE(tobj, OBJ_DATA);
-
-	obj_index[i].vnum = nr;
-	obj_index[i].number = 0;
-	obj_index[i].stored = 0;
-	obj_index[i].func = NULL;
-	obj_index[i].set_idx = -1;
+	NEWCREATE(tobj);
 
 	tobj->item_number = i;
 
 	// *** Add some initialization fields
-	tobj->obj_flags.Obj_max = 100;
-	tobj->obj_flags.Obj_cur = 100;
-	tobj->obj_flags.Obj_sex = 1;
-	tobj->set_timer(SEVEN_DAYS);
+	tobj->obj_flags.Obj_max = obj_flag_data::DEFAULT_MAXIMUM_DURABILITY;
+	tobj->obj_flags.Obj_cur = obj_flag_data::DEFAULT_CURRENT_DURABILITY;
+	tobj->obj_flags.Obj_sex = DEFAULT_SEX;
+	tobj->set_timer(OBJ_DATA::DEFAULT_TIMER);
 	tobj->obj_flags.Obj_level = 1;
 	tobj->obj_flags.Obj_destroyer = 60;
 
@@ -4303,10 +4337,10 @@ char *parse_object(FILE * obj_f, int nr)
 	}
 	tmpptr = tobj->short_description = fread_string(obj_f, buf2);
 	*tobj->short_description = LOWER(*tobj->short_description);
-	CREATE(tobj->PNames[0], char, strlen(tobj->short_description) + 1);
+	CREATE(tobj->PNames[0], strlen(tobj->short_description) + 1);
 	strcpy(tobj->PNames[0], tobj->short_description);
 
-	for (j = 1; j < NUM_PADS; j++)
+	for (j = 1; j < OBJ_DATA::NUM_PADS; j++)
 	{
 		tobj->PNames[j] = fread_string(obj_f, buf2);
 		*tobj->PNames[j] = LOWER(*tobj->PNames[j]);
@@ -4334,7 +4368,7 @@ char *parse_object(FILE * obj_f, int nr)
 	asciiflag_conv(f0, &tobj->obj_flags.Obj_skill);
 	tobj->obj_flags.Obj_max = t[1];
 	tobj->obj_flags.Obj_cur = MIN(t[1], t[2]);
-	tobj->obj_flags.Obj_mater = t[3];
+	tobj->obj_flags.Obj_mater = static_cast<obj_flag_data::EObjectMaterial>(t[3]);
 	
 	if ( tobj->obj_flags.Obj_cur > tobj->obj_flags.Obj_max)
 		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", nr);
@@ -4348,14 +4382,14 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *2th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	tobj->obj_flags.Obj_sex = t[0];
-	int timer = t[1] > 0 ? t[1] : SEVEN_DAYS;
+	tobj->obj_flags.Obj_sex = static_cast<ESex>(t[0]);
+	int timer = t[1] > 0 ? t[1] : OBJ_DATA::SEVEN_DAYS;
 	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
 	// не должно быть
-	if (timer == UTIMER)
+	if (timer == OBJ_DATA::UNLIMITED_TIMER)
 	{
 	    timer--;
-            SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_TICKTIMER), ITEM_TICKTIMER);
+		tobj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);
 	}
 	tobj->set_timer(timer);
 	tobj->obj_flags.Obj_spell = t[2];
@@ -4371,11 +4405,11 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *3th* numeric line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	asciiflag_conv(f0, &tobj->obj_flags.affects);
+	tobj->obj_flags.affects.from_string(f0);
 	// ** Affects
-	asciiflag_conv(f1, &tobj->obj_flags.anti_flag);
+	tobj->obj_flags.anti_flag.from_string(f1);
 	// ** Miss for ...
-	asciiflag_conv(f2, &tobj->obj_flags.no_flag);
+	tobj->obj_flags.no_flag.from_string(f2);
 	// ** Deny for ...
 
 	if (!get_line(obj_f, line))
@@ -4388,8 +4422,8 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *3th* misc line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	tobj->obj_flags.type_flag = t[0];	    // ** What's a object
-	asciiflag_conv(f1, &tobj->obj_flags.extra_flags);
+	tobj->obj_flags.type_flag = static_cast<obj_flag_data::EObjectType>(t[0]);	    // ** What's a object
+	GET_OBJ_EXTRA(tobj).from_string(f1);
 	// ** Its effects
 	asciiflag_conv(f2, &tobj->obj_flags.wear_flags);
 	// ** Wear on ...
@@ -4425,10 +4459,13 @@ char *parse_object(FILE * obj_f, int nr)
 	tobj->set_rent_eq(t[3]);
 
 	// check to make sure that weight of containers exceeds curr. quantity
-	if (tobj->obj_flags.type_flag == ITEM_DRINKCON || tobj->obj_flags.type_flag == ITEM_FOUNTAIN)
+	if (tobj->obj_flags.type_flag == obj_flag_data::ITEM_DRINKCON
+		|| tobj->obj_flags.type_flag == obj_flag_data::ITEM_FOUNTAIN)
 	{
 		if (tobj->obj_flags.weight < tobj->obj_flags.value[1])
+		{
 			tobj->obj_flags.weight = tobj->obj_flags.value[1] + 5;
+		}
 	}
 
 	// *** extra descriptions and affect fields ***
@@ -4445,7 +4482,7 @@ char *parse_object(FILE * obj_f, int nr)
 		switch (*line)
 		{
 		case 'E':
-			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+			CREATE(new_descr, 1);
 			new_descr->keyword = NULL;
 			new_descr->description = NULL;
 			new_descr->keyword = fread_string(obj_f, buf2);
@@ -4481,7 +4518,7 @@ char *parse_object(FILE * obj_f, int nr)
 					"...offending line: '%s'", buf2, retval, line);
 				exit(1);
 			}
-			tobj->affected[j].location = t[0];
+			tobj->affected[j].location = static_cast<EApplyLocation>(t[0]);
 			tobj->affected[j].modifier = t[1];
 			j++;
 			break;
@@ -4513,19 +4550,19 @@ char *parse_object(FILE * obj_f, int nr)
 		case 'V':
 			tobj->values.init_from_zone(line + 1);
 			break;
+
 		case '$':
 		case '#':
 			check_object(tobj);		// Anton Gorev (2015/12/29): do we need the result of this check?
-			obj_proto.push_back(tobj);
-			top_of_objt = i++;
-			return (line);
+			obj_proto.add(tobj, nr);
+			return line;
+
 		default:
 			log("SYSERR: Format error in %s", buf2);
 			exit(1);
 		}
 	}
 }
-
 
 #define Z       zone_table[zone]
 
@@ -4562,11 +4599,13 @@ void load_zones(FILE * fl, char *zonename)
 	}
 	rewind(fl);
 	if (Z.typeA_count)
-		CREATE(Z.typeA_list, int, Z.typeA_count);
+	{
+		CREATE(Z.typeA_list, Z.typeA_count);
+	}
 	if (Z.typeB_count)
 	{
-		CREATE(Z.typeB_list, int, Z.typeB_count);
-		CREATE(Z.typeB_flag, bool, Z.typeB_count);
+		CREATE(Z.typeB_list, Z.typeB_count);
+		CREATE(Z.typeB_flag, Z.typeB_count);
 		// сбрасываем все флаги
 		for (b_number = Z.typeB_count; b_number > 0; b_number--)
 			Z.typeB_flag[b_number - 1] = FALSE;
@@ -4578,7 +4617,9 @@ void load_zones(FILE * fl, char *zonename)
 		exit(1);
 	}
 	else
-		CREATE(Z.cmd, struct reset_com, num_of_cmds);
+	{
+		CREATE(Z.cmd, num_of_cmds);
+	}
 
 	line_num += get_line(fl, buf);
 
@@ -4790,37 +4831,34 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch)
 
 	for (nr = 0; nr <= top_of_mobt; nr++)
 	{
-		if (isname(searchname, mob_proto[nr].get_pc_name()))
+		if (isname(searchname, mob_proto[nr].get_pc_name().c_str()))
 		{
-			sprintf(buf, "%3d. [%5d] %s\r\n", ++found,
-					mob_index[nr].vnum, mob_proto[nr].get_npc_name());
+			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str());
 			send_to_char(buf, ch);
 		}
 	}
 	return (found);
 }
-
-
 
 int vnum_object(char *searchname, CHAR_DATA * ch)
 {
-	int nr, found = 0;
+	int found = 0;
 
-	for (nr = 0; nr <= top_of_objt; nr++)
+	for (size_t nr = 0; nr < obj_proto.size(); nr++)
 	{
 		if (isname(searchname, obj_proto[nr]->aliases))
 		{
-			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, obj_index[nr].vnum, obj_proto[nr]->short_description);
+			++found;
+			sprintf(buf, "%3d. [%5d] %s\r\n", found, obj_proto.vnum(nr), obj_proto[nr]->short_description);
 			send_to_char(buf, ch);
 		}
 	}
 	return (found);
 }
 
-
 int vnum_flag(char *searchname, CHAR_DATA * ch)
 {
-	int nr, found = 0, plane = 0, counter = 0, plane_offset = 0;
+	int found = 0, plane = 0, counter = 0, plane_offset = 0;
 	bool f = FALSE;
 // type:
 // 0 -- неизвестный тип
@@ -4847,15 +4885,15 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		}
 		plane_offset++;
 	}
+
 	if (f)
 	{
-		for (nr = 0; nr <= top_of_objt; nr++)
+		for (size_t nr = 0; nr < obj_proto.size(); nr++)
 		{
-			if (obj_proto[nr]->obj_flags.extra_flags.flags[plane] & (1 << (plane_offset)))
+			if (obj_proto[nr]->get_extraflag(plane, 1 << plane_offset))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-						++found, obj_index[nr].vnum,
-						obj_proto[nr]->short_description, extra_bits[counter]);
+					++found, obj_proto.vnum(nr), obj_proto[nr]->short_description, extra_bits[counter]);
 				out += buf;
 			}
 		}
@@ -4872,14 +4910,14 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	}
 	if (f)
 	{
-		for (nr = 0; nr <= top_of_objt; nr++)
+		for (size_t nr = 0; nr < obj_proto.size(); nr++)
 		{
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++)
 			{
 				if (obj_proto[nr]->affected[plane].location == counter)
 				{
 					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-							++found, obj_index[nr].vnum,
+							++found, obj_proto.vnum(nr),
 							obj_proto[nr]->short_description, apply_types[counter]);
 					out += buf;
 					continue;
@@ -4906,13 +4944,12 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	}
 	if (f)
 	{
-		for (nr = 0; nr <= top_of_objt; nr++)
+		for (size_t nr = 0; nr < obj_proto.size(); nr++)
 		{
-			if (obj_proto[nr]->obj_flags.affects.flags[plane] & (1 << (plane_offset)))
+			if (obj_proto[nr]->get_extraflag(plane, 1 << (plane_offset)))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-						++found, obj_index[nr].vnum,
-						obj_proto[nr]->short_description, weapon_affects[counter]);
+						++found, obj_proto.vnum(nr), obj_proto[nr]->short_description, weapon_affects[counter]);
 				out += buf;
 			}
 		}
@@ -5032,7 +5069,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	CHAR_DATA *mob = new CHAR_DATA;
 	*mob = mob_proto[i]; //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
-	mob->proto_script = NULL;
+	mob->proto_script.clear();
 	mob->set_next(character_list);
 	character_list = mob;
 //	CharacterAlias::add(mob);
@@ -5083,13 +5120,15 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	if (i != -1 && zone_table[i].under_construction)
 	{
 		// mobile принадлежит тестовой зоне
-		SET_BIT(MOB_FLAGS(mob, MOB_NOSUMMON), MOB_NOSUMMON);
+		MOB_FLAGS(mob).set(MOB_NOSUMMON);
 	}
 
 //Polud - поставим флаг стражнику
 	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(mob));
 	if (it != guardian_list.end())
-		SET_BIT(MOB_FLAGS(mob, MOB_GUARDIAN), MOB_GUARDIAN);
+	{
+		MOB_FLAGS(mob).set(MOB_GUARDIAN);
+	}
 
 	return (mob);
 }
@@ -5104,7 +5143,7 @@ OBJ_DATA *create_obj(const char *alias)
 {
 	OBJ_DATA *obj;
 
-	NEWCREATE(obj, OBJ_DATA);
+	NEWCREATE(obj);
 	obj->next = object_list;
 	object_list = obj;
 	GET_ID(obj) = max_id++;
@@ -5166,24 +5205,27 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	else
 		i = nr;
 
-	NEWCREATE(obj, OBJ_DATA(*obj_proto[i]));
-	obj_index[i].number++;
-	i = obj_index[i].zone;
+	NEWCREATE(obj, *obj_proto[i]);
+	obj_proto.inc_number(i);
+	i = obj_proto.zone(i);
 	if (i != -1 && zone_table[i].under_construction)
 	{
 		// модификация объектов тестовой зоны
 		obj->set_timer(TEST_OBJECT_TIMER);
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOLOCATE), ITEM_NOLOCATE);
+		obj->set_extraflag(EExtraFlag::ITEM_NOLOCATE);
 	}
-	obj->proto_script = NULL;
+	obj->proto_script.clear();
 	obj->next = object_list;
 	object_list = obj;
 //	ObjectAlias::add(obj);
 	GET_ID(obj) = max_id++;
-	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
 	{
-		if (GET_OBJ_VAL(obj, 1) && GET_OBJ_VAL(obj, 2))
+		if (GET_OBJ_VAL(obj, 1)
+			&& GET_OBJ_VAL(obj, 2))
+		{
 			name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2));
+		}
 	}
 	assign_triggers(obj, OBJ_TRIGGER);
 
@@ -5223,7 +5265,7 @@ void zone_update(void)
 					(zone_table[i].reset_idle || zone_table[i].used))  	// enqueue zone
 			{
 
-				CREATE(update_u, struct reset_q_element, 1);
+				CREATE(update_u, 1);
 				update_u->zone_to_reset = i;
 				update_u->next = 0;
 
@@ -5339,8 +5381,8 @@ void paste_mob(CHAR_DATA *ch, room_rnum room)
 	if (!IS_NPC(ch) || ch->get_fighting() || GET_POS(ch) < POS_STUNNED)
 		return;
 	if (IS_CHARMICE(ch)
-		|| AFF_FLAGGED(ch, AFF_HORSE)
-		|| AFF_FLAGGED(ch, AFF_HOLD)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
 		|| (EXTRACT_TIMER(ch) > 0))
 	{
 		return;
@@ -5448,21 +5490,21 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 	bool no_time = TRUE;
 	bool no_month = TRUE;
 
-	if (OBJ_FLAGGED(obj, ITEM_DAY))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DAY))
 	{
 		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_NIGHT))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NIGHT))
 	{
 		if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_FULLMOON))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_FULLMOON))
 	{
 		if ((weather_info.sunlight == SUN_SET ||
 				weather_info.sunlight == SUN_DARK) &&
@@ -5471,28 +5513,28 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_WINTER))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WINTER))
 	{
 		if (weather_info.season == SEASON_WINTER)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_SPRING))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SPRING))
 	{
 		if (weather_info.season == SEASON_SPRING)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_SUMMER))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SUMMER))
 	{
 		if (weather_info.season == SEASON_SUMMER)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_AUTUMN))
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_AUTUMN))
 	{
 		if (weather_info.season == SEASON_AUTUMN)
 			month_ok = TRUE;
@@ -5590,7 +5632,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 			if ( rn != NOWHERE)
 			{
 				if (!(world[rn]->script))
-					CREATE(world[rn]->script, SCRIPT_DATA, 1);
+					CREATE(world[rn]->script, 1);
 
 				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin();
 						it != (*room)->triggers.end(); ++it)
@@ -5608,7 +5650,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					if (mob)
 					{
 						if (!SCRIPT(mob))
-							CREATE(SCRIPT(mob), SCRIPT_DATA, 1);
+							CREATE(SCRIPT(mob), 1);
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 							add_trigger(SCRIPT(mob), read_trigger(real_trigger(*it)), -1);
@@ -5619,7 +5661,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						{
 							obj_rnum rnum = real_object((*load_in)->vnum);
 
-							if (obj_index[rnum].number + obj_index[rnum].stored < obj_proto[rnum]->max_in_world)
+							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->max_in_world)
 							{
 								obj = read_object(real_object((*load_in)->vnum), REAL);
 								if (obj)
@@ -5628,7 +5670,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 									GET_OBJ_ZONE(obj) = world[IN_ROOM(mob)]->zone;
 
 									if (!SCRIPT(obj))
-										CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
+										CREATE(SCRIPT(obj), 1);
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
 										add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
@@ -5661,14 +5703,14 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					if (rnum == GET_OBJ_RNUM(obj_room))
 						obj_in_room++;
 
-				if ((obj_index[rnum].number + obj_index[rnum].stored < obj_proto[rnum]->max_in_world)
+				if ((obj_proto.actual_count(rnum) < obj_proto[rnum]->max_in_world)
 					&& (obj_in_room < (*load)->max))
 				{
 					obj = read_object(real_object((*load)->vnum), REAL);
 					if (obj)
 					{
 						if (!SCRIPT(obj))
-							CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
+							CREATE(SCRIPT(obj), 1);
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 							add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
@@ -5681,16 +5723,19 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						{
 							obj_rnum rnum = real_object((*load_in)->vnum);
 
-							if (obj_index[rnum].number + obj_index[rnum].stored < obj_proto[rnum]->max_in_world)
+							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->max_in_world)
 							{
 								obj_in = read_object(real_object((*load_in)->vnum), REAL);
-								if (obj_in && GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
+								if (obj_in
+									&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)
 			 					{
 									obj_to_obj(obj_in, obj);
 									GET_OBJ_ZONE(obj_in) = GET_OBJ_ZONE(obj);
 
 									if (!SCRIPT(obj_in))
-										CREATE(SCRIPT(obj_in), SCRIPT_DATA, 1);
+									{
+										CREATE(SCRIPT(obj_in), 1);
+									}
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
 										add_trigger(SCRIPT(obj_in), read_trigger(real_trigger(*it)), -1);
@@ -5726,7 +5771,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			if (ch->nr > 0 && list.find(mob_index[ch->nr].vnum) != list.end())
 			{
 				if (!SCRIPT(ch))
-					CREATE(SCRIPT(ch), SCRIPT_DATA, 1);
+					CREATE(SCRIPT(ch), 1);
 				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin();
 						it != list[mob_index[ch->nr].vnum].end(); ++it)
 					add_trigger(SCRIPT(ch), read_trigger(real_trigger(*it)), -1);
@@ -5743,10 +5788,13 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			if (o->item_number > 0 && list.find(o->item_number) != list.end())
 			{
 				if (!SCRIPT(o))
-					CREATE(SCRIPT(o), SCRIPT_DATA, 1);
-				for (Celebrates::TrigList::iterator it = list[o->item_number].begin();
-						it != list[o->item_number].end(); ++it)
+				{
+					CREATE(SCRIPT(o), 1);
+				}
+				for (Celebrates::TrigList::iterator it = list[o->item_number].begin(); it != list[o->item_number].end(); ++it)
+				{
 					add_trigger(SCRIPT(o), read_trigger(real_trigger(*it)), -1);
+				}
 				Celebrates::add_obj_to_attach_list(o->uid, o);
 			}
 		}
@@ -5891,10 +5939,12 @@ void reset_zone(zone_rnum zone)
 						if (ZCMD.arg1 == GET_OBJ_RNUM(obj_room))
 							obj_in_room++;
 				// Теперь грузим обьект если надо
-				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1 || check_unlimited_timer(obj_proto[ZCMD.arg1])) &&
-						(ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)
-						&& (obj_in_room < obj_in_room_max))
+				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
+						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
+						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
+					&& (ZCMD.arg4 <= 0
+						|| number(1, 100) <= ZCMD.arg4)
+					&& (obj_in_room < obj_in_room_max))
 				{
 					obj = read_object(ZCMD.arg1, REAL);
 					if (ZCMD.arg3 >= 0)
@@ -5913,7 +5963,7 @@ void reset_zone(zone_rnum zone)
 					}
 					tobj = obj;
 					curr_state = 1;
-					if (!OBJ_FLAGGED(obj, ITEM_NODECAY))
+					if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODECAY))
 					{
 						sprintf(buf,
 								"&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
@@ -5927,9 +5977,11 @@ void reset_zone(zone_rnum zone)
 			case 'P':
 				// object to object
 				// 'P' <flag> <obj_vnum> <max_in_world> <target_vnum> <load%|-1>
-				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1 || check_unlimited_timer(obj_proto[ZCMD.arg1]))
-						&& (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4))
+				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
+						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
+						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
+					&& (ZCMD.arg4 <= 0
+						|| number(1, 100) <= ZCMD.arg4))
 				{
 					if (!(obj_to = get_obj_num(ZCMD.arg3)))
 					{
@@ -5937,7 +5989,7 @@ void reset_zone(zone_rnum zone)
 //                 ZCMD.command = '*';
 						break;
 					}
-					if (GET_OBJ_TYPE(obj_to) != ITEM_CONTAINER)
+					if (GET_OBJ_TYPE(obj_to) != obj_flag_data::ITEM_CONTAINER)
 					{
 						ZONE_ERROR("attempt put obj to non container, omited");
 						ZCMD.command = '*';
@@ -5968,9 +6020,11 @@ void reset_zone(zone_rnum zone)
 					// ZCMD.command = '*';
 					break;
 				}
-				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1 || check_unlimited_timer(obj_proto[ZCMD.arg1]))
-						&& (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4))
+				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
+						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
+						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
+					&& (ZCMD.arg4 <= 0
+						|| number(1, 100) <= ZCMD.arg4))
 				{
 					obj = read_object(ZCMD.arg1, REAL);
 					obj_to_char(obj, mob);
@@ -5992,11 +6046,14 @@ void reset_zone(zone_rnum zone)
 					// ZCMD.command = '*';
 					break;
 				}
-				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1 || check_unlimited_timer(obj_proto[ZCMD.arg1]))
-						&& (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4))
+				if ((obj_proto.actual_count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->max_in_world
+						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
+						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
+					&& (ZCMD.arg4 <= 0
+						|| number(1, 100) <= ZCMD.arg4))
 				{
-					if (ZCMD.arg3 < 0 || ZCMD.arg3 >= NUM_WEARS)
+					if (ZCMD.arg3 < 0
+						|| ZCMD.arg3 >= NUM_WEARS)
 					{
 						ZONE_ERROR("invalid equipment pos number");
 					}
@@ -6090,14 +6147,14 @@ void reset_zone(zone_rnum zone)
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
 					if (!SCRIPT(tmob))
-						CREATE(SCRIPT(tmob), SCRIPT_DATA, 1);
+						CREATE(SCRIPT(tmob), 1);
 					add_trigger(SCRIPT(tmob), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
 				}
 				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
 				{
 					if (!SCRIPT(tobj))
-						CREATE(SCRIPT(tobj), SCRIPT_DATA, 1);
+						CREATE(SCRIPT(tobj), 1);
 					add_trigger(SCRIPT(tobj), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
 				}
@@ -6106,7 +6163,9 @@ void reset_zone(zone_rnum zone)
 					if (ZCMD.arg3 != NOWHERE)
 					{
 						if (!(world[ZCMD.arg3]->script))
-							CREATE(world[ZCMD.arg3]->script, SCRIPT_DATA, 1);
+						{
+							CREATE(world[ZCMD.arg3]->script, 1);
+						}
 						add_trigger(world[ZCMD.arg3]->script,
 									read_trigger(real_trigger(ZCMD.arg2)), -1);
 						curr_state = 1;
@@ -6517,7 +6576,7 @@ struct ignore_data *parse_ignore(char *buf)
 {
 	struct ignore_data *result;
 
-	CREATE(result, struct ignore_data, 1);
+	CREATE(result, 1);
 
 	if (sscanf(buf, "[%ld]%ld", &result->mode, &result->id) < 2)
 	{
@@ -6606,10 +6665,11 @@ void load_ignores(CHAR_DATA * ch, char *line)
 */
 void set_god_skills(CHAR_DATA *ch)
 {
-	for (int i = 1; i <= MAX_SKILL_NUM; i++)
+	for (const auto i : AVAILABLE_SKILLS)
+	{
 		ch->set_skill(i, 150);
+	}
 }
-
 
 #define NUM_OF_SAVE_THROWS	5
 
@@ -6638,17 +6698,17 @@ int create_entry(const char *name)
 
 	if (top_of_p_table == -1)  	// no table
 	{
-		CREATE(player_table, struct player_index_element, 1);
+		CREATE(player_table, 1);
 		pos = top_of_p_table = 0;
 	}
 	else if ((pos = get_ptable_by_name(name)) == -1)  	// new name
 	{
 		i = ++top_of_p_table + 1;
-		RECREATE(player_table, struct player_index_element, i);
+		RECREATE(player_table, i);
 		pos = top_of_p_table;
 	}
 
-	CREATE(player_table[pos].name, char, strlen(name) + 1);
+	CREATE(player_table[pos].name, strlen(name) + 1);
 
 	// copy lowercase equivalent of name to table field
 	for (i = 0, player_table[pos].name[i] = '\0'; (player_table[pos].name[i] = LOWER(name[i])); i++);
@@ -6732,7 +6792,7 @@ char *fread_string(FILE * fl, char *error)
 	// allocate space for the new string and copy it
 	if (strlen(buf) > 0)
 	{
-		CREATE(rslt, char, length + 1);
+		CREATE(rslt, length + 1);
 		strcpy(rslt, buf);
 	}
 	else
@@ -6751,9 +6811,13 @@ void free_obj(OBJ_DATA * obj)
 		if (obj->aliases)
 			free(obj->aliases);
 
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		{
 			if (obj->PNames[i])
+			{
 				free(obj->PNames[i]);
+			}
+		}
 
 		if (obj->description)
 			free(obj->description);
@@ -6780,9 +6844,13 @@ void free_obj(OBJ_DATA * obj)
 		if (obj->aliases && obj->aliases != obj_proto[nr]->aliases)
 			free(obj->aliases);
 
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		{
 			if (obj->PNames[i] && obj->PNames[i] != obj_proto[nr]->PNames[i])
+			{
 				free(obj->PNames[i]);
+			}
+		}
 
 		if (obj->description && obj->description != obj_proto[nr]->description)
 			free(obj->description);
@@ -6876,7 +6944,9 @@ int file_to_string(const char *name, char *buf)
 	}
 	do
 	{
-		fgets(tmp, READ_SIZE, fl);
+		const char* dummy = fgets(tmp, READ_SIZE, fl);
+		UNUSED_ARG(dummy);
+
 		tmp[strlen(tmp) - 1] = '\0';	// take off the trailing \n
 		strcat(tmp, "\r\n");
 
@@ -6898,14 +6968,6 @@ int file_to_string(const char *name, char *buf)
 	return (0);
 }
 
-
-
-// clear some of the the working variables of a char
-void reset_char(CHAR_DATA * ch)
-{
-	ch->reset_char();
-}
-
 void clear_char_skills(CHAR_DATA * ch)
 {
 	int i;
@@ -6922,10 +6984,6 @@ void init_char(CHAR_DATA * ch)
 {
 	int i;
 
-	// create a player_special structure
-//	if (ch->player_specials == NULL)
-//		CREATE(ch->player_specials, struct player_special_data, 1);
-
 #ifdef TEST_BUILD
 	if (top_of_p_table == 0)
 	{
@@ -6933,8 +6991,9 @@ void init_char(CHAR_DATA * ch)
 		ch->set_level(LVL_IMPL);
 	}
 #endif
+
 	GET_PORTALS(ch) = NULL;
-	CREATE(GET_LOGS(ch), int, 1 + LAST_LOG);
+	CREATE(GET_LOGS(ch), 1 + LAST_LOG);
 	ch->set_npc_name(0);
 	ch->player_data.long_descr = NULL;
 	ch->player_data.description = NULL;
@@ -6943,7 +7002,7 @@ void init_char(CHAR_DATA * ch)
 	ch->player_data.time.logon = time(0);
 
 	// make favors for sex
-	if (ch->player_data.sex == SEX_MALE)
+	if (ch->player_data.sex == ESex::SEX_MALE)
 	{
 		ch->player_data.weight = number(120, 180);
 		ch->player_data.height = number(160, 200);
@@ -7012,13 +7071,13 @@ void init_char(CHAR_DATA * ch)
 	}
 	GET_LASTIP(ch)[0] = 0;
 //	GET_LOADROOM(ch) = start_room;
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
-	SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
+	PRF_FLAGS(ch).set(PRF_DISPHP);
+	PRF_FLAGS(ch).set(PRF_DISPMANA);
+	PRF_FLAGS(ch).set(PRF_DISPEXITS);
+	PRF_FLAGS(ch).set(PRF_DISPMOVE);
+	PRF_FLAGS(ch).set(PRF_DISPEXP);
+	PRF_FLAGS(ch).set(PRF_DISPFIGHT);
+	PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 30;
 	NOTIFY_EXCH_PRICE(ch) = 0;
@@ -7029,10 +7088,9 @@ void init_char(CHAR_DATA * ch)
 const char *remort_msg =
 	"  Если вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
 
-ACMD(do_remort)
+void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	int i, place_of_destination,load_room = NOWHERE;
-	struct helper_data_type *temp;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
 
@@ -7106,10 +7164,14 @@ ACMD(do_remort)
 	die_follower(ch);
 
 	while (ch->helpers)
-		REMOVE_FROM_LIST(ch->helpers, ch->helpers, next_helper);
+	{
+		REMOVE_FROM_LIST(ch->helpers, ch->helpers, [](auto list) -> auto& { return list->next_helper; });
+	}
 
 	while (ch->affected)
+	{
 		affect_remove(ch, ch->affected);
+	}
 
 // Снимаем весь стафф
 	for (i = 0; i < NUM_WEARS; i++)
@@ -7138,13 +7200,13 @@ ACMD(do_remort)
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
 	GET_LOADROOM(ch) = calc_loadroom(ch, place_of_destination);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
+	PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
+	PRF_FLAGS(ch).unset(PRF_AWAKE);
+	PRF_FLAGS(ch).unset(PRF_PUNCTUAL);
+	PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+	PRF_FLAGS(ch).unset(PRF_AWAKE);
+	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
 	// Убираем все заученные порталы
 	check_portals(ch);
 
@@ -7182,11 +7244,11 @@ ACMD(do_remort)
 	char_from_room(ch);
 	char_to_room(ch, load_room);
 	look_at_room(ch, 0);
-	SET_BIT(PLR_FLAGS(ch, PLR_NODELETE), PLR_NODELETE);
+	PLR_FLAGS(ch).set(PLR_NODELETE);
 	remove_rune_label(ch);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_CAN_REMORT), PRF_CAN_REMORT);
+	PRF_FLAGS(ch).unset(PRF_CAN_REMORT);
 	ch->set_ext_money(ExtMoney::TORC_GOLD, 0);
 	ch->set_ext_money(ExtMoney::TORC_SILVER, 0);
 	ch->set_ext_money(ExtMoney::TORC_BRONZE, 0);
@@ -7249,32 +7311,6 @@ mob_rnum real_mobile(mob_vnum vnum)
 	}
 }
 
-
-
-// returns the real number of the object with given virtual number
-obj_rnum real_object(obj_vnum vnum)
-{
-	obj_rnum bot, top, mid;
-
-	bot = 0;
-	top = top_of_objt;
-
-	// perform binary search on obj-table
-	for (;;)
-	{
-		mid = (bot + top) / 2;
-
-		if ((obj_index + mid)->vnum == vnum)
-			return (mid);
-		if (bot >= top)
-			return (-1);
-		if ((obj_index + mid)->vnum > vnum)
-			top = mid - 1;
-		else
-			bot = mid + 1;
-	}
-}
-
 /*
  * Extend later to include more checks.
  *
@@ -7305,14 +7341,14 @@ bool check_object(OBJ_DATA * obj)
 		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->short_description);
 	}
 
-	sprintbits(obj->obj_flags.extra_flags, extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
 	if (strstr(buf, "UNDEFINED"))
 	{
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown extra flags.", GET_OBJ_VNUM(obj), obj->short_description);
 	}
 
-	sprintbits(obj->obj_flags.affects, affected_bits, buf, ",");
+	obj->obj_flags.affects.sprintbits(affected_bits, buf, ",");
 
 	if (strstr(buf, "UNDEFINED"))
 	{
@@ -7322,9 +7358,8 @@ bool check_object(OBJ_DATA * obj)
 
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_DRINKCON:
-		// Fall through.
-	case ITEM_FOUNTAIN:
+	case obj_flag_data::ITEM_DRINKCON:
+	case obj_flag_data::ITEM_FOUNTAIN:
 		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0))
 		{
 			error = true;
@@ -7332,18 +7367,21 @@ bool check_object(OBJ_DATA * obj)
 				GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 0));
 		}
 		break;
-	case ITEM_SCROLL:
-	case ITEM_POTION:
+
+	case obj_flag_data::ITEM_SCROLL:
+	case obj_flag_data::ITEM_POTION:
 		error = error || check_object_level(obj, 0);
 		error = error || check_object_spell_number(obj, 1);
 		error = error || check_object_spell_number(obj, 2);
 		error = error || check_object_spell_number(obj, 3);
 		break;
-	case ITEM_BOOK:
+
+	case obj_flag_data::ITEM_BOOK:
 		error = error || check_object_spell_number(obj, 1);
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
+
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		error = error || check_object_level(obj, 0);
 		error = error || check_object_spell_number(obj, 3);
 		if (GET_OBJ_VAL(obj, 2) > GET_OBJ_VAL(obj, 1))
@@ -7352,6 +7390,9 @@ bool check_object(OBJ_DATA * obj)
 			log("SYSERR: Object #%d (%s) has more charges (%d) than maximum (%d).",
 				GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 1));
 		}
+		break;
+
+	default:
 		break;
 	}
 
@@ -7429,14 +7470,18 @@ int must_be_deleted(CHAR_DATA * short_ch)
 {
 	int ci, timeout;
 
-	if (IS_SET(PLR_FLAGS(short_ch, PLR_NODELETE), PLR_NODELETE))
-		return (0);
+	if (PLR_FLAGS(short_ch).get(PLR_NODELETE))
+	{
+		return 0;
+	}
 
 	if (GET_REMORT(short_ch))
 		return (0);
 
-	if (IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED))
-		return (1);
+	if (PLR_FLAGS(short_ch).get(PLR_DELETED))
+	{
+		return 1;
+	}
 
 	timeout = -1;
 	for (ci = 0; ci == 0 || pclean_criteria[ci].level > pclean_criteria[ci - 1].level; ci++)
@@ -7480,20 +7525,20 @@ void entrycount(char *name)
 				deleted = 0;
 				// new record
 				if (player_table)
-					RECREATE(player_table, struct player_index_element, top_of_p_table + 2);
+					RECREATE(player_table, top_of_p_table + 2);
 				else
-					CREATE(player_table, struct player_index_element, 1);
+					CREATE(player_table, 1);
 				top_of_p_file++;
 				top_of_p_table++;
 
-				CREATE(player_table[top_of_p_table].name, char, strlen(GET_NAME(short_ch)) + 1);
+				CREATE(player_table[top_of_p_table].name, strlen(GET_NAME(short_ch)) + 1);
 				for (i = 0, player_table[top_of_p_table].name[i] = '\0';
 						(player_table[top_of_p_table].name[i] = LOWER(GET_NAME(short_ch)[i])); i++);
 				//added by WorM 2010.08.27 в индексе чистим мыло и ip
-				CREATE(player_table[top_of_p_table].mail, char, strlen(GET_EMAIL(short_ch)) + 1);
+				CREATE(player_table[top_of_p_table].mail, strlen(GET_EMAIL(short_ch)) + 1);
 				for (i = 0, player_table[top_of_p_table].mail[i] = '\0';
 						(player_table[top_of_p_table].mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
-				CREATE(player_table[top_of_p_table].last_ip, char, strlen(GET_LASTIP(short_ch)) + 1);
+				CREATE(player_table[top_of_p_table].last_ip, strlen(GET_LASTIP(short_ch)) + 1);
 				for (i = 0, player_table[top_of_p_table].last_ip[i] = '\0';
 						(player_table[top_of_p_table].last_ip[i] = GET_LASTIP(short_ch)[i]); i++);
 				//end by WorM
@@ -7501,7 +7546,7 @@ void entrycount(char *name)
 				player_table[top_of_p_table].unique = GET_UNIQUE(short_ch);
 				player_table[top_of_p_table].level = (GET_REMORT(short_ch) && !IS_IMMORTAL(short_ch)) ? 30 : GET_LEVEL(short_ch);
 				player_table[top_of_p_table].timer = NULL;
-				if (IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED))
+				if (PLR_FLAGS(short_ch).get(PLR_DELETED))
 				{
 					player_table[top_of_p_table].last_logon = -1;
 					player_table[top_of_p_table].activity = -1;
@@ -7702,7 +7747,7 @@ void delete_char(const char *name)
 
 	if (id >= 0)
 	{
-		SET_BIT(PLR_FLAGS(st, PLR_DELETED), PLR_DELETED);
+		PLR_FLAGS(st).set(PLR_DELETED);
 		NewNameRemove(st);
 		Clan::remove_from_clan(GET_UNIQUE(st));
 		st->save_char();
@@ -7741,7 +7786,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		struct track_data *track = dst->track;
 		OBJ_DATA *contents = dst->contents;
 		CHAR_DATA *people = dst->people;
-		AFFECT_DATA *affected = dst->affected;
+		auto affected = dst->affected;
 
 		// Копирую все поверх
 		*dst = *src;
@@ -7765,7 +7810,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		EXIT_DATA *rdd;
 		if ((rdd = src->dir_option[i]) != NULL)
 		{
-			CREATE(dst->dir_option[i], EXIT_DATA, 1);
+			CREATE(dst->dir_option[i], 1);
 			// Копируем числа
 			*dst->dir_option[i] = *rdd;
 			// Выделяем память
@@ -7782,7 +7827,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 
 	while (sdd)
 	{
-		CREATE(pddd[0], EXTRA_DESCR_DATA, 1);
+		CREATE(pddd[0], 1);
 		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
 		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
 		pddd = &(pddd[0]->next);
@@ -7791,12 +7836,13 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 
 	// Копирую скрипт и прототипы
 	SCRIPT(dst) = NULL;
-	dst->proto_script = NULL;
-	proto_script_copy(&dst->proto_script, src->proto_script);
+	dst->proto_script.clear();
+	dst->proto_script = src->proto_script;
 
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 }
 
+void free_script(SCRIPT_DATA * sc);
 
 void room_free(ROOM_DATA * room)
 /*++
@@ -7840,8 +7886,6 @@ void room_free(ROOM_DATA * room)
 		free(lthis);
 	}
 
-	// Прототип
-	proto_script_free(room->proto_script);
 	// Скрипт
 	free_script(SCRIPT(room));
 
@@ -7851,8 +7895,8 @@ void room_free(ROOM_DATA * room)
 		room->ing_list = NULL;
 	}
 
-	AFFECT_DATA *af, *next_af;
-	for (af = room->affected; af; af = next_af)
+	AFFECT_DATA<ERoomApplyLocation> *next_af;
+	for (auto af = room->affected; af; af = next_af)
 	{
 		next_af = af->next;
 		free(af);
@@ -7958,7 +8002,7 @@ void load_guardians()
 
 //Polud тестовый класс для хранения параметров различных рас мобов
 //Читает данные из файла
-const char *MOBRACE_FILE = LIB_MISC"mobrace.xml";
+const char *MOBRACE_FILE = LIB_MISC_MOBRACES "mobrace.xml";
 
 MobRaceListType mobraces_list;
 
@@ -8051,11 +8095,11 @@ void set_flag(CHAR_DATA* ch)
 	auto i = std::find(block_list.begin(), block_list.end(), mail);
 	if (i != block_list.end())
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_IGVA_PRONA), PRF_IGVA_PRONA);
+		PRF_FLAGS(ch).set(PRF_IGVA_PRONA);
 	}
 	else
 	{
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_IGVA_PRONA), PRF_IGVA_PRONA);
+		PRF_FLAGS(ch).unset(PRF_IGVA_PRONA);
 	}
 }
 
@@ -8086,5 +8130,39 @@ void init()
 
 } // namespace OfftopSystem
 ////////////////////////////////////////////////////////////////////////////////
+
+size_t CObjectPrototypes::add(const prototypes_t::value_type& prototype, const obj_vnum vnum)
+{
+	const auto index = m_index.size();
+	prototype->item_number = static_cast<int>(index);
+	m_vnum2index[vnum] = index;
+	m_prototypes.push_back(prototype);
+	m_index.push_back(index_data(vnum));
+	return index;
+}
+
+void CObjectPrototypes::vnum(const size_t rnum, const obj_vnum value)
+{
+	const auto i = m_vnum2index.find(m_index[rnum].vnum);
+	m_vnum2index.erase(i);
+
+	m_index[rnum].vnum = value;
+	m_vnum2index[value] = rnum;
+}
+
+int CObjectPrototypes::rnum(const obj_vnum vnum) const
+{
+	vnum2index_t::const_iterator i = m_vnum2index.find(vnum);
+	return i == m_vnum2index.end() ? -1 : static_cast<int>(i->second);
+}
+
+CObjectPrototypes::prototypes_t::value_type CObjectPrototypes::swap(const size_t index, const prototypes_t::value_type& new_value)
+{
+	auto result = m_prototypes[index];
+	new_value->item_number = static_cast<int>(index);
+	m_prototypes[index] = new_value;
+
+	return result;
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

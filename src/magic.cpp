@@ -39,6 +39,8 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <boost/format.hpp>
+
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
@@ -117,10 +119,14 @@ CHAR_DATA * random_char_in_room(ROOM_DATA *room)
 
 bool is_room_forbidden(ROOM_DATA * room)
 {
-	AFFECT_DATA* af;
-	for (af = room->affected ; af ; af = af->next)
-		if (af->type == SPELL_FORBIDDEN && (number(1, 100) <= af->modifier))
+	for (auto af = room->affected ; af ; af = af->next)
+	{
+		if (af->type == SPELL_FORBIDDEN
+			&& (number(1, 100) <= af->modifier))
+		{
 			return true;
+		}
+	}
 	return false;
 }
 
@@ -138,7 +144,7 @@ void ShowRooms(CHAR_DATA *ch);
 // Поиск и удаление первого аффекта от спелла spellnum и кастером с идом id //
 void find_and_remove_room_affect(long id, int spellnum);
  // Обработка самих аффектов т.е. их влияния на персонажей в комнате раз в 2 секунды //
-void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff);
+void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA<ERoomApplyLocation> * aff);
 // Сообщение при снятии аффекта //
 void show_room_spell_off(int aff, room_rnum room);
 // Добавление новой комнаты в список //
@@ -154,13 +160,14 @@ int timer_affected_roomt(CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
 void ShowRooms(CHAR_DATA *ch)
 {
 	buf[0] = '\0';
-	AFFECT_DATA *af;
     strcpy(buf, "Список комнат под аффектами:\r\n" "-------------------\r\n");
     for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
 	{
 		buf1[0] = '\0';
-		for (af = (*it)->affected ; af ; af = af->next)
-			sprintf(buf1 + strlen(buf1),  " !%s! (%s) [%d] ", spell_info[af->type].name, get_name_by_id(af->caster_id), af->duration);
+		for (auto af = (*it)->affected ; af ; af = af->next)
+		{
+			sprintf(buf1 + strlen(buf1), " !%s! (%s) [%d] ", spell_info[af->type].name, get_name_by_id(af->caster_id), af->duration);
+		}
         sprintf(buf + strlen(buf),  "   [%d] %s\r\n", (*it)->number, buf1);
 	}
     page_string(ch->desc, buf, TRUE);
@@ -171,14 +178,14 @@ void ShowRooms(CHAR_DATA *ch)
 // Поиск первой комнаты с аффектом от spellnum и кастером с идом Id //
 ROOM_DATA * find_affected_roomt(long id, int spellnum)
 {
-    AFFECT_DATA *af;
-
     for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
     {
-        for (af = (*it)->affected ; af ; af = af->next)
+        for (auto af = (*it)->affected ; af ; af = af->next)
         {
 			if ((af->type == spellnum) && (af->caster_id == id))
-                return *it;
+			{
+				return *it;
+			}
         }
     }
     return NULL;
@@ -189,11 +196,9 @@ ROOM_DATA * find_affected_roomt(long id, int spellnum)
 // Поиск и удаление первого аффекта от спелла spellnum и кастером с идом id //
 void find_and_remove_room_affect(long id, int spellnum)
 {
-    AFFECT_DATA *af;
-
     for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
     {
-        for (af = (*it)->affected ; af ; af = af->next)
+        for (auto af = (*it)->affected ; af ; af = af->next)
         {
 			if ((af->type == spellnum) && (af->caster_id == id))
 			{
@@ -231,7 +236,7 @@ void AddRoom(ROOM_DATA* room)
 // =============================================================== //
 
 // Раз в 2 секунды идет вызов обработчиков аффектов//
-void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA * aff)
+void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA<ERoomApplyLocation>* aff)
 {
 	// Аффект в комнате.
 	// Проверяем на то что нам передали бяку в параметрах.
@@ -354,7 +359,6 @@ void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA * a
 // Gorrah: Вынес в отдельный лист обкастованные комнаты - теперь думаю не прикончит //
 void room_affect_update(void)
 {
-	AFFECT_DATA *af, *next;
 	CHAR_DATA *ch;
 	int spellnum;
 	//std::list<ROOM_DATA*>::iterator i = aff_room_list.begin();
@@ -362,7 +366,8 @@ void room_affect_update(void)
 	for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();)
 	{
 		assert(*it);
-		for (af = (*it)->affected ; af ; af = next)
+		AFFECT_DATA<ERoomApplyLocation> *next;
+		for (auto af = (*it)->affected ; af ; af = next)
 		{
 			next = af->next;
 			spellnum = af->type;
@@ -435,7 +440,9 @@ void room_affect_update(void)
 			// Учитываем что время выдается в пульсах а не в секундах  т.е. надо умножать на 2
 			af->apply_time++;
 			if (af->must_handled)
-                pulse_room_affect_handler(*it, ch, af);
+			{
+				pulse_room_affect_handler(*it, ch, af);
+			}
 		}
         //если больше аффектов нет, удаляем комнату из списка обкастованных
         if ((*it)->affected == NULL)
@@ -449,7 +456,7 @@ void room_affect_update(void)
 // =============================================================== //
 
 // Применение заклинания к комнате //
-int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
+int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 {
 	// Специфика заклов на комнаты заключается в том, что
 	// практически все взаимодействие с персонажами осуществляется
@@ -457,7 +464,6 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	// поэтому любой каст на комнату это прежде всего вешание
 	// на нее какого-то определенного аффекта.
 
-	AFFECT_DATA af[MAX_SPELL_AFFECTS];
 	bool accum_affect = FALSE, accum_duration = FALSE, success = TRUE;
 	//Данный флажок говорит можно ли обновлять закл
 	//или  оно должно висеть пока не спадет
@@ -469,16 +475,19 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	int i = 0, lag = 0;
 	// Sanity check
 	if (room == NULL || IN_ROOM(ch) == NOWHERE || ch == NULL)
+	{
 		return 0;
+	}
 
 	// Нулим все аффекты в массиве.
+	AFFECT_DATA<ERoomApplyLocation> af[MAX_SPELL_AFFECTS];
 	for (i = 0; i < MAX_SPELL_AFFECTS; i++)
 	{
 		af[i].type = spellnum;
 		af[i].bitvector = 0;
 		af[i].modifier = 0;
 		af[i].battleflag = 0;
-		af[i].location = APPLY_NONE;
+		af[i].location = APPLY_ROOM_NONE;
 		af[i].caster_id = 0;
 		af[i].must_handled = false;
 		af[i].apply_time = 0;
@@ -618,8 +627,9 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++)
 	{
 		af[i].type = spellnum;
-		if (af[i].bitvector || af[i].location != APPLY_ROOM_NONE
-				|| af[i].must_handled)
+		if (af[i].bitvector
+			|| af[i].location != APPLY_ROOM_NONE
+			|| af[i].must_handled)
 		{
 			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (update_spell)
@@ -652,14 +662,14 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 // Время существования заклинания в комнате //
 int timer_affected_roomt(long id, int spellnum)
 {
-   AFFECT_DATA *af;
-
     for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
     {
-        for (af = (*it)->affected ; af ; af = af->next)
+        for (auto af = (*it)->affected ; af ; af = af->next)
         {
 			if ((af->type == spellnum) && (af->caster_id == id))
-                return af->duration;
+			{
+				return af->duration;
+			}
         }
     }
     return 0;
@@ -753,7 +763,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	if (type != SAVING_REFLEX)
 	{
 		if ((save > 0) &&
-				(AFF_FLAGGED(victim, AFF_AIRAURA) || AFF_FLAGGED(victim, AFF_FIREAURA) || AFF_FLAGGED(victim, AFF_ICEAURA)))
+				(AFF_FLAGGED(victim, EAffectFlag::AFF_AIRAURA) || AFF_FLAGGED(victim, EAffectFlag::AFF_FIREAURA) || AFF_FLAGGED(victim, EAffectFlag::AFF_ICEAURA)))
 			save >>= 1;
 	}
 	// Учет осторожного стиля
@@ -819,7 +829,6 @@ void show_spell_off(int aff, CHAR_DATA * ch)
 
 void mobile_affect_update(void)
 {
-	AFFECT_DATA *af, *next;
 	struct timed_type *timed, *timed_next;
 	CHAR_DATA *i, *i_next;
 	int was_charmed = 0, charmed_msg = FALSE;
@@ -832,7 +841,8 @@ void mobile_affect_update(void)
 
 		bool was_purged = false;
 
-		for (af = i->affected; IS_NPC(i) && af; af = next)
+		AFFECT_DATA<EApplyLocation> *next;
+		for (auto af = i->affected; IS_NPC(i) && af; af = next)
 		{
 			next = af->next;
 			if (af->duration >= 1)
@@ -855,7 +865,9 @@ void mobile_affect_update(void)
 				}
 			}
 			else if (af->duration == -1)
+			{
 				af->duration = -1;	// GODS - unlimited
+			}
 			else
 			{
 				if ((af->type > 0) && (af->type <= MAX_SPELLS))
@@ -869,8 +881,11 @@ void mobile_affect_update(void)
 							&& *spell_wear_off_msg[af->type])
 						{
 							show_spell_off(af->type, i);
-							if (af->type == SPELL_CHARM || af->bitvector == AFF_CHARM)
+							if (af->type == SPELL_CHARM
+								|| af->bitvector == to_underlying(EAffectFlag::AFF_CHARM))
+							{
 								was_charmed = TRUE;
+							}
 						}
 					}
 				}
@@ -912,7 +927,6 @@ void mobile_affect_update(void)
 
 void player_affect_update(void)
 {
-	AFFECT_DATA *af, *next;
 	CHAR_DATA *i, *i_next;
 
 	for (i = character_list; i; i = i_next)
@@ -933,7 +947,8 @@ void player_affect_update(void)
 
 		bool was_purged = false;
 
-		for (af = i->affected; af; af = next)
+		AFFECT_DATA<EApplyLocation> *next;
+		for (auto af = i->affected; af; af = next)
 		{
 			next = af->next;
 			if (af->duration >= 1)
@@ -965,9 +980,9 @@ void player_affect_update(void)
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
 							if (!(af->type == SPELL_MAGICBATTLE &&
-									AFF_FLAGGED(i, AFF_STOPFIGHT)))
+									AFF_FLAGGED(i, EAffectFlag::AFF_STOPFIGHT)))
 								if (!(af->type == SPELL_BATTLE &&
-										AFF_FLAGGED(i, AFF_MAGICSTOPFIGHT)))
+										AFF_FLAGGED(i, EAffectFlag::AFF_MAGICSTOPFIGHT)))
 									show_spell_off(af->type, i);
 						}
 					}
@@ -992,14 +1007,14 @@ void player_affect_update(void)
 // This file update battle affects only
 void battle_affect_update(CHAR_DATA * ch)
 {
-	AFFECT_DATA *af, *next;
-
-
-	for (af = ch->affected; af; af = next)
+	AFFECT_DATA<EApplyLocation> *next;
+	for (auto af = ch->affected; af; af = next)
 	{
 		next = af->next;
 		if (!IS_SET(af->battleflag, AF_BATTLEDEC) && !IS_SET(af->battleflag, AF_SAME_TIME))
+		{
 			continue;
+		}
 		if (IS_NPC(ch) && af->location == APPLY_POISON)
 			continue;
 		if (af->duration >= 1)
@@ -1048,18 +1063,21 @@ void battle_affect_update(CHAR_DATA * ch)
 // This file update pulse affects only
 void pulse_affect_update(CHAR_DATA * ch)
 {
-	AFFECT_DATA *af, *next;
 	bool pulse_aff = FALSE;
 
 	if (ch->get_fighting())
+	{
 		return;
+	}
 
-
-	for (af = ch->affected; af; af = next)
+	AFFECT_DATA<EApplyLocation> *next;
+	for (auto af = ch->affected; af; af = next)
 	{
 		next = af->next;
 		if (!IS_SET(af->battleflag, AF_PULSEDEC))
+		{
 			continue;
+		}
 		pulse_aff = TRUE;
 		if (af->duration >= 1)
 		{
@@ -1069,7 +1087,9 @@ void pulse_affect_update(CHAR_DATA * ch)
 				af->duration -= MIN(af->duration, SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC);
 		}
 		else if (af->duration == -1)	// No action //
+		{
 			af->duration = -1;	// GODs only! unlimited //
+		}
 		else
 		{
 			if ((af->type > 0) && (af->type <= MAX_SPELLS))
@@ -1106,11 +1126,12 @@ bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 {
 	int num = 0;
 
-	if (spelltype == SPELL_RUNES && GET_OBJ_TYPE(obj) != ITEM_INGRADIENT)
+	if (spelltype == SPELL_RUNES
+		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_INGREDIENT)
 	{
 		return false;
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT)
 	{
 		if ((!IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype == SPELL_RUNES)
 			|| (IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype != SPELL_RUNES))
@@ -1164,9 +1185,6 @@ bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 
 	return true;
 }
-
-/////////////////////////////////////////////////////////////////////////////////
-#include <boost/format.hpp>
 
 std::map<int /* vnum */, int /* count */> rune_list;
 
@@ -1255,7 +1273,8 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 	OBJ_DATA *obj;
 	OBJ_DATA *obj0 = NULL, *obj1 = NULL, *obj2 = NULL, *obj3 = NULL, *objo = NULL;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
-	int create = 0, obj_num = -1, skillnum = -1, percent = 0, num = 0;
+	int create = 0, obj_num = -1, percent = 0, num = 0;
+	ESkill skillnum = SKILL_INVALID;
 	struct spell_create_item *items;
 
 	if (spellnum <= 0 || spellnum > MAX_SPELLS)
@@ -1287,7 +1306,9 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 		items = &spell_create[spellnum].runes;
 	}
 	else
+	{
 		return (FALSE);
+	}
 
 	if (((spelltype == SPELL_RUNES || spelltype == SPELL_ITEMS) &&
 			(item3 = items->rnumber) +
@@ -1366,12 +1387,17 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 		if (create)
 		{
 			if (!(obj = read_object(obj_num, VIRTUAL)))
+			{
 				return (FALSE);
+			}
 			else
 			{
 				percent = number(1, 100);
-				if (skillnum > 0 && percent > train_skill(ch, skillnum, percent, 0))
+				if (skillnum > 0
+					&& percent > train_skill(ch, skillnum, percent, 0))
+				{
 					percent = -1;
+				}
 			}
 		}
 		if (item0 == -2)
@@ -1380,7 +1406,6 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			strcat(buf, obj0->PNames[3]);
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spelltype);
-
 		}
 		if (item1 == -2)
 		{
@@ -1432,9 +1457,9 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			else if (spelltype == SPELL_RUNES)
 			{
 				sprintf(buf + strlen(buf),
-						"котор%s вспыхнул%s ярким светом.%s",
-						num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
-						PRF_FLAGGED(ch, PRF_COMPACT) ? "" : "\r\n");
+					"котор%s вспыхнул%s ярким светом.%s",
+					num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
+					PRF_FLAGGED(ch, PRF_COMPACT) ? "" : "\r\n");
 				act(buf, FALSE, ch, 0, 0, TO_CHAR);
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					TRUE, ch, NULL, NULL, TO_ROOM);
@@ -1554,7 +1579,6 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
 //функция увеличивает урон спеллов с учетом скилла соответствующей магии и параметра "мудрость"
 int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int dam)
 {
-	int skill_number;
 	float koeff, skill = 0.0;
 
 	//тупо костыль, пока всем актуальнгым мобам не воткнум магскиллы - 31/03/2014
@@ -1569,7 +1593,7 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 		return (dam);
 	}
 
-	skill_number = get_magic_skill_number_by_spell(spellnum);
+	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);
 	if (skill_number > 0)
 	{
 		skill = ch->get_skill(skill_number);
@@ -1605,7 +1629,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 	{
 		if (ch != victim && spellnum < MAX_SPELLS &&
-			((AFF_FLAGGED(victim, AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3))))
+			((AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3))))
 		{
 			act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
 			act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -1624,7 +1648,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 	}
 
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 100) < 21)
+	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, EAffectFlag::AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 100) < 21)
 	{
 		act("Густая тень вокруг $N1 жадно поглотила вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
 		act("Густая тень вокруг $N1 жадно поглотила магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -2055,7 +2079,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 
 	case SPELL_HOLYSTRIKE:
-		if (AFF_FLAGGED(victim, AFF_EVILESS))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_EVILESS))
 		{
 			dam = -1;
 			no_savings = TRUE;
@@ -2150,7 +2174,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 
 
-		if (AFF_FLAGGED(ch, AFF_DATURA_POISON))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DATURA_POISON))
 			dam -= dam * GET_POISON(ch) / 100;
 
 		if (!IS_SET(SpINFO.routines, MAG_WARCRY))
@@ -2336,15 +2360,18 @@ bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum)
 
 int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
 {
-	AFFECT_DATA af[MAX_SPELL_AFFECTS];
 	bool accum_affect = FALSE, accum_duration = FALSE, success = TRUE;
 	bool update_spell = FALSE;
 	const char *to_vict = NULL, *to_room = NULL;
 	int i, modi = 0;
 	int rnd = 0;
 	int decline_mod = 0;
-	if (victim == NULL || IN_ROOM(victim) == NOWHERE || ch == NULL)
+	if (victim == NULL
+		|| IN_ROOM(victim) == NOWHERE
+		|| ch == NULL)
+	{
 		return 0;
+	}
 
 	// Calculate PKILL's affects
 	//   1) "NPC affect PC spellflag"  for victim
@@ -2371,7 +2398,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
         if (ch != victim
                 && SpINFO.violent
                 && ((!IS_GOD(ch)
-                        && AFF_FLAGGED(victim, AFF_MAGICGLASS)
+                        && AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS)
                         && (IN_ROOM(ch) == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
                         && number(1, 100) < (GET_LEVEL(victim) / 3))
                     || (IS_GOD(victim)
@@ -2403,7 +2430,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		return 0;
 	}
 
-
+	AFFECT_DATA<EApplyLocation> af[MAX_SPELL_AFFECTS];
 	for (i = 0; i < MAX_SPELL_AFFECTS; i++)
 	{
 		af[i].type = spellnum;
@@ -2420,7 +2447,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	}
 
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
+	{
 		modi = modi - 50;
+	}
 
 //  log("[MAG Affect] Modifier value for %s (caster %s) = %d(spell %d)",
 //      GET_NAME(victim), GET_NAME(ch), modi, spellnum);
@@ -2501,7 +2530,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			affect_from_char(victim, SPELL_ICE_SHIELD);
 		if (affected_by_spell(victim, SPELL_FIRE_SHIELD))
 			affect_from_char(victim, SPELL_FIRE_SHIELD);
-		af[0].bitvector = AFF_AIRSHIELD;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
 		af[0].battleflag = TRUE;
 		if (IS_NPC(victim) || victim == ch)
 			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0);
@@ -2516,7 +2545,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			affect_from_char(victim, SPELL_ICE_SHIELD);
 		if (affected_by_spell(victim, SPELL_AIR_SHIELD))
 			affect_from_char(victim, SPELL_AIR_SHIELD);
-		af[0].bitvector = AFF_FIRESHIELD;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
 		af[0].battleflag = TRUE;
 		if (IS_NPC(victim) || victim == ch)
 			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0);
@@ -2531,7 +2560,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			affect_from_char(victim, SPELL_FIRE_SHIELD);
 		if (affected_by_spell(victim, SPELL_AIR_SHIELD))
 			affect_from_char(victim, SPELL_AIR_SHIELD);
-		af[0].bitvector = AFF_ICESHIELD;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
 		af[0].battleflag = TRUE;
 		if (IS_NPC(victim) || victim == ch)
 			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0);
@@ -2544,7 +2573,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_AIR_AURA:
 		af[0].location = APPLY_RESIST_AIR;
 		af[0].modifier = level;
-		af[0].bitvector = AFF_AIRAURA;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_AIRAURA);
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		accum_duration = TRUE;
 		to_room = "$n3 окружила воздушная аура.";
@@ -2554,7 +2583,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_FIRE_AURA:
 		af[0].location = APPLY_RESIST_WATER;
 		af[0].modifier = level;
-		af[0].bitvector = AFF_FIREAURA;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_FIREAURA);
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		accum_duration = TRUE;
 		to_room = "$n3 окружила огненная аура.";
@@ -2564,7 +2593,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_ICE_AURA:
 		af[0].location = APPLY_RESIST_FIRE;
 		af[0].modifier = level;
-		af[0].bitvector = AFF_ICEAURA;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_ICEAURA);
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		accum_duration = TRUE;
 		to_room = "$n3 окружила ледяная аура.";
@@ -2650,11 +2679,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].location = APPLY_SAVING_STABILITY;
 		af[0].modifier = -5;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_BLESS;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_BLESS);
 		af[1].location = APPLY_SAVING_WILL;
 		af[1].modifier = -5;
 		af[1].duration = af[0].duration;
-		af[1].bitvector = AFF_BLESS;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_BLESS);
 		to_room = "$n осветил$u на миг неземным светом.";
 		to_vict = "Боги одарили вас своей улыбкой.";
 		spellnum = SPELL_BLESS;
@@ -2676,24 +2705,24 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_AWARNESS:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_AWARNESS;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_AWARNESS);
 		to_room = "$n начал$g внимательно осматриваться по сторонам.";
 		to_vict = "Вы стали более внимательны к окружающему.";
 		break;
 
 	case SPELL_SHIELD:
 		af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0);
-		af[0].bitvector = AFF_SHIELD;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_SHIELD);
 		af[0].location = APPLY_SAVING_STABILITY;
 		af[0].modifier = -10;
 		af[0].battleflag = AF_BATTLEDEC;
 		af[1].duration = af[0].duration;
-		af[1].bitvector = AFF_SHIELD;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_SHIELD);
 		af[1].location = APPLY_SAVING_WILL;
 		af[1].modifier = -10;
 		af[1].battleflag = AF_BATTLEDEC;
 		af[2].duration = af[0].duration;
-		af[2].bitvector = AFF_SHIELD;
+		af[2].bitvector = to_underlying(EAffectFlag::AFF_SHIELD);
 		af[2].location = APPLY_SAVING_REFLEX;
 		af[2].modifier = -10;
 		af[2].battleflag = AF_BATTLEDEC;
@@ -2711,14 +2740,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		}
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_HASTE;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_HASTE);
 		to_vict = "Вы начали двигаться быстрее.";
 		to_room = "$n начал$g двигаться заметно быстрее.";
 		spellnum = SPELL_HASTE;
 		break;
 
 	case SPELL_SHADOW_CLOAK:
-		af[0].bitvector = AFF_SHADOW_CLOAK;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
 		af[0].location = APPLY_SAVING_STABILITY;
 		af[0].modifier = - GET_LEVEL(ch) / 3;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
@@ -2759,7 +2788,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_GROUP_MAGICGLASS:
 	case SPELL_MAGICGLASS:
-		af[0].bitvector = AFF_MAGICGLASS;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICGLASS);
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0);
 		accum_duration = TRUE;
 		to_room = "$n3 покрыла зеркальная пелена.";
@@ -2769,7 +2798,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_CLOUD_OF_ARROWS:
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_CLOUD_OF_ARROWS;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_CLOUD_OF_ARROWS);
 		af[0].location = APPLY_HITROLL;
 		af[0].modifier = level / 6;
 		accum_duration = TRUE;
@@ -2778,7 +2807,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_STONEHAND:
-		af[0].bitvector = AFF_STONEHAND;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_STONEHAND);
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		accum_duration = TRUE;
 		to_room = "Руки $n1 задубели.";
@@ -2798,12 +2827,12 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
-		if (AFF_FLAGGED(victim, AFF_SANCTUARY))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_SANCTUARY))
 		{
 			success = FALSE;
 			break;
 		}
-		af[0].bitvector = AFF_PRISMATICAURA;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_PRISMATICAURA);
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		accum_duration = TRUE;
 		to_room = "$n3 покрыла призматическая аура.";
@@ -2869,7 +2898,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 							 pc_duration(victim, 3, level, 6, 0, 0));
 			break;
 		}
-		af[0].bitvector = AFF_BLIND;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_BLIND);
 		af[0].battleflag = AF_BATTLEDEC;
 		to_room = "$n0 ослеп$q!";
 		to_vict = "Вы ослепли!";
@@ -2887,14 +2916,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 3, 0, 0, 0, 0));
-		af[0].bitvector = AFF_NOFLEE;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 		to_room = "Теперь $n не сможет сбежать из боя!";
 		to_vict = "Вас обуяло безумие боя!";
 		break;
 
 	case SPELL_WEB:
 		savetype = SAVING_REFLEX;
-		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -2907,12 +2936,12 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 3, level, 6, 0, 0));
 		af[0].battleflag = AF_BATTLEDEC;
-		af[0].bitvector = AFF_NOFLEE;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 		af[1].location = APPLY_AC;
 		af[1].modifier = 20;
 		af[1].duration = af[0].duration;
 		af[1].battleflag = AF_BATTLEDEC;
-		af[1].bitvector = AFF_NOFLEE;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 		to_room = "$n3 покрыла невидимая паутина, сковывая $s движения!";
 		to_vict = "Вас покрыла невидимая паутина!";
 		break;
@@ -2935,12 +2964,12 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 1, level, 2, 0, 0));
 		af[0].modifier = -(5 + decline_mod);
-		af[0].bitvector = AFF_CURSE;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_CURSE);
 
 		af[1].location = APPLY_HITROLL;
 		af[1].duration = af[0].duration;
 		af[1].modifier = -(level/6 + decline_mod);
-		af[1].bitvector = AFF_CURSE;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_CURSE);
 
 		if (level >= 20)
 		{
@@ -2949,7 +2978,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			af[2].modifier = -1 * (level / 3 + GET_REMORT(ch));
 			if (IS_NPC(ch) && level >= (LVL_IMMORT))
 				af[2].modifier += (LVL_IMMORT - level - 1);	//1 cast per mob level above 30
-			af[2].bitvector = AFF_CURSE;
+			af[2].bitvector = to_underlying(EAffectFlag::AFF_CURSE);
 		}
 		accum_duration = TRUE;
 		accum_affect = TRUE;
@@ -2961,7 +2990,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_MASS_SLOW:
 	case SPELL_SLOW:
 		savetype = SAVING_STABILITY;
-		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -2978,7 +3007,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 9, 0, 0, 0, 0));
-		af[0].bitvector = AFF_SLOW;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_SLOW);
 		to_room = "Движения $n1 заметно замедлились.";
 		to_vict = "Ваши движения заметно замедлились.";
 		spellnum = SPELL_SLOW;
@@ -2986,7 +3015,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_DETECT_ALIGN:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_DETECT_ALIGN;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_ALIGN);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели зеленый оттенок.";
 		to_room = "Глаза $n1 приобрели зеленый оттенок.";
@@ -2994,7 +3023,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_DETECT_INVIS:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_DETECT_INVIS;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели золотистый оттенок.";
 		to_room = "Глаза $n1 приобрели золотистый оттенок.";
@@ -3002,7 +3031,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_DETECT_MAGIC:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_DETECT_MAGIC;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_MAGIC);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели желтый оттенок.";
 		to_room = "Глаза $n1 приобрели желтый оттенок.";
@@ -3010,7 +3039,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_INFRAVISION:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_INFRAVISION;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели красный оттенок.";
 		to_room = "Глаза $n1 приобрели красный оттенок.";
@@ -3018,7 +3047,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_DETECT_POISON:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_DETECT_POISON;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_POISON);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели карий оттенок.";
 		to_room = "Глаза $n1 приобрели карий оттенок.";
@@ -3038,7 +3067,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		af[0].modifier = -40;
 		af[0].location = APPLY_AC;
-		af[0].bitvector = AFF_INVISIBLE;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_INVISIBLE);
 		accum_duration = TRUE;
 		to_vict = "Вы стали невидимы для окружающих.";
 		to_room = "$n медленно растворил$u в пустоте.";
@@ -3071,7 +3100,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_POISON:
 		savetype = SAVING_CRITICAL;
-		if (ch != victim && (AFF_FLAGGED(victim, AFF_SHIELD) ||
+		if (ch != victim && (AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) ||
 							 general_savingthrow(ch, victim, savetype, modi - GET_REAL_CON(victim) / 2)))
 		{
 			if (IN_ROOM(ch) == IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
@@ -3084,13 +3113,13 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 				pc_duration(victim, 0, level, 1, 0, 0));
 		af[0].modifier = -2;
-		af[0].bitvector = AFF_POISON;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af[1].battleflag = AF_SAME_TIME;
 
 		af[1].location = APPLY_POISON;
 		af[1].duration = af[0].duration;
 		af[1].modifier = level;
-		af[1].bitvector = AFF_POISON;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af[1].battleflag = AF_SAME_TIME;
 
 		to_vict = "Вы почувствовали себя отравленным.";
@@ -3099,7 +3128,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_PROT_FROM_EVIL:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_PROTECT_EVIL;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_PROTECT_EVIL);
 		accum_duration = TRUE;
 		to_vict = "Вы подавили в себе страх к тьме.";
 		to_room = "$n подавил$g в себе страх к тьме.";
@@ -3118,14 +3147,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
-		if (AFF_FLAGGED(victim, AFF_PRISMATICAURA))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_PRISMATICAURA))
 		{
 			success = FALSE;
 			break;
 		}
 
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_SANCTUARY;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_SANCTUARY);
 		to_vict = "Белая аура мгновенно окружила вас.";
 		to_room = "Белая аура покрыла $n3 с головы до пят.";
 		spellnum = SPELL_SANCTUARY;
@@ -3133,7 +3162,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_SLEEP:
 		savetype = SAVING_WILL;
-		if (AFF_FLAGGED(victim, AFF_HOLD) || MOB_FLAGGED(victim, MOB_NOSLEEP)
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD) || MOB_FLAGGED(victim, MOB_NOSLEEP)
 				|| (ch != victim && general_savingthrow(ch, victim, SAVING_WILL, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -3145,7 +3174,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			stop_fighting(victim, FALSE);
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 1, level, 6, 1, 6));
-		af[0].bitvector = AFF_SLEEP;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_SLEEP);
 		af[0].battleflag = AF_BATTLEDEC;
 		if (GET_POS(victim) > POS_SLEEPING && success)
 		{
@@ -3155,7 +3184,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 				sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(victim, 0),
 						GET_CH_SUF_2(victim));
 				act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				REMOVE_BIT(AFF_FLAGS(victim, AFF_HORSE), AFF_HORSE);
+				AFF_FLAGS(victim).unset(EAffectFlag::AFF_HORSE);
 			}
 
 			send_to_char("Вы слишком устали... Спать... Спа...\r\n", victim);
@@ -3205,27 +3234,27 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_SENSE_LIFE:
 		to_vict = "Вы способны разглядеть даже микроба.";
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_SENSE_LIFE;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_SENSE_LIFE);
 		accum_duration = TRUE;
 		break;
 
 	case SPELL_WATERWALK:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_WATERWALK;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_WATERWALK);
 		accum_duration = TRUE;
 		to_vict = "На рыбалку вы можете отправляться без лодки.";
 		break;
 
 	case SPELL_WATERBREATH:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_WATERBREATH;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_WATERBREATH);
 		accum_duration = TRUE;
 		to_vict = "У вас выросли жабры.";
 		to_room = "У $n1 выросли жабры.";
 		break;
 
 	case SPELL_HOLYSTRIKE:
-		if (AFF_FLAGGED(victim, AFF_EVILESS))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_EVILESS))
 		{
 			// все решится в дамадже части спелла
 			success = FALSE;
@@ -3235,8 +3264,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_MASS_HOLD:
 	case SPELL_POWER_HOLD:
 	case SPELL_HOLD:
-		if (AFF_FLAGGED(victim, AFF_SLEEP)
-				|| MOB_FLAGGED(victim, MOB_NOHOLD) || AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_SLEEP)
+				|| MOB_FLAGGED(victim, MOB_NOHOLD) || AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, SAVING_WILL, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -3248,7 +3277,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 						 spellnum == SPELL_POWER_HOLD ? pc_duration(victim, 2, level + 7, 8, 2, 5)
 						 : pc_duration(victim, 1, level + 9, 10, 1, 3));
 
-		af[0].bitvector = AFF_HOLD;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_HOLD);
 		af[0].battleflag = AF_BATTLEDEC;
 		to_room = "$n0 замер$q на месте!";
 		to_vict = "Вы замерли на месте, не в силах пошевельнуться.";
@@ -3295,16 +3324,16 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 							 pc_duration(victim, 2, level + 7, 8, 3, 0));
 			break;
 		}
-		af[0].bitvector = AFF_DEAFNESS;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_DEAFNESS);
 		af[0].battleflag = AF_BATTLEDEC;
 		to_room = "$n0 оглох$q!";
 		to_vict = "Вы оглохли.";
 		spellnum = SPELL_DEAFNESS;
 		break;
 
-	case SPELL_MASS_SIELENCE:
-	case SPELL_POWER_SIELENCE:
-	case SPELL_SIELENCE:
+	case SPELL_MASS_SILENCE:
+	case SPELL_POWER_SILENCE:
+	case SPELL_SILENCE:
 		savetype = SAVING_WILL;
 		if (MOB_FLAGGED(victim, MOB_NOSIELENCE) ||
 				(ch != victim && general_savingthrow(ch, victim, savetype, modi)))
@@ -3315,19 +3344,19 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-						 spellnum == SPELL_POWER_SIELENCE ? pc_duration(victim, 2, level + 3, 4, 6, 0)
+						 spellnum == SPELL_POWER_SILENCE ? pc_duration(victim, 2, level + 3, 4, 6, 0)
 						 : pc_duration(victim, 2, level + 7, 8, 3, 0));
-		af[0].bitvector = AFF_SIELENCE;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 		af[0].battleflag = AF_BATTLEDEC;
 		to_room = "$n0 прикусил$g язык!";
 		to_vict = "Вы не в состоянии вымолвить ни слова.";
-		spellnum = SPELL_SIELENCE;
+		spellnum = SPELL_SILENCE;
 		break;
 
 	case SPELL_GROUP_FLY:
 	case SPELL_FLY:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_FLY;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_FLY);
 		to_room = "$n0 медленно поднял$u в воздух.";
 		to_vict = "Вы медленно поднялись в воздух.";
 		spellnum = SPELL_FLY;
@@ -3335,7 +3364,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_BROKEN_CHAINS:
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_BROKEN_CHAINS;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_BROKEN_CHAINS);
 		af[0].battleflag = AF_BATTLEDEC;
 		to_room = "Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас.";
 		to_vict = "Волна ярко-синего света омыла вас с головы до ног.";
@@ -3343,7 +3372,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_BLINK:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_BLINK;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_BLINK);
 		to_room = "$n начал$g мигать.";
 		to_vict = "Вы начали мигать.";
 		break;
@@ -3365,7 +3394,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_NOFLEE: // "приковать противника"
 		savetype = SAVING_WILL;
-		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -3375,7 +3404,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 3, level, 4, 4, 0));
-		af[0].bitvector = AFF_NOTELEPORT;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
 		to_room = "$n0 теперь прикован$a к $N2.";
 		to_vict = "Вы не сможете покинуть $N3.";
 		break;
@@ -3387,7 +3416,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			return 0;
 		}
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_HOLYLIGHT;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_HOLYLIGHT);
 		to_room = "$n0 начал$g светиться ярким светом.";
 		to_vict = "Вы засветились, освещая комнату.";
 		break;
@@ -3399,7 +3428,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			return 0;
 		}
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
-		af[0].bitvector = AFF_HOLYDARK;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_HOLYDARK);
 		to_room = "$n0 погрузил$g комнату во мрак.";
 		to_vict = "Вы погрузили комнату в непроглядную тьму.";
 		break;
@@ -3407,22 +3436,22 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0);
 		af[0].location = APPLY_DAMROLL;
 		af[0].modifier = 0;
-		af[0].bitvector = AFF_VAMPIRE;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_VAMPIRE);
 		to_room = "Зрачки $n3 приобрели красный оттенок.";
 		to_vict = "Ваши зрачки приобрели красный оттенок.";
 	case SPELL_EVILESS:
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0);
 		af[0].location = APPLY_DAMROLL;
 		af[0].modifier = 15 + (GET_REMORT(ch) > 8 ? (GET_REMORT(ch) - 8) : 0);
-		af[0].bitvector = AFF_EVILESS;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_EVILESS);
 		af[1].duration = af[0].duration;
 		af[1].location = APPLY_HITROLL;
-		af[1].modifier = 7 + (GET_REMORT(ch) > 8 ? (GET_REMORT(ch) - 8) : 0);
-		af[1].bitvector = AFF_EVILESS;
+		af[1].modifier = 7 + (GET_REMORT(ch) > 8 ? (GET_REMORT(ch) - 8) : 0);;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_EVILESS);
 		af[2].duration = af[0].duration;
 		af[2].location = APPLY_HIT;
 		af[2].modifier = GET_REAL_MAX_HIT(victim);
-		af[2].bitvector = AFF_EVILESS;
+		af[2].bitvector = to_underlying(EAffectFlag::AFF_EVILESS);
 		to_vict = "Черное облако покрыло вас.";
 		to_room = "Черное облако покрыло $n3 с головы до пят.";
 		break;
@@ -3466,13 +3495,15 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 							 pc_duration(victim, 2, level + 3, 4, 6, 0));
 			af[0].duration = complex_spell_modifier(ch, SPELL_DEAFNESS, GAPPLY_SPELL_EFFECT, af[0].duration);
-			af[0].bitvector = AFF_DEAFNESS;
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_DEAFNESS);
 			af[0].battleflag = AF_BATTLEDEC;
 			to_room = "$n0 оглох$q!";
 			to_vict = "Вы оглохли.";
 
-			if ((IS_NPC(victim) && AFF_FLAGGED(victim, af[0].bitvector)) ||
-					(ch != victim && affected_by_spell(victim, SPELL_DEAFNESS)))
+			if ((IS_NPC(victim)
+					&& AFF_FLAGGED(victim, static_cast<EAffectFlag>(af[0].bitvector)))
+				|| (ch != victim
+					&& affected_by_spell(victim, SPELL_DEAFNESS)))
 			{
 				if (IN_ROOM(ch) == IN_ROOM(victim))
 					send_to_char(NOEFFECT, ch);
@@ -3488,7 +3519,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 							 pc_duration(victim, 2, 0, 0, 0, 0));
-			af[0].bitvector = AFF_MAGICSTOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICSTOPFIGHT);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			to_room = "$n3 оглушило.";
 			to_vict = "Вас оглушило.";
@@ -3498,7 +3529,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 							 pc_duration(victim, 2, 0, 0, 0, 0));
-			af[0].bitvector = AFF_MAGICSTOPFIGHT;
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICSTOPFIGHT);
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			to_room = "$n3 оглушило.";
 			to_vict = "Вас оглушило.";
@@ -3510,7 +3541,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 //Заклинание плач. Далим.
 	case SPELL_CRYING:
-		if (AFF_FLAGGED(victim, AFF_CRYING) || (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_CRYING) || (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
@@ -3523,14 +3554,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			-1 * MAX(1,
 					 (MIN(29, GET_LEVEL(ch)) - MIN(24, GET_LEVEL(victim)) +
 					  GET_REMORT(ch) / 3) * GET_MAX_HIT(victim) / 100);
-		af[0].bitvector = AFF_CRYING;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 		if (IS_NPC(victim))
 		{
 			af[1].location = APPLY_LIKES;
 			af[1].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 							 pc_duration(victim, 5, 0, 0, 0, 0));
 			af[1].modifier = -1 * MAX(1, ((level + 9) / 2 + 9 - GET_LEVEL(victim) / 2));
-			af[1].bitvector = AFF_CRYING;
+			af[1].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 			af[1].battleflag = AF_BATTLEDEC;
 			to_room = "$n0 издал$g протяжный стон.";
 			break;
@@ -3539,12 +3570,12 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[1].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 5, 0, 0, 0, 0));
 		af[1].modifier = -1 * MAX(1, (level / 3 + GET_REMORT(ch) / 3 - GET_LEVEL(victim) / 10));
-		af[1].bitvector = AFF_CRYING;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 		af[1].battleflag = AF_BATTLEDEC;
 		af[2].location = APPLY_MORALE;
 		af[2].duration = af[1].duration;
 		af[2].modifier = -1 * MAX(1, (level / 3 + GET_REMORT(ch) / 5 - GET_LEVEL(victim) / 5));
-		af[2].bitvector = AFF_CRYING;
+		af[2].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 		af[2].battleflag = AF_BATTLEDEC;
 		to_room = "$n0 издал$g протяжный стон.";
 		to_vict = "Вы впали в уныние.";
@@ -3563,7 +3594,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		WAIT_STATE(victim, (level / 10 + 1) * PULSE_VIOLENCE);
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 3, 0, 0, 0, 0));
-		af[0].bitvector = AFF_SLOW;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_SLOW);
 		af[0].battleflag = AF_BATTLEDEC;
 		to_room = "Облако забвения окружило $n3.";
 		to_vict = "Ваш разум помутился.";
@@ -3571,7 +3602,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_PEACEFUL:
-		if (AFF_FLAGGED(victim, AFF_PEACEFUL) || (IS_NPC(victim) && !AFF_FLAGGED(victim, AFF_CHARM)) ||
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_PEACEFUL) || (IS_NPC(victim) && !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)) ||
 				(ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -3586,7 +3617,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 2, 0, 0, 0, 0));
-		af[0].bitvector = AFF_PEACEFUL;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_PEACEFUL);
 		to_room = "Взгляд $n1 потускнел, а сам он успокоился.";
 		to_vict = "Ваша душа очистилась от зла и странно успокоилась.";
 		break;
@@ -3617,7 +3648,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 2, level, 2, 0, 0));
 		af[0].modifier = -5 - (GET_LEVEL(ch) + GET_REMORT(ch)) / 2;
-		af[1].location = number(1, 6);
+		af[1].location = static_cast<EApplyLocation>(number(1, 6));
 		af[1].duration = af[0].duration;
 		af[1].modifier = - (GET_LEVEL(ch) + GET_REMORT(ch) * 3) / 15;
 		to_room = "Тяжелое бурое облако сгустилось над $n4.";
@@ -3649,7 +3680,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 4, 0, 0, 0, 0));
 		af[0].modifier = (GET_LEVEL(ch) + GET_REMORT(ch)) / 3;
-		af[0].bitvector = AFF_GLITTERDUST;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_GLITTERDUST);
 		accum_duration = TRUE;
 		accum_affect = TRUE;
 		to_room = "Облако ярко блестящей пыли накрыло $n3.";
@@ -3664,13 +3695,13 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
-		af[0].bitvector = AFF_AFFRIGHT;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_AFFRIGHT);
 		af[0].location = APPLY_SAVING_WILL;
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 2, level, 2, 0, 0));
 		af[0].modifier = (2 * GET_LEVEL(ch) + GET_REMORT(ch)) / 4;
 
-		af[1].bitvector = AFF_AFFRIGHT;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_AFFRIGHT);
 		af[1].location = APPLY_MORALE;
 		af[1].duration = af[0].duration;
 		af[1].modifier = -(GET_LEVEL(ch) + GET_REMORT(ch)) / 6;
@@ -3853,7 +3884,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].location = APPLY_ACONITUM_POISON;
 		af[0].duration = 7;
 		af[0].modifier = level;
-		af[0].bitvector = AFF_POISON;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af[0].battleflag = AF_SAME_TIME;
 		to_vict = "Вы почувствовали себя отравленным.";
 		to_room = "$n позеленел$g от действия яда.";
@@ -3863,7 +3894,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].location = APPLY_SCOPOLIA_POISON;
 		af[0].duration = 7;
 		af[0].modifier = 5;
-		af[0].bitvector = AFF_POISON | AFF_SCOPOLIA_POISON;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON) | to_underlying(EAffectFlag::AFF_SCOPOLIA_POISON);
 		af[0].battleflag = AF_SAME_TIME;
 		to_vict = "Вы почувствовали себя отравленным.";
 		to_room = "$n позеленел$g от действия яда.";
@@ -3873,7 +3904,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].location = APPLY_BELENA_POISON;
 		af[0].duration = 7;
 		af[0].modifier = 5;
-		af[0].bitvector = AFF_POISON;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af[0].battleflag = AF_SAME_TIME;
 		to_vict = "Вы почувствовали себя отравленным.";
 		to_room = "$n позеленел$g от действия яда.";
@@ -3883,7 +3914,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].location = APPLY_DATURA_POISON;
 		af[0].duration = 7;
 		af[0].modifier = 5;
-		af[0].bitvector = AFF_POISON;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af[0].battleflag = AF_SAME_TIME;
 		to_vict = "Вы почувствовали себя отравленным.";
 		to_room = "$n позеленел$g от действия яда.";
@@ -3891,7 +3922,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_LACKY:
 		af[0].duration = pc_duration(victim, 6, 0, 0, 0, 0);
-		af[0].bitvector = AFF_LACKY;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_LACKY);
 //Polud пробный обработчик аффектов
 		af[0].handler = boost::shared_ptr<LackyAffectHandler>(new LackyAffectHandler());
 		af[0].type = SPELL_LACKY;
@@ -3900,9 +3931,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n вдохновенно выпятил$g грудь.";
 		to_vict = "Вы почувствовали вдохновение.";
 		break;
-
 	}
-
 
 	/*
 	 * If this is a mob that has this affect set in its mob file, do not
@@ -3910,13 +3939,17 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	 * by sancting them and waiting for it to fade, for example.
 	 */
 	if (IS_NPC(victim) && success)
+	{
 		for (i = 0; i < MAX_SPELL_AFFECTS && success; i++)
-			if (AFF_FLAGGED(victim, af[i].bitvector))
+		{
+			if (AFF_FLAGGED(victim, static_cast<EAffectFlag>(af[i].bitvector)))
 			{
 				if (IN_ROOM(ch) == IN_ROOM(victim))
 					send_to_char(NOEFFECT, ch);
 				success = FALSE;
 			}
+		}
+	}
 
 	// * If the victim is already affected by this spell
 
@@ -3929,12 +3962,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell))
 	{
-
 		if (IN_ROOM(ch) == IN_ROOM(victim))
 			send_to_char(NOEFFECT, ch);
 		success = FALSE;
 	}
-
 
 	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++)
 	{
@@ -4014,13 +4045,14 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 {
 	CHAR_DATA *tmp_mob, *mob = NULL;
 	OBJ_DATA *tobj, *next_obj;
-	AFFECT_DATA af;
 	struct follow_type *k;
 	int pfail = 0, msg = 0, fmsg = 0, handle_corpse = FALSE, keeper = FALSE, cha_num = 0, modifier = 0;
 	mob_vnum mob_num;
 
 	if (ch == NULL)
+	{
 		return 0;
+	}
 
 	switch (spellnum)
 	{
@@ -4138,7 +4170,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		return 0;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
 		send_to_char("Вы слишком зависимы, чтобы искать себе последователей!\r\n", ch);
 		return 0;
@@ -4192,8 +4224,8 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		GET_PAD(mob, 5) = str_dup(buf2);
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
 		GET_PAD(mob, 1) = str_dup(buf2);
-		GET_SEX(mob) = SEX_NEUTRAL;
-		SET_BIT(MOB_FLAGS(mob, MOB_RESURRECTED), MOB_RESURRECTED);	// added by Pereplut
+		GET_SEX(mob) = ESex::SEX_NEUTRAL;
+		MOB_FLAGS(mob).set(MOB_RESURRECTED);	// added by Pereplut
 		// если есть фит ярость тьмы, то прибавляем к хп и дамролам
 		if (can_use_feat(ch, FURYDARK_FEAT))
 		{
@@ -4204,7 +4236,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		}
 	}
 	char_to_room(mob, ch->in_room);
-	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, AFF_SANCTUARY) || MOB_FLAGGED(mob, MOB_PROTECT)))
+	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, EAffectFlag::AFF_SANCTUARY) || MOB_FLAGGED(mob, MOB_PROTECT)))
 	{
 		send_to_char("Оживляемый был освящен Богами и противится этому!\r\n", ch);
 		extract_char(mob, FALSE);
@@ -4217,7 +4249,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		return 0;
 	}
 // shapirus: нельзя оживить моба под ЗБ
-	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(mob, AFF_SHIELD))
+	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(mob, EAffectFlag::AFF_SHIELD))
 	{
 		send_to_char("Боги защищают это существо даже после смерти.\r\n", ch);
 		extract_char(mob, FALSE);
@@ -4246,6 +4278,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 //-Polud
+	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
 	if (weather_info.moon_day < 14)
 		af.duration = pc_duration(mob, GET_REAL_WIS(ch) + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
@@ -4253,13 +4286,13 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		af.duration =
 			pc_duration(mob, GET_REAL_WIS(ch) + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
 	af.modifier = 0;
-	af.location = 0;
-	af.bitvector = AFF_CHARM;
+	af.location = EApplyLocation::APPLY_NONE;
+	af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 	af.battleflag = 0;
 	affect_to_char(mob, &af);
 	if (keeper)
 	{
-		af.bitvector = AFF_HELPER;
+		af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 		affect_to_char(mob, &af);
 		mob->set_skill(SKILL_RESCUE, 100);
 // shapirus: проставим флаг клона тут в явном виде, чтобы
@@ -4268,7 +4301,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 //      SET_BIT (MOB_FLAGS (mob, MOB_CLONE), MOB_CLONE);
 	}
 
-	SET_BIT(MOB_FLAGS(mob, MOB_CORPSE), MOB_CORPSE);
+	MOB_FLAGS(mob).set(MOB_CORPSE);
 	if (spellnum == SPELL_CLONE)  	// Don't mess up the proto with strcpy.
 	{
 		sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
@@ -4314,14 +4347,14 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 
 		GET_POS(mob) = POS_STANDING;
 		GET_DEFAULT_POS(mob) = POS_STANDING;
-		GET_SEX(mob) = SEX_MALE;
+		GET_SEX(mob) = ESex::SEX_MALE;
 
 		mob->set_class(ch->get_class());
 		GET_WEIGHT(mob) = GET_WEIGHT(ch);
 		GET_HEIGHT(mob) = GET_HEIGHT(ch);
 		GET_SIZE(mob) = GET_SIZE(ch);
-		SET_BIT(MOB_FLAGS(mob, MOB_CLONE), MOB_CLONE);
-		REMOVE_BIT(MOB_FLAGS(mob, MOB_MOUNTING), MOB_MOUNTING);
+		MOB_FLAGS(mob).set(MOB_CLONE);
+		MOB_FLAGS(mob).unset(MOB_MOUNTING);
 	}
 	act(mag_summon_msgs[msg], FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN);
 //   load_mtrigger(mob);
@@ -4330,8 +4363,13 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	{
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано
 		for (k = ch->followers; k; k = k->next)
-			if (AFF_FLAGGED(k->follower, AFF_CHARM) && k->follower->master == ch)
+		{
+			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
+				&& k->follower->master == ch)
+			{
 				cha_num++;
+			}
+		}
 		cha_num = MAX(1, (GET_LEVEL(ch) + 4) / 5 - 2) - cha_num;
 		if (cha_num < 1)
 			return 0;
@@ -4339,7 +4377,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	}
 	if (spellnum == SPELL_ANIMATE_DEAD)
 	{
-		SET_BIT(MOB_FLAGS(mob, MOB_RESURRECTED), MOB_RESURRECTED);	// added by Pereplut
+		MOB_FLAGS(mob).set(MOB_RESURRECTED);	// added by Pereplut
 		if (mob_num == MOB_SKELETON && can_use_feat(ch, LOYALASSIST_FEAT))
 			mob->set_skill(SKILL_RESCUE, 100);
 		
@@ -4351,11 +4389,11 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	{
 		if (get_effective_cha(ch, SPELL_SUMMON_FIREKEEPER) >= 30)
 		{
-			SET_BIT(AFF_FLAGS(mob, AFF_FIRESHIELD), AFF_FIRESHIELD);
+			AFF_FLAGS(mob).set(EAffectFlag::AFF_FIRESHIELD);
 		}
 		else
 		{
-			SET_BIT(AFF_FLAGS(mob, AFF_FIREAURA), AFF_FIREAURA);
+			AFF_FLAGS(mob).set(EAffectFlag::AFF_FIREAURA);
 		}
 
 		modifier = VPOSI((int)get_effective_cha(ch, SPELL_SUMMON_FIREKEEPER) - 20, 0, 30);
@@ -4367,10 +4405,10 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 
 		GET_MAX_HIT(mob) = GET_HIT(mob) = 300 + number(modifier * 12, modifier * 16);
 		mob->set_skill(SKILL_AWAKE, 50 + modifier * 2);
-		SET_BIT(PRF_FLAGS(mob, PRF_AWAKE), PRF_AWAKE);
+		PRF_FLAGS(mob).set(PRF_AWAKE);
 	}
 // shapirus: !train для мобов, созданных магией, тоже сделаем
-	SET_BIT(MOB_FLAGS(mob, MOB_NOTRAIN), MOB_NOTRAIN);
+	MOB_FLAGS(mob).set(MOB_NOTRAIN);
 
 	// А надо ли это вообще делать???
 	if (handle_corpse)
@@ -4386,13 +4424,10 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		}
 		extract_obj(obj);
 	}
-
-
 	return 1;
 }
 
-
-int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
+int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/* savetype*/)
 {
 	int hit = 0, move = 0;
 
@@ -4475,24 +4510,28 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	return 1;
 }
 
-#define NODISPELL(hjp) (!hjp || !spell_info[hjp->type].name    || \
-                        *spell_info[hjp->type].name == '!' || \
-			hjp->bitvector == AFF_CHARM  || \
-			hjp->type == SPELL_CHARM || \
-			hjp->type == SPELL_QUEST || \
-			hjp->type == SPELL_FASCINATION || \
-			hjp->type == SPELL_PATRONAGE || \
-			hjp->type == SPELL_SOLOBONUS)    
-
-int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int type)
+inline bool NODISPELL(const AFFECT_DATA<EApplyLocation>* hjp)
 {
-	AFFECT_DATA *hjp;
+	return !hjp
+		|| !spell_info[hjp->type].name
+		|| *spell_info[hjp->type].name == '!'
+		|| hjp->bitvector == to_underlying(EAffectFlag::AFF_CHARM)
+		|| hjp->type == SPELL_CHARM
+		|| hjp->type == SPELL_QUEST
+		|| hjp->type == SPELL_FASCINATION
+		|| hjp->type == SPELL_PATRONAGE
+		|| hjp->type == SPELL_SOLOBONUS;
+}
+
+int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/* type*/)
+{
 	int spell = 0, remove = 0, rspell = 0;
 	const char *to_vict = NULL, *to_room = NULL;
 
 	if (victim == NULL)
 		return 0;
 
+	AFFECT_DATA<EApplyLocation> *hjp;
 	switch (spellnum)
 	{
 	case SPELL_CURE_BLIND:
@@ -4517,8 +4556,8 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 		spell = SPELL_HOLD;
 		to_vict = "К вам вернулась способность двигаться.";
 		break;
-	case SPELL_REMOVE_SIELENCE:
-		spell = SPELL_SIELENCE;
+	case SPELL_REMOVE_SILENCE:
+		spell = SPELL_SILENCE;
 		to_vict = "К вам вернулась способность разговаривать.";
 		break;
 	case SPELL_REMOVE_DEAFNESS:
@@ -4556,6 +4595,7 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 		spell = hjp->type;
 		remove = TRUE;
 		break;
+
 	default:
 		log("SYSERR: unknown spellnum %d passed to mag_unaffects.", spellnum);
 		return 0;
@@ -4607,8 +4647,7 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 	return 1;
 }
 
-
-int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int savetype)
+int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int/* savetype*/)
 {
 	OBJ_DATA *reagobj;
 	const char *to_char = NULL, *to_room = NULL;
@@ -4618,7 +4657,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 	if (obj == NULL)
 		return 0;
 
-	if (IS_OBJ_STAT(obj, ITEM_NOALTER))
+	if (obj->get_extraflag(EExtraFlag::ITEM_NOALTER))
 	{
 		act("$o устойчив$A к вашей магии.", TRUE, ch, obj, 0, TO_CHAR);
 		return 0;
@@ -4627,14 +4666,16 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 	switch (spellnum)
 	{
 	case SPELL_BLESS:
-		if (!IS_OBJ_STAT(obj, ITEM_BLESS) && (GET_OBJ_WEIGHT(obj) <= 5 * GET_LEVEL(ch)))
+		if (!obj->get_extraflag(EExtraFlag::ITEM_BLESS) && (GET_OBJ_WEIGHT(obj) <= 5 * GET_LEVEL(ch)))
 		{
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_BLESS), ITEM_BLESS);
-			if (IS_OBJ_STAT(obj, ITEM_NODROP))
+			obj->set_extraflag(EExtraFlag::ITEM_BLESS);
+			if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
 			{
-				REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_NODROP), ITEM_NODROP);
-				if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+				obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
+				if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+				{
 					GET_OBJ_VAL(obj, 2)++;
+				}
 			}
 			GET_OBJ_MAX(obj) += MAX(GET_OBJ_MAX(obj) >> 2, 1);
 			GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
@@ -4643,10 +4684,10 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_CURSE:
-		if (!IS_OBJ_STAT(obj, ITEM_NODROP))
+		if (!obj->get_extraflag(EExtraFlag::ITEM_NODROP))
 		{
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODROP), ITEM_NODROP);
-			if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+			obj->set_extraflag(EExtraFlag::ITEM_NODROP);
+			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 			{
 				if (GET_OBJ_VAL(obj, 2) > 0)
 					GET_OBJ_VAL(obj, 2)--;
@@ -4662,37 +4703,45 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_INVISIBLE:
-		if (!IS_OBJ_STAT(obj, ITEM_NOINVIS)
-				&& !IS_OBJ_STAT(obj, ITEM_INVISIBLE))
+		if (!obj->get_extraflag(EExtraFlag::ITEM_NOINVIS)
+				&& !obj->get_extraflag(EExtraFlag::ITEM_INVISIBLE))
 		{
-			SET_BIT(GET_FLAG(obj->obj_flags.extra_flags, ITEM_INVISIBLE), ITEM_INVISIBLE);
+			obj->set_extraflag(EExtraFlag::ITEM_INVISIBLE);
 			to_char = "$o растворил$U в пустоте.";
 		}
 		break;
 	case SPELL_POISON:
-		if (((GET_OBJ_TYPE(obj) == ITEM_DRINKCON) ||
-				(GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN) ||
-				(GET_OBJ_TYPE(obj) == ITEM_FOOD)) && !GET_OBJ_VAL(obj, 3))
+		if (!GET_OBJ_VAL(obj, 3)
+			&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON
+				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN
+				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOOD))
 		{
 			GET_OBJ_VAL(obj, 3) = 1;
 			to_char = "$o отравлен$G.";
 		}
 		break;
+
 	case SPELL_REMOVE_CURSE:
-		if (IS_OBJ_STAT(obj, ITEM_NODROP))
+		if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
 		{
-			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_NODROP), ITEM_NODROP);
-			if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+			obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
+			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+			{
 				GET_OBJ_VAL(obj, 2)++;
+			}
 			to_char = "$o вспыхнул$G розовым светом и тут же погас$Q.";
 		}
 		break;
+
 	case SPELL_ENCHANT_WEAPON:
 		if (ch == NULL || obj == NULL)
 			return 0;
 		// Either already enchanted or not a weapon.
-		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON || OBJ_FLAGGED(obj, ITEM_MAGIC))
+		if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
+		{
 			break;
+		}
 
 		for (i = 0; i < MAX_OBJ_AFFECT; i++)
 		if (obj->affected[i].location != APPLY_NONE)
@@ -4752,7 +4801,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 			material_component_processing(ch, reagobj->item_number, spellnum); //может неправильный вызов
 		}
 		
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
+		obj->set_extraflag(EExtraFlag::ITEM_MAGIC);
 		if (GET_RELIGION(ch) == RELIGION_MONO)
 			to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
 		else if (GET_RELIGION(ch) == RELIGION_POLY)
@@ -4761,8 +4810,10 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 			to_char = "$o вспыхнул$G на миг желтым светом и тут же потух$Q.";
 		break;
 	case SPELL_REMOVE_POISON:
-		if (((GET_OBJ_TYPE(obj) == ITEM_DRINKCON) ||
-				(GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN) || (GET_OBJ_TYPE(obj) == ITEM_FOOD)) && GET_OBJ_VAL(obj, 3))
+		if (GET_OBJ_VAL(obj, 3)
+			&& ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
+				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN
+				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOOD))
 		{
 			GET_OBJ_VAL(obj, 3) = 0;
 			to_char = "$o стал$G вполне пригодным к применению.";
@@ -4771,7 +4822,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 	case SPELL_FLY:
 //		obj->timed_spell.add(obj, SPELL_FLY, 60 * 24 * 3);
 		obj->add_timed_spell(SPELL_FLY, -1);
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
+		obj->set_extraflag(EExtraFlag::ITEM_FLYING);
 		//В связи с тем, что летающие вещи более не тонут, флаг плавает тут неуместен
 		//SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 		to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
@@ -4799,9 +4850,9 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		break;
 	case SPELLS_RESTORATION:
 		{
-			if ((OBJ_FLAGGED(obj, ITEM_MAGIC)) && (GET_OBJ_RNUM(obj) != NOTHING))
+			if ((OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)) && (GET_OBJ_RNUM(obj) != NOTHING))
 			{
-				if (OBJ_FLAGGED(obj_proto.at(GET_OBJ_RNUM(obj)), ITEM_MAGIC))
+				if (OBJ_FLAGGED(obj_proto.at(GET_OBJ_RNUM(obj)), EExtraFlag::ITEM_MAGIC))
 					{
 						to_char = "Не велено!";
 						return 0;
@@ -4825,13 +4876,13 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 				to_char = "Какая ж тяжкая заставила меня делать работу Богов.";
 				return 0;
 			}
-			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
+			obj->unset_extraflag(EExtraFlag::ITEM_MAGIC);
 			to_char = "$o осветил$G на миг внутренним светом и тут же потух$Q.";
 		}
 		break;
 	case SPELL_LIGHT:
 		obj->add_timed_spell(SPELL_LIGHT, -1);
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_GLOW), ITEM_GLOW);
+		obj->set_extraflag(EExtraFlag::ITEM_GLOW);
 		to_char = "$o засветил$U ровным зеленоватым светом.";
 		break;
 	case SPELL_DARKNESS:
@@ -4854,8 +4905,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 	return 1;
 }
 
-
-int mag_creations(int level, CHAR_DATA * ch, int spellnum)
+int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 {
 	OBJ_DATA *tobj;
 	obj_vnum z;
@@ -4905,7 +4955,7 @@ int mag_creations(int level, CHAR_DATA * ch, int spellnum)
 	return 1;
 }
 
-int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int savetype)
+int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int/* savetype*/)
 {
 	switch (spellnum)
 	{
@@ -5047,7 +5097,7 @@ const spl_message masses_messages[] =
 	 NULL,
 	 "$n злобно посмотрел$g на вас и начал$g шептать древние слова.",
 	 0},
-	{SPELL_MASS_SIELENCE,
+	{SPELL_MASS_SILENCE,
 	 "Поведя вокруг грозным взглядом, вы заставили всех замолчать.",
 	 NULL,
 	 "Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает.",
@@ -5175,7 +5225,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		if (SpINFO.violent && same_group(ch, ch_vict))
 			continue;
 		// пони не трогаем
-		if (AFF_FLAGGED(ch_vict, AFF_HORSE))
+		if (AFF_FLAGGED(ch_vict, EAffectFlag::AFF_HORSE))
 			continue;
 		if (MOB_FLAGGED(ch_vict, MOB_PROTECT))
 			continue;

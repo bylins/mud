@@ -37,30 +37,27 @@ extern int material_value[];
 int slot_for_char(CHAR_DATA * ch, int i);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 
-struct create_item_type created_item[] = { {300, 0x7E, 15, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-		(ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{301, 0x7E, 12, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{304, 0x7E, 10, 35, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{305, 0, 8, 15, {{0, 0, 0}}, 0,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{306, 0, 8, 20, {{0, 0, 0}}, 0,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-	{307, 0x3A, 10, 20, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BODY)},
-	{308, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_ARMS)},
-	{309, 0x3A, 6, 12, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_LEGS)},
-	{310, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_HEAD)},
-	{312, 0, 4, 40, {{WOOD_PROTO, TETIVA_PROTO, 0}}, SKILL_CREATEBOW,
-	 (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS)}
+constexpr auto WEAR_TAKE = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
+constexpr auto WEAR_TAKE_BOTHS_WIELD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS) | to_underlying(EWearFlag::ITEM_WEAR_WIELD);
+constexpr auto WEAR_TAKE_BODY = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BODY);
+constexpr auto WEAR_TAKE_ARMS= WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_ARMS);
+constexpr auto WEAR_TAKE_LEGS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_LEGS);
+constexpr auto WEAR_TAKE_HEAD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HEAD);
+constexpr auto WEAR_TAKE_BOTHS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS);
+struct create_item_type created_item[] =
+{
+	{300, 0x7E, 15, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD},
+	{301, 0x7E, 12, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
+	{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
+	{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
+	{304, 0x7E, 10, 35, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
+	{305, 0, 8, 15, {{0, 0, 0}}, SKILL_INVALID, WEAR_TAKE_BOTHS_WIELD },
+	{306, 0, 8, 20, {{0, 0, 0}}, SKILL_INVALID, WEAR_TAKE_BOTHS_WIELD },
+	{307, 0x3A, 10, 20, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BODY},
+	{308, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_ARMS},
+	{309, 0x3A, 6, 12, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_LEGS},
+	{310, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_HEAD},
+	{312, 0, 4, 40, {{WOOD_PROTO, TETIVA_PROTO, 0}}, SKILL_CREATEBOW, WEAR_TAKE_BOTHS}
 };
 
 const char *create_item_name[] = { "шелепуга",
@@ -87,7 +84,7 @@ const struct make_skill_type make_skills[] =
 	{"сшить одежду", "одежда", SKILL_MAKE_WEAR},
 	{"смастерить диковину", "артеф.", SKILL_MAKE_JEWEL},
 //  { "сварить отвар","варево", SKILL_MAKE_POTION },
-	{"\n", 0, 0}		// Терминатор
+	{"\n", 0, SKILL_INVALID}		// Терминатор
 };
 
 const char *create_weapon_quality[] = { "RESERVED",
@@ -449,7 +446,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 }
 
 // Входим в режим редактирования рецептов для предметов.
-ACMD(do_edit_make)
+void do_edit_make(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	string tmpstr;
 	DESCRIPTOR_DATA *d;
@@ -630,7 +627,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 	OLC_MODE(d) = MREDIT_MAIN_MENU;
 }
 
-ACMD(do_list_make)
+void do_list_make(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	string tmpstr, skill_name, obj_name;
 	char tmpbuf[MAX_INPUT_LENGTH];
@@ -716,7 +713,7 @@ ACMD(do_list_make)
 }
 
 // Создание любого предмета из компонента.
-ACMD(do_make_item)
+void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	// Тут творим предмет.
 
@@ -830,7 +827,7 @@ ACMD(do_make_item)
 	return;
 }
 
-void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
+void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill)
 {
 	OBJ_DATA *tobj;
 	char txtbuff[100];
@@ -847,7 +844,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 	else
 	{
 		if (!obj)
+		{
 			return;
+		}
 		skill = created_item[obj_type].skill;
 		percent = number(1, skill_info[skill].max_percent);
 		prob = train_skill(ch, skill, skill_info[skill].max_percent, 0);
@@ -855,11 +854,17 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 	}
 
 	if (weight < created_item[obj_type].min_weight)
+	{
 		send_to_char("У вас не хватило материала.\r\n", ch);
+	}
 	else if (prob * 5 < percent)
+	{
 		send_to_char("У вас ничего не получилось.\r\n", ch);
+	}
 	else if (!(tobj = read_object(created_item[obj_type].obj_vnum, VIRTUAL)))
+	{
 		send_to_char("Образец был невозвратимо утерян.\r\n", ch);
+	}
 	else
 	{
 		GET_OBJ_WEIGHT(tobj) = MIN(weight, created_item[obj_type].max_weight);
@@ -874,11 +879,17 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		if (skill == SKILL_TRANSFORMWEAPON)
 		{
 			if (ch->get_skill(skill) >= 105 && number(1, 100) <= 2 + (ch->get_skill(skill) - 105) / 10)
-				SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);
+			{
+				tobj->set_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
+			}
 			else if (number(1, 100) <= 5 + MAX((ch->get_skill(skill) - 80), 0) / 5)
-				SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
+			{
+				tobj->set_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
+			}
 			else if (number(1, 100) <= 20 + MAX((ch->get_skill(skill) - 80), 0) / 5 * 4)
-				SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
+			{
+				tobj->set_extraflag(EExtraFlag::ITEM_WITH1SLOT);
+			}
 		}
 
 		switch (obj_type)
@@ -893,9 +904,8 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			// Карачун. Таймер должен зависить от таймера прототипа.
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// В минимуме один день реала, в максимуме таймер из прототипа
-			int timer = MAX(ONE_DAY,
-					tobj->get_timer() / 100 * ch->get_skill(skill)
-							- number(0, tobj->get_timer() / 100 * 25));
+			const int timer_value = tobj->get_timer() / 100 * ch->get_skill(skill) - number(0, tobj->get_timer() / 100 * 25);
+			const int timer = MAX(OBJ_DATA::ONE_DAY, timer_value);
 			tobj->set_timer(timer);
 			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
@@ -920,7 +930,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			if (skill != SKILL_CREATEBOW)
 			{
 				if (GET_OBJ_WEIGHT(tobj) < 14 && percent * 4 > prob)
-					SET_BIT(tobj->obj_flags.wear_flags, ITEM_WEAR_HOLD);
+				{
+					SET_BIT(tobj->obj_flags.wear_flags, EWearFlag::ITEM_WEAR_HOLD);
+				}
 				to_room = "$n выковал$g $o3.";
 				average = (((float) sdice + 1) * (float) ndice / 2.0);
 				if (average < 3.0)
@@ -941,7 +953,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		}
 		case 5:	// mages weapon
 		case 6:
-			tobj->set_timer(ONE_DAY);
+			tobj->set_timer(OBJ_DATA::ONE_DAY);
 			GET_OBJ_MAX(tobj) = 50;
 			GET_OBJ_CUR(tobj) = 50;
 			ndice = MAX(2, MIN(4, GET_LEVEL(ch) / number(6, 8)));
@@ -950,9 +962,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			sdice += (GET_OBJ_WEIGHT(tobj) / 10);
 			GET_OBJ_VAL(tobj, 1) = ndice;
 			GET_OBJ_VAL(tobj, 2) = sdice;
-			SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_NORENT), ITEM_NORENT);
-			SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_DECAY), ITEM_DECAY);
-			SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_NOSELL), ITEM_NOSELL);
+			tobj->set_extraflag(EExtraFlag::ITEM_NORENT);
+			tobj->set_extraflag(EExtraFlag::ITEM_DECAY);
+			tobj->set_extraflag(EExtraFlag::ITEM_NOSELL);
 			SET_BIT(tobj->obj_flags.wear_flags, created_item[obj_type].wear);
 			to_room = "$n создал$g $o3.";
 			to_char = "Вы создали $o3.";
@@ -965,9 +977,8 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			// Карачун. Таймер должен зависить от таймера прототипа.
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// В минимуме один день реала, в максимуме таймер из прототипа
-			int timer = MAX(ONE_DAY,
-					tobj->get_timer() / 100 * ch->get_skill(skill)
-							- number(0, tobj->get_timer() / 100 * 25));
+			const int timer_value = tobj->get_timer() / 100 * ch->get_skill(skill) - number(0, tobj->get_timer() / 100 * 25);
+			const int timer = MAX(OBJ_DATA::ONE_DAY, timer_value);
 			tobj->set_timer(timer);
 			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
@@ -1019,15 +1030,15 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 	}
 }
 
-
-ACMD(do_transform_weapon)
+void do_transform_weapon(CHAR_DATA* ch, char *argument, int/* cmd*/, int subcmd)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
 	OBJ_DATA *obj = NULL, *coal, *proto[MAX_PROTO];
 	int obj_type, i, found, rnum;
 
-	if (IS_NPC(ch) || !ch->get_skill(subcmd))
+	if (IS_NPC(ch)
+		|| !ch->get_skill(static_cast<ESkill>(subcmd)))
 	{
 		send_to_char("Вас этому никто не научил.\r\n", ch);
 		return;
@@ -1100,9 +1111,10 @@ ACMD(do_transform_weapon)
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT)
 	{
 		for (i = 0, found = FALSE; i < MAX_PROTO; i++)
+		{
 			if (GET_OBJ_VAL(obj, 1) == created_item[obj_type].proto[i])
 			{
 				if (proto[i])
@@ -1114,6 +1126,8 @@ ACMD(do_transform_weapon)
 					break;
 				}
 			}
+		}
+
 		if (i >= MAX_PROTO)
 		{
 			if (found)
@@ -1124,12 +1138,15 @@ ACMD(do_transform_weapon)
 		}
 	}
 	else
-		if (created_item[obj_type].material_bits &&
-				!IS_SET(created_item[obj_type].material_bits, (1 << GET_OBJ_MATER(obj))))
+	{
+		if (created_item[obj_type].material_bits
+			&& !IS_SET(created_item[obj_type].material_bits, (1 << GET_OBJ_MATER(obj))))
 		{
 			act("$o сделан$G из неподходящего материала.", FALSE, ch, obj, 0, TO_CHAR);
 			return;
 		}
+	}
+
 	switch (subcmd)
 	{
 	case SKILL_TRANSFORMWEAPON:
@@ -1152,30 +1169,47 @@ ACMD(do_transform_weapon)
 			}
 
 			for (coal = ch->carrying; coal; coal = coal->next_content)
-				if (GET_OBJ_TYPE(coal) == ITEM_INGRADIENT)
+			{
+				if (GET_OBJ_TYPE(coal) == obj_flag_data::ITEM_INGREDIENT)
 				{
 					for (i = 0; i < MAX_PROTO; i++)
+					{
 						if (proto[i] == coal)
+						{
 							break;
+						}
 						else if (!proto[i]
-								 && GET_OBJ_VAL(coal, 1) == created_item[obj_type].proto[i])
+							&& GET_OBJ_VAL(coal, 1) == created_item[obj_type].proto[i])
 						{
 							proto[i] = coal;
 							break;
 						}
+					}
 				}
+			}
+
 			for (i = 0, found = TRUE; i < MAX_PROTO; i++)
-				if (created_item[obj_type].proto[i] && !proto[i])
+			{
+				if (created_item[obj_type].proto[i]
+					&& !proto[i])
 				{
-					if ((rnum = real_object(created_item[obj_type].proto[i])) < 0)
+					rnum = real_object(created_item[obj_type].proto[i]);
+					if (rnum < 0)
+					{
 						act("У вас нет необходимого ингредиента.", FALSE, ch, 0, 0, TO_CHAR);
+					}
 					else
-						act("У вас не хватает $o1 для этого.", FALSE, ch,
-							obj_proto[rnum], 0, TO_CHAR);
+					{
+						act("У вас не хватает $o1 для этого.", FALSE, ch, obj_proto[rnum], 0, TO_CHAR);
+					}
 					found = FALSE;
 				}
+			}
+
 			if (!found)
+			{
 				return;
+			}
 		}
 		for (i = 0; i < MAX_PROTO; i++)
 		{
@@ -1189,36 +1223,57 @@ ACMD(do_transform_weapon)
 		break;
 	case SKILL_CREATEBOW:
 		for (coal = ch->carrying; coal; coal = coal->next_content)
-			if (GET_OBJ_TYPE(coal) == ITEM_INGRADIENT)
+		{
+			if (GET_OBJ_TYPE(coal) == obj_flag_data::ITEM_INGREDIENT)
 			{
 				for (i = 0; i < MAX_PROTO; i++)
+				{
 					if (proto[i] == coal)
+					{
 						break;
+					}
 					else if (!proto[i]
-							 && GET_OBJ_VAL(coal, 1) == created_item[obj_type].proto[i])
+						&& GET_OBJ_VAL(coal, 1) == created_item[obj_type].proto[i])
 					{
 						proto[i] = coal;
 						break;
 					}
+				}
 			}
+		}
+
 		for (i = 0, found = TRUE; i < MAX_PROTO; i++)
-			if (created_item[obj_type].proto[i] && !proto[i])
+		{
+			if (created_item[obj_type].proto[i]
+				&& !proto[i])
 			{
-				if ((rnum = real_object(created_item[obj_type].proto[i])) < 0)
+				rnum = real_object(created_item[obj_type].proto[i]);
+				if (rnum < 0)
+				{
 					act("У вас нет необходимого ингредиента.", FALSE, ch, 0, 0, TO_CHAR);
+				}
 				else
+				{
 					act("У вас не хватает $o1 для этого.", FALSE, ch, obj_proto[rnum], 0, TO_CHAR);
+				}
 				found = FALSE;
 			}
+		}
+
 		if (!found)
+		{
 			return;
+		}
+
 		for (i = 1; i < MAX_PROTO; i++)
+		{
 			if (proto[i])
 			{
 				GET_OBJ_WEIGHT(proto[0]) += GET_OBJ_WEIGHT(proto[i]);
 				proto[0]->set_cost(GET_OBJ_COST(proto[0]) + GET_OBJ_COST(proto[i]));
 				extract_obj(proto[i]);
 			}
+		}
 		go_create_weapon(ch, proto[0], obj_type, SKILL_CREATEBOW);
 		break;
 	}
@@ -1549,20 +1604,27 @@ OBJ_DATA *get_obj_in_list_ingr(int num, OBJ_DATA * list) //Ингридиентом является
 {
     OBJ_DATA *i;
 
-    for (i = list; i; i = i->next_content)
-    {
-	if (GET_OBJ_VNUM(i) == num)
-	    return (i);
-	if ((GET_OBJ_VAL(i, 1) == num) && (GET_OBJ_TYPE(i) == ITEM_INGRADIENT || GET_OBJ_TYPE(i) == ITEM_MING || GET_OBJ_TYPE(i) == ITEM_MATERIAL))
-	    return (i);
-    }
-    return (NULL);
+	for (i = list; i; i = i->next_content)
+	{
+		if (GET_OBJ_VNUM(i) == num)
+		{
+			return i;
+		}
+		if ((GET_OBJ_VAL(i, 1) == num)
+			&& (GET_OBJ_TYPE(i) == obj_flag_data::ITEM_INGREDIENT
+				|| GET_OBJ_TYPE(i) == obj_flag_data::ITEM_MING
+				|| GET_OBJ_TYPE(i) == obj_flag_data::ITEM_MATERIAL))
+		{
+			return i;
+		}
+	}
+
+    return NULL;
 }
 
-MakeRecept::MakeRecept()
+MakeRecept::MakeRecept(): skill(SKILL_INVALID)
 {
 	locked = true;		// по умолчанию рецепт залочен.
-	skill = 0;
 	obj_proto = 0;
 	for (int i = 0; i < MAX_PARTS; i++)
 	{
@@ -1652,171 +1714,186 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 int MakeRecept::get_ingr_lev(OBJ_DATA * ingrobj)
 {
 	// Получаем уровень ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ITEM_INGRADIENT)
+	if (GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_INGREDIENT)
 	{
 		// Получаем уровень игредиента до 128
 		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
-
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MING)
+	else if (GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_MING)
 	{
 		// У ингров типа 26 совпадает уровень и сила.
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
-
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MATERIAL)
+	else if (GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_MATERIAL)
+	{
 		return GET_OBJ_VAL(ingrobj, 0);
+	}
 	else
-		return (-1);
+	{
+		return -1;
+	}
 }
 
 
 int MakeRecept::get_ingr_pow(OBJ_DATA * ingrobj)
 {
 	// Получаем силу ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ITEM_INGRADIENT || GET_OBJ_TYPE(ingrobj) == ITEM_MATERIAL)
+	if (GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_INGREDIENT
+		|| GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_MATERIAL)
 	{
-
 		return GET_OBJ_VAL(ingrobj, 2);
-
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MING)
+	else if (GET_OBJ_TYPE(ingrobj) == obj_flag_data::ITEM_MING)
 	{
-
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
-
 	}
 	else
-		return (-1);
+	{
+		return -1;
+	}
 }
 void MakeRecept::make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS])
-{ int wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_BODY)) // 1.1
-			wearkoeff = 110;
-		if (CAN_WEAR(obj, ITEM_WEAR_HEAD)) //0.8
-			wearkoeff = 80;
-	        if (CAN_WEAR(obj, ITEM_WEAR_LEGS)) //0.5
-			wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_FEET)) //0.6
-			wearkoeff = 60;
-		if (CAN_WEAR(obj, ITEM_WEAR_ARMS)) //0.5
-			wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))//0.9
-			wearkoeff = 90;
-		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))//0.45
-			wearkoeff = 45;
-		GET_OBJ_VAL(obj, 0) = ((GET_REAL_INT(ch) * GET_REAL_INT(ch) /10 + ch->get_skill(SKILL_MAKE_WEAR)) / 100 + (GET_OBJ_VAL(ingrs[0],3) + 1)) * wearkoeff / 100; //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
-		if (CAN_WEAR(obj, ITEM_WEAR_BODY)) //0.9
-			wearkoeff = 90;
-		if (CAN_WEAR(obj, ITEM_WEAR_HEAD)) //0.7
-			wearkoeff = 70;
-	        if (CAN_WEAR(obj, ITEM_WEAR_LEGS)) //0.4
-			wearkoeff = 40;
-		if (CAN_WEAR(obj, ITEM_WEAR_FEET)) //0.5
-			wearkoeff = 50;
-		if (CAN_WEAR(obj, ITEM_WEAR_ARMS)) //0.4
-			wearkoeff = 40;
-		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))//0.8
-			wearkoeff = 80;
-		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))//0.31
-			wearkoeff = 31;
-		GET_OBJ_VAL(obj, 1) = (ch->get_skill(SKILL_MAKE_WEAR) / 25 + (GET_OBJ_VAL(ingrs[0],3) + 1)) * wearkoeff / 100; //броня=(%умелки/25+левл.шкуры)*коэф.части тела
+{
+	int wearkoeff = 50;
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) // 1.1
+	{
+		wearkoeff = 110;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.8
+	{
+		wearkoeff = 80;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.6
+	{
+		wearkoeff = 60;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.9
+	{
+		wearkoeff = 90;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.45
+	{
+		wearkoeff = 45;
+	}
+	GET_OBJ_VAL(obj, 0) = ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(SKILL_MAKE_WEAR)) / 100 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100; //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) //0.9
+	{
+		wearkoeff = 90;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.7
+	{
+		wearkoeff = 70;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.4
+	{
+		wearkoeff = 40;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.4
+	{
+		wearkoeff = 40;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.8
+	{
+		wearkoeff = 80;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.31
+	{
+		wearkoeff = 31;
+	}
+	GET_OBJ_VAL(obj, 1) = (ch->get_skill(SKILL_MAKE_WEAR) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100; //броня=(%умелки/25+левл.шкуры)*коэф.части тела
 }
 void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt)
 {
-int i,j;
-		//ставим именительные именительные падежи в алиасы 
-		sprintf(buf, "%s %s %s %s", GET_OBJ_PNAME(obj, 0), GET_OBJ_PNAME(ingrs[0], 0), GET_OBJ_PNAME(ingrs[1], 0), GET_OBJ_PNAME(ingrs[2], 0));
-		obj->aliases = str_dup(buf);
+	int i, j;
+	//ставим именительные именительные падежи в алиасы 
+	sprintf(buf, "%s %s %s %s", GET_OBJ_PNAME(obj, 0), GET_OBJ_PNAME(ingrs[0], 0), GET_OBJ_PNAME(ingrs[1], 0), GET_OBJ_PNAME(ingrs[2], 0));
+	obj->aliases = str_dup(buf);
 
-		for (i = 0; i < NUM_PADS; i++) // ставим падежи в имя с учетов ингров
-		{ 
-			sprintf(buf, "%s", GET_OBJ_PNAME(obj, i));
-			strcat(buf, " из ");
-			strcat(buf, GET_OBJ_PNAME(ingrs[0], 1));
-			strcat(buf, " с ");
-			strcat(buf, GET_OBJ_PNAME(ingrs[1], 4));
-			strcat(buf, " и ");
-			strcat(buf, GET_OBJ_PNAME(ingrs[2], 4));
-			GET_OBJ_PNAME(obj, i) = str_dup(buf);
-			if (i == 0) // именительный падеж
+	for (i = 0; i < OBJ_DATA::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
+	{
+		sprintf(buf, "%s", GET_OBJ_PNAME(obj, i));
+		strcat(buf, " из ");
+		strcat(buf, GET_OBJ_PNAME(ingrs[0], 1));
+		strcat(buf, " с ");
+		strcat(buf, GET_OBJ_PNAME(ingrs[1], 4));
+		strcat(buf, " и ");
+		strcat(buf, GET_OBJ_PNAME(ingrs[2], 4));
+		GET_OBJ_PNAME(obj, i) = str_dup(buf);
+		if (i == 0) // именительный падеж
+		{
+			obj->short_description = str_dup(buf);
+			if (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
 			{
-				obj->short_description = str_dup(buf);
-				if (GET_OBJ_SEX(obj) == 1)
-					sprintf(buf2, "Брошенный %s лежит тут.", buf);
-				else if (GET_OBJ_SEX(obj) == 2)
-					sprintf(buf2, "Брошенная %s лежит тут.", buf);
-				else if (GET_OBJ_SEX(obj) == 3)
-					sprintf(buf2, "Брошенные %s лежат тут.", buf);
-				obj->description = str_dup(buf2); // описание на земле
+				sprintf(buf2, "Брошенный %s лежит тут.", buf);
 			}
-//			sprintf(buf2, "Падежи %d  == %s \r\n", i, GET_OBJ_PNAME(obj, i));
-//			send_to_char(buf2, ch);
-		}
-		obj->obj_flags.Obj_is_rename = true; // ставим флаг что объект переименован
-		add_flags(ch, &obj->obj_flags.affects, &ingrs[0]->obj_flags.affects, get_ingr_pow(ingrs[0]));
-		// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
-		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[0]->obj_flags.extra_flags, get_ingr_pow(ingrs[0]));
-		add_affects(ch, obj->affected, ingrs[0]->affected, get_ingr_pow(ingrs[0]));
-		add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOALTER), ITEM_NOALTER);  // нельзя сфрешить черным свитком
-		obj->set_timer((GET_OBJ_VAL(ingrs[0],3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) * number(180,220)); // таймер зависит в основном от умелки
-		GET_OBJ_CRAFTIMER(obj) = obj->get_timer(); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
-
-		for (j = 1; j < ingr_cnt; j++)
-		{ int i, raffect = 0;
-			for (i = 0;  i < MAX_OBJ_AFFECT; i++) // посмотрим скока аффектов
-				if (ingrs[j]->affected[i].location == APPLY_NONE)
-					break;
-			if (i > 0) // если > 0 переносим случайный
+			else if (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
 			{
-				raffect = number (0, i - 1);
-				for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+				sprintf(buf2, "Брошенная %s лежит тут.", buf);
+			}
+			else if (GET_OBJ_SEX(obj) == ESex::SEX_POLY)
+			{
+				sprintf(buf2, "Брошенные %s лежат тут.", buf);
+			}
+			obj->description = str_dup(buf2); // описание на земле
+		}
+	}
+	obj->obj_flags.Obj_is_rename = true; // ставим флаг что объект переименован
+	add_flags(ch, &obj->obj_flags.affects, &ingrs[0]->obj_flags.affects, get_ingr_pow(ingrs[0]));
+	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
+	add_flags(ch, &GET_OBJ_EXTRA(obj), &GET_OBJ_EXTRA(ingrs[0]), get_ingr_pow(ingrs[0]));
+	add_affects(ch, obj->affected, ingrs[0]->affected, get_ingr_pow(ingrs[0]));
+	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
+	obj->set_extraflag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
+	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) * number(180, 220)); // таймер зависит в основном от умелки
+	GET_OBJ_CRAFTIMER(obj) = obj->get_timer(); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
+
+	for (j = 1; j < ingr_cnt; j++)
+	{
+		int i, raffect = 0;
+		for (i = 0; i < MAX_OBJ_AFFECT; i++) // посмотрим скока аффектов
+			if (ingrs[j]->affected[i].location == APPLY_NONE)
+				break;
+		if (i > 0) // если > 0 переносим случайный
+		{
+			raffect = number(0, i - 1);
+			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+			{
+				if (obj->affected[i].location == ingrs[j]->affected[raffect].location) // если аффект такой уже висит и он меньше, переставим значение
 				{
-					if (obj->affected[i].location == ingrs[j]->affected[raffect].location) // если аффект такой уже висит и он меньше, переставим значение
-					{
-						if (obj->affected[i].modifier <  ingrs[j]->affected[raffect].modifier)
-							obj->affected[i].modifier =  ingrs[j]->affected[raffect].modifier;
+					if (obj->affected[i].modifier < ingrs[j]->affected[raffect].modifier)
+						obj->affected[i].modifier = ingrs[j]->affected[raffect].modifier;
+					break;
+				}
+				if (obj->affected[i].location == APPLY_NONE) // добавляем афф на свободное место
+				{
+					if (number(1, 100) > GET_OBJ_VAL(ingrs[j], 2)) // проверим фейл на силу ингра
 						break;
-					}
-					if (obj->affected[i].location == APPLY_NONE) // добавляем афф на свободное место
-					{	if (number(1, 100) > GET_OBJ_VAL(ingrs[j],2)) // проверим фейл на силу ингра
-							break;
-						obj->affected[i].location =  ingrs[j]->affected[raffect].location;
-						obj->affected[i].modifier =  ingrs[j]->affected[raffect].modifier;
-						break;
-					}
+					obj->affected[i].location = ingrs[j]->affected[raffect].location;
+					obj->affected[i].modifier = ingrs[j]->affected[raffect].modifier;
+					break;
 				}
 			}
-			// переносим аффекты ... c ингров на прототип.
-			add_flags(ch, &obj->obj_flags.affects, &ingrs[j]->obj_flags.affects, get_ingr_pow(ingrs[j]));
-			// перносим эффекты ... с ингров на прототип.
-			add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[j]->obj_flags.extra_flags, get_ingr_pow(ingrs[j]));
-			// переносим 1 рандом аффект
-			add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 		}
-/*	  send_to_char("Устанавливает аффекты : ", ch);
-	  sprintbits(obj->obj_flags.affects, weapon_affects, tmpbuf, ",");
-	  strcat(tmpbuf, "\r\n");
-	  send_to_char(tmpbuf, ch);
-
-	  send_to_char("Дополнительные флаги  : ", ch);
-	  sprintbits(obj->obj_flags.extra_flags, extra_bits, tmpbuf, ",");
-	  strcat(tmpbuf, "\r\n");
-	  send_to_char(tmpbuf, ch);
-
-	  send_to_char("Аффекты:", ch);
-	  for (i = 0; i < MAX_OBJ_AFFECT; i++)
-	      if (obj->affected[i].modifier)
-	         {sprinttype(obj->affected[i].location, apply_types, tmpbuf2);
-	          sprintf(tmpbuf, "%s %+d to %s",";",
-	         obj->affected[i].modifier, tmpbuf2);
-	          send_to_char(tmpbuf, ch);
-	         }
-	  send_to_char("\r\n",ch);
-*/
-	
-
+		// переносим аффекты ... c ингров на прототип.
+		add_flags(ch, &obj->obj_flags.affects, &ingrs[j]->obj_flags.affects, get_ingr_pow(ingrs[j]));
+		// перносим эффекты ... с ингров на прототип.
+		add_flags(ch, &GET_OBJ_EXTRA(obj), &GET_OBJ_EXTRA(ingrs[j]), get_ingr_pow(ingrs[j]));
+		// переносим 1 рандом аффект
+		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
+	}
 }
 
 // создать предмет по рецепту
@@ -2021,6 +2098,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 		dam = 40;
 
 		break;
+	default:
+		break;
 	}
 
 	act(charwork.c_str(), FALSE, ch, tobj, 0, TO_CHAR);
@@ -2211,8 +2290,11 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 	int sign = -1;
 
-	if ((GET_OBJ_TYPE(obj) == ITEM_WEAPON) || (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT))
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT)
+	{
 		sign = 1;
+	}
 
 	GET_OBJ_WEIGHT(obj) = stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign);
 
@@ -2231,73 +2313,64 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// Считаем среднюю силу ингров .
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_LIGHT:
+	case obj_flag_data::ITEM_LIGHT:
 		// Считаем длительность свечения.
 		if (GET_OBJ_VAL(obj, 2) != -1)
+		{
 			GET_OBJ_VAL(obj, 2) = stat_modify(ch, GET_OBJ_VAL(obj, 2), 1);
-
+		}
 		break;
-	case ITEM_WAND:
-	case ITEM_STAFF:
-		// Проверяем может
 
+	case obj_flag_data::ITEM_WAND:
+	case obj_flag_data::ITEM_STAFF:
 		// Считаем уровень закла
 		GET_OBJ_VAL(obj, 0) = GET_LEVEL(ch);
-
-		// считаем заряды в палочке ... ставим число зарядов равное
-		// числу замемленых заклов ...
-		/*      if (!IS_IMMORTAL(ch))
-		      {
-		        GET_OBJ_VAL(obj,1) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));
-
-		      // палочка заряжена под самые ухи.
-		        GET_OBJ_VAL(obj,2) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));
-		      } else
-		      {
-		   GET_OBJ_VAL(obj,1) = 10;
-		   GET_OBJ_VAL(obj,2) = 10;
-		      }
-		*/
-//      affect_join(ch, &af, TRUE, FALSE, FALSE, FALSE);
-
 		break;
-	case ITEM_WEAPON:
+
+	case obj_flag_data::ITEM_WEAPON:
 		// Считаем число xdy
 		// модифицируем XdY
 		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 2))
+		{
 			GET_OBJ_VAL(obj, 1) = stat_modify(ch, GET_OBJ_VAL(obj, 1), 1);
+		}
 		else
+		{
 			GET_OBJ_VAL(obj, 2) = stat_modify(ch, GET_OBJ_VAL(obj, 2) - 1, 1) + 1;
-
+		}
 		break;
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		// Считаем + АС
 		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 
 		// Считаем поглощение.
 		GET_OBJ_VAL(obj, 1) = stat_modify(ch, GET_OBJ_VAL(obj, 1), 1);
-
 		break;
-	case ITEM_POTION:
+
+	case obj_flag_data::ITEM_POTION:
 		// Считаем уровень итоговый напитка
 		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
-
 		break;
-	case ITEM_CONTAINER:
+
+	case obj_flag_data::ITEM_CONTAINER:
 		// Считаем объем контейнера.
 		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 		break;
 
-	case ITEM_DRINKCON:
+	case obj_flag_data::ITEM_DRINKCON:
 		// Считаем объем контейнера.
 		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 		break;
 
-	case ITEM_INGRADIENT:
+	case obj_flag_data::ITEM_INGREDIENT:
 		// Для ингров ничего не трогаем ... ибо опасно. :)
+		break;
+
+	default:
 		break;
 	}
 //  sprintf(tmpbuf,"VAL0 = %d ; VAL1 = %d ; VAL2 = %d ; VAL3 = %d \r\n",
@@ -2328,40 +2401,22 @@ int MakeRecept::make(CHAR_DATA * ch)
 		add_flags(ch, &obj->obj_flags.affects, &ingrs[j]->obj_flags.affects, ingr_pow);
 
 		// перносим эффекты ... с ингров на прототип.
-		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[j]->obj_flags.extra_flags, ingr_pow);
+		add_flags(ch, &GET_OBJ_EXTRA(obj), &GET_OBJ_EXTRA(ingrs[j]), ingr_pow);
 
 		add_affects(ch, obj->affected, ingrs[j]->affected, ingr_pow);
 	}
-/*
-	  send_to_char("Устанавливает аффекты : ", ch);
-	  sprintbits(obj->obj_flags.affects, weapon_affects, tmpbuf, ",");
-	  strcat(tmpbuf, "\r\n");
-	  send_to_char(tmpbuf, ch);
 
-	  send_to_char("Дополнительные флаги  : ", ch);
-	  sprintbits(obj->obj_flags.extra_flags, extra_bits, tmpbuf, ",");
-	  strcat(tmpbuf, "\r\n");
-	  send_to_char(tmpbuf, ch);
-
-	  send_to_char("Аффекты:", ch);
-	  for (i = 0; i < MAX_OBJ_AFFECT; i++)
-	      if (obj->affected[i].modifier)
-	         {sprinttype(obj->affected[i].location, apply_types, tmpbuf2);
-	          sprintf(tmpbuf, "%s %+d to %s",";",
-	         obj->affected[i].modifier, tmpbuf2);
-	          send_to_char(tmpbuf, ch);
-	         }
-	  send_to_char("\r\n",ch);
-*/	
 	// Мочим истраченные ингры.
 	for (i = 0; i < ingr_cnt; i++)
 	{
-		if ((GET_OBJ_TYPE(ingrs[i]) != ITEM_INGRADIENT) && (GET_OBJ_TYPE(ingrs[i]) != ITEM_MING))
+		if (GET_OBJ_TYPE(ingrs[i]) != obj_flag_data::ITEM_INGREDIENT
+			&& GET_OBJ_TYPE(ingrs[i]) != obj_flag_data::ITEM_MING)
 		{
 			// Если запрошенный вес 0 то  удаляем предмет выше не трогаем.
 			if (parts[i].min_weight == 0)
+			{
 				extract_obj(ingrs[i]);
-//			continue;
+			}
 		}
 // разобраться почему не мочатся ингры тима материал, если вес при производстве стал 0 
 		if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
@@ -2377,22 +2432,10 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// число шмоток в мире то шмотки по хуже будут вытеснять
 	// шмотки по лучше (в целом это не так страшно).
 
-
-/*	if ((obj_index[GET_OBJ_RNUM(obj)].number + obj_index[GET_OBJ_RNUM(obj)].stored) >= (31 - created_lev) * 5)
-	{
-		tmpstr = "$o вспыхнул синим пламенем и исчез.\r\n";
-		act(tmpstr.c_str(), FALSE, ch, obj, 0, TO_CHAR);
-		tmpstr = "$o в руках $n1 вспыхнул синим пламенем и исчез.";
-		act(tmpstr.c_str(), FALSE, ch, obj, 0, TO_ROOM);
-		extract_obj(obj);
-		return (FALSE);
-	};
-убрал макс чтоб нерушимыми не забили
-*/ 
 	// Ставим метку если все хорошо.
-	if (((GET_OBJ_TYPE(obj) != ITEM_INGRADIENT) &&
-			(GET_OBJ_TYPE(obj) != ITEM_MING)) &&
-			(number(1, 100) - calculate_skill(ch, skill, 0) < 0))
+	if ((GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_INGREDIENT
+		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MING)
+		&& (number(1, 100) - calculate_skill(ch, skill, 0) < 0))
 	{
 		act(tagging.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 		// Прибавляем в экстра описание строчку.
@@ -2403,7 +2446,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		if (desc == NULL)
 		{
-			CREATE(desc, EXTRA_DESCR_DATA, 1);
+			CREATE(desc, 1);
 			obj->ex_description = desc;
 			desc->keyword = str_dup(obj->aliases);
 			desc->description = str_dup(tagchar);
@@ -2411,7 +2454,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		}
 		else
 		{
-			CREATE(new_desc, EXTRA_DESCR_DATA, 1);
+			CREATE(new_desc, 1);
 			new_desc->keyword = str_dup(desc->keyword);
 			new_desc->description = str_dup(desc->description);
 			new_desc->next = NULL;	// На всякий случай :)
@@ -2458,7 +2501,7 @@ int MakeRecept::load_from_str(string & rstr)
 	else
 		locked = false;
 
-	skill = atoi(rstr.substr(0, rstr.find(" ")).c_str());
+	skill = static_cast<ESkill>(atoi(rstr.substr(0, rstr.find(" ")).c_str()));
 	rstr = rstr.substr(rstr.find(" ") + 1);
 
 	obj_proto = atoi((rstr.substr(0, rstr.find(" "))).c_str());
@@ -2557,7 +2600,7 @@ int MakeRecept::stat_modify(CHAR_DATA * ch, int value, float devider)
 	return res;
 }
 
-void MakeRecept::add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to)
+void MakeRecept::add_rnd_skills(CHAR_DATA* /*ch*/, OBJ_DATA * obj_from, OBJ_DATA *obj_to)
 {
 	if (obj_from->has_skills())
 	{
@@ -2590,7 +2633,8 @@ void MakeRecept::add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *o
 		}
 	}
 }
-int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add_flag, int delta)
+
+int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add_flag, int/* delta*/)
 {
 // БЕз вариантов вообще :(
 	int tmpprob;
@@ -2599,18 +2643,14 @@ int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add
 		for (int j = 0; j < 32; j++)
 		{
 			tmpprob = number(0, 200) - calculate_skill(ch, skill, 0);
-			if ((add_flag->flags[i] & (1 << j)) && (tmpprob < 0))
+			if ((add_flag->get_plane(i) & (1 << j)) && (tmpprob < 0))
 			{
-//        cout << "Prob : " << tmpprob << endl;
-				base_flag->flags[i] |= (1 << j);
-//        cout << "Base now : " << base_flag->flags[i] << endl;
+				base_flag->set_flag(i, 1 << j);
 			}
 		}
 	}
 	return (TRUE);
-
 }
-
 
 int MakeRecept::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta)
 {

@@ -66,7 +66,7 @@ public:
 	int get_answer_id() const;
 
 	// обертка на CharRemember
-	void remember_add(std::string text, int flag);
+	virtual void remember_add(const std::string& text, int flag);
 	std::string remember_get(int flag) const;
 	bool remember_set_num(unsigned int num);
 	unsigned int remember_get_num() const;

@@ -7,7 +7,7 @@
 #include <boost/unordered_map.hpp>
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-struct OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 
 namespace caching
 {

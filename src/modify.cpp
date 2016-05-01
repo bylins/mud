@@ -12,16 +12,11 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
 #include "comm.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "mail.h"
 #include "boards.h"
@@ -34,6 +29,13 @@
 #include "skills.h"
 #include "modify.h"
 #include "genchar.h"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 void show_string(DESCRIPTOR_DATA * d, char *input);
 
@@ -51,7 +53,7 @@ extern const char *unused_spellname;	// spell_parser.cpp
 
 // local functions
 void smash_tilde(char *str);
-ACMD(do_skillset);
+void do_skillset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 char *next_page(char *str, CHAR_DATA * ch);
 int count_pages(char *str, CHAR_DATA * ch);
 void paginate_string(char *str, DESCRIPTOR_DATA * d);
@@ -112,7 +114,9 @@ void smash_tilde(char *str)
 void string_write(DESCRIPTOR_DATA * d, char **writeto, size_t len, int mailto, void *data)
 {
 	if (d->character && !IS_NPC(d->character))
-		SET_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
+	{
+		PLR_FLAGS(d->character).set(PLR_WRITING);
+	}
 
 	if (data)
 		mudlog("SYSERR: string_write: I don't understand special data.", BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -291,7 +295,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			else
 				total_len--;
 			*t = '\0';
-			RECREATE(*d->str, char, strlen(*d->str) + 3);
+			RECREATE(*d->str, strlen(*d->str) + 3);
 
 			sprintf(buf, "%u line%sdeleted.\r\n", total_len, ((total_len != 1) ? "s " : " "));
 			SEND_TO_Q(buf, d);
@@ -511,7 +515,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			{
 				strcat(buf, s);
 			}
-			RECREATE(*d->str, char, strlen(buf) + 3);
+			RECREATE(*d->str, strlen(buf) + 3);
 
 			strcpy(*d->str, buf);
 			SEND_TO_Q("Строка вставлена.\r\n", d);
@@ -583,7 +587,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				return;
 			}
 			// * Change the size of the REAL buffer to fit the new text.
-			RECREATE(*d->str, char, strlen(buf) + 3);
+			RECREATE(*d->str, strlen(buf) + 3);
 			strcpy(*d->str, buf);
 			SEND_TO_Q("Строка изменена.\r\n", d);
 		}
@@ -710,7 +714,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		{
 			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
 			strcpy(&str[d->max_str - 3], "\r\n");
-			CREATE(*d->str, char, d->max_str);
+			CREATE(*d->str, d->max_str);
 			strcpy(*d->str, str);
 
 			// Changed this to NOT abort out.. just give warning. //
@@ -720,12 +724,12 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		{
 			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
 			str[80 - 3] = '\0';
-			CREATE(*d->str, char, 80);
+			CREATE(*d->str, 80);
 			strcpy(*d->str, str);
 		}
 		else
 		{
-			CREATE(*d->str, char, strlen(str) + 3);
+			CREATE(*d->str, strlen(str) + 3);
 			strcpy(*d->str, str);
 		}
 		//log("[SA] No str f");
@@ -747,7 +751,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		}
 		else  	//log("[SA] 1.2");
 		{
-			RECREATE(*d->str, char, strlen(*d->str) + strlen(str) + 3);	// \r\n\0
+			RECREATE(*d->str, strlen(*d->str) + strlen(str) + 3);	// \r\n\0
 			strcat(*d->str, str);
 		}
 		//log("[SA] 1f");
@@ -975,8 +979,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		//log("[SA] 10s");
 		if (d->character && !IS_NPC(d->character))
 		{
-			REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
-			REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
+			PLR_FLAGS(d->character).unset(PLR_WRITING);
+			PLR_FLAGS(d->character).unset(PLR_MAILING);
 		}
 		if (d->backstr)
 			free(d->backstr);
@@ -993,7 +997,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 // * Set of character features                                           *
 // ***********************************************************************
 
-ACMD(do_featset)
+void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];
@@ -1105,12 +1109,13 @@ ACMD(do_featset)
 // *  Modification of character skills                                  *
 // **********************************************************************
 
-ACMD(do_skillset)
+void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];
 	char buf[MAX_INPUT_LENGTH], help[MAX_STRING_LENGTH];
-	int skill = -1, spell = -1, value, i, qend;
+	int spell = -1, value, i, qend;
+	ESkill skill = SKILL_INVALID;
 
 	argument = one_argument(argument, name);
 
@@ -1158,7 +1163,9 @@ ACMD(do_skillset)
 	// Locate the last quote and lowercase the magic words (if any)
 
 	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++)
+	{
 		argument[qend] = LOWER(argument[qend]);
+	}
 
 	if (argument[qend] != '\'')
 	{
@@ -1168,10 +1175,13 @@ ACMD(do_skillset)
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	if ((skill = find_skill_num(help)) < 0)
+	if (SKILL_INVALID == (skill = find_skill_num(help)))
+	{
 		spell = find_spell_num(help);
+	}
 
-	if (skill < 0 && spell < 0)
+	if (SKILL_INVALID == skill
+        && spell < 0)
 	{
 		send_to_char("Неизвестное умение/заклинание.\r\n", ch);
 		return;
@@ -1204,16 +1214,21 @@ ACMD(do_skillset)
 	// * find_skill_num() guarantees a valid spell_info[] index, or -1, and we
 	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
+		spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
 	imm_log("%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
+		spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	if (spell >= 0 && spell <= MAX_SPELLS)
+	{
 		GET_SPELL_TYPE(vict, spell) = value;
-	else if (skill >= 0 && skill <= MAX_SKILL_NUM)
+	}
+	else if (SKILL_INVALID != skill
+		&& skill <= MAX_SKILL_NUM)
+	{
 		vict->set_skill(skill, value);
+	}
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
-			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
+		spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	send_to_char(buf2, ch);
 }
 
@@ -1371,7 +1386,7 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 		return;
 	}
 	d->showstr_count = count_pages(str, d->character);
-	CREATE(d->showstr_vector, char *, d->showstr_count);
+	CREATE(d->showstr_vector, d->showstr_count);
 
 	if (keep_internal)
 	{
