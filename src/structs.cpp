@@ -242,6 +242,33 @@ const religion_names_t religion_name =
 	religion_genders_t{ "Христианин", "Христианин", "Христианка", "Христиане" }
 };
 
+std::map<int, std::string> SECTOR_TYPE_BY_VALUE = {
+	{ SECT_INSIDE, "inside" },
+	{ SECT_CITY, "city" },
+	{ SECT_FIELD, "field" },
+	{ SECT_FOREST, "forest" },
+	{ SECT_HILLS, "hills" },
+	{ SECT_MOUNTAIN, "mountain" },
+	{ SECT_WATER_SWIM, "swim water" },
+	{ SECT_WATER_NOSWIM, "no swim water" },
+	{ SECT_FLYING, "flying" },
+	{ SECT_UNDERWATER, "underwater" },
+	{ SECT_SECRET, "secret" },
+	{ SECT_STONEROAD, "stone road" },
+	{ SECT_ROAD, "road" },
+	{ SECT_WILDROAD, "wild road" },
+	{ SECT_FIELD_SNOW, "snow field" },
+	{ SECT_FIELD_RAIN, "rain field" },
+	{ SECT_FOREST_SNOW, "snow forest" },
+	{ SECT_FOREST_RAIN, "rain forest" },
+	{ SECT_HILLS_SNOW, "snow hills" },
+	{ SECT_HILLS_RAIN, "rain hills" },
+	{ SECT_MOUNTAIN_SNOW, "snow mountain" },
+	{ SECT_THIN_ICE, "thin ice" },
+	{ SECT_NORMAL_ICE, "normal ice" },
+	{ SECT_THICK_ICE, "thick ice" }
+};
+
 typedef std::map<ESex, std::string> ESex_name_by_value_t;
 typedef std::map<const std::string, ESex> ESex_value_by_name_t;
 ESex_name_by_value_t ESex_name_by_value;

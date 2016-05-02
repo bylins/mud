@@ -228,6 +228,7 @@ typedef uint32_t bitvector_t;
 #define SECT_NORMAL_ICE      28
 #define SECT_THICK_ICE       29
 
+extern std::map<int, std::string> SECTOR_TYPE_BY_VALUE;
 
 #define WEATHER_QUICKCOOL     (1 << 0)
 #define WEATHER_QUICKHOT      (1 << 1)

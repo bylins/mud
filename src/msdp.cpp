@@ -568,6 +568,14 @@ namespace msdp
 			new CStringValue(zone_name.get())));
 		room_descriptor->add(new CVariable("ZONE",
 			new CStringValue(std::to_string(vnum / 100))));
+
+		const auto stype = SECTOR_TYPE_BY_VALUE.find(world[rnum]->sector_type);
+		if (stype != SECTOR_TYPE_BY_VALUE.end())
+		{
+			room_descriptor->add(new CVariable("TERRAIN",
+				new CStringValue(stype->second)));
+		}
+
 		room_descriptor->add(new CVariable("EXITS", exits));
 
 		response.reset(new CVariable("ROOM", room_descriptor));
