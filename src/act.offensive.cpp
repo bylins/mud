@@ -1160,7 +1160,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		timed.time = 7;
 		timed_to_char(ch, &timed);
 		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
-		act("$n попытал$u ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+		act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_hit(ch, vict);
 	        return;
@@ -1182,17 +1182,17 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 // кастуем аналог круга пустоты
 			act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
 			act("Ошеломительный удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
-			act("$n  мощным ударом ошеломи$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-			set_hit(ch, vict);
+			act("$n мощным ударом ошеломи$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			GET_POS(vict) = POS_INCAP;
 //аффект "кома" действует (раундов) на цель 5+морты чара/3
-			WAIT_STATE(vict, (5 + GET_REMORT(ch) / 3) * PULSE_VIOLENCE);
+			WAIT_STATE(vict, (2 + GET_REMORT(ch) / 3) * PULSE_VIOLENCE);
+			set_hit(ch, vict);
 		}
 	else
 		{
 			improove_skill(ch, SKILL_STUN, FALSE, 0);
 			act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n попытал$u ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+			act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
 			act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 //			Damage dmg(SkillDmg(SKILL_STUN), 1, FightSystem::PHYS_DMG);
 //			dmg.process(ch, vict);
