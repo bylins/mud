@@ -40,7 +40,7 @@ std::string time_format()
 */
 std::string format_gossip_name(CHAR_DATA *ch, CHAR_DATA *vict)
 {
-	if (!GET_NAME(ch))
+	if (ch->get_name().empty())
 	{
 		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
 		return "";

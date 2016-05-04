@@ -117,7 +117,10 @@ void save_log()
 // * Добавление записи в лог славы (время, тип, кол-во, строка из кармы).
 void add_log(int type, int num, std::string punish, std::string reason, CHAR_DATA *vict)
 {
-	if (!vict || !GET_NAME(vict)) return;
+	if (!vict || vict->get_name().empty())
+	{
+		return;
+	}
 
 	GloryLogPtr temp_node(new GloryLog);
 	temp_node->type = type;

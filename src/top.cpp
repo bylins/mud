@@ -63,7 +63,10 @@ void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 		if (it_exp->remort < GET_REMORT(short_ch) || (it_exp->remort == GET_REMORT(short_ch) && it_exp->exp < GET_EXP(short_ch)))
 			break;
 
-	if (!GET_NAME(short_ch)) return; // у нас все может быть
+	if (short_ch->get_name().empty())
+	{
+		return; // у нас все может быть
+	}
 	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GET_REMORT(short_ch));
 
 	if (it_exp != TopPlayer::TopList[GET_CLASS(short_ch)].end())
