@@ -825,6 +825,7 @@ int main(int argc, char **argv)
 				exit(1);
 			}
 			break;
+
 		case 'd':
 			if (*(argv[pos] + 2))
 				dir = argv[pos] + 2;
@@ -832,38 +833,73 @@ int main(int argc, char **argv)
 				dir = argv[pos];
 			else
 			{
-				puts("SYSERR: Directory arg expected after option -d.");
+				printf("SYSERR: Directory arg expected after option -d.");
 				exit(1);
 			}
 			break;
+
+		case 'D':
+			{
+				std::string argument;
+
+				if (*(argv[pos] + 2))
+				{
+					argument = argv[pos] + 2;
+				}
+				else if (++pos < argc)
+				{
+					argument = argv[pos];
+				}
+				else
+				{
+					printf("SYSERR: expected type of debug after option -D.");
+					break;
+				}
+
+				if ("msdp" == argument)
+				{
+					msdp::debug(true);
+				}
+				else
+				{
+					printf("SYSERR: unexpected value '%s' for option -D.", argument.c_str());
+				}
+			}
+			break;
+
 		case 'm':
 			mini_mud = 1;
 			puts("Running in minimized mode & with no rent check.");
 			break;
+
 		case 'c':
 			scheck = 1;
 			puts("Syntax check mode enabled.");
 			break;
+
 		case 'r':
 			circle_restrict = 1;
 			puts("Restricting game -- no new players allowed.");
 			break;
+
 		case 's':
 			no_specials = 1;
 			puts("Suppressing assignment of special routines.");
 			break;
+
 		case 'h':
 			// From: Anil Mahajan <amahajan@proxicom.com>
-			printf
-			("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n"
-			 "  -c             Enable syntax check mode.\n"
-			 "  -d <directory> Specify library directory (defaults to 'lib').\n"
-			 "  -h             Print this command line argument help.\n"
-			 "  -m             Start in mini-MUD mode.\n"
-			 "  -o <file>      Write log to <file> instead of stderr.\n"
-			 "  -r             Restrict MUD -- no new players allowed.\n"
-			 "  -s             Suppress special procedure assignments.\n", argv[0]);
+			printf("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n"
+				"  -c             Enable syntax check mode.\n"
+				"  -d <directory> Specify library directory (defaults to 'lib').\n"
+				"  -h             Print this command line argument help.\n"
+				"  -m             Start in mini-MUD mode.\n"
+				"  -o <file>      Write log to <file> instead of stderr.\n"
+				"  -r             Restrict MUD -- no new players allowed.\n"
+				"  -s             Suppress special procedure assignments.\n"
+				"  -D msdp        Turn on debug MSDP output\n", argv[0]);
 			exit(0);
+
 		default:
 			printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
 			break;
@@ -3505,7 +3541,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				switch (ptr[2])
 				{
 				case char(TELOPT_MSDP):
-					sb_length = msdp::handle_conversation(t, ptr, bytes_read);
+					sb_length = msdp::handle_conversation(t, ptr, bytes_read - (ptr - read_point));
 					break;
 
 				default:

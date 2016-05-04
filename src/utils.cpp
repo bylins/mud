@@ -475,6 +475,19 @@ void log(const char *format, ...)
 	va_end(args);
 }
 
+void vlog(const EOutputStream steam, const char* format, va_list rargs)
+{
+	va_list args;
+	va_copy(args, rargs);
+
+	const auto prev = logfile;
+	logfile = runtime_config::logs(steam).handle();
+	vlog(format, args);
+	logfile = prev;
+
+	va_end(args);
+}
+
 void shop_log(const char *format, ...)
 {
 	const char *filename = "../log/shop.log";
@@ -3900,38 +3913,43 @@ void setup_converters()
 	}
 }
 
-void hexdump(const char *ptr, int buflen)
+void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = nullptr*/)
 {
 	unsigned char *buf = (unsigned char*)ptr;
 	int i, j;
 
-	fprintf(stderr, "        | 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f\n");
-	fprintf(stderr, "--------+------------------------------------------------\n");
+	if (nullptr != title)
+	{
+		fprintf(file, "%s\n", title);
+	}
+
+	fprintf(file, "        | 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f\n");
+	fprintf(file, "--------+------------------------------------------------\n");
 
 	for (i = 0; i < buflen; i += 16)
 	{
-		fprintf(stderr, "%06x: | ", i);
+		fprintf(file, "%06x: | ", i);
 		for (j = 0; j < 16; j++)
 		{
 			if (i + j < buflen)
 			{
-				fprintf(stderr, "%02x ", buf[i + j]);
+				fprintf(file, "%02x ", buf[i + j]);
 			}
 			else
 			{
-				fprintf(stderr, "   ");
+				fprintf(file, "   ");
 			}
 		}
 
-		fprintf(stderr, " ");
+		fprintf(file, " ");
 		for (j = 0; j < 16; j++)
 		{
 			if (i + j < buflen)
 			{
-				fprintf(stderr, "%c", isprint(buf[i + j]) ? buf[i + j] : '.');
+				fprintf(file, "%c", isprint(buf[i + j]) ? buf[i + j] : '.');
 			}
 		}
-		fprintf(stderr, "\n");
+		fprintf(file, "\n");
 	}
 }
 

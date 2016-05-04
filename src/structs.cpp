@@ -902,7 +902,7 @@ void DESCRIPTOR_DATA::msdp_report(const std::string& name)
 {
 	if (msdp_need_report(name))
 	{
-		msdp::msdp_report(this, name);
+		msdp::report(this, name);
 	}
 }
 
@@ -919,8 +919,6 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
 		{
 			if (*input == 'Ñ')
 			{
-				// Anton Gorev(2016 - 04 - 25): I guess it is dangerous,
-				// because 0xff is the special telnet sequence IAC.
 				*reinterpret_cast<unsigned char*>(output++) = 255u;
 			}
 		}

@@ -55,6 +55,7 @@ int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 void write_time(FILE *file);
 void vlog(const char* format, va_list args) __attribute__((format(printf, 1, 0)));
+void vlog(const EOutputStream steam, const char *format, va_list args) __attribute__((format(printf, 2, 0)));
 void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void olc_log(const char *format, ...);
 void shop_log(const char *format, ...);
@@ -1654,7 +1655,11 @@ inline void graceful_exit(int retcode)
 	_exit(retcode);
 }
 
-void hexdump(const char *ptr, int buflen);
+void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title = nullptr);
+inline void hexdump(const EOutputStream stream, const char *ptr, size_t buflen, const char* title = nullptr)
+{
+	hexdump(runtime_config::logs(stream).handle(), ptr, buflen, title);
+}
 
 #endif // _UTILS_H_
 

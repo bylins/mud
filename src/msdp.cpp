@@ -14,8 +14,45 @@
 
 #include <boost/algorithm/string/classification.hpp>
 
+#include <varargs.h>
+
 namespace msdp
 {
+	bool debug_flag = false;
+	void debug(const bool on)
+	{
+		debug_flag = on;
+	}
+
+	void log(const char* format, ...) __attribute__((format(printf, 1, 2)))
+	{
+		va_list args;
+		va_start(args, format);
+		vlog(MSDP_LOG, format, args);
+		va_end(args);
+	}
+
+	void debug_log(const char* format, ...) __attribute__((format(printf, 1, 2)))
+	{
+		if (debug_flag)
+		{
+			va_list args;
+			va_start(args, format);
+			vlog(MSDP_LOG, format, args);
+			va_end(args);
+		}
+	}
+
+	void hexdump(const char* ptr, const size_t buflen, const char* title = nullptr)
+	{
+		if (debug_flag)
+		{
+			hexdump(MSDP_LOG, ptr, buflen, title);
+		}
+	}
+
+	inline std::string indent(size_t level) { return std::string(level, '\t'); }
+
 	/** MSDP protocol related constants @{ */
 	const char MSDP_VAR = 1;
 	const char MSDP_VAL = 2;
@@ -36,6 +73,7 @@ namespace msdp
 	public:
 		virtual size_t required_size() const = 0;
 		virtual size_t serialize(char* buffer, size_t size) const = 0;
+		virtual void dump(const size_t level = 0) const = 0;
 	};
 
 	class CValue : public CSerializeable
@@ -67,6 +105,7 @@ namespace msdp
 		value_ptr_t value() const { return m_value; }
 		virtual size_t required_size() const override { return m_size; }
 		virtual size_t serialize(char* buffer, size_t size) const override;
+		virtual void dump(const size_t level = 0) const override;
 
 	private:
 		std::string m_name;
@@ -88,17 +127,31 @@ namespace msdp
 		return required_size();
 	}
 
+	void CVariable::dump(const size_t level /*= 0*/) const
+	{
+		const std::string i = indent(level);
+		debug_log("%s(Variable) %s", i.c_str(), m_name.c_str());
+		m_value->dump(1 + level);
+	}
+
 	class CStringValue : public CValue
 	{
 	public:
+		/**
+		** \note Seychas nam ne nuzhno ekranirovat' znachenie: ono nechayanno ekraniruetsya pri convertirovanii.
+		** Eto esteticheski ne ochen' horosho, no menyat' seichas ne hochu.
+		**/
 		CStringValue(const std::string& value) : m_value(value) {}
 		virtual EValueType type() const override { return EVT_STRING; }
 		virtual size_t required_size() const override { return 1 + m_value.size(); }
 		virtual size_t serialize(char* buffer, size_t size) const override;
 		const std::string& value() const { return m_value; }
+		virtual void dump(const size_t level = 0) const override { debug_log("%s(String) %s", indent(level).c_str(), m_value.c_str()); }
 
 	private:
-		const std::string m_value;
+		static const std::string& escape(const std::string& value);
+
+		std::string m_value;
 	};
 
 	size_t CStringValue::serialize(char* buffer, size_t buffer_size) const
@@ -113,6 +166,26 @@ namespace msdp
 		return required_size();
 	}
 
+	const std::string& CStringValue::escape(const std::string& value)
+	{
+		static std::string result;
+
+		result.resize(2 * value.size(), '\0');
+
+		size_t j = 0;
+		for (size_t i = 0; i < value.size(); ++i)
+		{
+			result[j++] = value[i];
+			if (char(IAC) == value[i])
+			{
+				result[j++] = value[i];	// double IAC
+			}
+		}
+		result.resize(j);
+
+		return result;
+	}
+
 	class CTableValue : public CValue
 	{
 	public:
@@ -124,6 +197,7 @@ namespace msdp
 		void add(const CVariable::variable_ptr_t& variable);
 		virtual size_t required_size() const override { return m_size; }
 		virtual size_t serialize(char* buffer, size_t size) const override;
+		virtual void dump(const size_t level = 0) const override;
 
 	private:
 		table_t m_data;
@@ -167,6 +241,15 @@ namespace msdp
 		return required_size();
 	}
 
+	void CTableValue::dump(const size_t level /*= 0*/) const
+	{
+		debug_log("%s(Table)", indent(level).c_str());
+		for (const auto& i : m_data)
+		{
+			i->dump(1 + level);
+		}
+	}
+
 	class CArrayValue : public CValue
 	{
 	public:
@@ -178,6 +261,7 @@ namespace msdp
 		void add(const value_ptr_t& value) { m_data.push_back(value); }
 		virtual size_t required_size() const override { return m_size; }
 		virtual size_t serialize(char* buffer, size_t size) const override;
+		virtual void dump(const size_t level = 0) const override;
 
 	private:
 		std::list<value_ptr_t> m_data;
@@ -214,6 +298,15 @@ namespace msdp
 		buffer[0] = MSDP_ARRAY_CLOSE;
 
 		return required_size();
+	}
+
+	void CArrayValue::dump(const size_t level /*= 0*/) const
+	{
+		debug_log("%s(Table)\n", indent(level).c_str());
+		for (const auto& i : m_data)
+		{
+			i->dump(1 + level);
+		}
 	}
 
 	inline bool is_stop_byte(const char c)
@@ -306,9 +399,21 @@ namespace msdp
 	{
 		auto pos = buffer;
 		auto end = buffer + length;
-		while (end != pos
-			&& !is_stop_byte(*pos))
+		while (end != pos)
 		{
+			if (char(IAC) == *pos
+				&& end != 1 + pos
+				&& char(IAC) == *(1 + pos))
+			{
+				pos += 2;	// skip double IAC and continue as usual
+				continue;
+			}
+
+			if (is_stop_byte(*pos))
+			{
+				break;
+			}
+
 			pos++;
 		}
 
@@ -429,7 +534,8 @@ namespace msdp
 				CStringValue* string = dynamic_cast<CStringValue*>(request->value().get());
 				if ("COMMANDS" == string->value())
 				{
-					log("INFO: Client asked for MSDP \"COMMANDS\" list.");
+					log("INFO: '%s' asked for MSDP \"COMMANDS\" list.",
+						(t && t->character) ? t->character->get_name().c_str() : "<unknown>");
 
 					response.reset(new CVariable("COMMANDS",
 						new CArrayValue({
@@ -495,6 +601,8 @@ namespace msdp
 		buffer.get()[buffer_size - 1] = char(SE);
 		buffer.get()[buffer_size] = '\0';
 
+		hexdump(buffer.get(), buffer_size, "MSDP response:");
+
 		int written = 0;
 		write_to_descriptor_with_options(t, buffer.get(), 1 + buffer_size, written);	// +1 - including NULL terminator
 
@@ -505,9 +613,15 @@ namespace msdp
 	{
 		size_t actual_length = 0;
 		std::shared_ptr<CVariable> request;
+
+		std::string i = indent(0);
+		debug_log("Conversation from '%s':\n",
+			(t && t->character) ? t->character->get_name().c_str() : "<unknown>");
+		hexdump(buffer, length);
+
 		if (4 > length)
 		{
-			log("WARNING: Logic error: MSDP block is too small.");
+			log("WARNING: MSDP block is too small.");
 			return 0;
 		}
 
@@ -516,6 +630,8 @@ namespace msdp
 			log("WARNING: Could not parse MSDP request.");
 			return 0;
 		}
+
+		request->dump();
 
 		handle_request(t, request);
 
@@ -581,7 +697,7 @@ namespace msdp
 		response.reset(new CVariable("ROOM", room_descriptor));
 	}
 
-	void msdp_report(DESCRIPTOR_DATA* d, const std::string& name)
+	void report(DESCRIPTOR_DATA* d, const std::string& name)
 	{
 		//report
 		if (!d->character)
@@ -600,6 +716,9 @@ namespace msdp
 			return;
 		}
 
+		debug_log("Report:");
+		response->dump();
+
 		const size_t buffer_size = WRAPPER_LENGTH + response->required_size();
 		std::shared_ptr<char> buffer(new char[1 + buffer_size]);	// 1 byte for NULL terminator
 		buffer.get()[0] = char(IAC);
@@ -609,6 +728,8 @@ namespace msdp
 		buffer.get()[buffer_size - 2] = char(IAC);
 		buffer.get()[buffer_size - 1] = char(SE);
 		buffer.get()[buffer_size] = '\0';
+
+		hexdump(buffer.get(), buffer_size, "Response buffer:");
 
 		int written = 0;
 		write_to_descriptor_with_options(d, buffer.get(), 1 + buffer_size, written);	// +1 - including NULL terminator
