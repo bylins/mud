@@ -3916,7 +3916,7 @@ void setup_converters()
 void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = nullptr*/)
 {
 	unsigned char *buf = (unsigned char*)ptr;
-	int i, j;
+	size_t i, j;
 
 	if (nullptr != title)
 	{
@@ -3928,7 +3928,7 @@ void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = n
 
 	for (i = 0; i < buflen; i += 16)
 	{
-		fprintf(file, "%06x: | ", i);
+		fprintf(file, "%06zx: | ", i);
 		for (j = 0; j < 16; j++)
 		{
 			if (i + j < buflen)

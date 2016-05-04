@@ -14,7 +14,7 @@
 
 #include <boost/algorithm/string/classification.hpp>
 
-#include <varargs.h>
+#include <stdarg.h>
 
 namespace msdp
 {
@@ -24,7 +24,8 @@ namespace msdp
 		debug_flag = on;
 	}
 
-	void log(const char* format, ...) __attribute__((format(printf, 1, 2)))
+	void log(const char* format, ...) __attribute__((format(printf, 1, 2)));
+	void log(const char* format, ...)
 	{
 		va_list args;
 		va_start(args, format);
@@ -32,7 +33,8 @@ namespace msdp
 		va_end(args);
 	}
 
-	void debug_log(const char* format, ...) __attribute__((format(printf, 1, 2)))
+	void debug_log(const char* format, ...) __attribute__((format(printf, 1, 2)));
+	void debug_log(const char* format, ...)
 	{
 		if (debug_flag)
 		{
