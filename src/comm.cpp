@@ -833,7 +833,7 @@ int main(int argc, char **argv)
 				dir = argv[pos];
 			else
 			{
-				printf("SYSERR: Directory arg expected after option -d.");
+				puts("SYSERR: Directory arg expected after option -d.");
 				exit(1);
 			}
 			break;
@@ -852,7 +852,7 @@ int main(int argc, char **argv)
 				}
 				else
 				{
-					printf("SYSERR: expected type of debug after option -D.");
+					puts("SYSERR: expected type of debug after option -D.");
 					break;
 				}
 
@@ -862,7 +862,7 @@ int main(int argc, char **argv)
 				}
 				else
 				{
-					printf("SYSERR: unexpected value '%s' for option -D.", argument.c_str());
+					printf("SYSERR: unexpected value '%s' for option -D.\n", argument.c_str());
 				}
 			}
 			break;
