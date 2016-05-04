@@ -295,8 +295,11 @@ void CHAR_DATA::purge(bool destructor)
 		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
 		return;
 	}
-	if (GET_NAME(this))
+
+	if (!get_name().empty())
+	{
 		log("[FREE CHAR] (%s)", GET_NAME(this));
+	}
 
 	int i, j, id = -1;
 	struct alias_data *a;
