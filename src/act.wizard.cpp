@@ -2362,7 +2362,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",");
 		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		send_to_char(ch, "Количество атак: %s%d%s\r\n", CCCYN(ch, C_NRM), ch->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Количество атак: %s%d%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
 	}
 	else
 	{
