@@ -2090,7 +2090,10 @@ void perform_violence()
 
 		const int initiative = calc_initiative(ch, true);
 		if (initiative == 0)
+		{
 			INITIATIVE(ch) = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
+			min_init = MIN(min_init, -100);
+		}
 		else
 			INITIATIVE(ch) = initiative;
 		SET_AF_BATTLE(ch, EAF_FIRST);
