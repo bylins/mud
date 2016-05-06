@@ -1401,6 +1401,8 @@ int calc_initiative(CHAR_DATA *ch, bool mode)
 		initiative = 1;
 
 	//initiative = MAX(initiative, 1); //Почему инициатива не может быть отрицательной?
+	if (initiative == 0)
+		initiative = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
 
 	return initiative;
 }
@@ -2120,6 +2122,8 @@ void perform_violence()
 			{
 				continue;
 			}
+			if (initiative == 0) //везде в стоп-файтах ставится инициатива равная 0, убираем двойную атаку
+				continue;
 			//* выполнение атак в раунде
 			if (IS_NPC(ch))
 			{
