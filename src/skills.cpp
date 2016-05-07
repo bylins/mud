@@ -1075,6 +1075,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (PRF_FLAGGED(vict, PRF_AWAKE))
 			victim_modi -= calculate_awake_mod(ch, vict);
 
+		pass_mod = 1; //Убираем учет удачи
+
 		break;
 	default:
 		break;
