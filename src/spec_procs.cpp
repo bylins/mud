@@ -2611,7 +2611,7 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (AWAKE(victim) && (number(0, MAX(0, GET_LEVEL(ch) - int_app[GET_REAL_INT(victim)].observation)) == 0))
 	{
 		act("Вы обнаружили руку $n1 в своем кармане.", FALSE, ch, 0, victim, TO_VICT);
-		act("$n пытал$u обокрасть $N1.", TRUE, ch, 0, victim, TO_NOTVICT);
+		act("$n пытал$u обокрасть $N3.", TRUE, ch, 0, victim, TO_NOTVICT);
 	}
 	else  		// Steal some gold coins
 	{
