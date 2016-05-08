@@ -2314,7 +2314,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	sprintf(buf,
 			"Защитн.аффекты: [Para:%d/Breath:%d/Spell:%d/Basic:%d], Поглощ: [%d], Стойк: [%d], Реакц: [%d], Воля: [%d]\r\n",
 			GET_SAVE(k, 0), GET_SAVE(k, 1), GET_SAVE(k, 2), GET_SAVE(k, 3),
-			GET_ABSORBE(k), (GET_REAL_CON(k)-GET_SAVE(k, SAVING_STABILITY)), (-GET_SAVE(k, SAVING_REFLEX)+dex_bonus(GET_REAL_DEX(k))), (-GET_SAVE(k, SAVING_WILL)+GET_REAL_WIS(k)));
+			GET_ABSORBE(k), GET_REAL_SAVING_STABILITY(k), GET_REAL_SAVING_REFLEX(k), GET_REAL_SAVING_WILL(k));
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d]\r\n",
@@ -2362,6 +2362,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",");
 		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
+		send_to_char(ch, "Количество атак: %s%d%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
 	}
 	else
 	{
@@ -5927,7 +5928,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
         break;
 	case 59: // флаг реморта
     		ch->remort();
-		sprintf(buf,"Иммортал %s установил реморт +1 для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
+		sprintf(buf,"Иммортал %s установил реморт +1 для игрока %s", GET_NAME(ch), GET_NAME(vict));
 		add_karma(vict, buf, GET_NAME(ch));
 		add_karma(ch, buf, GET_NAME(vict));
 		send_to_gods(buf);
@@ -5937,13 +5938,13 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		{
 			CLR_GOD_FLAG(vict, GF_TESTER);
 			PRF_FLAGS(ch).unset(PRF_TESTER); // обнулим реж тестер
-			sprintf(buf,"%s убрал флаг тестера для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
+			sprintf(buf,"%s убрал флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		}
 		else
 		{
 			SET_GOD_FLAG(vict, GF_TESTER);
-			sprintf(buf,"%s установил флаг тестера для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
+			sprintf(buf,"%s установил флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 //			send_to_gods(buf);
 		}

@@ -1331,7 +1331,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char_to_room(ch, fnd_room);
 	check_horse(ch);
 	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
-	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch)))
+	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch) || ROOM_FLAGGED(fnd_room, ROOM_ARENA)))
 	{
 		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 			CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));

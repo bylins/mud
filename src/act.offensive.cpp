@@ -927,8 +927,8 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	percent = number(1, skill_info[SKILL_BASH].max_percent);
 	prob = train_skill(ch, SKILL_BASH, skill_info[SKILL_BASH].max_percent, vict);
 
-	if (PRF_FLAGGED(ch, PRF_AWAKE))
-		prob /= 2;
+	//if (PRF_FLAGGED(ch, PRF_AWAKE)) //Проверка в skills.cpp->calculate_skills
+	//	prob /= 2;
 	if (GET_MOB_HOLD(vict))
 		prob = percent;
 	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
@@ -1160,7 +1160,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		timed.time = 7;
 		timed_to_char(ch, &timed);
 		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
-		act("$n попытал$u ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+		act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_hit(ch, vict);
 	        return;
@@ -1182,17 +1182,17 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 // кастуем аналог круга пустоты
 			act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
 			act("Ошеломительный удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
-			act("$n  мощным ударом ошеломи$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-			set_hit(ch, vict);
+			act("$n мощным ударом ошеломи$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			GET_POS(vict) = POS_INCAP;
 //аффект "кома" действует (раундов) на цель 5+морты чара/3
-			WAIT_STATE(vict, (5 + GET_REMORT(ch) / 3) * PULSE_VIOLENCE);
+			WAIT_STATE(vict, (2 + GET_REMORT(ch) / 3) * PULSE_VIOLENCE);
+			set_hit(ch, vict);
 		}
 	else
 		{
 			improove_skill(ch, SKILL_STUN, FALSE, 0);
 			act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n попытал$u ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+			act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
 			act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 //			Damage dmg(SkillDmg(SKILL_STUN), 1, FightSystem::PHYS_DMG);
 //			dmg.process(ch, vict);
@@ -2877,7 +2877,8 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 			continue;
 		if ((GET_LEVEL(ch_vict) > max_level) ||
-				(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) + GET_REAL_CON(ch_vict)) >
+			//(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) + GET_REAL_CON(ch_vict)) >
+			(dice(1, GET_REAL_SAVING_STABILITY(ch_vict)) >
 				 dice(1, GET_REAL_WIS(ch))))
 		{
 			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);

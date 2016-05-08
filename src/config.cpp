@@ -353,7 +353,8 @@ runtime_config::logs_t runtime_config::m_logs =
 {
 	CLogInfo("syslog", "ףיףפוםמשך"),
 	CLogInfo("log/errlog.txt", "ןûיגכי םיעב"),
-	CLogInfo("log/imlog.txt", "ימחעוהיומפמבס םבחיס")
+	CLogInfo("log/imlog.txt", "ימחעוהיומפמבס םבחיס"),
+	CLogInfo("log/msdp.txt", "ÌÏÇ MSDP ÐÁËÅÔÏ×")
 };
 
 std::string runtime_config::m_log_stderr;
@@ -402,6 +403,7 @@ void init_EOutputStream_ITEM_NAMES()
 	EOutputStream_name_by_value[SYSLOG] = "SYSLOG";
 	EOutputStream_name_by_value[IMLOG] = "IMLOG";
 	EOutputStream_name_by_value[ERRLOG] = "ERRLOG";
+	EOutputStream_name_by_value[MSDP_LOG] = "MSDPLOG";
 
 	for (const auto& i : EOutputStream_name_by_value)
 	{
@@ -509,6 +511,12 @@ void runtime_config::load_from_file(const char* filename)
 			if (imlog)
 			{
 				load_stream_config(m_logs[IMLOG], &imlog);
+			}
+
+			const auto msdplog = logging.child("msdplog");
+			if (msdplog)
+			{
+				load_stream_config(m_logs[MSDP_LOG], &msdplog);
 			}
 		}
 	}

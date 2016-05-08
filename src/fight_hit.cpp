@@ -4021,18 +4021,22 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			// CRIT_HIT и так щиты игнорит, но для порядку
 			hit_params.flags.set(IGNORE_FSHIELD);
 			hit_params.dam_critic = do_punctual(ch, victim, hit_params.wielded);
+			if (IS_IMPL(ch) || IS_IMPL(victim))
+			{
+				sprintf(buf, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
+				send_to_char(buf,ch);
+			}
 			if (!PUNCTUAL_WAITLESS(ch))
 			{
 				PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 			}
 		}
 	}
-	if (IS_IMPL(ch) || IS_IMPL(victim))
+	if (IS_IMPL(ch))
 	{
-		sprintf(buf, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
+		sprintf(buf, "&CРегуляр дамаг = %d&n\r\n", hit_params.dam);
 		send_to_char(buf,ch);
 	}
-
 	// обнуляем флаги, если у нападающего есть лаг
 	if ((GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT))
 		&& GET_WAIT(ch) > 0)

@@ -79,6 +79,7 @@ set(SOURCES
     src/mob_stat.cpp
     src/modify.cpp
     src/morph.cpp
+	src/msdp.cpp
     src/named_stuff.cpp
     src/name_list.cpp
     src/names.cpp
@@ -115,6 +116,7 @@ set(SOURCES
     src/spec_procs.cpp
     src/spell_parser.cpp
     src/spells.cpp
+    src/structs.cpp
     src/stuff.cpp
     src/structs.cpp
     src/title.cpp
@@ -178,6 +180,7 @@ set(HEADERS
     src/mob_stat.hpp
     src/modify.h
     src/morph.hpp
+	src/msdp.hpp
     src/named_stuff.hpp
     src/name_list.hpp
     src/noob.hpp
@@ -394,8 +397,23 @@ endif ()
 find_package(Boost 1.54 REQUIRED COMPONENTS ${BOOST_MODULES})
 
 # ZLib
-set(ZLIB_ROOT $ENV{ZLIB_ROOT})
-find_package(ZLIB REQUIRED)
+if (CMAKE_HOST_WIN32)
+    set(DEFAULT_HAVE_ZLIB "NO")
+else ()
+    set(DEFAULT_HAVE_ZLIB "YES")
+endif ()
+option(HAVE_ZLIB "Should ZLib be compiled in. It is required to support MCCP." ${DEFAULT_HAVE_ZLIB})
+
+if (HAVE_ZLIB)
+    set(ZLIB_ROOT $ENV{ZLIB_ROOT})
+    find_package(ZLIB REQUIRED)
+	add_definitions(-DHAVE_ZLIB)
+    include_directories(system ${ZLIB_INCLUDE_DIRS})
+    target_link_libraries(circle ${ZLIB_LIBRARIES})
+    message(STATUS "ZLib is turned ON. Circle will be compiled with MCCP support.")
+else ()
+    message(STATUS "ZLib is turned off. Circle will NOT support MCCP.")
+endif ()
 
 # Iconv
 find_path(ICONV_INCLUDE_DIR iconv.h) 
@@ -409,10 +427,8 @@ endif ()
 
 include_directories(src
     system ${Boost_INCLUDE_DIRS}
-    system ${ZLIB_INCLUDE_DIRS}
     system ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(circle
-    ${ZLIB_LIBRARIES}
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES})
 

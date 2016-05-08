@@ -876,7 +876,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 {
 	OBJ_DATA *i;
 	char name[MAX_INPUT_LENGTH];
-	int j;
+	int j, tmp_lvl;
 
 	/*
 	 * FIXME: This is broken.  The spell parser routines took the argument
@@ -885,27 +885,38 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 	 * at what the player originally meant to search for. -gg
 	 */
 	if (!obj)
+	{
 		return;
+	}
 
 	strcpy(name, cast_argument);
-	j = level;
+	tmp_lvl = (IS_GOD(ch)) ? 300 : level;
+	j = tmp_lvl;
 
 	for (i = object_list; i && (j > 0); i = i->next)
 	{
-		if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
-			continue;
+		if (!IS_GOD(ch))
+		{
+			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
+			{
+				continue;
+			}
 
-		if (IS_CORPSE(i))
-			continue;
+			if (IS_CORPSE(i))
+			{
+				continue;
+			}
+		}
 
-		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch) && i->carried_by != ch) //!локейт стаф может локейтить только имм или тот кто его держит
+		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) && i->carried_by != ch) //!локейт стаф может локейтить только имм или тот кто его держит
+		{
 			continue;
-
-		if (!isname(name, i->aliases))
-			continue;
+		}
 
 		if (SECT(IN_ROOM(i)) == SECT_SECRET)
+		{
 			continue;
+		}
 
 		if (i->carried_by)
 		{
@@ -916,10 +927,12 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 		}
 
+		if (!isname(name, i->aliases))
+			continue;
+
 		if (i->carried_by)
 		{
-			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone
-				|| !IS_NPC(i->carried_by))
+			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by) || IS_GOD(ch))
 			{
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n",
 					i->short_description, GET_OBJ_POLY_1(ch, i), PERS(i->carried_by, ch, 1));
@@ -931,8 +944,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		}
 		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
 		{
-			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone
-				&& !i->get_extraflag(EExtraFlag::ITEM_NOLOCATE))
+			if ((world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) )|| IS_GOD(ch))
 			{
 				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name);
 			}
@@ -949,31 +961,34 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 			else
 			{
-				if (i->in_obj->carried_by)
+				if (!IS_GOD(ch))
 				{
-					if (IS_NPC(i->in_obj->carried_by)
-						&& (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
-							|| world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
+					if (i->in_obj->carried_by)
 					{
-						continue;
+						if (IS_NPC(i->in_obj->carried_by)
+							&& (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
+								|| world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
+						{
+							continue;
+						}
 					}
-				}
-				if (IN_ROOM(i->in_obj) != NOWHERE
-					&& IN_ROOM(i->in_obj))
-				{
-					if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone
-						|| i->get_extraflag(EExtraFlag::ITEM_NOLOCATE))
+					if (IN_ROOM(i->in_obj) != NOWHERE
+						&& IN_ROOM(i->in_obj))
 					{
-						continue;
+						if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone
+							|| OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE))
+						{
+							continue;
+						}
 					}
-				}
-				if (i->in_obj->worn_by)
-				{
-					if (IS_NPC(i->in_obj->worn_by)
-						&& (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
-							|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+					if (i->in_obj->worn_by)
 					{
-						continue;
+						if (IS_NPC(i->in_obj->worn_by)
+							&& (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
+								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+						{
+							continue;
+						}
 					}
 				}
 				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), i->in_obj->PNames[5]);
@@ -982,10 +997,11 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		else if (i->worn_by)
 		{
 			if ((IS_NPC(i->worn_by)
-					&& !i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
+					&& !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
 					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
 				|| (!IS_NPC(i->worn_by)
-					&& GET_LEVEL(i->worn_by) < LVL_IMMORT))
+					&& GET_LEVEL(i->worn_by) < LVL_IMMORT)
+				|| IS_GOD(ch))
 			{
 				sprintf(buf, "%s надет%s на %s.\r\n", i->short_description,
 					GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
@@ -996,7 +1012,9 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 		}
 		else
+		{
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i, ch, 1));
+		}
 
 		CAP(buf);
 		send_to_char(buf, ch);
@@ -1010,7 +1028,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 	if (j > 0)
 		j = Parcel::print_spell_locate_object(ch, j, std::string(name));
 
-	if (j == level)
+	if (j == tmp_lvl)
 		send_to_char("Вы ничего не чувствуете.\r\n", ch);
 }
 

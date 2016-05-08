@@ -42,6 +42,10 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
 #include <boost/bind.hpp>
 
 #include <vector>
@@ -468,6 +472,19 @@ void log(const char *format, ...)
 	va_list args;
 	va_start(args, format);
 	vlog(format, args);
+	va_end(args);
+}
+
+void vlog(const EOutputStream steam, const char* format, va_list rargs)
+{
+	va_list args;
+	va_copy(args, rargs);
+
+	const auto prev = logfile;
+	logfile = runtime_config::logs(steam).handle();
+	vlog(format, args);
+	logfile = prev;
+
 	va_end(args);
 }
 
@@ -3896,6 +3913,46 @@ void setup_converters()
 	}
 }
 
+void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = nullptr*/)
+{
+	unsigned char *buf = (unsigned char*)ptr;
+	size_t i, j;
+
+	if (nullptr != title)
+	{
+		fprintf(file, "%s\n", title);
+	}
+
+	fprintf(file, "        | 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f\n");
+	fprintf(file, "--------+------------------------------------------------\n");
+
+	for (i = 0; i < buflen; i += 16)
+	{
+		fprintf(file, "%06zx: | ", i);
+		for (j = 0; j < 16; j++)
+		{
+			if (i + j < buflen)
+			{
+				fprintf(file, "%02x ", buf[i + j]);
+			}
+			else
+			{
+				fprintf(file, "   ");
+			}
+		}
+
+		fprintf(file, " ");
+		for (j = 0; j < 16; j++)
+		{
+			if (i + j < buflen)
+			{
+				fprintf(file, "%c", isprint(buf[i + j]) ? buf[i + j] : '.');
+			}
+		}
+		fprintf(file, "\n");
+	}
+}
+
 std::string ParseFilter::print() const
 {
 	std::string buffer = "Выборка: ";
@@ -4107,7 +4164,57 @@ void CCheckTable::check() const
 	std::cout << "Performance... " << std::endl;
 	std::cout << std::setprecision(2) << std::fixed << test_time() * 100 << "%" << std::endl;
 }
+#endif	// WIN32
 
-#endif
+#ifdef HAVE_ICONV
+void koi_to_utf8(char *str_i, char *str_o)
+{
+	iconv_t cd;
+	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t i;
+
+	if ((cd = iconv_open("UTF-8","KOI8-R")) == (iconv_t) - 1)
+	{
+		printf("koi_to_utf8: iconv_open error\n");
+		return;
+	}
+	len_i = strlen(str_i);
+	// const_cast at the next line is required for Linux, because there iconv has non-const input argument.
+	if ((i = iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
+	{
+		printf("koi_to_utf8: iconv error\n");
+		return;
+	}
+	*str_o = 0;
+	if (iconv_close(cd) == -1)
+	{
+		printf("koi_to_utf8: iconv_close error\n");
+		return;
+	}
+}
+
+void utf8_to_koi(char *str_i, char *str_o)
+{
+	iconv_t cd;
+	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t i;
+
+	if ((cd = iconv_open("KOI8-R", "UTF-8")) == (iconv_t) - 1)
+	{
+		perror("utf8_to_koi: iconv_open error");
+		return;
+	}
+	len_i = strlen(str_i);
+	if ((i=iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
+	{
+		perror("utf8_to_koi: iconv error");
+	}
+	if (iconv_close(cd) == -1)
+	{
+		perror("utf8_to_koi: iconv_close error");
+		return;
+	}
+}
+#endif // HAVE_ICONV
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

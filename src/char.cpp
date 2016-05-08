@@ -295,13 +295,16 @@ void CHAR_DATA::purge(bool destructor)
 		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
 		return;
 	}
-	if (GET_NAME(this))
+
+	if (!get_name().empty())
+	{
 		log("[FREE CHAR] (%s)", GET_NAME(this));
+	}
 
 	int i, j, id = -1;
 	struct alias_data *a;
 
-	if (!IS_NPC(this) && GET_NAME(this))
+	if (!IS_NPC(this) && !get_name().empty())
 	{
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0)

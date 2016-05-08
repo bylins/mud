@@ -1302,15 +1302,17 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 void char_to_room(CHAR_DATA * ch, room_rnum room)
 {
 	if (ch == NULL || room < NOWHERE + 1 || room > top_of_world)
-		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
-	else
 	{
-		if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
-		{
-			send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
-			char_to_room(ch, ch->get_from_room());
-			return;
-		}
+		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
+		return;
+	}
+
+	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
+		char_to_room(ch, ch->get_from_room());
+		return;
+	}
 
 		ch->next_in_room = world[room]->people;
 		world[room]->people = ch;
@@ -1342,16 +1344,22 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 			stop_fighting(ch, TRUE);
 		}
 
-		if (!IS_NPC(ch))
-		{
-			zone_table[world[room]->zone].used = 1;
-			zone_table[world[room]->zone].activity++;
-		} else
-		{
-			//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
-			//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
-			room_affect_process_on_entry(ch, IN_ROOM(ch));
-		}
+	if (!IS_NPC(ch))
+	{
+		zone_table[world[room]->zone].used = 1;
+		zone_table[world[room]->zone].activity++;
+	}
+	else
+	{
+		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
+		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
+		room_affect_process_on_entry(ch, IN_ROOM(ch));
+	}
+
+	// report room changing
+	if (ch->desc)
+	{
+		ch->desc->msdp_report("ROOM");
 	}
 }
 
@@ -3489,22 +3497,33 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list,
 	if (!(number = get_number(&tmp)))
 		return (NULL);
 
+	//Запретим локейт 2. 3. n. стафин
+	if (number > 1 && locate_item)
+		return (NULL);
+
 	for (i = list; i && (j <= number); i = i->next_content)
+	{
 		if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch))
+		{
 			if (CAN_SEE_OBJ(ch, i))
-				if (++j == number)  	// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
+			{
+				// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
+				// send_to_char(buf,ch);
+				if (!locate_item)
 				{
-					// send_to_char(buf,ch);
-					if (!locate_item)
+					if (++j == number)
+						return (i);
+				}
+				else
+				{
+					if (try_locate_obj(ch,i))
 						return (i);
 					else
-					{
-						if (try_locate_obj(ch,i))
-							return (i);
-						else
-							continue;
-					}
+						continue;
 				}
+			}
+		}
+	}
 
 	return (NULL);
 }
@@ -3552,20 +3571,32 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 	if (!(number = get_number(&tmp)))
 		return (NULL);
 
+	//Запретим локейт 2. 3. n. стафин
+	if (number > 1 && locate_item)
+		return (NULL);
+
 	// ok.. no luck yet. scan the entire obj list   //
 	for (i = object_list; i && (j <= number); i = i->next)
+	{
 		if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch))
+		{
 			if (CAN_SEE_OBJ(ch, i))
-				if (++j == number)
-					if (!locate_item)
+			{
+				if (!locate_item)
+				{
+					if (++j == number)
+						return (i);
+				}
+				else
+				{
+					if (try_locate_obj(ch,i))
 						return (i);
 					else
-					{
-						if (try_locate_obj(ch,i))
-							return (i);
-						else
-							continue;
-					}
+						continue;
+				}
+			}
+		}
+	}
 
 	return (NULL);
 }
@@ -3620,6 +3651,45 @@ bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
 			return true;
 		else
 			return false;
+	else if (i->in_obj)
+		if (Clan::is_clan_chest(i->in_obj))
+			return true;
+		else
+		{
+			if (i->in_obj->carried_by)
+			{
+				if (IS_NPC(i->in_obj->carried_by))
+				{
+					if (world[IN_ROOM(i->in_obj->carried_by)]->zone == world[IN_ROOM(ch)]->zone)
+						return true;
+					else
+						return false;
+				}
+				else
+					return true;
+			}
+			else if (IN_ROOM(i->in_obj) != NOWHERE && IN_ROOM(i->in_obj))
+			{
+				if (world[IN_ROOM(i->in_obj)]->zone == world[IN_ROOM(ch)]->zone)
+					return true;
+				else
+					return false;
+			}
+			else if (i->in_obj->worn_by)
+			{
+				if (IS_NPC(i->in_obj->worn_by))
+				{
+					if (world[IN_ROOM(i->in_obj->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
+						return true;
+					else
+						return false;
+				}
+				else
+					return true;
+			}
+			else
+				return true;
+		}
 	else
 		return true;
 }

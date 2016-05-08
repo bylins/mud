@@ -1401,7 +1401,6 @@ int calc_initiative(CHAR_DATA *ch, bool mode)
 		initiative = 1;
 
 	//initiative = MAX(initiative, 1); //Почему инициатива не может быть отрицательной?
-
 	return initiative;
 }
 
@@ -2090,7 +2089,13 @@ void perform_violence()
 			continue;
 
 		const int initiative = calc_initiative(ch, true);
-		INITIATIVE(ch) = initiative;
+		if (initiative == 0)
+		{
+			INITIATIVE(ch) = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
+			min_init = MIN(min_init, -100);
+		}
+		else
+			INITIATIVE(ch) = initiative;
 		SET_AF_BATTLE(ch, EAF_FIRST);
 		max_init = MAX(max_init, initiative);
 		min_init = MIN(min_init, initiative);
@@ -2120,6 +2125,8 @@ void perform_violence()
 			{
 				continue;
 			}
+			if (initiative == 0) //везде в стоп-файтах ставится инициатива равная 0, убираем двойную атаку
+				continue;
 			//* выполнение атак в раунде
 			if (IS_NPC(ch))
 			{

@@ -441,11 +441,19 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 		{
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
 			{
-				if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
-					continue;
+				if (IS_GOD(ch))
+				{
+					if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
+					{
+						continue;
+					}
+					if (OBJ_FLAGGED(it3->obj_, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch))
+					{
+						continue;
+					}
+				}
+
 				if (!isname(name.c_str(), it3->obj_->aliases))
-					continue;
-				if (OBJ_FLAGGED(it3->obj_, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch))
 					continue;
 
 				snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у почтового голубя в инвентаре.\r\n",

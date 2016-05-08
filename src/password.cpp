@@ -146,6 +146,9 @@ bool check_password(const CHAR_DATA *ch, const char *pwd)
 #ifndef NOCRYPT
 	if (!pwd || !str_cmp(pwd, GET_PC_NAME(ch)) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH)
 		return 0;
+#else
+	UNUSED_ARG(ch);
+	UNUSED_ARG(pwd);
 #endif
 	return 1;
 }

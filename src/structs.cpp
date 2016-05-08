@@ -1,6 +1,7 @@
 #include "structs.h"
 
 #include "utils.h"
+#include "msdp.hpp"
 
 void asciiflag_conv(const char *flag, void *to)
 {
@@ -239,6 +240,33 @@ const religion_names_t religion_name =
 {
 	religion_genders_t{ "Язычник", "Язычник", "Язычница", "Язычники" },
 	religion_genders_t{ "Христианин", "Христианин", "Христианка", "Христиане" }
+};
+
+std::map<int, std::string> SECTOR_TYPE_BY_VALUE = {
+	{ SECT_INSIDE, "inside" },
+	{ SECT_CITY, "city" },
+	{ SECT_FIELD, "field" },
+	{ SECT_FOREST, "forest" },
+	{ SECT_HILLS, "hills" },
+	{ SECT_MOUNTAIN, "mountain" },
+	{ SECT_WATER_SWIM, "swim water" },
+	{ SECT_WATER_NOSWIM, "no swim water" },
+	{ SECT_FLYING, "flying" },
+	{ SECT_UNDERWATER, "underwater" },
+	{ SECT_SECRET, "secret" },
+	{ SECT_STONEROAD, "stone road" },
+	{ SECT_ROAD, "road" },
+	{ SECT_WILDROAD, "wild road" },
+	{ SECT_FIELD_SNOW, "snow field" },
+	{ SECT_FIELD_RAIN, "rain field" },
+	{ SECT_FOREST_SNOW, "snow forest" },
+	{ SECT_FOREST_RAIN, "rain forest" },
+	{ SECT_HILLS_SNOW, "snow hills" },
+	{ SECT_HILLS_RAIN, "rain hills" },
+	{ SECT_MOUNTAIN_SNOW, "snow mountain" },
+	{ SECT_THIN_ICE, "thin ice" },
+	{ SECT_NORMAL_ICE, "normal ice" },
+	{ SECT_THICK_ICE, "thick ice" }
 };
 
 typedef std::map<ESex, std::string> ESex_name_by_value_t;
@@ -862,6 +890,65 @@ const std::string& NAME_BY_ITEM(const EApplyLocation item)
 		init_EApplyLocation_ITEM_NAMES();
 	}
 	return EApplyLocation_name_by_value.at(item);
+}
+
+void DESCRIPTOR_DATA::msdp_support(bool on)
+{
+	log("INFO: MSDP support enabled for client %s.\n", host);
+	m_msdp_support = on;
+}
+
+void DESCRIPTOR_DATA::msdp_report(const std::string& name)
+{
+	if (msdp_need_report(name))
+	{
+		msdp::report(this, name);
+	}
+}
+
+void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
+{
+	switch (keytable)
+	{
+	case KT_ALT:
+		for (; *input; *output = KtoA(*input), input++, output++);
+		break;
+
+	case KT_WIN:
+		for (; *input; *output = KtoW(*input), input++, output++)
+		{
+			if (*input == 'я')
+			{
+				*reinterpret_cast<unsigned char*>(output++) = 255u;
+			}
+		}
+		break;
+
+	case KT_WINZ:
+		for (; *input; *output = KtoW2(*input), input++, output++);
+		break;
+
+	case KT_WINZ6:
+		for (; *input; *output = KtoW2(*input), input++, output++);
+		break;
+
+#ifdef HAVE_ICONV
+	case KT_UTF8:
+		// Anton Gorev (2016-04-25): we have to be careful. String in UTF-8 encoding may
+		// contain character with code 0xff which telnet interprets as IAC.
+		koi_to_utf8(const_cast<char *>(input), output);
+		break;
+#endif
+
+	default:
+		for (; *input; *output = *input, input++, output++);
+		break;
+	}
+
+	if (keytable != KT_UTF8)
+	{
+		*output = '\0';
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

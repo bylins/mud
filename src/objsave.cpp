@@ -1006,7 +1006,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Пол
 		if (GET_OBJ_SEX(object) != GET_OBJ_SEX(proto))
 		{
-			out << "Sexx: " << to_underlying(GET_OBJ_SEX(object)) << "~\n";
+			out << "Sexx: " << static_cast<int>(GET_OBJ_SEX(object)) << "~\n";
 		}
 		// Таймер
 		if (object->get_timer() != proto->get_timer())
@@ -1239,7 +1239,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Пол
 		if (ESex::SEX_NEUTRAL != GET_OBJ_SEX(object))
 		{
-			out << "Sexx: " << to_underlying(GET_OBJ_SEX(object)) << "~\n";
+			out << "Sexx: " << static_cast<int>(GET_OBJ_SEX(object)) << "~\n";
 		}
 		// Таймер
 		if (object->get_timer())

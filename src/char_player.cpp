@@ -401,7 +401,7 @@ void Player::save_char()
 	}
 
 	// первыми идут поля, необходимые при ребуте мада, тут без необходимости трогать ничего не надо
-	if (GET_NAME(this))
+	if (!get_name().empty())
 	{
 		fprintf(saved, "Name: %s\n", GET_NAME(this));
 	}

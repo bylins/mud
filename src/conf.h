@@ -93,8 +93,6 @@ void gettimeofday(struct timeval *t, void *dummy);
 #define HAVE_SYS_UIO_H 1
 // Define if you have the <unistd.h> header file.
 #define HAVE_UNISTD_H 1
-// Define if your system has compression support in zlib.
-#define HAVE_ZLIB 1
 #endif // _WIN32
 
 // Define as the return type of signal handlers (int or void).

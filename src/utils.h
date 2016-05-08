@@ -55,6 +55,7 @@ int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 void write_time(FILE *file);
 void vlog(const char* format, va_list args) __attribute__((format(printf, 1, 0)));
+void vlog(const EOutputStream steam, const char *format, va_list args) __attribute__((format(printf, 2, 0)));
 void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void olc_log(const char *format, ...);
 void shop_log(const char *format, ...);
@@ -82,6 +83,10 @@ void from_koi(char *str, int to);
 void koi_to_alt(char *str, int len);
 void koi_to_win(char *str, int len);
 void koi_to_winz(char *str, int len);
+#ifdef HAVE_ICONV
+void koi_to_utf8(char *str_i, char *str_o);
+void utf8_to_koi(char *str_i, char *str_o);
+#endif
 int real_sector(int room);
 char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj);
 int roundup(float fl);
@@ -674,6 +679,11 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_CASTER(ch)    ((ch)->CasterLevel)
 #define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
+
+#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_STABILITY)	+ (on_horse(ch) ? 20 : 0))
+#define GET_REAL_SAVING_REFLEX(ch)		(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, SAVING_REFLEX)		+ (on_horse(ch) ? -20 : 0))
+#define GET_REAL_SAVING_CRITICAL(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_CRITICAL))
+#define GET_REAL_SAVING_WILL(ch)		(dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, SAVING_WILL))
 
 #define GET_POS(ch)        ((ch)->char_specials.position)
 #define GET_IDNUM(ch)     ((ch)->get_idnum())
@@ -1643,6 +1653,12 @@ extern char arg[MAX_STRING_LENGTH];
 inline void graceful_exit(int retcode)
 {
 	_exit(retcode);
+}
+
+void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title = nullptr);
+inline void hexdump(const EOutputStream stream, const char *ptr, size_t buflen, const char* title = nullptr)
+{
+	hexdump(runtime_config::logs(stream).handle(), ptr, buflen, title);
 }
 
 #endif // _UTILS_H_

@@ -3528,6 +3528,12 @@ Sventovit
 				SEND_TO_Q(MENU, d);
 				break;
 			}
+			if (PLR_FLAGGED(d->character, PLR_HELLED) || PLR_FLAGGED(d->character, PLR_FROZEN))
+			{
+				SEND_TO_Q("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
+				SEND_TO_Q(MENU, d);
+				break;
+			}
 			if (GET_REMORT(d->character) > 5)
 			{
 				SEND_TO_Q("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
@@ -3939,7 +3945,7 @@ void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 // регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
 bool CompareParam(const std::string & buffer, const char *arg, bool full)
 {
-	if (!*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
+	if (!arg || !*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
 		return 0;
 
 	std::string::size_type i;
