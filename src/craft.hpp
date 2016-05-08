@@ -119,7 +119,7 @@ namespace craft
 		friend class CPrototype;
 	};
 
-	class CPrototypeBase
+	class CObjectBase
 	{
 	public:
 		using type_t = obj_flag_data::EObjectType;
@@ -134,7 +134,7 @@ namespace craft
 		auto get_timer() const { return m_timer; }
 
 	protected:
-		CPrototypeBase():
+		CObjectBase():
 			m_type(obj_flag_data::DEFAULT_TYPE),
 			m_weight(obj_flag_data::DEFAULT_WEIGHT),
 			m_timer(OBJ_DATA::DEFAULT_TIMER)
@@ -148,10 +148,10 @@ namespace craft
 		int m_timer;
 	};
 
-	class CPrototype: public CPrototypeBase
+	class CObject: public CObjectBase
 	{
 	public:
-		CPrototype(const obj_vnum vnum) :
+		CObject(const obj_vnum vnum) :
 			m_vnum(vnum),
 			m_cost(OBJ_DATA::DEFAULT_COST),
 			m_rent_on(OBJ_DATA::DEFAULT_RENT_ON),
@@ -168,6 +168,7 @@ namespace craft
 			m_vals({0, 0, 0, 0})
 		{
 		}
+		~CObject() {}
 
 		bool load_from_node(const pugi::xml_node* node);
 		void load_from_object(const OBJ_DATA* object);
@@ -189,6 +190,8 @@ namespace craft
 	private:
 		constexpr static int VALS_COUNT = 4;
 
+		const static std::string KIND;
+
 		using skills_t = std::map<ESkill, int>;
 		using vals_t = std::array<int, VALS_COUNT>;
 		using applies_t = std::list<obj_affected_type>;
@@ -197,9 +200,10 @@ namespace craft
 		void load_skills(const pugi::xml_node* node);
 		void load_extended_values(const pugi::xml_node* node);
 		void load_applies(const pugi::xml_node* node);
-		bool check_prototype_consistency() const;
+		virtual bool check_object_consistency() const;
 
 		const std::string& aliases() const { return m_cases.aliases(); }
+		virtual const std::string& kind() const { return KIND; }
 		obj_vnum m_vnum;
 
 		std::string m_short_desc;
@@ -242,6 +246,17 @@ namespace craft
 		applies_t m_applies;
 
 		friend class CCraftModel;
+	};
+
+	class CPrototype : public CObject
+	{
+	public:
+		CPrototype(const obj_vnum vnum) : CObject(vnum) {}
+
+	private:
+		const static std::string KIND;
+
+		virtual const std::string& kind() const override { return KIND; }
 	};
 
 	/**
@@ -406,6 +421,30 @@ namespace craft
 
 	private:
 		/**
+		** Describes VNums range.
+		*/
+		class CVNumRange
+		{
+		public:
+			CVNumRange(const obj_vnum min, const obj_vnum max) : m_min(min), m_max(max) {}
+			bool operator<(const CVNumRange& right) const { return m_min < right.m_min; }
+
+			const obj_vnum& min() const { return m_min; }
+			const obj_vnum& max() const { return m_max; }
+
+		private:
+			obj_vnum m_min;
+			obj_vnum m_max;
+		};
+
+		enum EAddVNumResult
+		{
+			EAVNR_OK,
+			EAVNR_OUT_OF_RANGE,
+			EAVNR_ALREADY_EXISTS
+		};
+
+		/**
 		** Loads N-th prototype from specified XML node and returns true
 		** if it was successful and false otherwise.
 		*/
@@ -416,6 +455,14 @@ namespace craft
 		** if it was successful and false otherwise.
 		*/
 		bool load_material(const pugi::xml_node* material, const size_t number);
+
+		bool load_from_node(const pugi::xml_node* node);
+
+		bool load_vnum_ranges(const  pugi::xml_node* model);
+
+		EAddVNumResult check_vnum(const obj_vnum vnum) const;
+		EAddVNumResult add_vnum(const obj_vnum vnum);
+		void report_vnum_error(const obj_vnum vnum, const EAddVNumResult add_vnum_result);
 
 		crafts_t m_crafts;         ///< List of crafts defined for the game.
 		skills_t m_skills;     ///< List of skills defined for the game.
@@ -438,6 +485,9 @@ namespace craft
 		std::map<id_t, const CCraft*> m_id2craft;		///< Maps craft ID to pointer to craft descriptor.
 		std::map<id_t, const CSkillBase*> m_id2skill;	///< Maps skill ID to pointer to skill descriptor.
 		std::map<id_t, const CRecipe*> m_id2recipe;		///< Maps recipe ID to pointer to recipe descriptor.
+
+		std::set<CVNumRange> m_allowed_vnums;
+		std::set<obj_vnum> m_existing_vnums;
 	};
 }
 

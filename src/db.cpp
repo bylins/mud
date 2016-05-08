@@ -2454,13 +2454,11 @@ void boot_db(void)
 	log("Init town shop_keepers.");
 	town_shop_keepers();
 
-	/*
 	log("Starting craft system.");
 	if (!craft::start())
 	{
 		log("ERROR: Failed to start craft system.\n");
 	}
-	*/
 
 	log("Check big sets in rent.");
 	SetSystem::check_rented();

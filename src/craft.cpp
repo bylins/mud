@@ -797,15 +797,15 @@ namespace craft
 		return result;
 	}
 
-	bool CPrototype::load_from_node(const pugi::xml_node* node)
+	bool CObject::load_from_node(const pugi::xml_node* node)
 	{
-		log("Loading prototype with VNUM %d...\n", m_vnum);
+		log("Loading object with VNUM %d of type '%s'...\n", m_vnum, kind().c_str());
 		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
 		const auto description = node->child("description");
 		if (description)
 		{
-			// these fields are optional for prototypes
+			// these fields are optional for objects
 			m_short_desc = description.child_value("short");
 			m_long_desc = description.child_value("long");
 			m_keyword = description.child_value("keyword");
@@ -815,13 +815,13 @@ namespace craft
 		const auto item = node->child("item");
 		if (!item)
 		{
-			log("ERROR: The prototype with VNUM %d does not contain required \"item\" tag.\n", m_vnum);
+			log("ERROR: The object with VNUM %d does not contain required \"item\" tag.\n", m_vnum);
 			return false;
 		}
 
 		if (!m_cases.load_from_node(&item))
 		{
-			log("ERROR: could not load item cases for the prototype with VNUM %d.\n", m_vnum);
+			log("ERROR: could not load item cases for the object with VNUM %d.\n", m_vnum);
 			return false;
 		}
 
@@ -833,12 +833,12 @@ namespace craft
 		}
 		else
 		{
-			log("WARNING: Could not find \"cost\" tag for the prototype with VNUM %d.\n", m_vnum);
+			log("WARNING: Could not find \"cost\" tag for the object with VNUM %d.\n", m_vnum);
 		}
 
 		if (0 > cost_value)
 		{
-			log("WARNING: Wrong \"cost\" value of the prototype with VNUM %d. Setting to the default value %d.\n",
+			log("WARNING: Wrong \"cost\" value of the object with VNUM %d. Setting to the default value %d.\n",
 				m_vnum, OBJ_DATA::DEFAULT_COST);
 			cost_value = OBJ_DATA::DEFAULT_COST;
 		}
@@ -852,35 +852,35 @@ namespace craft
 			const auto rent_on = rent.child("on");
 			if (!rent_on)
 			{
-				log("WARNING: Could not find \"on\" tag for prototype with VNUM %d.\n", m_vnum);
+				log("WARNING: Could not find \"on\" tag for object with VNUM %d.\n", m_vnum);
 			}
 			else
 			{
 				CHelper::load_integer(rent_on.child_value(), rent_on_value,
-					[&]() { log("WARNING: Wrong value \"%s\" of the \"rent\"/\"on\" tag for prototype with VNUM %d.\n",
+					[&]() { log("WARNING: Wrong value \"%s\" of the \"rent\"/\"on\" tag for object with VNUM %d.\n",
 						rent_on.child_value(), m_vnum); });
 			}
 
 			const auto rent_off = rent.child("off");
 			if (!rent_off)
 			{
-				log("WARNING: Could not find \"off\" tag for prototype with VNUM %d.\n", m_vnum);
+				log("WARNING: Could not find \"off\" tag for object with VNUM %d.\n", m_vnum);
 			}
 			else
 			{
 				CHelper::load_integer(rent_off.child_value(), rent_off_value,
-					[&]() { log("WARNING: Wrong value \"%s\" of the \"rent\"/\"off\" tag for prototype with VNUM %d.\n",
+					[&]() { log("WARNING: Wrong value \"%s\" of the \"rent\"/\"off\" tag for object with VNUM %d.\n",
 						rent_off.child_value(), m_vnum); });
 			}
 		}
 		else
 		{
-			log("WARNING: Could not find \"rent\" tag for the prototype with VNUM %d.\n", m_vnum);
+			log("WARNING: Could not find \"rent\" tag for the object with VNUM %d.\n", m_vnum);
 		}
 
 		if (0 > rent_on_value)
 		{
-			log("WARNING: Wrong \"rent/on\" value of the prototype with VNUM %d. Setting to the default value %d.\n",
+			log("WARNING: Wrong \"rent/on\" value of the object with VNUM %d. Setting to the default value %d.\n",
 				m_vnum, OBJ_DATA::DEFAULT_RENT_ON);
 			rent_on_value = OBJ_DATA::DEFAULT_RENT_ON;
 		}
@@ -888,7 +888,7 @@ namespace craft
 
 		if (0 > rent_off_value)
 		{
-			log("WARNING: Wrong \"rent/off\" value of the prototype with VNUM %d. Setting to the default value %d.\n",
+			log("WARNING: Wrong \"rent/off\" value of the object with VNUM %d. Setting to the default value %d.\n",
 				m_vnum, OBJ_DATA::DEFAULT_RENT_OFF);
 			rent_off_value = OBJ_DATA::DEFAULT_RENT_OFF;
 		}
@@ -899,12 +899,12 @@ namespace craft
 		{
 			int global_maximum_value = OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM;
 			CHelper::load_integer(global_maximum.child_value(), global_maximum_value,
-				[&]() { log("WARNING: \"global_maximum\" value of the prototype with VNUM %d is not valid integer. Setting to the default value %d.\n",
+				[&]() { log("WARNING: \"global_maximum\" value of the object with VNUM %d is not valid integer. Setting to the default value %d.\n",
 					m_vnum, global_maximum_value); });
 
 			if (0 >= global_maximum_value)
 			{
-				log("WARNING: Wrong \"global_maximum\" value %d of the prototype with VNUM %d. Setting to the default value %d.\n",
+				log("WARNING: Wrong \"global_maximum\" value %d of the object with VNUM %d. Setting to the default value %d.\n",
 					global_maximum_value, m_vnum, OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM);
 				global_maximum_value = OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM;
 			}
@@ -917,12 +917,12 @@ namespace craft
 		{
 			int minimum_remorts_value = OBJ_DATA::DEFAULT_MINIMUM_REMORTS; 
 			CHelper::load_integer(minimum_remorts.child_value(), minimum_remorts_value,
-				[&]() { log("WARNING: \"minimal_remorts\" value of the prototype with VNUM %d is not valid integer. Setting to the default value %d.\n",
+				[&]() { log("WARNING: \"minimal_remorts\" value of the object with VNUM %d is not valid integer. Setting to the default value %d.\n",
 					m_vnum, minimum_remorts_value); });
 
 			if (0 > minimum_remorts_value)
 			{
-				log("WARNING: Wrong \"minimal_remorts\" value %d of the prototype with VNUM %d. Setting to the default value %d.\n",
+				log("WARNING: Wrong \"minimal_remorts\" value %d of the object with VNUM %d. Setting to the default value %d.\n",
 					minimum_remorts_value, m_vnum, OBJ_DATA::DEFAULT_MINIMUM_REMORTS);
 				minimum_remorts_value = OBJ_DATA::DEFAULT_MINIMUM_REMORTS;
 			}
@@ -931,8 +931,8 @@ namespace craft
 
 		CHelper::ELoadFlagResult load_result = CHelper::load_flag<type_t>(*node, "type",
 			[&](const auto type) { this->set_type(type); },
-			[&](const auto name) { log("WARNING: Failed to set object type '%s' for prototype with VNUM %d. Prototype will be skipped.\n", name, m_vnum); },
-			[&]() { log("WARNING: \"type\" tag not found for prototype with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(get_type()).c_str()); });
+			[&](const auto name) { log("WARNING: Failed to set object type '%s' for object with VNUM %d. Object will be skipped.\n", name, m_vnum); },
+			[&]() { log("WARNING: \"type\" tag not found for object with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(get_type()).c_str()); });
 		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
@@ -946,7 +946,7 @@ namespace craft
 			{
 				CHelper::load_integer(maximum.child_value(),
 					[&](const auto value) { m_maximum_durability = std::max(value, 0); },
-					[&]() { log("WARNING: Wrong integer value of tag \"maximum_durability\" for prototype with VNUM %d. Leaving default value %d\n",
+					[&]() { log("WARNING: Wrong integer value of tag \"maximum_durability\" for object with VNUM %d. Leaving default value %d\n",
 						m_vnum, m_maximum_durability); });
 			}
 
@@ -956,7 +956,7 @@ namespace craft
 				CHelper::load_integer(current.child_value(),
 					[&](const auto value) { m_current_durability = std::min(std::max(value, 0), m_maximum_durability); },
 					[&]() {
-					log("WARNING: Wrong integer value of tag \"current_durability\" for prototype with VNUM %d. Setting to value of \"maximum_durability\" %d\n",
+					log("WARNING: Wrong integer value of tag \"current_durability\" for object with VNUM %d. Setting to value of \"maximum_durability\" %d\n",
 						m_vnum, m_maximum_durability);
 					m_current_durability = m_maximum_durability;
 				});
@@ -965,8 +965,8 @@ namespace craft
 
 		load_result = CHelper::load_flag<decltype(m_sex)>(*node, "sex",
 			[&](const auto sex) { m_sex = sex; },
-			[&](const auto name) { log("WARNING: Failed to set sex '%s' for prototype with VNUM %d. Prototype will be skipped.\n", name, m_vnum); },
-			[&]() { log("WARNING: \"sex\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(m_sex).c_str()); });
+			[&](const auto name) { log("WARNING: Failed to set sex '%s' for object with VNUM %d. object will be skipped.\n", name, m_vnum); },
+			[&]() { log("WARNING: \"sex\" tag for object with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(m_sex).c_str()); });
 		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
@@ -977,7 +977,7 @@ namespace craft
 		{
 			CHelper::load_integer(level.child_value(),
 				[&](const auto value) { m_level = std::max(value, 0); },
-				[&]() { log("WARNING: Wrong integer value of the \"level\" tag for prototype with VNUM %d. Leaving default value %d.\n",
+				[&]() { log("WARNING: Wrong integer value of the \"level\" tag for object with VNUM %d. Leaving default value %d.\n",
 					m_vnum, m_level); });
 		}
 
@@ -986,7 +986,7 @@ namespace craft
 		{
 			CHelper::load_integer(weight.child_value(),
 				[&](const auto value) { this->set_weight(std::max(value, 1)); },
-				[&]() { log("WARNING: Wrong integer value of the \"weight\" tag for prototype with VNUM %d. Leaving default value %d.\n",
+				[&]() { log("WARNING: Wrong integer value of the \"weight\" tag for object with VNUM %d. Leaving default value %d.\n",
 					m_vnum, this->get_weight()); });
 		}
 
@@ -1001,7 +1001,7 @@ namespace craft
 			{
 				CHelper::load_integer(weight.child_value(),
 					[&](const auto value) { this->set_timer(std::max(value, 0)); },
-					[&]() { log("WARNING: Wrong integer value of the \"timer\" tag for prototype with VNUM %d. Leaving default value %d.\n",
+					[&]() { log("WARNING: Wrong integer value of the \"timer\" tag for object with VNUM %d. Leaving default value %d.\n",
 						m_vnum, this->get_timer()); });
 			}
 		}
@@ -1018,8 +1018,8 @@ namespace craft
 
 		load_result = CHelper::load_flag<decltype(m_material)>(*node, "material",
 			[&](const auto material) { m_material = material; },
-			[&](const auto name) { log("WARNING: Failed to set material '%s' for prototype with VNUM %d. Prototype will be skipped.\n", name, m_vnum); },
-			[&]() { log("WARNING: \"material\" tag for prototype with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(m_material).c_str()); });
+			[&](const auto name) { log("WARNING: Failed to set material '%s' for object with VNUM %d. Object will be skipped.\n", name, m_vnum); },
+			[&]() { log("WARNING: \"material\" tag for object with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(m_material).c_str()); });
 		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
@@ -1027,38 +1027,38 @@ namespace craft
 
 		load_result = CHelper::load_flag<decltype(m_spell)>(*node, "spell",
 			[&](const auto spell) { m_spell = spell; },
-			[&](const auto value) { log("WARNING: Failed to set spell '%s' for prototype with VNUM %d. Spell will not be set.\n", value, m_vnum); },
+			[&](const auto value) { log("WARNING: Failed to set spell '%s' for object with VNUM %d. Spell will not be set.\n", value, m_vnum); },
 			[&]() {});
 
-		// loading of prototype extraflags
+		// loading of object extraflags
 		CHelper::load_flags<EExtraFlag>(m_extraflags, *node, "extraflags", "extraflag",
-			[&](const auto value) { log("Setting extra flag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+			[&](const auto value) { log("Setting extra flag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of object with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
-        // loading of prototype weapon affect flags
+        // loading of object weapon affect flags
 		CHelper::load_flags<EWeaponAffectFlag>(m_waffect_flags, *node, "weapon_affects", "weapon_affect",
-			[&](const auto value) { log("Setting weapon affect flag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+			[&](const auto value) { log("Setting weapon affect flag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of object with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
         
-        // loading of prototype antiflags
+        // loading of object antiflags
 		CHelper::load_flags<EAntiFlag>(m_anti_flags, *node, "antiflags", "antiflag",
-			[&](const auto value) { log("Setting antiflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping antiflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+			[&](const auto value) { log("Setting antiflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping antiflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
-		// loading of prototype noflags
+		// loading of object noflags
 		CHelper::load_flags<ENoFlag>(m_no_flags, *node, "noflags", "noflag",
-			[&](const auto value) { log("Setting noflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping noflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+			[&](const auto value) { log("Setting noflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping noflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
-		// loading of prototype wearflags
+		// loading of object wearflags
 		CHelper::load_flags<EWearFlag>(m_wear_flags, *node, "wearflags", "wearflag",
-			[&](const auto value) { log("Setting wearflag '%s' for prototype with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping wearflag '%s' of prototype with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+			[&](const auto value) { log("Setting wearflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
+			[&](const auto flag) { log("WARNING: Skipping wearflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
 
-		// loading of prototype skills
+		// loading of object skills
 		load_skills(node);
 
-		// load prototype vals
+		// load object vals
 		for (size_t i = 0; i < m_vals.size(); ++i)
 		{
 			std::stringstream val_name;
@@ -1068,7 +1068,7 @@ namespace craft
 			if (val_node)
 			{
 				CHelper::load_integer(val_node.child_value(), m_vals[i],
-					[&]() { log("WARNING: \"%s\" tag of prototype with VNUM %d has wrong integer value. Leaving default value %d.\n",
+					[&]() { log("WARNING: \"%s\" tag of object with VNUM %d has wrong integer value. Leaving default value %d.\n",
 						val_name.str().c_str(), m_vnum, m_vals[i]); });
 			}
 		}
@@ -1079,27 +1079,27 @@ namespace craft
 			const char* vnum_str = trigger_node.child_value();
 			CHelper::load_integer(vnum_str,
 				[&](const auto value) { m_triggers_list.push_back(value); },
-				[&]() { log("WARNING: Invalid trigger's VNUM value \"%s\" for prototype with VNUM %d. Skipping.\n",
+				[&]() { log("WARNING: Invalid trigger's VNUM value \"%s\" for object with VNUM %d. Skipping.\n",
 					vnum_str, m_vnum); });
 		}
 
 		load_extended_values(node);
 		load_applies(node);
 
-		if (!check_prototype_consistency())
+		if (!check_object_consistency())
 		{
-			log("WARNING: Prototype with VNUM %d has not passed consistency check.\n",
+			log("WARNING: Object with VNUM %d has not passed consistency check.\n",
 				m_vnum);
 			return false;
 		}
 
 		prefix.change_prefix(END_PREFIX);
-		log("End of loading prototype with VNUM %d.\n", m_vnum);
+		log("End of loading object with VNUM %d.\n", m_vnum);
 
 		return true;
 	}
 
-	void CPrototype::load_from_object(const OBJ_DATA* object)
+	void CObject::load_from_object(const OBJ_DATA* object)
 	{
 		set_type(object->obj_flags.type_flag);
 
@@ -1157,7 +1157,7 @@ namespace craft
 		}
 	}
 
-	bool CPrototype::save_to_node(pugi::xml_node* node) const
+	bool CObject::save_to_node(pugi::xml_node* node) const
 	{
 		try
 		{
@@ -1338,7 +1338,7 @@ namespace craft
 		return true;
 	}
 
-	OBJ_DATA* CPrototype::build_object() const
+	OBJ_DATA* CObject::build_object() const
 	{
 		const auto result = NEWCREATE<OBJ_DATA>();
 		
@@ -1352,7 +1352,7 @@ namespace craft
 		result->obj_flags.Obj_skill = m_item_params;
 		result->obj_flags.Obj_spell = m_spell;
 		result->obj_flags.Obj_level = m_level;
-		result->obj_flags.Obj_destroyer = 60;	// I don't know why it is constant. But seems like it is the same for all prototypes.
+		result->obj_flags.Obj_destroyer = 60;	// I don't know why it is constant. But seems like it is the same for all objects.
 		result->obj_flags.weight = get_weight();
 		result->set_cost(m_cost);
 		result->set_rent(m_rent_off);
@@ -1400,7 +1400,7 @@ namespace craft
 		return result;
 	}
 
-	bool CPrototype::load_item_parameters(const pugi::xml_node* node)
+	bool CObject::load_item_parameters(const pugi::xml_node* node)
 	{
 		switch (get_type())
 		{
@@ -1412,12 +1412,12 @@ namespace craft
 				{
 					const auto value = ITEM_BY_NAME<EIngredientFlag>(flag);
 					m_item_params |= to_underlying(value);
-					log("Setting ingredient flag '%s' for prototype with VNUM %d.\n",
+					log("Setting ingredient flag '%s' for object with VNUM %d.\n",
 						NAME_BY_ITEM(value).c_str(), m_vnum);
 				}
 				catch (const std::out_of_range&)
 				{
-					log("WARNING: Skipping ingredient flag '%s' of prototype with VNUM %d, because this value is not valid.\n",
+					log("WARNING: Skipping ingredient flag '%s' of object with VNUM %d, because this value is not valid.\n",
 						flag, m_vnum);
 				}
 			}
@@ -1432,7 +1432,7 @@ namespace craft
 			}
 			catch (const std::out_of_range&)
 			{
-				log("WARNING: Failed to set skill value '%s' for prototype with VNUM %d. Prototype will be skipped.\n",
+				log("WARNING: Failed to set skill value '%s' for object with VNUM %d. Object will be skipped.\n",
 					skill_value, m_vnum);
 				return false;
 			}
@@ -1447,63 +1447,63 @@ namespace craft
 		return true;
 	}
 
-	void CPrototype::load_skills(const pugi::xml_node* node)
+	void CObject::load_skills(const pugi::xml_node* node)
 	{
 		CHelper::load_pairs_list<ESkill>(node, "skills", "skill", "id", "value",
-			[&](const size_t number) { log("WARNING: %zd-%s \"skill\" tag of \"skills\" group does not have the \"id\" tag. Prototype with VNUM %d.\n",
+			[&](const size_t number) { log("WARNING: %zd-%s \"skill\" tag of \"skills\" group does not have the \"id\" tag. Object with VNUM %d.\n",
 				number, suffix(number), m_vnum); },
 			[&](const auto value) -> auto { return ITEM_BY_NAME<ESkill>(value); },
-			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to skill ID. Prototype with VNUM %d.\n Skipping entry.\n",
+			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to skill ID. Object with VNUM %d.\n Skipping entry.\n",
 				key, m_vnum); },
-			[&](const auto key) { log("WARNING: skill with key \"%s\" does not have \"value\" tag. Prototype with VNUM %d. Skipping entry.\n",
+			[&](const auto key) { log("WARNING: skill with key \"%s\" does not have \"value\" tag. Object with VNUM %d. Skipping entry.\n",
 				key, m_vnum); },
 			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
 					m_skills.emplace(key, int_value);
-					log("Adding skill pair (%s, %d) to prototype with VNUM %d.\n",
+					log("Adding skill pair (%s, %d) to object with VNUM %d.\n",
 						NAME_BY_ITEM(key).c_str(), int_value, m_vnum);
 				},
-				[&]() { log("WARNIGN: Could not convert skill value of \"value\" tag to integer. Entry key value \"%s\". Prototype with VNUM %d",
+				[&]() { log("WARNIGN: Could not convert skill value of \"value\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
 					NAME_BY_ITEM(key).c_str(), m_vnum); }); });
 	}
 
-	void CPrototype::load_extended_values(const pugi::xml_node* node)
+	void CObject::load_extended_values(const pugi::xml_node* node)
 	{
 		CHelper::load_pairs_list<ObjVal::EValueKey>(node, "extended_values", "entry", "key", "value",
-			[&](const size_t number) { log("WARNING: %zd-%s \"entry\" tag of \"extended_values\" group does not have the \"key\" tag. Prototype with VNUM %d.\n",
+			[&](const size_t number) { log("WARNING: %zd-%s \"entry\" tag of \"extended_values\" group does not have the \"key\" tag. Object with VNUM %d.\n",
 				number, suffix(number), m_vnum); },
 			[&](const auto value) -> auto { return static_cast<ObjVal::EValueKey>(TextId::to_num(TextId::OBJ_VALS, value)); },
-			[&](const auto key) { log("WARNING: Could not convert extended value \"%s\" to key value. Prototype with VNUM %d.\n Skipping entry.\n",
+			[&](const auto key) { log("WARNING: Could not convert extended value \"%s\" to key value. Object with VNUM %d.\n Skipping entry.\n",
 				key, m_vnum); },
-			[&](const auto key) { log("WARNING: entry with key \"%s\" does not have \"value\" tag. Prototype with VNUM %d. Skipping entry.\n",
+			[&](const auto key) { log("WARNING: entry with key \"%s\" does not have \"value\" tag. Object with VNUM %d. Skipping entry.\n",
 				key, m_vnum); },
 			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
 					m_extended_values.set(key, int_value);
-					log("Adding extended values pair (%s, %d) to prototype with VNUM %d.\n",
+					log("Adding extended values pair (%s, %d) to object with VNUM %d.\n",
 						TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), int_value, m_vnum);
 				},
-				[&]() { log("WARNIGN: Could not convert extended value of \"value\" tag to integer. Entry key value \"%s\". Prototype with VNUM %d",
+				[&]() { log("WARNIGN: Could not convert extended value of \"value\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
 					TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), m_vnum); }); });
 	}
 
-	void CPrototype::load_applies(const pugi::xml_node* node)
+	void CObject::load_applies(const pugi::xml_node* node)
 	{
 		CHelper::load_pairs_list<EApplyLocation>(node, "applies", "apply", "location", "modifier",
-			[&](const size_t number) { log("WARNING: %zd-%s \"apply\" tag of \"applies\" group does not have the \"location\" tag. Prototype with VNUM %d.\n",
+			[&](const size_t number) { log("WARNING: %zd-%s \"apply\" tag of \"applies\" group does not have the \"location\" tag. Object with VNUM %d.\n",
 				number, suffix(number), m_vnum); },
 			[&](const auto value) -> auto { return ITEM_BY_NAME<EApplyLocation>(value); },
-			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to apply location. Prototype with VNUM %d.\n Skipping entry.\n",
+			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to apply location. Object with VNUM %d.\n Skipping entry.\n",
 				key, m_vnum); },
-			[&](const auto key) { log("WARNING: apply with key \"%s\" does not have \"modifier\" tag. Prototype with VNUM %d. Skipping entry.\n",
+			[&](const auto key) { log("WARNING: apply with key \"%s\" does not have \"modifier\" tag. Object with VNUM %d. Skipping entry.\n",
 				key, m_vnum); },
 			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
 					m_applies.push_back(decltype(m_applies)::value_type(key, int_value));
-					log("Adding apply pair (%s, %d) to prototype with VNUM %d.\n",
+					log("Adding apply pair (%s, %d) to object with VNUM %d.\n",
 						NAME_BY_ITEM(key).c_str(), int_value, m_vnum);
 				},
-				[&]() { log("WARNIGN: Could not convert apply value of \"modifier\" tag to integer. Entry key value \"%s\". Prototype with VNUM %d",
+				[&]() { log("WARNIGN: Could not convert apply value of \"modifier\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
 					NAME_BY_ITEM(key).c_str(), m_vnum); }); });
 		if (m_applies.size() > MAX_OBJ_AFFECT)
 		{
@@ -1517,12 +1517,12 @@ namespace craft
 				first = false;
 			}
 
-			log("WARNING: prototype with VNUM %d has applies over limit %d. The following applies is ignored: { %s }.\n",
+			log("WARNING: Object with VNUM %d has applies over the limit of %d. The following applies is ignored: { %s }.\n",
 				m_vnum, MAX_OBJ_AFFECT, ignored_applies.str().c_str());
 		}
 	}
 
-	bool CPrototype::check_prototype_consistency() const
+	bool CObject::check_object_consistency() const
 	{
 		// perform some checks here.
 
@@ -1750,36 +1750,47 @@ namespace craft
 				[&]() { log("WARNING: \"skills_bonus\" tag has wrong integer value. Leaving default value %d.\n", m_remorts_bonus); });
 		}
 
-		// TODO: load remaining properties.
-
-		// Load materials.
-		const auto materials = model.child("materials");
-		if (materials)
+		// Load VNUM ranges allocated for craft system
+		if (!load_vnum_ranges(&model))
 		{
-			size_t number = 0;
-			for (const auto material: materials.children("material"))
-			{
-				load_material(&material, ++number);
-			}
+			return false;
 		}
 
-		// Load recipes.
-		// TODO: load it.
+		// TODO: load remaining properties.
 
-		// Load skills.
-		// TODO: load it.
-
-		// Load crafts.
-		// TODO: load it.
-
-		// Load prototypes
-		const auto prototypes = model.child("prototypes");
-		if (prototypes)
+		load_from_node(&model);
+		for (const auto include : model.children("include"))
 		{
-			size_t number = 0;
-			for (const auto prototype : prototypes.children("prototype"))
+			const auto filename_attribute = include.attribute("filename");
+			if (!filename_attribute.empty())
 			{
-				load_prototype(&prototype, ++number);
+				using boost::filesystem::path;
+				const std::string filename = (path(FILE_NAME).parent_path() / filename_attribute.value()).generic_string();
+				pugi::xml_document idoc;
+				const auto iresult = idoc.load_file(filename.c_str());
+				if (!iresult)
+				{
+					log("WARNING: could not load include file '%s' with model data: '%s' "
+						"at offset %zu. Model data from this file will be skipped.\n",
+						filename.c_str(),
+						iresult.description(),
+						iresult.offset);
+					continue;
+				}
+
+				const auto model_data = idoc.child("model_data");
+				if (!model_data)
+				{
+					log("WARNING: External file '%s' does not contain \"model_data\" tag. This file will be skipped.\n",
+						filename.c_str());
+					continue;
+				}
+
+				log("Begin loading included file %s.\n", filename.c_str());
+				CLogger::CPrefix include_prefix(log, BODY_PREFIX);
+				load_from_node(&model_data);
+				include_prefix.change_prefix(END_PREFIX);
+				log("End of loading included file.\n");
 			}
 		}
 
@@ -1823,6 +1834,14 @@ namespace craft
 				number, suffix(number));
 		}
 
+		// Check VNum before loading: we shouldn't tell about loading errors if we won't add this prototype in any case.
+		const auto check_vnum_result = check_vnum(vnum);
+		if (EAVNR_OK != check_vnum_result)
+		{
+			report_vnum_error(vnum, check_vnum_result);
+			return false;
+		}
+
 		CPrototype p(vnum);
 		if (prototype->attribute("filename").empty())
 		{
@@ -1836,7 +1855,7 @@ namespace craft
 		else
 		{
 			using boost::filesystem::path;
-			const std::string filename = (path(FILE_NAME).parent_path() / prototype->attribute("filename").value()).string();
+			const std::string filename = (path(FILE_NAME).parent_path() / prototype->attribute("filename").value()).generic_string();
 			pugi::xml_document pdoc;
 			const auto presult = pdoc.load_file(filename.c_str());
 			if (!presult)
@@ -1873,7 +1892,16 @@ namespace craft
 			}
 		}
 
-		m_prototypes.push_back(p);
+		const auto add_vnum_result = add_vnum(p.vnum());
+		if (EAVNR_OK == add_vnum_result)
+		{
+			m_prototypes.push_back(p);
+		}
+		else
+		{
+			report_vnum_error(p.vnum(), add_vnum_result);
+			return false;
+		}
 
 		return true;
 	}
@@ -1899,7 +1927,7 @@ namespace craft
 		else
 		{
 			using boost::filesystem::path;
-			const std::string filename = (path(FILE_NAME).parent_path() / material->attribute("filename").value()).string();
+			const std::string filename = (path(FILE_NAME).parent_path() / material->attribute("filename").value()).generic_string();
 			pugi::xml_document mdoc;
 			const auto mresult = mdoc.load_file(filename.c_str());
 			if (!mresult)
@@ -1935,6 +1963,170 @@ namespace craft
 		return true;
 	}
 
+	bool CCraftModel::load_from_node(const pugi::xml_node* model)
+	{
+		// Load materials.
+		const auto materials = model->child("materials");
+		if (materials)
+		{
+			size_t number = 0;
+			for (const auto material : materials.children("material"))
+			{
+				load_material(&material, ++number);
+			}
+		}
+
+		// Load recipes.
+		// TODO: load it.
+
+		// Load skills.
+		// TODO: load it.
+
+		// Load crafts.
+		// TODO: load it.
+
+		// Load prototypes
+		const auto prototypes = model->child("prototypes");
+		if (prototypes)
+		{
+			size_t number = 0;
+			for (const auto prototype : prototypes.children("prototype"))
+			{
+				load_prototype(&prototype, ++number);
+			}
+		}
+
+		return true;
+	}
+
+	bool CCraftModel::load_vnum_ranges(const pugi::xml_node* node)
+	{
+		const auto vnums = node->child("vnums");
+		if (!vnums)
+		{
+			log("ERROR: Required attribute \"vnums\" for craft system is missing in the configuration file.\n");
+			return false;
+		}
+
+		size_t number = 0;
+		bool vnums_ok = false;
+		for (const auto range : vnums.children("range"))
+		{
+			++number;
+			try
+			{
+				const auto min_node = range.child("min");
+				if (!min_node)
+				{
+					log("WARNING: Required attribute \"min\" for VNum range is missing. Range will be ignored.\n");
+					continue;
+				}
+				obj_vnum min = 0;
+				CHelper::load_integer(min_node.child_value(), min,
+					[&]() {
+					log("WARNING: \"min\" tag of %d-%s range has wrong integer value. Range will be ignored.\n",
+						number, suffix(number));
+					throw std::runtime_error("tag \"min\" has wrong integer value");
+				});
+
+				const auto max_node = range.child("max");
+				if (!max_node)
+				{
+					log("WARNING: Required attribute \"max\" for VNum range is missing. Range will be ignored.\n");
+					continue;
+				}
+				obj_vnum max = 0;
+				CHelper::load_integer(max_node.child_value(), max,
+					[&]() {
+					log("WARNING: \"max\" tag of %d-%s range has wrong integer value. Range will be ignored.\n",
+						number, suffix(number));
+					throw std::runtime_error("tag \"max\" has wrong integer value");
+				});
+
+				if (min > max)
+				{
+					log("WARNING: Minimal value of %d-%s range is above than maximal value. Values will be swapped.\n",
+						number, suffix(number));
+					std::swap(min, max);
+				}
+
+				CVNumRange r(min, max);
+				m_allowed_vnums.insert(r);
+				vnums_ok = true;
+			}
+			catch (...)
+			{
+				continue;
+			}
+		}
+
+		if (!vnums_ok)
+		{
+			log("ERROR: No any VNum ranges has been allowed for craft system.\n");
+			return false;
+		}
+
+		return true;
+	}
+
+	craft::CCraftModel::EAddVNumResult CCraftModel::check_vnum(const obj_vnum vnum) const
+	{
+		const bool exists = m_existing_vnums.find(vnum) != m_existing_vnums.end();
+		if (exists)
+		{
+			return EAVNR_ALREADY_EXISTS;
+		}
+
+		auto right = m_allowed_vnums.upper_bound(CVNumRange(vnum, 0));	// Here does not matter a value of the second argument
+		decltype(m_allowed_vnums)::reverse_iterator p(right);	// going opposite direction
+		while (p != m_allowed_vnums.rend())
+		{
+			if (p->max() >= vnum)
+			{
+				return EAVNR_OK;
+			}
+			++p;
+		}
+
+		return EAVNR_OUT_OF_RANGE;
+	}
+
+	CCraftModel::EAddVNumResult CCraftModel::add_vnum(const obj_vnum vnum)
+	{
+		const auto result = check_vnum(vnum);
+		if (EAVNR_OK == result)
+		{
+			m_existing_vnums.insert(vnum);
+		}
+		return result;
+	}
+
+
+	void CCraftModel::report_vnum_error(const obj_vnum vnum, const EAddVNumResult add_vnum_result)
+	{
+		std::string reason;
+		switch (add_vnum_result)
+		{
+		case EAVNR_ALREADY_EXISTS:
+			reason = "VNUM already exists in the model";
+			break;
+
+		case EAVNR_OUT_OF_RANGE:
+			reason = "VNUM is out of range";
+			break;
+
+		default:
+			{
+				std::stringstream ss;
+				ss << "<unexpected error " << add_vnum_result << ">";
+				reason = ss.str();
+			}
+			break;
+		}
+		log("WARNING: Entity with VNUM %d has not been added into craft model because %s.\n",
+			vnum, reason.c_str());
+	}
+
 	bool CCraftModel::export_object(const obj_vnum vnum, const char* filename)
 	{
 		const auto rnum = obj_proto.rnum(vnum);
@@ -1946,8 +2138,8 @@ namespace craft
 
 		const auto object = obj_proto[rnum];
 		pugi::xml_document document;
-		pugi::xml_node root = document.append_child("prototype");
-		CPrototype prototype(vnum);
+		pugi::xml_node root = document.append_child("object");
+		CObject prototype(vnum);
 		prototype.load_from_object(object);
 
 		if (!prototype.save_to_node(&root))
@@ -1963,6 +2155,8 @@ namespace craft
 		return document.save_file(filename);
 	}
 
+	const std::string CObject::KIND = "simple object";
+	const std::string CPrototype::KIND = "prototype";
 }
 
 /* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/

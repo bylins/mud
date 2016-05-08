@@ -323,6 +323,8 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 
+set(CRAFT_TAILORING_FILES
+	lib.template/misc/craft/tailoring/index.xml)
 set(CRAFT_GENERAL_FILES
     lib.template/misc/craft/index.xml)
 set(CRAFT_MATERIAL_FILES
@@ -337,11 +339,12 @@ set(CRAFT_TEMPLATE_FILES
 set(CRAFT_PROTOTYPES)
 
 source_group("Misc\\Craft" FILES ${CRAFT_GENERAL_FILES})
+source_group("Misc\\Craft\\Includes\\Tailoring" FILES ${CRAFT_TAILORING_FILES})
 source_group("Misc\\Craft\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
 source_group("Misc\\Craft\\Materials" FILES ${CRAFT_MATERIAL_FILES})
 source_group("Misc\\Craft\\Crafts" FILES ${CRAFT_CRAFT_FILES})
 
-set(CRAFT_FILES ${CRAFT_GENERAL_FILES} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES} ${CRAFT_TEMPLATE_FILES})
+set(CRAFT_FILES ${CRAFT_GENERAL_FILES} ${CRAFT_TAILORING_FILES} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES} ${CRAFT_TEMPLATE_FILES})
 
 set(MISC_FILES
     lib.template/misc/noob_help.xml
