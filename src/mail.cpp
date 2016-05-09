@@ -530,7 +530,7 @@ bool check_poster_cnt(CHAR_DATA* ch)
 	return true;
 }
 
-void add(int to_uid, int from_uid, char* message)
+void add(int to_uid, int from_uid, const char* message)
 {
 	if (to_uid < 0 || !message || !*message)
 	{
@@ -602,20 +602,20 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 	for(auto i = rng.first; i != rng.second; ++i)
 	{
 		OBJ_DATA *obj = create_obj();
-		obj->aliases = str_dup("mail paper letter письмо почта бумага");
-		obj->short_description = str_dup("письмо");
-		obj->description = str_dup("Кто-то забыл здесь свое письмо.");
-		obj->PNames[0] = str_dup("письмо");
-		obj->PNames[1] = str_dup("письма");
-		obj->PNames[2] = str_dup("письма");
-		obj->PNames[3] = str_dup("письмо");
-		obj->PNames[4] = str_dup("письмом");
-		obj->PNames[5] = str_dup("письме");
+		obj->set_aliases("mail paper letter письмо почта бумага");
+		obj->set_short_description("письмо");
+		obj->set_description("Кто-то забыл здесь свое письмо.");
+		obj->set_PName(0, "письмо");
+		obj->set_PName(1, "письма");
+		obj->set_PName(2, "письма");
+		obj->set_PName(3, "письмо");
+		obj->set_PName(4, "письмом");
+		obj->set_PName(5, "письме");
 
-		GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_NOTE;
-		GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD);
-		GET_OBJ_WEIGHT(obj) = 1;
-		GET_OBJ_MATER(obj) = obj_flag_data::MAT_PAPER;
+		obj->set_type(obj_flag_data::ITEM_NOTE);
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD));
+		obj->set_weight(1);
+		obj->set_material(obj_flag_data::MAT_PAPER);
 		obj->set_cost(0);
 		obj->set_rent(10);
 		obj->set_rent_eq(10);
@@ -635,7 +635,7 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 
 		std::string text = coder::base64_decode(i->second.text);
 		boost::trim_if(text, ::isspace);
-		obj->action_description = str_dup((buf_ + text + "\r\n\r\n").c_str());
+		obj->set_action_description(buf_ + text + "\r\n\r\n");
 
 		obj_to_char(obj, ch);
 		act("$n дал$g вам письмо.", FALSE, mailman, 0, ch, TO_VICT);

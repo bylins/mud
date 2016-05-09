@@ -4657,7 +4657,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 	if (obj == NULL)
 		return 0;
 
-	if (obj->get_extraflag(EExtraFlag::ITEM_NOALTER))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_NOALTER))
 	{
 		act("$o устойчив$A к вашей магии.", TRUE, ch, obj, 0, TO_CHAR);
 		return 0;
@@ -4666,10 +4666,10 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 	switch (spellnum)
 	{
 	case SPELL_BLESS:
-		if (!obj->get_extraflag(EExtraFlag::ITEM_BLESS) && (GET_OBJ_WEIGHT(obj) <= 5 * GET_LEVEL(ch)))
+		if (!obj->get_extra_flag(EExtraFlag::ITEM_BLESS) && (GET_OBJ_WEIGHT(obj) <= 5 * GET_LEVEL(ch)))
 		{
 			obj->set_extraflag(EExtraFlag::ITEM_BLESS);
-			if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
+			if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 			{
 				obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
 				if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
@@ -4684,7 +4684,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		}
 		break;
 	case SPELL_CURSE:
-		if (!obj->get_extraflag(EExtraFlag::ITEM_NODROP))
+		if (!obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 		{
 			obj->set_extraflag(EExtraFlag::ITEM_NODROP);
 			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
@@ -4703,8 +4703,8 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		}
 		break;
 	case SPELL_INVISIBLE:
-		if (!obj->get_extraflag(EExtraFlag::ITEM_NOINVIS)
-				&& !obj->get_extraflag(EExtraFlag::ITEM_INVISIBLE))
+		if (!obj->get_extra_flag(EExtraFlag::ITEM_NOINVIS)
+				&& !obj->get_extra_flag(EExtraFlag::ITEM_INVISIBLE))
 		{
 			obj->set_extraflag(EExtraFlag::ITEM_INVISIBLE);
 			to_char = "$o растворил$U в пустоте.";
@@ -4722,7 +4722,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		break;
 
 	case SPELL_REMOVE_CURSE:
-		if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
+		if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 		{
 			obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
 			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)

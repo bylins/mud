@@ -75,8 +75,8 @@ int get_filename(const char *orig_name, char *filename, int mode);
 TIME_INFO_DATA *age(CHAR_DATA * ch);
 int num_pc_in_room(ROOM_DATA * room);
 void core_dump_real(const char *, int);
-int replace_str(char **string, char *pattern, char *replacement, int rep_all, int max_size);
-void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, size_t maxlen);
+int replace_str(const std::shared_ptr<CCommonStringWriter>& writer, char *pattern, char *replacement, int rep_all, int max_size);
+void format_text(const std::shared_ptr<CCommonStringWriter>& writer, int mode, DESCRIPTOR_DATA * d, size_t maxlen);
 int check_moves(CHAR_DATA * ch, int how_moves);
 void to_koi(char *str, int from);
 void from_koi(char *str, int to);
@@ -450,7 +450,7 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define ROOM_AFFECTED(loc, flag) (ROOM_AFF_FLAGS((world[(loc)])).get(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
-#define OBJWEAR_FLAGGED(obj, flag)   (IS_SET((obj)->obj_flags.wear_flags, (flag)))
+#define OBJWEAR_FLAGGED(obj, flag)   (obj->get_wear_flags(flag))
 #define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 
@@ -687,7 +687,7 @@ inline T VPOSI(const T val, const T min, const T max)
 
 #define GET_POS(ch)        ((ch)->char_specials.position)
 #define GET_IDNUM(ch)     ((ch)->get_idnum())
-#define GET_ID(x)         ((x)->id)
+#define GET_ID(x)         ((x)->get_id())
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
 
@@ -885,12 +885,12 @@ inline T VPOSI(const T val, const T min, const T max)
                           IS_FEMALE(ch) ? "ая" : "ие")
 
 
-#define GET_OBJ_SEX(obj) ((obj)->obj_flags.Obj_sex)
+#define GET_OBJ_SEX(obj) ((obj)->sex())
 #define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_NEUTRAL)
 #define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
 #define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
 
-#define GET_OBJ_MIW(obj) ((obj)->max_in_world)
+#define GET_OBJ_MIW(obj) ((obj)->get_max_in_world())
 
 #define GET_OBJ_SUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
                             IS_OBJ_MALE(obj) ? ""  :\
@@ -978,67 +978,45 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_OBJ_UID(obj)	((obj)->uid)
 
 #define GET_OBJ_ALIAS(obj)      ((obj)->aliases)
-#define GET_OBJ_PNAME(obj,pad)  ((obj)->PNames[pad])
+#define GET_OBJ_PNAME(obj,pad)  ((obj)->get_PName(pad))
 #define GET_OBJ_DESC(obj)       ((obj)->description)
 #define GET_OBJ_SPELL(obj)      ((obj)->obj_flags.Obj_spell)
 #define GET_OBJ_LEVEL(obj)      ((obj)->obj_flags.Obj_level)
 #define GET_OBJ_AFFECTS(obj)    ((obj)->obj_flags.affects)
 #define GET_OBJ_ANTI(obj)       ((obj)->obj_flags.anti_flag)
 #define GET_OBJ_NO(obj)         ((obj)->obj_flags.no_flag)
-#define GET_OBJ_ACT(obj)        ((obj)->action_description)
+#define GET_OBJ_ACT(obj)        ((obj)->get_action_description())
 #define GET_OBJ_POS(obj)        ((obj)->obj_flags.worn_on)
-#define GET_OBJ_TYPE(obj)       ((obj)->obj_flags.type_flag)
+#define GET_OBJ_TYPE(obj)       ((obj)->get_type())
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent())
 #define GET_OBJ_RENTEQ(obj)     ((obj)->get_rent_eq())
 #define GET_OBJ_EXTRA(obj)  ((obj)->obj_flags.extra_flags)
 #define GET_OBJ_WEAR(obj)  ((obj)->obj_flags.wear_flags)
 #define GET_OBJ_OWNER(obj)      ((obj)->obj_flags.Obj_owner)
-#define GET_OBJ_MAKER(obj)      ((obj)->obj_flags.Obj_maker)
-#define GET_OBJ_PARENT(obj)      ((obj)->obj_flags.Obj_parent)
+#define GET_OBJ_MAKER(obj)      ((obj)->get_crafter_uid())
+#define GET_OBJ_PARENT(obj)      ((obj)->get_parent())
 #define GET_OBJ_RENAME(obj)      ((obj)->obj_flags.Obj_is_rename)
 #define GET_OBJ_CRAFTIMER(obj)      ((obj)->obj_flags.craft_timer)
-#define GET_OBJ_VAL(obj, val) ((obj)->obj_flags.value[(val)])
-#define GET_OBJ_WEIGHT(obj)   ((obj)->obj_flags.weight)
+#define GET_OBJ_VAL(obj, val) ((obj)->get_val((val)))
+#define GET_OBJ_WEIGHT(obj)   ((obj)->get_weight())
 #define GET_OBJ_DESTROY(obj) ((obj)->obj_flags.Obj_destroyer)
-#define GET_OBJ_SKILL(obj) ((obj)->obj_flags.Obj_skill)
+#define GET_OBJ_SKILL(obj) ((obj)->get_skill())
 #define GET_OBJ_CUR(obj)    ((obj)->obj_flags.Obj_cur)
 #define GET_OBJ_MAX(obj)    ((obj)->obj_flags.Obj_max)
-#define GET_OBJ_MATER(obj)  ((obj)->obj_flags.Obj_mater)
-#define GET_OBJ_ZONE(obj)   ((obj)->obj_flags.Obj_zone)
-#define GET_OBJ_RNUM(obj)  ((obj)->item_number)
-#define OBJ_GET_LASTROOM(obj) ((obj)->room_was_in)
-#define OBJ_WHERE(obj) ((obj)->worn_by    ? IN_ROOM(obj->worn_by) : \
-                        (obj)->carried_by ? IN_ROOM(obj->carried_by) : (obj)->in_room)
-#define IS_OBJ_ANTI(obj,stat) ((obj)->obj_flags.anti_flag.get(stat))
-#define IS_OBJ_NO(obj,stat)       ((obj)->obj_flags.no_flag.get(stat))
-#define IS_OBJ_AFF(obj,stat)    (obj->obj_flags.affects.get(stat))
+#define GET_OBJ_MATER(obj)  ((obj)->get_material())
+#define GET_OBJ_ZONE(obj)   ((obj)->get_zone())
+#define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
+#define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
+#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? IN_ROOM(obj->get_worn_by()) : \
+                        (obj)->get_carried_by() ? IN_ROOM(obj->get_carried_by()) : (obj)->get_in_room())
+#define IS_OBJ_ANTI(obj,stat) ((obj)->get_anti_flag(stat))
+#define IS_OBJ_NO(obj,stat) ((obj)->get_no_flag(stat))
+#define IS_OBJ_AFF(obj,stat) (obj->get_affect(stat))
 
 #define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER && \
                GET_OBJ_VAL((obj), 3) == 1)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
-
-// проверяет arg на совпадение с персональными или клановыми метками
-// чармис автора меток их тоже может использовать
-#define CHECK_CUSTOM_LABEL(arg, obj, ch) (                                                          \
-	(obj)->custom_label && (obj)->custom_label->label_text                                      \
-	&&                                                                                          \
-	(                                                                                           \
-	IS_NPC(ch) ?                                                                                \
-	( (IS_CHARMICE(ch) && (ch)->master) ? CHECK_CUSTOM_LABEL_CORE(obj, ch->master) : 0 )        \
-	:                                                                                           \
-	CHECK_CUSTOM_LABEL_CORE(obj, ch)                                                            \
-	)                                                                                           \
-	&&                                                                                          \
-	isname((arg), (obj)->custom_label->label_text) )
-
-#define CHECK_CUSTOM_LABEL_CORE(obj, ch) (                                                             \
-	((obj)->custom_label->author == (ch)->get_idnum() && !((obj)->custom_label->clan)) ||          \
-	IS_IMPL(ch) ||                                                                                 \
-	( (ch)->player_specials->clan && (obj)->custom_label->clan != NULL &&                          \
-	  !strcmp((obj)->custom_label->clan, (ch)->player_specials->clan->GetAbbrev()) ) ||            \
-	((obj)->custom_label->author_mail && !strcmp(GET_EMAIL(ch), (obj)->custom_label->author_mail)) \
-	)
 
 // видит ли ch метки obj
 #define AUTH_CUSTOM_LABEL(obj, ch) (                                                                \

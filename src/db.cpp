@@ -484,9 +484,9 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 		return false;
 	// проходим по всем характеристикам предмета
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (obj->affected[i].modifier)
+		if (obj->get_affected(i).modifier)
 		{
-			sprinttype(obj->affected[i].location, apply_types, buf_temp);
+			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
 			// проходим по нашей таблице с критериями
 			for(std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++) 
 			{
@@ -494,27 +494,27 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 			if (strcmp(it->first.c_str(), buf_temp) == 0)
 			{	
 				
-			    if (obj->affected[i].modifier > 0)
+			    if (obj->get_affected(i).modifier > 0)
 			    {
-					sum += it->second * obj->affected[i].modifier; 					
+					sum += it->second * obj->get_affected(i).modifier;
 			    }
 			}
 				
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 		}	
-	obj->obj_flags.affects.sprintbits(weapon_affects, buf_temp1, ",");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
 	
 	// проходим по всем аффектам в нашей таблице
 	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
-			{
-				// проверяем, есть ли наш аффект на предмете
-				if (strstr(buf_temp1, it->first.c_str()) != NULL)
-				{
-					sum_aff += it->second;
-				}
-				//std::cout << it->first << " " << it->second << std::endl;
-			}
+	{
+		// проверяем, есть ли наш аффект на предмете
+		if (strstr(buf_temp1, it->first.c_str()) != NULL)
+		{
+			sum_aff += it->second;
+		}
+		//std::cout << it->first << " " << it->second << std::endl;
+	}
 	// если сумма больше или равна единице
 	if (sum >= 1)
 		return false;
@@ -536,38 +536,40 @@ float count_koef_obj(OBJ_DATA *obj,int item_wear)
 
 	// проходим по всем характеристикам предмета
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (obj->affected[i].modifier)
+	{
+		if (obj->get_affected(i).modifier)
 		{
-			sprinttype(obj->affected[i].location, apply_types, buf_temp);
+			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
 			// проходим по нашей таблице с критериями
-			for(std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++) 
+			for (std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++)
 			{
-			
-			if (strcmp(it->first.c_str(), buf_temp) == 0)
-			{	
-			    if (obj->affected[i].modifier > 0)
-			    {
-					sum += it->second * obj->affected[i].modifier; 					
-			    }
-			}
-				
+
+				if (strcmp(it->first.c_str(), buf_temp) == 0)
+				{
+					if (obj->get_affected(i).modifier > 0)
+					{
+						sum += it->second * obj->get_affected(i).modifier;
+					}
+				}
+
 				//std::cout << it->first << " " << it->second << std::endl;
 			}
 		}
-	obj->obj_flags.affects.sprintbits(weapon_affects, buf_temp1, ",");
+	}
+	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
 	
 	// проходим по всем аффектам в нашей таблице
 	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
-			{
-				// проверяем, есть ли наш аффект на предмете
-				if (strstr(buf_temp1, it->first.c_str()) != NULL)
-				{
-					sum_aff += it->second;
-				}
-				//std::cout << it->first << " " << it->second << std::endl;
-			}
-	sum += sum_aff;	
-  return sum;
+	{
+		// проверяем, есть ли наш аффект на предмете
+		if (strstr(buf_temp1, it->first.c_str()) != NULL)
+		{
+			sum_aff += it->second;
+		}
+		//std::cout << it->first << " " << it->second << std::endl;
+	}
+	sum += sum_aff;
+	return sum;
 }
 
 float count_unlimited_timer(OBJ_DATA *obj)
@@ -688,24 +690,25 @@ float count_remort_requred(OBJ_DATA *obj)
 	// аффекты APPLY_x
 	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
 	{
-		if (obj->affected[k].location == 0) continue;
+		if (obj->get_affected(k).location == 0) continue;
 
 		// случай, если один аффект прописан в нескольких полях
 		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
 		{
-			if (obj->affected[k].location == obj->affected[kk].location
+			if (obj->get_affected(k).location == obj->get_affected(kk).location
 				&& k != kk)
 			{
 				log("SYSERROR: double affect=%d, obj_vnum=%d",
-					obj->affected[k].location, GET_OBJ_VNUM(obj));
+					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
 				return 1000000;
 			}
 		}
-		if (obj->affected[k].modifier < 0) continue;
-		float weight = ObjSystem::count_affect_weight(obj, obj->affected[k].location,
-			obj->affected[k].modifier);
+		if (obj->get_affected(k).modifier < 0)
+		{
+			continue;
+		}
+		float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 		total_weight += pow(weight, SQRT_MOD);
-		
 	}
 	// аффекты AFF_x через weapon_affect
 	for (const auto& m : weapon_affect)
@@ -1202,7 +1205,7 @@ int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 			GET_OBJ_PNAME(obj, 0), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
 		// из обж-скилл их не перекрывает, а просто удаляется
-		if (obj->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0)
+		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0)
 		{
 			OBJ_DATA *potion = read_object(GET_OBJ_SKILL(obj), VIRTUAL);
 			if (potion
@@ -1214,11 +1217,12 @@ int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 					// copy_potion_values сетит до кучи и внум из пошена,
 					// поэтому уточним здесь, что зелье не перелито
 					// емкости из read_one_object_new идут как перелитые
-					obj->values.set(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
+					obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
 				}
 			}
 		}
-		GET_OBJ_SKILL(obj) = SKILL_INVALID;
+		obj->set_skill(SKILL_INVALID);
+
 		return 1;
 	}
 	return 0;
@@ -3976,39 +3980,27 @@ void parse_enhanced_mob(FILE * mob_f, int i, int nr)
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 {
 	// ищем метку @p , @p1 ... и заменяем на падежи.
-	string obj_pad;
-	char *ptr;
 	int i, k;
 	for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 	{
-		obj_pad = string(GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i));
+		std::string obj_pad = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
 		size_t j = obj_pad.find("@p");
 		if (std::string::npos != j && 0 < j)
 		{
 			// Родитель найден прописываем его.
-			ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
-			if (GET_OBJ_PNAME(obj, i) != ptr)
-			{
-				free(GET_OBJ_PNAME(obj, i));
-			}
-
 			k = atoi(obj_pad.substr(j + 2, j + 3).c_str());
 			obj_pad.replace(j, 3, GET_PAD(ch, k));
 
-			GET_OBJ_PNAME(obj, i) = str_dup(obj_pad.c_str());
+			obj->set_PName(i, obj_pad);
 			// Если имя в именительном то дублируем запись
 			if (i == 0)
 			{
-//				obj->short_description = str_dup(obj_pad.c_str());
-				ptr = obj_proto[GET_OBJ_RNUM(obj)]->short_description;
-				if (obj->short_description != ptr)
-					free(obj->short_description);
-				obj->short_description = str_dup(obj_pad.c_str());
-				obj->aliases = str_dup(obj_pad.c_str()); // ставим алиасы
+				obj->set_short_description(obj_pad);
+				obj->set_aliases(obj_pad); // ставим алиасы
 			}
 		}
 	};
-	obj->obj_flags.Obj_is_rename = true; // присвоим флажок что у шмотки заменены падежи
+	obj->set_is_rename(true); // присвоим флажок что у шмотки заменены падежи
 	return (TRUE);
 }
 
@@ -4114,8 +4106,8 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 				}
 				if (load)
 				{
-					GET_OBJ_ZONE(tobj) = world[IN_ROOM(ch)]->zone;
-					GET_OBJ_PARENT(tobj) = GET_MOB_VNUM(ch);
+					tobj->set_zone(world[IN_ROOM(ch)]->zone);
+					tobj->set_parent(GET_MOB_VNUM(ch));
 					if (DL_LOAD_TYPE == DL_SKIN)
 					{
 						trans_obj_name(tobj, ch);
@@ -4128,10 +4120,14 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 					}
 					else
 					{
-						if ((DL_LOAD_TYPE == DL_SKIN) && (corpse->carried_by == chr))
+						if ((DL_LOAD_TYPE == DL_SKIN) && (corpse->get_carried_by() == chr))
+						{
 							can_carry_obj(chr, tobj);
+						}
 						else
+						{
 							obj_to_obj(tobj, corpse);
+						}
 					}
 				}
 				else
@@ -4315,43 +4311,47 @@ char *parse_object(FILE * obj_f, const int nr)
 	OBJ_DATA *tobj;
 	NEWCREATE(tobj);
 
-	tobj->item_number = i;
+	tobj->set_rnum(i);
 
 	// *** Add some initialization fields
-	tobj->obj_flags.Obj_max = obj_flag_data::DEFAULT_MAXIMUM_DURABILITY;
-	tobj->obj_flags.Obj_cur = obj_flag_data::DEFAULT_CURRENT_DURABILITY;
-	tobj->obj_flags.Obj_sex = DEFAULT_SEX;
+	tobj->set_maximum(obj_flag_data::DEFAULT_MAXIMUM_DURABILITY);
+	tobj->set_current(obj_flag_data::DEFAULT_CURRENT_DURABILITY);
+	tobj->set_sex(DEFAULT_SEX);
 	tobj->set_timer(OBJ_DATA::DEFAULT_TIMER);
-	tobj->obj_flags.Obj_level = 1;
-	tobj->obj_flags.Obj_destroyer = 60;
+	tobj->set_level(1);
+	tobj->set_destroyer(60);
 
 	sprintf(buf2, "object #%d", nr);
 
 	// *** string data ***
-	if ((tobj->aliases = fread_string(obj_f, buf2)) == NULL)
+	const char* aliases = fread_string(obj_f, buf2);
+	if (aliases == nullptr)
 	{
 		log("SYSERR: Null obj name or format error at or near %s", buf2);
 		exit(1);
 	}
-	tmpptr = tobj->short_description = fread_string(obj_f, buf2);
-	*tobj->short_description = LOWER(*tobj->short_description);
-	CREATE(tobj->PNames[0], strlen(tobj->short_description) + 1);
-	strcpy(tobj->PNames[0], tobj->short_description);
+	tobj->set_aliases(aliases);
+	tmpptr = fread_string(obj_f, buf2);
+	*tmpptr = LOWER(*tmpptr);
+	tobj->set_short_description(tmpptr);
+
+	tobj->set_PName(0, tobj->get_short_description());
 
 	for (j = 1; j < OBJ_DATA::NUM_PADS; j++)
 	{
-		tobj->PNames[j] = fread_string(obj_f, buf2);
-		*tobj->PNames[j] = LOWER(*tobj->PNames[j]);
+		char* str = fread_string(obj_f, buf2);
+		*str = LOWER(*str);
+		tobj->set_PName(j, str);
 	}
 
+	tmpptr = fread_string(obj_f, buf2);
 	if (tmpptr && *tmpptr)
-		if (!str_cmp(fname(tmpptr), "a") || !str_cmp(fname(tmpptr), "an") || !str_cmp(fname(tmpptr), "the"))
-			*tmpptr = LOWER(*tmpptr);
-
-	tmpptr = tobj->description = fread_string(obj_f, buf2);
-	if (tmpptr && *tmpptr)
+	{
 		CAP(tmpptr);
-	tobj->action_description = fread_string(obj_f, buf2);
+	}
+	tobj->set_description(tmpptr);
+
+	tobj->set_action_description(fread_string(obj_f, buf2));
 
 	if (!get_line(obj_f, line))
 	{
@@ -4363,13 +4363,19 @@ char *parse_object(FILE * obj_f, const int nr)
 		log("SYSERR: Format error in *1th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	asciiflag_conv(f0, &tobj->obj_flags.Obj_skill);
-	tobj->obj_flags.Obj_max = t[1];
-	tobj->obj_flags.Obj_cur = MIN(t[1], t[2]);
-	tobj->obj_flags.Obj_mater = static_cast<obj_flag_data::EObjectMaterial>(t[3]);
+
+	int skill = 0;
+	asciiflag_conv(f0, &skill);
+	tobj->set_skill(skill);
+
+	tobj->set_maximum(t[1]);
+	tobj->set_current(MIN(t[1], t[2]));
+	tobj->set_material(static_cast<obj_flag_data::EObjectMaterial>(t[3]));
 	
-	if ( tobj->obj_flags.Obj_cur > tobj->obj_flags.Obj_max)
+	if (tobj->get_current() > tobj->get_maximum())
+	{
 		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", nr);
+	}
 	if (!get_line(obj_f, line))
 	{
 		log("SYSERR: Expecting *2th* numeric line of %s, but file ended!", buf2);
@@ -4380,7 +4386,7 @@ char *parse_object(FILE * obj_f, const int nr)
 		log("SYSERR: Format error in *2th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	tobj->obj_flags.Obj_sex = static_cast<ESex>(t[0]);
+	tobj->set_sex(static_cast<ESex>(t[0]));
 	int timer = t[1] > 0 ? t[1] : OBJ_DATA::SEVEN_DAYS;
 	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
 	// не должно быть
@@ -4390,8 +4396,8 @@ char *parse_object(FILE * obj_f, const int nr)
 		tobj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);
 	}
 	tobj->set_timer(timer);
-	tobj->obj_flags.Obj_spell = t[2];
-	tobj->obj_flags.Obj_level = t[3];
+	tobj->set_spell(t[2]);
+	tobj->set_level(t[3]);
 
 	if (!get_line(obj_f, line))
 	{
@@ -4403,11 +4409,11 @@ char *parse_object(FILE * obj_f, const int nr)
 		log("SYSERR: Format error in *3th* numeric line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	tobj->obj_flags.affects.from_string(f0);
+	tobj->load_affects(f0);
 	// ** Affects
-	tobj->obj_flags.anti_flag.from_string(f1);
+	tobj->load_antiflags(f1);
 	// ** Miss for ...
-	tobj->obj_flags.no_flag.from_string(f2);
+	tobj->load_noflags(f2);
 	// ** Deny for ...
 
 	if (!get_line(obj_f, line))
@@ -4420,10 +4426,12 @@ char *parse_object(FILE * obj_f, const int nr)
 		log("SYSERR: Format error in *3th* misc line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	tobj->obj_flags.type_flag = static_cast<obj_flag_data::EObjectType>(t[0]);	    // ** What's a object
-	GET_OBJ_EXTRA(tobj).from_string(f1);
+	tobj->set_type(static_cast<obj_flag_data::EObjectType>(t[0]));	    // ** What's a object
+	tobj->load_extraflags(f1);
 	// ** Its effects
-	asciiflag_conv(f2, &tobj->obj_flags.wear_flags);
+	int wear_flags = 0;
+	asciiflag_conv(f2, &wear_flags);
+	tobj->set_wear_flags(wear_flags);
 	// ** Wear on ...
 
 	if (!get_line(obj_f, line))
@@ -4436,10 +4444,12 @@ char *parse_object(FILE * obj_f, const int nr)
 		log("SYSERR: Format error in *5th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	asciiflag_conv(f0, &tobj->obj_flags.value);
-	tobj->obj_flags.value[1] = t[1];
-	tobj->obj_flags.value[2] = t[2];
-	tobj->obj_flags.value[3] = t[3];
+	int first_value = 0;
+	asciiflag_conv(f0, &first_value);
+	tobj->set_val(0, first_value);
+	tobj->set_val(1, t[1]);
+	tobj->set_val(2, t[2]);
+	tobj->set_val(3, t[3]);
 
 	if (!get_line(obj_f, line))
 	{
@@ -4451,18 +4461,18 @@ char *parse_object(FILE * obj_f, const int nr)
 		log("SYSERR: Format error in *6th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	tobj->obj_flags.weight = t[0];
+	tobj->set_weight(t[0]);
 	tobj->set_cost(t[1]);
 	tobj->set_rent(t[2]);
 	tobj->set_rent_eq(t[3]);
 
 	// check to make sure that weight of containers exceeds curr. quantity
-	if (tobj->obj_flags.type_flag == obj_flag_data::ITEM_DRINKCON
-		|| tobj->obj_flags.type_flag == obj_flag_data::ITEM_FOUNTAIN)
+	if (tobj->get_type() == obj_flag_data::ITEM_DRINKCON
+		|| tobj->get_type() == obj_flag_data::ITEM_FOUNTAIN)
 	{
-		if (tobj->obj_flags.weight < tobj->obj_flags.value[1])
+		if (tobj->get_weight() < tobj->get_val(1))
 		{
-			tobj->obj_flags.weight = tobj->obj_flags.value[1] + 5;
+			tobj->set_weight(tobj->get_val(1) + 5);
 		}
 	}
 
@@ -4487,8 +4497,8 @@ char *parse_object(FILE * obj_f, const int nr)
 			new_descr->description = fread_string(obj_f, buf2);
 			if (new_descr->keyword && new_descr->description)
 			{
-				new_descr->next = tobj->ex_description;
-				tobj->ex_description = new_descr;
+				new_descr->next = tobj->get_ex_description().get();
+				tobj->set_next_ex_description(new_descr);
 			}
 			else
 			{
@@ -4516,19 +4526,22 @@ char *parse_object(FILE * obj_f, const int nr)
 					"...offending line: '%s'", buf2, retval, line);
 				exit(1);
 			}
-			tobj->affected[j].location = static_cast<EApplyLocation>(t[0]);
-			tobj->affected[j].modifier = t[1];
+			tobj->set_affected(j, static_cast<EApplyLocation>(t[0]), t[1]);
 			j++;
 			break;
+
 		case 'T':	// DG triggers
 			dg_obj_trigger(line, tobj);
 			break;
+
 		case 'M':
-			GET_OBJ_MIW(tobj) = atoi(line + 1);
+			tobj->set_max_in_world(atoi(line + 1));
 			break;
+
 		case 'R':
 			tobj->set_manual_mort_req(atoi(line + 1));
 			break;
+
 		case 'S':
 			if (!get_line(obj_f, line))
 			{
@@ -4546,7 +4559,7 @@ char *parse_object(FILE * obj_f, const int nr)
 			tobj->set_skill(t[0], t[1]);
 			break;
 		case 'V':
-			tobj->values.init_from_zone(line + 1);
+			tobj->init_values_from_zone(line + 1);
 			break;
 
 		case '$':
@@ -4844,10 +4857,10 @@ int vnum_object(char *searchname, CHAR_DATA * ch)
 
 	for (size_t nr = 0; nr < obj_proto.size(); nr++)
 	{
-		if (isname(searchname, obj_proto[nr]->aliases))
+		if (isname(searchname, obj_proto[nr]->get_aliases().c_str()))
 		{
 			++found;
-			sprintf(buf, "%3d. [%5d] %s\r\n", found, obj_proto.vnum(nr), obj_proto[nr]->short_description);
+			sprintf(buf, "%3d. [%5d] %s\r\n", found, obj_proto.vnum(nr), obj_proto[nr]->get_short_description().c_str());
 			send_to_char(buf, ch);
 		}
 	}
@@ -4888,10 +4901,10 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	{
 		for (size_t nr = 0; nr < obj_proto.size(); nr++)
 		{
-			if (obj_proto[nr]->get_extraflag(plane, 1 << plane_offset))
+			if (obj_proto[nr]->get_extra_flag(plane, 1 << plane_offset))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-					++found, obj_proto.vnum(nr), obj_proto[nr]->short_description, extra_bits[counter]);
+					++found, obj_proto.vnum(nr), obj_proto[nr]->get_short_description().c_str(), extra_bits[counter]);
 				out += buf;
 			}
 		}
@@ -4912,11 +4925,12 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		{
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++)
 			{
-				if (obj_proto[nr]->affected[plane].location == counter)
+				if (obj_proto[nr]->get_affected(plane).location == counter)
 				{
 					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-							++found, obj_proto.vnum(nr),
-							obj_proto[nr]->short_description, apply_types[counter]);
+						++found, obj_proto.vnum(nr),
+						obj_proto[nr]->get_short_description().c_str(),
+						apply_types[counter]);
 					out += buf;
 					continue;
 				}
@@ -4944,10 +4958,12 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	{
 		for (size_t nr = 0; nr < obj_proto.size(); nr++)
 		{
-			if (obj_proto[nr]->get_extraflag(plane, 1 << (plane_offset)))
+			if (obj_proto[nr]->get_extra_flag(plane, 1 << (plane_offset)))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-						++found, obj_proto.vnum(nr), obj_proto[nr]->short_description, weapon_affects[counter]);
+					++found, obj_proto.vnum(nr),
+					obj_proto[nr]->get_short_description().c_str(),
+					weapon_affects[counter]);
 				out += buf;
 			}
 		}
@@ -5106,7 +5122,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	mob->player_data.time.played = 0;
 	mob->player_data.time.logon = time(0);
 
-	GET_ID(mob) = max_id++;
+	mob->id = max_id++;
 
 	if (!is_corpse)
 	{
@@ -5142,12 +5158,11 @@ OBJ_DATA *create_obj(const char *alias)
 	OBJ_DATA *obj;
 
 	NEWCREATE(obj);
-	obj->next = object_list;
+	obj->set_next(object_list);
 	object_list = obj;
-	GET_ID(obj) = max_id++;
+	obj->set_id(max_id++);
 
-	obj->aliases = str_dup(alias);
-//	ObjectAlias::add(obj);
+	obj->set_aliases(alias);
 
 	return (obj);
 }
@@ -5212,11 +5227,11 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 		obj->set_timer(TEST_OBJECT_TIMER);
 		obj->set_extraflag(EExtraFlag::ITEM_NOLOCATE);
 	}
-	obj->proto_script.clear();
-	obj->next = object_list;
+	obj->clear_proto_script();
+	obj->set_next(object_list);
 	object_list = obj;
 //	ObjectAlias::add(obj);
-	GET_ID(obj) = max_id++;
+	obj->set_id(max_id++);
 	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
 	{
 		if (GET_OBJ_VAL(obj, 1)
@@ -5479,8 +5494,12 @@ void paste_mob(CHAR_DATA *ch, room_rnum room)
 
 void paste_obj(OBJ_DATA *obj, room_rnum room)
 {
-	if (obj->carried_by || obj->worn_by || room == NOWHERE)
+	if (obj->get_carried_by()
+		|| obj->get_worn_by()
+		|| room == NOWHERE)
+	{
 		return;
+	}
 
 	bool time_ok = FALSE;
 	bool month_ok = FALSE;
@@ -5490,52 +5509,69 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DAY))
 	{
-		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
+		if (weather_info.sunlight == SUN_RISE
+			|| weather_info.sunlight == SUN_LIGHT)
+		{
 			time_ok = TRUE;
+		}
 		need_move = TRUE;
 		no_time = FALSE;
 	}
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NIGHT))
 	{
-		if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
+		if (weather_info.sunlight == SUN_SET
+			|| weather_info.sunlight == SUN_DARK)
+		{
 			time_ok = TRUE;
+		}
 		need_move = TRUE;
 		no_time = FALSE;
 	}
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_FULLMOON))
 	{
-		if ((weather_info.sunlight == SUN_SET ||
-				weather_info.sunlight == SUN_DARK) &&
-				(weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
+		if ((weather_info.sunlight == SUN_SET
+				|| weather_info.sunlight == SUN_DARK)
+			&& weather_info.moon_day >= 12
+			&& weather_info.moon_day <= 15)
+		{
 			time_ok = TRUE;
+		}
 		need_move = TRUE;
 		no_time = FALSE;
 	}
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WINTER))
 	{
 		if (weather_info.season == SEASON_WINTER)
+		{
 			month_ok = TRUE;
+		}
 		need_move = TRUE;
 		no_month = FALSE;
 	}
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SPRING))
 	{
 		if (weather_info.season == SEASON_SPRING)
+		{
 			month_ok = TRUE;
+		}
 		need_move = TRUE;
 		no_month = FALSE;
 	}
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SUMMER))
 	{
 		if (weather_info.season == SEASON_SUMMER)
+		{
 			month_ok = TRUE;
+		}
 		need_move = TRUE;
 		no_month = FALSE;
 	}
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_AUTUMN))
 	{
 		if (weather_info.season == SEASON_AUTUMN)
+		{
 			month_ok = TRUE;
+		}
 		need_move = TRUE;
 		no_month = FALSE;
 	}
@@ -5546,7 +5582,9 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 		if (month_ok && time_ok)
 		{
 			if (world[room]->number != zone_table[world[room]->zone].top)
+			{
 				return;
+			}
 			if (OBJ_GET_LASTROOM(obj) == NOWHERE)
 			{
 				extract_obj(obj);
@@ -5558,12 +5596,16 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 		else
 		{
 			if (world[room]->number == zone_table[world[room]->zone].top)
+			{
 				return;
-			OBJ_GET_LASTROOM(obj) = GET_ROOM_VNUM(room);
+			}
+			obj->set_room_was_in(GET_ROOM_VNUM(room));
 			obj_from_room(obj);
 			room = real_room(zone_table[world[room]->zone].top);
 			if (room == NOWHERE)
+			{
 				room = real_room(OBJ_GET_LASTROOM(obj));
+			}
 			obj_to_room(obj, room);
 		}
 	}
@@ -5581,8 +5623,8 @@ void paste_mobiles()
 	OBJ_DATA *obj_next;
 	for (OBJ_DATA *obj = object_list; obj; obj = obj_next)
 	{
-		obj_next = obj->next;
-		paste_obj(obj, IN_ROOM(obj));
+		obj_next = obj->get_next();
+		paste_obj(obj, obj->get_in_room());
 	}
 }
 
@@ -5598,8 +5640,8 @@ void paste_on_reset(ROOM_DATA *to_room)
 	OBJ_DATA *obj_next;
 	for (OBJ_DATA *obj = to_room->contents; obj; obj = obj_next)
 	{
-		obj_next = obj->next_content;
-		paste_obj(obj, IN_ROOM(obj));
+		obj_next = obj->get_next_content();
+		paste_obj(obj, obj->get_in_room());
 	}
 }
 
@@ -5659,13 +5701,13 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						{
 							obj_rnum rnum = real_object((*load_in)->vnum);
 
-							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->max_in_world)
+							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world())
 							{
 								obj = read_object(real_object((*load_in)->vnum), REAL);
 								if (obj)
 			 					{
 									obj_to_char(obj, mob);
-									GET_OBJ_ZONE(obj) = world[IN_ROOM(mob)]->zone;
+									obj->set_zone(world[IN_ROOM(mob)]->zone);
 
 									if (!SCRIPT(obj))
 										CREATE(SCRIPT(obj), 1);

@@ -41,7 +41,7 @@ namespace
 void remove_tmp_extra(OBJ_DATA *obj, EExtraFlag flag)
 {
 	const OBJ_DATA * const proto = read_object_mirror(GET_OBJ_VNUM(obj));
-	if (!proto->get_extraflag(flag))
+	if (!proto->get_extra_flag(flag))
 	{
 		obj->unset_extraflag(flag);
 	}

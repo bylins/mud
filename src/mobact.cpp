@@ -200,7 +200,7 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 		if (ch->get_skill(SKILL_THROW)
 			&& wielded
 			&& GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON
-			&& wielded->get_extraflag(EExtraFlag::ITEM_THROWING))
+			&& wielded->get_extra_flag(EExtraFlag::ITEM_THROWING))
 		{
 			go_throw(ch, victim);
 		}

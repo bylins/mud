@@ -565,7 +565,7 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		act("Вы не можете писать на $o5.", FALSE, ch, paper, 0, TO_CHAR);
 	}
-	else if (paper->action_description)
+	else if (!paper->get_action_description().empty())
 	{
 		send_to_char("Там уже что-то записано.\r\n", ch);
 	}
@@ -578,12 +578,12 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		ch->desc->backstr = NULL;
 		send_to_char("Можете писать.  (/s СОХРАНИТЬ ЗАПИСЬ  /h ПОМОЩЬ)\r\n", ch);
 		// ok, here we check for a message ALREADY on the paper
-		if (paper->action_description)  	// we str_dup the original text to the descriptors->backstr
+		if (!paper->get_action_description().empty())  	// we str_dup the original text to the descriptors->backstr
 		{
-			ch->desc->backstr = str_dup(paper->action_description);
+			ch->desc->backstr = str_dup(paper->get_action_description().c_str());
 			// send to the player what was on the paper (cause this is already
 			// loaded into the editor)
-			send_to_char(paper->action_description, ch);
+			send_to_char(paper->get_action_description().c_str(), ch);
 		}
 		act("$n начал$g писать.", TRUE, ch, 0, 0, TO_ROOM);
 		// assign the descriptor's->str the value of the pointer to the text

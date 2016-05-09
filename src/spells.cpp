@@ -984,7 +984,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 					if (i->in_obj->worn_by)
 					{
 						if (IS_NPC(i->in_obj->worn_by)
-							&& (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
+							&& (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
 								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
 						{
 							continue;
@@ -1869,7 +1869,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	}
 
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-	if (obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
 	{
 		for (; it != OBJ_DATA::set_table.end(); it++)
 		{
@@ -2215,7 +2215,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	//added by WorM 2010.09.07 доп ифна о сете
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-	if (obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
 	{
 		for (; it != OBJ_DATA::set_table.end(); it++)
 		{

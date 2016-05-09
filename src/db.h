@@ -448,31 +448,31 @@ public:
 	size_t add(const prototypes_t::value_type& prototype, const obj_vnum vnum);
 
 	obj_vnum vnum(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].vnum : -1; }
-	obj_vnum vnum(const OBJ_DATA* object) const { return vnum(object->item_number); }
+	obj_vnum vnum(const OBJ_DATA* object) const { return vnum(object->get_rnum()); }
 	void vnum(const size_t rnum, const obj_vnum value);
 
 	void zone(const size_t rnum, const size_t zone_rnum) { m_index[rnum].zone = static_cast<int>(zone_rnum); }
 
 	auto stored(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].stored : -1; }
-	auto stored(const OBJ_DATA* object) const { return stored(object->item_number); }
+	auto stored(const OBJ_DATA* object) const { return stored(object->get_rnum()); }
 	void dec_stored(const size_t rnum) { --m_index[rnum].stored; }
 	void inc_stored(const size_t rnum) { ++m_index[rnum].stored; }
 
 	auto number(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].number : -1; }
-	auto number(const OBJ_DATA* object) const { return number(object->item_number); }
+	auto number(const OBJ_DATA* object) const { return number(object->get_rnum()); }
 	void dec_number(const size_t rnum) { --m_index[rnum].number; }
 	void inc_number(const size_t rnum) { ++m_index[rnum].number; }
 
 	auto zone(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].zone : -1; }
 
 	auto actual_count(const size_t rnum) const { return number(rnum) + stored(rnum); }
-	auto actual_count(const OBJ_DATA* object) const { return actual_count(object->item_number); }
+	auto actual_count(const OBJ_DATA* object) const { return actual_count(object->get_rnum()); }
 
 	auto func(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].func : nullptr; }
-	auto func(const OBJ_DATA* object) const { return func(object->item_number); }
+	auto func(const OBJ_DATA* object) const { return func(object->get_rnum()); }
 	void func(const size_t rnum, const decltype(index_data::func) function) { m_index[rnum].func = function; }
 
-	auto spec(const OBJ_DATA* object) const { return func(object->item_number); }
+	auto spec(const OBJ_DATA* object) const { return func(object->get_rnum()); }
 
 	auto set_idx(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].set_idx : ~0; }
 	void set_idx(const size_t rnum, const decltype(index_data::set_idx) value) { m_index[rnum].set_idx = value; }
@@ -484,7 +484,7 @@ public:
 	auto index_size() const { return m_index.size()*(sizeof(index_t::value_type) + sizeof(vnum2index_t::value_type)); }
 	auto prototypes_size() const { return m_prototypes.size()*sizeof(prototypes_t::value_type); }
 
-	const auto& proto_script(const size_t rnum) const { return m_prototypes.at(rnum)->proto_script; }
+	const auto& proto_script(const size_t rnum) const { return m_prototypes.at(rnum)->get_proto_script(); }
 
 private:
 	using vnum2index_t = std::map<obj_vnum, size_t>;

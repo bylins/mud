@@ -311,11 +311,11 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 			obj->values = tmp.values;
 		}
 	}
-	if (tmp.get_extraflag(EExtraFlag::ITEM_TICKTIMER))//если у старого объекта запущен таймер
+	if (tmp.get_extra_flag(EExtraFlag::ITEM_TICKTIMER))//если у старого объекта запущен таймер
 	{
 		obj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);//ставим флаг таймер запущен
 	}
-	if (tmp.get_extraflag(EExtraFlag::ITEM_NAMED))//если у старого объекта стоит флаг именной предмет
+	if (tmp.get_extra_flag(EExtraFlag::ITEM_NAMED))//если у старого объекта стоит флаг именной предмет
 	{
 		obj->set_extraflag(EExtraFlag::ITEM_NAMED);//ставим флаг именной предмет
 	}

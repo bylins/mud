@@ -94,19 +94,24 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 	{
 		victim->desc->message.reset();
 		victim->desc->board.reset();
-		if (*(victim->desc->str))
-			free(*victim->desc->str);
-		if (victim->desc->str)
-			free(victim->desc->str);
+		if (victim->desc->writer->get_string())
+		{
+			victim->desc->writer->clear();
+		}
+
 		STATE(victim->desc) = CON_PLAYING;
 		if (!IS_NPC(victim))
 		{
 			PLR_FLAGS(victim).unset(PLR_WRITING);
 		}
+
 		if (victim->desc->backstr)
+		{
 			free(victim->desc->backstr);
-		victim->desc->backstr = NULL;
-		victim->desc->str = NULL;
+			victim->desc->backstr = nullptr;
+		}
+		victim->desc->writer.reset();
+
 		message = true;
 	}
 	else if (victim->desc && (STATE(victim->desc) == CON_CLANEDIT))
@@ -1966,7 +1971,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = 0;
 
 
-	if (percent > prob || GET_EQ(vict, pos)->get_extraflag(EExtraFlag::ITEM_NODISARM))
+	if (percent > prob || GET_EQ(vict, pos)->get_extra_flag(EExtraFlag::ITEM_NODISARM))
 	{
 		sprintf(buf, "%sВы не сумели обезоружить %s...%s\r\n",
 				CCWHT(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
@@ -1978,13 +1983,13 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 	{
 		wielded = GET_EQ(vict, pos);
 		sprintf(buf, "%sВы ловко выбили %s из рук %s...%s\r\n",
-				CCIBLU(ch, C_NRM), wielded->PNames[3], GET_PAD(vict, 1), CCNRM(ch, C_NRM));
+				CCIBLU(ch, C_NRM), wielded->get_PName(3).c_str(), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		// act("Вы ловко выбили $o3 из рук $N1.",FALSE,ch,wielded,vict,TO_CHAR);
 		// act("$n ловко выбил$g $o3 из ваших рук.", FALSE, ch, wielded, vict, TO_VICT);
 		send_to_char(vict, "%s ловко выбил%s %s%s из ваших рук.\r\n",
 			GET_PAD(ch, 0), GET_CH_VIS_SUF_1(ch, vict),
-			wielded->PNames[3], char_get_custom_label(wielded, vict).c_str());
+			wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", TRUE, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		unequip_char(vict, pos);
 		if (GET_WAIT(vict) <= 0)

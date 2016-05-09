@@ -72,7 +72,7 @@ void save()
 
 bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple)
 {
-	if (!obj->get_extraflag(EExtraFlag::ITEM_NAMED))
+	if (!obj->get_extra_flag(EExtraFlag::ITEM_NAMED))
 	{
 		return false; // если шмотка не именная - остальное и проверять не нужно
 	}

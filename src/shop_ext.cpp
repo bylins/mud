@@ -1406,9 +1406,9 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	if (!obj) return;
 	int rnum = GET_OBJ_RNUM(obj);
 	if (rnum < 0
-		|| obj->get_extraflag(EExtraFlag::ITEM_ARMORED)
-		|| obj->get_extraflag(EExtraFlag::ITEM_SHARPEN)
-		|| obj->get_extraflag(EExtraFlag::ITEM_NODROP))
+		|| obj->get_extra_flag(EExtraFlag::ITEM_ARMORED)
+		|| obj->get_extra_flag(EExtraFlag::ITEM_SHARPEN)
+		|| obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 	{
 		tell_to_char(keeper, ch, std::string("Я не собираюсь иметь дела с этой вещью.").c_str());
 		return;
@@ -1456,10 +1456,10 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 			return;
 		}
 
-		if (obj->get_extraflag(EExtraFlag::ITEM_NOSELL)
-			|| obj->get_extraflag(EExtraFlag::ITEM_NAMED)
-			|| obj->get_extraflag(EExtraFlag::ITEM_REPOP_DECAY)
-			|| obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY))
+		if (obj->get_extra_flag(EExtraFlag::ITEM_NOSELL)
+			|| obj->get_extra_flag(EExtraFlag::ITEM_NAMED)
+			|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
+			|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY))
 		{
 			tell_to_char(keeper, ch, "Такое я не покупаю.");
 			return;
@@ -1469,11 +1469,11 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	if (cmd == "Продать")
 	{
-		if (obj->get_extraflag(EExtraFlag::ITEM_NOSELL)
-			|| obj->get_extraflag(EExtraFlag::ITEM_NAMED)
-			|| obj->get_extraflag(EExtraFlag::ITEM_REPOP_DECAY)
+		if (obj->get_extra_flag(EExtraFlag::ITEM_NOSELL)
+			|| obj->get_extra_flag(EExtraFlag::ITEM_NAMED)
+			|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
 			|| (buy_price  <= 1)
-			|| obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
+			|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
 			|| bloody::is_bloody(obj))
 		{
 			if (bloody::is_bloody(obj))
@@ -1535,9 +1535,9 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		}
 
 		if (repair_price <= 0
-			|| obj->get_extraflag(EExtraFlag::ITEM_DECAY)
-			|| obj->get_extraflag(EExtraFlag::ITEM_NOSELL)
-			|| obj->get_extraflag(EExtraFlag::ITEM_NODROP))
+			|| obj->get_extra_flag(EExtraFlag::ITEM_DECAY)
+			|| obj->get_extra_flag(EExtraFlag::ITEM_NOSELL)
+			|| obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 		{
 			tell_to_char(keeper, ch, ("Я не буду тратить свое драгоценное время на " + std::string(GET_OBJ_PNAME(obj, 3))+".").c_str());
 			return;

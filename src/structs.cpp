@@ -892,6 +892,35 @@ const std::string& NAME_BY_ITEM(const EApplyLocation item)
 	return EApplyLocation_name_by_value.at(item);
 }
 
+void CSimpleStringWriter::set_string(const char* string)
+{
+	const size_t l = strlen(string);
+	if (nullptr == m_managed)
+	{
+		CREATE(m_managed, l + 1);
+	}
+	else
+	{
+		RECREATE(m_managed, l + 1);
+	}
+	strcpy(m_managed, string);
+}
+
+void CSimpleStringWriter::append_string(const char* string)
+{
+	const size_t l = length() + strlen(string);
+	if (nullptr == m_managed)
+	{
+		CREATE(m_managed, l + 1);
+		*m_managed = '\0';
+	}
+	else
+	{
+		RECREATE(m_managed, l + 1);
+	}
+	strcat(m_managed, string);
+}
+
 void DESCRIPTOR_DATA::msdp_support(bool on)
 {
 	log("INFO: MSDP support enabled for client %s.\n", host);

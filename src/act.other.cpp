@@ -605,7 +605,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					send_to_char("Вы не сможете унести такой вес.\r\n", ch);
 					return;
 				}
-				else if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
+				else if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY))
 				{
 					send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 					return;
@@ -620,7 +620,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		}
 		else  	// obj found in inventory
 		{
-			if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
+			if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY))
 			{
 				send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 				return;

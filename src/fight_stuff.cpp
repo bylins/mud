@@ -964,8 +964,8 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance)
 		return;
 	dam = number(0, dam * (material_value[GET_OBJ_MATER(obj)] + 30) /
 				 MAX(1, GET_OBJ_MAX(obj) *
-					 (obj->get_extraflag(EExtraFlag::ITEM_NODROP) ? 5 :
-					  obj->get_extraflag(EExtraFlag::ITEM_BLESS) ? 15 : 10) * (GET_OBJ_SKILL(obj) == SKILL_BOWS ? 3 : 1)));
+					 (obj->get_extra_flag(EExtraFlag::ITEM_NODROP) ? 5 :
+					  obj->get_extra_flag(EExtraFlag::ITEM_BLESS) ? 15 : 10) * (GET_OBJ_SKILL(obj) == SKILL_BOWS ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100))
 	{

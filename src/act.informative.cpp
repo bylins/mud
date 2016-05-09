@@ -640,30 +640,30 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		sprintf(buf + strlen(buf), " [%d]", how);
 	if (mode != 3 && how <= 1)
 	{
-		if (object->get_extraflag(EExtraFlag::ITEM_INVISIBLE))
+		if (object->get_extra_flag(EExtraFlag::ITEM_INVISIBLE))
 		{
 			sprintf(buf2, " (невидим%s)", GET_OBJ_SUF_6(object));
 			strcat(buf, buf2);
 		}
-		if (object->get_extraflag(EExtraFlag::ITEM_BLESS)
+		if (object->get_extra_flag(EExtraFlag::ITEM_BLESS)
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN))
 			strcat(buf, " ..голубая аура!");
-		if (object->get_extraflag(EExtraFlag::ITEM_MAGIC)
+		if (object->get_extra_flag(EExtraFlag::ITEM_MAGIC)
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC))
 			strcat(buf, " ..желтая аура!");
-		if (object->get_extraflag(EExtraFlag::ITEM_POISONED)
+		if (object->get_extra_flag(EExtraFlag::ITEM_POISONED)
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON))
 		{
 			sprintf(buf2, "..отравлен%s!", GET_OBJ_SUF_6(object));
 			strcat(buf, buf2);
 		}
-		if (object->get_extraflag(EExtraFlag::ITEM_GLOW))
+		if (object->get_extra_flag(EExtraFlag::ITEM_GLOW))
 			strcat(buf, " ..блестит!");
-		if (object->get_extraflag(EExtraFlag::ITEM_HUM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE))
+		if (object->get_extra_flag(EExtraFlag::ITEM_HUM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE))
 			strcat(buf, " ..шумит!");
-		if (object->get_extraflag(EExtraFlag::ITEM_FIRE))
+		if (object->get_extra_flag(EExtraFlag::ITEM_FIRE))
 			strcat(buf, " ..горит!");
-		if (object->get_extraflag(EExtraFlag::ITEM_BLOODY))
+		if (object->get_extra_flag(EExtraFlag::ITEM_BLOODY))
 		{
 			sprintf(buf2, " %s..покрыт%s кровью!%s", CCIRED(ch, C_NRM), GET_OBJ_SUF_6(object), CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
@@ -1870,7 +1870,7 @@ void show_glow_objs(CHAR_DATA *ch)
 	for (OBJ_DATA *obj = world[ch->in_room]->contents;
 		obj; obj = obj->next_content)
 	{
-		if (obj->get_extraflag(EExtraFlag::ITEM_GLOW))
+		if (obj->get_extra_flag(EExtraFlag::ITEM_GLOW))
 		{
 			++cnt;
 			if (cnt > 1)

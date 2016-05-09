@@ -1357,112 +1357,126 @@ void koi_to_alt(char *str, int size)
 // string manipulation fucntion originally by Darren Wilson //
 // (wilson@shark.cc.cc.ca.us) improved and bug fixed by Chris (zero@cnw.com) //
 // completely re-written again by M. Scott 10/15/96 (scottm@workcommn.net), //
+// completely rewritten by Anton Gorev 05/08/2016 (kvirund@gmail.com) //
 // substitute appearances of 'pattern' with 'replacement' in string //
 // and return the # of replacements //
-int replace_str(char **string, char *pattern, char *replacement, int rep_all, int max_size)
+int replace_str(const std::shared_ptr<CCommonStringWriter>& writer, char *pattern, char *replacement, int rep_all, int max_size)
 {
-	char *replace_buffer = NULL;
-	char *flow, *jetsam, temp;
-
-	if ((signed)((strlen(*string) - strlen(pattern)) + strlen(replacement)) > max_size)
-	{
-		return -1;
-	}
-
+	char *replace_buffer = nullptr;
 	CREATE(replace_buffer, max_size);
-	int i = 0;
-	jetsam = *string;
-	flow = *string;
-	*replace_buffer = '\0';
-	if (rep_all)
-	{
-		while ((flow = (char *) strstr(flow, pattern)) != NULL)
-		{
-			i++;
-			temp = *flow;
-			*flow = '\0';
-			if ((signed)(strlen(replace_buffer) + strlen(jetsam) + strlen(replacement)) > max_size)
-			{
-				i = -1;
-				break;
-			}
-			strcat(replace_buffer, jetsam);
-			strcat(replace_buffer, replacement);
-			*flow = temp;
-			flow += strlen(pattern);
-			jetsam = flow;
-		}
-		strcat(replace_buffer, jetsam);
-	}
-	else
-	{
-		if ((flow = (char *) strstr(*string, pattern)) != NULL)
-		{
-			i++;
-			flow += strlen(pattern);
-			size_t len = ((char *) flow - (char *) * string) - strlen(pattern);
+	std::shared_ptr<char> guard(replace_buffer, free);
+	size_t source_remained = writer->length();
+	const size_t pattern_length = strlen(pattern);
+	const size_t replacement_length = strlen(replacement);
 
-			strncpy(replace_buffer, *string, len);
-			strcat(replace_buffer, replacement);
-			strcat(replace_buffer, flow);
+	int count = 0;
+	const char* from = writer->get_string();
+	int remains = max_size;
+	do
+	{
+		if (remains < source_remained)
+		{
+			return -1;	// destination does not have enough space.
 		}
-	}
-	if (i == 0)
+
+		const char* pos = strstr(from, pattern);
+		if (nullptr != pos)
+		{
+			if (remains < source_remained - pattern_length + replacement_length)
+			{
+				return -1;	// destination does not have enough space.
+			}
+
+			strncpy(replace_buffer, from, from - pos);
+			replace_buffer += from - pos;
+
+			strncpy(replace_buffer, replacement, replacement_length);
+			replace_buffer += replacement_length;
+
+			const size_t processed = from - pos + pattern_length;
+			source_remained -= processed;
+			from += processed;
+
+			++count;
+		}
+		else
+		{
+			strncpy(replace_buffer, from, source_remained);
+			replace_buffer += source_remained;
+			source_remained = 0;
+		}
+	} while (0 != rep_all && 0 < source_remained);
+
+	if (count == 0)
 	{
 		return 0;
 	}
-	if (i > 0)
+
+	if (count > 0)
 	{
-		RECREATE(*string, strlen(replace_buffer) + 3);
-		strcpy(*string, replace_buffer);
+		writer->set_string(guard.get());
 	}
-	free(replace_buffer);
 
-	return i;
+	return count;
 }
-
 
 // re-formats message type formatted char * //
 // (for strings edited with d->str) (mostly olc and mail)     //
-void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
+void format_text(const std::shared_ptr<CCommonStringWriter>& writer, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
 {
 	size_t total_chars = 0;
 	int cap_next = TRUE, cap_next_next = FALSE;
-	char *flow, *start = NULL, temp;
+	const char *flow, *start = NULL, temp;
 	// warning: do not edit messages with max_str's of over this value //
-	char formated[MAX_STRING_LENGTH];
+	char formatted[MAX_STRING_LENGTH];
+	char *pos = formatted;
 
-	flow = *ptr_string;
+	flow = writer->get_string();
 	if (!flow)
+	{
 		return;
+	}
 
 	if (IS_SET(mode, FORMAT_INDENT))
 	{
-		strcpy(formated, "   ");
+		strcpy(pos, "   ");
 		total_chars = 3;
+		pos += 3;
 	}
 	else
 	{
-		*formated = '\0';
+		*pos = '\0';
 		total_chars = 0;
 	}
 
 	while (*flow != '\0')
 	{
-		while ((*flow == '\n') ||
-				(*flow == '\r') || (*flow == '\f') || (*flow == '\t') || (*flow == '\v') || (*flow == ' '))
+		while ((*flow == '\n')
+			|| (*flow == '\r')
+			|| (*flow == '\f')
+			|| (*flow == '\t')
+			|| (*flow == '\v')
+			|| (*flow == ' '))
+		{
 			flow++;
+		}
 
 		if (*flow != '\0')
 		{
 			start = flow++;
-			while ((*flow != '\0') &&
-					(*flow != '\n') &&
-					(*flow != '\r') &&
-					(*flow != '\f') &&
-					(*flow != '\t') &&
-					(*flow != '\v') && (*flow != ' ') && (*flow != '.') && (*flow != '?') && (*flow != '!'))
+			while ((*flow != '\0')
+				&& (*flow != '\n')
+				&& (*flow != '\r')
+				&& (*flow != '\f')
+				&& (*flow != '\t')
+				&& (*flow != '\v')
+				&& (*flow != ' ')
+				&& (*flow != '.')
+				&& (*flow != '?')
+				&& (*flow != '!'))
+			{
 				flow++;
+			}
 
 			if (cap_next_next)
 			{
@@ -1477,57 +1491,56 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA* /*d*/, size_t max
 				flow++;
 			}
 
-			temp = *flow;
-			*flow = '\0';
-
-			if ((total_chars + strlen(start) + 1) > 79)
+			if ((total_chars + (flow - start) + 1) > 79)
 			{
-				strcat(formated, "\r\n");
+				strcpy(pos, "\r\n");
 				total_chars = 0;
+				pos += 2;
 			}
 
 			if (!cap_next)
 			{
 				if (total_chars > 0)
 				{
-					strcat(formated, " ");
-					total_chars++;
+					strcpy(pos, " ");
+					++total_chars;
+					++pos;
 				}
 			}
-			else
+
+			total_chars += flow - start;
+			strncpy(pos, start, flow - start);
+			if (cap_next)
 			{
 				cap_next = FALSE;
-				*start = UPPER(*start);
+				*pos = UPPER(*pos);
 			}
-
-			total_chars += strlen(start);
-			strcat(formated, start);
-
-			*flow = temp;
+			pos += flow - start;
 		}
 
 		if (cap_next_next)
 		{
 			if ((total_chars + 3) > 79)
 			{
-				strcat(formated, "\r\n");
+				strcpy(pos, "\r\n");
 				total_chars = 0;
+				pos += 2;
 			}
 			else
 			{
-				strcat(formated, " ");
+				strcpy(pos, " ");
 				total_chars += 2;
+				pos += 1;
 			}
 		}
 	}
-	strcat(formated, "\r\n");
+	strcpy(pos, "\r\n");
 
-	if (strlen(formated) > maxlen)
+	if ((pos - formatted) > maxlen)
 	{
-		formated[maxlen] = '\0';
+		formatted[maxlen] = '\0';
 	}
-	RECREATE(*ptr_string, std::min(maxlen, strlen(formated) + 3));
-	strcpy(*ptr_string, formated);
+	writer->set_string(formatted);
 }
 
 
@@ -2951,7 +2964,7 @@ void check_rented()
 bool is_big_set(const OBJ_DATA *obj,bool is_mini)
 {
 	unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
-	if (!obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
+	if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
 	{
 		return false;
 	}
@@ -3020,7 +3033,7 @@ void init_vnum_list(int vnum)
  */
 bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (!obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
+	if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
 	{
 		return false;
 	}

@@ -1140,7 +1140,7 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 	set_bloody_flag(list->contains, ch);
 	set_bloody_flag(list->next_content, ch);
 	const int t = GET_OBJ_TYPE(list);
-	if (list->get_extraflag(EExtraFlag::ITEM_BLOODY)
+	if (list->get_extra_flag(EExtraFlag::ITEM_BLOODY)
 		&& (t == obj_flag_data::ITEM_LIGHT
 			|| t == obj_flag_data::ITEM_WAND
 			|| t == obj_flag_data::ITEM_STAFF
@@ -1194,7 +1194,7 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 	pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
-	if (!obj->get_extraflag(EExtraFlag::ITEM_BLOODY)
+	if (!obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)
 		|| it == bloody_map.end())
 	{
 		result = true;
@@ -1271,7 +1271,7 @@ void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 
 bool bloody::is_bloody(const OBJ_DATA* obj)
 {
-	if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY))
 	{
 		return true;
 	}

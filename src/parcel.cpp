@@ -172,12 +172,12 @@ int total_sended(CHAR_DATA *ch)
 // * Проверка возможности отправить шмотку почтой.
 bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 {
-	if (obj->get_extraflag(EExtraFlag::ITEM_NODROP)
-		|| obj->get_extraflag(EExtraFlag::ITEM_NORENT)
-		|| obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY)
-		|| obj->get_extraflag(EExtraFlag::ITEM_REPOP_DECAY)
-		|| obj->get_extraflag(EExtraFlag::ITEM_DECAY)
-		|| obj->get_extraflag(EExtraFlag::ITEM_NORENT)
+	if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)
+		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
+		|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
+		|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
+		|| obj->get_extra_flag(EExtraFlag::ITEM_DECAY)
+		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= NOTHING

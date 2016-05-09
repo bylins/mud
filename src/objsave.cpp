@@ -663,7 +663,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 		if (err)
 			*error = 100 + err;
 	}
-	if (object->get_extraflag(EExtraFlag::ITEM_NAMED))//Именной предмет
+	if (object->get_extra_flag(EExtraFlag::ITEM_NAMED))//Именной предмет
 	{
 		free_script(SCRIPT(object));//детачим все триги, пока что так
 		SCRIPT(object) = NULL;
@@ -1071,7 +1071,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		*buf = '\0';
 		*buf2 = '\0';
 		//Временно убираем флаг !окровавлен! с вещи, чтобы он не сохранялся
-		bool blooded = object->get_extraflag(EExtraFlag::ITEM_BLOODY);
+		bool blooded = object->get_extra_flag(EExtraFlag::ITEM_BLOODY);
 		if (blooded)
 		{
 			object->unset_extraflag(EExtraFlag::ITEM_BLOODY);
@@ -2250,7 +2250,7 @@ int Crash_load(CHAR_DATA * ch)
 			continue;
 		}
 		//очищаем ZoneDecay объедки
-		if (obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY))
+		if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY))
 		{
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", CAP(obj->PNames[0]), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
@@ -2267,7 +2267,7 @@ int Crash_load(CHAR_DATA * ch)
 			continue;
 		}
 		//очищаем от крови
-		if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
+		if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY))
 		{
 			obj->unset_extraflag(EExtraFlag::ITEM_BLOODY);
 		}
@@ -2387,7 +2387,7 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj)
 	if (!obj)
 		return FALSE;
 
-	if (obj->get_extraflag(EExtraFlag::ITEM_NORENT)
+	if (obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
 		|| (GET_OBJ_RNUM(obj) <= NOTHING
 			&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY)
