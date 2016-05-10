@@ -717,7 +717,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		{
 			log("[Change fighting] Change victim");
 			CHAR_DATA *j;
-			for (j = world[IN_ROOM(ch)]->people; j; j = j->next_in_room)
+			for (j = world[ch->in_room]->people; j; j = j->next_in_room)
 				if (j->get_fighting() == k)
 				{
 					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
@@ -756,7 +756,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		if (k->get_fighting() == ch && IN_ROOM(k) != NOWHERE)
 		{
 			log("[Change fighting] Change victim");
-			for (j = world[IN_ROOM(ch)]->people; j; j = j->next_in_room)
+			for (j = world[ch->in_room]->people; j; j = j->next_in_room)
 			{
 				if (j->get_fighting() == k)
 				{

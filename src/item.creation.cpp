@@ -1011,13 +1011,13 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 		{
 			send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-			obj_to_room(tobj, IN_ROOM(ch));
+			obj_to_room(tobj, ch->in_room);
 			obj_decay(tobj);
 		}
 		else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch))
 		{
 			send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-			obj_to_room(tobj, IN_ROOM(ch));
+			obj_to_room(tobj, ch->in_room);
 			obj_decay(tobj);
 		}
 		else
@@ -1162,7 +1162,7 @@ void do_transform_weapon(CHAR_DATA* ch, char *argument, int/* cmd*/, int subcmd)
 
 		if (!IS_IMMORTAL(ch))
 		{
-			if (!ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH))
+			if (!ROOM_FLAGGED(ch->in_room, ROOM_SMITH))
 			{
 				send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
 				return;
@@ -1976,7 +1976,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	case SKILL_MAKE_WEAPON:
 	case SKILL_MAKE_ARMOR:
 		// Проверяем есть ли тут наковальня или комната кузня.
-		if ((!ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH)) && (!IS_IMMORTAL(ch)))
+		if ((!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) && (!IS_IMMORTAL(ch)))
 		{
 			send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
 			return (FALSE);
@@ -2254,7 +2254,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 				{
 					sprintf(tmpbuf, "%s killed by a crafting at %s",
 							GET_NAME(ch),
-							IN_ROOM(ch) == NOWHERE ? "NOWHERE" : world[IN_ROOM(ch)]->name);
+							ch->in_room == NOWHERE ? "NOWHERE" : world[ch->in_room]->name);
 					mudlog(tmpbuf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 				}
 				die(ch, NULL);
@@ -2473,12 +2473,12 @@ int MakeRecept::make(CHAR_DATA * ch)
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
 		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(obj, IN_ROOM(ch));
+		obj_to_room(obj, ch->in_room);
 	}
 	else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch))
 	{
 		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(obj, IN_ROOM(ch));
+		obj_to_room(obj, ch->in_room);
 	}
 	else
 		obj_to_char(obj, ch);

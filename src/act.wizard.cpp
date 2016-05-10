@@ -749,7 +749,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 		}
 	}
-	if (IN_ROOM(ch) != NOWHERE)
+	if (ch->in_room != NOWHERE)
 	{
 		act(buf, FALSE, vict, 0, ch, TO_CHAR);
 		act(buf2, FALSE, vict, 0, ch, TO_ROOM);
@@ -4108,9 +4108,9 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!str_cmp("room", arg) || !str_cmp("здесь", arg))
 	{
 		send_to_char(OK, ch);
-		sprintf(buf, "(GC) %s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), to_force);
+		sprintf(buf, "(GC) %s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-		imm_log("%s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), to_force);
+		imm_log("%s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
 
 		for (vict = world[ch->in_room]->people; vict; vict = next_force)
 		{

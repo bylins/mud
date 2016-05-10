@@ -1608,6 +1608,8 @@ public:
 	virtual void clear() = 0;
 };
 
+using string_writer_t = std::shared_ptr<CCommonStringWriter>;
+
 class CSimpleStringWriter: public CCommonStringWriter
 {
 public:
@@ -1695,7 +1697,7 @@ struct DESCRIPTOR_DATA
 	char **showstr_vector;	// for paging through texts      //
 	int showstr_count;		// number of pages to page through  //
 	int showstr_page;		// which page are we currently showing?   //
-	std::shared_ptr<CCommonStringWriter> writer;		// for the modify-str system     //
+	string_writer_t writer;		// for the modify-str system     //
 	size_t max_str;		//      -        //
 	char *backstr;		// added for handling abort buffers //
 	int mail_to;		// uid for mail system

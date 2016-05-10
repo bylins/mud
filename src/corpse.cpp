@@ -448,7 +448,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	exdesc->description = str_dup(buf);	// косметика
 	exdesc->next = corpse->ex_description;
 	corpse->ex_description = exdesc;
-	obj_to_room(corpse, IN_ROOM(ch));
+	obj_to_room(corpse, ch->in_room);
 }
 
 OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
@@ -562,7 +562,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	IS_CARRYING_W(ch) = 0;
 
 	//Polud привязываем загрузку ингров к расе (типу) моба
-	if (IS_NPC(ch) && GET_RACE(ch)>NPC_RACE_BASIC && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE))
+	if (IS_NPC(ch) && GET_RACE(ch)>NPC_RACE_BASIC && !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
 	{
 		OBJ_DATA* ingr = try_make_ingr(ch, 1000, 100);
 		if (ingr)
@@ -575,14 +575,14 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
 	if(IS_CHARMICE(ch) && !MOB_FLAGGED(ch, MOB_CORPSE) && ch->master && ((killer && PRF_FLAGGED(killer, PRF_EXECUTOR))
-		|| (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && !RENTABLE(ch->master))))
+		|| (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !RENTABLE(ch->master))))
 	{
 		obj_to_char(corpse, ch->master);
 		return NULL;
 	}
 	else
 	{
-		room_rnum corpse_room = IN_ROOM(ch);
+		room_rnum corpse_room = ch->in_room;
 		if (corpse_room == STRANGE_ROOM && ch->get_was_in_room() != NOWHERE)
 			corpse_room = ch->get_was_in_room();
 		obj_to_room(corpse, corpse_room);

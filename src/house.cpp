@@ -144,7 +144,7 @@ room_rnum Clan::CloseRent(room_rnum to_room)
 // проверяет находится ли чар в зоне чужого клана
 bool Clan::InEnemyZone(CHAR_DATA * ch)
 {
-	int zone = world[IN_ROOM(ch)]->zone;
+	int zone = world[ch->in_room]->zone;
 
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 		if (zone == world[real_room((*clan)->rent)]->zone)
@@ -945,7 +945,7 @@ bool Clan::MayEnter(CHAR_DATA * ch, room_rnum room, bool mode)
 		// вход через дверь - контролирует охранник
 	case HCE_ATRIUM:
 		CHAR_DATA * mobs;
-		for (mobs = world[IN_ROOM(ch)]->people; mobs; mobs = mobs->next_in_room)
+		for (mobs = world[ch->in_room]->people; mobs; mobs = mobs->next_in_room)
 			if ((*clan)->guard == GET_MOB_VNUM(mobs))
 				break;
 		// охранника нет - свободный доступ
@@ -2877,7 +2877,7 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 {
 	if (IS_NPC(ch) || !CLAN(ch)
-			|| real_room(CLAN(ch)->chest_room) != IN_ROOM(ch)
+			|| real_room(CLAN(ch)->chest_room) != ch->in_room
 			|| !CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHEST_PUT])
 	{
 		send_to_char("Не имеете таких правов!\r\n", ch);
@@ -2978,7 +2978,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 bool Clan::TakeChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 {
 	if (IS_NPC(ch) || !CLAN(ch)
-			|| real_room(CLAN(ch)->chest_room) != IN_ROOM(ch)
+			|| real_room(CLAN(ch)->chest_room) != ch->in_room
 			|| !CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHEST_TAKE])
 	{
 		send_to_char("Не имеете таких правов!\r\n", ch);
@@ -4666,7 +4666,7 @@ bool Clan::ChestShow(OBJ_DATA * obj, CHAR_DATA * ch)
 	if (!ch->desc || !Clan::is_clan_chest(obj))
 		return 0;
 
-	if (CLAN(ch) && real_room(CLAN(ch)->chest_room) == IN_ROOM(obj))
+	if (CLAN(ch) && real_room(CLAN(ch)->chest_room) == obj->get_in_room())
 	{
 		send_to_char("Хранилище вашей дружины:\r\n", ch);
 		int cost = CLAN(ch)->ChestTax();
@@ -4845,7 +4845,7 @@ void do_clanstuff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (GET_ROOM_VNUM(IN_ROOM(ch)) != CLAN(ch)->GetRent())
+	if (GET_ROOM_VNUM(ch->in_room) != CLAN(ch)->GetRent())
 	{
 		send_to_char("Получить клановую экипировку вы можете только в центре вашего замка.\r\n", ch);
 		return;
@@ -5309,7 +5309,7 @@ void ClanSystem::save_ingr_chests()
 bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 {
 	if (IS_NPC(ch) || !CLAN(ch)
-		|| CLAN(ch)->GetRent()/100 != GET_ROOM_VNUM(IN_ROOM(ch))/100)
+		|| CLAN(ch)->GetRent()/100 != GET_ROOM_VNUM(ch->in_room)/100)
 	{
 		send_to_char("Не имеете таких правов!\r\n", ch);
 		return 0;
@@ -5356,7 +5356,7 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 bool Clan::take_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 {
 	if (IS_NPC(ch) || !CLAN(ch)
-		|| CLAN(ch)->GetRent()/100 != GET_ROOM_VNUM(IN_ROOM(ch))/100)
+		|| CLAN(ch)->GetRent()/100 != GET_ROOM_VNUM(ch->in_room)/100)
 	{
 		send_to_char("Не имеете таких правов!\r\n", ch);
 		return 0;
@@ -5379,7 +5379,7 @@ bool ClanSystem::show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch)
 		return 0;
 	}
 
-	if (CLAN(ch) && CLAN(ch)->ingr_chest_active() && CLAN(ch)->GetRent()/100 == GET_ROOM_VNUM(IN_ROOM(ch))/100)
+	if (CLAN(ch) && CLAN(ch)->ingr_chest_active() && CLAN(ch)->GetRent()/100 == GET_ROOM_VNUM(ch->in_room)/100)
 	{
 		send_to_char("Хранилище ингредиентов вашей дружины:\r\n", ch);
 		int cost = CLAN(ch)->ingr_chest_tax();
@@ -5470,7 +5470,7 @@ bool Clan::ingr_chest_active() const
 
 void Clan::set_ingr_chest(CHAR_DATA *ch)
 {
-	if (GetRent()/100 != GET_ROOM_VNUM(IN_ROOM(ch))/100)
+	if (GetRent()/100 != GET_ROOM_VNUM(ch->in_room)/100)
 	{
 		send_to_char("Данная комната находится вне зоны вашего замка.\r\n", ch);
 		return;
@@ -5485,14 +5485,14 @@ void Clan::set_ingr_chest(CHAR_DATA *ch)
 			if (is_ingr_chest(chest))
 			{
 				obj_from_room(chest);
-				obj_to_room(chest, IN_ROOM(ch));
+				obj_to_room(chest, ch->in_room);
 				chest_moved = true;
 				break;
 			}
 		}
 	}
 
-	ingr_chest_room_rnum_ = IN_ROOM(ch);
+	ingr_chest_room_rnum_ = ch->in_room;
 	// Clan::ClanSave();
 
 	if (!chest_moved)

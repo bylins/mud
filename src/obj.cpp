@@ -54,27 +54,21 @@ OBJ_DATA::~OBJ_DATA()
 	}
 }
 
-// можно было бы отдельной функцией и не делать, но вдруг кто-нибудь потом захочет расширить функционал
-struct custom_label *init_custom_label()
-{
-	struct custom_label *ptr = (struct custom_label *)malloc(sizeof(struct custom_label));
-	ptr->label_text = NULL;
-	ptr->clan = NULL;
-	ptr->author = -2;
-	ptr->author_mail = NULL;
-
-	return ptr;
-}
-
 // эта функция только освобождает память, поэтому не забываем устанавливать указатель в NULL,
 // если сразу после этого не делаем init_custom_label(), иначе будут креши
-void free_custom_label(struct custom_label *custom_label) {
-	if (custom_label) {
+void free_custom_label(struct custom_label *custom_label)
+{
+	if (custom_label)
+	{
 		free(custom_label->label_text);
 		if (custom_label->clan)
+		{
 			free(custom_label->clan);
+		}
 		if (custom_label->author_mail)
+		{
 			free(custom_label->author_mail);
+		}
 		free(custom_label);
 	}
 }

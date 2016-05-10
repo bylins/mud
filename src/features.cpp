@@ -1154,7 +1154,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			&& k->follower->master == ch
 			&& MOB_FLAGGED(k->follower, MOB_CLONE)
 			&& !affected_by_spell(k->follower, SPELL_CAPABLE)
-			&& IN_ROOM(ch) == IN_ROOM(k->follower))
+			&& ch->in_room == IN_ROOM(k->follower))
 		{
 			follower = k->follower;
 			break;
@@ -1279,7 +1279,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!IS_GOD(ch))
 	{
 		// Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT))
+		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT))
 		{
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;

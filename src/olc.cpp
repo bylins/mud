@@ -138,7 +138,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		{
 		case SCMD_OLC_ZEDIT:
 		case SCMD_OLC_REDIT:
-			number = world[IN_ROOM(ch)]->number;
+			number = world[ch->in_room]->number;
 			break;
 		case SCMD_OLC_TRIGEDIT:
 		case SCMD_OLC_OEDIT:

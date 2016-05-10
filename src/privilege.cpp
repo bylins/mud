@@ -342,7 +342,7 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 			break;
 		}
 		// на арене доступны команды из группы arena_master
-		if (!mode && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && it->second.arena.find(cmd_name) != it->second.arena.end())
+		if (!mode && ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && it->second.arena.find(cmd_name) != it->second.arena.end())
 			return true;
 	}
 	return false;
@@ -379,7 +379,7 @@ bool check_spells(const CHAR_DATA *ch, int spellnum)
 		return true;
 	// флаг arena_master - только на арене и только для призыва/пенты
 	if (spellnum == SPELL_PORTAL || spellnum == SPELL_SUMMON || spellnum == SPELL_WORD_OF_RECALL)
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && check_flag(ch, ARENA_MASTER))
+		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && check_flag(ch, ARENA_MASTER))
 			return true;
 	return false;
 }

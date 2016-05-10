@@ -339,7 +339,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 	}
 
 	log("Load obj #%d by %s in room #%d (%s)",
-			GET_OBJ_VNUM(o), GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)),
+			GET_OBJ_VNUM(o), GET_NAME(ch), GET_ROOM_VNUM(ch->in_room),
 			setload ? "setload" : "globaldrop");
 
 	if (!setload)
@@ -363,7 +363,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 	}
 	else
 	{
-		for (CHAR_DATA *tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+		for (CHAR_DATA *tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 		{
 			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n",
 				CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
@@ -372,7 +372,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 
 	if (MOB_FLAGGED(ch, MOB_CORPSE))
 	{
-		obj_to_room(o, IN_ROOM(ch));
+		obj_to_room(o, ch->in_room);
 	}
 	else
 	{

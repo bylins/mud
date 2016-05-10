@@ -425,9 +425,13 @@ const char *diag_obj_timer(OBJ_DATA * obj)
 		if (check_unlimited_timer(obj))
 			return "нерушимо";
 		if (GET_OBJ_CRAFTIMER(obj) > 0)
+		{
 			prot_timer = GET_OBJ_CRAFTIMER(obj);// если вещь скрафчена, смотрим ее таймер а не у прототипа
+		}
 		else 
+		{
 			prot_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
+		}
 		if (!prot_timer)
 		{
 			return "Прототип предмета имеет нулевой таймер!\r\n";
@@ -461,7 +465,7 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0)
 		{
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
-				CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
+				CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 		}
 		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
 			GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
@@ -516,8 +520,8 @@ std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch)
 	const char *delim_r = NULL;
 
 	// разные скобки для клановых и личных
-	if (obj->custom_label != NULL && (ch->player_specials->clan && obj->custom_label->clan != NULL &&
-	    !strcmp(obj->custom_label->clan, ch->player_specials->clan->GetAbbrev())))
+	if (obj->get_custom_label() && (ch->player_specials->clan && obj->get_custom_label()->clan != NULL &&
+	    !strcmp(obj->get_custom_label()->clan, ch->player_specials->clan->GetAbbrev())))
 	{
 		delim_l = " *";
 		delim_r = "*";
@@ -527,7 +531,9 @@ std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch)
 	}
 
 	if (AUTH_CUSTOM_LABEL(obj, ch))
-		return boost::str(boost::format("%s%s%s") % delim_l % obj->custom_label->label_text % delim_r);
+	{
+		return boost::str(boost::format("%s%s%s") % delim_l % obj->get_custom_label()->label_text % delim_r);
+	}
 
 	return "";
 }
@@ -539,24 +545,25 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 	if ((mode < 5) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))
 		sprintf(buf, "[%5d] ", GET_OBJ_VNUM(object));
 
-	if ((mode == 0) && object->description)
+	if (mode == 0
+		&& !object->get_description().empty())
 	{
-		strcat(buf, object->description);
+		strcat(buf, object->get_description().c_str());
 		strcat(buf, char_get_custom_label(object, ch).c_str());
 	}
-	else if (object->short_description && ((mode == 1) || (mode == 2) || (mode == 3) || (mode == 4)))
+	else if (!object->get_short_description().empty() && ((mode == 1) || (mode == 2) || (mode == 3) || (mode == 4)))
 	{
-		strcat(buf, object->short_description);
+		strcat(buf, object->get_short_description().c_str());
 		strcat(buf, char_get_custom_label(object, ch).c_str());
 	}
 	else if (mode == 5)
 	{
 		if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_NOTE)
 		{
-			if (object->action_description)
+			if (!object->get_action_description().empty())
 			{
 				strcpy(buf, "Вы прочитали следующее :\r\n\r\n");
-				strcat(buf, space_before_string(object->action_description).c_str());
+				strcat(buf, space_before_string(object->get_action_description().c_str()).c_str());
 				page_string(ch->desc, buf, 1);
 			}
 			else
@@ -611,10 +618,14 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 			}
 			if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_CONTAINER)
 			{
-				if (object->contains)
+				if (object->get_contains())
+				{
 					strcat(buf2, " (есть содержимое)");
+				}
 				else
+				{
 					sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
+				}
 			}
 		}
 		else if (mode >= 2 && how <= 1)
@@ -624,15 +635,23 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 			if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_LIGHT)
 			{
 				if (GET_OBJ_VAL(object, 2) == -1)
+				{
 					sprintf(buf2, "\r\n%s дает вечный свет.", obj_name.c_str());
+				}
 				else if (GET_OBJ_VAL(object, 2) == 0)
+				{
 					sprintf(buf2, "\r\n%s погас%s.", obj_name.c_str(), GET_OBJ_SUF_4(object));
+				}
 				else
+				{
 					sprintf(buf2, "\r\n%s будет светить %d %s.", obj_name.c_str(), GET_OBJ_VAL(object, 2),
-							desc_count(GET_OBJ_VAL(object, 2), WHAT_HOUR));
+						desc_count(GET_OBJ_VAL(object, 2), WHAT_HOUR));
+				}
 			}
 			else if (GET_OBJ_CUR(object) < GET_OBJ_MAX(object))
+			{
 				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(ch, object, 2));
+			}
 		}
 		strcat(buf, buf2);
 	}
@@ -716,7 +735,7 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 		clan_chest = true;
 	}
 
-	for (i = list; i; i = i->next_content)
+	for (i = list; i; i = i->get_next_content())
 	{
 		if (CAN_SEE_OBJ(ch, i))
 		{
@@ -1058,7 +1077,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	{
 		found = FALSE;
 		act("\r\nВы попытались заглянуть в $s ношу:", FALSE, i, 0, ch, TO_VICT);
-		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->next_content)
+		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content())
 		{
 			if (CAN_SEE_OBJ(ch, tmp_obj) && (number(0, 30) < GET_LEVEL(ch)))
 			{
@@ -1186,26 +1205,31 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		return;
 	}
 
-	if (IS_NPC(i) &&
-			i->player_data.long_descr &&
-			GET_POS(i) == GET_DEFAULT_POS(i) &&
-			IN_ROOM(ch) == IN_ROOM(i) && !AFF_FLAGGED(i, EAffectFlag::AFF_CHARM) && !IS_HORSE(i))
+	if (IS_NPC(i)
+		&& i->player_data.long_descr
+		&& GET_POS(i) == GET_DEFAULT_POS(i)
+		&& ch->in_room == i->in_room
+		&& !AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
+		&& !IS_HORSE(i))
 	{
 		*buf = '\0';
 		if (PRF_FLAGGED(ch, PRF_ROOMFLAGS))
+		{
 			sprintf(buf, "[%5d] ", GET_MOB_VNUM(i));
+		}
 
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN))
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN))
 		{
 			if (AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS))
+			{
 				strcat(buf, "(черная аура) ");
+			}
 		}
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN))
 		{
 			if (IS_NPC(i))
 			{
-
 				if (NPC_FLAGGED(i, NPC_AIRCREATURE))
 					sprintf(buf + strlen(buf), "%s(аура воздуха)%s ",
 							CCIBLU(ch, C_CMP), CCIRED(ch, C_CMP));
@@ -1398,7 +1422,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		}
 		else if (IS_HORSE(i) && AFF_FLAGGED(i, EAffectFlag::AFF_TETHERED))
 			sprintf(buf + strlen(buf), "привязан%s здесь. ", GET_CH_SUF_6(i));
-		else if ((sector = real_sector(IN_ROOM(i))) == SECT_FLYING)
+		else if ((sector = real_sector(i->in_room)) == SECT_FLYING)
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == SECT_UNDERWATER)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
@@ -1602,15 +1626,24 @@ void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch)
 	CHAR_DATA *i;
 
 	for (i = list; i; i = i->next_in_room)
+	{
 		if (ch != i)
 		{
-			if (HERE(i) && (CAN_SEE(ch, i)
-							|| awaking(i, AW_HIDE | AW_INVIS | AW_CAMOUFLAGE)))
+			if (HERE(i)
+				&& (CAN_SEE(ch, i)
+					|| awaking(i, AW_HIDE | AW_INVIS | AW_CAMOUFLAGE)))
+			{
 				list_one_char(i, ch, 0);
-			else if (IS_DARK(i->in_room) &&
-					 IN_ROOM(i) == IN_ROOM(ch) && !CAN_SEE_IN_DARK(ch) && AFF_FLAGGED(i, EAffectFlag::AFF_INFRAVISION))
+			}
+			else if (IS_DARK(i->in_room)
+				&& i->in_room == ch->in_room
+				&& !CAN_SEE_IN_DARK(ch)
+				&& AFF_FLAGGED(i, EAffectFlag::AFF_INFRAVISION))
+			{
 				send_to_char("Пара светящихся глаз смотрит на вас.\r\n", ch);
+			}
 		}
+	}
 }
 
 void do_auto_exits(CHAR_DATA * ch)
@@ -1620,19 +1653,27 @@ void do_auto_exits(CHAR_DATA * ch)
 	*buf = '\0';
 
 	for (door = 0; door < NUM_OF_DIRS; door++)
+	{
 		// Наконец-то добавлена отрисовка в автовыходах закрытых дверей
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room != NOWHERE)
 		{
 			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
+			{
 				slen += sprintf(buf + slen, "(%c) ", LOWER(*dirs[door]));
+			}
 			else if (!EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN))
 			{
-				if (world[EXIT(ch, door)->to_room]->zone==world[ch->in_room]->zone)
+				if (world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone)
+				{
 					slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
+				}
 				else
+				{
 					slen += sprintf(buf + slen, "%c ", UPPER(*dirs[door]));
+				}
 			}
 		}
+	}
 	sprintf(buf2, "%s[ Exits: %s]%s\r\n", CCCYN(ch, C_NRM), *buf ? buf : "None! ", CCNRM(ch, C_NRM));
 
 	send_to_char(buf2, ch);
@@ -1868,7 +1909,7 @@ void show_glow_objs(CHAR_DATA *ch)
 {
 	unsigned cnt = 0;
 	for (OBJ_DATA *obj = world[ch->in_room]->contents;
-		obj; obj = obj->next_content)
+		obj; obj = obj->get_next_content())
 	{
 		if (obj->get_extra_flag(EExtraFlag::ITEM_GLOW))
 		{
@@ -1928,7 +1969,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		GET_ROOM(ch->in_room)->unset_flag(ROOM_BFS_MARK);
 
 		GET_ROOM(ch->in_room)->flags_sprint(buf, ";");
-		sprintf(buf2, "[%5d] %s [%s]", GET_ROOM_VNUM(IN_ROOM(ch)), world[ch->in_room]->name, buf);
+		sprintf(buf2, "[%5d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
 		send_to_char(buf2, ch);
 
 		if (has_flag)
@@ -1940,7 +1981,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	{
 		if (PRF_FLAGGED(ch, PRF_MAPPER))
 		{
-			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(IN_ROOM(ch)));
+			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 			send_to_char(buf2, ch);
 		}
 		else    
@@ -1950,8 +1991,10 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char(CCNRM(ch, C_NRM), ch);
 	send_to_char("\r\n", ch);
 
-	if (IS_DARK(IN_ROOM(ch)) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+	if (IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+	{
 		send_to_char("Слишком темно...\r\n", ch);
+	}
 	else if ((!IS_NPC(ch) && !PRF_FLAGGED(ch, PRF_BRIEF)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ROOM_DEATH))
 	{
 		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
@@ -1959,13 +2002,19 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 
 	// autoexits
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOEXIT))
+	{
 		do_auto_exits(ch);
+	}
 
 	// Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер.
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC) || IS_IMMORTAL(ch))
+	{
 		world[ch->in_room]->affected_by.sprintbits(room_aff_invis_bits, buf2, "\n");
+	}
 	else
+	{
 		world[ch->in_room]->affected_by.sprintbits(room_aff_visib_bits, buf2, "\n");
+	}
 
 	// подавляем если нет аффектов
 	if (strcmp(buf2, "ничего"))
@@ -1975,46 +2024,48 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	}
 
 	// now list characters & objects
-	if (world[IN_ROOM(ch)]->fires)
+	if (world[ch->in_room]->fires)
 	{
 		sprintf(buf, "%sВ центре %s.%s\r\n",
-				CCRED(ch, C_NRM), Fires[MIN(world[IN_ROOM(ch)]->fires, MAX_FIRES - 1)], CCNRM(ch, C_NRM));
+				CCRED(ch, C_NRM), Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)], CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 
-	if (world[IN_ROOM(ch)]->portal_time)
+	if (world[ch->in_room]->portal_time)
 	{
-		if (world[IN_ROOM(ch)]->pkPenterUnique)
-			sprintf(buf,
-					"%sЛазурная пентаграмма %sс кровавым отблеском%s ярко сверкает здесь.%s\r\n",
-					CCIBLU(ch, C_NRM), CCIRED(ch, C_NRM), CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		if (world[ch->in_room]->pkPenterUnique)
+		{
+			sprintf(buf, "%sЛазурная пентаграмма %sс кровавым отблеском%s ярко сверкает здесь.%s\r\n",
+				CCIBLU(ch, C_NRM), CCIRED(ch, C_NRM), CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		}
 		else
-			sprintf(buf,
-					"%sЛазурная пентаграмма ярко сверкает здесь.%s\r\n",
-					CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		{
+			sprintf(buf, "%sЛазурная пентаграмма ярко сверкает здесь.%s\r\n",
+				CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		}
 
 		send_to_char(buf, ch);
 	}
 
-	if (world[IN_ROOM(ch)]->holes)
+	if (world[ch->in_room]->holes)
 	{
-		int ar = (int) roundup(world[IN_ROOM(ch)]->holes / HOLES_TIME);
+		int ar = (int) roundup(world[ch->in_room]->holes / HOLES_TIME);
 		sprintf(buf, "%sЗдесь выкопана ямка глубиной примерно в %i аршин%s.%s\r\n",
-				CCYEL(ch, C_NRM), ar, (ar == 1 ? "" : (ar < 5 ? "а" : "ов")), (CCNRM(ch, C_NRM)));
+			CCYEL(ch, C_NRM), ar, (ar == 1 ? "" : (ar < 5 ? "а" : "ов")), (CCNRM(ch, C_NRM)));
 		send_to_char(buf, ch);
 	}
 
-	if (IN_ROOM(ch) != NOWHERE && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOWEATHER))
+	if (ch->in_room != NOWHERE && !ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER))
 	{
 		*buf = '\0';
-		switch (real_sector(IN_ROOM(ch)))
+		switch (real_sector(ch->in_room))
 		{
 		case SECT_FIELD_SNOW:
 		case SECT_FOREST_SNOW:
 		case SECT_HILLS_SNOW:
 		case SECT_MOUNTAIN_SNOW:
 			sprintf(buf, "%sСнежный ковер лежит у вас под ногами.%s\r\n",
-					CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+				CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			break;
 		case SECT_FIELD_RAIN:
 		case SECT_FOREST_RAIN:
@@ -2026,31 +2077,35 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 			break;
 		case SECT_NORMAL_ICE:
 			sprintf(buf, "%sУ вас под ногами достаточно толстый лед.%s\r\n",
-					CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+				CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 			break;
 		case SECT_THIN_ICE:
-			sprintf(buf,
-					"%sТоненький ледок вот-вот проломится под вами.%s\r\n",
-					CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
+			sprintf(buf, "%sТоненький ледок вот-вот проломится под вами.%s\r\n",
+				CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
 			break;
 		};
 		if (*buf)
+		{
 			send_to_char(buf, ch);
+		}
 	}
 
 	send_to_char("&Y&q", ch);
 //  if (IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL),SPELL_KNOW))
 	if (ch->get_skill(SKILL_TOWNPORTAL))
+	{
 		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room)))
+		{
 			send_to_char("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
+		}
+	}
 	list_obj_to_char(world[ch->in_room]->contents, ch, 0, FALSE);
 	send_to_char("&R&q", ch);
 	list_char_to_char(world[ch->in_room]->people, ch);
 	send_to_char("&Q&n", ch);
 
 	// вход в новую зону
-	if (zone_table[world[ch->get_from_room()]->zone].number
-		!= zone_table[world[ch->in_room]->zone].number
+	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number
 		&& PRF_FLAGGED(ch, PRF_ENTER_ZONE))
 	{
 		print_zone_info(ch);
@@ -2068,16 +2123,21 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 	EXIT_DATA *rdata = NULL;
 	CHAR_DATA *tch;
 	if (CAN_GO(ch, dir)
-			|| (EXIT(ch, dir) && EXIT(ch, dir)->to_room != NOWHERE))
+		|| (EXIT(ch, dir)
+			&& EXIT(ch, dir)->to_room != NOWHERE))
 	{
 		rdata = EXIT(ch, dir);
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
 		if (EXIT_FLAGGED(rdata, EX_CLOSED))
 		{
 			if (rdata->keyword)
+			{
 				count += sprintf(buf + count, " закрыто (%s).\r\n", rdata->keyword);
+			}
 			else
+			{
 				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
+			}
 			int skill_pick = ch->get_skill(SKILL_PICK_LOCK) ;
 			if (EXIT_FLAGGED(rdata, EX_LOCKED) && skill_pick)
 			{
@@ -2193,7 +2253,7 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			{
 				if (IS_NPC(tch))
 				{
-					if (real_sector(IN_ROOM(ch)) != SECT_UNDERWATER)
+					if (real_sector(ch->in_room) != SECT_UNDERWATER)
 					{
 						if (GET_LEVEL(tch) < 5)
 							tmpstr += " Вы слышите чью-то тихую возню.\r\n";
@@ -2329,7 +2389,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 					send_to_char("(в амуниции)\r\n", ch);
 					break;
 				}
-				if (!obj->contains)
+				if (!obj->get_contains())
 					send_to_char(" Внутри ничего нет.\r\n", ch);
 				else
 				{
@@ -2344,7 +2404,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 						sprintf(buf, "Заполнен%s содержимым %s:\r\n", GET_OBJ_SUF_6(obj), fullness[amt]);
 						send_to_char(buf, ch);
 					}
-					list_obj_to_char(obj->contains, ch, 1, bits != FIND_OBJ_ROOM);
+					list_obj_to_char(obj->get_contains(), ch, 1, bits != FIND_OBJ_ROOM);
 				}
 			}
 		}
@@ -2360,13 +2420,11 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 				}
 				else
 				{
+					const char* msg = AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON)
+						&& obj->get_val(3) > 0 ? "(отравленной)" : "";
 					amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 					sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, buf2);
-					sprintf(buf, "Наполнен%s %s%s%s жидкостью.\r\n",
-							GET_OBJ_SUF_6(obj), fullness[amt],
-							buf2,
-							(AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON) &&
-							 GET_OBJ_VAL(obj, 3) > 0 ? "(отравленной)" : ""));
+					sprintf(buf, "Наполнен%s %s%s%s жидкостью.\r\n", GET_OBJ_SUF_6(obj), fullness[amt], buf2, msg);
 				}
 				send_to_char(buf, ch);
 			}
@@ -2374,17 +2432,17 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 	}
 }
 
-
-
-char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
+char *find_exdesc(char *word, const EXTRA_DESCR_DATA* list)
 {
-	EXTRA_DESCR_DATA *i;
-
-	for (i = list; i; i = i->next)
+	for (auto i = list; i; i = i->next)
+	{
 		if (isname(word, i->keyword))
-			return (i->description);
+		{
+			return i->description;
+		}
+	}
 
-	return (NULL);
+	return nullptr;
 }
 //ф-ция вывода доп инфы об объекте
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
@@ -2394,7 +2452,7 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 		if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT)|| ch->get_skill(SKILL_INSERTGEM))
 		{
 			sprintf(buf+strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
-			sprinttype(obj->obj_flags.Obj_mater, material_name, buf+strlen(buf));
+			sprinttype(obj->get_material(), material_name, buf+strlen(buf));
 			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 		}
 
@@ -2435,22 +2493,34 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 		{
 			sprintf(buf+strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
 			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH3SLOTS))
+			{
 				strcat(buf, "доступно 3 слота\r\n");
+			}
 			else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH2SLOTS))
+			{
 				strcat(buf, "доступно 2 слота\r\n");
+			}
 			else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH1SLOT))
+			{
 				strcat(buf, "доступен 1 слот\r\n");
+			}
 			else
+			{
 				strcat(buf, "нет слотов\r\n");
+			}
 			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 		}
-		if (AUTH_CUSTOM_LABEL(obj, ch) && obj->custom_label->label_text)
+		if (AUTH_CUSTOM_LABEL(obj, ch) && obj->get_custom_label()->label_text)
 		{
-			if (obj->custom_label->clan)
+			if (obj->get_custom_label()->clan)
+			{
 				strcat(buf, "Метки дружины: ");
+			}
 			else
+			{
 				strcat(buf, "Ваши метки: ");
-			sprintf(buf + strlen(buf), "%s\r\n", obj->custom_label->label_text);
+			}
+			sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->label_text);
 		}
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
 }
@@ -2474,7 +2544,9 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
 
 	if (!ch->desc)
+	{
 		return 0;
+	}
 
 	if (!*arg)
 	{
@@ -2527,9 +2599,9 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 	}
 
 	// заглянуть в пентаграмму
-	if (isname(whatp, "пентаграмма") && world[IN_ROOM(ch)]->portal_time && IS_SET(where_bits, FIND_OBJ_ROOM))
+	if (isname(whatp, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, FIND_OBJ_ROOM))
 	{
-		int r = IN_ROOM(ch), to_room;
+		int r = ch->in_room, to_room;
 		to_room = world[r]->portal_room;
 		send_to_char("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
 		act("$n0 осторожно заглянул$g в пентаграмму.\r\n", TRUE, ch, 0, 0, TO_ROOM);
@@ -2539,9 +2611,9 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 			("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
 			return 0;
 		}
-		IN_ROOM(ch) = world[IN_ROOM(ch)]->portal_room;
+		ch->in_room = world[ch->in_room]->portal_room;
 		look_at_room(ch, 1);
-		IN_ROOM(ch) = r;
+		ch->in_room = r;
 		return 0;
 	}
 
@@ -2606,7 +2678,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
-		if (!(desc = find_exdesc(what, found_obj->ex_description)))
+		if (!(desc = find_exdesc(what, found_obj->get_ex_description().get())))
 			show_obj_to_char(found_obj, ch, 5, TRUE, 1);	// Show no-description
 		else
 		{
@@ -2813,7 +2885,7 @@ void do_examine(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if (look_at_target(ch, argument, subcmd))
 		return;
 
-	if (isname(arg, "пентаграмма") && world[IN_ROOM(ch)]->portal_time && IS_SET(where_bits, FIND_OBJ_ROOM))
+	if (isname(arg, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, FIND_OBJ_ROOM))
 		return;
 
 	if (isname(arg, "камень") &&
@@ -3447,12 +3519,12 @@ void print_do_score_all(CHAR_DATA *ch)
 						: (boost::lexical_cast<std::string>(rent_time) + string(" ") + string(desc_count(rent_time, WHAT_SEC)) + string(".")).substr(0, 18).c_str(),
 				CCCYN(ch, C_NRM));
 	}
-	else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
+	else if ((ch->in_room != NOWHERE) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
 		sprintf(buf + strlen(buf),
 				" || %sТут вы чувствуете себя в безопасности.                                          %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH) && (ch->get_skill(SKILL_INSERTGEM) || ch->get_skill(SKILL_REPAIR) || ch->get_skill(SKILL_TRANSFORMWEAPON)))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SMITH) && (ch->get_skill(SKILL_INSERTGEM) || ch->get_skill(SKILL_REPAIR) || ch->get_skill(SKILL_TRANSFORMWEAPON)))
 		sprintf(buf + strlen(buf),
 				" || %sЭто место отлично подходит для занятий кузнечным делом.                         %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3782,13 +3854,13 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
-	else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
+	else if ((ch->in_room != NOWHERE) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
 	{
 		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH) && (ch->get_skill(SKILL_INSERTGEM) || ch->get_skill(SKILL_REPAIR) || ch->get_skill(SKILL_TRANSFORMWEAPON)))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SMITH) && (ch->get_skill(SKILL_INSERTGEM) || ch->get_skill(SKILL_REPAIR) || ch->get_skill(SKILL_TRANSFORMWEAPON)))
 	{
 		sprintf(buf, "%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
@@ -4141,10 +4213,10 @@ void do_weather(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	if (OUTSIDE(ch))
 	{
 		*buf = '\0';
-		if (world[IN_ROOM(ch)]->weather.duration > 0)
+		if (world[ch->in_room]->weather.duration > 0)
 		{
-			sky = world[IN_ROOM(ch)]->weather.sky;
-			weather_type = world[IN_ROOM(ch)]->weather.weather_type;
+			sky = world[ch->in_room]->weather.sky;
+			weather_type = world[ch->in_room]->weather.weather_type;
 		}
 		sprintf(buf + strlen(buf),
 				"Небо %s. %s\r\n%s\r\n", sky_look[sky],
@@ -4192,10 +4264,10 @@ void do_weather(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 				weather_info.temp_last_day, weather_info.temp_last_week,
 				weather_info.pressure, weather_info.press_last_day,
 				weather_info.press_last_week, weather_info.rainlevel,
-				world[IN_ROOM(ch)]->weather.rainlevel, weather_info.snowlevel,
-				world[IN_ROOM(ch)]->weather.snowlevel, weather_info.icelevel,
-				world[IN_ROOM(ch)]->weather.icelevel,
-				weather_info.weather_type, world[IN_ROOM(ch)]->weather.weather_type);
+				world[ch->in_room]->weather.rainlevel, weather_info.snowlevel,
+				world[ch->in_room]->weather.snowlevel, weather_info.icelevel,
+				world[ch->in_room]->weather.icelevel,
+				weather_info.weather_type, world[ch->in_room]->weather.weather_type);
 		send_to_char(buf, ch);
 	}
 }
@@ -5093,44 +5165,55 @@ void perform_mortal_where(CHAR_DATA * ch, char *arg)
 	}
 }
 
-
-void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur)
+void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int recur)
 {
 	if (num > 0)
-		sprintf(buf, "O%3d. %-25s - ", num, obj->short_description);
+	{
+		sprintf(buf, "O%3d. %-25s - ", num, obj->get_short_description().c_str());
+	}
 	else
+	{
 		sprintf(buf, "%34s", " - ");
+	}
 
-	if (obj->in_room > NOWHERE)
+	if (obj->get_in_room() > NOWHERE)
 	{
-		sprintf(buf + strlen(buf), "[%5d] %s\r\n", GET_ROOM_VNUM(IN_ROOM(obj)), world[obj->in_room]->name);
+		sprintf(buf + strlen(buf), "[%5d] %s\r\n", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
 		send_to_char(buf, ch);
 	}
-	else if (obj->carried_by)
+	else if (obj->get_carried_by())
 	{
-		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]\r\n", PERS(obj->carried_by, ch, 4), GET_MOB_VNUM(obj->carried_by), world[obj->carried_by->in_room]->number);
+		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]\r\n",
+			PERS(obj->get_carried_by(), ch, 4),
+			GET_MOB_VNUM(obj->get_carried_by()),
+			world[obj->get_carried_by()->in_room]->number);
 		send_to_char(buf, ch);
 	}
-	else if (obj->worn_by)
+	else if (obj->get_worn_by())
 	{
-		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]\r\n", PERS(obj->worn_by, ch, 3), GET_MOB_VNUM(obj->worn_by), world[obj->worn_by->in_room]->number);
+		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]\r\n",
+			PERS(obj->get_worn_by(), ch, 3),
+			GET_MOB_VNUM(obj->get_worn_by()),
+			world[obj->get_worn_by()->in_room]->number);
 		send_to_char(buf, ch);
 	}
-	else if (obj->in_obj)
+	else if (obj->get_in_obj())
 	{
-			if (Clan::is_clan_chest(obj->in_obj))
+		if (Clan::is_clan_chest(obj->get_in_obj()))
+		{
+			return; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
+		}
+		else
+		{
+			sprintf(buf + strlen(buf), "лежит в %s%s\r\n",
+				obj->get_in_obj()->get_PName(5).c_str(),
+				(recur ? ", который находится " : " "));
+			send_to_char(buf, ch);
+			if (recur)
 			{
-				return; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
+				print_object_location(0, obj->get_in_obj(), ch, recur);
 			}
-			else
-			{
-
-		sprintf(buf + strlen(buf), "лежит в %s%s\r\n",
-				GET_OBJ_PNAME(obj->in_obj, 5), (recur ? ", который находится " : " "));
-		send_to_char(buf, ch);
-		if (recur)
-			print_object_location(0, obj->in_obj, ch, recur);
-			}
+		}
 	}
 	else
 	{
@@ -5147,9 +5230,9 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 {
 	bool found = false;
 	//int num = 1;
-	for (OBJ_DATA *k = object_list; k; k = k->next)
+	for (const OBJ_DATA *k = object_list; k; k = k->get_next())
 	{
-		if (isname(arg, k->aliases))
+		if (isname(arg, k->get_aliases().c_str()))
 		{
 			found = true;
 			print_object_location(num++, k, ch, TRUE);
@@ -5157,15 +5240,19 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 	}
 
 	int tmp_num = num;
-	if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (IS_GOD(ch)
+		|| PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		tmp_num = Clan::print_spell_locate_object(ch, tmp_num, arg);
-                tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
+		tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
 		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);
 	}
 
-	if (!found && tmp_num == num)
+	if (!found
+		&& tmp_num == num)
+	{
 		return false;
+	}
 	else
 	{
 		num = tmp_num;

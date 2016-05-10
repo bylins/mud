@@ -368,15 +368,34 @@ private:
 };
 
 // метки для команды "нацарапать"
-struct custom_label {
+struct custom_label
+{
+public:
+	custom_label(): label_text(nullptr), clan(nullptr), author(-2), author_mail(nullptr) {}
+	~custom_label()
+	{
+		if (nullptr != label_text)
+		{
+			free(label_text);
+		}
+
+		if (nullptr != clan)
+		{
+			free(clan);
+		}
+
+		if (nullptr != author_mail)
+		{
+			free(author_mail);
+		}
+	}
+
 	char *label_text; // текст
 	char *clan;       // аббревиатура клана, если метка предназначена для клана
 	int author;       // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
 	char *author_mail;// будем проверять по емейлу тоже
 };
 
-struct custom_label *init_custom_label();
-void free_custom_label(struct custom_label *);
 
 /// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
 /// Если поле нужно сохранять в обж-файл - вписываем в TextId::init_obj_vals()
@@ -509,21 +528,28 @@ public:
 	void add_timed_spell(const int spell, const int time);
 	void del_timed_spell(const int spell, const bool message);
 
+	auto get_craft_timer() const { return obj_flags.craft_timer; }
 	auto get_carried_by() const { return m_carried_by; }
 	auto get_contains() const { return m_contains; }
 	auto get_crafter_uid() const { return obj_flags.Obj_maker; }
+	auto get_current() const { return obj_flags.Obj_cur; }
+	auto get_destroyer() const { return obj_flags.Obj_destroyer; }
 	auto get_id() const { return m_id; }
 	auto get_in_obj() const { return m_in_obj; }
 	auto get_in_room() const { return m_in_room; }
 	auto get_material() const { return obj_flags.Obj_mater; }
+	auto get_maximum() const { return obj_flags.Obj_max; }
+	auto get_next() const { return m_next; }
 	auto get_next_content() const { return m_next_content; }
 	auto get_owner() const { return obj_flags.Obj_owner; }
 	auto get_parent() const { return obj_flags.Obj_parent; }
 	auto get_rnum() const { return m_item_number; }
+	auto get_room_was_in() const { return m_room_was_in; }
 	auto get_sex() const { return obj_flags.Obj_sex; }
 	auto get_skill() const { return obj_flags.Obj_skill; }
 	auto get_type() const { return obj_flags.type_flag; }
 	auto get_val(size_t index) const { return obj_flags.value[index]; }
+	auto get_wear_flags() const { return obj_flags.wear_flags; }
 	auto get_weight() const { return obj_flags.weight; }
 	auto get_worn_by() const { return m_worn_by; }
 	bool can_wear_any() const { return obj_flags.wear_flags > 0 && obj_flags.wear_flags != to_underlying(EWearFlag::ITEM_WEAR_TAKE); }
@@ -533,19 +559,31 @@ public:
 	bool get_extra_flag(const EExtraFlag packed_flag) const { return obj_flags.extra_flags.get(packed_flag); }
 	bool get_extra_flag(const size_t plane, const uint32_t flag) const { return obj_flags.extra_flags.get_flag(plane, flag); }
 	bool get_no_flag(const ENoFlag flag) const { return obj_flags.no_flag.get(flag); }
-	bool get_wear_flags(const EWearFlag part) const { IS_SET(obj_flags.wear_flags, to_underlying(part)); }
-	bool get_wear_flags(const obj_flag_data::wear_flags_t part) const { IS_SET(obj_flags.wear_flags, part); }
-	const auto get_custom_label() const { return m_custom_label; }
+	bool get_wear_flag(const EWearFlag part) const { return IS_SET(obj_flags.wear_flags, to_underlying(part)); }
+	bool get_wear_mask(const obj_flag_data::wear_flags_t part) const { return IS_SET(obj_flags.wear_flags, part); }
 	const auto get_max_in_world() const { return m_max_in_world; }
 	const auto get_zone() const { return obj_flags.Obj_zone; }
 	const auto& get_action_description() const { return m_action_description; }
 	const auto& get_affect_flags() const { return obj_flags.affects; }
 	const auto& get_affected(const size_t index) const { return m_affected[index]; }
 	const auto& get_aliases() const { return m_aliases; }
+	const auto& get_custom_label() const { return m_custom_label; }
+	const auto& get_description() const { return m_description; }
+	const auto& get_enchants() const { return m_enchants; }
+	const auto& get_ex_description() const { return m_ex_description; }
+	const auto& get_extra_flags() const { return obj_flags.extra_flags; }
 	const auto& get_proto_script() const { return m_proto_script; }
 	const auto& get_value(const ObjVal::EValueKey key) const { return m_values.get(key); }
 	const std::string& get_PName(const size_t index) const { return m_pnames[index]; }
 	const std::string& get_short_description() const { return m_short_description; }
+	void clear_action_description() { m_action_description.clear(); }
+	void clear_proto_script() { m_proto_script.clear(); }
+	void init_values_from_zone(const char* str) { m_values.init_from_zone(str); }
+	void load_affects(const char* string) { obj_flags.affects.from_string(string); }
+	void load_antiflags(const char* string) { obj_flags.anti_flag.from_string(string); }
+	void load_extraflags(const char* string) { obj_flags.extra_flags.from_string(string); }
+	void load_noflags(const char* string) { obj_flags.no_flag.from_string(string); }
+	void remove_custom_label() { m_custom_label.reset(); }
 	void set_action_description(const char* _) { m_action_description = _; }
 	void set_action_description(const std::string& _) { m_action_description = _; }
 	void set_affected(const size_t index, const EApplyLocation location, const int modifier);
@@ -554,24 +592,32 @@ public:
 	void set_aliases(const std::string& _) { m_aliases = _; }
 	void set_crafter_uid(const int _) { obj_flags.Obj_maker = _; }
 	void set_current(const int _) { obj_flags.Obj_cur = _; }
+	void set_custom_label(const std::shared_ptr<custom_label>& _) { m_custom_label = _; }
 	void set_description(CONST char* _) { m_description = _; }
+	void set_destroyer(const int _) { obj_flags.Obj_destroyer = _; }
 	void set_ex_description(const char* keyword, const char* description);
 	void set_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.set(packed_flag); }
 	void set_extraflag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.set_flag(plane, flag); }
+	void set_id(const long _) { m_id = _; }
 	void set_is_rename(const bool _) { obj_flags.Obj_is_rename = _; }
 	void set_level(const int _) { obj_flags.Obj_level = _; }
 	void set_material(const obj_flag_data::EObjectMaterial _) { obj_flags.Obj_mater = _; }
+	void set_max_in_world(const int _) { m_max_in_world = _; }
 	void set_maximum(const int _) { obj_flags.Obj_max = _; }
+	void set_next(OBJ_DATA* _) { m_next = _; }
+	void set_next_ex_description(EXTRA_DESCR_DATA* ptr) { m_ex_description->next = ptr; }
 	void set_obj_aff(const uint32_t packed_flag) { obj_flags.affects.set(packed_flag); }
 	void set_owner(const int _) { obj_flags.Obj_owner = _; }
 	void set_parent(const int _) { obj_flags.Obj_parent = _; }
 	void set_PName(const size_t index, const char* _) { m_pnames[index] = _; }
 	void set_PName(const size_t index, const std::string& _) { m_pnames[index] = _; }
 	void set_rnum(const obj_vnum _) { m_item_number = _; }
+	void set_room_was_in(const int _) { m_room_was_in = _; }
 	void set_sex(const ESex _) { obj_flags.Obj_sex = _; }
 	void set_short_description(const char* _) { m_short_description = _; }
 	void set_short_description(const std::string& _) { m_short_description = _; }
 	void set_skill(const int _) { obj_flags.Obj_skill = _; }
+	void set_spell(const int _) { obj_flags.Obj_spell = _; }
 	void set_type(const obj_flag_data::EObjectType _) { obj_flags.type_flag = _; }
 	void set_val(size_t index, int value) { obj_flags.value[index] = value; }
 	void set_value(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
@@ -579,24 +625,6 @@ public:
 	void set_weight(const int _) { obj_flags.weight = _; }
 	void set_zone(const int _) { obj_flags.Obj_zone = _; }
 	void unset_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
-	void set_destroyer(const int _) { obj_flags.Obj_destroyer = _; }
-	auto get_current() const { return obj_flags.Obj_cur; }
-	auto get_maximum() const { return obj_flags.Obj_max; }
-	void set_spell(const int _) { obj_flags.Obj_spell = _; }
-	void load_affects(const char* string) { obj_flags.affects.from_string(string); }
-	void load_antiflags(const char* string) { obj_flags.anti_flag.from_string(string); }
-	void load_noflags(const char* string) { obj_flags.no_flag.from_string(string); }
-	void load_extraflags(const char* string) { obj_flags.extra_flags.from_string(string); }
-	const auto& get_ex_description() const { return m_ex_description; }
-	void set_next_ex_description(EXTRA_DESCR_DATA* ptr) { m_ex_description->next = ptr; }
-	void set_max_in_world(const int _) { m_max_in_world = _; }
-	void init_values_from_zone(const char* str) { m_values.init_from_zone(str); }
-	void set_next(OBJ_DATA* _) { m_next = _; }
-	void set_id(const long _) { m_id = _; }
-	void clear_proto_script() { m_proto_script.clear(); }
-	auto get_room_was_in() const { return m_room_was_in; }
-	void set_room_was_in(const int _) { m_room_was_in = _; }
-	auto get_next() const { return m_next; }
 
 private:
 	void zero_init();
@@ -617,7 +645,7 @@ private:
 	CHAR_DATA *m_carried_by;	// Carried by :NULL in room/conta   //
 	CHAR_DATA *m_worn_by;	// Worn by?              //
 
-	struct custom_label *m_custom_label;		// наносимая чаром метка //
+	std::shared_ptr<custom_label> m_custom_label;		// наносимая чаром метка //
 
 	short int m_worn_on;		// Worn where?          //
 
@@ -634,7 +662,7 @@ private:
 	pnames_t m_pnames;
 	int m_max_in_world;	///< Maximum in the world
 
-	obj::Enchants enchants;
+	obj::Enchants m_enchants;
 	ObjVal m_values;
 
 	TimedSpell m_timed_spell;    ///< временный обкаст
@@ -666,7 +694,7 @@ inline void OBJ_DATA::set_affected(const size_t index, const EApplyLocation loca
 	m_affected[index].modifier = modifier;
 }
 
-inline bool CAN_WEAR(const OBJ_DATA *obj, const EWearFlag part) { return obj->get_wear_flags(part); }
+inline bool CAN_WEAR(const OBJ_DATA *obj, const EWearFlag part) { return obj->get_wear_flag(part); }
 inline bool CAN_WEAR_ANY(const OBJ_DATA* obj) { return obj->can_wear_any(); }
 inline bool OBJ_FLAGGED(const OBJ_DATA* obj, const EExtraFlag flag) { return obj->get_extra_flag(flag); }
 inline void SET_OBJ_AFF(OBJ_DATA* obj, const uint32_t packed_flag) { return obj->set_obj_aff(packed_flag); }
@@ -676,6 +704,21 @@ inline bool OBJ_AFFECT(const OBJ_DATA* obj, const EWeaponAffectFlag weapon_affec
 {
 	return OBJ_AFFECT(obj, static_cast<uint32_t>(weapon_affect));
 }
+
+class CActionDescriptionWriter : public CCommonStringWriter
+{
+public:
+	CActionDescriptionWriter(OBJ_DATA& object) : m_object(object) {}
+
+	virtual const char* get_string() const { return m_object.get_action_description().c_str(); }
+	virtual void set_string(const char* data) { m_object.set_action_description(data); }
+	virtual void append_string(const char* data) { m_object.set_action_description(m_object.get_action_description() + data); }
+	virtual size_t length() const { return m_object.get_action_description().length(); }
+	virtual void clear() { m_object.clear_action_description(); }
+
+private:
+	OBJ_DATA& m_object;
+};
 
 namespace ObjSystem
 {

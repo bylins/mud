@@ -72,6 +72,7 @@ public:
 	// их допускается менять, т.к. сколько прибавили, столько можно и отнять
 	void update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type *ench);
 	void remove_set_bonus(OBJ_DATA *obj);
+
 private:
 	std::vector<enchant> list_;
 };

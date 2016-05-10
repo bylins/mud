@@ -286,7 +286,7 @@ int cast_potion_spell(CHAR_DATA *ch, OBJ_DATA *obj, int num)
 
 	if (spell >= 0 && level >= 0)
 	{
-		return call_magic(ch, ch, NULL, world[IN_ROOM(ch)],
+		return call_magic(ch, ch, NULL, world[ch->in_room],
 			spell, level, CAST_POTION);
 	}
 	return 1;

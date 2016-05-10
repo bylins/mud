@@ -1076,20 +1076,18 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 			|| GET_OBJ_RNUM(obj) <= NOTHING
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))//added by WorM именные вещи нельзя положить в хран
 	{
-		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", OBJ_PAD(obj, 3));
+		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
 		return 0;
 	}
 	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
-		&& obj->contains)
+		&& obj->get_contains())
 	{
-		send_to_char(ch, "В %s что-то лежит.\r\n", OBJ_PAD(obj, 5));
+		send_to_char(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
 		return 0;
 	}
 	else if (SetSystem::is_norent_set(ch, obj))
 	{
-		snprintf(buf, MAX_STRING_LENGTH,
-				"%s - требуется две и более вещи из набора.\r\n",
-				OBJ_PAD(obj, 0));
+		snprintf(buf, MAX_STRING_LENGTH, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
 		return 0;
 	}
@@ -1168,12 +1166,12 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 	if (!ch->get_bank() && !ch->get_gold())
 	{
 		send_to_char(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n",
-			OBJ_PAD(obj, 5));
+			obj->get_PName(5).c_str());
 		return 0;
 	}
 
 	depot_log("put_depot %s %ld: %s %d %d",
-		GET_NAME(ch), GET_UNIQUE(ch), obj->short_description,
+		GET_NAME(ch), GET_UNIQUE(ch), obj->get_short_description().c_str(),
 		GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
 	it->second.pers_online.push_front(obj);
 	it->second.need_save = true;

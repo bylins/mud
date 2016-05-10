@@ -358,7 +358,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		if (!victim)
 			victim = vict;
 
-		if (IS_DEFAULTDARK(IN_ROOM(ch))
+		if (IS_DEFAULTDARK(ch->in_room)
 			&& ((GET_EQ(vict, obj_flag_data::ITEM_LIGHT)
 					&& GET_OBJ_VAL(GET_EQ(vict, obj_flag_data::ITEM_LIGHT), 2))
 				|| (!AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYDARK)
@@ -746,7 +746,7 @@ int perform_mob_switch(CHAR_DATA * ch)
 
 void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 {
-	if (!ch || IN_ROOM(ch) == NOWHERE || !IS_NPC(ch)
+	if (!ch || ch->in_room == NOWHERE || !IS_NPC(ch)
 		|| !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		return;
@@ -862,11 +862,11 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 */
 void do_aggressive_room(CHAR_DATA *ch, int check_sneak)
 {
-	if (!ch || IN_ROOM(ch) == NOWHERE)
+	if (!ch || ch->in_room == NOWHERE)
 	{
 		return;
 	}
-	for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
+	for (CHAR_DATA *vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
 		// здесь не надо преварително запоминать next_in_room, потому что как раз
 		// он то и может быть спуржен по ходу do_aggressive_mob, а вот атакующий нет
@@ -1028,7 +1028,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		   (ch_activity - activity_lev >= 0))
 			ch_activity = activity_lev;
 		if (ch_activity != activity_lev ||
-				(was_in = IN_ROOM(ch)) == NOWHERE || GET_ROOM_VNUM(IN_ROOM(ch)) % 100 == 99)
+				(was_in = ch->in_room) == NOWHERE || GET_ROOM_VNUM(ch->in_room) % 100 == 99)
 			continue;
 
 		// Examine call for special procedure
@@ -1246,7 +1246,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 							(is_room_forbidden(world[rdata->to_room]) && !MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
 							|| IS_DARK(rdata->to_room)
 							|| (MOB_FLAGGED(ch, MOB_STAY_ZONE)
-								&& world[IN_ROOM(ch)]->zone != world[rdata->to_room]->zone))
+								&& world[ch->in_room]->zone != world[rdata->to_room]->zone))
 						break;
 
 					for (first = world[rdata->to_room]->people, kw = 0;
@@ -1343,7 +1343,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		// Add new mobile actions here
 
-		if (was_in != IN_ROOM(ch))
+		if (was_in != ch->in_room)
 		{
 			do_aggressive_room(ch, FALSE);
 		}

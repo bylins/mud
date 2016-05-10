@@ -4755,7 +4755,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	{
 		if (ch
 			&& SENDOK(ch)
-			&& IN_ROOM(ch) != NOWHERE
+			&& ch->in_room != NOWHERE
 			&& (!check_deaf || !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
@@ -4834,8 +4834,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		}
 	}
 	//Реализация флага слышно арену
-	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
-		&& ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENASEND) && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENARECV))
+	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != NOWHERE) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+		&& ROOM_FLAGGED(ch->in_room, ROOM_ARENASEND) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
 		arena_room_rnum = ch->in_room;
 		// находим первую клетку в зоне

@@ -16,7 +16,7 @@ inline bool MORT_CAN_SEE_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
 {
 	return INVIS_OK_OBJ(sub, obj)
 		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
-		&& (IS_LIGHT(IN_ROOM(sub))
+		&& (IS_LIGHT(sub->in_room)
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_GLOW)
 			|| (IS_CORPSE(obj)
 				&& AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
@@ -56,30 +56,6 @@ inline bool CAN_GET_OBJ(const CHAR_DATA* ch, const OBJ_DATA* obj)
 		&& CAN_SEE_OBJ(ch, obj))
 		&& !(IS_NPC(ch)
 			&& obj->get_extra_flag(EExtraFlag::ITEM_BLOODY));
-}
-
-inline bool CHECK_CUSTOM_LABEL_CORE(const OBJ_DATA* obj, const CHAR_DATA* ch)
-{
-	return (obj->get_custom_label()->author == (ch)->get_idnum()
-		&& !(obj->get_custom_label()->clan))
-		|| IS_IMPL(ch)
-		|| ((ch)->player_specials->clan
-			&& obj->get_custom_label()->clan != NULL
-			&& !strcmp(obj->get_custom_label()->clan, ch->player_specials->clan->GetAbbrev()))
-		|| (obj->get_custom_label()->author_mail
-			&& !strcmp(GET_EMAIL(ch), obj->get_custom_label()->author_mail));
-}
-
-// проверяет arg на совпадение с персональными или клановыми метками
-// чармис автора меток их тоже может использовать
-inline bool CHECK_CUSTOM_LABEL(const char* arg, const OBJ_DATA* obj, const CHAR_DATA* ch)
-{
-	return  obj->get_custom_label()
-		&& obj->get_custom_label()->label_text
-		&& (IS_NPC(ch)
-			? ((IS_CHARMICE(ch) && ch->master) ? CHECK_CUSTOM_LABEL_CORE(obj, ch->master) : 0)
-			: CHECK_CUSTOM_LABEL_CORE(obj, ch))
-		&& isname((arg), (obj)->get_custom_label()->label_text);
 }
 
 #endif // __CHAR_OBJ_UTILS_HPP__

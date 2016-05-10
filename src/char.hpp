@@ -850,7 +850,7 @@ inline bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* 
 {
 	return !(GET_INVIS_LEV(ch) > 30)
 		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
-		&& (!IS_DARK(IN_ROOM(sub))
+		&& (!IS_DARK(sub->in_room)
 			|| AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
 		&& (!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
 			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS));
@@ -908,7 +908,7 @@ inline bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
 	return !NAME_BAD(ch)
 		&& (NAME_FINE(ch)
 			|| !(GET_LEVEL(ch) == NAME_LEVEL))
-		&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 		&& IS_NPC(victim)
 		&& (GET_EXP(victim) > 0)
 		&& (!IS_NPC(victim)

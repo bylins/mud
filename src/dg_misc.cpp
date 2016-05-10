@@ -50,7 +50,7 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 {
 	*tch = NULL;
 	*tobj = NULL;
-	*troom = world[IN_ROOM(ch)];
+	*troom = world[ch->in_room];
 
 	if (spellnum == SPELL_CONTROL_WEATHER)
 	{
@@ -118,7 +118,7 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 		}
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_ROOM))
-			if ((*tobj = get_obj_in_list_vis(ch, t, world[IN_ROOM(ch)]->contents)) != NULL)
+			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != NULL)
 				return TRUE;
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD))

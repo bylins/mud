@@ -1259,7 +1259,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		if (obj)
 		{
 			if (GET_OBJ_ZONE(obj) == NOWHERE)
-                              GET_OBJ_ZONE(obj) = world[IN_ROOM(ch)]->zone;
+                              GET_OBJ_ZONE(obj) = world[ch->in_room]->zone;
 			obj_to_char(obj, ch);
 			if ((*shop)->currency == "слава")
 			{
@@ -1891,14 +1891,14 @@ void town_shop_keepers()
 
 	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
 	{
-		if (IS_RENTKEEPER(ch) && IN_ROOM(ch) > 0
-			&& Clan::IsClanRoom(IN_ROOM(ch)) == Clan::ClanList.end()
-			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SOUNDPROOF)
-			&& GET_ROOM_VNUM(IN_ROOM(ch)) % 100 != 99
-			&& zone_list.find(world[IN_ROOM(ch)]->zone) == zone_list.end())
+		if (IS_RENTKEEPER(ch) && ch->in_room > 0
+			&& Clan::IsClanRoom(ch->in_room) == Clan::ClanList.end()
+			&& !ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
+			&& GET_ROOM_VNUM(ch->in_room) % 100 != 99
+			&& zone_list.find(world[ch->in_room]->zone) == zone_list.end())
 		{
 			int rnum_start, rnum_end;
-			if (get_zone_rooms(world[IN_ROOM(ch)]->zone, &rnum_start, &rnum_end))
+			if (get_zone_rooms(world[ch->in_room]->zone, &rnum_start, &rnum_end))
 			{
 				CHAR_DATA *mob = read_mobile(1901, VIRTUAL);
 				if (mob)
@@ -1906,7 +1906,7 @@ void town_shop_keepers()
 					char_to_room(mob, number(rnum_start, rnum_end));
 				}
 			}
-			zone_list.insert(world[IN_ROOM(ch)]->zone);
+			zone_list.insert(world[ch->in_room]->zone);
 		}
 	}
 }

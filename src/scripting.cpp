@@ -960,7 +960,7 @@ void set_obj_type(const int v)
 int get_wear_flags() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.wear_flags;
+	return obj->get_wear_flags();
 }
 
 void set_wear_flags(const int v)

@@ -272,7 +272,7 @@ bool is_wear_light(CHAR_DATA *ch)
 
 void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef)
 {
-	if (IN_ROOM(ch) == NOWHERE)
+	if (ch->in_room == NOWHERE)
 	{
 		return;
 	}
@@ -339,7 +339,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 
 /*	if (GET_LEVEL(ch) >= LVL_GOD)
 	{
-		sprintf(buf,"Light:%d Glight:%d gdark%d koef:%d\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
+		sprintf(buf,"Light:%d Glight:%d gdark%d koef:%d\r\n",world[ch->in_room]->light,world[ch->in_room]->glight,world[ch->in_room]->gdark,koef);
 		send_to_char(buf,ch);
 	}*/
 }
@@ -1338,7 +1338,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 			send_to_char(buf, ch);
 		}
 		// Stop fighting now, if we left.
-		if (ch->get_fighting() && IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
+		if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting()))
 		{
 			stop_fighting(ch->get_fighting(), FALSE);
 			stop_fighting(ch, TRUE);
@@ -1353,7 +1353,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 	{
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
-		room_affect_process_on_entry(ch, IN_ROOM(ch));
+		room_affect_process_on_entry(ch, ch->in_room);
 	}
 
 	// report room changing
@@ -1510,7 +1510,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		{
 			act("Вас обожгло при попытке взять $o3.", FALSE, ch, object, 0, TO_CHAR);
 			act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, object, 0, TO_ROOM);
-			obj_to_room(object, IN_ROOM(ch));
+			obj_to_room(object, ch->in_room);
 			return;
 		}
 
@@ -1819,7 +1819,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 								static_cast<EAffectFlag>(0), FALSE);
 						}
 
-						if (IN_ROOM(ch) != NOWHERE)
+						if (ch->in_room != NOWHERE)
 						{
 							for (const auto& i : weapon_affect)
 							{
@@ -1850,7 +1850,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 							GET_EQ(ch, pos)->affected[i].modifier, static_cast<EAffectFlag>(0), TRUE);
 					}
 
-					if (IN_ROOM(ch) != NOWHERE)
+					if (ch->in_room != NOWHERE)
 					{
 						for (const auto& i : weapon_affect)
 						{
@@ -1860,7 +1860,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 							}
 							if (!no_cast)
 							{
-								if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
+								if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
 								{
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										FALSE, ch, GET_EQ(ch, pos), 0, TO_ROOM);
@@ -1884,7 +1884,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 				for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 					affect_modify(ch, obj->affected[i].location, obj->affected[i].modifier, static_cast<EAffectFlag>(0), TRUE);
 
-				if (IN_ROOM(ch) != NOWHERE)
+				if (ch->in_room != NOWHERE)
 				{
 					for (const auto& i : weapon_affect)
 					{
@@ -1895,7 +1895,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 						}
 						if (!no_cast)
 						{
-							if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
+							if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
 							{
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									FALSE, ch, obj, 0, TO_ROOM);
@@ -1990,7 +1990,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		act("$n попытал$u использовать $o3 - и чудом не обгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
 		if (obj->carried_by)
 			obj_from_char(obj);
-		obj_to_room(obj, IN_ROOM(ch));
+		obj_to_room(obj, ch->in_room);
 		obj_decay(obj);
 		return;
 	}
@@ -2093,7 +2093,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, static_cast<EAffectFlag>(0), TRUE);
 		}
 
-		if (IN_ROOM(ch) != NOWHERE)
+		if (ch->in_room != NOWHERE)
 		{
 			for (const auto& j : weapon_affect)
 			{
@@ -2105,7 +2105,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 				if (!no_cast)
 				{
-					if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
+					if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
 					{
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							FALSE, ch, obj, 0, TO_ROOM);
@@ -2177,7 +2177,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 									GET_EQ(ch, pos)->affected[i].modifier, static_cast<EAffectFlag>(0), FALSE);
 							}
 
-							if (IN_ROOM(ch) != NOWHERE)
+							if (ch->in_room != NOWHERE)
 							{
 								for (const auto& i : weapon_affect)
 								{
@@ -2207,7 +2207,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 									GET_EQ(ch, pos)->affected[i].modifier, static_cast<EAffectFlag>(0), TRUE);
 							}
 
-							if (IN_ROOM(ch) != NOWHERE)
+							if (ch->in_room != NOWHERE)
 							{
 								for (const auto& i : weapon_affect)
 								{
@@ -2230,7 +2230,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 							GET_EQ(ch, pos)->affected[i].modifier, static_cast<EAffectFlag>(0), FALSE);
 					}
 
-					if (IN_ROOM(ch) != NOWHERE)
+					if (ch->in_room != NOWHERE)
 					{
 						for (const auto& i : weapon_affect)
 						{
@@ -2262,7 +2262,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 								static_cast<EAffectFlag>(0), TRUE);
 						}
 
-						if (IN_ROOM(ch) != NOWHERE)
+						if (ch->in_room != NOWHERE)
 						{
 							for (const auto& i : weapon_affect)
 							{
@@ -2285,7 +2285,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 				for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 					affect_modify(ch, obj->affected[i].location, obj->affected[i].modifier, static_cast<EAffectFlag>(0), FALSE);
 
-				if (IN_ROOM(ch) != NOWHERE)
+				if (ch->in_room != NOWHERE)
 				{
 					for (const auto& i : weapon_affect)
 					{
@@ -2356,7 +2356,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, static_cast<EAffectFlag>(0), FALSE);
 
-		if (IN_ROOM(ch) != NOWHERE)
+		if (ch->in_room != NOWHERE)
 		{
 			for (const auto& j : weapon_affect)
 			{
@@ -2872,10 +2872,10 @@ void update_char_objects(CHAR_DATA * ch)
 					{
 						act("$z $o погас$Q.\r\n", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_CHAR);
 						act("$o $n1 погас$Q.", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_ROOM);
-						if (IN_ROOM(ch) != NOWHERE)
+						if (ch->in_room != NOWHERE)
 						{
-							if (world[IN_ROOM(ch)]->light > 0)
-								world[IN_ROOM(ch)]->light -= 1;
+							if (world[ch->in_room]->light > 0)
+								world[ch->in_room]->light -= 1;
 						}
 						if (OBJ_FLAGGED(GET_EQ(ch, wear_pos), EExtraFlag::ITEM_DECAY))
 							extract_obj(GET_EQ(ch, wear_pos));
@@ -3637,17 +3637,17 @@ bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
 	else if (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
 		return false;
 	else if (i->carried_by && IS_NPC(i->carried_by))
-		if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone) //шмотки у моба можно локейтить только в одной зоне
+		if (world[IN_ROOM(i->carried_by)]->zone == world[ch->in_room]->zone) //шмотки у моба можно локейтить только в одной зоне
 			return true;
 		else
 			return false;
 	else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
-		if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone) //шмотки в клетке можно локейтить только в одной зоне
+		if (world[IN_ROOM(i)]->zone == world[ch->in_room]->zone) //шмотки в клетке можно локейтить только в одной зоне
 			return true;
 		else
 			return false;
 	else if (i->worn_by && IS_NPC(i->worn_by))
-		if (world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
+		if (world[IN_ROOM(i->worn_by)]->zone == world[ch->in_room]->zone)
 			return true;
 		else
 			return false;
@@ -3660,7 +3660,7 @@ bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
 			{
 				if (IS_NPC(i->in_obj->carried_by))
 				{
-					if (world[IN_ROOM(i->in_obj->carried_by)]->zone == world[IN_ROOM(ch)]->zone)
+					if (world[IN_ROOM(i->in_obj->carried_by)]->zone == world[ch->in_room]->zone)
 						return true;
 					else
 						return false;
@@ -3670,7 +3670,7 @@ bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
 			}
 			else if (IN_ROOM(i->in_obj) != NOWHERE && IN_ROOM(i->in_obj))
 			{
-				if (world[IN_ROOM(i->in_obj)]->zone == world[IN_ROOM(ch)]->zone)
+				if (world[IN_ROOM(i->in_obj)]->zone == world[ch->in_room]->zone)
 					return true;
 				else
 					return false;
@@ -3679,7 +3679,7 @@ bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
 			{
 				if (IS_NPC(i->in_obj->worn_by))
 				{
-					if (world[IN_ROOM(i->in_obj->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
+					if (world[IN_ROOM(i->in_obj->worn_by)]->zone == world[ch->in_room]->zone)
 						return true;
 					else
 						return false;

@@ -70,7 +70,7 @@ int have_mind(CHAR_DATA * ch)
 
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room)
 {
-	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))))
+	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))))
 		WAIT_STATE(ch, waittime * PULSE_VIOLENCE);
 };
 
@@ -167,7 +167,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 		{
 			if (MOB_FLAGGED(victim, MOB_CLONE))
 				remember(ch, victim->master);
-			else if (IN_ROOM(victim->master) == IN_ROOM(ch) && CAN_SEE(ch, victim->master))
+			else if (IN_ROOM(victim->master) == ch->in_room && CAN_SEE(ch, victim->master))
 				remember(ch, victim->master);
 		}
 		return (FALSE);
@@ -701,7 +701,7 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // ********************* FLEE PROCEDURE
 void go_flee(CHAR_DATA * ch)
 {
-	int i, attempt, loss, scandirs = 0, was_in = IN_ROOM(ch);
+	int i, attempt, loss, scandirs = 0, was_in = ch->in_room;
 	CHAR_DATA *was_fighting;
 
 	if (on_horse(ch) && GET_POS(get_horse(ch)) >= POS_FIGHTING && !GET_MOB_HOLD(get_horse(ch)))
@@ -787,7 +787,7 @@ void go_flee(CHAR_DATA * ch)
 
 void go_dir_flee(CHAR_DATA * ch, int direction)
 {
-	int attempt, loss, scandirs = 0, was_in = IN_ROOM(ch);
+	int attempt, loss, scandirs = 0, was_in = ch->in_room;
 	CHAR_DATA *was_fighting;
 
 	if (GET_MOB_HOLD(ch))
@@ -1029,7 +1029,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD)))  	// -1 = dead, 0 = miss
 		{
 			prob = 3;
-			if (IN_ROOM(ch) == IN_ROOM(vict))
+			if (ch->in_room == IN_ROOM(vict))
 			{
 				GET_POS(vict) = POS_SITTING;
 				drop_from_horse(vict);
@@ -1058,7 +1058,7 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -1123,7 +1123,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -1538,7 +1538,7 @@ void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -1781,7 +1781,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 		if (tch->get_fighting() == vict)
 			break;
 
@@ -1800,7 +1800,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 	{
 		if (tch->get_fighting() == vict && !may_kill_here(ch, tch))
 			return;
@@ -1845,7 +1845,7 @@ void do_touch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
+		for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 			if (vict->get_fighting() == ch)
 				break;
 		if (!vict)
@@ -2030,7 +2030,7 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -2141,7 +2141,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		act("$n ловко подсек$q вас, усадив на попу.", FALSE, ch, 0, vict, TO_VICT);
 		act("$n ловко подсек$q $N3, уронив $S на землю.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_wait(vict, 3, FALSE);
-		if (IN_ROOM(ch) == IN_ROOM(vict))
+		if (ch->in_room == IN_ROOM(vict))
 			GET_POS(vict) = POS_SITTING;
 		if (IS_HORSE(vict) && on_horse(vict->master))
 			horse_drop(vict);
@@ -2174,7 +2174,7 @@ void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -2253,7 +2253,7 @@ void do_stupor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -2333,7 +2333,7 @@ void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -2550,7 +2550,7 @@ void do_stopfight(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	for (tmp_ch = world[IN_ROOM(ch)]->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
+	for (tmp_ch = world[ch->in_room]->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
 		if (tmp_ch->get_fighting() == ch)
 			break;
 
@@ -2618,7 +2618,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 		if (IN_ROOM(vict) != NOWHERE)
 			obj_to_char(wielded, vict);
 		else
-			obj_to_room(wielded, IN_ROOM(ch));
+			obj_to_room(wielded, ch->in_room);
 		obj_decay(wielded);
 	}
 	// log("[THROW] Miss stop extract weapon...");
@@ -2640,7 +2640,7 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 		{
 			vict = ch->get_fighting();
 		}
@@ -2693,7 +2693,7 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 		{
 			vict = ch->get_fighting();
 		}
@@ -2710,7 +2710,7 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOBATTLE))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE))
 	{
 		send_to_char("Поищите другое место для выражения своих кровожадных наклонностей.\r\n", ch);
 		return;
@@ -2879,7 +2879,7 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		if (sum <= 0)
 			break;
 		ch_vict = *it;
-		if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		if (ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 			continue;
 		if ((GET_LEVEL(ch_vict) > max_level) ||
 			//(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) + GET_REAL_CON(ch_vict)) >
@@ -3010,7 +3010,7 @@ void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -3115,7 +3115,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 				act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HORSE);
 			}
-			if (ch->get_skill(SKILL_CHOPOFF) && (IN_ROOM(ch) == IN_ROOM(vict)))
+			if (ch->get_skill(SKILL_CHOPOFF) && (ch->in_room == IN_ROOM(vict)))
 				go_chopoff(ch, vict);
 		}
 	}

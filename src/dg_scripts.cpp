@@ -319,7 +319,7 @@ int find_char_vnum(long n, int num = 0)
 	int count = 0;
 	for (ch = character_list; ch; ch = ch->get_next())
 	{
-		if (n == GET_MOB_VNUM(ch) && IN_ROOM(ch) != NOWHERE)
+		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE)
 		{
 			++count;
 			if (num > 0 && num != count)
@@ -697,7 +697,7 @@ void script_trigger_check(void)
 			sc = SCRIPT(ch);
 
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM) &&
-					(!is_empty(world[IN_ROOM(ch)]->zone) || IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
+					(!is_empty(world[ch->in_room]->zone) || IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
 				random_mtrigger(ch);
 		}
 	}
@@ -750,7 +750,7 @@ void script_timechange_trigger_check(const int time)
 			sc = SCRIPT(ch);
 
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_TIMECHANGE) &&
-					(!is_empty(world[IN_ROOM(ch)]->zone) || IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
+					(!is_empty(world[ch->in_room]->zone) || IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
 				timechange_mtrigger(ch, time);
 		}
 	}
@@ -1269,7 +1269,7 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!str_cmp(arg1, "room"))
 	{
-		room = world[IN_ROOM(ch)];
+		room = world[ch->in_room];
 		if (!SCRIPT(room))
 			send_to_char("This room does not have any triggers.\r\n", ch);
 		else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
@@ -1315,7 +1315,7 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			if ((object = get_object_in_equip_vis(ch, arg1, ch->equipment, &tmp)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, ch->carrying)));
 			else if ((victim = get_char_room_vis(ch, arg1)));
-			else if ((object = get_obj_in_list_vis(ch, arg1, world[IN_ROOM(ch)]->contents)));
+			else if ((object = get_obj_in_list_vis(ch, arg1, world[ch->in_room]->contents)));
 			else if ((victim = get_char_vis(ch, arg1, FIND_CHAR_WORLD)));
 			else if ((object = get_obj_vis(ch, arg1)));
 			else
@@ -1805,8 +1805,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			if ((o = get_object_in_equip(ch, name)));
 			else if ((o = get_obj_in_list(name, ch->carrying)));
-			else if ((c = get_char_room(name, IN_ROOM(ch))));
-			else if ((o = get_obj_in_list(name, world[IN_ROOM(ch)]->contents)));
+			else if ((c = get_char_room(name, ch->in_room)));
+			else if ((o = get_obj_in_list(name, world[ch->in_room]->contents)));
 			else if ((c = get_char(name, GET_TRIG_VNUM(trig))));
 			else if ((o = get_obj(name, GET_TRIG_VNUM(trig))));
 			else if ((r = get_room(name)))
@@ -2068,7 +2068,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (type == MOB_TRIGGER)
 				{
 					ch = (CHAR_DATA *) go;
-					for (c = world[IN_ROOM(ch)]->people; c; c = c->next_in_room)
+					for (c = world[ch->in_room]->people; c; c = c->next_in_room)
 						if (!PRF_FLAGGED(c, PRF_NOHASSLE) && (c != ch)
 								&& CAN_SEE(ch, c)
 								&& ((IS_NPC(c) && *field != 'p')
@@ -4756,7 +4756,7 @@ bool find_all_char_vnum(long n, char *str)
 	int count = 0;
 	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
 	{
-		if (n == GET_MOB_VNUM(ch) && IN_ROOM(ch) != NOWHERE && count < 25)
+		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE && count < 25)
 		{
 			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(ch));
 			++count;

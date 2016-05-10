@@ -492,9 +492,9 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 
 void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 {
-	if ((IN_ROOM(ch) == r_helled_start_room) ||
-		(IN_ROOM(ch) == r_named_start_room) ||
-		(IN_ROOM(ch) == r_unreg_start_room))
+	if ((ch->in_room == r_helled_start_room) ||
+		(ch->in_room == r_named_start_room) ||
+		(ch->in_room == r_unreg_start_room))
 	{
 		act("$n сказал$g вам : 'Вот выйдешь - тогда и получишь!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;

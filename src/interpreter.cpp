@@ -1205,9 +1205,9 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		return;
 	if (!IS_NPC(ch))
 	{
-		log("<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
+		log("<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 		if (GET_LEVEL(ch) >= LVL_IMMORT || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
-			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
+			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 	}
 
 	//Polud спешиал для спешиалов добавим обработку числового префикса перед именем команды
@@ -1354,7 +1354,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		{
 			return;
 		}
-		if (!IS_NPC(ch) && IN_ROOM(ch) != NOWHERE && CHECK_AGRO(ch))
+		if (!IS_NPC(ch) && ch->in_room != NOWHERE && CHECK_AGRO(ch))
 		{
 			CHECK_AGRO(ch) = FALSE;
 			do_aggressive_room(ch, FALSE);

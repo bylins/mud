@@ -578,7 +578,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		if (!enter_wtrigger(world[EXIT(ch, dir)->to_room], ch, dir))
 			return (FALSE);
 
-		for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+		for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 		{
 			if (!IS_NPC(tch))
 				continue;
@@ -862,7 +862,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		else
 			strcpy(buf1, "приш$y");
 
-		//log("%s-%d",GET_NAME(ch),IN_ROOM(ch));
+		//log("%s-%d",GET_NAME(ch),ch->in_room);
 		sprintf(buf2, "$n %s %s.", buf1, DirsFrom[dir]);
 		//log(buf2);
 		act(buf2, TRUE, ch, 0, 0, TO_ROOM);
@@ -878,7 +878,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		look_at_room(ch, 0);
 
 	if (!IS_NPC(ch))
-		room_affect_process_on_entry(ch, IN_ROOM(ch));
+		room_affect_process_on_entry(ch, ch->in_room);
 
 	if (DeathTrap::check_death_trap(ch))
 	{
@@ -978,7 +978,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	income_mtrigger(ch, direction - 1);
 
 	// char income, go mobs action
-	for (vict = world[IN_ROOM(ch)]->people; !IS_NPC(ch) && vict; vict = vict->next_in_room)
+	for (vict = world[ch->in_room]->people; !IS_NPC(ch) && vict; vict = vict->next_in_room)
 	{
 		if (!IS_NPC(vict))
 			continue;
@@ -1328,7 +1328,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	// объект, который выпадает из сундука
 	sprintf(local_buf, "$n %s ", cmd_door[scmd]);
 //  if (IS_NPC(ch))
-//     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(IN_ROOM(ch)));
+//     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(ch->in_room));
 	if (!obj && ((other_room = EXIT(ch, door)->to_room) != NOWHERE))
 		if ((back = world[other_room]->dir_option[rev_dir[door]]) != NULL)
 			if ((back->to_room != ch->in_room) ||
@@ -1621,12 +1621,12 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (isname(buf, p_str))
 		{
-			if (!world[IN_ROOM(ch)]->portal_time)
+			if (!world[ch->in_room]->portal_time)
 				send_to_char("Вы не видите здесь пентаграмму.\r\n", ch);
 			else
 			{
-				from_room = IN_ROOM(ch);
-				door = world[IN_ROOM(ch)]->portal_room;
+				from_room = ch->in_room;
+				door = world[ch->in_room]->portal_room;
 				// не пускать игрока на холженном коне
 				if (on_horse(ch) && GET_MOB_HOLD(get_horse(ch)))
 				{
@@ -1957,7 +1957,7 @@ void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (horse == NULL)
 		send_to_char(NOPERSON, ch);
-	else if (IN_ROOM(horse) != IN_ROOM(ch))
+	else if (IN_ROOM(horse) != ch->in_room)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
@@ -2033,7 +2033,7 @@ void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (horse == NULL)
 		send_to_char(NOPERSON, ch);
-	else if (IN_ROOM(horse) != IN_ROOM(ch))
+	else if (IN_ROOM(horse) != ch->in_room)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
@@ -2074,7 +2074,7 @@ void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		horse = get_horse(ch);
 	if (horse == NULL)
 		send_to_char(NOPERSON, ch);
-	else if (IN_ROOM(horse) != IN_ROOM(ch))
+	else if (IN_ROOM(horse) != ch->in_room)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);

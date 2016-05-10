@@ -204,8 +204,8 @@ int mana_gain(CHAR_DATA * ch)
 			percent -= 5;
 	}
 
-	if (world[IN_ROOM(ch)]->fires)
-		percent += MAX(100, 10 + (world[IN_ROOM(ch)]->fires * 5) * 2);
+	if (world[ch->in_room]->fires)
+		percent += MAX(100, 10 + (world[ch->in_room]->fires * 5) * 2);
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 		percent += 15;
@@ -248,7 +248,7 @@ int mana_gain(CHAR_DATA * ch)
 			(AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) ||
 			 AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) ||
 			 AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP) ||
-			 ((IN_ROOM(ch) != NOWHERE) && IS_DARK(IN_ROOM(ch)) && !can_use_feat(ch, DARK_READING_FEAT))))
+			 ((ch->in_room != NOWHERE) && IS_DARK(ch->in_room) && !can_use_feat(ch, DARK_READING_FEAT))))
 	{
 		stopmem = TRUE;
 		percent = 0;
@@ -307,8 +307,8 @@ int hit_gain(CHAR_DATA * ch)
 			percent -= 10;
 	}
 
-	if (world[IN_ROOM(ch)]->fires)
-		percent += MAX(100, 10 + (world[IN_ROOM(ch)]->fires * 5) * 2);
+	if (world[ch->in_room]->fires)
+		percent += MAX(100, 10 + (world[ch->in_room]->fires * 5) * 2);
 
 	// Skill/Spell calculations //
 
@@ -376,8 +376,8 @@ int move_gain(CHAR_DATA * ch)
 			percent -= 5;
 	}
 
-	if (world[IN_ROOM(ch)]->fires)
-		percent += MAX(50, 10 + world[IN_ROOM(ch)]->fires * 5);
+	if (world[ch->in_room]->fires)
+		percent += MAX(50, 10 + world[ch->in_room]->fires * 5);
 
 	// Class/Level calculations //
 
@@ -843,7 +843,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 	else
 	{
 		ch->dps_add_exp(gain);
-		ZoneExpStat::add(zone_table[world[IN_ROOM(ch)]->zone].number, gain);
+		ZoneExpStat::add(zone_table[world[ch->in_room]->zone].number, gain);
 	}
 
 	if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_IMMORT)))
@@ -1404,12 +1404,14 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 	   то в игре будет выглядеть неестественно.
 	   короче, рефакторинг приветствуется, если кто-нибудь придумает лучше.
 	*/
+	std::string cap = obj->get_PName(0);
+	cap[0] = UPPER(cap[0]);
 	snprintf(buf, MAX_STRING_LENGTH, "%s сказал%s вам : '%s рассыпал%s %s...'",
-	         GET_NAME(charmee),
-	         GET_CH_SUF_1(charmee),
-	         CAP(OBJ_PAD(obj, 0)),
-	         GET_OBJ_SUF_2(obj),
-	         buf1);
+		GET_NAME(charmee),
+		GET_CH_SUF_1(charmee),
+		cap.c_str(),
+		GET_OBJ_SUF_2(obj),
+		buf1);
 	send_to_char(charmee->master, "%s%s%s\r\n", CCICYN(charmee->master, C_NRM), CAP(buf), CCNRM(charmee->master, C_NRM));
 }
 

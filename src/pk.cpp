@@ -1099,7 +1099,7 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 		for (f = leader->followers; f; f = f->next)
 		{
 			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-				&& IN_ROOM(f->follower) == IN_ROOM(ch) && CLAN(f->follower))
+				&& IN_ROOM(f->follower) == ch->in_room && CLAN(f->follower))
 			{
 				return true;
 			}

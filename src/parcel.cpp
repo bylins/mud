@@ -183,31 +183,30 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 		|| GET_OBJ_RNUM(obj) <= NOTHING
 		|| GET_OBJ_OWNER(obj))
 	{
-		snprintf(buf, MAX_STRING_LENGTH,
-				"$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
-				OBJ_PAD(obj, 0));
+		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
+			obj->get_PName(0).c_str());
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	}
 	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
-		&& obj->contains)
+		&& obj->get_contains())
 	{
-		snprintf(buf, MAX_STRING_LENGTH,
-				"$n сказал$g вам : 'В %s что-то лежит.'\r\n", OBJ_PAD(obj, 5));
+		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(5).c_str());
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	}
 	else if (SetSystem::is_big_set(obj))
 	{
-		snprintf(buf, MAX_STRING_LENGTH,
-				"$n сказал$g вам : '%s является частью большого набора предметов.'\r\n",
-				OBJ_PAD(obj, 0));
+		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g вам : '%s является частью большого набора предметов.'\r\n",
+			obj->get_PName(0).c_str());
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	}
 	Player t_vict;
 	if (load_char(GetNameByUnique(vict_uid).c_str(), &t_vict) < 0)
+	{
 		return 0;
+	}
 	if (invalid_anti_class(&t_vict, obj))
 	{
 			switch (GET_SEX(&t_vict))
@@ -269,7 +268,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	if (send_buffer.empty())
 		send_buffer += "Адресат: " + name + ", отправлено:\r\n";
 
-	snprintf(buf, sizeof(buf), "%s%s%s\r\n", CCWHT(ch, C_NRM), GET_OBJ_PNAME(obj, 0), CCNRM(ch, C_NRM));
+	snprintf(buf, sizeof(buf), "%s%s%s\r\n", CCWHT(ch, C_NRM), GET_OBJ_PNAME(obj, 0).c_str(), CCNRM(ch, C_NRM));
 	send_buffer += buf;
 
 	Node tmp_node(reserved_cost, obj);
@@ -569,9 +568,9 @@ OBJ_DATA * create_parcel()
 // * Получение посылки на почте, дергается из спешиала почты. ('получить').
 void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 {
-	if (((IN_ROOM(ch) == r_helled_start_room) ||
-		(IN_ROOM(ch) == r_named_start_room) ||
-		(IN_ROOM(ch) == r_unreg_start_room)) &&
+	if (((ch->in_room == r_helled_start_room) ||
+		(ch->in_room == r_named_start_room) ||
+		(ch->in_room == r_unreg_start_room)) &&
 		has_parcel(ch))
 	{
 		act("$n сказал$g вам : 'А посылку-то не получишь, сюда не доставляем.'", FALSE, mailman, 0, ch, TO_VICT);

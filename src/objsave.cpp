@@ -3057,7 +3057,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char* /*arg*/, 
 			&& !CMD_IS("settle") && !CMD_IS("поселиться"))
 		return (FALSE);
 
-	save_room = IN_ROOM(ch);
+	save_room = ch->in_room;
 
 	if (CMD_IS("конец") || CMD_IS("quit"))
 	{

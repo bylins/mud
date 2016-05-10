@@ -868,7 +868,7 @@ int has_horse(CHAR_DATA * ch, int same_room)
 		if (IS_NPC(f->follower)
 			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE)
 			&& (!same_room
-				|| IN_ROOM(ch) == IN_ROOM(f->follower)))
+				|| ch->in_room == IN_ROOM(f->follower)))
 		{
 			return (TRUE);
 		}
@@ -1014,7 +1014,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
 			{
 				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				GET_LASTROOM(ch) = GET_ROOM_VNUM(IN_ROOM(ch));
+				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 				perform_drop_gold(ch, ch->get_gold(), SCMD_DROP, 0);
 				ch->set_gold(0);
 				extract_char(ch, FALSE);
@@ -1028,9 +1028,9 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			{
 				if (master &&
 						!IS_SET(mode, SF_MASTERDIE) &&
-						IN_ROOM(ch) == IN_ROOM(master) &&
+						ch->in_room == IN_ROOM(master) &&
 						CAN_SEE(ch, master) && !ch->get_fighting() &&
-						!ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL))   //Polud - ну не надо агрить в мирках, незачем это
+						!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))   //Polud - ну не надо агрить в мирках, незачем это
 				{
 					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master))
 					{
@@ -1360,7 +1360,7 @@ void koi_to_alt(char *str, int size)
 // completely rewritten by Anton Gorev 05/08/2016 (kvirund@gmail.com) //
 // substitute appearances of 'pattern' with 'replacement' in string //
 // and return the # of replacements //
-int replace_str(const std::shared_ptr<CCommonStringWriter>& writer, char *pattern, char *replacement, int rep_all, int max_size)
+int replace_str(const string_writer_t& writer, char *pattern, char *replacement, int rep_all, int max_size)
 {
 	char *replace_buffer = nullptr;
 	CREATE(replace_buffer, max_size);
@@ -1422,11 +1422,12 @@ int replace_str(const std::shared_ptr<CCommonStringWriter>& writer, char *patter
 
 // re-formats message type formatted char * //
 // (for strings edited with d->str) (mostly olc and mail)     //
-void format_text(const std::shared_ptr<CCommonStringWriter>& writer, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
+void format_text(const string_writer_t& writer, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
 {
 	size_t total_chars = 0;
 	int cap_next = TRUE, cap_next_next = FALSE;
-	const char *flow, *start = NULL, temp;
+	const char* flow;
+	const char* start = NULL;
 	// warning: do not edit messages with max_str's of over this value //
 	char formatted[MAX_STRING_LENGTH];
 	char *pos = formatted;
@@ -1536,7 +1537,7 @@ void format_text(const std::shared_ptr<CCommonStringWriter>& writer, int mode, D
 	}
 	strcpy(pos, "\r\n");
 
-	if ((pos - formatted) > maxlen)
+	if (static_cast<size_t>(pos - formatted) > maxlen)
 	{
 		formatted[maxlen] = '\0';
 	}
@@ -1770,7 +1771,6 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = HSSH((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, OSSH(obj));
-				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'o':
@@ -1966,7 +1966,7 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
 		send_to_char("Вы не можете нести столько предметов.", ch);
-		obj_to_room(obj, IN_ROOM(ch));
+		obj_to_room(obj, ch->in_room);
 		obj_decay(obj);
 	}
 	else
@@ -1975,7 +1975,7 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 		{
 			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->PNames[3]);
 			send_to_char(buf, ch);
-			obj_to_room(obj, IN_ROOM(ch));
+			obj_to_room(obj, ch->in_room);
 			// obj_decay(obj);
 		}
 		else

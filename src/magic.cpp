@@ -474,7 +474,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	const char *to_room = NULL;
 	int i = 0, lag = 0;
 	// Sanity check
-	if (room == NULL || IN_ROOM(ch) == NOWHERE || ch == NULL)
+	if (room == NULL || ch->in_room == NOWHERE || ch == NULL)
 	{
 		return 0;
 	}
@@ -569,7 +569,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		break;
 
 	case SPELL_RUNE_LABEL:
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_TUNNEL))
+		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
 		{
 			to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 			to_room = "$n начертил$g на земле несколько рун, знаки вспыхунли, но ничего не произошло.";
@@ -613,7 +613,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	}
 
 	// Проверяем а не висит ли уже аффектов от аналогичных заклов на комнате.
-	if ((world[IN_ROOM(ch)] == room) && room_affected_by_spell(room, spellnum) && success && (!update_spell))
+	if ((world[ch->in_room] == room) && room_affected_by_spell(room, spellnum) && success && (!update_spell))
 	{
 		send_to_char(NOEFFECT, ch);
 		success = FALSE;
@@ -2199,7 +2199,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	for (; count > 0 && rand >= 0; count--)
 	{
-		if (IN_ROOM(ch) != NOWHERE
+		if (ch->in_room != NOWHERE
 			&& IN_ROOM(victim) != NOWHERE
 			&& GET_POS(ch) > POS_STUNNED
 			&& GET_POS(victim) > POS_DEAD)
@@ -2399,7 +2399,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
                 && SpINFO.violent
                 && ((!IS_GOD(ch)
                         && AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS)
-                        && (IN_ROOM(ch) == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
+                        && (ch->in_room == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
                         && number(1, 100) < (GET_LEVEL(victim) / 3))
                     || (IS_GOD(victim)
                         && (IS_NPC(ch)
@@ -3103,7 +3103,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (ch != victim && (AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) ||
 							 general_savingthrow(ch, victim, savetype, modi - GET_REAL_CON(victim) / 2)))
 		{
-			if (IN_ROOM(ch) == IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
+			if (ch->in_room == IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
 				send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -3505,7 +3505,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 				|| (ch != victim
 					&& affected_by_spell(victim, SPELL_DEAFNESS)))
 			{
-				if (IN_ROOM(ch) == IN_ROOM(victim))
+				if (ch->in_room == IN_ROOM(victim))
 					send_to_char(NOEFFECT, ch);
 			}
 			else
@@ -3944,7 +3944,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		{
 			if (AFF_FLAGGED(victim, static_cast<EAffectFlag>(af[i].bitvector)))
 			{
-				if (IN_ROOM(ch) == IN_ROOM(victim))
+				if (ch->in_room == IN_ROOM(victim))
 					send_to_char(NOEFFECT, ch);
 				success = FALSE;
 			}
@@ -3962,7 +3962,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell))
 	{
-		if (IN_ROOM(ch) == IN_ROOM(victim))
+		if (ch->in_room == IN_ROOM(victim))
 			send_to_char(NOEFFECT, ch);
 		success = FALSE;
 	}
@@ -4417,7 +4417,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		{
 			next_obj = tobj->next_content;
 			obj_from_obj(tobj);
-			obj_to_room(tobj, IN_ROOM(ch));
+			obj_to_room(tobj, ch->in_room);
 			if (!obj_decay(tobj) && tobj->in_room != NOWHERE)
 				act("На земле остал$U лежать $o.", FALSE, ch, tobj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			tobj = next_obj;
@@ -4940,13 +4940,13 @@ int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
 		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(tobj, IN_ROOM(ch));
+		obj_to_room(tobj, ch->in_room);
 		obj_decay(tobj);
 	}
 	else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch))
 	{
 		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(tobj, IN_ROOM(ch));
+		obj_to_room(tobj, ch->in_room);
 		obj_decay(tobj);
 	}
 	else
@@ -5202,7 +5202,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 	if (masses_messages[i].spell == -1)
 		return 0;
 
-	if (world[IN_ROOM(ch)] == room)	 // Давим вывод если чар не в той же комнате
+	if (world[ch->in_room] == room)	 // Давим вывод если чар не в той же комнате
 	{
 		if (multi_cast_say(ch))
 		{
@@ -5239,7 +5239,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
 	{
 		ch_vict = *it;
-		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
 			continue;
 		}
@@ -5351,7 +5351,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 	if (areas_messages[i].spell == -1)
 		return 0;
 
-	if (IN_ROOM(ch) == IN_ROOM(victim)) // Подавляем вывод если кастер не в комнате
+	if (ch->in_room == IN_ROOM(victim)) // Подавляем вывод если кастер не в комнате
 	{
 		if (multi_cast_say(ch))
 		{
@@ -5409,7 +5409,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		i = number(0, static_cast<int>(size) - 1);
 		ch_vict = tmp_char_list[i];
 		tmp_char_list[i] = tmp_char_list[--size];
-		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
 			continue;
 		}
@@ -5569,7 +5569,7 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
 	{
 		ch_vict = *it;
-		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
 			continue;
 		}

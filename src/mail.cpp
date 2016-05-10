@@ -236,9 +236,9 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 	skip_spaces(&arg);
 	if (*arg)
 	{
-		if ((IN_ROOM(ch) == r_helled_start_room) ||
-			(IN_ROOM(ch) == r_named_start_room) ||
-			(IN_ROOM(ch) == r_unreg_start_room))
+		if ((ch->in_room == r_helled_start_room) ||
+			(ch->in_room == r_named_start_room) ||
+			(ch->in_room == r_unreg_start_room))
 		{
 			act("$n сказал$g вам : 'Посылку? Не положено!'", FALSE, mailman, 0, ch, TO_VICT);
 			return;

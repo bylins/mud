@@ -273,7 +273,7 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 	room_rnum rnum_start, rnum_stop;
 	int modi = 0;
 
-	if (!victim || IS_NPC(victim) || IN_ROOM(ch) != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT)
+	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT)
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -345,7 +345,7 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 // ПРЫЖОК в рамках зоны
 void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /* obj*/)
 {
-	room_rnum in_room = IN_ROOM(ch), fnd_room = NOWHERE;
+	room_rnum in_room = ch->in_room, fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
 
 	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)))
@@ -393,7 +393,7 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /
 	if (!IS_GOD(ch))
 	{
 		// Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT))
+		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT))
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -517,8 +517,8 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 		return;
 	}
 	// обработка NOTELEPORTIN и NOTELEPORTOUT теперь происходит при входе в портал
-	if (!IS_GOD(ch) && ( //ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT)||
-				//ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTIN)||
+	if (!IS_GOD(ch) && ( //ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT)||
+				//ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)||
 				SECT(fnd_room) == SECT_SECRET || ROOM_FLAGGED(fnd_room, ROOM_DEATH) || ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) || ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) || ROOM_FLAGGED(fnd_room, ROOM_GODROOM)	//||
 				//ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTOUT) ||
 				//ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN)
@@ -529,7 +529,7 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 	}
 
 	//Юзабилити фикс: не ставим пенту в одну клетку с кастующим
-	if (IN_ROOM(ch) == fnd_room)
+	if (ch->in_room == fnd_room)
 	{
 		send_to_char("Может вам лучше просто потоптаться на месте?\r\n", ch);
 		return;
@@ -541,11 +541,11 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 			decay_portal(world[fnd_room]->portal_room);
 		decay_portal(fnd_room);
 	}
-	if (world[IN_ROOM(ch)]->portal_time)
+	if (world[ch->in_room]->portal_time)
 	{
-		if (world[world[IN_ROOM(ch)]->portal_room]->portal_room == IN_ROOM(ch) && world[world[IN_ROOM(ch)]->portal_room]->portal_time)
-			decay_portal(world[IN_ROOM(ch)]->portal_room);
-		decay_portal(IN_ROOM(ch));
+		if (world[world[ch->in_room]->portal_room]->portal_room == ch->in_room && world[world[ch->in_room]->portal_room]->portal_time)
+			decay_portal(world[ch->in_room]->portal_room);
+		decay_portal(ch->in_room);
 	}
 	bool pkPortal = pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
 			pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT;
@@ -560,7 +560,7 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 		// после 3ех попыток реализаци (3ех пент) -- месть исчезает
 		if (pkPortal) pk_increment_revenge(ch, victim);
 
-		to_room = IN_ROOM(ch);
+		to_room = ch->in_room;
 		world[fnd_room]->portal_room = to_room;
 		world[fnd_room]->portal_time = 1;
 		if (pkPortal) world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
@@ -604,7 +604,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 	if (ch == NULL || victim == NULL || ch == victim)
 		return;
 
-	ch_room = IN_ROOM(ch);
+	ch_room = ch->in_room;
 	vic_room = IN_ROOM(victim);
 
 	// Нельзя суммонить находясь в NOWHERE или если цель в NOWHERE.
@@ -696,7 +696,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 				ROOM_FLAGGED(ch_room, ROOM_GODROOM) ||	// суммонер в комнате для бессмертных
 				ROOM_FLAGGED(ch_room, ROOM_ARENA) ||	// суммонер на арене
 				!Clan::MayEnter(victim, ch_room, HCE_PORTAL) ||	// суммонер стоит во внутренней части клан-замка
-				SECT(IN_ROOM(ch)) == SECT_SECRET)	// суммонер стоит в клетке с типом "секретый"
+				SECT(ch->in_room) == SECT_SECRET)	// суммонер стоит в клетке с типом "секретый"
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -801,19 +801,19 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 		}
 
 		// Если мы открываем врата из комнаты с камнем, то они не работают //
-		if (find_portal_by_vnum(GET_ROOM_VNUM(IN_ROOM(ch))))
+		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room)))
 		{
 			send_to_char("Камень рядом с вами мешает вашей магии.\r\n", ch);
 			return;
 		}
 		// Если в комнате есть метка-"камень" то врата ставить нельзя //
-		if (room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL))
+		if (room_affected_by_spell(world[ch->in_room], SPELL_RUNE_LABEL))
 		{
 			send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 			return;
 		}
 		// Чтоб не кастили в NOMAGIC
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC) && !IS_GRGOD(ch))
+		if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) && !IS_GRGOD(ch))
 		{
 			send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, ch, 0, 0, TO_ROOM);
@@ -821,7 +821,7 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 		}
 		// Открываем пентаграмму в комнату rnum //
 		improove_skill(ch, SKILL_TOWNPORTAL, 1, NULL);
-		ROOM_DATA* from_room = world[IN_ROOM(ch)];
+		ROOM_DATA* from_room = world[ch->in_room];
 		from_room->portal_room = real_room(port->vnum);
 		from_room->portal_time = 1;
 		from_room->pkPenterUnique = 0;
@@ -932,7 +932,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 		if (i->carried_by)
 		{
-			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by) || IS_GOD(ch))
+			if (world[IN_ROOM(i->carried_by)]->zone == world[ch->in_room]->zone || !IS_NPC(i->carried_by) || IS_GOD(ch))
 			{
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n",
 					i->short_description, GET_OBJ_POLY_1(ch, i), PERS(i->carried_by, ch, 1));
@@ -944,7 +944,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		}
 		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
 		{
-			if ((world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) )|| IS_GOD(ch))
+			if ((world[IN_ROOM(i)]->zone == world[ch->in_room]->zone && !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) )|| IS_GOD(ch))
 			{
 				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name);
 			}
@@ -967,7 +967,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 					{
 						if (IS_NPC(i->in_obj->carried_by)
 							&& (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
-								|| world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
+								|| world[IN_ROOM(i->in_obj->carried_by)]->zone != world[ch->in_room]->zone))
 						{
 							continue;
 						}
@@ -975,7 +975,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 					if (IN_ROOM(i->in_obj) != NOWHERE
 						&& IN_ROOM(i->in_obj))
 					{
-						if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone
+						if (world[IN_ROOM(i->in_obj)]->zone != world[ch->in_room]->zone
 							|| OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE))
 						{
 							continue;
@@ -985,7 +985,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 					{
 						if (IS_NPC(i->in_obj->worn_by)
 							&& (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[ch->in_room]->zone))
 						{
 							continue;
 						}
@@ -998,7 +998,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		{
 			if ((IS_NPC(i->worn_by)
 					&& !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
-					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
+					&& world[IN_ROOM(i->worn_by)]->zone == world[ch->in_room]->zone)
 				|| (!IS_NPC(i->worn_by)
 					&& GET_LEVEL(i->worn_by) < LVL_IMMORT)
 				|| IS_GOD(ch))
@@ -1233,7 +1233,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 		if (k)
 		{
-			if (IN_ROOM(ch) != IN_ROOM(k->follower))
+			if (ch->in_room != IN_ROOM(k->follower))
 				act("Вам следует встретиться с $N4 для этого.", FALSE, ch, 0, k->follower, TO_CHAR);
 			else if (GET_POS(k->follower) < POS_STANDING)
 				act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, k->follower, TO_CHAR);
@@ -2533,7 +2533,7 @@ void spell_control_weather(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, 
 	if (sky_info)
 	{
 		duration = MAX(GET_LEVEL(ch) / 8, 2);
-		zone = world[IN_ROOM(ch)]->zone;
+		zone = world[ch->in_room]->zone;
 		for (i = FIRST_ROOM; i <= top_of_world; i++)
 			if (world[i]->zone == zone && SECT(i) != SECT_INSIDE && SECT(i) != SECT_CITY)
 			{
@@ -2636,7 +2636,7 @@ void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* 
 			if (IS_NPC(f->follower)
 				&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
 				&& MOB_FLAGGED(f->follower, MOB_CORPSE)
-				&& IN_ROOM(ch) == IN_ROOM(f->follower))
+				&& ch->in_room == IN_ROOM(f->follower))
 			{
 				do_sacrifice(f->follower, dam);
 			}
@@ -2648,7 +2648,7 @@ void spell_eviless(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA
 {
 	CHAR_DATA *tch;
 
-	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 		if (IS_NPC(tch) && tch->master == ch && MOB_FLAGGED(tch, MOB_CORPSE))
 		{
 			if (mag_affects(GET_LEVEL(ch), ch, tch, SPELL_EVILESS, SAVING_STABILITY))
@@ -2669,7 +2669,7 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 	act(msg1, FALSE, ch, 0, 0, TO_CHAR);
 	act(msg1, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
-	for (tch = world[IN_ROOM(ch)]->people; tch; tch = nxt)
+	for (tch = world[ch->in_room]->people; tch; tch = nxt)
 	{
 		nxt = tch->next_in_room;
 //    if ( SAME_GROUP( ch, tch ) ) continue;
@@ -2695,7 +2695,7 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 
 	do
 	{
-		for (o = world[IN_ROOM(ch)]->contents; o; o = o->next_content)
+		for (o = world[ch->in_room]->contents; o; o = o->next_content)
 		{
 			if (!IS_CORPSE(o))
 				continue;
@@ -2890,7 +2890,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 		AFF_FLAGS(mob).set(EAffectFlag::AFF_AIRSHIELD);
 	}
 
-	char_to_room(mob, IN_ROOM(ch));
+	char_to_room(mob, ch->in_room);
 
 	if (IS_FEMALE(mob))
 	{

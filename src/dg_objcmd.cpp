@@ -459,7 +459,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				horse = get_horse(ch);
 			else
 				horse = NULL;
-			if (IN_ROOM(ch) == NOWHERE)
+			if (ch->in_room == NOWHERE)
 			{
 				obj_log(obj, "oteleport transports from NOWHERE");
 				return;
@@ -485,7 +485,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				horse = get_horse(ch);
 			else
 				horse = NULL;
-			for (charmee = world[IN_ROOM(ch)]->people; charmee; charmee = ncharmee)
+			for (charmee = world[ch->in_room]->people; charmee; charmee = ncharmee)
 			{
 				ncharmee = charmee->next_in_room;
 				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
@@ -577,7 +577,7 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((ch = get_char_by_obj(obj, name)))
 	{
-		if (world[IN_ROOM(ch)]->zone != world[up_obj_where(obj)]->zone)
+		if (world[ch->in_room]->zone != world[up_obj_where(obj)]->zone)
 			return;
 
 		if (GET_LEVEL(ch) >= LVL_IMMORT)
@@ -594,7 +594,7 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (!IS_NPC(ch))
 			{
 				sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(ch),
-						IN_ROOM(ch) == NOWHERE ? "NOWHERE" : world[IN_ROOM(ch)]->name, GET_ROOM_VNUM(IN_ROOM(ch)));
+						ch->in_room == NOWHERE ? "NOWHERE" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			die(ch, NULL);

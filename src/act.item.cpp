@@ -525,7 +525,7 @@ void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				if (money_mode)
 				{
-					if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM))
+					if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM))
 					{
 						act("Неведомая сила помешала вам сделать это!!", FALSE,
 							ch, 0, 0, TO_CHAR);
@@ -654,7 +654,7 @@ int other_pc_in_group(CHAR_DATA *ch)
 	{
 		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 			&& !IS_NPC(f->follower)
-			&& IN_ROOM(f->follower) == IN_ROOM(ch))
+			&& IN_ROOM(f->follower) == ch->in_room)
 		{
 			++num;
 		}
@@ -877,7 +877,7 @@ void get_from_room(CHAR_DATA * ch, char *arg, int howmany)
 	int dotmode, found = 0;
 
 	// Are they trying to take something in a room extra description?
-	if (find_exdesc(arg, world[IN_ROOM(ch)]->ex_description) != NULL)
+	if (find_exdesc(arg, world[ch->in_room]->ex_description) != NULL)
 	{
 		send_to_char("Вы не можете это взять.\r\n", ch);
 		return;
@@ -1158,7 +1158,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 		if (mode != SCMD_JUNK)
 		{
 			WAIT_STATE(ch, PULSE_VIOLENCE);	// to prevent coin-bombing
-			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM))
+			if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM))
 			{
 				act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
 				return;
@@ -1424,7 +1424,7 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 {
 	if (!bloody::handle_transfer(ch, vict, obj))
 		return;
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM) && !IS_GOD(ch))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM) && !IS_GOD(ch))
 	{
 		act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
 		return;
@@ -1499,7 +1499,7 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 		send_to_char("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM) && !IS_GOD(ch))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM) && !IS_GOD(ch))
 	{
 		act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
 		return;
@@ -2761,18 +2761,18 @@ void do_fire(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 
 
-	if (world[IN_ROOM(ch)]->fires)
+	if (world[ch->in_room]->fires)
 	{
 		send_to_char("Здесь уже горит огонь.\r\n", ch);
 		return;
 	}
 
-	if (SECT(IN_ROOM(ch)) == SECT_INSIDE ||
-			SECT(IN_ROOM(ch)) == SECT_CITY ||
-			SECT(IN_ROOM(ch)) == SECT_WATER_SWIM ||
-			SECT(IN_ROOM(ch)) == SECT_WATER_NOSWIM ||
-			SECT(IN_ROOM(ch)) == SECT_FLYING ||
-			SECT(IN_ROOM(ch)) == SECT_UNDERWATER || SECT(IN_ROOM(ch)) == SECT_SECRET)
+	if (SECT(ch->in_room) == SECT_INSIDE ||
+			SECT(ch->in_room) == SECT_CITY ||
+			SECT(ch->in_room) == SECT_WATER_SWIM ||
+			SECT(ch->in_room) == SECT_WATER_NOSWIM ||
+			SECT(ch->in_room) == SECT_FLYING ||
+			SECT(ch->in_room) == SECT_UNDERWATER || SECT(ch->in_room) == SECT_SECRET)
 	{
 		send_to_char("В этой комнате нельзя разжечь костер.\r\n", ch);
 		return;
@@ -2790,7 +2790,7 @@ void do_fire(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		world[IN_ROOM(ch)]->fires = MAX(0, (prob - percent) / 5) + 1;
+		world[ch->in_room]->fires = MAX(0, (prob - percent) / 5) + 1;
 		send_to_char("Вы набрали хворосту и разожгли огонь.\n\r", ch);
 		act("$n развел$g огонь.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		improove_skill(ch, SKILL_FIRE, TRUE, 0);
@@ -2829,9 +2829,9 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
     switch (tp)
     {
     case 0:
-        if (world[IN_ROOM(ch)]->fires)
+        if (world[ch->in_room]->fires)
         {
-            world[IN_ROOM(ch)]->fires = 0;
+            world[ch->in_room]->fires = 0;
             send_to_char("Вы затоптали костер.\r\n", ch);
             act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
             lag = 2;
@@ -2842,7 +2842,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
         }
         break;
     case 1:
-		auto aff = room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL);
+		auto aff = room_affected_by_spell(world[ch->in_room], SPELL_RUNE_LABEL);
 		if (aff
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
 				|| IS_IMMORTAL(ch)
@@ -2862,7 +2862,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
                     send_to_char(buf, caster);
                 }
             }
-            affect_room_remove(world[IN_ROOM(ch)], aff);
+            affect_room_remove(world[ch->in_room], aff);
             lag = 3;
         }
         else
@@ -3048,29 +3048,31 @@ void do_poisoned(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (GET_OBJ_TYPE(cont) != obj_flag_data::ITEM_DRINKCON)
 	{
-		send_to_char(ch, "%s не является емкостью.\r\n", GET_OBJ_PNAME(cont, 0));
+		send_to_char(ch, "%s не является емкостью.\r\n", cont->get_PName(0).c_str());
 		return;
 	}
 	else if (GET_OBJ_VAL(cont, 1) <= 0)
 	{
-		send_to_char(ch, "В %s нет никакой жидкости.\r\n", GET_OBJ_PNAME(cont, 5));
+		send_to_char(ch, "В %s нет никакой жидкости.\r\n", cont->get_PName(5).c_str());
 		return;
 	}
 	else if (!poison_in_vessel(GET_OBJ_VAL(cont, 2)))
 	{
-		send_to_char(ch, "В %s нет подходящего яда.\r\n", GET_OBJ_PNAME(cont, 5));
+		send_to_char(ch, "В %s нет подходящего яда.\r\n", cont->get_PName(5).c_str());
 		return;
 	}
 
 	int cost = MIN(GET_OBJ_VAL(cont, 1), GET_LEVEL(ch) <= 10 ? 1 : GET_LEVEL(ch) <= 20 ? 2 : 3);
-	GET_OBJ_VAL(cont, 1) -= cost;
+	cont->set_val(1, cont->get_val(1) - cost);
 	weight_change_object(cont, -cost);
 	if (!GET_OBJ_VAL(cont, 1))
+	{
 		name_from_drinkcon(cont);
+	}
 
-	set_weap_poison(weapon, GET_OBJ_VAL(cont, 2));
+	set_weap_poison(weapon, cont->get_val(2));
 
-	snprintf(buf, sizeof(buf), "Вы осторожно нанесли немного %s на $o3.", drinks[GET_OBJ_VAL(cont, 2)]);
+	snprintf(buf, sizeof(buf), "Вы осторожно нанесли немного %s на $o3.", drinks[cont->get_val(2)]);
 	act(buf, FALSE, ch, weapon, 0, TO_CHAR);
 	act("$n осторожно нанес$q яд на $o3.", FALSE, ch, weapon, 0, TO_ROOM | TO_ARENA_LISTEN);
 }
@@ -3126,19 +3128,26 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 //Polos.repair_bug
 //Потому что 0 уничтожает шмотку полностью даже при скиле 100+ и
 //состоянии шмотки <очень хорошо>
-		if (!percent) percent = ch->get_skill(SKILL_REPAIR) / 10;
+		if (!percent)
+		{
+			percent = ch->get_skill(SKILL_REPAIR) / 10;
+		}
 //-Polos.repair_bug
-		GET_OBJ_CUR(obj) = MAX(0, GET_OBJ_CUR(obj) * percent / prob);
-		if (obj->obj_flags.Obj_cur)
+		obj->set_current(MAX(0, obj->get_current() * percent / prob));
+		if (obj->get_current())
 		{
 			act("Вы попытались починить $o3, но сломали $S еще больше.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n попытал$u починить $o3, но сломал$g $S еще больше.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			decay = (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 10;
 			decay = MAX(1, MIN(decay, GET_OBJ_MAX(obj) / 20));
 			if (GET_OBJ_MAX(obj) > decay)
-				GET_OBJ_MAX(obj) -= decay;
+			{
+				obj->set_maximum(obj->get_maximum() - decay);
+			}
 			else
-				GET_OBJ_MAX(obj) = 1;
+			{
+				obj->set_maximum(1);
+			}
 		}
 		else
 		{
@@ -3150,12 +3159,12 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		// Карачун. В кузне ремонтируем без ухудшения
-		if (!IS_IMMORTAL(ch) && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH))
+		if (!IS_IMMORTAL(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_SMITH))
 		{
-			GET_OBJ_MAX(obj) -= MAX(1, (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 40);
+			obj->set_maximum(obj->get_maximum() - MAX(1, (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 40));
 		}
-		GET_OBJ_CUR(obj) = MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1);
-		send_to_char(ch, "Теперь %s выгляд%s лучше.\r\n", GET_OBJ_PNAME(obj, 0), GET_OBJ_POLY_1(ch, obj));
+		obj->set_current(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
+		send_to_char(ch, "Теперь %s выгляд%s лучше.\r\n", obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
 		act("$n умело починил$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 }
@@ -3299,27 +3308,33 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		std::vector<OBJ_DATA*> entrails;
 		entrails.push_back(tobj);
 		if (GET_RACE(mob) == NPC_RACE_ANIMAL) // шкуры только с животных
-		if (skill_to_skin(mob, ch))
+		{
+			if (skill_to_skin(mob, ch))
 			{
 				entrails.push_back(create_skin(mob, ch));
 			}
+		}
 		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2, 100));  // ингры со всех
 		for (std::vector<OBJ_DATA*>::iterator it = entrails.begin(); it != entrails.end(); ++it)
 		{
 			if (*it)
 			{
-				if (obj->carried_by == ch)
+				if (obj->get_carried_by() == ch)
+				{
 					can_carry_obj(ch, *it);
+				}
 				else
-					obj_to_room(*it, IN_ROOM(ch));
+				{
+					obj_to_room(*it, ch->in_room);
+				}
 			}
 		}
 	}
     // Зачем-то труп выкидывался в комнату перед уничтожением.
-	if (obj->carried_by)
+	if (obj->get_carried_by())
 	{
 		obj_from_char(obj);
-		obj_to_room(obj, IN_ROOM(ch));
+		obj_to_room(obj, ch->in_room);
 	}
 	extract_obj(obj);
 }
@@ -3384,14 +3399,11 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	}
 	if (weather_info.moon_day < 14)
 	{
-		max_charm_duration =
-			pc_duration(ch, GET_REAL_WIS(ch->master) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
+		max_charm_duration = pc_duration(ch, GET_REAL_WIS(ch->master) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
 	}
 	else
 	{
-		max_charm_duration =
-			pc_duration(ch,
-						GET_REAL_WIS(ch->master) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
+		max_charm_duration = pc_duration(ch, GET_REAL_WIS(ch->master) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
 	}
 
 	AFFECT_DATA<EApplyLocation> af;
@@ -3477,21 +3489,22 @@ void do_custom_label(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 
-	if (no_target) {
+	if (no_target)
+	{
 		send_to_char("На чем царапаем?\r\n", ch);
 	}
-	else {
+	else
+	{
 		if (!(target = get_obj_in_list_vis(ch, objname, ch->carrying)))
 		{
 			sprintf(buf, "У вас нет \'%s\'.\r\n", objname);
 			send_to_char(buf, ch);
 		}
-		else {
-			if (target->custom_label)
-				free_custom_label(target->custom_label);
-
-			if (erase_only) {
-				target->custom_label = NULL;
+		else
+		{
+			if (erase_only)
+			{
+				target->remove_custom_label();
 				act("Вы затерли надписи на $o5.", FALSE, ch, target, 0, TO_CHAR);
 			}
 			else if (labels)
@@ -3504,28 +3517,32 @@ void do_custom_label(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					if (labels[i] == '~')
 						labels[i] = '-';
 
-				target->custom_label = init_custom_label();
+				std::shared_ptr<custom_label> label(new custom_label());
+				label->label_text = str_dup(labels);
+				label->author = ch->get_idnum();
+				label->author_mail = str_dup(GET_EMAIL(ch));
 
-				target->custom_label->label_text = str_dup(labels);
-				target->custom_label->author = ch->get_idnum();
-				target->custom_label->author_mail = str_dup(GET_EMAIL(ch));
-
+				const char* msg = "Вы покрыли $o3 каракулями, которые никто кроме вас не разберет.";
 				if (clan && ch->player_specials->clan)
 				{
-					target->custom_label->clan = str_dup(ch->player_specials->clan->GetAbbrev());
-					act("Вы покрыли $o3 каракулями, понятными разве что вашим соратникам.", FALSE, ch, target, 0, TO_CHAR);
+					label->clan = str_dup(ch->player_specials->clan->GetAbbrev());
+					msg = "Вы покрыли $o3 каракулями, понятными разве что вашим соратникам.";
 				}
-				else
-				{
-					act("Вы покрыли $o3 каракулями, которые никто кроме вас не разберет.", FALSE, ch, target, 0, TO_CHAR);
-				}
+				target->set_custom_label(label);
+				act(msg, FALSE, ch, target, 0, TO_CHAR);
 			}
 		}
 	}
+
 	if (objname)
+	{
 		free(objname);
+	}
+
 	if (labels)
+	{
 		free(labels);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

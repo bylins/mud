@@ -387,7 +387,7 @@ void entry_memory_mtrigger(CHAR_DATA * ch)
 		return;
 
 
-	for (actor = world[IN_ROOM(ch)]->people; actor && SCRIPT_MEM(ch); actor = actor->next_in_room)
+	for (actor = world[ch->in_room]->people; actor && SCRIPT_MEM(ch); actor = actor->next_in_room)
 	{
 		if (actor != ch && SCRIPT_MEM(ch))
 		{
@@ -443,7 +443,7 @@ void income_mtrigger(CHAR_DATA * ch, int dir)
 			&& !SCRIPT_CHECK(ch, MTRIG_INCOME_PC)) || !CAN_START_MTRIG(ch))
 		return;
 
-	for (i = world[IN_ROOM(ch)]->people; i; i = i->next_in_room)
+	for (i = world[ch->in_room]->people; i; i = i->next_in_room)
 		if (!IS_NPC(i) && CAN_SEE(ch, i))
 		{
 			ispcinroom = 1;

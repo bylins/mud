@@ -75,8 +75,8 @@ int get_filename(const char *orig_name, char *filename, int mode);
 TIME_INFO_DATA *age(CHAR_DATA * ch);
 int num_pc_in_room(ROOM_DATA * room);
 void core_dump_real(const char *, int);
-int replace_str(const std::shared_ptr<CCommonStringWriter>& writer, char *pattern, char *replacement, int rep_all, int max_size);
-void format_text(const std::shared_ptr<CCommonStringWriter>& writer, int mode, DESCRIPTOR_DATA * d, size_t maxlen);
+int replace_str(const string_writer_t& writer, char *pattern, char *replacement, int rep_all, int max_size);
+void format_text(const string_writer_t& writer, int mode, DESCRIPTOR_DATA * d, size_t maxlen);
 int check_moves(CHAR_DATA * ch, int how_moves);
 void to_koi(char *str, int from);
 void from_koi(char *str, int to);
@@ -450,7 +450,7 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define ROOM_AFFECTED(loc, flag) (ROOM_AFF_FLAGS((world[(loc)])).get(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
-#define OBJWEAR_FLAGGED(obj, flag)   (obj->get_wear_flags(flag))
+#define OBJWEAR_FLAGGED(obj, mask)   (obj->get_wear_mask(mask))
 #define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 
@@ -518,8 +518,7 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define IS_LIGHT(room)     (!IS_DARK(room))
 
 #define VALID_RNUM(rnum)   ((rnum) >= 0 && (rnum) <= top_of_world)
-#define GET_ROOM_VNUM(rnum) \
-   ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->number : NOWHERE))
+#define GET_ROOM_VNUM(rnum) ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->number : NOWHERE))
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : NULL)
 
 // char utils ***********************************************************
@@ -687,7 +686,7 @@ inline T VPOSI(const T val, const T min, const T max)
 
 #define GET_POS(ch)        ((ch)->char_specials.position)
 #define GET_IDNUM(ch)     ((ch)->get_idnum())
-#define GET_ID(x)         ((x)->get_id())
+#define GET_ID(x)         ((x)->id)
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
 
@@ -885,7 +884,7 @@ inline T VPOSI(const T val, const T min, const T max)
                           IS_FEMALE(ch) ? "ая" : "ие")
 
 
-#define GET_OBJ_SEX(obj) ((obj)->sex())
+#define GET_OBJ_SEX(obj) ((obj)->get_sex())
 #define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_NEUTRAL)
 #define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
 #define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
@@ -975,7 +974,7 @@ inline T VPOSI(const T val, const T min, const T max)
 
 
 // object utils *********************************************************
-#define GET_OBJ_UID(obj)	((obj)->uid)
+#define GET_OBJ_UID(obj)	((obj)->get_uid())
 
 #define GET_OBJ_ALIAS(obj)      ((obj)->aliases)
 #define GET_OBJ_PNAME(obj,pad)  ((obj)->get_PName(pad))
@@ -991,19 +990,19 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent())
 #define GET_OBJ_RENTEQ(obj)     ((obj)->get_rent_eq())
-#define GET_OBJ_EXTRA(obj)  ((obj)->obj_flags.extra_flags)
-#define GET_OBJ_WEAR(obj)  ((obj)->obj_flags.wear_flags)
-#define GET_OBJ_OWNER(obj)      ((obj)->obj_flags.Obj_owner)
+#define GET_OBJ_EXTRA(obj)  ((obj)->get_extra_flags())
+#define GET_OBJ_WEAR(obj)  ((obj)->get_wear_flags())
+#define GET_OBJ_OWNER(obj)      ((obj)->get_owner())
 #define GET_OBJ_MAKER(obj)      ((obj)->get_crafter_uid())
 #define GET_OBJ_PARENT(obj)      ((obj)->get_parent())
-#define GET_OBJ_RENAME(obj)      ((obj)->obj_flags.Obj_is_rename)
-#define GET_OBJ_CRAFTIMER(obj)      ((obj)->obj_flags.craft_timer)
+#define GET_OBJ_RENAME(obj)      ((obj)->get_is_rename())
+#define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
 #define GET_OBJ_VAL(obj, val) ((obj)->get_val((val)))
 #define GET_OBJ_WEIGHT(obj)   ((obj)->get_weight())
-#define GET_OBJ_DESTROY(obj) ((obj)->obj_flags.Obj_destroyer)
+#define GET_OBJ_DESTROY(obj) ((obj)->get_destroyer())
 #define GET_OBJ_SKILL(obj) ((obj)->get_skill())
-#define GET_OBJ_CUR(obj)    ((obj)->obj_flags.Obj_cur)
-#define GET_OBJ_MAX(obj)    ((obj)->obj_flags.Obj_max)
+#define GET_OBJ_CUR(obj)    ((obj)->get_current())
+#define GET_OBJ_MAX(obj)    ((obj)->get_maximum())
 #define GET_OBJ_MATER(obj)  ((obj)->get_material())
 #define GET_OBJ_ZONE(obj)   ((obj)->get_zone())
 #define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
@@ -1017,17 +1016,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER && \
                GET_OBJ_VAL((obj), 3) == 1)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
-
-// видит ли ch метки obj
-#define AUTH_CUSTOM_LABEL(obj, ch) (                                                                \
-	(obj)->custom_label && (obj)->custom_label->label_text                                      \
-	&&                                                                                          \
-	(                                                                                           \
-	IS_NPC(ch) ?                                                                                \
-	( (IS_CHARMICE(ch) && (ch)->master) ? CHECK_CUSTOM_LABEL_CORE(obj, ch->master) : 0 )        \
-	:                                                                                           \
-	CHECK_CUSTOM_LABEL_CORE(obj, ch)                                                            \
-	))
 
 // compound utilities and other macros *********************************
 
@@ -1087,8 +1075,6 @@ inline T VPOSI(const T val, const T min, const T max)
                            (pad) == 3 ? "что-то" :\
                            (pad) == 2 ? "чему-то" :\
                            (pad) == 1 ? "чего-то" : "что-то")
-
-#define OBJ_PAD(obj,pad)  ((obj)->PNames[pad])
 
 //для арены
 #define AOBJN(obj,vict,pad,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \

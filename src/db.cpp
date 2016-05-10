@@ -4106,7 +4106,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 				}
 				if (load)
 				{
-					tobj->set_zone(world[IN_ROOM(ch)]->zone);
+					tobj->set_zone(world[ch->in_room]->zone);
 					tobj->set_parent(GET_MOB_VNUM(ch));
 					if (DL_LOAD_TYPE == DL_SKIN)
 					{
@@ -4116,7 +4116,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 					if (MOB_FLAGGED(ch, MOB_CORPSE))
 					{
 						act("На земле остал$U лежать $o.", FALSE, ch, tobj, 0, TO_ROOM);
-						obj_to_room(tobj, IN_ROOM(ch));
+						obj_to_room(tobj, ch->in_room);
 					}
 					else
 					{
@@ -5617,7 +5617,7 @@ void paste_mobiles()
 	for (CHAR_DATA *ch = character_list; ch; ch = ch_next)
 	{
 		ch_next = ch->get_next();
-		paste_mob(ch, IN_ROOM(ch));
+		paste_mob(ch, ch->in_room);
 	}
 
 	OBJ_DATA *obj_next;
@@ -5634,7 +5634,7 @@ void paste_on_reset(ROOM_DATA *to_room)
 	for (CHAR_DATA *ch = to_room->people; ch != NULL; ch = ch_next)
 	{
 		ch_next = ch->next_in_room;
-		paste_mob(ch, IN_ROOM(ch));
+		paste_mob(ch, ch->in_room);
 	}
 
 	OBJ_DATA *obj_next;
@@ -5999,7 +5999,7 @@ void reset_zone(zone_rnum zone)
 					}
 					else
 					{
-						IN_ROOM(obj) = NOWHERE;
+						obj->get_in_room() = NOWHERE;
 					}
 					tobj = obj;
 					curr_state = 1;
@@ -6101,11 +6101,11 @@ void reset_zone(zone_rnum zone)
 					{
 						obj = read_object(ZCMD.arg1, REAL);
 						GET_OBJ_ZONE(obj) = world[IN_ROOM(mob)]->zone;
-						IN_ROOM(obj) = IN_ROOM(mob);
+						obj->get_in_room() = IN_ROOM(mob);
 						load_otrigger(obj);
 						if (wear_otrigger(obj, mob, ZCMD.arg3))
 						{
-							IN_ROOM(obj) = NOWHERE;
+							obj->get_in_room() = NOWHERE;
 							equip_char(mob, obj, ZCMD.arg3);
 						}
 						else
