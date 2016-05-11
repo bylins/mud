@@ -1388,7 +1388,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 					&& !((GET_SPELL_TYPE(ch, spell_no) & bits) == bits))
 				{
 					gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
-						CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
+						CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
 					act(buf, FALSE, ch, 0, victim, TO_CHAR);
 
 					if (IS_SET(bits, SPELL_KNOW))
