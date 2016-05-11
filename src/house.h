@@ -394,6 +394,7 @@ inline bool CHECK_CUSTOM_LABEL_CORE(const OBJ_DATA* obj, const CHAR_DATA* ch)
 			&& !strcmp(GET_EMAIL(ch), obj->get_custom_label()->author_mail));
 }
 
+
 // проверяет arg на совпадение с персональными или клановыми метками
 // чармис автора меток их тоже может использовать
 inline bool CHECK_CUSTOM_LABEL(const char* arg, const OBJ_DATA* obj, const CHAR_DATA* ch)
@@ -403,7 +404,7 @@ inline bool CHECK_CUSTOM_LABEL(const char* arg, const OBJ_DATA* obj, const CHAR_
 		&& (IS_NPC(ch)
 			? ((IS_CHARMICE(ch) && ch->master) ? CHECK_CUSTOM_LABEL_CORE(obj, ch->master) : 0)
 			: CHECK_CUSTOM_LABEL_CORE(obj, ch))
-		&& isname((arg), (obj)->get_custom_label()->label_text);
+		&& isname((arg), obj->get_custom_label()->label_text);
 }
 
 // видит ли ch метки obj

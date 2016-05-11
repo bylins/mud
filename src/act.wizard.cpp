@@ -241,7 +241,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Указан неверный VNUM объекта !\r\n", ch);
 		return;
 	}
-	for (OBJ_DATA *k = object_list; k; k = k->next)
+	for (OBJ_DATA *k = object_list; k; k = k->get_next())
 	{
 		if (GET_OBJ_VNUM(k) == vnum)
 		{
@@ -1385,11 +1385,15 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 		}
 	}
 	else if ((target_mob = get_char_vis(ch, roomstr, FIND_CHAR_WORLD)) != NULL)
+	{
 		location = target_mob->in_room;
+	}
 	else if ((target_obj = get_obj_vis(ch, roomstr)) != NULL)
 	{
-		if (target_obj->in_room != NOWHERE)
-			location = target_obj->in_room;
+		if (target_obj->get_in_room() != NOWHERE)
+		{
+			location = target_obj->get_in_room();
+		}
 		else
 		{
 			send_to_char("Этот объект вам недоступен.\r\n", ch);
@@ -1601,7 +1605,6 @@ void do_vnum(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_stat_room(CHAR_DATA * ch, const int rnum)
 {
-	EXTRA_DESCR_DATA *desc;
 	ROOM_DATA *rm = world[ch->in_room];
 	int i, found;
 	OBJ_DATA *j;
@@ -1630,7 +1633,7 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 	if (rm->ex_description)
 	{
 		sprintf(buf, "Доп. описание:%s", CCCYN(ch, C_NRM));
-		for (desc = rm->ex_description; desc; desc = desc->next)
+		for (const EXTRA_DESCR_DATA* desc = rm->ex_description; desc; desc = desc->next)
 		{
 			strcat(buf, " ");
 			strcat(buf, desc->keyword);
@@ -1663,24 +1666,30 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 	if (rm->contents)
 	{
 		sprintf(buf, "Предметы:%s", CCGRN(ch, C_NRM));
-		for (found = 0, j = rm->contents; j; j = j->next_content)
+		for (found = 0, j = rm->contents; j; j = j->get_next_content())
 		{
 			if (!CAN_SEE_OBJ(ch, j))
 				continue;
-			sprintf(buf2, "%s %s", found++ ? "," : "", j->short_description);
+			sprintf(buf2, "%s %s", found++ ? "," : "", j->get_short_description().c_str());
 			strcat(buf, buf2);
 			if (strlen(buf) >= 62)
 			{
-				if (j->next_content)
+				if (j->get_next_content())
+				{
 					send_to_char(strcat(buf, ",\r\n"), ch);
+				}
 				else
+				{
 					send_to_char(strcat(buf, "\r\n"), ch);
+				}
 				*buf = found = 0;
 			}
 		}
 
 		if (*buf)
+		{
 			send_to_char(strcat(buf, "\r\n"), ch);
+		}
 		send_to_char(CCNRM(ch, C_NRM), ch);
 	}
 	for (i = 0; i < NUM_OF_DIRS; i++)
@@ -1732,15 +1741,16 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	int i, found;
 	obj_vnum rnum, vnum;
 	OBJ_DATA *j2;
-	EXTRA_DESCR_DATA *desc;
 	long int li;
-	bool is_grgod = IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) ? true : false;
+	bool is_grgod = (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) ? true : false;
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = GET_OBJ_RNUM(j);
 	sprintf(buf, "Название: '%s%s%s',\r\nСинонимы: &S%s&s\r\n",
-			CCYEL(ch, C_NRM),
-			((j->short_description) ? j->short_description : "<None>"), CCNRM(ch, C_NRM), j->aliases);
+		CCYEL(ch, C_NRM),
+		(!j->get_short_description().empty() ? j->get_short_description().c_str() : "<None>"),
+		CCNRM(ch, C_NRM),
+		j->get_aliases().c_str());
 	send_to_char(buf, ch);
 	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
 
@@ -1777,15 +1787,19 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	{
 		send_to_char(ch, ", &Yскрафчена с таймером : [%d]&n", GET_OBJ_CRAFTIMER(j));
 	}
-	if (j->obj_flags.Obj_is_rename) // изменены падежи
+	if (j->get_is_rename()) // изменены падежи
+	{
 		send_to_char(ch, ", &Gпадежи отличны от прототипа&n");
-	sprintf(buf, "\r\nL-Des: %s\r\n%s", ((j->description) ? j->description : "Нет"), CCNRM(ch, C_NRM));
+	}
+	sprintf(buf, "\r\nL-Des: %s\r\n%s",
+		!j->get_description().empty() ? j->get_description().c_str() : "Нет",
+		CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
-	if (j->ex_description)
+	if (j->get_ex_description())
 	{
 		sprintf(buf, "Экстра описание:%s", CCCYN(ch, C_NRM));
-		for (desc = j->ex_description; desc; desc = desc->next)
+		for (const EXTRA_DESCR_DATA* desc = j->get_ex_description().get(); desc; desc = desc->next)
 		{
 			strcat(buf, " ");
 			strcat(buf, desc->keyword);
@@ -1794,27 +1808,27 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		send_to_char(strcat(buf, "\r\n"), ch);
 	}
 	send_to_char("Может быть надет : ", ch);
-	sprintbit(j->obj_flags.wear_flags, wear_bits, buf);
+	sprintbit(j->get_wear_flags(), wear_bits, buf);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	sprintf(buf, "Материал : ");
-	sprinttype(j->obj_flags.Obj_mater, material_name, buf+strlen(buf));
+	sprinttype(j->get_material(), material_name, buf+strlen(buf));
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Неудобства : ", ch);
-	j->obj_flags.no_flag.sprintbits(no_bits, buf, ",");
+	j->get_no_flags().sprintbits(no_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Запреты : ", ch);
-	j->obj_flags.anti_flag.sprintbits(anti_bits, buf, ",");
+	j->get_anti_flags().sprintbits(anti_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Устанавливает аффекты : ", ch);
-	j->obj_flags.affects.sprintbits(weapon_affects, buf, ",");
+	j->get_affect_flags().sprintbits(weapon_affects, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
@@ -1823,27 +1837,28 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
-	sprintf(buf,
-			"Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, Таймер: %d\r\n",
-			GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j), j->get_timer());
+	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, Таймер: %d\r\n",
+		GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j), j->get_timer());
 	send_to_char(buf, ch);
 
 	strcpy(buf, "Находится : ");
-	if ((j->in_room == NOWHERE) || !is_grgod)
+	if ((j->get_in_room() == NOWHERE) || !is_grgod)
+	{
 		strcat(buf, "нигде");
+	}
 	else
 	{
-		sprintf(buf2, "%d", GET_ROOM_VNUM(IN_ROOM(j)));
+		sprintf(buf2, "%d", GET_ROOM_VNUM(j->get_in_room()));
 		strcat(buf, buf2);
 	}
 	// NOTE: In order to make it this far, we must already be able to see the
 	//       character holding the object. Therefore, we do not need CAN_SEE().
 	strcat(buf, ", В контейнере: ");
-	strcat(buf, (j->in_obj && is_grgod) ? j->in_obj->short_description : "Нет");
+	strcat(buf, (j->get_in_obj() && is_grgod) ? j->get_in_obj()->get_short_description().c_str() : "Нет");
 	strcat(buf, ", В инвентаре: ");
-	strcat(buf, (j->carried_by && is_grgod) ? GET_NAME(j->carried_by) : "Нет");
+	strcat(buf, (j->get_carried_by() && is_grgod) ? GET_NAME(j->get_carried_by()) : "Нет");
 	strcat(buf, ", Надет: ");
-	strcat(buf, (j->worn_by && is_grgod) ? GET_NAME(j->worn_by) : "Нет");
+	strcat(buf, (j->get_worn_by() && is_grgod) ? GET_NAME(j->get_worn_by()) : "Нет");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
@@ -1962,14 +1977,14 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		if ((i = real_object(GET_OBJ_VAL(j, 1))) >= 0)
 		{
 			sprintf(buf, "прототип %s%s%s.\r\n",
-					CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
+				CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		break;
 
 	default:
 		sprintf(buf, "Values 0-3: [%d] [%d] [%d] [%d]",
-				GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
+			GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
 		break;
 	}
 	send_to_char(strcat(buf, "\r\n"), ch);
@@ -1977,38 +1992,48 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	// * I deleted the "equipment status" code from here because it seemed
 	// * more or less useless and just takes up valuable screen space.
 
-	if (j->contains)
+	if (j->get_contains())
 	{
 		sprintf(buf, "\r\nСодержит:%s", CCGRN(ch, C_NRM));
-		for (found = 0, j2 = j->contains; j2; j2 = j2->next_content)
+		for (found = 0, j2 = j->get_contains(); j2; j2 = j2->get_next_content())
 		{
-			sprintf(buf2, "%s %s", found++ ? "," : "", j2->short_description);
+			sprintf(buf2, "%s %s", found++ ? "," : "", j2->get_short_description().c_str());
 			strcat(buf, buf2);
 			if (strlen(buf) >= 62)
 			{
-				if (j2->next_content)
+				if (j2->get_next_content())
+				{
 					send_to_char(strcat(buf, ",\r\n"), ch);
+				}
 				else
+				{
 					send_to_char(strcat(buf, "\r\n"), ch);
+				}
 				*buf = found = 0;
 			}
 		}
 
 		if (*buf)
+		{
 			send_to_char(strcat(buf, "\r\n"), ch);
+		}
 		send_to_char(CCNRM(ch, C_NRM), ch);
 	}
 	found = 0;
 	send_to_char("Аффекты:", ch);
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (j->affected[i].modifier)
+	{
+		if (j->get_affected(i).modifier)
 		{
-			sprinttype(j->affected[i].location, apply_types, buf2);
-			sprintf(buf, "%s %+d to %s", found++ ? "," : "", j->affected[i].modifier, buf2);
+			sprinttype(j->get_affected(i).location, apply_types, buf2);
+			sprintf(buf, "%s %+d to %s", found++ ? "," : "", j->get_affected(i).modifier, buf2);
 			send_to_char(buf, ch);
 		}
+	}
 	if (!found)
+	{
 		send_to_char(" Нет", ch);
+	}
 
 	if (j->has_skills())
 	{
@@ -2024,7 +2049,9 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 			percent = it->second;
 
 			if (percent == 0) // TODO: такого не должно быть?
+			{
 				continue;
+			}
 
 			sprintf(buf, " %+d%% to %s",
 					percent,
@@ -2391,12 +2418,16 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	}
 	sprintf(buf, "Несет - вес %d, предметов %d; ", IS_CARRYING_W(k), IS_CARRYING_N(k));
 
-	for (i = 0, j = k->carrying; j; j = j->next_content, i++);
+	for (i = 0, j = k->carrying; j; j = j->get_next_content(), i++) { ; }
 	sprintf(buf + strlen(buf), "(в инвентаре) : %d, ", i);
 
 	for (i = 0, i2 = 0; i < NUM_WEARS; i++)
+	{
 		if (GET_EQ(k, i))
+		{
 			i2++;
+		}
+	}
 	sprintf(buf2, "(надето): %d\r\n", i2);
 	strcat(buf, buf2);
 	send_to_char(buf, ch);
@@ -3036,18 +3067,22 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 		obj = read_object(r_num, REAL);
-		GET_OBJ_MAKER(obj) = GET_UNIQUE(ch);
+		obj->set_crafter_uid(GET_UNIQUE(ch));
 
 		if (load_into_inventory)
+		{
 			obj_to_char(obj, ch);
+		}
 		else
+		{
 			obj_to_room(obj, ch->in_room);
+		}
 		act("$n покопал$u в МУДе.", TRUE, ch, 0, 0, TO_ROOM);
 		act("$n создал$g $o3!", FALSE, ch, obj, 0, TO_ROOM);
 		act("Вы создали $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		load_otrigger(obj);
 		obj_decay(obj);
-		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->short_description, number);
+		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), number);
 	}
 	else if (is_abbrev(buf, "ing"))
 	{
@@ -3074,10 +3109,12 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		mudlog(buf, NRM, LVL_BUILDER, IMLOG, TRUE);
 		load_otrigger(obj);
 		obj_decay(obj);
-		olc_log("%s load ing %s #%d", GET_NAME(ch), obj->short_description, power);
+		olc_log("%s load ing %s #%d", GET_NAME(ch), obj->get_short_description(), power);
 	}
 	else
+	{
 		send_to_char("Нет уж. Ты создай че-нить нормальное.\r\n", ch);
+	}
 }
 
 // отправка сообщения вообще всем
@@ -3085,8 +3122,12 @@ void send_to_all(char * buffer)
 {
 	DESCRIPTOR_DATA *pt;
 	for (pt = descriptor_list; pt; pt = pt->next)
-			if (STATE(pt) == CON_PLAYING && pt->character)
-				send_to_char(buffer, pt->character);
+	{
+		if (STATE(pt) == CON_PLAYING && pt->character)
+		{
+			send_to_char(buffer, pt->character);
+		}
+	}
 }
 
 void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -3211,7 +3252,7 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		for (obj = world[ch->in_room]->contents; obj; obj = next_o)
 		{
-			next_o = obj->next_content;
+			next_o = obj->get_next_content();
 			extract_obj(obj);
 		}
 	}
@@ -4866,8 +4907,10 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				}
 			}
 		}
-		for (obj = object_list; obj; obj = obj->next)
+		for (obj = object_list; obj; obj = obj->get_next())
+		{
 			k++;
+		}
 		strcpy(buf, "Текущее состояние:\r\n");
 		sprintf(buf + strlen(buf), "  Игроков в игре - %5d, соединений - %5d\r\n", i, con);
 		sprintf(buf + strlen(buf), "  Всего зарегистрировано игроков - %5d\r\n", top_of_p_table + 1);
@@ -6402,7 +6445,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			if (obj_proto.vnum(nr) >= first && obj_proto.vnum(nr) <= last)
 			{
 				snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++found,
-					colored_name(obj_proto[nr]->short_description, 45),
+					colored_name(obj_proto[nr]->get_short_description().c_str(), 45),
 					obj_proto.vnum(nr), obj_proto[nr]->get_ilevel());
 				out += buf_;
 				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -7026,7 +7069,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			for (std::vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
 			{
-				if (!CompareBits(i->obj_flags.affects, weapon_affects, *it))
+				if (!CompareBits(i->get_affect_flags(), weapon_affects, *it))
 				{
 					find = false;
 					break;
@@ -7046,7 +7089,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				find = false;
 				for (int k = 0; k < MAX_OBJ_AFFECT; ++k)
 				{
-					if (i->affected[k].location == *it)
+					if (i->get_affected(k).location == *it)
 					{
 						find = true;
 						break;
@@ -7100,8 +7143,8 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 		{
-			int drndice = obj->affected[i].location;
-			int drsdice = obj->affected[i].modifier;
+			int drndice = obj->get_affected(i).location;
+			int drsdice = obj->get_affected(i).modifier;
 			if (drndice == APPLY_NONE || !drsdice)
 			{
 				continue;
@@ -7116,14 +7159,14 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					break;
 				}
 			}
-            if (obj->affected[i].modifier < 0)
+            if (obj->get_affected(i).modifier < 0)
             {
                 negative = !negative;
             }
 			sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
-					CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
-					CCCYN(ch, C_NRM),
-					negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));
+				CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
+				CCCYN(ch, C_NRM),
+				negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));
 			out << "      |         |                | " << buf;
 		}
 	}

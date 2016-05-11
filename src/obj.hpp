@@ -561,8 +561,8 @@ public:
 	bool get_no_flag(const ENoFlag flag) const { return obj_flags.no_flag.get(flag); }
 	bool get_wear_flag(const EWearFlag part) const { return IS_SET(obj_flags.wear_flags, to_underlying(part)); }
 	bool get_wear_mask(const obj_flag_data::wear_flags_t part) const { return IS_SET(obj_flags.wear_flags, part); }
-	const auto get_max_in_world() const { return m_max_in_world; }
-	const auto get_zone() const { return obj_flags.Obj_zone; }
+	auto get_max_in_world() const { return m_max_in_world; }
+	auto get_zone() const { return obj_flags.Obj_zone; }
 	const auto& get_action_description() const { return m_action_description; }
 	const auto& get_affect_flags() const { return obj_flags.affects; }
 	const auto& get_affected(const size_t index) const { return m_affected[index]; }
@@ -625,11 +625,17 @@ public:
 	void set_weight(const int _) { obj_flags.weight = _; }
 	void set_zone(const int _) { obj_flags.Obj_zone = _; }
 	void unset_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
+	auto get_uid() const { return m_uid; }
+	auto get_is_rename() const { return obj_flags.Obj_is_rename; }
+	const auto& get_no_flags() const { return obj_flags.no_flag; }
+	const auto& get_anti_flags() const { return obj_flags.anti_flag; }
+	auto get_script() const { return m_script; }
+	void set_script(script_data* _) { m_script = _; }
 
 private:
 	void zero_init();
 
-	unsigned int uid;
+	unsigned int m_uid;
 	obj_vnum m_item_number;	// Where in data-base            //
 	room_rnum m_in_room;	// In what room -1 when conta/carr //
 
@@ -654,7 +660,7 @@ private:
 
 	long m_id;			// used by DG triggers              //
 	triggers_list_t m_proto_script;	// list of default triggers  //
-	struct script_data *script;	// script info for the object       //
+	struct script_data *m_script;	// script info for the object       //
 
 	OBJ_DATA *m_next_content;	// For 'contains' lists             //
 	OBJ_DATA *m_next;		// For the object list              //

@@ -1625,6 +1625,97 @@ inline void hexdump(const EOutputStream stream, const char *ptr, size_t buflen, 
 	hexdump(runtime_config::logs(stream).handle(), ptr, buflen, title);
 }
 
+bool isname(const char *str, const char *namelist)
+{
+	bool once_ok = false;
+	const char *curname, *curstr, *laststr;
+
+	if (!namelist || !*namelist || !str)
+	{
+		return false;
+	}
+
+	for (curstr = str; !a_isalnum(*curstr); curstr++)
+	{
+		if (!*curstr)
+		{
+			return once_ok;
+		}
+	}
+
+	laststr = curstr;
+	curname = namelist;
+	for (;;)
+	{
+		once_ok = false;
+		for (;; curstr++, curname++)
+		{
+			if (!*curstr)
+			{
+				return once_ok;
+			}
+
+			if (*curstr == '!')
+			{
+				if (a_isalnum(*curname))
+				{
+					curstr = laststr;
+					break;
+				}
+			}
+
+			if (!a_isalnum(*curstr))
+			{
+				for (; !a_isalnum(*curstr); curstr++)
+				{
+					if (!*curstr)
+					{
+						return once_ok;
+					}
+				}
+				laststr = curstr;
+				break;
+			}
+
+			if (!*curname)
+			{
+				return false;
+			}
+
+			if (!a_isalnum(*curname))
+			{
+				curstr = laststr;
+				break;
+			}
+
+			if (LOWER(*curstr) != LOWER(*curname))
+			{
+				curstr = laststr;
+				break;
+			}
+			else
+			{
+				once_ok = true;
+			}
+		}
+
+		// skip to next name
+		for (; a_isalnum(*curname); curname++);
+		for (; !a_isalnum(*curname); curname++)
+		{
+			if (!*curname)
+			{
+				return false;
+			}
+		}
+	}
+}
+
+bool isname(const std::string &str, const char *namelist)
+{
+	return isname(str.c_str(), namelist);
+}
+
 #endif // _UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

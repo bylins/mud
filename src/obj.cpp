@@ -76,8 +76,8 @@ void free_custom_label(struct custom_label *custom_label)
 // * См. Character::zero_init()
 void OBJ_DATA::zero_init()
 {
-	uid = 0;
-	item_number = NOTHING;
+	m_uid = 0;
+	m_item_number = NOTHING;
 	m_in_room = NOWHERE;
 	m_aliases.clear();
 	m_description.clear();
@@ -86,16 +86,16 @@ void OBJ_DATA::zero_init()
 	m_ex_description.reset();
 	m_carried_by = nullptr;
 	m_worn_by = nullptr;
-	worn_on = NOWHERE;
+	m_worn_on = NOWHERE;
 	m_in_obj = nullptr;
 	m_contains = nullptr;
 	m_id = 0;
 	m_proto_script.clear();
-	script = NULL;
+	m_script = nullptr;
 	m_next_content = nullptr;
 	m_next = nullptr;
-	room_was_in = NOWHERE;
-	max_in_world = 0;
+	m_room_was_in = NOWHERE;
+	m_max_in_world = 0;
 	m_skills.clear();
 	serial_num_ = 0;
 	timer_ = 0;
@@ -131,7 +131,7 @@ void OBJ_DATA::purge(bool destructor)
 	//см. комментарий в структуре BloodyInfo из pk.cpp
 	bloody::remove_obj(this);
 	//weak_ptr тут бы был какраз в тему
-	Celebrates::remove_from_obj_lists(this->uid);
+	Celebrates::remove_from_obj_lists(this->get_uid());
 
 	if (!destructor)
 	{
@@ -161,7 +161,7 @@ void OBJ_DATA::set_serial_num(int num)
 
 const std::string OBJ_DATA::activate_obj(const activation& __act)
 {
-	if (item_number >= 0)
+	if (m_item_number >= 0)
 	{
 		obj_flags.affects = __act.get_affects();
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
@@ -204,20 +204,20 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 
 const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 {
-	if (item_number >= 0)
+	if (m_item_number >= 0)
 	{
-		obj_flags.affects = obj_proto[item_number]->obj_flags.affects;
+		obj_flags.affects = obj_proto[m_item_number]->obj_flags.affects;
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 		{
-			set_affected(i, obj_proto[item_number]->get_affected(i));
+			set_affected(i, obj_proto[m_item_number]->get_affected(i));
 		}
 
-		obj_flags.weight = obj_proto[item_number]->obj_flags.weight;
+		obj_flags.weight = obj_proto[m_item_number]->obj_flags.weight;
 
 		if (obj_flags.type_flag == obj_flag_data::ITEM_WEAPON)
 		{
-			obj_flags.value[1] = obj_proto[item_number]->obj_flags.value[1];
-			obj_flags.value[2] = obj_proto[item_number]->obj_flags.value[2];
+			obj_flags.value[1] = obj_proto[m_item_number]->obj_flags.value[1];
+			obj_flags.value[2] = obj_proto[m_item_number]->obj_flags.value[2];
 		}
 
 		// Деактивируем умения.
@@ -226,7 +226,7 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 			// При активации мы создавали новый массив с умениями. Его
 			// можно смело удалять.
 			m_skills.clear();
-			m_skills = obj_proto[item_number]->m_skills;
+			m_skills = obj_proto[m_item_number]->m_skills;
 		}
 
 		return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();

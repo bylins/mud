@@ -103,18 +103,24 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 		}
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_INV))
+		{
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != NULL)
+			{
 				return TRUE;
+			}
+		}
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_EQUIP))
 		{
 			int i;
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->aliases))
+			{
+				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->get_aliases().c_str()))
 				{
 					*tobj = GET_EQ(ch, i);
 					return TRUE;
 				}
+			}
 		}
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_ROOM))
@@ -233,19 +239,19 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		// take select pieces from char_to_room(); 
 		if (type == OBJ_TRIGGER)
 		{
-			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->PNames[1]);
+			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->set_npc_name(buf);
-			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->PNames[1]);
+			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			GET_PAD(caster, 0) = str_dup(buf);
-			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->PNames[1]);
+			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			GET_PAD(caster, 1) = str_dup(buf);
-			sprintf(buf, "духу %s", ((OBJ_DATA *) go)->PNames[1]);
+			sprintf(buf, "духу %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			GET_PAD(caster, 2) = str_dup(buf);
-			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->PNames[1]);
+			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			GET_PAD(caster, 3) = str_dup(buf);
-			sprintf(buf, "духом %s", ((OBJ_DATA *) go)->PNames[1]);
+			sprintf(buf, "духом %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			GET_PAD(caster, 4) = str_dup(buf);
-			sprintf(buf, "духе %s", ((OBJ_DATA *) go)->PNames[1]);
+			sprintf(buf, "духе %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			GET_PAD(caster, 5) = str_dup(buf);
 		}
 		else if (type == WLD_TRIGGER)
@@ -304,7 +310,6 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 	if (caster_room)
 		extract_char(caster, FALSE);
 }
-
 
 /* modify an affection on the target. affections can be of the AFF_x
    variety or APPLY_x type. APPLY_x's have an integer value for them

@@ -206,7 +206,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 				return false;
 			}
 		};
-		lotis->item_id = GET_ID(obj);
+		lotis->item_id = obj->get_id();
 		lotis->item = obj;
 		lotis->cost = value;
 		lotis->tact = -1;
@@ -575,7 +575,7 @@ int check_sell(int lot)
 	if (lot < 0 || lot >= MAX_AUCTION_LOT || !(ch = GET_LOT(lot)->seller)
 			|| GET_UNIQUE(ch) != GET_LOT(lot)->seller_unique || !(tch = GET_LOT(lot)->buyer)
 			|| GET_UNIQUE(tch) != GET_LOT(lot)->buyer_unique || !(obj = GET_LOT(lot)->item)
-			|| GET_ID(obj) != GET_LOT(lot)->item_id)
+			|| obj->get_id() != GET_LOT(lot)->item_id)
 		return (FALSE);
 
 	if (obj->get_carried_by() != ch)
@@ -856,7 +856,7 @@ void check_auction(CHAR_DATA * ch, OBJ_DATA * obj)
 		{
 			if (!GET_LOT(i)->seller || !GET_LOT(i)->item)
 				continue;
-			if (GET_LOT(i)->item == obj || GET_LOT(i)->item_id == GET_ID(obj))
+			if (GET_LOT(i)->item == obj || GET_LOT(i)->item_id == obj->get_id())
 			{
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
 					i, GET_LOT(i)->item->get_PName(0).c_str());
@@ -952,7 +952,7 @@ int obj_on_auction(OBJ_DATA * obj)
 	int i;
 	for (i = 0; i < MAX_AUCTION_LOT; i++)
 	{
-		if (GET_LOT(i)->item == obj && GET_LOT(i)->item_id == GET_ID(obj))
+		if (GET_LOT(i)->item == obj && GET_LOT(i)->item_id == obj->get_id())
 			return (TRUE);
 	}
 

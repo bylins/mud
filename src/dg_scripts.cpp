@@ -193,7 +193,7 @@ OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name)
 
 		for (j = 0; j < NUM_WEARS; j++)
 			if ((obj = GET_EQ(ch, j)))
-				if (id == GET_ID(obj))
+				if (id == obj->get_id())
 					return (obj);
 	}
 	else
@@ -623,11 +623,11 @@ OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name)
 		id = atoi(name + 1);
 
 		for (obj = room->contents; obj; obj = obj->next_content)
-			if (id == GET_ID(obj))
+			if (id == obj->get_id())
 				return obj;
 
 		for (obj = object_list; obj; obj = obj->next)
-			if (id == GET_ID(obj))
+			if (id == obj->get_id())
 				return obj;
 	}
 	else
@@ -658,11 +658,11 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 		id = atoi(name + 1);
 		if (ch)
 			for (obj = ch->carrying; obj; obj = obj->next_content)
-				if (id == GET_ID(obj))
+				if (id == obj->get_id())
 					return obj;
 
 		for (obj = object_list; obj; obj = obj->next)
-			if (id == GET_ID(obj))
+			if (id == obj->get_id())
 				return obj;
 	}
 	else
@@ -2817,7 +2817,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				obj = get_obj_in_list_vis(c, subfield, c->carrying);
 			}
 			if (obj)
-				sprintf(str, "%c%ld", UID_OBJ, GET_ID(obj));
+				sprintf(str, "%c%ld", UID_OBJ, obj->get_id());
 			else
 				strcpy(str, "0");
 		}
@@ -2946,7 +2946,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "objs"))
 		{
 			for (obj = c->carrying; obj; obj = obj->next_content)
-				sprintf(str + strlen(str), "%c%ld ", UID_OBJ, GET_ID(obj));
+				sprintf(str + strlen(str), "%c%ld ", UID_OBJ, obj->get_id());
 		}
 //-Polud
 		else if (!str_cmp(field, "char") ||
@@ -3431,7 +3431,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			for (obj = world[inroom]->contents; obj; obj = obj->next_content)
 			{
-				sprintf(str + strlen(str), "%c%ld ", UID_OBJ, GET_ID(obj));
+				sprintf(str + strlen(str), "%c%ld ", UID_OBJ, obj->get_id());
 			}
 			return;
 			//mixaz - end
