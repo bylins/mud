@@ -556,10 +556,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		size = size_app[GET_POS_SIZE(ch)].interpolate;
 	else
 		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
-
-	size = 0; //Временно криво работает. Разберусь
-
-        switch (skill_no)
+	
+	switch (skill_no)
 	{
 
 
