@@ -138,7 +138,7 @@ void do_auto_exits(CHAR_DATA * ch);
 void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void look_in_direction(CHAR_DATA * ch, int dir, int info_is);
 void look_in_obj(CHAR_DATA * ch, char *arg);
-char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
+char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list);
 bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd);
 void gods_day_now(CHAR_DATA * ch);
 void do_blind_exits(CHAR_DATA *ch);
@@ -2432,7 +2432,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 	}
 }
 
-char *find_exdesc(char *word, const EXTRA_DESCR_DATA* list)
+char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list)
 {
 	for (auto i = list; i; i = i->next)
 	{
@@ -2678,8 +2678,10 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
-		if (!(desc = find_exdesc(what, found_obj->get_ex_description().get())))
+		if (!(desc = find_exdesc(what, found_obj->get_ex_description())))
+		{
 			show_obj_to_char(found_obj, ch, 5, TRUE, 1);	// Show no-description
+		}
 		else
 		{
 			send_to_char(desc, ch);

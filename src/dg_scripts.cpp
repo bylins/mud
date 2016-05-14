@@ -1025,7 +1025,9 @@ void add_trigger(SCRIPT_DATA * sc, TRIG_DATA * t, int loc)
 	int n;
 
 	if (!t || !sc)
+	{
 		return;
+	}
 	for (i = TRIGGERS(sc); i; i = i->next)
 		if (t->nr == i->nr)
 		{
@@ -5750,6 +5752,12 @@ void save_char_vars(CHAR_DATA * ch)
 	}
 
 	fclose(file);
+}
+
+SCRIPT_DATA::~SCRIPT_DATA()
+{
+	extract_script(this);
+	free_varlist(global_vars);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

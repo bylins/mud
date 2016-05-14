@@ -1633,7 +1633,7 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 	if (rm->ex_description)
 	{
 		sprintf(buf, "Доп. описание:%s", CCCYN(ch, C_NRM));
-		for (const EXTRA_DESCR_DATA* desc = rm->ex_description; desc; desc = desc->next)
+		for (auto desc = rm->ex_description; desc; desc = desc->next)
 		{
 			strcat(buf, " ");
 			strcat(buf, desc->keyword);
@@ -1799,7 +1799,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	if (j->get_ex_description())
 	{
 		sprintf(buf, "Экстра описание:%s", CCCYN(ch, C_NRM));
-		for (const EXTRA_DESCR_DATA* desc = j->get_ex_description().get(); desc; desc = desc->next)
+		for (auto desc = j->get_ex_description(); desc; desc = desc->next)
 		{
 			strcat(buf, " ");
 			strcat(buf, desc->keyword);

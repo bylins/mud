@@ -706,7 +706,7 @@ public:
 	DESCRIPTOR_DATA *desc;	// NULL for mobiles
 	long id;			// used by DG triggers
 	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers
-	struct script_data *script;	// script info for the object
+	struct SCRIPT_DATA *script;	// script info for the object
 	struct script_memory *memory;	// for mob memory triggers
 
 	CHAR_DATA *next_in_room;	// For room->people - list

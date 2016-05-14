@@ -561,7 +561,7 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);
-		GET_OBJ_ZONE(object) = world[real_room(room->number)]->zone;
+		object->set_zone(world[real_room(room->number)]->zone);
 		obj_to_room(object, real_room(room->number));
 		load_otrigger(object);
 	}

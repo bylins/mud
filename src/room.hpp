@@ -63,7 +63,7 @@ struct ROOM_DATA
 	char *name;		// Rooms name 'You are ...'           //
 	size_t description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
-	EXTRA_DESCR_DATA *ex_description;	// for examine/look       //
+	std::shared_ptr<EXTRA_DESCR_DATA> ex_description;	// for examine/look       //
 	boost::array<EXIT_DATA *, NUM_OF_DIRS> dir_option;	// Directions //
 
 	byte light;		// Number of lightsources in room //
@@ -73,7 +73,7 @@ struct ROOM_DATA
 	int (*func)(CHAR_DATA*, void*, int, char*);
 
 	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers  //
-	struct script_data *script;	// script info for the object //
+	struct SCRIPT_DATA *script;	// script info for the object //
 	struct track_data *track;
 
 	OBJ_DATA *contents;	// List of items in room              //

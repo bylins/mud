@@ -980,4 +980,19 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
 	}
 }
 
+EXTRA_DESCR_DATA::~EXTRA_DESCR_DATA()
+{
+	if (nullptr != keyword)
+	{
+		free(keyword);
+	}
+
+	if (nullptr != description)
+	{
+		free(description);
+	}
+
+	// we don't take care of items in list. So, we don't do anything with the next field.
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

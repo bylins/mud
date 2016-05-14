@@ -65,7 +65,7 @@ void script_save_to_disk(FILE * fp, void *item, int type)
 	}
 	else if (type == OBJ_TRIGGER)
 	{
-		fprint_script(fp, ((OBJ_DATA *)item)->proto_script);
+		fprint_script(fp, ((OBJ_DATA *)item)->get_proto_script());
 	}
 	else if (type == WLD_TRIGGER)
 	{
@@ -277,12 +277,12 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				send_to_char(d->character, "&S%s&s", OLC_STORAGE(d));
 				d->backstr = str_dup(OLC_STORAGE(d));
 			}
-			d->str = &OLC_STORAGE(d);
+			d->writer.reset(new CSimpleStringWriter(OLC_STORAGE(d)));
 			d->max_str = MAX_CMD_LENGTH;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
-
 			break;
+
 		default:
 			trigedit_disp_menu(d);
 			return;
@@ -717,7 +717,7 @@ void dg_olc_script_copy(DESCRIPTOR_DATA * d)
 		break;
 
 	case OBJ_TRIGGER:
-		OLC_SCRIPT(d) = OLC_OBJ(d)->proto_script;
+		OLC_SCRIPT(d) = OLC_OBJ(d)->get_proto_script();
 		break;
 	
 	default:
@@ -784,7 +784,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 			else if (OLC_ITEM_TYPE(d) == OBJ_TRIGGER)
 			{
-				OLC_SCRIPT(d).swap(OLC_OBJ(d)->proto_script);
+				OLC_OBJ(d)->swap_proto_script(OLC_SCRIPT(d));
 			}
 			else
 			{

@@ -6,13 +6,14 @@
 
 #include "parse.hpp"
 #include "handler.h"
-#include "char.hpp"
-#include "constants.h"
-#include "db.h"
+#include "dg_scripts.h"
 #include "screen.h"
 #include "celebrates.hpp"
 #include "pk.h"
 #include "cache.hpp"
+#include "char.hpp"
+#include "constants.h"
+#include "db.h"
 #include "utils.h"
 #include "conf.h"
 
@@ -233,6 +234,11 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 	}
 	else
 		return "\n";
+}
+
+void OBJ_DATA::set_script(SCRIPT_DATA* _)
+{
+	m_script.reset(_);
 }
 
 void OBJ_DATA::set_skill(int skill_num, int percent)

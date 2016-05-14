@@ -74,8 +74,6 @@ const unsigned TOTAL_TYPES = 3;
 
 // done
 typedef struct index_data INDEX_DATA;
-typedef struct script_data SCRIPT_DATA;
-
 typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 
@@ -1356,10 +1354,11 @@ inline int flag_data_by_num(const int& num)
 struct EXTRA_DESCR_DATA
 {
 	EXTRA_DESCR_DATA() : keyword(nullptr), description(nullptr), next(nullptr) {}
+	~EXTRA_DESCR_DATA();
 
 	char *keyword;		// Keyword in look/examine          //
 	char *description;	// What to see                      //
-	const EXTRA_DESCR_DATA *next;	// Next in list                     //
+	std::shared_ptr<EXTRA_DESCR_DATA> next;	// Next in list                     //
 };
 
 // header block for rent files.  BEWARE: Changing it will ruin rent files  //

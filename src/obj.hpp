@@ -396,7 +396,6 @@ public:
 	char *author_mail;// будем проверять по емейлу тоже
 };
 
-
 /// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
 /// Если поле нужно сохранять в обж-файл - вписываем в TextId::init_obj_vals()
 /// Соответствие полей и типов предметов смотреть/обновлять в remove_incorrect_keys()
@@ -453,6 +452,8 @@ public:
 private:
 	values_t m_values;
 };
+
+struct SCRIPT_DATA;	// to avoid inclusion of "dg_scripts.h"
 
 class OBJ_DATA
 {
@@ -528,16 +529,19 @@ public:
 	void add_timed_spell(const int spell, const int time);
 	void del_timed_spell(const int spell, const bool message);
 
-	auto get_craft_timer() const { return obj_flags.craft_timer; }
 	auto get_carried_by() const { return m_carried_by; }
 	auto get_contains() const { return m_contains; }
+	auto get_craft_timer() const { return obj_flags.craft_timer; }
 	auto get_crafter_uid() const { return obj_flags.Obj_maker; }
 	auto get_current() const { return obj_flags.Obj_cur; }
 	auto get_destroyer() const { return obj_flags.Obj_destroyer; }
 	auto get_id() const { return m_id; }
 	auto get_in_obj() const { return m_in_obj; }
 	auto get_in_room() const { return m_in_room; }
+	auto get_is_rename() const { return obj_flags.Obj_is_rename; }
+	auto get_level() const { return obj_flags.Obj_level; }
 	auto get_material() const { return obj_flags.Obj_mater; }
+	auto get_max_in_world() const { return m_max_in_world; }
 	auto get_maximum() const { return obj_flags.Obj_max; }
 	auto get_next() const { return m_next; }
 	auto get_next_content() const { return m_next_content; }
@@ -545,13 +549,18 @@ public:
 	auto get_parent() const { return obj_flags.Obj_parent; }
 	auto get_rnum() const { return m_item_number; }
 	auto get_room_was_in() const { return m_room_was_in; }
+	const auto& get_script() const { return m_script; }
 	auto get_sex() const { return obj_flags.Obj_sex; }
 	auto get_skill() const { return obj_flags.Obj_skill; }
+	auto get_spell() const { return obj_flags.Obj_spell; }
 	auto get_type() const { return obj_flags.type_flag; }
+	auto get_uid() const { return m_uid; }
 	auto get_val(size_t index) const { return obj_flags.value[index]; }
 	auto get_wear_flags() const { return obj_flags.wear_flags; }
 	auto get_weight() const { return obj_flags.weight; }
 	auto get_worn_by() const { return m_worn_by; }
+	auto get_worn_on() const { return m_worn_on; }
+	auto get_zone() const { return obj_flags.Obj_zone; }
 	bool can_wear_any() const { return obj_flags.wear_flags > 0 && obj_flags.wear_flags != to_underlying(EWearFlag::ITEM_WEAR_TAKE); }
 	bool get_affect(const EWeaponAffectFlag weapon_affect) const { return obj_flags.affects.get(weapon_affect); }
 	bool get_affect(const uint32_t weapon_affect) const { return obj_flags.affects.get(weapon_affect); }
@@ -561,21 +570,24 @@ public:
 	bool get_no_flag(const ENoFlag flag) const { return obj_flags.no_flag.get(flag); }
 	bool get_wear_flag(const EWearFlag part) const { return IS_SET(obj_flags.wear_flags, to_underlying(part)); }
 	bool get_wear_mask(const obj_flag_data::wear_flags_t part) const { return IS_SET(obj_flags.wear_flags, part); }
-	auto get_max_in_world() const { return m_max_in_world; }
-	auto get_zone() const { return obj_flags.Obj_zone; }
 	const auto& get_action_description() const { return m_action_description; }
 	const auto& get_affect_flags() const { return obj_flags.affects; }
+	const auto& get_affected() const { return m_affected; }
 	const auto& get_affected(const size_t index) const { return m_affected[index]; }
 	const auto& get_aliases() const { return m_aliases; }
+	const auto& get_anti_flags() const { return obj_flags.anti_flag; }
 	const auto& get_custom_label() const { return m_custom_label; }
 	const auto& get_description() const { return m_description; }
 	const auto& get_enchants() const { return m_enchants; }
 	const auto& get_ex_description() const { return m_ex_description; }
 	const auto& get_extra_flags() const { return obj_flags.extra_flags; }
+	const auto& get_no_flags() const { return obj_flags.no_flag; }
 	const auto& get_proto_script() const { return m_proto_script; }
 	const auto& get_value(const ObjVal::EValueKey key) const { return m_values.get(key); }
+	const auto& get_values() const { return m_values; }
 	const std::string& get_PName(const size_t index) const { return m_pnames[index]; }
 	const std::string& get_short_description() const { return m_short_description; }
+	void add_proto_script(const obj_vnum vnum) { m_proto_script.push_back(vnum); }
 	void clear_action_description() { m_action_description.clear(); }
 	void clear_proto_script() { m_proto_script.clear(); }
 	void init_values_from_zone(const char* str) { m_values.init_from_zone(str); }
@@ -584,35 +596,46 @@ public:
 	void load_extraflags(const char* string) { obj_flags.extra_flags.from_string(string); }
 	void load_noflags(const char* string) { obj_flags.no_flag.from_string(string); }
 	void remove_custom_label() { m_custom_label.reset(); }
-	void set_action_description(const char* _) { m_action_description = _; }
 	void set_action_description(const std::string& _) { m_action_description = _; }
+	void set_affect_flags(const FLAG_DATA& flags) { obj_flags.affects = flags; }
 	void set_affected(const size_t index, const EApplyLocation location, const int modifier);
 	void set_affected(const size_t index, const obj_affected_type& affect) { m_affected[index] = affect; }
-	void set_aliases(const char* _) { m_aliases = _; }
 	void set_aliases(const std::string& _) { m_aliases = _; }
+	void set_anti_flags(const FLAG_DATA& flags) { obj_flags.anti_flag = flags; }
+	void set_carried_by(CHAR_DATA* _) { m_carried_by = _; }
+	void set_contains(OBJ_DATA* _) { m_contains = _; }
 	void set_crafter_uid(const int _) { obj_flags.Obj_maker = _; }
 	void set_current(const int _) { obj_flags.Obj_cur = _; }
 	void set_custom_label(const std::shared_ptr<custom_label>& _) { m_custom_label = _; }
-	void set_description(CONST char* _) { m_description = _; }
+	void set_description(const std::string& _) { m_description = _; }
 	void set_destroyer(const int _) { obj_flags.Obj_destroyer = _; }
 	void set_ex_description(const char* keyword, const char* description);
+	void set_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags = flags; }
 	void set_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.set(packed_flag); }
 	void set_extraflag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.set_flag(plane, flag); }
 	void set_id(const long _) { m_id = _; }
+	void set_in_obj(OBJ_DATA* _) { m_in_obj = _; }
+	void set_in_room(const room_rnum _) { m_in_room = _; }
 	void set_is_rename(const bool _) { obj_flags.Obj_is_rename = _; }
 	void set_level(const int _) { obj_flags.Obj_level = _; }
 	void set_material(const obj_flag_data::EObjectMaterial _) { obj_flags.Obj_mater = _; }
 	void set_max_in_world(const int _) { m_max_in_world = _; }
 	void set_maximum(const int _) { obj_flags.Obj_max = _; }
 	void set_next(OBJ_DATA* _) { m_next = _; }
-	void set_next_ex_description(EXTRA_DESCR_DATA* ptr) { m_ex_description->next = ptr; }
+	void set_next_content(OBJ_DATA* _) { m_next_content = _; }
+	void set_next_ex_description(const std::shared_ptr<EXTRA_DESCR_DATA>& ptr) { m_ex_description->next = ptr; }
+	void set_no_flags(const FLAG_DATA& flags) { obj_flags.no_flag = flags; }
 	void set_obj_aff(const uint32_t packed_flag) { obj_flags.affects.set(packed_flag); }
 	void set_owner(const int _) { obj_flags.Obj_owner = _; }
 	void set_parent(const int _) { obj_flags.Obj_parent = _; }
 	void set_PName(const size_t index, const char* _) { m_pnames[index] = _; }
 	void set_PName(const size_t index, const std::string& _) { m_pnames[index] = _; }
+	void set_PNames(const pnames_t& _) { m_pnames = _; }
+	void set_proto_script(const triggers_list_t& _) { m_proto_script = _; }
 	void set_rnum(const obj_vnum _) { m_item_number = _; }
 	void set_room_was_in(const int _) { m_room_was_in = _; }
+	void set_script(SCRIPT_DATA* _);
+	void set_script(const std::shared_ptr<SCRIPT_DATA>& _) { m_script = _; }
 	void set_sex(const ESex _) { obj_flags.Obj_sex = _; }
 	void set_short_description(const char* _) { m_short_description = _; }
 	void set_short_description(const std::string& _) { m_short_description = _; }
@@ -621,20 +644,18 @@ public:
 	void set_type(const obj_flag_data::EObjectType _) { obj_flags.type_flag = _; }
 	void set_val(size_t index, int value) { obj_flags.value[index] = value; }
 	void set_value(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
+	void set_values(const ObjVal&  _) { m_values = _; }
+	void set_wear_flag(const EWearFlag flag) { SET_BIT(obj_flags.wear_flags, flag); }
 	void set_wear_flags(const obj_flag_data::wear_flags_t _) { obj_flags.wear_flags = _; }
 	void set_weight(const int _) { obj_flags.weight = _; }
+	void set_worn_by(CHAR_DATA* _) { m_worn_by = _; }
+	void set_worn_on(const short _) { m_worn_on = _; }
 	void set_zone(const int _) { obj_flags.Obj_zone = _; }
+	void swap_proto_script(triggers_list_t& _) { m_proto_script.swap(_); }
 	void unset_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
-	auto get_uid() const { return m_uid; }
-	auto get_is_rename() const { return obj_flags.Obj_is_rename; }
-	const auto& get_no_flags() const { return obj_flags.no_flag; }
-	const auto& get_anti_flags() const { return obj_flags.anti_flag; }
-	auto get_script() const { return m_script; }
-	void set_script(script_data* _) { m_script = _; }
 
 private:
 	void zero_init();
-
 	unsigned int m_uid;
 	obj_vnum m_item_number;	// Where in data-base            //
 	room_rnum m_in_room;	// In what room -1 when conta/carr //
@@ -660,7 +681,7 @@ private:
 
 	long m_id;			// used by DG triggers              //
 	triggers_list_t m_proto_script;	// list of default triggers  //
-	struct script_data *m_script;	// script info for the object       //
+	std::shared_ptr<SCRIPT_DATA> m_script;	// script info for the object       //
 
 	OBJ_DATA *m_next_content;	// For 'contains' lists             //
 	OBJ_DATA *m_next;		// For the object list              //

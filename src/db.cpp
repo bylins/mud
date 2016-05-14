@@ -3157,7 +3157,6 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	static int room_nr = FIRST_ROOM, zone = 0;
 	int t[10], i;
 	char line[256], flags[128];
-	EXTRA_DESCR_DATA *new_descr;
 	char letter;
 
 	if (virt)
@@ -3274,24 +3273,25 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		case 'D':
 			setup_dir(fl, room_nr, atoi(line + 1));
 			break;
+
 		case 'E':
-			CREATE(new_descr, 1);
-			new_descr->keyword = NULL;
-			new_descr->description = NULL;
-			new_descr->keyword = fread_string(fl, buf2);
-			new_descr->description = fread_string(fl, buf2);
-			if (new_descr->keyword && new_descr->description)
 			{
-				new_descr->next = world[room_nr]->ex_description;
-				world[room_nr]->ex_description = new_descr;
-			}
-			else
-			{
-				sprintf(buf, "SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
-				log("%s", buf);
-				free(new_descr);
+				const std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA);
+				new_descr->keyword = fread_string(fl, buf2);
+				new_descr->description = fread_string(fl, buf2);
+				if (new_descr->keyword && new_descr->description)
+				{
+					new_descr->next = world[room_nr]->ex_description;
+					world[room_nr]->ex_description = new_descr;
+				}
+				else
+				{
+					sprintf(buf, "SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
+					log("%s", buf);
+				}
 			}
 			break;
+
 		case 'S':	// end of room
 			// DG triggers -- script is defined after the end of the room 'T'
 			// Ингредиентная магия -- 'I'
@@ -3316,6 +3316,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			while (letter != 0);
 			top_of_world = room_nr++;
 			return;
+
 		default:
 			log("%s", buf);
 			exit(1);
@@ -4306,7 +4307,6 @@ char *parse_object(FILE * obj_f, const int nr)
 	int t[10], j = 0, retval;
 	char *tmpptr;
 	char f0[256], f1[256], f2[256];
-	EXTRA_DESCR_DATA *new_descr;
 
 	OBJ_DATA *tobj;
 	NEWCREATE(tobj);
@@ -4490,23 +4490,23 @@ char *parse_object(FILE * obj_f, const int nr)
 		switch (*line)
 		{
 		case 'E':
-			CREATE(new_descr, 1);
-			new_descr->keyword = NULL;
-			new_descr->description = NULL;
-			new_descr->keyword = fread_string(obj_f, buf2);
-			new_descr->description = fread_string(obj_f, buf2);
-			if (new_descr->keyword && new_descr->description)
 			{
-				new_descr->next = tobj->get_ex_description().get();
-				tobj->set_next_ex_description(new_descr);
-			}
-			else
-			{
-				sprintf(buf, "SYSERR: Format error in %s (Corrupt extradesc)", buf2);
-				log("%s", buf);
-				free(new_descr);
+				const std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
+				new_descr->keyword = fread_string(obj_f, buf2);
+				new_descr->description = fread_string(obj_f, buf2);
+				if (new_descr->keyword && new_descr->description)
+				{
+					new_descr->next = tobj->get_ex_description();
+					tobj->set_next_ex_description(new_descr);
+				}
+				else
+				{
+					sprintf(buf, "SYSERR: Format error in %s (Corrupt extradesc)", buf2);
+					log("%s", buf);
+				}
 			}
 			break;
+
 		case 'A':
 			if (j >= MAX_OBJ_AFFECT)
 			{

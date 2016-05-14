@@ -410,7 +410,7 @@ CelebrateDataPtr get_real_celebrate()
 	return result;
 };
 
-void remove_triggers(TrigList trigs, script_data* sc)
+void remove_triggers(TrigList trigs, SCRIPT_DATA* sc)
 {
 	TrigList::const_iterator it;
 	TRIG_DATA *tr, *tmp;
@@ -481,7 +481,7 @@ bool make_clean(CelebrateDataPtr celebrate)
 		{
 			free_script(SCRIPT(mob_it->second));	// без комментариев
 			SCRIPT(mob_it->second) = NULL;
-		}			
+		}
 		attached_mobs.erase(mob_it);
 		if (attached_mobs.empty())
 			break;
@@ -495,13 +495,12 @@ bool make_clean(CelebrateDataPtr celebrate)
 		{
 			if (it->second.find(vnum) != it->second.end())
 			{
-				remove_triggers(it->second[vnum], obj_it->second->get_script());
+				remove_triggers(it->second[vnum], obj_it->second->get_script().get());
 			}
 		}
 		if (obj_it->second->get_script()
 			&& !TRIGGERS(obj_it->second->get_script()))
 		{
-			free_script(obj_it->second->get_script());	// без комментариев
 			obj_it->second->set_script(nullptr);
 		}			
 		attached_objs.erase(obj_it);

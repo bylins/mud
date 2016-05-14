@@ -1068,7 +1068,7 @@ inline T VPOSI(const T val, const T min, const T max)
 
 //для арены
 #define AOBJS(obj,vict,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
-                      (obj)->short_description  : "что-то")
+                      (obj)->get_short_description().c_str() : "что-то")
 
 #define GET_PAD_OBJ(pad)  ((pad) == 5 ? "чем-то" :\
                            (pad) == 4 ? "чем-то" :\
@@ -1078,7 +1078,7 @@ inline T VPOSI(const T val, const T min, const T max)
 
 //для арены
 #define AOBJN(obj,vict,pad,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
-                           ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \
+                           (!(obj)->get_PName(pad).empty()) ? (obj)->get_PName(pad).c_str() : (obj)->get_short_description().c_str() \
                            : GET_PAD_OBJ(pad))
 
 #define EXITDATA(room,door) ((room >= 0 && room <= top_of_world) ? \

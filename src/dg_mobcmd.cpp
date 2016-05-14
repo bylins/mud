@@ -237,8 +237,8 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		for (obj = ch->carrying; obj != NULL; obj = obj_next)
 		{
-			obj_next = obj->next_content;
-			if (arg[3] == '\0' || isname(arg + 4, obj->aliases))
+			obj_next = obj->get_next_content();
+			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases().c_str()))
 			{
 				extract_obj(obj);
 			}
@@ -438,7 +438,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
-		GET_OBJ_ZONE(object) = world[ch->in_room]->zone;
+		object->set_zone(world[ch->in_room]->zone);
 		if (CAN_WEAR(object, EWearFlag::ITEM_WEAR_TAKE))
 		{
 			obj_to_char(object, ch);
