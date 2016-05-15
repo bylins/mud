@@ -5153,7 +5153,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 #define BINARY	1
 #define NUMBER	2
 
-inline void SET_OR_REMOVE(const bool on, const bool off, FLAG_DATA flagset, const uint32_t packed_flag)
+inline void SET_OR_REMOVE(const bool on, const bool off, FLAG_DATA& flagset, const uint32_t packed_flag)
 {
 	if (on)
 	{
@@ -6089,8 +6089,12 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// find the command in the list
 	size_t len = strlen(field);
 	for (mode = 0; *(set_fields[mode].cmd) != '\n'; mode++)
+	{
 		if (!strncmp(field, set_fields[mode].cmd, len))
+		{
 			break;
+		}
+	}
 
 	// perform the set
 	strcpy(OName, GET_NAME(vict));
