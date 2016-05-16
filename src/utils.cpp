@@ -3636,7 +3636,7 @@ bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const
 	}
 	else if (ch
 		&& filter_type == CLAN
-		&& CHECK_CUSTOM_LABEL(name.c_str(), obj, ch))
+		&& CHECK_CUSTOM_LABEL(name, obj, ch))
 	{
 		result = true;
 	}
@@ -3963,6 +3963,92 @@ void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = n
 			}
 		}
 		fprintf(file, "\n");
+	}
+}
+
+bool isname(const char *str, const char *namelist)
+{
+	bool once_ok = false;
+	const char *curname, *curstr, *laststr;
+
+	if (!namelist || !*namelist || !str)
+	{
+		return false;
+	}
+
+	for (curstr = str; !a_isalnum(*curstr); curstr++)
+	{
+		if (!*curstr)
+		{
+			return once_ok;
+		}
+	}
+
+	laststr = curstr;
+	curname = namelist;
+	for (;;)
+	{
+		once_ok = false;
+		for (;; curstr++, curname++)
+		{
+			if (!*curstr)
+			{
+				return once_ok;
+			}
+
+			if (*curstr == '!')
+			{
+				if (a_isalnum(*curname))
+				{
+					curstr = laststr;
+					break;
+				}
+			}
+
+			if (!a_isalnum(*curstr))
+			{
+				for (; !a_isalnum(*curstr); curstr++)
+				{
+					if (!*curstr)
+					{
+						return once_ok;
+					}
+				}
+				laststr = curstr;
+				break;
+			}
+
+			if (!*curname)
+			{
+				return false;
+			}
+
+			if (!a_isalnum(*curname))
+			{
+				curstr = laststr;
+				break;
+			}
+
+			if (LOWER(*curstr) != LOWER(*curname))
+			{
+				curstr = laststr;
+				break;
+			}
+			else
+			{
+				once_ok = true;
+			}
+		}
+
+		// skip to next name
+		for (; a_isalnum(*curname); curname++);
+		for (; !a_isalnum(*curname); curname++)
+		{
+			if (!*curname)
+			{
+				return false;
+			}
+		}
 	}
 }
 

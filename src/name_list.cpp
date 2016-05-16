@@ -97,7 +97,7 @@ CHAR_DATA * search_by_word(const char *name, const std::string &search_word)
 
 	while (i != char_list.end())
 	{
-		if (isname(search_word, i->first.c_str()))
+		if (isname(search_word, i->first))
 		{
 			for (CharNodeListType::reverse_iterator k = i->second.rbegin(); k != i->second.rend(); ++k)
 			{
@@ -213,11 +213,11 @@ OBJ_DATA * search_by_word(const char *name, const std::string &search_word)
 
 	while (i != obj_list.end())
 	{
-		if (isname(search_word, i->first.c_str()))
+		if (isname(search_word, i->first))
 		{
 			for (ObjNodeListType::reverse_iterator k = i->second.rbegin(); k != i->second.rend(); ++k)
 			{
-				if (isname(name, k->second->aliases))
+				if (isname(name, k->second->get_aliases()))
 				{
 					if (!obj || (obj && obj->get_serial_num() < k->second->get_serial_num()))
 					{
@@ -276,11 +276,11 @@ OBJ_DATA * locate_object(const char *str)
 	ObjListType::iterator i = obj_list.lower_bound(word);
 	while (i != obj_list.end())
 	{
-		if (isname(word, i->first.c_str()))
+		if (isname(word, i->first))
 		{
 			for (ObjNodeListType::reverse_iterator k = i->second.rbegin(); k != i->second.rend(); ++k)
 			{
-				if (isname(str, k->second->aliases))
+				if (isname(str, k->second->get_aliases()))
 				{
 					return k->second;
 				}

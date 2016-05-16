@@ -574,7 +574,7 @@ void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					if (obj != cont
 						&& CAN_SEE_OBJ(ch, obj)
 						&& (obj_dotmode == FIND_ALL
-							|| isname(theobj, obj->get_aliases().c_str())
+							|| isname(theobj, obj->get_aliases())
 							|| CHECK_CUSTOM_LABEL(theobj, obj, ch)))
 					{
 						found = 1;
@@ -816,8 +816,10 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 		for (obj = cont->get_contains(); obj; obj = next_obj)
 		{
 			next_obj = obj->get_next_content();
-			if (CAN_SEE_OBJ(ch, obj) && (obj_dotmode == FIND_ALL || isname(arg, obj->get_aliases().c_str()) ||
-			    CHECK_CUSTOM_LABEL(arg, obj, ch)))
+			if (CAN_SEE_OBJ(ch, obj)
+				&& (obj_dotmode == FIND_ALL
+					|| isname(arg, obj->get_aliases())
+					|| CHECK_CUSTOM_LABEL(arg, obj, ch)))
 			{
 				if (autoloot
 					&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT
@@ -915,7 +917,7 @@ void get_from_room(CHAR_DATA * ch, char *arg, int howmany)
 			next_obj = obj->get_next_content();
 			if (CAN_SEE_OBJ(ch, obj)
 				&& (dotmode == FIND_ALL
-					|| isname(arg, obj->get_aliases().c_str())
+					|| isname(arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(arg, obj, ch)))
 			{
 				found = 1;
@@ -980,7 +982,9 @@ void do_mark(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			for (cont = ch->carrying; cont; cont = cont->get_next_content())
 			{
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(arg1, cont->get_aliases().c_str())))
+				if (CAN_SEE_OBJ(ch, cont)
+					&& (cont_dotmode == FIND_ALL
+						|| isname(arg1, cont->get_aliases())))
 				{
 					cont->set_owner(atoi(arg2));
 					act("Вы пометили $o3.", FALSE, ch, cont, 0, TO_CHAR);
@@ -991,7 +995,7 @@ void do_mark(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				if (CAN_SEE_OBJ(ch, cont)
 					&& (cont_dotmode == FIND_ALL
-						|| isname(arg2, cont->get_aliases().c_str())))
+						|| isname(arg2, cont->get_aliases())))
 				{
 					cont->set_owner(atoi(arg2));
 					act("Вы пометили $o3.", FALSE, ch, cont, 0, TO_CHAR);
@@ -1095,7 +1099,7 @@ void do_get(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				if (CAN_SEE_OBJ(ch, cont)
 					&& (cont_dotmode == FIND_ALL
-						|| isname(thecont, cont->get_aliases().c_str())
+						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch)))
 				{
 					if (GET_OBJ_TYPE(cont) == obj_flag_data::ITEM_CONTAINER)
@@ -1114,7 +1118,7 @@ void do_get(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				if (CAN_SEE_OBJ(ch, cont)
 					&& (cont_dotmode == FIND_ALL
-						|| isname(thecont, cont->get_aliases().c_str())
+						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch)))
 				{
 					if (GET_OBJ_TYPE(cont) == obj_flag_data::ITEM_CONTAINER)
@@ -1604,7 +1608,7 @@ void do_give(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					next_obj = obj->get_next_content();
 					if (CAN_SEE_OBJ(ch, obj)
 						&& (dotmode == FIND_ALL
-							|| isname(arg, obj->get_aliases().c_str())
+							|| isname(arg, obj->get_aliases())
 							|| CHECK_CUSTOM_LABEL(arg, obj, ch)))
 					{
 						perform_give(ch, vict, obj);
@@ -2422,7 +2426,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				if (GET_EQ(ch, i)
 					&& CAN_SEE_OBJ(ch, GET_EQ(ch, i))
-					&& (isname(arg, GET_EQ(ch, i)->get_aliases().c_str())
+					&& (isname(arg, GET_EQ(ch, i)->get_aliases())
 						|| CHECK_CUSTOM_LABEL(arg, GET_EQ(ch, i), ch)))
 				{
 					perform_remove(ch, i);

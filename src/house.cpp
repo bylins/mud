@@ -5057,7 +5057,7 @@ int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 						}
 					}
 
-					if (!isname(name.c_str(), temp->aliases))
+					if (!isname(name, temp->aliases))
 						continue;
 
 					snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся в хранилище дружины '%s'.\r\n",

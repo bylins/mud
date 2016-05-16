@@ -5155,7 +5155,7 @@ void perform_mortal_where(CHAR_DATA * ch, char *arg)
 			if (!CAN_SEE(ch, i)
 					|| world[i->in_room]->zone != world[ch->in_room]->zone)
 				continue;
-			if (!isname(arg, i->get_pc_name().c_str()))
+			if (!isname(arg, i->get_pc_name()))
 			{
 				continue;
 			}
@@ -5234,7 +5234,7 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 	//int num = 1;
 	for (const OBJ_DATA *k = object_list; k; k = k->get_next())
 	{
-		if (isname(arg, k->get_aliases().c_str()))
+		if (isname(arg, k->get_aliases()))
 		{
 			found = true;
 			print_object_location(num++, k, ch, TRUE);
@@ -5301,7 +5301,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 		{
 			if (CAN_SEE(ch, i)
 				&& i->in_room != NOWHERE
-				&& isname(arg, i->get_pc_name().c_str()))
+				&& isname(arg, i->get_pc_name()))
 			{
 			    zone_data *zone = &zone_table[world[i->in_room]->zone];
 				found = 1;

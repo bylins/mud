@@ -372,29 +372,31 @@ struct custom_label
 {
 public:
 	custom_label(): label_text(nullptr), clan(nullptr), author(-2), author_mail(nullptr) {}
-	~custom_label()
-	{
-		if (nullptr != label_text)
-		{
-			free(label_text);
-		}
-
-		if (nullptr != clan)
-		{
-			free(clan);
-		}
-
-		if (nullptr != author_mail)
-		{
-			free(author_mail);
-		}
-	}
+	~custom_label();
 
 	char *label_text; // текст
 	char *clan;       // аббревиатура клана, если метка предназначена для клана
 	int author;       // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
 	char *author_mail;// будем проверять по емейлу тоже
 };
+
+inline custom_label::~custom_label()
+{
+	if (nullptr != label_text)
+	{
+		free(label_text);
+	}
+
+	if (nullptr != clan)
+	{
+		free(clan);
+	}
+
+	if (nullptr != author_mail)
+	{
+		free(author_mail);
+	}
+}
 
 /// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
 /// Если поле нужно сохранять в обж-файл - вписываем в TextId::init_obj_vals()
@@ -653,6 +655,12 @@ public:
 	void set_zone(const int _) { obj_flags.Obj_zone = _; }
 	void swap_proto_script(triggers_list_t& _) { m_proto_script.swap(_); }
 	void unset_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
+	void set_uid(const unsigned _) { m_uid = _; }
+	void remove_set_bonus() { m_enchants.remove_set_bonus(this); }
+	void weight_add(const int _) { obj_flags.weight += _; }
+	void weight_sub(const int _) { obj_flags.weight += _; }
+	auto val_dec(size_t index) { return --obj_flags.value[index]; }
+	void set_ex_description(EXTRA_DESCR_DATA* _) { m_ex_description.reset(_); }
 
 private:
 	void zero_init();

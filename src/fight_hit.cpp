@@ -790,31 +790,34 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		switch (unequip_pos)
 		{
 			case 6:		//WEAR_HEAD
-				sprintf(buf, "%s слетел%s с вашей головы.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с вашей головы.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_VICT);
-				sprintf(buf, "%s слетел%s с головы $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с головы $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_CHAR);
 				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				break;
+
 			case 11:	//WEAR_SHIELD
-				sprintf(buf, "%s слетел%s с вашей руки.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с вашей руки.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_VICT);
-				sprintf(buf, "%s слетел%s с руки $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с руки $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_CHAR);
 				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				break;
+
 			case 16:	//WEAR_WIELD
 			case 17:	//WEAR_HOLD
-				sprintf(buf, "%s выпал%s из вашей руки.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из вашей руки.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_VICT);
-				sprintf(buf, "%s выпал%s из руки $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из руки $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_CHAR);
 				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				break;
+
 			case 18:	//WEAR_BOTHS
-				sprintf(buf, "%s выпал%s из ваших рук.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из ваших рук.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_VICT);
-				sprintf(buf, "%s выпал%s из рук $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из рук $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_CHAR);
 				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				break;

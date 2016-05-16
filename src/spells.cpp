@@ -927,7 +927,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 		}
 
-		if (!isname(name, i->aliases))
+		if (!isname(name, i->get_aliases()))
 			continue;
 
 		if (i->carried_by)

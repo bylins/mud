@@ -404,7 +404,12 @@ inline bool CHECK_CUSTOM_LABEL(const char* arg, const OBJ_DATA* obj, const CHAR_
 		&& (IS_NPC(ch)
 			? ((IS_CHARMICE(ch) && ch->master) ? CHECK_CUSTOM_LABEL_CORE(obj, ch->master) : 0)
 			: CHECK_CUSTOM_LABEL_CORE(obj, ch))
-		&& isname((arg), obj->get_custom_label()->label_text);
+		&& isname(arg, obj->get_custom_label()->label_text);
+}
+
+inline bool CHECK_CUSTOM_LABEL(const std::string& arg, const OBJ_DATA* obj, const CHAR_DATA* ch)
+{
+	return CHECK_CUSTOM_LABEL(arg.c_str(), obj, ch);
 }
 
 // видит ли ch метки obj

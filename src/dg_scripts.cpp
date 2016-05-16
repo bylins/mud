@@ -165,15 +165,23 @@ OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA * list)
 	{
 		id = atoi(name + 1);
 
-		for (i = list; i; i = i->next_content)
-			if (id == GET_ID(i))
+		for (i = list; i; i = i->get_next_content())
+		{
+			if (id == i->get_id())
+			{
 				return i;
+			}
+		}
 	}
 	else
 	{
-		for (i = list; i; i = i->next_content)
-			if (isname(name, i->aliases))
+		for (i = list; i; i = i->get_next_content())
+		{
+			if (isname(name, i->get_aliases()))
+			{
 				return i;
+			}
+		}
 	}
 
 	return NULL;
@@ -203,10 +211,22 @@ OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name)
 			return NULL;
 
 		for (j = 0; (j < NUM_WEARS) && (n <= number); j++)
-			if ((obj = GET_EQ(ch, j)))
-				if (isname(tmp, obj->aliases))
-					if (++n == number)
-						return (obj);
+		{
+			obj = GET_EQ(ch, j);
+			if (!obj)
+			{
+				continue;
+			}
+
+			if (isname(tmp, obj->get_aliases()))
+			{
+				++n;
+				if (n == number)
+				{
+					return (obj);
+				}
+			}
+		}
 	}
 
 	return NULL;
@@ -288,9 +308,13 @@ inline auto count_obj_vnum(long n)
 OBJ_DATA *find_obj(long n)
 {
 	OBJ_DATA *i;
-	for (i = object_list; i; i = i->next)
-		if (n == GET_ID(i))
+	for (i = object_list; i; i = i->get_next())
+	{
+		if (n == i->get_id())
+		{
 			return i;
+		}
+	}
 	return NULL;
 }
 
@@ -340,7 +364,7 @@ int find_obj_vnum(long n, int num = 0)
 {
 	OBJ_DATA *i;
 	int count = 0;
-	for (i = object_list; i; i = i->next)
+	for (i = object_list; i; i = i->get_next())
 	{
 		if (n == GET_OBJ_VNUM(i))
 		{
@@ -349,10 +373,8 @@ int find_obj_vnum(long n, int num = 0)
 			{
 				continue;
 			}
-			else
-			{
-				return (GET_ID(i));
-			}
+
+			return i->get_id();
 		}
 	}
 	return -1;
@@ -397,7 +419,7 @@ CHAR_DATA *get_char(char *name, int/* vnum*/)
 	{
 		for (i = character_list; i; i = i->get_next())
 		{
-			if (isname(name, i->get_pc_name().c_str())
+			if (isname(name, i->get_pc_name())
 				&& (IS_NPC(i)
 					|| !GET_INVIS_LEV(i)))
 			{
@@ -424,10 +446,13 @@ OBJ_DATA *get_obj(char *name, int/* vnum*/)
 	}
 	else
 	{
-		for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
-			if (isname(name, obj->aliases))
+		for (OBJ_DATA *obj = object_list; obj; obj = obj->get_next())
+		{
+			if (isname(name, obj->get_aliases()))
+			{
 				return obj;
-//		return ObjectAlias::get_by_name(name);
+			}
+		}
 	}
 	return NULL;
 }
@@ -470,25 +495,25 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name)
 	}
 	else
 	{
-		if (obj->carried_by
-			&& isname(name, obj->carried_by->get_pc_name().c_str())
-			&& (IS_NPC(obj->carried_by)
-				|| !GET_INVIS_LEV(obj->carried_by)))
+		if (obj->get_carried_by()
+			&& isname(name, obj->get_carried_by()->get_pc_name())
+			&& (IS_NPC(obj->get_carried_by())
+				|| !GET_INVIS_LEV(obj->get_carried_by())))
 		{
-			return obj->carried_by;
+			return obj->get_carried_by();
 		}
 
-		if (obj->worn_by
-			&& isname(name, obj->worn_by->get_pc_name().c_str())
-			&& (IS_NPC(obj->worn_by)
-				|| !GET_INVIS_LEV(obj->worn_by)))
+		if (obj->get_worn_by()
+			&& isname(name, obj->get_worn_by()->get_pc_name())
+			&& (IS_NPC(obj->get_worn_by())
+				|| !GET_INVIS_LEV(obj->get_worn_by())))
 		{
-			return obj->worn_by;
+			return obj->get_worn_by();
 		}
 
 		for (ch = character_list; ch; ch = ch->get_next())
 		{
-			if (isname(name, ch->get_pc_name().c_str())
+			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch)))
 			{
@@ -530,7 +555,7 @@ CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name)
 	{
 		for (ch = room->people; ch; ch = ch->next_in_room)
 		{
-			if (isname(name, ch->get_pc_name().c_str())
+			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch)))
 			{
@@ -540,7 +565,7 @@ CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name)
 
 		for (ch = character_list; ch; ch = ch->get_next())
 		{
-			if (isname(name, ch->get_pc_name().c_str())
+			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch)))
 			{
@@ -569,41 +594,59 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 	if (!str_cmp(name, "self") || !str_cmp(name, "me"))
 		return obj;
 
-	if (obj->contains && (i = get_obj_in_list(name, obj->contains)))
+	if (obj->get_contains() && (i = get_obj_in_list(name, obj->get_contains())))
 		return i;
 
-	if (obj->in_obj)
+	if (obj->get_in_obj())
 	{
 		if (*name == UID_OBJ)
 		{
 			id = atoi(name + 1);
 
-			if (id == GET_ID(obj->in_obj))
-				return obj->in_obj;
+			if (id == obj->get_in_obj()->get_id())
+			{
+				return obj->get_in_obj();
+			}
 		}
-		else if (isname(name, obj->in_obj->aliases))
-			return obj->in_obj;
+		else if (isname(name, obj->get_in_obj()->get_aliases()))
+		{
+			return obj->get_in_obj();
+		}
 	}
-	else if (obj->worn_by && (i = get_object_in_equip(obj->worn_by, name)))
+	else if (obj->get_worn_by() && (i = get_object_in_equip(obj->get_worn_by(), name)))
+	{
 		return i;
-	else if (obj->carried_by && (i = get_obj_in_list(name, obj->carried_by->carrying)))
+	}
+	else if (obj->get_carried_by() && (i = get_obj_in_list(name, obj->get_carried_by()->carrying)))
+	{
 		return i;
+	}
 	else if (((rm = obj_room(obj)) != NOWHERE) && (i = get_obj_in_list(name, world[rm]->contents)))
+	{
 		return i;
+	}
 
 	if (*name == UID_OBJ)
 	{
 		id = atoi(name + 1);
 
-		for (i = object_list; i; i = i->next)
-			if (id == GET_ID(i))
+		for (i = object_list; i; i = i->get_next())
+		{
+			if (id == i->get_id())
+			{
 				break;
+			}
+		}
 	}
 	else
 	{
-		for (i = object_list; i; i = i->next)
-			if (isname(name, i->aliases))
+		for (i = object_list; i; i = i->get_next())
+		{
+			if (isname(name, i->get_aliases()))
+			{
 				break;
+			}
+		}
 	}
 
 	return i;
@@ -622,23 +665,39 @@ OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name)
 	{
 		id = atoi(name + 1);
 
-		for (obj = room->contents; obj; obj = obj->next_content)
+		for (obj = room->contents; obj; obj = obj->get_next_content())
+		{
 			if (id == obj->get_id())
+			{
 				return obj;
+			}
+		}
 
-		for (obj = object_list; obj; obj = obj->next)
+		for (obj = object_list; obj; obj = obj->get_next())
+		{
 			if (id == obj->get_id())
+			{
 				return obj;
+			}
+		}
 	}
 	else
 	{
-		for (obj = room->contents; obj; obj = obj->next_content)
-			if (isname(name, obj->aliases))
+		for (obj = room->contents; obj; obj = obj->get_next_content())
+		{
+			if (isname(name, obj->get_aliases()))
+			{
 				return obj;
+			}
+		}
 
-		for (obj = object_list; obj; obj = obj->next)
-			if (isname(name, obj->aliases))
+		for (obj = object_list; obj; obj = obj->get_next())
+		{
+			if (isname(name, obj->get_aliases()))
+			{
 				return obj;
+			}
+		}
 	}
 
 	return NULL;
@@ -657,24 +716,44 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 	{
 		id = atoi(name + 1);
 		if (ch)
-			for (obj = ch->carrying; obj; obj = obj->next_content)
+		{
+			for (obj = ch->carrying; obj; obj = obj->get_next_content())
+			{
 				if (id == obj->get_id())
+				{
 					return obj;
+				}
+			}
+		}
 
-		for (obj = object_list; obj; obj = obj->next)
+		for (obj = object_list; obj; obj = obj->get_next())
+		{
 			if (id == obj->get_id())
+			{
 				return obj;
+			}
+		}
 	}
 	else
 	{
 		if (ch)
-			for (obj = ch->carrying; obj; obj = obj->next_content)
-				if (isname(name, obj->aliases))
+		{
+			for (obj = ch->carrying; obj; obj = obj->get_next_content())
+			{
+				if (isname(name, obj->get_aliases()))
+				{
 					return obj;
+				}
+			}
+		}
 
-		for (obj = object_list; obj; obj = obj->next)
-			if (isname(name, obj->aliases))
+		for (obj = object_list; obj; obj = obj->get_next())
+		{
+			if (isname(name, obj->get_aliases()))
+			{
 				return obj;
+			}
+		}
 	}
 
 	return NULL;
@@ -702,19 +781,21 @@ void script_trigger_check(void)
 		}
 	}
 
-	for (obj = object_list; obj; obj = obj->next)
+	for (obj = object_list; obj; obj = obj->get_next())
 	{
 		if(OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))
 		{
-			if(obj->worn_by && number(1, 100) <= 5)
-				NamedStuff::wear_msg(obj->worn_by, obj);
-		}
-		else if (SCRIPT(obj))
-		{
+			if(obj->get_worn_by() && number(1, 100) <= 5)
 			{
-				sc = SCRIPT(obj);
-				if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM))
-					random_otrigger(obj);
+				NamedStuff::wear_msg(obj->get_worn_by(), obj);
+			}
+		}
+		else if (obj->get_script())
+		{
+			sc = obj->get_script().get();
+			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM))
+			{
+				random_otrigger(obj);
 			}
 		}
 	}
@@ -749,20 +830,23 @@ void script_timechange_trigger_check(const int time)
 		{
 			sc = SCRIPT(ch);
 
-			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_TIMECHANGE) &&
-					(!is_empty(world[ch->in_room]->zone) || IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
+			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_TIMECHANGE)
+				&& (!is_empty(world[ch->in_room]->zone)
+					|| IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
+			{
 				timechange_mtrigger(ch, time);
+			}
 		}
 	}
 
-	for (obj = object_list; obj; obj = obj->next)
+	for (obj = object_list; obj; obj = obj->get_next())
 	{
-		if (SCRIPT(obj))
+		if (obj->get_script())
 		{
+			sc = obj->get_script().get();
+			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_TIMECHANGE))
 			{
-				sc = SCRIPT(obj);
-				if (IS_SET(SCRIPT_TYPES(sc), OTRIG_TIMECHANGE))
-					timechange_otrigger(obj, time);
+				timechange_otrigger(obj, time);
 			}
 		}
 	}
@@ -774,9 +858,12 @@ void script_timechange_trigger_check(const int time)
 			room = world[nr];
 			sc = SCRIPT(room);
 
-			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_TIMECHANGE) &&
-					(!is_empty(room->zone) || IS_SET(SCRIPT_TYPES(sc), WTRIG_GLOBAL)))
+			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_TIMECHANGE)
+				&& (!is_empty(room->zone)
+					|| IS_SET(SCRIPT_TYPES(sc), WTRIG_GLOBAL)))
+			{
 				timechange_wtrigger(room, time);
+			}
 		}
 	}
 }
@@ -869,7 +956,7 @@ void find_uid_name(char *uid, char *name)
 	}
 	else if ((obj = get_obj(uid)))
 	{
-		strcpy(name, obj->aliases);
+		strcpy(name, obj->get_aliases().c_str());
 	}
 	else
 	{
@@ -992,13 +1079,13 @@ void do_sstat_room(ROOM_DATA *rm, CHAR_DATA * ch)
 void do_sstat_object(CHAR_DATA * ch, OBJ_DATA * j)
 {
 	send_to_char("Script information:\r\n", ch);
-	if (!SCRIPT(j))
+	if (!j->get_script())
 	{
 		send_to_char("  None.\r\n", ch);
 		return;
 	}
 
-	script_stat(ch, SCRIPT(j));
+	script_stat(ch, j->get_script().get());
 }
 
 
@@ -1128,15 +1215,15 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			rn = real_trigger(tn);
 			if ((rn >= 0) && (trig = read_trigger(rn)))
 			{
-				if (!SCRIPT(object))
+				if (!object->get_script())
 				{
-					CREATE(SCRIPT(object), 1);
+					object->set_script(new SCRIPT_DATA());
 				}
-				add_trigger(SCRIPT(object), trig, loc);
+				add_trigger(object->get_script().get(), trig, loc);
 
 				sprintf(buf, "Trigger %d (%s) attached to %s.\r\n",
-						tn, GET_TRIG_NAME(trig),
-						(object->short_description ? object->short_description : object->aliases));
+					tn, GET_TRIG_NAME(trig),
+					(!object->get_short_description().empty() ? object->get_short_description().c_str() : object->get_aliases().c_str()));
 				send_to_char(buf, ch);
 			}
 			else
@@ -1352,27 +1439,29 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else if (object)
 		{
-			if (!SCRIPT(object))
+			if (!object->get_script())
+			{
 				send_to_char("That object doesn't have any triggers.\r\n", ch);
+			}
 			else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
 			{
-				free_script(SCRIPT(object));
-				SCRIPT(object) = NULL;
+				object->set_script(nullptr);
 				sprintf(buf, "All triggers removed from %s.\r\n",
-						object->short_description ? object->short_description : object->aliases);
+					!object->get_short_description().empty() ? object->get_short_description().c_str() : object->get_aliases().c_str());
 				send_to_char(buf, ch);
 			}
-			else if (remove_trigger(SCRIPT(object), trigger, &dummy))
+			else if (remove_trigger(object->get_script().get(), trigger, &dummy))
 			{
 				send_to_char("Trigger removed.\r\n", ch);
-				if (!TRIGGERS(SCRIPT(object)))
+				if (!TRIGGERS(object->get_script().get()))
 				{
-					free_script(SCRIPT(object));
-					SCRIPT(object) = NULL;
+					object->set_script(nullptr);
 				}
 			}
 			else
+			{
 				send_to_char("That trigger was not found.\r\n", ch);
+			}
 		}
 	}
 
@@ -1498,6 +1587,15 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id)
 	return 1;
 }
 
+bool SCRIPT_CHECK(const OBJ_DATA* go, const long type)
+{
+	return go->get_script() && IS_SET(SCRIPT_TYPES(go->get_script()), type);
+}
+
+bool SCRIPT_CHECK(const CHAR_DATA* go, const long type)
+{
+	return go->script && IS_SET(SCRIPT_TYPES(go->script), type);
+}
 
 // * Изменение указанной целочисленной константы
 long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)

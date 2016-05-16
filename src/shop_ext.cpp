@@ -561,12 +561,14 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 		{
 			OBJ_DATA * tmp_obj = get_obj_from_waste(shop, ((*shop)->item_list[i])->temporary_ids);
 			if (!tmp_obj)
+			{
 				continue;
-			name_value = std::string(tmp_obj->aliases);
-			print_value = std::string(tmp_obj->short_description);
+			}
+			name_value = tmp_obj->get_aliases();
+			print_value = tmp_obj->get_short_description();
 		}
 
-		if (isname(item_name, name_value.c_str()) || isname(item_name, print_value.c_str()))
+		if (isname(item_name, name_value) || isname(item_name, print_value))
 		{
 			++count;
 			if (count == num)
@@ -580,7 +582,7 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 
 std::string item_count_message(const OBJ_DATA *obj, int num, int pad)
 {
-	if (!obj || num <= 0 || pad < 0 || pad > 5 || !GET_OBJ_PNAME(obj, pad))
+	if (!obj || num <= 0 || pad < 0 || pad > 5 || GET_OBJ_PNAME(obj, pad).empty())
 	{
 		log("SYSERROR : obj=%s num=%d, pad=%d, pname=%s (%s:%d)",
 			obj ? "true" : "false", num, pad, GET_OBJ_PNAME(obj, pad), __FILE__, __LINE__);
@@ -744,9 +746,9 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 
 		// имхо вполне логично раз уж мы получаем эту надпись в ней и искать
 		if (arg.empty()
-			|| isname(arg.c_str(), print_value.c_str())
+			|| isname(arg, print_value)
 			|| (!name_value.empty()
-				&& isname(arg.c_str(), name_value.c_str())))
+				&& isname(arg, name_value)))
 		{
 			out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
 				% num++ % numToShow % print_value % (*k)->price);

@@ -1044,7 +1044,7 @@ void mob_casting(CHAR_DATA * ch)
 			break;
 		}
 
-		item = item->next_content;
+		item = item->get_next_content();
 	}
 
 	// перво-наперво  -  лечим себя
@@ -1144,7 +1144,7 @@ void mob_casting(CHAR_DATA * ch)
 				break;
 			}
 
-			item = item->next_content;
+			item = item->get_next_content();
 		}
 
 		cast_spell(ch, victim, 0, NULL, spellnum, spellnum);

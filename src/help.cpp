@@ -720,7 +720,7 @@ bool help_compare(const std::string &arg, const std::string &text, bool strong)
 		return arg == text;
 	}
 
-	return isname(arg, text.c_str());
+	return isname(arg, text);
 }
 
 void UserSearch::process(int flag)

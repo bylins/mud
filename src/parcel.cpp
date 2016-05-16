@@ -374,8 +374,10 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 				bool has_items = false;
 				for (obj = ch->carrying; obj; obj = next_obj)
 				{
-					next_obj = obj->next_content;
-					if (CAN_SEE_OBJ(ch, obj) && ((dotmode == FIND_ALL || isname(tmp_arg, obj->aliases))))
+					next_obj = obj->get_next_content();
+					if (CAN_SEE_OBJ(ch, obj)
+						&& ((dotmode == FIND_ALL
+							|| isname(tmp_arg, obj->get_aliases()))))
 					{
 						send_object(ch, mailman, vict_uid, obj);
 						has_items = true;
@@ -452,16 +454,20 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 					}
 				}
 
-				if (!isname(name.c_str(), it3->obj_->aliases))
+				if (!isname(name.c_str(), it3->obj_->get_aliases()))
+				{
 					continue;
+				}
 
 				snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у почтового голубя в инвентаре.\r\n",
-						it3->obj_->short_description, GET_OBJ_POLY_1(ch, it3->obj_));
+					it3->obj_->get_short_description().c_str(), GET_OBJ_POLY_1(ch, it3->obj_));
 				CAP(buf);
 				send_to_char(buf, ch);
 
 				if (--count <= 0)
+				{
 					return count;
+				}
 			}
 		}
 	}
@@ -945,13 +951,17 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 		{
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
 			{
-				if (isname(arg, it3->obj_->aliases))
+				if (isname(arg, it3->obj_->get_aliases()))
 				{
 					std::string target = GetNameByUnique(it->first);
 					std::string sender = GetNameByUnique(it2->first);
 
 					send_to_char(ch, "O%3d. %-25s - наход%sся на почте (отправитель: %s, получатель: %s).\r\n",
-							num++, it3->obj_->short_description, GET_OBJ_POLY_1(ch, it3->obj_), sender.c_str(), target.c_str());
+						num++,
+						it3->obj_->get_short_description().c_str(),
+						GET_OBJ_POLY_1(ch, it3->obj_),
+						sender.c_str(),
+						target.c_str());
 				}
 			}
 		}
@@ -984,7 +994,7 @@ OBJ_DATA * locate_object(const char *str)
 		{
 			for (std::list<Node>::const_iterator o = k->second.begin(); o != k->second.end(); ++o)
 			{
-				if (isname(str, o->obj_->aliases))
+				if (isname(str, o->obj_->get_aliases()))
 				{
 					return o->obj_;
 				}

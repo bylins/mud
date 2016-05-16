@@ -238,7 +238,7 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		for (obj = ch->carrying; obj != NULL; obj = obj_next)
 		{
 			obj_next = obj->get_next_content();
-			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases().c_str()))
+			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases()))
 			{
 				extract_obj(obj);
 			}

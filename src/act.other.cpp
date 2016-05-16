@@ -580,7 +580,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 			for (eq_pos = 0; eq_pos < NUM_WEARS; eq_pos++)
 			{
 				if (GET_EQ(vict, eq_pos)
-					&& (isname(obj_name, GET_EQ(vict, eq_pos)->get_aliases().c_str()))
+					&& (isname(obj_name, GET_EQ(vict, eq_pos)->get_aliases()))
 					&& CAN_SEE_OBJ(ch, GET_EQ(vict, eq_pos)))
 				{
 					obj = GET_EQ(vict, eq_pos);
@@ -1537,7 +1537,7 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		next_fol = f->next;
 		tch = f->follower;
-		if (isname(buf, tch->get_pc_name().c_str())
+		if (isname(buf, tch->get_pc_name())
 			&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 			&& !IS_HORSE(tch))
 		{
@@ -1806,7 +1806,7 @@ void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 
 	mag_item = GET_EQ(ch, WEAR_HOLD);
 	if (!mag_item
-		|| !isname(arg, mag_item->get_aliases().c_str()))
+		|| !isname(arg, mag_item->get_aliases()))
 	{
 		switch (subcmd)
 		{

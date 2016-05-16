@@ -55,25 +55,6 @@ OBJ_DATA::~OBJ_DATA()
 	}
 }
 
-// эта функция только освобождает память, поэтому не забываем устанавливать указатель в NULL,
-// если сразу после этого не делаем init_custom_label(), иначе будут креши
-void free_custom_label(struct custom_label *custom_label)
-{
-	if (custom_label)
-	{
-		free(custom_label->label_text);
-		if (custom_label->clan)
-		{
-			free(custom_label->clan);
-		}
-		if (custom_label->author_mail)
-		{
-			free(custom_label->author_mail);
-		}
-		free(custom_label);
-	}
-}
-
 // * См. Character::zero_init()
 void OBJ_DATA::zero_init()
 {

@@ -115,7 +115,6 @@ struct wait_event_data
 	int type;
 };
 
-
 // one line of the trigger //
 struct cmdlist_element
 {
@@ -285,8 +284,9 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 
 #define GET_SHORT(ch)    ((ch)->get_npc_name().c_str())
 
-#define SCRIPT_CHECK(go, type)   (SCRIPT(go) && \
-				  IS_SET(SCRIPT_TYPES(SCRIPT(go)), type))
+bool SCRIPT_CHECK(const OBJ_DATA* go, const long type);
+bool SCRIPT_CHECK(const CHAR_DATA* go, const long type);
+
 #define TRIGGER_CHECK(t, type)   (IS_SET(GET_TRIG_TYPE(t), type) && \
 				  !GET_TRIG_DEPTH(t))
 

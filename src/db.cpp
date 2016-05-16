@@ -4842,7 +4842,7 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch)
 
 	for (nr = 0; nr <= top_of_mobt; nr++)
 	{
-		if (isname(searchname, mob_proto[nr].get_pc_name().c_str()))
+		if (isname(searchname, mob_proto[nr].get_pc_name()))
 		{
 			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str());
 			send_to_char(buf, ch);
@@ -4857,7 +4857,7 @@ int vnum_object(char *searchname, CHAR_DATA * ch)
 
 	for (size_t nr = 0; nr < obj_proto.size(); nr++)
 	{
-		if (isname(searchname, obj_proto[nr]->get_aliases().c_str()))
+		if (isname(searchname, obj_proto[nr]->get_aliases()))
 		{
 			++found;
 			sprintf(buf, "%3d. [%5d] %s\r\n", found, obj_proto.vnum(nr), obj_proto[nr]->get_short_description().c_str());
@@ -5709,22 +5709,30 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 									obj_to_char(obj, mob);
 									obj->set_zone(world[IN_ROOM(mob)]->zone);
 
-									if (!SCRIPT(obj))
-										CREATE(SCRIPT(obj), 1);
+									if (!obj->get_script())
+									{
+										obj->set_script(new SCRIPT_DATA());
+									}
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
-										add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
+									{
+										add_trigger(obj->get_script().get(), read_trigger(real_trigger(*it)), -1);
+									}
 
 									load_otrigger(obj);
-									Celebrates::add_obj_to_load_list(obj->uid, obj);
+									Celebrates::add_obj_to_load_list(obj->get_uid(), obj);
 								}
 								else
+								{
 									log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load_in)->vnum);
+								}
 							}
 						}
 					}
 					else
+					{
 						log("{Error] Processing celebrate %s while loading mob %d", celebrate->name.c_str(), (*load)->vnum);
+					}
 				}
 			}
 			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load)
@@ -5738,24 +5746,31 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 				}
 				int obj_in_room = 0;
 
-				for (obj_room = world[rn]->contents;
-						obj_room; obj_room = obj_room->next_content)
+				for (obj_room = world[rn]->contents; obj_room; obj_room = obj_room->get_next_content())
+				{
 					if (rnum == GET_OBJ_RNUM(obj_room))
+					{
 						obj_in_room++;
+					}
+				}
 
-				if ((obj_proto.actual_count(rnum) < obj_proto[rnum]->max_in_world)
+				if ((obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world())
 					&& (obj_in_room < (*load)->max))
 				{
 					obj = read_object(real_object((*load)->vnum), REAL);
 					if (obj)
 					{
-						if (!SCRIPT(obj))
-							CREATE(SCRIPT(obj), 1);
+						if (!obj->get_script())
+						{
+							obj->set_script(new SCRIPT_DATA());
+						}
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
-							add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
+						{
+							add_trigger(obj->get_script().get(), read_trigger(real_trigger(*it)), -1);
+						}
 						load_otrigger(obj);
-						Celebrates::add_obj_to_load_list(obj->uid, obj);
+						Celebrates::add_obj_to_load_list(obj->get_uid(), obj);
 
 						obj_to_room(obj, real_room((*room)->vnum));
 
@@ -5763,38 +5778,43 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						{
 							obj_rnum rnum = real_object((*load_in)->vnum);
 
-							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->max_in_world)
+							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world())
 							{
 								obj_in = read_object(real_object((*load_in)->vnum), REAL);
 								if (obj_in
 									&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)
 			 					{
 									obj_to_obj(obj_in, obj);
-									GET_OBJ_ZONE(obj_in) = GET_OBJ_ZONE(obj);
+									obj_in->set_zone(GET_OBJ_ZONE(obj));
 
-									if (!SCRIPT(obj_in))
+									if (!obj_in->get_script())
 									{
-										CREATE(SCRIPT(obj_in), 1);
+										obj_in->set_script(new SCRIPT_DATA());
 									}
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
-										add_trigger(SCRIPT(obj_in), read_trigger(real_trigger(*it)), -1);
+									{
+										add_trigger(obj_in->get_script().get(), read_trigger(real_trigger(*it)), -1);
+									}
 
 									load_otrigger(obj_in);
-									Celebrates::add_obj_to_load_list(obj->uid, obj);
+									Celebrates::add_obj_to_load_list(obj->get_uid(), obj);
 								}
 								else
+								{
 									log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load_in)->vnum);
+								}
 							}
 						}
 					}
 					else
+					{
 						log("{Error] Processing celebrate %s while loading mob %d", celebrate->name.c_str(), (*load)->vnum);
+					}
 				}
 			}
 		}
 	}
-
 }
 
 void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_vnum)
@@ -5823,19 +5843,21 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 	if (celebrate->objsToAttach.find(zone_vnum) != celebrate->objsToAttach.end())
 	{
 		Celebrates::AttachList list = celebrate->objsToAttach[zone_vnum];
-		for (OBJ_DATA *o = object_list; o; o=o->next)
+		for (OBJ_DATA *o = object_list; o; o = o->get_next())
 		{
-			if (o->item_number > 0 && list.find(o->item_number) != list.end())
+			if (o->get_rnum() > 0 && list.find(o->get_rnum()) != list.end())
 			{
-				if (!SCRIPT(o))
+				if (!o->get_script())
 				{
-					CREATE(SCRIPT(o), 1);
+					o->set_script(new SCRIPT_DATA());
 				}
-				for (Celebrates::TrigList::iterator it = list[o->item_number].begin(); it != list[o->item_number].end(); ++it)
+
+				for (Celebrates::TrigList::iterator it = list[o->get_rnum()].begin(); it != list[o->get_rnum()].end(); ++it)
 				{
-					add_trigger(SCRIPT(o), read_trigger(real_trigger(*it)), -1);
+					add_trigger(o->get_script().get(), read_trigger(real_trigger(*it)), -1);
 				}
-				Celebrates::add_obj_to_attach_list(o->uid, o);
+
+				Celebrates::add_obj_to_attach_list(o->get_uid(), o);
 			}
 		}
 	}
@@ -5974,10 +5996,15 @@ void reset_zone(zone_rnum zone)
 						obj_in_room_max++;
 				// Теперь считаем склько их на текущей клетке
 				if (ZCMD.arg3 >= 0)
-					for (obj_room = world[ZCMD.arg3]->contents, obj_in_room = 0;
-							obj_room; obj_room = obj_room->next_content)
+				{
+					for (obj_room = world[ZCMD.arg3]->contents, obj_in_room = 0; obj_room; obj_room = obj_room->get_next_content())
+					{
 						if (ZCMD.arg1 == GET_OBJ_RNUM(obj_room))
+						{
 							obj_in_room++;
+						}
+					}
+				}
 				// Теперь грузим обьект если надо
 				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
@@ -5989,7 +6016,7 @@ void reset_zone(zone_rnum zone)
 					obj = read_object(ZCMD.arg1, REAL);
 					if (ZCMD.arg3 >= 0)
 					{
-						GET_OBJ_ZONE(obj) = world[ZCMD.arg3]->zone;
+						obj->set_zone(world[ZCMD.arg3]->zone);
 						if (!obj_to_room(obj, ZCMD.arg3))
 						{
 							extract_obj(obj);
@@ -5999,15 +6026,14 @@ void reset_zone(zone_rnum zone)
 					}
 					else
 					{
-						obj->get_in_room() = NOWHERE;
+						obj->set_in_room(NOWHERE);
 					}
 					tobj = obj;
 					curr_state = 1;
 					if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODECAY))
 					{
-						sprintf(buf,
-								"&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
-								GET_OBJ_PNAME(obj, 0), GET_OBJ_VNUM(obj));
+						sprintf(buf, "&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
+							GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 						mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 					}
 				}
@@ -6036,12 +6062,18 @@ void reset_zone(zone_rnum zone)
 						break;
 					}
 					obj = read_object(ZCMD.arg1, REAL);
-					if (obj_to->in_room != NOWHERE)
-						GET_OBJ_ZONE(obj) = world[obj_to->in_room]->zone;
-					else if (obj_to->worn_by)
-						GET_OBJ_ZONE(obj) = world[IN_ROOM(obj_to->worn_by)]->zone;
-					else if (obj_to->carried_by)
-						GET_OBJ_ZONE(obj) = world[IN_ROOM(obj_to->carried_by)]->zone;
+					if (obj_to->get_in_room() != NOWHERE)
+					{
+						obj->set_zone(world[obj_to->get_in_room()]->zone);
+					}
+					else if (obj_to->get_worn_by())
+					{
+						obj->set_zone(world[IN_ROOM(obj_to->get_worn_by())]->zone);
+					}
+					else if (obj_to->get_carried_by())
+					{
+						obj->set_zone(world[IN_ROOM(obj_to->get_carried_by())]->zone);
+					}
 					obj_to_obj(obj, obj_to);
 					load_otrigger(obj);
 					tobj = obj;
@@ -6068,7 +6100,7 @@ void reset_zone(zone_rnum zone)
 				{
 					obj = read_object(ZCMD.arg1, REAL);
 					obj_to_char(obj, mob);
-					GET_OBJ_ZONE(obj) = world[IN_ROOM(mob)]->zone;
+					obj->set_zone(world[IN_ROOM(mob)]->zone);
 					tobj = obj;
 					load_otrigger(obj);
 					curr_state = 1;
@@ -6086,7 +6118,7 @@ void reset_zone(zone_rnum zone)
 					// ZCMD.command = '*';
 					break;
 				}
-				if ((obj_proto.actual_count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->max_in_world
+				if ((obj_proto.actual_count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->get_max_in_world()
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
 					&& (ZCMD.arg4 <= 0
@@ -6100,17 +6132,20 @@ void reset_zone(zone_rnum zone)
 					else
 					{
 						obj = read_object(ZCMD.arg1, REAL);
-						GET_OBJ_ZONE(obj) = world[IN_ROOM(mob)]->zone;
-						obj->get_in_room() = IN_ROOM(mob);
+						obj->set_zone(world[IN_ROOM(mob)]->zone);
+						obj->set_in_room(IN_ROOM(mob));
 						load_otrigger(obj);
 						if (wear_otrigger(obj, mob, ZCMD.arg3))
 						{
-							obj->get_in_room() = NOWHERE;
+							obj->set_in_room(NOWHERE);
 							equip_char(mob, obj, ZCMD.arg3);
 						}
 						else
+						{
 							obj_to_char(obj, mob);
-						if (!(obj->carried_by == mob) && !(obj->worn_by == mob))
+						}
+						if (!(obj->get_carried_by() == mob)
+							&& !(obj->get_worn_by() == mob))
 						{
 							extract_obj(obj);
 							tobj = NULL;
@@ -6193,9 +6228,11 @@ void reset_zone(zone_rnum zone)
 				}
 				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
 				{
-					if (!SCRIPT(tobj))
-						CREATE(SCRIPT(tobj), 1);
-					add_trigger(SCRIPT(tobj), read_trigger(real_trigger(ZCMD.arg2)), -1);
+					if (!tobj->get_script())
+					{
+						tobj->set_script(new SCRIPT_DATA());
+					}
+					add_trigger(tobj->get_script().get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
 				}
 				else if (ZCMD.arg1 == WLD_TRIGGER)
@@ -6223,21 +6260,19 @@ void reset_zone(zone_rnum zone)
 					}
 					else
 					{
-						add_var_cntx(&(SCRIPT(tmob)->global_vars), ZCMD.sarg1,
-									 ZCMD.sarg2, ZCMD.arg3);
+						add_var_cntx(&(SCRIPT(tmob)->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
 						curr_state = 1;
 					}
 				}
 				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
 				{
-					if (!SCRIPT(tobj))
+					if (!tobj->get_script())
 					{
 						ZONE_ERROR("Attempt to give variable to scriptless object");
 					}
 					else
 					{
-						add_var_cntx(&(SCRIPT(tobj)->global_vars), ZCMD.sarg1,
-									 ZCMD.sarg2, ZCMD.arg3);
+						add_var_cntx(&(tobj->get_script()->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
 						curr_state = 1;
 					}
 				}
@@ -6255,9 +6290,7 @@ void reset_zone(zone_rnum zone)
 						}
 						else
 						{
-							add_var_cntx(&
-										 (world[ZCMD.arg2]->script->
-										  global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
+							add_var_cntx(&(world[ZCMD.arg2]->script->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
 							curr_state = 1;
 						}
 					}
@@ -6843,95 +6876,9 @@ char *fread_string(FILE * fl, char *error)
 // release memory allocated for an obj struct
 void free_obj(OBJ_DATA * obj)
 {
-	int nr, i;
-	EXTRA_DESCR_DATA *thisd, *next_one, *tmp, *tmp_next;
-
-	if ((nr = GET_OBJ_RNUM(obj)) == -1)
-	{
-		if (obj->aliases)
-			free(obj->aliases);
-
-		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
-		{
-			if (obj->PNames[i])
-			{
-				free(obj->PNames[i]);
-			}
-		}
-
-		if (obj->description)
-			free(obj->description);
-
-		if (obj->short_description)
-			free(obj->short_description);
-
-		if (obj->action_description)
-			free(obj->action_description);
-
-		if (obj->ex_description)
-			for (thisd = obj->ex_description; thisd; thisd = next_one)
-			{
-				next_one = thisd->next;
-				if (thisd->keyword)
-					free(thisd->keyword);
-				if (thisd->description)
-					free(thisd->description);
-				free(thisd);
-			}
-	}
-	else
-	{
-		if (obj->aliases && obj->aliases != obj_proto[nr]->aliases)
-			free(obj->aliases);
-
-		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
-		{
-			if (obj->PNames[i] && obj->PNames[i] != obj_proto[nr]->PNames[i])
-			{
-				free(obj->PNames[i]);
-			}
-		}
-
-		if (obj->description && obj->description != obj_proto[nr]->description)
-			free(obj->description);
-
-		if (obj->short_description && obj->short_description != obj_proto[nr]->short_description)
-			free(obj->short_description);
-
-		if (obj->action_description && obj->action_description != obj_proto[nr]->action_description)
-			free(obj->action_description);
-
-		if (obj->ex_description && obj->ex_description != obj_proto[nr]->ex_description)
-			for (thisd = obj->ex_description; thisd; thisd = next_one)
-			{
-				next_one = thisd->next;
-				i = 0;
-				for (tmp = obj_proto[nr]->ex_description; tmp; tmp = tmp_next)
-				{
-					tmp_next = tmp->next;
-					if (tmp == thisd)
-					{
-						i = 1;
-						break;
-					}
-				}
-				if (i)
-					continue;
-				if (thisd->keyword)
-					free(thisd->keyword);
-				if (thisd->description)
-					free(thisd->description);
-				free(thisd);
-			}
-	}
-
-	if (obj->custom_label)
-		free_custom_label(obj->custom_label);
-
 	// delete obj;
 	obj->purge();
 }
-
 
 /*
  * Steps:

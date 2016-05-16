@@ -1020,8 +1020,7 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int 
 				remove_trigger(SCRIPT(obj), buf, &dummy);
 				if (!TRIGGERS(SCRIPT(obj)))
 				{
-					free_script(SCRIPT(obj));
-					SCRIPT(obj) = NULL;
+					obj->set_script(nullptr);
 				}
 				break;
 			}

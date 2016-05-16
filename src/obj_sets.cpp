@@ -1418,7 +1418,7 @@ void check_enchants(CHAR_DATA *ch)
 			}
 			else
 			{
-				obj->enchants.remove_set_bonus(obj);
+				obj->remove_set_bonus();
 			}
 		}
 	}

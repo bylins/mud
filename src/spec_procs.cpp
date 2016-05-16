@@ -3220,7 +3220,7 @@ CHAR_DATA *get_player_of_name(const char *name)
 	{
 		if (IS_NPC(i))
 			continue;
-		if (!isname(name, i->get_pc_name().c_str()))
+		if (!isname(name, i->get_pc_name()))
 		{
 			continue;
 		}
