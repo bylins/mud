@@ -1824,17 +1824,17 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 
 	for (i = 0; i < OBJ_DATA::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
 	{
-		sprintf(buf, "%s", GET_OBJ_PNAME(obj, i));
+		sprintf(buf, "%s", GET_OBJ_PNAME(obj, i).c_str());
 		strcat(buf, " из ");
-		strcat(buf, GET_OBJ_PNAME(ingrs[0], 1));
+		strcat(buf, GET_OBJ_PNAME(ingrs[0], 1).c_str());
 		strcat(buf, " с ");
-		strcat(buf, GET_OBJ_PNAME(ingrs[1], 4));
+		strcat(buf, GET_OBJ_PNAME(ingrs[1], 4).c_str());
 		strcat(buf, " и ");
-		strcat(buf, GET_OBJ_PNAME(ingrs[2], 4));
-		GET_OBJ_PNAME(obj, i) = str_dup(buf);
+		strcat(buf, GET_OBJ_PNAME(ingrs[2], 4).c_str());
+		obj->set_PName(i, buf);
 		if (i == 0) // именительный падеж
 		{
-			obj->short_description = str_dup(buf);
+			obj->set_short_description(buf);
 			if (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
 			{
 				sprintf(buf2, "Брошенный %s лежит тут.", buf);

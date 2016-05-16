@@ -7303,7 +7303,7 @@ mob_rnum real_mobile(mob_vnum vnum)
  *
  * TODO: Add checks for unknown bitvectors.
  */
-bool check_object(OBJ_DATA * obj)
+bool check_object(OBJ_DATA* obj)
 {
 	bool error = false;
 
@@ -7311,36 +7311,36 @@ bool check_object(OBJ_DATA * obj)
 	{
 		error = true;
 		log("SYSERR: Object #%d (%s) has negative weight (%d).",
-			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_WEIGHT(obj));
+			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_WEIGHT(obj));
 	}
 
 	if (GET_OBJ_RENT(obj) <=0 )
 	{
 		error = true;
 		log("SYSERR: Object #%d (%s) has negative cost/day (%d).",
-			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_RENT(obj));
+			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_RENT(obj));
 	}
 
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf);
 	if (strstr(buf, "UNDEFINED"))
 	{
 		error = true;
-		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->short_description);
+		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 	}
 
 	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
 	if (strstr(buf, "UNDEFINED"))
 	{
 		error = true;
-		log("SYSERR: Object #%d (%s) has unknown extra flags.", GET_OBJ_VNUM(obj), obj->short_description);
+		log("SYSERR: Object #%d (%s) has unknown extra flags.", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 	}
 
-	obj->obj_flags.affects.sprintbits(affected_bits, buf, ",");
+	obj->get_affect_flags().sprintbits(affected_bits, buf, ",");
 
 	if (strstr(buf, "UNDEFINED"))
 	{
 		error = true;
-		log("SYSERR: Object #%d (%s) has unknown affection flags.", GET_OBJ_VNUM(obj), obj->short_description);
+		log("SYSERR: Object #%d (%s) has unknown affection flags.", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 	}
 
 	switch (GET_OBJ_TYPE(obj))
@@ -7351,7 +7351,7 @@ bool check_object(OBJ_DATA * obj)
 		{
 			error = true;
 			log("SYSERR: Object #%d (%s) contains (%d) more than maximum (%d).",
-				GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 0));
+				GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 0));
 		}
 		break;
 
@@ -7375,7 +7375,7 @@ bool check_object(OBJ_DATA * obj)
 		{
 			error = true;
 			log("SYSERR: Object #%d (%s) has more charges (%d) than maximum (%d).",
-				GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 1));
+				GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 1));
 		}
 		break;
 
@@ -7383,13 +7383,13 @@ bool check_object(OBJ_DATA * obj)
 		break;
 	}
 
-	obj->values.remove_incorrect_keys(GET_OBJ_TYPE(obj));
+	obj->remove_incorrect_values_keys(GET_OBJ_TYPE(obj));
 	return error;
 }
 
 bool check_object_spell_number(OBJ_DATA * obj, unsigned val)
 {
-	if (val >= obj->obj_flags.value.size())
+	if (val >= NUM_OBJ_VAL_POSITIONS)
 	{
 		log("SYSERROR : val=%d (%s:%d)", val, __FILE__, __LINE__);
 		return true;
@@ -7406,32 +7406,34 @@ bool check_object_spell_number(OBJ_DATA * obj, unsigned val)
 	 * spell which is actually a skill.
 	 */
 	if (GET_OBJ_VAL(obj, val) < 0)
+	{
 		error = true;
+	}
 	if (GET_OBJ_VAL(obj, val) > TOP_SPELL_DEFINE)
+	{
 		error = true;
+	}
 	if (error)
+	{
 		log("SYSERR: Object #%d (%s) has out of range spell #%d.",
-			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, val));
-
-	// * This bug has been fixed, but if you don't like the special behavior...
-#if 0
-	if (GET_OBJ_TYPE(obj) == ITEM_STAFF && HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, val), MAG_AREAS | MAG_MASSES))
-		log("... '%s' (#%d) uses %s spell '%s'.",
-			obj->short_description, GET_OBJ_VNUM(obj),
-			HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, val),
-							  MAG_AREAS) ? "area" : "mass", spell_name(GET_OBJ_VAL(obj, val)));
-#endif
+			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_VAL(obj, val));
+	}
 
 	if (scheck)		// Spell names don't exist in syntax check mode.
+	{
 		return error;
+	}
 
 	// Now check for unnamed spells.
 	spellname = spell_name(GET_OBJ_VAL(obj, val));
 
-	if ((spellname == unused_spellname || !str_cmp("UNDEFINED", spellname))
-			&& (error = true))
+	if (error
+		&& (spellname == unused_spellname
+			|| !str_cmp("UNDEFINED", spellname)))
+	{
 		log("SYSERR: Object #%d (%s) uses '%s' spell #%d.", GET_OBJ_VNUM(obj),
-			obj->short_description, spellname, GET_OBJ_VAL(obj, val));
+			obj->get_short_description().c_str(), spellname, GET_OBJ_VAL(obj, val));
+	}
 
 	return error;
 }
@@ -7445,7 +7447,7 @@ bool check_object_level(OBJ_DATA * obj, int val)
 		error = true;
 		log("SYSERR: Object #%d (%s) has out of range level #%d.",
 			GET_OBJ_VNUM(obj),
-			obj->short_description,
+			obj->get_short_description().c_str(),
 			GET_OBJ_VAL(obj, val));
 	}
 	return error;
@@ -7766,8 +7768,6 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 --*/
 {
 	int i;
-	EXTRA_DESCR_DATA **pddd, *sdd;
-
 	{
 		// Сохраняю track, contents, people, аффекты
 		struct track_data *track = dst->track;
@@ -7809,20 +7809,21 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 	}
 
 	// Дополнительные описания, если есть
-	pddd = &dst->ex_description;
-	sdd = src->ex_description;
+	std::shared_ptr<EXTRA_DESCR_DATA>* pddd = &dst->ex_description;
+	std::shared_ptr<EXTRA_DESCR_DATA> sdd = src->ex_description;
+	*pddd = nullptr;
 
 	while (sdd)
 	{
-		CREATE(pddd[0], 1);
-		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
-		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
-		pddd = &(pddd[0]->next);
+		pddd->reset(new EXTRA_DESCR_DATA());
+		(*pddd)->keyword = sdd->keyword ? str_dup(sdd->keyword) : nullptr;
+		(*pddd)->description = sdd->description ? str_dup(sdd->description) : nullptr;
+		pddd = &((*pddd)->next);
 		sdd = sdd->next;
 	}
 
 	// Копирую скрипт и прототипы
-	SCRIPT(dst) = NULL;
+	SCRIPT(dst) = nullptr;
 	dst->proto_script.clear();
 	dst->proto_script = src->proto_script;
 
@@ -7839,7 +7840,6 @@ void room_free(ROOM_DATA * room)
 --*/
 {
 	int i;
-	EXTRA_DESCR_DATA *lthis, *next;
 
 	// Название и описание
 	if (room->name)
@@ -7852,6 +7852,7 @@ void room_free(ROOM_DATA * room)
 
 	// Выходы и входы
 	for (i = 0; i < NUM_OF_DIRS; i++)
+	{
 		if (room->dir_option[i])
 		{
 			if (room->dir_option[i]->general_description)
@@ -7862,15 +7863,6 @@ void room_free(ROOM_DATA * room)
 				free(room->dir_option[i]->vkeyword);
 			free(room->dir_option[i]);
 		}
-	// Дополнительные описания
-	for (lthis = room->ex_description; lthis; lthis = next)
-	{
-		next = lthis->next;
-		if (lthis->keyword)
-			free(lthis->keyword);
-		if (lthis->description)
-			free(lthis->description);
-		free(lthis);
 	}
 
 	// Скрипт
@@ -8121,7 +8113,7 @@ void init()
 size_t CObjectPrototypes::add(const prototypes_t::value_type& prototype, const obj_vnum vnum)
 {
 	const auto index = m_index.size();
-	prototype->item_number = static_cast<int>(index);
+	prototype->set_rnum(static_cast<int>(index));
 	m_vnum2index[vnum] = index;
 	m_prototypes.push_back(prototype);
 	m_index.push_back(index_data(vnum));
@@ -8146,7 +8138,7 @@ int CObjectPrototypes::rnum(const obj_vnum vnum) const
 CObjectPrototypes::prototypes_t::value_type CObjectPrototypes::swap(const size_t index, const prototypes_t::value_type& new_value)
 {
 	auto result = m_prototypes[index];
-	new_value->item_number = static_cast<int>(index);
+	new_value->set_rnum(static_cast<int>(index));
 	m_prototypes[index] = new_value;
 
 	return result;

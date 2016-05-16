@@ -1836,14 +1836,17 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					uid = GET_ID((CHAR_DATA *) go);
 					uid_type = UID_CHAR;
 					break;
+
 				case OBJ_TRIGGER:
-					uid = GET_ID((OBJ_DATA *) go);
+					uid = ((OBJ_DATA *) go)->get_id();
 					uid_type = UID_OBJ;
 					break;
+
 				case WLD_TRIGGER:
 					uid = find_room_uid(((ROOM_DATA *) go)->number);
 					uid_type = UID_ROOM;
 					break;
+
 				default:
 					strcpy(str, "self");
 					return;
@@ -2899,7 +2902,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (!GET_EQ(c, pos))
 					strcpy(str, "");
 				else
-					sprintf(str, "%c%ld", UID_OBJ, GET_ID(GET_EQ(c, pos)));
+					sprintf(str, "%c%ld", UID_OBJ, GET_EQ(c, pos)->get_id());
 			}
 		}
 		else if (!str_cmp(field, "haveobj"))
@@ -2908,18 +2911,27 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (a_isdigit(*subfield))
 			{
 				pos = atoi(subfield);
-				for (obj = c->carrying; obj; obj = obj->next_content)
+				for (obj = c->carrying; obj; obj = obj->get_next_content())
+				{
 					if (GET_OBJ_VNUM(obj) == pos)
+					{
 						break;
+					}
+				}
 			}
 			else
 			{
 				obj = get_obj_in_list_vis(c, subfield, c->carrying);
 			}
+
 			if (obj)
+			{
 				sprintf(str, "%c%ld", UID_OBJ, obj->get_id());
+			}
 			else
+			{
 				strcpy(str, "0");
+			}
 		}
 		else if (!str_cmp(field, "varexists"))
 		{
@@ -2927,9 +2939,10 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			strcpy(str, "0");
 			if (SCRIPT(c))
 			{
-				if (find_var_cntx
-						(&((SCRIPT(c))->global_vars), subfield, sc->context))
+				if (find_var_cntx(&((SCRIPT(c))->global_vars), subfield, sc->context))
+				{
 					strcpy(str, "1");
+				}
 			}
 		}
 		else if (!str_cmp(field, "next_in_room"))
@@ -3045,13 +3058,16 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 //Polud обработка поля objs у чара, возвращает строку со списком UID предметов в инвентаре
 		else if (!str_cmp(field, "objs"))
 		{
-			for (obj = c->carrying; obj; obj = obj->next_content)
+			for (obj = c->carrying; obj; obj = obj->get_next_content())
+			{
 				sprintf(str + strlen(str), "%c%ld ", UID_OBJ, obj->get_id());
+			}
 		}
 //-Polud
-		else if (!str_cmp(field, "char") ||
-				 !str_cmp(field, "pc") ||
-				 !str_cmp(field, "npc") || !str_cmp(field, "all"))
+		else if (!str_cmp(field, "char")
+			|| !str_cmp(field, "pc")
+			|| !str_cmp(field, "npc")
+			|| !str_cmp(field, "all"))
 		{
 			int inroom;
 
@@ -3112,41 +3128,83 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	else if (o)
 	{
 		if (text_processed(field, subfield, vd, str))
+		{
 			return;
+		}
 		else if (!str_cmp(field, "iname"))
-			if (o->PNames[0])
-				strcpy(str, o->PNames[0]);
+		{
+			if (!o->get_PName(0).empty())
+			{
+				strcpy(str, o->get_PName(0).c_str());
+			}
 			else
-				strcpy(str, o->aliases);
+			{
+				strcpy(str, o->get_aliases().c_str());
+			}
+		}
 		else if (!str_cmp(field, "rname"))
-			if (o->PNames[1])
-				strcpy(str, o->PNames[1]);
+		{
+			if (!o->get_PName(1).empty())
+			{
+				strcpy(str, o->get_PName(1).c_str());
+			}
 			else
-				strcpy(str, o->aliases);
+			{
+				strcpy(str, o->get_aliases().c_str());
+			}
+		}
 		else if (!str_cmp(field, "dname"))
-			if (o->PNames[2])
-				strcpy(str, o->PNames[2]);
+		{
+			if (!o->get_PName(2).empty())
+			{
+				strcpy(str, o->get_PName(2).c_str());
+			}
 			else
-				strcpy(str, o->aliases);
+			{
+				strcpy(str, o->get_aliases().c_str());
+			}
+		}
 		else if (!str_cmp(field, "vname"))
-			if (o->PNames[3])
-				strcpy(str, o->PNames[3]);
+		{
+			if (!o->get_PName(3).empty())
+			{
+				strcpy(str, o->get_PName(3).c_str());
+			}
 			else
-				strcpy(str, o->aliases);
+			{
+				strcpy(str, o->get_aliases().c_str());
+			}
+		}
 		else if (!str_cmp(field, "tname"))
-			if (o->PNames[4])
-				strcpy(str, o->PNames[4]);
+		{
+			if (!o->get_PName(4).empty())
+			{
+				strcpy(str, o->get_PName(4).c_str());
+			}
 			else
-				strcpy(str, o->aliases);
+			{
+				strcpy(str, o->get_aliases().c_str());
+			}
+		}
 		else if (!str_cmp(field, "pname"))
-			if (o->PNames[5])
-				strcpy(str, o->PNames[5]);
+		{
+			if (!o->get_PName(5).c_str())
+			{
+				strcpy(str, o->get_PName(5).c_str());
+			}
 			else
-				strcpy(str, o->aliases);
+			{
+				strcpy(str, o->get_aliases().c_str());
+			}
+		}
 		else if (!str_cmp(field, "name"))
-			strcpy(str, o->aliases);
+		{
+			strcpy(str, o->get_aliases().c_str());
+		}
 		else if (!str_cmp(field, "id"))
-			sprintf(str, "%c%ld", UID_OBJ, GET_ID(o));
+		{
+			sprintf(str, "%c%ld", UID_OBJ, o->get_id());
+		}
 		else if (!str_cmp(field, "uid"))
 		{
 			if (!GET_OBJ_UID(o))
@@ -3156,21 +3214,31 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			sprintf(str, "%u", GET_OBJ_UID(o));
 		}
 		else if (!str_cmp(field, "skill"))
+		{
 			sprintf(str, "%d", GET_OBJ_SKILL(o));
+		}
 		else if (!str_cmp(field, "shortdesc"))
-			strcpy(str, o->short_description);
+		{
+			strcpy(str, o->get_short_description().c_str());
+		}
 		else if (!str_cmp(field, "vnum"))
+		{
 			sprintf(str, "%d", GET_OBJ_VNUM(o));
+		}
 		else if (!str_cmp(field, "type"))
-			sprintf(str, "%d", (int) GET_OBJ_TYPE(o));
+		{
+			sprintf(str, "%d", (int)GET_OBJ_TYPE(o));
+		}
 		else if (!str_cmp(field, "timer"))
+		{
 			sprintf(str, "%d", o->get_timer());
+		}
 		else if (!str_cmp(field, "val0"))
 		{
 			if (*subfield)
 			{
 				skip_spaces(&subfield);
-				GET_OBJ_VAL(o, 0) = atoi(subfield);
+				o->set_val(0, atoi(subfield));
 			}
 			else
 			{
@@ -3182,7 +3250,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (*subfield)
 			{
 				skip_spaces(&subfield);
-				GET_OBJ_VAL(o, 1) = atoi(subfield);
+				o->set_val(1, atoi(subfield));
 			}
 			else
 			{
@@ -3194,7 +3262,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (*subfield)
 			{
 				skip_spaces(&subfield);
-				GET_OBJ_VAL(o, 2) = atoi(subfield);
+				o->set_val(2, atoi(subfield));
 			}
 			else
 			{
@@ -3206,7 +3274,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (*subfield)
 			{
 				skip_spaces(&subfield);
-				GET_OBJ_VAL(o, 3) = atoi(subfield);
+				o->set_val(3, atoi(subfield));
 			}
 			else
 			{
@@ -3214,21 +3282,39 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 		}
 		else if (!str_cmp(field, "maker"))
+		{
 			sprintf(str, "%d", GET_OBJ_MAKER(o));
+		}
 		else if (!str_cmp(field, "effect"))
+		{
 			gm_flag(subfield, extra_bits, GET_OBJ_EXTRA(o), str);
+		}
 		else if (!str_cmp(field, "affect"))
-			gm_flag(subfield, weapon_affects, (o)->obj_flags.affects, str);
+		{
+			gm_flag(subfield, weapon_affects, (o)->get_affect_flags(), str);
+		}
 		else if (!str_cmp(field, "carried_by"))
-			if (o->carried_by)
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->carried_by));
+		{
+			if (o->get_carried_by())
+			{
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_carried_by()));
+			}
 			else
+			{
 				strcpy(str, "");
+			}
+		}
 		else if (!str_cmp(field, "worn_by"))
-			if (o->worn_by)
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->worn_by));
+		{
+			if (o->get_worn_by())
+			{
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_worn_by()));
+			}
 			else
+			{
 				strcpy(str, "");
+			}
+		}
 		else if (!str_cmp(field, "g"))
 			strcpy(str, GET_OBJ_SUF_1(o));
 		else if (!str_cmp(field, "q"))
@@ -3246,14 +3332,24 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "sex"))
 			sprintf(str, "%d", (int) GET_OBJ_SEX(o));
 		else if (!str_cmp(field, "room"))
-			if (o->carried_by)
-				sprintf(str, "%d", world[IN_ROOM(o->carried_by)]->number);
-			else if (o->worn_by)
-				sprintf(str, "%d", world[IN_ROOM(o->worn_by)]->number);
-			else if (o->in_room != NOWHERE)
-				sprintf(str, "%d", world[o->in_room]->number);
+		{
+			if (o->get_carried_by())
+			{
+				sprintf(str, "%d", world[IN_ROOM(o->get_carried_by())]->number);
+			}
+			else if (o->get_worn_by())
+			{
+				sprintf(str, "%d", world[IN_ROOM(o->get_worn_by())]->number);
+			}
+			else if (o->get_in_room() != NOWHERE)
+			{
+				sprintf(str, "%d", world[o->get_in_room()]->number);
+			}
 			else
+			{
 				strcpy(str, "");
+			}
+		}
 //Polud обработка %obj.put(UID)% - пытается поместить объект в контейнер, комнату или инвентарь чара, в зависимости от UIDа
 		else if (!str_cmp(field, "put"))
 		{
@@ -3295,14 +3391,22 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			//found something to put our object
 			//let's make it nobody's!
-			if (o->worn_by)
-				unequip_char(o->worn_by, o->worn_on);
-			else if (o->carried_by)
+			if (o->get_worn_by())
+			{
+				unequip_char(o->get_worn_by(), o->get_worn_on());
+			}
+			else if (o->get_carried_by())
+			{
 				obj_from_char(o);
-			else if (o->in_obj)
+			}
+			else if (o->get_in_obj())
+			{
 				obj_from_obj(o);
-			else if (o->in_room > NOWHERE)
+			}
+			else if (o->get_in_room() > NOWHERE)
+			{
 				obj_from_room(o);
+			}
 			else
 			{
 				trig_log(trig, "object.put: не удалось извлечь объект");
@@ -3318,7 +3422,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else
 			{
 				sprintf(buf2, "object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в NOWHERE",
-						o->short_description);
+					o->get_short_description().c_str());
 				trig_log(trig, buf2);
 				return;
 			}

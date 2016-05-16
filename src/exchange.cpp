@@ -322,9 +322,8 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	sprintf(tmpbuf, "Вы выставили на базар $O3 (лот %d) за %d %s.\r\n",
 			GET_EXCHANGE_ITEM_LOT(item), item_cost, desc_count(item_cost, WHAT_MONEYu));
 	act(tmpbuf, FALSE, ch, 0, obj, TO_CHAR);
-	sprintf(tmpbuf,
-			"Базар : новый лот (%d) - %s - цена %d %s. \r\n",
-			GET_EXCHANGE_ITEM_LOT(item), obj->get_PName(0).c_str(), item_cost, desc_count(item_cost, WHAT_MONEYa));
+	sprintf(tmpbuf, "Базар : новый лот (%d) - %s - цена %d %s. \r\n",
+		GET_EXCHANGE_ITEM_LOT(item), obj->get_PName(0).c_str(), item_cost, desc_count(item_cost, WHAT_MONEYa));
 	message_exchange(tmpbuf, ch, item);
 
 	ch->remove_both_gold(tax);
@@ -404,12 +403,11 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 	sprintf(tmpbuf, "Вы назначили цену %d %s за %s (лот %d).\r\n",
 		newcost, desc_count(newcost, WHAT_MONEYu), GET_EXCHANGE_ITEM(item)->get_PName(3).c_str(), GET_EXCHANGE_ITEM_LOT(item));
 	send_to_char(tmpbuf, ch);
-	sprintf(tmpbuf,
-		"Базар : лот (%d) - %s - выставлен за новую цену %d %s.\r\n",
+	sprintf(tmpbuf, "Базар : лот (%d) - %s - выставлен за новую цену %d %s.\r\n",
 		GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), newcost, desc_count(newcost, WHAT_MONEYa));
 	message_exchange(tmpbuf, ch, item);
 	set_wait(ch, 2, FALSE);
-//	send_to_char("Ладушки.\r\n", ch);
+
 	return true;
 }
 
@@ -455,20 +453,17 @@ int exchange_withdraw(CHAR_DATA * ch, char *arg)
 	act("Вы сняли $O3 с базара.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 	if (GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch))
 	{
-		sprintf(tmpbuf,
-			"Базар : лот %d(%s) снят%s с базара Богами.\r\n", lot,
+		sprintf(tmpbuf, "Базар : лот %d(%s) снят%s с базара Богами.\r\n", lot,
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
 	}
 	else
 	{
-		sprintf(tmpbuf,
-			"Базар : лот %d(%s) снят%s с базара владельцем.\r\n", lot,
+		sprintf(tmpbuf, "Базар : лот %d(%s) снят%s с базара владельцем.\r\n", lot,
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
 	}
 	message_exchange(tmpbuf, ch, item);
 	obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 	clear_exchange_lot(item);
-
 
 	if (EXCHANGE_SAVEONEVERYOPERATION)
 	{
@@ -532,9 +527,7 @@ int exchange_information(CHAR_DATA * ch, char *arg)
 	strcat(buf, diag_timer_to_char(GET_EXCHANGE_ITEM(item)));
 	obj_info(ch, GET_EXCHANGE_ITEM(item), buf);
 	strcat(buf, "\n");
-	if (invalid_anti_class(ch, GET_EXCHANGE_ITEM(item))
-		|| invalid_unique(ch, GET_EXCHANGE_ITEM(item))
-		|| NamedStuff::check_named(ch, GET_EXCHANGE_ITEM(item), 0))
+	if (invalid_anti_class(ch, GET_EXCHANGE_ITEM(item)) || invalid_unique(ch, GET_EXCHANGE_ITEM(item)) || NamedStuff::check_named(ch, GET_EXCHANGE_ITEM(item), 0))
 	{
 		sprintf(buf2, "Эта вещь вам недоступна!");
 		strcat(buf, buf2);
@@ -681,17 +674,14 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		if ((seller_name == NULL) || (load_char(seller_name, seller) < 0))
 		{
 			ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
+
 			//edited by WorM 2011.05.21
 			act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
-			/*act("Вы приобрели $O3 на базаре даром, так как владельца давно след простыл.\r\n",
-				FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
-			sprintf(tmpbuf,
-					"Базар : лот %d(%s) передан%s в надежные руки.\r\n", lot,
-					GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));*/
 			//end by WorM
+
 			message_exchange(tmpbuf, ch, item);
 			obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 			clear_exchange_lot(item);
@@ -711,8 +701,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 //Polud напишем письмецо чару, раз уж его нету онлайн
 		if (NOTIFY_EXCH_PRICE(seller) && GET_EXCHANGE_ITEM_COST(item) >= NOTIFY_EXCH_PRICE(seller))
 		{
-			sprintf(tmpbuf,
-				"Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
+			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
 			mail::add_by_id(GET_EXCHANGE_ITEM_SELLERID(item), -1, tmpbuf);
@@ -721,10 +710,9 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		seller->save_char();
 		delete seller;
 		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
-		sprintf(tmpbuf,
-				"Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
-				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
-				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
+		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
+			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
+			GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
 		message_exchange(tmpbuf, ch, item);
 		obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);
@@ -765,6 +753,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 
 		return true;
 	}
+
 }
 
 /**
@@ -1551,9 +1540,9 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 			continue;
 		}
 		// ну идиотизм сидеть статить 5-10 страниц резных
-		if (is_abbrev("резное запястье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str())
-			|| is_abbrev("широкое серебряное обручье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str())
-			|| is_abbrev("медное запястье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str()))
+		if (is_abbrev("резное запястье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
+			|| is_abbrev("широкое серебряное обручье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
+			|| is_abbrev("медное запястье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str()))
 		{
 			GET_EXCHANGE_ITEM(j)->get_affect_flags().sprintbits(weapon_affects, buf, ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
@@ -1587,9 +1576,13 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 				}
 
 				if (!found)
+				{
 					sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str());
+				}
 				else
+				{
 					sprintf(tmpbuf, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(), buf);
+				}
 			}
 			else  // end by WorM
 			{
@@ -1621,8 +1614,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	{
 		const int price = EXCHANGE_IDENT_PAY / 2;
 		ch->remove_both_gold(price);
-		send_to_char(ch,
-			"\r\n%sЗа информацию об аффектах с вашего банковского счета сняли %d %s%s\r\n",
+		send_to_char(ch, "\r\n%sЗа информацию об аффектах с вашего банковского счета сняли %d %s%s\r\n",
 			CCIGRN(ch, C_NRM), price, desc_count(price, WHAT_MONEYu), CCNRM(ch, C_NRM));
 	}
 	page_string(ch->desc, buffer);

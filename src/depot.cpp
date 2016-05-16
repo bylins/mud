@@ -1188,7 +1188,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 
 	obj_from_char(obj);
 	check_auction(NULL, obj);
-	REMOVE_FROM_LIST(obj, object_list);
+	REMOVE_FROM_LIST(obj, object_list, [](ListType* list) -> ListType*& { return list->get_next(); });
 //	ObjectAlias::remove(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
@@ -1432,7 +1432,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 														 boost::bind(&OfflineNode::uid, _1), GET_OBJ_UID(obj)));
 			if (obj_it != offline_list.end() && obj_it->vnum == GET_OBJ_VNUM(obj))
 			{
-				depot_log("load object %s %d %d", obj->short_description, GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
+				depot_log("load object %s %d %d", obj->get_short_description().c_str(), GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
 				obj->set_timer(obj_it->timer);
                 int temp_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
                 if (obj->get_timer() > temp_timer)
@@ -1447,7 +1447,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 			}
 			else
 			{
-				depot_log("extract object %s %d %d", obj->short_description, GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
+				depot_log("extract object %s %d %d", obj->get_short_description().c_str(), GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
 				extract_obj(obj);
 				continue;
 			}
@@ -1507,7 +1507,7 @@ void CharNode::online_to_offline(ObjListType &cont)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
-		depot_log("online_to_offline %s: %s %d %d", name.c_str(), (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
+		depot_log("online_to_offline %s: %s %d %d", name.c_str(), (*obj_it)->get_short_description().c_str(), GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
 		OfflineNode tmp_obj;
 		tmp_obj.vnum = GET_OBJ_VNUM(*obj_it);
 		tmp_obj.timer = (*obj_it)->get_timer();

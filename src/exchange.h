@@ -13,8 +13,7 @@
 
 int exchange(CHAR_DATA *ch, void *me, int cmd, char* argument);
 
-typedef struct exchange_item_data
-			EXCHANGE_ITEM_DATA;
+typedef struct exchange_item_data EXCHANGE_ITEM_DATA;
 
 extern EXCHANGE_ITEM_DATA *exchange_item_list;
 extern std::vector<bool> lot_usage;
