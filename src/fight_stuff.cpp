@@ -969,16 +969,22 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance)
 
 	if (dam > 0 && chance >= number(1, 100))
 	{
-		if (dam > 1 && obj->worn_by && GET_EQ(obj->worn_by, WEAR_SHIELD) == obj)
+		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), WEAR_SHIELD) == obj)
 		{
 			dam /= 2;
 		}
-		if ((GET_OBJ_CUR(obj) -= dam) <= 0)
+
+		obj->sub_current(dam);
+		if (obj->get_current() <= 0)
 		{
-			if (obj->worn_by)
-				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->worn_by, obj, 0, TO_CHAR);
-			else if (obj->carried_by)
-				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->carried_by, obj, 0, TO_CHAR);
+			if (obj->get_worn_by())
+			{
+				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->get_worn_by(), obj, 0, TO_CHAR);
+			}
+			else if (obj->get_carried_by())
+			{
+				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->get_carried_by(), obj, 0, TO_CHAR);
+			}
 			extract_obj(obj);
 		}
 	}

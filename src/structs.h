@@ -1236,6 +1236,8 @@ typedef int zone_rnum;	// A zone's real (array index) number. //
 */
 void asciiflag_conv(const char *flag, void *to);
 
+int ext_search_block(const char *arg, const char * const * const list, int exact);
+
 class FLAG_DATA
 {
 public:
@@ -1275,6 +1277,9 @@ public:
 	void tascii(int num_planes, char* ascii) const;
 	bool sprintbits(const char *names[], char *result, const char *div, const int print_flag) const;
 	bool sprintbits(const char *names[], char *result, const char *div) const { return sprintbits(names, result, div, 0); };
+
+	/// Изменение указанного флага
+	void gm_flag(const char *subfield, const char * const * const list, char *res);
 
 protected:
 	boost::array<uint32_t, PLANES_NUMBER> m_flags;

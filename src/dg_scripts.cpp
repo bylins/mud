@@ -69,7 +69,6 @@ extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
 extern bool check_unlimited_timer(OBJ_DATA *obj);
 
 // external functions
-int ext_search_block(const char *arg, const char **list, int exact);
 room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 void free_varlist(struct trig_var_data *vd);
 int obj_room(OBJ_DATA * obj);
@@ -1615,51 +1614,6 @@ long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 	return val;
 }
 
-// Изменение указанного флага
-void gm_flag(char *subfield, const char **list, FLAG_DATA& val, char *res)
-{
-	int flag;
-
-	strcpy(res, "0");
-
-	if (*subfield)
-	{
-		if (*subfield == '-')
-		{
-			flag = ext_search_block(subfield + 1, list, FALSE);
-			if (flag)
-			{
-				val.unset(flag);
-				if (val.plane_not_empty(flag))	// looks like an error: we should check flag, but not whole plane
-				{
-					strcpy(res, "1");
-				}
-			}
-		}
-		else if (*subfield == '+')
-		{
-			flag = ext_search_block(subfield + 1, list, FALSE);
-			if (flag)
-			{
-				val.set(flag);
-				if (val.plane_not_empty(flag))	// looks like an error: we should check flag, but not whole plane
-				{
-					strcpy(res, "1");
-				}
-			}
-		}
-		else
-		{
-			flag = ext_search_block(subfield, list, FALSE);
-			if (flag && val.get(flag))
-			{
-				strcpy(res, "1");
-			}
-		}
-	}
-	return;
-}
-
 int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *str)
 {
 	char *p, *p2;
@@ -2972,15 +2926,19 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			int pos;
 
 			if (!*subfield || (pos = atoi(subfield)) <= 0)
+			{
 				sprintf(str, "%d", GET_WAIT(c));
+			}
 			else if (!WAITLESS(c))
+			{
 				WAIT_STATE(c, pos * PULSE_VIOLENCE);
+			}
 		}
 		else if (!str_cmp(field, "affect"))
 		{
-			gm_flag(subfield, affected_bits,
-					c->char_specials.saved.affected_by, str);
+			c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
 		}
+
 		//added by WorM
 		//собственно подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
 		//тупизм какой-то проверять аффекты обездвижен,летит и т.п.
@@ -2995,7 +2953,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "action"))
 		{
 			if (IS_NPC(c))
-				gm_flag(subfield, action_bits, c->char_specials.saved.act, str);
+			{
+				c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
+			}
 		}
 		/*else if (!str_cmp(field, "function"))
 		{
@@ -3287,11 +3247,11 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "effect"))
 		{
-			gm_flag(subfield, extra_bits, GET_OBJ_EXTRA(o), str);
+			o->gm_extra_flag(subfield, extra_bits, str);
 		}
 		else if (!str_cmp(field, "affect"))
 		{
-			gm_flag(subfield, weapon_affects, (o)->get_affect_flags(), str);
+			o->gm_affect_flag(subfield, weapon_affects, str);
 		}
 		else if (!str_cmp(field, "carried_by"))
 		{
@@ -3460,10 +3420,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				int num = atoi(subfield);
 				// Убрал пока проверку. По идее 0 -- отсутствие владельца.
 				// Понадобилась возможность обнулить владельца из трига.
-				//if (num > 0)
-				//{
-				GET_OBJ_OWNER(o) = num;
-				//}
+				o->set_owner(num);
 			}
 			else
 			{
@@ -3473,10 +3430,12 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "varexists"))
 		{
 			strcpy(str, "0");
-			if (SCRIPT(o))
+			if (o->get_script())
 			{
-				if (find_var_cntx(&((SCRIPT(o))->global_vars), subfield, sc->context))
+				if (find_var_cntx(&o->get_script()->global_vars, subfield, sc->context))
+				{
 					strcpy(str, "1");
+				}
 			}
 		}
 		else if (!str_cmp(field, "cost"))
@@ -3517,11 +3476,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else //get global var. obj.varname
 		{
-			if (SCRIPT(o))
+			if (o->get_script())
 			{
-				vd = find_var_cntx(&((SCRIPT(o))->global_vars), field, sc->context);
+				vd = find_var_cntx(&o->get_script()->global_vars, field, sc->context);
 				if (vd)
+				{
 					sprintf(str, "%s", vd->value);
+				}
 				else
 				{
 					sprintf(buf2, "Type: %d. unknown object field: '%s'", type, field);
@@ -3538,40 +3499,54 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	else if (r)
 	{
 		if (text_processed(field, subfield, vd, str))
+		{
 			return;
+		}
 		else if (!str_cmp(field, "name"))
+		{
 			strcpy(str, r->name);
+		}
 		else if (!str_cmp(field, "north"))
 		{
 			if (r->dir_option[NORTH])
-				sprintf(str, "%d",
-						find_room_vnum(GET_ROOM_VNUM(r->dir_option[NORTH]->to_room)));
+			{
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[NORTH]->to_room)));
+			}
 		}
 		else if (!str_cmp(field, "east"))
 		{
 			if (r->dir_option[EAST])
+			{
 				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EAST]->to_room)));
+			}
 		}
 		else if (!str_cmp(field, "south"))
 		{
 			if (r->dir_option[SOUTH])
-				sprintf(str, "%d",
-						find_room_vnum(GET_ROOM_VNUM(r->dir_option[SOUTH]->to_room)));
+			{
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[SOUTH]->to_room)));
+			}
 		}
 		else if (!str_cmp(field, "west"))
 		{
 			if (r->dir_option[WEST])
+			{
 				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[WEST]->to_room)));
+			}
 		}
 		else if (!str_cmp(field, "up"))
 		{
 			if (r->dir_option[UP])
+			{
 				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[UP]->to_room)));
+			}
 		}
 		else if (!str_cmp(field, "down"))
 		{
 			if (r->dir_option[DOWN])
+			{
 				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[DOWN]->to_room)));
+			}
 		}
 		else if (!str_cmp(field, "vnum"))
 		{
@@ -3592,7 +3567,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "people"))
 		{
 			if (r->people)
+			{
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(r->people));
+			}
 		}
 		else if (!str_cmp(field, "char")
 				 || !str_cmp(field, "pc")
@@ -3633,7 +3610,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				trig_log(trig, "room-построитель списка в NOWHERE");
 				return;
 			}
-			for (obj = world[inroom]->contents; obj; obj = obj->next_content)
+			for (obj = world[inroom]->contents; obj; obj = obj->get_next_content())
 			{
 				sprintf(str + strlen(str), "%c%ld ", UID_OBJ, obj->get_id());
 			}
@@ -3647,7 +3624,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (SCRIPT(r))
 			{
 				if (find_var_cntx(&((SCRIPT(r))->global_vars), subfield, sc->context))
+				{
 					strcpy(str, "1");
+				}
 			}
 		}
 		else //get global var. room.varname
@@ -3656,7 +3635,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				vd = find_var_cntx(&((SCRIPT(r))->global_vars), field, sc->context);
 				if (vd)
+				{
 					sprintf(str, "%s", vd->value);
+				}
 				else
 				{
 					sprintf(buf2, "Type: %d. unknown room field: '%s'", type, field);
@@ -4502,11 +4483,11 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 
 	if (o)
 	{
-		if (!SCRIPT(o))
+		if (!o->get_script())
 		{
-			CREATE(SCRIPT(o), 1);
+			o->set_script(new SCRIPT_DATA());
 		}
-		add_trigger(SCRIPT(o), newtrig, -1);
+		add_trigger(o->get_script().get(), newtrig, -1);
 		return;
 	}
 
@@ -4522,7 +4503,6 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 
 	return;
 }
-
 
 // script detaching a trigger from something
 TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
@@ -4584,14 +4564,13 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 		return retval;
 	}
 
-	if (o && SCRIPT(o))
+	if (o && o->get_script())
 	{
-		if (remove_trigger(SCRIPT(o), trignum_s, &retval))
+		if (remove_trigger(o->get_script().get(), trignum_s, &retval))
 		{
-			if (!TRIGGERS(SCRIPT(o)))
+			if (!TRIGGERS(o->get_script()))
 			{
-				free_script(SCRIPT(o));
-				SCRIPT(o) = NULL;
+				o->set_script(nullptr);
 			}
 		}
 		return retval;
@@ -4673,9 +4652,9 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 		trgtype = MOB_TRIGGER;
 		trggo = (void *) c;
 	}
-	else if (o && SCRIPT(o))
+	else if (o && o->get_script())
 	{
-		runtrig = TRIGGERS(SCRIPT(o));
+		runtrig = TRIGGERS(o->get_script());
 		//runsc = SCRIPT(o);
 		trgtype = OBJ_TRIGGER;
 		trggo = (void *) o;
@@ -4700,28 +4679,40 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 		}
 	}
 	else
+	{
 		num = atoi(name);
+	}
 
 	for (n = 0; runtrig; runtrig = runtrig->next)
 	{
 		if (string)
 		{
 			if (isname(name, GET_TRIG_NAME(runtrig)))
+			{
 				if (++n >= num)
+				{
 					break;
+				}
+			}
 		}
 		else if (++n >= num)
+		{
 			break;
+		}
 		else if (trig_index[runtrig->nr]->vnum == num)
+		{
 			break;
+		}
 	}
 
 	if (!runtrig)
+	{
 		return (FALSE);
-
+	}
 
 	// copy variables
 	if (*trig && runtrig)
+	{
 		for (vd = GET_TRIG_VARS(*trig); vd; vd = vd->next)
 		{
 			if (vd->context)
@@ -4731,6 +4722,8 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 			}
 			add_var_cntx(&GET_TRIG_VARS(runtrig), vd->name, vd->value, 0);
 		}
+	}
+
 // С копированием глобальных переменных нужно что-то придумать
 //
 //  if (*sc && runtrig)
@@ -4756,19 +4749,29 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 
 	runtrig = NULL;
 	if (!go || (type == MOB_TRIGGER ? SCRIPT((CHAR_DATA *) go) :
-				type == OBJ_TRIGGER ? SCRIPT((OBJ_DATA *) go) :
+				type == OBJ_TRIGGER ? ((OBJ_DATA *) go)->get_script().get() :
 				type == WLD_TRIGGER ? SCRIPT((ROOM_DATA *) go) : NULL) != *sc)
 	{
 		*sc = NULL;
 		*trig = NULL;
 	}
 	else
-		for (runtrig =
-					type == MOB_TRIGGER ? TRIGGERS(SCRIPT((CHAR_DATA *) go)) : type ==
-					OBJ_TRIGGER ? TRIGGERS(SCRIPT((OBJ_DATA *) go)) : type ==
-					WLD_TRIGGER ? TRIGGERS(SCRIPT((ROOM_DATA *) go)) : NULL; runtrig; runtrig = runtrig->next)
+	{
+		runtrig = type == MOB_TRIGGER
+			? TRIGGERS(SCRIPT((CHAR_DATA *)go))
+			: (type == OBJ_TRIGGER
+				? TRIGGERS(((OBJ_DATA *)go)->get_script())
+				: (type == WLD_TRIGGER
+					? TRIGGERS(SCRIPT((ROOM_DATA *)go))
+					: nullptr));
+		for (; runtrig; runtrig = runtrig->next)
+		{
 			if (runtrig == *trig)
+			{
 				break;
+			}
+		}
+	}
 	*trig = runtrig;
 
 	return (TRUE);
@@ -4777,15 +4780,27 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 
 ROOM_DATA *dg_room_of_obj(OBJ_DATA * obj)
 {
-	if (obj->in_room > NOWHERE)
-		return world[obj->in_room];
-	if (obj->carried_by)
-		return world[obj->carried_by->in_room];
-	if (obj->worn_by)
-		return world[obj->worn_by->in_room];
-	if (obj->in_obj)
-		return (dg_room_of_obj(obj->in_obj));
-	return NULL;
+	if (obj->get_in_room() > NOWHERE)
+	{
+		return world[obj->get_in_room()];
+	}
+
+	if (obj->get_carried_by())
+	{
+		return world[obj->get_carried_by()->in_room];
+	}
+
+	if (obj->get_worn_by())
+	{
+		return world[obj->get_worn_by()->in_room];
+	}
+
+	if (obj->get_in_obj())
+	{
+		return dg_room_of_obj(obj->get_in_obj());
+	}
+
+	return nullptr;
 }
 
 
@@ -4973,11 +4988,11 @@ bool find_all_char_vnum(long n, char *str)
 bool find_all_obj_vnum(long n, char *str)
 {
 	int count = 0;
-	for (OBJ_DATA *i = object_list; i; i = i->next)
+	for (OBJ_DATA *i = object_list; i; i = i->get_next())
 	{
 		if (n == GET_OBJ_VNUM(i) && count < 25)
 		{
-			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, GET_ID(i));
+			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, i->get_id());
 			++count;
 		}
 	}
@@ -5163,7 +5178,7 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	}
 	else if ((obj = get_obj(buf2)))
 	{
-		sc_remote = SCRIPT(obj);
+		sc_remote = obj->get_script().get();
 	}
 	else
 	{
@@ -5227,7 +5242,7 @@ void do_vdelete(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if ((obj = get_obj(buf2)))
 	{
-		sc_remote = SCRIPT(obj);
+		sc_remote = obj->get_script().get();
 	}
 	else
 	{
@@ -5306,7 +5321,7 @@ void process_rdelete(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	}
 	else if ((obj = get_obj(buf2)))
 	{
-		sc_remote = SCRIPT(obj);
+		sc_remote = obj->get_script().get();
 	}
 	else
 	{
@@ -5316,9 +5331,13 @@ void process_rdelete(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	}
 
 	if (sc_remote == NULL)
+	{
 		return;		// no script to delete a trigger from
+	}
 	if (sc_remote->global_vars == NULL)
+	{
 		return;		// no script globals
+	}
 
 	// find the global
 	remove_var_cntx(&(sc_remote->global_vars), var, sc->context);
@@ -5507,9 +5526,11 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	case MOB_TRIGGER:
 		sc = SCRIPT((CHAR_DATA *) go);
 		break;
+
 	case OBJ_TRIGGER:
-		sc = SCRIPT((OBJ_DATA *) go);
+		sc = ((OBJ_DATA *) go)->get_script().get();
 		break;
+
 	case WLD_TRIGGER:
 		sc = SCRIPT((ROOM_DATA *) go);
 		break;
@@ -5527,14 +5548,21 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	for (cl = (mode == TRIG_NEW) ? trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig); cl = cl ? cl->next : cl)  	//log("Drive go <%s>",cl->cmd);
 	{
 		for (p = cl->cmd; !stop && trig && *p && a_isspace(*p); p++);
+
 		if (*p == '*')	// comment
+		{
 			continue;
+		}
 		else if (!strn_cmp(p, "if ", 3))
 		{
 			if (process_if(p + 3, go, sc, trig, type))
+			{
 				GET_TRIG_DEPTH(trig)++;
+			}
 			else
+			{
 				cl = find_else_end(trig, cl, go, sc, type);
+			}
 		}
 		else if (!strn_cmp("elseif ", p, 7) || !strn_cmp("else", p, 4))
 		{
@@ -5561,7 +5589,9 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			if (process_foreach(p + 8, go, sc, trig, type))
 			{
 				if (temp)
+				{
 					temp->original = cl;
+				}
 			}
 			else
 			{
@@ -5583,7 +5613,9 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				orig_cmd = cl->original->cmd;
 				while (*orig_cmd && a_isspace(*orig_cmd))
+				{
 					orig_cmd++;
+				}
 
 				if ((*orig_cmd == 'w' && process_if(orig_cmd + 6, go, sc, trig, type))
 						|| (*orig_cmd == 'f' && process_foreach(orig_cmd + 8, go, sc, trig, type)))

@@ -1188,7 +1188,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 
 	obj_from_char(obj);
 	check_auction(NULL, obj);
-	REMOVE_FROM_LIST(obj, object_list, [](ListType* list) -> ListType*& { return list->get_next(); });
+	obj->remove_me_from_objects_list(object_list);
 //	ObjectAlias::remove(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
@@ -1457,7 +1457,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 
 		pers_online.push_front(obj);
 		// убираем ее из глобального листа, в который она добавилась еще на стадии чтения из файла
-		REMOVE_FROM_LIST(obj, object_list);
+		obj->remove_me_from_objects_list(object_list);
 //		ObjectAlias::remove(obj);
 	}
 	delete [] databuf;

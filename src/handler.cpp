@@ -2604,11 +2604,11 @@ void obj_to_obj(OBJ_DATA * obj, OBJ_DATA * obj_to)
 
 	for (tmp_obj = obj->get_in_obj(); tmp_obj->get_in_obj(); tmp_obj = tmp_obj->get_in_obj())
 	{
-		tmp_obj->weight_add(GET_OBJ_WEIGHT(obj));
+		tmp_obj->add_weight(GET_OBJ_WEIGHT(obj));
 	}
 
 	// top level object.  Subtract weight from inventory if necessary.
-	tmp_obj->weight_add(GET_OBJ_WEIGHT(obj));
+	tmp_obj->add_weight(GET_OBJ_WEIGHT(obj));
 	if (tmp_obj->get_carried_by())
 	{
 		IS_CARRYING_W(tmp_obj->get_carried_by()) += GET_OBJ_WEIGHT(obj);

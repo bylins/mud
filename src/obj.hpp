@@ -477,6 +477,7 @@ public:
 
 	using pnames_t = boost::array<std::string, NUM_PADS>;
 	using triggers_list_t = std::list<obj_vnum>;
+	using affected_t = std::array<obj_affected_type, MAX_OBJ_AFFECT>;
 
 	OBJ_DATA();
 	OBJ_DATA(const OBJ_DATA&);
@@ -660,9 +661,17 @@ public:
 	void set_zone(const int _) { obj_flags.Obj_zone = _; }
 	void swap_proto_script(triggers_list_t& _) { m_proto_script.swap(_); }
 	void unset_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
-	void weight_add(const int _) { obj_flags.weight += _; }
-	void weight_sub(const int _) { obj_flags.weight += _; }
-
+	void add_weight(const int _) { obj_flags.weight += _; }
+	void sub_weight(const int _) { obj_flags.weight += _; }
+	const auto& get_all_affected() const { return m_affected; }
+	void set_all_affected(const affected_t& _) { m_affected = _; }
+	void set_craft_timer(const int _) { obj_flags.craft_timer = _; }
+	void append_ex_description_tag(const char* tag) { m_ex_description->description = str_add(m_ex_description->description, tag); }
+	void gm_extra_flag(const char *subfield, const char **list, char *res) { obj_flags.extra_flags.gm_flag(subfield, list, res); }
+	void gm_affect_flag(const char *subfield, const char **list, char *res) { obj_flags.extra_flags.gm_flag(subfield, list, res); }
+	void sub_current(const int _) { obj_flags.Obj_cur -= _; }
+	void remove_me_from_objects_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next; }); }
+	void remove_me_from_contains_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next_content; }); }
 
 private:
 	void zero_init();
@@ -671,7 +680,7 @@ private:
 	room_rnum m_in_room;	// In what room -1 when conta/carr //
 
 	obj_flag_data obj_flags;		// Object information       //
-	std::array<obj_affected_type, MAX_OBJ_AFFECT> m_affected;	// affects //
+	affected_t m_affected;	// affects //
 
 	std::string m_aliases;		// Title of object :get etc.        //
 	std::string m_description;	// When in room                     //
