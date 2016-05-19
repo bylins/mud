@@ -564,7 +564,7 @@ public:
 	auto get_worn_by() const { return m_worn_by; }
 	auto get_worn_on() const { return m_worn_on; }
 	auto get_zone() const { return obj_flags.Obj_zone; }
-	auto val_dec(size_t index) { return --obj_flags.value[index]; }
+	auto dec_val(size_t index) { return --obj_flags.value[index]; }
 	bool can_wear_any() const { return obj_flags.wear_flags > 0 && obj_flags.wear_flags != to_underlying(EWearFlag::ITEM_WEAR_TAKE); }
 	bool get_affect(const EWeaponAffectFlag weapon_affect) const { return obj_flags.affects.get(weapon_affect); }
 	bool get_affect(const uint32_t weapon_affect) const { return obj_flags.affects.get(weapon_affect); }
@@ -672,6 +672,13 @@ public:
 	void sub_current(const int _) { obj_flags.Obj_cur -= _; }
 	void remove_me_from_objects_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next; }); }
 	void remove_me_from_contains_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next_content; }); }
+	void dec_weight() { --obj_flags.weight; }
+	void sub_val(const size_t index, const int amount) { obj_flags.value[index] -= amount; }
+	void inc_val(const size_t index) { ++obj_flags.value[index]; }
+	void add_val(const size_t index, const int amount) { obj_flags.value[index] += amount; }
+	void add_maximum(const int amount) { obj_flags.Obj_max += amount; }
+	void clear_all_affected();
+	void clear_affected(const size_t index) { m_affected[index].location = APPLY_NONE; }
 
 private:
 	void zero_init();

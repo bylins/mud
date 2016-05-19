@@ -1106,10 +1106,14 @@ OBJ_DATA* try_make_ingr(int *ing_list, int vnum, int max_prob)
 	{
 		int power;
 		if (number(1, max_prob) >= (ing_list[indx + 1] & 0xFFFF))
+		{
 			continue;
+		}
 		power = (ing_list[indx + 1] >> 16) & 0xFFFF;
 		if (power == 0xFFFF)
+		{
 			power = im_calc_power();
+		}
 		return load_ingredient(ing_list[indx], power, vnum);
 	}
 	return NULL;
@@ -1151,23 +1155,30 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 	if (all_recipes)
 	{
 		if (clr(ch, C_NRM))
+		{
 			sprintf(buf, " Список доступных рецептов.\r\n"
 				" Зеленым цветом выделены уже изученные рецепты.\r\n"
 				" Красным цветом выделены рецепты, недоступные вам в настоящий момент.\r\n"
 				"\r\n     Рецепт                Уровень (реморт)\r\n"
 				"------------------------------------------------\r\n");
+		}
 		else
+		{
 			sprintf(buf, " Список доступных рецептов.\r\n"
 				" Пометкой [И] выделены уже изученные рецепты.\r\n"
 				" Пометкой [Д] выделены доступные для изучения рецепты.\r\n"
 				" Пометкой [Н] выделены рецепты, недоступные вам в настоящий момент.\r\n"
 				"\r\n     Рецепт                Уровень (реморт)\r\n"
 				"------------------------------------------------\r\n");
+		}
 		strcpy(buf1, buf);
 		for (sortpos = 0, i = 0; sortpos <= top_imrecipes; sortpos++)
 		{
 			if (!imrecipes[sortpos].classknow[(int) GET_CLASS(ch)])
+			{
 				continue;
+			}
+
 			if (strlen(buf1) >= MAX_STRING_LENGTH - 60)
 			{
 				strcat(buf1, "**OVERFLOW**\r\n");

@@ -256,6 +256,17 @@ void OBJ_DATA::set_skill(int skill_num, int percent)
 	}
 }
 
+void OBJ_DATA::clear_all_affected()
+{
+	for (size_t i = 0; i < MAX_OBJ_AFFECT; i++)
+	{
+		if (m_affected[i].location != APPLY_NONE)
+		{
+			m_affected[i].location = APPLY_NONE;
+		}
+	}
+}
+
 int OBJ_DATA::get_skill(int skill_num) const
 {
 	const auto skill = m_skills.find(skill_num);

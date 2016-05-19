@@ -2787,7 +2787,7 @@ void update_char_objects(CHAR_DATA * ch)
 			{
 				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0)
 				{
-					i = GET_EQ(ch, wear_pos)->val_dec(2);
+					i = GET_EQ(ch, wear_pos)->dec_val(2);
 					if (i == 1)
 					{
 						act("$z $o замерцал$G и начал$G угасать.\r\n",

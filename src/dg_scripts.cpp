@@ -1596,6 +1596,11 @@ bool SCRIPT_CHECK(const CHAR_DATA* go, const long type)
 	return go->script && IS_SET(SCRIPT_TYPES(go->script), type);
 }
 
+bool SCRIPT_CHECK(const ROOM_DATA* go, const long type)
+{
+	return go->script && IS_SET(SCRIPT_TYPES(go->script), type);
+}
+
 // * Изменение указанной целочисленной константы
 long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 {

@@ -1107,14 +1107,14 @@ void check_idling(CHAR_DATA * ch)
 // Update PCs, NPCs, and objects
 inline bool NO_DESTROY(const OBJ_DATA* obj)
 {
-	return (obj->carried_by
-		|| obj->worn_by
-		|| obj->in_obj
-		|| obj->script
+	return (obj->get_carried_by()
+		|| obj->get_worn_by()
+		|| obj->get_in_obj()
+		|| obj->get_script()
 		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN
-		|| obj->in_room == NOWHERE
+		|| obj->get_in_room() == NOWHERE
 		|| (obj->get_extra_flag(EExtraFlag::ITEM_NODECAY)
-			&& !ROOM_FLAGGED(obj->in_room, ROOM_DEATH)));
+			&& !ROOM_FLAGGED(obj->get_in_room(), ROOM_DEATH)));
 }
 
 inline bool NO_TIMER(const OBJ_DATA* obj)
@@ -1124,12 +1124,15 @@ inline bool NO_TIMER(const OBJ_DATA* obj)
 
 int up_obj_where(OBJ_DATA * obj)
 {
-	if (obj->in_obj)
-		return up_obj_where(obj->in_obj);
+	if (obj->get_in_obj())
+	{
+		return up_obj_where(obj->get_in_obj());
+	}
 	else
+	{
 		return OBJ_WHERE(obj);
+	}
 }
-
 
 void hour_update(void)
 {

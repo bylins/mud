@@ -142,7 +142,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 
 	out << GET_OBJ_PNAME(obj, 0) << "\r\n";
 
-	if (obj->obj_flags.no_flag.sprintbits(no_bits, buf2, ","))
+	if (obj->get_no_flags().sprintbits(no_bits, buf2, ","))
 	{
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
@@ -152,7 +152,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
 		out << boost::format("Наносимые повреждения '%dD%d' среднее %.1f\r\n")
-				% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
+			% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
 	}
 
 	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON

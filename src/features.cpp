@@ -1044,7 +1044,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_GLASS)
 		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));
+				GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 			send_to_char(buf, ch);
 			return;
 		}
@@ -1062,7 +1062,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		break;
 	};
-	GET_OBJ_OWNER(obj) = GET_UNIQUE(vict);
+	obj->set_owner(GET_UNIQUE(vict));
 	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
 	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
 	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n", GET_OBJ_PNAME(obj, 3), GET_PAD(vict, 1));

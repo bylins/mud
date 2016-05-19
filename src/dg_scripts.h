@@ -286,19 +286,10 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 
 bool SCRIPT_CHECK(const OBJ_DATA* go, const long type);
 bool SCRIPT_CHECK(const CHAR_DATA* go, const long type);
+bool SCRIPT_CHECK(const ROOM_DATA* go, const long type);
 
 #define TRIGGER_CHECK(t, type)   (IS_SET(GET_TRIG_TYPE(t), type) && \
 				  !GET_TRIG_DEPTH(t))
-
-#define ADD_UID_CHAR_VAR(buf, trig, go, name, context) { \
-		         sprintf(buf, "%c%ld", UID_CHAR, GET_ID(go)); \
-                         add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
-#define ADD_UID_OBJ_VAR(buf, trig, go, name, context) { \
-		         sprintf(buf, "%c%ld", UID_OBJ, GET_ID(go)); \
-                         add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
-#define ADD_UID_ROOM_VAR(buf, trig, go, name, context) { \
-		         sprintf(buf, "%c%ld", UID_ROOM, GET_ID(go)); \
-                         add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
 
 #define SCRIPT(o)		  ((o)->script)
 

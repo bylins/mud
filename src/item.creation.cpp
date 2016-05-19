@@ -1787,9 +1787,9 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 	//ставим именительные именительные падежи в алиасы 
 	sprintf(buf, "%s %s %s %s",
 		GET_OBJ_PNAME(obj, 0).c_str(),
-		GET_OBJ_PNAME(ingrs[0], 0).c_str(),
-		GET_OBJ_PNAME(ingrs[1], 0).c_str(),
-		GET_OBJ_PNAME(ingrs[2], 0).c_str());
+		GET_OBJ_PNAME(ingrs[0], 1).c_str(),
+		GET_OBJ_PNAME(ingrs[1], 4).c_str(),
+		GET_OBJ_PNAME(ingrs[2], 4).c_str());
 	obj->set_aliases(buf);
 
 	for (i = 0; i < OBJ_DATA::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
