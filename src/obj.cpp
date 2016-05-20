@@ -267,15 +267,6 @@ void OBJ_DATA::clear_all_affected()
 	}
 }
 
-void OBJ_DATA::add_ex_description(const char* keyword, const char* description)
-{
-	std::shared_ptr<EXTRA_DESCR_DATA> n(new EXTRA_DESCR_DATA);
-	n->keyword = keyword ? str_dup(keyword) : nullptr;
-	n->description = description ? str_dup(description) : nullptr;
-	n->next = m_ex_description;
-	m_ex_description = n;
-}
-
 int OBJ_DATA::get_skill(int skill_num) const
 {
 	const auto skill = m_skills.find(skill_num);
@@ -450,10 +441,10 @@ void OBJ_DATA::del_timed_spell(const int spell, const bool message)
 
 void OBJ_DATA::set_ex_description(const char* keyword, const char* description)
 {
-	EXTRA_DESCR_DATA* d = new EXTRA_DESCR_DATA();
+	std::shared_ptr<EXTRA_DESCR_DATA> d(new EXTRA_DESCR_DATA());
 	d->keyword = strdup(keyword);
 	d->description = strdup(description);
-	m_ex_description.reset(d);
+	m_ex_description = d;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -119,7 +119,9 @@ void string_write(DESCRIPTOR_DATA * d, const string_writer_t& writer, size_t len
 	}
 
 	if (data)
+	{
 		mudlog("SYSERR: string_write: I don't understand special data.", BRF, LVL_IMMORT, SYSLOG, TRUE);
+	}
 
 	d->writer = writer;
 	d->max_str = len;

@@ -4413,7 +4413,7 @@ char *parse_object(FILE * obj_f, const int nr)
 	// ** Affects
 	tobj->load_antiflags(f1);
 	// ** Miss for ...
-	tobj->load_noflags(f2);
+	tobj->load_no_flags(f2);
 	// ** Deny for ...
 
 	if (!get_line(obj_f, line))
@@ -4427,7 +4427,7 @@ char *parse_object(FILE * obj_f, const int nr)
 		exit(1);
 	}
 	tobj->set_type(static_cast<obj_flag_data::EObjectType>(t[0]));	    // ** What's a object
-	tobj->load_extraflags(f1);
+	tobj->load_extra_flags(f1);
 	// ** Its effects
 	int wear_flags = 0;
 	asciiflag_conv(f2, &wear_flags);

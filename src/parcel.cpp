@@ -520,7 +520,7 @@ void return_money(std::string const &name, int money, bool add)
 // * Экстра-описание на самой посылке при получении.
 void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 {
-	CREATE(obj->ex_description, 1);
+	!!!CREATE(obj->ex_description, 1);
 	obj->ex_description->keyword = str_dup("посылка бандероль пакет ящик parcel box case chest");
 	obj->ex_description->next = 0;
 

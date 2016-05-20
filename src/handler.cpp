@@ -3874,7 +3874,7 @@ OBJ_DATA *create_money(int amount)
 		return (NULL);
 	}
 	obj = create_obj();
-	CREATE(new_descr, 1);
+	!!!CREATE(new_descr, 1);
 
 	if (amount == 1)
 	{

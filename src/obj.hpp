@@ -597,8 +597,8 @@ public:
 	void init_values_from_zone(const char* str) { m_values.init_from_zone(str); }
 	void load_affects(const char* string) { obj_flags.affects.from_string(string); }
 	void load_antiflags(const char* string) { obj_flags.anti_flag.from_string(string); }
-	void load_extraflags(const char* string) { obj_flags.extra_flags.from_string(string); }
-	void load_noflags(const char* string) { obj_flags.no_flag.from_string(string); }
+	void load_extra_flags(const char* string) { obj_flags.extra_flags.from_string(string); }
+	void load_no_flags(const char* string) { obj_flags.no_flag.from_string(string); }
 	void remove_custom_label() { m_custom_label.reset(); }
 	void remove_incorrect_values_keys(const int type) { m_values.remove_incorrect_keys(type); }
 	void remove_set_bonus() { m_enchants.remove_set_bonus(this); }
@@ -682,8 +682,6 @@ public:
 	void dec_destroyer() { --obj_flags.Obj_destroyer; }
 	void dec_affected_value(const size_t index) { --m_affected[index].modifier; }
 	const auto& get_all_values() const { return m_values; }
-	void clear_ex_description() { m_ex_description.reset(); }
-	void add_ex_description(const char* keyword, const char* description);
 	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
 	void add_no_flags(const FLAG_DATA& flags) { obj_flags.no_flag += flags; }
 	void add_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags += flags; }

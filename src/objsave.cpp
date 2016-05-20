@@ -208,84 +208,90 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			if (!strcmp(read_line, "Alia"))
 			{
 				*error = 6;
-				object->aliases = str_dup(buffer);
+				object->set_aliases(buffer);
 			}
 			else if (!strcmp(read_line, "Pad0"))
 			{
 				*error = 7;
-				GET_OBJ_PNAME(object, 0) = str_dup(buffer);
-				object->short_description = str_dup(buffer);
+				object->set_PName(0, buffer);
+				object->set_short_description(buffer);
 			}
 			else if (!strcmp(read_line, "Pad1"))
 			{
 				*error = 8;
-				GET_OBJ_PNAME(object, 1) = str_dup(buffer);
+				object->set_PName(1, buffer);
 			}
 			else if (!strcmp(read_line, "Pad2"))
 			{
 				*error = 9;
-				GET_OBJ_PNAME(object, 2) = str_dup(buffer);
+				object->set_PName(2, buffer);
 			}
 			else if (!strcmp(read_line, "Pad3"))
 			{
 				*error = 10;
-				GET_OBJ_PNAME(object, 3) = str_dup(buffer);
+				object->set_PName(3, buffer);
 			}
 			else if (!strcmp(read_line, "Pad4"))
 			{
 				*error = 11;
-				GET_OBJ_PNAME(object, 4) = str_dup(buffer);
+				object->set_PName(4, buffer);
 			}
 			else if (!strcmp(read_line, "Pad5"))
 			{
 				*error = 12;
-				GET_OBJ_PNAME(object, 5) = str_dup(buffer);
+				object->set_PName(5, buffer);
 			}
 			else if (!strcmp(read_line, "Desc"))
 			{
 				*error = 13;
-				GET_OBJ_DESC(object) = str_dup(buffer);
+				object->set_description(buffer);
 			}
 			else if (!strcmp(read_line, "ADsc"))
 			{
 				*error = 14;
 				if (strcmp(buffer, "NULL"))
-					GET_OBJ_ACT(object) = NULL;
+				{
+					object->set_action_description("");
+				}
 				else
-					GET_OBJ_ACT(object) = str_dup(buffer);
+				{
+					object->set_action_description(buffer);
+				}
 			}
 			else if (!strcmp(read_line, "Lctn"))
 			{
 				*error = 5;
-				object->worn_on = atoi(buffer);
+				object->set_worn_on(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Skil"))
 			{
 				*error = 15;
 				int tmp_a_, tmp_b_;
 				if (sscanf(buffer, "%d %d", &tmp_a_, &tmp_b_) != 2)
+				{
 					continue;
+				}
 				object->set_skill(tmp_a_, tmp_b_);
 			}
 			else if (!strcmp(read_line, "Maxx"))
 			{
 				*error = 16;
-				GET_OBJ_MAX(object) = atoi(buffer);
+				object->set_maximum(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Curr"))
 			{
 				*error = 17;
-				GET_OBJ_CUR(object) = atoi(buffer);
+				object->set_current(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Mter"))
 			{
 				*error = 18;
-				GET_OBJ_MATER(object) = static_cast<obj_flag_data::EObjectMaterial>(atoi(buffer));
+				object->set_material(static_cast<obj_flag_data::EObjectMaterial>(atoi(buffer)));
 			}
 			else if (!strcmp(read_line, "Sexx"))
 			{
 				*error = 19;
-				GET_OBJ_SEX(object) = static_cast<ESex>(atoi(buffer));
+				object->set_sex(static_cast<ESex>(atoi(buffer)));
 			}
 			else if (!strcmp(read_line, "Tmer"))
 			{
@@ -295,72 +301,73 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Spll"))
 			{
 				*error = 21;
-				GET_OBJ_SPELL(object) = atoi(buffer);
+				object->set_spell(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Levl"))
 			{
 				*error = 22;
-				GET_OBJ_LEVEL(object) = atoi(buffer);
+				object->set_level(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Affs"))
 			{
 				*error = 23;
-				GET_OBJ_AFFECTS(object) = clear_flags;
-				GET_OBJ_AFFECTS(object).from_string(buffer);
+				object->set_affect_flags(clear_flags);
+				object->load_affects(buffer);
 			}
 			else if (!strcmp(read_line, "Anti"))
 			{
 				*error = 24;
-				GET_OBJ_ANTI(object) = clear_flags;
-				GET_OBJ_ANTI(object).from_string(buffer);
+				object->set_anti_flags(clear_flags);
+				object->load_antiflags(buffer);
 			}
 			else if (!strcmp(read_line, "Nofl"))
 			{
 				*error = 25;
-				GET_OBJ_NO(object) = clear_flags;
-				GET_OBJ_NO(object).from_string(buffer);
+				object->set_no_flags(clear_flags);
+				object->load_no_flags(buffer);
 			}
 			else if (!strcmp(read_line, "Extr"))
 			{
 				*error = 26;
-				GET_OBJ_EXTRA(object) = clear_flags;
-				GET_OBJ_EXTRA(object).from_string(buffer);
+				object->set_extra_flags(clear_flags);
+				object->load_extra_flags(buffer);
 			}
 			else if (!strcmp(read_line, "Wear"))
 			{
 				*error = 27;
-				GET_OBJ_WEAR(object) = 0;
-				asciiflag_conv(buffer, &GET_OBJ_WEAR(object));
+				obj_flag_data::wear_flags_t wear_flags;
+				asciiflag_conv(buffer, &wear_flags);
+				object->set_wear_flags(wear_flags);
 			}
 			else if (!strcmp(read_line, "Type"))
 			{
 				*error = 28;
-				GET_OBJ_TYPE(object) = static_cast<obj_flag_data::EObjectType>(atoi(buffer));
+				object->set_type(static_cast<obj_flag_data::EObjectType>(atoi(buffer)));
 			}
 			else if (!strcmp(read_line, "Val0"))
 			{
 				*error = 29;
-				GET_OBJ_VAL(object, 0) = atoi(buffer);
+				object->set_val(0, atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Val1"))
 			{
 				*error = 30;
-				GET_OBJ_VAL(object, 1) = atoi(buffer);
+				object->set_val(1, atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Val2"))
 			{
 				*error = 31;
-				GET_OBJ_VAL(object, 2) = atoi(buffer);
+				object->set_val(2, atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Val3"))
 			{
 				*error = 32;
-				GET_OBJ_VAL(object, 3) = atoi(buffer);
+				object->set_val(3, atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Weig"))
 			{
 				*error = 33;
-				GET_OBJ_WEIGHT(object) = atoi(buffer);
+				object->set_weight(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Cost"))
 			{
@@ -380,68 +387,62 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Ownr"))
 			{
 				*error = 37;
-				GET_OBJ_OWNER(object) = atoi(buffer);
+				object->set_owner(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Mker"))
 			{
 				*error = 38;
-				GET_OBJ_MAKER(object) = atoi(buffer);
+				object->set_crafter_uid(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Prnt"))
 			{
 				*error = 39;
-				GET_OBJ_PARENT(object) = atoi(buffer);
+				object->set_parent(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Afc0"))
 			{
 				*error = 40;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[0].location = static_cast<EApplyLocation>(t[0]);
-				object->affected[0].modifier = t[1];
+				object->set_affected(0, static_cast<EApplyLocation>(t[0]), t[1]);
 			}
 			else if (!strcmp(read_line, "Afc1"))
 			{
 				*error = 41;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[1].location = static_cast<EApplyLocation>(t[0]);
-				object->affected[1].modifier = t[1];
+				object->set_affected(1, static_cast<EApplyLocation>(t[0]), t[1]);
 			}
 			else if (!strcmp(read_line, "Afc2"))
 			{
 				*error = 42;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[2].location = static_cast<EApplyLocation>(t[0]);
-				object->affected[2].modifier = t[1];
+				object->set_affected(2, static_cast<EApplyLocation>(t[0]), t[1]);
 			}
 			else if (!strcmp(read_line, "Afc3"))
 			{
 				*error = 43;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[3].location = static_cast<EApplyLocation>(t[0]);
-				object->affected[3].modifier = t[1];
+				object->set_affected(3, static_cast<EApplyLocation>(t[0]), t[1]);
 			}
 			else if (!strcmp(read_line, "Afc4"))
 			{
 				*error = 44;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[4].location = static_cast<EApplyLocation>(t[0]);
-				object->affected[4].modifier = t[1];
+				object->set_affected(4, static_cast<EApplyLocation>(t[0]), t[1]);
 			}
 			else if (!strcmp(read_line, "Afc5"))
 			{
 				*error = 45;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[5].location = static_cast<EApplyLocation>(t[0]);
-				object->affected[5].modifier = t[1];
+				object->set_affected(5, static_cast<EApplyLocation>(t[0]), t[1]);
 			}
 			else if (!strcmp(read_line, "Edes"))
 			{
 				*error = 46;
-				CREATE(new_descr, 1);
+				!!!CREATE(new_descr, 1);
 				new_descr->keyword = str_dup(buffer);
 				if (!strcmp(new_descr->keyword, "None"))
 				{
-					object->ex_description = NULL;
+					object->set_ex_description(nullptr);
 				}
 				else
 				{
@@ -453,7 +454,6 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 						return (object);
 					}
 					new_descr->description = str_dup(buffer);
-			//		new_descr->next = object->ex_description;
 					object->ex_description = new_descr;
 				}
 			}
@@ -833,7 +833,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		switch (*buffer)
 		{
 		case 'E':
-			CREATE(new_descr, 1);
+			!!!CREATE(new_descr, 1);
 			if (!get_buf_lines(data, buffer))
 			{
 				free(new_descr);

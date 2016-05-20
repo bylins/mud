@@ -123,19 +123,16 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 
 	// Дополнительные описания, если есть
 	{
+		std::shared_ptr<EXTRA_DESCR_DATA> nd(new EXTRA_DESCR_DATA());
+		auto* pddd = &nd;
 		auto sdd = src->get_ex_description();
-		dst->clear_ex_description();
-		using pair_t = std::pair<const char*, const char*>;
-		std::stack<pair_t> d;	// will use stack to reverse order
+		dst->set_ex_description(nd);
 		while (sdd)
 		{
-			d.push(pair_t(sdd->keyword, sdd->description));
+			(*pddd)->keyword = str_dup(sdd->keyword);
+			(*pddd)->description = str_dup(sdd->description);
+			pddd = &(*pddd)->next;
 			sdd = sdd->next;
-		}
-		while (!d.empty())
-		{
-			dst->add_ex_description(d.top().first, d.top().second);
-			d.pop();
 		}
 	}
 
@@ -158,16 +155,16 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 
 	if (real_num == -1)
 	{
-		obj->aliases = str_dup("новый предмет");
-		obj->description = str_dup("что-то новое лежит здесь");
-		obj->short_description = str_dup("новый предмет");
-		obj->PNames[0] = str_dup("это что");
-		obj->PNames[1] = str_dup("нету чего");
-		obj->PNames[2] = str_dup("привязать к чему");
-		obj->PNames[3] = str_dup("взять что");
-		obj->PNames[4] = str_dup("вооружиться чем");
-		obj->PNames[5] = str_dup("говорить о чем");
-		GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
+		obj->set_aliases("новый предмет");
+		obj->set_description("что-то новое лежит здесь");
+		obj->set_short_description("новый предмет");
+		obj->set_PName(0, "это что");
+		obj->set_PName(1, "нету чего");
+		obj->set_PName(2, "привязать к чему");
+		obj->set_PName(3, "взять что");
+		obj->set_PName(4, "вооружиться чем");
+		obj->set_PName(5, "говорить о чем");
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	}
 	else
 	{
@@ -192,49 +189,53 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// Удаляю его строки и т.д.
 	// прототип скрипта не удалится, т.к. его у экземпляра нету
 	// скрипт не удалится, т.к. его не удаляю
-	if (obj->obj_flags.Obj_is_rename) // шмотка была переименованна кодом
+	if (obj->get_is_rename()) // шмотка была переименованна кодом
 	{
 		oedit_object_copy(&tmp, obj); // сохраним падежи для рестора
 	}
 
 	// Нужно скопировать все новое, сохранив определенную информацию
 	*obj = *olc_proto;
-	obj->proto_script.clear();
+	obj->clear_proto_script();
 	// Восстанавливаю игровую информацию
-	obj->uid = tmp.uid;
-	obj->id = tmp.id; // аук работает не по рнум а по id объекта, поэтому вернем и его
-	obj->in_room = tmp.in_room;
-	obj->item_number = robj_num;
-	obj->carried_by = tmp.carried_by;
-	obj->worn_by = tmp.worn_by;
-	obj->worn_on = tmp.worn_on;
-	obj->in_obj = tmp.in_obj;
-	obj->contains = tmp.contains;
-	obj->next_content = tmp.next_content;
-	obj->next = tmp.next;
-	SCRIPT(obj) = SCRIPT(&tmp);
+	obj->set_uid(tmp.get_uid());
+	obj->set_id(tmp.get_id()); // аук работает не по рнум а по id объекта, поэтому вернем и его
+	obj->set_in_room(tmp.get_in_room());
+	obj->set_rnum(robj_num);
+	obj->set_carried_by(tmp.get_carried_by());
+	obj->set_worn_by(tmp.get_worn_by());
+	obj->set_worn_on(tmp.get_worn_on());
+	obj->set_in_obj(tmp.get_in_obj());
+	obj->set_contains(tmp.get_contains());
+	obj->set_next_content(tmp.get_next_content());
+	obj->set_next(tmp.get_next());
+	obj->set_script(tmp.get_script());
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
-	GET_OBJ_CUR(obj) = GET_OBJ_CUR(&tmp);
-	if (tmp.obj_flags.Obj_is_rename)
+	obj->set_current(GET_OBJ_CUR(&tmp));
+	if (tmp.get_is_rename())
+	{
 		oedit_object_copy(obj, &tmp); // восстановим падежи из сохраненки если имена были изменены при трансформации
+	}
 //	если таймер шмота в мире меньше  чем установленный, восстанавливаем его.
 	if (obj->get_timer() > tmp.get_timer())
+	{
 		obj->set_timer(tmp.get_timer());
+	}
 	// емкостям сохраняем жидкость и кол-во глотков, во избежание жалоб
 	if (GET_OBJ_TYPE(&tmp) == obj_flag_data::ITEM_DRINKCON
 		&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
 	{
-		GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(&tmp, 1); //кол-во глотков
+		obj->set_val(1, GET_OBJ_VAL(&tmp, 1)); //кол-во глотков
 		if (is_potion(&tmp))
 		{
-			GET_OBJ_VAL(obj, 2) = GET_OBJ_VAL(&tmp, 2); //описание жидкости
+			obj->set_val(2, GET_OBJ_VAL(&tmp, 2)); //описание жидкости
 		}
 		// сохранение в случае перелитых заклов
 		// пока там ничего кроме заклов и нет - копируем весь values
-		if (tmp.values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0)
+		if (tmp.get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0)
 		{
-			obj->values = tmp.values;
+			obj->set_values(tmp.get_values());
 		}
 	}
 	if (tmp.get_extra_flag(EExtraFlag::ITEM_TICKTIMER))//если у старого объекта запущен таймер
@@ -252,10 +253,12 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 // * Обновление полей объектов при изменении их прототипа через олц.
 void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
 {
-	for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
+	for (OBJ_DATA *obj = object_list; obj; obj = obj->get_next())
 	{
-		if (obj->item_number == robj_num)
+		if (obj->get_rnum() == robj_num)
+		{
 			olc_update_object(robj_num, obj, olc_proto);
+		}
 	}
 	Depot::olc_update_from_proto(robj_num, olc_proto);
 	Parcel::olc_update_from_proto(robj_num, olc_proto);
@@ -502,11 +505,11 @@ void oedit_disp_prompt_apply_menu(DESCRIPTOR_DATA * d)
 #endif
 	for (counter = 0; counter < MAX_OBJ_AFFECT; counter++)
 	{
-		if (OLC_OBJ(d)->affected[counter].modifier)
+		if (OLC_OBJ(d)->get_affected(counter).modifier)
 		{
-			sprinttype(OLC_OBJ(d)->affected[counter].location, apply_types, buf2);
+			sprinttype(OLC_OBJ(d)->get_affected(counter).location, apply_types, buf2);
 			sprintf(buf, " %s%d%s) %+d to %s\r\n", grn, counter + 1, nrm,
-					OLC_OBJ(d)->affected[counter].modifier, buf2);
+				OLC_OBJ(d)->get_affected(counter).modifier, buf2);
 			send_to_char(buf, d->character);
 		}
 		else
@@ -531,7 +534,7 @@ void oedit_liquid_type(DESCRIPTOR_DATA * d)
 	for (counter = 0; counter < NUM_LIQ_TYPES; counter++)
 	{
 		sprintf(buf, " %s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
-				drinks[counter], !(++columns % 2) ? "\r\n" : "");
+			drinks[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf, "\r\n%sВыберите тип жидкости : ", nrm);
@@ -1046,7 +1049,7 @@ void oedit_disp_anti_menu(DESCRIPTOR_DATA * d)
 				anti_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	OLC_OBJ(d)->obj_flags.anti_flag.sprintbits(anti_bits, buf1, ",", true);
+	OLC_OBJ(d)->get_anti_flags().sprintbits(anti_bits, buf1, ",", true);
 	sprintf(buf, "\r\nПредмет запрещен для : %s%s%s\r\n" "Выберите флаг запрета (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1077,7 +1080,7 @@ void oedit_disp_no_menu(DESCRIPTOR_DATA * d)
 				no_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	OLC_OBJ(d)->obj_flags.no_flag.sprintbits(no_bits, buf1, ",", true);
+	OLC_OBJ(d)->get_no_flags().sprintbits(no_bits, buf1, ",", true);
 	sprintf(buf, "\r\nПредмет неудобен для : %s%s%s\r\n" "Выберите флаг неудобств (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1117,7 +1120,7 @@ void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags)
 
 void oedit_disp_affects_menu(DESCRIPTOR_DATA * d)
 {
-	show_weapon_affects_olc(d, OLC_OBJ(d)->obj_flags.affects);
+	show_weapon_affects_olc(d, OLC_OBJ(d)->get_affect_flags());
 }
 
 // * Object wear flags.
@@ -1180,13 +1183,12 @@ void oedit_disp_ingradient_menu(DESCRIPTOR_DATA * d)
 
 std::string print_spell_value(OBJ_DATA *obj, const ObjVal::EValueKey key1, const ObjVal::EValueKey key2)
 {
-	if (obj->values.get(key1) < 0)
+	if (obj->get_value(key1) < 0)
 	{
 		return "нет";
 	}
 	char buf_[MAX_INPUT_LENGTH];
-	snprintf(buf_, sizeof(buf_), "%s:%d",
-		spell_name(obj->values.get(key1)), obj->values.get(key2));
+	snprintf(buf_, sizeof(buf_), "%s:%d", spell_name(obj->get_value(key1)), obj->get_value(key2));
 	return buf_;
 }
 
