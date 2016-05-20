@@ -35,6 +35,7 @@
 #include "obj.hpp"
 
 #include <vector>
+#include <stack>
 
 // * External variable declarations.
 extern OBJ_DATA *object_list;
@@ -65,7 +66,6 @@ int real_zone(int number);
 void oedit_setup(DESCRIPTOR_DATA * d, int real_num);
 
 void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
-void oedit_object_free(OBJ_DATA * obj);
 
 void oedit_save_internally(DESCRIPTOR_DATA * d);
 void oedit_save_to_disk(int zone);
@@ -105,7 +105,6 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 --*/
 {
 	int i;
-	EXTRA_DESCR_DATA **pddd, *sdd;
 
 	// Копирую все поверх
 	*dst = *src;
@@ -113,110 +112,36 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 	// Теперь нужно выделить собственные области памяти
 
 	// Имена и названия
-	dst->aliases = str_dup(src->aliases ? src->aliases : "нет");
-	dst->short_description = str_dup(src->short_description ? src->short_description : "неопределено");
-	dst->description = str_dup(src->description ? src->description : "неопределено");
-	dst->action_description = (src->action_description ? str_dup(src->action_description) : NULL);
+	dst->set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
+	dst->set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
+	dst->set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
+	dst->set_action_description(!src->get_action_description().empty() ? src->get_action_description().c_str() : nullptr);
 	for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 	{
-		GET_OBJ_PNAME(dst, i) = str_dup(GET_OBJ_PNAME(src, i)
-			? GET_OBJ_PNAME(src, i)
-			: "неопределен");
+		dst->set_PName(i, !GET_OBJ_PNAME(src, i).empty() ? GET_OBJ_PNAME(src, i).c_str() : "неопределен");
 	}
 
 	// Дополнительные описания, если есть
-	pddd = &dst->ex_description;
-	sdd = src->ex_description;
-
-	while (sdd)
 	{
-		CREATE(pddd[0], 1);
-		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
-		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
-		pddd = &(pddd[0]->next);
-		sdd = sdd->next;
+		auto sdd = src->get_ex_description();
+		dst->clear_ex_description();
+		using pair_t = std::pair<const char*, const char*>;
+		std::stack<pair_t> d;	// will use stack to reverse order
+		while (sdd)
+		{
+			d.push(pair_t(sdd->keyword, sdd->description));
+			sdd = sdd->next;
+		}
+		while (!d.empty())
+		{
+			dst->add_ex_description(d.top().first, d.top().second);
+			d.pop();
+		}
 	}
 
 	// Копирую скрипт и прототипы
-	SCRIPT(dst) = NULL;
-	dst->proto_script = src->proto_script;
+	dst->set_proto_script(src->get_proto_script());
 }
-
-void oedit_object_free(OBJ_DATA * obj)
-/*++
-   Функция полностью освобождает память, занимаемую данными объекта.
-   ВНИМАНИЕ. Память самой структуры OBJ_DATA не освобождается.
-             Необходимо дополнительно использовать free()
---*/
-{
-	int i, j;
-	EXTRA_DESCR_DATA *lthis, *next;
-
-	if (!obj)
-		return;
-
-	i = GET_OBJ_RNUM(obj);
-
-	if (i == -1 || obj == obj_proto[i])
-	{
-		// Нет прототипа или сам прототип, удалять все подряд
-		if (obj->aliases)
-			free(obj->aliases);
-		if (obj->description)
-			free(obj->description);
-		if (obj->short_description)
-			free(obj->short_description);
-		if (obj->action_description)
-			free(obj->action_description);
-		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
-		{
-			if (GET_OBJ_PNAME(obj, j))
-			{
-				free(GET_OBJ_PNAME(obj, j));
-			}
-		}
-		for (lthis = obj->ex_description; lthis; lthis = next)
-		{
-			next = lthis->next;
-			if (lthis->keyword)
-				free(lthis->keyword);
-			if (lthis->description)
-				free(lthis->description);
-			free(lthis);
-		}
-	}
-	else
-	{
-		// Есть прототип, удалять несовпадающее
-		if (obj->aliases && obj->aliases != obj_proto[i]->aliases)
-			free(obj->aliases);
-		if (obj->description && obj->description != obj_proto[i]->description)
-			free(obj->description);
-		if (obj->short_description && obj->short_description != obj_proto[i]->short_description)
-			free(obj->short_description);
-		if (obj->action_description && obj->action_description != obj_proto[i]->action_description)
-			free(obj->action_description);
-		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
-		{
-			if (GET_OBJ_PNAME(obj, j)
-				&& GET_OBJ_PNAME(obj, j) != GET_OBJ_PNAME(obj_proto[i], j))
-			{
-				free(GET_OBJ_PNAME(obj, j));
-			}
-		}
-		if (obj->ex_description && obj->ex_description != obj_proto[i]->ex_description)
-			for (lthis = obj->ex_description; lthis; lthis = next)
-			{
-				next = lthis->next;
-				if (lthis->keyword)
-					free(lthis->keyword);
-				if (lthis->description)
-					free(lthis->description);
-				free(lthis);
-			}
-	}
-}
-
 
 //***********************************************************************
 
@@ -268,8 +193,9 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// прототип скрипта не удалится, т.к. его у экземпляра нету
 	// скрипт не удалится, т.к. его не удаляю
 	if (obj->obj_flags.Obj_is_rename) // шмотка была переименованна кодом
+	{
 		oedit_object_copy(&tmp, obj); // сохраним падежи для рестора
-	oedit_object_free(obj);
+	}
 
 	// Нужно скопировать все новое, сохранив определенную информацию
 	*obj = *olc_proto;
@@ -360,9 +286,6 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		// Все существующие в мире объекты обновлены согласно новому прототипу
 		// Строки в этих объектах как ссылки на данные прототипа
 
-		// Теперь возьмусь за прототип.
-		// Уничтожаю старый прототип
-		oedit_object_free(obj_proto[robj_num]);
 		// Копирую новый прототип в массив
 		// Использовать функцию oedit_object_copy() нельзя,
 		// т.к. будут изменены указатели на данные прототипа
@@ -389,7 +312,6 @@ void oedit_save_to_disk(int zone_num)
 	int counter, counter2, realcounter;
 	FILE *fp;
 	OBJ_DATA *obj;
-	EXTRA_DESCR_DATA *ex_desc;
 
 	sprintf(buf, "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].number);
 	if (!(fp = fopen(buf, "w+")))
@@ -402,9 +324,10 @@ void oedit_save_to_disk(int zone_num)
 	{
 		if ((realcounter = real_object(counter)) >= 0)
 		{
-			if ((obj = obj_proto[realcounter])->action_description)
+			obj = obj_proto[realcounter];
+			if (!obj->get_action_description().empty())
 			{
-				strcpy(buf1, obj->action_description);
+				strcpy(buf1, obj->get_action_description().c_str());
 				strip_string(buf1);
 			}
 			else
@@ -415,41 +338,42 @@ void oedit_save_to_disk(int zone_num)
 			GET_OBJ_NO(obj).tascii(4, buf2);
 			sprintf(buf2 + strlen(buf2), "\n%d ", GET_OBJ_TYPE(obj));
 			GET_OBJ_EXTRA(obj).tascii(4, buf2);
-			tascii(&GET_OBJ_WEAR(obj), 1, buf2);
+			const auto wear_flags = GET_OBJ_WEAR(obj);
+			tascii(&wear_flags, 1, buf2);
 			strcat(buf2, "\n");
 
 			fprintf(fp, "#%d\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%d %d %d %d\n"
-					"%d %d %d %d\n"
-					"%s"
-					"%d %d %d %d\n"
-					"%d %d %d %d\n",
-					GET_OBJ_VNUM(obj),
-					not_null(obj->aliases, NULL),
-					obj->PNames[0] ? obj->PNames[0] : "что-то",
-					obj->PNames[1] ? obj->PNames[1] : "чего-то",
-					obj->PNames[2] ? obj->PNames[2] : "чему-то",
-					obj->PNames[3] ? obj->PNames[3] : "что-то",
-					obj->PNames[4] ? obj->PNames[4] : "чем-то",
-					obj->PNames[5] ? obj->PNames[5] : "о чем-то",
-					not_null(obj->description, NULL),
-					buf1,
-					GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
-					GET_OBJ_MATER(obj), GET_OBJ_SEX(obj),
-					obj->get_timer(), GET_OBJ_SPELL(obj),
-					GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
-					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
-					GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
-					GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%d %d %d %d\n"
+				"%d %d %d %d\n"
+				"%s"
+				"%d %d %d %d\n"
+				"%d %d %d %d\n",
+				GET_OBJ_VNUM(obj),
+				!obj->get_aliases().empty() ? obj->get_aliases().c_str() : "undefined",
+				!obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "что-то",
+				!obj->get_PName(1).empty() ? obj->get_PName(1).c_str() : "чего-то",
+				!obj->get_PName(2).empty() ? obj->get_PName(2).c_str() : "чему-то",
+				!obj->get_PName(3).empty() ? obj->get_PName(3).c_str() : "что-то",
+				!obj->get_PName(4).empty() ? obj->get_PName(4).c_str() : "чем-то",
+				!obj->get_PName(5).empty() ? obj->get_PName(5).c_str() : "о чем-то",
+				!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
+				buf1,
+				GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
+				GET_OBJ_MATER(obj), GET_OBJ_SEX(obj),
+				obj->get_timer(), GET_OBJ_SPELL(obj),
+				GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
+				GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
+				GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
+				GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
 
 			script_save_to_disk(fp, obj, OBJ_TRIGGER);
 
@@ -464,16 +388,15 @@ void oedit_save_to_disk(int zone_num)
 			}
 
 			// * Do we have extra descriptions?
-			if (obj->ex_description)  	// Yes, save them too.
+			if (obj->get_ex_description())  	// Yes, save them too.
 			{
-				for (ex_desc = obj->ex_description; ex_desc; ex_desc = ex_desc->next)
+				for (auto ex_desc = obj->get_ex_description(); ex_desc; ex_desc = ex_desc->next)
 				{
 					// * Sanity check to prevent nasty protection faults.
 					if (!*ex_desc->keyword || !*ex_desc->description)
 					{
-						mudlog
-						("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
-						 BRF, LVL_BUILDER, SYSLOG, TRUE);
+						mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
+							BRF, LVL_BUILDER, SYSLOG, TRUE);
 						continue;
 					}
 					strcpy(buf1, ex_desc->description);
@@ -483,10 +406,16 @@ void oedit_save_to_disk(int zone_num)
 			}
 			// * Do we have affects?
 			for (counter2 = 0; counter2 < MAX_OBJ_AFFECT; counter2++)
-				if (obj->affected[counter2].location && obj->affected[counter2].modifier)
-					fprintf(fp, "A\n"
-							"%d %d\n", obj->affected[counter2].location,
-							obj->affected[counter2].modifier);
+			{
+				if (obj->get_affected(counter2).location
+					&& obj->get_affected(counter2).modifier)
+				{
+					fprintf(fp, "A\n%d %d\n",
+						obj->get_affected(counter2).location,
+						obj->get_affected(counter2).modifier);
+				}
+			}
+
 			if (obj->has_skills())
 			{
 				std::map<int, int> skills;
@@ -494,8 +423,9 @@ void oedit_save_to_disk(int zone_num)
 				for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
 					fprintf(fp, "S\n%d %d\n", it->first, it->second);
 			}
+
 			// ObjVal
-			std::string values = obj->values.print_to_zone();
+			const auto values = obj->get_all_values().print_to_zone();
 			if (!values.empty())
 			{
 				fprintf(fp, "%s", values.c_str());
@@ -2462,9 +2392,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		old_rnum = GET_OBJ_RNUM(OLC_OBJ(d));
 		obj_original = read_object(rnum, REAL);
 		oedit_object_copy(OLC_OBJ(d), obj_original);
-		oedit_object_free(obj_original);
 		GET_OBJ_RNUM(OLC_OBJ(d)) = old_rnum;
 		break;
+
 	default:
 		mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		send_to_char("Oops...\r\n", d->character);

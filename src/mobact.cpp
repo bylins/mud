@@ -902,33 +902,32 @@ namespace {
 OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 {
 	OBJ_DATA *obj = create_obj();
-	obj->aliases = str_dup("узелок вещами");
-	const std::string descr = std::string("узелок с вещами ") + std::string(ch->get_pad(1));
-	obj->short_description = str_dup(descr.c_str());
-	obj->description = str_dup("Туго набитый узел лежит тут.");
-	CREATE(obj->ex_description, 1);
-	obj->ex_description->keyword = str_dup(descr.c_str());
-	obj->ex_description->description = str_dup("Кто-то сильно торопился, когда набивал этот узелок.");
-	obj->ex_description->next = 0;
-	obj->PNames[0] = str_dup("узелок");
-	obj->PNames[1] = str_dup("узелка");
-	obj->PNames[2] = str_dup("узелку");
-	obj->PNames[3] = str_dup("узелок");
-	obj->PNames[4] = str_dup("узелком");
-	obj->PNames[5] = str_dup("узелке");
-	GET_OBJ_SEX(obj) = ESex::SEX_MALE;
-	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
-	GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
-	GET_OBJ_WEIGHT(obj) = 1;
+	obj->set_aliases("узелок вещами");
+	const std::string descr = std::string("узелок с вещами ") + ch->get_pad(1);
+	obj->set_short_description(descr);
+	obj->set_description("Туго набитый узел лежит тут.");
+	obj->set_ex_description(descr.c_str(), "Кто-то сильно торопился, когда набивал этот узелок.");
+	obj->set_PName(0, "узелок");
+	obj->set_PName(1, "узелка");
+	obj->set_PName(2, "узелку");
+	obj->set_PName(3, "узелок");
+	obj->set_PName(4, "узелком");
+	obj->set_PName(5, "узелке");
+	obj->set_sex(ESex::SEX_MALE);
+	obj->set_type(obj_flag_data::ITEM_CONTAINER);
+	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_weight(1);
 	obj->set_cost(1);
 	obj->set_rent(1);
 	obj->set_rent_eq(1);
 	obj->set_timer(24 * 60);
+
 	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
 	obj->set_extraflag(EExtraFlag::ITEM_NOLOCATE);
 	obj->set_extraflag(EExtraFlag::ITEM_NODECAY);
 	obj->set_extraflag(EExtraFlag::ITEM_SWIMMING);
 	obj->set_extraflag(EExtraFlag::ITEM_FLYING);
+
 	return obj;
 }
 

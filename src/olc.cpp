@@ -48,7 +48,6 @@ void sedit_setup_new(DESCRIPTOR_DATA * d);
 void sedit_setup_existing(DESCRIPTOR_DATA * d, int robj_num);
 void room_free(ROOM_DATA * room);
 void medit_mobile_free(CHAR_DATA * mob);
-void oedit_object_free(OBJ_DATA * obj);
 void trigedit_setup_new(DESCRIPTOR_DATA * d);
 void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num);
 int real_trigger(int vnum);
@@ -535,9 +534,9 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			switch (cleanup_type)
 			{
 			case CLEANUP_ALL:
-				oedit_object_free(OLC_OBJ(d));	// удаляет все содержимое
 				delete OLC_OBJ(d);	// удаляет только оболочку
 				break;
+
 			default:	// The caller has screwed up.
 				break;
 			}

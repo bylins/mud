@@ -1496,8 +1496,7 @@ void obj_from_char(OBJ_DATA * object)
 		log("SYSERR: NULL object or owner passed to obj_from_char");
 		return;
 	}
-	REMOVE_FROM_LIST(object, object->get_carried_by()->carrying,
-		[](auto list) -> auto& { return list->get_next_content(); });
+	object->remove_me_from_contains_list(object->get_carried_by()->carrying);
 
 	// set flag for crash-save system, but not on mobs!
 	if (!IS_NPC(object->get_carried_by()))
@@ -2578,8 +2577,7 @@ void obj_from_room(OBJ_DATA * object)
 		return;
 	}
 
-	REMOVE_FROM_LIST(object, world[object->get_in_room()]->contents,
-		[](auto list) -> auto& { return list->get_next_content(); });
+	object->remove_me_from_contains_list(world[object->get_in_room()]->contents);
 
 	object->set_in_room(NOWHERE);
 	object->set_next_content(nullptr);
@@ -2626,8 +2624,7 @@ void obj_from_obj(OBJ_DATA * obj)
 	}
 	auto obj_from = obj->get_in_obj();
 	auto head = obj_from->get_contains();
-	REMOVE_FROM_LIST(obj, head,
-		[](auto list) -> auto& { return list->get_next_content(); });
+	obj->remove_me_from_contains_list(head);
 	obj_from->set_contains(head);
 
 	// Subtract weight from containers container
@@ -2741,7 +2738,7 @@ void extract_obj(OBJ_DATA * obj)
 
 	check_auction(NULL, obj);
 	check_exchange(obj);
-	REMOVE_FROM_LIST(obj, object_list);
+	obj->remove_me_from_objects_list(object_list);
 
 	if (GET_OBJ_RNUM(obj) >= 0)
 	{

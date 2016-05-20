@@ -450,7 +450,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	}
 	exdesc->description = str_dup(buf);	// косметика
 	exdesc->next = corpse->get_ex_description();
-	corpse->set_next_ex_description(exdesc);
+	corpse->set_ex_description(exdesc);
 	obj_to_room(corpse, ch->in_room);
 }
 

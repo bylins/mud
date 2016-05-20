@@ -151,10 +151,14 @@ namespace ObjectAlias
 */
 void add(OBJ_DATA *obj)
 {
-	if (!obj->aliases) return;
+	if (obj->get_aliases().empty())
+	{
+		return;
+	}
 
 	obj->set_serial_num(++obj_serial_num);
-	std::string name(obj->aliases), word;
+	std::string name(obj->get_aliases());
+	std::string word;
 	lower_convert(name);
 
 	while (!name.empty())
@@ -164,6 +168,7 @@ void add(OBJ_DATA *obj)
 		{
 			return;
 		}
+
 		ObjListType::iterator it = obj_list.find(word);
 		if (it != obj_list.end())
 		{

@@ -4497,7 +4497,7 @@ char *parse_object(FILE * obj_f, const int nr)
 				if (new_descr->keyword && new_descr->description)
 				{
 					new_descr->next = tobj->get_ex_description();
-					tobj->set_next_ex_description(new_descr);
+					tobj->set_ex_description(new_descr);
 				}
 				else
 				{

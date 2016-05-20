@@ -617,6 +617,7 @@ public:
 	void set_destroyer(const int _) { obj_flags.Obj_destroyer = _; }
 	void set_ex_description(const char* keyword, const char* description);
 	void set_ex_description(EXTRA_DESCR_DATA* _) { m_ex_description.reset(_); }
+	void set_ex_description(const std::shared_ptr<EXTRA_DESCR_DATA>& _) { m_ex_description = _; }
 	void set_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags = flags; }
 	void set_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.set(packed_flag); }
 	void set_extraflag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.set_flag(plane, flag); }
@@ -630,7 +631,6 @@ public:
 	void set_maximum(const int _) { obj_flags.Obj_max = _; }
 	void set_next(OBJ_DATA* _) { m_next = _; }
 	void set_next_content(OBJ_DATA* _) { m_next_content = _; }
-	void set_next_ex_description(const std::shared_ptr<EXTRA_DESCR_DATA>& ptr) { m_ex_description->next = ptr; }
 	void set_no_flags(const FLAG_DATA& flags) { obj_flags.no_flag = flags; }
 	void set_obj_aff(const uint32_t packed_flag) { obj_flags.affects.set(packed_flag); }
 	void set_owner(const int _) { obj_flags.Obj_owner = _; }
@@ -679,6 +679,17 @@ public:
 	void add_maximum(const int amount) { obj_flags.Obj_max += amount; }
 	void clear_all_affected();
 	void clear_affected(const size_t index) { m_affected[index].location = APPLY_NONE; }
+	void dec_destroyer() { --obj_flags.Obj_destroyer; }
+	void dec_affected_value(const size_t index) { --m_affected[index].modifier; }
+	const auto& get_all_values() const { return m_values; }
+	void clear_ex_description() { m_ex_description.reset(); }
+	void add_ex_description(const char* keyword, const char* description);
+	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
+	void add_no_flags(const FLAG_DATA& flags) { obj_flags.no_flag += flags; }
+	void add_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags += flags; }
+	void add_anti_flags(const FLAG_DATA& flags) { obj_flags.anti_flag += flags; }
+	void add_affect_flags(const FLAG_DATA& flags) { obj_flags.affects += flags; }
+	void add_enchant(const obj::enchant& _) { m_enchants.add(_); }
 
 private:
 	void zero_init();

@@ -170,11 +170,12 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 	std::string tmp_str;
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if (obj->affected[i].modifier != 0)
+		if (obj->get_affected(i).modifier != 0)
 		{
-			tmp_str += "   " + print_obj_affects(obj->affected[i]);
+			tmp_str += "   " + print_obj_affects(obj->get_affected(i));
 		}
 	}
+
 	if (!tmp_str.empty())
 	{
 		out << "Свойства :\r\n" << tmp_str;
@@ -426,7 +427,7 @@ std::string print_fullset_stats(const set_info &set)
 		// суммируем родные статы со шмоток
 		activ.native_no_flag += GET_OBJ_NO(obj);
 		activ.native_affects += GET_OBJ_AFFECTS(obj);
-		sum_apply(activ.native_affected, obj->affected);
+		sum_apply(activ.native_affected, obj->get_affected());
 		sum_skills(activ.native_skills, obj);
 
 		// иним профы

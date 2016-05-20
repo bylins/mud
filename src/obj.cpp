@@ -267,6 +267,15 @@ void OBJ_DATA::clear_all_affected()
 	}
 }
 
+void OBJ_DATA::add_ex_description(const char* keyword, const char* description)
+{
+	std::shared_ptr<EXTRA_DESCR_DATA> n(new EXTRA_DESCR_DATA);
+	n->keyword = keyword ? str_dup(keyword) : nullptr;
+	n->description = description ? str_dup(description) : nullptr;
+	n->next = m_ex_description;
+	m_ex_description = n;
+}
+
 int OBJ_DATA::get_skill(int skill_num) const
 {
 	const auto skill = m_skills.find(skill_num);
@@ -895,7 +904,10 @@ bool ObjVal::init_from_file(const char *str)
 
 std::string ObjVal::print_to_zone() const
 {
-	if (m_values.empty()) return "";
+	if (m_values.empty())
+	{
+		return "";
+	}
 
 	std::stringstream out;
 
