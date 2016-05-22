@@ -688,6 +688,15 @@ public:
 	void add_anti_flags(const FLAG_DATA& flags) { obj_flags.anti_flag += flags; }
 	void add_affect_flags(const FLAG_DATA& flags) { obj_flags.affects += flags; }
 	void add_enchant(const obj::enchant& _) { m_enchants.add(_); }
+	void toggle_extra_flag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.toggle_flag(plane, flag); }
+	void toggle_no_flag(const size_t plane, const uint32_t flag) { obj_flags.no_flag.toggle_flag(plane, flag); }
+	void toggle_anti_flag(const size_t plane, const uint32_t flag) { obj_flags.anti_flag.toggle_flag(plane, flag); }
+	void toggle_affect_flag(const size_t plane, const uint32_t flag) { obj_flags.affects.toggle_flag(plane, flag); }
+	void toggle_wear_flag(const uint32_t flag) { TOGGLE_BIT(obj_flags.wear_flags, flag); }
+	void toggle_skill(const uint32_t skill) { TOGGLE_BIT(obj_flags.Obj_skill, skill); }
+	void toggle_val_bit(const size_t index, const uint32_t bit) { TOGGLE_BIT(obj_flags.value[index], bit); }
+	void set_affected_location(const size_t index, const EApplyLocation _) { m_affected[index].location = _; }
+	void set_affected_modifier(const size_t index, const int _) { m_affected[index].modifier = _; }
 
 private:
 	void zero_init();

@@ -4894,8 +4894,7 @@ void do_clanstuff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		if (it->longdesc.length() > 0)
 		{
-			EXTRA_DESCR_DATA* new_descr;
-			!!!CREATE(new_descr, 1);
+			std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
 			new_descr->keyword = str_dup(obj->get_short_description().c_str());
 			new_descr->description = str_dup(it->longdesc.c_str());
 			new_descr->next = nullptr;

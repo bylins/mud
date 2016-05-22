@@ -325,7 +325,7 @@ void nedit_menu(CHAR_DATA * ch)
 {
 	std::ostringstream out;
 
-	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: " << (real_object(ch->desc->cur_vnum)?obj_proto[real_object(ch->desc->cur_vnum)]->short_description:"&Rнеизвестно&n") << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: " << (real_object(ch->desc->cur_vnum) ? obj_proto[real_object(ch->desc->cur_vnum)]->get_short_description().c_str() : "&Rнеизвестно&n") << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: " << GetNameByUnique(ch->desc->named_obj->uid,0) << " e-mail: &S" << ch->desc->named_obj->mail << "&s\r\n";
 	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: " << (0 == ch->desc->named_obj->can_clan ? 0 : 1) << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "4" << CCNRM(ch, C_SPR) << ") Доступно альянсу: " << (0 == ch->desc->named_obj->can_alli ? 0 : 1) << "\r\n";
@@ -403,7 +403,8 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 								&& obj_proto.vnum(r_num) <= last))
 						{
 							sprintf(buf2, "%6d) %s",
-								obj_proto.vnum(r_num), colored_name(obj_proto[r_num]->short_description, 50));
+								obj_proto.vnum(r_num),
+								colored_name(obj_proto[r_num]->get_short_description().c_str(), 50));
 							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 							{
 								sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%16s e-mail:&S%s&s\r\n", buf2,
@@ -520,12 +521,13 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 			{
 				found++;
 				snprintf(buf1, MAX_STRING_LENGTH, "выдаем именной предмет %s Max:%d > Current:%d",
-					obj_proto[r_num]->short_description, GET_OBJ_MIW(obj_proto[r_num]), obj_proto.actual_count(r_num));
+					obj_proto[r_num]->get_short_description().c_str(),
+					GET_OBJ_MIW(obj_proto[r_num]),
+					obj_proto.actual_count(r_num));
 				obj = read_object(r_num, REAL);
 				obj->set_extraflag(EExtraFlag::ITEM_NAMED);
 				obj_to_char(obj, ch);
-				free_script(SCRIPT(obj));//детачим все триги чтоб не обламывать соклановцев и т.п.
-				SCRIPT(obj) = NULL;
+				obj->set_script(nullptr);	//детачим все триги чтоб не обламывать соклановцев и т.п.
 				obj_decay(obj);
 
 				act("$n дал$g вам $o3.", FALSE, mailman, obj, ch, TO_VICT);
@@ -534,12 +536,12 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 			else
 			{
 				snprintf(buf1, MAX_STRING_LENGTH, "не выдаем именной предмет %s Max:%d <= Current:%d",
-					obj_proto[r_num]->short_description, GET_OBJ_MIW(obj_proto[r_num]), obj_proto.actual_count(r_num));
+					obj_proto[r_num]->get_short_description().c_str(),
+					GET_OBJ_MIW(obj_proto[r_num]),
+					obj_proto.actual_count(r_num));
 				in_world++;
 			}
-			snprintf(buf, MAX_STRING_LENGTH,
-				"NamedStuff: %s vnum:%ld %s",
-				GET_PAD(ch,0), it->first, buf1);
+			snprintf(buf, MAX_STRING_LENGTH, "NamedStuff: %s vnum:%ld %s", GET_PAD(ch,0), it->first, buf1);
 			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
 		}
 	}
@@ -576,9 +578,7 @@ void load()
 			std::string name;
 			if (stuff_list.find(vnum) != stuff_list.end())
 			{
-				snprintf(buf, MAX_STRING_LENGTH,
-					"NamedStuff: дубликат записи vnum=%ld пропущен",
-					vnum);
+				snprintf(buf, MAX_STRING_LENGTH, "NamedStuff: дубликат записи vnum=%ld пропущен", vnum);
 				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 				continue;
 			}

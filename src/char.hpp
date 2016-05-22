@@ -703,7 +703,7 @@ public:
 	OBJ_DATA *equipment[NUM_WEARS];	// Equipment array
 
 	OBJ_DATA *carrying;	// Head of list
-	DESCRIPTOR_DATA *desc;	// NULL for mobiles
+	DESCRIPTOR_DATA* desc;	// NULL for mobiles
 	long id;			// used by DG triggers
 	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers
 	struct SCRIPT_DATA *script;	// script info for the object

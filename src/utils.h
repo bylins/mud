@@ -32,6 +32,21 @@ class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any d
 // external declarations and prototypes *********************************
 
 #define not_null(ptr, str) (ptr && *ptr) ? ptr : str ? str : "undefined"
+
+inline const char* not_empty(const std::string& s)
+{
+	return s.empty() ? "undefined" : s.c_str();
+}
+
+inline const char* not_empty(const std::string& s, const char* subst)
+{
+	return s.empty()
+		? (subst
+			? subst
+			: "undefined")
+		: s.c_str();
+}
+
 extern struct weather_data weather_info;
 extern char AltToKoi[];
 extern char KoiToAlt[];

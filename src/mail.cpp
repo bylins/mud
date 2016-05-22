@@ -201,7 +201,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 {
 	int recipient;
 	int cost;
-	char buf[256], **write;
+	char buf[256];
 
 	IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) ? cost = 0 : cost = STAMP_PRICE;
 
@@ -258,29 +258,33 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 	if (ch->get_gold() < cost)
 	{
 		sprintf(buf, "$n сказал$g вам, 'Письмо стоит %d %s.'\r\n"
-				"$n сказал$g вам, '...которых у вас просто-напросто нет.'",
-				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
+			"$n сказал$g вам, '...которых у вас просто-напросто нет.'",
+			STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
 	act("$n начал$g писать письмо.", TRUE, ch, 0, 0, TO_ROOM);
 	if (cost == 0)
+	{
 		sprintf(buf, "$n сказал$g вам, 'Со своих - почтовый сбор не берем.'\r\n"
-				"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'");
+			"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'");
+	}
 	else
+	{
 		sprintf(buf,
-				"$n сказал$g вам, 'Отлично, с вас %d %s почтового сбора.'\r\n"
-				"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'",
-				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
+			"$n сказал$g вам, 'Отлично, с вас %d %s почтового сбора.'\r\n"
+			"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'",
+			STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
+	}
 
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
 	ch->remove_gold(cost);
 	PLR_FLAGS(ch).set(PLR_MAILING);	// string_write() sets writing.
 
 	// Start writing!
-	CREATE(write, 1);
-	string_write(ch->desc, write, MAX_MAIL_SIZE, recipient, NULL);
+	std::shared_ptr<CSimpleStringWriter> writer;
+	string_write(ch->desc, writer, MAX_MAIL_SIZE, recipient, NULL);
 }
 
 namespace coder

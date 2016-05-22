@@ -659,22 +659,24 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_VAL(d) = UP;
 			redit_disp_exit_menu(d);
 			break;
+
 		case 'a':
 		case 'A':
 			OLC_VAL(d) = DOWN;
 			redit_disp_exit_menu(d);
 			break;
+
 		case 'b':
 		case 'B':
 			// * If the extra description doesn't exist.
 			if (!OLC_ROOM(d)->ex_description)
 			{
-				!!!CREATE(OLC_ROOM(d)->ex_description, 1);
-				OLC_ROOM(d)->ex_description->next = NULL;
+				OLC_ROOM(d)->ex_description.reset(new EXTRA_DESCR_DATA());
 			}
 			OLC_DESC(d) = OLC_ROOM(d)->ex_description;
 			redit_disp_extradesc_menu(d);
 			break;
+
 		case 'h':
 		case 'H':
 		case 'Î':
@@ -682,6 +684,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = REDIT_ING;
 			xedit_disp_ing(d, OLC_ROOM(d)->ing_list);
 			return;
+
 		case 's':
 		case 'S':
 			dg_olc_script_copy(d);

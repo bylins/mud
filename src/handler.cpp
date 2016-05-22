@@ -3865,7 +3865,6 @@ OBJ_DATA *create_money(int amount)
 {
 	int i;
 	OBJ_DATA *obj;
-	EXTRA_DESCR_DATA *new_descr;
 	char buf[200];
 
 	if (amount <= 0)
@@ -3874,7 +3873,7 @@ OBJ_DATA *create_money(int amount)
 		return (NULL);
 	}
 	obj = create_obj();
-	!!!CREATE(new_descr, 1);
+	std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
 
 	if (amount == 1)
 	{

@@ -167,7 +167,6 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 	int t[2];
 	int vnum;
 	OBJ_DATA *object = NULL;
-	EXTRA_DESCR_DATA *new_descr;
 
 	*error = 1;
 	// Станем на начало предмета
@@ -438,7 +437,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Edes"))
 			{
 				*error = 46;
-				!!!CREATE(new_descr, 1);
+				std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
 				new_descr->keyword = str_dup(buffer);
 				if (!strcmp(new_descr->keyword, "None"))
 				{
@@ -448,13 +447,11 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				{
 					if (!get_buf_lines(data, buffer))
 					{
-						free(new_descr->keyword);
-						free(new_descr);
 						*error = 47;
 						return (object);
 					}
 					new_descr->description = str_dup(buffer);
-					object->ex_description = new_descr;
+					object->set_ex_description(new_descr);
 				}
 			}
 			else if (!strcmp(read_line, "Ouid"))
@@ -682,7 +679,6 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	char buffer[MAX_STRING_LENGTH], f0[MAX_STRING_LENGTH], f1[MAX_STRING_LENGTH], f2[MAX_STRING_LENGTH];
 	int vnum, i, j, t[5];
 	OBJ_DATA *object = NULL;
-	EXTRA_DESCR_DATA *new_descr;
 
 	*error = 1;
 	// Станем на начало предмета
@@ -807,7 +803,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		}
 	}
 
-	object->ex_description = NULL;	// Exclude doubling ex_description !!!
+	object->set_ex_description(nullptr);	// Exclude doubling ex_description !!!
 	j = 0;
 
 	for (;;)
@@ -833,25 +829,23 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		switch (*buffer)
 		{
 		case 'E':
-			!!!CREATE(new_descr, 1);
+			std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
 			if (!get_buf_lines(data, buffer))
 			{
-				free(new_descr);
 				*error = 16;
 				return (object);
 			}
 			new_descr->keyword = str_dup(buffer);
 			if (!get_buf_lines(data, buffer))
 			{
-				free(new_descr->keyword);
-				free(new_descr);
 				*error = 17;
 				return (object);
 			}
 			new_descr->description = str_dup(buffer);
-			new_descr->next = object->ex_description;
-			object->ex_description = new_descr;
+			new_descr->next = object->get_ex_description();
+			object->set_ex_description(new_descr);
 			break;
+
 		case 'A':
 			if (j >= MAX_OBJ_AFFECT)
 			{
