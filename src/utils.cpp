@@ -1776,36 +1776,27 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 			case 'o':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					CHECK_NULL(obj, OBJ_PAD(obj, 0));
+					CHECK_NULL(obj, obj->get_PName(0).c_str());
 				}
 				else
 				{
 					padis = *(++orig) - '0';
-					CHECK_NULL(obj, OBJ_PAD(obj, padis > 5 ? 0 : padis));
+					CHECK_NULL(obj, obj->get_PName(padis > 5 ? 0 : padis).c_str());
 				}
 				break;
 			case 'O':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					CHECK_NULL(vict_obj, OBJ_PAD((const OBJ_DATA *) vict_obj, 0));
+					CHECK_NULL(vict_obj, ((const OBJ_DATA *) vict_obj)->get_PName(0).c_str());
 				}
 				else
 				{
 					padis = *(++orig) - '0';
-					CHECK_NULL(vict_obj,
-							   OBJ_PAD((const OBJ_DATA *) vict_obj, padis > 5 ? 0 : padis));
+					CHECK_NULL(vict_obj, ((const OBJ_DATA *) vict_obj)->get_PName(padis > 5 ? 0 : padis).c_str());
 				}
 				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
-				/*            case 'p':
-				                 CHECK_NULL(obj, OBJS(obj, to));
-				                 break;
-				            case 'P':
-				                 CHECK_NULL(vict_obj, OBJS((const OBJ_DATA *) vict_obj, to));
-				                 dg_victim = (CHAR_DATA *) vict_obj;
-				                 break;
-				*/
 			case 't':
 				CHECK_NULL(obj, (const char *) obj);
 				break;
@@ -1973,13 +1964,15 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	{
 		if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(ch) > CAN_CARRY_W(ch))
 		{
-			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->PNames[3]);
+			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(3).c_str());
 			send_to_char(buf, ch);
 			obj_to_room(obj, ch->in_room);
 			// obj_decay(obj);
 		}
 		else
+		{
 			obj_to_char(obj, ch);
+		}
 	}
 }
 
@@ -2984,14 +2977,15 @@ bool is_big_set(const OBJ_DATA *obj,bool is_mini)
 
 bool find_set_item(OBJ_DATA *obj)
 {
-	for (; obj; obj = obj->next_content)
+	for (; obj; obj = obj->get_next_content())
 	{
 		std::set<int>::const_iterator i = vnum_list.find(GET_OBJ_VNUM(obj));
 		if (i != vnum_list.end())
 		{
 			return true;
 		}
-		if (find_set_item(obj->contains))
+
+		if (find_set_item(obj->get_contains()))
 		{
 			return true;
 		}
@@ -3630,7 +3624,7 @@ bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const
 	else if ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING
 			|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT)
 		&& GET_OBJ_RNUM(obj) >= 0
-		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->aliases))
+		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str()))
 	{
 		result = true;
 	}
@@ -3668,19 +3662,22 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const
 		if (proto_tm <= 0)
 		{
 			char buf_[MAX_INPUT_LENGTH];
-			snprintf(buf_, sizeof(buf_),
-				"SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
-				proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->item_number,
-				__func__, __FILE__, __LINE__);
+			snprintf(buf_, sizeof(buf_), "SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
+				proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->get_rnum(), __func__, __FILE__, __LINE__);
 			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		}
 		else
 		{
 			int tm_pct;
 			if (check_unlimited_timer(obj))  // если шмотка нерушима, физически проставляем текст нерушимо
+			{
 				tm_pct = 1000;
+			}
 			else
+			{
 				tm_pct = obj->get_timer() * 100 / proto_tm;
+			}
+
 			if (filter_type == CLAN
 				&& tm_pct >= state
 				&& tm_pct < state + 20)
@@ -3735,7 +3732,7 @@ bool ParseFilter::check_cost(int obj_price) const
 }
 
 // заколебали эти флаги... сравниваем num и все поля в flags
-bool CompareBits(FLAG_DATA flags, const char *names[], int affect)
+bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect)
 {
 	int i;
 	for (i = 0; i < 4; i++)
@@ -3743,6 +3740,7 @@ bool CompareBits(FLAG_DATA flags, const char *names[], int affect)
 		int nr = 0;
 		int fail = i;
 		bitvector_t bitvector = flags.get_plane(i);
+
 		while (fail)
 		{
 			if (*names[nr] == '\n')
@@ -3769,7 +3767,7 @@ bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const
 	{
 		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it)
 		{
-			if (!CompareBits(obj->obj_flags.affects, weapon_affects, *it))
+			if (!CompareBits(obj->get_affect_flags(), weapon_affects, *it))
 			{
 				return false;
 			}
@@ -3788,11 +3786,11 @@ bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
 			result = false;
 			for (int i = 0; i < MAX_OBJ_AFFECT; ++i)
 			{
-				if (obj->affected[i].location == *it)
+				if (obj->get_affected(i).location == *it)
 				{
-					int mod = obj->affected[i].modifier;
+					int mod = obj->get_affected(i).modifier;
 					char buf_[MAX_INPUT_LENGTH];
-					sprinttype(obj->affected[i].location, apply_types, buf_);
+					sprinttype(obj->get_affected(i).location, apply_types, buf_);
 					for (int j = 0; *apply_negative[j] != '\n'; j++)
 					{
 						if (!str_cmp(buf_, apply_negative[j]))
@@ -3801,6 +3799,7 @@ bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
 							break;
 						}
 					}
+
 					if (mod > 0)
 					{
 						result = true;

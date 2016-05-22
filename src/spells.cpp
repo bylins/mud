@@ -191,7 +191,7 @@ void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DAT
 			send_to_char("Прекратите, ради бога, химичить.\r\n", ch);
 			return;
 			name_from_drinkcon(obj);
-			GET_OBJ_VAL(obj, 2) = LIQ_BLOOD;
+			obj->set_val(2, LIQ_BLOOD);
 			name_to_drinkcon(obj, LIQ_BLOOD);
 		}
 		else
@@ -200,9 +200,11 @@ void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DAT
 			if (water > 0)
 			{
 				if (GET_OBJ_VAL(obj, 1) >= 0)
+				{
 					name_from_drinkcon(obj);
-				GET_OBJ_VAL(obj, 2) = LIQ_WATER;
-				GET_OBJ_VAL(obj, 1) += water;
+				}
+				obj->set_val(2, LIQ_WATER);
+				obj->add_val(1, water);
 				act("Вы наполнили $o3 водой.", FALSE, ch, obj, 0, TO_CHAR);
 				name_to_drinkcon(obj, LIQ_WATER);
 				weight_change_object(obj, water);
@@ -214,7 +216,9 @@ void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DAT
 		gain_condition(victim, THIRST, 25);
 		send_to_char("Вы полностью утолили жажду.\r\n", victim);
 		if (victim != ch)
+		{
 			act("Вы напоили $N3.", FALSE, ch, 0, victim, TO_CHAR);
+		}
 	}
 }
 
@@ -893,7 +897,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 	tmp_lvl = (IS_GOD(ch)) ? 300 : level;
 	j = tmp_lvl;
 
-	for (i = object_list; i && (j > 0); i = i->next)
+	for (i = object_list; i && (j > 0); i = i->get_next())
 	{
 		if (!IS_GOD(ch))
 		{
@@ -908,54 +912,61 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 		}
 
-		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) && i->carried_by != ch) //!локейт стаф может локейтить только имм или тот кто его держит
+		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) && i->get_carried_by() != ch) //!локейт стаф может локейтить только имм или тот кто его держит
 		{
 			continue;
 		}
 
-		if (SECT(IN_ROOM(i)) == SECT_SECRET)
+		if (SECT(i->get_in_room()) == SECT_SECRET)
 		{
 			continue;
 		}
 
-		if (i->carried_by)
+		if (i->get_carried_by())
 		{
-			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
-					IS_IMMORTAL(i->carried_by))
+			if (SECT(IN_ROOM(i->get_carried_by())) == SECT_SECRET
+				|| IS_IMMORTAL(i->get_carried_by()))
 			{
 				continue;
 			}
 		}
 
 		if (!isname(name, i->get_aliases()))
-			continue;
-
-		if (i->carried_by)
 		{
-			if (world[IN_ROOM(i->carried_by)]->zone == world[ch->in_room]->zone || !IS_NPC(i->carried_by) || IS_GOD(ch))
+			continue;
+		}
+
+		if (i->get_carried_by())
+		{
+			if (world[IN_ROOM(i->get_carried_by())]->zone == world[ch->in_room]->zone
+				|| !IS_NPC(i->get_carried_by())
+				|| IS_GOD(ch))
 			{
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n",
-					i->short_description, GET_OBJ_POLY_1(ch, i), PERS(i->carried_by, ch, 1));
+					i->get_short_description().c_str(),
+					GET_OBJ_POLY_1(ch, i), PERS(i->get_carried_by(), ch, 1));
 			}
 			else
 			{
 				continue;
 			}
 		}
-		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
+		else if (i->get_in_room() != NOWHERE
+			&& i->get_in_room())
 		{
-			if ((world[IN_ROOM(i)]->zone == world[ch->in_room]->zone && !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) )|| IS_GOD(ch))
+			if ((world[i->get_in_room()]->zone == world[ch->in_room]->zone && !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) )|| IS_GOD(ch))
 			{
-				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name);
+				sprintf(buf, "%s наход%sся в %s.\r\n", i->get_short_description().c_str(),
+					GET_OBJ_POLY_1(ch, i), world[i->get_in_room()]->name);
 			}
 			else
 			{
 				continue;
 			}
 		}
-		else if (i->in_obj)
+		else if (i->get_in_obj())
 		{
-			if (Clan::is_clan_chest(i->in_obj))
+			if (Clan::is_clan_chest(i->get_in_obj()))
 			{
 				continue; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
 			}
@@ -963,48 +974,53 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			{
 				if (!IS_GOD(ch))
 				{
-					if (i->in_obj->carried_by)
+					if (i->get_in_obj()->get_carried_by())
 					{
-						if (IS_NPC(i->in_obj->carried_by)
+						if (IS_NPC(i->get_in_obj()->get_carried_by())
 							&& (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
-								|| world[IN_ROOM(i->in_obj->carried_by)]->zone != world[ch->in_room]->zone))
+								|| world[IN_ROOM(i->get_in_obj()->get_carried_by())]->zone != world[ch->in_room]->zone))
 						{
 							continue;
 						}
 					}
-					if (IN_ROOM(i->in_obj) != NOWHERE
-						&& IN_ROOM(i->in_obj))
+					if (i->get_in_obj()->get_in_room() != NOWHERE
+						&& i->get_in_obj()->get_in_room())
 					{
-						if (world[IN_ROOM(i->in_obj)]->zone != world[ch->in_room]->zone
+						if (world[i->get_in_obj()->get_in_room()]->zone != world[ch->in_room]->zone
 							|| OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE))
 						{
 							continue;
 						}
 					}
-					if (i->in_obj->worn_by)
+					if (i->get_in_obj()->get_worn_by())
 					{
-						if (IS_NPC(i->in_obj->worn_by)
+						if (IS_NPC(i->get_in_obj()->get_worn_by())
 							&& (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[ch->in_room]->zone))
+								|| world[IN_ROOM(i->get_in_obj()->get_worn_by())]->zone != world[ch->in_room]->zone))
 						{
 							continue;
 						}
 					}
 				}
-				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), i->in_obj->PNames[5]);
+				sprintf(buf, "%s наход%sся в %s.\r\n",
+					i->get_short_description().c_str(),
+					GET_OBJ_POLY_1(ch, i),
+					i->get_in_obj()->get_PName(5).c_str());
 			}
 		}
-		else if (i->worn_by)
+		else if (i->get_worn_by())
 		{
-			if ((IS_NPC(i->worn_by)
+			if ((IS_NPC(i->get_worn_by())
 					&& !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
-					&& world[IN_ROOM(i->worn_by)]->zone == world[ch->in_room]->zone)
-				|| (!IS_NPC(i->worn_by)
-					&& GET_LEVEL(i->worn_by) < LVL_IMMORT)
+					&& world[IN_ROOM(i->get_worn_by())]->zone == world[ch->in_room]->zone)
+				|| (!IS_NPC(i->get_worn_by())
+					&& GET_LEVEL(i->get_worn_by()) < LVL_IMMORT)
 				|| IS_GOD(ch))
 			{
-				sprintf(buf, "%s надет%s на %s.\r\n", i->short_description,
-					GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
+				sprintf(buf, "%s надет%s на %s.\r\n",
+					i->get_short_description().c_str(),
+					GET_OBJ_SUF_6(i),
+					PERS(i->get_worn_by(), ch, 3));
 			}
 			else
 			{
@@ -1502,7 +1518,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	long int li;
 
 	send_to_char("Вы узнали следующее:\r\n", ch);
-	sprintf(buf, "Предмет \"%s\", тип : ", obj->short_description);
+	sprintf(buf, "Предмет \"%s\", тип : ", obj->get_short_description().c_str());
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
 	strcat(buf, buf2);
 	strcat(buf, "\r\n");
@@ -1526,7 +1542,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Материал : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprinttype(obj->obj_flags.Obj_mater, material_name, buf);
+	sprinttype(obj->get_material(), material_name, buf);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1536,7 +1552,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Неудобен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->obj_flags.no_flag.sprintbits(no_bits, buf, ",");
+	obj->get_no_flags().sprintbits(no_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1546,7 +1562,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Недоступен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->obj_flags.anti_flag.sprintbits(anti_bits, buf, ",");
+	obj->get_anti_flags().sprintbits(anti_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1554,7 +1570,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	if (obj->get_mort_req() > 0)
 	{
 		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
-				CCCYN(ch, C_NRM), obj->get_mort_req(), CCNRM(ch, C_NRM));
+			CCCYN(ch, C_NRM), obj->get_mort_req(), CCNRM(ch, C_NRM));
 	}
 
 	if (fullness < 60)
@@ -1744,7 +1760,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0)
 		{
 			sprintf(buf, "прототип %s%s%s.\r\n",
-					CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
+				CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		break;
@@ -1808,7 +1824,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->obj_flags.affects.sprintbits(weapon_affects, buf, ",");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1821,17 +1837,18 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	found = FALSE;
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if (obj->affected[i].location != APPLY_NONE
-			&& obj->affected[i].modifier != 0)
+		if (obj->get_affected(i).location != APPLY_NONE
+			&& obj->get_affected(i).modifier != 0)
 		{
 			if (!found)
 			{
 				send_to_char("Дополнительные свойства :\r\n", ch);
 				found = TRUE;
 			}
-			print_obj_affects(ch, obj->affected[i]);
+			print_obj_affects(ch, obj->get_affected(i));
 		}
 	}
+
 	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ENCHANT
 		&& GET_OBJ_VAL(obj, 0) != 0)
 	{
@@ -1885,7 +1902,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 						send_to_char("Неизвестный объект!!!\r\n", ch);
 						continue;
 					}
-					sprintf(buf, "   %s\r\n", obj_proto[r_num]->short_description);
+					sprintf(buf, "   %s\r\n", obj_proto[r_num]->get_short_description().c_str());
 					send_to_char(buf, ch);
 				}
 				break;
@@ -1893,9 +1910,9 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		}
 	}
 
-	if (!obj->enchants.empty())
+	if (!obj->get_enchants().empty())
 	{
-		obj->enchants.print(ch);
+		obj->get_enchants().print(ch);
 	}
 	obj_sets::print_identify(ch, obj);
 }
@@ -1906,8 +1923,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	long int li;
 
 	send_to_char("Вы узнали следующее:\r\n", ch);
-	sprintf(buf, "UID: %u, Предмет \"%s\", тип : ",
-		obj->uid, obj->short_description);
+	sprintf(buf, "UID: %u, Предмет \"%s\", тип : ", obj->get_uid(), obj->get_short_description().c_str());
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
 	strcat(buf, buf2);
 	strcat(buf, "\r\n");
@@ -1915,25 +1931,27 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	strcpy(buf, diag_weapon_to_char(obj, 2));
 	if (*buf)
+	{
 		send_to_char(buf, ch);
+	}
 
 	//show_weapon(ch, obj);
 
 	send_to_char("Материал : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprinttype(obj->obj_flags.Obj_mater, material_name, buf);
+	sprinttype(obj->get_material(), material_name, buf);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	sprintf(buf, "Таймер : %d\r\n", obj->get_timer());
 	send_to_char(buf, ch);
-	sprintf(buf, "Прочность : %d\\%d\r\n", obj->obj_flags.Obj_cur, obj->obj_flags.Obj_max);
+	sprintf(buf, "Прочность : %d\\%d\r\n", obj->get_current(), obj->get_maximum());
 	send_to_char(buf, ch);
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->obj_flags.affects.sprintbits(weapon_affects, buf, ",");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1947,14 +1965,14 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	send_to_char("Недоступен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->obj_flags.anti_flag.sprintbits(anti_bits, buf, ",");
+	obj->get_anti_flags().sprintbits(anti_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Неудобен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->obj_flags.no_flag.sprintbits(no_bits, buf, ",");
+	obj->get_no_flags().sprintbits(no_bits, buf, ",");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1962,11 +1980,11 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	if (obj->get_mort_req() > 0)
 	{
 		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
-				CCCYN(ch, C_NRM), obj->get_mort_req(), CCNRM(ch, C_NRM));
+			CCCYN(ch, C_NRM), obj->get_mort_req(), CCNRM(ch, C_NRM));
 	}
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
-			GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
+		GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
 	send_to_char(buf, ch);
 
 	switch (GET_OBJ_TYPE(obj))
@@ -2140,7 +2158,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0)
 		{
 			sprintf(buf, "прототип %s%s%s.\r\n",
-					CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
+				CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		break;
@@ -2167,16 +2185,17 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	found = FALSE;
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if (obj->affected[i].location != APPLY_NONE && obj->affected[i].modifier != 0)
+		if (obj->get_affected(i).location != APPLY_NONE && obj->get_affected(i).modifier != 0)
 		{
 			if (!found)
 			{
 				send_to_char("Дополнительные свойства :\r\n", ch);
 				found = TRUE;
 			}
-			print_obj_affects(ch, obj->affected[i]);
+			print_obj_affects(ch, obj->get_affected(i));
 		}
 	}
+
 	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ENCHANT
 		&& GET_OBJ_VAL(obj, 0) != 0)
 	{
@@ -2231,7 +2250,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 						send_to_char("Неизвестный объект!!!\r\n", ch);
 						continue;
 					}
-					sprintf(buf, "   %s\r\n", obj_proto[r_num]->short_description);
+					sprintf(buf, "   %s\r\n", obj_proto[r_num]->get_short_description().c_str());
 					send_to_char(buf, ch);
 				}
 				break;
@@ -2240,9 +2259,9 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	}
 	//end by WorM
 
-	if (!obj->enchants.empty())
+	if (!obj->get_enchants().empty())
 	{
-		obj->enchants.print(ch);
+		obj->get_enchants().print(ch);
 	}
 	obj_sets::print_identify(ch, obj);
 }
@@ -2695,16 +2714,17 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 
 	do
 	{
-		for (o = world[ch->in_room]->contents; o; o = o->next_content)
+		for (o = world[ch->in_room]->contents; o; o = o->get_next_content())
 		{
 			if (!IS_CORPSE(o))
+			{
 				continue;
+			}
+
 			extract_obj(o);
 			break;
 		}
-	}
-	while (o);
-
+	} while (o);
 }
 
 void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
