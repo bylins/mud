@@ -888,15 +888,15 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 		{
 			if (ch->get_skill(skill) >= 105 && number(1, 100) <= 2 + (ch->get_skill(skill) - 105) / 10)
 			{
-				tobj->set_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
+				tobj->set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
 			}
 			else if (number(1, 100) <= 5 + MAX((ch->get_skill(skill) - 80), 0) / 5)
 			{
-				tobj->set_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
+				tobj->set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
 			}
 			else if (number(1, 100) <= 20 + MAX((ch->get_skill(skill) - 80), 0) / 5 * 4)
 			{
-				tobj->set_extraflag(EExtraFlag::ITEM_WITH1SLOT);
+				tobj->set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
 			}
 		}
 
@@ -975,9 +975,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 			sdice += (GET_OBJ_WEIGHT(tobj) / 10);
 			tobj->set_val(1, ndice);
 			tobj->set_val(2, sdice);
-			tobj->set_extraflag(EExtraFlag::ITEM_NORENT);
-			tobj->set_extraflag(EExtraFlag::ITEM_DECAY);
-			tobj->set_extraflag(EExtraFlag::ITEM_NOSELL);
+			tobj->set_extra_flag(EExtraFlag::ITEM_NORENT);
+			tobj->set_extra_flag(EExtraFlag::ITEM_DECAY);
+			tobj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 			tobj->set_wear_flags(created_item[obj_type].wear);
 			to_room = "$n создал$g $o3.";
 			to_char = "Вы создали $o3.";
@@ -1836,7 +1836,7 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 	obj->set_all_affected(temp_affected);
 
 	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
-	obj->set_extraflag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
+	obj->set_extra_flag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
 	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) * number(180, 220)); // таймер зависит в основном от умелки
 	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
 

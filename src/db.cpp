@@ -4393,7 +4393,7 @@ char *parse_object(FILE * obj_f, const int nr)
 	if (timer == OBJ_DATA::UNLIMITED_TIMER)
 	{
 	    timer--;
-		tobj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);
+		tobj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
 	}
 	tobj->set_timer(timer);
 	tobj->set_spell(t[2]);
@@ -4409,9 +4409,9 @@ char *parse_object(FILE * obj_f, const int nr)
 		log("SYSERR: Format error in *3th* numeric line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	tobj->load_affects(f0);
+	tobj->load_affect_flags(f0);
 	// ** Affects
-	tobj->load_antiflags(f1);
+	tobj->load_anti_flags(f1);
 	// ** Miss for ...
 	tobj->load_no_flags(f2);
 	// ** Deny for ...
@@ -5225,7 +5225,7 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	{
 		// модификация объектов тестовой зоны
 		obj->set_timer(TEST_OBJECT_TIMER);
-		obj->set_extraflag(EExtraFlag::ITEM_NOLOCATE);
+		obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
 	}
 	obj->clear_proto_script();
 	obj->set_next(object_list);

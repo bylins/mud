@@ -595,8 +595,8 @@ public:
 	void clear_action_description() { m_action_description.clear(); }
 	void clear_proto_script() { m_proto_script.clear(); }
 	void init_values_from_zone(const char* str) { m_values.init_from_zone(str); }
-	void load_affects(const char* string) { obj_flags.affects.from_string(string); }
-	void load_antiflags(const char* string) { obj_flags.anti_flag.from_string(string); }
+	void load_affect_flags(const char* string) { obj_flags.affects.from_string(string); }
+	void load_anti_flags(const char* string) { obj_flags.anti_flag.from_string(string); }
 	void load_extra_flags(const char* string) { obj_flags.extra_flags.from_string(string); }
 	void load_no_flags(const char* string) { obj_flags.no_flag.from_string(string); }
 	void remove_custom_label() { m_custom_label.reset(); }
@@ -613,14 +613,15 @@ public:
 	void set_crafter_uid(const int _) { obj_flags.Obj_maker = _; }
 	void set_current(const int _) { obj_flags.Obj_cur = _; }
 	void set_custom_label(const std::shared_ptr<custom_label>& _) { m_custom_label = _; }
+	void set_custom_label(custom_label* _) { m_custom_label.reset(_); }
 	void set_description(const std::string& _) { m_description = _; }
 	void set_destroyer(const int _) { obj_flags.Obj_destroyer = _; }
 	void set_ex_description(const char* keyword, const char* description);
 	void set_ex_description(EXTRA_DESCR_DATA* _) { m_ex_description.reset(_); }
 	void set_ex_description(const std::shared_ptr<EXTRA_DESCR_DATA>& _) { m_ex_description = _; }
 	void set_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags = flags; }
-	void set_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.set(packed_flag); }
-	void set_extraflag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.set_flag(plane, flag); }
+	void set_extra_flag(const EExtraFlag packed_flag) { obj_flags.extra_flags.set(packed_flag); }
+	void set_extra_flag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.set_flag(plane, flag); }
 	void set_id(const long _) { m_id = _; }
 	void set_in_obj(OBJ_DATA* _) { m_in_obj = _; }
 	void set_in_room(const room_rnum _) { m_in_room = _; }
@@ -697,6 +698,9 @@ public:
 	void toggle_val_bit(const size_t index, const uint32_t bit) { TOGGLE_BIT(obj_flags.value[index], bit); }
 	void set_affected_location(const size_t index, const EApplyLocation _) { m_affected[index].location = _; }
 	void set_affected_modifier(const size_t index, const int _) { m_affected[index].modifier = _; }
+	bool init_values_from_file(const char* str) { return m_values.init_from_file(str); }
+	auto serialize_values() const { return m_values.print_to_file(); }
+	auto serialize_enchants() const { return m_enchants.print_to_file(); }
 
 private:
 	void zero_init();

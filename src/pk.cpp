@@ -1154,7 +1154,7 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 			|| t == obj_flag_data::ITEM_INGREDIENT
 			|| t == obj_flag_data::ITEM_WORN))
 	{
-		list->set_extraflag(EExtraFlag::ITEM_BLOODY);
+		list->set_extra_flag(EExtraFlag::ITEM_BLOODY);
 		bloody_map[list].owner_unique = GET_UNIQUE(ch);
 		bloody_map[list].kill_at = time(NULL);
 		bloody_map[list].object = list;

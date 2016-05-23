@@ -1268,7 +1268,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 				// книги за славу не фейлим
 				if (obj_flag_data::ITEM_BOOK == GET_OBJ_TYPE(obj))
 				{
-					obj->set_extraflag(EExtraFlag::ITEM_NO_FAIL);
+					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
 				}
 				// снятие и логирование славы
 				GloryConst::add_total_spent(price);

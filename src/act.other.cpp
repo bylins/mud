@@ -3815,7 +3815,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 							|| CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_HOLD)
 							|| CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_BOTHS)))
 					{
-						itemobj->set_extraflag(EExtraFlag::ITEM_NODISARM);
+						itemobj->set_extra_flag(EExtraFlag::ITEM_NODISARM);
 					}
 					else
 					{
@@ -3910,7 +3910,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				break;
 
 			case 3:
-				itemobj->set_extraflag(static_cast<EExtraFlag>(tmp_bit));
+				itemobj->set_extra_flag(static_cast<EExtraFlag>(tmp_bit));
 				break;
 
 			default:
@@ -3925,12 +3925,12 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS))
 	{
 		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
-		itemobj->set_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
+		itemobj->set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
 	}
 	else if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS))
 	{
 		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
-		itemobj->set_extraflag(EExtraFlag::ITEM_WITH1SLOT);
+		itemobj->set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
 	}
 	else if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT))
 	{

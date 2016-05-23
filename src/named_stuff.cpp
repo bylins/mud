@@ -525,7 +525,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 					GET_OBJ_MIW(obj_proto[r_num]),
 					obj_proto.actual_count(r_num));
 				obj = read_object(r_num, REAL);
-				obj->set_extraflag(EExtraFlag::ITEM_NAMED);
+				obj->set_extra_flag(EExtraFlag::ITEM_NAMED);
 				obj_to_char(obj, ch);
 				obj->set_script(nullptr);	//детачим все триги чтоб не обламывать соклановцев и т.п.
 				obj_decay(obj);

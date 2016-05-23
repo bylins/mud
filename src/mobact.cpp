@@ -922,11 +922,11 @@ OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 	obj->set_rent_eq(1);
 	obj->set_timer(24 * 60);
 
-	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
-	obj->set_extraflag(EExtraFlag::ITEM_NOLOCATE);
-	obj->set_extraflag(EExtraFlag::ITEM_NODECAY);
-	obj->set_extraflag(EExtraFlag::ITEM_SWIMMING);
-	obj->set_extraflag(EExtraFlag::ITEM_FLYING);
+	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
+	obj->set_extra_flag(EExtraFlag::ITEM_NODECAY);
+	obj->set_extra_flag(EExtraFlag::ITEM_SWIMMING);
+	obj->set_extra_flag(EExtraFlag::ITEM_FLYING);
 
 	return obj;
 }

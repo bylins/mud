@@ -183,7 +183,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 		// Yes, I realize this is strange until we have auto-equip on rent. -gg
 		if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP) && !cont->get_extra_flag(EExtraFlag::ITEM_NODROP))
 		{
-			cont->set_extraflag(EExtraFlag::ITEM_NODROP);
+			cont->set_extra_flag(EExtraFlag::ITEM_NODROP);
 			act("Вы почувствовали что-то странное, когда положили $o3 в $O3.",
 				FALSE, ch, obj, cont, TO_CHAR);
 		}
@@ -2571,7 +2571,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		obj->set_extraflag(EExtraFlag::ITEM_SHARPEN);
+		obj->set_extra_flag(EExtraFlag::ITEM_SHARPEN);
 	}
 
 	percent = number(1, skill_info[SKILL_UPGRADE].max_percent);
@@ -2719,7 +2719,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	obj->set_extraflag(EExtraFlag::ITEM_ARMORED);
+	obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
 	percent = number(1, skill_info[SKILL_ARMORED].max_percent);
 	prob = train_skill(ch, SKILL_ARMORED, skill_info[SKILL_ARMORED].max_percent, 0);
 

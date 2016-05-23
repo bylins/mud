@@ -996,7 +996,7 @@ inline T VPOSI(const T val, const T min, const T max)
 // object utils *********************************************************
 #define GET_OBJ_UID(obj)	((obj)->get_uid())
 
-#define GET_OBJ_ALIAS(obj)      ((obj)->aliases)
+#define GET_OBJ_ALIAS(obj)      ((obj)->get_aliases())
 #define GET_OBJ_PNAME(obj,pad)  ((obj)->get_PName(pad))
 #define GET_OBJ_DESC(obj)       ((obj)->get_description())
 #define GET_OBJ_SPELL(obj)      ((obj)->get_spell())

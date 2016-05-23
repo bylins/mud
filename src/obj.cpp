@@ -774,8 +774,8 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 	obj->set_rent_eq(0);
 	// чтобы скавенж мобов не трогать
 	obj->set_cost(2);
-	obj->set_extraflag(EExtraFlag::ITEM_NODONATE);
-	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
+	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 
 	return obj;
 }

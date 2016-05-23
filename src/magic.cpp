@@ -4695,7 +4695,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		if (!obj->get_extra_flag(EExtraFlag::ITEM_BLESS)
 			&& (GET_OBJ_WEIGHT(obj) <= 5 * GET_LEVEL(ch)))
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_BLESS);
+			obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
 			if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 			{
 				obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
@@ -4714,7 +4714,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 	case SPELL_CURSE:
 		if (!obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_NODROP);
+			obj->set_extra_flag(EExtraFlag::ITEM_NODROP);
 			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 			{
 				if (GET_OBJ_VAL(obj, 2) > 0)
@@ -4741,7 +4741,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		if (!obj->get_extra_flag(EExtraFlag::ITEM_NOINVIS)
 			&& !obj->get_extra_flag(EExtraFlag::ITEM_INVISIBLE))
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_INVISIBLE);
+			obj->set_extra_flag(EExtraFlag::ITEM_INVISIBLE);
 			to_char = "$o растворил$U в пустоте.";
 		}
 		break;
@@ -4849,7 +4849,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			material_component_processing(ch, reagobj->get_rnum(), spellnum); //может неправильный вызов
 		}
 		
-		obj->set_extraflag(EExtraFlag::ITEM_MAGIC);
+		obj->set_extra_flag(EExtraFlag::ITEM_MAGIC);
 		if (GET_RELIGION(ch) == RELIGION_MONO)
 		{
 			to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
@@ -4878,7 +4878,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 	case SPELL_FLY:
 //		obj->timed_spell.add(obj, SPELL_FLY, 60 * 24 * 3);
 		obj->add_timed_spell(SPELL_FLY, -1);
-		obj->set_extraflag(EExtraFlag::ITEM_FLYING);
+		obj->set_extra_flag(EExtraFlag::ITEM_FLYING);
 		//В связи с тем, что летающие вещи более не тонут, флаг плавает тут неуместен
 		//SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 		to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
@@ -4943,7 +4943,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 
 	case SPELL_LIGHT:
 		obj->add_timed_spell(SPELL_LIGHT, -1);
-		obj->set_extraflag(EExtraFlag::ITEM_GLOW);
+		obj->set_extra_flag(EExtraFlag::ITEM_GLOW);
 		to_char = "$o засветил$U ровным зеленоватым светом.";
 		break;
 

@@ -1994,8 +1994,8 @@ void do_start(CHAR_DATA * ch, int newbie)
         OBJ_DATA *obj = read_object(*i, VIRTUAL);
         if (obj)
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
-			obj->set_extraflag(EExtraFlag::ITEM_DECAY);
+			obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+			obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
 			obj->set_cost(0);
 			obj->set_rent(0);
 			obj->set_rent_eq(0);

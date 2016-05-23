@@ -1445,7 +1445,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					// Удаление предмета
 					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
 					object->set_timer(0); // Хана предмету
-					object->set_extraflag(EExtraFlag::ITEM_NOSELL); // Ибо нефиг
+					object->set_extra_flag(EExtraFlag::ITEM_NOSELL); // Ибо нефиг
 				}
 			} // Назначаем UID
 			else
@@ -1457,7 +1457,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		{
-			object->set_extraflag(EExtraFlag::ITEM_TICKTIMER);	// start timer unconditionally when character picks item up.
+			object->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);	// start timer unconditionally when character picks item up.
 			insert_obj_and_group(object, &ch->carrying);
 		}
 		else
@@ -2490,7 +2490,7 @@ bool obj_to_room(OBJ_DATA * object, room_rnum room)
 		object->set_worn_by(nullptr);
 		if (ROOM_FLAGGED(room, ROOM_NOITEM))
 		{
-			object->set_extraflag(EExtraFlag::ITEM_DECAY);
+			object->set_extra_flag(EExtraFlag::ITEM_DECAY);
 		}
 
 		if (object->get_script())
@@ -3916,8 +3916,8 @@ OBJ_DATA *create_money(int amount)
 	obj->set_current(obj_flag_data::DEFAULT_CURRENT_DURABILITY);
 	obj->set_timer(24 * 60 * 7);
 	obj->set_weight(1);
-	obj->set_extraflag(EExtraFlag::ITEM_NODONATE);
-	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
+	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 
 	return obj;
 }

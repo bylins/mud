@@ -355,7 +355,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		if (OBJ_FLAGGED(o, EExtraFlag::ITEM_TICKTIMER))
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);
+			obj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
 		}
 
 		if (wearer)
