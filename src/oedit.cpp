@@ -35,6 +35,7 @@
 #include "obj.hpp"
 
 #include <vector>
+#include <stack>
 
 // * External variable declarations.
 extern OBJ_DATA *object_list;
@@ -65,7 +66,6 @@ int real_zone(int number);
 void oedit_setup(DESCRIPTOR_DATA * d, int real_num);
 
 void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
-void oedit_object_free(OBJ_DATA * obj);
 
 void oedit_save_internally(DESCRIPTOR_DATA * d);
 void oedit_save_to_disk(int zone);
@@ -105,7 +105,6 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 --*/
 {
 	int i;
-	EXTRA_DESCR_DATA **pddd, *sdd;
 
 	// Копирую все поверх
 	*dst = *src;
@@ -113,110 +112,33 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 	// Теперь нужно выделить собственные области памяти
 
 	// Имена и названия
-	dst->aliases = str_dup(src->aliases ? src->aliases : "нет");
-	dst->short_description = str_dup(src->short_description ? src->short_description : "неопределено");
-	dst->description = str_dup(src->description ? src->description : "неопределено");
-	dst->action_description = (src->action_description ? str_dup(src->action_description) : NULL);
+	dst->set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
+	dst->set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
+	dst->set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
+	dst->set_action_description(!src->get_action_description().empty() ? src->get_action_description().c_str() : nullptr);
 	for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 	{
-		GET_OBJ_PNAME(dst, i) = str_dup(GET_OBJ_PNAME(src, i)
-			? GET_OBJ_PNAME(src, i)
-			: "неопределен");
+		dst->set_PName(i, !GET_OBJ_PNAME(src, i).empty() ? GET_OBJ_PNAME(src, i).c_str() : "неопределен");
 	}
 
 	// Дополнительные описания, если есть
-	pddd = &dst->ex_description;
-	sdd = src->ex_description;
-
-	while (sdd)
 	{
-		CREATE(pddd[0], 1);
-		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
-		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
-		pddd = &(pddd[0]->next);
-		sdd = sdd->next;
+		std::shared_ptr<EXTRA_DESCR_DATA> nd(new EXTRA_DESCR_DATA());
+		auto* pddd = &nd;
+		auto sdd = src->get_ex_description();
+		dst->set_ex_description(nd);
+		while (sdd)
+		{
+			(*pddd)->keyword = str_dup(sdd->keyword);
+			(*pddd)->description = str_dup(sdd->description);
+			pddd = &(*pddd)->next;
+			sdd = sdd->next;
+		}
 	}
 
 	// Копирую скрипт и прототипы
-	SCRIPT(dst) = NULL;
-	dst->proto_script = src->proto_script;
+	dst->set_proto_script(src->get_proto_script());
 }
-
-void oedit_object_free(OBJ_DATA * obj)
-/*++
-   Функция полностью освобождает память, занимаемую данными объекта.
-   ВНИМАНИЕ. Память самой структуры OBJ_DATA не освобождается.
-             Необходимо дополнительно использовать free()
---*/
-{
-	int i, j;
-	EXTRA_DESCR_DATA *lthis, *next;
-
-	if (!obj)
-		return;
-
-	i = GET_OBJ_RNUM(obj);
-
-	if (i == -1 || obj == obj_proto[i])
-	{
-		// Нет прототипа или сам прототип, удалять все подряд
-		if (obj->aliases)
-			free(obj->aliases);
-		if (obj->description)
-			free(obj->description);
-		if (obj->short_description)
-			free(obj->short_description);
-		if (obj->action_description)
-			free(obj->action_description);
-		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
-		{
-			if (GET_OBJ_PNAME(obj, j))
-			{
-				free(GET_OBJ_PNAME(obj, j));
-			}
-		}
-		for (lthis = obj->ex_description; lthis; lthis = next)
-		{
-			next = lthis->next;
-			if (lthis->keyword)
-				free(lthis->keyword);
-			if (lthis->description)
-				free(lthis->description);
-			free(lthis);
-		}
-	}
-	else
-	{
-		// Есть прототип, удалять несовпадающее
-		if (obj->aliases && obj->aliases != obj_proto[i]->aliases)
-			free(obj->aliases);
-		if (obj->description && obj->description != obj_proto[i]->description)
-			free(obj->description);
-		if (obj->short_description && obj->short_description != obj_proto[i]->short_description)
-			free(obj->short_description);
-		if (obj->action_description && obj->action_description != obj_proto[i]->action_description)
-			free(obj->action_description);
-		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
-		{
-			if (GET_OBJ_PNAME(obj, j)
-				&& GET_OBJ_PNAME(obj, j) != GET_OBJ_PNAME(obj_proto[i], j))
-			{
-				free(GET_OBJ_PNAME(obj, j));
-			}
-		}
-		if (obj->ex_description && obj->ex_description != obj_proto[i]->ex_description)
-			for (lthis = obj->ex_description; lthis; lthis = next)
-			{
-				next = lthis->next;
-				if (lthis->keyword)
-					free(lthis->keyword);
-				if (lthis->description)
-					free(lthis->description);
-				free(lthis);
-			}
-	}
-}
-
 
 //***********************************************************************
 
@@ -233,16 +155,16 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 
 	if (real_num == -1)
 	{
-		obj->aliases = str_dup("новый предмет");
-		obj->description = str_dup("что-то новое лежит здесь");
-		obj->short_description = str_dup("новый предмет");
-		obj->PNames[0] = str_dup("это что");
-		obj->PNames[1] = str_dup("нету чего");
-		obj->PNames[2] = str_dup("привязать к чему");
-		obj->PNames[3] = str_dup("взять что");
-		obj->PNames[4] = str_dup("вооружиться чем");
-		obj->PNames[5] = str_dup("говорить о чем");
-		GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
+		obj->set_aliases("новый предмет");
+		obj->set_description("что-то новое лежит здесь");
+		obj->set_short_description("новый предмет");
+		obj->set_PName(0, "это что");
+		obj->set_PName(1, "нету чего");
+		obj->set_PName(2, "привязать к чему");
+		obj->set_PName(3, "взять что");
+		obj->set_PName(4, "вооружиться чем");
+		obj->set_PName(5, "говорить о чем");
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	}
 	else
 	{
@@ -267,57 +189,62 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// Удаляю его строки и т.д.
 	// прототип скрипта не удалится, т.к. его у экземпляра нету
 	// скрипт не удалится, т.к. его не удаляю
-	if (obj->obj_flags.Obj_is_rename) // шмотка была переименованна кодом
+	if (obj->get_is_rename()) // шмотка была переименованна кодом
+	{
 		oedit_object_copy(&tmp, obj); // сохраним падежи для рестора
-	oedit_object_free(obj);
+	}
 
 	// Нужно скопировать все новое, сохранив определенную информацию
 	*obj = *olc_proto;
-	obj->proto_script.clear();
+	obj->clear_proto_script();
 	// Восстанавливаю игровую информацию
-	obj->uid = tmp.uid;
-	obj->id = tmp.id; // аук работает не по рнум а по id объекта, поэтому вернем и его
-	obj->in_room = tmp.in_room;
-	obj->item_number = robj_num;
-	obj->carried_by = tmp.carried_by;
-	obj->worn_by = tmp.worn_by;
-	obj->worn_on = tmp.worn_on;
-	obj->in_obj = tmp.in_obj;
-	obj->contains = tmp.contains;
-	obj->next_content = tmp.next_content;
-	obj->next = tmp.next;
-	SCRIPT(obj) = SCRIPT(&tmp);
+	obj->set_uid(tmp.get_uid());
+	obj->set_id(tmp.get_id()); // аук работает не по рнум а по id объекта, поэтому вернем и его
+	obj->set_in_room(tmp.get_in_room());
+	obj->set_rnum(robj_num);
+	obj->set_carried_by(tmp.get_carried_by());
+	obj->set_worn_by(tmp.get_worn_by());
+	obj->set_worn_on(tmp.get_worn_on());
+	obj->set_in_obj(tmp.get_in_obj());
+	obj->set_contains(tmp.get_contains());
+	obj->set_next_content(tmp.get_next_content());
+	obj->set_next(tmp.get_next());
+	obj->set_script(tmp.get_script());
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
-	GET_OBJ_CUR(obj) = GET_OBJ_CUR(&tmp);
-	if (tmp.obj_flags.Obj_is_rename)
+	obj->set_current(GET_OBJ_CUR(&tmp));
+	if (tmp.get_is_rename())
+	{
 		oedit_object_copy(obj, &tmp); // восстановим падежи из сохраненки если имена были изменены при трансформации
+	}
 //	если таймер шмота в мире меньше  чем установленный, восстанавливаем его.
 	if (obj->get_timer() > tmp.get_timer())
+	{
 		obj->set_timer(tmp.get_timer());
+	}
 	// емкостям сохраняем жидкость и кол-во глотков, во избежание жалоб
 	if (GET_OBJ_TYPE(&tmp) == obj_flag_data::ITEM_DRINKCON
 		&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
 	{
-		GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(&tmp, 1); //кол-во глотков
+		obj->set_val(1, GET_OBJ_VAL(&tmp, 1)); //кол-во глотков
 		if (is_potion(&tmp))
 		{
-			GET_OBJ_VAL(obj, 2) = GET_OBJ_VAL(&tmp, 2); //описание жидкости
+			obj->set_val(2, GET_OBJ_VAL(&tmp, 2)); //описание жидкости
 		}
 		// сохранение в случае перелитых заклов
 		// пока там ничего кроме заклов и нет - копируем весь values
-		if (tmp.values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0)
+		if (tmp.get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0)
 		{
-			obj->values = tmp.values;
+			obj->set_values(tmp.get_values());
 		}
 	}
-	if (tmp.get_extraflag(EExtraFlag::ITEM_TICKTIMER))//если у старого объекта запущен таймер
+	if (tmp.get_extra_flag(EExtraFlag::ITEM_TICKTIMER))//если у старого объекта запущен таймер
 	{
-		obj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);//ставим флаг таймер запущен
+		obj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);//ставим флаг таймер запущен
 	}
-	if (tmp.get_extraflag(EExtraFlag::ITEM_NAMED))//если у старого объекта стоит флаг именной предмет
+	if (tmp.get_extra_flag(EExtraFlag::ITEM_NAMED))//если у старого объекта стоит флаг именной предмет
 	{
-		obj->set_extraflag(EExtraFlag::ITEM_NAMED);//ставим флаг именной предмет
+		obj->set_extra_flag(EExtraFlag::ITEM_NAMED);//ставим флаг именной предмет
 	}
 //	ObjectAlias::remove(obj);
 //	ObjectAlias::add(obj);
@@ -326,10 +253,12 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 // * Обновление полей объектов при изменении их прототипа через олц.
 void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
 {
-	for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
+	for (OBJ_DATA *obj = object_list; obj; obj = obj->get_next())
 	{
-		if (obj->item_number == robj_num)
+		if (obj->get_rnum() == robj_num)
+		{
 			olc_update_object(robj_num, obj, olc_proto);
+		}
 	}
 	Depot::olc_update_from_proto(robj_num, olc_proto);
 	Parcel::olc_update_from_proto(robj_num, olc_proto);
@@ -360,9 +289,6 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		// Все существующие в мире объекты обновлены согласно новому прототипу
 		// Строки в этих объектах как ссылки на данные прототипа
 
-		// Теперь возьмусь за прототип.
-		// Уничтожаю старый прототип
-		oedit_object_free(obj_proto[robj_num]);
 		// Копирую новый прототип в массив
 		// Использовать функцию oedit_object_copy() нельзя,
 		// т.к. будут изменены указатели на данные прототипа
@@ -389,7 +315,6 @@ void oedit_save_to_disk(int zone_num)
 	int counter, counter2, realcounter;
 	FILE *fp;
 	OBJ_DATA *obj;
-	EXTRA_DESCR_DATA *ex_desc;
 
 	sprintf(buf, "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].number);
 	if (!(fp = fopen(buf, "w+")))
@@ -402,9 +327,10 @@ void oedit_save_to_disk(int zone_num)
 	{
 		if ((realcounter = real_object(counter)) >= 0)
 		{
-			if ((obj = obj_proto[realcounter])->action_description)
+			obj = obj_proto[realcounter];
+			if (!obj->get_action_description().empty())
 			{
-				strcpy(buf1, obj->action_description);
+				strcpy(buf1, obj->get_action_description().c_str());
 				strip_string(buf1);
 			}
 			else
@@ -415,41 +341,42 @@ void oedit_save_to_disk(int zone_num)
 			GET_OBJ_NO(obj).tascii(4, buf2);
 			sprintf(buf2 + strlen(buf2), "\n%d ", GET_OBJ_TYPE(obj));
 			GET_OBJ_EXTRA(obj).tascii(4, buf2);
-			tascii(&GET_OBJ_WEAR(obj), 1, buf2);
+			const auto wear_flags = GET_OBJ_WEAR(obj);
+			tascii(&wear_flags, 1, buf2);
 			strcat(buf2, "\n");
 
 			fprintf(fp, "#%d\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%s~\n"
-					"%d %d %d %d\n"
-					"%d %d %d %d\n"
-					"%s"
-					"%d %d %d %d\n"
-					"%d %d %d %d\n",
-					GET_OBJ_VNUM(obj),
-					not_null(obj->aliases, NULL),
-					obj->PNames[0] ? obj->PNames[0] : "что-то",
-					obj->PNames[1] ? obj->PNames[1] : "чего-то",
-					obj->PNames[2] ? obj->PNames[2] : "чему-то",
-					obj->PNames[3] ? obj->PNames[3] : "что-то",
-					obj->PNames[4] ? obj->PNames[4] : "чем-то",
-					obj->PNames[5] ? obj->PNames[5] : "о чем-то",
-					not_null(obj->description, NULL),
-					buf1,
-					GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
-					GET_OBJ_MATER(obj), GET_OBJ_SEX(obj),
-					obj->get_timer(), GET_OBJ_SPELL(obj),
-					GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
-					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
-					GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
-					GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%s~\n"
+				"%d %d %d %d\n"
+				"%d %d %d %d\n"
+				"%s"
+				"%d %d %d %d\n"
+				"%d %d %d %d\n",
+				GET_OBJ_VNUM(obj),
+				!obj->get_aliases().empty() ? obj->get_aliases().c_str() : "undefined",
+				!obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "что-то",
+				!obj->get_PName(1).empty() ? obj->get_PName(1).c_str() : "чего-то",
+				!obj->get_PName(2).empty() ? obj->get_PName(2).c_str() : "чему-то",
+				!obj->get_PName(3).empty() ? obj->get_PName(3).c_str() : "что-то",
+				!obj->get_PName(4).empty() ? obj->get_PName(4).c_str() : "чем-то",
+				!obj->get_PName(5).empty() ? obj->get_PName(5).c_str() : "о чем-то",
+				!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
+				buf1,
+				GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
+				GET_OBJ_MATER(obj), GET_OBJ_SEX(obj),
+				obj->get_timer(), GET_OBJ_SPELL(obj),
+				GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
+				GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
+				GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
+				GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
 
 			script_save_to_disk(fp, obj, OBJ_TRIGGER);
 
@@ -464,16 +391,15 @@ void oedit_save_to_disk(int zone_num)
 			}
 
 			// * Do we have extra descriptions?
-			if (obj->ex_description)  	// Yes, save them too.
+			if (obj->get_ex_description())  	// Yes, save them too.
 			{
-				for (ex_desc = obj->ex_description; ex_desc; ex_desc = ex_desc->next)
+				for (auto ex_desc = obj->get_ex_description(); ex_desc; ex_desc = ex_desc->next)
 				{
 					// * Sanity check to prevent nasty protection faults.
 					if (!*ex_desc->keyword || !*ex_desc->description)
 					{
-						mudlog
-						("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
-						 BRF, LVL_BUILDER, SYSLOG, TRUE);
+						mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
+							BRF, LVL_BUILDER, SYSLOG, TRUE);
 						continue;
 					}
 					strcpy(buf1, ex_desc->description);
@@ -483,10 +409,16 @@ void oedit_save_to_disk(int zone_num)
 			}
 			// * Do we have affects?
 			for (counter2 = 0; counter2 < MAX_OBJ_AFFECT; counter2++)
-				if (obj->affected[counter2].location && obj->affected[counter2].modifier)
-					fprintf(fp, "A\n"
-							"%d %d\n", obj->affected[counter2].location,
-							obj->affected[counter2].modifier);
+			{
+				if (obj->get_affected(counter2).location
+					&& obj->get_affected(counter2).modifier)
+				{
+					fprintf(fp, "A\n%d %d\n",
+						obj->get_affected(counter2).location,
+						obj->get_affected(counter2).modifier);
+				}
+			}
+
 			if (obj->has_skills())
 			{
 				std::map<int, int> skills;
@@ -494,8 +426,9 @@ void oedit_save_to_disk(int zone_num)
 				for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
 					fprintf(fp, "S\n%d %d\n", it->first, it->second);
 			}
+
 			// ObjVal
-			std::string values = obj->values.print_to_zone();
+			const auto values = obj->get_all_values().print_to_zone();
 			if (!values.empty())
 			{
 				fprintf(fp, "%s", values.c_str());
@@ -539,7 +472,7 @@ void oedit_disp_container_flags_menu(DESCRIPTOR_DATA * d)
 // * For extra descriptions.
 void oedit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 {
-	EXTRA_DESCR_DATA *extra_desc = OLC_DESC(d);
+	auto extra_desc = OLC_DESC(d);
 
 	strcpy(buf1, !extra_desc->next ? "<Not set>\r\n" : "Set.");
 
@@ -548,15 +481,15 @@ void oedit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 	send_to_char("[H[J", d->character);
 #endif
 	sprintf(buf,
-			"Меню экстрадескрипторов\r\n"
-			"%s1%s) Ключ: %s%s\r\n"
-			"%s2%s) Описание:\r\n%s%s\r\n"
-			"%s3%s) Следующий дескриптор: %s\r\n"
-			"%s0%s) Выход\r\n"
-			"Ваш выбор : ",
-			grn, nrm, yel, not_null(extra_desc->keyword, "<NONE>"),
-			grn, nrm, yel, not_null(extra_desc->description, "<NONE>"),
-			grn, nrm, buf1, grn, nrm);
+		"Меню экстрадескрипторов\r\n"
+		"%s1%s) Ключ: %s%s\r\n"
+		"%s2%s) Описание:\r\n%s%s\r\n"
+		"%s3%s) Следующий дескриптор: %s\r\n"
+		"%s0%s) Выход\r\n"
+		"Ваш выбор : ",
+		grn, nrm, yel, not_null(extra_desc->keyword, "<NONE>"),
+		grn, nrm, yel, not_null(extra_desc->description, "<NONE>"),
+		grn, nrm, buf1, grn, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = OEDIT_EXTRADESC_MENU;
 }
@@ -572,11 +505,11 @@ void oedit_disp_prompt_apply_menu(DESCRIPTOR_DATA * d)
 #endif
 	for (counter = 0; counter < MAX_OBJ_AFFECT; counter++)
 	{
-		if (OLC_OBJ(d)->affected[counter].modifier)
+		if (OLC_OBJ(d)->get_affected(counter).modifier)
 		{
-			sprinttype(OLC_OBJ(d)->affected[counter].location, apply_types, buf2);
+			sprinttype(OLC_OBJ(d)->get_affected(counter).location, apply_types, buf2);
 			sprintf(buf, " %s%d%s) %+d to %s\r\n", grn, counter + 1, nrm,
-					OLC_OBJ(d)->affected[counter].modifier, buf2);
+				OLC_OBJ(d)->get_affected(counter).modifier, buf2);
 			send_to_char(buf, d->character);
 		}
 		else
@@ -601,7 +534,7 @@ void oedit_liquid_type(DESCRIPTOR_DATA * d)
 	for (counter = 0; counter < NUM_LIQ_TYPES; counter++)
 	{
 		sprintf(buf, " %s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
-				drinks[counter], !(++columns % 2) ? "\r\n" : "");
+			drinks[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf, "\r\n%sВыберите тип жидкости : ", nrm);
@@ -1116,7 +1049,7 @@ void oedit_disp_anti_menu(DESCRIPTOR_DATA * d)
 				anti_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	OLC_OBJ(d)->obj_flags.anti_flag.sprintbits(anti_bits, buf1, ",", true);
+	OLC_OBJ(d)->get_anti_flags().sprintbits(anti_bits, buf1, ",", true);
 	sprintf(buf, "\r\nПредмет запрещен для : %s%s%s\r\n" "Выберите флаг запрета (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1147,7 +1080,7 @@ void oedit_disp_no_menu(DESCRIPTOR_DATA * d)
 				no_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	OLC_OBJ(d)->obj_flags.no_flag.sprintbits(no_bits, buf1, ",", true);
+	OLC_OBJ(d)->get_no_flags().sprintbits(no_bits, buf1, ",", true);
 	sprintf(buf, "\r\nПредмет неудобен для : %s%s%s\r\n" "Выберите флаг неудобств (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1187,7 +1120,7 @@ void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags)
 
 void oedit_disp_affects_menu(DESCRIPTOR_DATA * d)
 {
-	show_weapon_affects_olc(d, OLC_OBJ(d)->obj_flags.affects);
+	show_weapon_affects_olc(d, OLC_OBJ(d)->get_affect_flags());
 }
 
 // * Object wear flags.
@@ -1250,13 +1183,12 @@ void oedit_disp_ingradient_menu(DESCRIPTOR_DATA * d)
 
 std::string print_spell_value(OBJ_DATA *obj, const ObjVal::EValueKey key1, const ObjVal::EValueKey key2)
 {
-	if (obj->values.get(key1) < 0)
+	if (obj->get_value(key1) < 0)
 	{
 		return "нет";
 	}
 	char buf_[MAX_INPUT_LENGTH];
-	snprintf(buf_, sizeof(buf_), "%s:%d",
-		spell_name(obj->values.get(key1)), obj->values.get(key2));
+	snprintf(buf_, sizeof(buf_), "%s:%d", spell_name(obj->get_value(key1)), obj->get_value(key2));
 	return buf_;
 }
 
@@ -1360,83 +1292,83 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-			"[H[J"
+		"[H[J"
 #endif
-			"-- Предмет : [%s%d%s]\r\n"
-			"%s1%s) Синонимы : %s&S%s&s\r\n"
-			"%s2&n) Именительный (это ЧТО)             : %s&e\r\n"
-			"%s3&n) Родительный  (нету ЧЕГО)           : %s&e\r\n"
-			"%s4&n) Дательный    (прикрепить к ЧЕМУ)   : %s&e\r\n"
-			"%s5&n) Винительный  (держать ЧТО)         : %s&e\r\n"
-			"%s6&n) Творительный (вооружиться ЧЕМ)     : %s&e\r\n"
-			"%s7&n) Предложный   (писать на ЧЕМ)       : %s&e\r\n"
-			"%s8&n) Описание          :-\r\n&Y&q%s&e&Q\r\n"
-			"%s9&n) Опис.при действии :-\r\n%s%s\r\n"
-			"%sA%s) Тип предмета      :-\r\n%s%s\r\n"
-			"%sB%s) Экстрафлаги       :-\r\n%s%s\r\n",
-			cyn, OLC_NUM(d), nrm,
-			grn, nrm, yel, not_null(obj->aliases, NULL),
-			grn, not_null(obj->PNames[0], NULL),
-			grn, not_null(obj->PNames[1], NULL),
-			grn, not_null(obj->PNames[2], NULL),
-			grn, not_null(obj->PNames[3], NULL),
-			grn, not_null(obj->PNames[4], NULL),
-			grn, not_null(obj->PNames[5], NULL),
-			grn, not_null(obj->description, NULL),
-			grn, yel, not_null(obj->action_description, "<not set>\r\n"),
-			grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
+		"-- Предмет : [%s%d%s]\r\n"
+		"%s1%s) Синонимы : %s&S%s&s\r\n"
+		"%s2&n) Именительный (это ЧТО)             : %s&e\r\n"
+		"%s3&n) Родительный  (нету ЧЕГО)           : %s&e\r\n"
+		"%s4&n) Дательный    (прикрепить к ЧЕМУ)   : %s&e\r\n"
+		"%s5&n) Винительный  (держать ЧТО)         : %s&e\r\n"
+		"%s6&n) Творительный (вооружиться ЧЕМ)     : %s&e\r\n"
+		"%s7&n) Предложный   (писать на ЧЕМ)       : %s&e\r\n"
+		"%s8&n) Описание          :-\r\n&Y&q%s&e&Q\r\n"
+		"%s9&n) Опис.при действии :-\r\n%s%s\r\n"
+		"%sA%s) Тип предмета      :-\r\n%s%s\r\n"
+		"%sB%s) Экстрафлаги       :-\r\n%s%s\r\n",
+		cyn, OLC_NUM(d), nrm,
+		grn, nrm, yel, not_empty(obj->get_aliases()),
+		grn, not_empty(obj->get_PName(0)),
+		grn, not_empty(obj->get_PName(1)),
+		grn, not_empty(obj->get_PName(2)),
+		grn, not_empty(obj->get_PName(3)),
+		grn, not_empty(obj->get_PName(4)),
+		grn, not_empty(obj->get_PName(5)),
+		grn, not_empty(obj->get_description()),
+		grn, yel, not_empty(obj->get_action_description(), "<not set>\r\n"),
+		grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	// * Send first half.
 	send_to_char(buf, d->character);
 
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf1);
-	obj->obj_flags.no_flag.sprintbits(no_bits, buf2, ",");
+	obj->get_no_flags().sprintbits(no_bits, buf2, ",");
 	sprintf(buf,
-			"%sC%s) Одевается  : %s%s\r\n"
-			"%sD%s) Неудобен    : %s%s\r\n", grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
+		"%sC%s) Одевается  : %s%s\r\n"
+		"%sD%s) Неудобен    : %s%s\r\n", grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	send_to_char(buf, d->character);
 
-	obj->obj_flags.anti_flag.sprintbits(anti_bits, buf1, ",");
-	obj->obj_flags.affects.sprintbits(weapon_affects, buf2, ",");
+	obj->get_anti_flags().sprintbits(anti_bits, buf1, ",");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf2, ",");
 	const size_t gender = static_cast<size_t>(to_underlying(GET_OBJ_SEX(obj)));
 	sprintf(buf,
-			"%sE%s) Запрещен    : %s%s\r\n"
-			"%sF%s) Вес         : %s%8d   %sG%s) Цена        : %s%d\r\n"
-			"%sH%s) Рента(снято): %s%8d   %sI%s) Рента(одето): %s%d\r\n"
-			"%sJ%s) Мах.проч.   : %s%8d   %sK%s) Тек.проч    : %s%d\r\n"
-			"%sL%s) Материал    : %s%s\r\n"
-			"%sM%s) Таймер      : %s%8d   %sN%s) %s\r\n"
-			"%sO%s) Values      : %s%d %d %d %d\r\n"
-			"%sP%s) Аффекты     : %s%s\r\n"
-			"%sR%s) Меню наводимых аффектов\r\n"
-			"%sT%s) Меню экстраописаний\r\n"
-			"%sS%s) Скрипт      : %s%s\r\n"
-			"%sU%s) Пол         : %s%s\r\n"
-			"%sV%s) Макс.в мире : %s%d\r\n"
-			"%sW%s) Меню умений\r\n"
-			"%sX%s) Требует перевоплощений : %s%d\r\n"
-			"%sZ%s) Клонирование\r\n"
-			"%sQ%s) Quit\r\n"
-			"Ваш выбор : ",
-			grn, nrm, cyn, buf1,
-			grn, nrm, cyn, GET_OBJ_WEIGHT(obj),
-			grn, nrm, cyn, GET_OBJ_COST(obj),
-			grn, nrm, cyn, GET_OBJ_RENT(obj),
-			grn, nrm, cyn, GET_OBJ_RENTEQ(obj),
-			grn, nrm, cyn, GET_OBJ_MAX(obj),
-			grn, nrm, cyn, GET_OBJ_CUR(obj),
-			grn, nrm, cyn, material_name[GET_OBJ_MATER(obj)],
-			grn, nrm, cyn, obj->get_timer(),
-			grn, nrm, print_values2_menu(obj).c_str(),
-			grn, nrm, cyn,
-			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
-			GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
-			nrm, cyn, !obj->proto_script.empty() ? "Set." : "Not Set.",
-			grn, nrm, cyn, genders[gender],
-			grn, nrm, cyn, GET_OBJ_MIW(obj),
-			grn, nrm,
-			grn, nrm, cyn, obj->get_manual_mort_req(),
-			grn, nrm,
-			grn, nrm);
+		"%sE%s) Запрещен    : %s%s\r\n"
+		"%sF%s) Вес         : %s%8d   %sG%s) Цена        : %s%d\r\n"
+		"%sH%s) Рента(снято): %s%8d   %sI%s) Рента(одето): %s%d\r\n"
+		"%sJ%s) Мах.проч.   : %s%8d   %sK%s) Тек.проч    : %s%d\r\n"
+		"%sL%s) Материал    : %s%s\r\n"
+		"%sM%s) Таймер      : %s%8d   %sN%s) %s\r\n"
+		"%sO%s) Values      : %s%d %d %d %d\r\n"
+		"%sP%s) Аффекты     : %s%s\r\n"
+		"%sR%s) Меню наводимых аффектов\r\n"
+		"%sT%s) Меню экстраописаний\r\n"
+		"%sS%s) Скрипт      : %s%s\r\n"
+		"%sU%s) Пол         : %s%s\r\n"
+		"%sV%s) Макс.в мире : %s%d\r\n"
+		"%sW%s) Меню умений\r\n"
+		"%sX%s) Требует перевоплощений : %s%d\r\n"
+		"%sZ%s) Клонирование\r\n"
+		"%sQ%s) Quit\r\n"
+		"Ваш выбор : ",
+		grn, nrm, cyn, buf1,
+		grn, nrm, cyn, GET_OBJ_WEIGHT(obj),
+		grn, nrm, cyn, GET_OBJ_COST(obj),
+		grn, nrm, cyn, GET_OBJ_RENT(obj),
+		grn, nrm, cyn, GET_OBJ_RENTEQ(obj),
+		grn, nrm, cyn, GET_OBJ_MAX(obj),
+		grn, nrm, cyn, GET_OBJ_CUR(obj),
+		grn, nrm, cyn, material_name[GET_OBJ_MATER(obj)],
+		grn, nrm, cyn, obj->get_timer(),
+		grn, nrm, print_values2_menu(obj).c_str(),
+		grn, nrm, cyn,
+		GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
+		GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
+		nrm, cyn, !obj->get_proto_script().empty() ? "Set." : "Not Set.",
+		grn, nrm, cyn, genders[gender],
+		grn, nrm, cyn, GET_OBJ_MIW(obj),
+		grn, nrm,
+		grn, nrm, cyn, obj->get_manual_mort_req(),
+		grn, nrm,
+		grn, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = OEDIT_MAIN_MENU;
 }
@@ -1466,15 +1398,15 @@ int planebit(const char *str, int *plane, int *bit)
 
 void check_potion_proto(OBJ_DATA *obj)
 {
-	if (obj->values.get(ObjVal::EValueKey::POTION_SPELL1_NUM) > 0
-		|| obj->values.get(ObjVal::EValueKey::POTION_SPELL2_NUM) > 0
-		|| obj->values.get(ObjVal::EValueKey::POTION_SPELL3_NUM) > 0 )
+	if (obj->get_value(ObjVal::EValueKey::POTION_SPELL1_NUM) > 0
+		|| obj->get_value(ObjVal::EValueKey::POTION_SPELL2_NUM) > 0
+		|| obj->get_value(ObjVal::EValueKey::POTION_SPELL3_NUM) > 0 )
 	{
-		obj->values.set(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
+		obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
 	}
 	else
 	{
-		obj->values.set(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
+		obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
 	}
 }
 
@@ -1487,13 +1419,13 @@ bool parse_val_spell_num(DESCRIPTOR_DATA *d, const ObjVal::EValueKey key, int va
 		{
 			send_to_char("Неверный выбор.\r\n", d->character);
 		}
-		OLC_OBJ(d)->values.set(key, -1);
+		OLC_OBJ(d)->set_value(key, -1);
 		check_potion_proto(OLC_OBJ(d));
 		OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 		drinkcon_values_menu(d);
 		return false;
 	}
-	OLC_OBJ(d)->values.set(key, val);
+	OLC_OBJ(d)->set_value(key, val);
 	send_to_char(d->character, "Выбранное заклинание: %s\r\n"
 		"Ведите уровень заклинания от 1 до 50 (0 - выход) :",
 		spell_name(val));
@@ -1509,26 +1441,32 @@ void parse_val_spell_lvl(DESCRIPTOR_DATA *d, const ObjVal::EValueKey key, int va
 			send_to_char("Некорректный уровень заклинания.\r\n",
 				d->character);
 		}
+
 		switch (key)
 		{
 		case ObjVal::EValueKey::POTION_SPELL1_LVL:
-			OLC_OBJ(d)->values.set(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
+			OLC_OBJ(d)->set_value(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
 			break;
+
 		case ObjVal::EValueKey::POTION_SPELL2_LVL:
-			OLC_OBJ(d)->values.set(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
+			OLC_OBJ(d)->set_value(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
 			break;
+
 		case ObjVal::EValueKey::POTION_SPELL3_LVL:
-			OLC_OBJ(d)->values.set(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
+			OLC_OBJ(d)->set_value(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
 			break;
+
 		default:
 			break;
 		}
+
 		check_potion_proto(OLC_OBJ(d));
 		OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 		drinkcon_values_menu(d);
+
 		return;
 	}
-	OLC_OBJ(d)->values.set(key, val);
+	OLC_OBJ(d)->set_value(key, val);
 	check_potion_proto(OLC_OBJ(d));
 	OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 	drinkcon_values_menu(d);
@@ -1549,19 +1487,21 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'д':
 		case 'Д':
 			send_to_char("Saving object to memory.\r\n", d->character);
-			OLC_OBJ(d)->values.remove_incorrect_keys(GET_OBJ_TYPE(OLC_OBJ(d)));
+			OLC_OBJ(d)->remove_incorrect_values_keys(GET_OBJ_TYPE(OLC_OBJ(d)));
 			oedit_save_internally(d);
 			sprintf(buf, "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
 			olc_log("%s edit obj %d", GET_NAME(d->character), OLC_NUM(d));
 			mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			cleanup_olc(d, CLEANUP_STRUCTS);
 			break;
+
 		case 'n':
 		case 'N':
 		case 'н':
 		case 'Н':
 			cleanup_olc(d, CLEANUP_ALL);
 			break;
+
 		default:
 			send_to_char("Неверный выбор!\r\n", d->character);
 			send_to_char("Вы хотите сохранить этот предмет?\r\n", d->character);
@@ -1581,119 +1521,143 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				OLC_MODE(d) = OEDIT_CONFIRM_SAVESTRING;
 			}
 			else
+			{
 				cleanup_olc(d, CLEANUP_ALL);
+			}
 			return;
+
 		case '1':
 			send_to_char("Введите синонимы : ", d->character);
 			OLC_MODE(d) = OEDIT_EDIT_NAMELIST;
 			break;
+
 		case '2':
-			send_to_char(d->character, "&S%s&s\r\nИменительный падеж [это ЧТО] : ", OLC_OBJ(d)->PNames[0]);
+			send_to_char(d->character, "&S%s&s\r\nИменительный падеж [это ЧТО] : ", OLC_OBJ(d)->get_PName(0).c_str());
 			OLC_MODE(d) = OEDIT_PAD0;
 			break;
+
 		case '3':
-			send_to_char(d->character, "&S%s&s\r\nРодительный падеж [нет ЧЕГО] : ", OLC_OBJ(d)->PNames[1]);
+			send_to_char(d->character, "&S%s&s\r\nРодительный падеж [нет ЧЕГО] : ", OLC_OBJ(d)->get_PName(1).c_str());
 			OLC_MODE(d) = OEDIT_PAD1;
 			break;
+
 		case '4':
-			send_to_char(d->character, "&S%s&s\r\nДательный падеж [прикрепить к ЧЕМУ] : ", OLC_OBJ(d)->PNames[2]);
+			send_to_char(d->character, "&S%s&s\r\nДательный падеж [прикрепить к ЧЕМУ] : ", OLC_OBJ(d)->get_PName(2).c_str());
 			OLC_MODE(d) = OEDIT_PAD2;
 			break;
+
 		case '5':
-			send_to_char(d->character, "&S%s&s\r\nВинительный падеж [держать ЧТО] : ", OLC_OBJ(d)->PNames[3]);
+			send_to_char(d->character, "&S%s&s\r\nВинительный падеж [держать ЧТО] : ", OLC_OBJ(d)->get_PName(3).c_str());
 			OLC_MODE(d) = OEDIT_PAD3;
 			break;
+
 		case '6':
-			send_to_char(d->character, "&S%s&s\r\nТворительный падеж [вооружиться ЧЕМ] : ", OLC_OBJ(d)->PNames[4]);
+			send_to_char(d->character, "&S%s&s\r\nТворительный падеж [вооружиться ЧЕМ] : ", OLC_OBJ(d)->get_PName(4).c_str());
 			OLC_MODE(d) = OEDIT_PAD4;
 			break;
 		case '7':
-			send_to_char(d->character, "&S%s&s\r\nПредложный падеж [писать на ЧЕМ] : ", OLC_OBJ(d)->PNames[5]);
+			send_to_char(d->character, "&S%s&s\r\nПредложный падеж [писать на ЧЕМ] : ", OLC_OBJ(d)->get_PName(5).c_str());
 			OLC_MODE(d) = OEDIT_PAD5;
 			break;
+
 		case '8':
-			send_to_char(d->character, "&S%s&s\r\nВведите длинное описание :-\r\n| ", OLC_OBJ(d)->description);
+			send_to_char(d->character, "&S%s&s\r\nВведите длинное описание :-\r\n| ", OLC_OBJ(d)->get_description().c_str());
 			OLC_MODE(d) = OEDIT_LONGDESC;
 			break;
+
 		case '9':
 			OLC_MODE(d) = OEDIT_ACTDESC;
 			SEND_TO_Q("Введите описание при применении: (/s сохранить /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
-			if (OLC_OBJ(d)->action_description)
+			if (!OLC_OBJ(d)->get_action_description().empty())
 			{
-				SEND_TO_Q(OLC_OBJ(d)->action_description, d);
-				d->backstr = str_dup(OLC_OBJ(d)->action_description);
+				SEND_TO_Q(OLC_OBJ(d)->get_action_description().c_str(), d);
+				d->backstr = str_dup(OLC_OBJ(d)->get_action_description().c_str());
 			}
-			d->str = &OLC_OBJ(d)->action_description;
+			d->writer.reset(new CActionDescriptionWriter(*OLC_OBJ(d)));
 			d->max_str = 4096;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
 			break;
+
 		case 'a':
 		case 'A':
 			oedit_disp_type_menu(d);
 			OLC_MODE(d) = OEDIT_TYPE;
 			break;
+
 		case 'b':
 		case 'B':
 			oedit_disp_extra_menu(d);
 			OLC_MODE(d) = OEDIT_EXTRAS;
 			break;
+
 		case 'c':
 		case 'C':
 			oedit_disp_wear_menu(d);
 			OLC_MODE(d) = OEDIT_WEAR;
 			break;
+
 		case 'd':
 		case 'D':
 			oedit_disp_no_menu(d);
 			OLC_MODE(d) = OEDIT_NO;
 			break;
+
 		case 'e':
 		case 'E':
 			oedit_disp_anti_menu(d);
 			OLC_MODE(d) = OEDIT_ANTI;
 			break;
+
 		case 'f':
 		case 'F':
 			send_to_char("Вес предмета : ", d->character);
 			OLC_MODE(d) = OEDIT_WEIGHT;
 			break;
+
 		case 'g':
 		case 'G':
 			send_to_char("Цена предмета : ", d->character);
 			OLC_MODE(d) = OEDIT_COST;
 			break;
+
 		case 'h':
 		case 'H':
 			send_to_char("Рента предмета (в инвентаре) : ", d->character);
 			OLC_MODE(d) = OEDIT_COSTPERDAY;
 			break;
+
 		case 'i':
 		case 'I':
 			send_to_char("Рента предмета (в экипировке) : ", d->character);
 			OLC_MODE(d) = OEDIT_COSTPERDAYEQ;
 			break;
+
 		case 'j':
 		case 'J':
 			send_to_char("Максимальная прочность : ", d->character);
 			OLC_MODE(d) = OEDIT_MAXVALUE;
 			break;
+
 		case 'k':
 		case 'K':
 			send_to_char("Текущая прочность : ", d->character);
 			OLC_MODE(d) = OEDIT_CURVALUE;
 			break;
+
 		case 'l':
 		case 'L':
 			oedit_disp_mater_menu(d);
 			OLC_MODE(d) = OEDIT_MATER;
 			break;
+
 		case 'm':
 		case 'M':
 			send_to_char("Таймер (в тиках) : ", d->character);
 			OLC_MODE(d) = OEDIT_TIMER;
 			break;
+
 		case 'n':
 		case 'N':
 			if (GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_WEAPON
@@ -1713,66 +1677,76 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				oedit_disp_menu(d);
 			}
 			break;
+
 		case 'o':
 		case 'O':
 			// * Clear any old values
-			GET_OBJ_VAL(OLC_OBJ(d), 0) = 0;
-			GET_OBJ_VAL(OLC_OBJ(d), 1) = 0;
-			GET_OBJ_VAL(OLC_OBJ(d), 2) = 0;
-			GET_OBJ_VAL(OLC_OBJ(d), 3) = 0;
+			OLC_OBJ(d)->set_val(0, 0);
+			OLC_OBJ(d)->set_val(1, 0);
+			OLC_OBJ(d)->set_val(2, 0);
+			OLC_OBJ(d)->set_val(3, 0);
 			oedit_disp_val1_menu(d);
 			break;
+
 		case 'p':
 		case 'P':
 			oedit_disp_affects_menu(d);
 			OLC_MODE(d) = OEDIT_AFFECTS;
 			break;
+
 		case 'r':
 		case 'R':
 			oedit_disp_prompt_apply_menu(d);
 			break;
+
 		case 't':
 		case 'T':
 			// * If extra descriptions don't exist.
-			if (!OLC_OBJ(d)->ex_description)
+			if (!OLC_OBJ(d)->get_ex_description())
 			{
-				CREATE(OLC_OBJ(d)->ex_description, 1);
-				OLC_OBJ(d)->ex_description->next = NULL;
+				OLC_OBJ(d)->set_ex_description(new EXTRA_DESCR_DATA());
 			}
-			OLC_DESC(d) = OLC_OBJ(d)->ex_description;
+			OLC_DESC(d) = OLC_OBJ(d)->get_ex_description();
 			oedit_disp_extradesc_menu(d);
 			break;
+
 		case 's':
 		case 'S':
 			dg_olc_script_copy(d);
 			OLC_SCRIPT_EDIT_MODE(d) = SCRIPT_MAIN_MENU;
 			dg_script_menu(d);
 			return;
+
 		case 'u':
 		case 'U':
 			send_to_char("Пол : ", d->character);
 			OLC_MODE(d) = OEDIT_SEXVALUE;
 			break;
+
 		case 'v':
 		case 'V':
 			send_to_char("Максимальное число в мире : ", d->character);
 			OLC_MODE(d) = OEDIT_MIWVALUE;
 			break;
+
 		case 'w':
 		case 'W':
 			oedit_disp_skills_mod_menu(d);
 			OLC_MODE(d) = OEDIT_SKILLS;
 			break;
+
 		case 'x':
 		case 'X':
 			send_to_char("Требует перевоплощений: (-1 для выключения поля) ", d->character);
 			OLC_MODE(d) = OEDIT_MORT_REQ;
 			break;
+
 		case 'z':
 		case 'Z':
 			OLC_MODE(d) = OEDIT_CLONE;
 			send_to_char("Введите VNUM объекта для клонирования:", d->character);
 			break;
+
 		default:
 			oedit_disp_menu(d);
 			break;
@@ -1782,58 +1756,42 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case OLC_SCRIPT_EDIT:
 		if (dg_script_edit_parse(d, arg))
+		{
 			return;
+		}
 		break;
 
 	case OEDIT_EDIT_NAMELIST:
-		if (OLC_OBJ(d)->aliases)
-			free(OLC_OBJ(d)->aliases);
-		OLC_OBJ(d)->aliases = str_dup(not_null(arg, NULL));
+		OLC_OBJ(d)->set_aliases(not_null(arg, NULL));
 		break;
 
 	case OEDIT_PAD0:
-		if (OLC_OBJ(d)->PNames[0])
-			free(OLC_OBJ(d)->PNames[0]);
-		if (OLC_OBJ(d)->short_description)
-			free(OLC_OBJ(d)->short_description);
-		OLC_OBJ(d)->short_description = str_dup(not_null(arg, "что-то"));
-		OLC_OBJ(d)->PNames[0] = str_dup(not_null(arg, "что-то"));
+		OLC_OBJ(d)->set_short_description(not_null(arg, "что-то"));
+		OLC_OBJ(d)->set_PName(0, not_null(arg, "что-то"));
 		break;
 
 	case OEDIT_PAD1:
-		if (OLC_OBJ(d)->PNames[1])
-			free(OLC_OBJ(d)->PNames[1]);
-		OLC_OBJ(d)->PNames[1] = str_dup(not_null(arg, "-чего-то"));
+		OLC_OBJ(d)->set_PName(1, not_null(arg, "-чего-то"));
 		break;
 
 	case OEDIT_PAD2:
-		if (OLC_OBJ(d)->PNames[2])
-			free(OLC_OBJ(d)->PNames[2]);
-		OLC_OBJ(d)->PNames[2] = str_dup(not_null(arg, "-чему-то"));
+		OLC_OBJ(d)->set_PName(2, not_null(arg, "-чему-то"));
 		break;
 
 	case OEDIT_PAD3:
-		if (OLC_OBJ(d)->PNames[3])
-			free(OLC_OBJ(d)->PNames[3]);
-		OLC_OBJ(d)->PNames[3] = str_dup(not_null(arg, "-что-то"));
+		OLC_OBJ(d)->set_PName(3, not_null(arg, "-что-то"));
 		break;
 
 	case OEDIT_PAD4:
-		if (OLC_OBJ(d)->PNames[4])
-			free(OLC_OBJ(d)->PNames[4]);
-		OLC_OBJ(d)->PNames[4] = str_dup(not_null(arg, "-чем-то"));
+		OLC_OBJ(d)->set_PName(4, not_null(arg, "-чем-то"));
 		break;
 
 	case OEDIT_PAD5:
-		if (OLC_OBJ(d)->PNames[5])
-			free(OLC_OBJ(d)->PNames[5]);
-		OLC_OBJ(d)->PNames[5] = str_dup(not_null(arg, "-чем-то"));
+		OLC_OBJ(d)->set_PName(5, not_null(arg, "-чем-то"));
 		break;
 
 	case OEDIT_LONGDESC:
-		if (OLC_OBJ(d)->description)
-			free(OLC_OBJ(d)->description);
-		OLC_OBJ(d)->description = str_dup(not_null(arg, "неопределено"));
+		OLC_OBJ(d)->set_description(not_null(arg, "неопределено"));
 		break;
 
 	case OEDIT_TYPE:
@@ -1845,11 +1803,11 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			GET_OBJ_TYPE(OLC_OBJ(d)) = static_cast<obj_flag_data::EObjectType>(number);
+			OLC_OBJ(d)->set_type(static_cast<obj_flag_data::EObjectType>(number));
 			if (number != obj_flag_data::ITEM_WEAPON
 				&& number != obj_flag_data::ITEM_INGREDIENT)
 			{
-				GET_OBJ_SKILL(OLC_OBJ(d)) = SKILL_INVALID;
+				OLC_OBJ(d)->set_skill(SKILL_INVALID);
 			}
 		}
 		break;
@@ -1862,10 +1820,12 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else if (number == 0)
+		{
 			break;
+		}
 		else
 		{
-			GET_OBJ_EXTRA(OLC_OBJ(d)).toggle_flag(plane, 1 << bit);
+			OLC_OBJ(d)->toggle_extra_flag(plane, 1 << bit);
 			oedit_disp_extra_menu(d);
 			return;
 		}
@@ -1879,10 +1839,12 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else if (number == 0)	// Quit.
+		{
 			break;
+		}
 		else
 		{
-			TOGGLE_BIT(GET_OBJ_WEAR(OLC_OBJ(d)), 1 << (number - 1));
+			OLC_OBJ(d)->toggle_wear_flag(1 << (number - 1));
 			oedit_disp_wear_menu(d);
 			return;
 		}
@@ -1895,10 +1857,12 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else if (number == 0)
+		{
 			break;
+		}
 		else
 		{
-			OLC_OBJ(d)->obj_flags.no_flag.toggle_flag(plane, 1 << bit);
+			OLC_OBJ(d)->toggle_no_flag(plane, 1 << bit);
 			oedit_disp_no_menu(d);
 			return;
 		}
@@ -1911,17 +1875,19 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else if (number == 0)
+		{
 			break;
+		}
 		else
 		{
-			OLC_OBJ(d)->obj_flags.anti_flag.toggle_flag(plane, 1 << bit);
+			OLC_OBJ(d)->toggle_anti_flag(plane, 1 << bit);
 			oedit_disp_anti_menu(d);
 			return;
 		}
 
 
 	case OEDIT_WEIGHT:
-		GET_OBJ_WEIGHT(OLC_OBJ(d)) = atoi(arg);
+		OLC_OBJ(d)->set_weight(atoi(arg));
 		break;
 
 	case OEDIT_COST:
@@ -1933,18 +1899,18 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_MAXVALUE:
-		GET_OBJ_MAX(OLC_OBJ(d)) = atoi(arg);
+		OLC_OBJ(d)->set_maximum(atoi(arg));
 		break;
 
 	case OEDIT_CURVALUE:
-		GET_OBJ_CUR(OLC_OBJ(d)) = MIN(GET_OBJ_MAX(OLC_OBJ(d)), atoi(arg));
+		OLC_OBJ(d)->set_current(MIN(GET_OBJ_MAX(OLC_OBJ(d)), atoi(arg)));
 		break;
 
 	case OEDIT_SEXVALUE:
 		if ((number = atoi(arg)) >= 0
 			&& number < NUM_SEXES)
 		{
-			GET_OBJ_SEX(OLC_OBJ(d)) = static_cast<ESex>(number);
+			OLC_OBJ(d)->set_sex(static_cast<ESex>(number));
 		}
 		else
 		{
@@ -1955,7 +1921,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case OEDIT_MIWVALUE:
 		if ((number = atoi(arg)) >= -1 && number <= 10000)
-			GET_OBJ_MIW(OLC_OBJ(d)) = number;
+		{
+			OLC_OBJ(d)->set_max_in_world(number);
+		}
 		else
 		{
 			send_to_char("Максимальное число предметов в мире (0-10000 или -1) : ", d->character);
@@ -1973,7 +1941,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else if (number > 0)
 		{
-			GET_OBJ_MATER(OLC_OBJ(d)) = static_cast<obj_flag_data::EObjectMaterial>(number - 1);
+			OLC_OBJ(d)->set_material(static_cast<obj_flag_data::EObjectMaterial>(number - 1));
 		}
 		break;
 
@@ -1998,7 +1966,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if (GET_OBJ_TYPE(OLC_OBJ(d)) == obj_flag_data::ITEM_INGREDIENT)
 		{
-			TOGGLE_BIT(GET_OBJ_SKILL(OLC_OBJ(d)), 1 << (number - 1));
+			OLC_OBJ(d)->toggle_skill(1 << (number - 1));
 			oedit_disp_skills_menu(d);
 			return;
 		}
@@ -2036,7 +2004,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				oedit_disp_skills_menu(d);
 				return;
 			}
-		GET_OBJ_SKILL(OLC_OBJ(d)) = static_cast<ESkill>(number);
+		OLC_OBJ(d)->set_skill(number);
 		oedit_disp_skills_menu(d);
 		return;
 		break;
@@ -2055,7 +2023,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		// * proceed to menu 2
-		GET_OBJ_VAL(OLC_OBJ(d), 0) = number;
+		OLC_OBJ(d)->set_val(0, number);
 		OLC_VAL(d) = 1;
 		oedit_disp_val2_menu(d);
 		return;
@@ -2074,7 +2042,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 			else
 			{
-				GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
+				OLC_OBJ(d)->set_val(1, number);
 				oedit_disp_val3_menu(d);
 			}
 			return;
@@ -2089,7 +2057,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 			else if (number != 0)
 			{
-				TOGGLE_BIT(GET_OBJ_VAL(OLC_OBJ(d), 1), 1 << (number - 1));
+				OLC_OBJ(d)->toggle_val_bit(1, 1 << (number - 1));
 				OLC_VAL(d) = 1;
 				oedit_disp_val2_menu(d);
 			}
@@ -2116,6 +2084,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					return;
 				}
 				break;
+
 			case BOOK_SKILL:
 			case BOOK_UPGRD:
 				if (number == 0)
@@ -2124,13 +2093,16 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					oedit_disp_menu(d);
 					return;
 				}
-				if (number > MAX_SKILL_NUM|| !skill_info[number].name || *skill_info[number].name == '!')
+				if (number > MAX_SKILL_NUM
+					|| !skill_info[number].name
+					|| *skill_info[number].name == '!')
 				{
 					send_to_char("Неизвестное умение, повторите.\r\n", d->character);
 					oedit_disp_val2_menu(d);
 					return;
 				}
 				break;
+
 			case BOOK_RECPT:
 				if (number > top_imrecipes || number < 0  || !imrecipes[number].name)
 				{
@@ -2139,6 +2111,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					return;
 				}
 				break;
+
 			case BOOK_FEAT:
 				if (number == 0)
 				{
@@ -2157,7 +2130,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		default:
 			break;
 		}
-		GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
+		OLC_OBJ(d)->set_val(1, number);
 		OLC_VAL(d) = 1;
 		oedit_disp_val3_menu(d);
 		return;
@@ -2199,7 +2172,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			min_val = -999999;
 			max_val = 999999;
 		}
-		GET_OBJ_VAL(OLC_OBJ(d), 2) = MAX(min_val, MIN(number, max_val));
+		OLC_OBJ(d)->set_val(2, MAX(min_val, MIN(number, max_val)));
 		OLC_VAL(d) = 1;
 		oedit_disp_val4_menu(d);
 		return;
@@ -2239,7 +2212,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			max_val = 999999;
 			break;
 		}
-		GET_OBJ_VAL(OLC_OBJ(d), 3) = MAX(min_val, MIN(number, max_val));
+		OLC_OBJ(d)->set_val(3, MAX(min_val, MIN(number, max_val)));
 		break;
 
 	case OEDIT_AFFECTS:
@@ -2255,7 +2228,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			OLC_OBJ(d)->obj_flags.affects.toggle_flag(plane, 1 << bit);
+			OLC_OBJ(d)->toggle_affect_flag(plane, 1 << bit);
 			oedit_disp_affects_menu(d);
 			return;
 		}
@@ -2276,22 +2249,23 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case OEDIT_APPLY:
 		if ((number = atoi(arg)) == 0)
 		{
-			OLC_OBJ(d)->affected[OLC_VAL(d)].location = EApplyLocation::APPLY_NONE;
-			OLC_OBJ(d)->affected[OLC_VAL(d)].modifier = 0;
+			OLC_OBJ(d)->set_affected(OLC_VAL(d), EApplyLocation::APPLY_NONE, 0);
 			oedit_disp_prompt_apply_menu(d);
 		}
 		else if (number < 0 || number >= NUM_APPLIES)
+		{
 			oedit_disp_apply_menu(d);
+		}
 		else
 		{
-			OLC_OBJ(d)->affected[OLC_VAL(d)].location = static_cast<EApplyLocation>(number);
+			OLC_OBJ(d)->set_affected_location(OLC_VAL(d), static_cast<EApplyLocation>(number));
 			send_to_char("Modifier : ", d->character);
 			OLC_MODE(d) = OEDIT_APPLYMOD;
 		}
 		return;
 
 	case OEDIT_APPLYMOD:
-		OLC_OBJ(d)->affected[OLC_VAL(d)].modifier = atoi(arg);
+		OLC_OBJ(d)->set_affected_modifier(OLC_VAL(d), atoi(arg));
 		oedit_disp_prompt_apply_menu(d);
 		return;
 
@@ -2306,27 +2280,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		switch ((number = atoi(arg)))
 		{
 		case 0:
-			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
-			{
-				EXTRA_DESCR_DATA **tmp_desc;
-
-				if (OLC_DESC(d)->keyword)
-					free(OLC_DESC(d)->keyword);
-				if (OLC_DESC(d)->description)
-					free(OLC_DESC(d)->description);
-
-				// * Clean up pointers
-				for (tmp_desc = &(OLC_OBJ(d)->ex_description); *tmp_desc;
-						tmp_desc = &((*tmp_desc)->next))
-				{
-					if (*tmp_desc == OLC_DESC(d))
-					{
-						*tmp_desc = NULL;
-						break;
-					}
-				}
-				free(OLC_DESC(d));
-			}
+			OLC_OBJ(d)->set_ex_description(nullptr);
 			break;
 
 		case 1:
@@ -2343,7 +2297,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				SEND_TO_Q(OLC_DESC(d)->description, d);
 				d->backstr = str_dup(OLC_DESC(d)->description);
 			}
-			d->str = &OLC_DESC(d)->description;
+			d->writer.reset(new CSimpleStringWriter(OLC_DESC(d)->description));
 			d->max_str = 4096;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
@@ -2353,13 +2307,13 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			// * Only go to the next description if this one is finished.
 			if (OLC_DESC(d)->keyword && OLC_DESC(d)->description)
 			{
-				EXTRA_DESCR_DATA *new_extra;
-
 				if (OLC_DESC(d)->next)
+				{
 					OLC_DESC(d) = OLC_DESC(d)->next;
+				}
 				else  	// Make new extra description and attach at end.
 				{
-					CREATE(new_extra, 1);
+					std::shared_ptr<EXTRA_DESCR_DATA> new_extra(new EXTRA_DESCR_DATA());
 					OLC_DESC(d)->next = new_extra;
 					OLC_DESC(d) = OLC_DESC(d)->next;
 				}
@@ -2370,10 +2324,13 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		break;
+
 	case OEDIT_SKILLS:
 		number = atoi(arg);
 		if (number == 0)
+		{
 			break;
+		}
 		if (number > MAX_SKILL_NUM
 			|| number < 0
 			|| !skill_info[number].name
@@ -2382,17 +2339,25 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			send_to_char("Неизвестное умение.\r\n", d->character);
 		}
 		else if (OLC_OBJ(d)->get_skill(number) != 0)
+		{
 			OLC_OBJ(d)->set_skill(number, 0);
+		}
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
+		{
 			send_to_char("Не указан уровень владения умением.\r\n", d->character);
+		}
 		else
+		{
 			OLC_OBJ(d)->set_skill(number, (MIN(200, MAX(-200, bit))));
+		}
 		oedit_disp_skills_mod_menu(d);
 		return;
+
 	case OEDIT_MORT_REQ:
 		number = atoi(arg);
 		OLC_OBJ(d)->set_manual_mort_req(number);
 		break;
+
 	case OEDIT_DRINKCON_VALUES:
 		switch(number = atoi(arg))
 		{
@@ -2462,9 +2427,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		old_rnum = GET_OBJ_RNUM(OLC_OBJ(d));
 		obj_original = read_object(rnum, REAL);
 		oedit_object_copy(OLC_OBJ(d), obj_original);
-		oedit_object_free(obj_original);
-		GET_OBJ_RNUM(OLC_OBJ(d)) = old_rnum;
+		OLC_OBJ(d)->set_rnum(old_rnum);
 		break;
+
 	default:
 		mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		send_to_char("Oops...\r\n", d->character);

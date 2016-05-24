@@ -142,7 +142,7 @@ void do_wsend(ROOM_DATA *room, char *argument, int/* cmd*/, int subcmd)
 
 	if ((ch = get_char_by_room(room, buf)))
 	{
-		if (reloc_target != -1 && reloc_target != IN_ROOM(ch))
+		if (reloc_target != -1 && reloc_target != ch->in_room)
 		{
 			sprintf(buf,
 					"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
@@ -372,7 +372,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 				horse = get_horse(ch);
 			else
 				horse = NULL;
-			for (charmee = world[IN_ROOM(ch)]->people; charmee; charmee = ncharmee)
+			for (charmee = world[ch->in_room]->people; charmee; charmee = ncharmee)
 			{
 				ncharmee = charmee->next_in_room;
 				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
@@ -561,7 +561,7 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);
-		GET_OBJ_ZONE(object) = world[real_room(room->number)]->zone;
+		object->set_zone(world[real_room(room->number)]->zone);
 		obj_to_room(object, real_room(room->number));
 		load_otrigger(object);
 	}
@@ -594,7 +594,7 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((ch = get_char_by_room(room, name)))
 	{
-		if (world[IN_ROOM(ch)]->zone != room->zone)
+		if (world[ch->in_room]->zone != room->zone)
         {
             return;
         }
@@ -618,7 +618,7 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (!IS_NPC(ch))
 			{
 				sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
-						IN_ROOM(ch) == NOWHERE ? "NOWHERE" : world[IN_ROOM(ch)]->name, GET_ROOM_VNUM(IN_ROOM(ch)));
+						ch->in_room == NOWHERE ? "NOWHERE" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			die(ch, NULL);

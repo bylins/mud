@@ -410,7 +410,7 @@ CelebrateDataPtr get_real_celebrate()
 	return result;
 };
 
-void remove_triggers(TrigList trigs, script_data* sc)
+void remove_triggers(TrigList trigs, SCRIPT_DATA* sc)
 {
 	TrigList::const_iterator it;
 	TRIG_DATA *tr, *tmp;
@@ -481,7 +481,7 @@ bool make_clean(CelebrateDataPtr celebrate)
 		{
 			free_script(SCRIPT(mob_it->second));	// без комментариев
 			SCRIPT(mob_it->second) = NULL;
-		}			
+		}
 		attached_mobs.erase(mob_it);
 		if (attached_mobs.empty())
 			break;
@@ -490,20 +490,24 @@ bool make_clean(CelebrateDataPtr celebrate)
 
 	for (obj_it = attached_objs.begin(); obj_it != attached_objs.end(); ++obj_it)
 	{
-		int vnum = obj_it->second->item_number;	
+		int vnum = obj_it->second->get_rnum();	
 		for (AttachZonList::iterator it = celebrate->objsToAttach.begin(); it != celebrate->objsToAttach.end();++it)
 		{
 			if (it->second.find(vnum) != it->second.end())
-				remove_triggers(it->second[vnum], obj_it->second->script);
+			{
+				remove_triggers(it->second[vnum], obj_it->second->get_script().get());
+			}
 		}
-		if (SCRIPT(obj_it->second) && !TRIGGERS(SCRIPT(obj_it->second)))
+		if (obj_it->second->get_script()
+			&& !TRIGGERS(obj_it->second->get_script()))
 		{
-			free_script(SCRIPT(obj_it->second));	// без комментариев
-			SCRIPT(obj_it->second) = NULL;
+			obj_it->second->set_script(nullptr);
 		}			
 		attached_objs.erase(obj_it);
 		if (attached_objs.empty())
+		{
 			break;
+		}
 	}
 
 	for (mob_it = loaded_mobs.begin(); mob_it != loaded_mobs.end(); ++mob_it)
@@ -514,18 +518,23 @@ bool make_clean(CelebrateDataPtr celebrate)
 			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)
 			{
 				for (LoadList::iterator it = (*room)->mobs.begin(); it != (*room)->mobs.end();++it)
+				{
 					if ((*it)->vnum == vnum)
+					{
 						extract_char(mob_it->second, 0);
+					}
+				}
 			}
 		}
 		if (loaded_mobs.empty())
+		{
 			break;
-
+		}
 	}
 
 	for (obj_it = loaded_objs.begin(); obj_it != loaded_objs.end(); ++obj_it)
 	{
-		int vnum = obj_it->second->item_number;	
+		int vnum = obj_it->second->get_rnum();	
 		for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end();++rooms)
 		{
 			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)

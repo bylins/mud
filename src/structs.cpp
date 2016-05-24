@@ -46,6 +46,88 @@ void asciiflag_conv(const char *flag, void *to)
 	}
 }
 
+int ext_search_block(const char *arg, const char * const * const list, int exact)
+{
+	int i, j, o;
+
+	if (exact)
+	{
+		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: попытка в лоб убрать креш
+		{
+			if (**(list + i) == '\n')
+			{
+				o = 1;
+				switch (j)
+				{
+				case 0:
+					j = INT_ONE;
+					break;
+
+				case INT_ONE:
+					j = INT_TWO;
+					break;
+
+				case INT_TWO:
+					j = INT_THREE;
+					break;
+
+				default:
+					j = 1;
+					break;
+				}
+			}
+			else if (!str_cmp(arg, *(list + i)))
+			{
+				return j | o;
+			}
+			else
+			{
+				o <<= 1;
+			}
+		}
+	}
+	else
+	{
+		size_t l = strlen(arg);
+		if (!l)
+		{
+			l = 1;	// Avoid "" to match the first available string
+		}
+		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: попытка в лоб убрать креш
+		{
+			if (**(list + i) == '\n')
+			{
+				o = 1;
+				switch (j)
+				{
+				case 0:
+					j = INT_ONE;
+					break;
+				case INT_ONE:
+					j = INT_TWO;
+					break;
+				case INT_TWO:
+					j = INT_THREE;
+					break;
+				default:
+					j = 1;
+					break;
+				}
+			}
+			else if (!strn_cmp(arg, *(list + i), l))
+			{
+				return j | o;
+			}
+			else
+			{
+				o <<= 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
 void FLAG_DATA::from_string(const char *flag)
 {
 	uint32_t is_number = 1;
@@ -234,6 +316,51 @@ bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, c
 	}
 
 	return have_flags;
+}
+
+void FLAG_DATA::gm_flag(const char *subfield, const char * const * const list, char *res)
+{
+	strcpy(res, "0");
+
+	if ('\0' == *subfield)
+	{
+		return;
+	}
+
+	if (*subfield == '-')
+	{
+		const int flag = ext_search_block(subfield + 1, list, FALSE);
+		if (flag)
+		{
+			unset(flag);
+			if (plane_not_empty(flag))	// looks like an error: we should check flag, but not whole plane
+			{
+				strcpy(res, "1");
+			}
+		}
+	}
+	else if (*subfield == '+')
+	{
+		const int flag = ext_search_block(subfield + 1, list, FALSE);
+		if (flag)
+		{
+			set(flag);
+			if (plane_not_empty(flag))	// looks like an error: we should check flag, but not whole plane
+			{
+				strcpy(res, "1");
+			}
+		}
+	}
+	else
+	{
+		const int flag = ext_search_block(subfield, list, FALSE);
+		if (flag && get(flag))
+		{
+			strcpy(res, "1");
+		}
+	}
+
+	return;
 }
 
 const religion_names_t religion_name =
@@ -892,6 +1019,35 @@ const std::string& NAME_BY_ITEM(const EApplyLocation item)
 	return EApplyLocation_name_by_value.at(item);
 }
 
+void CSimpleStringWriter::set_string(const char* string)
+{
+	const size_t l = strlen(string);
+	if (nullptr == m_managed)
+	{
+		CREATE(m_managed, l + 1);
+	}
+	else
+	{
+		RECREATE(m_managed, l + 1);
+	}
+	strcpy(m_managed, string);
+}
+
+void CSimpleStringWriter::append_string(const char* string)
+{
+	const size_t l = length() + strlen(string);
+	if (nullptr == m_managed)
+	{
+		CREATE(m_managed, l + 1);
+		*m_managed = '\0';
+	}
+	else
+	{
+		RECREATE(m_managed, l + 1);
+	}
+	strcat(m_managed, string);
+}
+
 void DESCRIPTOR_DATA::msdp_support(bool on)
 {
 	log("INFO: MSDP support enabled for client %s.\n", host);
@@ -949,6 +1105,21 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
 	{
 		*output = '\0';
 	}
+}
+
+EXTRA_DESCR_DATA::~EXTRA_DESCR_DATA()
+{
+	if (nullptr != keyword)
+	{
+		free(keyword);
+	}
+
+	if (nullptr != description)
+	{
+		free(description);
+	}
+
+	// we don't take care of items in list. So, we don't do anything with the next field.
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

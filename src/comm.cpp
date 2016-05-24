@@ -1500,11 +1500,17 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		}
 		d->has_prompt = 0;
 		if (d->showstr_count && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)	// Reading something w/ pager
+		{
 			show_string(d, comm);
-		else if (d->str && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)
+		}
+		else if (d->writer && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)
+		{
 			string_add(d, comm);
+		}
 		else if (STATE(d) != CON_PLAYING)	// In menus, etc.
+		{
 			nanny(d, comm);
+		}
 		else  	// else: we're playing normally.
 		{
 			if (aliased)	// To prevent recursive aliases.
@@ -2401,11 +2407,13 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 
 	// Note, prompt is truncated at MAX_PROMPT_LENGTH chars (structs.h )
 	if (d->showstr_count)
+	{
 		sprintf(prompt, "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).", d->showstr_page, d->showstr_count);
-	else if (d->str)
+	}
+	else if (d->writer)
+	{
 		strcpy(prompt, "] ");
-/*	else if (STATE(d) == CON_CONSOLE)
-		strcpy(prompt, d->console->get_prompt().c_str());*/
+	}
 	else if (STATE(d) == CON_PLAYING && !IS_NPC(d->character))
 	{
 		int count = 0;
@@ -3954,12 +3962,10 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			&& (PLR_FLAGGED(d->character, PLR_MAILING)
 				|| STATE(d) == CON_WRITEBOARD
 				|| STATE(d) == CON_WRITE_MOD)
-			&& d->str)
+			&& d->writer)
 		{
-			if (*(d->str))
-				free(*(d->str));
-			if (d->str != NULL)
-				free(d->str);
+			d->writer->clear();
+			d->writer.reset();
 		}
 
 		if (STATE(d) == CON_WRITEBOARD
@@ -4755,7 +4761,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	{
 		if (ch
 			&& SENDOK(ch)
-			&& IN_ROOM(ch) != NOWHERE
+			&& ch->in_room != NOWHERE
 			&& (!check_deaf || !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
@@ -4784,9 +4790,13 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	// or TO_ROOM_HIDE
 
 	if (ch && ch->in_room != NOWHERE)
+	{
 		to = world[ch->in_room]->people;
-	else if (obj && obj->in_room != NOWHERE)
-		to = world[obj->in_room]->people;
+	}
+	else if (obj && obj->get_in_room() != NOWHERE)
+	{
+		to = world[obj->get_in_room()]->people;
+	}
 	else
 	{
 		log("No valid target to act('%s')!", str);
@@ -4834,8 +4844,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		}
 	}
 	//Реализация флага слышно арену
-	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
-		&& ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENASEND) && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENARECV))
+	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != NOWHERE) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+		&& ROOM_FLAGGED(ch->in_room, ROOM_ARENASEND) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
 		arena_room_rnum = ch->in_room;
 		// находим первую клетку в зоне

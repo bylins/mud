@@ -61,7 +61,7 @@ void obj_log(OBJ_DATA * obj, const char *msg, const int type = 0)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 
-	sprintf(buf, "(Obj: '%s', VNum: %d, trig: %d): %s", obj->short_description, GET_OBJ_VNUM(obj), last_trig_vnum, msg);
+	sprintf(buf, "(Obj: '%s', VNum: %d, trig: %d): %s", obj->get_short_description().c_str(), GET_OBJ_VNUM(obj), last_trig_vnum, msg);
 	script_log(buf, type);
 }
 
@@ -69,16 +69,26 @@ void obj_log(OBJ_DATA * obj, const char *msg, const int type = 0)
 // returns the real room number that the object or object's carrier is in 
 int obj_room(OBJ_DATA * obj)
 {
-	if (obj->in_room != NOWHERE)
-		return obj->in_room;
-	else if (obj->carried_by)
-		return IN_ROOM(obj->carried_by);
-	else if (obj->worn_by)
-		return IN_ROOM(obj->worn_by);
-	else if (obj->in_obj)
-		return obj_room(obj->in_obj);
+	if (obj->get_in_room() != NOWHERE)
+	{
+		return obj->get_in_room();
+	}
+	else if (obj->get_carried_by())
+	{
+		return IN_ROOM(obj->get_carried_by());
+	}
+	else if (obj->get_worn_by())
+	{
+		return IN_ROOM(obj->get_worn_by());
+	}
+	else if (obj->get_in_obj())
+	{
+		return obj_room(obj->get_in_obj());
+	}
 	else
+	{
 		return NOWHERE;
+	}
 }
 
 
@@ -106,8 +116,8 @@ int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 		location = IN_ROOM(target_mob);
 	else if ((target_obj = get_obj_by_obj(obj, roomstr)))
 	{
-		if (target_obj->in_room != NOWHERE)
-			location = target_obj->in_room;
+		if (target_obj->get_in_room() != NOWHERE)
+			location = target_obj->get_in_room();
 		else
 			return NOWHERE;
 	}
@@ -296,11 +306,11 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		// Описание работы функции см. в mtransform()
 
-		if (obj->worn_by)
+		if (obj->get_worn_by())
 		{
-			pos = obj->worn_on;
-			wearer = obj->worn_by;
-			unequip_char(obj->worn_by, pos);
+			pos = obj->get_worn_on();
+			wearer = obj->get_worn_by();
+			unequip_char(obj->get_worn_by(), pos);
 		}
 
 		OBJ_DATA tmpobj(*o);
@@ -313,38 +323,39 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 //  tmpobj -> врем. переменная, наполнение из оригинального объекта o
 
 // Копирование игровой информации (для o сохраняются оригинальные значения)
-		obj->in_room = o->in_room;
-		o->in_room = tmpobj.in_room;
-		obj->carried_by = o->carried_by;
-		o->carried_by = tmpobj.carried_by;
-		obj->worn_by = o->worn_by;
-		o->worn_by = tmpobj.worn_by;
-		obj->worn_on = o->worn_on;
-		o->worn_on = tmpobj.worn_on;
-		obj->in_obj = o->in_obj;
-		o->in_obj = tmpobj.in_obj;
+		obj->set_in_room(o->get_in_room());
+		o->set_in_room(tmpobj.get_in_room());
+
+		obj->set_carried_by(o->get_carried_by());
+		o->set_carried_by(tmpobj.get_carried_by());
+		obj->set_worn_by(o->get_worn_by());
+		o->set_worn_by(tmpobj.get_worn_by());
+		obj->set_worn_on(o->get_worn_on());
+		o->set_worn_on(tmpobj.get_worn_on());
+		obj->set_in_obj(o->get_in_obj());
+		o->set_in_obj(tmpobj.get_in_obj());
 		obj->set_timer(o->get_timer());
 		o->set_timer(tmpobj.get_timer());
-		obj->contains = o->contains;
-		o->contains = tmpobj.contains;
-		obj->id = o->id;
-		o->id = tmpobj.id;
-		obj->script = o->script;
-		o->script = tmpobj.script;
-		obj->next_content = o->next_content;
-		o->next_content = tmpobj.next_content;
-		obj->next = o->next;
-		o->next = tmpobj.next;
+		obj->set_contains(o->get_contains());
+		o->set_contains(tmpobj.get_contains());
+		obj->set_id(o->get_id());
+		o->set_id(tmpobj.get_id());
+		obj->set_script(o->get_script());
+		o->set_script(tmpobj.get_script());
+		obj->set_next_content(o->get_next_content());
+		o->set_next_content(tmpobj.get_next_content());
+		obj->set_next(o->get_next());
+		o->set_next(tmpobj.get_next());
 		// для name_list
 		obj->set_serial_num(o->get_serial_num());
 		o->set_serial_num(tmpobj.get_serial_num());
 		//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
-		GET_OBJ_ZONE(obj) = GET_OBJ_ZONE(o);
-		GET_OBJ_ZONE(o) = GET_OBJ_ZONE(&tmpobj);
+		obj->set_zone(GET_OBJ_ZONE(o));
+		o->set_zone(GET_OBJ_ZONE(&tmpobj));
 
 		if (OBJ_FLAGGED(o, EExtraFlag::ITEM_TICKTIMER))
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_TICKTIMER);
+			obj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
 		}
 
 		if (wearer)
@@ -459,7 +470,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				horse = get_horse(ch);
 			else
 				horse = NULL;
-			if (IN_ROOM(ch) == NOWHERE)
+			if (ch->in_room == NOWHERE)
 			{
 				obj_log(obj, "oteleport transports from NOWHERE");
 				return;
@@ -485,7 +496,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				horse = get_horse(ch);
 			else
 				horse = NULL;
-			for (charmee = world[IN_ROOM(ch)]->people; charmee; charmee = ncharmee)
+			for (charmee = world[ch->in_room]->people; charmee; charmee = ncharmee)
 			{
 				ncharmee = charmee->next_in_room;
 				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
@@ -550,13 +561,15 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			obj_log(obj, "oload: bad object vnum");
 			return;
 		}
-		log("Load obj #%d by %s (oload)", number, obj->aliases);
-		GET_OBJ_ZONE(object) = world[room]->zone;
+		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
+		object->set_zone(world[room]->zone);
 		obj_to_room(object, room);
 		load_otrigger(object);
 	}
 	else
+	{
 		obj_log(obj, "oload: bad type");
+	}
 }
 
 void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -577,7 +590,7 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((ch = get_char_by_obj(obj, name)))
 	{
-		if (world[IN_ROOM(ch)]->zone != world[up_obj_where(obj)]->zone)
+		if (world[ch->in_room]->zone != world[up_obj_where(obj)]->zone)
 			return;
 
 		if (GET_LEVEL(ch) >= LVL_IMMORT)
@@ -594,7 +607,7 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (!IS_NPC(ch))
 			{
 				sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(ch),
-						IN_ROOM(ch) == NOWHERE ? "NOWHERE" : world[IN_ROOM(ch)]->name, GET_ROOM_VNUM(IN_ROOM(ch)));
+						ch->in_room == NOWHERE ? "NOWHERE" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			die(ch, NULL);
@@ -746,9 +759,13 @@ void do_osetval(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	position = atoi(arg1);
 	new_value = atoi(arg2);
 	if (position >= 0 && position < NUM_OBJ_VAL_POSITIONS)
-		GET_OBJ_VAL(obj, position) = new_value;
+	{
+		obj->set_val(position, new_value);
+	}
 	else
+	{
 		obj_log(obj, "osetval: position out of bounds!");
+	}
 }
 
 void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)

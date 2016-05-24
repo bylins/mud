@@ -130,7 +130,7 @@ int has_boat(CHAR_DATA * ch)
 		return (TRUE);
 
 	// non-wearable boats in inventory will do it
-	for (obj = ch->carrying; obj; obj = obj->next_content)
+	for (obj = ch->carrying; obj; obj = obj->get_next_content())
 	{
 		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_BOAT
 			&& (find_eq_pos(ch, obj, NULL) < 0))
@@ -578,7 +578,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		if (!enter_wtrigger(world[EXIT(ch, dir)->to_room], ch, dir))
 			return (FALSE);
 
-		for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+		for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 		{
 			if (!IS_NPC(tch))
 				continue;
@@ -862,7 +862,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		else
 			strcpy(buf1, "приш$y");
 
-		//log("%s-%d",GET_NAME(ch),IN_ROOM(ch));
+		//log("%s-%d",GET_NAME(ch),ch->in_room);
 		sprintf(buf2, "$n %s %s.", buf1, DirsFrom[dir]);
 		//log(buf2);
 		act(buf2, TRUE, ch, 0, 0, TO_ROOM);
@@ -878,7 +878,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		look_at_room(ch, 0);
 
 	if (!IS_NPC(ch))
-		room_affect_process_on_entry(ch, IN_ROOM(ch));
+		room_affect_process_on_entry(ch, ch->in_room);
 
 	if (DeathTrap::check_death_trap(ch))
 	{
@@ -978,7 +978,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	income_mtrigger(ch, direction - 1);
 
 	// char income, go mobs action
-	for (vict = world[IN_ROOM(ch)]->people; !IS_NPC(ch) && vict; vict = vict->next_in_room)
+	for (vict = world[ch->in_room]->people; !IS_NPC(ch) && vict; vict = vict->next_in_room)
 	{
 		if (!IS_NPC(vict))
 			continue;
@@ -1239,7 +1239,7 @@ int has_key(CHAR_DATA * ch, obj_vnum key)
 {
 	OBJ_DATA *o;
 
-	for (o = ch->carrying; o; o = o->next_content)
+	for (o = ch->carrying; o; o = o->get_next_content())
 		if (GET_OBJ_VNUM(o) == key && key != -1)
 			return (TRUE);
 
@@ -1286,12 +1286,34 @@ const int flags_door[] =
 
 
 #define EXITN(room, door)		(world[room]->dir_option[door])
-#define OPEN_DOOR(room, obj, door)	((obj) ?\
-		(TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED)) :\
-		(TOGGLE_BIT(EXITN(room, door)->exit_info, EX_CLOSED)))
-#define LOCK_DOOR(room, obj, door)	((obj) ?\
-		(TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_LOCKED)) :\
-		(TOGGLE_BIT(EXITN(room, door)->exit_info, EX_LOCKED)))
+
+inline void OPEN_DOOR(const room_rnum room, OBJ_DATA* obj, const int door)
+{
+	if (obj)
+	{
+		auto v = obj->get_val(1);
+		TOGGLE_BIT(v, CONT_CLOSED);
+		obj->set_val(1, v);
+	}
+	else
+	{
+		TOGGLE_BIT(EXITN(room, door)->exit_info, EX_CLOSED);
+	}
+}
+
+inline void LOCK_DOOR(const room_rnum room, OBJ_DATA* obj, const int door)
+{
+	if (obj)
+	{
+		auto v = obj->get_val(1);
+		TOGGLE_BIT(v, CONT_LOCKED);
+		obj->set_val(1, v);
+	}
+	else
+	{
+		TOGGLE_BIT(EXITN(room, door)->exit_info, EX_LOCKED);
+	}
+}
 
 // для кейсов
 extern std::vector<_case> cases;;
@@ -1306,7 +1328,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	// объект, который выпадает из сундука
 	sprintf(local_buf, "$n %s ", cmd_door[scmd]);
 //  if (IS_NPC(ch))
-//     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(IN_ROOM(ch)));
+//     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(ch->in_room));
 	if (!obj && ((other_room = EXIT(ch, door)->to_room) != NOWHERE))
 		if ((back = world[other_room]->dir_option[rev_dir[door]]) != NULL)
 			if ((back->to_room != ch->in_room) ||
@@ -1388,7 +1410,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 								// первый предмет в инвентаре
 								OBJ_DATA *obj_inv = ch->carrying;
 								OBJ_DATA *i;
-								for (i = obj_inv; i; i = i->next_content)
+								for (i = obj_inv; i; i = i->get_next_content())
 								{
 									if (GET_OBJ_VNUM(i) == vnum_key)
 									{
@@ -1398,12 +1420,12 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 								}								
 								extract_obj(obj);
 								obj = read_object(r_num, REAL);
-								GET_OBJ_MAKER(obj) = GET_UNIQUE(ch);
+								obj->set_crafter_uid(GET_UNIQUE(ch));
 								obj_to_char(obj, ch);
 								act("$n завизжал$g от радости.", FALSE, ch, 0, 0, TO_ROOM);
 								load_otrigger(obj);
 								obj_decay(obj);
-								olc_log("%s load obj %s #%d", GET_NAME(ch), obj->short_description, vnum);
+								olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), vnum);
 								return;
 							}
 						}
@@ -1430,8 +1452,10 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 
 	// Notify the room
 	sprintf(local_buf + strlen(local_buf), "%s.", (obj) ? "$p" : (EXIT(ch, door)->vkeyword ? "$F" : "дверь"));
-	if (!(obj) || (obj->in_room != NOWHERE))
+	if (!obj || (obj->get_in_room() != NOWHERE))
+	{
 		act(local_buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, TO_ROOM);
+	}
 
 	// Notify the other room
 	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back)
@@ -1468,9 +1492,15 @@ int ok_pick(CHAR_DATA* ch, obj_vnum /*keynum*/, OBJ_DATA* obj, int door, int scm
 		{
 			send_to_char("Вы все-таки сломали этот замок...\r\n", ch);
 			if (obj)
-				SET_BIT(GET_OBJ_VAL(obj, 1), CONT_BROKEN);
+			{
+				auto v = obj->get_val(1);
+				SET_BIT(v, CONT_BROKEN);
+				obj->set_val(1, v);
+			}
 			if (door > -1)
+			{
 				SET_BIT(EXIT(ch, door)->exit_info, EX_BROKEN);
+			}
 		}
 		else
 			return (1);
@@ -1591,12 +1621,12 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (isname(buf, p_str))
 		{
-			if (!world[IN_ROOM(ch)]->portal_time)
+			if (!world[ch->in_room]->portal_time)
 				send_to_char("Вы не видите здесь пентаграмму.\r\n", ch);
 			else
 			{
-				from_room = IN_ROOM(ch);
-				door = world[IN_ROOM(ch)]->portal_room;
+				from_room = ch->in_room;
+				door = world[ch->in_room]->portal_room;
 				// не пускать игрока на холженном коне
 				if (on_horse(ch) && GET_MOB_HOLD(get_horse(ch)))
 				{
@@ -1927,7 +1957,7 @@ void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (horse == NULL)
 		send_to_char(NOPERSON, ch);
-	else if (IN_ROOM(horse) != IN_ROOM(ch))
+	else if (IN_ROOM(horse) != ch->in_room)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
@@ -2003,7 +2033,7 @@ void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (horse == NULL)
 		send_to_char(NOPERSON, ch);
-	else if (IN_ROOM(horse) != IN_ROOM(ch))
+	else if (IN_ROOM(horse) != ch->in_room)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
@@ -2044,7 +2074,7 @@ void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		horse = get_horse(ch);
 	if (horse == NULL)
 		send_to_char(NOPERSON, ch);
-	else if (IN_ROOM(horse) != IN_ROOM(ch))
+	else if (IN_ROOM(horse) != ch->in_room)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);

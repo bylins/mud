@@ -154,7 +154,7 @@ std::vector<int> get_start_outfit(CHAR_DATA *ch)
 			class_list.at(ch_class).begin(), class_list.at(ch_class).end());
 	}
 	// стаф из birthplaces.xml (карты родовых)
-	int birth_id = BirthPlace::GetIdByRoom(GET_ROOM_VNUM(IN_ROOM(ch)));
+	int birth_id = BirthPlace::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
 	if (birth_id >= 0)
 	{
 		std::vector<int> tmp = BirthPlace::GetItemList(birth_id);
@@ -190,10 +190,10 @@ void check_help_message(CHAR_DATA *ch)
 		&& IS_CARRYING_N(ch) <= 0
 		&& IS_CARRYING_W(ch) <= 0)
 	{
-		int birth_id = BirthPlace::GetIdByRoom(GET_ROOM_VNUM(IN_ROOM(ch)));
+		int birth_id = BirthPlace::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
 		if (birth_id >= 0)
 		{
-			CHAR_DATA *renter = find_renter(IN_ROOM(ch));
+			CHAR_DATA *renter = find_renter(ch->in_room);
 			std::string text = BirthPlace::GetRentHelp(birth_id);
 			if (renter && !text.empty())
 			{

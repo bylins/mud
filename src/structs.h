@@ -74,11 +74,8 @@ const unsigned TOTAL_TYPES = 3;
 
 // done
 typedef struct index_data INDEX_DATA;
-typedef struct script_data SCRIPT_DATA;
-
 typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
-typedef struct extra_descr_data EXTRA_DESCR_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
@@ -1239,6 +1236,8 @@ typedef int zone_rnum;	// A zone's real (array index) number. //
 */
 void asciiflag_conv(const char *flag, void *to);
 
+int ext_search_block(const char *arg, const char * const * const list, int exact);
+
 class FLAG_DATA
 {
 public:
@@ -1278,6 +1277,9 @@ public:
 	void tascii(int num_planes, char* ascii) const;
 	bool sprintbits(const char *names[], char *result, const char *div, const int print_flag) const;
 	bool sprintbits(const char *names[], char *result, const char *div) const { return sprintbits(names, result, div, 0); };
+
+	/// Изменение указанного флага
+	void gm_flag(const char *subfield, const char * const * const list, char *res);
 
 protected:
 	boost::array<uint32_t, PLANES_NUMBER> m_flags;
@@ -1354,11 +1356,14 @@ inline int flag_data_by_num(const int& num)
 }
 
 // Extra description: used in objects, mobiles, and rooms //
-struct extra_descr_data
+struct EXTRA_DESCR_DATA
 {
+	EXTRA_DESCR_DATA() : keyword(nullptr), description(nullptr), next(nullptr) {}
+	~EXTRA_DESCR_DATA();
+
 	char *keyword;		// Keyword in look/examine          //
 	char *description;	// What to see                      //
-	EXTRA_DESCR_DATA *next;	// Next in list                     //
+	std::shared_ptr<EXTRA_DESCR_DATA> next;	// Next in list                     //
 };
 
 // header block for rent files.  BEWARE: Changing it will ruin rent files  //
@@ -1596,6 +1601,42 @@ class Board;
 struct z_stream;
 #endif
 
+class CCommonStringWriter
+{
+public:
+	virtual ~CCommonStringWriter() {}
+	virtual const char* get_string() const = 0;
+	virtual void set_string(const char* data) = 0;
+	virtual void append_string(const char* data) = 0;
+	virtual size_t length() const = 0;
+	virtual void clear() = 0;
+};
+
+using string_writer_t = std::shared_ptr<CCommonStringWriter>;
+
+class CSimpleStringWriter: public CCommonStringWriter
+{
+public:
+	CSimpleStringWriter(char*& managed) : m_managed(managed) {}
+	virtual const char* get_string() const override { return m_managed; }
+	virtual void set_string(const char* string) override;
+	virtual void append_string(const char* string) override;
+	virtual size_t length() const override { return m_managed ? strlen(m_managed) : 0; }
+	virtual void clear() override;
+
+private:
+	char*& m_managed;
+};
+
+inline void CSimpleStringWriter::clear()
+{
+	if (m_managed)
+	{
+		free(m_managed);
+	}
+	m_managed = nullptr;
+}
+
 struct DESCRIPTOR_DATA
 {
 	DESCRIPTOR_DATA() : bad_pws(0),
@@ -1608,7 +1649,6 @@ struct DESCRIPTOR_DATA
 		showstr_vector(0),
 		showstr_count(0),
 		showstr_page(0),
-		str(0),
 		max_str(0),
 		backstr(0),
 		mail_to(0),
@@ -1661,7 +1701,7 @@ struct DESCRIPTOR_DATA
 	char **showstr_vector;	// for paging through texts      //
 	int showstr_count;		// number of pages to page through  //
 	int showstr_page;		// which page are we currently showing?   //
-	char **str;		// for the modify-str system     //
+	string_writer_t writer;		// for the modify-str system     //
 	size_t max_str;		//      -        //
 	char *backstr;		// added for handling abort buffers //
 	int mail_to;		// uid for mail system

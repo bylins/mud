@@ -22,7 +22,7 @@ namespace mail
 {
 
 bool has_mail(int uid);
-void add(int to_uid, int from_uid, char* message);
+void add(int to_uid, int from_uid, const char* message);
 void add_by_id(int to_uid, int from_uid, char* message);
 void receive(CHAR_DATA* ch, CHAR_DATA* mailman);
 void save();

@@ -139,7 +139,7 @@ class MakeRecept
 {
 	int stat_modify(CHAR_DATA * ch, int value, float devider);
 
-	int add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add_flag, int delta);
+	int add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, const FLAG_DATA* add_flag, int delta);
 
 	int add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta);
 

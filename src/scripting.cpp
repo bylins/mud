@@ -851,76 +851,67 @@ ObjWrapper(OBJ_DATA* obj):Wrapper<OBJ_DATA>(obj, caching::obj_cache) { }
 std::string get_aliases() const
 {
 	Ensurer obj(*this);
-	return obj->aliases;
+	return obj->get_aliases();
 }
 
 void set_aliases(const char* aliases)
 {
 	Ensurer obj(*this);
-	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->aliases != obj_proto[i]->aliases)
-		if (obj->aliases) free(obj->aliases);
-	obj->aliases = str_dup(aliases);
+	obj->set_aliases(aliases);
 }
 
 std::string get_description() const
 {
 	Ensurer obj(*this);
-	return obj->description;
+	return obj->get_description();
 }
 
 void set_description(const char* description)
 {
 	Ensurer obj(*this);
-	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->description != obj_proto[i]->description)
-		if (obj->description) free(obj->description);
-	obj->description = str_dup(description);
+	obj->set_description(description);
 }
 std::string get_short_description() const
 {
 	Ensurer obj(*this);
-	return obj->short_description;
+	return obj->get_short_description();
 }
 
 void set_short_description(const char* short_description)
 {
 	Ensurer obj(*this);
-	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->short_description != obj_proto[i]->short_description)
-		if (obj->short_description) free(obj->short_description);
-	obj->short_description = str_dup(short_description);
+	obj->set_short_description(short_description);
 }
 std::string get_action_description() const
 {
 	Ensurer obj(*this);
-	return obj->action_description;
+	return obj->get_action_description();
 }
 
 void set_action_description(const char* action_description)
 {
 	Ensurer obj(*this);
-	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->action_description != obj_proto[i]->action_description)
-		if (obj->action_description) free(obj->action_description);
-	obj->action_description = str_dup(action_description);
+	obj->set_action_description(action_description);
 }
 std::string get_pad(const unsigned pad) const
 {
 	Ensurer obj(*this);
 	if (pad < 6)
-		return obj->PNames[pad];
-	else return "";
+	{
+		return obj->get_PName(pad);
+	}
+
+	return "";
 }
 
 void set_pad(const unsigned pad, const char* s)
 {
-	if (pad >= 6) return;
+	if (pad >= 6)
+	{
+		return;
+	}
 	Ensurer obj(*this);
-	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->PNames[pad] != obj_proto[i]->PNames[pad])
-		if (obj->PNames[pad]) free(obj->PNames[pad]);
-	obj->PNames[pad] = str_dup(s);
+	obj->set_PName(pad, s);
 }
 
 int get_value(const unsigned i) const
@@ -931,7 +922,7 @@ int get_value(const unsigned i) const
 		throw_error_already_set();
 	}
 	Ensurer obj(*this);
-	return obj->obj_flags.value[i];
+	return obj->get_val(i);
 }
 
 void set_value(const int i, const int v)
@@ -942,43 +933,43 @@ void set_value(const int i, const int v)
 		throw_error_already_set();
 	}
 	Ensurer obj(*this);
-	obj->obj_flags.value[i] = v;
+	obj->set_val(i, v);
 }
 
 int get_obj_type() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.type_flag;
+	return obj->get_type();
 }
 
 void set_obj_type(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.type_flag = static_cast<obj_flag_data::EObjectType>(v);
+	obj->set_type(static_cast<obj_flag_data::EObjectType>(v));
 }
 
 int get_wear_flags() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.wear_flags;
+	return obj->get_wear_flags();
 }
 
 void set_wear_flags(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.wear_flags = v;
+	obj->set_wear_flags(v);
 }
 
 unsigned get_weight() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.weight;
+	return obj->get_weight();
 }
 
 void set_weight(const unsigned v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.weight = v;
+	obj->set_weight(v);
 }
 unsigned get_cost() const
 {
@@ -1016,7 +1007,7 @@ void set_cost_per_day_off(const unsigned v)
 int get_sex() const
 {
 	Ensurer obj(*this);
-	return to_underlying(obj->obj_flags.Obj_sex);
+	return to_underlying(obj->get_sex());
 }
 
 int get_timer() const
@@ -1034,203 +1025,207 @@ void set_timer(const int timer) const
 void set_sex(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_sex = static_cast<ESex>(v);
+	obj->set_sex(static_cast<ESex>(v));
 }
 int get_spell() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_spell;
+	return obj->get_spell();
 }
 
 void set_spell(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_spell = v;
+	obj->set_spell(v);
 }
 int get_level() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_level;
+	return obj->get_level();
 }
 
 void set_level(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_level = v;
+	obj->set_level(v);
 }
 int get_skill() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_skill;
+	return obj->get_skill();
 }
 
 void set_skill(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_skill = v;
+	obj->set_skill(v);
 }
 int get_max() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_max;
+	return obj->get_maximum();
 }
 
 void set_max(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_max = v;
+	obj->set_maximum(v);
 }
 int get_cur() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_cur;
+	return obj->get_current();
 }
 
 void set_cur(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_cur = v;
+	obj->set_current(v);
 }
 
 int get_mater() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_mater;
+	return obj->get_material();
 }
 
 void set_mater(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_mater = static_cast<obj_flag_data::EObjectMaterial>(v);
+	obj->set_material(static_cast<obj_flag_data::EObjectMaterial>(v));
 }
 int get_owner() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_owner;
+	return obj->get_owner();
 }
 
 void set_owner(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_owner = v;
+	obj->set_owner(v);
 }
 
 int get_maker() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_maker;
+	return obj->get_crafter_uid();
 }
 
 void set_maker(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_maker = v;
+	obj->set_crafter_uid(v);
 }
 
 int get_destroyer() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_destroyer;
+	return obj->get_destroyer();
 }
 
 void set_destroyer(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_destroyer = v;
+	obj->set_destroyer(v);
 }
 
 int get_zone() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_zone;
+	return obj->get_zone();
 }
 
 void set_zone(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_zone = v;
+	obj->set_zone(v);
 }
 
 FLAG_DATA get_affects() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.affects;
+	return obj->get_affect_flags();
 }
 
 void set_affects(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.affects = f;
+	obj->set_affect_flags(f);
 }
 
 FLAG_DATA get_anti_flag() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.anti_flag;
+	return obj->get_anti_flags();
 }
 
 void set_anti_flag(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.anti_flag = f;
+	obj->set_anti_flags(f);
 }
 
 FLAG_DATA get_no_flag() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.no_flag;
+	return obj->get_no_flags();
 }
 
 void set_no_flag(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.no_flag = f;
+	obj->set_no_flags(f);
 }
 
 FLAG_DATA get_extra_flags() const
 {
 	Ensurer obj(*this);
-	return GET_OBJ_EXTRA(obj);
+	return obj->get_extra_flags();
 }
 
 void set_extra_flags(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
-	GET_OBJ_EXTRA(obj) = f;
+	obj->set_extra_flags(f);
 }
 
-affected_t& get_affected()
+const affected_t& get_affected()
 {
 	Ensurer obj(*this);
-	return obj->affected;
+	return obj->get_all_affected();
 }
 
 object get_carried_by() const
 {
 	Ensurer obj(*this);
-	if (obj->carried_by)
-		return object(CharacterWrapper(obj->carried_by));
+	if (obj->get_carried_by())
+	{
+		return object(CharacterWrapper(obj->get_carried_by()));
+	}
 	return object();
 }
 
 object get_worn_by() const
 {
 	Ensurer obj(*this);
-	if (obj->worn_by)
-		return object(CharacterWrapper(obj->worn_by));
+	if (obj->get_worn_by())
+	{
+		return object(CharacterWrapper(obj->get_worn_by()));
+	}
 	return object();
 }
 
 obj_rnum get_item_number() const
 {
 	Ensurer obj(*this);
-	return GET_OBJ_RNUM(obj);
+	return obj->get_rnum();
 }
 
 void set_item_number(const obj_rnum n)
 {
 	Ensurer obj(*this);
-	GET_OBJ_RNUM(obj)=n;
+	obj->set_rnum(n);
 }
 
 obj_vnum get_vnum() const {

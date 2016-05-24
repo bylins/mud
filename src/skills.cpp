@@ -615,25 +615,25 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			bonus -= 50;
 		}
 
-		if (IS_DARK(IN_ROOM(ch)))
+		if (IS_DARK(ch->in_room))
 		{
 			bonus += 25;
 		}
 
-		if (SECT(IN_ROOM(ch)) == SECT_INSIDE)
+		if (SECT(ch->in_room) == SECT_INSIDE)
 		{
 			bonus += 20;
 		}
-		else if (SECT(IN_ROOM(ch)) == SECT_CITY)
+		else if (SECT(ch->in_room) == SECT_CITY)
 		{
 			bonus -= 15;
 		}
-		else if (SECT(IN_ROOM(ch)) == SECT_FOREST)
+		else if (SECT(ch->in_room) == SECT_FOREST)
 		{
 			bonus += 20;
 		}
-		else if (SECT(IN_ROOM(ch)) == SECT_HILLS
-			|| SECT(IN_ROOM(ch)) == SECT_MOUNTAIN)
+		else if (SECT(ch->in_room) == SECT_HILLS
+			|| SECT(ch->in_room) == SECT_MOUNTAIN)
 		{
 			bonus += 10;
 		}
@@ -677,9 +677,9 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (awake_others(ch) || equip_in_metall(ch))
 			bonus -= 50;
 
-		if (SECT(IN_ROOM(ch)) == SECT_CITY)
+		if (SECT(ch->in_room) == SECT_CITY)
 			bonus -= 10;
-		if (IS_DARK(IN_ROOM(ch)))
+		if (IS_DARK(ch->in_room))
 			bonus += 20;
 
 		if (vict)
@@ -701,7 +701,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (awake_others(ch) || equip_in_metall(ch))
 			bonus -= 50;
 
-		if (IS_DARK(IN_ROOM(ch)))
+		if (IS_DARK(ch->in_room))
 			bonus += 20;
 
 		if (vict)
@@ -722,24 +722,24 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
             percent = skill_is + int_app[GET_REAL_INT(ch)].observation
                                 + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
-            if (SECT(IN_ROOM(ch)) == SECT_FOREST || SECT(IN_ROOM(ch)) == SECT_FIELD)
+            if (SECT(ch->in_room) == SECT_FOREST || SECT(ch->in_room) == SECT_FIELD)
                     percent += 10;
 
             percent = complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
 
-            if (SECT(IN_ROOM(ch)) == SECT_WATER_SWIM ||
-                            SECT(IN_ROOM(ch)) == SECT_WATER_NOSWIM ||
-                            SECT(IN_ROOM(ch)) == SECT_FLYING ||
-                            SECT(IN_ROOM(ch)) == SECT_UNDERWATER ||
-                            SECT(IN_ROOM(ch)) == SECT_SECRET
-                            || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) percent = 0;
+            if (SECT(ch->in_room) == SECT_WATER_SWIM ||
+                            SECT(ch->in_room) == SECT_WATER_NOSWIM ||
+                            SECT(ch->in_room) == SECT_FLYING ||
+                            SECT(ch->in_room) == SECT_UNDERWATER ||
+                            SECT(ch->in_room) == SECT_SECRET
+                            || ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK)) percent = 0;
 
 
             if (vict)
             {
 				victim_modi += GET_REAL_CON(vict) / 2;
 				if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
-					|| ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK))
+					|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
 				{
 					victim_modi = -100;
 				}
@@ -752,14 +752,14 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
             percent =
                     complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
 
-            if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK))
+            if (ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
                     percent = 0;
 
             if (vict)
             {
 				victim_modi += GET_REAL_CON(vict) / 2;
 				if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
-					|| ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK))
+					|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
 				{
 					victim_modi = -100;
 				}
@@ -870,15 +870,15 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (awake_others(ch))
 			bonus -= 100;
 
-		if (IS_DARK(IN_ROOM(ch)))
+		if (IS_DARK(ch->in_room))
 			bonus += 15;
 
-		if (SECT(IN_ROOM(ch)) == SECT_CITY)
+		if (SECT(ch->in_room) == SECT_CITY)
 			bonus -= 15;
-		else if (SECT(IN_ROOM(ch)) == SECT_FOREST)
+		else if (SECT(ch->in_room) == SECT_FOREST)
 		        bonus += 10;
-		else if (SECT(IN_ROOM(ch)) == SECT_HILLS
-				 || SECT(IN_ROOM(ch)) == SECT_MOUNTAIN) bonus += 5;
+		else if (SECT(ch->in_room) == SECT_HILLS
+				 || SECT(ch->in_room) == SECT_MOUNTAIN) bonus += 5;
 		if (equip_in_metall(ch))
 			bonus -= 30;
 
@@ -1024,9 +1024,9 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
 		break;
 	case SKILL_FIRE:
-		if (get_room_sky(IN_ROOM(ch)) == SKY_RAINING)
+		if (get_room_sky(ch->in_room) == SKY_RAINING)
 			bonus -= 50;
-		else if (get_room_sky(IN_ROOM(ch)) != SKY_LIGHTNING)
+		else if (get_room_sky(ch->in_room) != SKY_LIGHTNING)
 			bonus -= number(10, 25);
 	case SKILL_HORSE: // верховая езда
 		bonus = cha_app[GET_REAL_CHA(ch)].leadership;
@@ -1195,13 +1195,13 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 
 	if (IS_IMMORTAL(ch)
 		|| ((!victim || OK_GAIN_EXP(ch, victim))
-			&& IN_ROOM(ch) != NOWHERE
-			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL)
+			&& ch->in_room != NOWHERE
+			&& !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 			// Стрибог
-			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+			&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 			//Свентовит
-			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE)
-			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ATRIUM)
+			&& !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)
+			&& !ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM)
 			&& (diff = wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20 - trained_skill) > 0
 			&& trained_skill < MAX_EXP_RMRT_PERCENT(ch)))
 	{

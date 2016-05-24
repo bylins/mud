@@ -703,10 +703,10 @@ public:
 	OBJ_DATA *equipment[NUM_WEARS];	// Equipment array
 
 	OBJ_DATA *carrying;	// Head of list
-	DESCRIPTOR_DATA *desc;	// NULL for mobiles
+	DESCRIPTOR_DATA* desc;	// NULL for mobiles
 	long id;			// used by DG triggers
 	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers
-	struct script_data *script;	// script info for the object
+	struct SCRIPT_DATA *script;	// script info for the object
 	struct script_memory *memory;	// for mob memory triggers
 
 	CHAR_DATA *next_in_room;	// For room->people - list
@@ -850,7 +850,7 @@ inline bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* 
 {
 	return !(GET_INVIS_LEV(ch) > 30)
 		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
-		&& (!IS_DARK(IN_ROOM(sub))
+		&& (!IS_DARK(sub->in_room)
 			|| AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
 		&& (!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
 			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS));
@@ -908,7 +908,7 @@ inline bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
 	return !NAME_BAD(ch)
 		&& (NAME_FINE(ch)
 			|| !(GET_LEVEL(ch) == NAME_LEVEL))
-		&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 		&& IS_NPC(victim)
 		&& (GET_EXP(victim) > 0)
 		&& (!IS_NPC(victim)

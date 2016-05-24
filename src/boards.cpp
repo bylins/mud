@@ -774,7 +774,8 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		CREATE<char*>(text, 1);
 		send_to_char(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
 		STATE(ch->desc) = CON_WRITEBOARD;
-		string_write(ch->desc, text, MAX_MESSAGE_LENGTH, 0, NULL);
+		string_writer_t writer(new CSimpleStringWriter(*text));
+		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, NULL);
 	}
 	else if (CompareParam(buffer, "очистить") || CompareParam(buffer, "remove"))
 	{
@@ -1208,7 +1209,7 @@ int Board::Special(CHAR_DATA* ch, void* me, int cmd, char* argument)
 		{
 			for (auto i = board_list.begin(); i != board_list.end(); ++i)
 			{
-				if (isname(buffer2, (*i)->get_name().c_str()))
+				if (isname(buffer2, (*i)->get_name()))
 				{
 					send_to_char(ch,
 						"Первое слово вашего заголовка совпадает с названием одной из досок сообщений,\r\n"

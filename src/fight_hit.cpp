@@ -37,7 +37,7 @@ int calc_leadership(CHAR_DATA * ch)
 
 	if (ch->master)
 	{
-		if (IN_ROOM(ch) != IN_ROOM(ch->master))
+		if (ch->in_room != IN_ROOM(ch->master))
 			return (FALSE);
 		leader = ch->master;
 	}
@@ -790,31 +790,34 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		switch (unequip_pos)
 		{
 			case 6:		//WEAR_HEAD
-				sprintf(buf, "%s слетел%s с вашей головы.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с вашей головы.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_VICT);
-				sprintf(buf, "%s слетел%s с головы $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с головы $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_CHAR);
 				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				break;
+
 			case 11:	//WEAR_SHIELD
-				sprintf(buf, "%s слетел%s с вашей руки.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с вашей руки.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_VICT);
-				sprintf(buf, "%s слетел%s с руки $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с руки $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_CHAR);
 				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				break;
+
 			case 16:	//WEAR_WIELD
 			case 17:	//WEAR_HOLD
-				sprintf(buf, "%s выпал%s из вашей руки.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из вашей руки.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_VICT);
-				sprintf(buf, "%s выпал%s из руки $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из руки $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_CHAR);
 				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				break;
+
 			case 18:	//WEAR_BOTHS
-				sprintf(buf, "%s выпал%s из ваших рук.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из ваших рук.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_VICT);
-				sprintf(buf, "%s выпал%s из рук $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из рук $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, FALSE, ch, 0, victim, TO_CHAR);
 				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				break;
@@ -2056,7 +2059,7 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim)
 			{
 				remember(ch, victim->master);
 			}
-			else if (IN_ROOM(victim->master) == IN_ROOM(ch) && CAN_SEE(ch, victim->master))
+			else if (IN_ROOM(victim->master) == ch->in_room && CAN_SEE(ch, victim->master))
 			{
 				remember(ch, victim->master);
 			}
@@ -2455,8 +2458,8 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	if (IN_ROOM(victim) == NOWHERE
-		|| IN_ROOM(ch) == NOWHERE
-		|| IN_ROOM(ch) != IN_ROOM(victim))
+		|| ch->in_room == NOWHERE
+		|| ch->in_room != IN_ROOM(victim))
 	{
 		log("SYSERR: Attempt to damage '%s' in room NOWHERE by '%s'.",
 			GET_NAME(victim), GET_NAME(ch));
@@ -2522,9 +2525,9 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	// If negative damage - return
 	if (dam < 0
-		|| IN_ROOM(ch) == NOWHERE
+		|| ch->in_room == NOWHERE
 		|| IN_ROOM(victim) == NOWHERE
-		|| IN_ROOM(ch) != IN_ROOM(victim))
+		|| ch->in_room != IN_ROOM(victim))
 	{
 		return (0);
 	}
@@ -2784,7 +2787,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	// Думаю, простой проверки достаточно.
 	// Примечание, если сбежал в FIRESHIELD,
 	// то обратного повреждения по атакующему не будет
-	if (IN_ROOM(ch) != IN_ROOM(victim))
+	if (ch->in_room != IN_ROOM(victim))
 		return dam;
 
 	// Stop someone from fighting if they're stunned or worse
@@ -3519,7 +3522,7 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (!hit_no_parry)
 	{
 		// обработаем ситуацию ЗАХВАТ
-		for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people; vict && dam >= 0;
+		for (CHAR_DATA *vict = world[ch->in_room]->people; vict && dam >= 0;
 			vict = vict->next_in_room)
 		{
 			hit_touching(ch, vict, &dam);
@@ -3715,7 +3718,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 	// Do some sanity checking, in case someone flees, etc.
-	if (IN_ROOM(ch) != IN_ROOM(victim) || IN_ROOM(ch) == NOWHERE)
+	if (ch->in_room != IN_ROOM(victim) || ch->in_room == NOWHERE)
 	{
 		if (ch->get_fighting() && ch->get_fighting() == victim)
 		{
@@ -4106,11 +4109,11 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 				}
 			if (MOB_FLAGGED(ch, MOB_AREA_ATTACK))
 			{
-				for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+				for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 				{
 					if (IS_IMMORTAL(tch))	// immortal
 						continue;
-					if (IN_ROOM(ch) == NOWHERE ||	// Something killed in process ...
+					if (ch->in_room == NOWHERE ||	// Something killed in process ...
 							IN_ROOM(tch) == NOWHERE)
 						continue;
 					if (tch != ch && !same_group(ch, tch))

@@ -1696,7 +1696,7 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			return (TRUE);
 		}
 		make_horse(horse, ch);
-		char_to_room(horse, IN_ROOM(ch));
+		char_to_room(horse, ch->in_room);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s вам.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_CHAR);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
@@ -1760,10 +1760,10 @@ int npc_track(CHAR_DATA * ch)
 			if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
 				for (names = MEMORY(ch); names && door == BFS_ERROR; names = names->next)
 					if (GET_IDNUM(vict) == names->id && (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-														 || world[IN_ROOM(ch)]->zone ==
+														 || world[ch->in_room]->zone ==
 														 world[IN_ROOM(vict)]->zone))
 					{
-						for (track = world[IN_ROOM(ch)]->track;
+						for (track = world[ch->in_room]->track;
 								track && door == BFS_ERROR; track = track->next)
 							if (track->who == GET_IDNUM(vict))
 								for (i = 0; i < NUM_OF_DIRS; i++)
@@ -1791,7 +1791,7 @@ int npc_track(CHAR_DATA * ch)
 				for (names = MEMORY(ch); names && door == BFS_ERROR; names = names->next)
 					if (GET_IDNUM(vict) == names->id
 						&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-							|| world[IN_ROOM(ch)]->zone == world[IN_ROOM(vict)]->zone))
+							|| world[ch->in_room]->zone == world[IN_ROOM(vict)]->zone))
 					{
 						if (!msg)
 						{
@@ -1868,17 +1868,15 @@ void npc_dropunuse(CHAR_DATA * ch)
 	OBJ_DATA *obj, *nobj;
 	for (obj = ch->carrying; obj; obj = nobj)
 	{
-		nobj = obj->next_content;
+		nobj = obj->get_next_content();
 		if (item_nouse(obj))
 		{
 			act("$n выбросил$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_from_char(obj);
-			obj_to_room(obj, IN_ROOM(ch));
+			obj_to_room(obj, ch->in_room);
 		}
 	}
 }
-
-
 
 int npc_scavenge(CHAR_DATA * ch)
 {
@@ -1886,9 +1884,15 @@ int npc_scavenge(CHAR_DATA * ch)
 	OBJ_DATA *obj, *best_obj, *cont, *best_cont, *cobj;
 
 	if (!MOB_FLAGGED(ch, MOB_SCAVENGER))
+	{
 		return (FALSE);
+	}
+
 	if (IS_SHOPKEEPER(ch))
+	{
 		return (FALSE);
+	}
+
 	npc_dropunuse(ch);
 	if (world[ch->in_room]->contents && number(0, 25) <= GET_REAL_INT(ch))
 	{
@@ -1896,7 +1900,7 @@ int npc_scavenge(CHAR_DATA * ch)
 		best_obj = NULL;
 		cont = NULL;
 		best_cont = NULL;
-		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content)
+		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content())
 		{
 			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING
 				|| Clan::is_clan_chest(obj)
@@ -1904,6 +1908,7 @@ int npc_scavenge(CHAR_DATA * ch)
 			{
 				continue;
 			}
+
 			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
 				&& !system_obj::is_purse(obj))
 			{
@@ -1911,12 +1916,14 @@ int npc_scavenge(CHAR_DATA * ch)
 				{
 					continue;
 				}
+
 				// Заперто, открываем, если есть ключ
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
 					&& has_key(ch, GET_OBJ_VAL(obj, 2)))
 				{
 					do_doorcmd(ch, obj, 0, SCMD_UNLOCK);
 				}
+
 				// Заперто, взламываем, если умеем
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
 					&& ch->get_skill(SKILL_PICK_LOCK)
@@ -1926,18 +1933,29 @@ int npc_scavenge(CHAR_DATA * ch)
 				}
 				// Все равно заперто, ну тогда фиг с ним
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
+				{
 					continue;
+				}
+
 				if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
+				{
 					do_doorcmd(ch, obj, 0, SCMD_OPEN);
+				}
+
 				if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
+				{
 					continue;
-				for (cobj = obj->contains; cobj; cobj = cobj->next_content)
+				}
+
+				for (cobj = obj->get_contains(); cobj; cobj = cobj->get_next_content())
+				{
 					if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj) && GET_OBJ_COST(cobj) > max)
 					{
 						cont = obj;
 						best_cont = best_obj = cobj;
 						max = GET_OBJ_COST(cobj);
 					}
+				}
 			}
 			else if (!IS_CORPSE(obj) &&
 				CAN_GET_OBJ(ch, obj) && GET_OBJ_COST(obj) > max && !item_nouse(obj))
@@ -1964,7 +1982,7 @@ int npc_scavenge(CHAR_DATA * ch)
 			}
 			else
 			{
-				sprintf(buf, "$n достал$g $o3 из %s.", cont->PNames[1]);
+				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(1).c_str());
 				act(buf, FALSE, ch, best_obj, 0, TO_ROOM);
 				if (GET_OBJ_TYPE(best_obj) == obj_flag_data::ITEM_MONEY)
 				{
@@ -1994,20 +2012,20 @@ int npc_loot(CHAR_DATA * ch)
 	npc_dropunuse(ch);
 	if (world[ch->in_room]->contents && number(0, GET_REAL_INT(ch)) > 10)
 	{
-		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content)
+		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content())
 		{
 			if (CAN_SEE_OBJ(ch, obj) && IS_CORPSE(obj))
 			{
 				// Сначала лутим то, что не в контейнерах
-				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot)
+				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot)
 				{
-					next_loot = loot_obj->next_content;
+					next_loot = loot_obj->get_next_content();
 					if ((GET_OBJ_TYPE(loot_obj) != obj_flag_data::ITEM_CONTAINER
 							|| system_obj::is_purse(loot_obj))
 						&& CAN_GET_OBJ(ch, loot_obj)
 						&& !item_nouse(loot_obj))
 					{
-						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
+						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
 						act(buf, FALSE, ch, loot_obj, 0, TO_ROOM);
 						if (GET_OBJ_TYPE(loot_obj) == obj_flag_data::ITEM_MONEY)
 						{
@@ -2023,9 +2041,9 @@ int npc_loot(CHAR_DATA * ch)
 					}
 				}
 				// Теперь не запертые контейнеры
-				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot)
+				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot)
 				{
-					next_loot = loot_obj->next_content;
+					next_loot = loot_obj->get_next_content();
 					if (GET_OBJ_TYPE(loot_obj) == obj_flag_data::ITEM_CONTAINER)
 					{
 						if (IS_CORPSE(loot_obj)
@@ -2034,12 +2052,12 @@ int npc_loot(CHAR_DATA * ch)
 						{
 							continue;
 						}
-						for (cobj = loot_obj->contains; cobj; cobj = cnext_obj)
+						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj)
 						{
-							cnext_obj = cobj->next_content;
+							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj))
 							{
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
+								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
 								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
 								if (GET_OBJ_TYPE(cobj) == obj_flag_data::ITEM_MONEY)
 								{
@@ -2057,9 +2075,9 @@ int npc_loot(CHAR_DATA * ch)
 					}
 				}
 				// И наконец, лутим запертые контейнеры если есть ключ или можем взломать
-				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot)
+				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot)
 				{
-					next_loot = loot_obj->next_content;
+					next_loot = loot_obj->get_next_content();
 					if (GET_OBJ_TYPE(loot_obj) == obj_flag_data::ITEM_CONTAINER)
 					{
 						if (IS_CORPSE(loot_obj)
@@ -2068,25 +2086,35 @@ int npc_loot(CHAR_DATA * ch)
 						{
 							continue;
 						}
+
 						// Есть ключ?
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
-								has_key(ch, GET_OBJ_VAL(loot_obj, 2)))
-							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
+						if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
+							&& has_key(ch, GET_OBJ_VAL(loot_obj, 2)))
+						{
+							loot_obj->toggle_val_bit(1, CONT_LOCKED);
+						}
+
 						// ...или взломаем?
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
-								ch->get_skill(SKILL_PICK_LOCK) &&
-								ok_pick(ch, 0, obj, 0, SCMD_PICK))
-							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
+						if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
+							&& ch->get_skill(SKILL_PICK_LOCK)
+							&& ok_pick(ch, 0, obj, 0, SCMD_PICK))
+						{
+							loot_obj->toggle_val_bit(1, CONT_LOCKED);
+						}
+
 						// Эх, не открыть. Ну ладно.
 						if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
-							continue;
-						TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED);
-						for (cobj = loot_obj->contains; cobj; cobj = cnext_obj)
 						{
-							cnext_obj = cobj->next_content;
+							continue;
+						}
+
+						obj->toggle_val_bit(1, CONT_CLOSED);
+						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj)
+						{
+							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj))
 							{
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
+								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
 								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
 								if (GET_OBJ_TYPE(cobj) == obj_flag_data::ITEM_MONEY)
 								{
@@ -2120,7 +2148,7 @@ int npc_move(CHAR_DATA * ch, int dir, int/* need_specials_check*/)
 		return (FALSE);
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
 		return (FALSE);
-	else if (ch->master && IN_ROOM(ch) == IN_ROOM(ch->master))
+	else if (ch->master && ch->in_room == IN_ROOM(ch->master))
 		return (FALSE);
 	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED))
 	{
@@ -2199,14 +2227,15 @@ int calculate_weapon_class(CHAR_DATA * ch, OBJ_DATA * weapon)
 	damage = (GET_OBJ_VAL(weapon, 1) + 1) * (GET_OBJ_VAL(weapon, 2)) / 2;
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if (weapon->affected[i].location == APPLY_DAMROLL)
+		auto& affected = weapon->get_affected(i);
+		if (affected.location == APPLY_DAMROLL)
 		{
-			damage += weapon->affected[i].modifier;
+			damage += affected.modifier;
 		}
 
-		if (weapon->affected[i].location == APPLY_HITROLL)
+		if (affected.location == APPLY_HITROLL)
 		{
-			hits += weapon->affected[i].modifier * 10;
+			hits += affected.modifier * 10;
 		}
 	}
 
@@ -2268,7 +2297,7 @@ void npc_wield(CHAR_DATA * ch)
 
 	for (obj = ch->carrying; obj; obj = next)
 	{
-		next = obj->next_content;
+		next = obj->get_next_content();
 		if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON
 			|| GET_OBJ_UID(obj) != 0)
 		{
@@ -2375,7 +2404,7 @@ void npc_armor(CHAR_DATA * ch)
 
 	for (obj = ch->carrying; obj; obj = next)
 	{
-		next = obj->next_content;
+		next = obj->get_next_content();
 
 		if (!ObjSystem::is_armor_type(obj)
 			|| !no_bad_affects(obj))
@@ -2492,17 +2521,17 @@ void npc_light(CHAR_DATA * ch)
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION))
 		return;
 
-	if ((obj = GET_EQ(ch, WEAR_LIGHT)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(IN_ROOM(ch))))
+	if ((obj = GET_EQ(ch, WEAR_LIGHT)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(ch->in_room)))
 	{
 		act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
 		obj_to_char(unequip_char(ch, WEAR_LIGHT | 0x40), ch);
 	}
 
-	if (!GET_EQ(ch, WEAR_LIGHT) && IS_DARK(IN_ROOM(ch)))
+	if (!GET_EQ(ch, WEAR_LIGHT) && IS_DARK(ch->in_room))
 	{
 		for (obj = ch->carrying; obj; obj = next)
 		{
-			next = obj->next_content;
+			next = obj->get_next_content();
 			if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_LIGHT)
 			{
 				continue;
@@ -2511,7 +2540,7 @@ void npc_light(CHAR_DATA * ch)
 			{
 				act("$n выбросил$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 				obj_from_char(obj);
-				obj_to_room(obj, IN_ROOM(ch));
+				obj_to_room(obj, ch->in_room);
 				continue;
 			}
 			//obj_from_char(obj);
@@ -2533,10 +2562,10 @@ int npc_battle_scavenge(CHAR_DATA * ch)
 	if (IS_SHOPKEEPER(ch))
 		return (FALSE);
 
-	if (world[IN_ROOM(ch)]->contents && number(0, GET_REAL_INT(ch)) > 10)
-		for (obj = world[IN_ROOM(ch)]->contents; obj; obj = next_obj)
+	if (world[ch->in_room]->contents && number(0, GET_REAL_INT(ch)) > 10)
+		for (obj = world[ch->in_room]->contents; obj; obj = next_obj)
 		{
-			next_obj = obj->next_content;
+			next_obj = obj->get_next_content();
 			if (CAN_GET_OBJ(ch, obj)
 				&& !has_curse(obj)
 				&& (ObjSystem::is_armor_type(obj)
@@ -2556,17 +2585,17 @@ int npc_walk(CHAR_DATA * ch)
 {
 	int rnum, door = BFS_ERROR;
 
-	if (IN_ROOM(ch) == NOWHERE)
+	if (ch->in_room == NOWHERE)
 		return (BFS_ERROR);
 
 	if (GET_DEST(ch) == NOWHERE || (rnum = real_room(GET_DEST(ch))) == NOWHERE)
 		return (BFS_ERROR);
 
 	// Не разрешаем ходы моба если он ушел в другую зону от маршрута.
-	if (world[IN_ROOM(ch)]->zone != world[rnum]->zone)
+	if (world[ch->in_room]->zone != world[rnum]->zone)
 		return (BFS_NO_PATH);
 
-	if (IN_ROOM(ch) == rnum)
+	if (ch->in_room == rnum)
 	{
 		if (ch->mob_specials.dest_count == 1)
 			return (BFS_ALREADY_THERE);
@@ -2576,7 +2605,7 @@ int npc_walk(CHAR_DATA * ch)
 			ch->mob_specials.dest_dir = 0;
 		ch->mob_specials.dest_pos += ch->mob_specials.dest_dir >= 0 ? 1 : -1;
 		if (((rnum = real_room(GET_DEST(ch))) == NOWHERE)
-				|| rnum == IN_ROOM(ch))
+				|| rnum == ch->in_room)
 			return (BFS_ERROR);
 		else
 			return (npc_walk(ch));
@@ -2596,7 +2625,7 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (!NPC_FLAGGED(ch, NPC_STEALING))
 		return (FALSE);
 
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
 		return (FALSE);
 
 	if (IS_NPC(victim) || IS_SHOPKEEPER(ch) || victim->get_fighting())
@@ -2625,7 +2654,7 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 		if (IS_CARRYING_N(ch) < CAN_CARRY_N(ch) && calculate_skill(ch, SKILL_STEAL, victim)
 			>= number(1, 100) - (AWAKE(victim) ? 100 : 0))
 		{
-			for (obj = victim->carrying; obj; obj = obj->next_content)
+			for (obj = victim->carrying; obj; obj = obj->get_next_content())
 				if (CAN_SEE_OBJ(ch, obj) && IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)
 					<= CAN_CARRY_W(ch) && (!best || GET_OBJ_COST(obj) > GET_OBJ_COST(best)))
 					best = obj;
@@ -2667,10 +2696,10 @@ void npc_group(CHAR_DATA * ch)
 	CHAR_DATA *vict, *leader = NULL;
 	int zone = ZONE(ch), group = GROUP(ch), members = 0;
 
-	if (GET_DEST(ch) == NOWHERE || IN_ROOM(ch) == NOWHERE)
+	if (GET_DEST(ch) == NOWHERE || ch->in_room == NOWHERE)
 		return;
 
-	if (ch->master && IN_ROOM(ch) == IN_ROOM(ch->master))
+	if (ch->master && ch->in_room == IN_ROOM(ch->master))
 		leader = ch->master;
 
 	if (!ch->master)
@@ -2680,7 +2709,7 @@ void npc_group(CHAR_DATA * ch)
 		leader = NULL;
 
 	// Find leader
-	for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
+	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
 		if (!IS_NPC(vict) ||
 				GET_DEST(vict) != GET_DEST(ch) ||
@@ -2706,7 +2735,7 @@ void npc_group(CHAR_DATA * ch)
 		stop_follower(leader, SF_EMPTY);
 	}
 	// Assign leader
-	for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
+	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
 		if (!IS_NPC(vict) ||
 				GET_DEST(vict) != GET_DEST(ch) ||
@@ -2736,7 +2765,7 @@ void npc_groupbattle(CHAR_DATA * ch)
 	CHAR_DATA *tch, *helper;
 
 	if (!IS_NPC(ch) ||
-			!ch->get_fighting() || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || !ch->master || IN_ROOM(ch) == NOWHERE || !ch->followers)
+			!ch->get_fighting() || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || !ch->master || ch->in_room == NOWHERE || !ch->followers)
 		return;
 
 	k = ch->master ? ch->master->followers : ch->followers;
@@ -2744,7 +2773,7 @@ void npc_groupbattle(CHAR_DATA * ch)
 	for (; k; (k = tch ? k : k->next), tch = NULL)
 	{
 		helper = tch ? tch : k->follower;
-		if (IN_ROOM(ch) == IN_ROOM(helper) &&
+		if (ch->in_room == IN_ROOM(helper) &&
 				!helper->get_fighting() && !IS_NPC(helper) && GET_POS(helper) > POS_STUNNED)
 		{
 			GET_POS(helper) = POS_STANDING;
@@ -2898,7 +2927,7 @@ int snake(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 	{
 		act("$n bites $N!", 1, ch, 0, ch->get_fighting(), TO_NOTVICT);
 		act("$n bites you!", 1, ch, 0, ch->get_fighting(), TO_VICT);
-		call_magic(ch, ch->get_fighting(), NULL, world[IN_ROOM(ch)], SPELL_POISON, GET_LEVEL(ch), CAST_SPELL);
+		call_magic(ch, ch->get_fighting(), NULL, world[ch->in_room], SPELL_POISON, GET_LEVEL(ch), CAST_SPELL);
 		return (TRUE);
 	}
 	return (FALSE);
@@ -2936,7 +2965,7 @@ int magic_user(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 			break;
 
 	// if I didn't pick any of those, then just slam the guy I'm fighting //
-	if (vict == NULL && IN_ROOM(ch->get_fighting()) == IN_ROOM(ch))
+	if (vict == NULL && IN_ROOM(ch->get_fighting()) == ch->in_room)
 		vict = ch->get_fighting();
 
 	// Hm...didn't pick anyone...I'll wait a round. //
@@ -3017,7 +3046,7 @@ int guild_guard(CHAR_DATA *ch, void *me, int cmd, char* /*argument*/)
 	for (i = 0; guild_info[i][0] != -1; i++)
 	{
 		if ((IS_NPC(ch) || GET_CLASS(ch) != guild_info[i][0]) &&
-				GET_ROOM_VNUM(IN_ROOM(ch)) == guild_info[i][1] && cmd == guild_info[i][2])
+				GET_ROOM_VNUM(ch->in_room) == guild_info[i][1] && cmd == guild_info[i][2])
 		{
 			send_to_char(buf, ch);
 			act(buf2, FALSE, ch, 0, 0, TO_ROOM);
@@ -3041,14 +3070,14 @@ int fido(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 	if (cmd || !AWAKE(ch))
 		return (FALSE);
 
-	for (i = world[ch->in_room]->contents; i; i = i->next_content)
+	for (i = world[ch->in_room]->contents; i; i = i->get_next_content())
 	{
 		if (IS_CORPSE(i))
 		{
 			act("$n savagely devours a corpse.", FALSE, ch, 0, 0, TO_ROOM);
-			for (temp = i->contains; temp; temp = next_obj)
+			for (temp = i->get_contains(); temp; temp = next_obj)
 			{
-				next_obj = temp->next_content;
+				next_obj = temp->get_next_content();
 				obj_from_obj(temp);
 				obj_to_room(temp, ch->in_room);
 			}
@@ -3066,7 +3095,7 @@ int janitor(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 	if (cmd || !AWAKE(ch))
 		return (FALSE);
 
-	for (i = world[ch->in_room]->contents; i; i = i->next_content)
+	for (i = world[ch->in_room]->contents; i; i = i->get_next_content())
 	{
 		if (!CAN_WEAR(i, EWearFlag::ITEM_WEAR_TAKE))
 		{
@@ -3220,7 +3249,7 @@ CHAR_DATA *get_player_of_name(const char *name)
 	{
 		if (IS_NPC(i))
 			continue;
-		if (!isname(name, i->get_pc_name().c_str()))
+		if (!isname(name, i->get_pc_name()))
 		{
 			continue;
 		}

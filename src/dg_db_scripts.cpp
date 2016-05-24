@@ -237,7 +237,7 @@ void free_varlist(struct trig_var_data *vd)
 }
 
 // release memory allocated for a script
-void free_script(SCRIPT_DATA * sc)
+void free_script(SCRIPT_DATA* sc)
 {
 	if (sc == NULL)
 		return;
@@ -397,7 +397,7 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 		return;
 	}
 
-	obj->proto_script.push_back(vnum);
+	obj->add_proto_script(vnum);
 }
 
 extern CHAR_DATA *mob_proto;
@@ -462,16 +462,16 @@ void assign_triggers(void *i, int type)
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for obj #%d",
 						trigger_vnum,
 						static_cast<int>(trig_index[rnum]->proto->attach_type),
-						obj_proto.vnum(obj->item_number));
+						obj_proto.vnum(obj->get_rnum()));
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else
 				{
-					if (!SCRIPT(obj))
+					if (!obj->get_script())
 					{
-						CREATE(SCRIPT(obj), 1);
+						obj->set_script(new SCRIPT_DATA());
 					}
-					add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
+					add_trigger(obj->get_script().get(), read_trigger(rnum), -1);
 				}
 			}
 		}

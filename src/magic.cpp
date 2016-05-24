@@ -474,7 +474,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	const char *to_room = NULL;
 	int i = 0, lag = 0;
 	// Sanity check
-	if (room == NULL || IN_ROOM(ch) == NOWHERE || ch == NULL)
+	if (room == NULL || ch->in_room == NOWHERE || ch == NULL)
 	{
 		return 0;
 	}
@@ -569,7 +569,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		break;
 
 	case SPELL_RUNE_LABEL:
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_TUNNEL))
+		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
 		{
 			to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 			to_room = "$n начертил$g на земле несколько рун, знаки вспыхунли, но ничего не произошло.";
@@ -613,7 +613,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	}
 
 	// Проверяем а не висит ли уже аффектов от аналогичных заклов на комнате.
-	if ((world[IN_ROOM(ch)] == room) && room_affected_by_spell(room, spellnum) && success && (!update_spell))
+	if ((world[ch->in_room] == room) && room_affected_by_spell(room, spellnum) && success && (!update_spell))
 	{
 		send_to_char(NOEFFECT, ch);
 		success = FALSE;
@@ -1246,23 +1246,32 @@ void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 {
 	int extract = FALSE;
 	if (!obj)
+	{
 		return;
+	}
 
-	GET_OBJ_VAL(obj, 3) = time(NULL);
+	obj->set_val(3, time(NULL));
 
 	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES))
 	{
-		GET_OBJ_VAL(obj, 2)--;
-		if (GET_OBJ_VAL(obj, 2) <= 0 && IS_SET(GET_OBJ_SKILL(obj), ITEM_DECAY_EMPTY))
+		obj->dec_val(2);
+		if (GET_OBJ_VAL(obj, 2) <= 0
+			&& IS_SET(GET_OBJ_SKILL(obj), ITEM_DECAY_EMPTY))
+		{
 			extract = TRUE;
+		}
 	}
 	else if (spelltype != SPELL_RUNES)
+	{
 		extract = TRUE;
+	}
 
 	if (extract)
 	{
 		if (spelltype == SPELL_RUNES)
+		{
 			act("$o рассыпал$U у вас в руках.", FALSE, ch, obj, 0, TO_CHAR);
+		}
 		obj_from_char(obj);
 		extract_obj(obj);
 	}
@@ -1277,8 +1286,11 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 	ESkill skillnum = SKILL_INVALID;
 	struct spell_create_item *items;
 
-	if (spellnum <= 0 || spellnum > MAX_SPELLS)
+	if (spellnum <= 0
+		|| spellnum > MAX_SPELLS)
+	{
 		return (FALSE);
+	}
 	if (spelltype == SPELL_ITEMS)
 	{
 		items = &spell_create[spellnum].items;
@@ -1330,7 +1342,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 	const int item2_rnum = item2 >= 0 ? real_object(item2) : -1;
 	const int item3_rnum = item3 >= 0 ? real_object(item3) : -1;
 
-	for (obj = ch->carrying; obj; obj = obj->next_content)
+	for (obj = ch->carrying; obj; obj = obj->get_next_content())
 	{
 		if (item0 >= 0 && item0_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item0_rnum], 1)
@@ -1403,28 +1415,28 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 		if (item0 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
-			strcat(buf, obj0->PNames[3]);
+			strcat(buf, obj0->get_PName(3).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spelltype);
 		}
 		if (item1 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
-			strcat(buf, obj1->PNames[3]);
+			strcat(buf, obj1->get_PName(3).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spelltype);
 		}
 		if (item2 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
-			strcat(buf, obj2->PNames[3]);
+			strcat(buf, obj2->get_PName(3).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spelltype);
 		}
 		if (item3 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
-			strcat(buf, obj3->PNames[3]);
+			strcat(buf, obj3->get_PName(3).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spelltype);
 		}
@@ -1463,7 +1475,10 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 				act(buf, FALSE, ch, 0, 0, TO_CHAR);
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					TRUE, ch, NULL, NULL, TO_ROOM);
-				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.", spell_name(spellnum), (targ && targ != ch ? " на " : ""), (targ && targ != ch ? GET_PAD(targ, 1) : ""));
+				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.",
+					spell_name(spellnum),
+					(targ && targ != ch ? " на " : ""),
+					(targ && targ != ch ? GET_PAD(targ, 1) : ""));
 				act(buf, TRUE, ch, NULL, NULL, TO_ARENA_LISTEN);
 			}
 		}
@@ -1524,25 +1539,25 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
 		if (item0 >= 0)
 		{
 			strcat(buf, CCIRED(ch, C_NRM));
-			strcat(buf, obj_proto[item0]->PNames[0]);
+			strcat(buf, obj_proto[item0]->get_PName(0).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (item1 >= 0)
 		{
 			strcat(buf, CCIYEL(ch, C_NRM));
-			strcat(buf, obj_proto[item1]->PNames[0]);
+			strcat(buf, obj_proto[item1]->get_PName(0).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (item2 >= 0)
 		{
 			strcat(buf, CCIGRN(ch, C_NRM));
-			strcat(buf, obj_proto[item2]->PNames[0]);
+			strcat(buf, obj_proto[item2]->get_PName(0).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (obj_num >= 0 && (spelltype == SPELL_ITEMS || spelltype == SPELL_RUNES))
 		{
 			strcat(buf, CCIBLU(ch, C_NRM));
-			strcat(buf, obj_proto[obj_num]->PNames[0]);
+			strcat(buf, obj_proto[obj_num]->get_PName(0).c_str());
 			strcat(buf, "\r\n");
 		}
 
@@ -1556,7 +1571,7 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
 		else
 		{
 			strcat(buf, "для создания ");
-			strcat(buf, obj_proto[obj_num]->PNames[1]);
+			strcat(buf, obj_proto[obj_num]->get_PName(1).c_str());
 		}
 		act(buf, FALSE, ch, 0, 0, TO_CHAR);
 	}
@@ -1609,7 +1624,9 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 
 	//По чару можно дамагнуть максимум вдвое против своих хитов. По мобу - вшестеро.
 	if (!IS_NPC(ch))
-		dam = (IS_NPC(victim) ? MIN(dam, 6*GET_MAX_HIT(ch)) : MIN(dam, 2*GET_MAX_HIT(ch)));
+	{
+		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
+	}
 
 	return (dam);
 }
@@ -1709,10 +1726,13 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		{
 			rand = number(1, 50);
 			if (rand <= WEAR_BOTHS)
+			{
 				obj = GET_EQ(victim, rand);
+			}
 			else
-				for (rand -= WEAR_BOTHS, obj = victim->carrying; rand && obj;
-						rand--, obj = obj->next_content);
+			{
+				for (rand -= WEAR_BOTHS, obj = victim->carrying; rand && obj; rand--, obj = obj->get_next_content());
+			}
 		}
 		if (obj)
 		{
@@ -2199,7 +2219,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	for (; count > 0 && rand >= 0; count--)
 	{
-		if (IN_ROOM(ch) != NOWHERE
+		if (ch->in_room != NOWHERE
 			&& IN_ROOM(victim) != NOWHERE
 			&& GET_POS(ch) > POS_STUNNED
 			&& GET_POS(victim) > POS_DEAD)
@@ -2304,7 +2324,7 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 		act(missing, FALSE, victim, 0, caster, TO_CHAR);
 		return (TRUE);
 	}
-	GET_OBJ_VAL(tobj,2) -= 1;
+	tobj->dec_val(2);
 	act(use, FALSE, caster, tobj, 0, TO_CHAR);
 	if (GET_OBJ_VAL(tobj,2) < 1)
 	{
@@ -2346,7 +2366,7 @@ bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum)
 		act(missing, FALSE, caster, 0, caster, TO_CHAR);
 		return (TRUE);
 	}
-	GET_OBJ_VAL(tobj,2) -= 1;
+	tobj->dec_val(2);
 	act(use, FALSE, caster, tobj, 0, TO_CHAR);
 	if (GET_OBJ_VAL(tobj,2) < 1)
 	{
@@ -2399,7 +2419,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
                 && SpINFO.violent
                 && ((!IS_GOD(ch)
                         && AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS)
-                        && (IN_ROOM(ch) == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
+                        && (ch->in_room == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
                         && number(1, 100) < (GET_LEVEL(victim) / 3))
                     || (IS_GOD(victim)
                         && (IS_NPC(ch)
@@ -3103,7 +3123,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (ch != victim && (AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) ||
 							 general_savingthrow(ch, victim, savetype, modi - GET_REAL_CON(victim) / 2)))
 		{
-			if (IN_ROOM(ch) == IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
+			if (ch->in_room == IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
 				send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -3505,7 +3525,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 				|| (ch != victim
 					&& affected_by_spell(victim, SPELL_DEAFNESS)))
 			{
-				if (IN_ROOM(ch) == IN_ROOM(victim))
+				if (ch->in_room == IN_ROOM(victim))
 					send_to_char(NOEFFECT, ch);
 			}
 			else
@@ -3944,7 +3964,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		{
 			if (AFF_FLAGGED(victim, static_cast<EAffectFlag>(af[i].bitvector)))
 			{
-				if (IN_ROOM(ch) == IN_ROOM(victim))
+				if (ch->in_room == IN_ROOM(victim))
 					send_to_char(NOEFFECT, ch);
 				success = FALSE;
 			}
@@ -3962,7 +3982,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell))
 	{
-		if (IN_ROOM(ch) == IN_ROOM(victim))
+		if (ch->in_room == IN_ROOM(victim))
 			send_to_char(NOEFFECT, ch);
 		success = FALSE;
 	}
@@ -4413,13 +4433,15 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	// А надо ли это вообще делать???
 	if (handle_corpse)
 	{
-		for (tobj = obj->contains; tobj;)
+		for (tobj = obj->get_contains(); tobj;)
 		{
-			next_obj = tobj->next_content;
+			next_obj = tobj->get_next_content();
 			obj_from_obj(tobj);
-			obj_to_room(tobj, IN_ROOM(ch));
-			if (!obj_decay(tobj) && tobj->in_room != NOWHERE)
+			obj_to_room(tobj, ch->in_room);
+			if (!obj_decay(tobj) && tobj->get_in_room() != NOWHERE)
+			{
 				act("На земле остал$U лежать $o.", FALSE, ch, tobj, 0, TO_ROOM | TO_ARENA_LISTEN);
+			}
 			tobj = next_obj;
 		}
 		extract_obj(obj);
@@ -4655,79 +4677,93 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 	int i = 0;
 	
 	if (obj == NULL)
+	{
 		return 0;
+	}
 
-	if (obj->get_extraflag(EExtraFlag::ITEM_NOALTER))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_NOALTER))
 	{
 		act("$o устойчив$A к вашей магии.", TRUE, ch, obj, 0, TO_CHAR);
 		return 0;
 	}
 
+	const size_t BASE_AFFECTS = 2;
+
 	switch (spellnum)
 	{
 	case SPELL_BLESS:
-		if (!obj->get_extraflag(EExtraFlag::ITEM_BLESS) && (GET_OBJ_WEIGHT(obj) <= 5 * GET_LEVEL(ch)))
+		if (!obj->get_extra_flag(EExtraFlag::ITEM_BLESS)
+			&& (GET_OBJ_WEIGHT(obj) <= 5 * GET_LEVEL(ch)))
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_BLESS);
-			if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
+			obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
+			if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 			{
 				obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
 				if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 				{
-					GET_OBJ_VAL(obj, 2)++;
+					obj->inc_val(2);
 				}
 			}
-			GET_OBJ_MAX(obj) += MAX(GET_OBJ_MAX(obj) >> 2, 1);
-			GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
+			obj->add_maximum(MAX(GET_OBJ_MAX(obj) >> 2, 1));
+			obj->set_current(GET_OBJ_MAX(obj));
 			to_char = "$o вспыхнул$G голубым светом и тут же погас$Q.";
 			obj->add_timed_spell(SPELL_BLESS, -1);
 		}
 		break;
+
 	case SPELL_CURSE:
-		if (!obj->get_extraflag(EExtraFlag::ITEM_NODROP))
+		if (!obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_NODROP);
+			obj->set_extra_flag(EExtraFlag::ITEM_NODROP);
 			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 			{
 				if (GET_OBJ_VAL(obj, 2) > 0)
-					GET_OBJ_VAL(obj, 2)--;
+				{
+					obj->dec_val(2);
+				}
 			}
 			else if (ObjSystem::is_armor_type(obj))
 			{
 				if (GET_OBJ_VAL(obj, 0) > 0)
-					GET_OBJ_VAL(obj, 0)--;
+				{
+					obj->dec_val(0);
+				}
 				if (GET_OBJ_VAL(obj, 1) > 0)
-					GET_OBJ_VAL(obj, 1)--;
+				{
+					obj->dec_val(1);
+				}
 			}
 			to_char = "$o вспыхнул$G красным светом и тут же погас$Q.";
 		}
 		break;
+
 	case SPELL_INVISIBLE:
-		if (!obj->get_extraflag(EExtraFlag::ITEM_NOINVIS)
-				&& !obj->get_extraflag(EExtraFlag::ITEM_INVISIBLE))
+		if (!obj->get_extra_flag(EExtraFlag::ITEM_NOINVIS)
+			&& !obj->get_extra_flag(EExtraFlag::ITEM_INVISIBLE))
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_INVISIBLE);
+			obj->set_extra_flag(EExtraFlag::ITEM_INVISIBLE);
 			to_char = "$o растворил$U в пустоте.";
 		}
 		break;
+
 	case SPELL_POISON:
 		if (!GET_OBJ_VAL(obj, 3)
 			&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON
 				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN
 				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOOD))
 		{
-			GET_OBJ_VAL(obj, 3) = 1;
+			obj->set_val(3, 1);
 			to_char = "$o отравлен$G.";
 		}
 		break;
 
 	case SPELL_REMOVE_CURSE:
-		if (obj->get_extraflag(EExtraFlag::ITEM_NODROP))
+		if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 		{
 			obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
 			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 			{
-				GET_OBJ_VAL(obj, 2)++;
+				obj->inc_val(2);
 			}
 			to_char = "$o вспыхнул$G розовым светом и тут же погас$Q.";
 		}
@@ -4743,101 +4779,124 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			break;
 		}
 
-		for (i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (obj->affected[i].location != APPLY_NONE)
-		   obj->affected[i].location = APPLY_NONE;
+		obj->clear_all_affected();
 
- 	    obj->affected[0].location = APPLY_HITROLL;
-		obj->affected[1].location = APPLY_DAMROLL;
+		{
+			obj_affected_type base_affects[BASE_AFFECTS];
 
-		real_skill_light_magic = ((ch->get_skill(SKILL_LIGHT_MAGIC)-80) / 5) ;
-		if (real_skill_light_magic <= 4)
-		// 4 мортов (скил магия света 100)
-		{
-		   random_drop = 0;
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
+			base_affects[0].location = APPLY_HITROLL;
+			base_affects[1].location = APPLY_DAMROLL;
+
+			real_skill_light_magic = ((ch->get_skill(SKILL_LIGHT_MAGIC) - 80) / 5);
+			if (real_skill_light_magic <= 4)
+				// 4 мортов (скил магия света 100)
+			{
+				random_drop = 0;
+				base_affects[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
+				base_affects[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
+			}
+			else if (real_skill_light_magic <= 9)
+				// 8 мортов (скил магия света 125)
+			{
+				random_drop = 1;
+				base_affects[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
+				base_affects[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
+			}
+			else if (real_skill_light_magic <= 16)
+				// 12 мортов (скил магия света 160)
+			{
+				random_drop = 1;
+				base_affects[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
+				base_affects[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
+			}
+			else if (real_skill_light_magic > 16)
+				// 16 мортов (скил магия света 160+)
+			{
+				random_drop = 2;
+				base_affects[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
+				base_affects[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
+			}
+			else
+			{  // лоуморт и волхвы
+				base_affects[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
+				base_affects[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
+			};
+			obj->set_affected(0, base_affects[0]);
+			obj->set_affected(1, base_affects[1]);
 		}
-		else if (real_skill_light_magic <= 9)
-		// 8 мортов (скил магия света 125)
-		{
-		   random_drop = 1;
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
-		}
-		else if (real_skill_light_magic <= 16)
-		// 12 мортов (скил магия света 160)
-		{
-		   random_drop = 1;
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
-		}
-		else if (real_skill_light_magic >16)
-		// 16 мортов (скил магия света 160+)
-		{
-		   random_drop = 2;
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
-		}
-		else
-		{  // лоуморт и волхвы
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		};
 
 		reagobj = get_obj_in_list_vnum(1930, ch->carrying);
-		if (!reagobj)   reagobj = get_obj_in_list_vnum(1931, ch->carrying);
-		if (!reagobj)	reagobj = get_obj_in_list_vnum(1932, ch->carrying);
+		if (!reagobj)
+		{
+			reagobj = get_obj_in_list_vnum(1931, ch->carrying);
+		}
+
+		if (!reagobj)
+		{
+			reagobj = get_obj_in_list_vnum(1932, ch->carrying);
+		}
 
 		if (reagobj)
 		{
 			// у нас имеется доп символ для зачарования
 			for (i = 0; i < random_drop; i++)
-				if (reagobj->affected[i].location != APPLY_NONE)
-					{
-				 	    obj->affected[i+2].location = reagobj->affected[i].location;
-						obj->affected[i+2].modifier = reagobj->affected[i].modifier;
-					}
-			material_component_processing(ch, reagobj->item_number, spellnum); //может неправильный вызов
+			{
+				if (reagobj->get_affected(i).location != APPLY_NONE)
+				{
+					obj->set_affected(i + BASE_AFFECTS, reagobj->get_affected(i));
+				}
+			}
+			material_component_processing(ch, reagobj->get_rnum(), spellnum); //может неправильный вызов
 		}
 		
-		obj->set_extraflag(EExtraFlag::ITEM_MAGIC);
+		obj->set_extra_flag(EExtraFlag::ITEM_MAGIC);
 		if (GET_RELIGION(ch) == RELIGION_MONO)
+		{
 			to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
+		}
 		else if (GET_RELIGION(ch) == RELIGION_POLY)
+		{
 			to_char = "$o вспыхнул$G на миг красным светом и тут же потух$Q.";
+		}
 		else
+		{
 			to_char = "$o вспыхнул$G на миг желтым светом и тут же потух$Q.";
+		}
 		break;
+
 	case SPELL_REMOVE_POISON:
 		if (GET_OBJ_VAL(obj, 3)
 			&& ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
 				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN
 				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOOD))
 		{
-			GET_OBJ_VAL(obj, 3) = 0;
+			obj->set_val(3, 0);
 			to_char = "$o стал$G вполне пригодным к применению.";
 		}
 		break;
+
 	case SPELL_FLY:
 //		obj->timed_spell.add(obj, SPELL_FLY, 60 * 24 * 3);
 		obj->add_timed_spell(SPELL_FLY, -1);
-		obj->set_extraflag(EExtraFlag::ITEM_FLYING);
+		obj->set_extra_flag(EExtraFlag::ITEM_FLYING);
 		//В связи с тем, что летающие вещи более не тонут, флаг плавает тут неуместен
 		//SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 		to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
 		break;
+
 	case SPELL_ACID:
 		alterate_object(obj, number(GET_LEVEL(ch) * 2, GET_LEVEL(ch) * 4), 100);
 		break;
+
 	case SPELL_REPAIR:
-		GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
+		obj->set_current(GET_OBJ_MAX(obj));
 		to_char = "Вы полностью восстановили $o3.";
 		break;
+
 	case SPELL_TIMER_REPAIR:
 		if (GET_OBJ_RNUM(obj) != NOTHING)
 		{
-			GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
+			obj->set_current(GET_OBJ_MAX(obj));
 			obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
 			to_char = "Вы полностью восстановили $o3.";
 			log("%s used magic repair", GET_NAME(ch));
@@ -4848,25 +4907,26 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			return 0;
 		}
 		break;
+
 	case SPELLS_RESTORATION:
 		{
-			if ((OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)) && (GET_OBJ_RNUM(obj) != NOTHING))
+			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)
+				&& (GET_OBJ_RNUM(obj) != NOTHING))
 			{
 				if (OBJ_FLAGGED(obj_proto.at(GET_OBJ_RNUM(obj)), EExtraFlag::ITEM_MAGIC))
-					{
-						to_char = "Не велено!";
-						return 0;
-					}
+				{
+					to_char = "Не велено!";
+					return 0;
+				}
 				for (i = 0; i < MAX_OBJ_AFFECT; i++)
 				{
-					if (obj_proto.at(GET_OBJ_RNUM(obj))->affected[i].location != APPLY_NONE)
+					if (obj_proto.at(GET_OBJ_RNUM(obj))->get_affected(i).location != APPLY_NONE)
 					{
-						obj->affected[i].location = obj_proto.at(GET_OBJ_RNUM(obj))->affected[i].location;
-						obj->affected[i].modifier = obj_proto.at(GET_OBJ_RNUM(obj))->affected[i].modifier;
+						obj->set_affected(i, obj_proto.at(GET_OBJ_RNUM(obj))->get_affected(i));
 					}
 					else
 					{
-						obj->affected[i].location = APPLY_NONE;
+						obj->clear_affected(i);
 					}
 					
 				}
@@ -4880,11 +4940,13 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			to_char = "$o осветил$G на миг внутренним светом и тут же потух$Q.";
 		}
 		break;
+
 	case SPELL_LIGHT:
 		obj->add_timed_spell(SPELL_LIGHT, -1);
-		obj->set_extraflag(EExtraFlag::ITEM_GLOW);
+		obj->set_extra_flag(EExtraFlag::ITEM_GLOW);
 		to_char = "$o засветил$U ровным зеленоватым светом.";
 		break;
+
 	case SPELL_DARKNESS:
 		if (obj->timed_spell().check_spell(SPELL_LIGHT))
 		{
@@ -4895,12 +4957,18 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 	} // switch
 
 	if (to_char == NULL)
+	{
 		send_to_char(NOEFFECT, ch);
+	}
 	else
+	{
 		act(to_char, TRUE, ch, obj, 0, TO_CHAR);
+	}
 
 	if (to_room != NULL)
+	{
 		act(to_room, TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+	}
 
 	return 1;
 }
@@ -4911,7 +4979,9 @@ int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 	obj_vnum z;
 
 	if (ch == NULL)
+	{
 		return 0;
+	}
 	// level = MAX(MIN(level, LVL_IMPL), 1); - Hm, not used.
 
 	switch (spellnum)
@@ -4919,9 +4989,11 @@ int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 	case SPELL_CREATE_FOOD:
 		z = START_BREAD;
 		break;
+
 	case SPELL_CREATE_LIGHT:
 		z = CREATE_LIGHT;
 		break;
+
 	default:
 		send_to_char("Spell unimplemented, it would seem.\r\n", ch);
 		return 0;
@@ -4940,13 +5012,13 @@ int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
 		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(tobj, IN_ROOM(ch));
+		obj_to_room(tobj, ch->in_room);
 		obj_decay(tobj);
 	}
 	else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch))
 	{
 		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(tobj, IN_ROOM(ch));
+		obj_to_room(tobj, ch->in_room);
 		obj_decay(tobj);
 	}
 	else
@@ -5202,7 +5274,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 	if (masses_messages[i].spell == -1)
 		return 0;
 
-	if (world[IN_ROOM(ch)] == room)	 // Давим вывод если чар не в той же комнате
+	if (world[ch->in_room] == room)	 // Давим вывод если чар не в той же комнате
 	{
 		if (multi_cast_say(ch))
 		{
@@ -5239,7 +5311,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
 	{
 		ch_vict = *it;
-		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
 			continue;
 		}
@@ -5351,7 +5423,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 	if (areas_messages[i].spell == -1)
 		return 0;
 
-	if (IN_ROOM(ch) == IN_ROOM(victim)) // Подавляем вывод если кастер не в комнате
+	if (ch->in_room == IN_ROOM(victim)) // Подавляем вывод если кастер не в комнате
 	{
 		if (multi_cast_say(ch))
 		{
@@ -5409,7 +5481,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		i = number(0, static_cast<int>(size) - 1);
 		ch_vict = tmp_char_list[i];
 		tmp_char_list[i] = tmp_char_list[--size];
-		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
 			continue;
 		}
@@ -5569,7 +5641,7 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
 	{
 		ch_vict = *it;
-		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
 			continue;
 		}

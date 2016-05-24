@@ -49,8 +49,6 @@ struct room_property_data
 	int poison; //Пока только степень зараженности для SPELL_POISONED_FOG//
 };
 
-extern void gm_flag(char *subfield, const char **list, FLAG_DATA& val, char *res);
-
 struct ROOM_DATA
 {
 	ROOM_DATA();
@@ -63,7 +61,7 @@ struct ROOM_DATA
 	char *name;		// Rooms name 'You are ...'           //
 	size_t description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
-	EXTRA_DESCR_DATA *ex_description;	// for examine/look       //
+	std::shared_ptr<EXTRA_DESCR_DATA> ex_description;	// for examine/look       //
 	boost::array<EXIT_DATA *, NUM_OF_DIRS> dir_option;	// Directions //
 
 	byte light;		// Number of lightsources in room //
@@ -73,7 +71,7 @@ struct ROOM_DATA
 	int (*func)(CHAR_DATA*, void*, int, char*);
 
 	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers  //
-	struct script_data *script;	// script info for the object //
+	struct SCRIPT_DATA *script;	// script info for the object //
 	struct track_data *track;
 
 	OBJ_DATA *contents;	// List of items in room              //
@@ -111,7 +109,7 @@ struct ROOM_DATA
 	bool flags_sprint(char *result, const char *div, const int print_flag = 0) const { return m_room_flags.sprintbits(room_bits, result, div, print_flag); }
 	void flags_tascii(int num_planes, char* ascii) { m_room_flags.tascii(num_planes, ascii); }
 
-	void gm_flag(char *subfield, const char **list, char *res) { ::gm_flag(subfield, list, m_room_flags, res); }
+	void gm_flag(char *subfield, const char * const * const list, char *res) { m_room_flags.gm_flag(subfield, list, res); }
 
 private:
 	FLAG_DATA m_room_flags;	// DEATH,DARK ... etc //

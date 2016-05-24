@@ -115,7 +115,6 @@ struct wait_event_data
 	int type;
 };
 
-
 // one line of the trigger //
 struct cmdlist_element
 {
@@ -157,8 +156,12 @@ struct trig_data
 
 
 // a complete script (composed of several triggers) //
-struct script_data
+struct SCRIPT_DATA
 {
+public:
+	SCRIPT_DATA() : types(0), trig_list(nullptr), global_vars(nullptr), purged(0), context(0), next(nullptr) {}
+	~SCRIPT_DATA();
+
 	long types;		// bitvector of trigger types //
 	TRIG_DATA *trig_list;	// list of triggers           //
 	struct trig_var_data *global_vars;	// list of global variables   //
@@ -217,7 +220,7 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
 // function prototypes from scripts.cpp //
 void script_trigger_check(void);
 void script_timechange_trigger_check(const int time);
-void add_trigger(struct script_data *sc, TRIG_DATA * t, int loc);
+void add_trigger(struct SCRIPT_DATA *sc, TRIG_DATA * t, int loc);
 int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr);
 
 void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig);
@@ -233,14 +236,14 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj);
 void assign_triggers(void *i, int type);
 void parse_trigger(FILE * trig_f, int nr);
 int real_trigger(int vnum);
-void extract_script(struct script_data *sc);
+void extract_script(struct SCRIPT_DATA *sc);
 void extract_script_mem(struct script_memory *sc);
 
 TRIG_DATA *read_trigger(int nr);
 // void add_var(struct trig_var_data **var_list, char *name, char *value, long id);
 ROOM_DATA *dg_room_of_obj(OBJ_DATA * obj);
-void do_dg_cast(void *go, struct script_data *sc, TRIG_DATA * trig, int type, char *cmd);
-void do_dg_affect(void *go, struct script_data *sc, TRIG_DATA * trig, int type, char *cmd);
+void do_dg_cast(void *go, struct SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
+void do_dg_affect(void *go, struct SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
 
 
 
@@ -281,20 +284,12 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 
 #define GET_SHORT(ch)    ((ch)->get_npc_name().c_str())
 
-#define SCRIPT_CHECK(go, type)   (SCRIPT(go) && \
-				  IS_SET(SCRIPT_TYPES(SCRIPT(go)), type))
+bool SCRIPT_CHECK(const OBJ_DATA* go, const long type);
+bool SCRIPT_CHECK(const CHAR_DATA* go, const long type);
+bool SCRIPT_CHECK(const ROOM_DATA* go, const long type);
+
 #define TRIGGER_CHECK(t, type)   (IS_SET(GET_TRIG_TYPE(t), type) && \
 				  !GET_TRIG_DEPTH(t))
-
-#define ADD_UID_CHAR_VAR(buf, trig, go, name, context) { \
-		         sprintf(buf, "%c%ld", UID_CHAR, GET_ID(go)); \
-                         add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
-#define ADD_UID_OBJ_VAR(buf, trig, go, name, context) { \
-		         sprintf(buf, "%c%ld", UID_OBJ, GET_ID(go)); \
-                         add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
-#define ADD_UID_ROOM_VAR(buf, trig, go, name, context) { \
-		         sprintf(buf, "%c%ld", UID_ROOM, GET_ID(go)); \
-                         add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
 
 #define SCRIPT(o)		  ((o)->script)
 

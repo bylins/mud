@@ -1994,8 +1994,8 @@ void do_start(CHAR_DATA * ch, int newbie)
         OBJ_DATA *obj = read_object(*i, VIRTUAL);
         if (obj)
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
-			obj->set_extraflag(EExtraFlag::ITEM_DECAY);
+			obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+			obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
 			obj->set_cost(0);
 			obj->set_rent(0);
 			obj->set_rent_eq(0);
@@ -2212,24 +2212,40 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
 	OBJ_DATA *object;
 	if (!IS_CORPSE(obj))
-		for (object = obj->contains; object; object = object->next_content)
+	{
+		for (object = obj->get_contains(); object; object = object->get_next_content())
+		{
 			if (invalid_unique(ch, object))
+			{
 				return (TRUE);
-	if (!ch ||
-			!obj ||
-			(IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) ||
-			IS_IMMORTAL(ch) || obj->obj_flags.Obj_owner == 0 || obj->obj_flags.Obj_owner == GET_UNIQUE(ch))
+			}
+		}
+	}
+	if (!ch
+		|| !obj
+		|| (IS_NPC(ch)
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		|| IS_IMMORTAL(ch)
+		|| obj->get_owner() == 0
+		|| obj->get_owner() == GET_UNIQUE(ch))
+	{
 		return (FALSE);
+	}
 	return (TRUE);
 }
 
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
-	OBJ_DATA *object;
 	if (!IS_CORPSE(obj))
-		for (object = obj->contains; object; object = object->next_content)
+	{
+		for (const OBJ_DATA* object = obj->get_contains(); object; object = object->get_next_content())
+		{
 			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0))
+			{
 				return (TRUE);
+			}
+		}
+	}
 	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{

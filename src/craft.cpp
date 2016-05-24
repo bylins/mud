@@ -745,11 +745,11 @@ namespace craft
 
 	void CCases::load_from_object(const OBJ_DATA* object)
 	{
-		const std::string aliases = object->aliases;
+		const std::string& aliases = object->get_aliases();
 		boost::algorithm::split(m_aliases, aliases, boost::algorithm::is_any_of(" "), boost::token_compress_on);
 		for (size_t n = 0; n < CASES_COUNT; ++n)
 		{
-			m_cases[n] = object->PNames[n];
+			m_cases[n] = object->get_PName(n);
 		}
 	}
 
@@ -1101,45 +1101,45 @@ namespace craft
 
 	void CObject::load_from_object(const OBJ_DATA* object)
 	{
-		set_type(object->obj_flags.type_flag);
+		set_type(object->get_type());
 
-		m_maximum_durability = object->obj_flags.Obj_max;
-		m_current_durability = object->obj_flags.Obj_cur;
-		m_material = object->obj_flags.Obj_mater;
-		m_sex = object->obj_flags.Obj_sex;
+		m_maximum_durability = object->get_maximum();
+		m_current_durability = object->get_current();
+		m_material = object->get_material();
+		m_sex = object->get_sex();
 		set_timer(object->get_timer());
-		m_item_params = object->obj_flags.Obj_skill;
-		m_spell = static_cast<ESpell>(object->obj_flags.Obj_spell);
-		m_level= object->obj_flags.Obj_level;
-		set_weight(object->obj_flags.weight);
+		m_item_params = object->get_skill();
+		m_spell = static_cast<ESpell>(object->get_spell());
+		m_level= object->get_level();
+		set_weight(object->get_weight());
 		m_cost = object->get_cost();
 		m_rent_off = object->get_rent();
 		m_rent_on = object->get_rent_eq();
 
-		m_waffect_flags = object->obj_flags.affects;
-		m_anti_flags = object->obj_flags.anti_flag;
-		m_no_flags = object->obj_flags.no_flag;
-		m_extraflags = object->obj_flags.extra_flags;
+		m_waffect_flags = object->get_affect_flags();
+		m_anti_flags = object->get_anti_flags();
+		m_no_flags = object->get_no_flags();
+		m_extraflags = object->get_extra_flags();
 
-		m_wear_flags = object->obj_flags.wear_flags;
+		m_wear_flags = object->get_wear_flags();
 
 		m_cases.load_from_object(object);
-		m_short_desc = object->short_description;
-		m_long_desc = object->description;
-		m_action_desc = object->action_description ? object->action_description : "";
+		m_short_desc = object->get_short_description();
+		m_long_desc = object->get_description();
+		m_action_desc = object->get_action_description();
 
-		if (nullptr != object->ex_description)
+		if (object->get_ex_description())
 		{
-			m_keyword = object->ex_description->keyword;
-			m_extended_desc = object->ex_description->description;
+			m_keyword = object->get_ex_description()->keyword;
+			m_extended_desc = object->get_ex_description()->description;
 		}
 
-		m_global_maximum = object->max_in_world;
+		m_global_maximum = object->get_max_in_world();
 		m_minimum_remorts = object->get_manual_mort_req();
 
 		for (size_t i = 0; i < m_vals.size(); ++i)
 		{
-			m_vals[i]= object->obj_flags.value[i];
+			m_vals[i]= object->get_val(i);
 		}
 
 		const auto& skills = object->get_skills();
@@ -1148,10 +1148,10 @@ namespace craft
 			m_skills[static_cast<ESkill>(s.first)] = s.second;
 		}
 
-		m_triggers_list = object->proto_script;
-		m_extended_values = object->values;
+		m_triggers_list = object->get_proto_script();
+		m_extended_values = object->get_values();
 
-		for (const auto& apply : object->affected)
+		for (const auto& apply : object->get_affected())
 		{
 			m_applies.push_back(apply);
 		}
@@ -1342,45 +1342,43 @@ namespace craft
 	{
 		const auto result = NEWCREATE<OBJ_DATA>();
 		
-		result->obj_flags.type_flag = get_type();
+		result->set_type(get_type());
 
-		result->obj_flags.Obj_max = m_maximum_durability;
-		result->obj_flags.Obj_cur = m_current_durability;
-		result->obj_flags.Obj_mater = m_material;
-		result->obj_flags.Obj_sex = m_sex;
+		result->set_maximum(m_maximum_durability);
+		result->set_current(m_current_durability);
+		result->set_material(m_material);
+		result->set_sex(m_sex);
 		result->set_timer(get_timer());
-		result->obj_flags.Obj_skill = m_item_params;
-		result->obj_flags.Obj_spell = m_spell;
-		result->obj_flags.Obj_level = m_level;
-		result->obj_flags.Obj_destroyer = 60;	// I don't know why it is constant. But seems like it is the same for all objects.
-		result->obj_flags.weight = get_weight();
+		result->set_skill(m_item_params);
+		result->set_spell(m_spell);
+		result->set_level(m_level);
+		result->set_destroyer(60);	// I don't know why it is constant. But seems like it is the same for all objects.
+		result->set_weight(get_weight());
 		result->set_cost(m_cost);
 		result->set_rent(m_rent_off);
 		result->set_rent_eq(m_rent_on);
 
-		result->obj_flags.affects = m_waffect_flags;
-		result->obj_flags.anti_flag = m_anti_flags;
-		result->obj_flags.no_flag = m_no_flags;
-		result->obj_flags.extra_flags = m_extraflags;
+		result->set_affect_flags(m_waffect_flags);
+		result->set_anti_flags(m_anti_flags);
+		result->set_no_flags(m_no_flags);
+		result->set_extra_flags(m_extraflags);
 
-		result->obj_flags.wear_flags = m_wear_flags;
+		result->set_wear_flags(m_wear_flags);
 
-		result->aliases = str_dup(aliases().c_str());
-		result->short_description = str_dup(m_short_desc.c_str());
-		result->description = str_dup(m_long_desc.c_str());
-		result->PNames = m_cases.build_pnames();
-		result->action_description = str_dup(m_action_desc.c_str());
+		result->set_aliases(aliases());
+		result->set_short_description(m_short_desc);
+		result->set_description(m_long_desc);
+		result->set_PNames(m_cases.build_pnames());
+		result->set_action_description(m_action_desc);
 
-		CREATE(result->ex_description, 1);
-		result->ex_description->keyword = str_dup(m_keyword.c_str());
-		result->ex_description->description = str_dup(m_extended_desc.c_str());
+		result->set_ex_description(m_keyword.c_str(), m_extended_desc.c_str());
 
-		result->max_in_world = m_global_maximum;
+		result->set_max_in_world(m_global_maximum);
 		result->set_manual_mort_req(m_minimum_remorts);
 
 		for (size_t i = 0; i < m_vals.size(); ++i)
 		{
-			result->obj_flags.value[i] = m_vals[i];
+			result->set_val(i, m_vals[i]);
 		}
 
 		for (const auto& s : m_skills)
@@ -1388,13 +1386,13 @@ namespace craft
 			result->set_skill(s.first, s.second);
 		}
 
-		result->proto_script = m_triggers_list;
-		result->values = m_extended_values;
+		result->set_proto_script(m_triggers_list);
+		result->set_values(m_extended_values);
 
 		size_t number = 0;
 		for (const auto& apply : m_applies)
 		{
-			result->affected[number++] = apply;
+			result->set_affected(number++, apply);
 		}
 
 		return result;

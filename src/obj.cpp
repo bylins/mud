@@ -6,13 +6,14 @@
 
 #include "parse.hpp"
 #include "handler.h"
-#include "char.hpp"
-#include "constants.h"
-#include "db.h"
+#include "dg_scripts.h"
 #include "screen.h"
 #include "celebrates.hpp"
 #include "pk.h"
 #include "cache.hpp"
+#include "char.hpp"
+#include "constants.h"
+#include "db.h"
 #include "utils.h"
 #include "conf.h"
 
@@ -54,54 +55,29 @@ OBJ_DATA::~OBJ_DATA()
 	}
 }
 
-// можно было бы отдельной функцией и не делать, но вдруг кто-нибудь потом захочет расширить функционал
-struct custom_label *init_custom_label()
-{
-	struct custom_label *ptr = (struct custom_label *)malloc(sizeof(struct custom_label));
-	ptr->label_text = NULL;
-	ptr->clan = NULL;
-	ptr->author = -2;
-	ptr->author_mail = NULL;
-
-	return ptr;
-}
-
-// эта функция только освобождает память, поэтому не забываем устанавливать указатель в NULL,
-// если сразу после этого не делаем init_custom_label(), иначе будут креши
-void free_custom_label(struct custom_label *custom_label) {
-	if (custom_label) {
-		free(custom_label->label_text);
-		if (custom_label->clan)
-			free(custom_label->clan);
-		if (custom_label->author_mail)
-			free(custom_label->author_mail);
-		free(custom_label);
-	}
-}
-
 // * См. Character::zero_init()
 void OBJ_DATA::zero_init()
 {
-	uid = 0;
-	item_number = NOTHING;
-	in_room = NOWHERE;
-	aliases = NULL;
-	description = NULL;
-	short_description = NULL;
-	action_description = NULL;
-	ex_description = NULL;
-	carried_by = NULL;
-	worn_by = NULL;
-	worn_on = NOWHERE;
-	in_obj = NULL;
-	contains = NULL;
-	id = 0;
-	proto_script.clear();
-	script = NULL;
-	next_content = NULL;
-	next = NULL;
-	room_was_in = NOWHERE;
-	max_in_world = 0;
+	m_uid = 0;
+	m_item_number = NOTHING;
+	m_in_room = NOWHERE;
+	m_aliases.clear();
+	m_description.clear();
+	m_short_description.clear();
+	m_action_description.clear();
+	m_ex_description.reset();
+	m_carried_by = nullptr;
+	m_worn_by = nullptr;
+	m_worn_on = NOWHERE;
+	m_in_obj = nullptr;
+	m_contains = nullptr;
+	m_id = 0;
+	m_proto_script.clear();
+	m_script = nullptr;
+	m_next_content = nullptr;
+	m_next = nullptr;
+	m_room_was_in = NOWHERE;
+	m_max_in_world = 0;
 	m_skills.clear();
 	serial_num_ = 0;
 	timer_ = 0;
@@ -114,13 +90,13 @@ void OBJ_DATA::zero_init()
 	activator_.first = false;
 	activator_.second = 0;
 
-	custom_label = NULL;
+	m_custom_label = nullptr;
 
 	memset(&obj_flags, 0, sizeof(obj_flag_data));
 
 	for (int i = 0; i < 6; i++)
 	{
-		PNames[i] = NULL;
+		m_pnames[i].clear();
 	}
 }
 
@@ -137,7 +113,7 @@ void OBJ_DATA::purge(bool destructor)
 	//см. комментарий в структуре BloodyInfo из pk.cpp
 	bloody::remove_obj(this);
 	//weak_ptr тут бы был какраз в тему
-	Celebrates::remove_from_obj_lists(this->uid);
+	Celebrates::remove_from_obj_lists(this->get_uid());
 
 	if (!destructor)
 	{
@@ -167,11 +143,13 @@ void OBJ_DATA::set_serial_num(int num)
 
 const std::string OBJ_DATA::activate_obj(const activation& __act)
 {
-	if (item_number >= 0)
+	if (m_item_number >= 0)
 	{
 		obj_flags.affects = __act.get_affects();
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
-			affected[i] = __act.get_affected_i(i);
+		{
+			set_affected(i, __act.get_affected_i(i));
+		}
 
 		int weight = __act.get_weight();
 		if (weight > 0)
@@ -208,20 +186,20 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 
 const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 {
-	if (item_number >= 0)
+	if (m_item_number >= 0)
 	{
-		obj_flags.affects = obj_proto[item_number]->obj_flags.affects;
+		obj_flags.affects = obj_proto[m_item_number]->obj_flags.affects;
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 		{
-			affected[i] = obj_proto[item_number]->affected[i];
+			set_affected(i, obj_proto[m_item_number]->get_affected(i));
 		}
 
-		obj_flags.weight = obj_proto[item_number]->obj_flags.weight;
+		obj_flags.weight = obj_proto[m_item_number]->obj_flags.weight;
 
 		if (obj_flags.type_flag == obj_flag_data::ITEM_WEAPON)
 		{
-			obj_flags.value[1] = obj_proto[item_number]->obj_flags.value[1];
-			obj_flags.value[2] = obj_proto[item_number]->obj_flags.value[2];
+			obj_flags.value[1] = obj_proto[m_item_number]->obj_flags.value[1];
+			obj_flags.value[2] = obj_proto[m_item_number]->obj_flags.value[2];
 		}
 
 		// Деактивируем умения.
@@ -230,13 +208,18 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 			// При активации мы создавали новый массив с умениями. Его
 			// можно смело удалять.
 			m_skills.clear();
-			m_skills = obj_proto[item_number]->m_skills;
+			m_skills = obj_proto[m_item_number]->m_skills;
 		}
 
 		return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();
 	}
 	else
 		return "\n";
+}
+
+void OBJ_DATA::set_script(SCRIPT_DATA* _)
+{
+	m_script.reset(_);
 }
 
 void OBJ_DATA::set_skill(int skill_num, int percent)
@@ -269,6 +252,17 @@ void OBJ_DATA::set_skill(int skill_num, int percent)
 		{
 			m_skills.clear();
 			m_skills.insert(std::make_pair(skill_num, percent));
+		}
+	}
+}
+
+void OBJ_DATA::clear_all_affected()
+{
+	for (size_t i = 0; i < MAX_OBJ_AFFECT; i++)
+	{
+		if (m_affected[i].location != APPLY_NONE)
+		{
+			m_affected[i].location = APPLY_NONE;
 		}
 	}
 }
@@ -443,6 +437,14 @@ void OBJ_DATA::add_timed_spell(const int spell, const int time)
 void OBJ_DATA::del_timed_spell(const int spell, const bool message)
 {
 	m_timed_spell.del(this, spell, message);
+}
+
+void OBJ_DATA::set_ex_description(const char* keyword, const char* description)
+{
+	std::shared_ptr<EXTRA_DESCR_DATA> d(new EXTRA_DESCR_DATA());
+	d->keyword = strdup(keyword);
+	d->description = strdup(description);
+	m_ex_description = d;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -645,7 +647,7 @@ bool is_mob_item(OBJ_DATA *obj)
 void init_ilvl(OBJ_DATA *obj)
 {
 	if (is_mob_item(obj)
-		|| obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF)
+		|| obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)
 		|| obj->get_manual_mort_req() >= 0)
 	{
 		obj->set_ilevel(0);
@@ -657,24 +659,26 @@ void init_ilvl(OBJ_DATA *obj)
 	// аффекты APPLY_x
 	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
 	{
-		if (obj->affected[k].location == 0) continue;
+		if (obj->get_affected(k).location == 0) continue;
 
 		// случай, если один аффект прописан в нескольких полях
 		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
 		{
-			if (obj->affected[k].location == obj->affected[kk].location
+			if (obj->get_affected(k).location == obj->get_affected(kk).location
 				&& k != kk)
 			{
 				log("SYSERROR: double affect=%d, obj_vnum=%d",
-					obj->affected[k].location, GET_OBJ_VNUM(obj));
+					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
 				obj->set_ilevel(1000000);
 				return;
 			}
 		}
 		//если аффект отрицательный. убирем ошибку от степени
-		if (obj->affected[k].modifier < 0) continue;
-		float weight = count_affect_weight(obj, obj->affected[k].location,
-			obj->affected[k].modifier);
+		if (obj->get_affected(k).modifier < 0)
+		{
+			continue;
+		}
+		float weight = count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 		total_weight += pow(weight, SQRT_MOD);
 	}
 	// аффекты AFF_x через weapon_affect
@@ -739,16 +743,15 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 		return obj;
 	}
 
-	obj->aliases = str_dup("тугой кошелек");
-	obj->short_description = str_dup("тугой кошелек");
-	obj->description = str_dup(
-		"Кем-то оброненный тугой кошелек лежит здесь.");
-	GET_OBJ_PNAME(obj, 0) = str_dup("тугой кошелек");
-	GET_OBJ_PNAME(obj, 1) = str_dup("тугого кошелька");
-	GET_OBJ_PNAME(obj, 2) = str_dup("тугому кошельку");
-	GET_OBJ_PNAME(obj, 3) = str_dup("тугой кошелек");
-	GET_OBJ_PNAME(obj, 4) = str_dup("тугим кошельком");
-	GET_OBJ_PNAME(obj, 5) = str_dup("тугом кошельке");
+	obj->set_aliases("тугой кошелек");
+	obj->set_short_description("тугой кошелек");
+	obj->set_description("Кем-то оброненный тугой кошелек лежит здесь.");
+	obj->set_PName(0, "тугой кошелек");
+	obj->set_PName(1, "тугого кошелька");
+	obj->set_PName(2, "тугому кошельку");
+	obj->set_PName(3, "тугой кошелек");
+	obj->set_PName(4, "тугим кошельком");
+	obj->set_PName(5, "тугом кошельке");
 
 	char buf_[MAX_INPUT_LENGTH];
 	snprintf(buf_, sizeof(buf_),
@@ -757,38 +760,38 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 		"В случае потери просьба вернуть за вознаграждение.\r\n"
 		"--------------------------------------------------\r\n"
 		, ch->get_name().c_str());
-	CREATE(obj->ex_description, 1);
-	obj->ex_description->keyword = str_dup(obj->PNames[0]);
-	obj->ex_description->description = str_dup(buf_);
-	obj->ex_description->next = 0;
+	obj->set_ex_description(obj->get_PName(0).c_str(), buf_);
 
-	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
-	GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
-	GET_OBJ_VAL(obj, 0) = 0;
+	obj->set_type(obj_flag_data::ITEM_CONTAINER);
+	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_val(0, 0);
 	// CLOSEABLE + CLOSED
-	GET_OBJ_VAL(obj, 1) = 5;
-	GET_OBJ_VAL(obj, 2) = -1;
-	GET_OBJ_VAL(obj, 3) = ch->get_uid();
+	obj->set_val(1,  5);
+	obj->set_val(2, -1);
+	obj->set_val(3, ch->get_uid());
 
 	obj->set_rent(0);
 	obj->set_rent_eq(0);
 	// чтобы скавенж мобов не трогать
 	obj->set_cost(2);
-	obj->set_extraflag(EExtraFlag::ITEM_NODONATE);
-	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
+	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 
 	return obj;
 }
 
 bool is_purse(OBJ_DATA *obj)
 {
-	return GET_OBJ_RNUM(obj) == PURSE_RNUM;
+	return obj->get_rnum() == PURSE_RNUM;
 }
 
 /// вываливаем и пуржим кошелек при попытке открыть или при взятии хозяином
 void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	REMOVE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED);
+	auto value = obj->get_val(1);
+	REMOVE_BIT(value, CONT_CLOSED);
+	obj->set_val(1, value);
+
 	char buf_[MAX_INPUT_LENGTH];
 	snprintf(buf_, sizeof(buf_), "all");
 	get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
@@ -892,7 +895,10 @@ bool ObjVal::init_from_file(const char *str)
 
 std::string ObjVal::print_to_zone() const
 {
-	if (m_values.empty()) return "";
+	if (m_values.empty())
+	{
+		return "";
+	}
 
 	std::stringstream out;
 

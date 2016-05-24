@@ -810,10 +810,13 @@ std::string print_obj_list(const set_node &set)
 	for (auto i = set.obj_list.begin(); i != set.obj_list.end(); ++i)
 	{
 		const int rnum = real_object(i->first);
-		if (rnum < 0 || !obj_proto[rnum]->short_description) continue;
+		if (rnum < 0
+			|| obj_proto[rnum]->get_short_description().empty())
+		{
+			continue;
+		}
 
-		const size_t curr_name =
-			strlen_no_colors(obj_proto[rnum]->short_description);
+		const size_t curr_name = strlen_no_colors(obj_proto[rnum]->get_short_description().c_str());
 		if (left)
 		{
 			l_max_name = std::max(l_max_name, curr_name);
@@ -830,7 +833,7 @@ std::string print_obj_list(const set_node &set)
 	for (auto i = rnum_list.begin(); i != rnum_list.end(); ++i)
 	{
 		snprintf(buf_, sizeof(buf_), "   %s",
-			colored_name(obj_proto[*i]->short_description,
+			colored_name(obj_proto[*i]->get_short_description().c_str(),
 			left ? l_max_name : r_max_name, true));
 		out += buf_;
 		if (!left)
@@ -992,7 +995,7 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench)
 			snprintf(buf_, sizeof(buf_),
 				" +    %s%s вес %s на %d%s\r\n",
 				KCYN, ench.second.weight > 0 ? "увеличивает" : "уменьшает",
-				GET_OBJ_PNAME(obj_proto[rnum], 1),
+				GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 				abs(ench.second.weight), KNRM);
 			out += buf_;
 		}
@@ -1002,21 +1005,21 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench)
 			{
 				snprintf(buf_, sizeof(buf_),
 					" +    %sувеличивает урон %s на %dD%d%s\r\n",
-					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1),
+					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 					abs(ench.second.ndice), abs(ench.second.sdice), KNRM);
 			}
 			else if (ench.second.ndice <= 0 && ench.second.sdice <= 0)
 			{
 				snprintf(buf_, sizeof(buf_),
 					" +    %sуменьшает урон %s на %dD%d%s\r\n",
-					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1),
+					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 					abs(ench.second.ndice), abs(ench.second.sdice), KNRM);
 			}
 			else
 			{
 				snprintf(buf_, sizeof(buf_),
 					" +    %sизменяет урон %s на %+dD%+d%s\r\n",
-					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1),
+					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 					ench.second.ndice, ench.second.sdice, KNRM);
 			}
 			out += buf_;
@@ -1414,11 +1417,11 @@ void check_enchants(CHAR_DATA *ch)
 			auto i = ch->obj_bonus().enchants.find(GET_OBJ_VNUM(obj));
 			if (i != ch->obj_bonus().enchants.end())
 			{
-				obj->enchants.update_set_bonus(obj, &(i->second));
+				obj->update_enchants_set_bonus(i->second);
 			}
 			else
 			{
-				obj->enchants.remove_set_bonus(obj);
+				obj->remove_set_bonus();
 			}
 		}
 	}

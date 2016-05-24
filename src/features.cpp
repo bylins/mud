@@ -1044,7 +1044,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_GLASS)
 		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));
+				GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 			send_to_char(buf, ch);
 			return;
 		}
@@ -1056,16 +1056,17 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_ORGANIC)
 		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));
+					GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 			send_to_char(buf, ch);
 			return;
 		}
 		break;
 	};
-	GET_OBJ_OWNER(obj) = GET_UNIQUE(vict);
+	obj->set_owner(GET_UNIQUE(vict));
 	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
 	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
-	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n", GET_OBJ_PNAME(obj, 3), GET_PAD(vict, 1));
+	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",
+		GET_OBJ_PNAME(obj, 3).c_str(), GET_PAD(vict, 1));
 
 	send_to_char(buf, ch);
 
@@ -1154,7 +1155,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			&& k->follower->master == ch
 			&& MOB_FLAGGED(k->follower, MOB_CLONE)
 			&& !affected_by_spell(k->follower, SPELL_CAPABLE)
-			&& IN_ROOM(ch) == IN_ROOM(k->follower))
+			&& ch->in_room == IN_ROOM(k->follower))
 		{
 			follower = k->follower;
 			break;
@@ -1279,7 +1280,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!IS_GOD(ch))
 	{
 		// Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT))
+		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT))
 		{
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;

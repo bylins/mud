@@ -142,7 +142,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 
 	out << GET_OBJ_PNAME(obj, 0) << "\r\n";
 
-	if (obj->obj_flags.no_flag.sprintbits(no_bits, buf2, ","))
+	if (obj->get_no_flags().sprintbits(no_bits, buf2, ","))
 	{
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
@@ -152,7 +152,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
 		out << boost::format("Наносимые повреждения '%dD%d' среднее %.1f\r\n")
-				% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
+			% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
 	}
 
 	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON
@@ -170,11 +170,12 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 	std::string tmp_str;
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if (obj->affected[i].modifier != 0)
+		if (obj->get_affected(i).modifier != 0)
 		{
-			tmp_str += "   " + print_obj_affects(obj->affected[i]);
+			tmp_str += "   " + print_obj_affects(obj->get_affected(i));
 		}
 	}
+
 	if (!tmp_str.empty())
 	{
 		out << "Свойства :\r\n" << tmp_str;
@@ -426,7 +427,7 @@ std::string print_fullset_stats(const set_info &set)
 		// суммируем родные статы со шмоток
 		activ.native_no_flag += GET_OBJ_NO(obj);
 		activ.native_affects += GET_OBJ_AFFECTS(obj);
-		sum_apply(activ.native_affected, obj->affected);
+		sum_apply(activ.native_affected, obj->get_affected());
 		sum_skills(activ.native_skills, obj);
 
 		// иним профы
@@ -720,7 +721,7 @@ bool help_compare(const std::string &arg, const std::string &text, bool strong)
 		return arg == text;
 	}
 
-	return isname(arg, text.c_str());
+	return isname(arg, text);
 }
 
 void UserSearch::process(int flag)

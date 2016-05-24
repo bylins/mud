@@ -143,11 +143,20 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 			for (i = room_num; i <= top_of_world; i++)
 			{
 				for (temp_ch = world[i]->people; temp_ch; temp_ch = temp_ch->next_in_room)
+				{
 					if (temp_ch->in_room != NOWHERE)
+					{
 						temp_ch->in_room = i;
-				for (temp_obj = world[i]->contents; temp_obj; temp_obj = temp_obj->next_content)
-					if (temp_obj->in_room != NOWHERE)
-						temp_obj->in_room = i;
+					}
+				}
+
+				for (temp_obj = world[i]->contents; temp_obj; temp_obj = temp_obj->get_next_content())
+				{
+					if (temp_obj->get_in_room() != NOWHERE)
+					{
+						temp_obj->set_in_room(i);
+					}
+				}
 			}
 		}
 		else
@@ -254,7 +263,6 @@ void redit_save_to_disk(int zone_num)
 	int counter, counter2, realcounter;
 	FILE *fp;
 	ROOM_DATA *room;
-	EXTRA_DESCR_DATA *ex_desc;
 
 	if (zone_num < 0 || zone_num > top_of_zone_table)
 	{
@@ -333,7 +341,7 @@ void redit_save_to_disk(int zone_num)
 			// * Home straight, just deal with extra descriptions.
 			if (room->ex_description)
 			{
-				for (ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next)
+				for (auto ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next)
 				{
 					strcpy(buf1, ex_desc->description);
 					strip_string(buf1);
@@ -364,18 +372,18 @@ void redit_save_to_disk(int zone_num)
 // * For extra descriptions.
 void redit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 {
-	EXTRA_DESCR_DATA *extra_desc = OLC_DESC(d);
+	auto extra_desc = OLC_DESC(d);
 
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-			"[H[J"
+		"[H[J"
 #endif
-			"%s1%s) Ключ: %s%s\r\n"
-			"%s2%s) Описание:\r\n%s%s\r\n"
-			"%s3%s) Следующее описание: ",
-			grn, nrm, yel,
-			extra_desc->keyword ? extra_desc->keyword : "<NONE>", grn, nrm,
-			yel, extra_desc->description ? extra_desc->description : "<NONE>", grn, nrm);
+		"%s1%s) Ключ: %s%s\r\n"
+		"%s2%s) Описание:\r\n%s%s\r\n"
+		"%s3%s) Следующее описание: ",
+		grn, nrm, yel,
+		extra_desc->keyword ? extra_desc->keyword : "<NONE>", grn, nrm,
+		yel, extra_desc->description ? extra_desc->description : "<NONE>", grn, nrm);
 
 	strcat(buf, !extra_desc->next ? "<NOT SET>\r\n" : "Set.\r\n");
 	strcat(buf, "Enter choice (0 to quit) : ");
@@ -402,32 +410,36 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 		sprintf(buf2+strlen(buf2), " (Сложность замка [%d])", OLC_EXIT(d)->lock_complexity);
 	}
 	else
+	{
 		strcpy(buf2, "Нет двери");
+	}
+
 	if (IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN))
+	{
 		strcat(buf2, " (Выход скрыт)");
-
-
+	}
+	
 	get_char_cols(d->character);
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-			"[H[J"
+		"[H[J"
 #endif
-			"%s1%s) Ведет в        : %s%d\r\n"
-			"%s2%s) Описание       :-\r\n%s%s\r\n"
-			"%s3%s) Синонимы двери : %s%s (%s)\r\n"
-			"%s4%s) Номер ключа    : %s%d\r\n"
-			"%s5%s) Флаги двери    : %s%s\r\n"
-			"%s6%s) Очистить выход.\r\n"
-			"Ваш выбор (0 - конец) : ",
-			grn, nrm, cyn,
-			OLC_EXIT(d)->to_room !=
-			NOWHERE ? world[OLC_EXIT(d)->to_room]->number : NOWHERE, grn, nrm,
-			yel,
-			OLC_EXIT(d)->general_description ? OLC_EXIT(d)->
-			general_description : "<NONE>", grn, nrm, yel,
-			OLC_EXIT(d)->keyword ? OLC_EXIT(d)->keyword : "<NONE>",
-			OLC_EXIT(d)->vkeyword ? OLC_EXIT(d)->vkeyword : "<NONE>", grn, nrm,
-			cyn, OLC_EXIT(d)->key, grn, nrm, cyn, buf2, grn, nrm);
+		"%s1%s) Ведет в        : %s%d\r\n"
+		"%s2%s) Описание       :-\r\n%s%s\r\n"
+		"%s3%s) Синонимы двери : %s%s (%s)\r\n"
+		"%s4%s) Номер ключа    : %s%d\r\n"
+		"%s5%s) Флаги двери    : %s%s\r\n"
+		"%s6%s) Очистить выход.\r\n"
+		"Ваш выбор (0 - конец) : ",
+		grn, nrm, cyn,
+		OLC_EXIT(d)->to_room !=
+		NOWHERE ? world[OLC_EXIT(d)->to_room]->number : NOWHERE, grn, nrm,
+		yel,
+		OLC_EXIT(d)->general_description ? OLC_EXIT(d)->
+		general_description : "<NONE>", grn, nrm, yel,
+		OLC_EXIT(d)->keyword ? OLC_EXIT(d)->keyword : "<NONE>",
+		OLC_EXIT(d)->vkeyword ? OLC_EXIT(d)->vkeyword : "<NONE>", grn, nrm,
+		cyn, OLC_EXIT(d)->key, grn, nrm, cyn, buf2, grn, nrm);
 
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = REDIT_EXIT_MENU;
@@ -438,18 +450,17 @@ void redit_disp_exit_flag_menu(DESCRIPTOR_DATA * d)
 {
 	get_char_cols(d->character);
 	sprintf(buf,
-		    "ВНИМАНИЕ! Созданная здесь дверь будет всегда отперта и открыта.\r\n"
-		    "Изменить состояние двери по умолчанию можно только командами зоны (zedit).\r\n\r\n"
-			"%s1%s) [%c]Дверь\r\n"
-			"%s2%s) [%c]Невзламываемая\r\n"
-			"%s3%s) [%c]Скрытый выход\r\n"
-			"%s4%s) [%d]Сложность замка\r\n"
-			"Ваш выбор (0 - выход): ",
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info,EX_ISDOOR) ? 'x' : ' ',
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF) ? 'x' : ' ',
-			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN) ? 'x' : ' ',
-			grn, nrm, OLC_EXIT(d)->lock_complexity
-			);
+		"ВНИМАНИЕ! Созданная здесь дверь будет всегда отперта и открыта.\r\n"
+		"Изменить состояние двери по умолчанию можно только командами зоны (zedit).\r\n\r\n"
+		"%s1%s) [%c]Дверь\r\n"
+		"%s2%s) [%c]Невзламываемая\r\n"
+		"%s3%s) [%c]Скрытый выход\r\n"
+		"%s4%s) [%d]Сложность замка\r\n"
+		"Ваш выбор (0 - выход): ",
+		grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR) ? 'x' : ' ',
+		grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF) ? 'x' : ' ',
+		grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN) ? 'x' : ' ',
+		grn, nrm, OLC_EXIT(d)->lock_complexity);
 	send_to_char(buf, d->character);
 }
 
@@ -610,12 +621,16 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				OLC_MODE(d) = REDIT_CONFIRM_SAVESTRING;
 			}
 			else
+			{
 				cleanup_olc(d, CLEANUP_ALL);
+			}
 			return;
+
 		case '1':
 			send_to_char("Введите название комнаты:-\r\n] ", d->character);
 			OLC_MODE(d) = REDIT_NAME;
 			break;
+
 		case '2':
 			OLC_MODE(d) = REDIT_DESC;
 #if defined(CLEAR_SCREEN)
@@ -628,53 +643,62 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				SEND_TO_Q(OLC_ROOM(d)->temp_description, d);
 				d->backstr = str_dup(OLC_ROOM(d)->temp_description);
 			}
-			d->str = &OLC_ROOM(d)->temp_description;
+			d->writer.reset(new CSimpleStringWriter(OLC_ROOM(d)->temp_description));
 			d->max_str = MAX_ROOM_DESC;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
 			break;
+
 		case '3':
 			redit_disp_flag_menu(d);
 			break;
+
 		case '4':
 			redit_disp_sector_menu(d);
 			break;
+
 		case '5':
 			OLC_VAL(d) = NORTH;
 			redit_disp_exit_menu(d);
 			break;
+
 		case '6':
 			OLC_VAL(d) = EAST;
 			redit_disp_exit_menu(d);
 			break;
+
 		case '7':
 			OLC_VAL(d) = SOUTH;
 			redit_disp_exit_menu(d);
 			break;
+
 		case '8':
 			OLC_VAL(d) = WEST;
 			redit_disp_exit_menu(d);
 			break;
+
 		case '9':
 			OLC_VAL(d) = UP;
 			redit_disp_exit_menu(d);
 			break;
+
 		case 'a':
 		case 'A':
 			OLC_VAL(d) = DOWN;
 			redit_disp_exit_menu(d);
 			break;
+
 		case 'b':
 		case 'B':
 			// * If the extra description doesn't exist.
 			if (!OLC_ROOM(d)->ex_description)
 			{
-				CREATE(OLC_ROOM(d)->ex_description, 1);
-				OLC_ROOM(d)->ex_description->next = NULL;
+				OLC_ROOM(d)->ex_description.reset(new EXTRA_DESCR_DATA());
 			}
 			OLC_DESC(d) = OLC_ROOM(d)->ex_description;
 			redit_disp_extradesc_menu(d);
 			break;
+
 		case 'h':
 		case 'H':
 		case 'н':
@@ -682,6 +706,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = REDIT_ING;
 			xedit_disp_ing(d, OLC_ROOM(d)->ing_list);
 			return;
+
 		case 's':
 		case 'S':
 			dg_olc_script_copy(d);
@@ -903,34 +928,20 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		switch ((number = atoi(arg)))
 		{
 		case 0:
-		{
-		// * If something got left out, delete the extra description
-		// * when backing out to the menu.
+			// * If something got left out, delete the extra description
+			// * when backing out to the menu.
 			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
 			{
-				EXTRA_DESCR_DATA **tmp_desc;
-
-				if (OLC_DESC(d)->keyword)
-					free(OLC_DESC(d)->keyword);
-				if (OLC_DESC(d)->description)
-					free(OLC_DESC(d)->description);
-
-				// * Clean up pointers.
-				for (tmp_desc = &(OLC_ROOM(d)->ex_description); *tmp_desc;
-						tmp_desc = &((*tmp_desc)->next))
-					if (*tmp_desc == OLC_DESC(d))
-					{
-						*tmp_desc = NULL;
-						break;
-					}
-				free(OLC_DESC(d));
+				auto& desc = OLC_DESC(d);
+				desc.reset();
 			}
-		}
-		break;
+			break;
+
 		case 1:
 			OLC_MODE(d) = REDIT_EXTRADESC_KEY;
 			send_to_char("Введите ключевые слова, разделенные пробелами : ", d->character);
 			return;
+
 		case 2:
 			OLC_MODE(d) = REDIT_EXTRADESC_DESCRIPTION;
 			SEND_TO_Q("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
@@ -940,7 +951,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				SEND_TO_Q(OLC_DESC(d)->description, d);
 				d->backstr = str_dup(OLC_DESC(d)->description);
 			}
-			d->str = &OLC_DESC(d)->description;
+			d->writer.reset(new CSimpleStringWriter(OLC_DESC(d)->description));
 			d->max_str = 4096;
 			d->mail_to = 0;
 			return;
@@ -948,21 +959,20 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 3:
 			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
 			{
-				send_to_char
-				("Вы не можете редактировать следующее экстраописание, не завершив текущее.\r\n",
-				 d->character);
+				send_to_char("Вы не можете редактировать следующее экстраописание, не завершив текущее.\r\n",
+					d->character);
 				redit_disp_extradesc_menu(d);
 			}
 			else
 			{
-				EXTRA_DESCR_DATA *new_extra;
-
 				if (OLC_DESC(d)->next)
+				{
 					OLC_DESC(d) = OLC_DESC(d)->next;
+				}
 				else
 				{
 					// * Make new extra description and attach at end.
-					CREATE(new_extra, 1);
+					std::shared_ptr<EXTRA_DESCR_DATA> new_extra(new EXTRA_DESCR_DATA());
 					OLC_DESC(d)->next = new_extra;
 					OLC_DESC(d) = new_extra;
 				}
@@ -971,6 +981,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		break;
+
 	case REDIT_ING:
 		if (!xparse_ing(d, &OLC_ROOM(d)->ing_list, arg))
 		{

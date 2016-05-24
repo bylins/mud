@@ -141,47 +141,19 @@ void generate_book_upgrd(OBJ_DATA *obj)
 			SKILL_STUPOR, SKILL_ADDSHOT, SKILL_AWAKE, SKILL_NOPARRYHIT,
 			SKILL_WARCRY, SKILL_IRON_WIND, SKILL_STRANGLE} };
 
-	GET_OBJ_VAL(obj, 1) = skill_list[number(0, skills_count - 1)];
+	obj->set_val(1, skill_list[number(0, skills_count - 1)]);
 	std::string book_name = skill_name(GET_OBJ_VAL(obj, 1));
 
-	if (obj->aliases
-		&& (GET_OBJ_RNUM(obj) < 0 || obj->aliases != obj_proto[GET_OBJ_RNUM(obj)]->aliases))
-	{
-		free(obj->aliases);
-	}
-	obj->aliases = str_dup(("книга секретов умения: " + book_name).c_str());
+	obj->set_aliases("книга секретов умения: " + book_name);
+	obj->set_short_description("книга секретов умения: " + book_name);
+	obj->set_description("Книга секретов умения: " + book_name + " лежит здесь.");
 
-	if (obj->short_description
-		&& (GET_OBJ_RNUM(obj) < 0
-			|| obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description))
-	{
-		free(obj->short_description);
-	}
-	obj->short_description = str_dup(("книга секретов умения: " + book_name).c_str());
-
-	if (obj->description
-		&& (GET_OBJ_RNUM(obj) < 0
-			|| obj->description != obj_proto[GET_OBJ_RNUM(obj)]->description))
-	{
-		free(obj->description);
-	}
-	obj->description = str_dup(("Книга секретов умения: " + book_name + " лежит здесь.").c_str());
-
-	for (int i = 0; i < OBJ_DATA::NUM_PADS; ++i)
-	{
-		if (GET_OBJ_PNAME(obj, i)
-			&& (GET_OBJ_RNUM(obj) < 0
-				|| GET_OBJ_PNAME(obj, i) != GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i)))
-		{
-			free(GET_OBJ_PNAME(obj, i));
-		}
-	}
-	GET_OBJ_PNAME(obj, 0) = str_dup(("книга секретов умения: " + book_name).c_str());
-	GET_OBJ_PNAME(obj, 1) = str_dup(("книги секретов умения: " + book_name).c_str());
-	GET_OBJ_PNAME(obj, 2) = str_dup(("книге секретов умения: " + book_name).c_str());
-	GET_OBJ_PNAME(obj, 3) = str_dup(("книгу секретов умения: " + book_name).c_str());
-	GET_OBJ_PNAME(obj, 4) = str_dup(("книгой секретов умения: " + book_name).c_str());
-	GET_OBJ_PNAME(obj, 5) = str_dup(("книге секретов умения: " + book_name).c_str());
+	obj->set_PName(0, "книга секретов умения: " + book_name);
+	obj->set_PName(1, "книги секретов умения: " + book_name);
+	obj->set_PName(2, "книге секретов умения: " + book_name);
+	obj->set_PName(3, "книгу секретов умения: " + book_name);
+	obj->set_PName(4, "книгой секретов умения: " + book_name);
+	obj->set_PName(5, "книге секретов умения: " + book_name);
 }
 
 int get_stat_mod(int stat)
@@ -339,7 +311,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 	}
 
 	log("Load obj #%d by %s in room #%d (%s)",
-			GET_OBJ_VNUM(o), GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)),
+			GET_OBJ_VNUM(o), GET_NAME(ch), GET_ROOM_VNUM(ch->in_room),
 			setload ? "setload" : "globaldrop");
 
 	if (!setload)
@@ -363,7 +335,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 	}
 	else
 	{
-		for (CHAR_DATA *tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+		for (CHAR_DATA *tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 		{
 			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n",
 				CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
@@ -372,15 +344,16 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 
 	if (MOB_FLAGGED(ch, MOB_CORPSE))
 	{
-		obj_to_room(o, IN_ROOM(ch));
+		obj_to_room(o, ch->in_room);
 	}
 	else
 	{
 		obj_to_obj(o, corpse);
 	}
+
 	if (!obj_decay(o))
 	{
-		if (o->in_room != NOWHERE)
+		if (o->get_in_room() != NOWHERE)
 		{
 			act("На земле остал$U лежать $o.", FALSE, ch, o, 0, TO_ROOM);
 		}

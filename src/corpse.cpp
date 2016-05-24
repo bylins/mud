@@ -361,7 +361,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				return true;
 			}
 			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
-			log("Фридроп: упал предмет %s с VNUM: %d", obj_proto[rnum]->short_description, obj_proto.vnum(rnum));
+			log("Фридроп: упал предмет %s с VNUM: %d", obj_proto[rnum]->get_short_description().c_str(), obj_proto.vnum(rnum));
 			obj_to_corpse(corpse, mob, rnum, false);
 			return true;
 		}
@@ -386,7 +386,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				{
 					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
 					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d",
-						obj_proto[obj_rnum]->short_description, obj_proto.vnum(obj_rnum), GET_NAME(mob), GET_MOB_VNUM(mob));
+						obj_proto[obj_rnum]->get_short_description().c_str(), obj_proto.vnum(obj_rnum), GET_NAME(mob), GET_MOB_VNUM(mob));
 					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
 					obj_to_corpse(corpse, mob, obj_rnum, false);
 				}
@@ -403,52 +403,55 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 {
 	OBJ_DATA *corpse;
-	EXTRA_DESCR_DATA *exdesc;
 
 	corpse = create_obj();
-	GET_OBJ_SEX(corpse) = ESex::SEX_POLY;
+	corpse->set_sex(ESex::SEX_POLY);
 
 	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
-	corpse->description = str_dup(buf2);
+	corpse->set_description(buf2);
 
 	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->short_description = str_dup(buf2);
+	corpse->set_short_description(buf2);
 
 	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->PNames[0] = str_dup(buf2);
-	corpse->aliases = str_dup(buf2);
+	corpse->set_PName(0, buf2);
+	corpse->set_aliases(buf2);
 
 	sprintf(buf2, "останков %s", GET_PAD(ch, 1));
-	corpse->PNames[1] = str_dup(buf2);
+	corpse->set_PName(1, buf2);
 	sprintf(buf2, "останкам %s", GET_PAD(ch, 1));
-	corpse->PNames[2] = str_dup(buf2);
+	corpse->set_PName(2, buf2);
 	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->PNames[3] = str_dup(buf2);
+	corpse->set_PName(3, buf2);
 	sprintf(buf2, "останками %s", GET_PAD(ch, 1));
-	corpse->PNames[4] = str_dup(buf2);
+	corpse->set_PName(4, buf2);
 	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
-	corpse->PNames[5] = str_dup(buf2);
+	corpse->set_PName(5, buf2);
 
-	GET_OBJ_TYPE(corpse) = obj_flag_data::ITEM_CONTAINER;
-	GET_OBJ_WEAR(corpse) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
-	corpse->set_extraflag(EExtraFlag::ITEM_NODONATE);
-	corpse->set_extraflag(EExtraFlag::ITEM_NOSELL);
-	GET_OBJ_VAL(corpse, 0) = 0;	// You can't store stuff in a corpse
-	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
-	GET_OBJ_VAL(corpse, 3) = 1;	// corpse identifier
-	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch);
+	corpse->set_type(obj_flag_data::ITEM_CONTAINER);
+	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
+	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
+	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	corpse->set_val(0, 0);	// You can't store stuff in a corpse
+	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
+	corpse->set_val(3, 1);	// corpse identifier
+	corpse->set_weight(GET_WEIGHT(ch));
 	corpse->set_rent(100000);
 	corpse->set_timer(max_pc_corpse_time * 2);
-	CREATE(exdesc, 1);
-	exdesc->keyword = str_dup(corpse->PNames[0]);	// косметика
+	std::shared_ptr<EXTRA_DESCR_DATA> exdesc(new EXTRA_DESCR_DATA());
+	exdesc->keyword = str_dup(corpse->get_PName(0).c_str());	// косметика
 	if (killer)
+	{
 		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
+	}
 	else
+	{
 		sprintf(buf, "Умер%s на арене.\r\n", GET_CH_SUF_4(ch));
+	}
 	exdesc->description = str_dup(buf);	// косметика
-	exdesc->next = corpse->ex_description;
-	corpse->ex_description = exdesc;
-	obj_to_room(corpse, IN_ROOM(ch));
+	exdesc->next = corpse->get_ex_description();
+	corpse->set_ex_description(exdesc);
+	obj_to_room(corpse, ch->in_room);
 }
 
 OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
@@ -463,34 +466,34 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse = create_obj(buf2);
 
-	GET_OBJ_SEX(corpse) = ESex::SEX_MALE;
+	corpse->set_sex(ESex::SEX_MALE);
 
 	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
-	corpse->description = str_dup(buf2);
+	corpse->set_description(buf2);
 
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->short_description = str_dup(buf2);
+	corpse->set_short_description(buf2);
 
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->PNames[0] = str_dup(buf2);
+	corpse->set_PName(0, buf2);
 	sprintf(buf2, "трупа %s", GET_PAD(ch, 1));
-	corpse->PNames[1] = str_dup(buf2);
+	corpse->set_PName(1, buf2);
 	sprintf(buf2, "трупу %s", GET_PAD(ch, 1));
-	corpse->PNames[2] = str_dup(buf2);
+	corpse->set_PName(2, buf2);
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->PNames[3] = str_dup(buf2);
+	corpse->set_PName(3, buf2);
 	sprintf(buf2, "трупом %s", GET_PAD(ch, 1));
-	corpse->PNames[4] = str_dup(buf2);
+	corpse->set_PName(4, buf2);
 	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
-	corpse->PNames[5] = str_dup(buf2);
+	corpse->set_PName(5, buf2);
 
-	GET_OBJ_TYPE(corpse) = obj_flag_data::ITEM_CONTAINER;
-	GET_OBJ_WEAR(corpse) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
-	corpse->set_extraflag(EExtraFlag::ITEM_NODONATE);
-	corpse->set_extraflag(EExtraFlag::ITEM_NOSELL);
-	GET_OBJ_VAL(corpse, 0) = 0;	// You can't store stuff in a corpse
-	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
-	GET_OBJ_VAL(corpse, 3) = 1;	// corpse identifier
+	corpse->set_type(obj_flag_data::ITEM_CONTAINER);
+	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
+	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
+	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	corpse->set_val(0, 0);	// You can't store stuff in a corpse
+	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
+	corpse->set_val(3, 1);	// corpse identifier
 	corpse->set_rent(100000);
 
 	if (IS_NPC(ch))
@@ -515,16 +518,15 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	}
 
 	// Считаем вес шмоток после того как разденем чара
-	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch) + IS_CARRYING_W(ch);
+	corpse->set_weight(GET_WEIGHT(ch) + IS_CARRYING_W(ch));
 
 	// transfer character's inventory to the corpse
-	corpse->contains = ch->carrying;
-	for (o = corpse->contains; o != NULL; o = o->next_content)
+	corpse->set_contains(ch->carrying);
+	for (o = corpse->get_contains(); o != NULL; o = o->get_next_content())
 	{
-		o->in_obj = corpse;
+		o->set_in_obj(corpse);
 	}
 	object_list_new_owner(corpse, NULL);
-
 
 	// transfer gold
 	// following 'if' clause added to fix gold duplication loophole
@@ -562,11 +564,13 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	IS_CARRYING_W(ch) = 0;
 
 	//Polud привязываем загрузку ингров к расе (типу) моба
-	if (IS_NPC(ch) && GET_RACE(ch)>NPC_RACE_BASIC && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE))
+	if (IS_NPC(ch) && GET_RACE(ch)>NPC_RACE_BASIC && !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
 	{
 		OBJ_DATA* ingr = try_make_ingr(ch, 1000, 100);
 		if (ingr)
+		{
 			obj_to_obj(ingr, corpse);
+		}
 	}
 
 	// Загружаю шмотки по листу. - перемещено в raw_kill
@@ -575,14 +579,14 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
 	if(IS_CHARMICE(ch) && !MOB_FLAGGED(ch, MOB_CORPSE) && ch->master && ((killer && PRF_FLAGGED(killer, PRF_EXECUTOR))
-		|| (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && !RENTABLE(ch->master))))
+		|| (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !RENTABLE(ch->master))))
 	{
 		obj_to_char(corpse, ch->master);
 		return NULL;
 	}
 	else
 	{
-		room_rnum corpse_room = IN_ROOM(ch);
+		room_rnum corpse_room = ch->in_room;
 		if (corpse_room == STRANGE_ROOM && ch->get_was_in_room() != NOWHERE)
 			corpse_room = ch->get_was_in_room();
 		obj_to_room(corpse, corpse_room);
