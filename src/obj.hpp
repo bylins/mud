@@ -532,6 +532,7 @@ public:
 	void add_timed_spell(const int spell, const int time);
 	void del_timed_spell(const int spell, const bool message);
 
+	auto dec_val(size_t index) { return --obj_flags.value[index]; }
 	auto get_carried_by() const { return m_carried_by; }
 	auto get_contains() const { return m_contains; }
 	auto get_craft_timer() const { return obj_flags.craft_timer; }
@@ -564,7 +565,8 @@ public:
 	auto get_worn_by() const { return m_worn_by; }
 	auto get_worn_on() const { return m_worn_on; }
 	auto get_zone() const { return obj_flags.Obj_zone; }
-	auto dec_val(size_t index) { return --obj_flags.value[index]; }
+	auto serialize_enchants() const { return m_enchants.print_to_file(); }
+	auto serialize_values() const { return m_values.print_to_file(); }
 	bool can_wear_any() const { return obj_flags.wear_flags > 0 && obj_flags.wear_flags != to_underlying(EWearFlag::ITEM_WEAR_TAKE); }
 	bool get_affect(const EWeaponAffectFlag weapon_affect) const { return obj_flags.affects.get(weapon_affect); }
 	bool get_affect(const uint32_t weapon_affect) const { return obj_flags.affects.get(weapon_affect); }
@@ -574,11 +576,14 @@ public:
 	bool get_no_flag(const ENoFlag flag) const { return obj_flags.no_flag.get(flag); }
 	bool get_wear_flag(const EWearFlag part) const { return IS_SET(obj_flags.wear_flags, to_underlying(part)); }
 	bool get_wear_mask(const obj_flag_data::wear_flags_t part) const { return IS_SET(obj_flags.wear_flags, part); }
+	bool init_values_from_file(const char* str) { return m_values.init_from_file(str); }
 	const auto& get_action_description() const { return m_action_description; }
 	const auto& get_affect_flags() const { return obj_flags.affects; }
 	const auto& get_affected() const { return m_affected; }
 	const auto& get_affected(const size_t index) const { return m_affected[index]; }
 	const auto& get_aliases() const { return m_aliases; }
+	const auto& get_all_affected() const { return m_affected; }
+	const auto& get_all_values() const { return m_values; }
 	const auto& get_anti_flags() const { return obj_flags.anti_flag; }
 	const auto& get_custom_label() const { return m_custom_label; }
 	const auto& get_description() const { return m_description; }
@@ -591,9 +596,27 @@ public:
 	const auto& get_values() const { return m_values; }
 	const std::string& get_PName(const size_t index) const { return m_pnames[index]; }
 	const std::string& get_short_description() const { return m_short_description; }
+	void add_affect_flags(const FLAG_DATA& flags) { obj_flags.affects += flags; }
+	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
+	void add_anti_flags(const FLAG_DATA& flags) { obj_flags.anti_flag += flags; }
+	void add_enchant(const obj::enchant& _) { m_enchants.add(_); }
+	void add_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags += flags; }
+	void add_maximum(const int amount) { obj_flags.Obj_max += amount; }
+	void add_no_flags(const FLAG_DATA& flags) { obj_flags.no_flag += flags; }
 	void add_proto_script(const obj_vnum vnum) { m_proto_script.push_back(vnum); }
+	void add_val(const size_t index, const int amount) { obj_flags.value[index] += amount; }
+	void add_weight(const int _) { obj_flags.weight += _; }
+	void append_ex_description_tag(const char* tag) { m_ex_description->description = str_add(m_ex_description->description, tag); }
 	void clear_action_description() { m_action_description.clear(); }
+	void clear_affected(const size_t index) { m_affected[index].location = APPLY_NONE; }
+	void clear_all_affected();
 	void clear_proto_script() { m_proto_script.clear(); }
+	void dec_affected_value(const size_t index) { --m_affected[index].modifier; }
+	void dec_destroyer() { --obj_flags.Obj_destroyer; }
+	void dec_weight() { --obj_flags.weight; }
+	void gm_affect_flag(const char *subfield, const char **list, char *res) { obj_flags.extra_flags.gm_flag(subfield, list, res); }
+	void gm_extra_flag(const char *subfield, const char **list, char *res) { obj_flags.extra_flags.gm_flag(subfield, list, res); }
+	void inc_val(const size_t index) { ++obj_flags.value[index]; }
 	void init_values_from_zone(const char* str) { m_values.init_from_zone(str); }
 	void load_affect_flags(const char* string) { obj_flags.affects.from_string(string); }
 	void load_anti_flags(const char* string) { obj_flags.anti_flag.from_string(string); }
@@ -601,15 +624,21 @@ public:
 	void load_no_flags(const char* string) { obj_flags.no_flag.from_string(string); }
 	void remove_custom_label() { m_custom_label.reset(); }
 	void remove_incorrect_values_keys(const int type) { m_values.remove_incorrect_keys(type); }
+	void remove_me_from_contains_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next_content; }); }
+	void remove_me_from_objects_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next; }); }
 	void remove_set_bonus() { m_enchants.remove_set_bonus(this); }
 	void set_action_description(const std::string& _) { m_action_description = _; }
 	void set_affect_flags(const FLAG_DATA& flags) { obj_flags.affects = flags; }
 	void set_affected(const size_t index, const EApplyLocation location, const int modifier);
 	void set_affected(const size_t index, const obj_affected_type& affect) { m_affected[index] = affect; }
+	void set_affected_location(const size_t index, const EApplyLocation _) { m_affected[index].location = _; }
+	void set_affected_modifier(const size_t index, const int _) { m_affected[index].modifier = _; }
 	void set_aliases(const std::string& _) { m_aliases = _; }
+	void set_all_affected(const affected_t& _) { m_affected = _; }
 	void set_anti_flags(const FLAG_DATA& flags) { obj_flags.anti_flag = flags; }
 	void set_carried_by(CHAR_DATA* _) { m_carried_by = _; }
 	void set_contains(OBJ_DATA* _) { m_contains = _; }
+	void set_craft_timer(const int _) { obj_flags.craft_timer = _; }
 	void set_crafter_uid(const int _) { obj_flags.Obj_maker = _; }
 	void set_current(const int _) { obj_flags.Obj_cur = _; }
 	void set_custom_label(const std::shared_ptr<custom_label>& _) { m_custom_label = _; }
@@ -617,11 +646,11 @@ public:
 	void set_description(const std::string& _) { m_description = _; }
 	void set_destroyer(const int _) { obj_flags.Obj_destroyer = _; }
 	void set_ex_description(const char* keyword, const char* description);
-	void set_ex_description(EXTRA_DESCR_DATA* _) { m_ex_description.reset(_); }
 	void set_ex_description(const std::shared_ptr<EXTRA_DESCR_DATA>& _) { m_ex_description = _; }
-	void set_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags = flags; }
+	void set_ex_description(EXTRA_DESCR_DATA* _) { m_ex_description.reset(_); }
 	void set_extra_flag(const EExtraFlag packed_flag) { obj_flags.extra_flags.set(packed_flag); }
 	void set_extra_flag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.set_flag(plane, flag); }
+	void set_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags = flags; }
 	void set_id(const long _) { m_id = _; }
 	void set_in_obj(OBJ_DATA* _) { m_in_obj = _; }
 	void set_in_room(const room_rnum _) { m_in_room = _; }
@@ -660,47 +689,19 @@ public:
 	void set_worn_by(CHAR_DATA* _) { m_worn_by = _; }
 	void set_worn_on(const short _) { m_worn_on = _; }
 	void set_zone(const int _) { obj_flags.Obj_zone = _; }
-	void swap_proto_script(triggers_list_t& _) { m_proto_script.swap(_); }
-	void unset_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
-	void add_weight(const int _) { obj_flags.weight += _; }
-	void sub_weight(const int _) { obj_flags.weight += _; }
-	const auto& get_all_affected() const { return m_affected; }
-	void set_all_affected(const affected_t& _) { m_affected = _; }
-	void set_craft_timer(const int _) { obj_flags.craft_timer = _; }
-	void append_ex_description_tag(const char* tag) { m_ex_description->description = str_add(m_ex_description->description, tag); }
-	void gm_extra_flag(const char *subfield, const char **list, char *res) { obj_flags.extra_flags.gm_flag(subfield, list, res); }
-	void gm_affect_flag(const char *subfield, const char **list, char *res) { obj_flags.extra_flags.gm_flag(subfield, list, res); }
 	void sub_current(const int _) { obj_flags.Obj_cur -= _; }
-	void remove_me_from_objects_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next; }); }
-	void remove_me_from_contains_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next_content; }); }
-	void dec_weight() { --obj_flags.weight; }
 	void sub_val(const size_t index, const int amount) { obj_flags.value[index] -= amount; }
-	void inc_val(const size_t index) { ++obj_flags.value[index]; }
-	void add_val(const size_t index, const int amount) { obj_flags.value[index] += amount; }
-	void add_maximum(const int amount) { obj_flags.Obj_max += amount; }
-	void clear_all_affected();
-	void clear_affected(const size_t index) { m_affected[index].location = APPLY_NONE; }
-	void dec_destroyer() { --obj_flags.Obj_destroyer; }
-	void dec_affected_value(const size_t index) { --m_affected[index].modifier; }
-	const auto& get_all_values() const { return m_values; }
-	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
-	void add_no_flags(const FLAG_DATA& flags) { obj_flags.no_flag += flags; }
-	void add_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags += flags; }
-	void add_anti_flags(const FLAG_DATA& flags) { obj_flags.anti_flag += flags; }
-	void add_affect_flags(const FLAG_DATA& flags) { obj_flags.affects += flags; }
-	void add_enchant(const obj::enchant& _) { m_enchants.add(_); }
+	void sub_weight(const int _) { obj_flags.weight += _; }
+	void swap_proto_script(triggers_list_t& _) { m_proto_script.swap(_); }
+	void toggle_affect_flag(const size_t plane, const uint32_t flag) { obj_flags.affects.toggle_flag(plane, flag); }
+	void toggle_anti_flag(const size_t plane, const uint32_t flag) { obj_flags.anti_flag.toggle_flag(plane, flag); }
 	void toggle_extra_flag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.toggle_flag(plane, flag); }
 	void toggle_no_flag(const size_t plane, const uint32_t flag) { obj_flags.no_flag.toggle_flag(plane, flag); }
-	void toggle_anti_flag(const size_t plane, const uint32_t flag) { obj_flags.anti_flag.toggle_flag(plane, flag); }
-	void toggle_affect_flag(const size_t plane, const uint32_t flag) { obj_flags.affects.toggle_flag(plane, flag); }
-	void toggle_wear_flag(const uint32_t flag) { TOGGLE_BIT(obj_flags.wear_flags, flag); }
 	void toggle_skill(const uint32_t skill) { TOGGLE_BIT(obj_flags.Obj_skill, skill); }
 	void toggle_val_bit(const size_t index, const uint32_t bit) { TOGGLE_BIT(obj_flags.value[index], bit); }
-	void set_affected_location(const size_t index, const EApplyLocation _) { m_affected[index].location = _; }
-	void set_affected_modifier(const size_t index, const int _) { m_affected[index].modifier = _; }
-	bool init_values_from_file(const char* str) { return m_values.init_from_file(str); }
-	auto serialize_values() const { return m_values.print_to_file(); }
-	auto serialize_enchants() const { return m_enchants.print_to_file(); }
+	void toggle_wear_flag(const uint32_t flag) { TOGGLE_BIT(obj_flags.wear_flags, flag); }
+	void unset_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
+	void update_enchants_set_bonus(const obj_sets::ench_type& _) { m_enchants.update_set_bonus(this, _); }
 
 private:
 	void zero_init();

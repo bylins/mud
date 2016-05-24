@@ -109,12 +109,11 @@ extern void disagree_name(CHAR_DATA * d, const char *immname, int immlev);
 extern int reboot_uptime;
 extern BanList *ban;
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
-extern bool CompareBits(FLAG_DATA flags, const char *names[], int affect);
+extern bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect);	// to avoid inclusion of utils.h
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 // extern functions
 int level_exp(CHAR_DATA * ch, int level);
-void hcontrol_list_houses(CHAR_DATA * ch);
 void appear(CHAR_DATA * ch);
 void reset_zone(zone_rnum zone);
 int parse_class(char arg);

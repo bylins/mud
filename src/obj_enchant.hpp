@@ -70,7 +70,7 @@ public:
 	void add(const enchant &ench);
 	// сеты используют только вес (который накопительный, а не флаг), поэтому
 	// их допускается менять, т.к. сколько прибавили, столько можно и отнять
-	void update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type *ench);
+	void update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type& ench);
 	void remove_set_bonus(OBJ_DATA *obj);
 
 private:

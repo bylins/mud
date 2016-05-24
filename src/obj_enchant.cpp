@@ -214,28 +214,28 @@ bool Enchants::empty() const
 	return list_.empty();
 }
 
-void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type *set_ench)
+void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type& set_ench)
 {
 	for (auto i = list_.begin(); i != list_.end(); ++i)
 	{
 		if (i->type_ == ENCHANT_FROM_SET)
 		{
-			if (i->weight_ != set_ench->weight
-				|| i->ndice_ != set_ench->ndice
-				|| i->sdice_ != set_ench->sdice)
+			if (i->weight_ != set_ench.weight
+				|| i->ndice_ != set_ench.ndice
+				|| i->sdice_ != set_ench.sdice)
 			{
 				// вес
-				obj->add_weight(set_ench->weight - i->weight_);
+				obj->add_weight(set_ench.weight - i->weight_);
 				// дайсы пушек
 				if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 				{
-					obj->add_val(1, set_ench->ndice - i->ndice_);
-					obj->add_val(2, set_ench->sdice - i->sdice_);
+					obj->add_val(1, set_ench.ndice - i->ndice_);
+					obj->add_val(2, set_ench.sdice - i->sdice_);
 				}
 				correct_values(obj);
-				i->weight_ = set_ench->weight;
-				i->ndice_ = set_ench->ndice;
-				i->sdice_ = set_ench->sdice;
+				i->weight_ = set_ench.weight;
+				i->ndice_ = set_ench.ndice;
+				i->sdice_ = set_ench.sdice;
 			}
 			return;
 		}
@@ -244,9 +244,9 @@ void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type *set_en
 	obj::enchant tmp;
 	tmp.type_ = obj::ENCHANT_FROM_SET;
 	tmp.name_ = "набором предметов";
-	tmp.weight_ = set_ench->weight;
-	tmp.ndice_ = set_ench->ndice;
-	tmp.sdice_ = set_ench->sdice;
+	tmp.weight_ = set_ench.weight;
+	tmp.ndice_ = set_ench.ndice;
+	tmp.sdice_ = set_ench.sdice;
 	tmp.apply_to_obj(obj);
 }
 

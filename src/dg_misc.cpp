@@ -35,8 +35,6 @@ extern const char *item_types[];
 extern const char *apply_types[];
 extern const char *affected_bits[];
 
-int ext_search_block(const char *arg, const char **list, int exact);
-
 #define SpINFO spell_info[spellnum]
 extern const char *what_sky_type[];
 extern int what_sky;

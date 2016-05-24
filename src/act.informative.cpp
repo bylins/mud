@@ -92,7 +92,6 @@ int compute_armor_class(CHAR_DATA * ch);
 int low_charm(CHAR_DATA * ch);
 int pk_count(CHAR_DATA * ch);
 // local functions
-void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur);
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
