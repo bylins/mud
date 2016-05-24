@@ -1573,7 +1573,7 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		int min_osk = osk/2;
 		if (itype < min_osk)
 		{
-			send_to_char(ch, "Качество %s ниже минимально допустимого.\r\n", GET_OBJ_PNAME(objs[i], 1));
+			send_to_char(ch, "Качество %s ниже минимально допустимого.\r\n", GET_OBJ_PNAME(objs[i], 1).c_str());
 			sprintf(name, "Качество ингров ниже допустимого: itype=%d, min_osk=%d", itype, min_osk);
 			imlog(NRM, name);
 			free(objs);

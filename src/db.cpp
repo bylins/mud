@@ -1202,7 +1202,7 @@ int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
 			|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN))
 	{
 		log("obj_skill: %d - %s (%d)", GET_OBJ_SKILL(obj),
-			GET_OBJ_PNAME(obj, 0), GET_OBJ_VNUM(obj));
+			GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
 		// из обж-скилл их не перекрывает, а просто удаляется
 		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0)

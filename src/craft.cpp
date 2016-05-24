@@ -177,6 +177,7 @@ namespace craft
 			}
 
 			pugi::xml_node* list_node = NULL;
+			pugi::xml_node storage;
 
 			for (const auto& i : list)
 			{
@@ -190,7 +191,8 @@ namespace craft
 
 					if (NULL == list_node)
 					{
-						list_node = &node.append_child(node_name);
+						storage = node.append_child(node_name);
+						list_node = &storage;
 						if (!*list_node)
 						{
 							log("WARNING: Couldn't create node \"%s\".\n", node_name);
@@ -2022,7 +2024,7 @@ namespace craft
 				obj_vnum min = 0;
 				CHelper::load_integer(min_node.child_value(), min,
 					[&]() {
-					log("WARNING: \"min\" tag of %d-%s range has wrong integer value. Range will be ignored.\n",
+					log("WARNING: \"min\" tag of %zd-%s range has wrong integer value. Range will be ignored.\n",
 						number, suffix(number));
 					throw std::runtime_error("tag \"min\" has wrong integer value");
 				});
@@ -2036,14 +2038,14 @@ namespace craft
 				obj_vnum max = 0;
 				CHelper::load_integer(max_node.child_value(), max,
 					[&]() {
-					log("WARNING: \"max\" tag of %d-%s range has wrong integer value. Range will be ignored.\n",
+					log("WARNING: \"max\" tag of %zd-%s range has wrong integer value. Range will be ignored.\n",
 						number, suffix(number));
 					throw std::runtime_error("tag \"max\" has wrong integer value");
 				});
 
 				if (min > max)
 				{
-					log("WARNING: Minimal value of %d-%s range is above than maximal value. Values will be swapped.\n",
+					log("WARNING: Minimal value of %zd-%s range is above than maximal value. Values will be swapped.\n",
 						number, suffix(number));
 					std::swap(min, max);
 				}

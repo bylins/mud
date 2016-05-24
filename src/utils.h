@@ -299,7 +299,7 @@ inline void CREATE(T*& result, const size_t number)
 	}
 }
 
-template <> inline void CREATE(EXTRA_DESCR_DATA*& result, const size_t number)
+template <> inline void CREATE(EXTRA_DESCR_DATA*&, const size_t)
 {
 	throw std::runtime_error("for EXTRA_DESCR_DATA you have to use operator new");
 }

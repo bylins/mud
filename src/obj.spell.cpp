@@ -90,20 +90,20 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 		case SPELL_BELENA_POISON:
 		case SPELL_DATURA_POISON:
 			send_to_char(ch, "С %s испарились последние капельки яда.\r\n",
-				GET_OBJ_PNAME(obj, 1));
+				GET_OBJ_PNAME(obj, 1).c_str());
 			break;
 
 		case SPELL_FLY:
 			send_to_char(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
 				GET_OBJ_VIS_SUF_7(obj, ch),
-				GET_OBJ_PNAME(obj, 0),
+				GET_OBJ_PNAME(obj, 0).c_str(),
 				GET_OBJ_VIS_SUF_1(obj, ch));
 			break;
 
 		case SPELL_LIGHT:
 			send_to_char(ch, "Ваш%s %s перестал%s светиться.\r\n",
 				GET_OBJ_VIS_SUF_7(obj, ch),
-				GET_OBJ_PNAME(obj, 0),
+				GET_OBJ_PNAME(obj, 0).c_str(),
 				GET_OBJ_VIS_SUF_1(obj, ch));
 			break;
 		}

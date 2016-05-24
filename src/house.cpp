@@ -5362,7 +5362,7 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MATERIAL)
 	{
 		send_to_char(ch, "%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
-			GET_OBJ_PNAME(obj, 0));
+			GET_OBJ_PNAME(obj, 0).c_str());
 
 		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MONEY)
 		{

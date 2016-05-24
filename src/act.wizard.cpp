@@ -3108,7 +3108,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		mudlog(buf, NRM, LVL_BUILDER, IMLOG, TRUE);
 		load_otrigger(obj);
 		obj_decay(obj);
-		olc_log("%s load ing %s #%d", GET_NAME(ch), obj->get_short_description(), power);
+		olc_log("%s load ing %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), power);
 	}
 	else
 	{

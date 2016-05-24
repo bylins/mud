@@ -585,7 +585,7 @@ std::string item_count_message(const OBJ_DATA *obj, int num, int pad)
 	if (!obj || num <= 0 || pad < 0 || pad > 5 || GET_OBJ_PNAME(obj, pad).empty())
 	{
 		log("SYSERROR : obj=%s num=%d, pad=%d, pname=%s (%s:%d)",
-			obj ? "true" : "false", num, pad, GET_OBJ_PNAME(obj, pad), __FILE__, __LINE__);
+			obj ? "true" : "false", num, pad, GET_OBJ_PNAME(obj, pad).c_str(), __FILE__, __LINE__);
 		return "<ERROR>";
 	}
 
@@ -1305,13 +1305,13 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 				if (removed > 0)
 				{
 					GloryConst::transfer_log("%s bought %s for %d temp glory",
-						GET_NAME(ch), GET_OBJ_PNAME(proto, 0), removed);
+						GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), removed);
 				}
 				if (removed != price)
 				{
 					GloryConst::remove_glory(GET_UNIQUE(ch), price - removed);
 					GloryConst::transfer_log("%s bought %s for %d const glory",
-						GET_NAME(ch), GET_OBJ_PNAME(proto, 0), price - removed);
+						GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), price - removed);
 				}
 			}
 			else
@@ -1830,7 +1830,7 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 				desc_count(IDENTIFY_COST, WHAT_MONEYu));
 			tell_to_char(keeper, ch, buf);
 
-			send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0));
+			send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0).c_str());
 			mort_show_obj_values(ident_obj, ch, 200);
 			ch->remove_gold(IDENTIFY_COST);
 		}

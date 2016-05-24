@@ -1765,7 +1765,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 	if (check_slots > 0
 		&& check_slots != to_underlying(EWearFlag::ITEM_WEAR_TAKE))
 	{
-		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0));
+		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0).c_str());
 		obj::enchant ench(obj);
 		ench.apply_to_obj(target);
 		extract_obj(obj);

@@ -1371,7 +1371,7 @@ int replace_str(const string_writer_t& writer, char *pattern, char *replacement,
 
 	int count = 0;
 	const char* from = writer->get_string();
-	int remains = max_size;
+	size_t remains = max_size;
 	do
 	{
 		if (remains < source_remained)

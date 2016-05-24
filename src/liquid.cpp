@@ -1044,7 +1044,8 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 		if (OBJ_FLAGGED(from_obj, EExtraFlag::ITEM_NOPOUR))
 		{
-			send_to_char(ch,"Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n", GET_OBJ_PNAME(from_obj, 3));
+			send_to_char(ch,"Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n",
+					GET_OBJ_PNAME(from_obj, 3).c_str());
 			return;
 		}
 //Added by Adept - переливание зелья из бутылки или емкости в емкость

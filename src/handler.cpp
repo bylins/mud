@@ -1932,7 +1932,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		if ((obj->get_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
 		{
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
-				GET_OBJ_PNAME(obj, 1), obj->get_mort_req(),
+				GET_OBJ_PNAME(obj, 1).c_str(),
+				obj->get_mort_req(),
 				desc_count(obj->get_mort_req(), WHAT_REMORT));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
 				FALSE, ch, obj, 0, TO_ROOM);
