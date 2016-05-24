@@ -659,7 +659,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		log("[SA] <%s> adds string '%s'", GET_NAME(d->character), str);
 
 	smash_tilde(str);
-	if (!d->writer->get_string())
+	if (!d->writer)
 	{
 		return;
 	}

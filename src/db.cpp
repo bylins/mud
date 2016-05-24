@@ -4349,9 +4349,10 @@ char *parse_object(FILE * obj_f, const int nr)
 	{
 		CAP(tmpptr);
 	}
-	tobj->set_description(tmpptr);
+	tobj->set_description(tmpptr ? tmpptr : "");
 
-	tobj->set_action_description(fread_string(obj_f, buf2));
+	auto action_description = fread_string(obj_f, buf2);
+	tobj->set_action_description(action_description ? action_description : "");
 
 	if (!get_line(obj_f, line))
 	{
@@ -6869,7 +6870,9 @@ char *fread_string(FILE * fl, char *error)
 		strcpy(rslt, buf);
 	}
 	else
+	{
 		rslt = NULL;
+	}
 	return (rslt);
 }
 
