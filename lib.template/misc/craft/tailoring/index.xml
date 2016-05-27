@@ -1,3 +1,225 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <model_data>
+	<materials>
+		<material id="BUTTON">
+			<class id="TRAINING BUTTON" vnum="2030">
+				<!-- Учебная пуговица-->
+				<description>
+					<short>учебная пуговица</short>
+					<long>Пуговица из темного металла обронена кем-то на дорогу</long>
+					<action></action>
+					<keyword>пуговка пуговица бронза</keyword>
+					<extended>
+						<![CDATA[Бронзовая с узором пуговица достойно
+украсит одежду славного воина.]]>
+					</extended>
+				</description>
+				<item>
+					<case1>учебная пуговица</case1>
+					<case2>учебной пуговицы</case2>
+					<case3>учебной пуговице</case3>
+					<case4>учебную пуговицу</case4>
+					<case5>учебной пуговицей</case5>
+					<case6>учебной пуговице</case6>
+					<aliases>
+						<alias>учебная</alias>
+						<alias>пуговица</alias>
+						<alias>материал</alias>
+					</aliases>
+				</item>
+				<cost>50</cost>
+				<rent>
+					<on>50</on>
+					<off>50</off>
+				</rent>
+				<global_maximum>-1</global_maximum>
+				<minimum_remorts>-1</minimum_remorts>
+				<!-- <type>ITEM_MATERIAL</type> default for materials -->
+				<durability>
+					<maximum>1</maximum>
+					<current>1</current>
+				</durability>
+				<sex>FEMALE</sex>
+				<level>0</level>
+				<weight>7</weight>
+				<timer>10080</timer>
+				<material>MAT_BRONZE</material>
+				<spell>SPELL_BURNING_HANDS</spell>
+				<extraflags>
+					<extraflag>ITEM_NOSELL</extraflag>
+				</extraflags>
+				<applies>
+					<apply>
+						<location>APPLY_MOVE</location>
+						<modifier>20</modifier>
+					</apply>
+				</applies>
+				<val0>1</val0>
+				<val1>1612</val1>
+				<val2>100</val2>
+				<val3>0</val3>
+			</class>
+		</material>
+		<material id="THREAD">
+			<class id="TRAINING THREAD" vnum="2020">
+				<!-- Учебная нить -->
+				<description>
+					<short>учебная нить</short>
+					<long>Учебная нить клубком лежит здесь</long>
+					<action></action>
+					<keyword>нитка нить</keyword>
+					<extended>
+						<![CDATA[Обыкновенная нитка. К чему она Вам? Разве Вы умеете шить?]]>
+					</extended>
+				</description>
+				<item>
+					<case1>учебная нить</case1>
+					<case2>учебной нити</case2>
+					<case3>учебной нити</case3>
+					<case4>учебную нить</case4>
+					<case5>учебной нитью</case5>
+					<case6>учебной нити</case6>
+					<aliases>
+						<alias>учебная</alias>
+						<alias>нить</alias>
+						<alias>материал</alias>
+					</aliases>
+				</item>
+				<cost>10</cost>
+				<rent>
+					<on>10</on>
+					<off>10</off>
+				</rent>
+				<global_maximum>-1</global_maximum>
+				<minimum_remorts>-1</minimum_remorts>
+				<!--<type>ITEM_MATERIAL</type>-->
+				<durability>
+					<maximum>1</maximum>
+					<current>1</current>
+				</durability>
+				<sex>FEMALE</sex>
+				<level>0</level>
+				<weight>7</weight>
+				<timer>20160</timer>
+				<material>MAT_ORGANIC</material>
+				<spell>SPELL_NO_SPELL</spell>
+				<extraflags>
+					<extraflag>ITEM_SWIMMING</extraflag>
+				</extraflags>
+				<applies>
+					<apply>
+						<location>APPLY_HITREG</location>
+						<modifier>10</modifier>
+					</apply>
+				</applies>
+				<val0>0</val0>
+				<val1>1600</val1>
+				<val2>100</val2>
+				<val3>0</val3>
+			</class>
+		</material>
+		<material id="HIDE">
+			<class id="HOLEY HIDE" vnum="2010">
+				<!-- Дырявая шкура -->
+				<description>
+					<short>дырявая шкура @p1</short>
+					<long>Продырявленная в нескольких местах шкура лежит тут.</long>
+					<action></action>
+					<keyword>кость</keyword>
+					<extended>
+						<![CDATA[Эту косточку умелый скорняк знает как применить.]]>
+					</extended>
+				</description>
+				<item>
+					<case1>дырявая шкура @p1</case1>
+					<case2>дырявой шкуры @p1</case2>
+					<case3>дырявой шкуре @p1</case3>
+					<case4>дырявую шкуру @p1</case4>
+					<case5>дырявой шкурой @p1</case5>
+					<case6>дырявой шкуре @p1</case6>
+					<aliases>
+						<alias>дырявая</alias>
+						<alias>шкура</alias>
+						<alias>@p1</alias>
+						<alias>материал</alias>
+					</aliases>
+				</item>
+				<cost>100</cost>
+				<rent>
+					<on>100</on>
+					<off>100</off>
+				</rent>
+				<global_maximum>-1</global_maximum>
+				<minimum_remorts>-1</minimum_remorts>
+				<!--<type>ITEM_MATERIAL</type>-->
+				<durability>
+					<maximum>1</maximum>
+					<current>1</current>
+				</durability>
+				<sex>FEMALE</sex>
+				<level>0</level>
+				<weight>7</weight>
+				<timer>10080</timer>
+				<material>MAT_SKIN</material>
+				<spell>SPELL_TELEPORT</spell>
+				<val0>1</val0>
+				<val1>1661</val1>
+				<val2>100</val2>
+				<val3>1</val3>
+			</class>
+		</material>
+	</materials>
+	<recipes></recipes>
+	<prototypes>
+		<prototype vnum="2001">
+			<description>
+				<short>куртка</short>
+				<long>Брошенная куртка пылиться на земле.</long>
+				<action></action>
+				<keyword></keyword>
+				<extended></extended>
+			</description>
+			<item>
+				<case1>куртка</case1>
+				<case2>куртки</case2>
+				<case3>куртке</case3>
+				<case4>куртку</case4>
+				<case5>курткой</case5>
+				<case6>куртке</case6>
+				<aliases>
+					<alias>куртка</alias>
+				</aliases>
+			</item>
+			<cost>500</cost>
+			<rent>
+				<on>500</on>
+				<off>300</off>
+			</rent>
+			<global_maximum>-1</global_maximum>
+			<minimum_remorts>-1</minimum_remorts>
+			<type>ITEM_ARMOR</type>
+			<durability>
+				<maximum>250</maximum>
+				<current>250</current>
+			</durability>
+			<sex>FEMALE</sex>
+			<level>0</level>
+			<weight>20</weight>
+			<timer>999999</timer>
+			<material>MAT_SKIN</material>
+			<spell>SPELL_NO_SPELL</spell>
+			<extraflags>
+				<extraflag>ITEM_BLESS</extraflag>
+			</extraflags>
+			<wearflags>
+				<wearflag>ITEM_WEAR_TAKE</wearflag>
+				<wearflag>ITEM_WEAR_BODY</wearflag>
+			</wearflags>
+			<val0>0</val0>
+			<val1>0</val1>
+			<val2>0</val2>
+			<val3>0</val3>
+		</prototype>
+	</prototypes>
+	<skills></skills>
 </model_data>

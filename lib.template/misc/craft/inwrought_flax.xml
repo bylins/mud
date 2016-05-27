@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <material>
 	<name>узорчатая льняная ткань</name>
-	<class id="MC_PESTRJAD">
+	<class id="MC_PESTRJAD" vnum="2050">
 		<description>
 			<short>Отрез клетчатой материи лежит тут.</short>
 			<long>Это отрез дешёвейшей клетчатой ткани.</long>

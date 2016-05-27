@@ -47,7 +47,7 @@
 		<material id="MT_INWROUGHT_FLAX" filename="inwrought_flax.xml" />
 		<material id="MT_THIN_SILK">
 			<name>тонкая шёлковая ткань</name>
-			<class id="MC_WISSON">
+			<class id="MC_WISSON" vnum="2040">
 				<description>
 					<short>Отрез тончайшей ткани лежит тут.</short>
 					<long>Это тончайшая шёлковая ткань, кажется, немалый её отрез войдёт в крошечный напёрсток.</long>
@@ -158,7 +158,7 @@
 					<weapon_affect>WAFF_SANCTUARY</weapon_affect>
 				</weapon_affects>
 			</class>
-			<class id="MC_ORGANDY">
+			<class id="MC_ORGANDY" vnum="2041">
 				<description>
 					<short>Отрез прозрачной ткани лежит тут.</short>
 					<long>Это очень тонкая и прозрачная жёсткая ткань.</long>

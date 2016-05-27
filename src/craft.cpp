@@ -904,7 +904,8 @@ namespace craft
 				[&]() { log("WARNING: \"global_maximum\" value of the object with VNUM %d is not valid integer. Setting to the default value %d.\n",
 					m_vnum, global_maximum_value); });
 
-			if (0 >= global_maximum_value)
+			if (0 >= global_maximum_value
+				&& OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM != global_maximum_value)
 			{
 				log("WARNING: Wrong \"global_maximum\" value %d of the object with VNUM %d. Setting to the default value %d.\n",
 					global_maximum_value, m_vnum, OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM);
