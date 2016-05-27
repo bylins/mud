@@ -239,7 +239,8 @@ bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, c
 const religion_names_t religion_name =
 {
 	religion_genders_t{ "Язычник", "Язычник", "Язычница", "Язычники" },
-	religion_genders_t{ "Христианин", "Христианин", "Христианка", "Христиане" }
+	religion_genders_t{ "Христианин", "Христианин", "Христианка", "Христиане" },
+	religion_genders_t{ "", "", "", "" }		// for undefined religion
 };
 
 std::map<int, std::string> SECTOR_TYPE_BY_VALUE = {
