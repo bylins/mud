@@ -1936,9 +1936,17 @@ char *rustime(const struct tm *timeptr)
 	};
 	static char result[100];
 
-	sprintf(result, "%.2d:%.2d:%.2d %2d %s %d года",
+	if (timeptr)
+	{
+		sprintf(result, "%.2d:%.2d:%.2d %2d %s %d года",
 			timeptr->tm_hour,
 			timeptr->tm_min, timeptr->tm_sec, timeptr->tm_mday, mon_name[timeptr->tm_mon], 1900 + timeptr->tm_year);
+	}
+	else
+	{
+		sprintf(result, "Время последнего входа неизвестно");
+	}
+
 	return result;
 }
 

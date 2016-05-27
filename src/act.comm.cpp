@@ -1009,7 +1009,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		ch->remember_add(buf, Remember::PRAY_PERSONAL);
 	}
 
-	if (IS_IMMORTAL(ch) || (GET_GOD_FLAG(ch, GF_DEMIGOD) && (GET_LEVEL(victim) < 6)))
+	if (IS_IMMORTAL(ch))
 	{
 		sprintf(buf, "&R%s ответил%s вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		send_to_char(buf, victim);

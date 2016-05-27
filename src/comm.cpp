@@ -2995,6 +2995,8 @@ int new_descriptor(socket_t s)
 bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, size_t buffer_size, int& written)
 {
 #if defined(HAVE_ZLIB)
+	Bytef compressed[SMALL_BUFSIZE];
+
 	if (t->deflate)  	// Complex case, compression, write it out.
 	{
 		written = 0;
@@ -3002,6 +3004,8 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, s
 		// First we set up our input data.
 		t->deflate->avail_in = static_cast<uInt>(buffer_size);
 		t->deflate->next_in = (Bytef *)(buffer);
+		t->deflate->next_out = compressed;
+		t->deflate->avail_out = SMALL_BUFSIZE;
 
 		int counter = 0;
 		do
@@ -3020,14 +3024,14 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, s
 			}
 
 			// There should always be something new to write out.
-			written = write_to_descriptor(t->descriptor, t->small_outbuf + prevsize,
+			written = write_to_descriptor(t->descriptor, (char *) compressed + prevsize,
 				SMALL_BUFSIZE - t->deflate->avail_out - prevsize);
 
 			// Wrap the buffer when we've run out of buffer space for the output.
 			if (t->deflate->avail_out == 0)
 			{
 				t->deflate->avail_out = SMALL_BUFSIZE;
-				t->deflate->next_out = (Bytef *)t->small_outbuf;
+				t->deflate->next_out = compressed;
 			}
 
 			// Oops. This shouldn't happen, I hope. -gg 2/19/99
@@ -4989,17 +4993,15 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver)
 	int derr;
 
 	if (t->deflate)
+	{
 		return 1;	// компрессия уже включена
+	}
 
 	// Set up zlib structures.
 	CREATE(t->deflate, 1);
 	t->deflate->zalloc = zlib_alloc;
 	t->deflate->zfree = zlib_free;
 	t->deflate->opaque = NULL;
-	t->deflate->next_in = (Bytef *) t->small_outbuf;
-	t->deflate->next_out = (Bytef *) t->small_outbuf;
-	t->deflate->avail_out = SMALL_BUFSIZE;
-	t->deflate->avail_in = 0;
 
 	// Initialize.
 	if ((derr = deflateInit(t->deflate, Z_DEFAULT_COMPRESSION)) != 0)
