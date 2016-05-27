@@ -340,7 +340,7 @@ template <> const std::string& NAME_BY_ITEM(const ESex item);
 #define RELIGION_MONO    1
 
 typedef std::array<const char*, NUM_SEXES> religion_genders_t;
-typedef std::array<religion_genders_t, 2> religion_names_t;
+typedef std::array<religion_genders_t, 3> religion_names_t;
 extern const religion_names_t religion_name;
 
 #define MASK_RELIGION_POLY        (1 << RELIGION_POLY)
