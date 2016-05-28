@@ -2,7 +2,7 @@
 <material>
 	<!-- This is a template for material description file.-->
 	<name>жёсткая кожа</name>
-	<class id="MC_NOOBOOK" vnum="2070">
+	<class id="MC_NOOBOOK" vnum="200070">
 		<description>
 			<short>Рулон жёсткой блестящей кожи лежит тут.</short>
 			<long>Жёсткая, продублённая и отшлифованная песком кожа.</long>
