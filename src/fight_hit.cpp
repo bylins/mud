@@ -3612,6 +3612,17 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 // * Добавление дамага от голых рук и молота.
 void HitData::add_hand_damage(CHAR_DATA *ch)
 {
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STONEHAND))
+		dam += dice(2, 3);
+	else
+		dam += number(1, 3);
+
+	if (can_use_feat(ch, BULLY_FEAT))
+	{
+		dam += GET_LEVEL(ch) / 5;
+		dam += MAX(0, GET_REAL_STR(ch) - 25);
+	}
+
 	// Мультипликатор повреждений без оружия и в перчатках (линейная интерполяция)
 	// <вес перчаток> <увеличение>
 	// 0  50%
@@ -3626,20 +3637,8 @@ void HitData::add_hand_damage(CHAR_DATA *ch)
 		{
 			modi = MAX(100, modi);
 		}
-		dam = modi * dam / 100;
+		dam *= modi / 100;
 	}
-
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STONEHAND))
-		dam += dice(2, 3);
-	else
-		dam += number(1, 3);
-
-	if (can_use_feat(ch, BULLY_FEAT))
-	{
-		dam += GET_LEVEL(ch) / 5;
-		dam += MAX(0, GET_REAL_STR(ch) - 25);
-	}
-
 }
 
 // * Расчет шанса на критический удар (не точкой).
