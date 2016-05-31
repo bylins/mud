@@ -5154,7 +5154,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 * сразу идет добавление в ObjectAlias). На данный момент актуально
 * для трупов, остальное вроде не особо и надо видеть.
 */
-OBJ_DATA *create_obj(const char *alias)
+OBJ_DATA *create_obj(const std::string& alias)
 {
 	OBJ_DATA *obj;
 

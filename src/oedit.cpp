@@ -115,7 +115,7 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 	dst->set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
 	dst->set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
 	dst->set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
-	dst->set_action_description(!src->get_action_description().empty() ? src->get_action_description().c_str() : nullptr);
+	dst->set_action_description(src->get_action_description());
 	for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 	{
 		dst->set_PName(i, !GET_OBJ_PNAME(src, i).empty() ? GET_OBJ_PNAME(src, i).c_str() : "неопределен");

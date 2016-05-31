@@ -219,7 +219,7 @@ int correct_unique(int unique);
 #define VIRTUAL       (1 << 0)
 #define OBJ_NO_CALC   (1 << 1)
 
-OBJ_DATA *create_obj(const char *alias = 0);
+OBJ_DATA *create_obj(const std::string& alias = "");
 void free_obj(OBJ_DATA * obj);
 obj_rnum real_object(obj_vnum vnum);
 OBJ_DATA *read_object(obj_vnum nr, int type);
