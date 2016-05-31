@@ -366,7 +366,8 @@ void FLAG_DATA::gm_flag(const char *subfield, const char * const * const list, c
 const religion_names_t religion_name =
 {
 	religion_genders_t{ "Язычник", "Язычник", "Язычница", "Язычники" },
-	religion_genders_t{ "Христианин", "Христианин", "Христианка", "Христиане" }
+	religion_genders_t{ "Христианин", "Христианин", "Христианка", "Христиане" },
+	religion_genders_t{ "", "", "", "" }		// for undefined religion
 };
 
 std::map<int, std::string> SECTOR_TYPE_BY_VALUE = {
