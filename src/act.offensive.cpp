@@ -1425,8 +1425,8 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 						af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
 						af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 					}
-					break;
 					dam *= 2;
+					break;
 				case 2:
 				case 3:
 					to_char = "Сильно пнув в челюсть, вы заставили $N1 замолчать.";
