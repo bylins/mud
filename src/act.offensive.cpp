@@ -1322,7 +1322,7 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // ******************  KICK PROCEDURES
 void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 {
-	int percent, prob, flag = 0;
+	int percent, prob;
 	const char *to_char = NULL, *to_vict = NULL, *to_room = NULL;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
@@ -1425,9 +1425,8 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 						af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
 						af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 					}
-					flag = 1;
 					break;
-
+					dam *= 2;
 				case 2:
 				case 3:
 					to_char = "Сильно пнув в челюсть, вы заставили $N1 замолчать.";
@@ -1438,9 +1437,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
 					af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 					dam *= 2;
-					flag = 1;
 					break;
-
 				case 4:
 				case 5:
 					WAIT_STATE(vict, number(2, 5) * PULSE_VIOLENCE);
@@ -1452,12 +1449,15 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					to_vict = "Мощный удар ногой $n1 попал точно в голову, свалив вас с ног.";
 					to_room = "Мощный пинок $n1 выбил пару зубов $N1, усадив $S на землю!";
 					dam *= 2;
-					flag = 1;
 					break;
-
 				default:
 					break;
 				}
+			}
+			else if (number(1, 1000) < (ch->get_skill(SKILL_HORSE) / 2))
+			{
+				dam *= 2;
+				send_to_char("Вы привстали на стременах.\r\n", ch);
 			}
 
 			if (to_char)
@@ -1473,15 +1473,6 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 				act(buf, FALSE, ch, 0, vict, TO_VICT);
 			}
 			affect_join(vict, &af, TRUE, FALSE, TRUE, FALSE);
-			if (flag == 1)
-			{
-				dam += dam;
-			}
-			else if (number(1, 1000) < (ch->get_skill(SKILL_HORSE) / 2))
-			{
-				dam += dam;
-				send_to_char("Вы привстали на стременах.\r\n", ch);
-			}
 		}
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
 	//Пиная из осторожки моба в осторожке получаешь всего лишь резанье дамага в 16 раз...
