@@ -285,7 +285,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Mter"))
 			{
 				*error = 18;
-				object->set_material(static_cast<obj_flag_data::EObjectMaterial>(atoi(buffer)));
+				object->set_material(static_cast<OBJ_DATA::EObjectMaterial>(atoi(buffer)));
 			}
 			else if (!strcmp(read_line, "Sexx"))
 			{
@@ -334,14 +334,14 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Wear"))
 			{
 				*error = 27;
-				obj_flag_data::wear_flags_t wear_flags;
+				OBJ_DATA::wear_flags_t wear_flags;
 				asciiflag_conv(buffer, &wear_flags);
 				object->set_wear_flags(wear_flags);
 			}
 			else if (!strcmp(read_line, "Type"))
 			{
 				*error = 28;
-				object->set_type(static_cast<obj_flag_data::EObjectType>(atoi(buffer)));
+				object->set_type(static_cast<OBJ_DATA::EObjectType>(atoi(buffer)));
 			}
 			else if (!strcmp(read_line, "Val0"))
 			{
@@ -647,8 +647,8 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 	*error = 0;
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(object) == obj_flag_data::ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_FOUNTAIN)
 	{
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1))
 		{
@@ -656,7 +656,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 		}
 	}
 	// проставляем имя жидкости
-	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_DRINKCON)
+	if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_DRINKCON)
 	{
 		name_from_drinkcon(object);
 		if (GET_OBJ_VAL(object, 1) && GET_OBJ_VAL(object, 2))
@@ -665,7 +665,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 		}
 	}
 	// Проверка на ингры
-	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_MING)
+	if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_MING)
 	{
 		int err = im_assign_power(object);
 		if (err)
@@ -767,7 +767,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 
 	object->set_maximum(t[1]);
 	object->set_current(t[2]);
-	object->set_material(static_cast<obj_flag_data::EObjectMaterial>(t[3]));
+	object->set_material(static_cast<OBJ_DATA::EObjectMaterial>(t[3]));
 
 	*error = 10;
 	if (!get_buf_line(data, buffer)
@@ -799,7 +799,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	{
 		return (object);
 	}
-	object->set_type(static_cast<obj_flag_data::EObjectType>(t[0]));
+	object->set_type(static_cast<OBJ_DATA::EObjectType>(t[0]));
 	object->set_extra_flags(clear_flags);
 	object->set_wear_flags(0);
 	object->load_extra_flags(f1);
@@ -844,8 +844,8 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	object->set_owner(t[1]);
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(object) == obj_flag_data::ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_FOUNTAIN)
 	{
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1))
 		{
@@ -866,7 +866,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 				object->set_affected(j, APPLY_NONE, 0);
 			}
 
-			if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_MING)
+			if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_MING)
 			{
 				int err = im_assign_power(object);
 				if (err)
@@ -2377,7 +2377,7 @@ int Crash_load(CHAR_DATA * ch)
 		{
 			if (obj2
 				&& obj2->get_worn_on() < 0
-				&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)  	// This is container and it is not free
+				&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER)  	// This is container and it is not free
 			{
 				CREATE(tank, 1);
 				tank->next = tank_list;
@@ -2404,7 +2404,7 @@ int Crash_load(CHAR_DATA * ch)
 		{
 			if (obj2
 				&& obj2->get_worn_on() < obj->get_worn_on()
-				&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)  	// This is container and it is not free
+				&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER)  	// This is container and it is not free
 			{
 				tank_to = tank_list;
 				CREATE(tank, 1);
@@ -2496,8 +2496,8 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj)
 	if (obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
 		|| (GET_OBJ_RNUM(obj) <= NOTHING
-			&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY)
-		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY
+			&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY)
+		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 		|| SetSystem::is_norent_set(ch, obj))
 	{
 		return TRUE;

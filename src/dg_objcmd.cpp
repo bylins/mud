@@ -758,7 +758,7 @@ void do_osetval(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	position = atoi(arg1);
 	new_value = atoi(arg2);
-	if (position >= 0 && position < NUM_OBJ_VAL_POSITIONS)
+	if (position >= 0 && position < OBJ_DATA::VALS_COUNT)
 	{
 		obj->set_val(position, new_value);
 	}

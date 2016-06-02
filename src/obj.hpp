@@ -22,114 +22,6 @@
 #include <string>
 #include <map>
 
-// object flags; used in obj_data //
-#define NUM_OBJ_VAL_POSITIONS 4
-
-struct obj_flag_data
-{
-public:
-	typedef boost::array<int, NUM_OBJ_VAL_POSITIONS> value_t;
-
-	enum EObjectType
-	{
-		ITEM_LIGHT = 1,			// Item is a light source  //
-		ITEM_SCROLL = 2,		// Item is a scroll     //
-		ITEM_WAND = 3,			// Item is a wand    //
-		ITEM_STAFF = 4,			// Item is a staff      //
-		ITEM_WEAPON = 5,		// Item is a weapon     //
-		ITEM_FIREWEAPON = 6,	// Unimplemented     //
-		ITEM_MISSILE = 7,		// Unimplemented     //
-		ITEM_TREASURE = 8,		// Item is a treasure, not gold  //
-		ITEM_ARMOR = 9,			// Item is armor     //
-		ITEM_POTION = 10,		// Item is a potion     //
-		ITEM_WORN = 11,			// Unimplemented     //
-		ITEM_OTHER = 12,		// Misc object       //
-		ITEM_TRASH = 13,		// Trash - shopkeeps won't buy   //
-		ITEM_TRAP = 14,			// Unimplemented     //
-		ITEM_CONTAINER = 15,	// Item is a container     //
-		ITEM_NOTE = 16,			// Item is note      //
-		ITEM_DRINKCON = 17,		// Item is a drink container  //
-		ITEM_KEY = 18,			// Item is a key     //
-		ITEM_FOOD = 19,			// Item is food         //
-		ITEM_MONEY = 20,		// Item is money (gold)    //
-		ITEM_PEN = 21,			// Item is a pen     //
-		ITEM_BOAT = 22,			// Item is a boat    //
-		ITEM_FOUNTAIN = 23,		// Item is a fountain      //
-		ITEM_BOOK = 24,			// Item is book //
-		ITEM_INGREDIENT = 25,	// Item is magical ingradient //
-		ITEM_MING = 26,			// Магический ингредиент //
-		ITEM_MATERIAL = 27,		// Материал для крафтовых умений //
-		ITEM_BANDAGE = 28,		// бинты для перевязки
-		ITEM_ARMOR_LIGHT = 29,	// легкий тип брони
-		ITEM_ARMOR_MEDIAN = 30,	// средний тип брони
-		ITEM_ARMOR_HEAVY = 31,	// тяжелый тип брони
-		ITEM_ENCHANT = 32		// зачарование предмета
-	};
-
-	enum EObjectMaterial
-	{
-		MAT_NONE = 0,
-		MAT_BULAT = 1,
-		MAT_BRONZE = 2,
-		MAT_IRON = 3,
-		MAT_STEEL = 4,
-		MAT_SWORDSSTEEL = 5,
-		MAT_COLOR = 6,
-		MAT_CRYSTALL = 7,
-		MAT_WOOD = 8,
-		MAT_SUPERWOOD = 9,
-		MAT_FARFOR = 10,
-		MAT_GLASS = 11,
-		MAT_ROCK = 12,
-		MAT_BONE = 13,
-		MAT_MATERIA = 14,
-		MAT_SKIN = 15,
-		MAT_ORGANIC = 16,
-		MAT_PAPER = 17,
-		MAT_DIAMOND = 18
-	};
-
-	const static int DEFAULT_MAXIMUM_DURABILITY = 100;
-	const static int DEFAULT_CURRENT_DURABILITY = DEFAULT_MAXIMUM_DURABILITY;
-	const static int DEFAULT_LEVEL = 0;
-	const static int DEFAULT_WEIGHT = INT_MAX;
-	const static EObjectType DEFAULT_TYPE = ITEM_OTHER;
-	const static EObjectMaterial DEFAULT_MATERIAL = MAT_NONE;
-
-	using wear_flags_t = std::underlying_type<EWearFlag>::type;
-
-	value_t value;
-	EObjectType type_flag;		///< Type of item               //
-	wear_flags_t wear_flags;		// Where you can wear it     //
-	FLAG_DATA extra_flags;	// If it hums, glows, etc.      //
-	int weight;		// Weight what else              //
-	FLAG_DATA bitvector;	// To set chars bits            //
-
-	FLAG_DATA affects;
-	FLAG_DATA anti_flag;
-	FLAG_DATA no_flag;
-	ESex Obj_sex;
-	int Obj_spell;
-	int Obj_level;
-	int Obj_skill;
-	int Obj_max;
-	int Obj_cur;
-	EObjectMaterial Obj_mater;
-	int Obj_owner;
-	int Obj_destroyer;
-	int Obj_zone;
-	int Obj_maker;		// Unique number for object crafters //
-	int Obj_parent;		// Vnum for object parent //
-	bool Obj_is_rename;
-	int craft_timer; // таймер крафтовой вещи при создании
-};
-
-template <> const std::string& NAME_BY_ITEM<obj_flag_data::EObjectType>(const obj_flag_data::EObjectType item);
-template <> obj_flag_data::EObjectType ITEM_BY_NAME<obj_flag_data::EObjectType>(const std::string& name);
-
-template <> const std::string& NAME_BY_ITEM<obj_flag_data::EObjectMaterial>(const obj_flag_data::EObjectMaterial item);
-template <> obj_flag_data::EObjectMaterial ITEM_BY_NAME<obj_flag_data::EObjectMaterial>(const std::string& name);
-
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
 
@@ -460,6 +352,73 @@ struct SCRIPT_DATA;	// to avoid inclusion of "dg_scripts.h"
 class OBJ_DATA
 {
 public:
+	enum EObjectType
+	{
+		ITEM_UNDEFINED = 0,
+		ITEM_LIGHT = 1,			// Item is a light source  //
+		ITEM_SCROLL = 2,		// Item is a scroll     //
+		ITEM_WAND = 3,			// Item is a wand    //
+		ITEM_STAFF = 4,			// Item is a staff      //
+		ITEM_WEAPON = 5,		// Item is a weapon     //
+		ITEM_FIREWEAPON = 6,	// Unimplemented     //
+		ITEM_MISSILE = 7,		// Unimplemented     //
+		ITEM_TREASURE = 8,		// Item is a treasure, not gold  //
+		ITEM_ARMOR = 9,			// Item is armor     //
+		ITEM_POTION = 10,		// Item is a potion     //
+		ITEM_WORN = 11,			// Unimplemented     //
+		ITEM_OTHER = 12,		// Misc object       //
+		ITEM_TRASH = 13,		// Trash - shopkeeps won't buy   //
+		ITEM_TRAP = 14,			// Unimplemented     //
+		ITEM_CONTAINER = 15,	// Item is a container     //
+		ITEM_NOTE = 16,			// Item is note      //
+		ITEM_DRINKCON = 17,		// Item is a drink container  //
+		ITEM_KEY = 18,			// Item is a key     //
+		ITEM_FOOD = 19,			// Item is food         //
+		ITEM_MONEY = 20,		// Item is money (gold)    //
+		ITEM_PEN = 21,			// Item is a pen     //
+		ITEM_BOAT = 22,			// Item is a boat    //
+		ITEM_FOUNTAIN = 23,		// Item is a fountain      //
+		ITEM_BOOK = 24,			// Item is book //
+		ITEM_INGREDIENT = 25,	// Item is magical ingradient //
+		ITEM_MING = 26,			// Магический ингредиент //
+		ITEM_MATERIAL = 27,		// Материал для крафтовых умений //
+		ITEM_BANDAGE = 28,		// бинты для перевязки
+		ITEM_ARMOR_LIGHT = 29,	// легкий тип брони
+		ITEM_ARMOR_MEDIAN = 30,	// средний тип брони
+		ITEM_ARMOR_HEAVY = 31,	// тяжелый тип брони
+		ITEM_ENCHANT = 32		// зачарование предмета
+	};
+
+	enum EObjectMaterial
+	{
+		MAT_NONE = 0,
+		MAT_BULAT = 1,
+		MAT_BRONZE = 2,
+		MAT_IRON = 3,
+		MAT_STEEL = 4,
+		MAT_SWORDSSTEEL = 5,
+		MAT_COLOR = 6,
+		MAT_CRYSTALL = 7,
+		MAT_WOOD = 8,
+		MAT_SUPERWOOD = 9,
+		MAT_FARFOR = 10,
+		MAT_GLASS = 11,
+		MAT_ROCK = 12,
+		MAT_BONE = 13,
+		MAT_MATERIA = 14,
+		MAT_SKIN = 15,
+		MAT_ORGANIC = 16,
+		MAT_PAPER = 17,
+		MAT_DIAMOND = 18
+	};
+
+	constexpr static int DEFAULT_MAXIMUM_DURABILITY = 100;
+	constexpr static int DEFAULT_CURRENT_DURABILITY = DEFAULT_MAXIMUM_DURABILITY;
+	constexpr static int DEFAULT_LEVEL = 0;
+	constexpr static int DEFAULT_WEIGHT = INT_MAX;
+	constexpr static EObjectType DEFAULT_TYPE = ITEM_OTHER;
+	constexpr static EObjectMaterial DEFAULT_MATERIAL = MAT_NONE;
+
 	constexpr static int NUM_PADS = 6;
 
 	constexpr static int DEFAULT_COST = 100;
@@ -475,6 +434,15 @@ public:
 	constexpr static int SEVEN_DAYS = 7 * ONE_DAY;
 	constexpr static int DEFAULT_TIMER = SEVEN_DAYS;
 
+	constexpr static int VALS_COUNT = 4;
+
+	const static std::string KIND;
+
+	using skills_t = std::map<ESkill, int>;
+	using vals_t = std::array<int, VALS_COUNT>;
+	using applies_t = std::list<obj_affected_type>;
+
+	using wear_flags_t = std::underlying_type<EWearFlag>::type;
 	using pnames_t = boost::array<std::string, NUM_PADS>;
 	using triggers_list_t = std::list<obj_vnum>;
 	using affected_t = std::array<obj_affected_type, MAX_OBJ_AFFECT>;
@@ -532,184 +500,187 @@ public:
 	void add_timed_spell(const int spell, const int time);
 	void del_timed_spell(const int spell, const bool message);
 
-	auto dec_val(size_t index) { return --obj_flags.value[index]; }
+	auto dec_val(size_t index) { return --m_vals[index]; }
 	auto get_carried_by() const { return m_carried_by; }
 	auto get_contains() const { return m_contains; }
-	auto get_craft_timer() const { return obj_flags.craft_timer; }
-	auto get_crafter_uid() const { return obj_flags.Obj_maker; }
-	auto get_current() const { return obj_flags.Obj_cur; }
-	auto get_destroyer() const { return obj_flags.Obj_destroyer; }
+	auto get_craft_timer() const { return m_craft_timer; }
+	auto get_crafter_uid() const { return m_maker; }
+	auto get_current() const { return m_current; }
+	auto get_destroyer() const { return m_destroyer; }
 	auto get_id() const { return m_id; }
 	auto get_in_obj() const { return m_in_obj; }
 	auto get_in_room() const { return m_in_room; }
-	auto get_is_rename() const { return obj_flags.Obj_is_rename; }
-	auto get_level() const { return obj_flags.Obj_level; }
-	auto get_material() const { return obj_flags.Obj_mater; }
+	auto get_is_rename() const { return m_is_rename; }
+	auto get_level() const { return m_level; }
+	auto get_material() const { return m_material; }
 	auto get_max_in_world() const { return m_max_in_world; }
-	auto get_maximum() const { return obj_flags.Obj_max; }
+	auto get_maximum() const { return m_maximum; }
 	auto get_next() const { return m_next; }
 	auto get_next_content() const { return m_next_content; }
-	auto get_owner() const { return obj_flags.Obj_owner; }
-	auto get_parent() const { return obj_flags.Obj_parent; }
+	auto get_owner() const { return m_owner; }
+	auto get_parent() const { return m_parent; }
 	auto get_rnum() const { return m_item_number; }
 	auto get_room_was_in() const { return m_room_was_in; }
-	auto get_sex() const { return obj_flags.Obj_sex; }
-	auto get_skill() const { return obj_flags.Obj_skill; }
-	auto get_spell() const { return obj_flags.Obj_spell; }
-	auto get_type() const { return obj_flags.type_flag; }
+	auto get_sex() const { return m_sex; }
+	auto get_skill() const { return m_skill; }
+	auto get_spell() const { return m_spell; }
+	auto get_type() const { return m_type; }
 	auto get_uid() const { return m_uid; }
-	auto get_val(size_t index) const { return obj_flags.value[index]; }
+	auto get_val(size_t index) const { return m_vals[index]; }
 	auto get_value(const ObjVal::EValueKey key) const { return m_values.get(key); }
-	auto get_wear_flags() const { return obj_flags.wear_flags; }
-	auto get_weight() const { return obj_flags.weight; }
+	auto get_wear_flags() const { return m_wear_flags; }
+	auto get_weight() const { return m_weight; }
 	auto get_worn_by() const { return m_worn_by; }
 	auto get_worn_on() const { return m_worn_on; }
-	auto get_zone() const { return obj_flags.Obj_zone; }
+	auto get_zone() const { return m_zone; }
 	auto serialize_enchants() const { return m_enchants.print_to_file(); }
 	auto serialize_values() const { return m_values.print_to_file(); }
-	bool can_wear_any() const { return obj_flags.wear_flags > 0 && obj_flags.wear_flags != to_underlying(EWearFlag::ITEM_WEAR_TAKE); }
-	bool get_affect(const EWeaponAffectFlag weapon_affect) const { return obj_flags.affects.get(weapon_affect); }
-	bool get_affect(const uint32_t weapon_affect) const { return obj_flags.affects.get(weapon_affect); }
-	bool get_anti_flag(const EAntiFlag flag) const { return obj_flags.anti_flag.get(flag); }
-	bool get_extra_flag(const EExtraFlag packed_flag) const { return obj_flags.extra_flags.get(packed_flag); }
-	bool get_extra_flag(const size_t plane, const uint32_t flag) const { return obj_flags.extra_flags.get_flag(plane, flag); }
-	bool get_no_flag(const ENoFlag flag) const { return obj_flags.no_flag.get(flag); }
-	bool get_wear_flag(const EWearFlag part) const { return IS_SET(obj_flags.wear_flags, to_underlying(part)); }
-	bool get_wear_mask(const obj_flag_data::wear_flags_t part) const { return IS_SET(obj_flags.wear_flags, part); }
+	bool can_wear_any() const { return m_wear_flags > 0 && m_wear_flags != to_underlying(EWearFlag::ITEM_WEAR_TAKE); }
+	bool get_affect(const EWeaponAffectFlag weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
+	bool get_affect(const uint32_t weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
+	bool get_anti_flag(const EAntiFlag flag) const { return m_anti_flags.get(flag); }
+	bool get_extra_flag(const EExtraFlag packed_flag) const { return m_extra_flags.get(packed_flag); }
+	bool get_extra_flag(const size_t plane, const uint32_t flag) const { return m_extra_flags.get_flag(plane, flag); }
+	bool get_no_flag(const ENoFlag flag) const { return m_no_flags.get(flag); }
+	bool get_wear_flag(const EWearFlag part) const { return IS_SET(m_wear_flags, to_underlying(part)); }
+	bool get_wear_mask(const wear_flags_t part) const { return IS_SET(m_wear_flags, part); }
 	bool init_values_from_file(const char* str) { return m_values.init_from_file(str); }
 	const auto& get_action_description() const { return m_action_description; }
-	const auto& get_affect_flags() const { return obj_flags.affects; }
+	const auto& get_affect_flags() const { return m_waffect_flags; }
 	const auto& get_affected() const { return m_affected; }
 	const auto& get_affected(const size_t index) const { return m_affected[index]; }
 	const auto& get_aliases() const { return m_aliases; }
 	const auto& get_all_affected() const { return m_affected; }
 	const auto& get_all_values() const { return m_values; }
-	const auto& get_anti_flags() const { return obj_flags.anti_flag; }
+	const auto& get_anti_flags() const { return m_anti_flags; }
 	const auto& get_custom_label() const { return m_custom_label; }
 	const auto& get_description() const { return m_description; }
 	const auto& get_enchants() const { return m_enchants; }
 	const auto& get_ex_description() const { return m_ex_description; }
-	const auto& get_extra_flags() const { return obj_flags.extra_flags; }
-	const auto& get_no_flags() const { return obj_flags.no_flag; }
+	const auto& get_extra_flags() const { return m_extra_flags; }
+	const auto& get_no_flags() const { return m_no_flags; }
 	const auto& get_proto_script() const { return m_proto_script; }
 	const auto& get_script() const { return m_script; }
 	const auto& get_values() const { return m_values; }
 	const std::string& get_PName(const size_t index) const { return m_pnames[index]; }
 	const std::string& get_short_description() const { return m_short_description; }
-	void add_affect_flags(const FLAG_DATA& flags) { obj_flags.affects += flags; }
+	void add_affect_flags(const FLAG_DATA& flags) { m_waffect_flags += flags; }
 	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
-	void add_anti_flags(const FLAG_DATA& flags) { obj_flags.anti_flag += flags; }
+	void add_anti_flags(const FLAG_DATA& flags) { m_anti_flags += flags; }
 	void add_enchant(const obj::enchant& _) { m_enchants.add(_); }
-	void add_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags += flags; }
-	void add_maximum(const int amount) { obj_flags.Obj_max += amount; }
-	void add_no_flags(const FLAG_DATA& flags) { obj_flags.no_flag += flags; }
+	void add_extra_flags(const FLAG_DATA& flags) { m_extra_flags += flags; }
+	void add_maximum(const int amount) { m_maximum += amount; }
+	void add_no_flags(const FLAG_DATA& flags) { m_no_flags += flags; }
 	void add_proto_script(const obj_vnum vnum) { m_proto_script.push_back(vnum); }
-	void add_val(const size_t index, const int amount) { obj_flags.value[index] += amount; }
-	void add_weight(const int _) { obj_flags.weight += _; }
+	void add_val(const size_t index, const int amount) { m_vals[index] += amount; }
+	void add_weight(const int _) { m_weight += _; }
 	void append_ex_description_tag(const char* tag) { m_ex_description->description = str_add(m_ex_description->description, tag); }
 	void clear_action_description() { m_action_description.clear(); }
 	void clear_affected(const size_t index) { m_affected[index].location = APPLY_NONE; }
 	void clear_all_affected();
 	void clear_proto_script() { m_proto_script.clear(); }
 	void dec_affected_value(const size_t index) { --m_affected[index].modifier; }
-	void dec_destroyer() { --obj_flags.Obj_destroyer; }
-	void dec_weight() { --obj_flags.weight; }
-	void gm_affect_flag(const char *subfield, const char **list, char *res) { obj_flags.extra_flags.gm_flag(subfield, list, res); }
-	void gm_extra_flag(const char *subfield, const char **list, char *res) { obj_flags.extra_flags.gm_flag(subfield, list, res); }
-	void inc_val(const size_t index) { ++obj_flags.value[index]; }
+	void dec_destroyer() { --m_destroyer; }
+	void dec_weight() { --m_weight; }
+	void gm_affect_flag(const char *subfield, const char **list, char *res) { m_extra_flags.gm_flag(subfield, list, res); }
+	void gm_extra_flag(const char *subfield, const char **list, char *res) { m_extra_flags.gm_flag(subfield, list, res); }
+	void inc_val(const size_t index) { ++m_vals[index]; }
 	void init_values_from_zone(const char* str) { m_values.init_from_zone(str); }
-	void load_affect_flags(const char* string) { obj_flags.affects.from_string(string); }
-	void load_anti_flags(const char* string) { obj_flags.anti_flag.from_string(string); }
-	void load_extra_flags(const char* string) { obj_flags.extra_flags.from_string(string); }
-	void load_no_flags(const char* string) { obj_flags.no_flag.from_string(string); }
+	void load_affect_flags(const char* string) { m_waffect_flags.from_string(string); }
+	void load_anti_flags(const char* string) { m_anti_flags.from_string(string); }
+	void load_extra_flags(const char* string) { m_extra_flags.from_string(string); }
+	void load_no_flags(const char* string) { m_no_flags.from_string(string); }
 	void remove_custom_label() { m_custom_label.reset(); }
 	void remove_incorrect_values_keys(const int type) { m_values.remove_incorrect_keys(type); }
 	void remove_me_from_contains_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next_content; }); }
 	void remove_me_from_objects_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next; }); }
 	void remove_set_bonus() { m_enchants.remove_set_bonus(this); }
 	void set_action_description(const std::string& _) { m_action_description = _; }
-	void set_affect_flags(const FLAG_DATA& flags) { obj_flags.affects = flags; }
+	void set_affect_flags(const FLAG_DATA& flags) { m_waffect_flags = flags; }
 	void set_affected(const size_t index, const EApplyLocation location, const int modifier);
 	void set_affected(const size_t index, const obj_affected_type& affect) { m_affected[index] = affect; }
 	void set_affected_location(const size_t index, const EApplyLocation _) { m_affected[index].location = _; }
 	void set_affected_modifier(const size_t index, const int _) { m_affected[index].modifier = _; }
 	void set_aliases(const std::string& _) { m_aliases = _; }
 	void set_all_affected(const affected_t& _) { m_affected = _; }
-	void set_anti_flags(const FLAG_DATA& flags) { obj_flags.anti_flag = flags; }
+	void set_anti_flags(const FLAG_DATA& flags) { m_anti_flags = flags; }
 	void set_carried_by(CHAR_DATA* _) { m_carried_by = _; }
 	void set_contains(OBJ_DATA* _) { m_contains = _; }
-	void set_craft_timer(const int _) { obj_flags.craft_timer = _; }
-	void set_crafter_uid(const int _) { obj_flags.Obj_maker = _; }
-	void set_current(const int _) { obj_flags.Obj_cur = _; }
+	void set_craft_timer(const int _) { m_craft_timer = _; }
+	void set_crafter_uid(const int _) { m_maker = _; }
+	void set_current(const int _) { m_current = _; }
 	void set_custom_label(const std::shared_ptr<custom_label>& _) { m_custom_label = _; }
 	void set_custom_label(custom_label* _) { m_custom_label.reset(_); }
 	void set_description(const std::string& _) { m_description = _; }
-	void set_destroyer(const int _) { obj_flags.Obj_destroyer = _; }
+	void set_destroyer(const int _) { m_destroyer = _; }
 	void set_ex_description(const char* keyword, const char* description);
 	void set_ex_description(const std::shared_ptr<EXTRA_DESCR_DATA>& _) { m_ex_description = _; }
 	void set_ex_description(EXTRA_DESCR_DATA* _) { m_ex_description.reset(_); }
-	void set_extra_flag(const EExtraFlag packed_flag) { obj_flags.extra_flags.set(packed_flag); }
-	void set_extra_flag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.set_flag(plane, flag); }
-	void set_extra_flags(const FLAG_DATA& flags) { obj_flags.extra_flags = flags; }
+	void set_extra_flag(const EExtraFlag packed_flag) { m_extra_flags.set(packed_flag); }
+	void set_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.set_flag(plane, flag); }
+	void set_extra_flags(const FLAG_DATA& flags) { m_extra_flags = flags; }
 	void set_id(const long _) { m_id = _; }
 	void set_in_obj(OBJ_DATA* _) { m_in_obj = _; }
 	void set_in_room(const room_rnum _) { m_in_room = _; }
-	void set_is_rename(const bool _) { obj_flags.Obj_is_rename = _; }
-	void set_level(const int _) { obj_flags.Obj_level = _; }
-	void set_material(const obj_flag_data::EObjectMaterial _) { obj_flags.Obj_mater = _; }
+	void set_is_rename(const bool _) { m_is_rename = _; }
+	void set_level(const int _) { m_level = _; }
+	void set_material(const EObjectMaterial _) { m_material = _; }
 	void set_max_in_world(const int _) { m_max_in_world = _; }
-	void set_maximum(const int _) { obj_flags.Obj_max = _; }
+	void set_maximum(const int _) { m_maximum = _; }
 	void set_next(OBJ_DATA* _) { m_next = _; }
 	void set_next_content(OBJ_DATA* _) { m_next_content = _; }
-	void set_no_flags(const FLAG_DATA& flags) { obj_flags.no_flag = flags; }
-	void set_obj_aff(const uint32_t packed_flag) { obj_flags.affects.set(packed_flag); }
-	void set_owner(const int _) { obj_flags.Obj_owner = _; }
-	void set_parent(const int _) { obj_flags.Obj_parent = _; }
+	void set_no_flags(const FLAG_DATA& flags) { m_no_flags = flags; }
+	void set_obj_aff(const uint32_t packed_flag) { m_waffect_flags.set(packed_flag); }
+	void set_owner(const int _) { m_owner = _; }
+	void set_parent(const int _) { m_parent = _; }
 	void set_PName(const size_t index, const char* _) { m_pnames[index] = _; }
 	void set_PName(const size_t index, const std::string& _) { m_pnames[index] = _; }
 	void set_PNames(const pnames_t& _) { m_pnames = _; }
 	void set_proto_script(const triggers_list_t& _) { m_proto_script = _; }
-	void set_rnum(const obj_vnum _) { m_item_number = _; }
+	void set_rnum(const obj_rnum _) { m_item_number = _; }
 	void set_room_was_in(const int _) { m_room_was_in = _; }
 	void set_script(const std::shared_ptr<SCRIPT_DATA>& _) { m_script = _; }
 	void set_script(SCRIPT_DATA* _);
-	void set_sex(const ESex _) { obj_flags.Obj_sex = _; }
+	void set_sex(const ESex _) { m_sex = _; }
 	void set_short_description(const char* _) { m_short_description = _; }
 	void set_short_description(const std::string& _) { m_short_description = _; }
-	void set_skill(const int _) { obj_flags.Obj_skill = _; }
-	void set_spell(const int _) { obj_flags.Obj_spell = _; }
-	void set_type(const obj_flag_data::EObjectType _) { obj_flags.type_flag = _; }
+	void set_skill(const int _) { m_skill = _; }
+	void set_spell(const int _) { m_spell = _; }
+	void set_type(const EObjectType _) { m_type = _; }
 	void set_uid(const unsigned _) { m_uid = _; }
-	void set_val(size_t index, int value) { obj_flags.value[index] = value; }
+	void set_val(size_t index, int value) { m_vals[index] = value; }
 	void set_value(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
 	void set_values(const ObjVal&  _) { m_values = _; }
-	void set_wear_flag(const EWearFlag flag) { SET_BIT(obj_flags.wear_flags, flag); }
-	void set_wear_flags(const obj_flag_data::wear_flags_t _) { obj_flags.wear_flags = _; }
-	void set_weight(const int _) { obj_flags.weight = _; }
+	void set_wear_flag(const EWearFlag flag) { SET_BIT(m_wear_flags, flag); }
+	void set_wear_flags(const wear_flags_t _) { m_wear_flags = _; }
+	void set_weight(const int _) { m_weight = _; }
 	void set_worn_by(CHAR_DATA* _) { m_worn_by = _; }
 	void set_worn_on(const short _) { m_worn_on = _; }
-	void set_zone(const int _) { obj_flags.Obj_zone = _; }
-	void sub_current(const int _) { obj_flags.Obj_cur -= _; }
-	void sub_val(const size_t index, const int amount) { obj_flags.value[index] -= amount; }
-	void sub_weight(const int _) { obj_flags.weight += _; }
+	void set_zone(const int _) { m_zone = _; }
+	void sub_current(const int _) { m_current -= _; }
+	void sub_val(const size_t index, const int amount) { m_vals[index] -= amount; }
+	void sub_weight(const int _) { m_weight += _; }
 	void swap_proto_script(triggers_list_t& _) { m_proto_script.swap(_); }
-	void toggle_affect_flag(const size_t plane, const uint32_t flag) { obj_flags.affects.toggle_flag(plane, flag); }
-	void toggle_anti_flag(const size_t plane, const uint32_t flag) { obj_flags.anti_flag.toggle_flag(plane, flag); }
-	void toggle_extra_flag(const size_t plane, const uint32_t flag) { obj_flags.extra_flags.toggle_flag(plane, flag); }
-	void toggle_no_flag(const size_t plane, const uint32_t flag) { obj_flags.no_flag.toggle_flag(plane, flag); }
-	void toggle_skill(const uint32_t skill) { TOGGLE_BIT(obj_flags.Obj_skill, skill); }
-	void toggle_val_bit(const size_t index, const uint32_t bit) { TOGGLE_BIT(obj_flags.value[index], bit); }
-	void toggle_wear_flag(const uint32_t flag) { TOGGLE_BIT(obj_flags.wear_flags, flag); }
-	void unset_extraflag(const EExtraFlag packed_flag) { obj_flags.extra_flags.unset(packed_flag); }
+	void toggle_affect_flag(const size_t plane, const uint32_t flag) { m_waffect_flags.toggle_flag(plane, flag); }
+	void toggle_anti_flag(const size_t plane, const uint32_t flag) { m_anti_flags.toggle_flag(plane, flag); }
+	void toggle_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.toggle_flag(plane, flag); }
+	void toggle_no_flag(const size_t plane, const uint32_t flag) { m_no_flags.toggle_flag(plane, flag); }
+	void toggle_skill(const uint32_t skill) { TOGGLE_BIT(m_skill, skill); }
+	void toggle_val_bit(const size_t index, const uint32_t bit) { TOGGLE_BIT(m_vals[index], bit); }
+	void toggle_wear_flag(const uint32_t flag) { TOGGLE_BIT(m_wear_flags, flag); }
+	void unset_extraflag(const EExtraFlag packed_flag) { m_extra_flags.unset(packed_flag); }
 	void update_enchants_set_bonus(const obj_sets::ench_type& _) { m_enchants.update_set_bonus(this, _); }
 
 private:
 	void zero_init();
+
+	EObjectType m_type;
+	int m_weight;
+
 	unsigned int m_uid;
 	obj_vnum m_item_number;	// Where in data-base            //
 	room_rnum m_in_room;	// In what room -1 when conta/carr //
 
-	obj_flag_data obj_flags;		// Object information       //
 	affected_t m_affected;	// affects //
 
 	std::string m_aliases;		// Title of object :get etc.        //
@@ -718,6 +689,7 @@ private:
 	std::string m_short_description;	// when worn/carry/in cont.         //
 	std::string m_action_description;	// What to write when used          //
 	std::shared_ptr<EXTRA_DESCR_DATA> m_ex_description;	// extra descriptions     //
+
 	CHAR_DATA *m_carried_by;	// Carried by :NULL in room/conta   //
 	CHAR_DATA *m_worn_by;	// Worn by?              //
 
@@ -739,7 +711,30 @@ private:
 	int m_max_in_world;	///< Maximum in the world
 
 	obj::Enchants m_enchants;
-	ObjVal m_values;
+
+	vals_t m_vals;		// old values
+	ObjVal m_values;	// new values
+
+	int m_craft_timer;
+	int m_maker;
+	int m_owner;
+	int m_destroyer;
+	int m_zone;
+	int m_parent;		// Vnum for object parent //
+	int m_spell;
+	int m_level;
+	int m_skill;
+	int m_maximum;
+	int m_current;
+	bool m_is_rename;
+	EObjectMaterial m_material;
+	ESex m_sex;
+	FLAG_DATA m_extra_flags;	// If it hums, glows, etc.      //
+	FLAG_DATA m_waffect_flags;
+	FLAG_DATA m_anti_flags;
+	FLAG_DATA m_no_flags;
+
+	wear_flags_t m_wear_flags;		// Where you can wear it     //
 
 	TimedSpell m_timed_spell;    ///< временный обкаст
 	// если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
@@ -747,7 +742,7 @@ private:
 	// порядковый номер в списке чаров (для name_list)
 	int serial_num_;
 	// таймер (в минутах рл)
-	int timer_;
+	int m_timer;
 	// если >= 0 - требование по минимальным мортам, проставленное в олц
 	int manual_mort_req_;
 	// true - объект спуржен и ждет вызова delete для оболочки
@@ -763,6 +758,12 @@ private:
 	// для сообщений сетов <активировано или нет, размер активатора>
 	std::pair<bool, int> activator_;
 };
+
+template <> const std::string& NAME_BY_ITEM<OBJ_DATA::EObjectType>(const OBJ_DATA::EObjectType item);
+template <> OBJ_DATA::EObjectType ITEM_BY_NAME<OBJ_DATA::EObjectType>(const std::string& name);
+
+template <> const std::string& NAME_BY_ITEM<OBJ_DATA::EObjectMaterial>(const OBJ_DATA::EObjectMaterial item);
+template <> OBJ_DATA::EObjectMaterial ITEM_BY_NAME<OBJ_DATA::EObjectMaterial>(const std::string& name);
 
 inline void OBJ_DATA::set_affected(const size_t index, const EApplyLocation location, const int modifier)
 {

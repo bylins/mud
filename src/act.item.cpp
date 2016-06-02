@@ -134,7 +134,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 	{
 		act("$O : $o не помещается туда.", FALSE, ch, obj, cont, TO_CHAR);
 	}
-	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)
+	else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER)
 	{
 		act("Невозможно положить контейнер в контейнер.", FALSE, ch, 0, 0, TO_CHAR);
 	}
@@ -143,7 +143,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, cont, TO_CHAR);
 	}
 	else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
-		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY)
+		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY)
 	{
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, cont, TO_CHAR);
 	}
@@ -151,14 +151,14 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 	{
 		obj_from_char(obj);
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
-		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MONEY
+		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MONEY
 			&& GET_OBJ_VNUM(obj) == -1)
 		{
 			OBJ_DATA *temp, *obj_next;
 			for (temp = cont->get_contains(); temp; temp = obj_next)
 			{
 				obj_next = temp->get_next_content();
-				if (GET_OBJ_TYPE(temp) == obj_flag_data::ITEM_MONEY)
+				if (GET_OBJ_TYPE(temp) == OBJ_DATA::ITEM_MONEY)
 				{
 					// тут можно просто в поле прибавить, но там описание для кун разное от кол-ва
 					int money = GET_OBJ_VAL(temp, 0);
@@ -511,7 +511,7 @@ void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", thecont);
 			send_to_char(buf, ch);
 		}
-		else if (GET_OBJ_TYPE(cont) != obj_flag_data::ITEM_CONTAINER)
+		else if (GET_OBJ_TYPE(cont) != OBJ_DATA::ITEM_CONTAINER)
 		{
 			act("В $o3 нельзя ничего положить.", FALSE, ch, cont, 0, TO_CHAR);
 		}
@@ -609,13 +609,13 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 		sprintf(buf, "clan%d!", CLAN(ch)->GetRent());
 
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)
-		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY)
+		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY)
 	{
 		act("$p: Вы не могете нести столько вещей.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
 	else if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)
-		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY)
+		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY)
 	{
 		act("$p: Вы не в состоянии нести еще и $S.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
@@ -690,7 +690,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 
 	const int value = GET_OBJ_VAL(obj, 0);
 
-	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY
+	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY
 		|| value <= 0)
 	{
 		return;
@@ -822,8 +822,8 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 					|| CHECK_CUSTOM_LABEL(arg, obj, ch)))
 			{
 				if (autoloot
-					&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT
-						|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING)
+					&& (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT
+						|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING)
 					&& PRF_FLAGGED(ch, PRF_NOINGR_LOOT))
 				{
 					continue;
@@ -1078,7 +1078,7 @@ void do_get(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				sprintf(buf, "Вы не видите '%s'.\r\n", arg2);
 				send_to_char(buf, ch);
 			}
-			else if (GET_OBJ_TYPE(cont) != obj_flag_data::ITEM_CONTAINER)
+			else if (GET_OBJ_TYPE(cont) != OBJ_DATA::ITEM_CONTAINER)
 			{
 				act("$o - не контейнер.", FALSE, ch, cont, 0, TO_CHAR);
 			}
@@ -1102,7 +1102,7 @@ void do_get(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch)))
 				{
-					if (GET_OBJ_TYPE(cont) == obj_flag_data::ITEM_CONTAINER)
+					if (GET_OBJ_TYPE(cont) == OBJ_DATA::ITEM_CONTAINER)
 					{
 						found = 1;
 						get_from_container(ch, cont, theobj, FIND_OBJ_INV, amount, false);
@@ -1121,7 +1121,7 @@ void do_get(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch)))
 				{
-					if (GET_OBJ_TYPE(cont) == obj_flag_data::ITEM_CONTAINER)
+					if (GET_OBJ_TYPE(cont) == OBJ_DATA::ITEM_CONTAINER)
 					{
 						get_from_container(ch, cont, theobj, FIND_OBJ_ROOM, amount, false);
 						found = 1;
@@ -1175,7 +1175,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 				for (OBJ_DATA* existing_obj = world[ch->in_room]->contents; existing_obj; existing_obj = next_obj)
 				{
 					next_obj = existing_obj->get_next_content();
-					if (GET_OBJ_TYPE(existing_obj) == obj_flag_data::ITEM_MONEY)
+					if (GET_OBJ_TYPE(existing_obj) == OBJ_DATA::ITEM_MONEY)
 					{
 						//Запоминаем стоимость существующей кучки и удаляем ее
 						additional_amount = GET_OBJ_VAL(existing_obj, 0);
@@ -1697,8 +1697,8 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 	}
 	if (subcmd == SCMD_TASTE
-		&& ((GET_OBJ_TYPE(food) == obj_flag_data::ITEM_DRINKCON)
-			|| (GET_OBJ_TYPE(food) == obj_flag_data::ITEM_FOUNTAIN)))
+		&& ((GET_OBJ_TYPE(food) == OBJ_DATA::ITEM_DRINKCON)
+			|| (GET_OBJ_TYPE(food) == OBJ_DATA::ITEM_FOUNTAIN)))
 	{
 		do_drink(ch, argument, 0, SCMD_SIP);
 		return;
@@ -1706,27 +1706,27 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (!IS_GOD(ch))
 	{
-		if (GET_OBJ_TYPE(food) == obj_flag_data::ITEM_MING) //Сообщение на случай попытки проглотить ингры
+		if (GET_OBJ_TYPE(food) == OBJ_DATA::ITEM_MING) //Сообщение на случай попытки проглотить ингры
 		{
 			send_to_char("Не можешь приготовить - покупай готовое!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(food) != obj_flag_data::ITEM_FOOD
-			&& GET_OBJ_TYPE(food) != obj_flag_data::ITEM_NOTE)
+		if (GET_OBJ_TYPE(food) != OBJ_DATA::ITEM_FOOD
+			&& GET_OBJ_TYPE(food) != OBJ_DATA::ITEM_NOTE)
 		{
 			send_to_char("Это несъедобно!\r\n", ch);
 			return;
 		}
 	}
 	if (GET_COND(ch, FULL) > 20
-		&& GET_OBJ_TYPE(food) != obj_flag_data::ITEM_NOTE)  	// Stomach full
+		&& GET_OBJ_TYPE(food) != OBJ_DATA::ITEM_NOTE)  	// Stomach full
 	{
 		send_to_char("Вы слишком сыты для этого!\r\n", ch);
 		return;
 	}
 	if (subcmd == SCMD_EAT
 		|| (subcmd == SCMD_TASTE
-			&& GET_OBJ_TYPE(food) == obj_flag_data::ITEM_NOTE))
+			&& GET_OBJ_TYPE(food) == OBJ_DATA::ITEM_NOTE))
 	{
 		act("Вы съели $o3.", FALSE, ch, food, 0, TO_CHAR);
 		act("$n съел$g $o3.", TRUE, ch, food, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -1737,7 +1737,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		act("$n попробовал$g $o3 на вкус.", TRUE, ch, food, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 
-	amount = ((subcmd == SCMD_EAT && GET_OBJ_TYPE(food) != obj_flag_data::ITEM_NOTE)
+	amount = ((subcmd == SCMD_EAT && GET_OBJ_TYPE(food) != OBJ_DATA::ITEM_NOTE)
 		? GET_OBJ_VAL(food, 0)
 		: 1);
 
@@ -1773,7 +1773,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 	if (subcmd == SCMD_EAT
 		|| (subcmd == SCMD_TASTE
-			&& GET_OBJ_TYPE(food) == obj_flag_data::ITEM_NOTE))
+			&& GET_OBJ_TYPE(food) == OBJ_DATA::ITEM_NOTE))
 	{
 		extract_obj(food);
 	}
@@ -2201,7 +2201,7 @@ void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			send_to_char("Вы не можете вооружиться этим.\r\n", ch);
 		}
-		else if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON)
+		else if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_WEAPON)
 		{
 			send_to_char("Это не оружие.\r\n", ch);
 		}
@@ -2287,23 +2287,23 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_LIGHT)
+		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_LIGHT)
 		{
 			perform_wear(ch, obj, WEAR_LIGHT);
 		}
 		else
 		{
 			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)
-				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WAND
-				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_STAFF
-				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_SCROLL
-				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_POTION)
+				&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_WAND
+				&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_STAFF
+				&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_SCROLL
+				&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_POTION)
 			{
 				send_to_char("Вы не можете это держать.\r\n", ch);
 				return;
 			}
 
-			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+			if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 			{
 				if (GET_OBJ_SKILL(obj) == SKILL_BOTHHANDS
 					|| GET_OBJ_SKILL(obj) == SKILL_BOWS)
@@ -2499,7 +2499,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	};
 
-	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_WEAPON)
 	{
 		send_to_char("Вы можете заточить только оружие.\r\n", ch);
 		return;
@@ -2531,26 +2531,26 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	switch (obj->get_material())
 	{
-	case obj_flag_data::MAT_BRONZE:
-	case obj_flag_data::MAT_BULAT:
-	case obj_flag_data::MAT_IRON:
-	case obj_flag_data::MAT_STEEL:
-	case obj_flag_data::MAT_SWORDSSTEEL:
-	case obj_flag_data::MAT_COLOR:
-	case obj_flag_data::MAT_BONE:
+	case OBJ_DATA::MAT_BRONZE:
+	case OBJ_DATA::MAT_BULAT:
+	case OBJ_DATA::MAT_IRON:
+	case OBJ_DATA::MAT_STEEL:
+	case OBJ_DATA::MAT_SWORDSSTEEL:
+	case OBJ_DATA::MAT_COLOR:
+	case OBJ_DATA::MAT_BONE:
 		act("Вы взялись точить $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n взял$u точить $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		weight = -1;
 		break;
 
-	case obj_flag_data::MAT_WOOD:
-	case obj_flag_data::MAT_SUPERWOOD:
+	case OBJ_DATA::MAT_WOOD:
+	case OBJ_DATA::MAT_SUPERWOOD:
 		act("Вы взялись стругать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n взял$u стругать $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		weight = -1;
 		break;
 
-	case obj_flag_data::MAT_SKIN:
+	case OBJ_DATA::MAT_SKIN:
 		act("Вы взялись проклепывать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n взял$u проклепывать $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		weight = + 1;
@@ -2696,19 +2696,19 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	switch (obj->get_material())
 	{
-	case obj_flag_data::MAT_IRON:
-	case obj_flag_data::MAT_STEEL:
+	case OBJ_DATA::MAT_IRON:
+	case OBJ_DATA::MAT_STEEL:
 		act("Вы принялись закалять $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n принял$u закалять $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
 
-	case obj_flag_data::MAT_WOOD:
-	case obj_flag_data::MAT_SUPERWOOD:
+	case OBJ_DATA::MAT_WOOD:
+	case OBJ_DATA::MAT_SUPERWOOD:
 		act("Вы принялись обшивать $o3 железом.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n принял$u обшивать $o3 железом.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
 
-	case obj_flag_data::MAT_SKIN:
+	case OBJ_DATA::MAT_SKIN:
 		act("Вы принялись проклепывать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n принял$u проклепывать $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
@@ -3038,7 +3038,7 @@ void do_poisoned(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(ch, "У вас нет \'%s\'.\r\n", arg);
 		return;
 	}
-	else if (GET_OBJ_TYPE(weapon) != obj_flag_data::ITEM_WEAPON)
+	else if (GET_OBJ_TYPE(weapon) != OBJ_DATA::ITEM_WEAPON)
 	{
 		send_to_char("Вы можете нанести яд только на оружие.\r\n", ch);
 		return;
@@ -3050,7 +3050,7 @@ void do_poisoned(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(ch, "У вас нет \'%s\'.\r\n", argument);
 		return;
 	}
-	else if (GET_OBJ_TYPE(cont) != obj_flag_data::ITEM_DRINKCON)
+	else if (GET_OBJ_TYPE(cont) != OBJ_DATA::ITEM_DRINKCON)
 	{
 		send_to_char(ch, "%s не является емкостью.\r\n", cont->get_PName(0).c_str());
 		return;
@@ -3118,7 +3118,7 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		act("$o в ремонте не нуждается.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON
+	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_WEAPON
 		&& !ObjSystem::is_armor_type(obj))
 	{
 		send_to_char("Вы можете отремонтировать только оружие или броню.\r\n", ch);

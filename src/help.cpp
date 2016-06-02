@@ -147,7 +147,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
 
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 	{
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
@@ -155,7 +155,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 			% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
 	}
 
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON
 		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)
 		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
 	{
@@ -233,7 +233,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_D
 		out << " + Свойства :\r\n" << tmp_str;
 	}
 
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 	{
 		int drndice = 0, drsdice = 0;
 		activ->second.get_dices(drsdice, drndice);

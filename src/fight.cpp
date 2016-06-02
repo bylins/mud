@@ -1011,8 +1011,8 @@ void mob_casting(CHAR_DATA * ch)
 	{
 		switch (GET_OBJ_TYPE(item))
 		{
-		case obj_flag_data::ITEM_WAND:
-		case obj_flag_data::ITEM_STAFF:
+		case OBJ_DATA::ITEM_WAND:
+		case OBJ_DATA::ITEM_STAFF:
 			if (GET_OBJ_VAL(item, 2) > 0 &&
 				IS_SET(spell_info[GET_OBJ_VAL(item, 3)].routines, NPC_CALCULATE))
 			{
@@ -1020,7 +1020,7 @@ void mob_casting(CHAR_DATA * ch)
 			}
 			break;
 
-		case obj_flag_data::ITEM_POTION:
+		case OBJ_DATA::ITEM_POTION:
 			for (i = 1; i <= 3; i++)
 			{
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_AFFECT_NPC | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER))
@@ -1030,7 +1030,7 @@ void mob_casting(CHAR_DATA * ch)
 			}
 			break;
 
-		case obj_flag_data::ITEM_SCROLL:
+		case OBJ_DATA::ITEM_SCROLL:
 			for (i = 1; i <= 3; i++)
 			{
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_CALCULATE))
@@ -1098,8 +1098,8 @@ void mob_casting(CHAR_DATA * ch)
 		{
 			switch (GET_OBJ_TYPE(item))
 			{
-			case obj_flag_data::ITEM_WAND:
-			case obj_flag_data::ITEM_STAFF:
+			case OBJ_DATA::ITEM_WAND:
+			case OBJ_DATA::ITEM_STAFF:
 				if (GET_OBJ_VAL(item, 2) > 0
 					&& GET_OBJ_VAL(item, 3) == spellnum)
 				{
@@ -1108,7 +1108,7 @@ void mob_casting(CHAR_DATA * ch)
 				}
 				break;
 
-			case obj_flag_data::ITEM_POTION:
+			case OBJ_DATA::ITEM_POTION:
 				for (i = 1; i <= 3; i++)
 				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
@@ -1129,7 +1129,7 @@ void mob_casting(CHAR_DATA * ch)
 				}
 				break;
 
-			case obj_flag_data::ITEM_SCROLL:
+			case OBJ_DATA::ITEM_SCROLL:
 				for (i = 1; i <= 3; i++)
 				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
@@ -1969,7 +1969,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (GET_EQ(ch, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON
 		&& GET_AF_BATTLE(ch, EAF_SECOND)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)
 		&& (IS_IMMORTAL(ch)

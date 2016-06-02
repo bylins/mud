@@ -552,7 +552,7 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 		if ((*shop)->item_list[i]->temporary_ids.empty())
 		{
 			name_value = get_item_name((*shop)->item_list[i], keeper_vnum);
-			if (GET_OBJ_TYPE(obj_proto[(*shop)->item_list[i]->rnum]) == obj_flag_data::ITEM_DRINKCON)
+			if (GET_OBJ_TYPE(obj_proto[(*shop)->item_list[i]->rnum]) == OBJ_DATA::ITEM_DRINKCON)
 			{
 				name_value += " " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*shop)->item_list[i]->rnum], 2)]);
 			}
@@ -732,7 +732,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		if ((*k)->temporary_ids.empty())
 		{
 			print_value = get_item_name((*k), keeper_vnum);
-			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == obj_flag_data::ITEM_DRINKCON)
+			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == OBJ_DATA::ITEM_DRINKCON)
 			{
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
 			}
@@ -852,88 +852,88 @@ bool init_type(const char *str)
 	if (is_abbrev(str, "свет")
 		|| is_abbrev(str, "light"))
 	{
-		type = obj_flag_data::ITEM_LIGHT;
+		type = OBJ_DATA::ITEM_LIGHT;
 	}
 	else if (is_abbrev(str, "свиток")
 		|| is_abbrev(str, "scroll"))
 	{
-		type = obj_flag_data::ITEM_SCROLL;
+		type = OBJ_DATA::ITEM_SCROLL;
 	}
 	else if (is_abbrev(str, "палочка")
 		|| is_abbrev(str, "wand"))
 	{
-		type = obj_flag_data::ITEM_WAND;
+		type = OBJ_DATA::ITEM_WAND;
 	}
 	else if (is_abbrev(str, "посох")
 		|| is_abbrev(str, "staff"))
 	{
-		type = obj_flag_data::ITEM_STAFF;
+		type = OBJ_DATA::ITEM_STAFF;
 	}
 	else if (is_abbrev(str, "оружие")
 		|| is_abbrev(str, "weapon"))
 	{
-		type = obj_flag_data::ITEM_WEAPON;
+		type = OBJ_DATA::ITEM_WEAPON;
 	}
 	else if (is_abbrev(str, "броня")
 		|| is_abbrev(str, "armor"))
 	{
-		type = obj_flag_data::ITEM_ARMOR;
+		type = OBJ_DATA::ITEM_ARMOR;
 	}
 	else if (is_abbrev(str, "материал")
 		|| is_abbrev(str, "material"))
 	{
-		type = obj_flag_data::ITEM_MATERIAL;
+		type = OBJ_DATA::ITEM_MATERIAL;
 	}
 	else if (is_abbrev(str, "напиток")
 		|| is_abbrev(str, "potion"))
 	{
-		type = obj_flag_data::ITEM_POTION;
+		type = OBJ_DATA::ITEM_POTION;
 	}
 	else if (is_abbrev(str, "прочее")
 		|| is_abbrev(str, "другое")
 		|| is_abbrev(str, "other"))
 	{
-		type = obj_flag_data::ITEM_OTHER;
+		type = OBJ_DATA::ITEM_OTHER;
 	}
 	else if (is_abbrev(str, "контейнер")
 		|| is_abbrev(str, "container"))
 	{
-		type = obj_flag_data::ITEM_CONTAINER;
+		type = OBJ_DATA::ITEM_CONTAINER;
 	}
 	else if (is_abbrev(str, "емкость")
 		|| is_abbrev(str, "tank"))
 	{
-		type = obj_flag_data::ITEM_DRINKCON;
+		type = OBJ_DATA::ITEM_DRINKCON;
 	}
 	else if (is_abbrev(str, "книга")
 		|| is_abbrev(str, "book"))
 	{
-		type = obj_flag_data::ITEM_BOOK;
+		type = OBJ_DATA::ITEM_BOOK;
 	}
 	else if (is_abbrev(str, "руна")
 		|| is_abbrev(str, "rune"))
 	{
-		type = obj_flag_data::ITEM_INGREDIENT;
+		type = OBJ_DATA::ITEM_INGREDIENT;
 	}
 	else if (is_abbrev(str, "ингредиент")
 		|| is_abbrev(str, "ingradient"))
 	{
-		type = obj_flag_data::ITEM_MING;
+		type = OBJ_DATA::ITEM_MING;
 	}
 	else if (is_abbrev(str, "легкие")
 		|| is_abbrev(str, "легкая"))
 	{
-		type = obj_flag_data::ITEM_ARMOR_LIGHT;
+		type = OBJ_DATA::ITEM_ARMOR_LIGHT;
 	}
 	else if (is_abbrev(str, "средние")
 		|| is_abbrev(str, "средняя"))
 	{
-		type = obj_flag_data::ITEM_ARMOR_MEDIAN;
+		type = OBJ_DATA::ITEM_ARMOR_MEDIAN;
 	}
 	else if (is_abbrev(str, "тяжелые")
 		|| is_abbrev(str, "тяжелая"))
 	{
-		type = obj_flag_data::ITEM_ARMOR_HEAVY;
+		type = OBJ_DATA::ITEM_ARMOR_HEAVY;
 	}
 	else
 	{
@@ -1002,7 +1002,7 @@ void filter_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::st
 		if ((*k)->temporary_ids.empty())
 		{
 			print_value = get_item_name((*k), keeper_vnum);
-			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == obj_flag_data::ITEM_DRINKCON)
+			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == OBJ_DATA::ITEM_DRINKCON)
 			{
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
 			}
@@ -1108,7 +1108,7 @@ void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 
 	obj->set_ex_description(nullptr); //Пока в конфиге нельзя указать экстраописания - убираем нафиг
 
-	if ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
+	if ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON)
 		&& (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...
 	{
 		name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2)); //...Следует указать содержимое емкости
@@ -1295,7 +1295,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 			if ((*shop)->currency == "слава")
 			{
 				// книги за славу не фейлим
-				if (obj_flag_data::ITEM_BOOK == GET_OBJ_TYPE(obj))
+				if (OBJ_DATA::ITEM_BOOK == GET_OBJ_TYPE(obj))
 				{
 					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
 				}
@@ -1408,7 +1408,7 @@ void put_item_in_shop(ShopListType::const_iterator &shop, OBJ_DATA * obj)
 					continue;
 				}
 
-				if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MING //а у них всех один рнум
+				if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING //а у них всех один рнум
 					|| obj->get_short_description() == tmp_obj->get_short_description())
 				{
 					(*it)->temporary_ids.push_back(obj->get_uid());
@@ -1446,14 +1446,14 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	}
 
 	if (GET_OBJ_VAL(obj, 2) == 0
-		&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WAND
-			|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF))
+		&& (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WAND
+			|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_STAFF))
 	{
 		tell_to_char(keeper, ch, "Я не покупаю использованные вещи!");
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
 		&& cmd != "Чинить")
 	{
 		if (obj->get_contains())
@@ -1553,27 +1553,27 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 		switch (obj->get_material())
 		{
-		case obj_flag_data::MAT_BULAT:
-		case obj_flag_data::MAT_CRYSTALL:
-		case obj_flag_data::MAT_DIAMOND:
-		case obj_flag_data::MAT_SWORDSSTEEL:
+		case OBJ_DATA::MAT_BULAT:
+		case OBJ_DATA::MAT_CRYSTALL:
+		case OBJ_DATA::MAT_DIAMOND:
+		case OBJ_DATA::MAT_SWORDSSTEEL:
 			repair_price *= 2;
 			break;
 
-		case obj_flag_data::MAT_SUPERWOOD:
-		case obj_flag_data::MAT_COLOR:
-		case obj_flag_data::MAT_GLASS:
-		case obj_flag_data::MAT_BRONZE:
-		case obj_flag_data::MAT_FARFOR:
-		case obj_flag_data::MAT_BONE:
-		case obj_flag_data::MAT_ORGANIC:
+		case OBJ_DATA::MAT_SUPERWOOD:
+		case OBJ_DATA::MAT_COLOR:
+		case OBJ_DATA::MAT_GLASS:
+		case OBJ_DATA::MAT_BRONZE:
+		case OBJ_DATA::MAT_FARFOR:
+		case OBJ_DATA::MAT_BONE:
+		case OBJ_DATA::MAT_ORGANIC:
 			repair_price += MAX(1, repair_price / 2);
 			break;
 
-		case obj_flag_data::MAT_IRON:
-		case obj_flag_data::MAT_STEEL:
-		case obj_flag_data::MAT_SKIN:
-		case obj_flag_data::MAT_MATERIA:
+		case OBJ_DATA::MAT_IRON:
+		case OBJ_DATA::MAT_STEEL:
+		case OBJ_DATA::MAT_SKIN:
+		case OBJ_DATA::MAT_MATERIA:
 			//repair_price = repair_price;
 			break;
 

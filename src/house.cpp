@@ -2882,7 +2882,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 		return 0;
 	}
 
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MONEY)
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MONEY)
 	{
 		long gold = GET_OBJ_VAL(obj, 0);
 		if (IS_IMMORTAL(ch))
@@ -2917,7 +2917,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 	else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
-		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY
+		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= NOTHING
@@ -2926,7 +2926,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 	{
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
 	}
-	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
+	else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
 		&& obj->get_contains())
 	{
 		act("В $o5 что-то лежит.", FALSE, ch, obj, 0, TO_CHAR);
@@ -5358,13 +5358,13 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 		return 0;
 	}
 
-	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MING
-		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MATERIAL)
+	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING
+		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MATERIAL)
 	{
 		send_to_char(ch, "%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
 			GET_OBJ_PNAME(obj, 0).c_str());
 
-		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MONEY)
+		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MONEY)
 		{
 			int howmany = GET_OBJ_VAL(obj, 0);
 			obj_from_char(obj);

@@ -1033,7 +1033,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define IS_OBJ_NO(obj,stat) ((obj)->get_no_flag(stat))
 #define IS_OBJ_AFF(obj,stat) (obj->get_affect(stat))
 
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER && \
+#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER && \
                GET_OBJ_VAL((obj), 3) == 1)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 

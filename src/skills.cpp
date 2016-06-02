@@ -774,7 +774,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 
 		if (GET_EQ(ch, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON)
 		{
 			bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))))].parrying;
 		}

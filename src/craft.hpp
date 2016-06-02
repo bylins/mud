@@ -122,7 +122,7 @@ namespace craft
 	class CObjectBase
 	{
 	public:
-		using type_t = obj_flag_data::EObjectType;
+		using type_t = OBJ_DATA::EObjectType;
 
 		void set_type(const type_t _) { m_type = _; }
 		type_t get_type() const { return m_type; }
@@ -135,8 +135,8 @@ namespace craft
 
 	protected:
 		CObjectBase():
-			m_type(obj_flag_data::DEFAULT_TYPE),
-			m_weight(obj_flag_data::DEFAULT_WEIGHT),
+			m_type(OBJ_DATA::DEFAULT_TYPE),
+			m_weight(OBJ_DATA::DEFAULT_WEIGHT),
 			m_timer(OBJ_DATA::DEFAULT_TIMER)
 		{
 		}
@@ -158,12 +158,12 @@ namespace craft
 			m_rent_off(OBJ_DATA::DEFAULT_RENT_OFF),
 			m_global_maximum(OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM),
 			m_minimum_remorts(OBJ_DATA::DEFAULT_MINIMUM_REMORTS),
-			m_maximum_durability(obj_flag_data::DEFAULT_MAXIMUM_DURABILITY),
-			m_current_durability(obj_flag_data::DEFAULT_CURRENT_DURABILITY),
+			m_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY),
+			m_current_durability(OBJ_DATA::DEFAULT_CURRENT_DURABILITY),
 			m_sex(DEFAULT_SEX),
-			m_level(obj_flag_data::DEFAULT_LEVEL),
+			m_level(OBJ_DATA::DEFAULT_LEVEL),
 			m_item_params(0),
-			m_material(obj_flag_data::DEFAULT_MATERIAL),
+			m_material(OBJ_DATA::DEFAULT_MATERIAL),
 			m_wear_flags(0),
 			m_vals({0, 0, 0, 0})
 		{
@@ -229,7 +229,7 @@ namespace craft
 
 		uint32_t m_item_params;
 
-		obj_flag_data::EObjectMaterial m_material;
+		OBJ_DATA::EObjectMaterial m_material;
 		ESpell m_spell;
 
 		FLAG_DATA m_extraflags;

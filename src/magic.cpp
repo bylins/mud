@@ -1127,11 +1127,11 @@ bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 	int num = 0;
 
 	if (spelltype == SPELL_RUNES
-		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_INGREDIENT)
+		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT)
 	{
 		return false;
 	}
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT)
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT)
 	{
 		if ((!IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype == SPELL_RUNES)
 			|| (IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype != SPELL_RUNES))
@@ -4699,7 +4699,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 			{
 				obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
-				if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+				if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 				{
 					obj->inc_val(2);
 				}
@@ -4715,7 +4715,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		if (!obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 		{
 			obj->set_extra_flag(EExtraFlag::ITEM_NODROP);
-			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+			if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 			{
 				if (GET_OBJ_VAL(obj, 2) > 0)
 				{
@@ -4748,9 +4748,9 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 
 	case SPELL_POISON:
 		if (!GET_OBJ_VAL(obj, 3)
-			&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON
-				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN
-				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOOD))
+			&& (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON
+				|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN
+				|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOOD))
 		{
 			obj->set_val(3, 1);
 			to_char = "$o отравлен$G.";
@@ -4761,7 +4761,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 		{
 			obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
-			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+			if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 			{
 				obj->inc_val(2);
 			}
@@ -4773,7 +4773,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		if (ch == NULL || obj == NULL)
 			return 0;
 		// Either already enchanted or not a weapon.
-		if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON
+		if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_WEAPON
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
 		{
 			break;
@@ -4866,9 +4866,9 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 
 	case SPELL_REMOVE_POISON:
 		if (GET_OBJ_VAL(obj, 3)
-			&& ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
-				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOUNTAIN
-				|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOOD))
+			&& ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON)
+				|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN
+				|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOOD))
 		{
 			obj->set_val(3, 0);
 			to_char = "$o стал$G вполне пригодным к применению.";

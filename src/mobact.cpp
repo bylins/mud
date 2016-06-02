@@ -199,7 +199,7 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 		}
 		if (ch->get_skill(SKILL_THROW)
 			&& wielded
-			&& GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON
+			&& GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON
 			&& wielded->get_extra_flag(EExtraFlag::ITEM_THROWING))
 		{
 			go_throw(ch, victim);
@@ -359,8 +359,8 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 			victim = vict;
 
 		if (IS_DEFAULTDARK(ch->in_room)
-			&& ((GET_EQ(vict, obj_flag_data::ITEM_LIGHT)
-					&& GET_OBJ_VAL(GET_EQ(vict, obj_flag_data::ITEM_LIGHT), 2))
+			&& ((GET_EQ(vict, OBJ_DATA::ITEM_LIGHT)
+					&& GET_OBJ_VAL(GET_EQ(vict, OBJ_DATA::ITEM_LIGHT), 2))
 				|| (!AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYDARK)
 					&& (AFF_FLAGGED(vict, EAffectFlag::AFF_SINGLELIGHT)
 						|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYLIGHT))))
@@ -914,7 +914,7 @@ OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 	obj->set_PName(4, "узелком");
 	obj->set_PName(5, "узелке");
 	obj->set_sex(ESex::SEX_MALE);
-	obj->set_type(obj_flag_data::ITEM_CONTAINER);
+	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	obj->set_weight(1);
 	obj->set_cost(1);

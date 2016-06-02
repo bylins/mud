@@ -616,10 +616,10 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 		obj->set_PName(4, "письмом");
 		obj->set_PName(5, "письме");
 
-		obj->set_type(obj_flag_data::ITEM_NOTE);
+		obj->set_type(OBJ_DATA::ITEM_NOTE);
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD));
 		obj->set_weight(1);
-		obj->set_material(obj_flag_data::MAT_PAPER);
+		obj->set_material(OBJ_DATA::MAT_PAPER);
 		obj->set_cost(0);
 		obj->set_rent(10);
 		obj->set_rent_eq(10);

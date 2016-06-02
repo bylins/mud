@@ -178,7 +178,7 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_DECAY)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
-		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY
+		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= NOTHING
 		|| GET_OBJ_OWNER(obj))
@@ -188,7 +188,7 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	}
-	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER
+	else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
 		&& obj->get_contains())
 	{
 		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(5).c_str());
@@ -557,7 +557,7 @@ OBJ_DATA * create_parcel()
 	obj->set_PName(4, "посылкой");
 	obj->set_PName(5, "посылке");
 	obj->set_sex(ESex::SEX_FEMALE);
-	obj->set_type(obj_flag_data::ITEM_CONTAINER);
+	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	obj->set_weight(1);
 	obj->set_cost(1);

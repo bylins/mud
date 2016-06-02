@@ -1863,7 +1863,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	switch (GET_OBJ_TYPE(j))
 	{
-	case obj_flag_data::ITEM_LIGHT:
+	case OBJ_DATA::ITEM_LIGHT:
 		if (GET_OBJ_VAL(j, 2) < 0)
 		{
 			strcpy(buf, "Вечный свет!");
@@ -1874,8 +1874,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		}
 		break;
 
-	case obj_flag_data::ITEM_SCROLL:
-	case obj_flag_data::ITEM_POTION:
+	case OBJ_DATA::ITEM_SCROLL:
+	case OBJ_DATA::ITEM_POTION:
 		sprintf(buf, "Заклинания: (Уровень %d) %s, %s, %s",
 			GET_OBJ_VAL(j, 0),
 			spell_name(GET_OBJ_VAL(j, 1)),
@@ -1883,8 +1883,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 			spell_name(GET_OBJ_VAL(j, 3)));
 		break;
 
-	case obj_flag_data::ITEM_WAND:
-	case obj_flag_data::ITEM_STAFF:
+	case OBJ_DATA::ITEM_WAND:
+	case OBJ_DATA::ITEM_STAFF:
 		sprintf(buf, "Заклинание: %s уровень %d, %d (из %d) зарядов осталось",
 			spell_name(GET_OBJ_VAL(j, 3)),
 			GET_OBJ_VAL(j, 0),
@@ -1892,32 +1892,32 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 			GET_OBJ_VAL(j, 1));
 		break;
 
-	case obj_flag_data::ITEM_WEAPON:
+	case OBJ_DATA::ITEM_WEAPON:
 		sprintf(buf, "Повреждения: %dd%d, Тип повреждения: %d",
 			GET_OBJ_VAL(j, 1),
 			GET_OBJ_VAL(j, 2),
 			GET_OBJ_VAL(j, 3));
 		break;
 
-	case obj_flag_data::ITEM_ARMOR:
-	case obj_flag_data::ITEM_ARMOR_LIGHT:
-	case obj_flag_data::ITEM_ARMOR_MEDIAN:
-	case obj_flag_data::ITEM_ARMOR_HEAVY:
+	case OBJ_DATA::ITEM_ARMOR:
+	case OBJ_DATA::ITEM_ARMOR_LIGHT:
+	case OBJ_DATA::ITEM_ARMOR_MEDIAN:
+	case OBJ_DATA::ITEM_ARMOR_HEAVY:
 		sprintf(buf, "AC: [%d]  Броня: [%d]", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
 		break;
 
-	case obj_flag_data::ITEM_TRAP:
+	case OBJ_DATA::ITEM_TRAP:
 		sprintf(buf, "Spell: %d, - Hitpoints: %d", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
 		break;
 
-	case obj_flag_data::ITEM_CONTAINER:
+	case OBJ_DATA::ITEM_CONTAINER:
 		sprintbit(GET_OBJ_VAL(j, 1), container_bits, buf2);
 		sprintf(buf, "Объем: %d, Тип ключа: %s, Номер ключа: %d, Труп: %s",
 			GET_OBJ_VAL(j, 0), buf2, GET_OBJ_VAL(j, 2), YESNO(GET_OBJ_VAL(j, 3)));
 		break;
 
-	case obj_flag_data::ITEM_DRINKCON:
-	case obj_flag_data::ITEM_FOUNTAIN:
+	case OBJ_DATA::ITEM_DRINKCON:
+	case OBJ_DATA::ITEM_FOUNTAIN:
 		sprinttype(GET_OBJ_VAL(j, 2), drinks, buf2);
 		{
 			std::string spells = drinkcon::print_spells(ch, j);
@@ -1927,23 +1927,23 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		}
 		break;
 
-	case obj_flag_data::ITEM_NOTE:
+	case OBJ_DATA::ITEM_NOTE:
 		sprintf(buf, "Tongue: %d", GET_OBJ_VAL(j, 0));
 		break;
 
-	case obj_flag_data::ITEM_KEY:
+	case OBJ_DATA::ITEM_KEY:
 		strcpy(buf, "");
 		break;
 
-	case obj_flag_data::ITEM_FOOD:
+	case OBJ_DATA::ITEM_FOOD:
 		sprintf(buf, "Насыщает(час): %d, Отравлен: %s", GET_OBJ_VAL(j, 0), YESNO(GET_OBJ_VAL(j, 3)));
 		break;
 
-	case obj_flag_data::ITEM_MONEY:
+	case OBJ_DATA::ITEM_MONEY:
 		sprintf(buf, "Монет: %d", GET_OBJ_VAL(j, 0));
 		break;
 
-	case obj_flag_data::ITEM_INGREDIENT:
+	case OBJ_DATA::ITEM_INGREDIENT:
 		sprintbit(GET_OBJ_SKILL(j), ingradient_bits, buf2);
 		sprintf(buf, "%s\r\n", buf2);
 		send_to_char(buf, ch);
@@ -6756,75 +6756,75 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			argument = one_argument(++argument, tmpbuf);
 			if (is_abbrev(tmpbuf, "булат"))
 			{
-				filter.material = obj_flag_data::MAT_BULAT;
+				filter.material = OBJ_DATA::MAT_BULAT;
 			}
 			else if (is_abbrev(tmpbuf, "бронза"))
 			{
-				filter.material = obj_flag_data::MAT_BRONZE;
+				filter.material = OBJ_DATA::MAT_BRONZE;
 			}
 			else if (is_abbrev(tmpbuf, "железо"))
 			{
-				filter.material = obj_flag_data::MAT_IRON;
+				filter.material = OBJ_DATA::MAT_IRON;
 			}
 			else if (is_abbrev(tmpbuf, "сталь"))
 			{
-				filter.material = obj_flag_data::MAT_STEEL;
+				filter.material = OBJ_DATA::MAT_STEEL;
 			}
 			else if (is_abbrev(tmpbuf, "кованая.сталь"))
 			{
-				filter.material = obj_flag_data::MAT_SWORDSSTEEL;
+				filter.material = OBJ_DATA::MAT_SWORDSSTEEL;
 			}
 			else if (is_abbrev(tmpbuf, "драг.металл"))
 			{
-				filter.material = obj_flag_data::MAT_COLOR;
+				filter.material = OBJ_DATA::MAT_COLOR;
 			}
 			else if (is_abbrev(tmpbuf, "кристалл"))
 			{
-				filter.material = obj_flag_data::MAT_CRYSTALL;
+				filter.material = OBJ_DATA::MAT_CRYSTALL;
 			}
 			else if (is_abbrev(tmpbuf, "дерево"))
 			{
-				filter.material = obj_flag_data::MAT_WOOD;
+				filter.material = OBJ_DATA::MAT_WOOD;
 			}
 			else if (is_abbrev(tmpbuf, "прочное.дерево"))
 			{
-				filter.material = obj_flag_data::MAT_SUPERWOOD;
+				filter.material = OBJ_DATA::MAT_SUPERWOOD;
 			}
 			else if (is_abbrev(tmpbuf, "керамика"))
 			{
-				filter.material = obj_flag_data::MAT_FARFOR;
+				filter.material = OBJ_DATA::MAT_FARFOR;
 			}
 			else if (is_abbrev(tmpbuf, "стекло"))
 			{
-				filter.material = obj_flag_data::MAT_GLASS;
+				filter.material = OBJ_DATA::MAT_GLASS;
 			}
 			else if (is_abbrev(tmpbuf, "камень"))
 			{
-				filter.material = obj_flag_data::MAT_ROCK;
+				filter.material = OBJ_DATA::MAT_ROCK;
 			}
 			else if (is_abbrev(tmpbuf, "кость"))
 			{
-				filter.material = obj_flag_data::MAT_BONE;
+				filter.material = OBJ_DATA::MAT_BONE;
 			}
 			else if (is_abbrev(tmpbuf, "ткань"))
 			{
-				filter.material = obj_flag_data::MAT_MATERIA;
+				filter.material = OBJ_DATA::MAT_MATERIA;
 			}
 			else if (is_abbrev(tmpbuf, "кожа"))
 			{
-				filter.material = obj_flag_data::MAT_SKIN;
+				filter.material = OBJ_DATA::MAT_SKIN;
 			}
 			else if (is_abbrev(tmpbuf, "органика"))
 			{
-				filter.material = obj_flag_data::MAT_ORGANIC;
+				filter.material = OBJ_DATA::MAT_ORGANIC;
 			}
 			else if (is_abbrev(tmpbuf, "береста"))
 			{
-				filter.material = obj_flag_data::MAT_PAPER;
+				filter.material = OBJ_DATA::MAT_PAPER;
 			}
 			else if (is_abbrev(tmpbuf, "драг.камень"))
 			{
-				filter.material = obj_flag_data::MAT_DIAMOND;
+				filter.material = OBJ_DATA::MAT_DIAMOND;
 			}
 			else
 			{
@@ -6837,19 +6837,19 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			argument = one_argument(++argument, tmpbuf);
 			if (is_abbrev(tmpbuf, "броня") || is_abbrev(tmpbuf, "armor"))
 			{
-				filter.type = obj_flag_data::ITEM_ARMOR;
+				filter.type = OBJ_DATA::ITEM_ARMOR;
 			}
 			else if (is_abbrev(tmpbuf, "легкие") || is_abbrev(tmpbuf, "легкая"))
 			{
-				filter.type = obj_flag_data::ITEM_ARMOR_LIGHT;
+				filter.type = OBJ_DATA::ITEM_ARMOR_LIGHT;
 			}
 			else if (is_abbrev(tmpbuf, "средние") || is_abbrev(tmpbuf, "средняя"))
 			{
-				filter.type = obj_flag_data::ITEM_ARMOR_MEDIAN;
+				filter.type = OBJ_DATA::ITEM_ARMOR_MEDIAN;
 			}
 			else if (is_abbrev(tmpbuf, "тяжелые") || is_abbrev(tmpbuf, "тяжелая"))
 			{
-				filter.type = obj_flag_data::ITEM_ARMOR_HEAVY;
+				filter.type = OBJ_DATA::ITEM_ARMOR_HEAVY;
 			}
 			else
 			{

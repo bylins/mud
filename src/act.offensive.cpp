@@ -1636,9 +1636,9 @@ void do_multyparry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 	if (!(IS_NPC(ch)	// моб
 		|| (primary
-			&& GET_OBJ_TYPE(primary) == obj_flag_data::ITEM_WEAPON
+			&& GET_OBJ_TYPE(primary) == OBJ_DATA::ITEM_WEAPON
 			&& offhand
-			&& GET_OBJ_TYPE(offhand) == obj_flag_data::ITEM_WEAPON)	// два оружия
+			&& GET_OBJ_TYPE(offhand) == OBJ_DATA::ITEM_WEAPON)	// два оружия
 		|| IS_IMMORTAL(ch)	// бессмертный
 		|| GET_GOD_FLAG(ch, GF_GODSLIKE)))	// спецфлаг
 	{
@@ -1693,12 +1693,12 @@ void do_parry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 		bool prim = 0, offh = 0;
 		if (GET_EQ(ch, WEAR_WIELD)
-			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == obj_flag_data::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON)
 		{
 			prim = 1;
 		}
 		if (GET_EQ(ch, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON)
 		{
 			offh = 1;
 		}
@@ -1936,8 +1936,8 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 // shapirus: теперь сдизармить можно все, кроме света
-	if (!((wielded && GET_OBJ_TYPE(wielded) != obj_flag_data::ITEM_LIGHT)
-		|| (helded && GET_OBJ_TYPE(helded) != obj_flag_data::ITEM_LIGHT)))
+	if (!((wielded && GET_OBJ_TYPE(wielded) != OBJ_DATA::ITEM_LIGHT)
+		|| (helded && GET_OBJ_TYPE(helded) != OBJ_DATA::ITEM_LIGHT)))
 	{
 		return;
 	}
@@ -2052,11 +2052,11 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 // shapirus: теперь сдизармить можно все, кроме света
 	if (!((GET_EQ(vict, WEAR_WIELD)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != obj_flag_data::ITEM_LIGHT)
+			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != OBJ_DATA::ITEM_LIGHT)
 			|| (GET_EQ(vict, WEAR_HOLD)
-				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != obj_flag_data::ITEM_LIGHT)
+				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != OBJ_DATA::ITEM_LIGHT)
 			|| (GET_EQ(vict, WEAR_BOTHS)
-				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != obj_flag_data::ITEM_LIGHT)))
+				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != OBJ_DATA::ITEM_LIGHT)))
 	{
 		send_to_char("Вы не можете обезоружить безоружное создание.\r\n", ch);
 		return;
@@ -2580,7 +2580,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	if (!(wielded && GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON))
+	if (!(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON))
 	{
 		send_to_char("Что вы хотите метнуть?\r\n", ch);
 		return;

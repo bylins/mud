@@ -2543,11 +2543,11 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0)
 	{
-		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF)
+		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_STAFF)
 		{
 			level = DEFAULT_STAFF_LVL;
 		}
-		else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WAND)
+		else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WAND)
 		{
 			level = DEFAULT_WAND_LVL;
 		}
@@ -2564,7 +2564,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case obj_flag_data::ITEM_STAFF:
+	case OBJ_DATA::ITEM_STAFF:
 		if (!obj->get_action_description().empty())
 		{
 			act(obj->get_action_description().c_str(), FALSE, ch, obj, 0, TO_CHAR);
@@ -2620,7 +2620,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		}
 		break;
 
-	case obj_flag_data::ITEM_WAND:
+	case OBJ_DATA::ITEM_WAND:
 		spellnum = GET_OBJ_VAL(obj, 3);
 
 		if (GET_OBJ_VAL(obj, 2) <= 0)
@@ -2729,7 +2729,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_WAND);
 		break;
 
-	case obj_flag_data::ITEM_SCROLL:
+	case OBJ_DATA::ITEM_SCROLL:
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
 			send_to_char("Вы немы, как рыба.\r\n", ch);
@@ -2780,7 +2780,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		}
 		break;
 
-	case obj_flag_data::ITEM_POTION:
+	case OBJ_DATA::ITEM_POTION:
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
 			send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
@@ -3693,7 +3693,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_BOOK)
+	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK)
 	{
 		act("Вы уставились на $o3, как баран на новые ворота.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n начал$g внимательно изучать устройство $o1.", FALSE, ch, obj, 0, TO_ROOM);

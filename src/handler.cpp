@@ -141,7 +141,7 @@ bool is_wear_light(CHAR_DATA *ch)
 	for (int wear_pos = 0; wear_pos < NUM_WEARS; wear_pos++)
 	{
 		if (GET_EQ(ch, wear_pos)
-			&& GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == obj_flag_data::ITEM_LIGHT
+			&& GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == OBJ_DATA::ITEM_LIGHT
 			&& GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2))
 		{
 			wear_light = TRUE;
@@ -704,19 +704,19 @@ void affect_total(CHAR_DATA * ch)
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch)) * 2;
 	if ((obj = GET_EQ(ch, WEAR_BOTHS))
-		&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+		&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 	{
 		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1; // правильный расчет среднего у оружия
 	}
 	else
 	{
 		if ((obj = GET_EQ(ch, WEAR_WIELD))
-			&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 		{
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 		if ((obj = GET_EQ(ch, WEAR_HOLD))
-			&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 		{
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
@@ -1298,12 +1298,12 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 {
 	if (GET_OBJ_VNUM(obj_one) != GET_OBJ_VNUM(obj_two)
 		|| strcmp(obj_one->get_short_description().c_str(), obj_two->get_short_description().c_str())
-		|| (GET_OBJ_TYPE(obj_one) == obj_flag_data::ITEM_DRINKCON
+		|| (GET_OBJ_TYPE(obj_one) == OBJ_DATA::ITEM_DRINKCON
 			&& GET_OBJ_VAL(obj_one, 2) != GET_OBJ_VAL(obj_two, 2))
-		|| (GET_OBJ_TYPE(obj_one) == obj_flag_data::ITEM_CONTAINER
+		|| (GET_OBJ_TYPE(obj_one) == OBJ_DATA::ITEM_CONTAINER
 			&& (obj_one->get_contains() || obj_two->get_contains()))
 		|| GET_OBJ_VNUM(obj_two) == -1
-		|| (GET_OBJ_TYPE(obj_one) == obj_flag_data::ITEM_BOOK
+		|| (GET_OBJ_TYPE(obj_one) == OBJ_DATA::ITEM_BOOK
 			&& GET_OBJ_VAL(obj_one, 1) != GET_OBJ_VAL(obj_two, 1))
 		|| !stockable_custom_labels(obj_one, obj_two))
 	{
@@ -1827,7 +1827,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 
 bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR_LIGHT
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_LIGHT
 		&& !can_use_feat(ch, ARMOR_LIGHT_FEAT))
 	{
 		act("Для использования $o1 требуется способность 'легкие доспехи'.",
@@ -1835,7 +1835,7 @@ bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR_MEDIAN
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_MEDIAN
 		&& !can_use_feat(ch, ARMOR_MEDIAN_FEAT))
 	{
 		act("Для использования $o1 требуется способность 'средние доспехи'.",
@@ -1843,7 +1843,7 @@ bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR_HEAVY
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_HEAVY
 		&& !can_use_feat(ch, ARMOR_HEAVY_FEAT))
 	{
 		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
@@ -2502,7 +2502,7 @@ bool obj_to_room(OBJ_DATA * object, room_rnum room)
 		{
 			object->set_destroyer(room_nodestroy_timer);
 		}
-		else if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_MONEY)
+		else if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_MONEY)
 		{
 			object->set_destroyer(money_destroy_timer);
 		}
@@ -2781,7 +2781,7 @@ void update_char_objects(CHAR_DATA * ch)
 	{
 		if (GET_EQ(ch, wear_pos) != NULL)
 		{
-			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == obj_flag_data::ITEM_LIGHT)
+			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == OBJ_DATA::ITEM_LIGHT)
 			{
 				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0)
 				{
@@ -3908,13 +3908,13 @@ OBJ_DATA *create_money(int amount)
 	new_descr->next = NULL;
 	obj->set_ex_description(new_descr);
 
-	obj->set_type(obj_flag_data::ITEM_MONEY);
+	obj->set_type(OBJ_DATA::ITEM_MONEY);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	obj->set_sex(ESex::SEX_FEMALE);
 	obj->set_val(0, amount);
 	obj->set_cost(amount);
-	obj->set_maximum(obj_flag_data::DEFAULT_MAXIMUM_DURABILITY);
-	obj->set_current(obj_flag_data::DEFAULT_CURRENT_DURABILITY);
+	obj->set_maximum(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);
+	obj->set_current(OBJ_DATA::DEFAULT_CURRENT_DURABILITY);
 	obj->set_timer(24 * 60 * 7);
 	obj->set_weight(1);
 	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
@@ -4625,7 +4625,7 @@ int equip_in_metall(CHAR_DATA * ch)
 	{
 		if (GET_EQ(ch, i)
 			&& ObjSystem::is_armor_type(GET_EQ(ch, i))
-			&& GET_OBJ_MATER(GET_EQ(ch, i)) <= obj_flag_data::MAT_COLOR)
+			&& GET_OBJ_MATER(GET_EQ(ch, i)) <= OBJ_DATA::MAT_COLOR)
 		{
 			wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
 		}

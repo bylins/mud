@@ -1033,7 +1033,7 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 	for (o = room->contents; o; o = next)
 	{
 		next = o->get_next_content();
-		if (GET_OBJ_TYPE(o) == obj_flag_data::ITEM_MING)
+		if (GET_OBJ_TYPE(o) == OBJ_DATA::ITEM_MING)
 		{
 			extract_obj(o);
 		}
@@ -1420,7 +1420,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 			sprintf(buf, "У вас нет %s.\r\n", name);
 			break;
 		}
-		if (GET_OBJ_TYPE(o) != obj_flag_data::ITEM_MING)
+		if (GET_OBJ_TYPE(o) != OBJ_DATA::ITEM_MING)
 		{
 			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
 			break;
@@ -1598,15 +1598,15 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	switch (GET_OBJ_TYPE(obj_proto[tgt]))
 	{
-	case obj_flag_data::ITEM_SCROLL:
-	case obj_flag_data::ITEM_POTION:
+	case OBJ_DATA::ITEM_SCROLL:
+	case OBJ_DATA::ITEM_POTION:
 		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = 1;	// количество
 		param[2] = obj_proto[tgt]->get_timer();	// таймер
 		break;
 
-	case obj_flag_data::ITEM_WAND:
-	case obj_flag_data::ITEM_STAFF:
+	case OBJ_DATA::ITEM_WAND:
+	case OBJ_DATA::ITEM_STAFF:
 		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);	// количество
 		param[2] = obj_proto[tgt]->get_timer();	// таймер
@@ -1735,8 +1735,8 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			switch (GET_OBJ_TYPE(result))
 			{
-			case obj_flag_data::ITEM_SCROLL:
-			case obj_flag_data::ITEM_POTION:
+			case OBJ_DATA::ITEM_SCROLL:
+			case OBJ_DATA::ITEM_POTION:
 				if (val[0] > 0)
 				{
 					result->set_val(0, val[0]);
@@ -1747,8 +1747,8 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				}
 				break;
 
-			case obj_flag_data::ITEM_WAND:
-			case obj_flag_data::ITEM_STAFF:
+			case OBJ_DATA::ITEM_WAND:
+			case OBJ_DATA::ITEM_STAFF:
 				if (val[0] > 0)
 				{
 					result->set_val(0, val[0]);

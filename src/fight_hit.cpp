@@ -1639,9 +1639,9 @@ void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *dam)
 {
 	if (!((GET_EQ(victim, WEAR_WIELD)
-			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == obj_flag_data::ITEM_WEAPON
+			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON
 			&& GET_EQ(victim, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON)
 		|| IS_NPC(victim)
 		|| IS_IMMORTAL(victim)))
 	{
@@ -1707,9 +1707,9 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *d
 void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *dam)
 {
 	if (!((GET_EQ(victim, WEAR_WIELD)
-			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == obj_flag_data::ITEM_WEAPON
+			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON
 			&& GET_EQ(victim, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON)
 		|| IS_NPC(victim)
 		|| IS_IMMORTAL(victim)))
 	{
@@ -3129,7 +3129,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	if (wielded
-		&& GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON)
+		&& GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
 	{
 		// для всех типов атак скилл берется из пушки, если она есть
 		weap_skill = static_cast<ESkill>(GET_OBJ_SKILL(wielded));
@@ -3157,7 +3157,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 		hit_no_parry = true;
 	}
 
-	if (wielded && GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON)
+	if (wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
 	{
 		hit_type = GET_OBJ_VAL(wielded, 3);
 	}
@@ -3186,7 +3186,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 	if (skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB)
 	{
 		if (wielded
-			&& GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON
+			&& GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON
 			&& !IS_NPC(ch))
 		{
 			// Apply HR for light weapon
@@ -3339,7 +3339,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 	if ((skill_num == SKILL_THROW
 			|| skill_num == SKILL_BACKSTAB)
 		&& wielded
-		&& GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON)
+		&& GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
 	{
 		if (skill_num == SKILL_BACKSTAB)
 		{
@@ -3374,7 +3374,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (weapon == LEFT_WEAPON
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
-		&& !(wielded && GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON)
+		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
 		&& !IS_NPC(ch))
 	{
 		calc_thaco += (skill_info[SKILL_SHIT].max_percent -
@@ -3463,7 +3463,7 @@ void HitData::calc_stat_hr(CHAR_DATA *ch)
 	if (weapon == LEFT_WEAPON
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
-		&& !(wielded && GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON)
+		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
 		&& !IS_NPC(ch))
 	{
 		calc_thaco += (skill_info[SKILL_SHIT].max_percent - ch->get_skill(SKILL_SHIT)) / 10;
@@ -3842,7 +3842,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	// оружие/руки и модификаторы урона скилов, с ними связанных
 	if (hit_params.wielded
-		&& GET_OBJ_TYPE(hit_params.wielded) == obj_flag_data::ITEM_WEAPON)
+		&& GET_OBJ_TYPE(hit_params.wielded) == OBJ_DATA::ITEM_WEAPON)
 	{
 		hit_params.add_weapon_damage(ch);
 		// скрытый удар

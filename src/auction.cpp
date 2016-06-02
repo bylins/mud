@@ -150,7 +150,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			send_to_char("У вас этого нет.\r\n", ch);
 			return false;
 		}
-		if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_BOOK)
+		if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK)
 		{
 			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
 					|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL))
@@ -438,8 +438,8 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		}
 		obj = GET_LOT(lot)->item;
 		sprintf(buf, "Предмет \"%s\", ", obj->get_short_description().c_str());
-		if ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WAND)
-			|| (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF))
+		if ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WAND)
+			|| (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_STAFF))
 		{
 			if (GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1))
 			{

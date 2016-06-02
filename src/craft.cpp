@@ -1253,7 +1253,7 @@ namespace craft
 				std::list<std::string> item_parameters;
 				switch (get_type())
 				{
-				case obj_flag_data::ITEM_INGREDIENT:
+				case OBJ_DATA::ITEM_INGREDIENT:
 					{
 						decltype(m_item_params) flag = 1;
 						while (flag <= m_item_params)
@@ -1267,7 +1267,7 @@ namespace craft
 					}
 					break;
 
-				case obj_flag_data::ITEM_WEAPON:
+				case OBJ_DATA::ITEM_WEAPON:
 					item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(m_item_params)));
 					break;
 
@@ -1405,7 +1405,7 @@ namespace craft
 	{
 		switch (get_type())
 		{
-		case obj_flag_data::ITEM_INGREDIENT:
+		case OBJ_DATA::ITEM_INGREDIENT:
 			for (const auto flags : node->children("parameter"))
 			{
 				const char* flag = flags.child_value();
@@ -1424,7 +1424,7 @@ namespace craft
 			}
 			break;
 
-		case obj_flag_data::ITEM_WEAPON:
+		case OBJ_DATA::ITEM_WEAPON:
 		{
 			const char* skill_value = node->child_value("parameter");
 			try
