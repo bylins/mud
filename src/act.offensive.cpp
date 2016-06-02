@@ -1477,29 +1477,13 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
 	//Пиная из осторожки моба в осторожке получаешь всего лишь резанье дамага в 16 раз...
 	//Уберем проверку на пинок из осторожки, а то в итоге дружи лишены единственного дамага, который могли выдавать
-/*if (GET_AF_BATTLE(ch, EAF_AWAKE))
-	{
-		dam >>= 2;	// в 4 раза меньше
-	}*/
-	if (GET_AF_BATTLE(vict, EAF_AWAKE))
-	{
-		if (on_horse(ch))
-			dam >>= 1;
-		else
-			dam >>= 2;	// в 4 раза меньше
-		}
 		if (GET_AF_BATTLE(vict, EAF_AWAKE))
 		{
 			if (on_horse(ch))
-			{
 				dam >>= 1;
-			}
 			else
-			{
 				dam >>= 2;	// в 4 раза меньше
-			}
 		}
-
 		Damage dmg(SkillDmg(SKILL_KICK), dam, FightSystem::PHYS_DMG);
 		dmg.process(ch, vict);
 		prob = 2;
