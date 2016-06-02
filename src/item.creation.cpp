@@ -2628,24 +2628,23 @@ void MakeRecept::add_rnd_skills(CHAR_DATA* /*ch*/, OBJ_DATA * obj_from, OBJ_DATA
 {
 	if (obj_from->has_skills())
 	{
-		int skill_num, rskill, i = 0, z = 0;
+		int skill_num, rskill;
+		int z = 0;
 		int percent;
 //		send_to_char("Копирую умения :\r\n", ch);
-		std::map<int, int> skills;
+		CObjectPrototype::skills_t skills;
 		obj_from->get_skills(skills);
-		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)  // сколько добавлено умелок
-		{
-			i++;
-		}
-		rskill = number (0, i); // берем рандом
+		int i = static_cast<int>(skills.size()); // сколько добавлено умелок
+
+		rskill = number(0, i); // берем рандом
 //		sprintf(buf, "Всего умений %d копируем из них случайное под N %d.\r\n", i, rskill);
 //		send_to_char(buf,  ch);
-		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
+		for (const auto& it : skills)
 		{	
 			if (z == rskill) // ставим рандомную умелку
 			{
-				skill_num = it->first;
-				percent = it->second;
+				skill_num = it.first;
+				percent = it.second;
 				if (percent == 0) // TODO: такого не должно быть?
 				{
 					continue;

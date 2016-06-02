@@ -156,7 +156,7 @@ namespace craft
 			m_cost(OBJ_DATA::DEFAULT_COST),
 			m_rent_on(OBJ_DATA::DEFAULT_RENT_ON),
 			m_rent_off(OBJ_DATA::DEFAULT_RENT_OFF),
-			m_global_maximum(OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM),
+			m_max_in_world(OBJ_DATA::DEFAULT_MAX_IN_WORLD),
 			m_minimum_remorts(OBJ_DATA::DEFAULT_MINIMUM_REMORTS),
 			m_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY),
 			m_current_durability(OBJ_DATA::DEFAULT_CURRENT_DURABILITY),
@@ -217,7 +217,7 @@ namespace craft
 		int m_cost;
 		int m_rent_on;
 		int m_rent_off;
-		int m_global_maximum;
+		int m_max_in_world;
 		int m_minimum_remorts;
 
 		int m_maximum_durability;

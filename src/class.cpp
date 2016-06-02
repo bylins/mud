@@ -1997,8 +1997,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 			obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 			obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
 			obj->set_cost(0);
-			obj->set_rent(0);
-			obj->set_rent_eq(0);
+			obj->set_rent_off(0);
+			obj->set_rent_on(0);
             obj_to_char(obj, ch);
             Noob::equip_start_outfit(ch, obj);
 		}

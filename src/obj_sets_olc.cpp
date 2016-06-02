@@ -1486,7 +1486,7 @@ void sedit::parse_activ_skill(CHAR_DATA *ch, const char *arg)
 
 	if (num == 0)
 	{
-		skill.first = 0;
+		skill.first = SKILL_INVALID;
 		skill.second = 0;
 		show_activ_edit(ch);
 		return;
@@ -1506,13 +1506,13 @@ void sedit::parse_activ_skill(CHAR_DATA *ch, const char *arg)
 	}
 	else if (ssval == 0)
 	{
-		skill.first = 0;
+		skill.first = SKILL_INVALID;
 		skill.second = 0;
 		show_activ_edit(ch);
 	}
 	else
 	{
-		skill.first = ssnum;
+		skill.first = static_cast<ESkill>(ssnum);
 		skill.second = std::max(-200, std::min(ssval, 200));
 		show_activ_edit(ch);
 	}

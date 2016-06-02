@@ -376,12 +376,12 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Rent"))
 			{
 				*error = 35;
-				object->set_rent(atoi(buffer));
+				object->set_rent_off(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "RntQ"))
 			{
 				*error = 36;
-				object->set_rent_eq(atoi(buffer));
+				object->set_rent_on(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Ownr"))
 			{
@@ -483,7 +483,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Mort"))
 			{
 				*error = 51;
-				object->set_manual_mort_req(atoi(buffer));
+				object->set_minimum_remorts(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Ench"))
 			{
@@ -831,8 +831,8 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	}
 	object->set_weight(t[0]);
 	object->set_cost(t[1]);
-	object->set_rent(t[2]);
-	object->set_rent_eq(t[3]);
+	object->set_rent_off(t[2]);
+	object->set_rent_on(t[3]);
 
 	*error = 15;
 	if (!get_buf_line(data, buffer)
@@ -1029,16 +1029,16 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 
 		if (object->has_skills())
 		{
-			std::map<int, int> tmp_skills_object_;
-			std::map<int, int> tmp_skills_proto_;
+			CObjectPrototype::skills_t tmp_skills_object_;
+			CObjectPrototype::skills_t tmp_skills_proto_;
 			object->get_skills(tmp_skills_object_);
 			proto->get_skills(tmp_skills_proto_);
 			// Тренируемый скилл
 			if (tmp_skills_object_ != tmp_skills_proto_)
 			{
-				for (std::map<int, int>::iterator it = tmp_skills_object_.begin(); it != tmp_skills_object_.end(); ++it)
+				for (const auto& it : tmp_skills_object_)
 				{
-					out << "Skil: " << it->first << " " << it->second << "~\n";
+					out << "Skil: " << it.first << " " << it.second << "~\n";
 				}
 				
 			}
@@ -1281,11 +1281,11 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Тренируемый скилл
 		if (object->has_skills())
 		{
-			std::map<int, int> tmp_skills_object_;
+			CObjectPrototype::skills_t tmp_skills_object_;
 			object->get_skills(tmp_skills_object_);
-			for (std::map<int, int>::iterator it = tmp_skills_object_.begin(); it != tmp_skills_object_.end(); ++it)
+			for (const auto& it : tmp_skills_object_)
 			{
-				out << "Skil: " << it->first << " " <<it->second << "~\n";
+				out << "Skil: " << it.first << " " <<it.second << "~\n";
 			}
 		}
 
@@ -1294,6 +1294,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		{
 			out << "Maxx: " << GET_OBJ_MAX(object) << "~\n";
 		}
+
 		// Текущая прочность
 		if (GET_OBJ_CUR(object))
 		{

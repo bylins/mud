@@ -451,7 +451,7 @@ void load()
 			pugi::xml_node xml_cur = xml_activ.child("skill");
 			if (xml_cur)
 			{
-				tmp_activ.skill.first = Parse::attr_int(xml_cur, "num");
+				tmp_activ.skill.first = static_cast<ESkill>(Parse::attr_int(xml_cur, "num"));
 				tmp_activ.skill.second = Parse::attr_int(xml_cur, "val");
 			}
 			// <enchant>
@@ -1470,7 +1470,7 @@ int activ_sum::calc_mage_dmg(int dam) const
 	return dam * bonus.mage_dmg / 100;
 }
 
-int activ_sum::get_skill(int num) const
+int activ_sum::get_skill(const ESkill num) const
 {
 	auto i = skills.find(num);
 	if (i != skills.end())

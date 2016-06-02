@@ -58,13 +58,13 @@ struct clss_activ_node
 	// свойства
 	std::vector<obj_affected_type> affected;
 	// скилы
-	std::map<int, int> skills;
+	CObjectPrototype::skills_t skills;
 };
 
-std::string print_skill(const std::pair<int, int> &skill, bool activ);
-std::string print_skills(const std::map<int, int> &skills, bool activ, bool header = true);
-void sum_skills(std::map<int, int> &target, const std::pair<int, int> &add);
-void sum_skills(std::map<int, int> &target, const std::map<int, int> &add);
+std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, bool activ);
+std::string print_skills(const CObjectPrototype::skills_t &skills, bool activ, bool header = true);
+void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t::value_type &add);
+void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t &add);
 
 /// l - список <obj_affected_type> куда добавляем,
 /// r - список того же, который добавляем в l
@@ -91,7 +91,7 @@ void sum_apply(T &l, const N &r)
 }
 
 template <class T>
-void add_pair(std::map<int, T> &target, const std::pair<int, T> &add)
+void add_pair(T &target, const typename T::value_type &add)
 {
 	if (add.first > 0)
 	{
@@ -108,7 +108,7 @@ void add_pair(std::map<int, T> &target, const std::pair<int, T> &add)
 }
 
 template <class T>
-void add_map(std::map<int, T> &target, const std::map<int, T> &add)
+void add_map(T &target, const T &add)
 {
 	for (auto i = add.begin(), iend = add.end(); i != iend; ++i)
 	{

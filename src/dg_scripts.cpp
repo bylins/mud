@@ -3460,7 +3460,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (*subfield && a_isdigit(*subfield))
 			{
 				skip_spaces(&subfield);
-				o->set_rent(atoi(subfield));
+				o->set_rent_off(atoi(subfield));
 			}
 			else
 			{
@@ -3472,7 +3472,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			if (*subfield && a_isdigit(*subfield))
 			{
 				skip_spaces(&subfield);
-				o->set_rent_eq(atoi(subfield));
+				o->set_rent_on(atoi(subfield));
 			}
 			else
 			{

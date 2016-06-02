@@ -51,7 +51,7 @@ struct msg_node
 /// сетовый активатор с аффектами и прочими бонусами
 struct activ_node
 {
-	activ_node() : skill(0, 0)
+	activ_node() : skill(SKILL_INVALID, 0)
 	{
 		affects = clear_flags;
 		prof.set();
@@ -64,7 +64,7 @@ struct activ_node
 	std::array<obj_affected_type, MAX_OBJ_AFFECT> apply;
 	// изменение умения. идет в bonus, но в активаторах юзается это поле
 	// а не bonus::skills, которое юзается для справки и складывании на чаре
-	std::pair<int, int> skill;
+	std::pair<CObjectPrototype::skills_t::key_type, CObjectPrototype::skills_t::mapped_type> skill;
 	// список проф, на которых этот активатор сработает (по дефолту - все)
 	std::bitset<NUM_PLAYER_CLASSES> prof;
 	// числовые сетовые бонусы

@@ -561,8 +561,8 @@ OBJ_DATA * create_parcel()
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	obj->set_weight(1);
 	obj->set_cost(1);
-	obj->set_rent(1);
-	obj->set_rent_eq(1);
+	obj->set_rent_off(1);
+	obj->set_rent_on(1);
 	obj->set_timer(24 * 60);
 	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 	obj->set_extra_flag(EExtraFlag::ITEM_DECAY);

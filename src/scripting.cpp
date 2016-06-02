@@ -576,7 +576,7 @@ int get_skills_count() const
 int get_equipped_skill(int skill_num) const
 {
 	Ensurer ch(*this);
-	return ch->get_equipped_skill(skill_num);
+	return ch->get_equipped_skill(static_cast<ESkill>(skill_num));
 }
 
 int get_trained_skill(int skill_num) const
@@ -985,24 +985,24 @@ void set_cost(const unsigned v)
 unsigned get_cost_per_day_on() const
 {
 	Ensurer obj(*this);
-	return obj->get_rent_eq();
+	return obj->get_rent_on();
 }
 
 void set_cost_per_day_on(const unsigned v)
 {
 	Ensurer obj(*this);
-	obj->set_rent_eq(v);
+	obj->set_rent_on(v);
 }
 unsigned get_cost_per_day_off() const
 {
 	Ensurer obj(*this);
-	return obj->get_rent();
+	return obj->get_rent_off();
 }
 
 void set_cost_per_day_off(const unsigned v)
 {
 	Ensurer obj(*this);
-	obj->set_rent(v);
+	obj->set_rent_off(v);
 }
 int get_sex() const
 {

@@ -621,8 +621,8 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 		obj->set_weight(1);
 		obj->set_material(OBJ_DATA::MAT_PAPER);
 		obj->set_cost(0);
-		obj->set_rent(10);
-		obj->set_rent_eq(10);
+		obj->set_rent_off(10);
+		obj->set_rent_on(10);
 		obj->set_timer(24 * 60);
 
 		char buf_date[MAX_INPUT_LENGTH];

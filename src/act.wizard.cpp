@@ -2036,25 +2036,23 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	if (j->has_skills())
 	{
-		std::map<int, int> skills;
+		CObjectPrototype::skills_t skills;
 		j->get_skills(skills);
 		int skill_num;
 		int percent;
 
 		send_to_char("\r\nУмения :", ch);
-		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
+		for (const auto& it : skills)
 		{
-			skill_num = it->first;
-			percent = it->second;
+			skill_num = it.first;
+			percent = it.second;
 
 			if (percent == 0) // TODO: такого не должно быть?
 			{
 				continue;
 			}
 
-			sprintf(buf, " %+d%% to %s",
-					percent,
-					skill_info[skill_num].name);
+			sprintf(buf, " %+d%% to %s", percent, skill_info[skill_num].name);
 			send_to_char(buf, ch);
 		}
 	}
@@ -2069,9 +2067,9 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	{
 		send_to_char(ch, "Проставлено поле минимальных перевоплощений: %d\r\n", j->get_manual_mort_req());
 	}
-	else if (j->get_mort_req() > 0)
+	else if (j->get_manual_mort_req() > 0)
 	{
-		send_to_char(ch, "Требует перевоплощений: %d\r\n", j->get_mort_req());
+		send_to_char(ch, "Требует перевоплощений: %d\r\n", j->get_manual_mort_req());
 	}
 
 	if (is_grgod)

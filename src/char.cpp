@@ -484,7 +484,7 @@ int CHAR_DATA::get_skill(const ESkill skill_num) const
 }
 
 // * Скилл со шмоток.
-int CHAR_DATA::get_equipped_skill(int skill_num) const
+int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 {
 	int skill = 0;
 
@@ -498,9 +498,13 @@ int CHAR_DATA::get_equipped_skill(int skill_num) const
 		if (equipment[i])
 		{
 			if (is_native)
+			{
 				skill += equipment[i]->get_skill(skill_num);
+			}
 			else
+			{
 				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
+			}
 		}
 	}
 	skill += obj_bonus_.get_skill(skill_num);

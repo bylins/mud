@@ -35,10 +35,7 @@ PurgedObjList purged_obj_list;
 
 } // namespace
 
-OBJ_DATA::OBJ_DATA():
-	m_type(DEFAULT_TYPE),
-	m_weight(DEFAULT_WEIGHT),
-	m_timer(DEFAULT_TIMER)
+OBJ_DATA::OBJ_DATA(): CObjectPrototype()
 {
 	this->zero_init();
 	caching::obj_cache.add(this);
@@ -52,7 +49,7 @@ OBJ_DATA::OBJ_DATA(const OBJ_DATA& other)
 
 OBJ_DATA::~OBJ_DATA()
 {
-	if (!purged_)
+	if (!m_purged)
 	{
 		this->purge(true);
 	}
@@ -61,52 +58,34 @@ OBJ_DATA::~OBJ_DATA()
 // * См. Character::zero_init()
 void OBJ_DATA::zero_init()
 {
-	m_type = ITEM_UNDEFINED;
-	m_weight = 0;
+	CObjectPrototype::zero_init();
+	set_weight(0);
 	m_uid = 0;
 	m_item_number = NOTHING;
 	m_in_room = NOWHERE;
-	m_aliases.clear();
-	m_description.clear();
-	m_short_description.clear();
-	m_action_description.clear();
-	m_ex_description.reset();
 	m_carried_by = nullptr;
 	m_worn_by = nullptr;
 	m_worn_on = NOWHERE;
 	m_in_obj = nullptr;
 	m_contains = nullptr;
 	m_id = 0;
-	m_proto_script.clear();
 	m_script = nullptr;
 	m_next_content = nullptr;
 	m_next = nullptr;
 	m_room_was_in = NOWHERE;
-	m_max_in_world = 0;
-	m_skills.clear();
-	serial_num_ = 0;
-	m_timer = 0;
-	manual_mort_req_ = -1;
-	purged_ = false;
-	ilevel_ = 0;
-	cost_ = 0;
-	cost_per_day_on_ = 0;
-	cost_per_day_off_ = 0;
-	activator_.first = false;
-	activator_.second = 0;
+	m_serial_number = 0;
+	m_purged = false;
+	m_ilevel = 0;
+	m_activator.first = false;
+	m_activator.second = 0;
 
 	m_custom_label = nullptr;
-
-	for (int i = 0; i < 6; i++)
-	{
-		m_pnames[i].clear();
-	}
 }
 
 // * См. Character::purge()
 void OBJ_DATA::purge(bool destructor)
 {
-	if (purged_)
+	if (m_purged)
 	{
 		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
 		return;
@@ -123,7 +102,7 @@ void OBJ_DATA::purge(bool destructor)
 		// обнуляем все
 		this->zero_init();
 		// проставляем неподходящие из конструктора поля
-		purged_ = true;
+		m_purged = true;
 		// закидываем в список ожидающих делета указателей
 		purged_obj_list.push_back(this);
 	}
@@ -131,24 +110,24 @@ void OBJ_DATA::purge(bool destructor)
 
 bool OBJ_DATA::purged() const
 {
-	return purged_;
+	return m_purged;
 }
 
 int OBJ_DATA::get_serial_num()
 {
-	return serial_num_;
+	return m_serial_number;
 }
 
 void OBJ_DATA::set_serial_num(int num)
 {
-	serial_num_ = num;
+	m_serial_number = num;
 }
 
 const std::string OBJ_DATA::activate_obj(const activation& __act)
 {
 	if (m_item_number >= 0)
 	{
-		m_waffect_flags = __act.get_affects();
+		set_affect_flags(__act.get_affects());
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 		{
 			set_affected(i, __act.get_affected_i(i));
@@ -157,18 +136,18 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 		int weight = __act.get_weight();
 		if (weight > 0)
 		{
-			m_weight = weight;
+			set_weight(weight);
 		}
 
-		if (m_type == ITEM_WEAPON)
+		if (get_type() == ITEM_WEAPON)
 		{
 			int nsides, ndices;
 			__act.get_dices(ndices, nsides);
 			// Типа такая проверка на то, устанавливались ли эти параметры.
 			if (ndices > 0 && nsides > 0)
 			{
-				m_vals[1] = ndices;
-				m_vals[2] = nsides;
+				set_val(1, ndices);
+				set_val(2, nsides);
 			}
 		}
 
@@ -179,32 +158,35 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 			// массив. И у прототипов. Поэтому тут надо создавать новый,
 			// если нет желания "активировать" сразу все такие объекты.
 			// Умения, проставленные в сете, заменяют родные умения предмета.
-			m_skills.clear();
-			__act.get_skills(m_skills);
+			skills_t skills;
+			__act.get_skills(skills);
+			set_skills(skills);
 		}
 
 		return __act.get_actmsg() + "\n" + __act.get_room_actmsg();
 	}
 	else
+	{
 		return "\n";
+	}
 }
 
 const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 {
 	if (m_item_number >= 0)
 	{
-		m_waffect_flags = obj_proto[m_item_number]->m_waffect_flags;
+		set_affect_flags(obj_proto[m_item_number]->get_affect_flags());
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 		{
 			set_affected(i, obj_proto[m_item_number]->get_affected(i));
 		}
 
-		m_weight = obj_proto[m_item_number]->m_weight;
+		set_weight(obj_proto[m_item_number]->get_weight());
 
-		if (m_type == ITEM_WEAPON)
+		if (get_type() == ITEM_WEAPON)
 		{
-			m_vals[1] = obj_proto[m_item_number]->m_vals[1];
-			m_vals[2] = obj_proto[m_item_number]->m_vals[2];
+			set_val(1, obj_proto[m_item_number]->get_val(1));
+			set_val(2, obj_proto[m_item_number]->get_val(2));
 		}
 
 		// Деактивируем умения.
@@ -212,8 +194,7 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 		{
 			// При активации мы создавали новый массив с умениями. Его
 			// можно смело удалять.
-			m_skills.clear();
-			m_skills = obj_proto[m_item_number]->m_skills;
+			set_skills(obj_proto[m_item_number]->get_skills());
 		}
 
 		return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();
@@ -229,16 +210,16 @@ void OBJ_DATA::set_script(SCRIPT_DATA* _)
 	m_script.reset(_);
 }
 
-void OBJ_DATA::set_skill(int skill_num, int percent)
+void CObjectPrototype::set_skill(int skill_num, int percent)
 {
 	if (!m_skills.empty())
 	{
-		const auto skill = m_skills.find(skill_num);
+		const auto skill = m_skills.find(static_cast<ESkill>(skill_num));
 		if (skill == m_skills.end())
 		{
 			if (percent != 0)
 			{
-				m_skills.insert(std::make_pair(skill_num, percent));
+				m_skills.insert(std::make_pair(static_cast<ESkill>(skill_num), percent));
 			}
 		}
 		else
@@ -258,12 +239,12 @@ void OBJ_DATA::set_skill(int skill_num, int percent)
 		if (percent != 0)
 		{
 			m_skills.clear();
-			m_skills.insert(std::make_pair(skill_num, percent));
+			m_skills.insert(std::make_pair(static_cast<ESkill>(skill_num), percent));
 		}
 	}
 }
 
-void OBJ_DATA::clear_all_affected()
+void CObjectPrototype::clear_all_affected()
 {
 	for (size_t i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
@@ -274,9 +255,31 @@ void OBJ_DATA::clear_all_affected()
 	}
 }
 
-int OBJ_DATA::get_skill(int skill_num) const
+void CObjectPrototype::zero_init()
 {
-	const auto skill = m_skills.find(skill_num);
+	m_type = ITEM_UNDEFINED;
+	m_aliases.clear();
+	m_description.clear();
+	m_short_description.clear();
+	m_action_description.clear();
+	m_ex_description.reset();
+	m_proto_script.clear();
+	m_max_in_world = 0;
+	m_skills.clear();
+	m_timer = 0;
+	m_minimum_remorts = -1;
+	m_cost = 0;
+	m_rent_on = 0;
+	m_rent_off = 0;
+	for (int i = 0; i < 6; i++)
+	{
+		m_pnames[i].clear();
+	}
+}
+
+int CObjectPrototype::get_skill(int skill_num) const
+{
+	const auto skill = m_skills.find(static_cast<ESkill>(skill_num));
 	if (skill != m_skills.end())
 	{
 		return skill->second;
@@ -286,7 +289,7 @@ int OBJ_DATA::get_skill(int skill_num) const
 }
 
 // * @warning Предполагается, что __out_skills.empty() == true.
-void OBJ_DATA::get_skills(std::map<int, int>& out_skills) const
+void CObjectPrototype::get_skills(skills_t& out_skills) const
 {
 	if (!m_skills.empty())
 	{
@@ -294,21 +297,20 @@ void OBJ_DATA::get_skills(std::map<int, int>& out_skills) const
 	}
 }
 
-bool OBJ_DATA::has_skills() const
+bool CObjectPrototype::has_skills() const
 {
 	return !m_skills.empty();
 }
 
-void OBJ_DATA::set_timer(int timer)
+void CObjectPrototype::set_timer(int timer)
 {
 	m_timer = MAX(0, timer);	
 }
 
-int OBJ_DATA::get_timer() const
+int CObjectPrototype::get_timer() const
 {
 	return m_timer;
 }
-
 
  extern bool check_unlimited_timer(OBJ_DATA *obj);
  extern float count_remort_requred(OBJ_DATA *obj);
@@ -327,10 +329,13 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer)
 	}
 
 	if (!ignore_utimer && check_unlimited_timer(this))
+	{
 		return;
+	}
+
 	if (time > 0)
 	{
-		m_timer -= time;
+		set_timer(get_timer() - time);
 	}
 }
 
@@ -344,91 +349,63 @@ float OBJ_DATA::show_koef_obj()
 	return count_unlimited_timer(this);
 }
 
-int OBJ_DATA::get_manual_mort_req() const
-{
-	return manual_mort_req_;
-}
-
-void OBJ_DATA::set_manual_mort_req(int param)
-{
-	manual_mort_req_ = param;
-}
-
 unsigned OBJ_DATA::get_ilevel() const
 {
-	return ilevel_;
+	return m_ilevel;
 }
 
 void OBJ_DATA::set_ilevel(unsigned ilvl)
 {
-	ilevel_ = ilvl;
+	m_ilevel = ilvl;
 }
 
-int OBJ_DATA::get_mort_req() const
+int OBJ_DATA::get_manual_mort_req() const
 {
-	if (manual_mort_req_ >= 0)
+	if (get_minimum_remorts() >= 0)
 	{
-		return manual_mort_req_;
+		return get_minimum_remorts();
 	}
-	else if (ilevel_ > 30)
+	else if (m_ilevel > 30)
 	{
 		return 9;
 	}
+
 	return 0;
 }
 
-int OBJ_DATA::get_cost() const
-{
-	return cost_;
-}
-
-void OBJ_DATA::set_cost(int x)
+void CObjectPrototype::set_cost(int x)
 {
 	if (x >= 0)
 	{
-		cost_ = x;
+		m_cost = x;
 	}
 }
 
-int OBJ_DATA::get_rent() const
-{
-	/* if (check_unlimited_timer(this))
-		return 0; */
-	return cost_per_day_off_;
-}
-
-void OBJ_DATA::set_rent(int x)
+void CObjectPrototype::set_rent_off(int x)
 {
 	if (x >= 0)
 	{
-		cost_per_day_off_ = x;
+		m_rent_off = x;
 	}
 }
 
-int OBJ_DATA::get_rent_eq() const
-{
-	/* if (check_unlimited_timer(this))
-		return 0; */
-	return cost_per_day_on_;
-}
-
-void OBJ_DATA::set_rent_eq(int x)
+void CObjectPrototype::set_rent_on(int x)
 {
 	if (x >= 0)
 	{
-		cost_per_day_on_ = x;
+		m_rent_on = x;
 	}
 }
 
 void OBJ_DATA::set_activator(bool flag, int num)
 {
-	activator_.first = flag;
-	activator_.second = num;
+	m_activator.first = flag;
+	m_activator.second = num;
 }
 
 std::pair<bool, int> OBJ_DATA::get_activator() const
 {
-	return activator_;
+	return m_activator;
 }
 
 void OBJ_DATA::add_timed_spell(const int spell, const int time)
@@ -446,7 +423,7 @@ void OBJ_DATA::del_timed_spell(const int spell, const bool message)
 	m_timed_spell.del(this, spell, message);
 }
 
-void OBJ_DATA::set_ex_description(const char* keyword, const char* description)
+void CObjectPrototype::set_ex_description(const char* keyword, const char* description)
 {
 	std::shared_ptr<EXTRA_DESCR_DATA> d(new EXTRA_DESCR_DATA());
 	d->keyword = strdup(keyword);
@@ -777,8 +754,8 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 	obj->set_val(2, -1);
 	obj->set_val(3, ch->get_uid());
 
-	obj->set_rent(0);
-	obj->set_rent_eq(0);
+	obj->set_rent_off(0);
+	obj->set_rent_on(0);
 	// чтобы скавенж мобов не трогать
 	obj->set_cost(2);
 	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);

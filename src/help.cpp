@@ -45,27 +45,26 @@ struct dup_node
 	std::string afct;
 };
 
-void sum_skills(std::map<int, int> &target, const std::map<int, int> &add)
+void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t &add)
 {
-	for (std::map<int, int>::const_iterator i = add.begin(),
-		iend = add.end(); i != iend; ++i)
+	for (auto i : add)
 	{
-		if (i->second != 0)
+		if (i.second != 0)
 		{
-			std::map<int, int>::iterator ii = target.find(i->first);
+			auto ii = target.find(i.first);
 			if (ii != target.end())
 			{
-				ii->second += i->second;
+				ii->second += i.second;
 			}
 			else
 			{
-				target[i->first] = i->second;
+				target[i.first] = i.second;
 			}
 		}
 	}
 }
 
-void sum_skills(std::map<int, int> &target, const std::pair<int, int> &add)
+void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t::value_type &add)
 {
 	if (add.first > 0 && add.second != 0)
 	{
@@ -81,11 +80,11 @@ void sum_skills(std::map<int, int> &target, const std::pair<int, int> &add)
 	}
 }
 
-void sum_skills(std::map<int, int> &target, const OBJ_DATA *obj)
+void sum_skills(CObjectPrototype::skills_t &target, const OBJ_DATA *obj)
 {
 	if (obj->has_skills())
 	{
-		std::map<int, int> tmp_skills;
+		CObjectPrototype::skills_t tmp_skills;
 		obj->get_skills(tmp_skills);
 		sum_skills(target, tmp_skills);
 	}
@@ -102,7 +101,7 @@ bool check_num_in_unique_bit_flag_data(const unique_bit_flag_data &data, const i
 	return (0 <= num && num < 120) ? data.get_flag(num / 30, 1 << num) : false;
 }
 
-std::string print_skill(const std::pair<int, int> &skill, bool activ)
+std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, bool activ)
 {
 	std::string out;
 	if (skill.second != 0)
@@ -118,12 +117,12 @@ std::string print_skill(const std::pair<int, int> &skill, bool activ)
 
 /// распечатка массива скилов с " + " перед активаторами
 /// \param header = true (печатать или нет заголовок 'Меняет умения')
-std::string print_skills(const std::map<int, int> &skills, bool activ, bool header)
+std::string print_skills(const CObjectPrototype::skills_t &skills, bool activ, bool header)
 {
 	std::string out;
-	for (auto i = skills.cbegin(), iend = skills.cend(); i != iend; ++i)
+	for (const auto& i : skills)
 	{
-		out += print_skill(*i, activ);
+		out += print_skill(i, activ);
 	}
 
 	if (!out.empty() && header)
@@ -183,7 +182,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 
 	if (obj->has_skills())
 	{
-		std::map<int, int> skills;
+		CObjectPrototype::skills_t skills;
 		obj->get_skills(skills);
 		out << print_skills(skills, false);
 	}
@@ -252,7 +251,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_D
 
 	if (activ->second.has_skills())
 	{
-		std::map<int, int> skills;
+		CObjectPrototype::skills_t skills;
 		activ->second.get_skills(skills);
 		out << print_skills(skills, true);
 	}
@@ -275,7 +274,7 @@ struct activators_obj
 	FLAG_DATA native_no_flag;
 	FLAG_DATA native_affects;
 	std::vector<obj_affected_type> native_affected;
-	std::map<int, int> native_skills;
+	CObjectPrototype::skills_t native_skills;
 
 	// заполнение массива clss_list номерами проф
 	void fill_class(set_info::const_iterator k);
@@ -329,7 +328,7 @@ void activators_obj::fill_node(const set_info &set)
 						w->second.total_affects += q->second.get_affects();
 						sum_apply(w->second.affected, q->second.get_affected());
 						// скилы
-						std::map<int, int> tmp_skills;
+						CObjectPrototype::skills_t tmp_skills;
 						q->second.get_skills(tmp_skills);
 						sum_skills(w->second.skills, tmp_skills);
 						found = true;

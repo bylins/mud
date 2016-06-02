@@ -899,20 +899,20 @@ namespace craft
 		const auto global_maximum = node->child("global_maximum");
 		if (global_maximum)
 		{
-			int global_maximum_value = OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM;
+			int global_maximum_value = OBJ_DATA::DEFAULT_MAX_IN_WORLD;
 			CHelper::load_integer(global_maximum.child_value(), global_maximum_value,
 				[&]() { log("WARNING: \"global_maximum\" value of the object with VNUM %d is not valid integer. Setting to the default value %d.\n",
 					m_vnum, global_maximum_value); });
 
 			if (0 >= global_maximum_value
-				&& OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM != global_maximum_value)
+				&& OBJ_DATA::DEFAULT_MAX_IN_WORLD != global_maximum_value)
 			{
 				log("WARNING: Wrong \"global_maximum\" value %d of the object with VNUM %d. Setting to the default value %d.\n",
-					global_maximum_value, m_vnum, OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM);
-				global_maximum_value = OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM;
+					global_maximum_value, m_vnum, OBJ_DATA::DEFAULT_MAX_IN_WORLD);
+				global_maximum_value = OBJ_DATA::DEFAULT_MAX_IN_WORLD;
 			}
 
-			m_global_maximum = global_maximum_value;
+			m_max_in_world = global_maximum_value;
 		}
 
 		const auto minimum_remorts = node->child("minimal_remorts");
@@ -1116,8 +1116,8 @@ namespace craft
 		m_level= object->get_level();
 		set_weight(object->get_weight());
 		m_cost = object->get_cost();
-		m_rent_off = object->get_rent();
-		m_rent_on = object->get_rent_eq();
+		m_rent_off = object->get_rent_off();
+		m_rent_on = object->get_rent_on();
 
 		m_waffect_flags = object->get_affect_flags();
 		m_anti_flags = object->get_anti_flags();
@@ -1137,7 +1137,7 @@ namespace craft
 			m_extended_desc = object->get_ex_description()->description;
 		}
 
-		m_global_maximum = object->get_max_in_world();
+		m_max_in_world = object->get_max_in_world();
 		m_minimum_remorts = object->get_manual_mort_req();
 
 		for (size_t i = 0; i < m_vals.size(); ++i)
@@ -1210,7 +1210,7 @@ namespace craft
 			CHelper::save_string(rent, "off", std::to_string(m_rent_off).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save rent/off value"); });
 
-			CHelper::save_string(*node, "global_maximum", std::to_string(m_global_maximum).c_str(),
+			CHelper::save_string(*node, "global_maximum", std::to_string(m_max_in_world).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save global maximum"); });
 			CHelper::save_string(*node, "minimum_remorts", std::to_string(m_minimum_remorts).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save minimal remorts"); });
@@ -1358,8 +1358,8 @@ namespace craft
 		result->set_destroyer(60);	// I don't know why it is constant. But seems like it is the same for all objects.
 		result->set_weight(get_weight());
 		result->set_cost(m_cost);
-		result->set_rent(m_rent_off);
-		result->set_rent_eq(m_rent_on);
+		result->set_rent_off(m_rent_off);
+		result->set_rent_on(m_rent_on);
 
 		result->set_affect_flags(m_waffect_flags);
 		result->set_anti_flags(m_anti_flags);
@@ -1376,8 +1376,8 @@ namespace craft
 
 		result->set_ex_description(m_keyword.c_str(), m_extended_desc.c_str());
 
-		result->set_max_in_world(m_global_maximum);
-		result->set_manual_mort_req(m_minimum_remorts);
+		result->set_max_in_world(m_max_in_world);
+		result->set_minimum_remorts(m_minimum_remorts);
 
 		for (size_t i = 0; i < m_vals.size(); ++i)
 		{

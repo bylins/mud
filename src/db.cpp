@@ -472,7 +472,7 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 		return false;
 
 	// если предмет требует реморты, то он явно овер
-	if (obj->get_mort_req() > 0)
+	if (obj->get_manual_mort_req() > 0)
 		return false;
 	// проверяем дырки в предмете
 	 if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH1SLOT)
@@ -1894,6 +1894,7 @@ void OBJ_DATA::init_set_table()
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
+
 		case 'S':
 			if (tag == "Skll")
 			{
@@ -1915,7 +1916,7 @@ void OBJ_DATA::init_set_table()
 					continue;
 				}
 
-				clss->second.set_skill(skillnum, percent);
+				clss->second.set_skill(static_cast<ESkill>(skillnum), percent);
 			}
 			else
 			{
@@ -1923,6 +1924,7 @@ void OBJ_DATA::init_set_table()
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
+
 		case 'V':
 			if (tag == "Vnum")
 			{
@@ -4319,7 +4321,7 @@ char *parse_object(FILE * obj_f, const int nr)
 	tobj->set_sex(DEFAULT_SEX);
 	tobj->set_timer(OBJ_DATA::DEFAULT_TIMER);
 	tobj->set_level(1);
-	tobj->set_destroyer(60);
+	tobj->set_destroyer(OBJ_DATA::DEFAULT_DESTROYER);
 
 	sprintf(buf2, "object #%d", nr);
 
@@ -4464,8 +4466,8 @@ char *parse_object(FILE * obj_f, const int nr)
 	}
 	tobj->set_weight(t[0]);
 	tobj->set_cost(t[1]);
-	tobj->set_rent(t[2]);
-	tobj->set_rent_eq(t[3]);
+	tobj->set_rent_off(t[2]);
+	tobj->set_rent_on(t[3]);
 
 	// check to make sure that weight of containers exceeds curr. quantity
 	if (tobj->get_type() == OBJ_DATA::ITEM_DRINKCON
@@ -4540,7 +4542,7 @@ char *parse_object(FILE * obj_f, const int nr)
 			break;
 
 		case 'R':
-			tobj->set_manual_mort_req(atoi(line + 1));
+			tobj->set_minimum_remorts(atoi(line + 1));
 			break;
 
 		case 'S':

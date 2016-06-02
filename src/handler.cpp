@@ -1245,10 +1245,16 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 
 void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 {
-	int i;
-	if ((i = GET_OBJ_RNUM(obj)) < 0)
+	int i = GET_OBJ_RNUM(obj);
+	if (i < 0)
+	{
 		return;
-	if (GET_OBJ_OWNER(obj) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODONATE) && (!ch || GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)))
+	}
+
+	if (GET_OBJ_OWNER(obj)
+		&& OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODONATE)
+		&& ch
+		&& GET_UNIQUE(ch) != GET_OBJ_OWNER(obj))
 	{
 		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -1929,12 +1935,12 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (!IS_NPC(ch) || IS_CHARMICE(ch))
 	{
 		CHAR_DATA *master = IS_CHARMICE(ch) && ch->master ? ch->master : ch;
-		if ((obj->get_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
+		if ((obj->get_manual_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
 		{
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
 				GET_OBJ_PNAME(obj, 1).c_str(),
-				obj->get_mort_req(),
-				desc_count(obj->get_mort_req(), WHAT_REMORT));
+				obj->get_manual_mort_req(),
+				desc_count(obj->get_manual_mort_req(), WHAT_REMORT));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
 				FALSE, ch, obj, 0, TO_ROOM);
 			if (!obj->get_carried_by())

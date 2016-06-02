@@ -421,10 +421,12 @@ void oedit_save_to_disk(int zone_num)
 
 			if (obj->has_skills())
 			{
-				std::map<int, int> skills;
+				CObjectPrototype::skills_t skills;
 				obj->get_skills(skills);
-				for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
-					fprintf(fp, "S\n%d %d\n", it->first, it->second);
+				for (const auto& it : skills)
+				{
+					fprintf(fp, "S\n%d %d\n", it.first, it.second);
+				}
 			}
 
 			// ObjVal
@@ -1895,7 +1897,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_COSTPERDAY:
-		OLC_OBJ(d)->set_rent(atoi(arg));
+		OLC_OBJ(d)->set_rent_off(atoi(arg));
 		break;
 
 	case OEDIT_MAXVALUE:
@@ -1946,7 +1948,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_COSTPERDAYEQ:
-		OLC_OBJ(d)->set_rent_eq(atoi(arg));
+		OLC_OBJ(d)->set_rent_on(atoi(arg));
 		break;
 
 	case OEDIT_TIMER:
@@ -2355,7 +2357,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case OEDIT_MORT_REQ:
 		number = atoi(arg);
-		OLC_OBJ(d)->set_manual_mort_req(number);
+		OLC_OBJ(d)->set_minimum_remorts(number);
 		break;
 
 	case OEDIT_DRINKCON_VALUES:

@@ -1567,10 +1567,10 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
-	if (obj->get_mort_req() > 0)
+	if (obj->get_manual_mort_req() > 0)
 	{
 		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
-			CCCYN(ch, C_NRM), obj->get_mort_req(), CCNRM(ch, C_NRM));
+			CCCYN(ch, C_NRM), obj->get_manual_mort_req(), CCNRM(ch, C_NRM));
 	}
 
 	if (fullness < 60)
@@ -1865,14 +1865,14 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	if (obj->has_skills())
 	{
 		send_to_char("Меняет умения :\r\n", ch);
-		std::map<int, int> skills;
+		CObjectPrototype::skills_t skills;
 		obj->get_skills(skills);
 		int skill_num;
 		int percent;
-		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
+		for (const auto& it : skills)
 		{
-			skill_num = it->first;
-			percent = it->second;
+			skill_num = it.first;
+			percent = it.second;
 
 			if (percent == 0) // TODO: такого не должно быть?
 				continue;
@@ -1977,10 +1977,10 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
-	if (obj->get_mort_req() > 0)
+	if (obj->get_manual_mort_req() > 0)
 	{
 		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
-			CCCYN(ch, C_NRM), obj->get_mort_req(), CCNRM(ch, C_NRM));
+			CCCYN(ch, C_NRM), obj->get_manual_mort_req(), CCNRM(ch, C_NRM));
 	}
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
@@ -2212,14 +2212,14 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	if (obj->has_skills())
 	{
 		send_to_char("Меняет умения :\r\n", ch);
-		std::map<int, int> skills;
+		CObjectPrototype::skills_t skills;
 		obj->get_skills(skills);
 		int skill_num;
 		int percent;
-		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
+		for (const auto& it : skills)
 		{
-			skill_num = it->first;
-			percent = it->second;
+			skill_num = it.first;
+			percent = it.second;
 
 			if (percent == 0) // TODO: такого не должно быть?
 				continue;
