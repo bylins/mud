@@ -57,19 +57,19 @@ inline void fprint_script(FILE * fp, const OBJ_DATA::triggers_list_t& scripts)
 
 // called when a mob or object is being saved to disk, so its script can
 // be saved
-void script_save_to_disk(FILE * fp, void *item, int type)
+void script_save_to_disk(FILE * fp, const void *item, int type)
 {
 	if (type == MOB_TRIGGER)
 	{
-		fprint_script(fp, ((CHAR_DATA *)item)->proto_script);
+		fprint_script(fp, static_cast<const CHAR_DATA *>(item)->proto_script);
 	}
 	else if (type == OBJ_TRIGGER)
 	{
-		fprint_script(fp, ((OBJ_DATA *)item)->get_proto_script());
+		fprint_script(fp, static_cast<const CObjectPrototype *>(item)->get_proto_script());
 	}
 	else if (type == WLD_TRIGGER)
 	{
-		fprint_script(fp, ((ROOM_DATA *)item)->proto_script);
+		fprint_script(fp, static_cast<const ROOM_DATA *>(item)->proto_script);
 	}
 	else
 	{

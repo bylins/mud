@@ -4411,7 +4411,7 @@ void send_to_room(const char *messg, room_rnum room, int to_awake)
   ((pointer) == NULL) ? ACTNULL : (expression)
 
 // higher-level communication: the act() function
-void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to, const int arena)
+void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, CHAR_DATA * to, const int arena)
 {
 	const char *i = NULL;
 	char nbuf[256];
@@ -4724,7 +4724,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 			(IS_NPC(ch) || !PLR_FLAGGED((ch), PLR_WRITING)))
 #endif
 
-void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, int type)
+void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type)
 {
 	CHAR_DATA *to;
 	int to_sleeping, check_deaf, check_nodeaf, stopcount, to_arena=0, arena_room_rnum;

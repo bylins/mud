@@ -47,7 +47,7 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict);
 bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
 
 // external functions
-extern char *diag_timer_to_char(OBJ_DATA * obj);
+extern char *diag_timer_to_char(const OBJ_DATA* obj);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -1127,7 +1127,6 @@ void ignore_usage(CHAR_DATA * ch)
 
 int ign_find_id(char *name, long *id)
 {
-	extern int top_of_p_table;
 	int i;
 
 	for (i = 0; i <= top_of_p_table; i++)
@@ -1145,7 +1144,6 @@ int ign_find_id(char *name, long *id)
 
 const char * ign_find_name(long id)
 {
-	extern int top_of_p_table;
 	int i;
 
 	for (i = 0; i <= top_of_p_table; i++)

@@ -83,7 +83,6 @@ extern int top_imtypes;
 extern void show_code_date(CHAR_DATA *ch);
 extern int nameserver_is_slow; //config.cpp
 extern void login_change_invoice(CHAR_DATA *ch);
- extern bool check_unlimited_timer(OBJ_DATA *obj);
 // extern functions
 long find_class_bitvector(char arg);
 int level_exp(CHAR_DATA * ch, int level);
@@ -96,7 +95,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
 const char *diag_obj_timer(const OBJ_DATA * obj);
-char *diag_timer_to_char(OBJ_DATA * obj);
+char *diag_timer_to_char(const OBJ_DATA* obj);
 const char * print_god_or_player(int level);
 int get_pick_chance(int skill_pick, int lock_complexity);
 int thaco(int class_num, int level);
@@ -258,7 +257,7 @@ const char *weapon_class[] = { "луки",
 							   "копья и рогатины"
 							 };
 
-char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear)
+char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear)
 {
 	static char out_str[MAX_STRING_LENGTH];
 	int skill = 0;
@@ -417,12 +416,16 @@ char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear)
 }
 
 // Чтобы можно было получить только строку состяния
-const char *diag_obj_timer(OBJ_DATA * obj)
-{ int prot_timer;
+const char *diag_obj_timer(const OBJ_DATA* obj)
+{
+	int prot_timer;
 	if (GET_OBJ_RNUM(obj) != NOTHING)
 	{
 		if (check_unlimited_timer(obj))
+		{
 			return "нерушимо";
+		}
+
 		if (GET_OBJ_CRAFTIMER(obj) > 0)
 		{
 			prot_timer = GET_OBJ_CRAFTIMER(obj);// если вещь скрафчена, смотрим ее таймер а не у прототипа
@@ -431,25 +434,25 @@ const char *diag_obj_timer(OBJ_DATA * obj)
 		{
 			prot_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 		}
+
 		if (!prot_timer)
 		{
 			return "Прототип предмета имеет нулевой таймер!\r\n";
 		}
-		int tm = (obj->get_timer() * 100 /  prot_timer); // если вещь скрафчена, смотрим ее таймер а не у прототипа
+
+		int tm = (obj->get_timer() * 100 / prot_timer); // если вещь скрафчена, смотрим ее таймер а не у прототипа
 		return print_obj_state(tm);
 	}
 	return "";
 }
 
-char *diag_timer_to_char(OBJ_DATA * obj)
+char *diag_timer_to_char(const OBJ_DATA* obj)
 {
 	static char out_str[MAX_STRING_LENGTH];
 	*out_str = 0;
-		sprintf(out_str, "Состояние: %s.\r\n", diag_obj_timer(obj));
+	sprintf(out_str, "Состояние: %s.\r\n", diag_obj_timer(obj));
 	return (out_str);
 }
-
-
 
 char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 {

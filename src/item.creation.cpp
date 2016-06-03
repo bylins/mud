@@ -521,7 +521,7 @@ void mredit_disp_ingr_menu(DESCRIPTOR_DATA * d)
 	trec = OLC_MREC(d);
 	get_char_cols(d->character);
 
-	const OBJ_DATA *tobj = read_object_mirror(trec->obj_proto);
+	const CObjectPrototype *tobj = get_object_prototype(trec->obj_proto);
 	if (trec->obj_proto && tobj)
 	{
 		objname = tobj->get_PName(0);
@@ -531,7 +531,7 @@ void mredit_disp_ingr_menu(DESCRIPTOR_DATA * d)
 		objname = "Нет";
 	}
 
-	tobj = read_object_mirror(trec->parts[index].proto);
+	tobj = get_object_prototype(trec->parts[index].proto);
 	if (trec->parts[index].proto && tobj)
 	{
 		ingrname = tobj->get_PName(0);
@@ -575,7 +575,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 	trec = OLC_MREC(d);
 	get_char_cols(d->character);
 
-	const OBJ_DATA *tobj = read_object_mirror(trec->obj_proto);
+	const CObjectPrototype *tobj = get_object_prototype(trec->obj_proto);
 	if (trec->obj_proto && tobj)
 	{
 		objname = tobj->get_PName(0);
@@ -614,7 +614,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 
 	for (int i = 0; i < MAX_PARTS; i++)
 	{
-		tobj = read_object_mirror(trec->parts[i].proto);
+		tobj = get_object_prototype(trec->parts[i].proto);
 		if (trec->parts[i].proto && tobj)
 		{
 			objname = tobj->get_PName(0);
@@ -665,7 +665,7 @@ void do_list_make(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 
 		trec = make_recepts[i];
 
-		const OBJ_DATA *obj = read_object_mirror(trec->obj_proto);
+		const CObjectPrototype *obj = get_object_prototype(trec->obj_proto);
 		if (obj)
 		{
 			obj_name = obj->get_PName(0).substr(0, 11);
@@ -691,7 +691,7 @@ void do_list_make(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 			if (trec->parts[j].proto != 0)
 			{
 
-				obj = read_object_mirror(trec->parts[j].proto);
+				obj = get_object_prototype(trec->parts[j].proto);
 				if (obj)
 				{
 					obj_name = obj->get_PName(0).substr(0, 11);
@@ -798,7 +798,7 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		// Выводим тут список предметов которые можем сделать.
 		for (size_t i = 0; i < canlist->size(); i++)
 		{
-			const OBJ_DATA *tobj = read_object_mirror((*canlist)[i]->obj_proto);
+			const CObjectPrototype *tobj = get_object_prototype((*canlist)[i]->obj_proto);
 			if (!tobj)
 				return;
 			sprintf(tmpbuf, "%zd) %s\r\n", i + 1, tobj->get_PName(0).c_str());
@@ -1238,7 +1238,8 @@ void do_transform_weapon(CHAR_DATA* ch, char *argument, int/* cmd*/, int subcmd)
 					}
 					else
 					{
-						act("У вас не хватает $o1 для этого.", FALSE, ch, obj_proto[rnum], 0, TO_CHAR);
+						const OBJ_DATA obj(*obj_proto[rnum]);
+						act("У вас не хватает $o1 для этого.", FALSE, ch, &obj, 0, TO_CHAR);
 					}
 					found = FALSE;
 				}
@@ -1295,7 +1296,8 @@ void do_transform_weapon(CHAR_DATA* ch, char *argument, int/* cmd*/, int subcmd)
 				}
 				else
 				{
-					act("У вас не хватает $o1 для этого.", FALSE, ch, obj_proto[rnum], 0, TO_CHAR);
+					const OBJ_DATA obj(*obj_proto[rnum]);
+					act("У вас не хватает $o1 для этого.", FALSE, ch, &obj, 0, TO_CHAR);
 				}
 				found = FALSE;
 			}
@@ -1512,7 +1514,7 @@ MakeRecept *MakeReceptList::get_by_name(string & rname)
 	int j = 0;
 	while (p != recepts.end())
 	{
-		const OBJ_DATA *tobj = read_object_mirror((*p)->obj_proto);
+		const CObjectPrototype *tobj = get_object_prototype((*p)->obj_proto);
 		if (!tobj)
 		{
 			return 0;
@@ -1618,7 +1620,7 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 	// Делаем проверку может ли чар сделать посох такого типа
 	if (skill == SKILL_MAKE_STAFF)
 	{
-		const OBJ_DATA *tobj = read_object_mirror(obj_proto);
+		const CObjectPrototype *tobj = get_object_prototype(obj_proto);
 		if (!tobj)
 		{
 			return 0;
@@ -1921,14 +1923,17 @@ int MakeRecept::make(CHAR_DATA * ch)
 		return (FALSE);
 	}
 
-	const OBJ_DATA *tobj = read_object_mirror(obj_proto);
+	const CObjectPrototype *tobj = get_object_prototype(obj_proto);
 	if (!tobj)
+	{
 		return 0;
+	}
 
 	// Проверяем замемлены ли заклы у чара на посох
 	if (!IS_IMMORTAL(ch) && (skill == SKILL_MAKE_STAFF) && (GET_SPELL_MEM(ch, GET_OBJ_VAL(tobj, 3)) == 0))
 	{
-		act("Вы не готовы к тому чтобы сделать $o3.", FALSE, ch, tobj, 0, TO_CHAR);
+		const OBJ_DATA obj(*tobj);
+		act("Вы не готовы к тому чтобы сделать $o3.", FALSE, ch, &obj, 0, TO_CHAR);
 		return (FALSE);
 	}
 	// Прогружаем в массив реальные ингры
@@ -2099,8 +2104,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 		break;
 	}
 
-	act(charwork.c_str(), FALSE, ch, tobj, 0, TO_CHAR);
-	act(roomwork.c_str(), FALSE, ch, tobj, 0, TO_ROOM);
+	const OBJ_DATA object(*tobj);
+	act(charwork.c_str(), FALSE, ch, &object, 0, TO_CHAR);
+	act(roomwork.c_str(), FALSE, ch, &object, 0, TO_ROOM);
 
 	// Считаем вероятность испортить отдельный ингридиент
 	// если уровень чара = уровню ингра то фейл 50%
@@ -2238,13 +2244,15 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		if (crit_fail > 2)
 		{
-			act(charfail.c_str(), FALSE, ch, tobj, 0, TO_CHAR);
-			act(roomfail.c_str(), FALSE, ch, tobj, 0, TO_ROOM);
+			const OBJ_DATA obj(*tobj);
+			act(charfail.c_str(), FALSE, ch, &obj, 0, TO_CHAR);
+			act(roomfail.c_str(), FALSE, ch, &obj, 0, TO_ROOM);
 		}
 		else
 		{
-			act(chardam.c_str(), FALSE, ch, tobj, 0, TO_CHAR);
-			act(roomdam.c_str(), FALSE, ch, tobj, 0, TO_ROOM);
+			const OBJ_DATA obj(*tobj);
+			act(chardam.c_str(), FALSE, ch, &obj, 0, TO_CHAR);
+			act(roomdam.c_str(), FALSE, ch, &obj, 0, TO_ROOM);
 			dam = number(0, dam);
 			// Наносим дамаг.
 			if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0)

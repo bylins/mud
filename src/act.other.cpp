@@ -82,7 +82,6 @@ int posi_value(int real, int max);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
 extern bool is_wear_light(CHAR_DATA *ch);
-extern bool check_unlimited_timer(OBJ_DATA *obj);
 // local functions
 void do_antigods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_quit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

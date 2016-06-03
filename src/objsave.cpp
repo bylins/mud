@@ -46,7 +46,6 @@
 
 extern INDEX_DATA *mob_index;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern int top_of_p_table;
 extern int rent_file_timeout, crash_file_timeout;
 extern int free_crashrent_period;
 extern int free_rent;
@@ -67,7 +66,6 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
-extern bool check_unlimited_timer(OBJ_DATA *obj);
 extern bool check_obj_in_system_zone(int vnum);
 // local functions
 void Crash_extract_norent_eq(CHAR_DATA * ch);
@@ -991,7 +989,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 
 	// Если у шмотки есть прототип то будем сохранять по обрезанной схеме, иначе
 	// придется сохранять все статсы шмотки.
-	OBJ_DATA const * const proto = read_object_mirror(GET_OBJ_VNUM(object));
+	CObjectPrototype const * const proto = get_object_prototype(GET_OBJ_VNUM(object));
 
 	if (GET_OBJ_VNUM(object) >= 0 && proto)
 	{
@@ -1189,17 +1187,17 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "RntQ: " << GET_OBJ_RENTEQ(object) << "~\n";
 		}
 		// Владелец
-		if (GET_OBJ_OWNER(object) != GET_OBJ_OWNER(proto))
+		if (GET_OBJ_OWNER(object) != OBJ_DATA::DEFAULT_OWNER)
 		{
 			out << "Ownr: " << GET_OBJ_OWNER(object) << "~\n";
 		}
 		// Создатель
-		if (GET_OBJ_MAKER(object) != GET_OBJ_MAKER(proto))
+		if (GET_OBJ_MAKER(object) != OBJ_DATA::DEFAULT_MAKER)
 		{
 			out << "Mker: " << GET_OBJ_MAKER(object) << "~\n";
 		}
 		// Родитель
-		if (GET_OBJ_PARENT(object) != GET_OBJ_PARENT(proto))
+		if (GET_OBJ_PARENT(object) != OBJ_DATA::DEFAULT_PARENT)
 		{
 			out << "Prnt: " << GET_OBJ_PARENT(object) << "~\n";
 		}

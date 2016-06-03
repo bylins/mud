@@ -1487,7 +1487,7 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 		{
 			i++;
 
-			const OBJ_DATA *tobj = read_object_mirror((*p)->obj_vnum);
+			const CObjectPrototype* tobj = get_object_prototype((*p)->obj_vnum);
 			const char* objname = NULL;
 			if ((*p)->obj_vnum && tobj)
 			{

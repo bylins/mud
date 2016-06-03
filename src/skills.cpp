@@ -60,8 +60,10 @@ static const char *kick_type[] =
 
 struct brief_shields
 {
-	brief_shields(CHAR_DATA* ch_, CHAR_DATA* vict_, OBJ_DATA* weap_, std::string add_)
-		: ch(ch_), vict(vict_), weap(weap_), add(add_), reflect(false ) {};
+	brief_shields(CHAR_DATA* ch_, CHAR_DATA* vict_, CObjectPrototype* weap_, std::string add_)
+		: ch(ch_), vict(vict_), weap(weap_ ? new OBJ_DATA(*weap_) : nullptr), add(add_), reflect(false )
+	{
+	};
 
 	void act_to_char(const char *msg)
 	{
@@ -116,7 +118,7 @@ struct brief_shields
 
 	CHAR_DATA* ch;
 	CHAR_DATA* vict;
-	OBJ_DATA* weap;
+	std::shared_ptr<OBJ_DATA> weap;
 	std::string add;
 	// флаг отражаемого дамага, который надо глушить в режиме PRF_BRIEF_SHIELDS
 	bool reflect;
@@ -124,73 +126,65 @@ struct brief_shields
 private:
 	void act_no_add(const char *msg, int type)
 	{
-		act(msg, FALSE, ch, weap, vict, type);
+		act(msg, FALSE, ch, weap.get(), vict, type);
 	}
 	void act_add(const char *msg, int type)
 	{
 		char buf_[MAX_INPUT_LENGTH];
 		snprintf(buf_, sizeof(buf_), "%s%s", msg, add.c_str());
-		act(buf_, FALSE, ch, weap, vict, type);
+		act(buf_, FALSE, ch, weap.get(), vict, type);
 	}
 };
 
-OBJ_DATA* init_weap(CHAR_DATA *ch, int dam, int attacktype)
+CObjectPrototype* init_weap(CHAR_DATA *ch, int dam, int attacktype)
 {
-	OBJ_DATA* weap = 0;
+	// Нижеследующий код повергает в ужас
+	CObjectPrototype* weap = nullptr;
 	int weap_i = 0;
 
 	switch (attacktype)
 	{
 	case SKILL_BACKSTAB + TYPE_HIT:
 		if (!(weap = GET_EQ(ch, WEAR_WIELD))
-				&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
+			&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
+		{
 			weap = obj_proto[weap_i];
+		}
 		break;
+
 	case SKILL_THROW + TYPE_HIT:
 		if (!(weap = GET_EQ(ch, WEAR_WIELD))
-				&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
+			&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
+		{
 			weap = obj_proto[weap_i];
+		}
 		break;
+
 	case SKILL_BASH + TYPE_HIT:
 		if (!(weap = GET_EQ(ch, WEAR_SHIELD))
-				&& (weap_i = real_object(DUMMY_SHIELD)) >= 0)
+			&& (weap_i = real_object(DUMMY_SHIELD)) >= 0)
+		{
 			weap = obj_proto[weap_i];
+		}
 		break;
+
 	case SKILL_KICK + TYPE_HIT:
-		// weap - текст силы удара
-		if (dam <= 5)
-			weap = (OBJ_DATA *) kick_type[0];
-		else if (dam <= 11)
-			weap = (OBJ_DATA *) kick_type[1];
-		else if (dam <= 26)
-			weap = (OBJ_DATA *) kick_type[2];
-		else if (dam <= 35)
-			weap = (OBJ_DATA *) kick_type[3];
-		else if (dam <= 45)
-			weap = (OBJ_DATA *) kick_type[4];
-		else if (dam <= 56)
-			weap = (OBJ_DATA *) kick_type[5];
-		else if (dam <= 96)
-			weap = (OBJ_DATA *) kick_type[6];
-		else if (dam <= 136)
-			weap = (OBJ_DATA *) kick_type[7];
-		else if (dam <= 176)
-			weap = (OBJ_DATA *) kick_type[8];
-		else if (dam <= 216)
-			weap = (OBJ_DATA *) kick_type[9];
-		else if (dam <= 256)
-			weap = (OBJ_DATA *) kick_type[10];
-		else if (dam <= 296)
-			weap = (OBJ_DATA *) kick_type[11];
-		else
-			weap = (OBJ_DATA *) kick_type[12];
+		/*
+		Anton Gorev (2016-06-02): Я не представляю, когда такое может понадобиться. Кроме того, я так и не нашел,
+		где это используется. В общем, пока выкидываю. Если где-то что-то сломается - буду думать дальше,
+		как переписать этот ужас. Но конвертация строк в указатель на класс - всегда плохая идея.
+		 */
 		break;
+
 	case TYPE_HIT:
-		weap = 0;
+		weap = nullptr;
 		break;
+
 	default:
 		if (!weap && (weap_i = real_object(DUMMY_WEAPON)) >= 0)
+		{
 			weap = obj_proto[weap_i];
+		}
 	}
 
 	return weap;
@@ -416,8 +410,6 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 {
 	int i, j, nr;
 	struct message_type *msg;
-	OBJ_DATA *weap = GET_EQ(ch, WEAR_WIELD) ?
-		GET_EQ(ch, WEAR_WIELD) : GET_EQ(ch, WEAR_BOTHS);
 
 	// log("[SKILL MESSAGE] Message for skill %d",attacktype);
 	for (i = 0; i < MAX_MESSAGES; i++)
@@ -427,9 +419,11 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 			nr = dice(1, fight_messages[i].number_of_attacks);
 			// log("[SKILL MESSAGE] %d(%d)",fight_messages[i].number_of_attacks,nr);
 			for (j = 1, msg = fight_messages[i].msg; (j < nr) && msg; j++)
+			{
 				msg = msg->next;
+			}
 
-			weap = init_weap(ch, dam, attacktype);
+			CObjectPrototype *weap = init_weap(ch, dam, attacktype);
 			brief_shields brief(ch, vict, weap, add);
 			if (attacktype == SPELL_FIRE_SHIELD
 				|| attacktype == SPELL_MAGICGLASS)
@@ -447,6 +441,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 				case SKILL_KICK + TYPE_HIT:
 					send_to_char("&W&q", ch);
 					break;
+
 				default:
 					send_to_char("&y&q", ch);
 					break;
@@ -498,6 +493,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 				case SKILL_KICK + TYPE_HIT:
 					send_to_char("&W&q", ch);
 					break;
+
 				default:
 					send_to_char("&y&q", ch);
 					break;

@@ -65,7 +65,7 @@ int real_zone(int number);
 //------------------------------------------------------------------------
 void oedit_setup(DESCRIPTOR_DATA * d, int real_num);
 
-void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
+void oedit_object_copy(OBJ_DATA * dst, CObjectPrototype* src);
 
 void oedit_save_internally(DESCRIPTOR_DATA * d);
 void oedit_save_to_disk(int zone);
@@ -93,7 +93,7 @@ void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA* d);
 //  Utility and exported functions
 // ------------------------------------------------------------------------
 
-void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
+void oedit_object_copy(OBJ_DATA * dst, CObjectPrototype* src)
 /*++
    Функция делает создает копию объекта.
    После вызова этой функции создается полностью независимая копия объекта src.
@@ -314,7 +314,6 @@ void oedit_save_to_disk(int zone_num)
 {
 	int counter, counter2, realcounter;
 	FILE *fp;
-	OBJ_DATA *obj;
 
 	sprintf(buf, "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].number);
 	if (!(fp = fopen(buf, "w+")))
@@ -327,7 +326,7 @@ void oedit_save_to_disk(int zone_num)
 	{
 		if ((realcounter = real_object(counter)) >= 0)
 		{
-			obj = obj_proto[realcounter];
+			const CObjectPrototype* obj = obj_proto[realcounter];
 			if (!obj->get_action_description().empty())
 			{
 				strcpy(buf1, obj->get_action_description().c_str());

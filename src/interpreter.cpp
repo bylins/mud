@@ -96,7 +96,6 @@ extern const char *MENU;
 extern const char *WELC_MESSG;
 extern const char *START_MESSG;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern int top_of_p_table;
 extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;

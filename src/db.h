@@ -214,6 +214,7 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch);
 void reset_char(CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
+bool check_unlimited_timer(const CObjectPrototype *obj);
 
 #define REAL          0
 #define VIRTUAL       (1 << 0)
@@ -223,7 +224,7 @@ OBJ_DATA *create_obj(const std::string& alias = "");
 void free_obj(OBJ_DATA * obj);
 obj_rnum real_object(obj_vnum vnum);
 OBJ_DATA *read_object(obj_vnum nr, int type);
-const OBJ_DATA* read_object_mirror(obj_vnum nr, int type = VIRTUAL);
+const CObjectPrototype* get_object_prototype(obj_vnum nr, int type = VIRTUAL);
 
 int vnum_object(char *searchname, CHAR_DATA * ch);
 int vnum_flag(char *searchname, CHAR_DATA * ch);
@@ -318,8 +319,6 @@ struct reset_q_element
 	zone_rnum zone_to_reset;	// ref to zone_data
 	struct reset_q_element *next;
 };
-
-
 
 // structure for the update queue
 struct reset_q_type
@@ -421,11 +420,12 @@ extern CHAR_DATA *character_list;
 extern OBJ_DATA *object_list;
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
+extern int top_of_p_table;
 
 class CObjectPrototypes
 {
 public:
-	using prototypes_t = std::deque<OBJ_DATA *>;
+	using prototypes_t = std::deque<CObjectPrototype *>;
 	using const_iterator = prototypes_t::const_iterator;
 
 	using index_t = std::deque<index_data>;
@@ -448,18 +448,18 @@ public:
 	size_t add(const prototypes_t::value_type& prototype, const obj_vnum vnum);
 
 	obj_vnum vnum(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].vnum : -1; }
-	obj_vnum vnum(const OBJ_DATA* object) const { return vnum(object->get_rnum()); }
+	obj_vnum vnum(const CObjectPrototype* object) const { return vnum(object->get_rnum()); }
 	void vnum(const size_t rnum, const obj_vnum value);
 
 	void zone(const size_t rnum, const size_t zone_rnum) { m_index[rnum].zone = static_cast<int>(zone_rnum); }
 
 	auto stored(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].stored : -1; }
-	auto stored(const OBJ_DATA* object) const { return stored(object->get_rnum()); }
+	auto stored(const CObjectPrototype* object) const { return stored(object->get_rnum()); }
 	void dec_stored(const size_t rnum) { --m_index[rnum].stored; }
 	void inc_stored(const size_t rnum) { ++m_index[rnum].stored; }
 
 	auto number(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].number : -1; }
-	auto number(const OBJ_DATA* object) const { return number(object->get_rnum()); }
+	auto number(const CObjectPrototype* object) const { return number(object->get_rnum()); }
 	void dec_number(const size_t rnum) { --m_index[rnum].number; }
 	void inc_number(const size_t rnum) { ++m_index[rnum].number; }
 
@@ -510,7 +510,7 @@ inline bool CObjectPrototypes::is_index_safe(const size_t index) const
 
 extern CObjectPrototypes obj_proto;
 
-inline obj_vnum GET_OBJ_VNUM(const OBJ_DATA* obj) { return obj_proto.vnum(obj); }
+inline obj_vnum GET_OBJ_VNUM(const CObjectPrototype* obj) { return obj_proto.vnum(obj); }
 inline auto GET_OBJ_SPEC(const OBJ_DATA* obj) { return obj_proto.spec(obj); }
 
 // returns the real number of the object with given virtual number
@@ -523,7 +523,7 @@ extern const char *MENU;
 extern struct portals_list_type *portals_list;
 extern TIME_INFO_DATA time_info;
 
-extern int convert_drinkcon_skill(OBJ_DATA *obj, bool proto);
+extern int convert_drinkcon_skill(CObjectPrototype *obj, bool proto);
 
 int dl_parse(load_list ** dl_list, char *line);
 int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_TYPE);

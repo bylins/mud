@@ -86,7 +86,6 @@ int level_exp(CHAR_DATA * ch, int level);
 void update_char_objects(CHAR_DATA * ch);	// handler.cpp
 // Delete this, if you delete overflow fix in beat_points_update below.
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
-extern bool check_unlimited_timer(OBJ_DATA *obj);
 // When age < 20 return the value p0 //
 // When age in 20..29 calculate the line between p1 & p2 //
 // When age in 30..34 calculate the line between p2 & p3 //

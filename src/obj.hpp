@@ -168,7 +168,7 @@ public:
 	constexpr static int DEFAULT_TIMER = SEVEN_DAYS;
 
 	constexpr static int DEFAULT_DESTROYER = 60;
-
+	constexpr static int DEFAULT_RNUM = NOTHING;
 	constexpr static int VALS_COUNT = 4;
 
 	using skills_t = std::map<ESkill, int>;
@@ -195,7 +195,9 @@ public:
 		m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),
 		m_cost(DEFAULT_COST),
 		m_rent_on(DEFAULT_RENT_ON),
-		m_rent_off(DEFAULT_RENT_OFF)
+		m_rent_off(DEFAULT_RENT_OFF),
+		m_ilevel(0),
+		m_rnum(DEFAULT_RNUM)
 	{}
 
 	auto& get_skills() const { return m_skills; }
@@ -334,6 +336,13 @@ public:
 	void set_rent_on(int x);
 	void set_ex_description(const char* keyword, const char* description);
 	void set_minimum_remorts(const int _) { m_minimum_remorts = _; }
+	int get_manual_mort_req() const;
+	float show_mort_req();
+	float show_koef_obj();
+	unsigned get_ilevel() const;	///< разные системы расчета привлекательности предмета
+	void set_ilevel(unsigned ilvl);
+	auto get_rnum() const { return m_rnum; }
+	void set_rnum(const obj_rnum _) { m_rnum = _; }
 
 protected:
 	void zero_init();
@@ -376,23 +385,18 @@ private:
 
 	wear_flags_t m_wear_flags;		// Where you can wear it     //
 
-									// таймер (в минутах рл)
-	int m_timer;
+	int m_timer;	///< таймер (в минутах рл)
 
-	// если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
-	skills_t m_skills;
+	skills_t m_skills;	///< если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
 
-	// если >= 0 - требование по минимальным мортам, проставленное в олц
-	int m_minimum_remorts;
+	int m_minimum_remorts;	///< если >= 0 - требование по минимальным мортам, проставленное в олц
 
-	// цена шмотки при продаже
-	int m_cost;
-
-	// стоимость ренты, если надета
-	int m_rent_on;
-
-	// стоимость ренты, если в инве
-	int m_rent_off;
+	int m_cost;	///< цена шмотки при продаже
+	int m_rent_on;	///< стоимость ренты, если надета
+	int m_rent_off;	///< стоимость ренты, если в инве
+	
+	unsigned m_ilevel;	///< расчетный уровень шмотки, не сохраняется
+	obj_vnum m_rnum;	///< Where in data-base
 };
 
 class activation
@@ -661,11 +665,16 @@ inline custom_label::~custom_label()
 
 struct SCRIPT_DATA;	// to avoid inclusion of "dg_scripts.h"
 
-class OBJ_DATA: public CObjectPrototype
+class OBJ_DATA : public CObjectPrototype
 {
 public:
+	constexpr static const int DEFAULT_MAKER = 0;
+	constexpr static const int DEFAULT_OWNER = 0;
+	constexpr static const int DEFAULT_PARENT = 0;
+
 	OBJ_DATA();
 	OBJ_DATA(const OBJ_DATA&);
+	OBJ_DATA(const CObjectPrototype&);
 	~OBJ_DATA();
 
 	const std::string activate_obj(const activation& __act);
@@ -681,13 +690,6 @@ public:
 
 	void purge(bool destructor = false);
 	bool purged() const;
-
-	//разные системы расчета привлекательности предмета
-	unsigned get_ilevel() const;
-	void set_ilevel(unsigned ilvl);
-	int get_manual_mort_req() const;
-	float show_mort_req();
-	float show_koef_obj();
 
 	void set_activator(bool flag, int num);
 	std::pair<bool, int> get_activator() const;
@@ -711,7 +713,6 @@ public:
 	auto get_next_content() const { return m_next_content; }
 	auto get_owner() const { return m_owner; }
 	auto get_parent() const { return m_parent; }
-	auto get_rnum() const { return m_item_number; }
 	auto get_room_was_in() const { return m_room_was_in; }
 	auto get_uid() const { return m_uid; }
 	auto get_worn_by() const { return m_worn_by; }
@@ -740,7 +741,6 @@ public:
 	void set_next_content(OBJ_DATA* _) { m_next_content = _; }
 	void set_owner(const int _) { m_owner = _; }
 	void set_parent(const int _) { m_parent = _; }
-	void set_rnum(const obj_rnum _) { m_item_number = _; }
 	void set_room_was_in(const int _) { m_room_was_in = _; }
 	void set_script(const std::shared_ptr<SCRIPT_DATA>& _) { m_script = _; }
 	void set_script(SCRIPT_DATA* _);
@@ -754,7 +754,6 @@ private:
 	void zero_init();
 
 	unsigned int m_uid;
-	obj_vnum m_item_number;	// Where in data-base            //
 	room_rnum m_in_room;	// In what room -1 when conta/carr //
 	int m_room_was_in;
 
@@ -788,8 +787,6 @@ private:
 	int m_serial_number;
 	// true - объект спуржен и ждет вызова delete для оболочки
 	bool m_purged;
-	// расчетный уровень шмотки, не сохраняется
-	unsigned m_ilevel;
 	// для сообщений сетов <активировано или нет, размер активатора>
 	std::pair<bool, int> m_activator;
 };
@@ -806,13 +803,13 @@ inline void CObjectPrototype::set_affected(const size_t index, const EApplyLocat
 	m_affected[index].modifier = modifier;
 }
 
-inline bool CAN_WEAR(const OBJ_DATA *obj, const EWearFlag part) { return obj->get_wear_flag(part); }
-inline bool CAN_WEAR_ANY(const OBJ_DATA* obj) { return obj->can_wear_any(); }
-inline bool OBJ_FLAGGED(const OBJ_DATA* obj, const EExtraFlag flag) { return obj->get_extra_flag(flag); }
-inline void SET_OBJ_AFF(OBJ_DATA* obj, const uint32_t packed_flag) { return obj->set_obj_aff(packed_flag); }
-inline bool OBJ_AFFECT(const OBJ_DATA* obj, const uint32_t weapon_affect) { return obj->get_affect(weapon_affect); }
+inline bool CAN_WEAR(const CObjectPrototype *obj, const EWearFlag part) { return obj->get_wear_flag(part); }
+inline bool CAN_WEAR_ANY(const CObjectPrototype* obj) { return obj->can_wear_any(); }
+inline bool OBJ_FLAGGED(const CObjectPrototype* obj, const EExtraFlag flag) { return obj->get_extra_flag(flag); }
+inline void SET_OBJ_AFF(CObjectPrototype* obj, const uint32_t packed_flag) { return obj->set_obj_aff(packed_flag); }
+inline bool OBJ_AFFECT(const CObjectPrototype* obj, const uint32_t weapon_affect) { return obj->get_affect(weapon_affect); }
 
-inline bool OBJ_AFFECT(const OBJ_DATA* obj, const EWeaponAffectFlag weapon_affect)
+inline bool OBJ_AFFECT(const CObjectPrototype* obj, const EWeaponAffectFlag weapon_affect)
 {
 	return OBJ_AFFECT(obj, static_cast<uint32_t>(weapon_affect));
 }
@@ -835,12 +832,12 @@ private:
 namespace ObjSystem
 {
 
-float count_affect_weight(OBJ_DATA *obj, int num, int mod);
-bool is_armor_type(const OBJ_DATA *obj);
+float count_affect_weight(const CObjectPrototype* obj, int num, int mod);
+bool is_armor_type(const CObjectPrototype *obj);
 void release_purged_list();
 void init_item_levels();
-void init_ilvl(OBJ_DATA *obj);
-bool is_mob_item(OBJ_DATA *obj);
+void init_ilvl(CObjectPrototype *obj);
+bool is_mob_item(const CObjectPrototype *obj);
 
 } // namespace ObjSystem
 
@@ -860,6 +857,16 @@ bool is_purse(OBJ_DATA *obj);
 void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj);
 
 } // namespace system_obj
+
+namespace SetSystem
+{
+	void check_item(int vnum);
+	void check_rented();
+	void init_vnum_list(int vnum);
+	bool find_set_item(OBJ_DATA *obj);
+	bool is_big_set(const CObjectPrototype *obj, bool is_mini = false);
+	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
+} // namespace SetSystem
 
 #endif // OBJ_HPP_INCLUDED
 

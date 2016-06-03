@@ -12,6 +12,7 @@
 #include "pk.h"
 #include "cache.hpp"
 #include "char.hpp"
+#include "depot.hpp"
 #include "constants.h"
 #include "db.h"
 #include "utils.h"
@@ -23,6 +24,7 @@
 #include <sstream>
 
 extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
+extern int Crash_write_timer(int index);	// to avoid inclusion of "objsave.h"
 
 id_to_set_info_map OBJ_DATA::set_table;
 
@@ -35,9 +37,56 @@ PurgedObjList purged_obj_list;
 
 } // namespace
 
-OBJ_DATA::OBJ_DATA(): CObjectPrototype()
+OBJ_DATA::OBJ_DATA():
+	CObjectPrototype(),
+	m_uid(0),
+	m_in_room(0),
+	m_room_was_in(0),
+	m_maker(DEFAULT_MAKER),
+	m_owner(DEFAULT_OWNER),
+	m_zone(0),
+	m_parent(DEFAULT_PARENT),
+	m_is_rename(false),
+	m_carried_by(nullptr),
+	m_worn_by(nullptr),
+	m_worn_on(0),
+	m_in_obj(nullptr),
+	m_contains(nullptr),
+	m_next_content(nullptr),
+	m_next(nullptr),
+	m_craft_timer(0),
+	m_id(0),
+	m_serial_number(0),
+	m_purged(false),
+	m_activator(false, 0)
 {
 	this->zero_init();
+	caching::obj_cache.add(this);
+}
+
+OBJ_DATA::OBJ_DATA(const CObjectPrototype& other):
+	CObjectPrototype(other),
+	m_uid(0),
+	m_in_room(0),
+	m_room_was_in(0),
+	m_maker(DEFAULT_MAKER),
+	m_owner(DEFAULT_OWNER),
+	m_zone(0),
+	m_parent(DEFAULT_PARENT),
+	m_is_rename(false),
+	m_carried_by(nullptr),
+	m_worn_by(nullptr),
+	m_worn_on(0),
+	m_in_obj(nullptr),
+	m_contains(nullptr),
+	m_next_content(nullptr),
+	m_next(nullptr),
+	m_craft_timer(0),
+	m_id(0),
+	m_serial_number(0),
+	m_purged(false),
+	m_activator(false, 0)
+{
 	caching::obj_cache.add(this);
 }
 
@@ -61,7 +110,6 @@ void OBJ_DATA::zero_init()
 	CObjectPrototype::zero_init();
 	set_weight(0);
 	m_uid = 0;
-	m_item_number = NOTHING;
 	m_in_room = NOWHERE;
 	m_carried_by = nullptr;
 	m_worn_by = nullptr;
@@ -75,7 +123,6 @@ void OBJ_DATA::zero_init()
 	m_room_was_in = NOWHERE;
 	m_serial_number = 0;
 	m_purged = false;
-	m_ilevel = 0;
 	m_activator.first = false;
 	m_activator.second = 0;
 
@@ -125,7 +172,7 @@ void OBJ_DATA::set_serial_num(int num)
 
 const std::string OBJ_DATA::activate_obj(const activation& __act)
 {
-	if (m_item_number >= 0)
+	if (get_rnum() >= 0)
 	{
 		set_affect_flags(__act.get_affects());
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
@@ -173,20 +220,20 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 
 const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 {
-	if (m_item_number >= 0)
+	if (get_rnum() >= 0)
 	{
-		set_affect_flags(obj_proto[m_item_number]->get_affect_flags());
+		set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 		{
-			set_affected(i, obj_proto[m_item_number]->get_affected(i));
+			set_affected(i, obj_proto[get_rnum()]->get_affected(i));
 		}
 
-		set_weight(obj_proto[m_item_number]->get_weight());
+		set_weight(obj_proto[get_rnum()]->get_weight());
 
 		if (get_type() == ITEM_WEAPON)
 		{
-			set_val(1, obj_proto[m_item_number]->get_val(1));
-			set_val(2, obj_proto[m_item_number]->get_val(2));
+			set_val(1, obj_proto[get_rnum()]->get_val(1));
+			set_val(2, obj_proto[get_rnum()]->get_val(2));
 		}
 
 		// Деактивируем умения.
@@ -194,7 +241,7 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 		{
 			// При активации мы создавали новый массив с умениями. Его
 			// можно смело удалять.
-			set_skills(obj_proto[m_item_number]->get_skills());
+			set_skills(obj_proto[get_rnum()]->get_skills());
 		}
 
 		return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();
@@ -275,6 +322,7 @@ void CObjectPrototype::zero_init()
 	{
 		m_pnames[i].clear();
 	}
+	m_ilevel = 0;
 }
 
 int CObjectPrototype::get_skill(int skill_num) const
@@ -312,9 +360,8 @@ int CObjectPrototype::get_timer() const
 	return m_timer;
 }
 
- extern bool check_unlimited_timer(OBJ_DATA *obj);
- extern float count_remort_requred(OBJ_DATA *obj);
- extern float count_unlimited_timer(OBJ_DATA *obj);
+ extern float count_remort_requred(const CObjectPrototype *obj);
+ extern float count_unlimited_timer(const CObjectPrototype *obj);
 
 /**
 * Реальное старение шмотки (без всяких технических сетов таймера по коду).
@@ -339,27 +386,27 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer)
 	}
 }
 
-float OBJ_DATA::show_mort_req() 
+float CObjectPrototype::show_mort_req() 
 {
 	return count_remort_requred(this);
 }
 
-float OBJ_DATA::show_koef_obj() 
+float CObjectPrototype::show_koef_obj()
 {
 	return count_unlimited_timer(this);
 }
 
-unsigned OBJ_DATA::get_ilevel() const
+unsigned CObjectPrototype::get_ilevel() const
 {
 	return m_ilevel;
 }
 
-void OBJ_DATA::set_ilevel(unsigned ilvl)
+void CObjectPrototype::set_ilevel(unsigned ilvl)
 {
 	m_ilevel = ilvl;
 }
 
-int OBJ_DATA::get_manual_mort_req() const
+int CObjectPrototype::get_manual_mort_req() const
 {
 	if (get_minimum_remorts() >= 0)
 	{
@@ -447,7 +494,7 @@ const int AFF_BLINK_MOD = 10;
 namespace ObjSystem
 {
 
-float count_affect_weight(OBJ_DATA* /*obj*/, int num, int mod)
+float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 {
 	float weight = 0;
 
@@ -512,7 +559,7 @@ float count_affect_weight(OBJ_DATA* /*obj*/, int num, int mod)
 	return weight;
 }
 
-bool is_armor_type(const OBJ_DATA *obj)
+bool is_armor_type(const CObjectPrototype *obj)
 {
 	switch (GET_OBJ_TYPE(obj))
 	{
@@ -538,7 +585,7 @@ void release_purged_list()
 	purged_obj_list.clear();
 }
 
-bool is_mob_item(OBJ_DATA *obj)
+bool is_mob_item(const CObjectPrototype *obj)
 {
 	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE)
 		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE)
@@ -628,7 +675,7 @@ bool is_mob_item(OBJ_DATA *obj)
 	return false;
 }
 
-void init_ilvl(OBJ_DATA *obj)
+void init_ilvl(CObjectPrototype *obj)
 {
 	if (is_mob_item(obj)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)
@@ -1137,5 +1184,271 @@ OBJ_DATA::EObjectMaterial ITEM_BY_NAME(const std::string& name)
 	}
 	return EObjectMaterial_value_by_name.at(name);
 }
+
+namespace SetSystem {
+
+	struct SetNode
+	{
+		// список шмоток по конкретному сету для сверки
+		// инится один раз при ребуте и больше не меняется
+		std::set<int> set_vnum;
+		// список шмоток из данного сета у текущего чара
+		// если после заполнения в списке только 1 предмет
+		// значит удаляем его как единственный у чара
+		std::vector<int> obj_vnum;
+	};
+
+	std::vector<SetNode> set_list;
+	const unsigned BIG_SET_ITEMS = 9;
+	// для проверок при попытке ренты
+	std::set<int> vnum_list;
+
+	// * Заполнение списка фулл-сетов для последующих сверок.
+	void init_set_list()
+	{
+		for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
+			iend = OBJ_DATA::set_table.end(); i != iend; ++i)
+		{
+			if (i->second.size() > BIG_SET_ITEMS)
+			{
+				SetNode node;
+				for (set_info::const_iterator k = i->second.begin(),
+					kend = i->second.end(); k != kend; ++k)
+				{
+					node.set_vnum.insert(k->first);
+				}
+				set_list.push_back(node);
+			}
+		}
+	}
+
+	// * Удаление инфы от последнего сверявшегося чара.
+	void reset_set_list()
+	{
+		for (std::vector<SetNode>::iterator i = set_list.begin(),
+			iend = set_list.end(); i != iend; ++i)
+		{
+			i->obj_vnum.clear();
+		}
+	}
+
+	// * Проверка шмотки на принадлежность к сетам из set_list.
+	void check_item(int vnum)
+	{
+		for (std::vector<SetNode>::iterator i = set_list.begin(),
+			iend = set_list.end(); i != iend; ++i)
+		{
+			std::set<int>::const_iterator k = i->set_vnum.find(vnum);
+			if (k != i->set_vnum.end())
+			{
+				i->obj_vnum.push_back(vnum);
+			}
+		}
+	}
+
+	// * Обнуление таймера шмотки в ренте или перс.хране.
+	void delete_item(int pt_num, int vnum)
+	{
+		bool need_save = false;
+		// рента
+		if (player_table[pt_num].timer)
+		{
+			for (std::vector<save_time_info>::iterator i = player_table[pt_num].timer->time.begin(),
+				iend = player_table[pt_num].timer->time.end(); i != iend; ++i)
+			{
+				if (i->vnum == vnum)
+				{
+					log("[TO] Player %s : set-item %d deleted",
+						player_table[pt_num].name, i->vnum);
+					i->timer = -1;
+					int rnum = real_object(i->vnum);
+					if (rnum >= 0)
+					{
+						obj_proto.dec_stored(rnum);
+					}
+					need_save = true;
+				}
+			}
+		}
+		if (need_save)
+		{
+			if (!Crash_write_timer(pt_num))
+			{
+				log("SYSERROR: [TO] Error writing timer file for %s",
+					player_table[pt_num].name);
+			}
+			return;
+		}
+		// перс.хран
+		Depot::delete_set_item(player_table[pt_num].unique, vnum);
+	}
+
+	// * Проверка при ребуте всех рент и перс.хранилищ чаров.
+	void check_rented()
+	{
+		init_set_list();
+
+		for (int i = 0; i <= top_of_p_table; i++)
+		{
+			reset_set_list();
+			// рента
+			if (player_table[i].timer)
+			{
+				for (std::vector<save_time_info>::iterator it = player_table[i].timer->time.begin(),
+					it_end = player_table[i].timer->time.end(); it != it_end; ++it)
+				{
+					if (it->timer >= 0)
+					{
+						check_item(it->vnum);
+					}
+				}
+			}
+			// перс.хран
+			Depot::check_rented(player_table[i].unique);
+			// проверка итогового списка
+			for (std::vector<SetNode>::iterator it = set_list.begin(),
+				iend = set_list.end(); it != iend; ++it)
+			{
+				if (it->obj_vnum.size() == 1)
+				{
+					delete_item(i, it->obj_vnum[0]);
+				}
+			}
+		}
+	}
+
+#define MINI_SET_ITEMS 3
+
+	/**
+	* Почта, базар.
+	* Предметы сетов из BIG_SET_ITEMS и более предметов не принимаются.
+	*/
+	bool is_big_set(const CObjectPrototype* obj, bool is_mini)
+	{
+		unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
+		if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
+		{
+			return false;
+		}
+		for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
+			iend = OBJ_DATA::set_table.end(); i != iend; ++i)
+		{
+			if (i->second.find(GET_OBJ_VNUM(obj)) != i->second.end()
+				&& i->second.size() > sets_items)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	bool find_set_item(OBJ_DATA *obj)
+	{
+		for (; obj; obj = obj->get_next_content())
+		{
+			std::set<int>::const_iterator i = vnum_list.find(GET_OBJ_VNUM(obj));
+			if (i != vnum_list.end())
+			{
+				return true;
+			}
+
+			if (find_set_item(obj->get_contains()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// * Генерация списка сетин из того же набора, что и vnum (исключая ее саму).
+	void init_vnum_list(int vnum)
+	{
+		vnum_list.clear();
+		for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
+			iend = OBJ_DATA::set_table.end(); i != iend; ++i)
+		{
+			if (i->second.find(vnum) != i->second.end())
+				//&& i->second.size() > BIG_SET_ITEMS)
+			{
+				for (set_info::const_iterator k = i->second.begin(),
+					kend = i->second.end(); k != kend; ++k)
+				{
+					if (k->first != vnum)
+					{
+						vnum_list.insert(k->first);
+					}
+				}
+			}
+		}
+
+		if (vnum_list.empty())
+		{
+			vnum_list = obj_sets::vnum_list_add(vnum);
+		}
+	}
+
+	/**
+	* Экипировка, инвентарь, чармисы, перс. хран.
+	* Требуется наличие двух и более предметов, если сетина из большого сета.
+	* Перс. хран, рента.
+	*/
+	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
+	{
+		if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
+		{
+			return false;
+		}
+
+		init_vnum_list(GET_OBJ_VNUM(obj));
+
+		if (vnum_list.empty())
+		{
+			return false;
+		}
+
+		// экипировка
+		for (int i = 0; i < NUM_WEARS; ++i)
+		{
+			if (find_set_item(GET_EQ(ch, i)))
+			{
+				return false;
+			}
+		}
+		// инвентарь
+		if (find_set_item(ch->carrying))
+		{
+			return false;
+		}
+		// чармисы
+		if (ch->followers)
+		{
+			for (struct follow_type *k = ch->followers; k; k = k->next)
+			{
+				if (!IS_CHARMICE(k->follower) || !k->follower->master)
+				{
+					continue;
+				}
+				for (int j = 0; j < NUM_WEARS; j++)
+				{
+					if (find_set_item(GET_EQ(k->follower, j)))
+					{
+						return false;
+					}
+				}
+				if (find_set_item(k->follower->carrying))
+				{
+					return false;
+				}
+			}
+		}
+		// перс. хранилище
+		if (Depot::find_set_item(ch, vnum_list))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+} // namespace SetSystem
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

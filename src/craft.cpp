@@ -745,7 +745,7 @@ namespace craft
 		return true;
 	}
 
-	void CCases::load_from_object(const OBJ_DATA* object)
+	void CCases::load_from_object(const CObjectPrototype* object)
 	{
 		const std::string& aliases = object->get_aliases();
 		boost::algorithm::split(m_aliases, aliases, boost::algorithm::is_any_of(" "), boost::token_compress_on);
@@ -1102,7 +1102,7 @@ namespace craft
 		return true;
 	}
 
-	void CObject::load_from_object(const OBJ_DATA* object)
+	void CObject::load_from_object(const CObjectPrototype* object)
 	{
 		set_type(object->get_type());
 

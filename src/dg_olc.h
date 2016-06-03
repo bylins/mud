@@ -21,7 +21,7 @@
 
 // prototype exported functions from dg_olc.cpp
 //void script_copy(void *dst, void *src, int type);
-void script_save_to_disk(FILE * fp, void *item, int type);
+void script_save_to_disk(FILE * fp, const void *item, int type);
 //void dg_olc_script_free(DESCRIPTOR_DATA *d);
 void dg_olc_script_copy(DESCRIPTOR_DATA * d);
 void dg_script_menu(DESCRIPTOR_DATA * d);

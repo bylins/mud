@@ -80,7 +80,7 @@ void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skil
 	}
 }
 
-void sum_skills(CObjectPrototype::skills_t &target, const OBJ_DATA *obj)
+void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype *obj)
 {
 	if (obj->has_skills())
 	{
@@ -135,7 +135,7 @@ std::string print_skills(const CObjectPrototype::skills_t &skills, bool activ, b
 }
 
 // распечатка важных в контексте сетов родных стат предмета
-std::string print_obj_affects(const OBJ_DATA * const obj)
+std::string print_obj_affects(const CObjectPrototype* const obj)
 {
 	std::stringstream out;
 
@@ -191,7 +191,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 }
 
 // распечатка конкретного активатора предмета
-std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_DATA * const obj)
+std::string print_activator(class_to_act_map::const_iterator &activ, const CObjectPrototype* const obj)
 {
 	std::stringstream out;
 
@@ -421,7 +421,7 @@ std::string print_fullset_stats(const set_info &set)
 		{
 			continue;
 		}
-		const OBJ_DATA * const obj = obj_proto[rnum];
+		const CObjectPrototype* const obj = obj_proto[rnum];
 
 		// суммируем родные статы со шмоток
 		activ.native_no_flag += GET_OBJ_NO(obj);
@@ -472,7 +472,7 @@ void process()
 				continue;
 			}
 
-			const OBJ_DATA * const obj = obj_proto[rnum];
+			const CObjectPrototype* const obj = obj_proto[rnum];
 			out << print_obj_affects(obj);
 
 			for (qty_to_camap_map::const_iterator m = k->second.begin(); m != k->second.end(); ++m)

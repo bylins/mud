@@ -33,13 +33,6 @@
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
 extern void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload);
-extern bool check_unlimited_timer(OBJ_DATA *obj);
-
-
-
-
-
-
 
 namespace GlobalDrop
 {

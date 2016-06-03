@@ -46,7 +46,6 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
 extern struct spell_create_type spell_create[];
 extern int mini_mud;
-extern bool check_unlimited_timer(OBJ_DATA *obj);
 
 extern int interpolate(int min_value, int pulse);
 

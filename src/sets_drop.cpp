@@ -787,7 +787,7 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 	}
 
 	// мини сеты увеличенный шанс на дроп
-	const OBJ_DATA *obj = obj_proto[obj_rnum];
+	const CObjectPrototype* obj = obj_proto[obj_rnum];
 	if (!SetSystem::is_big_set(obj))
 	{
 		chance *= MINI_SET_MULT;
@@ -884,7 +884,7 @@ void init_link_system()
 	for (std::map<int, DropNode>::iterator k = drop_list.begin(),
 		kend = drop_list.end(); k != kend; ++k)
 	{
-		const OBJ_DATA *obj = obj_proto[k->second.obj_rnum];
+		const CObjectPrototype* obj = obj_proto[k->second.obj_rnum];
 		k->second.is_big_set = SetSystem::is_big_set(obj);
 	}
 }

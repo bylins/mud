@@ -845,8 +845,19 @@ struct _arrayN
 
 class ObjWrapper: public Wrapper<OBJ_DATA>
 {
+private:
+	std::shared_ptr<OBJ_DATA> m_temp_object;	// built based on provided prototype
+
 public:
-ObjWrapper(OBJ_DATA* obj):Wrapper<OBJ_DATA>(obj, caching::obj_cache) { }
+	ObjWrapper(OBJ_DATA* obj) : Wrapper<OBJ_DATA>(obj, caching::obj_cache)
+	{
+	}
+
+	ObjWrapper(const CObjectPrototype* obj) :
+		m_temp_object(new OBJ_DATA(*obj)),
+		Wrapper<OBJ_DATA>(m_temp_object.get(), caching::obj_cache)
+	{
+	}
 
 std::string get_aliases() const
 {
@@ -1251,7 +1262,7 @@ ObjWrapper get_obj_proto(const obj_rnum rnum)
 	}
 	PyErr_SetString(PyExc_ValueError, "obj rnum is out of range");
 	throw_error_already_set();
-	return ObjWrapper(NULL);
+	return ObjWrapper(static_cast<OBJ_DATA *>(nullptr));
 }
 
 object get_char_equipment(const CharacterWrapper& c, const unsigned num)

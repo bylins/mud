@@ -333,8 +333,8 @@ inline void NEWCREATE(T*& result)
 	result = NEWCREATE<T>();
 }
 
-template <typename T>
-inline void NEWCREATE(T*& result, const T& init_value)
+template <typename T, typename I>
+inline void NEWCREATE(T*& result, const I& init_value)
 {
 	result = new(std::nothrow) T(init_value);
 	if (!result)
@@ -1462,18 +1462,6 @@ int calc_str_req(int weight, int type);
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
 int wis_bonus(int stat, int type);
 int CAN_CARRY_N(const CHAR_DATA* ch);
-
-namespace SetSystem
-{
-
-void check_item(int vnum);
-void check_rented();
-void init_vnum_list(int vnum);
-bool find_set_item(OBJ_DATA *obj);
-bool is_big_set(const OBJ_DATA *obj, bool is_mini = false);
-bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
-
-} // namespace SetSystem
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
 

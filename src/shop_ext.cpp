@@ -78,9 +78,8 @@ extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_align(CHAR_DATA * ch, const OBJ_DATA * obj);
-extern char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
-extern char *diag_timer_to_char(OBJ_DATA * obj);
-extern bool check_unlimited_timer(OBJ_DATA *obj);
+extern char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear);
+extern char *diag_timer_to_char(const OBJ_DATA * obj);
 
 namespace ShopExt
 {
@@ -1193,7 +1192,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	}
 
 	--item_num;
-	OBJ_DATA * tmp_obj = NULL;
+	CObjectPrototype* tmp_obj = nullptr;
 	bool obj_from_proto = true;
 	if (!(*shop)->item_list[item_num]->temporary_ids.empty())
 	{
@@ -1206,7 +1205,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		}
 		obj_from_proto = false;
 	}
-	const OBJ_DATA * const proto = ( tmp_obj ? tmp_obj : read_object_mirror((*shop)->item_list[item_num]->rnum, REAL));
+	const CObjectPrototype* const proto = (tmp_obj ? tmp_obj : get_object_prototype((*shop)->item_list[item_num]->rnum, REAL));
 	if (!proto)
 	{
 		log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);
@@ -1753,8 +1752,8 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 
 	--item_num;
 
-	const OBJ_DATA *ident_obj = NULL;
-	OBJ_DATA *tmp_obj = NULL;
+	const OBJ_DATA *ident_obj = nullptr;
+	OBJ_DATA *tmp_obj = nullptr;
 	if ((*shop)->item_list[item_num]->temporary_ids.empty())
 	{
 		if (!(*shop)->item_list[item_num]->descs.empty() &&
@@ -1765,10 +1764,16 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 			ident_obj = tmp_obj;
 		}
 		else
-			ident_obj = read_object_mirror((*shop)->item_list[item_num]->rnum, REAL);
+		{
+			auto t = get_object_prototype((*shop)->item_list[item_num]->rnum, REAL);
+			tmp_obj = new OBJ_DATA(*t);
+			ident_obj = tmp_obj;
+		}
 	}
 	else
+	{
 		ident_obj = get_obj_from_waste(shop, (*shop)->item_list[item_num]->temporary_ids);
+	}
 
 	if (!ident_obj)
 	{
@@ -1776,12 +1781,13 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		send_to_char("Ошибочка вышла.\r\n", ch);
 		return;
 	}
+
 	if (cmd == "Рассмотреть")
 	{
 		std::string tell = "Предмет "+ ident_obj->get_short_description()+": ";
 		tell += std::string(item_types[GET_OBJ_TYPE(ident_obj)])+"\r\n";
 		tell += std::string(diag_weapon_to_char(ident_obj, TRUE));
-		tell += std::string(diag_timer_to_char(const_cast<OBJ_DATA*>(ident_obj)));
+		tell += std::string(diag_timer_to_char(ident_obj));
 
 		if (can_use_feat(ch, SKILLED_TRADER_FEAT)
 			|| PRF_FLAGGED(ch, PRF_HOLYLIGHT))
@@ -1835,8 +1841,11 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 			ch->remove_gold(IDENTIFY_COST);
 		}
 	}
+
 	if (tmp_obj)
+	{
 		extract_obj(tmp_obj);
+	}
 }
 
 int get_spent_today()

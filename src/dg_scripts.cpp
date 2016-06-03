@@ -66,7 +66,6 @@ const char *spell_name(int num);
 
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
-extern bool check_unlimited_timer(OBJ_DATA *obj);
 
 // external functions
 room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);

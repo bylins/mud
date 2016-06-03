@@ -21,6 +21,7 @@
 
 #define NUM_RESERVED_DESCS	8
 
+class CObjectPrototype;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // comm.cpp
@@ -38,8 +39,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct, int epoll, struct epoll_event
 #else
 void close_socket(DESCRIPTOR_DATA * d, int direct);
 #endif
-void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to, const int arena = 0);
-void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, int type);
+void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, CHAR_DATA * to, const int arena = 0);
+void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type);
 unsigned long get_ip(const char *addr);
 
 #define SUN_CONTROL     (1 << 0)

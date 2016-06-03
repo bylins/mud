@@ -352,7 +352,7 @@ bool check_obj_in_system_zone(int vnum)
     return false;
 }
 
-bool check_unlimited_timer(OBJ_DATA *obj)
+bool check_unlimited_timer(const CObjectPrototype *obj)
 {
 	char buf_temp[MAX_STRING_LENGTH];
 	char buf_temp1[MAX_STRING_LENGTH];
@@ -484,25 +484,23 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 		return false;
 	// проходим по всем характеристикам предмета
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+	{
 		if (obj->get_affected(i).modifier)
 		{
 			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
 			// проходим по нашей таблице с критериями
-			for(std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++) 
+			for (std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++)
 			{
-			
-			if (strcmp(it->first.c_str(), buf_temp) == 0)
-			{	
-				
-			    if (obj->get_affected(i).modifier > 0)
-			    {
-					sum += it->second * obj->get_affected(i).modifier;
-			    }
+				if (strcmp(it->first.c_str(), buf_temp) == 0)
+				{
+					if (obj->get_affected(i).modifier > 0)
+					{
+						sum += it->second * obj->get_affected(i).modifier;
+					}
+				}
 			}
-				
-				//std::cout << it->first << " " << it->second << std::endl;
-			}
-		}	
+		}
+	}
 	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
 	
 	// проходим по всем аффектам в нашей таблице
@@ -515,19 +513,24 @@ bool check_unlimited_timer(OBJ_DATA *obj)
 		}
 		//std::cout << it->first << " " << it->second << std::endl;
 	}
+
 	// если сумма больше или равна единице
 	if (sum >= 1)
+	{
 		return false;
+	}
+
 	// тоже самое для аффектов на объекте
 	if (sum_aff >= 1)
+	{
 		return false;
+	}
+
 	// иначе все норм
 	return true;
-	
 }
 
-
-float count_koef_obj(OBJ_DATA *obj,int item_wear)
+float count_koef_obj(const CObjectPrototype *obj,int item_wear)
 {
 	double sum = 0.0;
 	double sum_aff = 0.0;
@@ -572,7 +575,7 @@ float count_koef_obj(OBJ_DATA *obj,int item_wear)
 	return sum;
 }
 
-float count_unlimited_timer(OBJ_DATA *obj)
+float count_unlimited_timer(const CObjectPrototype *obj)
 {
 	float result = 0.0;
 	bool type_item = false;
@@ -670,7 +673,7 @@ float count_unlimited_timer(OBJ_DATA *obj)
 	return result;
 }
 
-float count_remort_requred(OBJ_DATA *obj)
+float count_remort_requred(const CObjectPrototype *obj)
 {
 	float result = 0.0;
 	const float SQRT_MOD = 1.7095f;
@@ -1195,7 +1198,7 @@ void init_portals(void)
 }
 
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
-int convert_drinkcon_skill(OBJ_DATA *obj, bool proto)
+int convert_drinkcon_skill(CObjectPrototype *obj, bool proto)
 {
 	if (GET_OBJ_SKILL(obj) > 0
 		&& (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON
@@ -5175,7 +5178,7 @@ OBJ_DATA *create_obj(const std::string& alias)
 // мы просто отдаем константный указатель на прототип
  * \param type по дефолту VIRTUAL
  */
-const OBJ_DATA* read_object_mirror(obj_vnum nr, int type)
+const CObjectPrototype* get_object_prototype(obj_vnum nr, int type)
 {
 	unsigned i = nr;
 	if (type == VIRTUAL)

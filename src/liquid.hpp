@@ -57,12 +57,14 @@ void name_to_drinkcon(OBJ_DATA * obj, int type);
 void set_abstinent(CHAR_DATA *ch);
 bool is_potion(const OBJ_DATA *obj);
 
+class CObjectPrototype;	// to avoit inclusion of "obj.hpp"
+
 namespace drinkcon
 {
 
 void identify(CHAR_DATA *ch, const OBJ_DATA *obj);
 std::string print_spells(CHAR_DATA *ch, const OBJ_DATA *obj);
-void copy_potion_values(const OBJ_DATA *from_obj, OBJ_DATA *to_obj);
+void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_obj);
 
 } // namespace drinkcon
 

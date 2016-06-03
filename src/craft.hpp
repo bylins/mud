@@ -104,7 +104,7 @@ namespace craft
 		CCases() {}
 
 		bool load_from_node(const pugi::xml_node* node);
-		void load_from_object(const OBJ_DATA* object);
+		void load_from_object(const CObjectPrototype* object);
 		bool save_to_node(pugi::xml_node* node) const;
 
 		const std::string& aliases() const { return m_joined_aliases; }
@@ -171,7 +171,7 @@ namespace craft
 		~CObject() {}
 
 		bool load_from_node(const pugi::xml_node* node);
-		void load_from_object(const OBJ_DATA* object);
+		void load_from_object(const CObjectPrototype* object);
 
 		bool save_to_node(pugi::xml_node* node) const;
 

@@ -2234,7 +2234,7 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj)
 	return (TRUE);
 }
 
-int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
+int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 {
 	if (!IS_CORPSE(obj))
 	{

@@ -43,14 +43,13 @@ extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_align(CHAR_DATA * ch, const OBJ_DATA * obj);
-extern char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
-extern const char *diag_obj_timer(OBJ_DATA * obj);
-extern char *diag_timer_to_char(OBJ_DATA * obj);
+extern char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear);
+extern const char *diag_obj_timer(const OBJ_DATA* obj);
+extern char *diag_timer_to_char(const OBJ_DATA* obj);
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern bool is_dig_stone(OBJ_DATA *obj);
-extern bool check_unlimited_timer(OBJ_DATA *obj);
 
 //свои ф-ии
 int exchange_exhibit(CHAR_DATA * ch, char *arg);

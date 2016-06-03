@@ -92,7 +92,6 @@ extern int circle_restrict;
 extern int load_into_inventory;
 extern int buf_switches, buf_largecount, buf_overflows;
 extern mob_rnum top_of_mobt;
-extern int top_of_p_table;
 extern int shutdown_time;
 extern CHAR_DATA *mob_proto;
 extern const char *Dirs[];
@@ -7135,7 +7134,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	std::ostringstream out;
 	for (std::multimap<int, int>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i)
 	{
-		const OBJ_DATA *obj = obj_proto[i->second];
+		const auto obj = obj_proto[i->second];
 		out << "   "
 			<< std::setw(2) << i->first << " | "
 			<< std::setw(7) << GET_OBJ_VNUM(obj) << " | "

@@ -37,7 +37,6 @@ extern const char *dirs[];
 extern const char *DirsTo[];
 extern int track_through_doors;
 extern CHAR_DATA *mob_proto;
-extern int top_of_p_table;
 int attack_best(CHAR_DATA * ch, CHAR_DATA * vict);
 
 // local functions
