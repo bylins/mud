@@ -40,24 +40,6 @@
 
 extern struct message_list fight_messages[MAX_MESSAGES];
 
-static const char *kick_type[] =
-// силы пинка. полностью соответствуют наносимым поврждениям обычного удара
-{
-	"легонько ",		//  1..5
-	"слегка ",		// 6..11
-	"",			// 12..26
-	"сильно ",		// 27..35
-	"очень сильно ",	// 36..45
-	"чрезвычайно сильно ",	// 46..55
-	"БОЛЬНО ",		// 56..96
-	"ОЧЕНЬ БОЛЬНО ",	// 97..136
-	"ЧРЕЗВЫЧАЙНО БОЛЬНО ",	// 137..176
-	"НЕВЫНОСИМО БОЛЬНО ",	// 177..216
-	"УЖАСНО ",	// 217..256
-	"УБИЙСТВЕННО ",	// 257..296
-	"СМЕРТЕЛЬНО " // 297+
-};
-
 struct brief_shields
 {
 	brief_shields(CHAR_DATA* ch_, CHAR_DATA* vict_, CObjectPrototype* weap_, std::string add_)
@@ -136,7 +118,7 @@ private:
 	}
 };
 
-CObjectPrototype* init_weap(CHAR_DATA *ch, int dam, int attacktype)
+CObjectPrototype* init_weap(CHAR_DATA *ch, int /*dam*/, int attacktype)
 {
 	// Нижеследующий код повергает в ужас
 	CObjectPrototype* weap = nullptr;
