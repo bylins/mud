@@ -53,9 +53,10 @@ static const char *kick_type[] =
 	"ן‏ומר גןלרמן ",	// 97..136
 	"‏עותקש‏בךמן גןלרמן ",	// 137..176
 	"מוקשמןףיםן גןלרמן ",	// 177..216
-	"ץצבףמן ",	// 217..256
-	"ץגיךףפקוממן ",	// 257..296
-	"ףםועפולרמן " // 297+
+	"צוףפןכן",	// 217..256
+	"ץצבףמן ",// 257..296
+	"ץגיךףפקוממן ",	 // 297..400
+	"ףםועפולרמן " // 400+
 };
 
 struct brief_shields
@@ -182,8 +183,10 @@ OBJ_DATA* init_weap(CHAR_DATA *ch, int dam, int attacktype)
 			weap = (OBJ_DATA *) kick_type[10];
 		else if (dam <= 296)
 			weap = (OBJ_DATA *) kick_type[11];
-		else
+		else if (dam <= 400)
 			weap = (OBJ_DATA *) kick_type[12];
+		else
+			weap = (OBJ_DATA *) kick_type[13];
 		break;
 	case TYPE_HIT:
 		weap = 0;

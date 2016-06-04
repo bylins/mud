@@ -1912,15 +1912,19 @@ void Damage::dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const
 			"χΩ ξεχωξοσινο βομψξο #wΙ $N3.",
 			"$n ξεχωξοσινο βομψξο #w$g ΧΑΣ."
 		}, {
-			"$n υφασξο #w$g $N3.",	//    217..256  13 //
+			"$n φεστολο #w$g $N3.",	//    217..256  13 //
+			"χΩ φεστολο #wΙ $N3.",
+			"$n φεστολο #w$g ΧΑΣ."
+		}, {
+			"$n υφασξο #w$g $N3.",	//    257..296  13 //
 			"χΩ υφασξο #wΙ $N3.",
 			"$n υφασξο #w$g ΧΑΣ."
 		}, {
-			"$n υβικστχεξξο #w$g $N3.",	//    257..296  15 //
+			"$n υβικστχεξξο #w$g $N3.",	//    297..400  15 //
 			"χΩ υβικστχεξξο #wΙ $N3.",
 			"$n υβικστχεξξο #w$g ΧΑΣ."
 		}, {
-			"$n σνεςτεμψξο #w$g $N3.",	// 297+  16 //
+			"$n σνεςτεμψξο #w$g $N3.",	// 400+  16 //
 			"χΩ σνεςτεμψξο #wΙ $N3.",
 			"$n σνεςτεμψξο #w$g ΧΑΣ."
 		}
@@ -1959,9 +1963,10 @@ void Damage::dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const
 		dam_msgnum = 12;
 	else if (dam <= 296)
 		dam_msgnum = 13;
-	else
+	else if (dam <= 400)
 		dam_msgnum = 14;
-
+	else 
+		dam_msgnum = 15;
 	// damage message to onlookers
 	char *buf_ptr = replace_string(dam_weapons[dam_msgnum].to_room,
 		attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
