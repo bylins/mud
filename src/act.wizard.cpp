@@ -850,17 +850,19 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 		return;
 	}
 	// что-то по другому не нашел, как проверить существует такая зона или нет
-	for (zrn = 0; zrn < top_of_zone_table; zrn++)
+	for (zrn = 0; zrn <= top_of_zone_table; zrn++)
 	{
 	    if (zone_table[zrn].number == number)
 	    {
-		is_empty_ch(zrn, ch);
-		is_found = true;
-		break;
+			is_empty_ch(zrn, ch);
+			is_found = true;
+			break;
 	    }
 	}
 	if (!is_found)
+	{
 		send_to_char("Такой зоны нет.\r\n", ch);
+	}
 }
 
 SetAllInspReqListType setall_inspect_list;
@@ -4711,13 +4713,17 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			int found = 0;
 			int zstart = atoi(value);
 			int zend = atoi(value1);
+
 			for (zrn = 0; zrn <= top_of_zone_table; zrn++)
-				if (zone_table[zrn].number >= zstart &&
-						zone_table[zrn].number <= zend)
+			{
+				if (zone_table[zrn].number >= zstart
+					&& zone_table[zrn].number <= zend)
 				{
 					print_zone_to_buf(&bf, zrn);
 					found = 1;
 				}
+			}
+
 			if (!found)
 			{
 				send_to_char("В заданном диапазоне зон нет.\r\n", ch);
