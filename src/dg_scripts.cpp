@@ -1959,9 +1959,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!str_cmp(field, "zreset") && num > 0)
 			{
 				int i;
-				for (i = 0; i < top_of_zone_table; i++)
+				for (i = 0; i <= top_of_zone_table; i++)
+				{
 					if (zone_table[i].number == num)
+					{
 						reset_zone(i);
+					}
+				}
 			}
 			else if (!str_cmp(field, "mob") && num > 0)
 			{
