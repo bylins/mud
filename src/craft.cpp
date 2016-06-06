@@ -932,7 +932,7 @@ namespace craft
 			m_minimum_remorts = minimum_remorts_value;
 		}
 
-		CHelper::ELoadFlagResult load_result = CHelper::load_flag<type_t>(*node, "type",
+		CHelper::ELoadFlagResult load_result = CHelper::load_flag<EObjectType>(*node, "type",
 			[&](const auto type) { this->set_type(type); },
 			[&](const auto name) { log("WARNING: Failed to set object type '%s' for object with VNUM %d. Object will be skipped.\n", name, m_vnum); },
 			[&]() { log("WARNING: \"type\" tag not found for object with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(get_type()).c_str()); });

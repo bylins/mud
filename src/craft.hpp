@@ -119,36 +119,7 @@ namespace craft
 		friend class CPrototype;
 	};
 
-	class CObjectBase
-	{
-	public:
-		using type_t = OBJ_DATA::EObjectType;
-
-		void set_type(const type_t _) { m_type = _; }
-		type_t get_type() const { return m_type; }
-
-		void set_weight(const int _) { m_weight = _; }
-		auto get_weight() const { return m_weight; }
-
-		void set_timer(const int _) { m_timer = _; }
-		auto get_timer() const { return m_timer; }
-
-	protected:
-		CObjectBase():
-			m_type(OBJ_DATA::DEFAULT_TYPE),
-			m_weight(OBJ_DATA::DEFAULT_WEIGHT),
-			m_timer(OBJ_DATA::DEFAULT_TIMER)
-		{
-		}
-
-	private:
-		type_t m_type;
-
-		int m_weight;
-		int m_timer;
-	};
-
-	class CObject: public CObjectBase
+	class CObject: public CObjectPrototype
 	{
 	public:
 		CObject(const obj_vnum vnum) :
