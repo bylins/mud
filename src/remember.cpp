@@ -40,7 +40,7 @@ std::string time_format()
 */
 std::string format_gossip_name(CHAR_DATA *ch, CHAR_DATA *vict)
 {
-	if (!GET_NAME(ch))
+	if (ch->get_name().empty())
 	{
 		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
 		return "";
@@ -227,7 +227,7 @@ unsigned int CharRemember::get_num_str() const
 	return num_str_;
 }
 
-ACMD(do_remember_char)
+void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 

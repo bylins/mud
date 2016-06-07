@@ -122,7 +122,7 @@ bool is_noob(const CHAR_DATA *ch)
 ///
 /// Пустой спешиал, чтобы не морочить голову с перебором тригов в карте
 ///
-SPECIAL(outfit)
+int outfit(CHAR_DATA* /*ch*/, void* /*me*/, int/* cmd*/, char* /*argument*/)
 {
 	return 0;
 }
@@ -212,7 +212,7 @@ void check_help_message(CHAR_DATA *ch)
 ///
 void equip_start_outfit(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_ARMOR)
 	{
 		int where = find_eq_pos(ch, obj, 0);
 		if (where >= 0)
@@ -225,22 +225,25 @@ void equip_start_outfit(CHAR_DATA *ch, OBJ_DATA *obj)
 			}
 		}
 	}
-	else if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+	else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 	{
-		if (CAN_WEAR(obj, ITEM_WEAR_WIELD) && !GET_EQ(ch, WEAR_WIELD))
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)
+			&& !GET_EQ(ch, WEAR_WIELD))
 		{
 			equip_char(ch, obj, WEAR_WIELD);
-			ch->set_skill(GET_OBJ_SKILL(obj), 10);
+			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
 		}
-		else if (CAN_WEAR(obj, ITEM_WEAR_BOTHS) && !GET_EQ(ch, WEAR_BOTHS))
+		else if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
+			&& !GET_EQ(ch, WEAR_BOTHS))
 		{
 			equip_char(ch, obj, WEAR_BOTHS);
-			ch->set_skill(GET_OBJ_SKILL(obj), 10);
+			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
 		}
-		else if (CAN_WEAR(obj, ITEM_WEAR_HOLD) && !GET_EQ(ch, WEAR_HOLD))
+		else if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)
+			&& !GET_EQ(ch, WEAR_HOLD))
 		{
 			equip_char(ch, obj, WEAR_HOLD);
-			ch->set_skill(GET_OBJ_SKILL(obj), 10);
+			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
 		}
 	}
 }

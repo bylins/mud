@@ -40,7 +40,6 @@ void show_purged_message(CHAR_DATA *ch);
 int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num);
 OBJ_DATA * locate_object(const char *str);
 
-void renumber_obj_rnum(int rnum);
 void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto);
 void rename_char(CHAR_DATA *ch);
 void add_offline_money(long uid, int money);

@@ -181,14 +181,17 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 	size_t l_max_name = 0, l_max_vnum = 0;
 	bool left = true;
 
-	for (auto i = set.obj_list.begin(); i != set.obj_list.end(); ++i)
+	for (const auto i : set.obj_list)
 	{
-		const int rnum = real_object(i->first);
-		if (rnum < 0 || !obj_proto[rnum]->short_description) continue;
+		const int rnum = real_object(i.first);
+		if (rnum < 0
+			|| !obj_proto[rnum]->short_description)
+		{
+			continue;
+		}
 
-		const size_t curr_name =
-			strlen_no_colors(obj_proto[rnum]->short_description);
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_index[rnum].vnum);
+		const size_t curr_name = strlen_no_colors(obj_proto[rnum]->short_description);
+		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto.vnum(rnum));
 		const size_t curr_vnum = strlen(buf_vnum);
 
 		if (left)
@@ -206,13 +209,12 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 	}
 
 	left = true;
-	for (auto i = rnum_list.begin(); i != rnum_list.end(); ++i)
+	for (const auto i : rnum_list)
 	{
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_index[*i].vnum);
+		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto.vnum(i));
 		snprintf(format, sizeof(format), "%s%2d%s) %s : %s%%-%zus%s   ",
 			CCGRN(ch, C_NRM), menu++, CCNRM(ch, C_NRM),
-			colored_name(obj_proto[*i]->short_description,
-				left ? l_max_name : r_max_name, true),
+			colored_name(obj_proto[i]->short_description, left ? l_max_name : r_max_name, true),
 			CCCYN(ch, C_NRM), (left ? l_max_vnum : r_max_vnum), CCNRM(ch, C_NRM));
 		snprintf(buf_, sizeof(buf_), format, buf_vnum);
 		out += buf_;
@@ -418,7 +420,7 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	const activ_node &activ = i->second;
 
 	char buf_aff[2048];
-	sprintbits(activ.affects, weapon_affects, buf_aff, ",");
+	activ.affects.sprintbits(weapon_affects, buf_aff, ",");
 	std::string aff_str = line_split_str(buf_aff, ",", 80, 14);
 	std::string prof_str;
 	if (activ.prof.count() != activ.prof.size())
@@ -486,7 +488,7 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 		const int rnum = real_object(activ.enchant.first);
 		const char *name =
 			(rnum >= 0 ? obj_proto[rnum]->short_description : "<null>");
-		if (GET_OBJ_TYPE(obj_proto[rnum]) == ITEM_WEAPON)
+		if (GET_OBJ_TYPE(obj_proto[rnum]) == obj_flag_data::ITEM_WEAPON)
 		{
 			snprintf(buf_, sizeof(buf_),
 				"%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d, кубики %+dD%+d%s\r\n",
@@ -1205,7 +1207,8 @@ void sedit::parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg)
 
 	olc_set.activ_list.at(activ_edit).enchant.first = vnum;
 
-	if (rnum >= 0 && GET_OBJ_TYPE(obj_proto[rnum]) == ITEM_WEAPON)
+	if (rnum >= 0
+		&& GET_OBJ_TYPE(obj_proto[rnum]) == obj_flag_data::ITEM_WEAPON)
 	{
 		state = STATE_ACTIV_ENCH_NDICE;
 		send_to_char("Укажите изменение бросков кубика (0 - без изменений) :", ch);
@@ -1661,8 +1664,7 @@ void sedit::parse_activ_affects(CHAR_DATA *ch, const char *arg)
 	}
 	else
 	{
-		TOGGLE_BIT(olc_set.activ_list.at(activ_edit).affects.flags[plane],
-			1 << (bit));
+		olc_set.activ_list.at(activ_edit).affects.toggle_flag(plane, 1 << bit);
 		show_activ_affects(ch);
 		return;
 	}
@@ -1678,7 +1680,7 @@ void sedit::parse_activ_apply_loc(CHAR_DATA *ch, const char *arg)
 
 	if (num == 0)
 	{
-		apply.location = 0;
+		apply.location = EApplyLocation::APPLY_NONE;
 		apply.modifier = 0;
 		show_activ_edit(ch);
 	}
@@ -1689,7 +1691,7 @@ void sedit::parse_activ_apply_loc(CHAR_DATA *ch, const char *arg)
 	}
 	else
 	{
-		apply.location = num;
+		apply.location = static_cast<EApplyLocation>(num);
 		state = STATE_ACTIV_APPLY_MOD;
 		send_to_char("Введите модификатор : ", ch);
 	}
@@ -1705,7 +1707,7 @@ void sedit::parse_activ_apply_mod(CHAR_DATA *ch, const char *arg)
 
 	if (num == 0)
 	{
-		apply.location = 0;
+		apply.location = EApplyLocation::APPLY_NONE;
 		apply.modifier = 0;
 		show_activ_edit(ch);
 	}
@@ -1960,7 +1962,7 @@ const char *SEDIT_HELP =
 } // namespace
 
 /// иммский sedit, см. SEDIT_HELP
-ACMD(do_sedit)
+void do_sedit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 	{

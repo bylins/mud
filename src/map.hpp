@@ -14,7 +14,7 @@
 #include "char.hpp"
 #include "interpreter.h"
 
-ACMD(do_map);
+void do_map(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 namespace MapSystem
 {

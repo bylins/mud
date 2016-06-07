@@ -29,32 +29,12 @@ extern int dts_are_dumps;
 extern int mini_mud;
 
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 
-SPECIAL(exchange);
-SPECIAL(dump);
-SPECIAL(pet_shops);
-SPECIAL(postmaster);
-SPECIAL(cityguard);
-SPECIAL(receptionist);
-SPECIAL(cryogenicist);
-SPECIAL(guild_guard);
-SPECIAL(guild_mono);
-SPECIAL(guild_poly);
-SPECIAL(horse_keeper);
-SPECIAL(puff);
-SPECIAL(fido);
-SPECIAL(janitor);
-SPECIAL(mayor);
-SPECIAL(snake);
-SPECIAL(thief);
-SPECIAL(magic_user);
-SPECIAL(bank);
-SPECIAL(torc);
-namespace Noob
-{
-SPECIAL(outfit);
-}
+int dump(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int puff(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int exchange(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int torc(CHAR_DATA *ch, void *me, int cmd, char* argument);
 
 void assign_kings_castle(void);
 
@@ -62,14 +42,17 @@ void assign_kings_castle(void);
 void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
-void ASSIGNROOM(room_vnum room, SPECIAL(fname));
-void ASSIGNMOB(mob_vnum mob, SPECIAL(fname));
-void ASSIGNOBJ(obj_vnum obj, SPECIAL(fname));
+
+typedef int special_f(CHAR_DATA*, void*, int, char*);
+
+void ASSIGNROOM(room_vnum room, special_f);
+void ASSIGNMOB(mob_vnum mob, special_f);
+void ASSIGNOBJ(obj_vnum obj, special_f);
 void clear_mob_charm(CHAR_DATA *mob);
 
 // functions to perform assignments
 
-void ASSIGNMOB(mob_vnum mob, SPECIAL(fname))
+void ASSIGNMOB(mob_vnum mob, int fname(CHAR_DATA*, void*, int, char*))
 {
 	mob_rnum rnum;
 
@@ -86,17 +69,17 @@ void ASSIGNMOB(mob_vnum mob, SPECIAL(fname))
 		log("SYSERR: Attempt to assign spec to non-existant mob #%d", mob);
 }
 
-void ASSIGNOBJ(obj_vnum obj, SPECIAL(fname))
+void ASSIGNOBJ(obj_vnum obj, special_f fname)
 {
 	obj_rnum rnum;
 
 	if ((rnum = real_object(obj)) >= 0)
-		obj_index[rnum].func = fname;
+		obj_proto.func(rnum, fname);
 	else if (!mini_mud)
 		log("SYSERR: Attempt to assign spec to non-existant obj #%d", obj);
 }
 
-void ASSIGNROOM(room_vnum room, SPECIAL(fname))
+void ASSIGNROOM(room_vnum room, special_f fname)
 {
 	room_rnum rnum;
 
@@ -106,7 +89,7 @@ void ASSIGNROOM(room_vnum room, SPECIAL(fname))
 		log("SYSERR: Attempt to assign spec to non-existant room #%d", room);
 }
 
-void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info)
+void ASSIGNMASTER(mob_vnum mob, special_f fname, int learn_info)
 {
 	mob_rnum rnum;
 
@@ -193,7 +176,7 @@ void init_spec_procs(void)
 		{
 			log("Bad format for special string!\r\n"
 				"Format : <who/what (%%s)> <vnum (%%d)> <type (%%s)>");
-			_exit(1);
+			graceful_exit(1);
 		}
 		log("<%s>-%d-[%s]", line1, i, line2);
 		if (!str_cmp(line1, "mob"))
@@ -236,7 +219,7 @@ void init_spec_procs(void)
 		else
 		{
 			log("Error in specials file!\r\n" "May be : mob, obj or room...");
-			_exit(1);
+			graceful_exit(1);
 		}
 	}
 	fclose(magic);
@@ -248,10 +231,10 @@ void clear_mob_charm(CHAR_DATA *mob)
 {
 	if (mob && !mob->purged())
 	{
-		REMOVE_BIT(MOB_FLAGS(mob, MOB_MOUNTING), MOB_MOUNTING);
-		SET_BIT(MOB_FLAGS(mob, MOB_NOCHARM), MOB_NOCHARM);
-		SET_BIT(MOB_FLAGS(mob, MOB_NORESURRECTION), MOB_NORESURRECTION);
-		REMOVE_BIT(NPC_FLAGS(mob, NPC_HELPED), NPC_HELPED);
+		MOB_FLAGS(mob).unset(MOB_MOUNTING);
+		MOB_FLAGS(mob).set(MOB_NOCHARM);
+		MOB_FLAGS(mob).set(MOB_NORESURRECTION);
+		NPC_FLAGS(mob).unset(NPC_HELPED);
 	}
 	else
 	{

@@ -353,7 +353,8 @@ runtime_config::logs_t runtime_config::m_logs =
 {
 	CLogInfo("syslog", "ףיףפוםמשך"),
 	CLogInfo("log/errlog.txt", "ןûיגכי םיעב"),
-	CLogInfo("log/imlog.txt", "ימחעוהיומפמבס םבחיס")
+	CLogInfo("log/imlog.txt", "ימחעוהיומפמבס םבחיס"),
+	CLogInfo("log/msdp.txt", "ÌÏÇ MSDP ÐÁËÅÔÏ×")
 };
 
 std::string runtime_config::m_log_stderr;
@@ -387,6 +388,47 @@ void runtime_config::load_stream_config(CLogInfo& log, const pugi::xml_node* nod
 			std::cerr << "Could not set value \"" << buffered.child_value() << "\" as buffered option." << std::endl;
 		}
 	}
+}
+
+typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
+typedef std::map<const std::string, EOutputStream> EOutputStream_value_by_name_t;
+EOutputStream_name_by_value_t EOutputStream_name_by_value;
+EOutputStream_value_by_name_t EOutputStream_value_by_name;
+
+void init_EOutputStream_ITEM_NAMES()
+{
+	EOutputStream_name_by_value.clear();
+	EOutputStream_value_by_name.clear();
+
+	EOutputStream_name_by_value[SYSLOG] = "SYSLOG";
+	EOutputStream_name_by_value[IMLOG] = "IMLOG";
+	EOutputStream_name_by_value[ERRLOG] = "ERRLOG";
+	EOutputStream_name_by_value[MSDP_LOG] = "MSDPLOG";
+
+	for (const auto& i : EOutputStream_name_by_value)
+	{
+		EOutputStream_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+EOutputStream ITEM_BY_NAME(const std::string& name)
+{
+	if (EOutputStream_name_by_value.empty())
+	{
+		init_EOutputStream_ITEM_NAMES();
+	}
+	return EOutputStream_value_by_name.at(name);
+}
+
+template <>
+const std::string& NAME_BY_ITEM<EOutputStream>(const EOutputStream item)
+{
+	if (EOutputStream_name_by_value.empty())
+	{
+		init_EOutputStream_ITEM_NAMES();
+	}
+	return EOutputStream_name_by_value.at(item);
 }
 
 typedef std::map<CLogInfo::EBuffered, std::string> EBuffered_name_by_value_t;
@@ -469,6 +511,12 @@ void runtime_config::load_from_file(const char* filename)
 			if (imlog)
 			{
 				load_stream_config(m_logs[IMLOG], &imlog);
+			}
+
+			const auto msdplog = logging.child("msdplog");
+			if (msdplog)
+			{
+				load_stream_config(m_logs[MSDP_LOG], &msdplog);
 			}
 		}
 	}

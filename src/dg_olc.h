@@ -27,16 +27,10 @@ void dg_olc_script_copy(DESCRIPTOR_DATA * d);
 void dg_script_menu(DESCRIPTOR_DATA * d);
 int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg);
 
-void proto_script_copy(struct trig_proto_list **pdst, struct trig_proto_list *src);
-void proto_script_free(struct trig_proto_list *src);
-
 // define the largest set of commands for as trigger
 #define MAX_CMD_LENGTH 32768	// 16k should be plenty and then some
 
-
-
 #define NUM_TRIG_TYPE_FLAGS		26
-
 
 // * Submodes of TRIGEDIT connectedness.
 #define TRIGEDIT_MAIN_MENU              0

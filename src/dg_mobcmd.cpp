@@ -40,6 +40,7 @@
 #include "handler.h"
 #include "interpreter.h"
 #include "comm.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "im.h"
 #include "features.hpp"
@@ -53,7 +54,7 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
+#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
@@ -66,7 +67,6 @@ extern int reloc_target;
 extern TRIG_DATA *cur_trig;
 
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
-void asciiflag_conv(const char *flag, void *value);
 ROOM_DATA *get_room(char *name);
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
@@ -85,12 +85,10 @@ void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
 #define MOB_OR_IMPL(ch) \
         (IS_NPC(ch) && (!(ch)->desc || GET_LEVEL((ch)->desc->original)>=LVL_IMPL))
 
-
-
 // mob commands
 
 // prints the argument to all the rooms aroud the mobile
-ACMD(do_masound)
+void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -98,7 +96,7 @@ ACMD(do_masound)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (!*argument)
@@ -124,9 +122,8 @@ ACMD(do_masound)
 	IN_ROOM(ch) = temp_in_room;
 }
 
-
 // lets the mobile kill any player or mobile without murder
-ACMD(do_mkill)
+void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
@@ -143,7 +140,7 @@ ACMD(do_mkill)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(argument, arg);
@@ -192,13 +189,12 @@ ACMD(do_mkill)
 	return;
 }
 
-
 /*
  * lets the mobile destroy an object in its inventory
  * it can also destroy a worn object and it can destroy
  * items using all.xxxxx or just plain all of them
  */
-ACMD(do_mjunk)
+void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	int pos, junk_all = 0;
@@ -211,7 +207,7 @@ ACMD(do_mjunk)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(argument, arg);
@@ -256,9 +252,8 @@ ACMD(do_mjunk)
 	return;
 }
 
-
 // prints the message to everyone in the room other than the mob and victim
-ACMD(do_mechoaround)
+void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
@@ -270,7 +265,7 @@ ACMD(do_mechoaround)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	p = one_argument(argument, arg);
@@ -309,9 +304,8 @@ ACMD(do_mechoaround)
 	sub_write(p, victim, TRUE, TO_ROOM);
 }
 
-
 // sends the message to only the victim
-ACMD(do_msend)
+void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
@@ -323,7 +317,7 @@ ACMD(do_msend)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	p = one_argument(argument, arg);
@@ -362,9 +356,8 @@ ACMD(do_msend)
 	sub_write(p, victim, TRUE, TO_CHAR);
 }
 
-
 // prints the message to the room at large
-ACMD(do_mecho)
+void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char *p;
 
@@ -374,7 +367,7 @@ ACMD(do_mecho)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (!*argument)
@@ -396,12 +389,11 @@ ACMD(do_mecho)
 	sub_write(p, ch, TRUE, TO_ROOM);
 }
 
-
 /*
  * lets the mobile load an item or mobile.  All items
  * are loaded into inventory, unless it is NO-TAKE.
  */
-ACMD(do_mload)
+void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int number = 0;
@@ -414,7 +406,7 @@ ACMD(do_mload)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && GET_LEVEL(ch->desc->original) < LVL_IMPL)
@@ -447,7 +439,7 @@ ACMD(do_mload)
 		}
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
 		GET_OBJ_ZONE(object) = world[IN_ROOM(ch)]->zone;
-		if (CAN_WEAR(object, ITEM_WEAR_TAKE))
+		if (CAN_WEAR(object, EWearFlag::ITEM_WEAR_TAKE))
 		{
 			obj_to_char(object, ch);
 		}
@@ -461,13 +453,12 @@ ACMD(do_mload)
 		mob_log(ch, "mload: bad type");
 }
 
-
 /*
  * lets the mobile purge all objects and other npcs in the room,
  * or purge a specified object or mob in the room.  It can purge
  *  itself, but this will be the last command it does.
  */
-ACMD(do_mpurge)
+void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
@@ -479,7 +470,7 @@ ACMD(do_mpurge)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -542,9 +533,8 @@ ACMD(do_mpurge)
 	extract_char(victim, FALSE);
 }
 
-
 // lets the mobile goto any location it wishes that is not private
-ACMD(do_mgoto)
+void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	char buf[MAX_INPUT_LENGTH];
@@ -556,7 +546,7 @@ ACMD(do_mgoto)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(argument, arg);
@@ -581,9 +571,8 @@ ACMD(do_mgoto)
 	char_to_room(ch, location);
 }
 
-
 // lets the mobile do a command at another location. Very useful
-ACMD(do_mat)
+void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	char buf[MAX_INPUT_LENGTH];
@@ -596,7 +585,7 @@ ACMD(do_mat)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	argument = one_argument(argument, arg);
@@ -630,12 +619,11 @@ ACMD(do_mat)
 	}
 }
 
-
 /*
  * lets the mobile transfer people.  the all argument transfers
  * everyone in the current room to the specified location
  */
-ACMD(do_mteleport)
+void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int target;
@@ -648,7 +636,7 @@ ACMD(do_mteleport)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -676,7 +664,7 @@ ACMD(do_mteleport)
 		{
 			next_ch = vict->next_in_room;
 			if (IS_NPC(vict)
-					&& !(IS_HORSE(vict) || AFF_FLAGGED(vict, AFF_CHARM)
+					&& !(IS_HORSE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 						 || MOB_FLAGGED(vict, MOB_ANGEL)))
 				continue;
 			/*			if (on_horse(vict) || has_horse(vict, TRUE))
@@ -723,7 +711,7 @@ ACMD(do_mteleport)
 		for (charmee = world[IN_ROOM(vict)]->people; charmee; charmee = ncharmee)
 		{
 			ncharmee = charmee->next_in_room;
-			if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, AFF_CHARM)
+			if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 									|| MOB_FLAGGED(charmee, MOB_ANGEL))
 					&& charmee->master == vict)
 			{
@@ -761,12 +749,11 @@ ACMD(do_mteleport)
 	}
 }
 
-
 /*
  * lets the mobile force someone to do something.  must be mortal level
  * and the all argument only affects those in the room with the mobile
  */
-ACMD(do_mforce)
+void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 
@@ -776,7 +763,7 @@ ACMD(do_mforce)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -839,9 +826,8 @@ ACMD(do_mforce)
 	}
 }
 
-
 // increases the target's exp
-ACMD(do_mexp)
+void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
@@ -855,7 +841,7 @@ ACMD(do_mexp)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -889,15 +875,13 @@ ACMD(do_mexp)
 	gain_exp(victim, atoi(amount));
 }
 
-
 // increases the target's gold
-ACMD(do_mgold)
+void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 
 	mob_log(ch, "WARNING: mgold command is depracated! Use: %actor.gold(amount-to-add)%");
-
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -905,7 +889,7 @@ ACMD(do_mgold)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -951,7 +935,7 @@ ACMD(do_mgold)
 }
 
 // place someone into the mob's memory list
-ACMD(do_mremember)
+void do_mremember(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	struct script_memory *mem;
@@ -963,7 +947,7 @@ ACMD(do_mremember)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -994,7 +978,7 @@ ACMD(do_mremember)
 	}
 
 	// create a structure and add it to the list
-	CREATE(mem, struct script_memory, 1);
+	CREATE(mem, 1);
 	if (!SCRIPT_MEM(ch))
 		SCRIPT_MEM(ch) = mem;
 	else
@@ -1013,9 +997,8 @@ ACMD(do_mremember)
 	}
 }
 
-
 // remove someone from the list
-ACMD(do_mforget)
+void do_mforget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	struct script_memory *mem, *prev;
@@ -1027,7 +1010,7 @@ ACMD(do_mforget)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -1086,9 +1069,8 @@ ACMD(do_mforget)
 	}
 }
 
-
 // transform into a different mobile
-ACMD(do_mtransform)
+void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *m;
@@ -1102,7 +1084,7 @@ ACMD(do_mtransform)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc)
@@ -1218,8 +1200,7 @@ ACMD(do_mtransform)
 	}
 }
 
-
-ACMD(do_mdoor)
+void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
@@ -1246,7 +1227,7 @@ ACMD(do_mdoor)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	argument = two_arguments(argument, target, direction);
@@ -1298,7 +1279,7 @@ ACMD(do_mdoor)
 	{
 		if (!exit)
 		{
-			CREATE(exit, EXIT_DATA, 1);
+			CREATE(exit, 1);
 			rm->dir_option[dir] = exit;
 		}
 
@@ -1309,8 +1290,10 @@ ACMD(do_mdoor)
 		{
 		case 1:	// description 
 			if (exit->general_description)
+			{
 				free(exit->general_description);
-			CREATE(exit->general_description, char, strlen(value) + 3);
+			}
+			CREATE(exit->general_description, strlen(value) + 3);
 			strcpy(exit->general_description, value);
 			strcat(exit->general_description, "\r\n");
 			break;
@@ -1337,8 +1320,6 @@ ACMD(do_mdoor)
 				exit->keyword = str_dup(buffer.c_str());
 				exit->vkeyword = str_dup(buffer.c_str());
 			}
-//			CREATE(exit->keyword, char, strlen(value) + 1);
-//			strcpy(exit->keyword, value);
 			break;
 		case 5:	// room        
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
@@ -1360,10 +1341,9 @@ ACMD(do_mdoor)
 // increases spells & skills 
 const char *skill_name(int num);
 const char *spell_name(int num);
-int find_skill_num(const char *name);
 int find_spell_num(char *name);
 
-ACMD(do_mfeatturn)
+void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int isFeat = 0;
 	CHAR_DATA *victim;
@@ -1376,7 +1356,7 @@ ACMD(do_mfeatturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(two_arguments(argument, name, featname), amount);
@@ -1410,7 +1390,7 @@ ACMD(do_mfeatturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -1437,12 +1417,14 @@ ACMD(do_mfeatturn)
 
 }
 
-ACMD(do_mskillturn)
+void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int isSkill = 0;
+	bool isSkill = false;
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-	int skillnum = 0, skilldiff = 0;
+	ESkill skillnum = SKILL_INVALID;
+	int recipenum = 0;
+	int skilldiff = 0;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -1450,8 +1432,10 @@ ACMD(do_mskillturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -1462,22 +1446,32 @@ ACMD(do_mskillturn)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 	while ((pos = strchr(skillname, '_')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	{
 		isSkill = 1;
-	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
+	}
+	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		mob_log(ch, "mskillturn: skill/recipe not found");
 		return;
 	}
 
 	if (!str_cmp(amount, "set"))
+	{
 		skilldiff = 1;
+	}
 	else if (!str_cmp(amount, "clear"))
+	{
 		skilldiff = 0;
+	}
 	else
 	{
 		mob_log(ch, "mskillturn: unknown set variable");
@@ -1490,11 +1484,15 @@ ACMD(do_mskillturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
+	{
 		return;
+	}
 
 	if (*name == UID_CHAR)
 	{
@@ -1515,7 +1513,9 @@ ACMD(do_mskillturn)
 	if (isSkill)
 	{
 		if (skill_info[skillnum].classknow[GET_CLASS(victim)][GET_KIN(victim)] == KNOW_SKILL)
-			trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
+        {
+            trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
+        }
 		else 
 		{
 			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
@@ -1523,15 +1523,19 @@ ACMD(do_mskillturn)
 		}
 	}
 	else
-		trg_recipeturn(victim, skillnum, skilldiff);
+	{
+		trg_recipeturn(victim, recipenum, skilldiff);
+	}
 }
 
-ACMD(do_mskilladd)
+void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int isSkill = 0;
+	bool isSkill = false;
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-	int skillnum = 0, skilldiff = 0;
+	ESkill skillnum = SKILL_INVALID;
+	int recipenum = 0;
+	int skilldiff = 0;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -1539,8 +1543,10 @@ ACMD(do_mskilladd)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
@@ -1551,13 +1557,19 @@ ACMD(do_mskilladd)
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 	while ((pos = strchr(skillname, '_')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-		isSkill = 1;
-	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
+	{
+		isSkill = true;
+	}
+	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
 		mob_log(ch, "mskilladd: skill/recipe not found");
 		return;
@@ -1571,11 +1583,15 @@ ACMD(do_mskilladd)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
+	{
 		return;
+	}
 
 	if (*name == UID_CHAR)
 	{
@@ -1594,12 +1610,16 @@ ACMD(do_mskilladd)
 	};
 
 	if (isSkill)
+	{
 		trg_skilladd(victim, skillnum, skilldiff, last_trig_vnum);
+	}
 	else
-		trg_recipeadd(victim, skillnum, skilldiff);
+	{
+		trg_recipeadd(victim, recipenum, skilldiff);
+	}
 }
 
-ACMD(do_mspellturn)
+void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
@@ -1611,8 +1631,10 @@ ACMD(do_mspellturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	argument = one_argument(argument, name);
 	two_arguments(argument, skillname, amount);
@@ -1624,7 +1646,9 @@ ACMD(do_mspellturn)
 	}
 
 	if ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
 	{
@@ -1633,9 +1657,13 @@ ACMD(do_mspellturn)
 	}
 
 	if (!str_cmp(amount, "set"))
+	{
 		skilldiff = 1;
+	}
 	else if (!str_cmp(amount, "clear"))
+	{
 		skilldiff = 0;
+	}
 	else
 	{
 		mob_log(ch, "mspellturn: unknown set variable");
@@ -1648,7 +1676,7 @@ ACMD(do_mspellturn)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
@@ -1673,7 +1701,7 @@ ACMD(do_mspellturn)
 	trg_spellturn(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
-ACMD(do_mspelladd)
+void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
@@ -1685,7 +1713,7 @@ ACMD(do_mspelladd)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	one_argument(two_arguments(argument, name, skillname), amount);
@@ -1697,7 +1725,9 @@ ACMD(do_mspelladd)
 	}
 
 	if ((pos = strchr(skillname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
 	{
@@ -1713,11 +1743,15 @@ ACMD(do_mspelladd)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
+	{
 		return;
+	}
 
 	if (*name == UID_CHAR)
 	{
@@ -1738,7 +1772,7 @@ ACMD(do_mspelladd)
 	trg_spelladd(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
-ACMD(do_mspellitem)
+void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH], *pos;
@@ -1750,8 +1784,10 @@ ACMD(do_mspellitem)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
 
@@ -1762,7 +1798,9 @@ ACMD(do_mspellitem)
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		* pos = ' ';
+	{
+		*pos = ' ';
+	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -1771,15 +1809,25 @@ ACMD(do_mspellitem)
 	}
 
 	if (!str_cmp(type, "potion"))
+	{
 		spell = SPELL_POTION;
+	}
 	else if (!str_cmp(type, "wand"))
+	{
 		spell = SPELL_WAND;
+	}
 	else if (!str_cmp(type, "scroll"))
+	{
 		spell = SPELL_SCROLL;
+	}
 	else if (!str_cmp(type, "items"))
+	{
 		spell = SPELL_ITEMS;
+	}
 	else if (!str_cmp(type, "runes"))
+	{
 		spell = SPELL_RUNES;
+	}
 	else
 	{
 		mob_log(ch, "mspellitem: type spell not found");
@@ -1787,9 +1835,13 @@ ACMD(do_mspellitem)
 	}
 
 	if (!str_cmp(turn, "set"))
+	{
 		spelldiff = 1;
+	}
 	else if (!str_cmp(turn, "clear"))
+	{
 		spelldiff = 0;
+	}
 	else
 	{
 		mob_log(ch, "mspellitem: unknown set variable");
@@ -1815,7 +1867,7 @@ ACMD(do_mspellitem)
 	trg_spellitem(victim, spellnum, spelldiff, spell);
 }
 
-ACMD(do_mdamage)
+void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int dam = 0;
@@ -1827,8 +1879,10 @@ ACMD(do_mdamage)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return;
+	}
 
 	two_arguments(argument, name, amount);
 
@@ -1843,7 +1897,9 @@ ACMD(do_mdamage)
 	if ((victim = get_char(name)))
 	{
 		if (world[IN_ROOM(victim)]->zone != world[IN_ROOM(ch)]->zone)
+		{
 			return;
+		}
 
 		if (GET_LEVEL(victim) >= LVL_IMMORT && dam > 0)
 		{
@@ -1873,7 +1929,9 @@ ACMD(do_mdamage)
 		}
 	}
 	else
+	{
 		mob_log(ch, "mdamage: target not found");
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

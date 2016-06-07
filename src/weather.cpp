@@ -121,7 +121,7 @@ const int sunrise[][2] = { {8, 17},
 	{8, 17}
 };
 
-void another_hour(int mode)
+void another_hour(int/* mode*/)
 {
 	time_info.hours++;
 
@@ -1001,11 +1001,9 @@ void calc_easter(void)
 
 
 const int moon_modifiers[28] = { -10, -9, -7, -5, -3, 0, 0, 0, 0, 0, 0, 0, 1, 5, 10, 5, 1, 0, 0, 0, 0, 0,
-								 0, 0, -2, -5, -7, -9
-							   };
+								 0, 0, -2, -5, -7, -9 };
 
-
-int day_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value)
+int day_spell_modifier(CHAR_DATA * ch, int/* spellnum*/, int type, int value)
 {
 	int modi = value;
 	if (IS_NPC(ch) || IN_ROOM(ch) == NOWHERE)
@@ -1096,11 +1094,9 @@ int complex_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value)
 	return (modi);
 }
 
-
-int day_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value)
+int day_skill_modifier(CHAR_DATA* /*ch*/, int/* skillnum*/, int/* type*/, int value)
 {
-	int modi = value;
-	return (modi);
+	return value;
 }
 
 int weather_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value)

@@ -22,6 +22,7 @@
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
+#include "spell_parser.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "interpreter.h"
@@ -1993,8 +1994,8 @@ void do_start(CHAR_DATA * ch, int newbie)
         OBJ_DATA *obj = read_object(*i, VIRTUAL);
         if (obj)
 		{
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
+			obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
+			obj->set_extraflag(EExtraFlag::ITEM_DECAY);
 			obj->set_cost(0);
 			obj->set_rent(0);
 			obj->set_rent_eq(0);
@@ -2043,7 +2044,9 @@ void do_start(CHAR_DATA * ch, int newbie)
 	// проставим кличи
 	init_warcry(ch);
 	if (siteok_everyone)
-		SET_BIT(PLR_FLAGS(ch, PLR_SITEOK), PLR_SITEOK);
+	{
+		PLR_FLAGS(ch).set(PLR_SITEOK);
+	}
 }
 
 // * Перерасчет максимальных родных хп персонажа.
@@ -2059,7 +2062,7 @@ void levelup_events(CHAR_DATA *ch)
 	if (SpamSystem::MIN_OFFTOP_LVL == GET_LEVEL(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE))
 	{
-		SET_BIT(PRF_FLAGS(ch, PRF_OFFTOP_MODE), PRF_OFFTOP_MODE);
+		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
 		send_to_char(ch,
 			"%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').\r\n",
@@ -2125,7 +2128,7 @@ void advance_level(CHAR_DATA * ch)
 	{
 		for (i = 0; i < 3; i++)
 			GET_COND(ch, i) = (char) - 1;
-		SET_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
+		PRF_FLAGS(ch).set(PRF_HOLYLIGHT);
 	}
 
 	TopPlayer::Refresh(ch);
@@ -2135,7 +2138,7 @@ void advance_level(CHAR_DATA * ch)
 
 void check_max_skills(CHAR_DATA *ch)
 {
-	for (int i = 1; i <= MAX_SKILL_NUM; i++)
+	for (const auto i : AVAILABLE_SKILLS)
 	{
 		if (ch->get_inborn_skill(i)  && i != SKILL_SATTACK)
 		{
@@ -2191,7 +2194,9 @@ void decrease_level(CHAR_DATA * ch)
 
 	GET_WIMP_LEV(ch) = MAX(0, MIN(GET_WIMP_LEV(ch), GET_REAL_MAX_HIT(ch) / 2));
 	if (!IS_IMMORTAL(ch))
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
+	{
+		PRF_FLAGS(ch).unset(PRF_HOLYLIGHT);
+	}
 
 	//check_max_skills(ch);
 	TopPlayer::Refresh(ch);
@@ -2212,7 +2217,7 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj)
 				return (TRUE);
 	if (!ch ||
 			!obj ||
-			(IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) ||
+			(IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) ||
 			IS_IMMORTAL(ch) || obj->obj_flags.Obj_owner == 0 || obj->obj_flags.Obj_owner == GET_UNIQUE(ch))
 		return (FALSE);
 	return (TRUE);
@@ -2225,84 +2230,74 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		for (object = obj->contains; object; object = object->next_content)
 			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0))
 				return (TRUE);
-	if (IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE) && AFF_FLAGGED(ch, AFF_CHARM))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)
+		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
 		return (TRUE);
+	}
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
+	{
 		return (FALSE);
-	if ((IS_OBJ_ANTI(obj, ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_BATTLEMAGE) && IS_BATTLEMAGE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_CHARMMAGE) && IS_CHARMMAGE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_DEFENDERMAGE) && IS_DEFENDERMAGE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_NECROMANCER) && IS_NECROMANCER(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_MALE) && IS_MALE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_FEMALE) && IS_FEMALE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_CLERIC) && IS_CLERIC(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_WARRIOR) && IS_WARRIOR(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_GUARD) && IS_GUARD(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_THIEF) && IS_THIEF(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_ASSASINE) && IS_ASSASINE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_PALADINE) && IS_PALADINE(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_RANGER) && IS_RANGER(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_SMITH) && IS_SMITH(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT) && IS_MERCHANT(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_DRUID) && IS_DRUID(ch)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_BD) && check_agrobd(ch)) ||
-/*                (IS_OBJ_ANTI(obj, ITEM_AN_SEVERANE) &&(GET_RACE(ch) == 0)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_POLANE) && (GET_RACE(ch) == 1)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_KRIVICHI) && (GET_RACE(ch) == 2)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_VATICHI) && (GET_RACE(ch) == 3)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_VELANE) && (GET_RACE(ch) == 4)) ||
-                (IS_OBJ_ANTI(obj, ITEM_AN_DREVLANE) && (GET_RACE(ch) == 5)) ||
-*/		// нелогичный флаг (IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
-		(IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch)))
+	}
+	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO)
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY)
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE) && IS_BATTLEMAGE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE) && IS_CHARMMAGE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DEFENDERMAGE) && IS_DEFENDERMAGE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_NECROMANCER) && IS_NECROMANCER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MALE) && IS_MALE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FEMALE) && IS_FEMALE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CLERIC) && IS_CLERIC(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_WARRIOR) && IS_WARRIOR(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_GUARD) && IS_GUARD(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_THIEF) && IS_THIEF(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_ASSASINE) && IS_ASSASINE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_PALADINE) && IS_PALADINE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RANGER) && IS_RANGER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH) && IS_SMITH(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MERCHANT) && IS_MERCHANT(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID) && IS_DRUID(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BD) && check_agrobd(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_COLORED) && IS_COLORED(ch)))
+	{
 		return (TRUE);
+	}
 	return (FALSE);
 }
 
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
-	if (IS_OBJ_NO(obj, ITEM_NO_CHARMICE) && AFF_FLAGGED(ch, AFF_CHARM))
-		return (TRUE);
-	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
-		return (FALSE);
-
-	if ((IS_OBJ_NO(obj, ITEM_NO_MONO) && GET_RELIGION(ch) == RELIGION_MONO) ||
-		(IS_OBJ_NO(obj, ITEM_NO_POLY) && GET_RELIGION(ch) == RELIGION_POLY) ||
-		(IS_OBJ_NO(obj, ITEM_NO_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_BATTLEMAGE) && IS_BATTLEMAGE(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_CHARMMAGE) && IS_CHARMMAGE(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_DEFENDERMAGE) && IS_DEFENDERMAGE(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_NECROMANCER) && IS_NECROMANCER(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_MALE) && IS_MALE(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_FEMALE) && IS_FEMALE(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_CLERIC) && IS_CLERIC(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_WARRIOR) && IS_WARRIOR(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_GUARD) && IS_GUARD(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_THIEF) && IS_THIEF(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_ASSASINE) && IS_ASSASINE(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_PALADINE) && IS_PALADINE(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_RANGER) && IS_RANGER(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_SMITH) && IS_SMITH(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_MERCHANT) && IS_MERCHANT(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_DRUID) && IS_DRUID(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_BD) && check_agrobd(ch)) ||
-/*                (IS_OBJ_NO(obj, ITEM_NO_SEVERANE) && (GET_RACE(ch) == 0)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_POLANE) && (GET_RACE(ch) == 1)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_KRIVICHI) && (GET_RACE(ch) == 2)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_VATICHI) && (GET_RACE(ch) == 3)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_VELANE) && (GET_RACE(ch) == 4)) ||
-                (IS_OBJ_NO(obj, ITEM_NO_DREVLANE) && (GET_RACE(ch) == 5)) ||
-*/		//(IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
-		((OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED)) && !IS_SMITH(ch)) ||
-		(IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch)))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)
+		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
-		return (TRUE);
+		return TRUE;
 	}
-	return (FALSE);
+
+	if (!IS_CHARMICE(ch)
+		&& (IS_NPC(ch)
+			|| WAITLESS(ch)))
+	{
+		return FALSE;
+	}
+
+	if ((IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO) && GET_RELIGION(ch) == RELIGION_MONO)
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY) && GET_RELIGION(ch) == RELIGION_POLY)
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MAGIC_USER) && IS_MAGIC_USER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BATTLEMAGE) && IS_BATTLEMAGE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMMAGE) && IS_CHARMMAGE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DEFENDERMAGE) && IS_DEFENDERMAGE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_NECROMANCER) && IS_NECROMANCER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE) && IS_MALE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE) && IS_FEMALE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC) && IS_CLERIC(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR) && IS_WARRIOR(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD) && IS_GUARD(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF) && IS_THIEF(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE) && IS_ASSASINE(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE) && IS_PALADINE(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER) && IS_RANGER(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH) && IS_SMITH(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT) && IS_MERCHANT(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_DRUID(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))		|| (!IS_SMITH(ch)			&& (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)				|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch)))
+	{
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 void load_skills_definitions()
@@ -2314,7 +2309,7 @@ void load_skills_definitions()
 	if (!(magic = fopen(LIB_MISC "skills.lst", "r")))
 	{
 		log("Cann't open skills list file...");
-		_exit(1);
+		graceful_exit(1);
 	}
 	while (get_line(magic, name))
 	{
@@ -2324,7 +2319,7 @@ void load_skills_definitions()
 		{
 			log("Bad format for skill string!\r\n"
 				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <minlevel> <improove (%%d)> !");
-			_exit(1);
+			graceful_exit(1);
 		}
 		name[0] = '\0';
 		strcat(name, line1);
@@ -2337,22 +2332,22 @@ void load_skills_definitions()
 		if ((sp_num = find_skill_num(name)) < 0)
 		{
 			log("Skill '%s' not found...", name);
-			_exit(1);
+			graceful_exit(1);
 		}
-        if (PlayerRace::GetKinNameByNum(i[0], SEX_MALE) == RACE_NAME_UNDEFINED)
+        if (PlayerRace::GetKinNameByNum(i[0], ESex::SEX_MALE) == RACE_NAME_UNDEFINED)
 		{
 			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[1] < 0 || i[1] >= NUM_PLAYER_CLASSES)
 		{
 			log("Bad class type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[2] < 0 || i[2] >= MAX_REMORT)
 		{
 			log("Bad remort type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[4])
 		{
@@ -2371,7 +2366,7 @@ void load_skills_definitions()
 	if (!(magic = fopen(LIB_MISC "classskill.lst", "r")))
 	{
 		log("Cann't open classskill list file...");
-		_exit(1);
+		graceful_exit(1);
 	}
 	while (get_line(magic, name))
 	{
@@ -2380,7 +2375,7 @@ void load_skills_definitions()
 		if (sscanf(name, "%s %s %s %s", line1, line2, line3, line4) != 4)
 		{
 			log("Bad format for skill string!\r\n" "Format : <skill name (%%s %%s)> <kin (%%s)> <skills (%%s)> !");
-			_exit(1);
+			graceful_exit(1);
 		}
 		name[0] = '\0';
 		strcat(name, line1);
@@ -2393,7 +2388,7 @@ void load_skills_definitions()
 		if ((sp_num = find_skill_num(name)) < 0)
 		{
 			log("Skill '%s' not found...", name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		for (l = 0; line3[l] && l < NUM_KIN; l++)
 		{
@@ -2446,12 +2441,12 @@ void load_skills()
 			for (xNodeSkill = xNodeClass.child("skill"); xNodeSkill; xNodeSkill = xNodeSkill.next_sibling("skill"))
 			{
 				int sk_num;
-				string name = string(xNodeSkill.attribute("name").value());
+				std::string name = std::string(xNodeSkill.attribute("name").value());
 				if ((sk_num = find_skill_num(name.c_str())) < 0)
-					{
-						log("Skill '%s' not found...", name.c_str());
-						_exit(1);
-					}
+				{
+					log("Skill '%s' not found...", name.c_str());
+					graceful_exit(1);
+				}
 				skill_info[sk_num].classknow[PCclass][PCkin] = KNOW_SKILL;
 				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > MAX_REMORT)
 				{
@@ -2459,36 +2454,40 @@ void load_skills()
 					skill_info[sk_num].level_decrement[PCclass][PCkin] = -1;
 				}
 				else
+				{
 					skill_info[sk_num].level_decrement[PCclass][PCkin] = level_decrement;
+				}
 				//log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, PCkin, PCclass);
 				int value = xNodeSkill.attribute("improve").as_int();
 				skill_info[sk_num].k_improove[PCclass][PCkin] = MAX(1, value);
 				//log("Коэффициент улучшения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, (int)skill_info[sk_num].k_improove[PCclass][PCkin]);
 				value = xNodeSkill.attribute("level").as_int();
-				if (value>0 && value<LVL_IMMORT)
+				if (value > 0 && value < LVL_IMMORT)
 				{
 					skill_info[sk_num].min_level[PCclass][PCkin] = value;
 					//log("Минимальный уровень изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, value);
-				}else
+				}
+				else
 				{
 					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d", skill_info[sk_num].name, value);
-					_exit(1);
+					graceful_exit(1);
 				}
 				value = xNodeSkill.attribute("remort").as_int();
-				if (value>=0 && value<MAX_REMORT)
+				if (value >= 0 && value < MAX_REMORT)
 				{
 					skill_info[sk_num].min_remort[PCclass][PCkin] = value;
 					//log("Минимальное количество ремортов для изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, skill_info[sk_num].min_remort[j][PCkin]);
-				}else
+				}
+				else
 				{
 					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d", skill_info[sk_num].name, value);
-					_exit(1);
+					graceful_exit(1);
 				}
 			}
 		}
-
 	}
 }
+
 /*
  * SPELLS AND SKILLS.  This area defines which spells are assigned to
  * which classes, and the minimum level the character must be to use
@@ -2499,11 +2498,14 @@ void init_spell_levels(void)
 	FILE *magic;
 	char line1[256], line2[256], line3[256], name[256];
 	int i[15], j, sp_num;
+
 	if (!(magic = fopen(LIB_MISC "magic.lst", "r")))
 	{
-		log("Cann't open magic list file...");
-		_exit(1);
+		log("Can't open magic list file...");
+		perror("fopen");
+		graceful_exit(1);
 	}
+
 	while (get_line(magic, name))
 	{
 		if (!name[0] || name[0] == ';')
@@ -2512,7 +2514,7 @@ void init_spell_levels(void)
 		{
 			log("Bad format for magic string!\r\n"
 				"Format : <spell name (%%s %%s)> <kin (%%d)> <classes (%%d)> <remort (%%d)> <slot (%%d)> <level (%%d)>");
-			_exit(1);
+			graceful_exit(1);
 		}
 
 		name[0] = '\0';
@@ -2527,23 +2529,23 @@ void init_spell_levels(void)
 		if ((sp_num = find_spell_num(name)) < 0)
 		{
 			log("Spell '%s' not found...", name);
-			_exit(1);
+			graceful_exit(1);
 		}
 
 		if (i[0] < 0 || i[0] >= NUM_KIN)
 		{
 			log("Bad kin type for spell '%s' \"%d\"...", name, sp_num);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[1] < 0 || i[1] >= NUM_PLAYER_CLASSES)
 		{
 			log("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[2] < 0 || i[2] >= MAX_REMORT)
 		{
 			log("Bad remort type for spell '%s'  \"%d\"...", name, sp_num);
-			_exit(1);
+			graceful_exit(1);
 		}
 		mspell_remort(name, sp_num, i[0], i[1], i[2]);
 		mspell_level(name, sp_num, i[0] , i[1], i[4]);
@@ -2555,7 +2557,7 @@ void init_spell_levels(void)
 	if (!(magic = fopen(LIB_MISC "items.lst", "r")))
 	{
 		log("Cann't open items list file...");
-		_exit(1);
+		graceful_exit(1);
 	}
 	while (get_line(magic, name))
 	{
@@ -2565,7 +2567,7 @@ void init_spell_levels(void)
 		{
 			log("Bad format for magic string!\r\n"
 				"Format : <spell name (%%s %%s)> <type (%%s)> <items_vnum (%%d %%d %%d %%d)>");
-			_exit(1);
+			graceful_exit(1);
 		}
 
 		if (i[4] > 34)
@@ -2584,7 +2586,7 @@ void init_spell_levels(void)
 		if ((sp_num = find_spell_num(name)) < 0)
 		{
 			log("Spell '%s' not found...", name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		size_t c = strlen(line3);
 		if (!strn_cmp(line3, "potion", c))
@@ -2635,7 +2637,7 @@ void init_spell_levels(void)
 		else
 		{
 			log("Unknown items option : %s", line3);
-			_exit(1);
+			graceful_exit(1);
 		}
 	}
 	fclose(magic);
@@ -2643,7 +2645,7 @@ void init_spell_levels(void)
 	if (!(magic = fopen(LIB_MISC "features.lst", "r")))
 	{
 		log("Cann't open features list file...");
-		_exit(1);
+		graceful_exit(1);
 	}
 	while (get_line(magic, name))
 	{
@@ -2653,7 +2655,7 @@ void init_spell_levels(void)
 		{
 			log("Bad format for feature string!\r\n"
 				"Format : <feature name (%%s %%s)>  <kin (%%d %%d %%d)> <class (%%d)> <remort (%%d)> <level (%%d)> <naturalfeat (%%d)>!");
-			_exit(1);
+			graceful_exit(1);
 		}
 		name[0] = '\0';
 		strcat(name, line1);
@@ -2666,28 +2668,28 @@ void init_spell_levels(void)
 		if ((sp_num = find_feat_num(name)) <= 0)
 		{
 			log("Feat '%s' not found...", name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		for (j = 0; j < NUM_KIN; j++)
 			if (i[j] < 0 || i[j] > 1)
 			{
 				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
-				_exit(1);
+				graceful_exit(1);
 			}
 		if (i[3] < 0 || i[3] >= NUM_PLAYER_CLASSES)
 		{
 			log("Bad class type for feat \"%s\"...", feat_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[4] < 0 || i[4] >= MAX_REMORT)
 		{
 			log("Bad remort type for feat \"%s\"...", feat_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		if (i[6] < 0 || i[6] > 1)
 		{
 			log("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
-			_exit(1);
+			graceful_exit(1);
 		}
 		for (j = 0; j < NUM_KIN; j++)
 			if (i[j] == 1)
@@ -2715,7 +2717,7 @@ void init_spell_levels(void)
 	if (!(magic = fopen(LIB_MISC "skillvariables.lst", "r")))
 	{
 		log("Cann't open skillvariables list file...");
-		_exit(1);
+		graceful_exit(1);
 	}
 
 	// Загружаем переменные скилов из файла
@@ -2812,7 +2814,7 @@ void init_spell_levels(void)
 	// +newbook.patch (Alisher)
 		if (!(magic = fopen(LIB_MISC "classrecipe.lst", "r"))) {
 			log("Cann't open classrecipe list file...");
-			_exit(1);
+			graceful_exit(1);
 		}
 		while (get_line(magic, name)) {
 			if (!name[0] || name[0] == ';')
@@ -2820,14 +2822,14 @@ void init_spell_levels(void)
 			if (sscanf(name, "%d %s %s", i, line1, line2) != 3) {
 				log("Bad format for magic string!\r\n"
 				    "Format : <recipe number (%%d)> <races (%%s)> <classes (%%d)>");
-				_exit(1);
+				graceful_exit(1);
 			}
 
 			rcpt = im_get_recipe(i[0]);
 
 			if (rcpt < 0) {
 				log("Invalid recipe (%d)", i[0]);
-				_exit(1);
+				graceful_exit(1);
 			}
 
 	// line1 - ограничения для рас еще не реализованы

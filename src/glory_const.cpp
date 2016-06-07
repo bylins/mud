@@ -94,7 +94,7 @@ const char *olc_stat_name[] =
 	"Ловкость",
 	"Ум",
 	"Мудрость",
-	"Здоровье",
+	"Телосложение",
 	"Обаяние",
 	"Макс.жизнь",
 	"Успех.колдовства",
@@ -510,7 +510,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			if (glory_list.end() == it)
 			{
 				log("SYSERROR : нет записи чара при выходе из олц постоянной славы name=%s (%s:%d)",
-					ch->get_name(), __FILE__, __LINE__);
+					ch->get_name().c_str(), __FILE__, __LINE__);
 				send_to_char("Ошибка сохранения, сообщите Богам!\r\n", ch);
 				ch->desc->glory_const.reset();
 				STATE(ch->desc) = CON_PLAYING;
@@ -533,7 +533,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			if (was_glory < now_glory)
 			{
 				log("SYSERROR : прибавка постоянной славы после редактирования в олц (%d -> %d) name=%s (%s:%d)",
-					was_glory, now_glory, ch->get_name(), __FILE__, __LINE__);
+					was_glory, now_glory, ch->get_name().c_str(), __FILE__, __LINE__);
 			}
 			else
 			{
@@ -564,7 +564,7 @@ const char *GLORY_CONST_FORMAT =
 	"        слава2 информация\r\n"
 	"        слава2 перевести <имя> <кол-во>\r\n";
 
-ACMD(do_spend_glory)
+void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	// До исправления баги
@@ -762,7 +762,7 @@ bool reset_glory(CHAR_DATA *ch)
 	return false;
 }
 
-ACMD(do_glory)
+void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (!*argument)
 	{
@@ -863,7 +863,7 @@ ACMD(do_glory)
 		{
 			if (reset_glory(vict))
 			{
-				send_to_char(ch, "%s - очищена запись постоянной славы.\r\n", vict->get_name());
+				send_to_char(ch, "%s - очищена запись постоянной славы.\r\n", vict->get_name().c_str());
 				// запись в карму, логи
 				sprintf(buf, "(GC) %s reset const glory to %s.", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -874,7 +874,7 @@ ACMD(do_glory)
 			}
 			else
 			{
-				send_to_char(ch, "%s - запись постоянной славы и так пустая.\r\n", vict->get_name());
+				send_to_char(ch, "%s - запись постоянной славы и так пустая.\r\n", vict->get_name().c_str());
 			}
 			break;
 		}
@@ -1142,7 +1142,10 @@ void apply_modifiers(CHAR_DATA *ch)
 		// TODO: убрать наверно надо эти костыли блин, но аппли у нас не позволяет навесить что либо больше чем влазит в signed byte т.е. +127
 // не совсем понял что тут делается, но тупо увеличил аппли до инта, кто мешал это сделать раньше? А то 10 лет багрепортят что аффекты после 127 глючат.
 		if (location)
-			affect_modify(ch, location, (i->second) * (location != APPLY_HIT_GLORY ? stat_multi(i->first) : 1), 0, add);
+		{
+			const int K = location != APPLY_HIT_GLORY ? stat_multi(i->first) : 1;
+			affect_modify(ch, location, i->second * K, static_cast<EAffectFlag>(0), add);
+		}
 	}
 }
 

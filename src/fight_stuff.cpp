@@ -32,7 +32,7 @@ int max_exp_loss_pc(CHAR_DATA * ch);
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 int slot_for_char(CHAR_DATA * ch, int i);
 int mag_manacost(CHAR_DATA * ch, int spellnum);
-ACMD(do_flee);
+void do_flee(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 extern int material_value[];
@@ -47,7 +47,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 	bool leader_partner = false;
 	int partner_feat = 0;
 	if (IS_NPC(killer)
-		&& (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
 		&& killer->master)
 	{
 		master = killer->master;
@@ -58,7 +58,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 	// На этот момент master - PC
 	if (master)
 	{
-		if (AFF_FLAGGED(master, AFF_GROUP))
+		if (AFF_FLAGGED(master, EAffectFlag::AFF_GROUP))
 		{
 			int cnt = 0;
 
@@ -77,7 +77,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 
 			for (struct follow_type *f = master->followers; f; f = f->next)
 			{
-				if (AFF_FLAGGED(f->follower, AFF_GROUP)
+				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 					&& IN_ROOM(f->follower) == IN_ROOM(killer))
 				{
 					if (!number(0, cnt))
@@ -98,10 +98,8 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 }
 
-
-void gift_new_year(CHAR_DATA *vict)
+void gift_new_year(CHAR_DATA* /*vict*/)
 {
-	
 }
 
 // 29.11.09 Увеличиваем счетчики рипов (с) Василиса
@@ -202,7 +200,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 	if (IS_NPC(ch) && killer) // Убили моба
 	{
 		if (!IS_NPC(killer) // Убил загрупленный чар
-			&& AFF_FLAGGED(killer, AFF_GROUP)
+			&& AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP)
 			&& killer->master
 			&& killer->master->get_skill(SKILL_LEADERSHIP) > 0
 			&& IN_ROOM(killer) == IN_ROOM(killer->master))
@@ -212,7 +210,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 		else if (IS_NPC(killer) // Убил чармис загрупленного чара
 			&& IS_CHARMICE(killer)
 			&& killer->master
-			&& AFF_FLAGGED(killer->master, AFF_GROUP))
+			&& AFF_FLAGGED(killer->master, EAffectFlag::AFF_GROUP))
 		{
 			if (killer->master->master // Владелец чармиса НЕ лидер
 				&& killer->master->master->get_skill(SKILL_LEADERSHIP) > 0
@@ -228,7 +226,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 	if (!IS_NPC(ch) // Член группы убит мобом
 		&& killer
 		&& IS_NPC(killer)
-		&& AFF_FLAGGED(ch, AFF_GROUP)
+		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
 		&& ch->master
 		&& IN_ROOM(ch) == IN_ROOM(ch->master)
 		&& ch->master->get_inborn_skill(SKILL_LEADERSHIP) > 1)
@@ -305,13 +303,15 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 // * Снятие аффектов с чара при смерти/уходе в дт.
 void reset_affects(CHAR_DATA *ch)
 {
-	AFFECT_DATA *af, *naf;
+	AFFECT_DATA<EApplyLocation> *naf;
 
-	for (af = ch->affected; af; af = naf)
+	for (auto af = ch->affected; af; af = naf)
 	{
 		naf = af->next;
 		if (!IS_SET(af->battleflag, AF_DEADKEEP))
+		{
 			affect_remove(ch, af);
+		}
 	}
 
 	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
@@ -344,7 +344,7 @@ void forget_all_spells(CHAR_DATA *ch)
 			for (unsigned j=0; (slots[slotn]>0 && j<ch->real_abils.SplMem[i]); ++j, --slots[slotn])
 			{
 				ch->MemQueue.total += mag_manacost(ch, i);
-				CREATE(qi_cur, struct spell_mem_queue_item, 1);
+				CREATE(qi_cur, 1);
 				*qi = qi_cur;
 				qi_cur->spellnum = i;
 				qi_cur->link = NULL;
@@ -355,13 +355,13 @@ void forget_all_spells(CHAR_DATA *ch)
 	}
 	if (max_slot)
 	{
-		AFFECT_DATA af;
+		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_RECALL_SPELLS;
 		af.location = APPLY_NONE;
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
 		af.duration = pc_duration(ch, max_slot*RECALL_SPELLS_INTERVAL+SECS_PER_PLAYER_AFFECT, 0, 0, 0, 0);
-		af.bitvector = AFF_RECALL_SPELLS;
+		af.bitvector = to_underlying(EAffectFlag::AFF_RECALL_SPELLS);
 		af.battleflag = AF_PULSEDEC | AF_DEADKEEP;
 		affect_join(ch, &af, 0, 0, 0, 0);
 	}
@@ -375,8 +375,8 @@ int can_loot(CHAR_DATA * ch)
 	{
 		if (!IS_NPC(ch)
 			&& GET_MOB_HOLD(ch) == 0 // если под холдом
-			&& !AFF_FLAGGED(ch, AFF_STOPFIGHT) // парализован точкой
-			&& !AFF_FLAGGED(ch, AFF_BLIND)	// слеп
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) // парализован точкой
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)	// слеп
 			&& (GET_POS(ch) >= POS_RESTING)) // мертв, умирает, без сознания, спит
 		{
 			return TRUE;
@@ -390,8 +390,12 @@ void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 	int door;
 	if (killer)
 	{
-		act("Кровушка стынет в жилах от предсмертного крика $N1.",
-			FALSE, killer, 0, ch, TO_ROOM | CHECK_DEAF);
+		if (IS_CHARMICE(killer))
+			act("Кровушка стынет в жилах от предсмертного крика $N1.",
+				FALSE, killer->master, 0, ch, TO_ROOM | CHECK_DEAF);
+		else
+			act("Кровушка стынет в жилах от предсмертного крика $N1.",
+				FALSE, killer, 0, ch, TO_ROOM | CHECK_DEAF);
 	}
 //	act("Кровушка стынет в жилах от предсмертного крика $n1.",
 //		FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
@@ -433,7 +437,7 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 	if (to_room == NOWHERE)
 	{
-		SET_BIT(PLR_FLAGS(ch, PLR_HELLED), PLR_HELLED);
+		PLR_FLAGS(ch).set(PLR_HELLED);
 		HELL_DURATION(ch) = time(0) + 6;
 		to_room = r_helled_start_room;
 	}
@@ -443,14 +447,18 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 }
 
 void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gold)
-{      char obj[256];
+{
+	char obj[256];
 
-  if(IS_DARK(IN_ROOM(killer)) && !can_use_feat(killer, DARK_READING_FEAT) 
-	  && !(IS_NPC(killer) && AFF_FLAGGED(killer, AFF_CHARM) 
-		  && ((killer->master) && can_use_feat(killer->master, DARK_READING_FEAT))))
-     return;
-     else
-  {
+	if (IS_DARK(IN_ROOM(killer))
+		&& !can_use_feat(killer, DARK_READING_FEAT)
+		&& !(IS_NPC(killer)
+			&& AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+			&& (killer->master
+				&& can_use_feat(killer->master, DARK_READING_FEAT))))
+	{
+		return;
+	}
 
 	if (IS_NPC(ch)
 		&& !IS_NPC(killer)
@@ -473,7 +481,8 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 	}
 	else if (IS_NPC(ch)
 		&& IS_NPC(killer)
-		&& (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(killer, MOB_ANGEL))
 		&& (corpse != NULL)
 		&& killer->master
 		&& killer->in_room == killer->master->in_room
@@ -486,7 +495,8 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 	else if (IS_NPC(ch)
 		&& IS_NPC(killer)
 		&& local_gold
-		&& (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(killer, MOB_ANGEL))
 		&& (corpse != NULL)
 		&& killer->master
 		&& killer->in_room == killer->master->in_room
@@ -496,7 +506,6 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 		sprintf(obj, "all.coin");
 		get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1, false);
 	}
-  }
 }
 
 void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
@@ -725,7 +734,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
 	{
 		mob_stat::add_mob(victim, members);
-		SET_BIT(EXTRA_FLAGS(victim, EXTRA_GRP_KILL_COUNT), EXTRA_GRP_KILL_COUNT);
+		EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
 	}
 	else if (IS_NPC(ch) && !IS_NPC(victim)
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
@@ -768,14 +777,17 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	if (exp > 1)
 	{
 		if (Bonus::is_bonus(BONUS_EXP))
+		{
 			exp *= Bonus::get_mult_bonus();
+		}
 		if (!IS_NPC(ch) && ch->affected)
 		{ 
-			AFFECT_DATA *aff = ch->affected;
-			for (aff = ch->affected; aff; aff = aff->next)
+			for (auto aff = ch->affected; aff; aff = aff->next)
 			{
 				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
-					exp *= MIN( 3, aff->modifier); // бонус макс тройной
+				{
+					exp *= MIN(3, aff->modifier); // бонус макс тройной
+				}
 			}
 		}
 		exp = MIN(max_exp_gain_pc(ch), exp);
@@ -821,7 +833,7 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 		k = ch;
 
 	// k - подозрение на лидера группы
-	leader_inroom = (AFF_FLAGGED(k, AFF_GROUP)
+	leader_inroom = (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
 					 && (k->in_room == IN_ROOM(ch)));
 
 	// Количество согрупников в комнате
@@ -831,27 +843,31 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 		maxlevel = GET_LEVEL(k);
 	}
 	else
+	{
 		inroom_members = 0;
+	}
 
 	// Вычисляем максимальный уровень в группе
-	
-	
-	
 	for (f = k->followers; f; f = f->next)
-		if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
+	{
+		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+			&& f->follower->in_room == IN_ROOM(ch))
 		{
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
 			if (can_use_feat(f->follower, CYNIC_FEAT))
-			    maxlevel = 300;
+				maxlevel = 300;
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
 			maxlevel = MAX(maxlevel, GET_LEVEL(f->follower));
 			if (!IS_NPC(f->follower))
+			{
 				partner_count++;
+			}
 		}
+	}
 
 	// Вычисляем, надо ли резать экспу, смотрим сначала лидера, если он рядом
 	if (maxlevel - GET_LEVEL(k) > grouping[(int)GET_CLASS(k)][(int)GET_REMORT(k)] && leader_inroom)
@@ -862,13 +878,13 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	{
 		for (f = k->followers; f; f = f->next)
 		{
-			if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
+			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+				&& f->follower->in_room == IN_ROOM(ch))
 			{
-				if (maxlevel - GET_LEVEL(f->follower) >
-						grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)])
+				const int K = grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)];
+				if (maxlevel - GET_LEVEL(f->follower) > K)
 				{
-					koef -= 50 + (maxlevel - GET_LEVEL(f->follower)
-						- grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)]) * 2;
+					koef -= 50 + (maxlevel - GET_LEVEL(f->follower) - K) * 2;
 					break;
 				}
 			}
@@ -907,9 +923,15 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	    }
 		perform_group_gain(k, victim, inroom_members, koef);
 	}
+
 	for (f = k->followers; f; f = f->next)
-		if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
+	{
+		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+			&& f->follower->in_room == IN_ROOM(ch))
+		{
 			perform_group_gain(f->follower, victim, inroom_members, koef);
+		}
+	}
 }
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
@@ -917,7 +939,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 	if (ch != victim
 		&& OK_GAIN_EXP(ch, victim)
 		&& GET_EXP(victim) > 0
-		&& !AFF_FLAGGED(victim, AFF_CHARM)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
 		&& !MOB_FLAGGED(victim, MOB_ANGEL)
 		&& !IS_NPC(ch)
 		&& !MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP))
@@ -942,8 +964,8 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance)
 		return;
 	dam = number(0, dam * (material_value[GET_OBJ_MATER(obj)] + 30) /
 				 MAX(1, GET_OBJ_MAX(obj) *
-					 (IS_OBJ_STAT(obj, ITEM_NODROP) ? 5 :
-					  IS_OBJ_STAT(obj, ITEM_BLESS) ? 15 : 10) * (GET_OBJ_SKILL(obj) == SKILL_BOWS ? 3 : 1)));
+					 (obj->get_extraflag(EExtraFlag::ITEM_NODROP) ? 5 :
+					  obj->get_extraflag(EExtraFlag::ITEM_BLESS) ? 15 : 10) * (GET_OBJ_SKILL(obj) == SKILL_BOWS ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100))
 	{
@@ -996,7 +1018,7 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance)
 			pos = WEAR_HOLD;
 	}
 
-	if (pos <= 0 || pos > WEAR_BOTHS || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, AFF_SHIELD))
+	if (pos <= 0 || pos > WEAR_BOTHS || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD))
 		return; // Добавил: под "зб" не убивается стаф (Купала)
 	alterate_object(GET_EQ(ch, pos), dam, chance);
 }
@@ -1152,11 +1174,11 @@ void Damage::post_init_shields(CHAR_DATA *victim)
 {
 	if (IS_NPC(victim) && !IS_CHARMICE(victim))
 	{
-		if (AFF_FLAGGED(victim, AFF_FIRESHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD))
 			flags.set(VICTIM_FIRE_SHIELD);
-		if (AFF_FLAGGED(victim, AFF_ICESHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_ICESHIELD))
 			flags.set(VICTIM_ICE_SHIELD);
-		if (AFF_FLAGGED(victim, AFF_AIRSHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_AIRSHIELD))
 			flags.set(VICTIM_AIR_SHIELD);
 	}
 	else
@@ -1164,11 +1186,11 @@ void Damage::post_init_shields(CHAR_DATA *victim)
 		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
 		std::vector<int> shields;
 
-		if (AFF_FLAGGED(victim, AFF_FIRESHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD))
 			shields.push_back(FIRESHIELD);
-		if (AFF_FLAGGED(victim, AFF_AIRSHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_AIRSHIELD))
 			shields.push_back(AIRSHIELD);
-		if (AFF_FLAGGED(victim, AFF_ICESHIELD))
+		if (AFF_FLAGGED(victim, EAffectFlag::AFF_ICESHIELD))
 			shields.push_back(ICESHIELD);
 
 		if (shields.empty())

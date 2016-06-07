@@ -11,12 +11,8 @@
 #include "olc.h"
 
 #include "obj.hpp"
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
 #include "interpreter.h"
 #include "comm.h"
-#include "utils.h"
 #include "db.h"
 #include "dg_olc.h"
 #include "screen.h"
@@ -25,9 +21,14 @@
 #include "privilege.hpp"
 #include "char.hpp"
 #include "room.hpp"
+#include "utils.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
+#include <vector>
 
 // * External data structures.
-extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 
 extern struct zone_data *zone_table;
@@ -113,7 +114,7 @@ olc_data::olc_data()
  * generic OLC stuff, then passes control to the sub-olc sections.
  */
 
-ACMD(do_olc)
+void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int number = -1, save = 0, real_num;
 	bool lock = 0, unlock = 0;
@@ -355,7 +356,7 @@ ACMD(do_olc)
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
 		TRUE, d->character, 0, 0, TO_ROOM);
-	SET_BIT(PLR_FLAGS(ch, PLR_WRITING), PLR_WRITING);
+	PLR_FLAGS(ch).set(PLR_WRITING);
 }
 
 // ------------------------------------------------------------
@@ -411,7 +412,7 @@ void olc_add_to_save_list(int zone, byte type)
 		if ((lnew->zone == zone) && (lnew->type == type))
 			return;
 
-	CREATE(lnew, struct olc_save_info, 1);
+	CREATE(lnew, 1);
 	lnew->zone = zone;
 	lnew->type = type;
 	lnew->next = olc_save_list;
@@ -493,11 +494,13 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		{
 			free(OLC_STORAGE(d));
 		}
+
 		// Освободить прототип
-		if (OLC_SCRIPT(d))
+		if (!OLC_SCRIPT(d).empty())
 		{
 			dg_olc_script_free(d);
 		}
+
 		// Освободить комнату
 		if (OLC_ROOM(d))
 		{
@@ -551,7 +554,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		// Restore descriptor playing status.
 		if (d->character)
 		{
-			REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
+			PLR_FLAGS(d->character).unset(PLR_WRITING);
 			STATE(d) = CON_PLAYING;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
 				TRUE, d->character, 0, 0, TO_ROOM);
@@ -579,7 +582,7 @@ void xedit_disp_ing(DESCRIPTOR_DATA * d, int *ping)
 				 "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character);
 }
 
-int xparse_ing(DESCRIPTOR_DATA * d, int **pping, char *arg)
+int xparse_ing(DESCRIPTOR_DATA* /*d*/, int **pping, char *arg)
 {
 	switch (*arg)
 	{

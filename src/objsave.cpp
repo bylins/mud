@@ -30,6 +30,7 @@
 #include "mail.h"
 #include "dg_scripts.h"
 #include "features.hpp"
+#include "char_obj_utils.inl"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -37,16 +38,14 @@
 #include <boost/algorithm/string.hpp>
 
 #include <sstream>
+#include <vector>
 
 #define LOC_INVENTORY	0
 #define MAX_BAG_ROWS	5
 #define ITEM_DESTROYED  100
 
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern struct player_index_element *player_table;
-extern vector < OBJ_DATA * >obj_proto;
 extern int top_of_p_table;
 extern int rent_file_timeout, crash_file_timeout;
 extern int free_crashrent_period;
@@ -56,20 +55,18 @@ extern long last_rent_check;
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
-#define SAVEINFO(number) ((player_table+number)->timer)
+
 #define RENTCODE(number) ((player_table+number)->timer->rent.rentcode)
 #define GET_INDEX(ch) (get_ptable_by_name(GET_NAME(ch)))
 
 // Extern functions
-ACMD(do_tell);
-SPECIAL(receptionist);
-SPECIAL(cryogenicist);
+void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+int receptionist(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int cryogenicist(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
-void asciiflag_conv(const char *flag, void *value);
-extern int convert_drinkcon_skill(OBJ_DATA *obj, bool proto);
 extern bool check_unlimited_timer(OBJ_DATA *obj);
 extern bool check_obj_in_system_zone(int vnum);
 // local functions
@@ -78,8 +75,6 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location);
 int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj);
 void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj,
 					   int *cost, long *nitems, int display, int factor, int equip, int recursive);
-void update_obj_file(void);
-int Crash_write_rentcode(CHAR_DATA * ch, FILE * fl, struct save_rent_info *rent);
 int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int mode);
 void Crash_save(std::stringstream &write_buffer, int iplayer, OBJ_DATA * obj, int location, int savetype);
 void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost);
@@ -87,7 +82,6 @@ void Crash_restore_weight(OBJ_DATA * obj);
 void Crash_extract_objs(OBJ_DATA * obj);
 int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj);
 void Crash_extract_norents(CHAR_DATA *ch, OBJ_DATA * obj);
-void Crash_extract_expensive(OBJ_DATA * obj);
 int Crash_calculate_rent(OBJ_DATA * obj);
 int Crash_calculate_rent_eq(OBJ_DATA * obj);
 int Crash_delete_files(int index);
@@ -161,6 +155,8 @@ int get_buf_lines(char **source, char *target)
 	}
 	return (FALSE);
 }
+
+extern void free_script(SCRIPT_DATA * sc);
 
 // Данная процедура выбирает предмет из буфера.
 // с поддержкой нового формата вещей игроков [от 10.12.04].
@@ -284,12 +280,12 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Mter"))
 			{
 				*error = 18;
-				GET_OBJ_MATER(object) = atoi(buffer);
+				GET_OBJ_MATER(object) = static_cast<obj_flag_data::EObjectMaterial>(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Sexx"))
 			{
 				*error = 19;
-				GET_OBJ_SEX(object) = atoi(buffer);
+				GET_OBJ_SEX(object) = static_cast<ESex>(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Tmer"))
 			{
@@ -310,25 +306,25 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 23;
 				GET_OBJ_AFFECTS(object) = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_AFFECTS(object));
+				GET_OBJ_AFFECTS(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Anti"))
 			{
 				*error = 24;
 				GET_OBJ_ANTI(object) = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_ANTI(object));
+				GET_OBJ_ANTI(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Nofl"))
 			{
 				*error = 25;
 				GET_OBJ_NO(object) = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_NO(object));
+				GET_OBJ_NO(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Extr"))
 			{
 				*error = 26;
-				object->obj_flags.extra_flags = clear_flags;
-				asciiflag_conv(buffer, &GET_OBJ_EXTRA(object, 0));
+				GET_OBJ_EXTRA(object) = clear_flags;
+				GET_OBJ_EXTRA(object).from_string(buffer);
 			}
 			else if (!strcmp(read_line, "Wear"))
 			{
@@ -339,7 +335,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Type"))
 			{
 				*error = 28;
-				GET_OBJ_TYPE(object) = atoi(buffer);
+				GET_OBJ_TYPE(object) = static_cast<obj_flag_data::EObjectType>(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Val0"))
 			{
@@ -400,48 +396,48 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 40;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[0].location = t[0];
+				object->affected[0].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[0].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Afc1"))
 			{
 				*error = 41;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[1].location = t[0];
+				object->affected[1].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[1].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Afc2"))
 			{
 				*error = 42;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[2].location = t[0];
+				object->affected[2].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[2].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Afc3"))
 			{
 				*error = 43;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[3].location = t[0];
+				object->affected[3].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[3].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Afc4"))
 			{
 				*error = 44;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[4].location = t[0];
+				object->affected[4].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[4].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Afc5"))
 			{
 				*error = 45;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->affected[5].location = t[0];
+				object->affected[5].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[5].modifier = t[1];
 			}
 			else if (!strcmp(read_line, "Edes"))
 			{
 				*error = 46;
-				CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+				CREATE(new_descr, 1);
 				new_descr->keyword = str_dup(buffer);
 				if (!strcmp(new_descr->keyword, "None"))
 				{
@@ -525,11 +521,13 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 					case 'A':
 					{
 						obj_affected_type tmp_affected;
-						if (sscanf(tmp_buf.c_str(), "A %d %d", &tmp_affected.location, &tmp_affected.modifier) != 2)
+						int location = 0;
+						if (sscanf(tmp_buf.c_str(), "A %d %d", &location, &tmp_affected.modifier) != 2)
 						{
 							*error = 53;
 							return object;
 						}
+						tmp_affected.location = static_cast<EApplyLocation>(location);
 						tmp_aff.affected_.push_back(tmp_affected);
 						break;
 					}
@@ -539,7 +537,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							*error = 54;
 							return object;
 						}
-						asciiflag_conv(buf2, &tmp_aff.affects_flags_);
+						tmp_aff.affects_flags_.from_string(buf2);
 						break;
 					case 'E':
 						if (sscanf(tmp_buf.c_str(), "E %s", buf2) != 1)
@@ -547,7 +545,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							*error = 55;
 							return object;
 						}
-						asciiflag_conv(buf2, &tmp_aff.extra_flags_);
+						tmp_aff.extra_flags_.from_string(buf2);
 						break;
 					case 'N':
 						if (sscanf(tmp_buf.c_str(), "N %s", buf2) != 1)
@@ -555,7 +553,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							*error = 56;
 							return object;
 						}
-						asciiflag_conv(buf2, &tmp_aff.no_flags_);
+						tmp_aff.no_flags_.from_string(buf2);
 						break;
 					case 'W':
 						if (sscanf(tmp_buf.c_str(), "W %d", &tmp_aff.weight_) != 1)
@@ -645,26 +643,27 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 	*error = 0;
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == ITEM_DRINKCON || GET_OBJ_TYPE(object) == ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(object) == obj_flag_data::ITEM_FOUNTAIN)
 	{
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1))
 			GET_OBJ_WEIGHT(object) = GET_OBJ_VAL(object, 1) + 5;
 	}
 	// проставляем имя жидкости
-	if (GET_OBJ_TYPE(object) == ITEM_DRINKCON)
+	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_DRINKCON)
 	{
 		name_from_drinkcon(object);
 		if (GET_OBJ_VAL(object, 1) && GET_OBJ_VAL(object, 2))
 			name_to_drinkcon(object, GET_OBJ_VAL(object, 2));
 	}
 	// Проверка на ингры
-	if (GET_OBJ_TYPE(object) == ITEM_MING)
+	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_MING)
 	{
 		int err = im_assign_power(object);
 		if (err)
 			*error = 100 + err;
 	}
-	if (OBJ_FLAGGED(object, ITEM_NAMED))//Именной предмет
+	if (object->get_extraflag(EExtraFlag::ITEM_NAMED))//Именной предмет
 	{
 		free_script(SCRIPT(object));//детачим все триги, пока что так
 		SCRIPT(object) = NULL;
@@ -710,13 +709,17 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		object->aliases = str_dup(buffer);
 		// Падежи
 		*error = 5;
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 		{
 			if (!get_buf_lines(data, buffer))
+			{
 				return (object);
+			}
 			GET_OBJ_PNAME(object, i) = str_dup(buffer);
 			if (i==0)
+			{
 				object->short_description = str_dup(buffer);
+			}
 		}
 		// Описание когда на земле
 		*error = 6;
@@ -742,12 +745,12 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	asciiflag_conv(f0, &GET_OBJ_SKILL(object));
 	GET_OBJ_MAX(object) = t[1];
 	GET_OBJ_CUR(object) = t[2];
-	GET_OBJ_MATER(object) = t[3];
+	GET_OBJ_MATER(object) = static_cast<obj_flag_data::EObjectMaterial>(t[3]);
 
 	*error = 10;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
 		return (object);
-	GET_OBJ_SEX(object) = t[0];
+	GET_OBJ_SEX(object) = static_cast<ESex>(t[0]);
 	object->set_timer(t[1]);
 	GET_OBJ_SPELL(object) = t[2];
 	GET_OBJ_LEVEL(object) = t[3];
@@ -758,17 +761,17 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	GET_OBJ_AFFECTS(object) = clear_flags;
 	GET_OBJ_ANTI(object) = clear_flags;
 	GET_OBJ_NO(object) = clear_flags;
-	asciiflag_conv(f0, &GET_OBJ_AFFECTS(object));
-	asciiflag_conv(f1, &GET_OBJ_ANTI(object));
-	asciiflag_conv(f2, &GET_OBJ_NO(object));
+	GET_OBJ_AFFECTS(object).from_string(f0);
+	GET_OBJ_ANTI(object).from_string(f1);
+	GET_OBJ_NO(object).from_string(f2);
 
 	*error = 12;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %s %s", t, f1, f2) != 3)
 		return (object);
-	GET_OBJ_TYPE(object) = t[0];
-	object->obj_flags.extra_flags = clear_flags;
+	GET_OBJ_TYPE(object) = static_cast<obj_flag_data::EObjectType>(t[0]);
+	GET_OBJ_EXTRA(object) = clear_flags;
 	GET_OBJ_WEAR(object) = 0;
-	asciiflag_conv(f1, &GET_OBJ_EXTRA(object, 0));
+	GET_OBJ_EXTRA(object).from_string(f1);
 	asciiflag_conv(f2, &GET_OBJ_WEAR(object));
 
 	*error = 13;
@@ -795,10 +798,13 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	GET_OBJ_OWNER(object) = t[1];
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == ITEM_DRINKCON || GET_OBJ_TYPE(object) == ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(object) == obj_flag_data::ITEM_FOUNTAIN)
 	{
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1))
+		{
 			GET_OBJ_WEIGHT(object) = GET_OBJ_VAL(object, 1) + 5;
+		}
 	}
 
 	object->ex_description = NULL;	// Exclude doubling ex_description !!!
@@ -814,18 +820,20 @@ OBJ_DATA *read_one_object(char **data, int *error)
 				object->affected[j].location = APPLY_NONE;
 				object->affected[j].modifier = 0;
 			}
-			if (GET_OBJ_TYPE(object) == ITEM_MING)
+			if (GET_OBJ_TYPE(object) == obj_flag_data::ITEM_MING)
 			{
 				int err = im_assign_power(object);
 				if (err)
+				{
 					*error = 100 + err;
+				}
 			}
 			return (object);
 		}
 		switch (*buffer)
 		{
 		case 'E':
-			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+			CREATE(new_descr, 1);
 			if (!get_buf_lines(data, buffer))
 			{
 				free(new_descr);
@@ -857,7 +865,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 			}
 			if (sscanf(buffer, " %d %d ", t, t + 1) == 2)
 			{
-				object->affected[j].location = t[0];
+				object->affected[j].location = static_cast<EApplyLocation>(t[0]);
 				object->affected[j].modifier = t[1];
 				j++;
 			}
@@ -944,7 +952,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
 		}
 		// Падежи
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 		{
 			if (str_cmp(GET_OBJ_PNAME(object, i), GET_OBJ_PNAME(proto, i)))
 			{
@@ -998,7 +1006,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Пол
 		if (GET_OBJ_SEX(object) != GET_OBJ_SEX(proto))
 		{
-			out << "Sexx: " << GET_OBJ_SEX(object) << "~\n";
+			out << "Sexx: " << static_cast<int>(GET_OBJ_SEX(object)) << "~\n";
 		}
 		// Таймер
 		if (object->get_timer() != proto->get_timer())
@@ -1035,8 +1043,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Наводимые аффекты
 		*buf = '\0';
 		*buf2 = '\0';
-		tascii(&GET_FLAG(GET_OBJ_AFFECTS(object), 0), 4, buf);
-		tascii(&GET_FLAG(GET_OBJ_AFFECTS(proto), 0), 4, buf2);
+		GET_OBJ_AFFECTS(object).tascii(4, buf);
+		GET_OBJ_AFFECTS(proto).tascii(4, buf2);
 		if (str_cmp(buf, buf2))
 		{
 			out << "Affs: " << buf << "~\n";
@@ -1044,8 +1052,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Анти флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		tascii(&GET_FLAG(GET_OBJ_ANTI(object), 0), 4, buf);
-		tascii(&GET_FLAG(GET_OBJ_ANTI(proto), 0), 4, buf2);
+		GET_OBJ_ANTI(object).tascii(4, buf);
+		GET_OBJ_ANTI(proto).tascii(4, buf2);
 		if (str_cmp(buf, buf2))
 		{
 			out << "Anti: " << buf << "~\n";
@@ -1053,8 +1061,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Запрещающие флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		tascii(&GET_FLAG(GET_OBJ_NO(object), 0), 4, buf);
-		tascii(&GET_FLAG(GET_OBJ_NO(proto), 0), 4, buf2);
+		GET_OBJ_NO(object).tascii(4, buf);
+		GET_OBJ_NO(proto).tascii(4, buf2);
 		if (str_cmp(buf, buf2))
 		{
 			out << "Nofl: " << buf << "~\n";
@@ -1063,13 +1071,17 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		*buf = '\0';
 		*buf2 = '\0';
 		//Временно убираем флаг !окровавлен! с вещи, чтобы он не сохранялся
-		bool blooded = IS_OBJ_STAT(object, ITEM_BLOODY) != 0;
+		bool blooded = object->get_extraflag(EExtraFlag::ITEM_BLOODY);
 		if (blooded)
-			REMOVE_BIT(GET_OBJ_EXTRA(object, ITEM_BLOODY), ITEM_BLOODY);
-		tascii(&GET_OBJ_EXTRA(object, 0), 4, buf);
-		tascii(&GET_OBJ_EXTRA(proto, 0), 4, buf2);
+		{
+			object->unset_extraflag(EExtraFlag::ITEM_BLOODY);
+		}
+		GET_OBJ_EXTRA(object).tascii(4, buf);
+		GET_OBJ_EXTRA(proto).tascii(4, buf2);
 		if (blooded) //Возвращаем флаг назад
-			SET_BIT(GET_OBJ_EXTRA(object, ITEM_BLOODY), ITEM_BLOODY);
+		{
+			object->set_extraflag(EExtraFlag::ITEM_BLOODY);
+		}
 		if (str_cmp(buf, buf2))
 		{
 			out << "Extr: " << buf << "~\n";
@@ -1182,7 +1194,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
 		}
 		// Падежи
-		for (i = 0; i < NUM_PADS; i++)
+		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
 		{
 			if (GET_OBJ_PNAME(object, i))
 			{
@@ -1225,9 +1237,9 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "Mter: " << GET_OBJ_MATER(object) << "~\n";
 		}
 		// Пол
-		if (GET_OBJ_SEX(object))
+		if (ESex::SEX_NEUTRAL != GET_OBJ_SEX(object))
 		{
-			out << "Sexx: " << GET_OBJ_SEX(object) << "~\n";
+			out << "Sexx: " << static_cast<int>(GET_OBJ_SEX(object)) << "~\n";
 		}
 		// Таймер
 		if (object->get_timer())
@@ -1246,19 +1258,19 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		}
 		// Наводимые аффекты
 		*buf = '\0';
-		tascii(&GET_FLAG(GET_OBJ_AFFECTS(object), 0), 4, buf);
+		GET_OBJ_AFFECTS(object).tascii(4, buf);
 		out << "Affs: " << buf << "~\n";
 		// Анти флаги
 		*buf = '\0';
-		tascii(&GET_FLAG(GET_OBJ_ANTI(object), 0), 4, buf);
+		GET_OBJ_ANTI(object).tascii(4, buf);
 		out << "Anti: " << buf << "~\n";
 		// Запрещающие флаги
 		*buf = '\0';
-		tascii(&GET_FLAG(GET_OBJ_NO(object), 0), 4, buf);
+		GET_OBJ_NO(object).tascii(4, buf);
 		out << "Nofl: " << buf << "~\n";
 		// Экстра флаги
 		*buf = '\0';
-		tascii(&GET_OBJ_EXTRA(object, 0), 4, buf);
+		GET_OBJ_EXTRA(object).tascii(4, buf);
 		out << "Extr: " << buf << "~\n";
 		// Флаги слотов экипировки
 		*buf = '\0';
@@ -1368,78 +1380,123 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 {
-	int j;
-
 	// Lots of checks...
 	if (location > 0)  	// Was wearing it.
 	{
-		switch (j = (location - 1))
+		const int j = location - 1;
+		switch (j)
 		{
 		case WEAR_LIGHT:
 			break;
+
 		case WEAR_FINGER_R:
 		case WEAR_FINGER_L:
-			if (!CAN_WEAR(obj, ITEM_WEAR_FINGER))	// not fitting
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))	// not fitting
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_NECK_1:
 		case WEAR_NECK_2:
-			if (!CAN_WEAR(obj, ITEM_WEAR_NECK))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_BODY:
-			if (!CAN_WEAR(obj, ITEM_WEAR_BODY))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_HEAD:
-			if (!CAN_WEAR(obj, ITEM_WEAR_HEAD))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_LEGS:
-			if (!CAN_WEAR(obj, ITEM_WEAR_LEGS))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_FEET:
-			if (!CAN_WEAR(obj, ITEM_WEAR_FEET))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_HANDS:
-			if (!CAN_WEAR(obj, ITEM_WEAR_HANDS))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_ARMS:
-			if (!CAN_WEAR(obj, ITEM_WEAR_ARMS))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_SHIELD:
-			if (!CAN_WEAR(obj, ITEM_WEAR_SHIELD))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_ABOUT:
-			if (!CAN_WEAR(obj, ITEM_WEAR_ABOUT))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_WAIST:
-			if (!CAN_WEAR(obj, ITEM_WEAR_WAIST))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_WRIST_R:
 		case WEAR_WRIST_L:
-			if (!CAN_WEAR(obj, ITEM_WEAR_WRIST))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_WIELD:
-			if (!CAN_WEAR(obj, ITEM_WEAR_WIELD))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
+			{
 				location = LOC_INVENTORY;
+			}
 			break;
+
 		case WEAR_HOLD:
-			if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
+			{
 				break;
+			}
 			location = LOC_INVENTORY;
 			break;
+
 		case WEAR_BOTHS:
-			if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+			{
 				break;
+			}
+
 		default:
 			location = LOC_INVENTORY;
 		}
@@ -1451,7 +1508,9 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 				// Check the characters's alignment to prevent them from being
 				// zapped through the auto-equipping.
 				if (invalid_align(ch, obj) || invalid_anti_class(ch, obj) || invalid_no_class(ch, obj) || NamedStuff::check_named(ch, obj, 0))
+				{
 					location = LOC_INVENTORY;
+				}
 				else
 				{
 					equip_char(ch, obj, j | 0x80 | 0x40);
@@ -1461,16 +1520,16 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 			else  	// Oops, saved a player with double equipment?
 			{
 				char aeq[128];
-				sprintf(aeq,
-						"SYSERR: autoeq: '%s' already equipped in position %d.",
-						GET_NAME(ch), location);
+				sprintf(aeq, "SYSERR: autoeq: '%s' already equipped in position %d.", GET_NAME(ch), location);
 				mudlog(aeq, BRF, LVL_IMMORT, SYSLOG, TRUE);
 				location = LOC_INVENTORY;
 			}
 		}
 	}
 	if (location <= 0)	// Inventory
+	{
 		obj_to_char(obj, ch);
+	}
 	return (location);
 }
 
@@ -1563,11 +1622,14 @@ void Crash_clear_objects(int index)
 	if (SAVEINFO(index))
 	{
 		for (; i < SAVEINFO(index)->rent.nitems; i++)
+		{
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
-					(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
-				obj_index[rnum].stored--;
-		delete SAVEINFO(index);
-		SAVEINFO(index) = 0;
+				(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
+			{
+				obj_proto.dec_stored(rnum);
+			}
+		}
+		clear_saveinfo(index);
 	}
 }
 
@@ -1577,11 +1639,14 @@ void Crash_reload_timer(int index)
 	if (SAVEINFO(index))
 	{
 		for (; i < SAVEINFO(index)->rent.nitems; i++)
+		{
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
-					(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
-				obj_index[rnum].stored--;
-		delete SAVEINFO(index);
-		SAVEINFO(index) = 0;
+				(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
+			{
+				obj_proto.dec_stored(rnum);
+			}
+		}
+		clear_saveinfo(index);
 	}
 
 	if (!Crash_read_timer(index, FALSE))
@@ -1592,11 +1657,9 @@ void Crash_reload_timer(int index)
 
 }
 
-void Crash_create_timer(int index, int num)
+void Crash_create_timer(int index, int/* num*/)
 {
-	if (SAVEINFO(index))
-		delete SAVEINFO(index);
-	SAVEINFO(index) = new save_info;
+	recreate_saveinfo(index);
 }
 
 int Crash_write_timer(int index)
@@ -1667,7 +1730,7 @@ int Crash_read_timer(int index, int temp)
 	}
 
 	sprintf(buf, "[ReadTimer] Reading timer file %s for %s :", fname, name);
-	fread(&rent, sizeof(struct save_rent_info), 1, fl);
+	size_t dummy = fread(&rent, sizeof(struct save_rent_info), 1, fl);
 	switch (rent.rentcode)
 	{
 	case RENT_RENTED:
@@ -1700,14 +1763,13 @@ int Crash_read_timer(int index, int temp)
 	player_table[index].timer->rent = rent;
 	for (; count < rent.nitems && !feof(fl); count++)
 	{
-		fread(&info, sizeof(struct save_time_info), 1, fl);
+		dummy = fread(&info, sizeof(struct save_time_info), 1, fl);
 		if (ferror(fl))
 		{
 			log("SYSERR: I/O Error reading %s timer file.", name);
 			fclose(fl);
 			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
-			delete SAVEINFO(index);
-			SAVEINFO(index) = 0;
+			clear_saveinfo(index);
 			return FALSE;
 		}
 		if (info.vnum && info.timer >= -1)
@@ -1722,17 +1784,18 @@ int Crash_read_timer(int index, int temp)
 		}
 		if (info.timer >= 0 && (rnum = real_object(info.vnum)) >= 0 && !temp)
 		{
-			obj_index[rnum].stored++;
+			obj_proto.inc_stored(rnum);
 		}
 	}
+	UNUSED_ARG(dummy);
+
 	fclose(fl);
 	FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
 
 	if (rent.nitems != num)
 	{
 		log("[ReadTimer] Error reading %s timer file - file is corrupt.", fname);
-		delete SAVEINFO(index);
-		SAVEINFO(index) = 0;
+		clear_saveinfo(index);
 		return FALSE;
 	}
 	else
@@ -1808,7 +1871,7 @@ void Crash_timer_obj(int index, long time)
 				idelete++;
 				if (rnum >= 0)
 				{
-					obj_index[rnum].stored--;
+					obj_proto.dec_stored(rnum);
 					log("[TO] Player %s : item %s deleted - time outted", name,
 						obj_proto[rnum]->PNames[0]);
 				}
@@ -1908,6 +1971,7 @@ void Crash_listrent(CHAR_DATA * ch, char *name)
 	}
 
 	if (!SAVEINFO(index))
+	{
 		if (!Crash_read_timer(index, TRUE))
 		{
 			sprintf(buf, "Ubable to read %s timer file.\r\n", name);
@@ -1923,9 +1987,9 @@ void Crash_listrent(CHAR_DATA * ch, char *name)
 			sprintf(buf, "%s находится в игре. Содержимое файла ренты:\r\n", CAP(name));
 			send_to_char(buf, ch);
 			Crash_list_objects(ch, index);
-			delete SAVEINFO(index);
-			SAVEINFO(index) = 0;
+			clear_saveinfo(index);
 		}
+	}
 	else
 	{
 		sprintf(buf, "%s находится в ренте. Содержимое файла ренты:\r\n", CAP(name));
@@ -2088,7 +2152,7 @@ int Crash_load(CHAR_DATA * ch)
 		return (1);
 	}
 
-	CREATE(readdata, char, fsize + 1);
+	CREATE(readdata, fsize + 1);
 	fseek(fl, 0L, SEEK_SET);
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl) || !readdata)
 	{
@@ -2166,12 +2230,13 @@ int Crash_load(CHAR_DATA * ch)
 		if (SAVEINFO(index)->time[fsize].timer > 0
 				&& (rnum = real_object(SAVEINFO(index)->time[fsize].vnum)) >= 0)
 		{
-			obj_index[rnum].stored--;
+			obj_proto.dec_stored(rnum);
 		}
 		// в два действия, чтобы заодно снять и таймер обкаста
 		if (!check_unlimited_timer(obj))
 		{
-		    obj->set_timer(SAVEINFO(index)->time[fsize].timer);
+			const save_info* si = SAVEINFO(index);
+		    obj->set_timer(si->time[fsize].timer);
 		    obj->dec_timer(timer_dec);
 		}
 		
@@ -2185,7 +2250,7 @@ int Crash_load(CHAR_DATA * ch)
 			continue;
 		}
 		//очищаем ZoneDecay объедки
-		if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY))
+		if (obj->get_extraflag(EExtraFlag::ITEM_ZONEDECAY))
 		{
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", CAP(obj->PNames[0]), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
@@ -2202,9 +2267,9 @@ int Crash_load(CHAR_DATA * ch)
 			continue;
 		}
 		//очищаем от крови
-		if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+		if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
 		{
-			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_BLOODY), ITEM_BLOODY);
+			obj->unset_extraflag(EExtraFlag::ITEM_BLOODY);
 		}
 		obj->next_content = obj_list;
 		obj_list = obj;
@@ -2218,9 +2283,11 @@ int Crash_load(CHAR_DATA * ch)
 		obj->next_content = NULL;
 		if (obj->worn_on >= 0)  	// Equipped or in inventory
 		{
-			if (obj2 && obj2->worn_on < 0 && GET_OBJ_TYPE(obj) == ITEM_CONTAINER)  	// This is container and it is not free
+			if (obj2
+				&& obj2->worn_on < 0
+				&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)  	// This is container and it is not free
 			{
-				CREATE(tank, struct container_list_type, 1);
+				CREATE(tank, 1);
 				tank->next = tank_list;
 				tank->tank = obj;
 				tank->location = 0;
@@ -2243,10 +2310,12 @@ int Crash_load(CHAR_DATA * ch)
 		}
 		else
 		{
-			if (obj2 && obj2->worn_on < obj->worn_on && GET_OBJ_TYPE(obj) == ITEM_CONTAINER)  	// This is container and it is not free
+			if (obj2
+				&& obj2->worn_on < obj->worn_on
+				&& GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_CONTAINER)  	// This is container and it is not free
 			{
 				tank_to = tank_list;
-				CREATE(tank, struct container_list_type, 1);
+				CREATE(tank, 1);
 				tank->next = tank_list;
 				tank->tank = obj;
 				tank->location = obj->worn_on;
@@ -2280,18 +2349,10 @@ int Crash_load(CHAR_DATA * ch)
 		free(tank);
 	}
 	affect_total(ch);
-	delete SAVEINFO(index);
-	SAVEINFO(index) = 0;
+	clear_saveinfo(index);
 	//???
 	//Crash_crashsave();
-	return (0);
-	/*  if (RENTCODE(index) == RENT_RENTED ||
-	      RENTCODE(index) == RENT_CRYO
-	     )
-	     return (0);
-	  else
-	     return (1);
-	*/
+	return 0;
 }
 
 // ********** Some util functions for objects save... **********
@@ -2314,7 +2375,9 @@ void Crash_extract_objs(OBJ_DATA *obj)
 		next = obj->next_content;
 		Crash_extract_objs(obj->contains);
 		if (GET_OBJ_RNUM(obj) >= 0 && obj->get_timer() >= 0)
-			obj_index[GET_OBJ_RNUM(obj)].stored++;
+		{
+			obj_proto.inc_stored(GET_OBJ_RNUM(obj));
+		}
 		extract_obj(obj);
 	}
 }
@@ -2324,10 +2387,11 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj)
 	if (!obj)
 		return FALSE;
 
-	if (IS_OBJ_STAT(obj, ITEM_NORENT)
+	if (obj->get_extraflag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
-		|| ((GET_OBJ_RNUM(obj) <= NOTHING) && (GET_OBJ_TYPE(obj) != ITEM_MONEY))
-		|| GET_OBJ_TYPE(obj) == ITEM_KEY
+		|| (GET_OBJ_RNUM(obj) <= NOTHING
+			&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MONEY)
+		|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_KEY
 		|| SetSystem::is_norent_set(ch, obj))
 	{
 		return TRUE;
@@ -2538,7 +2602,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		num += charmee_items;
 	}
 
-	log("Save obj: %s -> %d (%d)", ch->get_name(), num, charmee_items);
+	log("Save obj: %s -> %d (%d)", ch->get_name().c_str(), num, charmee_items);
 	ObjSaveSync::check(ch->get_uid(), ObjSaveSync::CHAR_SAVE);
 
 	if (!num)
@@ -2655,8 +2719,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 
 	if (savetype == RENT_CRASH)
 	{
-		delete SAVEINFO(iplayer);
-		SAVEINFO(iplayer) = 0;
+		clear_saveinfo(iplayer);
 	}
 
 	return TRUE;
@@ -2977,9 +3040,7 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 	return (TRUE);
 }
 
-
-
-int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int mode)
+int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char* /*arg*/, int mode)
 {
 	room_rnum save_room;
 	int cost, rentshow = TRUE;
@@ -3078,7 +3139,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 				"Вы потеряли связь с окружающими вас...", FALSE, recep, 0, ch, TO_VICT);
 			Crash_cryosave(ch, cost);
 			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
-			SET_BIT(PLR_FLAGS(ch, PLR_CRYO), PLR_CRYO);
+			PLR_FLAGS(ch).set(PLR_CRYO);
 		}
 
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -3119,18 +3180,15 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 	return (TRUE);
 }
 
-
-SPECIAL(receptionist)
+int receptionist(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	return (gen_receptionist(ch, (CHAR_DATA *) me, cmd, argument, RENT_FACTOR));
 }
 
-
-SPECIAL(cryogenicist)
+int cryogenicist(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	return (gen_receptionist(ch, (CHAR_DATA *) me, cmd, argument, CRYO_FACTOR));
 }
-
 
 void Crash_frac_save_all(int frac_part)
 {
@@ -3142,7 +3200,7 @@ void Crash_frac_save_all(int frac_part)
 		{
 			Crash_crashsave(d->character);
 			d->character->save_char();
-			REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRASH), PLR_CRASH);
+			PLR_FLAGS(d->character).unset(PLR_CRASH);
 		}
 	}
 }
@@ -3156,7 +3214,7 @@ void Crash_save_all(void)
 		{
 			Crash_crashsave(d->character);
 			d->character->save_char();
-			REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRASH), PLR_CRASH);
+			PLR_FLAGS(d->character).unset(PLR_CRASH);
 		}
 	}
 }
@@ -3176,29 +3234,36 @@ void Crash_save_all_rent(void)
 		{
 			save_char_objects(ch, RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
-			REMOVE_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
-			REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
-			REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+			PLR_FLAGS(ch).unset(PLR_CRASH);
+			AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 			extract_char(ch, FALSE);
 		}
 	}
 }
 
-
 void Crash_frac_rent_time(int frac_part)
 {
-	int c;
-	for (c = 0; c <= top_of_p_table; c++)
-		if (player_table[c].activity == frac_part && player_table[c].unique != -1 && SAVEINFO(c))
+	for (int c = 0; c <= top_of_p_table; c++)
+	{
+		if (player_table[c].activity == frac_part
+			&& player_table[c].unique != -1
+			&& SAVEINFO(c))
+		{
 			Crash_timer_obj(c, time(0));
+		}
+	}
 }
 
-void Crash_rent_time(int dectime)
+void Crash_rent_time(int/* dectime*/)
 {
-	int c;
-	for (c = 0; c <= top_of_p_table; c++)
+	for (int c = 0; c <= top_of_p_table; c++)
+	{
 		if (player_table[c].unique != -1)
+		{
 			Crash_timer_obj(c, time(0));
+		}
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

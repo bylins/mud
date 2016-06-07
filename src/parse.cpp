@@ -39,21 +39,20 @@ std::array<TextIdNode, TEXT_ID_COUNT> text_id_list;
 ///
 void init_char_class()
 {
-	TextIdNode &tmp = text_id_list.at(CHAR_CLASS);
-	tmp.add(CLASS_CLERIC, "CLASS_CLERIC");
-	tmp.add(CLASS_BATTLEMAGE, "CLASS_BATTLEMAGE");
-	tmp.add(CLASS_THIEF, "CLASS_THIEF");
-	tmp.add(CLASS_WARRIOR, "CLASS_WARRIOR");
-	tmp.add(CLASS_ASSASINE, "CLASS_ASSASINE");
-	tmp.add(CLASS_GUARD, "CLASS_GUARD");
-	tmp.add(CLASS_CHARMMAGE, "CLASS_CHARMMAGE");
-	tmp.add(CLASS_DEFENDERMAGE, "CLASS_DEFENDERMAGE");
-	tmp.add(CLASS_NECROMANCER, "CLASS_NECROMANCER");
-	tmp.add(CLASS_PALADINE, "CLASS_PALADINE");
-	tmp.add(CLASS_RANGER, "CLASS_RANGER");
-	tmp.add(CLASS_SMITH, "CLASS_SMITH");
-	tmp.add(CLASS_MERCHANT, "CLASS_MERCHANT");
-	tmp.add(CLASS_DRUID, "CLASS_DRUID");
+	text_id_list.at(CHAR_CLASS).add(CLASS_CLERIC, "CLASS_CLERIC");
+	text_id_list.at(CHAR_CLASS).add(CLASS_BATTLEMAGE, "CLASS_BATTLEMAGE");
+	text_id_list.at(CHAR_CLASS).add(CLASS_THIEF, "CLASS_THIEF");
+	text_id_list.at(CHAR_CLASS).add(CLASS_WARRIOR, "CLASS_WARRIOR");
+	text_id_list.at(CHAR_CLASS).add(CLASS_ASSASINE, "CLASS_ASSASINE");
+	text_id_list.at(CHAR_CLASS).add(CLASS_GUARD, "CLASS_GUARD");
+	text_id_list.at(CHAR_CLASS).add(CLASS_CHARMMAGE, "CLASS_CHARMMAGE");
+	text_id_list.at(CHAR_CLASS).add(CLASS_DEFENDERMAGE, "CLASS_DEFENDERMAGE");
+	text_id_list.at(CHAR_CLASS).add(CLASS_NECROMANCER, "CLASS_NECROMANCER");
+	text_id_list.at(CHAR_CLASS).add(CLASS_PALADINE, "CLASS_PALADINE");
+	text_id_list.at(CHAR_CLASS).add(CLASS_RANGER, "CLASS_RANGER");
+	text_id_list.at(CHAR_CLASS).add(CLASS_SMITH, "CLASS_SMITH");
+	text_id_list.at(CHAR_CLASS).add(CLASS_MERCHANT, "CLASS_MERCHANT");
+	text_id_list.at(CHAR_CLASS).add(CLASS_DRUID, "CLASS_DRUID");
 }
 
 ///
@@ -61,14 +60,13 @@ void init_char_class()
 ///
 void init_obj_vals()
 {
-	TextIdNode &tmp = text_id_list.at(OBJ_VALS);
-	tmp.add(ObjVal::POTION_SPELL1_NUM, "POTION_SPELL1_NUM");
-	tmp.add(ObjVal::POTION_SPELL1_LVL, "POTION_SPELL1_LVL");
-	tmp.add(ObjVal::POTION_SPELL2_NUM, "POTION_SPELL2_NUM");
-	tmp.add(ObjVal::POTION_SPELL2_LVL, "POTION_SPELL2_LVL");
-	tmp.add(ObjVal::POTION_SPELL3_NUM, "POTION_SPELL3_NUM");
-	tmp.add(ObjVal::POTION_SPELL3_LVL, "POTION_SPELL3_LVL");
-	tmp.add(ObjVal::POTION_PROTO_VNUM, "POTION_PROTO_VNUM");
+	text_id_list.at(OBJ_VALS).add(to_underlying(ObjVal::EValueKey::POTION_SPELL1_NUM), "POTION_SPELL1_NUM");
+	text_id_list.at(OBJ_VALS).add(to_underlying(ObjVal::EValueKey::POTION_SPELL1_LVL), "POTION_SPELL1_LVL");
+	text_id_list.at(OBJ_VALS).add(to_underlying(ObjVal::EValueKey::POTION_SPELL2_NUM), "POTION_SPELL2_NUM");
+	text_id_list.at(OBJ_VALS).add(to_underlying(ObjVal::EValueKey::POTION_SPELL2_LVL), "POTION_SPELL2_LVL");
+	text_id_list.at(OBJ_VALS).add(to_underlying(ObjVal::EValueKey::POTION_SPELL3_NUM), "POTION_SPELL3_NUM");
+	text_id_list.at(OBJ_VALS).add(to_underlying(ObjVal::EValueKey::POTION_SPELL3_LVL), "POTION_SPELL3_LVL");
+	text_id_list.at(OBJ_VALS).add(to_underlying(ObjVal::EValueKey::POTION_PROTO_VNUM), "POTION_PROTO_VNUM");
 }
 
 ///

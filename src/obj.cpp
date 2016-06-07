@@ -96,13 +96,13 @@ void OBJ_DATA::zero_init()
 	in_obj = NULL;
 	contains = NULL;
 	id = 0;
-	proto_script = NULL;
+	proto_script.clear();
 	script = NULL;
 	next_content = NULL;
 	next = NULL;
 	room_was_in = NOWHERE;
 	max_in_world = 0;
-	skills = NULL;
+	m_skills.clear();
 	serial_num_ = 0;
 	timer_ = 0;
 	manual_mort_req_ = -1;
@@ -177,7 +177,7 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 		if (weight > 0)
 			obj_flags.weight = weight;
 
-		if (obj_flags.type_flag == ITEM_WEAPON)
+		if (obj_flags.type_flag == obj_flag_data::ITEM_WEAPON)
 		{
 			int nsides, ndices;
 			__act.get_dices(ndices, nsides);
@@ -196,8 +196,8 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 			// массив. И у прототипов. Поэтому тут надо создавать новый,
 			// если нет желания "активировать" сразу все такие объекты.
 			// Умения, проставленные в сете, заменяют родные умения предмета.
-			skills = new std::map<int, int>;
-			__act.get_skills(*skills);
+			m_skills.clear();
+			__act.get_skills(m_skills);
 		}
 
 		return __act.get_actmsg() + "\n" + __act.get_room_actmsg();
@@ -212,11 +212,13 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 	{
 		obj_flags.affects = obj_proto[item_number]->obj_flags.affects;
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+		{
 			affected[i] = obj_proto[item_number]->affected[i];
+		}
 
 		obj_flags.weight = obj_proto[item_number]->obj_flags.weight;
 
-		if (obj_flags.type_flag == ITEM_WEAPON)
+		if (obj_flags.type_flag == obj_flag_data::ITEM_WEAPON)
 		{
 			obj_flags.value[1] = obj_proto[item_number]->obj_flags.value[1];
 			obj_flags.value[2] = obj_proto[item_number]->obj_flags.value[2];
@@ -227,8 +229,8 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 		{
 			// При активации мы создавали новый массив с умениями. Его
 			// можно смело удалять.
-			delete skills;
-			skills = obj_proto[item_number]->skills;
+			m_skills.clear();
+			m_skills = obj_proto[item_number]->m_skills;
 		}
 
 		return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();
@@ -239,61 +241,61 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 
 void OBJ_DATA::set_skill(int skill_num, int percent)
 {
-	if (skills)
+	if (!m_skills.empty())
 	{
-		std::map<int, int>::iterator skill = skills->find(skill_num);
-		if (skill == skills->end())
+		const auto skill = m_skills.find(skill_num);
+		if (skill == m_skills.end())
 		{
 			if (percent != 0)
-				skills->insert(std::make_pair(skill_num, percent));
+			{
+				m_skills.insert(std::make_pair(skill_num, percent));
+			}
 		}
 		else
 		{
 			if (percent != 0)
+			{
 				skill->second = percent;
+			}
 			else
-				skills->erase(skill);
+			{
+				m_skills.erase(skill);
+			}
 		}
 	}
 	else
 	{
 		if (percent != 0)
 		{
-			skills = new std::map<int, int>;
-			skills->insert(std::make_pair(skill_num, percent));
+			m_skills.clear();
+			m_skills.insert(std::make_pair(skill_num, percent));
 		}
 	}
 }
 
 int OBJ_DATA::get_skill(int skill_num) const
 {
-	if (skills)
+	const auto skill = m_skills.find(skill_num);
+	if (skill != m_skills.end())
 	{
-		std::map<int, int>::iterator skill = skills->find(skill_num);
-		if (skill != skills->end())
-			return skill->second;
-		else
-			return 0;
+		return skill->second;
 	}
-	else
-	{
-		return 0;
-	}
+
+	return 0;
 }
 
 // * @warning Предполагается, что __out_skills.empty() == true.
 void OBJ_DATA::get_skills(std::map<int, int>& out_skills) const
 {
-	if (skills)
-		out_skills.insert(skills->begin(), skills->end());
+	if (!m_skills.empty())
+	{
+		out_skills.insert(m_skills.begin(), m_skills.end());
+	}
 }
 
 bool OBJ_DATA::has_skills() const
 {
-	if (skills)
-		return !skills->empty();
-	else
-		return false;
+	return !m_skills.empty();
 }
 
 void OBJ_DATA::set_timer(int timer)
@@ -459,7 +461,7 @@ const int AFF_BLINK_MOD = 10;
 namespace ObjSystem
 {
 
-float count_affect_weight(OBJ_DATA *obj, int num, int mod)
+float count_affect_weight(OBJ_DATA* /*obj*/, int num, int mod)
 {
 	float weight = 0;
 
@@ -526,15 +528,17 @@ float count_affect_weight(OBJ_DATA *obj, int num, int mod)
 
 bool is_armor_type(const OBJ_DATA *obj)
 {
-	switch GET_OBJ_TYPE(obj)
+	switch (GET_OBJ_TYPE(obj))
 	{
-	case ITEM_ARMOR:
-	case ITEM_ARMOR_LIGHT:
-	case ITEM_ARMOR_MEDIAN:
-	case ITEM_ARMOR_HEAVY:
+	case obj_flag_data::ITEM_ARMOR:
+	case obj_flag_data::ITEM_ARMOR_LIGHT:
+	case obj_flag_data::ITEM_ARMOR_MEDIAN:
+	case obj_flag_data::ITEM_ARMOR_HEAVY:
 		return true;
+
+	default:
+		return false;
 	}
-	return false;
 }
 
 // * См. CharacterSystem::release_purged_list()
@@ -550,93 +554,87 @@ void release_purged_list()
 
 bool is_mob_item(OBJ_DATA *obj)
 {
-	if (IS_OBJ_NO(obj, ITEM_NO_MALE)
-		&& IS_OBJ_NO(obj, ITEM_NO_FEMALE)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ITEM_NO_MONO)
-		&& IS_OBJ_NO(obj, ITEM_NO_POLY)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ITEM_NO_RUSICHI)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RUSICHI)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ITEM_NO_CLERIC)
-		&& IS_OBJ_NO(obj, ITEM_NO_THIEF)
-		&& IS_OBJ_NO(obj, ITEM_NO_WARRIOR)
-		&& IS_OBJ_NO(obj, ITEM_NO_ASSASINE)
-		&& IS_OBJ_NO(obj, ITEM_NO_GUARD)
-		&& IS_OBJ_NO(obj, ITEM_NO_PALADINE)
-		&& IS_OBJ_NO(obj, ITEM_NO_RANGER)
-		&& IS_OBJ_NO(obj, ITEM_NO_SMITH)
-		&& IS_OBJ_NO(obj, ITEM_NO_MERCHANT)
-		&& IS_OBJ_NO(obj, ITEM_NO_DRUID)
-		&& IS_OBJ_NO(obj, ITEM_NO_BATTLEMAGE)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMMAGE)
-		&& IS_OBJ_NO(obj, ITEM_NO_DEFENDERMAGE)
-		&& IS_OBJ_NO(obj, ITEM_NO_NECROMANCER)
-		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BATTLEMAGE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMMAGE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DEFENDERMAGE)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_NECROMANCER)
+		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE))
 	{
 		return true;
 	}
-	if (/*IS_OBJ_NO(obj, ITEM_NO_SEVERANE)
-		&& IS_OBJ_NO(obj, ITEM_NO_POLANE)
-		&& IS_OBJ_NO(obj, ITEM_NO_KRIVICHI)
-		&& IS_OBJ_NO(obj, ITEM_NO_VATICHI)
-		&& IS_OBJ_NO(obj, ITEM_NO_VELANE)
-		&& IS_OBJ_NO(obj, ITEM_NO_DREVLANE)  
-		&& */IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, ITEM_AN_MALE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_FEMALE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MALE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FEMALE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, ITEM_AN_MONO)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_POLY)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, ITEM_AN_RUSICHI)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RUSICHI)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, ITEM_AN_CLERIC)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_THIEF)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_WARRIOR)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_ASSASINE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_GUARD)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_PALADINE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_RANGER)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_SMITH)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_DRUID)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_BATTLEMAGE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMMAGE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_DEFENDERMAGE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_NECROMANCER)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CLERIC)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_THIEF)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_WARRIOR)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_ASSASINE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_GUARD)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_PALADINE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RANGER)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MERCHANT)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DEFENDERMAGE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_NECROMANCER)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE))
 	{
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, ITEM_AN_SEVERANE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_POLANE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_KRIVICHI)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_VATICHI)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_VELANE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_DREVLANE)
-		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SEVERANE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLANE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KRIVICHI)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_VATICHI)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_VELANE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DREVLANE)
+		&& IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE))
 	{
 		return true;
 	}
@@ -647,7 +645,7 @@ bool is_mob_item(OBJ_DATA *obj)
 void init_ilvl(OBJ_DATA *obj)
 {
 	if (is_mob_item(obj)
-		|| OBJ_FLAGGED(obj, ITEM_SETSTUFF)
+		|| obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF)
 		|| obj->get_manual_mort_req() >= 0)
 	{
 		obj->set_ilevel(0);
@@ -680,27 +678,26 @@ void init_ilvl(OBJ_DATA *obj)
 		total_weight += pow(weight, SQRT_MOD);
 	}
 	// аффекты AFF_x через weapon_affect
-	for (int m = 0; weapon_affect[m].aff_bitvector != -1; ++m)
+	for (const auto& m : weapon_affect)
 	{
-		if (weapon_affect[m].aff_bitvector == AFF_AIRSHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		if (IS_OBJ_AFF(obj, m.aff_pos))
 		{
-			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-		}
-		else if (weapon_affect[m].aff_bitvector == AFF_FIRESHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
-		{
-			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-		}
-		else if (weapon_affect[m].aff_bitvector == AFF_ICESHIELD
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
-		{
-			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-		}
-		else if (weapon_affect[m].aff_bitvector == AFF_BLINK
-			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
-		{
-			total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
+			{
+				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+			}
 		}
 	}
 
@@ -709,10 +706,9 @@ void init_ilvl(OBJ_DATA *obj)
 
 void init_item_levels()
 {
-	for (std::vector <OBJ_DATA *>::iterator i = obj_proto.begin(),
-		iend = obj_proto.end(); i != iend; ++i)
+	for (const auto i : obj_proto)
 	{
-		init_ilvl(*i);
+		init_ilvl(i);
 	}
 }
 
@@ -735,26 +731,7 @@ void init()
 	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
 }
 
-void update_rnum(int &obj_rnum, int obj_vnum, int rnum)
-{
-	if (obj_rnum == -1)
-	{
-		obj_rnum = real_object(obj_vnum);
-	}
-	else if (obj_rnum >= rnum)
-	{
-		obj_rnum += 1;
-	}
-}
-
-/// при добавлении предметов через олц (renumber_obj_rnum)
-void renumber(int rnum)
-{
-	update_rnum(PURSE_RNUM, PURSE_VNUM, rnum);
-	update_rnum(PERS_CHEST_RNUM, PERS_CHEST_VNUM, rnum);
-}
-
-OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)
+OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 {
 	OBJ_DATA *obj = read_object(PURSE_RNUM, REAL);
 	if (!obj)
@@ -779,14 +756,14 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)
 		"Владелец: %s\r\n"
 		"В случае потери просьба вернуть за вознаграждение.\r\n"
 		"--------------------------------------------------\r\n"
-		, ch->get_name());
-	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
+		, ch->get_name().c_str());
+	CREATE(obj->ex_description, 1);
 	obj->ex_description->keyword = str_dup(obj->PNames[0]);
 	obj->ex_description->description = str_dup(buf_);
 	obj->ex_description->next = 0;
 
-	GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
-	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
+	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
+	GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 	GET_OBJ_VAL(obj, 0) = 0;
 	// CLOSEABLE + CLOSED
 	GET_OBJ_VAL(obj, 1) = 5;
@@ -797,8 +774,8 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int gold)
 	obj->set_rent_eq(0);
 	// чтобы скавенж мобов не трогать
 	obj->set_cost(2);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODONATE), ITEM_NODONATE);
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
+	obj->set_extraflag(EExtraFlag::ITEM_NODONATE);
+	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
 
 	return obj;
 }
@@ -821,36 +798,36 @@ void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
 
 } // namespace system_obj
 
-int ObjVal::get(unsigned key) const
+int ObjVal::get(const EValueKey key) const
 {
-	auto i = list_.find(key);
-	if (i != list_.end())
+	auto i = m_values.find(key);
+	if (i != m_values.end())
 	{
 		return i->second;
 	}
 	return -1;
 }
 
-void ObjVal::set(unsigned key, int val)
+void ObjVal::set(const EValueKey key, int val)
 {
 	if (val >= 0)
 	{
-		list_[key] = val;
+		m_values[key] = val;
 	}
 	else
 	{
-		auto i = list_.find(key);
-		if (i != list_.end())
+		auto i = m_values.find(key);
+		if (i != m_values.end())
 		{
-			list_.erase(i);
+			m_values.erase(i);
 		}
 	}
 }
 
-void ObjVal::inc(unsigned key, int val)
+void ObjVal::inc(const ObjVal::EValueKey key, int val)
 {
-	auto i = list_.find(key);
-	if (i == list_.end() || val == 0) return;
+	auto i = m_values.find(key);
+	if (i == m_values.end() || val == 0) return;
 
 	if (val < 0 && i->second + val <= 0)
 	{
@@ -868,14 +845,14 @@ void ObjVal::inc(unsigned key, int val)
 
 std::string ObjVal::print_to_file() const
 {
-	if (list_.empty()) return "";
+	if (m_values.empty()) return "";
 
 	std::stringstream out;
 	out << "Vals:\n";
 
-	for(auto i = list_.begin(), iend = list_.end(); i != iend; ++i)
+	for(auto i = m_values.begin(), iend = m_values.end(); i != iend; ++i)
 	{
-		std::string key_str = TextId::to_str(TextId::OBJ_VALS, i->first);
+		std::string key_str = TextId::to_str(TextId::OBJ_VALS, to_underlying(i->first));
 		if (!key_str.empty())
 		{
 			out << key_str << " " << i->second << "\n";
@@ -888,7 +865,7 @@ std::string ObjVal::print_to_file() const
 
 bool ObjVal::init_from_file(const char *str)
 {
-	list_.clear();
+	m_values.clear();
 	std::stringstream text(str);
 	std::string key_str;
 	bool result = true;
@@ -896,10 +873,10 @@ bool ObjVal::init_from_file(const char *str)
 
 	while (text >> key_str >> val)
 	{
-		int key = TextId::to_num(TextId::OBJ_VALS, key_str);
+		const int key = TextId::to_num(TextId::OBJ_VALS, key_str);
 		if (key >= 0 && val >= 0)
 		{
-			list_.emplace(key, val);
+			m_values.emplace(static_cast<EValueKey>(key), val);
 			key_str.clear();
 			val = -1;
 		}
@@ -915,13 +892,13 @@ bool ObjVal::init_from_file(const char *str)
 
 std::string ObjVal::print_to_zone() const
 {
-	if (list_.empty()) return "";
+	if (m_values.empty()) return "";
 
 	std::stringstream out;
 
-	for(auto i = list_.begin(), iend = list_.end(); i != iend; ++i)
+	for(auto i = m_values.begin(), iend = m_values.end(); i != iend; ++i)
 	{
-		std::string key_str = TextId::to_str(TextId::OBJ_VALS, i->first);
+		std::string key_str = TextId::to_str(TextId::OBJ_VALS, to_underlying(i->first));
 		if (!key_str.empty())
 		{
 			out << "V " << key_str << " " << i->second << "\n";
@@ -939,10 +916,10 @@ void ObjVal::init_from_zone(const char *str)
 
 	if (text >> key_str >> val)
 	{
-		int key = TextId::to_num(TextId::OBJ_VALS, key_str);
+		const int key = TextId::to_num(TextId::OBJ_VALS, key_str);
 		if (key >= 0 && val >= 0)
 		{
-			list_.emplace(key, val);
+			m_values.emplace(static_cast<EValueKey>(key), val);
 		}
 		else
 		{
@@ -952,17 +929,17 @@ void ObjVal::init_from_zone(const char *str)
 	}
 }
 
-bool is_valid_drinkcon(unsigned key)
+bool is_valid_drinkcon(const ObjVal::EValueKey key)
 {
 	switch(key)
 	{
-	case ObjVal::POTION_SPELL1_NUM:
-	case ObjVal::POTION_SPELL1_LVL:
-	case ObjVal::POTION_SPELL2_NUM:
-	case ObjVal::POTION_SPELL2_LVL:
-	case ObjVal::POTION_SPELL3_NUM:
-	case ObjVal::POTION_SPELL3_LVL:
-	case ObjVal::POTION_PROTO_VNUM:
+	case ObjVal::EValueKey::POTION_SPELL1_NUM:
+	case ObjVal::EValueKey::POTION_SPELL1_LVL:
+	case ObjVal::EValueKey::POTION_SPELL2_NUM:
+	case ObjVal::EValueKey::POTION_SPELL2_LVL:
+	case ObjVal::EValueKey::POTION_SPELL3_NUM:
+	case ObjVal::EValueKey::POTION_SPELL3_LVL:
+	case ObjVal::EValueKey::POTION_PROTO_VNUM:
 		return true;
 	}
 	return false;
@@ -970,20 +947,21 @@ bool is_valid_drinkcon(unsigned key)
 
 void ObjVal::remove_incorrect_keys(int type)
 {
-	for (auto i = list_.begin(); i != list_.end(); /* empty */)
+	for (auto i = m_values.begin(); i != m_values.end(); /* empty */)
 	{
 		bool erased = false;
 		switch(type)
 		{
-		case ITEM_DRINKCON:
-		case ITEM_FOUNTAIN:
+		case obj_flag_data::ITEM_DRINKCON:
+		case obj_flag_data::ITEM_FOUNTAIN:
 			if (!is_valid_drinkcon(i->first))
 			{
-				i = list_.erase(i);
+				i = m_values.erase(i);
 				erased = true;
 			}
 			break;
 		} // switch
+
 		if (!erased)
 		{
 			++i;
@@ -1045,6 +1023,129 @@ void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect)
 		CCCYN(ch, C_NRM),
 		negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
+}
+
+typedef std::map<obj_flag_data::EObjectType, std::string> EObjectType_name_by_value_t;
+typedef std::map<const std::string, obj_flag_data::EObjectType> EObjectType_value_by_name_t;
+EObjectType_name_by_value_t EObjectType_name_by_value;
+EObjectType_value_by_name_t EObjectType_value_by_name;
+void init_EObjectType_ITEM_NAMES()
+{
+	EObjectType_value_by_name.clear();
+	EObjectType_name_by_value.clear();
+
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_LIGHT] = "ITEM_LIGHT";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_SCROLL] = "ITEM_SCROLL";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_WAND] = "ITEM_WAND";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_STAFF] = "ITEM_STAFF";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_WEAPON] = "ITEM_WEAPON";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_FIREWEAPON] = "ITEM_FIREWEAPON";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MISSILE] = "ITEM_MISSILE";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_TREASURE] = "ITEM_TREASURE";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR] = "ITEM_ARMOR";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_POTION] = "ITEM_POTION";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_WORN] = "ITEM_WORN";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_OTHER] = "ITEM_OTHER";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_TRASH] = "ITEM_TRASH";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_TRAP] = "ITEM_TRAP";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_CONTAINER] = "ITEM_CONTAINER";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_NOTE] = "ITEM_NOTE";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_DRINKCON] = "ITEM_DRINKCON";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_KEY] = "ITEM_KEY";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_FOOD] = "ITEM_FOOD";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MONEY] = "ITEM_MONEY";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_PEN] = "ITEM_PEN";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_BOAT] = "ITEM_BOAT";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_FOUNTAIN] = "ITEM_FOUNTAIN";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_BOOK] = "ITEM_BOOK";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_INGREDIENT] = "ITEM_INGREDIENT";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MING] = "ITEM_MING";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MATERIAL] = "ITEM_MATERIAL";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_BANDAGE] = "ITEM_BANDAGE";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR_LIGHT] = "ITEM_ARMOR_LIGHT";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR_MEDIAN] = "ITEM_ARMOR_MEDIAN";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR_HEAVY] = "ITEM_ARMOR_HEAVY";
+	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ENCHANT] = "ITEM_ENCHANT";
+
+	for (const auto& i : EObjectType_name_by_value)
+	{
+		EObjectType_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+const std::string& NAME_BY_ITEM<obj_flag_data::EObjectType>(const obj_flag_data::EObjectType item)
+{
+	if (EObjectType_name_by_value.empty())
+	{
+		init_EObjectType_ITEM_NAMES();
+	}
+	return EObjectType_name_by_value.at(item);
+}
+
+template <>
+obj_flag_data::EObjectType ITEM_BY_NAME(const std::string& name)
+{
+	if (EObjectType_name_by_value.empty())
+	{
+		init_EObjectType_ITEM_NAMES();
+	}
+	return EObjectType_value_by_name.at(name);
+}
+
+typedef std::map<obj_flag_data::EObjectMaterial, std::string> EObjectMaterial_name_by_value_t;
+typedef std::map<const std::string, obj_flag_data::EObjectMaterial> EObjectMaterial_value_by_name_t;
+EObjectMaterial_name_by_value_t EObjectMaterial_name_by_value;
+EObjectMaterial_value_by_name_t EObjectMaterial_value_by_name;
+void init_EObjectMaterial_ITEM_NAMES()
+{
+	EObjectMaterial_value_by_name.clear();
+	EObjectMaterial_name_by_value.clear();
+
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_NONE] = "MAT_NONE";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_BULAT] = "MAT_BULAT";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_BRONZE] = "MAT_BRONZE";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_IRON] = "MAT_IRON";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_STEEL] = "MAT_STEEL";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_SWORDSSTEEL] = "MAT_SWORDSSTEEL";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_COLOR] = "MAT_COLOR";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_CRYSTALL] = "MAT_CRYSTALL";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_WOOD] = "MAT_WOOD";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_SUPERWOOD] = "MAT_SUPERWOOD";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_FARFOR] = "MAT_FARFOR";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_GLASS] = "MAT_GLASS";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_ROCK] = "MAT_ROCK";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_BONE] = "MAT_BONE";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_MATERIA] = "MAT_MATERIA";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_SKIN] = "MAT_SKIN";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_ORGANIC] = "MAT_ORGANIC";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_PAPER] = "MAT_PAPER";
+	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_DIAMOND] = "MAT_DIAMOND";
+
+	for (const auto& i : EObjectMaterial_name_by_value)
+	{
+		EObjectMaterial_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+const std::string& NAME_BY_ITEM<obj_flag_data::EObjectMaterial>(const obj_flag_data::EObjectMaterial item)
+{
+	if (EObjectMaterial_name_by_value.empty())
+	{
+		init_EObjectMaterial_ITEM_NAMES();
+	}
+	return EObjectMaterial_name_by_value.at(item);
+}
+
+template <>
+obj_flag_data::EObjectMaterial ITEM_BY_NAME(const std::string& name)
+{
+	if (EObjectMaterial_name_by_value.empty())
+	{
+		init_EObjectMaterial_ITEM_NAMES();
+	}
+	return EObjectMaterial_value_by_name.at(name);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

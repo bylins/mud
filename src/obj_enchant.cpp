@@ -39,8 +39,8 @@ enchant::enchant(OBJ_DATA *obj)
 	}
 
 	affects_flags_ = GET_OBJ_AFFECTS(obj);
-	extra_flags_ = obj->obj_flags.extra_flags;
-	REMOVE_BIT(GET_FLAG(extra_flags_, ITEM_TICKTIMER), ITEM_TICKTIMER);
+	extra_flags_ = GET_OBJ_EXTRA(obj);
+	extra_flags_.unset(EExtraFlag::ITEM_TICKTIMER);
 	no_flags_ = GET_OBJ_NO(obj);
 	weight_ = GET_OBJ_VAL(obj, 0);
 	ndice_ = 0;
@@ -57,19 +57,19 @@ void enchant::print(CHAR_DATA *ch) const
 		print_obj_affects(ch, *i);
 	}
 
-	if (sprintbits(affects_flags_, weapon_affects, buf2, ","))
+	if (affects_flags_.sprintbits(weapon_affects, buf2, ","))
 	{
 		send_to_char(ch, "%s   аффекты: %s%s\r\n",
 			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	}
 
-	if (sprintbits(extra_flags_, extra_bits, buf2, ","))
+	if (extra_flags_.sprintbits(extra_bits, buf2, ","))
 	{
 		send_to_char(ch, "%s   экстрафлаги: %s%s\r\n",
 			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	}
 
-	if (sprintbits(no_flags_, no_bits, buf2, ","))
+	if (no_flags_.sprintbits(no_bits, buf2, ","))
 	{
 		send_to_char(ch, "%s   неудобен: %s%s\r\n",
 			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
@@ -114,15 +114,15 @@ std::string enchant::print_to_file() const
 	}
 
 	*buf = '\0';
-	tascii(&GET_FLAG(affects_flags_, 0), 4, buf);
+	affects_flags_.tascii(4, buf);
 	out << " F " << buf << "\n";
 
 	*buf = '\0';
-	tascii(&GET_FLAG(extra_flags_, 0), 4, buf);
+	extra_flags_.tascii(4, buf);
 	out << " E " << buf << "\n";
 
 	*buf = '\0';
-	tascii(&GET_FLAG(no_flags_, 0), 4, buf);
+	no_flags_.tascii(4, buf);
 	out << " N " << buf << "\n";
 
 	out << " W " << weight_ << "\n";
@@ -161,12 +161,12 @@ void enchant::apply_to_obj(OBJ_DATA *obj) const
 	}
 
 	GET_OBJ_AFFECTS(obj) += affects_flags_;
-	obj->obj_flags.extra_flags += extra_flags_;
+	GET_OBJ_EXTRA(obj) += extra_flags_;
 	obj->obj_flags.no_flag += no_flags_;
 
 	GET_OBJ_WEIGHT(obj) += weight_;
 
-	if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 	{
 		GET_OBJ_VAL(obj, 1) += ndice_;
 		GET_OBJ_VAL(obj, 2) += sdice_;
@@ -229,7 +229,7 @@ void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type *set_en
 				// вес
 				GET_OBJ_WEIGHT(obj) += set_ench->weight - i->weight_;
 				// дайсы пушек
-				if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+				if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 				{
 					GET_OBJ_VAL(obj, 1) += set_ench->ndice - i->ndice_;
 					GET_OBJ_VAL(obj, 2) += set_ench->sdice - i->sdice_;

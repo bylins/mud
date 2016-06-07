@@ -20,9 +20,10 @@
 
 #define FB_STARTSIZE	4192	// 4k starting buffer for writes //
 
-#ifndef IS_SET
+/*#ifndef IS_SET
 #define IS_SET(flag, bits)	((flag) & (bits))
 #endif
+*/
 
 #ifndef TRUE
 #define TRUE	1

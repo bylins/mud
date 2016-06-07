@@ -46,9 +46,13 @@ void TopPlayer::Remove(CHAR_DATA * short_ch)
 // подробности в комментарии к load_char_ascii
 void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 {
-	if (IS_NPC(short_ch) || IS_SET(PLR_FLAGS(short_ch, PLR_FROZEN), PLR_FROZEN)
-			|| IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED) || IS_IMMORTAL(short_ch))
+	if (IS_NPC(short_ch)
+		|| PLR_FLAGS(short_ch).get(PLR_FROZEN)
+		|| PLR_FLAGS(short_ch).get(PLR_DELETED)
+		|| IS_IMMORTAL(short_ch))
+	{
 		return;
+	}
 
 	if (!reboot)
 		TopPlayer::Remove(short_ch);
@@ -59,7 +63,10 @@ void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 		if (it_exp->remort < GET_REMORT(short_ch) || (it_exp->remort == GET_REMORT(short_ch) && it_exp->exp < GET_EXP(short_ch)))
 			break;
 
-	if (!GET_NAME(short_ch)) return; // у нас все может быть
+	if (short_ch->get_name().empty())
+	{
+		return; // у нас все может быть
+	}
 	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GET_REMORT(short_ch));
 
 	if (it_exp != TopPlayer::TopList[GET_CLASS(short_ch)].end())
@@ -88,7 +95,7 @@ const char * TopPlayer::TopFormat[NUM_PLAYER_CLASSES + 1] =
 };
 
 // команда 'лучшие'
-ACMD(DoBest)
+void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
 		return;

@@ -48,9 +48,9 @@ extern const char *drinknames[];
 extern const int drink_aff[][3];
 extern const char *color_liquid[];
 
-ACMD(do_drink);
-ACMD(do_drunkoff);
-ACMD(do_pour);
+void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_pour(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 void name_from_drinkcon(OBJ_DATA * obj);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
@@ -62,7 +62,7 @@ namespace drinkcon
 
 void identify(CHAR_DATA *ch, const OBJ_DATA *obj);
 std::string print_spells(CHAR_DATA *ch, const OBJ_DATA *obj);
-void copy_potion_values(OBJ_DATA *from_obj, OBJ_DATA *to_obj);
+void copy_potion_values(const OBJ_DATA *from_obj, OBJ_DATA *to_obj);
 
 } // namespace drinkcon
 

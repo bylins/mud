@@ -42,6 +42,10 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
 #include <boost/bind.hpp>
 
 #include <vector>
@@ -112,12 +116,12 @@ CHAR_DATA *find_char(long n)
 }
 bool check_spell_on_player(CHAR_DATA *ch, int spell_num)
 {
-	AFFECT_DATA *af, *next;
-	for (af = ch->affected; af; af = next)
+	for (auto af = ch->affected; af; af = af->next)
 	{
-		next = af->next;
 		if (af->type == spell_num)
+		{
 			return true;
+		}
 	}
 	return false;
 }
@@ -163,10 +167,10 @@ char *str_dup(const char *source)
 	char *new_z = NULL;
 	if (source)
 	{
-		CREATE(new_z, char, strlen(source) + 1);
+		CREATE(new_z, strlen(source) + 1);
 		return (strcpy(new_z, source));
 	}
-	CREATE(new_z, char, 1);
+	CREATE(new_z, 1);
 	return (strcpy(new_z, ""));
 }
 
@@ -409,11 +413,12 @@ void write_test_time(FILE *file)
  * New variable argument log() function.  Works the same as the old for
  * previously written code but is very nice for new code.
  */
-void log(const char *format, ...)
+void vlog(const char *format, va_list args)
 {
 	if (logfile == NULL)
 	{
 		puts("SYSERR: Using log() before stream was initialized!");
+		return;
 	}
 
 	if (format == NULL)
@@ -426,9 +431,6 @@ void log(const char *format, ...)
 
 	time_s[strlen(time_s) - 1] = '\0';
 	fprintf(logfile, "%-15.15s :: ", time_s + 4);
-
-	va_list args;
-	va_start(args, format);
 
 	if (!runtime_config::log_stderr().empty())
 	{
@@ -457,14 +459,33 @@ void log(const char *format, ...)
 	}
 
 	vfprintf(logfile, format, args);
-	va_end(args);
-
 	fprintf(logfile, "\n");
 
 	if (!runtime_config::log_stderr().empty())
 	{
 		fprintf(stderr, "\n");
 	}
+}
+
+void log(const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	vlog(format, args);
+	va_end(args);
+}
+
+void vlog(const EOutputStream steam, const char* format, va_list rargs)
+{
+	va_list args;
+	va_copy(args, rargs);
+
+	const auto prev = logfile;
+	logfile = runtime_config::logs(steam).handle();
+	vlog(format, args);
+	logfile = prev;
+
+	va_end(args);
 }
 
 void shop_log(const char *format, ...)
@@ -541,28 +562,26 @@ void imm_log(const char *format, ...)
 
 bool no_bad_affects(OBJ_DATA *obj)
 {
-	if (OBJ_AFFECT(obj, AFF_HOLD))
-		return false;
-	if (OBJ_AFFECT(obj, AFF_COURAGE))
-		return false;
-	if (OBJ_AFFECT(obj, AFF_SANCTUARY))
-		return false;
-	if (OBJ_AFFECT(obj, AFF_PRISMATICAURA))
-		return false;
-	if(OBJ_AFFECT(obj, AFF_POISON))
-		return false;
-	if (OBJ_AFFECT(obj, AFF_SIELENCE))
-		return false;
-	if (OBJ_AFFECT(obj, AFF_DEAFNESS))
-		return false;
-	if (OBJ_AFFECT(obj, AFF_HAEMORRAGIA))
-		return false;
-	if (OBJ_AFFECT(obj, AFF_BLIND))
-		return false;
-	if (OBJ_AFFECT(obj, AFF_SLEEP))
-		return false;
-	if (OBJ_AFFECT(obj, AFF_HOLYDARK))
-		return false;
+	static std::list<EWeaponAffectFlag> bad_waffects =
+	{
+		EWeaponAffectFlag::WAFF_HOLD,
+		EWeaponAffectFlag::WAFF_SANCTUARY,
+		EWeaponAffectFlag::WAFF_PRISMATIC_AURA,
+		EWeaponAffectFlag::WAFF_POISON,
+		EWeaponAffectFlag::WAFF_SILENCE,
+		EWeaponAffectFlag::WAFF_DEAFNESS,
+		EWeaponAffectFlag::WAFF_HAEMORRAGIA,
+		EWeaponAffectFlag::WAFF_BLINDNESS,
+		EWeaponAffectFlag::WAFF_SLEEP,
+		EWeaponAffectFlag::WAFF_HOLY_DARK
+	};
+	for (const auto wa : bad_waffects)
+	{
+		if (OBJ_AFFECT(obj, wa))
+		{
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -726,112 +745,6 @@ void mudlog_python(const std::string& str, int type, int level, const EOutputStr
 	mudlog(str.c_str(), type, level, channel, file);
 }
 
-/*
- * If you don't have a 'const' array, just cast it as such.  It's safer
- * to cast a non-const array as const than to cast a const one as non-const.
- * Doesn't really matter since this function doesn't change the array though.
- */
-const static char *empty_string = "ничего";
-
-bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
-{
-	long nr = 0, fail = 0, divider = FALSE;
-	int plane = 0;
-	char c='a';
-
-	*result = '\0';
-
-	if (bitvector < static_cast<uint32_t>(INT_ONE));
-	else if (bitvector < static_cast<uint32_t>(INT_TWO))
-		fail = 1;
-	else if (bitvector < static_cast<uint32_t>(INT_THREE))
-		fail = 2;
-	else
-		fail = 3;
-	bitvector &= 0x3FFFFFFF;
-	while (fail)
-	{
-		if (*names[nr] == '\n')
-		{
-			fail--;
-			plane++;
-		}
-		nr++;
-	}
-
-	for (; bitvector; bitvector >>= 1)
-	{
-		if (IS_SET(bitvector, 1))
-		{
-			if (*names[nr] != '\n')
-			{
-				if (print_flag == 1)
-					sprintf(result + strlen(result), "%c%d:", c, plane);
-				if ((print_flag == 2) && (!strcmp(names[nr], "UNUSED")))
-					sprintf(result + strlen(result), "%ld:", nr + 1);
-				strcat(result, names[nr]);
-				strcat(result, div);
-				divider = TRUE;
-			}
-			else
-			{
-				if (print_flag == 2)
-					sprintf(result + strlen(result), "%ld:", nr + 1);
-				else if (print_flag == 1)
-					sprintf(result + strlen(result), "%c%d:", c, plane);
-				strcat(result, "UNDEF");
-				strcat(result, div);
-				divider = TRUE;
-			}
-		}
-		if (print_flag == 1)
-		{
-			c++;
-			if(c > 'z')
-				c = 'A';
-		}
-		if (*names[nr] != '\n')
-			nr++;
-	}
-
-	if (!*result)
-	{
-		strcat(result, empty_string);
-		return false;
-	}
-	else if (divider)
-		*(result + strlen(result) - 1) = '\0';
-
-	return true;
-}
-
-bool sprintbit(bitvector_t bitvector, const char *names[], char *result, const int print_flag)
-{
-	return sprintbitwd(bitvector, names, result, ",", print_flag);
-}
-
-bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const int print_flag)
-{
-	bool have_flags = false;
-	char buffer[MAX_STRING_LENGTH];
-	int i;
-	*result = '\0';
-	for (i = 0; i < 4; i++)
-	{
-		if (sprintbitwd(flags.flags[i] | (i << 30), names, buffer, div, print_flag))
-		{
-			if (strlen(result))
-				strcat(result, div);
-			strcat(result, buffer);
-			have_flags = true;
-		}
-	}
-	if (!strlen(result))
-		strcat(result, buffer);
-
-	return have_flags;
-}
-
 void sprinttype(int type, const char *names[], char *result)
 {
 	int nr = 0;
@@ -928,19 +841,19 @@ bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 
 void make_horse(CHAR_DATA * horse, CHAR_DATA * ch)
 {
-	SET_BIT(AFF_FLAGS(horse, AFF_HORSE), AFF_HORSE);
+	AFF_FLAGS(horse).set(EAffectFlag::AFF_HORSE);
 	add_follower(horse, ch);
-	REMOVE_BIT(MOB_FLAGS(horse, MOB_WIMPY), MOB_WIMPY);
-	REMOVE_BIT(MOB_FLAGS(horse, MOB_SENTINEL), MOB_SENTINEL);
-	REMOVE_BIT(MOB_FLAGS(horse, MOB_HELPER), MOB_HELPER);
-	REMOVE_BIT(MOB_FLAGS(horse, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
-	REMOVE_BIT(MOB_FLAGS(horse, MOB_MOUNTING), MOB_MOUNTING);
-	REMOVE_BIT(AFF_FLAGS(horse, AFF_TETHERED), AFF_TETHERED);
+	MOB_FLAGS(horse).unset(MOB_WIMPY);
+	MOB_FLAGS(horse).unset(MOB_SENTINEL);
+	MOB_FLAGS(horse).unset(MOB_HELPER);
+	MOB_FLAGS(horse).unset(MOB_AGGRESSIVE);
+	MOB_FLAGS(horse).unset(MOB_MOUNTING);
+	AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
 }
 
 int on_horse(CHAR_DATA * ch)
 {
-	return (AFF_FLAGGED(ch, AFF_HORSE) && has_horse(ch, TRUE));
+	return (AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE) && has_horse(ch, TRUE));
 }
 
 int has_horse(CHAR_DATA * ch, int same_room)
@@ -952,9 +865,13 @@ int has_horse(CHAR_DATA * ch, int same_room)
 
 	for (f = ch->followers; f; f = f->next)
 	{
-		if (IS_NPC(f->follower) && AFF_FLAGGED(f->follower, AFF_HORSE) &&
-				(!same_room || IN_ROOM(ch) == IN_ROOM(f->follower)))
+		if (IS_NPC(f->follower)
+			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE)
+			&& (!same_room
+				|| IN_ROOM(ch) == IN_ROOM(f->follower)))
+		{
 			return (TRUE);
+		}
 	}
 	return (FALSE);
 }
@@ -968,8 +885,11 @@ CHAR_DATA *get_horse(CHAR_DATA * ch)
 
 	for (f = ch->followers; f; f = f->next)
 	{
-		if (IS_NPC(f->follower) && AFF_FLAGGED(f->follower, AFF_HORSE))
+		if (IS_NPC(f->follower)
+			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE))
+		{
 			return (f->follower);
+		}
 	}
 	return (NULL);
 }
@@ -979,17 +899,22 @@ void horse_drop(CHAR_DATA * ch)
 	if (ch->master)
 	{
 		act("$N сбросил$G вас со своей спины.", FALSE, ch->master, 0, ch, TO_CHAR);
-		REMOVE_BIT(AFF_FLAGS(ch->master, AFF_HORSE), AFF_HORSE);
+		AFF_FLAGS(ch->master).unset(EAffectFlag::AFF_HORSE);
 		WAIT_STATE(ch->master, 3 * PULSE_VIOLENCE);
 		if (GET_POS(ch->master) > POS_SITTING)
+		{
 			GET_POS(ch->master) = POS_SITTING;
+		}
 	}
 }
 
 void check_horse(CHAR_DATA * ch)
 {
-	if (!IS_NPC(ch) && !has_horse(ch, TRUE))
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+	if (!IS_NPC(ch)
+		&& !has_horse(ch, TRUE))
+	{
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
+	}
 }
 
 
@@ -1022,27 +947,39 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	}
 
 	//log("[Stop follower] Stop horse");
-	if (get_horse(ch->master) == ch && on_horse(ch->master))
+	if (get_horse(ch->master) == ch
+		&& on_horse(ch->master))
+	{
 		horse_drop(ch);
+	}
 	else
+	{
 		act("$n прекратил$g следовать за вами.", TRUE, ch, 0, ch->master, TO_VICT);
+	}
 
 	//log("[Stop follower] Remove from followers list");
 	if (!ch->master->followers)
+	{
 		log("[Stop follower] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->master));
+	}
 	else if (ch->master->followers->follower == ch)  	// Head of follower-list?
 	{
 		k = ch->master->followers;
-		if (!(ch->master->followers = k->next) && !ch->master->master)
-			REMOVE_BIT(AFF_FLAGS(ch->master, AFF_GROUP), AFF_GROUP);
+		ch->master->followers = k->next;
+		if (!ch->master->followers
+			&& !ch->master->master)
+		{
+			AFF_FLAGS(ch->master).unset(EAffectFlag::AFF_GROUP);
+		}
 		free(k);
 	}
 	else  		// locate follower who is not head of list
 	{
 		for (k = ch->master->followers; k->next && k->next->follower != ch; k = k->next);
 		if (!k->next)
-			log("[Stop follower] SYSERR: Undefined %s in %s followers list.",
-				GET_NAME(ch), GET_NAME(ch->master));
+		{
+			log("[Stop follower] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->master));
+		}
 		else
 		{
 			j = k->next;
@@ -1053,31 +990,25 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	master = ch->master;
 	ch->master = NULL;
 
-	REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
-// лошать сопрут в мобакте
-//	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_HORSE))
-//		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 
 	//log("[Stop follower] Free charmee");
-	if (AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HELPER) || IS_SET(mode, SF_CHARMLOST))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
+		|| IS_SET(mode, SF_CHARMLOST))
 	{
 		if (affected_by_spell(ch, SPELL_CHARM))
+		{
 			affect_from_char(ch, SPELL_CHARM);
+		}
 		EXTRACT_TIMER(ch) = 5;
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_CHARM), AFF_CHARM);
-		// log("[Stop follower] Stop fight charmee");
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CHARM);
+
 		if (ch->get_fighting())
+		{
 			stop_fighting(ch, TRUE);
-		/*
-		   log("[Stop follower] Stop fight charmee opponee");
-		   for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next)
-		   {if (vict->get_fighting() &&
-		   vict->get_fighting() == ch &&
-		   ch->get_fighting() != vict)
-		   stop_vict->get_fighting();
-		   }
-		 */
-		//log("[Stop follower] Charmee MOB reaction");
+		}
+
 		if (IS_NPC(ch))
 		{
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
@@ -1089,8 +1020,10 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 				extract_char(ch, FALSE);
 				return (TRUE);
 			}
-			else if (AFF_FLAGGED(ch, AFF_HELPER))
-				REMOVE_BIT(AFF_FLAGS(ch, AFF_HELPER), AFF_HELPER);
+			else if (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))
+			{
+				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HELPER);
+			}
 			else
 			{
 				if (master &&
@@ -1110,22 +1043,24 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 					}
 				}
 				else
-					if (master &&
-							!IS_SET(mode, SF_MASTERDIE) &&
-							CAN_SEE(ch, master) && MOB_FLAGGED(ch, MOB_MEMORY))
+				{
+					if (master
+						&& !IS_SET(mode, SF_MASTERDIE)
+						&& CAN_SEE(ch, master) && MOB_FLAGGED(ch, MOB_MEMORY))
+					{
 						remember(ch, master);
+					}
+				}
 			}
 		}
 	}
-	//log("[Stop follower] Restore mob flags");
-	if (IS_NPC(ch) && (i = GET_MOB_RNUM(ch)) >= 0)
+
+	if (IS_NPC(ch)
+		&& (i = GET_MOB_RNUM(ch)) >= 0)
 	{
-		MOB_FLAGS(ch, INT_ZERRO) = MOB_FLAGS(mob_proto + i, INT_ZERRO);
-		MOB_FLAGS(ch, INT_ONE) = MOB_FLAGS(mob_proto + i, INT_ONE);
-		MOB_FLAGS(ch, INT_TWO) = MOB_FLAGS(mob_proto + i, INT_TWO);
-		MOB_FLAGS(ch, INT_THREE) = MOB_FLAGS(mob_proto + i, INT_THREE);
+		MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
 	}
-	//log("[Stop follower] Stop function");
+
 	return (FALSE);
 }
 
@@ -1143,7 +1078,9 @@ bool die_follower(CHAR_DATA * ch)
 	}
 
 	if (on_horse(ch))
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+	{
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
+	}
 
 	for (k = ch->followers; k; k = j)
 	{
@@ -1176,7 +1113,7 @@ void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence)
 
 	ch->master = leader;
 
-	CREATE(k, struct follow_type, 1);
+	CREATE(k, 1);
 
 	k->follower = ch;
 	k->next = leader->followers;
@@ -1205,7 +1142,9 @@ int get_line(FILE * fl, char *buf)
 
 	do
 	{
-		fgets(temp, 256, fl);
+		const char* dummy = fgets(temp, 256, fl);
+		UNUSED_ARG(dummy);
+
 		if (feof(fl))
 			return (0);
 		lines++;
@@ -1430,7 +1369,7 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 		return -1;
 	}
 
-	CREATE(replace_buffer, char, max_size);
+	CREATE(replace_buffer, max_size);
 	int i = 0;
 	jetsam = *string;
 	flow = *string;
@@ -1474,7 +1413,7 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 	}
 	if (i > 0)
 	{
-		RECREATE(*string, char, strlen(replace_buffer) + 3);
+		RECREATE(*string, strlen(replace_buffer) + 3);
 		strcpy(*string, replace_buffer);
 	}
 	free(replace_buffer);
@@ -1485,7 +1424,7 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 
 // re-formats message type formatted char * //
 // (for strings edited with d->str) (mostly olc and mail)     //
-void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, size_t maxlen)
+void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
 {
 	size_t total_chars = 0;
 	int cap_next = TRUE, cap_next_next = FALSE;
@@ -1587,7 +1526,7 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, size_t maxlen
 	{
 		formated[maxlen] = '\0';
 	}
-	RECREATE(*ptr_string, char, std::min(maxlen, strlen(formated) + 3));
+	RECREATE(*ptr_string, std::min(maxlen, strlen(formated) + 3));
 	strcpy(*ptr_string, formated);
 }
 
@@ -1694,17 +1633,17 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 
 	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
 	if (IS_NPC(ch) && ch->master && !IS_NPC(ch->master)
-		&& (IS_HORSE(ch) || AFF_FLAGGED(ch, AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL)))
+		&& (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL)))
 		ch = ch->master;
 	if (IS_NPC(tch) && tch->master && !IS_NPC(tch->master)
-		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)))
+		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)))
 		tch = tch->master;
 
 	// NPC's always in same group
 	if ((IS_NPC(ch) && IS_NPC(tch)) || ch == tch)
 		return true;
 
-	if (!AFF_FLAGGED(ch, AFF_GROUP) || !AFF_FLAGGED(tch, AFF_GROUP))
+	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) || !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP))
 		return false;
 
 	if (ch->master == tch || tch->master == ch || (ch->master && ch->master == tch->master))
@@ -1993,9 +1932,17 @@ char *rustime(const struct tm *timeptr)
 	};
 	static char result[100];
 
-	sprintf(result, "%.2d:%.2d:%.2d %2d %s %d года",
+	if (timeptr)
+	{
+		sprintf(result, "%.2d:%.2d:%.2d %2d %s %d года",
 			timeptr->tm_hour,
 			timeptr->tm_min, timeptr->tm_sec, timeptr->tm_mday, mon_name[timeptr->tm_mon], 1900 + timeptr->tm_year);
+	}
+	else
+	{
+		sprintf(result, "Время последнего входа неизвестно");
+	}
+
 	return result;
 }
 
@@ -2036,7 +1983,7 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
    (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
     ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
  */
-bool CAN_CARRY_OBJ(CHAR_DATA *ch, OBJ_DATA *obj)
+bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj)
 {
 	// для анлимного лута мобами из трупов
 	if (IS_NPC(ch) && !IS_CHARMICE(ch))
@@ -2066,7 +2013,7 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 		return FALSE;
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
-	if (IS_NPC(whom) && AFF_FLAGGED(whom, AFF_CHARM))
+	if (IS_NPC(whom) && AFF_FLAGGED(whom, EAffectFlag::AFF_CHARM))
 		return ignores(who, whom->master, flag);
 
 	ign_id = GET_IDNUM(whom);
@@ -2082,12 +2029,12 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 int valid_email(const char *address)
 {
 	int count = 0;
-	static string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
-	string addr = address;
-	string::size_type dog_pos = 0, pos = 0;
+	static std::string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
+	std::string addr = address;
+	std::string::size_type dog_pos = 0, pos = 0;
 
 	// Наличие запрещенных символов или кириллицы //
-	if (addr.find_first_of(special_symbols) != string::npos)
+	if (addr.find_first_of(special_symbols) != std::string::npos)
 		return 0;
 	size_t size = addr.size();
 	for (size_t i = 0; i < size; i++)
@@ -2098,7 +2045,7 @@ int valid_email(const char *address)
 		}
 	}
 	// Собака должна быть только одна и на второй и далее позиции //
-	while ((pos = addr.find_first_of('@', pos)) != string::npos)
+	while ((pos = addr.find_first_of('@', pos)) != std::string::npos)
 	{
 		dog_pos = pos;
 		++count;
@@ -2111,7 +2058,7 @@ int valid_email(const char *address)
 	if (size - dog_pos <= 3)
 		return 0;
 	// Точка отсутствует, расположена сразу после собаки, или на последнем месте //
-	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == string::npos)
+	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == std::string::npos)
 		return 0;
 
 	return 1;
@@ -2334,9 +2281,13 @@ int get_real_dr(CHAR_DATA *ch)
 		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + bonus);
 	}
 	if (can_use_feat(ch, BOWS_FOCUS_FEAT) && ch->get_skill(SKILL_ADDSHOT))
-	    return  MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + dd * 2);
-        else
-            return (VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, IS_MORTIFIER(ch)?100:50) + dd * 2);
+	{
+		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + dd * 2);
+	}
+	else
+	{
+		return (VPOSI(GET_DR(ch) + GET_DR_ADD(ch), -50, (IS_MORTIFIER(ch) ? 100 : 50)) + dd * 2);
+	}
 }
 
 // без ограничений
@@ -2798,14 +2749,17 @@ void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 		need_str, desc_count(need_str, WHAT_STR));
 }
 
-long GetAffectNumByName(std::string affName)
+bool GetAffectNumByName(const std::string& affName, EAffectFlag& result)
 {
 	int base = 0, offset = 0, counter = 0;
 	bool endOfArray = false;
 	while (!endOfArray)
 	{
-		if (affName == string(affected_bits[counter]))
-			return ((base << 30) | (1 << offset));
+		if (affName == std::string(affected_bits[counter]))
+		{
+			result = static_cast<EAffectFlag>((base << 30) | (1 << offset));
+			return true;
+		}
 		offset++;
 		if (*affected_bits[counter] == '\n')
 		{
@@ -2816,7 +2770,7 @@ long GetAffectNumByName(std::string affName)
 		}
 		counter++;
 	}
-	return -1;
+	return false;
 }
 
 /// считает кол-во цветов &R и т.п. в строке
@@ -2942,7 +2896,7 @@ void delete_item(int pt_num, int vnum)
 				int rnum = real_object(i->vnum);
 				if (rnum >= 0)
 				{
-					obj_index[rnum].stored--;
+					obj_proto.dec_stored(rnum);
 				}
 				need_save = true;
 			}
@@ -3005,7 +2959,7 @@ void check_rented()
 bool is_big_set(const OBJ_DATA *obj,bool is_mini)
 {
 	unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
-	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (!obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
 	{
 		return false;
 	}
@@ -3074,7 +3028,7 @@ void init_vnum_list(int vnum)
  */
 bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	if (!obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
 	{
 		return false;
 	}
@@ -3137,7 +3091,7 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 // Симуляция телла от моба
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 {
-	if (AFF_FLAGGED(ch, AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
 		return;
 	char local_buf[MAX_INPUT_LENGTH];
 	snprintf(local_buf, MAX_INPUT_LENGTH,
@@ -3146,7 +3100,7 @@ void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
 
-int can_carry_n(CHAR_DATA* ch)
+int CAN_CARRY_N(const CHAR_DATA* ch)
 {
 	int n = 5 + GET_REAL_DEX(ch) / 2 + GET_LEVEL(ch) / 2;
 	if (HAVE_FEAT(ch, JUGGLER_FEAT))
@@ -3164,67 +3118,103 @@ int can_carry_n(CHAR_DATA* ch)
 	return std::max(n, 1);
 }
 
-void tascii(const uint32_t* pointer, int num_planes, char* ascii)
-{
-	int i, c, found;
-
-	for (i = 0, found = FALSE; i < num_planes; i++)
-	{
-		for (c = 0; c < 30; c++)
-		{
-			if (*(pointer + i) & (1 << c))
-			{
-				found = TRUE;
-				sprintf(ascii + strlen(ascii), "%c%d", c < 26 ? c + 'a' : c - 26 + 'A', i);
-			}
-		}
-	}
-	if (!found)
-		strcat(ascii, "0 ");
-	else
-		strcat(ascii, " ");
-}
-
 bool ParseFilter::init_type(const char *str)
 {
-	if (is_abbrev(str, "свет") || is_abbrev(str, "light"))
-		type = ITEM_LIGHT;
-	else if (is_abbrev(str, "свиток") || is_abbrev(str, "scroll"))
-		type = ITEM_SCROLL;
-	else if (is_abbrev(str, "палочка") || is_abbrev(str, "wand"))
-		type = ITEM_WAND;
-	else if (is_abbrev(str, "посох") || is_abbrev(str, "staff"))
-		type = ITEM_STAFF;
-	else if (is_abbrev(str, "оружие") || is_abbrev(str, "weapon"))
-		type = ITEM_WEAPON;
-	else if (is_abbrev(str, "броня") || is_abbrev(str, "armor"))
-		type = ITEM_ARMOR;
-	else if (is_abbrev(str, "напиток") || is_abbrev(str, "potion"))
-		type = ITEM_POTION;
-	else if (is_abbrev(str, "прочее") || is_abbrev(str, "другое") || is_abbrev(str, "other"))
-		type = ITEM_OTHER;
-	else if (is_abbrev(str, "контейнер") || is_abbrev(str, "container"))
-		type = ITEM_CONTAINER;
-	else if (is_abbrev(str, "материал") || is_abbrev(str, "material"))
-		type = ITEM_MATERIAL;
-	else if (is_abbrev(str, "зачарованный")  | is_abbrev(str, "enchant"))
-		type = ITEM_ENCHANT;
-	else if (is_abbrev(str, "емкость") || is_abbrev(str, "tank"))
-		type = ITEM_DRINKCON;
-	else if (is_abbrev(str, "книга") || is_abbrev(str, "book"))
-		type = ITEM_BOOK;
-	else if (is_abbrev(str, "руна") || is_abbrev(str, "rune"))
-		type = ITEM_INGRADIENT;
-	else if (is_abbrev(str, "ингредиент") || is_abbrev(str, "ingradient"))
-		type = ITEM_MING;
-	else if (is_abbrev(str, "легкие") || is_abbrev(str, "легкая"))
-		type = ITEM_ARMOR_LIGHT;
-	else if (is_abbrev(str, "средние") || is_abbrev(str, "средняя"))
-		type = ITEM_ARMOR_MEDIAN;
-	else if (is_abbrev(str, "тяжелые") || is_abbrev(str, "тяжелая"))
-		type = ITEM_ARMOR_HEAVY;
+	if (is_abbrev(str, "свет")
+		|| is_abbrev(str, "light"))
+	{
+		type = obj_flag_data::ITEM_LIGHT;
+	}
+	else if (is_abbrev(str, "свиток")
+		|| is_abbrev(str, "scroll"))
+	{
+		type = obj_flag_data::ITEM_SCROLL;
+	}
+	else if (is_abbrev(str, "палочка")
+		|| is_abbrev(str, "wand"))
+	{
+		type = obj_flag_data::ITEM_WAND;
+	}
+	else if (is_abbrev(str, "посох")
+		|| is_abbrev(str, "staff"))
+	{
+		type = obj_flag_data::ITEM_STAFF;
+	}
+	else if (is_abbrev(str, "оружие")
+		|| is_abbrev(str, "weapon"))
+	{
+		type = obj_flag_data::ITEM_WEAPON;
+	}
+	else if (is_abbrev(str, "броня")
+		|| is_abbrev(str, "armor"))
+	{
+		type = obj_flag_data::ITEM_ARMOR;
+	}
+	else if (is_abbrev(str, "напиток")
+		|| is_abbrev(str, "potion"))
+	{
+		type = obj_flag_data::ITEM_POTION;
+	}
+	else if (is_abbrev(str, "прочее")
+		|| is_abbrev(str, "другое")
+		|| is_abbrev(str, "other"))
+	{
+		type = obj_flag_data::ITEM_OTHER;
+	}
+	else if (is_abbrev(str, "контейнер")
+		|| is_abbrev(str, "container"))
+	{
+		type = obj_flag_data::ITEM_CONTAINER;
+	}
+	else if (is_abbrev(str, "материал")
+		|| is_abbrev(str, "material"))
+	{
+		type = obj_flag_data::ITEM_MATERIAL;
+	}
+	else if (is_abbrev(str, "зачарованный")
+		|| is_abbrev(str, "enchant"))
+	{
+		type = obj_flag_data::ITEM_ENCHANT;
+	}
+	else if (is_abbrev(str, "емкость")
+		|| is_abbrev(str, "tank"))
+	{
+		type = obj_flag_data::ITEM_DRINKCON;
+	}
+	else if (is_abbrev(str, "книга")
+		|| is_abbrev(str, "book"))
+	{
+		type = obj_flag_data::ITEM_BOOK;
+	}
+	else if (is_abbrev(str, "руна")
+		|| is_abbrev(str, "rune"))
+	{
+		type = obj_flag_data::ITEM_INGREDIENT;
+	}
+	else if (is_abbrev(str, "ингредиент")
+		|| is_abbrev(str, "ingradient"))
+	{
+		type = obj_flag_data::ITEM_MING;
+	}
+	else if (is_abbrev(str, "легкие")
+		|| is_abbrev(str, "легкая"))
+	{
+		type = obj_flag_data::ITEM_ARMOR_LIGHT;
+	}
+	else if (is_abbrev(str, "средние")
+		|| is_abbrev(str, "средняя"))
+	{
+		type = obj_flag_data::ITEM_ARMOR_MEDIAN;
+	}
+	else if (is_abbrev(str, "тяжелые")
+		|| is_abbrev(str, "тяжелая"))
+	{
+		type = obj_flag_data::ITEM_ARMOR_HEAVY;
+	}
 	else
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -3252,77 +3242,77 @@ bool ParseFilter::init_wear(const char *str)
 {
 	if (is_abbrev(str, "палец"))
 	{
-		wear = ITEM_WEAR_FINGER;
+		wear = EWearFlag::ITEM_WEAR_FINGER;
 		wear_message = 1;
 	}
 	else if (is_abbrev(str, "шея") || is_abbrev(str, "грудь"))
 	{
-		wear = ITEM_WEAR_NECK;
+		wear = EWearFlag::ITEM_WEAR_NECK;
 		wear_message = 2;
 	}
 	else if (is_abbrev(str, "тело"))
 	{
-		wear = ITEM_WEAR_BODY;
+		wear = EWearFlag::ITEM_WEAR_BODY;
 		wear_message = 3;
 	}
 	else if (is_abbrev(str, "голова"))
 	{
-		wear = ITEM_WEAR_HEAD;
+		wear = EWearFlag::ITEM_WEAR_HEAD;
 		wear_message = 4;
 	}
 	else if (is_abbrev(str, "ноги"))
 	{
-		wear = ITEM_WEAR_LEGS;
+		wear = EWearFlag::ITEM_WEAR_LEGS;
 		wear_message = 5;
 	}
 	else if (is_abbrev(str, "ступни"))
 	{
-		wear = ITEM_WEAR_FEET;
+		wear = EWearFlag::ITEM_WEAR_FEET;
 		wear_message = 6;
 	}
 	else if (is_abbrev(str, "кисти"))
 	{
-		wear = ITEM_WEAR_HANDS;
+		wear = EWearFlag::ITEM_WEAR_HANDS;
 		wear_message = 7;
 	}
 	else if (is_abbrev(str, "руки"))
 	{
-		wear = ITEM_WEAR_ARMS;
+		wear = EWearFlag::ITEM_WEAR_ARMS;
 		wear_message = 8;
 	}
 	else if (is_abbrev(str, "щит"))
 	{
-		wear = ITEM_WEAR_SHIELD;
+		wear = EWearFlag::ITEM_WEAR_SHIELD;
 		wear_message = 9;
 	}
 	else if (is_abbrev(str, "плечи"))
 	{
-		wear = ITEM_WEAR_ABOUT;
+		wear = EWearFlag::ITEM_WEAR_ABOUT;
 		wear_message = 10;
 	}
 	else if (is_abbrev(str, "пояс"))
 	{
-		wear = ITEM_WEAR_WAIST;
+		wear = EWearFlag::ITEM_WEAR_WAIST;
 		wear_message = 11;
 	}
 	else if (is_abbrev(str, "запястья"))
 	{
-		wear = ITEM_WEAR_WRIST;
+		wear = EWearFlag::ITEM_WEAR_WRIST;
 		wear_message = 12;
 	}
 	else if (is_abbrev(str, "правая"))
 	{
-		wear = ITEM_WEAR_WIELD;
+		wear = EWearFlag::ITEM_WEAR_WIELD;
 		wear_message = 13;
 	}
 	else if (is_abbrev(str, "левая"))
 	{
-		wear = ITEM_WEAR_HOLD;
+		wear = EWearFlag::ITEM_WEAR_HOLD;
 		wear_message = 14;
 	}
 	else if (is_abbrev(str, "обе"))
 	{
-		wear = ITEM_WEAR_BOTHS;
+		wear = EWearFlag::ITEM_WEAR_BOTHS;
 		wear_message = 15;
 	}
 	else
@@ -3399,19 +3389,32 @@ bool ParseFilter::init_weap_class(const char *str)
 		return false;
 	}
 
-	type = ITEM_WEAPON;
+	type = obj_flag_data::ITEM_WEAPON;
+
 	return true;
 }
 
 bool ParseFilter::init_realtime(const char *str)
 {
-	tm trynewtimeup, trynewtimedown;
+	tm trynewtimeup;
+	tm trynewtimedown;
 	int day, month, year;
-	string tmp_string;
+	std::string tmp_string;
+
 	if (strlen(str) != 11)
+	{
 		return false;
-	if ((str[2] != '.') || (str[5] != '.') || (str[10] != '<' && str[10] != '>' && str[10] != '='))
+	}
+
+	if ((str[2] != '.')
+		|| (str[5] != '.')
+		|| (str[10] != '<'
+			&& str[10] != '>'
+			&& str[10] != '='))
+	{
 		return false;
+	}
+
 	if (!isdigit(static_cast<unsigned int>(str[0])) 
 		|| !isdigit(static_cast<unsigned int>(str[1]))
 		|| !isdigit(static_cast<unsigned int>(str[3]))
@@ -3419,9 +3422,10 @@ bool ParseFilter::init_realtime(const char *str)
 		|| !isdigit(static_cast<unsigned int>(str[6]))
 		|| !isdigit(static_cast<unsigned int>(str[7]))
 		|| !isdigit(static_cast<unsigned int>(str[8]))
-		|| !isdigit(static_cast<unsigned int>(str[9]))
-		)
+		|| !isdigit(static_cast<unsigned int>(str[9])))
+	{
 		return false;
+	}
 
 	tmp_string = "";
 	tmp_string.push_back(str[0]);
@@ -3437,36 +3441,68 @@ bool ParseFilter::init_realtime(const char *str)
 	tmp_string.push_back(str[8]);
 	tmp_string.push_back(str[9]);
 	year = std::stoi(tmp_string);
+
 	if (year <= 1900)
+	{
 		return false;
+	}
 	if (month > 12)
+	{
 		return false;
+	}
 	if (year % 4 == 0 && month == 2 && day > 29)
+	{
 		return false;
+	}
 	else if (month == 1 && day > 31)
+	{
 		return false;
+	}
 	else if (year % 4 != 0 && month == 2 && day > 28)
+	{
 		return false;
+	}
 	else if (month == 3 && day > 31)
+	{
 		return false;
+	}
 	else if (month == 4 && day > 30)
+	{
 		return false;
+	}
 	else if (month == 5 && day > 31)
+	{
 		return false;
+	}
 	else if (month == 6 && day > 30)
+	{
 		return false;
+	}
 	else if (month == 7 && day > 31)
+	{
 		return false;
+	}
 	else if (month == 8 && day > 31)
+	{
 		return false;
+	}
 	else if (month == 9 && day > 30)
+	{
 		return false;
+	}
 	else if (month == 10 && day > 31)
+	{
 		return false;
+	}
 	else if (month == 11 && day > 30)
+	{
 		return false;
+	}
 	else if (month == 12 && day > 31)
+	{
 		return false;
+	}
+
 	trynewtimedown.tm_sec = 0;
 	trynewtimedown.tm_hour = 0;
 	trynewtimedown.tm_min = 0;
@@ -3581,31 +3617,36 @@ bool ParseFilter::init_affect(char *str, size_t str_len)
 bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const
 {
 	bool result = false;
-	if (name.empty() || isname(name, GET_OBJ_PNAME(obj, 0)))
+	if (name.empty()
+		|| isname(name, GET_OBJ_PNAME(obj, 0)))
 	{
 		result = true;
 	}
-	else if (((GET_OBJ_TYPE(obj) == ITEM_MING)
-			|| (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT))
+	else if ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING
+			|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT)
 		&& GET_OBJ_RNUM(obj) >= 0
 		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->aliases))
 	{
 		result = true;
 	}
-	else if (ch && filter_type == CLAN
+	else if (ch
+		&& filter_type == CLAN
 		&& CHECK_CUSTOM_LABEL(name.c_str(), obj, ch))
 	{
 		result = true;
 	}
+
 	return result;
 }
 
 bool ParseFilter::check_type(OBJ_DATA *obj) const
 {
-	if (type < 0 || type == GET_OBJ_TYPE(obj))
+	if (type < 0
+		|| type == GET_OBJ_TYPE(obj))
 	{
 		return true;
 	}
+
 	return false;
 }
 
@@ -3652,7 +3693,8 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const
 
 bool ParseFilter::check_wear(OBJ_DATA *obj) const
 {
-	if (wear < 0 || CAN_WEAR(obj, wear))
+	if (wear == EWearFlag::ITEM_WEAR_UNDEFINED
+		|| CAN_WEAR(obj, wear))
 	{
 		return true;
 	}
@@ -3693,16 +3735,9 @@ bool CompareBits(FLAG_DATA flags, const char *names[], int affect)
 	int i;
 	for (i = 0; i < 4; i++)
 	{
-		int nr = 0, fail = 0;
-		bitvector_t bitvector = flags.flags[i] | (i << 30);
-		if (bitvector < static_cast<uint32_t>(INT_ONE));
-		else if (bitvector < static_cast<uint32_t>(INT_TWO))
-			fail = 1;
-		else if (bitvector < static_cast<uint32_t>(INT_THREE))
-			fail = 2;
-		else
-			fail = 3;
-		bitvector &= 0x3FFFFFFF;
+		int nr = 0;
+		int fail = i;
+		bitvector_t bitvector = flags.get_plane(i);
 		while (fail)
 		{
 			if (*names[nr] == '\n')
@@ -3779,7 +3814,7 @@ bool ParseFilter::check_affect_extra(OBJ_DATA *obj) const
 	{
 		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it)
 		{
-			if (!CompareBits(obj->obj_flags.extra_flags, extra_bits, *it))
+			if (!CompareBits(GET_OBJ_EXTRA(obj), extra_bits, *it))
 			{
 				return false;
 			}
@@ -3886,6 +3921,46 @@ void setup_converters()
 	}
 }
 
+void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = nullptr*/)
+{
+	unsigned char *buf = (unsigned char*)ptr;
+	size_t i, j;
+
+	if (nullptr != title)
+	{
+		fprintf(file, "%s\n", title);
+	}
+
+	fprintf(file, "        | 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f\n");
+	fprintf(file, "--------+------------------------------------------------\n");
+
+	for (i = 0; i < buflen; i += 16)
+	{
+		fprintf(file, "%06zx: | ", i);
+		for (j = 0; j < 16; j++)
+		{
+			if (i + j < buflen)
+			{
+				fprintf(file, "%02x ", buf[i + j]);
+			}
+			else
+			{
+				fprintf(file, "   ");
+			}
+		}
+
+		fprintf(file, " ");
+		for (j = 0; j < 16; j++)
+		{
+			if (i + j < buflen)
+			{
+				fprintf(file, "%c", isprint(buf[i + j]) ? buf[i + j] : '.');
+			}
+		}
+		fprintf(file, "\n");
+	}
+}
+
 std::string ParseFilter::print() const
 {
 	std::string buffer = "Выборка: ";
@@ -3918,7 +3993,7 @@ std::string ParseFilter::print() const
 		buffer += print_obj_state(state);
 		buffer += " ";
 	}
-	if (wear >= 0)
+	if (wear != EWearFlag::ITEM_WEAR_UNDEFINED)
 	{
 		buffer += wear_bits[wear_message];
 		buffer += " ";
@@ -4097,7 +4172,57 @@ void CCheckTable::check() const
 	std::cout << "Performance... " << std::endl;
 	std::cout << std::setprecision(2) << std::fixed << test_time() * 100 << "%" << std::endl;
 }
+#endif	// WIN32
 
-#endif
+#ifdef HAVE_ICONV
+void koi_to_utf8(char *str_i, char *str_o)
+{
+	iconv_t cd;
+	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t i;
+
+	if ((cd = iconv_open("UTF-8","KOI8-R")) == (iconv_t) - 1)
+	{
+		printf("koi_to_utf8: iconv_open error\n");
+		return;
+	}
+	len_i = strlen(str_i);
+	// const_cast at the next line is required for Linux, because there iconv has non-const input argument.
+	if ((i = iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
+	{
+		printf("koi_to_utf8: iconv error\n");
+		return;
+	}
+	*str_o = 0;
+	if (iconv_close(cd) == -1)
+	{
+		printf("koi_to_utf8: iconv_close error\n");
+		return;
+	}
+}
+
+void utf8_to_koi(char *str_i, char *str_o)
+{
+	iconv_t cd;
+	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t i;
+
+	if ((cd = iconv_open("KOI8-R", "UTF-8")) == (iconv_t) - 1)
+	{
+		perror("utf8_to_koi: iconv_open error");
+		return;
+	}
+	len_i = strlen(str_i);
+	if ((i=iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
+	{
+		perror("utf8_to_koi: iconv error");
+	}
+	if (iconv_close(cd) == -1)
+	{
+		perror("utf8_to_koi: iconv_close error");
+		return;
+	}
+}
+#endif // HAVE_ICONV
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

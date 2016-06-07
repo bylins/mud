@@ -5,9 +5,11 @@
 #ifndef ROOM_HPP_INCLUDED
 #define ROOM_HPP_INCLUDED
 
-#include "conf.h"
-#include "sysdep.h"
+#include "obj.hpp"
+#include "constants.h"
 #include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 struct exit_data
 {
@@ -47,6 +49,8 @@ struct room_property_data
 	int poison; //Пока только степень зараженности для SPELL_POISONED_FOG//
 };
 
+extern void gm_flag(char *subfield, const char **list, FLAG_DATA& val, char *res);
+
 struct ROOM_DATA
 {
 	ROOM_DATA();
@@ -61,22 +65,21 @@ struct ROOM_DATA
 	char *temp_description; // для олц, пока редактора не будет нормального
 	EXTRA_DESCR_DATA *ex_description;	// for examine/look       //
 	boost::array<EXIT_DATA *, NUM_OF_DIRS> dir_option;	// Directions //
-	FLAG_DATA room_flags;	// DEATH,DARK ... etc //
 
 	byte light;		// Number of lightsources in room //
 	byte glight;		// Number of lightness person     //
 	byte gdark;		// Number of darkness  person     //
 	struct weather_control weather;		// Weather state for room //
-	SPECIAL(*func);
+	int (*func)(CHAR_DATA*, void*, int, char*);
 
-	struct trig_proto_list *proto_script;	// list of default triggers  //
+	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers  //
 	struct script_data *script;	// script info for the object //
 	struct track_data *track;
 
 	OBJ_DATA *contents;	// List of items in room              //
 	CHAR_DATA *people;	// List of NPC / PC in room           //
 
-	AFFECT_DATA *affected;	// affected by what spells       //
+	AFFECT_DATA<ERoomApplyLocation> *affected;	// affected by what spells       //
 	FLAG_DATA affected_by;	// флаги которые в отличии от room_flags появляются от аффектов
 							//и не могут быть записаны на диск
 
@@ -97,6 +100,21 @@ struct ROOM_DATA
 	struct room_property_data	add_property;
 
 	int poison;		// Степень заражения территории в SPELL_POISONED_FOG //
+
+	bool get_flag(const uint32_t flag) const { return m_room_flags.get(flag); }
+	void set_flag(const uint32_t flag) { m_room_flags.set(flag); }
+	void unset_flag(const uint32_t flag) { m_room_flags.unset(flag); }
+	bool toggle_flag(const size_t plane, const uint32_t flag) { return m_room_flags.toggle_flag(plane, flag); }
+	void clear_flags() { m_room_flags.clear(); }
+
+	void flags_from_string(const char *flag) { m_room_flags.from_string(flag); };
+	bool flags_sprint(char *result, const char *div, const int print_flag = 0) const { return m_room_flags.sprintbits(room_bits, result, div, print_flag); }
+	void flags_tascii(int num_planes, char* ascii) { m_room_flags.tascii(num_planes, ascii); }
+
+	void gm_flag(char *subfield, const char **list, char *res) { ::gm_flag(subfield, list, m_room_flags, res); }
+
+private:
+	FLAG_DATA m_room_flags;	// DEATH,DARK ... etc //
 };
 
 #endif // ROOM_HPP_INCLUDED

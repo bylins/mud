@@ -92,7 +92,6 @@ const char *DirsFrom[] =
 	"\n"
 };
 
-
 // ROOM_x
 const char *room_bits[] =
 {
@@ -190,15 +189,6 @@ const char *genders[] = { "бесполое",
 						  "многоголовый",
 						  "\n"
 						};
-
-
-const char *religion_name[][NUM_SEXES] = { {"Язычник", "Язычник", "Язычница", "Язычники"},
-	{"Христианин", "Христианин", "Христианка", "Христиане"},
-	{"", "", ""} // for undefined religion
-};
-
-
-
 
 // POS_x
 const char *position_types[] = { "Мертв",
@@ -342,7 +332,7 @@ const char *action_bits[] = { "спец",
 							  "агр.викинги",
 							  "агр.степняки",
 							  "!оживить",
-                                                          "осторожный стиль",
+							  "осторожный стиль",
 							  "\n",
 							  "\n"
 							};
@@ -459,6 +449,7 @@ const char *preference_bits[] = { "краткий",
 								  "канал.демигодов",
 								  "режим.слепого",
 								  "хеши.комнаты",
+								  "реж.тестер",
 								  "\n"
 								};
 
@@ -1593,51 +1584,43 @@ struct weapon_app_type weapon_app[] =
 	{50, 50, 50}		// ww = 50
 };
 
-struct extra_affects_type ClericAffects[] = { { -1, -1} };
-struct extra_affects_type MageAffects[] = { {AFF_INFRAVISION, 1},
-	{ -1, -1}
-};
-struct extra_affects_type ThiefAffects[] = { {AFF_INFRAVISION, 1},
-	{AFF_SENSE_LIFE, 1},
-	{AFF_BLINK, 1},
-	{ -1, -1}
-};
-struct extra_affects_type WarriorAffects[] = { { -1, -1} };
-struct extra_affects_type AssasineAffects[] = { {AFF_INFRAVISION, 1},
-	{ -1, -1}
-};
-struct extra_affects_type GuardAffects[] = { { -1, -1} };
-struct extra_affects_type DefenderAffects[] = { { -1, -1} };
-struct extra_affects_type CharmerAffects[] = { { -1, -1} };
-struct extra_affects_type NecromancerAffects[] = { {AFF_INFRAVISION, 1},
-	{ -1, -1}
-};
-struct extra_affects_type PaladineAffects[] = { { -1, -1} };
-struct extra_affects_type RangerAffects[] = { {AFF_INFRAVISION, 1},
-	{AFF_SENSE_LIFE, 1},
-	{ -1, -1}
-};
-struct extra_affects_type SmithAffects[] = { { -1, -1} };
-struct extra_affects_type MerchantAffects[] = { { -1, -1} };
-struct extra_affects_type DruidAffects[] = { { -1, -1} };
+const class_app_type::extra_affects_list_t ClericAffects = {};
+const class_app_type::extra_affects_list_t MageAffects = { { EAffectFlag::AFF_INFRAVISION, 1}};
+const class_app_type::extra_affects_list_t ThiefAffects = {
+	{ EAffectFlag::AFF_INFRAVISION, 1},
+	{ EAffectFlag::AFF_SENSE_LIFE, 1},
+	{ EAffectFlag::AFF_BLINK, 1} };
+const class_app_type::extra_affects_list_t WarriorAffects = {};
+const class_app_type::extra_affects_list_t AssasineAffects = { { EAffectFlag::AFF_INFRAVISION, 1 } };
+const class_app_type::extra_affects_list_t GuardAffects = {};
+const class_app_type::extra_affects_list_t DefenderAffects = {};
+const class_app_type::extra_affects_list_t CharmerAffects = {};
+const class_app_type::extra_affects_list_t NecromancerAffects = { { EAffectFlag::AFF_INFRAVISION, 1} };
+const class_app_type::extra_affects_list_t PaladineAffects = { };
+const class_app_type::extra_affects_list_t RangerAffects = {
+	{ EAffectFlag::AFF_INFRAVISION, 1},
+	{ EAffectFlag::AFF_SENSE_LIFE, 1} };
+const class_app_type::extra_affects_list_t SmithAffects = {};
+const class_app_type::extra_affects_list_t MerchantAffects = {};
+const class_app_type::extra_affects_list_t DruidAffects = {};
 
 struct class_app_type class_app[NUM_PLAYER_CLASSES] =
 {
 // unknown_weapon_fault koef_con base_con min_con max_con extra_affects
-	{5,  40, 10, 12, 50, (struct extra_affects_type *) &ClericAffects},
-	{3,  35, 10, 10, 50, (struct extra_affects_type *) &MageAffects},
-	{3,  55, 10, 14, 50, (struct extra_affects_type *) &ThiefAffects},
-	{2, 105, 10, 22, 50, (struct extra_affects_type *) &WarriorAffects},
-	{3,  50, 10, 14, 50, (struct extra_affects_type *) &AssasineAffects},
-	{2, 105, 10, 17, 50, (struct extra_affects_type *) &GuardAffects},
-	{5,  35, 10, 10, 50, (struct extra_affects_type *) &DefenderAffects},
-	{5,  35, 10, 10, 50, (struct extra_affects_type *) &CharmerAffects},
-	{5,  35, 10, 11, 50, (struct extra_affects_type *) &NecromancerAffects},
-	{2, 100, 10, 14, 50, (struct extra_affects_type *) &PaladineAffects},
-	{2, 100, 10, 14, 50, (struct extra_affects_type *) &RangerAffects},
-	{2, 100, 10, 14, 50, (struct extra_affects_type *) &SmithAffects},
-	{3,  50, 10, 14, 50, (struct extra_affects_type *) &MerchantAffects},
-	{5,  40, 10, 12, 50, (struct extra_affects_type *) &DruidAffects}
+	{5,  40, 10, 12, 50, &ClericAffects},
+	{3,  35, 10, 10, 50, &MageAffects},
+	{3,  55, 10, 14, 50, &ThiefAffects},
+	{2, 105, 10, 22, 50, &WarriorAffects},
+	{3,  50, 10, 14, 50, &AssasineAffects},
+	{2, 105, 10, 17, 50, &GuardAffects},
+	{5,  35, 10, 10, 50, &DefenderAffects},
+	{5,  35, 10, 10, 50, &CharmerAffects},
+	{5,  35, 10, 11, 50, &NecromancerAffects},
+	{2, 100, 10, 14, 50, &PaladineAffects},
+	{2, 100, 10, 14, 50, &RangerAffects},
+	{2, 100, 10, 14, 50, &SmithAffects},
+	{3,  50, 10, 14, 50, &MerchantAffects},
+	{5,  40, 10, 12, 50, &DruidAffects}
 };
 
 namespace
@@ -1806,7 +1789,6 @@ const char *month_name_poly[] = { "Бейлет - Месяц Белого Сияния и Покоя Мира",
 								  "Айлет - Месяц Новых Даров"
 								};
 
-
 const char *month_name_o[] = { "месяц Зимы",
 							   "месяц Зимнего Волка",
 							   "месяц Снежного Гиганта",
@@ -1876,52 +1858,51 @@ const char *weapon_affects[] = { "слепота",
 								 "\n"
 							   };
 
-struct weapon_affect_types weapon_affect[] = {
-	{(0 | (1 << 0)), 0, SPELL_BLINDNESS},
-	{(0 | (1 << 1)), AFF_INVISIBLE, 0},
-	{(0 | (1 << 2)), AFF_DETECT_ALIGN, 0},
-	{(0 | (1 << 3)), AFF_DETECT_INVIS, 0},
-	{(0 | (1 << 4)), AFF_DETECT_MAGIC, 0},
-	{(0 | (1 << 5)), AFF_SENSE_LIFE, 0},
-	{(0 | (1 << 6)), AFF_WATERWALK, 0},
-	{(0 | (1 << 7)), AFF_SANCTUARY, 0},
-	{(0 | (1 << 8)), AFF_CURSE, 0},
-	{(0 | (1 << 9)), AFF_INFRAVISION, 0},
-	{(0 | (1 << 10)), 0, SPELL_POISON},
-	{(0 | (1 << 11)), AFF_PROTECT_EVIL, 0},
-	{(0 | (1 << 12)), AFF_PROTECT_GOOD, 0},
-	{(0 | (1 << 13)), 0, SPELL_SLEEP},
-	{(0 | (1 << 14)), AFF_NOTRACK, 0},
-	{(0 | (1 << 15)), AFF_BLESS, 0},
-	{(0 | (1 << 16)), AFF_SNEAK, 0},
-	{(0 | (1 << 17)), AFF_HIDE, 0},
-	{(0 | (1 << 18)), 0, SPELL_HOLD},
-	{(0 | (1 << 19)), AFF_FLY, 0},
-	{(0 | (1 << 20)), AFF_SIELENCE, 0},
-	{(0 | (1 << 21)), AFF_AWARNESS, 0},
-	{(0 | (1 << 22)), AFF_BLINK, 0},
-	{(0 | (1 << 23)), AFF_NOFLEE, 0},
-	{(0 | (1 << 24)), AFF_SINGLELIGHT, 0},
-	{(0 | (1 << 25)), AFF_HOLYLIGHT, 0},
-	{(0 | (1 << 26)), AFF_HOLYDARK, 0},
-	{(0 | (1 << 27)), AFF_DETECT_POISON, 0},
-	{(0 | (1 << 28)), AFF_SLOW, 0},
-	{(0 | (1 << 29)), AFF_HASTE, 0},
-	{(INT_ONE | (1 << 0)), AFF_WATERBREATH, 0},
-	{(INT_ONE | (1 << 1)), AFF_HAEMORRAGIA, 0},
-	{(INT_ONE | (1 << 2)), AFF_CAMOUFLAGE, 0},
-	{(INT_ONE | (1 << 3)), AFF_SHIELD, 0},
-	{(INT_ONE | (1 << 4)), AFF_AIRSHIELD, 0},
-	{(INT_ONE | (1 << 5)), AFF_FIRESHIELD, 0},
-	{(INT_ONE | (1 << 6)), AFF_ICESHIELD, 0},
-	{(INT_ONE | (1 << 7)), AFF_MAGICGLASS, 0},
-	{(INT_ONE | (1 << 8)), AFF_STONEHAND, 0},
-	{(INT_ONE | (1 << 9)), AFF_PRISMATICAURA, 0},
-	{(INT_ONE | (1 << 10)), AFF_AIRAURA, 0},
-	{(INT_ONE | (1 << 11)), AFF_FIREAURA, 0},
-	{(INT_ONE | (1 << 12)), AFF_ICEAURA, 0},
-	{(INT_ONE | (1 << 13)), AFF_DEAFNESS, 0},
-	{ -1, -1, -1}			// Always last
+weapon_affect_t weapon_affect = {
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_BLINDNESS, 0, SPELL_BLINDNESS },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_INVISIBLE, to_underlying(EAffectFlag::AFF_INVISIBLE), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_DETECT_ALIGN, to_underlying(EAffectFlag::AFF_DETECT_ALIGN), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_DETECT_INVISIBLE, to_underlying(EAffectFlag::AFF_DETECT_INVIS), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_DETECT_MAGIC, to_underlying(EAffectFlag::AFF_DETECT_MAGIC), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_SENSE_LIFE, to_underlying(EAffectFlag::AFF_SENSE_LIFE), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_WATER_WALK, to_underlying(EAffectFlag::AFF_WATERWALK), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_SANCTUARY, to_underlying(EAffectFlag::AFF_SANCTUARY), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_CURSE, to_underlying(EAffectFlag::AFF_CURSE), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_INFRAVISION, to_underlying(EAffectFlag::AFF_INFRAVISION), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_POISON, 0, SPELL_POISON },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_PROTECT_EVIL, to_underlying(EAffectFlag::AFF_PROTECT_EVIL), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_PROTECT_GOOD, to_underlying(EAffectFlag::AFF_PROTECT_GOOD), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_SLEEP, 0, SPELL_SLEEP },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_NOTRACK, to_underlying(EAffectFlag::AFF_NOTRACK), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_BLESS, to_underlying(EAffectFlag::AFF_BLESS), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_SNEAK, to_underlying(EAffectFlag::AFF_SNEAK), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_HIDE, to_underlying(EAffectFlag::AFF_HIDE), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_HOLD, 0, SPELL_HOLD },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_FLY, to_underlying(EAffectFlag::AFF_FLY), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_SILENCE, to_underlying(EAffectFlag::AFF_SILENCE), 0},
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_AWARENESS, to_underlying(EAffectFlag::AFF_AWARNESS), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_BLINK, to_underlying(EAffectFlag::AFF_BLINK), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_NOFLEE, to_underlying(EAffectFlag::AFF_NOFLEE), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_SINGLE_LIGHT, to_underlying(EAffectFlag::AFF_SINGLELIGHT), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_HOLY_LIGHT, to_underlying(EAffectFlag::AFF_HOLYLIGHT), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_HOLY_DARK, to_underlying(EAffectFlag::AFF_HOLYDARK), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_DETECT_POISON, to_underlying(EAffectFlag::AFF_DETECT_POISON), 0},
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_SLOW, to_underlying(EAffectFlag::AFF_SLOW), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_HASTE, to_underlying(EAffectFlag::AFF_HASTE), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_WATER_BREATH, to_underlying(EAffectFlag::AFF_WATERBREATH), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_HAEMORRAGIA, to_underlying(EAffectFlag::AFF_HAEMORRAGIA), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_CAMOUFLAGE, to_underlying(EAffectFlag::AFF_CAMOUFLAGE), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_SHIELD, to_underlying(EAffectFlag::AFF_SHIELD), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_AIR_SHIELD, to_underlying(EAffectFlag::AFF_AIRSHIELD), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_FIRE_SHIELD, to_underlying(EAffectFlag::AFF_FIRESHIELD), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_ICE_SHIELD, to_underlying(EAffectFlag::AFF_ICESHIELD), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_MAGIC_GLASS, to_underlying(EAffectFlag::AFF_MAGICGLASS), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_STONE_HAND, to_underlying(EAffectFlag::AFF_STONEHAND), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_PRISMATIC_AURA, to_underlying(EAffectFlag::AFF_PRISMATICAURA), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_AIR_AURA, to_underlying(EAffectFlag::AFF_AIRAURA), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_FIRE_AURA, to_underlying(EAffectFlag::AFF_FIREAURA), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_ICE_AURA, to_underlying(EAffectFlag::AFF_ICEAURA), 0 },
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_DEAFNESS, to_underlying(EAffectFlag::AFF_DEAFNESS), 0}
 };
 
 const char *pray_metter[] = { "- Яриле",
@@ -1947,15 +1928,16 @@ const char *pray_whom[] = { "Яриле",
 						  };
 
 // Fields : whom location modifier bitvector battleflag
-struct pray_affect_type pray_affect[] = { {0, APPLY_NONE, 0, AFF_INFRAVISION, 0},	// Ярило
+std::vector<pray_affect_type> pray_affect =
+{
+	{0, APPLY_NONE, 0, to_underlying(EAffectFlag::AFF_INFRAVISION), 0},	// Ярило
 	{1, APPLY_HITREG, 50, 0, 0},	// Мокошь
 	{2, APPLY_STR, 1, 0, 0},	// Перун
 	{3, APPLY_DEX, 1, 0, 0},	// Велес
 	{4, APPLY_MORALE, 5, 0, 0},	// Дева Мария
 	{5, APPLY_INT, 1, 0, 0},	// Никола Угодник
 	{6, APPLY_HITROLL, 2, 0, 0},	// Илия Пророк
-	{7, APPLY_DAMROLL, 1, 0, 0},	// Григорий Победоносец
-	{ -1, -1, -1, -1, -1}
+	{7, APPLY_DAMROLL, 1, 0, 0}	// Григорий Победоносец
 };
 
 // Количество маны волхва

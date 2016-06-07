@@ -38,7 +38,7 @@ struct social_keyword *soc_keys_list = NULL;
 // local functions
 int find_action(char *cmd);
 int do_social(CHAR_DATA * ch, char *argument);
-ACMD(do_insult);
+void do_insult(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 int find_action(char *cmd)
 {
@@ -163,9 +163,7 @@ int do_social(CHAR_DATA * ch, char *argument)
 	return (TRUE);
 }
 
-
-
-ACMD(do_insult)
+void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
 
@@ -320,7 +318,9 @@ char *fread_action(FILE * fl, int nr)
 {
 	char buf[MAX_STRING_LENGTH];
 
-	fgets(buf, MAX_STRING_LENGTH, fl);
+	const char* result = fgets(buf, MAX_STRING_LENGTH, fl);
+	UNUSED_ARG(result);
+
 	if (feof(fl))
 	{
 		log("SYSERR: fread_action: unexpected EOF near action #%d", nr);

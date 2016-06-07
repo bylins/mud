@@ -99,11 +99,7 @@ inline bool bit_is_set(const uint32_t flags, const int bit)
 // проверка обратная flag_data_by_num()
 bool check_num_in_unique_bit_flag_data(const unique_bit_flag_data &data, const int num)
 {
-	return num < 0   ? false :
-		   num < 30  ? bit_is_set(*data.flags, num) :
-		   num < 60  ? bit_is_set(*(data.flags + 1), num - 30) :
-		   num < 90  ? bit_is_set(*(data.flags + 2), num - 60) :
-		   num < 120 ? bit_is_set(*(data.flags + 3), num - 90) : false;
+	return (0 <= num && num < 120) ? data.get_flag(num / 30, 1 << num) : false;
 }
 
 std::string print_skill(const std::pair<int, int> &skill, bool activ)
@@ -146,12 +142,12 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 
 	out << GET_OBJ_PNAME(obj, 0) << "\r\n";
 
-	if (sprintbits(obj->obj_flags.no_flag, no_bits, buf2, ","))
+	if (obj->obj_flags.no_flag.sprintbits(no_bits, buf2, ","))
 	{
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
 
-	if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 	{
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
@@ -159,14 +155,14 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 				% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
 	}
 
-	if (GET_OBJ_TYPE(obj) == ITEM_WEAPON
-		|| CAN_WEAR(obj, ITEM_WEAR_SHIELD)
-		|| CAN_WEAR(obj, ITEM_WEAR_HANDS))
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON
+		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)
+		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
 	{
 		out << "Вес : " << GET_OBJ_WEIGHT(obj) << "\r\n";
 	}
 
-	if (sprintbits(GET_OBJ_AFFECTS(obj), weapon_affects, buf2, ","))
+	if (GET_OBJ_AFFECTS(obj).sprintbits(weapon_affects, buf2, ","))
 	{
 		out << "Аффекты : " << buf2 << "\r\n";
 	}
@@ -216,8 +212,8 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_D
 	}
 	out << "\r\n";
 
-	flag_data affects = activ->second.get_affects();
-	if (sprintbits(affects, weapon_affects, buf2, ","))
+	FLAG_DATA affects = activ->second.get_affects();
+	if (affects.sprintbits(weapon_affects, buf2, ","))
 	{
 		out << " + Аффекты : " << buf2 << "\r\n";
 	}
@@ -236,7 +232,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_D
 		out << " + Свойства :\r\n" << tmp_str;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
 	{
 		int drndice = 0, drsdice = 0;
 		activ->second.get_dices(drsdice, drndice);
@@ -360,7 +356,7 @@ std::string activators_obj::print()
 		node.clss += cls_it->first < NUM_PLAYER_CLASSES * NUM_KIN ? class_name[cls_it->first] : "чармисы";
 		// affects
 		cls_it->second.total_affects += native_affects;
-		if (sprintbits(cls_it->second.total_affects, weapon_affects, buf2, ","))
+		if (cls_it->second.total_affects.sprintbits(weapon_affects, buf2, ","))
 		{
 			node.afct += " + Аффекты : " + std::string(buf2) + "\r\n";
 		}
@@ -443,7 +439,7 @@ std::string print_fullset_stats(const set_info &set)
 	// печатаем все, что получилось
 	out << "Суммарные свойства набора: \r\n";
 
-	if (sprintbits(activ.native_no_flag, no_bits, buf2, ","))
+	if (activ.native_no_flag.sprintbits(no_bits, buf2, ","))
 	{
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
@@ -863,7 +859,7 @@ void UserSearch::search(const std::vector<help_node> &cont)
 
 using namespace HelpSystem;
 
-ACMD(do_help)
+void do_help(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (!ch->desc)
 	{

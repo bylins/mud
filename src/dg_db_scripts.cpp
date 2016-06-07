@@ -43,9 +43,6 @@ extern INDEX_DATA **trig_index;
 extern int top_of_trigt;
 
 extern INDEX_DATA *mob_index;
-extern INDEX_DATA *obj_index;
-
-extern void asciiflag_conv(const char *flag, void *value);
 
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 
@@ -145,8 +142,8 @@ void parse_trigger(FILE * trig_f, int nr)
 	index_data *index;
 	TRIG_DATA *trig;
 
-	CREATE(trig, trig_data, 1);
-	CREATE(index, index_data, 1);
+	CREATE(trig, 1);
+	CREATE(index, 1);
 
 	index->vnum = nr;
 	index->number = 0;
@@ -168,7 +165,7 @@ void parse_trigger(FILE * trig_f, int nr)
 
 	s = cmds = fread_string(trig_f, buf2);
 
-	CREATE(trig->cmdlist, struct cmdlist_element, 1);
+	CREATE(trig->cmdlist, 1);
 
 	trig->cmdlist->cmd = str_dup(strtok(s, "\n\r"));
 
@@ -179,7 +176,7 @@ void parse_trigger(FILE * trig_f, int nr)
 
 	while ((s = strtok(NULL, "\n\r")))
 	{
-		CREATE(cle->next, struct cmdlist_element, 1);
+		CREATE(cle->next, 1);
 		cle = cle->next;
 		cle->cmd = str_dup(s);
 		cle->cmd = indent_trigger(cle->cmd, &indlev);
@@ -213,7 +210,7 @@ TRIG_DATA *read_trigger(int nr)
 	if ((index = trig_index[nr]) == NULL)
 		return NULL;
 
-	CREATE(trig, trig_data, 1);
+	CREATE(trig, 1);
 	trig_data_copy(trig, index->proto);
 
 	index->number++;
@@ -238,7 +235,6 @@ void free_varlist(struct trig_var_data *vd)
 		free(j);
 	}
 }
-
 
 // release memory allocated for a script
 void free_script(SCRIPT_DATA * sc)
@@ -284,7 +280,9 @@ void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg)
 	this_data->cmdlist = trg->cmdlist;
 	this_data->narg = trg->narg;
 	if (trg->arglist)
+	{
 		this_data->arglist = str_dup(trg->arglist);
+	}
 }
 
 
@@ -330,7 +328,6 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	int vnum, rnum, count;
 	CHAR_DATA *mob;
 	ROOM_DATA *room;
-	struct trig_proto_list *trg_proto, *new_trg;
 
 	get_line(fp, line);
 	count = sscanf(line, "%s %d", junk, &vnum);
@@ -352,44 +349,18 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	switch (type)
 	{
 	case MOB_TRIGGER:
-		CREATE(new_trg, struct trig_proto_list, 1);
-		new_trg->vnum = vnum;
-		new_trg->next = NULL;
-
 		mob = (CHAR_DATA *) proto;
-		trg_proto = mob->proto_script;
-		if (!trg_proto)
-		{
-			mob->proto_script = trg_proto = new_trg;
-		}
-		else
-		{
-			while (trg_proto->next)
-				trg_proto = trg_proto->next;
-			trg_proto->next = new_trg;
-		}
+		mob->proto_script.push_back(vnum);
 		break;
+
 	case WLD_TRIGGER:
-		CREATE(new_trg, struct trig_proto_list, 1);
-		new_trg->vnum = vnum;
-		new_trg->next = NULL;
 		room = (ROOM_DATA *) proto;
-		trg_proto = room->proto_script;
-		if (!trg_proto)
-		{
-			room->proto_script = trg_proto = new_trg;
-		}
-		else
-		{
-			while (trg_proto->next)
-				trg_proto = trg_proto->next;
-			trg_proto->next = new_trg;
-		}
+		room->proto_script.push_back(vnum);
 
 		if (rnum >= 0)
 		{
 			if (!(room->script))
-				CREATE(room->script, SCRIPT_DATA, 1);
+				CREATE(room->script, 1);
 			add_trigger(SCRIPT(room), read_trigger(rnum), -1);
 		}
 		else
@@ -398,6 +369,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 			log("%s",line);
 		}
 		break;
+
 	default:
 		sprintf(line, "SYSERR: Trigger vnum #%d assigned to non-mob/obj/room", vnum);
 		log("%s",line);
@@ -408,7 +380,6 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 {
 	char junk[8];
 	int vnum, rnum, count;
-	struct trig_proto_list *trg_proto, *new_trg;
 
 	count = sscanf(line, "%s %d", junk, &vnum);
 
@@ -426,24 +397,9 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 		return;
 	}
 
-	CREATE(new_trg, struct trig_proto_list, 1);
-	new_trg->vnum = vnum;
-	new_trg->next = NULL;
-
-	trg_proto = obj->proto_script;
-	if (!trg_proto)
-	{
-		obj->proto_script = trg_proto = new_trg;
-	}
-	else
-	{
-		while (trg_proto->next)
-			trg_proto = trg_proto->next;
-		trg_proto->next = new_trg;
-	}
+	obj->proto_script.push_back(vnum);
 }
 
-extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 
 void assign_triggers(void *i, int type)
@@ -453,20 +409,18 @@ void assign_triggers(void *i, int type)
 	ROOM_DATA *room;
 	int rnum;
 	char buf[256];
-	struct trig_proto_list *trg_proto;
 
 	switch (type)
 	{
 	case MOB_TRIGGER:
 		mob = (CHAR_DATA *) i;
-		trg_proto = mob_proto[GET_MOB_RNUM(mob)].proto_script;
-		while (trg_proto)
+		for (const auto trigger_vnum : mob_proto[GET_MOB_RNUM(mob)].proto_script)
 		{
-			rnum = real_trigger(trg_proto->vnum);
+			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for mob #%d",
-						trg_proto->vnum, mob_index[mob->nr].vnum);
+					trigger_vnum, mob_index[mob->nr].vnum);
 				log("%s",buf);
 			}
 			else
@@ -474,30 +428,31 @@ void assign_triggers(void *i, int type)
 				if (trig_index[rnum]->proto->attach_type != MOB_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for mob #%d",
-						trg_proto->vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
 						mob_index[mob->nr].vnum);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else
 				{
 					if (!SCRIPT(mob))
-						CREATE(SCRIPT(mob), SCRIPT_DATA, 1);
+					{
+						CREATE(SCRIPT(mob), 1);
+					}
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
 				}
 			}
-			trg_proto = trg_proto->next;
 		}
 		break;
+
 	case OBJ_TRIGGER:
 		obj = (OBJ_DATA *) i;
-		trg_proto = obj_proto[GET_OBJ_RNUM(obj)]->proto_script;
-		while (trg_proto)
+		for (const auto trigger_vnum : obj_proto.proto_script(GET_OBJ_RNUM(obj)))
 		{
-			rnum = real_trigger(trg_proto->vnum);
+			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for obj #%d",
-						trg_proto->vnum, obj_index[obj->item_number].vnum);
+					trigger_vnum, obj_proto.vnum(obj));
 				log("%s",buf);
 			}
 			else
@@ -505,30 +460,32 @@ void assign_triggers(void *i, int type)
 				if (trig_index[rnum]->proto->attach_type != OBJ_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for obj #%d",
-						trg_proto->vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
-						obj_index[obj->item_number].vnum);
+						trigger_vnum,
+						static_cast<int>(trig_index[rnum]->proto->attach_type),
+						obj_proto.vnum(obj->item_number));
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else
 				{
 					if (!SCRIPT(obj))
-						CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
+					{
+						CREATE(SCRIPT(obj), 1);
+					}
 					add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
 				}
 			}
-			trg_proto = trg_proto->next;
 		}
 		break;
+
 	case WLD_TRIGGER:
 		room = (ROOM_DATA *) i;
-		trg_proto = room->proto_script;
-		while (trg_proto)
+		for (const auto trigger_vnum : room->proto_script)
 		{
-			rnum = real_trigger(trg_proto->vnum);
+			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for room #%d",
-						trg_proto->vnum, room->number);
+					trigger_vnum, room->number);
 				log("%s",buf);
 			}
 			else
@@ -536,20 +493,22 @@ void assign_triggers(void *i, int type)
 				if (trig_index[rnum]->proto->attach_type != WLD_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for room #%d",
-						trg_proto->vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
 						room->number);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else
 				{
 					if (!SCRIPT(room))
-						CREATE(SCRIPT(room), SCRIPT_DATA, 1);
+					{
+						CREATE(SCRIPT(room), 1);
+					}
 					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
 				}
 			}
-			trg_proto = trg_proto->next;
 		}
 		break;
+
 	default:
 		log("SYSERR: unknown type for assign_triggers()");
 		break;
@@ -581,21 +540,24 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
 	}
 }
 
-void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum)
+void trg_skillturn(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum)
 {
 	const int ch_kin = static_cast<int>(GET_KIN(ch));
 	const int ch_class = static_cast<int>(GET_CLASS(ch));
 
 	if (ch->get_trained_skill(skillnum))
 	{
-		if (skilldiff) return;
+		if (skilldiff)
+		{
+			return;
+		}
 
 		ch->set_skill(skillnum, 0);
 		send_to_char(ch, "Вас лишили умения '%s'.\r\n", skill_name(skillnum));
 		log("Remove %s from %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
 	}
 	else if (skilldiff
-			 && skill_info[skillnum].classknow[ch_class][ch_kin] == KNOW_SKILL)
+		&& skill_info[skillnum].classknow[ch_class][ch_kin] == KNOW_SKILL)
 	{
 		ch->set_skill(skillnum, 5);
 		send_to_char(ch, "Вы изучили умение '%s'.\r\n", skill_name(skillnum));
@@ -603,7 +565,7 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum)
 	}
 }
 
-void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff, int vnum)
+void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum)
 {
 	int skill = ch->get_trained_skill(skillnum);
 	ch->set_skill(skillnum, (MAX(1, MIN(ch->get_trained_skill(skillnum) + skilldiff, 200))));
