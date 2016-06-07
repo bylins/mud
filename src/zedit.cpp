@@ -344,6 +344,8 @@ void zedit_setup(DESCRIPTOR_DATA * d, int/* room_num*/)
 	// Copy all the zone header information over. //
 	zone->name = str_dup(zone_table[OLC_ZNUM(d)].name);
 	zone->comment = str_dup(zone_table[OLC_ZNUM(d)].comment);
+	zone->location = zone_table[OLC_ZNUM(d)].location;
+	zone->description = zone_table[OLC_ZNUM(d)].description;
 //MZ.load
 	zone->level = zone_table[OLC_ZNUM(d)].level;
 	zone->type = zone_table[OLC_ZNUM(d)].type;
@@ -352,8 +354,6 @@ void zedit_setup(DESCRIPTOR_DATA * d, int/* room_num*/)
 	zone->top = zone_table[OLC_ZNUM(d)].top;
 	zone->reset_mode = zone_table[OLC_ZNUM(d)].reset_mode;
 	zone->reset_idle = zone_table[OLC_ZNUM(d)].reset_idle;
-	zone->location = zone_table[OLC_ZNUM(d)].location;
-	zone->description = zone_table[OLC_ZNUM(d)].description;
 	zone->typeA_count = zone_table[OLC_ZNUM(d)].typeA_count;
 	for (i = 0; i < zone->typeA_count; i++)
 		zone->typeA_list[i] = zone_table[OLC_ZNUM(d)].typeA_list[i];
@@ -421,6 +421,8 @@ void zedit_save_internally(DESCRIPTOR_DATA * d)
 			free(zone_table[OLC_ZNUM(d)].comment);
 		}
 		zone_table[OLC_ZNUM(d)].comment = str_dup(OLC_ZONE(d)->comment);
+		zone_table[OLC_ZNUM(d)].location = OLC_ZONE(d)->location;
+		zone_table[OLC_ZNUM(d)].description = OLC_ZONE(d)->description;
 
 //MZ.load
 		zone_table[OLC_ZNUM(d)].level = OLC_ZONE(d)->level;
@@ -430,8 +432,6 @@ void zedit_save_internally(DESCRIPTOR_DATA * d)
 		zone_table[OLC_ZNUM(d)].reset_mode = OLC_ZONE(d)->reset_mode;
 		zone_table[OLC_ZNUM(d)].lifespan = OLC_ZONE(d)->lifespan;
 		zone_table[OLC_ZNUM(d)].reset_idle = OLC_ZONE(d)->reset_idle;
-		zone_table[OLC_ZNUM(d)].location = OLC_ZONE(d)->location;
-		zone_table[OLC_ZNUM(d)].description = OLC_ZONE(d)->description;
 		zone_table[OLC_ZNUM(d)].typeA_count = OLC_ZONE(d)->typeA_count;
 		zone_table[OLC_ZNUM(d)].typeB_count = OLC_ZONE(d)->typeB_count;
 		free(zone_table[OLC_ZNUM(d)].typeA_list);
@@ -497,6 +497,15 @@ void zedit_save_to_disk(int zone_num)
 	{
 		fprintf(zfile, "^%s~\n", zone_table[zone_num].comment);
 	}
+	if (zone_table[zone_num].location && *zone_table[zone_num].location)
+	{
+		fprintf(zfile, "L%s~\n", zone_table[zone_num].location);
+	}
+	if (zone_table[zone_num].description && *zone_table[zone_num].description)
+	{
+		fprintf(zfile, "D%s~\n", zone_table[zone_num].description);
+	}
+
 	fprintf(zfile, "#%d %d %d\n" "%d %d %d %d %s %s\n",
 			zone_table[zone_num].level,
 			zone_table[zone_num].type,
@@ -505,9 +514,8 @@ void zedit_save_to_disk(int zone_num)
 			zone_table[zone_num].lifespan,
 			zone_table[zone_num].reset_mode,
 			zone_table[zone_num].reset_idle,
-			zone_table[zone_num].location;
-			zone_table[zone_num].description;
-			zone_table[zone_num].under_construction ? "test" : "*", zone_table[zone_num].locked ? "locked" : "");
+			zone_table[zone_num].under_construction ? "test" : "*", 
+			zone_table[zone_num].locked ? "locked" : "");
 
 #if defined(ZEDIT_HELP_IN_FILE)
 	fprintf(zfile, "* Field #1    Field #3   Field #4  Field #5   Field #6\n"
@@ -908,31 +916,25 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 			"Room number: %s%d%s		Room zone: %s%d\r\n"
 			"%sZ%s) Имя зоны    : %s%s\r\n"
 			"%sC%s) Комментарий : %s%s\r\n"
+			"%sW%s) Местоположение : %s%s\r\n"
+			"%sO%s) Описание : %s%s\r\n"
 			"%sS%s) Уровень зоны: %s%d\r\n"
 			"%sY%s) Тип зоны    : %s%s\r\n"
 			"%sL%s) Время жизни : %s%d minutes\r\n"
 			"%sP%s) Макс.комната: %s%d\r\n"
 			"%sR%s) Тип очистки : %s%s\r\n"
-			"%sW%s) Местоположение : %s%s\r\n"
-			"%sO%s) Описание : %s%s\r\n"
 			"%sI%s) Оч. неисп.  : %s%s%s\r\n",
 			cyn, OLC_NUM(d), nrm, cyn, zone_table[OLC_ZNUM(d)].number,
 			grn, nrm, yel, OLC_ZONE(d)->name ? OLC_ZONE(d)->name : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->comment ? OLC_ZONE(d)->comment : "<NONE!>",
+			grn, nrm, yel, OLC_ZONE(d)->location ? OLC_ZONE(d)->location : "<NONE!>",
+			grn, nrm, yel, OLC_ZONE(d)->description ? OLC_ZONE(d)->description : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->level,
 			grn, nrm, yel, zone_types[OLC_ZONE(d)->type].name,
 			grn, nrm, yel, OLC_ZONE(d)->lifespan,
 			grn, nrm, yel, OLC_ZONE(d)->top,
-			grn, nrm, yel,
-			OLC_ZONE(d)->
-			reset_mode ? ((OLC_ZONE(d)->reset_mode == 1) ?
-						  "Если в зоне нет игроков."
-						  : ((OLC_ZONE(d)->reset_mode == 3) ?
-							 "Общая очистка(комплекс зон)." : "Обычная очистка(даже если есть игроки).")) : "Никогда не очищается",
-					grn, nrm, yel, OLC_ZONE(d)->reset_idle ? "Да" : "Нет", nrm);
-
-			grn, nrm, yel, OLC_ZONE(d)->location ? OLC_ZONE(d)->location : "<NONE!>",
-			grn, nrm, yel, OLC_ZONE(d)->description ? OLC_ZONE(d)->description : "<NONE!>",
+			grn, nrm, yel, OLC_ZONE(d)->reset_mode ? ((OLC_ZONE(d)->reset_mode == 1) ? "Если в зоне нет игроков." : ((OLC_ZONE(d)->reset_mode == 3) ? "Общая очистка(комплекс зон)." : "Обычная очистка(даже если есть игроки).")) : "Никогда не очищается",
+			grn, nrm, yel, OLC_ZONE(d)->reset_idle ? "Да" : "Нет", nrm);
 	if (OLC_ZONE(d)->reset_mode == 3)
 {
 		sprintf(buf, "%s%sA%s) Зоны первого типа       : %s%s%s\r\n"
@@ -1467,6 +1469,16 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			send_to_char("Введите новый комментарий к зоне : ", d->character);
 			OLC_MODE(d) = ZEDIT_ZONE_COMMENT;
 			break;
+		case 'w':
+		case 'W':
+			send_to_char("Введите местоположение зоны : ", d->character);
+			OLC_MODE(d) = ZEDIT_ZONE_LOCATION;
+			break;
+		case 'o':
+		case 'O':
+			send_to_char("Введите описание к зоне : ", d->character);
+			OLC_MODE(d) = ZEDIT_ZONE_DESCRIPTION;
+			break;
 //MZ.load
 		case 's':
 		case 'S':
@@ -1527,17 +1539,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 						 "3) Общая очистка(комплекс зон)\r\n" "Выберите тип очистки зоны : ", d->character);
 			OLC_MODE(d) = ZEDIT_ZONE_RESET;
 			break;
-		case 'w':
-		case 'W':
-			send_to_char("Введите местоположение зоны : ", d->character);
-			OLC_MODE(d) = ZEDIT_ZONE_LOCATION;
-			break;
-		case 'o':
-		case 'O':
-			send_to_char("Введите описание к зоне : ", d->character);
-			OLC_MODE(d) = ZEDIT_ZONE_DESCRIPTION;
-			break;
-
 		case 'a':
 		case 'A':
 			// * Edit type A list.

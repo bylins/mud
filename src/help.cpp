@@ -660,12 +660,21 @@ void init_group_zones()
 	}
 	add_static("групповыезоны", out.str(), 0, true);
 }
-// пока заглушка
+/*// листинг
 void init_list_zones()
 {
+	std::stringstream out;
+	
+	for (int rnum = 0, i = 1; rnum <= top_of_zone_table; ++rnum)
+	{
+		out << boost::format("  %2d	 %s	 %d	%s	%s ).\r\n") % i % zone_table[rnum].name % zone_table[rnum].level % zone_table[rnum].location % zone_table[rnum].description;
+		++i;
+
+	}
+	add_static("листзон", out.str(), 0, true);
 
 }
-
+*/
 void check_update_dynamic()
 {
 	if (need_update)
