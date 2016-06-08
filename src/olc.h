@@ -242,8 +242,8 @@ extern struct olc_save_info *olc_save_list;
 #define ZEDIT_ZONE_TOP           12
 #define ZEDIT_ZONE_RESET         13
 #define ZEDIT_RESET_IDLE         14
-#define ZEDIT_LOCATION           16
-#define ZEDIT_DESCRIPTION        17
+#define ZEDIT_ZONE_LOCATION      16
+#define ZEDIT_ZONE_DESCRIPTION   17
 #define ZEDIT_CONFIRM_SAVESTRING 15
 #define ZEDIT_SARG1              20
 #define ZEDIT_SARG2              21

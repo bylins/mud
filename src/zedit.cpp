@@ -499,11 +499,11 @@ void zedit_save_to_disk(int zone_num)
 	}
 	if (zone_table[zone_num].location && *zone_table[zone_num].location)
 	{
-		fprintf(zfile, "L%s~\n", zone_table[zone_num].location);
+		fprintf(zfile, "&%s~\n", zone_table[zone_num].location);
 	}
 	if (zone_table[zone_num].description && *zone_table[zone_num].description)
 	{
-		fprintf(zfile, "D%s~\n", zone_table[zone_num].description);
+		fprintf(zfile, "$%s~\n", zone_table[zone_num].description);
 	}
 
 	fprintf(zfile, "#%d %d %d\n" "%d %d %d %d %s %s\n",

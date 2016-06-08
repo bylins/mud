@@ -4644,17 +4644,17 @@ void load_zones(FILE * fl, char *zonename)
 		Z.comment = str_dup(comment.c_str());
 		line_num += get_line(fl, buf);
 	}
-	if (*buf == 'L')
+	if (*buf == '&')
 	{
 		std::string location(buf);
-		boost::trim_if(location, boost::is_any_of(std::string("L~")));
+		boost::trim_if(location, boost::is_any_of(std::string("&~")));
 		Z.location = str_dup(location.c_str());
 		line_num += get_line(fl, buf);
 	}
-	if (*buf == 'D')
+	if (*buf == '$')
 	{
 		std::string description(buf);
-		boost::trim_if(description, boost::is_any_of(std::string("D~")));
+		boost::trim_if(description, boost::is_any_of(std::string("$~")));
 		Z.description = str_dup(description.c_str());
 		line_num += get_line(fl, buf);
 	}
