@@ -643,8 +643,19 @@ void add_sets_drop(const std::string key, const std::string entry)
 
 	dynamic_help.push_back(tmp_node);
 }
-
-
+void init_zone_all()
+{
+	std::stringstream out;
+	for (int rnum = 0, i = 1; rnum <= top_of_zone_table; ++rnum)
+	{
+		if (zone_table[rnum].location && zone_table[rnum].description)
+		{
+			out << boost::format("  %2d - %s. Расположена: %s. Описание: %s. Примерный уровень: %d.\r\n") % i % zone_table[rnum].name % zone_table[rnum].location % zone_table[rnum].description % zone_table[rnum].level;
+			++i;
+		}
+	}
+	add_static("зоны", out.str(), 0, true);
+}
 
 void init_group_zones()
 {
@@ -692,6 +703,7 @@ void reload(Flags flag)
 		static_help.clear();
 		index_boot(DB_BOOT_HLP);
 		init_group_zones();
+		init_zone_all();
 		PrintActivators::process();
 		obj_sets::init_xhelp();
 		// итоговая сортировка массива через дефолтное < для строковых ключей
