@@ -1140,7 +1140,7 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 	set_bloody_flag(list->contains, ch);
 	set_bloody_flag(list->next_content, ch);
 	const int t = GET_OBJ_TYPE(list);
-	if (list->get_extraflag(EExtraFlag::ITEM_BLOODY)
+	if (!list->get_extraflag(EExtraFlag::ITEM_BLOODY)
 		&& (t == obj_flag_data::ITEM_LIGHT
 			|| t == obj_flag_data::ITEM_WAND
 			|| t == obj_flag_data::ITEM_STAFF
