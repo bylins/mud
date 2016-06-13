@@ -981,17 +981,17 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 					if (IN_ROOM(i->in_obj) != NOWHERE
 						&& IN_ROOM(i->in_obj))
 					{
-						if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone
-							|| OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE))
+						if ((world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone
+							|| OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)) && !bloody_corpse)
 						{
 							continue;
 						}
 					}
 					if (i->in_obj->worn_by)
 					{
-						if (IS_NPC(i->in_obj->worn_by)
+						if ((IS_NPC(i->in_obj->worn_by)
 							&& (i->get_extraflag(EExtraFlag::ITEM_NOLOCATE)
-								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone)) && !bloody_corpse)
 						{
 							continue;
 						}
@@ -1007,7 +1007,8 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
 				|| (!IS_NPC(i->worn_by)
 					&& GET_LEVEL(i->worn_by) < LVL_IMMORT)
-				|| IS_GOD(ch))
+				|| IS_GOD(ch)
+				|| bloody_corpse)
 			{
 				sprintf(buf, "%s надет%s на %s.\r\n", i->short_description,
 					GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
@@ -1049,7 +1050,7 @@ bool catch_bloody_corpse(OBJ_DATA * l)
 		if (l->contains->next_content)
 		{
 			next_element = l->contains->next_content;
-			while (!next_element)
+			while (next_element)
 			{
 				if (next_element->contains)
 				{
@@ -1058,9 +1059,7 @@ bool catch_bloody_corpse(OBJ_DATA * l)
 						return true;
 				}
 				if (bloody::is_bloody(next_element))
-                                {
-                                    return true;
-                                }
+					return true;
 				next_element = next_element->next_content;
 			}
 		}
