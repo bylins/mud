@@ -586,6 +586,8 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument);
 
 int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
 
+bool catch_bloody_corpse(OBJ_DATA * l);
+
 namespace RoomSpells {
 
 // список всех обкстованных комнат //

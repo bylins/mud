@@ -877,6 +877,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 	OBJ_DATA *i;
 	char name[MAX_INPUT_LENGTH];
 	int j, tmp_lvl;
+	bool bloody_corpse = false;
 
 	/*
 	 * FIXME: This is broken.  The spell parser routines took the argument
@@ -904,7 +905,9 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 			if (IS_CORPSE(i))
 			{
-				continue;
+				bloody_corpse = catch_bloody_corpse(i);
+				if (!bloody_corpse)
+					continue;
 			}
 		}
 
@@ -944,9 +947,12 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		}
 		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
 		{
-			if ((world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) )|| IS_GOD(ch))
+			if ((world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) )|| IS_GOD(ch) || bloody_corpse)
 			{
-				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name);
+				if (bloody_corpse)
+					sprintf(buf, "%s наход%sся в %s (%s).\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name, zone_table[world[i->in_room]->zone].name);
+				else
+					sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name);
 			}
 			else
 			{
@@ -1030,6 +1036,35 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 	if (j == tmp_lvl)
 		send_to_char("Вы ничего не чувствуете.\r\n", ch);
+}
+
+bool catch_bloody_corpse(OBJ_DATA * l)
+{
+	bool temp_bloody = false;
+	OBJ_DATA * next_element;
+	if (l->contains)
+	{
+		if (bloody::is_bloody(l->contains))
+			return true;
+		if (l->contains->next_content)
+		{
+			next_element = l->contains->next_content;
+			while (!next_element)
+			{
+				if (next_element->contains)
+				{
+					temp_bloody = catch_bloody_corpse(next_element->contains);
+					if (temp_bloody)
+						return true;
+				}
+				if (bloody::is_bloody(next_element))
+					return true;
+				next_element->next_content;
+			}
+		}
+	}
+
+	return false;
 }
 
 void spell_create_weapon(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_DATA* /* obj*/)
