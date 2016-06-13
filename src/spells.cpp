@@ -1058,8 +1058,10 @@ bool catch_bloody_corpse(OBJ_DATA * l)
 						return true;
 				}
 				if (bloody::is_bloody(next_element))
-					return true;
-				next_element->next_content;
+                                {
+                                    return true;
+                                }
+				next_element = next_element->next_content;
 			}
 		}
 	}
