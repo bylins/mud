@@ -896,6 +896,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 	for (i = object_list; i && (j > 0); i = i->next)
 	{
+		bloody_corpse = false;
 		if (!IS_GOD(ch))
 		{
 			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
