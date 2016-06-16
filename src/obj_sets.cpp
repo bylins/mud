@@ -146,7 +146,7 @@ void init_obj_index()
 	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
 		obj_proto.set_idx(i, -1);
-		const auto vnum = obj_proto.vnum(i);
+		const auto vnum = obj_proto[i]->get_vnum();
 		tmp.emplace(vnum, i);
 	}
 

@@ -65,7 +65,7 @@ int is_number(const char *str);
 #define SEEK_CMD(d) zedit_seek_cmd( (pzcmd)OLC_ZONE(d)->cmd, OLC_VAL(d) )
 
 #define TRANS_MOB(field)  item->cmd.field = mob_index[item->cmd.field].vnum
-#define TRANS_OBJ(field)  item->cmd.field = obj_proto.vnum(item->cmd.field)
+#define TRANS_OBJ(field)  item->cmd.field = obj_proto[item->cmd.field]->get_vnum()
 #define TRANS_ROOM(field) item->cmd.field = world[item->cmd.field]->number
 
 //------------------------------------------------------------------------
@@ -546,7 +546,7 @@ void zedit_save_to_disk(int zone_num)
 			break;
 
 		case 'O':
-			arg1 = obj_proto.vnum(ZCMD.arg1);
+			arg1 = obj_proto[ZCMD.arg1]->get_vnum();
 			arg2 = ZCMD.arg2;
 			arg3 = world[ZCMD.arg3]->number;
 			arg4 = ZCMD.arg4;
@@ -554,7 +554,7 @@ void zedit_save_to_disk(int zone_num)
 			break;
 
 		case 'G':
-			arg1 = obj_proto.vnum(ZCMD.arg1);
+			arg1 = obj_proto[ZCMD.arg1]->get_vnum();
 			arg2 = ZCMD.arg2;
 			arg3 = -1;
 			arg4 = ZCMD.arg4;
@@ -562,7 +562,7 @@ void zedit_save_to_disk(int zone_num)
 			break;
 
 		case 'E':
-			arg1 = obj_proto.vnum(ZCMD.arg1);
+			arg1 = obj_proto[ZCMD.arg1]->get_vnum();
 			arg2 = ZCMD.arg2;
 			arg3 = ZCMD.arg3;
 			arg4 = ZCMD.arg4;
@@ -577,9 +577,9 @@ void zedit_save_to_disk(int zone_num)
 			break;
 
 		case 'P':
-			arg1 = obj_proto.vnum(ZCMD.arg1);
+			arg1 = obj_proto[ZCMD.arg1]->get_vnum();
 			arg2 = ZCMD.arg2;
-			arg3 = obj_proto.vnum(ZCMD.arg3);
+			arg3 = obj_proto[ZCMD.arg3]->get_vnum();
 			arg4 = ZCMD.arg4;
 			comment = obj_proto[ZCMD.arg1]->get_short_description().c_str();
 			break;
@@ -593,7 +593,7 @@ void zedit_save_to_disk(int zone_num)
 
 		case 'R':
 			arg1 = world[ZCMD.arg1]->number;
-			arg2 = obj_proto.vnum(ZCMD.arg2);
+			arg2 = obj_proto[ZCMD.arg2]->get_vnum();
 			comment = obj_proto[ZCMD.arg2]->get_short_description().c_str();
 			arg3 = -1;
 			break;

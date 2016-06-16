@@ -354,7 +354,9 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				return true;
 			}
 			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
-			log("Фридроп: упал предмет %s с VNUM: %d", obj_proto[rnum]->get_short_description().c_str(), obj_proto.vnum(rnum));
+			log("Фридроп: упал предмет %s с VNUM: %d",
+				obj_proto[rnum]->get_short_description().c_str(),
+				obj_proto[rnum]->get_vnum());
 			obj_to_corpse(corpse, mob, rnum, false);
 			return true;
 		}
@@ -379,7 +381,10 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				{
 					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
 					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d",
-						obj_proto[obj_rnum]->get_short_description().c_str(), obj_proto.vnum(obj_rnum), GET_NAME(mob), GET_MOB_VNUM(mob));
+						obj_proto[obj_rnum]->get_short_description().c_str(),
+						obj_proto[obj_rnum]->get_vnum(),
+						GET_NAME(mob),
+						GET_MOB_VNUM(mob));
 					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
 					obj_to_corpse(corpse, mob, obj_rnum, false);
 				}

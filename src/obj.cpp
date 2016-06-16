@@ -37,8 +37,8 @@ PurgedObjList purged_obj_list;
 
 } // namespace
 
-OBJ_DATA::OBJ_DATA():
-	CObjectPrototype(),
+OBJ_DATA::OBJ_DATA(const obj_vnum vnum):
+	CObjectPrototype(vnum),
 	m_uid(0),
 	m_in_room(0),
 	m_room_was_in(0),
@@ -90,7 +90,7 @@ OBJ_DATA::OBJ_DATA(const CObjectPrototype& other):
 	caching::obj_cache.add(this);
 }
 
-OBJ_DATA::OBJ_DATA(const OBJ_DATA& other)
+OBJ_DATA::OBJ_DATA(const OBJ_DATA& other): CObjectPrototype(other.get_vnum())
 {
 	*this = other;
 	caching::obj_cache.add(this);

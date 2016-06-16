@@ -451,8 +451,8 @@ void assign_triggers(void *i, int type)
 			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
-				sprintf(buf, "SYSERR: trigger #%d non-existant, for obj #%d",
-					trigger_vnum, obj_proto.vnum(obj));
+				sprintf(buf, "SYSERR: trigger #%d non-existent, for obj #%d",
+					trigger_vnum, obj->get_vnum());
 				log("%s",buf);
 			}
 			else
@@ -462,7 +462,7 @@ void assign_triggers(void *i, int type)
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for obj #%d",
 						trigger_vnum,
 						static_cast<int>(trig_index[rnum]->proto->attach_type),
-						obj_proto.vnum(obj->get_rnum()));
+						obj->get_vnum());
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else

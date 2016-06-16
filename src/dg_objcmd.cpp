@@ -286,19 +286,22 @@ void do_otimer(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
-	OBJ_DATA *o;
 	CHAR_DATA *wearer = NULL;
 	int pos = -1;
 
 	one_argument(argument, arg);
 
 	if (!*arg)
+	{
 		obj_log(obj, "otransform: missing argument");
+	}
 	else if (!a_isdigit(*arg))
+	{
 		obj_log(obj, "otransform: bad argument");
+	}
 	else
 	{
-		o = read_object(atoi(arg), VIRTUAL);
+		OBJ_DATA* o = read_object(atoi(arg), VIRTUAL);
 		if (o == NULL)
 		{
 			obj_log(obj, "otransform: bad object vnum");

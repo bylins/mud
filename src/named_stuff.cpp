@@ -399,11 +399,11 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 							|| (uid != -1
 								&& uid == it->second->uid)
 							|| (uid == -1
-								&& obj_proto.vnum(r_num) >= first
-								&& obj_proto.vnum(r_num) <= last))
+								&& obj_proto[r_num]->get_vnum() >= first
+								&& obj_proto[r_num]->get_vnum() <= last))
 						{
 							sprintf(buf2, "%6d) %s",
-								obj_proto.vnum(r_num),
+								obj_proto[r_num]->get_vnum(),
 								colored_name(obj_proto[r_num]->get_short_description().c_str(), 50));
 							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 							{

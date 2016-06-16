@@ -1988,7 +1988,6 @@ struct title_type
 	int exp;
 };
 
-// element in monster and object index-tables   //
 struct index_data
 {
 	index_data() : vnum(0), number(0), stored(0), func(NULL), farg(NULL), proto(NULL), zone(0), set_idx(-1) {}
@@ -1997,7 +1996,7 @@ struct index_data
 	int vnum;			// virtual number of this mob/obj       //
 	int number;		// number of existing units of this mob/obj //
 	int stored;		// number of things in rent file            //
-	int (*func)(CHAR_DATA*, void*, int, char*);
+	int(*func)(CHAR_DATA*, void*, int, char*);
 	char *farg;		// string argument for special function     //
 	struct trig_data *proto;	// for triggers... the trigger     //
 	int zone;			// mob/obj zone rnum //

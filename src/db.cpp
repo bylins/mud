@@ -3459,7 +3459,7 @@ void renum_obj_zone(void)
 {
 	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
-		obj_proto.zone(i, real_zone(obj_proto.vnum(i)));
+		obj_proto.zone(i, real_zone(obj_proto[i]->get_vnum()));
 	}
 }
 
@@ -4305,7 +4305,7 @@ void set_test_data(CHAR_DATA *mob)
 }
 
 // read all objects from obj file; generate index and prototypes
-char *parse_object(FILE * obj_f, const int nr)
+char *parse_object(FILE * obj_f, const int vnum)
 {
 	static int i = 0;
 	static char line[256];
@@ -4313,8 +4313,7 @@ char *parse_object(FILE * obj_f, const int nr)
 	char *tmpptr;
 	char f0[256], f1[256], f2[256];
 
-	OBJ_DATA *tobj;
-	NEWCREATE(tobj);
+	OBJ_DATA *tobj = new OBJ_DATA(vnum);
 
 	tobj->set_rnum(i);
 
@@ -4326,7 +4325,7 @@ char *parse_object(FILE * obj_f, const int nr)
 	tobj->set_level(1);
 	tobj->set_destroyer(OBJ_DATA::DEFAULT_DESTROYER);
 
-	sprintf(buf2, "object #%d", nr);
+	sprintf(buf2, "object #%d", vnum);
 
 	// *** string data ***
 	const char* aliases = fread_string(obj_f, buf2);
@@ -4380,7 +4379,7 @@ char *parse_object(FILE * obj_f, const int nr)
 	
 	if (tobj->get_current() > tobj->get_maximum())
 	{
-		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", nr);
+		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", vnum);
 	}
 	if (!get_line(obj_f, line))
 	{
@@ -4571,7 +4570,7 @@ char *parse_object(FILE * obj_f, const int nr)
 		case '$':
 		case '#':
 			check_object(tobj);		// Anton Gorev (2015/12/29): do we need the result of this check?
-			obj_proto.add(tobj, nr);
+			obj_proto.add(tobj, vnum);
 			return line;
 
 		default:
@@ -4866,7 +4865,9 @@ int vnum_object(char *searchname, CHAR_DATA * ch)
 		if (isname(searchname, obj_proto[nr]->get_aliases()))
 		{
 			++found;
-			sprintf(buf, "%3d. [%5d] %s\r\n", found, obj_proto.vnum(nr), obj_proto[nr]->get_short_description().c_str());
+			sprintf(buf, "%3d. [%5d] %s\r\n",
+				found, obj_proto[nr]->get_vnum(),
+				obj_proto[nr]->get_short_description().c_str());
 			send_to_char(buf, ch);
 		}
 	}
@@ -4905,12 +4906,12 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 
 	if (f)
 	{
-		for (size_t nr = 0; nr < obj_proto.size(); nr++)
+		for (const auto i : obj_proto)
 		{
-			if (obj_proto[nr]->get_extra_flag(plane, 1 << plane_offset))
+			if (i->get_extra_flag(plane, 1 << plane_offset))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-					++found, obj_proto.vnum(nr), obj_proto[nr]->get_short_description().c_str(), extra_bits[counter]);
+					++found, i->get_vnum(), i->get_short_description().c_str(), extra_bits[counter]);
 				out += buf;
 			}
 		}
@@ -4927,15 +4928,15 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	}
 	if (f)
 	{
-		for (size_t nr = 0; nr < obj_proto.size(); nr++)
+		for (const auto i : obj_proto)
 		{
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++)
 			{
-				if (obj_proto[nr]->get_affected(plane).location == counter)
+				if (i->get_affected(plane).location == counter)
 				{
 					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-						++found, obj_proto.vnum(nr),
-						obj_proto[nr]->get_short_description().c_str(),
+						++found, i->get_vnum(),
+						i->get_short_description().c_str(),
 						apply_types[counter]);
 					out += buf;
 					continue;
@@ -4962,13 +4963,13 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	}
 	if (f)
 	{
-		for (size_t nr = 0; nr < obj_proto.size(); nr++)
+		for (const auto i : obj_proto)
 		{
-			if (obj_proto[nr]->get_extra_flag(plane, 1 << (plane_offset)))
+			if (i->get_extra_flag(plane, 1 << (plane_offset)))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
-					++found, obj_proto.vnum(nr),
-					obj_proto[nr]->get_short_description().c_str(),
+					++found, i->get_vnum(),
+					i->get_short_description().c_str(),
 					weapon_affects[counter]);
 				out += buf;
 			}
@@ -5162,12 +5163,11 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 OBJ_DATA *create_obj(const std::string& alias)
 {
 	OBJ_DATA *obj;
+	NEWCREATE(obj, -1);
 
-	NEWCREATE(obj);
 	obj->set_next(object_list);
 	object_list = obj;
 	obj->set_id(max_id++);
-
 	obj->set_aliases(alias);
 
 	return (obj);
@@ -5250,8 +5250,6 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 
 	return (obj);
 }
-
-
 
 #define ZO_DEAD  9999
 
@@ -8124,17 +8122,8 @@ size_t CObjectPrototypes::add(const prototypes_t::value_type& prototype, const o
 	prototype->set_rnum(static_cast<int>(index));
 	m_vnum2index[vnum] = index;
 	m_prototypes.push_back(prototype);
-	m_index.push_back(index_data(vnum));
+	m_index.push_back(SPrototypeIndex());
 	return index;
-}
-
-void CObjectPrototypes::vnum(const size_t rnum, const obj_vnum value)
-{
-	const auto i = m_vnum2index.find(m_index[rnum].vnum);
-	m_vnum2index.erase(i);
-
-	m_index[rnum].vnum = value;
-	m_vnum2index[value] = rnum;
 }
 
 int CObjectPrototypes::rnum(const obj_vnum vnum) const

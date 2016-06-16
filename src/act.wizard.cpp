@@ -6450,18 +6450,19 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		snprintf(buf_, sizeof(buf_),
 			"Список объектов Vnum %d до %d\r\n", first, last);
 		out += buf_;
-		for (size_t nr = 0; nr < obj_proto.size(); nr++)
+		for (const auto i : obj_proto)
 		{
-			if (obj_proto.vnum(nr) >= first && obj_proto.vnum(nr) <= last)
+			if (i->get_vnum() >= first && i->get_vnum() <= last)
 			{
 				snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++found,
-					colored_name(obj_proto[nr]->get_short_description().c_str(), 45),
-					obj_proto.vnum(nr), obj_proto[nr]->get_ilevel());
+					colored_name(i->get_short_description().c_str(), 45),
+					i->get_vnum(), i->get_ilevel());
 				out += buf_;
 				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
 				{
 					snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d\r\n",
-						obj_proto.number(nr), obj_proto.stored(nr));
+						obj_proto.number(i->get_rnum()),
+						obj_proto.stored(i->get_rnum()));
 					out += buf_;
 				}
 				else

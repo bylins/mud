@@ -424,11 +424,25 @@ extern int top_of_p_table;
 
 class CObjectPrototypes
 {
+private:
+	struct SPrototypeIndex
+	{
+		SPrototypeIndex() : number(0), stored(0), func(NULL), farg(NULL), proto(NULL), zone(0), set_idx(-1) {}
+
+		int number;		// number of existing units of this mob/obj //
+		int stored;		// number of things in rent file            //
+		int(*func)(CHAR_DATA*, void*, int, char*);
+		char *farg;		// string argument for special function     //
+		struct trig_data *proto;	// for triggers... the trigger     //
+		int zone;			// mob/obj zone rnum //
+		size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
+	};
+
 public:
 	using prototypes_t = std::deque<CObjectPrototype *>;
 	using const_iterator = prototypes_t::const_iterator;
 
-	using index_t = std::deque<index_data>;
+	using index_t = std::deque<SPrototypeIndex>;
 
 	/**
 	** \name Proxy calls to std::vector member functions.
@@ -446,10 +460,6 @@ public:
 	/** @} */
 
 	size_t add(const prototypes_t::value_type& prototype, const obj_vnum vnum);
-
-	obj_vnum vnum(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].vnum : -1; }
-	obj_vnum vnum(const CObjectPrototype* object) const { return vnum(object->get_rnum()); }
-	void vnum(const size_t rnum, const obj_vnum value);
 
 	void zone(const size_t rnum, const size_t zone_rnum) { m_index[rnum].zone = static_cast<int>(zone_rnum); }
 
@@ -470,12 +480,12 @@ public:
 
 	auto func(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].func : nullptr; }
 	auto func(const OBJ_DATA* object) const { return func(object->get_rnum()); }
-	void func(const size_t rnum, const decltype(index_data::func) function) { m_index[rnum].func = function; }
+	void func(const size_t rnum, const decltype(SPrototypeIndex::func) function) { m_index[rnum].func = function; }
 
 	auto spec(const OBJ_DATA* object) const { return func(object->get_rnum()); }
 
 	auto set_idx(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].set_idx : ~0; }
-	void set_idx(const size_t rnum, const decltype(index_data::set_idx) value) { m_index[rnum].set_idx = value; }
+	void set_idx(const size_t rnum, const decltype(SPrototypeIndex::set_idx) value) { m_index[rnum].set_idx = value; }
 
 	int rnum(const obj_vnum vnum) const;
 
@@ -510,7 +520,7 @@ inline bool CObjectPrototypes::is_index_safe(const size_t index) const
 
 extern CObjectPrototypes obj_proto;
 
-inline obj_vnum GET_OBJ_VNUM(const CObjectPrototype* obj) { return obj_proto.vnum(obj); }
+inline obj_vnum GET_OBJ_VNUM(const CObjectPrototype* obj) { return obj->get_vnum(); }
 inline auto GET_OBJ_SPEC(const OBJ_DATA* obj) { return obj_proto.spec(obj); }
 
 // returns the real number of the object with given virtual number

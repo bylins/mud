@@ -122,8 +122,7 @@ namespace craft
 	class CObject: public CObjectPrototype
 	{
 	public:
-		CObject(const obj_vnum vnum) :
-			m_vnum(vnum),
+		CObject(const obj_vnum vnum) : CObjectPrototype(vnum),
 			m_cost(OBJ_DATA::DEFAULT_COST),
 			m_rent_on(OBJ_DATA::DEFAULT_RENT_ON),
 			m_rent_off(OBJ_DATA::DEFAULT_RENT_OFF),

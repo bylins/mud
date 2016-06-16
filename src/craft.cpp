@@ -1343,7 +1343,7 @@ namespace craft
 
 	OBJ_DATA* CObject::build_object() const
 	{
-		const auto result = NEWCREATE<OBJ_DATA>();
+		const auto result = new OBJ_DATA(get_vnum());
 		
 		result->set_type(get_type());
 

@@ -191,7 +191,7 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 		}
 
 		const size_t curr_name = strlen_no_colors(obj_proto[rnum]->get_short_description().c_str());
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto.vnum(rnum));
+		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto[rnum]->get_vnum());
 		const size_t curr_vnum = strlen(buf_vnum);
 
 		if (left)
@@ -211,7 +211,7 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 	left = true;
 	for (const auto i : rnum_list)
 	{
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto.vnum(i));
+		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto[i]->get_vnum());
 		snprintf(format, sizeof(format), "%s%2d%s) %s : %s%%-%zus%s   ",
 			CCGRN(ch, C_NRM), menu++, CCNRM(ch, C_NRM),
 			colored_name(obj_proto[i]->get_short_description().c_str(), left ? l_max_name : r_max_name, true),

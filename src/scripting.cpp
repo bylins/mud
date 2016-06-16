@@ -1243,15 +1243,6 @@ obj_vnum get_vnum() const {
 	Ensurer obj(*this);
 	return GET_OBJ_VNUM(obj);
 }
-
-void set_vnum(const obj_vnum vnum)
-{
-	Ensurer obj(*this);
-	if (GET_OBJ_RNUM(obj) >=0)
-	{
-		obj_proto.vnum(GET_OBJ_RNUM(obj), vnum);
-	}
-}
 };
 
 ObjWrapper get_obj_proto(const obj_rnum rnum)
@@ -1559,7 +1550,7 @@ BOOST_PYTHON_MODULE(mud)
 		.add_property("maker", &ObjWrapper::get_maker, &ObjWrapper::set_maker, "ID крафтера (?)")
 		.add_property("zone", &ObjWrapper::get_zone, &ObjWrapper::set_zone, "rnum зоны, из которой предмет родом")
 		.add_property("rnum", &ObjWrapper::get_item_number, &ObjWrapper::set_item_number, "Реальный номер объекта, являющийся индексом в таблице прототипов.")
-		.add_property("vnum", &ObjWrapper::get_vnum, &ObjWrapper::set_vnum, "виртуальный номер объекта-прототипа.")
+		.def("vnum", &ObjWrapper::get_vnum, "виртуальный номер объекта-прототипа.")
 		.add_property("affects", &ObjWrapper::get_affects, &ObjWrapper::set_affects, "Накладываемые аффекты")
 		.add_property("extra_flags", &ObjWrapper::get_extra_flags, &ObjWrapper::set_extra_flags, "Экстрафлаги (шумит, горит и т.п.)")
 		.add_property("no_flags", &ObjWrapper::get_no_flag, &ObjWrapper::set_no_flag)

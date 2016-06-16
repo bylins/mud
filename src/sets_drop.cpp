@@ -961,7 +961,7 @@ std::string print_current_set(const HelpNode &node)
 	{
 		for (const auto& k : drop_list)
 		{
-			if (obj_proto.vnum(k.second.obj_rnum) == l && k.second.chance > 0)
+			if (obj_proto[k.second.obj_rnum]->get_vnum() == l && k.second.chance > 0)
 			{
 				out << "   " << GET_OBJ_PNAME(obj_proto[k.second.obj_rnum], 0)
 					<< " - " << mob_proto[k.first].get_name()
@@ -1179,7 +1179,7 @@ void save_drop_table()
 	{
 		pugi::xml_node mob_node = node_list.append_child();
 		mob_node.set_name("item");
-		mob_node.append_attribute("vnum") = obj_proto.vnum(i->second.obj_rnum);
+		mob_node.append_attribute("vnum") = obj_proto[i->second.obj_rnum]->get_vnum();
 		mob_node.append_attribute("mob") = mob_index[i->first].vnum;
 		mob_node.append_attribute("chance") = i->second.chance;
 		mob_node.append_attribute("solo") = i->second.solo ? "true" : "false";

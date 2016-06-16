@@ -151,7 +151,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 {
 	OBJ_DATA *obj;
 
-	NEWCREATE(obj);
+	NEWCREATE(obj, -1);
 
 	if (real_num == -1)
 	{

@@ -178,7 +178,8 @@ public:
 	using triggers_list_t = std::list<obj_vnum>;
 	using affected_t = std::array<obj_affected_type, MAX_OBJ_AFFECT>;
 
-	CObjectPrototype() : m_type(DEFAULT_TYPE),
+	CObjectPrototype(const obj_vnum vnum) : m_vnum(vnum),
+		m_type(DEFAULT_TYPE),
 		m_weight(DEFAULT_WEIGHT),
 		m_max_in_world(DEFAULT_MAX_IN_WORLD),
 		m_vals({ 0, 0, 0, 0 }),
@@ -343,11 +344,14 @@ public:
 	void set_ilevel(unsigned ilvl);
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const obj_rnum _) { m_rnum = _; }
+	auto get_vnum() const { return m_vnum; }
 
 protected:
 	void zero_init();
 
 private:
+	obj_vnum m_vnum;
+
 	EObjectType m_type;
 	int m_weight;
 
@@ -672,7 +676,7 @@ public:
 	constexpr static const int DEFAULT_OWNER = 0;
 	constexpr static const int DEFAULT_PARENT = 0;
 
-	OBJ_DATA();
+	OBJ_DATA(const obj_vnum vnum);
 	OBJ_DATA(const OBJ_DATA&);
 	OBJ_DATA(const CObjectPrototype&);
 	~OBJ_DATA();
