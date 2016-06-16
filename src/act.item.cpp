@@ -3136,8 +3136,8 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			percent = ch->get_skill(SKILL_REPAIR) / 10;
 		}
 //-Polos.repair_bug
-		obj->set_current(MAX(0, obj->get_current() * percent / prob));
-		if (obj->get_current())
+		obj->set_current_durability(MAX(0, obj->get_current_durability() * percent / prob));
+		if (obj->get_current_durability())
 		{
 			act("Вы попытались починить $o3, но сломали $S еще больше.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n попытал$u починить $o3, но сломал$g $S еще больше.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -3145,11 +3145,11 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			decay = MAX(1, MIN(decay, GET_OBJ_MAX(obj) / 20));
 			if (GET_OBJ_MAX(obj) > decay)
 			{
-				obj->set_maximum(obj->get_maximum() - decay);
+				obj->set_maximum_durability(obj->get_maximum_durability() - decay);
 			}
 			else
 			{
-				obj->set_maximum(1);
+				obj->set_maximum_durability(1);
 			}
 		}
 		else
@@ -3164,9 +3164,9 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		// Карачун. В кузне ремонтируем без ухудшения
 		if (!IS_IMMORTAL(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_SMITH))
 		{
-			obj->set_maximum(obj->get_maximum() - MAX(1, (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 40));
+			obj->set_maximum_durability(obj->get_maximum_durability() - MAX(1, (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 40));
 		}
-		obj->set_current(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
+		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
 		send_to_char(ch, "Теперь %s выгляд%s лучше.\r\n", obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
 		act("$n умело починил$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}

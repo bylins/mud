@@ -360,7 +360,7 @@
 	</recipes>
 
 	<prototypes>
-		<prototype vnum="2000">
+		<prototype vnum="200000">
 			<description>
 				<short>Палка-выручалка</short>
 				<long>Палка-выручалка лежит, никому не нужная.</long>

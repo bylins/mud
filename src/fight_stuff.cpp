@@ -975,7 +975,7 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance)
 		}
 
 		obj->sub_current(dam);
-		if (obj->get_current() <= 0)
+		if (obj->get_current_durability() <= 0)
 		{
 			if (obj->get_worn_by())
 			{

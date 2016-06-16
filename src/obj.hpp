@@ -187,8 +187,8 @@ public:
 		m_spell(SPELL_NO_SPELL),
 		m_level(DEFAULT_LEVEL),
 		m_skill(SKILL_INVALID),
-		m_maximum(DEFAULT_MAXIMUM_DURABILITY),
-		m_current(DEFAULT_CURRENT_DURABILITY),
+		m_maximum_durability(DEFAULT_MAXIMUM_DURABILITY),
+		m_current_durability(DEFAULT_CURRENT_DURABILITY),
 		m_material(DEFAULT_MATERIAL),
 		m_sex(DEFAULT_SEX),
 		m_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)),
@@ -203,12 +203,12 @@ public:
 
 	auto& get_skills() const { return m_skills; }
 	auto dec_val(size_t index) { return --m_vals[index]; }
-	auto get_current() const { return m_current; }
+	auto get_current_durability() const { return m_current_durability; }
 	auto get_destroyer() const { return m_destroyer; }
 	auto get_level() const { return m_level; }
 	auto get_material() const { return m_material; }
 	auto get_max_in_world() const { return m_max_in_world; }
-	auto get_maximum() const { return m_maximum; }
+	auto get_maximum_durability() const { return m_maximum_durability; }
 	auto get_sex() const { return m_sex; }
 	auto get_skill() const { return m_skill; }
 	auto get_spell() const { return m_spell; }
@@ -248,7 +248,7 @@ public:
 	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
 	void add_anti_flags(const FLAG_DATA& flags) { m_anti_flags += flags; }
 	void add_extra_flags(const FLAG_DATA& flags) { m_extra_flags += flags; }
-	void add_maximum(const int amount) { m_maximum += amount; }
+	void add_maximum(const int amount) { m_maximum_durability += amount; }
 	void add_no_flags(const FLAG_DATA& flags) { m_no_flags += flags; }
 	void add_proto_script(const obj_vnum vnum) { m_proto_script.push_back(vnum); }
 	void add_val(const size_t index, const int amount) { m_vals[index] += amount; }
@@ -271,6 +271,7 @@ public:
 	void load_no_flags(const char* string) { m_no_flags.from_string(string); }
 	void remove_incorrect_values_keys(const int type) { m_values.remove_incorrect_keys(type); }
 	void set_action_description(const std::string& _) { m_action_description = _; }
+	void set_affect_flag(const EWeaponAffectFlag packed_flag) { m_waffect_flags.set(packed_flag); }
 	void set_affect_flags(const FLAG_DATA& flags) { m_waffect_flags = flags; }
 	void set_affected(const size_t index, const EApplyLocation location, const int modifier);
 	void set_affected(const size_t index, const obj_affected_type& affect) { m_affected[index] = affect; }
@@ -278,8 +279,9 @@ public:
 	void set_affected_modifier(const size_t index, const int _) { m_affected[index].modifier = _; }
 	void set_aliases(const std::string& _) { m_aliases = _; }
 	void set_all_affected(const affected_t& _) { m_affected = _; }
+	void set_anti_flag(const EAntiFlag packed_flag) { m_anti_flags.set(packed_flag); }
 	void set_anti_flags(const FLAG_DATA& flags) { m_anti_flags = flags; }
-	void set_current(const int _) { m_current = _; }
+	void set_current_durability(const int _) { m_current_durability = _; }
 	void set_description(const std::string& _) { m_description = _; }
 	void set_destroyer(const int _) { m_destroyer = _; }
 	void set_ex_description(const std::shared_ptr<EXTRA_DESCR_DATA>& _) { m_ex_description = _; }
@@ -290,7 +292,8 @@ public:
 	void set_level(const int _) { m_level = _; }
 	void set_material(const EObjectMaterial _) { m_material = _; }
 	void set_max_in_world(const int _) { m_max_in_world = _; }
-	void set_maximum(const int _) { m_maximum = _; }
+	void set_maximum_durability(const int _) { m_maximum_durability = _; }
+	void set_no_flag(const ENoFlag flag) { m_no_flags.set(flag); }
 	void set_no_flags(const FLAG_DATA& flags) { m_no_flags = flags; }
 	void set_obj_aff(const uint32_t packed_flag) { m_waffect_flags.set(packed_flag); }
 	void set_PName(const size_t index, const char* _) { m_pnames[index] = _; }
@@ -309,7 +312,7 @@ public:
 	void set_wear_flags(const wear_flags_t _) { m_wear_flags = _; }
 	void set_weight(const int _) { m_weight = _; }
 	void set_val(size_t index, int value) { m_vals[index] = value; }
-	void sub_current(const int _) { m_current -= _; }
+	void sub_current(const int _) { m_current_durability -= _; }
 	void sub_val(const size_t index, const int amount) { m_vals[index] -= amount; }
 	void sub_weight(const int _) { m_weight += _; }
 	void swap_proto_script(triggers_list_t& _) { m_proto_script.swap(_); }
@@ -376,8 +379,8 @@ private:
 	ESpell m_spell;
 	int m_level;
 	int m_skill;
-	int m_maximum;
-	int m_current;
+	int m_maximum_durability;
+	int m_current_durability;
 
 	EObjectMaterial m_material;
 	ESex m_sex;

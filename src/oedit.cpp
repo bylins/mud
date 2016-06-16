@@ -212,7 +212,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	obj->set_script(tmp.get_script());
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
-	obj->set_current(GET_OBJ_CUR(&tmp));
+	obj->set_current_durability(GET_OBJ_CUR(&tmp));
 	if (tmp.get_is_rename())
 	{
 		oedit_object_copy(obj, &tmp); // восстановим падежи из сохраненки если имена были изменены при трансформации
@@ -1900,11 +1900,11 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_MAXVALUE:
-		OLC_OBJ(d)->set_maximum(atoi(arg));
+		OLC_OBJ(d)->set_maximum_durability(atoi(arg));
 		break;
 
 	case OEDIT_CURVALUE:
-		OLC_OBJ(d)->set_current(MIN(GET_OBJ_MAX(OLC_OBJ(d)), atoi(arg)));
+		OLC_OBJ(d)->set_current_durability(MIN(GET_OBJ_MAX(OLC_OBJ(d)), atoi(arg)));
 		break;
 
 	case OEDIT_SEXVALUE:

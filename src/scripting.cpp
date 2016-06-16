@@ -1074,24 +1074,24 @@ void set_skill(const int v)
 int get_max() const
 {
 	Ensurer obj(*this);
-	return obj->get_maximum();
+	return obj->get_maximum_durability();
 }
 
 void set_max(const int v)
 {
 	Ensurer obj(*this);
-	obj->set_maximum(v);
+	obj->set_maximum_durability(v);
 }
 int get_cur() const
 {
 	Ensurer obj(*this);
-	return obj->get_current();
+	return obj->get_current_durability();
 }
 
 void set_cur(const int v)
 {
 	Ensurer obj(*this);
-	obj->set_current(v);
+	obj->set_current_durability(v);
 }
 
 int get_mater() const

@@ -3115,8 +3115,8 @@ void break_inst(CHAR_DATA *ch)
 			{
 				if (number(1, dig_vars.instr_crash_chance) == 1)
 				{
-					const auto current = GET_EQ(ch, i)->get_current();
-					GET_EQ(ch, i)->set_current(current - 1);
+					const auto current = GET_EQ(ch, i)->get_current_durability();
+					GET_EQ(ch, i)->set_current_durability(current - 1);
 				}
 			}
 			else

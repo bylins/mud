@@ -2011,7 +2011,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	sprintf(buf, "Таймер : %d\r\n", obj->get_timer());
 	send_to_char(buf, ch);
-	sprintf(buf, "Прочность : %d\\%d\r\n", obj->get_current(), obj->get_maximum());
+	sprintf(buf, "Прочность : %d\\%d\r\n", obj->get_current_durability(), obj->get_maximum_durability());
 	send_to_char(buf, ch);
 
 	send_to_char("Накладывает на вас аффекты: ", ch);

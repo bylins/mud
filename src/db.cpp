@@ -4318,8 +4318,8 @@ char *parse_object(FILE * obj_f, const int vnum)
 	tobj->set_rnum(i);
 
 	// *** Add some initialization fields
-	tobj->set_maximum(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);
-	tobj->set_current(OBJ_DATA::DEFAULT_CURRENT_DURABILITY);
+	tobj->set_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);
+	tobj->set_current_durability(OBJ_DATA::DEFAULT_CURRENT_DURABILITY);
 	tobj->set_sex(DEFAULT_SEX);
 	tobj->set_timer(OBJ_DATA::DEFAULT_TIMER);
 	tobj->set_level(1);
@@ -4373,11 +4373,11 @@ char *parse_object(FILE * obj_f, const int vnum)
 	asciiflag_conv(f0, &skill);
 	tobj->set_skill(skill);
 
-	tobj->set_maximum(t[1]);
-	tobj->set_current(MIN(t[1], t[2]));
+	tobj->set_maximum_durability(t[1]);
+	tobj->set_current_durability(MIN(t[1], t[2]));
 	tobj->set_material(static_cast<OBJ_DATA::EObjectMaterial>(t[3]));
 	
-	if (tobj->get_current() > tobj->get_maximum())
+	if (tobj->get_current_durability() > tobj->get_maximum_durability())
 	{
 		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", vnum);
 	}

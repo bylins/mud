@@ -122,31 +122,14 @@ namespace craft
 	class CObject: public CObjectPrototype
 	{
 	public:
-		CObject(const obj_vnum vnum) : CObjectPrototype(vnum),
-			m_cost(OBJ_DATA::DEFAULT_COST),
-			m_rent_on(OBJ_DATA::DEFAULT_RENT_ON),
-			m_rent_off(OBJ_DATA::DEFAULT_RENT_OFF),
-			m_max_in_world(OBJ_DATA::DEFAULT_MAX_IN_WORLD),
-			m_minimum_remorts(OBJ_DATA::DEFAULT_MINIMUM_REMORTS),
-			m_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY),
-			m_current_durability(OBJ_DATA::DEFAULT_CURRENT_DURABILITY),
-			m_sex(DEFAULT_SEX),
-			m_level(OBJ_DATA::DEFAULT_LEVEL),
-			m_item_params(0),
-			m_material(OBJ_DATA::DEFAULT_MATERIAL),
-			m_wear_flags(0),
-			m_vals({0, 0, 0, 0})
-		{
-		}
+		CObject(const CObjectPrototype& object) : CObjectPrototype(object) {}
+		CObject(const obj_vnum vnum) : CObjectPrototype(vnum) {}
 		~CObject() {}
 
 		bool load_from_node(const pugi::xml_node* node);
 		void load_from_object(const CObjectPrototype* object);
 
 		bool save_to_node(pugi::xml_node* node) const;
-
-		obj_vnum vnum() const { return m_vnum; }
-		const std::string& short_desc() const { return m_short_desc; }
 
 		/**
 		 * Builds OBJ_DATA instance suitable for add it into the list of objects prototypes.
@@ -174,46 +157,8 @@ namespace craft
 
 		const std::string& aliases() const { return m_cases.aliases(); }
 		virtual const std::string& kind() const { return KIND; }
-		obj_vnum m_vnum;
-
-		std::string m_short_desc;
-		std::string m_long_desc;
-		std::string m_action_desc;
-		std::string m_keyword;
-		std::string m_extended_desc;
 
 		CCases m_cases;
-
-		int m_cost;
-		int m_rent_on;
-		int m_rent_off;
-		int m_max_in_world;
-		int m_minimum_remorts;
-
-		int m_maximum_durability;
-		int m_current_durability;
-
-		ESex m_sex;
-
-		int m_level;
-
-		uint32_t m_item_params;
-
-		OBJ_DATA::EObjectMaterial m_material;
-		ESpell m_spell;
-
-		FLAG_DATA m_extraflags;
-		FLAG_DATA m_waffect_flags;
-		FLAG_DATA m_anti_flags;
-		FLAG_DATA m_no_flags;
-
-		std::underlying_type<EWearFlag>::type m_wear_flags;
-
-		skills_t m_skills;
-		vals_t m_vals;
-		OBJ_DATA::triggers_list_t m_triggers_list;
-		ObjVal m_extended_values;
-		applies_t m_applies;
 
 		friend class CCraftModel;
 	};

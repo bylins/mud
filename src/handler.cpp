@@ -3915,8 +3915,8 @@ OBJ_DATA *create_money(int amount)
 	obj->set_sex(ESex::SEX_FEMALE);
 	obj->set_val(0, amount);
 	obj->set_cost(amount);
-	obj->set_maximum(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);
-	obj->set_current(OBJ_DATA::DEFAULT_CURRENT_DURABILITY);
+	obj->set_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);
+	obj->set_current_durability(OBJ_DATA::DEFAULT_CURRENT_DURABILITY);
 	obj->set_timer(24 * 60 * 7);
 	obj->set_weight(1);
 	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);

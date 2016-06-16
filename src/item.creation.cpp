@@ -922,8 +922,8 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 			// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
-			tobj->set_maximum(MAX(20000, 35000 / 100 * ch->get_skill(skill) - number(0, 35000 / 100 * 25)) / 100);
-			tobj->set_current(GET_OBJ_MAX(tobj));
+			tobj->set_maximum_durability(MAX(20000, 35000 / 100 * ch->get_skill(skill) - number(0, 35000 / 100 * 25)) / 100);
+			tobj->set_current_durability(GET_OBJ_MAX(tobj));
 			percent = number(1, skill_info[skill].max_percent);
 			prob = calculate_skill(ch, skill, 0);
 			ndice = MAX(2, MIN(4, prob / percent));
@@ -967,8 +967,8 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 		case 5:	// mages weapon
 		case 6:
 			tobj->set_timer(OBJ_DATA::ONE_DAY);
-			tobj->set_maximum(50);
-			tobj->set_current(50);
+			tobj->set_maximum_durability(50);
+			tobj->set_current_durability(50);
 			ndice = MAX(2, MIN(4, GET_LEVEL(ch) / number(6, 8)));
 			ndice += (GET_OBJ_WEIGHT(tobj) / 10);
 			sdice = MAX(2, MIN(5, GET_LEVEL(ch) / number(4, 5)));
@@ -1000,8 +1000,8 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 				// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
 				// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 				// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
-				tobj->set_maximum(MAX(20000, 10000 / 100 * ch->get_skill(skill) - number(0, 15000 / 100 * 25)) / 100);
-				tobj->set_current(GET_OBJ_MAX(tobj));
+				tobj->set_maximum_durability(MAX(20000, 10000 / 100 * ch->get_skill(skill) - number(0, 15000 / 100 * 25)) / 100);
+				tobj->set_current_durability(GET_OBJ_MAX(tobj));
 				percent = number(1, skill_info[skill].max_percent);
 				prob = calculate_skill(ch, skill, 0);
 				ndice = MAX(2, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 10, prob / percent));

@@ -64,8 +64,11 @@ namespace craft
 			ELFR_FAIL
 		};
 
+		template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsSetter>
+		static void load_flags(const pugi::xml_node& root, const char* node_name, const char* node_flag,
+			const TFlagsSetter setter, const TSuccessHandler success_handler, const TFailHandler fail_handler);
 		template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
-		static void load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
+		static void load_flags(TFlagsStorage flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
 			const TSuccessHandler success_handler, const TFailHandler fail_handler);
 
 		template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
@@ -238,9 +241,9 @@ namespace craft
 		}
 	};
 
-	template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
-	void CHelper::load_flags(TFlagsStorage& flags, const pugi::xml_node& root, const char* node_name,
-		const char* node_flag, const TSuccessHandler success_handler, const TFailHandler fail_handler)
+	template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsSetter>
+	void CHelper::load_flags(const pugi::xml_node& root, const char* node_name, const char* node_flag,
+		const TFlagsSetter setter, const TSuccessHandler success_handler, const TFailHandler fail_handler)
 	{
 		const auto node = root.child(node_name);
 		if (node)
@@ -251,7 +254,7 @@ namespace craft
 				try
 				{
 					auto value = ITEM_BY_NAME<TFlags>(flag_value);
-					set_bit(flags, value);
+					setter(value);
 					success_handler(value);
 				}
 				catch (...)
@@ -260,6 +263,13 @@ namespace craft
 				}
 			}
 		}
+	}
+
+	template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
+	void CHelper::load_flags(TFlagsStorage flags, const pugi::xml_node& root, const char* node_name,
+		const char* node_flag, const TSuccessHandler success_handler, const TFailHandler fail_handler)
+	{
+		load_flags<TFlags>(root, node_name, node_flag, [&](const auto flag) { set_bit(flags, flag); }, success_handler, fail_handler);
 	}
 
 	template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
@@ -510,7 +520,7 @@ namespace craft
 			for (const auto& p : model.prototypes())
 			{
 				++counter;
-				send_to_char(ch, "%2d. %s\n", counter, p.short_desc().c_str());
+				send_to_char(ch, "%2d. %s\n", counter, p.get_short_description().c_str());
 			}
 		}
 
@@ -801,29 +811,28 @@ namespace craft
 
 	bool CObject::load_from_node(const pugi::xml_node* node)
 	{
-		log("Loading object with VNUM %d of type '%s'...\n", m_vnum, kind().c_str());
+		log("Loading object with VNUM %d of type '%s'...\n", get_vnum(), kind().c_str());
 		CLogger::CPrefix prefix(log, BODY_PREFIX);
 
 		const auto description = node->child("description");
 		if (description)
 		{
 			// these fields are optional for objects
-			m_short_desc = description.child_value("short");
-			m_long_desc = description.child_value("long");
-			m_keyword = description.child_value("keyword");
-			m_extended_desc = description.child_value("extended");
+			set_short_description(description.child_value("short"));
+			set_description(description.child_value("long"));
+			set_ex_description(description.child_value("keyword"), description.child_value("extended"));
 		}
 
 		const auto item = node->child("item");
 		if (!item)
 		{
-			log("ERROR: The object with VNUM %d does not contain required \"item\" tag.\n", m_vnum);
+			log("ERROR: The object with VNUM %d does not contain required \"item\" tag.\n", get_vnum());
 			return false;
 		}
 
 		if (!m_cases.load_from_node(&item))
 		{
-			log("ERROR: could not load item cases for the object with VNUM %d.\n", m_vnum);
+			log("ERROR: could not load item cases for the object with VNUM %d.\n", get_vnum());
 			return false;
 		}
 
@@ -835,16 +844,16 @@ namespace craft
 		}
 		else
 		{
-			log("WARNING: Could not find \"cost\" tag for the object with VNUM %d.\n", m_vnum);
+			log("WARNING: Could not find \"cost\" tag for the object with VNUM %d.\n", get_vnum());
 		}
 
 		if (0 > cost_value)
 		{
 			log("WARNING: Wrong \"cost\" value of the object with VNUM %d. Setting to the default value %d.\n",
-				m_vnum, OBJ_DATA::DEFAULT_COST);
+				get_vnum(), OBJ_DATA::DEFAULT_COST);
 			cost_value = OBJ_DATA::DEFAULT_COST;
 		}
-		m_cost = cost_value;
+		set_cost(cost_value);
 
 		const auto rent = node->child("rent");
 		int rent_on_value = -1;
@@ -854,47 +863,47 @@ namespace craft
 			const auto rent_on = rent.child("on");
 			if (!rent_on)
 			{
-				log("WARNING: Could not find \"on\" tag for object with VNUM %d.\n", m_vnum);
+				log("WARNING: Could not find \"on\" tag for object with VNUM %d.\n", get_vnum());
 			}
 			else
 			{
 				CHelper::load_integer(rent_on.child_value(), rent_on_value,
 					[&]() { log("WARNING: Wrong value \"%s\" of the \"rent\"/\"on\" tag for object with VNUM %d.\n",
-						rent_on.child_value(), m_vnum); });
+						rent_on.child_value(), get_vnum()); });
 			}
 
 			const auto rent_off = rent.child("off");
 			if (!rent_off)
 			{
-				log("WARNING: Could not find \"off\" tag for object with VNUM %d.\n", m_vnum);
+				log("WARNING: Could not find \"off\" tag for object with VNUM %d.\n", get_vnum());
 			}
 			else
 			{
 				CHelper::load_integer(rent_off.child_value(), rent_off_value,
 					[&]() { log("WARNING: Wrong value \"%s\" of the \"rent\"/\"off\" tag for object with VNUM %d.\n",
-						rent_off.child_value(), m_vnum); });
+						rent_off.child_value(), get_vnum()); });
 			}
 		}
 		else
 		{
-			log("WARNING: Could not find \"rent\" tag for the object with VNUM %d.\n", m_vnum);
+			log("WARNING: Could not find \"rent\" tag for the object with VNUM %d.\n", get_vnum());
 		}
 
 		if (0 > rent_on_value)
 		{
 			log("WARNING: Wrong \"rent/on\" value of the object with VNUM %d. Setting to the default value %d.\n",
-				m_vnum, OBJ_DATA::DEFAULT_RENT_ON);
+				get_vnum(), OBJ_DATA::DEFAULT_RENT_ON);
 			rent_on_value = OBJ_DATA::DEFAULT_RENT_ON;
 		}
-		m_rent_on = rent_on_value;
+		set_rent_on(rent_on_value);
 
 		if (0 > rent_off_value)
 		{
 			log("WARNING: Wrong \"rent/off\" value of the object with VNUM %d. Setting to the default value %d.\n",
-				m_vnum, OBJ_DATA::DEFAULT_RENT_OFF);
+				get_vnum(), OBJ_DATA::DEFAULT_RENT_OFF);
 			rent_off_value = OBJ_DATA::DEFAULT_RENT_OFF;
 		}
-		m_rent_off = rent_off_value;
+		set_rent_off(rent_off_value);
 
 		const auto global_maximum = node->child("global_maximum");
 		if (global_maximum)
@@ -902,17 +911,17 @@ namespace craft
 			int global_maximum_value = OBJ_DATA::DEFAULT_MAX_IN_WORLD;
 			CHelper::load_integer(global_maximum.child_value(), global_maximum_value,
 				[&]() { log("WARNING: \"global_maximum\" value of the object with VNUM %d is not valid integer. Setting to the default value %d.\n",
-					m_vnum, global_maximum_value); });
+					get_vnum(), global_maximum_value); });
 
 			if (0 >= global_maximum_value
 				&& OBJ_DATA::DEFAULT_MAX_IN_WORLD != global_maximum_value)
 			{
 				log("WARNING: Wrong \"global_maximum\" value %d of the object with VNUM %d. Setting to the default value %d.\n",
-					global_maximum_value, m_vnum, OBJ_DATA::DEFAULT_MAX_IN_WORLD);
+					global_maximum_value, get_vnum(), OBJ_DATA::DEFAULT_MAX_IN_WORLD);
 				global_maximum_value = OBJ_DATA::DEFAULT_MAX_IN_WORLD;
 			}
 
-			m_max_in_world = global_maximum_value;
+			set_max_in_world(global_maximum_value);
 		}
 
 		const auto minimum_remorts = node->child("minimal_remorts");
@@ -921,21 +930,21 @@ namespace craft
 			int minimum_remorts_value = OBJ_DATA::DEFAULT_MINIMUM_REMORTS; 
 			CHelper::load_integer(minimum_remorts.child_value(), minimum_remorts_value,
 				[&]() { log("WARNING: \"minimal_remorts\" value of the object with VNUM %d is not valid integer. Setting to the default value %d.\n",
-					m_vnum, minimum_remorts_value); });
+					get_vnum(), minimum_remorts_value); });
 
 			if (0 > minimum_remorts_value)
 			{
 				log("WARNING: Wrong \"minimal_remorts\" value %d of the object with VNUM %d. Setting to the default value %d.\n",
-					minimum_remorts_value, m_vnum, OBJ_DATA::DEFAULT_MINIMUM_REMORTS);
+					minimum_remorts_value, get_vnum(), OBJ_DATA::DEFAULT_MINIMUM_REMORTS);
 				minimum_remorts_value = OBJ_DATA::DEFAULT_MINIMUM_REMORTS;
 			}
-			m_minimum_remorts = minimum_remorts_value;
+			set_minimum_remorts(minimum_remorts_value);
 		}
 
 		CHelper::ELoadFlagResult load_result = CHelper::load_flag<EObjectType>(*node, "type",
 			[&](const auto type) { this->set_type(type); },
-			[&](const auto name) { log("WARNING: Failed to set object type '%s' for object with VNUM %d. Object will be skipped.\n", name, m_vnum); },
-			[&]() { log("WARNING: \"type\" tag not found for object with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(get_type()).c_str()); });
+			[&](const auto name) { log("WARNING: Failed to set object type '%s' for object with VNUM %d. Object will be skipped.\n", name, get_vnum()); },
+			[&]() { log("WARNING: \"type\" tag not found for object with VNUM %d not found. Setting to default value: %s.\n", get_vnum(), NAME_BY_ITEM(get_type()).c_str()); });
 		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
@@ -948,28 +957,28 @@ namespace craft
 			if (maximum)
 			{
 				CHelper::load_integer(maximum.child_value(),
-					[&](const auto value) { m_maximum_durability = std::max(value, 0); },
+					[&](const auto value) { set_maximum_durability(std::max(value, 0)); },
 					[&]() { log("WARNING: Wrong integer value of tag \"maximum_durability\" for object with VNUM %d. Leaving default value %d\n",
-						m_vnum, m_maximum_durability); });
+						get_vnum(), get_maximum_durability()); });
 			}
 
 			const auto current = durability.child("current");
 			if (current)
 			{
 				CHelper::load_integer(current.child_value(),
-					[&](const auto value) { m_current_durability = std::min(std::max(value, 0), m_maximum_durability); },
+					[&](const auto value) { set_current_durability(std::min(std::max(value, 0), get_maximum_durability())); },
 					[&]() {
 					log("WARNING: Wrong integer value of tag \"current_durability\" for object with VNUM %d. Setting to value of \"maximum_durability\" %d\n",
-						m_vnum, m_maximum_durability);
-					m_current_durability = m_maximum_durability;
+						get_vnum(), get_maximum_durability());
+					set_current_durability(get_maximum_durability());
 				});
 			}
 		}
 
-		load_result = CHelper::load_flag<decltype(m_sex)>(*node, "sex",
-			[&](const auto sex) { m_sex = sex; },
-			[&](const auto name) { log("WARNING: Failed to set sex '%s' for object with VNUM %d. object will be skipped.\n", name, m_vnum); },
-			[&]() { log("WARNING: \"sex\" tag for object with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(m_sex).c_str()); });
+		load_result = CHelper::load_flag<ESex>(*node, "sex",
+			[&](const auto sex) { set_sex(sex); },
+			[&](const auto name) { log("WARNING: Failed to set sex '%s' for object with VNUM %d. object will be skipped.\n", name, get_vnum()); },
+			[&]() { log("WARNING: \"sex\" tag for object with VNUM %d not found. Setting to default value: %s.\n", get_vnum(), NAME_BY_ITEM(get_sex()).c_str()); });
 		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
@@ -979,9 +988,9 @@ namespace craft
 		if (level)
 		{
 			CHelper::load_integer(level.child_value(),
-				[&](const auto value) { m_level = std::max(value, 0); },
+				[&](const auto value) { set_level(std::max(value, 0)); },
 				[&]() { log("WARNING: Wrong integer value of the \"level\" tag for object with VNUM %d. Leaving default value %d.\n",
-					m_vnum, m_level); });
+					get_vnum(), get_level()); });
 		}
 
 		const auto weight = node->child("weight");
@@ -990,7 +999,7 @@ namespace craft
 			CHelper::load_integer(weight.child_value(),
 				[&](const auto value) { this->set_weight(std::max(value, 1)); },
 				[&]() { log("WARNING: Wrong integer value of the \"weight\" tag for object with VNUM %d. Leaving default value %d.\n",
-					m_vnum, this->get_weight()); });
+					get_vnum(), this->get_weight()); });
 		}
 
 		const auto timer = node->child("timer");
@@ -1005,7 +1014,7 @@ namespace craft
 				CHelper::load_integer(weight.child_value(),
 					[&](const auto value) { this->set_timer(std::max(value, 0)); },
 					[&]() { log("WARNING: Wrong integer value of the \"timer\" tag for object with VNUM %d. Leaving default value %d.\n",
-						m_vnum, this->get_timer()); });
+						get_vnum(), this->get_timer()); });
 			}
 		}
 
@@ -1019,50 +1028,55 @@ namespace craft
 			}
 		}
 
-		load_result = CHelper::load_flag<decltype(m_material)>(*node, "material",
-			[&](const auto material) { m_material = material; },
-			[&](const auto name) { log("WARNING: Failed to set material '%s' for object with VNUM %d. Object will be skipped.\n", name, m_vnum); },
-			[&]() { log("WARNING: \"material\" tag for object with VNUM %d not found. Setting to default value: %s.\n", m_vnum, NAME_BY_ITEM(m_material).c_str()); });
+		load_result = CHelper::load_flag<EObjectMaterial>(*node, "material",
+			[&](const auto material) { set_material(material); },
+			[&](const auto name) { log("WARNING: Failed to set material '%s' for object with VNUM %d. Object will be skipped.\n", name, get_vnum()); },
+			[&]() { log("WARNING: \"material\" tag for object with VNUM %d not found. Setting to default value: %s.\n", get_vnum(), NAME_BY_ITEM(get_material()).c_str()); });
 		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
 		}
 
-		load_result = CHelper::load_flag<decltype(m_spell)>(*node, "spell",
-			[&](const auto spell) { m_spell = spell; },
-			[&](const auto value) { log("WARNING: Failed to set spell '%s' for object with VNUM %d. Spell will not be set.\n", value, m_vnum); },
+		load_result = CHelper::load_flag<ESpell>(*node, "spell",
+			[&](const auto spell) { set_spell(spell); },
+			[&](const auto value) { log("WARNING: Failed to set spell '%s' for object with VNUM %d. Spell will not be set.\n", value, get_vnum()); },
 			[&]() {});
 
 		// loading of object extraflags
-		CHelper::load_flags<EExtraFlag>(m_extraflags, *node, "extraflags", "extraflag",
-			[&](const auto value) { log("Setting extra flag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of object with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+		CHelper::load_flags<EExtraFlag>(*node, "extraflags", "extraflag",
+			[&](const auto flag) { set_extra_flag(flag); },
+			[&](const auto value) { log("Setting extra flag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), get_vnum()); },
+			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of object with VNUM %d, because this value is not valid.\n", flag, get_vnum()); });
 
         // loading of object weapon affect flags
-		CHelper::load_flags<EWeaponAffectFlag>(m_waffect_flags, *node, "weapon_affects", "weapon_affect",
-			[&](const auto value) { log("Setting weapon affect flag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of object with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+		CHelper::load_flags<EWeaponAffectFlag>(*node, "weapon_affects", "weapon_affect",
+			[&](const auto flag) { set_affect_flag(flag); },
+			[&](const auto value) { log("Setting weapon affect flag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), get_vnum()); },
+			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of object with VNUM %d, because this value is not valid.\n", flag, get_vnum()); });
         
         // loading of object antiflags
-		CHelper::load_flags<EAntiFlag>(m_anti_flags, *node, "antiflags", "antiflag",
-			[&](const auto value) { log("Setting antiflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping antiflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+		CHelper::load_flags<EAntiFlag>(*node, "antiflags", "antiflag",
+			[&](const auto flag) { set_anti_flag(flag); },
+			[&](const auto value) { log("Setting antiflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), get_vnum()); },
+			[&](const auto flag) { log("WARNING: Skipping antiflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, get_vnum()); });
 
 		// loading of object noflags
-		CHelper::load_flags<ENoFlag>(m_no_flags, *node, "noflags", "noflag",
-			[&](const auto value) { log("Setting noflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping noflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+		CHelper::load_flags<ENoFlag>(*node, "noflags", "noflag",
+			[&](const auto flag) { set_no_flag(flag); },
+			[&](const auto value) { log("Setting noflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), get_vnum()); },
+			[&](const auto flag) { log("WARNING: Skipping noflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, get_vnum()); });
 
 		// loading of object wearflags
-		CHelper::load_flags<EWearFlag>(m_wear_flags, *node, "wearflags", "wearflag",
-			[&](const auto value) { log("Setting wearflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), m_vnum); },
-			[&](const auto flag) { log("WARNING: Skipping wearflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, m_vnum); });
+		CHelper::load_flags<EWearFlag>(*node, "wearflags", "wearflag",
+			[&](const auto flag) { set_wear_flag(flag); },
+			[&](const auto value) { log("Setting wearflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), get_vnum()); },
+			[&](const auto flag) { log("WARNING: Skipping wearflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, get_vnum()); });
 
 		// loading of object skills
 		load_skills(node);
 
 		// load object vals
-		for (size_t i = 0; i < m_vals.size(); ++i)
+		for (size_t i = 0; i < VALS_COUNT; ++i)
 		{
 			std::stringstream val_name;
 			val_name << "val" << i;
@@ -1070,9 +1084,10 @@ namespace craft
 			const auto val_node = node->child(val_name.str().c_str());
 			if (val_node)
 			{
-				CHelper::load_integer(val_node.child_value(), m_vals[i],
+				CHelper::load_integer(val_node.child_value(), 
+					[&](const auto value) { set_val(i, value); },
 					[&]() { log("WARNING: \"%s\" tag of object with VNUM %d has wrong integer value. Leaving default value %d.\n",
-						val_name.str().c_str(), m_vnum, m_vals[i]); });
+						val_name.str().c_str(), get_vnum(), get_val(i)); });
 			}
 		}
 
@@ -1081,9 +1096,9 @@ namespace craft
 		{
 			const char* vnum_str = trigger_node.child_value();
 			CHelper::load_integer(vnum_str,
-				[&](const auto value) { m_triggers_list.push_back(value); },
+				[&](const auto value) { add_proto_script(value); },
 				[&]() { log("WARNING: Invalid trigger's VNUM value \"%s\" for object with VNUM %d. Skipping.\n",
-					vnum_str, m_vnum); });
+					vnum_str, get_vnum()); });
 		}
 
 		load_extended_values(node);
@@ -1091,73 +1106,19 @@ namespace craft
 
 		if (!check_object_consistency())
 		{
-			log("WARNING: Object with VNUM %d has not passed consistency check.\n",
-				m_vnum);
+			log("WARNING: Object with VNUM %d has not passed consistency check.\n", get_vnum());
 			return false;
 		}
 
 		prefix.change_prefix(END_PREFIX);
-		log("End of loading object with VNUM %d.\n", m_vnum);
+		log("End of loading object with VNUM %d.\n", get_vnum());
 
 		return true;
 	}
 
 	void CObject::load_from_object(const CObjectPrototype* object)
 	{
-		set_type(object->get_type());
-
-		m_maximum_durability = object->get_maximum();
-		m_current_durability = object->get_current();
-		m_material = object->get_material();
-		m_sex = object->get_sex();
-		set_timer(object->get_timer());
-		m_item_params = object->get_skill();
-		m_spell = static_cast<ESpell>(object->get_spell());
-		m_level= object->get_level();
-		set_weight(object->get_weight());
-		m_cost = object->get_cost();
-		m_rent_off = object->get_rent_off();
-		m_rent_on = object->get_rent_on();
-
-		m_waffect_flags = object->get_affect_flags();
-		m_anti_flags = object->get_anti_flags();
-		m_no_flags = object->get_no_flags();
-		m_extraflags = object->get_extra_flags();
-
-		m_wear_flags = object->get_wear_flags();
-
-		m_cases.load_from_object(object);
-		m_short_desc = object->get_short_description();
-		m_long_desc = object->get_description();
-		m_action_desc = object->get_action_description();
-
-		if (object->get_ex_description())
-		{
-			m_keyword = object->get_ex_description()->keyword;
-			m_extended_desc = object->get_ex_description()->description;
-		}
-
-		m_max_in_world = object->get_max_in_world();
-		m_minimum_remorts = object->get_manual_mort_req();
-
-		for (size_t i = 0; i < m_vals.size(); ++i)
-		{
-			m_vals[i]= object->get_val(i);
-		}
-
-		const auto& skills = object->get_skills();
-		for (const auto& s : skills)
-		{
-			m_skills[static_cast<ESkill>(s.first)] = s.second;
-		}
-
-		m_triggers_list = object->get_proto_script();
-		m_extended_values = object->get_values();
-
-		for (const auto& apply : object->get_affected())
-		{
-			m_applies.push_back(apply);
-		}
+		*this = CObject(*object);
 	}
 
 	bool CObject::save_to_node(pugi::xml_node* node) const
@@ -1171,16 +1132,19 @@ namespace craft
 				return false;
 			}
 
-			CHelper::save_string(description, "short", m_short_desc.c_str(),
+			CHelper::save_string(description, "short", get_short_description().c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save short description"); });
-			CHelper::save_string(description, "long", m_long_desc.c_str(),
+			CHelper::save_string(description, "long", get_description().c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save long description"); });
-			CHelper::save_string(description, "action", m_action_desc.c_str(),
+			CHelper::save_string(description, "action", get_action_description().c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save action description"); });
-			CHelper::save_string(description, "keyword", m_keyword.c_str(),
-				[&]() { throw std::runtime_error("WARNING: Failed to save keyword"); });
-			CHelper::save_string(description, "extended", m_extended_desc.c_str(),
-				[&]() { throw std::runtime_error("WARNING: Failed to save extended description"); });
+			if (get_ex_description())
+			{
+				CHelper::save_string(description, "keyword", get_ex_description()->keyword,
+					[&]() { throw std::runtime_error("WARNING: Failed to save keyword"); });
+				CHelper::save_string(description, "extended", get_ex_description()->description,
+					[&]() { throw std::runtime_error("WARNING: Failed to save extended description"); });
+			}
 
 			auto item = node->append_child("item");
 			if (!item)
@@ -1195,7 +1159,7 @@ namespace craft
 				return false;
 			}
 
-			CHelper::save_string(*node, "cost", std::to_string(m_cost).c_str(),
+			CHelper::save_string(*node, "cost", std::to_string(get_cost()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save object cost"); });
 
 			auto rent = node->append_child("rent");
@@ -1205,14 +1169,14 @@ namespace craft
 				return false;
 			}
 
-			CHelper::save_string(rent, "on", std::to_string(m_rent_on).c_str(),
+			CHelper::save_string(rent, "on", std::to_string(get_rent_on()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save rent/on value"); });
-			CHelper::save_string(rent, "off", std::to_string(m_rent_off).c_str(),
+			CHelper::save_string(rent, "off", std::to_string(get_rent_off()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save rent/off value"); });
 
-			CHelper::save_string(*node, "global_maximum", std::to_string(m_max_in_world).c_str(),
+			CHelper::save_string(*node, "global_maximum", std::to_string(get_max_in_world()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save global maximum"); });
-			CHelper::save_string(*node, "minimum_remorts", std::to_string(m_minimum_remorts).c_str(),
+			CHelper::save_string(*node, "minimum_remorts", std::to_string(get_minimum_remorts()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save minimal remorts"); });
 
 			CHelper::save_string(*node, "type", NAME_BY_ITEM(get_type()).c_str(),
@@ -1225,14 +1189,14 @@ namespace craft
 				return false;
 			}
 
-			CHelper::save_string(durability, "maximum", std::to_string(m_maximum_durability).c_str(),
+			CHelper::save_string(durability, "maximum", std::to_string(get_maximum_durability()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save maximum durability"); });
-			CHelper::save_string(durability, "current", std::to_string(m_current_durability).c_str(),
+			CHelper::save_string(durability, "current", std::to_string(get_current_durability()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save current durability"); });
 
-			CHelper::save_string(*node, "sex", NAME_BY_ITEM(m_sex).c_str(),
+			CHelper::save_string(*node, "sex", NAME_BY_ITEM(get_sex()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save gender"); });
-			CHelper::save_string(*node, "level", std::to_string(m_level).c_str(),
+			CHelper::save_string(*node, "level", std::to_string(get_level()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save object level"); });
 			CHelper::save_string(*node, "weight", std::to_string(get_weight()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save object weight"); });
@@ -1255,10 +1219,10 @@ namespace craft
 				{
 				case OBJ_DATA::ITEM_INGREDIENT:
 					{
-						decltype(m_item_params) flag = 1;
-						while (flag <= m_item_params)
+						int flag = 1;
+						while (flag <= get_skill())
 						{
-							if (IS_SET(m_item_params, flag))
+							if (IS_SET(get_skill(), flag))
 							{
 								item_parameters.push_back(NAME_BY_ITEM(static_cast<EIngredientFlag>(flag)));
 							}
@@ -1268,7 +1232,7 @@ namespace craft
 					break;
 
 				case OBJ_DATA::ITEM_WEAPON:
-					item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(m_item_params)));
+					item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
 					break;
 
 				default:
@@ -1281,49 +1245,49 @@ namespace craft
 					[&](const auto value) { throw std::runtime_error("WARNING: Could not save item parameter value " + value); });
 			}
 
-			CHelper::save_string(*node, "material", NAME_BY_ITEM(m_material).c_str(),
+			CHelper::save_string(*node, "material", NAME_BY_ITEM(get_material()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save object material"); });
-			CHelper::save_string(*node, "spell", NAME_BY_ITEM(m_spell).c_str(),
+			CHelper::save_string(*node, "spell", NAME_BY_ITEM(get_spell()).c_str(),
 				[&]() { throw std::runtime_error("WARNING: Failed to save object spell"); });
 
-			CHelper::save_list<EExtraFlag>(*node, "extraflags", "extraflag", m_extraflags,
+			CHelper::save_list<EExtraFlag>(*node, "extraflags", "extraflag", get_extra_flags(),
 				[&]() { throw std::runtime_error("WARNING: Failed to create node \"extraflags\".\n"); },
 				[&](const auto value) { throw std::runtime_error("WARNING: Could not save extraflag " + NAME_BY_ITEM(value)); });
 
-			CHelper::save_list<EWeaponAffectFlag>(*node, "weapon_affects", "weapon_affect", m_waffect_flags,
+			CHelper::save_list<EWeaponAffectFlag>(*node, "weapon_affects", "weapon_affect", get_affect_flags(),
 				[&]() { throw std::runtime_error("WARNING: Failed to create node \"weapon_affects\".\n"); },
 				[&](const auto value) { throw std::runtime_error("WARNING: Could not save weapon affect " + NAME_BY_ITEM(value)); });
 
-			CHelper::save_list<EAntiFlag>(*node, "antiflags", "antiflag", m_anti_flags,
+			CHelper::save_list<EAntiFlag>(*node, "antiflags", "antiflag", get_anti_flags(),
 				[&]() { throw std::runtime_error("WARNING: Failed to create node \"antiflags\".\n"); },
 				[&](const auto value) { throw std::runtime_error("WARNING: Could not save antiflag " + NAME_BY_ITEM(value)); });
 
-			CHelper::save_list<ENoFlag>(*node, "noflags", "noflag", m_no_flags,
+			CHelper::save_list<ENoFlag>(*node, "noflags", "noflag", get_no_flags(),
 				[&]() { throw std::runtime_error("WARNING: Failed to create node \"noflags\".\n"); },
 				[&](const auto value) { log("%s", ("WARNING: Could not save noflag " + std::to_string(static_cast<unsigned int>(value)) + ". Will be skipped.\n").c_str()); });
 
-			CHelper::save_list<EWearFlag>(*node, "wearflags", "wearflag", m_wear_flags,
+			CHelper::save_list<EWearFlag>(*node, "wearflags", "wearflag", get_wear_flags(),
 				[&]() { throw std::runtime_error("WARNING: Failed to create node \"wearflags\".\n"); },
 				[&](const auto value) { throw std::runtime_error("WARNING: Could not save wear flag " + NAME_BY_ITEM(value)); });
 
-			CHelper::save_pairs_list(*node, "skills", "skill", "id", "value", m_skills,
+			CHelper::save_pairs_list(*node, "skills", "skill", "id", "value", get_skills(),
 				[&](const auto& value) -> auto { return NAME_BY_ITEM(value.first); },
 				[&](const auto& value) -> auto { return std::to_string(value.second); },
 				[&]() { throw std::runtime_error("WARNING: Could not save skills"); });
 
-			CHelper::save_pairs_list(*node, "applies", "apply", "location", "modifier", m_applies,
+			CHelper::save_pairs_list(*node, "applies", "apply", "location", "modifier", get_all_affected(),
 				[&](const auto& value) -> auto { return APPLY_NONE != value.location ? NAME_BY_ITEM(value.location) : ""; },
 				[&](const auto& value) -> auto { return std::to_string(value.modifier); },
 				[&]() { throw std::runtime_error("WARNING: Could not save applies"); });
 
-			for (size_t i = 0; i < m_vals.size(); ++i)
+			for (size_t i = 0; i < VALS_COUNT; ++i)
 			{
 				const auto node_name = "val" + std::to_string(i);
-				CHelper::save_string(*node, node_name.c_str(), std::to_string(m_vals[i]).c_str(),
+				CHelper::save_string(*node, node_name.c_str(), std::to_string(get_val(i)).c_str(),
 					[&]() { throw std::runtime_error("WARNING: Failed to save " + node_name + " value"); });
 			}
 
-			CHelper::save_pairs_list(*node, "extended_values", "entry", "key", "value", m_extended_values,
+			CHelper::save_pairs_list(*node, "extended_values", "entry", "key", "value", get_values(),
 				[&](const auto& value) -> auto { return TextId::to_str(TextId::OBJ_VALS, static_cast<int>(value.first)); },
 				[&](const auto& value) -> auto { return std::to_string(value.second); },
 				[&]() { throw std::runtime_error("WARNING: Could not save extended values"); });
@@ -1343,62 +1307,7 @@ namespace craft
 
 	OBJ_DATA* CObject::build_object() const
 	{
-		const auto result = new OBJ_DATA(get_vnum());
-		
-		result->set_type(get_type());
-
-		result->set_maximum(m_maximum_durability);
-		result->set_current(m_current_durability);
-		result->set_material(m_material);
-		result->set_sex(m_sex);
-		result->set_timer(get_timer());
-		result->set_skill(m_item_params);
-		result->set_spell(m_spell);
-		result->set_level(m_level);
-		result->set_destroyer(60);	// I don't know why it is constant. But seems like it is the same for all objects.
-		result->set_weight(get_weight());
-		result->set_cost(m_cost);
-		result->set_rent_off(m_rent_off);
-		result->set_rent_on(m_rent_on);
-
-		result->set_affect_flags(m_waffect_flags);
-		result->set_anti_flags(m_anti_flags);
-		result->set_no_flags(m_no_flags);
-		result->set_extra_flags(m_extraflags);
-
-		result->set_wear_flags(m_wear_flags);
-
-		result->set_aliases(aliases());
-		result->set_short_description(m_short_desc);
-		result->set_description(m_long_desc);
-		result->set_PNames(m_cases.build_pnames());
-		result->set_action_description(m_action_desc);
-
-		result->set_ex_description(m_keyword.c_str(), m_extended_desc.c_str());
-
-		result->set_max_in_world(m_max_in_world);
-		result->set_minimum_remorts(m_minimum_remorts);
-
-		for (size_t i = 0; i < m_vals.size(); ++i)
-		{
-			result->set_val(i, m_vals[i]);
-		}
-
-		for (const auto& s : m_skills)
-		{
-			result->set_skill(s.first, s.second);
-		}
-
-		result->set_proto_script(m_triggers_list);
-		result->set_values(m_extended_values);
-
-		size_t number = 0;
-		for (const auto& apply : m_applies)
-		{
-			result->set_affected(number++, apply);
-		}
-
-		return result;
+		return new OBJ_DATA(*this);
 	}
 
 	bool CObject::load_item_parameters(const pugi::xml_node* node)
@@ -1412,14 +1321,14 @@ namespace craft
 				try
 				{
 					const auto value = ITEM_BY_NAME<EIngredientFlag>(flag);
-					m_item_params |= to_underlying(value);
+					set_skill(get_skill() | to_underlying(value));
 					log("Setting ingredient flag '%s' for object with VNUM %d.\n",
-						NAME_BY_ITEM(value).c_str(), m_vnum);
+						NAME_BY_ITEM(value).c_str(), get_vnum());
 				}
 				catch (const std::out_of_range&)
 				{
 					log("WARNING: Skipping ingredient flag '%s' of object with VNUM %d, because this value is not valid.\n",
-						flag, m_vnum);
+						flag, get_vnum());
 				}
 			}
 			break;
@@ -1429,12 +1338,12 @@ namespace craft
 			const char* skill_value = node->child_value("parameter");
 			try
 			{
-				m_item_params = to_underlying(ITEM_BY_NAME<ESkill>(skill_value));
+				set_skill(to_underlying(ITEM_BY_NAME<ESkill>(skill_value)));
 			}
 			catch (const std::out_of_range&)
 			{
 				log("WARNING: Failed to set skill value '%s' for object with VNUM %d. Object will be skipped.\n",
-					skill_value, m_vnum);
+					skill_value, get_vnum());
 				return false;
 			}
 			break;
@@ -1452,74 +1361,85 @@ namespace craft
 	{
 		CHelper::load_pairs_list<ESkill>(node, "skills", "skill", "id", "value",
 			[&](const size_t number) { log("WARNING: %zd-%s \"skill\" tag of \"skills\" group does not have the \"id\" tag. Object with VNUM %d.\n",
-				number, suffix(number), m_vnum); },
+				number, suffix(number), get_vnum()); },
 			[&](const auto value) -> auto { return ITEM_BY_NAME<ESkill>(value); },
 			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to skill ID. Object with VNUM %d.\n Skipping entry.\n",
-				key, m_vnum); },
+				key, get_vnum()); },
 			[&](const auto key) { log("WARNING: skill with key \"%s\" does not have \"value\" tag. Object with VNUM %d. Skipping entry.\n",
-				key, m_vnum); },
+				key, get_vnum()); },
 			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
-					m_skills.emplace(key, int_value);
+					set_skill(key, int_value);
 					log("Adding skill pair (%s, %d) to object with VNUM %d.\n",
-						NAME_BY_ITEM(key).c_str(), int_value, m_vnum);
+						NAME_BY_ITEM(key).c_str(), int_value, get_vnum());
 				},
 				[&]() { log("WARNIGN: Could not convert skill value of \"value\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
-					NAME_BY_ITEM(key).c_str(), m_vnum); }); });
+					NAME_BY_ITEM(key).c_str(), get_vnum()); }); });
 	}
 
 	void CObject::load_extended_values(const pugi::xml_node* node)
 	{
 		CHelper::load_pairs_list<ObjVal::EValueKey>(node, "extended_values", "entry", "key", "value",
 			[&](const size_t number) { log("WARNING: %zd-%s \"entry\" tag of \"extended_values\" group does not have the \"key\" tag. Object with VNUM %d.\n",
-				number, suffix(number), m_vnum); },
+				number, suffix(number), get_vnum()); },
 			[&](const auto value) -> auto { return static_cast<ObjVal::EValueKey>(TextId::to_num(TextId::OBJ_VALS, value)); },
 			[&](const auto key) { log("WARNING: Could not convert extended value \"%s\" to key value. Object with VNUM %d.\n Skipping entry.\n",
-				key, m_vnum); },
+				key, get_vnum()); },
 			[&](const auto key) { log("WARNING: entry with key \"%s\" does not have \"value\" tag. Object with VNUM %d. Skipping entry.\n",
-				key, m_vnum); },
+				key, get_vnum()); },
 			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
-					m_extended_values.set(key, int_value);
+					set_value(key, int_value);
 					log("Adding extended values pair (%s, %d) to object with VNUM %d.\n",
-						TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), int_value, m_vnum);
+						TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), int_value, get_vnum());
 				},
 				[&]() { log("WARNIGN: Could not convert extended value of \"value\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
-					TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), m_vnum); }); });
+					TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), get_vnum()); }); });
 	}
 
 	void CObject::load_applies(const pugi::xml_node* node)
 	{
+		using applies_t = std::list<obj_affected_type>;
+		applies_t applies;
 		CHelper::load_pairs_list<EApplyLocation>(node, "applies", "apply", "location", "modifier",
 			[&](const size_t number) { log("WARNING: %zd-%s \"apply\" tag of \"applies\" group does not have the \"location\" tag. Object with VNUM %d.\n",
-				number, suffix(number), m_vnum); },
+				number, suffix(number), get_vnum()); },
 			[&](const auto value) -> auto { return ITEM_BY_NAME<EApplyLocation>(value); },
 			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to apply location. Object with VNUM %d.\n Skipping entry.\n",
-				key, m_vnum); },
+				key, get_vnum()); },
 			[&](const auto key) { log("WARNING: apply with key \"%s\" does not have \"modifier\" tag. Object with VNUM %d. Skipping entry.\n",
-				key, m_vnum); },
+				key, get_vnum()); },
 			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
-					m_applies.push_back(decltype(m_applies)::value_type(key, int_value));
+					applies.push_back(applies_t::value_type(key, int_value));
 					log("Adding apply pair (%s, %d) to object with VNUM %d.\n",
-						NAME_BY_ITEM(key).c_str(), int_value, m_vnum);
+						NAME_BY_ITEM(key).c_str(), int_value, get_vnum());
 				},
 				[&]() { log("WARNIGN: Could not convert apply value of \"modifier\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
-					NAME_BY_ITEM(key).c_str(), m_vnum); }); });
-		if (m_applies.size() > MAX_OBJ_AFFECT)
+					NAME_BY_ITEM(key).c_str(), get_vnum()); }); });
+
+		std::stringstream ignored_applies;
+		bool first = true;
+		size_t i = 0;
+		for (const auto& apply : applies)
 		{
-			std::stringstream ignored_applies;
-			bool first = true;
-			while (m_applies.size() > MAX_OBJ_AFFECT)
+			if (i < MAX_OBJ_AFFECT)
 			{
-				const auto& apply = m_applies.back();
+				set_affected(i, apply);
+			}
+			else
+			{
+				const auto& apply = applies.back();
 				ignored_applies << (first ? "" : ", ") << NAME_BY_ITEM(apply.location);
-				m_applies.pop_back();
+				applies.pop_back();
 				first = false;
 			}
+		}
 
+		if (!ignored_applies.str().empty())
+		{
 			log("WARNING: Object with VNUM %d has applies over the limit of %d. The following applies is ignored: { %s }.\n",
-				m_vnum, MAX_OBJ_AFFECT, ignored_applies.str().c_str());
+				get_vnum(), MAX_OBJ_AFFECT, ignored_applies.str().c_str());
 		}
 	}
 
@@ -1807,7 +1727,7 @@ namespace craft
 		for (const auto& p : m_prototypes)
 		{
 			OBJ_DATA* object = p.build_object();
-			obj_proto.add(object, p.vnum());
+			obj_proto.add(object, p.get_vnum());
 		}
 
 		return true;
@@ -1893,14 +1813,14 @@ namespace craft
 			}
 		}
 
-		const auto add_vnum_result = add_vnum(p.vnum());
+		const auto add_vnum_result = add_vnum(p.get_vnum());
 		if (EAVNR_OK == add_vnum_result)
 		{
 			m_prototypes.push_back(p);
 		}
 		else
 		{
-			report_vnum_error(p.vnum(), add_vnum_result);
+			report_vnum_error(p.get_vnum(), add_vnum_result);
 			return false;
 		}
 

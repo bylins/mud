@@ -4704,7 +4704,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 				}
 			}
 			obj->add_maximum(MAX(GET_OBJ_MAX(obj) >> 2, 1));
-			obj->set_current(GET_OBJ_MAX(obj));
+			obj->set_current_durability(GET_OBJ_MAX(obj));
 			to_char = "$o вспыхнул$G голубым светом и тут же погас$Q.";
 			obj->add_timed_spell(SPELL_BLESS, -1);
 		}
@@ -4888,14 +4888,14 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		break;
 
 	case SPELL_REPAIR:
-		obj->set_current(GET_OBJ_MAX(obj));
+		obj->set_current_durability(GET_OBJ_MAX(obj));
 		to_char = "Вы полностью восстановили $o3.";
 		break;
 
 	case SPELL_TIMER_REPAIR:
 		if (GET_OBJ_RNUM(obj) != NOTHING)
 		{
-			obj->set_current(GET_OBJ_MAX(obj));
+			obj->set_current_durability(GET_OBJ_MAX(obj));
 			obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
 			to_char = "Вы полностью восстановили $o3.";
 			log("%s used magic repair", GET_NAME(ch));

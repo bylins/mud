@@ -273,12 +273,12 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Maxx"))
 			{
 				*error = 16;
-				object->set_maximum(atoi(buffer));
+				object->set_maximum_durability(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Curr"))
 			{
 				*error = 17;
-				object->set_current(atoi(buffer));
+				object->set_current_durability(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Mter"))
 			{
@@ -763,8 +763,8 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	asciiflag_conv(f0, &skill);
 	object->set_skill(skill);
 
-	object->set_maximum(t[1]);
-	object->set_current(t[2]);
+	object->set_maximum_durability(t[1]);
+	object->set_current_durability(t[2]);
 	object->set_material(static_cast<OBJ_DATA::EObjectMaterial>(t[3]));
 
 	*error = 10;

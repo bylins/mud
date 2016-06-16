@@ -1606,7 +1606,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 		act("$n сноровисто починил$g $o3.", FALSE, keeper, obj, 0, TO_ROOM);
 
-		obj->set_current(GET_OBJ_MAX(obj));
+		obj->set_current_durability(GET_OBJ_MAX(obj));
 	}
 }
 
