@@ -4712,10 +4712,7 @@ void Clan::SetClanExp(CHAR_DATA *ch, int add)
 				&& CLAN(d->character)
 				&& CLAN(d->character)->GetRent() == this->rent)
 			{
-				send_to_char(d->character,
-					"%sВаш замок достиг нового, %d уровня! Поздравляем!%s\r\n",
-					CCIRED(d->character, C_NRM), this->clan_level,
-					CCNRM(d->character, C_NRM));
+				send_to_char(d->character, "&GВаш замок достиг нового, %d уровня! Поздравляем!&n\r\n", this->clan_level);
 			}
 		}
 	}

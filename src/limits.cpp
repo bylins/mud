@@ -111,7 +111,7 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 
 void handle_recall_spells(CHAR_DATA* ch)
 {
-	AFFECT_DATA<EApplyLocation>* aff;
+	AFFECT_DATA<EApplyLocation>* aff = nullptr;
 	for (auto af = ch->affected; af; af = af->next)
 	{
 		if (af->type == SPELL_RECALL_SPELLS)
@@ -120,10 +120,12 @@ void handle_recall_spells(CHAR_DATA* ch)
 			break;
 		}
 	}
+
 	if (!aff)
 	{
 		return;
 	}
+
 	//максимальный доступный чару круг
 	unsigned max_slot = get_max_slot(ch);
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд

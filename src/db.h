@@ -284,6 +284,10 @@ struct zone_data
 
 	int reset_mode;		// conditions for reset (see below)
 	zone_vnum number;	// virtual number of this zone
+	// Местоположение зоны
+	char *location;
+	// Описание зоны
+	char *description;
 	struct reset_com *cmd;	// command table for reset
 
 	/*

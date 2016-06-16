@@ -1136,11 +1136,14 @@ BloodyInfoMap bloody_map;
 //Устанавливает экстрабит кровавому стафу
 void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 {
-	if (!list) return;
+	if (!list)
+	{
+		return;
+	}
 	set_bloody_flag(list->get_contains(), ch);
 	set_bloody_flag(list->get_next_content(), ch);
 	const int t = GET_OBJ_TYPE(list);
-	if (list->get_extra_flag(EExtraFlag::ITEM_BLOODY)
+	if (!list->get_extra_flag(EExtraFlag::ITEM_BLOODY)
 		&& (t == OBJ_DATA::ITEM_LIGHT
 			|| t == OBJ_DATA::ITEM_WAND
 			|| t == OBJ_DATA::ITEM_STAFF

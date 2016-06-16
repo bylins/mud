@@ -881,6 +881,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 	OBJ_DATA *i;
 	char name[MAX_INPUT_LENGTH];
 	int j, tmp_lvl;
+	bool bloody_corpse = false;
 
 	/*
 	 * FIXME: This is broken.  The spell parser routines took the argument
@@ -899,6 +900,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 	for (i = object_list; i && (j > 0); i = i->get_next())
 	{
+		bloody_corpse = false;
 		if (!IS_GOD(ch))
 		{
 			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
@@ -908,7 +910,9 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 			if (IS_CORPSE(i))
 			{
-				continue;
+				bloody_corpse = catch_bloody_corpse(i);
+				if (!bloody_corpse)
+					continue;
 			}
 		}
 
@@ -954,10 +958,24 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		else if (i->get_in_room() != NOWHERE
 			&& i->get_in_room())
 		{
-			if ((world[i->get_in_room()]->zone == world[ch->in_room]->zone && !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) )|| IS_GOD(ch))
+			const auto room = i->get_in_room();
+			if ((world[room]->zone == world[ch->in_room]->zone && !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) )|| IS_GOD(ch) || bloody_corpse)
 			{
-				sprintf(buf, "%s наход%sся в %s.\r\n", i->get_short_description().c_str(),
-					GET_OBJ_POLY_1(ch, i), world[i->get_in_room()]->name);
+				if (bloody_corpse)
+				{
+					sprintf(buf, "%s наход%sся в %s (%s).\r\n",
+						i->get_short_description().c_str(),
+						GET_OBJ_POLY_1(ch, i),
+						world[room]->name,
+						zone_table[world[room]->zone].name);
+				}
+				else
+				{
+					sprintf(buf, "%s наход%sся в %s.\r\n",
+						i->get_short_description().c_str(),
+						GET_OBJ_POLY_1(ch, i),
+						world[room]->name);
+				}
 			}
 			else
 			{
@@ -986,22 +1004,25 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 					if (i->get_in_obj()->get_in_room() != NOWHERE
 						&& i->get_in_obj()->get_in_room())
 					{
-						if (world[i->get_in_obj()->get_in_room()]->zone != world[ch->in_room]->zone
-							|| OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE))
+						if ((world[i->get_in_obj()->get_in_room()]->zone != world[IN_ROOM(ch)]->zone
+							|| OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)) && !bloody_corpse)
 						{
 							continue;
 						}
 					}
 					if (i->get_in_obj()->get_worn_by())
 					{
-						if (IS_NPC(i->get_in_obj()->get_worn_by())
+						const auto worn_by = i->get_in_obj()->get_worn_by();
+						if ((IS_NPC(worn_by)
 							&& (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-								|| world[IN_ROOM(i->get_in_obj()->get_worn_by())]->zone != world[ch->in_room]->zone))
+								|| world[worn_by->in_room]->zone != world[IN_ROOM(ch)]->zone))
+							&& !bloody_corpse)
 						{
 							continue;
 						}
 					}
 				}
+
 				sprintf(buf, "%s наход%sся в %s.\r\n",
 					i->get_short_description().c_str(),
 					GET_OBJ_POLY_1(ch, i),
@@ -1015,7 +1036,8 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 					&& world[IN_ROOM(i->get_worn_by())]->zone == world[ch->in_room]->zone)
 				|| (!IS_NPC(i->get_worn_by())
 					&& GET_LEVEL(i->get_worn_by()) < LVL_IMMORT)
-				|| IS_GOD(ch))
+				|| IS_GOD(ch)
+				|| bloody_corpse)
 			{
 				sprintf(buf, "%s надет%s на %s.\r\n",
 					i->get_short_description().c_str(),
@@ -1046,6 +1068,49 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 	if (j == tmp_lvl)
 		send_to_char("Вы ничего не чувствуете.\r\n", ch);
+}
+
+bool catch_bloody_corpse(OBJ_DATA * l)
+{
+	bool temp_bloody = false;
+	OBJ_DATA* next_element;
+
+	if (!l->get_contains())
+	{
+		return false;
+	}
+
+	if (bloody::is_bloody(l->get_contains()))
+	{
+		return true;
+	}
+
+	if (!l->get_contains()->get_next_content())
+	{
+		return false;
+	}
+
+	next_element = l->get_contains()->get_next_content();
+	while (next_element)
+	{
+		if (next_element->get_contains())
+		{
+			temp_bloody = catch_bloody_corpse(next_element->get_contains());
+			if (temp_bloody)
+			{
+				return true;
+			}
+		}
+
+		if (bloody::is_bloody(next_element))
+		{
+			return true;
+		}
+
+		next_element = next_element->get_contains();
+	}
+
+	return false;
 }
 
 void spell_create_weapon(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_DATA* /* obj*/)
