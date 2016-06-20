@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <model_data>
+	<prototypes></prototypes>
 	<materials>
 		<material id="BUTTON">
+			<name>пуговица</name>
+			<prototype></prototype>
 			<class id="TRAINING BUTTON" vnum="200030">
 				<!-- Учебная пуговица-->
 				<description>
@@ -61,6 +64,7 @@
 			</class>
 		</material>
 		<material id="THREAD">
+			<name>нить</name>
 			<class id="TRAINING THREAD" vnum="200020">
 				<!-- Учебная нить -->
 				<description>
@@ -119,6 +123,7 @@
 			</class>
 		</material>
 		<material id="HIDE">
+			<name>шкура</name>
 			<class id="HOLEY HIDE" vnum="200010">
 				<!-- Дырявая шкура -->
 				<description>
