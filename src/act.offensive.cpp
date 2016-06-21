@@ -1966,13 +1966,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 			set_wait(vict, IS_NPC(vict) ? 1 : 2, FALSE);
 		}
 		prob = 2;
-		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA))
-			obj_to_char(wielded, vict);
-		else
-		{
-			obj_to_room(wielded, IN_ROOM(vict));
-			obj_decay(wielded);
-		}
+		obj_to_char(wielded, vict); // кинем оружие в инв
 	}
 
 	pk_agro_action(ch, vict);
