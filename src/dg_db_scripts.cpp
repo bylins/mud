@@ -509,6 +509,7 @@ void assign_triggers(void *i, int type)
 						CREATE(SCRIPT(room), 1);
 					}
 					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
+					trig_index[rnum]->proto->owner.push_back(room->number);
 				}
 			}
 		}
