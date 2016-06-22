@@ -399,7 +399,7 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 		log("%s",line);
 		return;
 	}
-	trig_index[rnum]->proto->owner.push_back(GET_OBJ_VNUM(obj));
+	trig_index[rnum]->proto->owner.push_back(vnum);
 	obj->proto_script.push_back(vnum);
 }
 
