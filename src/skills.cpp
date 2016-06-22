@@ -1111,31 +1111,31 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
 			morale -= 10;
 
-		const int prob = number(0, 999);
+const int prob = number(0, 999);
 
-		int morale_bonus = morale;
-		if (morale < 0) {
-			morale_bonus = morale * 10;
-		}
-		const int bonus_limit = MIN(150, morale * 10);
-		int fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
-		// Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
-		// игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
-		// все решают спас-броски.
-		if (morale >= 50)   // от 50 удачи абсолютный фейл не работает
-			fail_limit = 999;
-		if (prob >= fail_limit) 
-		{   // Абсолютный фейл 4.9 процента
-			percent = 0;
-			absolute_fail = true;
-		} 
-		else if (prob < bonus_limit) 
-		{
-//			percent = skill_info[skill_no].max_percent;
-			percent = max_percent + bonus;
-			try_morale = true;
-		}// else if (vict && general_savingthrow(ch, vict, victim_sav, victim_modi)) {
-		//	percent = 0;
+int morale_bonus = morale;
+if (morale < 0) {
+	morale_bonus = morale * 10;
+}
+const int bonus_limit = MIN(150, morale * 10);
+int fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
+// Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
+// игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
+// все решают спас-броски.
+if (morale >= 50)   // от 50 удачи абсолютный фейл не работает
+fail_limit = 999;
+if (prob >= fail_limit)
+{   // Абсолютный фейл 4.9 процента
+	percent = 0;
+	absolute_fail = true;
+}
+else if (prob < bonus_limit)
+{
+	//			percent = skill_info[skill_no].max_percent;
+	percent = max_percent + bonus;
+	try_morale = true;
+}// else if (vict && general_savingthrow(ch, vict, victim_sav, victim_modi)) {
+//	percent = 0;
 //		}
 // Логирование удачи.
 
@@ -1164,9 +1164,9 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (absolute_fail)
 			send_to_char(ch, "попали в Абсолютный фейл\r\n");
 		else if (try_morale)
-			send_to_char(ch, "&Cпопали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2, morale);
+			send_to_char(ch, "&Cпопали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2, morale);
 		else
-			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi/2);
+			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2);
 	}
 
 	return (percent);
@@ -1207,9 +1207,12 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 			&& trained_skill < MAX_EXP_RMRT_PERCENT(ch)))
 	{
 		// Success - multy by 2
-		prob = success ? 20000 : 15000;
+		prob = success ? 20000 : 15000;		
+					
 
-		div = int_app[GET_REAL_INT(ch)].improove /* + diff */;
+	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
+	int INT_PLAYER = (ch->get_trained_skill(skill_no) < 51 && (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))) ? 50 : GET_REAL_INT(ch);
+	div = int_app[INT_PLAYER].improove /* + diff */;
 
 		if ((int)GET_CLASS(ch) >= 0 && (int)GET_CLASS(ch) < NUM_PLAYER_CLASSES)
 		{

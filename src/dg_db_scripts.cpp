@@ -337,7 +337,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 		log("SYSERR: Error assigning trigger!");
 		return;
 	}
-
+	
 	rnum = real_trigger(vnum);
 	if (rnum < 0)
 	{
@@ -351,6 +351,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	case MOB_TRIGGER:
 		mob = (CHAR_DATA *) proto;
 		mob->proto_script.push_back(vnum);
+		
 		break;
 
 	case WLD_TRIGGER:
@@ -362,6 +363,8 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 			if (!(room->script))
 				CREATE(room->script, 1);
 			add_trigger(SCRIPT(room), read_trigger(rnum), -1);
+			trig_index[rnum]->proto->owner.push_back(room->number);
+			//trig_index[rnum]->proto->owner.push_back(GET_ROOM_VNUM(room->));
 		}
 		else
 		{
@@ -396,7 +399,7 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 		log("%s",line);
 		return;
 	}
-
+	trig_index[rnum]->proto->owner.push_back(GET_OBJ_VNUM(obj));
 	obj->proto_script.push_back(vnum);
 }
 
@@ -439,6 +442,7 @@ void assign_triggers(void *i, int type)
 						CREATE(SCRIPT(mob), 1);
 					}
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
+					trig_index[rnum]->proto->owner.push_back(GET_MOB_VNUM(mob));
 				}
 			}
 		}
@@ -471,6 +475,7 @@ void assign_triggers(void *i, int type)
 					{
 						CREATE(SCRIPT(obj), 1);
 					}
+					
 					add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
 				}
 			}
