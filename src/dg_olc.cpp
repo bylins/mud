@@ -741,7 +741,7 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 #endif
 	send_to_char(FMT, d->character);
 #undef FMT
-
+	
 	for (const auto trigger_vnum : OLC_SCRIPT(d))
 	{
 		sprintf(buf, "     %2d) [%s%d%s] %s%s%s", ++i, cyn,

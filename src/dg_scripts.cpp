@@ -5598,8 +5598,32 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (trig_index[nr]->vnum >= first)
 		{
-			sprintf(buf, "%5d. [%5d] %s\r\n", ++found, trig_index[nr]->vnum, trig_index[nr]->proto->name);
-			strcat(pagebuf, buf);
+			std::string out = "";
+			if (trig_index[nr]->proto->attach_type == MOB_TRIGGER)
+				out += "[MOB_TRIG]";
+			if (trig_index[nr]->proto->attach_type == OBJ_TRIGGER)
+				out += "[OBJ_TRIG]";
+			if (trig_index[nr]->proto->attach_type == WLD_TRIGGER)
+				out += "[WLD_TRIG]";
+			
+
+			
+			sprintf(buf, "%5d. [%5d] %s", ++found, trig_index[nr]->vnum, trig_index[nr]->proto->name);
+			
+			out += buf;
+			if (!trig_index[nr]->proto->owner.empty())
+			{
+				out += " - хозяева -";
+				for (unsigned int i = 0; i < trig_index[nr]->proto->owner.size(); i++)
+				{
+					sprintf(buf, " [%d]", trig_index[nr]->proto->owner[i]);
+					out += buf;
+				}
+				out += "\r\n";
+			}
+			else
+				out += " - нет хозяев\r\n";
+			strcat(pagebuf, out.c_str());
 		}
 	}
 

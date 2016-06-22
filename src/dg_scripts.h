@@ -136,6 +136,7 @@ struct trig_var_data
 // structure for triggers //
 struct trig_data
 {
+	std::vector<int> owner;
 	sh_int nr;		// trigger's rnum                  //
 	byte attach_type;	// mob/obj/wld intentions          //
 	byte data_type;		// type of game_data for trig      //
