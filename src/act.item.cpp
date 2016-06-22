@@ -3293,12 +3293,13 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
-    // Зачем-то труп выкидывался в комнату перед уничтожением.
+/*    // Зачем-то труп выкидывался в комнату перед уничтожением.
 	if (obj->carried_by)
 	{
 		obj_from_char(obj);
 		obj_to_room(obj, IN_ROOM(ch));
 	}
+*/
 	extract_obj(obj);
 }
 

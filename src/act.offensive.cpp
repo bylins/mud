@@ -509,19 +509,18 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = percent;
 	if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE))
 		prob = 0;
-//	printf("per:%d, prob:%d\n", percent, prob);
 	if (percent > prob)
 	{
-//		printf("DAMAGE\n");
 		Damage dmg(SkillDmg(SKILL_BACKSTAB), 0, FightSystem::PHYS_DMG);
 		dmg.process(ch, vict);
 	}
 	else
 	{
-//		printf("1\n");
 		hit(ch, vict, SKILL_BACKSTAB, 1);
+		if (!ch->get_fighting()) // если был ваншот лаг пол секунды
+			WAIT_STATE(ch, PULSE_VIOLENCE / 2);
 	}
-	set_wait(ch, 2, TRUE);
+	set_wait(ch, 2, TRUE); 
 }
 
 void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
