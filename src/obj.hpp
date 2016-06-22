@@ -517,6 +517,11 @@ public:
 	void purge(bool destructor = false);
 	bool purged() const;
 
+        //заколдование предмета
+	void set_enchant(int skill);
+	void unset_enchant();
+	void set_enchant(int skill, OBJ_DATA *obj);
+        
 	//разные системы расчета привлекательности предмета
 	unsigned get_ilevel() const;
 	void set_ilevel(unsigned ilvl);

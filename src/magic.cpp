@@ -2320,16 +2320,6 @@ bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum)
 	const char *missing = NULL, *use = NULL, *exhausted = NULL;
 	switch (spellnum)
 	{
-		case SPELL_FASCINATION:
-			use = "Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n";
-			missing = "Батюшки светы! А помаду-то я дома забыл$g.\r\n";
-			exhausted = "$o рассыпался в ваших руках от неловкого движения.\r\n";
-			break;
-		case SPELL_HYPNOTIC_PATTERN:
-			use = "Вы разожгли палочку заморских благовоний.\r\n";
-			missing = "Вы начали суматошно искать свои благовония, но тщетно.\r\n";
-			exhausted = "$o дотлели и рассыпались пеплом.\r\n";
-			break;
 		case SPELL_ENCHANT_WEAPON:
 			use = "Вы подготовили дополнительные компоненты для зачарования.\r\n";
 			missing = "Вы были уверены что положили его в этот карман.\r\n";
@@ -2340,7 +2330,7 @@ bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum)
 			log("WARNING: wrong spellnum %d in %s:%d", spellnum, __FILE__, __LINE__);
 			return false;
 	}
-	OBJ_DATA *tobj = get_obj_in_list_vnum(vnum, caster->carrying);
+	OBJ_DATA *tobj = GET_EQ(caster, WEAR_HOLD);
 	if (!tobj)
 	{
 		act(missing, FALSE, caster, 0, caster, TO_CHAR);
@@ -4651,7 +4641,6 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 {
 	OBJ_DATA *reagobj;
 	const char *to_char = NULL, *to_room = NULL;
-	int real_skill_light_magic = 0,random_drop = 0;
 	int i = 0;
 	
 	if (obj == NULL)
@@ -4737,77 +4726,36 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		if (ch == NULL || obj == NULL)
 			return 0;
 		// Either already enchanted or not a weapon.
-		if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON
-			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
+		if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_WEAPON)
 		{
-			break;
+			to_char = "Еще раз ударьтесь головой об стену, авось зрение вернется...";
+                        break;
 		}
+                else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
+                {
+			to_char = "Вам не под силу зачаровать магичекую вещ.";
+                        break;                   
+                };
 
-		for (i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (obj->affected[i].location != APPLY_NONE)
-		   obj->affected[i].location = APPLY_NONE;
+                reagobj = GET_EQ(ch, WEAR_HOLD);
 
- 	    obj->affected[0].location = APPLY_HITROLL;
-		obj->affected[1].location = APPLY_DAMROLL;
-
-		real_skill_light_magic = ((ch->get_skill(SKILL_LIGHT_MAGIC)-80) / 5) ;
-		if (real_skill_light_magic <= 4)
-		// 4 мортов (скил магия света 100)
-		{
-		   random_drop = 0;
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		}
-		else if (real_skill_light_magic <= 9)
-		// 8 мортов (скил магия света 125)
-		{
-		   random_drop = 1;
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-3, 2));
-		}
-		else if (real_skill_light_magic <= 16)
-		// 12 мортов (скил магия света 160)
-		{
-		   random_drop = 1;
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-4, 3));
-		}
-		else if (real_skill_light_magic >16)
-		// 16 мортов (скил магия света 160+)
-		{
-		   random_drop = 2;
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(-5, 4));
-		}
-		else
-		{  // лоуморт и волхвы
-		   obj->affected[0].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		   obj->affected[1].modifier = 1 + (IS_IMMORTAL(ch) ? 6 : number(0, 1));
-		};
-
-		reagobj = get_obj_in_list_vnum(1930, ch->carrying);
-		if (!reagobj)   reagobj = get_obj_in_list_vnum(1931, ch->carrying);
-		if (!reagobj)	reagobj = get_obj_in_list_vnum(1932, ch->carrying);
-
-		if (reagobj)
+		if ((reagobj)&&(get_obj_in_list_vnum(1930,reagobj)||get_obj_in_list_vnum(1931,reagobj)||get_obj_in_list_vnum(1932,reagobj)))
 		{
 			// у нас имеется доп символ для зачарования
-			for (i = 0; i < random_drop; i++)
-				if (reagobj->affected[i].location != APPLY_NONE)
-					{
-				 	    obj->affected[i+2].location = reagobj->affected[i].location;
-						obj->affected[i+2].modifier = reagobj->affected[i].modifier;
-					}
-			material_component_processing(ch, reagobj->item_number, spellnum); //может неправильный вызов
+                    obj->set_enchant(ch->get_skill(SKILL_LIGHT_MAGIC),reagobj);
+                    material_component_processing(ch, reagobj->item_number, spellnum); //может неправильный вызов
+                }
+                else
+                {
+                    obj->set_enchant(ch->get_skill(SKILL_LIGHT_MAGIC));
 		}
-		
-		obj->set_extraflag(EExtraFlag::ITEM_MAGIC);
 		if (GET_RELIGION(ch) == RELIGION_MONO)
 			to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
 		else if (GET_RELIGION(ch) == RELIGION_POLY)
 			to_char = "$o вспыхнул$G на миг красным светом и тут же потух$Q.";
 		else
 			to_char = "$o вспыхнул$G на миг желтым светом и тут же потух$Q.";
+		
 		break;
 	case SPELL_REMOVE_POISON:
 		if (GET_OBJ_VAL(obj, 3)
@@ -4857,26 +4805,13 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 						to_char = "Не велено!";
 						return 0;
 					}
-				for (i = 0; i < MAX_OBJ_AFFECT; i++)
-				{
-					if (obj_proto.at(GET_OBJ_RNUM(obj))->affected[i].location != APPLY_NONE)
-					{
-						obj->affected[i].location = obj_proto.at(GET_OBJ_RNUM(obj))->affected[i].location;
-						obj->affected[i].modifier = obj_proto.at(GET_OBJ_RNUM(obj))->affected[i].modifier;
-					}
-					else
-					{
-						obj->affected[i].location = APPLY_NONE;
-					}
-					
-				}
+                                obj->unset_enchant();
 			}
 			else
 			{
 				to_char = "Какая ж тяжкая заставила меня делать работу Богов.";
 				return 0;
 			}
-			obj->unset_extraflag(EExtraFlag::ITEM_MAGIC);
 			to_char = "$o осветил$G на миг внутренним светом и тут же потух$Q.";
 		}
 		break;
