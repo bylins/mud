@@ -6421,9 +6421,22 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				out += buf_;
 				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
 				{
-					snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d\r\n",
+					snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d",
 						obj_proto.number(nr), obj_proto.stored(nr));
 					out += buf_;
+					OBJ_DATA *obj = obj_proto[nr];
+					if (!obj->proto_script.empty())
+				    { 
+						out += " - есть скрипты -";
+						for (const auto trigger_vnum : obj->proto_script)
+						{
+							sprintf(buf1, " [%d]", trigger_vnum);
+							out += buf1;
+						}
+						out += "\r\n";
+					}
+					else
+						out += " - нет скриптов\r\n";
 				}
 				else
 				{
