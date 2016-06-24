@@ -4733,7 +4733,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		}
                 else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
                 {
-			to_char = "Вам не под силу зачаровать магичекую вещ.";
+			to_char = "Вам не под силу зачаровать магичекую вещь.";
                         break;                   
                 };
 
