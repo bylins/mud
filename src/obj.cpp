@@ -22,6 +22,8 @@
 #include <sstream>
 
 extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
+extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
+extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
 
 id_to_set_info_map OBJ_DATA::set_table;
 
@@ -308,7 +310,131 @@ int OBJ_DATA::get_timer() const
 	return timer_;
 }
 
+ //заколдование предмета
+void OBJ_DATA::set_enchant(int skill)
+{
+    int i = 0;
+    int random_drop = 0;
 
+    for (i = 0; i < MAX_OBJ_AFFECT; i++)
+    if (affected[i].location != APPLY_NONE)
+       affected[i].location = APPLY_NONE;
+
+    affected[0].location = APPLY_HITROLL;
+    affected[1].location = APPLY_DAMROLL;
+
+    if (skill <= 100)
+    // 4 мортов (скил магия света 100)
+    {
+       affected[0].modifier = 1 + number(0, 1);
+       affected[1].modifier = 1 + number(0, 1);
+    }
+    else if (skill <= 125)
+    // 8 мортов (скил магия света 125)
+    {
+       random_drop = 1;
+       affected[0].modifier = 1 + number(-3, 2);
+       affected[1].modifier = 1 + number(-3, 2);
+    }
+    else if (skill <= 160)
+    // 12 мортов (скил магия света 160)
+    {
+       random_drop = 1;
+       affected[0].modifier = 1 + number(-4, 3);
+       affected[1].modifier = 1 + number(-4, 3);
+    }
+    else if (skill >160)
+    // 16 мортов (скил магия света 160+)
+    {
+       random_drop = 2;
+       affected[0].modifier = 1 + number(-5, 4);
+       affected[1].modifier = 1 + number(-5, 4);
+    }
+    else
+    {  // волхвы
+       affected[0].modifier = 2;
+       affected[1].modifier = 2;
+    };
+    set_extraflag(EExtraFlag::ITEM_MAGIC);    
+}
+
+void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
+{
+    int i = 0;
+    int random_drop = 0;
+
+    for (i = 0; i < MAX_OBJ_AFFECT; i++)
+    if (affected[i].location != APPLY_NONE)
+       affected[i].location = APPLY_NONE;
+
+    affected[0].location = APPLY_HITROLL;
+    affected[1].location = APPLY_DAMROLL;
+
+    if (skill <= 100)
+    // 4 мортов (скил магия света 100)
+    {
+       affected[0].modifier = 1 + number(0, 1);
+       affected[1].modifier = 1 + number(0, 1);
+    }
+    else if (skill <= 125)
+    // 8 мортов (скил магия света 125)
+    {
+       random_drop = 1;
+       affected[0].modifier = 1 + number(-3, 2);
+       affected[1].modifier = 1 + number(-3, 2);
+    }
+    else if (skill <= 160)
+    // 12 мортов (скил магия света 160)
+    {
+       random_drop = 2;
+       affected[0].modifier = 1 + number(-4, 3);
+       affected[1].modifier = 1 + number(-4, 3);
+    }
+    else if (skill >160)
+    // 16 мортов (скил магия света 160+)
+    {
+       random_drop = 3;
+       affected[0].modifier = 1 + number(-5, 4);
+       affected[1].modifier = 1 + number(-5, 4);
+    }
+    else
+    {  // волхвы
+       affected[0].modifier = 2;
+       affected[1].modifier = 2;
+    };
+    
+    for (i = 0; i < random_drop; i++)
+            if (obj->affected[i].location != APPLY_NONE)
+                {
+                    set_obj_eff(this,obj->affected[i].location,obj->affected[i].modifier);
+                };
+    GET_OBJ_AFFECTS(this) += GET_OBJ_AFFECTS(obj);
+    GET_OBJ_EXTRA(this) += GET_OBJ_EXTRA(obj);
+    obj_flags.no_flag += GET_OBJ_NO(obj);
+
+    set_extraflag(EExtraFlag::ITEM_MAGIC);    
+   
+}
+
+void OBJ_DATA::unset_enchant()
+{
+    int i = 0;
+    for (i = 0; i < MAX_OBJ_AFFECT; i++)
+        {
+                if (obj_proto.at(item_number)->affected[i].location != APPLY_NONE)
+                {
+                        affected[i].location = obj_proto.at(item_number)->affected[i].location;
+                        affected[i].modifier = obj_proto.at(item_number)->affected[i].modifier;
+                }
+                else
+                {
+                        affected[i].location = APPLY_NONE;
+                }
+
+        }
+    unset_extraflag(EExtraFlag::ITEM_MAGIC);
+
+}
  extern bool check_unlimited_timer(OBJ_DATA *obj);
  extern float count_remort_requred(OBJ_DATA *obj);
  extern float count_unlimited_timer(OBJ_DATA *obj);
