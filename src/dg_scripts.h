@@ -136,7 +136,8 @@ struct trig_var_data
 // structure for triggers //
 struct trig_data
 {
-	std::vector<int> owner;
+	
+	std::map<int, std::vector<int>> owner;
 	sh_int nr;		// trigger's rnum                  //
 	byte attach_type;	// mob/obj/wld intentions          //
 	byte data_type;		// type of game_data for trig      //
@@ -151,7 +152,6 @@ struct trig_data
 	struct event_info *wait_event;	// event to pause the trigger      //
 	ubyte purged;		// trigger is set to be purged     //
 	struct trig_var_data *var_list;	// list of local vars for trigger  //
-
 	TRIG_DATA *next;
 	TRIG_DATA *next_in_world;	// next in the global trigger list //
 };
