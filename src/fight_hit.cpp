@@ -26,6 +26,7 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 int thaco(int class_num, int level);
 void npc_groupbattle(CHAR_DATA * ch);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
+void go_autoassist(CHAR_DATA * ch);
 
 int calc_leadership(CHAR_DATA * ch)
 {
@@ -3737,6 +3738,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		set_battle_pos(victim);
 	}
+
+	go_autoassist(ch);
 
 	// старт инициализации полей для удара
 	HitData hit_params;

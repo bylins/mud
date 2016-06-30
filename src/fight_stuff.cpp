@@ -274,6 +274,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 			|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//если убил не палач
 		{
+			
 			dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
 			gain_exp(ch, -dec_exp);
 			dec_exp = e - GET_EXP(ch);
@@ -698,6 +699,15 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (!IS_NPC(victim) || IS_NPC(ch))
 		return (exp);
+
+	// если моб убивается первый раз, то повышаем экспу в несколько раз
+	// стимулируем изучение новых зон!
+	if (ch->mobmax_get(GET_MOB_VNUM(victim)) == 0)
+	{
+		exp *= 3;
+		exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
+		return (exp);
+	}
 
 	for (koef = 100, base = 0, diff = ch->mobmax_get(GET_MOB_VNUM(victim));
 			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);

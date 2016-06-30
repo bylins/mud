@@ -63,11 +63,12 @@ int npc_battle_scavenge(CHAR_DATA * ch);
 void npc_wield(CHAR_DATA * ch);
 void npc_armor(CHAR_DATA * ch);
 int perform_mob_switch(CHAR_DATA * ch);
+void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
-/*
 void go_autoassist(CHAR_DATA * ch)
 {
 	struct follow_type *k;
+	struct follow_type *d;
 	CHAR_DATA *ch_lider = 0;
 	if (ch->master)
 	{
@@ -80,16 +81,26 @@ void go_autoassist(CHAR_DATA * ch)
 	for (k = ch_lider->followers; k; k = k->next)
 	{
 		if (PRF_FLAGGED(k->follower, PRF_AUTOASSIST) &&
-				(IN_ROOM(k->follower) == IN_ROOM(ch)) && !k->follower->get_fighting() &&
-				(GET_POS(k->follower) == POS_STANDING) && !CHECK_WAIT(k->follower))
-			do_assist(k->follower, buf2, 0, 0);
+			(IN_ROOM(k->follower) == IN_ROOM(ch)) && !k->follower->get_fighting() &&
+			(GET_POS(k->follower) == POS_STANDING) && !CHECK_WAIT(k->follower))
+		{
+			// Здесь проверяем на кастеров
+			if (IS_CASTER(k->follower))
+			{
+				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
+				for (d = k->follower->followers; d; d = d->next)
+					if ((IN_ROOM(d->follower) == IN_ROOM(ch)) && !d->follower->get_fighting() &&
+						(GET_POS(d->follower) == POS_STANDING) && !CHECK_WAIT(d->follower))
+						do_assist(d->follower, buf2, 0, 0);
+			}
+			else
+			{
+				do_assist(k->follower, buf2, 0, 0);
+			}
+		}
 	}
-	if (PRF_FLAGGED(ch_lider, PRF_AUTOASSIST) &&
-			(IN_ROOM(ch_lider) == IN_ROOM(ch)) && !ch_lider->get_fighting() &&
-			(GET_POS(ch_lider) == POS_STANDING) && !CHECK_WAIT(ch_lider))
-		do_assist(ch_lider, buf2, 0, 0);
 }
-*/
+
 
 // The Fight related routines
 

@@ -160,6 +160,8 @@ struct trig_data
 // a complete script (composed of several triggers) //
 struct script_data
 {
+	// привет костыли
+	script_data::script_data() { trig_list = new TRIG_DATA(); }
 	long types;		// bitvector of trigger types //
 	TRIG_DATA *trig_list;	// list of triggers           //
 	struct trig_var_data *global_vars;	// list of global variables   //
