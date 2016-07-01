@@ -3739,7 +3739,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		set_battle_pos(victim);
 	}
 
-	go_autoassist(ch);
+	//go_autoassist(ch);
 
 	// старт инициализации полей для удара
 	HitData hit_params;
