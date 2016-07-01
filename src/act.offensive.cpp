@@ -1965,7 +1965,19 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 			set_wait(vict, IS_NPC(vict) ? 1 : 2, FALSE);
 		}
 		prob = 2;
-		obj_to_char(wielded, vict); // кинем оружие в инв
+		//+Полель
+        // для арены, игроков и чармисов оружие в инвентарь. во всех остальных случаях на землю
+        // профсаюз мобов может писать жалабу на Полазника. :)
+		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA) || (!IS_MOB(vict)) || (vict->master))
+		{	
+            obj_to_char(wielded, vict);
+        }
+		else
+		{
+            obj_to_room(wielded, IN_ROOM(vict));
+            obj_decay(wielded);
+		};
+		//-Полель
 	}
 
 	pk_agro_action(ch, vict);
