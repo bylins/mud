@@ -1588,6 +1588,13 @@ inline int spell_create_level(CHAR_DATA * ch, int spellnum)
 }
 
 
+int koef_skill_magic(int percent_skill)
+{
+	// при 100% нормальный 
+	return 0;
+}
+
+
 int mag_manacost(CHAR_DATA * ch, int spellnum)
 {
 
