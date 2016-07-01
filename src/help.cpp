@@ -648,9 +648,9 @@ void init_zone_all()
 	std::stringstream out;
 	for (int rnum = 0, i = 1; rnum <= top_of_zone_table; ++rnum)
 	{
-		if (zone_table[rnum].location && zone_table[rnum].description)
+		if (zone_table[rnum].location)
 		{
-			out << boost::format("  %2d - %s. Расположена: %s. Описание: %s. Примерный уровень: %d.\r\n") % i % zone_table[rnum].name % zone_table[rnum].location % zone_table[rnum].description % zone_table[rnum].level;
+			out << boost::format("  %2d - %s. Расположена: %s. Группа: %d. Примерный уровень: %d.\r\n") % i % zone_table[rnum].name % zone_table[rnum].location % zone_table[rnum].group % zone_table[rnum].level;
 			++i;
 		}
 	}
