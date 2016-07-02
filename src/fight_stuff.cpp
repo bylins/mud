@@ -704,7 +704,8 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 	// стимулируем изучение новых зон!
 	if (ch->mobmax_get(GET_MOB_VNUM(victim)) == 0)
 	{
-		exp *= 1.3;
+		// так чуть-чуть поприятней
+		exp *= 1.5;
 		exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 		return (exp);
 	}
