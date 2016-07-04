@@ -1060,7 +1060,8 @@ enum EApplyLocation
 	APPLY_BONUS_EXP = 58,
 	APPLY_BONUS_SKILLS = 59,
 	APPLY_PLAQUE = 60,
-	NUM_APPLIES = 61
+	APPLY_MADNESS = 61,
+	NUM_APPLIES = 62
 };
 
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
