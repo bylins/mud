@@ -135,6 +135,8 @@ struct trig_var_data
 // structure for triggers //
 struct trig_data
 {
+	
+	std::map<int, std::vector<int>> owner;
 	sh_int nr;		// trigger's rnum                  //
 	byte attach_type;	// mob/obj/wld intentions          //
 	byte data_type;		// type of game_data for trig      //
@@ -149,21 +151,19 @@ struct trig_data
 	struct event_info *wait_event;	// event to pause the trigger      //
 	ubyte purged;		// trigger is set to be purged     //
 	struct trig_var_data *var_list;	// list of local vars for trigger  //
-
-	TRIG_DATA *next;
-	TRIG_DATA *next_in_world;	// next in the global trigger list //
+	TRIG_DATA* next;
+	TRIG_DATA* next_in_world;	// next in the global trigger list //
 };
-
 
 // a complete script (composed of several triggers) //
 struct SCRIPT_DATA
 {
-public:
-	SCRIPT_DATA() : types(0), trig_list(nullptr), global_vars(nullptr), purged(0), context(0), next(nullptr) {}
+	// привет костыли
+	SCRIPT_DATA(): types(0), trig_list(new TRIG_DATA()), global_vars(nullptr), purged(0), context(0), next(nullptr) {}
 	~SCRIPT_DATA();
 
 	long types;		// bitvector of trigger types //
-	TRIG_DATA *trig_list;	// list of triggers           //
+	TRIG_DATA* trig_list;	// list of triggers           //
 	struct trig_var_data *global_vars;	// list of global variables   //
 	ubyte purged;		// script is set to be purged //
 	long context;		// current context for statics //

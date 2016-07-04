@@ -413,11 +413,12 @@ CelebrateDataPtr get_real_celebrate()
 void remove_triggers(TrigList trigs, SCRIPT_DATA* sc)
 {
 	TrigList::const_iterator it;
-	TRIG_DATA *tr, *tmp;
+	TRIG_DATA* tr;
+	TRIG_DATA* tmp;
 	
 	for (it = trigs.begin(); it!= trigs.end();++it)
 	{
-		for (tmp = NULL, tr = TRIGGERS(sc); tr; tmp = tr, tr = tr->next)
+		for (tmp = nullptr, tr = TRIGGERS(sc); tr; tmp = tr, tr = tr->next)
 		{
 			if (trig_index[tr->nr]->vnum == *it)
 				break;

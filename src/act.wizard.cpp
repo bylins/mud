@@ -6345,7 +6345,7 @@ void print(CHAR_DATA *ch, int first, int last, const std::string &options)
 	{
 		if (mob_index[i].vnum >= first && mob_index[i].vnum <= last)
 		{
-			out << boost::format("%5d. %45s [%6d] [%2d]%s\r\n")
+			out << boost::format("%5d. %45s [%6d] [%2d]%s")
 				% ++cnt
 				% (mob_proto[i].get_name_str().size() > 45
 					? mob_proto[i].get_name_str().substr(0, 45)
@@ -6353,6 +6353,18 @@ void print(CHAR_DATA *ch, int first, int last, const std::string &options)
 				% mob_index[i].vnum
 				% mob_proto[i].get_level()
 				% print_flag(ch, mob_proto + i, options);
+			if (!mob_proto[i].proto_script.empty())
+			{
+				out << " - есть скрипты -";
+				for (const auto trigger_vnum : mob_proto[i].proto_script)
+				{
+					sprintf(buf1, " [%d]", trigger_vnum);
+					out << buf1;
+				}
+				out << "\r\n";
+			}
+			else
+				out << " - нет скриптов\r\n";
 		}
 	}
 
@@ -6440,9 +6452,21 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			if (world[nr]->number >= first)
 			{
-				snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s\r\n",
+				snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
 					++found, world[nr]->number, world[nr]->zone, world[nr]->name);
 				out += buf_;
+				if (!world[nr]->proto_script.empty())
+				{
+					out += " - есть скрипты -";
+					for (const auto trigger_vnum : world[nr]->proto_script)
+					{
+						sprintf(buf1, " [%d]", trigger_vnum);
+						out += buf1;
+					}
+					out += "\r\n";
+				}				
+				else
+					out += " - нет скриптов\r\n";
 			}
 		}
 		break;
@@ -6460,10 +6484,25 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				out += buf_;
 				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
 				{
-					snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d\r\n",
+					snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d",
 						obj_proto.number(i->get_rnum()),
 						obj_proto.stored(i->get_rnum()));
 					out += buf_;
+					const auto obj = obj_proto[i->get_rnum()];
+					if (!obj->get_proto_script().empty())
+					{
+						out += " - есть скрипты -";
+						for (const auto trigger_vnum : obj->get_proto_script())
+						{
+							sprintf(buf1, " [%d]", trigger_vnum);
+							out += buf1;
+						}
+						out += "\r\n";
+					}
+					else
+					{
+						out += " - нет скриптов\r\n";
+					}
 				}
 				else
 				{

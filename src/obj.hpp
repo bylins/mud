@@ -756,6 +756,9 @@ public:
 	void set_worn_on(const short _) { m_worn_on = _; }
 	void set_zone(const int _) { m_zone = _; }
 	void update_enchants_set_bonus(const obj_sets::ench_type& _) { m_enchants.update_set_bonus(this, _); }
+	void set_enchant(int skill);
+	void set_enchant(int skill, OBJ_DATA *obj);
+	void unset_enchant();
 
 private:
 	void zero_init();

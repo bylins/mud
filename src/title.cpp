@@ -74,7 +74,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* sub
 {
 	if (IS_NPC(ch)) return;
 
-	if (PLR_FLAGGED(ch, PLR_NOTITLE))
+	if (!Privilege::check_flag(ch, Privilege::TITLE) && PLR_FLAGGED(ch, PLR_NOTITLE))
 	{
 		send_to_char("Вам запрещена работа с титулами.\r\n", ch);
 		return;
@@ -133,6 +133,11 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* sub
 		boost::trim(buffer);
 		if (buffer.size() > MAX_TITLE_LENGTH)
 		{
+			if (PLR_FLAGGED(ch, PLR_NOTITLE))
+			{
+				send_to_char(ch, "Вам запрещено устанавливать самому себе титул.\r\n");
+				return;
+			}
 			send_to_char(ch, "Титул должен быть не длиннее %d символов.\r\n", MAX_TITLE_LENGTH);
 			return;
 		}

@@ -461,6 +461,8 @@ int exchange_withdraw(CHAR_DATA * ch, char *arg)
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
 	}
 	message_exchange(tmpbuf, ch, item);
+	if  (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+		GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 	obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 	clear_exchange_lot(item);
 
@@ -682,6 +684,8 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 			//end by WorM
 
 			message_exchange(tmpbuf, ch, item);
+			if  (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+				GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 			obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 			clear_exchange_lot(item);
 			if (EXCHANGE_SAVEONEVERYOPERATION)
@@ -713,6 +717,8 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 			GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
 		message_exchange(tmpbuf, ch, item);
+		if  (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+			GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 		obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);
 		if (EXCHANGE_SAVEONEVERYOPERATION)

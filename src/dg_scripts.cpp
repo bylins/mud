@@ -4505,6 +4505,25 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 		{
 			CREATE(SCRIPT(r), 1);
 		}
+		// через минуту после написания данного кода, я сам стал с трудом его понимать
+		if (trig_index[trignum]->proto->owner.find(trig_index[trignum]->vnum) != trig_index[trignum]->proto->owner.end())
+		{
+			bool flag_trig = false;
+			for (unsigned int i = 0; i < trig_index[trignum]->proto->owner[trig_index[trignum]->vnum].size(); i++)
+			{
+				if (trig_index[trignum]->proto->owner[trig_index[trignum]->vnum][i] == r->number)
+					flag_trig = true;
+				
+			}
+			if (!flag_trig)
+				trig_index[trignum]->proto->owner[trig_index[trignum]->vnum].push_back(r->number);
+		}
+		else
+		{
+			std::vector<int> tmp_vector;
+			tmp_vector.push_back(r->number);
+			trig_index[trignum]->proto->owner.insert(std::pair<int, std::vector<int>>(trig_index[trignum]->vnum, tmp_vector));
+		}
 		add_trigger(SCRIPT(r), newtrig, -1);
 		return;
 	}
@@ -5474,11 +5493,11 @@ int timed_script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
 	int i;
-	TRIG_DATA ttrig;
+	TRIG_DATA *ttrig = new TRIG_DATA();
 
 	struct timeval start, stop, result;
 
-	memcpy(&ttrig, trig, sizeof(TRIG_DATA));	// Делаем т.к. кто то меняет потом trig
+	memcpy(ttrig, trig, sizeof(TRIG_DATA));	// Делаем т.к. кто то меняет потом trig
 	gettimeofday(&start, NULL);
 
 	i = timed_script_driver(go, trig, type, mode);
@@ -5488,7 +5507,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 	if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC)
 	{
-		sprintf(buf, "[TrigVNum: %d] : ", GET_TRIG_VNUM(&ttrig));
+		sprintf(buf, "[TrigVNum: %d] : ", GET_TRIG_VNUM(ttrig));
 		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us.", result.tv_sec, result.tv_usec);
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
 	};
@@ -5838,8 +5857,39 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (trig_index[nr]->vnum >= first)
 		{
-			sprintf(buf, "%5d. [%5d] %s\r\n", ++found, trig_index[nr]->vnum, trig_index[nr]->proto->name);
-			strcat(pagebuf, buf);
+			std::string out = "";
+			if (trig_index[nr]->proto->attach_type == MOB_TRIGGER)
+				out += "[MOB_TRIG]";
+			if (trig_index[nr]->proto->attach_type == OBJ_TRIGGER)
+				out += "[OBJ_TRIG]";
+			if (trig_index[nr]->proto->attach_type == WLD_TRIGGER)
+				out += "[WLD_TRIG]";
+			
+
+			
+			sprintf(buf, "%5d. [%5d] %s\r\nПрикрепленные триггеры: ", ++found, trig_index[nr]->vnum, trig_index[nr]->proto->name);
+			out += buf;
+			if (!trig_index[nr]->proto->owner.empty())
+			{
+				for (auto it = trig_index[nr]->proto->owner.begin(); it != trig_index[nr]->proto->owner.end(); ++it)
+				{
+					out += "[";
+					std::string  out_tmp = "";
+					for (unsigned int i = 0; i < (*it).second.size(); i++)
+					{						
+						sprintf(buf, " [%d]", (*it).second[i]);
+						out_tmp += buf;
+					}
+					if ((*it).first != -1)
+						out += std::to_string((*it).first) + " : ";
+					out += out_tmp + "]";				
+				}
+				
+				out += "\r\n";
+			}
+			else
+				out += "Отсутствуют\r\n";
+			strcat(pagebuf, out.c_str());
 		}
 	}
 

@@ -436,7 +436,6 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 		{
 			if (GET_TRIG_RNUM(live_trig) == trig_rnum)
 			{
-				TRIG_DATA *t;
 				if (live_trig->arglist)
 				{
 					free(live_trig->arglist);
@@ -456,14 +455,13 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 				free_varlist(live_trig->var_list);
 
 				// сохранить ссылку на следующий
-				t = live_trig->next;
+				auto t = live_trig->next;
 				trig_data_copy(live_trig, proto);
 				live_trig->next = t;
 			}
 
 			live_trig = live_trig->next_in_world;
 		}
-
 	}
 	else
 	{
@@ -741,7 +739,7 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 #endif
 	send_to_char(FMT, d->character);
 #undef FMT
-
+	
 	for (const auto trigger_vnum : OLC_SCRIPT(d))
 	{
 		sprintf(buf, "     %2d) [%s%d%s] %s%s%s", ++i, cyn,

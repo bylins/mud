@@ -1588,6 +1588,17 @@ inline int spell_create_level(CHAR_DATA * ch, int spellnum)
 }
 
 
+float koef_skill_magic(int percent_skill)
+{
+	// вариант А
+	//return percent_skill / 100;
+	// вариант Б
+	return percent_skill / 100 + 1;
+
+	return 0;
+}
+
+
 int mag_manacost(CHAR_DATA * ch, int spellnum)
 {
 
@@ -1619,7 +1630,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 		else
 			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
 
-		return mana_cost;
+		return mana_cost / koef_skill_magic(get_magic_skill_number_by_spell(spellnum));
 	};
 	return 9999;
 	//#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1])
