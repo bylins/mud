@@ -3025,6 +3025,20 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
+	
+	if (ch->affected)
+	{
+		AFFECT_DATA *aff;
+		for (aff = ch->affected; aff; aff = aff->next)
+		{
+			if ((aff->location == APPLY_PLAQUE) && (number (1,100) <10)) // лихорадка 10% фэйл закла
+			{
+				send_to_char("Вас трясет лихорадка, вы не смогли сконцентрироваться на произнесении заклинания.\r\n", ch);
+				return;
+			}
+		}
+	}
+
 
 	if (ch->is_morphed())
 	{
