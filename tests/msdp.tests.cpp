@@ -1,0 +1,65 @@
+#include <gtest/gtest.h>
+
+#include "telnet.h"
+#include "msdp_parser.hpp"
+
+TEST(MSDP_Parser, EmptyRequest)
+{
+	const char* request = "";
+
+	size_t conversation_length = 0;
+	::msdp::parsed_request_t result;
+
+	EXPECT_EQ(false, ::msdp::parse_request(request, 0, conversation_length, result));
+	EXPECT_EQ(0, conversation_length);
+}
+
+TEST(MSDP_Parser, SimpleVariable_Tailless_TailNotRequired)
+{
+	const char request[] = {::msdp::MSDP_VAR, 'n', 'a', 'm', 'e', ::msdp::MSDP_VAL, 'v', 'a', 'l', 'u', 'e'};
+
+	size_t conversation_length = 0;
+	::msdp::parsed_request_t result;
+
+	EXPECT_EQ(true, ::msdp::parse_request(request, sizeof(request), conversation_length, result, false));
+	EXPECT_EQ(sizeof(request), conversation_length);
+}
+
+TEST(MSDP_Parser, SimpleVariable_Tailless_TailRequired)
+{
+	const char request[] = { ::msdp::MSDP_VAR, 'n', 'a', 'm', 'e', ::msdp::MSDP_VAL, 'v', 'a', 'l', 'u', 'e' };
+
+	size_t conversation_length = 0;
+	::msdp::parsed_request_t result;
+
+	EXPECT_EQ(false, ::msdp::parse_request(request, sizeof(request), conversation_length, result, true));
+	EXPECT_EQ(0, conversation_length);
+}
+
+TEST(MSDP_Parser, SimpleVariable_WithTail_TailNotRequired)
+{
+	const char request[] = { ::msdp::MSDP_VAR, 'n', 'a', 'm', 'e', ::msdp::MSDP_VAL, 'v', 'a', 'l', 'u', 'e', char(IAC), char(SE) };
+
+	size_t conversation_length = 0;
+	::msdp::parsed_request_t result;
+
+	EXPECT_EQ(true, ::msdp::parse_request(request, sizeof(request), conversation_length, result, false));
+	EXPECT_EQ(sizeof(request) - ::msdp::TAIL_LENGTH, conversation_length);
+}
+
+TEST(MSDP_Parser, SimpleVariable_WithTail_TailRequired)
+{
+	const char request[] = { ::msdp::MSDP_VAR, 'n', 'a', 'm', 'e', ::msdp::MSDP_VAL, 'v', 'a', 'l', 'u', 'e', char(IAC), char(SE) };
+
+	size_t conversation_length = 0;
+	::msdp::parsed_request_t result;
+
+	EXPECT_EQ(true, ::msdp::parse_request(request, sizeof(request), conversation_length, result, true));
+	EXPECT_EQ(sizeof(request), conversation_length);
+}
+
+int main(int argc, char** argv)
+{
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
+}
