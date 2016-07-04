@@ -184,6 +184,7 @@ namespace craft
 
 	private:
 		bool load(const pugi::xml_node* node);
+		bool load_adjectives(const pugi::xml_node* node);
 
 		const std::string m_id;
 		std::string m_short_desc;	///< Short description
@@ -191,9 +192,9 @@ namespace craft
 
 		CCases m_item_cases;		///< Item cases (including aliases)
 		CCases m_name_cases;		///< Name cases (including aliases)
-		CCases m_male_adjectives;	///< Male adjective cases
-		CCases m_female_adjectives;	///< Female adjective cases
-		CCases m_neuter_adjectives;	///< Neuter adjective cases
+		std::shared_ptr<CCases> m_male_adjectives;	///< Male adjective cases
+		std::shared_ptr<CCases> m_female_adjectives;	///< Female adjective cases
+		std::shared_ptr<CCases> m_neuter_adjectives;	///< Neuter adjective cases
 
 		FLAG_DATA m_extraflags;
 		FLAG_DATA m_waffect_flags;

@@ -1494,46 +1494,13 @@ namespace craft
 		}
 
 		const auto adjectives = node->child("adjectives");
-		if (!adjectives)
+		if (adjectives)
 		{
-			log("ERROR: material class with ID '%s' does not contain required \"adjectives\" tag.\n", m_id.c_str());
-			return false;
-		}
-
-		const auto male = adjectives.child("male");
-		if (!male)
-		{
-			log("ERROR: material class with ID '%s' does not contain required \"adjectives/male\" tag.\n", m_id.c_str());
-			return false;
-		}
-		if (!m_male_adjectives.load_from_node(&male))
-		{
-			log("ERROR: could not load male adjective cases for material class '%s'.\n", m_id.c_str());
-			return false;
-		}
-
-		const auto female = adjectives.child("female");
-		if (!female)
-		{
-			log("ERROR: material class with ID '%s' does not contain required \"adjectives/female\" tag.\n", m_id.c_str());
-			return false;
-		}
-		if (!m_female_adjectives.load_from_node(&female))
-		{
-			log("ERROR: could not load female adjective cases for material class '%s'.\n", m_id.c_str());
-			return false;
-		}
-
-		const auto neuter = adjectives.child("neuter");
-		if (!neuter)
-		{
-			log("ERROR: material class with ID '%s' does not contain required \"adjectives/neuter\" tag.\n", m_id.c_str());
-			return false;
-		}
-		if (!m_neuter_adjectives.load_from_node(&neuter))
-		{
-			log("ERROR: could not load neuter adjective cases for material class '%s'.\n", m_id.c_str());
-			return false;
+			const bool load_adjectives_result = load_adjectives(&adjectives);
+			if (!load_adjectives_result)
+			{
+				log("ERROR: Failed to load adjectives for material class %s.\n", m_id.c_str());
+			}
 		}
 
 		// load extra flags
@@ -1548,6 +1515,44 @@ namespace craft
 
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading material class with ID '%s'.\n", m_id.c_str());
+
+		return true;
+	}
+
+	bool CMaterialClass::load_adjectives(const pugi::xml_node* node)
+	{
+		const auto male = node->child("male");
+		if (male)
+		{
+			m_male_adjectives.reset(new CCases());
+			if (!m_male_adjectives->load_from_node(&male))
+			{
+				log("ERROR: could not load male adjective cases for material class '%s'.\n", m_id.c_str());
+				return false;
+			}
+		}
+
+		const auto female = node->child("female");
+		if (female)
+		{
+			m_female_adjectives.reset(new CCases());
+			if (!m_female_adjectives->load_from_node(&female))
+			{
+				log("ERROR: Could not load female adjective cases for material class '%s'.\n", m_id.c_str());
+				return false;
+			}
+		}
+
+		const auto neuter = node->child("neuter");
+		if (neuter)
+		{
+			m_neuter_adjectives.reset(new CCases);
+			if (!m_neuter_adjectives->load_from_node(&neuter))
+			{
+				log("ERROR: Could not load neuter adjective cases for material class '%s'.\n", m_id.c_str());
+				return false;
+			}
+		}
 
 		return true;
 	}
