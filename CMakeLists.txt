@@ -505,7 +505,7 @@ add_executable(circle ${MAIN_EXECUTABLE})
 target_link_libraries(circle circle.library)
 
 # Testing part
-option(BUILD_TESTS "Build and run tests." ON)
+option(BUILD_TESTS "Build and run tests." OFF)
 if (BUILD_TESTS)
 	add_subdirectory(tests)
 endif ()

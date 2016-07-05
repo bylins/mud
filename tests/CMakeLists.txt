@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 enable_testing()
 
-find_path(GTEST_ROOT include/gtest/gtest.h PATHS "C:/Program Files/googletest-distribution")
+find_path(GTEST_ROOT include/gtest/gtest.h PATHS $ENV{GTEST_ROOT})
 set(GTEST_INCLUDE ${GTEST_ROOT}/include)
 find_library(GTEST_LIB gtest PATHS ${GTEST_ROOT}/lib)
 
