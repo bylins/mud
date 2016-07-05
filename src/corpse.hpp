@@ -7,15 +7,12 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
+
 void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer);
 OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer = NULL);
 
-
-
-
 namespace GlobalDrop
 {
-
 void init();
 void save();
 bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch);
@@ -29,11 +26,11 @@ const int BOOK_UPGRD_VNUM = 1920;
 const int WARR1_ENCHANT_VNUM = 1921;
 const int WARR2_ENCHANT_VNUM = 1922;
 const int WARR3_ENCHANT_VNUM = 1923;
+
 //для генерации знаков зачарования
 const int MAGIC1_ENCHANT_VNUM = 1930;
 const int MAGIC2_ENCHANT_VNUM = 1931;
 const int MAGIC3_ENCHANT_VNUM = 1932;
-
 
 class table_drop
 {
