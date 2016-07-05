@@ -2655,7 +2655,7 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 		send_to_char("Вы ослеплены!\r\n", ch);
-	else if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch))
+	else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch))
 	{
 		skip_hide_on_look(ch);
 

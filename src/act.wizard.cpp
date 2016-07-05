@@ -6364,6 +6364,9 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		case SCMD_ZLIST:
 			send_to_char("Использование: зсписок <начальный номер> <конечный номер>\r\n", ch);
 			break;
+		case SCMD_CLIST:
+			send_to_char("Использование: ксписок <начальный номер или номер зоны> [<конечный номер>]\r\n", ch);
+			break;
 		default:
 			sprintf(buf, "SYSERR:: invalid SCMD passed to ACMDdo_build_list!");
 			mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
@@ -6504,6 +6507,9 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				out += buf_;
 			}
 		}
+		break;
+	case SCMD_CLIST:
+		out = "Заглушка. Возможно, будет использоваться в будущем\r\n";
 		break;
 	default:
 		sprintf(buf, "SYSERR:: invalid SCMD passed to ACMDdo_build_list!");

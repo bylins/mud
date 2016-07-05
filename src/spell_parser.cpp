@@ -1630,7 +1630,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 		else
 			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
 
-		return mana_cost / koef_skill_magic(get_magic_skill_number_by_spell(spellnum));
+		return mana_cost / koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum)));
 	};
 	return 9999;
 	//#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1])
@@ -3184,7 +3184,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			sprintf(buf,
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM),
-					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " НА " : "");
+					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех " : "");
 			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
 		}
 		else if (cast_spell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0)
