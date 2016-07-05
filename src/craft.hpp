@@ -185,9 +185,6 @@ namespace craft
 		std::shared_ptr<CCases> m_female_adjectives;	///< Female adjective cases
 		std::shared_ptr<CCases> m_neuter_adjectives;	///< Neuter adjective cases
 
-		FLAG_DATA m_extraflags;
-		FLAG_DATA m_waffect_flags;
-
 		friend class CMaterial;
 	};
 
@@ -207,6 +204,17 @@ namespace craft
 		std::list<CMaterialClass> m_classes;	///< List of material classes for this material.
 
 		friend class CCraftModel;
+	};
+
+	class CMaterialInstance
+	{
+	public:
+
+	private:
+		const id_t m_type;
+		const id_t m_class;
+		int m_quality;
+		int m_quantity;
 	};
 
 	/**

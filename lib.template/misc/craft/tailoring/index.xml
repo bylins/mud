@@ -1,180 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <model_data>
-	<prototypes></prototypes>
-	<materials>
-		<material id="BUTTON">
-			<name>пуговица</name>
-			<prototype></prototype>
-			<class id="TRAINING BUTTON" vnum="200030">
-				<!-- Учебная пуговица-->
-				<description>
-					<short>учебная пуговица</short>
-					<long>Пуговица из темного металла обронена кем-то на дорогу</long>
-					<action></action>
-					<keyword>пуговка пуговица бронза</keyword>
-					<extended>
-						<![CDATA[Бронзовая с узором пуговица достойно
-украсит одежду славного воина.]]>
-					</extended>
-				</description>
-				<item>
-					<case1>учебная пуговица</case1>
-					<case2>учебной пуговицы</case2>
-					<case3>учебной пуговице</case3>
-					<case4>учебную пуговицу</case4>
-					<case5>учебной пуговицей</case5>
-					<case6>учебной пуговице</case6>
-					<aliases>
-						<alias>учебная</alias>
-						<alias>пуговица</alias>
-						<alias>материал</alias>
-					</aliases>
-				</item>
-				<cost>50</cost>
-				<rent>
-					<on>50</on>
-					<off>50</off>
-				</rent>
-				<global_maximum>-1</global_maximum>
-				<minimum_remorts>-1</minimum_remorts>
-				<!-- <type>ITEM_MATERIAL</type> default for materials -->
-				<durability>
-					<maximum>1</maximum>
-					<current>1</current>
-				</durability>
-				<sex>FEMALE</sex>
-				<level>0</level>
-				<weight>7</weight>
-				<timer>10080</timer>
-				<material>MAT_BRONZE</material>
-				<spell>SPELL_BURNING_HANDS</spell>
-				<extraflags>
-					<extraflag>ITEM_NOSELL</extraflag>
-				</extraflags>
-				<applies>
-					<apply>
-						<location>APPLY_MOVE</location>
-						<modifier>20</modifier>
-					</apply>
-				</applies>
-				<val0>1</val0>
-				<val1>1612</val1>
-				<val2>100</val2>
-				<val3>0</val3>
-			</class>
-		</material>
-		<material id="THREAD">
-			<name>нить</name>
-			<class id="TRAINING THREAD" vnum="200020">
-				<!-- Учебная нить -->
-				<description>
-					<short>учебная нить</short>
-					<long>Учебная нить клубком лежит здесь</long>
-					<action></action>
-					<keyword>нитка нить</keyword>
-					<extended>
-						<![CDATA[Обыкновенная нитка. К чему она Вам? Разве Вы умеете шить?]]>
-					</extended>
-				</description>
-				<item>
-					<case1>учебная нить</case1>
-					<case2>учебной нити</case2>
-					<case3>учебной нити</case3>
-					<case4>учебную нить</case4>
-					<case5>учебной нитью</case5>
-					<case6>учебной нити</case6>
-					<aliases>
-						<alias>учебная</alias>
-						<alias>нить</alias>
-						<alias>материал</alias>
-					</aliases>
-				</item>
-				<cost>10</cost>
-				<rent>
-					<on>10</on>
-					<off>10</off>
-				</rent>
-				<global_maximum>-1</global_maximum>
-				<minimum_remorts>-1</minimum_remorts>
-				<!--<type>ITEM_MATERIAL</type>-->
-				<durability>
-					<maximum>1</maximum>
-					<current>1</current>
-				</durability>
-				<sex>FEMALE</sex>
-				<level>0</level>
-				<weight>7</weight>
-				<timer>20160</timer>
-				<material>MAT_ORGANIC</material>
-				<spell>SPELL_NO_SPELL</spell>
-				<extraflags>
-					<extraflag>ITEM_SWIMMING</extraflag>
-				</extraflags>
-				<applies>
-					<apply>
-						<location>APPLY_HITREG</location>
-						<modifier>10</modifier>
-					</apply>
-				</applies>
-				<val0>0</val0>
-				<val1>1600</val1>
-				<val2>100</val2>
-				<val3>0</val3>
-			</class>
-		</material>
-		<material id="HIDE">
-			<name>шкура</name>
-			<class id="HOLEY HIDE" vnum="200010">
-				<!-- Дырявая шкура -->
-				<description>
-					<short>дырявая шкура @p1</short>
-					<long>Продырявленная в нескольких местах шкура лежит тут.</long>
-					<action></action>
-					<keyword>кость</keyword>
-					<extended>
-						<![CDATA[Эту косточку умелый скорняк знает как применить.]]>
-					</extended>
-				</description>
-				<item>
-					<case1>дырявая шкура @p1</case1>
-					<case2>дырявой шкуры @p1</case2>
-					<case3>дырявой шкуре @p1</case3>
-					<case4>дырявую шкуру @p1</case4>
-					<case5>дырявой шкурой @p1</case5>
-					<case6>дырявой шкуре @p1</case6>
-					<aliases>
-						<alias>дырявая</alias>
-						<alias>шкура</alias>
-						<alias>@p1</alias>
-						<alias>материал</alias>
-					</aliases>
-				</item>
-				<cost>100</cost>
-				<rent>
-					<on>100</on>
-					<off>100</off>
-				</rent>
-				<global_maximum>-1</global_maximum>
-				<minimum_remorts>-1</minimum_remorts>
-				<!--<type>ITEM_MATERIAL</type>-->
-				<durability>
-					<maximum>1</maximum>
-					<current>1</current>
-				</durability>
-				<sex>FEMALE</sex>
-				<level>0</level>
-				<weight>7</weight>
-				<timer>10080</timer>
-				<material>MAT_SKIN</material>
-				<spell>SPELL_TELEPORT</spell>
-				<val0>1</val0>
-				<val1>1661</val1>
-				<val2>100</val2>
-				<val3>1</val3>
-			</class>
-		</material>
-	</materials>
-	<recipes></recipes>
 	<prototypes>
 		<prototype vnum="200001">
 			<description>
@@ -225,6 +50,260 @@
 			<val2>0</val2>
 			<val3>0</val3>
 		</prototype>
+		
+		<prototype vnum="200030">
+			<!-- Абстрактная пуговица-->
+			<description>
+				<short>пуговица</short>
+				<long>Пуговица обронена кем-то на дорогу</long>
+				<action></action>
+				<keyword>пуговка пуговица</keyword>
+				<extended>
+					<![CDATA[Пуговка достойно украсит одежду славного воина.]]>
+				</extended>
+			</description>
+			<item>
+				<case1>пуговица</case1>
+				<case2>пуговицы</case2>
+				<case3>пуговице</case3>
+				<case4>пуговицу</case4>
+				<case5>пуговицей</case5>
+				<case6>пуговице</case6>
+				<aliases>
+					<alias>пуговица</alias>
+					<alias>материал</alias>
+				</aliases>
+			</item>
+			<cost>50</cost>
+			<rent>
+				<on>50</on>
+				<off>50</off>
+			</rent>
+			<global_maximum>-1</global_maximum>
+			<minimum_remorts>-1</minimum_remorts>
+			<type>ITEM_CRAFT_MATERIAL</type>
+			<durability>
+				<maximum>1</maximum>
+				<current>1</current>
+			</durability>
+			<sex>FEMALE</sex>
+			<level>0</level>
+			<weight>7</weight>
+			<timer>10080</timer>
+			<material>MAT_BRONZE</material>
+			<spell>SPELL_BURNING_HANDS</spell>
+			<extraflags>
+				<extraflag>ITEM_NOSELL</extraflag>
+			</extraflags>
+			<applies>
+				<apply>
+					<location>APPLY_MOVE</location>
+					<modifier>20</modifier>
+				</apply>
+			</applies>
+			<val0>1</val0>
+			<val1>1612</val1>
+			<val2>100</val2>
+			<val3>0</val3>
+		</prototype>
+
+		<prototype vnum="200020">
+			<!-- Абстрактная нить -->
+			<description>
+				<short>нить</short>
+				<long>Нить клубком лежит здесь</long>
+				<action></action>
+				<keyword>нитка нить</keyword>
+				<extended>
+					<![CDATA[Обыкновенная нитка. К чему она Вам? Разве Вы умеете шить?]]>
+				</extended>
+			</description>
+			<item>
+				<case1>нить</case1>
+				<case2>нити</case2>
+				<case3>нити</case3>
+				<case4>нить</case4>
+				<case5>нитью</case5>
+				<case6>нити</case6>
+				<aliases>
+					<alias>нить</alias>
+					<alias>материал</alias>
+				</aliases>
+			</item>
+			<cost>10</cost>
+			<rent>
+				<on>10</on>
+				<off>10</off>
+			</rent>
+			<global_maximum>-1</global_maximum>
+			<minimum_remorts>-1</minimum_remorts>
+			<type>ITEM_CRAFT_MATERIAL</type>
+			<durability>
+				<maximum>1</maximum>
+				<current>1</current>
+			</durability>
+			<sex>FEMALE</sex>
+			<level>0</level>
+			<weight>7</weight>
+			<timer>20160</timer>
+			<material>MAT_ORGANIC</material>
+			<spell>SPELL_NO_SPELL</spell>
+			<extraflags>
+				<extraflag>ITEM_SWIMMING</extraflag>
+			</extraflags>
+			<applies>
+				<apply>
+					<location>APPLY_HITREG</location>
+					<modifier>10</modifier>
+				</apply>
+			</applies>
+			<val0>0</val0>
+			<val1>1600</val1>
+			<val2>100</val2>
+			<val3>0</val3>
+		</prototype>
+
+		<prototype vnum="200010">
+			<!-- Абстрактная шкура -->
+			<description>
+				<short>шкура @p1</short>
+				<long>Абстрактная шкура лежит тут.</long>
+				<action></action>
+				<extended>
+					<![CDATA[Эту шкурку умелый скорняк знает как применить.]]>
+				</extended>
+			</description>
+			<item>
+				<case1>абстрактная шкура @p1</case1>
+				<case2>абстрактной шкуры @p1</case2>
+				<case3>абстрактной шкуре @p1</case3>
+				<case4>абстрактную шкуру @p1</case4>
+				<case5>абстрактной шкурой @p1</case5>
+				<case6>абстрактной шкуре @p1</case6>
+				<aliases>
+					<alias>шкура</alias>
+					<alias>@p1</alias>
+					<alias>материал</alias>
+				</aliases>
+			</item>
+			<cost>100</cost>
+			<rent>
+				<on>100</on>
+				<off>100</off>
+			</rent>
+			<global_maximum>-1</global_maximum>
+			<minimum_remorts>-1</minimum_remorts>
+			<type>ITEM_CRAFT_MATERIAL</type>
+			<durability>
+				<maximum>1</maximum>
+				<current>1</current>
+			</durability>
+			<sex>FEMALE</sex>
+			<level>0</level>
+			<weight>7</weight>
+			<timer>10080</timer>
+			<material>MAT_SKIN</material>
+			<spell>SPELL_TELEPORT</spell>
+			<val0>1</val0>
+			<val1>1661</val1>
+			<val2>100</val2>
+			<val3>1</val3>
+		</prototype>
 	</prototypes>
+	
+	<materials>
+		<material id="BUTTON">
+			<name>пуговица</name>
+			<prototype>200030</prototype>
+			<class id="TRAINING BUTTON">
+				<!-- Учебная пуговица-->
+				<description>
+					<short>учебная пуговица</short>
+					<long>Пуговица из темного металла обронена кем-то на дорогу</long>
+					<action></action>
+					<keyword>пуговка пуговица бронза</keyword>
+					<extended>
+						<![CDATA[Бронзовая с узором пуговица достойно
+украсит одежду славного воина.]]>
+					</extended>
+				</description>
+				<item>
+					<case1>учебная пуговица</case1>
+					<case2>учебной пуговицы</case2>
+					<case3>учебной пуговице</case3>
+					<case4>учебную пуговицу</case4>
+					<case5>учебной пуговицей</case5>
+					<case6>учебной пуговице</case6>
+					<aliases>
+						<alias>учебная</alias>
+						<alias>пуговица</alias>
+						<alias>материал</alias>
+					</aliases>
+				</item>
+			</class>
+		</material>
+		
+		<material id="THREAD">
+			<name>нить</name>
+			<prototype>200020</prototype>
+			<class id="TRAINING THREAD">
+				<!-- Учебная нить -->
+				<description>
+					<short>учебная нить</short>
+					<long>Учебная нить клубком лежит здесь</long>
+					<action></action>
+					<keyword>нитка нить</keyword>
+					<extended>
+						<![CDATA[Обыкновенная нитка. К чему она Вам? Разве Вы умеете шить?]]>
+					</extended>
+				</description>
+				<item>
+					<case1>учебная нить</case1>
+					<case2>учебной нити</case2>
+					<case3>учебной нити</case3>
+					<case4>учебную нить</case4>
+					<case5>учебной нитью</case5>
+					<case6>учебной нити</case6>
+					<aliases>
+						<alias>учебная</alias>
+						<alias>нить</alias>
+						<alias>материал</alias>
+					</aliases>
+				</item>
+			</class>
+		</material>
+		
+		<material id="HIDE">
+			<name>шкура</name>
+			<prototype>200010</prototype>
+			<class id="HOLEY HIDE">
+				<!-- Дырявая шкура -->
+				<description>
+					<short>дырявая шкура @p1</short>
+					<long>Продырявленная в нескольких местах шкура лежит тут.</long>
+					<action></action>
+					<keyword>кость</keyword>
+					<extended>
+						<![CDATA[Эту косточку умелый скорняк знает как применить.]]>
+					</extended>
+				</description>
+				<item>
+					<case1>дырявая шкура @p1</case1>
+					<case2>дырявой шкуры @p1</case2>
+					<case3>дырявой шкуре @p1</case3>
+					<case4>дырявую шкуру @p1</case4>
+					<case5>дырявой шкурой @p1</case5>
+					<case6>дырявой шкуре @p1</case6>
+					<aliases>
+						<alias>дырявая</alias>
+						<alias>шкура</alias>
+						<alias>@p1</alias>
+						<alias>материал</alias>
+					</aliases>
+				</item>
+			</class>
+		</material>
+	</materials>
+	<recipes></recipes>
 	<skills></skills>
 </model_data>

@@ -1236,6 +1236,7 @@ void init_EObjectType_ITEM_NAMES()
 	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ARMOR_MEDIAN] = "ITEM_ARMOR_MEDIAN";
 	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ARMOR_HEAVY] = "ITEM_ARMOR_HEAVY";
 	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ENCHANT] = "ITEM_ENCHANT";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_CRAFT_MATERIAL] = "ITEM_CRAFT_MATERIAL";
 
 	for (const auto& i : EObjectType_name_by_value)
 	{

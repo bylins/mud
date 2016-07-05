@@ -121,7 +121,8 @@ public:
 		ITEM_ARMOR_LIGHT = 29,	// легкий тип брони
 		ITEM_ARMOR_MEDIAN = 30,	// средний тип брони
 		ITEM_ARMOR_HEAVY = 31,	// тяжелый тип брони
-		ITEM_ENCHANT = 32		// зачарование предмета
+		ITEM_ENCHANT = 32,		// зачарование предмета
+		ITEM_CRAFT_MATERIAL = 33,	// Item is a material related to craft system
 	};
 
 	enum EObjectMaterial

@@ -1503,16 +1503,6 @@ namespace craft
 			}
 		}
 
-		// load extra flags
-		CHelper::load_flags<EExtraFlag>(m_extraflags, *node, "extraflags", "extraflag",
-			[&](const auto value) { log("Setting extra flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str()); },
-			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str()); });
-
-		// load weapon affects
-		CHelper::load_flags<EWeaponAffectFlag>(m_waffect_flags, *node, "weapon_affects", "weapon_affect",
-			[&](const auto value) { log("Setting weapon affect flag '%s' for class ID %s.\n", NAME_BY_ITEM(value).c_str(), m_id.c_str()); },
-			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of class with ID %s, because this value is not valid.\n", flag, m_id.c_str()); });
-
 		prefix.change_prefix(END_PREFIX);
 		log("End of loading material class with ID '%s'.\n", m_id.c_str());
 
