@@ -493,9 +493,8 @@ void OBJ_DATA::unset_enchant()
     unset_extraflag(EExtraFlag::ITEM_MAGIC);
 }
 
-extern bool check_unlimited_timer(const CObjectPrototype* obj);
-extern float count_remort_requred(const CObjectPrototype* obj);
-extern float count_unlimited_timer(const CObjectPrototype* obj);
+float count_remort_requred(const CObjectPrototype* obj);
+float count_unlimited_timer(const CObjectPrototype* obj);
 
 /**
 * Реальное старение шмотки (без всяких технических сетов таймера по коду).
@@ -877,7 +876,7 @@ void init_item_levels()
 {
 	for (const auto i : obj_proto)
 	{
-		init_ilvl(i);
+		init_ilvl(i.get());
 	}
 }
 

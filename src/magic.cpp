@@ -4859,7 +4859,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)
 				&& (GET_OBJ_RNUM(obj) != NOTHING))
 			{
-				if (OBJ_FLAGGED(obj_proto.at(GET_OBJ_RNUM(obj)), EExtraFlag::ITEM_MAGIC))
+				if (obj_proto.at(GET_OBJ_RNUM(obj))->get_extra_flag(EExtraFlag::ITEM_MAGIC))
 				{
 					to_char = "Не велено!";
 					return 0;

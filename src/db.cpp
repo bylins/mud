@@ -352,7 +352,7 @@ bool check_obj_in_system_zone(int vnum)
     return false;
 }
 
-bool check_unlimited_timer(const CObjectPrototype *obj)
+bool check_unlimited_timer(const CObjectPrototype* obj)
 {
 	char buf_temp[MAX_STRING_LENGTH];
 	char buf_temp1[MAX_STRING_LENGTH];
@@ -372,77 +372,77 @@ bool check_unlimited_timer(const CObjectPrototype *obj)
 	// сумма для аффектов
 	double sum_aff = 0;
 	// по другому чот не получилось
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_FINGER))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_FINGER);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_NECK))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_NECK);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_BODY))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_BODY);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_HEAD))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_HEAD);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_LEGS))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_LEGS);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_FEET))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_FEET);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_HANDS))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_HANDS);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_ARMS))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_ARMS);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_SHIELD))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_SHIELD);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_ABOUT))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_ABOUT);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WAIST))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WAIST);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WRIST))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WRIST);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WIELD))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WIELD);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_HOLD))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_HOLD);
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_BOTHS))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_BOTHS);
 	}
@@ -452,7 +452,7 @@ bool check_unlimited_timer(const CObjectPrototype *obj)
 		return false;
 	}
 	// находится ли объект в системной зоне
-	if (check_obj_in_system_zone(GET_OBJ_VNUM(obj)))
+	if (check_obj_in_system_zone(obj->get_vnum()))
 	{
 		return false;
 	}
@@ -462,26 +462,36 @@ bool check_unlimited_timer(const CObjectPrototype *obj)
 		return false;
 	}
 	// если шмотка магическая или энчантнута таймер обычный
-    if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC))
-	    return false;
+    if (obj->get_extra_flag(EExtraFlag::ITEM_MAGIC))
+	{
+		return false;
+	}
 	// если это сетовый предмет
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
+	{
 		return false;
+	}
 	// рассыпется вне зоны
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY))
+	{
 		return false;
+	}
 
 	// если предмет требует реморты, то он явно овер
 	if (obj->get_manual_mort_req() > 0)
 		return false;
 	// проверяем дырки в предмете
-	 if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH1SLOT)
-		 || OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH2SLOTS)
-		 || OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH3SLOTS))
-		return false;
+	 if (obj->get_extra_flag(EExtraFlag::ITEM_WITH1SLOT)
+		 || obj->get_extra_flag(EExtraFlag::ITEM_WITH2SLOTS)
+		 || obj->get_extra_flag(EExtraFlag::ITEM_WITH3SLOTS))
+	 {
+		 return false;
+	 }
 	// если у объекта таймер ноль, то облом. 
 	if (obj->get_timer() == 0)
+	{
 		return false;
+	}
 	// проходим по всем характеристикам предмета
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
@@ -1237,18 +1247,18 @@ void convert_obj_values()
 	int save = 0;
 	for (const auto i : obj_proto)
 	{
-		save = std::max(save, convert_drinkcon_skill(i, true));
-		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_1INLAID))
+		save = std::max(save, convert_drinkcon_skill(i.get(), true));
+		if (i->get_extra_flag(EExtraFlag::ITEM_1INLAID))
 		{
 			i->unset_extraflag(EExtraFlag::ITEM_1INLAID);
 			save = 1;
 		}
-		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_2INLAID))
+		if (i->get_extra_flag(EExtraFlag::ITEM_2INLAID))
 		{
 			i->unset_extraflag(EExtraFlag::ITEM_2INLAID);
 			save = 1;
 		}
-		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_3INLAID))
+		if (i->get_extra_flag(EExtraFlag::ITEM_3INLAID))
 		{
 			i->unset_extraflag(EExtraFlag::ITEM_3INLAID);
 			save = 1;
@@ -1256,7 +1266,7 @@ void convert_obj_values()
 		// ...
 		if (save)
 		{
-			olc_add_to_save_list(GET_OBJ_VNUM(i)/100, OLC_SAVE_OBJ);
+			olc_add_to_save_list(i->get_vnum()/100, OLC_SAVE_OBJ);
 			save = 0;
 		}
 	}
@@ -4077,7 +4087,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			else
 			{
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
-				if (GET_OBJ_MIW(tobj) >= obj_proto.actual_count(tobj)
+				if (GET_OBJ_MIW(tobj) >= obj_proto.actual_count(tobj->get_rnum())
 					|| GET_OBJ_MIW(tobj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 					|| check_unlimited_timer(tobj))
 				{
@@ -5195,7 +5205,7 @@ OBJ_DATA *create_obj(const std::string& alias)
 // мы просто отдаем константный указатель на прототип
  * \param type по дефолту VIRTUAL
  */
-const CObjectPrototype* get_object_prototype(obj_vnum nr, int type)
+CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type)
 {
 	unsigned i = nr;
 	if (type == VIRTUAL)
@@ -5204,7 +5214,7 @@ const CObjectPrototype* get_object_prototype(obj_vnum nr, int type)
 		if (rnum < 0)
 		{
 			log("Object (V) %d does not exist in database.", nr);
-			return 0;
+			return nullptr;
 		}
 		else
 		{
@@ -6029,7 +6039,7 @@ void reset_zone(zone_rnum zone)
 				// Теперь грузим обьект если надо
 				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
+						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 					&& (ZCMD.arg4 <= 0
 						|| number(1, 100) <= ZCMD.arg4)
 					&& (obj_in_room < obj_in_room_max))
@@ -6066,7 +6076,7 @@ void reset_zone(zone_rnum zone)
 				// 'P' <flag> <obj_vnum> <max_in_world> <target_vnum> <load%|-1>
 				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
+						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 					&& (ZCMD.arg4 <= 0
 						|| number(1, 100) <= ZCMD.arg4))
 				{
@@ -6115,7 +6125,7 @@ void reset_zone(zone_rnum zone)
 				}
 				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
+						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 					&& (ZCMD.arg4 <= 0
 						|| number(1, 100) <= ZCMD.arg4))
 				{
@@ -6141,7 +6151,7 @@ void reset_zone(zone_rnum zone)
 				}
 				if ((obj_proto.actual_count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->get_max_in_world()
 						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[ZCMD.arg1]))
+						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 					&& (ZCMD.arg4 <= 0
 						|| number(1, 100) <= ZCMD.arg4))
 				{
@@ -8133,7 +8143,12 @@ void init()
 } // namespace OfftopSystem
 ////////////////////////////////////////////////////////////////////////////////
 
-size_t CObjectPrototypes::add(const prototypes_t::value_type& prototype, const obj_vnum vnum)
+size_t CObjectPrototypes::add(CObjectPrototype* prototype, const obj_vnum vnum)
+{
+	return add(CObjectPrototype::shared_ptr(prototype), vnum);
+}
+
+size_t CObjectPrototypes::add(const CObjectPrototype::shared_ptr& prototype, const obj_vnum vnum)
 {
 	const auto index = m_index.size();
 	prototype->set_rnum(static_cast<int>(index));
@@ -8149,13 +8164,10 @@ int CObjectPrototypes::rnum(const obj_vnum vnum) const
 	return i == m_vnum2index.end() ? -1 : static_cast<int>(i->second);
 }
 
-CObjectPrototypes::prototypes_t::value_type CObjectPrototypes::swap(const size_t index, const prototypes_t::value_type& new_value)
+void CObjectPrototypes::set(const size_t index, CObjectPrototype* new_value)
 {
-	auto result = m_prototypes[index];
 	new_value->set_rnum(static_cast<int>(index));
-	m_prototypes[index] = new_value;
-
-	return result;
+	m_prototypes[index].reset(new_value);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

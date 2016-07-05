@@ -1994,7 +1994,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				{
 					// если о прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[num]))
+					if (check_unlimited_timer(obj_proto[num].get()))
 					    sprintf(str, "9999999");
 					else
 					    sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));

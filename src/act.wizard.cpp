@@ -1760,7 +1760,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	if (GET_OBJ_RNUM(j) >= 0)
 	{
-		strcpy(buf2, (obj_proto.func(j) ? "Есть" : "Нет"));
+		strcpy(buf2, (obj_proto.func(j->get_rnum()) ? "Есть" : "Нет"));
 	}
 	else
 	{
@@ -7109,7 +7109,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		// куда можно одеть
 		if (filter.wear != EWearFlag::ITEM_WEAR_UNDEFINED
-			&& !CAN_WEAR(i, filter.wear))
+			&& !i->has_wear_flag(filter.wear))
 		{
 			continue;
 		}
@@ -7171,7 +7171,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		if (find)
 		{
-			int vnum = GET_OBJ_VNUM(i)/100;
+			int vnum = i->get_vnum()/100;
 			for (int nr = 0; nr <= top_of_zone_table; nr++)
 			{
 				if (vnum == zone_table[nr].number)
@@ -7187,7 +7187,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		const auto obj = obj_proto[i->second];
 		out << "   "
 			<< std::setw(2) << i->first << " | "
-			<< std::setw(7) << GET_OBJ_VNUM(obj) << " | "
+			<< std::setw(7) << obj->get_vnum() << " | "
 			<< std::setw(14) << material_name[GET_OBJ_MATER(obj)] << " | "
 			<< GET_OBJ_PNAME(obj, 0) << "\r\n";
 

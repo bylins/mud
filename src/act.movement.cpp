@@ -1237,15 +1237,21 @@ int find_door(CHAR_DATA* ch, const char *type, char *dir, const char* /*cmdname*
 
 int has_key(CHAR_DATA * ch, obj_vnum key)
 {
-	OBJ_DATA *o;
-
-	for (o = ch->carrying; o; o = o->get_next_content())
+	for (auto o = ch->carrying; o; o = o->get_next_content())
+	{
 		if (GET_OBJ_VNUM(o) == key && key != -1)
+		{
 			return (TRUE);
+		}
+	}
 
 	if (GET_EQ(ch, WEAR_HOLD))
+	{
 		if (GET_OBJ_VNUM(GET_EQ(ch, WEAR_HOLD)) == key && key != -1)
+		{
 			return (TRUE);
+		}
+	}
 
 	return (FALSE);
 }

@@ -177,7 +177,7 @@ void log_shop_load()
 		log("ShopExt: currency=%s", (*i)->currency.c_str());
 		for (ItemListType::iterator k = (*i)->item_list.begin(); k != (*i)->item_list.end(); ++k)
 		{
-			log("ItemList: vnum=%d, price=%ld", GET_OBJ_VNUM(obj_proto[(*k)->rnum]), (*k)->price);
+			log("ItemList: vnum=%d, price=%ld", obj_proto[(*k)->rnum]->get_vnum(), (*k)->price);
 		}
 	}
 }
@@ -1007,13 +1007,12 @@ void filter_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::st
 			}
 			
 			if (!((wear != EWearFlag::ITEM_WEAR_UNDEFINED
-					&& CAN_WEAR(obj_proto[(*k)->rnum], wear))
+					&& obj_proto[(*k)->rnum]->has_wear_flag(wear))
 				|| (type > 0
 					&& type == GET_OBJ_TYPE(obj_proto[(*k)->rnum]))))
 			{
 				show_name = false;
 			}
-		
 		}
 		else
 		{
@@ -1205,7 +1204,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		}
 		obj_from_proto = false;
 	}
-	const CObjectPrototype* const proto = (tmp_obj ? tmp_obj : get_object_prototype((*shop)->item_list[item_num]->rnum, REAL));
+	auto proto = (tmp_obj ? tmp_obj : get_object_prototype((*shop)->item_list[item_num]->rnum, REAL).get());
 	if (!proto)
 	{
 		log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);

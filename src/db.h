@@ -214,7 +214,7 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch);
 void reset_char(CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
-bool check_unlimited_timer(const CObjectPrototype *obj);
+bool check_unlimited_timer(const CObjectPrototype* obj);
 
 #define REAL          0
 #define VIRTUAL       (1 << 0)
@@ -224,7 +224,7 @@ OBJ_DATA *create_obj(const std::string& alias = "");
 void free_obj(OBJ_DATA * obj);
 obj_rnum real_object(obj_vnum vnum);
 OBJ_DATA *read_object(obj_vnum nr, int type);
-const CObjectPrototype* get_object_prototype(obj_vnum nr, int type = VIRTUAL);
+CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type = VIRTUAL);
 
 int vnum_object(char *searchname, CHAR_DATA * ch);
 int vnum_flag(char *searchname, CHAR_DATA * ch);
@@ -443,7 +443,7 @@ private:
 	};
 
 public:
-	using prototypes_t = std::deque<CObjectPrototype *>;
+	using prototypes_t = std::deque<CObjectPrototype::shared_ptr>;
 	using const_iterator = prototypes_t::const_iterator;
 
 	using index_t = std::deque<SPrototypeIndex>;
@@ -463,37 +463,36 @@ public:
 	const auto& operator[](size_t index) const { return m_prototypes[index]; }
 	/** @} */
 
-	size_t add(const prototypes_t::value_type& prototype, const obj_vnum vnum);
+	size_t add(CObjectPrototype* prototype, const obj_vnum vnum);
+	size_t add(const CObjectPrototype::shared_ptr& prototype, const obj_vnum vnum);
 
 	void zone(const size_t rnum, const size_t zone_rnum) { m_index[rnum].zone = static_cast<int>(zone_rnum); }
 
 	auto stored(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].stored : -1; }
-	auto stored(const CObjectPrototype* object) const { return stored(object->get_rnum()); }
+	auto stored(const CObjectPrototype::shared_ptr& object) const { return stored(object->get_rnum()); }
 	void dec_stored(const size_t rnum) { --m_index[rnum].stored; }
 	void inc_stored(const size_t rnum) { ++m_index[rnum].stored; }
 
 	auto number(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].number : -1; }
-	auto number(const CObjectPrototype* object) const { return number(object->get_rnum()); }
+	auto number(const CObjectPrototype::shared_ptr& object) const { return number(object->get_rnum()); }
 	void dec_number(const size_t rnum) { --m_index[rnum].number; }
 	void inc_number(const size_t rnum) { ++m_index[rnum].number; }
 
 	auto zone(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].zone : -1; }
 
 	auto actual_count(const size_t rnum) const { return number(rnum) + stored(rnum); }
-	auto actual_count(const OBJ_DATA* object) const { return actual_count(object->get_rnum()); }
 
 	auto func(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].func : nullptr; }
-	auto func(const OBJ_DATA* object) const { return func(object->get_rnum()); }
 	void func(const size_t rnum, const decltype(SPrototypeIndex::func) function) { m_index[rnum].func = function; }
 
-	auto spec(const OBJ_DATA* object) const { return func(object->get_rnum()); }
+	auto spec(const size_t rnum) const { return func(rnum); }
 
 	auto set_idx(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].set_idx : ~0; }
 	void set_idx(const size_t rnum, const decltype(SPrototypeIndex::set_idx) value) { m_index[rnum].set_idx = value; }
 
 	int rnum(const obj_vnum vnum) const;
 
-	prototypes_t::value_type swap(const size_t index, const prototypes_t::value_type& new_value);
+	void set(const size_t index, CObjectPrototype* new_value);
 
 	auto index_size() const { return m_index.size()*(sizeof(index_t::value_type) + sizeof(vnum2index_t::value_type)); }
 	auto prototypes_size() const { return m_prototypes.size()*sizeof(prototypes_t::value_type); }
@@ -525,7 +524,7 @@ inline bool CObjectPrototypes::is_index_safe(const size_t index) const
 extern CObjectPrototypes obj_proto;
 
 inline obj_vnum GET_OBJ_VNUM(const CObjectPrototype* obj) { return obj->get_vnum(); }
-inline auto GET_OBJ_SPEC(const OBJ_DATA* obj) { return obj_proto.spec(obj); }
+inline auto GET_OBJ_SPEC(const CObjectPrototype* obj) { return obj_proto.spec(obj->get_rnum()); }
 
 // returns the real number of the object with given virtual number
 inline obj_rnum real_object(obj_vnum vnum) { return obj_proto.rnum(vnum); }

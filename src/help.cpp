@@ -421,13 +421,13 @@ std::string print_fullset_stats(const set_info &set)
 		{
 			continue;
 		}
-		const CObjectPrototype* const obj = obj_proto[rnum];
+		const auto& obj = obj_proto[rnum];
 
 		// суммируем родные статы со шмоток
 		activ.native_no_flag += GET_OBJ_NO(obj);
 		activ.native_affects += GET_OBJ_AFFECTS(obj);
 		sum_apply(activ.native_affected, obj->get_affected());
-		sum_skills(activ.native_skills, obj);
+		sum_skills(activ.native_skills, obj.get());
 
 		// иним профы
 		activ.fill_class(k);
@@ -472,8 +472,8 @@ void process()
 				continue;
 			}
 
-			const CObjectPrototype* const obj = obj_proto[rnum];
-			out << print_obj_affects(obj);
+			const auto& obj = obj_proto[rnum];
+			out << print_obj_affects(obj.get());
 
 			for (qty_to_camap_map::const_iterator m = k->second.begin(); m != k->second.end(); ++m)
 			{
@@ -481,7 +481,7 @@ void process()
 				for (class_to_act_map::const_iterator q = m->second.begin(); q != m->second.end(); ++q)
 				{
 					out << "Предметов для активации: " << m->first << "\r\n";
-					out << print_activator(q, obj);
+					out << print_activator(q, obj.get());
 				}
 			}
 		}

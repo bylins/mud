@@ -853,7 +853,7 @@ public:
 	{
 	}
 
-	ObjWrapper(const CObjectPrototype* obj) :
+	ObjWrapper(const CObjectPrototype::shared_ptr& obj) :
 		m_temp_object(new OBJ_DATA(*obj)),
 		Wrapper<OBJ_DATA>(m_temp_object.get(), caching::obj_cache)
 	{

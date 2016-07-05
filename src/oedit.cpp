@@ -168,7 +168,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	}
 	else
 	{
-		oedit_object_copy(obj, obj_proto[real_num]);
+		oedit_object_copy(obj, obj_proto[real_num].get());
 	}
 
 	OLC_OBJ(d) = obj;
@@ -292,7 +292,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		// Копирую новый прототип в массив
 		// Использовать функцию oedit_object_copy() нельзя,
 		// т.к. будут изменены указатели на данные прототипа
-		delete obj_proto.swap(robj_num, OLC_OBJ(d));
+		obj_proto.set(robj_num, OLC_OBJ(d));	// old prototype will be deleted automatically
 		// OLC_OBJ(d) удалять не нужно, т.к. он перенесен в массив
 		// прототипов
 	}
@@ -326,14 +326,16 @@ void oedit_save_to_disk(int zone_num)
 	{
 		if ((realcounter = real_object(counter)) >= 0)
 		{
-			const CObjectPrototype* obj = obj_proto[realcounter];
+			const auto& obj = obj_proto[realcounter];
 			if (!obj->get_action_description().empty())
 			{
 				strcpy(buf1, obj->get_action_description().c_str());
 				strip_string(buf1);
 			}
 			else
+			{
 				*buf1 = '\0';
+			}
 			*buf2 = '\0';
 			GET_OBJ_AFFECTS(obj).tascii(4, buf2);
 			GET_OBJ_ANTI(obj).tascii(4, buf2);
@@ -359,7 +361,7 @@ void oedit_save_to_disk(int zone_num)
 				"%s"
 				"%d %d %d %d\n"
 				"%d %d %d %d\n",
-				GET_OBJ_VNUM(obj),
+				obj->get_vnum(),
 				!obj->get_aliases().empty() ? obj->get_aliases().c_str() : "undefined",
 				!obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "что-то",
 				!obj->get_PName(1).empty() ? obj->get_PName(1).c_str() : "чего-то",
@@ -377,7 +379,7 @@ void oedit_save_to_disk(int zone_num)
 				GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
 				GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
 
-			script_save_to_disk(fp, obj, OBJ_TRIGGER);
+			script_save_to_disk(fp, obj.get(), OBJ_TRIGGER);
 
 			if (GET_OBJ_MIW(obj))
 			{

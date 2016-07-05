@@ -989,7 +989,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 
 	// Если у шмотки есть прототип то будем сохранять по обрезанной схеме, иначе
 	// придется сохранять все статсы шмотки.
-	CObjectPrototype const * const proto = get_object_prototype(GET_OBJ_VNUM(object));
+	auto proto = get_object_prototype(GET_OBJ_VNUM(object));
 
 	if (GET_OBJ_VNUM(object) >= 0 && proto)
 	{

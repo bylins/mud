@@ -85,6 +85,8 @@ private:
 class CObjectPrototype
 {
 public:
+	using shared_ptr = std::shared_ptr<CObjectPrototype>;
+
 	enum EObjectType
 	{
 		ITEM_UNDEFINED = 0,
@@ -225,7 +227,7 @@ public:
 	bool get_extra_flag(const EExtraFlag packed_flag) const { return m_extra_flags.get(packed_flag); }
 	bool get_extra_flag(const size_t plane, const uint32_t flag) const { return m_extra_flags.get_flag(plane, flag); }
 	bool get_no_flag(const ENoFlag flag) const { return m_no_flags.get(flag); }
-	bool get_wear_flag(const EWearFlag part) const { return IS_SET(m_wear_flags, to_underlying(part)); }
+	bool has_wear_flag(const EWearFlag part) const { return IS_SET(m_wear_flags, to_underlying(part)); }
 	bool get_wear_mask(const wear_flags_t part) const { return IS_SET(m_wear_flags, part); }
 	bool init_values_from_file(const char* str) { return m_values.init_from_file(str); }
 	const auto& get_action_description() const { return m_action_description; }
@@ -675,6 +677,8 @@ struct SCRIPT_DATA;	// to avoid inclusion of "dg_scripts.h"
 class OBJ_DATA : public CObjectPrototype
 {
 public:
+	using shared_ptr = std::shared_ptr<OBJ_DATA>;
+
 	constexpr static const int DEFAULT_MAKER = 0;
 	constexpr static const int DEFAULT_OWNER = 0;
 	constexpr static const int DEFAULT_PARENT = 0;
@@ -813,7 +817,7 @@ inline void CObjectPrototype::set_affected(const size_t index, const EApplyLocat
 	m_affected[index].modifier = modifier;
 }
 
-inline bool CAN_WEAR(const CObjectPrototype *obj, const EWearFlag part) { return obj->get_wear_flag(part); }
+inline bool CAN_WEAR(const CObjectPrototype* obj, const EWearFlag part) { return obj->has_wear_flag(part); }
 inline bool CAN_WEAR_ANY(const CObjectPrototype* obj) { return obj->can_wear_any(); }
 inline bool OBJ_FLAGGED(const CObjectPrototype* obj, const EExtraFlag flag) { return obj->get_extra_flag(flag); }
 inline void SET_OBJ_AFF(CObjectPrototype* obj, const uint32_t packed_flag) { return obj->set_obj_aff(packed_flag); }

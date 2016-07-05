@@ -520,7 +520,7 @@ namespace craft
 			for (const auto& p : model.prototypes())
 			{
 				++counter;
-				send_to_char(ch, "%2d. %s\n", counter, p.get_short_description().c_str());
+				send_to_char(ch, "%2d. %s\n", counter, p->get_short_description().c_str());
 			}
 		}
 
@@ -755,7 +755,7 @@ namespace craft
 		return true;
 	}
 
-	void CCases::load_from_object(const CObjectPrototype* object)
+	void CCases::load_from_object(const CObjectPrototype::shared_ptr& object)
 	{
 		const std::string& aliases = object->get_aliases();
 		boost::algorithm::split(m_aliases, aliases, boost::algorithm::is_any_of(" "), boost::token_compress_on);
@@ -1116,7 +1116,7 @@ namespace craft
 		return true;
 	}
 
-	void CObject::load_from_object(const CObjectPrototype* object)
+	void CObject::load_from_object(const CObjectPrototype::shared_ptr& object)
 	{
 		*this = CObject(*object);
 	}
@@ -1731,8 +1731,7 @@ namespace craft
 	{
 		for (const auto& p : m_prototypes)
 		{
-			OBJ_DATA* object = p.build_object();
-			obj_proto.add(object, p.get_vnum());
+			obj_proto.add(p, p->get_vnum());
 		}
 
 		return true;
@@ -1768,10 +1767,11 @@ namespace craft
 			return false;
 		}
 
-		CPrototype p(vnum);
+		CObject* p = new CObject(vnum);
+		CObjectPrototype::shared_ptr prototype_object(p);
 		if (prototype->attribute("filename").empty())
 		{
-			if (!p.load_from_node(prototype))
+			if (!p->load_from_node(prototype))
 			{
 				log("WARNING: Skipping %zd-%s prototype with VNUM %d.\n",
 					number, suffix(number), vnum);
@@ -1810,7 +1810,7 @@ namespace craft
 				number,
 				suffix(number),
 				vnum);
-			if (!p.load_from_node(&proot))
+			if (!p->load_from_node(&proot))
 			{
 				log("WARNING: Skipping %zd-%s prototype with VNUM %d.\n",
 					number, suffix(number), vnum);
@@ -1818,14 +1818,14 @@ namespace craft
 			}
 		}
 
-		const auto add_vnum_result = add_vnum(p.get_vnum());
+		const auto add_vnum_result = add_vnum(p->get_vnum());
 		if (EAVNR_OK == add_vnum_result)
 		{
-			m_prototypes.push_back(p);
+			m_prototypes.push_back(prototype_object);
 		}
 		else
 		{
-			report_vnum_error(p.get_vnum(), add_vnum_result);
+			report_vnum_error(p->get_vnum(), add_vnum_result);
 			return false;
 		}
 
@@ -2082,7 +2082,6 @@ namespace craft
 	}
 
 	const std::string CObject::KIND = "simple object";
-	const std::string CPrototype::KIND = "prototype";
 }
 
 /* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/

@@ -172,7 +172,7 @@ size_t setidx_by_uid(int uid);
 std::string line_split_str(const std::string &str, const std::string &sep,
 	size_t len, size_t base_offset = 0);
 void init_obj_index();
-bool verify_wear_flag(const CObjectPrototype *obj);
+bool verify_wear_flag(const CObjectPrototype::shared_ptr&);
 void verify_set(set_node &set);
 bool is_duplicate(int set_uid, int vnum);
 std::string print_total_activ(const set_node &set);

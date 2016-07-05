@@ -521,7 +521,7 @@ void mredit_disp_ingr_menu(DESCRIPTOR_DATA * d)
 	trec = OLC_MREC(d);
 	get_char_cols(d->character);
 
-	const CObjectPrototype *tobj = get_object_prototype(trec->obj_proto);
+	auto tobj = get_object_prototype(trec->obj_proto);
 	if (trec->obj_proto && tobj)
 	{
 		objname = tobj->get_PName(0);
@@ -575,7 +575,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 	trec = OLC_MREC(d);
 	get_char_cols(d->character);
 
-	const CObjectPrototype *tobj = get_object_prototype(trec->obj_proto);
+	auto tobj = get_object_prototype(trec->obj_proto);
 	if (trec->obj_proto && tobj)
 	{
 		objname = tobj->get_PName(0);
@@ -665,7 +665,7 @@ void do_list_make(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 
 		trec = make_recepts[i];
 
-		const CObjectPrototype *obj = get_object_prototype(trec->obj_proto);
+		auto obj = get_object_prototype(trec->obj_proto);
 		if (obj)
 		{
 			obj_name = obj->get_PName(0).substr(0, 11);
@@ -798,7 +798,7 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		// Выводим тут список предметов которые можем сделать.
 		for (size_t i = 0; i < canlist->size(); i++)
 		{
-			const CObjectPrototype *tobj = get_object_prototype((*canlist)[i]->obj_proto);
+			auto tobj = get_object_prototype((*canlist)[i]->obj_proto);
 			if (!tobj)
 				return;
 			sprintf(tmpbuf, "%zd) %s\r\n", i + 1, tobj->get_PName(0).c_str());
@@ -1514,7 +1514,7 @@ MakeRecept *MakeReceptList::get_by_name(string & rname)
 	int j = 0;
 	while (p != recepts.end())
 	{
-		const CObjectPrototype *tobj = get_object_prototype((*p)->obj_proto);
+		auto tobj = get_object_prototype((*p)->obj_proto);
 		if (!tobj)
 		{
 			return 0;
@@ -1620,7 +1620,7 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 	// Делаем проверку может ли чар сделать посох такого типа
 	if (skill == SKILL_MAKE_STAFF)
 	{
-		const CObjectPrototype *tobj = get_object_prototype(obj_proto);
+		auto tobj = get_object_prototype(obj_proto);
 		if (!tobj)
 		{
 			return 0;
@@ -1923,7 +1923,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		return (FALSE);
 	}
 
-	const CObjectPrototype *tobj = get_object_prototype(obj_proto);
+	auto tobj = get_object_prototype(obj_proto);
 	if (!tobj)
 	{
 		return 0;

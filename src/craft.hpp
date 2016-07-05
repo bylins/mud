@@ -104,7 +104,7 @@ namespace craft
 		CCases() {}
 
 		bool load_from_node(const pugi::xml_node* node);
-		void load_from_object(const CObjectPrototype* object);
+		void load_from_object(const CObjectPrototype::shared_ptr& object);
 		bool save_to_node(pugi::xml_node* node) const;
 
 		const std::string& aliases() const { return m_joined_aliases; }
@@ -127,7 +127,7 @@ namespace craft
 		~CObject() {}
 
 		bool load_from_node(const pugi::xml_node* node);
-		void load_from_object(const CObjectPrototype* object);
+		void load_from_object(const CObjectPrototype::shared_ptr& object);
 
 		bool save_to_node(pugi::xml_node* node) const;
 
@@ -161,17 +161,6 @@ namespace craft
 		CCases m_cases;
 
 		friend class CCraftModel;
-	};
-
-	class CPrototype : public CObject
-	{
-	public:
-		CPrototype(const obj_vnum vnum) : CObject(vnum) {}
-
-	private:
-		const static std::string KIND;
-
-		virtual const std::string& kind() const override { return KIND; }
 	};
 
 	/**
@@ -274,7 +263,7 @@ namespace craft
 		std::string m_name;                     ///< Craft name.
 		std::set<id_t> m_skills;                ///< List of required skills for this craft.
 		std::set<id_t> m_recipes;               ///< List of available recipes for this craft.
-		std::set<id_t> m_material;              ///< List of meterials used by this craft.
+		std::set<id_t> m_material;              ///< List of materials used by this craft.
 		int m_slots;                            ///< Number of slots for additional skills.
 
 		friend class CCraftModel;
@@ -290,7 +279,7 @@ namespace craft
 		using crafts_t = std::list<CCraft>;
 		using skills_t = std::list<CSkillBase>;
 		using recipes_t = std::list<CRecipe>;
-		using prototypes_t = std::list<CPrototype>;
+		using prototypes_t = std::list<CObjectPrototype::shared_ptr>;
 
 		const static std::string FILE_NAME;
 		constexpr static int DEFAULT_BASE_COUNT = 1;

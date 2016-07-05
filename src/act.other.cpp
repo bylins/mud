@@ -3153,7 +3153,7 @@ void dig_obj(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	char textbuf[300];
 
-	if (GET_OBJ_MIW(obj) >= obj_proto.actual_count(obj)
+	if (GET_OBJ_MIW(obj) >= obj_proto.actual_count(obj->get_rnum())
 		|| GET_OBJ_MIW(obj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
 	{
 		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(3).c_str());

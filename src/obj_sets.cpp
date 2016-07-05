@@ -167,7 +167,7 @@ void init_obj_index()
 }
 
 /// сеты не вешаются на: кольца, ожерелья, браслеты, свет
-bool verify_wear_flag(const CObjectPrototype* /*obj*/)
+bool verify_wear_flag(const CObjectPrototype::shared_ptr& /*obj*/)
 {
 /*	if (CAN_WEAR(obj, ITEM_WEAR_FINGER)
 		|| CAN_WEAR(obj, ITEM_WEAR_NECK)
