@@ -257,7 +257,7 @@ namespace craft
 
 		const std::string m_id;
 		std::string m_short_desc;	///< Short description
-		std::string m_long_desc;	///<Long description
+		std::string m_long_desc;	///< Long description
 
 		CCases m_item_cases;		///< Item cases (including aliases)
 		CCases m_name_cases;		///< Name cases (including aliases)
