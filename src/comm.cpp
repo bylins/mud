@@ -766,7 +766,7 @@ void gettimeofday(struct timeval *t, void *dummy)
 
 #include <iostream>
 
-int main(int argc, char **argv)
+int main_function(int argc, char **argv)
 {
 #ifdef TEST_BUILD
 	// для нормального вывода русского текста под cygwin 1.7 и выше

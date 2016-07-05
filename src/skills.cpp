@@ -526,7 +526,12 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с эксп умелкой
 			{
 				skill_is += aff->modifier;
-			}
+			};
+			
+			if (aff->location == APPLY_PLAQUE)
+			{
+				skill_is -= number(ch->get_skill(skill_no) * 0.4, ch->get_skill(skill_no) * 0.05); // при лихорадке умелки ухудшаются на 5-30% рандом
+			};
 		}
 	}
 	skill_is += int_app[GET_REAL_INT(ch)].to_skilluse;

@@ -311,6 +311,9 @@ else()
     set(PYTHON_LIBRARIES)
 endif ()
 
+set(MSDP_PARSER_FILES src/msdp_parser.hpp src/msdp_parser.cpp)
+list(APPEND SOURCES ${MSDP_PARSER_FILES})
+
 # Versioning
 # Try to find hg executable, retrive revision if found and generate version.cpp from template
 set(VERSIONING_FILES src/versioning.cmake src/version.cpp.in)
@@ -357,9 +360,9 @@ set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown ${CRAFT_FILES} ${MISC_FIL
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
 
-# Main executable file.
-add_executable(circle ${CIRCLE_FILES})
-add_dependencies(circle versioning)
+# Main library file.
+add_library(circle.library STATIC ${CIRCLE_FILES})
+add_dependencies(circle.library versioning)
 
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)
@@ -389,13 +392,11 @@ endif ()
 # In case of you have more than one Visual Studio and want to use specific version, uncomment the following three lines and specify compiler you want
 if (CMAKE_HOST_WIN32)
     set(Boost_COMPILER "-vc140")
-    target_compile_options(circle PUBLIC /MP /MDd)
-    target_compile_options(circle PUBLIC $<$<CONFIG:Debug>:/Zi /Od>)
-    target_compile_options(circle PUBLIC $<$<CONFIG:Release>:/O2>)
-    target_compile_options(circle PUBLIC $<$<CONFIG:Test>:/Zi /Od>)
-    target_compile_options(circle PUBLIC $<$<CONFIG:FastTest>:/O2>)
-    set_target_properties(circle PROPERTIES LINK_FLAGS_DEBUG "/DEBUG")
-    set_target_properties(circle PROPERTIES LINK_FLAGS_TEST "/DEBUG")
+    target_compile_options(circle.library PUBLIC /MP /MDd)
+    target_compile_options(circle.library PUBLIC $<$<CONFIG:Debug>:/Zi /Od>)
+    target_compile_options(circle.library PUBLIC $<$<CONFIG:Release>:/O2>)
+    target_compile_options(circle.library PUBLIC $<$<CONFIG:Test>:/Zi /Od>)
+    target_compile_options(circle.library PUBLIC $<$<CONFIG:FastTest>:/O2>)
 endif ()
 find_package(Boost 1.54 REQUIRED COMPONENTS ${BOOST_MODULES})
 
@@ -431,14 +432,14 @@ endif ()
 include_directories(src
     system ${Boost_INCLUDE_DIRS}
     system ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(circle
+target_link_libraries(circle.library
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES})
 
 if (ICONV_FOUND)
     add_definitions("-DHAVE_ICONV")
     include_directories(system ${ICONV_INCLUDE_DIR})
-    target_link_libraries(circle ${ICONV_LIBRARIES})
+    target_link_libraries(circle.library ${ICONV_LIBRARIES})
 endif ()
 
 # Prepare options for test build
@@ -476,6 +477,8 @@ elseif (CMAKE_HOST_WIN32)
     set(CMAKE_CXX_FLAGS_DEBUG    "")
     set(CMAKE_CXX_FLAGS_TEST     "${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
     set(CMAKE_CXX_FLAGS_FASTTEST "${TESTBUILD_DEFINITIONS}")
+	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
+	set(CMAKE_EXE_LINKER_FLAGS_TEST "/DEBUG")
 
     # EPOLL>>> ...and suppose that Windows does not
     option(HAS_EPOLL "Does system support epoll call?" OFF)
@@ -496,6 +499,18 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     else ()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
     endif ()
+endif ()
+
+# Main executable file.
+set(MAIN_EXECUTABLE src/main.cpp)
+
+add_executable(circle ${MAIN_EXECUTABLE})
+target_link_libraries(circle circle.library)
+
+# Testing part
+option(BUILD_TESTS "Build and run tests." ON)
+if (BUILD_TESTS)
+	add_subdirectory(tests)
 endif ()
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :

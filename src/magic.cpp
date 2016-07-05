@@ -2926,8 +2926,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 3, 0, 0, 0, 0));
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+		af[1].location = APPLY_MADNESS;
+		af[1].duration = af[0].duration;
+		af[1].modifier = level;
 		to_room = "Теперь $n не сможет сбежать из боя!";
-		to_vict = "Вас обуяло безумие боя!";
+		to_vict = "Вас обуяло безумие!";
 		break;
 
 	case SPELL_WEB:
@@ -3102,6 +3105,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[2].location = APPLY_MOVEREG;
 		af[2].duration = af[0].duration;
 		af[2].modifier = -95;
+		af[3].location = APPLY_PLAQUE;
+		af[3].duration = af[0].duration;
+		af[3].modifier = level;
 		to_vict = "Вас скрутило в жестокой лихорадке.";
 		to_room = "$n3 скрутило в жестокой лихорадке.";
 		break;
