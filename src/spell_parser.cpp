@@ -3013,6 +3013,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	CHAR_DATA *tch;
 	OBJ_DATA *tobj;
 	ROOM_DATA *troom;
+	AFFECT_DATA<EApplyLocation> *aff;
 
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;
@@ -3025,6 +3026,24 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
+	
+	if (ch->affected)
+	{
+		for (aff = ch->affected; aff; aff = aff->next)
+		{
+			if ((aff->location == APPLY_PLAQUE) && (number (1,100) <10)) // лихорадка 10% фэйл закла
+			{
+				send_to_char("Вас трясет лихорадка, вы не смогли сконцентрироваться на произнесении заклинания.\r\n", ch);
+				return;
+			}
+			if ((aff->location == APPLY_MADNESS) && (number (1,100) <20)) // безумие 20% фэйл закла
+			{
+				send_to_char("Безумно начав кричать, вы забили что хотели произнести.\r\n", ch);
+				return;
+			}
+		}
+	}
+
 
 	if (ch->is_morphed())
 	{
