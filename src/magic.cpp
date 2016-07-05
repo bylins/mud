@@ -34,6 +34,7 @@
 #include "modify.h"
 #include "room.hpp"
 #include "AffectHandler.hpp"
+#include "corpse.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -4783,9 +4784,9 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		reagobj = GET_EQ(ch, WEAR_HOLD);
 
 		if (reagobj
-			&& (get_obj_in_list_vnum(1930, reagobj)
-				|| get_obj_in_list_vnum(1931, reagobj)
-				|| get_obj_in_list_vnum(1932, reagobj)))
+			&& (get_obj_in_list_vnum(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
+				|| get_obj_in_list_vnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
+				|| get_obj_in_list_vnum(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj)))
 		{
 			// у нас имеется доп символ для зачарования
 			obj->set_enchant(ch->get_skill(SKILL_LIGHT_MAGIC), reagobj);
