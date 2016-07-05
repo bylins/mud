@@ -4745,7 +4745,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 
                 reagobj = GET_EQ(ch, WEAR_HOLD);
 
-		if ((reagobj)&&(get_obj_in_list_vnum(1930,reagobj)||get_obj_in_list_vnum(1931,reagobj)||get_obj_in_list_vnum(1932,reagobj)))
+		if ((reagobj)&&(get_obj_in_list_vnum(MAGIC1_ENCHANT_VNUM,reagobj)||get_obj_in_list_vnum(MAGIC2_ENCHANT_VNUM,reagobj)||get_obj_in_list_vnum(MAGIC3_ENCHANT_VNUM,reagobj)))
 		{
 			// у нас имеется доп символ для зачарования
                     obj->set_enchant(ch->get_skill(SKILL_LIGHT_MAGIC),reagobj);
