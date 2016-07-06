@@ -2326,7 +2326,7 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 	return (FALSE);
 }
 
-bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum)
+bool material_component_processing(CHAR_DATA *caster, int /*vnum*/, int spellnum)
 {
 	const char *missing = NULL, *use = NULL, *exhausted = NULL;
 	switch (spellnum)
@@ -4658,7 +4658,6 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 {
 	OBJ_DATA *reagobj;
 	const char *to_char = NULL, *to_room = NULL;
-	int i = 0;
 	
 	if (obj == NULL)
 		return 0;
