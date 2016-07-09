@@ -2405,7 +2405,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
                         && number(1, 100) < (GET_LEVEL(victim) / 3))
                     || (IS_GOD(victim)
                         && (IS_NPC(ch)
-                            || GET_LEVEL(victim) > (GET_LEVEL(ch) + GET_REMORT(ch) / 2)))))
+                            || GET_LEVEL(victim) > (GET_LEVEL(ch) )))))
 		{
 			act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
 			act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
