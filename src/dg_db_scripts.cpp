@@ -203,14 +203,14 @@ void parse_trigger(FILE * trig_f, int nr)
 TRIG_DATA *read_trigger(int nr)
 {
 	index_data *index;
-	TRIG_DATA *trig;
+	TRIG_DATA *trig = new TRIG_DATA();
 
 	if (nr >= top_of_trigt || nr == -1)
 		return NULL;
 	if ((index = trig_index[nr]) == NULL)
 		return NULL;
 
-	CREATE(trig, 1);
+
 	trig_data_copy(trig, index->proto);
 
 	index->number++;

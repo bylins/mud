@@ -1011,7 +1011,8 @@ float time_life_spell(int spellnum, int percent)
 	switch (spellnum)
 	{
 		default:
-			return 1 + percent / 100;
+			return 1;
+			//return 1 + percent / 100;
 	}
 }
 
@@ -2404,7 +2405,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
                         && number(1, 100) < (GET_LEVEL(victim) / 3))
                     || (IS_GOD(victim)
                         && (IS_NPC(ch)
-                            || GET_LEVEL(victim) > GET_LEVEL(ch)))))
+                            || GET_LEVEL(victim) > (GET_LEVEL(ch) + GET_REMORT(ch) / 2)))))
 		{
 			act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
 			act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -2415,7 +2416,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	}
 	else
 	{
-		if (ch != victim && SpINFO.violent && IS_GOD(victim) && (IS_NPC(ch) || GET_LEVEL(victim) > GET_LEVEL(ch)))
+		if (ch != victim && SpINFO.violent && IS_GOD(victim) && (IS_NPC(ch) || GET_LEVEL(victim) > (GET_LEVEL(ch) + GET_REMORT(ch) / 2)))
 		{
 			act("Звуковой барьер $N1 отразил ваш крик!", FALSE, ch, 0, victim, TO_CHAR);
 			act("Звуковой барьер $N1 отразил крик $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
