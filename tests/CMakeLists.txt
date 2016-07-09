@@ -10,6 +10,11 @@ include_directories(${GTEST_INCLUDE})
 
 add_executable(msdp.tests msdp.tests.cpp)
 target_link_libraries(msdp.tests circle.library ${GTEST_LIB})
+if (NOT WIN32)
+    target_link_libraries(msdp.tests pthread)
+endif ()
 add_test(msdp msdp.tests)
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS msdp.tests)
+
+# vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :

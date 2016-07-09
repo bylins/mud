@@ -314,7 +314,6 @@ int OBJ_DATA::get_timer() const
 void OBJ_DATA::set_enchant(int skill)
 {
     int i = 0;
-    int random_drop = 0;
 
     for (i = 0; i < MAX_OBJ_AFFECT; i++)
     if (affected[i].location != APPLY_NONE)
@@ -332,21 +331,18 @@ void OBJ_DATA::set_enchant(int skill)
     else if (skill <= 125)
     // 8 мортов (скил магия света 125)
     {
-       random_drop = 1;
        affected[0].modifier = 1 + number(-3, 2);
        affected[1].modifier = 1 + number(-3, 2);
     }
     else if (skill <= 160)
     // 12 мортов (скил магия света 160)
     {
-       random_drop = 1;
        affected[0].modifier = 1 + number(-4, 3);
        affected[1].modifier = 1 + number(-4, 3);
     }
     else if (skill >160)
     // 16 мортов (скил магия света 160+)
     {
-       random_drop = 2;
        affected[0].modifier = 1 + number(-5, 4);
        affected[1].modifier = 1 + number(-5, 4);
     }

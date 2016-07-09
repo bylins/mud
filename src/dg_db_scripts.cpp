@@ -203,14 +203,14 @@ void parse_trigger(FILE * trig_f, int nr)
 TRIG_DATA *read_trigger(int nr)
 {
 	index_data *index;
-	TRIG_DATA *trig;
+	TRIG_DATA *trig = new TRIG_DATA();
 
 	if (nr >= top_of_trigt || nr == -1)
 		return NULL;
 	if ((index = trig_index[nr]) == NULL)
 		return NULL;
 
-	CREATE(trig, 1);
+
 	trig_data_copy(trig, index->proto);
 
 	index->number++;
@@ -456,7 +456,8 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(mob))
 					{
-						mob->script = new script_data();
+						CREATE(SCRIPT(mob), 1);
+						mob->script->trig_list = new trig_data();
 					}
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
 					if (trig_index[rnum]->proto->owner.find(-1) != trig_index[rnum]->proto->owner.end())
@@ -501,7 +502,8 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(obj))
 					{
-						obj->script = new script_data();
+						CREATE(SCRIPT(obj), 1);
+						obj->script->trig_list = new trig_data();
 					}
 					
 					add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
@@ -534,7 +536,8 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(room))
 					{
-						room->script = new script_data();
+						CREATE(SCRIPT(room), 1);
+						room->script->trig_list = new trig_data();
 					}
 					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
 					if (trig_index[rnum]->proto->owner.find(-1) != trig_index[rnum]->proto->owner.end())

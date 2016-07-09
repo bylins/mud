@@ -1060,7 +1060,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"olist", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST, 0},
 	{"rlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST, 0},
 	{"zlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST, 0},
-
+	{"clist", POS_DEAD, do_liblist, LVL_GOD, SCMD_CLIST, 0},
 	// DG trigger commands
 	{"attach", POS_DEAD, do_attach, LVL_IMPL, 0, 0},
 	{"detach", POS_DEAD, do_detach, LVL_IMPL, 0, 0},
