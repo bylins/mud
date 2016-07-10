@@ -204,7 +204,6 @@ TRIG_DATA *read_trigger(int nr)
 {
 	index_data *index;
 	TRIG_DATA *trig = new TRIG_DATA();
-	trig->attach_type = OBJ_TRIGGER;
 	if (nr >= top_of_trigt || nr == -1)
 		return NULL;
 	if ((index = trig_index[nr]) == NULL)
@@ -372,7 +371,6 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 				tmp_vector.push_back(room->number);
 				trig_index[rnum]->proto->owner.insert(std::pair<int, std::vector<int>>(-1, tmp_vector));
 			}
-			//trig_index[rnum]->proto->owner.push_back(GET_ROOM_VNUM(room->));
 		}
 		else
 		{
@@ -457,7 +455,6 @@ void assign_triggers(void *i, int type)
 					if (!SCRIPT(mob))
 					{
 						CREATE(SCRIPT(mob), 1);
-						//mob->script->trig_list = new trig_data();
 					}
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
 					if (trig_index[rnum]->proto->owner.find(-1) != trig_index[rnum]->proto->owner.end())
@@ -503,7 +500,6 @@ void assign_triggers(void *i, int type)
 					if (!SCRIPT(obj))
 					{
 						CREATE(SCRIPT(obj), 1);
-						//obj->script->trig_list = new trig_data();
 					}
 					
 					add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
@@ -537,7 +533,6 @@ void assign_triggers(void *i, int type)
 					if (!SCRIPT(room))
 					{
 						CREATE(SCRIPT(room), 1);
-						//room->script->trig_list = new trig_data();
 					}
 					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
 					if (trig_index[rnum]->proto->owner.find(-1) != trig_index[rnum]->proto->owner.end())

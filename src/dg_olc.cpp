@@ -485,7 +485,6 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 					new_index[trig_rnum]->number = 0;
 					new_index[trig_rnum]->func = NULL;
 					proto = new TRIG_DATA();
-					proto->attach_type = 1;
 					new_index[trig_rnum]->proto = proto;
 
 					trig_data_copy(proto, trig);
@@ -517,7 +516,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 			new_index[trig_rnum]->func = NULL;
 
 			proto = new TRIG_DATA();
-			proto->attach_type = 1;
+
 			new_index[trig_rnum]->proto = proto;
 			trig_data_copy(proto, trig);
 		}
