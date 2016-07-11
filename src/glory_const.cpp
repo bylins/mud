@@ -364,12 +364,12 @@ void olc_add_stat(CHAR_DATA *ch, int stat)
 	switch (stat)
 	{
 		case GLORY_CON:
-			if (ch->desc->glory_const->olc_free_glory >= need_glory)
-				ok = true;
-			break;
 		case GLORY_STR:
 		case GLORY_DEX:
 		case GLORY_INT:
+			if (ch->desc->glory_const->olc_free_glory >= need_glory)
+				ok = true;
+			break;
 		case GLORY_WIS:
 		case GLORY_CHA:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
@@ -378,22 +378,19 @@ void olc_add_stat(CHAR_DATA *ch, int stat)
 				ok = true;
 			break;
 		case GLORY_HIT:
-			if (ch->desc->glory_const->olc_free_glory >= need_glory
-				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < 127)
-				ok = true;
-			break;
 		case GLORY_SUCCESS:
 		case GLORY_WILL:
 		case GLORY_STABILITY:
 		case GLORY_REFLEX:
-		case GLORY_MIND:
-			if (ch->desc->glory_const->olc_free_glory >= need_glory
-				&& (ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] + 1)*stat_multi(stat) < 127)
+			if (ch->desc->glory_const->olc_free_glory >= need_glory)
 				ok = true;
 			break;
-
+		case GLORY_MIND:
+			if (ch->desc->glory_const->olc_free_glory >= need_glory
+				&& ch->desc->glory_const->stat_cur[stat]
+					+ ch->desc->glory_const->stat_add[stat] < 75)
+				ok = true;
+			break;
 		default:
 			log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
 	}
