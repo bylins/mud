@@ -387,11 +387,13 @@ void olc_add_stat(CHAR_DATA *ch, int stat)
 		case GLORY_WILL:
 		case GLORY_STABILITY:
 		case GLORY_REFLEX:
+		case GLORY_MIND:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& (ch->desc->glory_const->stat_cur[stat]
 					+ ch->desc->glory_const->stat_add[stat] + 1)*stat_multi(stat) < 127)
 				ok = true;
 			break;
+
 		default:
 			log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
 	}
