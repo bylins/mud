@@ -30,6 +30,8 @@ private:
 	CLogInfo& operator=(const CLogInfo&);
 
 public:
+	static constexpr umask_t UMASK_DEFAULT = -1;
+
 	enum EBuffered
 	{
 		EB_NO = _IONBF,
@@ -37,18 +39,28 @@ public:
 		EB_FULL = _IOFBF
 	};
 
+	enum EMode
+	{
+		EM_REWRITE,
+		EM_APPEND
+	};
+
 	CLogInfo(const char* filename, const char* human_readable_name) :
 		m_handle(nullptr),
 		m_filename(filename),
-		m_human_readable_name(human_readable_name),
-		m_buffered(EB_LINE)
+		m_title(human_readable_name),
+		m_buffered(EB_LINE),
+		m_mode(EM_REWRITE),
+		m_umask(UMASK_DEFAULT)
 	{
 	}
 	CLogInfo(const CLogInfo& from) :
 		m_handle(nullptr),
 		m_filename(from.m_filename),
-		m_human_readable_name(from.m_human_readable_name),
-		m_buffered(from.m_buffered)
+		m_title(from.m_title),
+		m_buffered(from.m_buffered),
+		m_mode(from.m_mode),
+		m_umask(from.m_umask)
 	{
 	}
 
@@ -57,24 +69,34 @@ public:
 	void buffered(const EBuffered _) { m_buffered = _; }
 	void handle(FILE* _) { m_handle = _; }
 	void filename(const char* _) { m_filename = _; }
+	void mode(const EMode _) { m_mode = _; }
+	void umask(const int _) { m_umask = _; }
 
+	auto buffered() const { return m_buffered; }
 	const std::string& filename() const { return m_filename; }
-	const std::string& title() const { return m_human_readable_name; }
+	const std::string& title() const { return m_title; }
 	FILE* handle() const { return m_handle; }
+	auto mode() const { return m_mode; }
+	auto umask() const { return m_umask; }
 
 private:
 	static constexpr size_t BUFFER_SIZE = 1024;
 
 	FILE *m_handle;
 	std::string m_filename;
-	std::string m_human_readable_name;
+	std::string m_title;
 	EBuffered m_buffered;
+	EMode m_mode;
+	umask_t m_umask;
 
 	char m_buffer[BUFFER_SIZE];
 };
 
 template <> CLogInfo::EBuffered ITEM_BY_NAME<CLogInfo::EBuffered>(const std::string& name);
-template <> const std::string& NAME_BY_ITEM<CLogInfo::EBuffered>(const CLogInfo::EBuffered spell);
+template <> const std::string& NAME_BY_ITEM<CLogInfo::EBuffered>(const CLogInfo::EBuffered mode);
+
+template <> CLogInfo::EMode ITEM_BY_NAME<CLogInfo::EMode>(const std::string& name);
+template <> const std::string& NAME_BY_ITEM<CLogInfo::EMode>(const CLogInfo::EMode mode);
 
 class runtime_config
 {

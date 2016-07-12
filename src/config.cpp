@@ -27,6 +27,10 @@
 
 #include <boost/version.hpp>
 
+#if CIRCLE_UNIX
+#include <sys/stat.h>
+#endif
+
 #include <iostream>
 
 #define YES	    1
@@ -369,25 +373,90 @@ void runtime_config::handle(const EOutputStream stream, FILE* handle)
 	m_logs[stream].handle(handle);
 }
 
-void runtime_config::load_stream_config(CLogInfo& log, const pugi::xml_node* node)
+class StreamConfigLoader
 {
-	const auto filename = node->child("filename");
+private:
+	static constexpr int UMASK_BASE = 8;
+
+public:
+	StreamConfigLoader(CLogInfo& log, const pugi::xml_node* node) : m_log(log), m_node(node) {}
+
+	void load_filename();
+	void load_buffered();
+	void load_mode();
+	void load_umask();
+
+private:
+	CLogInfo& m_log;
+	const pugi::xml_node* m_node;
+};
+
+void StreamConfigLoader::load_filename()
+{
+	const auto filename = m_node->child("filename");
 	if (filename)
 	{
-		log.filename(filename.child_value());
+		m_log.filename(filename.child_value());
 	}
-	const auto buffered = node->child("buffered");
+}
+
+void StreamConfigLoader::load_buffered()
+{
+	const auto buffered = m_node->child("buffered");
 	if (buffered)
 	{
 		try
 		{
-			log.buffered(ITEM_BY_NAME<CLogInfo::EBuffered>(buffered.child_value()));
+			m_log.buffered(ITEM_BY_NAME<CLogInfo::EBuffered>(buffered.child_value()));
 		}
 		catch (...)
 		{
-			std::cerr << "Could not set value \"" << buffered.child_value() << "\" as buffered option." << std::endl;
+			std::cerr << "Could not set value \"" << buffered.child_value() << "\" as buffered option. Using default value " << NAME_BY_ITEM(m_log.buffered()) << std::endl;
 		}
 	}
+}
+
+void StreamConfigLoader::load_mode()
+{
+	const auto mode = m_node->child("mode");
+	if (mode)
+	{
+		try
+		{
+			m_log.mode(ITEM_BY_NAME<CLogInfo::EMode>(mode.child_value()));
+		}
+		catch (...)
+		{
+			std::cerr << "Could not set value \"" << mode.child_value() << "\" as opening mode. Using default value " << NAME_BY_ITEM(m_log.mode()) << std::endl;
+		}
+	}
+}
+
+void StreamConfigLoader::load_umask()
+{
+	const auto umask = m_node->child("umask");
+	if (umask)
+	{
+		try
+		{
+			const int umask_value = std::stoi(umask.child_value(), nullptr, UMASK_BASE);
+			m_log.umask(umask_value);
+		}
+		catch (...)
+		{
+			std::cerr << "Could not set value \"" << umask.child_value()
+				<< "\" as umask value. Using default value " << std::endl;
+		}
+	}
+}
+
+void runtime_config::load_stream_config(CLogInfo& log, const pugi::xml_node* node)
+{
+	StreamConfigLoader loader(log, node);
+	loader.load_filename();
+	loader.load_buffered();
+	loader.load_mode();
+	loader.load_umask();
 }
 
 typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
@@ -471,6 +540,45 @@ const std::string& NAME_BY_ITEM<CLogInfo::EBuffered>(const CLogInfo::EBuffered i
 	return EBuffered_name_by_value.at(item);
 }
 
+typedef std::map<CLogInfo::EMode, std::string> EMode_name_by_value_t;
+typedef std::map<const std::string, CLogInfo::EMode> EMode_value_by_name_t;
+EMode_name_by_value_t EMode_name_by_value;
+EMode_value_by_name_t EMode_value_by_name;
+
+void init_EMode_ITEM_NAMES()
+{
+	EMode_name_by_value.clear();
+	EMode_value_by_name.clear();
+
+	EMode_name_by_value[CLogInfo::EMode::EM_REWRITE] = "REWRITE";
+	EMode_name_by_value[CLogInfo::EMode::EM_APPEND] = "APPEND";
+
+	for (const auto& i : EMode_name_by_value)
+	{
+		EMode_value_by_name[i.second] = i.first;
+	}
+}
+
+template <>
+CLogInfo::EMode ITEM_BY_NAME(const std::string& name)
+{
+	if (EMode_name_by_value.empty())
+	{
+		init_EMode_ITEM_NAMES();
+	}
+	return EMode_value_by_name.at(name);
+}
+
+template <>
+const std::string& NAME_BY_ITEM<CLogInfo::EMode>(const CLogInfo::EMode item)
+{
+	if (EMode_name_by_value.empty())
+	{
+		init_EMode_ITEM_NAMES();
+	}
+	return EMode_name_by_value.at(item);
+}
+
 const char* runtime_config::CONFIGURATION_FILE_NAME = "lib/misc/configuration.xml";
 
 void runtime_config::load_from_file(const char* filename)
@@ -530,20 +638,45 @@ void runtime_config::load_from_file(const char* filename)
 	}
 }
 
+class UMaskToggle
+{
+public:
+	UMaskToggle(const umask_t umask_value) : m_umask(set_umask(umask_value)) {}
+	~UMaskToggle() { set_umask(m_umask); }
+
+	static umask_t set_umask(const umask_t umask_value)
+	{
+#if defined CIRCLE_UNIX
+		return CLogInfo::UMASK_DEFAULT == umask_value ? umask_value : umask(umask_value);
+#else
+		return umask_value;
+#endif
+	}
+
+private:
+	umask_t m_umask;
+};
+
 bool CLogInfo::open()
 {
-	FILE* handle = fopen(m_filename.c_str(), "w");
+	UMaskToggle umask_toggle(this->umask());
+
+	const char* mode = EM_APPEND == this->mode() ? "a+" : "w";
+	FILE* handle = fopen(filename().c_str(), mode);
 
 	if (handle)
 	{
-		setvbuf(handle, m_buffer, m_buffered, BUFFER_SIZE);
+		setvbuf(handle, m_buffer, buffered(), BUFFER_SIZE);
 
 		m_handle = handle;
-		printf("Using log file '%s' with %s buffering.\n", m_filename.c_str(), NAME_BY_ITEM(m_buffered).c_str());
+		printf("Using log file '%s' with %s buffering. Opening in %s mode.\n",
+			filename().c_str(),
+			NAME_BY_ITEM(buffered()).c_str(),
+			NAME_BY_ITEM(this->mode()).c_str());
 		return true;
 	}
 
-	fprintf(stderr, "SYSERR: Error opening file '%s': %s\n", m_filename.c_str(), strerror(errno));
+	fprintf(stderr, "SYSERR: Error opening file '%s': %s\n", filename().c_str(), strerror(errno));
 
 	return false;
 }

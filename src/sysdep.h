@@ -582,6 +582,12 @@ inline void UNUSED_ARG(const T& UNUSED_ID(t)) { }
 # endif /* ghs || __GNUC__ || ..... */
 #endif /* !UNUSED_ARG */
 
+#if defined CIRCLE_UNIX
+using umask_t = mode_t;
+#else
+using umask_t = int;
+#endif
+
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
