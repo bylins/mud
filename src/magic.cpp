@@ -1004,9 +1004,8 @@ void player_affect_update(void)
 	}
 }
 
-
 // зависимость длительности закла от скила магии
-float time_life_spell(int spellnum, int percent)
+float time_life_spell(int spellnum, int /*percent*/)
 {
 	switch (spellnum)
 	{

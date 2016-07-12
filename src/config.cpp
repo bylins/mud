@@ -27,6 +27,10 @@
 
 #include <boost/version.hpp>
 
+#if CIRCLE_UNIX
+#include <sys/stat.h>
+#endif
+
 #include <iostream>
 
 #define YES	    1
@@ -643,7 +647,7 @@ public:
 	static umask_t set_umask(const umask_t umask_value)
 	{
 #if defined CIRCLE_UNIX
-		return ::umask(umask_value);
+		return umask(umask_value);
 #else
 		return umask_value;
 #endif
