@@ -30,7 +30,7 @@ private:
 	CLogInfo& operator=(const CLogInfo&);
 
 public:
-	static constexpr int UMASK_DEFAULT = -1;
+	static constexpr umask_t UMASK_DEFAULT = -1;
 
 	enum EBuffered
 	{

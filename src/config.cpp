@@ -647,7 +647,7 @@ public:
 	static umask_t set_umask(const umask_t umask_value)
 	{
 #if defined CIRCLE_UNIX
-		return umask(umask_value);
+		return CLogInfo::UMASK_DEFAULT == umask_value ? umask_value : umask(umask_value);
 #else
 		return umask_value;
 #endif
