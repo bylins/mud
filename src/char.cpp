@@ -929,7 +929,7 @@ void CHAR_DATA::set_level(short level)
 {
 	if (IS_NPC(this))
 	{
-		level_ = std::max(static_cast<short>(1), std::min(MAX_MOB_LEVEL, level));
+		level_ = std::max(static_cast<short>(0), std::min(MAX_MOB_LEVEL, level));
 	}
 	else
 	{
