@@ -2393,7 +2393,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	if (killer)
 	{
-		if (AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP))
+		if (AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP) && !IS_NPC(ch))
 		{
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
