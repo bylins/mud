@@ -830,30 +830,18 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	int inroom_members, koef = 100, maxlevel;
+	CHAR_DATA *k;
 	struct follow_type *f;
 	int leader_inroom;
 	int partner_count = 0; bool use_partner_exp = false;
-
-	CHAR_DATA *k = ch->master;
-	if (nullptr == k)
-	{
-		k = ch;
-	}
-
-	if (IS_NPC(k))
-	{
-		return;
-	}
-
 	// если наем лидер, то тоже режем экспу
 	if (can_use_feat(ch, CYNIC_FEAT))
-	{
-		maxlevel = 300;
-	}
+	    maxlevel = 300;
 	else
-	{
-		maxlevel = GET_LEVEL(ch);
-	}
+	    maxlevel = GET_LEVEL(ch);
+
+	if (!(k = ch->master))
+		k = ch;
 
 	// k - подозрение на лидера группы
 	leader_inroom = (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
