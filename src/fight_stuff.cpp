@@ -901,8 +901,6 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	{
 		for (f = k->followers; f; f = f->next)
 		{
-			if (IS_NPC(f->follower))
-				continue;
 			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 				&& f->follower->in_room == IN_ROOM(ch))
 			{
