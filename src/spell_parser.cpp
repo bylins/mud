@@ -1629,8 +1629,8 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 			mana_cost = mana_cost * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
 		else
 			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
-
-		return mana_cost / koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum)));
+		return mana_cost / koef_skill_magic(get_magic_skill_number_by_spell(spellnum));
+//		return mana_cost / koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))); пока не родим формулу
 	};
 	return 9999;
 	//#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1])
