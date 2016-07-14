@@ -95,6 +95,7 @@ extern mob_rnum top_of_mobt;
 extern int top_of_p_table;
 extern int shutdown_time;
 extern CHAR_DATA *mob_proto;
+void medit_save_to_disk(int zone_num);
 extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
@@ -3919,7 +3920,6 @@ void do_dc(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *d;
 	int num_to_dc;
-
 	one_argument(argument, arg);
 	if (!(num_to_dc = atoi(arg)))
 	{
