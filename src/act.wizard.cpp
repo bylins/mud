@@ -3920,9 +3920,6 @@ void do_dc(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *d;
 	int num_to_dc;
-	for (int i = 1; i < 9999; i++)
-		if (real_zone(zone_table[i].number) != -1)
-			medit_save_to_disk(i);
 	one_argument(argument, arg);
 	if (!(num_to_dc = atoi(arg)))
 	{
