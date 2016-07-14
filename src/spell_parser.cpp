@@ -5210,6 +5210,10 @@ void mag_assign_spells(void)
 //207
 	spello(SPELL_AURA_EVIL, "аура зла", "aura evil",
 		   150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,  3, STYPE_DARK);
+//208
+	spello(SPELL_MENTAL_SHADOW, "ментальная тень", "mental shadow", 150, 130, 5,
+		   POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL, 1, STYPE_MIND);
+
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
