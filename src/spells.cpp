@@ -2947,13 +2947,13 @@ void spell_vampire(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_
 {
 }
 
-void spell_mental_shadow(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
+void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
  // подготовка контейнера для создания заклинания ментальная тень
  // все предложения пишем мад почтой
  
  
-	mob_vnum mob_num = MOB_MENTAL_SHADOW;
+	mob_vnum mob_num = 3020;
 	int modifier = 0;
 
 	CHAR_DATA *mob = NULL;
