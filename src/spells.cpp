@@ -39,6 +39,7 @@
 #include "birth_places.hpp"
 #include "obj_sets.hpp"
 #include "utils.h"
+#include "magic.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -2953,7 +2954,7 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
  // все предложения пишем мад почтой
  
  
-	mob_vnum mob_num = 3020;
+	mob_vnum mob_num = MOB_MENTAL_SHADOW;
 	int modifier = 0;
 
 	CHAR_DATA *mob = NULL;
@@ -3019,8 +3020,8 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 
 	mob->set_exp(0);
 
-	GET_MAX_HIT(mob) = 600;
-	GET_HIT(mob) = 600;
+	GET_MAX_HIT(mob) = 100;
+	GET_HIT(mob) = 100;
 	mob->set_gold(0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
@@ -3029,7 +3030,7 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 	GET_DEFAULT_POS(mob) = POS_STANDING;
 
 //----------------------------------------------------------------------
-	mob->set_skill(SKILL_AWAKE, 100);
+	mob->set_skill(SKILL_AWAKE, 1);
 	mob->set_skill(SKILL_PROTECT, 100);
 	mob->set_skill(SKILL_PUNCH, 5);
 
