@@ -1258,7 +1258,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 
 	if (subcmd == SCMD_FREEHELPEE)
-	{   //расчитываем
+	{
 		for (k = ch->followers; k; k = k->next)
 		{
 			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)

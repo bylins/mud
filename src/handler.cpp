@@ -4363,8 +4363,6 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 	//                     1 - min_stats2[(int)GET_CLASS(ch)][5] +
 	//((e_int<(1+min_stats2[(int)GET_CLASS(ch)][2]))?MIN(ch->get_int(),(1+min_stats2[(int)GET_CLASS(ch)][2])):e_int)-
 	//                     1.0 - min_stats2[(int)GET_CLASS(ch)][2];
-	
-	
 	float stat_overlimit = VPOSI<float>(e_cha + e_int - 1.0 -
 								 min_stats2[(int) GET_CLASS(ch)][5] - 1 -
 								 min_stats2[(int) GET_CLASS(ch)][2], 0, 100);
@@ -4381,8 +4379,6 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 	//sprintf(buf,"diff =%f statover=%f ncha=%f rcha=%f pow:%f\r\n",difference,stat_overlimit,needed_cha, real_cha, pow(2.0,difference));
 	//send_to_char(buf,ch);
 	dpr = get_damage_per_round(victim);
-	
-	log("MERCHANT: calc_hire_price hero (%s) charmis (%s) harizma (%f) dpr (%f)", GET_NAME(ch),GET_NAME(victim), needed_cha , dpr) ;
 
 	if (difference <= 0)
 		price = dpr * (1.0 - 0.01 * stat_overlimit);
