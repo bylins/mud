@@ -4380,8 +4380,8 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 	//send_to_char(buf,ch);
 	dpr = get_damage_per_round(victim);
 
-	log("MERCHANT: hero (%s) mob (%s) charm (%f) dpr (%f)",GET_NAME(ch),GET_NAME(victim),needed_cha,dpr)
-	
+	log("MERCHANT: hero (%s) mob (%s [%5d] ) charm (%f) dpr (%f)",GET_NAME(ch),GET_NAME(victim),GET_MOB_VNUM(victim),needed_cha,dpr);	
+
 	if (difference <= 0)
 		price = dpr * (1.0 - 0.01 * stat_overlimit);
 	else
