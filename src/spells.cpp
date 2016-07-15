@@ -2951,6 +2951,151 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/
 {
  // подготовка контейнера для создания заклинания ментальная тень
  // все предложения пишем мад почтой
+ 
+ 
+	mob_vnum mob_num = MOB_MENTAL_SHADOW;
+	int modifier = 0;
+
+	CHAR_DATA *mob = NULL;
+	struct follow_type *k, *k_next;
+	for (k = ch->followers; k; k = k_next)
+	{
+		k_next = k->next;
+		if (MOB_FLAGGED(k->follower, MOB_ANGEL))  	//send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
+		{
+			//return;
+			//пуржим тень
+			stop_follower(k->follower, SF_CHARMLOST);
+		}
+	}
+	if (get_effective_int(ch) < 16 && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Головные боли мешают работать!\r\n", ch);
+		return;
+	};
+	/*
+	if (number(1, 1001) < 500 - 30 * GET_REMORT(ch) && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Боги только посмеялись над вами!\r\n", ch);
+		return;
+	};
+	*/
+	if (!(mob = read_mobile(-mob_num, VIRTUAL)))
+	{
+		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
+		return;
+	}
+	//reset_char(mob);
+	clear_char_skills(mob);
+	AFFECT_DATA<EApplyLocation> af;
+	af.type = SPELL_CHARM;
+	af.duration =
+		pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+	af.modifier = 0;
+	af.location = APPLY_NONE;
+	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
+	af.battleflag = 0;
+	affect_to_char(mob, &af);
+
+
+	mob->set_str(3);
+	mob->set_dex(3);
+	mob->set_con(3);
+	mob->set_int(3);
+	mob->set_wis(3);
+	mob->set_cha(3);
+
+	GET_WEIGHT(mob) = 150;
+	GET_HEIGHT(mob) = 200;
+	GET_SIZE(mob) = 65;
+
+	GET_HR(mob) = 25;
+	GET_AC(mob) = 100;
+	GET_DR(mob) = 0;
+
+	mob->mob_specials.damnodice = 1;
+	mob->mob_specials.damsizedice = 1;
+	mob->mob_specials.ExtraAttack = 1;
+
+	mob->set_exp(0);
+
+	GET_MAX_HIT(mob) = 600;
+	GET_HIT(mob) = 600;
+	mob->set_gold(0);
+	GET_GOLD_NoDs(mob) = 0;
+	GET_GOLD_SiDs(mob) = 0;
+
+	GET_POS(mob) = POS_STANDING;
+	GET_DEFAULT_POS(mob) = POS_STANDING;
+
+//----------------------------------------------------------------------
+	mob->set_skill(SKILL_AWAKE, 100);
+	mob->set_skill(SKILL_PROTECT, 100);
+	mob->set_skill(SKILL_PUNCH, 5);
+
+	SET_SPELL(mob, SPELL_REMOVE_HOLD, 1);
+
+//----------------------------------------------------------------------
+	if (mob->get_skill(SKILL_AWAKE))
+	{
+		PRF_FLAGS(mob).set(PRF_AWAKE);
+	}
+
+	GET_LIKES(mob) = 100;
+	IS_CARRYING_W(mob) = 0;
+	IS_CARRYING_N(mob) = 0;
+
+	MOB_FLAGS(mob).set(MOB_CORPSE);
+	MOB_FLAGS(mob).set(MOB_ANGEL);
+
+	AFF_FLAGS(mob).set(EAffectFlag::AFF_FLY);
+	AFF_FLAGS(mob).set(EAffectFlag::AFF_INFRAVISION);
+	mob->set_level(ch->get_level());
+//----------------------------------------------------------------------
+// добавляем зависимости от уровня и от интелекта
+// level
+
+	modifier = (int)(5 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
+					 + 5 * VPOSI<float>(get_effective_int(ch) - 16, 0, 50));
+
+	mob->set_skill(SKILL_AWAKE, mob->get_skill(SKILL_AWAKE) + modifier);
+	mob->set_skill(SKILL_BLOCK, mob->get_skill(SKILL_PROTECT) + modifier);
+
+	mob->set_protecting(ch);
+	
+	modifier = (int)(2 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
+					 + 1 * VPOSI<float>(get_effective_int(ch) - 16, 0, 50));
+	GET_HR(mob) += modifier;
+
+	modifier = VPOSI(GET_LEVEL(ch) - 26, 0, 50);
+	mob->inc_con(modifier);
+
+	modifier = (int)(20 * VPOSI<float>(get_effective_int(ch) - 16, 0, 50));
+	GET_MAX_HIT(mob) += modifier;
+	GET_HIT(mob) += modifier;
+
+	modifier = (int)(3 * VPOSI<float>(get_effective_int(ch) - 16, 0, 50));
+	GET_AC(mob) -= modifier;
+
+	modifier = 1 * VPOSI((int)((get_effective_int(ch) - 16) / 2), 0, 50);
+	mob->inc_str(modifier);
+	mob->inc_dex(modifier);
+
+
+
+	AFF_FLAGS(mob).set(EAffectFlag::AFF_SHADOW_CLOAK);
+
+	AFF_FLAGS(mob).set(EAffectFlag::AFF_AIRSHIELD);
+
+	char_to_room(mob, IN_ROOM(ch));
+
+	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+	
+	add_follower(mob, ch);
+	return;
+ 
+ 
+ 
 }
 
 const spell_wear_off_msg_t spell_wear_off_msg =

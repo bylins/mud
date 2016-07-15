@@ -32,6 +32,7 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define LAST_NECR_MOB	  3008
 #define MOB_KEEPER        104
 #define MOB_FIREKEEPER    105
+#define MOB_MENTAL_SHADOW 3020
 
 #define MAX_SPELL_AFFECTS 16	// change if more needed
 
