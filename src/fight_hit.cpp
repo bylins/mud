@@ -2393,7 +2393,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	if (killer)
 	{
-		if (AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP) && !IS_NPC(ch))
+		if (AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP))
 		{
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
@@ -2404,8 +2404,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			// по логике надо бы сделать, что если хозяина нет в клетке, но
 			// кто-то из группы хозяина в клетке, то опыт накинуть согруппам,
 			// которые рядом с убившим моба чармисом.
-			if (!IS_NPC(killer->master)
-				&& AFF_FLAGGED(killer->master, EAffectFlag::AFF_GROUP)
+			if (AFF_FLAGGED(killer->master, EAffectFlag::AFF_GROUP)
 				&& IN_ROOM(killer) == IN_ROOM(killer->master))
 			{
 				// Хозяин - PC в группе => опыт группе
