@@ -359,7 +359,8 @@ enum ESpell
 	SPELL_RECOVERY = 205,	// исцеление нежити
 	SPELL_MASS_RECOVERY = 206,	// масовое исцеление нежити
 	SPELL_AURA_EVIL = 207,	// аура зла для всей нежити в группе
-	SPELLS_COUNT = SPELL_AURA_EVIL	// Counter corresponds to the last value because we count spells from 1.
+	SPELL_MENTAL_SHADOW = 208,	// ментальная тень
+	SPELLS_COUNT = SPELL_MENTAL_SHADOW	// Counter corresponds to the last value because we count spells from 1.
 };
 
 typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;
@@ -553,6 +554,7 @@ void spell_holystrike(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj
 void skill_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_angel(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_vampire(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_mental_shadow(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 
 // basic magic calling functions
 

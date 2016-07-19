@@ -39,6 +39,7 @@
 #include "birth_places.hpp"
 #include "obj_sets.hpp"
 #include "utils.h"
+#include "magic.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -2947,6 +2948,46 @@ void spell_vampire(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_
 {
 }
 
+void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
+{
+ // подготовка контейнера для создания заклинания ментальная тень
+ // все предложения пишем мад почтой
+ 
+ 
+	mob_vnum mob_num = MOB_MENTAL_SHADOW;
+	int modifier = 0;
+
+	CHAR_DATA *mob = NULL;
+	struct follow_type *k, *k_next;
+	for (k = ch->followers; k; k = k_next)
+	{
+		k_next = k->next;
+		if (MOB_FLAGGED(k->follower, MOB_ANGEL))  	
+		{
+			stop_follower(k->follower, SF_CHARMLOST);
+		}
+	}
+	if (get_effective_int(ch) < 16 && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Головные боли мешают работать!\r\n", ch);
+		return;
+	};
+
+	if (!(mob = read_mobile(-mob_num, VIRTUAL)))
+	{
+		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
+		return;
+	}
+	
+	char_to_room(mob, IN_ROOM(ch));
+	mob->set_protecting(ch);
+
+	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+	
+	add_follower(mob, ch);
+	return;
+}
+
 const spell_wear_off_msg_t spell_wear_off_msg =
 {
 	"RESERVED DB.C",	// 0
@@ -3156,7 +3197,8 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"Силы нави покинули вас.",
 	"!SPELL_RECOVERY!",
 	"!SPELL_MASS_RECOVERY!",
-	"Аура зла больше не помогает вам."
+	"Аура зла больше не помогает вам.",
+	"!SPELL_MENTAL_SHADOW!"                 // 208
 };
 
 /**
@@ -3386,6 +3428,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Обрасти плотью сызнова.", "... прости Господи грехи, верни плоть созданию." }, // SPELL_RECOVERY
 	cast_phrase_t{ "Обрастите плотью сызнова.", "... прости Господи грехи, верни плоть созданиям." }, // SPELL_MASS_RECOVERY
 	cast_phrase_t{ "Возьми личину зла для жатвы славной.", "Надели силой злою во благо." }, // SPELL_AURA_EVIL
+	cast_phrase_t{ "\n", "\n" }, // SPELL_MENTAL_SHADOW
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3605,6 +3648,7 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_RECOVERY] = "SPELL_RECOVERY";
 	ESpell_name_by_value[ESpell::SPELL_MASS_RECOVERY] = "SPELL_MASS_RECOVERY";
 	ESpell_name_by_value[ESpell::SPELL_AURA_EVIL] = "SPELL_AURA_EVIL";
+	ESpell_name_by_value[ESpell::SPELL_MENTAL_SHADOW] = "SPELL_MENTAL_SHADOW";
 	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
 
 	for (const auto& i : ESpell_name_by_value)

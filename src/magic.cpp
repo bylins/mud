@@ -4991,6 +4991,9 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 	case SPELL_VAMPIRE:
 		MANUAL_SPELL(spell_vampire);
 		break;
+	case SPELL_MENTAL_SHADOW:
+		MANUAL_SPELL(spell_mental_shadow);
+		break;
 	default:
 		return 0;
 	}
