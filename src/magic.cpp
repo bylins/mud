@@ -1005,15 +1005,32 @@ void player_affect_update(void)
 }
 
 // зависимость длительности закла от скила магии
-float time_life_spell(int spellnum, int /*percent*/)
+float func_koef_duration(int spellnum, int percent)
 {
 	switch (spellnum)
 	{
+		case SPELL_STRENGTH:
+			return 1 + percent / 400;
 		default:
 			return 1;
-			//return 1 + percent / 100;
 	}
 }
+
+// зависимость модификации спелла от скила магии
+float func_koef_modif(int spellnum, int percent)
+{
+	switch (spellnum)
+	{
+		case SPELL_STRENGTH:
+			if (percent > 100)
+				return 1;
+			return 0;			
+	default:
+		return 1;
+		//return 1 + percent / 100;
+	}
+}
+
 
 // This file update battle affects only
 void battle_affect_update(CHAR_DATA * ch)
@@ -2454,7 +2471,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 //  log("[MAG Affect] Modifier value for %s (caster %s) = %d(spell %d)",
 //      GET_NAME(victim), GET_NAME(ch), modi, spellnum);
-	int koef_duration = time_life_spell(spellnum, ch->get_skill(get_magic_skill_number_by_spell(spellnum)));
+
+	const int koef_duration = func_koef_duration(spellnum, ch->get_skill(get_magic_skill_number_by_spell(spellnum)));
+	const int koef_modifier = func_koef_modif(spellnum, ch->get_skill(get_magic_skill_number_by_spell(spellnum)));
+
+	
 	switch (spellnum)
 	{
 	case SPELL_CHILL_TOUCH:
@@ -3212,9 +3233,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].location = APPLY_STR;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		if (ch == victim)
-			af[0].modifier = (level + 9) / 10;
+			af[0].modifier = (level + 9) / 10 + koef_modifier ;
 		else
-			af[0].modifier = (level + 14) / 15;
+			af[0].modifier = (level + 14) / 15 + koef_modifier;
 		accum_duration = TRUE;
 		accum_affect = TRUE;
 		to_vict = "Вы почувствовали себя сильнее.";

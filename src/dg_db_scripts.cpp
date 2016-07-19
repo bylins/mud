@@ -38,7 +38,9 @@
 
 void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void trig_data_free(TRIG_DATA * this_data);
-
+void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
+//внум_триггера : [внум_триггера_который_прикрепил_данный тригер : [перечисление к чему прикрепленно (внумы объектов/мобов/комнат)]]
+std::map<int, std::map<int, std::vector<int>>> owner_trig;
 extern INDEX_DATA **trig_index;
 extern int top_of_trigt;
 
@@ -141,8 +143,7 @@ void parse_trigger(FILE * trig_f, int nr)
 	struct cmdlist_element *cle;
 	index_data *index;
 	TRIG_DATA *trig;
-	trig = new TRIG_DATA();
-	//CREATE(trig, 1);
+	CREATE(trig, 1);
 	CREATE(index, 1);
 
 	index->vnum = nr;
@@ -203,7 +204,8 @@ void parse_trigger(FILE * trig_f, int nr)
 TRIG_DATA *read_trigger(int nr)
 {
 	index_data *index;
-	TRIG_DATA *trig = new TRIG_DATA();
+	TRIG_DATA *trig;
+	CREATE(trig, 1);
 	if (nr >= top_of_trigt || nr == -1)
 		return NULL;
 	if ((index = trig_index[nr]) == NULL)
@@ -349,7 +351,12 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	case MOB_TRIGGER:
 		mob = (CHAR_DATA *) proto;
 		mob->proto_script.push_back(vnum);
-		
+		if (owner_trig.find(vnum) == owner_trig.end())
+		{
+			std::map<int, std::vector<int>> tmp_map;
+			owner_trig.insert(std::pair<int, std::map<int, std::vector<int>>>(vnum, tmp_map));
+		}
+		add_trig_to_owner(-1, vnum, GET_MOB_VNUM(mob));
 		break;
 
 	case WLD_TRIGGER:
@@ -361,16 +368,14 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 			if (!(room->script))
 				CREATE(room->script, 1);
 			add_trigger(SCRIPT(room), read_trigger(rnum), -1);
-			if (trig_index[rnum]->proto->owner.size() > 0 && trig_index[rnum]->proto->owner.find(-1) != trig_index[rnum]->proto->owner.end())
+			// для начала определяем, есть ли такой внум у нас в контейнере
+			if (owner_trig.find(vnum) == owner_trig.end())
 			{
-				trig_index[rnum]->proto->owner[-1].push_back(room->number);
+				std::map<int, std::vector<int>> tmp_map;
+				owner_trig.insert(std::pair<int, std::map<int, std::vector<int>>>(vnum, tmp_map));
 			}
-			else
-			{
-				std::vector<int> tmp_vector;
-				tmp_vector.push_back(room->number);
-				trig_index[rnum]->proto->owner.insert(std::pair<int, std::vector<int>>(-1, tmp_vector));
-			}
+			add_trig_to_owner(-1, vnum, room->number);
+			
 		}
 		else
 		{
@@ -382,6 +387,30 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	default:
 		sprintf(line, "SYSERR: Trigger vnum #%d assigned to non-mob/obj/room", vnum);
 		log("%s",line);
+	}
+}
+// vnum_owner - триг, который приаттачил данный триг
+// vnum_trig - внум приатаченного трига
+// vnum - к кому приатачился триг
+void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum)
+{
+	if (owner_trig[vnum_trig].find(vnum_owner) != owner_trig[vnum_trig].end())
+	{
+		bool flag_trig = false;
+		for (unsigned int i = 0; i < owner_trig[vnum_trig][vnum_owner].size(); i++)
+		{
+			if (owner_trig[vnum_trig][vnum_owner][i] == vnum)
+				flag_trig = true;
+
+		}
+		if (!flag_trig)
+			owner_trig[vnum_trig][vnum_owner].push_back(vnum);
+	}
+	else
+	{
+		std::vector<int> tmp_vector;
+		tmp_vector.push_back(vnum);
+		owner_trig[vnum_trig].insert(std::pair<int, std::vector<int>>(-1, tmp_vector));
 	}
 }
 
@@ -405,16 +434,16 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 		log("%s",line);
 		return;
 	}
-	if (trig_index[rnum]->proto->owner.find(-1) != trig_index[rnum]->proto->owner.end())
+
+	// для начала определяем, есть ли такой внум у нас в контейнере
+	if (owner_trig.find(vnum) == owner_trig.end())
 	{
-		trig_index[rnum]->proto->owner[-1].push_back(vnum);
+		std::map<int, std::vector<int>> tmp_map;
+		owner_trig.insert(std::pair<int, std::map<int, std::vector<int>>>(vnum, tmp_map));		
 	}
-	else
-	{
-		std::vector<int> tmp_vector;
-		tmp_vector.push_back(vnum);
-		trig_index[rnum]->proto->owner.insert(std::pair<int, std::vector<int>>(-1, tmp_vector));
-	}
+	add_trig_to_owner(-1, vnum, GET_OBJ_VNUM(obj));
+
+	
 	obj->proto_script.push_back(vnum);
 }
 
@@ -457,16 +486,14 @@ void assign_triggers(void *i, int type)
 						CREATE(SCRIPT(mob), 1);
 					}
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
-					if (trig_index[rnum]->proto->owner.find(-1) != trig_index[rnum]->proto->owner.end())
+
+
+					if (owner_trig.find(trigger_vnum) == owner_trig.end())
 					{
-						trig_index[rnum]->proto->owner[-1].push_back(GET_MOB_VNUM(mob));
+						std::map<int, std::vector<int>> tmp_map;
+						owner_trig.insert(std::pair<int, std::map<int, std::vector<int>>>(trigger_vnum, tmp_map));
 					}
-					else 
-					{
-						std::vector<int> tmp_vector;
-						tmp_vector.push_back(GET_MOB_VNUM(mob));
-						trig_index[rnum]->proto->owner.insert(std::pair<int, std::vector<int>>(-1, tmp_vector));
-					}
+					add_trig_to_owner(-1, trigger_vnum, GET_MOB_VNUM(mob));
 						
 
 				}
@@ -503,6 +530,12 @@ void assign_triggers(void *i, int type)
 					}
 					
 					add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
+					if (owner_trig.find(trigger_vnum) == owner_trig.end())
+					{
+						std::map<int, std::vector<int>> tmp_map;
+						owner_trig.insert(std::pair<int, std::map<int, std::vector<int>>>(trigger_vnum, tmp_map));
+					}
+					add_trig_to_owner(-1, trigger_vnum, GET_OBJ_VNUM(obj));
 				}
 			}
 		}
@@ -535,17 +568,12 @@ void assign_triggers(void *i, int type)
 						CREATE(SCRIPT(room), 1);
 					}
 					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
-					if (trig_index[rnum]->proto->owner.find(-1) != trig_index[rnum]->proto->owner.end())
+					if (owner_trig.find(trigger_vnum) == owner_trig.end())
 					{
-						trig_index[rnum]->proto->owner[-1].push_back(room->number);
-						
+						std::map<int, std::vector<int>> tmp_map;
+						owner_trig.insert(std::pair<int, std::map<int, std::vector<int>>>(trigger_vnum, tmp_map));
 					}
-					else
-					{
-						std::vector<int> tmp_vector;
-						tmp_vector.push_back(room->number);
-						trig_index[rnum]->proto->owner.insert(std::pair<int, std::vector<int>>(-1, tmp_vector));
-					}
+					add_trig_to_owner(-1, trigger_vnum, room->number);
 				}
 			}
 		}
