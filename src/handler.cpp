@@ -1307,6 +1307,12 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		return;
 	}
 
+	if (!Clan::MayEnter(ch, room, HCE_PORTAL))
+	{
+		send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
+		return;
+	}
+
 	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
 	{
 		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
