@@ -1626,7 +1626,9 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 			mana_cost = mana_cost * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
 		else
 			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
-		sprintf(buf, "mana_cost %d new mana cost %d\r\n", mana_cost, (mana_cost * ( 12 - koef_skill_magic(get_magic_skill_number_by_spell(spellnum)))/12));
+		sprintf(buf, "mana_cost %d, new mana cost %f, koef %f, skill %d\r\n", mana_cost, (mana_cost * ( 12 - koef_skill_magic(get_magic_skill_number_by_spell(spellnum)))/12), 
+			    koef_skill_magic(get_magic_skill_number_by_spell(spellnum)), get_magic_skill_number_by_spell(spellnum));
+
 		send_to_char(buf, ch);
 		return (mana_cost * (12 - koef_skill_magic(get_magic_skill_number_by_spell(spellnum))) / 12);
 //		return mana_cost;
