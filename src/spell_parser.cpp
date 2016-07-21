@@ -1588,7 +1588,7 @@ inline int spell_create_level(CHAR_DATA * ch, int spellnum)
 }
 
 //	Коэффициент изменения мема относительно скилла магии.
-float koef_skill_magic(int percent_skill)
+int koef_skill_magic(int percent_skill)
 {
 //	Выделяем процент на который меняется мем
 	return ((800 - percent_skill) / 8);
