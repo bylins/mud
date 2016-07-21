@@ -2848,6 +2848,14 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 		lag = 3;
 		dam = 0;
 	}
+	else if (MOB_FLAGGED(victim, MOB_NOHAMER))
+	{
+		sprintf(buf,
+				"&c&qНа других надо силу проверять!&Q&n\r\n");
+		send_to_char(buf, ch);
+		lag = 1;
+		dam = 0;
+	}
 	else
 	{
 		might = prob * 100 / percent;
