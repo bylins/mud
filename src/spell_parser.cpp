@@ -1587,10 +1587,11 @@ inline int spell_create_level(CHAR_DATA * ch, int spellnum)
 	return required_level;
 }
 
-
+//	Коэффициент изменения мема относительно скилла магии.
 float koef_skill_magic(int percent_skill)
 {
-	return (float) (percent_skill / 100 + 1);
+//	Выделяем процент на который меняется мем
+	return ((800 - percent_skill) / 8);
 
 //	return 0;
 }
@@ -1603,6 +1604,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 
 	if (IS_IMMORTAL(ch))
 		return 1;
+//	Мем рунных профессий(на сегодня только волхвы)
 	if (IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= spell_create_level(ch, spellnum))
 	{
 		//Зависимости в таблице несколько корявые, поэтому изменение пустим в обратную сторону
@@ -1615,6 +1617,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 											   spell_create[spellnum].runes.
 											   min_caster_level)), SpINFO.mana_min));
 	};
+//	Мем всех остальных
 	if (!IS_MANA_CASTER(ch)
 			&& GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
 			&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch))
@@ -1626,11 +1629,12 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 			mana_cost = mana_cost * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
 		else
 			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
-		sprintf(buf, "mana_cost %d, new mana cost %d, koef %f, skill %d\r\n", mana_cost, (int) (mana_cost * ( 12.0 - koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum)))) / 12.0), 
-			    koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))), ch->get_skill(get_magic_skill_number_by_spell(spellnum)));
+		sprintf(buf, "mana_cost %d, new mana cost %d, koef %d, skill %d\r\n", mana_cost, mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100), 
+			    koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))), ch->get_skill(get_magic_skill_number_by_spell(spellnum));
 
 		send_to_char(buf, ch);
-		return (int) (mana_cost * ( 12.0 - koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum)))) / 12.0);
+//		Меняем мем на коэффициент скилла магии
+		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100;
 //		return mana_cost;
 	};
 	return 9999;
