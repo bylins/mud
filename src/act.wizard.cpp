@@ -1422,11 +1422,6 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 			send_to_char("В комнату не телепортировать!\r\n", ch);
 			return (NOWHERE);
 		}
-		if (!Clan::MayEnter(ch, location, HCE_PORTAL))
-		{
-			send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
-			return (NOWHERE);
-		}
 	}
 	return (location);
 }
