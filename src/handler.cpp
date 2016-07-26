@@ -1307,9 +1307,14 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		return;
 	}
 
-	if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
+	if (!Clan::MayEnter(ch, room, HCE_ATRIUM))
 	{
 		send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
+		return;
+	}
+
+	else if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
+	{
 		char_to_room(ch, ch->get_from_room());
 		return;
 	}
