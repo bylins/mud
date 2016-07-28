@@ -42,7 +42,7 @@ extern struct message_list fight_messages[MAX_MESSAGES];
 
 struct brief_shields
 {
-	brief_shields(CHAR_DATA* ch_, CHAR_DATA* vict_, CObjectPrototype* weap_, std::string add_)
+	brief_shields(CHAR_DATA* ch_, CHAR_DATA* vict_, const CObjectPrototype* weap_, std::string add_)
 		: ch(ch_), vict(vict_), weap(weap_ ? new OBJ_DATA(*weap_) : nullptr), add(add_), reflect(false )
 	{
 	};
@@ -118,35 +118,47 @@ private:
 	}
 };
 
-CObjectPrototype* init_weap(CHAR_DATA *ch, int /*dam*/, int attacktype)
+const CObjectPrototype* init_weap(CHAR_DATA *ch, int /*dam*/, int attacktype)
 {
 	// Нижеследующий код повергает в ужас
-	CObjectPrototype* weap = nullptr;
+	const CObjectPrototype* weap = nullptr;
 	int weap_i = 0;
 
 	switch (attacktype)
 	{
 	case SKILL_BACKSTAB + TYPE_HIT:
-		if (!(weap = GET_EQ(ch, WEAR_WIELD))
-			&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
+		weap = GET_EQ(ch, WEAR_WIELD);
+		if (!weap)
 		{
-			weap = obj_proto[weap_i];
+			weap_i = real_object(DUMMY_KNIGHT);
+			if (0 <= weap_i)
+			{
+				weap = obj_proto[weap_i].get();
+			}
 		}
 		break;
 
 	case SKILL_THROW + TYPE_HIT:
-		if (!(weap = GET_EQ(ch, WEAR_WIELD))
-			&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
+		weap = GET_EQ(ch, WEAR_WIELD);
+		if (!weap)
 		{
-			weap = obj_proto[weap_i];
+			weap_i = real_object(DUMMY_KNIGHT);
+			if (0 <= weap_i)
+			{
+				weap = obj_proto[weap_i].get();
+			}
 		}
 		break;
 
 	case SKILL_BASH + TYPE_HIT:
-		if (!(weap = GET_EQ(ch, WEAR_SHIELD))
-			&& (weap_i = real_object(DUMMY_SHIELD)) >= 0)
+		weap = GET_EQ(ch, WEAR_SHIELD);
+		if (!weap)
 		{
-			weap = obj_proto[weap_i];
+			weap_i = real_object(DUMMY_SHIELD);
+			if (0 <= weap_i)
+			{
+				weap = obj_proto[weap_i].get();
+			}
 		}
 		break;
 
@@ -159,13 +171,16 @@ CObjectPrototype* init_weap(CHAR_DATA *ch, int /*dam*/, int attacktype)
 		break;
 
 	case TYPE_HIT:
-		weap = nullptr;
 		break;
 
 	default:
-		if (!weap && (weap_i = real_object(DUMMY_WEAPON)) >= 0)
+		if (!weap)
 		{
-			weap = obj_proto[weap_i];
+			weap_i = real_object(DUMMY_WEAPON);
+			if (0 <= weap_i)
+			{
+				weap = obj_proto[weap_i].get();
+			}
 		}
 	}
 
@@ -405,7 +420,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 				msg = msg->next;
 			}
 
-			CObjectPrototype *weap = init_weap(ch, dam, attacktype);
+			const CObjectPrototype *weap = init_weap(ch, dam, attacktype);
 			brief_shields brief(ch, vict, weap, add);
 			if (attacktype == SPELL_FIRE_SHIELD
 				|| attacktype == SPELL_MAGICGLASS)

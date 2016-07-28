@@ -52,6 +52,8 @@ int last_trig_vnum=0;
 
 // other external vars
 
+extern std::map<int, std::map<int, std::vector<int>>> owner_trig;
+extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 extern CHAR_DATA *combat_list;
 extern OBJ_DATA *object_list;
 extern const char *item_types[];
@@ -1119,7 +1121,7 @@ void add_trigger(SCRIPT_DATA * sc, TRIG_DATA * t, int loc)
 			/*
 			 * А вот это действительно неожиданно!
 			 * Вызывающая сторона наивно полагает, что триггер будет добавлен
-			 * с воответствующие списки, а мы говорим, что такой триггер нам
+			 * в соответствующие списки, а мы говорим, что такой триггер нам
 			 * не нужен. Придется позаботится о нем, нам он тоже больше не нужен!
 			 */
 			extract_trigger(t);
@@ -4486,6 +4488,7 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 			CREATE(SCRIPT(c), 1);
 		}
 		add_trigger(SCRIPT(c), newtrig, -1);
+		add_trig_to_owner(trig_index[trig->nr]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
 		return;
 	}
 
@@ -4496,6 +4499,7 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 			o->set_script(new SCRIPT_DATA());
 		}
 		add_trigger(o->get_script().get(), newtrig, -1);
+		add_trig_to_owner(trig_index[trig->nr]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
 		return;
 	}
 
@@ -4505,25 +4509,7 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 		{
 			CREATE(SCRIPT(r), 1);
 		}
-		// через минуту после написания данного кода, я сам стал с трудом его понимать
-		if (trig_index[trignum]->proto->owner.find(trig_index[trignum]->vnum) != trig_index[trignum]->proto->owner.end())
-		{
-			bool flag_trig = false;
-			for (unsigned int i = 0; i < trig_index[trignum]->proto->owner[trig_index[trignum]->vnum].size(); i++)
-			{
-				if (trig_index[trignum]->proto->owner[trig_index[trignum]->vnum][i] == r->number)
-					flag_trig = true;
-				
-			}
-			if (!flag_trig)
-				trig_index[trignum]->proto->owner[trig_index[trignum]->vnum].push_back(r->number);
-		}
-		else
-		{
-			std::vector<int> tmp_vector;
-			tmp_vector.push_back(r->number);
-			trig_index[trignum]->proto->owner.insert(std::pair<int, std::vector<int>>(trig_index[trignum]->vnum, tmp_vector));
-		}
+		add_trig_to_owner(trig_index[trig->nr]->vnum, trig_index[trignum]->vnum, r->number);
 		add_trigger(SCRIPT(r), newtrig, -1);
 		return;
 	}
@@ -5493,7 +5479,8 @@ int timed_script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
 	int i;
-	TRIG_DATA *ttrig = new TRIG_DATA();
+	TRIG_DATA *ttrig;
+	CREATE(ttrig, 1);
 
 	struct timeval start, stop, result;
 
@@ -5869,9 +5856,9 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			
 			sprintf(buf, "%5d. [%5d] %s\r\nПрикрепленные триггеры: ", ++found, trig_index[nr]->vnum, trig_index[nr]->proto->name);
 			out += buf;
-			if (!trig_index[nr]->proto->owner.empty())
+			if (!owner_trig[trig_index[nr]->vnum].empty())
 			{
-				for (auto it = trig_index[nr]->proto->owner.begin(); it != trig_index[nr]->proto->owner.end(); ++it)
+				for (auto it = owner_trig[trig_index[nr]->vnum].begin(); it != owner_trig[trig_index[nr]->vnum].end(); ++it)
 				{
 					out += "[";
 					std::string  out_tmp = "";

@@ -514,10 +514,10 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 			new_index[trig_rnum]->func = NULL;
 
 			CREATE(proto, 1);
+
 			new_index[trig_rnum]->proto = proto;
 			trig_data_copy(proto, trig);
 		}
-
 		free(trig_index);
 		trig_index = new_index;
 		top_of_trigt++;

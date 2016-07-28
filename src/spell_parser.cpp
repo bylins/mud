@@ -1587,15 +1587,13 @@ inline int spell_create_level(CHAR_DATA * ch, int spellnum)
 	return required_level;
 }
 
-
-float koef_skill_magic(int percent_skill)
+//	Коэффициент изменения мема относительно скилла магии.
+int koef_skill_magic(int percent_skill)
 {
-	// вариант А
-	//return percent_skill / 100;
-	// вариант Б
-	return percent_skill / 100 + 1;
+//	Выделяем процент на который меняется мем
+	return ((800 - percent_skill) / 8);
 
-	return 0;
+//	return 0;
 }
 
 
@@ -1606,6 +1604,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 
 	if (IS_IMMORTAL(ch))
 		return 1;
+//	Мем рунных профессий(на сегодня только волхвы)
 	if (IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= spell_create_level(ch, spellnum))
 	{
 		//Зависимости в таблице несколько корявые, поэтому изменение пустим в обратную сторону
@@ -1618,6 +1617,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 											   spell_create[spellnum].runes.
 											   min_caster_level)), SpINFO.mana_min));
 	};
+//	Мем всех остальных
 	if (!IS_MANA_CASTER(ch)
 			&& GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
 			&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch))
@@ -1629,8 +1629,9 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 			mana_cost = mana_cost * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
 		else
 			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
-
-		return mana_cost / koef_skill_magic(get_magic_skill_number_by_spell(spellnum));
+//		send_to_char(buf, ch);
+//		Меняем мем на коэффициент скилла магии
+		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100; // при скилле 200 + 25%
 	};
 	return 9999;
 	//#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1])
@@ -3263,7 +3264,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			sprintf(buf,
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM),
-					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " НА " : "");
+					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех " : "");
 			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
 		}
 		else if (cast_spell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0)
@@ -5294,6 +5295,10 @@ void mag_assign_spells(void)
 //207
 	spello(SPELL_AURA_EVIL, "аура зла", "aura evil",
 		   150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,  3, STYPE_DARK);
+//208
+	spello(SPELL_MENTAL_SHADOW, "ментальная тень", "mental shadow", 150, 130, 5,
+		   POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL, 1, STYPE_MIND);
+
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.

@@ -303,6 +303,7 @@ struct alias_data
 #define SCMD_MLIST      1
 #define SCMD_RLIST      2
 #define SCMD_ZLIST      3
+#define SCMD_CLIST		4
 
 // do_wake
 #define SCMD_WAKE 0

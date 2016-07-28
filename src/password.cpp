@@ -73,16 +73,17 @@ void set_password(CHAR_DATA *ch, const std::string &pwd)
 void send_password(std::string email, std::string password, std::string name)
 {
 	std::string cmd_line = "python3 change_pass.py " + email + " " + password + " " + name + " &";
-	system(cmd_line.c_str());
+	auto result = system(cmd_line.c_str());
+	UNUSED_ARG(result);
 }
 
 
 void send_password(std::string email, std::string password)
 {
 	std::string cmd_line = "python3 change_pass.py " + email + " " + password + " &";
-	system(cmd_line.c_str());
+	auto result = system(cmd_line.c_str());
+	UNUSED_ARG(result);
 }
-
 
 // Дубликат set_password, который отправляет пароль на мыло
 void set_password_to_email(CHAR_DATA *ch, const std::string &pwd)

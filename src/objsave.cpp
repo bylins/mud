@@ -2093,7 +2093,7 @@ int Crash_load(CHAR_DATA * ch)
 {
 	FILE *fl;
 	char fname[MAX_STRING_LENGTH], *data, *readdata;
-	int cost, num_objs = 0, reccount, fsize, error, index;
+	int cost, i = 0, reccount, fsize, error, index;
 	float num_of_days;
 	OBJ_DATA *obj, *obj2, *obj_list = NULL;
 	int location, rnum;
@@ -2265,6 +2265,7 @@ int Crash_load(CHAR_DATA * ch)
 	for (fsize = 0, reccount = SAVEINFO(index)->rent.nitems;
 			reccount > 0 && *data && *data != END_CHAR; reccount--, fsize++)
 	{
+		i++;
 		if (need_convert_character_objects)
 		{
 			// Формат новый => используем новую функцию
@@ -2295,10 +2296,9 @@ int Crash_load(CHAR_DATA * ch)
 		}
 		if (error)
 		{
-			sprintf(buf, "WARNING: Error #%d reading item #%d from %s.", error, num_objs, fname);
+			sprintf(buf, "WARNING: Error #%d reading item vnum #%d num #%d from %s.", error, GET_OBJ_VNUM(obj), i, fname);
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		}
-
 		if (GET_OBJ_VNUM(obj) != SAVEINFO(index)->time[fsize].vnum)
 		{
 			send_to_char("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);

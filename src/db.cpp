@@ -4274,13 +4274,16 @@ void set_test_data(CHAR_DATA *mob)
 	}
 	else
 	{
-		for (int i = 0; i < 50; ++i)
+		if (mob->get_level() == 0)
 		{
-			if (test_levels[i] >= GET_EXP(mob))
+			for (int i = 0; i < 50; ++i)
 			{
-				// log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
-				mob->set_level(i + 1);
-				break;
+				if (test_levels[i] >= GET_EXP(mob))
+				{
+					// log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
+					mob->set_level(i + 1);
+					break;
+				}
 			}
 		}
 	}

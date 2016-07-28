@@ -1183,6 +1183,18 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		return;
 	}
 
+	if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_ATRIUM))
+	{
+		send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
+		return;
+	}
+
+	else if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
+	{
+		char_to_room(ch, ch->get_from_room());
+		return;
+	}
+
 	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
 	{
 		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
@@ -4401,6 +4413,8 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 	//sprintf(buf,"diff =%f statover=%f ncha=%f rcha=%f pow:%f\r\n",difference,stat_overlimit,needed_cha, real_cha, pow(2.0,difference));
 	//send_to_char(buf,ch);
 	dpr = get_damage_per_round(victim);
+
+	log("MERCHANT: hero (%s) mob (%s [%5d] ) charm (%f) dpr (%f)",GET_NAME(ch),GET_NAME(victim),GET_MOB_VNUM(victim),needed_cha,dpr);	
 
 	if (difference <= 0)
 		price = dpr * (1.0 - 0.01 * stat_overlimit);

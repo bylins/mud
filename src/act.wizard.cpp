@@ -94,6 +94,7 @@ extern int buf_switches, buf_largecount, buf_overflows;
 extern mob_rnum top_of_mobt;
 extern int shutdown_time;
 extern CHAR_DATA *mob_proto;
+void medit_save_to_disk(int zone_num);
 extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
@@ -1421,11 +1422,6 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 		if (ROOM_FLAGGED(location, ROOM_NOTELEPORTIN) && trig != 1)
 		{
 			send_to_char("В комнату не телепортировать!\r\n", ch);
-			return (NOWHERE);
-		}
-		if (!Clan::MayEnter(ch, location, HCE_PORTAL))
-		{
-			send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
 			return (NOWHERE);
 		}
 	}
@@ -3956,7 +3952,6 @@ void do_dc(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *d;
 	int num_to_dc;
-
 	one_argument(argument, arg);
 	if (!(num_to_dc = atoi(arg)))
 	{
@@ -6403,6 +6398,9 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		case SCMD_ZLIST:
 			send_to_char("Использование: зсписок <начальный номер> <конечный номер>\r\n", ch);
 			break;
+		case SCMD_CLIST:
+			send_to_char("Использование: ксписок <начальный номер или номер зоны> [<конечный номер>]\r\n", ch);
+			break;
 		default:
 			sprintf(buf, "SYSERR:: invalid SCMD passed to ACMDdo_build_list!");
 			mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
@@ -6546,6 +6544,9 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				out += buf_;
 			}
 		}
+		break;
+	case SCMD_CLIST:
+		out = "Заглушка. Возможно, будет использоваться в будущем\r\n";
 		break;
 	default:
 		sprintf(buf, "SYSERR:: invalid SCMD passed to ACMDdo_build_list!");

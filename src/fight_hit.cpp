@@ -2407,8 +2407,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			// по логике надо бы сделать, что если хозяина нет в клетке, но
 			// кто-то из группы хозяина в клетке, то опыт накинуть согруппам,
 			// которые рядом с убившим моба чармисом.
-			if (!IS_NPC(killer->master)
-				&& AFF_FLAGGED(killer->master, EAffectFlag::AFF_GROUP)
+			if (AFF_FLAGGED(killer->master, EAffectFlag::AFF_GROUP)
 				&& IN_ROOM(killer) == IN_ROOM(killer->master))
 			{
 				// Хозяин - PC в группе => опыт группе
@@ -2850,6 +2849,14 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 		sprintf(buf, "&c&qВаш богатырский удар пропал впустую.&Q&n\r\n");
 		send_to_char(buf, ch);
 		lag = 3;
+		dam = 0;
+	}
+	else if (MOB_FLAGGED(victim, MOB_NOHAMER))
+	{
+		sprintf(buf,
+				"&c&qНа других надо силу проверять!&Q&n\r\n");
+		send_to_char(buf, ch);
+		lag = 1;
 		dam = 0;
 	}
 	else

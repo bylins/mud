@@ -366,7 +366,6 @@ int CObjectPrototype::get_timer() const
 void OBJ_DATA::set_enchant(int skill)
 {
     int i = 0;
-    int random_drop = 0;
 
     for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
@@ -388,21 +387,18 @@ void OBJ_DATA::set_enchant(int skill)
     else if (skill <= 125)
     // 8 мортов (скил магия света 125)
     {
-       random_drop = 1;
 	   set_affected_modifier(0, 1 + number(-3, 2));
 	   set_affected_modifier(1, 1 + number(-3, 2));
     }
     else if (skill <= 160)
     // 12 мортов (скил магия света 160)
     {
-       random_drop = 1;
        set_affected_modifier(0, 1 + number(-4, 3));
        set_affected_modifier(1, 1 + number(-4, 3));
     }
     else if (skill >160)
     // 16 мортов (скил магия света 160+)
     {
-       random_drop = 2;
        set_affected_modifier(0, 1 + number(-5, 4));
        set_affected_modifier(1, 1 + number(-5, 4));
     }
@@ -478,7 +474,9 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 
 void OBJ_DATA::unset_enchant()
 {
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+    int i = 0;
+	// Возврат афектов
+	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
 		if (obj_proto.at(get_rnum())->get_affected(i).location != APPLY_NONE)
 		{
@@ -488,8 +486,23 @@ void OBJ_DATA::unset_enchant()
 		{
 			set_affected_location(i, APPLY_NONE);
 		}
-
 	}
+	// Возврат эфектов
+	set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
+	// поскольку все обнулилось можно втыкать слоты для ковки
+	if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH3SLOTS))
+	{
+		set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
+	}
+	else if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH2SLOTS))
+	{
+		set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
+	}
+	else if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH1SLOT))
+	{
+		set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
+	}
+	
     unset_extraflag(EExtraFlag::ITEM_MAGIC);
 }
 
