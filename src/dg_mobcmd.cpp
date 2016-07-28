@@ -34,8 +34,8 @@
  *  such installation can be found in INSTALL.  Enjoy........    N'Atas-Ha *
  ***************************************************************************/
 
-#include "obj.hpp"
 #include "dg_scripts.h"
+#include "obj.hpp"
 #include "db.h"
 #include "handler.h"
 #include "interpreter.h"
@@ -49,6 +49,7 @@
 #include "name_list.hpp"
 #include "room.hpp"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

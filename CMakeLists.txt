@@ -159,7 +159,8 @@ set(HEADERS
     src/ext_money.hpp
     src/features.hpp
     src/fight.h
-    src/fight_local.hpp
+    src/fight_constants.hpp
+    src/fight_hit.hpp
     src/file_crc.hpp
     src/genchar.h
     src/glory_const.hpp

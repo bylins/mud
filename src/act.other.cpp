@@ -27,6 +27,7 @@
 #include "dg_scripts.h"
 #include "pk.h"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "magic.h"
 #include "features.hpp"
 #include "depot.hpp"

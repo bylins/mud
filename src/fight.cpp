@@ -14,8 +14,9 @@
 
 #include "fight.h"
 
+#include "fight_hit.hpp"
+#include "AffectHandler.hpp"
 #include "obj.hpp"
-#include "fight_local.hpp"
 #include "comm.h"
 #include "handler.h"
 #include "interpreter.h"
@@ -304,9 +305,6 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	DpsSystem::check_round(ch);
 	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
 	handle_affects(params);
-	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
-	// send_to_gods(buf);
-	//*** switch others ***
 
 	if (switch_others != 2)
 	{
@@ -1874,7 +1872,9 @@ void process_npc_attack(CHAR_DATA *ch)
 
 	//**** удар основным оружием или рукой
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT))
+	{
 		exthit(ch, TYPE_UNDEFINED, RIGHT_WEAPON);
+	}
 
 	//**** экстраатаки
 	for (int i = 1; i <= ch->mob_specials.ExtraAttack; i++)
@@ -1945,8 +1945,11 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		}
 	}
 
-	if (!ch->get_fighting() || ch->in_room != IN_ROOM(ch->get_fighting()))
+	if (!ch->get_fighting()
+		|| ch->in_room != IN_ROOM(ch->get_fighting()))
+	{
 		return;
+	}
 
 	//**** удар основным оружием или рукой
 	if (GET_AF_BATTLE(ch, EAF_FIRST))
@@ -2262,6 +2265,34 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 		return_value |= 2;
 	}
 	return return_value;
+}
+
+int calc_leadership(CHAR_DATA * ch)
+{
+	int prob, percent;
+	CHAR_DATA *leader = 0;
+
+	if (IS_NPC(ch) || !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) || (!ch->master && !ch->followers))
+		return (FALSE);
+
+	if (ch->master)
+	{
+		if (IN_ROOM(ch) != IN_ROOM(ch->master))
+			return (FALSE);
+		leader = ch->master;
+	}
+	else
+		leader = ch;
+
+	if (!leader->get_skill(SKILL_LEADERSHIP))
+		return (FALSE);
+
+	percent = number(1, 101);
+	prob = calculate_skill(leader, SKILL_LEADERSHIP, 0);
+	if (percent > prob)
+		return (FALSE);
+	else
+		return (TRUE);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

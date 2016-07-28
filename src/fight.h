@@ -3,66 +3,12 @@
 #ifndef _FIGHT_H_
 #define _FIGHT_H_
 
+#include "fight_constants.hpp"
+#include "char.hpp"
+#include "utils.h"
+#include "structs.h"
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
-#include "char.hpp"
-
-namespace FightSystem
-{
-
-enum DmgType { UNDEF_DMG, PHYS_DMG, MAGE_DMG };
-
-// attack_hit_text[]
-enum
-{
-	type_hit, type_skin, type_whip, type_slash, type_bite,
-	type_bludgeon, type_crush, type_pound, type_claw, type_maul,
-	type_thrash, type_pierce, type_blast, type_punch, type_stab,
-	type_pick, type_sting
-};
-
-enum
-{
-	// игнор санки
-	IGNORE_SANCT,
-	// игнор призмы
-	IGNORE_PRISM,
-	// игнор брони
-	IGNORE_ARMOR,
-	// ополовинивание учитываемой брони
-	HALF_IGNORE_ARMOR,
-	// игнор поглощения
-	IGNORE_ABSORBE,
-	// нельзя сбежать
-	NO_FLEE,
-	// крит удар
-	CRIT_HIT,
-	// игнор возврата дамаги от огненного щита
-	IGNORE_FSHIELD,
-	// дамаг идет от магического зеркала или звукового барьера
-	MAGIC_REFLECT,
-	// жертва имеет огненный щит
-	VICTIM_FIRE_SHIELD,
-	// жертва имеет воздушный щит
-	VICTIM_AIR_SHIELD,
-	// жертва имеет ледяной щит
-	VICTIM_ICE_SHIELD,
-	// было отражение от огненного щита в кратком режиме
-	DRAW_BRIEF_FIRE_SHIELD,
-	// было отражение от воздушного щита в кратком режиме
-	DRAW_BRIEF_AIR_SHIELD,
-	// было отражение от ледяного щита в кратком режиме
-	DRAW_BRIEF_ICE_SHIELD,
-	// была обратка от маг. зеркала
-	DRAW_BRIEF_MAG_MIRROR,
-
-	// кол-во флагов
-	HIT_TYPE_FLAGS_NUM
-};
-
-} // namespace FightSystem
 
 /**
  * Для входа со скила без инита остальных полей:
@@ -111,6 +57,7 @@ class Damage
 public:
 	// полностью ручное создание объекта
 	Damage() { zero_init(); };
+
 	// скилы
 	Damage(SkillDmg obj, int in_dam, FightSystem::DmgType in_dmg_type)
 	{
@@ -119,6 +66,7 @@ public:
 		dam = in_dam;
 		dmg_type = in_dmg_type;
 	};
+
 	// заклинания
 	Damage(SpellDmg obj, int in_dam, FightSystem::DmgType in_dmg_type)
 	{
@@ -127,6 +75,7 @@ public:
 		dam = in_dam;
 		dmg_type = in_dmg_type;
 	};
+
 	// прочий дамаг
 	Damage(SimpleDmg obj, int in_dam, FightSystem::DmgType in_dmg_type)
 	{
@@ -196,8 +145,6 @@ int compute_armor_class(CHAR_DATA *ch);
 bool check_mighthit_weapon(CHAR_DATA *ch);
 void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hitroll);
 
-void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon);
-
 // fight_stuff.cpp
 
 void die(CHAR_DATA *ch, CHAR_DATA *killer);
@@ -208,6 +155,8 @@ void alt_equip(CHAR_DATA *ch, int pos, int dam, int chance);
 
 void char_dam_message(int dam, CHAR_DATA *ch, CHAR_DATA *victim, bool mayflee);
 void test_self_hitroll(CHAR_DATA *ch);
+
+int calc_leadership(CHAR_DATA * ch);
 
 #endif
 
