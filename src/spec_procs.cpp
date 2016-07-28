@@ -32,6 +32,7 @@
 #include "player_races.hpp"
 #include "magic.h"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "char_obj_utils.inl"
 #include "utils.h"
 #include "structs.h"
