@@ -2952,10 +2952,7 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 {
  // подготовка контейнера для создания заклинания ментальная тень
  // все предложения пишем мад почтой
- 
- 
 	mob_vnum mob_num = MOB_MENTAL_SHADOW;
-	int modifier = 0;
 
 	CHAR_DATA *mob = NULL;
 	struct follow_type *k, *k_next;
