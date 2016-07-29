@@ -2,6 +2,25 @@
 #define _AFFECTHANDLER_HPP_
 #include "char.hpp"
 
+
+// класс новых аффектов
+class AffectParent {
+	// чар, который кастанул цель
+	CHAR_DATA *ch;
+	// чар, на которого касстанули аффект
+	CHAR_DATA *vict;
+	// сколько тиков осталось висеть на чаре
+	int time;
+	// частота, которая показывает, как часто за тик дергается данный аффект
+	const int freq;
+
+public:
+	AffectParent(CHAR_DATA *character, CHAR_DATA *victim, int time, int frequency);
+	void DoAffect();
+};
+
+
+
 //классы для конфигурирования обработчиков Handler()
 class DamageActorParameters {
 public:
