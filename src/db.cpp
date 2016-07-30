@@ -275,6 +275,7 @@ extern std::vector<global_drop_obj> drop_list_obj;*/
 #define READ_SIZE 256
 
 
+
 int strchrn (const char *s, int c) {
 	
  int n=-1;
@@ -4590,6 +4591,7 @@ void load_zones(FILE * fl, char *zonename)
 	Z.location = 0;
 	Z.description = 0;
 	Z.group = false;
+	Z.count_reset = 0;
 	strcpy(zname, zonename);
 
 	while (get_line(fl, buf))
@@ -6258,7 +6260,10 @@ void reset_zone(zone_rnum zone)
 		}
 
 	}
-
+	if (zone_table[zone].used)
+	{
+		zone_table[zone].count_reset++;
+	}
 	zone_table[zone].age = 0;
 	zone_table[zone].used = FALSE;
 

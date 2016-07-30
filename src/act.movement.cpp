@@ -444,6 +444,17 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	}
 	else
 	{
+		//Вход в замок
+		if (ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM))
+		{
+			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room, HCE_ATRIUM))
+			{
+				if (show_msg)
+					send_to_char("Частная собственность! Вход воспрещен!\r\n", ch);
+				return (FALSE);
+			}
+		}
+
 		if (real_sector(ch->in_room) == SECT_WATER_NOSWIM ||
 				real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM)
 		{
@@ -517,7 +528,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			}
 			return (FALSE);
 		}
-
+		//Вход в замок
 		if (ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM))
 		{
 			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room, HCE_ATRIUM))
@@ -527,6 +538,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				return (FALSE);
 			}
 		}
+
 		//чтобы конь не лез в комнату с флагом !лошадь
 		if (on_horse(ch)
 				&& !legal_dir(get_horse(ch), dir, need_specials_check, FALSE))
