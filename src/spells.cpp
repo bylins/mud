@@ -3125,7 +3125,7 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!GROUP MAGICGLASS!",
 	"Облако стрел вокруг вас рассеялось.",
 	"!VACUUM!",
-	"!METEOR STORM!",	// 135
+	"Последний громовой камень грянул в землю и все стихло."	// 135 SPELL_METEORSTORM
 	"Ваши руки вернулись к прежнему состоянию.",
 	"Ваш разум просветлел.",
 	"Призматическая аура вокруг вашего тела угасла.",
@@ -3199,8 +3199,12 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL_MASS_RECOVERY!",
 	"Аура зла больше не помогает вам.",
 	"!SPELL_MENTAL_SHADOW!",                 // 208
-	"Жуткие черные руки побледнели и расплылись зловонной дымкой.",
-	"Последний громовой камень грянул в землю и все стихло."
+	"Жуткие черные руки побледнели и расплылись зловонной дымкой.", //209 SPELL_EVARDS_BLACK_TENTACLES
+	"!SPELL_WHIRLWIND!",
+	"!SPELL_INDRIKS_TEETH!",
+	"!SPELL_MELFS_ACID_ARROW!",
+	"!SPELL_THUNDERSTONE!",
+	"!SPELL_CLOD!"
 };
 
 /**
