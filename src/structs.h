@@ -116,7 +116,7 @@ typedef struct trig_data TRIG_DATA;
 // The cardinal directions: used as index to room_data.dir_option[]
 #define NORTH          0
 #define EAST           1
-#define SOUTH          2	
+#define SOUTH          2
 #define WEST           3
 #define UP             4
 #define DOWN           5
@@ -185,6 +185,8 @@ typedef uint32_t bitvector_t;
 #define AFF_ROOM_RUNE_LABEL			(1 << 2) // Комната помечена SPELL_MAGIC_LABEL //
 #define AFF_ROOM_FORBIDDEN			(1 << 3) // Комната помечена SPELL_FORBIDDEN //
 #define AFF_ROOM_HYPNOTIC_PATTERN	(1 << 4) // Комната под SPELL_HYPNOTIC_PATTERN //
+#define AFF_ROOM_EVARDS_BLACK_TENTACLES	(1 << 5) // Комната под SPELL_EVARDS_BLACK_TENTACLES //
+#define AFF_ROOM_METEORSTORM	(1 << 6) // Комната под SPELL_METEOR_STORM //
 
 // Exit info: used in room_data.dir_option.exit_info //
 #define EX_ISDOOR    (1 << 0)	// Exit is a door     //

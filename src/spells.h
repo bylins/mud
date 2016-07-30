@@ -360,7 +360,13 @@ enum ESpell
 	SPELL_MASS_RECOVERY = 206,	// масовое исцеление нежити
 	SPELL_AURA_EVIL = 207,	// аура зла для всей нежити в группе
 	SPELL_MENTAL_SHADOW = 208,	// ментальная тень
-	SPELLS_COUNT = SPELL_MENTAL_SHADOW	// Counter corresponds to the last value because we count spells from 1.
+    SPELL_EVARDS_BLACK_TENTACLES = 209, //навьи руки
+    SPELL_WHIRLWIND = 210, //вихрь
+    SPELL_INDRIKS_TEETH = 211, //зубы индрика
+    SPELL_MELFS_ACID_ARROW = 212, //кислотная стрела
+    SPELL_THUNDERSTONE = 213, //громовой камень
+    SPELL_CLOD = 214,
+	SPELLS_COUNT = SPELL_CLOD   // Counter corresponds to the last value because we count spells from 1.
 };
 
 typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;
