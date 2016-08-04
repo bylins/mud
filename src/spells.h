@@ -67,6 +67,7 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define MAG_CREATIONS		(1 << 9)
 #define MAG_MANUAL	    	(1 << 10)
 #define MAG_WARCRY		(1 << 11)
+#define MAG_NEED_CONTROL    (1 << 12) //Маг должен "контролировать" это заклинание
 // А чего это тут дырка Ж)
 #define NPC_DAMAGE_PC           (1 << 16)
 #define NPC_DAMAGE_PC_MINHP     (1 << 17)

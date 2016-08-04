@@ -186,7 +186,8 @@ typedef uint32_t bitvector_t;
 #define AFF_ROOM_FORBIDDEN			(1 << 3) // Комната помечена SPELL_FORBIDDEN //
 #define AFF_ROOM_HYPNOTIC_PATTERN	(1 << 4) // Комната под SPELL_HYPNOTIC_PATTERN //
 #define AFF_ROOM_EVARDS_BLACK_TENTACLES	(1 << 5) // Комната под SPELL_EVARDS_BLACK_TENTACLES //
-#define AFF_ROOM_METEORSTORM	(1 << 6) // Комната под SPELL_METEOR_STORM //
+#define AFF_ROOM_METEORSTORM	(1 << 6) // Комната под SPELL_METEORSTORM //
+#define AFF_ROOM_THUNDERSTORM   (1 << 7) // SPELL_THUNDERSTORM
 
 // Exit info: used in room_data.dir_option.exit_info //
 #define EX_ISDOOR    (1 << 0)	// Exit is a door     //
