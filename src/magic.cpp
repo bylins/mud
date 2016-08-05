@@ -373,7 +373,7 @@ void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA<ERo
 		case 7:
 			send_to_char("Раздался чудовищный раскат грома!\r\n", ch);
             act("Раздался чудовищный удар грома!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-            MagAttackRndEnemies(ch, 20, SPELL_DEAFNESS, 1);
+            MagAttackAllEnemies(ch, SPELL_DEAFNESS, 1);
 			break;
 		case 6:
 			send_to_char("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
@@ -388,7 +388,7 @@ void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA<ERo
 		case 4:
 			send_to_char("Из туч ударили разряды молний!\r\n", ch);
             act("Из туч ударили разряды молний!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-            MagAttackRndEnemies(ch, 7, SPELL_LIGHTNING_BOLT, 2);
+            MagAttackAllEnemies(ch, SPELL_LIGHTNING_BOLT, 2);
 			break;
 		case 3:
 			send_to_char("Из тучи посыпались шаровые молнии!\r\n", ch);
