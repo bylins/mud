@@ -33,6 +33,7 @@
 #include "room.hpp"
 #include "magic.h"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

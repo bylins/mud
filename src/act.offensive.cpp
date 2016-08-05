@@ -27,12 +27,15 @@
 #include "char.hpp"
 #include "room.hpp"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "features.hpp"
 #include "structs.h"
 #include "utils.h"
 #include "sysdep.h"
 #include "conf.h"
+
 #include <cmath>
+
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 

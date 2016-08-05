@@ -27,6 +27,7 @@
 #include "room.hpp"
 #include "shop_ext.hpp"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
