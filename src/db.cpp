@@ -5254,7 +5254,24 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	return (obj);
 }
 
-
+// пробегаем по всем клеткам зоны и находим там чаров/чармисов, если они есть, ставит used на true
+void after_reset_zone(int nr_zone)
+{
+	// пробегаем по дескрипторам, ибо это быстрее и проще, т.к. в зоне может быть и 200 и 300 мобов
+	DESCRIPTOR_DATA *d;
+	for (d = descriptor_list; d; d = d->next)
+	{
+		// Чар должен быть в игре
+		if (STATE(d) == CON_PLAYING)
+		{
+			if (world[d->character->in_room]->zone == nr_zone)
+			{
+				zone_table[nr_zone].used = true;
+				return;
+			}
+		}
+	}
+}
 
 #define ZO_DEAD  9999
 
@@ -6313,6 +6330,7 @@ void reset_zone(zone_rnum zone)
 	for (rnum_start = zone_table[zone].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[zone].typeB_flag[rnum_start - 1] = FALSE;
 	log("[Reset] Stop zone %s", zone_table[zone].name);
+	after_reset_zone(zone);
 }
 
 // Ищет RNUM первой и последней комнаты зоны

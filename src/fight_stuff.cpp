@@ -2,7 +2,7 @@
 
 #include "obj.hpp"
 #include "fight.h"
-#include "fight_local.hpp"
+#include "fight_hit.hpp"
 #include "char.hpp"
 #include "skills.h"
 #include "handler.h"
@@ -22,6 +22,7 @@
 #include "mob_stat.hpp"
 #include "utils.h"
 #include "bonus.h"
+
 #include <algorithm>
 
 // extern
@@ -1279,11 +1280,19 @@ void Damage::post_init_shields(CHAR_DATA *victim)
 	if (IS_NPC(victim) && !IS_CHARMICE(victim))
 	{
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD))
-			flags.set(VICTIM_FIRE_SHIELD);
+		{
+			flags.set(FightSystem::VICTIM_FIRE_SHIELD);
+		}
+
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_ICESHIELD))
-			flags.set(VICTIM_ICE_SHIELD);
+		{
+			flags.set(FightSystem::VICTIM_ICE_SHIELD);
+		}
+
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_AIRSHIELD))
-			flags.set(VICTIM_AIR_SHIELD);
+		{
+			flags.set(FightSystem::VICTIM_AIR_SHIELD);
+		}
 	}
 	else
 	{
@@ -1291,28 +1300,38 @@ void Damage::post_init_shields(CHAR_DATA *victim)
 		std::vector<int> shields;
 
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD))
+		{
 			shields.push_back(FIRESHIELD);
+		}
+
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_AIRSHIELD))
+		{
 			shields.push_back(AIRSHIELD);
+		}
+
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_ICESHIELD))
+		{
 			shields.push_back(ICESHIELD);
+		}
 
 		if (shields.empty())
+		{
 			return;
+		}
 
 		int shield_num = number(0, static_cast<int>(shields.size() - 1));
 
 		if (shields[shield_num] == FIRESHIELD)
 		{
-			flags.set(VICTIM_FIRE_SHIELD);
+			flags.set(FightSystem::VICTIM_FIRE_SHIELD);
 		}
 		else if (shields[shield_num] == AIRSHIELD)
 		{
-			flags.set(VICTIM_AIR_SHIELD);
+			flags.set(FightSystem::VICTIM_AIR_SHIELD);
 		}
 		else if (shields[shield_num] == ICESHIELD)
 		{
-			flags.set(VICTIM_ICE_SHIELD);
+			flags.set(FightSystem::VICTIM_ICE_SHIELD);
 		}
 	}
 }
@@ -1343,6 +1362,7 @@ void Damage::post_init(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		ch_start_pos = GET_POS(ch);
 	}
+
 	if (victim_start_pos == -1)
 	{
 		victim_start_pos = GET_POS(victim);

@@ -38,14 +38,14 @@ public:
 	int damage;
 };
 
-
 class BattleRoundParameters{
 public:
 	BattleRoundParameters(CHAR_DATA* actor) : ch(actor) {};
 	CHAR_DATA* ch;
 };
 
-class StopFightParameters{
+class StopFightParameters
+{
 public:
 	StopFightParameters(CHAR_DATA* actor) : ch(actor) {};
 	CHAR_DATA* ch;
@@ -75,6 +75,19 @@ private:
 	bool damToMe_;
 	bool damFromMe_;
 };
+
+//Polud функция, вызывающая обработчики аффектов, если они есть
+template <class S>
+void handle_affects(S& params) //тип params определяется при вызове функции
+{
+	for (auto aff = params.ch->affected; aff; aff = aff->next)
+	{
+		if (aff->handler)
+		{
+			aff->handler->Handle(params); //в зависимости от типа params вызовется нужный Handler
+		}
+	}
+}
 
 #endif
 

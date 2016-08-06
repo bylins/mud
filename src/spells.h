@@ -67,6 +67,7 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define MAG_CREATIONS		(1 << 9)
 #define MAG_MANUAL	    	(1 << 10)
 #define MAG_WARCRY		(1 << 11)
+#define MAG_NEED_CONTROL    (1 << 12) //Маг должен "контролировать" это заклинание
 // А чего это тут дырка Ж)
 #define NPC_DAMAGE_PC           (1 << 16)
 #define NPC_DAMAGE_PC_MINHP     (1 << 17)
@@ -360,7 +361,13 @@ enum ESpell
 	SPELL_MASS_RECOVERY = 206,	// масовое исцеление нежити
 	SPELL_AURA_EVIL = 207,	// аура зла для всей нежити в группе
 	SPELL_MENTAL_SHADOW = 208,	// ментальная тень
-	SPELLS_COUNT = SPELL_MENTAL_SHADOW	// Counter corresponds to the last value because we count spells from 1.
+    SPELL_EVARDS_BLACK_TENTACLES = 209, //навьи руки
+    SPELL_WHIRLWIND = 210, //вихрь
+    SPELL_INDRIKS_TEETH = 211, //зубы индрика
+    SPELL_MELFS_ACID_ARROW = 212, //кислотная стрела
+    SPELL_THUNDERSTONE = 213, //громовой камень
+    SPELL_CLOD = 214,
+	SPELLS_COUNT = SPELL_CLOD   // Counter corresponds to the last value because we count spells from 1.
 };
 
 typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;

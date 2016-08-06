@@ -5,12 +5,13 @@
 #ifndef DPS_HPP_INCLUDED
 #define DPS_HPP_INCLUDED
 
-#include <list>
-#include <map>
-#include <string>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
+
+#include <list>
+#include <map>
+#include <string>
 
 namespace DpsSystem
 {

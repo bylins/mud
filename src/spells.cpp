@@ -747,14 +747,14 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 					// призываем
 					act("$n растворил$u на ваших глазах.", TRUE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					char_from_room(k->follower);
-					char_to_room(k->follower, ch_room);					
+					char_to_room(k->follower, ch_room);
 					act("$n прибыл$g за хозяином.", TRUE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					act("$n призвал$g вас!", FALSE, ch, 0, k->follower, TO_VICT);
 				}
 			}
 		}
 	}
-	
+
 	entry_memory_mtrigger(victim);
 	greet_mtrigger(victim, -1);	// УЖАС!!! Не стоит в эту функцию передавать -1 :)
 	greet_otrigger(victim, -1);	// УЖАС!!! Не стоит в эту функцию передавать -1 :)
@@ -2952,17 +2952,14 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 {
  // подготовка контейнера для создания заклинания ментальная тень
  // все предложения пишем мад почтой
- 
- 
 	mob_vnum mob_num = MOB_MENTAL_SHADOW;
-	int modifier = 0;
 
 	CHAR_DATA *mob = NULL;
 	struct follow_type *k, *k_next;
 	for (k = ch->followers; k; k = k_next)
 	{
 		k_next = k->next;
-		if (MOB_FLAGGED(k->follower, MOB_ANGEL))  	
+		if (MOB_FLAGGED(k->follower, MOB_ANGEL))
 		{
 			extract_char(k->follower, FALSE);
 		}
@@ -2978,12 +2975,12 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}
-	
+
 	char_to_room(mob, IN_ROOM(ch));
 	mob->set_protecting(ch);
 
 	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-	
+
 	add_follower(mob, ch);
 	return;
 }
@@ -3125,7 +3122,7 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!GROUP MAGICGLASS!",
 	"Облако стрел вокруг вас рассеялось.",
 	"!VACUUM!",
-	"!METEOR STORM!",	// 135
+	"Последний громовой камень грянул в землю и все стихло.",	// 135 SPELL_METEORSTORM
 	"Ваши руки вернулись к прежнему состоянию.",
 	"Ваш разум просветлел.",
 	"Призматическая аура вокруг вашего тела угасла.",
@@ -3198,7 +3195,13 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL_RECOVERY!",
 	"!SPELL_MASS_RECOVERY!",
 	"Аура зла больше не помогает вам.",
-	"!SPELL_MENTAL_SHADOW!"                 // 208
+	"!SPELL_MENTAL_SHADOW!",                 // 208
+	"Жуткие черные руки побледнели и расплылись зловонной дымкой.", //209 SPELL_EVARDS_BLACK_TENTACLES
+	"!SPELL_WHIRLWIND!",
+	"!SPELL_INDRIKS_TEETH!",
+	"!SPELL_MELFS_ACID_ARROW!",
+	"!SPELL_THUNDERSTONE!",
+	"!SPELL_CLOD!"
 };
 
 /**
@@ -3230,7 +3233,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "умь полонить", "... слушай пастыря сваего, и уразумей." },
 	cast_phrase_t{ "хладну персты воскладаше", "... которые черны от льда." },
 	cast_phrase_t{ "пусть будет много меня", "... и плодились, и весьма умножились." },
-	cast_phrase_t{ "варно сожжет струя", "... бросает огонь, стрелы и смерть." },	// 10
+	cast_phrase_t{ "хлад и мраз исторгнути", "... и из воды делается лед." },	// 10
 	cast_phrase_t{ "стихия подкоряшися", "... власть затворить небо, чтобы не шел дождь." },
 	cast_phrase_t{ "будовати снедь", "... это хлеб, который Господь дал вам в пищу." },
 	cast_phrase_t{ "напоиши влагой", "... и потекло много воды." },
@@ -3388,7 +3391,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Обращу кости их в твердый камень.", "...и тот, кто упадет на камень сей, разобьется." }, // SPELL_STONE_BONE
 	cast_phrase_t{ "Да буде СВЕТ !!!", "...ибо сказал МОНТЕР !!!" }, // SPELL_ROOM_LIGHT
 	cast_phrase_t{ "Порчу воздух !!!", "...и зловонное дыхание его." }, // SPELL_POISONED_FOG
-	cast_phrase_t{ "Дети ПЕРУНА покарают вас !!!", "...и молнии як мечи в их руках." }, // SPELL_THUNDERSTORM
+	cast_phrase_t{ "Абие велий вихрь деяти!", "...творит молнии при дожде, изводит ветер из хранилищ Своих." }, // SPELL_THUNDERSTORM
 	cast_phrase_t{ "\n!легкая поступь!", "\n" },
 	cast_phrase_t{ "аще доля зла и удача немилостива", ".. и несчастен, и жалок, и нищ." },
 	cast_phrase_t{ "\n!кланаффект!", "\n" },
@@ -3429,6 +3432,12 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Обрастите плотью сызнова.", "... прости Господи грехи, верни плоть созданиям." }, // SPELL_MASS_RECOVERY
 	cast_phrase_t{ "Возьми личину зла для жатвы славной.", "Надели силой злою во благо." }, // SPELL_AURA_EVIL
 	cast_phrase_t{ "\n", "\n" }, // SPELL_MENTAL_SHADOW
+	cast_phrase_t{ "Ато егоже руци попасти.", "И он не знает, что мертвецы там и что в глубине..." }, // SPELL_EVARDS_BLACK_TENTACLES
+	cast_phrase_t{ "Вждати бурю обло створити.", "И поднялась великая буря..." }, // SPELL_WHIRLWIND
+    cast_phrase_t{ "Идеже индрика зубы супостаты изъмати.", "Есть род, у которого зубы - мечи и челюсти - ножи..." }, // SPELL_WHIRLWIND
+    cast_phrase_t{ "Варно сожжет струя!", "...и на коже его сделаются как бы язвы проказы" }, // SPELL_MELFS_ACID_ARROW
+    cast_phrase_t{ "Небесе тутнет!", "...и взял оттуда камень, и бросил из пращи." }, // SPELL_THUNDERSTONE
+    cast_phrase_t{ "Онома утес низринется!", "...доколе камень не оторвался от горы без содействия рук." }, // SPELL_CLODd
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3439,7 +3448,7 @@ void init_ESpell_ITEM_NAMES()
 {
 	ESpell_value_by_name.clear();
 	ESpell_name_by_value.clear();
-	
+
 	ESpell_name_by_value[ESpell::SPELL_NO_SPELL] = "SPELL_NO_SPELL";
 	ESpell_name_by_value[ESpell::SPELL_ARMOR] = "SPELL_ARMOR";
 	ESpell_name_by_value[ESpell::SPELL_TELEPORT] = "SPELL_TELEPORT";
@@ -3649,6 +3658,12 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_MASS_RECOVERY] = "SPELL_MASS_RECOVERY";
 	ESpell_name_by_value[ESpell::SPELL_AURA_EVIL] = "SPELL_AURA_EVIL";
 	ESpell_name_by_value[ESpell::SPELL_MENTAL_SHADOW] = "SPELL_MENTAL_SHADOW";
+	ESpell_name_by_value[ESpell::SPELL_EVARDS_BLACK_TENTACLES] = "SPELL_EVARDS_BLACK_TENTACLES";
+	ESpell_name_by_value[ESpell::SPELL_WHIRLWIND] = "SPELL_WHIRLWIND";
+	ESpell_name_by_value[ESpell::SPELL_INDRIKS_TEETH] = "SPELL_INDRIKS_TEETH";
+	ESpell_name_by_value[ESpell::SPELL_MELFS_ACID_ARROW] = "SPELL_MELFS_ACID_ARROW";
+	ESpell_name_by_value[ESpell::SPELL_THUNDERSTONE] = "SPELL_THUNDERSTONE";
+	ESpell_name_by_value[ESpell::SPELL_CLOD] = "SPELL_CLOD";
 	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
 
 	for (const auto& i : ESpell_name_by_value)

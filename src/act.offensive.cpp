@@ -27,12 +27,15 @@
 #include "char.hpp"
 #include "room.hpp"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "features.hpp"
 #include "structs.h"
 #include "utils.h"
 #include "sysdep.h"
 #include "conf.h"
+
 #include <cmath>
+
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 
@@ -487,7 +490,8 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	percent = number(1, skill_info[SKILL_BACKSTAB].max_percent);
+	// чтобы наемники 15+ ремортов не мазали по мобам из лоулевел зонам
+	percent = number(1, skill_info[SKILL_BACKSTAB].max_percent - GET_REMORT(ch) * 2);
 	prob = train_skill(ch, SKILL_BACKSTAB, skill_info[SKILL_BACKSTAB].max_percent, vict);
 	//printf("probsssss: %d, skillinfo: %d\n", prob, skill_info[SKILL_BACKSTAB].max_percent);
 	// в функции hit уже есть проверка на попал/не попал.
