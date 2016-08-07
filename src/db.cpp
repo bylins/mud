@@ -6912,80 +6912,50 @@ int create_entry(const char *name)
 *  funcs of a (more or less) general utility nature                     *
 ************************************************************************/
 
-
 // read and allocate space for a '~'-terminated string from a given file
-char *fread_string(FILE * fl, char *error)
+char *fread_string(FILE* fl, char *error)
 {
-	char buf[MAX_STRING_LENGTH], tmp[512], *rslt;
-	char *point;
-	int done = 0;
-	size_t length = 0;
+	char buffer[MAX_STRING_LENGTH];
+	char* to = buffer;
 
-	*buf = '\0';
-
-	do
+	bool done = false;
+	int remained = MAX_STRING_LENGTH;
+	const char* end = buffer + MAX_STRING_LENGTH;
+	while (!done
+		&& fgets(to, remained, fl))
 	{
-		if (!fgets(tmp, 512, fl))
+		const char* chunk_beginning = to;
+		const char* from = to;
+		while (end != from)
 		{
-			log("SYSERR: fread_string: format error at or near %s", error);
-			exit(1);
-		}
-		// If there is a '~', end the string; else put an "\r\n" over the '\n'.
-		if ((point = strchr(tmp, '~')) != NULL)
-		{
-			/* Два символа '~' подряд интерпретируются как '~' и
-			   строка продолжается.
-			   Можно не использовать.
-			   Позволяет писать в триггерах что-то типа
-			   wat 26000 wechoaround %actor% ~%actor.name% появил%actor.u% тут в клубах дыма.
-			   Чтобы такая строва правильно загрузилась, в trg файле следует указать два символа '~'
-			   wat 26000 wechoaround %actor% ~~%actor.name% появил%actor.u% тут в клубах дыма.
-			 */
-			if (point[1] != '~')
+			if ('~' == from[0])
 			{
-				*point = '\0';
-				done = 1;
+				if (1 + from != end
+					&& '~' == from[1])
+				{
+					++from;	//	skip escaped '~'
+				}
+				else
+				{
+					*(to++) = '\0';
+					done = true;
+					break;
+				}
 			}
-			else
+
+			const char c = *(from++);
+			*(to++) = c;
+
+			if ('\0' == c)
 			{
-				memmove(point, point + 1, strlen(point));
+				break;
 			}
 		}
-		else
-		{
-			point = tmp + strlen(tmp) - 1;
-			*(point++) = '\r';
-			*(point++) = '\n';
-			*point = '\0';
-		}
 
-		size_t templength = strlen(tmp);
-
-		if (length + templength >= MAX_STRING_LENGTH)
-		{
-			log("SYSERR: fread_string: string too large (db.c)");
-			log("%s", error);
-			exit(1);
-		}
-		else
-		{
-			strcat(buf + length, tmp);
-			length += templength;
-		}
+		remained -= to - chunk_beginning;
 	}
-	while (!done);
-
-	// allocate space for the new string and copy it
-	if (strlen(buf) > 0)
-	{
-		CREATE(rslt, length + 1);
-		strcpy(rslt, buf);
-	}
-	else
-	{
-		rslt = NULL;
-	}
-	return (rslt);
+	
+	return strdup(buffer);
 }
 
 // release memory allocated for an obj struct
