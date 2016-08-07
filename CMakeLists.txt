@@ -120,6 +120,7 @@ set(SOURCES
     src/structs.cpp
     src/stuff.cpp
     src/structs.cpp
+    src/time_utils.cpp
     src/title.cpp
     src/top.cpp
     src/utils.cpp
@@ -220,6 +221,7 @@ set(HEADERS
     src/stuff.hpp
     src/sysdep.h
     src/telnet.h
+    src/time_utils.hpp
     src/title.hpp
     src/top.h
     src/xml_loading_helper.hpp

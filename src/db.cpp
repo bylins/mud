@@ -14,9 +14,10 @@
 
 #define __DB_C__
 
+#include "db.h"
+
 #include "structs.h"
 #include "utils.h"
-#include "db.h"
 #include "comm.h"
 #include "handler.h"
 #include "spells.h"
@@ -30,7 +31,6 @@
 #include "diskio.h"
 #include "im.h"
 #include "top.h"
-
 #include "craft.hpp"
 #include "stuff.hpp"
 #include "ban.hpp"
@@ -74,13 +74,17 @@
 #include "obj.hpp"
 #include "obj_sets.hpp"
 #include "bonus.h"
-#include <sys/stat.h>
-#include <sstream>
-#include <string>
-#include <cmath>
+#include "time_utils.hpp"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/dynamic_bitset.hpp>
+
+#include <sys/stat.h>
+
+#include <sstream>
+#include <string>
+#include <cmath>
 
 #define  TEST_OBJECT_TIMER   30
 #define CRITERION_FILE "criterion.xml"
@@ -128,7 +132,6 @@ int top_of_p_table = 0;		// ref to top of table
 int top_of_p_file = 0;		// ref of size of p file
 long top_idnum = 0;		// highest idnum in use
 
-int mini_mud = 0;		// mini-mud mode?
 time_t boot_time = 0;		// time of mud boot
 int circle_restrict = 0;	// level of game restriction
 room_rnum r_mortal_start_room;	// rnum of mortal start room
@@ -1274,46 +1277,60 @@ void convert_obj_values()
 
 void boot_world(void)
 {
+	utils::CSteppedProfiler boot_profiler("World booting");
+
+	boot_profiler.next_step("Loading zone table");
 	log("Loading zone table.");
 	index_boot(DB_BOOT_ZON);
 
+	boot_profiler.next_step("Loading triggers");
 	log("Loading triggers and generating index.");
 	index_boot(DB_BOOT_TRG);
 
+	boot_profiler.next_step("Loading rooms");
 	log("Loading rooms.");
 	index_boot(DB_BOOT_WLD);
 
+	boot_profiler.next_step("Renumbering rooms");
 	log("Renumbering rooms.");
 	renum_world();
 
+	boot_profiler.next_step("Checking start rooms");
 	log("Checking start rooms.");
 	check_start_rooms();
 
+	boot_profiler.next_step("Loading mobs and regerating index");
 	log("Loading mobs and generating index.");
 	index_boot(DB_BOOT_MOB);
 
+	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
 	MobMax::init();
 
+	boot_profiler.next_step("Loading objects");
 	log("Loading objs and generating index.");
 	index_boot(DB_BOOT_OBJ);
 
+	boot_profiler.next_step("Converting deprecated obj values");
 	log("Converting deprecated obj values.");
 	convert_obj_values();
 
+	boot_profiler.next_step("enumbering zone table");
 	log("Renumbering zone table.");
 	renum_zone_table();
 
+	boot_profiler.next_step("Renumbering Obj_zone");
 	log("Renumbering Obj_zone.");
 	renum_obj_zone();
 
+	boot_profiler.next_step("Renumbering Mob_zone");
 	log("Renumbering Mob_zone.");
 	renum_mob_zone();
 
+	boot_profiler.next_step("Initialization of object rnums");
 	log("Init system_obj rnums.");
 	system_obj::init();
 	log("Init global_drop_obj.");
-	
 }
 
 //MZ.load
@@ -2205,11 +2222,12 @@ void load_messages(void)
 // body of the booting system
 void boot_db(void)
 {
+	utils::CSteppedProfiler boot_profiler("MUD booting");
+
 	log("Boot db -- BEGIN.");
 
-	zone_rnum i;
+	boot_profiler.next_step("Creating directories");
 	struct stat st;
-
 	#define MKDIR(dir) if (stat((dir), &st) != 0) \
 		mkdir((dir), 0744)
 	#define MKLETTERS(BASE) MKDIR(#BASE); \
@@ -2235,12 +2253,15 @@ void boot_db(void)
 	#undef MKLETTERS
 	#undef MKDIR
 
+	boot_profiler.next_step("Initialization of text IDs");
 	log("Init TextId list.");
 	TextId::init();
 
+	boot_profiler.next_step("Resetting the game time");
 	log("Resetting the game time:");
 	reset_time();
 
+	boot_profiler.next_step("Reading credits, help, bground, info & motds.");
 	log("Reading credits, help, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
 	file_to_string_alloc(MOTD_FILE, &motd);
@@ -2255,11 +2276,13 @@ void boot_db(void)
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
 
+	boot_profiler.next_step("Loading new skills definitions");
     log("Loading NEW skills definitions");
 	pugi::xml_document doc;
 
 	Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR, doc));
 	
+	boot_profiler.next_step("Loading criterion");
 	log("Loading Criterion...");
 	pugi::xml_document doc1;
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1), EWearFlag::ITEM_WEAR_FINGER);
@@ -2278,60 +2301,76 @@ void boot_db(void)
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), EWearFlag::ITEM_WEAR_HOLD);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), EWearFlag::ITEM_WEAR_BOTHS);
 
-	
+	boot_profiler.next_step("Loading birth places definitions");
 	log("Loading birth places definitions.");
 	BirthPlace::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
 
+	boot_profiler.next_step("Loading player races definitions");
     log("Loading player races definitions.");
 	PlayerRace::Load(XMLLoad(LIB_MISC PLAYER_RACE_FILE, RACE_MAIN_TAG, PLAYER_RACE_ERROR_STR, doc));
 
+	boot_profiler.next_step("Loading spell definitions");
 	log("Loading spell definitions.");
 	mag_assign_spells();
 
+	boot_profiler.next_step("Loading feature definitions");
 	log("Loading feature definitions.");
 	assign_feats();
 
+	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
 	init_im();
 
+	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
 	log("Booting zone types and ingredient types for each zone type.");
 	init_zone_types();
 
+	boot_profiler.next_step("Loading insert_wanted.lst");
 	log("Booting insert_wanted.lst.");
 	iwg.init();
 
+	boot_profiler.next_step("Loading gurdians");
 	log("Load guardians.");
 	load_guardians();
 
+	boot_profiler.next_step("Loading world");
 	boot_world();
 
+	boot_profiler.next_step("Loading stuff load table");
 	log("Booting stuff load table.");
 	oload_table.init();
 
+	boot_profiler.next_step("Loading setstuff table");
 	log("Booting setstuff table.");
 	OBJ_DATA::init_set_table();
 
+	boot_profiler.next_step("Loading item levels");
 	log("Init item levels.");
 	ObjSystem::init_item_levels();
 
+	boot_profiler.next_step("Loading help entries");
 	log("Loading help entries.");
 	index_boot(DB_BOOT_HLP);
 
+	boot_profiler.next_step("Loading social entries");
 	log("Loading social entries.");
 	index_boot(DB_BOOT_SOCIAL);
 
+	boot_profiler.next_step("Loading players index");
 	log("Generating player index.");
 	build_player_index();
 
 	// хэши читать после генерации плеер-таблицы
+	boot_profiler.next_step("Loading CRC system");
 	log("Loading file crc system.");
 	FileCRC::load();
 
+	boot_profiler.next_step("Loading fight messages");
 	log("Loading fight messages.");
 	load_messages();
 
+	boot_profiler.next_step("Assigning function pointers");
 	log("Assigning function pointers:");
-
 	if (!no_specials)
 	{
 		log("   Mobiles.");
@@ -2342,17 +2381,22 @@ void boot_db(void)
 		assign_rooms();
 	}
 
+	boot_profiler.next_step("Assigning spells and skills levels");
 	log("Assigning spell and skill levels.");
 	init_spell_levels();
 
+	boot_profiler.next_step("Sorting command list");
 	log("Sorting command list.");
 	sort_commands();
 
+	boot_profiler.next_step("Reading banned site, proxy, privileges and invalid-name list.");
 	log("Reading banned site, proxy, privileges and invalid-name list.");
 	ban = new BanList();
 	Read_Invalid_List();
 
+	boot_profiler.next_step("Loading rented objects info");
 	log("Booting rented objects info");
+	zone_rnum i;
 	for (i = 0; i <= top_of_p_table; i++)
 	{
 		(player_table + i)->timer = NULL;
@@ -2360,74 +2404,97 @@ void boot_db(void)
 	}
 
 	// последовательность лоада кланов/досок не менять
+	boot_profiler.next_step("Loading boards");
 	log("Booting boards");
 	Board::BoardInit();
+
+	boot_profiler.next_step("loading clans");
 	log("Booting clans");
 	Clan::ClanLoad();
 
 	// загрузка списка именных вещей
+	boot_profiler.next_step("Loading named stuff");
 	log("Load named stuff");
 	NamedStuff::load();
 
+	boot_profiler.next_step("Loading basic values");
 	log("Booting basic values");
 	init_basic_values();
 
+	boot_profiler.next_step("Loading grouping parameters");
 	log("Booting grouping parameters");
 	if (init_grouping())
 		exit(1);
 
-	log("Booting specials assigment");
+	boot_profiler.next_step("Loading special assignments");
+	log("Booting special assignment");
 	init_spec_procs();
 
+	boot_profiler.next_step("Loading guilds");
 	log("Booting guilds");
 	init_guilds();
 
+	boot_profiler.next_step("Loading portals for 'town portal' spell");
 	log("Booting portals for 'town portal' spell");
 	portals_list = NULL;
 	init_portals();
 
+	boot_profiler.next_step("Loading made items");
 	log("Booting maked items");
 	init_make_items();
 
+	boot_profiler.next_step("Loading exchange");
 	log("Booting exchange");
 	exchange_database_load();
 
-	log("Load shedule reboot time");
+	boot_profiler.next_step("Loading scheduled reboot time");
+	log("Load schedule reboot time");
 	load_sheduled_reboot();
 
+	boot_profiler.next_step("Loading proxies list");
 	log("Load proxy list");
 	LoadProxyList();
 
+	boot_profiler.next_step("Loading new_name list");
 	log("Load new_name list");
 	NewNameLoad();
 
+	boot_profiler.next_step("Loading global UID timer");
 	log("Load global uid counter");
 	LoadGlobalUID();
 
+	boot_profiler.next_step("Initializing DT list");
 	log("Init DeathTrap list.");
 	DeathTrap::load();
 
+	boot_profiler.next_step("Loading titles list");
 	log("Load Title list.");
 	TitleSystem::load_title_list();
 
+	boot_profiler.next_step("Loading emails list");
 	log("Load registered emails list.");
 	RegisterSystem::load();
 
+	boot_profiler.next_step("Loading privileges and gods list");
 	log("Load privilege and god list.");
 	Privilege::load();
 
 	// должен идти до резета зон
+	boot_profiler.next_step("Initializing depot system");
 	log("Init Depot system.");
 	Depot::init_depot();
 
+	boot_profiler.next_step("Loading Parcel system");
 	log("Init Parcel system.");
 	Parcel::load();
 
+	boot_profiler.next_step("Loading celebrates");
 	log("Load Celebrates."); //Polud праздники. используются при ресете зон
 	//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 	Celebrates::load();
 
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
+	boot_profiler.next_step("Resetting zones");
 	for (i = 0; i <= top_of_zone_table; i++)
 	{
 		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
@@ -2437,9 +2504,11 @@ void boot_db(void)
 	reset_q.head = reset_q.tail = NULL;
 
 	// делается после резета зон, см камент к функции
+	boot_profiler.next_step("Loading depot chests");
 	log("Load depot chests.");
 	Depot::load_chests();
 
+	boot_profiler.next_step("Loading glory");
 	log("Load glory.");
 	Glory::load_glory();
 	log("Load const glory.");
@@ -2448,65 +2517,83 @@ void boot_db(void)
 	GloryMisc::load_log();
 
 	//Polud грузим параметры рас мобов
+	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
 	load_mobraces();
 
+	boot_profiler.next_step("Loading morphs");
 	log("Load morphs.");
 	load_morphs();
 
+	boot_profiler.next_step("Initializing global drop list");
 	log("Init global drop list.");
 	GlobalDrop::init();
 
+	boot_profiler.next_step("Loading offtop block list");
 	log("Init offtop block list.");
 	OfftopSystem::init();
 
+	boot_profiler.next_step("Loading shop_ext list");
 	log("load shop_ext list start.");
 	ShopExt::load(false);
 	log("load shop_ext list stop.");
 
+	boot_profiler.next_step("Loading zone average mob_level");
 	log("Set zone average mob_level.");
 	set_zone_mob_level();
 
+	boot_profiler.next_step("Setting zone town");
 	log("Set zone town.");
 	set_zone_town();
 
+	boot_profiler.next_step("Initializing town shop_keepers");
 	log("Init town shop_keepers.");
 	town_shop_keepers();
 
+	boot_profiler.next_step("Loading craft system");
 	log("Starting craft system.");
 	if (!craft::start())
 	{
 		log("ERROR: Failed to start craft system.\n");
 	}
 
+	boot_profiler.next_step("Loading big sets in rent");
 	log("Check big sets in rent.");
 	SetSystem::check_rented();
 
 	// сначала сеты, стата мобов, потом дроп сетов
+	boot_profiler.next_step("Loading object sets/mob_stat/drop_sets lists");
 	obj_sets::load();
 	log("Load mob_stat.xml");
 	mob_stat::load();
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
 
+	boot_profiler.next_step("Loading remorts");
 	log("Load remort.xml");
 	Remort::init();
 
+	boot_profiler.next_step("Loading noob_help.xml");
 	log("Load noob_help.xml");
 	Noob::init();
 
+	boot_profiler.next_step("Loading reset_stats.xml");
 	log("Load reset_stats.xml");
 	ResetStats::init();
 
+	boot_profiler.next_step("Loading mail.xml");
 	log("Load mail.xml");
 	mail::load();
 	
 	// загрузка кейсов
+	boot_profiler.next_step("Loading cases");
 	load_cases();
 	
 	// справка должна иниться после всего того, что может в нее что-то добавить
+	boot_profiler.next_step("Reloading help system");
 	HelpSystem::reload_all();
 
+	boot_profiler.next_step("Loading bonus log");
 	Bonus::bonus_log_load();
 
 	boot_time = time(0);
@@ -2701,99 +2788,66 @@ ackeof:
 	log("SYSERR: Unexpected end of help file.");
 	exit(1);		// Some day we hope to handle these things better...
 }
-/*
-void count_mobs_in_world(int count)
+
+const char* get_file_prefix(const int mode)
 {
-	std::map <int,int> mobs;
-	CHAR_DATA *mob;
-	mob_rnum r_num;
-	for (int i = 0; i < 51; i++)
-	{
-		mobs[i] = 0;
-	}
-	log("Всего мобов: %d", count);
-	for (int i = 1; i < count; i++)
-	{
-		log("1");
-		r_num = real_mobile(i);
-		//if ((r_num = real_mobile(i)) > -1)
-		if (true)
-		{
-			
-			mob = read_mobile(r_num, REAL);			
-			mobs[GET_LEVEL(mob)] += mob_index[i].number;	
-			log("%d %d", GET_LEVEL(mob), mob_index[i].number);	
-		}
-	}
-	std::map <int,int>::iterator cur;
-	for (cur=mobs.begin();cur!=mobs.end();cur++)
-	{
-		log("Level: %d, count: %d", (*cur).first, (*cur).second);
-	}
-	
-}*/
-
-
-
-void index_boot(int mode)
-{
-	const char *index_filename, *prefix = NULL;	// NULL or egcs 1.1 complains
-	FILE *index, *db_file;
-
-	int rec_count = 0, counter;
-
-	log("Index booting %d", mode);
-
+	const char* prefix = nullptr;
 	switch (mode)
 	{
 	case DB_BOOT_TRG:
 		prefix = TRG_PREFIX;
 		break;
+
 	case DB_BOOT_WLD:
 		prefix = WLD_PREFIX;
 		break;
+
 	case DB_BOOT_MOB:
 		prefix = MOB_PREFIX;
 		break;
+
 	case DB_BOOT_OBJ:
 		prefix = OBJ_PREFIX;
 		break;
+
 	case DB_BOOT_ZON:
 		prefix = ZON_PREFIX;
 		break;
+
 	case DB_BOOT_HLP:
 		prefix = HLP_PREFIX;
 		break;
+
 	case DB_BOOT_SOCIAL:
 		prefix = SOC_PREFIX;
 		break;
+
 	default:
-		log("SYSERR: Unknown subcommand %d to index_boot!", mode);
-		exit(1);
+		break;
 	}
 
+	return prefix;
+}
 
-	if (mini_mud)
-		index_filename = MINDEX_FILE;
-	else
-		index_filename = INDEX_FILE;
+int calculate_records_count(FILE* index, const int mode)
+{
+	int rec_count = 0;
 
-	sprintf(buf2, "%s%s", prefix, index_filename);
-
-	if (!(index = fopen(buf2, "r")))
+	if (mode == DB_BOOT_WLD)
 	{
-		log("SYSERR: opening index file '%s': %s", buf2, strerror(errno));
-		exit(1);
+		return rec_count;	// we don't need to count rooms
 	}
 
+	const char* prefix = get_file_prefix(mode);
 	// first, count the number of records in the file so we can malloc
 	int dummyi = fscanf(index, "%s\n", buf1);
 	while (*buf1 != '$')
 	{
 		sprintf(buf2, "%s%s", prefix, buf1);
-		if (!(db_file = fopen(buf2, "r")))
+		FILE* db_file = db_file = fopen(buf2, "r");
+		if (!db_file)
 		{
-			log("SYSERR: File '%s' listed in '%s/%s': %s", buf2, prefix, index_filename, strerror(errno));
+			log("SYSERR: File '%s' listed in '%s/%s': %s", buf2, prefix, INDEX_FILE, strerror(errno));
 			dummyi = fscanf(index, "%s\n", buf1);
 			continue;
 		}
@@ -2807,7 +2861,7 @@ void index_boot(int mode)
 				rec_count += count_alias_records(db_file);
 			else if (mode == DB_BOOT_WLD)
 			{
-				counter = count_hash_records(db_file);
+				const int counter = count_hash_records(db_file);
 				if (counter > 99)
 				{
 					log("SYSERR: File '%s' list more than 99 room", buf2);
@@ -2825,12 +2879,38 @@ void index_boot(int mode)
 	// Exit if 0 records, unless this is shops
 	if (!rec_count)
 	{
-		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix, index_filename);
+		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix, INDEX_FILE);
 		exit(1);
 	}
 
 	// Any idea why you put this here Jeremy?
 	rec_count++;
+
+	return rec_count;
+}
+
+void index_boot(int mode)
+{
+	FILE *index, *db_file;
+
+	log("Index booting %d", mode);
+
+	const char* prefix = get_file_prefix(mode);
+	if (nullptr == prefix)
+	{
+		log("SYSERR: Unknown subcommand %d to index_boot!", mode);
+		exit(1);
+	}
+
+	sprintf(buf2, "%s%s", prefix, INDEX_FILE);
+
+	if (!(index = fopen(buf2, "r")))
+	{
+		log("SYSERR: opening index file '%s': %s", buf2, strerror(errno));
+		exit(1);
+	}
+
+	const int rec_count = calculate_records_count(index, mode);
 
 	// * NOTE: "bytes" does _not_ include strings or other later malloc'd things.
 	switch (mode)
@@ -2887,7 +2967,7 @@ void index_boot(int mode)
 	}
 
 	rewind(index);
-	dummyi = fscanf(index, "%s\n", buf1);
+	int dummyi = fscanf(index, "%s\n", buf1);
 	while (*buf1 != '$')
 	{
 		sprintf(buf2, "%s%s", prefix, buf1);
@@ -3080,10 +3160,11 @@ void discrete_load(FILE * fl, int mode, char *filename)
 	// modes positions correspond to DB_BOOT_xxx in db.h
 
 	for (;;)
-	{		/*
-				 * we have to do special processing with the obj files because they have
-				 * no end-of-record marker :(
-				 */
+	{
+		/*
+		* we have to do special processing with the obj files because they have
+		* no end-of-record marker :(
+		*/
 		if (mode != DB_BOOT_OBJ || nr < 0)
 			if (!get_line(fl, line))
 			{
@@ -3418,38 +3499,37 @@ void check_start_rooms(void)
 		log("SYSERR:  Mortal start room does not exist.  Change in config.c. %d", mortal_start_room);
 		exit(1);
 	}
+
 	if ((r_immort_start_room = real_room(immort_start_room)) == NOWHERE)
 	{
-		if (!mini_mud)
-			log("SYSERR:  Warning: Immort start room does not exist.  Change in config.c.");
+		log("SYSERR:  Warning: Immort start room does not exist.  Change in config.c.");
 		r_immort_start_room = r_mortal_start_room;
 	}
+
 	if ((r_frozen_start_room = real_room(frozen_start_room)) == NOWHERE)
 	{
-		if (!mini_mud)
-			log("SYSERR:  Warning: Frozen start room does not exist.  Change in config.c.");
+		log("SYSERR:  Warning: Frozen start room does not exist.  Change in config.c.");
 		r_frozen_start_room = r_mortal_start_room;
 	}
+
 	if ((r_helled_start_room = real_room(helled_start_room)) == NOWHERE)
 	{
-		if (!mini_mud)
-			log("SYSERR:  Warning: Hell start room does not exist.  Change in config.c.");
+		log("SYSERR:  Warning: Hell start room does not exist.  Change in config.c.");
 		r_helled_start_room = r_mortal_start_room;
 	}
+
 	if ((r_named_start_room = real_room(named_start_room)) == NOWHERE)
 	{
-		if (!mini_mud)
-			log("SYSERR:  Warning: NAME start room does not exist.  Change in config.c.");
+		log("SYSERR:  Warning: NAME start room does not exist.  Change in config.c.");
 		r_named_start_room = r_mortal_start_room;
 	}
+
 	if ((r_unreg_start_room = real_room(unreg_start_room)) == NOWHERE)
 	{
-		if (!mini_mud)
-			log("SYSERR:  Warning: UNREG start room does not exist.  Change in config.c.");
+		log("SYSERR:  Warning: UNREG start room does not exist.  Change in config.c.");
 		r_unreg_start_room = r_mortal_start_room;
 	}
 }
-
 
 // resolve all vnums into rnums in the world
 void renum_world(void)
@@ -3547,22 +3627,21 @@ void renum_single_table(int zone)
 		}
 		if (a < 0 || b < 0 || c < 0)
 		{
-			if (!mini_mud)
-			{
-				sprintf(buf, "Invalid vnum %d, cmd disabled", (a < 0) ? olda : ((b < 0) ? oldb : oldc));
-				log_zone_error(zone, cmd_no, buf);
-			}
+			sprintf(buf, "Invalid vnum %d, cmd disabled", (a < 0) ? olda : ((b < 0) ? oldb : oldc));
+			log_zone_error(zone, cmd_no, buf);
 			ZCMD.command = '*';
 		}
 	}
 }
 
-// resulve vnums into rnums in the zone reset tables
+// resove vnums into rnums in the zone reset tables
 void renum_zone_table(void)
 {
 	zone_rnum zone;
 	for (zone = 0; zone <= top_of_zone_table; zone++)
+	{
 		renum_single_table(zone);
+	}
 }
 
 
@@ -6833,80 +6912,50 @@ int create_entry(const char *name)
 *  funcs of a (more or less) general utility nature                     *
 ************************************************************************/
 
-
 // read and allocate space for a '~'-terminated string from a given file
-char *fread_string(FILE * fl, char *error)
+char *fread_string(FILE* fl, char *error)
 {
-	char buf[MAX_STRING_LENGTH], tmp[512], *rslt;
-	char *point;
-	int done = 0;
-	size_t length = 0;
+	char buffer[MAX_STRING_LENGTH];
+	char* to = buffer;
 
-	*buf = '\0';
-
-	do
+	bool done = false;
+	int remained = MAX_STRING_LENGTH;
+	const char* end = buffer + MAX_STRING_LENGTH;
+	while (!done
+		&& fgets(to, remained, fl))
 	{
-		if (!fgets(tmp, 512, fl))
+		const char* chunk_beginning = to;
+		const char* from = to;
+		while (end != from)
 		{
-			log("SYSERR: fread_string: format error at or near %s", error);
-			exit(1);
-		}
-		// If there is a '~', end the string; else put an "\r\n" over the '\n'.
-		if ((point = strchr(tmp, '~')) != NULL)
-		{
-			/* Два символа '~' подряд интерпретируются как '~' и
-			   строка продолжается.
-			   Можно не использовать.
-			   Позволяет писать в триггерах что-то типа
-			   wat 26000 wechoaround %actor% ~%actor.name% появил%actor.u% тут в клубах дыма.
-			   Чтобы такая строва правильно загрузилась, в trg файле следует указать два символа '~'
-			   wat 26000 wechoaround %actor% ~~%actor.name% появил%actor.u% тут в клубах дыма.
-			 */
-			if (point[1] != '~')
+			if ('~' == from[0])
 			{
-				*point = '\0';
-				done = 1;
+				if (1 + from != end
+					&& '~' == from[1])
+				{
+					++from;	//	skip escaped '~'
+				}
+				else
+				{
+					*(to++) = '\0';
+					done = true;
+					break;
+				}
 			}
-			else
+
+			const char c = *(from++);
+			*(to++) = c;
+
+			if ('\0' == c)
 			{
-				memmove(point, point + 1, strlen(point));
+				break;
 			}
 		}
-		else
-		{
-			point = tmp + strlen(tmp) - 1;
-			*(point++) = '\r';
-			*(point++) = '\n';
-			*point = '\0';
-		}
 
-		size_t templength = strlen(tmp);
-
-		if (length + templength >= MAX_STRING_LENGTH)
-		{
-			log("SYSERR: fread_string: string too large (db.c)");
-			log("%s", error);
-			exit(1);
-		}
-		else
-		{
-			strcat(buf + length, tmp);
-			length += templength;
-		}
+		remained -= to - chunk_beginning;
 	}
-	while (!done);
-
-	// allocate space for the new string and copy it
-	if (strlen(buf) > 0)
-	{
-		CREATE(rslt, length + 1);
-		strcpy(rslt, buf);
-	}
-	else
-	{
-		rslt = NULL;
-	}
-	return (rslt);
+	
+	return strdup(buffer);
 }
 
 // release memory allocated for an obj struct

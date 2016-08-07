@@ -390,7 +390,6 @@ extern int num_invalid;
 extern char *GREETINGS;
 extern const char *circlemud_version;
 extern int circle_restrict;
-extern int mini_mud;
 extern FILE *player_fl;
 extern ush_int DFLT_PORT;
 extern const char *DFLT_DIR;
@@ -867,11 +866,6 @@ int main_function(int argc, char **argv)
 			}
 			break;
 
-		case 'm':
-			mini_mud = 1;
-			puts("Running in minimized mode & with no rent check.");
-			break;
-
 		case 'c':
 			scheck = 1;
 			puts("Syntax check mode enabled.");
@@ -889,11 +883,10 @@ int main_function(int argc, char **argv)
 
 		case 'h':
 			// From: Anil Mahajan <amahajan@proxicom.com>
-			printf("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n"
+			printf("Usage: %s [-c] [-q] [-r] [-s] [-d pathname] [port #] [-D msdp]\n"
 				"  -c             Enable syntax check mode.\n"
 				"  -d <directory> Specify library directory (defaults to 'lib').\n"
 				"  -h             Print this command line argument help.\n"
-				"  -m             Start in mini-MUD mode.\n"
 				"  -o <file>      Write log to <file> instead of stderr.\n"
 				"  -r             Restrict MUD -- no new players allowed.\n"
 				"  -s             Suppress special procedure assignments.\n"
@@ -911,7 +904,7 @@ int main_function(int argc, char **argv)
 	{
 		if (!a_isdigit(*argv[pos]))
 		{
-			printf("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n", argv[0]);
+			printf("Usage: %s [-c] [-q] [-r] [-s] [-d pathname] [port #] [-D msdp]\n", argv[0]);
 			exit(1);
 		}
 		else if ((port = atoi(argv[pos])) <= 1024)
