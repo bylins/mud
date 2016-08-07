@@ -4872,8 +4872,6 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		return 0;
 	}
 
-	const size_t BASE_AFFECTS = 2;
-
 	switch (spellnum)
 	{
 	case SPELL_BLESS:

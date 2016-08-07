@@ -2845,7 +2845,7 @@ int calculate_records_count(FILE* index, const int mode)
 	while (*buf1 != '$')
 	{
 		sprintf(buf2, "%s%s", prefix, buf1);
-		FILE* db_file = db_file = fopen(buf2, "r");
+		FILE* db_file = fopen(buf2, "r");
 		if (!db_file)
 		{
 			log("SYSERR: File '%s' listed in '%s/%s': %s", buf2, prefix, INDEX_FILE, strerror(errno));
@@ -2876,6 +2876,7 @@ int calculate_records_count(FILE* index, const int mode)
 		fclose(db_file);
 		dummyi = fscanf(index, "%s\n", buf1);
 	}
+	UNUSED_ARG(dummyi);
 
 	// Exit if 0 records, unless this is shops
 	if (!rec_count)
@@ -6938,7 +6939,7 @@ int create_entry(const char *name)
 ************************************************************************/
 
 // read and allocate space for a '~'-terminated string from a given file
-char *fread_string(FILE* fl, char *error)
+char *fread_string(FILE* fl, char* /*error*/)
 {
 	char buffer[MAX_STRING_LENGTH];
 	char* to = buffer;

@@ -7,11 +7,6 @@
 
 namespace utils
 {
-	CExecutionProfiler::~CExecutionProfiler()
-	{
-		log("'%s' took %.06 seconds.\n", m_timer.delta().count());
-	}
-
 	CSteppedProfiler::~CSteppedProfiler()
 	{
 		if (0 < m_steps.size())

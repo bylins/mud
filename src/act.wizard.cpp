@@ -188,13 +188,12 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
-
 void save_zone_count_reset()
 {
 	for (int i = 0; i <= top_of_zone_table; ++i)
 	{
 		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
-		log(buf);
+		log("%s", buf);
 	}
 }
 

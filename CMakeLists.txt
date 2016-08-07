@@ -512,6 +512,7 @@ endif ()
 set(MAIN_EXECUTABLE src/main.cpp)
 
 add_executable(circle ${MAIN_EXECUTABLE})
+set_property(TARGET circle PROPERTY CXX_STANDARD 14)
 target_link_libraries(circle circle.library)
 
 # Testing part

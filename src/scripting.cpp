@@ -90,46 +90,47 @@ template <class t>
 class Wrapper
 {
 public:
-typedef t wrapped_t;
-typedef caching::Cache<wrapped_t*> cache_t;
-Wrapper(t* obj, cache_t& cache_):
-cache(cache_), id(cache_.get_id(obj))
+	typedef t wrapped_t;
+	typedef caching::Cache<wrapped_t*> cache_t;
+	Wrapper(t* obj, cache_t& cache_):
+		cache(cache_), id(cache_.get_id(obj))
 	{
 	}
 
-Wrapper(const Wrapper& other):
-	cache(other.cache), id(other.id) { }
+	Wrapper(const Wrapper& other):
+		cache(other.cache), id(other.id) { }
 
-Wrapper& operator=(const Wrapper& other)
-{
-	id = other.id;
-	return *this;
-}
+	Wrapper& operator=(const Wrapper& other)
+	{
+		id = other.id;
+		return *this;
+	}
 
-operator t*() const
-{
-	t* r = cache.get_obj(id);
-	if (!r)
-		raise_error();
-	return r;
-}
+	operator t*() const
+	{
+		t* r = cache.get_obj(id);
+		if (!r)
+			raise_error();
+		return r;
+	}
 
-operator bool() { return id!=0; }
+	operator bool() { return id!=0; }
 
-void raise_error() const
-{
-	PyErr_SetString(ObjectDoesNotExist.get(), "Object you are referencing doesn't exist anymore");
-	throw_error_already_set();
-}
+	void raise_error() const
+	{
+		PyErr_SetString(ObjectDoesNotExist.get(), "Object you are referencing doesn't exist anymore");
+		throw_error_already_set();
+	}
 
-struct Ensurer
-{
-Ensurer(const Wrapper& w): ptr(w) { }
+	struct Ensurer
+	{
+		Ensurer(const Wrapper& w): ptr(w) { }
 
-t* operator->() { return ptr; }
-operator t*() { return ptr; }
-t* ptr;
-};
+		t* operator->() { return ptr; }
+		operator t*() { return ptr; }
+		t* ptr;
+	};
+
 private:
 	cache_t& cache;
 	caching::id_t id;
@@ -843,19 +844,16 @@ struct _arrayN
     }
 };
 
-class ObjWrapper: public Wrapper<OBJ_DATA>
+class ObjWrapper: private std::shared_ptr<OBJ_DATA>, public Wrapper<OBJ_DATA>
 {
-private:
-	std::shared_ptr<OBJ_DATA> m_temp_object;	// built based on provided prototype
-
 public:
 	ObjWrapper(OBJ_DATA* obj) : Wrapper<OBJ_DATA>(obj, caching::obj_cache)
 	{
 	}
 
-	ObjWrapper(const CObjectPrototype::shared_ptr& obj) :
-		m_temp_object(new OBJ_DATA(*obj)),
-		Wrapper<OBJ_DATA>(m_temp_object.get(), caching::obj_cache)
+	ObjWrapper(const CObjectPrototype::shared_ptr& obj):
+		std::shared_ptr<OBJ_DATA>(new OBJ_DATA(*obj)),
+		Wrapper<OBJ_DATA>(get(), caching::obj_cache)
 	{
 	}
 

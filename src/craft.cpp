@@ -320,8 +320,8 @@ namespace craft
 
 		CHelper::ELoadFlagResult load_result = CHelper::load_flag<EObjectType>(*node, "type",
 			[&](const auto type) { this->set_type(type); },
-			[&](const auto name) { log("WARNING: Failed to set object type '%s' for object with VNUM %d. Object will be skipped.\n", name, get_vnum()); },
-			[&]() { log("WARNING: \"type\" tag not found for object with VNUM %d not found. Setting to default value: %s.\n", get_vnum(), NAME_BY_ITEM(get_type()).c_str()); });
+			[&](const auto name) { log("WARNING: Failed to set object type '%s' for object with VNUM %d. Object will be skipped.\n", name, this->get_vnum()); },
+			[&]() { log("WARNING: \"type\" tag not found for object with VNUM %d not found. Setting to default value: %s.\n", this->get_vnum(), NAME_BY_ITEM(get_type()).c_str()); });
 		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
@@ -334,28 +334,28 @@ namespace craft
 			if (maximum)
 			{
 				CHelper::load_integer(maximum.child_value(),
-					[&](const auto value) { set_maximum_durability(std::max(value, 0)); },
+					[&](const auto value) { this->set_maximum_durability(std::max(value, 0)); },
 					[&]() { log("WARNING: Wrong integer value of tag \"maximum_durability\" for object with VNUM %d. Leaving default value %d\n",
-						get_vnum(), get_maximum_durability()); });
+						this->get_vnum(), this->get_maximum_durability()); });
 			}
 
 			const auto current = durability.child("current");
 			if (current)
 			{
 				CHelper::load_integer(current.child_value(),
-					[&](const auto value) { set_current_durability(std::min(std::max(value, 0), get_maximum_durability())); },
+					[&](const auto value) { this->set_current_durability(std::min(std::max(value, 0), this->get_maximum_durability())); },
 					[&]() {
 					log("WARNING: Wrong integer value of tag \"current_durability\" for object with VNUM %d. Setting to value of \"maximum_durability\" %d\n",
-						get_vnum(), get_maximum_durability());
-					set_current_durability(get_maximum_durability());
+						this->get_vnum(), this->get_maximum_durability());
+					this->set_current_durability(this->get_maximum_durability());
 				});
 			}
 		}
 
 		load_result = CHelper::load_flag<ESex>(*node, "sex",
-			[&](const auto sex) { set_sex(sex); },
-			[&](const auto name) { log("WARNING: Failed to set sex '%s' for object with VNUM %d. object will be skipped.\n", name, get_vnum()); },
-			[&]() { log("WARNING: \"sex\" tag for object with VNUM %d not found. Setting to default value: %s.\n", get_vnum(), NAME_BY_ITEM(get_sex()).c_str()); });
+			[&](const auto sex) { this->set_sex(sex); },
+			[&](const auto name) { log("WARNING: Failed to set sex '%s' for object with VNUM %d. object will be skipped.\n", name, this->get_vnum()); },
+			[&]() { log("WARNING: \"sex\" tag for object with VNUM %d not found. Setting to default value: %s.\n", this->get_vnum(), NAME_BY_ITEM(this->get_sex()).c_str()); });
 		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
@@ -365,9 +365,9 @@ namespace craft
 		if (level)
 		{
 			CHelper::load_integer(level.child_value(),
-				[&](const auto value) { set_level(std::max(value, 0)); },
+				[&](const auto value) { this->set_level(std::max(value, 0)); },
 				[&]() { log("WARNING: Wrong integer value of the \"level\" tag for object with VNUM %d. Leaving default value %d.\n",
-					get_vnum(), get_level()); });
+					this->get_vnum(), this->get_level()); });
 		}
 
 		const auto weight = node->child("weight");
@@ -376,7 +376,7 @@ namespace craft
 			CHelper::load_integer(weight.child_value(),
 				[&](const auto value) { this->set_weight(std::max(value, 1)); },
 				[&]() { log("WARNING: Wrong integer value of the \"weight\" tag for object with VNUM %d. Leaving default value %d.\n",
-					get_vnum(), this->get_weight()); });
+					this->get_vnum(), this->get_weight()); });
 		}
 
 		const auto timer = node->child("timer");
@@ -406,48 +406,48 @@ namespace craft
 		}
 
 		load_result = CHelper::load_flag<EObjectMaterial>(*node, "material",
-			[&](const auto material) { set_material(material); },
-			[&](const auto name) { log("WARNING: Failed to set material '%s' for object with VNUM %d. Object will be skipped.\n", name, get_vnum()); },
-			[&]() { log("WARNING: \"material\" tag for object with VNUM %d not found. Setting to default value: %s.\n", get_vnum(), NAME_BY_ITEM(get_material()).c_str()); });
+			[&](const auto material) { this->set_material(material); },
+			[&](const auto name) { log("WARNING: Failed to set material '%s' for object with VNUM %d. Object will be skipped.\n", name, this->get_vnum()); },
+			[&]() { log("WARNING: \"material\" tag for object with VNUM %d not found. Setting to default value: %s.\n", this->get_vnum(), NAME_BY_ITEM(this->get_material()).c_str()); });
 		if (CHelper::ELFR_FAIL == load_result)
 		{
 			return false;
 		}
 
 		load_result = CHelper::load_flag<ESpell>(*node, "spell",
-			[&](const auto spell) { set_spell(spell); },
-			[&](const auto value) { log("WARNING: Failed to set spell '%s' for object with VNUM %d. Spell will not be set.\n", value, get_vnum()); },
+			[&](const auto spell) { this->set_spell(spell); },
+			[&](const auto value) { log("WARNING: Failed to set spell '%s' for object with VNUM %d. Spell will not be set.\n", value, this->get_vnum()); },
 			[&]() {});
 
 		// loading of object extraflags
 		CHelper::load_flags<EExtraFlag>(*node, "extraflags", "extraflag",
-			[&](const auto flag) { set_extra_flag(flag); },
-			[&](const auto value) { log("Setting extra flag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), get_vnum()); },
-			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of object with VNUM %d, because this value is not valid.\n", flag, get_vnum()); });
+			[&](const auto flag) { this->set_extra_flag(flag); },
+			[&](const auto value) { log("Setting extra flag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), this->get_vnum()); },
+			[&](const auto flag) { log("WARNING: Skipping extra flag '%s' of object with VNUM %d, because this value is not valid.\n", flag, this->get_vnum()); });
 
         // loading of object weapon affect flags
 		CHelper::load_flags<EWeaponAffectFlag>(*node, "weapon_affects", "weapon_affect",
-			[&](const auto flag) { set_affect_flag(flag); },
-			[&](const auto value) { log("Setting weapon affect flag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), get_vnum()); },
-			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of object with VNUM %d, because this value is not valid.\n", flag, get_vnum()); });
+			[&](const auto flag) { this->set_affect_flag(flag); },
+			[&](const auto value) { log("Setting weapon affect flag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), this->get_vnum()); },
+			[&](const auto flag) { log("WARNING: Skipping weapon affect flag '%s' of object with VNUM %d, because this value is not valid.\n", flag, this->get_vnum()); });
         
         // loading of object antiflags
 		CHelper::load_flags<EAntiFlag>(*node, "antiflags", "antiflag",
-			[&](const auto flag) { set_anti_flag(flag); },
-			[&](const auto value) { log("Setting antiflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), get_vnum()); },
-			[&](const auto flag) { log("WARNING: Skipping antiflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, get_vnum()); });
+			[&](const auto flag) { this->set_anti_flag(flag); },
+			[&](const auto value) { log("Setting antiflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), this->get_vnum()); },
+			[&](const auto flag) { log("WARNING: Skipping antiflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, this->get_vnum()); });
 
 		// loading of object noflags
 		CHelper::load_flags<ENoFlag>(*node, "noflags", "noflag",
-			[&](const auto flag) { set_no_flag(flag); },
-			[&](const auto value) { log("Setting noflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), get_vnum()); },
-			[&](const auto flag) { log("WARNING: Skipping noflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, get_vnum()); });
+			[&](const auto flag) { this->set_no_flag(flag); },
+			[&](const auto value) { log("Setting noflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), this->get_vnum()); },
+			[&](const auto flag) { log("WARNING: Skipping noflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, this->get_vnum()); });
 
 		// loading of object wearflags
 		CHelper::load_flags<EWearFlag>(*node, "wearflags", "wearflag",
-			[&](const auto flag) { set_wear_flag(flag); },
-			[&](const auto value) { log("Setting wearflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), get_vnum()); },
-			[&](const auto flag) { log("WARNING: Skipping wearflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, get_vnum()); });
+			[&](const auto flag) { this->set_wear_flag(flag); },
+			[&](const auto value) { log("Setting wearflag '%s' for object with VNUM %d.\n", NAME_BY_ITEM(value).c_str(), this->get_vnum()); },
+			[&](const auto flag) { log("WARNING: Skipping wearflag '%s' of object with VNUM %d, because this value is not valid.\n", flag, this->get_vnum()); });
 
 		// loading of object skills
 		load_skills(node);
@@ -462,9 +462,9 @@ namespace craft
 			if (val_node)
 			{
 				CHelper::load_integer(val_node.child_value(), 
-					[&](const auto value) { set_val(i, value); },
+					[&](const auto value) { this->set_val(i, value); },
 					[&]() { log("WARNING: \"%s\" tag of object with VNUM %d has wrong integer value. Leaving default value %d.\n",
-						val_name.str().c_str(), get_vnum(), get_val(i)); });
+						val_name.str().c_str(), this->get_vnum(), this->get_val(i)); });
 			}
 		}
 
@@ -473,9 +473,9 @@ namespace craft
 		{
 			const char* vnum_str = trigger_node.child_value();
 			CHelper::load_integer(vnum_str,
-				[&](const auto value) { add_proto_script(value); },
+				[&](const auto value) { this->add_proto_script(value); },
 				[&]() { log("WARNING: Invalid trigger's VNUM value \"%s\" for object with VNUM %d. Skipping.\n",
-					vnum_str, get_vnum()); });
+					vnum_str, this->get_vnum()); });
 		}
 
 		load_extended_values(node);
@@ -738,40 +738,40 @@ namespace craft
 	{
 		CHelper::load_pairs_list<ESkill>(node, "skills", "skill", "id", "value",
 			[&](const size_t number) { log("WARNING: %zd-%s \"skill\" tag of \"skills\" group does not have the \"id\" tag. Object with VNUM %d.\n",
-				number, suffix(number), get_vnum()); },
+				number, suffix(number), this->get_vnum()); },
 			[&](const auto value) -> auto { return ITEM_BY_NAME<ESkill>(value); },
 			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to skill ID. Object with VNUM %d.\n Skipping entry.\n",
-				key, get_vnum()); },
+				key, this->get_vnum()); },
 			[&](const auto key) { log("WARNING: skill with key \"%s\" does not have \"value\" tag. Object with VNUM %d. Skipping entry.\n",
-				key, get_vnum()); },
+				key, this->get_vnum()); },
 			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
-					set_skill(key, int_value);
+					this->set_skill(key, int_value);
 					log("Adding skill pair (%s, %d) to object with VNUM %d.\n",
-						NAME_BY_ITEM(key).c_str(), int_value, get_vnum());
+						NAME_BY_ITEM(key).c_str(), int_value, this->get_vnum());
 				},
 				[&]() { log("WARNIGN: Could not convert skill value of \"value\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
-					NAME_BY_ITEM(key).c_str(), get_vnum()); }); });
+					NAME_BY_ITEM(key).c_str(), this->get_vnum()); }); });
 	}
 
 	void CObject::load_extended_values(const pugi::xml_node* node)
 	{
 		CHelper::load_pairs_list<ObjVal::EValueKey>(node, "extended_values", "entry", "key", "value",
 			[&](const size_t number) { log("WARNING: %zd-%s \"entry\" tag of \"extended_values\" group does not have the \"key\" tag. Object with VNUM %d.\n",
-				number, suffix(number), get_vnum()); },
+				number, suffix(number), this->get_vnum()); },
 			[&](const auto value) -> auto { return static_cast<ObjVal::EValueKey>(TextId::to_num(TextId::OBJ_VALS, value)); },
 			[&](const auto key) { log("WARNING: Could not convert extended value \"%s\" to key value. Object with VNUM %d.\n Skipping entry.\n",
-				key, get_vnum()); },
+				key, this->get_vnum()); },
 			[&](const auto key) { log("WARNING: entry with key \"%s\" does not have \"value\" tag. Object with VNUM %d. Skipping entry.\n",
-				key, get_vnum()); },
+				key, this->get_vnum()); },
 			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
-					set_value(key, int_value);
+					this->set_value(key, int_value);
 					log("Adding extended values pair (%s, %d) to object with VNUM %d.\n",
-						TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), int_value, get_vnum());
+						TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), int_value, this->get_vnum());
 				},
 				[&]() { log("WARNIGN: Could not convert extended value of \"value\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
-					TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), get_vnum()); }); });
+					TextId::to_str(TextId::OBJ_VALS, to_underlying(key)).c_str(), this->get_vnum()); }); });
 	}
 
 	void CObject::load_applies(const pugi::xml_node* node)
@@ -783,17 +783,17 @@ namespace craft
 				number, suffix(number), get_vnum()); },
 			[&](const auto value) -> auto { return ITEM_BY_NAME<EApplyLocation>(value); },
 			[&](const auto key) { log("WARNING: Could not convert value \"%s\" to apply location. Object with VNUM %d.\n Skipping entry.\n",
-				key, get_vnum()); },
+				key, this->get_vnum()); },
 			[&](const auto key) { log("WARNING: apply with key \"%s\" does not have \"modifier\" tag. Object with VNUM %d. Skipping entry.\n",
-				key, get_vnum()); },
+				key, this->get_vnum()); },
 			[&](const auto key, const auto value) { CHelper::load_integer(value,
 				[&](const auto int_value) {
 					applies.push_back(applies_t::value_type(key, int_value));
 					log("Adding apply pair (%s, %d) to object with VNUM %d.\n",
-						NAME_BY_ITEM(key).c_str(), int_value, get_vnum());
+						NAME_BY_ITEM(key).c_str(), int_value, this->get_vnum());
 				},
 				[&]() { log("WARNIGN: Could not convert apply value of \"modifier\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
-					NAME_BY_ITEM(key).c_str(), get_vnum()); }); });
+					NAME_BY_ITEM(key).c_str(), this->get_vnum()); }); });
 
 		std::stringstream ignored_applies;
 		bool first = true;
