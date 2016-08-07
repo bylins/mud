@@ -220,6 +220,7 @@ set(HEADERS
     src/stuff.hpp
     src/sysdep.h
     src/telnet.h
+    src/time_utils.hpp
     src/title.hpp
     src/top.h
     src/xml_loading_helper.hpp

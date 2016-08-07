@@ -6,6 +6,7 @@
 
 #include "craft.hpp"
 
+#include "time_utils.hpp"
 #include "xml_loading_helper.hpp"
 #include "parse.hpp"
 #include "skills.h"
@@ -21,7 +22,6 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <chrono>
 
 namespace craft
 {
@@ -38,33 +38,11 @@ namespace craft
 					: "th"));
 	}
 
-	class CExecutionTimer
-	{
-	public:
-		using call_t = std::function<void()>;
-		using clock_t = std::chrono::high_resolution_clock;
-		using duration_t = std::chrono::duration<double, std::chrono::seconds::period>;
-
-		CExecutionTimer() { start(); }
-		void restart() { start(); }
-		duration_t delta() const;
-
-	private:
-		void start() { m_start_time = clock_t::now(); }
-		clock_t::time_point m_start_time;
-	};
-
-	craft::CExecutionTimer::duration_t CExecutionTimer::delta() const
-	{
-		const auto stop_time = clock_t::now();
-		return stop_time - m_start_time;
-	}
-
 	CCraftModel model;
 
 	bool start()
 	{
-		CExecutionTimer timer;
+		utils::CExecutionTimer timer;
 		const bool load_result = model.load();
 		const auto loading_duration = timer.delta();
 
