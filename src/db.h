@@ -188,7 +188,6 @@ void room_free(ROOM_DATA * room);
 // public procedures in db.cpp
 void tag_argument(char *argument, char *tag);
 void boot_db(void);
-void free_db(void);
 int create_entry(const char *name);
 void zone_update(void);
 bool can_be_reset(zone_rnum zone);
@@ -206,12 +205,10 @@ long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 
 int load_char(const char *name, CHAR_DATA * char_element, bool reboot = 0);
-void save_char(CHAR_DATA *ch);
 void init_char(CHAR_DATA *ch);
 CHAR_DATA *read_mobile(mob_vnum nr, int type);
 mob_rnum real_mobile(mob_vnum vnum);
 int vnum_mobile(char *searchname, CHAR_DATA * ch);
-void reset_char(CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
 bool check_unlimited_timer(const CObjectPrototype* obj);
