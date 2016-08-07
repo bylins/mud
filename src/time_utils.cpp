@@ -49,7 +49,8 @@ namespace utils
 			{
 				++number;
 				ss << "  " << number << ". Step '" << step->name() << "' took "
-					<< std::fixed << std::setprecision(6) << step->duration().count() << " second(s)"
+					<< std::fixed << std::setprecision(6) << step->duration().count() << " second(s) ("
+					<< std::fixed << std::setprecision(6) << (100*step->duration().count()/ m_timer.delta().count()) << "%)"
 					<< ";" << std::endl;
 			}
 

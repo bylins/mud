@@ -132,7 +132,6 @@ int top_of_p_table = 0;		// ref to top of table
 int top_of_p_file = 0;		// ref of size of p file
 long top_idnum = 0;		// highest idnum in use
 
-int mini_mud = 0;		// mini-mud mode?
 time_t boot_time = 0;		// time of mud boot
 int circle_restrict = 0;	// level of game restriction
 room_rnum r_mortal_start_room;	// rnum of mortal start room
@@ -2789,99 +2788,66 @@ ackeof:
 	log("SYSERR: Unexpected end of help file.");
 	exit(1);		// Some day we hope to handle these things better...
 }
-/*
-void count_mobs_in_world(int count)
+
+const char* get_file_prefix(const int mode)
 {
-	std::map <int,int> mobs;
-	CHAR_DATA *mob;
-	mob_rnum r_num;
-	for (int i = 0; i < 51; i++)
-	{
-		mobs[i] = 0;
-	}
-	log("Всего мобов: %d", count);
-	for (int i = 1; i < count; i++)
-	{
-		log("1");
-		r_num = real_mobile(i);
-		//if ((r_num = real_mobile(i)) > -1)
-		if (true)
-		{
-			
-			mob = read_mobile(r_num, REAL);			
-			mobs[GET_LEVEL(mob)] += mob_index[i].number;	
-			log("%d %d", GET_LEVEL(mob), mob_index[i].number);	
-		}
-	}
-	std::map <int,int>::iterator cur;
-	for (cur=mobs.begin();cur!=mobs.end();cur++)
-	{
-		log("Level: %d, count: %d", (*cur).first, (*cur).second);
-	}
-	
-}*/
-
-
-
-void index_boot(int mode)
-{
-	const char *index_filename, *prefix = NULL;	// NULL or egcs 1.1 complains
-	FILE *index, *db_file;
-
-	int rec_count = 0, counter;
-
-	log("Index booting %d", mode);
-
+	const char* prefix = nullptr;
 	switch (mode)
 	{
 	case DB_BOOT_TRG:
 		prefix = TRG_PREFIX;
 		break;
+
 	case DB_BOOT_WLD:
 		prefix = WLD_PREFIX;
 		break;
+
 	case DB_BOOT_MOB:
 		prefix = MOB_PREFIX;
 		break;
+
 	case DB_BOOT_OBJ:
 		prefix = OBJ_PREFIX;
 		break;
+
 	case DB_BOOT_ZON:
 		prefix = ZON_PREFIX;
 		break;
+
 	case DB_BOOT_HLP:
 		prefix = HLP_PREFIX;
 		break;
+
 	case DB_BOOT_SOCIAL:
 		prefix = SOC_PREFIX;
 		break;
+
 	default:
-		log("SYSERR: Unknown subcommand %d to index_boot!", mode);
-		exit(1);
+		break;
 	}
 
+	return prefix;
+}
 
-	if (mini_mud)
-		index_filename = MINDEX_FILE;
-	else
-		index_filename = INDEX_FILE;
+int calculate_records_count(FILE* index, const int mode)
+{
+	int rec_count = 0;
 
-	sprintf(buf2, "%s%s", prefix, index_filename);
-
-	if (!(index = fopen(buf2, "r")))
+	if (mode == DB_BOOT_WLD)
 	{
-		log("SYSERR: opening index file '%s': %s", buf2, strerror(errno));
-		exit(1);
+		return rec_count;	// we don't need to count rooms
 	}
 
+	const char* prefix = get_file_prefix(mode);
 	// first, count the number of records in the file so we can malloc
 	int dummyi = fscanf(index, "%s\n", buf1);
 	while (*buf1 != '$')
 	{
 		sprintf(buf2, "%s%s", prefix, buf1);
-		if (!(db_file = fopen(buf2, "r")))
+		FILE* db_file = db_file = fopen(buf2, "r");
+		if (!db_file)
 		{
-			log("SYSERR: File '%s' listed in '%s/%s': %s", buf2, prefix, index_filename, strerror(errno));
+			log("SYSERR: File '%s' listed in '%s/%s': %s", buf2, prefix, INDEX_FILE, strerror(errno));
 			dummyi = fscanf(index, "%s\n", buf1);
 			continue;
 		}
@@ -2895,7 +2861,7 @@ void index_boot(int mode)
 				rec_count += count_alias_records(db_file);
 			else if (mode == DB_BOOT_WLD)
 			{
-				counter = count_hash_records(db_file);
+				const int counter = count_hash_records(db_file);
 				if (counter > 99)
 				{
 					log("SYSERR: File '%s' list more than 99 room", buf2);
@@ -2913,12 +2879,38 @@ void index_boot(int mode)
 	// Exit if 0 records, unless this is shops
 	if (!rec_count)
 	{
-		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix, index_filename);
+		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix, INDEX_FILE);
 		exit(1);
 	}
 
 	// Any idea why you put this here Jeremy?
 	rec_count++;
+
+	return rec_count;
+}
+
+void index_boot(int mode)
+{
+	FILE *index, *db_file;
+
+	log("Index booting %d", mode);
+
+	const char* prefix = get_file_prefix(mode);
+	if (nullptr == prefix)
+	{
+		log("SYSERR: Unknown subcommand %d to index_boot!", mode);
+		exit(1);
+	}
+
+	sprintf(buf2, "%s%s", prefix, INDEX_FILE);
+
+	if (!(index = fopen(buf2, "r")))
+	{
+		log("SYSERR: opening index file '%s': %s", buf2, strerror(errno));
+		exit(1);
+	}
+
+	const int rec_count = calculate_records_count(index, mode);
 
 	// * NOTE: "bytes" does _not_ include strings or other later malloc'd things.
 	switch (mode)
@@ -2975,7 +2967,7 @@ void index_boot(int mode)
 	}
 
 	rewind(index);
-	dummyi = fscanf(index, "%s\n", buf1);
+	int dummyi = fscanf(index, "%s\n", buf1);
 	while (*buf1 != '$')
 	{
 		sprintf(buf2, "%s%s", prefix, buf1);
@@ -3168,10 +3160,11 @@ void discrete_load(FILE * fl, int mode, char *filename)
 	// modes positions correspond to DB_BOOT_xxx in db.h
 
 	for (;;)
-	{		/*
-				 * we have to do special processing with the obj files because they have
-				 * no end-of-record marker :(
-				 */
+	{
+		/*
+		* we have to do special processing with the obj files because they have
+		* no end-of-record marker :(
+		*/
 		if (mode != DB_BOOT_OBJ || nr < 0)
 			if (!get_line(fl, line))
 			{
@@ -3506,38 +3499,37 @@ void check_start_rooms(void)
 		log("SYSERR:  Mortal start room does not exist.  Change in config.c. %d", mortal_start_room);
 		exit(1);
 	}
+
 	if ((r_immort_start_room = real_room(immort_start_room)) == NOWHERE)
 	{
-		if (!mini_mud)
-			log("SYSERR:  Warning: Immort start room does not exist.  Change in config.c.");
+		log("SYSERR:  Warning: Immort start room does not exist.  Change in config.c.");
 		r_immort_start_room = r_mortal_start_room;
 	}
+
 	if ((r_frozen_start_room = real_room(frozen_start_room)) == NOWHERE)
 	{
-		if (!mini_mud)
-			log("SYSERR:  Warning: Frozen start room does not exist.  Change in config.c.");
+		log("SYSERR:  Warning: Frozen start room does not exist.  Change in config.c.");
 		r_frozen_start_room = r_mortal_start_room;
 	}
+
 	if ((r_helled_start_room = real_room(helled_start_room)) == NOWHERE)
 	{
-		if (!mini_mud)
-			log("SYSERR:  Warning: Hell start room does not exist.  Change in config.c.");
+		log("SYSERR:  Warning: Hell start room does not exist.  Change in config.c.");
 		r_helled_start_room = r_mortal_start_room;
 	}
+
 	if ((r_named_start_room = real_room(named_start_room)) == NOWHERE)
 	{
-		if (!mini_mud)
-			log("SYSERR:  Warning: NAME start room does not exist.  Change in config.c.");
+		log("SYSERR:  Warning: NAME start room does not exist.  Change in config.c.");
 		r_named_start_room = r_mortal_start_room;
 	}
+
 	if ((r_unreg_start_room = real_room(unreg_start_room)) == NOWHERE)
 	{
-		if (!mini_mud)
-			log("SYSERR:  Warning: UNREG start room does not exist.  Change in config.c.");
+		log("SYSERR:  Warning: UNREG start room does not exist.  Change in config.c.");
 		r_unreg_start_room = r_mortal_start_room;
 	}
 }
-
 
 // resolve all vnums into rnums in the world
 void renum_world(void)
@@ -3635,22 +3627,21 @@ void renum_single_table(int zone)
 		}
 		if (a < 0 || b < 0 || c < 0)
 		{
-			if (!mini_mud)
-			{
-				sprintf(buf, "Invalid vnum %d, cmd disabled", (a < 0) ? olda : ((b < 0) ? oldb : oldc));
-				log_zone_error(zone, cmd_no, buf);
-			}
+			sprintf(buf, "Invalid vnum %d, cmd disabled", (a < 0) ? olda : ((b < 0) ? oldb : oldc));
+			log_zone_error(zone, cmd_no, buf);
 			ZCMD.command = '*';
 		}
 	}
 }
 
-// resulve vnums into rnums in the zone reset tables
+// resove vnums into rnums in the zone reset tables
 void renum_zone_table(void)
 {
 	zone_rnum zone;
 	for (zone = 0; zone <= top_of_zone_table; zone++)
+	{
 		renum_single_table(zone);
+	}
 }
 
 

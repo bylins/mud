@@ -54,7 +54,7 @@ extern struct zone_data *zone_table;
 extern const char *material_name[];
 extern const char *weapon_affects[];
 extern TIME_INFO_DATA time_info;
-extern int mini_mud, cmd_tell;
+extern int cmd_tell;
 extern char cast_argument[MAX_INPUT_LENGTH];
 extern int slot_for_char(CHAR_DATA * ch, int slot_num);
 // added by WorM  опознание магических ингров 2011.05.21

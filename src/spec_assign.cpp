@@ -26,7 +26,6 @@
 #include "noob.hpp"
 
 extern int dts_are_dumps;
-extern int mini_mud;
 
 extern INDEX_DATA *mob_index;
 
@@ -65,28 +64,38 @@ void ASSIGNMOB(mob_vnum mob, int fname(CHAR_DATA*, void*, int, char*))
 			clear_mob_charm(&mob_proto[rnum]);
 		}
 	}
-	else if (!mini_mud)
+	else 
+	{
 		log("SYSERR: Attempt to assign spec to non-existant mob #%d", mob);
+	}
 }
 
 void ASSIGNOBJ(obj_vnum obj, special_f fname)
 {
-	obj_rnum rnum;
+	const obj_rnum rnum = real_object(obj);
 
-	if ((rnum = real_object(obj)) >= 0)
+	if (rnum >= 0)
+	{
 		obj_proto.func(rnum, fname);
-	else if (!mini_mud)
+	}
+	else
+	{
 		log("SYSERR: Attempt to assign spec to non-existant obj #%d", obj);
+	}
 }
 
 void ASSIGNROOM(room_vnum room, special_f fname)
 {
-	room_rnum rnum;
+	const room_rnum rnum = real_room(room);
 
-	if ((rnum = real_room(room)) != NOWHERE)
+	if (rnum != NOWHERE)
+	{
 		world[rnum]->func = fname;
-	else if (!mini_mud)
+	}
+	else
+	{
 		log("SYSERR: Attempt to assign spec to non-existant room #%d", room);
+	}
 }
 
 void ASSIGNMASTER(mob_vnum mob, special_f fname, int learn_info)
@@ -98,10 +107,11 @@ void ASSIGNMASTER(mob_vnum mob, special_f fname, int learn_info)
 		mob_index[rnum].func = fname;
 		mob_index[rnum].stored = learn_info;
 	}
-	else if (!mini_mud)
+	else
+	{
 		log("SYSERR: Attempt to assign spec to non-existant mob #%d", mob);
+	}
 }
-
 
 // ********************************************************************
 // *  Assignments                                                     *
