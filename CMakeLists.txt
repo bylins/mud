@@ -120,6 +120,7 @@ set(SOURCES
     src/structs.cpp
     src/stuff.cpp
     src/structs.cpp
+    src/time_utils.cpp
     src/title.cpp
     src/top.cpp
     src/utils.cpp
