@@ -4675,7 +4675,7 @@ void load_zones(FILE * fl, char *zonename)
 				exit(1);
 			}
 		}
-		Z.group = group;
+		Z.group = (group == 0)? 1: group; //группы в 0 рыл не бывает
 		line_num += get_line(fl, buf);
 	}
 	*t1 = 0;
