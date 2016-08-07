@@ -32,24 +32,6 @@ namespace craft
 	**/
 	bool start();
 
-	// Subcommands for the "craft" command
-	const int SCMD_NOTHING = 0;
-
-	/// Defines for the "craft" command (base craft command)
-	namespace cmd
-	{
-		/// Minimal position for base craft command
-		const int MINIMAL_POSITION = POS_SITTING;
-
-		// Minimal level for base craft command
-		const int MINIMAL_LEVEL = 0;
-
-		// Probability to stop hide when using base craft command
-		const int UNHIDE_PROBABILITY = 0;	// -1 - always, 0 - never
-
-		extern void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-	}
-
 	class CLogger
 	{
 	public:
@@ -107,7 +89,8 @@ namespace craft
 		void load_from_object(const CObjectPrototype::shared_ptr& object);
 		bool save_to_node(pugi::xml_node* node) const;
 
-		const std::string& aliases() const { return m_joined_aliases; }
+		const auto& get_case(const size_t number) const { return m_cases[number]; }
+		const auto& aliases() const { return m_joined_aliases; }
 		OBJ_DATA::pnames_t build_pnames() const;
 
 	private:
@@ -171,6 +154,9 @@ namespace craft
 	public:
 		CMaterialClass(const std::string& id) : m_id(id) {}
 
+		const auto& id() const { return m_id; }
+		const auto& name() const { return m_item_cases.get_case(0); }
+
 	private:
 		bool load(const pugi::xml_node* node);
 		bool load_adjectives(const pugi::xml_node* node);
@@ -196,10 +182,16 @@ namespace craft
 	public:
 		CMaterial(const std::string& id) : m_id(id) {}
 
+		const auto& id() const { return m_id; }
+		const auto& classes() const { return m_classes; }
+
+		const auto& get_name() const { return m_name; }
+		void set_name(const std::string& _) { m_name = _; }
+
 	private:
 		bool load(const pugi::xml_node* node);
 
-		const id_t m_id;						///< Meterial ID.
+		const id_t m_id;						///< Material ID.
 		std::string m_name;						///< Material name.
 		std::list<CMaterialClass> m_classes;	///< List of material classes for this material.
 
@@ -287,6 +279,7 @@ namespace craft
 		using crafts_t = std::list<CCraft>;
 		using skills_t = std::list<CSkillBase>;
 		using recipes_t = std::list<CRecipe>;
+		using materials_t = std::list<CMaterial>;
 		using prototypes_t = std::list<CObjectPrototype::shared_ptr>;
 
 		const static std::string FILE_NAME;
@@ -324,6 +317,7 @@ namespace craft
 		const skills_t& skills() const { return m_skills; }
 		const recipes_t& recipes() const { return m_recipes; }
 		const prototypes_t& prototypes() const { return m_prototypes; }
+		const materials_t& materials() const { return m_materials; }
 
 		const auto base_count() const { return m_base_count; }
 		const auto remort_for_count_bonus() const { return m_remort_for_count_bonus; }
@@ -377,10 +371,11 @@ namespace craft
 		EAddVNumResult add_vnum(const obj_vnum vnum);
 		void report_vnum_error(const obj_vnum vnum, const EAddVNumResult add_vnum_result);
 
-		crafts_t m_crafts;         ///< List of crafts defined for the game.
-		skills_t m_skills;     ///< List of skills defined for the game.
+		crafts_t m_crafts;			///< List of crafts defined for the game.
+		skills_t m_skills;			///< List of skills defined for the game.
 		recipes_t m_recipes;     	///< List of recipes defined for the game.
 		prototypes_t m_prototypes;	///< List of objects defined by the craft system.
+		materials_t m_materials;	///< List of materials
 
 		// Properties
 		int m_base_count;						///< Base count of crafts (per character?).

@@ -15,7 +15,7 @@
 
 #include "interpreter.h"
 
-#include "craft.hpp"
+#include "craft_commands.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "constants.h"

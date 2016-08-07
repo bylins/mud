@@ -6,6 +6,7 @@
 
 #include "craft.hpp"
 
+#include "xml_loading_helper.hpp"
 #include "parse.hpp"
 #include "skills.h"
 #include "comm.h"
@@ -20,9 +21,12 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <chrono>
 
 namespace craft
 {
+	using xml::loading::CHelper;
+
 	const char* suffix(const size_t number)
 	{
 		return 1 == number % 10
@@ -34,650 +38,45 @@ namespace craft
 					: "th"));
 	}
 
+	class CExecutionTimer
+	{
+	public:
+		using call_t = std::function<void()>;
+		using clock_t = std::chrono::high_resolution_clock;
+		using duration_t = std::chrono::duration<double, std::chrono::seconds::period>;
+
+		CExecutionTimer() { start(); }
+		void restart() { start(); }
+		duration_t delta() const;
+
+	private:
+		void start() { m_start_time = clock_t::now(); }
+		clock_t::time_point m_start_time;
+	};
+
+	craft::CExecutionTimer::duration_t CExecutionTimer::delta() const
+	{
+		const auto stop_time = clock_t::now();
+		return stop_time - m_start_time;
+	}
+
 	CCraftModel model;
 
 	bool start()
 	{
+		CExecutionTimer timer;
 		const bool load_result = model.load();
+		const auto loading_duration = timer.delta();
+
 		if (!load_result)
 		{
 			log("ERROR: Failed to load craft model.\n");
 			return false;
 		}
 
+		log("INFO: Craft system took %.6f seconds for loading.\n", loading_duration.count());
+
 		return model.merge();
-	}
-
-	class CHelper
-	{
-	private:
-		template <typename EnumType>
-		static void set_bit(FLAG_DATA& flags, const EnumType flag) { flags.set(flag); }
-		template <typename EnumType>
-		static void set_bit(uint32_t& flags, const EnumType flag) { SET_BIT(flags, flag); }
-
-	public:
-		enum ELoadFlagResult
-		{
-			ELFR_SUCCESS,
-			ELFR_NO_VALUE,
-			ELFR_FAIL
-		};
-
-		template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsSetter>
-		static void load_flags(const pugi::xml_node& root, const char* node_name, const char* node_flag,
-			const TFlagsSetter setter, const TSuccessHandler success_handler, const TFailHandler fail_handler);
-		template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
-		static void load_flags(TFlagsStorage flags, const pugi::xml_node& root, const char* node_name, const char* node_flag,
-			const TSuccessHandler success_handler, const TFailHandler fail_handler);
-
-		template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
-		static ELoadFlagResult load_flag(const pugi::xml_node& root, const char* node_name,
-			const TSuccessHandler success_handler, const TFailHandler fail_handler, const TNoValueHandler no_value_handler);
-
-		template <typename TCatchHandler>
-		static void load_integer(const char* input, int& output, const TCatchHandler catch_handler);
-
-		template <typename TSetHandler, typename TCatchHandler>
-		static void load_integer(const char* input, const TSetHandler set_handler, const TCatchHandler catch_handler);
-
-		template <typename KeyType,
-			typename TNoKeyHandler,
-			typename TKeyConverter,
-			typename TConverFailHandler,
-			typename TNoValueHandler,
-			typename TSetHandler>
-		static void load_pairs_list(
-			const pugi::xml_node* node,
-			const char* group_name,
-			const char* entry_name,
-			const char* key_name,
-			const char* value_name,
-			const TNoKeyHandler no_key_handler,
-			const TKeyConverter key_converter,
-			const TConverFailHandler convert_fail_handler,
-			const TNoValueHandler no_value_handler,
-			const TSetHandler set_handler);
-
-		template <typename TFailHandler>
-		static void save_string(pugi::xml_node& node, const char* node_name, const char* value, const TFailHandler fail_handler);
-
-		template <typename ListType, typename TGetItemValue, typename TListNodeFailHandler, typename TItemNodeFailHandler>
-		static void save_list(
-			pugi::xml_node& node,
-			const char* node_name,
-			const char* item_name,
-			const ListType& list,
-			const TGetItemValue get_item_value,
-			const TListNodeFailHandler list_node_fail_handler,
-			const TItemNodeFailHandler item_node_fail_handler);
-
-		template <typename ListType, typename TListNodeFailHandler, typename TItemNodeFailHandler>
-		static void save_list(
-			pugi::xml_node& node,
-			const char* node_name,
-			const char* item_name,
-			const ListType& list,
-			const TListNodeFailHandler list_node_fail_handler,
-			const TItemNodeFailHandler item_node_fail_handler)
-		{
-			save_list(node, node_name, item_name, list,
-				[&](const auto value) -> auto { return NAME_BY_ITEM(value).c_str(); },
-				list_node_fail_handler,
-				item_node_fail_handler);
-		}
-
-		template <typename FlagType, typename TListNodeFailHandler, typename TItemNodeFailHandler>
-		static void save_list(
-			pugi::xml_node& node,
-			const char* node_name,
-			const char* item_name,
-			const FLAG_DATA& flags,
-			const TListNodeFailHandler list_node_fail_handler,
-			const TItemNodeFailHandler item_node_fail_handler);
-
-		template <typename FlagType, typename TListNodeFailHandler, typename TItemNodeFailHandler>
-		static void save_list(
-			pugi::xml_node& node,
-			const char* node_name,
-			const char* item_name,
-			const uint32_t flags,
-			const TListNodeFailHandler list_node_fail_handler,
-			const TItemNodeFailHandler item_node_fail_handler)
-		{
-			std::list<FlagType> list;
-			uint32_t flag = 1;
-			while (flag < flags)
-			{
-				if (IS_SET(flags, flag))
-				{
-					list.push_back(static_cast<FlagType>(flag));
-				}
-				flag <<= 1;
-			}
-
-			save_list(node, node_name, item_name, list,
-				list_node_fail_handler,
-				item_node_fail_handler);
-		}
-
-		template <typename ListType, typename TGetKeyHandler, typename TGetValueHandler, typename TListNodeFailHandler, typename TItemFailHandler>
-		static void save_pairs_list(
-			pugi::xml_node& node,
-			const char* node_name,
-			const char* item_node_name,
-			const char* key_node_name,
-			const char* value_node_name,
-			const ListType& list,
-			const TGetKeyHandler get_key_handler,
-			const TGetValueHandler get_value_handler,
-			const TListNodeFailHandler list_node_fail_handler,
-			const TItemFailHandler item_fail_handler)
-		{
-			if (list.empty())
-			{
-				return;
-			}
-
-			pugi::xml_node* list_node = NULL;
-			pugi::xml_node storage;
-
-			for (const auto& i : list)
-			{
-				try
-				{
-					const std::string key = get_key_handler(i);
-					if (key.empty())
-					{
-						continue;
-					}
-
-					if (NULL == list_node)
-					{
-						storage = node.append_child(node_name);
-						list_node = &storage;
-						if (!*list_node)
-						{
-							log("WARNING: Couldn't create node \"%s\".\n", node_name);
-							list_node_fail_handler();
-							return;
-						}
-					}
-
-					auto item_node = list_node->append_child(item_node_name);
-					if (!item_node)
-					{
-						log("WARNING: Could not create item node. Will be skipped.\n");
-						item_fail_handler(i);
-						continue;
-					}
-
-					save_string(item_node, key_node_name, key.c_str(),
-						[&]() { throw std::runtime_error("failed to save key"); });
-					save_string(item_node, value_node_name, get_value_handler(i).c_str(),
-						[&]() { throw std::runtime_error("failed to save value"); });
-				}
-				catch (...)
-				{
-					item_fail_handler(i);
-				}
-			}
-		}
-
-		template <typename ListType, typename TGetKeyHandler, typename TGetValueHandler, typename TListNodeFailHandler>
-		static void save_pairs_list(
-			pugi::xml_node& node,
-			const char* node_name,
-			const char* item_node_name,
-			const char* key_node_name,
-			const char* value_node_name,
-			const ListType& list,
-			const TGetKeyHandler get_key_handler,
-			const TGetValueHandler get_value_handler,
-			const TListNodeFailHandler list_node_fail_handler)
-		{
-			save_pairs_list(node, node_name, item_node_name, key_node_name, value_node_name, list,
-				get_key_handler, get_value_handler, list_node_fail_handler, [](const auto) {});
-		}
-	};
-
-	template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsSetter>
-	void CHelper::load_flags(const pugi::xml_node& root, const char* node_name, const char* node_flag,
-		const TFlagsSetter setter, const TSuccessHandler success_handler, const TFailHandler fail_handler)
-	{
-		const auto node = root.child(node_name);
-		if (node)
-		{
-			for (const auto flag : node.children(node_flag))
-			{
-				const char* flag_value = flag.child_value();
-				try
-				{
-					auto value = ITEM_BY_NAME<TFlags>(flag_value);
-					setter(value);
-					success_handler(value);
-				}
-				catch (...)
-				{
-					fail_handler(flag_value);
-				}
-			}
-		}
-	}
-
-	template <class TFlags, typename TSuccessHandler, typename TFailHandler, typename TFlagsStorage>
-	void CHelper::load_flags(TFlagsStorage flags, const pugi::xml_node& root, const char* node_name,
-		const char* node_flag, const TSuccessHandler success_handler, const TFailHandler fail_handler)
-	{
-		load_flags<TFlags>(root, node_name, node_flag, [&](const auto flag) { set_bit(flags, flag); }, success_handler, fail_handler);
-	}
-
-	template <class TFlag, typename TSuccessHandler, typename TFailHandler, typename TNoValueHandler>
-	CHelper::ELoadFlagResult CHelper::load_flag(const pugi::xml_node& root, const char* node_name,
-		const TSuccessHandler success_handler, const TFailHandler fail_handler, const TNoValueHandler no_value_handler)
-	{
-		const auto node = root.child(node_name);
-		if (node)
-		{
-			const char* value = node.child_value();
-			try
-			{
-				const TFlag type = ITEM_BY_NAME<TFlag>(value);
-				success_handler(type);
-			}
-			catch (...)
-			{
-				fail_handler(value);
-				return ELFR_FAIL;
-			}
-		}
-		else
-		{
-			no_value_handler();
-			return ELFR_NO_VALUE;
-		}
-
-		return ELFR_SUCCESS;
-	}
-
-	template <typename TCatchHandler>
-	void CHelper::load_integer(const char* input, int& output, const TCatchHandler catch_handler)
-	{
-		try
-		{
-			output = std::stoi(input);
-		}
-		catch (...)
-		{
-			catch_handler();
-		}
-	}
-
-	template <typename TSetHandler, typename TCatchHandler>
-	void CHelper::load_integer(const char* input, const TSetHandler set_handler, const TCatchHandler catch_handler)
-	{
-		try
-		{
-			set_handler(std::stoi(input));
-		}
-		catch (...)
-		{
-			catch_handler();
-		}
-	}
-
-	template <typename KeyType,
-		typename TNoKeyHandler,
-		typename TKeyConverter,
-		typename TConverFailHandler,
-		typename TNoValueHandler,
-		typename TSetHandler>
-	void CHelper::load_pairs_list(
-		const pugi::xml_node* node,
-		const char* group_name,
-		const char* entry_name,
-		const char* key_name,
-		const char* value_name,
-		const TNoKeyHandler no_key_handler,
-		const TKeyConverter key_converter,
-		const TConverFailHandler convert_fail_handler,
-		const TNoValueHandler no_value_handler,
-		const TSetHandler set_handler)
-	{
-		const auto group_node = node->child(group_name);
-		if (!group_node)
-		{
-			return;
-		}
-
-		size_t number = 0;
-		for (const auto entry_node : group_node.children(entry_name))
-		{
-			++number;
-			const auto key_node = entry_node.child(key_name);
-			if (!key_node)
-			{
-				no_key_handler(number);
-				continue;
-			}
-
-			KeyType key;
-			try
-			{
-				key = key_converter(key_node.child_value());
-			}
-			catch (...)
-			{
-				convert_fail_handler(key_node.child_value());
-				continue;
-			}
-
-			const auto value_node = entry_node.child(value_name);
-			if (!value_node)
-			{
-				no_value_handler(key_node.child_value());
-				continue;
-			}
-
-			set_handler(key, value_node.child_value());
-		}
-	}
-
-	template <typename TFailHandler>
-	void CHelper::save_string(pugi::xml_node& node, const char* node_name, const char* value, const TFailHandler fail_handler)
-	{
-		auto new_node = node.append_child(node_name);
-		if (!new_node)
-		{
-			log("WARNING: Failed to create node \"%s\".\n", node_name);
-			fail_handler();
-		}
-
-		auto cdate_node = new_node.append_child(pugi::node_pcdata);
-		if (!cdate_node)
-		{
-			log("WARNING: Could not add PCDATA child node to node \"%s\".\n", node_name);
-			fail_handler();
-		}
-
-		if (!cdate_node.set_value(value))
-		{
-			log("WARNING: Failed to set value to node \"%s\".\n", node_name);
-			fail_handler();
-		}
-	}
-
-	template <typename ListType, typename TGetItemValue, typename TListNodeFailHandler, typename TItemNodeFailHandler>
-	void CHelper::save_list(pugi::xml_node& node, const char* node_name, const char* item_name, const ListType& list, const TGetItemValue get_item_value, const TListNodeFailHandler list_node_fail_handler, const TItemNodeFailHandler item_node_fail_handler)
-	{
-		if (list.empty())
-		{
-			return;
-		}
-
-		auto list_node = node.append_child(node_name);
-		if (!node_name)
-		{
-			list_node_fail_handler();
-		}
-
-		for (const auto& i : list)
-		{
-			try
-			{
-				save_string(list_node, item_name, get_item_value(i), [&]() { throw std::runtime_error("failed to save item value"); });
-			}
-			catch (...)
-			{
-				item_node_fail_handler(i);
-			}
-		}
-	}
-
-	template <typename FlagType, typename TListNodeFailHandler, typename TItemNodeFailHandler>
-	void CHelper::save_list(pugi::xml_node& node, const char* node_name, const char* item_name, const FLAG_DATA& flags, const TListNodeFailHandler list_node_fail_handler, const TItemNodeFailHandler item_node_fail_handler)
-	{
-		std::list<FlagType> list;
-		for (uint32_t i = 0; i < FLAG_DATA::PLANES_NUMBER; ++i)
-		{
-			const auto plane = flags.get_plane(i);
-			for (uint32_t j = 0; j < FLAG_DATA::PLANE_SIZE; ++j)
-			{
-				if (IS_SET(plane, 1 << j))
-				{
-					const uint32_t flag_bit = (i << 30) | (1 << j);
-					list.push_back(static_cast<FlagType>(flag_bit));
-				}
-			}
-		}
-
-		save_list(node, node_name, item_name, list,
-			list_node_fail_handler,
-			item_node_fail_handler);
-	}
-
-	/// Contains handlers of craft subcommands
-	namespace cmd
-	{
-		/**
-		 * Returns pointer to the first argument, moves command_line to the beginning of the next argument.
-		 * 
-		 * \note This routine changes a passed buffer: puts '\0' chrater after the first argument.
-		 */
-		const char* first_argument(char*& command_line)
-		{
-			// skip leading spaces
-			while (*command_line && ' ' == *command_line)
-			{
-				++command_line;
-			}
-
-			// getting subcommand
-			const char* result = command_line;
-			while (*command_line && ' ' != *command_line)
-			{
-				++command_line;
-			}
-
-			// anchor subcommand and move argument pointer to the next one
-			if (*command_line)
-			{
-				*(command_line++) = '\0';
-			}
-
-			return result;
-		}
-
-		void list_skills(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			send_to_char(ch, "Listing craft skills...\nArguments: '%s'\nCount:%d\n", arguments, model.skills().size());
-
-			size_t counter = 0;
-			for (const auto& s : model.skills())
-			{
-				++counter;
-				send_to_char(ch, "%2d. %s\n", counter, s.id().c_str());
-			}
-		}
-
-		void list_recipes(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			send_to_char(ch, "Listing craft recipes...\nArguments: '%s'\nCount:%d\n", arguments, model.recipes().size());
-
-			size_t counter = 0;
-			for (const auto& r : model.recipes())
-			{
-				++counter;
-				send_to_char(ch, "%2d. %s\n", counter, r.id().c_str());
-			}
-		}
-
-		void list_prototypes(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			send_to_char(ch, "Listing craft prototypes...\nArguments: '%s'\nCount: %d\n", arguments, model.prototypes().size());
-
-			size_t counter = 0;
-			for (const auto& p : model.prototypes())
-			{
-				++counter;
-				send_to_char(ch, "%2d. %s\n", counter, p->get_short_description().c_str());
-			}
-		}
-
-		void list_properties(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			send_to_char(ch, "Craft properties...\nArguments: '%s'\n", arguments);
-			send_to_char(ch, "Base count:              &W%4d&n crafts\n", model.base_count());
-			send_to_char(ch, "Remorts for count bonus: &W%4d&n remorts\n", model.remort_for_count_bonus());
-			send_to_char(ch, "Base top:                &W%4d&n percents\n", model.base_top());
-			send_to_char(ch, "Remorts bonus:           &W%4d&n percent\n", model.remorts_bonus());
-		}
-
-		using subcommand_handler_t = void(*)(CHAR_DATA *, char*, void*);
-		using subcommands_t = std::map<std::string, subcommand_handler_t>;
-
-		class CSubcommands
-		{
-		public:
-			enum EProcessResult
-			{
-				EPR_PROCESSED,
-				EPR_UNKNOWN,
-				EPR_NO_SUBCOMMAND,
-				EPR_WRONG_ARGUMENT
-			};
-
-			static EProcessResult process(const subcommands_t& subcommands_table, CHAR_DATA* ch, char*arguments, void* data);
-		};
-
-		CSubcommands::EProcessResult CSubcommands::process(const subcommands_t& subcommands_table, CHAR_DATA* ch, char*arguments, void* /*data*/)
-		{
-			if (!arguments)
-			{
-				log("SYSERROR: argument passed into %s:%d is NULL.", __FILE__, __LINE__);
-				send_to_char(ch, "Something went wrong... Send bug report, please. :(\n");
-
-				return EPR_WRONG_ARGUMENT;
-			}
-
-			const char* subcommand = first_argument(arguments);
-			if (!*subcommand)
-			{
-				return EPR_NO_SUBCOMMAND;
-			}
-
-			subcommands_t::const_iterator i = subcommands_table.lower_bound(subcommand);
-
-			if (i != subcommands_table.end()
-				&& i->first.c_str() == strstr(i->first.c_str(), subcommand))
-			{
-				// found subcommand handler
-				i->second(ch, arguments, nullptr);
-				return EPR_PROCESSED;
-			}
-
-			send_to_char(ch, "Unknown subcommand '%s'.\n", subcommand);
-			return EPR_UNKNOWN;
-		}
-
-		void do_craft_list(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			static subcommands_t subcommands =
-			{
-				{ "properties", cmd::list_properties },
-				{ "prototypes", cmd::list_prototypes },
-				{ "recipes", cmd::list_recipes },
-				{ "skills", cmd::list_skills }
-			};
-
-			send_to_char(ch, "Listing crafts...\nArguments: '%s'\nCount:%d\n", arguments, model.crafts().size());
-
-			const auto result = CSubcommands::process(subcommands, ch, arguments, nullptr);
-			if (CSubcommands::EPR_NO_SUBCOMMAND == result)
-			{
-				size_t counter = 0;
-				for (const auto& c : model.crafts())
-				{
-					++counter;
-					send_to_char(ch, "%2d. %s\n", counter, c.id().c_str());
-				}
-			}
-		}
-
-		void do_craft_export_prototype(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			const auto vnum_str = first_argument(arguments);
-			obj_vnum vnum = 0;
-			try
-			{
-				CHelper::load_integer(vnum_str, vnum,
-					[&]() { throw std::runtime_error("wrong VNUM value"); });
-			}
-			catch (...)
-			{
-				send_to_char(ch, "Could not convert prototype VNUM value '%s' to integer number.\n", vnum_str);
-				return;
-			}
-
-			const auto filename = first_argument(arguments);
-			if (!*filename)
-			{
-				send_to_char(ch, "File name to export is not specified.");
-				return;
-			}
-
-			if (!model.export_object(vnum, filename))
-			{
-				send_to_char(ch, "Failed to export prototype.");
-			}
-			else
-			{
-				send_to_char(ch, "Prototype with VNUM %d successfully exported into file '%s'.", vnum, filename);
-			}
-		}
-
-		void do_craft_export(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			static subcommands_t subcommands =
-			{
-				{ "prototype", do_craft_export_prototype }
-			};
-
-			const auto result = CSubcommands::process(subcommands, ch, arguments, nullptr);
-			if (CSubcommands::EPR_NO_SUBCOMMAND == result)
-			{
-				send_to_char(ch, "Usage: craft export prototype <vnum> <filename>\n");
-			}
-		}
-
-		/**
-		* "craft" command handler.
-		*
-		* Syntax:
-		* craft list								- list of crafts
-		* craft list prototypes						- list of prototypes loaded by craft system.
-		* craft list properties						- list of properties loaded by craft system.
-		* craft list recipes						- list of recipes loaded by craft system.
-		* craft list skills							- list of skills loaded by craft system.
-		* craft export prototype <vnum> <filename>	- exports prototype with <vnum> into file <filename>
-		*/
-		void do_craft(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
-		{
-			static subcommands_t subcommands =
-			{
-				{ "list", do_craft_list },
-				{ "export", do_craft_export }
-			};
-
-			const auto result = CSubcommands::process(subcommands, ch, arguments, nullptr);
-
-			if (CSubcommands::EPR_NO_SUBCOMMAND == result)
-			{
-				send_to_char(ch, "Crafting...\n");
-				return;
-			}
-		}
-
 	}
 
 	const char* BODY_PREFIX = "| ";
@@ -1470,7 +869,7 @@ namespace craft
 					m_id.c_str());
 			return false;
 		}
-		m_short_desc = short_desc.value();
+		m_short_desc = short_desc.child_value();
 
 		const auto long_desc = desc_node.child("long");
 		if (!long_desc)
@@ -1479,7 +878,7 @@ namespace craft
 					m_id.c_str());
 			return false;
 		}
-		m_long_desc = long_desc.value();
+		m_long_desc = long_desc.child_value();
 
 		const auto item = node->child("item");
 		if (!item)
@@ -1559,9 +958,10 @@ namespace craft
 			log("ERROR: could not find required node 'name' for material with ID '%s'.\n", m_id.c_str());
 			return false;
 		}
-		const std::string name = node_name.value();
+		const std::string name = node_name.child_value();
+		set_name(name);
 
-		// load meterial classes
+		// load material classes
 		for (const auto node_class: node->children("class"))
 		{
 			if (node_class.attribute("id").empty())
@@ -1571,7 +971,11 @@ namespace craft
 			}
 			const std::string class_id = node_class.attribute("id").value();
 			CMaterialClass mc(class_id);
-			mc.load(&node_class);
+			if (!mc.load(&node_class))
+			{
+				log("WARNING: class with ID '%s' has not been loaded. Class will be skipped.\n", class_id.c_str());
+			}
+			m_classes.push_back(mc);
 		}
 
 		prefix.change_prefix(END_PREFIX);
@@ -1875,6 +1279,7 @@ namespace craft
 				return false;
 			}
 		}
+		m_materials.push_back(m);
 
 		return true;
 	}

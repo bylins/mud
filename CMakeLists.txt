@@ -31,6 +31,7 @@ set(SOURCES
     src/constants.cpp
     src/corpse.cpp
     src/craft.cpp
+    src/craft_commands.cpp
     src/db.cpp
     src/deathtrap.cpp
     src/depot.cpp
@@ -79,7 +80,7 @@ set(SOURCES
     src/mob_stat.cpp
     src/modify.cpp
     src/morph.cpp
-	src/msdp.cpp
+    src/msdp.cpp
     src/named_stuff.cpp
     src/name_list.cpp
     src/names.cpp
@@ -136,7 +137,7 @@ set(HEADERS
     src/cache.hpp
     src/celebrates.hpp
     src/char.hpp
-	src/char_obj_utils.inl
+    src/char_obj_utils.inl
     src/char_player.hpp
     src/comm.h
     src/conf.h
@@ -144,6 +145,7 @@ set(HEADERS
     src/constants.h
     src/corpse.hpp
     src/craft.hpp
+    src/craft_commands.hpp
     src/db.h
     src/deathtrap.hpp
     src/depot.hpp
@@ -181,7 +183,7 @@ set(HEADERS
     src/mob_stat.hpp
     src/modify.h
     src/morph.hpp
-	src/msdp.hpp
+    src/msdp.hpp
     src/named_stuff.hpp
     src/name_list.hpp
     src/noob.hpp
@@ -220,6 +222,7 @@ set(HEADERS
     src/telnet.h
     src/title.hpp
     src/top.h
+    src/xml_loading_helper.hpp
     src/utils.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
@@ -285,7 +288,7 @@ if (SCRIPTING)
     if (PYTHONLIBS_VERSION_STRING STRLESS "3.0.0")
         message(FATAL_ERROR "Python of version 3 or later has not been found (found ${PYTHONLIBS_VERSION_STRING})")
     endif ()
-	message(STATUS "Python libs version string is '${PYTHONLIBS_VERSION_STRING}'")
+    message(STATUS "Python libs version string is '${PYTHONLIBS_VERSION_STRING}'")
 
     if (NOT CYGWIN)
         if (UNIX)
@@ -328,7 +331,7 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
     DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 
 set(CRAFT_TAILORING_FILES
-	lib.template/misc/craft/tailoring/index.xml)
+    lib.template/misc/craft/tailoring/index.xml)
 set(CRAFT_GENERAL_FILES
     lib.template/misc/craft/index.xml)
 set(CRAFT_MATERIAL_FILES
@@ -352,7 +355,7 @@ set(CRAFT_FILES ${CRAFT_GENERAL_FILES} ${CRAFT_TAILORING_FILES} ${CRAFT_MATERIAL
 
 set(MISC_FILES
     lib.template/misc/noob_help.xml
-	lib.template/misc/configuration.xml)
+    lib.template/misc/configuration.xml)
 
 source_group("Misc" FILES ${MISC_FILES})
 
@@ -363,6 +366,7 @@ list(SORT CIRCLE_FILES)
 
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
+set_property(TARGET circle.library PROPERTY CXX_STANDARD 14)
 add_dependencies(circle.library versioning)
 
 # Boost
@@ -412,7 +416,7 @@ option(HAVE_ZLIB "Should ZLib be compiled in. It is required to support MCCP." $
 if (HAVE_ZLIB)
     set(ZLIB_ROOT $ENV{ZLIB_ROOT})
     find_package(ZLIB REQUIRED)
-	add_definitions(-DHAVE_ZLIB)
+    add_definitions(-DHAVE_ZLIB)
     include_directories(system ${ZLIB_INCLUDE_DIRS})
     target_link_libraries(circle.library ${ZLIB_LIBRARIES})
     message(STATUS "ZLib is turned ON. Circle will be compiled with MCCP support.")
@@ -457,7 +461,7 @@ if (CMAKE_HOST_UNIX)
             add_definitions("-Wno-invalid-source-encoding")
         endif ()
         target_link_libraries(circle.library crypt)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=gnu++14")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     endif()
 
     # Suppose that UNIX hosts support epoll by default EPOLL>>>
@@ -478,8 +482,8 @@ elseif (CMAKE_HOST_WIN32)
     set(CMAKE_CXX_FLAGS_DEBUG    "")
     set(CMAKE_CXX_FLAGS_TEST     "${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
     set(CMAKE_CXX_FLAGS_FASTTEST "${TESTBUILD_DEFINITIONS}")
-	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
-	set(CMAKE_EXE_LINKER_FLAGS_TEST "/DEBUG")
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
+    set(CMAKE_EXE_LINKER_FLAGS_TEST "/DEBUG")
 
     # EPOLL>>> ...and suppose that Windows does not
     option(HAS_EPOLL "Does system support epoll call?" OFF)
@@ -511,7 +515,7 @@ target_link_libraries(circle circle.library)
 # Testing part
 option(BUILD_TESTS "Build and run tests." OFF)
 if (BUILD_TESTS)
-	add_subdirectory(tests)
+    add_subdirectory(tests)
 endif ()
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :
