@@ -475,7 +475,6 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 void OBJ_DATA::unset_enchant()
 {
     int i = 0;
-	// Возврат афектов
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
 		if (obj_proto.at(get_rnum())->get_affected(i).location != APPLY_NONE)
@@ -487,7 +486,7 @@ void OBJ_DATA::unset_enchant()
 			set_affected_location(i, APPLY_NONE);
 		}
 	}
-	// Возврат эфектов
+		// Возврат эфектов
 	set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
 	// поскольку все обнулилось можно втыкать слоты для ковки
 	if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH3SLOTS))
@@ -502,7 +501,6 @@ void OBJ_DATA::unset_enchant()
 	{
 		set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
 	}
-	
     unset_extraflag(EExtraFlag::ITEM_MAGIC);
 }
 

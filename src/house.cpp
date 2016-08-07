@@ -944,8 +944,10 @@ bool Clan::MayEnter(CHAR_DATA * ch, room_rnum room, bool mode)
 	case HCE_ATRIUM:
 		CHAR_DATA * mobs;
 		for (mobs = world[ch->in_room]->people; mobs; mobs = mobs->next_in_room)
-			if ((*clan)->guard == GET_MOB_VNUM(mobs))
-				break;
+		{
+			if ((*clan)->guard == GET_MOB_VNUM(mobs) && (!isMember))
+				return 0;
+		}
 		// охранника нет - свободный доступ
 		if (!mobs)
 			return 1;
@@ -954,7 +956,10 @@ bool Clan::MayEnter(CHAR_DATA * ch, room_rnum room, bool mode)
 		// телепортация
 	case HCE_PORTAL:
 		if (!isMember)
-			return 0;
+			{
+				send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
+        			return 0;
+			}
 		// с временным флагом тоже курят
 		if (RENTABLE(ch))
 		{

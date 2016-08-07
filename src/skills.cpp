@@ -542,7 +542,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			{
 				skill_is += aff->modifier;
 			};
-			
+
 			if (aff->location == APPLY_PLAQUE)
 			{
 				skill_is -= number(ch->get_skill(skill_no) * 0.4, ch->get_skill(skill_no) * 0.05); // при лихорадке умелки ухудшаются на 5-30% рандом
@@ -554,7 +554,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		size = size_app[GET_POS_SIZE(ch)].interpolate;
 	else
 		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
-	
+
 	switch (skill_no)
 	{
 
@@ -590,10 +590,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
 				bashing : 0);
 		if (vict)
-		{         
-			//if (!IS_NPC(vict)) 
+		{
+			//if (!IS_NPC(vict))
 				//victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
-			//else 
+			//else
 				//victim_modi -= (size_app[GET_POS_SIZE(vict)].interpolate)/2;
 			if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING)
 				victim_modi -= 20;
@@ -1041,7 +1041,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		{
 			bonus += (skill_is + bonus)/2;
 		}
-		else 
+		else
 		{
 			if (!CAN_SEE(ch,vict))
 				bonus += (skill_is + bonus)/5;
@@ -1054,7 +1054,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_STUN: //ошеломить
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict)) - GET_LEVEL(vict);
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
-		
+
 		if (!IS_NPC(vict))
 			victim_sav *= 2;
 		else
@@ -1202,8 +1202,8 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 			&& trained_skill < MAX_EXP_RMRT_PERCENT(ch)))
 	{
 		// Success - multy by 2
-		prob = success ? 20000 : 15000;		
-					
+		prob = success ? 20000 : 15000;
+
 
 	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
 	int INT_PLAYER = (ch->get_trained_skill(skill_no) < 51 && (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))) ? 50 : GET_REAL_INT(ch);

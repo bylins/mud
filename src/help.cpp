@@ -650,6 +650,8 @@ void init_zone_all()
 	{
 		if (zone_table[rnum].location)
 		{
+			if  (!strcmp(zone_table[rnum].location,""))
+				continue;
 			out << boost::format("  %2d - %s. Расположена: %s. Группа: %d. Примерный уровень: %d.\r\n") % i % zone_table[rnum].name % zone_table[rnum].location % zone_table[rnum].group % zone_table[rnum].level;
 			++i;
 		}

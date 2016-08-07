@@ -3107,7 +3107,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
-	
+
 	if (ch->affected)
 	{
 		for (aff = ch->affected; aff; aff = aff->next)
@@ -3119,7 +3119,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			}
 			if ((aff->location == APPLY_MADNESS) && (number (1,100) <20)) // безумие 20% фэйл закла
 			{
-				send_to_char("Безумно начав кричать, вы забили что хотели произнести.\r\n", ch);
+				send_to_char("Начав безумно кричать, вы забыли, что хотели произнести.\r\n", ch);
 				return;
 			}
 		}
@@ -3265,7 +3265,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			sprintf(buf,
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM),
-					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех " : "");
+					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
 		}
 		else if (cast_spell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0)
@@ -4579,10 +4579,10 @@ void mag_assign_spells(void)
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_DARK);
 //5
 	spello(SPELL_BURNING_HANDS, "горящие руки", "burning hands", 40, 30, 1,
-		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_FIRE);
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_FIRE);
 //6
 	spello(SPELL_CALL_LIGHTNING, "шаровая молния", "call lightning", 85, 70, 1,
-		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC, 2, STYPE_AIR);
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, NPC_AFFECT_PC | MAG_AFFECTS | MAG_DAMAGE | NPC_DAMAGE_PC, 2, STYPE_AIR);
 //7
 	spello(SPELL_CHARM, "подчинить разум", "mind control", 55, 40, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_MIND);
@@ -4594,9 +4594,9 @@ void mag_assign_spells(void)
 	spello(SPELL_CLONE, "клонирование", "clone",
 		   150, 130, 5, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, MAG_SUMMONS, 0, STYPE_DARK);
 //10
-	spello(SPELL_COLOR_SPRAY, "огненная стрела", "fire missle", 90, 75, 1, POS_FIGHTING,
-		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-		   3, STYPE_FIRE);
+	spello(SPELL_COLOR_SPRAY, "ледяные стрелы", "ice bolts", 90, 75, 1, POS_FIGHTING,
+		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
+		   3, STYPE_WATER);
 //11
 	spello(SPELL_CONTROL_WEATHER, "контроль погоды", "weather control",
 		   100, 90, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL, 0, STYPE_AIR);
@@ -5029,8 +5029,10 @@ void mag_assign_spells(void)
 		   150, 140, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 15, STYPE_DARK);
 //135
+//	spello(SPELL_METEORSTORM, "метеоритный дождь", "meteor storm", 125, 110, 2,
+//		   POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC, 5, STYPE_EARTH);
 	spello(SPELL_METEORSTORM, "метеоритный дождь", "meteor storm", 125, 110, 2,
-		   POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC, 5, STYPE_EARTH);
+		   POS_FIGHTING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_EARTH);
 //136
 	spello(SPELL_STONEHAND, "каменные руки", "stonehand", 40, 30, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
@@ -5106,7 +5108,7 @@ void mag_assign_spells(void)
 
 //153
 	spello(SPELL_SONICWAVE, "звуковая волна", "sonic wave",
-		    120, 110, 2, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, 
+		    120, 110, 2, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE,
 		    MAG_MASSES | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 1, STYPE_AIR);
 
 //154
@@ -5161,8 +5163,8 @@ void mag_assign_spells(void)
 		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_LIFE);
 
 //168 - SPELL_THUNDERSTORM
-	spello(SPELL_THUNDERSTORM, "гроза", "thunderstorm", 10, 10, 1,
-		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INWORLD, 0, STYPE_AIR);
+	spello(SPELL_THUNDERSTORM, "буря отмщения", "storm of vengeance", 10, 10, 1,
+		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_AIR);
 //169
 	spello(SPELL_LIGHT_WALK, "!легкая поступь!", "!set by programm!", 0, 0, 0, 255, 0,
 		   FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
@@ -5299,6 +5301,29 @@ void mag_assign_spells(void)
 //208
 	spello(SPELL_MENTAL_SHADOW, "ментальная тень", "mental shadow", 150, 130, 5,
 		   POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL, 1, STYPE_MIND);
+//209
+	spello(SPELL_EVARDS_BLACK_TENTACLES, "навьи руки", "evards black tentacles", 120, 110, 2,
+		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_DARK);
+//210
+	spello(SPELL_WHIRLWIND, "вихрь", "whirlwind", 110, 100, 1,
+            POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+            MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
+//211
+	spello(SPELL_INDRIKS_TEETH, "зубы индрика", "indriks teeth", 60, 45, 1, POS_FIGHTING,
+		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
+//212
+	spello(SPELL_MELFS_ACID_ARROW, "кислотная стрела", "acid arrow", 110, 100, 1,
+            POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+            MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_WATER);
+//213
+	spello(SPELL_THUNDERSTONE, "громовой камень", "thunderstone", 110, 100, 2,
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
+//214
+	spello(SPELL_CLOD, "глыба", "clod", 110, 100, 1,
+            POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+            MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
 
 	/*
 	 * These spells are currently not used, not implemented, and not castable.

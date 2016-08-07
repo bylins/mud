@@ -2089,27 +2089,27 @@ int npc_loot(CHAR_DATA * ch)
 						}
 
 						// Есть ключ?
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
+						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							&& has_key(ch, GET_OBJ_VAL(loot_obj, 2)))
 						{
 							loot_obj->toggle_val_bit(1, CONT_LOCKED);
 						}
 
 						// ...или взломаем?
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
+						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							&& ch->get_skill(SKILL_PICK_LOCK)
-							&& ok_pick(ch, 0, obj, 0, SCMD_PICK))
+							&& ok_pick(ch, 0, loot_obj, 0, SCMD_PICK))
 						{
 							loot_obj->toggle_val_bit(1, CONT_LOCKED);
 						}
 
 						// Эх, не открыть. Ну ладно.
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
+						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED))
 						{
 							continue;
 						}
 
-						obj->toggle_val_bit(1, CONT_CLOSED);
+						loot_obj->toggle_val_bit(1, CONT_CLOSED);
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj)
 						{
 							cnext_obj = cobj->get_next_content();
