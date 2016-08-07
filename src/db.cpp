@@ -2551,12 +2551,14 @@ void boot_db(void)
 	log("Init town shop_keepers.");
 	town_shop_keepers();
 
+	/* Commented out until full implementation
 	boot_profiler.next_step("Loading craft system");
 	log("Starting craft system.");
 	if (!craft::start())
 	{
 		log("ERROR: Failed to start craft system.\n");
 	}
+	*/
 
 	boot_profiler.next_step("Loading big sets in rent");
 	log("Check big sets in rent.");
