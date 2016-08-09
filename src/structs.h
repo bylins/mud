@@ -1467,11 +1467,14 @@ public:
 class IAffectHandler;
 
 template<typename TLocation>
-struct AFFECT_DATA
+class AFFECT_DATA
 {
+public:
+	using shared_ptr = std::shared_ptr<AFFECT_DATA<TLocation>>;
+
 	AFFECT_DATA() : type(0), duration(0), modifier(0), location(static_cast<TLocation>(0)),
 		battleflag(0), bitvector(0), caster_id(0), must_handled(0),
-		apply_time(0), next(nullptr) {};
+		apply_time(0) {};
 
 	sh_int type;		// The type of spell that caused this      //
 	int duration;	// For how long its effects will last      //
@@ -1479,14 +1482,10 @@ struct AFFECT_DATA
 	TLocation location;		// Tells which ability to change(APPLY_XXX) //
 	long battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
 	uint32_t bitvector;		// Tells which bits to set (AFF_XXX) //
-	long
-	caster_id; //Unique caster ID //
-	bool
-	must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
-	sh_int
-	apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
-	AFFECT_DATA<TLocation> *next;
-	boost::shared_ptr<IAffectHandler> handler; //обработчик аффектов
+	long caster_id; //Unique caster ID //
+	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
+	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
+	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 };
 
 struct timed_type

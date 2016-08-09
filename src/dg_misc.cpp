@@ -428,7 +428,7 @@ void do_dg_affect(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* scri
 			af.modifier = value;
 			af.bitvector = 0;
 		}
-		affect_join_fspell(ch, &af); // перекастим аффект
+		affect_join_fspell(ch, af); // перекастим аффект
 	}
 	else
 	{

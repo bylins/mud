@@ -1148,7 +1148,7 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		const int chance = number(1, skill_info[SKILL_SNEAK].max_percent);
 		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffectFlag::AFF_SNEAK) : 0;
 		af.battleflag = 0;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 	}
 	perform_move(ch, dir, 0, TRUE, 0);
 	if (!sneaking || affected_by_spell(ch, SPELL_GLITTERDUST))

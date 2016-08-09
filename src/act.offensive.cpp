@@ -224,7 +224,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				af.modifier = 0;
 				af.duration = pc_duration(vict, 1, 0, 0, 0, 0);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-				affect_join(vict, &af, TRUE, FALSE, TRUE, FALSE);
+				affect_join(vict, af, TRUE, FALSE, TRUE, FALSE);
 				return victim;
 			}
 			percent = number(1, skill_info[SKILL_PROTECT].max_percent);
@@ -1480,7 +1480,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 				sprintf(buf, "&R&q%s&Q&n", to_vict);
 				act(buf, FALSE, ch, 0, vict, TO_VICT);
 			}
-			affect_join(vict, &af, TRUE, FALSE, TRUE, FALSE);
+			affect_join(vict, af, TRUE, FALSE, TRUE, FALSE);
 		}
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
 	//Пиная из осторожки моба в осторожке получаешь всего лишь резанье дамага в 16 раз...
@@ -3077,7 +3077,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		af.location = APPLY_NONE;
 		af.battleflag = AF_SAME_TIME;
 		af.bitvector = to_underlying(EAffectFlag::AFF_STRANGLED);
-		affect_to_char(vict, &af);
+		affect_to_char(vict, af);
 
 		//Урон распределяется нормально. Матожидание линейно привязано к прокачке скилла. Сигма подобрана экспериментально.
 		//урон считается в процентах от максимального числа хитов жертвы.
@@ -3098,8 +3098,11 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 				act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HORSE);
 			}
+
 			if (ch->get_skill(SKILL_CHOPOFF) && (ch->in_room == IN_ROOM(vict)))
+			{
 				go_chopoff(ch, vict);
+			}
 		}
 	}
 

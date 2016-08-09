@@ -80,7 +80,7 @@ private:
 template <class S>
 void handle_affects(S& params) //тип params определяется при вызове функции
 {
-	for (auto aff = params.ch->affected; aff; aff = aff->next)
+	for (const auto& aff : params.ch->affected)
 	{
 		if (aff->handler)
 		{

@@ -811,12 +811,15 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 			send_to_char("Камень рядом с вами мешает вашей магии.\r\n", ch);
 			return;
 		}
+
 		// Если в комнате есть метка-"камень" то врата ставить нельзя //
-		if (room_affected_by_spell(world[ch->in_room], SPELL_RUNE_LABEL))
+		const auto& room = world[ch->in_room];
+		if (find_room_affect(room, SPELL_RUNE_LABEL) != room->affected.end())
 		{
 			send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 			return;
 		}
+
 		// Чтоб не кастили в NOMAGIC
 		if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) && !IS_GRGOD(ch))
 		{
@@ -824,6 +827,7 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, ch, 0, 0, TO_ROOM);
 			return;
 		}
+
 		// Открываем пентаграмму в комнату rnum //
 		improove_skill(ch, SKILL_TOWNPORTAL, 1, NULL);
 		ROOM_DATA* from_room = world[ch->in_room];
@@ -1258,23 +1262,29 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
-		affect_to_char(victim, &af);
+		affect_to_char(victim, af);
 		if (GET_HELPER(victim))
+		{
 			GET_HELPER(victim) = NULL;
-		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.",
-			FALSE, ch, 0, victim, TO_VICT);
+		}
+		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.", FALSE, ch, 0, victim, TO_VICT);
 		if (IS_NPC(victim))
 		{
 //Eli. Раздеваемся.
 			for (int i = 0; i < NUM_WEARS; i++)
+			{
 				if (GET_EQ(victim, i))
 				{
 					if (!remove_otrigger(GET_EQ(victim, i), victim))
+					{
 						continue;
+					}
 					act("Вы прекратили использовать $o3.", FALSE, victim, GET_EQ(victim, i), 0, TO_CHAR);
 					act("$n прекратил$g использовать $o3.", TRUE, victim, GET_EQ(victim, i), 0, TO_ROOM);
 					obj_to_char(unequip_char(victim, i | 0x40), victim);
 				}
+			}
+
 //Eli закончили раздеваться.
 			MOB_FLAGS(victim).unset(MOB_AGGRESSIVE);
 			MOB_FLAGS(victim).unset(MOB_SPEC);
@@ -1324,7 +1334,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				// added by WorM (Видолюб) 2010.06.04 Cохраняем цену найма моба
 				if (!IS_IMMORTAL(ch))
 				{
-					for (auto aff = k->follower->affected; aff; aff = aff->next)
+					for (const auto& aff : k->follower->affected)
 					{
 						if (aff->type == SPELL_CHARM)
 						{
@@ -1332,14 +1342,20 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 							if (cost > 0)
 							{
 								if (k->follower->mob_specials.hire_price < 0)
+								{
 									ch->add_bank(cost);
+								}
 								else
+								{
 									ch->add_gold(cost);
+								}
 							}
+
 							break;
 						}
 					}
 				}
+
 				act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
 				// end by WorM
 				affect_from_char(k->follower, SPELL_CHARM);
@@ -1347,7 +1363,9 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			}
 		}
 		else
+		{
 			act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
+		}
 		return;
 	}
 
@@ -1365,9 +1383,13 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 
 		if (k)
+		{
 			act("Вашим наемником является $N.", FALSE, ch, 0, k->follower, TO_CHAR);
+		}
 		else
+		{
 			act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
+		}
 		return;
 	}
 
@@ -1376,6 +1398,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Вы не видите никого похожего.\r\n", ch);
 		return;
 	}
+
 	for (k = ch->followers; k; k = k->next)
 	{
 		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
@@ -1465,17 +1488,18 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		else
 		{
-			auto aff = k->follower->affected;
-			for (; aff; aff = aff->next)
+			auto aff = k->follower->affected.begin();
+			for (; aff != k->follower->affected.end(); ++aff)
 			{
-				if (aff->type == SPELL_CHARM)
+				if ((*aff)->type == SPELL_CHARM)
 				{
 					break;
 				}
 			}
-			if (aff)
+
+			if (aff != k->follower->affected.end())
 			{
-				af.duration = aff->duration + pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
+				af.duration = (*aff)->duration + pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
 			}
 		}
 
@@ -1497,7 +1521,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
-		affect_to_char(helpee, &af);
+		affect_to_char(helpee, af);
 		AFF_FLAGS(helpee).set(EAffectFlag::AFF_HELPER);
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
@@ -2404,7 +2428,7 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 		return;
 
 	int found = FALSE;
-	for (auto aff = victim->affected; aff; aff = aff->next)
+	for (const auto& aff : victim->affected)
 	{
 		if (aff->location != APPLY_NONE && aff->modifier != 0)
 		{
@@ -2489,7 +2513,7 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 	send_to_char(buf, ch);
 
 	int found = FALSE;
-	for (auto aff = victim->affected; aff; aff = aff->next)
+	for (const auto& aff : victim->affected)
 	{
 		if (aff->location != APPLY_NONE && aff->modifier != 0)
 		{
@@ -2829,13 +2853,12 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	clear_char_skills(mob);
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
-	af.duration =
-		pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
-	affect_to_char(mob, &af);
+	affect_to_char(mob, af);
 
 	if (IS_FEMALE(ch))
 	{

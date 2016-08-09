@@ -2460,10 +2460,15 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "dispel"))
 		{
-			if (c->affected)
+			if (!c->affected.empty())
+			{
 				send_to_char("Вы словно заново родились!\r\n", c);
-			while (c->affected)
-				affect_remove(c, c->affected);
+			}
+
+			while (!c->affected.empty())
+			{
+				affect_remove(c, c->affected.begin());
+			}
 		}
 		else if (!str_cmp(field, "gold"))
 		{

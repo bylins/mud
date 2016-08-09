@@ -636,10 +636,10 @@ bool is_affected_by_spell(int spell_num) const
 	return affected_by_spell(ch, spell_num);
 }
 
-void add_affect(AFFECT_DATA<EApplyLocation>& af)
+void add_affect(const AFFECT_DATA<EApplyLocation>& af)
 {
 	Ensurer ch(*this);
-	affect_to_char(ch, &af);
+	affect_to_char(ch, af);
 }
 
 CharacterWrapper get_vis(const char* name, int where) const

@@ -111,8 +111,8 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 
 void handle_recall_spells(CHAR_DATA* ch)
 {
-	AFFECT_DATA<EApplyLocation>* aff = nullptr;
-	for (auto af = ch->affected; af; af = af->next)
+	AFFECT_DATA<EApplyLocation>::shared_ptr aff;
+	for (const auto& af : ch->affected)
 	{
 		if (af->type == SPELL_RECALL_SPELLS)
 		{
@@ -721,7 +721,7 @@ void beat_points_update(int pulse)
 
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_BANDAGE))
 		{
-			for (auto aff = i->affected; aff; aff = aff->next)
+			for (const auto& aff : i->affected)
 			{
 				if (aff->type == SPELL_BANDAGE)
 				{

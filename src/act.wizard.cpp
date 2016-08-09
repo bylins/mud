@@ -774,13 +774,14 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	bool found = false;
 	CHAR_DATA *c, *caster;
 //Проверим, нет ли в зоне метки для врат, чтоб не абузили.
-	for (std::list<ROOM_DATA*>::iterator it = RoomSpells::aff_room_list.begin();it != RoomSpells::aff_room_list.end();++it)
+	for (auto it = RoomSpells::aff_room_list.begin(); it != RoomSpells::aff_room_list.end(); ++it)
 	{
-		if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
+		const auto aff = find_room_affect(*it, SPELL_RUNE_LABEL);
+		if (((*it)->zone == zone_nr)
+			&& aff != (*it)->affected.end())
 		{
 			// если в зоне метка
-			auto aff = room_affected_by_spell(*it, SPELL_RUNE_LABEL);
-			caster = find_char(aff->caster_id);
+			caster = find_char((*aff)->caster_id);
 			if (caster)
 			{
 				sprintf(buf2, "В зоне vnum:%d клетка vnum: %d находится рунная метка игрока: %s.\r\n", zone_table[zone_nr].number, (*it)->number, GET_NAME(caster));
@@ -788,6 +789,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 			}
 		}
 	}
+
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING)
@@ -1730,10 +1732,11 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 			send_to_char(buf, ch);
 		}
 	}
-	if (rm->affected)
+
+	if (!rm->affected.empty())
 	{
 		sprintf(buf1," Аффекты на комнате:\r\n");
-		for (auto aff = rm->affected; aff; aff = aff->next)
+		for (const auto& aff : rm->affected)
 		{
 			sprintf(buf1 + strlen(buf1), "       Заклинание \"%s\" (%d) - %s.\r\n",
 				spell_name(aff->type),
@@ -2478,9 +2481,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	send_to_char(buf, ch);
 
 	// Routine to show what spells a char is affected by
-	if (k->affected)
+	if (!k->affected.empty())
 	{
-		for (auto aff = k->affected; aff; aff = aff->next)
+		for (const auto aff : k->affected)
 		{
 			*buf2 = '\0';
 			sprintf(buf, "Заклинания: (%3dsec) %s%-21s%s ", aff->duration + 1,
@@ -4505,10 +4508,12 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			break;
 
 		case SCMD_UNAFFECT:
-			if (vict->affected)
+			if (!vict->affected.empty())
 			{
-				while (vict->affected)
-					affect_remove(vict, vict->affected);
+				while (!vict->affected.empty())
+				{
+					affect_remove(vict, vict->affected.begin());
+				}
 				send_to_char("Яркая вспышка осветила вас!\r\n"
 							 "Вы почувствовали себя немного иначе.\r\n", vict);
 				send_to_char("Все афекты сняты.\r\n", ch);

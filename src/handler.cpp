@@ -447,7 +447,7 @@ void affect_room_total(ROOM_DATA * room)
 	memset(&room->add_property, 0 , sizeof(room_property_data));
 
 	// перенакладываем аффекты
-	for (auto af = room->affected; af; af = af->next)
+	for (const auto& af : room->affected)
 	{
 		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
 	}
@@ -587,7 +587,7 @@ void affect_total(CHAR_DATA * ch)
 	}
 
 	// move affect modifiers
-	for (auto af = ch->affected; af; af = af->next)
+	for (const auto& af : ch->affected)
 	{
 		affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
 	}
@@ -754,43 +754,30 @@ void affect_total(CHAR_DATA * ch)
 
 /* Намазываем аффект на комнату.
   Автоматически ставим нузные флаги */
-void affect_to_room(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation> * af)
+void affect_to_room(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af)
 {
-	AFFECT_DATA<ERoomApplyLocation> *affected_alloc;
-	CREATE(affected_alloc, 1);
+	AFFECT_DATA<ERoomApplyLocation>::shared_ptr new_affect(new AFFECT_DATA<ERoomApplyLocation>(af));
 
-	*affected_alloc = *af;
-	affected_alloc->next = room->affected;
-	room->affected = affected_alloc;
+	room->affected.push_front(new_affect);
 
-	affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
+	affect_room_modify(room, af.location, af.modifier, af.bitvector, TRUE);
 	affect_room_total(room);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
-//	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-
-
 /* Insert an affect_type in a char_data structure
-   Automatically sets apropriate bits and apply's */
-void affect_to_char(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af)
+   Automatically sets appropriate bits and apply's */
+void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
 {
 	long was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
 
-	AFFECT_DATA<EApplyLocation> *affected_alloc;
-	CREATE(affected_alloc, 1);
+	AFFECT_DATA<EApplyLocation>::shared_ptr affected_alloc(new AFFECT_DATA<EApplyLocation>(af));
 
-	*affected_alloc = *af;
-	affected_alloc->next = ch->affected;
-	ch->affected = affected_alloc;
+	ch->affected.push_front(affected_alloc);
 
-	affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
+	affect_modify(ch, af.location, af.modifier, static_cast<EAffectFlag>(af.bitvector), TRUE);
 	affect_total(ch);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
@@ -800,19 +787,19 @@ void affect_to_char(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af)
  * affect_location_apply
  */
 
-void affect_remove(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af)
+void affect_remove(CHAR_DATA* ch, const CHAR_DATA::char_affects_list_t::iterator& affect_i)
 {
 	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
 
-	if (ch->affected == NULL)
+	if (ch->affected.empty())
 	{
 		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(ch));
-		// core_dump();
 		return;
 	}
 
+	const auto af = *affect_i;
 	affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
 	if (af->type == SPELL_ABSTINENT)
 	{
@@ -823,60 +810,47 @@ void affect_remove(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af)
 		set_abstinent(ch);
 	}
 
-	REMOVE_FROM_LIST(af, ch->affected);
-	if (af->handler!=0) af->handler.reset();
-	free(af);
+	ch->affected.erase(affect_i);
 
-	//log("[AFFECT_REMOVE->AFFECT_TOTAL] Start");
 	affect_total(ch);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-
-
-void affect_room_remove(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>* af)
+void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& affect_i)
 {
 	int change = 0;
 
-	// if (IS_IMMORTAL(ch))
-	//   {sprintf(buf,"<%d>\r\n",was_hdrk);
-	//    send_to_char(buf,ch);
-	//   }
-
-	if (room->affected == NULL)
+	if (room->affected.empty())
 	{
 		log("SYSERR: affect_room_remove when no affects...");
-		// core_dump();
 		return;
 	}
 
-	affect_room_modify(room, af->location, af->modifier, af->bitvector, FALSE);
+	const auto affect = *affect_i;
+	affect_room_modify(room, affect->location, affect->modifier, affect->bitvector, FALSE);
 	if (change)
-		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
+	{
+		affect_room_modify(room, affect->location, affect->modifier, affect->bitvector, TRUE);
+	}
 	else
 	{
-		REMOVE_FROM_LIST(af, room->affected);
-		free(af);
+		room->affected.erase(affect_i);
 	}
-	//log("[AFFECT_REMOVE->AFFECT_TOTAL] Start");
-	affect_room_total(room);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
-//	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
-}
 
+	affect_room_total(room);
+}
 
 // Call affect_remove with every spell of spelltype "skill"
 void affect_from_char(CHAR_DATA * ch, int type)
 {
-	AFFECT_DATA<EApplyLocation> *hjp, *next;
-
-	for (hjp = ch->affected; hjp; hjp = next)
+	auto next_affect_i = ch->affected.begin();
+	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i)
 	{
-		next = hjp->next;
-		if (hjp->type == type)
+		++next_affect_i;
+		const auto affect = *affect_i;
+		if (affect->type == type)
 		{
-			affect_remove(ch, hjp);
+			affect_remove(ch, affect_i);
 		}
 	}
 
@@ -891,19 +865,24 @@ void affect_from_char(CHAR_DATA * ch, int type)
  * Return TRUE if a char is affected by a spell (SPELL_XXX),
  * FALSE indicates not affected.
  */
-bool affected_by_spell(CHAR_DATA * ch, int type)
+bool affected_by_spell(CHAR_DATA* ch, int type)
 {
 	if (type == SPELL_POWER_HOLD)
-		type = SPELL_HOLD;
-	else if (type == SPELL_POWER_SILENCE)
-		type = SPELL_SILENCE;
-	else if (type == SPELL_POWER_BLINDNESS)
-		type = SPELL_BLINDNESS;
-
-
-	for (auto hjp = ch->affected; hjp; hjp = hjp->next)
 	{
-		if (hjp->type == type)
+		type = SPELL_HOLD;
+	}
+	else if (type == SPELL_POWER_SILENCE)
+	{
+		type = SPELL_SILENCE;
+	}
+	else if (type == SPELL_POWER_BLINDNESS)
+	{
+		type = SPELL_BLINDNESS;
+	}
+
+	for (const auto& affect : ch->affected)
+	{
+		if (affect->type == type)
 		{
 			return (TRUE);
 		}
@@ -913,112 +892,169 @@ bool affected_by_spell(CHAR_DATA * ch, int type)
 }
 // Проверяем а не висит ли на комнате закла ужо
 //bool room_affected_by_spell(ROOM_DATA * room, int type)
-AFFECT_DATA<ERoomApplyLocation> *room_affected_by_spell(ROOM_DATA * room, int type)
+ROOM_DATA::room_affects_list_t::iterator find_room_affect(ROOM_DATA* room, int type)
 {
-	for (auto hjp = room->affected; hjp; hjp = hjp->next)
+	for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i)
 	{
-		if (hjp->type == type)
+		const auto affect = *affect_i;
+		if (affect->type == type)
 		{
-			return hjp;
+			return affect_i;
 		}
 	}
 
-	return NULL;
+	return room->affected.end();
 }
 
-void affect_join_fspell(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af)
+void affect_join_fspell(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
 {
-	bool found = FALSE;
+	bool found = false;
 
-	for (auto hjp = ch->affected; !found && hjp; hjp = hjp->next)
+	for (const auto& affect : ch->affected)
 	{
-		if ((hjp->type == af->type) && (hjp->location == af->location))
+		if ((affect->type == af.type) && (affect->location == af.location))
 		{
+			if (affect->modifier < af.modifier)
+			{
+				affect->modifier = af.modifier;
+			}
 
-			if (hjp->modifier < af->modifier)
-				hjp->modifier = af->modifier;
-			if (hjp->duration < af->duration)
-				hjp->duration = af->duration;
+			if (affect->duration < af.duration)
+			{
+				affect->duration = af.duration;
+			}
+
 			affect_total(ch);
-			found = TRUE;
+			found = true;
+			break;
 		}
 	}
+
 	if (!found)
 	{
 		affect_to_char(ch, af);
 	}
 }
-void affect_room_join_fspell(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation> * af)
+
+void affect_room_join_fspell(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af)
 {
 	bool found = FALSE;
 
-	for (auto hjp = room->affected; !found && hjp; hjp = hjp->next)
+	for (const auto& hjp : room->affected)
 	{
-		if ((hjp->type == af->type) && (hjp->location == af->location))
+		if (hjp->type == af.type
+			&& hjp->location == af.location)
 		{
+			if (hjp->modifier < af.modifier)
+			{
+				hjp->modifier = af.modifier;
+			}
 
-			if (hjp->modifier < af->modifier)
-				hjp->modifier = af->modifier;
-			if (hjp->duration < af->duration)
-				hjp->duration = af->duration;
+			if (hjp->duration < af.duration)
+			{
+				hjp->duration = af.duration;
+			}
+
 			affect_room_total(room);
-			found = TRUE;
+			found = true;
+			break;
 		}
 	}
+
 	if (!found)
 	{
 		affect_to_room(room, af);
 	}
 }
 
-void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation> * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
+void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
 {
-	bool found = FALSE;
+	bool found = false;
 
-	for (auto hjp = room->affected; !found && hjp && af->location; hjp = hjp->next)
+	if (af.location)
 	{
-		if ((hjp->type == af->type) && (hjp->location == af->location))
+		for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i)
 		{
-			if (add_dur)
-				af->duration += hjp->duration;
-			if (avg_dur)
-				af->duration /= 2;
-			if (add_mod)
-				af->modifier += hjp->modifier;
-			if (avg_mod)
-				af->modifier /= 2;
-			affect_room_remove(room, hjp);
-			affect_to_room(room, af);
-			found = TRUE;
+			const auto& affect = *affect_i;
+			if (affect->type == af.type
+				&& affect->location == af.location)
+			{
+				if (add_dur)
+				{
+					af.duration += affect->duration;
+				}
+
+				if (avg_dur)
+				{
+					af.duration /= 2;
+				}
+
+				if (add_mod)
+				{
+					af.modifier += affect->modifier;
+				}
+
+				if (avg_mod)
+				{
+					af.modifier /= 2;
+				}
+
+				affect_room_remove(room, affect_i);
+				affect_to_room(room, af);
+
+				found = true;
+				break;
+			}
 		}
 	}
+
 	if (!found)
 	{
 		affect_to_room(room, af);
 	}
 }
 
-void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
+void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
 {
-	bool found = FALSE;
+	bool found = false;
 
-	for (auto hjp = ch->affected; !found && hjp && af->location; hjp = hjp->next)
+	if (af.location)
 	{
-		if ((hjp->type == af->type) && (hjp->location == af->location))
+		for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i)
 		{
-			if (add_dur)
-				af->duration += hjp->duration;
-			if (avg_dur)
-				af->duration /= 2;
-			if (add_mod)
-				af->modifier += hjp->modifier;
-			if (avg_mod)
-				af->modifier /= 2;
-			affect_remove(ch, hjp);
-			affect_to_char(ch, af);
-			found = TRUE;
+			const auto& affect = *affect_i;
+			if (affect->type == af.type
+				&& affect->location == af.location)
+			{
+				if (add_dur)
+				{
+					af.duration += affect->duration;
+				}
+
+				if (avg_dur)
+				{
+					af.duration /= 2;
+				}
+
+				if (add_mod)
+				{
+					af.modifier += affect->modifier;
+				}
+
+				if (avg_mod)
+				{
+					af.modifier /= 2;
+				}
+
+				affect_remove(ch, affect_i);
+				affect_to_char(ch, af);
+
+				found = true;
+				break;
+			}
 		}
 	}
+
 	if (!found)
 	{
 		affect_to_char(ch, af);
@@ -1143,35 +1179,30 @@ void char_from_room(CHAR_DATA * ch)
 void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 {
 	if (IS_IMMORTAL(ch))
-		return;
-
-	const auto affect_on_room = room_affected_by_spell(world[room], SPELL_HYPNOTIC_PATTERN);
-	if (affect_on_room)
 	{
-		CHAR_DATA *caster = find_char(affect_on_room->caster_id);
-		if (!same_group(ch, caster) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) && (number(1,100) <= 30)) // 30% шанс что враг уснет
+		return;
+	}
+
+	const auto affect_on_room = find_room_affect(world[room], SPELL_HYPNOTIC_PATTERN);
+	if (affect_on_room != world[room]->affected.end())
+	{
+		CHAR_DATA *caster = find_char((*affect_on_room)->caster_id);
+		if (!same_group(ch, caster)
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
+			&& (number(1,100) <= 30)) // 30% шанс что враг уснет
 		{
-			if ((ch->master) && !IS_NPC(ch->master) && IS_NPC(ch))
+			if (ch->master
+				&& !IS_NPC(ch->master)
+				&& IS_NPC(ch))
+			{
 				return;
+			}
+
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
 		}
 	}
-/* код ниже - на случай добавления новых спеллов такого типа
-	AFFECT_DATA *affect_on_room = world[room]->affected;
-	while (affect_on_room)
-	{
-		switch (affect_on_room->type)
-		{
-		case SPELL_HYPNOTIC_PATTERN:
-			act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
-			act(to_room, TRUE, victim, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
-		break;
-		}
-		affect_on_room = affect_on_room->next;
-	}
-	*/
 }
 
 // place a character in a room
@@ -4700,8 +4731,8 @@ void remove_rune_label(CHAR_DATA *ch)
 	ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room)
 	{
-		const auto aff = room_affected_by_spell(label_room, SPELL_RUNE_LABEL);
-		if (aff)
+		const auto aff = find_room_affect(label_room, SPELL_RUNE_LABEL);
+		if (aff != label_room->affected.end())
 		{
 			affect_room_remove(label_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);

@@ -17,10 +17,10 @@
 #ifndef _HANDLER_H_
 #define _HANDLER_H_
 
+#include "char.hpp"
 #include "structs.h"	// there was defined type "byte" if it had been missing
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
-class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 #define LIGHT_NO    0
 #define LIGHT_YES   1
@@ -38,12 +38,12 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
 // handling the affected-structures //
 void affect_total(CHAR_DATA * ch);
 void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bool add);
-void affect_to_char(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>* af);
-void affect_remove(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>* af);
+void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af);
 void affect_from_char(CHAR_DATA * ch, int type);
 bool affected_by_spell(CHAR_DATA * ch, int type);
-void affect_join_fspell(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af);
-void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>* af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
+void affect_remove(CHAR_DATA* ch, const CHAR_DATA::char_affects_list_t::iterator& affect_i);
+void affect_join_fspell(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af);
+void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed);
 void timed_feat_from_char(CHAR_DATA * ch, struct timed_type *timed);
 int timed_by_feat(CHAR_DATA * ch, int skill);
@@ -54,13 +54,11 @@ int timed_by_skill(CHAR_DATA * ch, int skill);
 // Обработка аффектов комнат//
 void affect_room_total(ROOM_DATA * room);
 void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv, bool add);
-void affect_to_room(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation> * af);
-void affect_room_remove(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation> * af);
-void affect_from_room(ROOM_DATA * room, int type);
-//bool room_affected_by_spell(ROOM_DATA * room, int type);
-AFFECT_DATA<ERoomApplyLocation> *room_affected_by_spell(ROOM_DATA * room, int type);
-void affect_room_join_fspell(ROOM_DATA *room, AFFECT_DATA<ERoomApplyLocation> * af);
-void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation> * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
+void affect_to_room(ROOM_DATA * room, const AFFECT_DATA<ERoomApplyLocation>& af);
+void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& af);
+ROOM_DATA::room_affects_list_t::iterator find_room_affect(ROOM_DATA* room, int type);
+void affect_room_join_fspell(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af);
+void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 
 // utility //
 char *money_desc(int amount, int padis);

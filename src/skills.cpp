@@ -534,31 +534,34 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		return 0;                                         // если скила нет возвращаем 0.
 	}
 
-	if (!IS_NPC(ch) && ch->affected)
+	if (!IS_NPC(ch) && !ch->affected.empty())
 	{
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
 			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с эксп умелкой
 			{
 				skill_is += aff->modifier;
-			};
+			}
 
 			if (aff->location == APPLY_PLAQUE)
 			{
 				skill_is -= number(ch->get_skill(skill_no) * 0.4, ch->get_skill(skill_no) * 0.05); // при лихорадке умелки ухудшаются на 5-30% рандом
-			};
+			}
 		}
 	}
+
 	skill_is += int_app[GET_REAL_INT(ch)].to_skilluse;
 	if (!IS_NPC(ch))
+	{
 		size = size_app[GET_POS_SIZE(ch)].interpolate;
+	}
 	else
+	{
 		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
+	}
 
 	switch (skill_no)
 	{
-
-
 	case SKILL_HIDETRACK:          // замести следы
 		bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 		break;
@@ -567,43 +570,55 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
         //victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
-		if (awake_others(ch) || equip_in_metall(ch))
+		if (awake_others(ch)
+			|| equip_in_metall(ch))
+		{
 			bonus -= 50;
+		}
 
 		if (vict)
 		{
 			if (!CAN_SEE(vict, ch))
+			{
 				bonus += 25;
+			}
+
 			if (GET_POS(vict) < POS_FIGHTING)
+			{
 				bonus += (20 * (POS_FIGHTING - GET_POS(vict)));
+			}
 			else if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS))
+			{
 				victim_modi -= 30;
+			}
 			victim_modi += size_app[GET_POS_SIZE(vict)].ac;
 			victim_modi -= dex_bonus(GET_REAL_DEX(vict));
 		}
 		break;
+
 	case SKILL_BASH:	//сбить
-		//ictim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-		bonus = size + dex_bonus(GET_REAL_DEX(ch)) +
-			(GET_EQ(ch, WEAR_SHIELD) ?
-				weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
-				bashing : 0);
+		bonus = size
+			+ dex_bonus(GET_REAL_DEX(ch))
+			+ (GET_EQ(ch, WEAR_SHIELD)
+				? weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].bashing
+				: 0);
 		if (vict)
 		{
-			//if (!IS_NPC(vict))
-				//victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
-			//else
-				//victim_modi -= (size_app[GET_POS_SIZE(vict)].interpolate)/2;
 			if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING)
+			{
 				victim_modi -= 20;
+			}
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
+			{
 				victim_modi -= calculate_awake_mod(ch, vict);
-			//victim_modi -= GET_REAL_CON(vict);
+			}
 		}
 		break;
+
 	case SKILL_HIDE:	//спрятаться
-		bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
+		bonus = dex_bonus(GET_REAL_DEX(ch))
+			- size_app[GET_POS_SIZE(ch)].ac
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
 		if (awake_others(ch) || equip_in_metall(ch))
@@ -642,6 +657,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
+
 	case SKILL_KICK:	//пнуть
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
@@ -651,13 +667,17 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
 			victim_modi -= GET_REAL_CON(vict);
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
+			{
 				victim_modi -= calculate_awake_mod(ch, vict);
+			}
 		}
 		break;
+
 	case SKILL_PICK_LOCK:	// взлом
 		bonus = dex_bonus(GET_REAL_DEX(ch))
-				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
-	        break;
+			+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+		break;
+
 	case SKILL_PUNCH:	//удар левой рукой
         //victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);

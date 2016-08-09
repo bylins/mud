@@ -581,7 +581,7 @@ public:
 	
 	virtual void reset();
 
-	bool has_any_affect(const affects_list_t affects);
+	bool has_any_affect(const affects_list_t& affects);
 
 private:
 	std::string clan_for_title();
@@ -685,6 +685,7 @@ private:
 	unsigned m_wait;			// wait for how many loops
 
 public:
+	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
 	int punctual_wait;		// wait for how many loops (punctual style)
 	char *last_comm;		// последний приказ чармису перед окончанием лага
 
@@ -697,7 +698,7 @@ public:
 
 	struct player_special_data *player_specials;	// PC specials
 
-	AFFECT_DATA<EApplyLocation>* affected;	// affected by what spells
+	char_affects_list_t affected;	// affected by what spells
 	struct timed_type *timed;	// use which timed skill/spells
 	struct timed_type *timed_feat;	// use which timed feats
 	OBJ_DATA *equipment[NUM_WEARS];	// Equipment array
