@@ -3032,10 +3032,10 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 		k_next = k->next;
 		if (MOB_FLAGGED(k->follower, MOB_ANGEL))
 		{
-			stop_follower(k->follower, SF_CHARMLOST);
+			extract_char(k->follower, FALSE);
 		}
 	}
-	if (get_effective_int(ch) < 16 && !IS_IMMORTAL(ch))
+	if (get_effective_int(ch) < 26 && !IS_IMMORTAL(ch))
 	{
 		send_to_char("Головные боли мешают работать!\r\n", ch);
 		return;

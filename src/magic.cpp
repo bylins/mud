@@ -2955,7 +2955,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[1].duration = af[0].duration;
 		spellnum = SPELL_MAGICBATTLE;
 		to_room = "$n зашатал$u, пытаясь прийти в себя от взрыва шаровой молнии.";
-		to_vict = "Взрыв шаровой молнии $N1 отдался в вашей голотве громким звоном.";
+		to_vict = "Взрыв шаровой молнии $N1 отдался в вашей голове громким звоном.";
         break;
 
 	case SPELL_CONE_OF_COLD:
