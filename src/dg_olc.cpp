@@ -484,7 +484,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 					new_index[trig_rnum]->vnum = OLC_NUM(d);
 					new_index[trig_rnum]->number = 0;
 					new_index[trig_rnum]->func = NULL;
-					proto = new TRIG_DATA();
+					CREATE(proto, 1);
 					new_index[trig_rnum]->proto = proto;
 
 					trig_data_copy(proto, trig);
@@ -515,7 +515,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 			new_index[trig_rnum]->number = 0;
 			new_index[trig_rnum]->func = NULL;
 
-			proto = new TRIG_DATA();
+			CREATE(proto, 1);
 
 			new_index[trig_rnum]->proto = proto;
 			trig_data_copy(proto, trig);

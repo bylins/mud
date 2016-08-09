@@ -2,7 +2,7 @@
 
 #include "obj.hpp"
 #include "fight.h"
-#include "fight_local.hpp"
+#include "fight_hit.hpp"
 #include "char.hpp"
 #include "skills.h"
 #include "handler.h"
@@ -22,6 +22,7 @@
 #include "mob_stat.hpp"
 #include "utils.h"
 #include "bonus.h"
+
 #include <algorithm>
 
 // extern
@@ -815,6 +816,102 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	TopPlayer::Refresh(ch);
 }
 
+class GroupPenalty
+{
+public:
+	constexpr static int DEFAULT_PENALTY = 100;
+
+	GroupPenalty(const CHAR_DATA* killer, const CHAR_DATA* leader, const int max_level, const decltype(grouping)& grouping):
+		m_killer(killer),
+		m_leader(leader),
+		m_max_level(max_level),
+		m_grouping(grouping)
+	{
+	}
+
+	int get() const;
+
+private:
+	const CHAR_DATA* m_killer;
+	const CHAR_DATA* m_leader;
+	const int m_max_level;
+	const decltype(grouping)& m_grouping;
+
+	int get_penalty(const CHAR_DATA* player) const;
+};
+
+int GroupPenalty::get() const
+{
+	const bool leader_is_npc = IS_NPC(m_leader);
+	const bool leader_is_in_room = AFF_FLAGGED(m_leader, EAffectFlag::AFF_GROUP)
+		&& m_leader->in_room == IN_ROOM(m_killer);
+	if (!leader_is_npc
+		&& leader_is_in_room)
+	{
+		return get_penalty(m_leader);
+	}
+
+	for (auto f = m_leader->followers; f; f = f->next)
+	{
+		const bool follower_is_npc = IS_NPC(f->follower);
+		const bool follower_is_in_room = AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+			&& f->follower->in_room == IN_ROOM(m_killer);
+
+		if (follower_is_npc
+			|| !follower_is_in_room)
+		{
+			continue;
+		}
+
+		const int penalty = get_penalty(f->follower);
+		if (0 < penalty)
+		{
+			return penalty;
+		}
+	}
+
+	return 0;
+}
+
+int GroupPenalty::get_penalty(const CHAR_DATA* player) const
+{
+	const int player_remorts = static_cast<int>(GET_REMORT(player));
+	const int player_class = static_cast<int>(GET_CLASS(player));
+	const int player_level = GET_LEVEL(player);
+
+	if (IS_NPC(player))
+	{
+		log("LOGIC ERROR: try to get penalty for NPC [%s], VNum: %d\n",
+			player->get_name().c_str(),
+			GET_MOB_VNUM(player));
+		return DEFAULT_PENALTY;
+	}
+
+	if (player_class > NUM_PLAYER_CLASSES)
+	{
+		log("LOGIC ERROR: wrong player class: %d for player [%s]",
+			player_class,
+			player->get_name().c_str());
+		return DEFAULT_PENALTY;
+	}
+
+	if (player_remorts > MAX_REMORT)
+	{
+		log("LOGIC ERROR: wrong number of remorts: %d for player [%s]",
+			player_remorts,
+			player->get_name().c_str());
+		return DEFAULT_PENALTY;
+	}
+
+	int penalty = 0;
+	if (m_max_level - player_level > grouping[player_class][player_remorts])
+	{
+		penalty = 50 + 2 * (m_max_level - player_level - grouping[player_class][player_remorts]);
+	}
+
+	return penalty;
+}
+
 /*++
    Функция расчитывает всякие бонусы для группы при получении опыта,
  после чего вызывает функцию получения опыта для всех членов группы
@@ -827,31 +924,38 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
    Просто для PC-последователей эта функция не вызывается
 
 --*/
-void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
+void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 {
 	int inroom_members, koef = 100, maxlevel;
-	CHAR_DATA *k;
 	struct follow_type *f;
-	int leader_inroom;
-	int partner_count = 0; bool use_partner_exp = false;
-	// если наем лидер, то тоже режем экспу
-	if (can_use_feat(ch, CYNIC_FEAT))
-	    maxlevel = 300;
-	else
-	    maxlevel = GET_LEVEL(ch);
+	int partner_count = 0;
+	bool use_partner_exp = false;
 
-	if (!(k = ch->master))
-		k = ch;
+	// если наем лидер, то тоже режем экспу
+	if (can_use_feat(killer, CYNIC_FEAT))
+	{
+		maxlevel = 300;
+	}
+	else
+	{
+		maxlevel = GET_LEVEL(killer);
+	}
+
+	auto leader = killer->master;
+	if (nullptr == leader)
+	{
+		leader = killer;
+	}
 
 	// k - подозрение на лидера группы
-	leader_inroom = (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
-					 && (k->in_room == IN_ROOM(ch)));
+	const bool leader_inroom = AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP)
+		&& leader->in_room == IN_ROOM(killer);
 
 	// Количество согрупников в комнате
 	if (leader_inroom)
 	{
 		inroom_members = 1;
-		maxlevel = GET_LEVEL(k);
+		maxlevel = GET_LEVEL(leader);
 	}
 	else
 	{
@@ -859,16 +963,18 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 
 	// Вычисляем максимальный уровень в группе
-	for (f = k->followers; f; f = f->next)
+	for (f = leader->followers; f; f = f->next)
 	{
 		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(ch))
+			&& f->follower->in_room == IN_ROOM(killer))
 		{
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
 			if (can_use_feat(f->follower, CYNIC_FEAT))
+			{
 				maxlevel = 300;
+			}
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
@@ -880,65 +986,53 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 		}
 	}
 
-	// Вычисляем, надо ли резать экспу, смотрим сначала лидера, если он рядом
-	if (maxlevel - GET_LEVEL(k) > grouping[(int)GET_CLASS(k)][(int)GET_REMORT(k)] && leader_inroom)
-	{
-		koef -= 50 + (maxlevel - GET_LEVEL(k) - grouping[(int)GET_CLASS(k)][(int)GET_REMORT(k)]) * 2;
-	}
-	else	// если с лидером все ок либо он не тут, смотрим по группе
-	{
-		for (f = k->followers; f; f = f->next)
-		{
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-				&& f->follower->in_room == IN_ROOM(ch))
-			{
-				const int K = grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)];
-				if (maxlevel - GET_LEVEL(f->follower) > K)
-				{
-					koef -= 50 + (maxlevel - GET_LEVEL(f->follower) - K) * 2;
-					break;
-				}
-			}
-		}
-	}
+	GroupPenalty group_penalty(killer, leader, maxlevel, grouping);
+	koef -= group_penalty.get();
 
 	koef = MAX(0, koef);
 
 	// Лидерство используется, если в комнате лидер и есть еще хоть кто-то
 	// из группы из PC (последователи типа лошади или чармисов не считаются)
-	if (koef >= 100 && leader_inroom && (inroom_members > 1) && calc_leadership(k))
+	if (koef >= 100 && leader_inroom && (inroom_members > 1) && calc_leadership(leader))
 	{
 		koef += 20;
 	}
 
 	// Раздача опыта
-	
+
 	// если групповой уровень зоны равняется единице
-	if  (zone_table[world[ch->in_room]->zone].group < 2)
+	if (zone_table[world[killer->in_room]->zone].group < 2)
+	{
 		use_partner_exp = true;
+	}
+
 	// если лидер группы в комнате
 	if (leader_inroom)
 	{
-	    // если у лидера группы есть способность напарник и лидер меньше 25 лева
-	    if (can_use_feat(k, PARTNER_FEAT) && use_partner_exp)
-	    {
+		// если у лидера группы есть способность напарник и лидер меньше 25 лева
+		if (can_use_feat(leader, PARTNER_FEAT) && use_partner_exp)
+		{
 			// если в группе всего двое человек
 			// k - лидер, и один последователь
 			if (partner_count == 1)
 			{
 				// и если кожф. больше или равен 100
 				if (koef >= 100)
-					if (k->get_zone_group() < 2)
+				{
+					if (leader->get_zone_group() < 2)
+					{
 						koef += 100;
+					}
+				}
 			}
-	    }
-		perform_group_gain(k, victim, inroom_members, koef);
+		}
+		perform_group_gain(leader, victim, inroom_members, koef);
 	}
 
-	for (f = k->followers; f; f = f->next)
+	for (f = leader->followers; f; f = f->next)
 	{
 		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(ch))
+			&& f->follower->in_room == IN_ROOM(killer))
 		{
 			perform_group_gain(f->follower, victim, inroom_members, koef);
 		}
@@ -1186,11 +1280,19 @@ void Damage::post_init_shields(CHAR_DATA *victim)
 	if (IS_NPC(victim) && !IS_CHARMICE(victim))
 	{
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD))
-			flags.set(VICTIM_FIRE_SHIELD);
+		{
+			flags.set(FightSystem::VICTIM_FIRE_SHIELD);
+		}
+
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_ICESHIELD))
-			flags.set(VICTIM_ICE_SHIELD);
+		{
+			flags.set(FightSystem::VICTIM_ICE_SHIELD);
+		}
+
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_AIRSHIELD))
-			flags.set(VICTIM_AIR_SHIELD);
+		{
+			flags.set(FightSystem::VICTIM_AIR_SHIELD);
+		}
 	}
 	else
 	{
@@ -1198,28 +1300,38 @@ void Damage::post_init_shields(CHAR_DATA *victim)
 		std::vector<int> shields;
 
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD))
+		{
 			shields.push_back(FIRESHIELD);
+		}
+
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_AIRSHIELD))
+		{
 			shields.push_back(AIRSHIELD);
+		}
+
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_ICESHIELD))
+		{
 			shields.push_back(ICESHIELD);
+		}
 
 		if (shields.empty())
+		{
 			return;
+		}
 
 		int shield_num = number(0, static_cast<int>(shields.size() - 1));
 
 		if (shields[shield_num] == FIRESHIELD)
 		{
-			flags.set(VICTIM_FIRE_SHIELD);
+			flags.set(FightSystem::VICTIM_FIRE_SHIELD);
 		}
 		else if (shields[shield_num] == AIRSHIELD)
 		{
-			flags.set(VICTIM_AIR_SHIELD);
+			flags.set(FightSystem::VICTIM_AIR_SHIELD);
 		}
 		else if (shields[shield_num] == ICESHIELD)
 		{
-			flags.set(VICTIM_ICE_SHIELD);
+			flags.set(FightSystem::VICTIM_ICE_SHIELD);
 		}
 	}
 }
@@ -1250,6 +1362,7 @@ void Damage::post_init(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		ch_start_pos = GET_POS(ch);
 	}
+
 	if (victim_start_pos == -1)
 	{
 		victim_start_pos = GET_POS(victim);

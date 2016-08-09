@@ -312,6 +312,8 @@ struct zone_data
 	int mob_level;
 	// является ли зона городом
 	bool is_town;
+	// показывает количество репопов зоны, при условии, что в зону ходят
+	int count_reset;
 };
 
 extern zone_data *zone_table;

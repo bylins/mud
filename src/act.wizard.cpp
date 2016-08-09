@@ -112,7 +112,7 @@ extern BanList *ban;
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern bool CompareBits(FLAG_DATA flags, const char *names[], int affect);
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-
+void save_zone_count_reset();
 // extern functions
 int level_exp(CHAR_DATA * ch, int level);
 void hcontrol_list_houses(CHAR_DATA * ch);
@@ -189,6 +189,16 @@ void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+
+
+void save_zone_count_reset()
+{
+	for (int i = 0; i <= top_of_zone_table; ++i)
+	{
+		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
+		log(buf);
+	}
+}
 
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже

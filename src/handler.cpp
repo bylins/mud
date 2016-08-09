@@ -1307,6 +1307,12 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		return;
 	}
 
+	if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
+	{
+		char_to_room(ch, ch->get_from_room());
+		return;
+	}
+
 	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
 	{
 		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
@@ -1564,7 +1570,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			ch->carrying = object;
 		}
 
-	
+
 		object->carried_by = ch;
 		object->in_room = NOWHERE;
 		IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
@@ -4380,7 +4386,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 	//send_to_char(buf,ch);
 	dpr = get_damage_per_round(victim);
 
-	log("MERCHANT: hero (%s) mob (%s [%5d] ) charm (%f) dpr (%f)",GET_NAME(ch),GET_NAME(victim),GET_MOB_VNUM(victim),needed_cha,dpr);	
+	log("MERCHANT: hero (%s) mob (%s [%5d] ) charm (%f) dpr (%f)",GET_NAME(ch),GET_NAME(victim),GET_MOB_VNUM(victim),needed_cha,dpr);
 
 	if (difference <= 0)
 		price = dpr * (1.0 - 0.01 * stat_overlimit);

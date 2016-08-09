@@ -428,6 +428,21 @@ void OBJ_DATA::unset_enchant()
                 }
 
         }
+		// Возврат эфектов
+	obj_flags.affects = obj_proto[item_number]->obj_flags.affects;
+	// поскольку все обнулилось можно втыкать слоты для ковки
+	if (OBJ_FLAGGED(obj_proto.at(item_number), EExtraFlag::ITEM_WITH3SLOTS))
+	{
+		set_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
+	}
+	else if (OBJ_FLAGGED(obj_proto.at(item_number), EExtraFlag::ITEM_WITH2SLOTS))
+	{
+		set_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
+	}
+	else if (OBJ_FLAGGED(obj_proto.at(item_number), EExtraFlag::ITEM_WITH1SLOT))
+	{
+		 set_extraflag(EExtraFlag::ITEM_WITH1SLOT);
+	}
     unset_extraflag(EExtraFlag::ITEM_MAGIC);
 
 }

@@ -32,6 +32,7 @@
 #include "player_races.hpp"
 #include "magic.h"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "char_obj_utils.inl"
 #include "utils.h"
 #include "structs.h"
@@ -2069,18 +2070,18 @@ int npc_loot(CHAR_DATA * ch)
 							continue;
 						}
 						// Есть ключ?
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
+						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED) &&
 								has_key(ch, GET_OBJ_VAL(loot_obj, 2)))
 							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
 						// ...или взломаем?
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
+						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED) &&
 								ch->get_skill(SKILL_PICK_LOCK) &&
-								ok_pick(ch, 0, obj, 0, SCMD_PICK))
+								ok_pick(ch, 0, loot_obj, 0, SCMD_PICK))
 							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
 						// Эх, не открыть. Ну ладно.
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
+						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED))
 							continue;
-						TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED);
+						TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_CLOSED);
 						for (cobj = loot_obj->contains; cobj; cobj = cnext_obj)
 						{
 							cnext_obj = cobj->next_content;

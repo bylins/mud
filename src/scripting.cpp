@@ -1400,7 +1400,7 @@ BOOST_PYTHON_MODULE(mud)
 	"channel  канал, в который будет записано сообщение (comm.h). в настоящее время может принимать значения constants.SYSLOG, constants.ERRLOG и constants.IMLOG.\n"
 	"to_file  Записывать ли сообщение так же в файл, помимо вывода его иммам");
 	def("send_all", send_to_all, (py::arg("msg")),
-"Шлет сообщение msg всем игрокам.");	
+"Шлет сообщение msg всем игрокам.");
 	def("find_skill_num", find_skill_num, "Возвращает номер скила по его названию.");
 	def("find_spell_num", find_spell_num, "Возвращает номер спелла по его названию.");
 	def("get_mob_proto", get_mob_proto, "Возвращает моба из базы прототипов с заданым rnum.");
@@ -1510,7 +1510,7 @@ BOOST_PYTHON_MODULE(mud)
 		.def("quested_get", &CharacterWrapper::quested_get_text, "Возвращает строку квестовой информации, сохраненной под заданым номером vnum.")
 		.add_property("quested_text", &CharacterWrapper::quested_print, "Вся информация по квестам в текстовом виде.")
 		.add_property("wait", &CharacterWrapper::get_wait, &CharacterWrapper::set_wait, "Сколько циклов ждать")
-		
+
 	;
 
 	class_<affected_t>("ObjAffectedArray", "Массив из шести модификаторов объекта.", no_init)
@@ -1689,6 +1689,7 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(AFF_ROOM_RUNE_LABEL);
     DEFINE_CONSTANT(AFF_ROOM_FORBIDDEN);
     DEFINE_CONSTANT(AFF_ROOM_HYPNOTIC_PATTERN);
+    DEFINE_CONSTANT(AFF_ROOM_EVARDS_BLACK_TENTACLES);
     DEFINE_CONSTANT(EX_ISDOOR);
     DEFINE_CONSTANT(EX_CLOSED);
     DEFINE_CONSTANT(EX_LOCKED);
@@ -1875,6 +1876,7 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(MOB_GUARDIAN);
     DEFINE_CONSTANT(MOB_IGNORE_FORBIDDEN);
     DEFINE_CONSTANT(MOB_NO_BATTLE_EXP);
+    DEFINE_CONSTANT(MOB_NOHAMER);
     DEFINE_CONSTANT(MOB_FIREBREATH);
     DEFINE_CONSTANT(MOB_GASBREATH);
     DEFINE_CONSTANT(MOB_FROSTBREATH);
@@ -2468,10 +2470,10 @@ BOOST_PYTHON_MODULE(constants)
 }
 
 void scripting::init()
-{	
-	
-	PyImport_AppendInittab ("mud", PyInit_mud ); 
-	PyImport_AppendInittab ("constants", PyInit_constants ); 
+{
+
+	PyImport_AppendInittab ("mud", PyInit_mud );
+	PyImport_AppendInittab ("constants", PyInit_constants );
 	Py_InitializeEx(0); //pass 0 to skip initialization registration of signal handlers
 	PyEval_InitThreads();
 	log("Using python version %s", Py_GetVersion());
@@ -2615,7 +2617,7 @@ typedef std::vector<PythonUserCommand> python_command_list_t;
 	{
 		// ����������, ������� ��, �������������� i->command � koi8-r, �� � �� ����, ����� ����� ���
 		if (!boost::starts_with(i->command_koi8r, command)) continue;
-		
+
 		//Copied from interpreter.cpp
 		if (IS_NPC(ch) && i->minimum_level >= LVL_IMMORT)
 		{

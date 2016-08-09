@@ -169,7 +169,7 @@
 #define ESC "\x1B"  /* esc character */
 
 #define MXPMODE(arg) ESC "[" #arg "z"
-
+extern void save_zone_count_reset();
 // flags for show_list_to_char 
 
 enum {
@@ -1352,6 +1352,9 @@ int shutting_down(void)
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, desc_count(wait / 60, WHAT_MINu));
 		send_to_all(buf);
 		lastmessage = time(NULL);
+		// на десятой секунде засейвим нужное нам в сислог
+		if (wait == 10)
+			save_zone_count_reset();
 	}
 	return (FALSE);
 }

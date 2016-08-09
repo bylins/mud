@@ -2,6 +2,25 @@
 #define _AFFECTHANDLER_HPP_
 #include "char.hpp"
 
+
+// класс новых аффектов
+class AffectParent {
+	// чар, который кастанул цель
+	CHAR_DATA *ch;
+	// чар, на которого касстанули аффект
+	CHAR_DATA *vict;
+	// сколько тиков осталось висеть на чаре
+	int time;
+	// частота, которая показывает, как часто за тик дергается данный аффект
+	const int freq;
+
+public:
+	AffectParent(CHAR_DATA *character, CHAR_DATA *victim, int time, int frequency);
+	void DoAffect();
+};
+
+
+
 //классы для конфигурирования обработчиков Handler()
 class DamageActorParameters {
 public:
@@ -19,14 +38,14 @@ public:
 	int damage;
 };
 
-
 class BattleRoundParameters{
 public:
 	BattleRoundParameters(CHAR_DATA* actor) : ch(actor) {};
 	CHAR_DATA* ch;
 };
 
-class StopFightParameters{
+class StopFightParameters
+{
 public:
 	StopFightParameters(CHAR_DATA* actor) : ch(actor) {};
 	CHAR_DATA* ch;
@@ -56,6 +75,19 @@ private:
 	bool damToMe_;
 	bool damFromMe_;
 };
+
+//Polud функция, вызывающая обработчики аффектов, если они есть
+template <class S>
+void handle_affects(S& params) //тип params определяется при вызове функции
+{
+	for (auto aff = params.ch->affected; aff; aff = aff->next)
+	{
+		if (aff->handler)
+		{
+			aff->handler->Handle(params); //в зависимости от типа params вызовется нужный Handler
+		}
+	}
+}
 
 #endif
 
