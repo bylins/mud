@@ -6943,7 +6943,7 @@ int create_entry(const char *name)
 // read and allocate space for a '~'-terminated string from a given file
 char *fread_string(FILE* fl, char* /*error*/)
 {
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[1 + MAX_STRING_LENGTH];
 	char* to = buffer;
 
 	bool done = false;
@@ -6965,24 +6965,23 @@ char *fread_string(FILE* fl, char* /*error*/)
 				}
 				else
 				{
-					*(to++) = '\0';
 					done = true;
 					break;
 				}
 			}
 
 			const char c = *(from++);
-			*(to++) = c;
-
 			if ('\0' == c)
 			{
 				break;
 			}
+			*(to++) = c;
 		}
 
 		remained -= to - chunk_beginning;
 	}
-	
+	*to = '\0';
+
 	return strdup(buffer);
 }
 
