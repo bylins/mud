@@ -1045,12 +1045,21 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, arg);
 
+	/*
 	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)))|| !ch->get_skill(SKILL_BASH))
 	{
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-
+	*/
+	if (!ch->get_skill(SKILL_BASH))
+	{
+		send_to_char("Вы не знаете как.\r\n", ch);
+		return;
+	}
+	// отключил проверку баша всем (посмотрим работает ли)
+	
+	
 	if (onhorse(ch))
 		return;
 
