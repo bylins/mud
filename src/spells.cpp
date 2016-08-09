@@ -1472,6 +1472,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
 			// shapirus: !train для чармисов
 			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
+			helpee->set_skill(GET_REMORT(ch));
 			helpee->set_skill(SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			Crash_crashsave(ch);

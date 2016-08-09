@@ -552,6 +552,19 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent)
 		skills[skill_num] = percent;
 }
 
+void CHAR_DATA::set_skill(short remort)
+{
+int skill;
+	for (auto it=skills.begin();it!=skills.end();it++)
+	{
+		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
+		if (skill > 80 + remort*5)
+			it->second = 80 + remort*5;
+		
+	}
+
+}
+
 void CHAR_DATA::set_morphed_skill(const ESkill skill_num, int percent)
 {
 	current_morph_->set_skill(skill_num, percent);
