@@ -206,7 +206,6 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if ((IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT)) || (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_NOFIGHT)))
 		{           
-		send_to_all("—брос атаки в бою");
 		return;
 		}
 
