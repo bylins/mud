@@ -305,12 +305,13 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 // * Снятие аффектов с чара при смерти/уходе в дт.
 void reset_affects(CHAR_DATA *ch)
 {
-	AFFECT_DATA<EApplyLocation> *naf;
+	auto naf = ch->affected.begin();
 
-	for (auto af = ch->affected; af; af = naf)
+	for (auto af = naf; af != ch->affected.end(); af = naf)
 	{
-		naf = af->next;
-		if (!IS_SET(af->battleflag, AF_DEADKEEP))
+		++naf;
+		const auto& affect = *af;
+		if (!IS_SET(affect->battleflag, AF_DEADKEEP))
 		{
 			affect_remove(ch, af);
 		}
@@ -365,7 +366,7 @@ void forget_all_spells(CHAR_DATA *ch)
 		af.duration = pc_duration(ch, max_slot*RECALL_SPELLS_INTERVAL+SECS_PER_PLAYER_AFFECT, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_RECALL_SPELLS);
 		af.battleflag = AF_PULSEDEC | AF_DEADKEEP;
-		affect_join(ch, &af, 0, 0, 0, 0);
+		affect_join(ch, af, 0, 0, 0, 0);
 	}
 }
 
@@ -792,9 +793,10 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		{
 			exp *= Bonus::get_mult_bonus();
 		}
-		if (!IS_NPC(ch) && ch->affected)
+
+		if (!IS_NPC(ch) && !ch->affected.empty())
 		{ 
-			for (auto aff = ch->affected; aff; aff = aff->next)
+			for (const auto aff : ch->affected)
 			{
 				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
 				{
@@ -802,6 +804,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 				}
 			}
 		}
+
 		exp = MIN(max_exp_gain_pc(ch), exp);
 		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n",
 		exp, desc_count(exp, WHAT_POINT));

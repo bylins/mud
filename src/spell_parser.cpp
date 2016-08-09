@@ -3094,7 +3094,6 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	CHAR_DATA *tch;
 	OBJ_DATA *tobj;
 	ROOM_DATA *troom;
-	AFFECT_DATA<EApplyLocation> *aff;
 
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;
@@ -3108,16 +3107,19 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		return;
 	}
 
-	if (ch->affected)
+	if (!ch->affected.empty())
 	{
-		for (aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
-			if ((aff->location == APPLY_PLAQUE) && (number (1,100) <10)) // лихорадка 10% фэйл закла
+			if (aff->location == APPLY_PLAQUE
+				&& number(1, 100) < 10) // лихорадка 10% фэйл закла
 			{
 				send_to_char("Вас трясет лихорадка, вы не смогли сконцентрироваться на произнесении заклинания.\r\n", ch);
 				return;
 			}
-			if ((aff->location == APPLY_MADNESS) && (number (1,100) <20)) // безумие 20% фэйл закла
+
+			if (aff->location == APPLY_MADNESS
+				&& number(1, 100) < 20) // безумие 20% фэйл закла
 			{
 				send_to_char("Начав безумно кричать, вы забыли, что хотели произнести.\r\n", ch);
 				return;

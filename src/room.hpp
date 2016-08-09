@@ -51,6 +51,8 @@ struct room_property_data
 
 struct ROOM_DATA
 {
+	using room_affects_list_t = std::list<AFFECT_DATA<ERoomApplyLocation>::shared_ptr>;
+
 	ROOM_DATA();
 
 	room_vnum number;	// Rooms number  (vnum)                //
@@ -77,7 +79,7 @@ struct ROOM_DATA
 	OBJ_DATA *contents;	// List of items in room              //
 	CHAR_DATA *people;	// List of NPC / PC in room           //
 
-	AFFECT_DATA<ERoomApplyLocation> *affected;	// affected by what spells       //
+	room_affects_list_t affected;	// affected by what spells       //
 	FLAG_DATA affected_by;	// флаги которые в отличии от room_flags появляются от аффектов
 							//и не могут быть записаны на диск
 

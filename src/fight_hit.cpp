@@ -131,7 +131,7 @@ void haemorragia(CHAR_DATA * ch, int percent)
 
 	for (int i = 0; i < 3; i++)
 	{
-		affect_join(ch, &af[i], TRUE, FALSE, TRUE, FALSE);
+		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
 	}
 }
 
@@ -733,9 +733,10 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				}
 				af[i].duration += pc_duration(victim, GET_REMORT(ch)/2 + extra_duration, 0, 0, 0, 0);
 			}
-			affect_join(victim, af + i, TRUE, FALSE, TRUE, FALSE);
+			affect_join(victim, af[i], TRUE, FALSE, TRUE, FALSE);
 		}
 	}
+
 	if (to_char)
 	{
 		sprintf(buf, "&G&qВаше точное попадание %s.&Q&n", to_char);
@@ -743,6 +744,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		sprintf(buf, "Точное попадание $n1 %s.", to_char);
 		act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
+
 	if (to_vict)
 	{
 		sprintf(buf, "&R&qМеткое попадание $n1 %s.&Q&n", to_vict);
@@ -2922,7 +2924,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 			af.modifier = 0;
 			af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			affect_join(victim, af, TRUE, FALSE, TRUE, FALSE);
 			sprintf(buf, "&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -2945,7 +2947,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 			af.modifier = 0;
 			af.duration = pc_duration(victim, 2, 0, 0, 0, 0);
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			affect_join(victim, af, TRUE, FALSE, TRUE, FALSE);
 			sprintf(buf, "&R&qВаше сознание помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -2968,7 +2970,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 			af.modifier = 0;
 			af.duration = pc_duration(victim, 3, 0, 0, 0, 0);
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			affect_join(victim, af, TRUE, FALSE, TRUE, FALSE);
 			sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);

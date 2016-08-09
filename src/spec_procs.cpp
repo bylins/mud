@@ -388,12 +388,15 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 	sprintf(buf, "Вы владеете следующими умениями :\r\n");
 
 	strcpy(buf2, buf);
-	if (!IS_NPC(ch) && ch->affected)
+	if (!IS_NPC(ch)
+		&& !ch->affected.empty())
 	{
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
 			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с скилл бонусом
-			bonus = aff->modifier; // сколько крут стал 
+			{
+				bonus = aff->modifier; // сколько крут стал 
+			}
 		}
 	}
 

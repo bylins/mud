@@ -1760,14 +1760,14 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		af.location = APPLY_STR;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		af.type = SPELL_POISON;
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		ch->Poisoner = 0;
 	}
 	if (subcmd == SCMD_EAT
@@ -2804,16 +2804,18 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
     CHAR_DATA *caster;
     int tp, lag = 0;
-    const char *targets[] = { "костер",
-                                                "пламя",
-                                                "огонь",
-                                                "fire",
-                                                "метку",
-                                                "надпись",
-                                                "руны",
-                                                "label",
-                                                "\n"
-                                                };
+	const char *targets[] =
+	{
+		"костер",
+		"пламя",
+		"огонь",
+		"fire",
+		"метку",
+		"надпись",
+		"руны",
+		"label",
+		"\n"
+	};
 
     if (IS_NPC(ch))
 	{
@@ -2844,9 +2846,12 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
             send_to_char("А тут топтать и нечего :)\r\n", ch);
         }
         break;
+
     case 1:
-		auto aff = room_affected_by_spell(world[ch->in_room], SPELL_RUNE_LABEL);
-		if (aff
+		const auto& room = world[ch->in_room];
+		const auto aff_i = find_room_affect(room, SPELL_RUNE_LABEL);
+		const auto& aff = *aff_i;
+		if (aff_i != room->affected.end()
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
 				|| IS_IMMORTAL(ch)
 				|| PRF_FLAGGED(ch, PRF_CODERINFO)))
@@ -2865,7 +2870,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
                     send_to_char(buf, caster);
                 }
             }
-            affect_room_remove(world[ch->in_room], aff);
+            affect_room_remove(world[ch->in_room], aff_i);
             lag = 3;
         }
         else
@@ -2874,6 +2879,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
         }
         break;
     }
+
     //Выдадим-ка лаг за эти дела.
     if (!WAITLESS(ch))
 	{
@@ -3418,7 +3424,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 	af.battleflag = 0;
 
-	affect_join_fspell(ch, &af);
+	affect_join_fspell(ch, af);
 
 	act("Громко чавкая, $N сожрал$G труп.", TRUE, ch, obj, ch, TO_ROOM | TO_ARENA_LISTEN);
 	act("Похоже, лакомство пришлось по вкусу.", TRUE, ch, NULL, ch->master, TO_VICT);

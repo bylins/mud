@@ -895,7 +895,7 @@ void check_berserk(CHAR_DATA * ch)
 			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", FALSE, ch, 0, 0, TO_CHAR);
 			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
 		}
-		affect_join(ch, &af, TRUE, FALSE, TRUE, FALSE);
+		affect_join(ch, af, TRUE, FALSE, TRUE, FALSE);
 	}
 }
 
@@ -950,7 +950,7 @@ void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		af.bitvector = to_underlying(EAffectFlag::AFF_LIGHT_WALK);
 		send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
 	}
-	affect_to_char(ch, &af);
+	affect_to_char(ch, af);
 }
 
 //подгонка и перешивание
@@ -1230,7 +1230,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 	af.battleflag = 0;
 	af.bitvector = 0;
-	affect_to_char(follower, &af);
+	affect_to_char(follower, af);
 	follower->mob_specials.capable_spell = spellnum;
 }
 
@@ -1344,7 +1344,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
 		af.battleflag = AF_PULSEDEC;
-		affect_to_char(ch, &af);
+		affect_to_char(ch, af);
 	}
 	else
 	{

@@ -406,7 +406,8 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_SNEAK);
 	}
-	affect_to_char(ch, &af);
+
+	affect_to_char(ch, af);
 }
 
 void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
@@ -440,7 +441,9 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	if (IS_IMMORTAL(ch))
+	{
 		affect_from_char(ch, SPELL_CAMOUFLAGE);
+	}
 
 	if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 	{
@@ -459,6 +462,7 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	af.modifier = world[ch->in_room]->zone;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
+
 	if (percent > prob)
 	{
 		af.bitvector = 0;
@@ -467,7 +471,8 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_CAMOUFLAGE);
 	}
-	affect_to_char(ch, &af);
+
+	affect_to_char(ch, af);
 	if (!IS_IMMORTAL(ch))
 	{
 		timed.skill = SKILL_CAMOUFLAGE;
@@ -499,6 +504,7 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы уже пытаетесь спрятаться.\r\n", ch);
 		return;
 	}
+
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		send_to_char("Вы слепы и не видите куда прятаться.\r\n", ch);
@@ -522,6 +528,7 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
+
 	if (percent > prob)
 	{
 		af.bitvector = 0;
@@ -530,7 +537,8 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_HIDE);
 	}
-	affect_to_char(ch, &af);
+
+	affect_to_char(ch, af);
 }
 
 void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
@@ -960,7 +968,9 @@ void do_courage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af[3].battleflag = 0;
 
 	for (i = 0; i < 4; i++)
-		affect_join(ch, &af[i], TRUE, FALSE, TRUE, FALSE);
+	{
+		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
+	}
 
 	send_to_char("Вы пришли в ярость.\r\n", ch);
 	if ((obj = GET_EQ(ch, WEAR_WIELD)) || (obj = GET_EQ(ch, WEAR_BOTHS)))
@@ -1083,7 +1093,7 @@ int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 
 int low_charm(CHAR_DATA * ch)
 {
-	for (auto aff = ch->affected; aff; aff = aff->next)
+	for (const auto& aff : ch->affected)
 	{
 		if (aff->type == SPELL_CHARM && aff->duration <= 1)
 		{
@@ -1574,7 +1584,7 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
 		int loyalty = 0;
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
 			if (aff->type == SPELL_CHARM)
 			{
@@ -2812,7 +2822,7 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = i.location;
 			af.bitvector = i.bitvector;
 			af.battleflag = i.battleflag;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		}
 	}
 
@@ -3991,14 +4001,14 @@ void do_bandage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af.duration = pc_duration(ch, 10, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffectFlag::AFF_BANDAGE);
 	af.battleflag = AF_PULSEDEC;
-	affect_join(ch, &af, 0, 0, 0, 0);
+	affect_join(ch, af, 0, 0, 0, 0);
 
 	af.type = SPELL_NO_BANDAGE;
 	af.location = APPLY_NONE;
 	af.duration = pc_duration(ch, 60, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffectFlag::AFF_NO_BANDAGE);
 	af.battleflag = AF_PULSEDEC;
-	affect_join(ch, &af, 0, 0, 0, 0);
+	affect_join(ch, af, 0, 0, 0, 0);
 
 	bandage->set_weight(bandage->get_weight() - 1);
 	IS_CARRYING_W(ch) -= 1;

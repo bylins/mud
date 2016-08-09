@@ -1017,7 +1017,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 		}
 		else
 		{
-			for (auto aff = i->affected; aff; aff = aff->next)
+			for (const auto& aff : i->affected)
 			{
 				if (aff->type == SPELL_CHARM)
 				{
@@ -5735,17 +5735,20 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 
 	// Routine to show what spells a char is affected by
-	if (ch->affected)
+	if (!ch->affected.empty())
 	{
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i)
 		{
-			int mod;
+			const auto aff = *affect_i;
+
 			if (aff->type == SPELL_SOLOBONUS)
 			{
 				continue;
 			}
+
 			*buf2 = '\0';
 			strcpy(sp_name, spell_name(aff->type));
+			int mod = 0;
 			if (aff->battleflag == AF_PULSEDEC)
 			{
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
@@ -5763,9 +5766,14 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			*buf2 = '\0';
 			if (!IS_IMMORTAL(ch))
 			{
-				if (aff->next && aff->type == aff->next->type)
+				if (affect_i != ch->affected.end())
 				{
-					continue;
+					auto next_affect_i = affect_i;
+					const auto& next_affect = *++next_affect_i;
+					if (aff->type == next_affect->type)
+					{
+						continue;
+					}
 				}
 			}
 			else
@@ -5794,7 +5802,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			send_to_char(strcat(buf, "\r\n"), ch);
 		}
 // отображение наград
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
 		    if (aff->type == SPELL_SOLOBONUS)
 		    {
@@ -5821,6 +5829,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		    }
 		}
 	}
+
 	if (ch->is_morphed())
 	{
 		*buf2 = '\0';

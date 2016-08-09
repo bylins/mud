@@ -3329,7 +3329,6 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	check_room_flags(room_nr);
 
 	// Обнуляем флаги от аффектов и сами аффекты на комнате.
-	world[room_nr]->affected = NULL;
 	world[room_nr]->affected_by.clear();
 	// Обнуляем базовые параметры (пока нет их загрузки)
 	memset(&world[room_nr]->base_property, 0, sizeof(room_property_data));
@@ -6580,14 +6579,17 @@ int is_empty(zone_rnum zone_nr)
 	}
 
 //Проверим, нет ли в зоне метки для врат, чтоб не абузили.
-    for (std::list<ROOM_DATA*>::iterator it = RoomSpells::aff_room_list.begin();it != RoomSpells::aff_room_list.end();++it)
-        if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
-        {
-    	    // если в зоне метка
-            return 0;
-        }
+    for (auto it = RoomSpells::aff_room_list.begin(); it != RoomSpells::aff_room_list.end(); ++it)
+	{
+		if ((*it)->zone == zone_nr
+			&& find_room_affect(*it, SPELL_RUNE_LABEL) != (*it)->affected.end())
+		{
+			// если в зоне метка
+			return 0;
+		}
+	}
 
-	return (1);
+	return 1;
 }
 
 int mobs_in_room(int m_num, int r_num)
@@ -7267,18 +7269,24 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		REMOVE_FROM_LIST(ch->helpers, ch->helpers, [](auto list) -> auto& { return list->next_helper; });
 	}
 
-	while (ch->affected)
+	while (!ch->affected.empty())
 	{
-		affect_remove(ch, ch->affected);
+		affect_remove(ch, ch->affected.begin());
 	}
 
 // Снимаем весь стафф
 	for (i = 0; i < NUM_WEARS; i++)
+	{
 		if (GET_EQ(ch, i))
+		{
 			obj_to_char(unequip_char(ch, i), ch);
+		}
+	}
 
 	while (ch->timed)
+	{
 		timed_from_char(ch, ch->timed);
+	}
 
 	ch->clear_skills();
 
@@ -7287,10 +7295,16 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
 		GET_SPELL_MEM(ch, i) = 0;
 	}
+
 	while (ch->timed_feat)
+	{
 		timed_feat_from_char(ch, ch->timed_feat);
+	}
+
 	for (i = 1; i < MAX_FEATS; i++)
+	{
 		UNSET_FEAT(ch, i);
+	}
 
 	GET_HIT(ch) = GET_MAX_HIT(ch) = 10;
 	GET_MOVE(ch) = GET_MAX_MOVE(ch) = 82;
@@ -7986,13 +8000,7 @@ void room_free(ROOM_DATA * room)
 		room->ing_list = NULL;
 	}
 
-	AFFECT_DATA<ERoomApplyLocation> *next_af;
-	for (auto af = room->affected; af; af = next_af)
-	{
-		next_af = af->next;
-		free(af);
-	}
-	room->affected = NULL;
+	room->affected.clear();
 }
 
 void LoadGlobalUID(void)

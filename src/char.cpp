@@ -165,7 +165,7 @@ void CHAR_DATA::reset()
 	PlayerI::reset();
 }
 
-bool CHAR_DATA::has_any_affect(const affects_list_t affects)
+bool CHAR_DATA::has_any_affect(const affects_list_t& affects)
 {
 	for (const auto& affect : affects)
 	{
@@ -223,7 +223,6 @@ void CHAR_DATA::zero_init()
 	punctual_wait = 0;
 	last_comm = 0;
 	player_specials = 0;
-	affected = 0;
 	timed = 0;
 	timed_feat = 0;
 	carrying = 0;
@@ -360,14 +359,20 @@ void CHAR_DATA::purge(bool destructor)
 			free(this->mob_specials.Questor);
 	}
 
-	while (this->affected)
-		affect_remove(this, this->affected);
+	while (!this->affected.empty())
+	{
+		affect_remove(this, this->affected.begin());
+	}
 
 	while (this->timed)
+	{
 		timed_from_char(this, this->timed);
+	}
 
 	if (this->desc)
-		this->desc->character = NULL;
+	{
+		this->desc->character = nullptr;
+	}
 
 	Celebrates::remove_from_mob_lists(this->id);
 

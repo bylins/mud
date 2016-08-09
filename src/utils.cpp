@@ -98,44 +98,42 @@ char AltToLat[] =
 
 const char *ACTNULL = "<NULL>";
 
-
 // return char with UID n
 CHAR_DATA *find_char(long n)
 {
-	CHAR_DATA *ch;
-	for (ch = character_list; ch; ch = ch->get_next())
+	for (CHAR_DATA* ch = character_list; ch; ch = ch->get_next())
 	{
 		if (GET_ID(ch) == n)
 		{
-			return (ch);
+			return ch;
 		}
 	}
-	return NULL;
+
+	return nullptr;
 }
+
 bool check_spell_on_player(CHAR_DATA *ch, int spell_num)
 {
-	for (auto af = ch->affected; af; af = af->next)
+	for (const auto af : ch->affected)
 	{
 		if (af->type == spell_num)
 		{
 			return true;
 		}
 	}
+
 	return false;
 }
-
 
 int MIN(int a, int b)
 {
 	return (a < b ? a : b);
 }
 
-
 int MAX(int a, int b)
 {
 	return (a > b ? a : b);
 }
-
 
 char * CAP(char *txt)
 {

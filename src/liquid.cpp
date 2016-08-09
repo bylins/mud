@@ -500,7 +500,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = APPLY_AC;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 			// **** Decrease HR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
@@ -508,7 +508,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = APPLY_HITROLL;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 			// **** Increase DR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
@@ -516,7 +516,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = APPLY_DAMROLL;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		}
 	}
 
@@ -532,13 +532,13 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		af.location = APPLY_STR;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		af.type = SPELL_POISON;
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		ch->Poisoner = 0;
 	}
 
@@ -719,7 +719,7 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		for (prob = 0; prob < 3; prob++)
 		{
-			affect_join(ch, &af[prob], TRUE, FALSE, TRUE, FALSE);
+			affect_join(ch, af[prob], TRUE, FALSE, TRUE, FALSE);
 		}
 		gain_condition(ch, DRUNK, amount);
 	}
@@ -1237,15 +1237,15 @@ void set_abstinent(CHAR_DATA *ch)
 
 	af.location = APPLY_AC;
 	af.modifier = 20;
-	affect_join(ch, &af, 0,0,0,0);
+	affect_join(ch, af, 0,0,0,0);
 
 	af.location = APPLY_HITROLL;
 	af.modifier = -2;
-	affect_join(ch, &af, 0,0,0,0);
+	affect_join(ch, af, 0,0,0,0);
 
 	af.location = APPLY_DAMROLL;
 	af.modifier = -2;
-	affect_join(ch, &af, 0,0,0,0);
+	affect_join(ch, af, 0,0,0,0);
 
 }
 
