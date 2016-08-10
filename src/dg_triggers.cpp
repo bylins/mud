@@ -550,10 +550,10 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 		{
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 			{
-				if (t->attach_type != MOB_TRIGGER)//детачим триги не для мобов
+				if (t->get_attach_type() != MOB_TRIGGER)//детачим триги не для мобов
 				{
 					sprintf(buf, "SYSERR: M-Trigger #%d has wrong attach_type %s expected %s char:%s[%d]!",
-						GET_TRIG_VNUM(t), attach_name[(int)t->attach_type], attach_name[MOB_TRIGGER], GET_PAD(ch, 0), GET_MOB_VNUM(ch));
+						GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[MOB_TRIGGER], GET_PAD(ch, 0), GET_MOB_VNUM(ch));
 					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 					sprintf(buf, "%d", GET_TRIG_VNUM(t));
 					remove_trigger(SCRIPT(ch), buf, &dummy);
@@ -1041,10 +1041,10 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int 
 	{
 		for (t = TRIGGERS(obj->get_script()); t; t = t->next)
 		{
-			if (t->attach_type != OBJ_TRIGGER)//детачим триги не для объектов
+			if (t->get_attach_type() != OBJ_TRIGGER)//детачим триги не для объектов
 			{
 				sprintf(buf, "SYSERR: O-Trigger #%d has wrong attach_type %s expected %s Object:%s[%d]!",
-					GET_TRIG_VNUM(t), attach_name[(int)t->attach_type], attach_name[OBJ_TRIGGER],
+					GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[OBJ_TRIGGER],
 					obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "undefined",
 					GET_OBJ_VNUM(obj));
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
@@ -1459,10 +1459,10 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 	room = world[IN_ROOM(actor)];
 	for (t = TRIGGERS(SCRIPT(room)); t; t = t->next)
 	{
-		if (t->attach_type != WLD_TRIGGER)//детачим триги не для комнат
+		if (t->get_attach_type() != WLD_TRIGGER)//детачим триги не для комнат
 		{
 			sprintf(buf, "SYSERR: W-Trigger #%d has wrong attach_type %s expected %s room:%s[%d]!",
-				GET_TRIG_VNUM(t), attach_name[(int)t->attach_type], attach_name[WLD_TRIGGER], room->name, room->number);
+				GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[WLD_TRIGGER], room->name, room->number);
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			sprintf(buf, "%d", GET_TRIG_VNUM(t));
 			remove_trigger(SCRIPT(room), buf, &dummy);
@@ -1484,21 +1484,20 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 			continue;
 		}
 
-		if (compare_cmd(GET_TRIG_NARG(t), GET_TRIG_ARG(t), cmd)
-				/* *GET_TRIG_ARG(t)=='*' ||
-				   !strn_cmp(GET_TRIG_ARG(t), cmd, strlen(GET_TRIG_ARG(t))) */
-		   )
+		if (compare_cmd(GET_TRIG_NARG(t), GET_TRIG_ARG(t), cmd))
 		{
 			if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
 			{
 				send_to_char("Сделать это в ваших снах?\r\n", actor);
 				return 1;
 			}
+
 			if (GET_POS(actor) == POS_FIGHTING)
 			{
 				send_to_char("Вы не можете это сделать в бою.\r\n", actor); //command триггер не будет работать в бою
 				return 1;
 			}
+
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			skip_spaces(&argument);
 			add_var_cntx(&GET_TRIG_VARS(t), "arg", argument, 0);

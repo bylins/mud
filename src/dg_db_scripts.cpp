@@ -158,7 +158,7 @@ void parse_trigger(FILE * trig_f, int nr)
 
 	get_line(trig_f, line);
 	k = sscanf(line, "%d %s %d", &attach_type, flags, t);
-	trig->attach_type = (byte) attach_type;
+	trig->set_attach_type((byte) attach_type);
 	asciiflag_conv(flags, &trig->trigger_type);
 	trig->narg = (k == 3) ? t[0] : 0;
 
@@ -273,7 +273,7 @@ void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg)
 {
 	trig_data_init(this_data);
 	this_data->nr = trg->nr;
-	this_data->attach_type = trg->attach_type;
+	this_data->set_attach_type(trg->get_attach_type());
 	this_data->data_type = trg->data_type;
 	this_data->name = str_dup(trg->name);
 	this_data->trigger_type = trg->trigger_type;
@@ -466,16 +466,16 @@ void assign_triggers(void *i, int type)
 			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
-				sprintf(buf, "SYSERR: trigger #%d non-existant, for mob #%d",
+				sprintf(buf, "SYSERR: trigger #%d non-existent, for mob #%d",
 					trigger_vnum, mob_index[mob->nr].vnum);
 				log("%s",buf);
 			}
 			else
 			{
-				if (trig_index[rnum]->proto->attach_type != MOB_TRIGGER)
+				if (trig_index[rnum]->proto->get_attach_type() != MOB_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for mob #%d",
-						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 						mob_index[mob->nr].vnum);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
@@ -514,11 +514,11 @@ void assign_triggers(void *i, int type)
 			}
 			else
 			{
-				if (trig_index[rnum]->proto->attach_type != OBJ_TRIGGER)
+				if (trig_index[rnum]->proto->get_attach_type() != OBJ_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for obj #%d",
 						trigger_vnum,
-						static_cast<int>(trig_index[rnum]->proto->attach_type),
+						static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 						obj->get_vnum());
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
@@ -553,10 +553,10 @@ void assign_triggers(void *i, int type)
 			}
 			else
 			{
-				if (trig_index[rnum]->proto->attach_type != WLD_TRIGGER)
+				if (trig_index[rnum]->proto->get_attach_type() != WLD_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for room #%d",
-						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 						room->number);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}

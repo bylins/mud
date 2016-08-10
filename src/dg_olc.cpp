@@ -146,17 +146,17 @@ void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 
 	get_char_cols(d->character);
 
-	if (trig->attach_type == MOB_TRIGGER)
+	if (trig->get_attach_type() == MOB_TRIGGER)
 	{
 		attach_type = "Mobiles";
 		sprintbit(GET_TRIG_TYPE(trig), trig_types, trgtypes);
 	}
-	else if (trig->attach_type == OBJ_TRIGGER)
+	else if (trig->get_attach_type() == OBJ_TRIGGER)
 	{
 		attach_type = "Objects";
 		sprintbit(GET_TRIG_TYPE(trig), otrig_types, trgtypes);
 	}
-	else if (trig->attach_type == WLD_TRIGGER)
+	else if (trig->get_attach_type() == WLD_TRIGGER)
 	{
 		attach_type = "Rooms";
 		sprintbit(GET_TRIG_TYPE(trig), wtrig_types, trgtypes);
@@ -197,7 +197,7 @@ void trigedit_disp_types(DESCRIPTOR_DATA * d)
 	int i, columns = 0;
 	const char **types;
 
-	switch (OLC_TRIG(d)->attach_type)
+	switch (OLC_TRIG(d)->get_attach_type())
 	{
 	case WLD_TRIGGER:
 		types = wtrig_types;
@@ -319,7 +319,9 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case TRIGEDIT_INTENDED:
 		if ((atoi(arg) >= MOB_TRIGGER) || (atoi(arg) <= WLD_TRIGGER))
-			OLC_TRIG(d)->attach_type = atoi(arg);
+		{
+			OLC_TRIG(d)->set_attach_type(atoi(arg));
+		}
 		OLC_VAL(d)++;
 		break;
 
@@ -576,7 +578,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 					"%d %s %d\n"
 					"%s~\n",
 					(GET_TRIG_NAME(trig)) ? (GET_TRIG_NAME(trig)) :
-					"unknown trigger", trig->attach_type, bitBuf,
+					"unknown trigger", trig->get_attach_type(), bitBuf,
 					GET_TRIG_NARG(trig), GET_TRIG_ARG(trig) ? GET_TRIG_ARG(trig) : "");
 
 			// Build the text for the script
@@ -745,10 +747,14 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 		sprintf(buf, "     %2d) [%s%d%s] %s%s%s", ++i, cyn,
 			trigger_vnum, nrm, cyn, trig_index[real_trigger(trigger_vnum)]->proto->name, nrm);
 		send_to_char(buf, d->character);
-		if (trig_index[real_trigger(trigger_vnum)]->proto->attach_type != OLC_ITEM_TYPE(d))
+		if (trig_index[real_trigger(trigger_vnum)]->proto->get_attach_type() != OLC_ITEM_TYPE(d))
+		{
 			sprintf(buf, "   %s** Mis-matched Trigger Type **%s\r\n", grn, nrm);
+		}
 		else
+		{
 			sprintf(buf, "\r\n");
+		}
 		send_to_char(buf, d->character);
 	}
 

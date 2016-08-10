@@ -436,7 +436,7 @@ private:
 		int stored;		// number of things in rent file            //
 		int(*func)(CHAR_DATA*, void*, int, char*);
 		char *farg;		// string argument for special function     //
-		struct trig_data *proto;	// for triggers... the trigger     //
+		trig_data *proto;	// for triggers... the trigger     //
 		int zone;			// mob/obj zone rnum //
 		size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 	};

@@ -79,7 +79,7 @@ typedef struct time_info_data TIME_INFO_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
-typedef struct trig_data TRIG_DATA;
+typedef class trig_data TRIG_DATA;
 
 // preamble ************************************************************
 
@@ -2003,7 +2003,7 @@ struct index_data
 	int stored;		// number of things in rent file            //
 	int(*func)(CHAR_DATA*, void*, int, char*);
 	char *farg;		// string argument for special function     //
-	struct trig_data *proto;	// for triggers... the trigger     //
+	trig_data *proto;	// for triggers... the trigger     //
 	int zone;			// mob/obj zone rnum //
 	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 };

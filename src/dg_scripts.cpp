@@ -901,17 +901,17 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 			CCYEL(ch, C_NRM), GET_TRIG_NAME(trig), CCNRM(ch, C_NRM),
 			CCGRN(ch, C_NRM), GET_TRIG_VNUM(trig), CCNRM(ch, C_NRM), GET_TRIG_RNUM(trig));
 
-	if (trig->attach_type == MOB_TRIGGER)
+	if (trig->get_attach_type() == MOB_TRIGGER)
 	{
 		send_to_char("Trigger Intended Assignment: Mobiles\r\n", ch);
 		sprintbit(GET_TRIG_TYPE(trig), trig_types, buf);
 	}
-	else if (trig->attach_type == OBJ_TRIGGER)
+	else if (trig->get_attach_type() == OBJ_TRIGGER)
 	{
 		send_to_char("Trigger Intended Assignment: Objects\r\n", ch);
 		sprintbit(GET_TRIG_TYPE(trig), otrig_types, buf);
 	}
-	else if (trig->attach_type == WLD_TRIGGER)
+	else if (trig->get_attach_type() == WLD_TRIGGER)
 	{
 		send_to_char("Trigger Intended Assignment: Rooms\r\n", ch);
 		sprintbit(GET_TRIG_TYPE(trig), wtrig_types, buf);
@@ -919,7 +919,7 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 	else
 	{
 		send_to_char(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
-					 static_cast<int>(trig->attach_type));
+			static_cast<int>(trig->get_attach_type()));
 	}
 
 	sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
@@ -998,17 +998,17 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 				CCGRN(ch, C_NRM), GET_TRIG_VNUM(t), CCNRM(ch, C_NRM), GET_TRIG_RNUM(t));
 		send_to_char(buf, ch);
 
-		if (t->attach_type == MOB_TRIGGER)
+		if (t->get_attach_type() == MOB_TRIGGER)
 		{
 			send_to_char("  Trigger Intended Assignment: Mobiles\r\n", ch);
 			sprintbit(GET_TRIG_TYPE(t), trig_types, buf1);
 		}
-		else if (t->attach_type == OBJ_TRIGGER)
+		else if (t->get_attach_type() == OBJ_TRIGGER)
 		{
 			send_to_char("  Trigger Intended Assignment: Objects\r\n", ch);
 			sprintbit(GET_TRIG_TYPE(t), otrig_types, buf1);
 		}
-		else if (t->attach_type == WLD_TRIGGER)
+		else if (t->get_attach_type() == WLD_TRIGGER)
 		{
 			send_to_char("  Trigger Intended Assignment: Rooms\r\n", ch);
 			sprintbit(GET_TRIG_TYPE(t), wtrig_types, buf1);
@@ -1016,7 +1016,7 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 		else
 		{
 			send_to_char(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
-						 static_cast<int>(t->attach_type));
+				static_cast<int>(t->get_attach_type()));
 		}
 
 		sprintf(buf, "  Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
@@ -1172,13 +1172,14 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	loc = (*loc_name) ? atoi(loc_name) : -1;
 
 	rn = real_trigger(tn);
-	if (rn >= 0 && ((is_abbrev(arg, "mtr") && trig_index[rn]->proto->attach_type != MOB_TRIGGER) ||
-					(is_abbrev(arg, "otr") && trig_index[rn]->proto->attach_type != OBJ_TRIGGER) ||
-					(is_abbrev(arg, "wtr") && trig_index[rn]->proto->attach_type != WLD_TRIGGER)))
+	if (rn >= 0
+		&& ((is_abbrev(arg, "mtr") && trig_index[rn]->proto->get_attach_type() != MOB_TRIGGER)
+			|| (is_abbrev(arg, "otr") && trig_index[rn]->proto->get_attach_type() != OBJ_TRIGGER)
+			|| (is_abbrev(arg, "wtr") && trig_index[rn]->proto->get_attach_type() != WLD_TRIGGER)))
 	{
 		tn = (is_abbrev(arg, "mtr") ? 0 : is_abbrev(arg, "otr") ? 1 : is_abbrev(arg, "wtr") ? 2 : 3);
 		sprintf(buf, "Trigger %d (%s) has wrong attach_type %s expected %s.\r\n",
-				tn, GET_TRIG_NAME(trig_index[rn]->proto), attach_name[(int)trig_index[rn]->proto->attach_type], attach_name[tn]);
+				tn, GET_TRIG_NAME(trig_index[rn]->proto), attach_name[(int)trig_index[rn]->proto->get_attach_type()], attach_name[tn]);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -4317,7 +4318,8 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, struct cmdlis
 	extern TIME_INFO_DATA time_info;
 	extern unsigned long dg_global_pulse;
 
-	if (trig->attach_type == MOB_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH))
+	if (trig->get_attach_type() == MOB_TRIGGER
+		&& IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH))
 	{
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Используется wait в DEATH триггере '%s' (VNUM=%d).",
@@ -4469,16 +4471,18 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 
 	// locate and load the trigger specified
 	trignum = real_trigger(atoi(trignum_s));
-	if (trignum >=0 && (((c) && trig_index[trignum]->proto->attach_type != MOB_TRIGGER) ||
-						((o) && trig_index[trignum]->proto->attach_type != OBJ_TRIGGER) ||
-						((r) && trig_index[trignum]->proto->attach_type != WLD_TRIGGER)))
+	if (trignum >=0
+		&& (((c) && trig_index[trignum]->proto->get_attach_type() != MOB_TRIGGER)
+			|| ((o) && trig_index[trignum]->proto->get_attach_type() != OBJ_TRIGGER)
+			|| ((r) && trig_index[trignum]->proto->get_attach_type() != WLD_TRIGGER)))
 	{
 		sprintf(buf2, "attach trigger : '%s' invalid attach_type: %s expected %s", trignum_s,
-				attach_name[(int)trig_index[trignum]->proto->attach_type],
+				attach_name[(int)trig_index[trignum]->proto->get_attach_type()],
 				attach_name[(c?0:(o?1:(r?2:3)))]);
 		trig_log(trig, buf2);
 		return;
 	}
+
 	if (trignum < 0 || !(newtrig = read_trigger(trignum)))
 	{
 		sprintf(buf2, "attach invalid trigger: '%s'", trignum_s);
@@ -5850,14 +5854,20 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (trig_index[nr]->vnum >= first)
 		{
 			std::string out = "";
-			if (trig_index[nr]->proto->attach_type == MOB_TRIGGER)
+			if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER)
+			{
 				out += "[MOB_TRIG]";
-			if (trig_index[nr]->proto->attach_type == OBJ_TRIGGER)
-				out += "[OBJ_TRIG]";
-			if (trig_index[nr]->proto->attach_type == WLD_TRIGGER)
-				out += "[WLD_TRIG]";
-			
+			}
 
+			if (trig_index[nr]->proto->get_attach_type() == OBJ_TRIGGER)
+			{
+				out += "[OBJ_TRIG]";
+			}
+
+			if (trig_index[nr]->proto->get_attach_type() == WLD_TRIGGER)
+			{
+				out += "[WLD_TRIG]";
+			}
 			
 			sprintf(buf, "%5d. [%5d] %s\r\nПрикрепленные триггеры: ", ++found, trig_index[nr]->vnum, trig_index[nr]->proto->name);
 			out += buf;
@@ -5872,23 +5882,33 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						sprintf(buf, " [%d]", (*it).second[i]);
 						out_tmp += buf;
 					}
+
 					if ((*it).first != -1)
+					{
 						out += std::to_string((*it).first) + " : ";
+					}
+
 					out += out_tmp + "]";				
 				}
 				
 				out += "\r\n";
 			}
 			else
+			{
 				out += "Отсутствуют\r\n";
+			}
 			strcat(pagebuf, out.c_str());
 		}
 	}
 
 	if (!found)
+	{
 		send_to_char("No triggers were found in those parameters.\n\r", ch);
+	}
 	else
+	{
 		page_string(ch->desc, pagebuf, TRUE);
+	}
 }
 
 int real_trigger(int vnum)
@@ -6042,6 +6062,27 @@ SCRIPT_DATA::~SCRIPT_DATA()
 {
 	extract_script(this);
 	free_varlist(global_vars);
+}
+
+trig_data::trig_data() :
+	nr(0),
+	attach_type(-1),
+	data_type(-1),
+	name(nullptr),
+	trigger_type(-1),
+	cmdlist(nullptr),
+	curr_state(nullptr),
+	narg(-1),
+	arglist(nullptr),
+	depth(-1),
+	loops(-1),
+	wait_event(nullptr),
+	purged(-1),
+	var_list(nullptr),
+	next(nullptr),
+	next_in_world(nullptr)
+{
+
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

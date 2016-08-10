@@ -133,11 +133,20 @@ struct trig_var_data
 };
 
 // structure for triggers //
-struct trig_data
+class trig_data
 {
-	
+public:
+	trig_data();
+
+	void set_attach_type(const byte _) { attach_type = _; }
+	int get_attach_type() const { return attach_type; }
+
 	sh_int nr;		// trigger's rnum                  //
+
+private:
 	byte attach_type;	// mob/obj/wld intentions          //
+
+public:
 	byte data_type;		// type of game_data for trig      //
 	char *name;		// name of trigger                 //
 	long trigger_type;	// type of trigger (for bitvector) //
