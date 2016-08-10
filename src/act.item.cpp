@@ -2856,10 +2856,10 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-#define MAX_REMOVE  12
+#define MAX_REMOVE  13
 const int RemoveSpell[MAX_REMOVE] = { SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS, SPELL_CURSE, SPELL_PLAQUE,
-									  SPELL_SILENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL, SPELL_CONE_OF_COLD,
-									  SPELL_DEAFNESS };
+			SPELL_SILENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL, SPELL_CONE_OF_COLD,
+			SPELL_DEAFNESS, SPELL_BATTLE };
 
 void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -2894,6 +2894,8 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
+	
+
 	percent = number(1, skill_info[SKILL_AID].max_percent);
 	prob = calculate_skill(ch, SKILL_AID, vict);
 
@@ -2910,14 +2912,16 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		need = TRUE;
 		if (success)
-		{
-			int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
-			int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
-			GET_HIT(vict) += add;
+		{	percent = calculate_skill(ch, SKILL_AID, vict);
+			prob = GET_LEVEL(vict) * percent * 0.5;
+			send_to_char(ch, "&RОтхилено %d хитов, скилл %d\r\n", prob, percent);
+			GET_HIT(vict) += prob;
+			GET_HIT(vict) = MIN(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
 			update_pos(vict);
 		}
 	}
-	count = MIN(MAX_REMOVE, MAX_REMOVE * prob / 100);
+	count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
+	send_to_char(ch, "&RСнимаю  %d аффектов\r\n", count);
 
 	for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++)
 		if (affected_by_spell(vict, RemoveSpell[percent]))
@@ -2979,6 +2983,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
+
 }
 
 void do_poisoned(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
