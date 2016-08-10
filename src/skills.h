@@ -116,9 +116,10 @@ enum ESkill: int
 	SKILL_MIND_MAGIC = 188,
 	SKILL_LIFE_MAGIC = 189,
 	SKILL_STUN = 190,
+	SKILL_BATTLE_EXPEDIENT =  191,
 
 	// не забываем указывать максимальный номер скилла
-	MAX_SKILL_NUM = SKILL_STUN
+	MAX_SKILL_NUM = SKILL_BATTLE_EXPEDIENT
 };
 
 template <> ESkill ITEM_BY_NAME<ESkill>(const std::string& name);
@@ -134,6 +135,8 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 int train_skill(CHAR_DATA * ch, const ESkill skill_no, int max_value, CHAR_DATA * vict);
 int min_skill_level(CHAR_DATA *ch, int skill);
 bool can_get_skill(CHAR_DATA *ch, int skill);
+int find_weapon_focus_by_skill(ESkill skill);
+int find_weapon_master_by_skill(ESkill skill);
 
 // ГОРНОЕ ДЕЛО
 

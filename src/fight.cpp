@@ -1635,7 +1635,7 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 				else
-				{ 
+				{
 //send_to_char(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
 //                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -1794,6 +1794,19 @@ bool using_extra_attack(CHAR_DATA *ch)
 		go_disarm(ch, ch->get_extra_victim());
 		used = true;
 		break;
+	case SKILL_PUNCH:
+	case SKILL_CLUBS:
+	case SKILL_AXES:
+	case SKILL_LONGS:
+	case SKILL_SHORTS:
+	case SKILL_NONSTANDART:
+	case SKILL_BOTHHANDS:
+	case SKILL_PICK:
+	case SKILL_SPADES:
+	case SKILL_BOWS:
+        exthit(ch, TYPE_UNDEFINED, RIGHT_WEAPON);
+        used = true;
+        break;
 	}
 
 	return used;

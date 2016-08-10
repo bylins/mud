@@ -317,6 +317,11 @@ struct alias_data
 #define SCMD_RESTORE_GOD 0
 #define SCMD_RESTORE_TRIGGER 1
 
+// do_expedient
+#define SCMD_EXPEDIENT_CUT      0
+#define SCMD_EXPEDIENT_FEINT    1
+#define SCMD_EXPEDIENT_THRUST   2
+
 /**
 * copy the first non-fill-word, space-delimited argument of 'argument'
 * to 'first_arg'; return a pointer to the remainder of the string.

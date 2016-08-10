@@ -804,7 +804,7 @@ void init_EApplyLocation_ITEM_NAMES()
 {
 	EApplyLocation_name_by_value.clear();
 	EApplyLocation_value_by_name.clear();
-	
+
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_NONE] = "APPLY_NONE";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_STR] = "APPLY_STR";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_DEX] = "APPLY_DEX";
@@ -865,6 +865,7 @@ void init_EApplyLocation_ITEM_NAMES()
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_HIT_GLORY] = "APPLY_HIT_GLORY";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_EXP] = "APPLY_BONUS_EXP";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_SKILLS] = "APPLY_BONUS_SKILLS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PR] = "APPLY_PR";
 	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
 
 	for (const auto& i : EApplyLocation_name_by_value)

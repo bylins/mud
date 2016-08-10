@@ -146,8 +146,8 @@ using std::bitset;
 #define HORSE_STUN			125 // ошеломить на лошади
 //новвоведения для чернока
 
-#define TEAMSTER_UNDEAD_FEAT	125 // Погонщик нежити 
-#define ELDER_TASKMASTER_FEAT	126 // Старший надсмотрщик 
+#define TEAMSTER_UNDEAD_FEAT	125 // Погонщик нежити
+#define ELDER_TASKMASTER_FEAT	126 // Старший надсмотрщик
 #define LORD_UNDEAD_FEAT		127 // Повелитель нежити
 #define DARK_WIZARD_FEAT		128 // Темный маг
 #define ELDER_PRIEST_FEAT		129 // Старший жрец
@@ -157,13 +157,15 @@ using std::bitset;
 /*
 //новвоведения для татя
 
-#define RESERVED_FEAT_1			132 // 
-#define RESERVED_FEAT_2			133 // 
-#define RESERVED_FEAT_3			134 // 
-#define RESERVED_FEAT_4			135 // 
-#define RESERVED_FEAT_5			136 // 
-#define RESERVED_FEAT_6			137 // 
+#define RESERVED_FEAT_1			132 //
+#define RESERVED_FEAT_2			133 //
+#define RESERVED_FEAT_3			134 //
+#define RESERVED_FEAT_4			135 //
+#define RESERVED_FEAT_5			136 //
+#define RESERVED_FEAT_6			137 //
 */
+
+#define EVASION_FEAT            138 //скользский тип
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух

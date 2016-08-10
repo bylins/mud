@@ -295,6 +295,7 @@ void init_ESkill_ITEM_NAMES()
 	ESkill_name_by_value[ESkill::SKILL_DARK_MAGIC] = "SKILL_DARK_MAGIC";
 	ESkill_name_by_value[ESkill::SKILL_MIND_MAGIC] = "SKILL_MIND_MAGIC";
 	ESkill_name_by_value[ESkill::SKILL_LIFE_MAGIC] = "SKILL_LIFE_MAGIC";
+	ESkill_name_by_value[ESkill::SKILL_BATTLE_EXPEDIENT] = "SKILL_BATTLE_EXPEDIENT";
 
 	for (const auto& i : ESkill_name_by_value)
 	{
@@ -409,7 +410,8 @@ std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
 	SKILL_DARK_MAGIC,
 	SKILL_MIND_MAGIC,
 	SKILL_LIFE_MAGIC,
-	SKILL_STUN
+	SKILL_STUN,
+	SKILL_BATTLE_EXPEDIENT
 };
 
 ///
@@ -1325,6 +1327,84 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 		result = victim->get_skill(SKILL_AWAKE) / 2;
 	}
 	return result;
+}
+
+int find_weapon_focus_by_skill(ESkill skill)
+{
+    switch (skill)
+    {
+	case SKILL_PUNCH:
+        return PUNCH_FOCUS_FEAT;
+	break;
+	case SKILL_CLUBS:
+        return CLUB_FOCUS_FEAT;
+	break;
+	case SKILL_AXES:
+        return AXES_FOCUS_FEAT;
+	break;
+	case SKILL_LONGS:
+        return LONGS_FOCUS_FEAT;
+	break;
+	case SKILL_SHORTS:
+        return SHORTS_FOCUS_FEAT;
+	break;
+	case SKILL_NONSTANDART:
+        return NONSTANDART_FOCUS_FEAT;
+	break;
+	case SKILL_BOTHHANDS:
+        return BOTHHANDS_FOCUS_FEAT;
+	break;
+	case SKILL_PICK:
+        return PICK_FOCUS_FEAT;
+	break;
+	case SKILL_SPADES:
+        return SPADES_FOCUS_FEAT;
+	break;
+	case SKILL_BOWS:
+        return BOWS_FOCUS_FEAT;
+	break;
+	default:
+        return THAC0_FEAT;
+    }
+}
+
+int find_weapon_master_by_skill(ESkill skill)
+{
+    switch (skill)
+    {
+	case SKILL_PUNCH:
+        return PUNCH_MASTER_FEAT;
+	break;
+	case SKILL_CLUBS:
+        return CLUBS_MASTER_FEAT;
+	break;
+	case SKILL_AXES:
+        return AXES_MASTER_FEAT;
+	break;
+	case SKILL_LONGS:
+        return LONGS_MASTER_FEAT;
+	break;
+	case SKILL_SHORTS:
+        return SHORTS_MASTER_FEAT;
+	break;
+	case SKILL_NONSTANDART:
+        return NONSTANDART_MASTER_FEAT;
+	break;
+	case SKILL_BOTHHANDS:
+        return BOTHHANDS_MASTER_FEAT;
+	break;
+	case SKILL_PICK:
+        return PICK_MASTER_FEAT;
+	break;
+	case SKILL_SPADES:
+        return SPADES_MASTER_FEAT;
+	break;
+	case SKILL_BOWS:
+        return BOWS_MASTER_FEAT;
+	break;
+	default:
+        return THAC0_FEAT;
+    }
 }
 
 /*
