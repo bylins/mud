@@ -398,12 +398,15 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
        affected[0].modifier = 2;
        affected[1].modifier = 2;
     };
-    
-    for (i = 0; i < random_drop; i++)
+    i=0;
+    while (i < random_drop)
+	{
             if (obj->affected[i].location != APPLY_NONE)
                 {
                     set_obj_eff(this,obj->affected[i].location,obj->affected[i].modifier);
-                };
+                }
+	i++;
+	}
     GET_OBJ_AFFECTS(this) += GET_OBJ_AFFECTS(obj);
     GET_OBJ_EXTRA(this) += GET_OBJ_EXTRA(obj);
     obj_flags.no_flag += GET_OBJ_NO(obj);
