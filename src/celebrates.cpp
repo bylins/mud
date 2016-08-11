@@ -420,8 +420,11 @@ void remove_triggers(TrigList trigs, SCRIPT_DATA* sc)
 	{
 		for (tmp = nullptr, tr = TRIGGERS(sc); tr; tmp = tr, tr = tr->next)
 		{
-			if (trig_index[tr->nr]->vnum == *it)
+			const auto trigger_rnum = tr->get_rnum();
+			if (trig_index[trigger_rnum]->vnum == *it)
+			{
 				break;
+			}
 		}
 
 		if (tr)

@@ -6270,9 +6270,8 @@ std::string print_script(CHAR_DATA *mob, const std::string &key)
 				if (print_name)
 				{
 					out += "(";
-					out += GET_TRIG_NAME(trig_index[trg_rnum]->proto)
-						? GET_TRIG_NAME(trig_index[trg_rnum]->proto)
-						: "null";
+					const auto& trigger_name = trig_index[trg_rnum]->proto->get_name();
+					out += !trigger_name.empty() ? trigger_name.c_str() : "null";
 					out += ")";
 				}
 			}
