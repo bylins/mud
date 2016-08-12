@@ -60,7 +60,7 @@ void go_touch(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_protect(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict);
-bool go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict);
+void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict);
 int npc_battle_scavenge(CHAR_DATA * ch);
 void npc_wield(CHAR_DATA * ch);
 void npc_armor(CHAR_DATA * ch);

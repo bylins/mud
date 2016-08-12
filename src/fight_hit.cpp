@@ -2635,10 +2635,19 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	// added by WorM(Видолюб) поглощение физ.урона в %
-	if(GET_PR(victim) && IS_NPC(victim)
-		&& dmg_type == FightSystem::PHYS_DMG)
+	//if(GET_PR(victim) && IS_NPC(victim)
+	if(GET_PR(victim) && dmg_type == FightSystem::PHYS_DMG)
 	{
-		dam = dam - (dam * GET_PR(victim) / 100);
+		if (PRF_FLAGGED(victim, PRF_TESTER))
+		{
+            int ResultDam = dam - (dam * GET_PR(victim) / 100);
+            sprintf(buf, "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
+            send_to_char(buf, victim);
+            dam = ResultDam;
+        } else
+        {
+            dam = dam - (dam * GET_PR(victim) / 100);
+        }
 	}
 
 	// зб, щиты, броня, поглощение
@@ -3755,25 +3764,34 @@ void HitData::calc_crit_chance(CHAR_DATA *ch)
 /* Бонусная дамага от "пореза" и других приемов, буде таковые реализуют */
 double expedient_bonus_damage(CHAR_DATA *ch, CHAR_DATA *victim)
 {
+	double factor = 1.00;
+
 	switch (ch->get_extra_attack_mode())
 	{
 	case EXTRA_ATTACK_CUT_SHORTS:
         if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_AWARE))
         {
-            return ch->get_skill(SKILL_SHORTS)/40.0;
+            factor = 1+ch->get_skill(SKILL_SHORTS)/40.0;
         } else
         {
-            return ch->get_skill(SKILL_SHORTS)/50.0;
+            factor = 1+ch->get_skill(SKILL_SHORTS)/50.0;
         }
         break;
 	case EXTRA_ATTACK_CUT_PICK:
-        return ch->get_skill(SKILL_PICK)/50.0;
+        factor = 1+ch->get_skill(SKILL_PICK)/50.0;
         break;
     default:
-        return 1.0;
+        factor = 1.00;
         break;
 	}
-    return 1.0;
+
+	if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_TESTER))
+	{
+        sprintf(buf, "&CМножитель урона от приема = %f&n\r\n", factor);
+        send_to_char(buf,ch);
+    }
+
+    return factor;
 };
 
 /**

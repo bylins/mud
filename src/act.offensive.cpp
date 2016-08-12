@@ -3318,13 +3318,19 @@ bool CheckExpedientSuccess(CHAR_DATA *ch, CHAR_DATA *victim)
     return CheckExpedientSuccess(ch, victim);
 }
 
-bool go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
+void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
 	{
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
-		return false;
+		return;
+	}
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_EXPEDIENT))
+	{
+		send_to_char("Вы еще не восстановил равновесие после предыдущего приема.\r\n", ch);
+		return;
 	}
 
 	vict = try_protect(vict, ch);
@@ -3335,8 +3341,7 @@ bool go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
 		Damage dmg(SkillDmg(SKILL_SHORTS), 0, FightSystem::PHYS_DMG);
 		dmg.process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
-		//set_wait(ch, 2, TRUE);
-		return false;
+		return;
     }
 
     hit(ch, vict, TYPE_UNDEFINED, RIGHT_WEAPON);
@@ -3360,16 +3365,12 @@ bool go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
     act("$n сделал$g неуловимое движение, сместившись за спину $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 
     ApplyNoFleeAffect(ch, 3);
-    //set_wait(ch, 3, TRUE);
-
-    return true;
 }
 
 void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim)
 {
     if (used_attack(ch))
         return;
-
 	pk_agro_action(ch, victim);
 
     if (!ch->get_fighting())
@@ -3380,6 +3381,23 @@ void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim)
     } else {
         act("Хорошо. Вы попытаетесь порезать $N3.", FALSE, ch, 0, victim, TO_CHAR);
         ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
+	}
+}
+
+void SetExtraAttackCutPick(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+    if (used_attack(ch))
+        return;
+	pk_agro_action(ch, victim);
+
+    if (!ch->get_fighting())
+    {
+        act("Вы перехватили оружие обратным хватом и проскользнули за спину $N1.", FALSE, ch, 0, victim, TO_CHAR);
+        set_fighting(ch, victim);
+        ch->set_extra_attack(EXTRA_ATTACK_CUT_PICK, victim);
+    } else {
+        act("Хорошо. Вы попытаетесь порезать $N3.", FALSE, ch, 0, victim, TO_CHAR);
+        ch->set_extra_attack(EXTRA_ATTACK_CUT_PICK, victim);
 	}
 }
 
@@ -3404,7 +3422,7 @@ ESkill GetExpedientCutSkill(CHAR_DATA *ch)
 		return SKILL_INVALID;
 	}
 
-	if (!can_use_feat(ch, find_weapon_master_by_skill(skill)))
+	if (!can_use_feat(ch, find_weapon_master_by_skill(skill)) && !IS_IMPL(ch))
 	{
         send_to_char("Вы недостаточно искусны в обращении с этим видом оружия.\r\n", ch);
         return SKILL_INVALID;
@@ -3422,7 +3440,7 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
     CHAR_DATA *vict;
     ESkill skill;
 
-	if (IS_NPC(ch) || !can_use_feat(ch, EXPEDIENT_CUT_FEAT))
+	if (IS_NPC(ch) || (!can_use_feat(ch, EXPEDIENT_CUT_FEAT) && !IS_IMPL(ch)))
 	{
 		send_to_char("Вы не владеете таким приемом.\r\n", ch);
 		return;
@@ -3447,12 +3465,6 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
 	{
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_EXPEDIENT))
-	{
-		send_to_char("Вы еще не восстановил равновесие после предыдущего приема.\r\n", ch);
 		return;
 	}
 
