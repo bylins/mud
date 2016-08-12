@@ -61,7 +61,7 @@ void do_kick(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_coddle_out(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_strangle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_expedient(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_expedient_cut(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 
 
@@ -297,23 +297,27 @@ int used_attack(CHAR_DATA * ch)
 	if (!ch->get_extra_victim())
 		return (FALSE);
 	else
-		switch (ch->get_extra_skill())
+		switch (ch->get_extra_attack_mode())
 		{
-		case SKILL_BASH:
+		case EXTRA_ATTACK_BASH:
 			message = "Невозможно. Вы пытаетесь сбить $N3.";
 			break;
-		case SKILL_KICK:
+		case EXTRA_ATTACK_KICK:
 			message = "Невозможно. Вы пытаетесь пнуть $N3.";
 			break;
-		case SKILL_CHOPOFF:
+		case EXTRA_ATTACK_CHOPOFF:
 			message = "Невозможно. Вы пытаетесь подсечь $N3.";
 			break;
-		case SKILL_DISARM:
+		case EXTRA_ATTACK_DISARM:
 			message = "Невозможно. Вы пытаетесь обезоружить $N3.";
 			break;
-		case SKILL_THROW:
+		case EXTRA_ATTACK_THROW:
 			message = "Невозможно. Вы пытаетесь метнуть оружие в $N3.";
 			break;
+        case EXTRA_ATTACK_CUT_PICK:
+        case EXTRA_ATTACK_CUT_SHORTS:
+            message = "Невозможно. Вы пытаетесь провести боевой прием против $N1.";
+            break;
 		default:
 			return (FALSE);
 		}
@@ -1082,7 +1086,7 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь сбить $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(SKILL_BASH, vict);
+		ch->set_extra_attack(EXTRA_ATTACK_BASH, vict);
 	}
 }
 
@@ -1535,7 +1539,7 @@ void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь пнуть $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(SKILL_KICK, vict);
+		ch->set_extra_attack(EXTRA_ATTACK_KICK, vict);
 	}
 }
 
@@ -2050,7 +2054,7 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь разоружить $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(SKILL_DISARM, vict);
+		ch->set_extra_attack(EXTRA_ATTACK_DISARM, vict);
 	}
 }
 
@@ -2115,8 +2119,8 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		if (can_use_feat(ch, EVASION_FEAT))
 		{
 			AFFECT_DATA<EApplyLocation> af;
-			af.type = SPELL_BATTLE;
-			af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
+			af.type = SPELL_EXPEDIENT;
+			//af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af.location = EApplyLocation::APPLY_PR;
 			af.modifier = 50;
 			af.duration = 2; //два раунда, потому что подножка идет в конце раунда
@@ -2193,7 +2197,7 @@ void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь подсечь $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(SKILL_CHOPOFF, vict);
+		ch->set_extra_attack(EXTRA_ATTACK_CHOPOFF, vict);
 	}
 }
 
@@ -2661,7 +2665,7 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь метнуть оружие в $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(SKILL_THROW, vict);
+		ch->set_extra_attack(EXTRA_ATTACK_THROW, vict);
 	}
 }
 
@@ -3175,47 +3179,226 @@ void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	go_strangle(ch, vict);
 }
 
-void go_cut(CHAR_DATA * ch, CHAR_DATA * vict, ESkill skill)
+ESkill ExpedientWeaponSkill(CHAR_DATA *ch)
 {
-	//int percent, prob;
+	ESkill skill = SKILL_PUNCH;
 
-	if (onhorse(ch))
+    /* Потому что в одной руке, теоретически, может быть и не оружие */
+	if (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == obj_flag_data::ITEM_WEAPON))
+	{
+        skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD));
+	} else if (GET_EQ(ch, WEAR_BOTHS) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == obj_flag_data::ITEM_WEAPON))
+	{
+        skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS));
+	} else if (GET_EQ(ch, WEAR_HOLD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON))
     {
-        send_to_char("Верхом это сделать затруднительно.\r\n", ch);
-		return;
+        skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_HOLD));
+	};
+
+	return skill;
+}
+
+int GetExpedientKeyParameter(CHAR_DATA *ch, ESkill skill)
+{
+    switch (skill)
+    {
+	case SKILL_PUNCH:
+	case SKILL_CLUBS:
+	case SKILL_AXES:
+	case SKILL_BOTHHANDS:
+	case SKILL_SPADES:
+        return ch->get_str();
+        break;
+	case SKILL_LONGS:
+	case SKILL_SHORTS:
+	case SKILL_NONSTANDART:
+	case SKILL_BOWS:
+	case SKILL_PICK:
+        return ch->get_dex();
+        break;
+	default:
+        return ch->get_str();
     }
+}
+
+int ParameterBonus(int parameter)
+{
+    return ((parameter-20)/4);
+}
+
+int ExpedientRating(CHAR_DATA *ch, ESkill skill)
+{
+	return (ch->get_skill(skill)/2.00+ParameterBonus(GetExpedientKeyParameter(ch, skill)));
+}
+
+int ExpedientCap(CHAR_DATA *ch, ESkill skill)
+{
+	if (!IS_NPC(ch))
+	{
+        return floor(1.33*(MAX_EXP_RMRT_PERCENT(ch)/2.00+ParameterBonus(GetExpedientKeyParameter(ch, skill))));
+    } else
+    {
+        return floor(1.33*((MAX_EXP_PERCENT+5*MAX(0,GET_LEVEL(ch)-30)/2.00+ParameterBonus(GetExpedientKeyParameter(ch, skill)))));
+    }
+}
+
+int DegreeOfSuccess(int roll, int rating)
+{
+    return ((rating-roll)/5);
+}
+
+bool CheckExpedientSuccess(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+    ESkill DoerSkill = ExpedientWeaponSkill(ch);
+    int DoerRating = ExpedientRating(ch, DoerSkill);
+    int DoerCap = ExpedientCap(ch, DoerSkill);
+    int DoerRoll = dice(1, DoerCap);
+    int DoerSuccess = DegreeOfSuccess(DoerRoll, DoerRating);
+
+    ESkill VictimSkill = ExpedientWeaponSkill(victim);
+    int VictimRating = ExpedientRating(victim, VictimSkill);
+    int VictimCap = ExpedientCap(victim, VictimSkill);
+    int VictimRoll = dice(1, VictimCap);
+    int VictimSuccess = DegreeOfSuccess(VictimRoll, VictimRating);
+
+    //Если один провалил бросок, а другой выиграл - победа выигравшего
+    if ((DoerRoll <= DoerRating) && (VictimRoll > VictimRating))
+        return true;
+    if ((DoerRoll > DoerRating) && (VictimRoll <= VictimRating))
+        return false;
+    //Если оба провалили - переброс
+    if ((DoerRoll > DoerRating) && (VictimRoll > VictimRating))
+        return CheckExpedientSuccess(ch, victim);
+
+    //Если оба выиграли - сравниваются степени успеха
+    if (DoerSuccess > VictimSuccess)
+        return true;
+    if (DoerSuccess < VictimSuccess)
+        return false;
+
+    //Если и степени успеха равны - сравниваем бонусы ключевых параметров
+    if (ParameterBonus(GetExpedientKeyParameter(ch, DoerSkill)) > ParameterBonus(GetExpedientKeyParameter(victim, VictimSkill)))
+        return true;
+    if (ParameterBonus(GetExpedientKeyParameter(ch, DoerSkill)) < ParameterBonus(GetExpedientKeyParameter(victim, VictimSkill)))
+        return false;
+
+    //Если бонусы равны - сравниваем  результаты бросков (чем ниже - тем лучше)
+    if (DoerRoll < VictimRoll)
+        return true;
+    if (DoerRoll > VictimRoll)
+        return true;
+
+    //Охламоны соверщенно идентичны и получили одинаковый результат... начинаем все сначала
+    return CheckExpedientSuccess(ch, victim);
+}
+
+bool go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
+{
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
+	{
+		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		return false;
+	}
 
 	vict = try_protect(vict, ch);
-	pk_agro_action(ch, vict);
 
-	/* percent = GET_SKILL(ch, skill);
-	prob = train_skill(ch, skill, skill_info[skill].max_percent, vict);
+    if (!CheckExpedientSuccess(ch, vict))
+    {
+        act("Ваши свистящие удары пропали втуне, не задев $N3.", FALSE, ch, 0, vict, TO_CHAR);
+		Damage dmg(SkillDmg(SKILL_SHORTS), 0, FightSystem::PHYS_DMG);
+		dmg.process(ch, vict);
+		set_wait(ch, 2, TRUE);
+		return false;
+    }
 
-    sprintf(buf, "%sУровень умения %d и тест %d.%s", CCIGRN(ch, C_NRM), percent, prob, CCNRM(ch, C_NRM));
-    act(buf,FALSE,ch,0,vict,TO_CHAR);*/
+    hit(ch, vict, TYPE_UNDEFINED, RIGHT_WEAPON);
+    hit(ch, vict, TYPE_UNDEFINED, LEFT_WEAPON);
+
+    AFFECT_DATA<EApplyLocation> AffectImmunPhysic;
+    AffectImmunPhysic.type = SPELL_EXPEDIENT;
+    AffectImmunPhysic.location = EApplyLocation::APPLY_PR;
+    AffectImmunPhysic.modifier = 100;
+    AffectImmunPhysic.duration = 1;
+    AffectImmunPhysic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+    affect_join(ch, &AffectImmunPhysic, FALSE, FALSE, FALSE, FALSE);
+    AFFECT_DATA<EApplyLocation> AffectImmunMagic;
+    AffectImmunMagic.type = SPELL_EXPEDIENT;
+    AffectImmunMagic.location = EApplyLocation::APPLY_MR;
+    AffectImmunMagic.modifier = 100;
+    AffectImmunMagic.duration = 1;
+    AffectImmunMagic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+    affect_join(ch, &AffectImmunMagic, FALSE, FALSE, FALSE, FALSE);
+    act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", FALSE, ch, 0, vict, TO_VICT);
+    act("$n сделал$g неуловимое движение, сместившись за спину $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+
+    set_wait(ch, 3, TRUE);
+
+    return true;
+}
+
+void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+    if (used_attack(ch))
+        return;
+
+	pk_agro_action(ch, victim);
 
     if (!ch->get_fighting())
     {
-        act("Ваши клинки свистнули, когда вы бросились на $N3, применив \"порез\".", FALSE, ch, 0, vict, TO_CHAR);
-        exthit(ch, TYPE_UNDEFINED, RIGHT_WEAPON);
+        act("Ваши клинки свистнули, когда вы бросились на $N3, применив \"порез\".", FALSE, ch, 0, victim, TO_CHAR);
+        set_fighting(ch, victim);
+        ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
     } else {
-        act("Вы приготовились применить \"порез\" к $N2.", FALSE, ch, 0, vict, TO_CHAR);
-        ch->set_extra_attack(skill, vict);
+        act("Хорошо. Вы попытаетесь порезать $N3.", FALSE, ch, 0, victim, TO_CHAR);
+        ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
 	}
-
-	set_wait(ch, 3, TRUE);
 }
 
-void do_cut(CHAR_DATA *ch, char *argument)
+ESkill GetExpedientCutSkill(CHAR_DATA *ch)
+{
+    ESkill skill = SKILL_INVALID;
+
+	if (GET_EQ(ch, WEAR_WIELD) && GET_EQ(ch, WEAR_HOLD))
+	{
+        skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD));
+        if (skill != GET_OBJ_SKILL(GET_EQ(ch, WEAR_HOLD)))
+        {
+            send_to_char("Для этого приема в обеих руках нужно держать оружие одого типа!\r\n", ch);
+            return SKILL_INVALID;
+        }
+	} else if (GET_EQ(ch, WEAR_BOTHS))
+	{
+        skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS));
+	} else
+	{
+		send_to_char("Для этого приема вам надо использовать одинаковое оружие в обеих руках либо двуручное.\r\n", ch);
+		return SKILL_INVALID;
+	}
+
+	if (!can_use_feat(ch, find_weapon_master_by_skill(skill)))
+	{
+        send_to_char("Вы недостаточно искусны в обращении с этим видом оружия.\r\n", ch);
+        return SKILL_INVALID;
+    }
+
+    return skill;
+}
+
+//Внимание! То, что написано в этой функции, является примером игровой механики,
+//но никак не пример организации кода. Если вы хотите добавлять новые приемы,
+//это следует делать через класс а-ля Expedient и интерфеqс класса свызовом типа Expedient.execute(ch, SCMD).
+//или даже ch.Expedient(SCMD)
+void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 {
     CHAR_DATA *vict;
-    ESkill skill = SKILL_SHORTS;
+    ESkill skill;
 
-	/*if (IS_NPC(ch) || !ch->get_skill(SKILL_BACKSTAB))
+	if (IS_NPC(ch) || !can_use_feat(ch, EXPEDIENT_CUT_FEAT))
 	{
-		send_to_char("Вы не знаете как.\r\n", ch);
+		send_to_char("Вы не владеете таким приемом.\r\n", ch);
 		return;
-	}*/
+	}
 
 	if (onhorse(ch))
 	{
@@ -3229,24 +3412,8 @@ void do_cut(CHAR_DATA *ch, char *argument)
 		return;
 	}
 
-	one_argument(argument, arg);
-
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
-		else
-		{
-			send_to_char("Кого вы хотите порезать?\r\n", ch);
-			return;
-		}
-	}
-
-	if (vict == ch)
-	{
-		send_to_char("Вы таки да? Ой-вей, но тут таки Древняя Русь, а не Палестина!\r\n", ch);
-		return;
-	}
+    if (used_attack(ch))
+        return;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
@@ -3255,72 +3422,52 @@ void do_cut(CHAR_DATA *ch, char *argument)
 		return;
 	}
 
+	one_argument(argument, arg);
+
+	if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+	{
+		vict = ch->get_fighting();
+    } else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+    {
+		send_to_char("Кого вы хотите порезать?\r\n", ch);
+		return;
+    } else if (ch->get_fighting() && (vict->get_fighting() != ch) && (vict != ch))
+    {
+        act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, vict, TO_CHAR);
+        return;
+    }
+
+	if (vict == ch)
+	{
+		send_to_char("Вы таки да? Ой-вей, но тут таки Древняя Русь, а не Палестина!\r\n", ch);
+		return;
+	}
+
 	if (!may_kill_here(ch, vict))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	if (GET_EQ(ch, WEAR_WIELD) && GET_EQ(ch, WEAR_HOLD))
-	{
-        skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD));
-        if (skill != GET_OBJ_SKILL(GET_EQ(ch, WEAR_HOLD)))
-        {
-            send_to_char("Для этого приема в обеих руках нужно держать оружие одого типа!\r\n", ch);
-            return;
-        }
-	} else if (GET_EQ(ch, WEAR_BOTHS))
-	{
-        skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS));
-	} else
-	{
-		send_to_char("Для этого приема вам надо использовать одинаковое оружие в обеих руках либо двуручное.\r\n", ch);
-		return;
-	}
-
-	if (!can_use_feat(ch, find_weapon_master_by_skill(skill)))
-	{
-        send_to_char("Вы недостаточно искусны в обращении с этим видом оружия.\r\n", ch);
+    skill = GetExpedientCutSkill(ch);
+    if (skill == SKILL_INVALID)
         return;
-    }
 
     switch (skill)
     {
     case SKILL_SHORTS:
-        go_cut(ch, vict, skill);
+        SetExtraAttackCutShorts(ch, vict);
     break;
     case SKILL_PICK:
-        go_cut(ch, vict, skill);
+        SetExtraAttackCutShorts(ch, vict);
     break;
     case SKILL_LONGS:
     case SKILL_BOTHHANDS:
     case SKILL_SPADES:
-        send_to_char("Порез мечом (а тем более двуручником или копьем) - это сурьезно. Но пока не реализовано\r\n", ch);
+        send_to_char("Порез мечом (а тем более двуручником или копьем) - это сурьезно. Но пока невозможно.\r\n", ch);
     break;
     default:
         send_to_char("Ваше оружие не позволяет провести такой прием.\r\n", ch);
     }
 
 }
-
-//Внимание! То, что написано в этой функции, является примером игровой механики,
-//но никак не пример организации кода. Если вы хотите добавлять новые приемы,
-//это следует делать через класс а-ля Expedient и интерфеqс класса свызовом типа Expedient.execute(ch, SCMD).
-//или даже ch.Expedient(SCMD)
-void do_expedient(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
-{
-    switch (subcmd)
-    {
-    case SCMD_EXPEDIENT_CUT:
-       do_cut(ch, argument);
-    break;
-    case SCMD_EXPEDIENT_FEINT:
-    case SCMD_EXPEDIENT_THRUST:
-       send_to_char("Увы, этот прием не реализован в вашем мире.\r\n", ch);
-    break;
-    default:
-       send_to_char("Увы, этот прием не реализован в вашем мире.\r\n", ch);
-    break;
-    }
-}
-
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -295,7 +295,6 @@ void init_ESkill_ITEM_NAMES()
 	ESkill_name_by_value[ESkill::SKILL_DARK_MAGIC] = "SKILL_DARK_MAGIC";
 	ESkill_name_by_value[ESkill::SKILL_MIND_MAGIC] = "SKILL_MIND_MAGIC";
 	ESkill_name_by_value[ESkill::SKILL_LIFE_MAGIC] = "SKILL_LIFE_MAGIC";
-	ESkill_name_by_value[ESkill::SKILL_BATTLE_EXPEDIENT] = "SKILL_BATTLE_EXPEDIENT";
 
 	for (const auto& i : ESkill_name_by_value)
 	{
@@ -410,8 +409,7 @@ std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
 	SKILL_DARK_MAGIC,
 	SKILL_MIND_MAGIC,
 	SKILL_LIFE_MAGIC,
-	SKILL_STUN,
-	SKILL_BATTLE_EXPEDIENT
+	SKILL_STUN
 };
 
 ///

@@ -24,6 +24,18 @@
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
+enum ExtraAttackEnumType
+{
+	EXTRA_ATTACK_UNUSED,
+	EXTRA_ATTACK_THROW,
+	EXTRA_ATTACK_BASH,
+	EXTRA_ATTACK_KICK,
+	EXTRA_ATTACK_CHOPOFF,
+	EXTRA_ATTACK_DISARM,
+	EXTRA_ATTACK_CUT_SHORTS,
+	EXTRA_ATTACK_CUT_PICK
+};
+
 // PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM //
 enum ESkill: int
 {
@@ -116,10 +128,9 @@ enum ESkill: int
 	SKILL_MIND_MAGIC = 188,
 	SKILL_LIFE_MAGIC = 189,
 	SKILL_STUN = 190,
-	SKILL_BATTLE_EXPEDIENT =  191,
 
 	// не забываем указывать максимальный номер скилла
-	MAX_SKILL_NUM = SKILL_BATTLE_EXPEDIENT
+	MAX_SKILL_NUM = SKILL_STUN
 };
 
 template <> ESkill ITEM_BY_NAME<ESkill>(const std::string& name);
