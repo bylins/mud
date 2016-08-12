@@ -85,6 +85,7 @@
 #define  TEST_OBJECT_TIMER   30
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
+#define RANDOMOBJ_FILE "randomobj.xml"
 /**************************************************************************
 *  declarations of global containers and objects                          *
 **************************************************************************/
@@ -943,6 +944,58 @@ void load_cases()
 }
 
 
+std::vector<RandomObj> random_objs;
+
+// загрузка параметров для рандомных шмоток
+void load_random_obj()
+{
+	pugi::xml_document doc_robj;
+	pugi::xml_node robj, object, file_robj;
+	int tmp_buf1, tmp_buf2;
+	std::string tmp_str;
+	file_robj = XMLLoad(LIB_MISC RANDOMOBJ_FILE, "object", "Error loading cases file: random_obj.xml", doc_robj);
+	for (robj = file_robj.child("obj"); robj; robj = robj.next_sibling("obj"))
+	{
+		RandomObj tmp_robj;
+		tmp_robj.vnum = robj.attribute("vnum").as_int();
+		for (object = robj.child("not_to_wear");object;object = object.next_sibling("not_to_wear"))
+		{
+			tmp_str = object.attribute("value").as_string();
+			tmp_buf2 = object.attribute("chance").as_int();
+			tmp_robj.not_wear.insert(std::pair<std::string, int>(tmp_str, tmp_buf2));
+		}
+		tmp_robj.min_weight = robj.child("weight").attribute("value_min").as_int();
+		tmp_robj.max_weight = robj.child("weight").attribute("value_max").as_int();
+		tmp_robj.min_price = robj.child("price").attribute("value_min").as_int();
+		tmp_robj.max_price = robj.child("price").attribute("value_max").as_int();
+		tmp_robj.min_stability = robj.child("stability").attribute("value_min").as_int();
+		tmp_robj.max_stability = robj.child("stability").attribute("value_max").as_int();
+		tmp_robj.value0_min = robj.child("value_zero").attribute("value_min").as_int();
+		tmp_robj.value0_max = robj.child("value_zero").attribute("value_max").as_int();
+		tmp_robj.value1_min = robj.child("value_one").attribute("value_min").as_int();
+		tmp_robj.value1_max = robj.child("value_one").attribute("value_max").as_int();
+		tmp_robj.value2_min = robj.child("value_two").attribute("value_min").as_int();
+		tmp_robj.value2_max = robj.child("value_two").attribute("value_max").as_int();
+		tmp_robj.value3_min = robj.child("value_three").attribute("value_min").as_int();
+		tmp_robj.value3_max = robj.child("value_three").attribute("value_max").as_int();
+		for (object = robj.child("affect");object;object = object.next_sibling("affect"))
+		{
+			tmp_str = object.attribute("value").as_string();
+			tmp_buf2 = object.attribute("chance").as_int();
+			tmp_robj.affects.insert(std::pair<std::string, int>(tmp_str, tmp_buf2));
+		}
+		for (object = robj.child("extraaffect");object;object = object.next_sibling("extraaffect"))
+		{
+			ExtraAffects extraAffect;
+			extraAffect.number = object.attribute("value").as_int();
+			extraAffect.chance = object.attribute("chance").as_int();
+			extraAffect.min_val = object.attribute("min_val").as_int();
+			extraAffect.max_val = object.attribute("max_val").as_int();
+			tmp_robj.extraffect.push_back(extraAffect);
+		}
+		random_objs.push_back(tmp_robj);
+	}
+}
 
 
 

@@ -896,7 +896,10 @@ enum class EExtraFlag: uint32_t
 	ITEM_1INLAID = INT_ONE | (1 << 10),		///< TODO: не используется, см convert_obj_values()
 	ITEM_2INLAID = INT_ONE | (1 << 11),
 	ITEM_3INLAID = INT_ONE | (1 << 12),
-	ITEM_NOPOUR = INT_ONE | (1 << 13)		///< нельзя перелить
+	ITEM_NOPOUR = INT_ONE | (1 << 13),		///< нельзя перелить
+	ITEM_UNIQUE = INT_ONE | (1 << 14)		// объект уникальный, т.е. если у чара есть несколько шмоток с одним внумом, которые одеваются
+											// на разные слоты, то чар может одеть на себя только одну шмотку
+
 };
 
 template <> const std::string& NAME_BY_ITEM<EExtraFlag>(const EExtraFlag item);
