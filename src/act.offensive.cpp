@@ -3179,6 +3179,20 @@ void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	go_strangle(ch, vict);
 }
 
+void ApplyNoFleeAffect(CHAR_DATA *ch, int duration)
+{
+    AFFECT_DATA<EApplyLocation> af;
+    af.type = SPELL_BATTLE;
+    af.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+    af.location = EApplyLocation::APPLY_NONE;
+    af.modifier = 0;
+    af.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
+    af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+    affect_join(ch, &af, TRUE, FALSE, TRUE, FALSE);
+    send_to_char("Вы выпали из ритма боя.\r\n", ch);
+}
+
+
 ESkill ExpedientWeaponSkill(CHAR_DATA *ch)
 {
 	ESkill skill = SKILL_PUNCH;
@@ -3308,7 +3322,8 @@ bool go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
         act("Ваши свистящие удары пропали втуне, не задев $N3.", FALSE, ch, 0, vict, TO_CHAR);
 		Damage dmg(SkillDmg(SKILL_SHORTS), 0, FightSystem::PHYS_DMG);
 		dmg.process(ch, vict);
-		set_wait(ch, 2, TRUE);
+		ApplyNoFleeAffect(ch, 2);
+		//set_wait(ch, 2, TRUE);
 		return false;
     }
 
@@ -3319,20 +3334,21 @@ bool go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
     AffectImmunPhysic.type = SPELL_EXPEDIENT;
     AffectImmunPhysic.location = EApplyLocation::APPLY_PR;
     AffectImmunPhysic.modifier = 100;
-    AffectImmunPhysic.duration = 1;
+    AffectImmunPhysic.duration = 2;
     AffectImmunPhysic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
     affect_join(ch, &AffectImmunPhysic, FALSE, FALSE, FALSE, FALSE);
     AFFECT_DATA<EApplyLocation> AffectImmunMagic;
     AffectImmunMagic.type = SPELL_EXPEDIENT;
     AffectImmunMagic.location = EApplyLocation::APPLY_MR;
     AffectImmunMagic.modifier = 100;
-    AffectImmunMagic.duration = 1;
+    AffectImmunMagic.duration = 2;
     AffectImmunMagic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
     affect_join(ch, &AffectImmunMagic, FALSE, FALSE, FALSE, FALSE);
     act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", FALSE, ch, 0, vict, TO_VICT);
     act("$n сделал$g неуловимое движение, сместившись за спину $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 
-    set_wait(ch, 3, TRUE);
+    ApplyNoFleeAffect(ch, 3);
+    //set_wait(ch, 3, TRUE);
 
     return true;
 }

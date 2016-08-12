@@ -4125,7 +4125,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (ch->get_extra_attack_mode() != EXTRA_ATTACK_UNUSED)
         hit_params.dam *= expedient_bonus_damage(ch, victim);
 
-	if (IS_IMPL(ch))
+	if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_TESTER))
 	{
 		sprintf(buf, "&CРегуляр дамаг = %d&n\r\n", hit_params.dam);
 		send_to_char(buf,ch);
