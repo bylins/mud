@@ -614,6 +614,7 @@ void init_EAffectFlag_ITEM_NAMES()
 	EAffectFlag_name_by_value[EAffectFlag::AFF_RECALL_SPELLS] = "AFF_RECALL_SPELLS";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_NOOB_REGEN] = "AFF_NOOB_REGEN";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_VAMPIRE] = "AFF_VAMPIRE";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_EXPEDIENT] = "AFF_EXPEDIENT";
 
 	for (const auto& i : EAffectFlag_name_by_value)
 	{

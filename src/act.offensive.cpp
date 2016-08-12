@@ -3181,14 +3181,26 @@ void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void ApplyNoFleeAffect(CHAR_DATA *ch, int duration)
 {
-    AFFECT_DATA<EApplyLocation> af;
-    af.type = SPELL_BATTLE;
-    af.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
-    af.location = EApplyLocation::APPLY_NONE;
-    af.modifier = 0;
-    af.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
-    af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-    affect_join(ch, &af, TRUE, FALSE, TRUE, FALSE);
+    //Это жутко криво, но почемук-то при простановке сразу 2 флагов битвектора начинаются глюки, хотя все должно быть нормально
+    //По-видимому, где-то просто не учтено, что ненулевых битов может быть более 1
+    AFFECT_DATA<EApplyLocation> Noflee;
+    Noflee.type = SPELL_BATTLE;
+    Noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+    Noflee.location = EApplyLocation::APPLY_NONE;
+    Noflee.modifier = 0;
+    Noflee.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
+    Noflee.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+    affect_join(ch, &Noflee, TRUE, FALSE, TRUE, FALSE);
+
+    AFFECT_DATA<EApplyLocation> Battle;
+    Battle.type = SPELL_BATTLE;
+    Battle.bitvector = to_underlying(EAffectFlag::AFF_EXPEDIENT);
+    Battle.location = EApplyLocation::APPLY_NONE;
+    Battle.modifier = 0;
+    Battle.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
+    Battle.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+    affect_join(ch, &Battle, TRUE, FALSE, TRUE, FALSE);
+
     send_to_char("Вы выпали из ритма боя.\r\n", ch);
 }
 
@@ -3435,6 +3447,12 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
 	{
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		return;
+	}
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_EXPEDIENT))
+	{
+		send_to_char("Вы еще не восстановил равновесие после предыдущего приема.\r\n", ch);
 		return;
 	}
 
