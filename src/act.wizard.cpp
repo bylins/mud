@@ -2379,7 +2379,17 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",");
 		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		send_to_char(ch, "Количество атак: %s%d%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Количество атак: %s%d%s. ", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Вероятность использования умений: %s%d%%%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.LikeWork, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Умения:&c");
+		for (const auto counter : AVAILABLE_SKILLS)
+		{
+			if (k->get_skill(counter))
+			{
+				send_to_char(ch, " %s:[%3d]", skill_info[counter].name, k->get_skill(counter));
+			}
+		}
+		send_to_char(ch, "&n\r\n");
 	}
 	else
 	{
@@ -4322,12 +4332,9 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	for (d = descriptor_list; d; d = d->next)
 	{
 		if ((STATE(d) == CON_PLAYING) &&	// персонаж должен быть в игре
-				((GET_LEVEL(d->character) >= level)
-// ||	// уровень равным или выше level
-//				 (GET_LEVEL(d->character) < LVL_IMMORT &&	// игроки с флагом 'gd_demigod' могут видеть теллы в имм канал,
-//				  GET_GOD_FLAG(d->character, GF_DEMIGOD) &&	// за исключением случая когда level > LVL_IMMORT
-//				  level <= LVL_IMMORT)
-				) && (!PRF_FLAGGED(d->character, PRF_NOWIZ)) &&	// игрок с режимом NOWIZ не видит имм канала
+				((GET_LEVEL(d->character) >= level) ||	// уровень равным или выше level
+				(GET_GOD_FLAG(d->character, GF_DEMIGOD) && level == 31)) &&	// демигоды видят 31 канал
+				(!PRF_FLAGGED(d->character, PRF_NOWIZ)) &&	// игрок с режимом NOWIZ не видит имм канала
 				(!PLR_FLAGGED(d->character, PLR_WRITING)) &&	// пишущий не видит имм канала
 				(!PLR_FLAGGED(d->character, PLR_MAILING)))	// отправляющий письмо не видит имм канала
 		{

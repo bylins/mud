@@ -4053,9 +4053,9 @@ bool is_dark(room_rnum room)
 		// если на чаре аффект свет
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_SINGLELIGHT))
 			coef += 3.0;
-		// освещение ?
+		// освещение перекрывает 1 тьму!
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_HOLYLIGHT))
-			coef += 1.0;
+			coef += 9.0;
 		// Санка. Логично, что если чар светится ярким сиянием, то это сияние распространяется на комнату
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_SANCTUARY))
 			coef += 1.0;
