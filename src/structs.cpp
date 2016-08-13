@@ -870,6 +870,8 @@ void init_EApplyLocation_ITEM_NAMES()
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_PLAQUE] = "APPLY_PLAQUE";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_MADNESS] = "APPLY_MADNESS";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_PR] = "APPLY_PR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PLAQUE] = "APPLY_PLAQUE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MADNESS] = "APPLY_MADNESS";
 	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
 
 	for (const auto& i : EApplyLocation_name_by_value)
