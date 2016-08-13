@@ -2873,6 +2873,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		dmg.process(victim, ch);
 	}
 
+	if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_TESTER))
+	{
+        sprintf(buf, "&MПрименен урон = %d&n\r\n", dam);
+        send_to_char(buf,ch);
+    }
+
 	return dam;
 }
 
@@ -3771,14 +3777,14 @@ double expedient_bonus_damage(CHAR_DATA *ch, CHAR_DATA *victim)
 	case EXTRA_ATTACK_CUT_SHORTS:
         if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_AWARE))
         {
-            factor = 1+ch->get_skill(SKILL_SHORTS)/40.0;
+            factor = 1+ch->get_skill(SKILL_SHORTS)/70.0;
         } else
         {
-            factor = 1+ch->get_skill(SKILL_SHORTS)/50.0;
+            factor = 1+ch->get_skill(SKILL_SHORTS)/60.0;
         }
         break;
 	case EXTRA_ATTACK_CUT_PICK:
-        factor = 1+ch->get_skill(SKILL_PICK)/50.0;
+        factor = 1+ch->get_skill(SKILL_PICK)/70.0;
         break;
     default:
         factor = 1.00;
