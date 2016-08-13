@@ -115,7 +115,6 @@ void OBJ_DATA::zero_init()
 	cost_per_day_off_ = 0;
 	activator_.first = false;
 	activator_.second = 0;
-
 	custom_label = NULL;
 
 	memset(&obj_flags, 0, sizeof(obj_flag_data));

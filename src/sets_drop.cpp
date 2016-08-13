@@ -36,9 +36,13 @@
 #include <iomanip>
 #include <algorithm>
 
+
+extern int real_zone(int number);
+extern void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
+extern void oedit_object_free(OBJ_DATA * obj);
+
 namespace SetsDrop
 {
-
 // список сетин на дроп
 const char *CONFIG_FILE = LIB_MISC"full_set_drop.xml";
 // список уникальных мобов
@@ -61,7 +65,6 @@ const double MINI_SET_MULT = 1.5;
 const char *RESET_MESSAGE =
 	"Внезапно мир содрогнулся, день поменялся с ночью, земля с небом\r\n"
 	"...но через миг все вернулось на круги своя.";
-
 enum { SOLO_MOB, GROUP_MOB, SOLO_ZONE, GROUP_ZONE };
 
 // время следующего сброса таблицы
@@ -229,6 +232,31 @@ int Linked::drop_count() const
 	return count;
 }
 
+// создаем копию стафины миника + idx устанавливает точно такой же
+void create_clone_miniset(int vnum)
+{
+	const int new_vnum = 10000 + vnum;
+	// если такой зоны нет, то делаем ретурн
+	if ((new_vnum % 100) > top_of_zone_table)
+		return;
+	OBJ_DATA *obj, *old_obj;
+	// создаем новый объект
+	NEWCREATE(obj);
+	const int rnum = real_object(vnum);
+	// добавляем его в индекс
+	const size_t index = obj_proto.add(obj, new_vnum);
+	obj_proto.zone(index, real_zone(new_vnum));	
+	// здесь сохраняем рнум нашего нового объекта
+	int old_rnum = GET_OBJ_RNUM(obj);
+	obj_proto.set_idx(old_rnum, obj_proto.set_idx(rnum));
+	old_obj = read_object(rnum, REAL);
+	// копируем
+	oedit_object_copy(obj, old_obj);
+	oedit_object_free(old_obj);
+	GET_OBJ_RNUM(obj) = old_rnum;	
+}
+
+
 // * Инициализация списка сетов на лоад.
 void init_obj_list()
 {
@@ -328,6 +356,7 @@ void init_obj_list()
 						}
 					}
 				}
+				create_clone_miniset(obj_vnum);				
 			}
 		}
 		else
@@ -1278,6 +1307,7 @@ void init()
 	init_link_system();
 }
 
+
 // * \return рнум шмотки или -1 если дропать нечего
 int check_mob(int mob_rnum)
 {
@@ -1287,6 +1317,7 @@ int check_mob(int mob_rnum)
 	if (it != drop_list.end()
 		&& it->second.chance > 0)
 	{
+		// вычитаем количество стафин, которые выпали с фридропа
 		const int num = obj_proto.actual_count(it->second.obj_rnum);
 		// груп сетины по старой системе
 		if (!it->second.solo)

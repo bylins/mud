@@ -481,6 +481,7 @@ public:
 	OBJ_DATA *in_obj;	// In what object NULL when none    //
 	OBJ_DATA *contains;	// Contains objects                 //
 
+
 	long id;			// used by DG triggers              //
 	triggers_list_t proto_script;	// list of default triggers  //
 	struct script_data *script;	// script info for the object       //
@@ -517,7 +518,7 @@ public:
 	void purge(bool destructor = false);
 	bool purged() const;
 
-        //заколдование предмета
+    //заколдование предмета
 	void set_enchant(int skill);
 	void unset_enchant();
 	void set_enchant(int skill, OBJ_DATA *obj);
@@ -540,6 +541,7 @@ public:
 
 	void set_activator(bool flag, int num);
 	std::pair<bool, int> get_activator() const;
+
 
 	// wrappers to access to timed_spell
 	const TimedSpell& timed_spell() const { return m_timed_spell; }
@@ -578,6 +580,7 @@ private:
 	int cost_per_day_off_;
 	// для сообщений сетов <активировано или нет, размер активатора>
 	std::pair<bool, int> activator_;
+
 };
 
 inline bool CAN_WEAR(const OBJ_DATA *obj, const EWearFlag part)
