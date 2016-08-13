@@ -498,8 +498,8 @@ void assign_feats(void)
 	feato(SHADOW_STRIKE_FEAT, "танцующая тень", NORMAL_FTYPE, TRUE, feat_app);
 //109
 	feato(THRIFTY_FEAT, "запасливость", NORMAL_FTYPE, TRUE, feat_app);
-//110 
-	// Циничность: Вы настолько циничны, что люди не хотят общаться с Вами 
+//110
+	// Циничность: Вы настолько циничны, что люди не хотят общаться с Вами
 	// -25% опыта за зонинг в группе
 	feato(CYNIC_FEAT, "циничность", NORMAL_FTYPE, TRUE, feat_app);
 //111
@@ -518,10 +518,10 @@ void assign_feats(void)
 //115
 	// если на умертвии есть аффект вампиризм, то чару идет +5% от урона умки
 	feato(SOULLINK_FEAT, "родство душ", NORMAL_FTYPE, TRUE, feat_app);
-//116 
+//116
 	// при наличии этого умения невозможно сдизармить оружие
 	feato(STRONGCLUTCH_FEAT, "сильная хватка", NORMAL_FTYPE, TRUE, feat_app);
-//117 
+//117
 	// до 6 стрел одновременно
 	feato(MAGICARROWS_FEAT, "магические стрелы", NORMAL_FTYPE, TRUE, feat_app);
 //118
@@ -567,6 +567,13 @@ void assign_feats(void)
 //131
 	// наем наносит серию сильных ударов, но быстро устает
 	feato(BLACK_RITUAL_FEAT, "темный ритуал", NORMAL_FTYPE, TRUE, feat_app);
+	/**
+        Тут промежуток, потому что кто-то зарезервировал номера "под татей"
+	*/
+//138
+    feato(EVASION_FEAT, "скользский тип", NORMAL_FTYPE, TRUE, feat_app);
+//139
+    feato(EXPEDIENT_CUT_FEAT, "боевой_прием: порез", NORMAL_FTYPE, TRUE, feat_app);
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
@@ -800,6 +807,16 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 			return FALSE;
 		}
 		break;
+    case EXPEDIENT_CUT_FEAT:
+		if (!HAVE_FEAT(ch, SHORTS_MASTER_FEAT)
+            && !HAVE_FEAT(ch, PICK_MASTER_FEAT)
+            && !HAVE_FEAT(ch, LONGS_MASTER_FEAT)
+            && !HAVE_FEAT(ch, SPADES_MASTER_FEAT)
+            && !HAVE_FEAT(ch, BOTHHANDS_MASTER_FEAT))
+        {
+            return FALSE;
+        }
+        break;
 	}
 	return TRUE;
 }
@@ -849,7 +866,6 @@ int feature_mod(int feat, int location)
 			return (int) feat_info[feat].affected[i].modifier;
 	return 0;
 }
-
 
 void check_berserk(CHAR_DATA * ch)
 {
@@ -1408,14 +1424,14 @@ bool check_feat(CHAR_DATA *ch, int feat)
 	// тоже самое, только для количество ремортов
 	int rtmp;
 	for (cur_feat = .child(class_name[(int)GET_CLASS(ch) + 14*GET_KIN(ch)]); mob_ ; mob_  = mob_ .next_sibling(class_name[(int)GET_CLASS(ch) + 14*GET_KIN(ch)]))
-	{	
+	{
 		// ищем в данном дереве нашу способсность
 		tmp_feat = cur_feat.find_child_by_attribute("feat", std::to_string(feat).c_str())
 		ftmp = cur_feat.attribute("feat").as_int();
 		rtmp = cur_feat.attribute("remort").as_int();
 		// если ничего не было найдено, то функция возвратить ту ноду, в которой мы собсна и искали нашего ребенка
 		if (tmp_feat == cur_feat)
-		{			
+		{
 			if (ftmp = feat)
 				// если у данной способности реморт больше, чем у чара
 				if (rtmp > remort)
@@ -1440,11 +1456,11 @@ bool check_feat(CHAR_DATA *ch, int feat)
 				}
 			}
 		}
-			
-		
+
+
 	}
 	return false;
-	
+
 }*/
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

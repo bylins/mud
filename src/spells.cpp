@@ -3201,7 +3201,8 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL_INDRIKS_TEETH!",
 	"!SPELL_MELFS_ACID_ARROW!",
 	"!SPELL_THUNDERSTONE!",
-	"!SPELL_CLOD!"
+	"!SPELL_CLOD!",
+	"Эффект боевого приема завершился."
 };
 
 /**
@@ -3438,6 +3439,7 @@ const cast_phrases_t cast_phrase =
     cast_phrase_t{ "Варно сожжет струя!", "...и на коже его сделаются как бы язвы проказы" }, // SPELL_MELFS_ACID_ARROW
     cast_phrase_t{ "Небесе тутнет!", "...и взял оттуда камень, и бросил из пращи." }, // SPELL_THUNDERSTONE
     cast_phrase_t{ "Онома утес низринется!", "...доколе камень не оторвался от горы без содействия рук." }, // SPELL_CLODd
+    cast_phrase_t{ "!Применил боевой прием!", "!use battle expedient!" }, // SPELL_EXPEDIENT (set by program)
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3664,6 +3666,7 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_MELFS_ACID_ARROW] = "SPELL_MELFS_ACID_ARROW";
 	ESpell_name_by_value[ESpell::SPELL_THUNDERSTONE] = "SPELL_THUNDERSTONE";
 	ESpell_name_by_value[ESpell::SPELL_CLOD] = "SPELL_CLOD";
+	ESpell_name_by_value[ESpell::SPELL_EXPEDIENT] = "SPELL_EXPEDIENT";
 	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
 
 	for (const auto& i : ESpell_name_by_value)

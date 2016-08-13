@@ -60,6 +60,7 @@ void go_touch(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_protect(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict);
+void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict);
 int npc_battle_scavenge(CHAR_DATA * ch);
 void npc_wield(CHAR_DATA * ch);
 void npc_armor(CHAR_DATA * ch);
@@ -237,7 +238,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
 	ROUND_COUNTER(ch) = 0;
-	ch->set_extra_attack(0, 0);
+	ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 	set_battle_pos(ch);
 
 	// если до начала боя на мобе есть лаг, то мы его выравниваем до целых
@@ -298,7 +299,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
 	ROUND_COUNTER(ch) = 0;
-	ch->set_extra_attack(0, 0);
+	ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 	ch->set_cast(0, 0, 0, 0, 0);
 	restore_battle_pos(ch);
 	NUL_AF_BATTLE(ch);
@@ -316,7 +317,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 				CLR_AF_BATTLE(temp, EAF_TOUCH);
 			}
 			if (temp->get_extra_victim() == ch)
-				temp->set_extra_attack(0, 0);
+				temp->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 			if (temp->get_cast_char() == ch)
 				temp->set_cast(0, 0, 0, 0, 0);
 			if (temp->get_fighting() == ch && switch_others)
@@ -1635,7 +1636,7 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 				else
-				{ 
+				{
 //send_to_char(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
 //                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -1772,28 +1773,36 @@ bool using_extra_attack(CHAR_DATA *ch)
 {
 	bool used = false;
 
-	switch (ch->get_extra_skill())
+	switch (ch->get_extra_attack_mode())
 	{
-	case SKILL_THROW:
+	case EXTRA_ATTACK_THROW:
 		go_throw(ch, ch->get_extra_victim());
 		used = true;
 		break;
-	case SKILL_BASH:
+	case EXTRA_ATTACK_BASH:
 		go_bash(ch, ch->get_extra_victim());
 		used = true;
 		break;
-	case SKILL_KICK:
+	case EXTRA_ATTACK_KICK:
 		go_kick(ch, ch->get_extra_victim());
 		used = true;
 		break;
-	case SKILL_CHOPOFF:
+	case EXTRA_ATTACK_CHOPOFF:
 		go_chopoff(ch, ch->get_extra_victim());
 		used = true;
 		break;
-	case SKILL_DISARM:
+	case EXTRA_ATTACK_DISARM:
 		go_disarm(ch, ch->get_extra_victim());
 		used = true;
 		break;
+	case EXTRA_ATTACK_CUT_SHORTS:
+	case EXTRA_ATTACK_CUT_PICK:
+        go_cut_shorts(ch, ch->get_extra_victim());
+        used = true;
+        break;
+    default:
+        used = false;
+        break;
 	}
 
 	return used;
@@ -1937,7 +1946,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		&& GET_WAIT(ch) <= 0
 		&& using_extra_attack(ch))
 	{
-		ch->set_extra_attack(0, 0);
+		ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 		if (INITIATIVE(ch) > min_init)
 		{
 			INITIATIVE(ch)--;

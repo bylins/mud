@@ -701,7 +701,8 @@ enum class EAffectFlag: uint32_t
 	AFF_STRANGLED = INT_TWO | (1u << 17),
 	AFF_RECALL_SPELLS = INT_TWO | (1u << 18),
 	AFF_NOOB_REGEN = INT_TWO | (1u << 19),
-	AFF_VAMPIRE = INT_TWO | (1u << 20)
+	AFF_VAMPIRE = INT_TWO | (1u << 20),
+	AFF_EXPEDIENT = INT_TWO | (1u << 21)
 };
 
 template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
@@ -1068,7 +1069,8 @@ enum EApplyLocation
 	APPLY_BONUS_SKILLS = 59,
 	APPLY_PLAQUE = 60,
 	APPLY_MADNESS = 61,
-	NUM_APPLIES = 62
+	APPLY_PR = 62,
+	NUM_APPLIES = 63
 };
 
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
