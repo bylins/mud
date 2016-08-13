@@ -247,13 +247,13 @@ void create_clone_miniset(int vnum)
 	const size_t index = obj_proto.add(obj, new_vnum);
 	obj_proto.zone(index, real_zone(new_vnum));	
 	// здесь сохраняем рнум нашего нового объекта
-	int old_rnum = GET_OBJ_RNUM(obj);
-	obj_proto.set_idx(old_rnum, obj_proto.set_idx(rnum));
+	obj_proto.set_idx(index, obj_proto.set_idx(rnum));
 	old_obj = read_object(rnum, REAL);
 	// копируем
-	oedit_object_copy(obj, old_obj);
+	oedit_object_copy(obj_proto[index], old_obj);
 	oedit_object_free(old_obj);
-	GET_OBJ_RNUM(obj) = old_rnum;	
+	GET_OBJ_RNUM(obj_proto[index]) = index;
+	extract_obj(old_obj);
 }
 
 

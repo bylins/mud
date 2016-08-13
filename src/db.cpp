@@ -951,7 +951,7 @@ void load_random_obj()
 {
 	pugi::xml_document doc_robj;
 	pugi::xml_node robj, object, file_robj;
-	int tmp_buf1, tmp_buf2;
+	int tmp_buf2;
 	std::string tmp_str;
 	file_robj = XMLLoad(LIB_MISC RANDOMOBJ_FILE, "object", "Error loading cases file: random_obj.xml", doc_robj);
 	for (robj = file_robj.child("obj"); robj; robj = robj.next_sibling("obj"))

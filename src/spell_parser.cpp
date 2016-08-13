@@ -1632,6 +1632,10 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
 //		send_to_char(buf, ch);
 //		Меняем мем на коэффициент скилла магии
+		if ((GET_CLASS(ch) == CLASS_DRUID) &&
+			(GET_CLASS(ch) == CLASS_PALADINE) &&
+			(GET_CLASS(ch) == CLASS_MERCHANT))
+			return mana_cost;
 		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100; // при скилле 200 + 25%
 	};
 	return 9999;
