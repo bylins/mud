@@ -2873,7 +2873,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		dmg.process(victim, ch);
 	}
 
-	if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_TESTER))
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
 	{
         sprintf(buf, "&MПрименен урон = %d&n\r\n", dam);
         send_to_char(buf,ch);
@@ -3791,7 +3791,7 @@ double expedient_bonus_damage(CHAR_DATA *ch, CHAR_DATA *victim)
         break;
 	}
 
-	if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_TESTER))
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
 	{
         sprintf(buf, "&CМножитель урона от приема = %f&n\r\n", factor);
         send_to_char(buf,ch);
@@ -4149,7 +4149,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (ch->get_extra_attack_mode() != EXTRA_ATTACK_UNUSED)
         hit_params.dam *= expedient_bonus_damage(ch, victim);
 
-	if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_TESTER))
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
 	{
 		sprintf(buf, "&CРегуляр дамаг = %d&n\r\n", hit_params.dam);
 		send_to_char(buf,ch);

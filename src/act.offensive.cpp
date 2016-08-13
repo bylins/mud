@@ -3344,6 +3344,8 @@ void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
     }
 
+    act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", FALSE, ch, 0, vict, TO_VICT);
+    act("$n сделал$g неуловимое движение, сместившись за спину $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
     hit(ch, vict, TYPE_UNDEFINED, RIGHT_WEAPON);
     hit(ch, vict, TYPE_UNDEFINED, LEFT_WEAPON);
 
@@ -3361,8 +3363,6 @@ void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
     AffectImmunMagic.duration = 2;
     AffectImmunMagic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
     affect_join(ch, &AffectImmunMagic, FALSE, FALSE, FALSE, FALSE);
-    act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", FALSE, ch, 0, vict, TO_VICT);
-    act("$n сделал$g неуловимое движение, сместившись за спину $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 
     ApplyNoFleeAffect(ch, 3);
 }
