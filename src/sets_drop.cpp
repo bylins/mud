@@ -235,7 +235,7 @@ int Linked::drop_count() const
 // создаем копию стафины миника + idx устанавливает точно такой же
 void create_clone_miniset(int vnum)
 {
-	const int new_vnum = 10000 + vnum;
+	const int new_vnum = 1000000 + vnum;
 	// если такой зоны нет, то делаем ретурн
 	if ((new_vnum % 100) > top_of_zone_table)
 		return;
@@ -247,13 +247,13 @@ void create_clone_miniset(int vnum)
 	const size_t index = obj_proto.add(obj, new_vnum);
 	obj_proto.zone(index, real_zone(new_vnum));	
 	// здесь сохраняем рнум нашего нового объекта
-	int old_rnum = GET_OBJ_RNUM(obj);
-	obj_proto.set_idx(old_rnum, obj_proto.set_idx(rnum));
+	obj_proto.set_idx(index, obj_proto.set_idx(rnum));
 	old_obj = read_object(rnum, REAL);
 	// копируем
-	oedit_object_copy(obj, old_obj);
+	oedit_object_copy(obj_proto[index], old_obj);
 	oedit_object_free(old_obj);
-	GET_OBJ_RNUM(obj) = old_rnum;	
+	GET_OBJ_RNUM(obj_proto[index]) = index;
+	extract_obj(old_obj);
 }
 
 
@@ -1317,7 +1317,6 @@ int check_mob(int mob_rnum)
 	if (it != drop_list.end()
 		&& it->second.chance > 0)
 	{
-		// вычитаем количество стафин, которые выпали с фридропа
 		const int num = obj_proto.actual_count(it->second.obj_rnum);
 		// груп сетины по старой системе
 		if (!it->second.solo)

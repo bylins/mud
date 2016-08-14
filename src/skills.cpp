@@ -1327,6 +1327,84 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 	return result;
 }
 
+int find_weapon_focus_by_skill(ESkill skill)
+{
+    switch (skill)
+    {
+	case SKILL_PUNCH:
+        return PUNCH_FOCUS_FEAT;
+	break;
+	case SKILL_CLUBS:
+        return CLUB_FOCUS_FEAT;
+	break;
+	case SKILL_AXES:
+        return AXES_FOCUS_FEAT;
+	break;
+	case SKILL_LONGS:
+        return LONGS_FOCUS_FEAT;
+	break;
+	case SKILL_SHORTS:
+        return SHORTS_FOCUS_FEAT;
+	break;
+	case SKILL_NONSTANDART:
+        return NONSTANDART_FOCUS_FEAT;
+	break;
+	case SKILL_BOTHHANDS:
+        return BOTHHANDS_FOCUS_FEAT;
+	break;
+	case SKILL_PICK:
+        return PICK_FOCUS_FEAT;
+	break;
+	case SKILL_SPADES:
+        return SPADES_FOCUS_FEAT;
+	break;
+	case SKILL_BOWS:
+        return BOWS_FOCUS_FEAT;
+	break;
+	default:
+        return THAC0_FEAT;
+    }
+}
+
+int find_weapon_master_by_skill(ESkill skill)
+{
+    switch (skill)
+    {
+	case SKILL_PUNCH:
+        return PUNCH_MASTER_FEAT;
+	break;
+	case SKILL_CLUBS:
+        return CLUBS_MASTER_FEAT;
+	break;
+	case SKILL_AXES:
+        return AXES_MASTER_FEAT;
+	break;
+	case SKILL_LONGS:
+        return LONGS_MASTER_FEAT;
+	break;
+	case SKILL_SHORTS:
+        return SHORTS_MASTER_FEAT;
+	break;
+	case SKILL_NONSTANDART:
+        return NONSTANDART_MASTER_FEAT;
+	break;
+	case SKILL_BOTHHANDS:
+        return BOTHHANDS_MASTER_FEAT;
+	break;
+	case SKILL_PICK:
+        return PICK_MASTER_FEAT;
+	break;
+	case SKILL_SPADES:
+        return SPADES_MASTER_FEAT;
+	break;
+	case SKILL_BOWS:
+        return BOWS_MASTER_FEAT;
+	break;
+	default:
+        return THAC0_FEAT;
+    }
+}
+
 /*
  * функция определяет, может ли персонаж илучить скилл
  * впоследствии ее нужно будет перенести в класс "инфа о классе персонажа"

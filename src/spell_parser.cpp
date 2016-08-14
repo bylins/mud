@@ -1632,6 +1632,10 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
 //		send_to_char(buf, ch);
 //		Меняем мем на коэффициент скилла магии
+		if ((GET_CLASS(ch) == CLASS_DRUID) &&
+			(GET_CLASS(ch) == CLASS_PALADINE) &&
+			(GET_CLASS(ch) == CLASS_MERCHANT))
+			return mana_cost;
 		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100; // при скилле 200 + 25%
 	};
 	return 9999;
@@ -5240,6 +5244,9 @@ void mag_assign_spells(void)
 	spello(SPELL_CLOD, "глыба", "clod", 110, 100, 1,
             POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
             MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
+//215
+	spello(SPELL_EXPEDIENT, "!боевой прием!", "!set by programm!",
+		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
@@ -5354,7 +5361,6 @@ void mag_assign_spells(void)
 	skillo(SKILL_MIND_MAGIC, "магия разума", 200);
 	skillo(SKILL_LIFE_MAGIC, "магия жизни", 200);
 	skillo(SKILL_STUN, "ошеломить", 200);
-
 }
 
 int get_max_slot(CHAR_DATA* ch)
