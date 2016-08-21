@@ -40,7 +40,11 @@
 extern int real_zone(int number);
 extern void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
 extern void oedit_object_free(OBJ_DATA * obj);
-
+namespace obj_sets
+{
+	extern struct set_node;
+	extern std::vector<boost::shared_ptr<set_node>> sets_list;
+}
 namespace SetsDrop
 {
 // список сетин на дроп
@@ -85,7 +89,6 @@ struct MobNode
 	{
 		kill_stat.fill(0);
 	};
-
 	int vnum;
 	int rnum;
 	// макс.в.мире
@@ -235,10 +238,10 @@ int Linked::drop_count() const
 // создаем копию стафины миника + idx устанавливает точно такой же
 void create_clone_miniset(int vnum)
 {
-	const int new_vnum = 1000000 + vnum;
+	const int new_vnum = DUPLICATE_MINI_SET_VNUM + vnum;
 	// если такой зоны нет, то делаем ретурн
 	if ((new_vnum % 100) > top_of_zone_table)
-		return;
+		return;	
 	OBJ_DATA *obj, *old_obj;
 	// создаем новый объект
 	NEWCREATE(obj);
@@ -248,6 +251,8 @@ void create_clone_miniset(int vnum)
 	obj_proto.zone(index, real_zone(new_vnum));	
 	// здесь сохраняем рнум нашего нового объекта
 	obj_proto.set_idx(index, obj_proto.set_idx(rnum));
+
+
 	old_obj = read_object(rnum, REAL);
 	// копируем
 	oedit_object_copy(obj_proto[index], old_obj);
