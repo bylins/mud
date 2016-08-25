@@ -1839,7 +1839,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	}
 	if (unique_stuff(ch, obj) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE))
 	{
-		send_to_char("Вы не можете испольщовать более одной такой вещи.\r\n", ch);
+		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
     
