@@ -452,7 +452,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			next_ch = ch->next_in_room;
 			if (IS_NPC(ch)
 					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-						 || MOB_FLAGGED(ch, MOB_ANGEL)))
+						 || MOB_FLAGGED(ch, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST)))
 				continue;
 
 			if (on_horse(ch) || has_horse(ch, TRUE))
@@ -489,7 +489,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				ncharmee = charmee->next_in_room;
 				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
-										|| MOB_FLAGGED(charmee, MOB_ANGEL))
+										|| MOB_FLAGGED(charmee, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST))
 						&& charmee->master == ch)
 				{
 					char_from_room(charmee);

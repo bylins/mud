@@ -425,7 +425,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_NOMOB) &&
 				!IS_HORSE(ch) &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !MOB_FLAGGED(ch, MOB_ANGEL) && !MOB_FLAGGED(ch, MOB_IGNORNOMOB))
+				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !(MOB_FLAGGED(ch, MOB_ANGEL)||MOB_FLAGGED(ch, MOB_GHOST)) && !MOB_FLAGGED(ch, MOB_IGNORNOMOB))
 			return (FALSE);
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_DEATH) && !IS_HORSE(ch))
@@ -1699,7 +1699,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					}
 					if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
 						&& !GET_MOB_HOLD(k->follower)
-						&& MOB_FLAGGED(k->follower, MOB_ANGEL)
+						&& (MOB_FLAGGED(k->follower, MOB_ANGEL)||MOB_FLAGGED(k->follower, MOB_GHOST))
 						&& !k->follower->get_fighting()
 						&& IN_ROOM(k->follower) == from_room
 						&& AWAKE(k->follower))
