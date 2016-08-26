@@ -74,6 +74,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
 OBJ_DATA *create_skin(CHAR_DATA * mob);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
+bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj);
 
 // from class.cpp
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -1836,6 +1837,12 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		act("Вы не можете надеть $o3 на эту часть тела.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
+	if (unique_stuff(ch, obj) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE))
+	{
+		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
+		return;
+	}
+    
 	// for neck, finger, and wrist, try pos 2 if pos 1 is already full
 	if (   // не может держать если есть свет или двуручник
 		(where == WEAR_HOLD && (GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_LIGHT)

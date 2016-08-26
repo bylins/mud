@@ -5,7 +5,7 @@ import traceback
 import mud, constants
 
 def log_sys(msg):
-    s = msg + "\n" + trace
+    s = msg + "\n"
     mud.log(s.encode("koi8-r"), channel=constants.SYSLOG)
 	
 def reg_cmd(cmd_text, command,  position_min, level_min, unhide_percent):
