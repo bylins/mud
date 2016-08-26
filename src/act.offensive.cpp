@@ -914,7 +914,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 
 	if (!(IS_NPC(ch) ||	// моб
-			GET_EQ(ch, WEAR_SHIELD ||	// есть щит
+			GET_EQ(ch, WEAR_SHIELD) ||	// есть щит
 			IS_IMMORTAL(ch) ||	// бессмертный
 			GET_MOB_HOLD(vict) ||	// цель захолжена
 			GET_GOD_FLAG(vict, GF_GODSCURSE)	// есть спецфлаг
