@@ -913,8 +913,8 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	if (!(IS_NPC(ch) ||	// моб
-			GET_EQ(ch, WEAR_SHIELD) ||	// есть щит
+	//if (!(IS_NPC(ch) ||	// моб
+	if (!(GET_EQ(ch, WEAR_SHIELD) ||	// есть щит
 			IS_IMMORTAL(ch) ||	// бессмертный
 			GET_MOB_HOLD(vict) ||	// цель захолжена
 			GET_GOD_FLAG(vict, GF_GODSCURSE)	// есть спецфлаг
@@ -1050,12 +1050,21 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_BASH))
+	/*
+	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)))|| !ch->get_skill(SKILL_BASH))
 	{
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-
+	*/
+	if (!ch->get_skill(SKILL_BASH))
+	{
+		send_to_char("Вы не знаете как.\r\n", ch);
+		return;
+	}
+	// отключил проверку баша всем (посмотрим работает ли)
+	
+	
 	if (onhorse(ch))
 		return;
 

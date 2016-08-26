@@ -666,7 +666,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			next_ch = vict->next_in_room;
 			if (IS_NPC(vict)
 					&& !(IS_HORSE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-						 || MOB_FLAGGED(vict, MOB_ANGEL)))
+						 || MOB_FLAGGED(vict, MOB_ANGEL)|| MOB_FLAGGED(vict, MOB_GHOST)))
 				continue;
 			/*			if (on_horse(vict) || has_horse(vict, TRUE))
 							horse = get_horse(vict);
@@ -713,7 +713,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			ncharmee = charmee->next_in_room;
 			if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
-									|| MOB_FLAGGED(charmee, MOB_ANGEL))
+									|| MOB_FLAGGED(charmee, MOB_ANGEL)|| MOB_FLAGGED(charmee, MOB_GHOST))
 					&& charmee->master == vict)
 			{
 				char_from_room(charmee);

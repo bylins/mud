@@ -351,6 +351,7 @@ public:
 	friend void interpret_espec(const char *keyword, const char *value, int i, int nr);
 
 	void set_skill(const ESkill skill_num, int percent);
+	void set_skill(short remort);
 	void clear_skills();
 	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;

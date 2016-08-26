@@ -1065,7 +1065,7 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	if (AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP) ||
-			AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || IS_HORSE(vict))
+			AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || IS_HORSE(vict))
 		return (FALSE);
 
 	AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
@@ -1299,7 +1299,7 @@ void print_group(CHAR_DATA * ch)
 	for (f = ch->followers; f; f = f->next)
 	{
 		if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(f->follower, MOB_ANGEL)))
+			|| MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST)))
 		{
 			continue;
 		}
@@ -1318,7 +1318,7 @@ void print_group(CHAR_DATA * ch)
 			for (f = g->follower->followers; f; f = f->next)
 			{
 				if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(f->follower, MOB_ANGEL))
+					|| MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 				{
 					continue;
@@ -1343,7 +1343,7 @@ void print_group(CHAR_DATA * ch)
 			if (ch->master)
 			{
 				if (!(AFF_FLAGGED(g->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(g->follower, MOB_ANGEL))
+					|| MOB_FLAGGED(g->follower, MOB_ANGEL)|| MOB_FLAGGED(g->follower, MOB_GHOST))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 				{
 					continue;
@@ -1472,7 +1472,7 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP))
 		{
-			if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || IS_HORSE(vict))
+			if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || IS_HORSE(vict))
 			{
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", ch);
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", vict);
