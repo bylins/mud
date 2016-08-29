@@ -206,6 +206,8 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				!AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT) &&
 				!AFF_FLAGGED(vict, EAffectFlag::AFF_BLIND) && !GET_MOB_HOLD(vict) && GET_POS(vict) >= POS_FIGHTING)
 		{
+			sprintf(buf, "ТЕСТИРОВАНИЕ: Шаг проверки 1 (костыли) %s.\r\n", GET_NAME (vict));
+			send_to_room(buf,ch->in_room,0);
 			if (vict == ch)
 			{
 				act("Вы попытались напасть на того, кого прикрывали, и замерли в глубокой задумчивости.", FALSE, vict, 0, victim, TO_CHAR);
@@ -233,8 +235,8 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 
 			if ((vict->get_fighting() != ch) && (ch != victim))
 			{
-				sprintf(buf, "ТЕСТИРОВАНИЕ: Шаг проверки 2 (костыли) %s.\r\n", GET_NAME (vict));
-				send_to_room(buf,in_room,0);
+				sprintf(buf, "ТЕСТИРОВАНИЕ: Шаг проверки 2 (костыли) %s.\r\n", GET_NAME (victim));
+				send_to_room(buf,ch->in_room,0);
 				// агрим жертву после чего можно будет проверить возможно ли его здесь прикрыть(костыли конечно)
 				pk_agro_action(ch, victim);
 				if (!may_kill_here(vict, ch))
