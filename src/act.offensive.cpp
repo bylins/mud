@@ -233,6 +233,8 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 
 			if ((vict->get_fighting() != ch) && (ch != victim))
 			{
+				sprintf(buf, "ТЕСТИРОВАНИЕ: Шаг проверки 2 (костыли) %s.\r\n", GET_NAME (vict));
+				send_to_room(buf,in_room,0);
 				// агрим жертву после чего можно будет проверить возможно ли его здесь прикрыть(костыли конечно)
 				pk_agro_action(ch, victim);
 				if (!may_kill_here(vict, ch))

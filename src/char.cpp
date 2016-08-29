@@ -610,6 +610,8 @@ CHAR_DATA * CHAR_DATA::get_touching() const
 
 void CHAR_DATA::set_protecting(CHAR_DATA *vict)
 {
+	sprintf(buf, "ТЕСТИРОВАНИЕ: Вы прикрываете %s.\r\n", GET_NAME (vict));
+	send_to_room(buf,in_room,0);
 	protecting_ = vict;
 	check_fighting_list();
 }
