@@ -246,19 +246,12 @@ void create_clone_miniset(int vnum)
 	// создаем новый объект
 	NEWCREATE(obj);
 	const int rnum = real_object(vnum);
-	// добавляем его в индекс
-	const size_t index = obj_proto.add(obj, new_vnum);
-	obj_proto.zone(index, real_zone(new_vnum));	
+	// проверяем, есть ли у нашей сетины клон в системной зоне
+	const int rnum_nobj = real_object(new_vnum);
+	if (rnum_nobj < 0)
+		return;
 	// здесь сохраняем рнум нашего нового объекта
-	obj_proto.set_idx(index, obj_proto.set_idx(rnum));
-
-
-	old_obj = read_object(rnum, REAL);
-	// копируем
-	oedit_object_copy(obj_proto[index], old_obj);
-	oedit_object_free(old_obj);
-	GET_OBJ_RNUM(obj_proto[index]) = index;
-	extract_obj(old_obj);
+	obj_proto.set_idx(rnum_nobj, obj_proto.set_idx(rnum));
 }
 
 

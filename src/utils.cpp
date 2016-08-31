@@ -41,6 +41,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "obj_sets.hpp"
 
 #ifdef HAVE_ICONV
 #include <iconv.h>
@@ -2981,7 +2982,7 @@ bool find_set_item(OBJ_DATA *obj)
 {
 	for (; obj; obj = obj->next_content)
 	{
-		std::set<int>::const_iterator i = vnum_list.find(GET_OBJ_VNUM(obj));
+		std::set<int>::const_iterator i = vnum_list.find(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
 		if (i != vnum_list.end())
 		{
 			return true;
@@ -3033,7 +3034,7 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 		return false;
 	}
 
-	init_vnum_list(GET_OBJ_VNUM(obj));
+	init_vnum_list(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
 
 	if (vnum_list.empty())
 	{

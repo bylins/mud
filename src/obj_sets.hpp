@@ -18,7 +18,7 @@
 /// конкретные предметы, подменяя их родные статы + как бонус полноценное олц
 namespace obj_sets
 {
-
+int normalize_vnum(int vnum);
 struct idx_node
 {
 	// индекс сета
