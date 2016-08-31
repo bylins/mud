@@ -2959,9 +2959,9 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 	for (k = ch->followers; k; k = k_next)
 	{
 		k_next = k->next;
-		if (MOB_FLAGGED(k->follower, MOB_ANGEL))
+		if (MOB_FLAGGED(k->follower, MOB_GHOST))
 		{
-			extract_char(k->follower, FALSE);
+			stop_follower(k->follower, FALSE);
 		}
 	}
 	if (get_effective_int(ch) < 26 && !IS_IMMORTAL(ch))
@@ -2975,6 +2975,15 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}
+	AFFECT_DATA<EApplyLocation> af;
+	af.type = SPELL_CHARM;
+	af.duration =
+		pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+	af.modifier = 0;
+	af.location = APPLY_NONE;
+	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
+	af.battleflag = 0;
+	affect_to_char(mob, &af);
 
 	char_to_room(mob, IN_ROOM(ch));
 	mob->set_protecting(ch);

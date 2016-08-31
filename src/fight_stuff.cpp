@@ -48,7 +48,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 	bool leader_partner = false;
 	int partner_feat = 0;
 	if (IS_NPC(killer)
-		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL) || MOB_FLAGGED(killer, MOB_GHOST))
 		&& killer->master)
 	{
 		master = killer->master;
@@ -114,7 +114,8 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 		&& IS_NPC(rkiller)
 		&& (IS_CHARMICE(rkiller)
 			|| IS_HORSE(rkiller)
-			|| MOB_FLAGGED(killer, MOB_ANGEL)))
+			|| MOB_FLAGGED(killer, MOB_ANGEL)
+			|| MOB_FLAGGED(killer, MOB_GHOST)))
 	{
 		if(rkiller->master)
 		{
@@ -484,7 +485,8 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 	else if (IS_NPC(ch)
 		&& IS_NPC(killer)
 		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(killer, MOB_ANGEL))
+			|| MOB_FLAGGED(killer, MOB_ANGEL)
+			|| MOB_FLAGGED(killer, MOB_GHOST))
 		&& (corpse != NULL)
 		&& killer->master
 		&& killer->in_room == killer->master->in_room
@@ -498,7 +500,8 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 		&& IS_NPC(killer)
 		&& local_gold
 		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(killer, MOB_ANGEL))
+			|| MOB_FLAGGED(killer, MOB_ANGEL)
+			|| MOB_FLAGGED(killer, MOB_GHOST))
 		&& (corpse != NULL)
 		&& killer->master
 		&& killer->in_room == killer->master->in_room
@@ -1045,7 +1048,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 		&& OK_GAIN_EXP(ch, victim)
 		&& GET_EXP(victim) > 0
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-		&& !MOB_FLAGGED(victim, MOB_ANGEL)
+		&& !(MOB_FLAGGED(victim, MOB_ANGEL)|| MOB_FLAGGED(victim, MOB_GHOST))
 		&& !IS_NPC(ch)
 		&& !MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP))
 	{

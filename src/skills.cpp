@@ -527,7 +527,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	//Зачем здесь было SAVING_REFLEX? Оно же просто число
 	int skill_is, percent = 0, victim_sav = 0, victim_modi = 0; // текущее значение умения(прокачанность) / вычисляемый итоговый процент / савис жертвы,
                                                                     // который влияет на прохождение скила / другие модификаторы, влияющие на прохождение
-	int morale = 0, max_percent = 200, bonus = 0, size = 0;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
+	int morale = 0, max_percent = 200, bonus = 0, size = 0, fail_limit = 950 ;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
 	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
 	bool try_morale = false;
@@ -1123,7 +1123,7 @@ if (morale < 0) {
 	morale_bonus = morale * 10;
 }
 const int bonus_limit = MIN(150, morale * 10);
-int fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
+fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
 // Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
 // игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
 // все решают спас-броски.
@@ -1173,6 +1173,8 @@ else if (prob < bonus_limit)
 		else
 			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2);
 	}
+	if (skill_no == SKILL_PROTECT)
+	log("SKILL_PROTECT: Игрок %s , Percent == %d, fail_limit == %d, Morale == %d, Bonus == %d\r\n",GET_NAME (ch), percent, fail_limit, morale, bonus); 
 
 	return (percent);
 }
