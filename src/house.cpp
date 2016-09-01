@@ -1630,11 +1630,11 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
-	{
-		send_to_char(SOUNDPROOF, ch);
-		return;
-	}
+//	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)) Ибо в подводе получается коряво
+//	{
+//		send_to_char(SOUNDPROOF, ch);
+//		return;
+//	}
 
 	switch (subcmd)
 	{
@@ -1659,7 +1659,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 				&& STATE(d) == CON_PLAYING
 				&& CLAN(d->character) == CLAN(ch)
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
-	    			&& !ROOM_FLAGGED(d->character->in_room, ROOM_SOUNDPROOF)
+//	    			&& !ROOM_FLAGGED(d->character->in_room, ROOM_SOUNDPROOF)
 				&& !ignores(d->character, ch, IGNORE_CLAN))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%s дружине: %s'%s'.%s\r\n",
@@ -1702,7 +1702,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 				&& STATE(d) == CON_PLAYING
 				&& d->character != ch
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
-	    			&& !ROOM_FLAGGED(d->character->in_room, ROOM_SOUNDPROOF)
+//	    			&& !ROOM_FLAGGED(d->character->in_room, ROOM_SOUNDPROOF)
 				&& !ignores(d->character, ch, IGNORE_ALLIANCE))
 			{
 				if (CLAN(ch)->CheckPolitics(CLAN(d->character)->GetRent()) == POLITICS_ALLIANCE
