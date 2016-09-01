@@ -1482,6 +1482,7 @@ struct AFFECT_DATA
 	int modifier;		// This is added to appropriate ability     //
 	TLocation location;		// Tells which ability to change(APPLY_XXX) //
 	long battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
+	FLAG_DATA aff;
 	uint32_t bitvector;		// Tells which bits to set (AFF_XXX) //
 	long
 	caster_id; //Unique caster ID //
