@@ -2460,7 +2460,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		old_rnum = GET_OBJ_RNUM(OLC_OBJ(d));
-		obj_original = read_object(rnum, REAL);
+		obj_original = read_object(rnum, VIRTUAL);
 		oedit_object_copy(OLC_OBJ(d), obj_original);
 		oedit_object_free(obj_original);
 		GET_OBJ_RNUM(OLC_OBJ(d)) = old_rnum;

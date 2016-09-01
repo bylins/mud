@@ -3194,14 +3194,27 @@ void ApplyNoFleeAffect(CHAR_DATA *ch, int duration)
 {
     //Это жутко криво, но почемук-то при простановке сразу 2 флагов битвектора начинаются глюки, хотя все должно быть нормально
     //По-видимому, где-то просто не учтено, что ненулевых битов может быть более 1
-    AFFECT_DATA<EApplyLocation> Noflee;
-    Noflee.type = SPELL_BATTLE;
-    Noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
-    Noflee.location = EApplyLocation::APPLY_NONE;
-    Noflee.modifier = 0;
-    Noflee.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
-    Noflee.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-    affect_join(ch, &Noflee, TRUE, FALSE, TRUE, FALSE);
+	AFFECT_DATA<EApplyLocation> Noflee;
+	Noflee.type = SPELL_BATTLE;
+	Noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+	Noflee.location = EApplyLocation::APPLY_NONE;
+	Noflee.modifier = 0;
+	Noflee.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
+	Noflee.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+	affect_join(ch, &Noflee, TRUE, FALSE, TRUE, FALSE);
+	
+	// надо потестировать это
+	/* AFFECT_DATA<EApplyLocation> NofleeAndExpedient;
+	NofleeAndExpedient.type = SPELL_BATTLE;
+	NofleeAndExpedient.aff.set(EAffectFlag::AFF_NOFLEE);
+	NofleeAndExpedient.aff.set(EAffectFlag::AFF_EXPEDIENT);
+	// битвектор так же можно юзать по старинке
+	//NofleeAndExpedient.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+	NofleeAndExpedient.location = EApplyLocation::APPLY_NONE;
+	NofleeAndExpedient.modifier = 0;
+	NofleeAndExpedient.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
+	NofleeAndExpedient.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+    affect_join(ch, &NofleeAndExpedient, TRUE, FALSE, TRUE, FALSE);*/
 
     AFFECT_DATA<EApplyLocation> Battle;
     Battle.type = SPELL_BATTLE;

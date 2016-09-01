@@ -1630,7 +1630,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
-//	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)) Ибо в подводе получается коряво
+//	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)) Ибо в подводе коряво работает
 //	{
 //		send_to_char(SOUNDPROOF, ch);
 //		return;

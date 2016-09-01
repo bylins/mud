@@ -40,7 +40,6 @@
 extern int real_zone(int number);
 extern void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
 extern void oedit_object_free(OBJ_DATA * obj);
-
 namespace SetsDrop
 {
 // список сетин на дроп
@@ -85,7 +84,6 @@ struct MobNode
 	{
 		kill_stat.fill(0);
 	};
-
 	int vnum;
 	int rnum;
 	// макс.в.мире
@@ -235,25 +233,20 @@ int Linked::drop_count() const
 // создаем копию стафины миника + idx устанавливает точно такой же
 void create_clone_miniset(int vnum)
 {
-	const int new_vnum = 1000000 + vnum;
+	const int new_vnum = DUPLICATE_MINI_SET_VNUM + vnum;
 	// если такой зоны нет, то делаем ретурн
 	if ((new_vnum % 100) > top_of_zone_table)
-		return;
+		return;	
 	OBJ_DATA *obj, *old_obj;
 	// создаем новый объект
 	NEWCREATE(obj);
 	const int rnum = real_object(vnum);
-	// добавляем его в индекс
-	const size_t index = obj_proto.add(obj, new_vnum);
-	obj_proto.zone(index, real_zone(new_vnum));	
+	// проверяем, есть ли у нашей сетины клон в системной зоне
+	const int rnum_nobj = real_object(new_vnum);
+	if (rnum_nobj < 0)
+		return;
 	// здесь сохраняем рнум нашего нового объекта
-	obj_proto.set_idx(index, obj_proto.set_idx(rnum));
-	old_obj = read_object(rnum, REAL);
-	// копируем
-	oedit_object_copy(obj_proto[index], old_obj);
-	oedit_object_free(old_obj);
-	GET_OBJ_RNUM(obj_proto[index]) = index;
-	extract_obj(old_obj);
+	obj_proto.set_idx(rnum_nobj, obj_proto.set_idx(rnum));
 }
 
 

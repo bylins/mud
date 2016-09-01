@@ -637,7 +637,9 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		strcat(buf, buf2);
 	}
 	if (how > 1)
+	{
 		sprintf(buf + strlen(buf), " [%d]", how);
+	}
 	if (mode != 3 && how <= 1)
 	{
 		if (object->get_extraflag(EExtraFlag::ITEM_INVISIBLE))
@@ -702,6 +704,15 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 	return 0;
 }
 
+bool quest_item(OBJ_DATA *obj)
+{
+	if ((OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODECAY)) && (!(CAN_WEAR(obj, EWearFlag::ITEM_WEAR_TAKE))))
+	{
+		return true;
+	}
+	return false;
+}
+
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 {
 	OBJ_DATA *i, *push = NULL;
@@ -725,7 +736,8 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 				push = i;
 				push_count = 1;
 			}
-			else if (!equal_obj(i, push))
+			else if ((!equal_obj(i, push)) 
+				|| (quest_item(i)))
 			{
 				if (clan_chest)
 				{
