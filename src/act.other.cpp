@@ -243,7 +243,8 @@ void do_save(CHAR_DATA *ch, char* /*argument*/, int cmd, int/* subcmd*/)
 		}
 		sprintf(buf, "Записываю %s и алиасы.\r\n", GET_NAME(ch));
 		send_to_char(buf, ch);*/
-		send_to_char("Оладушки.\r\n", ch);
+		send_to_char("Ладушки.\r\n", ch);
+		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
 	}	
 	write_aliases(ch);
 	ch->save_char();
