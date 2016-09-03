@@ -334,7 +334,10 @@ int get_obj_to_drop(DropListType::iterator &i)
 	std::vector<int> tmp_list;
 	for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end(); k != kend; ++k)
 	{
-		tmp_list.push_back(k->second);
+		if ((GET_OBJ_MIW(obj_proto[k->second]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
+			|| (k->second >= 0
+				&& obj_proto.actual_count(k->second) < GET_OBJ_MIW(obj_proto[k->second])))
+			tmp_list.push_back(k->second);
 	}
 	if (!tmp_list.empty())
 	{
