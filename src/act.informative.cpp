@@ -2465,6 +2465,8 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			sprintf(buf + strlen(buf), "%s\r\n", obj->custom_label->label_text);
 		}
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
+		if (GET_OBJ_VNUM(obj) >= DUPLICATE_MINI_SET_VNUM)
+			sprintf(buf + strlen(buf), "Светится белым сиянием\r\n");
 }
 /*
  * Given the argument "look at <target>", figure out what object or char
