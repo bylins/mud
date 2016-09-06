@@ -384,8 +384,8 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				int obj_rnum = i->vnum > 0 ? i->rnum : get_obj_to_drop(i);
 				if (obj_rnum == -1)
 				{
-					continue;
 					i->mobs = 0;
+					continue;					
 				}
 				if (number(1, 1000) <= i->chance
 					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
