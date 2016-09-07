@@ -3022,8 +3022,30 @@ void init_vnum_list(int vnum)
 	} 
 }
 
+
+/* проверяем сетину в массиве внумоB*/
+bool is_norent_set(int vnum, std::vector<int> objs)
+{
+	if (objs.empty())
+		return true;
+	// нормализуем внумы
+	for (unsigned int i = 0; i < objs.size(); i++)
+	{
+		objs[i] = obj_sets::normalize_vnum(objs[i]);
+	}
+	init_vnum_list(obj_sets::normalize_vnum(vnum));
+	for (const auto& it : objs) 
+	{
+		for (const auto& it1 : vnum_list)
+			if (it == it1)
+				return false;
+	}
+	return true;
+}
+
+
 /**
- * Экипировка, инвентарь, чармисы, перс. хран.
+ * Экипировка, инвентарь, чармисы, перс. хран.см
  * Требуется наличие двух и более предметов, если сетина из большого сета.
  * Перс. хран, рента.
  */
