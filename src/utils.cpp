@@ -3029,6 +3029,7 @@ bool is_norent_set(int vnum, std::vector<int> objs)
 	if (objs.empty())
 		return true;
 	// нормализуем внумы
+	vnum = obj_sets::normalize_vnum(vnum);
 	for (unsigned int i = 0; i < objs.size(); i++)
 	{
 		objs[i] = obj_sets::normalize_vnum(objs[i]);

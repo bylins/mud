@@ -233,12 +233,12 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 }
 
 // получаем все объекты, которые были отправлены чару
-std::vector<int> get_objs(long vict_uid)
+std::vector<int> get_objs(long char_uid)
 {
 	std::vector<int> buf_vector;
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
 	{
-		SenderListType::const_iterator it2 = it->second.find(vict_uid);
+		SenderListType::const_iterator it2 = it->second.find(char_uid);
 		if (it2 != it->second.end())
 		{
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
@@ -284,7 +284,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 		act("$n сказал$g вам : 'Ошибка в имени получателя, сообщите Богам!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
-	if (SetSystem::is_norent_set(ch, obj) && SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(vict_uid)))
+	if (SetSystem::is_norent_set(ch, obj) && SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(GET_UNIQUE(ch))))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 			"%s - требуется две и более вещи из набора.\r\n",
