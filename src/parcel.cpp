@@ -284,7 +284,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 		act("$n сказал$g вам : 'Ошибка в имени получателя, сообщите Богам!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
-	if (SetSystem::is_norent_set(ch, obj))
+	if (SetSystem::is_norent_set(ch, obj) && SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(vict_uid)))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 			"%s - требуется две и более вещи из набора.\r\n",
