@@ -235,16 +235,17 @@ void do_save(CHAR_DATA *ch, char* /*argument*/, int cmd, int/* subcmd*/)
 				 * that guest immortals aren't trustworthy. If you've disabled guest
 				 * immortal advances from mortality, you may want < instead of <=.
 				 */
-		if (auto_save && GET_LEVEL(ch) <= LVL_IMMORT)
+		/*if (auto_save && GET_LEVEL(ch) <= LVL_IMMORT)
 		{
 			send_to_char("Записываю синонимы.\r\n", ch);
 			write_aliases(ch);
 			return;
 		}
 		sprintf(buf, "Записываю %s и алиасы.\r\n", GET_NAME(ch));
-		send_to_char(buf, ch);
-	}
-
+		send_to_char(buf, ch);*/
+		send_to_char("Ладушки.\r\n", ch);
+		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
+	}	
 	write_aliases(ch);
 	ch->save_char();
 	Crash_crashsave(ch);

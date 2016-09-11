@@ -41,6 +41,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "obj_sets.hpp"
 
 #ifdef HAVE_ICONV
 #include <iconv.h>
@@ -2981,7 +2982,7 @@ bool find_set_item(OBJ_DATA *obj)
 {
 	for (; obj; obj = obj->next_content)
 	{
-		std::set<int>::const_iterator i = vnum_list.find(GET_OBJ_VNUM(obj));
+		std::set<int>::const_iterator i = vnum_list.find(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
 		if (i != vnum_list.end())
 		{
 			return true;
@@ -3021,8 +3022,31 @@ void init_vnum_list(int vnum)
 	} 
 }
 
+
+/* проверяем сетину в массиве внумоB*/
+bool is_norent_set(int vnum, std::vector<int> objs)
+{
+	if (objs.empty())
+		return true;
+	// нормализуем внумы
+	vnum = obj_sets::normalize_vnum(vnum);
+	for (unsigned int i = 0; i < objs.size(); i++)
+	{
+		objs[i] = obj_sets::normalize_vnum(objs[i]);
+	}
+	init_vnum_list(obj_sets::normalize_vnum(vnum));
+	for (const auto& it : objs) 
+	{
+		for (const auto& it1 : vnum_list)
+			if (it == it1)
+				return false;
+	}
+	return true;
+}
+
+
 /**
- * Экипировка, инвентарь, чармисы, перс. хран.
+ * Экипировка, инвентарь, чармисы, перс. хран.см
  * Требуется наличие двух и более предметов, если сетина из большого сета.
  * Перс. хран, рента.
  */
@@ -3033,7 +3057,7 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 		return false;
 	}
 
-	init_vnum_list(GET_OBJ_VNUM(obj));
+	init_vnum_list(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
 
 	if (vnum_list.empty())
 	{

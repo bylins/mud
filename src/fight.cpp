@@ -1536,6 +1536,9 @@ void using_mob_skills(CHAR_DATA *ch)
 						&& !(AFF_FLAGGED(attacker, EAffectFlag::AFF_CHARM)
 							&& attacker->master
 							&& !IS_NPC(attacker->master))
+						&& !(MOB_FLAGGED(attacker, MOB_GHOST)
+							&& attacker->master
+							&& !IS_NPC(attacker->master))
 						&& !(MOB_FLAGGED(attacker, MOB_ANGEL)
 							&& attacker->master
 							&& !IS_NPC(attacker->master)))
@@ -1867,7 +1870,7 @@ void process_npc_attack(CHAR_DATA *ch)
 		}
 		else if (vict && ch->get_skill(SKILL_PROTECT))
 		{
-			go_protect(ch, ch->master);
+                    go_protect(ch, ch->master);
 		}
 	}
 	else if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))

@@ -44,6 +44,9 @@ class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any d
 #define DL_LOAD_ANYWAY_NC  2
 #define DL_LOAD_IFLAST_NC  3
 
+
+#define DUPLICATE_MINI_SET_VNUM 1000000
+
 enum SetStuffMode
 {
 	SETSTUFF_SNUM,

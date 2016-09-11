@@ -2464,6 +2464,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		oedit_object_copy(OLC_OBJ(d), obj_original);
 		oedit_object_free(obj_original);
 		GET_OBJ_RNUM(OLC_OBJ(d)) = old_rnum;
+		extract_obj(obj_original);
 		break;
 	default:
 		mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, LVL_BUILDER, SYSLOG, TRUE);

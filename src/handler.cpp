@@ -913,7 +913,9 @@ void affect_to_char(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af)
 	affected_alloc->next = ch->affected;
 	ch->affected = affected_alloc;
 
-	affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
+	AFF_FLAGS(ch) += af->aff;
+	if (af->bitvector)
+		affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
