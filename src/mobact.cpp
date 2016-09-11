@@ -1144,7 +1144,8 @@ void mobile_activity(int activity_level, int missed_pulses)
 				break;
 			}
 		// continue, if the mob is an angel
-		if (MOB_FLAGGED(ch, MOB_ANGEL))
+		// если моб ментальная тень или ангел он не должен проявлять активность
+		if ((MOB_FLAGGED(ch, MOB_ANGEL))||(MOB_FLAGGED(ch, MOB_ANGEL)))
 			continue;
 
 		// look at room before moving
