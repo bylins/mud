@@ -1637,7 +1637,7 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 		&& (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST)))
 		ch = ch->master;
 	if (IS_NPC(tch) && tch->master && !IS_NPC(tch->master)
-		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST)))
+		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)|| MOB_FLAGGED(tch, MOB_GHOST)))
 		tch = tch->master;
 
 	// NPC's always in same group
