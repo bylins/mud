@@ -571,7 +571,7 @@ void assign_feats(void)
         Тут промежуток, потому что кто-то зарезервировал номера "под татей"
 	*/
 //138
-    feato(EVASION_FEAT, "скользский тип", NORMAL_FTYPE, TRUE, feat_app);
+    feato(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
 //139
     feato(EXPEDIENT_CUT_FEAT, "боевой_прием: порез", NORMAL_FTYPE, TRUE, feat_app);
 	/*
