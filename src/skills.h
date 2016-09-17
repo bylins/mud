@@ -24,6 +24,18 @@
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
+enum ExtraAttackEnumType
+{
+	EXTRA_ATTACK_UNUSED,
+	EXTRA_ATTACK_THROW,
+	EXTRA_ATTACK_BASH,
+	EXTRA_ATTACK_KICK,
+	EXTRA_ATTACK_CHOPOFF,
+	EXTRA_ATTACK_DISARM,
+	EXTRA_ATTACK_CUT_SHORTS,
+	EXTRA_ATTACK_CUT_PICK
+};
+
 // PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM //
 enum ESkill: int
 {
@@ -134,6 +146,8 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 int train_skill(CHAR_DATA * ch, const ESkill skill_no, int max_value, CHAR_DATA * vict);
 int min_skill_level(CHAR_DATA *ch, int skill);
 bool can_get_skill(CHAR_DATA *ch, int skill);
+int find_weapon_focus_by_skill(ESkill skill);
+int find_weapon_master_by_skill(ESkill skill);
 
 // зптопе демп
 

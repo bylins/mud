@@ -720,7 +720,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				&& (af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPFIGHT)
 					|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPRIGHT)
 					|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT)))
-			{ 
+			{
 				af[i].duration /= 5;
 				// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
 				sh_int extra_duration = 0;
@@ -1950,7 +1950,7 @@ void Damage::dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const
 		dam_msgnum = 13;
 	else if (dam <= 400)
 		dam_msgnum = 14;
-	else 
+	else
 		dam_msgnum = 15;
 	// damage message to onlookers
 	char *buf_ptr = replace_string(dam_weapons[dam_msgnum].to_room,
@@ -2411,7 +2411,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
 		}
-		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_HORSE) || AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)) && killer->master)
+		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_HORSE) || AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)|| MOB_FLAGGED(killer, MOB_GHOST)) && killer->master)
 			// killer - зачармленный NPC с хозяином
 		{
 			// по логике надо бы сделать, что если хозяина нет в клетке, но
@@ -2445,7 +2445,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 	// в сислог иммам идут только смерти в пк (без арен)
 	// в файл пишутся все смерти чаров
 	// если чар убит палачем то тоже не спамим
-	
+
 	if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR)))
 	{
 		update_pk_logs(ch, victim);
@@ -2640,10 +2640,19 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	// added by WorM(Видолюб) поглощение физ.урона в %
-	if(GET_PR(victim) && IS_NPC(victim)
-		&& dmg_type == FightSystem::PHYS_DMG)
+	//if(GET_PR(victim) && IS_NPC(victim)
+	if(GET_PR(victim) && dmg_type == FightSystem::PHYS_DMG)
 	{
-		dam = dam - (dam * GET_PR(victim) / 100);
+		if (PRF_FLAGGED(victim, PRF_TESTER))
+		{
+            int ResultDam = dam - (dam * GET_PR(victim) / 100);
+            sprintf(buf, "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
+            send_to_char(buf, victim);
+            dam = ResultDam;
+        } else
+        {
+            dam = dam - (dam * GET_PR(victim) / 100);
+        }
 	}
 
 	// зб, щиты, броня, поглощение
@@ -2737,7 +2746,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			}
 		}
 	}
-	
+
 	// запись в дметр фактического и овер дамага
 	update_dps_stats(ch, real_dam, over_dam);
 	// запись дамага в список атакеров
@@ -2787,7 +2796,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	//  dam_message just sends a generic "You hit $n extremely hard.".
 	//  skill_message is preferable to dam_message because it is more
 	//  descriptive.
-	// 
+	//
 	//  If we are _not_ attacking with a weapon (i.e. a spell), always use
 	//  skill_message. If we are attacking with a weapon: If this is a miss or a
 	//  death blow, send a skill_message if one exists; if not, default to a
@@ -2830,7 +2839,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			dam_message(ch, victim);
 		}
 	}
-	
+
 	/// Use send_to_char -- act() doesn't send message if you are DEAD.
 	char_dam_message(dam, ch, victim, flags[FightSystem::NO_FLEE]);
 
@@ -2869,6 +2878,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		dmg.process(victim, ch);
 	}
 
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
+	{
+        sprintf(buf, "&MПрименен урон = %d&n\r\n", dam);
+        send_to_char(buf,ch);
+    }
+
 	return dam;
 }
 
@@ -2887,7 +2902,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		prob = 0;
 	}
-        
+
 /*  Логирование шанса молота.
 send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Stab == %d\r\n", prob, percent, might, stab);
  sprintf(buf, "%s молотит : Percent == %d,Prob == %d, Might == %d, Stability == %d\r\n",GET_NAME(ch), percent, prob, might, stab);
@@ -3656,7 +3671,7 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 
 	if (IS_NPC(ch)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		&& !MOB_FLAGGED(ch, MOB_ANGEL))
+		&& !(MOB_FLAGGED(ch, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST)))
 	{
 		damroll *= MOB_DAMAGE_MULT;
 	}
@@ -3756,6 +3771,39 @@ void HitData::calc_crit_chance(CHAR_DATA *ch)
 		reset_flag(FightSystem::CRIT_HIT);
 	}
 }
+
+/* Бонусная дамага от "пореза" и других приемов, буде таковые реализуют */
+double expedient_bonus_damage(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+	double factor = 1.00;
+
+	switch (ch->get_extra_attack_mode())
+	{
+	case EXTRA_ATTACK_CUT_SHORTS:
+        if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_AWARE))
+        {
+            factor = 1+ch->get_skill(SKILL_SHORTS)/70.0;
+        } else
+        {
+            factor = 1+ch->get_skill(SKILL_SHORTS)/60.0;
+        }
+        break;
+	case EXTRA_ATTACK_CUT_PICK:
+        factor = 1+ch->get_skill(SKILL_PICK)/70.0;
+        break;
+    default:
+        factor = 1.00;
+        break;
+	}
+
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
+	{
+        sprintf(buf, "&CМножитель урона от приема = %f&n\r\n", factor);
+        send_to_char(buf,ch);
+    }
+
+    return factor;
+};
 
 /**
 * обработка ударов оружием, санка, призма, стили, итд.
@@ -3975,7 +4023,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		hit_params.set_flag(FightSystem::IGNORE_FSHIELD);
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT) || can_use_feat(ch, SHADOW_STRIKE_FEAT))
 		{
-			// тати игнорят броню полностью 
+			// тати игнорят броню полностью
 			// и наемы тоже!
 			hit_params.set_flag(FightSystem::IGNORE_ARMOR);
 		}
@@ -3991,7 +4039,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 		{
-			if (victim->get_fighting())		
+			if (victim->get_fighting())
 			{
 				hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 			}
@@ -4066,7 +4114,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			send_to_char(buf,ch);
 			sprintf(buf, "&RДамага метнуть равна = %d&n\r\n", hit_params.dam);
 			send_to_char(buf,victim);
-		}               
+		}
 		return;
 	}
 
@@ -4103,7 +4151,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	if (IS_IMPL(ch))
+	if (ch->get_extra_attack_mode() != EXTRA_ATTACK_UNUSED)
+        hit_params.dam *= expedient_bonus_damage(ch, victim);
+
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
 	{
 		sprintf(buf, "&CРегуляр дамаг = %d&n\r\n", hit_params.dam);
 		send_to_char(buf,ch);
@@ -4140,6 +4191,21 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		// victim is not dead after hit
 		hitprcnt_mtrigger(victim);
 	}
+}
+
+OBJ_DATA *GetUsedWeapon(CHAR_DATA *ch, int SelectedWeapon)
+{
+	OBJ_DATA *UsedWeapon = nullptr;
+
+	if (SelectedWeapon == RIGHT_WEAPON)
+	{
+		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
+			UsedWeapon = GET_EQ(ch, WEAR_BOTHS);
+	}
+	else if (SelectedWeapon == LEFT_WEAPON)
+		UsedWeapon = GET_EQ(ch, WEAR_HOLD);
+
+    return UsedWeapon;
 }
 
 //**** This function realize second shot for bows ******
@@ -4200,13 +4266,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 		}
 	}
 
-	if (weapon == RIGHT_WEAPON)
-	{
-		if (!(wielded = GET_EQ(ch, WEAR_WIELD)))
-			wielded = GET_EQ(ch, WEAR_BOTHS);
-	}
-	else if (weapon == LEFT_WEAPON)
-		wielded = GET_EQ(ch, WEAR_HOLD);
+	wielded = GetUsedWeapon(ch, weapon);
 
 	if (wielded
 			&& !GET_EQ(ch, WEAR_SHIELD)

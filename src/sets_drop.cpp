@@ -36,9 +36,12 @@
 #include <iomanip>
 #include <algorithm>
 
+
+extern int real_zone(int number);
+extern void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
+extern void oedit_object_free(OBJ_DATA * obj);
 namespace SetsDrop
 {
-
 // список сетин на дроп
 const char *CONFIG_FILE = LIB_MISC"full_set_drop.xml";
 // список уникальных мобов
@@ -61,7 +64,6 @@ const double MINI_SET_MULT = 1.5;
 const char *RESET_MESSAGE =
 	"Внезапно мир содрогнулся, день поменялся с ночью, земля с небом\r\n"
 	"...но через миг все вернулось на круги своя.";
-
 enum { SOLO_MOB, GROUP_MOB, SOLO_ZONE, GROUP_ZONE };
 
 // время следующего сброса таблицы
@@ -82,7 +84,6 @@ struct MobNode
 	{
 		kill_stat.fill(0);
 	};
-
 	int vnum;
 	int rnum;
 	// макс.в.мире
@@ -327,7 +328,7 @@ void init_obj_list()
 							}
 						}
 					}
-				}
+				}			
 			}
 		}
 		else
@@ -1277,6 +1278,7 @@ void init()
 
 	init_link_system();
 }
+
 
 // * \return рнум шмотки или -1 если дропать нечего
 int check_mob(int mob_rnum)

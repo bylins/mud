@@ -26,10 +26,59 @@
 #include "conf.h"
 
 #include <boost/array.hpp>
-
+extern std::vector<RandomObj> random_objs;
 extern const char *skill_name(int num);
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
 extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
+extern int planebit(const char *str, int *plane, int *bit);
+
+
+void LoadRandomObj(OBJ_DATA *obj)
+{
+	// костыли, привет
+	int plane, bit;
+	for (auto robj : random_objs)
+	{
+		if (robj.vnum == GET_OBJ_VNUM(obj))
+		{
+
+			obj->set_weight(number(robj.min_weight, robj.max_weight));
+			obj->set_cost(number(robj.min_price, robj.max_price));
+			obj->set_maximum_durability(number(robj.min_stability, robj.max_stability));
+			obj->set_val(0, number(robj.value0_min, robj.value0_max));
+			obj->set_val(1, number(robj.value1_min, robj.value1_max));
+			obj->set_val(2, number(robj.value2_min, robj.value2_max));
+			obj->set_val(3, number(robj.value3_min, robj.value3_max));
+			for (auto nw : robj.not_wear)
+			{
+				if (nw.second < number(0, 1000))
+				{
+					int numb = planebit(nw.first.c_str(), &plane, &bit);
+					if (numb <= 0)
+						return;
+					obj->toggle_no_flag(plane, 1 << bit);
+				}
+			}
+			for (auto aff : robj.affects)
+			{
+				if (aff.second < number(0, 1000))
+				{
+					int numb = planebit(aff.first.c_str(), &plane, &bit);
+					if (numb <= 0)
+						return;
+					obj->toggle_affect_flag(plane, 1 << bit);
+				}
+			}
+			for (auto aff : robj.extraffect)
+			{
+				if (aff.chance < number(0, 1000))
+				{
+					obj->set_affected_location(aff.number, static_cast<EApplyLocation>(number(aff.min_val, aff.max_val)));
+				}
+			}
+		}
+	}
+}
 
 void oload_class::init()
 {

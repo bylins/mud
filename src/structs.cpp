@@ -624,6 +624,7 @@ void init_EExtraFlag_ITEM_NAMES()
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_2INLAID] = "ITEM_2INLAID";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_3INLAID] = "ITEM_3INLAID";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOPOUR] = "ITEM_NOPOUR";
+	EExtraFlag_name_by_value[EExtraFlag::ITEM_UNIQUE] = "ITEM_UNIQUE";
 
 	for (const auto& i : EExtraFlag_name_by_value)
 	{
@@ -741,6 +742,7 @@ void init_EAffectFlag_ITEM_NAMES()
 	EAffectFlag_name_by_value[EAffectFlag::AFF_RECALL_SPELLS] = "AFF_RECALL_SPELLS";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_NOOB_REGEN] = "AFF_NOOB_REGEN";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_VAMPIRE] = "AFF_VAMPIRE";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_EXPEDIENT] = "AFF_EXPEDIENT";
 
 	for (const auto& i : EAffectFlag_name_by_value)
 	{
@@ -931,7 +933,7 @@ void init_EApplyLocation_ITEM_NAMES()
 {
 	EApplyLocation_name_by_value.clear();
 	EApplyLocation_value_by_name.clear();
-	
+
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_NONE] = "APPLY_NONE";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_STR] = "APPLY_STR";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_DEX] = "APPLY_DEX";
@@ -992,6 +994,9 @@ void init_EApplyLocation_ITEM_NAMES()
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_HIT_GLORY] = "APPLY_HIT_GLORY";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_EXP] = "APPLY_BONUS_EXP";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_SKILLS] = "APPLY_BONUS_SKILLS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PLAQUE] = "APPLY_PLAQUE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MADNESS] = "APPLY_MADNESS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PR] = "APPLY_PR";
 	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
 
 	for (const auto& i : EApplyLocation_name_by_value)

@@ -245,6 +245,9 @@ extern std::map<int, std::string> SECTOR_TYPE_BY_VALUE;
 
 #define MAX_REMORT            50
 
+
+
+
 template <typename T> struct Unimplemented { };
 
 template <typename E>
@@ -483,6 +486,7 @@ extern const religion_names_t religion_name;
 #define MOB_IGNORE_FORBIDDEN (INT_ONE | (1 << 22)) // игнорирует печать
 #define MOB_NO_BATTLE_EXP    (INT_ONE | (1 << 23)) // не дает экспу за удары
 #define MOB_NOHAMER          (INT_ONE | (1 << 24)) // нельзя оглушить богатырским молотом
+#define MOB_GHOST            (INT_ONE | (1 << 25)) // Используется для ментальной тени
 
 #define MOB_FIREBREATH    (INT_TWO | (1 << 0))
 #define MOB_GASBREATH     (INT_TWO | (1 << 1))
@@ -698,7 +702,8 @@ enum class EAffectFlag: uint32_t
 	AFF_STRANGLED = INT_TWO | (1u << 17),
 	AFF_RECALL_SPELLS = INT_TWO | (1u << 18),
 	AFF_NOOB_REGEN = INT_TWO | (1u << 19),
-	AFF_VAMPIRE = INT_TWO | (1u << 20)
+	AFF_VAMPIRE = INT_TWO | (1u << 20),
+	AFF_EXPEDIENT = INT_TWO | (1u << 21)
 };
 
 template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
@@ -893,7 +898,10 @@ enum class EExtraFlag: uint32_t
 	ITEM_1INLAID = INT_ONE | (1 << 10),		///< TODO: не используется, см convert_obj_values()
 	ITEM_2INLAID = INT_ONE | (1 << 11),
 	ITEM_3INLAID = INT_ONE | (1 << 12),
-	ITEM_NOPOUR = INT_ONE | (1 << 13)		///< нельзя перелить
+	ITEM_NOPOUR = INT_ONE | (1 << 13),		///< нельзя перелить
+	ITEM_UNIQUE = INT_ONE | (1 << 14)		// объект уникальный, т.е. если у чара есть несколько шмоток с одним внумом, которые одеваются
+											// на разные слоты, то чар может одеть на себя только одну шмотку
+
 };
 
 template <> const std::string& NAME_BY_ITEM<EExtraFlag>(const EExtraFlag item);
@@ -1062,7 +1070,8 @@ enum EApplyLocation
 	APPLY_BONUS_SKILLS = 59,
 	APPLY_PLAQUE = 60,
 	APPLY_MADNESS = 61,
-	NUM_APPLIES = 62
+	APPLY_PR = 62,
+	NUM_APPLIES = 63
 };
 
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
@@ -1481,6 +1490,7 @@ public:
 	int modifier;		// This is added to appropriate ability     //
 	TLocation location;		// Tells which ability to change(APPLY_XXX) //
 	long battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
+	FLAG_DATA aff;
 	uint32_t bitvector;		// Tells which bits to set (AFF_XXX) //
 	long caster_id; //Unique caster ID //
 	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //

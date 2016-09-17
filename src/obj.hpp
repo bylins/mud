@@ -706,6 +706,7 @@ public:
 	void set_activator(bool flag, int num);
 	std::pair<bool, int> get_activator() const;
 
+
 	// wrappers to access to timed_spell
 	const TimedSpell& timed_spell() const { return m_timed_spell; }
 	std::string diag_ts_to_char(CHAR_DATA* character) { return m_timed_spell.diag_to_char(character); }
@@ -804,6 +805,7 @@ private:
 	bool m_purged;
 	// для сообщений сетов <активировано или нет, размер активатора>
 	std::pair<bool, int> m_activator;
+
 };
 
 template <> const std::string& NAME_BY_ITEM<OBJ_DATA::EObjectType>(const OBJ_DATA::EObjectType item);
@@ -846,31 +848,27 @@ private:
 
 namespace ObjSystem
 {
-
-float count_affect_weight(const CObjectPrototype* obj, int num, int mod);
-bool is_armor_type(const CObjectPrototype *obj);
-void release_purged_list();
-void init_item_levels();
-void init_ilvl(CObjectPrototype *obj);
-bool is_mob_item(const CObjectPrototype *obj);
-
+	float count_affect_weight(const CObjectPrototype* obj, int num, int mod);
+	bool is_armor_type(const CObjectPrototype *obj);
+	void release_purged_list();
+	void init_item_levels();
+	void init_ilvl(CObjectPrototype *obj);
+	bool is_mob_item(const CObjectPrototype *obj);
 } // namespace ObjSystem
 
 std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch);
 
 namespace system_obj
 {
+	/// кошелек для кун с игрока
+	extern int PURSE_RNUM;
+	/// персональное хранилище
+	extern int PERS_CHEST_RNUM;
 
-/// кошелек для кун с игрока
-extern int PURSE_RNUM;
-/// персональное хранилище
-extern int PERS_CHEST_RNUM;
-
-void init();
-OBJ_DATA* create_purse(CHAR_DATA *ch, int gold);
-bool is_purse(OBJ_DATA *obj);
-void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj);
-
+	void init();
+	OBJ_DATA* create_purse(CHAR_DATA *ch, int gold);
+	bool is_purse(OBJ_DATA *obj);
+	void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj);
 } // namespace system_obj
 
 namespace SetSystem
@@ -881,6 +879,7 @@ namespace SetSystem
 	bool find_set_item(OBJ_DATA *obj);
 	bool is_big_set(const CObjectPrototype *obj, bool is_mini = false);
 	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
+	bool is_norent_set(int vnum, std::vector<int> objs);
 } // namespace SetSystem
 
 #endif // OBJ_HPP_INCLUDED

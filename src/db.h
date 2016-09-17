@@ -45,6 +45,8 @@ class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any d
 #define DL_LOAD_ANYWAY_NC  2
 #define DL_LOAD_IFLAST_NC  3
 
+#define DUPLICATE_MINI_SET_VNUM 1000000
+
 enum SetStuffMode
 {
 	SETSTUFF_SNUM,
@@ -262,6 +264,40 @@ struct _case
 	int chance;
 	// внумы шмоток, которые выпадают из кейса
 	std::vector<int> vnum_objs;
+};
+
+// для экстраффектов в random_obj
+struct ExtraAffects
+{
+	int number; // номер экстрааафетка
+	int min_val; // минимальное значение
+	int max_val; // максимальное значение
+	int chance; // вероятность того, что данный экстраффект будет на шмотке
+};
+
+class RandomObj
+{
+public:
+	// внум объекта
+	int vnum;
+	// массив, в котором показывается, кому шмотка недоступна + шанс, что эта "недоступность" при выпадении предмета будет на нем
+	std::map<std::string, int> not_wear;
+	// минимальный и максимальный вес
+	int min_weight;
+	int max_weight;
+	// минимальная и максимальная цена за предмет
+	int min_price;
+	int max_price;
+	// прочность
+	int min_stability;
+	int max_stability;
+	// value0, value1, value2, value3
+	int value0_min, value1_min, value2_min, value3_min;
+	int value0_max, value1_max, value2_max, value3_max;
+	// список аффектов и их шанс упасть на шмотку
+	std::map<std::string, int> affects;
+	// список экстраффектов и их шанс упасть на шмотку
+	std::vector<ExtraAffects> extraffect;
 };
 
 // zone definition structure. for the 'zone-table'

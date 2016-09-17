@@ -327,7 +327,10 @@ int get_obj_to_drop(DropListType::iterator &i)
 	std::vector<int> tmp_list;
 	for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end(); k != kend; ++k)
 	{
-		tmp_list.push_back(k->second);
+		if ((GET_OBJ_MIW(obj_proto[k->second]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
+			|| (k->second >= 0
+				&& obj_proto.actual_count(k->second) < GET_OBJ_MIW(obj_proto[k->second])))
+			tmp_list.push_back(k->second);
 	}
 	if (!tmp_list.empty())
 	{
@@ -374,6 +377,11 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 			if (i->mobs >= i->count_mob)
 			{
 				int obj_rnum = i->vnum > 0 ? i->rnum : get_obj_to_drop(i);
+				if (obj_rnum == -1)
+				{
+					i->mobs = 0;
+					continue;					
+				}
 				if (number(1, 1000) <= i->chance
 					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
 						|| (obj_rnum >= 0

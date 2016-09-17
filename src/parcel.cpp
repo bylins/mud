@@ -24,6 +24,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <vector>
 
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
@@ -230,6 +231,25 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid)
 	return 1;
 }
 
+// получаем все объекты, которые были отправлены чару
+std::vector<int> get_objs(long char_uid)
+{
+	std::vector<int> buf_vector;
+	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
+	{
+		SenderListType::const_iterator it2 = it->second.find(char_uid);
+		if (it2 != it->second.end())
+		{
+			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
+			{
+				buf_vector.push_back(GET_OBJ_VNUM((*it3).obj_));
+			}
+		}
+	}
+	return buf_vector;
+}
+
+
 // * Отправка предмета (снятие/резервирование денег, вывод из списка предметов).
 void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj)
 {
@@ -261,6 +281,15 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	if (name.empty())
 	{
 		act("$n сказал$g вам : 'Ошибка в имени получателя, сообщите Богам!'", FALSE, mailman, 0, ch, TO_VICT);
+		return;
+	}
+	if (SetSystem::is_norent_set(ch, obj)
+		&& SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(GET_UNIQUE(ch))))
+	{
+		snprintf(buf, MAX_STRING_LENGTH,
+			"%s - требуется две и более вещи из набора.\r\n",
+			obj->get_PName(0).c_str());
+		send_to_char(CAP(buf), ch);
 		return;
 	}
 	name_convert(name);
@@ -300,6 +329,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 		act("$n сказал$g вам : 'Да у тебя руки по локоть в крови, проваливай!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
+
 
 	OBJ_DATA *obj, *next_obj;
 	char tmp_arg[MAX_INPUT_LENGTH];

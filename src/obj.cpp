@@ -127,7 +127,6 @@ void OBJ_DATA::zero_init()
 	m_purged = false;
 	m_activator.first = false;
 	m_activator.second = 0;
-
 	m_custom_label = nullptr;
 }
 
@@ -457,14 +456,17 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 		set_affected_modifier(0, 2);
 		set_affected_modifier(1, 2);
     };
-    
-    for (i = 0; i < random_drop; i++)
+
+    i = 0;
+    while (i < random_drop)
 	{
 		if (obj->get_affected(i).location != APPLY_NONE)
 		{
 			set_obj_eff(this, obj->get_affected(i).location, obj->get_affected(i).modifier);
-		};
-	}
+		}
+		i++;
+    }
+
     add_affect_flags(GET_OBJ_AFFECTS(obj));
     add_extra_flags(GET_OBJ_EXTRA(obj));
     add_no_flags(GET_OBJ_NO(obj));
@@ -1330,6 +1332,7 @@ OBJ_DATA::EObjectMaterial ITEM_BY_NAME(const std::string& name)
 	return EObjectMaterial_value_by_name.at(name);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 namespace SetSystem {
 
 	struct SetNode
@@ -1344,7 +1347,7 @@ namespace SetSystem {
 	};
 
 	std::vector<SetNode> set_list;
-	const unsigned BIG_SET_ITEMS = 9;
+	constexpr unsigned BIG_SET_ITEMS = 9;
 	// для проверок при попытке ренты
 	std::set<int> vnum_list;
 
@@ -1462,14 +1465,14 @@ namespace SetSystem {
 		}
 	}
 
-#define MINI_SET_ITEMS 3
-
 	/**
 	* Почта, базар.
 	* Предметы сетов из BIG_SET_ITEMS и более предметов не принимаются.
 	*/
-	bool is_big_set(const CObjectPrototype* obj, bool is_mini)
+	bool is_big_set(const CObjectPrototype *obj, bool is_mini /* = false */)
 	{
+		constexpr int MINI_SET_ITEMS = 3;
+
 		unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
 		if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
 		{
@@ -1486,16 +1489,16 @@ namespace SetSystem {
 		}
 		return false;
 	}
+
 	bool find_set_item(OBJ_DATA *obj)
 	{
 		for (; obj; obj = obj->get_next_content())
 		{
-			std::set<int>::const_iterator i = vnum_list.find(GET_OBJ_VNUM(obj));
+			std::set<int>::const_iterator i = vnum_list.find(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
 			if (i != vnum_list.end())
 			{
 				return true;
 			}
-
 			if (find_set_item(obj->get_contains()))
 			{
 				return true;
@@ -1531,8 +1534,30 @@ namespace SetSystem {
 		}
 	}
 
+	/* проверяем сетину в массиве внумоB*/
+	bool is_norent_set(int vnum, std::vector<int> objs)
+	{
+		if (objs.empty())
+			return true;
+		// нормализуем внумы
+		vnum = obj_sets::normalize_vnum(vnum);
+		for (unsigned int i = 0; i < objs.size(); i++)
+		{
+			objs[i] = obj_sets::normalize_vnum(objs[i]);
+		}
+		init_vnum_list(obj_sets::normalize_vnum(vnum));
+		for (const auto& it : objs)
+		{
+			for (const auto& it1 : vnum_list)
+				if (it == it1)
+					return false;
+		}
+		return true;
+	}
+
+
 	/**
-	* Экипировка, инвентарь, чармисы, перс. хран.
+	* Экипировка, инвентарь, чармисы, перс. хран.см
 	* Требуется наличие двух и более предметов, если сетина из большого сета.
 	* Перс. хран, рента.
 	*/
@@ -1543,7 +1568,7 @@ namespace SetSystem {
 			return false;
 		}
 
-		init_vnum_list(GET_OBJ_VNUM(obj));
+		init_vnum_list(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
 
 		if (vnum_list.empty())
 		{

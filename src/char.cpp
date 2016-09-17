@@ -561,6 +561,19 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent)
 		skills[skill_num] = percent;
 }
 
+void CHAR_DATA::set_skill(short remort)
+{
+int skill;
+	for (auto it=skills.begin();it!=skills.end();it++)
+	{
+		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
+		if (skill > 80 + remort*5)
+			it->second = 80 + remort*5;
+		
+	}
+
+}
+
 void CHAR_DATA::set_morphed_skill(const ESkill skill_num, int percent)
 {
 	current_morph_->set_skill(skill_num, percent);
@@ -626,16 +639,16 @@ CHAR_DATA * CHAR_DATA::get_fighting() const
 	return fighting_;
 }
 
-void CHAR_DATA::set_extra_attack(int skill, CHAR_DATA *vict)
+void CHAR_DATA::set_extra_attack(ExtraAttackEnumType Attack, CHAR_DATA *vict)
 {
-	extra_attack_.used_skill = skill;
+	extra_attack_.used_attack = Attack;
 	extra_attack_.victim = vict;
 	check_fighting_list();
 }
 
-int CHAR_DATA::get_extra_skill() const
+ExtraAttackEnumType CHAR_DATA::get_extra_attack_mode() const
 {
-	return extra_attack_.used_skill;
+	return extra_attack_.used_attack;
 }
 
 CHAR_DATA * CHAR_DATA::get_extra_victim() const
@@ -716,7 +729,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		}
 		if (k->get_extra_victim() == ch)
 		{
-			k->set_extra_attack(0, 0);
+			k->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 		}
 		if (k->get_cast_char() == ch)
 		{
@@ -756,7 +769,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		}
 		if (k->get_extra_victim() == ch)
 		{
-			k->set_extra_attack(0, 0);
+			k->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 		}
 		if (k->get_cast_char() == ch)
 		{
@@ -1582,7 +1595,7 @@ std::string CHAR_DATA::get_title()
 	}
 	tmp = tmp.substr(0, pos);
 	pos = tmp.find(';');
-	
+
 	return pos == std::string::npos
 		? tmp
 		: tmp.substr(0, pos);

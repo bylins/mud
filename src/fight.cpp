@@ -60,6 +60,7 @@ void go_touch(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_protect(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict);
+void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict);
 int npc_battle_scavenge(CHAR_DATA * ch);
 void npc_wield(CHAR_DATA * ch);
 void npc_armor(CHAR_DATA * ch);
@@ -237,7 +238,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
 	ROUND_COUNTER(ch) = 0;
-	ch->set_extra_attack(0, 0);
+	ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 	set_battle_pos(ch);
 
 	// если до начала боя на мобе есть лаг, то мы его выравниваем до целых
@@ -298,7 +299,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
 	ROUND_COUNTER(ch) = 0;
-	ch->set_extra_attack(0, 0);
+	ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 	ch->set_cast(0, 0, 0, 0, 0);
 	restore_battle_pos(ch);
 	NUL_AF_BATTLE(ch);
@@ -316,7 +317,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 				CLR_AF_BATTLE(temp, EAF_TOUCH);
 			}
 			if (temp->get_extra_victim() == ch)
-				temp->set_extra_attack(0, 0);
+				temp->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 			if (temp->get_cast_char() == ch)
 				temp->set_cast(0, 0, 0, 0, 0);
 			if (temp->get_fighting() == ch && switch_others)
@@ -456,7 +457,7 @@ CHAR_DATA *find_friend_cure(CHAR_DATA * caster, int spellnum)
 		break;
 	}
 
-	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL))
+	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)|| MOB_FLAGGED(caster, MOB_GHOST))
 			&& AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER))
 	{
 		if (GET_HP_PERC(caster) < AFF_USED)
@@ -472,7 +473,7 @@ CHAR_DATA *find_friend_cure(CHAR_DATA * caster, int spellnum)
 
 	for (vict = world[IN_ROOM(caster)]->people; AFF_USED && vict; vict = vict->next_in_room)
 	{
-		if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || (MOB_FLAGGED(vict, MOB_ANGEL)
+		if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || ((MOB_FLAGGED(vict, MOB_ANGEL)||MOB_FLAGGED(vict, MOB_GHOST))
 				&& (vict->master && !IS_NPC(vict->master)))
 				|| !CAN_SEE(caster, vict))
 			continue;
@@ -525,7 +526,7 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 	}
 	if (AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)
 		&& (AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(caster, MOB_ANGEL)))
+			|| MOB_FLAGGED(caster, MOB_ANGEL)|| MOB_FLAGGED(caster, MOB_GHOST)))
 	{
 		if (caster->has_any_affect(AFF_USED)
 			|| affected_by_spell(caster, spellreal))
@@ -546,7 +547,7 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 
 	for (vict = world[IN_ROOM(caster)]->people; !AFF_USED.empty() && vict; vict = vict->next_in_room)
 	{
-		if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || (MOB_FLAGGED(vict, MOB_ANGEL)
+		if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
 				&& (vict->master && !IS_NPC(vict->master)))
 				|| !CAN_SEE(caster, vict))
 			continue;
@@ -599,7 +600,7 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 
 	if (AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)
 		&& (AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(caster, MOB_ANGEL)))
+			|| MOB_FLAGGED(caster, MOB_ANGEL)|| MOB_FLAGGED(caster, MOB_GHOST)))
 	{
 		if (caster->has_any_affect(AFF_USED)
 			|| affected_by_spell(caster, spellreal))
@@ -622,7 +623,7 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 	{
 		if (!IS_NPC(vict)
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-			|| (MOB_FLAGGED(vict, MOB_ANGEL)
+			|| ((MOB_FLAGGED(vict, MOB_ANGEL)|| MOB_FLAGGED(vict, MOB_GHOST))
 				&& (vict->master && !IS_NPC(vict->master)))
 			|| !CAN_SEE(caster, vict))
 		{
@@ -670,7 +671,7 @@ CHAR_DATA *find_affectee(CHAR_DATA * caster, int spellnum)
 	else if (spellreal == SPELL_GROUP_PRISMATICAURA)
 		spellreal = SPELL_PRISMATICAURA;
 
-	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER))
+	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)|| MOB_FLAGGED(caster, MOB_GHOST)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER))
 	{
 		if (!affected_by_spell(caster, spellreal))
 			return (caster);
@@ -686,7 +687,7 @@ CHAR_DATA *find_affectee(CHAR_DATA * caster, int spellnum)
 	if (GET_REAL_INT(caster) > number(5, 15))
 		for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
 		{
-			if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || (MOB_FLAGGED(vict, MOB_ANGEL)
+			if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
 					&& (vict->master
 						&& !IS_NPC(vict->master)))
 					|| !CAN_SEE(caster, vict))
@@ -724,7 +725,7 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 	if (GET_REAL_INT(caster) > number(10, 20))
 		for (vict = world[caster->in_room]->people; vict; vict = vict->next_in_room)
 		{
-			if ((IS_NPC(vict) && !((MOB_FLAGGED(vict, MOB_ANGEL)
+			if ((IS_NPC(vict) && !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST)
 									|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)) && (vict->master
 																		 && !IS_NPC(vict->master))))
 					|| !CAN_SEE(caster, vict))
@@ -757,7 +758,7 @@ CHAR_DATA *find_opp_caster(CHAR_DATA * caster)
 	{
 		if (IS_NPC(vict) &&
 //         !AFF_FLAGGED(vict,AFF_CHARM) &&
-				!(MOB_FLAGGED(vict, MOB_ANGEL)
+				!((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
 				  && (vict->master && !IS_NPC(vict->master))))
 			continue;
 		if ((!vict->get_fighting()
@@ -783,7 +784,7 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 	if (GET_REAL_INT(caster) > number(10, 20))
 		for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
 		{
-			if ((IS_NPC(vict) && !((MOB_FLAGGED(vict, MOB_ANGEL)
+			if ((IS_NPC(vict) && !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST)
 									|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)) && (vict->master
 																		 && !IS_NPC(vict->master))))
 					|| !CAN_SEE(caster, vict))
@@ -948,7 +949,7 @@ CHAR_DATA *find_minhp(CHAR_DATA * caster)
 	if (GET_REAL_INT(caster) > number(10, 20))
 		for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
 		{
-			if ((IS_NPC(vict) && !((MOB_FLAGGED(vict, MOB_ANGEL)
+			if ((IS_NPC(vict) && !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST)
 									|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)) && (vict->master
 																		 && !IS_NPC(vict->master))))
 					|| !CAN_SEE(caster, vict))
@@ -1015,7 +1016,7 @@ void mob_casting(CHAR_DATA * ch)
 	while (spells < MAX_STRING_LENGTH
 		&& item
 		&& GET_RACE(ch) == NPC_RACE_HUMAN
-		&& !MOB_FLAGGED(ch, MOB_ANGEL)
+		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
 		switch (GET_OBJ_TYPE(item))
@@ -1101,7 +1102,7 @@ void mob_casting(CHAR_DATA * ch)
 	{
 		item = ch->carrying;
 		while (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			&& !MOB_FLAGGED(ch, MOB_ANGEL)
+			&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
 			&& item
 			&& GET_RACE(ch) == NPC_RACE_HUMAN)
 		{
@@ -1535,6 +1536,9 @@ void using_mob_skills(CHAR_DATA *ch)
 						&& !(AFF_FLAGGED(attacker, EAffectFlag::AFF_CHARM)
 							&& attacker->master
 							&& !IS_NPC(attacker->master))
+						&& !(MOB_FLAGGED(attacker, MOB_GHOST)
+							&& attacker->master
+							&& !IS_NPC(attacker->master))
 						&& !(MOB_FLAGGED(attacker, MOB_ANGEL)
 							&& attacker->master
 							&& !IS_NPC(attacker->master)))
@@ -1635,7 +1639,7 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 				else
-				{ 
+				{
 //send_to_char(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
 //                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -1772,28 +1776,36 @@ bool using_extra_attack(CHAR_DATA *ch)
 {
 	bool used = false;
 
-	switch (ch->get_extra_skill())
+	switch (ch->get_extra_attack_mode())
 	{
-	case SKILL_THROW:
+	case EXTRA_ATTACK_THROW:
 		go_throw(ch, ch->get_extra_victim());
 		used = true;
 		break;
-	case SKILL_BASH:
+	case EXTRA_ATTACK_BASH:
 		go_bash(ch, ch->get_extra_victim());
 		used = true;
 		break;
-	case SKILL_KICK:
+	case EXTRA_ATTACK_KICK:
 		go_kick(ch, ch->get_extra_victim());
 		used = true;
 		break;
-	case SKILL_CHOPOFF:
+	case EXTRA_ATTACK_CHOPOFF:
 		go_chopoff(ch, ch->get_extra_victim());
 		used = true;
 		break;
-	case SKILL_DISARM:
+	case EXTRA_ATTACK_DISARM:
 		go_disarm(ch, ch->get_extra_victim());
 		used = true;
 		break;
+	case EXTRA_ATTACK_CUT_SHORTS:
+	case EXTRA_ATTACK_CUT_PICK:
+        go_cut_shorts(ch, ch->get_extra_victim());
+        used = true;
+        break;
+    default:
+        used = false;
+        break;
 	}
 
 	return used;
@@ -1858,7 +1870,7 @@ void process_npc_attack(CHAR_DATA *ch)
 		}
 		else if (vict && ch->get_skill(SKILL_PROTECT))
 		{
-			go_protect(ch, ch->master);
+                    go_protect(ch, ch->master);
 		}
 	}
 	else if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -1937,7 +1949,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		&& GET_WAIT(ch) <= 0
 		&& using_extra_attack(ch))
 	{
-		ch->set_extra_attack(0, 0);
+		ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 		if (INITIATIVE(ch) > min_init)
 		{
 			INITIATIVE(ch)--;
@@ -2168,10 +2180,10 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (ch == victim)
 		return return_value;
 // translating pointers from charimces to their leaders
-	if (IS_NPC(ch) && ch->master && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL) || IS_HORSE(ch)))
+	if (IS_NPC(ch) && ch->master && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST) || IS_HORSE(ch)))
 		ch = ch->master;
 	if (IS_NPC(victim) && victim->master &&
-			(AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(victim, MOB_ANGEL) || IS_HORSE(victim)))
+			(AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(victim, MOB_ANGEL) || MOB_FLAGGED(victim, MOB_GHOST) || IS_HORSE(victim)))
 		victim = victim->master;
 	cleader = ch;
 	vleader = victim;
@@ -2180,7 +2192,7 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 	{
 		if (IS_NPC(cleader)
 			&& !AFF_FLAGGED(cleader, EAffectFlag::AFF_CHARM)
-			&& !MOB_FLAGGED(cleader, MOB_ANGEL)
+			&& !(MOB_FLAGGED(cleader, MOB_ANGEL)||MOB_FLAGGED(cleader, MOB_GHOST))
 			&& !IS_HORSE(cleader))
 		{
 			break;
@@ -2191,7 +2203,7 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 	{
 		if (IS_NPC(vleader)
 			&& !AFF_FLAGGED(vleader, EAffectFlag::AFF_CHARM)
-			&& !MOB_FLAGGED(vleader, MOB_ANGEL)
+			&& !(MOB_FLAGGED(vleader, MOB_ANGEL)||MOB_FLAGGED(vleader, MOB_GHOST))
 			&& !IS_HORSE(vleader))
 		{
 			break;
