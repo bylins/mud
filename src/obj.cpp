@@ -470,8 +470,12 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer)
 	{
 		timer_ -= time;
 	}
-	if ((GET_OBJ_TYPE(this) == obj_flag_data::ITEM_DRINKCON) && GET_OBJ_VAL(this, 3) > 1)
+	if ((GET_OBJ_TYPE(this) == obj_flag_data::ITEM_DRINKCON) && GET_OBJ_VAL(this, 3) > 1) //таймер у жижек
 		--GET_OBJ_VAL(this, 3);
+	if ((GET_OBJ_TYPE(this) == obj_flag_data::ITEM_FOOD) && GET_OBJ_VAL(this, 3) > 1) // ну еда тоже может протухнуть
+		--GET_OBJ_VAL(this, 3);
+
+
 }
 
 float OBJ_DATA::show_mort_req() 
