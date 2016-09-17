@@ -230,6 +230,28 @@ int Linked::drop_count() const
 	return count;
 }
 
+// создаем копию стафины миника + idx устанавливает точно такой же
+void create_clone_miniset(int vnum)
+{
+	const int new_vnum = DUPLICATE_MINI_SET_VNUM + vnum;
+	// если такой зоны нет, то делаем ретурн
+	if ((new_vnum % 100) > top_of_zone_table)
+	{
+		return;
+	}
+
+	const int rnum = real_object(vnum);
+	// проверяем, есть ли у нашей сетины клон в системной зоне
+	const int rnum_nobj = real_object(new_vnum);
+	if (rnum_nobj < 0)
+	{
+		return;
+	}
+
+	// здесь сохраняем рнум нашего нового объекта
+	obj_proto.set_idx(rnum_nobj, obj_proto.set_idx(rnum));
+}
+
 // * Инициализация списка сетов на лоад.
 void init_obj_list()
 {
@@ -328,7 +350,8 @@ void init_obj_list()
 							}
 						}
 					}
-				}			
+				}
+				create_clone_miniset(obj_vnum);
 			}
 		}
 		else
