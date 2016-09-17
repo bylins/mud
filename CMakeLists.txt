@@ -270,6 +270,13 @@ endif ()
 set(SCRIPTING_HEADERS src/scripting.hpp)
 set(SCRIPTING_SOURCES src/scripting.cpp)
 
+option(TIMED_SCRIPT "Turns on/off definition TIMED_SCRIPT" NO)
+set(TIMED_SCRIPT_DEFINITION "")
+if (TIMED_SCRIPT)
+    set(TIMED_SCRIPT_DEFINITION "-DTIMED_SCRIPT")
+endif ()
+add_definitions(${TIMED_SCRIPT_DEFINITION})
+
 # Turns on/off scripting. Use the option like:
 #     $ cmake -DSCRIPTING=NO ..
 # to turn scripting off.
