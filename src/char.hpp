@@ -171,7 +171,7 @@ struct spell_mem_queue
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
 struct extra_attack_type
 {
-	int used_skill;
+	ExtraAttackEnumType used_attack;
 	CHAR_DATA *victim;
 };
 
@@ -282,7 +282,7 @@ struct player_special_data
 	im_rskill *rskill;	// Известные рецепты
 	struct char_portal_type *portals;	// порталы теперь живут тут
 	int *logs;		// уровни подробности каналов log
-	
+
 	char *Exchange_filter;
 	struct ignore_data *ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
@@ -351,6 +351,7 @@ public:
 	friend void interpret_espec(const char *keyword, const char *value, int i, int nr);
 
 	void set_skill(const ESkill skill_num, int percent);
+	void set_skill(short remort);
 	void clear_skills();
 	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;
@@ -367,9 +368,9 @@ public:
 	CHAR_DATA * get_protecting() const;
 	void set_protecting(CHAR_DATA *vict);
 
-	int get_extra_skill() const;
+	ExtraAttackEnumType get_extra_attack_mode() const;
 	CHAR_DATA * get_extra_victim() const;
-	void set_extra_attack(int skill, CHAR_DATA *vict);
+	void set_extra_attack(ExtraAttackEnumType Attack, CHAR_DATA *vict);
 
 	CHAR_DATA * get_fighting() const;
 	void set_fighting(CHAR_DATA *vict);
@@ -564,7 +565,7 @@ public:
 
 	void set_ruble(int ruble);
 	long get_ruble();
-	
+
 	void set_souls(int souls);
 	void inc_souls();
 	void dec_souls();
@@ -578,7 +579,7 @@ public:
 	void set_wait(const unsigned _) { m_wait = _; }
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
 	void wait_dec(const unsigned value) { m_wait -= value <= m_wait ? value : m_wait; }
-	
+
 	virtual void reset();
 
 	bool has_any_affect(const affects_list_t& affects);

@@ -658,7 +658,9 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		strcat(buf, buf2);
 	}
 	if (how > 1)
+	{
 		sprintf(buf + strlen(buf), " [%d]", how);
+	}
 	if (mode != 3 && how <= 1)
 	{
 		if (object->get_extra_flag(EExtraFlag::ITEM_INVISIBLE))
@@ -723,6 +725,15 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 	return 0;
 }
 
+bool quest_item(OBJ_DATA *obj)
+{
+	if ((OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODECAY)) && (!(CAN_WEAR(obj, EWearFlag::ITEM_WEAR_TAKE))))
+	{
+		return true;
+	}
+	return false;
+}
+
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 {
 	OBJ_DATA *i, *push = NULL;
@@ -746,7 +757,8 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 				push = i;
 				push_count = 1;
 			}
-			else if (!equal_obj(i, push))
+			else if ((!equal_obj(i, push)) 
+				|| (quest_item(i)))
 			{
 				if (clan_chest)
 				{
@@ -2542,6 +2554,8 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->label_text);
 		}
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
+		if (GET_OBJ_VNUM(obj) >= DUPLICATE_MINI_SET_VNUM)
+			sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");
 }
 /*
  * Given the argument "look at <target>", figure out what object or char

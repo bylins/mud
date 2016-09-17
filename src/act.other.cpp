@@ -234,16 +234,17 @@ void do_save(CHAR_DATA *ch, char* /*argument*/, int cmd, int/* subcmd*/)
 				 * that guest immortals aren't trustworthy. If you've disabled guest
 				 * immortal advances from mortality, you may want < instead of <=.
 				 */
-		if (auto_save && GET_LEVEL(ch) <= LVL_IMMORT)
+		/*if (auto_save && GET_LEVEL(ch) <= LVL_IMMORT)
 		{
 			send_to_char("Записываю синонимы.\r\n", ch);
 			write_aliases(ch);
 			return;
 		}
 		sprintf(buf, "Записываю %s и алиасы.\r\n", GET_NAME(ch));
-		send_to_char(buf, ch);
-	}
-
+		send_to_char(buf, ch);*/
+		send_to_char("Ладушки.\r\n", ch);
+		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
+	}	
 	write_aliases(ch);
 	ch->save_char();
 	Crash_crashsave(ch);
@@ -1078,7 +1079,7 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	if (AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP) ||
-			AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || IS_HORSE(vict))
+			AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || IS_HORSE(vict))
 		return (FALSE);
 
 	AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
@@ -1312,7 +1313,7 @@ void print_group(CHAR_DATA * ch)
 	for (f = ch->followers; f; f = f->next)
 	{
 		if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(f->follower, MOB_ANGEL)))
+			|| MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST)))
 		{
 			continue;
 		}
@@ -1331,7 +1332,7 @@ void print_group(CHAR_DATA * ch)
 			for (f = g->follower->followers; f; f = f->next)
 			{
 				if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(f->follower, MOB_ANGEL))
+					|| MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 				{
 					continue;
@@ -1356,7 +1357,7 @@ void print_group(CHAR_DATA * ch)
 			if (ch->master)
 			{
 				if (!(AFF_FLAGGED(g->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(g->follower, MOB_ANGEL))
+					|| MOB_FLAGGED(g->follower, MOB_ANGEL)|| MOB_FLAGGED(g->follower, MOB_GHOST))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 				{
 					continue;
@@ -1485,7 +1486,7 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP))
 		{
-			if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || IS_HORSE(vict))
+			if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || IS_HORSE(vict))
 			{
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", ch);
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", vict);
@@ -4052,9 +4053,9 @@ bool is_dark(room_rnum room)
 		// если на чаре аффект свет
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_SINGLELIGHT))
 			coef += 3.0;
-		// освещение ?
+		// освещение перекрывает 1 тьму!
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_HOLYLIGHT))
-			coef += 1.0;
+			coef += 9.0;
 		// Санка. Логично, что если чар светится ярким сиянием, то это сияние распространяется на комнату
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_SANCTUARY))
 			coef += 1.0;

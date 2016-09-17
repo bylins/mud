@@ -34,6 +34,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "obj_sets.hpp"
 
 #include <boost/algorithm/string.hpp>
 

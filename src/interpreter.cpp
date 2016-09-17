@@ -171,6 +171,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_warcry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_expedient_cut(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_courage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -680,6 +681,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"помочь", POS_FIGHTING, do_assist, 1, 0, -1},
 	{"помощь", POS_DEAD, do_help, 0, 0, 0},
 	{"пометить", POS_DEAD, do_mark, LVL_IMPL, 0, 0},
+	{"порез", POS_FIGHTING, do_expedient_cut, 0, 0, -1},
 	{"поселиться", POS_STANDING, do_not_here, 1, 0, -1},
 	{"постой", POS_STANDING, do_not_here, 1, 0, -1},
 	{"почта", POS_STANDING, do_not_here, 1, 0, -1},
@@ -766,7 +768,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"убрать", POS_RESTING, do_remove, 0, 0, 400},
 	{"ударить", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
 	{"удавить", POS_FIGHTING, do_strangle, 0, 0, -1},
-	{ "удалить", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0 },
+	{"удалить", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0 },
 	{"уклониться", POS_FIGHTING, do_deviate, 1, 0, -1},
 	{"украсть", POS_STANDING, do_steal, 1, 0, 0},
 	{"укрепить", POS_RESTING, do_armored, 0, 0, -1},

@@ -36,9 +36,12 @@
 #include <iomanip>
 #include <algorithm>
 
+
+extern int real_zone(int number);
+extern void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
+extern void oedit_object_free(OBJ_DATA * obj);
 namespace SetsDrop
 {
-
 // список сетин на дроп
 const char *CONFIG_FILE = LIB_MISC"full_set_drop.xml";
 // список уникальных мобов
@@ -61,7 +64,6 @@ const double MINI_SET_MULT = 1.5;
 const char *RESET_MESSAGE =
 	"Внезапно мир содрогнулся, день поменялся с ночью, земля с небом\r\n"
 	"...но через миг все вернулось на круги своя.";
-
 enum { SOLO_MOB, GROUP_MOB, SOLO_ZONE, GROUP_ZONE };
 
 // время следующего сброса таблицы
@@ -82,7 +84,6 @@ struct MobNode
 	{
 		kill_stat.fill(0);
 	};
-
 	int vnum;
 	int rnum;
 	// макс.в.мире
@@ -229,6 +230,28 @@ int Linked::drop_count() const
 	return count;
 }
 
+// создаем копию стафины миника + idx устанавливает точно такой же
+void create_clone_miniset(int vnum)
+{
+	const int new_vnum = DUPLICATE_MINI_SET_VNUM + vnum;
+	// если такой зоны нет, то делаем ретурн
+	if ((new_vnum % 100) > top_of_zone_table)
+	{
+		return;
+	}
+
+	const int rnum = real_object(vnum);
+	// проверяем, есть ли у нашей сетины клон в системной зоне
+	const int rnum_nobj = real_object(new_vnum);
+	if (rnum_nobj < 0)
+	{
+		return;
+	}
+
+	// здесь сохраняем рнум нашего нового объекта
+	obj_proto.set_idx(rnum_nobj, obj_proto.set_idx(rnum));
+}
+
 // * Инициализация списка сетов на лоад.
 void init_obj_list()
 {
@@ -328,6 +351,7 @@ void init_obj_list()
 						}
 					}
 				}
+				create_clone_miniset(obj_vnum);
 			}
 		}
 		else
@@ -1277,6 +1301,7 @@ void init()
 
 	init_link_system();
 }
+
 
 // * \return рнум шмотки или -1 если дропать нечего
 int check_mob(int mob_rnum)
