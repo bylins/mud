@@ -196,7 +196,7 @@ void save_zone_count_reset()
 	for (int i = 0; i <= top_of_zone_table; ++i)
 	{
 		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
-		log(buf);
+		log("%s", buf);
 	}
 }
 
@@ -1939,7 +1939,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		break;
 
 	case obj_flag_data::ITEM_FOOD:
-		sprintf(buf, "Насыщает(час): %d, Отравлен: %s", GET_OBJ_VAL(j, 0), YESNO(GET_OBJ_VAL(j, 3)));
+		sprintf(buf, "Насыщает(час): %d, Таймер (если 1 отравлено): %d", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 3));
 		break;
 
 	case obj_flag_data::ITEM_MONEY:
