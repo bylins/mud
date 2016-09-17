@@ -2378,7 +2378,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 							GET_OBJ_SUF_6(obj), fullness[amt],
 							buf2,
 							(AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON) &&
-							 GET_OBJ_VAL(obj, 3) > 0 ? "(отравленной)" : ""));
+							 GET_OBJ_VAL(obj, 3) == 1 ? "(отравленной)" : ""));
 				}
 				send_to_char(buf, ch);
 			}
@@ -2467,6 +2467,10 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
 		if (GET_OBJ_VNUM(obj) >= DUPLICATE_MINI_SET_VNUM)
 			sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");
+		if ( GET_OBJ_VAL(obj, 3) <= (obj_proto[GET_OBJ_RNUM(obj)]->obj_flags.value[3] / 10))
+				strcat(buf, "Скоро протухнет!\r\n");
+		send_to_char(ch, "Таймер протухания прототипа %d таймер предмета протухания %d\r\n", obj_proto[GET_OBJ_RNUM(obj)]->obj_flags.value[3], GET_OBJ_VAL(obj, 3) );
+
 }
 /*
  * Given the argument "look at <target>", figure out what object or char
