@@ -1004,7 +1004,7 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 	case obj_flag_data::ITEM_DRINKCON:
 	case obj_flag_data::ITEM_FOUNTAIN:
 	case obj_flag_data::ITEM_FOOD:
-		send_to_char("Отравлено (0 = не отравлено) : ", d->character);
+		send_to_char("Отравлено (0 - не отравлено, 1 - отравлено, >1 - таймер) : ", d->character);
 		break;
 
 	case obj_flag_data::ITEM_BOOK:

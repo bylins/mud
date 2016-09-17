@@ -511,7 +511,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 	}
 
-	if (GET_OBJ_VAL(temp, 3) && !IS_GOD(ch))  	// The shit was poisoned ! //
+	if ((GET_OBJ_VAL(temp, 3) == 1) && !IS_GOD(ch))  	// The shit was poisoned ! //
 	{
 		send_to_char("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
