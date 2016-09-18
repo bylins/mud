@@ -236,10 +236,7 @@ void create_clone_miniset(int vnum)
 	const int new_vnum = DUPLICATE_MINI_SET_VNUM + vnum;
 	// если такой зоны нет, то делаем ретурн
 	if ((new_vnum % 100) > top_of_zone_table)
-		return;	
-	OBJ_DATA *obj, *old_obj;
-	// создаем новый объект
-	NEWCREATE(obj);
+		return;
 	const int rnum = real_object(vnum);
 	// проверяем, есть ли у нашей сетины клон в системной зоне
 	const int rnum_nobj = real_object(new_vnum);

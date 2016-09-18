@@ -142,7 +142,7 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
 bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd);
 void gods_day_now(CHAR_DATA * ch);
 void do_blind_exits(CHAR_DATA *ch);
-const char *diag_liquid_timer(OBJ_DATA * obj);
+const char *diag_liquid_timer(const OBJ_DATA * obj);
 #define EXIT_SHOW_WALL    (1 << 0)
 #define EXIT_SHOW_LOOKING (1 << 1)
 
@@ -2399,7 +2399,7 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
 
 	return (NULL);
 }
-const char *diag_liquid_timer(OBJ_DATA * obj)
+const char *diag_liquid_timer(const OBJ_DATA* obj)
 {	int tm;
 	if (GET_OBJ_VAL(obj, 3) == 1)
 		return "испортилось!";

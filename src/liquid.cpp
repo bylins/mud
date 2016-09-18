@@ -55,7 +55,7 @@ const int LIQ_POISON_BELENA = 27;
 const int LIQ_POISON_DATURA = 28;
 // терминатор
 const int NUM_LIQ_TYPES = 29;
-const char *diag_liquid_timer(OBJ_DATA * obj);
+const char *diag_liquid_timer(const OBJ_DATA * obj);
 
 // LIQ_x
 const char *drinks[] = { "воды",
