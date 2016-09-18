@@ -1387,8 +1387,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 						send_to_char("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
 						chance = cases[i].chance;		
 						// chance пока что не учитывается, просто падает одна рандомная стафина из всего этого
-						const int max_chance = static_cast<int>(cases[i].vnum_objs.size() - 1);
-						const int random_number = number(0, max_chance);
+						const int random_number = number(0, cases[i].vnum_objs.size() - 1);
 						vnum = cases[i].vnum_objs[random_number];
 						if ((r_num = real_object(vnum)) < 0)
 						{
