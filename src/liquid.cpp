@@ -55,6 +55,7 @@ const int LIQ_POISON_BELENA = 27;
 const int LIQ_POISON_DATURA = 28;
 // терминатор
 const int NUM_LIQ_TYPES = 29;
+const char *diag_liquid_timer(OBJ_DATA * obj);
 
 // LIQ_x
 const char *drinks[] = { "воды",
@@ -1354,6 +1355,8 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 			}
 		}
 	}
+	sprintf(buf1, "Качество: %s \r\n", diag_liquid_timer(obj)); // состояние жижки
+	out += buf1;
 	send_to_char(out, ch);
 }
 
