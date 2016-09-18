@@ -1289,7 +1289,8 @@ void exchange_point_update()
 		next_exch_item = exch_item->next;
 		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() > 0)
 		{
-			GET_EXCHANGE_ITEM(exch_item)->dec_timer(1, true);
+			if (!(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(exch_item)) == obj_flag_data::ITEM_DRINKCON) || !(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(exch_item)) == obj_flag_data::ITEM_FOOD)) // если жижка или хавка на базаре, не протухает
+				GET_EXCHANGE_ITEM(exch_item)->dec_timer(1, true);
 		}
 
 		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() <= 0)
