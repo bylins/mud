@@ -2404,17 +2404,17 @@ const char *diag_liquid_timer(const OBJ_DATA* obj)
 	if (GET_OBJ_VAL(obj, 3) == 1)
 		return "испортилось!";
 	if (GET_OBJ_VAL(obj, 3) == 0)
-		return "Только приготовлено.";
+		return "идеальное.";
 	tm = (GET_OBJ_VAL(obj, 3) * 100 / obj_proto[GET_OBJ_RNUM(obj)]->obj_flags.value[3]);
 	if (tm < 20)
 		return "скоро испортится!";
 	else if (tm < 40)
-		return "среднее.";
+		return "сомнительное.";
 	else if (tm < 60)
 		return "выглядит свежим.";
 	else if (tm < 80)
 		return "свежее.";
-	return "Только приготовлено.";
+	return "идеальное.";
 }
 
 //ф-ция вывода доп инфы об объекте
