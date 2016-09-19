@@ -457,7 +457,7 @@ void OBJ_DATA::unset_enchant()
 * Помимо таймера самой шмотки снимается таймер ее временного обкаста.
 * \param time по дефолту 1.
 */
-void OBJ_DATA::dec_timer(int time, bool ignore_utimer)
+void OBJ_DATA::dec_timer(int time, bool ignore_utimer, bool exchange)
 {
 	if (!m_timed_spell.empty())
 	{
@@ -470,12 +470,9 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer)
 	{
 		timer_ -= time;
 	}
-	if ((GET_OBJ_TYPE(this) == obj_flag_data::ITEM_DRINKCON) && GET_OBJ_VAL(this, 3) > 1) //таймер у жижек
-		--GET_OBJ_VAL(this, 3);
-	if ((GET_OBJ_TYPE(this) == obj_flag_data::ITEM_FOOD) && GET_OBJ_VAL(this, 3) > 1) // ну еда тоже может протухнуть
-		--GET_OBJ_VAL(this, 3);
-
-
+	if (!exchange)
+		if (((GET_OBJ_TYPE(this) == obj_flag_data::ITEM_DRINKCON) || (GET_OBJ_TYPE(this) == obj_flag_data::ITEM_FOOD)) && GET_OBJ_VAL(this, 3) > 1) //таймер у жижек и еды
+			--GET_OBJ_VAL(this, 3);
 }
 
 float OBJ_DATA::show_mort_req() 
