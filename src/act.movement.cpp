@@ -282,10 +282,16 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 			//else
 			percent = number(1, (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 112) + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
 			prob = calculate_skill(ch, SKILL_SNEAK, vict);
-
-			//5% шанс фэйла при prob==200 всегда, при prob = 100 - 10%, если босс, шанс множим на 5
-			absolute_fail = ((200 - prob) / 20 + 5)*(vict->get_role(MOB_ROLE_BOSS) ? 5 : 1 );
-			try_fail = number(1, 100) < absolute_fail;
+			
+			int catch_level = (GET_LEVEL(vict) - GET_LEVEL(ch));
+			if (catch_level > 5)
+			{
+				//5% шанс фэйла при prob==200 всегда, при prob = 100 - 10%, если босс, шанс множим на 5
+				absolute_fail = ((200 - prob) / 20 + 5)*(vict->get_role(MOB_ROLE_BOSS) ? 5 : 1);
+				try_fail = number(1, 100) < absolute_fail;
+			}
+			else 
+				try_fail = false;
 
 
 			if ((percent > prob) || try_fail)
