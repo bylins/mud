@@ -1049,6 +1049,12 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			send_to_char(ch, "Вы занялись переливанием зелья в %s.\r\n",
 				OBJN(to_obj, ch, 3));
+				int n1 = GET_OBJ_VAL(from_obj, 1);
+				int n2 = GET_OBJ_VAL(to_obj, 1);
+				int t1 = GET_OBJ_VAL(from_obj, 3);
+				int t2 = GET_OBJ_VAL(to_obj, 3);
+				GET_OBJ_VAL(to_obj, 3) = (n1*t1 + n2*t2) / (n1 + n2); //усредним таймер в зависимости от наполненности обоих емкостей
+//				send_to_char(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 			if (GET_OBJ_VAL(to_obj, 1) == 0)
 			{
 				copy_potion_values(from_obj, to_obj);
@@ -1114,10 +1120,16 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// копируем тип жидкости //
 	GET_OBJ_VAL(to_obj, 2) = GET_OBJ_VAL(from_obj, 2);
 
+	int n1 = GET_OBJ_VAL(from_obj, 1);
+	int n2 = GET_OBJ_VAL(to_obj, 1);
+	int t1 = GET_OBJ_VAL(from_obj, 3);
+	int t2 = GET_OBJ_VAL(to_obj, 3);
+	GET_OBJ_VAL(to_obj, 3) = (n1*t1 + n2*t2) / (n1 + n2); //усредним таймер в зависимости от наполненности обоих емкостей
+//	send_to_char(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+
 	// New alias //
 	if (GET_OBJ_VAL(to_obj, 1) == 0)
 		name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
-
 	// Then how much to pour //
 	if (GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_FOUNTAIN
 		|| GET_OBJ_VAL(from_obj, 1) != 999)
@@ -1128,12 +1140,12 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		amount = GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1);
 	}
-
 	GET_OBJ_VAL(to_obj, 1) = GET_OBJ_VAL(to_obj, 0);
 
 	// Then the poison boogie //
-	GET_OBJ_VAL(to_obj, 3) = (GET_OBJ_VAL(to_obj, 3)
-		|| GET_OBJ_VAL(from_obj, 3));
+//	GET_OBJ_VAL(to_obj, 3) = (GET_OBJ_VAL(to_obj, 3)
+//		|| GET_OBJ_VAL(from_obj, 3));
+
 
 	if (GET_OBJ_VAL(from_obj, 1) <= 0)  	// There was too little //
 	{
@@ -1355,8 +1367,11 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 			}
 		}
 	}
-	sprintf(buf1, "Качество: %s \r\n", diag_liquid_timer(obj)); // состояние жижки
-	out += buf1;
+	if (GET_OBJ_VAL(obj, 1) >0) //если что-то плескается
+	{
+		sprintf(buf1, "Качество: %s \r\n", diag_liquid_timer(obj)); // состояние жижки
+		out += buf1;
+	}
 	send_to_char(out, ch);
 }
 

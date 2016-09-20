@@ -2405,14 +2405,14 @@ const char *diag_liquid_timer(const OBJ_DATA* obj)
 		return "испортилось!";
 	if (GET_OBJ_VAL(obj, 3) == 0)
 		return "идеальное.";
-	tm = (GET_OBJ_VAL(obj, 3) * 100 / obj_proto[GET_OBJ_RNUM(obj)]->obj_flags.value[3]);
-	if (tm < 20)
+	tm = (GET_OBJ_VAL(obj, 3));
+	if (tm < 1440) // сутки
 		return "скоро испортится!";
-	else if (tm < 40)
+	else if (tm < 10080) //неделя
 		return "сомнительное.";
-	else if (tm < 60)
+	else if (tm < 20160) // 2 недели
 		return "выглядит свежим.";
-	else if (tm < 80)
+	else if (tm < 30240) // 3 недели
 		return "свежее.";
 	return "идеальное.";
 }
@@ -2488,9 +2488,11 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");
 		if ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON) || (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOOD))
 		{
-			sprintf(buf1, "Качество: %s \r\n", diag_liquid_timer(obj));
-			strcat(buf, buf1);
-//			send_to_char(ch, "Таймер протухания прототипа %d таймер предмета протухания %d\r\n", obj_proto[GET_OBJ_RNUM(obj)]->obj_flags.value[3], GET_OBJ_VAL(obj, 3) ); для теста мессага
+			if (GET_OBJ_VAL(obj, 1) > 0) // если что-то плескается покажем качество
+			{
+				sprintf(buf1, "Качество: %s\r\n", diag_liquid_timer(obj));
+				strcat(buf, buf1);
+			}
 		}
 
 
