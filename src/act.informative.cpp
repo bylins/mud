@@ -2486,13 +2486,10 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
 		if (GET_OBJ_VNUM(obj) >= DUPLICATE_MINI_SET_VNUM)
 			sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");
-		if ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON) || (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOOD))
+		if (((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON) && (GET_OBJ_VAL(obj, 1) > 0)) || (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOOD))
 		{
-			if (GET_OBJ_VAL(obj, 1) > 0) // если что-то плескается покажем качество
-			{
-				sprintf(buf1, "Качество: %s\r\n", diag_liquid_timer(obj));
-				strcat(buf, buf1);
-			}
+			sprintf(buf1, "Качество: %s\r\n", diag_liquid_timer(obj));
+			strcat(buf, buf1);
 		}
 
 
