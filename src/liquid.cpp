@@ -55,6 +55,7 @@ const int LIQ_POISON_BELENA = 27;
 const int LIQ_POISON_DATURA = 28;
 // терминатор
 const int NUM_LIQ_TYPES = 29;
+const char *diag_liquid_timer(const OBJ_DATA * obj);
 
 // LIQ_x
 const char *drinks[] = { "воды",
@@ -511,7 +512,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 	}
 
-	if (GET_OBJ_VAL(temp, 3) && !IS_GOD(ch))  	// The shit was poisoned ! //
+	if ((GET_OBJ_VAL(temp, 3) == 1) && !IS_GOD(ch))  	// The shit was poisoned ! //
 	{
 		send_to_char("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
@@ -1048,6 +1049,12 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			send_to_char(ch, "Вы занялись переливанием зелья в %s.\r\n",
 				OBJN(to_obj, ch, 3));
+				int n1 = GET_OBJ_VAL(from_obj, 1);
+				int n2 = GET_OBJ_VAL(to_obj, 1);
+				int t1 = GET_OBJ_VAL(from_obj, 3);
+				int t2 = GET_OBJ_VAL(to_obj, 3);
+				GET_OBJ_VAL(to_obj, 3) = (n1*t1 + n2*t2) / (n1 + n2); //усредним таймер в зависимости от наполненности обоих емкостей
+//				send_to_char(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 			if (GET_OBJ_VAL(to_obj, 1) == 0)
 			{
 				copy_potion_values(from_obj, to_obj);
@@ -1113,10 +1120,16 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// копируем тип жидкости //
 	GET_OBJ_VAL(to_obj, 2) = GET_OBJ_VAL(from_obj, 2);
 
+	int n1 = GET_OBJ_VAL(from_obj, 1);
+	int n2 = GET_OBJ_VAL(to_obj, 1);
+	int t1 = GET_OBJ_VAL(from_obj, 3);
+	int t2 = GET_OBJ_VAL(to_obj, 3);
+	GET_OBJ_VAL(to_obj, 3) = (n1*t1 + n2*t2) / (n1 + n2); //усредним таймер в зависимости от наполненности обоих емкостей
+//	send_to_char(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+
 	// New alias //
 	if (GET_OBJ_VAL(to_obj, 1) == 0)
 		name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
-
 	// Then how much to pour //
 	if (GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_FOUNTAIN
 		|| GET_OBJ_VAL(from_obj, 1) != 999)
@@ -1127,12 +1140,12 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		amount = GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1);
 	}
-
 	GET_OBJ_VAL(to_obj, 1) = GET_OBJ_VAL(to_obj, 0);
 
 	// Then the poison boogie //
-	GET_OBJ_VAL(to_obj, 3) = (GET_OBJ_VAL(to_obj, 3)
-		|| GET_OBJ_VAL(from_obj, 3));
+//	GET_OBJ_VAL(to_obj, 3) = (GET_OBJ_VAL(to_obj, 3)
+//		|| GET_OBJ_VAL(from_obj, 3));
+
 
 	if (GET_OBJ_VAL(from_obj, 1) <= 0)  	// There was too little //
 	{
@@ -1353,6 +1366,11 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 				out += print_spells(ch, obj);
 			}
 		}
+	}
+	if (GET_OBJ_VAL(obj, 1) >0) //если что-то плескается
+	{
+		sprintf(buf1, "Качество: %s \r\n", diag_liquid_timer(obj)); // состояние жижки
+		out += buf1;
 	}
 	send_to_char(out, ch);
 }

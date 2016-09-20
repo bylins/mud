@@ -510,7 +510,7 @@ public:
 
 	void set_timer(int timer);
 	int get_timer() const;
-	void dec_timer(int time = 1, bool ingore_utimer = false);
+	void dec_timer(int time = 1, bool ingore_utimer = false, bool exchange = false);
 
 	static id_to_set_info_map set_table;
 	static void init_set_table();
