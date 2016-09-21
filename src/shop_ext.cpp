@@ -654,6 +654,8 @@ void update_shop_timers(ShopListType::const_iterator &shop)
 	int waste_time = (*shop)->waste_time_min * 60;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end();)
 	{
+		if (GET_OBJ_TYPE(it->obj) == obj_flag_data::ITEM_BOOK)
+			it->obj->dec_timer();
 		if (it->obj->get_timer() <= 0 || ((waste_time > 0) && (cur_time - it->last_activity > waste_time)))
 		{
 			remove_item_id(shop, it->obj->uid);
