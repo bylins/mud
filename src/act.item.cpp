@@ -1748,8 +1748,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Вы наелись.\r\n", ch);
 	}
 
-	if (GET_OBJ_VAL(food, 3)
-		&& !IS_IMMORTAL(ch))  	// The shit was poisoned !
+	if ((GET_OBJ_VAL(food, 3) == 1) && !IS_IMMORTAL(ch))  	// The shit was poisoned !
 	{
 		send_to_char("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);

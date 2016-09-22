@@ -140,6 +140,7 @@ char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list);
 bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd);
 void gods_day_now(CHAR_DATA * ch);
 void do_blind_exits(CHAR_DATA *ch);
+const char *diag_liquid_timer(const OBJ_DATA * obj);
 #define EXIT_SHOW_WALL    (1 << 0)
 #define EXIT_SHOW_LOOKING (1 << 1)
 
@@ -2452,7 +2453,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 				else
 				{
 					const char* msg = AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON)
-						&& obj->get_val(3) > 0 ? "(отравленной)" : "";
+						&& obj->get_val(3) == 1 ? "(отравленной)" : "";
 					amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 					sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, buf2);
 					sprintf(buf, "Наполнен%s %s%s%s жидкостью.\r\n", GET_OBJ_SUF_6(obj), fullness[amt], buf2, msg);
@@ -2475,6 +2476,24 @@ char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list)
 
 	return nullptr;
 }
+const char *diag_liquid_timer(const OBJ_DATA* obj)
+{	int tm;
+	if (GET_OBJ_VAL(obj, 3) == 1)
+		return "испортилось!";
+	if (GET_OBJ_VAL(obj, 3) == 0)
+		return "идеальное.";
+	tm = (GET_OBJ_VAL(obj, 3));
+	if (tm < 1440) // сутки
+		return "скоро испортится!";
+	else if (tm < 10080) //неделя
+		return "сомнительное.";
+	else if (tm < 20160) // 2 недели
+		return "выглядит свежим.";
+	else if (tm < 30240) // 3 недели
+		return "свежее.";
+	return "идеальное.";
+}
+
 //ф-ция вывода доп инфы об объекте
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
@@ -2556,6 +2575,13 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
 		if (GET_OBJ_VNUM(obj) >= DUPLICATE_MINI_SET_VNUM)
 			sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");
+		if (((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON) && (GET_OBJ_VAL(obj, 1) > 0)) || (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_FOOD))
+		{
+			sprintf(buf1, "Качество: %s\r\n", diag_liquid_timer(obj));
+			strcat(buf, buf1);
+}
+
+
 }
 /*
  * Given the argument "look at <target>", figure out what object or char
