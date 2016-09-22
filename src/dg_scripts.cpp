@@ -6213,6 +6213,7 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
 	trigger_type(from.trigger_type),
 	cmdlist(from.cmdlist),
 	narg(from.narg),
+	arglist(from.arglist),
 	depth(from.depth),
 	loops(from.loops),
 	wait_event(nullptr),
