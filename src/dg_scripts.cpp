@@ -6211,6 +6211,7 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
 	data_type(from.data_type),
 	name(from.name),
 	trigger_type(from.trigger_type),
+	cmdlist(from.cmdlist),
 	narg(from.narg),
 	depth(from.depth),
 	loops(from.loops),
