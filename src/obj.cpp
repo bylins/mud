@@ -514,7 +514,7 @@ float count_unlimited_timer(const CObjectPrototype* obj);
 * Помимо таймера самой шмотки снимается таймер ее временного обкаста.
 * \param time по дефолту 1.
 */
-void OBJ_DATA::dec_timer(int time, bool ignore_utimer)
+void OBJ_DATA::dec_timer(int time, bool ignore_utimer, bool exchange)
 {
 	if (!m_timed_spell.empty())
 	{
@@ -529,6 +529,15 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer)
 	if (time > 0)
 	{
 		set_timer(get_timer() - time);
+	}
+	if (!exchange)
+	{
+		if (((GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_DRINKCON)
+			|| (GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_FOOD))
+			&& GET_OBJ_VAL(this, 3) > 1) //таймер у жижек и еды
+		{
+			dec_val(3);
+		}
 	}
 }
 

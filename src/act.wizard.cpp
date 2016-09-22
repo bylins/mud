@@ -1940,8 +1940,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		{
 			std::string spells = drinkcon::print_spells(ch, j);
 			boost::trim(spells);
-			sprintf(buf, "Обьем: %d, Содержит: %d, Отравлен: %s, Жидкость: %s\r\n%s",
-				GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), YESNO(GET_OBJ_VAL(j, 3)), buf2, spells.c_str());
+			sprintf(buf, "Обьем: %d, Содержит: %d, Таймер (если 1 отравлено): %d, Жидкость: %s\r\n%s",
+				GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 3), buf2, spells.c_str());
 		}
 		break;
 
@@ -1954,7 +1954,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		break;
 
 	case OBJ_DATA::ITEM_FOOD:
-		sprintf(buf, "Насыщает(час): %d, Отравлен: %s", GET_OBJ_VAL(j, 0), YESNO(GET_OBJ_VAL(j, 3)));
+		sprintf(buf, "Насыщает(час): %d, Таймер (если 1 отравлено): %d", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 3));
 		break;
 
 	case OBJ_DATA::ITEM_MONEY:
