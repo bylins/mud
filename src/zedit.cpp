@@ -678,7 +678,7 @@ enum { MOB_NAME, OBJ_NAME, ROOM_NAME, TRIG_NAME };
 * \param type - тип номера, чье имя возвращаем
 * \return имя или "???" если такого не существует
 */
-const char * name_by_vnum(int vnum, int type)
+const char* name_by_vnum(int vnum, int type)
 {
 	int rnum;
 
@@ -712,7 +712,7 @@ const char * name_by_vnum(int vnum, int type)
 		rnum = real_trigger(vnum);
 		if (rnum >= 0)
 		{
-			return trig_index[rnum]->proto->name;
+			return trig_index[rnum]->proto->get_name().c_str();
 		}
 		break;
 

@@ -108,7 +108,7 @@ int roundup(float fl);
 int valid_email(const char *address);
 void skip_dots(char **string);
 void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence = 0);
-char * str_str(char *cs, const char *ct);
+const char * str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 bool die_follower(CHAR_DATA * ch);
 void cut_one_word(std::string &str, std::string &word);

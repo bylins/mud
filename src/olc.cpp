@@ -482,12 +482,9 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		// Освободить редактируемый триггер
 		if (OLC_TRIG(d))
 		{
-			if (OLC_TRIG(d)->name)
-				free(OLC_TRIG(d)->name);
-			if (OLC_TRIG(d)->arglist)
-				free(OLC_TRIG(d)->arglist);
 			free(OLC_TRIG(d));
 		}
+
 		// Освободить массив данных (похоже, только для триггеров)
 		if (OLC_STORAGE(d))
 		{
@@ -511,6 +508,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			case CLEANUP_STRUCTS:
 				delete OLC_ROOM(d);	// удаляет только оболочку
 				break;
+
 			default:	// The caller has screwed up.
 				break;
 			}

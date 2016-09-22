@@ -197,9 +197,9 @@ char *one_phrase(char *arg, char *first_arg)
 	return arg;
 }
 
-int is_substring(char *sub, char *string)
+int is_substring(const char *sub, const char *string)
 {
-	char *s = str_str(string, sub);
+	const char *s = str_str(string, sub);
 
 	if (s)
 	{
@@ -223,7 +223,7 @@ int is_substring(char *sub, char *string)
  * phrases are in double quotes (").
  * if wrdlist is NULL, then return 1, if str is NULL, return 0.
  */
-int word_check(char *str, char *wordlist)
+int word_check(const char *str, const char *wordlist)
 {
 	char words[MAX_INPUT_LENGTH], phrase[MAX_INPUT_LENGTH], *s;
 
@@ -508,7 +508,7 @@ int entry_mtrigger(CHAR_DATA * ch)
 	return 1;
 }
 
-int compare_cmd(int mode, char *source, char *dest)
+int compare_cmd(int mode, const char *source, const char *dest)
 {
 	int result = FALSE;
 	if (!source || !*source || !dest || !*dest)
@@ -568,20 +568,21 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 				if (!TRIGGER_CHECK(t, MTRIG_COMMAND))
 					continue;
 
-				if (!GET_TRIG_ARG(t) || !*GET_TRIG_ARG(t))
+				if (t->arglist.empty())
 				{
-					sprintf(buf,
-							"SYSERR: Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
+					sprintf(buf, "SYSERR: Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 					continue;
 				}
-				if (compare_cmd(GET_TRIG_NARG(t), GET_TRIG_ARG(t), cmd))
+
+				if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), cmd))
 				{
 					if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
 					{
 						send_to_char("Сделать это в ваших снах?\r\n", actor);
 						return 1;
 					}
+
 					ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 					skip_spaces(&argument);
 					add_var_cntx(&GET_TRIG_VARS(t), "arg", argument, 0);
@@ -589,7 +590,9 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 					add_var_cntx(&GET_TRIG_VARS(t), "cmd", cmd, 0);
 
 					if (script_driver(ch, t, MOB_TRIGGER, TRIG_NEW))
+					{
 						return 1;
+					}
 				}
 			}
 		}
@@ -609,24 +612,23 @@ void speech_mtrigger(CHAR_DATA * actor, char *str)
 	{
 		ch_next = ch->next_in_room;
 
-		if (SCRIPT_CHECK(ch, MTRIG_SPEECH) && AWAKE(ch) &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) && CAN_START_MTRIG(ch) && (actor != ch))
+		if (SCRIPT_CHECK(ch, MTRIG_SPEECH) && AWAKE(ch)
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)
+			&& CAN_START_MTRIG(ch) && (actor != ch))
+		{
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 			{
 				if (!TRIGGER_CHECK(t, MTRIG_SPEECH))
 					continue;
 
-				if (!GET_TRIG_ARG(t) || !*GET_TRIG_ARG(t))
+				if (t->arglist.empty())
 				{
-					sprintf(buf,
-							"SYSERR: Speech Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
+					sprintf(buf, "SYSERR: Speech Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 					continue;
 				}
 
-				if (compare_cmd(GET_TRIG_NARG(t), GET_TRIG_ARG(t), str))
-					// ((GET_TRIG_NARG(t) && word_check(str, GET_TRIG_ARG(t))) ||
-					//  (!GET_TRIG_NARG(t) && is_substring(GET_TRIG_ARG(t), str)))
+				if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), str))
 				{
 					ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 					add_var_cntx(&GET_TRIG_VARS(t), "speech", str, 0);
@@ -634,9 +636,9 @@ void speech_mtrigger(CHAR_DATA * actor, char *str)
 					break;
 				}
 			}
+		}
 	}
 }
-
 
 void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * victim,
 				  const OBJ_DATA * object, const OBJ_DATA * target, char *arg)
@@ -650,17 +652,14 @@ void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * vict
 			if (!TRIGGER_CHECK(t, MTRIG_ACT))
 				continue;
 
-			if (!GET_TRIG_ARG(t) || !*GET_TRIG_ARG(t))
+			if (t->arglist.empty())
 			{
 				sprintf(buf, "SYSERR: Act Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 				continue;
 			}
 
-			if (compare_cmd(GET_TRIG_NARG(t), GET_TRIG_ARG(t), str)
-					/* ((GET_TRIG_NARG(t) && word_check(str, GET_TRIG_ARG(t))) ||
-					   (!GET_TRIG_NARG(t) && is_substring(GET_TRIG_ARG(t), str))) */
-			   )
+			if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), str))
 			{
 				if (actor)
 					ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
@@ -1062,7 +1061,7 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int 
 				continue;
 			}
 
-			if (IS_SET(GET_TRIG_NARG(t), type) && (!GET_TRIG_ARG(t) || !*GET_TRIG_ARG(t)))
+			if (IS_SET(GET_TRIG_NARG(t), type) && t->arglist.empty())
 			{
 				sprintf(buf, "SYSERR: O-Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
@@ -1070,8 +1069,8 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int 
 			}
 
 			if (IS_SET(GET_TRIG_NARG(t), type)
-				&& (*GET_TRIG_ARG(t) == '*'
-					|| !strn_cmp(GET_TRIG_ARG(t), cmd, strlen(GET_TRIG_ARG(t)))))
+				&& (t->arglist[0] == '*'
+					|| t->arglist != cmd))
 			{
 				if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
 				{
@@ -1477,14 +1476,14 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 		if (!TRIGGER_CHECK(t, WTRIG_COMMAND))
 			continue;
 
-		if (!GET_TRIG_ARG(t) || !*GET_TRIG_ARG(t))
+		if (t->arglist.empty())
 		{
 			sprintf(buf, "SYSERR: W-Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			continue;
 		}
 
-		if (compare_cmd(GET_TRIG_NARG(t), GET_TRIG_ARG(t), cmd))
+		if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), cmd))
 		{
 			if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
 			{
@@ -1525,17 +1524,14 @@ void speech_wtrigger(CHAR_DATA * actor, char *str)
 		if (!TRIGGER_CHECK(t, WTRIG_SPEECH))
 			continue;
 
-		if (!GET_TRIG_ARG(t) || !*GET_TRIG_ARG(t))
+		if (t->arglist.empty())
 		{
 			sprintf(buf, "SYSERR: W-Speech Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			continue;
 		}
 
-		if (compare_cmd(GET_TRIG_NARG(t), GET_TRIG_ARG(t), str)
-				/* ((GET_TRIG_NARG(t) && word_check(str, GET_TRIG_ARG(t))) ||
-				   (!GET_TRIG_NARG(t) && is_substring(GET_TRIG_ARG(t), str))) */
-		   )
+		if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), str))
 		{
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "speech", str, 0);
