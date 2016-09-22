@@ -5701,7 +5701,7 @@ void log_zone_error(zone_rnum zone, int cmd_no, const char *message)
 {
 	char buf[256];
 
-	sprintf(buf, "SYSERR: zone file: %s", message);
+	sprintf(buf, "SYSERR: zone file %d.zon: %s", zone_table[zone].number, message);
 	mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 
 	sprintf(buf, "SYSERR: ...offending cmd: '%c' cmd in zone #%d, line %d",
