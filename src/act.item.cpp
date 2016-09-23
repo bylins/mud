@@ -2912,17 +2912,29 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		need = TRUE;
 		if (success)
-		{	percent = calculate_skill(ch, SKILL_AID, vict);
-			prob = GET_LEVEL(vict) * percent * 0.5;
-			send_to_char(ch, "&RОтхилено %d хитов, скилл %d\r\n", prob, percent);
-			GET_HIT(vict) += prob;
-			GET_HIT(vict) = MIN(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
-			update_pos(vict);
+		{	if (!GET_GOD_FLAG(ch, GF_TESTER))
+			{
+				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
+				int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
+				GET_HIT(vict) += add;
+			} else
+			{
+				percent = calculate_skill(ch, SKILL_AID, vict);
+				prob = GET_LEVEL(vict) * percent * 0.5;
+				send_to_char(ch, "&RОтхилено %d хитов, скилл %d\r\n", prob, percent);
+				GET_HIT(vict) += prob;
+				GET_HIT(vict) = MIN(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
+				update_pos(vict);
+			}
 		}
 	}
-	count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
-	send_to_char(ch, "&RСнимаю  %d аффектов\r\n", count);
-
+	if (!GET_GOD_FLAG(ch, GF_TESTER))
+		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
+	else
+	{
+		send_to_char(ch, "&RСнимаю  %d аффектов\r\n", count);
+		count = MIN(MAX_REMOVE, MAX_REMOVE * prob / 100);
+	}
 	for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++)
 		if (affected_by_spell(vict, RemoveSpell[percent]))
 		{
