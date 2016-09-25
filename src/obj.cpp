@@ -456,21 +456,23 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 		set_affected_modifier(0, 2);
 		set_affected_modifier(1, 2);
     };
+
     i=0;
     while (i < random_drop)
-	{
 	{
 		if (obj->get_affected(i).location != APPLY_NONE)
 		{
 			set_obj_eff(this, obj->get_affected(i).location, obj->get_affected(i).modifier);
-                }
-	i++;
+		}
+		i++;
 	}
-	}
+
     add_affect_flags(GET_OBJ_AFFECTS(obj));
     add_extra_flags(GET_OBJ_EXTRA(obj));
     add_no_flags(GET_OBJ_NO(obj));
 
+    set_extra_flag(EExtraFlag::ITEM_MAGIC);
+    set_extra_flag(EExtraFlag::ITEM_MAGIC);
     set_extra_flag(EExtraFlag::ITEM_MAGIC);
 }
 

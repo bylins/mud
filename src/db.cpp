@@ -962,7 +962,6 @@ void load_cases()
 	}
 }
 
-
 std::vector<RandomObj> random_objs;
 
 // загрузка параметров для рандомных шмоток

@@ -862,7 +862,6 @@ std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch);
 
 namespace system_obj
 {
-
 /// кошелек для кун с игрока
 extern int PURSE_RNUM;
 /// персональное хранилище
@@ -872,7 +871,6 @@ void init();
 OBJ_DATA* create_purse(CHAR_DATA *ch, int gold);
 bool is_purse(OBJ_DATA *obj);
 void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj);
-
 } // namespace system_obj
 
 namespace SetSystem
@@ -883,6 +881,7 @@ namespace SetSystem
 	bool find_set_item(OBJ_DATA *obj);
 	bool is_big_set(const CObjectPrototype *obj, bool is_mini = false);
 	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
+	bool is_norent_set(int vnum, std::vector<int> objs);
 } // namespace SetSystem
 
 #endif // OBJ_HPP_INCLUDED

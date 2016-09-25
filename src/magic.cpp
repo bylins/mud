@@ -3295,7 +3295,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_DETECT_INVIS:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
-		//af[0].aff.set(to_underlying(EAffectFlag::AFF_DETECT_INVIS));
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели золотистый оттенок.";
@@ -4251,7 +4250,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++)
 	{
 		af[i].type = spellnum;
-		if (af[i].bitvector || af[i].location != APPLY_NONE || af[i].aff != EMPTY_FLAG_DATA)
+		if (af[i].bitvector || af[i].location != APPLY_NONE)
 		{
 			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (update_spell)

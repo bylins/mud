@@ -16,7 +16,6 @@
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "db.h"
 #include "constants.h"
 #include "screen.h"
 #include "spells.h"
@@ -29,6 +28,7 @@
 #include "fight.h"
 #include "fight_hit.hpp"
 #include "features.hpp"
+#include "db.h"
 #include "structs.h"
 #include "utils.h"
 #include "sysdep.h"
@@ -3231,7 +3231,6 @@ void ApplyNoFleeAffect(CHAR_DATA *ch, int duration)
 
     send_to_char("Вы выпали из ритма боя.\r\n", ch);
 }
-
 
 ESkill ExpedientWeaponSkill(CHAR_DATA *ch)
 {

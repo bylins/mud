@@ -250,7 +250,6 @@ void create_clone_miniset(int vnum)
 	obj_proto.set_idx(rnum_nobj, obj_proto.set_idx(rnum));
 }
 
-
 // * Инициализация списка сетов на лоад.
 void init_obj_list()
 {

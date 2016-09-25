@@ -1,4 +1,4 @@
-/*******************************************************************
+/* ************************************************************************
 *   File: act.wizard.cpp                                Part of Bylins    *
 *  Usage: Player-level god commands and other goodies                     *
 *                                                                         *
@@ -2489,6 +2489,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	k->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
+
 	// Routine to show what spells a char is affected by
 	if (!k->affected.empty())
 	{
@@ -6269,9 +6270,8 @@ std::string print_script(CHAR_DATA *mob, const std::string &key)
 				if (print_name)
 				{
 					out += "(";
-					out += GET_TRIG_NAME(trig_index[trg_rnum]->proto)
-						? GET_TRIG_NAME(trig_index[trg_rnum]->proto)
-						: "null";
+					const auto& trigger_name = trig_index[trg_rnum]->proto->get_name();
+					out += !trigger_name.empty() ? trigger_name.c_str() : "null";
 					out += ")";
 				}
 			}

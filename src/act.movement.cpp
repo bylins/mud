@@ -1344,7 +1344,7 @@ extern std::vector<_case> cases;;
 void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 {
 	int other_room = 0;
-	int r_num, chance, vnum;
+	int r_num, vnum;
 	EXIT_DATA *back = 0;
 	CHAR_DATA * to;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
@@ -1419,7 +1419,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 					if (GET_OBJ_VNUM(obj) == cases[i].vnum)
 					{
 						send_to_char("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
-						chance = cases[i].chance;
+						// chance = cases[i].chance;		
 						// chance пока что не учитывается, просто падает одна рандомная стафина из всего этого
 						const int maximal_chance = static_cast<int>(cases[i].vnum_objs.size() - 1);
 						const int random_number = number(0, maximal_chance);

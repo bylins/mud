@@ -712,7 +712,7 @@ const char * name_by_vnum(int vnum, int type)
 		rnum = real_trigger(vnum);
 		if (rnum >= 0)
 		{
-			return trig_index[rnum]->proto->name;
+			return trig_index[rnum]->proto->get_name().c_str();
 		}
 		break;
 

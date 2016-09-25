@@ -1794,35 +1794,52 @@ const char *Fires[MAX_FIRES] = { "тлеет небольшая кучка угольков",
 
 int paste_description(char *string, const char *tag, int need)
 {
-	char *pos;
 	if (!*string || !*tag)
-		return (FALSE);
-	if ((pos = str_str(string, tag)))
 	{
-		if (need)
+		return (FALSE);
+	}
+
+	const char *pos = str_str(string, tag);
+	if (!pos)
+	{
+		return FALSE;
+	}
+
+	if (!need)
 		{
+		const size_t offset = pos - string;
+		string[offset] = '\0';
+		pos = str_str(pos + 1, tag);
+		if (pos)
+		{
+			strcat(string, pos + strlen(tag));
+		}
+		return FALSE;
+	}
+
 			for (; *pos && *pos != '>'; pos++);
+
 			if (*pos)
+	{
 				pos++;
+	}
+
 			if (*pos == 'R')
 			{
 				pos++;
 				buf[0] = '\0';
 			}
+
 			strcat(buf, pos);
-			if ((pos = str_str(buf, tag)))
-				* pos = '\0';
-			return (TRUE);
-		}
-		else
+	pos = str_str(buf, tag);
+	if (pos)
 		{
-			*pos = '\0';
-			if ((pos = str_str(pos + 1, tag)))
-				strcat(string, pos + strlen(tag));
+		const size_t offset = pos - buf;
+		buf[offset] = '\0';
 		}
+
+	return (TRUE);
 	}
-	return (FALSE);
-}
 
 
 void show_extend_room(const char * const description, CHAR_DATA * ch)
