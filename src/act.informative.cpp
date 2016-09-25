@@ -5828,7 +5828,8 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			if (!IS_IMMORTAL(ch))
 			{
 				auto next_affect_i = affect_i;
-				if (++next_affect_i != ch->affected.end())
+				++next_affect_i;
+				if (next_affect_i != ch->affected.end())
 				{
 					const auto& next_affect = *next_affect_i;
 					if (aff->type == next_affect->type)
