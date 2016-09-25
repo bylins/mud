@@ -1463,6 +1463,17 @@ void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
 int wis_bonus(int stat, int type);
 int CAN_CARRY_N(const CHAR_DATA* ch);
 
+namespace SetSystem
+{
+void check_item(int vnum);
+void check_rented();
+void init_vnum_list(int vnum);
+bool find_set_item(OBJ_DATA *obj);
+bool is_norent_set(int vnum, std::vector<int> objs);
+bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
+
+} // namespace SetSystem
+
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
 
 #define OK_BOTH(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \

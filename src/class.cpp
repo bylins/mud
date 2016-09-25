@@ -2234,6 +2234,19 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj)
 	return (TRUE);
 }
 
+
+bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj)
+{
+	for (unsigned int i = 0; i < NUM_WEARS; i++)
+		if (GET_EQ(ch, i) && (GET_OBJ_VNUM(GET_EQ(ch, i)) == GET_OBJ_VNUM(obj)))
+		{
+			return true;
+		}
+	return false;
+}
+
+
+
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 {
 	if (!IS_CORPSE(obj))
@@ -2283,6 +2296,10 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 	return (FALSE);
 }
 
+
+
+
+
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
 	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)
@@ -2308,7 +2325,8 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE) && IS_MALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE) && IS_FEMALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC) && IS_CLERIC(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR) && IS_WARRIOR(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD) && IS_GUARD(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF) && IS_THIEF(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE) && IS_ASSASINE(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE) && IS_PALADINE(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER) && IS_RANGER(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH) && IS_SMITH(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT) && IS_MERCHANT(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_DRUID(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))		|| (!IS_SMITH(ch)			&& (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)				|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch)))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR) && IS_WARRIOR(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD) && IS_GUARD(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF) && IS_THIEF(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE) && IS_ASSASINE(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE) && IS_PALADINE(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER) && IS_RANGER(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH) && IS_SMITH(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT) && IS_MERCHANT(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_DRUID(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))		|| (!IS_SMITH(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch)))
 	{
 		return TRUE;
 	}

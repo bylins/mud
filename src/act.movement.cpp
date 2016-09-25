@@ -283,9 +283,15 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 			percent = number(1, (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 112) + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
 			prob = calculate_skill(ch, SKILL_SNEAK, vict);
 
+			int catch_level = (GET_LEVEL(vict) - GET_LEVEL(ch));
+			if (catch_level > 5)
+			{
 			//5% шанс фэйла при prob==200 всегда, при prob = 100 - 10%, если босс, шанс множим на 5
 			absolute_fail = ((200 - prob) / 20 + 5)*(vict->get_role(MOB_ROLE_BOSS) ? 5 : 1 );
 			try_fail = number(1, 100) < absolute_fail;
+			}
+			else 
+				try_fail = false;
 
 
 			if ((percent > prob) || try_fail)
@@ -425,7 +431,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_NOMOB) &&
 				!IS_HORSE(ch) &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !MOB_FLAGGED(ch, MOB_ANGEL) && !MOB_FLAGGED(ch, MOB_IGNORNOMOB))
+				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !(MOB_FLAGGED(ch, MOB_ANGEL)||MOB_FLAGGED(ch, MOB_GHOST)) && !MOB_FLAGGED(ch, MOB_IGNORNOMOB))
 			return (FALSE);
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_DEATH) && !IS_HORSE(ch))
@@ -1407,46 +1413,44 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		{
 			send_to_char("*Щелк*\r\n", ch);
 			if (obj)
-			{				
-				for(unsigned long i = 0; i < cases.size(); i++)
+			{
+				for (unsigned long i = 0; i < cases.size(); i++)
 				{
 					if (GET_OBJ_VNUM(obj) == cases[i].vnum)
 					{
 						send_to_char("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
-						chance = cases[i].chance;						
-						for (unsigned long  int  k = 0; k < cases[i].vnum_objs.size(); k++)
+						chance = cases[i].chance;
+						// chance пока что не учитывается, просто падает одна рандомная стафина из всего этого
+						const int maximal_chance = static_cast<int>(cases[i].vnum_objs.size() - 1);
+						const int random_number = number(0, maximal_chance);
+						vnum = cases[i].vnum_objs[random_number];
+						if ((r_num = real_object(vnum)) < 0)
 						{
-							if ((number(0, 100) < chance) || (k == cases[i].vnum_objs.size() - 1))
+							send_to_char("Ошибка с номером 1, пожалуйста, напишите об этом в воззвать.\r\n", ch);
+							return;
+						}
+						// сначала удалим ключ из инвентаря
+						int vnum_key = GET_OBJ_VAL(obj, 2);
+						// первый предмет в инвентаре
+						OBJ_DATA *obj_inv = ch->carrying;
+						OBJ_DATA *i;
+						for (i = obj_inv; i; i = i->get_next_content())
+						{
+							if (GET_OBJ_VNUM(i) == vnum_key)
 							{
-								vnum = cases[i].vnum_objs[k];
-								if ((r_num = real_object(vnum)) < 0)
-								{
-									send_to_char("Ошибка с номером 1, пожалуйста, напишите об этом в воззвать.\r\n", ch);
-								}
-								// сначала удалим ключ из инвентаря
-								int vnum_key = GET_OBJ_VAL(obj, 2);
-								// первый предмет в инвентаре
-								OBJ_DATA *obj_inv = ch->carrying;
-								OBJ_DATA *i;
-								for (i = obj_inv; i; i = i->get_next_content())
-								{
-									if (GET_OBJ_VNUM(i) == vnum_key)
-									{
-										extract_obj(i);
-										break;
-									}
-								}								
-								extract_obj(obj);
-								obj = read_object(r_num, REAL);
-								obj->set_crafter_uid(GET_UNIQUE(ch));
-								obj_to_char(obj, ch);
-								act("$n завизжал$g от радости.", FALSE, ch, 0, 0, TO_ROOM);
-								load_otrigger(obj);
-								obj_decay(obj);
-								olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), vnum);
-								return;
+								extract_obj(i);
+								break;
 							}
 						}
+						extract_obj(obj);
+						obj = read_object(r_num, REAL);
+						obj->set_crafter_uid(GET_UNIQUE(ch));
+						obj_to_char(obj, ch);
+						act("$n завизжал$g от радости.", FALSE, ch, 0, 0, TO_ROOM);
+						load_otrigger(obj);
+						obj_decay(obj);
+						olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), vnum);
+						return;
 					}
 				}
 			}
@@ -1738,7 +1742,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					}
 					if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
 						&& !GET_MOB_HOLD(k->follower)
-						&& MOB_FLAGGED(k->follower, MOB_ANGEL)
+						&& (MOB_FLAGGED(k->follower, MOB_ANGEL)||MOB_FLAGGED(k->follower, MOB_GHOST))
 						&& !k->follower->get_fighting()
 						&& IN_ROOM(k->follower) == from_room
 						&& AWAKE(k->follower))

@@ -398,6 +398,8 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 		break;
 	case APPLY_HIT_GLORY: //вкачка +хп за славу
 		GET_HIT_ADD(ch) += mod * GloryConst::HP_FACTOR;
+	case APPLY_PR:
+		GET_PR(ch) += mod;
 		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
@@ -776,7 +778,10 @@ void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
 
 	ch->affected.push_front(affected_alloc);
 
-	affect_modify(ch, af.location, af.modifier, static_cast<EAffectFlag>(af.bitvector), TRUE);
+	AFF_FLAGS(ch) += af.aff;
+	if (af.bitvector)
+		affect_modify(ch, af.location, af.modifier, static_cast<EAffectFlag>(af.bitvector), TRUE);
+	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }

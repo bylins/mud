@@ -1301,7 +1301,7 @@ void exchange_point_update()
 		next_exch_item = exch_item->next;
 		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() > 0)
 		{
-			GET_EXCHANGE_ITEM(exch_item)->dec_timer(1, true);
+			GET_EXCHANGE_ITEM(exch_item)->dec_timer(1, true, true);
 		}
 
 		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() <= 0)

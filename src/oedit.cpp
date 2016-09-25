@@ -940,7 +940,7 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 	case OBJ_DATA::ITEM_DRINKCON:
 	case OBJ_DATA::ITEM_FOUNTAIN:
 	case OBJ_DATA::ITEM_FOOD:
-		send_to_char("Отравлено (0 = не отравлено) : ", d->character);
+		send_to_char("Отравлено (0 - не отравлено, 1 - отравлено, >1 - таймер) : ", d->character);
 		break;
 
 	case OBJ_DATA::ITEM_BOOK:
@@ -2431,6 +2431,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		obj_original = read_object(rnum, REAL);
 		oedit_object_copy(OLC_OBJ(d), obj_original);
 		OLC_OBJ(d)->set_rnum(old_rnum);
+		extract_obj(obj_original);
 		break;
 
 	default:

@@ -46,7 +46,7 @@ extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
 extern struct spell_create_type spell_create[];
-
+FLAG_DATA  EMPTY_FLAG_DATA;
 extern int interpolate(int min_value, int pulse);
 
 byte saving_throws(int class_num, int type, int level);	// class.cpp
@@ -3295,6 +3295,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_DETECT_INVIS:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+		//af[0].aff.set(to_underlying(EAffectFlag::AFF_DETECT_INVIS));
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели золотистый оттенок.";
@@ -4250,7 +4251,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++)
 	{
 		af[i].type = spellnum;
-		if (af[i].bitvector || af[i].location != APPLY_NONE)
+		if (af[i].bitvector || af[i].location != APPLY_NONE || af[i].aff != EMPTY_FLAG_DATA)
 		{
 			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (update_spell)

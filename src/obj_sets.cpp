@@ -82,9 +82,18 @@ std::string line_split_str(const std::string &str, const std::string &sep,
 	return out;
 }
 
+// приводит внум из дублированных миников к оригинальному внуму
+int normalize_vnum(int vnum)
+{
+	if (vnum >= DUPLICATE_MINI_SET_VNUM)
+		return vnum - DUPLICATE_MINI_SET_VNUM;
+	return vnum;
+}
+
 /// \return индекс сета через внум любого его предмета
 size_t setidx_by_objvnum(int vnum)
 {
+	vnum = normalize_vnum(vnum);
 	for (size_t i = 0; i < sets_list.size(); ++i)
 	{
 		if (sets_list.at(i)->obj_list.find(vnum) !=

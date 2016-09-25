@@ -2128,9 +2128,13 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case ZEDIT_ZONE_LOCATION:
 		if (OLC_ZONE(d)->location)
 		{
-			free(OLC_ZONE(d)->location);
+		    free(OLC_ZONE(d)->location);
+		    OLC_ZONE(d)->location = NULL;
 		}
-		OLC_ZONE(d)->location = str_dup(arg);
+		if (arg && *arg)
+		{
+		    OLC_ZONE(d)->location = str_dup(arg);
+		}
 		OLC_ZONE(d)->number = 1;
 		zedit_disp_menu(d);
 		break;

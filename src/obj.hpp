@@ -695,7 +695,7 @@ public:
 	int get_serial_num();
 	void set_serial_num(int num);
 
-	void dec_timer(int time = 1, bool ingore_utimer = false);
+	void dec_timer(int time = 1, bool ingore_utimer = false, bool exchange = false);
 
 	static id_to_set_info_map set_table;
 	static void init_set_table();
@@ -705,6 +705,7 @@ public:
 
 	void set_activator(bool flag, int num);
 	std::pair<bool, int> get_activator() const;
+
 
 	// wrappers to access to timed_spell
 	const TimedSpell& timed_spell() const { return m_timed_spell; }
@@ -804,6 +805,7 @@ private:
 	bool m_purged;
 	// для сообщений сетов <активировано или нет, размер активатора>
 	std::pair<bool, int> m_activator;
+
 };
 
 template <> const std::string& NAME_BY_ITEM<OBJ_DATA::EObjectType>(const OBJ_DATA::EObjectType item);
