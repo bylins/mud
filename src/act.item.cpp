@@ -2923,6 +2923,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
 				int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
 				GET_HIT(vict) += add;
+				update_pos(vict);
 			} else
 			{
 				percent = calculate_skill(ch, SKILL_AID, vict);
