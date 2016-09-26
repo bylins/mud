@@ -13,7 +13,7 @@
 
 struct exit_data
 {
-	char *general_description;	// When look DIR.         //
+	std::string general_description;	// When look DIR.         //
 
 	char *keyword;		// for open/close       //
 	char *vkeyword;		// алиас двери в винительном падеже для открывания/закрывания

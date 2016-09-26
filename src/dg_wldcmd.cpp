@@ -240,8 +240,6 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (exit)
 		{
-			if (exit->general_description)
-				free(exit->general_description);
 			if (exit->keyword)
 				free(exit->keyword);
 			if (exit->vkeyword)
@@ -264,20 +262,17 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		switch (fd)
 		{
 		case 1:	// description //
-			if (exit->general_description)
-			{
-				free(exit->general_description);
-			}
-			CREATE(exit->general_description, strlen(value) + 3);
-			strcpy(exit->general_description, value);
-			strcat(exit->general_description, "\r\n");
+			exit->general_description = std::string(value) + "\r\n";
 			break;
+
 		case 2:	// flags       //
 			asciiflag_conv(value, &exit->exit_info);
 			break;
+
 		case 3:	// key         //
 			exit->key = atoi(value);
 			break;
+
 		case 4:	// name        //
 			if (exit->keyword)
 				free(exit->keyword);

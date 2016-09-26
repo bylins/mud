@@ -1725,10 +1725,14 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 					rm->dir_option[i]->keyword ? rm->dir_option[i]->keyword : "Нет(дверь)",
 					rm->dir_option[i]->vkeyword ? rm->dir_option[i]->vkeyword : "Нет(дверь)", buf2);
 			send_to_char(buf, ch);
-			if (rm->dir_option[i]->general_description)
-				strcpy(buf, rm->dir_option[i]->general_description);
+			if (!rm->dir_option[i]->general_description.empty())
+			{
+				strcpy(buf, rm->dir_option[i]->general_description.c_str());
+			}
 			else
+			{
 				strcpy(buf, "  Нет описания выхода.\r\n");
+			}
 			send_to_char(buf, ch);
 		}
 	}

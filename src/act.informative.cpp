@@ -2225,10 +2225,14 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 		}
 		else
 		{
-			if (rdata->general_description)
-				count += sprintf(buf + count, "%s\r\n", rdata->general_description);
+			if (!rdata->general_description.empty())
+			{
+				count += sprintf(buf + count, "%s\r\n", rdata->general_description.c_str());
+			}
 			else
+			{
 				count += sprintf(buf + count, "%s\r\n", world[rdata->to_room]->name);
+			}
 			send_to_char(buf, ch);
 			send_to_char("&R&q", ch);
 			list_char_to_char(world[rdata->to_room]->people, ch);

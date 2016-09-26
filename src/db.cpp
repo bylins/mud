@@ -3490,7 +3490,8 @@ void setup_dir(FILE * fl, int room, unsigned dir)
 	sprintf(buf2, "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
 
 	CREATE(world[room]->dir_option[dir], 1);
-	world[room]->dir_option[dir]->general_description = fread_string(fl, buf2);
+	const std::shared_ptr<char> general_description(fread_string(fl, buf2));
+	world[room]->dir_option[dir]->general_description = general_description.get();
 
 	// парс строки алиаса двери на имя;вининельный падеж, если он есть
 	char *alias = fread_string(fl, buf2);
@@ -7979,8 +7980,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 			// Копируем числа
 			*dst->dir_option[i] = *rdd;
 			// Выделяем память
-			dst->dir_option[i]->general_description =
-				(rdd->general_description ? str_dup(rdd->general_description) : NULL);
+			dst->dir_option[i]->general_description = rdd->general_description;
 			dst->dir_option[i]->keyword = (rdd->keyword ? str_dup(rdd->keyword) : NULL);
 			dst->dir_option[i]->vkeyword = (rdd->vkeyword ? str_dup(rdd->vkeyword) : NULL);
 		}
@@ -8033,8 +8033,6 @@ void room_free(ROOM_DATA * room)
 	{
 		if (room->dir_option[i])
 		{
-			if (room->dir_option[i]->general_description)
-				free(room->dir_option[i]->general_description);
 			if (room->dir_option[i]->keyword)
 				free(room->dir_option[i]->keyword);
 			if (room->dir_option[i]->vkeyword)

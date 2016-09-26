@@ -306,17 +306,23 @@ void redit_save_to_disk(int zone_num)
 				if (room->dir_option[counter2])
 				{
 					// * Again, strip out the garbage.
-					if (room->dir_option[counter2]->general_description)
+					if (!room->dir_option[counter2]->general_description.empty())
 					{
-						strcpy(buf1, room->dir_option[counter2]->general_description);
+						const std::string& description = room->dir_option[counter2]->general_description;
+						strcpy(buf1, description.c_str());
 						strip_string(buf1);
 					}
 					else
+					{
 						*buf1 = 0;
+					}
 
 					// * Check for keywords.
 					if (room->dir_option[counter2]->keyword)
+					{
 						strcpy(buf2, room->dir_option[counter2]->keyword);
+					}
+
 					// алиас в винительном падеже пишется сюда же через ;
 					if (room->dir_option[counter2]->vkeyword)
 					{
@@ -435,8 +441,8 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 		OLC_EXIT(d)->to_room !=
 		NOWHERE ? world[OLC_EXIT(d)->to_room]->number : NOWHERE, grn, nrm,
 		yel,
-		OLC_EXIT(d)->general_description ? OLC_EXIT(d)->
-		general_description : "<NONE>", grn, nrm, yel,
+		!OLC_EXIT(d)->general_description.empty() ? OLC_EXIT(d)->general_description.c_str() : "<NONE>",
+		grn, nrm, yel,
 		OLC_EXIT(d)->keyword ? OLC_EXIT(d)->keyword : "<NONE>",
 		OLC_EXIT(d)->vkeyword ? OLC_EXIT(d)->vkeyword : "<NONE>", grn, nrm,
 		cyn, OLC_EXIT(d)->key, grn, nrm, cyn, buf2, grn, nrm);
@@ -780,16 +786,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = REDIT_EXIT_DESCRIPTION;
 			send_to_char("Введите описание выхода : ", d->character);
 			return;
-			/*			SEND_TO_Q("Введите описание выхода: (/s сохранить /h помощь)\r\n\r\n", d);
-						d->backstr = NULL;
-						if (OLC_EXIT(d)->general_description) {
-							SEND_TO_Q(OLC_EXIT(d)->general_description, d);
-							d->backstr = str_dup(OLC_EXIT(d)->general_description);
-						}
-						d->str = &OLC_EXIT(d)->general_description;
-						d->max_str = MAX_EXIT_DESC;
-						d->mail_to = 0;
-			*/
+
 		case '3':
 			OLC_MODE(d) = REDIT_EXIT_KEYWORD;
 			send_to_char("Введите ключевое слово : ", d->character);
@@ -808,8 +805,6 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				free(OLC_EXIT(d)->keyword);
 			if (OLC_EXIT(d)->vkeyword)
 				free(OLC_EXIT(d)->vkeyword);
-			if (OLC_EXIT(d)->general_description)
-				free(OLC_EXIT(d)->general_description);
 			if (OLC_EXIT(d))
 				free(OLC_EXIT(d));
 			OLC_EXIT(d) = NULL;
@@ -832,16 +827,10 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case REDIT_EXIT_DESCRIPTION:
-		if (OLC_EXIT(d)->general_description)
-			free(OLC_EXIT(d)->general_description);
-		OLC_EXIT(d)->general_description = ((arg && *arg) ? str_dup(arg) : NULL);
-
+		OLC_EXIT(d)->general_description = arg ? arg : "";
 		redit_disp_exit_menu(d);
 		return;
 
-		// * We should NEVER get here, hopefully.
-		// mudlog("SYSERR: Reached REDIT_EXIT_DESC case in parse_redit", BRF, LVL_BUILDER, SYSLOG, TRUE);
-		// break;
 	case REDIT_EXIT_KEYWORD:
 		if (OLC_EXIT(d)->keyword)
 			free(OLC_EXIT(d)->keyword);
