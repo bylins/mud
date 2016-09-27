@@ -3489,7 +3489,7 @@ void setup_dir(FILE * fl, int room, unsigned dir)
 
 	sprintf(buf2, "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
 
-	CREATE(world[room]->dir_option[dir], 1);
+	world[room]->dir_option[dir].reset(new EXIT_DATA());
 	const std::shared_ptr<char> general_description(fread_string(fl, buf2));
 	world[room]->dir_option[dir]->general_description = general_description.get();
 
@@ -7973,10 +7973,10 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 	// Выходы и входы
 	for (i = 0; i < NUM_OF_DIRS; ++i)
 	{
-		EXIT_DATA *rdd;
-		if ((rdd = src->dir_option[i]) != NULL)
+		const auto& rdd = src->dir_option[i];
+		if (rdd)
 		{
-			CREATE(dst->dir_option[i], 1);
+			dst->dir_option[i].reset(new EXIT_DATA());
 			// Копируем числа
 			*dst->dir_option[i] = *rdd;
 			// Выделяем память
@@ -8037,7 +8037,7 @@ void room_free(ROOM_DATA * room)
 				free(room->dir_option[i]->keyword);
 			if (room->dir_option[i]->vkeyword)
 				free(room->dir_option[i]->vkeyword);
-			free(room->dir_option[i]);
+			room->dir_option[i].reset();
 		}
 	}
 

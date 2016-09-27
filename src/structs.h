@@ -74,7 +74,6 @@ const unsigned TOTAL_TYPES = 3;
 
 // done
 typedef struct index_data INDEX_DATA;
-typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.

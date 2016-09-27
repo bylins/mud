@@ -2152,8 +2152,9 @@ int get_pick_chance(int skill_pick, int lock_complexity)
 void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 {
 	int count = 0, probe, percent;
-	EXIT_DATA *rdata = NULL;
+	ROOM_DATA::exit_data_ptr rdata;
 	CHAR_DATA *tch;
+
 	if (CAN_GO(ch, dir)
 		|| (EXIT(ch, dir)
 			&& EXIT(ch, dir)->to_room != NOWHERE))
@@ -2246,7 +2247,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 {
 	int count = 0, percent = 0, probe = 0;
-	EXIT_DATA *rdata;
+	ROOM_DATA::exit_data_ptr rdata;
 	CHAR_DATA *tch;
 	int fight_count = 0;
 	string tmpstr = "";

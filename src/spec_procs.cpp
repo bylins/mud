@@ -2145,7 +2145,6 @@ int npc_move(CHAR_DATA * ch, int dir, int/* need_specials_check*/)
 {
 	int need_close = FALSE, need_lock = FALSE;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
-	EXIT_DATA *rdata = NULL;
 	int retval = FALSE;
 
 	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
@@ -2157,26 +2156,37 @@ int npc_move(CHAR_DATA * ch, int dir, int/* need_specials_check*/)
 	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED))
 	{
 		if (!EXIT_FLAGGED(EXIT(ch, dir), EX_ISDOOR))
+		{
 			return (FALSE);
-		rdata = EXIT(ch, dir);
+		}
+
+		const auto& rdata = EXIT(ch, dir);
+
 		if (EXIT_FLAGGED(rdata, EX_LOCKED))
 		{
-			if (has_key(ch, rdata->key) || (!EXIT_FLAGGED(rdata, EX_PICKPROOF) && !EXIT_FLAGGED(rdata, EX_BROKEN) &&
-											calculate_skill(ch, SKILL_PICK, 0) >= number(0, 100)))
+			if (has_key(ch, rdata->key)
+				|| (!EXIT_FLAGGED(rdata, EX_PICKPROOF)
+					&& !EXIT_FLAGGED(rdata, EX_BROKEN)
+					&& calculate_skill(ch, SKILL_PICK, 0) >= number(0, 100)))
 			{
 				do_doorcmd(ch, 0, dir, SCMD_UNLOCK);
 				need_lock = TRUE;
 			}
 			else
+			{
 				return (FALSE);
-
+			}
 		}
 		if (EXIT_FLAGGED(rdata, EX_CLOSED))
-			if (GET_REAL_INT(ch) >= 15 || GET_DEST(ch) != NOWHERE || MOB_FLAGGED(ch, MOB_OPENDOOR))
+		{
+			if (GET_REAL_INT(ch) >= 15
+				|| GET_DEST(ch) != NOWHERE
+				|| MOB_FLAGGED(ch, MOB_OPENDOOR))
 			{
 				do_doorcmd(ch, 0, dir, SCMD_OPEN);
 				need_close = TRUE;
 			}
+		}
 	}
 
 	retval = perform_move(ch, dir, 1, FALSE, 0);

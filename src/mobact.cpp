@@ -975,7 +975,6 @@ void extract_charmice(CHAR_DATA* ch)
 void mobile_activity(int activity_level, int missed_pulses)
 {
 	CHAR_DATA *ch, *next_ch, *vict, *first, *victim;
-	EXIT_DATA *rdata = NULL;
 	int door, found, max, was_in = -1, kw, activity_lev, std_lev, i, ch_activity;
 	memory_rec *names;
 
@@ -1238,6 +1237,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		{
 			for (found = FALSE, door = 0; door < NUM_OF_DIRS; door++)
 			{
+				ROOM_DATA::exit_data_ptr rdata;
 				for (rdata = EXIT(ch, door), max =
 							MAX(1, GET_REAL_INT(ch) / 10); max > 0 && !found; max--)
 				{

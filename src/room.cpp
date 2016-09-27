@@ -35,7 +35,7 @@ ROOM_DATA::ROOM_DATA()
 {
 	for (int i = 0; i < NUM_OF_DIRS; ++i)
 	{
-		dir_option[i] = 0;
+		dir_option[i].reset();
 	}
 	memset(&weather, 0, sizeof(weather_control));
 	memset(&base_property, 0, sizeof(room_property_data));

@@ -821,23 +821,22 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		char_from_room(horse);
 		char_to_room(horse, go_to);
 	}
+
 	if (PRF_FLAGGED(ch, PRF_BLIND))
-	{   EXIT_DATA *rdata = NULL;
-	    for (int i = 0; i < NUM_OF_DIRS; i++)
-	    {	
-		if (CAN_GO(ch, i) || (EXIT(ch, i) && EXIT(ch, i)->to_room != NOWHERE))
+	{
+		for (int i = 0; i < NUM_OF_DIRS; i++)
 		{
-			rdata = EXIT(ch, i);
-			if (ROOM_FLAGGED(rdata->to_room, ROOM_DEATH))
-				send_to_char("\007", ch);
-/*			if ((real_sector(rdata->to_room) == SECT_WATER_NOSWIM) 
-			    || (real_sector(rdata->to_room) == SECT_UNDERWATER)
-			    || (real_sector(rdata->to_room) == SECT_FLYING))
-				send_to_char("\007\007", ch);
-*/
-		}
+			if (CAN_GO(ch, i) || (EXIT(ch, i) && EXIT(ch, i)->to_room != NOWHERE))
+			{
+				const auto& rdata = EXIT(ch, i);
+				if (ROOM_FLAGGED(rdata->to_room, ROOM_DEATH))
+				{
+					send_to_char("\007", ch);
+				}
+			}
 	    }
 	}
+
 	if (!invis && !is_horse)
 	{
 		if (IsFlee || (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN)))
@@ -1345,7 +1344,6 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 {
 	int other_room = 0;
 	int r_num, vnum;
-	EXIT_DATA *back = 0;
 	CHAR_DATA * to;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	char local_buf[MAX_STRING_LENGTH]; // глобальный buf в тригах переписывается
@@ -1353,12 +1351,23 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	sprintf(local_buf, "$n %s ", cmd_door[scmd]);
 //  if (IS_NPC(ch))
 //     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(ch->in_room));
+
+	ROOM_DATA::exit_data_ptr back;
 	if (!obj && ((other_room = EXIT(ch, door)->to_room) != NOWHERE))
-		if ((back = world[other_room]->dir_option[rev_dir[door]]) != NULL)
+	{
+		back = world[other_room]->dir_option[rev_dir[door]];
+		if (back)
+		{
 			if ((back->to_room != ch->in_room) ||
-					((EXITDATA(ch->in_room, door)->exit_info ^
-					  EXITDATA(other_room, rev_dir[door])->exit_info) & (EX_ISDOOR | EX_CLOSED | EX_LOCKED)))
-				back = 0;
+				((EXITDATA(ch->in_room, door)->exit_info
+					^ EXITDATA(other_room, rev_dir[door])->exit_info)
+					& (EX_ISDOOR | EX_CLOSED | EX_LOCKED)))
+			{
+				back.reset();
+			}
+		}
+	}
+
 	switch (scmd)
 	{
 	case SCMD_OPEN:

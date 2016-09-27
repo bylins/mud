@@ -102,10 +102,14 @@ void do_wasound(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	for (door = 0; door < NUM_OF_DIRS; door++)
 	{
-		EXIT_DATA *exit;
+		const auto& exit = room->dir_option[door];
 
-		if ((exit = room->dir_option[door]) && (exit->to_room != NOWHERE) && room != world[exit->to_room])
+		if (exit
+			&& (exit->to_room != NOWHERE)
+			&& room != world[exit->to_room])
+		{
 			act_to_room(argument, world[exit->to_room]);
+		}
 	}
 }
 
@@ -193,7 +197,6 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
 	ROOM_DATA *rm;
-	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 
 	const char *door_field[] = { "purge",
@@ -233,7 +236,7 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	exit = rm->dir_option[dir];
+	auto exit = rm->dir_option[dir];
 
 	// purge exit
 	if (fd == 0)
@@ -244,15 +247,14 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 				free(exit->keyword);
 			if (exit->vkeyword)
 				free(exit->vkeyword);
-			free(exit);
-			rm->dir_option[dir] = NULL;
+			rm->dir_option[dir].reset();
 		}
 	}
 	else
 	{
 		if (!exit)
 		{
-			CREATE(exit, 1);
+			exit.reset(new EXIT_DATA());
 			rm->dir_option[dir] = exit;
 		}
 

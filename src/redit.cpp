@@ -403,7 +403,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	// * if exit doesn't exist, alloc/create it
 	if (!OLC_EXIT(d))
 	{
-		CREATE(OLC_EXIT(d), 1);
+		OLC_EXIT(d).reset(new EXIT_DATA());
 		OLC_EXIT(d)->to_room = NOWHERE;
 	}
 
@@ -805,9 +805,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				free(OLC_EXIT(d)->keyword);
 			if (OLC_EXIT(d)->vkeyword)
 				free(OLC_EXIT(d)->vkeyword);
-			if (OLC_EXIT(d))
-				free(OLC_EXIT(d));
-			OLC_EXIT(d) = NULL;
+			OLC_EXIT(d).reset();
 			break;
 		default:
 			send_to_char("Неверный выбор!\r\nВаш выбор : ", d->character);

@@ -111,9 +111,10 @@ void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int temp_in_room = ch->in_room;
 	for (int door = 0; door < NUM_OF_DIRS; door++)
 	{
-		EXIT_DATA *exit;
-		if (((exit = world[temp_in_room]->dir_option[door]) != NULL) &&
-				exit->to_room != NOWHERE && exit->to_room != temp_in_room)
+		const auto& exit = world[temp_in_room]->dir_option[door];
+		if (exit
+			&& exit->to_room != NOWHERE
+			&& exit->to_room != temp_in_room)
 		{
 			ch->in_room = exit->to_room;
 			sub_write(argument, ch, TRUE, TO_ROOM);
@@ -1206,7 +1207,6 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
 	ROOM_DATA *rm;
-	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 
 	const char *door_field[] =
@@ -1259,7 +1259,7 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	exit = rm->dir_option[dir];
+	auto exit = rm->dir_option[dir];
 
 	// purge exit
 	if (fd == 0)
@@ -1270,15 +1270,14 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				free(exit->keyword);
 			if (exit->vkeyword)
 				free(exit->vkeyword);
-			free(exit);
-			rm->dir_option[dir] = NULL;
+			rm->dir_option[dir].reset();
 		}
 	}
 	else
 	{
 		if (!exit)
 		{
-			CREATE(exit, 1);
+			exit.reset(new EXIT_DATA());
 			rm->dir_option[dir] = exit;
 		}
 

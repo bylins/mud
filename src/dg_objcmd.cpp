@@ -625,7 +625,6 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
 	ROOM_DATA *rm;
-	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 
 	const char *door_field[] = { "purge",
@@ -667,7 +666,7 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	exit = rm->dir_option[dir];
+	auto exit = rm->dir_option[dir];
 
 	// purge exit
 	if (fd == 0)
@@ -678,15 +677,14 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				free(exit->keyword);
 			if (exit->vkeyword)
 				free(exit->vkeyword);
-			free(exit);
-			rm->dir_option[dir] = NULL;
+			rm->dir_option[dir].reset();
 		}
 	}
 	else
 	{
 		if (!exit)
 		{
-			CREATE(exit, 1);
+			exit.reset(new EXIT_DATA());
 			rm->dir_option[dir] = exit;
 		}
 

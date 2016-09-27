@@ -11,8 +11,9 @@
 #include "sysdep.h"
 #include "conf.h"
 
-struct exit_data
+class EXIT_DATA
 {
+public:
 	std::string general_description;	// When look DIR.         //
 
 	char *keyword;		// for open/close       //
@@ -52,6 +53,7 @@ struct room_property_data
 struct ROOM_DATA
 {
 	using room_affects_list_t = std::list<AFFECT_DATA<ERoomApplyLocation>::shared_ptr>;
+	using exit_data_ptr = std::shared_ptr<EXIT_DATA>;
 
 	ROOM_DATA();
 
@@ -64,7 +66,7 @@ struct ROOM_DATA
 	size_t description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
 	std::shared_ptr<EXTRA_DESCR_DATA> ex_description;	// for examine/look       //
-	boost::array<EXIT_DATA *, NUM_OF_DIRS> dir_option;	// Directions //
+	boost::array<exit_data_ptr, NUM_OF_DIRS> dir_option;	// Directions //
 
 	byte light;		// Number of lightsources in room //
 	byte glight;		// Number of lightness person     //
