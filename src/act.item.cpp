@@ -2918,7 +2918,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		need = TRUE;
 		if (success)
-		{	if (!GET_GOD_FLAG(ch, GF_TESTER))
+		{	if (!PRF_FLAGGED(ch, PRF_TESTER))
 			{
 				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
 				int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
@@ -2935,11 +2935,13 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
-	if (!GET_GOD_FLAG(ch, GF_TESTER))
+	if ((PRF_FLAGGED(ch, PRF_TESTER)))
+	{
 		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
+		send_to_char(ch, "&RСнимаю первые  %d аффекта\r\n", count);
+	}
 	else
 	{
-		send_to_char(ch, "&RСнимаю  %d аффектов\r\n", count);
 		count = MIN(MAX_REMOVE, MAX_REMOVE * prob / 100);
 	}
 	for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++)
