@@ -317,7 +317,7 @@ public:
 	void set_val(size_t index, int value) { m_vals[index] = value; }
 	void sub_current(const int _) { m_current_durability -= _; }
 	void sub_val(const size_t index, const int amount) { m_vals[index] -= amount; }
-	void sub_weight(const int _) { m_weight += _; }
+	void sub_weight(const int _) { m_weight -= _; }
 	void swap_proto_script(triggers_list_t& _) { m_proto_script.swap(_); }
 	void toggle_affect_flag(const size_t plane, const uint32_t flag) { m_waffect_flags.toggle_flag(plane, flag); }
 	void toggle_anti_flag(const size_t plane, const uint32_t flag) { m_anti_flags.toggle_flag(plane, flag); }
