@@ -3807,10 +3807,8 @@ void eval_op(const char *op, char *lhs, const char *const_rhs, char *result, voi
 		rhs++;
 	}
 
-	for (p = lhs; *p; p++);
-	// WTF?? for (--p; (p >= lhs) && a_isspace(*p); *p-- = '\0');
-	for (p = rhs; *p; p++);
-	// WTF?? for (--p; (p >= rhs) && a_isspace(*p); *p-- = '\0');
+	for (p = lhs + strlen(lhs) - 1; (p >= lhs) && a_isspace(*p); *p-- = '\0');
+	for (p = rhs + strlen(rhs) - 1; (p >= rhs) && a_isspace(*p); *p-- = '\0');
 
 	// find the op, and figure out the value
 	if (!strcmp("||", op))
