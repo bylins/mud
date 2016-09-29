@@ -2429,14 +2429,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 	{ 
 		make_object(ch, obj, ingrs, ingr_cnt );
 		make_value_wear(ch, obj, ingrs);
-		for (i = 0; i < ingr_cnt; i++) // мочим закончившиеся ресы
-		{
-			if (ingrs[i] && GET_OBJ_WEIGHT(ingrs[i]) <= 0)
-			{
-				extract_obj(ingrs[i]);
-			}
-		}
-
 	}
 	else // если не шитье то никаких махинаций с падежами и копированием рандом аффекта
 	{
@@ -2471,7 +2463,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			&& GET_OBJ_TYPE(ingrs[i]) != OBJ_DATA::ITEM_MING)
 		{
 			// Если запрошенный вес 0 то  удаляем предмет выше не трогаем.
-			if (parts[i].min_weight == 0)
+			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
 			{
 				extract_obj(ingrs[i]);
 			}
