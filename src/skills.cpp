@@ -56,9 +56,9 @@ public:
 	class WeaponTypeException : public std::exception
 	{
 	public:
-		WeaponTypeException(const char* what) : m_what(what) {}
+		explicit WeaponTypeException(const char* what) : m_what(what) {}
 
-		virtual const char* what() const { return m_what.c_str(); }
+		virtual const char* what() const throw() { return m_what.c_str(); }
 
 	private:
 		std::string m_what;
