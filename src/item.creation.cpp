@@ -2226,7 +2226,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 				ingrs[i]->set_weight(0);
 				extract_obj(ingrs[i]);
-				ingrs[i] = NULL;
 				if (!get_obj_in_list_ingr(parts[i].proto, ch->carrying))
 				{
 					tmpstr = "И у вас больше нет.\r\n";
@@ -2303,14 +2302,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 				die(ch, NULL);
 			}
 		}
-		for (i = 0; i < ingr_cnt; i++)
-		{
-			if (ingrs[i] && GET_OBJ_WEIGHT(ingrs[i]) <= 0)
-			{
-				extract_obj(ingrs[i]);
-			}
-		}
-
 		return (FALSE);
 	}
 	// Лоадим предмет игроку
