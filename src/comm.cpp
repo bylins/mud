@@ -4407,7 +4407,7 @@ void send_to_room(const char *messg, room_rnum room, int to_awake)
   ((pointer) == NULL) ? ACTNULL : (expression)
 
 // higher-level communication: the act() function
-void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, CHAR_DATA * to, const int arena)
+void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, CHAR_DATA * to, const int arena, const std::string& kick_type)
 {
 	const char *i = NULL;
 	char nbuf[256];
@@ -4527,7 +4527,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const vo
 				break;
 
 			case 't':
-				CHECK_NULL(obj, (const char *) obj);
+				i = kick_type.c_str();
 				break;
 
 			case 'T':
@@ -4720,7 +4720,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const vo
 			(IS_NPC(ch) || !PLR_FLAGGED((ch), PLR_WRITING)))
 #endif
 
-void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type)
+void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type, const std::string& kick_type)
 {
 	CHAR_DATA *to;
 	int to_sleeping, check_deaf, check_nodeaf, stopcount, to_arena=0, arena_room_rnum;
@@ -4767,7 +4767,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)))
 		{
-			perform_act(str, ch, obj, vict_obj, ch);
+			perform_act(str, ch, obj, vict_obj, ch, kick_type);
 		}
 		return;
 	}
@@ -4782,7 +4782,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 			&& (!to_brief_shields || PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS)))
 		{
-			perform_act(str, ch, obj, vict_obj, to);
+			perform_act(str, ch, obj, vict_obj, to, kick_type);
 		}
 		return;
 	}
@@ -4835,11 +4835,11 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 					boost::replace_first(buffer, "ся", GET_CH_SUF_2(ch));
 				}
 				boost::replace_first(buffer, "Кто-то", GET_PAD(ch, 0));
-				perform_act(buffer.c_str(), ch, obj, vict_obj, to);
+				perform_act(buffer.c_str(), ch, obj, vict_obj, to, kick_type);
 			}
 			else
 			{
-				perform_act(str, ch, obj, vict_obj, to);
+				perform_act(str, ch, obj, vict_obj, to, kick_type);
 			}
 		}
 	}
@@ -4861,7 +4861,9 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 				for (stopcount = 0; to && stopcount < 200; to = to->next_in_room, stopcount++)
 				{
 					if (!IS_NPC(to))
-						perform_act(str, ch, obj, vict_obj, to, to_arena);
+					{
+						perform_act(str, ch, obj, vict_obj, to, to_arena, kick_type);
+					}
 				}
 			}
 			arena_room_rnum++;
