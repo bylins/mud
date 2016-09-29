@@ -1893,6 +1893,7 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 		// переносим 1 рандом аффект
 		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 	}
+
 }
 
 // создать предмет по рецепту
@@ -2190,7 +2191,10 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// 4. Считаем сколько материала треба.
 	if (!make_fail)
 	{
-		for (i = 0; i < ingr_cnt; i++)
+		ingrs[0]->set_weight(0);  // шкуру дикеим полностью
+		tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(3) + ".\r\n";
+		send_to_char(tmpstr.c_str(), ch);
+		for (i = 1; i < ingr_cnt; i++)
 		{
 			//
 			// нужный материал = мин.материал +
@@ -2209,7 +2213,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 				craft_weight += parts[i].min_weight * number(1, 2);
 			else if (j > 50)
 				craft_weight += parts[i].min_weight * number(2, 5);
-
 			// 5. Делаем проверку есть ли столько материала.
 			// если не хватает то удаляем игридиент и фейлим.
 			int state = craft_weight;
@@ -2223,6 +2226,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 				ingrs[i]->set_weight(0);
 				extract_obj(ingrs[i]);
+				ingrs[i] = NULL;
 				if (!get_obj_in_list_ingr(parts[i].proto, ch->carrying))
 				{
 					tmpstr = "И у вас больше нет.\r\n";
@@ -2255,7 +2259,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			{
 				// Просто удаляем предмет мы его потратили.
 				tmpstr = "Вы полностью использовали " + ingrs[i]->get_PName(0) + ".\r\n";
-				extract_obj(ingrs[i]);
+//				extract_obj(ingrs[i]);
 			}
 		}
 	}
@@ -2299,14 +2303,14 @@ int MakeRecept::make(CHAR_DATA * ch)
 				die(ch, NULL);
 			}
 		}
-/*		for (i = 0; i < ingr_cnt; i++)
+		for (i = 0; i < ingr_cnt; i++)
 		{
-			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
+			if (ingrs[i] && GET_OBJ_WEIGHT(ingrs[i]) <= 0)
 			{
 				extract_obj(ingrs[i]);
 			}
 		}
-*/
+
 		return (FALSE);
 	}
 	// Лоадим предмет игроку
@@ -2425,6 +2429,14 @@ int MakeRecept::make(CHAR_DATA * ch)
 	{ 
 		make_object(ch, obj, ingrs, ingr_cnt );
 		make_value_wear(ch, obj, ingrs);
+		for (i = 0; i < ingr_cnt; i++) // мочим закончившиеся ресы
+		{
+			if (ingrs[i] && GET_OBJ_WEIGHT(ingrs[i]) <= 0)
+			{
+				extract_obj(ingrs[i]);
+			}
+		}
+
 	}
 	else // если не шитье то никаких махинаций с падежами и копированием рандом аффекта
 	{
