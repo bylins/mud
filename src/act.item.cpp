@@ -1748,6 +1748,22 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Вы наелись.\r\n", ch);
 	}
 
+	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+	{
+		if (food->get_affected(i).modifier)
+		{
+			AFFECT_DATA<EApplyLocation> af;
+			af.location = food->get_affected(i).location;
+			af.modifier = food->get_affected(i).modifier;
+			af.bitvector = 0;
+			af.type = 103;
+			af.battleflag =AF_BATTLEDEC;
+			af.duration = pc_duration(ch, 10 * 2, 0, 0, 0, 0);
+			affect_join_fspell(ch, af);
+		}
+
+	}
+
 	if ((GET_OBJ_VAL(food, 3) == 1) && !IS_IMMORTAL(ch))  	// The shit was poisoned !
 	{
 		send_to_char("Однако, какой странный вкус!\r\n", ch);
