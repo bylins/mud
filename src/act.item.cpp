@@ -1654,13 +1654,56 @@ void weight_change_object(OBJ_DATA * obj, int weight)
 	}
 }
 
-int meet_vnum[5][2] = {{320, 334}, {321, 335}, {322, 336}, {323,337}, {324, 338}};
-int meet_size = 4;
+class MeatMapping : private std::unordered_map<obj_vnum, obj_vnum>
+{
+public:
+	MeatMapping();
+
+	using base_t = std::unordered_map<obj_vnum, obj_vnum>;
+	using base_t::size;
+
+	bool has(const key_type from) const { return end() != find(from); }
+	mapped_type get(const key_type from) const { return at(from); }
+	key_type random_key() const;
+	key_type get_artefact_key() const { return at(m_index_mapping[size() - 1]); }
+
+private:
+	void build_index_mapping();
+	std::vector<obj_vnum> m_index_mapping;
+};
+
+MeatMapping::MeatMapping()
+{
+	emplace(320, 334);
+	emplace(321, 335);
+	emplace(322, 336);
+	emplace(323, 337);
+	emplace(324, 338);
+
+	build_index_mapping();
+}
+
+std::unordered_map<obj_vnum, obj_vnum>::key_type MeatMapping::random_key() const
+{
+	const auto index = number(0, static_cast<int>(size()));
+	return m_index_mapping[index];
+}
+
+void MeatMapping::build_index_mapping()
+{
+	size_t i = 0;
+	m_index_mapping.resize(size());
+	for (const auto& p : *this)
+	{
+		m_index_mapping[i++] = p.first;
+	}
+}
+
+MeatMapping meat_mapping;
 
 void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 {
 	OBJ_DATA *meet, *tobj;
-	int i;
 	one_argument(argument, arg);
 	if (!*arg)
 	{
@@ -1688,23 +1731,25 @@ void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	        send_to_char(ch, "Костер слишком слаб, только картошку запекеть.\r\n");
 		return;
 	}
-	for (i = 0; i < (meet_size + 1); i++)
-	{
-		if (GET_OBJ_VNUM(meet) == meet_vnum[i][0])
-			break;
-	}
-	if (i == (meet_size + 1)) // не нашлось в массиве
+
+	const auto meet_vnum = GET_OBJ_VNUM(meet);
+	if (!meat_mapping.has(meet_vnum)) // не нашлось в массиве
 	{
 		send_to_char(ch, "%s не подходит для жарки.\r\n", GET_OBJ_PNAME(meet,0).c_str());
 		return;
 	}
+
 	act("Вы нанизали на веточку и поджарили $o3.", FALSE, ch, meet, 0, TO_CHAR);
 	act("$n нанизал$g на веточку и поджарил$g $o3.", TRUE, ch, meet, 0, TO_ROOM | TO_ARENA_LISTEN);
-	tobj = read_object(meet_vnum[i][1], VIRTUAL);
+	tobj = read_object(meat_mapping.get(meet_vnum), VIRTUAL);
 	if (tobj)
+	{
 		can_carry_obj(ch, tobj);
+	}
 	else	
+	{
 		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, LVL_GRGOD, ERRLOG, TRUE);
+	}
 	extract_obj(meet);
 }
 
@@ -3398,7 +3443,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	percent =
 		train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent,
 					mob) + number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
-	if (prob > percent || !(tobj = read_object(meet_vnum[(number(0, meet_size - 1))][0], VIRTUAL))) // последняя в списке свежуемого мяса артефакт, обработка отдельная ниже
+	if (prob > percent || !(tobj = read_object(meat_mapping.random_key(), VIRTUAL))) // последняя в списке свежуемого мяса артефакт, обработка отдельная ниже
 	{
 		act("Вы не сумели освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u освежевать $o3, но неудачно.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -3412,7 +3457,9 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		std::vector<OBJ_DATA*> entrails;
 		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,1000) == 1)) // артефакт
-			tobj = read_object(meet_vnum[meet_size][0], VIRTUAL);
+		{
+			tobj = read_object(meat_mapping.get_artefact_key(), VIRTUAL);
+		}
 		entrails.push_back(tobj);
 		if (GET_RACE(mob) == NPC_RACE_ANIMAL) // шкуры только с животных
 		{
