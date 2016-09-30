@@ -92,6 +92,7 @@ void do_wear(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_wield(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_grab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_upgrade(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/);
 
 // чтобы словить невозможность положить в клан-сундук,
 // иначе при пол все сун будет спам на каждый предмет, мол низя
@@ -1653,12 +1654,66 @@ void weight_change_object(OBJ_DATA * obj, int weight)
 	}
 }
 
+int meet_vnum[5][5] = {{320, 334}, {321, 335}, {322, 336}, {323,337}, {324, 338}};
+
+void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
+{
+	OBJ_DATA *meet, *tobj;
+	int i;
+	one_argument(argument, arg);
+	if (!*arg)
+	{
+		send_to_char("Что вы собрались поджарить?\r\n", ch);
+		return;
+	}
+	if (ch->get_fighting())
+	{
+		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
+		return;
+	}
+	if (!(meet = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
+		sprintf(buf, "У вас нет '%s'.\r\n", arg);
+		send_to_char(buf, ch);
+		return;
+	}
+	if (!world[ch->in_room]->fires)
+	{
+	        send_to_char(ch, "На чем вы собрались жарить, огня то нет!\r\n");
+		return;
+	}
+	if (world[ch->in_room]->fires < 4)
+	{
+	        send_to_char(ch, "Костер слишком слаб, только картошку запекеть.\r\n");
+		return;
+	}
+	for (i = 0; i < 5; i++)
+	{
+		if (GET_OBJ_VNUM(meet) == meet_vnum[i][0])
+			break;
+	}
+	if (i == 5)
+	{
+		send_to_char(ch, "%s не подходит для жарки.\r\n", GET_OBJ_PNAME(meet,0).c_str());
+		return;
+	}
+	act("Вы нанизали на веточку и поджарили $o3.", FALSE, ch, meet, 0, TO_CHAR);
+	act("$n нанизал$g на веточку и поджарил$g $o3.", TRUE, ch, meet, 0, TO_ROOM | TO_ARENA_LISTEN);
+	tobj = read_object(meet_vnum[i][1], VIRTUAL);
+	if (tobj)
+		can_carry_obj(ch, tobj);
+	else	
+		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, LVL_GRGOD, ERRLOG, TRUE);
+	extract_obj(meet);
+}
+
 void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *food;
 	int amount;
 
 	one_argument(argument, arg);
+
 
 	if (subcmd == SCMD_DEVOUR)
 	{
@@ -3218,7 +3273,7 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-const int meet_vnum[] = { 320, 321, 322, 323 };
+
 
 
 bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
@@ -3342,7 +3397,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	percent =
 		train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent,
 					mob) + number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
-	if (prob > percent || !(tobj = read_object(meet_vnum[number(0, 3)], VIRTUAL)))
+	if (prob > percent || !(tobj = read_object(meet_vnum[(number(0, 3))][0], VIRTUAL)))
 	{
 		act("Вы не сумели освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u освежевать $o3, но неудачно.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -3351,10 +3406,12 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		act("$n умело освежевал$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
-
+		
 		dl_load_obj(obj, mob, ch, DL_SKIN);
 
 		std::vector<OBJ_DATA*> entrails;
+		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,1000) == 1))
+			tobj = read_object(meet_vnum[4][0], VIRTUAL);
 		entrails.push_back(tobj);
 		if (GET_RACE(mob) == NPC_RACE_ANIMAL) // шкуры только с животных
 		{

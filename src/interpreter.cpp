@@ -298,6 +298,7 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_fry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_switch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -672,6 +673,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"подкрасться", POS_STANDING, do_sneak, 1, 0, 500},
 	{"подножка", POS_FIGHTING, do_chopoff, 0, 0, 500},
 	{"подняться", POS_RESTING, do_stand, 0, 0, -1},
+	{"поджарить", POS_RESTING, do_fry, 0, 0, -1},
 	{"перевязать", POS_RESTING, do_bandage, 0, 0, 0},
 	{"переделать", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
 	{"подсмотреть", POS_RESTING, do_look, 0, SCMD_LOOK_HIDE, 0},
