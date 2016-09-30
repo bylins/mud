@@ -1654,7 +1654,8 @@ void weight_change_object(OBJ_DATA * obj, int weight)
 	}
 }
 
-int meet_vnum[5][5] = {{320, 334}, {321, 335}, {322, 336}, {323,337}, {324, 338}};
+int meet_vnum[5][2] = {{320, 334}, {321, 335}, {322, 336}, {323,337}, {324, 338}};
+int meet_size = 4;
 
 void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 {
@@ -1687,12 +1688,12 @@ void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	        send_to_char(ch, "Костер слишком слаб, только картошку запекеть.\r\n");
 		return;
 	}
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < (meet_size + 1); i++)
 	{
 		if (GET_OBJ_VNUM(meet) == meet_vnum[i][0])
 			break;
 	}
-	if (i == 5)
+	if (i == (meet_size + 1)) // не нашлось в массиве
 	{
 		send_to_char(ch, "%s не подходит для жарки.\r\n", GET_OBJ_PNAME(meet,0).c_str());
 		return;
@@ -3397,7 +3398,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	percent =
 		train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent,
 					mob) + number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
-	if (prob > percent || !(tobj = read_object(meet_vnum[(number(0, 3))][0], VIRTUAL)))
+	if (prob > percent || !(tobj = read_object(meet_vnum[(number(0, meet_size - 1))][0], VIRTUAL))) // последняя в списке свежуемого мяса артефакт, обработка отдельная ниже
 	{
 		act("Вы не сумели освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u освежевать $o3, но неудачно.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -3410,8 +3411,8 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		dl_load_obj(obj, mob, ch, DL_SKIN);
 
 		std::vector<OBJ_DATA*> entrails;
-		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,1000) == 1))
-			tobj = read_object(meet_vnum[4][0], VIRTUAL);
+		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,1000) == 1)) // артефакт
+			tobj = read_object(meet_vnum[meet_size][0], VIRTUAL);
 		entrails.push_back(tobj);
 		if (GET_RACE(mob) == NPC_RACE_ANIMAL) // шкуры только с животных
 		{
