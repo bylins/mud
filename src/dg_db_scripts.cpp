@@ -166,14 +166,15 @@ void parse_trigger(FILE * trig_f, int nr)
 	trig->arglist = fread_string(trig_f, buf2);
 	s = cmds = fread_string(trig_f, buf2);
 
-	trig->cmdlist.reset(new cmdlist_element());
-	const auto cmd = strtok(s, "\n\r");
-	trig->cmdlist->cmd = cmd ? cmd : "";
+	trig->cmdlist->reset(new cmdlist_element());
+	const auto& cmdlist = *trig->cmdlist;
+	const auto cmd_token = strtok(s, "\n\r");
+	cmdlist->cmd = cmd_token ? cmd_token : "";
 
 	indlev = 0;
-	indent_trigger(trig->cmdlist->cmd, &indlev);
+	indent_trigger(cmdlist->cmd, &indlev);
 
-	auto cle = trig->cmdlist;
+	auto cle = cmdlist;
 
 	while ((s = strtok(NULL, "\n\r")))
 	{

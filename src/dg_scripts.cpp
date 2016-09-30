@@ -921,7 +921,7 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 
 	strcat(sb, "Commands:\r\n   ");
 
-	auto cmd_list = trig->cmdlist;
+	auto cmd_list = *trig->cmdlist;
 	while (cmd_list)
 	{
 		if (!cmd_list->cmd.empty())
@@ -5602,7 +5602,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 	dg_owner_purged = 0;
 
-	for (auto cl = (mode == TRIG_NEW) ? trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig); cl = cl ? cl->next : cl)  	//log("Drive go <%s>",cl->cmd);
+	for (auto cl = (mode == TRIG_NEW) ? *trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig); cl = cl ? cl->next : cl)  	//log("Drive go <%s>",cl->cmd);
 	{
 		const char* p = nullptr;
 		for (p = cl->cmd.c_str(); !stop && trig && *p && a_isspace(*p); p++);
@@ -6170,6 +6170,7 @@ TRIG_DATA::TRIG_DATA():
 	data_type(0),
 	name(DEFAULT_TRIGGER_NAME),
 	trigger_type(0),
+	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
 	arglist(nullptr),
 	depth(0),
@@ -6188,6 +6189,7 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type
 	data_type(0),
 	name(name),
 	trigger_type(trigger_type),
+	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
 	depth(0),
 	loops(-1),

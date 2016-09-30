@@ -167,7 +167,8 @@ private:
 	long trigger_type;	// type of trigger (for bitvector) //
 
 public:
-	cmdlist_element::shared_ptr cmdlist;	// top of command list             //
+	using cmdlist_ptr = std::shared_ptr<cmdlist_element::shared_ptr>;
+	cmdlist_ptr cmdlist;	// top of command list             //
 	cmdlist_element::shared_ptr curr_state;	// ptr to current line of trigger  //
 	int narg;		// numerical argument              //
 	std::string arglist;		// argument list                   //

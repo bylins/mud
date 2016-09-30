@@ -103,7 +103,7 @@ void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num)
 	TRIG_DATA *trig = new TRIG_DATA(*trig_index[rtrg_num]->proto);
 
 	// convert cmdlist to a char string
-	auto c = trig->cmdlist;
+	auto c = *trig->cmdlist;
 	CREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
 	strcpy(OLC_STORAGE(d), "");
 
@@ -381,10 +381,11 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	s = OLC_STORAGE(d);
 	olc_log("%s start trig %d:\n%s", GET_NAME(d->character), OLC_NUM(d), OLC_STORAGE(d));
 
-	trig->cmdlist.reset(new cmdlist_element());
+	trig->cmdlist->reset(new cmdlist_element());
+	const auto& cmdlist = *trig->cmdlist;
 	const auto cmd_token = strtok(s, "\n\r");
-	trig->cmdlist->cmd = cmd_token ? cmd_token : "";
-	auto cmd = trig->cmdlist;
+	cmdlist->cmd = cmd_token ? cmd_token : "";
+	auto cmd = cmdlist;
 
 	while ((s = strtok(NULL, "\n\r")))
 	{
@@ -396,7 +397,6 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 
 	if ((trig_rnum = real_trigger(OLC_NUM(d))) != -1)
 	{
-
 		// Этот триггер уже есть.
 
 		// Очистка прототипа
@@ -552,7 +552,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 			// Build the text for the script
 			int lev = 0;
 			strcpy(buf, "");
-			for (cmd = trig->cmdlist; cmd; cmd = cmd->next)
+			for (cmd = *trig->cmdlist; cmd; cmd = cmd->next)
 			{
 				// Indenting
 				indent_trigger(cmd->cmd, &lev);
