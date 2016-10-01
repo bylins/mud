@@ -253,6 +253,8 @@ struct brief_shields
 	void act_to_vict(const char *msg);
 	void act_to_room(const char *msg);
 
+	void act_with_exception_handling(const char *msg, int type) const;
+
 	CHAR_DATA* ch;
 	CHAR_DATA* vict;
 	WeapForAct weap;
@@ -328,7 +330,7 @@ void brief_shields::act_to_room(const char *msg)
 	}
 }
 
-void brief_shields::act_no_add(const char *msg, int type)
+void brief_shields::act_with_exception_handling(const char* msg, const int type) const
 {
 	try
 	{
@@ -354,11 +356,16 @@ void brief_shields::act_no_add(const char *msg, int type)
 	}
 }
 
+void brief_shields::act_no_add(const char *msg, int type)
+{
+	act_with_exception_handling(msg, type);
+}
+
 void brief_shields::act_add(const char *msg, int type)
 {
 	char buf_[MAX_INPUT_LENGTH];
 	snprintf(buf_, sizeof(buf_), "%s%s", msg, add.c_str());
-	act(buf_, FALSE, ch, weap.get_object_ptr(), vict, type);
+	act_with_exception_handling(buf_, type);
 }
 
 const WeapForAct init_weap(CHAR_DATA *ch, int dam, int attacktype)

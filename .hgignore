@@ -35,3 +35,4 @@ build.gcc/*
 build.clang/*
 contrib/boost_1_59_0/*
 boost_1_59_0.tar.gz
+build.cygwin/*
