@@ -65,7 +65,7 @@ struct ROOM_DATA
 	char *name;		// Rooms name 'You are ...'           //
 	size_t description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
-	std::shared_ptr<EXTRA_DESCR_DATA> ex_description;	// for examine/look       //
+	EXTRA_DESCR_DATA::shared_ptr ex_description;	// for examine/look       //
 	boost::array<exit_data_ptr, NUM_OF_DIRS> dir_option;	// Directions //
 
 	byte light;		// Number of lightsources in room //

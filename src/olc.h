@@ -93,7 +93,7 @@ struct olc_data
 	ROOM_DATA *room;
 	OBJ_DATA *obj;
 	struct zone_data *zone;
-	std::shared_ptr<EXTRA_DESCR_DATA> desc;
+	EXTRA_DESCR_DATA::shared_ptr desc;
 
 	MakeRecept *mrec;
 

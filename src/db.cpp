@@ -3427,7 +3427,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 
 		case 'E':
 			{
-				const std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA);
+				const EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA);
 				new_descr->keyword = fread_string(fl, buf2);
 				new_descr->description = fread_string(fl, buf2);
 				if (new_descr->keyword && new_descr->description)
@@ -4644,7 +4644,7 @@ char *parse_object(FILE * obj_f, const int vnum)
 		{
 		case 'E':
 			{
-				const std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
+				const EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
 				new_descr->keyword = fread_string(obj_f, buf2);
 				new_descr->description = fread_string(obj_f, buf2);
 				if (new_descr->keyword && new_descr->description)
@@ -7987,8 +7987,8 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 	}
 
 	// Дополнительные описания, если есть
-	std::shared_ptr<EXTRA_DESCR_DATA>* pddd = &dst->ex_description;
-	std::shared_ptr<EXTRA_DESCR_DATA> sdd = src->ex_description;
+	EXTRA_DESCR_DATA::shared_ptr* pddd = &dst->ex_description;
+	EXTRA_DESCR_DATA::shared_ptr sdd = src->ex_description;
 	*pddd = nullptr;
 
 	while (sdd)

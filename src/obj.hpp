@@ -287,7 +287,7 @@ public:
 	void set_current_durability(const int _) { m_current_durability = _; }
 	void set_description(const std::string& _) { m_description = _; }
 	void set_destroyer(const int _) { m_destroyer = _; }
-	void set_ex_description(const std::shared_ptr<EXTRA_DESCR_DATA>& _) { m_ex_description = _; }
+	void set_ex_description(const EXTRA_DESCR_DATA::shared_ptr& _) { m_ex_description = _; }
 	void set_ex_description(EXTRA_DESCR_DATA* _) { m_ex_description.reset(_); }
 	void set_extra_flag(const EExtraFlag packed_flag) { m_extra_flags.set(packed_flag); }
 	void set_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.set_flag(plane, flag); }
@@ -368,7 +368,7 @@ private:
 
 	std::string m_short_description;	// when worn/carry/in cont.         //
 	std::string m_action_description;	// What to write when used          //
-	std::shared_ptr<EXTRA_DESCR_DATA> m_ex_description;	// extra descriptions     //
+	EXTRA_DESCR_DATA::shared_ptr m_ex_description;	// extra descriptions     //
 
 	triggers_list_t m_proto_script;	// list of default triggers  //
 

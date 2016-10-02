@@ -436,7 +436,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Edes"))
 			{
 				*error = 46;
-				std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
+				EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
 				new_descr->keyword = str_dup(buffer);
 				if (!strcmp(new_descr->keyword, "None"))
 				{
@@ -881,7 +881,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		{
 		case 'E':
 			{
-				std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
+				EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
 				if (!get_buf_lines(data, buffer))
 				{
 					*error = 16;
@@ -957,7 +957,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 }
 
 // shapirus: функция проверки наличия доп. описания в прототипе
-inline bool proto_has_descr(const std::shared_ptr<EXTRA_DESCR_DATA>& odesc, const std::shared_ptr<EXTRA_DESCR_DATA>& pdesc)
+inline bool proto_has_descr(const EXTRA_DESCR_DATA::shared_ptr& odesc, const EXTRA_DESCR_DATA::shared_ptr& pdesc)
 {
 	for (auto desc = pdesc; desc; desc = desc->next)
 	{

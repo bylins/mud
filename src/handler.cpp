@@ -116,7 +116,7 @@ int get_player_charms(CHAR_DATA * ch, int spellnum);
 extern struct zone_data *zone_table;
 extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
-extern char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list);
+extern char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 
 char *fname(const char *namelist)
 {
@@ -3918,7 +3918,7 @@ OBJ_DATA *create_money(int amount)
 		return (NULL);
 	}
 	obj = create_obj();
-	std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
+	EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
 
 	if (amount == 1)
 	{

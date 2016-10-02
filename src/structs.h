@@ -1372,12 +1372,13 @@ inline int flag_data_by_num(const int& num)
 // Extra description: used in objects, mobiles, and rooms //
 struct EXTRA_DESCR_DATA
 {
+	using shared_ptr = std::shared_ptr<EXTRA_DESCR_DATA>;
 	EXTRA_DESCR_DATA() : keyword(nullptr), description(nullptr), next(nullptr) {}
 	~EXTRA_DESCR_DATA();
 
 	char *keyword;		// Keyword in look/examine          //
 	char *description;	// What to see                      //
-	std::shared_ptr<EXTRA_DESCR_DATA> next;	// Next in list                     //
+	shared_ptr next;	// Next in list                     //
 };
 
 // header block for rent files.  BEWARE: Changing it will ruin rent files  //

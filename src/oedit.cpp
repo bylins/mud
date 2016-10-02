@@ -123,16 +123,21 @@ void oedit_object_copy(OBJ_DATA * dst, CObjectPrototype* src)
 
 	// Дополнительные описания, если есть
 	{
-		std::shared_ptr<EXTRA_DESCR_DATA> nd(new EXTRA_DESCR_DATA());
+		EXTRA_DESCR_DATA::shared_ptr nd;
 		auto* pddd = &nd;
 		auto sdd = src->get_ex_description();
-		dst->set_ex_description(nd);
 		while (sdd)
 		{
+			pddd->reset(new EXTRA_DESCR_DATA());
 			(*pddd)->keyword = str_dup(sdd->keyword);
 			(*pddd)->description = str_dup(sdd->description);
 			pddd = &(*pddd)->next;
 			sdd = sdd->next;
+		}
+
+		if (nd)
+		{
+			dst->set_ex_description(nd);
 		}
 	}
 
@@ -397,7 +402,8 @@ void oedit_save_to_disk(int zone_num)
 				for (auto ex_desc = obj->get_ex_description(); ex_desc; ex_desc = ex_desc->next)
 				{
 					// * Sanity check to prevent nasty protection faults.
-					if (!*ex_desc->keyword || !*ex_desc->description)
+					if (!ex_desc->keyword
+						|| !ex_desc->description)
 					{
 						mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
 							BRF, LVL_BUILDER, SYSLOG, TRUE);
@@ -2316,7 +2322,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				}
 				else  	// Make new extra description and attach at end.
 				{
-					std::shared_ptr<EXTRA_DESCR_DATA> new_extra(new EXTRA_DESCR_DATA());
+					EXTRA_DESCR_DATA::shared_ptr new_extra(new EXTRA_DESCR_DATA());
 					OLC_DESC(d)->next = new_extra;
 					OLC_DESC(d) = OLC_DESC(d)->next;
 				}

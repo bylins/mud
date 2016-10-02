@@ -444,7 +444,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	corpse->set_weight(GET_WEIGHT(ch));
 	corpse->set_rent_off(100000);
 	corpse->set_timer(max_pc_corpse_time * 2);
-	std::shared_ptr<EXTRA_DESCR_DATA> exdesc(new EXTRA_DESCR_DATA());
+	EXTRA_DESCR_DATA::shared_ptr exdesc(new EXTRA_DESCR_DATA());
 	exdesc->keyword = str_dup(corpse->get_PName(0).c_str());	// косметика
 	if (killer)
 	{

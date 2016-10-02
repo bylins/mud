@@ -959,7 +959,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				else
 				{
 					// * Make new extra description and attach at end.
-					std::shared_ptr<EXTRA_DESCR_DATA> new_extra(new EXTRA_DESCR_DATA());
+					EXTRA_DESCR_DATA::shared_ptr new_extra(new EXTRA_DESCR_DATA());
 					OLC_DESC(d)->next = new_extra;
 					OLC_DESC(d) = new_extra;
 				}

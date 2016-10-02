@@ -630,7 +630,7 @@ void OBJ_DATA::del_timed_spell(const int spell, const bool message)
 
 void CObjectPrototype::set_ex_description(const char* keyword, const char* description)
 {
-	std::shared_ptr<EXTRA_DESCR_DATA> d(new EXTRA_DESCR_DATA());
+	EXTRA_DESCR_DATA::shared_ptr d(new EXTRA_DESCR_DATA());
 	d->keyword = strdup(keyword);
 	d->description = strdup(description);
 	m_ex_description = d;

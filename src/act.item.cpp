@@ -49,7 +49,7 @@ extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
 extern boost::array<int, 5> animals_levels;
 // from act.informative.cpp
-char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list);
+char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 
 // local functions
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
