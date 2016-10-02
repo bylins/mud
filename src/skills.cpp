@@ -171,11 +171,11 @@ auto WeapForAct::get_prototype_raw_ptr() const
 
 const auto WeapForAct::get_object_ptr() const
 {
-	if (check_type(EWT_OBJECT_RAW_PTR))
+	if (check_type(EWT_OBJECT_RAW_PTR, false))
 	{
 		return m_prototype_raw_ptr;
 	}
-	else if (check_type(EWT_PROTOTYPE_SHARED_PTR))
+	else if (check_type(EWT_PROTOTYPE_SHARED_PTR, false))
 	{
 		return m_prototype_shared_ptr.get();
 	}
