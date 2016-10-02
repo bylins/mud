@@ -475,10 +475,13 @@ std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze)
 bool has_connected_bosses(CHAR_DATA *ch)
 {
 	// если в комнате есть другие живые боссы
-	for (CHAR_DATA *i = world[ch->in_room]->people;
-		i; i = i->next_in_room)
+	const auto& people = world[ch->in_room]->people;
+	for (const CHAR_DATA* i = people; i; i = i->next_in_room)
 	{
-		if (i != ch && IS_NPC(i) && !IS_CHARMICE(i) && i->get_role(MOB_ROLE_BOSS))
+		if (i != ch
+			&& IS_NPC(i)
+			&& !IS_CHARMICE(i)
+			&& i->get_role(MOB_ROLE_BOSS))
 		{
 			return true;
 		}
