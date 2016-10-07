@@ -1726,9 +1726,9 @@ void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	        send_to_char(ch, "На чем вы собрались жарить, огня то нет!\r\n");
 		return;
 	}
-	if (world[ch->in_room]->fires < 4)
+	if (world[ch->in_room]->fires > 2)
 	{
-	        send_to_char(ch, "Костер слишком слаб, только картошку запекеть.\r\n");
+	        send_to_char(ch, "Костер слишком силен, сгорит!\r\n");
 		return;
 	}
 
@@ -1745,12 +1745,14 @@ void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	if (tobj)
 	{
 		can_carry_obj(ch, tobj);
+		extract_obj(meet);
+		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+
 	}
 	else	
 	{
 		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, LVL_GRGOD, ERRLOG, TRUE);
 	}
-	extract_obj(meet);
 }
 
 void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
