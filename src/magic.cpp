@@ -4873,12 +4873,13 @@ int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnu
 				return 0;
 			}
 
-			spell = 0;
+			spell = 1;
 			const auto rspell = number(1, static_cast<int>(affects_count));
 			auto affect_i = victim->affected.begin();
 			while (spell < rspell)
 			{
 				++affect_i;
+				++spell;
 			}
 
 			if (NODISPELL(*affect_i))
