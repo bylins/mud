@@ -814,7 +814,8 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 
 		// Если в комнате есть метка-"камень" то врата ставить нельзя //
 		const auto& room = world[ch->in_room];
-		if (find_room_affect(room, SPELL_RUNE_LABEL) != room->affected.end())
+		const auto room_affect_i = find_room_affect(room, SPELL_RUNE_LABEL);
+		if (room_affect_i != room->affected.end())
 		{
 			send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 			return;

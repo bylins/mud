@@ -2975,13 +2975,13 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
     case 1:
 		const auto& room = world[ch->in_room];
 		const auto aff_i = find_room_affect(room, SPELL_RUNE_LABEL);
-		const auto& aff = *aff_i;
 		if (aff_i != room->affected.end()
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
 				|| IS_IMMORTAL(ch)
 				|| PRF_FLAGGED(ch, PRF_CODERINFO)))
         {
-            send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
+			const auto& aff = *aff_i;
+			send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
             act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
             if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
             {

@@ -742,7 +742,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		else
         {
             auto RoomAffect_i = find_room_affect(room, spellnum);
-			const auto RoomAffect = *RoomAffect_i;
+			const auto RoomAffect = RoomAffect_i != room->affected.end() ? *RoomAffect_i : nullptr;
             if (RoomAffect
 				&& RoomAffect->caster_id == GET_ID(ch)
 				&& !update_spell)
