@@ -105,11 +105,9 @@ void prepare_write_mod(CHAR_DATA *ch, std::string &param)
 		send_to_char("Сообщение удалено.\r\n", ch);
 		return;
 	}
-	char **text;
-	CREATE(text, 1);
 	send_to_char("Можете писать сообщение.  (/s записать /h помощь)\r\n", ch);
 	STATE(ch->desc) = CON_WRITE_MOD;
-	string_writer_t writer(new CSimpleStringWriter(*text));
+	string_writer_t writer(new CStringWriter());
 	string_write(ch->desc, writer, MAX_MOD_LENGTH, 0, NULL);
 }
 

@@ -283,9 +283,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 	PLR_FLAGS(ch).set(PLR_MAILING);	// string_write() sets writing.
 
 	// Start writing!
-	char** write;
-	CREATE(write, 1);
-	std::shared_ptr<CSimpleStringWriter> writer(new CSimpleStringWriter(*write));
+	string_writer_t writer(new CStringWriter());
 	string_write(ch->desc, writer, MAX_MAIL_SIZE, recipient, NULL);
 }
 

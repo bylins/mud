@@ -1643,6 +1643,19 @@ private:
 	char*& m_managed;
 };
 
+class CStringWriter : public CCommonStringWriter
+{
+public:
+	virtual const char* get_string() const override { return m_string.c_str(); }
+	virtual void set_string(const char* string) override { m_string = string; }
+	virtual void append_string(const char* string) override { m_string += string; }
+	virtual size_t length() const override { return m_string.length(); }
+	virtual void clear() override { m_string.clear(); }
+
+private:
+	std::string m_string;
+};
+
 inline void CSimpleStringWriter::clear()
 {
 	if (m_managed)

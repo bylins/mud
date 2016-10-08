@@ -770,11 +770,9 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		ch->desc->message = tempMessage;
 		ch->desc->board = *board_it;
 
-		char **text;
-		CREATE<char*>(text, 1);
 		send_to_char(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
 		STATE(ch->desc) = CON_WRITEBOARD;
-		string_writer_t writer(new CSimpleStringWriter(*text));
+		string_writer_t writer(new CStringWriter());
 		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, NULL);
 	}
 	else if (CompareParam(buffer, "очистить") || CompareParam(buffer, "remove"))
