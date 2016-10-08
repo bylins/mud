@@ -261,7 +261,7 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				send_to_char(d->character, "&S%s&s", OLC_STORAGE(d));
 				d->backstr = str_dup(OLC_STORAGE(d));
 			}
-			d->writer.reset(new CSimpleStringWriter(OLC_STORAGE(d)));
+			d->writer.reset(new CDelegatedStringWriter(OLC_STORAGE(d)));
 			d->max_str = MAX_CMD_LENGTH;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;

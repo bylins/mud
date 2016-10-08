@@ -1616,10 +1616,10 @@ class Board;
 struct z_stream;
 #endif
 
-class CCommonStringWriter
+class CAbstractWriter
 {
 public:
-	virtual ~CCommonStringWriter() {}
+	virtual ~CAbstractWriter() {}
 	virtual const char* get_string() const = 0;
 	virtual void set_string(const char* data) = 0;
 	virtual void append_string(const char* data) = 0;
@@ -1627,23 +1627,23 @@ public:
 	virtual void clear() = 0;
 };
 
-using string_writer_t = std::shared_ptr<CCommonStringWriter>;
+using string_writer_t = std::shared_ptr<CAbstractWriter>;
 
-class CSimpleStringWriter: public CCommonStringWriter
+class CDelegatedStringWriter: public CAbstractWriter
 {
 public:
-	CSimpleStringWriter(char*& managed) : m_managed(managed) {}
-	virtual const char* get_string() const override { return m_managed; }
+	CDelegatedStringWriter(char*& managed) : m_delegated_string(managed) {}
+	virtual const char* get_string() const override { return m_delegated_string; }
 	virtual void set_string(const char* string) override;
 	virtual void append_string(const char* string) override;
-	virtual size_t length() const override { return m_managed ? strlen(m_managed) : 0; }
+	virtual size_t length() const override { return m_delegated_string ? strlen(m_delegated_string) : 0; }
 	virtual void clear() override;
 
 private:
-	char*& m_managed;
+	char*& m_delegated_string;
 };
 
-class CStringWriter : public CCommonStringWriter
+class CStringWriter : public CAbstractWriter
 {
 public:
 	virtual const char* get_string() const override { return m_string.c_str(); }
@@ -1655,15 +1655,6 @@ public:
 private:
 	std::string m_string;
 };
-
-inline void CSimpleStringWriter::clear()
-{
-	if (m_managed)
-	{
-		free(m_managed);
-	}
-	m_managed = nullptr;
-}
 
 struct DESCRIPTOR_DATA
 {

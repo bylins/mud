@@ -1025,33 +1025,42 @@ const std::string& NAME_BY_ITEM(const EApplyLocation item)
 	return EApplyLocation_name_by_value.at(item);
 }
 
-void CSimpleStringWriter::set_string(const char* string)
+void CDelegatedStringWriter::set_string(const char* string)
 {
 	const size_t l = strlen(string);
-	if (nullptr == m_managed)
+	if (nullptr == m_delegated_string)
 	{
-		CREATE(m_managed, l + 1);
+		CREATE(m_delegated_string, l + 1);
 	}
 	else
 	{
-		RECREATE(m_managed, l + 1);
+		RECREATE(m_delegated_string, l + 1);
 	}
-	strcpy(m_managed, string);
+	strcpy(m_delegated_string, string);
 }
 
-void CSimpleStringWriter::append_string(const char* string)
+void CDelegatedStringWriter::append_string(const char* string)
 {
 	const size_t l = length() + strlen(string);
-	if (nullptr == m_managed)
+	if (nullptr == m_delegated_string)
 	{
-		CREATE(m_managed, l + 1);
-		*m_managed = '\0';
+		CREATE(m_delegated_string, l + 1);
+		*m_delegated_string = '\0';
 	}
 	else
 	{
-		RECREATE(m_managed, l + 1);
+		RECREATE(m_delegated_string, l + 1);
 	}
-	strcat(m_managed, string);
+	strcat(m_delegated_string, string);
+}
+
+void CDelegatedStringWriter::clear()
+{
+	if (m_delegated_string)
+	{
+		free(m_delegated_string);
+	}
+	m_delegated_string = nullptr;
 }
 
 void DESCRIPTOR_DATA::msdp_support(bool on)
