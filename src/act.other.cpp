@@ -83,7 +83,6 @@ int posi_value(int real, int max);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
 extern bool is_wear_light(CHAR_DATA *ch);
-extern bool check_unlimited_timer(OBJ_DATA *obj);
 // local functions
 void do_antigods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_quit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -209,14 +208,14 @@ void do_summon(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	if (!horse)
 		send_to_char("У вас нет скакуна!\r\n", ch);
 		return;
-	if (IN_ROOM(ch) == IN_ROOM(horse))
+	if (ch->in_room == IN_ROOM(horse))
 		send_to_char("Но ваш какун рядом с вами!\r\n", ch);
 		return;
 	
 	send_to_char("Ваш скакун появился перед вами.\r\n", ch);
 	act("$n исчез$q в голубом пламени.", TRUE, horse, 0, 0, TO_ROOM);
 	char_from_room(horse);
-	char_to_room(horse, IN_ROOM(ch));
+	char_to_room(horse, ch->in_room);
 	look_at_room(horse, 0);
 	act("$n появил$u из голубого пламени!", TRUE, horse, 0, 0, TO_ROOM);
 }
@@ -268,7 +267,7 @@ int check_awake(CHAR_DATA * ch, int what)
 			SET_BIT(retval, ACHECK_AFFECTS);
 
 		if (IS_SET(what, ACHECK_LIGHT) &&
-				IS_DEFAULTDARK(IN_ROOM(ch)) && (AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT)))
+				IS_DEFAULTDARK(ch->in_room) && (AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT)))
 			SET_BIT(retval, ACHECK_LIGHT);
 
 		for (i = 0; i < NUM_WEARS; i++)
@@ -283,15 +282,15 @@ int check_awake(CHAR_DATA * ch, int what)
 				SET_BIT(retval, ACHECK_GLOWING);
 
 			if (IS_SET(what, ACHECK_LIGHT)
-				&& IS_DEFAULTDARK(IN_ROOM(ch))
-				&& GET_OBJ_TYPE(GET_EQ(ch, i)) == obj_flag_data::ITEM_LIGHT
+				&& IS_DEFAULTDARK(ch->in_room)
+				&& GET_OBJ_TYPE(GET_EQ(ch, i)) == OBJ_DATA::ITEM_LIGHT
 				&& GET_OBJ_VAL(GET_EQ(ch, i), 2))
 			{
 				SET_BIT(retval, ACHECK_LIGHT);
 			}
 
 			if (ObjSystem::is_armor_type(GET_EQ(ch, i))
-				&& GET_OBJ_MATER(GET_EQ(ch, i)) <= obj_flag_data::MAT_COLOR)
+				&& GET_OBJ_MATER(GET_EQ(ch, i)) <= OBJ_DATA::MAT_COLOR)
 			{
 				wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
 			}
@@ -408,7 +407,8 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_SNEAK);
 	}
-	affect_to_char(ch, &af);
+
+	affect_to_char(ch, af);
 }
 
 void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
@@ -442,7 +442,9 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	if (IS_IMMORTAL(ch))
+	{
 		affect_from_char(ch, SPELL_CAMOUFLAGE);
+	}
 
 	if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 	{
@@ -458,9 +460,10 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CAMOUFLAGE;
 	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 6, 0, 2);
-	af.modifier = world[IN_ROOM(ch)]->zone;
+	af.modifier = world[ch->in_room]->zone;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
+
 	if (percent > prob)
 	{
 		af.bitvector = 0;
@@ -469,7 +472,8 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_CAMOUFLAGE);
 	}
-	affect_to_char(ch, &af);
+
+	affect_to_char(ch, af);
 	if (!IS_IMMORTAL(ch))
 	{
 		timed.skill = SKILL_CAMOUFLAGE;
@@ -501,6 +505,7 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы уже пытаетесь спрятаться.\r\n", ch);
 		return;
 	}
+
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		send_to_char("Вы слепы и не видите куда прятаться.\r\n", ch);
@@ -524,6 +529,7 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
+
 	if (percent > prob)
 	{
 		af.bitvector = 0;
@@ -532,7 +538,8 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_HIDE);
 	}
-	affect_to_char(ch, &af);
+
+	affect_to_char(ch, af);
 }
 
 void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
@@ -572,19 +579,23 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		return;
 	}
 
-	if (str_cmp(obj_name, "coins") &&
-			str_cmp(obj_name, "gold") && str_cmp(obj_name, "кун") && str_cmp(obj_name, "деньги"))
+	if (str_cmp(obj_name, "coins")
+		&& str_cmp(obj_name, "gold")
+		&& str_cmp(obj_name, "кун")
+		&& str_cmp(obj_name, "деньги"))
 	{
 		if (!(obj = get_obj_in_list_vis(ch, obj_name, vict->carrying)))
 		{
 			for (eq_pos = 0; eq_pos < NUM_WEARS; eq_pos++)
-				if (GET_EQ(vict, eq_pos) &&
-						(isname(obj_name, GET_EQ(vict, eq_pos)->aliases)) &&
-						CAN_SEE_OBJ(ch, GET_EQ(vict, eq_pos)))
+			{
+				if (GET_EQ(vict, eq_pos)
+					&& (isname(obj_name, GET_EQ(vict, eq_pos)->get_aliases()))
+					&& CAN_SEE_OBJ(ch, GET_EQ(vict, eq_pos)))
 				{
 					obj = GET_EQ(vict, eq_pos);
 					break;
 				}
+			}
 			if (!obj)
 			{
 				act("А у н$S этого и нет - ха-ха-ха (2 раза)...", FALSE, ch, 0, vict, TO_CHAR);
@@ -607,7 +618,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					send_to_char("Вы не сможете унести такой вес.\r\n", ch);
 					return;
 				}
-				else if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
+				else if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY))
 				{
 					send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 					return;
@@ -622,7 +633,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		}
 		else  	// obj found in inventory
 		{
-			if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
+			if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY))
 			{
 				send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 				return;
@@ -767,7 +778,7 @@ void do_steal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 	{
 		send_to_char("Здесь слишком мирно. Вам не хочется нарушать сию благодать...\r\n", ch);
 		return;
@@ -958,7 +969,9 @@ void do_courage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af[3].battleflag = 0;
 
 	for (i = 0; i < 4; i++)
-		affect_join(ch, &af[i], TRUE, FALSE, TRUE, FALSE);
+	{
+		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
+	}
 
 	send_to_char("Вы пришли в ярость.\r\n", ch);
 	if ((obj = GET_EQ(ch, WEAR_WIELD)) || (obj = GET_EQ(ch, WEAR_BOTHS)))
@@ -1081,7 +1094,7 @@ int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 
 int low_charm(CHAR_DATA * ch)
 {
-	for (auto aff = ch->affected; aff; aff = aff->next)
+	for (const auto& aff : ch->affected)
 	{
 		if (aff->type == SPELL_CHARM && aff->duration <= 1)
 		{
@@ -1144,7 +1157,7 @@ void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
 				color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)),
 				WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1], CCNRM(ch, C_NRM));
 
-		ok = IN_ROOM(ch) == IN_ROOM(k);
+		ok = ch->in_room == IN_ROOM(k);
 		sprintf(buf + strlen(buf), "%s%5s%s|",
 				ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
 
@@ -1187,7 +1200,7 @@ void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
 				color_value(ch, GET_MOVE(k), GET_REAL_MAX_MOVE(k)),
 				MOVE_STATE[posi_value(GET_MOVE(k), GET_REAL_MAX_MOVE(k)) + 1], CCNRM(ch, C_NRM));
 
-		ok = IN_ROOM(ch) == IN_ROOM(k);
+		ok = ch->in_room == IN_ROOM(k);
 		sprintf(buf + strlen(buf), "%s%5s%s|",
 				ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
 
@@ -1535,7 +1548,7 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		next_fol = f->next;
 		tch = f->follower;
-		if (isname(buf, tch->get_pc_name().c_str())
+		if (isname(buf, tch->get_pc_name())
 			&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 			&& !IS_HORSE(tch))
 		{
@@ -1572,7 +1585,7 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
 		int loyalty = 0;
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
 			if (aff->type == SPELL_CHARM)
 			{
@@ -1647,7 +1660,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 				&& !IS_NPC(f->follower)
-				&& IN_ROOM(f->follower) == IN_ROOM(ch))
+				&& IN_ROOM(f->follower) == ch->in_room)
 			{
 				num++;
 			}
@@ -1668,7 +1681,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), share);
-		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == IN_ROOM(ch) && !IS_NPC(k) && k != ch)
+		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == ch->in_room && !IS_NPC(k) && k != ch)
 		{
 			send_to_char(buf, k);
 			k->add_gold(share, true, true);
@@ -1677,7 +1690,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 				&& !IS_NPC(f->follower)
-				&& IN_ROOM(f->follower) == IN_ROOM(ch)
+				&& IN_ROOM(f->follower) == ch->in_room
 				&& f->follower != ch)
 			{
 				send_to_char(buf, f->follower);
@@ -1734,7 +1747,11 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 
 	if (OBJ_FLAGGED(target, EExtraFlag::ITEM_SETSTUFF))
 	{
-		std::string name = GET_OBJ_PNAME(target, 0) ? GET_OBJ_PNAME(target, 0) : "<null>";
+		std::string name = target->get_PName(0);
+		if (name.empty())
+		{
+			name = "<empty>";
+		}
 		name[0] = UPPER(name[0]);
 		send_to_char(ch, "%s не %s быть зачарован%s, т.к. %s частью набора предметов.\r\n",
 			name.c_str(),
@@ -1743,15 +1760,15 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 			GET_OBJ_SEX(target) == ESex::SEX_POLY ? "являются" : "является");
 		return;
 	}
-	if (GET_OBJ_TYPE(target) == obj_flag_data::ITEM_ENCHANT)
+	if (GET_OBJ_TYPE(target) == OBJ_DATA::ITEM_ENCHANT)
 	{
 		send_to_char(ch, "Этот предмет уже магический и не может быть зачарован.\r\n");
 		return;
 	}
-	if (target->enchants.check(obj::ENCHANT_FROM_OBJ))
+	if (target->get_enchants().check(obj::ENCHANT_FROM_OBJ))
 	{
 		send_to_char(ch, "На %s уже наложено зачарование.\r\n",
-			GET_OBJ_PNAME(target, 3));
+			target->get_PName(3).c_str());
 		return;
 	}
 
@@ -1759,24 +1776,22 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 	if (check_slots > 0
 		&& check_slots != to_underlying(EWearFlag::ITEM_WEAR_TAKE))
 	{
-		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0));
+		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0).c_str());
 		obj::enchant ench(obj);
 		ench.apply_to_obj(target);
 		extract_obj(obj);
 	}
 	else
 	{
-		int slots = obj->obj_flags.wear_flags;
+		int slots = obj->get_wear_flags();
 		REMOVE_BIT(slots, EWearFlag::ITEM_WEAR_TAKE);
 		if (sprintbit(slots, wear_bits, buf2))
 		{
-			send_to_char(ch,
-				"Это зачарование применяется к предметам со слотами надевания: %s\r\n", buf2);
+			send_to_char(ch, "Это зачарование применяется к предметам со слотами надевания: %s\r\n", buf2);
 		}
 		else
 		{
-			send_to_char(ch,
-				"Некорретное зачарование, не проставлены слоты надевания.\r\n", buf2);
+			send_to_char(ch, "Некорретное зачарование, не проставлены слоты надевания.\r\n", buf2);
 		}
 	}
 }
@@ -1801,7 +1816,8 @@ void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 
 	mag_item = GET_EQ(ch, WEAR_HOLD);
-	if (!mag_item || !isname(arg, mag_item->aliases))
+	if (!mag_item
+		|| !isname(arg, mag_item->get_aliases()))
 	{
 		switch (subcmd)
 		{
@@ -1817,7 +1833,7 @@ void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		case SCMD_USE:
 			mag_item = get_obj_in_list_vis(ch, arg, ch->carrying);
 			if (!mag_item
-				|| GET_OBJ_TYPE(mag_item) != obj_flag_data::ITEM_ENCHANT)
+				|| GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_ENCHANT)
 			{
 				sprintf(buf2, "Возьмите в руку '%s' перед применением!\r\n", arg);
 				send_to_char(buf2, ch);
@@ -1837,7 +1853,7 @@ void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 			send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(mag_item) != obj_flag_data::ITEM_POTION)
+		if (GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_POTION)
 		{
 			send_to_char("Осушить вы можете только напиток (ну, Богам еще пЫво по вкусу ;)\r\n", ch);
 			return;
@@ -1845,7 +1861,7 @@ void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		do_hold = 1;
 		break;
 	case SCMD_RECITE:
-		if (GET_OBJ_TYPE(mag_item) != obj_flag_data::ITEM_SCROLL)
+		if (GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_SCROLL)
 		{
 			send_to_char("Пригодны для зачитывания только свитки.\r\n", ch);
 			return;
@@ -1853,13 +1869,13 @@ void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		do_hold = 1;
 		break;
 	case SCMD_USE:
-		if (GET_OBJ_TYPE(mag_item) == obj_flag_data::ITEM_ENCHANT)
+		if (GET_OBJ_TYPE(mag_item) == OBJ_DATA::ITEM_ENCHANT)
 		{
 			apply_enchant(ch, mag_item, buf);
 			return;
 		}
-		if (GET_OBJ_TYPE(mag_item) != obj_flag_data::ITEM_WAND
-			&& GET_OBJ_TYPE(mag_item) != obj_flag_data::ITEM_STAFF)
+		if (GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_WAND
+			&& GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_STAFF)
 		{
 			send_to_char("Применять можно только магические предметы!\r\n", ch);
 			return;
@@ -2706,12 +2722,12 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 	}
 
-	if (subcmd == SCMD_DONATE && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_POLY))
+	if (subcmd == SCMD_DONATE && !ROOM_FLAGGED(ch->in_room, ROOM_POLY))
 	{
 		send_to_char("Найдите подходящее место для вашей жертвы.\r\n", ch);
 		return;
 	}
-	if (subcmd == SCMD_PRAY && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_MONO))
+	if (subcmd == SCMD_PRAY && !ROOM_FLAGGED(ch->in_room, ROOM_MONO))
 	{
 		send_to_char("Это место не обладает необходимой святостью.\r\n", ch);
 		return;
@@ -2767,8 +2783,8 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			send_to_char("Вы должны пожертвовать что-то стоящее.\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_FOOD
-			&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_TREASURE)
+		if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_FOOD
+			&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_TREASURE)
 		{
 			send_to_char("Богам неугодна эта жертва.\r\n", ch);
 			return;
@@ -2807,7 +2823,7 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = i.location;
 			af.bitvector = i.bitvector;
 			af.battleflag = i.battleflag;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		}
 	}
 
@@ -3103,13 +3119,16 @@ void break_inst(CHAR_DATA *ch)
 
 	for (i = WEAR_WIELD; i <= WEAR_BOTHS; i++)
 	{
-		if (GET_EQ(ch, i) && (strstr(GET_EQ(ch, i)->aliases, "лопата") || strstr(GET_EQ(ch, i)->aliases, "кирка")))
+		if (GET_EQ(ch, i)
+			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
+				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка")))
 		{
 			if (GET_OBJ_CUR(GET_EQ(ch, i)) > 1)
 			{
 				if (number(1, dig_vars.instr_crash_chance) == 1)
 				{
-					GET_OBJ_CUR(GET_EQ(ch, i)) -= 1;
+					const auto current = GET_EQ(ch, i)->get_current_durability();
+					GET_EQ(ch, i)->set_current_durability(current - 1);
 				}
 			}
 			else
@@ -3118,7 +3137,7 @@ void break_inst(CHAR_DATA *ch)
 			}
 			if (GET_OBJ_CUR(GET_EQ(ch, i)) <= 1 && number(1, 3) == 1)
 			{
-				sprintf(buf, "Ваша %s трескается!\r\n", GET_EQ(ch, i)->short_description);
+				sprintf(buf, "Ваша %s трескается!\r\n", GET_EQ(ch, i)->get_short_description().c_str());
 				send_to_char(buf, ch);
 			}
 		}
@@ -3132,7 +3151,9 @@ int check_for_dig(CHAR_DATA *ch)
 
 	for (i = WEAR_WIELD; i <= WEAR_BOTHS; i++)
 	{
-		if (GET_EQ(ch, i) && (strstr(GET_EQ(ch, i)->aliases, "лопата") || strstr(GET_EQ(ch, i)->aliases, "кирка")))
+		if (GET_EQ(ch, i)
+			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
+				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка")))
 		{
 			return 1;
 		}
@@ -3144,12 +3165,12 @@ void dig_obj(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	char textbuf[300];
 
-	if (GET_OBJ_MIW(obj) >= obj_proto.actual_count(obj)
+	if (GET_OBJ_MIW(obj) >= obj_proto.actual_count(obj->get_rnum())
 		|| GET_OBJ_MIW(obj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
 	{
-		sprintf(textbuf, "Вы нашли %s!\r\n", obj->PNames[3]);
+		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(3).c_str());
 		send_to_char(textbuf, ch);
-		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->PNames[3]);
+		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(3).c_str());
 		act(textbuf, FALSE, ch, 0, 0, TO_ROOM);
 		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 		{
@@ -3162,7 +3183,9 @@ void dig_obj(CHAR_DATA *ch, OBJ_DATA *obj)
 			obj_to_room(obj, ch->in_room);
 		}
 		else
+		{
 			obj_to_char(obj, ch);
+		}
 	}
 }
 
@@ -3189,8 +3212,8 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 
 
-	if (world[IN_ROOM(ch)]->sector_type != SECT_MOUNTAIN &&
-			world[IN_ROOM(ch)]->sector_type != SECT_HILLS && !IS_IMMORTAL(ch))
+	if (world[ch->in_room]->sector_type != SECT_MOUNTAIN &&
+			world[ch->in_room]->sector_type != SECT_HILLS && !IS_IMMORTAL(ch))
 	{
 		send_to_char("Полезные минералы водятся только в гористой местности!\r\n", ch);
 		return;
@@ -3208,7 +3231,7 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (IS_DARK(IN_ROOM(ch)) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch))
+	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch))
 	{
 		send_to_char("Куда копать? Чего копать? Ничего не видно...\r\n", ch);
 		return;
@@ -3342,11 +3365,11 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	{
 		if (number(1, dig_vars.glass_chance) != 1)
 		{
-			GET_OBJ_MATER(obj) = obj_flag_data::MAT_GLASS;
+			obj->set_material(OBJ_DATA::MAT_GLASS);
 		}
 		else
 		{
-			GET_OBJ_MATER(obj) = obj_flag_data::MAT_DIAMOND;
+			obj->set_material(OBJ_DATA::MAT_DIAMOND);
 		}
 
 		dig_obj(ch, obj);
@@ -3373,18 +3396,19 @@ extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod)
 	int i;
 
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (itemobj->affected[i].location == type)
+	{
+		if (itemobj->get_affected(i).location == type)
 		{
-			(itemobj->affected[i].modifier) += mod;
+			const auto current_mod = itemobj->get_affected(i).modifier;
+			itemobj->set_affected(i, type, current_mod + mod);
 			break;
 		}
-		else if (itemobj->affected[i].location == APPLY_NONE)
+		else if (itemobj->get_affected(i).location == APPLY_NONE)
 		{
-			itemobj->affected[i].location = type;
-			itemobj->affected[i].modifier = mod;
+			itemobj->set_affected(i, type, mod);
 			break;
 		}
-
+	}
 }
 
 extern struct index_data *obj_index;
@@ -3421,7 +3445,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	if (!IS_IMMORTAL(ch))
 	{
-		if (!ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH))
+		if (!ROOM_FLAGGED(ch->in_room, ROOM_SMITH))
 		{
 			send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
 			return;
@@ -3445,7 +3469,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	if (!is_dig_stone(gemobj))
 	{
-		sprintf(buf, "Вы не умеете вплавлять %s.\r\n", gemobj->PNames[3]);
+		sprintf(buf, "Вы не умеете вплавлять %s.\r\n", gemobj->get_PName(3).c_str());
 		send_to_char(buf, ch);
 		return;
 	}
@@ -3466,47 +3490,17 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	}
 	if (GET_OBJ_MATER(itemobj) < 1 || (GET_OBJ_MATER(itemobj) > 6 && GET_OBJ_MATER(itemobj) != 13))
 	{
-		sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->PNames[0]);
+		sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(0).c_str());
 		send_to_char(buf, ch);
 		return;
 	}
-	/*(!(CAN_WEAR(itemobj, ITEM_WEAR_BODY)) &&
-	   !(CAN_WEAR(itemobj, ITEM_WEAR_HEAD)) &&
-	   !(CAN_WEAR(itemobj, ITEM_WEAR_LEGS)) &&
-	   !(CAN_WEAR(itemobj, ITEM_WEAR_ARMS)) &&
-	   !(CAN_WEAR(itemobj, ITEM_WEAR_SHIELD)) &&
-	   !(CAN_WEAR(itemobj, ITEM_WEAR_WIELD)) &&
-	   !(CAN_WEAR(itemobj, ITEM_WEAR_HOLD)) &&
-	   !(CAN_WEAR(itemobj, ITEM_WEAR_BOTHS)))
-	   {
-	   send_to_char("Нет смысла вплавлять камень в предмет этого типа.\r\n", ch);
-	   return;
-	   } */
-
-//    if (GET_OBJ_OWNER (itemobj) == GET_UNIQUE (ch))
-//    {
-//    if ((!(CAN_WEAR(itemobj, ITEM_WEAR_BODY)) && OBJ_FLAGGED(itemobj, ITEM_WITH2SLOTS)) ||
-//      (OBJ_FLAGGED(itemobj, ITEM_WITH3SLOTS)))
-//       {
-//      send_to_char("В этот предмет вплавлено максимальное количество камней.\r\n", ch);
-//        return;
-//       }
-//    }
-//    else
-//    {
-//    if (((CAN_WEAR(itemobj, ITEM_WEAR_BODY) ||
-//        CAN_WEAR(itemobj, ITEM_WEAR_SHIELD)) && OBJ_FLAGGED(itemobj, ITEM_WITH2SLOTS)))
-//       {
-//      send_to_char("В этот предмет вплавлено максимальное количество камней.\r\n", ch);
-//        return;
-//       }
-	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT) && !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS)
-			&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS))
+	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT)
+		&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS)
+		&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS))
 	{
 		send_to_char("Вы не видите куда здесь можно вплавить камень.\r\n", ch);
 		return;
 	}
-//    }
 
 	if (!WAITLESS(ch) && on_horse(ch))
 	{
@@ -3520,7 +3514,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		return;
 	}
 
-	if (IS_DARK(IN_ROOM(ch)) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch))
+	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch))
 	{
 		send_to_char("Да тут темно хоть глаза выколи...\r\n", ch);
 		return;
@@ -3533,7 +3527,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if (itemobj->affected[i].location == APPLY_NONE)
+		if (itemobj->get_affected(i).location == APPLY_NONE)
 		{
 			prob -= i * insgem_vars.minus_for_affect;
 			break;
@@ -3559,17 +3553,20 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 		if (percent > prob / insgem_vars.prob_divide)
 		{
-			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->short_description,
-					itemobj->PNames[3]);
+			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
+				gemobj->get_short_description().c_str(),
+				itemobj->get_PName(3).c_str());
 			send_to_char(buf, ch);
-			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n", gemobj->PNames[3], itemobj->PNames[3]);
+			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n",
+				gemobj->get_PName(3).c_str(),
+				itemobj->get_PName(3).c_str());
 			act(buf, FALSE, ch, 0, 0, TO_ROOM);
 			extract_obj(gemobj);
 			if (number(1, 100) <= insgem_vars.dikey_percent)
 			{
 				sprintf(buf, "...и испортив хорошую вещь!\r\n");
 				send_to_char(buf, ch);
-				sprintf(buf, "$n испортил$g %s!\r\n", itemobj->PNames[3]);
+				sprintf(buf, "$n испортил$g %s!\r\n", itemobj->get_PName(3).c_str());
 				act(buf, FALSE, ch, 0, 0, TO_ROOM);
 				extract_obj(itemobj);
 			}
@@ -3605,21 +3602,23 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		//успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
 		if (number(1, ch->get_skill(SKILL_INSERTGEM)) > (ch->get_skill(SKILL_INSERTGEM) - 50))
 		{
-			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->short_description,
-					itemobj->PNames[3]);
+			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
+				gemobj->get_short_description().c_str(),
+				itemobj->get_PName(3).c_str());
 			send_to_char(buf, ch);
-			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n", gemobj->PNames[3], itemobj->PNames[3]);
+			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n",
+				gemobj->get_PName(3).c_str(),
+				itemobj->get_PName(3).c_str());
 			act(buf, FALSE, ch, 0, 0, TO_ROOM);
 			extract_obj(gemobj);
 			return;
 		}
-
 	}
 //-Polos.insert_wanted_gem
 
-	sprintf(buf, "Вы вплавили %s в %s!\r\n", gemobj->PNames[3], itemobj->PNames[3]);
+	sprintf(buf, "Вы вплавили %s в %s!\r\n", gemobj->get_PName(3).c_str(), itemobj->get_PName(3).c_str());
 	send_to_char(buf, ch);
-	sprintf(buf, "$n вплавил$g %s в %s.\r\n", gemobj->PNames[3], itemobj->PNames[3]);
+	sprintf(buf, "$n вплавил$g %s в %s.\r\n", gemobj->get_PName(3).c_str(), itemobj->get_PName(3).c_str());
 	act(buf, FALSE, ch, 0, 0, TO_ROOM);
 
 	if (GET_OBJ_OWNER(itemobj) == GET_UNIQUE(ch))
@@ -3827,7 +3826,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 							|| CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_HOLD)
 							|| CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_BOTHS)))
 					{
-						itemobj->set_extraflag(EExtraFlag::ITEM_NODISARM);
+						itemobj->set_extra_flag(EExtraFlag::ITEM_NODISARM);
 					}
 					else
 					{
@@ -3922,7 +3921,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				break;
 
 			case 3:
-				itemobj->set_extraflag(static_cast<EExtraFlag>(tmp_bit));
+				itemobj->set_extra_flag(static_cast<EExtraFlag>(tmp_bit));
 				break;
 
 			default:
@@ -3937,12 +3936,12 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS))
 	{
 		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
-		itemobj->set_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
+		itemobj->set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
 	}
 	else if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS))
 	{
 		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
-		itemobj->set_extraflag(EExtraFlag::ITEM_WITH1SLOT);
+		itemobj->set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
 	}
 	else if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT))
 	{
@@ -3979,9 +3978,9 @@ void do_bandage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 
 	OBJ_DATA *bandage = 0;
-	for (OBJ_DATA *i = ch->carrying; i ; i = i->next_content)
+	for (OBJ_DATA *i = ch->carrying; i ; i = i->get_next_content())
 	{
-		if (GET_OBJ_TYPE(i) == obj_flag_data::ITEM_BANDAGE)
+		if (GET_OBJ_TYPE(i) == OBJ_DATA::ITEM_BANDAGE)
 		{
 			bandage = i;
 			break;
@@ -4003,16 +4002,16 @@ void do_bandage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af.duration = pc_duration(ch, 10, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffectFlag::AFF_BANDAGE);
 	af.battleflag = AF_PULSEDEC;
-	affect_join(ch, &af, 0, 0, 0, 0);
+	affect_join(ch, af, 0, 0, 0, 0);
 
 	af.type = SPELL_NO_BANDAGE;
 	af.location = APPLY_NONE;
 	af.duration = pc_duration(ch, 60, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffectFlag::AFF_NO_BANDAGE);
 	af.battleflag = AF_PULSEDEC;
-	affect_join(ch, &af, 0, 0, 0, 0);
+	affect_join(ch, af, 0, 0, 0, 0);
 
-	GET_OBJ_WEIGHT(bandage) -= 1;
+	bandage->set_weight(bandage->get_weight() - 1);
 	IS_CARRYING_W(ch) -= 1;
 	if (GET_OBJ_WEIGHT(bandage) <= 0)
 	{

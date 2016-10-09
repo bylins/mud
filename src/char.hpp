@@ -355,7 +355,7 @@ public:
 	void clear_skills();
 	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;
-	int get_equipped_skill(int skill_num) const;
+	int get_equipped_skill(const ESkill skill_num) const;
 	int get_trained_skill(const ESkill skill_num) const;
 
 	int get_obj_slot(int slot_num);
@@ -582,7 +582,7 @@ public:
 
 	virtual void reset();
 
-	bool has_any_affect(const affects_list_t affects);
+	bool has_any_affect(const affects_list_t& affects);
 
 private:
 	std::string clan_for_title();
@@ -686,6 +686,7 @@ private:
 	unsigned m_wait;			// wait for how many loops
 
 public:
+	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
 	int punctual_wait;		// wait for how many loops (punctual style)
 	char *last_comm;		// последний приказ чармису перед окончанием лага
 
@@ -698,16 +699,16 @@ public:
 
 	struct player_special_data *player_specials;	// PC specials
 
-	AFFECT_DATA<EApplyLocation>* affected;	// affected by what spells
+	char_affects_list_t affected;	// affected by what spells
 	struct timed_type *timed;	// use which timed skill/spells
 	struct timed_type *timed_feat;	// use which timed feats
 	OBJ_DATA *equipment[NUM_WEARS];	// Equipment array
 
 	OBJ_DATA *carrying;	// Head of list
-	DESCRIPTOR_DATA *desc;	// NULL for mobiles
+	DESCRIPTOR_DATA* desc;	// NULL for mobiles
 	long id;			// used by DG triggers
 	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers
-	struct script_data *script;	// script info for the object
+	struct SCRIPT_DATA *script;	// script info for the object
 	struct script_memory *memory;	// for mob memory triggers
 
 	CHAR_DATA *next_in_room;	// For room->people - list
@@ -851,7 +852,7 @@ inline bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* 
 {
 	return !(GET_INVIS_LEV(ch) > 30)
 		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
-		&& (!IS_DARK(IN_ROOM(sub))
+		&& (!IS_DARK(sub->in_room)
 			|| AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
 		&& (!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
 			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS));
@@ -909,7 +910,7 @@ inline bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
 	return !NAME_BAD(ch)
 		&& (NAME_FINE(ch)
 			|| !(GET_LEVEL(ch) == NAME_LEVEL))
-		&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 		&& IS_NPC(victim)
 		&& (GET_EXP(victim) > 0)
 		&& (!IS_NPC(victim)

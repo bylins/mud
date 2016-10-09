@@ -165,7 +165,7 @@ void CHAR_DATA::reset()
 	PlayerI::reset();
 }
 
-bool CHAR_DATA::has_any_affect(const affects_list_t affects)
+bool CHAR_DATA::has_any_affect(const affects_list_t& affects)
 {
 	for (const auto& affect : affects)
 	{
@@ -223,7 +223,6 @@ void CHAR_DATA::zero_init()
 	punctual_wait = 0;
 	last_comm = 0;
 	player_specials = 0;
-	affected = 0;
 	timed = 0;
 	timed_feat = 0;
 	carrying = 0;
@@ -360,14 +359,20 @@ void CHAR_DATA::purge(bool destructor)
 			free(this->mob_specials.Questor);
 	}
 
-	while (this->affected)
-		affect_remove(this, this->affected);
+	while (!this->affected.empty())
+	{
+		affect_remove(this, this->affected.begin());
+	}
 
 	while (this->timed)
+	{
 		timed_from_char(this, this->timed);
+	}
 
 	if (this->desc)
-		this->desc->character = NULL;
+	{
+		this->desc->character = nullptr;
+	}
 
 	Celebrates::remove_from_mob_lists(this->id);
 
@@ -484,7 +489,7 @@ int CHAR_DATA::get_skill(const ESkill skill_num) const
 }
 
 // * Скилл со шмоток.
-int CHAR_DATA::get_equipped_skill(int skill_num) const
+int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 {
 	int skill = 0;
 
@@ -498,9 +503,13 @@ int CHAR_DATA::get_equipped_skill(int skill_num) const
 		if (equipment[i])
 		{
 			if (is_native)
+			{
 				skill += equipment[i]->get_skill(skill_num);
+			}
 			else
+			{
 				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
+			}
 		}
 	}
 	skill += obj_bonus_.get_skill(skill_num);
@@ -730,7 +739,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		{
 			log("[Change fighting] Change victim");
 			CHAR_DATA *j;
-			for (j = world[IN_ROOM(ch)]->people; j; j = j->next_in_room)
+			for (j = world[ch->in_room]->people; j; j = j->next_in_room)
 				if (j->get_fighting() == k)
 				{
 					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
@@ -769,7 +778,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		if (k->get_fighting() == ch && IN_ROOM(k) != NOWHERE)
 		{
 			log("[Change fighting] Change victim");
-			for (j = world[IN_ROOM(ch)]->people; j; j = j->next_in_room)
+			for (j = world[ch->in_room]->people; j; j = j->next_in_room)
 			{
 				if (j->get_fighting() == k)
 				{

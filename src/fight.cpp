@@ -1021,8 +1021,8 @@ void mob_casting(CHAR_DATA * ch)
 	{
 		switch (GET_OBJ_TYPE(item))
 		{
-		case obj_flag_data::ITEM_WAND:
-		case obj_flag_data::ITEM_STAFF:
+		case OBJ_DATA::ITEM_WAND:
+		case OBJ_DATA::ITEM_STAFF:
 			if (GET_OBJ_VAL(item, 2) > 0 &&
 				IS_SET(spell_info[GET_OBJ_VAL(item, 3)].routines, NPC_CALCULATE))
 			{
@@ -1030,7 +1030,7 @@ void mob_casting(CHAR_DATA * ch)
 			}
 			break;
 
-		case obj_flag_data::ITEM_POTION:
+		case OBJ_DATA::ITEM_POTION:
 			for (i = 1; i <= 3; i++)
 			{
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_AFFECT_NPC | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER))
@@ -1040,7 +1040,7 @@ void mob_casting(CHAR_DATA * ch)
 			}
 			break;
 
-		case obj_flag_data::ITEM_SCROLL:
+		case OBJ_DATA::ITEM_SCROLL:
 			for (i = 1; i <= 3; i++)
 			{
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_CALCULATE))
@@ -1054,7 +1054,7 @@ void mob_casting(CHAR_DATA * ch)
 			break;
 		}
 
-		item = item->next_content;
+		item = item->get_next_content();
 	}
 
 	// перво-наперво  -  лечим себя
@@ -1108,8 +1108,8 @@ void mob_casting(CHAR_DATA * ch)
 		{
 			switch (GET_OBJ_TYPE(item))
 			{
-			case obj_flag_data::ITEM_WAND:
-			case obj_flag_data::ITEM_STAFF:
+			case OBJ_DATA::ITEM_WAND:
+			case OBJ_DATA::ITEM_STAFF:
 				if (GET_OBJ_VAL(item, 2) > 0
 					&& GET_OBJ_VAL(item, 3) == spellnum)
 				{
@@ -1118,7 +1118,7 @@ void mob_casting(CHAR_DATA * ch)
 				}
 				break;
 
-			case obj_flag_data::ITEM_POTION:
+			case OBJ_DATA::ITEM_POTION:
 				for (i = 1; i <= 3; i++)
 				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
@@ -1139,7 +1139,7 @@ void mob_casting(CHAR_DATA * ch)
 				}
 				break;
 
-			case obj_flag_data::ITEM_SCROLL:
+			case OBJ_DATA::ITEM_SCROLL:
 				for (i = 1; i <= 3; i++)
 				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
@@ -1154,7 +1154,7 @@ void mob_casting(CHAR_DATA * ch)
 				break;
 			}
 
-			item = item->next_content;
+			item = item->get_next_content();
 		}
 
 		cast_spell(ch, victim, 0, NULL, spellnum, spellnum);
@@ -1191,10 +1191,10 @@ void summon_mob_helpers(CHAR_DATA *ch)
 				act("$n воззвал$g : \"На помощь, мои верные соратники!\"",
 					FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			}
-			if (IN_ROOM(vict) != IN_ROOM(ch))
+			if (IN_ROOM(vict) != ch->in_room)
 			{
 				char_from_room(vict);
-				char_to_room(vict, IN_ROOM(ch));
+				char_to_room(vict, ch->in_room);
 				act("$n прибыл$g на зов и вступил$g в битву на стороне $N1.",
 					FALSE, vict, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			}
@@ -1218,8 +1218,8 @@ void check_mob_helpers()
 		next_combat_list = ch->next_fighting;
 		// Extract battler if no opponent
 		if (ch->get_fighting() == NULL
-			|| IN_ROOM(ch) != IN_ROOM(ch->get_fighting())
-			|| IN_ROOM(ch) == NOWHERE)
+			|| ch->in_room != IN_ROOM(ch->get_fighting())
+			|| ch->in_room == NOWHERE)
 		{
 			stop_fighting(ch, TRUE);
 			continue;
@@ -1251,14 +1251,14 @@ void try_angel_rescue(CHAR_DATA *ch)
 		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
 			&& MOB_FLAGGED(k->follower, MOB_ANGEL)
 			&& !k->follower->get_fighting()
-			&& IN_ROOM(k->follower) == IN_ROOM(ch)
+			&& IN_ROOM(k->follower) == ch->in_room
 			&& CAN_SEE(k->follower, ch)
 			&& AWAKE(k->follower)
 			&& MAY_ACT(k->follower)
 			&& GET_POS(k->follower) >= POS_FIGHTING)
 		{
 			CHAR_DATA *vict;
-			for (vict = world[IN_ROOM(ch)]->people;
+			for (vict = world[ch->in_room]->people;
 				vict; vict = vict->next_in_room)
 			{
 				if (vict->get_fighting() == ch
@@ -1486,7 +1486,7 @@ void using_mob_skills(CHAR_DATA *ch)
 			sk_use = 0;
 			int i = 0;
 			// Цель выбираем по рандому
-			for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people;
+			for (CHAR_DATA *vict = world[ch->in_room]->people;
 				vict; vict = vict->next_in_room)
 			{
 				if (!IS_NPC(vict))
@@ -1498,7 +1498,7 @@ void using_mob_skills(CHAR_DATA *ch)
 			if (i > 0)
 			{
 				i = number(1, i);
-				for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people;
+				for (CHAR_DATA *vict = world[ch->in_room]->people;
 					i; vict = vict->next_in_room)
 				{
 					if (!IS_NPC(vict))
@@ -1524,7 +1524,7 @@ void using_mob_skills(CHAR_DATA *ch)
 			CHAR_DATA *caster = 0, *damager = 0;
 			int dumb_mob = (int)(GET_REAL_INT(ch) < number(5, 20));
 
-			for (CHAR_DATA *attacker = world[IN_ROOM(ch)]->people;
+			for (CHAR_DATA *attacker = world[ch->in_room]->people;
 					attacker; attacker = attacker->next_in_room)
 			{
 				CHAR_DATA *vict = attacker->get_fighting();	// выяснение жертвы
@@ -1591,7 +1591,7 @@ void using_mob_skills(CHAR_DATA *ch)
 			{
 				caster = find_target(ch);
 				damager = find_target(ch);
-				for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people; vict;
+				for (CHAR_DATA *vict = world[ch->in_room]->people; vict;
 						vict = vict->next_in_room)
 				{
 					if ((IS_NPC(vict) && !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
@@ -1639,7 +1639,7 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 				else
-				{
+				{ 
 //send_to_char(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
 //                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -1731,7 +1731,7 @@ void update_round_affs()
 {
 	for (CHAR_DATA *ch = combat_list; ch; ch = ch->next_fighting)
 	{
-		if (IN_ROOM(ch) == NOWHERE)
+		if (ch->in_room == NOWHERE)
 			continue;
 
 		CLR_AF_BATTLE(ch, EAF_FIRST);
@@ -1833,7 +1833,7 @@ void process_npc_attack(CHAR_DATA *ch)
 		mob_casting(ch);
 
 	if (!ch->get_fighting()
-		|| IN_ROOM(ch) != IN_ROOM(ch->get_fighting())
+		|| ch->in_room != IN_ROOM(ch->get_fighting())
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
 			// mob_casting мог от зеркала отразиться
 		||	AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
@@ -1848,13 +1848,13 @@ void process_npc_attack(CHAR_DATA *ch)
 		&& ch->master
 		// && !IS_NPC(ch->master)
 		&& CAN_SEE(ch, ch->master)
-		&& IN_ROOM(ch) == IN_ROOM(ch->master)
+		&& ch->in_room == IN_ROOM(ch->master)
 		&& AWAKE(ch)
 		&& MAY_ACT(ch)
 		&& GET_POS(ch) >= POS_FIGHTING)
 	{
 		CHAR_DATA *vict = 0;
-		for (vict = world[IN_ROOM(ch)]->people;
+		for (vict = world[ch->in_room]->people;
 			vict; vict = vict->next_in_room)
 		{
 			if (vict->get_fighting() == ch->master
@@ -1870,7 +1870,7 @@ void process_npc_attack(CHAR_DATA *ch)
 		}
 		else if (vict && ch->get_skill(SKILL_PROTECT))
 		{
-                    go_protect(ch, ch->master);
+			go_protect(ch, ch->master);
 		}
 	}
 	else if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -1879,7 +1879,7 @@ void process_npc_attack(CHAR_DATA *ch)
 		using_mob_skills(ch);
 	}
 
-	if (!ch->get_fighting() || IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
+	if (!ch->get_fighting() || ch->in_room != IN_ROOM(ch->get_fighting()))
 		return;
 
 	//**** удар основным оружием или рукой
@@ -1958,7 +1958,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	}
 
 	if (!ch->get_fighting()
-		|| IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
+		|| ch->in_room != IN_ROOM(ch->get_fighting()))
 	{
 		return;
 	}
@@ -1995,7 +1995,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (GET_EQ(ch, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON
 		&& GET_AF_BATTLE(ch, EAF_SECOND)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)
 		&& (IS_IMMORTAL(ch)
@@ -2046,7 +2046,7 @@ bool stuff_before_round(CHAR_DATA *ch)
 	SET_AF_BATTLE(ch, EAF_STAND);
 	if (affected_by_spell(ch, SPELL_SLEEP))
 		SET_AF_BATTLE(ch, EAF_SLEEP);
-	if (IN_ROOM(ch) == NOWHERE)
+	if (ch->in_room == NOWHERE)
 		return false;
 
 	if (GET_MOB_HOLD(ch)
@@ -2133,7 +2133,7 @@ void perform_violence()
 		for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list)
 		{
 			next_combat_list = ch->next_fighting;
-			if (INITIATIVE(ch) != initiative || IN_ROOM(ch) == NOWHERE)
+			if (INITIATIVE(ch) != initiative || ch->in_room == NOWHERE)
 			{
 				continue;
 			}
@@ -2147,7 +2147,7 @@ void perform_violence()
 			}
 			// If mob cast 'fear', 'teleport', 'recall', etc when initiative setted
 			if (!ch->get_fighting()
-				|| IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
+				|| ch->in_room != IN_ROOM(ch->get_fighting()))
 			{
 				continue;
 			}

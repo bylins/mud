@@ -5,6 +5,12 @@
 	<crafts_bonus>0</crafts_bonus>
 	<skills_cap>80</skills_cap>
 	<skills_bonus>10</skills_bonus>
+	<vnums>
+		<range>
+			<min>200000</min>
+			<max>200099</max>
+		</range>
+	</vnums>
 
 	<skills>
 		<skill id="skill1" filename="skill1.xml" />
@@ -41,7 +47,7 @@
 		<material id="MT_INWROUGHT_FLAX" filename="inwrought_flax.xml" />
 		<material id="MT_THIN_SILK">
 			<name>тонкая шёлковая ткань</name>
-			<class id="MC_WISSON">
+			<class id="MC_WISSON" vnum="200040">
 				<description>
 					<short>Отрез тончайшей ткани лежит тут.</short>
 					<long>Это тончайшая шёлковая ткань, кажется, немалый её отрез войдёт в крошечный напёрсток.</long>
@@ -152,7 +158,7 @@
 					<weapon_affect>WAFF_SANCTUARY</weapon_affect>
 				</weapon_affects>
 			</class>
-			<class id="MC_ORGANDY">
+			<class id="MC_ORGANDY" vnum="200041">
 				<description>
 					<short>Отрез прозрачной ткани лежит тут.</short>
 					<long>Это очень тонкая и прозрачная жёсткая ткань.</long>
@@ -354,7 +360,7 @@
 	</recipes>
 
 	<prototypes>
-		<prototype vnum="2701">
+		<prototype vnum="200000">
 			<description>
 				<short>Палка-выручалка</short>
 				<long>Палка-выручалка лежит, никому не нужная.</long>
@@ -467,6 +473,8 @@
 			<val2>7</val2>
 		</prototype>
 	</prototypes>
+
+	<include filename="tailoring/index.xml" />
 </craftmodel>
 
 <!-- vim: set ts=4 sw=4 tw=0 noet syntax=xml : -->

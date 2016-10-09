@@ -110,18 +110,20 @@ extern const char *attach_name[];
 #define MAX_SCRIPT_DEPTH        512
 struct wait_event_data
 {
-	trig_data *trigger;
+	TRIG_DATA *trigger;
 	void *go;
 	int type;
 };
 
-
 // one line of the trigger //
-struct cmdlist_element
+class cmdlist_element
 {
-	char *cmd;		// one line of a trigger //
-	struct cmdlist_element *original;
-	struct cmdlist_element *next;
+public:
+	using shared_ptr = std::shared_ptr<cmdlist_element>;
+
+	std::string cmd;		// one line of a trigger //
+	shared_ptr original;
+	shared_ptr next;
 };
 
 struct trig_var_data
@@ -134,33 +136,60 @@ struct trig_var_data
 };
 
 // structure for triggers //
-struct trig_data
+class TRIG_DATA
 {
-	
-	sh_int nr;		// trigger's rnum                  //
+	void reset();
+
+public:
+	static const char* DEFAULT_TRIGGER_NAME;
+
+	TRIG_DATA();
+	TRIG_DATA(const TRIG_DATA& from);
+	TRIG_DATA& operator=(const TRIG_DATA& right);
+	TRIG_DATA(const sh_int rnum, const char* name, const long trigger_type);
+	TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type, const long trigger_type);
+
+	auto get_rnum() const { return nr; }
+	void set_rnum(const sh_int _) { nr = _; }
+	void set_attach_type(const byte _) { attach_type = _; }
+	auto get_attach_type() const { return attach_type; }
+	auto get_data_type() const { return data_type; }
+	const auto& get_name() const { return name; }
+	void set_name(const std::string& _) { name = _; }
+	auto get_trigger_type() const { return trigger_type; }
+	void set_trigger_type(const long _) { trigger_type = _; }
+
+private:
+	sh_int nr;			// trigger's rnum                  //
 	byte attach_type;	// mob/obj/wld intentions          //
 	byte data_type;		// type of game_data for trig      //
-	char *name;		// name of trigger                 //
+	std::string name;	// name of trigger
 	long trigger_type;	// type of trigger (for bitvector) //
-	struct cmdlist_element *cmdlist;	// top of command list             //
-	struct cmdlist_element *curr_state;	// ptr to current line of trigger  //
+
+public:
+	using cmdlist_ptr = std::shared_ptr<cmdlist_element::shared_ptr>;
+	cmdlist_ptr cmdlist;	// top of command list             //
+	cmdlist_element::shared_ptr curr_state;	// ptr to current line of trigger  //
 	int narg;		// numerical argument              //
-	char *arglist;		// argument list                   //
+	std::string arglist;		// argument list                   //
 	int depth;		// depth into nest ifs/whiles/etc  //
 	int loops;		// loop iteration counter          //
 	struct event_info *wait_event;	// event to pause the trigger      //
 	ubyte purged;		// trigger is set to be purged     //
 	struct trig_var_data *var_list;	// list of local vars for trigger  //
-	TRIG_DATA *next;
-	TRIG_DATA *next_in_world;	// next in the global trigger list //
+	TRIG_DATA* next;
+	TRIG_DATA* next_in_world;	// next in the global trigger list //
 };
 
-
 // a complete script (composed of several triggers) //
-struct script_data
+struct SCRIPT_DATA
 {
+	// привет костыли
+	SCRIPT_DATA();
+	~SCRIPT_DATA();
+
 	long types;		// bitvector of trigger types //
-	TRIG_DATA *trig_list;	// list of triggers           //
+	TRIG_DATA* trig_list;	// list of triggers           //
 	struct trig_var_data *global_vars;	// list of global variables   //
 	ubyte purged;		// script is set to be purged //
 	long context;		// current context for statics //
@@ -217,7 +246,7 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
 // function prototypes from scripts.cpp //
 void script_trigger_check(void);
 void script_timechange_trigger_check(const int time);
-void add_trigger(struct script_data *sc, TRIG_DATA * t, int loc);
+void add_trigger(struct SCRIPT_DATA *sc, TRIG_DATA * t, int loc);
 int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr);
 
 void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig);
@@ -233,14 +262,14 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj);
 void assign_triggers(void *i, int type);
 void parse_trigger(FILE * trig_f, int nr);
 int real_trigger(int vnum);
-void extract_script(struct script_data *sc);
+void extract_script(struct SCRIPT_DATA *sc);
 void extract_script_mem(struct script_memory *sc);
 
 TRIG_DATA *read_trigger(int nr);
 // void add_var(struct trig_var_data **var_list, char *name, char *value, long id);
 ROOM_DATA *dg_room_of_obj(OBJ_DATA * obj);
-void do_dg_cast(void *go, struct script_data *sc, TRIG_DATA * trig, int type, char *cmd);
-void do_dg_affect(void *go, struct script_data *sc, TRIG_DATA * trig, int type, char *cmd);
+void do_dg_cast(void *go, struct SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
+void do_dg_affect(void *go, struct SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
 
 
 
@@ -256,11 +285,11 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 #define UID_OBJ    '\x1c'
 #define UID_ROOM   '\x1d'
 
-#define GET_TRIG_NAME(t)          ((t)->name)
-#define GET_TRIG_RNUM(t)          ((t)->nr)
-#define GET_TRIG_VNUM(t)	  (trig_index[(t)->nr]->vnum)
-#define GET_TRIG_TYPE(t)          ((t)->trigger_type)
-#define GET_TRIG_DATA_TYPE(t)	  ((t)->data_type)
+#define GET_TRIG_NAME(t)          ((t)->get_name().c_str())
+#define GET_TRIG_RNUM(t)          ((t)->get_rnum())
+#define GET_TRIG_VNUM(t)	  (trig_index[(t)->get_rnum()]->vnum)
+#define GET_TRIG_TYPE(t)          ((t)->get_trigger_type())
+#define GET_TRIG_DATA_TYPE(t)	  ((t)->get_data_type())
 #define GET_TRIG_NARG(t)          ((t)->narg)
 #define GET_TRIG_ARG(t)           ((t)->arglist)
 #define GET_TRIG_VARS(t)	  ((t)->var_list)
@@ -281,20 +310,12 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 
 #define GET_SHORT(ch)    ((ch)->get_npc_name().c_str())
 
-#define SCRIPT_CHECK(go, type)   (SCRIPT(go) && \
-				  IS_SET(SCRIPT_TYPES(SCRIPT(go)), type))
+bool SCRIPT_CHECK(const OBJ_DATA* go, const long type);
+bool SCRIPT_CHECK(const CHAR_DATA* go, const long type);
+bool SCRIPT_CHECK(const ROOM_DATA* go, const long type);
+
 #define TRIGGER_CHECK(t, type)   (IS_SET(GET_TRIG_TYPE(t), type) && \
 				  !GET_TRIG_DEPTH(t))
-
-#define ADD_UID_CHAR_VAR(buf, trig, go, name, context) { \
-		         sprintf(buf, "%c%ld", UID_CHAR, GET_ID(go)); \
-                         add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
-#define ADD_UID_OBJ_VAR(buf, trig, go, name, context) { \
-		         sprintf(buf, "%c%ld", UID_OBJ, GET_ID(go)); \
-                         add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
-#define ADD_UID_ROOM_VAR(buf, trig, go, name, context) { \
-		         sprintf(buf, "%c%ld", UID_ROOM, GET_ID(go)); \
-                         add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context); }
 
 #define SCRIPT(o)		  ((o)->script)
 

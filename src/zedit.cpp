@@ -65,7 +65,7 @@ int is_number(const char *str);
 #define SEEK_CMD(d) zedit_seek_cmd( (pzcmd)OLC_ZONE(d)->cmd, OLC_VAL(d) )
 
 #define TRANS_MOB(field)  item->cmd.field = mob_index[item->cmd.field].vnum
-#define TRANS_OBJ(field)  item->cmd.field = obj_proto.vnum(item->cmd.field)
+#define TRANS_OBJ(field)  item->cmd.field = obj_proto[item->cmd.field]->get_vnum()
 #define TRANS_ROOM(field) item->cmd.field = world[item->cmd.field]->number
 
 //------------------------------------------------------------------------
@@ -551,58 +551,67 @@ void zedit_save_to_disk(int zone_num)
 			arg4 = ZCMD.arg4;
 			comment = mob_proto[ZCMD.arg1].get_npc_name().c_str();
 			break;
+
 		case 'F':
 			arg1 = world[ZCMD.arg1]->number;
 			arg2 = mob_index[ZCMD.arg2].vnum;
 			arg3 = mob_index[ZCMD.arg3].vnum;
 			comment = mob_proto[ZCMD.arg2].get_npc_name().c_str();
 			break;
+
 		case 'O':
-			arg1 = obj_proto.vnum(ZCMD.arg1);
+			arg1 = obj_proto[ZCMD.arg1]->get_vnum();
 			arg2 = ZCMD.arg2;
 			arg3 = world[ZCMD.arg3]->number;
 			arg4 = ZCMD.arg4;
-			comment = obj_proto[ZCMD.arg1]->short_description;
+			comment = obj_proto[ZCMD.arg1]->get_short_description().c_str();
 			break;
+
 		case 'G':
-			arg1 = obj_proto.vnum(ZCMD.arg1);
+			arg1 = obj_proto[ZCMD.arg1]->get_vnum();
 			arg2 = ZCMD.arg2;
 			arg3 = -1;
 			arg4 = ZCMD.arg4;
-			comment = obj_proto[ZCMD.arg1]->short_description;
+			comment = obj_proto[ZCMD.arg1]->get_short_description().c_str();
 			break;
+
 		case 'E':
-			arg1 = obj_proto.vnum(ZCMD.arg1);
+			arg1 = obj_proto[ZCMD.arg1]->get_vnum();
 			arg2 = ZCMD.arg2;
 			arg3 = ZCMD.arg3;
 			arg4 = ZCMD.arg4;
-			comment = obj_proto[ZCMD.arg1]->short_description;
+			comment = obj_proto[ZCMD.arg1]->get_short_description().c_str();
 			break;
+
 		case 'Q':
 			arg1 = mob_index[ZCMD.arg1].vnum;
 			arg2 = -1;
 			arg3 = -1;
 			comment = mob_proto[ZCMD.arg1].get_npc_name().c_str();
 			break;
+
 		case 'P':
-			arg1 = obj_proto.vnum(ZCMD.arg1);
+			arg1 = obj_proto[ZCMD.arg1]->get_vnum();
 			arg2 = ZCMD.arg2;
-			arg3 = obj_proto.vnum(ZCMD.arg3);
+			arg3 = obj_proto[ZCMD.arg3]->get_vnum();
 			arg4 = ZCMD.arg4;
-			comment = obj_proto[ZCMD.arg1]->short_description;
+			comment = obj_proto[ZCMD.arg1]->get_short_description().c_str();
 			break;
+
 		case 'D':
 			arg1 = world[ZCMD.arg1]->number;
 			arg2 = ZCMD.arg2;
 			arg3 = ZCMD.arg3;
 			comment = world[ZCMD.arg1]->name;
 			break;
+
 		case 'R':
 			arg1 = world[ZCMD.arg1]->number;
-			arg2 = obj_proto.vnum(ZCMD.arg2);
-			comment = obj_proto[ZCMD.arg2]->short_description;
+			arg2 = obj_proto[ZCMD.arg2]->get_vnum();
+			comment = obj_proto[ZCMD.arg2]->get_short_description().c_str();
 			arg3 = -1;
 			break;
+
 		case 'T':
 			arg1 = ZCMD.arg1;	// trigger type
 			arg2 = ZCMD.arg2;
@@ -612,24 +621,32 @@ void zedit_save_to_disk(int zone_num)
 				comment = world[ZCMD.arg3]->name;
 			}
 			break;
+
 		case 'V':
 			arg1 = ZCMD.arg1;	// trigger type
 			arg2 = ZCMD.arg2;	// context
 			break;
+
 		case '*':
 			// * Invalid commands are replaced with '*' - Ignore them.
 			continue;
+
 		default:
 			sprintf(buf, "SYSERR: OLC: z_save_to_disk(): Unknown cmd '%c' - NOT saving", ZCMD.command);
 			mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 			continue;
 		}
+
 		if (ZCMD.command != 'V')
+		{
 			fprintf(zfile, "%c %d %d %d %d %d\t(%s)\n",
-					ZCMD.command, ZCMD.if_flag, arg1, arg2, arg3, arg4, comment);
+				ZCMD.command, ZCMD.if_flag, arg1, arg2, arg3, arg4, comment);
+		}
 		else
+		{
 			fprintf(zfile, "%c %d %d %d %d %s %s\n",
-					ZCMD.command, ZCMD.if_flag, arg1, arg2, arg3, ZCMD.sarg1, ZCMD.sarg2);
+				ZCMD.command, ZCMD.if_flag, arg1, arg2, arg3, ZCMD.sarg1, ZCMD.sarg2);
+		}
 	}
 	fprintf(zfile, "S\n$\n");
 	fclose(zfile);
@@ -640,7 +657,6 @@ void zedit_save_to_disk(int zone_num)
 
 	olc_remove_from_save_list(zone_table[zone_num].number, OLC_SAVE_ZONE);
 }
-
 
 // *************************************************************************
 // * Menu functions                                                        *
@@ -671,23 +687,35 @@ const char * name_by_vnum(int vnum, int type)
 	case MOB_NAME:
 		rnum = real_mobile(vnum);
 		if (rnum >= 0)
+		{
 			return mob_proto[rnum].get_npc_name().c_str();
+		}
 		break;
+
 	case OBJ_NAME:
 		rnum = real_object(vnum);
 		if (rnum >= 0)
-			return obj_proto[rnum]->short_description;
+		{
+			return obj_proto[rnum]->get_short_description().c_str();
+		}
 		break;
+
 	case ROOM_NAME:
 		rnum = real_room(vnum);
 		if (rnum >= 0)
+		{
 			return world[rnum]->name;
+		}
 		break;
+
 	case TRIG_NAME:
 		rnum = real_trigger(vnum);
 		if (rnum >= 0)
-			return trig_index[rnum]->proto->name;
+		{
+			return trig_index[rnum]->proto->get_name().c_str();
+		}
 		break;
+
 	default:
 		log("SYSERROR : bad type '%d' (%s %s %d)", type, __FILE__, __func__, __LINE__);
 	}

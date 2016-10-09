@@ -233,31 +233,31 @@ ObjVal::EValueKey init_spell_lvl(int num)
 			: ObjVal::EValueKey::POTION_SPELL3_LVL);
 }
 
-void reset_potion_values(OBJ_DATA *obj)
+void reset_potion_values(CObjectPrototype *obj)
 {
-	obj->values.set(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
-	obj->values.set(ObjVal::EValueKey::POTION_SPELL1_LVL, -1);
-	obj->values.set(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
-	obj->values.set(ObjVal::EValueKey::POTION_SPELL2_LVL, -1);
-	obj->values.set(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
-	obj->values.set(ObjVal::EValueKey::POTION_SPELL3_LVL, -1);
-	obj->values.set(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
+	obj->set_value(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
+	obj->set_value(ObjVal::EValueKey::POTION_SPELL1_LVL, -1);
+	obj->set_value(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
+	obj->set_value(ObjVal::EValueKey::POTION_SPELL2_LVL, -1);
+	obj->set_value(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
+	obj->set_value(ObjVal::EValueKey::POTION_SPELL3_LVL, -1);
+	obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
 }
 
 /// уровень в зельях (GET_OBJ_VAL(from_obj, 0)) пока один на все заклы
-bool copy_value(const OBJ_DATA *from_obj, OBJ_DATA *to_obj, int num)
+bool copy_value(const CObjectPrototype *from_obj, CObjectPrototype *to_obj, int num)
 {
 	if (GET_OBJ_VAL(from_obj, num) > 0)
 	{
-		to_obj->values.set(init_spell_num(num), GET_OBJ_VAL(from_obj, num));
-		to_obj->values.set(init_spell_lvl(num), GET_OBJ_VAL(from_obj, 0));
+		to_obj->set_value(init_spell_num(num), GET_OBJ_VAL(from_obj, num));
+		to_obj->set_value(init_spell_lvl(num), GET_OBJ_VAL(from_obj, 0));
 		return true;
 	}
 	return false;
 }
 
 /// заполнение values емкости (to_obj) из зелья (from_obj)
-void copy_potion_values(const OBJ_DATA *from_obj, OBJ_DATA *to_obj)
+void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_obj)
 {
 	reset_potion_values(to_obj);
 	bool copied = false;
@@ -272,7 +272,7 @@ void copy_potion_values(const OBJ_DATA *from_obj, OBJ_DATA *to_obj)
 
 	if (copied)
 	{
-		to_obj->values.set(ObjVal::EValueKey::POTION_PROTO_VNUM, GET_OBJ_VNUM(from_obj));
+		to_obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, GET_OBJ_VNUM(from_obj));
 	}
 }
 
@@ -282,12 +282,12 @@ using namespace drinkcon;
 
 int cast_potion_spell(CHAR_DATA *ch, OBJ_DATA *obj, int num)
 {
-	const int spell = obj->values.get(init_spell_num(num));
-	const int level = obj->values.get(init_spell_lvl(num));
+	const int spell = obj->get_value(init_spell_num(num));
+	const int level = obj->get_value(init_spell_lvl(num));
 
 	if (spell >= 0 && level >= 0)
 	{
-		return call_magic(ch, ch, NULL, world[IN_ROOM(ch)],
+		return call_magic(ch, ch, NULL, world[ch->in_room],
 			spell, level, CAST_POTION);
 	}
 	return 1;
@@ -338,19 +338,19 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 	}
 	//Сообщение на случай попытки проглотить ингры
-	if (GET_OBJ_TYPE(temp) == obj_flag_data::ITEM_MING)
+	if (GET_OBJ_TYPE(temp) == OBJ_DATA::ITEM_MING)
 	{
 		send_to_char("Не можешь приготовить - покупай готовое!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_DRINKCON
-		&& GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(temp) != OBJ_DATA::ITEM_DRINKCON
+		&& GET_OBJ_TYPE(temp) != OBJ_DATA::ITEM_FOUNTAIN)
 	{
 		send_to_char("Не стоит. Козлят и так много!\r\n", ch);
 		return;
 	}
 	if (on_ground
-		&& GET_OBJ_TYPE(temp) == obj_flag_data::ITEM_DRINKCON)
+		&& GET_OBJ_TYPE(temp) == OBJ_DATA::ITEM_DRINKCON)
 	{
 		send_to_char("Прежде это стоит поднять.\r\n", ch);
 		return;
@@ -362,7 +362,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 	}
 	// Added by Adept - обкаст если в фонтане или емкости зелье
-	if (is_potion(temp) && temp->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0)
+	if (is_potion(temp) && temp->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0)
 	{
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
@@ -373,13 +373,14 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char(ch, "Вы выпили зелья из %s.\r\n", OBJN(temp, ch, 1));
 		cast_potion(ch, temp);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		GET_OBJ_WEIGHT(temp)--;
+		temp->dec_weight();
 		// все выпито
-		if (--GET_OBJ_VAL(temp, 1) <= 0
-			&& GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_FOUNTAIN)
+		temp->dec_val(1);
+		if (GET_OBJ_VAL(temp, 1) <= 0
+			&& GET_OBJ_TYPE(temp) != OBJ_DATA::ITEM_FOUNTAIN)
 		{
 			name_from_drinkcon(temp);
-			GET_OBJ_SKILL(temp) = SKILL_INVALID;
+			temp->set_skill(SKILL_INVALID);
 			reset_potion_values(temp);
 		}
 		return;
@@ -394,12 +395,20 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if (subcmd == SCMD_DRINK)
 	{
 		if (drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] > 0)
-			if (GET_DRUNK_STATE(ch)<MAX_COND_VALUE && !AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT))
+		{
+			if (GET_DRUNK_STATE(ch) < MAX_COND_VALUE && !AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT))
+			{
 				amount = 24 / drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK];
+			}
 			else
+			{
 				amount = 0;
+			}
+		}
 		else
+		{
 			amount = number(3, 10);
+		}
 	}
 	else
 	{
@@ -436,7 +445,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// You can't subtract more than the object weighs
 	weight = MIN(amount, GET_OBJ_WEIGHT(temp));
 
-	if (GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(temp) != OBJ_DATA::ITEM_FOUNTAIN)
 	{
 		weight_change_object(temp, -weight);	// Subtract amount
 	}
@@ -492,7 +501,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = APPLY_AC;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 			// **** Decrease HR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
@@ -500,7 +509,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = APPLY_HITROLL;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 			// **** Increase DR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
@@ -508,7 +517,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = APPLY_DAMROLL;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		}
 	}
 
@@ -524,26 +533,26 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		af.location = APPLY_STR;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		af.type = SPELL_POISON;
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		ch->Poisoner = 0;
 	}
 
 	// empty the container, and no longer poison. 999 - whole fountain //
-	if (GET_OBJ_TYPE(temp) != obj_flag_data::ITEM_FOUNTAIN
+	if (GET_OBJ_TYPE(temp) != OBJ_DATA::ITEM_FOUNTAIN
 		|| GET_OBJ_VAL(temp, 1) != 999)
 	{
-		GET_OBJ_VAL(temp, 1) -= amount;
+		temp->sub_val(1, amount);
 	}
 	if (!GET_OBJ_VAL(temp, 1))  	// The last bit //
 	{
-		GET_OBJ_VAL(temp, 2) = 0;
-		GET_OBJ_VAL(temp, 3) = 0;
+		temp->set_val(2, 0);
+		temp->set_val(3, 0);
 		name_from_drinkcon(temp);
 	}
 
@@ -589,9 +598,9 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*arg)
 	{
-		for (obj = ch->carrying; obj; obj = obj->next_content)
+		for (obj = ch->carrying; obj; obj = obj->get_next_content())
 		{
-			if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON)
+			if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON)
 			{
 				break;
 			}
@@ -610,17 +619,19 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 		else
+		{
 			on_ground = 1;
+		}
 	}
 
-	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_DRINKCON
-		&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_DRINKCON
+		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_FOUNTAIN)
 	{
 		send_to_char("Этим вы вряд-ли сможете похмелиться.\r\n", ch);
 		return;
 	}
 
-	if (on_ground && (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_DRINKCON))
+	if (on_ground && (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON))
 	{
 		send_to_char("Прежде это стоит поднять.\r\n", ch);
 		return;
@@ -663,18 +674,17 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	amount = MIN(amount, GET_OBJ_VAL(obj, 1));
 	weight = MIN(amount, GET_OBJ_WEIGHT(obj));
 	weight_change_object(obj, -weight);	// Subtract amount //
-	GET_OBJ_VAL(obj, 1) -= amount;
+	obj->sub_val(1, amount);
 	if (!GET_OBJ_VAL(obj, 1))  	// The last bit //
 	{
-		GET_OBJ_VAL(obj, 2) = 0;
-		GET_OBJ_VAL(obj, 3) = 0;
+		obj->set_val(2, 0);
+		obj->set_val(3, 0);
 		name_from_drinkcon(obj);
 	}
 
 	if (percent > prob)
 	{
-		sprintf(buf,
-				"Вы отхлебнули %s из $o1, но ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
+		sprintf(buf, "Вы отхлебнули %s из $o1, но ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", FALSE, ch, 0, 0, TO_ROOM);
 		duration = MAX(1, amount / 3);
@@ -710,15 +720,14 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		for (prob = 0; prob < 3; prob++)
 		{
-			affect_join(ch, &af[prob], TRUE, FALSE, TRUE, FALSE);
+			affect_join(ch, af[prob], TRUE, FALSE, TRUE, FALSE);
 		}
 		gain_condition(ch, DRUNK, amount);
 	}
 	else
 	{
-		sprintf(buf,
-				"Вы отхлебнули %s из $o1 и почувствовали приятную легкость во всем теле...",
-				drinks[GET_OBJ_VAL(obj, 2)]);
+		sprintf(buf, "Вы отхлебнули %s из $o1 и почувствовали приятную легкость во всем теле...",
+			drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		act("$n похмелил$u и расцвел$g прям на глазах.", FALSE, ch, 0, 0, TO_ROOM);
 		affect_from_char(ch, SPELL_ABSTINENT);
@@ -734,12 +743,12 @@ void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
 		// восстановление (красное) //
 	case SPELL_REFRESH:
 	case SPELL_GROUP_REFRESH:
-		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_RED;
+		to_obj->set_val(2, LIQ_POTION_RED);
 		name_to_drinkcon(to_obj, LIQ_POTION_RED);
 		break;
 		// насыщение (синее) //
 	case SPELL_FULL:
-		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_BLUE;
+		to_obj->set_val(2, LIQ_POTION_BLUE);
 		name_to_drinkcon(to_obj, LIQ_POTION_BLUE);
 		break;
 		// детекты (белое) //
@@ -749,14 +758,14 @@ void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
 	case SPELL_DETECT_ALIGN:
 	case SPELL_SENSE_LIFE:
 	case SPELL_INFRAVISION:
-		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_WHITE;
+		to_obj->set_val(2, LIQ_POTION_WHITE);
 		name_to_drinkcon(to_obj, LIQ_POTION_WHITE);
 		break;
 		// защитные (золотистое) //
 	case SPELL_ARMOR:
 	case SPELL_GROUP_ARMOR:
 	case SPELL_CLOUDLY:
-		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_GOLD;
+		to_obj->set_val(2, LIQ_POTION_GOLD);
 		name_to_drinkcon(to_obj, LIQ_POTION_GOLD);
 		break;
 		// восстанавливающие здоровье (черное) //
@@ -765,7 +774,7 @@ void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
 	case SPELL_HEAL:
 	case SPELL_GROUP_HEAL:
 	case SPELL_CURE_SERIOUS:
-		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_BLACK;
+		to_obj->set_val(2, LIQ_POTION_BLACK);
 		name_to_drinkcon(to_obj, LIQ_POTION_BLACK);
 		break;
 		// снимающее вредные аффекты (серое) //
@@ -776,7 +785,7 @@ void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
 	case SPELL_CURE_PLAQUE:
 	case SPELL_REMOVE_DEAFNESS:
 	case SPELL_REMOVE_POISON:
-		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_GREY;
+		to_obj->set_val(2, LIQ_POTION_GREY);
 		name_to_drinkcon(to_obj, LIQ_POTION_GREY);
 		break;
 		// прочие полезности (фиолетовое) //
@@ -794,7 +803,7 @@ void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
 	case SPELL_BLINK:
 	case SPELL_EXTRA_HITS:
 	case SPELL_WATERBREATH:
-		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_FUCHSIA;
+		to_obj->set_val(2, LIQ_POTION_FUCHSIA);
 		name_to_drinkcon(to_obj, LIQ_POTION_FUCHSIA);
 		break;
 	case SPELL_PRISMATICAURA:
@@ -802,11 +811,11 @@ void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
 	case SPELL_AIR_AURA:
 	case SPELL_FIRE_AURA:
 	case SPELL_ICE_AURA:
-		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_PINK;
+		to_obj->set_val(2, LIQ_POTION_PINK);
 		name_to_drinkcon(to_obj, LIQ_POTION_PINK);
 		break;
 	default:
-		GET_OBJ_VAL(to_obj, 2) = LIQ_POTION;
+		to_obj->set_val(2, LIQ_POTION);
 		name_to_drinkcon(to_obj, LIQ_POTION);	// добавляем новый синоним //
 	}
 }
@@ -816,12 +825,12 @@ int check_potion_spell(OBJ_DATA *from_obj, OBJ_DATA *to_obj, int num)
 	const auto spell = init_spell_num(num);
 	const auto level = init_spell_lvl(num);
 
-	if (GET_OBJ_VAL(from_obj, num) != to_obj->values.get(spell))
+	if (GET_OBJ_VAL(from_obj, num) != to_obj->get_value(spell))
 	{
 		// не совпали заклы
 		return 0;
 	}
-	if (GET_OBJ_VAL(from_obj, 0) < to_obj->values.get(level))
+	if (GET_OBJ_VAL(from_obj, 0) < to_obj->get_value(level))
 	{
 		// переливаемое зелье ниже уровня закла в емкости
 		return -1;
@@ -835,8 +844,8 @@ int check_potion_spell(OBJ_DATA *from_obj, OBJ_DATA *to_obj, int num)
 int check_equal_potions(OBJ_DATA *from_obj, OBJ_DATA *to_obj)
 {
 	// емкость с уже перелитым ранее зельем
-	if (to_obj->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
-		&& GET_OBJ_VNUM(from_obj) != to_obj->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM))
+	if (to_obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
+		&& GET_OBJ_VNUM(from_obj) != to_obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM))
 	{
 		return 0;
 	}
@@ -861,12 +870,12 @@ int check_drincon_spell(OBJ_DATA *from_obj, OBJ_DATA *to_obj, int num)
 	const auto spell = init_spell_num(num);
 	const auto level = init_spell_lvl(num);
 
-	if (from_obj->values.get(spell) != to_obj->values.get(spell))
+	if (from_obj->get_value(spell) != to_obj->get_value(spell))
 	{
 		// не совпали заклы
 		return 0;
 	}
-	if (from_obj->values.get(level) < to_obj->values.get(level))
+	if (from_obj->get_value(level) < to_obj->get_value(level))
 	{
 		// переливаемое зелье ниже уровня закла в емкости
 		return -1;
@@ -904,14 +913,14 @@ void spells_to_drinkcon(OBJ_DATA *from_obj, OBJ_DATA *to_obj)
 	{
 		const auto spell = init_spell_num(i);
 		const auto level = init_spell_lvl(i);
-		to_obj->values.set(spell, from_obj->values.get(spell));
-		to_obj->values.set(level, from_obj->values.get(level));
+		to_obj->set_value(spell, from_obj->get_value(spell));
+		to_obj->set_value(level, from_obj->get_value(level));
 	}
 	// сохранение инфы о первоначальном источнике зелья
-	const int proto_vnum = from_obj->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
-		? from_obj->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM)
+	const int proto_vnum = from_obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
+		? from_obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM)
 		: GET_OBJ_VNUM(from_obj);
-	to_obj->values.set(ObjVal::EValueKey::POTION_PROTO_VNUM, proto_vnum);
+	to_obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, proto_vnum);
 }
 
 void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
@@ -935,8 +944,8 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			send_to_char("У вас нет этого!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_DRINKCON
-			&& GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_POTION)
+		if (GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_DRINKCON
+			&& GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_POTION)
 		{
 			send_to_char("Вы не можете из этого переливать!\r\n", ch);
 			return;
@@ -954,7 +963,7 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			send_to_char("У вас этого нет!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(to_obj) != obj_flag_data::ITEM_DRINKCON)
+		if (GET_OBJ_TYPE(to_obj) != OBJ_DATA::ITEM_DRINKCON)
 		{
 			act("Вы не можете наполнить $o3!", FALSE, ch, to_obj, 0, TO_CHAR);
 			return;
@@ -970,7 +979,7 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_FOUNTAIN)
+		if (GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_FOUNTAIN)
 		{
 			act("Вы не сможете ничего наполнить из $o1.", FALSE, ch, from_obj, 0, TO_CHAR);
 			return;
@@ -995,10 +1004,10 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 			weight_change_object(from_obj, -GET_OBJ_VAL(from_obj, 1));	// Empty //
 
-			GET_OBJ_VAL(from_obj, 1) = 0;
-			GET_OBJ_VAL(from_obj, 2) = 0;
-			GET_OBJ_VAL(from_obj, 3) = 0;
-			GET_OBJ_SKILL(from_obj) = SKILL_INVALID;
+			from_obj->set_val(1, 0);
+			from_obj->set_val(2, 0);
+			from_obj->set_val(3, 0);
+			from_obj->set_skill(SKILL_INVALID);
 			name_from_drinkcon(from_obj);
 			reset_potion_values(from_obj);
 
@@ -1009,8 +1018,8 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			send_to_char("Вы не можете этого найти!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(to_obj) != obj_flag_data::ITEM_DRINKCON
-			&& GET_OBJ_TYPE(to_obj) != obj_flag_data::ITEM_FOUNTAIN)
+		if (GET_OBJ_TYPE(to_obj) != OBJ_DATA::ITEM_DRINKCON
+			&& GET_OBJ_TYPE(to_obj) != OBJ_DATA::ITEM_FOUNTAIN)
 		{
 			send_to_char("Вы не сможете в это налить.\r\n", ch);
 			return;
@@ -1023,7 +1032,7 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 
 	if (GET_OBJ_VAL(to_obj, 1) != 0
-		&& GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_POTION
+		&& GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_POTION
 		&& GET_OBJ_VAL(to_obj, 2) != GET_OBJ_VAL(from_obj, 2))
 	{
 		send_to_char("Вы станете неплохим Химиком, но не в нашей игре.\r\n", ch);
@@ -1036,13 +1045,14 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 		if (OBJ_FLAGGED(from_obj, EExtraFlag::ITEM_NOPOUR))
 		{
-			send_to_char(ch,"Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n", GET_OBJ_PNAME(from_obj, 3));
+			send_to_char(ch,"Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n",
+					GET_OBJ_PNAME(from_obj, 3).c_str());
 			return;
 		}
 //Added by Adept - переливание зелья из бутылки или емкости в емкость
 
 	//Переливает из бутылки с зельем в емкость
-	if (GET_OBJ_TYPE(from_obj) == obj_flag_data::ITEM_POTION)
+	if (GET_OBJ_TYPE(from_obj) == OBJ_DATA::ITEM_POTION)
 	{
 		int result = check_equal_potions(from_obj, to_obj);
 		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0)
@@ -1053,7 +1063,7 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				int n2 = GET_OBJ_VAL(to_obj, 1);
 				int t1 = GET_OBJ_VAL(from_obj, 3);
 				int t2 = GET_OBJ_VAL(to_obj, 3);
-				GET_OBJ_VAL(to_obj, 3) = (n1*t1 + n2*t2) / (n1 + n2); //усредним таймер в зависимости от наполненности обоих емкостей
+				to_obj->set_val(3, (n1*t1 + n2*t2) / (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
 //				send_to_char(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 			if (GET_OBJ_VAL(to_obj, 1) == 0)
 			{
@@ -1062,7 +1072,7 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				generate_drinkcon_name(to_obj, GET_OBJ_VAL(from_obj, 1));
 			}
 			weight_change_object(to_obj, 1);
-			GET_OBJ_VAL(to_obj, 1)++;
+			to_obj->inc_val(1);
 			extract_obj(from_obj);
 			return;
 		}
@@ -1080,8 +1090,8 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 
 	//Переливает из емкости или колодца с зельем куда-то
-	if ((GET_OBJ_TYPE(from_obj) == obj_flag_data::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(from_obj) == obj_flag_data::ITEM_FOUNTAIN)
+	if ((GET_OBJ_TYPE(from_obj) == OBJ_DATA::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(from_obj) == OBJ_DATA::ITEM_FOUNTAIN)
 		&& is_potion(from_obj))
 	{
 		if (GET_OBJ_VAL(to_obj, 1) == 0)
@@ -1118,55 +1128,50 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 
 	// копируем тип жидкости //
-	GET_OBJ_VAL(to_obj, 2) = GET_OBJ_VAL(from_obj, 2);
+	to_obj->set_val(2, GET_OBJ_VAL(from_obj, 2));
 
 	int n1 = GET_OBJ_VAL(from_obj, 1);
 	int n2 = GET_OBJ_VAL(to_obj, 1);
 	int t1 = GET_OBJ_VAL(from_obj, 3);
 	int t2 = GET_OBJ_VAL(to_obj, 3);
-	GET_OBJ_VAL(to_obj, 3) = (n1*t1 + n2*t2) / (n1 + n2); //усредним таймер в зависимости от наполненности обоих емкостей
+	to_obj->set_val(3, (n1*t1 + n2*t2) / (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
 //	send_to_char(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 
 	// New alias //
 	if (GET_OBJ_VAL(to_obj, 1) == 0)
 		name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
 	// Then how much to pour //
-	if (GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_FOUNTAIN
+	amount = (GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1));
+	if (GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_FOUNTAIN
 		|| GET_OBJ_VAL(from_obj, 1) != 999)
 	{
-		GET_OBJ_VAL(from_obj, 1) -= (amount = (GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1)));
+		from_obj->sub_val(1, amount);
 	}
-	else
-	{
-		amount = GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1);
-	}
-	GET_OBJ_VAL(to_obj, 1) = GET_OBJ_VAL(to_obj, 0);
+	to_obj->set_val(1, GET_OBJ_VAL(to_obj, 0));
 
 	// Then the poison boogie //
-//	GET_OBJ_VAL(to_obj, 3) = (GET_OBJ_VAL(to_obj, 3)
-//		|| GET_OBJ_VAL(from_obj, 3));
 
 
 	if (GET_OBJ_VAL(from_obj, 1) <= 0)  	// There was too little //
 	{
-		GET_OBJ_VAL(to_obj, 1) += GET_OBJ_VAL(from_obj, 1);
+		to_obj->add_val(1, GET_OBJ_VAL(from_obj, 1));
 		amount += GET_OBJ_VAL(from_obj, 1);
-		GET_OBJ_VAL(from_obj, 1) = 0;
-		GET_OBJ_VAL(from_obj, 2) = 0;
-		GET_OBJ_VAL(from_obj, 3) = 0;
+		from_obj->set_val(1, 0);
+		from_obj->set_val(2, 0);
+		from_obj->set_val(3, 0);
 		name_from_drinkcon(from_obj);
 		reset_potion_values(from_obj);
 	}
 
 	// And the weight boogie //
-	if (GET_OBJ_TYPE(from_obj) != obj_flag_data::ITEM_FOUNTAIN)
+	if (GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_FOUNTAIN)
 	{
 		weight_change_object(from_obj, -amount);
 	}
 	weight_change_object(to_obj, amount);	// Add weight //
 }
 
-size_t find_liquid_name(char * name)
+size_t find_liquid_name(const char * name)
 {
 	std::string tmp = std::string(name);
 	size_t pos, result = std::string::npos;
@@ -1174,7 +1179,9 @@ size_t find_liquid_name(char * name)
 	{
 		pos = tmp.find(drinknames[i]);
 		if (pos != std::string::npos)
+		{
 			result = pos;
+		}
 	}
 	return result;
 }
@@ -1184,34 +1191,27 @@ void name_from_drinkcon(OBJ_DATA * obj)
 	char new_name[MAX_STRING_LENGTH];
 	std::string tmp;
 
-	size_t pos = find_liquid_name(obj->aliases);
+	size_t pos = find_liquid_name(obj->get_aliases().c_str());
 	if (pos == std::string::npos) return;
-	tmp = std::string(obj->aliases).substr(0, pos - 1);
+	tmp = obj->get_aliases().substr(0, pos - 1);
 
 	sprintf(new_name, "%s", tmp.c_str());
-	if (GET_OBJ_RNUM(obj) < 0 || obj->aliases != obj_proto[GET_OBJ_RNUM(obj)]->aliases)
-		free(obj->aliases);
-	obj->aliases = str_dup(new_name);
+	obj->set_aliases(new_name);
 
-	pos = find_liquid_name(obj->short_description);
+	pos = find_liquid_name(obj->get_short_description().c_str());
 	if (pos == std::string::npos) return;
-	tmp = std::string(obj->short_description).substr(0, pos - 3);
+	tmp = obj->get_short_description().substr(0, pos - 3);
 
 	sprintf(new_name, "%s", tmp.c_str());
-	if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)
-		free(obj->short_description);
-	obj->short_description = str_dup(new_name);
-
+	obj->set_short_description(new_name);
 
 	for (int c = 0; c < OBJ_DATA::NUM_PADS; c++)
 	{
-		pos = find_liquid_name(obj->PNames[c]);
+		pos = find_liquid_name(obj->get_PName(c).c_str());
 		if (pos == std::string::npos) return;
-		tmp = std::string(obj->PNames[c]).substr(0, pos - 3);
+		tmp = obj->get_PName(c).substr(0, pos - 3);
 		sprintf(new_name, "%s", tmp.c_str());
-		if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])
-			free(obj->PNames[c]);
-		obj->PNames[c] = str_dup(new_name);
+		obj->set_PName(c, new_name);
 	}
 }
 
@@ -1220,23 +1220,16 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 	int c;
 	char new_name[MAX_INPUT_LENGTH];
 
-	sprintf(new_name, "%s %s", obj->aliases, drinknames[type]);
-	if (GET_OBJ_RNUM(obj) < 0 || obj->aliases != obj_proto[GET_OBJ_RNUM(obj)]->aliases)
-		free(obj->aliases);
-	obj->aliases = str_dup(new_name);
+	sprintf(new_name, "%s %s", obj->get_aliases().c_str(), drinknames[type]);
+	obj->set_aliases(new_name);
 
-	sprintf(new_name, "%s с %s", obj->short_description, drinknames[type]);
-	if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)
-		free(obj->short_description);
-	obj->short_description = str_dup(new_name);
-
+	sprintf(new_name, "%s с %s", obj->get_short_description().c_str(), drinknames[type]);
+	obj->set_short_description(new_name);
 
 	for (c = 0; c < OBJ_DATA::NUM_PADS; c++)
 	{
-		sprintf(new_name, "%s с %s", obj->PNames[c], drinknames[type]);
-		if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])
-			free(obj->PNames[c]);
-		obj->PNames[c] = str_dup(new_name);
+		sprintf(new_name, "%s с %s", obj->get_PName(c).c_str(), drinknames[type]);
+		obj->set_PName(c, new_name);
 	}
 }
 
@@ -1256,15 +1249,15 @@ void set_abstinent(CHAR_DATA *ch)
 
 	af.location = APPLY_AC;
 	af.modifier = 20;
-	affect_join(ch, &af, 0,0,0,0);
+	affect_join(ch, af, 0,0,0,0);
 
 	af.location = APPLY_HITROLL;
 	af.modifier = -2;
-	affect_join(ch, &af, 0,0,0,0);
+	affect_join(ch, af, 0,0,0,0);
 
 	af.location = APPLY_DAMROLL;
 	af.modifier = -2;
-	affect_join(ch, &af, 0,0,0,0);
+	affect_join(ch, af, 0,0,0,0);
 
 }
 
@@ -1273,7 +1266,7 @@ std::string print_spell(CHAR_DATA *ch, const OBJ_DATA *obj, int num)
 	const auto spell = init_spell_num(num);
 	const auto level = init_spell_lvl(num);
 
-	if (obj->values.get(spell) == -1)
+	if (obj->get_value(spell) == -1)
 	{
 		return "";
 	}
@@ -1281,7 +1274,8 @@ std::string print_spell(CHAR_DATA *ch, const OBJ_DATA *obj, int num)
 	char buf_[MAX_INPUT_LENGTH];
 	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
 		CCCYN(ch, C_NRM),
-		spell_name(obj->values.get(spell)), obj->values.get(level),
+		spell_name(obj->get_value(spell)),
+		obj->get_value(level),
 		CCNRM(ch, C_NRM));
 
 	return buf_;
@@ -1302,15 +1296,13 @@ std::string print_spells(CHAR_DATA *ch, const OBJ_DATA *obj)
 
 	if (!out.empty() && !is_potion(obj))
 	{
-		snprintf(buf_, sizeof(buf_),
-			"%sВНИМАНИЕ%s: тип жидкости не является зельем\r\n",
+		snprintf(buf_, sizeof(buf_), "%sВНИМАНИЕ%s: тип жидкости не является зельем\r\n",
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		out += buf_;
 	}
 	else if (out.empty() && is_potion(obj))
 	{
-		snprintf(buf_, sizeof(buf_),
-			"%sВНИМАНИЕ%s: у данного зелья отсутствуют заклинания\r\n",
+		snprintf(buf_, sizeof(buf_), "%sВНИМАНИЕ%s: у данного зелья отсутствуют заклинания\r\n",
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		out += buf_;
 	}
@@ -1333,16 +1325,15 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 	if (GET_OBJ_VAL(obj, 1) > 0)
 	{
 		// есть какие-то заклы
-		if (obj->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0)
+		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0)
 		{
 			if (IS_IMMORTAL(ch))
 			{
-				snprintf(buf_, sizeof(buf_),
-					"Содержит %d %s %s (VNUM: %d).\r\n",
+				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s (VNUM: %d).\r\n",
 					GET_OBJ_VAL(obj, 1),
 					desc_count(GET_OBJ_VAL(obj, 1), WHAT_GULP),
 					drinks[GET_OBJ_VAL(obj, 2)],
-					obj->values.get(ObjVal::EValueKey::POTION_PROTO_VNUM));
+					obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM));
 			}
 			else
 			{

@@ -74,15 +74,11 @@ const unsigned TOTAL_TYPES = 3;
 
 // done
 typedef struct index_data INDEX_DATA;
-typedef struct script_data SCRIPT_DATA;
-
-typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
-typedef struct extra_descr_data EXTRA_DESCR_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
-typedef struct trig_data TRIG_DATA;
+class TRIG_DATA;
 
 // preamble ************************************************************
 
@@ -1254,6 +1250,8 @@ typedef int zone_rnum;	// A zone's real (array index) number. //
 */
 void asciiflag_conv(const char *flag, void *to);
 
+int ext_search_block(const char *arg, const char * const * const list, int exact);
+
 class FLAG_DATA
 {
 public:
@@ -1293,6 +1291,9 @@ public:
 	void tascii(int num_planes, char* ascii) const;
 	bool sprintbits(const char *names[], char *result, const char *div, const int print_flag) const;
 	bool sprintbits(const char *names[], char *result, const char *div) const { return sprintbits(names, result, div, 0); };
+
+	/// Изменение указанного флага
+	void gm_flag(const char *subfield, const char * const * const list, char *res);
 
 protected:
 	boost::array<uint32_t, PLANES_NUMBER> m_flags;
@@ -1369,11 +1370,15 @@ inline int flag_data_by_num(const int& num)
 }
 
 // Extra description: used in objects, mobiles, and rooms //
-struct extra_descr_data
+struct EXTRA_DESCR_DATA
 {
+	using shared_ptr = std::shared_ptr<EXTRA_DESCR_DATA>;
+	EXTRA_DESCR_DATA() : keyword(nullptr), description(nullptr), next(nullptr) {}
+	~EXTRA_DESCR_DATA();
+
 	char *keyword;		// Keyword in look/examine          //
 	char *description;	// What to see                      //
-	EXTRA_DESCR_DATA *next;	// Next in list                     //
+	shared_ptr next;	// Next in list                     //
 };
 
 // header block for rent files.  BEWARE: Changing it will ruin rent files  //
@@ -1471,11 +1476,14 @@ public:
 class IAffectHandler;
 
 template<typename TLocation>
-struct AFFECT_DATA
+class AFFECT_DATA
 {
+public:
+	using shared_ptr = std::shared_ptr<AFFECT_DATA<TLocation>>;
+
 	AFFECT_DATA() : type(0), duration(0), modifier(0), location(static_cast<TLocation>(0)),
 		battleflag(0), bitvector(0), caster_id(0), must_handled(0),
-		apply_time(0), next(nullptr) {};
+		apply_time(0) {};
 
 	sh_int type;		// The type of spell that caused this      //
 	int duration;	// For how long its effects will last      //
@@ -1484,14 +1492,10 @@ struct AFFECT_DATA
 	long battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
 	FLAG_DATA aff;
 	uint32_t bitvector;		// Tells which bits to set (AFF_XXX) //
-	long
-	caster_id; //Unique caster ID //
-	bool
-	must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
-	sh_int
-	apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
-	AFFECT_DATA<TLocation> *next;
-	boost::shared_ptr<IAffectHandler> handler; //обработчик аффектов
+	long caster_id; //Unique caster ID //
+	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
+	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
+	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 };
 
 struct timed_type
@@ -1612,6 +1616,46 @@ class Board;
 struct z_stream;
 #endif
 
+class CAbstractWriter
+{
+public:
+	virtual ~CAbstractWriter() {}
+	virtual const char* get_string() const = 0;
+	virtual void set_string(const char* data) = 0;
+	virtual void append_string(const char* data) = 0;
+	virtual size_t length() const = 0;
+	virtual void clear() = 0;
+};
+
+using string_writer_t = std::shared_ptr<CAbstractWriter>;
+
+class CDelegatedStringWriter: public CAbstractWriter
+{
+public:
+	CDelegatedStringWriter(char*& managed) : m_delegated_string(managed) {}
+	virtual const char* get_string() const override { return m_delegated_string; }
+	virtual void set_string(const char* string) override;
+	virtual void append_string(const char* string) override;
+	virtual size_t length() const override { return m_delegated_string ? strlen(m_delegated_string) : 0; }
+	virtual void clear() override;
+
+private:
+	char*& m_delegated_string;
+};
+
+class CStringWriter : public CAbstractWriter
+{
+public:
+	virtual const char* get_string() const override { return m_string.c_str(); }
+	virtual void set_string(const char* string) override { m_string = string; }
+	virtual void append_string(const char* string) override { m_string += string; }
+	virtual size_t length() const override { return m_string.length(); }
+	virtual void clear() override { m_string.clear(); }
+
+private:
+	std::string m_string;
+};
+
 struct DESCRIPTOR_DATA
 {
 	DESCRIPTOR_DATA() : bad_pws(0),
@@ -1624,7 +1668,6 @@ struct DESCRIPTOR_DATA
 		showstr_vector(0),
 		showstr_count(0),
 		showstr_page(0),
-		str(0),
 		max_str(0),
 		backstr(0),
 		mail_to(0),
@@ -1677,7 +1720,7 @@ struct DESCRIPTOR_DATA
 	char **showstr_vector;	// for paging through texts      //
 	int showstr_count;		// number of pages to page through  //
 	int showstr_page;		// which page are we currently showing?   //
-	char **str;		// for the modify-str system     //
+	string_writer_t writer;		// for the modify-str system     //
 	size_t max_str;		//      -        //
 	char *backstr;		// added for handling abort buffers //
 	int mail_to;		// uid for mail system
@@ -1964,7 +2007,6 @@ struct title_type
 	int exp;
 };
 
-// element in monster and object index-tables   //
 struct index_data
 {
 	index_data() : vnum(0), number(0), stored(0), func(NULL), farg(NULL), proto(NULL), zone(0), set_idx(-1) {}
@@ -1973,9 +2015,9 @@ struct index_data
 	int vnum;			// virtual number of this mob/obj       //
 	int number;		// number of existing units of this mob/obj //
 	int stored;		// number of things in rent file            //
-	int (*func)(CHAR_DATA*, void*, int, char*);
+	int(*func)(CHAR_DATA*, void*, int, char*);
 	char *farg;		// string argument for special function     //
-	struct trig_data *proto;	// for triggers... the trigger     //
+	TRIG_DATA *proto;	// for triggers... the trigger     //
 	int zone;			// mob/obj zone rnum //
 	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 };

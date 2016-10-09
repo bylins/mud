@@ -15,7 +15,7 @@
 
 #include "interpreter.h"
 
-#include "craft.hpp"
+#include "craft_commands.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "constants.h"
@@ -96,7 +96,6 @@ extern const char *MENU;
 extern const char *WELC_MESSG;
 extern const char *START_MESSG;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern int top_of_p_table;
 extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
@@ -299,6 +298,7 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_fry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_switch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -673,6 +673,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"подкрасться", POS_STANDING, do_sneak, 1, 0, 500},
 	{"подножка", POS_FIGHTING, do_chopoff, 0, 0, 500},
 	{"подняться", POS_RESTING, do_stand, 0, 0, -1},
+	{"поджарить", POS_RESTING, do_fry, 0, 0, -1},
 	{"перевязать", POS_RESTING, do_bandage, 0, 0, 0},
 	{"переделать", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
 	{"подсмотреть", POS_RESTING, do_look, 0, SCMD_LOOK_HIDE, 0},
@@ -1207,9 +1208,9 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		return;
 	if (!IS_NPC(ch))
 	{
-		log("<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
+		log("<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 		if (GET_LEVEL(ch) >= LVL_IMMORT || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
-			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
+			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 	}
 
 	//Polud спешиал для спешиалов добавим обработку числового префикса перед именем команды
@@ -1356,7 +1357,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		{
 			return;
 		}
-		if (!IS_NPC(ch) && IN_ROOM(ch) != NOWHERE && CHECK_AGRO(ch))
+		if (!IS_NPC(ch) && ch->in_room != NOWHERE && CHECK_AGRO(ch))
 		{
 			CHECK_AGRO(ch) = FALSE;
 			do_aggressive_room(ch, FALSE);
@@ -1783,62 +1784,59 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 	}
 
 	// special in inventory? //
-	for (i = ch->carrying; i; i = i->next_content)
-		if (GET_OBJ_SPEC(i) != NULL)
-			if (GET_OBJ_SPEC(i)(ch, i, cmd, arg))
-			{
-				check_hiding_cmd(ch, -1);
-				return (1);
-			}
+	for (i = ch->carrying; i; i = i->get_next_content())
+	{
+		if (GET_OBJ_SPEC(i) != NULL
+			&& GET_OBJ_SPEC(i)(ch, i, cmd, arg))
+		{
+			check_hiding_cmd(ch, -1);
+			return (1);
+		}
+	}
 
 	// special in mobile present? //
 //Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру
 	int specialNum = 1; //если номер не указан - по умолчанию берется первый
 	for (k = world[ch->in_room]->people; k; k = k->next_in_room)
 	{
-		if (GET_MOB_SPEC(k) != NULL && (fnum == 1 || fnum == specialNum++))
+		if (GET_MOB_SPEC(k) != NULL
+			&& (fnum == 1
+				|| fnum == specialNum++)
+			&& GET_MOB_SPEC(k)(ch, k, cmd, arg))
 		{
-			if (GET_MOB_SPEC(k)(ch, k, cmd, arg))
-			{
-				check_hiding_cmd(ch, -1);
-				return (1);
-			}
+			check_hiding_cmd(ch, -1);
+			return (1);
 		}
 	}
 
 	// special in object present? //
-	for (i = world[ch->in_room]->contents; i; i = i->next_content)
+	for (i = world[ch->in_room]->contents; i; i = i->get_next_content())
 	{
 		auto spec = GET_OBJ_SPEC(i);
-		if (spec != NULL)
+		if (spec != NULL
+			&& spec(ch, i, cmd, arg))
 		{
-			if (spec(ch, i, cmd, arg))
-			{
-				check_hiding_cmd(ch, -1);
-				return (1);
-			}
+			check_hiding_cmd(ch, -1);
+			return (1);
 		}
 	}
 
 	return (0);
 }
 
-
-
 // **************************************************************************
 // *  Stuff for controlling the non-playing sockets (get name, pwd etc)     *
 // **************************************************************************
 
-
 // locate entry in p_table with entry->name == name. -1 mrks failed search
 int find_name(const char *name)
 {
-	int i;
-
-	for (i = 0; i <= top_of_p_table; i++)
+	for (int i = 0; i <= top_of_p_table; i++)
 	{
 		if (!str_cmp((player_table + i)->name, name))
+		{
 			return (i);
+		}
 	}
 
 	return (-1);
@@ -1850,11 +1848,20 @@ int _parse_name(char *arg, char *name)
 
 	// skip whitespaces
 	for (i = 0; (*name = (i ? LOWER(*arg) : UPPER(*arg))); arg++, i++, name++)
-		if (*arg == 'ё' || *arg == 'Ё' || !a_isalpha(*arg) || *arg > 0)
+	{
+		if (*arg == 'ё'
+			|| *arg == 'Ё'
+			|| !a_isalpha(*arg)
+			|| *arg > 0)
+		{
 			return (1);
+		}
+	}
 
 	if (!i)
+	{
 		return (1);
+	}
 
 	return (0);
 }
@@ -3508,7 +3515,7 @@ Sventovit
 			SEND_TO_Q
 			("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
 			SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
-			d->str = &d->character->player_data.description;
+			d->writer.reset(new CDelegatedStringWriter(d->character->player_data.description));
 			d->max_str = EXDSCR_LENGTH;
 			STATE(d) = CON_EXDESC;
 			break;

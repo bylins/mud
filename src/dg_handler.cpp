@@ -40,7 +40,6 @@ void free_trigger(TRIG_DATA * trig)
 	trig_data_free(trig);
 }
 
-
 // remove a single trigger from a mob/obj/room 
 void extract_trigger(TRIG_DATA * trig)
 {
@@ -52,7 +51,7 @@ void extract_trigger(TRIG_DATA * trig)
 		GET_TRIG_WAIT(trig) = NULL;
 	}
 
-	trig_index[trig->nr]->number--;
+	trig_index[trig->get_rnum()]->number--;
 
 	// walk the trigger list and remove this one 
 	REMOVE_FROM_LIST(trig, trigger_list, [](auto list) -> auto& { return list->next_in_world; });
@@ -63,9 +62,9 @@ void extract_trigger(TRIG_DATA * trig)
 // remove all triggers from a mob/obj/room 
 void extract_script(SCRIPT_DATA * sc)
 {
-	TRIG_DATA *trig, *next_trig;
+	TRIG_DATA* next_trig;
 
-	for (trig = TRIGGERS(sc); trig; trig = next_trig)
+	for (auto trig = TRIGGERS(sc); trig; trig = next_trig)
 	{
 		next_trig = trig->next;
 		extract_trigger(trig);

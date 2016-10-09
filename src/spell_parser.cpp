@@ -1778,42 +1778,63 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		}
 	}
 
-	if (tch != NULL && IN_ROOM(tch) == IN_ROOM(ch))
+	if (tch != NULL && IN_ROOM(tch) == ch->in_room)
 	{
 		if (tch == ch)
+		{
 			format = say_to_self;
+		}
 		else
+		{
 			format = say_to_other;
+		}
 	}
-	else if (tobj != NULL && (IN_ROOM(tobj) == IN_ROOM(ch) || tobj->carried_by == ch))
+	else if (tobj != NULL && (tobj->get_in_room() == ch->in_room || tobj->get_carried_by() == ch))
+	{
 		format = say_to_obj_vis;
+	}
 	else
+	{
 		format = say_to_something;
+	}
 
 	sprintf(buf1, format, spell_name(spellnum));
 	sprintf(buf2, format, buf);
 
-	for (i = world[IN_ROOM(ch)]->people; i; i = i->next_in_room)
+	for (i = world[ch->in_room]->people; i; i = i->next_in_room)
 	{
 		if (i == ch || i == tch || !i->desc || !AWAKE(i)
 				|| AFF_FLAGGED(i, EAffectFlag::AFF_DEAFNESS))
+		{
 			continue;
+		}
+
 		if (IS_SET(GET_SPELL_TYPE(i, spellnum), SPELL_KNOW))
+		{
 			perform_act(buf1, ch, tobj, tch, i);
+		}
 		else
+		{
 			perform_act(buf2, ch, tobj, tch, i);
+		}
 	}
 	act(buf1, 1, ch, tobj, tch, TO_ARENA_LISTEN);
 
-	if (tch != NULL && tch != ch && IN_ROOM(tch) == IN_ROOM(ch)
-			&& !AFF_FLAGGED(tch, EAffectFlag::AFF_DEAFNESS))
+	if (tch != NULL
+		&& tch != ch
+		&& IN_ROOM(tch) == ch->in_room
+		&& !AFF_FLAGGED(tch, EAffectFlag::AFF_DEAFNESS))
 	{
 		if (SpINFO.violent)
+		{
 			sprintf(buf1, damagee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spellnum), SPELL_KNOW) ? spell_name(spellnum) : buf);
+				IS_SET(GET_SPELL_TYPE(tch, spellnum), SPELL_KNOW) ? spell_name(spellnum) : buf);
+		}
 		else
+		{
 			sprintf(buf1, helpee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spellnum), SPELL_KNOW) ? spell_name(spellnum) : buf);
+				IS_SET(GET_SPELL_TYPE(tch, spellnum), SPELL_KNOW) ? spell_name(spellnum) : buf);
+		}
 		act(buf1, FALSE, ch, NULL, tch, TO_VICT);
 	}
 }
@@ -2291,7 +2312,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 {
 	*tch = NULL;
 	*tobj = NULL;
-	*troom = world[IN_ROOM(ch)];
+	*troom = world[ch->in_room];
 	if (spellnum == SPELL_CONTROL_WEATHER)
 	{
 		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0)
@@ -2358,7 +2379,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 		}
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_ROOM))
-			if ((*tobj = get_obj_in_list_vis(ch, t, world[IN_ROOM(ch)]->contents)) != NULL)
+			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != NULL)
 				return TRUE;
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD))
@@ -2416,7 +2437,7 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 {
 	*tch = NULL;
 	*tobj = NULL;
-	*troom = world[IN_ROOM(ch)];
+	*troom = world[ch->in_room];
 
 	if (spellnum == SPELL_CONTROL_WEATHER)
 	{
@@ -2480,7 +2501,7 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 		{
 			int i;
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->aliases))
+				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->get_aliases()))
 				{
 					*tobj = GET_EQ(ch, i);
 					return TRUE;
@@ -2488,7 +2509,7 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 		}
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_ROOM))
-			if ((*tobj = get_obj_in_list_vis(ch, t, world[IN_ROOM(ch)]->contents)) != NULL)
+			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != NULL)
 				return TRUE;
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD))
@@ -2540,17 +2561,17 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0)
 	{
-		if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_STAFF)
+		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_STAFF)
 		{
 			level = DEFAULT_STAFF_LVL;
 		}
-		else if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WAND)
+		else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WAND)
 		{
 			level = DEFAULT_WAND_LVL;
 		}
 	}
 
-	if (obj->get_extraflag(EExtraFlag::ITEM_TIMEDLVL))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_TIMEDLVL))
 	{
 		int proto_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 		if (proto_timer != 0)
@@ -2561,19 +2582,19 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case obj_flag_data::ITEM_STAFF:
-		if (obj->action_description)
+	case OBJ_DATA::ITEM_STAFF:
+		if (!obj->get_action_description().empty())
 		{
-			act(obj->action_description, FALSE, ch, obj, 0, TO_CHAR);
+			act(obj->get_action_description().c_str(), FALSE, ch, obj, 0, TO_CHAR);
 		}
 		else
 		{
 			act("Вы ударили $o4 о землю.", FALSE, ch, obj, 0, TO_CHAR);
 		}
 
-		if (obj->action_description)
+		if (!obj->get_action_description().empty())
 		{
-			act(obj->action_description, FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act(obj->get_action_description().c_str(), FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		else
 		{
@@ -2587,7 +2608,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		}
 		else
 		{
-			GET_OBJ_VAL(obj, 2)--;
+			obj->dec_val(2);
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 
 			/*
@@ -2598,24 +2619,26 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			 */
 			if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), MAG_MASSES | MAG_AREAS))
 			{
-				/*for (i = 0, tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+				/*for (i = 0, tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 					i++;
 				while (i-- > 0) */
-                call_magic(ch, NULL, NULL, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
+                call_magic(ch, NULL, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
 			}
 			else
 			{
-				for (tch = world[IN_ROOM(ch)]->people; tch; tch = next_tch)
+				for (tch = world[ch->in_room]->people; tch; tch = next_tch)
 				{
 					next_tch = tch->next_in_room;
 					if (ch != tch)
-						call_magic(ch, tch, NULL, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
+					{
+						call_magic(ch, tch, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
+					}
 				}
 			}
 		}
 		break;
 
-	case obj_flag_data::ITEM_WAND:
+	case OBJ_DATA::ITEM_WAND:
 		spellnum = GET_OBJ_VAL(obj, 3);
 
 		if (GET_OBJ_VAL(obj, 2) <= 0)
@@ -2639,56 +2662,92 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		{
 			if (IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, MAG_AREAS | MAG_MASSES))  	// Wands with area spells don't need to be pointed.
 			{
-				if (obj->action_description)
-					act(obj->action_description, FALSE, ch, obj, tch, TO_CHAR);
+				if (!obj->get_action_description().empty())
+				{
+					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
+				}
 				else
+				{
 					act("Вы обвели $o4 вокруг комнаты.", FALSE, ch, obj, NULL, TO_CHAR);
-				if (obj->action_description)
-					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+				}
+
+				if (!obj->get_action_description().empty())
+				{
+					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+				}
 				else
+				{
 					act("$n обвел$g $o4 вокруг комнаты.", TRUE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+				}
 			}
 			else if (tch == ch)
 			{
-				if (obj->action_description)
-					act(obj->action_description, FALSE, ch, obj, tch, TO_CHAR);
+				if (!obj->get_action_description().empty())
+				{
+					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
+				}
 				else
+				{
 					act("Вы указали $o4 на себя.", FALSE, ch, obj, 0, TO_CHAR);
-				if (obj->action_description)
-					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+				}
+
+				if (!obj->get_action_description().empty())
+				{
+					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+				}
 				else
+				{
 					act("$n указал$g $o4 на себя.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+				}
 			}
 			else
 			{
-				if (obj->action_description)
-					act(obj->action_description, FALSE, ch, obj, tch, TO_CHAR);
+				if (!obj->get_action_description().empty())
+				{
+					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
+				}
 				else
+				{
 					act("Вы ткнули $o4 в $N3.", FALSE, ch, obj, tch, TO_CHAR);
-				if (obj->action_description)
-					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+				}
+
+				if (!obj->get_action_description().empty())
+				{
+					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+				}
 				else
+				{
 					act("$n ткнул$g $o4 в $N3.", TRUE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+				}
 			}
 		}
 		else if (tobj)
 		{
-			if (obj->action_description)
-				act(obj->action_description, FALSE, ch, obj, tobj, TO_CHAR);
+			if (!obj->get_action_description().empty())
+			{
+				act(obj->get_action_description().c_str(), FALSE, ch, obj, tobj, TO_CHAR);
+			}
 			else
+			{
 				act("Вы прикоснулись $o4 к $O2.", FALSE, ch, obj, tobj, TO_CHAR);
-			if (obj->action_description)
-				act(obj->action_description, FALSE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
+			}
+
+			if (!obj->get_action_description().empty())
+			{
+				act(obj->get_action_description().c_str(), FALSE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
+			}
 			else
+			{
 				act("$n прикоснул$u $o4 к $O2.", TRUE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
+			}
 		}
 
-		GET_OBJ_VAL(obj, 2)--;
+		obj->dec_val(2);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		call_magic(ch, tch, tobj, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, 3), level, CAST_WAND);
+		call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_WAND);
 		break;
 
-	case obj_flag_data::ITEM_SCROLL:
+	case OBJ_DATA::ITEM_SCROLL:
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
 			send_to_char("Вы немы, как рыба.\r\n", ch);
@@ -2706,25 +2765,40 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom))
 			return;
 
-		if (obj->action_description)
-			act(obj->action_description, FALSE, ch, obj, NULL, TO_CHAR);
+		if (!obj->get_action_description().empty())
+		{
+			act(obj->get_action_description().c_str(), FALSE, ch, obj, NULL, TO_CHAR);
+		}
 		else
+		{
 			act("Вы зачитали $o3, котор$W рассыпался в прах.", TRUE, ch, obj, 0, TO_CHAR);
-		if (obj->action_description)
-			act(obj->action_description, FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+		}
+
+		if (!obj->get_action_description().empty())
+		{
+			act(obj->get_action_description().c_str(), FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+		}
 		else
+		{
 			act("$n зачитал$g $o3.", FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+		}
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		for (i = 1; i <= 3; i++)
-			if (call_magic(ch, tch, tobj, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, i), level, CAST_SCROLL) <= 0)
+		{
+			if (call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, i), level, CAST_SCROLL) <= 0)
+			{
 				break;
+			}
+		}
 
 		if (obj != NULL)
+		{
 			extract_obj(obj);
+		}
 		break;
 
-	case obj_flag_data::ITEM_POTION:
+	case OBJ_DATA::ITEM_POTION:
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
 			send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
@@ -2732,15 +2806,19 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		}
 		tch = ch;
 		act("Вы осушили $o3.", FALSE, ch, obj, NULL, TO_CHAR);
-		if (obj->action_description)
-			act(obj->action_description, FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+		if (!obj->get_action_description().empty())
+		{
+			act(obj->get_action_description().c_str(), FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+		}
 		else
+		{
 			act("$n осушил$g $o3.", TRUE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+		}
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		for (i = 1; i <= 3; i++)
 		{
-			if (call_magic(ch, ch, NULL, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, i), level, CAST_POTION) <= 0)
+			if (call_magic(ch, ch, NULL, world[ch->in_room], GET_OBJ_VAL(obj, i), level, CAST_POTION) <= 0)
 			{
 				break;
 			}
@@ -2786,10 +2864,11 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			return (0);
 		}
 	}
+
 	if (!troom)
 	{
 		// Вызвали с пустой комнатой значит будем кастить тут
-		troom = world[IN_ROOM(ch)];
+		troom = world[ch->in_room];
 	}
 
 	if (GET_POS(ch) < SpINFO.min_position)
@@ -2842,7 +2921,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 
 	// add by Pereplut: если цель уйдет из клетки в случае кастинга в бою (с лагом) - то
 	// не будет кастоваться на соседние клетки, в случае если закл не глобальный
-	if (tch && ch && IN_ROOM(tch) != IN_ROOM(ch))
+	if (tch && ch && IN_ROOM(tch) != ch->in_room)
 	{
 		if (!IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
 		{
@@ -2929,7 +3008,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			REMOVE_BIT(GET_SPELL_TYPE(ch, spell_subst), SPELL_TEMP);
 		/*log("[CAST_SPELL->AFFECT_TOTAL] Start <%s(%d)> <%s(%d)> <%s> <%d>",
 		   GET_NAME(ch),
-		   IN_ROOM(ch),
+		   ch->in_room,
 		   tch  ? GET_NAME(tch)   : "-",
 		   tch  ? IN_ROOM(tch)    : -2,
 		   tobj ? tobj->PNames[0] : "-",
@@ -2959,10 +3038,10 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 	case SAVING_NONE:
 		prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
 
-		if ((IS_MAGE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MAGE))
-			|| (IS_CLERIC(ch) && IN_ROOM(ch) != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_CLERIC))
-			|| (IS_PALADINE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PALADINE))
-			|| (IS_MERCHANT(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MERCHANT)))
+		if ((IS_MAGE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_MAGE))
+			|| (IS_CLERIC(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC))
+			|| (IS_PALADINE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_PALADINE))
+			|| (IS_MERCHANT(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT)))
 		{
 			prob += 10;
 		}
@@ -3020,7 +3099,6 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	CHAR_DATA *tch;
 	OBJ_DATA *tobj;
 	ROOM_DATA *troom;
-	AFFECT_DATA<EApplyLocation> *aff;
 
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;
@@ -3034,16 +3112,19 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		return;
 	}
 
-	if (ch->affected)
+	if (!ch->affected.empty())
 	{
-		for (aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
-			if ((aff->location == APPLY_PLAQUE) && (number (1,100) <10)) // лихорадка 10% фэйл закла
+			if (aff->location == APPLY_PLAQUE
+				&& number(1, 100) < 10) // лихорадка 10% фэйл закла
 			{
 				send_to_char("Вас трясет лихорадка, вы не смогли сконцентрироваться на произнесении заклинания.\r\n", ch);
 				return;
 			}
-			if ((aff->location == APPLY_MADNESS) && (number (1,100) <20)) // безумие 20% фэйл закла
+
+			if (aff->location == APPLY_MADNESS
+				&& number(1, 100) < 20) // безумие 20% фэйл закла
 			{
 				send_to_char("Начав безумно кричать, вы забыли, что хотели произнести.\r\n", ch);
 				return;
@@ -3473,7 +3554,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		else  	// call magic returns 1 on success; set waitstate
 		{
-			if (call_magic(ch, tch, tobj, world[IN_ROOM(ch)], spellnum, GET_LEVEL(ch),
+			if (call_magic(ch, tch, tobj, world[ch->in_room], spellnum, GET_LEVEL(ch),
 						   subcmd == SCMD_ITEMS ? CAST_ITEMS : CAST_RUNES) >= 0)
 			{
 				if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
@@ -3592,12 +3673,11 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	send_to_char(ch,
-			"Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
-			obj->PNames[3]);
+	send_to_char(ch, "Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
+		obj->get_PName(3).c_str());
 	act("$n с интересом принял$g читать $o3.\r\n"
-			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-			FALSE, ch, obj, 0, TO_ROOM);
+		"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
+		FALSE, ch, obj, 0, TO_ROOM);
 }
 
 void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
@@ -3652,7 +3732,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_BOOK)
+	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK)
 	{
 		act("Вы уставились на $o3, как баран на новые ворота.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n начал$g внимательно изучать устройство $o1.", FALSE, ch, obj, 0, TO_ROOM);
@@ -3753,17 +3833,19 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		spellname = feat_info[spellnum].name;
 	}
 
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && ch->get_skill(static_cast<ESkill>(spellnum))) ||
-			(GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_SPELL_TYPE(ch, spellnum) & SPELL_KNOW) ||
-			(GET_OBJ_VAL(obj, 0) == BOOK_FEAT && HAVE_FEAT(ch, spellnum)) ||
-			(GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rs))
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && ch->get_skill(static_cast<ESkill>(spellnum)))
+		|| (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_SPELL_TYPE(ch, spellnum) & SPELL_KNOW)
+		|| (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && HAVE_FEAT(ch, spellnum))
+		|| (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rs))
 	{
 		sprintf(buf, "Вы открыли %s и принялись с интересом\r\n"
-				"изучать. Каким же было разочарование, когда прочитав %s,\r\n"
-				"Вы поняли, что это %s \"%s\".\r\n",
-				obj->PNames[3],
-				number(0, 1) ? "несколько абзацев" :
-				number(0, 1) ? "пару строк" : "почти до конца", stype1[GET_OBJ_VAL(obj, 0)], spellname);
+			"изучать. Каким же было разочарование, когда прочитав %s,\r\n"
+			"Вы поняли, что это %s \"%s\".\r\n",
+			obj->get_PName(3).c_str(),
+			number(0, 1) ? "несколько абзацев" :
+			number(0, 1) ? "пару строк" : "почти до конца",
+			stype1[GET_OBJ_VAL(obj, 0)],
+			spellname);
 		send_to_char(buf, ch);
 		act("$n с интересом принял$g читать $o3.\r\n"
 			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
@@ -3794,51 +3876,55 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	{
 		const char* where = number(0, 1) ? "вон та" : (number(0, 1) ? "вот эта" : "пятая справа");
 		const char* what = number(0, 1) ? "жука" : (number(0, 1) ? "бабочку" : "русалку");
-		const char* whom = obj->obj_flags.Obj_sex == ESex::SEX_FEMALE ? "нее" : (obj->obj_flags.Obj_sex == ESex::SEX_POLY ? "них" : "него");
+		const char* whom = obj->get_sex() == ESex::SEX_FEMALE ? "нее" : (obj->get_sex() == ESex::SEX_POLY ? "них" : "него");
 		sprintf(buf,
 			"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
 			"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"
 			"долга закрыли %s. До %s вы еще не доросли.\r\n",
-			where, what, obj->PNames[3], whom);
+			where, what, obj->get_PName(3).c_str(), whom);
 		send_to_char(buf, ch);
 		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.", FALSE, ch, obj, 0, TO_ROOM);
 		return;
 	}
 
-	addchance = (IS_CLERIC(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_CLERIC)) ||
-				(IS_MAGE(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MAGE)) ||
-				(IS_PALADINE(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PALADINE)) ||
-				(IS_THIEF(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_THIEF)) ||
-				(IS_ASSASINE(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ASSASINE)) ||
-				(IS_WARRIOR(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_WARRIOR)) ||
-				(IS_RANGER(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_RANGER)) ||
-				(IS_GUARD(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_GUARD)) ||
-				(IS_SMITH(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH)) ||
-				(IS_DRUID(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_DRUID)) ||
-				(IS_MERCHANT(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MERCHANT)) ? 10 : 0;
+	addchance = (IS_CLERIC(ch) && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC)) ||
+				(IS_MAGE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_MAGE)) ||
+				(IS_PALADINE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_PALADINE)) ||
+				(IS_THIEF(ch) && ROOM_FLAGGED(ch->in_room, ROOM_THIEF)) ||
+				(IS_ASSASINE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ASSASINE)) ||
+				(IS_WARRIOR(ch) && ROOM_FLAGGED(ch->in_room, ROOM_WARRIOR)) ||
+				(IS_RANGER(ch) && ROOM_FLAGGED(ch->in_room, ROOM_RANGER)) ||
+				(IS_GUARD(ch) && ROOM_FLAGGED(ch->in_room, ROOM_GUARD)) ||
+				(IS_SMITH(ch) && ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) ||
+				(IS_DRUID(ch) && ROOM_FLAGGED(ch->in_room, ROOM_DRUID)) ||
+				(IS_MERCHANT(ch) && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT)) ? 10 : 0;
 	addchance += (GET_OBJ_VAL(obj, 0) == BOOK_SPELL) ? 0 : 10;
 
-	if (!obj->get_extraflag(EExtraFlag::ITEM_NO_FAIL)
+	if (!obj->get_extra_flag(EExtraFlag::ITEM_NO_FAIL)
 		&& number(1, 100) > int_app[POSI(GET_REAL_INT(ch))].spell_aknowlege + addchance)
 	{
 		sprintf(buf, "Вы взяли в руки %s и начали изучать. Непослушные\r\n"
-				"буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
-				"Промучившись несколько минут, вы бросили это унылое занятие,\r\n"
-				"с удивлением отметив исчезновение %s.\r\n", obj->PNames[3], obj->PNames[1]);
+			"буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
+			"Промучившись несколько минут, вы бросили это унылое занятие,\r\n"
+			"с удивлением отметив исчезновение %s.\r\n", obj->get_PName(3).c_str(), obj->get_PName(1).c_str());
 		send_to_char(buf, ch);
 	}
 	else
 	{
 		sprintf(buf, "Вы взяли в руки %s и начали изучать. Постепенно,\r\n"
-				"незнакомые доселе, буквы стали складываться в понятные слова и фразы.\r\n"
-				"Буквально через несколько минут вы узнали %s %s \"%s\".\r\n",
-				obj->PNames[3], (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0], stype2[GET_OBJ_VAL(obj, 0)], spellname);
+			"незнакомые доселе, буквы стали складываться в понятные слова и фразы.\r\n"
+			"Буквально через несколько минут вы узнали %s %s \"%s\".\r\n",
+			obj->get_PName(3).c_str(),
+			(GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0],
+			stype2[GET_OBJ_VAL(obj, 0)],
+			spellname);
 		send_to_char(buf, ch);
 		switch (GET_OBJ_VAL(obj, 0))
 		{
 		case BOOK_SPELL:
 			GET_SPELL_TYPE(ch, spellnum) |= SPELL_KNOW;
 			break;
+
 		case BOOK_SKILL:
 			ch->set_skill(static_cast<ESkill>(spellnum), 1);
 			break;
@@ -5322,7 +5408,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_ARMORED, "укрепить", 100);
 	skillo(SKILL_DRUNKOFF, "опохмелиться", 100);
 	skillo(SKILL_AID, "лечить", 100);
-	skillo(SKILL_FIRE, "разжечь костер", 100);
+	skillo(SKILL_FIRE, "разжечь костер", 160);
 	skillo(SKILL_SHIT, "удар левой рукой", 100);
 	skillo(SKILL_MIGHTHIT, "богатырский молот", 200);
 	skillo(SKILL_STUPOR, "оглушить", 160);

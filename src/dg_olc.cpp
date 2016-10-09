@@ -39,13 +39,12 @@ extern struct zone_data *zone_table;
 void free_script(SCRIPT_DATA * sc);
 
 // prototype externally defined functions
-void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void free_varlist(struct trig_var_data *vd);
 
 void trigedit_disp_menu(DESCRIPTOR_DATA * d);
 void trigedit_save(DESCRIPTOR_DATA * d);
 void trigedit_create_index(int znum, const char *type);
-char * indent_trigger(char * cmd , int * level);
+void indent_trigger(std::string& cmd, int* level);
 
 inline void fprint_script(FILE * fp, const OBJ_DATA::triggers_list_t& scripts)
 {
@@ -57,19 +56,19 @@ inline void fprint_script(FILE * fp, const OBJ_DATA::triggers_list_t& scripts)
 
 // called when a mob or object is being saved to disk, so its script can
 // be saved
-void script_save_to_disk(FILE * fp, void *item, int type)
+void script_save_to_disk(FILE * fp, const void *item, int type)
 {
 	if (type == MOB_TRIGGER)
 	{
-		fprint_script(fp, ((CHAR_DATA *)item)->proto_script);
+		fprint_script(fp, static_cast<const CHAR_DATA *>(item)->proto_script);
 	}
 	else if (type == OBJ_TRIGGER)
 	{
-		fprint_script(fp, ((OBJ_DATA *)item)->proto_script);
+		fprint_script(fp, static_cast<const CObjectPrototype *>(item)->get_proto_script());
 	}
 	else if (type == WLD_TRIGGER)
 	{
-		fprint_script(fp, ((ROOM_DATA *)item)->proto_script);
+		fprint_script(fp, static_cast<const ROOM_DATA *>(item)->proto_script);
 	}
 	else
 	{
@@ -85,16 +84,7 @@ void script_save_to_disk(FILE * fp, void *item, int type)
 
 void trigedit_setup_new(DESCRIPTOR_DATA * d)
 {
-	TRIG_DATA *trig;
-
-	// Allocate a scratch trigger structure
-	CREATE(trig, 1);
-
-	trig->nr = -1;
-
-	// Set up some defaults
-	trig->name = str_dup("new trigger");
-	trig->trigger_type = MTRIG_GREET;
+	TRIG_DATA *trig = new TRIG_DATA(-1, "new trigger", MTRIG_GREET);
 
 	// cmdlist will be a large char string until the trigger is saved
 	CREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
@@ -109,22 +99,17 @@ void trigedit_setup_new(DESCRIPTOR_DATA * d)
 
 void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num)
 {
-	TRIG_DATA *trig;
-	struct cmdlist_element *c;
-
 	// Allocate a scratch trigger structure
-	CREATE(trig, 1);
-
-	trig_data_copy(trig, trig_index[rtrg_num]->proto);
+	TRIG_DATA *trig = new TRIG_DATA(*trig_index[rtrg_num]->proto);
 
 	// convert cmdlist to a char string
-	c = trig->cmdlist;
+	auto c = *trig->cmdlist;
 	CREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
 	strcpy(OLC_STORAGE(d), "");
 
 	while (c)
 	{
-		strcat(OLC_STORAGE(d), c->cmd);
+		strcat(OLC_STORAGE(d), c->cmd.c_str());
 		strcat(OLC_STORAGE(d), "\r\n");
 		c = c->next;
 	}
@@ -137,7 +122,6 @@ void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num)
 	trigedit_disp_menu(d);
 }
 
-
 void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 {
 	TRIG_DATA *trig = OLC_TRIG(d);
@@ -146,17 +130,17 @@ void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 
 	get_char_cols(d->character);
 
-	if (trig->attach_type == MOB_TRIGGER)
+	if (trig->get_attach_type() == MOB_TRIGGER)
 	{
 		attach_type = "Mobiles";
 		sprintbit(GET_TRIG_TYPE(trig), trig_types, trgtypes);
 	}
-	else if (trig->attach_type == OBJ_TRIGGER)
+	else if (trig->get_attach_type() == OBJ_TRIGGER)
 	{
 		attach_type = "Objects";
 		sprintbit(GET_TRIG_TYPE(trig), otrig_types, trgtypes);
 	}
-	else if (trig->attach_type == WLD_TRIGGER)
+	else if (trig->get_attach_type() == WLD_TRIGGER)
 	{
 		attach_type = "Rooms";
 		sprintbit(GET_TRIG_TYPE(trig), wtrig_types, trgtypes);
@@ -184,7 +168,7 @@ void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, yel, attach_type,	// attach type
 			grn, nrm, yel, trgtypes,	// greet/drop/etc
 			grn, nrm, yel, trig->narg,	// numeric arg
-			grn, nrm, yel, trig->arglist ? trig->arglist : "",	// strict arg
+			grn, nrm, yel, trig->arglist.c_str(),	// strict arg
 			grn, nrm, cyn, OLC_STORAGE(d),	// the command list
 			grn, nrm);	// quit colors
 
@@ -197,7 +181,7 @@ void trigedit_disp_types(DESCRIPTOR_DATA * d)
 	int i, columns = 0;
 	const char **types;
 
-	switch (OLC_TRIG(d)->attach_type)
+	switch (OLC_TRIG(d)->get_attach_type())
 	{
 	case WLD_TRIGGER:
 		types = wtrig_types;
@@ -277,12 +261,12 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				send_to_char(d->character, "&S%s&s", OLC_STORAGE(d));
 				d->backstr = str_dup(OLC_STORAGE(d));
 			}
-			d->str = &OLC_STORAGE(d);
+			d->writer.reset(new CDelegatedStringWriter(OLC_STORAGE(d)));
 			d->max_str = MAX_CMD_LENGTH;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
-
 			break;
+
 		default:
 			trigedit_disp_menu(d);
 			return;
@@ -311,15 +295,15 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case TRIGEDIT_NAME:
-		if (OLC_TRIG(d)->name)
-			free(OLC_TRIG(d)->name);
-		OLC_TRIG(d)->name = str_dup((arg && *arg) ? arg : "undefined");
+		OLC_TRIG(d)->set_name((arg && *arg) ? arg : "undefined");
 		OLC_VAL(d)++;
 		break;
 
 	case TRIGEDIT_INTENDED:
 		if ((atoi(arg) >= MOB_TRIGGER) || (atoi(arg) <= WLD_TRIGGER))
-			OLC_TRIG(d)->attach_type = atoi(arg);
+		{
+			OLC_TRIG(d)->set_attach_type(atoi(arg));
+		}
 		OLC_VAL(d)++;
 		break;
 
@@ -329,17 +313,21 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case TRIGEDIT_ARGUMENT:
-		if (OLC_TRIG(d)->arglist)
-			free(OLC_TRIG(d)->arglist);
-		OLC_TRIG(d)->arglist = (*arg ? str_dup(arg) : NULL);
+		OLC_TRIG(d)->arglist = (arg && *arg) ? arg : "";
 		OLC_VAL(d)++;
 		break;
 
 	case TRIGEDIT_TYPES:
 		if ((i = atoi(arg)) == 0)
+		{
 			break;
+		}
 		else if (!((i < 0) || (i > NUM_TRIG_TYPE_FLAGS)))
-			TOGGLE_BIT((GET_TRIG_TYPE(OLC_TRIG(d))), 1 << (i - 1));
+		{
+			auto trigger_type = OLC_TRIG(d)->get_trigger_type();
+			TOGGLE_BIT(trigger_type, 1 << (i - 1));
+			OLC_TRIG(d)->set_trigger_type(trigger_type);
+		}
 		OLC_VAL(d)++;
 		trigedit_disp_types(d);
 		return;
@@ -380,7 +368,6 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	TRIG_DATA *proto;
 	TRIG_DATA *trig = OLC_TRIG(d);
 	TRIG_DATA *live_trig;
-	struct cmdlist_element *cmd, *next_cmd;
 	INDEX_DATA **new_index;
 	DESCRIPTOR_DATA *dsc;
 	FILE *trig_file;
@@ -390,63 +377,44 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	char fname[MAX_INPUT_LENGTH];
 	char logbuf[MAX_INPUT_LENGTH];
 
-
 	// Recompile the command list from the new script
 	s = OLC_STORAGE(d);
 	olc_log("%s start trig %d:\n%s", GET_NAME(d->character), OLC_NUM(d), OLC_STORAGE(d));
 
-	CREATE(trig->cmdlist, 1);
-	trig->cmdlist->cmd = str_dup(strtok(s, "\n\r"));
-	cmd = trig->cmdlist;
+	trig->cmdlist->reset(new cmdlist_element());
+	const auto& cmdlist = *trig->cmdlist;
+	const auto cmd_token = strtok(s, "\n\r");
+	cmdlist->cmd = cmd_token ? cmd_token : "";
+	auto cmd = cmdlist;
 
 	while ((s = strtok(NULL, "\n\r")))
 	{
-		CREATE(cmd->next, 1);
+		cmd->next.reset(new cmdlist_element());
 		cmd = cmd->next;
-		cmd->cmd = str_dup(s);
+		cmd->cmd = s;
 	}
-	cmd->next = NULL;
+	cmd->next.reset();
 
 	if ((trig_rnum = real_trigger(OLC_NUM(d))) != -1)
 	{
-
 		// Этот триггер уже есть.
 
 		// Очистка прототипа
 		proto = trig_index[trig_rnum]->proto;
-		for (cmd = proto->cmdlist; cmd; cmd = next_cmd)
-		{
-			next_cmd = cmd->next;
-			if (cmd->cmd)
-				free(cmd->cmd);
-			free(cmd);
-		}
+		proto->cmdlist.reset();
 
-		if (proto->arglist)
-			free(proto->arglist);	// Опять же, не люблю вызовов free(NULL);
-		free(proto->name);
-
-		// make the prorotype look like what we have
-		trig_data_copy(proto, trig);
+		// make the prototype look like what we have
+		*proto = *trig;
 
 		// go through the mud and replace existing triggers
-
 		live_trig = trigger_list;
 		while (live_trig)
 		{
 			if (GET_TRIG_RNUM(live_trig) == trig_rnum)
 			{
-				TRIG_DATA *t;
-				if (live_trig->arglist)
-				{
-					free(live_trig->arglist);
-					live_trig->arglist = NULL;
-				}
-				if (live_trig->name)
-				{
-					free(live_trig->name);
-					live_trig->name = NULL;
-				}
+				live_trig->arglist.clear();
+				live_trig->set_name("");
+
 				// Предотвратить возможный вызов триггера по wait
 				if (GET_TRIG_WAIT(live_trig))
 				{
@@ -456,14 +424,13 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 				free_varlist(live_trig->var_list);
 
 				// сохранить ссылку на следующий
-				t = live_trig->next;
-				trig_data_copy(live_trig, proto);
+				auto t = live_trig->next;
+				*live_trig = *proto;
 				live_trig->next = t;
 			}
 
 			live_trig = live_trig->next_in_world;
 		}
-
 	}
 	else
 	{
@@ -480,15 +447,11 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 					trig_rnum = i;
 
 					CREATE(new_index[trig_rnum], 1);
-					GET_TRIG_RNUM(OLC_TRIG(d)) = trig_rnum;
+					OLC_TRIG(d)->set_rnum(trig_rnum);
 					new_index[trig_rnum]->vnum = OLC_NUM(d);
 					new_index[trig_rnum]->number = 0;
 					new_index[trig_rnum]->func = NULL;
-					CREATE(proto, 1);
-					new_index[trig_rnum]->proto = proto;
-
-					trig_data_copy(proto, trig);
-
+					new_index[trig_rnum]->proto = new TRIG_DATA(*trig);
 					--i;
 					continue;	// повторить копирование еще раз, но уже по-другому
 				}
@@ -502,7 +465,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 				// докопировать
 				new_index[i + 1] = trig_index[i];
 				proto = trig_index[i]->proto;
-				proto->nr = i + 1;
+				proto->set_rnum(i + 1);
 			}
 		}
 
@@ -510,15 +473,11 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 		{
 			trig_rnum = i;
 			CREATE(new_index[trig_rnum], 1);
-			GET_TRIG_RNUM(OLC_TRIG(d)) = trig_rnum;
+			OLC_TRIG(d)->set_rnum(trig_rnum);
 			new_index[trig_rnum]->vnum = OLC_NUM(d);
 			new_index[trig_rnum]->number = 0;
 			new_index[trig_rnum]->func = NULL;
-
-			CREATE(proto, 1);
-
-			new_index[trig_rnum]->proto = proto;
-			trig_data_copy(proto, trig);
+			new_index[trig_rnum]->proto = new TRIG_DATA(*trig);
 		}
 		free(trig_index);
 		trig_index = new_index;
@@ -526,15 +485,24 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 
 		// HERE IT HAS TO GO THROUGH AND FIX ALL SCRIPTS/TRIGS OF HIGHER RNUM
 		for (live_trig = trigger_list; live_trig; live_trig = live_trig->next_in_world)
+		{
 			if (GET_TRIG_RNUM(live_trig) > trig_rnum)
-				GET_TRIG_RNUM(live_trig)++;
+			{
+				live_trig->set_rnum(1 + live_trig->get_rnum());
+			}
+		}
 
 		// * Update other trigs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next)
+		{
 			if (dsc->connected == CON_TRIGEDIT)
+			{
 				if (GET_TRIG_RNUM(OLC_TRIG(dsc)) >= trig_rnum)
-					GET_TRIG_RNUM(OLC_TRIG(dsc))++;
-
+				{
+					OLC_TRIG(dsc)->set_rnum(1 + OLC_TRIG(dsc)->get_rnum());
+				}
+			}
+		}
 	}
 
 	// now write the trigger out to disk, along with the rest of the  //
@@ -578,17 +546,17 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 					"%d %s %d\n"
 					"%s~\n",
 					(GET_TRIG_NAME(trig)) ? (GET_TRIG_NAME(trig)) :
-					"unknown trigger", trig->attach_type, bitBuf,
-					GET_TRIG_NARG(trig), GET_TRIG_ARG(trig) ? GET_TRIG_ARG(trig) : "");
+					"unknown trigger", trig->get_attach_type(), bitBuf,
+					GET_TRIG_NARG(trig), trig->arglist.c_str());
 
 			// Build the text for the script
 			int lev = 0;
 			strcpy(buf, "");
-			for (cmd = trig->cmdlist; cmd; cmd = cmd->next)
+			for (cmd = *trig->cmdlist; cmd; cmd = cmd->next)
 			{
 				// Indenting
-				cmd->cmd = indent_trigger(cmd->cmd, &lev);
-				strcat(buf, cmd->cmd);
+				indent_trigger(cmd->cmd, &lev);
+				strcat(buf, cmd->cmd.c_str());
 				strcat(buf, "\n");
 			}
 			if (lev > 0)
@@ -717,7 +685,7 @@ void dg_olc_script_copy(DESCRIPTOR_DATA * d)
 		break;
 
 	case OBJ_TRIGGER:
-		OLC_SCRIPT(d) = OLC_OBJ(d)->proto_script;
+		OLC_SCRIPT(d) = OLC_OBJ(d)->get_proto_script();
 		break;
 	
 	default:
@@ -745,12 +713,16 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 	for (const auto trigger_vnum : OLC_SCRIPT(d))
 	{
 		sprintf(buf, "     %2d) [%s%d%s] %s%s%s", ++i, cyn,
-			trigger_vnum, nrm, cyn, trig_index[real_trigger(trigger_vnum)]->proto->name, nrm);
+			trigger_vnum, nrm, cyn, trig_index[real_trigger(trigger_vnum)]->proto->get_name().c_str(), nrm);
 		send_to_char(buf, d->character);
-		if (trig_index[real_trigger(trigger_vnum)]->proto->attach_type != OLC_ITEM_TYPE(d))
+		if (trig_index[real_trigger(trigger_vnum)]->proto->get_attach_type() != OLC_ITEM_TYPE(d))
+		{
 			sprintf(buf, "   %s** Mis-matched Trigger Type **%s\r\n", grn, nrm);
+		}
 		else
+		{
 			sprintf(buf, "\r\n");
+		}
 		send_to_char(buf, d->character);
 	}
 
@@ -784,7 +756,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 			else if (OLC_ITEM_TYPE(d) == OBJ_TRIGGER)
 			{
-				OLC_SCRIPT(d).swap(OLC_OBJ(d)->proto_script);
+				OLC_OBJ(d)->swap_proto_script(OLC_SCRIPT(d));
 			}
 			else
 			{

@@ -1487,12 +1487,16 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 		{
 			i++;
 
-			const OBJ_DATA *tobj = read_object_mirror((*p)->obj_vnum);
+			auto tobj = get_object_prototype((*p)->obj_vnum);
 			const char* objname = NULL;
 			if ((*p)->obj_vnum && tobj)
-				objname = tobj->PNames[0];
+			{
+				objname = tobj->get_PName(0).c_str();
+			}
 			else
+			{
 				objname = "Нет";
+			}
 
 			sprintf(buf, "%d. %s (%d,%d,%d,%d)\r\n",
 				i, objname, (*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
@@ -1518,7 +1522,6 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character);
 }
 
-
 // ************************************************************************
 // *      The GARGANTAUN event handler                                    *
 // ************************************************************************
@@ -1539,7 +1542,6 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	switch (OLC_MODE(d))
 	{
-		//-------------------------------------------------------------------
 	case MEDIT_CONFIRM_SAVESTRING:
 		// * Ensure mob has MOB_ISNPC set or things will go pair shaped.
 		MOB_FLAGS(OLC_MOB(d)).set(MOB_ISNPC);
@@ -1559,12 +1561,14 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			cleanup_olc(d, CLEANUP_STRUCTS);
 			send_to_char("Mob saved to memory.\r\n", d->character);
 			break;
+
 		case 'n':
 		case 'N':
 		case 'н':
 		case 'Н':
 			cleanup_olc(d, CLEANUP_ALL);
 			break;
+
 		default:
 			send_to_char("Неверный выбор!\r\n", d->character);
 			send_to_char("Вы хотите сохранить моба? : ", d->character);
@@ -1585,52 +1589,64 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 				OLC_MODE(d) = MEDIT_CONFIRM_SAVESTRING;
 			}
 			else
+			{
 				cleanup_olc(d, CLEANUP_ALL);
+			}
 			return;
+
 		case '1':
 			OLC_MODE(d) = MEDIT_SEX;
 			medit_disp_sex(d);
 			return;
+
 		case '2':
 			send_to_char("Введите синонимы : ", d->character);
 			OLC_MODE(d) = MEDIT_ALIAS;
 			i--;
 			break;
+
 		case '3':
 			send_to_char(d->character, "&S%s&s\r\nИменительный падеж [это КТО]: ", GET_PAD(OLC_MOB(d), 0));
 			OLC_MODE(d) = MEDIT_PAD0;
 			i--;
 			break;
+
 		case '4':
 			send_to_char(d->character, "&S%s&s\r\nРодительный падеж [нет КОГО] : ", GET_PAD(OLC_MOB(d), 1));
 			OLC_MODE(d) = MEDIT_PAD1;
 			i--;
 			break;
+
 		case '5':
 			send_to_char(d->character, "&S%s&s\r\nДательный падеж [дать КОМУ] : ", GET_PAD(OLC_MOB(d), 2));
 			OLC_MODE(d) = MEDIT_PAD2;
 			i--;
 			break;
+
 		case '6':
 			send_to_char(d->character, "&S%s&s\r\nВинительный падеж [ударить КОГО] : ", GET_PAD(OLC_MOB(d), 3));
 			OLC_MODE(d) = MEDIT_PAD3;
 			i--;
 			break;
+
 		case '7':
 			send_to_char(d->character, "&S%s&s\r\nТворительный падеж [следовать за КЕМ] : ", GET_PAD(OLC_MOB(d), 4));
 			OLC_MODE(d) = MEDIT_PAD4;
 			i--;
 			break;
+
 		case '8':
 			send_to_char(d->character, "&S%s&s\r\nПредложный падеж [говорить о КОМ] : ", GET_PAD(OLC_MOB(d), 5));
 			OLC_MODE(d) = MEDIT_PAD5;
 			i--;
 			break;
+
 		case '9':
 			send_to_char(d->character, "&S%s&s\r\nВведите длинное описание :-\r\n| ", GET_LDESC(OLC_MOB(d)));
 			OLC_MODE(d) = MEDIT_L_DESC;
 			i--;
 			break;
+
 		case 'a':
 		case 'A':
 			OLC_MODE(d) = MEDIT_D_DESC;
@@ -1641,106 +1657,126 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 				SEND_TO_Q(OLC_MOB(d)->player_data.description, d);
 				d->backstr = str_dup(OLC_MOB(d)->player_data.description);
 			}
-			d->str = &OLC_MOB(d)->player_data.description;
+			d->writer.reset(new CDelegatedStringWriter(OLC_MOB(d)->player_data.description));
 			d->max_str = MAX_MOB_DESC;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
 			return;
+
 		case 'b':
 		case 'B':
 			OLC_MODE(d) = MEDIT_LEVEL;
 			i++;
 			break;
+
 		case 'c':
 		case 'C':
 			OLC_MODE(d) = MEDIT_ALIGNMENT;
 			i++;
 			break;
+
 		case 'd':
 		case 'D':
 			OLC_MODE(d) = MEDIT_HITROLL;
 			i++;
 			break;
+
 		case 'e':
 		case 'E':
 			OLC_MODE(d) = MEDIT_DAMROLL;
 			i++;
 			break;
+
 		case 'f':
 		case 'F':
 			OLC_MODE(d) = MEDIT_NDD;
 			i++;
 			break;
+
 		case 'g':
 		case 'G':
 			OLC_MODE(d) = MEDIT_SDD;
 			i++;
 			break;
+
 		case 'h':
 		case 'H':
 			OLC_MODE(d) = MEDIT_NUM_HP_DICE;
 			i++;
 			break;
+
 		case 'i':
 		case 'I':
 			OLC_MODE(d) = MEDIT_SIZE_HP_DICE;
 			i++;
 			break;
+
 		case 'j':
 		case 'J':
 			OLC_MODE(d) = MEDIT_ADD_HP;
 			i++;
 			break;
+
 		case 'k':
 		case 'K':
 			OLC_MODE(d) = MEDIT_AC;
 			i++;
 			break;
+
 		case 'l':
 		case 'L':
 			OLC_MODE(d) = MEDIT_EXP;
 			i++;
 			break;
+
 		case 'm':
 		case 'M':
 			OLC_MODE(d) = MEDIT_GOLD;
 			i++;
 			break;
+
 		case 'n':
 		case 'N':
 			OLC_MODE(d) = MEDIT_GOLD_DICE;
 			i++;
 			break;
+
 		case 'o':
 		case 'O':
 			OLC_MODE(d) = MEDIT_GOLD_SIZE;
 			i++;
 			break;
+
 		case 'p':
 		case 'P':
 			OLC_MODE(d) = MEDIT_POS;
 			medit_disp_positions(d);
 			return;
+
 		case 'r':
 		case 'R':
 			OLC_MODE(d) = MEDIT_DEFAULT_POS;
 			medit_disp_positions(d);
 			return;
+
 		case 't':
 		case 'T':
 			OLC_MODE(d) = MEDIT_ATTACK;
 			medit_disp_attack_types(d);
 			return;
+
 		case 'u':
 		case 'U':
 			OLC_MODE(d) = MEDIT_MOB_FLAGS;
 			medit_disp_mob_flags(d);
 			return;
+
 		case 'v':
 		case 'V':
 			OLC_MODE(d) = MEDIT_AFF_FLAGS;
 			medit_disp_aff_flags(d);
 			return;
+
 		case 'w':
 		case 'W':
 			OLC_MODE(d) = MEDIT_NPC_FLAGS;
@@ -1761,130 +1797,156 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_SCRIPT_EDIT_MODE(d) = SCRIPT_MAIN_MENU;
 			dg_script_menu(d);
 			return;
+
 		case 'y':
 		case 'Y':
 			OLC_MODE(d) = MEDIT_DESTINATION;
 			i++;
 			break;
+
 		case 'z':
 		case 'Z':
 			OLC_MODE(d) = MEDIT_HELPERS;
 			medit_disp_helpers(d);
 			return;
+
 		case 'а':
 		case 'А':
 			OLC_MODE(d) = MEDIT_SKILLS;
 			medit_disp_skills(d);
 			return;
+
 		case 'б':
 		case 'Б':
 			OLC_MODE(d) = MEDIT_SPELLS;
 			medit_disp_spells(d);
 			return;
+
 		case 'в':
 		case 'В':
 			OLC_MODE(d) = MEDIT_STR;
 			i++;
 			break;
+
 		case 'г':
 		case 'Г':
 			OLC_MODE(d) = MEDIT_DEX;
 			i++;
 			break;
+
 		case 'д':
 		case 'Д':
 			OLC_MODE(d) = MEDIT_CON;
 			i++;
 			break;
+
 		case 'е':
 		case 'Е':
 			OLC_MODE(d) = MEDIT_WIS;
 			i++;
 			break;
+
 		case 'ж':
 		case 'Ж':
 			OLC_MODE(d) = MEDIT_INT;
 			i++;
 			break;
+
 		case 'з':
 		case 'З':
 			OLC_MODE(d) = MEDIT_CHA;
 			i++;
 			break;
+
 		case 'и':
 		case 'И':
 			OLC_MODE(d) = MEDIT_HEIGHT;
 			i++;
 			break;
+
 		case 'к':
 		case 'К':
 			OLC_MODE(d) = MEDIT_WEIGHT;
 			i++;
 			break;
+
 		case 'л':
 		case 'Л':
 			OLC_MODE(d) = MEDIT_SIZE;
 			i++;
 			break;
+
 		case 'м':
 		case 'М':
 			OLC_MODE(d) = MEDIT_EXTRA;
 			i++;
 			break;
+
 		case 'н':
 		case 'Н':
 			send_to_char(d->character, "\r\nВведите новое значение от 0 до 100%% :");
 			OLC_MODE(d) = MEDIT_LIKE;
 			return;
+
 		case 'о':
 		case 'О':
 			OLC_MODE(d) = MEDIT_ING;
 			xedit_disp_ing(d, OLC_MOB(d)->ing_list);
 			return;
+
 		case 'п':
 		case 'П':
 			OLC_MODE(d) = MEDIT_DLIST_MENU;
 			disp_dl_list(d);
 			return;
+
 		case 'р':
 		case 'Р':
 			OLC_MODE(d) = MEDIT_ROLE;
 			medit_disp_role(d);
 			return;
+
 		case 'с':
 		case 'С':
 			OLC_MODE(d) = MEDIT_RESISTANCES;
 			medit_disp_resistances(d);
 			return;
+
 		case 'т':
 		case 'Т':
 			OLC_MODE(d) = MEDIT_SAVES;
 			medit_disp_saves(d);
 			return;
+
 		case 'у':
 		case 'У':
 			OLC_MODE(d) = MEDIT_ADD_PARAMETERS;
 			medit_disp_add_parameters(d);
 			return;
+
 		case 'ф':
 		case 'Ф':
 			OLC_MODE(d) = MEDIT_FEATURES;
 			medit_disp_features(d);
 			return;
+
 		case 'ц':
 		case 'Ц':
 			OLC_MODE(d) = MEDIT_RACE;
 			medit_disp_race(d);
 			return;
+
 		case 'ч':
 		case 'Ч':
 			OLC_MODE(d) = MEDIT_CLONE;
 			send_to_char(d->character, "Введите VNUM моба с которого будут склонированы все характеристики:");
 			return;
+
 		default:
 			medit_disp_menu(d);
 			return;
 		}
+
 		if (i != 0)
 		{
 			send_to_char(i == 1 ? "\r\nВведите новое значение : " :
@@ -1893,160 +1955,211 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-		//-------------------------------------------------------------------
 	case OLC_SCRIPT_EDIT:
 		if (dg_script_edit_parse(d, arg))
 			return;
 		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_RACE:
 		GET_RACE(OLC_MOB(d)) = MAX(NPC_RACE_BASIC, MIN(NPC_RACE_NEXT - 1, atoi(arg) + NPC_RACE_BASIC));
 		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_ROLE:
-	{
-		int num = atoi(arg);
-		if (num != 0)
 		{
-			OLC_MOB(d)->set_role(num - 1, !OLC_MOB(d)->get_role(num - 1));
-			medit_disp_role(d);
-			return;
+			int num = atoi(arg);
+			if (num != 0)
+			{
+				OLC_MOB(d)->set_role(num - 1, !OLC_MOB(d)->get_role(num - 1));
+				medit_disp_role(d);
+				return;
+			}
 		}
 		break;
-		//-------------------------------------------------------------------
-	}
+
 	case MEDIT_FEATURES:
 		number = atoi(arg);
 		if (number == 0)
+		{
 			break;
-		if (number > MAX_FEATS || number <= 0 ||
-			!feat_info[number].name || *feat_info[number].name == '!')
+		}
+		if (number > MAX_FEATS
+			|| number <= 0
+			|| !feat_info[number].name
+			|| *feat_info[number].name == '!')
+		{
 			send_to_char("Неверный номер.\r\n", d->character);
+		}
 		else if (HAVE_FEAT(OLC_MOB(d), number))
+		{
 			UNSET_FEAT(OLC_MOB(d), number);
+		}
 		else
+		{
 			SET_FEAT(OLC_MOB(d), number);
+		}
 		medit_disp_features(d);
 		return;
-		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_RESISTANCES:
 		number = atoi(arg);
 		if (number == 0)
+		{
 			break;
+		}
 		if (number > MAX_NUMBER_RESISTANCE || number < 0)
+		{
 			send_to_char("Неверный номер.\r\n", d->character);
+		}
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
+		{
 			send_to_char("Не указан уровень сопротивления.\r\n", d->character);
+		}
 		else
+		{
 			GET_RESIST(OLC_MOB(d), number - 1) = MIN(300, MAX(-1000, bit));
+		}
 		medit_disp_resistances(d);
 		return;
-		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_ADD_PARAMETERS:
 		number = atoi(arg);
 		if (number == 0)
+		{
 			break;
+		}
+
 		if (sscanf(arg, "%d %d", &plane, &bit) < 2)
+		{
 			send_to_char("Не указана величина параметра.\r\n", d->character);
+		}
 		else switch (number)
 		{
 		case MEDIT_HPREG:
 			GET_HITREG(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
 			break;
+
 		case MEDIT_ARMOUR:
 			GET_ARMOUR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
 			break;
+
 		case MEDIT_MANAREG:
 			GET_MANAREG(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
 			break;
+
 		case MEDIT_CASTSUCCESS:
 			GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
 			break;
+
 		case MEDIT_SUCCESS:
 			GET_MORALE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
 			break;
+
 		case MEDIT_INITIATIVE:
 			GET_INITIATIVE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
 			break;
+
 		case MEDIT_ABSORBE:
 			GET_ABSORBE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
 			break;
+
 		case MEDIT_AR:
 			GET_AR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
 			break;
+
 		case MEDIT_MR:
 			GET_MR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
 			break;
+
 		case MEDIT_PR:
 			GET_PR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
 			break;
+
 		default:
 			send_to_char("Неверный номер.\r\n", d->character);
 		}
 		medit_disp_add_parameters(d);
 		return;
-		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_SAVES:
 		number = atoi(arg);
 		if (number == 0)
+		{
 			break;
+		}
+
 		if (number > SAVING_COUNT || number < 0)
+		{
 			send_to_char("Неверный номер.\r\n", d->character);
+		}
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
+		{
 			send_to_char("Не указана величина спас-броска.\r\n", d->character);
+		}
 		else
+		{
 			GET_SAVE(OLC_MOB(d), number - 1) = MIN(200, MAX(-200, bit));
+		}
 		medit_disp_saves(d);
 		return;
-		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_ALIAS:
 		OLC_MOB(d)->set_pc_name(not_null(arg, "неопределен"));
 		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_PAD0:
 		if (GET_PAD(OLC_MOB(d), 0))
+		{
 			free(GET_PAD(OLC_MOB(d), 0));
+		}
 		GET_PAD(OLC_MOB(d), 0) = str_dup(not_null(arg, "кто-то"));
 		OLC_MOB(d)->set_npc_name(not_null(arg, "кто-то"));
 		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_PAD1:
 		if (GET_PAD(OLC_MOB(d), 1))
+		{
 			free(GET_PAD(OLC_MOB(d), 1));
+		}
 		GET_PAD(OLC_MOB(d), 1) = str_dup(not_null(arg, "кого-то"));
 		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_PAD2:
 		if (GET_PAD(OLC_MOB(d), 2))
+		{
 			free(GET_PAD(OLC_MOB(d), 2));
+		}
 		GET_PAD(OLC_MOB(d), 2) = str_dup(not_null(arg, "кому-то"));
 		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_PAD3:
 		if (GET_PAD(OLC_MOB(d), 3))
+		{
 			free(GET_PAD(OLC_MOB(d), 3));
+		}
 		GET_PAD(OLC_MOB(d), 3) = str_dup(not_null(arg, "кого-то"));
 		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_PAD4:
 		if (GET_PAD(OLC_MOB(d), 4))
+		{
 			free(GET_PAD(OLC_MOB(d), 4));
+		}
 		GET_PAD(OLC_MOB(d), 4) = str_dup(not_null(arg, "кем-то"));
 		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_PAD5:
 		if (GET_PAD(OLC_MOB(d), 5))
+		{
 			free(GET_PAD(OLC_MOB(d), 5));
+		}
 		GET_PAD(OLC_MOB(d), 5) = str_dup(not_null(arg, "о ком-то"));
 		break;
 		//-------------------------------------------------------------------
 	case MEDIT_L_DESC:
 		if (GET_LDESC(OLC_MOB(d)))
+		{
 			free(GET_LDESC(OLC_MOB(d)));
+		}
 		if (arg && *arg)
 		{
 			strcpy(buf, arg);
@@ -2054,16 +2167,18 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			GET_LDESC(OLC_MOB(d)) = str_dup(buf);
 		}
 		else
+		{
 			GET_LDESC(OLC_MOB(d)) = str_dup("неопределен\r\n");
+		}
 		break;
-		//-------------------------------------------------------------------
+
 	case MEDIT_D_DESC:
 		// * We should never get here.
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: medit_parse(): Reached D_DESC case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		send_to_char("Опаньки...\r\n", d->character);
 		break;
-		//-------------------------------------------------------------------
+
 #if defined(OASIS_MPROG)
 	case MEDIT_MPROG_COMLIST:
 		// * We should never get here, but if we do, bail out.
@@ -2071,7 +2186,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		mudlog("SYSERR: OLC: medit_parse(): Reached MPROG_COMLIST case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		break;
 #endif
-		//-------------------------------------------------------------------
+
 	case MEDIT_MOB_FLAGS:
 		number = planebit(arg, &plane, &bit);
 		if (number < 0)
@@ -2080,7 +2195,9 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else if (number == 0)
+		{
 			break;
+		}
 		else
 		{
 			OLC_MOB(d)->char_specials.saved.act.toggle_flag(plane, 1 << bit);
@@ -2088,7 +2205,6 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 
-		//-------------------------------------------------------------------
 	case MEDIT_NPC_FLAGS:
 		number = planebit(arg, &plane, &bit);
 		if (number < 0)
@@ -2097,14 +2213,16 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else if (number == 0)
+		{
 			break;
+		}
 		else
 		{
 			OLC_MOB(d)->mob_specials.npc_flags.toggle_flag(plane, 1 << bit);
 			medit_disp_npc_flags(d);
 			return;
 		}
-		//-------------------------------------------------------------------
+
 	case MEDIT_AFF_FLAGS:
 		number = planebit(arg, &plane, &bit);
 		if (number < 0)
@@ -2113,14 +2231,16 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else if (number == 0)
+		{
 			break;
+		}
 		else
 		{
 			OLC_MOB(d)->char_specials.saved.affected_by.toggle_flag(plane, 1 << bit);
 			medit_disp_aff_flags(d);
 			return;
 		}
-		//-------------------------------------------------------------------
+
 #if defined(OASIS_MPROG)
 	case MEDIT_MPROG:
 		if ((i = atoi(arg)) == 0)
@@ -2205,9 +2325,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			medit_disp_mprog(d);
 		return;
 #endif
-
-		//-------------------------------------------------------------------
-
+		
 		// * Numerical responses.
 
 #if defined(OASIS_MPROG)
@@ -2318,10 +2436,13 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case MEDIT_DESTINATION:
 		number = atoi(arg);
 		if ((plane = real_room(number)) == NOWHERE)
+		{
 			send_to_char("Нет такой комнаты.\r\n", d->character);
+		}
 		else
 		{
 			for (plane = 0; plane < OLC_MOB(d)->mob_specials.dest_count; plane++)
+			{
 				if (number == OLC_MOB(d)->mob_specials.dest[plane])
 				{
 					OLC_MOB(d)->mob_specials.dest_count--;
@@ -2332,6 +2453,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 					plane++;
 					break;
 				}
+			}
 			if (plane == OLC_MOB(d)->mob_specials.dest_count && plane < MAX_DEST)
 			{
 				OLC_MOB(d)->mob_specials.dest_count++;
@@ -2343,14 +2465,23 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case MEDIT_HELPERS:
 		number = atoi(arg);
 		if (number == 0)
+		{
 			break;
+		}
 		if ((plane = real_mobile(number)) < 0)
+		{
 			send_to_char("Нет такого моба.", d->character);
+		}
 		else
 		{
 			for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next_helper)
+			{
 				if (helper->mob_vnum == number)
+				{
 					break;
+				}
+			}
+
 			if (helper)
 			{
 				REMOVE_FROM_LIST(helper, OLC_MOB(d)->helpers, [](auto list) -> auto& { return list->next_helper; });
@@ -2369,7 +2500,9 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case MEDIT_SKILLS:
 		number = atoi(arg);
 		if (number == 0)
+		{
 			break;
+		}
 		if (number > MAX_SKILL_NUM
 			|| number < 0
 			|| !skill_info[number].name
@@ -2395,13 +2528,21 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case MEDIT_SPELLS:
 		number = atoi(arg);
 		if (number == 0)
+		{
 			break;
+		}
 		if (number < 0 || (number > MAX_SPELLS || !spell_info[number].name || *spell_info[number].name == '!'))
+		{
 			send_to_char("Неизвестное заклинание.\r\n", d->character);
+		}
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
+		{
 			send_to_char("Не указано количество заклинаний.\r\n", d->character);
+		}
 		else
+		{
 			GET_SPELL_MEM(OLC_MOB(d), number) = MIN(200, MAX(0, bit));
+		}
 		medit_disp_spells(d);
 		return;
 

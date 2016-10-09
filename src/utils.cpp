@@ -59,15 +59,13 @@
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
-extern int top_of_p_table;
 extern const char *weapon_class[];
-extern bool check_unlimited_timer(OBJ_DATA *obj);
 // local functions
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void prune_crlf(char *txt);
 int valid_email(const char *address);
-#define MINI_SET_ITEMS 3
+
 // external functions
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -101,44 +99,42 @@ char AltToLat[] =
 
 const char *ACTNULL = "<NULL>";
 
-
 // return char with UID n
 CHAR_DATA *find_char(long n)
 {
-	CHAR_DATA *ch;
-	for (ch = character_list; ch; ch = ch->get_next())
+	for (CHAR_DATA* ch = character_list; ch; ch = ch->get_next())
 	{
 		if (GET_ID(ch) == n)
 		{
-			return (ch);
+			return ch;
 		}
 	}
-	return NULL;
+
+	return nullptr;
 }
+
 bool check_spell_on_player(CHAR_DATA *ch, int spell_num)
 {
-	for (auto af = ch->affected; af; af = af->next)
+	for (const auto af : ch->affected)
 	{
 		if (af->type == spell_num)
 		{
 			return true;
 		}
 	}
+
 	return false;
 }
-
 
 int MIN(int a, int b)
 {
 	return (a < b ? a : b);
 }
 
-
 int MAX(int a, int b)
 {
 	return (a > b ? a : b);
 }
-
 
 char * CAP(char *txt)
 {
@@ -869,7 +865,7 @@ int has_horse(CHAR_DATA * ch, int same_room)
 		if (IS_NPC(f->follower)
 			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE)
 			&& (!same_room
-				|| IN_ROOM(ch) == IN_ROOM(f->follower)))
+				|| ch->in_room == IN_ROOM(f->follower)))
 		{
 			return (TRUE);
 		}
@@ -1015,7 +1011,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
 			{
 				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				GET_LASTROOM(ch) = GET_ROOM_VNUM(IN_ROOM(ch));
+				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 				perform_drop_gold(ch, ch->get_gold(), SCMD_DROP, 0);
 				ch->set_gold(0);
 				extract_char(ch, FALSE);
@@ -1029,9 +1025,9 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			{
 				if (master &&
 						!IS_SET(mode, SF_MASTERDIE) &&
-						IN_ROOM(ch) == IN_ROOM(master) &&
+						ch->in_room == IN_ROOM(master) &&
 						CAN_SEE(ch, master) && !ch->get_fighting() &&
-						!ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL))   //Polud - ну не надо агрить в мирках, незачем это
+						!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))   //Polud - ну не надо агрить в мирках, незачем это
 				{
 					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master))
 					{
@@ -1358,112 +1354,127 @@ void koi_to_alt(char *str, int size)
 // string manipulation fucntion originally by Darren Wilson //
 // (wilson@shark.cc.cc.ca.us) improved and bug fixed by Chris (zero@cnw.com) //
 // completely re-written again by M. Scott 10/15/96 (scottm@workcommn.net), //
+// completely rewritten by Anton Gorev 05/08/2016 (kvirund@gmail.com) //
 // substitute appearances of 'pattern' with 'replacement' in string //
 // and return the # of replacements //
-int replace_str(char **string, char *pattern, char *replacement, int rep_all, int max_size)
+int replace_str(const string_writer_t& writer, char *pattern, char *replacement, int rep_all, int max_size)
 {
-	char *replace_buffer = NULL;
-	char *flow, *jetsam, temp;
-
-	if ((signed)((strlen(*string) - strlen(pattern)) + strlen(replacement)) > max_size)
-	{
-		return -1;
-	}
-
+	char *replace_buffer = nullptr;
 	CREATE(replace_buffer, max_size);
-	int i = 0;
-	jetsam = *string;
-	flow = *string;
-	*replace_buffer = '\0';
-	if (rep_all)
-	{
-		while ((flow = (char *) strstr(flow, pattern)) != NULL)
-		{
-			i++;
-			temp = *flow;
-			*flow = '\0';
-			if ((signed)(strlen(replace_buffer) + strlen(jetsam) + strlen(replacement)) > max_size)
-			{
-				i = -1;
-				break;
-			}
-			strcat(replace_buffer, jetsam);
-			strcat(replace_buffer, replacement);
-			*flow = temp;
-			flow += strlen(pattern);
-			jetsam = flow;
-		}
-		strcat(replace_buffer, jetsam);
-	}
-	else
-	{
-		if ((flow = (char *) strstr(*string, pattern)) != NULL)
-		{
-			i++;
-			flow += strlen(pattern);
-			size_t len = ((char *) flow - (char *) * string) - strlen(pattern);
+	std::shared_ptr<char> guard(replace_buffer, free);
+	size_t source_remained = writer->length();
+	const size_t pattern_length = strlen(pattern);
+	const size_t replacement_length = strlen(replacement);
 
-			strncpy(replace_buffer, *string, len);
-			strcat(replace_buffer, replacement);
-			strcat(replace_buffer, flow);
+	int count = 0;
+	const char* from = writer->get_string();
+	size_t remains = max_size;
+	do
+	{
+		if (remains < source_remained)
+		{
+			return -1;	// destination does not have enough space.
 		}
-	}
-	if (i == 0)
+
+		const char* pos = strstr(from, pattern);
+		if (nullptr != pos)
+		{
+			if (remains < source_remained - pattern_length + replacement_length)
+			{
+				return -1;	// destination does not have enough space.
+			}
+
+			strncpy(replace_buffer, from, from - pos);
+			replace_buffer += from - pos;
+
+			strncpy(replace_buffer, replacement, replacement_length);
+			replace_buffer += replacement_length;
+
+			const size_t processed = from - pos + pattern_length;
+			source_remained -= processed;
+			from += processed;
+
+			++count;
+		}
+		else
+		{
+			strncpy(replace_buffer, from, source_remained);
+			replace_buffer += source_remained;
+			source_remained = 0;
+		}
+	} while (0 != rep_all && 0 < source_remained);
+
+	if (count == 0)
 	{
 		return 0;
 	}
-	if (i > 0)
+
+	if (count > 0)
 	{
-		RECREATE(*string, strlen(replace_buffer) + 3);
-		strcpy(*string, replace_buffer);
+		writer->set_string(guard.get());
 	}
-	free(replace_buffer);
 
-	return i;
+	return count;
 }
-
 
 // re-formats message type formatted char * //
 // (for strings edited with d->str) (mostly olc and mail)     //
-void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
+void format_text(const string_writer_t& writer, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
 {
 	size_t total_chars = 0;
 	int cap_next = TRUE, cap_next_next = FALSE;
-	char *flow, *start = NULL, temp;
+	const char* flow;
+	const char* start = NULL;
 	// warning: do not edit messages with max_str's of over this value //
-	char formated[MAX_STRING_LENGTH];
+	char formatted[MAX_STRING_LENGTH];
+	char *pos = formatted;
 
-	flow = *ptr_string;
+	flow = writer->get_string();
 	if (!flow)
+	{
 		return;
+	}
 
 	if (IS_SET(mode, FORMAT_INDENT))
 	{
-		strcpy(formated, "   ");
+		strcpy(pos, "   ");
 		total_chars = 3;
+		pos += 3;
 	}
 	else
 	{
-		*formated = '\0';
+		*pos = '\0';
 		total_chars = 0;
 	}
 
 	while (*flow != '\0')
 	{
-		while ((*flow == '\n') ||
-				(*flow == '\r') || (*flow == '\f') || (*flow == '\t') || (*flow == '\v') || (*flow == ' '))
+		while ((*flow == '\n')
+			|| (*flow == '\r')
+			|| (*flow == '\f')
+			|| (*flow == '\t')
+			|| (*flow == '\v')
+			|| (*flow == ' '))
+		{
 			flow++;
+		}
 
 		if (*flow != '\0')
 		{
 			start = flow++;
-			while ((*flow != '\0') &&
-					(*flow != '\n') &&
-					(*flow != '\r') &&
-					(*flow != '\f') &&
-					(*flow != '\t') &&
-					(*flow != '\v') && (*flow != ' ') && (*flow != '.') && (*flow != '?') && (*flow != '!'))
+			while ((*flow != '\0')
+				&& (*flow != '\n')
+				&& (*flow != '\r')
+				&& (*flow != '\f')
+				&& (*flow != '\t')
+				&& (*flow != '\v')
+				&& (*flow != ' ')
+				&& (*flow != '.')
+				&& (*flow != '?')
+				&& (*flow != '!'))
+			{
 				flow++;
+			}
 
 			if (cap_next_next)
 			{
@@ -1478,57 +1489,56 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA* /*d*/, size_t max
 				flow++;
 			}
 
-			temp = *flow;
-			*flow = '\0';
-
-			if ((total_chars + strlen(start) + 1) > 79)
+			if ((total_chars + (flow - start) + 1) > 79)
 			{
-				strcat(formated, "\r\n");
+				strcpy(pos, "\r\n");
 				total_chars = 0;
+				pos += 2;
 			}
 
 			if (!cap_next)
 			{
 				if (total_chars > 0)
 				{
-					strcat(formated, " ");
-					total_chars++;
+					strcpy(pos, " ");
+					++total_chars;
+					++pos;
 				}
 			}
-			else
+
+			total_chars += flow - start;
+			strncpy(pos, start, flow - start);
+			if (cap_next)
 			{
 				cap_next = FALSE;
-				*start = UPPER(*start);
+				*pos = UPPER(*pos);
 			}
-
-			total_chars += strlen(start);
-			strcat(formated, start);
-
-			*flow = temp;
+			pos += flow - start;
 		}
 
 		if (cap_next_next)
 		{
 			if ((total_chars + 3) > 79)
 			{
-				strcat(formated, "\r\n");
+				strcpy(pos, "\r\n");
 				total_chars = 0;
+				pos += 2;
 			}
 			else
 			{
-				strcat(formated, " ");
+				strcpy(pos, " ");
 				total_chars += 2;
+				pos += 1;
 			}
 		}
 	}
-	strcat(formated, "\r\n");
+	strcpy(pos, "\r\n");
 
-	if (strlen(formated) > maxlen)
+	if (static_cast<size_t>(pos - formatted) > maxlen)
 	{
-		formated[maxlen] = '\0';
+		formatted[maxlen] = '\0';
 	}
-	RECREATE(*ptr_string, std::min(maxlen, strlen(formated) + 3));
-	strcpy(*ptr_string, formated);
+	writer->set_string(formatted);
 }
 
 
@@ -1758,42 +1768,32 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					i = HSSH((const CHAR_DATA *) vict_obj);
 				else
 					CHECK_NULL(obj, OSSH(obj));
-				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'o':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					CHECK_NULL(obj, OBJ_PAD(obj, 0));
+					CHECK_NULL(obj, obj->get_PName(0).c_str());
 				}
 				else
 				{
 					padis = *(++orig) - '0';
-					CHECK_NULL(obj, OBJ_PAD(obj, padis > 5 ? 0 : padis));
+					CHECK_NULL(obj, obj->get_PName(padis > 5 ? 0 : padis).c_str());
 				}
 				break;
 			case 'O':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					CHECK_NULL(vict_obj, OBJ_PAD((const OBJ_DATA *) vict_obj, 0));
+					CHECK_NULL(vict_obj, ((const OBJ_DATA *) vict_obj)->get_PName(0).c_str());
 				}
 				else
 				{
 					padis = *(++orig) - '0';
-					CHECK_NULL(vict_obj,
-							   OBJ_PAD((const OBJ_DATA *) vict_obj, padis > 5 ? 0 : padis));
+					CHECK_NULL(vict_obj, ((const OBJ_DATA *) vict_obj)->get_PName(padis > 5 ? 0 : padis).c_str());
 				}
 				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
-				/*            case 'p':
-				                 CHECK_NULL(obj, OBJS(obj, to));
-				                 break;
-				            case 'P':
-				                 CHECK_NULL(vict_obj, OBJS((const OBJ_DATA *) vict_obj, to));
-				                 dg_victim = (CHAR_DATA *) vict_obj;
-				                 break;
-				*/
 			case 't':
 				CHECK_NULL(obj, (const char *) obj);
 				break;
@@ -1962,20 +1962,22 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
 		send_to_char("Вы не можете нести столько предметов.", ch);
-		obj_to_room(obj, IN_ROOM(ch));
+		obj_to_room(obj, ch->in_room);
 		obj_decay(obj);
 	}
 	else
 	{
 		if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(ch) > CAN_CARRY_W(ch))
 		{
-			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->PNames[3]);
+			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(3).c_str());
 			send_to_char(buf, ch);
-			obj_to_room(obj, IN_ROOM(ch));
+			obj_to_room(obj, ch->in_room);
 			// obj_decay(obj);
 		}
 		else
+		{
 			obj_to_char(obj, ch);
+		}
 	}
 }
 
@@ -2132,23 +2134,23 @@ void skip_dots(char **string)
 
 // Return pointer to first occurrence in string ct in
 // cs, or NULL if not present.  Case insensitive
-char *str_str(char *cs, const char *ct)
+const char *str_str(const char *cs, const char *ct)
 {
-	char *s;
-	const char *t;
-
 	if (!cs || !ct)
+	{
 		return NULL;
+	}
 
 	while (*cs)
 	{
-		t = ct;
+		const char* t = ct;
 
 		while (*cs && (LOWER(*cs) != LOWER(*t)))
+		{
 			cs++;
+		}
 
-		s = cs;
-
+		const char* s = cs;
 		while (*t && *cs && (LOWER(*cs) == LOWER(*t)))
 		{
 			t++;
@@ -2156,9 +2158,11 @@ char *str_str(char *cs, const char *ct)
 		}
 
 		if (!*t)
+		{
 			return s;
-
+		}
 	}
+
 	return NULL;
 }
 
@@ -2817,301 +2821,6 @@ size_t strlen_no_colors(const char *str)
 	return len - count_colors(str, len) * 2;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-namespace SetSystem {
-
-struct SetNode
-{
-	// список шмоток по конкретному сету для сверки
-	// инится один раз при ребуте и больше не меняется
-	std::set<int> set_vnum;
-	// список шмоток из данного сета у текущего чара
-	// если после заполнения в списке только 1 предмет
-	// значит удаляем его как единственный у чара
-	std::vector<int> obj_vnum;
-};
-
-std::vector<SetNode> set_list;
-const unsigned BIG_SET_ITEMS = 9;
-// для проверок при попытке ренты
-std::set<int> vnum_list;
-
-// * Заполнение списка фулл-сетов для последующих сверок.
-void init_set_list()
-{
-	for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
-		iend = OBJ_DATA::set_table.end(); i != iend; ++i)
-	{
-		if (i->second.size() > BIG_SET_ITEMS)
-		{
-			SetNode node;
-			for (set_info::const_iterator k = i->second.begin(),
-				kend = i->second.end(); k != kend; ++k)
-			{
-				node.set_vnum.insert(k->first);
-			}
-			set_list.push_back(node);
-		}
-	}
-}
-
-// * Удаление инфы от последнего сверявшегося чара.
-void reset_set_list()
-{
-	for (std::vector<SetNode>::iterator i = set_list.begin(),
-		iend = set_list.end(); i != iend; ++i)
-	{
-		i->obj_vnum.clear();
-	}
-}
-
-// * Проверка шмотки на принадлежность к сетам из set_list.
-void check_item(int vnum)
-{
-	for (std::vector<SetNode>::iterator i = set_list.begin(),
-		iend = set_list.end(); i != iend; ++i)
-	{
-		std::set<int>::const_iterator k = i->set_vnum.find(vnum);
-		if (k != i->set_vnum.end())
-		{
-			i->obj_vnum.push_back(vnum);
-		}
-	}
-}
-
-// * Обнуление таймера шмотки в ренте или перс.хране.
-void delete_item(int pt_num, int vnum)
-{
-	bool need_save = false;
-	// рента
-	if (player_table[pt_num].timer)
-	{
-		for (std::vector<save_time_info>::iterator i = player_table[pt_num].timer->time.begin(),
-			iend = player_table[pt_num].timer->time.end(); i != iend; ++i)
-		{
-			if (i->vnum == vnum)
-			{
-				log("[TO] Player %s : set-item %d deleted",
-					player_table[pt_num].name, i->vnum);
-				i->timer = -1;
-				int rnum = real_object(i->vnum);
-				if (rnum >= 0)
-				{
-					obj_proto.dec_stored(rnum);
-				}
-				need_save = true;
-			}
-		}
-	}
-	if (need_save)
-	{
-		if (!Crash_write_timer(pt_num))
-		{
-			log("SYSERROR: [TO] Error writing timer file for %s",
-				player_table[pt_num].name);
-		}
-		return;
-	}
-	// перс.хран
-	Depot::delete_set_item(player_table[pt_num].unique, vnum);
-}
-
-// * Проверка при ребуте всех рент и перс.хранилищ чаров.
-void check_rented()
-{
-	init_set_list();
-
-	for (int i = 0; i <= top_of_p_table; i++)
-	{
-		reset_set_list();
-		// рента
-		if (player_table[i].timer)
-		{
-			for (std::vector<save_time_info>::iterator it = player_table[i].timer->time.begin(),
-				it_end = player_table[i].timer->time.end(); it != it_end; ++it)
-			{
-				if (it->timer >= 0)
-				{
-					check_item(it->vnum);
-				}
-			}
-		}
-		// перс.хран
-		Depot::check_rented(player_table[i].unique);
-		// проверка итогового списка
-		for (std::vector<SetNode>::iterator it = set_list.begin(),
-			iend = set_list.end(); it != iend; ++it)
-		{
-			if (it->obj_vnum.size() == 1)
-			{
-				delete_item(i, it->obj_vnum[0]);
-			}
-		}
-	}
-}
-
-
-
-
-/**
- * Почта, базар.
- * Предметы сетов из BIG_SET_ITEMS и более предметов не принимаются.
- */
-bool is_big_set(const OBJ_DATA *obj,bool is_mini)
-{
-	unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
-	if (!obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
-	{
-		return false;
-	}
-	for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
-		iend = OBJ_DATA::set_table.end(); i != iend; ++i)
-	{
-		if (i->second.find(GET_OBJ_VNUM(obj)) != i->second.end()
-			&& i->second.size() > sets_items)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-
-
-bool find_set_item(OBJ_DATA *obj)
-{
-	for (; obj; obj = obj->next_content)
-	{
-		std::set<int>::const_iterator i = vnum_list.find(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
-		if (i != vnum_list.end())
-		{
-			return true;
-		}
-		if (find_set_item(obj->contains))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-// * Генерация списка сетин из того же набора, что и vnum (исключая ее саму).
-void init_vnum_list(int vnum)
-{
-	vnum_list.clear();
-	for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
-		iend = OBJ_DATA::set_table.end(); i != iend; ++i)
-	{
-		if (i->second.find(vnum) != i->second.end())
-			//&& i->second.size() > BIG_SET_ITEMS)
-		{
-			for (set_info::const_iterator k = i->second.begin(),
-				kend = i->second.end(); k != kend; ++k)
-			{
-				if (k->first != vnum)
-				{
-					vnum_list.insert(k->first);
-				}
-			}
-		}
-	}
-
-	if (vnum_list.empty())
-	{
-		vnum_list = obj_sets::vnum_list_add(vnum);
-	} 
-}
-
-
-/* проверяем сетину в массиве внумоB*/
-bool is_norent_set(int vnum, std::vector<int> objs)
-{
-	if (objs.empty())
-		return true;
-	// нормализуем внумы
-	vnum = obj_sets::normalize_vnum(vnum);
-	for (unsigned int i = 0; i < objs.size(); i++)
-	{
-		objs[i] = obj_sets::normalize_vnum(objs[i]);
-	}
-	init_vnum_list(obj_sets::normalize_vnum(vnum));
-	for (const auto& it : objs) 
-	{
-		for (const auto& it1 : vnum_list)
-			if (it == it1)
-				return false;
-	}
-	return true;
-}
-
-
-/**
- * Экипировка, инвентарь, чармисы, перс. хран.см
- * Требуется наличие двух и более предметов, если сетина из большого сета.
- * Перс. хран, рента.
- */
-bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
-{
-	if (!obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF))
-	{
-		return false;
-	}
-
-	init_vnum_list(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
-
-	if (vnum_list.empty())
-	{
-		return false;
-	}
-
-	// экипировка
-	for (int i = 0; i < NUM_WEARS; ++i)
-	{
-		if (find_set_item(GET_EQ(ch, i)))
-		{
-			return false;
-		}
-	}
-	// инвентарь
-	if (find_set_item(ch->carrying))
-	{
-		return false;
-	}
-	// чармисы
-	if (ch->followers)
-	{
-		for (struct follow_type *k = ch->followers; k; k = k->next)
-		{
-			if (!IS_CHARMICE(k->follower) || !k->follower->master)
-			{
-				continue;
-			}
-			for (int j = 0; j < NUM_WEARS; j++)
-			{
-				if (find_set_item(GET_EQ(k->follower, j)))
-				{
-					return false;
-				}
-			}
-			if (find_set_item(k->follower->carrying))
-			{
-				return false;
-			}
-		}
-	}
-	// перс. хранилище
-	if (Depot::find_set_item(ch, vnum_list))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-} // namespace SetSystem
-
-////////////////////////////////////////////////////////////////////////////////
-
 // Симуляция телла от моба
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 {
@@ -3147,93 +2856,93 @@ bool ParseFilter::init_type(const char *str)
 	if (is_abbrev(str, "свет")
 		|| is_abbrev(str, "light"))
 	{
-		type = obj_flag_data::ITEM_LIGHT;
+		type = OBJ_DATA::ITEM_LIGHT;
 	}
 	else if (is_abbrev(str, "свиток")
 		|| is_abbrev(str, "scroll"))
 	{
-		type = obj_flag_data::ITEM_SCROLL;
+		type = OBJ_DATA::ITEM_SCROLL;
 	}
 	else if (is_abbrev(str, "палочка")
 		|| is_abbrev(str, "wand"))
 	{
-		type = obj_flag_data::ITEM_WAND;
+		type = OBJ_DATA::ITEM_WAND;
 	}
 	else if (is_abbrev(str, "посох")
 		|| is_abbrev(str, "staff"))
 	{
-		type = obj_flag_data::ITEM_STAFF;
+		type = OBJ_DATA::ITEM_STAFF;
 	}
 	else if (is_abbrev(str, "оружие")
 		|| is_abbrev(str, "weapon"))
 	{
-		type = obj_flag_data::ITEM_WEAPON;
+		type = OBJ_DATA::ITEM_WEAPON;
 	}
 	else if (is_abbrev(str, "броня")
 		|| is_abbrev(str, "armor"))
 	{
-		type = obj_flag_data::ITEM_ARMOR;
+		type = OBJ_DATA::ITEM_ARMOR;
 	}
 	else if (is_abbrev(str, "напиток")
 		|| is_abbrev(str, "potion"))
 	{
-		type = obj_flag_data::ITEM_POTION;
+		type = OBJ_DATA::ITEM_POTION;
 	}
 	else if (is_abbrev(str, "прочее")
 		|| is_abbrev(str, "другое")
 		|| is_abbrev(str, "other"))
 	{
-		type = obj_flag_data::ITEM_OTHER;
+		type = OBJ_DATA::ITEM_OTHER;
 	}
 	else if (is_abbrev(str, "контейнер")
 		|| is_abbrev(str, "container"))
 	{
-		type = obj_flag_data::ITEM_CONTAINER;
+		type = OBJ_DATA::ITEM_CONTAINER;
 	}
 	else if (is_abbrev(str, "материал")
 		|| is_abbrev(str, "material"))
 	{
-		type = obj_flag_data::ITEM_MATERIAL;
+		type = OBJ_DATA::ITEM_MATERIAL;
 	}
 	else if (is_abbrev(str, "зачарованный")
 		|| is_abbrev(str, "enchant"))
 	{
-		type = obj_flag_data::ITEM_ENCHANT;
+		type = OBJ_DATA::ITEM_ENCHANT;
 	}
 	else if (is_abbrev(str, "емкость")
 		|| is_abbrev(str, "tank"))
 	{
-		type = obj_flag_data::ITEM_DRINKCON;
+		type = OBJ_DATA::ITEM_DRINKCON;
 	}
 	else if (is_abbrev(str, "книга")
 		|| is_abbrev(str, "book"))
 	{
-		type = obj_flag_data::ITEM_BOOK;
+		type = OBJ_DATA::ITEM_BOOK;
 	}
 	else if (is_abbrev(str, "руна")
 		|| is_abbrev(str, "rune"))
 	{
-		type = obj_flag_data::ITEM_INGREDIENT;
+		type = OBJ_DATA::ITEM_INGREDIENT;
 	}
 	else if (is_abbrev(str, "ингредиент")
 		|| is_abbrev(str, "ingradient"))
 	{
-		type = obj_flag_data::ITEM_MING;
+		type = OBJ_DATA::ITEM_MING;
 	}
 	else if (is_abbrev(str, "легкие")
 		|| is_abbrev(str, "легкая"))
 	{
-		type = obj_flag_data::ITEM_ARMOR_LIGHT;
+		type = OBJ_DATA::ITEM_ARMOR_LIGHT;
 	}
 	else if (is_abbrev(str, "средние")
 		|| is_abbrev(str, "средняя"))
 	{
-		type = obj_flag_data::ITEM_ARMOR_MEDIAN;
+		type = OBJ_DATA::ITEM_ARMOR_MEDIAN;
 	}
 	else if (is_abbrev(str, "тяжелые")
 		|| is_abbrev(str, "тяжелая"))
 	{
-		type = obj_flag_data::ITEM_ARMOR_HEAVY;
+		type = OBJ_DATA::ITEM_ARMOR_HEAVY;
 	}
 	else
 	{
@@ -3413,7 +3122,7 @@ bool ParseFilter::init_weap_class(const char *str)
 		return false;
 	}
 
-	type = obj_flag_data::ITEM_WEAPON;
+	type = OBJ_DATA::ITEM_WEAPON;
 
 	return true;
 }
@@ -3646,16 +3355,16 @@ bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const
 	{
 		result = true;
 	}
-	else if ((GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING
-			|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT)
+	else if ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING
+			|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT)
 		&& GET_OBJ_RNUM(obj) >= 0
-		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->aliases))
+		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str()))
 	{
 		result = true;
 	}
 	else if (ch
 		&& filter_type == CLAN
-		&& CHECK_CUSTOM_LABEL(name.c_str(), obj, ch))
+		&& CHECK_CUSTOM_LABEL(name, obj, ch))
 	{
 		result = true;
 	}
@@ -3687,19 +3396,22 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const
 		if (proto_tm <= 0)
 		{
 			char buf_[MAX_INPUT_LENGTH];
-			snprintf(buf_, sizeof(buf_),
-				"SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
-				proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->item_number,
-				__func__, __FILE__, __LINE__);
+			snprintf(buf_, sizeof(buf_), "SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
+				proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->get_rnum(), __func__, __FILE__, __LINE__);
 			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		}
 		else
 		{
 			int tm_pct;
 			if (check_unlimited_timer(obj))  // если шмотка нерушима, физически проставляем текст нерушимо
+			{
 				tm_pct = 1000;
+			}
 			else
+			{
 				tm_pct = obj->get_timer() * 100 / proto_tm;
+			}
+
 			if (filter_type == CLAN
 				&& tm_pct >= state
 				&& tm_pct < state + 20)
@@ -3754,7 +3466,7 @@ bool ParseFilter::check_cost(int obj_price) const
 }
 
 // заколебали эти флаги... сравниваем num и все поля в flags
-bool CompareBits(FLAG_DATA flags, const char *names[], int affect)
+bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect)
 {
 	int i;
 	for (i = 0; i < 4; i++)
@@ -3762,6 +3474,7 @@ bool CompareBits(FLAG_DATA flags, const char *names[], int affect)
 		int nr = 0;
 		int fail = i;
 		bitvector_t bitvector = flags.get_plane(i);
+
 		while (fail)
 		{
 			if (*names[nr] == '\n')
@@ -3788,7 +3501,7 @@ bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const
 	{
 		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it)
 		{
-			if (!CompareBits(obj->obj_flags.affects, weapon_affects, *it))
+			if (!CompareBits(obj->get_affect_flags(), weapon_affects, *it))
 			{
 				return false;
 			}
@@ -3807,11 +3520,11 @@ bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
 			result = false;
 			for (int i = 0; i < MAX_OBJ_AFFECT; ++i)
 			{
-				if (obj->affected[i].location == *it)
+				if (obj->get_affected(i).location == *it)
 				{
-					int mod = obj->affected[i].modifier;
+					int mod = obj->get_affected(i).modifier;
 					char buf_[MAX_INPUT_LENGTH];
-					sprinttype(obj->affected[i].location, apply_types, buf_);
+					sprinttype(obj->get_affected(i).location, apply_types, buf_);
 					for (int j = 0; *apply_negative[j] != '\n'; j++)
 					{
 						if (!str_cmp(buf_, apply_negative[j]))
@@ -3820,6 +3533,7 @@ bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
 							break;
 						}
 					}
+
 					if (mod > 0)
 					{
 						result = true;
@@ -3982,6 +3696,92 @@ void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = n
 			}
 		}
 		fprintf(file, "\n");
+	}
+}
+
+bool isname(const char *str, const char *namelist)
+{
+	bool once_ok = false;
+	const char *curname, *curstr, *laststr;
+
+	if (!namelist || !*namelist || !str)
+	{
+		return false;
+	}
+
+	for (curstr = str; !a_isalnum(*curstr); curstr++)
+	{
+		if (!*curstr)
+		{
+			return once_ok;
+		}
+	}
+
+	laststr = curstr;
+	curname = namelist;
+	for (;;)
+	{
+		once_ok = false;
+		for (;; curstr++, curname++)
+		{
+			if (!*curstr)
+			{
+				return once_ok;
+			}
+
+			if (*curstr == '!')
+			{
+				if (a_isalnum(*curname))
+				{
+					curstr = laststr;
+					break;
+				}
+			}
+
+			if (!a_isalnum(*curstr))
+			{
+				for (; !a_isalnum(*curstr); curstr++)
+				{
+					if (!*curstr)
+					{
+						return once_ok;
+					}
+				}
+				laststr = curstr;
+				break;
+			}
+
+			if (!*curname)
+			{
+				return false;
+			}
+
+			if (!a_isalnum(*curname))
+			{
+				curstr = laststr;
+				break;
+			}
+
+			if (LOWER(*curstr) != LOWER(*curname))
+			{
+				curstr = laststr;
+				break;
+			}
+			else
+			{
+				once_ok = true;
+			}
+		}
+
+		// skip to next name
+		for (; a_isalnum(*curname); curname++);
+		for (; !a_isalnum(*curname); curname++)
+		{
+			if (!*curname)
+			{
+				return false;
+			}
+		}
 	}
 }
 

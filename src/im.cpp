@@ -224,7 +224,7 @@ char * get_im_alias(im_memb * s, const char *name)
 }
 
 // Функция заменяет alias в названиях ингредиентов
-char * replace_alias(char *ptr, im_memb * sample, int rnum, const char *std)
+const char* replace_alias(const char *ptr, im_memb * sample, int rnum, const char *std)
 {
 	char *dst, *al;
 	char aname[16];
@@ -312,7 +312,6 @@ int im_assign_power(OBJ_DATA * obj)
 	int rnum = -1;
 	im_memb *sample, *p;
 	int j;
-	char *ptr;
 
 	// Перевод номера index в rnum
 	rind = im_type_rnum(GET_OBJ_VAL(obj, IM_TYPE_SLOT));
@@ -331,46 +330,37 @@ int im_assign_power(OBJ_DATA * obj)
 		rnum = real_mobile(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
 		if (rnum < 0)
 			return 3;	// неверный VNUM базового моба
-		GET_OBJ_VAL(obj, IM_POWER_SLOT) = (GET_LEVEL(mob_proto + rnum) + 3) * 3 / 4;
+		obj->set_val(IM_POWER_SLOT, (GET_LEVEL(mob_proto + rnum) + 3) * 3 / 4);
 	}
 	// Попробовать найти описатель ВИДА
 	for (p = imtypes[rind].head, sample = NULL; p && p->power <= GET_OBJ_VAL(obj, IM_POWER_SLOT); sample = p, p = p->next);
 
 	if (sample)
 	{
-		GET_OBJ_SEX(obj) = sample->sex;
+		obj->set_sex(sample->sex);
 	}
 
 	// Замена описаний
 	// Падежи, описание, alias
 	for (j = 0; j < 6; ++j)
 	{
-		ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], j);
-		if (GET_OBJ_PNAME(obj, j) != ptr)
-			free(GET_OBJ_PNAME(obj, j));
-		GET_OBJ_PNAME(obj, j) = str_dup(replace_alias(ptr, sample, rnum, def_alias[j]));
+		const char* ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_PName(j).c_str();
+		obj->set_PName(j, replace_alias(ptr, sample, rnum, def_alias[j]));
 	}
-	ptr = GET_OBJ_DESC(obj_proto[GET_OBJ_RNUM(obj)]);
-	if (GET_OBJ_DESC(obj) != ptr)
-		free(GET_OBJ_DESC(obj));
-	GET_OBJ_DESC(obj) = str_dup(replace_alias(ptr, sample, rnum, "s"));
+	const char* ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_description().c_str();
+	obj->set_description(replace_alias(ptr, sample, rnum, "s"));
 
-	ptr = obj_proto[GET_OBJ_RNUM(obj)]->short_description;
-	if (obj->short_description != ptr)
-		free(obj->short_description);
-	obj->short_description = str_dup(replace_alias(ptr, sample, rnum, def_alias[0]));
+	ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_short_description().c_str();
+	obj->set_short_description(replace_alias(ptr, sample, rnum, def_alias[0]));
 
-	ptr = GET_OBJ_ALIAS(obj_proto[GET_OBJ_RNUM(obj)]);
-	if (GET_OBJ_ALIAS(obj) != ptr)
-		free(GET_OBJ_ALIAS(obj));
-	GET_OBJ_ALIAS(obj) = str_dup(replace_alias(ptr, sample, rnum, "m"));
+	ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str();
+	obj->set_aliases(replace_alias(ptr, sample, rnum, "m"));
 
 	// Обработка других полей объекта
 	// -- пока не сделано --
 
 	return 0;
 }
-
 
 // Загрузка магического ингредиента
 OBJ_DATA *load_ingredient(int index, int power, int rnum)
@@ -397,9 +387,9 @@ OBJ_DATA *load_ingredient(int index, int power, int rnum)
 			break;
 		}
 
-		GET_OBJ_VAL(ing, IM_INDEX_SLOT) = rnum;
-		GET_OBJ_VAL(ing, IM_POWER_SLOT) = power;
-		GET_OBJ_VAL(ing, IM_TYPE_SLOT) = imtypes[index].id;
+		ing->set_val(IM_INDEX_SLOT, rnum);
+		ing->set_val(IM_POWER_SLOT, power);
+		ing->set_val(IM_TYPE_SLOT, imtypes[index].id);
 
 		err = im_assign_power(ing);
 		if (err != 0)
@@ -1042,8 +1032,8 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 
 	for (o = room->contents; o; o = next)
 	{
-		next = o->next_content;
-		if (GET_OBJ_TYPE(o) == obj_flag_data::ITEM_MING)
+		next = o->get_next_content();
+		if (GET_OBJ_TYPE(o) == OBJ_DATA::ITEM_MING)
 		{
 			extract_obj(o);
 		}
@@ -1116,10 +1106,14 @@ OBJ_DATA* try_make_ingr(int *ing_list, int vnum, int max_prob)
 	{
 		int power;
 		if (number(1, max_prob) >= (ing_list[indx + 1] & 0xFFFF))
+		{
 			continue;
+		}
 		power = (ing_list[indx + 1] >> 16) & 0xFFFF;
 		if (power == 0xFFFF)
+		{
 			power = im_calc_power();
+		}
 		return load_ingredient(ing_list[indx], power, vnum);
 	}
 	return NULL;
@@ -1161,23 +1155,30 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 	if (all_recipes)
 	{
 		if (clr(ch, C_NRM))
+		{
 			sprintf(buf, " Список доступных рецептов.\r\n"
 				" Зеленым цветом выделены уже изученные рецепты.\r\n"
 				" Красным цветом выделены рецепты, недоступные вам в настоящий момент.\r\n"
 				"\r\n     Рецепт                Уровень (реморт)\r\n"
 				"------------------------------------------------\r\n");
+		}
 		else
+		{
 			sprintf(buf, " Список доступных рецептов.\r\n"
 				" Пометкой [И] выделены уже изученные рецепты.\r\n"
 				" Пометкой [Д] выделены доступные для изучения рецепты.\r\n"
 				" Пометкой [Н] выделены рецепты, недоступные вам в настоящий момент.\r\n"
 				"\r\n     Рецепт                Уровень (реморт)\r\n"
 				"------------------------------------------------\r\n");
+		}
 		strcpy(buf1, buf);
 		for (sortpos = 0, i = 0; sortpos <= top_imrecipes; sortpos++)
 		{
 			if (!imrecipes[sortpos].classknow[(int) GET_CLASS(ch)])
+			{
 				continue;
+			}
+
 			if (strlen(buf1) >= MAX_STRING_LENGTH - 60)
 			{
 				strcat(buf1, "**OVERFLOW**\r\n");
@@ -1360,7 +1361,7 @@ void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success)
 		return;
 
 	if (IS_IMMORTAL(ch) ||
-			(IN_ROOM(ch) != NOWHERE &&
+			(ch->in_room != NOWHERE &&
 			 (diff = wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) *
 					 GET_LEVEL(ch) / 20 - rs->perc) > 0 && rs->perc < MAX_EXP_PERCENT + GET_REMORT(ch) * 5))
 	{
@@ -1419,14 +1420,14 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 			sprintf(buf, "У вас нет %s.\r\n", name);
 			break;
 		}
-		if (GET_OBJ_TYPE(o) != obj_flag_data::ITEM_MING)
+		if (GET_OBJ_TYPE(o) != OBJ_DATA::ITEM_MING)
 		{
 			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
 			break;
 		}
 		if (im_type_rnum(GET_OBJ_VAL(o, IM_TYPE_SLOT)) < 0)
 		{
-			sprintf(buf, "Магическая сила %s утеряна, похоже, безвозвратно.\r\n", GET_OBJ_PNAME(o, 1));
+			sprintf(buf, "Магическая сила %s утеряна, похоже, безвозвратно.\r\n", o->get_PName(1).c_str());
 			break;
 		}
 		for (i = 0; i < n; ++i)
@@ -1572,7 +1573,7 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		int min_osk = osk/2;
 		if (itype < min_osk)
 		{
-			send_to_char(ch, "Качество %s ниже минимально допустимого.\r\n", GET_OBJ_PNAME(objs[i], 1));
+			send_to_char(ch, "Качество %s ниже минимально допустимого.\r\n", GET_OBJ_PNAME(objs[i], 1).c_str());
 			sprintf(name, "Качество ингров ниже допустимого: itype=%d, min_osk=%d", itype, min_osk);
 			imlog(NRM, name);
 			free(objs);
@@ -1597,15 +1598,15 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	switch (GET_OBJ_TYPE(obj_proto[tgt]))
 	{
-	case obj_flag_data::ITEM_SCROLL:
-	case obj_flag_data::ITEM_POTION:
+	case OBJ_DATA::ITEM_SCROLL:
+	case OBJ_DATA::ITEM_POTION:
 		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = 1;	// количество
 		param[2] = obj_proto[tgt]->get_timer();	// таймер
 		break;
 
-	case obj_flag_data::ITEM_WAND:
-	case obj_flag_data::ITEM_STAFF:
+	case OBJ_DATA::ITEM_WAND:
+	case OBJ_DATA::ITEM_STAFF:
 		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);	// количество
 		param[2] = obj_proto[tgt]->get_timer();	// таймер
@@ -1734,11 +1735,11 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			switch (GET_OBJ_TYPE(result))
 			{
-			case obj_flag_data::ITEM_SCROLL:
-			case obj_flag_data::ITEM_POTION:
+			case OBJ_DATA::ITEM_SCROLL:
+			case OBJ_DATA::ITEM_POTION:
 				if (val[0] > 0)
 				{
-					GET_OBJ_VAL(result, 0) = val[0];
+					result->set_val(0, val[0]);
 				}
 				if (val[2] > 0)
 				{
@@ -1746,15 +1747,16 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				}
 				break;
 
-			case obj_flag_data::ITEM_WAND:
-			case obj_flag_data::ITEM_STAFF:
+			case OBJ_DATA::ITEM_WAND:
+			case OBJ_DATA::ITEM_STAFF:
 				if (val[0] > 0)
 				{
-					GET_OBJ_VAL(result, 0) = val[0];
+					result->set_val(0, val[0]);
 				}
 				if (val[1] > 0)
 				{
-					GET_OBJ_VAL(result, 1) = GET_OBJ_VAL(result, 2) = val[1];
+					result->set_val(1, val[1]);
+					result->set_val(2, val[1]);
 				}
 				if (val[2] > 0)
 				{

@@ -90,46 +90,47 @@ template <class t>
 class Wrapper
 {
 public:
-typedef t wrapped_t;
-typedef caching::Cache<wrapped_t*> cache_t;
-Wrapper(t* obj, cache_t& cache_):
-cache(cache_), id(cache_.get_id(obj))
+	typedef t wrapped_t;
+	typedef caching::Cache<wrapped_t*> cache_t;
+	Wrapper(t* obj, cache_t& cache_):
+		cache(cache_), id(cache_.get_id(obj))
 	{
 	}
 
-Wrapper(const Wrapper& other):
-	cache(other.cache), id(other.id) { }
+	Wrapper(const Wrapper& other):
+		cache(other.cache), id(other.id) { }
 
-Wrapper& operator=(const Wrapper& other)
-{
-	id = other.id;
-	return *this;
-}
+	Wrapper& operator=(const Wrapper& other)
+	{
+		id = other.id;
+		return *this;
+	}
 
-operator t*() const
-{
-	t* r = cache.get_obj(id);
-	if (!r)
-		raise_error();
-	return r;
-}
+	operator t*() const
+	{
+		t* r = cache.get_obj(id);
+		if (!r)
+			raise_error();
+		return r;
+	}
 
-operator bool() { return id!=0; }
+	operator bool() { return id!=0; }
 
-void raise_error() const
-{
-	PyErr_SetString(ObjectDoesNotExist.get(), "Object you are referencing doesn't exist anymore");
-	throw_error_already_set();
-}
+	void raise_error() const
+	{
+		PyErr_SetString(ObjectDoesNotExist.get(), "Object you are referencing doesn't exist anymore");
+		throw_error_already_set();
+	}
 
-struct Ensurer
-{
-Ensurer(const Wrapper& w): ptr(w) { }
+	struct Ensurer
+	{
+		Ensurer(const Wrapper& w): ptr(w) { }
 
-t* operator->() { return ptr; }
-operator t*() { return ptr; }
-t* ptr;
-};
+		t* operator->() { return ptr; }
+		operator t*() { return ptr; }
+		t* ptr;
+	};
+
 private:
 	cache_t& cache;
 	caching::id_t id;
@@ -576,7 +577,7 @@ int get_skills_count() const
 int get_equipped_skill(int skill_num) const
 {
 	Ensurer ch(*this);
-	return ch->get_equipped_skill(skill_num);
+	return ch->get_equipped_skill(static_cast<ESkill>(skill_num));
 }
 
 int get_trained_skill(int skill_num) const
@@ -635,10 +636,10 @@ bool is_affected_by_spell(int spell_num) const
 	return affected_by_spell(ch, spell_num);
 }
 
-void add_affect(AFFECT_DATA<EApplyLocation>& af)
+void add_affect(const AFFECT_DATA<EApplyLocation>& af)
 {
 	Ensurer ch(*this);
-	affect_to_char(ch, &af);
+	affect_to_char(ch, af);
 }
 
 CharacterWrapper get_vis(const char* name, int where) const
@@ -843,142 +844,141 @@ struct _arrayN
     }
 };
 
-class ObjWrapper: public Wrapper<OBJ_DATA>
+class ObjWrapper: private std::shared_ptr<OBJ_DATA>, public Wrapper<OBJ_DATA>
 {
 public:
-ObjWrapper(OBJ_DATA* obj):Wrapper<OBJ_DATA>(obj, caching::obj_cache) { }
+	ObjWrapper(OBJ_DATA* obj) : Wrapper<OBJ_DATA>(obj, caching::obj_cache)
+	{
+	}
+
+	ObjWrapper(const CObjectPrototype::shared_ptr& obj):
+		std::shared_ptr<OBJ_DATA>(new OBJ_DATA(*obj)),
+		Wrapper<OBJ_DATA>(get(), caching::obj_cache)
+	{
+	}
 
 std::string get_aliases() const
 {
 	Ensurer obj(*this);
-	return obj->aliases;
+	return obj->get_aliases();
 }
 
 void set_aliases(const char* aliases)
 {
 	Ensurer obj(*this);
-	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->aliases != obj_proto[i]->aliases)
-		if (obj->aliases) free(obj->aliases);
-	obj->aliases = str_dup(aliases);
+	obj->set_aliases(aliases);
 }
 
 std::string get_description() const
 {
 	Ensurer obj(*this);
-	return obj->description;
+	return obj->get_description();
 }
 
 void set_description(const char* description)
 {
 	Ensurer obj(*this);
-	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->description != obj_proto[i]->description)
-		if (obj->description) free(obj->description);
-	obj->description = str_dup(description);
+	obj->set_description(description);
 }
 std::string get_short_description() const
 {
 	Ensurer obj(*this);
-	return obj->short_description;
+	return obj->get_short_description();
 }
 
 void set_short_description(const char* short_description)
 {
 	Ensurer obj(*this);
-	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->short_description != obj_proto[i]->short_description)
-		if (obj->short_description) free(obj->short_description);
-	obj->short_description = str_dup(short_description);
+	obj->set_short_description(short_description);
 }
 std::string get_action_description() const
 {
 	Ensurer obj(*this);
-	return obj->action_description;
+	return obj->get_action_description();
 }
 
 void set_action_description(const char* action_description)
 {
 	Ensurer obj(*this);
-	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->action_description != obj_proto[i]->action_description)
-		if (obj->action_description) free(obj->action_description);
-	obj->action_description = str_dup(action_description);
+	obj->set_action_description(action_description);
 }
 std::string get_pad(const unsigned pad) const
 {
 	Ensurer obj(*this);
 	if (pad < 6)
-		return obj->PNames[pad];
-	else return "";
+	{
+		return obj->get_PName(pad);
+	}
+
+	return "";
 }
 
 void set_pad(const unsigned pad, const char* s)
 {
-	if (pad >= 6) return;
+	if (pad >= 6)
+	{
+		return;
+	}
 	Ensurer obj(*this);
-	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->PNames[pad] != obj_proto[i]->PNames[pad])
-		if (obj->PNames[pad]) free(obj->PNames[pad]);
-	obj->PNames[pad] = str_dup(s);
+	obj->set_PName(pad, s);
 }
 
 int get_value(const unsigned i) const
 {
-	if (i >= NUM_OBJ_VAL_POSITIONS)
+	if (i >= OBJ_DATA::VALS_COUNT)
 	{
 		PyErr_SetString(PyExc_ValueError, "argument out of range");
 		throw_error_already_set();
 	}
 	Ensurer obj(*this);
-	return obj->obj_flags.value[i];
+	return obj->get_val(i);
 }
 
 void set_value(const int i, const int v)
 {
-	if (i >= NUM_OBJ_VAL_POSITIONS)
+	if (i >= OBJ_DATA::VALS_COUNT)
 	{
 		PyErr_SetString(PyExc_ValueError, "argument out of range");
 		throw_error_already_set();
 	}
 	Ensurer obj(*this);
-	obj->obj_flags.value[i] = v;
+	obj->set_val(i, v);
 }
 
 int get_obj_type() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.type_flag;
+	return obj->get_type();
 }
 
 void set_obj_type(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.type_flag = static_cast<obj_flag_data::EObjectType>(v);
+	obj->set_type(static_cast<OBJ_DATA::EObjectType>(v));
 }
 
 int get_wear_flags() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.wear_flags;
+	return obj->get_wear_flags();
 }
 
 void set_wear_flags(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.wear_flags = v;
+	obj->set_wear_flags(v);
 }
 
 unsigned get_weight() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.weight;
+	return obj->get_weight();
 }
 
 void set_weight(const unsigned v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.weight = v;
+	obj->set_weight(v);
 }
 unsigned get_cost() const
 {
@@ -994,29 +994,29 @@ void set_cost(const unsigned v)
 unsigned get_cost_per_day_on() const
 {
 	Ensurer obj(*this);
-	return obj->get_rent_eq();
+	return obj->get_rent_on();
 }
 
 void set_cost_per_day_on(const unsigned v)
 {
 	Ensurer obj(*this);
-	obj->set_rent_eq(v);
+	obj->set_rent_on(v);
 }
 unsigned get_cost_per_day_off() const
 {
 	Ensurer obj(*this);
-	return obj->get_rent();
+	return obj->get_rent_off();
 }
 
 void set_cost_per_day_off(const unsigned v)
 {
 	Ensurer obj(*this);
-	obj->set_rent(v);
+	obj->set_rent_off(v);
 }
 int get_sex() const
 {
 	Ensurer obj(*this);
-	return to_underlying(obj->obj_flags.Obj_sex);
+	return to_underlying(obj->get_sex());
 }
 
 int get_timer() const
@@ -1034,217 +1034,212 @@ void set_timer(const int timer) const
 void set_sex(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_sex = static_cast<ESex>(v);
+	obj->set_sex(static_cast<ESex>(v));
 }
 int get_spell() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_spell;
+	return obj->get_spell();
 }
 
 void set_spell(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_spell = v;
+	obj->set_spell(v);
 }
 int get_level() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_level;
+	return obj->get_level();
 }
 
 void set_level(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_level = v;
+	obj->set_level(v);
 }
 int get_skill() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_skill;
+	return obj->get_skill();
 }
 
 void set_skill(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_skill = v;
+	obj->set_skill(v);
 }
 int get_max() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_max;
+	return obj->get_maximum_durability();
 }
 
 void set_max(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_max = v;
+	obj->set_maximum_durability(v);
 }
 int get_cur() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_cur;
+	return obj->get_current_durability();
 }
 
 void set_cur(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_cur = v;
+	obj->set_current_durability(v);
 }
 
 int get_mater() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_mater;
+	return obj->get_material();
 }
 
 void set_mater(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_mater = static_cast<obj_flag_data::EObjectMaterial>(v);
+	obj->set_material(static_cast<OBJ_DATA::EObjectMaterial>(v));
 }
 int get_owner() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_owner;
+	return obj->get_owner();
 }
 
 void set_owner(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_owner = v;
+	obj->set_owner(v);
 }
 
 int get_maker() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_maker;
+	return obj->get_crafter_uid();
 }
 
 void set_maker(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_maker = v;
+	obj->set_crafter_uid(v);
 }
 
 int get_destroyer() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_destroyer;
+	return obj->get_destroyer();
 }
 
 void set_destroyer(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_destroyer = v;
+	obj->set_destroyer(v);
 }
 
 int get_zone() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.Obj_zone;
+	return obj->get_zone();
 }
 
 void set_zone(const int v)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.Obj_zone = v;
+	obj->set_zone(v);
 }
 
 FLAG_DATA get_affects() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.affects;
+	return obj->get_affect_flags();
 }
 
 void set_affects(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.affects = f;
+	obj->set_affect_flags(f);
 }
 
 FLAG_DATA get_anti_flag() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.anti_flag;
+	return obj->get_anti_flags();
 }
 
 void set_anti_flag(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.anti_flag = f;
+	obj->set_anti_flags(f);
 }
 
 FLAG_DATA get_no_flag() const
 {
 	Ensurer obj(*this);
-	return obj->obj_flags.no_flag;
+	return obj->get_no_flags();
 }
 
 void set_no_flag(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
-	obj->obj_flags.no_flag = f;
+	obj->set_no_flags(f);
 }
 
 FLAG_DATA get_extra_flags() const
 {
 	Ensurer obj(*this);
-	return GET_OBJ_EXTRA(obj);
+	return obj->get_extra_flags();
 }
 
 void set_extra_flags(const FLAG_DATA& f)
 {
 	Ensurer obj(*this);
-	GET_OBJ_EXTRA(obj) = f;
+	obj->set_extra_flags(f);
 }
 
-affected_t& get_affected()
+const affected_t& get_affected()
 {
 	Ensurer obj(*this);
-	return obj->affected;
+	return obj->get_all_affected();
 }
 
 object get_carried_by() const
 {
 	Ensurer obj(*this);
-	if (obj->carried_by)
-		return object(CharacterWrapper(obj->carried_by));
+	if (obj->get_carried_by())
+	{
+		return object(CharacterWrapper(obj->get_carried_by()));
+	}
 	return object();
 }
 
 object get_worn_by() const
 {
 	Ensurer obj(*this);
-	if (obj->worn_by)
-		return object(CharacterWrapper(obj->worn_by));
+	if (obj->get_worn_by())
+	{
+		return object(CharacterWrapper(obj->get_worn_by()));
+	}
 	return object();
 }
 
 obj_rnum get_item_number() const
 {
 	Ensurer obj(*this);
-	return GET_OBJ_RNUM(obj);
+	return obj->get_rnum();
 }
 
 void set_item_number(const obj_rnum n)
 {
 	Ensurer obj(*this);
-	GET_OBJ_RNUM(obj)=n;
+	obj->set_rnum(n);
 }
 
 obj_vnum get_vnum() const {
 	Ensurer obj(*this);
 	return GET_OBJ_VNUM(obj);
-}
-
-void set_vnum(const obj_vnum vnum)
-{
-	Ensurer obj(*this);
-	if (GET_OBJ_RNUM(obj) >=0)
-	{
-		obj_proto.vnum(GET_OBJ_RNUM(obj), vnum);
-	}
 }
 };
 
@@ -1256,7 +1251,7 @@ ObjWrapper get_obj_proto(const obj_rnum rnum)
 	}
 	PyErr_SetString(PyExc_ValueError, "obj rnum is out of range");
 	throw_error_already_set();
-	return ObjWrapper(NULL);
+	return ObjWrapper(static_cast<OBJ_DATA *>(nullptr));
 }
 
 object get_char_equipment(const CharacterWrapper& c, const unsigned num)
@@ -1553,7 +1548,7 @@ BOOST_PYTHON_MODULE(mud)
 		.add_property("maker", &ObjWrapper::get_maker, &ObjWrapper::set_maker, "ID крафтера (?)")
 		.add_property("zone", &ObjWrapper::get_zone, &ObjWrapper::set_zone, "rnum зоны, из которой предмет родом")
 		.add_property("rnum", &ObjWrapper::get_item_number, &ObjWrapper::set_item_number, "Реальный номер объекта, являющийся индексом в таблице прототипов.")
-		.add_property("vnum", &ObjWrapper::get_vnum, &ObjWrapper::set_vnum, "виртуальный номер объекта-прототипа.")
+		.def("vnum", &ObjWrapper::get_vnum, "виртуальный номер объекта-прототипа.")
 		.add_property("affects", &ObjWrapper::get_affects, &ObjWrapper::set_affects, "Накладываемые аффекты")
 		.add_property("extra_flags", &ObjWrapper::get_extra_flags, &ObjWrapper::set_extra_flags, "Экстрафлаги (шумит, горит и т.п.)")
 		.add_property("no_flags", &ObjWrapper::get_no_flag, &ObjWrapper::set_no_flag)
@@ -2160,38 +2155,38 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(WEAR_HOLD);
     DEFINE_CONSTANT(WEAR_BOTHS);
     DEFINE_CONSTANT(NUM_WEARS);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_LIGHT);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_SCROLL);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_WAND);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_STAFF);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_WEAPON);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_FIREWEAPON);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_MISSILE);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_TREASURE);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_ARMOR);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_POTION);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_WORN);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_OTHER);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_TRASH);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_TRAP);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_CONTAINER);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_NOTE);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_DRINKCON);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_KEY);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_FOOD);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_MONEY);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_PEN);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_BOAT);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_FOUNTAIN);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_BOOK);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_INGREDIENT);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_MING);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_MATERIAL);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_BANDAGE);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_ARMOR_LIGHT);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_ARMOR_MEDIAN);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_ARMOR_HEAVY);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::ITEM_ENCHANT);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_LIGHT);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_SCROLL);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_WAND);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_STAFF);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_WEAPON);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_FIREWEAPON);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MISSILE);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_TREASURE);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_ARMOR);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_POTION);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_WORN);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_OTHER);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_TRASH);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_TRAP);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_CONTAINER);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_NOTE);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_DRINKCON);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_KEY);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_FOOD);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MONEY);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_PEN);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_BOAT);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_FOUNTAIN);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_BOOK);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_INGREDIENT);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MING);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MATERIAL);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_BANDAGE);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_ARMOR_LIGHT);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_ARMOR_MEDIAN);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_ARMOR_HEAVY);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_ENCHANT);
     DEFINE_CONSTANT(BOOK_SPELL);
     DEFINE_CONSTANT(BOOK_SKILL);
     DEFINE_CONSTANT(BOOK_UPGRD);
@@ -2396,25 +2391,25 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(APPLY_ROOM_POISON);
     DEFINE_CONSTANT(APPLY_ROOM_FLAME);
     DEFINE_CONSTANT(NUM_ROOM_APPLIES);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_NONE);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_BULAT);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_BRONZE);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_IRON);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_STEEL);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_SWORDSSTEEL);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_COLOR);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_CRYSTALL);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_WOOD);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_SUPERWOOD);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_FARFOR);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_GLASS);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_ROCK);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_BONE);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_MATERIA);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_SKIN);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_ORGANIC);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_PAPER);
-    DEFINE_ENUM_CONSTANT(obj_flag_data::EObjectMaterial::MAT_DIAMOND);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_NONE);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_BULAT);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_BRONZE);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_IRON);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_STEEL);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_SWORDSSTEEL);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_COLOR);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_CRYSTALL);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_WOOD);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_SUPERWOOD);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_FARFOR);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_GLASS);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_ROCK);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_BONE);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_MATERIA);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_SKIN);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_ORGANIC);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_PAPER);
+    DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_DIAMOND);
     DEFINE_CONSTANT(TRACK_NPC);
     DEFINE_CONSTANT(TRACK_HIDE);
     DEFINE_CONSTANT(CONT_CLOSEABLE);

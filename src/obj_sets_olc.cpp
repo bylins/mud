@@ -185,13 +185,13 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 	{
 		const int rnum = real_object(i.first);
 		if (rnum < 0
-			|| !obj_proto[rnum]->short_description)
+			|| obj_proto[rnum]->get_short_description().empty())
 		{
 			continue;
 		}
 
-		const size_t curr_name = strlen_no_colors(obj_proto[rnum]->short_description);
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto.vnum(rnum));
+		const size_t curr_name = strlen_no_colors(obj_proto[rnum]->get_short_description().c_str());
+		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto[rnum]->get_vnum());
 		const size_t curr_vnum = strlen(buf_vnum);
 
 		if (left)
@@ -211,10 +211,10 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 	left = true;
 	for (const auto i : rnum_list)
 	{
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto.vnum(i));
+		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto[i]->get_vnum());
 		snprintf(format, sizeof(format), "%s%2d%s) %s : %s%%-%zus%s   ",
 			CCGRN(ch, C_NRM), menu++, CCNRM(ch, C_NRM),
-			colored_name(obj_proto[i]->short_description, left ? l_max_name : r_max_name, true),
+			colored_name(obj_proto[i]->get_short_description().c_str(), left ? l_max_name : r_max_name, true),
 			CCCYN(ch, C_NRM), (left ? l_max_vnum : r_max_vnum), CCNRM(ch, C_NRM));
 		snprintf(buf_, sizeof(buf_), format, buf_vnum);
 		out += buf_;
@@ -392,7 +392,7 @@ void sedit::show_obj_edit(CHAR_DATA *ch)
 		"%s 6%s) Деактиватор в комнату : %s\r\n"
 		"%s 7%s) В главное меню Q(В)\r\n"
 		"Ваш выбор : ",
-		obj_proto[rnum]->short_description,
+		obj_proto[rnum]->get_short_description().c_str(),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCCYN(ch, C_NRM), obj_edit, CCNRM(ch, C_NRM),
@@ -411,9 +411,7 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	auto i = olc_set.activ_list.find(activ_edit);
 	if (i == olc_set.activ_list.end())
 	{
-		send_to_char(ch,
-			"Ошибка: активатор не найден %s:%d (%s).\r\n",
-			__FILE__, __LINE__, __func__);
+		send_to_char(ch, "Ошибка: активатор не найден %s:%d (%s).\r\n", __FILE__, __LINE__, __func__);
 		show_main(ch);
 		return;
 	}
@@ -487,8 +485,8 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	{
 		const int rnum = real_object(activ.enchant.first);
 		const char *name =
-			(rnum >= 0 ? obj_proto[rnum]->short_description : "<null>");
-		if (GET_OBJ_TYPE(obj_proto[rnum]) == obj_flag_data::ITEM_WEAPON)
+			(rnum >= 0 ? obj_proto[rnum]->get_short_description().c_str() : "<null>");
+		if (GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_WEAPON)
 		{
 			snprintf(buf_, sizeof(buf_),
 				"%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d, кубики %+dD%+d%s\r\n",
@@ -1208,7 +1206,7 @@ void sedit::parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg)
 	olc_set.activ_list.at(activ_edit).enchant.first = vnum;
 
 	if (rnum >= 0
-		&& GET_OBJ_TYPE(obj_proto[rnum]) == obj_flag_data::ITEM_WEAPON)
+		&& GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_WEAPON)
 	{
 		state = STATE_ACTIV_ENCH_NDICE;
 		send_to_char("Укажите изменение бросков кубика (0 - без изменений) :", ch);
@@ -1288,13 +1286,13 @@ void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
 		{
 			send_to_char(ch,
 				"Предмет '%s' уже является частью другого набора.\r\n",
-				obj_proto[rnum]->short_description);
+				obj_proto[rnum]->get_short_description().c_str());
 		}
 		else if (!verify_wear_flag(obj_proto[rnum]))
 		{
 			send_to_char(ch,
 				"Предмет '%s' имеет запрещенный слот для надевания.\r\n",
-				obj_proto[rnum]->short_description);
+				obj_proto[rnum]->get_short_description().c_str());
 		}
 		else
 		{
@@ -1304,7 +1302,7 @@ void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
 			olc_set.obj_list.insert(std::make_pair(vnum, empty_msg));
 			send_to_char(ch,
 				"Предмет '%s' добавлен в набор.\r\n",
-				obj_proto[rnum]->short_description);
+				obj_proto[rnum]->get_short_description().c_str());
 		}
 	}
 
@@ -1488,7 +1486,7 @@ void sedit::parse_activ_skill(CHAR_DATA *ch, const char *arg)
 
 	if (num == 0)
 	{
-		skill.first = 0;
+		skill.first = SKILL_INVALID;
 		skill.second = 0;
 		show_activ_edit(ch);
 		return;
@@ -1508,13 +1506,13 @@ void sedit::parse_activ_skill(CHAR_DATA *ch, const char *arg)
 	}
 	else if (ssval == 0)
 	{
-		skill.first = 0;
+		skill.first = SKILL_INVALID;
 		skill.second = 0;
 		show_activ_edit(ch);
 	}
 	else
 	{
-		skill.first = ssnum;
+		skill.first = static_cast<ESkill>(ssnum);
 		skill.second = std::max(-200, std::min(ssval, 200));
 		show_activ_edit(ch);
 	}
@@ -1745,13 +1743,13 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 	{
 		send_to_char(ch,
 			"Предмет '%s' уже является частью другого набора.\r\n",
-			obj_proto[rnum]->short_description);
+			obj_proto[rnum]->get_short_description().c_str());
 	}
 	else if (olc_set.obj_list.find(vnum) != olc_set.obj_list.end())
 	{
 		send_to_char(ch,
 			"Предмет '%s' уже является частью данного набора.\r\n",
-			obj_proto[rnum]->short_description);
+			obj_proto[rnum]->get_short_description().c_str());
 	}
 	else
 	{
@@ -1768,7 +1766,7 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 		olc_set.obj_list.insert(std::make_pair(vnum, msg));
 		send_to_char(ch,
 			"Предмет '%s' добавлен в набор.\r\n",
-			obj_proto[rnum]->short_description);
+			obj_proto[rnum]->get_short_description().c_str());
 	}
 	show_obj_edit(ch);
 }

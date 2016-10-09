@@ -390,7 +390,6 @@ extern int num_invalid;
 extern char *GREETINGS;
 extern const char *circlemud_version;
 extern int circle_restrict;
-extern int mini_mud;
 extern FILE *player_fl;
 extern ush_int DFLT_PORT;
 extern const char *DFLT_DIR;
@@ -867,11 +866,6 @@ int main_function(int argc, char **argv)
 			}
 			break;
 
-		case 'm':
-			mini_mud = 1;
-			puts("Running in minimized mode & with no rent check.");
-			break;
-
 		case 'c':
 			scheck = 1;
 			puts("Syntax check mode enabled.");
@@ -889,11 +883,10 @@ int main_function(int argc, char **argv)
 
 		case 'h':
 			// From: Anil Mahajan <amahajan@proxicom.com>
-			printf("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n"
+			printf("Usage: %s [-c] [-q] [-r] [-s] [-d pathname] [port #] [-D msdp]\n"
 				"  -c             Enable syntax check mode.\n"
 				"  -d <directory> Specify library directory (defaults to 'lib').\n"
 				"  -h             Print this command line argument help.\n"
-				"  -m             Start in mini-MUD mode.\n"
 				"  -o <file>      Write log to <file> instead of stderr.\n"
 				"  -r             Restrict MUD -- no new players allowed.\n"
 				"  -s             Suppress special procedure assignments.\n"
@@ -911,7 +904,7 @@ int main_function(int argc, char **argv)
 	{
 		if (!a_isdigit(*argv[pos]))
 		{
-			printf("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n", argv[0]);
+			printf("Usage: %s [-c] [-q] [-r] [-s] [-d pathname] [port #] [-D msdp]\n", argv[0]);
 			exit(1);
 		}
 		else if ((port = atoi(argv[pos])) <= 1024)
@@ -1503,11 +1496,17 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		}
 		d->has_prompt = 0;
 		if (d->showstr_count && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)	// Reading something w/ pager
+		{
 			show_string(d, comm);
-		else if (d->str && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)
+		}
+		else if (d->writer && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)
+		{
 			string_add(d, comm);
+		}
 		else if (STATE(d) != CON_PLAYING)	// In menus, etc.
+		{
 			nanny(d, comm);
+		}
 		else  	// else: we're playing normally.
 		{
 			if (aliased)	// To prevent recursive aliases.
@@ -2404,11 +2403,13 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 
 	// Note, prompt is truncated at MAX_PROMPT_LENGTH chars (structs.h )
 	if (d->showstr_count)
+	{
 		sprintf(prompt, "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).", d->showstr_page, d->showstr_count);
-	else if (d->str)
+	}
+	else if (d->writer)
+	{
 		strcpy(prompt, "] ");
-/*	else if (STATE(d) == CON_CONSOLE)
-		strcpy(prompt, d->console->get_prompt().c_str());*/
+	}
 	else if (STATE(d) == CON_PLAYING && !IS_NPC(d->character))
 	{
 		int count = 0;
@@ -3961,12 +3962,10 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			&& (PLR_FLAGGED(d->character, PLR_MAILING)
 				|| STATE(d) == CON_WRITEBOARD
 				|| STATE(d) == CON_WRITE_MOD)
-			&& d->str)
+			&& d->writer)
 		{
-			if (*(d->str))
-				free(*(d->str));
-			if (d->str != NULL)
-				free(d->str);
+			d->writer->clear();
+			d->writer.reset();
 		}
 
 		if (STATE(d) == CON_WRITEBOARD
@@ -4408,7 +4407,7 @@ void send_to_room(const char *messg, room_rnum room, int to_awake)
   ((pointer) == NULL) ? ACTNULL : (expression)
 
 // higher-level communication: the act() function
-void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to, const int arena)
+void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, CHAR_DATA * to, const int arena, const std::string& kick_type)
 {
 	const char *i = NULL;
 	char nbuf[256];
@@ -4528,7 +4527,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 
 			case 't':
-				CHECK_NULL(obj, (const char *) obj);
+				i = kick_type.c_str();
 				break;
 
 			case 'T':
@@ -4721,7 +4720,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 			(IS_NPC(ch) || !PLR_FLAGGED((ch), PLR_WRITING)))
 #endif
 
-void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, int type)
+void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type, const std::string& kick_type)
 {
 	CHAR_DATA *to;
 	int to_sleeping, check_deaf, check_nodeaf, stopcount, to_arena=0, arena_room_rnum;
@@ -4762,13 +4761,13 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	{
 		if (ch
 			&& SENDOK(ch)
-			&& IN_ROOM(ch) != NOWHERE
+			&& ch->in_room != NOWHERE
 			&& (!check_deaf || !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)))
 		{
-			perform_act(str, ch, obj, vict_obj, ch);
+			perform_act(str, ch, obj, vict_obj, ch, kick_type);
 		}
 		return;
 	}
@@ -4783,7 +4782,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 			&& (!to_brief_shields || PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
 			&& (!to_no_brief_shields || !PRF_FLAGGED(to, PRF_BRIEF_SHIELDS)))
 		{
-			perform_act(str, ch, obj, vict_obj, to);
+			perform_act(str, ch, obj, vict_obj, to, kick_type);
 		}
 		return;
 	}
@@ -4791,9 +4790,13 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	// or TO_ROOM_HIDE
 
 	if (ch && ch->in_room != NOWHERE)
+	{
 		to = world[ch->in_room]->people;
-	else if (obj && obj->in_room != NOWHERE)
-		to = world[obj->in_room]->people;
+	}
+	else if (obj && obj->get_in_room() != NOWHERE)
+	{
+		to = world[obj->get_in_room()]->people;
+	}
 	else
 	{
 		log("No valid target to act('%s')!", str);
@@ -4832,17 +4835,17 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 					boost::replace_first(buffer, "ся", GET_CH_SUF_2(ch));
 				}
 				boost::replace_first(buffer, "Кто-то", GET_PAD(ch, 0));
-				perform_act(buffer.c_str(), ch, obj, vict_obj, to);
+				perform_act(buffer.c_str(), ch, obj, vict_obj, to, kick_type);
 			}
 			else
 			{
-				perform_act(str, ch, obj, vict_obj, to);
+				perform_act(str, ch, obj, vict_obj, to, kick_type);
 			}
 		}
 	}
 	//Реализация флага слышно арену
-	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
-		&& ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENASEND) && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENARECV))
+	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != NOWHERE) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+		&& ROOM_FLAGGED(ch->in_room, ROOM_ARENASEND) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
 		arena_room_rnum = ch->in_room;
 		// находим первую клетку в зоне
@@ -4858,7 +4861,9 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 				for (stopcount = 0; to && stopcount < 200; to = to->next_in_room, stopcount++)
 				{
 					if (!IS_NPC(to))
-						perform_act(str, ch, obj, vict_obj, to, to_arena);
+					{
+						perform_act(str, ch, obj, vict_obj, to, to_arena, kick_type);
+					}
 				}
 			}
 			arena_room_rnum++;

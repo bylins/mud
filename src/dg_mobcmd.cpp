@@ -108,19 +108,20 @@ void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	skip_spaces(&argument);
 
-	int temp_in_room = IN_ROOM(ch);
+	int temp_in_room = ch->in_room;
 	for (int door = 0; door < NUM_OF_DIRS; door++)
 	{
-		EXIT_DATA *exit;
-		if (((exit = world[temp_in_room]->dir_option[door]) != NULL) &&
-				exit->to_room != NOWHERE && exit->to_room != temp_in_room)
+		const auto& exit = world[temp_in_room]->dir_option[door];
+		if (exit
+			&& exit->to_room != NOWHERE
+			&& exit->to_room != temp_in_room)
 		{
-			IN_ROOM(ch) = exit->to_room;
+			ch->in_room = exit->to_room;
 			sub_write(argument, ch, TRUE, TO_ROOM);
 		}
 	}
 
-	IN_ROOM(ch) = temp_in_room;
+	ch->in_room = temp_in_room;
 }
 
 // lets the mobile kill any player or mobile without murder
@@ -238,8 +239,8 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		for (obj = ch->carrying; obj != NULL; obj = obj_next)
 		{
-			obj_next = obj->next_content;
-			if (arg[3] == '\0' || isname(arg + 4, obj->aliases))
+			obj_next = obj->get_next_content();
+			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases()))
 			{
 				extract_obj(obj);
 			}
@@ -379,7 +380,7 @@ void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	p = argument;
 	skip_spaces(&p);
 
-	if (reloc_target != -1 && reloc_target != IN_ROOM(ch))
+	if (reloc_target != -1 && reloc_target != ch->in_room)
 	{
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
@@ -428,7 +429,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mob_log(ch, "mload: bad mob vnum");
 			return;
 		}
-		char_to_room(mob, IN_ROOM(ch));
+		char_to_room(mob, ch->in_room);
 		load_mtrigger(mob);
 	}
 	else if (is_abbrev(arg1, "obj"))
@@ -439,14 +440,14 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
-		GET_OBJ_ZONE(object) = world[IN_ROOM(ch)]->zone;
+		object->set_zone(world[ch->in_room]->zone);
 		if (CAN_WEAR(object, EWearFlag::ITEM_WEAR_TAKE))
 		{
 			obj_to_char(object, ch);
 		}
 		else
 		{
-			obj_to_room(object, IN_ROOM(ch));
+			obj_to_room(object, ch->in_room);
 		}
 		load_otrigger(object);
 	}
@@ -486,7 +487,7 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		CHAR_DATA *vnext;
 		OBJ_DATA *obj_next;
 
-		for (victim = world[IN_ROOM(ch)]->people; victim; victim = vnext)
+		for (victim = world[ch->in_room]->people; victim; victim = vnext)
 		{
 			vnext = victim->next_in_room;
 			if (IS_NPC(victim) && victim != ch)
@@ -496,7 +497,7 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				extract_char(victim, FALSE);
 			}
 		}
-		for (obj = world[IN_ROOM(ch)]->contents; obj; obj = obj_next)
+		for (obj = world[ch->in_room]->contents; obj; obj = obj_next)
 		{
 			obj_next = obj->next_content;
 			extract_obj(obj);
@@ -605,7 +606,7 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	reloc_target = location;
-	original = IN_ROOM(ch);
+	original = ch->in_room;
 	char_from_room(ch);
 	char_to_room(ch, location);
 	command_interpreter(ch, argument);
@@ -613,7 +614,7 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	 // See if 'ch' still exists before continuing!
 	 // Handles 'at XXXX quit' case.
-	if (IN_ROOM(ch) == location)
+	if (ch->in_room == location)
 	{
 		char_from_room(ch);
 		char_to_room(ch, original);
@@ -655,13 +656,13 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		mob_log(ch, "mteleport target is an invalid room");
 	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
 	{
-		if (target == IN_ROOM(ch))
+		if (target == ch->in_room)
 		{
 			mob_log(ch, "mteleport all: target is itself");
 			return;
 		}
 
-		for (vict = world[IN_ROOM(ch)]->people; vict; vict = next_ch)
+		for (vict = world[ch->in_room]->people; vict; vict = next_ch)
 		{
 			next_ch = vict->next_in_room;
 			if (IS_NPC(vict)
@@ -787,7 +788,7 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		// то LVL_IMMORT+ для мобов здесь исключать пока нет смысла
 		for (i = descriptor_list; i; i = i->next)
 		{
-			if ((i->character != ch) && !i->connected && (IN_ROOM(i->character) == IN_ROOM(ch)))
+			if ((i->character != ch) && !i->connected && (IN_ROOM(i->character) == ch->in_room))
 			{
 				vch = i->character;
 				if (GET_LEVEL(vch) < GET_LEVEL(ch) && CAN_SEE(ch, vch) && GET_LEVEL(vch) < LVL_IMMORT)
@@ -1132,7 +1133,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 
 		// put the mob in the same room as ch so extract will work
-		char_to_room(m, IN_ROOM(ch));
+		char_to_room(m, ch->in_room);
 
 // Обмен содержимым
 		CHAR_DATA tmpmob(*m);
@@ -1206,7 +1207,6 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
 	ROOM_DATA *rm;
-	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 
 	const char *door_field[] =
@@ -1259,28 +1259,25 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	exit = rm->dir_option[dir];
+	auto exit = rm->dir_option[dir];
 
 	// purge exit
 	if (fd == 0)
 	{
 		if (exit)
 		{
-			if (exit->general_description)
-				free(exit->general_description);
 			if (exit->keyword)
 				free(exit->keyword);
 			if (exit->vkeyword)
 				free(exit->vkeyword);
-			free(exit);
-			rm->dir_option[dir] = NULL;
+			rm->dir_option[dir].reset();
 		}
 	}
 	else
 	{
 		if (!exit)
 		{
-			CREATE(exit, 1);
+			exit.reset(new EXIT_DATA());
 			rm->dir_option[dir] = exit;
 		}
 
@@ -1290,20 +1287,17 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		switch (fd)
 		{
 		case 1:	// description 
-			if (exit->general_description)
-			{
-				free(exit->general_description);
-			}
-			CREATE(exit->general_description, strlen(value) + 3);
-			strcpy(exit->general_description, value);
-			strcat(exit->general_description, "\r\n");
+			exit->general_description = std::string(value) + "\r\n";
 			break;
+
 		case 2:	// flags       
 			asciiflag_conv(value, &exit->exit_info);
 			break;
+
 		case 3:	// key         
 			exit->key = atoi(value);
 			break;
+
 		case 4:	// name        
 			if (exit->keyword)
 				free(exit->keyword);
@@ -1897,7 +1891,7 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((victim = get_char(name)))
 	{
-		if (world[IN_ROOM(victim)]->zone != world[IN_ROOM(ch)]->zone)
+		if (world[IN_ROOM(victim)]->zone != world[ch->in_room]->zone)
 		{
 			return;
 		}

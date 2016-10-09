@@ -37,7 +37,6 @@ extern const char *dirs[];
 extern const char *DirsTo[];
 extern int track_through_doors;
 extern CHAR_DATA *mob_proto;
-extern int top_of_p_table;
 int attack_best(CHAR_DATA * ch, CHAR_DATA * vict);
 
 // local functions
@@ -348,7 +347,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// No argument - show all 
 	if (!*arg)
 	{
-		for (track = world[IN_ROOM(ch)]->track; track; track = track->next)
+		for (track = world[ch->in_room]->track; track; track = track->next)
 		{
 			*name = '\0';
 			if (IS_SET(track->track_info, TRACK_NPC))
@@ -389,7 +388,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	// found victim 
-	for (track = world[IN_ROOM(ch)]->track; track; track = track->next)
+	for (track = world[ch->in_room]->track; track; track = track->next)
 	{
 		*name = '\0';
 		if (IS_SET(track->track_info, TRACK_NPC))
@@ -407,7 +406,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			*name = '\0';
 	}
 
-	if (calc_track < number(1, 40) || !*name || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK))
+	if (calc_track < number(1, 40) || !*name || ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
 	{
 		send_to_char("Вы не видите похожих следов.\r\n", ch);
 		return;
@@ -463,7 +462,7 @@ void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	croom = IN_ROOM(ch);
+	croom = ch->in_room;
 
 	for (dir = 0; dir < NUM_OF_DIRS; dir++)
 	{
@@ -486,7 +485,7 @@ void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 	}
 
 	track[NUM_OF_DIRS] = NULL;
-	for (temp = world[IN_ROOM(ch)]->track; temp; temp = temp->next)
+	for (temp = world[ch->in_room]->track; temp; temp = temp->next)
 		if (!IS_SET(temp->track_info, TRACK_NPC) &&
 				GET_IDNUM(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE))
 		{

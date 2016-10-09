@@ -11,9 +11,10 @@
 #include "sysdep.h"
 #include "conf.h"
 
-struct exit_data
+class EXIT_DATA
 {
-	char *general_description;	// When look DIR.         //
+public:
+	std::string general_description;	// When look DIR.         //
 
 	char *keyword;		// for open/close       //
 	char *vkeyword;		// алиас двери в винительном падеже для открывания/закрывания
@@ -49,10 +50,11 @@ struct room_property_data
 	int poison; //Пока только степень зараженности для SPELL_POISONED_FOG//
 };
 
-extern void gm_flag(char *subfield, const char **list, FLAG_DATA& val, char *res);
-
 struct ROOM_DATA
 {
+	using room_affects_list_t = std::list<AFFECT_DATA<ERoomApplyLocation>::shared_ptr>;
+	using exit_data_ptr = std::shared_ptr<EXIT_DATA>;
+
 	ROOM_DATA();
 
 	room_vnum number;	// Rooms number  (vnum)                //
@@ -63,8 +65,8 @@ struct ROOM_DATA
 	char *name;		// Rooms name 'You are ...'           //
 	size_t description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
-	EXTRA_DESCR_DATA *ex_description;	// for examine/look       //
-	boost::array<EXIT_DATA *, NUM_OF_DIRS> dir_option;	// Directions //
+	EXTRA_DESCR_DATA::shared_ptr ex_description;	// for examine/look       //
+	boost::array<exit_data_ptr, NUM_OF_DIRS> dir_option;	// Directions //
 
 	byte light;		// Number of lightsources in room //
 	byte glight;		// Number of lightness person     //
@@ -73,13 +75,13 @@ struct ROOM_DATA
 	int (*func)(CHAR_DATA*, void*, int, char*);
 
 	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers  //
-	struct script_data *script;	// script info for the object //
+	struct SCRIPT_DATA *script;	// script info for the object //
 	struct track_data *track;
 
 	OBJ_DATA *contents;	// List of items in room              //
 	CHAR_DATA *people;	// List of NPC / PC in room           //
 
-	AFFECT_DATA<ERoomApplyLocation> *affected;	// affected by what spells       //
+	room_affects_list_t affected;	// affected by what spells       //
 	FLAG_DATA affected_by;	// флаги которые в отличии от room_flags появляются от аффектов
 							//и не могут быть записаны на диск
 
@@ -111,7 +113,7 @@ struct ROOM_DATA
 	bool flags_sprint(char *result, const char *div, const int print_flag = 0) const { return m_room_flags.sprintbits(room_bits, result, div, print_flag); }
 	void flags_tascii(int num_planes, char* ascii) { m_room_flags.tascii(num_planes, ascii); }
 
-	void gm_flag(char *subfield, const char **list, char *res) { ::gm_flag(subfield, list, m_room_flags, res); }
+	void gm_flag(char *subfield, const char * const * const list, char *res) { m_room_flags.gm_flag(subfield, list, res); }
 
 private:
 	FLAG_DATA m_room_flags;	// DEATH,DARK ... etc //

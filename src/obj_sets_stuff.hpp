@@ -51,7 +51,7 @@ struct msg_node
 /// сетовый активатор с аффектами и прочими бонусами
 struct activ_node
 {
-	activ_node() : skill(0, 0)
+	activ_node() : skill(SKILL_INVALID, 0)
 	{
 		affects = clear_flags;
 		prof.set();
@@ -64,7 +64,7 @@ struct activ_node
 	std::array<obj_affected_type, MAX_OBJ_AFFECT> apply;
 	// изменение умения. идет в bonus, но в активаторах юзается это поле
 	// а не bonus::skills, которое юзается для справки и складывании на чаре
-	std::pair<int, int> skill;
+	std::pair<CObjectPrototype::skills_t::key_type, CObjectPrototype::skills_t::mapped_type> skill;
 	// список проф, на которых этот активатор сработает (по дефолту - все)
 	std::bitset<NUM_PLAYER_CLASSES> prof;
 	// числовые сетовые бонусы
@@ -172,7 +172,7 @@ size_t setidx_by_uid(int uid);
 std::string line_split_str(const std::string &str, const std::string &sep,
 	size_t len, size_t base_offset = 0);
 void init_obj_index();
-bool verify_wear_flag(OBJ_DATA *obj);
+bool verify_wear_flag(const CObjectPrototype::shared_ptr&);
 void verify_set(set_node &set);
 bool is_duplicate(int set_uid, int vnum);
 std::string print_total_activ(const set_node &set);

@@ -2,19 +2,6 @@
 // Part of Bylins http://www.mud.ru
 
 #include "conf.h"
-#include <string>
-#include <vector>
-#include <map>
-#include <array>
-#include <algorithm>
-#include <sstream>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
-#include <boost/algorithm/string.hpp>
-// GCC 4.4
-#include <boost/tr1/unordered_map.hpp>
 
 #include "obj_sets.hpp"
 #include "obj_sets_stuff.hpp"
@@ -31,6 +18,21 @@
 #include "modify.h"
 #include "spells.h"
 #include "help.hpp"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
+#include <boost/algorithm/string.hpp>
+// GCC 4.4
+
+#include <string>
+#include <vector>
+#include <map>
+#include <array>
+#include <algorithm>
+#include <sstream>
+#include <unordered_map>
 
 namespace obj_sets
 {
@@ -147,13 +149,14 @@ void update_char_sets()
 /// здесь же обновляется справка по активаторам сетов
 void init_obj_index()
 {
-	boost::unordered_map<int, size_t> tmp;
+	std::unordered_map<obj_vnum, size_t> tmp;
 	tmp.reserve(obj_proto.size());
 
 	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
 		obj_proto.set_idx(i, -1);
-		tmp.emplace(obj_proto.vnum(i), i);
+		const auto vnum = obj_proto[i]->get_vnum();
+		tmp.emplace(vnum, i);
 	}
 
 	for (size_t i = 0; i < sets_list.size(); ++i)
@@ -173,7 +176,7 @@ void init_obj_index()
 }
 
 /// сеты не вешаются на: кольца, ожерелья, браслеты, свет
-bool verify_wear_flag(OBJ_DATA* /*obj*/)
+bool verify_wear_flag(const CObjectPrototype::shared_ptr& /*obj*/)
 {
 /*	if (CAN_WEAR(obj, ITEM_WEAR_FINGER)
 		|| CAN_WEAR(obj, ITEM_WEAR_NECK)
@@ -457,7 +460,7 @@ void load()
 			pugi::xml_node xml_cur = xml_activ.child("skill");
 			if (xml_cur)
 			{
-				tmp_activ.skill.first = Parse::attr_int(xml_cur, "num");
+				tmp_activ.skill.first = static_cast<ESkill>(Parse::attr_int(xml_cur, "num"));
 				tmp_activ.skill.second = Parse::attr_int(xml_cur, "val");
 			}
 			// <enchant>
@@ -668,6 +671,12 @@ std::set<int> vnum_list_add(int vnum)
 	list_vnum.clear();
 	size_t idx = setidx_by_objvnum(vnum); 
 
+	if (-1 == idx)
+	{
+		mudlog("setidx_by_objvnum returned -1", BRF, LVL_BUILDER, ERRLOG, TRUE);
+		return list_vnum;
+	}
+
 	for (auto k = sets_list.at(idx)->obj_list.begin(); k != sets_list.at(idx)->obj_list.end(); ++k)
 	{
 		if (k->first != vnum)
@@ -816,10 +825,13 @@ std::string print_obj_list(const set_node &set)
 	for (auto i = set.obj_list.begin(); i != set.obj_list.end(); ++i)
 	{
 		const int rnum = real_object(i->first);
-		if (rnum < 0 || !obj_proto[rnum]->short_description) continue;
+		if (rnum < 0
+			|| obj_proto[rnum]->get_short_description().empty())
+		{
+			continue;
+		}
 
-		const size_t curr_name =
-			strlen_no_colors(obj_proto[rnum]->short_description);
+		const size_t curr_name = strlen_no_colors(obj_proto[rnum]->get_short_description().c_str());
 		if (left)
 		{
 			l_max_name = std::max(l_max_name, curr_name);
@@ -836,7 +848,7 @@ std::string print_obj_list(const set_node &set)
 	for (auto i = rnum_list.begin(); i != rnum_list.end(); ++i)
 	{
 		snprintf(buf_, sizeof(buf_), "   %s",
-			colored_name(obj_proto[*i]->short_description,
+			colored_name(obj_proto[*i]->get_short_description().c_str(),
 			left ? l_max_name : r_max_name, true));
 		out += buf_;
 		if (!left)
@@ -998,7 +1010,7 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench)
 			snprintf(buf_, sizeof(buf_),
 				" +    %s%s вес %s на %d%s\r\n",
 				KCYN, ench.second.weight > 0 ? "увеличивает" : "уменьшает",
-				GET_OBJ_PNAME(obj_proto[rnum], 1),
+				GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 				abs(ench.second.weight), KNRM);
 			out += buf_;
 		}
@@ -1008,21 +1020,21 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench)
 			{
 				snprintf(buf_, sizeof(buf_),
 					" +    %sувеличивает урон %s на %dD%d%s\r\n",
-					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1),
+					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 					abs(ench.second.ndice), abs(ench.second.sdice), KNRM);
 			}
 			else if (ench.second.ndice <= 0 && ench.second.sdice <= 0)
 			{
 				snprintf(buf_, sizeof(buf_),
 					" +    %sуменьшает урон %s на %dD%d%s\r\n",
-					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1),
+					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 					abs(ench.second.ndice), abs(ench.second.sdice), KNRM);
 			}
 			else
 			{
 				snprintf(buf_, sizeof(buf_),
 					" +    %sизменяет урон %s на %+dD%+d%s\r\n",
-					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1),
+					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 					ench.second.ndice, ench.second.sdice, KNRM);
 			}
 			out += buf_;
@@ -1417,14 +1429,14 @@ void check_enchants(CHAR_DATA *ch)
 		obj = GET_EQ(ch, i);
 		if (obj)
 		{
-			auto i = ch->obj_bonus().enchants.find(normalize_vnum(GET_OBJ_VNUM(obj)));
+			auto i = ch->obj_bonus().enchants.find(GET_OBJ_VNUM(obj));
 			if (i != ch->obj_bonus().enchants.end())
 			{
-				obj->enchants.update_set_bonus(obj, &(i->second));
+				obj->update_enchants_set_bonus(i->second);
 			}
 			else
 			{
-				obj->enchants.remove_set_bonus(obj);
+				obj->remove_set_bonus();
 			}
 		}
 	}
@@ -1473,7 +1485,7 @@ int activ_sum::calc_mage_dmg(int dam) const
 	return dam * bonus.mage_dmg / 100;
 }
 
-int activ_sum::get_skill(int num) const
+int activ_sum::get_skill(const ESkill num) const
 {
 	auto i = skills.find(num);
 	if (i != skills.end())

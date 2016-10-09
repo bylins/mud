@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <material>
 	<name>мягкая кожа</name>
-	<class id="MC_SUEDE">
+	<class id="MC_SUEDE" vnum="200060">
 		<description>
 			<short>Плотный свиток шершавой кожи лежит тут.</short>
 			<long>Плотно скрученный свиток шершавой серой кожи.</long>
@@ -82,7 +82,7 @@
 			</meta>
 		</bonuses>
 	</class>
-	<class id="MC_MOB_LEATHER_1">
+	<class id="MC_MOB_LEATHER_1" vnum="200061">
 		<description>
 			<short>Длинный свиток тонкой кожи лежит тут.</short>
 			<long>Это тонко выделанная кожа зверя.</long>

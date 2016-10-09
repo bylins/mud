@@ -16,7 +16,6 @@
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "db.h"
 #include "constants.h"
 #include "screen.h"
 #include "spells.h"
@@ -29,6 +28,7 @@
 #include "fight.h"
 #include "fight_hit.hpp"
 #include "features.hpp"
+#include "db.h"
 #include "structs.h"
 #include "utils.h"
 #include "sysdep.h"
@@ -74,7 +74,7 @@ int have_mind(CHAR_DATA * ch)
 
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room)
 {
-	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))))
+	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))))
 		WAIT_STATE(ch, waittime * PULSE_VIOLENCE);
 };
 
@@ -98,19 +98,24 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 	{
 		victim->desc->message.reset();
 		victim->desc->board.reset();
-		if (*(victim->desc->str))
-			free(*victim->desc->str);
-		if (victim->desc->str)
-			free(victim->desc->str);
+		if (victim->desc->writer->get_string())
+		{
+			victim->desc->writer->clear();
+		}
+
 		STATE(victim->desc) = CON_PLAYING;
 		if (!IS_NPC(victim))
 		{
 			PLR_FLAGS(victim).unset(PLR_WRITING);
 		}
+
 		if (victim->desc->backstr)
+		{
 			free(victim->desc->backstr);
-		victim->desc->backstr = NULL;
-		victim->desc->str = NULL;
+			victim->desc->backstr = nullptr;
+		}
+		victim->desc->writer.reset();
+
 		message = true;
 	}
 	else if (victim->desc && (STATE(victim->desc) == CON_CLANEDIT))
@@ -166,7 +171,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 		{
 			if (MOB_FLAGGED(victim, MOB_CLONE))
 				remember(ch, victim->master);
-			else if (IN_ROOM(victim->master) == IN_ROOM(ch) && CAN_SEE(ch, victim->master))
+			else if (IN_ROOM(victim->master) == ch->in_room && CAN_SEE(ch, victim->master))
 				remember(ch, victim->master);
 		}
 		return (FALSE);
@@ -220,7 +225,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				af.modifier = 0;
 				af.duration = pc_duration(vict, 1, 0, 0, 0, 0);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-				affect_join(vict, &af, TRUE, FALSE, TRUE, FALSE);
+				affect_join(vict, af, TRUE, FALSE, TRUE, FALSE);
 				return victim;
 			}
 			percent = number(1, skill_info[SKILL_PROTECT].max_percent);
@@ -704,7 +709,7 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // ********************* FLEE PROCEDURE
 void go_flee(CHAR_DATA * ch)
 {
-	int i, attempt, loss, scandirs = 0, was_in = IN_ROOM(ch);
+	int i, attempt, loss, scandirs = 0, was_in = ch->in_room;
 	CHAR_DATA *was_fighting;
 
 	if (on_horse(ch) && GET_POS(get_horse(ch)) >= POS_FIGHTING && !GET_MOB_HOLD(get_horse(ch)))
@@ -790,7 +795,7 @@ void go_flee(CHAR_DATA * ch)
 
 void go_dir_flee(CHAR_DATA * ch, int direction)
 {
-	int attempt, loss, scandirs = 0, was_in = IN_ROOM(ch);
+	int attempt, loss, scandirs = 0, was_in = ch->in_room;
 	CHAR_DATA *was_fighting;
 
 	if (GET_MOB_HOLD(ch))
@@ -1032,7 +1037,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD)))  	// -1 = dead, 0 = miss
 		{
 			prob = 3;
-			if (IN_ROOM(ch) == IN_ROOM(vict))
+			if (ch->in_room == IN_ROOM(vict))
 			{
 				GET_POS(vict) = POS_SITTING;
 				drop_from_horse(vict);
@@ -1068,7 +1073,7 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -1133,7 +1138,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -1487,7 +1492,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 				sprintf(buf, "&R&q%s&Q&n", to_vict);
 				act(buf, FALSE, ch, 0, vict, TO_VICT);
 			}
-			affect_join(vict, &af, TRUE, FALSE, TRUE, FALSE);
+			affect_join(vict, af, TRUE, FALSE, TRUE, FALSE);
 		}
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
 	//Пиная из осторожки моба в осторожке получаешь всего лишь резанье дамага в 16 раз...
@@ -1522,7 +1527,7 @@ void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -1621,9 +1626,9 @@ void do_multyparry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 	if (!(IS_NPC(ch)	// моб
 		|| (primary
-			&& GET_OBJ_TYPE(primary) == obj_flag_data::ITEM_WEAPON
+			&& GET_OBJ_TYPE(primary) == OBJ_DATA::ITEM_WEAPON
 			&& offhand
-			&& GET_OBJ_TYPE(offhand) == obj_flag_data::ITEM_WEAPON)	// два оружия
+			&& GET_OBJ_TYPE(offhand) == OBJ_DATA::ITEM_WEAPON)	// два оружия
 		|| IS_IMMORTAL(ch)	// бессмертный
 		|| GET_GOD_FLAG(ch, GF_GODSLIKE)))	// спецфлаг
 	{
@@ -1678,12 +1683,12 @@ void do_parry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 		bool prim = 0, offh = 0;
 		if (GET_EQ(ch, WEAR_WIELD)
-			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == obj_flag_data::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON)
 		{
 			prim = 1;
 		}
 		if (GET_EQ(ch, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON)
 		{
 			offh = 1;
 		}
@@ -1765,7 +1770,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 		if (tch->get_fighting() == vict)
 			break;
 
@@ -1784,7 +1789,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 	{
 		if (tch->get_fighting() == vict && !may_kill_here(ch, tch))
 			return;
@@ -1829,7 +1834,7 @@ void do_touch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
+		for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 			if (vict->get_fighting() == ch)
 				break;
 		if (!vict)
@@ -1921,8 +1926,8 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 // shapirus: теперь сдизармить можно все, кроме света
-	if (!((wielded && GET_OBJ_TYPE(wielded) != obj_flag_data::ITEM_LIGHT)
-		|| (helded && GET_OBJ_TYPE(helded) != obj_flag_data::ITEM_LIGHT)))
+	if (!((wielded && GET_OBJ_TYPE(wielded) != OBJ_DATA::ITEM_LIGHT)
+		|| (helded && GET_OBJ_TYPE(helded) != OBJ_DATA::ITEM_LIGHT)))
 	{
 		return;
 	}
@@ -1955,7 +1960,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = 0;
 
 
-	if (percent > prob || GET_EQ(vict, pos)->get_extraflag(EExtraFlag::ITEM_NODISARM))
+	if (percent > prob || GET_EQ(vict, pos)->get_extra_flag(EExtraFlag::ITEM_NODISARM))
 	{
 		sprintf(buf, "%sВы не сумели обезоружить %s...%s\r\n",
 				CCWHT(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
@@ -1967,13 +1972,13 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 	{
 		wielded = GET_EQ(vict, pos);
 		sprintf(buf, "%sВы ловко выбили %s из рук %s...%s\r\n",
-				CCIBLU(ch, C_NRM), wielded->PNames[3], GET_PAD(vict, 1), CCNRM(ch, C_NRM));
+				CCIBLU(ch, C_NRM), wielded->get_PName(3).c_str(), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		// act("Вы ловко выбили $o3 из рук $N1.",FALSE,ch,wielded,vict,TO_CHAR);
 		// act("$n ловко выбил$g $o3 из ваших рук.", FALSE, ch, wielded, vict, TO_VICT);
 		send_to_char(vict, "%s ловко выбил%s %s%s из ваших рук.\r\n",
 			GET_PAD(ch, 0), GET_CH_VIS_SUF_1(ch, vict),
-			wielded->PNames[3], char_get_custom_label(wielded, vict).c_str());
+			wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", TRUE, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		unequip_char(vict, pos);
 		if (GET_WAIT(vict) <= 0)
@@ -2020,7 +2025,7 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -2043,11 +2048,11 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 // shapirus: теперь сдизармить можно все, кроме света
 	if (!((GET_EQ(vict, WEAR_WIELD)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != obj_flag_data::ITEM_LIGHT)
+			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != OBJ_DATA::ITEM_LIGHT)
 			|| (GET_EQ(vict, WEAR_HOLD)
-				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != obj_flag_data::ITEM_LIGHT)
+				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != OBJ_DATA::ITEM_LIGHT)
 			|| (GET_EQ(vict, WEAR_BOTHS)
-				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != obj_flag_data::ITEM_LIGHT)))
+				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != OBJ_DATA::ITEM_LIGHT)))
 	{
 		send_to_char("Вы не можете обезоружить безоружное создание.\r\n", ch);
 		return;
@@ -2132,7 +2137,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 			af.modifier = 50;
 			af.duration = 2; //два раунда, потому что подножка идет в конце раунда
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
             sprintf(buf, "%sВы покатились по земле, пытаясь избежать атак $N1.%s", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
             act(buf,FALSE,ch,0,vict,TO_CHAR);
             act("$n покатил$u по земле, пытаясь избежать ваших атак.", FALSE, ch, 0, vict, TO_VICT);
@@ -2146,7 +2151,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		act("$n ловко подсек$q вас, усадив на попу.", FALSE, ch, 0, vict, TO_VICT);
 		act("$n ловко подсек$q $N3, уронив $S на землю.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_wait(vict, 3, FALSE);
-		if (IN_ROOM(ch) == IN_ROOM(vict))
+		if (ch->in_room == IN_ROOM(vict))
 			GET_POS(vict) = POS_SITTING;
 		if (IS_HORSE(vict) && on_horse(vict->master))
 			horse_drop(vict);
@@ -2179,7 +2184,7 @@ void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -2258,7 +2263,7 @@ void do_stupor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -2338,7 +2343,7 @@ void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -2555,7 +2560,7 @@ void do_stopfight(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	for (tmp_ch = world[IN_ROOM(ch)]->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
+	for (tmp_ch = world[ch->in_room]->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
 		if (tmp_ch->get_fighting() == ch)
 			break;
 
@@ -2586,7 +2591,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	if (!(wielded && GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON))
+	if (!(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON))
 	{
 		send_to_char("Что вы хотите метнуть?\r\n", ch);
 		return;
@@ -2623,7 +2628,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 		if (IN_ROOM(vict) != NOWHERE)
 			obj_to_char(wielded, vict);
 		else
-			obj_to_room(wielded, IN_ROOM(ch));
+			obj_to_room(wielded, ch->in_room);
 		obj_decay(wielded);
 	}
 	// log("[THROW] Miss stop extract weapon...");
@@ -2645,7 +2650,7 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 		{
 			vict = ch->get_fighting();
 		}
@@ -2698,7 +2703,7 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 		{
 			vict = ch->get_fighting();
 		}
@@ -2715,7 +2720,7 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOBATTLE))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE))
 	{
 		send_to_char("Поищите другое место для выражения своих кровожадных наклонностей.\r\n", ch);
 		return;
@@ -2884,7 +2889,7 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		if (sum <= 0)
 			break;
 		ch_vict = *it;
-		if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		if (ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 			continue;
 		if ((GET_LEVEL(ch_vict) > max_level) ||
 			//(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) + GET_REAL_CON(ch_vict)) >
@@ -3015,7 +3020,7 @@ void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
 			vict = ch->get_fighting();
 		else
 		{
@@ -3099,7 +3104,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		af.location = APPLY_NONE;
 		af.battleflag = AF_SAME_TIME;
 		af.bitvector = to_underlying(EAffectFlag::AFF_STRANGLED);
-		affect_to_char(vict, &af);
+		affect_to_char(vict, af);
 
 		//Урон распределяется нормально. Матожидание линейно привязано к прокачке скилла. Сигма подобрана экспериментально.
 		//урон считается в процентах от максимального числа хитов жертвы.
@@ -3120,8 +3125,11 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 				act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HORSE);
 			}
-			if (ch->get_skill(SKILL_CHOPOFF) && (IN_ROOM(ch) == IN_ROOM(vict)))
+
+			if (ch->get_skill(SKILL_CHOPOFF) && (ch->in_room == IN_ROOM(vict)))
+			{
 				go_chopoff(ch, vict);
+			}
 		}
 	}
 
@@ -3197,7 +3205,7 @@ void ApplyNoFleeAffect(CHAR_DATA *ch, int duration)
 	Noflee.modifier = 0;
 	Noflee.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
 	Noflee.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	affect_join(ch, &Noflee, TRUE, FALSE, TRUE, FALSE);
+	affect_join(ch, Noflee, TRUE, FALSE, TRUE, FALSE);
 	
 	// надо потестировать это
 	/* AFFECT_DATA<EApplyLocation> NofleeAndExpedient;
@@ -3219,24 +3227,25 @@ void ApplyNoFleeAffect(CHAR_DATA *ch, int duration)
     Battle.modifier = 0;
     Battle.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
     Battle.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-    affect_join(ch, &Battle, TRUE, FALSE, TRUE, FALSE);
+    affect_join(ch, Battle, TRUE, FALSE, TRUE, FALSE);
 
     send_to_char("Вы выпали из ритма боя.\r\n", ch);
 }
-
 
 ESkill ExpedientWeaponSkill(CHAR_DATA *ch)
 {
 	ESkill skill = SKILL_PUNCH;
 
     /* Потому что в одной руке, теоретически, может быть и не оружие */
-	if (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == obj_flag_data::ITEM_WEAPON))
+	if (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == CObjectPrototype::ITEM_WEAPON))
 	{
         skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD));
-	} else if (GET_EQ(ch, WEAR_BOTHS) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == obj_flag_data::ITEM_WEAPON))
+	}
+	else if (GET_EQ(ch, WEAR_BOTHS) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == CObjectPrototype::ITEM_WEAPON))
 	{
         skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS));
-	} else if (GET_EQ(ch, WEAR_HOLD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == obj_flag_data::ITEM_WEAPON))
+	}
+	else if (GET_EQ(ch, WEAR_HOLD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == CObjectPrototype::ITEM_WEAPON))
     {
         skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_HOLD));
 	};
@@ -3375,14 +3384,14 @@ void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
     AffectImmunPhysic.modifier = 100;
     AffectImmunPhysic.duration = 2;
     AffectImmunPhysic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-    affect_join(ch, &AffectImmunPhysic, FALSE, FALSE, FALSE, FALSE);
+    affect_join(ch, AffectImmunPhysic, FALSE, FALSE, FALSE, FALSE);
     AFFECT_DATA<EApplyLocation> AffectImmunMagic;
     AffectImmunMagic.type = SPELL_EXPEDIENT;
     AffectImmunMagic.location = EApplyLocation::APPLY_MR;
     AffectImmunMagic.modifier = 100;
     AffectImmunMagic.duration = 2;
     AffectImmunMagic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-    affect_join(ch, &AffectImmunMagic, FALSE, FALSE, FALSE, FALSE);
+    affect_join(ch, AffectImmunMagic, FALSE, FALSE, FALSE, FALSE);
 
     ApplyNoFleeAffect(ch, 3);
 }

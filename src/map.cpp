@@ -366,7 +366,7 @@ void draw_objs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x)
 	{
 		int cnt = 0;
 
-		for (OBJ_DATA *obj = world[room_rnum]->contents; obj; obj = obj->next_content)
+		for (OBJ_DATA *obj = world[room_rnum]->contents; obj; obj = obj->get_next_content())
 		{
 			if (IS_CORPSE(obj) && GET_OBJ_VAL(obj, 2) >= 0
 				&& !ch->map_check_option(MAP_MODE_MOBS_CORPSES))
@@ -379,14 +379,14 @@ void draw_objs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x)
 				continue;
 			}
 			if (!ch->map_check_option(MAP_MODE_INGREDIENTS)
-				&& (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_INGREDIENT
-					|| GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_MING))
+				&& (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT
+					|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING))
 			{
 				continue;
 			}
 			if (!IS_CORPSE(obj)
-				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_INGREDIENT
-				&& GET_OBJ_TYPE(obj) != obj_flag_data::ITEM_MING
+				&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT
+				&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING
 				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS))
 			{
 				continue;

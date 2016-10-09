@@ -36,7 +36,6 @@
 #include <algorithm>
 #include <stack>
 
-void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void trig_data_free(TRIG_DATA * this_data);
 void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 //внум_триггера : [внум_триггера_который_прикрепил_данный тригер : [перечисление к чему прикрепленно (внумы объектов/мобов/комнат)]]
@@ -48,7 +47,8 @@ extern INDEX_DATA *mob_index;
 
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 
-char* indent_trigger(char* cmd , int* level)
+// TODO: Get rid of me
+char* dirty_indent_trigger(char* cmd , int* level)
 {
 	static std::stack<std::string> indent_stack;
 
@@ -63,7 +63,10 @@ char* indent_trigger(char* cmd , int* level)
 	int currlev, nextlev;
 	currlev = nextlev = *level;
 
-	if (!cmd) return cmd;
+	if (!cmd)
+	{
+		return cmd;
+	}
 
 	// Удаляем впереди идущие пробелы.
 	char* ptr = cmd;
@@ -135,67 +138,70 @@ char* indent_trigger(char* cmd , int* level)
 	return cmd;
 }
 
+void indent_trigger(std::string& cmd, int* level)
+{
+	char* cmd_copy = str_dup(cmd.c_str());;
+	cmd_copy = dirty_indent_trigger(cmd_copy, level);
+	cmd = cmd_copy;
+}
+
 void parse_trigger(FILE * trig_f, int nr)
 {
-	int t[2], k, attach_type, indlev;
+	int t[2], k, indlev;
 
 	char line[256], *cmds, flags[256], *s;
-	struct cmdlist_element *cle;
-	index_data *index;
-	TRIG_DATA *trig;
-	CREATE(trig, 1);
-	CREATE(index, 1);
-
-	index->vnum = nr;
-	index->number = 0;
-	index->func = NULL;
-	index->proto = trig;
 
 	sprintf(buf2, "trig vnum %d", nr);
-
-	trig->nr = top_of_trigt;
-	trig->name = fread_string(trig_f, buf2);
-
+	const auto trigger_name = fread_string(trig_f, buf2);
 	get_line(trig_f, line);
+	int attach_type = 0;
 	k = sscanf(line, "%d %s %d", &attach_type, flags, t);
-	trig->attach_type = (byte) attach_type;
-	asciiflag_conv(flags, &trig->trigger_type);
+	int trigger_type = 0;
+	asciiflag_conv(flags, &trigger_type);
+
+	const auto rnum = top_of_trigt;
+	TRIG_DATA *trig = new TRIG_DATA(rnum, trigger_name, static_cast<byte>(attach_type), trigger_type);
+
 	trig->narg = (k == 3) ? t[0] : 0;
-
 	trig->arglist = fread_string(trig_f, buf2);
-
 	s = cmds = fread_string(trig_f, buf2);
 
-	CREATE(trig->cmdlist, 1);
-
-	trig->cmdlist->cmd = str_dup(strtok(s, "\n\r"));
+	trig->cmdlist->reset(new cmdlist_element());
+	const auto& cmdlist = *trig->cmdlist;
+	const auto cmd_token = strtok(s, "\n\r");
+	cmdlist->cmd = cmd_token ? cmd_token : "";
 
 	indlev = 0;
-	trig->cmdlist->cmd = indent_trigger(trig->cmdlist->cmd, &indlev);
+	indent_trigger(cmdlist->cmd, &indlev);
 
-	cle = trig->cmdlist;
+	auto cle = cmdlist;
 
 	while ((s = strtok(NULL, "\n\r")))
 	{
-		CREATE(cle->next, 1);
+		cle->next.reset(new cmdlist_element());
 		cle = cle->next;
-		cle->cmd = str_dup(s);
-		cle->cmd = indent_trigger(cle->cmd, &indlev);
+		cle->cmd = s;
+		indent_trigger(cle->cmd, &indlev);
 	}
+
 	if (indlev > 0)
 	{
 		char tmp[MAX_INPUT_LENGTH];
-		snprintf(tmp, sizeof(tmp),
-			"Positive indent-level on trigger #%d end.", nr);
+		snprintf(tmp, sizeof(tmp), "Positive indent-level on trigger #%d end.", nr);
 		log("%s",tmp);
 		Boards::dg_script_text += tmp + std::string("\r\n");
 	}
 
 	free(cmds);
 	
+	index_data *index;
+	CREATE(index, 1);
+	index->vnum = nr;
+	index->number = 0;
+	index->func = NULL;
+	index->proto = trig;
 	trig_index[top_of_trigt++] = index;
 }
-
 
 /*
  * create a new trigger from a prototype.
@@ -204,21 +210,21 @@ void parse_trigger(FILE * trig_f, int nr)
 TRIG_DATA *read_trigger(int nr)
 {
 	index_data *index;
-	TRIG_DATA *trig;
-	CREATE(trig, 1);
 	if (nr >= top_of_trigt || nr == -1)
+	{
 		return NULL;
+	}
+
 	if ((index = trig_index[nr]) == NULL)
+	{
 		return NULL;
+	}
 
-
-	trig_data_copy(trig, index->proto);
-
+	TRIG_DATA *trig = new TRIG_DATA(*index->proto);
 	index->number++;
 
 	return trig;
 }
-
 
 // release memory allocated for a variable list
 void free_varlist(struct trig_var_data *vd)
@@ -238,7 +244,7 @@ void free_varlist(struct trig_var_data *vd)
 }
 
 // release memory allocated for a script
-void free_script(SCRIPT_DATA * sc)
+void free_script(SCRIPT_DATA* sc)
 {
 	if (sc == NULL)
 		return;
@@ -250,63 +256,8 @@ void free_script(SCRIPT_DATA * sc)
 	free(sc);
 }
 
-void trig_data_init(TRIG_DATA * this_data)
-{
-	this_data->nr = NOTHING;
-	this_data->data_type = 0;
-	this_data->name = NULL;
-	this_data->trigger_type = 0;
-	this_data->cmdlist = NULL;
-	this_data->curr_state = NULL;
-	this_data->narg = 0;
-	this_data->arglist = NULL;
-	this_data->depth = 0;
-	this_data->wait_event = NULL;
-	this_data->purged = FALSE;
-	this_data->var_list = NULL;
-
-	this_data->next = NULL;
-}
-
-
-void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg)
-{
-	trig_data_init(this_data);
-	this_data->nr = trg->nr;
-	this_data->attach_type = trg->attach_type;
-	this_data->data_type = trg->data_type;
-	this_data->name = str_dup(trg->name);
-	this_data->trigger_type = trg->trigger_type;
-	this_data->cmdlist = trg->cmdlist;
-	this_data->narg = trg->narg;
-	if (trg->arglist)
-	{
-		this_data->arglist = str_dup(trg->arglist);
-	}
-}
-
-
 void trig_data_free(TRIG_DATA * this_data)
 {
-	//    struct cmdlist_element *i, *j;
-
-	free(this_data->name);
-
-	/*
-	 * The command list is a memory leak right now!
-	 *
-	 if (cmdlist != trigg->cmdlist || this_data->proto)
-	 for (i = cmdlist; i;)
-	 {j = i;
-	 i = i->next;
-	 free(j->cmd);
-	 free(j);
-	 }
-	 */
-
-	if (this_data->arglist)	// Не люблю вызовов free( NULL )
-		free(this_data->arglist);
-
 	free_varlist(this_data->var_list);
 
 	if (this_data->wait_event)
@@ -444,7 +395,7 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 	add_trig_to_owner(-1, vnum, GET_OBJ_VNUM(obj));
 
 	
-	obj->proto_script.push_back(vnum);
+	obj->add_proto_script(vnum);
 }
 
 extern CHAR_DATA *mob_proto;
@@ -466,16 +417,16 @@ void assign_triggers(void *i, int type)
 			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
-				sprintf(buf, "SYSERR: trigger #%d non-existant, for mob #%d",
+				sprintf(buf, "SYSERR: trigger #%d non-existent, for mob #%d",
 					trigger_vnum, mob_index[mob->nr].vnum);
 				log("%s",buf);
 			}
 			else
 			{
-				if (trig_index[rnum]->proto->attach_type != MOB_TRIGGER)
+				if (trig_index[rnum]->proto->get_attach_type() != MOB_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for mob #%d",
-						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 						mob_index[mob->nr].vnum);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
@@ -483,7 +434,7 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(mob))
 					{
-						CREATE(SCRIPT(mob), 1);
+						mob->script = new SCRIPT_DATA();
 					}
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
 
@@ -508,28 +459,27 @@ void assign_triggers(void *i, int type)
 			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
-				sprintf(buf, "SYSERR: trigger #%d non-existant, for obj #%d",
-					trigger_vnum, obj_proto.vnum(obj));
+				sprintf(buf, "SYSERR: trigger #%d non-existent, for obj #%d",
+					trigger_vnum, obj->get_vnum());
 				log("%s",buf);
 			}
 			else
 			{
-				if (trig_index[rnum]->proto->attach_type != OBJ_TRIGGER)
+				if (trig_index[rnum]->proto->get_attach_type() != OBJ_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for obj #%d",
 						trigger_vnum,
-						static_cast<int>(trig_index[rnum]->proto->attach_type),
-						obj_proto.vnum(obj->item_number));
+						static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
+						obj->get_vnum());
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else
 				{
-					if (!SCRIPT(obj))
+					if (!obj->get_script())
 					{
-						CREATE(SCRIPT(obj), 1);
+						obj->set_script(new SCRIPT_DATA());
 					}
-					
-					add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
+					add_trigger(obj->get_script().get(), read_trigger(rnum), -1);
 					if (owner_trig.find(trigger_vnum) == owner_trig.end())
 					{
 						std::map<int, std::vector<int>> tmp_map;
@@ -554,10 +504,10 @@ void assign_triggers(void *i, int type)
 			}
 			else
 			{
-				if (trig_index[rnum]->proto->attach_type != WLD_TRIGGER)
+				if (trig_index[rnum]->proto->get_attach_type() != WLD_TRIGGER)
 				{
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for room #%d",
-						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->attach_type),
+						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 						room->number);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
@@ -565,7 +515,7 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(room))
 					{
-						CREATE(SCRIPT(room), 1);
+						room->script = new SCRIPT_DATA();
 					}
 					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
 					if (owner_trig.find(trigger_vnum) == owner_trig.end())

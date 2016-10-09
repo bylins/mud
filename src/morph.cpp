@@ -260,17 +260,17 @@ void do_morph(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	ch->set_morph(newMorph);
 	if (ch->equipment[WEAR_BOTHS])
 	{
-		send_to_char("Вы не можете держать в лапах " + std::string(ch->equipment[WEAR_BOTHS]->PNames[3])+".\r\n", ch);
+		send_to_char("Вы не можете держать в лапах " + ch->equipment[WEAR_BOTHS]->get_PName(3) + ".\r\n", ch);
 		perform_remove(ch, WEAR_BOTHS);
 	}
 	if (ch->equipment[WEAR_WIELD])
 	{
-		send_to_char("Ваша правая лапа бессильно опустила " + std::string(ch->equipment[WEAR_WIELD]->PNames[3])+".\r\n", ch);
+		send_to_char("Ваша правая лапа бессильно опустила " + ch->equipment[WEAR_WIELD]->get_PName(3) + ".\r\n", ch);
 		perform_remove(ch, WEAR_WIELD);
 	}
 	if (ch->equipment[WEAR_HOLD])
 	{
-		send_to_char("Ваша левая лапа не удержала " + std::string(ch->equipment[WEAR_HOLD]->PNames[3])+".\r\n", ch);
+		send_to_char("Ваша левая лапа не удержала " + ch->equipment[WEAR_HOLD]->get_PName(3) + ".\r\n", ch);
 		perform_remove(ch, WEAR_HOLD);
 	}
 	WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
@@ -280,7 +280,9 @@ void PrintAllMorphsList(CHAR_DATA *ch)
 {
 	send_to_char("Существующие формы: \r\n", ch);
 	for (MorphListType::const_iterator it = IdToMorphMap.begin();it != IdToMorphMap.end();++it)
+	{
 		send_to_char("   " + it->second->Name() + "\r\n", ch);
+	}
 }
 
 void do_morphset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)

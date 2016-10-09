@@ -40,8 +40,8 @@ namespace
 ///
 void remove_tmp_extra(OBJ_DATA *obj, EExtraFlag flag)
 {
-	const OBJ_DATA * const proto = read_object_mirror(GET_OBJ_VNUM(obj));
-	if (!proto->get_extraflag(flag))
+	auto proto = get_object_prototype(GET_OBJ_VNUM(obj));
+	if (!proto->get_extra_flag(flag))
 	{
 		obj->unset_extraflag(flag);
 	}
@@ -55,8 +55,7 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 {
 	if (!obj)
 	{
-		log("SYSERROR: NULL object %s:%d, spell = %d",
-			__FILE__, __LINE__, spell);
+		log("SYSERROR: NULL object %s:%d, spell = %d", __FILE__, __LINE__, spell);
 		return;
 	}
 
@@ -68,22 +67,22 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 	case SPELL_BELENA_POISON:
 	case SPELL_DATURA_POISON:
 		break;
+
 	case SPELL_FLY:
-	{
 		remove_tmp_extra(obj, EExtraFlag::ITEM_FLYING);
 		break;
-	}
+
 	case SPELL_LIGHT:
-	{
 		remove_tmp_extra(obj, EExtraFlag::ITEM_GLOW);
 		break;
-	}
 	} // switch
 
 	// онлайн уведомление чару
-	if (send_message && (obj->carried_by || obj->worn_by))
+	if (send_message
+		&& (obj->get_carried_by()
+			|| obj->get_worn_by()))
 	{
-		CHAR_DATA *ch = obj->carried_by ? obj->carried_by : obj->worn_by;
+		CHAR_DATA *ch = obj->get_carried_by() ? obj->get_carried_by() : obj->get_worn_by();
 		switch (spell)
 		{
 		case SPELL_ACONITUM_POISON:
@@ -91,21 +90,24 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 		case SPELL_BELENA_POISON:
 		case SPELL_DATURA_POISON:
 			send_to_char(ch, "С %s испарились последние капельки яда.\r\n",
-					GET_OBJ_PNAME(obj, 1));
+				GET_OBJ_PNAME(obj, 1).c_str());
 			break;
+
 		case SPELL_FLY:
 			send_to_char(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
-					GET_OBJ_VIS_SUF_7(obj, ch), GET_OBJ_PNAME(obj, 0),
-					GET_OBJ_VIS_SUF_1(obj, ch));
+				GET_OBJ_VIS_SUF_7(obj, ch),
+				GET_OBJ_PNAME(obj, 0).c_str(),
+				GET_OBJ_VIS_SUF_1(obj, ch));
 			break;
+
 		case SPELL_LIGHT:
 			send_to_char(ch, "Ваш%s %s перестал%s светиться.\r\n",
-					GET_OBJ_VIS_SUF_7(obj, ch), GET_OBJ_PNAME(obj, 0),
-					GET_OBJ_VIS_SUF_1(obj, ch));
+				GET_OBJ_VIS_SUF_7(obj, ch),
+				GET_OBJ_PNAME(obj, 0).c_str(),
+				GET_OBJ_VIS_SUF_1(obj, ch));
 			break;
 		}
 	}
-
 }
 
 // * Распечатка строки с заклинанием и таймером при осмотре шмотки.

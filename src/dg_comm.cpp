@@ -162,7 +162,7 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets)
 			*s = '\0';
 			p = any_one_name(++p, name);
 			otokens[i] = find_invis ? (obj = get_obj(name)) :
-						 ((obj = get_obj_in_list_vis(ch, name, world[IN_ROOM(ch)]->contents)) ? obj :
+						 ((obj = get_obj_in_list_vis(ch, name, world[ch->in_room]->contents)) ? obj :
 						  (obj = get_object_in_equip_vis(ch, name, ch->equipment, &tmp)) ? obj :
 						  (obj = get_obj_in_list_vis(ch, name, ch->carrying)));
 			otokens[i] = obj;

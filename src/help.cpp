@@ -45,27 +45,26 @@ struct dup_node
 	std::string afct;
 };
 
-void sum_skills(std::map<int, int> &target, const std::map<int, int> &add)
+void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t &add)
 {
-	for (std::map<int, int>::const_iterator i = add.begin(),
-		iend = add.end(); i != iend; ++i)
+	for (auto i : add)
 	{
-		if (i->second != 0)
+		if (i.second != 0)
 		{
-			std::map<int, int>::iterator ii = target.find(i->first);
+			auto ii = target.find(i.first);
 			if (ii != target.end())
 			{
-				ii->second += i->second;
+				ii->second += i.second;
 			}
 			else
 			{
-				target[i->first] = i->second;
+				target[i.first] = i.second;
 			}
 		}
 	}
 }
 
-void sum_skills(std::map<int, int> &target, const std::pair<int, int> &add)
+void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t::value_type &add)
 {
 	if (add.first > 0 && add.second != 0)
 	{
@@ -81,11 +80,11 @@ void sum_skills(std::map<int, int> &target, const std::pair<int, int> &add)
 	}
 }
 
-void sum_skills(std::map<int, int> &target, const OBJ_DATA *obj)
+void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype *obj)
 {
 	if (obj->has_skills())
 	{
-		std::map<int, int> tmp_skills;
+		CObjectPrototype::skills_t tmp_skills;
 		obj->get_skills(tmp_skills);
 		sum_skills(target, tmp_skills);
 	}
@@ -102,7 +101,7 @@ bool check_num_in_unique_bit_flag_data(const unique_bit_flag_data &data, const i
 	return (0 <= num && num < 120) ? data.get_flag(num / 30, 1 << num) : false;
 }
 
-std::string print_skill(const std::pair<int, int> &skill, bool activ)
+std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, bool activ)
 {
 	std::string out;
 	if (skill.second != 0)
@@ -118,12 +117,12 @@ std::string print_skill(const std::pair<int, int> &skill, bool activ)
 
 /// распечатка массива скилов с " + " перед активаторами
 /// \param header = true (печатать или нет заголовок 'Меняет умения')
-std::string print_skills(const std::map<int, int> &skills, bool activ, bool header)
+std::string print_skills(const CObjectPrototype::skills_t &skills, bool activ, bool header)
 {
 	std::string out;
-	for (auto i = skills.cbegin(), iend = skills.cend(); i != iend; ++i)
+	for (const auto& i : skills)
 	{
-		out += print_skill(*i, activ);
+		out += print_skill(i, activ);
 	}
 
 	if (!out.empty() && header)
@@ -136,26 +135,26 @@ std::string print_skills(const std::map<int, int> &skills, bool activ, bool head
 }
 
 // распечатка важных в контексте сетов родных стат предмета
-std::string print_obj_affects(const OBJ_DATA * const obj)
+std::string print_obj_affects(const CObjectPrototype* const obj)
 {
 	std::stringstream out;
 
 	out << GET_OBJ_PNAME(obj, 0) << "\r\n";
 
-	if (obj->obj_flags.no_flag.sprintbits(no_bits, buf2, ","))
+	if (obj->get_no_flags().sprintbits(no_bits, buf2, ","))
 	{
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
 
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 	{
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
 		out << boost::format("Наносимые повреждения '%dD%d' среднее %.1f\r\n")
-				% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
+			% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
 	}
 
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON
 		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)
 		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
 	{
@@ -170,11 +169,12 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 	std::string tmp_str;
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if (obj->affected[i].modifier != 0)
+		if (obj->get_affected(i).modifier != 0)
 		{
-			tmp_str += "   " + print_obj_affects(obj->affected[i]);
+			tmp_str += "   " + print_obj_affects(obj->get_affected(i));
 		}
 	}
+
 	if (!tmp_str.empty())
 	{
 		out << "Свойства :\r\n" << tmp_str;
@@ -182,7 +182,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 
 	if (obj->has_skills())
 	{
-		std::map<int, int> skills;
+		CObjectPrototype::skills_t skills;
 		obj->get_skills(skills);
 		out << print_skills(skills, false);
 	}
@@ -191,7 +191,7 @@ std::string print_obj_affects(const OBJ_DATA * const obj)
 }
 
 // распечатка конкретного активатора предмета
-std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_DATA * const obj)
+std::string print_activator(class_to_act_map::const_iterator &activ, const CObjectPrototype* const obj)
 {
 	std::stringstream out;
 
@@ -232,7 +232,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_D
 		out << " + Свойства :\r\n" << tmp_str;
 	}
 
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 	{
 		int drndice = 0, drsdice = 0;
 		activ->second.get_dices(drsdice, drndice);
@@ -251,7 +251,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const OBJ_D
 
 	if (activ->second.has_skills())
 	{
-		std::map<int, int> skills;
+		CObjectPrototype::skills_t skills;
 		activ->second.get_skills(skills);
 		out << print_skills(skills, true);
 	}
@@ -274,7 +274,7 @@ struct activators_obj
 	FLAG_DATA native_no_flag;
 	FLAG_DATA native_affects;
 	std::vector<obj_affected_type> native_affected;
-	std::map<int, int> native_skills;
+	CObjectPrototype::skills_t native_skills;
 
 	// заполнение массива clss_list номерами проф
 	void fill_class(set_info::const_iterator k);
@@ -328,7 +328,7 @@ void activators_obj::fill_node(const set_info &set)
 						w->second.total_affects += q->second.get_affects();
 						sum_apply(w->second.affected, q->second.get_affected());
 						// скилы
-						std::map<int, int> tmp_skills;
+						CObjectPrototype::skills_t tmp_skills;
 						q->second.get_skills(tmp_skills);
 						sum_skills(w->second.skills, tmp_skills);
 						found = true;
@@ -421,13 +421,13 @@ std::string print_fullset_stats(const set_info &set)
 		{
 			continue;
 		}
-		const OBJ_DATA * const obj = obj_proto[rnum];
+		const auto& obj = obj_proto[rnum];
 
 		// суммируем родные статы со шмоток
 		activ.native_no_flag += GET_OBJ_NO(obj);
 		activ.native_affects += GET_OBJ_AFFECTS(obj);
-		sum_apply(activ.native_affected, obj->affected);
-		sum_skills(activ.native_skills, obj);
+		sum_apply(activ.native_affected, obj->get_affected());
+		sum_skills(activ.native_skills, obj.get());
 
 		// иним профы
 		activ.fill_class(k);
@@ -472,8 +472,8 @@ void process()
 				continue;
 			}
 
-			const OBJ_DATA * const obj = obj_proto[rnum];
-			out << print_obj_affects(obj);
+			const auto& obj = obj_proto[rnum];
+			out << print_obj_affects(obj.get());
 
 			for (qty_to_camap_map::const_iterator m = k->second.begin(); m != k->second.end(); ++m)
 			{
@@ -481,7 +481,7 @@ void process()
 				for (class_to_act_map::const_iterator q = m->second.begin(); q != m->second.end(); ++q)
 				{
 					out << "Предметов для активации: " << m->first << "\r\n";
-					out << print_activator(q, obj);
+					out << print_activator(q, obj.get());
 				}
 			}
 		}
@@ -741,7 +741,7 @@ bool help_compare(const std::string &arg, const std::string &text, bool strong)
 		return arg == text;
 	}
 
-	return isname(arg, text.c_str());
+	return isname(arg, text);
 }
 
 void UserSearch::process(int flag)

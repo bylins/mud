@@ -27,7 +27,8 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // arbitrary constants used by index_boot() (must be unique)
-#define MAX_PROTO_NUMBER 9999999	//Максимально возможный номер комнаты, предмета и т.д.	
+#define MAX_PROTO_NUMBER 9999999	//Максимально возможный номер комнаты, предмета и т.д.
+
 #define MIN_ZONE_LEVEL	1
 #define MAX_ZONE_LEVEL	50
 
@@ -43,7 +44,6 @@ class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any d
 #define DL_LOAD_IFLAST     1
 #define DL_LOAD_ANYWAY_NC  2
 #define DL_LOAD_IFLAST_NC  3
-
 
 #define DUPLICATE_MINI_SET_VNUM 1000000
 
@@ -190,7 +190,6 @@ void room_free(ROOM_DATA * room);
 // public procedures in db.cpp
 void tag_argument(char *argument, char *tag);
 void boot_db(void);
-void free_db(void);
 int create_entry(const char *name);
 void zone_update(void);
 bool can_be_reset(zone_rnum zone);
@@ -208,24 +207,23 @@ long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 
 int load_char(const char *name, CHAR_DATA * char_element, bool reboot = 0);
-void save_char(CHAR_DATA *ch);
 void init_char(CHAR_DATA *ch);
 CHAR_DATA *read_mobile(mob_vnum nr, int type);
 mob_rnum real_mobile(mob_vnum vnum);
 int vnum_mobile(char *searchname, CHAR_DATA * ch);
-void reset_char(CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
+bool check_unlimited_timer(const CObjectPrototype* obj);
 
 #define REAL          0
 #define VIRTUAL       (1 << 0)
 #define OBJ_NO_CALC   (1 << 1)
 
-OBJ_DATA *create_obj(const char *alias = 0);
+OBJ_DATA *create_obj(const std::string& alias = "");
 void free_obj(OBJ_DATA * obj);
 obj_rnum real_object(obj_vnum vnum);
 OBJ_DATA *read_object(obj_vnum nr, int type);
-const OBJ_DATA* read_object_mirror(obj_vnum nr, int type = VIRTUAL);
+CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type = VIRTUAL);
 
 int vnum_object(char *searchname, CHAR_DATA * ch);
 int vnum_flag(char *searchname, CHAR_DATA * ch);
@@ -277,7 +275,6 @@ struct ExtraAffects
 	int chance; // вероятность того, что данный экстраффект будет на шмотке
 };
 
-
 class RandomObj
 {
 	public:
@@ -301,7 +298,6 @@ class RandomObj
 		std::map<std::string, int> affects;
 		// список экстраффектов и их шанс упасть на шмотку
 		std::vector<ExtraAffects> extraffect;
-	
 };
 
 // zone definition structure. for the 'zone-table'
@@ -362,8 +358,6 @@ struct reset_q_element
 	zone_rnum zone_to_reset;	// ref to zone_data
 	struct reset_q_element *next;
 };
-
-
 
 // structure for the update queue
 struct reset_q_type
@@ -465,14 +459,29 @@ extern CHAR_DATA *character_list;
 extern OBJ_DATA *object_list;
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
+extern int top_of_p_table;
 
 class CObjectPrototypes
 {
+private:
+	struct SPrototypeIndex
+	{
+		SPrototypeIndex() : number(0), stored(0), func(NULL), farg(NULL), proto(NULL), zone(0), set_idx(-1) {}
+
+		int number;		// number of existing units of this mob/obj //
+		int stored;		// number of things in rent file            //
+		int(*func)(CHAR_DATA*, void*, int, char*);
+		char *farg;		// string argument for special function     //
+		TRIG_DATA *proto;	// for triggers... the trigger     //
+		int zone;			// mob/obj zone rnum //
+		size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
+	};
+
 public:
-	using prototypes_t = std::deque<OBJ_DATA *>;
+	using prototypes_t = std::deque<CObjectPrototype::shared_ptr>;
 	using const_iterator = prototypes_t::const_iterator;
 
-	using index_t = std::deque<index_data>;
+	using index_t = std::deque<SPrototypeIndex>;
 
 	/**
 	** \name Proxy calls to std::vector member functions.
@@ -489,47 +498,41 @@ public:
 	const auto& operator[](size_t index) const { return m_prototypes[index]; }
 	/** @} */
 
-	size_t add(const prototypes_t::value_type& prototype, const obj_vnum vnum);
-
-	obj_vnum vnum(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].vnum : -1; }
-	obj_vnum vnum(const OBJ_DATA* object) const { return vnum(object->item_number); }
-	void vnum(const size_t rnum, const obj_vnum value);
+	size_t add(CObjectPrototype* prototype, const obj_vnum vnum);
+	size_t add(const CObjectPrototype::shared_ptr& prototype, const obj_vnum vnum);
 
 	void zone(const size_t rnum, const size_t zone_rnum) { m_index[rnum].zone = static_cast<int>(zone_rnum); }
 
 	auto stored(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].stored : -1; }
-	auto stored(const OBJ_DATA* object) const { return stored(object->item_number); }
+	auto stored(const CObjectPrototype::shared_ptr& object) const { return stored(object->get_rnum()); }
 	void dec_stored(const size_t rnum) { --m_index[rnum].stored; }
 	void inc_stored(const size_t rnum) { ++m_index[rnum].stored; }
 
 	auto number(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].number : -1; }
-	auto number(const OBJ_DATA* object) const { return number(object->item_number); }
+	auto number(const CObjectPrototype::shared_ptr& object) const { return number(object->get_rnum()); }
 	void dec_number(const size_t rnum) { --m_index[rnum].number; }
 	void inc_number(const size_t rnum) { ++m_index[rnum].number; }
 
 	auto zone(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].zone : -1; }
 
 	auto actual_count(const size_t rnum) const { return number(rnum) + stored(rnum); }
-	auto actual_count(const OBJ_DATA* object) const { return actual_count(object->item_number); }
-	
 
 	auto func(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].func : nullptr; }
-	auto func(const OBJ_DATA* object) const { return func(object->item_number); }
-	void func(const size_t rnum, const decltype(index_data::func) function) { m_index[rnum].func = function; }
+	void func(const size_t rnum, const decltype(SPrototypeIndex::func) function) { m_index[rnum].func = function; }
 
-	auto spec(const OBJ_DATA* object) const { return func(object->item_number); }
+	auto spec(const size_t rnum) const { return func(rnum); }
 
 	auto set_idx(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].set_idx : ~0; }
-	void set_idx(const size_t rnum, const decltype(index_data::set_idx) value) { m_index[rnum].set_idx = value; }
+	void set_idx(const size_t rnum, const decltype(SPrototypeIndex::set_idx) value) { m_index[rnum].set_idx = value; }
 
 	int rnum(const obj_vnum vnum) const;
 
-	prototypes_t::value_type swap(const size_t index, const prototypes_t::value_type& new_value);
+	void set(const size_t index, CObjectPrototype* new_value);
 
 	auto index_size() const { return m_index.size()*(sizeof(index_t::value_type) + sizeof(vnum2index_t::value_type)); }
 	auto prototypes_size() const { return m_prototypes.size()*sizeof(prototypes_t::value_type); }
 
-	const auto& proto_script(const size_t rnum) const { return m_prototypes.at(rnum)->proto_script; }
+	const auto& proto_script(const size_t rnum) const { return m_prototypes.at(rnum)->get_proto_script(); }
 
 private:
 	using vnum2index_t = std::map<obj_vnum, size_t>;
@@ -555,8 +558,8 @@ inline bool CObjectPrototypes::is_index_safe(const size_t index) const
 
 extern CObjectPrototypes obj_proto;
 
-inline obj_vnum GET_OBJ_VNUM(const OBJ_DATA* obj) { return obj_proto.vnum(obj); }
-inline auto GET_OBJ_SPEC(const OBJ_DATA* obj) { return obj_proto.spec(obj); }
+inline obj_vnum GET_OBJ_VNUM(const CObjectPrototype* obj) { return obj->get_vnum(); }
+inline auto GET_OBJ_SPEC(const CObjectPrototype* obj) { return obj_proto.spec(obj->get_rnum()); }
 
 // returns the real number of the object with given virtual number
 inline obj_rnum real_object(obj_vnum vnum) { return obj_proto.rnum(vnum); }
@@ -568,7 +571,7 @@ extern const char *MENU;
 extern struct portals_list_type *portals_list;
 extern TIME_INFO_DATA time_info;
 
-extern int convert_drinkcon_skill(OBJ_DATA *obj, bool proto);
+extern int convert_drinkcon_skill(CObjectPrototype *obj, bool proto);
 
 int dl_parse(load_list ** dl_list, char *line);
 int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_TYPE);

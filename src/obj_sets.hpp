@@ -4,6 +4,7 @@
 #ifndef OBJ_SETS_HPP_INCLUDED
 #define OBJ_SETS_HPP_INCLUDED
 
+#include "obj.hpp"
 #include "features.hpp"
 #include "interpreter.h"
 #include "structs.h"
@@ -94,7 +95,7 @@ struct activ_sum
 	void update(CHAR_DATA *ch);
 	void apply_affects(CHAR_DATA *ch) const;
 
-	int get_skill(int num) const;
+	int get_skill(const ESkill num) const;
 	int calc_phys_dmg(int dam) const;
 	int calc_mage_dmg(int dam) const;
 
@@ -103,7 +104,7 @@ struct activ_sum
 	// APPLY_XXX аффекты (affected[MAX_OBJ_AFFECT])
 	std::vector<obj_affected_type> apply;
 	// +скилы в обход текущего обхода шмоток
-	std::map<int, int> skills;
+	CObjectPrototype::skills_t skills;
 	// числовые сетовые бонусы
 	bonus_type bonus;
 	// внум шмоток - энчанты с сетов

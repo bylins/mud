@@ -9,6 +9,7 @@ find_library(GTEST_LIB gtest PATHS ${GTEST_ROOT}/lib)
 include_directories(system ${GTEST_INCLUDE})
 
 add_executable(msdp.tests msdp.tests.cpp)
+set_property(TARGET msdp.tests PROPERTY CXX_STANDARD 14)
 target_link_libraries(msdp.tests circle.library ${GTEST_LIB})
 if (NOT WIN32)
     target_link_libraries(msdp.tests pthread)

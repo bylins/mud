@@ -26,15 +26,15 @@ enchant::enchant()
 
 enchant::enchant(OBJ_DATA *obj)
 {
-	name_ = GET_OBJ_PNAME(obj, 4) ? GET_OBJ_PNAME(obj, 4) : "<null>";
+	name_ = !GET_OBJ_PNAME(obj, 4).empty() ? GET_OBJ_PNAME(obj, 4).c_str() : "<null>";
 	type_ = ENCHANT_FROM_OBJ;
 
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if (obj->affected[i].location != APPLY_NONE
-			&& obj->affected[i].modifier != 0)
+		if (obj->get_affected(i).location != APPLY_NONE
+			&& obj->get_affected(i).modifier != 0)
 		{
-			affected_.push_back(obj->affected[i]);
+			affected_.push_back(obj->get_affected(i));
 		}
 	}
 
@@ -135,9 +135,9 @@ std::string enchant::print_to_file() const
 
 void correct_values(OBJ_DATA *obj)
 {
-	GET_OBJ_WEIGHT(obj) = std::max(1, GET_OBJ_WEIGHT(obj));
-	GET_OBJ_VAL(obj, 1) = std::max(0, GET_OBJ_VAL(obj, 1));
-	GET_OBJ_VAL(obj, 2) = std::max(0, GET_OBJ_VAL(obj, 2));
+	obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj)));
+	obj->set_val(1, std::max(0, GET_OBJ_VAL(obj, 1)));
+	obj->set_val(2, std::max(0, GET_OBJ_VAL(obj, 2)));
 }
 
 void enchant::apply_to_obj(OBJ_DATA *obj) const
@@ -146,34 +146,32 @@ void enchant::apply_to_obj(OBJ_DATA *obj) const
 	{
 		for (int k = 0; k < MAX_OBJ_AFFECT; k++)
 		{
-			if (obj->affected[k].location == i->location)
+			if (obj->get_affected(k).location == i->location)
 			{
-				obj->affected[k].modifier += i->modifier;
+				obj->add_affected(k, i->modifier);
 				break;
 			}
-			else if (obj->affected[k].location == APPLY_NONE)
+			else if (obj->get_affected(k).location == APPLY_NONE)
 			{
-				obj->affected[k].location = i->location;
-				obj->affected[k].modifier = i->modifier;
+				obj->set_affected(k, *i);
 				break;
 			}
 		}
 	}
 
-	GET_OBJ_AFFECTS(obj) += affects_flags_;
-	GET_OBJ_EXTRA(obj) += extra_flags_;
-	obj->obj_flags.no_flag += no_flags_;
+	obj->add_affect_flags(affects_flags_);
+	obj->add_extra_flags(extra_flags_);
+	obj->add_no_flags(no_flags_);
+	obj->add_weight(weight_);
 
-	GET_OBJ_WEIGHT(obj) += weight_;
-
-	if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 	{
-		GET_OBJ_VAL(obj, 1) += ndice_;
-		GET_OBJ_VAL(obj, 2) += sdice_;
+		obj->add_val(1, ndice_);
+		obj->add_val(2, sdice_);
 	}
 
 	correct_values(obj);
-	obj->enchants.add(*this);
+	obj->add_enchant(*this);
 }
 
 void Enchants::add(const enchant &ench)
@@ -216,28 +214,28 @@ bool Enchants::empty() const
 	return list_.empty();
 }
 
-void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type *set_ench)
+void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type& set_ench)
 {
 	for (auto i = list_.begin(); i != list_.end(); ++i)
 	{
 		if (i->type_ == ENCHANT_FROM_SET)
 		{
-			if (i->weight_ != set_ench->weight
-				|| i->ndice_ != set_ench->ndice
-				|| i->sdice_ != set_ench->sdice)
+			if (i->weight_ != set_ench.weight
+				|| i->ndice_ != set_ench.ndice
+				|| i->sdice_ != set_ench.sdice)
 			{
 				// вес
-				GET_OBJ_WEIGHT(obj) += set_ench->weight - i->weight_;
+				obj->add_weight(set_ench.weight - i->weight_);
 				// дайсы пушек
-				if (GET_OBJ_TYPE(obj) == obj_flag_data::ITEM_WEAPON)
+				if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 				{
-					GET_OBJ_VAL(obj, 1) += set_ench->ndice - i->ndice_;
-					GET_OBJ_VAL(obj, 2) += set_ench->sdice - i->sdice_;
+					obj->add_val(1, set_ench.ndice - i->ndice_);
+					obj->add_val(2, set_ench.sdice - i->sdice_);
 				}
 				correct_values(obj);
-				i->weight_ = set_ench->weight;
-				i->ndice_ = set_ench->ndice;
-				i->sdice_ = set_ench->sdice;
+				i->weight_ = set_ench.weight;
+				i->ndice_ = set_ench.ndice;
+				i->sdice_ = set_ench.sdice;
 			}
 			return;
 		}
@@ -246,9 +244,9 @@ void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type *set_en
 	obj::enchant tmp;
 	tmp.type_ = obj::ENCHANT_FROM_SET;
 	tmp.name_ = "набором предметов";
-	tmp.weight_ = set_ench->weight;
-	tmp.ndice_ = set_ench->ndice;
-	tmp.sdice_ = set_ench->sdice;
+	tmp.weight_ = set_ench.weight;
+	tmp.ndice_ = set_ench.ndice;
+	tmp.sdice_ = set_ench.sdice;
 	tmp.apply_to_obj(obj);
 }
 
@@ -258,9 +256,9 @@ void Enchants::remove_set_bonus(OBJ_DATA *obj)
 	{
 		if (i->type_ == ENCHANT_FROM_SET)
 		{
-			GET_OBJ_WEIGHT(obj) -= i->weight_;
-			GET_OBJ_VAL(obj, 1) -= i->ndice_;
-			GET_OBJ_VAL(obj, 2) -= i->sdice_;
+			obj->sub_weight(i->weight_);
+			obj->sub_val(1, i->ndice_);
+			obj->sub_val(2, i->sdice_);
 			correct_values(obj);
 			list_.erase(i);
 			return;

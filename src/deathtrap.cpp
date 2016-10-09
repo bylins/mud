@@ -163,25 +163,25 @@ void DeathTrap::log_death_trap(CHAR_DATA * ch)
 		opened_files.push_back(file);
 	}
 	write_time(file);
-	fprintf(file, "%s hit death trap #%d (%s)\n", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), world[IN_ROOM(ch)]->name);
+	fprintf(file, "%s hit death trap #%d (%s)\n", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name);
 }
 
 // * Попадание в обычное дт.
 int DeathTrap::check_death_trap(CHAR_DATA * ch)
 {
-	if (IN_ROOM(ch) != NOWHERE && !PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (ch->in_room != NOWHERE && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
 				&& !IS_IMMORTAL(ch))
-			|| (real_sector(IN_ROOM(ch)) == SECT_FLYING && !IS_NPC(ch)
+			|| (real_sector(ch->in_room) == SECT_FLYING && !IS_NPC(ch)
 				&& !IS_GOD(ch)
 				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
-			|| (real_sector(IN_ROOM(ch)) == SECT_WATER_NOSWIM && !IS_NPC(ch)
+			|| (real_sector(ch->in_room) == SECT_WATER_NOSWIM && !IS_NPC(ch)
 				&& !IS_GOD(ch)
 				&& !has_boat(ch)))
 		{
 			OBJ_DATA *corpse;
 			DeathTrap::log_death_trap(ch);
-			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)));
+			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
 			mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
 			if (RENTABLE(ch))
 			{
@@ -245,10 +245,10 @@ bool DeathTrap::check_tunnel_death(CHAR_DATA *ch, int room_rnum)
 /// и просто по факту входа (char_to_room), чтобы не так резво скакали
 bool DeathTrap::tunnel_damage(CHAR_DATA *ch)
 {
-	const int dam = calc_tunnel_dmg(ch, IN_ROOM(ch));
+	const int dam = calc_tunnel_dmg(ch, ch->in_room);
 	if (dam > 0)
 	{
-		const int room_rnum = IN_ROOM(ch);
+		const int room_rnum = ch->in_room;
 		const std::string name = ch->get_name_str();
 		Damage dmg(SimpleDmg(TYPE_TUNNERLDEATH), dam, FightSystem::UNDEF_DMG);
 		dmg.flags.set(FightSystem::NO_FLEE);

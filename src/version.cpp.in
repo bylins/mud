@@ -10,8 +10,8 @@
 
 const char* revision = "${REVISION}";
 
-volatile const char* ROOT_DIRECTORY = "$ Build revision: ${REVISION} $";
-volatile const char* REVISION = "$ Build directory: ${CMAKE_BINARY_DIR} $";
+volatile const char* REVISION = "$ Build revision: ${REVISION} $";
+volatile const char* ROOT_DIRECTORY = "$ Build directory: ${CMAKE_BINARY_DIR} $";
 volatile const char* BUILD_DATE = "$ Build date: " __DATE__ " " __TIME__ " $";
 
 const char* build_datetime = __DATE__ " " __TIME__;

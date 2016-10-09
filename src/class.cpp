@@ -1994,11 +1994,11 @@ void do_start(CHAR_DATA * ch, int newbie)
         OBJ_DATA *obj = read_object(*i, VIRTUAL);
         if (obj)
 		{
-			obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
-			obj->set_extraflag(EExtraFlag::ITEM_DECAY);
+			obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+			obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
 			obj->set_cost(0);
-			obj->set_rent(0);
-			obj->set_rent_eq(0);
+			obj->set_rent_off(0);
+			obj->set_rent_on(0);
             obj_to_char(obj, ch);
             Noob::equip_start_outfit(ch, obj);
 		}
@@ -2212,14 +2212,25 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
 	OBJ_DATA *object;
 	if (!IS_CORPSE(obj))
-		for (object = obj->contains; object; object = object->next_content)
+	{
+		for (object = obj->get_contains(); object; object = object->get_next_content())
+		{
 			if (invalid_unique(ch, object))
+			{
 				return (TRUE);
-	if (!ch ||
-			!obj ||
-			(IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) ||
-			IS_IMMORTAL(ch) || obj->obj_flags.Obj_owner == 0 || obj->obj_flags.Obj_owner == GET_UNIQUE(ch))
+			}
+		}
+	}
+	if (!ch
+		|| !obj
+		|| (IS_NPC(ch)
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		|| IS_IMMORTAL(ch)
+		|| obj->get_owner() == 0
+		|| obj->get_owner() == GET_UNIQUE(ch))
+	{
 		return (FALSE);
+	}
 	return (TRUE);
 }
 
@@ -2236,13 +2247,18 @@ bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj)
 
 
 
-int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
+int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 {
-	OBJ_DATA *object;
 	if (!IS_CORPSE(obj))
-		for (object = obj->contains; object; object = object->next_content)
+	{
+		for (const OBJ_DATA* object = obj->get_contains(); object; object = object->get_next_content())
+		{
 			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0))
+			{
 				return (TRUE);
+			}
+		}
+	}
 	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
@@ -2309,18 +2325,7 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE) && IS_MALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE) && IS_FEMALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC) && IS_CLERIC(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR) && IS_WARRIOR(ch))	
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD) && IS_GUARD(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF) && IS_THIEF(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE) && IS_ASSASINE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE) && IS_PALADINE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER) && IS_RANGER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH) && IS_SMITH(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT) && IS_MERCHANT(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_DRUID(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))
-		|| (!IS_SMITH(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR) && IS_WARRIOR(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD) && IS_GUARD(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF) && IS_THIEF(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE) && IS_ASSASINE(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE) && IS_PALADINE(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER) && IS_RANGER(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH) && IS_SMITH(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT) && IS_MERCHANT(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_DRUID(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))		|| (!IS_SMITH(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch)))
 	{
 		return TRUE;

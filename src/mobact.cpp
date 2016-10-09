@@ -200,8 +200,8 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 		}
 		if (ch->get_skill(SKILL_THROW)
 			&& wielded
-			&& GET_OBJ_TYPE(wielded) == obj_flag_data::ITEM_WEAPON
-			&& wielded->get_extraflag(EExtraFlag::ITEM_THROWING))
+			&& GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON
+			&& wielded->get_extra_flag(EExtraFlag::ITEM_THROWING))
 		{
 			go_throw(ch, victim);
 		}
@@ -359,9 +359,9 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		if (!victim)
 			victim = vict;
 
-		if (IS_DEFAULTDARK(IN_ROOM(ch))
-			&& ((GET_EQ(vict, obj_flag_data::ITEM_LIGHT)
-					&& GET_OBJ_VAL(GET_EQ(vict, obj_flag_data::ITEM_LIGHT), 2))
+		if (IS_DEFAULTDARK(ch->in_room)
+			&& ((GET_EQ(vict, OBJ_DATA::ITEM_LIGHT)
+					&& GET_OBJ_VAL(GET_EQ(vict, OBJ_DATA::ITEM_LIGHT), 2))
 				|| (!AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYDARK)
 					&& (AFF_FLAGGED(vict, EAffectFlag::AFF_SINGLELIGHT)
 						|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYLIGHT))))
@@ -747,7 +747,7 @@ int perform_mob_switch(CHAR_DATA * ch)
 
 void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 {
-	if (!ch || IN_ROOM(ch) == NOWHERE || !IS_NPC(ch)
+	if (!ch || ch->in_room == NOWHERE || !IS_NPC(ch)
 		|| !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		return;
@@ -863,11 +863,11 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 */
 void do_aggressive_room(CHAR_DATA *ch, int check_sneak)
 {
-	if (!ch || IN_ROOM(ch) == NOWHERE)
+	if (!ch || ch->in_room == NOWHERE)
 	{
 		return;
 	}
-	for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
+	for (CHAR_DATA *vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
 		// здесь не надо преварително запоминать next_in_room, потому что как раз
 		// он то и может быть спуржен по ходу do_aggressive_mob, а вот атакующий нет
@@ -903,33 +903,32 @@ namespace {
 OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 {
 	OBJ_DATA *obj = create_obj();
-	obj->aliases = str_dup("узелок вещами");
-	const std::string descr = std::string("узелок с вещами ") + std::string(ch->get_pad(1));
-	obj->short_description = str_dup(descr.c_str());
-	obj->description = str_dup("Туго набитый узел лежит тут.");
-	CREATE(obj->ex_description, 1);
-	obj->ex_description->keyword = str_dup(descr.c_str());
-	obj->ex_description->description = str_dup("Кто-то сильно торопился, когда набивал этот узелок.");
-	obj->ex_description->next = 0;
-	obj->PNames[0] = str_dup("узелок");
-	obj->PNames[1] = str_dup("узелка");
-	obj->PNames[2] = str_dup("узелку");
-	obj->PNames[3] = str_dup("узелок");
-	obj->PNames[4] = str_dup("узелком");
-	obj->PNames[5] = str_dup("узелке");
-	GET_OBJ_SEX(obj) = ESex::SEX_MALE;
-	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
-	GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
-	GET_OBJ_WEIGHT(obj) = 1;
+	obj->set_aliases("узелок вещами");
+	const std::string descr = std::string("узелок с вещами ") + ch->get_pad(1);
+	obj->set_short_description(descr);
+	obj->set_description("Туго набитый узел лежит тут.");
+	obj->set_ex_description(descr.c_str(), "Кто-то сильно торопился, когда набивал этот узелок.");
+	obj->set_PName(0, "узелок");
+	obj->set_PName(1, "узелка");
+	obj->set_PName(2, "узелку");
+	obj->set_PName(3, "узелок");
+	obj->set_PName(4, "узелком");
+	obj->set_PName(5, "узелке");
+	obj->set_sex(ESex::SEX_MALE);
+	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
+	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_weight(1);
 	obj->set_cost(1);
-	obj->set_rent(1);
-	obj->set_rent_eq(1);
+	obj->set_rent_off(1);
+	obj->set_rent_on(1);
 	obj->set_timer(24 * 60);
-	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
-	obj->set_extraflag(EExtraFlag::ITEM_NOLOCATE);
-	obj->set_extraflag(EExtraFlag::ITEM_NODECAY);
-	obj->set_extraflag(EExtraFlag::ITEM_SWIMMING);
-	obj->set_extraflag(EExtraFlag::ITEM_FLYING);
+
+	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
+	obj->set_extra_flag(EExtraFlag::ITEM_NODECAY);
+	obj->set_extra_flag(EExtraFlag::ITEM_SWIMMING);
+	obj->set_extra_flag(EExtraFlag::ITEM_FLYING);
+
 	return obj;
 }
 
@@ -976,7 +975,6 @@ void extract_charmice(CHAR_DATA* ch)
 void mobile_activity(int activity_level, int missed_pulses)
 {
 	CHAR_DATA *ch, *next_ch, *vict, *first, *victim;
-	EXIT_DATA *rdata = NULL;
 	int door, found, max, was_in = -1, kw, activity_lev, std_lev, i, ch_activity;
 	memory_rec *names;
 
@@ -1029,7 +1027,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		   (ch_activity - activity_lev >= 0))
 			ch_activity = activity_lev;
 		if (ch_activity != activity_lev ||
-				(was_in = IN_ROOM(ch)) == NOWHERE || GET_ROOM_VNUM(IN_ROOM(ch)) % 100 == 99)
+				(was_in = ch->in_room) == NOWHERE || GET_ROOM_VNUM(ch->in_room) % 100 == 99)
 			continue;
 
 		// Examine call for special procedure
@@ -1239,6 +1237,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		{
 			for (found = FALSE, door = 0; door < NUM_OF_DIRS; door++)
 			{
+				ROOM_DATA::exit_data_ptr rdata;
 				for (rdata = EXIT(ch, door), max =
 							MAX(1, GET_REAL_INT(ch) / 10); max > 0 && !found; max--)
 				{
@@ -1248,7 +1247,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 							(is_room_forbidden(world[rdata->to_room]) && !MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
 							|| IS_DARK(rdata->to_room)
 							|| (MOB_FLAGGED(ch, MOB_STAY_ZONE)
-								&& world[IN_ROOM(ch)]->zone != world[rdata->to_room]->zone))
+								&& world[ch->in_room]->zone != world[rdata->to_room]->zone))
 						break;
 
 					for (first = world[rdata->to_room]->people, kw = 0;
@@ -1345,7 +1344,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		// Add new mobile actions here
 
-		if (was_in != IN_ROOM(ch))
+		if (was_in != ch->in_room)
 		{
 			do_aggressive_room(ch, FALSE);
 		}

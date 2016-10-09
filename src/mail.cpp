@@ -201,7 +201,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 {
 	int recipient;
 	int cost;
-	char buf[256], **write;
+	char buf[256];
 
 	IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) ? cost = 0 : cost = STAMP_PRICE;
 
@@ -236,9 +236,9 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 	skip_spaces(&arg);
 	if (*arg)
 	{
-		if ((IN_ROOM(ch) == r_helled_start_room) ||
-			(IN_ROOM(ch) == r_named_start_room) ||
-			(IN_ROOM(ch) == r_unreg_start_room))
+		if ((ch->in_room == r_helled_start_room) ||
+			(ch->in_room == r_named_start_room) ||
+			(ch->in_room == r_unreg_start_room))
 		{
 			act("$n сказал$g вам : 'Посылку? Не положено!'", FALSE, mailman, 0, ch, TO_VICT);
 			return;
@@ -258,29 +258,33 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 	if (ch->get_gold() < cost)
 	{
 		sprintf(buf, "$n сказал$g вам, 'Письмо стоит %d %s.'\r\n"
-				"$n сказал$g вам, '...которых у вас просто-напросто нет.'",
-				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
+			"$n сказал$g вам, '...которых у вас просто-напросто нет.'",
+			STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
 	act("$n начал$g писать письмо.", TRUE, ch, 0, 0, TO_ROOM);
 	if (cost == 0)
+	{
 		sprintf(buf, "$n сказал$g вам, 'Со своих - почтовый сбор не берем.'\r\n"
-				"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'");
+			"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'");
+	}
 	else
+	{
 		sprintf(buf,
-				"$n сказал$g вам, 'Отлично, с вас %d %s почтового сбора.'\r\n"
-				"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'",
-				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
+			"$n сказал$g вам, 'Отлично, с вас %d %s почтового сбора.'\r\n"
+			"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'",
+			STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
+	}
 
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
 	ch->remove_gold(cost);
 	PLR_FLAGS(ch).set(PLR_MAILING);	// string_write() sets writing.
 
 	// Start writing!
-	CREATE(write, 1);
-	string_write(ch->desc, write, MAX_MAIL_SIZE, recipient, NULL);
+	string_writer_t writer(new CStringWriter());
+	string_write(ch->desc, writer, MAX_MAIL_SIZE, recipient, NULL);
 }
 
 namespace coder
@@ -530,7 +534,7 @@ bool check_poster_cnt(CHAR_DATA* ch)
 	return true;
 }
 
-void add(int to_uid, int from_uid, char* message)
+void add(int to_uid, int from_uid, const char* message)
 {
 	if (to_uid < 0 || !message || !*message)
 	{
@@ -602,23 +606,23 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 	for(auto i = rng.first; i != rng.second; ++i)
 	{
 		OBJ_DATA *obj = create_obj();
-		obj->aliases = str_dup("mail paper letter письмо почта бумага");
-		obj->short_description = str_dup("письмо");
-		obj->description = str_dup("Кто-то забыл здесь свое письмо.");
-		obj->PNames[0] = str_dup("письмо");
-		obj->PNames[1] = str_dup("письма");
-		obj->PNames[2] = str_dup("письма");
-		obj->PNames[3] = str_dup("письмо");
-		obj->PNames[4] = str_dup("письмом");
-		obj->PNames[5] = str_dup("письме");
+		obj->set_aliases("mail paper letter письмо почта бумага");
+		obj->set_short_description("письмо");
+		obj->set_description("Кто-то забыл здесь свое письмо.");
+		obj->set_PName(0, "письмо");
+		obj->set_PName(1, "письма");
+		obj->set_PName(2, "письма");
+		obj->set_PName(3, "письмо");
+		obj->set_PName(4, "письмом");
+		obj->set_PName(5, "письме");
 
-		GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_NOTE;
-		GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD);
-		GET_OBJ_WEIGHT(obj) = 1;
-		GET_OBJ_MATER(obj) = obj_flag_data::MAT_PAPER;
+		obj->set_type(OBJ_DATA::ITEM_NOTE);
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD));
+		obj->set_weight(1);
+		obj->set_material(OBJ_DATA::MAT_PAPER);
 		obj->set_cost(0);
-		obj->set_rent(10);
-		obj->set_rent_eq(10);
+		obj->set_rent_off(10);
+		obj->set_rent_on(10);
 		obj->set_timer(24 * 60);
 
 		char buf_date[MAX_INPUT_LENGTH];
@@ -635,7 +639,7 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 
 		std::string text = coder::base64_decode(i->second.text);
 		boost::trim_if(text, ::isspace);
-		obj->action_description = str_dup((buf_ + text + "\r\n\r\n").c_str());
+		obj->set_action_description(buf_ + text + "\r\n\r\n");
 
 		obj_to_char(obj, ch);
 		act("$n дал$g вам письмо.", FALSE, mailman, 0, ch, TO_VICT);

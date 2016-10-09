@@ -236,19 +236,19 @@ void create_clone_miniset(int vnum)
 	const int new_vnum = DUPLICATE_MINI_SET_VNUM + vnum;
 	// если такой зоны нет, то делаем ретурн
 	if ((new_vnum % 100) > top_of_zone_table)
-		return;	
-	OBJ_DATA *obj, *old_obj;
-	// создаем новый объект
-	NEWCREATE(obj);
+	{
+		return;
+	}
 	const int rnum = real_object(vnum);
 	// проверяем, есть ли у нашей сетины клон в системной зоне
 	const int rnum_nobj = real_object(new_vnum);
 	if (rnum_nobj < 0)
+	{
 		return;
+	}
 	// здесь сохраняем рнум нашего нового объекта
 	obj_proto.set_idx(rnum_nobj, obj_proto.set_idx(rnum));
 }
-
 
 // * Инициализация списка сетов на лоад.
 void init_obj_list()
@@ -809,8 +809,8 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 	}
 
 	// мини сеты увеличенный шанс на дроп
-	const OBJ_DATA *obj = obj_proto[obj_rnum];
-	if (!SetSystem::is_big_set(obj))
+	const auto& obj = obj_proto[obj_rnum];
+	if (!SetSystem::is_big_set(obj.get()))
 	{
 		chance *= MINI_SET_MULT;
 	}
@@ -906,8 +906,8 @@ void init_link_system()
 	for (std::map<int, DropNode>::iterator k = drop_list.begin(),
 		kend = drop_list.end(); k != kend; ++k)
 	{
-		const OBJ_DATA *obj = obj_proto[k->second.obj_rnum];
-		k->second.is_big_set = SetSystem::is_big_set(obj);
+		const auto& obj = obj_proto[k->second.obj_rnum];
+		k->second.is_big_set = SetSystem::is_big_set(obj.get());
 	}
 }
 
@@ -983,7 +983,7 @@ std::string print_current_set(const HelpNode &node)
 	{
 		for (const auto& k : drop_list)
 		{
-			if (obj_proto.vnum(k.second.obj_rnum) == l && k.second.chance > 0)
+			if (obj_proto[k.second.obj_rnum]->get_vnum() == l && k.second.chance > 0)
 			{
 				out << "   " << GET_OBJ_PNAME(obj_proto[k.second.obj_rnum], 0)
 					<< " - " << mob_proto[k.first].get_name()
@@ -1201,7 +1201,7 @@ void save_drop_table()
 	{
 		pugi::xml_node mob_node = node_list.append_child();
 		mob_node.set_name("item");
-		mob_node.append_attribute("vnum") = obj_proto.vnum(i->second.obj_rnum);
+		mob_node.append_attribute("vnum") = obj_proto[i->second.obj_rnum]->get_vnum();
 		mob_node.append_attribute("mob") = mob_index[i->first].vnum;
 		mob_node.append_attribute("chance") = i->second.chance;
 		mob_node.append_attribute("solo") = i->second.solo ? "true" : "false";

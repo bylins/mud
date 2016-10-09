@@ -911,7 +911,7 @@ void check_berserk(CHAR_DATA * ch)
 			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", FALSE, ch, 0, 0, TO_CHAR);
 			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
 		}
-		affect_join(ch, &af, TRUE, FALSE, TRUE, FALSE);
+		affect_join(ch, af, TRUE, FALSE, TRUE, FALSE);
 	}
 }
 
@@ -966,7 +966,7 @@ void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		af.bitvector = to_underlying(EAffectFlag::AFF_LIGHT_WALK);
 		send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
 	}
-	affect_to_char(ch, &af);
+	affect_to_char(ch, af);
 }
 
 //подгонка и перешивание
@@ -1048,40 +1048,41 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	switch (subcmd)
 	{
 	case SCMD_DO_ADAPT:
-		if (GET_OBJ_MATER(obj) != obj_flag_data::MAT_NONE
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_BULAT
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_BRONZE
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_IRON
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_STEEL
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_SWORDSSTEEL
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_COLOR
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_WOOD
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_SUPERWOOD
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_GLASS)
+		if (GET_OBJ_MATER(obj) != OBJ_DATA::MAT_NONE
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_BULAT
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_BRONZE
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_IRON
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_STEEL
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_SWORDSSTEEL
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_COLOR
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_WOOD
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_SUPERWOOD
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_GLASS)
 		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));
+				GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 			send_to_char(buf, ch);
 			return;
 		}
 		break;
 	case SCMD_MAKE_OVER:
-		if (GET_OBJ_MATER(obj) != obj_flag_data::MAT_BONE
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_MATERIA
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_SKIN
-			&& GET_OBJ_MATER(obj) != obj_flag_data::MAT_ORGANIC)
+		if (GET_OBJ_MATER(obj) != OBJ_DATA::MAT_BONE
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_MATERIA
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_SKIN
+			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_ORGANIC)
 		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));
+					GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 			send_to_char(buf, ch);
 			return;
 		}
 		break;
 	};
-	GET_OBJ_OWNER(obj) = GET_UNIQUE(vict);
+	obj->set_owner(GET_UNIQUE(vict));
 	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
 	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
-	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n", GET_OBJ_PNAME(obj, 3), GET_PAD(vict, 1));
+	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",
+		GET_OBJ_PNAME(obj, 3).c_str(), GET_PAD(vict, 1));
 
 	send_to_char(buf, ch);
 
@@ -1170,7 +1171,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			&& k->follower->master == ch
 			&& MOB_FLAGGED(k->follower, MOB_CLONE)
 			&& !affected_by_spell(k->follower, SPELL_CAPABLE)
-			&& IN_ROOM(ch) == IN_ROOM(k->follower))
+			&& ch->in_room == IN_ROOM(k->follower))
 		{
 			follower = k->follower;
 			break;
@@ -1245,7 +1246,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 	af.battleflag = 0;
 	af.bitvector = 0;
-	affect_to_char(follower, &af);
+	affect_to_char(follower, af);
 	follower->mob_specials.capable_spell = spellnum;
 }
 
@@ -1295,7 +1296,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!IS_GOD(ch))
 	{
 		// Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT))
+		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT))
 		{
 			send_to_char("Попытка перемещения не удалась.\r\n", ch);
 			return;
@@ -1359,7 +1360,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
 		af.battleflag = AF_PULSEDEC;
-		affect_to_char(ch, &af);
+		affect_to_char(ch, af);
 	}
 	else
 	{

@@ -1099,7 +1099,7 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 		for (f = leader->followers; f; f = f->next)
 		{
 			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-				&& IN_ROOM(f->follower) == IN_ROOM(ch) && CLAN(f->follower))
+				&& IN_ROOM(f->follower) == ch->in_room && CLAN(f->follower))
 			{
 				return true;
 			}
@@ -1136,25 +1136,28 @@ BloodyInfoMap bloody_map;
 //Устанавливает экстрабит кровавому стафу
 void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 {
-	if (!list) return;
-	set_bloody_flag(list->contains, ch);
-	set_bloody_flag(list->next_content, ch);
-	const int t = GET_OBJ_TYPE(list);
-	if (!list->get_extraflag(EExtraFlag::ITEM_BLOODY)
-		&& (t == obj_flag_data::ITEM_LIGHT
-			|| t == obj_flag_data::ITEM_WAND
-			|| t == obj_flag_data::ITEM_STAFF
-			|| t == obj_flag_data::ITEM_WEAPON
-			|| t == obj_flag_data::ITEM_ARMOR
-			|| (t == obj_flag_data::ITEM_CONTAINER
-				&& GET_OBJ_VAL(list, 0))
-			|| t == obj_flag_data::ITEM_ARMOR_LIGHT
-			|| t == obj_flag_data::ITEM_ARMOR_MEDIAN
-			|| t == obj_flag_data::ITEM_ARMOR_HEAVY
-			|| t == obj_flag_data::ITEM_INGREDIENT
-			|| t == obj_flag_data::ITEM_WORN))
+	if (!list)
 	{
-		list->set_extraflag(EExtraFlag::ITEM_BLOODY);
+		return;
+	}
+	set_bloody_flag(list->get_contains(), ch);
+	set_bloody_flag(list->get_next_content(), ch);
+	const int t = GET_OBJ_TYPE(list);
+	if (!list->get_extra_flag(EExtraFlag::ITEM_BLOODY)
+		&& (t == OBJ_DATA::ITEM_LIGHT
+			|| t == OBJ_DATA::ITEM_WAND
+			|| t == OBJ_DATA::ITEM_STAFF
+			|| t == OBJ_DATA::ITEM_WEAPON
+			|| t == OBJ_DATA::ITEM_ARMOR
+			|| (t == OBJ_DATA::ITEM_CONTAINER
+				&& GET_OBJ_VAL(list, 0))
+			|| t == OBJ_DATA::ITEM_ARMOR_LIGHT
+			|| t == OBJ_DATA::ITEM_ARMOR_MEDIAN
+			|| t == OBJ_DATA::ITEM_ARMOR_HEAVY
+			|| t == OBJ_DATA::ITEM_INGREDIENT
+			|| t == OBJ_DATA::ITEM_WORN))
+	{
+		list->set_extra_flag(EExtraFlag::ITEM_BLOODY);
 		bloody_map[list].owner_unique = GET_UNIQUE(ch);
 		bloody_map[list].kill_at = time(NULL);
 		bloody_map[list].object = list;
@@ -1194,7 +1197,7 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 	pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
-	if (!obj->get_extraflag(EExtraFlag::ITEM_BLOODY)
+	if (!obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)
 		|| it == bloody_map.end())
 	{
 		result = true;
@@ -1224,8 +1227,8 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 		}
 		else if (ch
 			&& container
-			&& (container->carried_by == ch
-				|| container->worn_by == ch)) //чар пытается положить в контейнер в инвентаре или экипировке
+			&& (container->get_carried_by() == ch
+				|| container->get_worn_by() == ch)) //чар пытается положить в контейнер в инвентаре или экипировке
 		{
 			result = true;
 		}
@@ -1239,7 +1242,7 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 		}
 	}
 	//обработка контейнеров
-	for (OBJ_DATA* nobj = obj->contains; nobj != NULL && result; nobj = nobj->next_content)
+	for (OBJ_DATA* nobj = obj->get_contains(); nobj != NULL && result; nobj = nobj->get_next_content())
 	{
 		result = handle_transfer(initial_ch, initial_victim, nobj);
 	}
@@ -1265,18 +1268,18 @@ void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 			if (pk->unique == GET_UNIQUE(killer) && (pk->thief_exp > time(NULL) || pk->kill_num))
 				break;
 		if (!pk && corpse) //не нашли мести
-			set_bloody_flag(corpse->contains, ch);
+			set_bloody_flag(corpse->get_contains(), ch);
 	}
 }
 
 bool bloody::is_bloody(const OBJ_DATA* obj)
 {
-	if (obj->get_extraflag(EExtraFlag::ITEM_BLOODY))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY))
 	{
 		return true;
 	}
 	bool result = false;
-	for (OBJ_DATA* nobj = obj->contains; nobj != NULL && !result; nobj = nobj->next_content)
+	for (OBJ_DATA* nobj = obj->get_contains(); nobj != NULL && !result; nobj = nobj->get_next_content())
 	{
 		result = is_bloody(nobj);
 	}

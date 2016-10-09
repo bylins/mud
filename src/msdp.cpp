@@ -84,19 +84,18 @@ namespace msdp
 		}
 
 		const size_t buffer_size = WRAPPER_LENGTH + response->required_size();
-		std::shared_ptr<char> buffer(new char[1 + buffer_size]);	// 1 byte for NULL terminator
+		std::shared_ptr<char> buffer(new char[buffer_size]);
 		buffer.get()[0] = char(IAC);
 		buffer.get()[1] = char(SB);
 		buffer.get()[2] = TELOPT_MSDP;
 		response->serialize(HEAD_LENGTH + buffer.get(), buffer_size - WRAPPER_LENGTH);
 		buffer.get()[buffer_size - 2] = char(IAC);
 		buffer.get()[buffer_size - 1] = char(SE);
-		buffer.get()[buffer_size] = '\0';
 
 		hexdump(buffer.get(), buffer_size, "MSDP response:");
 
 		int written = 0;
-		write_to_descriptor_with_options(t, buffer.get(), 1 + buffer_size, written);	// +1 - including NULL terminator
+		write_to_descriptor_with_options(t, buffer.get(), buffer_size, written);
 
 		return true;
 	}
@@ -212,19 +211,18 @@ namespace msdp
 		response->dump();
 
 		const size_t buffer_size = WRAPPER_LENGTH + response->required_size();
-		std::shared_ptr<char> buffer(new char[1 + buffer_size]);	// 1 byte for NULL terminator
+		std::shared_ptr<char> buffer(new char[buffer_size]);
 		buffer.get()[0] = char(IAC);
 		buffer.get()[1] = char(SB);
 		buffer.get()[2] = TELOPT_MSDP;
 		response->serialize(HEAD_LENGTH + buffer.get(), buffer_size - WRAPPER_LENGTH);
 		buffer.get()[buffer_size - 2] = char(IAC);
 		buffer.get()[buffer_size - 1] = char(SE);
-		buffer.get()[buffer_size] = '\0';
 
 		hexdump(buffer.get(), buffer_size, "Response buffer:");
 
 		int written = 0;
-		write_to_descriptor_with_options(d, buffer.get(), 1 + buffer_size, written);	// +1 - including NULL terminator
+		write_to_descriptor_with_options(d, buffer.get(), buffer_size, written);
 	}
 }
 

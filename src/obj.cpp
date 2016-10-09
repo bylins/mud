@@ -6,13 +6,15 @@
 
 #include "parse.hpp"
 #include "handler.h"
-#include "char.hpp"
-#include "constants.h"
-#include "db.h"
+#include "dg_scripts.h"
 #include "screen.h"
 #include "celebrates.hpp"
 #include "pk.h"
 #include "cache.hpp"
+#include "char.hpp"
+#include "depot.hpp"
+#include "constants.h"
+#include "db.h"
 #include "utils.h"
 #include "conf.h"
 
@@ -22,6 +24,7 @@
 #include <sstream>
 
 extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
+extern int Crash_write_timer(int index);	// to avoid inclusion of "objsave.h"
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
 extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
 
@@ -36,13 +39,60 @@ PurgedObjList purged_obj_list;
 
 } // namespace
 
-OBJ_DATA::OBJ_DATA()
+OBJ_DATA::OBJ_DATA(const obj_vnum vnum):
+	CObjectPrototype(vnum),
+	m_uid(0),
+	m_in_room(0),
+	m_room_was_in(0),
+	m_maker(DEFAULT_MAKER),
+	m_owner(DEFAULT_OWNER),
+	m_zone(0),
+	m_parent(DEFAULT_PARENT),
+	m_is_rename(false),
+	m_carried_by(nullptr),
+	m_worn_by(nullptr),
+	m_worn_on(0),
+	m_in_obj(nullptr),
+	m_contains(nullptr),
+	m_next_content(nullptr),
+	m_next(nullptr),
+	m_craft_timer(0),
+	m_id(0),
+	m_serial_number(0),
+	m_purged(false),
+	m_activator(false, 0)
 {
 	this->zero_init();
 	caching::obj_cache.add(this);
 }
 
-OBJ_DATA::OBJ_DATA(const OBJ_DATA& other)
+OBJ_DATA::OBJ_DATA(const CObjectPrototype& other):
+	CObjectPrototype(other),
+	m_uid(0),
+	m_in_room(0),
+	m_room_was_in(0),
+	m_maker(DEFAULT_MAKER),
+	m_owner(DEFAULT_OWNER),
+	m_zone(0),
+	m_parent(DEFAULT_PARENT),
+	m_is_rename(false),
+	m_carried_by(nullptr),
+	m_worn_by(nullptr),
+	m_worn_on(0),
+	m_in_obj(nullptr),
+	m_contains(nullptr),
+	m_next_content(nullptr),
+	m_next(nullptr),
+	m_craft_timer(0),
+	m_id(0),
+	m_serial_number(0),
+	m_purged(false),
+	m_activator(false, 0)
+{
+	caching::obj_cache.add(this);
+}
+
+OBJ_DATA::OBJ_DATA(const OBJ_DATA& other): CObjectPrototype(other.get_vnum())
 {
 	*this = other;
 	caching::obj_cache.add(this);
@@ -50,85 +100,40 @@ OBJ_DATA::OBJ_DATA(const OBJ_DATA& other)
 
 OBJ_DATA::~OBJ_DATA()
 {
-	if (!purged_)
+	if (!m_purged)
 	{
 		this->purge(true);
-	}
-}
-
-// можно было бы отдельной функцией и не делать, но вдруг кто-нибудь потом захочет расширить функционал
-struct custom_label *init_custom_label()
-{
-	struct custom_label *ptr = (struct custom_label *)malloc(sizeof(struct custom_label));
-	ptr->label_text = NULL;
-	ptr->clan = NULL;
-	ptr->author = -2;
-	ptr->author_mail = NULL;
-
-	return ptr;
-}
-
-// эта функция только освобождает память, поэтому не забываем устанавливать указатель в NULL,
-// если сразу после этого не делаем init_custom_label(), иначе будут креши
-void free_custom_label(struct custom_label *custom_label) {
-	if (custom_label) {
-		free(custom_label->label_text);
-		if (custom_label->clan)
-			free(custom_label->clan);
-		if (custom_label->author_mail)
-			free(custom_label->author_mail);
-		free(custom_label);
 	}
 }
 
 // * См. Character::zero_init()
 void OBJ_DATA::zero_init()
 {
-	uid = 0;
-	item_number = NOTHING;
-	in_room = NOWHERE;
-	aliases = NULL;
-	description = NULL;
-	short_description = NULL;
-	action_description = NULL;
-	ex_description = NULL;
-	carried_by = NULL;
-	worn_by = NULL;
-	worn_on = NOWHERE;
-	in_obj = NULL;
-	contains = NULL;
-	id = 0;
-	proto_script.clear();
-	script = NULL;
-	next_content = NULL;
-	next = NULL;
-	room_was_in = NOWHERE;
-	max_in_world = 0;
-	m_skills.clear();
-	serial_num_ = 0;
-	timer_ = 0;
-	manual_mort_req_ = -1;
-	purged_ = false;
-	ilevel_ = 0;
-	cost_ = 0;
-	cost_per_day_on_ = 0;
-	cost_per_day_off_ = 0;
-	activator_.first = false;
-	activator_.second = 0;
-	custom_label = NULL;
-
-	memset(&obj_flags, 0, sizeof(obj_flag_data));
-
-	for (int i = 0; i < 6; i++)
-	{
-		PNames[i] = NULL;
-	}
+	CObjectPrototype::zero_init();
+	set_weight(0);
+	m_uid = 0;
+	m_in_room = NOWHERE;
+	m_carried_by = nullptr;
+	m_worn_by = nullptr;
+	m_worn_on = NOWHERE;
+	m_in_obj = nullptr;
+	m_contains = nullptr;
+	m_id = 0;
+	m_script = nullptr;
+	m_next_content = nullptr;
+	m_next = nullptr;
+	m_room_was_in = NOWHERE;
+	m_serial_number = 0;
+	m_purged = false;
+	m_activator.first = false;
+	m_activator.second = 0;
+	m_custom_label = nullptr;
 }
 
 // * См. Character::purge()
 void OBJ_DATA::purge(bool destructor)
 {
-	if (purged_)
+	if (m_purged)
 	{
 		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
 		return;
@@ -138,14 +143,14 @@ void OBJ_DATA::purge(bool destructor)
 	//см. комментарий в структуре BloodyInfo из pk.cpp
 	bloody::remove_obj(this);
 	//weak_ptr тут бы был какраз в тему
-	Celebrates::remove_from_obj_lists(this->uid);
+	Celebrates::remove_from_obj_lists(this->get_uid());
 
 	if (!destructor)
 	{
 		// обнуляем все
 		this->zero_init();
 		// проставляем неподходящие из конструктора поля
-		purged_ = true;
+		m_purged = true;
 		// закидываем в список ожидающих делета указателей
 		purged_obj_list.push_back(this);
 	}
@@ -153,40 +158,44 @@ void OBJ_DATA::purge(bool destructor)
 
 bool OBJ_DATA::purged() const
 {
-	return purged_;
+	return m_purged;
 }
 
 int OBJ_DATA::get_serial_num()
 {
-	return serial_num_;
+	return m_serial_number;
 }
 
 void OBJ_DATA::set_serial_num(int num)
 {
-	serial_num_ = num;
+	m_serial_number = num;
 }
 
 const std::string OBJ_DATA::activate_obj(const activation& __act)
 {
-	if (item_number >= 0)
+	if (get_rnum() >= 0)
 	{
-		obj_flags.affects = __act.get_affects();
+		set_affect_flags(__act.get_affects());
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
-			affected[i] = __act.get_affected_i(i);
+		{
+			set_affected(i, __act.get_affected_i(i));
+		}
 
 		int weight = __act.get_weight();
 		if (weight > 0)
-			obj_flags.weight = weight;
+		{
+			set_weight(weight);
+		}
 
-		if (obj_flags.type_flag == obj_flag_data::ITEM_WEAPON)
+		if (get_type() == ITEM_WEAPON)
 		{
 			int nsides, ndices;
 			__act.get_dices(ndices, nsides);
 			// Типа такая проверка на то, устанавливались ли эти параметры.
 			if (ndices > 0 && nsides > 0)
 			{
-				obj_flags.value[1] = ndices;
-				obj_flags.value[2] = nsides;
+				set_val(1, ndices);
+				set_val(2, nsides);
 			}
 		}
 
@@ -197,32 +206,35 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 			// массив. И у прототипов. Поэтому тут надо создавать новый,
 			// если нет желания "активировать" сразу все такие объекты.
 			// Умения, проставленные в сете, заменяют родные умения предмета.
-			m_skills.clear();
-			__act.get_skills(m_skills);
+			skills_t skills;
+			__act.get_skills(skills);
+			set_skills(skills);
 		}
 
 		return __act.get_actmsg() + "\n" + __act.get_room_actmsg();
 	}
 	else
+	{
 		return "\n";
+	}
 }
 
 const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 {
-	if (item_number >= 0)
+	if (get_rnum() >= 0)
 	{
-		obj_flags.affects = obj_proto[item_number]->obj_flags.affects;
+		set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 		{
-			affected[i] = obj_proto[item_number]->affected[i];
+			set_affected(i, obj_proto[get_rnum()]->get_affected(i));
 		}
 
-		obj_flags.weight = obj_proto[item_number]->obj_flags.weight;
+		set_weight(obj_proto[get_rnum()]->get_weight());
 
-		if (obj_flags.type_flag == obj_flag_data::ITEM_WEAPON)
+		if (get_type() == ITEM_WEAPON)
 		{
-			obj_flags.value[1] = obj_proto[item_number]->obj_flags.value[1];
-			obj_flags.value[2] = obj_proto[item_number]->obj_flags.value[2];
+			set_val(1, obj_proto[get_rnum()]->get_val(1));
+			set_val(2, obj_proto[get_rnum()]->get_val(2));
 		}
 
 		// Деактивируем умения.
@@ -230,26 +242,32 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 		{
 			// При активации мы создавали новый массив с умениями. Его
 			// можно смело удалять.
-			m_skills.clear();
-			m_skills = obj_proto[item_number]->m_skills;
+			set_skills(obj_proto[get_rnum()]->get_skills());
 		}
 
 		return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();
 	}
 	else
+	{
 		return "\n";
+	}
 }
 
-void OBJ_DATA::set_skill(int skill_num, int percent)
+void OBJ_DATA::set_script(SCRIPT_DATA* _)
+{
+	m_script.reset(_);
+}
+
+void CObjectPrototype::set_skill(int skill_num, int percent)
 {
 	if (!m_skills.empty())
 	{
-		const auto skill = m_skills.find(skill_num);
+		const auto skill = m_skills.find(static_cast<ESkill>(skill_num));
 		if (skill == m_skills.end())
 		{
 			if (percent != 0)
 			{
-				m_skills.insert(std::make_pair(skill_num, percent));
+				m_skills.insert(std::make_pair(static_cast<ESkill>(skill_num), percent));
 			}
 		}
 		else
@@ -269,14 +287,48 @@ void OBJ_DATA::set_skill(int skill_num, int percent)
 		if (percent != 0)
 		{
 			m_skills.clear();
-			m_skills.insert(std::make_pair(skill_num, percent));
+			m_skills.insert(std::make_pair(static_cast<ESkill>(skill_num), percent));
 		}
 	}
 }
 
-int OBJ_DATA::get_skill(int skill_num) const
+void CObjectPrototype::clear_all_affected()
 {
-	const auto skill = m_skills.find(skill_num);
+	for (size_t i = 0; i < MAX_OBJ_AFFECT; i++)
+	{
+		if (m_affected[i].location != APPLY_NONE)
+		{
+			m_affected[i].location = APPLY_NONE;
+		}
+	}
+}
+
+void CObjectPrototype::zero_init()
+{
+	m_type = ITEM_UNDEFINED;
+	m_aliases.clear();
+	m_description.clear();
+	m_short_description.clear();
+	m_action_description.clear();
+	m_ex_description.reset();
+	m_proto_script.clear();
+	m_max_in_world = 0;
+	m_skills.clear();
+	m_timer = 0;
+	m_minimum_remorts = -1;
+	m_cost = 0;
+	m_rent_on = 0;
+	m_rent_off = 0;
+	for (int i = 0; i < 6; i++)
+	{
+		m_pnames[i].clear();
+	}
+	m_ilevel = 0;
+}
+
+int CObjectPrototype::get_skill(int skill_num) const
+{
+	const auto skill = m_skills.find(static_cast<ESkill>(skill_num));
 	if (skill != m_skills.end())
 	{
 		return skill->second;
@@ -286,7 +338,7 @@ int OBJ_DATA::get_skill(int skill_num) const
 }
 
 // * @warning Предполагается, что __out_skills.empty() == true.
-void OBJ_DATA::get_skills(std::map<int, int>& out_skills) const
+void CObjectPrototype::get_skills(skills_t& out_skills) const
 {
 	if (!m_skills.empty())
 	{
@@ -294,19 +346,19 @@ void OBJ_DATA::get_skills(std::map<int, int>& out_skills) const
 	}
 }
 
-bool OBJ_DATA::has_skills() const
+bool CObjectPrototype::has_skills() const
 {
 	return !m_skills.empty();
 }
 
-void OBJ_DATA::set_timer(int timer)
+void CObjectPrototype::set_timer(int timer)
 {
-	timer_ = MAX(0, timer);	
+	m_timer = MAX(0, timer);	
 }
 
-int OBJ_DATA::get_timer() const
+int CObjectPrototype::get_timer() const
 {
-	return timer_;
+	return m_timer;
 }
 
  //заколдование предмета
@@ -315,42 +367,47 @@ void OBJ_DATA::set_enchant(int skill)
     int i = 0;
 
     for (i = 0; i < MAX_OBJ_AFFECT; i++)
-    if (affected[i].location != APPLY_NONE)
-       affected[i].location = APPLY_NONE;
+	{
+		if (get_affected(i).location != APPLY_NONE)
+		{
+			set_affected_location(i, APPLY_NONE);
+		}
+	}
 
-    affected[0].location = APPLY_HITROLL;
-    affected[1].location = APPLY_DAMROLL;
+	set_affected_location(0, APPLY_HITROLL);
+	set_affected_location(1, APPLY_DAMROLL);
 
     if (skill <= 100)
     // 4 мортов (скил магия света 100)
     {
-       affected[0].modifier = 1 + number(0, 1);
-       affected[1].modifier = 1 + number(0, 1);
+       set_affected_modifier(0, 1 + number(0, 1));
+	   set_affected_modifier(1, 1 + number(0, 1));
     }
     else if (skill <= 125)
     // 8 мортов (скил магия света 125)
     {
-       affected[0].modifier = 1 + number(-3, 2);
-       affected[1].modifier = 1 + number(-3, 2);
+	   set_affected_modifier(0, 1 + number(-3, 2));
+	   set_affected_modifier(1, 1 + number(-3, 2));
     }
     else if (skill <= 160)
     // 12 мортов (скил магия света 160)
     {
-       affected[0].modifier = 1 + number(-4, 3);
-       affected[1].modifier = 1 + number(-4, 3);
+       set_affected_modifier(0, 1 + number(-4, 3));
+       set_affected_modifier(1, 1 + number(-4, 3));
     }
     else if (skill >160)
     // 16 мортов (скил магия света 160+)
     {
-       affected[0].modifier = 1 + number(-5, 4);
-       affected[1].modifier = 1 + number(-5, 4);
+       set_affected_modifier(0, 1 + number(-5, 4));
+       set_affected_modifier(1, 1 + number(-5, 4));
     }
     else
-    {  // волхвы
-       affected[0].modifier = 2;
-       affected[1].modifier = 2;
+    {
+		// волхвы
+		set_affected_modifier(0, 2);
+		set_affected_modifier(1, 2);
     };
-    set_extraflag(EExtraFlag::ITEM_MAGIC);    
+    set_extra_flag(EExtraFlag::ITEM_MAGIC);    
 }
 
 void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
@@ -359,98 +416,100 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
     int random_drop = 0;
 
     for (i = 0; i < MAX_OBJ_AFFECT; i++)
-    if (affected[i].location != APPLY_NONE)
-       affected[i].location = APPLY_NONE;
+    if (get_affected(i).location != APPLY_NONE)
+	{
+		set_affected_location(i, APPLY_NONE);
+	}
 
-    affected[0].location = APPLY_HITROLL;
-    affected[1].location = APPLY_DAMROLL;
+	set_affected_location(0, APPLY_HITROLL);
+	set_affected_location(1, APPLY_DAMROLL);
 
     if (skill <= 100)
     // 4 мортов (скил магия света 100)
     {
-       affected[0].modifier = 1 + number(0, 1);
-       affected[1].modifier = 1 + number(0, 1);
+       set_affected_modifier(0, 1 + number(0, 1));
+       set_affected_modifier(1, 1 + number(0, 1));
     }
     else if (skill <= 125)
     // 8 мортов (скил магия света 125)
     {
        random_drop = 1;
-       affected[0].modifier = 1 + number(-3, 2);
-       affected[1].modifier = 1 + number(-3, 2);
+	   set_affected_modifier(0, 1 + number(-3, 2));
+	   set_affected_modifier(1, 1 + number(-3, 2));
     }
     else if (skill <= 160)
     // 12 мортов (скил магия света 160)
     {
        random_drop = 2;
-       affected[0].modifier = 1 + number(-4, 3);
-       affected[1].modifier = 1 + number(-4, 3);
+	   set_affected_modifier(0, 1 + number(-4, 3));
+	   set_affected_modifier(1, 1 + number(-4, 3));
     }
     else if (skill >160)
     // 16 мортов (скил магия света 160+)
     {
        random_drop = 3;
-       affected[0].modifier = 1 + number(-5, 4);
-       affected[1].modifier = 1 + number(-5, 4);
+	   set_affected_modifier(0, 1 + number(-5, 4));
+	   set_affected_modifier(1, 1 + number(-5, 4));
     }
     else
     {  // волхвы
-       affected[0].modifier = 2;
-       affected[1].modifier = 2;
+		set_affected_modifier(0, 2);
+		set_affected_modifier(1, 2);
     };
+
     i=0;
     while (i < random_drop)
 	{
-            if (obj->affected[i].location != APPLY_NONE)
-                {
-                    set_obj_eff(this,obj->affected[i].location,obj->affected[i].modifier);
-                }
-	i++;
+		if (obj->get_affected(i).location != APPLY_NONE)
+		{
+			set_obj_eff(this, obj->get_affected(i).location, obj->get_affected(i).modifier);
+		}
+		i++;
 	}
-    GET_OBJ_AFFECTS(this) += GET_OBJ_AFFECTS(obj);
-    GET_OBJ_EXTRA(this) += GET_OBJ_EXTRA(obj);
-    obj_flags.no_flag += GET_OBJ_NO(obj);
 
-    set_extraflag(EExtraFlag::ITEM_MAGIC);    
-   
+    add_affect_flags(GET_OBJ_AFFECTS(obj));
+    add_extra_flags(GET_OBJ_EXTRA(obj));
+    add_no_flags(GET_OBJ_NO(obj));
+
+    set_extra_flag(EExtraFlag::ITEM_MAGIC);
+    set_extra_flag(EExtraFlag::ITEM_MAGIC);
+    set_extra_flag(EExtraFlag::ITEM_MAGIC);
 }
 
 void OBJ_DATA::unset_enchant()
 {
     int i = 0;
-    for (i = 0; i < MAX_OBJ_AFFECT; i++)
-        {
-                if (obj_proto.at(item_number)->affected[i].location != APPLY_NONE)
-                {
-                        affected[i].location = obj_proto.at(item_number)->affected[i].location;
-                        affected[i].modifier = obj_proto.at(item_number)->affected[i].modifier;
-                }
-                else
-                {
-                        affected[i].location = APPLY_NONE;
-                }
-
-        }
+	for (i = 0; i < MAX_OBJ_AFFECT; i++)
+	{
+		if (obj_proto.at(get_rnum())->get_affected(i).location != APPLY_NONE)
+		{
+			set_affected(i, obj_proto.at(get_rnum())->get_affected(i));
+		}
+		else
+		{
+			set_affected_location(i, APPLY_NONE);
+		}
+	}
 		// Возврат эфектов
-	obj_flags.affects = obj_proto[item_number]->obj_flags.affects;
+	set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
 	// поскольку все обнулилось можно втыкать слоты для ковки
-	if (OBJ_FLAGGED(obj_proto.at(item_number), EExtraFlag::ITEM_WITH3SLOTS))
+	if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH3SLOTS))
 	{
-		set_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
+		set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
 	}
-	else if (OBJ_FLAGGED(obj_proto.at(item_number), EExtraFlag::ITEM_WITH2SLOTS))
+	else if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH2SLOTS))
 	{
-		set_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
+		set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
 	}
-	else if (OBJ_FLAGGED(obj_proto.at(item_number), EExtraFlag::ITEM_WITH1SLOT))
+	else if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH1SLOT))
 	{
-		 set_extraflag(EExtraFlag::ITEM_WITH1SLOT);
+		set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
 	}
     unset_extraflag(EExtraFlag::ITEM_MAGIC);
-
 }
- extern bool check_unlimited_timer(OBJ_DATA *obj);
- extern float count_remort_requred(OBJ_DATA *obj);
- extern float count_unlimited_timer(OBJ_DATA *obj);
+
+float count_remort_requred(const CObjectPrototype* obj);
+float count_unlimited_timer(const CObjectPrototype* obj);
 
 /**
 * Реальное старение шмотки (без всяких технических сетов таймера по коду).
@@ -465,111 +524,93 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer, bool exchange)
 	}
 
 	if (!ignore_utimer && check_unlimited_timer(this))
+	{
 		return;
+	}
+
 	if (time > 0)
 	{
-		timer_ -= time;
+		set_timer(get_timer() - time);
 	}
+
 	if (!exchange)
-		if (((GET_OBJ_TYPE(this) == obj_flag_data::ITEM_DRINKCON) || (GET_OBJ_TYPE(this) == obj_flag_data::ITEM_FOOD)) && GET_OBJ_VAL(this, 3) > 1) //таймер у жижек и еды
-			--GET_OBJ_VAL(this, 3);
+	{
+		if (((GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_DRINKCON)
+				|| (GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_FOOD))
+			&& GET_OBJ_VAL(this, 3) > 1) //таймер у жижек и еды
+		{
+			dec_val(3);
+		}
+	}
 }
 
-float OBJ_DATA::show_mort_req() 
+float CObjectPrototype::show_mort_req() 
 {
 	return count_remort_requred(this);
 }
 
-float OBJ_DATA::show_koef_obj() 
+float CObjectPrototype::show_koef_obj()
 {
 	return count_unlimited_timer(this);
 }
 
-int OBJ_DATA::get_manual_mort_req() const
+unsigned CObjectPrototype::get_ilevel() const
 {
-	return manual_mort_req_;
+	return m_ilevel;
 }
 
-void OBJ_DATA::set_manual_mort_req(int param)
+void CObjectPrototype::set_ilevel(unsigned ilvl)
 {
-	manual_mort_req_ = param;
+	m_ilevel = ilvl;
 }
 
-unsigned OBJ_DATA::get_ilevel() const
+int CObjectPrototype::get_manual_mort_req() const
 {
-	return ilevel_;
-}
-
-void OBJ_DATA::set_ilevel(unsigned ilvl)
-{
-	ilevel_ = ilvl;
-}
-
-int OBJ_DATA::get_mort_req() const
-{
-	if (manual_mort_req_ >= 0)
+	if (get_minimum_remorts() >= 0)
 	{
-		return manual_mort_req_;
+		return get_minimum_remorts();
 	}
-	else if (ilevel_ > 30)
+	else if (m_ilevel > 30)
 	{
 		return 9;
 	}
+
 	return 0;
 }
 
-int OBJ_DATA::get_cost() const
-{
-	return cost_;
-}
-
-void OBJ_DATA::set_cost(int x)
+void CObjectPrototype::set_cost(int x)
 {
 	if (x >= 0)
 	{
-		cost_ = x;
+		m_cost = x;
 	}
 }
 
-int OBJ_DATA::get_rent() const
-{
-	/* if (check_unlimited_timer(this))
-		return 0; */
-	return cost_per_day_off_;
-}
-
-void OBJ_DATA::set_rent(int x)
+void CObjectPrototype::set_rent_off(int x)
 {
 	if (x >= 0)
 	{
-		cost_per_day_off_ = x;
+		m_rent_off = x;
 	}
 }
 
-int OBJ_DATA::get_rent_eq() const
-{
-	/* if (check_unlimited_timer(this))
-		return 0; */
-	return cost_per_day_on_;
-}
-
-void OBJ_DATA::set_rent_eq(int x)
+void CObjectPrototype::set_rent_on(int x)
 {
 	if (x >= 0)
 	{
-		cost_per_day_on_ = x;
+		m_rent_on = x;
 	}
 }
 
 void OBJ_DATA::set_activator(bool flag, int num)
 {
-	activator_.first = flag;
-	activator_.second = num;
+	m_activator.first = flag;
+	m_activator.second = num;
 }
 
 std::pair<bool, int> OBJ_DATA::get_activator() const
 {
-	return activator_;
+	return m_activator;
 }
 
 void OBJ_DATA::add_timed_spell(const int spell, const int time)
@@ -585,6 +626,14 @@ void OBJ_DATA::add_timed_spell(const int spell, const int time)
 void OBJ_DATA::del_timed_spell(const int spell, const bool message)
 {
 	m_timed_spell.del(this, spell, message);
+}
+
+void CObjectPrototype::set_ex_description(const char* keyword, const char* description)
+{
+	EXTRA_DESCR_DATA::shared_ptr d(new EXTRA_DESCR_DATA());
+	d->keyword = strdup(keyword);
+	d->description = strdup(description);
+	m_ex_description = d;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -603,7 +652,7 @@ const int AFF_BLINK_MOD = 10;
 namespace ObjSystem
 {
 
-float count_affect_weight(OBJ_DATA* /*obj*/, int num, int mod)
+float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 {
 	float weight = 0;
 
@@ -668,14 +717,14 @@ float count_affect_weight(OBJ_DATA* /*obj*/, int num, int mod)
 	return weight;
 }
 
-bool is_armor_type(const OBJ_DATA *obj)
+bool is_armor_type(const CObjectPrototype *obj)
 {
 	switch (GET_OBJ_TYPE(obj))
 	{
-	case obj_flag_data::ITEM_ARMOR:
-	case obj_flag_data::ITEM_ARMOR_LIGHT:
-	case obj_flag_data::ITEM_ARMOR_MEDIAN:
-	case obj_flag_data::ITEM_ARMOR_HEAVY:
+	case OBJ_DATA::ITEM_ARMOR:
+	case OBJ_DATA::ITEM_ARMOR_LIGHT:
+	case OBJ_DATA::ITEM_ARMOR_MEDIAN:
+	case OBJ_DATA::ITEM_ARMOR_HEAVY:
 		return true;
 
 	default:
@@ -694,7 +743,7 @@ void release_purged_list()
 	purged_obj_list.clear();
 }
 
-bool is_mob_item(OBJ_DATA *obj)
+bool is_mob_item(const CObjectPrototype *obj)
 {
 	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE)
 		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE)
@@ -784,10 +833,10 @@ bool is_mob_item(OBJ_DATA *obj)
 	return false;
 }
 
-void init_ilvl(OBJ_DATA *obj)
+void init_ilvl(CObjectPrototype *obj)
 {
 	if (is_mob_item(obj)
-		|| obj->get_extraflag(EExtraFlag::ITEM_SETSTUFF)
+		|| obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)
 		|| obj->get_manual_mort_req() >= 0)
 	{
 		obj->set_ilevel(0);
@@ -799,24 +848,26 @@ void init_ilvl(OBJ_DATA *obj)
 	// аффекты APPLY_x
 	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
 	{
-		if (obj->affected[k].location == 0) continue;
+		if (obj->get_affected(k).location == 0) continue;
 
 		// случай, если один аффект прописан в нескольких полях
 		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
 		{
-			if (obj->affected[k].location == obj->affected[kk].location
+			if (obj->get_affected(k).location == obj->get_affected(kk).location
 				&& k != kk)
 			{
 				log("SYSERROR: double affect=%d, obj_vnum=%d",
-					obj->affected[k].location, GET_OBJ_VNUM(obj));
+					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
 				obj->set_ilevel(1000000);
 				return;
 			}
 		}
 		//если аффект отрицательный. убирем ошибку от степени
-		if (obj->affected[k].modifier < 0) continue;
-		float weight = count_affect_weight(obj, obj->affected[k].location,
-			obj->affected[k].modifier);
+		if (obj->get_affected(k).modifier < 0)
+		{
+			continue;
+		}
+		float weight = count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 		total_weight += pow(weight, SQRT_MOD);
 	}
 	// аффекты AFF_x через weapon_affect
@@ -850,7 +901,7 @@ void init_item_levels()
 {
 	for (const auto i : obj_proto)
 	{
-		init_ilvl(i);
+		init_ilvl(i.get());
 	}
 }
 
@@ -881,16 +932,15 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 		return obj;
 	}
 
-	obj->aliases = str_dup("тугой кошелек");
-	obj->short_description = str_dup("тугой кошелек");
-	obj->description = str_dup(
-		"Кем-то оброненный тугой кошелек лежит здесь.");
-	GET_OBJ_PNAME(obj, 0) = str_dup("тугой кошелек");
-	GET_OBJ_PNAME(obj, 1) = str_dup("тугого кошелька");
-	GET_OBJ_PNAME(obj, 2) = str_dup("тугому кошельку");
-	GET_OBJ_PNAME(obj, 3) = str_dup("тугой кошелек");
-	GET_OBJ_PNAME(obj, 4) = str_dup("тугим кошельком");
-	GET_OBJ_PNAME(obj, 5) = str_dup("тугом кошельке");
+	obj->set_aliases("тугой кошелек");
+	obj->set_short_description("тугой кошелек");
+	obj->set_description("Кем-то оброненный тугой кошелек лежит здесь.");
+	obj->set_PName(0, "тугой кошелек");
+	obj->set_PName(1, "тугого кошелька");
+	obj->set_PName(2, "тугому кошельку");
+	obj->set_PName(3, "тугой кошелек");
+	obj->set_PName(4, "тугим кошельком");
+	obj->set_PName(5, "тугом кошельке");
 
 	char buf_[MAX_INPUT_LENGTH];
 	snprintf(buf_, sizeof(buf_),
@@ -899,38 +949,38 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 		"В случае потери просьба вернуть за вознаграждение.\r\n"
 		"--------------------------------------------------\r\n"
 		, ch->get_name().c_str());
-	CREATE(obj->ex_description, 1);
-	obj->ex_description->keyword = str_dup(obj->PNames[0]);
-	obj->ex_description->description = str_dup(buf_);
-	obj->ex_description->next = 0;
+	obj->set_ex_description(obj->get_PName(0).c_str(), buf_);
 
-	GET_OBJ_TYPE(obj) = obj_flag_data::ITEM_CONTAINER;
-	GET_OBJ_WEAR(obj) = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
-	GET_OBJ_VAL(obj, 0) = 0;
+	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
+	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_val(0, 0);
 	// CLOSEABLE + CLOSED
-	GET_OBJ_VAL(obj, 1) = 5;
-	GET_OBJ_VAL(obj, 2) = -1;
-	GET_OBJ_VAL(obj, 3) = ch->get_uid();
+	obj->set_val(1,  5);
+	obj->set_val(2, -1);
+	obj->set_val(3, ch->get_uid());
 
-	obj->set_rent(0);
-	obj->set_rent_eq(0);
+	obj->set_rent_off(0);
+	obj->set_rent_on(0);
 	// чтобы скавенж мобов не трогать
 	obj->set_cost(2);
-	obj->set_extraflag(EExtraFlag::ITEM_NODONATE);
-	obj->set_extraflag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
+	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 
 	return obj;
 }
 
 bool is_purse(OBJ_DATA *obj)
 {
-	return GET_OBJ_RNUM(obj) == PURSE_RNUM;
+	return obj->get_rnum() == PURSE_RNUM;
 }
 
 /// вываливаем и пуржим кошелек при попытке открыть или при взятии хозяином
 void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	REMOVE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED);
+	auto value = obj->get_val(1);
+	REMOVE_BIT(value, CONT_CLOSED);
+	obj->set_val(1, value);
+
 	char buf_[MAX_INPUT_LENGTH];
 	snprintf(buf_, sizeof(buf_), "all");
 	get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
@@ -1034,7 +1084,10 @@ bool ObjVal::init_from_file(const char *str)
 
 std::string ObjVal::print_to_zone() const
 {
-	if (m_values.empty()) return "";
+	if (m_values.empty())
+	{
+		return "";
+	}
 
 	std::stringstream out;
 
@@ -1094,8 +1147,8 @@ void ObjVal::remove_incorrect_keys(int type)
 		bool erased = false;
 		switch(type)
 		{
-		case obj_flag_data::ITEM_DRINKCON:
-		case obj_flag_data::ITEM_FOUNTAIN:
+		case OBJ_DATA::ITEM_DRINKCON:
+		case OBJ_DATA::ITEM_FOUNTAIN:
 			if (!is_valid_drinkcon(i->first))
 			{
 				i = m_values.erase(i);
@@ -1167,8 +1220,8 @@ void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect)
 	send_to_char(buf, ch);
 }
 
-typedef std::map<obj_flag_data::EObjectType, std::string> EObjectType_name_by_value_t;
-typedef std::map<const std::string, obj_flag_data::EObjectType> EObjectType_value_by_name_t;
+typedef std::map<OBJ_DATA::EObjectType, std::string> EObjectType_name_by_value_t;
+typedef std::map<const std::string, OBJ_DATA::EObjectType> EObjectType_value_by_name_t;
 EObjectType_name_by_value_t EObjectType_name_by_value;
 EObjectType_value_by_name_t EObjectType_value_by_name;
 void init_EObjectType_ITEM_NAMES()
@@ -1176,38 +1229,39 @@ void init_EObjectType_ITEM_NAMES()
 	EObjectType_value_by_name.clear();
 	EObjectType_name_by_value.clear();
 
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_LIGHT] = "ITEM_LIGHT";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_SCROLL] = "ITEM_SCROLL";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_WAND] = "ITEM_WAND";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_STAFF] = "ITEM_STAFF";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_WEAPON] = "ITEM_WEAPON";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_FIREWEAPON] = "ITEM_FIREWEAPON";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MISSILE] = "ITEM_MISSILE";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_TREASURE] = "ITEM_TREASURE";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR] = "ITEM_ARMOR";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_POTION] = "ITEM_POTION";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_WORN] = "ITEM_WORN";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_OTHER] = "ITEM_OTHER";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_TRASH] = "ITEM_TRASH";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_TRAP] = "ITEM_TRAP";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_CONTAINER] = "ITEM_CONTAINER";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_NOTE] = "ITEM_NOTE";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_DRINKCON] = "ITEM_DRINKCON";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_KEY] = "ITEM_KEY";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_FOOD] = "ITEM_FOOD";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MONEY] = "ITEM_MONEY";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_PEN] = "ITEM_PEN";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_BOAT] = "ITEM_BOAT";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_FOUNTAIN] = "ITEM_FOUNTAIN";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_BOOK] = "ITEM_BOOK";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_INGREDIENT] = "ITEM_INGREDIENT";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MING] = "ITEM_MING";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_MATERIAL] = "ITEM_MATERIAL";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_BANDAGE] = "ITEM_BANDAGE";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR_LIGHT] = "ITEM_ARMOR_LIGHT";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR_MEDIAN] = "ITEM_ARMOR_MEDIAN";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ARMOR_HEAVY] = "ITEM_ARMOR_HEAVY";
-	EObjectType_name_by_value[obj_flag_data::EObjectType::ITEM_ENCHANT] = "ITEM_ENCHANT";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_LIGHT] = "ITEM_LIGHT";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_SCROLL] = "ITEM_SCROLL";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_WAND] = "ITEM_WAND";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_STAFF] = "ITEM_STAFF";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_WEAPON] = "ITEM_WEAPON";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_FIREWEAPON] = "ITEM_FIREWEAPON";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_MISSILE] = "ITEM_MISSILE";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_TREASURE] = "ITEM_TREASURE";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ARMOR] = "ITEM_ARMOR";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_POTION] = "ITEM_POTION";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_WORN] = "ITEM_WORN";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_OTHER] = "ITEM_OTHER";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_TRASH] = "ITEM_TRASH";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_TRAP] = "ITEM_TRAP";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_CONTAINER] = "ITEM_CONTAINER";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_NOTE] = "ITEM_NOTE";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_DRINKCON] = "ITEM_DRINKCON";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_KEY] = "ITEM_KEY";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_FOOD] = "ITEM_FOOD";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_MONEY] = "ITEM_MONEY";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_PEN] = "ITEM_PEN";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_BOAT] = "ITEM_BOAT";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_FOUNTAIN] = "ITEM_FOUNTAIN";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_BOOK] = "ITEM_BOOK";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_INGREDIENT] = "ITEM_INGREDIENT";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_MING] = "ITEM_MING";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_MATERIAL] = "ITEM_MATERIAL";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_BANDAGE] = "ITEM_BANDAGE";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ARMOR_LIGHT] = "ITEM_ARMOR_LIGHT";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ARMOR_MEDIAN] = "ITEM_ARMOR_MEDIAN";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ARMOR_HEAVY] = "ITEM_ARMOR_HEAVY";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ENCHANT] = "ITEM_ENCHANT";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_CRAFT_MATERIAL] = "ITEM_CRAFT_MATERIAL";
 
 	for (const auto& i : EObjectType_name_by_value)
 	{
@@ -1216,7 +1270,7 @@ void init_EObjectType_ITEM_NAMES()
 }
 
 template <>
-const std::string& NAME_BY_ITEM<obj_flag_data::EObjectType>(const obj_flag_data::EObjectType item)
+const std::string& NAME_BY_ITEM<OBJ_DATA::EObjectType>(const OBJ_DATA::EObjectType item)
 {
 	if (EObjectType_name_by_value.empty())
 	{
@@ -1226,7 +1280,7 @@ const std::string& NAME_BY_ITEM<obj_flag_data::EObjectType>(const obj_flag_data:
 }
 
 template <>
-obj_flag_data::EObjectType ITEM_BY_NAME(const std::string& name)
+OBJ_DATA::EObjectType ITEM_BY_NAME(const std::string& name)
 {
 	if (EObjectType_name_by_value.empty())
 	{
@@ -1235,8 +1289,8 @@ obj_flag_data::EObjectType ITEM_BY_NAME(const std::string& name)
 	return EObjectType_value_by_name.at(name);
 }
 
-typedef std::map<obj_flag_data::EObjectMaterial, std::string> EObjectMaterial_name_by_value_t;
-typedef std::map<const std::string, obj_flag_data::EObjectMaterial> EObjectMaterial_value_by_name_t;
+typedef std::map<OBJ_DATA::EObjectMaterial, std::string> EObjectMaterial_name_by_value_t;
+typedef std::map<const std::string, OBJ_DATA::EObjectMaterial> EObjectMaterial_value_by_name_t;
 EObjectMaterial_name_by_value_t EObjectMaterial_name_by_value;
 EObjectMaterial_value_by_name_t EObjectMaterial_value_by_name;
 void init_EObjectMaterial_ITEM_NAMES()
@@ -1244,25 +1298,25 @@ void init_EObjectMaterial_ITEM_NAMES()
 	EObjectMaterial_value_by_name.clear();
 	EObjectMaterial_name_by_value.clear();
 
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_NONE] = "MAT_NONE";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_BULAT] = "MAT_BULAT";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_BRONZE] = "MAT_BRONZE";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_IRON] = "MAT_IRON";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_STEEL] = "MAT_STEEL";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_SWORDSSTEEL] = "MAT_SWORDSSTEEL";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_COLOR] = "MAT_COLOR";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_CRYSTALL] = "MAT_CRYSTALL";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_WOOD] = "MAT_WOOD";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_SUPERWOOD] = "MAT_SUPERWOOD";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_FARFOR] = "MAT_FARFOR";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_GLASS] = "MAT_GLASS";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_ROCK] = "MAT_ROCK";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_BONE] = "MAT_BONE";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_MATERIA] = "MAT_MATERIA";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_SKIN] = "MAT_SKIN";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_ORGANIC] = "MAT_ORGANIC";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_PAPER] = "MAT_PAPER";
-	EObjectMaterial_name_by_value[obj_flag_data::EObjectMaterial::MAT_DIAMOND] = "MAT_DIAMOND";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_NONE] = "MAT_NONE";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_BULAT] = "MAT_BULAT";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_BRONZE] = "MAT_BRONZE";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_IRON] = "MAT_IRON";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_STEEL] = "MAT_STEEL";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_SWORDSSTEEL] = "MAT_SWORDSSTEEL";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_COLOR] = "MAT_COLOR";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_CRYSTALL] = "MAT_CRYSTALL";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_WOOD] = "MAT_WOOD";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_SUPERWOOD] = "MAT_SUPERWOOD";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_FARFOR] = "MAT_FARFOR";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_GLASS] = "MAT_GLASS";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_ROCK] = "MAT_ROCK";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_BONE] = "MAT_BONE";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_MATERIA] = "MAT_MATERIA";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_SKIN] = "MAT_SKIN";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_ORGANIC] = "MAT_ORGANIC";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_PAPER] = "MAT_PAPER";
+	EObjectMaterial_name_by_value[OBJ_DATA::EObjectMaterial::MAT_DIAMOND] = "MAT_DIAMOND";
 
 	for (const auto& i : EObjectMaterial_name_by_value)
 	{
@@ -1271,7 +1325,7 @@ void init_EObjectMaterial_ITEM_NAMES()
 }
 
 template <>
-const std::string& NAME_BY_ITEM<obj_flag_data::EObjectMaterial>(const obj_flag_data::EObjectMaterial item)
+const std::string& NAME_BY_ITEM<OBJ_DATA::EObjectMaterial>(const OBJ_DATA::EObjectMaterial item)
 {
 	if (EObjectMaterial_name_by_value.empty())
 	{
@@ -1281,7 +1335,7 @@ const std::string& NAME_BY_ITEM<obj_flag_data::EObjectMaterial>(const obj_flag_d
 }
 
 template <>
-obj_flag_data::EObjectMaterial ITEM_BY_NAME(const std::string& name)
+OBJ_DATA::EObjectMaterial ITEM_BY_NAME(const std::string& name)
 {
 	if (EObjectMaterial_name_by_value.empty())
 	{
@@ -1289,5 +1343,296 @@ obj_flag_data::EObjectMaterial ITEM_BY_NAME(const std::string& name)
 	}
 	return EObjectMaterial_value_by_name.at(name);
 }
+
+namespace SetSystem
+{
+	struct SetNode
+	{
+		// список шмоток по конкретному сету для сверки
+		// инится один раз при ребуте и больше не меняется
+		std::set<int> set_vnum;
+		// список шмоток из данного сета у текущего чара
+		// если после заполнения в списке только 1 предмет
+		// значит удаляем его как единственный у чара
+		std::vector<int> obj_vnum;
+	};
+
+	std::vector<SetNode> set_list;
+
+	constexpr unsigned BIG_SET_ITEMS = 9;
+	constexpr unsigned MINI_SET_ITEMS = 3;
+
+	// для проверок при попытке ренты
+	std::set<int> vnum_list;
+
+	// * Заполнение списка фулл-сетов для последующих сверок.
+	void init_set_list()
+	{
+		for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
+			iend = OBJ_DATA::set_table.end(); i != iend; ++i)
+		{
+			if (i->second.size() > BIG_SET_ITEMS)
+			{
+				SetNode node;
+				for (set_info::const_iterator k = i->second.begin(),
+					kend = i->second.end(); k != kend; ++k)
+				{
+					node.set_vnum.insert(k->first);
+				}
+				set_list.push_back(node);
+			}
+		}
+	}
+
+	// * Удаление инфы от последнего сверявшегося чара.
+	void reset_set_list()
+	{
+		for (std::vector<SetNode>::iterator i = set_list.begin(),
+			iend = set_list.end(); i != iend; ++i)
+		{
+			i->obj_vnum.clear();
+		}
+	}
+
+	// * Проверка шмотки на принадлежность к сетам из set_list.
+	void check_item(int vnum)
+	{
+		for (std::vector<SetNode>::iterator i = set_list.begin(),
+			iend = set_list.end(); i != iend; ++i)
+		{
+			std::set<int>::const_iterator k = i->set_vnum.find(vnum);
+			if (k != i->set_vnum.end())
+			{
+				i->obj_vnum.push_back(vnum);
+			}
+		}
+	}
+
+	// * Обнуление таймера шмотки в ренте или перс.хране.
+	void delete_item(int pt_num, int vnum)
+	{
+		bool need_save = false;
+		// рента
+		if (player_table[pt_num].timer)
+		{
+			for (std::vector<save_time_info>::iterator i = player_table[pt_num].timer->time.begin(),
+				iend = player_table[pt_num].timer->time.end(); i != iend; ++i)
+			{
+				if (i->vnum == vnum)
+				{
+					log("[TO] Player %s : set-item %d deleted",
+						player_table[pt_num].name, i->vnum);
+					i->timer = -1;
+					int rnum = real_object(i->vnum);
+					if (rnum >= 0)
+					{
+						obj_proto.dec_stored(rnum);
+					}
+					need_save = true;
+				}
+			}
+		}
+		if (need_save)
+		{
+			if (!Crash_write_timer(pt_num))
+			{
+				log("SYSERROR: [TO] Error writing timer file for %s",
+					player_table[pt_num].name);
+			}
+			return;
+		}
+		// перс.хран
+		Depot::delete_set_item(player_table[pt_num].unique, vnum);
+	}
+
+	// * Проверка при ребуте всех рент и перс.хранилищ чаров.
+	void check_rented()
+	{
+		init_set_list();
+
+		for (int i = 0; i <= top_of_p_table; i++)
+		{
+			reset_set_list();
+			// рента
+			if (player_table[i].timer)
+			{
+				for (std::vector<save_time_info>::iterator it = player_table[i].timer->time.begin(),
+					it_end = player_table[i].timer->time.end(); it != it_end; ++it)
+				{
+					if (it->timer >= 0)
+					{
+						check_item(it->vnum);
+					}
+				}
+			}
+			// перс.хран
+			Depot::check_rented(player_table[i].unique);
+			// проверка итогового списка
+			for (std::vector<SetNode>::iterator it = set_list.begin(),
+				iend = set_list.end(); it != iend; ++it)
+			{
+				if (it->obj_vnum.size() == 1)
+				{
+					delete_item(i, it->obj_vnum[0]);
+				}
+			}
+		}
+	}
+
+	/**
+	* Почта, базар.
+	* Предметы сетов из BIG_SET_ITEMS и более предметов не принимаются.
+	*/
+	bool is_big_set(const CObjectPrototype *obj, bool is_mini)
+	{
+		unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
+		if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
+		{
+			return false;
+		}
+		for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
+			iend = OBJ_DATA::set_table.end(); i != iend; ++i)
+		{
+			if (i->second.find(GET_OBJ_VNUM(obj)) != i->second.end()
+				&& i->second.size() > sets_items)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+
+	bool find_set_item(OBJ_DATA *obj)
+	{
+		for (; obj; obj = obj->get_next_content())
+		{
+			std::set<int>::const_iterator i = vnum_list.find(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
+			if (i != vnum_list.end())
+			{
+				return true;
+			}
+			if (find_set_item(obj->get_contains()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// * Генерация списка сетин из того же набора, что и vnum (исключая ее саму).
+	void init_vnum_list(int vnum)
+	{
+		vnum_list.clear();
+		for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
+			iend = OBJ_DATA::set_table.end(); i != iend; ++i)
+		{
+			if (i->second.find(vnum) != i->second.end())
+				//&& i->second.size() > BIG_SET_ITEMS)
+			{
+				for (set_info::const_iterator k = i->second.begin(),
+					kend = i->second.end(); k != kend; ++k)
+				{
+					if (k->first != vnum)
+					{
+						vnum_list.insert(k->first);
+					}
+				}
+			}
+		}
+
+		if (vnum_list.empty())
+		{
+			vnum_list = obj_sets::vnum_list_add(vnum);
+		}
+	}
+
+
+	/* проверяем сетину в массиве внумоB*/
+	bool is_norent_set(int vnum, std::vector<int> objs)
+	{
+		if (objs.empty())
+			return true;
+		// нормализуем внумы
+		vnum = obj_sets::normalize_vnum(vnum);
+		for (unsigned int i = 0; i < objs.size(); i++)
+		{
+			objs[i] = obj_sets::normalize_vnum(objs[i]);
+		}
+		init_vnum_list(obj_sets::normalize_vnum(vnum));
+		for (const auto& it : objs)
+		{
+			for (const auto& it1 : vnum_list)
+				if (it == it1)
+					return false;
+		}
+		return true;
+	}
+
+	/**
+	* Экипировка, инвентарь, чармисы, перс. хран.см
+	* Требуется наличие двух и более предметов, если сетина из большого сета.
+	* Перс. хран, рента.
+	*/
+	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
+	{
+		if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
+		{
+			return false;
+		}
+
+		init_vnum_list(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
+
+		if (vnum_list.empty())
+		{
+			return false;
+		}
+
+		// экипировка
+		for (int i = 0; i < NUM_WEARS; ++i)
+		{
+			if (find_set_item(GET_EQ(ch, i)))
+			{
+				return false;
+			}
+		}
+		// инвентарь
+		if (find_set_item(ch->carrying))
+		{
+			return false;
+		}
+		// чармисы
+		if (ch->followers)
+		{
+			for (struct follow_type *k = ch->followers; k; k = k->next)
+			{
+				if (!IS_CHARMICE(k->follower) || !k->follower->master)
+				{
+					continue;
+				}
+				for (int j = 0; j < NUM_WEARS; j++)
+				{
+					if (find_set_item(GET_EQ(k->follower, j)))
+					{
+						return false;
+					}
+				}
+				if (find_set_item(k->follower->carrying))
+				{
+					return false;
+				}
+			}
+		}
+		// перс. хранилище
+		if (Depot::find_set_item(ch, vnum_list))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+} // namespace SetSystem
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

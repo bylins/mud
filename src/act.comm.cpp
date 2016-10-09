@@ -47,7 +47,7 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict);
 bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
 
 // external functions
-extern char *diag_timer_to_char(OBJ_DATA * obj);
+extern char *diag_timer_to_char(const OBJ_DATA* obj);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -527,12 +527,12 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(paper) == obj_flag_data::ITEM_PEN)  	// oops, a pen..
+		if (GET_OBJ_TYPE(paper) == OBJ_DATA::ITEM_PEN)  	// oops, a pen..
 		{
 			pen = paper;
 			paper = NULL;
 		}
-		else if (GET_OBJ_TYPE(paper) != obj_flag_data::ITEM_NOTE)
+		else if (GET_OBJ_TYPE(paper) != OBJ_DATA::ITEM_NOTE)
 		{
 			send_to_char("Вы не можете на ЭТОМ писать.\r\n", ch);
 			return;
@@ -557,15 +557,15 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 
 	// ok.. now let's see what kind of stuff we've found
-	if (GET_OBJ_TYPE(pen) != obj_flag_data::ITEM_PEN)
+	if (GET_OBJ_TYPE(pen) != OBJ_DATA::ITEM_PEN)
 	{
 		act("Вы не умеете писать $o4.", FALSE, ch, pen, 0, TO_CHAR);
 	}
-	else if (GET_OBJ_TYPE(paper) != obj_flag_data::ITEM_NOTE)
+	else if (GET_OBJ_TYPE(paper) != OBJ_DATA::ITEM_NOTE)
 	{
 		act("Вы не можете писать на $o5.", FALSE, ch, paper, 0, TO_CHAR);
 	}
-	else if (paper->action_description)
+	else if (!paper->get_action_description().empty())
 	{
 		send_to_char("Там уже что-то записано.\r\n", ch);
 	}
@@ -578,18 +578,19 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		ch->desc->backstr = NULL;
 		send_to_char("Можете писать.  (/s СОХРАНИТЬ ЗАПИСЬ  /h ПОМОЩЬ)\r\n", ch);
 		// ok, here we check for a message ALREADY on the paper
-		if (paper->action_description)  	// we str_dup the original text to the descriptors->backstr
+		if (!paper->get_action_description().empty())  	// we str_dup the original text to the descriptors->backstr
 		{
-			ch->desc->backstr = str_dup(paper->action_description);
+			ch->desc->backstr = str_dup(paper->get_action_description().c_str());
 			// send to the player what was on the paper (cause this is already
 			// loaded into the editor)
-			send_to_char(paper->action_description, ch);
+			send_to_char(paper->get_action_description().c_str(), ch);
 		}
 		act("$n начал$g писать.", TRUE, ch, 0, 0, TO_ROOM);
 		// assign the descriptor's->str the value of the pointer to the text
 		// pointer so that we can reallocate as needed (hopefully that made
 		// sense :>)
-		string_write(ch->desc, &paper->action_description, MAX_NOTE_LENGTH, 0, NULL);
+		const string_writer_t writer(new CActionDescriptionWriter(*paper));
+		string_write(ch->desc, writer, MAX_NOTE_LENGTH, 0, NULL);
 	}
 }
 
@@ -1126,7 +1127,6 @@ void ignore_usage(CHAR_DATA * ch)
 
 int ign_find_id(char *name, long *id)
 {
-	extern int top_of_p_table;
 	int i;
 
 	for (i = 0; i <= top_of_p_table; i++)
@@ -1144,7 +1144,6 @@ int ign_find_id(char *name, long *id)
 
 const char * ign_find_name(long id)
 {
-	extern int top_of_p_table;
 	int i;
 
 	for (i = 0; i <= top_of_p_table; i++)

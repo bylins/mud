@@ -102,10 +102,14 @@ void do_wasound(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	for (door = 0; door < NUM_OF_DIRS; door++)
 	{
-		EXIT_DATA *exit;
+		const auto& exit = room->dir_option[door];
 
-		if ((exit = room->dir_option[door]) && (exit->to_room != NOWHERE) && room != world[exit->to_room])
+		if (exit
+			&& (exit->to_room != NOWHERE)
+			&& room != world[exit->to_room])
+		{
 			act_to_room(argument, world[exit->to_room]);
+		}
 	}
 }
 
@@ -142,7 +146,7 @@ void do_wsend(ROOM_DATA *room, char *argument, int/* cmd*/, int subcmd)
 
 	if ((ch = get_char_by_room(room, buf)))
 	{
-		if (reloc_target != -1 && reloc_target != IN_ROOM(ch))
+		if (reloc_target != -1 && reloc_target != ch->in_room)
 		{
 			sprintf(buf,
 					"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
@@ -193,7 +197,6 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
 	ROOM_DATA *rm;
-	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 
 	const char *door_field[] = { "purge",
@@ -233,28 +236,25 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	exit = rm->dir_option[dir];
+	auto exit = rm->dir_option[dir];
 
 	// purge exit
 	if (fd == 0)
 	{
 		if (exit)
 		{
-			if (exit->general_description)
-				free(exit->general_description);
 			if (exit->keyword)
 				free(exit->keyword);
 			if (exit->vkeyword)
 				free(exit->vkeyword);
-			free(exit);
-			rm->dir_option[dir] = NULL;
+			rm->dir_option[dir].reset();
 		}
 	}
 	else
 	{
 		if (!exit)
 		{
-			CREATE(exit, 1);
+			exit.reset(new EXIT_DATA());
 			rm->dir_option[dir] = exit;
 		}
 
@@ -264,20 +264,17 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		switch (fd)
 		{
 		case 1:	// description //
-			if (exit->general_description)
-			{
-				free(exit->general_description);
-			}
-			CREATE(exit->general_description, strlen(value) + 3);
-			strcpy(exit->general_description, value);
-			strcat(exit->general_description, "\r\n");
+			exit->general_description = std::string(value) + "\r\n";
 			break;
+
 		case 2:	// flags       //
 			asciiflag_conv(value, &exit->exit_info);
 			break;
+
 		case 3:	// key         //
 			exit->key = atoi(value);
 			break;
+
 		case 4:	// name        //
 			if (exit->keyword)
 				free(exit->keyword);
@@ -372,7 +369,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 				horse = get_horse(ch);
 			else
 				horse = NULL;
-			for (charmee = world[IN_ROOM(ch)]->people; charmee; charmee = ncharmee)
+			for (charmee = world[ch->in_room]->people; charmee; charmee = ncharmee)
 			{
 				ncharmee = charmee->next_in_room;
 				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
@@ -561,7 +558,7 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);
-		GET_OBJ_ZONE(object) = world[real_room(room->number)]->zone;
+		object->set_zone(world[real_room(room->number)]->zone);
 		obj_to_room(object, real_room(room->number));
 		load_otrigger(object);
 	}
@@ -594,7 +591,7 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((ch = get_char_by_room(room, name)))
 	{
-		if (world[IN_ROOM(ch)]->zone != room->zone)
+		if (world[ch->in_room]->zone != room->zone)
         {
             return;
         }
@@ -618,7 +615,7 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (!IS_NPC(ch))
 			{
 				sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
-						IN_ROOM(ch) == NOWHERE ? "NOWHERE" : world[IN_ROOM(ch)]->name, GET_ROOM_VNUM(IN_ROOM(ch)));
+						ch->in_room == NOWHERE ? "NOWHERE" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			die(ch, NULL);

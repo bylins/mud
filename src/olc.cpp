@@ -48,7 +48,6 @@ void sedit_setup_new(DESCRIPTOR_DATA * d);
 void sedit_setup_existing(DESCRIPTOR_DATA * d, int robj_num);
 void room_free(ROOM_DATA * room);
 void medit_mobile_free(CHAR_DATA * mob);
-void oedit_object_free(OBJ_DATA * obj);
 void trigedit_setup_new(DESCRIPTOR_DATA * d);
 void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num);
 int real_trigger(int vnum);
@@ -138,7 +137,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		{
 		case SCMD_OLC_ZEDIT:
 		case SCMD_OLC_REDIT:
-			number = world[IN_ROOM(ch)]->number;
+			number = world[ch->in_room]->number;
 			break;
 		case SCMD_OLC_TRIGEDIT:
 		case SCMD_OLC_OEDIT:
@@ -483,12 +482,9 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		// Освободить редактируемый триггер
 		if (OLC_TRIG(d))
 		{
-			if (OLC_TRIG(d)->name)
-				free(OLC_TRIG(d)->name);
-			if (OLC_TRIG(d)->arglist)
-				free(OLC_TRIG(d)->arglist);
 			free(OLC_TRIG(d));
 		}
+
 		// Освободить массив данных (похоже, только для триггеров)
 		if (OLC_STORAGE(d))
 		{
@@ -512,6 +508,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			case CLEANUP_STRUCTS:
 				delete OLC_ROOM(d);	// удаляет только оболочку
 				break;
+
 			default:	// The caller has screwed up.
 				break;
 			}
@@ -535,9 +532,9 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			switch (cleanup_type)
 			{
 			case CLEANUP_ALL:
-				oedit_object_free(OLC_OBJ(d));	// удаляет все содержимое
 				delete OLC_OBJ(d);	// удаляет только оболочку
 				break;
+
 			default:	// The caller has screwed up.
 				break;
 			}

@@ -134,7 +134,7 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 	{
 		if (rkiller && rkiller != ch)
 		{
-			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)) //Рип на арене
+			if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) //Рип на арене
 			{
 				GET_RIP_ARENA(ch)= GET_RIP_ARENA(ch)+1;
 				GET_WIN_ARENA(killer)= GET_WIN_ARENA(killer)+1;
@@ -167,9 +167,9 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 			}
 		}
 		else if ((!rkiller || (rkiller && rkiller == ch)) &&
-			(ROOM_FLAGGED(IN_ROOM(ch), ROOM_DEATH) ||
-			ROOM_FLAGGED(IN_ROOM(ch), ROOM_SLOWDEATH) ||
-			ROOM_FLAGGED(IN_ROOM(ch), ROOM_ICEDEATH)))
+			(ROOM_FLAGGED(ch->in_room, ROOM_DEATH) ||
+			ROOM_FLAGGED(ch->in_room, ROOM_SLOWDEATH) ||
+			ROOM_FLAGGED(ch->in_room, ROOM_ICEDEATH)))
 		{
 			//Рип в дт
 			GET_RIP_DT(ch)= GET_RIP_DT(ch)+1;
@@ -230,7 +230,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 		&& IS_NPC(killer)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
 		&& ch->master
-		&& IN_ROOM(ch) == IN_ROOM(ch->master)
+		&& ch->in_room == IN_ROOM(ch->master)
 		&& ch->master->get_inborn_skill(SKILL_LEADERSHIP) > 1)
 	{
 		ch->master->set_skill(SKILL_LEADERSHIP,
@@ -242,12 +242,12 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	int dec_exp = 0, e = GET_EXP(ch);
 
-	if (!IS_NPC(ch) && (IN_ROOM(ch) == NOWHERE))
+	if (!IS_NPC(ch) && (ch->in_room == NOWHERE))
 	{
 		log("SYSERR: %s is dying in room NOWHERE.", GET_NAME(ch));
 		return;
 	}
-	if (!IS_NPC(ch) && (zone_table[world[IN_ROOM(ch)]->zone].number == 759) && (GET_LEVEL(ch) <15)) //нуб помер в мадшколе
+	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone].number == 759) && (GET_LEVEL(ch) <15)) //нуб помер в мадшколе
 	{
 		act("$n глупо погиб$q не закончив обучение.", FALSE, ch, 0, 0, TO_ROOM);
 //		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
@@ -268,7 +268,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 	} 
 
 	if (IS_NPC(ch)
-		|| !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+		|| !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 		|| RENTABLE(ch))
 	{
 		if (!(IS_NPC(ch)
@@ -306,12 +306,13 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 // * Снятие аффектов с чара при смерти/уходе в дт.
 void reset_affects(CHAR_DATA *ch)
 {
-	AFFECT_DATA<EApplyLocation> *naf;
+	auto naf = ch->affected.begin();
 
-	for (auto af = ch->affected; af; af = naf)
+	for (auto af = naf; af != ch->affected.end(); af = naf)
 	{
-		naf = af->next;
-		if (!IS_SET(af->battleflag, AF_DEADKEEP))
+		++naf;
+		const auto& affect = *af;
+		if (!IS_SET(affect->battleflag, AF_DEADKEEP))
 		{
 			affect_remove(ch, af);
 		}
@@ -366,7 +367,7 @@ void forget_all_spells(CHAR_DATA *ch)
 		af.duration = pc_duration(ch, max_slot*RECALL_SPELLS_INTERVAL+SECS_PER_PLAYER_AFFECT, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_RECALL_SPELLS);
 		af.battleflag = AF_PULSEDEC | AF_DEADKEEP;
-		affect_join(ch, &af, 0, 0, 0, 0);
+		affect_join(ch, af, 0, 0, 0, 0);
 	}
 }
 
@@ -407,7 +408,7 @@ void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 	{
 		if (CAN_GO(ch, door))
 		{
-			CHAR_DATA *people = world[world[IN_ROOM(ch)]->dir_option[door]->to_room]->people;
+			CHAR_DATA *people = world[world[ch->in_room]->dir_option[door]->to_room]->people;
 			if (people)
 			{
 				act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
@@ -527,7 +528,7 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
 			FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		int pos = GET_POS(ch);
 		GET_POS(ch) = POS_STANDING;
-		call_magic(ch, killer, NULL, world[IN_ROOM(ch)], ch->mob_specials.capable_spell,
+		call_magic(ch, killer, NULL, world[ch->in_room], ch->mob_specials.capable_spell,
 			GET_LEVEL(ch), CAST_SPELL);
 		GET_POS(ch) = pos;
 	}
@@ -580,7 +581,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 
 	// Перенес вызов pk_revenge_action из die, чтобы на момент создания
 	// трупа месть на убийцу была еще жива
-	if (IS_NPC(ch) || !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) || RENTABLE(ch))
+	if (IS_NPC(ch) || !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) || RENTABLE(ch))
 	{
 		pk_revenge_action(killer, ch);
 	}
@@ -642,7 +643,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 
 	reset_affects(ch);
 	// для начала проверяем, активны ли евенты
-	if ((!killer || death_mtrigger(ch, killer)) && IN_ROOM(ch) != NOWHERE)
+	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != NOWHERE)
 	{
 		death_cry(ch, killer);
 	}
@@ -662,10 +663,10 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 			}
 		}
 	}
-	if (IN_ROOM(ch) != NOWHERE)
+	if (ch->in_room != NOWHERE)
 	{
 		if (!IS_NPC(ch)
-			&& ((!RENTABLE(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA))
+			&& ((!RENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
 				|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))
 		{
 			//Если убили на арене или палач
@@ -795,9 +796,10 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		{
 			exp *= Bonus::get_mult_bonus();
 		}
-		if (!IS_NPC(ch) && ch->affected)
+
+		if (!IS_NPC(ch) && !ch->affected.empty())
 		{ 
-			for (auto aff = ch->affected; aff; aff = aff->next)
+			for (const auto aff : ch->affected)
 			{
 				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
 				{
@@ -805,6 +807,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 				}
 			}
 		}
+
 		exp = MIN(max_exp_gain_pc(ch), exp);
 		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n",
 		exp, desc_count(exp, WHAT_POINT));
@@ -1072,21 +1075,27 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance)
 		return;
 	dam = number(0, dam * (material_value[GET_OBJ_MATER(obj)] + 30) /
 				 MAX(1, GET_OBJ_MAX(obj) *
-					 (obj->get_extraflag(EExtraFlag::ITEM_NODROP) ? 5 :
-					  obj->get_extraflag(EExtraFlag::ITEM_BLESS) ? 15 : 10) * (GET_OBJ_SKILL(obj) == SKILL_BOWS ? 3 : 1)));
+					 (obj->get_extra_flag(EExtraFlag::ITEM_NODROP) ? 5 :
+					  obj->get_extra_flag(EExtraFlag::ITEM_BLESS) ? 15 : 10) * (GET_OBJ_SKILL(obj) == SKILL_BOWS ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100))
 	{
-		if (dam > 1 && obj->worn_by && GET_EQ(obj->worn_by, WEAR_SHIELD) == obj)
+		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), WEAR_SHIELD) == obj)
 		{
 			dam /= 2;
 		}
-		if ((GET_OBJ_CUR(obj) -= dam) <= 0)
+
+		obj->sub_current(dam);
+		if (obj->get_current_durability() <= 0)
 		{
-			if (obj->worn_by)
-				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->worn_by, obj, 0, TO_CHAR);
-			else if (obj->carried_by)
-				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->carried_by, obj, 0, TO_CHAR);
+			if (obj->get_worn_by())
+			{
+				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->get_worn_by(), obj, 0, TO_CHAR);
+			}
+			else if (obj->get_carried_by())
+			{
+				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->get_carried_by(), obj, 0, TO_CHAR);
+			}
 			extract_obj(obj);
 		}
 	}
@@ -1184,7 +1193,7 @@ bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int 
 
 void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 {
-	if (IN_ROOM(ch) == NOWHERE)
+	if (ch->in_room == NOWHERE)
 		return;
 
 	switch (GET_POS(victim))

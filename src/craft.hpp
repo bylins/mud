@@ -32,24 +32,6 @@ namespace craft
 	**/
 	bool start();
 
-	// Subcommands for the "craft" command
-	const int SCMD_NOTHING = 0;
-
-	/// Defines for the "craft" command (base craft command)
-	namespace cmd
-	{
-		/// Minimal position for base craft command
-		const int MINIMAL_POSITION = POS_SITTING;
-
-		// Minimal level for base craft command
-		const int MINIMAL_LEVEL = 0;
-
-		// Probability to stop hide when using base craft command
-		const int UNHIDE_PROBABILITY = 0;	// -1 - always, 0 - never
-
-		extern void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-	}
-
 	class CLogger
 	{
 	public:
@@ -104,10 +86,11 @@ namespace craft
 		CCases() {}
 
 		bool load_from_node(const pugi::xml_node* node);
-		void load_from_object(const OBJ_DATA* object);
+		void load_from_object(const CObjectPrototype::shared_ptr& object);
 		bool save_to_node(pugi::xml_node* node) const;
 
-		const std::string& aliases() const { return m_joined_aliases; }
+		const auto& get_case(const size_t number) const { return m_cases[number]; }
+		const auto& aliases() const { return m_joined_aliases; }
 		OBJ_DATA::pnames_t build_pnames() const;
 
 	private:
@@ -119,63 +102,17 @@ namespace craft
 		friend class CPrototype;
 	};
 
-	class CPrototypeBase
+	class CObject: public CObjectPrototype
 	{
 	public:
-		using type_t = obj_flag_data::EObjectType;
-
-		void set_type(const type_t _) { m_type = _; }
-		type_t get_type() const { return m_type; }
-
-		void set_weight(const int _) { m_weight = _; }
-		auto get_weight() const { return m_weight; }
-
-		void set_timer(const int _) { m_timer = _; }
-		auto get_timer() const { return m_timer; }
-
-	protected:
-		CPrototypeBase():
-			m_type(obj_flag_data::DEFAULT_TYPE),
-			m_weight(obj_flag_data::DEFAULT_WEIGHT),
-			m_timer(OBJ_DATA::DEFAULT_TIMER)
-		{
-		}
-
-	private:
-		type_t m_type;
-
-		int m_weight;
-		int m_timer;
-	};
-
-	class CPrototype: public CPrototypeBase
-	{
-	public:
-		CPrototype(const obj_vnum vnum) :
-			m_vnum(vnum),
-			m_cost(OBJ_DATA::DEFAULT_COST),
-			m_rent_on(OBJ_DATA::DEFAULT_RENT_ON),
-			m_rent_off(OBJ_DATA::DEFAULT_RENT_OFF),
-			m_global_maximum(OBJ_DATA::DEFAULT_GLOBAL_MAXIMUM),
-			m_minimum_remorts(OBJ_DATA::DEFAULT_MINIMUM_REMORTS),
-			m_maximum_durability(obj_flag_data::DEFAULT_MAXIMUM_DURABILITY),
-			m_current_durability(obj_flag_data::DEFAULT_CURRENT_DURABILITY),
-			m_sex(DEFAULT_SEX),
-			m_level(obj_flag_data::DEFAULT_LEVEL),
-			m_item_params(0),
-			m_material(obj_flag_data::DEFAULT_MATERIAL),
-			m_wear_flags(0),
-			m_vals({0, 0, 0, 0})
-		{
-		}
+		CObject(const CObjectPrototype& object) : CObjectPrototype(object) {}
+		CObject(const obj_vnum vnum) : CObjectPrototype(vnum) {}
+		~CObject() {}
 
 		bool load_from_node(const pugi::xml_node* node);
-		void load_from_object(const OBJ_DATA* object);
+		void load_from_object(const CObjectPrototype::shared_ptr& object);
 
 		bool save_to_node(pugi::xml_node* node) const;
-
-		obj_vnum vnum() const { return m_vnum; }
-		const std::string& short_desc() const { return m_short_desc; }
 
 		/**
 		 * Builds OBJ_DATA instance suitable for add it into the list of objects prototypes.
@@ -189,6 +126,8 @@ namespace craft
 	private:
 		constexpr static int VALS_COUNT = 4;
 
+		const static std::string KIND;
+
 		using skills_t = std::map<ESkill, int>;
 		using vals_t = std::array<int, VALS_COUNT>;
 		using applies_t = std::list<obj_affected_type>;
@@ -197,49 +136,12 @@ namespace craft
 		void load_skills(const pugi::xml_node* node);
 		void load_extended_values(const pugi::xml_node* node);
 		void load_applies(const pugi::xml_node* node);
-		bool check_prototype_consistency() const;
+		virtual bool check_object_consistency() const;
 
 		const std::string& aliases() const { return m_cases.aliases(); }
-		obj_vnum m_vnum;
-
-		std::string m_short_desc;
-		std::string m_long_desc;
-		std::string m_action_desc;
-		std::string m_keyword;
-		std::string m_extended_desc;
+		virtual const std::string& kind() const { return KIND; }
 
 		CCases m_cases;
-
-		int m_cost;
-		int m_rent_on;
-		int m_rent_off;
-		int m_global_maximum;
-		int m_minimum_remorts;
-
-		int m_maximum_durability;
-		int m_current_durability;
-
-		ESex m_sex;
-
-		int m_level;
-
-		uint32_t m_item_params;
-
-		obj_flag_data::EObjectMaterial m_material;
-		ESpell m_spell;
-
-		FLAG_DATA m_extraflags;
-		FLAG_DATA m_waffect_flags;
-		FLAG_DATA m_anti_flags;
-		FLAG_DATA m_no_flags;
-
-		std::underlying_type<EWearFlag>::type m_wear_flags;
-
-		skills_t m_skills;
-		vals_t m_vals;
-		OBJ_DATA::triggers_list_t m_triggers_list;
-		ObjVal m_extended_values;
-		applies_t m_applies;
 
 		friend class CCraftModel;
 	};
@@ -252,8 +154,12 @@ namespace craft
 	public:
 		CMaterialClass(const std::string& id) : m_id(id) {}
 
+		const auto& id() const { return m_id; }
+		const auto& name() const { return m_item_cases.get_case(0); }
+
 	private:
 		bool load(const pugi::xml_node* node);
+		bool load_adjectives(const pugi::xml_node* node);
 
 		const std::string m_id;
 		std::string m_short_desc;	///< Short description
@@ -261,12 +167,9 @@ namespace craft
 
 		CCases m_item_cases;		///< Item cases (including aliases)
 		CCases m_name_cases;		///< Name cases (including aliases)
-		CCases m_male_adjectives;	///< Male adjective cases
-		CCases m_female_adjectives;	///< Female adjective cases
-		CCases m_neuter_adjectives;	///< Neuter adjective cases
-
-		FLAG_DATA m_extraflags;
-		FLAG_DATA m_waffect_flags;
+		std::shared_ptr<CCases> m_male_adjectives;	///< Male adjective cases
+		std::shared_ptr<CCases> m_female_adjectives;	///< Female adjective cases
+		std::shared_ptr<CCases> m_neuter_adjectives;	///< Neuter adjective cases
 
 		friend class CMaterial;
 	};
@@ -279,14 +182,31 @@ namespace craft
 	public:
 		CMaterial(const std::string& id) : m_id(id) {}
 
+		const auto& id() const { return m_id; }
+		const auto& classes() const { return m_classes; }
+
+		const auto& get_name() const { return m_name; }
+		void set_name(const std::string& _) { m_name = _; }
+
 	private:
 		bool load(const pugi::xml_node* node);
 
-		const id_t m_id;						///< Meterial ID.
+		const id_t m_id;						///< Material ID.
 		std::string m_name;						///< Material name.
 		std::list<CMaterialClass> m_classes;	///< List of material classes for this material.
 
 		friend class CCraftModel;
+	};
+
+	class CMaterialInstance
+	{
+	public:
+
+	private:
+		const id_t m_type;
+		const id_t m_class;
+		int m_quality;
+		int m_quantity;
 	};
 
 	/**
@@ -343,7 +263,7 @@ namespace craft
 		std::string m_name;                     ///< Craft name.
 		std::set<id_t> m_skills;                ///< List of required skills for this craft.
 		std::set<id_t> m_recipes;               ///< List of available recipes for this craft.
-		std::set<id_t> m_material;              ///< List of meterials used by this craft.
+		std::set<id_t> m_material;              ///< List of materials used by this craft.
 		int m_slots;                            ///< Number of slots for additional skills.
 
 		friend class CCraftModel;
@@ -359,7 +279,8 @@ namespace craft
 		using crafts_t = std::list<CCraft>;
 		using skills_t = std::list<CSkillBase>;
 		using recipes_t = std::list<CRecipe>;
-		using prototypes_t = std::list<CPrototype>;
+		using materials_t = std::list<CMaterial>;
+		using prototypes_t = std::list<CObjectPrototype::shared_ptr>;
 
 		const static std::string FILE_NAME;
 		constexpr static int DEFAULT_BASE_COUNT = 1;
@@ -396,6 +317,7 @@ namespace craft
 		const skills_t& skills() const { return m_skills; }
 		const recipes_t& recipes() const { return m_recipes; }
 		const prototypes_t& prototypes() const { return m_prototypes; }
+		const materials_t& materials() const { return m_materials; }
 
 		const auto base_count() const { return m_base_count; }
 		const auto remort_for_count_bonus() const { return m_remort_for_count_bonus; }
@@ -405,6 +327,30 @@ namespace craft
 		bool export_object(const obj_vnum vnum, const  char* filename);
 
 	private:
+		/**
+		** Describes VNums range.
+		*/
+		class CVNumRange
+		{
+		public:
+			CVNumRange(const obj_vnum min, const obj_vnum max) : m_min(min), m_max(max) {}
+			bool operator<(const CVNumRange& right) const { return m_min < right.m_min; }
+
+			const obj_vnum& min() const { return m_min; }
+			const obj_vnum& max() const { return m_max; }
+
+		private:
+			obj_vnum m_min;
+			obj_vnum m_max;
+		};
+
+		enum EAddVNumResult
+		{
+			EAVNR_OK,
+			EAVNR_OUT_OF_RANGE,
+			EAVNR_ALREADY_EXISTS
+		};
+
 		/**
 		** Loads N-th prototype from specified XML node and returns true
 		** if it was successful and false otherwise.
@@ -417,10 +363,19 @@ namespace craft
 		*/
 		bool load_material(const pugi::xml_node* material, const size_t number);
 
-		crafts_t m_crafts;         ///< List of crafts defined for the game.
-		skills_t m_skills;     ///< List of skills defined for the game.
+		bool load_from_node(const pugi::xml_node* node);
+
+		bool load_vnum_ranges(const  pugi::xml_node* model);
+
+		EAddVNumResult check_vnum(const obj_vnum vnum) const;
+		EAddVNumResult add_vnum(const obj_vnum vnum);
+		void report_vnum_error(const obj_vnum vnum, const EAddVNumResult add_vnum_result);
+
+		crafts_t m_crafts;			///< List of crafts defined for the game.
+		skills_t m_skills;			///< List of skills defined for the game.
 		recipes_t m_recipes;     	///< List of recipes defined for the game.
 		prototypes_t m_prototypes;	///< List of objects defined by the craft system.
+		materials_t m_materials;	///< List of materials
 
 		// Properties
 		int m_base_count;						///< Base count of crafts (per character?).
@@ -438,6 +393,9 @@ namespace craft
 		std::map<id_t, const CCraft*> m_id2craft;		///< Maps craft ID to pointer to craft descriptor.
 		std::map<id_t, const CSkillBase*> m_id2skill;	///< Maps skill ID to pointer to skill descriptor.
 		std::map<id_t, const CRecipe*> m_id2recipe;		///< Maps recipe ID to pointer to recipe descriptor.
+
+		std::set<CVNumRange> m_allowed_vnums;
+		std::set<obj_vnum> m_existing_vnums;
 	};
 }
 
