@@ -2975,13 +2975,13 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
     case 1:
 		const auto& room = world[ch->in_room];
 		const auto aff_i = find_room_affect(room, SPELL_RUNE_LABEL);
+		const auto& aff = *aff_i;
 		if (aff_i != room->affected.end()
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
 				|| IS_IMMORTAL(ch)
 				|| PRF_FLAGGED(ch, PRF_CODERINFO)))
         {
-			const auto& aff = *aff_i;
-			send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
+            send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
             act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
             if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
             {
@@ -3011,7 +3011,26 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
 	}
 }
-
+inline bool REMOVESPELL(const AFFECT_DATA<EApplyLocation>* hjp)
+{
+    return hjp
+	|| !spell_info[hjp->type].name
+	|| *spell_info[hjp->type].name == '!'
+	|| hjp->type == SPELL_SLEEP
+	|| hjp->type == SPELL_POISON
+	|| hjp->type == SPELL_WEAKNESS
+	|| hjp->type == SPELL_CURSE
+	|| hjp->type == SPELL_PLAQUE
+	|| hjp->type == SPELL_SILENCE
+	|| hjp->type == SPELL_BLINDNESS
+	|| hjp->type == SPELL_HAEMORRAGIA
+	|| hjp->type == SPELL_HOLD
+	|| hjp->type == SPELL_PEACEFUL
+	|| hjp->type == SPELL_CLONE
+	|| hjp->type == SPELL_CONE_OF_COLD
+	|| hjp->type == SPELL_DEAFNESS;
+	
+}
 #define MAX_REMOVE  13
 const int RemoveSpell[MAX_REMOVE] = { SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS, SPELL_CURSE, SPELL_PLAQUE,
 			SPELL_SILENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL, SPELL_CONE_OF_COLD,
@@ -3087,6 +3106,41 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
 		send_to_char(ch, "&RСнимаю  %d аффектов\r\n", count);
+		const auto affects_count = vict->affected.size();
+		auto affect_i = vict->affected.begin();
+		std::vector<int> tmp_a;
+		send_to_char(ch, "Аффекты на цели:");
+		for (auto affect_i = vict->affected.begin(); affect_i != vict->affected.end(); ++affect_i)
+		{
+			const auto aff = *affect_i;
+			sprintf(buf, " %s", apply_types[(int) aff->location]);
+			send_to_char(buf, ch);
+		}
+		send_to_char("\r\n", ch);
+		send_to_char("Удаляемые:", ch);
+		if (0 != affects_count)
+		{
+			for (auto affect_i = vict->affected.begin(); affect_i != vict->affected.end(); ++affect_i)
+			{
+				if (REMOVESPELL(*affect_i))
+				{
+					tmp_a.push_back((*affect_i)->type);
+				}
+				
+			}
+/*
+			send_to_char(ch, "Удаляемые аффекты:");
+			for (auto tmp_a.begin; tmp_a.end; i++)
+			{
+				sprintf(buf, " %s", apply_types[(int) tmp_a.value());
+				send_to_char(buf, ch);
+			}
+*/
+		}
+		else
+		{
+			send_to_char(ch, "&RАффектов нет!\r\n");
+		}
 	}
 	else
 	{
