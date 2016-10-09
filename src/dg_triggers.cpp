@@ -1070,7 +1070,7 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int 
 
 			if (IS_SET(GET_TRIG_NARG(t), type)
 				&& (t->arglist[0] == '*'
-					|| t->arglist == cmd))
+					|| 0 == strn_cmp(t->arglist.c_str(), cmd, t->arglist.size())))
 			{
 				if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
 				{
