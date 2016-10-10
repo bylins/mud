@@ -1663,7 +1663,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'm':
 		case 'M':
-			send_to_char("Таймер (в тиках) : ", d->character);
+			send_to_char("Таймер (в минутах РЛ) : ", d->character);
 			OLC_MODE(d) = OEDIT_TIMER;
 			break;
 

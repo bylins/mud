@@ -2961,10 +2961,18 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
     case 0:
         if (world[ch->in_room]->fires)
         {
-            world[ch->in_room]->fires = 0;
+	    if (world[ch->in_room]->fires < 5)
+        	    --world[ch->in_room]->fires;
+	    else 
+		    world[ch->in_room]->fires = 4;
             send_to_char("Вы затоптали костер.\r\n", ch);
             act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-            lag = 2;
+	    if (world[ch->in_room]->fires == 0)
+	    {
+        	    send_to_char("Костер потух.\r\n", ch);
+        	    act("Костер потух.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+	    }
+            lag = 1;
         }
         else
         {
@@ -3496,7 +3504,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		dl_load_obj(obj, mob, ch, DL_SKIN);
 
 		std::vector<OBJ_DATA*> entrails;
-		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,1000) == 1)) // артефакт
+		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,10000) == 1)) // артефакт
 		{
 			tobj = read_object(meat_mapping.get_artefact_key(), VIRTUAL);
 		}
