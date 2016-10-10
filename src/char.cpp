@@ -30,6 +30,7 @@
 
 #include <sstream>
 #include <list>
+#include <algorithm>
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
@@ -165,6 +166,62 @@ void CHAR_DATA::reset()
 	PlayerI::reset();
 }
 
+void CHAR_DATA::set_abstinent()
+{
+	int duration = pc_duration(this, 2, MAX(0, GET_DRUNK_STATE(this) - CHAR_DRUNKED), 4, 2, 5);
+
+	if (can_use_feat(this, DRUNKARD_FEAT))
+	{
+		duration /= 2;
+	}
+
+	AFFECT_DATA<EApplyLocation> af;
+	af.type = SPELL_ABSTINENT;
+	af.bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
+	af.duration = duration;
+
+	af.location = APPLY_AC;
+	af.modifier = 20;
+	affect_join(this, af, 0, 0, 0, 0);
+
+	af.location = APPLY_HITROLL;
+	af.modifier = -2;
+	affect_join(this, af, 0, 0, 0, 0);
+
+	af.location = APPLY_DAMROLL;
+	af.modifier = -2;
+	affect_join(this, af, 0, 0, 0, 0);
+}
+
+void CHAR_DATA::affect_remove(const char_affects_list_t::iterator& affect_i)
+{
+	int was_lgt = AFF_FLAGGED(this, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
+	long was_hlgt = AFF_FLAGGED(this, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
+	long was_hdrk = AFF_FLAGGED(this, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
+
+	if (affected.empty())
+	{
+		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(this));
+		return;
+	}
+
+	const auto af = *affect_i;
+	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
+	if (af->type == SPELL_ABSTINENT)
+	{
+		GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), CHAR_DRUNKED - 1);
+	}
+	if (af->type == SPELL_DRUNKED && af->duration == 0)
+	{
+		set_abstinent();
+	}
+
+	affected.erase(affect_i);
+
+	affect_total(this);
+	check_light(this, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
+}
+
 bool CHAR_DATA::has_any_affect(const affects_list_t& affects)
 {
 	for (const auto& affect : affects)
@@ -176,6 +233,66 @@ bool CHAR_DATA::has_any_affect(const affects_list_t& affects)
 	}
 
 	return false;
+}
+
+size_t CHAR_DATA::remove_random_affects(const size_t count)
+{
+	std::deque<char_affects_list_t::iterator> removable_affects;
+	for (auto affect_i = affected.begin(); affect_i != affected.end(); ++affect_i)
+	{
+		const auto& affect = *affect_i;
+		if (affect->removable())
+		{
+			removable_affects.push_back(affect_i);
+		}
+	}
+
+	const auto to_remove = std::min(count, removable_affects.size());
+	std::random_shuffle(removable_affects.begin(), removable_affects.end());
+	for (auto counter = 0; counter < to_remove; ++counter)
+	{
+		const auto affect_i = removable_affects.begin();
+		affect_remove(*affect_i);
+	}
+
+	return to_remove;
+}
+
+const char* CHAR_DATA::print_affects_to_buffer(char* buffer, const size_t size) const
+{
+	char* pos = buf;
+	size_t remaining = size;
+
+	if (1 > size)
+	{
+		log("SYSERR: Requested print into buffer of zero size.");
+		*buffer = '\0';
+		return buffer;
+	}
+
+	for (const auto affect : affected)
+	{
+		const int written = snprintf(pos, remaining, " %s", apply_types[affect->location]);
+
+		if (written < 0)
+		{
+			log("SYSERR: Something went wrong while printing list of affects.");
+			*buffer = '\0';				// Return empty string
+			break;
+		}
+
+		if (remaining >= written)
+		{
+			log("SYSERR: Provided buffer is not big enough to print list of affects. Truncated.");
+			buffer[size - 1] = '\0';	// Terminate string at the end of buffer
+			break;
+		}
+
+		remaining -= written;
+		pos += written;
+	}
+
+	return buffer;
 }
 
 /**
@@ -361,7 +478,7 @@ void CHAR_DATA::purge(bool destructor)
 
 	while (!this->affected.empty())
 	{
-		affect_remove(this, this->affected.begin());
+		affect_remove(affected.begin());
 	}
 
 	while (this->timed)

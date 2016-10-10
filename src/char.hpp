@@ -341,7 +341,8 @@ class CHAR_DATA : public PlayerI
 {
 // новое
 public:
-	typedef std::list<std::string> morphs_list_t;
+	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
+	using morphs_list_t = std::list<std::string>;
 
 	CHAR_DATA();
 	virtual ~CHAR_DATA();
@@ -582,7 +583,11 @@ public:
 
 	virtual void reset();
 
+	void set_abstinent();
+	void affect_remove(const char_affects_list_t::iterator& affect_i);
 	bool has_any_affect(const affects_list_t& affects);
+	size_t remove_random_affects(const size_t count);
+	const char* print_affects_to_buffer(char* buffer, const size_t size) const;
 
 private:
 	std::string clan_for_title();
@@ -686,7 +691,6 @@ private:
 	unsigned m_wait;			// wait for how many loops
 
 public:
-	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
 	int punctual_wait;		// wait for how many loops (punctual style)
 	char *last_comm;		// последний приказ чармису перед окончанием лага
 

@@ -22,7 +22,6 @@ extern int interpolate(int min_value, int pulse);
 
 namespace
 {
-
 // * Наложение ядов с пушек, аффект стакается до трех раз.
 bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation>& af)
 {
@@ -52,7 +51,7 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation>& af)
 				af.modifier = affect->modifier;
 			}
 
-			affect_remove(ch, affect_i);
+			ch->affect_remove(affect_i);
 			affect_to_char(ch, *affect);
 			found = true;
 			break;

@@ -792,35 +792,6 @@ void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
  * affect_location_apply
  */
 
-void affect_remove(CHAR_DATA* ch, const CHAR_DATA::char_affects_list_t::iterator& affect_i)
-{
-	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
-	long was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
-	long was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
-
-	if (ch->affected.empty())
-	{
-		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(ch));
-		return;
-	}
-
-	const auto af = *affect_i;
-	affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
-	if (af->type == SPELL_ABSTINENT)
-	{
-		GET_DRUNK_STATE(ch) = GET_COND(ch, DRUNK) = MIN(GET_COND(ch, DRUNK), CHAR_DRUNKED - 1);
-	}
-	if (af->type == SPELL_DRUNKED && af->duration == 0)
-	{
-		set_abstinent(ch);
-	}
-
-	ch->affected.erase(affect_i);
-
-	affect_total(ch);
-	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
-}
-
 void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& affect_i)
 {
 	int change = 0;
@@ -855,7 +826,7 @@ void affect_from_char(CHAR_DATA * ch, int type)
 		const auto affect = *affect_i;
 		if (affect->type == type)
 		{
-			affect_remove(ch, affect_i);
+			ch->affect_remove(affect_i);
 		}
 	}
 
@@ -1051,7 +1022,7 @@ void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, 
 					af.modifier /= 2;
 				}
 
-				affect_remove(ch, affect_i);
+				ch->affect_remove(affect_i);
 				affect_to_char(ch, af);
 
 				found = true;

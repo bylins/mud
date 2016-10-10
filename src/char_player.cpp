@@ -397,7 +397,7 @@ void Player::save_char()
 		 */
 		while (!affected.empty())
 		{
-			affect_remove(this, affected.begin());
+			affect_remove(affected.begin());
 		}
 	}
 

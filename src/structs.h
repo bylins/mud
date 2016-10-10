@@ -1484,6 +1484,7 @@ public:
 	AFFECT_DATA() : type(0), duration(0), modifier(0), location(static_cast<TLocation>(0)),
 		battleflag(0), bitvector(0), caster_id(0), must_handled(0),
 		apply_time(0) {};
+	bool removable() const;
 
 	sh_int type;		// The type of spell that caused this      //
 	int duration;	// For how long its effects will last      //
@@ -1497,6 +1498,8 @@ public:
 	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
 	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 };
+
+template <> bool AFFECT_DATA<EApplyLocation>::removable() const;
 
 struct timed_type
 {

@@ -314,7 +314,7 @@ void reset_affects(CHAR_DATA *ch)
 		const auto& affect = *af;
 		if (!IS_SET(affect->battleflag, AF_DEADKEEP))
 		{
-			affect_remove(ch, af);
+			ch->affect_remove(af);
 		}
 	}
 

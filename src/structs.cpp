@@ -1,5 +1,6 @@
 #include "structs.h"
 
+#include "spells.h"
 #include "utils.h"
 #include "msdp.hpp"
 
@@ -1135,6 +1136,26 @@ EXTRA_DESCR_DATA::~EXTRA_DESCR_DATA()
 	}
 
 	// we don't take care of items in list. So, we don't do anything with the next field.
+}
+
+template <>
+bool AFFECT_DATA<EApplyLocation>::removable() const
+{
+	return !spell_info[type].name
+		|| *spell_info[type].name == '!'
+		|| type == SPELL_SLEEP
+		|| type == SPELL_POISON
+		|| type == SPELL_WEAKNESS
+		|| type == SPELL_CURSE
+		|| type == SPELL_PLAQUE
+		|| type == SPELL_SILENCE
+		|| type == SPELL_BLINDNESS
+		|| type == SPELL_HAEMORRAGIA
+		|| type == SPELL_HOLD
+		|| type == SPELL_PEACEFUL
+		|| type == SPELL_CLONE
+		|| type == SPELL_CONE_OF_COLD
+		|| type == SPELL_DEAFNESS;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
