@@ -3117,7 +3117,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 
 		send_to_char("\r\n", ch);
-		send_to_char("Удаляемые:", ch);
+		send_to_char("Удаляемые: ", ch);
 
 		const auto affects_count = vict->affected.size();
 		if (0 != affects_count)
@@ -3126,8 +3126,9 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			send_to_char(ch, "&RАффектов нет!\r\n");
+			send_to_char(ch, "Аффектов нет!\r\n");
 		}
+		send_to_char("&n\r\n", ch);
 	}
 	else
 	{
