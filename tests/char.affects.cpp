@@ -76,8 +76,7 @@ auto create_character_with_two_removable_affects()
 
 auto create_character_with_two_removable_and_two_not_removable_affects()
 {
-	auto character = create_character_with_one_removable_affect();
-	add_sleep(character);
+	auto character = create_character_with_two_removable_affects();
 	add_detect_invis(character);
 	return add_detect_align(character);
 }
