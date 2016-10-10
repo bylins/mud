@@ -10,8 +10,8 @@ TEST(MSDP_Parser, EmptyRequest)
 	size_t conversation_length = 0;
 	::msdp::parsed_request_t result;
 
-	EXPECT_EQ(false, ::msdp::parse_request(request, 0, conversation_length, result));
-	EXPECT_EQ(0, conversation_length);
+	EXPECT_EQ(true, !::msdp::parse_request(request, 0, conversation_length, result));
+	EXPECT_EQ(0u, conversation_length);
 }
 
 TEST(MSDP_Parser, SimpleVariable_Tailless_TailNotRequired)
@@ -32,8 +32,8 @@ TEST(MSDP_Parser, SimpleVariable_Tailless_TailRequired)
 	size_t conversation_length = 0;
 	::msdp::parsed_request_t result;
 
-	EXPECT_EQ(false, ::msdp::parse_request(request, sizeof(request), conversation_length, result, true));
-	EXPECT_EQ(0, conversation_length);
+	EXPECT_EQ(true, !::msdp::parse_request(request, sizeof(request), conversation_length, result, true));
+	EXPECT_EQ(0u, conversation_length);
 }
 
 TEST(MSDP_Parser, SimpleVariable_WithTail_TailNotRequired)
