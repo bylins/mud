@@ -251,8 +251,8 @@ size_t CHAR_DATA::remove_random_affects(const size_t count)
 	std::random_shuffle(removable_affects.begin(), removable_affects.end());
 	for (auto counter = 0u; counter < to_remove; ++counter)
 	{
-		const auto affect_i = removable_affects.begin();
-		affect_remove(*affect_i);
+		const auto affect_i = removable_affects[counter];
+		affect_remove(affect_i);
 	}
 
 	return to_remove;
