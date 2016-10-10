@@ -8,14 +8,14 @@ find_library(GTEST_LIB gtest PATHS ${GTEST_ROOT}/lib)
 
 include_directories(system ${GTEST_INCLUDE})
 
-add_executable(mud.tests main.cpp msdp.parser.cpp char.affects.cpp)
-set_property(TARGET mud.tests PROPERTY CXX_STANDARD 14)
-target_link_libraries(mud.tests circle.library ${GTEST_LIB})
+add_executable(tests main.cpp msdp.parser.cpp char.affects.cpp)
+set_property(TARGET tests PROPERTY CXX_STANDARD 14)
+target_link_libraries(tests circle.library ${GTEST_LIB})
 if (NOT WIN32)
-    target_link_libraries(mud.tests pthread)
+    target_link_libraries(tests pthread)
 endif ()
 
-add_test(all mud.tests)
+add_test(all tests)
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS mud.tests)
 
