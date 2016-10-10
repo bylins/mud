@@ -1429,7 +1429,7 @@ void check_enchants(CHAR_DATA *ch)
 		obj = GET_EQ(ch, i);
 		if (obj)
 		{
-			auto i = ch->obj_bonus().enchants.find(GET_OBJ_VNUM(obj));
+			auto i = ch->obj_bonus().enchants.find(normalize_vnum(GET_OBJ_VNUM(obj)));
 			if (i != ch->obj_bonus().enchants.end())
 			{
 				obj->update_enchants_set_bonus(i->second);
