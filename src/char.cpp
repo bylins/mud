@@ -249,7 +249,7 @@ size_t CHAR_DATA::remove_random_affects(const size_t count)
 
 	const auto to_remove = std::min(count, removable_affects.size());
 	std::random_shuffle(removable_affects.begin(), removable_affects.end());
-	for (auto counter = 0; counter < to_remove; ++counter)
+	for (auto counter = 0u; counter < to_remove; ++counter)
 	{
 		const auto affect_i = removable_affects.begin();
 		affect_remove(*affect_i);
@@ -272,7 +272,7 @@ const char* CHAR_DATA::print_affects_to_buffer(char* buffer, const size_t size) 
 
 	for (const auto affect : affected)
 	{
-		const int written = snprintf(pos, remaining, " %s", apply_types[affect->location]);
+		const auto written = snprintf(pos, remaining, " %s", apply_types[affect->location]);
 
 		if (written < 0)
 		{
@@ -281,7 +281,7 @@ const char* CHAR_DATA::print_affects_to_buffer(char* buffer, const size_t size) 
 			break;
 		}
 
-		if (remaining >= written)
+		if (remaining >= static_cast<size_t>(written))
 		{
 			log("SYSERR: Provided buffer is not big enough to print list of affects. Truncated.");
 			buffer[size - 1] = '\0';	// Terminate string at the end of buffer
