@@ -57,9 +57,3 @@ TEST(MSDP_Parser, SimpleVariable_WithTail_TailRequired)
 	EXPECT_EQ(true, ::msdp::parse_request(request, sizeof(request), conversation_length, result, true));
 	EXPECT_EQ(sizeof(request), conversation_length);
 }
-
-int main(int argc, char** argv)
-{
-	::testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
-}
