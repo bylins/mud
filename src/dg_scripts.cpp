@@ -2478,7 +2478,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 			while (!c->affected.empty())
 			{
-				affect_remove(c, c->affected.begin());
+				c->affect_remove(c->affected.begin());
 			}
 		}
 		else if (!str_cmp(field, "gold"))

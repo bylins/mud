@@ -41,7 +41,6 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af);
 void affect_from_char(CHAR_DATA * ch, int type);
 bool affected_by_spell(CHAR_DATA * ch, int type);
-void affect_remove(CHAR_DATA* ch, const CHAR_DATA::char_affects_list_t::iterator& affect_i);
 void affect_join_fspell(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af);
 void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed);

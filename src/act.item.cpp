@@ -3019,9 +3019,8 @@ const int RemoveSpell[MAX_REMOVE] = { SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS,
 
 void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int percent, prob, success = FALSE, need = FALSE, count, spellnum = 0;
+	int percent, prob, success = FALSE, need = FALSE, spellnum = 0;
 	struct timed_type timed;
-	CHAR_DATA *vict;
 
 	if (!ch->get_skill(SKILL_AID))
 	{
@@ -3036,13 +3035,20 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, arg);
 
+	CHAR_DATA *vict;
 	if (!*arg)
-		vict = ch;
-	else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		send_to_char("Кого вы хотите подлечить?\r\n", ch);
-		return;
-	};
+		vict = ch;
+	}
+	else
+	{
+		vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		if (!vict)
+		{
+			send_to_char("Кого вы хотите подлечить?\r\n", ch);
+			return;
+		}
+	}
 
 	if (vict->get_fighting())
 	{
@@ -3054,19 +3060,27 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	prob = calculate_skill(ch, SKILL_AID, vict);
 
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_GOD_FLAG(vict, GF_GODSLIKE))
+	{
 		percent = prob;
+	}
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSCURSE))
+	{
 		prob = 0;
+	}
 	success = (prob >= percent);
 	need = FALSE;
 
-	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
-			|| (GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict))
-			|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && can_use_feat(ch, HEALER_FEAT)))
+	if ((GET_REAL_MAX_HIT(vict) > 0
+			&& (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
+		|| (GET_REAL_MAX_HIT(vict) <= 0
+			&& GET_HIT(vict) < GET_REAL_MAX_HIT(vict))
+		|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict)
+			&& can_use_feat(ch, HEALER_FEAT)))
 	{
 		need = TRUE;
 		if (success)
-		{	if (!GET_GOD_FLAG(ch, GF_TESTER))
+		{
+			if (!GET_GOD_FLAG(ch, GF_TESTER))
 			{
 				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
 				int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
@@ -3083,16 +3097,37 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
+
+	int count = 0;
 	if (GET_GOD_FLAG(ch, GF_TESTER))
 	{
 		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
-		send_to_char(ch, "&RСнимаю  %d аффектов\r\n", count);
+		send_to_char(ch, "&RСнимаю %d аффектов\r\n", count);
+
+		send_to_char(ch, "Аффекты на цели:");
+		vict->print_affects_to_buffer(buf, MAX_STRING_LENGTH);
+		send_to_char(buf, ch);
+
+		send_to_char("\r\n", ch);
+		send_to_char("Удаляемые:", ch);
+
+		const auto affects_count = vict->affected.size();
+		if (0 != affects_count)
+		{
+			vict->remove_random_affects(count);
+		}
+		else
+		{
+			send_to_char(ch, "&RАффектов нет!\r\n");
+		}
 	}
 	else
 	{
 		count = MIN(MAX_REMOVE, MAX_REMOVE * prob / 100);
 	}
+
 	for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++)
+	{
 		if (affected_by_spell(vict, RemoveSpell[percent]))
 		{
 			need = TRUE;
@@ -3102,10 +3137,16 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				prob = TRUE;
 			}
 		}
+	}
+
 	if (!need)
+	{
 		act("$N в лечении не нуждается.", FALSE, ch, 0, vict, TO_CHAR);
+	}
 	else if (!prob)
+	{
 		act("У вас не хватит умения вылечить $N3.", FALSE, ch, 0, vict, TO_CHAR);
+	}
 	else  			//improove_skill(ch, SKILL_AID, TRUE, 0);
 	{
 		timed.skill = SKILL_AID;
@@ -3150,7 +3191,6 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
-
 }
 
 void do_poisoned(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)

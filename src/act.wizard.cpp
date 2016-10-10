@@ -4523,7 +4523,7 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			{
 				while (!vict->affected.empty())
 				{
-					affect_remove(vict, vict->affected.begin());
+					vict->affect_remove(vict->affected.begin());
 				}
 				send_to_char("Яркая вспышка осветила вас!\r\n"
 							 "Вы почувствовали себя немного иначе.\r\n", vict);

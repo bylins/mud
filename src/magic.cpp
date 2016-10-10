@@ -1035,7 +1035,7 @@ void mobile_affect_update(void)
 						}
 					}
 
-					affect_remove(i, affect_i);
+					i->affect_remove(affect_i);
 				}
 			}
 		}
@@ -1140,7 +1140,7 @@ void player_affect_update(void)
 					}
 				}
 
-				affect_remove(i, affect_i);
+				i->affect_remove(affect_i);
 			}
 		}
 
@@ -1243,7 +1243,7 @@ void battle_affect_update(CHAR_DATA * ch)
 				}
 			}
 
-			affect_remove(ch, affect_i);
+			ch->affect_remove(affect_i);
 		}
 	}
 
@@ -1304,7 +1304,7 @@ void pulse_affect_update(CHAR_DATA * ch)
 				}
 			}
 
-			affect_remove(ch, affect_i);
+			ch->affect_remove(affect_i);
 		}
 	}
 

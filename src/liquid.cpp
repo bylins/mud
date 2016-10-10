@@ -1233,34 +1233,6 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 	}
 }
 
-void set_abstinent(CHAR_DATA *ch)
-{
-	int duration = pc_duration(ch, 2, MAX(0, GET_DRUNK_STATE(ch) - CHAR_DRUNKED), 4, 2, 5);
-
-	if (can_use_feat(ch, DRUNKARD_FEAT))
-	{
-		duration /= 2;
-	}
-
-	AFFECT_DATA<EApplyLocation> af;
-	af.type = SPELL_ABSTINENT;
-	af.bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
-	af.duration = duration;
-
-	af.location = APPLY_AC;
-	af.modifier = 20;
-	affect_join(ch, af, 0,0,0,0);
-
-	af.location = APPLY_HITROLL;
-	af.modifier = -2;
-	affect_join(ch, af, 0,0,0,0);
-
-	af.location = APPLY_DAMROLL;
-	af.modifier = -2;
-	affect_join(ch, af, 0,0,0,0);
-
-}
-
 std::string print_spell(CHAR_DATA *ch, const OBJ_DATA *obj, int num)
 {
 	const auto spell = init_spell_num(num);
