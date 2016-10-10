@@ -209,7 +209,13 @@ void CHAR_DATA::affect_remove(const char_affects_list_t::iterator& affect_i)
 	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
 	if (af->type == SPELL_ABSTINENT)
 	{
-		GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), CHAR_DRUNKED - 1);
+		if (player_specials)
+		{
+			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), CHAR_DRUNKED - 1);
+		} else
+		{
+			log("SYSERR: player_specials is not set.");
+		}
 	}
 	if (af->type == SPELL_DRUNKED && af->duration == 0)
 	{

@@ -3,16 +3,15 @@
 
 #include <gtest/gtest.h>
 
-#include <memory>
-
 auto create_character()
 {
-	return std::shared_ptr<CHAR_DATA>(new CHAR_DATA());
+	const auto result = std::make_shared<CHAR_DATA>();
+	CREATE(result->player_specials, 1);
+	return result;
 }
 
-auto create_character_with_one_removable_affect()
+auto add_poison(const CHAR_DATA::shared_ptr& character)
 {
-	auto character = create_character();
 	AFFECT_DATA<EApplyLocation> poison;
 	poison.type = SPELL_POISON;
 	poison.modifier = 0;
@@ -24,9 +23,8 @@ auto create_character_with_one_removable_affect()
 	return character;
 }
 
-auto create_character_with_two_removable_affects()
+auto add_sleep(const CHAR_DATA::shared_ptr& character)
 {
-	auto character = create_character_with_one_removable_affect();
 	AFFECT_DATA<EApplyLocation> sleep;
 	sleep.type = SPELL_SLEEP;
 	sleep.modifier = 0;
@@ -36,6 +34,52 @@ auto create_character_with_two_removable_affects()
 	sleep.battleflag = AF_SAME_TIME;
 	affect_join(character.get(), sleep, false, false, false, false);
 	return character;
+}
+
+auto add_detect_invis(const CHAR_DATA::shared_ptr& character)
+{
+	AFFECT_DATA<EApplyLocation> detect_invis;
+	detect_invis.type = SPELL_DETECT_INVIS;
+	detect_invis.modifier = 0;
+	detect_invis.location = APPLY_AC;
+	detect_invis.duration = pc_duration(character.get(), 10*2, 0, 0, 0, 0);
+	detect_invis.bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
+	detect_invis.battleflag = AF_SAME_TIME;
+	affect_join(character.get(), detect_invis, false, false, false, false);
+	return character;
+}
+
+auto add_detect_align(const CHAR_DATA::shared_ptr& character)
+{
+	AFFECT_DATA<EApplyLocation> detect_align;
+	detect_align.type = SPELL_DETECT_ALIGN;
+	detect_align.modifier = 0;
+	detect_align.location = APPLY_AC;
+	detect_align.duration = pc_duration(character.get(), 10*2, 0, 0, 0, 0);
+	detect_align.bitvector = to_underlying(EAffectFlag::AFF_DETECT_ALIGN);
+	detect_align.battleflag = AF_SAME_TIME;
+	affect_join(character.get(), detect_align, false, false, false, false);
+	return character;
+}
+
+auto create_character_with_one_removable_affect()
+{
+	auto character = create_character();
+	return add_poison(character);
+}
+
+auto create_character_with_two_removable_affects()
+{
+	auto character = create_character_with_one_removable_affect();
+	return add_sleep(character);
+}
+
+auto create_character_with_two_removable_and_two_not_removable_affects()
+{
+	auto character = create_character_with_one_removable_affect();
+	add_sleep(character);
+	add_detect_invis(character);
+	return add_detect_align(character);
 }
 
 TEST(CHAR_Affects, RandomlyRemove_WithEmptyAffects_RemoveZero)
@@ -111,3 +155,41 @@ TEST(CHAR_Affects, RandomlyRemove_TwoRemovableAffect_Remove100500)
 	EXPECT_EQ(2u, character->remove_random_affects(100500));
 	EXPECT_EQ(0u, character->affected.size());
 }
+
+/*
+TEST(CHAR_Affects, RandomlyRemove_TwoRemovableTwoNotRemovableAffect_RemoveZero)
+{
+	auto character = create_character_with_two_removable_and_two_not_removable_affects();
+	EXPECT_EQ(4u, character->affected.size());
+	EXPECT_EQ(0u, character->remove_random_affects(0));
+	EXPECT_EQ(4u, character->affected.size());
+}
+
+TEST(CHAR_Affects, RandomlyRemove_TwoRemovableTwoNotRemovableAffect_RemoveOne)
+{
+	auto character = create_character_with_two_removable_and_two_not_removable_affects();
+	EXPECT_EQ(4u, character->affected.size());
+	EXPECT_EQ(1u, character->remove_random_affects(1));
+	EXPECT_EQ(3u, character->affected.size());
+	EXPECT_EQ(1u, character->remove_random_affects(1));
+	EXPECT_EQ(2u, character->affected.size());
+}
+
+TEST(CHAR_Affects, RandomlyRemove_TwoRemovableTwoNotRemovableAffect_RemoveTwo)
+{
+	auto character = create_character_with_two_removable_and_two_not_removable_affects();
+	EXPECT_EQ(4u, character->affected.size());
+	EXPECT_EQ(2u, character->remove_random_affects(2));
+	EXPECT_EQ(2u, character->affected.size());
+	EXPECT_EQ(0u, character->remove_random_affects(2));
+	EXPECT_EQ(0u, character->affected.size());
+}
+
+TEST(CHAR_Affects, RandomlyRemove_TwoRemovableTwoNotRemovableAffect_Remove100500)
+{
+	auto character = create_character_with_two_removable_and_two_not_removable_affects();
+	EXPECT_EQ(4u, character->affected.size());
+	EXPECT_EQ(2u, character->remove_random_affects(100500));
+	EXPECT_EQ(2u, character->affected.size());
+}
+*/

@@ -341,6 +341,7 @@ class CHAR_DATA : public PlayerI
 {
 // новое
 public:
+	using shared_ptr = std::shared_ptr<CHAR_DATA>;
 	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
 
