@@ -17,6 +17,6 @@ endif ()
 
 add_test(all tests)
 
-add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS mud.tests)
+add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
 
 # vim: set ts=4 sw=4 ai tw=0 et syntax=cmake :

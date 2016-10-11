@@ -209,7 +209,13 @@ void CHAR_DATA::affect_remove(const char_affects_list_t::iterator& affect_i)
 	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
 	if (af->type == SPELL_ABSTINENT)
 	{
-		GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), CHAR_DRUNKED - 1);
+		if (player_specials)
+		{
+			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), CHAR_DRUNKED - 1);
+		} else
+		{
+			log("SYSERR: player_specials is not set.");
+		}
 	}
 	if (af->type == SPELL_DRUNKED && af->duration == 0)
 	{
@@ -251,8 +257,8 @@ size_t CHAR_DATA::remove_random_affects(const size_t count)
 	std::random_shuffle(removable_affects.begin(), removable_affects.end());
 	for (auto counter = 0u; counter < to_remove; ++counter)
 	{
-		const auto affect_i = removable_affects.begin();
-		affect_remove(*affect_i);
+		const auto affect_i = removable_affects[counter];
+		affect_remove(affect_i);
 	}
 
 	return to_remove;
