@@ -671,7 +671,7 @@ std::set<int> vnum_list_add(int vnum)
 	list_vnum.clear();
 	size_t idx = setidx_by_objvnum(vnum); 
 
-	if (-1u == idx)
+	if (static_cast<size_t>(-1) == idx)
 	{
 		mudlog("setidx_by_objvnum returned -1", BRF, LVL_BUILDER, ERRLOG, TRUE);
 		return list_vnum;
