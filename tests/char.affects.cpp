@@ -155,7 +155,6 @@ TEST(CHAR_Affects, RandomlyRemove_TwoRemovableAffect_Remove100500)
 	EXPECT_EQ(0u, character->affected.size());
 }
 
-/*
 TEST(CHAR_Affects, RandomlyRemove_TwoRemovableTwoNotRemovableAffect_RemoveZero)
 {
 	auto character = create_character_with_two_removable_and_two_not_removable_affects();
@@ -181,7 +180,7 @@ TEST(CHAR_Affects, RandomlyRemove_TwoRemovableTwoNotRemovableAffect_RemoveTwo)
 	EXPECT_EQ(2u, character->remove_random_affects(2));
 	EXPECT_EQ(2u, character->affected.size());
 	EXPECT_EQ(0u, character->remove_random_affects(2));
-	EXPECT_EQ(0u, character->affected.size());
+	EXPECT_EQ(2u, character->affected.size());
 }
 
 TEST(CHAR_Affects, RandomlyRemove_TwoRemovableTwoNotRemovableAffect_Remove100500)
@@ -191,4 +190,3 @@ TEST(CHAR_Affects, RandomlyRemove_TwoRemovableTwoNotRemovableAffect_Remove100500
 	EXPECT_EQ(2u, character->remove_random_affects(100500));
 	EXPECT_EQ(2u, character->affected.size());
 }
-*/
