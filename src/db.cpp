@@ -8295,6 +8295,16 @@ size_t CObjectPrototypes::add(const CObjectPrototype::shared_ptr& prototype, con
 	return index;
 }
 
+void CObjectPrototypes::dec_number(const size_t rnum)
+{
+	if (0 == m_index[rnum].number)
+	{
+		log("SYSERR: Attempt to decrement number of objects that does not exist at all (0 == number).");
+		return;
+	}
+	--m_index[rnum].number;
+}
+
 int CObjectPrototypes::rnum(const obj_vnum vnum) const
 {
 	vnum2index_t::const_iterator i = m_vnum2index.find(vnum);

@@ -1766,6 +1766,7 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		{
 			auto t = get_object_prototype((*shop)->item_list[item_num]->rnum, REAL);
 			tmp_obj = new OBJ_DATA(*t);
+			obj_proto.inc_number(t->get_rnum());
 			ident_obj = tmp_obj;
 		}
 	}

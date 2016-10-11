@@ -510,7 +510,7 @@ public:
 
 	auto number(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].number : -1; }
 	auto number(const CObjectPrototype::shared_ptr& object) const { return number(object->get_rnum()); }
-	void dec_number(const size_t rnum) { --m_index[rnum].number; }
+	void dec_number(const size_t rnum);
 	void inc_number(const size_t rnum) { ++m_index[rnum].number; }
 
 	auto zone(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].zone : -1; }
