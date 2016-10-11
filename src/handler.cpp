@@ -2756,9 +2756,10 @@ void extract_obj(OBJ_DATA * obj)
 	check_exchange(obj);
 	obj->remove_me_from_objects_list(object_list);
 
-	if (GET_OBJ_RNUM(obj) >= 0)
+	const auto rnum = GET_OBJ_RNUM(obj);
+	if (rnum >= 0)
 	{
-		obj_proto.dec_number(GET_OBJ_RNUM(obj));
+		obj_proto.dec_number(rnum);
 	}
 
 	free_obj(obj);
