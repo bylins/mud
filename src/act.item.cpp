@@ -1665,7 +1665,7 @@ public:
 	bool has(const key_type from) const { return end() != find(from); }
 	mapped_type get(const key_type from) const { return at(from); }
 	key_type random_key() const;
-	key_type get_artefact_key() const { return at(m_index_mapping[size() - 1]); }
+	key_type get_artefact_key() const { return m_index_mapping[0]; }
 
 private:
 	void build_index_mapping();
@@ -1678,14 +1678,16 @@ MeatMapping::MeatMapping()
 	emplace(321, 335);
 	emplace(322, 336);
 	emplace(323, 337);
-	emplace(324, 338);
+	emplace(324, 338); //артефакт 0й элемент
 
 	build_index_mapping();
 }
 
 std::unordered_map<obj_vnum, obj_vnum>::key_type MeatMapping::random_key() const
 {
-	const auto index = number(0, static_cast<int>(size()));
+	const auto index = number(1 , static_cast<int>(size() - 1));
+	sprintf(buf, "Размер мясного массива %d выпал предмет под номером %d с vnum %d", static_cast<int>(size()), index, m_index_mapping[index]);
+	mudlog(buf, NRM, LVL_IMMORT, SYSLOG, TRUE);
 	return m_index_mapping[index];
 }
 
@@ -3088,7 +3090,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		need = TRUE;
 		if (success)
 		{
-			if (!GET_GOD_FLAG(ch, GF_TESTER))
+			if (!PRF_FLAGGED(ch, PRF_TESTER))
 			{
 				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
 				int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
@@ -3107,7 +3109,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	int count = 0;
-	if (GET_GOD_FLAG(ch, GF_TESTER))
+	if (PRF_FLAGGED(ch, PRF_TESTER))
 	{
 		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
 		send_to_char(ch, "&RСнимаю %d аффектов\r\n", count);
@@ -3505,7 +3507,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		dl_load_obj(obj, mob, ch, DL_SKIN);
 
 		std::vector<OBJ_DATA*> entrails;
-		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,10000) == 1)) // артефакт
+		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,1000) == 1)) // артефакт
 		{
 			tobj = read_object(meat_mapping.get_artefact_key(), VIRTUAL);
 		}
