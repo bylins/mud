@@ -6415,42 +6415,41 @@ int print_olist(const CHAR_DATA* ch, const int first, const int last, std::strin
 
 	auto from = obj_proto.vnum2index().lower_bound(first);
 	auto to = obj_proto.vnum2index().upper_bound(last);
-	for (auto j = from; j != to; ++j)
+	for (auto i = from; i != to; ++i)
 	{
-		const auto i = obj_proto[j->second];
+		const auto vnum = i->first;
+		const auto rnum = i->second;
+		const auto prototype = obj_proto[rnum];
 		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++result,
-			colored_name(i->get_short_description().c_str(), 45),
-			i->get_vnum(), i->get_ilevel());
+			colored_name(prototype->get_short_description().c_str(), 45),
+			vnum, prototype->get_ilevel());
 		ss << buf_;
 
 		if (GET_LEVEL(ch) >= LVL_GRGOD
 			|| PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
 			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d",
-				obj_proto.number(i->get_rnum()),
-				obj_proto.stored(i->get_rnum()));
+				obj_proto.number(rnum),
+				obj_proto.stored(rnum));
 			ss << buf_;
 
-			const auto obj = obj_proto[i->get_rnum()];
-			if (!obj->get_proto_script().empty())
+			const auto& script = prototype->get_proto_script();
+			if (!script.empty())
 			{
 				ss << " - есть скрипты -";
-				for (const auto trigger_vnum : obj->get_proto_script())
+				for (const auto trigger_vnum : prototype->get_proto_script())
 				{
 					sprintf(buf1, " [%d]", trigger_vnum);
 					ss << buf1;
 				}
-				ss << "\r\n";
 			}
 			else
 			{
-				ss << " - нет скриптов\r\n";
+				ss << " - нет скриптов";
 			}
 		}
-		else
-		{
-			ss << "\r\n";
-		}
+
+		ss << "\r\n";
 	}
 
 	out = ss.str();
