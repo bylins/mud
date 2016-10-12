@@ -1657,6 +1657,7 @@ void weight_change_object(OBJ_DATA * obj, int weight)
 class MeatMapping : private std::unordered_map<obj_vnum, obj_vnum>
 {
 public:
+	constexpr static obj_vnum ARTIFACT_KEY = 324;
 	MeatMapping();
 
 	using base_t = std::unordered_map<obj_vnum, obj_vnum>;
@@ -1665,11 +1666,11 @@ public:
 	bool has(const key_type from) const { return end() != find(from); }
 	mapped_type get(const key_type from) const { return at(from); }
 	key_type random_key() const;
-	key_type get_artefact_key() const { return m_index_mapping[0]; }
+	key_type get_artefact_key() const { return ARTIFACT_KEY; }
 
 private:
-	void build_index_mapping();
-	std::vector<obj_vnum> m_index_mapping;
+	void build_randomly_returnable_keys_index();
+	std::vector<obj_vnum> m_randomly_returnable_keys;
 };
 
 MeatMapping::MeatMapping()
@@ -1678,9 +1679,9 @@ MeatMapping::MeatMapping()
 	emplace(321, 335);
 	emplace(322, 336);
 	emplace(323, 337);
-	emplace(324, 338); //артефакт 0й элемент
+	build_randomly_returnable_keys_index();	
 
-	build_index_mapping();
+	emplace(324, 338); //артефакт 0й элемент
 }
 
 std::unordered_map<obj_vnum, obj_vnum>::key_type MeatMapping::random_key() const
@@ -1688,16 +1689,16 @@ std::unordered_map<obj_vnum, obj_vnum>::key_type MeatMapping::random_key() const
 	const auto index = number(1 , static_cast<int>(size() - 1));
 //	sprintf(buf, "Размер мясного массива %d выпал предмет под номером %d с vnum %d", static_cast<int>(size()), index, m_index_mapping[index]);
 //	mudlog(buf, NRM, LVL_IMMORT, SYSLOG, TRUE);
-	return m_index_mapping[index];
+	return m_randomly_returnable_keys[index];
 }
 
-void MeatMapping::build_index_mapping()
+void MeatMapping::build_randomly_returnable_keys_index()
 {
 	size_t i = 0;
-	m_index_mapping.resize(size());
+	m_randomly_returnable_keys.resize(size());
 	for (const auto& p : *this)
 	{
-		m_index_mapping[i++] = p.first;
+		m_randomly_returnable_keys[i++] = p.first;
 	}
 }
 
