@@ -6404,6 +6404,59 @@ void print(CHAR_DATA *ch, int first, int last, const std::string &options)
 
 } // namespace Mlist
 
+int print_olist(const CHAR_DATA* ch, const int first, const int last, std::string& out)
+{
+	int result = 0;
+
+	char buf_[256] = {0};
+	std::stringstream ss;
+	snprintf(buf_, sizeof(buf_), "Список объектов Vnum %d до %d\r\n", first, last);
+	ss << buf_;
+
+	auto from = obj_proto.vnum2index().lower_bound(first);
+	auto to = obj_proto.vnum2index().upper_bound(last);
+	for (auto j = from; j != to; ++j)
+	{
+		const auto i = obj_proto[j->second];
+		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++result,
+			colored_name(i->get_short_description().c_str(), 45),
+			i->get_vnum(), i->get_ilevel());
+		ss << buf_;
+
+		if (GET_LEVEL(ch) >= LVL_GRGOD
+			|| PRF_FLAGGED(ch, PRF_CODERINFO))
+		{
+			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d",
+				obj_proto.number(i->get_rnum()),
+				obj_proto.stored(i->get_rnum()));
+			ss << buf_;
+
+			const auto obj = obj_proto[i->get_rnum()];
+			if (!obj->get_proto_script().empty())
+			{
+				ss << " - есть скрипты -";
+				for (const auto trigger_vnum : obj->get_proto_script())
+				{
+					sprintf(buf1, " [%d]", trigger_vnum);
+					ss << buf1;
+				}
+				ss << "\r\n";
+			}
+			else
+			{
+				ss << " - нет скриптов\r\n";
+			}
+		}
+		else
+		{
+			ss << "\r\n";
+		}
+	}
+
+	out = ss.str();
+	return result;
+}
+
 void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 
@@ -6498,46 +6551,9 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		break;
 	case SCMD_OLIST:
-		snprintf(buf_, sizeof(buf_),
-			"Список объектов Vnum %d до %d\r\n", first, last);
-		out += buf_;
-		for (const auto i : obj_proto)
-		{
-			if (i->get_vnum() >= first && i->get_vnum() <= last)
-			{
-				snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++found,
-					colored_name(i->get_short_description().c_str(), 45),
-					i->get_vnum(), i->get_ilevel());
-				out += buf_;
-				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
-				{
-					snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d",
-						obj_proto.number(i->get_rnum()),
-						obj_proto.stored(i->get_rnum()));
-					out += buf_;
-					const auto obj = obj_proto[i->get_rnum()];
-					if (!obj->get_proto_script().empty())
-					{
-						out += " - есть скрипты -";
-						for (const auto trigger_vnum : obj->get_proto_script())
-						{
-							sprintf(buf1, " [%d]", trigger_vnum);
-							out += buf1;
-						}
-						out += "\r\n";
-					}
-					else
-					{
-						out += " - нет скриптов\r\n";
-					}
-				}
-				else
-				{
-					out += "\r\n";
-				}
-			}
-		}
+		found = print_olist(ch, first, last, out);
 		break;
+
 	case SCMD_MLIST:
 	{
 		std::string option;
