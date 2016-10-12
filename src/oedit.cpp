@@ -155,7 +155,6 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 --*/
 {
 	OBJ_DATA *obj;
-
 	const auto vnum = OLC_NUM(d);
 	NEWCREATE(obj, vnum);
 
