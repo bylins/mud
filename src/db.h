@@ -533,6 +533,7 @@ public:
 	auto prototypes_size() const { return m_prototypes.size()*sizeof(prototypes_t::value_type); }
 
 	const auto& proto_script(const size_t rnum) const { return m_prototypes.at(rnum)->get_proto_script(); }
+	const auto& vnum2index() const { return m_vnum2index; }
 
 private:
 	using vnum2index_t = std::map<obj_vnum, size_t>;
