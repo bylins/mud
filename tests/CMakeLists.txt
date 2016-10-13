@@ -8,7 +8,11 @@ find_library(GTEST_LIB gtest PATHS ${GTEST_ROOT}/lib)
 
 include_directories(system ${GTEST_INCLUDE})
 
-add_executable(tests main.cpp msdp.parser.cpp char.affects.cpp)
+set(TESTS
+    msdp.parser.cpp
+    char.affects.cpp
+    obj.copy.cpp)
+add_executable(tests main.cpp ${TESTS})
 set_property(TARGET tests PROPERTY CXX_STANDARD 14)
 target_link_libraries(tests circle.library ${GTEST_LIB})
 if (NOT WIN32)

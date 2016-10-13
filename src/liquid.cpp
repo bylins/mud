@@ -1205,7 +1205,7 @@ void name_from_drinkcon(OBJ_DATA * obj)
 	sprintf(new_name, "%s", tmp.c_str());
 	obj->set_short_description(new_name);
 
-	for (int c = 0; c < OBJ_DATA::NUM_PADS; c++)
+	for (int c = 0; c < CObjectPrototype::NUM_PADS; c++)
 	{
 		pos = find_liquid_name(obj->get_PName(c).c_str());
 		if (pos == std::string::npos) return;
@@ -1226,7 +1226,7 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 	sprintf(new_name, "%s Ó %s", obj->get_short_description().c_str(), drinknames[type]);
 	obj->set_short_description(new_name);
 
-	for (c = 0; c < OBJ_DATA::NUM_PADS; c++)
+	for (c = 0; c < CObjectPrototype::NUM_PADS; c++)
 	{
 		sprintf(new_name, "%s Ó %s", obj->get_PName(c).c_str(), drinknames[type]);
 		obj->set_PName(c, new_name);
