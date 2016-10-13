@@ -1794,7 +1794,7 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 		GET_OBJ_PNAME(ingrs[2], 4).c_str());
 	obj->set_aliases(buf);
 
-	for (i = 0; i < OBJ_DATA::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
+	for (i = 0; i < CObjectPrototype::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
 	{
 		sprintf(buf, "%s", GET_OBJ_PNAME(obj, i).c_str());
 		strcat(buf, " из ");

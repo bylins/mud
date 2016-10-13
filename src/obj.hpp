@@ -354,6 +354,7 @@ public:
 
 protected:
 	void zero_init();
+	CObjectPrototype& operator=(const CObjectPrototype& from);	///< makes shallow copy of all fields except VNUM
 
 private:
 	obj_vnum m_vnum;
@@ -404,7 +405,7 @@ private:
 	int m_cost;	///< цена шмотки при продаже
 	int m_rent_on;	///< стоимость ренты, если надета
 	int m_rent_off;	///< стоимость ренты, если в инве
-	
+
 	unsigned m_ilevel;	///< расчетный уровень шмотки, не сохраняется
 	obj_vnum m_rnum;	///< Where in data-base
 };
@@ -765,6 +766,9 @@ public:
 	void set_enchant(int skill);
 	void set_enchant(int skill, OBJ_DATA *obj);
 	void unset_enchant();
+
+	bool clone_olc_object_from_prototype(const obj_vnum vnum);
+	void copy_from(const CObjectPrototype* src);
 
 private:
 	void zero_init();

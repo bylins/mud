@@ -171,7 +171,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	// Теперь дублирую память
 	GET_LDESC(dst) = str_dup(not_null(GET_LDESC(src), "неопределен"));
 	GET_DDESC(dst) = str_dup(not_null(GET_DDESC(src), "неопределен"));
-	for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+	for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 		GET_PAD(dst, j) = str_dup(not_null(GET_PAD(src, j), "неопределен"));
 	dst->mob_specials.Questor = (src->mob_specials.Questor
 		&& *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
@@ -236,7 +236,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 			free(GET_DDESC(mob));
 			GET_DDESC(mob) = 0;
 		}
-		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+		for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 			if (GET_PAD(mob, j))
 			{
 				free(GET_PAD(mob, j));
@@ -261,7 +261,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 			free(GET_DDESC(mob));
 			GET_DDESC(mob) = 0;
 		}
-		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+		for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 			if (GET_PAD(mob, j) && GET_PAD(mob, j) != GET_PAD(&mob_proto[i], j))
 			{
 				free(GET_PAD(mob, j));
@@ -421,7 +421,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 				// Возможна небольшая утечка памяти, но иначе очень большая запара
 				GET_LDESC(live_mob) = GET_LDESC(mob_proto + rmob_num);
 				GET_DDESC(live_mob) = GET_DDESC(mob_proto + rmob_num);
-				for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+				for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 				{
 					GET_PAD(live_mob, j) = GET_PAD(mob_proto + rmob_num, j);
 				}

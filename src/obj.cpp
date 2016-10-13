@@ -326,6 +326,49 @@ void CObjectPrototype::zero_init()
 	m_ilevel = 0;
 }
 
+CObjectPrototype& CObjectPrototype::operator=(const CObjectPrototype& from)
+{
+	if (this != &from)
+	{
+		m_type = from.m_type;
+		m_weight = from.m_weight;
+		m_affected = from.m_affected;
+		m_aliases = from.m_aliases;
+		m_description = from.m_description;
+		m_short_description = from.m_short_description;
+		m_action_description = from.m_action_description;
+		m_ex_description = from.m_ex_description;
+		m_proto_script = from.m_proto_script;
+		m_pnames = from.m_pnames;
+		m_max_in_world = from.m_max_in_world;
+		m_vals = from.m_vals;
+		m_values = from.m_values;
+		m_destroyer = from.m_destroyer;
+		m_spell = from.m_spell;
+		m_level = from.m_level;
+		m_skill = from.m_skill;
+		m_maximum_durability = from.m_maximum_durability;
+		m_current_durability = from.m_current_durability;
+		m_material = from.m_material;
+		m_sex = from.m_sex;
+		m_extra_flags = from.m_extra_flags;
+		m_waffect_flags = from.m_waffect_flags;
+		m_anti_flags = from.m_anti_flags;
+		m_no_flags = from.m_no_flags;
+		m_wear_flags = from.m_wear_flags;
+		m_timer = from.m_timer;
+		m_skills = from.m_skills;
+		m_minimum_remorts = from.m_minimum_remorts;
+		m_cost = from.m_cost;
+		m_rent_on = from.m_rent_on;
+		m_rent_off = from.m_rent_off;
+		m_ilevel = from.m_ilevel;
+		m_rnum = from.m_rnum;
+	}
+
+	return *this;
+}
+
 int CObjectPrototype::get_skill(int skill_num) const
 {
 	const auto skill = m_skills.find(static_cast<ESkill>(skill_num));
@@ -506,6 +549,58 @@ void OBJ_DATA::unset_enchant()
 		set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
 	}
     unset_extraflag(EExtraFlag::ITEM_MAGIC);
+}
+
+bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
+{
+	const auto rnum = real_object(vnum);
+	if (rnum < 0)
+	{
+		return false;
+	}
+
+	const auto obj_original = read_object(rnum, REAL);
+
+	const auto old_rnum = get_rnum();
+	copy_from(obj_original);
+	set_rnum(old_rnum);
+
+	extract_obj(obj_original);
+
+	return true;
+}
+
+void OBJ_DATA::copy_from(const CObjectPrototype* src)
+{
+	// Копирую все поверх
+	*this = *src;
+
+	// Теперь нужно выделить собственные области памяти
+
+	// Имена и названия
+	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
+	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
+	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
+
+	// Дополнительные описания, если есть
+	{
+		EXTRA_DESCR_DATA::shared_ptr nd;
+		auto* pddd = &nd;
+		auto sdd = src->get_ex_description();
+		while (sdd)
+		{
+			pddd->reset(new EXTRA_DESCR_DATA());
+			(*pddd)->keyword = str_dup(sdd->keyword);
+			(*pddd)->description = str_dup(sdd->description);
+			pddd = &(*pddd)->next;
+			sdd = sdd->next;
+		}
+
+		if (nd)
+		{
+			set_ex_description(nd);
+		}
+	}
 }
 
 float count_remort_requred(const CObjectPrototype* obj);

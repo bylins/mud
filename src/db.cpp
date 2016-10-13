@@ -3118,7 +3118,7 @@ void parse_mobile(FILE * mob_f, int nr)
 	// real name
 	CREATE(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().size() + 1);
 	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().c_str());
-	for (j = 1; j < OBJ_DATA::NUM_PADS; j++)
+	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
 	{
 		GET_PAD(mob_proto + i, j) = fread_string(mob_f, buf2);
 	}
@@ -4132,7 +4132,7 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 {
 	// ищем метку @p , @p1 ... и заменяем на падежи.
 	int i, k;
-	for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+	for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 	{
 		std::string obj_pad = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
 		size_t j = obj_pad.find("@p");
@@ -4489,7 +4489,7 @@ char *parse_object(FILE * obj_f, const int vnum)
 
 	tobj->set_PName(0, tobj->get_short_description());
 
-	for (j = 1; j < OBJ_DATA::NUM_PADS; j++)
+	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
 	{
 		char* str = fread_string(obj_f, buf2);
 		*str = LOWER(*str);

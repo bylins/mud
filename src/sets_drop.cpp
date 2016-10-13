@@ -36,10 +36,8 @@
 #include <iomanip>
 #include <algorithm>
 
-
 extern int real_zone(int number);
-extern void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
-extern void oedit_object_free(OBJ_DATA * obj);
+
 namespace SetsDrop
 {
 // список сетин на дроп

@@ -3900,7 +3900,7 @@ OBJ_DATA *create_money(int amount)
 		obj->set_description("Одна куна лежит здесь.");
 		new_descr->keyword = str_dup("coin gold монет кун денег");
 		new_descr->description = str_dup("Всего лишь одна куна.");
-		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 		{
 			obj->set_PName(i, money_desc(amount, i));
 		}
@@ -3910,7 +3910,7 @@ OBJ_DATA *create_money(int amount)
 		sprintf(buf, "coins gold кун денег %s", money_desc(amount, 0));
 		obj->set_aliases(buf);
 		obj->set_short_description(money_desc(amount, 0));
-		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 		{
 			obj->set_PName(i, money_desc(amount, i));
 		}

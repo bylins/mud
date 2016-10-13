@@ -385,35 +385,20 @@ void olc_saveinfo(CHAR_DATA * ch)
 	struct olc_save_info *entry;
 
 	if (olc_save_list)
+	{
 		send_to_char("The following OLC components need saving:-\r\n", ch);
+	}
 	else
+	{
 		send_to_char("The database is up to date.\r\n", ch);
+	}
 
 	for (entry = olc_save_list; entry; entry = entry->next)
 	{
 		sprintf(buf, " - %s for zone %d.\r\n", save_info_msg[(int) entry->type], entry->zone);
 		send_to_char(buf, ch);
-
 	}
-
 }
-
-/*
- int real_zone(int number)
- {
-   int counter;
-printf("number=%d, top=%d\n", number, top_of_zone_table);
-   for (counter = 0; counter <= top_of_zone_table; counter++) {
-printf("checking index %d, range=%d..%d\n",
-counter,(zone_table[counter].number * 100), zone_table[counter].top);
-     if ((number >= (zone_table[counter].number * 100)) &&
- 	(number <= (zone_table[counter].top)))
-       return counter;
-   }
-
-   return -1;
- }
-*/
 
 // ------------------------------------------------------------
 // Exported utilities
