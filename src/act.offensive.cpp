@@ -1438,9 +1438,9 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					}
 					else
 					{
-						to_char = "След от вашего сапога надолго запомнится $N2, $S теперь даже бить вас нечем.";
+						to_char = "След от вашего сапога надолго запомнится $N2, $M теперь даже бить вас нечем.";
 						to_vict = "Мощный удар ногой $n1 вывел вас из строя.";
-						to_room = "След сапога $n1 надолго запомнится $N2, $S теперь даже биться нечем.";
+						to_room = "След сапога $n1 надолго запомнится $N2, $M теперь даже биться нечем.";
 						af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 						af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
 						af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
