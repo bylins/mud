@@ -5577,7 +5577,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	cur_trig = trig;
 
 	depth++;
-
+	last_trig_vnum = GET_TRIG_VNUM(trig);
 	switch (type)
 	{
 	case MOB_TRIGGER:
@@ -5855,17 +5855,17 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 					switch (type)
 					{
 					case MOB_TRIGGER:
-						last_trig_vnum = GET_TRIG_VNUM(trig);
+//						last_trig_vnum = GET_TRIG_VNUM(trig);
 						command_interpreter((CHAR_DATA *) go, cmd);
 						break;
 
 					case OBJ_TRIGGER:
-						last_trig_vnum = GET_TRIG_VNUM(trig);
+//						last_trig_vnum = GET_TRIG_VNUM(trig);
 						obj_command_interpreter((OBJ_DATA *) go, cmd);
 						break;
 
 					case WLD_TRIGGER:
-						last_trig_vnum = GET_TRIG_VNUM(trig);
+//						last_trig_vnum = GET_TRIG_VNUM(trig);
 						wld_command_interpreter((ROOM_DATA *) go, cmd);
 						break;
 					}
