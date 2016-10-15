@@ -333,7 +333,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Wear"))
 			{
 				*error = 27;
-				OBJ_DATA::wear_flags_t wear_flags;
+				OBJ_DATA::wear_flags_t wear_flags = 0;
 				asciiflag_conv(buffer, &wear_flags);
 				object->set_wear_flags(wear_flags);
 			}

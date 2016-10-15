@@ -1920,11 +1920,24 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	const EWearFlag wear_bitvectors[] =
 	{
 		EWearFlag::ITEM_WEAR_TAKE,
-		EWearFlag::ITEM_WEAR_FINGER,		EWearFlag::ITEM_WEAR_FINGER,
-		EWearFlag::ITEM_WEAR_NECK,		EWearFlag::ITEM_WEAR_NECK,		EWearFlag::ITEM_WEAR_BODY,		EWearFlag::ITEM_WEAR_HEAD,		EWearFlag::ITEM_WEAR_LEGS,
-		EWearFlag::ITEM_WEAR_FEET,		EWearFlag::ITEM_WEAR_HANDS,		EWearFlag::ITEM_WEAR_ARMS,		EWearFlag::ITEM_WEAR_SHIELD,
-		EWearFlag::ITEM_WEAR_ABOUT,		EWearFlag::ITEM_WEAR_WAIST,		EWearFlag::ITEM_WEAR_WRIST,		EWearFlag::ITEM_WEAR_WRIST,
-		EWearFlag::ITEM_WEAR_WIELD,		EWearFlag::ITEM_WEAR_TAKE,		EWearFlag::ITEM_WEAR_BOTHS
+		EWearFlag::ITEM_WEAR_FINGER,
+		EWearFlag::ITEM_WEAR_FINGER,
+		EWearFlag::ITEM_WEAR_NECK,
+		EWearFlag::ITEM_WEAR_NECK,
+		EWearFlag::ITEM_WEAR_BODY,
+		EWearFlag::ITEM_WEAR_HEAD,
+		EWearFlag::ITEM_WEAR_LEGS,
+		EWearFlag::ITEM_WEAR_FEET,
+		EWearFlag::ITEM_WEAR_HANDS,
+		EWearFlag::ITEM_WEAR_ARMS,
+		EWearFlag::ITEM_WEAR_SHIELD,
+		EWearFlag::ITEM_WEAR_ABOUT,
+		EWearFlag::ITEM_WEAR_WAIST,
+		EWearFlag::ITEM_WEAR_WRIST,
+		EWearFlag::ITEM_WEAR_WRIST,
+		EWearFlag::ITEM_WEAR_WIELD,
+		EWearFlag::ITEM_WEAR_TAKE,
+		EWearFlag::ITEM_WEAR_BOTHS
 	};
 
 	const std::array<const char *, sizeof(wear_bitvectors)> already_wearing =
