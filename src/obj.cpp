@@ -603,6 +603,52 @@ void OBJ_DATA::copy_from(const CObjectPrototype* src)
 	}
 }
 
+void OBJ_DATA::swap(OBJ_DATA& object)
+{
+	if (this == &object)
+	{
+		return;
+	}
+
+	OBJ_DATA tmpobj(object);
+	object = *this;
+	*this = tmpobj;
+
+	obj_vnum vnum = get_vnum();
+	set_vnum(object.get_vnum());
+	object.set_vnum(vnum);
+
+	set_in_room(object.get_in_room());
+	object.set_in_room(tmpobj.get_in_room());
+
+	set_carried_by(object.get_carried_by());
+	object.set_carried_by(tmpobj.get_carried_by());
+	set_worn_by(object.get_worn_by());
+	object.set_worn_by(tmpobj.get_worn_by());
+	set_worn_on(object.get_worn_on());
+	object.set_worn_on(tmpobj.get_worn_on());
+	set_in_obj(object.get_in_obj());
+	object.set_in_obj(tmpobj.get_in_obj());
+	set_timer(object.get_timer());
+	object.set_timer(tmpobj.get_timer());
+	set_contains(object.get_contains());
+	object.set_contains(tmpobj.get_contains());
+	set_id(object.get_id());
+	object.set_id(tmpobj.get_id());
+	set_script(object.get_script());
+	object.set_script(tmpobj.get_script());
+	set_next_content(object.get_next_content());
+	object.set_next_content(tmpobj.get_next_content());
+	set_next(object.get_next());
+	object.set_next(tmpobj.get_next());
+	// для name_list
+	set_serial_num(object.get_serial_num());
+	object.set_serial_num(tmpobj.get_serial_num());
+	//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
+	set_zone(GET_OBJ_ZONE(&object));
+	object.set_zone(GET_OBJ_ZONE(&tmpobj));
+}
+
 float count_remort_requred(const CObjectPrototype* obj);
 float count_unlimited_timer(const CObjectPrototype* obj);
 

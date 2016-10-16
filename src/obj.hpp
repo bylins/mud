@@ -355,6 +355,7 @@ public:
 protected:
 	void zero_init();
 	CObjectPrototype& operator=(const CObjectPrototype& from);	///< makes shallow copy of all fields except VNUM
+	void set_vnum(const obj_vnum vnum) { m_vnum = vnum; }		///< allow inherited classes change VNUM (to make possible objects transformations)
 
 private:
 	obj_vnum m_vnum;
@@ -707,7 +708,6 @@ public:
 	void set_activator(bool flag, int num);
 	std::pair<bool, int> get_activator() const;
 
-
 	// wrappers to access to timed_spell
 	const TimedSpell& timed_spell() const { return m_timed_spell; }
 	std::string diag_ts_to_char(CHAR_DATA* character) { return m_timed_spell.diag_to_char(character); }
@@ -770,6 +770,7 @@ public:
 	bool clone_olc_object_from_prototype(const obj_vnum vnum);
 	void copy_from(const CObjectPrototype* src);
 
+	void swap(OBJ_DATA& object);
 private:
 	void zero_init();
 
