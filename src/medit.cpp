@@ -190,7 +190,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 	// ëÏĞÉÒÕÀ ÓËÒÉĞÔ É ĞÒÏÔÏÔÉĞÙ
 	SCRIPT(dst) = NULL;
-	dst->proto_script->clear();
+	dst->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	*dst->proto_script = *src->proto_script;
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 	dl_list_copy(&dst->dl_list, src->dl_list);
