@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <obj.hpp>
+#include <dg_scripts.h>
 
 constexpr obj_vnum OBJECT_VNUM = 100500;
 constexpr obj_vnum PROTOTYPE_VNUM = 100501;
@@ -12,16 +13,23 @@ const std::string ACTION_DESCRIPTION = "action description";
 const std::string CASE_PREFIX = "case ";
 const CObjectPrototype::triggers_list_t TRIGGERS_LIST = { 1, 2, 3 };
 
-auto create_empty_object()
+auto create_empty_object(const obj_vnum vnum)
 {
-	auto result = std::make_shared<OBJ_DATA>(OBJECT_VNUM);
+	auto result = std::make_shared<OBJ_DATA>(vnum);
+	return result;
+}
+
+auto create_object(const obj_vnum vnum)
+{
+	auto result = create_empty_object(vnum);
+	result->set_rnum(OBJECT_RNUM);
+	result->set_script(new SCRIPT_DATA());
 	return result;
 }
 
 auto create_object()
 {
-	auto result = create_empty_object();
-	result->set_rnum(OBJECT_RNUM);
+	auto result = create_object(OBJECT_VNUM);
 	return result;
 }
 
@@ -155,6 +163,33 @@ TEST(Object_Copy, Assignment_Operator)
 	//{
 	//	EXPECT_EQ(object->get_val(i), prototype->get_val(i));
 	//}
+}
+
+/*
+При обмене содержимого двух объектов, важно, чтобы VNUM'ы обхектов обменялись.
+При этом список триггеров первого объекта получает 
+*/
+TEST(Object_Copy, Swap)
+{
+	constexpr obj_vnum VNUM1 = 1;
+	constexpr obj_vnum VNUM2 = 2;
+	auto object1 = create_object(VNUM1);
+	object1->set_proto_script({1, 2, 3});
+	auto object2 = create_object(VNUM2);
+	object2->set_proto_script({ 5, 6, 7 });
+
+	ASSERT_EQ(VNUM1, object1->get_vnum());
+	ASSERT_EQ(VNUM2, object2->get_vnum());
+	ASSERT_NE(object1->get_script(), object2->get_script());
+	ASSERT_NE(object1->get_proto_script_ptr(), object2->get_proto_script_ptr());
+
+	object1->swap(*object2);
+
+	EXPECT_EQ(VNUM1, object2->get_vnum());
+	EXPECT_EQ(VNUM2, object1->get_vnum());
+	EXPECT_NE(object1->get_script(), object2->get_script());
+	EXPECT_NE(object1->get_proto_script_ptr(), object2->get_proto_script_ptr());
+	EXPECT_EQ(OBJ_DATA::triggers_list_t({ 5, 6, 7 }), object1->get_proto_script());
 }
 
 // Currently I don't know a way to test "clone" because it uses a lot of global structures.

@@ -89,7 +89,7 @@ namespace CharacterSystem
 
 ////////////////////////////////////////////////////////////////////////////////
 //extern MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
-CHAR_DATA::CHAR_DATA() : role_(MOB_ROLE_TOTAL_NUM), next_(NULL), m_wait(~0u)
+CHAR_DATA::CHAR_DATA(): proto_script(new OBJ_DATA::triggers_list_t()), role_(MOB_ROLE_TOTAL_NUM), next_(NULL), m_wait(~0u)
 {
 	this->zero_init();
 	current_morph_ = GetNormalMorphNew(this);
@@ -351,7 +351,7 @@ void CHAR_DATA::zero_init()
 	carrying = 0;
 	desc = 0;
 	id = 0;
-	proto_script.clear();
+	proto_script->clear();
 	script = 0;
 	memory = 0;
 	next_in_room = 0;

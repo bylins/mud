@@ -303,6 +303,11 @@ void CObjectPrototype::clear_all_affected()
 	}
 }
 
+void CObjectPrototype::clear_proto_script()
+{
+	m_proto_script.reset(new OBJ_DATA::triggers_list_t());
+}
+
 void CObjectPrototype::zero_init()
 {
 	m_type = ITEM_UNDEFINED;
@@ -311,7 +316,7 @@ void CObjectPrototype::zero_init()
 	m_short_description.clear();
 	m_action_description.clear();
 	m_ex_description.reset();
-	m_proto_script.clear();
+	m_proto_script->clear();
 	m_max_in_world = 0;
 	m_skills.clear();
 	m_timer = 0;
@@ -338,7 +343,7 @@ CObjectPrototype& CObjectPrototype::operator=(const CObjectPrototype& from)
 		m_short_description = from.m_short_description;
 		m_action_description = from.m_action_description;
 		m_ex_description = from.m_ex_description;
-		m_proto_script = from.m_proto_script;
+		*m_proto_script = *from.m_proto_script;
 		m_pnames = from.m_pnames;
 		m_max_in_world = from.m_max_in_world;
 		m_vals = from.m_vals;

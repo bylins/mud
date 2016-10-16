@@ -572,7 +572,7 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 			&& room->dir_option[DOWN]->to_room !=
 			NOWHERE ? world[room->dir_option[DOWN]->to_room]->
 			number : NOWHERE, grn, nrm, grn, nrm, cyn,
-			room->ing_list ? "Есть" : "Нет", grn, nrm, cyn, !room->proto_script.empty() ? "Set." : "Not Set.", grn, nrm);
+			room->ing_list ? "Есть" : "Нет", grn, nrm, cyn, !room->proto_script->empty() ? "Set." : "Not Set.", grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = REDIT_MAIN_MENU;
