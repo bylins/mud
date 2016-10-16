@@ -2,9 +2,9 @@
 
 #include "random.hpp"
 
-using meat_mapping_t = std::pair<obj_vnum, obj_vnum>;
-using raw_mapping_t = std::vector<meat_mapping_t>;
-const raw_mapping_t MeatMapping::RAW_MAPPING = {
+constexpr obj_vnum MeatMapping::ARTEFACT_KEY;
+
+const MeatMapping::raw_mapping_t MeatMapping::RAW_MAPPING = {
 	meat_mapping_t(320, 334),
 	meat_mapping_t(321, 335),
 	meat_mapping_t(322, 336),
@@ -19,7 +19,7 @@ MeatMapping::MeatMapping()
 	}
 	build_randomly_returnable_keys_index();
 
-	emplace(ARTEFACT_KEY, 338); //артефакт 0й элемент
+	emplace(ARTEFACT_KEY, 338);
 }
 
 MeatMapping::MeatMapping::key_type MeatMapping::random_key() const
