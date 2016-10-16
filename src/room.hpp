@@ -74,7 +74,7 @@ struct ROOM_DATA
 	struct weather_control weather;		// Weather state for room //
 	int (*func)(CHAR_DATA*, void*, int, char*);
 
-	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers  //
+	OBJ_DATA::triggers_list_ptr proto_script;	// list of default triggers  //
 	struct SCRIPT_DATA *script;	// script info for the object //
 	struct track_data *track;
 

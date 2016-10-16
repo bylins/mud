@@ -179,11 +179,13 @@ public:
 	using wear_flags_t = std::underlying_type<EWearFlag>::type;
 	using pnames_t = boost::array<std::string, NUM_PADS>;
 	using triggers_list_t = std::list<obj_vnum>;
+	using triggers_list_ptr = std::shared_ptr<triggers_list_t>;
 	using affected_t = std::array<obj_affected_type, MAX_OBJ_AFFECT>;
 
 	CObjectPrototype(const obj_vnum vnum) : m_vnum(vnum),
 		m_type(DEFAULT_TYPE),
 		m_weight(DEFAULT_WEIGHT),
+		m_proto_script(new triggers_list_t()),
 		m_max_in_world(DEFAULT_MAX_IN_WORLD),
 		m_vals({ 0, 0, 0, 0 }),
 		m_destroyer(DEFAULT_DESTROYER),
@@ -243,7 +245,8 @@ public:
 	const auto& get_ex_description() const { return m_ex_description; }
 	const auto& get_extra_flags() const { return m_extra_flags; }
 	const auto& get_no_flags() const { return m_no_flags; }
-	const auto& get_proto_script() const { return m_proto_script; }
+	const auto& get_proto_script() const { return *m_proto_script; }
+	const auto& get_proto_script_ptr() const { return m_proto_script; }
 	const auto& get_values() const { return m_values; }
 	const std::string& get_PName(const size_t index) const { return m_pnames[index]; }
 	const std::string& get_short_description() const { return m_short_description; }
@@ -253,14 +256,14 @@ public:
 	void add_extra_flags(const FLAG_DATA& flags) { m_extra_flags += flags; }
 	void add_maximum(const int amount) { m_maximum_durability += amount; }
 	void add_no_flags(const FLAG_DATA& flags) { m_no_flags += flags; }
-	void add_proto_script(const obj_vnum vnum) { m_proto_script.push_back(vnum); }
+	void add_proto_script(const obj_vnum vnum) { m_proto_script->push_back(vnum); }
 	void add_val(const size_t index, const int amount) { m_vals[index] += amount; }
 	void add_weight(const int _) { m_weight += _; }
 	void append_ex_description_tag(const char* tag) { m_ex_description->description = str_add(m_ex_description->description, tag); }
 	void clear_action_description() { m_action_description.clear(); }
 	void clear_affected(const size_t index) { m_affected[index].location = APPLY_NONE; }
 	void clear_all_affected();
-	void clear_proto_script() { m_proto_script.clear(); }
+	void clear_proto_script();
 	void dec_affected_value(const size_t index) { --m_affected[index].modifier; }
 	void dec_destroyer() { --m_destroyer; }
 	void dec_weight() { --m_weight; }
@@ -302,7 +305,7 @@ public:
 	void set_PName(const size_t index, const char* _) { m_pnames[index] = _; }
 	void set_PName(const size_t index, const std::string& _) { m_pnames[index] = _; }
 	void set_PNames(const pnames_t& _) { m_pnames = _; }
-	void set_proto_script(const triggers_list_t& _) { m_proto_script = _; }
+	void set_proto_script(const triggers_list_t& _) { *m_proto_script = _; }
 	void set_short_description(const char* _) { m_short_description = _; }
 	void set_short_description(const std::string& _) { m_short_description = _; }
 	void set_skill(const int _) { m_skill = _; }
@@ -318,7 +321,7 @@ public:
 	void sub_current(const int _) { m_current_durability -= _; }
 	void sub_val(const size_t index, const int amount) { m_vals[index] -= amount; }
 	void sub_weight(const int _) { m_weight -= _; }
-	void swap_proto_script(triggers_list_t& _) { m_proto_script.swap(_); }
+	void swap_proto_script(triggers_list_t& _) { m_proto_script->swap(_); }
 	void toggle_affect_flag(const size_t plane, const uint32_t flag) { m_waffect_flags.toggle_flag(plane, flag); }
 	void toggle_anti_flag(const size_t plane, const uint32_t flag) { m_anti_flags.toggle_flag(plane, flag); }
 	void toggle_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.toggle_flag(plane, flag); }
@@ -355,6 +358,7 @@ public:
 protected:
 	void zero_init();
 	CObjectPrototype& operator=(const CObjectPrototype& from);	///< makes shallow copy of all fields except VNUM
+	void set_vnum(const obj_vnum vnum) { m_vnum = vnum; }		///< allow inherited classes change VNUM (to make possible objects transformations)
 
 private:
 	obj_vnum m_vnum;
@@ -371,7 +375,7 @@ private:
 	std::string m_action_description;	// What to write when used          //
 	EXTRA_DESCR_DATA::shared_ptr m_ex_description;	// extra descriptions     //
 
-	triggers_list_t m_proto_script;	// list of default triggers  //
+	triggers_list_ptr m_proto_script;	// list of default triggers  //
 
 	pnames_t m_pnames;
 	int m_max_in_world;	///< Maximum in the world
@@ -707,7 +711,6 @@ public:
 	void set_activator(bool flag, int num);
 	std::pair<bool, int> get_activator() const;
 
-
 	// wrappers to access to timed_spell
 	const TimedSpell& timed_spell() const { return m_timed_spell; }
 	std::string diag_ts_to_char(CHAR_DATA* character) { return m_timed_spell.diag_to_char(character); }
@@ -769,6 +772,8 @@ public:
 
 	bool clone_olc_object_from_prototype(const obj_vnum vnum);
 	void copy_from(const CObjectPrototype* src);
+
+	void swap(OBJ_DATA& object);
 
 private:
 	void zero_init();

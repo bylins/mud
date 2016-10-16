@@ -301,7 +301,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	{
 	case MOB_TRIGGER:
 		mob = (CHAR_DATA *) proto;
-		mob->proto_script.push_back(vnum);
+		mob->proto_script->push_back(vnum);
 		if (owner_trig.find(vnum) == owner_trig.end())
 		{
 			std::map<int, std::vector<int>> tmp_map;
@@ -312,7 +312,7 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 
 	case WLD_TRIGGER:
 		room = (ROOM_DATA *) proto;
-		room->proto_script.push_back(vnum);
+		room->proto_script->push_back(vnum);
 
 		if (rnum >= 0)
 		{
@@ -412,7 +412,7 @@ void assign_triggers(void *i, int type)
 	{
 	case MOB_TRIGGER:
 		mob = (CHAR_DATA *) i;
-		for (const auto trigger_vnum : mob_proto[GET_MOB_RNUM(mob)].proto_script)
+		for (const auto trigger_vnum : *mob_proto[GET_MOB_RNUM(mob)].proto_script)
 		{
 			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
@@ -493,7 +493,7 @@ void assign_triggers(void *i, int type)
 
 	case WLD_TRIGGER:
 		room = (ROOM_DATA *) i;
-		for (const auto trigger_vnum : room->proto_script)
+		for (const auto trigger_vnum : *room->proto_script)
 		{
 			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)

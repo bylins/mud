@@ -60,7 +60,7 @@ void script_save_to_disk(FILE * fp, const void *item, int type)
 {
 	if (type == MOB_TRIGGER)
 	{
-		fprint_script(fp, static_cast<const CHAR_DATA *>(item)->proto_script);
+		fprint_script(fp, *static_cast<const CHAR_DATA *>(item)->proto_script);
 	}
 	else if (type == OBJ_TRIGGER)
 	{
@@ -68,7 +68,7 @@ void script_save_to_disk(FILE * fp, const void *item, int type)
 	}
 	else if (type == WLD_TRIGGER)
 	{
-		fprint_script(fp, static_cast<const ROOM_DATA *>(item)->proto_script);
+		fprint_script(fp, *static_cast<const ROOM_DATA *>(item)->proto_script);
 	}
 	else
 	{
@@ -681,7 +681,7 @@ void dg_olc_script_copy(DESCRIPTOR_DATA * d)
 	switch (OLC_ITEM_TYPE(d))
 	{
 	case MOB_TRIGGER:
-		OLC_SCRIPT(d) = OLC_MOB(d)->proto_script;
+		OLC_SCRIPT(d) = *OLC_MOB(d)->proto_script;
 		break;
 
 	case OBJ_TRIGGER:
@@ -689,7 +689,7 @@ void dg_olc_script_copy(DESCRIPTOR_DATA * d)
 		break;
 	
 	default:
-		OLC_SCRIPT(d) = OLC_ROOM(d)->proto_script;
+		OLC_SCRIPT(d) = *OLC_ROOM(d)->proto_script;
 	}
 }
 
@@ -752,7 +752,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'x':
 			if (OLC_ITEM_TYPE(d) == MOB_TRIGGER)
 			{
-				OLC_SCRIPT(d).swap(OLC_MOB(d)->proto_script);
+				OLC_SCRIPT(d).swap(*OLC_MOB(d)->proto_script);
 			}
 			else if (OLC_ITEM_TYPE(d) == OBJ_TRIGGER)
 			{
@@ -760,7 +760,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 			else
 			{
-				OLC_SCRIPT(d).swap(OLC_ROOM(d)->proto_script);
+				OLC_SCRIPT(d).swap(*OLC_ROOM(d)->proto_script);
 			}
 
 			// тут break не нужен
@@ -812,7 +812,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		{
 			// add the new info in position
-			OBJ_DATA::triggers_list_t::const_iterator t = OLC_SCRIPT(d).begin();
+			auto t = OLC_SCRIPT(d).begin();
 			while (--pos && t != OLC_SCRIPT(d).end())
 			{
 				++t;
@@ -830,7 +830,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 
 		{
-			OBJ_DATA::triggers_list_t::const_iterator t = OLC_SCRIPT(d).begin();
+			auto t = OLC_SCRIPT(d).begin();
 			while (--pos && t != OLC_SCRIPT(d).end())
 			{
 				++t;

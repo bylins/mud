@@ -316,45 +316,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			unequip_char(obj->get_worn_by(), pos);
 		}
 
-		OBJ_DATA tmpobj(*o);
-		*o = *obj;
-		*obj = tmpobj;
-
-// Имею:
-//  obj -> старый указатель, новое наполнение из объекта o
-//  o -> новый указатель, старое наполнение из объекта obj
-//  tmpobj -> врем. переменная, наполнение из оригинального объекта o
-
-// Копирование игровой информации (для o сохраняются оригинальные значения)
-		obj->set_in_room(o->get_in_room());
-		o->set_in_room(tmpobj.get_in_room());
-
-		obj->set_carried_by(o->get_carried_by());
-		o->set_carried_by(tmpobj.get_carried_by());
-		obj->set_worn_by(o->get_worn_by());
-		o->set_worn_by(tmpobj.get_worn_by());
-		obj->set_worn_on(o->get_worn_on());
-		o->set_worn_on(tmpobj.get_worn_on());
-		obj->set_in_obj(o->get_in_obj());
-		o->set_in_obj(tmpobj.get_in_obj());
-		obj->set_timer(o->get_timer());
-		o->set_timer(tmpobj.get_timer());
-		obj->set_contains(o->get_contains());
-		o->set_contains(tmpobj.get_contains());
-		obj->set_id(o->get_id());
-		o->set_id(tmpobj.get_id());
-		obj->set_script(o->get_script());
-		o->set_script(tmpobj.get_script());
-		obj->set_next_content(o->get_next_content());
-		o->set_next_content(tmpobj.get_next_content());
-		obj->set_next(o->get_next());
-		o->set_next(tmpobj.get_next());
-		// для name_list
-		obj->set_serial_num(o->get_serial_num());
-		o->set_serial_num(tmpobj.get_serial_num());
-		//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
-		obj->set_zone(GET_OBJ_ZONE(o));
-		o->set_zone(GET_OBJ_ZONE(&tmpobj));
+		obj->swap(*o);
 
 		if (OBJ_FLAGGED(o, EExtraFlag::ITEM_TICKTIMER))
 		{
@@ -366,7 +328,6 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			equip_char(wearer, obj, pos);
 		}
 		extract_obj(o);
-
 	}
 }
 

@@ -18,7 +18,7 @@ ROOM_DATA::ROOM_DATA()
 	light(0),
 	glight(0),
 	gdark(0),
-	proto_script(0),
+	proto_script(new OBJ_DATA::triggers_list_t()),
 	script(0),
 	track(0),
 	contents(0),

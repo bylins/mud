@@ -6254,10 +6254,10 @@ std::string print_script(CHAR_DATA *mob, const std::string &key)
 		print_name = true;
 	}
 
-	if (!mob_proto[GET_MOB_RNUM(mob)].proto_script.empty())
+	if (!mob_proto[GET_MOB_RNUM(mob)].proto_script->empty())
 	{
 		bool first = true;
-		for (const auto trigger_vnum : mob_proto[GET_MOB_RNUM(mob)].proto_script)
+		for (const auto trigger_vnum : *mob_proto[GET_MOB_RNUM(mob)].proto_script)
 		{
 			const int trg_rnum = real_trigger(trigger_vnum);
 			if (trg_rnum >= 0)
@@ -6377,10 +6377,10 @@ void print(CHAR_DATA *ch, int first, int last, const std::string &options)
 				% mob_index[i].vnum
 				% mob_proto[i].get_level()
 				% print_flag(ch, mob_proto + i, options);
-			if (!mob_proto[i].proto_script.empty())
+			if (!mob_proto[i].proto_script->empty())
 			{
 				out << " - есть скрипты -";
-				for (const auto trigger_vnum : mob_proto[i].proto_script)
+				for (const auto trigger_vnum : *mob_proto[i].proto_script)
 				{
 					sprintf(buf1, " [%d]", trigger_vnum);
 					out << buf1;
@@ -6437,7 +6437,7 @@ int print_olist(const CHAR_DATA* ch, const int first, const int last, std::strin
 			if (!script.empty())
 			{
 				ss << " - есть скрипты -";
-				for (const auto trigger_vnum : prototype->get_proto_script())
+				for (const auto trigger_vnum : script)
 				{
 					sprintf(buf1, " [%d]", trigger_vnum);
 					ss << buf1;
@@ -6534,10 +6534,10 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
 					++found, world[nr]->number, world[nr]->zone, world[nr]->name);
 				out += buf_;
-				if (!world[nr]->proto_script.empty())
+				if (!world[nr]->proto_script->empty())
 				{
 					out += " - есть скрипты -";
-					for (const auto trigger_vnum : world[nr]->proto_script)
+					for (const auto trigger_vnum : *world[nr]->proto_script)
 					{
 						sprintf(buf1, " [%d]", trigger_vnum);
 						out += buf1;
@@ -6545,7 +6545,9 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 					out += "\r\n";
 				}				
 				else
+				{
 					out += " - нет скриптов\r\n";
+				}
 			}
 		}
 		break;
