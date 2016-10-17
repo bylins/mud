@@ -35,6 +35,7 @@
 #include "skills.h"
 #include "spells.h"
 #include "mobmax.hpp"
+#include "meat.maker.hpp"
 #include "structs.h"
 #include "utils.h"
 #include "sysdep.h"
@@ -1653,56 +1654,6 @@ void weight_change_object(OBJ_DATA * obj, int weight)
 		log("SYSERR: Unknown attempt to subtract weight from an object.");
 	}
 }
-
-class MeatMapping : private std::unordered_map<obj_vnum, obj_vnum>
-{
-public:
-	constexpr static obj_vnum ARTIFACT_KEY = 324;
-	MeatMapping();
-
-	using base_t = std::unordered_map<obj_vnum, obj_vnum>;
-	using base_t::size;
-
-	bool has(const key_type from) const { return end() != find(from); }
-	mapped_type get(const key_type from) const { return at(from); }
-	key_type random_key() const;
-	key_type get_artefact_key() const { return ARTIFACT_KEY; }
-
-private:
-	void build_randomly_returnable_keys_index();
-	std::vector<obj_vnum> m_randomly_returnable_keys;
-};
-
-MeatMapping::MeatMapping()
-{
-	emplace(320, 334);
-	emplace(321, 335);
-	emplace(322, 336);
-	emplace(323, 337);
-	build_randomly_returnable_keys_index();	
-
-	emplace(324, 338); //артефакт 0й элемент
-}
-
-std::unordered_map<obj_vnum, obj_vnum>::key_type MeatMapping::random_key() const
-{
-	const auto index = number(0 , static_cast<int>(size() - 1));
-//	sprintf(buf, "Размер мясного массива %d выпал предмет под номером %d с vnum %d", static_cast<int>(size()), index, m_index_mapping[index]);
-//	mudlog(buf, NRM, LVL_IMMORT, SYSLOG, TRUE);
-	return m_randomly_returnable_keys[index];
-}
-
-void MeatMapping::build_randomly_returnable_keys_index()
-{
-	size_t i = 0;
-	m_randomly_returnable_keys.resize(size());
-	for (const auto& p : *this)
-	{
-		m_randomly_returnable_keys[i++] = p.first;
-	}
-}
-
-MeatMapping meat_mapping;
 
 void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 {
