@@ -3398,7 +3398,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	world[room_nr]->gdark = 0;
 	world[room_nr]->glight = 0;
 	world[room_nr]->ing_list = NULL;	// ингредиентов нет
-	world[room_nr]->proto_script->clear();
+	world[room_nr]->proto_script.reset(new OBJ_DATA::triggers_list_t());
 
 	for (i = 0; i < NUM_OF_DIRS; i++)
 		world[room_nr]->dir_option[i] = NULL;
@@ -5256,7 +5256,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	CHAR_DATA *mob = new CHAR_DATA;
 	*mob = mob_proto[i]; //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
-	mob->proto_script->clear();
+	mob->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	mob->set_next(character_list);
 	character_list = mob;
 //	CharacterAlias::add(mob);
@@ -8002,7 +8002,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 
 	// Копирую скрипт и прототипы
 	SCRIPT(dst) = nullptr;
-	dst->proto_script->clear();
+	dst->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	*dst->proto_script = *src->proto_script;
 
 	im_inglist_copy(&dst->ing_list, src->ing_list);
