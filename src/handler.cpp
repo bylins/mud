@@ -1183,72 +1183,25 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 	}
 }
 
-template <typename T>
-class LoopAvoidanceHelper
-{
-	public:
-		bool try_one(const T t);
-		std::string tries() const;
-
-	private:
-		std::unordered_set<T> m_tries;
-};
-
-template <typename T> bool LoopAvoidanceHelper<T>::try_one(const T t)
-{
-	if (m_tries.find(t) != m_tries.end())
-	{
-		return false;
-	}
-	m_tries.insert(t);
-	return true;
-}
-
-template <typename T> std::string LoopAvoidanceHelper<T>::tries() const
-{
-	std::stringstream ss;
-	bool first = true;
-	for (const auto r : m_tries)
-	{
-		ss << (first ? "" : ", ") << r;
-		first = false;
-	}
-	return ss.str();
-}
-
 // place a character in a room
 void char_to_room(CHAR_DATA * ch, room_rnum room)
 {
-	LoopAvoidanceHelper<room_rnum> loop_avoidance_helper;
-	do
+	if (ch == NULL || room < NOWHERE + 1 || room > top_of_world)
 	{
-		if (!loop_avoidance_helper.try_one(room))
-		{
-			log("SYSERR: Избежали бесконечный цикл. Пробовали попасть в комнаты: %s. Проверьте действия персонажа %s",
-					loop_avoidance_helper.tries().c_str(),
-					ch ? ch->get_name().c_str() : "<не определён>");
-			return;
-		}
+		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
+		return;
+	}
 
-		if (ch == NULL || room < NOWHERE + 1 || room > top_of_world)
-		{
-			log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
-			return;
-		}
+	if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
+	{
+		room = ch->get_from_room();
+	}
 
-		if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
-		{
-			room = ch->get_from_room();
-			continue;
-		}
-
-		if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
-		{
-			send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
-			room = ch->get_from_room();
-			continue;
-		}
-	} while (false);
+	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
+		room = ch->get_from_room();
+	}
 
 	ch->next_in_room = world[room]->people;
 	world[room]->people = ch;
