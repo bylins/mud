@@ -1469,11 +1469,6 @@ void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j)
 	}
 }
 
-std::string show_affect_obj()
-{
-	return "";
-}
-
 void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 {
 	/*
