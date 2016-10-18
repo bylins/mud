@@ -1567,6 +1567,8 @@ struct ParseFilter
 	std::vector<int> affect_apply; // аффекты apply_types
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
+	
+	std::string show_obj_aff(OBJ_DATA *obj);
 
 private:
 	bool check_name(OBJ_DATA *obj, CHAR_DATA *ch = 0) const;

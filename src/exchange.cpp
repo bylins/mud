@@ -1469,6 +1469,11 @@ void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j)
 	}
 }
 
+std::string show_affect_obj()
+{
+	return "";
+}
+
 void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 {
 	/*
@@ -1601,7 +1606,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		}
 		else
 		{
-			sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str());
+			sprintf(tmpbuf, "[%4d]   %s%s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(), params.show_obj_aff(GET_EXCHANGE_ITEM(j)).c_str());
 		}
 		char *tmstr;
 		tmstr = (char *) asctime(localtime(&GET_EXCHANGE_ITEM_TIME(j)));

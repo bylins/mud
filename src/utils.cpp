@@ -3510,6 +3510,41 @@ bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const
 	return true;
 }
 
+std::string ParseFilter::show_obj_aff(OBJ_DATA *obj)
+{
+	if (!affect_apply.empty())
+	{
+		for (auto it = affect_apply.begin(); it != affect_apply.end(); ++it)
+		{
+			for (int i = 0; i < MAX_OBJ_AFFECT; ++i)
+			{
+				if (obj->get_affected(i).location == *it)
+				{
+					int mod = obj->get_affected(i).modifier;
+					char buf_[MAX_INPUT_LENGTH];
+					sprinttype(obj->get_affected(i).location, apply_types, buf_);
+					for (int j = 0; *apply_negative[j] != '\n'; j++)
+					{
+						if (!str_cmp(buf_, apply_negative[j]))
+						{
+							mod = -mod;
+						}
+					}
+					std::string return_str(buf_);
+					if (mod > 0)
+						return_str = return_str + " +" + std::to_string(mod);
+					else
+						return_str = return_str + " " + std::to_string(mod);
+					return "(" + return_str + ")";
+				}
+
+			}
+		}
+	}
+	return " ";
+}
+
+
 bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
 {
 	bool result = true;
@@ -3533,12 +3568,8 @@ bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
 							break;
 						}
 					}
-
-					if (mod > 0)
-					{
-						result = true;
-						break;
-					}
+					result = true;
+					break;
 				}
 			}
 		}

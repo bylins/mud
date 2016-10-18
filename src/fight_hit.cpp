@@ -2411,7 +2411,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
 		}
-		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_HORSE) || AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)|| MOB_FLAGGED(killer, MOB_GHOST)) && killer->master)
+		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)|| MOB_FLAGGED(killer, MOB_GHOST)) && killer->master)
 			// killer - зачармленный NPC с хозяином
 		{
 			// по логике надо бы сделать, что если хозяина нет в клетке, но
