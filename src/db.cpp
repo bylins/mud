@@ -1,4 +1,4 @@
-/* ************************************************************************
+/************************************************************************
 *   File: db.cpp                                        Part of Bylins    *
 *  Usage: Loading/saving chars, booting/resetting world, internal funcs   *
 *                                                                         *
@@ -104,6 +104,8 @@ long beginning_of_time = -1561789232;
 long beginning_of_time = 650336715;
 #endif
 
+#define READ_SIZE 256
+
 CRooms world;
 
 room_rnum top_of_world = 0;	// ref to top element of world
@@ -165,9 +167,402 @@ struct portals_list_type *portals_list;	// Список проталов для townportal
 int now_entrycount = FALSE;
 extern int reboot_uptime;
 
+extern int top_of_socialm;
+extern int top_of_socialk;
+
 guardian_type guardian_list;
 
 insert_wanted_gem iwg;
+
+void get_one_line(FILE * fl, char *buf)
+{
+	if (fgets(buf, READ_SIZE, fl) == NULL)
+	{
+		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, LVL_IMMORT, SYSLOG, TRUE);
+		buf[0] = '$';
+		buf[1] = 0;
+		return;
+	}
+	buf[strlen(buf) - 1] = '\0';	// take off the trailing \n
+}
+
+class FilesPrefixes: private std::unordered_map<int, std::string>
+{
+	public:
+		FilesPrefixes();
+		const std::string& operator()(const int mode) const;
+
+	private:
+		static std::string s_empty_prefix;
+};
+
+const std::string& FilesPrefixes::operator()(const int mode) const
+{
+	const auto result = find(mode);
+	return result == end() ? s_empty_prefix : result->second;
+}
+
+FilesPrefixes::FilesPrefixes()
+{
+	(*this)[DB_BOOT_TRG] = TRG_PREFIX;
+	(*this)[DB_BOOT_WLD] = WLD_PREFIX;
+	(*this)[DB_BOOT_MOB] = MOB_PREFIX;
+	(*this)[DB_BOOT_OBJ] = OBJ_PREFIX;
+	(*this)[DB_BOOT_ZON] = ZON_PREFIX;
+	(*this)[DB_BOOT_HLP] = HLP_PREFIX;
+	(*this)[DB_BOOT_SOCIAL] = SOC_PREFIX;
+}
+
+std::string FilesPrefixes::s_empty_prefix;
+FilesPrefixes prefixes;
+
+class IndexFile: private std::list<std::string>
+{
+	public:
+		using shared_ptr = std::shared_ptr<IndexFile>;
+
+		using base_t = std::list<std::string>;
+		using base_t::begin;
+		using base_t::end;
+
+		IndexFile(const int mode);
+		virtual ~IndexFile() {}
+
+		bool open();
+		int load();
+
+	protected:
+		auto mode() const { return m_mode; }
+		const auto& get_file_prefix() const { return prefixes(mode()); }
+		auto handle() const { return m_handle; }
+
+	private:
+		using prefixes_t = std::unordered_map<int, std::string>;
+		using prefix_t = prefixes_t::mapped_type;
+
+		virtual int process_line(const std::string& line) = 0;
+
+		FILE* m_handle;
+		const int m_mode;
+};
+
+IndexFile::IndexFile(const int mode): m_handle(nullptr), m_mode(mode)
+{
+}
+
+bool IndexFile::open()
+{
+	constexpr int BUFFER_SIZE = 1024;
+	char filename[BUFFER_SIZE];
+
+	const auto& prefix = get_file_prefix();
+	if (prefix.empty())
+	{
+		log("SYSERR: Unknown subcommand %d to index_boot!", m_mode);
+		return false;
+	}
+
+	const auto written = snprintf(filename, BUFFER_SIZE, "%s%s", prefix.c_str(), INDEX_FILE);
+	if (written >= BUFFER_SIZE)
+	{
+		log("SYSERR: buffer size for index file name is not enough.");
+		return false;
+	}
+
+	m_handle = fopen(filename, "r");
+	if (nullptr == m_handle)
+	{
+		log("SYSERR: opening index file '%s': %s", filename, strerror(errno));
+		return false;
+	}
+
+	return true;
+}
+
+int IndexFile::load()
+{
+	int rec_count = 0;
+
+	const auto& prefix = get_file_prefix();
+	// first, count the number of records in the file so we can malloc
+	int dummyi = fscanf(handle(), "%s\n", buf1);
+	UNUSED_ARG(dummyi);
+
+	clear();
+	while (*buf1 != '$')
+	{
+		push_back(buf1);
+		rec_count += process_line(buf1);
+	}
+
+	// Exit if 0 records, unless this is shops
+	if (!rec_count)
+	{
+		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix.c_str(), INDEX_FILE);
+		exit(1);
+	}
+
+	// Any idea why you put this here Jeremy?
+	rec_count++;
+
+	return rec_count;
+}
+
+class WorldIndexFile: public IndexFile
+{
+	public:
+		WorldIndexFile(): IndexFile(DB_BOOT_WLD) {}
+
+	private:
+		virtual int process_line(const std::string&) { return 0; }
+};
+
+class ZoneIndexFile: public IndexFile
+{
+	public:
+		ZoneIndexFile(): IndexFile(DB_BOOT_ZON) {}
+
+	private:
+		virtual int process_line(const std::string&) { return 1; }
+};
+
+class FilesIndexFile: public IndexFile
+{
+	public:
+		FilesIndexFile(const int mode): IndexFile(mode) {}
+
+	protected:
+		const auto entry_file_handle() const { return m_entry_file_handle; }
+
+	private:
+		virtual int process_line(const std::string& line);
+		virtual int process_file() = 0;
+
+		FILE* m_entry_file_handle;
+};
+
+int FilesIndexFile::process_line(const std::string& line)
+{
+	const auto& prefix = get_file_prefix();
+	const std::string filename = prefix + line;
+	m_entry_file_handle = fopen(filename.c_str(), "r");
+	if (nullptr == m_entry_file_handle)
+	{
+		log("SYSERR: File '%s' listed in '%s/%s' (will be skipped): %s", filename.c_str(), prefix.c_str(), INDEX_FILE, strerror(errno));
+		return 0;
+	}
+
+	const auto result = process_file();
+
+	fclose(m_entry_file_handle);
+	return result;
+}
+
+class SocialIndexFile: public FilesIndexFile
+{
+	public:
+		/// TODO: get rid of references
+		SocialIndexFile(int& messages, int& keywords): FilesIndexFile(DB_BOOT_SOCIAL), m_messages(messages), m_keywords(keywords) {}
+
+	private:
+		virtual int process_file();
+		int count_social_records();
+
+		int& m_messages;
+		int& m_keywords;
+};
+
+int SocialIndexFile::process_file()
+{
+	return count_social_records();
+}
+
+int SocialIndexFile::count_social_records()
+{
+	char key[READ_SIZE], next_key[READ_SIZE];
+	char line[READ_SIZE], *scan;
+
+	const auto fl = entry_file_handle();
+
+	// get the first keyword line
+	get_one_line(fl, key);
+
+	while (*key != '$')  	// skip the text
+	{
+		do
+		{
+			get_one_line(fl, line);
+			if (feof(fl))
+			{
+				log("SYSERR: Unexpected end of help file.");
+				exit(1);
+			}
+		} while (*line != '#');
+
+		// now count keywords
+		scan = key;
+		++m_messages;
+		do
+		{
+			scan = one_word(scan, next_key);
+			if (*next_key)
+			{
+				++m_keywords;
+			}
+		} while (*next_key);
+
+		// get next keyword line (or $)
+		get_one_line(fl, key);
+
+		if (feof(fl))
+		{
+			log("SYSERR: Unexpected end of help file.");
+		}
+	}
+
+	return 1;
+}
+
+class HelpIndexFile: public FilesIndexFile
+{
+	public:
+		HelpIndexFile(): FilesIndexFile(DB_BOOT_HLP) {}
+
+	private:
+		virtual int process_file();
+		int count_alias_records();
+};
+
+int HelpIndexFile::process_file()
+{
+	return count_alias_records();
+}
+
+/*
+ * Thanks to Andrey (andrey@alex-ua.com) for this bit of code, although I
+ * did add the 'goto' and changed some "while()" into "do { } while()".
+ *      -gg 6/24/98 (technically 6/25/98, but I care not.)
+ */
+int HelpIndexFile::count_alias_records()
+{
+	char key[READ_SIZE], next_key[READ_SIZE];
+	char line[READ_SIZE], *scan;
+	int total_keywords = 0;
+	const auto fl = entry_file_handle();
+
+	// get the first keyword line
+	get_one_line(fl, key);
+
+	while (*key != '$')  	// skip the text
+	{
+		do
+		{
+			get_one_line(fl, line);
+			if (feof(fl))
+			{
+				mudlog("SYSERR: Unexpected end of help file.", DEF, LVL_IMMORT, SYSLOG, TRUE);
+				return total_keywords;
+			}
+		} while (*line != '#');
+
+		// now count keywords
+		scan = key;
+		do
+		{
+			scan = one_word(scan, next_key);
+			if (*next_key)
+			{
+				++total_keywords;
+			}
+		} while (*next_key);
+
+		// get next keyword line (or $)
+		get_one_line(fl, key);
+
+		if (feof(fl))
+		{
+			mudlog("SYSERR: Unexpected end of help file.", DEF, LVL_IMMORT, SYSLOG, TRUE);
+			return total_keywords;
+		}
+	}
+
+	return total_keywords;
+}
+
+class HashSeparatedIndexFile: public FilesIndexFile
+{
+	public:
+		HashSeparatedIndexFile(const int mode): FilesIndexFile(mode) {}
+
+	private:
+		virtual int process_file();
+		int count_hash_records();
+};
+
+int HashSeparatedIndexFile::process_file()
+{
+	return count_hash_records();
+}
+
+// function to count how many hash-mark delimited records exist in a file
+int HashSeparatedIndexFile::count_hash_records()
+{
+	constexpr size_t BUFFER_SIZE = 128;
+	char buf[BUFFER_SIZE];
+	int count = 0;
+	const auto fl = entry_file_handle();
+	while (fgets(buf, BUFFER_SIZE, fl))
+	{
+		if (*buf == '#')
+		{
+			count++;
+		}
+	}
+
+	return (count);
+}
+
+class IndexFileFactory
+{
+	public:
+		static IndexFile::shared_ptr get_index(const int mode);
+};
+
+IndexFile::shared_ptr IndexFileFactory::get_index(const int mode)
+{
+	switch (mode)
+	{
+		case DB_BOOT_TRG:
+			return IndexFile::shared_ptr(new HashSeparatedIndexFile(mode));
+
+		case DB_BOOT_WLD:
+			return IndexFile::shared_ptr(new WorldIndexFile());
+
+		case DB_BOOT_MOB:
+			return IndexFile::shared_ptr(new HashSeparatedIndexFile(mode));
+
+		case DB_BOOT_OBJ:
+			return IndexFile::shared_ptr(new HashSeparatedIndexFile(mode));
+
+		case DB_BOOT_ZON:
+			return IndexFile::shared_ptr(new ZoneIndexFile());
+
+		case DB_BOOT_HLP:
+			return IndexFile::shared_ptr(new HelpIndexFile());
+
+		case DB_BOOT_SOCIAL:
+			return IndexFile::shared_ptr(new SocialIndexFile(top_of_socialm, top_of_socialk));
+
+		default:
+			return nullptr;
+	}
+}
+
+WorldLoader::WorldLoader()
+{
+}
+
+WorldLoader world_loader;
 
 // local functions
 void SaveGlobalUID(void);
@@ -175,13 +570,10 @@ void LoadGlobalUID(void);
 bool check_object_spell_number(OBJ_DATA * obj, unsigned val);
 bool check_object_level(OBJ_DATA * obj, int val);
 void setup_dir(FILE * fl, int room, unsigned dir);
-void index_boot(int mode);
-void discrete_load(FILE * fl, int mode, char *filename);
 bool check_object(OBJ_DATA *);
 void parse_trigger(FILE * fl, int virtual_nr);
 void parse_room(FILE * fl, int virtual_nr, int virt);
 char *parse_object(FILE * obj_f, const int nr);
-void load_zones(FILE * fl, char *zonename);
 void load_help(FILE * fl);
 void assign_mobiles(void);
 void assign_objects(void);
@@ -193,15 +585,10 @@ void reset_zone(zone_rnum zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
 void do_reboot(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void boot_world(void);
-int count_alias_records(FILE * fl);
-int count_hash_records(FILE * fl);
-int count_social_records(FILE * fl, int *messages, int *keywords);
 void parse_simple_mob(FILE * mob_f, int i, int nr);
 void interpret_espec(const char *keyword, const char *value, int i, int nr);
 void parse_espec(char *buf, int i, int nr);
 void parse_enhanced_mob(FILE * mob_f, int i, int nr);
-void get_one_line(FILE * fl, char *buf);
 void check_start_rooms(void);
 void renum_world(void);
 void renum_zone_table(void);
@@ -264,21 +651,12 @@ extern room_vnum named_start_room;
 extern room_vnum unreg_start_room;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern const char *unused_spellname;
-extern int top_of_socialm;
-extern int top_of_socialk;
 extern struct month_temperature_type year_temp[];
 extern const char *pc_class_types[];
 extern char *house_rank[];
 extern struct pclean_criteria_data pclean_criteria[];
 extern void LoadProxyList();
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
-
-/*
-extern struct global_drop_obj;
-extern std::vector<global_drop_obj> drop_list_obj;*/
-#define READ_SIZE 256
-
-
 
 int strchrn (const char *s, int c) {
 	
@@ -833,9 +1211,7 @@ void go_boot_socials(void)
 	}
 	top_of_socialm = -1;
 	top_of_socialk = -1;
-	index_boot(DB_BOOT_SOCIAL);
-
-
+	world_loader.index_boot(DB_BOOT_SOCIAL);
 }
 
 void load_sheduled_reboot()
@@ -1328,21 +1704,21 @@ void convert_obj_values()
 	}
 }
 
-void boot_world(void)
+void WorldLoader::boot_world()
 {
 	utils::CSteppedProfiler boot_profiler("World booting");
 
 	boot_profiler.next_step("Loading zone table");
 	log("Loading zone table.");
-	index_boot(DB_BOOT_ZON);
+	world_loader.index_boot(DB_BOOT_ZON);
 
 	boot_profiler.next_step("Loading triggers");
 	log("Loading triggers and generating index.");
-	index_boot(DB_BOOT_TRG);
+	world_loader.index_boot(DB_BOOT_TRG);
 
 	boot_profiler.next_step("Loading rooms");
 	log("Loading rooms.");
-	index_boot(DB_BOOT_WLD);
+	world_loader.index_boot(DB_BOOT_WLD);
 
 	boot_profiler.next_step("Renumbering rooms");
 	log("Renumbering rooms.");
@@ -1354,7 +1730,7 @@ void boot_world(void)
 
 	boot_profiler.next_step("Loading mobs and regerating index");
 	log("Loading mobs and generating index.");
-	index_boot(DB_BOOT_MOB);
+	world_loader.index_boot(DB_BOOT_MOB);
 
 	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
@@ -1362,7 +1738,7 @@ void boot_world(void)
 
 	boot_profiler.next_step("Loading objects");
 	log("Loading objs and generating index.");
-	index_boot(DB_BOOT_OBJ);
+	world_loader.index_boot(DB_BOOT_OBJ);
 
 	boot_profiler.next_step("Converting deprecated obj values");
 	log("Converting deprecated obj values.");
@@ -2387,7 +2763,7 @@ void boot_db(void)
 	load_guardians();
 
 	boot_profiler.next_step("Loading world");
-	boot_world();
+	world_loader.boot_world();
 
 	boot_profiler.next_step("Loading stuff load table");
 	log("Booting stuff load table.");
@@ -2403,11 +2779,11 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading help entries");
 	log("Loading help entries.");
-	index_boot(DB_BOOT_HLP);
+	world_loader.index_boot(DB_BOOT_HLP);
 
 	boot_profiler.next_step("Loading social entries");
 	log("Loading social entries.");
-	index_boot(DB_BOOT_SOCIAL);
+	world_loader.index_boot(DB_BOOT_SOCIAL);
 
 	boot_profiler.next_step("Loading players index");
 	log("Generating player index.");
@@ -2655,6 +3031,16 @@ void boot_db(void)
 	log("Boot db -- DONE.");
 }
 
+char fread_letter(FILE * fp)
+{
+	char c;
+	do
+	{
+		c = getc(fp);
+	} while (isspace(c));
+	return c;
+}
+
 // reset the time in the game from file
 void reset_time(void)
 {
@@ -2729,356 +3115,11 @@ void reset_time(void)
 		weather_info.sky = SKY_CLOUDLESS;
 }
 
-
-
 // generate index table for the player file
 void build_player_index(void)
 {
 	new_build_player_index();
 	return;
-}
-
-/*
- * Thanks to Andrey (andrey@alex-ua.com) for this bit of code, although I
- * did add the 'goto' and changed some "while()" into "do { } while()".
- *      -gg 6/24/98 (technically 6/25/98, but I care not.)
- */
-int count_alias_records(FILE * fl)
-{
-	char key[READ_SIZE], next_key[READ_SIZE];
-	char line[READ_SIZE], *scan;
-	int total_keywords = 0;
-
-	// get the first keyword line
-	get_one_line(fl, key);
-
-	while (*key != '$')  	// skip the text
-	{
-		do
-		{
-			get_one_line(fl, line);
-			if (feof(fl))
-				goto ackeof;
-		}
-		while (*line != '#');
-
-		// now count keywords
-		scan = key;
-		do
-		{
-			scan = one_word(scan, next_key);
-			if (*next_key)
-				++total_keywords;
-		}
-		while (*next_key);
-
-		// get next keyword line (or $)
-		get_one_line(fl, key);
-
-		if (feof(fl))
-			goto ackeof;
-	}
-
-	return (total_keywords);
-
-	// No, they are not evil. -gg 6/24/98
-ackeof:
-	mudlog("SYSERR: Unexpected end of help file.", DEF, LVL_IMMORT, SYSLOG, TRUE);
-	return (total_keywords);
-}
-
-// function to count how many hash-mark delimited records exist in a file
-int count_hash_records(FILE * fl)
-{
-	char buf[128];
-	int count = 0;
-
-	while (fgets(buf, 128, fl))
-		if (*buf == '#')
-			count++;
-
-	return (count);
-}
-
-int count_social_records(FILE * fl, int *messages, int *keywords)
-{
-	char key[READ_SIZE], next_key[READ_SIZE];
-	char line[READ_SIZE], *scan;
-
-	// get the first keyword line
-	get_one_line(fl, key);
-
-	while (*key != '$')  	// skip the text
-	{
-		do
-		{
-			get_one_line(fl, line);
-			if (feof(fl))
-				goto ackeof;
-		}
-		while (*line != '#');
-
-		// now count keywords
-		scan = key;
-		++(*messages);
-		do
-		{
-			scan = one_word(scan, next_key);
-			if (*next_key)
-				++(*keywords);
-		}
-		while (*next_key);
-
-		// get next keyword line (or $)
-		get_one_line(fl, key);
-
-		if (feof(fl))
-			goto ackeof;
-	}
-
-	return (TRUE);
-
-	// No, they are not evil. -gg 6/24/98
-ackeof:
-	log("SYSERR: Unexpected end of help file.");
-	exit(1);		// Some day we hope to handle these things better...
-}
-
-const char* get_file_prefix(const int mode)
-{
-	const char* prefix = nullptr;
-	switch (mode)
-	{
-	case DB_BOOT_TRG:
-		prefix = TRG_PREFIX;
-		break;
-
-	case DB_BOOT_WLD:
-		prefix = WLD_PREFIX;
-		break;
-
-	case DB_BOOT_MOB:
-		prefix = MOB_PREFIX;
-		break;
-
-	case DB_BOOT_OBJ:
-		prefix = OBJ_PREFIX;
-		break;
-
-	case DB_BOOT_ZON:
-		prefix = ZON_PREFIX;
-		break;
-
-	case DB_BOOT_HLP:
-		prefix = HLP_PREFIX;
-		break;
-
-	case DB_BOOT_SOCIAL:
-		prefix = SOC_PREFIX;
-		break;
-
-	default:
-		break;
-	}
-
-	return prefix;
-}
-
-int calculate_records_count(FILE* index, const int mode)
-{
-	int rec_count = 0;
-
-	if (mode == DB_BOOT_WLD)
-	{
-		return rec_count;	// we don't need to count rooms
-	}
-
-	const char* prefix = get_file_prefix(mode);
-	// first, count the number of records in the file so we can malloc
-	int dummyi = fscanf(index, "%s\n", buf1);
-	while (*buf1 != '$')
-	{
-		sprintf(buf2, "%s%s", prefix, buf1);
-		FILE* db_file = fopen(buf2, "r");
-		if (!db_file)
-		{
-			log("SYSERR: File '%s' listed in '%s/%s': %s", buf2, prefix, INDEX_FILE, strerror(errno));
-			dummyi = fscanf(index, "%s\n", buf1);
-			continue;
-		}
-		else
-		{
-			if (mode == DB_BOOT_ZON)
-				rec_count++;
-			else if (mode == DB_BOOT_SOCIAL)
-				rec_count += count_social_records(db_file, &top_of_socialm, &top_of_socialk);
-			else if (mode == DB_BOOT_HLP)
-				rec_count += count_alias_records(db_file);
-			else if (mode == DB_BOOT_WLD)
-			{
-				const int counter = count_hash_records(db_file);
-				if (counter > 99)
-				{
-					log("SYSERR: File '%s' list more than 99 room", buf2);
-					exit(1);
-				}
-				rec_count += (counter + 1);
-			}
-			else
-				rec_count += count_hash_records(db_file);
-		}
-		fclose(db_file);
-		dummyi = fscanf(index, "%s\n", buf1);
-	}
-	UNUSED_ARG(dummyi);
-
-	// Exit if 0 records, unless this is shops
-	if (!rec_count)
-	{
-		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix, INDEX_FILE);
-		exit(1);
-	}
-
-	// Any idea why you put this here Jeremy?
-	rec_count++;
-
-	return rec_count;
-}
-
-void index_boot(int mode)
-{
-	FILE *index, *db_file;
-
-	log("Index booting %d", mode);
-
-	const char* prefix = get_file_prefix(mode);
-	if (nullptr == prefix)
-	{
-		log("SYSERR: Unknown subcommand %d to index_boot!", mode);
-		exit(1);
-	}
-
-	sprintf(buf2, "%s%s", prefix, INDEX_FILE);
-
-	if (!(index = fopen(buf2, "r")))
-	{
-		log("SYSERR: opening index file '%s': %s", buf2, strerror(errno));
-		exit(1);
-	}
-
-	const int rec_count = calculate_records_count(index, mode);
-
-	// * NOTE: "bytes" does _not_ include strings or other later malloc'd things.
-	switch (mode)
-	{
-	case DB_BOOT_TRG:
-		CREATE(trig_index, rec_count);
-		break;
-
-	case DB_BOOT_WLD:
-		{
-			// Creating empty world with NOWHERE room.
-			world.push_back(new ROOM_DATA);
-			top_of_world = FIRST_ROOM;
-			const size_t rooms_bytes = sizeof(ROOM_DATA) * rec_count;
-			log("   %d rooms, %zd bytes.", rec_count, rooms_bytes);
-		}
-		break;
-
-	case DB_BOOT_MOB:
-		{
-			mob_proto = new CHAR_DATA[rec_count]; // TODO: переваять на вектор (+в medit)
-			CREATE(mob_index, rec_count);
-			const size_t index_size = sizeof(INDEX_DATA) * rec_count;
-			const size_t characters_size = sizeof(CHAR_DATA) * rec_count;
-			log("   %d mobs, %zd bytes in index, %zd bytes in prototypes.", rec_count, index_size, characters_size);
-		}
-		break;
-
-	case DB_BOOT_OBJ:
-		log("   %d objs, ~%zd bytes in index, ~%zd bytes in prototypes.", rec_count, obj_proto.index_size(), obj_proto.prototypes_size());
-		break;
-
-	case DB_BOOT_ZON:
-		{
-			CREATE(zone_table, rec_count);
-			const size_t zones_size = sizeof(struct zone_data) * rec_count;
-			log("   %d zones, %zd bytes.", rec_count, zones_size);
-		}
-		break;
-
-	case DB_BOOT_HLP:
-		break;
-
-	case DB_BOOT_SOCIAL:
-		{
-			CREATE(soc_mess_list, top_of_socialm + 1);
-			CREATE(soc_keys_list, top_of_socialk + 1);
-			const size_t messages_size = sizeof(struct social_messg) * (top_of_socialm + 1);
-			const size_t keywords_size = sizeof(struct social_keyword) * (top_of_socialk + 1);
-			log("   %d entries(%d keywords), %zd(%zd) bytes.", top_of_socialm + 1,
-				top_of_socialk + 1, messages_size, keywords_size);
-		}
-		break;
-	}
-
-	rewind(index);
-	int dummyi = fscanf(index, "%s\n", buf1);
-	while (*buf1 != '$')
-	{
-		sprintf(buf2, "%s%s", prefix, buf1);
-		if (!(db_file = fopen(buf2, "r")))
-		{
-			log("SYSERR: %s: %s", buf2, strerror(errno));
-			exit(1);
-		}
-		switch (mode)
-		{
-		case DB_BOOT_TRG:
-		case DB_BOOT_WLD:
-		case DB_BOOT_OBJ:
-		case DB_BOOT_MOB:
-			discrete_load(db_file, mode, buf2);
-			break;
-		case DB_BOOT_ZON:
-			load_zones(db_file, buf2);
-			break;
-		case DB_BOOT_HLP:
-			/*
-			 * If you think about it, we have a race here.  Although, this is the
-			 * "point-the-gun-at-your-own-foot" type of race.
-			 */
-			load_help(db_file);
-			break;
-		case DB_BOOT_SOCIAL:
-			load_socials(db_file);
-			break;
-		}
-		if (mode == DB_BOOT_WLD)
-			parse_room(db_file, 0, TRUE);
-		fclose(db_file);
-		dummyi = fscanf(index, "%s\n", buf1);
-	}
-	UNUSED_ARG(dummyi);
-
-	fclose(index);
-	// Create virtual room for zone
-
-	// sort the social index
-	if (mode == DB_BOOT_SOCIAL)
-	{
-		qsort(soc_keys_list, top_of_socialk + 1, sizeof(struct social_keyword), csort);
-	}
-}
-
-char fread_letter(FILE * fp)
-{
-	char c;
-	do
-	{
-		c = getc(fp);
-	} while (isspace(c));
-	return c;
 }
 
 void parse_mobile(FILE * mob_f, int nr)
@@ -3207,7 +3248,7 @@ void parse_mobile(FILE * mob_f, int nr)
 	top_of_mobt = i++;
 }
 
-void discrete_load(FILE * fl, int mode, char *filename)
+void discrete_load(FILE* fl, int mode, const char* filename)
 {
 	int nr = -1, last;
 	char line[256];
@@ -3282,6 +3323,332 @@ void discrete_load(FILE * fl, int mode, char *filename)
 			log("SYSERR: ... offending line: '%s'", line);
 			exit(1);
 		}
+	}
+}
+
+#define ZCMD zone_table[zone].cmd[cmd_no]
+
+// load the zone table and command tables
+void load_zones(FILE* fl, const char *zonename)
+{
+#define Z       zone_table[zone]
+	static zone_rnum zone = 0;
+	int cmd_no, num_of_cmds = 0, line_num = 0, tmp, error, a_number = 0, b_number = 0;
+	char *ptr, buf[256], zname[256];
+	char t1[80], t2[80];
+//MZ.load
+	Z.level = 1;
+	Z.type = 0;
+//-MZ.load
+	Z.typeA_count = 0;
+	Z.typeB_count = 0;
+	Z.locked = FALSE;
+	Z.reset_idle = FALSE;
+	Z.used = FALSE;
+	Z.activity = 0;
+	Z.comment = 0;
+	Z.location = 0;
+	Z.description = 0;
+	Z.group = false;
+	Z.count_reset = 0;
+	strcpy(zname, zonename);
+
+	while (get_line(fl, buf))
+	{
+		ptr = buf;
+		skip_spaces(&ptr);
+		if (*ptr == 'A')
+			Z.typeA_count++;
+		if (*ptr == 'B')
+			Z.typeB_count++;
+		num_of_cmds++;	// this should be correct within 3 or so
+	}
+	rewind(fl);
+	if (Z.typeA_count)
+	{
+		CREATE(Z.typeA_list, Z.typeA_count);
+	}
+	if (Z.typeB_count)
+	{
+		CREATE(Z.typeB_list, Z.typeB_count);
+		CREATE(Z.typeB_flag, Z.typeB_count);
+		// сбрасываем все флаги
+		for (b_number = Z.typeB_count; b_number > 0; b_number--)
+			Z.typeB_flag[b_number - 1] = FALSE;
+	}
+
+	if (num_of_cmds == 0)
+	{
+		log("SYSERR: %s is empty!", zname);
+		exit(1);
+	}
+	else
+	{
+		CREATE(Z.cmd, num_of_cmds);
+	}
+
+	line_num += get_line(fl, buf);
+
+	if (sscanf(buf, "#%d", &Z.number) != 1)
+	{
+		log("SYSERR: Format error in %s, line %d", zname, line_num);
+		exit(1);
+	}
+	sprintf(buf2, "beginning of zone #%d", Z.number);
+
+	line_num += get_line(fl, buf);
+	if ((ptr = strchr(buf, '~')) != NULL)	// take off the '~' if it's there
+		*ptr = '\0';
+	Z.name = str_dup(buf);
+	line_num += get_line(fl, buf);
+	if (*buf == '^')
+	{
+		std::string comment(buf);
+		boost::trim_if(comment, boost::is_any_of(std::string("^~")));
+		Z.comment = str_dup(comment.c_str());
+		line_num += get_line(fl, buf);
+	}
+	if (*buf == '&')
+	{
+		std::string location(buf);
+		boost::trim_if(location, boost::is_any_of(std::string("&~")));
+		Z.location = str_dup(location.c_str());
+		line_num += get_line(fl, buf);
+	}
+	if (*buf == '$')
+	{
+		std::string description(buf);
+		boost::trim_if(description, boost::is_any_of(std::string("$~")));
+		Z.description = str_dup(description.c_str());
+		line_num += get_line(fl, buf);
+	}
+
+	if (*buf == '#')
+	{
+		int group = 0;
+		if (sscanf(buf, "#%d %d %d", &Z.level, &Z.type, &group) < 3)
+		{
+			if (sscanf(buf, "#%d %d", &Z.level, &Z.type) < 2)
+			{
+				log("SYSERR: ошибка чтения z.level, z.type, z.group: %s", buf);
+				exit(1);
+			}
+		}
+		Z.group = (group == 0)? 1: group; //группы в 0 рыл не бывает
+		line_num += get_line(fl, buf);
+	}
+	*t1 = 0;
+	*t2 = 0;
+	int tmp_reset_idle = 0;
+	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, &tmp_reset_idle, t1, t2) < 4)
+	{
+		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
+		if (sscanf(buf, " %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, t1, t2) < 3)
+		{
+			log("SYSERR: Format error in 3-constant line of %s", zname);
+			exit(1);
+		}
+	}
+	Z.reset_idle = 0 != tmp_reset_idle;
+	Z.under_construction = !str_cmp(t1, "test");
+	Z.locked = !str_cmp(t2, "locked");
+	cmd_no = 0;
+
+	for (;;)
+	{
+		if ((tmp = get_line(fl, buf)) == 0)
+		{
+			log("SYSERR: Format error in %s - premature end of file", zname);
+			exit(1);
+		}
+		line_num += tmp;
+		ptr = buf;
+		skip_spaces(&ptr);
+
+		if ((ZCMD.command = *ptr) == '*')
+			continue;
+		ptr++;
+		// Новые параметры формата файла:
+		// A номер_зоны -- зона типа A из списка
+		// B номер_зоны -- зона типа B из списка
+		if (ZCMD.command == 'A')
+		{
+			sscanf(ptr, " %d", &Z.typeA_list[a_number]);
+			a_number++;
+			continue;
+		}
+		if (ZCMD.command == 'B')
+		{
+			sscanf(ptr, " %d", &Z.typeB_list[b_number]);
+			b_number++;
+			continue;
+		}
+
+		if (ZCMD.command == 'S' || ZCMD.command == '$')
+		{
+			ZCMD.command = 'S';
+			break;
+		}
+		error = 0;
+		ZCMD.arg4 = -1;
+		if (strchr("MOEGPDTVQF", ZCMD.command) == NULL)  	// a 3-arg command
+		{
+			if (sscanf(ptr, " %d %d %d ", &tmp, &ZCMD.arg1, &ZCMD.arg2) != 3)
+				error = 1;
+		}
+		else if (ZCMD.command == 'V')  	// a string-arg command
+		{
+			if (sscanf(ptr, " %d %d %d %d %s %s", &tmp, &ZCMD.arg1, &ZCMD.arg2, &ZCMD.arg3, t1, t2) != 6)
+				error = 1;
+			else
+			{
+				ZCMD.sarg1 = str_dup(t1);
+				ZCMD.sarg2 = str_dup(t2);
+			}
+		}
+		else if (ZCMD.command == 'Q')  	// a number command
+		{
+			if (sscanf(ptr, " %d %d", &tmp, &ZCMD.arg1) != 2)
+				error = 1;
+			else
+				tmp = 0;
+		}
+		else
+		{
+			if (sscanf(ptr, " %d %d %d %d %d", &tmp, &ZCMD.arg1, &ZCMD.arg2, &ZCMD.arg3, &ZCMD.arg4) < 4)
+				error = 1;
+		}
+
+		ZCMD.if_flag = tmp;
+
+		if (error)
+		{
+			log("SYSERR: Format error in %s, line %d: '%s'", zname, line_num, buf);
+			exit(1);
+		}
+		ZCMD.line = line_num;
+		cmd_no++;
+	}
+	top_of_zone_table = zone++;
+#undef Z
+}
+
+void WorldLoader::index_boot(int mode)
+{
+	log("Index booting %d", mode);
+
+	auto index = IndexFileFactory::get_index(mode);
+	if (!index->open())
+	{
+		exit(1);
+	}
+	const int rec_count = index->load();
+
+	// * NOTE: "bytes" does _not_ include strings or other later malloc'd things.
+	switch (mode)
+	{
+	case DB_BOOT_TRG:
+		CREATE(trig_index, rec_count);
+		break;
+
+	case DB_BOOT_WLD:
+		{
+			// Creating empty world with NOWHERE room.
+			world.push_back(new ROOM_DATA);
+			top_of_world = FIRST_ROOM;
+			const size_t rooms_bytes = sizeof(ROOM_DATA) * rec_count;
+			log("   %d rooms, %zd bytes.", rec_count, rooms_bytes);
+		}
+		break;
+
+	case DB_BOOT_MOB:
+		{
+			mob_proto = new CHAR_DATA[rec_count]; // TODO: переваять на вектор (+в medit)
+			CREATE(mob_index, rec_count);
+			const size_t index_size = sizeof(INDEX_DATA) * rec_count;
+			const size_t characters_size = sizeof(CHAR_DATA) * rec_count;
+			log("   %d mobs, %zd bytes in index, %zd bytes in prototypes.", rec_count, index_size, characters_size);
+		}
+		break;
+
+	case DB_BOOT_OBJ:
+		log("   %d objs, ~%zd bytes in index, ~%zd bytes in prototypes.", rec_count, obj_proto.index_size(), obj_proto.prototypes_size());
+		break;
+
+	case DB_BOOT_ZON:
+		{
+			CREATE(zone_table, rec_count);
+			const size_t zones_size = sizeof(struct zone_data) * rec_count;
+			log("   %d zones, %zd bytes.", rec_count, zones_size);
+		}
+		break;
+
+	case DB_BOOT_HLP:
+		break;
+
+	case DB_BOOT_SOCIAL:
+		{
+			CREATE(soc_mess_list, top_of_socialm + 1);
+			CREATE(soc_keys_list, top_of_socialk + 1);
+			const size_t messages_size = sizeof(struct social_messg) * (top_of_socialm + 1);
+			const size_t keywords_size = sizeof(struct social_keyword) * (top_of_socialk + 1);
+			log("   %d entries(%d keywords), %zd(%zd) bytes.", top_of_socialm + 1,
+				top_of_socialk + 1, messages_size, keywords_size);
+		}
+		break;
+	}
+
+	for (const auto& entry: *index)
+	{
+		FILE* db_file = nullptr;
+		const std::string& prefix = prefixes(mode);
+		const std::string file_name = prefix + entry;
+		db_file = fopen(file_name.c_str(), "r");
+		if (nullptr == db_file)
+		{
+			log("SYSERR: %s: %s", file_name.c_str(), strerror(errno));
+			exit(1);
+		}
+
+		switch (mode)
+		{
+		case DB_BOOT_TRG:
+		case DB_BOOT_WLD:
+		case DB_BOOT_OBJ:
+		case DB_BOOT_MOB:
+			discrete_load(db_file, mode, file_name.c_str());
+
+			// Create virtual room for zone
+			if (mode == DB_BOOT_WLD)
+			{
+				parse_room(db_file, 0, TRUE);
+			}
+
+			break;
+
+		case DB_BOOT_ZON:
+			load_zones(db_file, file_name.c_str());
+			break;
+
+		case DB_BOOT_HLP:
+			/*
+			 * If you think about it, we have a race here.  Although, this is the
+			 * "point-the-gun-at-your-own-foot" type of race.
+			 */
+			load_help(db_file);
+			break;
+
+		case DB_BOOT_SOCIAL:
+			load_socials(db_file);
+			break;
+		}
+		fclose(db_file);
+	}
+
+	// sort the social index
+	if (mode == DB_BOOT_SOCIAL)
+	{
+		qsort(soc_keys_list, top_of_socialk + 1, sizeof(struct social_keyword), csort);
 	}
 }
 
@@ -3619,7 +3986,6 @@ void renum_mob_zone(void)
 	}
 }
 
-#define ZCMD zone_table[zone].cmd[cmd_no]
 #define ZCMD_CMD(cmd_nom) zone_table[zone].cmd[cmd_nom]
 
 void renum_single_table(int zone)
@@ -4726,226 +5092,6 @@ char *parse_object(FILE * obj_f, const int vnum)
 			exit(1);
 		}
 	}
-}
-
-#define Z       zone_table[zone]
-
-// load the zone table and command tables
-void load_zones(FILE * fl, char *zonename)
-{
-	static zone_rnum zone = 0;
-	int cmd_no, num_of_cmds = 0, line_num = 0, tmp, error, a_number = 0, b_number = 0;
-	char *ptr, buf[256], zname[256];
-	char t1[80], t2[80];
-//MZ.load
-	Z.level = 1;
-	Z.type = 0;
-//-MZ.load
-	Z.typeA_count = 0;
-	Z.typeB_count = 0;
-	Z.locked = FALSE;
-	Z.reset_idle = FALSE;
-	Z.used = FALSE;
-	Z.activity = 0;
-	Z.comment = 0;
-	Z.location = 0;
-	Z.description = 0;
-	Z.group = false;
-	Z.count_reset = 0;
-	strcpy(zname, zonename);
-
-	while (get_line(fl, buf))
-	{
-		ptr = buf;
-		skip_spaces(&ptr);
-		if (*ptr == 'A')
-			Z.typeA_count++;
-		if (*ptr == 'B')
-			Z.typeB_count++;
-		num_of_cmds++;	// this should be correct within 3 or so
-	}
-	rewind(fl);
-	if (Z.typeA_count)
-	{
-		CREATE(Z.typeA_list, Z.typeA_count);
-	}
-	if (Z.typeB_count)
-	{
-		CREATE(Z.typeB_list, Z.typeB_count);
-		CREATE(Z.typeB_flag, Z.typeB_count);
-		// сбрасываем все флаги
-		for (b_number = Z.typeB_count; b_number > 0; b_number--)
-			Z.typeB_flag[b_number - 1] = FALSE;
-	}
-
-	if (num_of_cmds == 0)
-	{
-		log("SYSERR: %s is empty!", zname);
-		exit(1);
-	}
-	else
-	{
-		CREATE(Z.cmd, num_of_cmds);
-	}
-
-	line_num += get_line(fl, buf);
-
-	if (sscanf(buf, "#%d", &Z.number) != 1)
-	{
-		log("SYSERR: Format error in %s, line %d", zname, line_num);
-		exit(1);
-	}
-	sprintf(buf2, "beginning of zone #%d", Z.number);
-
-	line_num += get_line(fl, buf);
-	if ((ptr = strchr(buf, '~')) != NULL)	// take off the '~' if it's there
-		*ptr = '\0';
-	Z.name = str_dup(buf);
-	line_num += get_line(fl, buf);
-	if (*buf == '^')
-	{
-		std::string comment(buf);
-		boost::trim_if(comment, boost::is_any_of(std::string("^~")));
-		Z.comment = str_dup(comment.c_str());
-		line_num += get_line(fl, buf);
-	}
-	if (*buf == '&')
-	{
-		std::string location(buf);
-		boost::trim_if(location, boost::is_any_of(std::string("&~")));
-		Z.location = str_dup(location.c_str());
-		line_num += get_line(fl, buf);
-	}
-	if (*buf == '$')
-	{
-		std::string description(buf);
-		boost::trim_if(description, boost::is_any_of(std::string("$~")));
-		Z.description = str_dup(description.c_str());
-		line_num += get_line(fl, buf);
-	}
-
-	if (*buf == '#')
-	{
-		int group = 0;
-		if (sscanf(buf, "#%d %d %d", &Z.level, &Z.type, &group) < 3)
-		{
-			if (sscanf(buf, "#%d %d", &Z.level, &Z.type) < 2)
-			{
-				log("SYSERR: ошибка чтения z.level, z.type, z.group: %s", buf);
-				exit(1);
-			}
-		}
-		Z.group = (group == 0)? 1: group; //группы в 0 рыл не бывает
-		line_num += get_line(fl, buf);
-	}
-	*t1 = 0;
-	*t2 = 0;
-	int tmp_reset_idle = 0;
-	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, &tmp_reset_idle, t1, t2) < 4)
-	{
-		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
-		if (sscanf(buf, " %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, t1, t2) < 3)
-		{
-			log("SYSERR: Format error in 3-constant line of %s", zname);
-			exit(1);
-		}
-	}
-	Z.reset_idle = 0 != tmp_reset_idle;
-	Z.under_construction = !str_cmp(t1, "test");
-	Z.locked = !str_cmp(t2, "locked");
-	cmd_no = 0;
-
-	for (;;)
-	{
-		if ((tmp = get_line(fl, buf)) == 0)
-		{
-			log("SYSERR: Format error in %s - premature end of file", zname);
-			exit(1);
-		}
-		line_num += tmp;
-		ptr = buf;
-		skip_spaces(&ptr);
-
-		if ((ZCMD.command = *ptr) == '*')
-			continue;
-		ptr++;
-		// Новые параметры формата файла:
-		// A номер_зоны -- зона типа A из списка
-		// B номер_зоны -- зона типа B из списка
-		if (ZCMD.command == 'A')
-		{
-			sscanf(ptr, " %d", &Z.typeA_list[a_number]);
-			a_number++;
-			continue;
-		}
-		if (ZCMD.command == 'B')
-		{
-			sscanf(ptr, " %d", &Z.typeB_list[b_number]);
-			b_number++;
-			continue;
-		}
-
-		if (ZCMD.command == 'S' || ZCMD.command == '$')
-		{
-			ZCMD.command = 'S';
-			break;
-		}
-		error = 0;
-		ZCMD.arg4 = -1;
-		if (strchr("MOEGPDTVQF", ZCMD.command) == NULL)  	// a 3-arg command
-		{
-			if (sscanf(ptr, " %d %d %d ", &tmp, &ZCMD.arg1, &ZCMD.arg2) != 3)
-				error = 1;
-		}
-		else if (ZCMD.command == 'V')  	// a string-arg command
-		{
-			if (sscanf(ptr, " %d %d %d %d %s %s", &tmp, &ZCMD.arg1, &ZCMD.arg2, &ZCMD.arg3, t1, t2) != 6)
-				error = 1;
-			else
-			{
-				ZCMD.sarg1 = str_dup(t1);
-				ZCMD.sarg2 = str_dup(t2);
-			}
-		}
-		else if (ZCMD.command == 'Q')  	// a number command
-		{
-			if (sscanf(ptr, " %d %d", &tmp, &ZCMD.arg1) != 2)
-				error = 1;
-			else
-				tmp = 0;
-		}
-		else
-		{
-			if (sscanf(ptr, " %d %d %d %d %d", &tmp, &ZCMD.arg1, &ZCMD.arg2, &ZCMD.arg3, &ZCMD.arg4) < 4)
-				error = 1;
-		}
-
-		ZCMD.if_flag = tmp;
-
-		if (error)
-		{
-			log("SYSERR: Format error in %s, line %d: '%s'", zname, line_num, buf);
-			exit(1);
-		}
-		ZCMD.line = line_num;
-		cmd_no++;
-	}
-	top_of_zone_table = zone++;
-}
-
-#undef Z
-
-
-void get_one_line(FILE * fl, char *buf)
-{
-	if (fgets(buf, READ_SIZE, fl) == NULL)
-	{
-		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, LVL_IMMORT, SYSLOG, TRUE);
-		buf[0] = '$';
-		buf[1] = 0;
-		return;
-	}
-	buf[strlen(buf) - 1] = '\0';	// take off the trailing \n
 }
 
 void load_help(FILE * fl)

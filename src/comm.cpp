@@ -933,7 +933,7 @@ int main_function(int argc, char **argv)
 
 	if (scheck)
 	{
-		boot_world();
+		world_loader.boot_world();
 		log("Done.");
 	}
 	else

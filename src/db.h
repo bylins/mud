@@ -631,6 +631,16 @@ bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);
 
 extern insert_wanted_gem iwg;
 
+class WorldLoader
+{
+	public:
+		WorldLoader();
+		void boot_world();
+		void index_boot(int mode);
+};
+
+extern WorldLoader world_loader;
+
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
