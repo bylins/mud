@@ -423,7 +423,7 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 	}
 }
 
-void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
+bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
 
 	pk_translate_pair(&agressor, &victim);
@@ -440,7 +440,7 @@ void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 		look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
 		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, agressor, 0, 0, TO_ROOM);
 		set_wait(agressor, 1, TRUE);
-		return;
+		return false;
 	}
 	switch (pk_action_type(agressor, victim))
 	{
@@ -467,7 +467,7 @@ void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 		break;
 	}
 
-	return;
+	return true;
 }
 
 // * Пришлось дублировать функцию для суммона, чтобы спасти душиков, т.е я удалил проверку на душиков

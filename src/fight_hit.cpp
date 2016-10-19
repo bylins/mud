@@ -2333,7 +2333,8 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
 
 				if ((keeper_leader == victim_leader) && (may_kill_here(keeper->master, ch)))
 				{
-					pk_agro_action(keeper->master, ch);
+					if (!pk_agro_action(keeper->master, ch))
+						return;
 					send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
 						GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
 					snprintf(buf, MAX_STRING_LENGTH, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
@@ -2526,7 +2527,8 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		if (GET_POS(ch) > POS_STUNNED && (ch->get_fighting() == NULL))
 		{
-			pk_agro_action(ch, victim);
+			if (!pk_agro_action(ch, victim))
+				return (0);
 			set_fighting(ch, victim);
 			npc_groupbattle(ch);
 		}

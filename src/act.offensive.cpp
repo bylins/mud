@@ -239,7 +239,8 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 			if ((vict->get_fighting() != ch) && (ch != victim))
 			{
 				// агрим жертву после чего можно будет проверить возможно ли его здесь прикрыть(костыли конечно)
-				pk_agro_action(ch, victim);
+				if (!pk_agro_action(ch, victim))
+					return victim;
 				if (!may_kill_here(vict, ch))
 					continue;
 				// Вписываемся в противника прикрываемого ...
@@ -256,7 +257,8 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 			}
 			else
 			{
-				pk_agro_action(vict, ch); // по аналогии с реском прикрывая кого-то можно пофлагаться
+				if (!pk_agro_action(ch, victim))
+					return victim; // по аналогии с реском прикрывая кого-то можно пофлагаться
 				act("Вы героически прикрыли $N3, приняв удар на себя.", FALSE,
 					vict, 0, victim, TO_CHAR);
 				act("$N героически прикрыл$G вас, приняв удар на себя.", FALSE,
@@ -488,7 +490,9 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	vict = try_protect(vict, ch);
 
-	pk_agro_action(ch, vict);
+	if (!pk_agro_action(ch, vict))
+		return;
+
 
 	if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) || (vict->get_fighting() && !can_use_feat(ch, THIEVES_STRIKE_FEAT)))
 			&& !IS_GOD(ch))
@@ -1259,7 +1263,8 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 	if (vict->get_fighting() == tmp_ch)
 		stop_fighting(vict, FALSE);
 
-	pk_agro_action(ch, tmp_ch);
+	if (!pk_agro_action(ch, tmp_ch))
+		return;
 
 	if (ch->get_fighting())
 		ch->set_fighting(tmp_ch);
@@ -1950,7 +1955,8 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (!pos || !GET_EQ(vict, pos))
 		return;
-
+	if (!pk_agro_action(ch, vict))
+		return;
 	percent = number(1, skill_info[SKILL_DISARM].max_percent);
 	prob = train_skill(ch, SKILL_DISARM, skill_info[SKILL_DISARM].max_percent, vict);
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, GF_GODSCURSE)
@@ -2000,8 +2006,6 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		};
 		//-Полель
 	}
-
-	pk_agro_action(ch, vict);
 
 	appear(ch);
 	if (IS_NPC(vict) && CAN_SEE(vict, ch) && have_mind(vict) && GET_WAIT(ch) <= 0)
@@ -2101,6 +2105,9 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		}
 	}
 
+	if (!pk_agro_action(ch, vict))
+		return;
+
 	percent = number(1, skill_info[SKILL_CHOPOFF].max_percent);
 	prob = train_skill(ch, SKILL_CHOPOFF, skill_info[SKILL_CHOPOFF].max_percent, vict);
 // в сетке хуже трипается
@@ -2158,7 +2165,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = 1;
 	}
 
-	pk_agro_action(ch, vict);
+	
 
 	appear(ch);
 	if (IS_NPC(vict) && CAN_SEE(vict, ch) && have_mind(vict) && vict->get_wait() <= 0)
@@ -2897,7 +2904,8 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 				 dice(1, GET_REAL_WIS(ch))))
 		{
 			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
-			pk_agro_action(ch, ch_vict);
+			if (!pk_agro_action(ch, ch_vict))
+				return;
 
 			Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), 0, FightSystem::MAGE_DMG);
 			dmg.flags.set(FightSystem::IGNORE_FSHIELD);
@@ -3068,7 +3076,8 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 
 	vict = try_protect(vict, ch);
-	pk_agro_action(ch, vict);
+	if (!pk_agro_action(ch, vict))
+		return;
 
 	act("Вы попытались накинуть удавку на шею $N2.\r\n", FALSE, ch, 0, vict, TO_CHAR);
 
@@ -3400,7 +3409,10 @@ void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim)
 {
     if (used_attack(ch))
         return;
-	pk_agro_action(ch, victim);
+
+	if (!pk_agro_action(ch, victim))
+		return;
+
 
     if (!ch->get_fighting())
     {
@@ -3417,7 +3429,9 @@ void SetExtraAttackCutPick(CHAR_DATA *ch, CHAR_DATA *victim)
 {
     if (used_attack(ch))
         return;
-	pk_agro_action(ch, victim);
+	if (!pk_agro_action(ch, victim))
+		return;
+
 
     if (!ch->get_fighting())
     {

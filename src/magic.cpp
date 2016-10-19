@@ -1843,7 +1843,8 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (victim == NULL || IN_ROOM(victim) == NOWHERE || ch == NULL)
 		return (0);
 
-	pk_agro_action(ch, victim);
+	if (!pk_agro_action(ch, victim))
+		return (0);
 
 //  log("[MAG DAMAGE] %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);
 	// Magic glass
@@ -2629,12 +2630,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (IS_SET(SpINFO.routines, NPC_AFFECT_PC))  	//send_to_char("1\r\n",ch);
 		{
 			//send_to_char("1\r\n",victim);
-			pk_agro_action(ch, victim);
+			if (!pk_agro_action(ch, victim))
+				return 0;
 		}
 		else if (IS_SET(SpINFO.routines, NPC_AFFECT_NPC) && victim->get_fighting())  	//send_to_char("2\r\n",ch);
 		{
 			//send_to_char("2\r\n",victim);
-			pk_agro_action(ch, victim->get_fighting());
+			if (!pk_agro_action(ch, victim->get_fighting()))
+				return 0;
 		}
 		//send_to_char("Stop\r\n",ch);
 		//send_to_char("Stop\r\n",victim);
@@ -4778,7 +4781,9 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/
 
 	if (hit && victim->get_fighting() && ch != victim)
 	{
-		pk_agro_action(ch, victim->get_fighting());
+
+		if (!pk_agro_action(ch, victim->get_fighting()))
+			return 0;
 	}
 
 	if ((spellnum == SPELL_EXTRA_HITS || spellnum == SPELL_PATRONAGE)
@@ -4923,11 +4928,13 @@ int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnu
 	{
 		if (IS_SET(SpINFO.routines, NPC_AFFECT_NPC))
 		{
-			pk_agro_action(ch, victim);
+			if (!pk_agro_action(ch, victim))
+				return 0;
 		}
 		else if (IS_SET(SpINFO.routines, NPC_AFFECT_PC) && victim->get_fighting())
 		{
-			pk_agro_action(ch, victim->get_fighting());
+			if (!pk_agro_action(ch, victim->get_fighting()))
+				return 0;
 		}
 	}
 //Polud затычка для закла !удалить яд!. По хорошему нужно его переделать с параметром - тип удаляемого яда
