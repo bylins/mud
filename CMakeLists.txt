@@ -20,6 +20,8 @@ set(SOURCES
 	src/birth_places.cpp
 	src/boards.cpp
 	src/bonus.cpp
+	src/boot.constants.cpp
+	src/boot.index.cpp
 	src/cache.cpp
 	src/celebrates.cpp
 	src/char.cpp
@@ -136,6 +138,8 @@ set(HEADERS
 	src/birth_places.hpp
 	src/boards.h
 	src/bonus.h
+	src/boot.constants.hpp
+	src/boot.index.hpp
 	src/cache.hpp
 	src/celebrates.hpp
 	src/char.hpp

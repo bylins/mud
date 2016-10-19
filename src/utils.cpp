@@ -3785,6 +3785,39 @@ bool isname(const char *str, const char *namelist)
 	}
 }
 
+const char* one_word(const char* argument, char *first_arg)
+{
+	char *begin = first_arg;
+
+	do
+	{
+		skip_spaces(&argument);
+		first_arg = begin;
+
+		if (*argument == '\"')
+		{
+			argument++;
+			while (*argument && *argument != '\"')
+			{
+				*(first_arg++) = a_lcc(*argument);
+				argument++;
+			}
+			argument++;
+		}
+		else
+		{
+			while (*argument && !a_isspace(*argument))
+			{
+				*(first_arg++) = a_lcc(*argument);
+				argument++;
+			}
+		}
+		*first_arg = '\0';
+	} while (fill_word(begin));
+
+	return (argument);
+}
+
 std::string ParseFilter::print() const
 {
 	std::string buffer = "Выборка: ";

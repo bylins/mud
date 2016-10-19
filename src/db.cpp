@@ -22,7 +22,6 @@
 #include "handler.h"
 #include "spells.h"
 #include "mail.h"
-#include "interpreter.h"
 #include "house.h"
 #include "constants.h"
 #include "dg_scripts.h"
@@ -75,6 +74,7 @@
 #include "obj_sets.hpp"
 #include "bonus.h"
 #include "time_utils.hpp"
+#include "boot.index.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -103,8 +103,6 @@ long beginning_of_time = -1561789232;
 #else
 long beginning_of_time = 650336715;
 #endif
-
-#define READ_SIZE 256
 
 CRooms world;
 
@@ -186,375 +184,6 @@ void get_one_line(FILE * fl, char *buf)
 	buf[strlen(buf) - 1] = '\0';	// take off the trailing \n
 }
 
-class FilesPrefixes: private std::unordered_map<int, std::string>
-{
-	public:
-		FilesPrefixes();
-		const std::string& operator()(const EBootType mode) const;
-
-	private:
-		static std::string s_empty_prefix;
-};
-
-const std::string& FilesPrefixes::operator()(const EBootType mode) const
-{
-	const auto result = find(mode);
-	return result == end() ? s_empty_prefix : result->second;
-}
-
-FilesPrefixes::FilesPrefixes()
-{
-	(*this)[DB_BOOT_TRG] = TRG_PREFIX;
-	(*this)[DB_BOOT_WLD] = WLD_PREFIX;
-	(*this)[DB_BOOT_MOB] = MOB_PREFIX;
-	(*this)[DB_BOOT_OBJ] = OBJ_PREFIX;
-	(*this)[DB_BOOT_ZON] = ZON_PREFIX;
-	(*this)[DB_BOOT_HLP] = HLP_PREFIX;
-	(*this)[DB_BOOT_SOCIAL] = SOC_PREFIX;
-}
-
-std::string FilesPrefixes::s_empty_prefix;
-FilesPrefixes prefixes;
-
-class IndexFile: private std::list<std::string>
-{
-	public:
-		using shared_ptr = std::shared_ptr<IndexFile>;
-
-		using base_t = std::list<std::string>;
-		using base_t::begin;
-		using base_t::end;
-
-		IndexFile(const EBootType mode);
-		virtual ~IndexFile() {}
-
-		bool open();
-		int load();
-
-	protected:
-		auto mode() const { return m_mode; }
-		const auto& get_file_prefix() const { return prefixes(mode()); }
-		const auto& file() const { return m_file; }
-		void getline(std::string& line) { std::getline(m_file, line); }
-
-	private:
-		using prefixes_t = std::unordered_map<int, std::string>;
-		using prefix_t = prefixes_t::mapped_type;
-
-		virtual int process_line(const std::string& line) = 0;
-
-		std::ifstream m_file;
-		const EBootType m_mode;
-};
-
-IndexFile::IndexFile(const EBootType mode): m_mode(mode)
-{
-}
-
-bool IndexFile::open()
-{
-	constexpr int BUFFER_SIZE = 1024;
-	char filename[BUFFER_SIZE];
-
-	const auto& prefix = get_file_prefix();
-	if (prefix.empty())
-	{
-		log("SYSERR: Unknown subcommand %d to index_boot!", m_mode);
-		return false;
-	}
-
-	const auto written = snprintf(filename, BUFFER_SIZE, "%s%s", prefix.c_str(), INDEX_FILE);
-	if (written >= BUFFER_SIZE)
-	{
-		log("SYSERR: buffer size for index file name is not enough.");
-		return false;
-	}
-
-	m_file.open(filename, std::ios::in);
-	if (!m_file.good())
-	{
-		log("SYSERR: opening index file '%s': %s", filename, strerror(errno));
-		return false;
-	}
-
-	return true;
-}
-
-int IndexFile::load()
-{
-	int rec_count = 0;
-
-	const auto& prefix = get_file_prefix();
-
-	std::string line;
-	getline(line);
-	clear();
-	while (file().good()
-		&& (0 == line.size() || line[0] != '$'))
-	{
-		push_back(line);
-		rec_count += process_line(line);
-		getline(line);
-	}
-
-	// Exit if 0 records, unless this is shops
-	if (!rec_count)
-	{
-		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix.c_str(), INDEX_FILE);
-		exit(1);
-	}
-
-	// Any idea why you put this here Jeremy?
-	rec_count++;
-
-	return rec_count;
-}
-
-class WorldIndexFile: public IndexFile
-{
-	public:
-		WorldIndexFile(): IndexFile(DB_BOOT_WLD) {}
-
-	private:
-		virtual int process_line(const std::string&) { return 1; }
-};
-
-class ZoneIndexFile: public IndexFile
-{
-	public:
-		ZoneIndexFile(): IndexFile(DB_BOOT_ZON) {}
-
-	private:
-		virtual int process_line(const std::string&) { return 1; }
-};
-
-class FilesIndexFile: public IndexFile
-{
-	public:
-		FilesIndexFile(const EBootType mode): IndexFile(mode) {}
-
-	protected:
-		const auto& entry_file() const { return m_entry_file; }
-		void get_entry_line(std::string& line) { std::getline(m_entry_file, line); }
-
-	private:
-		virtual int process_line(const std::string& line);
-		virtual int process_file() = 0;
-
-		std::ifstream m_entry_file;
-};
-
-int FilesIndexFile::process_line(const std::string& line)
-{
-	const auto& prefix = get_file_prefix();
-	const std::string filename = prefix + line;
-	m_entry_file.open(filename, std::ios::in);
-	if (!m_entry_file.good())
-	{
-		log("SYSERR: File '%s' listed in '%s/%s' (will be skipped): %s", filename.c_str(), prefix.c_str(), INDEX_FILE, strerror(errno));
-		return 0;
-	}
-
-	const auto result = process_file();
-
-	m_entry_file.close();
-	return result;
-}
-
-class SocialIndexFile: public FilesIndexFile
-{
-	public:
-		/// TODO: get rid of references
-		SocialIndexFile(int& messages, int& keywords): FilesIndexFile(DB_BOOT_SOCIAL), m_messages(messages), m_keywords(keywords) {}
-
-	private:
-		virtual int process_file();
-		int count_social_records();
-
-		int& m_messages;
-		int& m_keywords;
-};
-
-int SocialIndexFile::process_file()
-{
-	return count_social_records();
-}
-
-int SocialIndexFile::count_social_records()
-{
-	char next_key[READ_SIZE];
-	const char *scan;
-
-	std::string key;
-	get_entry_line(key);
-	while (0 < key.size() && key[0] != '$')  	// skip the text
-	{
-		std::string line;
-		do
-		{
-			get_entry_line(line);
-			if (!entry_file().good())
-			{
-				log("SYSERR: Unexpected end of help file.");
-				exit(1);
-			}
-		} while (0 < line.size() && line[0] != '#');
-
-		// now count keywords
-		scan = key.c_str();
-		++m_messages;
-		do
-		{
-			scan = one_word(scan, next_key);
-			if (*next_key)
-			{
-				++m_keywords;
-			}
-		} while (*next_key);
-
-		get_entry_line(key);
-
-		if (!entry_file().good())
-		{
-			log("SYSERR: Unexpected end of help file.");
-		}
-	}
-
-	return 1;
-}
-
-class HelpIndexFile: public FilesIndexFile
-{
-	public:
-		HelpIndexFile(): FilesIndexFile(DB_BOOT_HLP) {}
-
-	private:
-		virtual int process_file();
-		int count_alias_records();
-};
-
-int HelpIndexFile::process_file()
-{
-	return count_alias_records();
-}
-
-/*
- * Thanks to Andrey (andrey@alex-ua.com) for this bit of code, although I
- * did add the 'goto' and changed some "while()" into "do { } while()".
- *      -gg 6/24/98 (technically 6/25/98, but I care not.)
- */
-int HelpIndexFile::count_alias_records()
-{
-	char next_key[READ_SIZE];
-	const char *scan;
-	int total_keywords = 0;
-
-	std::string key;
-	get_entry_line(key);
-
-	while (0 < key.size() && key[0] != '$')  	// skip the text
-	{
-		std::string line;
-		do
-		{
-			get_entry_line(line);
-			if (!entry_file().good())
-			{
-				mudlog("SYSERR: Unexpected end of help file.", DEF, LVL_IMMORT, SYSLOG, TRUE);
-				return total_keywords;
-			}
-		} while (0 < line.size() && line[0] != '#');
-
-		// now count keywords
-		scan = key.c_str();
-		do
-		{
-			scan = one_word(scan, next_key);
-			if (*next_key)
-			{
-				++total_keywords;
-			}
-		} while (*next_key);
-
-		get_entry_line(key);
-
-		if (!entry_file().good())
-		{
-			mudlog("SYSERR: Unexpected end of help file.", DEF, LVL_IMMORT, SYSLOG, TRUE);
-			return total_keywords;
-		}
-	}
-
-	return total_keywords;
-}
-
-class HashSeparatedIndexFile: public FilesIndexFile
-{
-	public:
-		HashSeparatedIndexFile(const EBootType mode): FilesIndexFile(mode) {}
-
-	private:
-		virtual int process_file();
-		int count_hash_records();
-};
-
-int HashSeparatedIndexFile::process_file()
-{
-	return count_hash_records();
-}
-
-// function to count how many hash-mark delimited records exist in a file
-int HashSeparatedIndexFile::count_hash_records()
-{
-	int count = 0;
-	std::string line;
-	for (get_entry_line(line); entry_file().good(); get_entry_line(line))
-	{
-		if (0 < line.size() && line[0] == '#')
-		{
-			count++;
-		}
-	}
-
-	return (count);
-}
-
-class IndexFileFactory
-{
-	public:
-		static IndexFile::shared_ptr get_index(const EBootType mode);
-};
-
-IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode)
-{
-	switch (mode)
-	{
-		case DB_BOOT_TRG:
-			return IndexFile::shared_ptr(new HashSeparatedIndexFile(mode));
-
-		case DB_BOOT_WLD:
-			return IndexFile::shared_ptr(new WorldIndexFile());
-
-		case DB_BOOT_MOB:
-			return IndexFile::shared_ptr(new HashSeparatedIndexFile(mode));
-
-		case DB_BOOT_OBJ:
-			return IndexFile::shared_ptr(new HashSeparatedIndexFile(mode));
-
-		case DB_BOOT_ZON:
-			return IndexFile::shared_ptr(new ZoneIndexFile());
-
-		case DB_BOOT_HLP:
-			return IndexFile::shared_ptr(new HelpIndexFile());
-
-		case DB_BOOT_SOCIAL:
-			return IndexFile::shared_ptr(new SocialIndexFile(top_of_socialm, top_of_socialk));
-
-		default:
-			return nullptr;
-	}
-}
-
 WorldLoader::WorldLoader()
 {
 }
@@ -621,7 +250,6 @@ void extract_mob(CHAR_DATA * ch);
 //F@N|
 int exchange_database_load(void);
 
-void load_socials(FILE * fl);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void calc_easter(void);
 void do_start(CHAR_DATA * ch, int newbie);
@@ -3530,6 +3158,94 @@ void load_zones(FILE* fl, const char *zonename)
 #undef Z
 }
 
+char *str_dup_bl(const char *source)
+{
+	char line[MAX_INPUT_LENGTH];
+
+	line[0] = 0;
+	if (source[0])
+	{
+		strcat(line, "&K");
+		strcat(line, source);
+		strcat(line, "&n");
+	}
+
+	return (str_dup(line));
+}
+
+void load_socials(FILE * fl)
+{
+	char line[MAX_INPUT_LENGTH], next_key[MAX_INPUT_LENGTH];
+	const char* scan;
+	int key = -1, message = -1, c_min_pos, c_max_pos, v_min_pos, v_max_pos, what;
+
+	// get the first keyword line
+	get_one_line(fl, line);
+	while (*line != '$')
+	{
+		message++;
+		scan = one_word(line, next_key);
+		while (*next_key)
+		{
+			key++;
+			log("Social %d '%s' - message %d", key, next_key, message);
+			soc_keys_list[key].keyword = str_dup(next_key);
+			soc_keys_list[key].social_message = message;
+			scan = one_word(scan, next_key);
+		}
+
+		what = 0;
+		get_one_line(fl, line);
+		while (*line != '#')
+		{
+			scan = line;
+			skip_spaces(&scan);
+			if (scan && *scan && *scan != ';')
+			{
+				switch (what)
+				{
+				case 0:
+					if (sscanf
+					(scan, " %d %d %d %d \n", &c_min_pos, &c_max_pos,
+						&v_min_pos, &v_max_pos) < 4)
+					{
+						log("SYSERR: format error in %d social file near social '%s' #d #d #d #d\n", message, line);
+						exit(1);
+					}
+					soc_mess_list[message].ch_min_pos = c_min_pos;
+					soc_mess_list[message].ch_max_pos = c_max_pos;
+					soc_mess_list[message].vict_min_pos = v_min_pos;
+					soc_mess_list[message].vict_max_pos = v_max_pos;
+					break;
+				case 1:
+					soc_mess_list[message].char_no_arg = str_dup_bl(scan);
+					break;
+				case 2:
+					soc_mess_list[message].others_no_arg = str_dup_bl(scan);
+					break;
+				case 3:
+					soc_mess_list[message].char_found = str_dup_bl(scan);
+					break;
+				case 4:
+					soc_mess_list[message].others_found = str_dup_bl(scan);
+					break;
+				case 5:
+					soc_mess_list[message].vict_found = str_dup_bl(scan);
+					break;
+				case 6:
+					soc_mess_list[message].not_found = str_dup_bl(scan);
+					break;
+				}
+			}
+			if (!scan || *scan != ';')
+				what++;
+			get_one_line(fl, line);
+		}
+		// get next keyword line (or $)
+		get_one_line(fl, line);
+	}
+}
+
 void WorldLoader::index_boot(const EBootType mode)
 {
 	log("Index booting %d", mode);
@@ -5098,7 +4814,8 @@ void load_help(FILE * fl)
 #else
 	char key[READ_SIZE + 1], next_key[READ_SIZE + 1], entry[32384];
 #endif
-	char line[READ_SIZE + 1], *scan;
+	char line[READ_SIZE + 1];
+	const char* scan;
 
 	// get the first keyword line
 	get_one_line(fl, key);
