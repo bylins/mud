@@ -468,15 +468,18 @@ bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);
 
 extern insert_wanted_gem iwg;
 
-class WorldLoader
+class GameLoader
 {
-	public:
-		WorldLoader();
-		void boot_world();
-		void index_boot(const EBootType mode);
+public:
+	GameLoader();
+	void boot_world();
+	void index_boot(const EBootType mode);
+
+private:
+	static void prepare_global_structures(const EBootType mode, const int rec_count);
 };
 
-extern WorldLoader world_loader;
+extern GameLoader world_loader;
 
 #endif
 

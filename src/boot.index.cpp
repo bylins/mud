@@ -89,6 +89,8 @@ class ZoneIndexFile : public IndexFileImplementation
 public:
 	ZoneIndexFile() : IndexFileImplementation(DB_BOOT_ZON) {}
 
+	static shared_ptr create() { return shared_ptr(new ZoneIndexFile()); }
+
 private:
 	virtual int process_line(const std::string&) { return 1; }
 };
@@ -131,6 +133,8 @@ class SocialIndexFile : public FilesIndexFile
 public:
 	/// TODO: get rid of references
 	SocialIndexFile(int& messages, int& keywords) : FilesIndexFile(DB_BOOT_SOCIAL), m_messages(messages), m_keywords(keywords) {}
+
+	static shared_ptr create(int& messages, int& keywords) { return shared_ptr(new SocialIndexFile(messages, keywords)); }
 
 private:
 	virtual int process_file();
@@ -192,6 +196,8 @@ class HelpIndexFile : public FilesIndexFile
 {
 public:
 	HelpIndexFile() : FilesIndexFile(DB_BOOT_HLP) {}
+
+	static shared_ptr create() { return shared_ptr(new HelpIndexFile()); }
 
 private:
 	virtual int process_file();
@@ -258,6 +264,8 @@ class HashSeparatedIndexFile : public FilesIndexFile
 public:
 	HashSeparatedIndexFile(const EBootType mode) : FilesIndexFile(mode) {}
 
+	static shared_ptr create(const EBootType mode) { return shared_ptr(new HashSeparatedIndexFile(mode)); }
+
 private:
 	virtual int process_file();
 	int count_hash_records();
@@ -289,6 +297,8 @@ class WorldIndexFile : public IndexFileImplementation
 public:
 	WorldIndexFile() : IndexFileImplementation(DB_BOOT_WLD) {}
 
+	static shared_ptr create() { return shared_ptr(new WorldIndexFile()); }
+
 private:
 	virtual int process_line(const std::string&) { return 1; }
 };
@@ -300,26 +310,22 @@ IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode)
 {
 	switch (mode)
 	{
+	case DB_BOOT_MOB:
+	case DB_BOOT_OBJ:
 	case DB_BOOT_TRG:
-		return IndexFile::shared_ptr(new HashSeparatedIndexFile(mode));
+		return HashSeparatedIndexFile::create(mode);
 
 	case DB_BOOT_WLD:
-		return IndexFile::shared_ptr(new WorldIndexFile());
-
-	case DB_BOOT_MOB:
-		return IndexFile::shared_ptr(new HashSeparatedIndexFile(mode));
-
-	case DB_BOOT_OBJ:
-		return IndexFile::shared_ptr(new HashSeparatedIndexFile(mode));
+		return WorldIndexFile::create();
 
 	case DB_BOOT_ZON:
-		return IndexFile::shared_ptr(new ZoneIndexFile());
+		return ZoneIndexFile::create();
 
 	case DB_BOOT_HLP:
-		return IndexFile::shared_ptr(new HelpIndexFile());
+		return HelpIndexFile::create();
 
 	case DB_BOOT_SOCIAL:
-		return IndexFile::shared_ptr(new SocialIndexFile(top_of_socialm, top_of_socialk));
+		return SocialIndexFile::create(top_of_socialm, top_of_socialk);
 
 	default:
 		return nullptr;

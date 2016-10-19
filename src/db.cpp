@@ -184,11 +184,11 @@ void get_one_line(FILE * fl, char *buf)
 	buf[strlen(buf) - 1] = '\0';	// take off the trailing \n
 }
 
-WorldLoader::WorldLoader()
+GameLoader::GameLoader()
 {
 }
 
-WorldLoader world_loader;
+GameLoader world_loader;
 
 // local functions
 void SaveGlobalUID(void);
@@ -1329,7 +1329,7 @@ void convert_obj_values()
 	}
 }
 
-void WorldLoader::boot_world()
+void GameLoader::boot_world()
 {
 	utils::CSteppedProfiler boot_profiler("World booting");
 
@@ -2873,7 +2873,62 @@ void parse_mobile(FILE * mob_f, int nr)
 	top_of_mobt = i++;
 }
 
-void discrete_load(FILE* fl, int mode, const char* filename)
+char *str_dup_bl(const char *source)
+{
+	char line[MAX_INPUT_LENGTH];
+
+	line[0] = 0;
+	if (source[0])
+	{
+		strcat(line, "&K");
+		strcat(line, source);
+		strcat(line, "&n");
+	}
+
+	return (str_dup(line));
+}
+
+#define ZCMD zone_table[zone].cmd[cmd_no]
+
+class DataFile
+{
+public:
+	using shared_ptr = std::shared_ptr<DataFile>;
+
+	DataFile(const std::string& file_name) : m_file(nullptr), m_file_name(file_name) {}
+	virtual ~DataFile() {}
+
+	virtual bool open();
+	virtual bool load() = 0;
+	virtual void close();
+	virtual std::string full_file_name() const = 0;
+
+protected:
+	const std::string& file_name() const { return m_file_name; }
+	const auto& file() const { return m_file; }
+
+private:
+	FILE* m_file;
+	std::string m_file_name;
+};
+
+class DiscreteFile : public DataFile
+{
+public:
+	DiscreteFile(const std::string& file_name) : DataFile(file_name) {}
+
+	virtual bool load() { return discrete_load(mode()); }
+	virtual std::string full_file_name() const { return prefixes(mode()) + file_name(); }
+
+protected:
+	bool discrete_load(const EBootType mode);
+
+private:
+	//virtual void load_entry() = 0;
+	virtual EBootType mode() const = 0;
+};
+
+bool DiscreteFile::discrete_load(const EBootType mode)
 {
 	int nr = -1, last;
 	char line[256];
@@ -2888,27 +2943,33 @@ void discrete_load(FILE* fl, int mode, const char* filename)
 		* no end-of-record marker :(
 		*/
 		if (mode != DB_BOOT_OBJ || nr < 0)
-			if (!get_line(fl, line))
+		{
+			if (!get_line(file(), line))
 			{
 				if (nr == -1)
 				{
-					log("SYSERR: %s file %s is empty!", modes[mode], filename);
+					log("SYSERR: %s file %s is empty!", modes[mode], file_name().c_str());
 				}
 				else
 				{
 					log("SYSERR: Format error in %s after %s #%d\n"
 						"...expecting a new %s, but file ended!\n"
-						"(maybe the file is not terminated with '$'?)", filename,
+						"(maybe the file is not terminated with '$'?)", file_name().c_str(),
 						modes[mode], nr, modes[mode]);
 				}
 				exit(1);
 			}
+		}
 
 		if (*line == '$')
-			return;
+		{
+			return true;
+		}
 		// This file create ADAMANT MUD ETITOR ?
 		if (strcmp(line, "#ADAMANT") == 0)
+		{
 			continue;
+		}
 
 		if (*line == '#')
 		{
@@ -2920,51 +2981,133 @@ void discrete_load(FILE* fl, int mode, const char* filename)
 			}
 			if (nr == 1)
 			{
-				log("SYSERR: Entity with vnum 1, filename=%s", filename);
+				log("SYSERR: Entity with vnum 1, filename=%s", file_name().c_str());
 				exit(1);
 			}
 			if (nr >= MAX_PROTO_NUMBER)
-				return;
+			{
+				return true;	// TODO: we need to return false here, but I don't know how to react on this for now.
+			}
 			else
+			{
 				switch (mode)
 				{
 				case DB_BOOT_TRG:
-					parse_trigger(fl, nr);
+					parse_trigger(file(), nr);
 					break;
 				case DB_BOOT_WLD:
-					parse_room(fl, nr, FALSE);
+					parse_room(file(), nr, FALSE);
 					break;
 				case DB_BOOT_MOB:
-					parse_mobile(fl, nr);
+					parse_mobile(file(), nr);
 					break;
 				case DB_BOOT_OBJ:
-					strcpy(line, parse_object(fl, nr));
+					strcpy(line, parse_object(file(), nr));
 					break;
 				}
+			}
 		}
 		else
 		{
-			log("SYSERR: Format error in %s file %s near %s #%d", modes[mode], filename, modes[mode], nr);
+			log("SYSERR: Format error in %s file %s near %s #%d", modes[mode], file_name().c_str(), modes[mode], nr);
 			log("SYSERR: ... offending line: '%s'", line);
 			exit(1);
 		}
 	}
+
+	return true;
 }
 
-#define ZCMD zone_table[zone].cmd[cmd_no]
+class TriggersFile : public DiscreteFile
+{
+public:
+	TriggersFile(const std::string& file_name) : DiscreteFile(file_name) {}
 
-// load the zone table and command tables
-void load_zones(FILE* fl, const char *zonename)
+	virtual EBootType mode() const { return DB_BOOT_TRG; }
+
+	static shared_ptr create(const std::string& file_name) { return shared_ptr(new TriggersFile(file_name)); }
+};
+
+class WorldFile : public DiscreteFile
+{
+public:
+	WorldFile(const std::string& file_name) : DiscreteFile(file_name) {}
+
+	virtual bool load();
+	virtual EBootType mode() const { return DB_BOOT_WLD; }
+
+	static shared_ptr create(const std::string& file_name) { return shared_ptr(new WorldFile(file_name)); }
+};
+
+bool WorldFile::load()
+{
+	const auto result = DiscreteFile::load();
+	parse_room(file(), 0, TRUE);
+	return result;
+}
+
+class ObjectFile : public DiscreteFile
+{
+public:
+	ObjectFile(const std::string& file_name) : DiscreteFile(file_name) {}
+
+	virtual EBootType mode() const { return DB_BOOT_OBJ; }
+
+	static shared_ptr create(const std::string& file_name) { return shared_ptr(new ObjectFile(file_name)); }
+};
+
+class MobileFile : public DiscreteFile
+{
+public:
+	MobileFile(const std::string& file_name) : DiscreteFile(file_name) {}
+
+	virtual EBootType mode() const { return DB_BOOT_MOB; }
+
+	static shared_ptr create(const std::string& file_name) { return shared_ptr(new MobileFile(file_name)); }
+};
+
+bool DataFile::open()
+{
+	const std::string file_name = full_file_name();
+	m_file = fopen(file_name.c_str(), "r");
+	if (nullptr == m_file)
+	{
+		log("SYSERR: %s: %s", file_name.c_str(), strerror(errno));
+		exit(1);
+	}
+	return true;
+}
+
+void DataFile::close()
+{
+	fclose(m_file);
+}
+
+class ZoneFile : public DataFile
+{
+public:
+	ZoneFile(const std::string& file_name) : DataFile(file_name) {}
+
+	virtual bool load() { return load_zones(); }
+	virtual std::string full_file_name() const { return prefixes(DB_BOOT_ZON) + file_name(); }
+
+	static shared_ptr create(const std::string& file_name) { return shared_ptr(new ZoneFile(file_name)); }
+
+protected:
+	bool load_zones();
+};
+
+bool ZoneFile::load_zones()
 {
 #define Z       zone_table[zone]
 	static zone_rnum zone = 0;
 	int cmd_no, num_of_cmds = 0, line_num = 0, tmp, error, a_number = 0, b_number = 0;
-	char *ptr, buf[256], zname[256];
+	char *ptr, buf[256];
 	char t1[80], t2[80];
-//MZ.load
+	//MZ.load
 	Z.level = 1;
 	Z.type = 0;
-//-MZ.load
+	//-MZ.load
 	Z.typeA_count = 0;
 	Z.typeB_count = 0;
 	Z.locked = FALSE;
@@ -2976,9 +3119,8 @@ void load_zones(FILE* fl, const char *zonename)
 	Z.description = 0;
 	Z.group = false;
 	Z.count_reset = 0;
-	strcpy(zname, zonename);
 
-	while (get_line(fl, buf))
+	while (get_line(file(), buf))
 	{
 		ptr = buf;
 		skip_spaces(&ptr);
@@ -2988,7 +3130,7 @@ void load_zones(FILE* fl, const char *zonename)
 			Z.typeB_count++;
 		num_of_cmds++;	// this should be correct within 3 or so
 	}
-	rewind(fl);
+	rewind(file());
 	if (Z.typeA_count)
 	{
 		CREATE(Z.typeA_list, Z.typeA_count);
@@ -3004,7 +3146,7 @@ void load_zones(FILE* fl, const char *zonename)
 
 	if (num_of_cmds == 0)
 	{
-		log("SYSERR: %s is empty!", zname);
+		log("SYSERR: %s is empty!", full_file_name().c_str());
 		exit(1);
 	}
 	else
@@ -3012,40 +3154,40 @@ void load_zones(FILE* fl, const char *zonename)
 		CREATE(Z.cmd, num_of_cmds);
 	}
 
-	line_num += get_line(fl, buf);
+	line_num += get_line(file(), buf);
 
 	if (sscanf(buf, "#%d", &Z.number) != 1)
 	{
-		log("SYSERR: Format error in %s, line %d", zname, line_num);
+		log("SYSERR: Format error in %s, line %d", full_file_name().c_str(), line_num);
 		exit(1);
 	}
 	sprintf(buf2, "beginning of zone #%d", Z.number);
 
-	line_num += get_line(fl, buf);
+	line_num += get_line(file(), buf);
 	if ((ptr = strchr(buf, '~')) != NULL)	// take off the '~' if it's there
 		*ptr = '\0';
 	Z.name = str_dup(buf);
-	line_num += get_line(fl, buf);
+	line_num += get_line(file(), buf);
 	if (*buf == '^')
 	{
 		std::string comment(buf);
 		boost::trim_if(comment, boost::is_any_of(std::string("^~")));
 		Z.comment = str_dup(comment.c_str());
-		line_num += get_line(fl, buf);
+		line_num += get_line(file(), buf);
 	}
 	if (*buf == '&')
 	{
 		std::string location(buf);
 		boost::trim_if(location, boost::is_any_of(std::string("&~")));
 		Z.location = str_dup(location.c_str());
-		line_num += get_line(fl, buf);
+		line_num += get_line(file(), buf);
 	}
 	if (*buf == '$')
 	{
 		std::string description(buf);
 		boost::trim_if(description, boost::is_any_of(std::string("$~")));
 		Z.description = str_dup(description.c_str());
-		line_num += get_line(fl, buf);
+		line_num += get_line(file(), buf);
 	}
 
 	if (*buf == '#')
@@ -3059,8 +3201,8 @@ void load_zones(FILE* fl, const char *zonename)
 				exit(1);
 			}
 		}
-		Z.group = (group == 0)? 1: group; //группы в 0 рыл не бывает
-		line_num += get_line(fl, buf);
+		Z.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
+		line_num += get_line(file(), buf);
 	}
 	*t1 = 0;
 	*t2 = 0;
@@ -3070,7 +3212,7 @@ void load_zones(FILE* fl, const char *zonename)
 		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
 		if (sscanf(buf, " %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, t1, t2) < 3)
 		{
-			log("SYSERR: Format error in 3-constant line of %s", zname);
+			log("SYSERR: Format error in 3-constant line of %s", full_file_name().c_str());
 			exit(1);
 		}
 	}
@@ -3081,9 +3223,9 @@ void load_zones(FILE* fl, const char *zonename)
 
 	for (;;)
 	{
-		if ((tmp = get_line(fl, buf)) == 0)
+		if ((tmp = get_line(file(), buf)) == 0)
 		{
-			log("SYSERR: Format error in %s - premature end of file", zname);
+			log("SYSERR: Format error in %s - premature end of file", full_file_name().c_str());
 			exit(1);
 		}
 		line_num += tmp;
@@ -3148,7 +3290,7 @@ void load_zones(FILE* fl, const char *zonename)
 
 		if (error)
 		{
-			log("SYSERR: Format error in %s, line %d: '%s'", zname, line_num, buf);
+			log("SYSERR: Format error in %s, line %d: '%s'", full_file_name().c_str(), line_num, buf);
 			exit(1);
 		}
 		ZCMD.line = line_num;
@@ -3156,31 +3298,91 @@ void load_zones(FILE* fl, const char *zonename)
 	}
 	top_of_zone_table = zone++;
 #undef Z
+
+	return true;
 }
 
-char *str_dup_bl(const char *source)
+class HelpFile : public DataFile
 {
-	char line[MAX_INPUT_LENGTH];
+public:
+	HelpFile(const std::string& file_name) : DataFile(file_name) {}
 
-	line[0] = 0;
-	if (source[0])
+	virtual bool load() { return load_help(); }
+	virtual std::string full_file_name() const { return prefixes(DB_BOOT_HLP) + file_name(); }
+
+	static shared_ptr create(const std::string& file_name) { return shared_ptr(new HelpFile(file_name)); }
+
+protected:
+	bool load_help();
+};
+
+bool HelpFile::load_help()
+{
+#if defined(CIRCLE_MACINTOSH)
+	static char key[READ_SIZE + 1], next_key[READ_SIZE + 1], entry[32384];	// ?
+#else
+	char key[READ_SIZE + 1], next_key[READ_SIZE + 1], entry[32384];
+#endif
+	char line[READ_SIZE + 1];
+	const char* scan;
+
+	// get the first keyword line
+	get_one_line(file(), key);
+	while (*key != '$')  	// read in the corresponding help entry
 	{
-		strcat(line, "&K");
-		strcat(line, source);
-		strcat(line, "&n");
+		strcpy(entry, strcat(key, "\r\n"));
+		get_one_line(file(), line);
+		while (*line != '#')
+		{
+			strcat(entry, strcat(line, "\r\n"));
+			get_one_line(file(), line);
+		}
+		// Assign read level
+		int min_level = 0;
+		if ((*line == '#') && (*(line + 1) != 0))
+		{
+			min_level = atoi((line + 1));
+		}
+		min_level = MAX(0, MIN(min_level, LVL_IMPL));
+		// now, add the entry to the index with each keyword on the keyword line
+		std::string entry_str(entry);
+		scan = one_word(key, next_key);
+		while (*next_key)
+		{
+			std::string key_str(next_key);
+			HelpSystem::add_static(key_str, entry_str, min_level);
+			scan = one_word(scan, next_key);
+		}
+
+		// get next keyword line (or $)
+		get_one_line(file(), key);
 	}
 
-	return (str_dup(line));
+	return true;
 }
 
-void load_socials(FILE * fl)
+class SocialsFile : public DataFile
+{
+public:
+	SocialsFile(const std::string& file_name) : DataFile(file_name) {}
+
+	virtual bool load() { return load_socials(); }
+	virtual std::string full_file_name() const { return prefixes(DB_BOOT_SOCIAL) + file_name(); }
+
+	static shared_ptr create(const std::string& file_name) { return shared_ptr(new SocialsFile(file_name)); }
+
+protected:
+	bool load_socials();
+};
+
+bool SocialsFile::load_socials()
 {
 	char line[MAX_INPUT_LENGTH], next_key[MAX_INPUT_LENGTH];
 	const char* scan;
 	int key = -1, message = -1, c_min_pos, c_max_pos, v_min_pos, v_max_pos, what;
 
 	// get the first keyword line
-	get_one_line(fl, line);
+	get_one_line(file(), line);
 	while (*line != '$')
 	{
 		message++;
@@ -3195,7 +3397,7 @@ void load_socials(FILE * fl)
 		}
 
 		what = 0;
-		get_one_line(fl, line);
+		get_one_line(file(), line);
 		while (*line != '#')
 		{
 			scan = line;
@@ -3239,14 +3441,52 @@ void load_socials(FILE * fl)
 			}
 			if (!scan || *scan != ';')
 				what++;
-			get_one_line(fl, line);
+			get_one_line(file(), line);
 		}
 		// get next keyword line (or $)
-		get_one_line(fl, line);
+		get_one_line(file(), line);
+	}
+
+	return true;
+}
+
+class DataFileFactory
+{
+public:
+	static DataFile::shared_ptr get_file(const EBootType mode, const std::string& file_name);
+};
+
+DataFile::shared_ptr DataFileFactory::get_file(const EBootType mode, const std::string& file_name)
+{
+	switch (mode)
+	{
+		case DB_BOOT_WLD:
+			return WorldFile::create(file_name);
+
+		case DB_BOOT_MOB:
+			return MobileFile::create(file_name);
+
+		case DB_BOOT_OBJ:
+			return ObjectFile::create(file_name);
+
+		case DB_BOOT_ZON:
+			return ZoneFile::create(file_name);
+
+		case DB_BOOT_HLP:
+			return HelpFile::create(file_name);
+
+		case DB_BOOT_TRG:
+			return TriggersFile::create(file_name);
+
+		case DB_BOOT_SOCIAL:
+			return SocialsFile::create(file_name);
+
+		default:
+			return nullptr;
 	}
 }
 
-void WorldLoader::index_boot(const EBootType mode)
+void GameLoader::index_boot(const EBootType mode)
 {
 	log("Index booting %d", mode);
 
@@ -3257,6 +3497,31 @@ void WorldLoader::index_boot(const EBootType mode)
 	}
 	const int rec_count = index->load();
 
+	prepare_global_structures(mode, rec_count);
+
+	for (const auto& entry: *index)
+	{
+		auto data_file = DataFileFactory::get_file(mode, entry);
+		if (!data_file->open())
+		{
+			continue;	// TODO: we need to react somehow.
+		}
+		if (!data_file->load())
+		{
+			// TODO: do something
+		}
+		data_file->close();
+	}
+
+	// sort the social index
+	if (mode == DB_BOOT_SOCIAL)
+	{
+		qsort(soc_keys_list, top_of_socialk + 1, sizeof(struct social_keyword), csort);
+	}
+}
+
+void GameLoader::prepare_global_structures(const EBootType mode, const int rec_count)
+{
 	// * NOTE: "bytes" does _not_ include strings or other later malloc'd things.
 	switch (mode)
 	{
@@ -3309,59 +3574,6 @@ void WorldLoader::index_boot(const EBootType mode)
 				top_of_socialk + 1, messages_size, keywords_size);
 		}
 		break;
-	}
-
-	for (const auto& entry: *index)
-	{
-		FILE* db_file = nullptr;
-		const std::string& prefix = prefixes(mode);
-		const std::string file_name = prefix + entry;
-		db_file = fopen(file_name.c_str(), "r");
-		if (nullptr == db_file)
-		{
-			log("SYSERR: %s: %s", file_name.c_str(), strerror(errno));
-			exit(1);
-		}
-
-		switch (mode)
-		{
-		case DB_BOOT_TRG:
-		case DB_BOOT_WLD:
-		case DB_BOOT_OBJ:
-		case DB_BOOT_MOB:
-			discrete_load(db_file, mode, file_name.c_str());
-
-			// Create virtual room for zone
-			if (mode == DB_BOOT_WLD)
-			{
-				parse_room(db_file, 0, TRUE);
-			}
-
-			break;
-
-		case DB_BOOT_ZON:
-			load_zones(db_file, file_name.c_str());
-			break;
-
-		case DB_BOOT_HLP:
-			/*
-			 * If you think about it, we have a race here.  Although, this is the
-			 * "point-the-gun-at-your-own-foot" type of race.
-			 */
-			load_help(db_file);
-			break;
-
-		case DB_BOOT_SOCIAL:
-			load_socials(db_file);
-			break;
-		}
-		fclose(db_file);
-	}
-
-	// sort the social index
-	if (mode == DB_BOOT_SOCIAL)
-	{
-		qsort(soc_keys_list, top_of_socialk + 1, sizeof(struct social_keyword), csort);
 	}
 }
 
@@ -4804,49 +5016,6 @@ char *parse_object(FILE * obj_f, const int vnum)
 			log("SYSERR: Format error in %s", buf2);
 			exit(1);
 		}
-	}
-}
-
-void load_help(FILE * fl)
-{
-#if defined(CIRCLE_MACINTOSH)
-	static char key[READ_SIZE + 1], next_key[READ_SIZE + 1], entry[32384];	// ?
-#else
-	char key[READ_SIZE + 1], next_key[READ_SIZE + 1], entry[32384];
-#endif
-	char line[READ_SIZE + 1];
-	const char* scan;
-
-	// get the first keyword line
-	get_one_line(fl, key);
-	while (*key != '$')  	// read in the corresponding help entry
-	{
-		strcpy(entry, strcat(key, "\r\n"));
-		get_one_line(fl, line);
-		while (*line != '#')
-		{
-			strcat(entry, strcat(line, "\r\n"));
-			get_one_line(fl, line);
-		}
-		// Assign read level
-		int min_level = 0;
-		if ((*line == '#') && (*(line + 1) != 0))
-		{
-			min_level = atoi((line + 1));
-		}
-		min_level = MAX(0, MIN(min_level, LVL_IMPL));
-		// now, add the entry to the index with each keyword on the keyword line
-		std::string entry_str(entry);
-		scan = one_word(key, next_key);
-		while (*next_key)
-		{
-			std::string key_str(next_key);
-			HelpSystem::add_static(key_str, entry_str, min_level);
-			scan = one_word(scan, next_key);
-		}
-
-		// get next keyword line (or $)
-		get_one_line(fl, key);
 	}
 }
 
