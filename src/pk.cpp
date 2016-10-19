@@ -194,7 +194,10 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 			act("$N получил$G право на ваш отстрел!", FALSE, agressor, 0, victim, TO_CHAR);
 		}
 	}
-	pk->clan_exp = time(NULL) + CLAN_REVENGE * 60;
+	if (pk)
+	{
+		pk->clan_exp = time(NULL) + CLAN_REVENGE * 60;
+	}
 	agressor->save_char();
 	agressor->agrobd = true;
 	return;

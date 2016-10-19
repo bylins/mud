@@ -936,7 +936,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 			sdice += GET_OBJ_WEIGHT(tobj) / 10;
 			tobj->set_val(1, ndice);
 			tobj->set_val(2, sdice);
-			tobj->set_wear_flags(created_item[obj_type].wear);
+//			tobj->set_wear_flags(created_item[obj_type].wear); пусть wear флаги будут из прототипа
 			if (skill != SKILL_CREATEBOW)
 			{
 				if (GET_OBJ_WEIGHT(tobj) < 14 && percent * 4 > prob)
