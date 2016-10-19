@@ -409,7 +409,10 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 		// нападение на члена группы
 		CHAR_DATA *leader;
 		struct follow_type *f;
-		bool has_clanmember = has_clan_members_in_group(victim);
+
+		bool has_clanmember = false;
+		if (!IS_GOD(victim))
+			has_clanmember = has_clan_members_in_group(victim);
 
 		leader = victim->master ? victim->master : victim;
 
