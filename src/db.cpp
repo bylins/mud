@@ -234,7 +234,8 @@ class IndexFile: private std::list<std::string>
 	protected:
 		auto mode() const { return m_mode; }
 		const auto& get_file_prefix() const { return prefixes(mode()); }
-		auto handle() const { return m_handle; }
+		const auto& file() const { return m_file; }
+		void getline(std::string& line) { std::getline(m_file, line); }
 
 	private:
 		using prefixes_t = std::unordered_map<int, std::string>;
@@ -242,11 +243,11 @@ class IndexFile: private std::list<std::string>
 
 		virtual int process_line(const std::string& line) = 0;
 
-		FILE* m_handle;
+		std::ifstream m_file;
 		const int m_mode;
 };
 
-IndexFile::IndexFile(const int mode): m_handle(nullptr), m_mode(mode)
+IndexFile::IndexFile(const int mode): m_mode(mode)
 {
 }
 
@@ -269,8 +270,8 @@ bool IndexFile::open()
 		return false;
 	}
 
-	m_handle = fopen(filename, "r");
-	if (nullptr == m_handle)
+	m_file.open(filename, std::ios::in);
+	if (!m_file.good())
 	{
 		log("SYSERR: opening index file '%s': %s", filename, strerror(errno));
 		return false;
@@ -285,15 +286,16 @@ int IndexFile::load()
 
 	const auto& prefix = get_file_prefix();
 
-	int dummyi = fscanf(handle(), "%s\n", buf1);
+	std::string line;
+	getline(line);
 	clear();
-	while (*buf1 != '$')
+	while (file().good()
+		&& (0 == line.size() || line[0] != '$'))
 	{
-		push_back(buf1);
-		rec_count += process_line(buf1);
-		dummyi = fscanf(m_handle, "%s\n", buf1);
+		push_back(line);
+		rec_count += process_line(line);
+		getline(line);
 	}
-	UNUSED_ARG(dummyi);
 
 	// Exit if 0 records, unless this is shops
 	if (!rec_count)
@@ -332,21 +334,22 @@ class FilesIndexFile: public IndexFile
 		FilesIndexFile(const int mode): IndexFile(mode) {}
 
 	protected:
-		const auto entry_file_handle() const { return m_entry_file_handle; }
+		const auto& entry_file() const { return m_entry_file; }
+		void get_entry_line(std::string& line) { std::getline(m_entry_file, line); }
 
 	private:
 		virtual int process_line(const std::string& line);
 		virtual int process_file() = 0;
 
-		FILE* m_entry_file_handle;
+		std::ifstream m_entry_file;
 };
 
 int FilesIndexFile::process_line(const std::string& line)
 {
 	const auto& prefix = get_file_prefix();
 	const std::string filename = prefix + line;
-	m_entry_file_handle = fopen(filename.c_str(), "r");
-	if (nullptr == m_entry_file_handle)
+	m_entry_file.open(filename, std::ios::in);
+	if (!m_entry_file.good())
 	{
 		log("SYSERR: File '%s' listed in '%s/%s' (will be skipped): %s", filename.c_str(), prefix.c_str(), INDEX_FILE, strerror(errno));
 		return 0;
@@ -354,7 +357,7 @@ int FilesIndexFile::process_line(const std::string& line)
 
 	const auto result = process_file();
 
-	fclose(m_entry_file_handle);
+	m_entry_file.close();
 	return result;
 }
 
@@ -379,28 +382,26 @@ int SocialIndexFile::process_file()
 
 int SocialIndexFile::count_social_records()
 {
-	char key[READ_SIZE], next_key[READ_SIZE];
-	char line[READ_SIZE], *scan;
+	char next_key[READ_SIZE];
+	const char *scan;
 
-	const auto fl = entry_file_handle();
-
-	// get the first keyword line
-	get_one_line(fl, key);
-
-	while (*key != '$')  	// skip the text
+	std::string key;
+	get_entry_line(key);
+	while (0 < key.size() && key[0] != '$')  	// skip the text
 	{
+		std::string line;
 		do
 		{
-			get_one_line(fl, line);
-			if (feof(fl))
+			get_entry_line(line);
+			if (!entry_file().good())
 			{
 				log("SYSERR: Unexpected end of help file.");
 				exit(1);
 			}
-		} while (*line != '#');
+		} while (0 < line.size() && line[0] != '#');
 
 		// now count keywords
-		scan = key;
+		scan = key.c_str();
 		++m_messages;
 		do
 		{
@@ -411,10 +412,9 @@ int SocialIndexFile::count_social_records()
 			}
 		} while (*next_key);
 
-		// get next keyword line (or $)
-		get_one_line(fl, key);
+		get_entry_line(key);
 
-		if (feof(fl))
+		if (!entry_file().good())
 		{
 			log("SYSERR: Unexpected end of help file.");
 		}
@@ -445,28 +445,28 @@ int HelpIndexFile::process_file()
  */
 int HelpIndexFile::count_alias_records()
 {
-	char key[READ_SIZE], next_key[READ_SIZE];
-	char line[READ_SIZE], *scan;
+	char next_key[READ_SIZE];
+	const char *scan;
 	int total_keywords = 0;
-	const auto fl = entry_file_handle();
 
-	// get the first keyword line
-	get_one_line(fl, key);
+	std::string key;
+	get_entry_line(key);
 
-	while (*key != '$')  	// skip the text
+	while (0 < key.size() && key[0] != '$')  	// skip the text
 	{
+		std::string line;
 		do
 		{
-			get_one_line(fl, line);
-			if (feof(fl))
+			get_entry_line(line);
+			if (!entry_file().good())
 			{
 				mudlog("SYSERR: Unexpected end of help file.", DEF, LVL_IMMORT, SYSLOG, TRUE);
 				return total_keywords;
 			}
-		} while (*line != '#');
+		} while (0 < line.size() && line[0] != '#');
 
 		// now count keywords
-		scan = key;
+		scan = key.c_str();
 		do
 		{
 			scan = one_word(scan, next_key);
@@ -476,10 +476,9 @@ int HelpIndexFile::count_alias_records()
 			}
 		} while (*next_key);
 
-		// get next keyword line (or $)
-		get_one_line(fl, key);
+		get_entry_line(key);
 
-		if (feof(fl))
+		if (!entry_file().good())
 		{
 			mudlog("SYSERR: Unexpected end of help file.", DEF, LVL_IMMORT, SYSLOG, TRUE);
 			return total_keywords;
@@ -507,13 +506,11 @@ int HashSeparatedIndexFile::process_file()
 // function to count how many hash-mark delimited records exist in a file
 int HashSeparatedIndexFile::count_hash_records()
 {
-	constexpr size_t BUFFER_SIZE = 128;
-	char buf[BUFFER_SIZE];
 	int count = 0;
-	const auto fl = entry_file_handle();
-	while (fgets(buf, BUFFER_SIZE, fl))
+	std::string line;
+	for (get_entry_line(line); entry_file().good(); get_entry_line(line))
 	{
-		if (*buf == '#')
+		if (0 < line.size() && line[0] == '#')
 		{
 			count++;
 		}
