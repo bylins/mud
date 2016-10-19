@@ -284,16 +284,16 @@ int IndexFile::load()
 	int rec_count = 0;
 
 	const auto& prefix = get_file_prefix();
-	// first, count the number of records in the file so we can malloc
-	int dummyi = fscanf(handle(), "%s\n", buf1);
-	UNUSED_ARG(dummyi);
 
+	int dummyi = fscanf(handle(), "%s\n", buf1);
 	clear();
 	while (*buf1 != '$')
 	{
 		push_back(buf1);
 		rec_count += process_line(buf1);
+		dummyi = fscanf(m_handle, "%s\n", buf1);
 	}
+	UNUSED_ARG(dummyi);
 
 	// Exit if 0 records, unless this is shops
 	if (!rec_count)
@@ -314,7 +314,7 @@ class WorldIndexFile: public IndexFile
 		WorldIndexFile(): IndexFile(DB_BOOT_WLD) {}
 
 	private:
-		virtual int process_line(const std::string&) { return 0; }
+		virtual int process_line(const std::string&) { return 1; }
 };
 
 class ZoneIndexFile: public IndexFile
