@@ -190,13 +190,13 @@ class FilesPrefixes: private std::unordered_map<int, std::string>
 {
 	public:
 		FilesPrefixes();
-		const std::string& operator()(const int mode) const;
+		const std::string& operator()(const EBootType mode) const;
 
 	private:
 		static std::string s_empty_prefix;
 };
 
-const std::string& FilesPrefixes::operator()(const int mode) const
+const std::string& FilesPrefixes::operator()(const EBootType mode) const
 {
 	const auto result = find(mode);
 	return result == end() ? s_empty_prefix : result->second;
@@ -225,7 +225,7 @@ class IndexFile: private std::list<std::string>
 		using base_t::begin;
 		using base_t::end;
 
-		IndexFile(const int mode);
+		IndexFile(const EBootType mode);
 		virtual ~IndexFile() {}
 
 		bool open();
@@ -244,10 +244,10 @@ class IndexFile: private std::list<std::string>
 		virtual int process_line(const std::string& line) = 0;
 
 		std::ifstream m_file;
-		const int m_mode;
+		const EBootType m_mode;
 };
 
-IndexFile::IndexFile(const int mode): m_mode(mode)
+IndexFile::IndexFile(const EBootType mode): m_mode(mode)
 {
 }
 
@@ -331,7 +331,7 @@ class ZoneIndexFile: public IndexFile
 class FilesIndexFile: public IndexFile
 {
 	public:
-		FilesIndexFile(const int mode): IndexFile(mode) {}
+		FilesIndexFile(const EBootType mode): IndexFile(mode) {}
 
 	protected:
 		const auto& entry_file() const { return m_entry_file; }
@@ -491,7 +491,7 @@ int HelpIndexFile::count_alias_records()
 class HashSeparatedIndexFile: public FilesIndexFile
 {
 	public:
-		HashSeparatedIndexFile(const int mode): FilesIndexFile(mode) {}
+		HashSeparatedIndexFile(const EBootType mode): FilesIndexFile(mode) {}
 
 	private:
 		virtual int process_file();
@@ -522,10 +522,10 @@ int HashSeparatedIndexFile::count_hash_records()
 class IndexFileFactory
 {
 	public:
-		static IndexFile::shared_ptr get_index(const int mode);
+		static IndexFile::shared_ptr get_index(const EBootType mode);
 };
 
-IndexFile::shared_ptr IndexFileFactory::get_index(const int mode)
+IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode)
 {
 	switch (mode)
 	{
@@ -3530,7 +3530,7 @@ void load_zones(FILE* fl, const char *zonename)
 #undef Z
 }
 
-void WorldLoader::index_boot(int mode)
+void WorldLoader::index_boot(const EBootType mode)
 {
 	log("Index booting %d", mode);
 

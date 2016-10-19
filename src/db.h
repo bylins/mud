@@ -32,13 +32,16 @@ class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any d
 #define MIN_ZONE_LEVEL	1
 #define MAX_ZONE_LEVEL	50
 
-#define DB_BOOT_WLD	0
-#define DB_BOOT_MOB	1
-#define DB_BOOT_OBJ	2
-#define DB_BOOT_ZON	3
-#define DB_BOOT_HLP	4
-#define DB_BOOT_TRG	5
-#define DB_BOOT_SOCIAL 6
+enum EBootType: int
+{
+	DB_BOOT_WLD = 0,
+	DB_BOOT_MOB = 1,
+	DB_BOOT_OBJ = 2,
+	DB_BOOT_ZON = 3,
+	DB_BOOT_HLP = 4,
+	DB_BOOT_TRG = 5,
+	DB_BOOT_SOCIAL = 6
+};
 
 #define DL_LOAD_ANYWAY     0
 #define DL_LOAD_IFLAST     1
@@ -636,7 +639,7 @@ class WorldLoader
 	public:
 		WorldLoader();
 		void boot_world();
-		void index_boot(int mode);
+		void index_boot(const EBootType mode);
 };
 
 extern WorldLoader world_loader;
