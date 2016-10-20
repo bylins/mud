@@ -46,6 +46,7 @@ extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
 extern struct spell_create_type spell_create[];
+extern bool check_agr_in_house(CHAR_DATA *agressor);
 FLAG_DATA  EMPTY_FLAG_DATA;
 extern int interpolate(int min_value, int pulse);
 
@@ -5537,13 +5538,18 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
 			continue;
-		}
+		}		
 		if ((msg = masses_messages[k].to_vict) != NULL && ch_vict->desc)
 		{
 			act(msg, FALSE, ch, 0, ch_vict, TO_VICT);
 		}
 		if (!IS_NPC(ch) && !IS_NPC(ch_vict))
 		{
+			if (ch)
+			{
+				if (check_agr_in_house(ch))
+					return 0;
+			}
 			++targets_count;
 		}
 		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
@@ -5681,6 +5687,14 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 			continue;
 		if (SpINFO.violent && same_group(ch, ch_vict))
 			continue;
+		if (!IS_NPC(ch) && !IS_NPC(ch_vict))
+		{
+			if (ch)
+			{
+				if (check_agr_in_house(ch))
+					return 0;
+			}
+		}
 		add_to_tmp_char_list(ch_vict);
 	}
 

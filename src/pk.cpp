@@ -77,6 +77,26 @@ bool check_agrobd(CHAR_DATA *ch) {
 }
 
 
+bool check_agr_in_house(CHAR_DATA *agressor)
+{
+	if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && CLAN(agressor))
+	{
+		act("$n был$g выдворен$a за пределы замка!", TRUE, agressor, 0, 0, TO_ROOM);
+		char_from_room(agressor);
+		if (IS_FEMALE(agressor))
+			send_to_char("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
+		else
+			send_to_char("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
+		send_to_char("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
+		char_to_room(agressor, real_room(CLAN(agressor)->out_rent));
+		look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
+		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, agressor, 0, 0, TO_ROOM);
+		set_wait(agressor, 1, TRUE);
+		return true;
+	}
+	return false;
+}
+
 //Количество убитых игроков (уникальное мыло) int 
 int pk_player_count(CHAR_DATA * ch) {
 	struct PK_Memory_type *pk, *pkg;
@@ -427,21 +447,8 @@ bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
 
 	pk_translate_pair(&agressor, &victim);
-	if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && CLAN(agressor))
-	{
-		act("$n был$g выдворен$a за пределы замка!", TRUE, agressor, 0, 0, TO_ROOM);
-		char_from_room(agressor);
-		if (IS_FEMALE(agressor))
-	    		send_to_char("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
-		else
-			send_to_char("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
-		send_to_char("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
-		char_to_room(agressor, real_room(CLAN(agressor)->out_rent));
-		look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
-		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, agressor, 0, 0, TO_ROOM);
-		set_wait(agressor, 1, TRUE);
+	if (check_agr_in_house(agressor))
 		return false;
-	}
 	switch (pk_action_type(agressor, victim))
 	{
 	case PK_ACTION_NO:	// без конфликтов просто выход
