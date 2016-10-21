@@ -332,7 +332,8 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 
 	if (victim->get_fighting() && (victim != ch))
 	{
-		pk_agro_action(ch, victim->get_fighting());
+		if (!pk_agro_action(ch, victim->get_fighting()))
+			return;
 	}
 
 	act("$n исчез$q.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -1198,7 +1199,8 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 	else if (!IS_NPC(victim))
 	{
 		send_to_char("Вы не можете очаровать реального игрока!\r\n", ch);
-		pk_agro_action(ch, victim);
+		if (!pk_agro_action(ch, victim))
+			return;
 	}
 	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffectFlag::AFF_SANCTUARY) || MOB_FLAGGED(victim, MOB_PROTECT)))
 		send_to_char("Ваша жертва освящена Богами!\r\n", ch);
@@ -2665,7 +2667,8 @@ void spell_fear(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /*obj
 	if (ch != victim)
 	{
 		modi = calc_anti_savings(ch);
-		pk_agro_action(ch, victim);
+		if (!pk_agro_action(ch, victim))
+			return;
 	}
 	if (!IS_NPC(ch) && (GET_LEVEL(ch) > 10))
 		modi += (GET_LEVEL(ch) - 10);
@@ -2686,7 +2689,8 @@ void spell_energydrain(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA
 	if (ch != victim)
 	{
 		modi = calc_anti_savings(ch);
-		pk_agro_action(ch, victim);
+		if (!pk_agro_action(ch, victim))
+			return;
 	}
 	if (!IS_NPC(ch) && (GET_LEVEL(ch) > 10))
 		modi += (GET_LEVEL(ch) - 10);
