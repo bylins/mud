@@ -2917,49 +2917,32 @@ class DiscreteFile : public DataFile
 public:
 	DiscreteFile(const std::string& file_name) : DataFile(file_name) {}
 
-	virtual bool load() { return discrete_load(mode()); }
-	virtual std::string full_file_name() const { return prefixes(mode()) + file_name(); }
+	virtual bool load() override { return discrete_load(mode()); }
+	virtual std::string full_file_name() const override { return prefixes(mode()) + file_name(); }
 
 protected:
 	bool discrete_load(const EBootType mode);
+	virtual void read_next_line(const int nr);
+
+	char line[256];
 
 private:
-	//virtual void load_entry() = 0;
 	virtual EBootType mode() const = 0;
+	virtual void read_entry(const int nr) = 0;
+
+	/// modes positions correspond to DB_BOOT_xxx in db.h
+	static const char *s_modes[];
 };
+
+const char *DiscreteFile::s_modes[] = { "world", "mob", "obj", "ZON", "SHP", "HLP", "trg" };
 
 bool DiscreteFile::discrete_load(const EBootType mode)
 {
 	int nr = -1, last;
-	char line[256];
-
-	const char *modes[] = { "world", "mob", "obj", "ZON", "SHP", "HLP", "trg" };
-	// modes positions correspond to DB_BOOT_xxx in db.h
 
 	for (;;)
 	{
-		/*
-		* we have to do special processing with the obj files because they have
-		* no end-of-record marker :(
-		*/
-		if (mode != DB_BOOT_OBJ || nr < 0)
-		{
-			if (!get_line(file(), line))
-			{
-				if (nr == -1)
-				{
-					log("SYSERR: %s file %s is empty!", modes[mode], file_name().c_str());
-				}
-				else
-				{
-					log("SYSERR: Format error in %s after %s #%d\n"
-						"...expecting a new %s, but file ended!\n"
-						"(maybe the file is not terminated with '$'?)", file_name().c_str(),
-						modes[mode], nr, modes[mode]);
-				}
-				exit(1);
-			}
-		}
+		read_next_line(nr);
 
 		if (*line == '$')
 		{
@@ -2976,40 +2959,26 @@ bool DiscreteFile::discrete_load(const EBootType mode)
 			last = nr;
 			if (sscanf(line, "#%d", &nr) != 1)
 			{
-				log("SYSERR: Format error after %s #%d", modes[mode], last);
+				log("SYSERR: Format error after %s #%d", s_modes[mode], last);
 				exit(1);
 			}
+
 			if (nr == 1)
 			{
 				log("SYSERR: Entity with vnum 1, filename=%s", file_name().c_str());
 				exit(1);
 			}
+
 			if (nr >= MAX_PROTO_NUMBER)
 			{
 				return true;	// TODO: we need to return false here, but I don't know how to react on this for now.
 			}
-			else
-			{
-				switch (mode)
-				{
-				case DB_BOOT_TRG:
-					parse_trigger(file(), nr);
-					break;
-				case DB_BOOT_WLD:
-					parse_room(file(), nr, FALSE);
-					break;
-				case DB_BOOT_MOB:
-					parse_mobile(file(), nr);
-					break;
-				case DB_BOOT_OBJ:
-					strcpy(line, parse_object(file(), nr));
-					break;
-				}
-			}
+
+			read_entry(nr);
 		}
 		else
 		{
-			log("SYSERR: Format error in %s file %s near %s #%d", modes[mode], file_name().c_str(), modes[mode], nr);
+			log("SYSERR: Format error in %s file %s near %s #%d", s_modes[mode], file_name().c_str(), s_modes[mode], nr);
 			log("SYSERR: ... offending line: '%s'", line);
 			exit(1);
 		}
@@ -3018,26 +2987,61 @@ bool DiscreteFile::discrete_load(const EBootType mode)
 	return true;
 }
 
+void DiscreteFile::read_next_line(const int nr)
+{
+	if (!get_line(file(), line))
+	{
+		if (nr == -1)
+		{
+			log("SYSERR: %s file %s is empty!", s_modes[mode()], file_name().c_str());
+		}
+		else
+		{
+			log("SYSERR: Format error in %s after %s #%d\n"
+				"...expecting a new %s, but file ended!\n"
+				"(maybe the file is not terminated with '$'?)", file_name().c_str(),
+				s_modes[mode()], nr, s_modes[mode()]);
+		}
+		exit(1);
+	}
+}
+
 class TriggersFile : public DiscreteFile
 {
 public:
 	TriggersFile(const std::string& file_name) : DiscreteFile(file_name) {}
 
-	virtual EBootType mode() const { return DB_BOOT_TRG; }
+	virtual EBootType mode() const override { return DB_BOOT_TRG; }
 
 	static shared_ptr create(const std::string& file_name) { return shared_ptr(new TriggersFile(file_name)); }
+
+private:
+	virtual void read_entry(const int nr) override;
 };
+
+void TriggersFile::read_entry(const int nr)
+{
+	parse_trigger(file(), nr);
+}
 
 class WorldFile : public DiscreteFile
 {
 public:
 	WorldFile(const std::string& file_name) : DiscreteFile(file_name) {}
 
-	virtual bool load();
-	virtual EBootType mode() const { return DB_BOOT_WLD; }
+	virtual bool load() override;
+	virtual EBootType mode() const override { return DB_BOOT_WLD; }
 
 	static shared_ptr create(const std::string& file_name) { return shared_ptr(new WorldFile(file_name)); }
+
+private:
+	virtual void read_entry(const int nr) override;
 };
+
+void WorldFile::read_entry(const int nr)
+{
+	parse_room(file(), nr, FALSE);
+}
 
 bool WorldFile::load()
 {
@@ -3051,20 +3055,45 @@ class ObjectFile : public DiscreteFile
 public:
 	ObjectFile(const std::string& file_name) : DiscreteFile(file_name) {}
 
-	virtual EBootType mode() const { return DB_BOOT_OBJ; }
+	virtual EBootType mode() const override { return DB_BOOT_OBJ; }
 
 	static shared_ptr create(const std::string& file_name) { return shared_ptr(new ObjectFile(file_name)); }
+
+private:
+	virtual void read_next_line(const int nr) override;
+	virtual void read_entry(const int nr) override;
 };
+
+void ObjectFile::read_next_line(const int nr)
+{
+	if (nr < 0)
+	{
+		DiscreteFile::read_next_line(nr);
+	}
+}
+
+void ObjectFile::read_entry(const int nr)
+{
+	strcpy(line, parse_object(file(), nr));
+}
 
 class MobileFile : public DiscreteFile
 {
 public:
 	MobileFile(const std::string& file_name) : DiscreteFile(file_name) {}
 
-	virtual EBootType mode() const { return DB_BOOT_MOB; }
+	virtual EBootType mode() const override { return DB_BOOT_MOB; }
 
 	static shared_ptr create(const std::string& file_name) { return shared_ptr(new MobileFile(file_name)); }
+
+private:
+	virtual void read_entry(const int nr) override;
 };
+
+void MobileFile::read_entry(const int nr)
+{
+	parse_mobile(file(), nr);
+}
 
 bool DataFile::open()
 {
@@ -3088,8 +3117,8 @@ class ZoneFile : public DataFile
 public:
 	ZoneFile(const std::string& file_name) : DataFile(file_name) {}
 
-	virtual bool load() { return load_zones(); }
-	virtual std::string full_file_name() const { return prefixes(DB_BOOT_ZON) + file_name(); }
+	virtual bool load() override { return load_zones(); }
+	virtual std::string full_file_name() const override { return prefixes(DB_BOOT_ZON) + file_name(); }
 
 	static shared_ptr create(const std::string& file_name) { return shared_ptr(new ZoneFile(file_name)); }
 
@@ -3307,8 +3336,8 @@ class HelpFile : public DataFile
 public:
 	HelpFile(const std::string& file_name) : DataFile(file_name) {}
 
-	virtual bool load() { return load_help(); }
-	virtual std::string full_file_name() const { return prefixes(DB_BOOT_HLP) + file_name(); }
+	virtual bool load() override { return load_help(); }
+	virtual std::string full_file_name() const override { return prefixes(DB_BOOT_HLP) + file_name(); }
 
 	static shared_ptr create(const std::string& file_name) { return shared_ptr(new HelpFile(file_name)); }
 
@@ -3366,8 +3395,8 @@ class SocialsFile : public DataFile
 public:
 	SocialsFile(const std::string& file_name) : DataFile(file_name) {}
 
-	virtual bool load() { return load_socials(); }
-	virtual std::string full_file_name() const { return prefixes(DB_BOOT_SOCIAL) + file_name(); }
+	virtual bool load() override { return load_socials(); }
+	virtual std::string full_file_name() const override { return prefixes(DB_BOOT_SOCIAL) + file_name(); }
 
 	static shared_ptr create(const std::string& file_name) { return shared_ptr(new SocialsFile(file_name)); }
 
@@ -3616,11 +3645,13 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		exit(1);
 	}
 	while (virtual_nr > zone_table[zone].top)
+	{
 		if (++zone > top_of_zone_table)
 		{
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
 		}
+	}
 	// Создаем новую комнату
 	world.push_back(new ROOM_DATA);
 
@@ -3643,7 +3674,9 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		// тож временная галиматья
 		char * temp_buf = fread_string(fl, buf2);
 		if (!temp_buf)
+		{
 			temp_buf = str_dup("");
+		}
 		else
 		{
 			std::string buffer(temp_buf);
@@ -3693,7 +3726,9 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	world[room_nr]->proto_script.reset(new OBJ_DATA::triggers_list_t());
 
 	for (i = 0; i < NUM_OF_DIRS; i++)
+	{
 		world[room_nr]->dir_option[i] = NULL;
+	}
 
 	world[room_nr]->ex_description = NULL;
 	if (virt)
@@ -7479,8 +7514,6 @@ room_rnum real_room(room_vnum vnum)
 			bot = mid + 1;
 	}
 }
-
-
 
 // returns the real number of the monster with given virtual number
 mob_rnum real_mobile(mob_vnum vnum)
