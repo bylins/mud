@@ -960,7 +960,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	skip_spaces(&argument);
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	if (!IS_NPC(ch) && (PLR_FLAGGED(ch, PLR_DUMB) || PLR_FLAGGED(ch, PLR_MUTE)))
 	{
 		send_to_char("Вам запрещено обращаться к Богам, вероятно, вы их замучали...\r\n", ch);
 		return;
