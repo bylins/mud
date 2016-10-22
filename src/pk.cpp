@@ -79,7 +79,7 @@ bool check_agrobd(CHAR_DATA *ch) {
 
 bool check_agr_in_house(CHAR_DATA *agressor)
 {
-	if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && CLAN(agressor))
+	if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(agressor->in_room, ROOM_ARENA) && CLAN(agressor))
 	{
 		act("$n был$g выдворен$a за пределы замка!", TRUE, agressor, 0, 0, TO_ROOM);
 		char_from_room(agressor);
