@@ -619,8 +619,8 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 // мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
 // всем остальным -- не более 5% с шмотки
     // Пока что отменим это дело, народ морально не готов отказаться от автосников.
-	//int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
-	int is_native = true;
+	int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
+	//int is_native = true;
 	for (int i = 0; i < NUM_WEARS; ++i)
 	{
 		if (equipment[i])
@@ -629,13 +629,14 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 			{
 				skill += equipment[i]->get_skill(skill_num);
 			}
-			else
+			/*else
 			{
 				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
-			}
+			}*/
 		}
 	}
-	skill += obj_bonus_.get_skill(skill_num);
+	if (is_native)
+		skill += obj_bonus_.get_skill(skill_num);
 
 	return skill;
 }
