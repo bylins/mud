@@ -2253,7 +2253,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				SEND_TO_Q(OLC_DESC(d)->description, d);
 				d->backstr = str_dup(OLC_DESC(d)->description);
 			}
-			d->writer.reset(new CDelegatedStringWriter(OLC_DESC(d)->description));
+			d->writer.reset(new DelegatedStringWriter(OLC_DESC(d)->description));
 			d->max_str = 4096;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;

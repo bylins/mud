@@ -12,7 +12,8 @@ set(TESTS
 	msdp.parser.cpp
 	char.affects.cpp
 	obj.copy.cpp
-	act.makefood.cpp)
+	act.makefood.cpp
+	utils.editor.cpp)
 add_executable(tests main.cpp ${TESTS})
 set_property(TARGET tests PROPERTY CXX_STANDARD 14)
 target_link_libraries(tests circle.library ${GTEST_LIB})

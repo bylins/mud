@@ -111,7 +111,7 @@ void smash_tilde(char *str)
  * else you may want through it.  The improved editor patch when updated
  * could use it to pass the old text buffer, for instance.
  */
-void string_write(DESCRIPTOR_DATA * d, const string_writer_t& writer, size_t len, int mailto, void *data)
+void string_write(DESCRIPTOR_DATA * d, const AbstractStringWriter::shared_ptr& writer, size_t len, int mailto, void *data)
 {
 	if (d->character && !IS_NPC(d->character))
 	{

@@ -1657,7 +1657,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 				SEND_TO_Q(OLC_MOB(d)->player_data.description, d);
 				d->backstr = str_dup(OLC_MOB(d)->player_data.description);
 			}
-			d->writer.reset(new CDelegatedStringWriter(OLC_MOB(d)->player_data.description));
+			d->writer.reset(new DelegatedStringWriter(OLC_MOB(d)->player_data.description));
 			d->max_str = MAX_MOB_DESC;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;

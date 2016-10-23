@@ -772,7 +772,7 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 		send_to_char(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
 		STATE(ch->desc) = CON_WRITEBOARD;
-		string_writer_t writer(new CStringWriter());
+		AbstractStringWriter::shared_ptr writer(new StdStringWriter());
 		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, NULL);
 	}
 	else if (CompareParam(buffer, "очистить") || CompareParam(buffer, "remove"))

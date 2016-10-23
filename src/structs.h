@@ -1619,10 +1619,12 @@ class Board;
 struct z_stream;
 #endif
 
-class CAbstractWriter
+class AbstractStringWriter
 {
 public:
-	virtual ~CAbstractWriter() {}
+	using shared_ptr = std::shared_ptr<AbstractStringWriter>;
+
+	virtual ~AbstractStringWriter() {}
 	virtual const char* get_string() const = 0;
 	virtual void set_string(const char* data) = 0;
 	virtual void append_string(const char* data) = 0;
@@ -1630,12 +1632,10 @@ public:
 	virtual void clear() = 0;
 };
 
-using string_writer_t = std::shared_ptr<CAbstractWriter>;
-
-class CDelegatedStringWriter: public CAbstractWriter
+class DelegatedStringWriter: public AbstractStringWriter
 {
 public:
-	CDelegatedStringWriter(char*& managed) : m_delegated_string(managed) {}
+	DelegatedStringWriter(char*& managed) : m_delegated_string(managed) {}
 	virtual const char* get_string() const override { return m_delegated_string; }
 	virtual void set_string(const char* string) override;
 	virtual void append_string(const char* string) override;
@@ -1646,7 +1646,7 @@ private:
 	char*& m_delegated_string;
 };
 
-class CStringWriter : public CAbstractWriter
+class StdStringWriter : public AbstractStringWriter
 {
 public:
 	virtual const char* get_string() const override { return m_string.c_str(); }
@@ -1723,7 +1723,7 @@ struct DESCRIPTOR_DATA
 	char **showstr_vector;	// for paging through texts      //
 	int showstr_count;		// number of pages to page through  //
 	int showstr_page;		// which page are we currently showing?   //
-	string_writer_t writer;		// for the modify-str system     //
+	AbstractStringWriter::shared_ptr writer;		// for the modify-str system     //
 	size_t max_str;		//      -        //
 	char *backstr;		// added for handling abort buffers //
 	int mail_to;		// uid for mail system

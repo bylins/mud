@@ -840,7 +840,7 @@ inline bool OBJ_AFFECT(const CObjectPrototype* obj, const EWeaponAffectFlag weap
 	return OBJ_AFFECT(obj, static_cast<uint32_t>(weapon_affect));
 }
 
-class CActionDescriptionWriter : public CAbstractWriter
+class CActionDescriptionWriter : public AbstractStringWriter
 {
 public:
 	CActionDescriptionWriter(OBJ_DATA& object) : m_object(object) {}

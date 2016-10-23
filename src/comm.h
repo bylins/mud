@@ -82,7 +82,7 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, s
 void write_to_q(const char *txt, struct txt_q *queue, int aliased);
 void write_to_output(const char *txt, DESCRIPTOR_DATA * d);
 void string_add(DESCRIPTOR_DATA * d, char *str);
-void string_write(DESCRIPTOR_DATA * d, const string_writer_t& writer, size_t len, int mailto, void *data);
+void string_write(DESCRIPTOR_DATA * d, const AbstractStringWriter::shared_ptr& writer, size_t len, int mailto, void *data);
 
 int toggle_compression(DESCRIPTOR_DATA * d);
 
