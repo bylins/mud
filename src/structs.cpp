@@ -1026,7 +1026,7 @@ const std::string& NAME_BY_ITEM(const EApplyLocation item)
 	return EApplyLocation_name_by_value.at(item);
 }
 
-void CDelegatedStringWriter::set_string(const char* string)
+void DelegatedStringWriter::set_string(const char* string)
 {
 	const size_t l = strlen(string);
 	if (nullptr == m_delegated_string)
@@ -1040,7 +1040,7 @@ void CDelegatedStringWriter::set_string(const char* string)
 	strcpy(m_delegated_string, string);
 }
 
-void CDelegatedStringWriter::append_string(const char* string)
+void DelegatedStringWriter::append_string(const char* string)
 {
 	const size_t l = length() + strlen(string);
 	if (nullptr == m_delegated_string)
@@ -1055,7 +1055,7 @@ void CDelegatedStringWriter::append_string(const char* string)
 	strcat(m_delegated_string, string);
 }
 
-void CDelegatedStringWriter::clear()
+void DelegatedStringWriter::clear()
 {
 	if (m_delegated_string)
 	{

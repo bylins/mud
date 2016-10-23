@@ -589,7 +589,7 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		// assign the descriptor's->str the value of the pointer to the text
 		// pointer so that we can reallocate as needed (hopefully that made
 		// sense :>)
-		const string_writer_t writer(new CActionDescriptionWriter(*paper));
+		const AbstractStringWriter::shared_ptr writer(new CActionDescriptionWriter(*paper));
 		string_write(ch->desc, writer, MAX_NOTE_LENGTH, 0, NULL);
 	}
 }
