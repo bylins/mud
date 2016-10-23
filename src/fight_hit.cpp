@@ -4060,6 +4060,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)
 				&& !(MOB_FLAGGED(victim, MOB_PROTECT)))
 			&& (number(1,100) <= 6)
+			&& IS_NPC(victim)
 			&& !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
