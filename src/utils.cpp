@@ -142,7 +142,7 @@ char * CAP(char *txt)
 	return (txt);
 }
 
-// Create and append to dinamyc length string - Alez
+// Create and append to dynamic length string - Alez
 char *str_add(char *dst, const char *src)
 {
 	if (dst == NULL)
