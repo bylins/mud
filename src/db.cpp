@@ -199,7 +199,7 @@ void setup_dir(FILE * fl, int room, unsigned dir);
 bool check_object(OBJ_DATA *);
 void parse_trigger(FILE * fl, int virtual_nr);
 void parse_room(FILE * fl, int virtual_nr, int virt);
-char *parse_object(FILE * obj_f, const int nr);
+void parse_object(FILE * obj_f, const int nr);
 void load_help(FILE * fl);
 void assign_mobiles(void);
 void assign_objects(void);
@@ -2924,7 +2924,7 @@ protected:
 	bool discrete_load(const EBootType mode);
 	virtual void read_next_line(const int nr);
 
-	char line[256];
+	char m_line[256];
 
 private:
 	virtual EBootType mode() const = 0;
@@ -2944,20 +2944,20 @@ bool DiscreteFile::discrete_load(const EBootType mode)
 	{
 		read_next_line(nr);
 
-		if (*line == '$')
+		if (*m_line == '$')
 		{
 			return true;
 		}
 		// This file create ADAMANT MUD ETITOR ?
-		if (strcmp(line, "#ADAMANT") == 0)
+		if (strcmp(m_line, "#ADAMANT") == 0)
 		{
 			continue;
 		}
 
-		if (*line == '#')
+		if (*m_line == '#')
 		{
 			last = nr;
-			if (sscanf(line, "#%d", &nr) != 1)
+			if (sscanf(m_line, "#%d", &nr) != 1)
 			{
 				log("SYSERR: Format error after %s #%d", s_modes[mode], last);
 				exit(1);
@@ -2979,7 +2979,7 @@ bool DiscreteFile::discrete_load(const EBootType mode)
 		else
 		{
 			log("SYSERR: Format error in %s file %s near %s #%d", s_modes[mode], file_name().c_str(), s_modes[mode], nr);
-			log("SYSERR: ... offending line: '%s'", line);
+			log("SYSERR: ... offending line: '%s'", m_line);
 			exit(1);
 		}
 	}
@@ -2989,7 +2989,7 @@ bool DiscreteFile::discrete_load(const EBootType mode)
 
 void DiscreteFile::read_next_line(const int nr)
 {
-	if (!get_line(file(), line))
+	if (!get_line(file(), m_line))
 	{
 		if (nr == -1)
 		{
@@ -3062,6 +3062,10 @@ public:
 private:
 	virtual void read_next_line(const int nr) override;
 	virtual void read_entry(const int nr) override;
+
+	void parse_object(const int nr);
+
+	char m_buffer[MAX_STRING_LENGTH];
 };
 
 void ObjectFile::read_next_line(const int nr)
@@ -3074,7 +3078,303 @@ void ObjectFile::read_next_line(const int nr)
 
 void ObjectFile::read_entry(const int nr)
 {
-	strcpy(line, parse_object(file(), nr));
+	parse_object(nr);
+}
+
+
+void ObjectFile::parse_object(const int nr)
+{
+	int t[10], j = 0;
+	char *tmpptr;
+	char f0[256], f1[256], f2[256];
+
+	OBJ_DATA *tobj = new OBJ_DATA(nr);
+
+	// *** Add some initialization fields
+	tobj->set_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);
+	tobj->set_current_durability(OBJ_DATA::DEFAULT_CURRENT_DURABILITY);
+	tobj->set_sex(DEFAULT_SEX);
+	tobj->set_timer(OBJ_DATA::DEFAULT_TIMER);
+	tobj->set_level(1);
+	tobj->set_destroyer(OBJ_DATA::DEFAULT_DESTROYER);
+
+	sprintf(m_buffer, "object #%d", nr);
+
+	// *** string data ***
+	const char* aliases = fread_string(file(), m_buffer);
+	if (aliases == nullptr)
+	{
+		log("SYSERR: Null obj name or format error at or near %s", m_buffer);
+		exit(1);
+	}
+
+	tobj->set_aliases(aliases);
+	tmpptr = fread_string(file(), m_buffer);
+	*tmpptr = LOWER(*tmpptr);
+	tobj->set_short_description(tmpptr);
+
+	tobj->set_PName(0, tobj->get_short_description());
+
+	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
+	{
+		char* str = fread_string(file(), m_buffer);
+		*str = LOWER(*str);
+		tobj->set_PName(j, str);
+	}
+
+	tmpptr = fread_string(file(), m_buffer);
+	if (tmpptr && *tmpptr)
+	{
+		CAP(tmpptr);
+	}
+	tobj->set_description(tmpptr ? tmpptr : "");
+
+	auto action_description = fread_string(file(), m_buffer);
+	tobj->set_action_description(action_description ? action_description : "");
+
+	if (!get_line(file(), m_line))
+	{
+		log("SYSERR: Expecting *1th* numeric line of %s, but file ended!", m_buffer);
+		exit(1);
+	}
+
+	int parsed_entries = sscanf(m_line, " %s %d %d %d", f0, t + 1, t + 2, t + 3);
+	if (parsed_entries != 4)
+	{
+		log("SYSERR: Format error in *1th* numeric line (expecting 4 args, got %d), %s", parsed_entries, m_buffer);
+		exit(1);
+	}
+
+	int skill = 0;
+	asciiflag_conv(f0, &skill);
+	tobj->set_skill(skill);
+
+	tobj->set_maximum_durability(t[1]);
+	tobj->set_current_durability(MIN(t[1], t[2]));
+	tobj->set_material(static_cast<OBJ_DATA::EObjectMaterial>(t[3]));
+
+	if (tobj->get_current_durability() > tobj->get_maximum_durability())
+	{
+		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", nr);
+	}
+
+	if (!get_line(file(), m_line))
+	{
+		log("SYSERR: Expecting *2th* numeric line of %s, but file ended!", m_buffer);
+		exit(1);
+	}
+
+	parsed_entries = sscanf(m_line, " %d %d %d %d", t, t + 1, t + 2, t + 3);
+	if (parsed_entries != 4)
+	{
+		log("SYSERR: Format error in *2th* numeric line (expecting 4 args, got %d), %s", parsed_entries, m_buffer);
+		exit(1);
+	}
+	tobj->set_sex(static_cast<ESex>(t[0]));
+	int timer = t[1] > 0 ? t[1] : OBJ_DATA::SEVEN_DAYS;
+	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
+	// не должно быть
+	if (timer == OBJ_DATA::UNLIMITED_TIMER)
+	{
+		timer--;
+		tobj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
+	}
+	tobj->set_timer(timer);
+	tobj->set_spell(t[2]);
+	tobj->set_level(t[3]);
+
+	if (!get_line(file(), m_line))
+	{
+		log("SYSERR: Expecting *3th* numeric line of %s, but file ended!", m_buffer);
+		exit(1);
+	}
+
+	parsed_entries = sscanf(m_line, " %s %s %s", f0, f1, f2);
+	if (parsed_entries != 3)
+	{
+		log("SYSERR: Format error in *3th* numeric line (expecting 3 args, got %d), %s", parsed_entries, m_buffer);
+		exit(1);
+	}
+
+	tobj->load_affect_flags(f0);
+	// ** Affects
+	tobj->load_anti_flags(f1);
+	// ** Miss for ...
+	tobj->load_no_flags(f2);
+	// ** Deny for ...
+
+	if (!get_line(file(), m_line))
+	{
+		log("SYSERR: Expecting *3th* numeric line of %s, but file ended!", m_buffer);
+		exit(1);
+	}
+
+	parsed_entries = sscanf(m_line, " %d %s %s", t, f1, f2);
+	if (parsed_entries != 3)
+	{
+		log("SYSERR: Format error in *3th* misc line (expecting 3 args, got %d), %s", parsed_entries, m_buffer);
+		exit(1);
+	}
+
+	tobj->set_type(static_cast<OBJ_DATA::EObjectType>(t[0]));	    // ** What's a object
+	tobj->load_extra_flags(f1);
+	// ** Its effects
+	int wear_flags = 0;
+	asciiflag_conv(f2, &wear_flags);
+	tobj->set_wear_flags(wear_flags);
+	// ** Wear on ...
+
+	if (!get_line(file(), m_line))
+	{
+		log("SYSERR: Expecting *5th* numeric line of %s, but file ended!", m_buffer);
+		exit(1);
+	}
+
+	parsed_entries = sscanf(m_line, "%s %d %d %d", f0, t + 1, t + 2, t + 3);
+	if (parsed_entries != 4)
+	{
+		log("SYSERR: Format error in *5th* numeric line (expecting 4 args, got %d), %s", parsed_entries, m_buffer);
+		exit(1);
+	}
+
+	int first_value = 0;
+	asciiflag_conv(f0, &first_value);
+	tobj->set_val(0, first_value);
+	tobj->set_val(1, t[1]);
+	tobj->set_val(2, t[2]);
+	tobj->set_val(3, t[3]);
+
+	if (!get_line(file(), m_line))
+	{
+		log("SYSERR: Expecting *6th* numeric line of %s, but file ended!", m_buffer);
+		exit(1);
+	}
+
+	parsed_entries = sscanf(m_line, "%d %d %d %d", t, t + 1, t + 2, t + 3);
+	if (parsed_entries != 4)
+	{
+		log("SYSERR: Format error in *6th* numeric line (expecting 4 args, got %d), %s", parsed_entries, m_buffer);
+		exit(1);
+	}
+	tobj->set_weight(t[0]);
+	tobj->set_cost(t[1]);
+	tobj->set_rent_off(t[2]);
+	tobj->set_rent_on(t[3]);
+
+	// check to make sure that weight of containers exceeds curr. quantity
+	if (tobj->get_type() == OBJ_DATA::ITEM_DRINKCON
+		|| tobj->get_type() == OBJ_DATA::ITEM_FOUNTAIN)
+	{
+		if (tobj->get_weight() < tobj->get_val(1))
+		{
+			tobj->set_weight(tobj->get_val(1) + 5);
+		}
+	}
+
+	// *** extra descriptions and affect fields ***
+	strcat(m_buffer, ", after numeric constants\n" "...expecting 'E', 'A', '$', or next object number");
+	j = 0;
+
+	for (;;)
+	{
+		if (!get_line(file(), m_line))
+		{
+			log("SYSERR: Format error in %s", m_buffer);
+			exit(1);
+		}
+		switch (*m_line)
+		{
+		case 'E':
+			{
+				const EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
+				new_descr->keyword = fread_string(file(), m_buffer);
+				new_descr->description = fread_string(file(), m_buffer);
+				if (new_descr->keyword && new_descr->description)
+				{
+					new_descr->next = tobj->get_ex_description();
+					tobj->set_ex_description(new_descr);
+				}
+				else
+				{
+					sprintf(buf, "SYSERR: Format error in %s (Corrupt extradesc)", m_buffer);
+					log("%s", buf);
+				}
+			}
+			break;
+
+		case 'A':
+			if (j >= MAX_OBJ_AFFECT)
+			{
+				log("SYSERR: Too many A fields (%d max), %s", MAX_OBJ_AFFECT, m_buffer);
+				exit(1);
+			}
+
+			if (!get_line(file(), m_line))
+			{
+				log("SYSERR: Format error in 'A' field, %s\n"
+					"...expecting 2 numeric constants but file ended!", m_buffer);
+				exit(1);
+			}
+
+			parsed_entries = sscanf(m_line, " %d %d ", t, t + 1);
+			if (parsed_entries != 2)
+			{
+				log("SYSERR: Format error in 'A' field, %s\n"
+					"...expecting 2 numeric arguments, got %d\n"
+					"...offending line: '%s'", m_buffer, parsed_entries, m_line);
+				exit(1);
+			}
+
+			tobj->set_affected(j, static_cast<EApplyLocation>(t[0]), t[1]);
+			++j;
+			break;
+
+		case 'T':	// DG triggers
+			dg_obj_trigger(m_line, tobj);
+			break;
+
+		case 'M':
+			tobj->set_max_in_world(atoi(m_line + 1));
+			break;
+
+		case 'R':
+			tobj->set_minimum_remorts(atoi(m_line + 1));
+			break;
+
+		case 'S':
+			if (!get_line(file(), m_line))
+			{
+				log("SYSERR: Format error in 'S' field, %s\n"
+					"...expecting 2 numeric constants but file ended!", m_buffer);
+				exit(1);
+			}
+
+			parsed_entries = sscanf(m_line, " %d %d ", t, t + 1);
+			if (parsed_entries != 2)
+			{
+				log("SYSERR: Format error in 'S' field, %s\n"
+					"...expecting 2 numeric arguments, got %d\n"
+					"...offending line: '%s'", m_buffer, parsed_entries, m_line);
+				exit(1);
+			}
+			tobj->set_skill(t[0], t[1]);
+			break;
+
+		case 'V':
+			tobj->init_values_from_zone(m_line + 1);
+			break;
+
+		case '$':
+		case '#':
+			check_object(tobj);		// Anton Gorev (2015/12/29): do we need the result of this check?
+			obj_proto.add(tobj, nr);
+			return;
+
+		default:
+			log("SYSERR: Format error in %s", m_buffer);
+			exit(1);
+		}
+	}
 }
 
 class MobileFile : public DiscreteFile
@@ -4776,282 +5076,6 @@ void set_test_data(CHAR_DATA *mob)
 
 	// поглощение пока принудительно всем
 	GET_ABSORBE(mob) = calc_boss_value(mob, mob->get_level());
-}
-
-// read all objects from obj file; generate index and prototypes
-char *parse_object(FILE * obj_f, const int vnum)
-{
-	static int i = 0;
-	static char line[256];
-	int t[10], j = 0, retval;
-	char *tmpptr;
-	char f0[256], f1[256], f2[256];
-
-	OBJ_DATA *tobj = new OBJ_DATA(vnum);
-
-	tobj->set_rnum(i);
-
-	// *** Add some initialization fields
-	tobj->set_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);
-	tobj->set_current_durability(OBJ_DATA::DEFAULT_CURRENT_DURABILITY);
-	tobj->set_sex(DEFAULT_SEX);
-	tobj->set_timer(OBJ_DATA::DEFAULT_TIMER);
-	tobj->set_level(1);
-	tobj->set_destroyer(OBJ_DATA::DEFAULT_DESTROYER);
-
-	sprintf(buf2, "object #%d", vnum);
-
-	// *** string data ***
-	const char* aliases = fread_string(obj_f, buf2);
-	if (aliases == nullptr)
-	{
-		log("SYSERR: Null obj name or format error at or near %s", buf2);
-		exit(1);
-	}
-	tobj->set_aliases(aliases);
-	tmpptr = fread_string(obj_f, buf2);
-	*tmpptr = LOWER(*tmpptr);
-	tobj->set_short_description(tmpptr);
-
-	tobj->set_PName(0, tobj->get_short_description());
-
-	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
-	{
-		char* str = fread_string(obj_f, buf2);
-		*str = LOWER(*str);
-		tobj->set_PName(j, str);
-	}
-
-	tmpptr = fread_string(obj_f, buf2);
-	if (tmpptr && *tmpptr)
-	{
-		CAP(tmpptr);
-	}
-	tobj->set_description(tmpptr ? tmpptr : "");
-
-	auto action_description = fread_string(obj_f, buf2);
-	tobj->set_action_description(action_description ? action_description : "");
-
-	if (!get_line(obj_f, line))
-	{
-		log("SYSERR: Expecting *1th* numeric line of %s, but file ended!", buf2);
-		exit(1);
-	}
-	if ((retval = sscanf(line, " %s %d %d %d", f0, t + 1, t + 2, t + 3)) != 4)
-	{
-		log("SYSERR: Format error in *1th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
-		exit(1);
-	}
-
-	int skill = 0;
-	asciiflag_conv(f0, &skill);
-	tobj->set_skill(skill);
-
-	tobj->set_maximum_durability(t[1]);
-	tobj->set_current_durability(MIN(t[1], t[2]));
-	tobj->set_material(static_cast<OBJ_DATA::EObjectMaterial>(t[3]));
-	
-	if (tobj->get_current_durability() > tobj->get_maximum_durability())
-	{
-		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", vnum);
-	}
-	if (!get_line(obj_f, line))
-	{
-		log("SYSERR: Expecting *2th* numeric line of %s, but file ended!", buf2);
-		exit(1);
-	}
-	if ((retval = sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3)) != 4)
-	{
-		log("SYSERR: Format error in *2th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
-		exit(1);
-	}
-	tobj->set_sex(static_cast<ESex>(t[0]));
-	int timer = t[1] > 0 ? t[1] : OBJ_DATA::SEVEN_DAYS;
-	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
-	// не должно быть
-	if (timer == OBJ_DATA::UNLIMITED_TIMER)
-	{
-	    timer--;
-		tobj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
-	}
-	tobj->set_timer(timer);
-	tobj->set_spell(t[2]);
-	tobj->set_level(t[3]);
-
-	if (!get_line(obj_f, line))
-	{
-		log("SYSERR: Expecting *3th* numeric line of %s, but file ended!", buf2);
-		exit(1);
-	}
-	if ((retval = sscanf(line, " %s %s %s", f0, f1, f2)) != 3)
-	{
-		log("SYSERR: Format error in *3th* numeric line (expecting 3 args, got %d), %s", retval, buf2);
-		exit(1);
-	}
-	tobj->load_affect_flags(f0);
-	// ** Affects
-	tobj->load_anti_flags(f1);
-	// ** Miss for ...
-	tobj->load_no_flags(f2);
-	// ** Deny for ...
-
-	if (!get_line(obj_f, line))
-	{
-		log("SYSERR: Expecting *3th* numeric line of %s, but file ended!", buf2);
-		exit(1);
-	}
-	if ((retval = sscanf(line, " %d %s %s", t, f1, f2)) != 3)
-	{
-		log("SYSERR: Format error in *3th* misc line (expecting 3 args, got %d), %s", retval, buf2);
-		exit(1);
-	}
-	tobj->set_type(static_cast<OBJ_DATA::EObjectType>(t[0]));	    // ** What's a object
-	tobj->load_extra_flags(f1);
-	// ** Its effects
-	int wear_flags = 0;
-	asciiflag_conv(f2, &wear_flags);
-	tobj->set_wear_flags(wear_flags);
-	// ** Wear on ...
-
-	if (!get_line(obj_f, line))
-	{
-		log("SYSERR: Expecting *5th* numeric line of %s, but file ended!", buf2);
-		exit(1);
-	}
-	if ((retval = sscanf(line, "%s %d %d %d", f0, t + 1, t + 2, t + 3)) != 4)
-	{
-		log("SYSERR: Format error in *5th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
-		exit(1);
-	}
-	int first_value = 0;
-	asciiflag_conv(f0, &first_value);
-	tobj->set_val(0, first_value);
-	tobj->set_val(1, t[1]);
-	tobj->set_val(2, t[2]);
-	tobj->set_val(3, t[3]);
-
-	if (!get_line(obj_f, line))
-	{
-		log("SYSERR: Expecting *6th* numeric line of %s, but file ended!", buf2);
-		exit(1);
-	}
-	if ((retval = sscanf(line, "%d %d %d %d", t, t + 1, t + 2, t + 3)) != 4)
-	{
-		log("SYSERR: Format error in *6th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
-		exit(1);
-	}
-	tobj->set_weight(t[0]);
-	tobj->set_cost(t[1]);
-	tobj->set_rent_off(t[2]);
-	tobj->set_rent_on(t[3]);
-
-	// check to make sure that weight of containers exceeds curr. quantity
-	if (tobj->get_type() == OBJ_DATA::ITEM_DRINKCON
-		|| tobj->get_type() == OBJ_DATA::ITEM_FOUNTAIN)
-	{
-		if (tobj->get_weight() < tobj->get_val(1))
-		{
-			tobj->set_weight(tobj->get_val(1) + 5);
-		}
-	}
-
-	// *** extra descriptions and affect fields ***
-	strcat(buf2, ", after numeric constants\n" "...expecting 'E', 'A', '$', or next object number");
-	j = 0;
-
-	for (;;)
-	{
-		if (!get_line(obj_f, line))
-		{
-			log("SYSERR: Format error in %s", buf2);
-			exit(1);
-		}
-		switch (*line)
-		{
-		case 'E':
-			{
-				const EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
-				new_descr->keyword = fread_string(obj_f, buf2);
-				new_descr->description = fread_string(obj_f, buf2);
-				if (new_descr->keyword && new_descr->description)
-				{
-					new_descr->next = tobj->get_ex_description();
-					tobj->set_ex_description(new_descr);
-				}
-				else
-				{
-					sprintf(buf, "SYSERR: Format error in %s (Corrupt extradesc)", buf2);
-					log("%s", buf);
-				}
-			}
-			break;
-
-		case 'A':
-			if (j >= MAX_OBJ_AFFECT)
-			{
-				log("SYSERR: Too many A fields (%d max), %s", MAX_OBJ_AFFECT, buf2);
-				exit(1);
-			}
-			if (!get_line(obj_f, line))
-			{
-				log("SYSERR: Format error in 'A' field, %s\n"
-					"...expecting 2 numeric constants but file ended!", buf2);
-				exit(1);
-			}
-			if ((retval = sscanf(line, " %d %d ", t, t + 1)) != 2)
-			{
-				log("SYSERR: Format error in 'A' field, %s\n"
-					"...expecting 2 numeric arguments, got %d\n"
-					"...offending line: '%s'", buf2, retval, line);
-				exit(1);
-			}
-			tobj->set_affected(j, static_cast<EApplyLocation>(t[0]), t[1]);
-			j++;
-			break;
-
-		case 'T':	// DG triggers
-			dg_obj_trigger(line, tobj);
-			break;
-
-		case 'M':
-			tobj->set_max_in_world(atoi(line + 1));
-			break;
-
-		case 'R':
-			tobj->set_minimum_remorts(atoi(line + 1));
-			break;
-
-		case 'S':
-			if (!get_line(obj_f, line))
-			{
-				log("SYSERR: Format error in 'S' field, %s\n"
-					"...expecting 2 numeric constants but file ended!", buf2);
-				exit(1);
-			}
-			if ((retval = sscanf(line, " %d %d ", t, t + 1)) != 2)
-			{
-				log("SYSERR: Format error in 'S' field, %s\n"
-					"...expecting 2 numeric arguments, got %d\n"
-					"...offending line: '%s'", buf2, retval, line);
-				exit(1);
-			}
-			tobj->set_skill(t[0], t[1]);
-			break;
-		case 'V':
-			tobj->init_values_from_zone(line + 1);
-			break;
-
-		case '$':
-		case '#':
-			check_object(tobj);		// Anton Gorev (2015/12/29): do we need the result of this check?
-			obj_proto.add(tobj, vnum);
-			return line;
-
-		default:
-			log("SYSERR: Format error in %s", buf2);
-			exit(1);
-		}
-	}
 }
 
 int csort(const void *a, const void *b)
