@@ -2494,15 +2494,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		// Прибавляем в экстра описание строчку.
 		char *tagchar = format_act(itemtag.c_str(), ch, obj, 0);
 
-		if (!obj->get_ex_description())
-		{
-			obj->set_ex_description(obj->get_aliases().c_str(), tagchar);
-		}
-		else
-		{
-			// По уму тут надо бы стереть старое описапние если оно не с прототипа
-			obj->append_ex_description_tag(tagchar);
-		}
+		obj->set_tag(tagchar);
 
 		free(tagchar);
 	};
