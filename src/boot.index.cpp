@@ -3,25 +3,26 @@
 class IndexFileImplementation : public IndexFile
 {
 public:
-	IndexFileImplementation(const EBootType mode);
+	IndexFileImplementation();
 
 	virtual bool open();
 	virtual int load();
 
 protected:
-	auto mode() const { return m_mode; }
+	virtual EBootType mode() const = 0;
 	const auto& get_file_prefix() const { return prefixes(mode()); }
 	const auto& file() const { return m_file; }
-	void getline(std::string& line) { std::getline(m_file, line); }
+	const auto& line() const { return m_buffer; }
+	void getline() { std::getline(m_file, m_buffer); }
 
 private:
-	virtual int process_line(const std::string& line) = 0;
+	virtual int process_line() = 0;
 
 	std::ifstream m_file;
-	const EBootType m_mode;
+	std::string m_buffer;
 };
 
-IndexFileImplementation::IndexFileImplementation(const EBootType mode) : m_mode(mode)
+IndexFileImplementation::IndexFileImplementation()
 {
 }
 
@@ -33,7 +34,7 @@ bool IndexFileImplementation::open()
 	const auto& prefix = get_file_prefix();
 	if (prefix.empty())
 	{
-		log("SYSERR: Unknown subcommand %d to index_boot!", m_mode);
+		log("SYSERR: Unknown subcommand %d to index_boot!", mode());
 		return false;
 	}
 
@@ -60,15 +61,14 @@ int IndexFileImplementation::load()
 
 	const auto& prefix = get_file_prefix();
 
-	std::string line;
-	getline(line);
+	getline();
 	clear();
 	while (file().good()
-		&& (0 == line.size() || line[0] != '$'))
+		&& (0 == line().size() || line()[0] != '$'))
 	{
-		push_back(line);
-		rec_count += process_line(line);
-		getline(line);
+		push_back(line());
+		rec_count += process_line();
+		getline();
 	}
 
 	// Exit if 0 records, unless this is shops
@@ -87,34 +87,32 @@ int IndexFileImplementation::load()
 class ZoneIndexFile : public IndexFileImplementation
 {
 public:
-	ZoneIndexFile() : IndexFileImplementation(DB_BOOT_ZON) {}
-
 	static shared_ptr create() { return shared_ptr(new ZoneIndexFile()); }
 
 private:
-	virtual int process_line(const std::string&) { return 1; }
+	virtual EBootType mode() const { return DB_BOOT_ZON; }
+	virtual int process_line() { return 1; }
 };
 
 class FilesIndexFile : public IndexFileImplementation
 {
-public:
-	FilesIndexFile(const EBootType mode) : IndexFileImplementation(mode) {}
-
 protected:
 	const auto& entry_file() const { return m_entry_file; }
-	void get_entry_line(std::string& line) { std::getline(m_entry_file, line); }
+	const auto& entry_line() const { return m_buffer; }
+	void get_next_entry_line() { std::getline(m_entry_file, m_buffer); }
 
 private:
-	virtual int process_line(const std::string& line);
+	virtual int process_line();
 	virtual int process_file() = 0;
 
 	std::ifstream m_entry_file;
+	std::string m_buffer;
 };
 
-int FilesIndexFile::process_line(const std::string& line)
+int FilesIndexFile::process_line()
 {
 	const auto& prefix = get_file_prefix();
-	const std::string filename = prefix + line;
+	const std::string filename = prefix + line();
 	m_entry_file.open(filename, std::ios::in);
 	if (!m_entry_file.good())
 	{
@@ -128,50 +126,88 @@ int FilesIndexFile::process_line(const std::string& line)
 	return result;
 }
 
-class SocialIndexFile : public FilesIndexFile
+class HelpIndexFile : public FilesIndexFile
 {
 public:
-	/// TODO: get rid of references
-	SocialIndexFile(int& messages, int& keywords) : FilesIndexFile(DB_BOOT_SOCIAL), m_messages(messages), m_keywords(keywords) {}
+	HelpIndexFile() : m_messages(0), m_keywords(0), m_unexpected_eof(false) {}
+	static shared_ptr create() { return shared_ptr(new HelpIndexFile()); }
 
-	static shared_ptr create(int& messages, int& keywords) { return shared_ptr(new SocialIndexFile(messages, keywords)); }
+protected:
+	virtual int process_file();
+
+	auto get_keywords() const { return m_keywords; }
+	auto get_messages() const { return m_messages; }
 
 private:
-	virtual int process_file();
+	virtual EBootType mode() const { return DB_BOOT_HLP; }
 	int count_social_records();
+	bool skip_entry_body();
+	bool read_entry();
 
-	int& m_messages;
-	int& m_keywords;
+	void set_unexpected_eof() { m_unexpected_eof = true; }
+	bool get_unexpected_eof() const { return m_unexpected_eof; }
+
+	int m_messages;
+	int m_keywords;
+
+	std::string m_keywords_string;
+	bool m_unexpected_eof;
+	char next_key[READ_SIZE];
 };
 
-int SocialIndexFile::process_file()
+int HelpIndexFile::process_file()
 {
 	return count_social_records();
 }
 
-int SocialIndexFile::count_social_records()
+int HelpIndexFile::count_social_records()
 {
-	char next_key[READ_SIZE];
-	const char *scan;
-
-	std::string key;
-	get_entry_line(key);
-	while (0 < key.size() && key[0] != '$')  	// skip the text
+	while (read_entry())
 	{
-		std::string line;
-		do
+		if (m_unexpected_eof)
 		{
-			get_entry_line(line);
-			if (!entry_file().good())
-			{
-				log("SYSERR: Unexpected end of help file.");
-				exit(1);
-			}
-		} while (0 < line.size() && line[0] != '#');
+			log("SYSERR: Unexpected end of help file.");
+			exit(1);
+		}
+	}
 
-		// now count keywords
-		scan = key.c_str();
+	const auto result = get_keywords();
+	return result;
+}
+
+bool HelpIndexFile::skip_entry_body()
+{
+	while (entry_file().good())
+	{
+		get_next_entry_line();
+		if (0 < entry_line().size() && '#' == entry_line()[0])
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool HelpIndexFile::read_entry()
+{
+	while (file().good())
+	{
+		get_next_entry_line();
+		if (0 < entry_line().size() && '$' == entry_line()[0])
+		{
+			break;
+		}
+		m_keywords_string = entry_line();
+
+		if (!skip_entry_body())
+		{
+			m_unexpected_eof = true;
+			break;
+		}
+
 		++m_messages;
+		auto scan = m_keywords_string.c_str();
 		do
 		{
 			scan = one_word(scan, next_key);
@@ -180,95 +216,49 @@ int SocialIndexFile::count_social_records()
 				++m_keywords;
 			}
 		} while (*next_key);
-
-		get_entry_line(key);
-
-		if (!entry_file().good())
-		{
-			log("SYSERR: Unexpected end of help file.");
-		}
 	}
 
-	return 1;
+	if (!file().good())
+	{
+		m_unexpected_eof = true;
+	}
+
+	return false;
 }
 
-class HelpIndexFile : public FilesIndexFile
+class SocialIndexFile : public HelpIndexFile
 {
 public:
-	HelpIndexFile() : FilesIndexFile(DB_BOOT_HLP) {}
+	/// TODO: get rid of references
+	SocialIndexFile(int& messages, int& keywords) : m_messages_ref(messages), m_keywords_ref(keywords) {}
 
-	static shared_ptr create() { return shared_ptr(new HelpIndexFile()); }
+	static shared_ptr create(int& messages, int& keywords) { return shared_ptr(new SocialIndexFile(messages, keywords)); }
 
 private:
+	virtual EBootType mode() const { return DB_BOOT_SOCIAL; }
 	virtual int process_file();
-	int count_alias_records();
+
+	int& m_messages_ref;
+	int& m_keywords_ref;
 };
 
-int HelpIndexFile::process_file()
+int SocialIndexFile::process_file()
 {
-	return count_alias_records();
-}
+	const auto result = HelpIndexFile::process_file();
 
-/*
-* Thanks to Andrey (andrey@alex-ua.com) for this bit of code, although I
-* did add the 'goto' and changed some "while()" into "do { } while()".
-*      -gg 6/24/98 (technically 6/25/98, but I care not.)
-*/
-int HelpIndexFile::count_alias_records()
-{
-	char next_key[READ_SIZE];
-	const char *scan;
-	int total_keywords = 0;
+	m_messages_ref = get_messages();
+	m_keywords_ref = get_keywords();
 
-	std::string key;
-	get_entry_line(key);
-
-	while (0 < key.size() && key[0] != '$')  	// skip the text
-	{
-		std::string line;
-		do
-		{
-			get_entry_line(line);
-			if (!entry_file().good())
-			{
-				mudlog("SYSERR: Unexpected end of help file.", DEF, LVL_IMMORT, SYSLOG, TRUE);
-				return total_keywords;
-			}
-		} while (0 < line.size() && line[0] != '#');
-
-		// now count keywords
-		scan = key.c_str();
-		do
-		{
-			scan = one_word(scan, next_key);
-			if (*next_key)
-			{
-				++total_keywords;
-			}
-		} while (*next_key);
-
-		get_entry_line(key);
-
-		if (!entry_file().good())
-		{
-			mudlog("SYSERR: Unexpected end of help file.", DEF, LVL_IMMORT, SYSLOG, TRUE);
-			return total_keywords;
-		}
-	}
-
-	return total_keywords;
+	return result;
 }
 
 class HashSeparatedIndexFile : public FilesIndexFile
 {
-public:
-	HashSeparatedIndexFile(const EBootType mode) : FilesIndexFile(mode) {}
-
-	static shared_ptr create(const EBootType mode) { return shared_ptr(new HashSeparatedIndexFile(mode)); }
-
 private:
 	virtual int process_file();
 	int count_hash_records();
+
+	std::string m_buffer;
 };
 
 int HashSeparatedIndexFile::process_file()
@@ -280,27 +270,52 @@ int HashSeparatedIndexFile::process_file()
 int HashSeparatedIndexFile::count_hash_records()
 {
 	int count = 0;
-	std::string line;
-	for (get_entry_line(line); entry_file().good(); get_entry_line(line))
+	for (get_next_entry_line(); entry_file().good(); get_next_entry_line())
 	{
-		if (0 < line.size() && line[0] == '#')
+		if (0 < entry_line().size() && entry_line()[0] == '#')
 		{
 			count++;
 		}
 	}
 
-	return (count);
+	return count;
 }
+
+class MobileIndexFile : public HashSeparatedIndexFile
+{
+public:
+	static shared_ptr create() { return shared_ptr(new MobileIndexFile()); }
+
+private:
+	virtual EBootType mode() const { return DB_BOOT_MOB; }
+};
+
+class ObjectIndexFile : public HashSeparatedIndexFile
+{
+public:
+	static shared_ptr create() { return shared_ptr(new ObjectIndexFile()); }
+
+private:
+	virtual EBootType mode() const { return DB_BOOT_OBJ; }
+};
+
+class TriggerIndexFile : public HashSeparatedIndexFile
+{
+public:
+	static shared_ptr create() { return shared_ptr(new TriggerIndexFile()); }
+
+private:
+	virtual EBootType mode() const { return DB_BOOT_TRG; }
+};
 
 class WorldIndexFile : public IndexFileImplementation
 {
 public:
-	WorldIndexFile() : IndexFileImplementation(DB_BOOT_WLD) {}
-
 	static shared_ptr create() { return shared_ptr(new WorldIndexFile()); }
 
 private:
-	virtual int process_line(const std::string&) { return 1; }
+	virtual EBootType mode() const { return DB_BOOT_WLD; }
+	virtual int process_line() { return 1; }
 };
 
 extern int top_of_socialm;	// TODO: get rid of me
@@ -311,9 +326,13 @@ IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode)
 	switch (mode)
 	{
 	case DB_BOOT_MOB:
+		return MobileIndexFile::create();
+
 	case DB_BOOT_OBJ:
+		return ObjectIndexFile::create();
+
 	case DB_BOOT_TRG:
-		return HashSeparatedIndexFile::create(mode);
+		return TriggerIndexFile::create();
 
 	case DB_BOOT_WLD:
 		return WorldIndexFile::create();

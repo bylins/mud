@@ -1638,11 +1638,7 @@ inline bool isname(const std::string &str, const char *namelist) { return isname
 inline bool isname(const char* str, const std::string& namelist) { return isname(str, namelist.c_str()); }
 inline bool isname(const std::string &str, const std::string& namelist) { return isname(str.c_str(), namelist.c_str()); }
 
-/**
-* one_word is like one_argument, except that words in quotes ("") are
-* considered one word.
-*/
-const char* one_word(const char* argument, char *first_arg);
+extern const char* one_word(const char* argument, char *first_arg);
 
 #endif // _UTILS_H_
 

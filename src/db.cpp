@@ -2747,132 +2747,6 @@ void build_player_index(void)
 	return;
 }
 
-void parse_mobile(FILE * mob_f, int nr)
-{
-	static int i = 0;
-	int j, t[10];
-	char line[256], letter;
-	char f1[128], f2[128];
-
-	mob_index[i].vnum = nr;
-	mob_index[i].number = 0;
-	mob_index[i].func = NULL;
-	mob_index[i].set_idx = -1;
-
-	/*
-	* Mobiles should NEVER use anything in the 'player_specials' structure.
-	* The only reason we have every mob in the game share this copy of the
-	* structure is to save newbie coders from themselves. -gg 2/25/98
-	*/
-	mob_proto[i].player_specials = &dummy_mob;
-	sprintf(buf2, "mob vnum %d", nr);
-
-	// **** String data
-	char *tmp_str = fread_string(mob_f, buf2);
-	mob_proto[i].set_pc_name(tmp_str);
-	if (tmp_str)
-	{
-		free(tmp_str);
-	}
-	tmp_str = fread_string(mob_f, buf2);
-	mob_proto[i].set_npc_name(tmp_str);
-	if (tmp_str)
-	{
-		free(tmp_str);
-	}
-
-	// real name
-	CREATE(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().size() + 1);
-	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().c_str());
-	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
-	{
-		GET_PAD(mob_proto + i, j) = fread_string(mob_f, buf2);
-	}
-
-	mob_proto[i].player_data.long_descr = fread_string(mob_f, buf2);
-	mob_proto[i].player_data.description = fread_string(mob_f, buf2);
-	mob_proto[i].mob_specials.Questor = NULL;
-	mob_proto[i].player_data.title = NULL;
-
-	// mob_proto[i].mob_specials.Questor = fread_string(mob_f, buf2);
-
-	// *** Numeric data ***
-	if (!get_line(mob_f, line))
-	{
-		log("SYSERR: Format error after string section of mob #%d\n"
-			"...expecting line of form '# # # {S | E}', but file ended!\n%s", nr, line);
-		exit(1);
-	}
-#ifdef CIRCLE_ACORN		// Ugh.
-	if (sscanf(line, "%s %s %d %s", f1, f2, t + 2, &letter) != 4)
-	{
-#else
-	if (sscanf(line, "%s %s %d %c", f1, f2, t + 2, &letter) != 4)
-	{
-#endif
-		log("SYSERR: Format error after string section of mob #%d\n"
-			"...expecting line of form '# # # {S | E}'\n%s", nr, line);
-		exit(1);
-	}
-	MOB_FLAGS(&mob_proto[i]).from_string(f1);
-	MOB_FLAGS(&mob_proto[i]).set(MOB_ISNPC);
-	AFF_FLAGS(&mob_proto[i]).from_string(f2);
-	GET_ALIGNMENT(mob_proto + i) = t[2];
-	switch (UPPER(letter))
-	{
-	case 'S':		// Simple monsters
-		parse_simple_mob(mob_f, i, nr);
-		break;
-	case 'E':		// Circle3 Enhanced monsters
-		parse_enhanced_mob(mob_f, i, nr);
-		break;
-		// add new mob types here..
-	default:
-		log("SYSERR: Unsupported mob type '%c' in mob #%d", letter, nr);
-		exit(1);
-	}
-
-	// DG triggers -- script info follows mob S/E section
-	// DG triggers -- script is defined after the end of the room 'T'
-	// Ингредиентная магия -- 'I'
-	// Объекты загружаемые по-смертно -- 'D'
-
-	do
-	{
-		letter = fread_letter(mob_f);
-		ungetc(letter, mob_f);
-		switch (letter)
-		{
-		case 'I':
-			get_line(mob_f, line);
-			im_parse(&mob_proto[i].ing_list, line + 1);
-			break;
-		case 'L':
-			get_line(mob_f, line);
-			dl_parse(&mob_proto[i].dl_list, line + 1);
-			break;
-		case 'T':
-			dg_read_trigger(mob_f, &mob_proto[i], MOB_TRIGGER);
-			break;
-		default:
-			letter = 0;
-			break;
-		}
-	} while (letter != 0);
-
-	for (j = 0; j < NUM_WEARS; j++)
-	{
-		mob_proto[i].equipment[j] = NULL;
-	}
-
-	mob_proto[i].nr = i;
-	mob_proto[i].desc = NULL;
-
-	set_test_data(mob_proto + i);
-
-	top_of_mobt = i++;
-}
-
 char *str_dup_bl(const char *source)
 {
 	char line[MAX_INPUT_LENGTH];
@@ -3388,11 +3262,140 @@ public:
 
 private:
 	virtual void read_entry(const int nr) override;
+
+	void parse_mobile(const int nr);
 };
 
 void MobileFile::read_entry(const int nr)
 {
-	parse_mobile(file(), nr);
+	parse_mobile(nr);
+}
+
+void MobileFile::parse_mobile(const int nr)
+{
+	static int i = 0;
+	int j, t[10];
+	char line[256], letter;
+	char f1[128], f2[128];
+
+	mob_index[i].vnum = nr;
+	mob_index[i].number = 0;
+	mob_index[i].func = NULL;
+	mob_index[i].set_idx = -1;
+
+	/*
+	* Mobiles should NEVER use anything in the 'player_specials' structure.
+	* The only reason we have every mob in the game share this copy of the
+	* structure is to save newbie coders from themselves. -gg 2/25/98
+	*/
+	mob_proto[i].player_specials = &dummy_mob;
+	sprintf(buf2, "mob vnum %d", nr);
+
+	// **** String data
+	char *tmp_str = fread_string(file(), buf2);
+	mob_proto[i].set_pc_name(tmp_str);
+	if (tmp_str)
+	{
+		free(tmp_str);
+	}
+	tmp_str = fread_string(file(), buf2);
+	mob_proto[i].set_npc_name(tmp_str);
+	if (tmp_str)
+	{
+		free(tmp_str);
+	}
+
+	// real name
+	CREATE(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().size() + 1);
+	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().c_str());
+	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
+	{
+		GET_PAD(mob_proto + i, j) = fread_string(file(), buf2);
+	}
+
+	mob_proto[i].player_data.long_descr = fread_string(file(), buf2);
+	mob_proto[i].player_data.description = fread_string(file(), buf2);
+	mob_proto[i].mob_specials.Questor = NULL;
+	mob_proto[i].player_data.title = NULL;
+
+	// mob_proto[i].mob_specials.Questor = fread_string(mob_f, buf2);
+
+	// *** Numeric data ***
+	if (!get_line(file(), line))
+	{
+		log("SYSERR: Format error after string section of mob #%d\n"
+			"...expecting line of form '# # # {S | E}', but file ended!\n%s", nr, line);
+		exit(1);
+	}
+
+	if (sscanf(line, "%s %s %d %c", f1, f2, t + 2, &letter) != 4)
+	{
+		log("SYSERR: Format error after string section of mob #%d\n"
+			"...expecting line of form '# # # {S | E}'\n%s", nr, line);
+		exit(1);
+	}
+	MOB_FLAGS(&mob_proto[i]).from_string(f1);
+	MOB_FLAGS(&mob_proto[i]).set(MOB_ISNPC);
+	AFF_FLAGS(&mob_proto[i]).from_string(f2);
+	GET_ALIGNMENT(mob_proto + i) = t[2];
+	switch (UPPER(letter))
+	{
+	case 'S':		// Simple monsters
+		parse_simple_mob(file(), i, nr);
+		break;
+
+	case 'E':		// Circle3 Enhanced monsters
+		parse_enhanced_mob(file(), i, nr);
+		break;
+
+		// add new mob types here..
+	default:
+		log("SYSERR: Unsupported mob type '%c' in mob #%d", letter, nr);
+		exit(1);
+	}
+
+	// DG triggers -- script info follows mob S/E section
+	// DG triggers -- script is defined after the end of the room 'T'
+	// Ингредиентная магия -- 'I'
+	// Объекты загружаемые по-смертно -- 'D'
+
+	do
+	{
+		letter = fread_letter(file());
+		ungetc(letter, file());
+		switch (letter)
+		{
+		case 'I':
+			get_line(file(), line);
+			im_parse(&mob_proto[i].ing_list, line + 1);
+			break;
+
+		case 'L':
+			get_line(file(), line);
+			dl_parse(&mob_proto[i].dl_list, line + 1);
+			break;
+
+		case 'T':
+			dg_read_trigger(file(), &mob_proto[i], MOB_TRIGGER);
+			break;
+
+		default:
+			letter = 0;
+			break;
+		}
+	} while (letter != 0);
+
+	for (j = 0; j < NUM_WEARS; j++)
+	{
+		mob_proto[i].equipment[j] = NULL;
+	}
+
+	mob_proto[i].nr = i;
+	mob_proto[i].desc = NULL;
+
+	set_test_data(mob_proto + i);
+
+	top_of_mobt = i++;
 }
 
 bool DataFile::open()
