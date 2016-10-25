@@ -2220,7 +2220,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			int state = craft_weight;
 			// Обсчет веса ингров в цикле, если не хватило веса берем следующий ингр в инве, если не хватает, делаем фэйл (make_fail) и брекаем внешний цикл, смысл дальше ингры смотреть?
 			send_to_char(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
-			while (state > GET_OBJ_WEIGHT(ingrs[i]))
+			while (state > 0)
 			{       state = state - GET_OBJ_WEIGHT(ingrs[i]);
 				send_to_char(ch, "Новый требуемый вес для следующей итерации %d вес ингра %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]));
 				tmpstr = "Вам не хватило " + ingrs[i]->get_PName(1) + ".\r\n";
