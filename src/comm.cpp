@@ -3114,6 +3114,7 @@ int process_output(DESCRIPTOR_DATA * t)
 
 	// add a prompt
 	strncat(i, make_prompt(t), MAX_PROMPT_LENGTH);
+	t->msdp_report("STATE");
 
 	// easy color
 	int pos;

@@ -1,7 +1,6 @@
 #include "msdp.hpp"
 
 #include "char.hpp"
-#include "comm.h"
 #include "constants.h"
 #include "db.h"
 #include "utils.h"
@@ -42,7 +41,15 @@ namespace msdp
 
 					response.reset(new CVariable("REPORTABLE_VARIABLES",
 						new CArrayValue({
-						new CStringValue("ROOM")
+						new CStringValue("ROOM"),
+						new CStringValue("OBJ"),
+						new CStringValue("STATE"),
+						new CStringValue("GOLD"),
+						new CStringValue("MAXHIT"),
+						new CStringValue("MAXMANA"),
+						new CStringValue("MAXMOVE"),
+						new CStringValue("EXP"),
+						new CStringValue("LEVEL"),
 					})));
 				}
 				else if ("CONFIGURABLE_VARIABLES" == string->value())
@@ -129,6 +136,47 @@ namespace msdp
 		return HEAD_LENGTH + actual_length;
 	}
 
+
+	void report_obj(DESCRIPTOR_DATA* d, OBJ_DATA *obj, bool drop)
+	{
+		//report
+		if (!d->character)
+		{
+			return;
+		}
+
+		CVariable::variable_ptr_t response;
+		CTableValue* object = new CTableValue();
+		std::shared_ptr<char> obj_name(new char[1 + 4 * strlen(obj->get_PName(0).c_str())]);
+		d->string_to_client_encoding(obj->get_PName(0).c_str(), obj_name.get());
+		
+		object->add(new CVariable("NAME", new CStringValue(obj_name.get())));
+		// надо бы, конечно, сделать отдельный тип для bool, но мне лень, поэтому будет вот так
+		object->add(new CVariable("DROP", new CStringValue(std::to_string(drop))));
+		if (nullptr == response.get())
+		{
+			return;
+		}
+
+		debug_log("Report:");
+		response->dump();
+
+		const size_t buffer_size = WRAPPER_LENGTH + response->required_size();
+		std::shared_ptr<char> buffer(new char[buffer_size]);
+		buffer.get()[0] = char(IAC);
+		buffer.get()[1] = char(SB);
+		buffer.get()[2] = TELOPT_MSDP;
+		response->serialize(HEAD_LENGTH + buffer.get(), buffer_size - WRAPPER_LENGTH);
+		buffer.get()[buffer_size - 2] = char(IAC);
+		buffer.get()[buffer_size - 1] = char(SE);
+
+		hexdump(buffer.get(), buffer_size, "Response buffer:");
+
+		int written = 0;
+		write_to_descriptor_with_options(d, buffer.get(), buffer_size, written);
+	}
+
+
 	void report_room(DESCRIPTOR_DATA* d, CVariable::variable_ptr_t& response)
 	{
 		const auto rnum = IN_ROOM(d->character);
@@ -188,6 +236,69 @@ namespace msdp
 		response.reset(new CVariable("ROOM", room_descriptor));
 	}
 
+	void report_gold(DESCRIPTOR_DATA* d, CVariable::variable_ptr_t& response)
+	{
+		CTableValue* gold = new CTableValue();
+		gold->add(new CVariable("MONEY", new CStringValue(std::to_string(d->character->get_gold()))));
+		gold->add(new CVariable("BANK", new CStringValue(std::to_string(d->character->get_bank()))));
+		response.reset(new CVariable("GOLD", gold));
+	}
+
+	void report_max_hit(DESCRIPTOR_DATA* d, CVariable::variable_ptr_t& response)
+	{
+		CTableValue* maxhit = new CTableValue();
+		maxhit->add(new CVariable("MAXHIT", new CStringValue(std::to_string(GET_REAL_MAX_HIT(d->character)))));
+		response.reset(new CVariable("MAXHIT", maxhit));
+	}
+
+	void report_max_move(DESCRIPTOR_DATA* d, CVariable::variable_ptr_t& response)
+	{
+		CTableValue* maxmove = new CTableValue();
+		maxmove->add(new CVariable("MAXMOVE", new CStringValue(std::to_string(GET_REAL_MAX_MOVE(d->character)))));
+		response.reset(new CVariable("MAXMOVE", maxmove));
+	}
+
+	void report_max_mana(DESCRIPTOR_DATA* d, CVariable::variable_ptr_t& response)
+	{
+		CTableValue* maxmana = new CTableValue();
+		maxmana->add(new CVariable("MAXMANA", new CStringValue(std::to_string(GET_MAX_MANA(d->character)))));
+		response.reset(new CVariable("MAXMANA", maxmana));
+	}
+
+	void report_level(DESCRIPTOR_DATA* d, CVariable::variable_ptr_t& response)
+	{
+		CTableValue* level = new CTableValue();
+		level->add(new CVariable("LEVEL", new CStringValue(std::to_string(GET_LEVEL(d->character)))));
+		response.reset(new CVariable("LEVEL", level));
+	}
+
+	void report_exp(DESCRIPTOR_DATA* d, CVariable::variable_ptr_t& response)
+	{
+		CTableValue* exp = new CTableValue();
+		exp->add(new CVariable("EXP", new CStringValue(std::to_string(GET_LEVEL(d->character)))));
+		response.reset(new CVariable("EXP", exp));
+	}
+
+
+	void report_state(DESCRIPTOR_DATA* d, CVariable::variable_ptr_t& response)
+	{
+		CTableValue* state = new CTableValue();
+		state->add(new CVariable("CURHP", new CStringValue(std::to_string(GET_HIT(d->character)))));
+		//state->add(new CVariable("MAXHP", new CStringValue(std::to_string(GET_REAL_MAX_HIT(d->character)))));
+		//state->add(new CVariable("LEVEL", new CStringValue(std::to_string(GET_LEVEL(d->character)))));
+		state->add(new CVariable("CURMOV", new CStringValue(std::to_string(GET_MOVE(d->character)))));
+		//state->add(new CVariable("MAXMOV", new CStringValue(std::to_string(GET_REAL_MAX_MOVE(d->character)))));
+		if (IS_MANA_CASTER(d->character))
+		{
+			state->add(new CVariable("CURMANA", new CStringValue(std::to_string(GET_MANA_STORED(d->character)))));
+			//state->add(new CVariable("MAXMANA", new CStringValue(std::to_string(GET_MAX_MANA(d->character)))));
+		}
+		//state->add(new CVariable("MONEY", new CStringValue(std::to_string(d->character->get_gold()))));
+		//state->add(new CVariable("EXP", new CStringValue(std::to_string(GET_EXP(d->character)))));
+
+		response.reset(new CVariable("STATE", state));
+	}
+
 	void report(DESCRIPTOR_DATA* d, const std::string& name)
 	{
 		//report
@@ -201,6 +312,40 @@ namespace msdp
 		{
 			report_room(d, response);
 		}
+
+		if ("STATE" == name)
+		{
+			report_state(d, response);
+		}
+		if ("GOLD" == name)
+		{
+			report_gold(d, response);
+		}
+		if ("MAXHIT" == name)
+		{
+			report_max_hit(d, response);
+		}
+		if ("MAXMOVE" == name)
+		{
+			report_max_move(d, response);
+		}
+		if ("MAXMANA" == name)
+		{
+			report_max_mana(d, response);
+		}
+		if ("LEVEL" == name)
+		{
+			report_level(d, response);
+		}
+		if ("GOLD" == name)
+		{
+			report_gold(d, response);
+		}
+		if ("EXP" == name)
+		{
+			report_exp(d, response);
+		}
+
 
 		if (nullptr == response.get())
 		{
