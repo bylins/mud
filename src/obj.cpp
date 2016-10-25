@@ -22,6 +22,7 @@
 
 #include <cmath>
 #include <sstream>
+#include <memory>
 
 extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 extern int Crash_write_timer(int index);	// to avoid inclusion of "objsave.h"
@@ -128,6 +129,21 @@ void OBJ_DATA::zero_init()
 	m_activator.first = false;
 	m_activator.second = 0;
 	m_custom_label = nullptr;
+}
+
+void OBJ_DATA::detach_ex_description()
+{
+	const auto old_description = get_ex_description();
+	const auto new_description = std::make_shared<EXTRA_DESCR_DATA>();
+	if (nullptr != old_description->keyword)
+	{
+		new_description->keyword = str_dup(old_description->keyword);
+	}
+	if (nullptr != old_description->keyword)
+	{
+		new_description->description = str_dup(old_description->description);
+	}
+	set_ex_description(new_description);
 }
 
 // * См. Character::purge()
@@ -329,6 +345,11 @@ void CObjectPrototype::zero_init()
 		m_pnames[i].clear();
 	}
 	m_ilevel = 0;
+}
+
+void CObjectPrototype::tag_ex_description(const char* tag)
+{
+	m_ex_description->description = str_add(m_ex_description->description, tag);
 }
 
 CObjectPrototype& CObjectPrototype::operator=(const CObjectPrototype& from)
@@ -652,6 +673,20 @@ void OBJ_DATA::swap(OBJ_DATA& object)
 	//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
 	set_zone(GET_OBJ_ZONE(&object));
 	object.set_zone(GET_OBJ_ZONE(&tmpobj));
+}
+
+void OBJ_DATA::set_tag(const char* tag)
+{
+	if (!get_ex_description())
+	{
+		set_ex_description(get_aliases().c_str(), tag);
+	}
+	else
+	{
+		// По уму тут надо бы стереть старое описапние если оно не с прототипа
+		detach_ex_description();
+		tag_ex_description(tag);
+	}
 }
 
 float count_remort_requred(const CObjectPrototype* obj);
