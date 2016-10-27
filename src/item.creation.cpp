@@ -2196,23 +2196,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// 4. Считаем сколько материала треба.
 	if (!make_fail)
 	{
-		// удаляем шкуру
-		ingrs[0]->set_weight(0);
-		tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(3) + ".\r\n";
-		send_to_char(tmpstr.c_str(), ch);
-		for (i = 1; i < ingr_cnt; i++)
-		{
-			//
-			// нужный материал = мин.материал +
-			// random(100) - skill
-			// если она < 20 то мин.вес + rand(мин.вес/3)
-			// если она < 50 то мин.вес*rand(1,2) + rand(мин.вес/3)
-			// если она > 50    мин.вес*rand(2,5) + rand(мин.вес/3)
-			if (get_ingr_lev(ingrs[i]) == -1)
-				continue;	// Компонент не ингр. пропускаем.
-		ingrs[0]->set_weight(0);  // шкуру дикеим полностью
-		tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(3) + ".\r\n";
-		send_to_char(tmpstr.c_str(), ch);
 		for (i = 1; i < ingr_cnt; i++)
 		{
 			//
@@ -2278,7 +2261,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			{
 				// Просто удаляем предмет мы его потратили.
 				tmpstr = "Вы полностью использовали " + ingrs[i]->get_PName(0) + ".\r\n";
-				//				extract_obj(ingrs[i]);
+				extract_obj(ingrs[i]);
 			}
 			}
 				
