@@ -229,15 +229,15 @@ public:
 
 private:
 	virtual void read_entry(const int nr) override;
-	void parse_trigger(FILE * trig_f, int nr);
+	void parse_trigger(int nr);
 };
 
 void TriggersFile::read_entry(const int nr)
 {
-	parse_trigger(file(), nr);
+	parse_trigger(nr);
 }
 
-void TriggersFile::parse_trigger(FILE * trig_f, int nr)
+void TriggersFile::parse_trigger(int nr)
 {
 	int t[2], k, indlev;
 
@@ -245,7 +245,7 @@ void TriggersFile::parse_trigger(FILE * trig_f, int nr)
 
 	sprintf(buf2, "trig vnum %d", nr);
 	const auto trigger_name = fread_string();
-	get_line(trig_f, line);
+	get_line(file(), line);
 	int attach_type = 0;
 	k = sscanf(line, "%d %s %d", &attach_type, flags, t);
 	int trigger_type = 0;
