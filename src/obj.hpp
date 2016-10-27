@@ -259,7 +259,6 @@ public:
 	void add_proto_script(const obj_vnum vnum) { m_proto_script->push_back(vnum); }
 	void add_val(const size_t index, const int amount) { m_vals[index] += amount; }
 	void add_weight(const int _) { m_weight += _; }
-	void append_ex_description_tag(const char* tag) { m_ex_description->description = str_add(m_ex_description->description, tag); }
 	void clear_action_description() { m_action_description.clear(); }
 	void clear_affected(const size_t index) { m_affected[index].location = APPLY_NONE; }
 	void clear_all_affected();
@@ -359,6 +358,7 @@ protected:
 	void zero_init();
 	CObjectPrototype& operator=(const CObjectPrototype& from);	///< makes shallow copy of all fields except VNUM
 	void set_vnum(const obj_vnum vnum) { m_vnum = vnum; }		///< allow inherited classes change VNUM (to make possible objects transformations)
+	void tag_ex_description(const char* tag);
 
 private:
 	obj_vnum m_vnum;
@@ -774,9 +774,12 @@ public:
 	void copy_from(const CObjectPrototype* src);
 
 	void swap(OBJ_DATA& object);
+	void set_tag(const char* tag);
 
 private:
 	void zero_init();
+
+	void detach_ex_description();
 
 	unsigned int m_uid;
 	room_rnum m_in_room;	// In what room -1 when conta/carr //
@@ -840,7 +843,7 @@ inline bool OBJ_AFFECT(const CObjectPrototype* obj, const EWeaponAffectFlag weap
 	return OBJ_AFFECT(obj, static_cast<uint32_t>(weapon_affect));
 }
 
-class CActionDescriptionWriter : public CAbstractWriter
+class CActionDescriptionWriter : public AbstractStringWriter
 {
 public:
 	CActionDescriptionWriter(OBJ_DATA& object) : m_object(object) {}

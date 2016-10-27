@@ -73,7 +73,7 @@ int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg);
 int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const std::string &arg);
 
 // agressor проводит действия против victim
-void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim);
+bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim);
 
 // thief проводит действия против victim, приводящие к скрытому флагу
 void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim);

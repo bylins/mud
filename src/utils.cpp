@@ -142,7 +142,7 @@ char * CAP(char *txt)
 	return (txt);
 }
 
-// Create and append to dinamyc length string - Alez
+// Create and append to dynamic length string - Alez
 char *str_add(char *dst, const char *src)
 {
 	if (dst == NULL)
@@ -1357,7 +1357,7 @@ void koi_to_alt(char *str, int size)
 // completely rewritten by Anton Gorev 05/08/2016 (kvirund@gmail.com) //
 // substitute appearances of 'pattern' with 'replacement' in string //
 // and return the # of replacements //
-int replace_str(const string_writer_t& writer, char *pattern, char *replacement, int rep_all, int max_size)
+int replace_str(const AbstractStringWriter::shared_ptr& writer, const char *pattern, const char *replacement, int rep_all, int max_size)
 {
 	char *replace_buffer = nullptr;
 	CREATE(replace_buffer, max_size);
@@ -1384,13 +1384,14 @@ int replace_str(const string_writer_t& writer, char *pattern, char *replacement,
 				return -1;	// destination does not have enough space.
 			}
 
-			strncpy(replace_buffer, from, from - pos);
-			replace_buffer += from - pos;
+			strncpy(replace_buffer, from, pos - from);
+			replace_buffer += pos - from;
 
 			strncpy(replace_buffer, replacement, replacement_length);
 			replace_buffer += replacement_length;
+			remains -= replacement_length;
 
-			const size_t processed = from - pos + pattern_length;
+			const size_t processed = pos - from + pattern_length;
 			source_remained -= processed;
 			from += processed;
 
@@ -1409,17 +1410,18 @@ int replace_str(const string_writer_t& writer, char *pattern, char *replacement,
 		return 0;
 	}
 
-	if (count > 0)
+	if (0 < source_remained)
 	{
-		writer->set_string(guard.get());
+		strncpy(replace_buffer, from, std::min(remains, source_remained));
 	}
+	writer->set_string(guard.get());
 
 	return count;
 }
 
 // re-formats message type formatted char * //
 // (for strings edited with d->str) (mostly olc and mail)     //
-void format_text(const string_writer_t& writer, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
+void format_text(const AbstractStringWriter::shared_ptr& writer, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
 {
 	size_t total_chars = 0;
 	int cap_next = TRUE, cap_next_next = FALSE;
@@ -3510,6 +3512,41 @@ bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const
 	return true;
 }
 
+std::string ParseFilter::show_obj_aff(OBJ_DATA *obj)
+{
+	if (!affect_apply.empty())
+	{
+		for (auto it = affect_apply.begin(); it != affect_apply.end(); ++it)
+		{
+			for (int i = 0; i < MAX_OBJ_AFFECT; ++i)
+			{
+				if (obj->get_affected(i).location == *it)
+				{
+					int mod = obj->get_affected(i).modifier;
+					char buf_[MAX_INPUT_LENGTH];
+					sprinttype(obj->get_affected(i).location, apply_types, buf_);
+					for (int j = 0; *apply_negative[j] != '\n'; j++)
+					{
+						if (!str_cmp(buf_, apply_negative[j]))
+						{
+							mod = -mod;
+						}
+					}
+					std::string return_str(buf_);
+					if (mod > 0)
+						return_str = return_str + " +" + std::to_string(mod);
+					else
+						return_str = return_str + " " + std::to_string(mod);
+					return "(" + return_str + ")";
+				}
+
+			}
+		}
+	}
+	return " ";
+}
+
+
 bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
 {
 	bool result = true;
@@ -3533,12 +3570,8 @@ bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
 							break;
 						}
 					}
-
-					if (mod > 0)
-					{
-						result = true;
-						break;
-					}
+					result = true;
+					break;
 				}
 			}
 		}

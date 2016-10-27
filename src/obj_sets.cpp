@@ -752,7 +752,7 @@ void print_off_msg(CHAR_DATA *ch, OBJ_DATA *obj)
 	const auto set_idx = GET_OBJ_RNUM(obj) >= 0
 		? obj_proto.set_idx(GET_OBJ_RNUM(obj))
 		: ~0ull;
-	if (set_idx == ~0ull)
+	if (set_idx != ~0ull)
 	{
 		obj_sets::print_msg(ch, obj, set_idx, false);
 	}

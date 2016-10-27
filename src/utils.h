@@ -90,8 +90,8 @@ int get_filename(const char *orig_name, char *filename, int mode);
 TIME_INFO_DATA *age(CHAR_DATA * ch);
 int num_pc_in_room(ROOM_DATA * room);
 void core_dump_real(const char *, int);
-int replace_str(const string_writer_t& writer, char *pattern, char *replacement, int rep_all, int max_size);
-void format_text(const string_writer_t& writer, int mode, DESCRIPTOR_DATA * d, size_t maxlen);
+int replace_str(const AbstractStringWriter::shared_ptr& writer, const char *pattern, const char *replacement, int rep_all, int max_size);
+void format_text(const AbstractStringWriter::shared_ptr& writer, int mode, DESCRIPTOR_DATA * d, size_t maxlen);
 int check_moves(CHAR_DATA * ch, int how_moves);
 void to_koi(char *str, int from);
 void from_koi(char *str, int to);
@@ -1567,6 +1567,8 @@ struct ParseFilter
 	std::vector<int> affect_apply; // аффекты apply_types
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
+	
+	std::string show_obj_aff(OBJ_DATA *obj);
 
 private:
 	bool check_name(OBJ_DATA *obj, CHAR_DATA *ch = 0) const;

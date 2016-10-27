@@ -2333,7 +2333,8 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
 
 				if ((keeper_leader == victim_leader) && (may_kill_here(keeper->master, ch)))
 				{
-					pk_agro_action(keeper->master, ch);
+					if (!pk_agro_action(keeper->master, ch))
+						return;
 					send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
 						GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
 					snprintf(buf, MAX_STRING_LENGTH, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
@@ -2411,7 +2412,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
 		}
-		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_HORSE) || AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)|| MOB_FLAGGED(killer, MOB_GHOST)) && killer->master)
+		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)|| MOB_FLAGGED(killer, MOB_GHOST)) && killer->master)
 			// killer - зачармленный NPC с хозяином
 		{
 			// по логике надо бы сделать, что если хозяина нет в клетке, но
@@ -2526,7 +2527,8 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		if (GET_POS(ch) > POS_STUNNED && (ch->get_fighting() == NULL))
 		{
-			pk_agro_action(ch, victim);
+			if (!pk_agro_action(ch, victim))
+				return (0);
 			set_fighting(ch, victim);
 			npc_groupbattle(ch);
 		}
@@ -4058,6 +4060,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)
 				&& !(MOB_FLAGGED(victim, MOB_PROTECT)))
 			&& (number(1,100) <= 6)
+			&& IS_NPC(victim)
 			&& !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;

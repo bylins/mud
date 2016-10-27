@@ -44,12 +44,14 @@ constexpr auto WEAR_TAKE_ARMS= WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_AR
 constexpr auto WEAR_TAKE_LEGS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_LEGS);
 constexpr auto WEAR_TAKE_HEAD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HEAD);
 constexpr auto WEAR_TAKE_BOTHS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS);
+constexpr auto WEAR_TAKE_DUAL = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HOLD) | to_underlying(EWearFlag::ITEM_WEAR_WIELD);
+constexpr auto WEAR_TAKE_HOLD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HOLD);
 struct create_item_type created_item[] =
 {
 	{300, 0x7E, 15, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD},
 	{301, 0x7E, 12, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
-	{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
-	{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
+	{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_DUAL },
+	{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_HOLD },
 	{304, 0x7E, 10, 35, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD },
 	{305, 0, 8, 15, {{0, 0, 0}}, SKILL_INVALID, WEAR_TAKE_BOTHS_WIELD },
 	{306, 0, 8, 20, {{0, 0, 0}}, SKILL_INVALID, WEAR_TAKE_BOTHS_WIELD },
@@ -934,7 +936,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 			sdice += GET_OBJ_WEIGHT(tobj) / 10;
 			tobj->set_val(1, ndice);
 			tobj->set_val(2, sdice);
-			tobj->set_wear_flags(created_item[obj_type].wear);
+//			tobj->set_wear_flags(created_item[obj_type].wear); пусть wear флаги будут из прототипа
 			if (skill != SKILL_CREATEBOW)
 			{
 				if (GET_OBJ_WEIGHT(tobj) < 14 && percent * 4 > prob)
@@ -2218,8 +2220,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 			int state = craft_weight;
 			// Обсчет веса ингров в цикле, если не хватило веса берем следующий ингр в инве, если не хватает, делаем фэйл (make_fail) и брекаем внешний цикл, смысл дальше ингры смотреть?
 			send_to_char(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
-			while (state > GET_OBJ_WEIGHT(ingrs[i]))
-			{       state = state - GET_OBJ_WEIGHT(ingrs[i]);
+			while (state > 0)
+			{       
+				state = MAX(0, state - GET_OBJ_WEIGHT(ingrs[i]));
 				send_to_char(ch, "Новый требуемый вес для следующей итерации %d вес ингра %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]));
 				tmpstr = "Вам не хватило " + ingrs[i]->get_PName(1) + ".\r\n";
 				send_to_char(tmpstr.c_str(), ch);
@@ -2492,15 +2495,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		// Прибавляем в экстра описание строчку.
 		char *tagchar = format_act(itemtag.c_str(), ch, obj, 0);
 
-		if (!obj->get_ex_description())
-		{
-			obj->set_ex_description(obj->get_aliases().c_str(), tagchar);
-		}
-		else
-		{
-			// По уму тут надо бы стереть старое описапние если оно не с прототипа
-			obj->append_ex_description_tag(tagchar);
-		}
+		obj->set_tag(tagchar);
 
 		free(tagchar);
 	};
