@@ -260,7 +260,6 @@ void trig_log(TRIG_DATA * trig, const char *msg, const int type = 0);// --//--
 void dg_read_trigger(FILE * fp, void *i, int type);
 void dg_obj_trigger(char *line, OBJ_DATA * obj);
 void assign_triggers(void *i, int type);
-void parse_trigger(FILE * trig_f, int nr);
 int real_trigger(int vnum);
 void extract_script(struct SCRIPT_DATA *sc);
 void extract_script_mem(struct script_memory *sc);

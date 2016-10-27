@@ -38,7 +38,6 @@ int create_entry(const char *name);
 void zone_update(void);
 bool can_be_reset(zone_rnum zone);
 room_rnum real_room(room_vnum vnum);
-char *fread_string(FILE * fl, char *error);
 long get_id_by_name(char *name);
 long get_id_by_uid(long uid);
 int get_uid_by_id(int id);

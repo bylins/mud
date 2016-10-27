@@ -22,6 +22,7 @@ set(SOURCES
 	src/bonus.cpp
 	src/boot.constants.cpp
 	src/boot.index.cpp
+	src/boot.data.files.cpp
 	src/cache.cpp
 	src/celebrates.cpp
 	src/char.cpp
@@ -140,6 +141,7 @@ set(HEADERS
 	src/bonus.h
 	src/boot.constants.hpp
 	src/boot.index.hpp
+	src/boot.data.files.hpp
 	src/cache.hpp
 	src/celebrates.hpp
 	src/char.hpp

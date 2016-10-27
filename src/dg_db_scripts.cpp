@@ -145,64 +145,6 @@ void indent_trigger(std::string& cmd, int* level)
 	cmd = cmd_copy;
 }
 
-void parse_trigger(FILE * trig_f, int nr)
-{
-	int t[2], k, indlev;
-
-	char line[256], *cmds, flags[256], *s;
-
-	sprintf(buf2, "trig vnum %d", nr);
-	const auto trigger_name = fread_string(trig_f, buf2);
-	get_line(trig_f, line);
-	int attach_type = 0;
-	k = sscanf(line, "%d %s %d", &attach_type, flags, t);
-	int trigger_type = 0;
-	asciiflag_conv(flags, &trigger_type);
-
-	const auto rnum = top_of_trigt;
-	TRIG_DATA *trig = new TRIG_DATA(rnum, trigger_name, static_cast<byte>(attach_type), trigger_type);
-
-	trig->narg = (k == 3) ? t[0] : 0;
-	trig->arglist = fread_string(trig_f, buf2);
-	s = cmds = fread_string(trig_f, buf2);
-
-	trig->cmdlist->reset(new cmdlist_element());
-	const auto& cmdlist = *trig->cmdlist;
-	const auto cmd_token = strtok(s, "\n\r");
-	cmdlist->cmd = cmd_token ? cmd_token : "";
-
-	indlev = 0;
-	indent_trigger(cmdlist->cmd, &indlev);
-
-	auto cle = cmdlist;
-
-	while ((s = strtok(NULL, "\n\r")))
-	{
-		cle->next.reset(new cmdlist_element());
-		cle = cle->next;
-		cle->cmd = s;
-		indent_trigger(cle->cmd, &indlev);
-	}
-
-	if (indlev > 0)
-	{
-		char tmp[MAX_INPUT_LENGTH];
-		snprintf(tmp, sizeof(tmp), "Positive indent-level on trigger #%d end.", nr);
-		log("%s",tmp);
-		Boards::dg_script_text += tmp + std::string("\r\n");
-	}
-
-	free(cmds);
-	
-	index_data *index;
-	CREATE(index, 1);
-	index->vnum = nr;
-	index->number = 0;
-	index->func = NULL;
-	index->proto = trig;
-	trig_index[top_of_trigt++] = index;
-}
-
 /*
  * create a new trigger from a prototype.
  * nr is the real number of the trigger.

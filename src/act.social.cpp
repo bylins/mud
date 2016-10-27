@@ -27,8 +27,6 @@
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 
-void get_one_line(FILE * fl, char *buf);
-
 // local globals
 int top_of_socialm = -1;
 int top_of_socialk = -1;
