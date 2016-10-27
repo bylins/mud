@@ -1075,6 +1075,7 @@ private:
 	void parse_simple_mob(int i, int nr);
 	void parse_enhanced_mob(int i, int nr);
 	void parse_espec(char *buf, int i, int nr);
+	void interpret_espec(const char *keyword, const char *value, int i, int nr);
 };
 
 void MobileFile::read_entry(const int nr)
@@ -1344,6 +1345,283 @@ void MobileFile::parse_espec(char *buf, int i, int nr)
 		ptr = NULL;
 	}
 	interpret_espec(buf, ptr, i, nr);
+}
+
+void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr)
+{
+	struct helper_data_type *helper;
+	int k, num_arg, matched = 0, t[7];
+
+	num_arg = atoi(value);
+
+#define CASE(test) if (!matched && !str_cmp(keyword, test) && (matched = 1))
+#define RANGE(low, high) (num_arg = MAX((low), MIN((high), (num_arg))))
+
+	//Added by Adept
+	CASE("Resistances")
+	{
+		if (sscanf(value, "%d %d %d %d %d %d %d", t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6) != 7)
+		{
+			log("SYSERROR : Excepted format <# # # # # # #> for RESISTANCES in MOB #%d", i);
+			return;
+		}
+		for (k = 0; k < MAX_NUMBER_RESISTANCE; k++)
+			GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
+	}
+
+	CASE("Saves")
+	{
+		if (sscanf(value, "%d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
+		{
+			log("SYSERROR : Excepted format <# # # #> for SAVES in MOB #%d", i);
+			return;
+		}
+		for (k = 0; k < SAVING_COUNT; k++)
+			GET_SAVE(mob_proto + i, k) = MIN(200, MAX(-200, t[k]));
+	}
+
+	CASE("HPReg")
+	{
+		RANGE(-200, 200);
+		mob_proto[i].add_abils.hitreg = num_arg;
+	}
+
+	CASE("Armour")
+	{
+		RANGE(0, 100);
+		mob_proto[i].add_abils.armour = num_arg;
+	}
+
+	CASE("PlusMem")
+	{
+		RANGE(-200, 200);
+		mob_proto[i].add_abils.manareg = num_arg;
+	}
+
+	CASE("CastSuccess")
+	{
+		RANGE(-200, 200);
+		mob_proto[i].add_abils.cast_success = num_arg;
+	}
+
+	CASE("Success")
+	{
+		RANGE(-200, 200);
+		mob_proto[i].add_abils.morale_add = num_arg;
+	}
+
+	CASE("Initiative")
+	{
+		RANGE(-200, 200);
+		mob_proto[i].add_abils.initiative_add = num_arg;
+	}
+
+	CASE("Absorbe")
+	{
+		RANGE(-200, 200);
+		mob_proto[i].add_abils.absorb = num_arg;
+	}
+	CASE("AResist")
+	{
+		RANGE(0, 100);
+		mob_proto[i].add_abils.aresist = num_arg;
+	}
+	CASE("MResist")
+	{
+		RANGE(0, 100);
+		mob_proto[i].add_abils.mresist = num_arg;
+	}
+	//End of changed
+	// added by WorM (Видолюб) поглощение физ.урона в %
+	CASE("PResist")
+	{
+		RANGE(0, 100);
+		mob_proto[i].add_abils.presist = num_arg;
+	}
+	// end by WorM
+	CASE("BareHandAttack")
+	{
+		RANGE(0, 99);
+		mob_proto[i].mob_specials.attack_type = num_arg;
+	}
+
+	CASE("Destination")
+	{
+		if (mob_proto[i].mob_specials.dest_count < MAX_DEST)
+		{
+			mob_proto[i].mob_specials.dest[mob_proto[i].mob_specials.dest_count] = num_arg;
+			mob_proto[i].mob_specials.dest_count++;
+		}
+	}
+
+	CASE("Str")
+	{
+		mob_proto[i].set_str(num_arg);
+	}
+
+	CASE("StrAdd")
+	{
+		mob_proto[i].set_str_add(num_arg);
+	}
+
+	CASE("Int")
+	{
+		RANGE(3, 50);
+		mob_proto[i].set_int(num_arg);
+	}
+
+	CASE("Wis")
+	{
+		RANGE(3, 50);
+		mob_proto[i].set_wis(num_arg);
+	}
+
+	CASE("Dex")
+	{
+		mob_proto[i].set_dex(num_arg);
+	}
+
+	CASE("Con")
+	{
+		mob_proto[i].set_con(num_arg);
+	}
+
+	CASE("Cha")
+	{
+		RANGE(3, 50);
+		mob_proto[i].set_cha(num_arg);
+	}
+
+	CASE("Size")
+	{
+		RANGE(0, 100);
+		mob_proto[i].real_abils.size = num_arg;
+	}
+	// *** Extended for Adamant
+	CASE("LikeWork")
+	{
+		RANGE(0, 200);
+		mob_proto[i].mob_specials.LikeWork = num_arg;
+	}
+
+	CASE("MaxFactor")
+	{
+		RANGE(0, 255);
+		mob_proto[i].mob_specials.MaxFactor = num_arg;
+	}
+
+	CASE("ExtraAttack")
+	{
+		RANGE(0, 255);
+		mob_proto[i].mob_specials.ExtraAttack = num_arg;
+	}
+
+	CASE("Class")
+	{
+		RANGE(NPC_CLASS_BASE, NPC_CLASS_LAST);
+		mob_proto[i].set_class(num_arg);
+	}
+
+
+	CASE("Height")
+	{
+		RANGE(0, 200);
+		mob_proto[i].player_data.height = num_arg;
+	}
+
+	CASE("Weight")
+	{
+		RANGE(0, 200);
+		mob_proto[i].player_data.weight = num_arg;
+	}
+
+	CASE("Race")
+	{
+		RANGE(NPC_RACE_BASIC, NPC_RACE_NEXT - 1);
+		mob_proto[i].player_data.Race = num_arg;
+	}
+
+	CASE("Special_Bitvector")
+	{
+		mob_proto[i].mob_specials.npc_flags.from_string((char *)value);
+		// *** Empty now
+	}
+
+	// Gorrah
+	CASE("Feat")
+	{
+		if (sscanf(value, "%d", t) != 1)
+		{
+			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", i);
+			return;
+		}
+		if (t[0] >= MAX_FEATS || t[0] <= 0)
+		{
+			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
+			return;
+		}
+		SET_FEAT(mob_proto + i, t[0]);
+	}
+	// End of changes
+
+	CASE("Skill")
+	{
+		if (sscanf(value, "%d %d", t, t + 1) != 2)
+		{
+			log("SYSERROR : Excepted format <# #> for SKILL in MOB #%d", i);
+			return;
+		}
+		if (t[0] > MAX_SKILL_NUM || t[0] < 1)
+		{
+			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], i);
+			return;
+		}
+		t[1] = MIN(200, MAX(0, t[1]));
+		(mob_proto + i)->set_skill(static_cast<ESkill>(t[0]), t[1]);
+	}
+
+	CASE("Spell")
+	{
+		if (sscanf(value, "%d", t + 0) != 1)
+		{
+			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", i);
+			return;
+		}
+		if (t[0] > MAX_SPELLS || t[0] < 1)
+		{
+			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
+			return;
+		}
+		GET_SPELL_MEM(mob_proto + i, t[0]) += 1;
+		GET_CASTER(mob_proto + i) += (IS_SET(spell_info[t[0]].routines, NPC_CALCULATE) ? 1 : 0);
+		// log("Set spell %d to %d(%s)", t[0], GET_SPELL_MEM(mob_proto + i, t[0]), GET_NAME(mob_proto + i));
+	}
+
+	CASE("Helper")
+	{
+		CREATE(helper, 1);
+		helper->mob_vnum = num_arg;
+		helper->next_helper = GET_HELPER(mob_proto + i);
+		GET_HELPER(mob_proto + i) = helper;
+	}
+
+	CASE("Role")
+	{
+		if (value && *value)
+		{
+			std::string str(value);
+			boost::dynamic_bitset<> tmp(str);
+			tmp.resize(mob_proto[i].get_role().size());
+			mob_proto[i].set_role(tmp);
+		}
+	}
+
+	if (!matched)
+	{
+		log("SYSERR: Warning: unrecognized espec keyword %s in mob #%d", keyword, nr);
+	}
+#undef CASE
+#undef RANGE
 }
 
 class ZoneFile : public DataFile
