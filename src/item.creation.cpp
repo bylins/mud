@@ -2196,6 +2196,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// 4. Считаем сколько материала треба.
 	if (!make_fail)
 	{
+		ingrs[0]->set_weight(0);  // шкуру дикеим полностью
+		tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(3) + ".\r\n";
+		send_to_char(tmpstr.c_str(), ch);
 		for (i = 1; i < ingr_cnt; i++)
 		{
 			//
@@ -2261,11 +2264,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 			{
 				// Просто удаляем предмет мы его потратили.
 				tmpstr = "Вы полностью использовали " + ingrs[i]->get_PName(0) + ".\r\n";
-				extract_obj(ingrs[i]);
+				//extract_obj(ingrs[i]);
 			}
-			}
-				
-
 				
 		}
 	}
