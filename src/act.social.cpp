@@ -27,8 +27,6 @@
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 
-void get_one_line(FILE * fl, char *buf);
-
 // local globals
 int top_of_socialm = -1;
 int top_of_socialk = -1;
@@ -225,93 +223,6 @@ void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 		send_to_char("&KВы уверены, что стоит оскорблять такими словами всех?&n\r\n", ch);
-}
-
-char *str_dup_bl(const char *source)
-{
-	char line[MAX_INPUT_LENGTH];
-
-	line[0] = 0;
-	if (source[0])
-	{
-		strcat(line, "&K");
-		strcat(line, source);
-		strcat(line, "&n");
-	}
-
-	return (str_dup(line));
-}
-
-void load_socials(FILE * fl)
-{
-	char line[MAX_INPUT_LENGTH], *scan, next_key[MAX_INPUT_LENGTH];
-	int key = -1, message = -1, c_min_pos, c_max_pos, v_min_pos, v_max_pos, what;
-
-	// get the first keyword line
-	get_one_line(fl, line);
-	while (*line != '$')
-	{
-		message++;
-		scan = one_word(line, next_key);
-		while (*next_key)
-		{
-			key++;
-			log("Social %d '%s' - message %d", key, next_key, message);
-			soc_keys_list[key].keyword = str_dup(next_key);
-			soc_keys_list[key].social_message = message;
-			scan = one_word(scan, next_key);
-		}
-
-		what = 0;
-		get_one_line(fl, line);
-		while (*line != '#')
-		{
-			scan = line;
-			skip_spaces(&scan);
-			if (scan && *scan && *scan != ';')
-			{
-				switch (what)
-				{
-				case 0:
-					if (sscanf
-							(scan, " %d %d %d %d \n", &c_min_pos, &c_max_pos,
-							 &v_min_pos, &v_max_pos) < 4)
-					{
-						log("SYSERR: format error in %d social file near social '%s' #d #d #d #d\n", message, line);
-						exit(1);
-					}
-					soc_mess_list[message].ch_min_pos = c_min_pos;
-					soc_mess_list[message].ch_max_pos = c_max_pos;
-					soc_mess_list[message].vict_min_pos = v_min_pos;
-					soc_mess_list[message].vict_max_pos = v_max_pos;
-					break;
-				case 1:
-					soc_mess_list[message].char_no_arg = str_dup_bl(scan);
-					break;
-				case 2:
-					soc_mess_list[message].others_no_arg = str_dup_bl(scan);
-					break;
-				case 3:
-					soc_mess_list[message].char_found = str_dup_bl(scan);
-					break;
-				case 4:
-					soc_mess_list[message].others_found = str_dup_bl(scan);
-					break;
-				case 5:
-					soc_mess_list[message].vict_found = str_dup_bl(scan);
-					break;
-				case 6:
-					soc_mess_list[message].not_found = str_dup_bl(scan);
-					break;
-				}
-			}
-			if (!scan || *scan != ';')
-				what++;
-			get_one_line(fl, line);
-		}
-		// get next keyword line (or $)
-		get_one_line(fl, line);
-	}
 }
 
 char *fread_action(FILE * fl, int nr)

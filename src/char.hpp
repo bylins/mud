@@ -347,13 +347,13 @@ public:
 	using shared_ptr = std::shared_ptr<CHAR_DATA>;
 	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
+	using role_t = boost::dynamic_bitset<>;
 
 	CHAR_DATA();
 	virtual ~CHAR_DATA();
 
 	friend void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src);
-	friend void interpret_espec(const char *keyword, const char *value, int i, int nr);
 
 	void set_skill(const ESkill skill_num, int percent);
 	void set_skill(short remort);
@@ -593,6 +593,9 @@ public:
 	size_t remove_random_affects(const size_t count);
 	const char* print_affects_to_buffer(char* buffer, const size_t size) const;
 
+	const auto& get_role() const { return role_; }
+	void set_role(const role_t& new_role) { role_ = new_role; }
+
 private:
 	std::string clan_for_title();
 	std::string only_title_noclan();
@@ -671,7 +674,7 @@ private:
 	//текущая форма
 	MorphPtr current_morph_;
 	// аналог класса у моба
-	boost::dynamic_bitset<> role_;
+	role_t role_;
 	// для боссов: список атакующих (и им сочувствующих), uid->atacker
 	std::unordered_map<int, attacker_node> attackers_;
 	// для боссов: таймер (в секундах), включающийся по окончанию боя

@@ -1640,6 +1640,8 @@ inline bool isname(const std::string &str, const char *namelist) { return isname
 inline bool isname(const char* str, const std::string& namelist) { return isname(str, namelist.c_str()); }
 inline bool isname(const std::string &str, const std::string& namelist) { return isname(str.c_str(), namelist.c_str()); }
 
+extern const char* one_word(const char* argument, char *first_arg);
+
 #endif // _UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

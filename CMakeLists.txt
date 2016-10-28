@@ -20,6 +20,9 @@ set(SOURCES
 	src/birth_places.cpp
 	src/boards.cpp
 	src/bonus.cpp
+	src/boot.constants.cpp
+	src/boot.index.cpp
+	src/boot.data.files.cpp
 	src/cache.cpp
 	src/celebrates.cpp
 	src/char.cpp
@@ -136,6 +139,9 @@ set(HEADERS
 	src/birth_places.hpp
 	src/boards.h
 	src/bonus.h
+	src/boot.constants.hpp
+	src/boot.index.hpp
+	src/boot.data.files.hpp
 	src/cache.hpp
 	src/celebrates.hpp
 	src/char.hpp
@@ -152,6 +158,7 @@ set(HEADERS
 	src/deathtrap.hpp
 	src/depot.hpp
 	src/description.h
+	src/dg_db_scripts.hpp
 	src/dg_event.h
 	src/dg_olc.h
 	src/dg_scripts.h

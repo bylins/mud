@@ -377,44 +377,6 @@ template<class T> T any_one_arg(T argument, char* first_arg)
 }
 
 /**
-* one_word is like one_argument, except that words in quotes ("") are
-* considered one word.
-*/
-template<class T> T one_word(T argument, char *first_arg)
-{
-	char *begin = first_arg;
-
-	do
-	{
-		skip_spaces(&argument);
-		first_arg = begin;
-
-		if (*argument == '\"')
-		{
-			argument++;
-			while (*argument && *argument != '\"')
-			{
-				*(first_arg++) = a_lcc(*argument);
-				argument++;
-			}
-			argument++;
-		}
-		else
-		{
-			while (*argument && !a_isspace(*argument))
-			{
-				*(first_arg++) = a_lcc(*argument);
-				argument++;
-			}
-		}
-		*first_arg = '\0';
-	}
-	while (fill_word(begin));
-
-	return (argument);
-}
-
-/**
 * Same as one_argument except that it takes two args and returns the rest;
 * ignores fill words
 */

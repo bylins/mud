@@ -36,6 +36,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "dg_db_scripts.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -52,7 +53,6 @@ int last_trig_vnum=0;
 
 // other external vars
 
-extern std::map<int, std::map<int, std::vector<int>>> owner_trig;
 extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 extern CHAR_DATA *combat_list;
 extern OBJ_DATA *object_list;
@@ -5965,15 +5965,15 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				{
 					out += "[";
 					std::string  out_tmp = "";
-					for (unsigned int i = 0; i < (*it).second.size(); i++)
+					for (const auto trigger_vnum : it->second)
 					{						
-						sprintf(buf, " [%d]", (*it).second[i]);
+						sprintf(buf, " [%d]", trigger_vnum);
 						out_tmp += buf;
 					}
 
-					if ((*it).first != -1)
+					if (it->first != -1)
 					{
-						out += std::to_string((*it).first) + " : ";
+						out += std::to_string(it->first) + " : ";
 					}
 
 					out += out_tmp + "]";				
