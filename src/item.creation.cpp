@@ -1898,6 +1898,9 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 
 }
 
+
+
+
 // создать предмет по рецепту
 int MakeRecept::make(CHAR_DATA * ch)
 {
@@ -2220,24 +2223,23 @@ int MakeRecept::make(CHAR_DATA * ch)
 			int state = craft_weight;
 			// Обсчет веса ингров в цикле, если не хватило веса берем следующий ингр в инве, если не хватает, делаем фэйл (make_fail) и брекаем внешний цикл, смысл дальше ингры смотреть?
 			send_to_char(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
+			
 			while (state > 0)
-			{       
+			{
 				state = MAX(0, state - GET_OBJ_WEIGHT(ingrs[i]));
 				send_to_char(ch, "Новый требуемый вес для следующей итерации %d вес ингра %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]));
 				tmpstr = "Вам не хватило " + ingrs[i]->get_PName(1) + ".\r\n";
 				send_to_char(tmpstr.c_str(), ch);
-				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
-				ingrs[i]->set_weight(0);
 				extract_obj(ingrs[i]);
 				ingrs[i] = NULL;
-				if (!get_obj_in_list_ingr(parts[i].proto, ch->carrying))
+				if (!get_obj_in_list_ingr(parts[i].proto, ch->carrying) && (state > 0))
 				{
 					tmpstr = "И у вас больше нет.\r\n";
 					send_to_char(tmpstr.c_str(), ch);
 					make_fail = true;
 					break;
 				}
-				else
+				else if (state > 0)
 				{
 					ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 					if (state > GET_OBJ_WEIGHT(ingrs[i]))
@@ -2248,11 +2250,11 @@ int MakeRecept::make(CHAR_DATA * ch)
 					ingrs[i]->sub_weight(state);
 					send_to_char(ch, "Взял следующий ингр из инва и вычел вес %d стало %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]));
 					IS_CARRYING_W(ch) -= state;
-    				}
+				}
 			}
 
 			if (make_fail)
-				    break;
+				break;
 			ingrs[i]->sub_weight(craft_weight);
 			IS_CARRYING_W(ch) -= craft_weight;
 
@@ -2262,8 +2264,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 			{
 				// Просто удаляем предмет мы его потратили.
 				tmpstr = "Вы полностью использовали " + ingrs[i]->get_PName(0) + ".\r\n";
-//				extract_obj(ingrs[i]);
+				//extract_obj(ingrs[i]);
 			}
+				
 		}
 	}
 

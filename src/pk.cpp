@@ -453,8 +453,10 @@ bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
 
 	pk_translate_pair(&agressor, &victim);
-	if (check_agr_in_house(agressor))
-		return false;
+	
+	if (!IS_NPC(victim) || IS_CHARMICE(victim))
+		if (check_agr_in_house(agressor))
+			return false;
 	switch (pk_action_type(agressor, victim))
 	{
 	case PK_ACTION_NO:	// без конфликтов просто выход
