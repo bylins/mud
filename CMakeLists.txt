@@ -158,6 +158,7 @@ set(HEADERS
 	src/deathtrap.hpp
 	src/depot.hpp
 	src/description.h
+	src/dg_db_scripts.hpp
 	src/dg_event.h
 	src/dg_olc.h
 	src/dg_scripts.h

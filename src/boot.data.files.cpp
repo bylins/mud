@@ -10,6 +10,7 @@
 #include "im.h"
 #include "char.hpp"
 #include "help.hpp"
+#include "dg_db_scripts.hpp"
 
 #include <boost/algorithm/string/trim.hpp>
 
@@ -80,6 +81,9 @@ protected:
 	char* fread_string();
 
 	char fread_letter(FILE * fp);
+
+	/// for mobs and rooms
+	void dg_read_trigger(void *proto, int type);
 
 	char m_line[256];
 
@@ -216,6 +220,76 @@ char DiscreteFile::fread_letter(FILE * fp)
 	} while (isspace(c));
 
 	return c;
+}
+
+void DiscreteFile::dg_read_trigger(void *proto, int type)
+{
+	char line[256];
+	char junk[8];
+	int vnum, rnum, count;
+	CHAR_DATA *mob;
+	ROOM_DATA *room;
+
+	get_line(file(), line);
+	count = sscanf(line, "%s %d", junk, &vnum);
+
+	if (count != 2)  	// should do a better job of making this message
+	{
+		log("SYSERR: Error assigning trigger!");
+		return;
+	}
+
+	rnum = real_trigger(vnum);
+	if (rnum < 0)
+	{
+		sprintf(line, "SYSERR: Trigger vnum #%d asked for but non-existant!", vnum);
+		log("%s", line);
+		return;
+	}
+
+	switch (type)
+	{
+	case MOB_TRIGGER:
+		mob = (CHAR_DATA *)proto;
+		mob->proto_script->push_back(vnum);
+		if (owner_trig.find(vnum) == owner_trig.end())
+		{
+			owner_to_triggers_map_t tmp_map;
+			owner_trig.emplace(vnum, tmp_map);
+		}
+		add_trig_to_owner(-1, vnum, GET_MOB_VNUM(mob));
+		break;
+
+	case WLD_TRIGGER:
+		room = (ROOM_DATA *)proto;
+		room->proto_script->push_back(vnum);
+
+		if (rnum >= 0)
+		{
+			if (!(room->script))
+			{
+				CREATE(room->script, 1);
+			}
+			add_trigger(SCRIPT(room), read_trigger(rnum), -1);
+			// для начала определяем, есть ли такой внум у нас в контейнере
+			if (owner_trig.find(vnum) == owner_trig.end())
+			{
+				owner_to_triggers_map_t tmp_map;
+				owner_trig.emplace(vnum, tmp_map);
+			}
+			add_trig_to_owner(-1, vnum, room->number);
+		}
+		else
+		{
+			sprintf(line, "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->number);
+			log("%s", line);
+		}
+		break;
+
+	default:
+		sprintf(line, "SYSERR: Trigger vnum #%d assigned to non-mob/obj/room", vnum);
+		log("%s", line);
+	}
 }
 
 class TriggersFile : public DiscreteFile
@@ -479,7 +553,7 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 					im_parse(&(world[room_nr]->ing_list), line + 1);
 					break;
 				case 'T':
-					dg_read_trigger(file(), world[room_nr], WLD_TRIGGER);
+					dg_read_trigger(world[room_nr], WLD_TRIGGER);
 					break;
 				default:
 					letter = 0;
@@ -1186,7 +1260,7 @@ void MobileFile::parse_mobile(const int nr)
 			break;
 
 		case 'T':
-			dg_read_trigger(file(), &mob_proto[i], MOB_TRIGGER);
+			dg_read_trigger(&mob_proto[i], MOB_TRIGGER);
 			break;
 
 		default:
@@ -2045,3 +2119,5 @@ BaseDataFile::shared_ptr DataFileFactory::get_file(const EBootType mode, const s
 		return nullptr;
 	}
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
