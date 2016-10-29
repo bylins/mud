@@ -2221,49 +2221,49 @@ int MakeRecept::make(CHAR_DATA * ch)
 			// Обсчет веса ингров в цикле, если не хватило веса берем следующий ингр в инве, если не хватает, делаем фэйл (make_fail) и брекаем внешний цикл, смысл дальше ингры смотреть?
 			send_to_char(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
 			while (state > 0)
-			{  
-
-				//Переделаем слегка логику итераций
-				//Сперва проверяем сколько нам нужно. Если вес ингра больше, чем требуется, то вычитаем вес и останавливаем итерацию.
-				if (GET_OBJ_WEIGHT(ingrs[i]) > state)
+			{       
+				state = MAX(0, state - GET_OBJ_WEIGHT(ingrs[i]));
+				send_to_char(ch, "Новый требуемый вес для следующей итерации %d вес ингра %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]));
+				tmpstr = "Вам не хватило " + ingrs[i]->get_PName(1) + ".\r\n";
+				send_to_char(tmpstr.c_str(), ch);
+				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
+				ingrs[i]->set_weight(0);
+				extract_obj(ingrs[i]);
+				ingrs[i] = NULL;
+				if (!get_obj_in_list_ingr(parts[i].proto, ch->carrying))
 				{
-					ingrs[i]->sub_weight(state);
-					send_to_char(ch, "Вы потратили %s(%d) вес стал %d.\r\n", ingrs[i]->get_PName(3).c_str(), state, GET_OBJ_WEIGHT(ingrs[i]));
-					IS_CARRYING_W(ch) -= state;
+					tmpstr = "И у вас больше нет.\r\n";
+					send_to_char(tmpstr.c_str(), ch);
+					make_fail = true;
 					break;
 				}
-				//Если вес ингра ровно столько, сколько требуется, вычитаем вес, ломаем ингр и останавливаем итерацию.
-				else if (GET_OBJ_WEIGHT(ingrs[i]) == state)
-				{
-					ingrs[i]->set_weight(0);
-					send_to_char(ch, "Вы потратили %s(%d) вес стал %d.\r\n", ingrs[i]->get_PName(3).c_str(), state, GET_OBJ_WEIGHT(ingrs[i]));
-					extract_obj(ingrs[i]);
-					break;
-				}
-				//Если вес ингра меньше, чем требуется, то вычтем этот вес из того, сколько требуется.
 				else
 				{
-					state = state - GET_OBJ_WEIGHT(ingrs[i]);
-					send_to_char(ch, "Вы потратили %s(%d) вес стал %d.\r\n", ingrs[i]->get_PName(3).c_str(), GET_OBJ_WEIGHT(ingrs[i]), 0);
-					
-					std::string tmpname = std::string(ingrs[i]->get_PName(2).c_str());
-					
-					ingrs[i]->set_weight(0);
-					extract_obj(ingrs[i]);
+					ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
+					if (state > GET_OBJ_WEIGHT(ingrs[i]))
+					{
+						send_to_char(ch, "В следующем ингре веса маловато,  провожу итерацию далее  надо вес %d в ингре %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]));
+						continue;
+					}
+					ingrs[i]->sub_weight(state);
+					send_to_char(ch, "Взял следующий ингр из инва и вычел вес %d стало %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]));
+					IS_CARRYING_W(ch) -= state;
+    				}
+			}
 
-					//Если некст ингра в инве нет, то сообщаем об этом и идем в фэйл. Некст ингры все равно проверяем
-					if (!get_obj_in_list_ingr(parts[i].proto, ch->carrying))
-					{
-						send_to_char(ch, "У вас больше нет %s.\r\n", tmpname.c_str());
-						make_fail = true;
-						break;
-					}
-					//Подцепляем некст ингр и идем в нашу проверку заново
-					else
-					{
-						ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
-					}
-				}
+			if (make_fail)
+				    break;
+			ingrs[i]->sub_weight(craft_weight);
+			IS_CARRYING_W(ch) -= craft_weight;
+
+			send_to_char(ch, "Вы потратили %s(%d) вес стал %d\r\n", ingrs[i]->get_PName(3).c_str(), craft_weight, GET_OBJ_WEIGHT(ingrs[i]));
+
+			if (GET_OBJ_WEIGHT(ingrs[i]) == 0)
+			{
+				// Просто удаляем предмет мы его потратили.
+				tmpstr = "Вы полностью использовали " + ingrs[i]->get_PName(0) + ".\r\n";
+//				extract_obj(ingrs[i]);
+			}
 		}
 	}
 
