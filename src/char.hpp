@@ -55,7 +55,6 @@ enum { FIRE_RESISTANCE = 0, AIR_RESISTANCE, WATER_RESISTANCE, EARTH_RESISTANCE, 
 // Char's additional abilities. Used only while work
 struct char_played_ability_data
 {
-public:
 	int weight_add;
 	int height_add;
 	int size_add;
@@ -81,7 +80,6 @@ public:
 	ubyte mresist;
 	ubyte aresist;
 	ubyte presist;	// added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
-	
 };
 
 // Char's abilities.
@@ -99,11 +97,10 @@ struct char_ability_data
 // Char's points.
 struct char_point_data
 {
-	int hit;	
-	sh_int move;
-	
-	sh_int max_move;	// Max move for PC/NPC
+	int hit;
 	int max_hit;		// Max hit for PC/NPC
+	sh_int move;
+	sh_int max_move;	// Max move for PC/NPC
 };
 
 /*

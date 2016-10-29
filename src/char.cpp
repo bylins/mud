@@ -1115,7 +1115,6 @@ void CHAR_DATA::set_exp(long exp)
 		log("WARNING: exp=%ld name=[%s] (%s:%d %s)", exp, get_name().c_str(), __FILE__, __LINE__, __func__);
 	}
 	exp_ = MAX(0, exp);
-	this->desc->msdp_report("EXP");
 }
 
 short CHAR_DATA::get_remort() const
@@ -1238,7 +1237,6 @@ void CHAR_DATA::set_max_hit(const int v)
 {
 	if (v >= 0)
 		points.max_hit = v;
-	this->desc->msdp_report("MAXHIT");
 }
 
 sh_int CHAR_DATA::get_move() const
@@ -1261,7 +1259,6 @@ void CHAR_DATA::set_max_move(const sh_int v)
 {
 	if (v >= 0)
 		points.max_move = v;
-	this->desc->msdp_report("MAXMOVE");
 }
 
 long CHAR_DATA::get_ruble()
@@ -1350,7 +1347,6 @@ void CHAR_DATA::set_gold(long num, bool need_log)
 	}
 
 	gold_ = num;
-	this->desc->msdp_report("GOLD");
 }
 
 // * см. set_gold()
@@ -1377,7 +1373,6 @@ void CHAR_DATA::set_bank(long num, bool need_log)
 	}
 
 	bank_gold_ = num;
-	this->desc->msdp_report("GOLD");
 }
 
 /**
@@ -2010,49 +2005,6 @@ std::pair<int /* uid */, int /* rounds */> CHAR_DATA::get_max_damager_in_room() 
 
 	return damager;
 }
-/*
-void char_point_data::set_max_hit(CHAR_DATA *ch, int max_hit)
-{
-	this->max_hit = max_hit;
-	ch->desc->msdp_report("MAX");
-}
-
-void char_point_data::set_max_move(CHAR_DATA *ch, sh_int max_move)
-{
-	this->max_move = max_move;
-	ch->desc->msdp_report("MAXMOVE");
-}
-
-int char_point_data::get_max_hit()
-{
-	return this->max_hit;
-}
-
-sh_int char_point_data::get_max_move()
-{
-	return this->max_move;
-}
-
-void char_played_ability_data::set_hit_add(CHAR_DATA *ch, int hit_add)
-{
-	this->hit_add = hit_add;
-	ch->desc->msdp_report("MAXHIT");
-}
-int char_played_ability_data::get_hit_add()
-{
-	return this->hit_add;
-}
-void char_played_ability_data::set_move_add(CHAR_DATA *ch, int move_add)
-{
-	this->move_add = move_add;
-	ch->desc->msdp_report("MAXMOVE");
-}
-int char_played_ability_data::get_move_add()
-{
-	return this->move_add;
-}
-*/
-
 
 // обновление босса вне боя по прошествии MOB_RESTORE_TIMER секунд
 void CHAR_DATA::restore_mob()
