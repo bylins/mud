@@ -595,6 +595,7 @@ public:
 
 	const auto& get_role() const { return role_; }
 	void set_role(const role_t& new_role) { role_ = new_role; }
+	void msdp_report(const std::string& name);
 
 private:
 	std::string clan_for_title();

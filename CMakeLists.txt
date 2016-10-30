@@ -84,7 +84,6 @@ set(SOURCES
 	src/mob_stat.cpp
 	src/modify.cpp
 	src/morph.cpp
-	src/msdp.cpp
 	src/named_stuff.cpp
 	src/name_list.cpp
 	src/names.cpp
@@ -193,7 +192,6 @@ set(HEADERS
 	src/mob_stat.hpp
 	src/modify.h
 	src/morph.hpp
-	src/msdp.hpp
 	src/named_stuff.hpp
 	src/name_list.hpp
 	src/noob.hpp
@@ -333,8 +331,14 @@ else()
 	set(PYTHON_LIBRARIES)
 endif ()
 
-set(MSDP_PARSER_FILES src/msdp_parser.hpp src/msdp_parser.cpp)
-list(APPEND SOURCES ${MSDP_PARSER_FILES})
+set(MSDP_FILES
+	src/msdp.hpp
+	src/msdp.cpp
+	src/msdp_parser.hpp
+	src/msdp_parser.cpp
+	src/msdp.constants.hpp
+	src/msdp.constants.cpp)
+list(APPEND SOURCES ${MSDP_FILES})
 
 # Versioning
 # Try to find hg executable, retrive revision if found and generate version.cpp from template

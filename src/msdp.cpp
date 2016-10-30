@@ -7,6 +7,7 @@
 #include "structs.h"
 #include "telnet.h"
 #include "msdp_parser.hpp"
+#include "msdp.constants.hpp"
 
 #include <string>
 #include <deque>
@@ -277,13 +278,13 @@ namespace msdp
 	}
 
 	ReporterFactory::handlers_t ReporterFactory::s_handlers = {
-		{ "ROOM", std::bind(RoomReporter::create, std::placeholders::_1) },
-		{ "EXPERIENCE", std::bind(ExperienceReporter::create, std::placeholders::_1) },
-		{ "GOLD", std::bind(GoldReporter::create, std::placeholders::_1) },
-		{ "LEVEL", std::bind(LevelReporter::create, std::placeholders::_1) },
-		{ "MAX_HIT", std::bind(MaxHitReporter::create, std::placeholders::_1) },
-		{ "MAX_MOVE", std::bind(MaxMoveReporter::create, std::placeholders::_1) },
-		{ "STATE", std::bind(StateReporter::create, std::placeholders::_1) }
+		{ constants::ROOM, std::bind(RoomReporter::create, std::placeholders::_1) },
+		{ constants::EXPERIENCE, std::bind(ExperienceReporter::create, std::placeholders::_1) },
+		{ constants::GOLD, std::bind(GoldReporter::create, std::placeholders::_1) },
+		{ constants::LEVEL, std::bind(LevelReporter::create, std::placeholders::_1) },
+		{ constants::MAX_HIT, std::bind(MaxHitReporter::create, std::placeholders::_1) },
+		{ constants::MAX_MOVE, std::bind(MaxMoveReporter::create, std::placeholders::_1) },
+		{ constants::STATE, std::bind(StateReporter::create, std::placeholders::_1) }
 	};
 
 	const ArrayValue::array_t SUPPORTED_COMMANDS_LIST = {
