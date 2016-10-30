@@ -2943,16 +2943,12 @@ void do_beep(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		perform_beep(ch, vict);
 }
 
-
-//Polos.insert_wanted_gem
-
 void insert_wanted_gem::show(CHAR_DATA *ch, int gem_vnum)
 {
-	std::map<int, alias_type>::iterator it;
 	alias_type::iterator alias_it;
 	char buf[MAX_INPUT_LENGTH];
 
-	it = content.find(gem_vnum);
+	const auto it = content.find(gem_vnum);
 	if (it == content.end()) return;
 
 	send_to_char("Будучи искусным ювелиром, вы можете выбрать, какого эффекта вы желаете добиться: \r\n", ch);
@@ -3078,18 +3074,18 @@ int insert_wanted_gem::get_qty(int gem_vnum, const std::string& str)
 	return content[gem_vnum][str].qty;
 }
 
-int insert_wanted_gem::exist(int gem_vnum, const std::string& str)
+int insert_wanted_gem::exist(const int gem_vnum, const std::string& str) const
 {
-	std::map<int, alias_type>::iterator it;
-	alias_type::iterator alias_it;
+	alias_type::const_iterator alias_it;
 
-	it = content.find(gem_vnum);
+	const auto it = content.find(gem_vnum);
 	if (it == content.end())
 	{
 		return 0;
 	}
-	alias_it = content[gem_vnum].find(str);
-	if (alias_it == content[gem_vnum].end())
+
+	alias_it = content.at(gem_vnum).find(str);
+	if (alias_it == content.at(gem_vnum).end())
 	{
 		return 0;
 	}

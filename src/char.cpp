@@ -25,6 +25,7 @@
 #include "house.h"
 #include "help.hpp"
 #include "utils.h"
+#include "msdp.constants.hpp"
 
 #include <boost/format.hpp>
 
@@ -1115,6 +1116,7 @@ void CHAR_DATA::set_exp(long exp)
 		log("WARNING: exp=%ld name=[%s] (%s:%d %s)", exp, get_name().c_str(), __FILE__, __LINE__, __func__);
 	}
 	exp_ = MAX(0, exp);
+	msdp_report(msdp::constants::EXPERIENCE);
 }
 
 short CHAR_DATA::get_remort() const
@@ -1236,7 +1238,10 @@ int CHAR_DATA::get_max_hit() const
 void CHAR_DATA::set_max_hit(const int v)
 {
 	if (v >= 0)
+	{
 		points.max_hit = v;
+	}
+	msdp_report(msdp::constants::MAX_HIT);
 }
 
 sh_int CHAR_DATA::get_move() const
@@ -1258,7 +1263,10 @@ sh_int CHAR_DATA::get_max_move() const
 void CHAR_DATA::set_max_move(const sh_int v)
 {
 	if (v >= 0)
+	{
 		points.max_move = v;
+	}
+	msdp_report(msdp::constants::MAX_MOVE);
 }
 
 long CHAR_DATA::get_ruble()
@@ -1347,6 +1355,7 @@ void CHAR_DATA::set_gold(long num, bool need_log)
 	}
 
 	gold_ = num;
+	msdp_report(msdp::constants::GOLD);
 }
 
 // * см. set_gold()
@@ -1373,6 +1382,7 @@ void CHAR_DATA::set_bank(long num, bool need_log)
 	}
 
 	bank_gold_ = num;
+	msdp_report(msdp::constants::GOLD);
 }
 
 /**
@@ -1899,6 +1909,14 @@ void CHAR_DATA::set_role(unsigned num, bool flag)
 	else
 	{
 		log("SYSERROR: num=%u (%s:%d)", num, __FILE__, __LINE__);
+	}
+}
+
+void CHAR_DATA::msdp_report(const std::string& name)
+{
+	if (nullptr != desc)
+	{
+		desc->msdp_report(name);
 	}
 }
 

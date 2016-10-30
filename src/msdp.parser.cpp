@@ -1,4 +1,4 @@
-#include "msdp_parser.hpp"
+#include "msdp.parser.hpp"
 
 #include "config.hpp"
 #include "telnet.h"
@@ -43,7 +43,7 @@ namespace msdp
 		}
 	}
 
-	size_t CVariable::serialize(char* buffer, size_t size) const
+	size_t Variable::serialize(char* buffer, size_t size) const
 	{
 		if (size < required_size())
 		{
@@ -57,14 +57,14 @@ namespace msdp
 		return required_size();
 	}
 
-	void CVariable::dump(const size_t level /*= 0*/) const
+	void Variable::dump(const size_t level /*= 0*/) const
 	{
 		const std::string i = indent(level);
 		debug_log("%s(Variable) %s", i.c_str(), m_name.c_str());
 		m_value->dump(1 + level);
 	}
 
-	size_t CStringValue::serialize(char* buffer, size_t buffer_size) const
+	size_t StringValue::serialize(char* buffer, size_t buffer_size) const
 	{
 		if (buffer_size < required_size())
 		{
@@ -76,12 +76,12 @@ namespace msdp
 		return required_size();
 	}
 
-	void CStringValue::dump(const size_t level /*= 0*/) const
+	void StringValue::dump(const size_t level /*= 0*/) const
 	{
 		debug_log("%s(String) %s", indent(level).c_str(), m_value.c_str());
 	}
 
-	const std::string& CStringValue::escape(const std::string& value)
+	const std::string& StringValue::escape(const std::string& value)
 	{
 		static std::string result;
 
@@ -101,7 +101,7 @@ namespace msdp
 		return result;
 	}
 
-	CTableValue::CTableValue(const table_t& table) : m_size(3)
+	TableValue::TableValue(const table_t& table) : m_size(3)
 	{
 		for (const auto& t : table)
 		{
@@ -110,13 +110,13 @@ namespace msdp
 		m_data = table;
 	}
 
-	void CTableValue::add(const CVariable::variable_ptr_t& variable)
+	void TableValue::add(const Variable::shared_ptr& variable)
 	{
 		m_data.push_back(variable);
 		m_size += variable->required_size();
 	}
 
-	size_t CTableValue::serialize(char* buffer, size_t size) const
+	size_t TableValue::serialize(char* buffer, size_t size) const
 	{
 		if (size < required_size())
 		{
@@ -138,7 +138,7 @@ namespace msdp
 		return required_size();
 	}
 
-	void CTableValue::dump(const size_t level /*= 0*/) const
+	void TableValue::dump(const size_t level /*= 0*/) const
 	{
 		debug_log("%s(Table)", indent(level).c_str());
 		for (const auto& i : m_data)
@@ -147,16 +147,16 @@ namespace msdp
 		}
 	}
 
-	CArrayValue::CArrayValue(const array_t& array) : m_size(3)
+	ArrayValue::ArrayValue(const array_t& array) : m_size(3)
 	{
 		for (const auto& i : array)
 		{
 			m_size += i->required_size();
-			m_data.push_back(CValue::value_ptr_t(i));
+			m_data.push_back(Value::shared_ptr(i));
 		}
 	}
 
-	size_t CArrayValue::serialize(char* buffer, size_t size) const
+	size_t ArrayValue::serialize(char* buffer, size_t size) const
 	{
 		if (size < required_size())
 		{
@@ -179,7 +179,7 @@ namespace msdp
 		return required_size();
 	}
 
-	void CArrayValue::dump(const size_t level /*= 0*/) const
+	void ArrayValue::dump(const size_t level /*= 0*/) const
 	{
 		debug_log("%s(Table)\n", indent(level).c_str());
 		for (const auto& i : m_data)
@@ -193,10 +193,10 @@ namespace msdp
 		return c == char(IAC) || c == MSDP_ARRAY_CLOSE || c == MSDP_TABLE_CLOSE;
 	}
 
-	size_t parse_value(const char* buffer, size_t length, CValue::value_ptr_t& value);
-	size_t parse_variable(const char* buffer, const size_t length, CVariable::variable_ptr_t& result);
+	size_t parse_value(const char* buffer, size_t length, Value::shared_ptr& value);
+	size_t parse_variable(const char* buffer, const size_t length, Variable::shared_ptr& result);
 
-	size_t parse_table(const char* buffer, size_t length, CValue::value_ptr_t& value)
+	size_t parse_table(const char* buffer, size_t length, Value::shared_ptr& value)
 	{
 		if (0 == length)
 		{
@@ -208,15 +208,15 @@ namespace msdp
 			return 0;
 		}
 
-		CTableValue* table = new CTableValue();
-		CValue::value_ptr_t result(table);
+		TableValue* table = new TableValue();
+		Value::shared_ptr result(table);
 
 		auto pos = buffer + 1;
 		auto end = buffer + length;
 		while (end != pos
 			&& MSDP_TABLE_CLOSE != *pos)
 		{
-			CVariable::variable_ptr_t v = nullptr;
+			Variable::shared_ptr v = nullptr;
 			auto item_length = parse_variable(pos, end - pos, v);
 			if (0 == item_length)
 			{
@@ -235,7 +235,7 @@ namespace msdp
 		return end - pos;
 	}
 
-	size_t parse_array(const char* buffer, size_t length, CValue::value_ptr_t& value)
+	size_t parse_array(const char* buffer, size_t length, Value::shared_ptr& value)
 	{
 		if (0 == length)
 		{
@@ -247,15 +247,15 @@ namespace msdp
 			return 0;
 		}
 
-		CArrayValue* array = new CArrayValue();
-		CValue::value_ptr_t result(array);
+		ArrayValue* array = new ArrayValue();
+		Value::shared_ptr result(array);
 
 		auto pos = buffer + 1;
 		auto end = buffer + length;
 		while (end != pos
 			&& MSDP_ARRAY_CLOSE != *pos)
 		{
-			CValue::value_ptr_t v = nullptr;
+			Value::shared_ptr v = nullptr;
 			auto item_length = parse_value(pos, end - pos, v);
 			if (0 == item_length)
 			{
@@ -274,7 +274,7 @@ namespace msdp
 		return end - pos;
 	}
 
-	size_t parse_string(const char* buffer, size_t length, CValue::value_ptr_t& value)
+	size_t parse_string(const char* buffer, size_t length, Value::shared_ptr& value)
 	{
 		auto pos = buffer;
 		auto end = buffer + length;
@@ -297,11 +297,11 @@ namespace msdp
 		}
 
 		const auto value_length = pos - buffer;
-		value.reset(new CStringValue(std::string(buffer, value_length)));
+		value.reset(new StringValue(std::string(buffer, value_length)));
 		return value_length;
 	}
 
-	size_t parse_value(const char* buffer, size_t length, CValue::value_ptr_t& value)
+	size_t parse_value(const char* buffer, size_t length, Value::shared_ptr& value)
 	{
 		if (3 > length)	// at least one byte for the MSDP_VAL and at least one byte for end-of-value marker
 		{
@@ -334,7 +334,7 @@ namespace msdp
 		return value_length;
 	}
 
-	size_t parse_variable(const char* buffer, const size_t length, CVariable::variable_ptr_t& result)
+	size_t parse_variable(const char* buffer, const size_t length, Variable::shared_ptr& result)
 	{
 		if (0 == length)
 		{
@@ -361,14 +361,14 @@ namespace msdp
 		}
 		std::string name(name_begin, name_end - name_begin);
 
-		CVariable::value_ptr_t value = nullptr;
+		Value::shared_ptr value = nullptr;
 		size_t value_length = parse_value(name_end, end - name_end, value);
 		if (0 == value_length)
 		{
 			return 0;
 		}
 
-		result.reset(new CVariable(name, value));
+		result.reset(new Variable(name, value));
 
 		return MSDP_VAR_LENGTH + value_length + (name_end - buffer);
 	}
