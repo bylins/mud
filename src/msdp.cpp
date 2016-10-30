@@ -6,12 +6,13 @@
 #include "utils.h"
 #include "structs.h"
 #include "telnet.h"
-#include "msdp_parser.hpp"
+#include "msdp.parser.hpp"
 #include "msdp.constants.hpp"
 
 #include <string>
 #include <deque>
 #include <unordered_map>
+#include <memory>
 
 namespace msdp
 {
@@ -287,68 +288,151 @@ namespace msdp
 		{ constants::STATE, std::bind(StateReporter::create, std::placeholders::_1) }
 	};
 
-	const ArrayValue::array_t SUPPORTED_COMMANDS_LIST = {
+	class ConversationHandler
+	{
+	public:
+		ConversationHandler(DESCRIPTOR_DATA* descriptor) : m_descriptor(descriptor) {}
+		size_t operator()(const char* buffer, const size_t length);
+
+	private:
+		const static ArrayValue::array_t SUPPORTED_COMMANDS_LIST;
+		const static Value::shared_ptr SUPPORTED_COMMANDS_ARRAY;
+
+		void handle_list_command(const Variable::shared_ptr& request, Variable::shared_ptr& response);
+		void handle_report_command(const Variable::shared_ptr& request);
+		void handle_unreport_command(const Variable::shared_ptr& request);
+		void handle_send_command(const Variable::shared_ptr& request);
+		bool handle_request(const Variable::shared_ptr& request);
+
+		DESCRIPTOR_DATA* m_descriptor;
+	};
+
+	size_t ConversationHandler::operator()(const char* buffer, const size_t length)
+	{
+		size_t actual_length = 0;
+		Variable::shared_ptr request;
+
+		std::string i = indent(0);
+		debug_log("Conversation from '%s':\n",
+			(m_descriptor && m_descriptor->character) ? m_descriptor->character->get_name().c_str() : "<unknown>");
+		hexdump(buffer, length);
+
+		if (4 > length)
+		{
+			log("WARNING: MSDP block is too small.");
+			return 0;
+		}
+
+		if (!parse_request(buffer + HEAD_LENGTH, length - HEAD_LENGTH, actual_length, request))
+		{
+			log("WARNING: Could not parse MSDP request.");
+			return 0;
+		}
+
+		request->dump();
+
+		handle_request(request);
+
+		return HEAD_LENGTH + actual_length;
+	}
+
+	const ArrayValue::array_t ConversationHandler::SUPPORTED_COMMANDS_LIST = {
 		std::make_shared<StringValue>("LIST"),
 		std::make_shared<StringValue>("REPORT"),
 		std::make_shared<StringValue>("SEND")
 	};
+	const Value::shared_ptr ConversationHandler::SUPPORTED_COMMANDS_ARRAY = std::make_shared<ArrayValue>(ConversationHandler::SUPPORTED_COMMANDS_LIST);
+	
+	void ConversationHandler::handle_list_command(const Variable::shared_ptr& request, Variable::shared_ptr& response)
+	{
+		if (Value::EVT_STRING != request->value()->type())
+		{
+			return;
+		}
 
-	const auto SUPPORTED_COMMANDS_ARRAY = std::make_shared<ArrayValue>(SUPPORTED_COMMANDS_LIST);
+		const auto string = std::dynamic_pointer_cast<StringValue>(request->value());
+		if ("COMMANDS" == string->value())
+		{
+			log("INFO: '%s' asked for MSDP \"COMMANDS\" list.",
+				(m_descriptor && m_descriptor->character) ? m_descriptor->character->get_name().c_str() : "<unknown>");
 
-	bool handle_request(DESCRIPTOR_DATA* t, std::shared_ptr<Variable> request)
+			response.reset(new Variable("COMMANDS", SUPPORTED_COMMANDS_ARRAY));
+		}
+		else if ("REPORTABLE_VARIABLES" == string->value())
+		{
+			log("INFO: Client asked for MSDP \"REPORTABLE_VARIABLES\" list.");
+
+			response = ReporterFactory::reportable_variables();
+		}
+		else if ("CONFIGURABLE_VARIABLES" == string->value())
+		{
+			log("INFO: Client asked for MSDP \"CONFIGURABLE_VARIABLES\" list.");
+
+			response = std::make_shared<Variable>("CONFIGURABLE_VARIABLES", std::make_shared<ArrayValue>());
+		}
+		else
+		{
+			log("INFO: Client asked for unknown MSDP list \"%s\".", string->value().c_str());
+		}
+	}
+
+	void ConversationHandler::handle_report_command(const Variable::shared_ptr& request)
+	{
+		if (Value::EVT_STRING != request->value()->type())
+		{
+			return;
+		}
+
+		const auto string = std::dynamic_pointer_cast<StringValue>(request->value());
+		log("INFO: Client asked for report of changing the variable \"%s\".", string->value().c_str());
+
+		m_descriptor->msdp_add_report_variable(string->value());
+	}
+
+	void ConversationHandler::handle_unreport_command(const Variable::shared_ptr& request)
+	{
+		if (Value::EVT_STRING != request->value()->type())
+		{
+			return;
+		}
+
+		const auto string = std::dynamic_pointer_cast<StringValue>(request->value());
+		log("INFO: Client asked for unreport of changing the variable \"%s\".", string->value().c_str());
+
+		m_descriptor->msdp_remove_report_variable(string->value());
+	}
+	
+	void ConversationHandler::handle_send_command(const Variable::shared_ptr& request)
+	{
+		if (Value::EVT_STRING != request->value()->type())
+		{
+			return;
+		}
+
+		const auto string = std::dynamic_pointer_cast<StringValue>(request->value());
+		report(m_descriptor, string->value());
+	}
+
+	bool ConversationHandler::handle_request(const Variable::shared_ptr& request)
 	{
 		log("INFO: MSDP request %s.", request->name().c_str());
 
 		Variable::shared_ptr response;
 		if ("LIST" == request->name())
 		{
-			if (Value::EVT_STRING == request->value()->type())
-			{
-				StringValue* string = dynamic_cast<StringValue*>(request->value().get());
-				if ("COMMANDS" == string->value())
-				{
-					log("INFO: '%s' asked for MSDP \"COMMANDS\" list.",
-						(t && t->character) ? t->character->get_name().c_str() : "<unknown>");
-
-					response.reset(new Variable("COMMANDS", SUPPORTED_COMMANDS_ARRAY));
-				}
-				else if ("REPORTABLE_VARIABLES" == string->value())
-				{
-					log("INFO: Client asked for MSDP \"REPORTABLE_VARIABLES\" list.");
-
-					response = ReporterFactory::reportable_variables();
-				}
-				else if ("CONFIGURABLE_VARIABLES" == string->value())
-				{
-					log("INFO: Client asked for MSDP \"CONFIGURABLE_VARIABLES\" list.");
-
-					response = std::make_shared<Variable>("CONFIGURABLE_VARIABLES", std::make_shared<ArrayValue>());
-				}
-				else
-				{
-					log("INFO: Client asked for unknown MSDP list \"%s\".", string->value().c_str());
-				}
-			}
+			handle_list_command(request, response);
 		}
 		else if ("REPORT" == request->name())
 		{
-			if (Value::EVT_STRING == request->value()->type())
-			{
-				StringValue* string = dynamic_cast<StringValue*>(request->value().get());
-				log("INFO: Client asked for report of changing the variable \"%s\".", string->value().c_str());
-
-				t->msdp_add_report_variable(string->value());
-			}
+			handle_report_command(request);
 		}
 		else if ("UNREPORT" == request->name())
 		{
-			if (Value::EVT_STRING == request->value()->type())
-			{
-				StringValue* string = dynamic_cast<StringValue*>(request->value().get());
-				log("INFO: Client asked for unreport of changing the variable \"%s\".", string->value().c_str());
-
-				t->msdp_remove_report_variable(string->value());
-			}
+			handle_unreport_command(request);
+		}
+		else if ("SEND" == request->name())
+		{
+			handle_send_command(request);
 		}
 
 		if (nullptr == response.get())
@@ -368,38 +452,15 @@ namespace msdp
 		hexdump(buffer.get(), buffer_size, "MSDP response:");
 
 		int written = 0;
-		write_to_descriptor_with_options(t, buffer.get(), buffer_size, written);
+		write_to_descriptor_with_options(m_descriptor, buffer.get(), buffer_size, written);
 
 		return true;
 	}
 
 	size_t handle_conversation(DESCRIPTOR_DATA* t, const char* buffer, const size_t length)
 	{
-		size_t actual_length = 0;
-		std::shared_ptr<Variable> request;
-
-		std::string i = indent(0);
-		debug_log("Conversation from '%s':\n",
-			(t && t->character) ? t->character->get_name().c_str() : "<unknown>");
-		hexdump(buffer, length);
-
-		if (4 > length)
-		{
-			log("WARNING: MSDP block is too small.");
-			return 0;
-		}
-
-		if (!parse_request(buffer + HEAD_LENGTH, length - HEAD_LENGTH, actual_length, request))
-		{
-			log("WARNING: Could not parse MSDP request.");
-			return 0;
-		}
-
-		request->dump();
-
-		handle_request(t, request);
-
-		return HEAD_LENGTH + actual_length;
+		ConversationHandler handler(t);
+		return handler(buffer, length);
 	}
 
 	class ReportSender

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "telnet.h"
-#include "msdp_parser.hpp"
+#include "msdp.parser.hpp"
 
 TEST(MSDP_Parser, EmptyRequest)
 {

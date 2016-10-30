@@ -334,8 +334,8 @@ endif ()
 set(MSDP_FILES
 	src/msdp.hpp
 	src/msdp.cpp
-	src/msdp_parser.hpp
-	src/msdp_parser.cpp
+	src/msdp.parser.cpp
+	src/msdp.parser.hpp
 	src/msdp.constants.hpp
 	src/msdp.constants.cpp)
 list(APPEND SOURCES ${MSDP_FILES})
