@@ -8,6 +8,9 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "interpreter.h"
+
+#include <unordered_map>
+
 #define SCMD_NAMED_LIST 	1
 #define SCMD_NAMED_EDIT 	2
 
@@ -32,7 +35,7 @@ struct stuff_node
 
 // общий список именного стафа
 typedef boost::shared_ptr<stuff_node> StuffNodePtr;
-typedef std::map<long /* vnum предмета */, StuffNodePtr> StuffListType;
+typedef std::unordered_map<long /* vnum предмета */, StuffNodePtr> StuffListType;
 
 extern StuffListType stuff_list;
 

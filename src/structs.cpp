@@ -371,7 +371,7 @@ const religion_names_t religion_name =
 	religion_genders_t{ "", "", "", "" }		// for undefined religion
 };
 
-std::map<int, std::string> SECTOR_TYPE_BY_VALUE = {
+std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE = {
 	{ SECT_INSIDE, "inside" },
 	{ SECT_CITY, "city" },
 	{ SECT_FIELD, "field" },
@@ -1078,7 +1078,7 @@ void DESCRIPTOR_DATA::msdp_report(const std::string& name)
 	}
 }
 
-void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
+void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output) const
 {
 	switch (keytable)
 	{

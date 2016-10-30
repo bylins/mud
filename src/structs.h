@@ -26,10 +26,10 @@
 #include <bitset>
 #include <string>
 #include <fstream>
-#include <map>
 #include <iterator>
 #include <cstdint>
-#include <set>
+#include <unordered_set>
+#include <unordered_map>
 #include <array>
 
 namespace ExtMoney
@@ -227,7 +227,7 @@ typedef uint32_t bitvector_t;
 #define SECT_NORMAL_ICE      28
 #define SECT_THICK_ICE       29
 
-extern std::map<int, std::string> SECTOR_TYPE_BY_VALUE;
+extern std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE;
 
 #define WEATHER_QUICKCOOL     (1 << 0)
 #define WEATHER_QUICKHOT      (1 << 1)
@@ -1710,7 +1710,8 @@ struct DESCRIPTOR_DATA
 	void msdp_remove_report_variable(const std::string& name) { m_msdp_requested_report.erase(name); }
 	bool msdp_need_report(const std::string& name) { return m_msdp_requested_report.find(name) != m_msdp_requested_report.end(); }
 	void msdp_report(const std::string& name);
-	void string_to_client_encoding(const char* input, char* output);
+
+	void string_to_client_encoding(const char* input, char* output) const;
 	socket_t descriptor;	// file descriptor for socket    //
 	char host[HOST_LENGTH + 1];	// hostname          //
 	byte bad_pws;		// number of bad pw attemps this login //
@@ -1771,7 +1772,7 @@ struct DESCRIPTOR_DATA
 
 private:
 	bool m_msdp_support;
-	std::set<std::string> m_msdp_requested_report;
+	std::unordered_set<std::string> m_msdp_requested_report;
 };
 
 
@@ -2122,11 +2123,11 @@ struct int3
 	int qty;
 };
 
-typedef std::map<std::string, int3> alias_type;
+typedef std::unordered_map<std::string, int3> alias_type;
 
 class insert_wanted_gem
 {
-	std::map<int, alias_type> content;
+	std::unordered_map<int, alias_type> content;
 
 public:
 	void init();
@@ -2134,7 +2135,7 @@ public:
 	int get_type(int gem_vnum, const std::string& str);
 	int get_bit(int gem_vnum, const std::string& str);
 	int get_qty(int gem_vnum, const std::string& str);
-	int exist(int gem_vnum, const std::string& str);
+	int exist(const int gem_vnum, const std::string& str) const;
 };
 
 //-Polos.insert_wanted_gem
@@ -2148,7 +2149,7 @@ struct mob_guardian
 	std::vector<zone_vnum> agro_argressors_in_zones;
 };
 
-typedef std::map<int, mob_guardian> guardian_type;
+typedef std::unordered_map<int, mob_guardian> guardian_type;
 
 //-Polud
 
