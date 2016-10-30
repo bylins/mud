@@ -2463,6 +2463,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 			auto temp_affected = obj->get_all_affected();
 			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
+			obj->set_all_affected(temp_affected);
 		}
 	}
 
