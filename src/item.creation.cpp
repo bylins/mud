@@ -2193,15 +2193,17 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// 4. Считаем сколько материала треба.
 	if (!make_fail)
 	{
+
 		for (i = 0; i < ingr_cnt; i++)
 		{
-			if (parts[i].proto == 1661) //прототип шкуры = 1661
+			if (skill == SKILL_MAKE_WEAR && i == 0) //для шитья всегда раскраиваем шкуру 
 			{
-				ingrs[i]->set_weight(0);  // шкуру дикеим полностью
-				tmpstr = "Вы раскроили полностью " + ingrs[i]->get_PName(3) + ".\r\n";
+				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
+				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(3) + ".\r\n";
 				send_to_char(tmpstr.c_str(), ch);
 				continue;
 			}
+
 			//
 			// нужный материал = мин.материал +
 			// random(100) - skill
