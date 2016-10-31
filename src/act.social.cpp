@@ -43,7 +43,7 @@ int find_action(char *cmd)
 	int bot, top, mid, chk;
 
 	bot = 0;
-	top = top_of_socialk;
+	top = top_of_socialk - 1;
 	size_t len = strlen(cmd);
 
 	if (top < 0 || !len)

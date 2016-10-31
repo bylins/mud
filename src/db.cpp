@@ -764,7 +764,7 @@ void go_boot_socials(void)
 
 	if (soc_mess_list)
 	{
-		for (i = 0; i <= top_of_socialm; i++)
+		for (i = 0; i < top_of_socialm; i++)
 		{
 			if (soc_mess_list[i].char_no_arg)
 				free(soc_mess_list[i].char_no_arg);
@@ -783,7 +783,7 @@ void go_boot_socials(void)
 	}
 	if (soc_keys_list)
 	{
-		for (i = 0; i <= top_of_socialk; i++)
+		for (i = 0; i < top_of_socialk; i++)
 			if (soc_keys_list[i].keyword)
 				free(soc_keys_list[i].keyword);
 		free(soc_keys_list);
@@ -2721,7 +2721,7 @@ void GameLoader::index_boot(const EBootType mode)
 	// sort the social index
 	if (mode == DB_BOOT_SOCIAL)
 	{
-		qsort(soc_keys_list, top_of_socialk + 1, sizeof(struct social_keyword), csort);
+		qsort(soc_keys_list, top_of_socialk, sizeof(struct social_keyword), csort);
 	}
 }
 
@@ -2771,12 +2771,12 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 
 	case DB_BOOT_SOCIAL:
 		{
-			CREATE(soc_mess_list, top_of_socialm + 1);
-			CREATE(soc_keys_list, top_of_socialk + 1);
-			const size_t messages_size = sizeof(struct social_messg) * (top_of_socialm + 1);
-			const size_t keywords_size = sizeof(struct social_keyword) * (top_of_socialk + 1);
-			log("   %d entries(%d keywords), %zd(%zd) bytes.", top_of_socialm + 1,
-				top_of_socialk + 1, messages_size, keywords_size);
+			CREATE(soc_mess_list, top_of_socialm);
+			CREATE(soc_keys_list, top_of_socialk);
+			const size_t messages_size = sizeof(struct social_messg) * (top_of_socialm);
+			const size_t keywords_size = sizeof(struct social_keyword) * (top_of_socialk);
+			log("   %d entries(%d keywords), %zd(%zd) bytes.", top_of_socialm,
+				top_of_socialk, messages_size, keywords_size);
 		}
 		break;
 	}

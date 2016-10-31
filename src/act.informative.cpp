@@ -5743,7 +5743,7 @@ void do_commands(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			socials ? "социалы" : "команды", vict == ch ? "вам" : GET_PAD(vict, 2));
 
 	if (socials)
-		num_of = top_of_socialk + 1;
+		num_of = top_of_socialk;
 	else
 		num_of = num_of_cmds - 1;
 
