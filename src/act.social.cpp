@@ -28,8 +28,8 @@
 extern DESCRIPTOR_DATA *descriptor_list;
 
 // local globals
-int top_of_socialm = -1;
-int top_of_socialk = -1;
+int number_of_social_messages = -1;
+int number_of_social_commands = -1;
 struct social_messg *soc_mess_list = NULL;
 struct social_keyword *soc_keys_list = NULL;
 
@@ -43,7 +43,7 @@ int find_action(char *cmd)
 	int bot, top, mid, chk;
 
 	bot = 0;
-	top = top_of_socialk - 1;
+	top = number_of_social_commands - 1;
 	size_t len = strlen(cmd);
 
 	if (top < 0 || !len)

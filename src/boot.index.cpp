@@ -328,8 +328,8 @@ private:
 	virtual int process_line() { return 1; }
 };
 
-extern int top_of_socialm;	// TODO: get rid of me
-extern int top_of_socialk;	// TODO: get rid of me
+extern int number_of_social_messages;	// TODO: get rid of me
+extern int number_of_social_commands;	// TODO: get rid of me
 
 IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode)
 {
@@ -354,7 +354,7 @@ IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode)
 		return HelpIndexFile::create();
 
 	case DB_BOOT_SOCIAL:
-		return SocialIndexFile::create(top_of_socialm, top_of_socialk);
+		return SocialIndexFile::create(number_of_social_messages, number_of_social_commands);
 
 	default:
 		return nullptr;
