@@ -259,6 +259,9 @@ namespace msdp
 		using handlers_t = std::unordered_map<std::string, handler_t>;
 
 		static handlers_t s_handlers;
+		const static ArrayValue::array_t REPORTABLE_VARIABLES_ARRAY;
+		const static Value::shared_ptr REPORTABLE_VARIABLES_VALUE;
+		const static Variable::shared_ptr REPORTABLE_VARIABLES;
 	};
 
 	msdp::AbstractReporter::shared_ptr ReporterFactory::create(const DESCRIPTOR_DATA* descriptor, const std::string& name)
@@ -275,7 +278,7 @@ namespace msdp
 
 	Variable::shared_ptr ReporterFactory::reportable_variables()
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return REPORTABLE_VARIABLES;
 	}
 
 	ReporterFactory::handlers_t ReporterFactory::s_handlers = {
@@ -287,6 +290,19 @@ namespace msdp
 		{ constants::MAX_MOVE, std::bind(MaxMoveReporter::create, std::placeholders::_1) },
 		{ constants::STATE, std::bind(StateReporter::create, std::placeholders::_1) }
 	};
+
+	const ArrayValue::array_t ReporterFactory::REPORTABLE_VARIABLES_ARRAY =
+	{
+		std::make_shared<StringValue>(constants::ROOM),
+		std::make_shared<StringValue>(constants::EXPERIENCE),
+		std::make_shared<StringValue>(constants::GOLD),
+		std::make_shared<StringValue>(constants::LEVEL),
+		std::make_shared<StringValue>(constants::MAX_HIT),
+		std::make_shared<StringValue>(constants::MAX_MOVE),
+		std::make_shared<StringValue>(constants::STATE)
+	};
+	const Value::shared_ptr ReporterFactory::REPORTABLE_VARIABLES_VALUE = std::make_shared<ArrayValue>(ReporterFactory::REPORTABLE_VARIABLES_ARRAY);
+	const Variable::shared_ptr ReporterFactory::REPORTABLE_VARIABLES = std::make_shared<Variable>("REPORTABLE_VARIABLES", ReporterFactory::REPORTABLE_VARIABLES_VALUE);
 
 	class ConversationHandler
 	{
