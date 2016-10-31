@@ -13,7 +13,7 @@ protected:
 	const auto& get_file_prefix() const { return prefixes(mode()); }
 	const auto& file() const { return m_file; }
 	const auto& line() const { return m_buffer; }
-	void getline() { std::getline(m_file, m_buffer); }
+	void getline();
 
 private:
 	virtual int process_line() = 0;
@@ -21,6 +21,16 @@ private:
 	std::ifstream m_file;
 	std::string m_buffer;
 };
+
+void IndexFileImplementation::getline()
+{
+	std::getline(m_file, m_buffer);
+	if (0 < m_buffer.size()
+			&& '\r' == m_buffer[m_buffer.size() - 1])
+	{
+		m_buffer.resize(m_buffer.size() - 1);
+	}
+}
 
 IndexFileImplementation::IndexFileImplementation()
 {
