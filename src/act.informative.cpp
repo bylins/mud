@@ -67,7 +67,7 @@ using std::string;
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 extern OBJ_DATA *object_list;
-extern int top_of_socialk;
+extern int number_of_social_commands;
 extern char *credits;
 extern char *info;
 extern char *motd;
@@ -5743,7 +5743,7 @@ void do_commands(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			socials ? "социалы" : "команды", vict == ch ? "вам" : GET_PAD(vict, 2));
 
 	if (socials)
-		num_of = top_of_socialk + 1;
+		num_of = number_of_social_commands;
 	else
 		num_of = num_of_cmds - 1;
 
