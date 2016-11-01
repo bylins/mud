@@ -440,8 +440,6 @@ unsigned long int number_of_bytes_written = 0;
 
 int reboot_uptime = DEFAULT_REBOOT_UPTIME;	// uptime until reboot in minutes
 
-char src_path[4096];
-
 // Для нового года
 
 
@@ -645,7 +643,6 @@ void heartbeat(const int missed_pulses);
 struct in_addr *get_bind_addr(void);
 int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
-void setup_logs(void);
 
 #if defined(POSIX)
 sigfunc *my_signal(int signo, sigfunc * func);
@@ -807,7 +804,11 @@ int main_function(int argc, char **argv)
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
 
-	runtime_config::load();
+	runtime_config.load();
+	if (runtime_config.msdp_debug())
+	{
+		msdp::debug(true);
+	}
 
 	while ((pos < argc) && (*(argv[pos]) == '-'))
 	{
@@ -837,35 +838,6 @@ int main_function(int argc, char **argv)
 			}
 			break;
 
-		case 'D':
-			{
-				std::string argument;
-
-				if (*(argv[pos] + 2))
-				{
-					argument = argv[pos] + 2;
-				}
-				else if (++pos < argc)
-				{
-					argument = argv[pos];
-				}
-				else
-				{
-					puts("SYSERR: expected type of debug after option -D.");
-					break;
-				}
-
-				if ("msdp" == argument)
-				{
-					msdp::debug(true);
-				}
-				else
-				{
-					printf("SYSERR: unexpected value '%s' for option -D.\n", argument.c_str());
-				}
-			}
-			break;
-
 		case 'c':
 			scheck = 1;
 			puts("Syntax check mode enabled.");
@@ -889,8 +861,7 @@ int main_function(int argc, char **argv)
 				"  -h             Print this command line argument help.\n"
 				"  -o <file>      Write log to <file> instead of stderr.\n"
 				"  -r             Restrict MUD -- no new players allowed.\n"
-				"  -s             Suppress special procedure assignments.\n"
-				"  -D msdp        Turn on debug MSDP output\n", argv[0]);
+				"  -s             Suppress special procedure assignments.\n", argv[0]);
 			exit(0);
 
 		default:
@@ -915,7 +886,7 @@ int main_function(int argc, char **argv)
 	}
 
 	// All arguments have been parsed, try to open log file.
-	setup_logs();
+	runtime_config.setup_logs();
 
 	/*
 	 * Moved here to distinguish command line options and to show up
@@ -3479,6 +3450,7 @@ int process_input(DESCRIPTOR_DATA * t)
 			{
 				continue;
 			}
+
 			if (ptr[1] == (char) IAC)
 			{
 				// последовательность IAC IAC
@@ -3504,6 +3476,11 @@ int process_input(DESCRIPTOR_DATA * t)
 					break;
 
 				case TELOPT_MSDP:
+					if (runtime_config.msdp_disabled())
+					{
+						continue;
+					}
+
 					t->msdp_support(true);
 					break;
 
@@ -3532,6 +3509,11 @@ int process_input(DESCRIPTOR_DATA * t)
 					break;
 
 				case TELOPT_MSDP:
+					if (runtime_config.msdp_disabled())
+					{
+						continue;
+					}
+
 					t->msdp_support(false);
 					break;
 
@@ -3549,11 +3531,14 @@ int process_input(DESCRIPTOR_DATA * t)
 				switch (ptr[2])
 				{
 				case char(TELOPT_MSDP):
-					sb_length = msdp::handle_conversation(t, ptr, bytes_read - (ptr - read_point));
+					if (!runtime_config.msdp_disabled())
+					{
+						sb_length = msdp::handle_conversation(t, ptr, bytes_read - (ptr - read_point));
+					}
 					break;
 
 				default:
-					continue;
+					break;
 				}
 
 				if (0 < sb_length)
@@ -4909,38 +4894,6 @@ void sanity_check(void)
 #if 0
 	log("Statistics: buf=%d buf1=%d buf2=%d arg=%d", strlen(buf), strlen(buf1), strlen(buf2), strlen(arg));
 #endif
-}
-
-extern FILE *logfile;
-// Prefer the file over the descriptor.
-void setup_logs(void)
-{
-	mkdir("log", 0700);
-	mkdir("log/perslog", 0700);
-
-	for (int i = 0; i < 1 + LAST_LOG; ++i)
-	{
-		EOutputStream stream = static_cast<EOutputStream>(i);
-		const char* getcwd_result = getcwd(src_path, 4096);
-		UNUSED_ARG(getcwd_result);
-
-		if (runtime_config::logs(stream).filename().empty())
-		{
-			runtime_config::handle(stream, stderr);
-			puts("Using file descriptor for logging.");
-			continue;
-		}
-
-		if (!runtime_config::open_log(stream))	//s_fp
-		{
-			puts("SYSERR: Couldn't open anything to log to, giving up.");
-			exit(1);
-		}
-	}
-
-	logfile = runtime_config::logs(SYSLOG).handle();
-
-	setup_converters();
 }
 
 // * This may not be pretty but it keeps game_loop() neater than if it was inline.

@@ -353,22 +353,12 @@ void boost::assertion_failed_msg(char const * expr, char const * msg, char const
 #endif
 #endif
 
-runtime_config::logs_t runtime_config::m_logs =
-{
-	CLogInfo("syslog", "ףיףפוםמשך"),
-	CLogInfo("log/errlog.txt", "ןûיגכי םיעב"),
-	CLogInfo("log/imlog.txt", "ימחעוהיומפמבס םבחיס"),
-	CLogInfo("log/msdp.txt", "ÌÏÇ MSDP ÐÁËÅÔÏ×")
-};
-
-std::string runtime_config::m_log_stderr;
-
-bool runtime_config::open_log(const EOutputStream stream)
+bool RuntimeConfiguration::open_log(const EOutputStream stream)
 {
 	return m_logs[stream].open();
 }
 
-void runtime_config::handle(const EOutputStream stream, FILE* handle)
+void RuntimeConfiguration::handle(const EOutputStream stream, FILE* handle)
 {
 	m_logs[stream].handle(handle);
 }
@@ -450,13 +440,135 @@ void StreamConfigLoader::load_umask()
 	}
 }
 
-void runtime_config::load_stream_config(CLogInfo& log, const pugi::xml_node* node)
+void RuntimeConfiguration::load_stream_config(CLogInfo& log, const pugi::xml_node* node)
 {
 	StreamConfigLoader loader(log, node);
 	loader.load_filename();
 	loader.load_buffered();
 	loader.load_mode();
 	loader.load_umask();
+}
+
+void RuntimeConfiguration::setup_converters()
+{
+	if (!log_stderr().empty())
+	{
+		// set up converter
+		const auto& encoding = log_stderr();
+		if ("cp1251" == encoding)
+		{
+			m_syslog_converter = koi_to_win;
+		}
+		else if ("alt" == encoding)
+		{
+			m_syslog_converter = koi_to_alt;
+		}
+	}
+}
+
+void RuntimeConfiguration::load_logging_configuration(const pugi::xml_node* root)
+{
+	const auto logging = root->child("logging");
+	if (!logging)
+	{
+		return;
+	}
+
+	const auto log_stderr = logging.child("log_stderr");
+	m_log_stderr = log_stderr.child_value();
+
+	const auto syslog = logging.child("syslog");
+	if (syslog)
+	{
+		load_stream_config(m_logs[SYSLOG], &syslog);
+	}
+
+	const auto errlog = logging.child("errlog");
+	if (errlog)
+	{
+		load_stream_config(m_logs[ERRLOG], &errlog);
+	}
+
+	const auto imlog = logging.child("imlog");
+	if (imlog)
+	{
+		load_stream_config(m_logs[IMLOG], &imlog);
+	}
+
+	const auto msdplog = logging.child("msdplog");
+	if (msdplog)
+	{
+		load_stream_config(m_logs[MSDP_LOG], &msdplog);
+	}
+}
+
+void RuntimeConfiguration::load_features_configuration(const pugi::xml_node* root)
+{
+	const auto features = root->child("features");
+	if (!features)
+	{
+		return;
+	}
+	const auto msdp = features.child("msdp");
+	if (msdp)
+	{
+		load_msdp_configuration(&msdp);
+	}
+}
+
+extern FILE *logfile;	// TODO: Get rid of that
+
+void RuntimeConfiguration::setup_logs(void)
+{
+	mkdir("log", 0700);
+	mkdir("log/perslog", 0700);
+
+	for (int i = 0; i < 1 + LAST_LOG; ++i)
+	{
+		EOutputStream stream = static_cast<EOutputStream>(i);
+
+		constexpr int MAX_SRC_PATH_LENGTH = 4096;
+		char src_path[MAX_SRC_PATH_LENGTH];
+		const char* getcwd_result = getcwd(src_path, MAX_SRC_PATH_LENGTH);
+		UNUSED_ARG(getcwd_result);
+
+		if (logs(stream).filename().empty())
+		{
+			handle(stream, stderr);
+			puts("Using file descriptor for logging.");
+			continue;
+		}
+
+		if (!runtime_config.open_log(stream))	//s_fp
+		{
+			puts("SYSERR: Couldn't open anything to log to, giving up.");
+			exit(1);
+		}
+	}
+
+	logfile = logs(SYSLOG).handle();
+
+	setup_converters();
+}
+
+
+void RuntimeConfiguration::load_msdp_configuration(const pugi::xml_node* msdp)
+{
+	if (!msdp)
+	{
+		return;
+	}
+	const auto disabled = msdp->child("disabled");
+	const auto disabled_value = disabled.child_value();
+	if (disabled_value
+		&& 0 == strcmp("true", disabled_value))
+	{
+		m_msdp_disabled = true;
+	}
+	else
+	{
+		m_msdp_disabled = false;
+	}
 }
 
 typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
@@ -579,9 +691,20 @@ const std::string& NAME_BY_ITEM<CLogInfo::EMode>(const CLogInfo::EMode item)
 	return EMode_name_by_value.at(item);
 }
 
-const char* runtime_config::CONFIGURATION_FILE_NAME = "lib/misc/configuration.xml";
+const char* RuntimeConfiguration::CONFIGURATION_FILE_NAME = "lib/misc/configuration.xml";
 
-void runtime_config::load_from_file(const char* filename)
+const RuntimeConfiguration::logs_t LOGS({
+	CLogInfo("syslog", "ףיףפוםמשך"),
+	CLogInfo("log/errlog.txt", "ןûיגכי םיעב"),
+	CLogInfo("log/imlog.txt", "ימחעוהיומפמבס םבחיס"),
+	CLogInfo("log/msdp.txt", "ÌÏÇ MSDP ÐÁËÅÔÏ×")
+});
+
+RuntimeConfiguration::RuntimeConfiguration(): m_logs(LOGS), m_syslog_converter(nullptr), m_msdp_disabled(false), m_msdp_debug(false)
+{
+}
+
+void RuntimeConfiguration::load_from_file(const char* filename)
 {
 	try
 	{
@@ -597,36 +720,8 @@ void runtime_config::load_from_file(const char* filename)
 			throw std::runtime_error("Root tag \"configuration\" not found");
 		}
 
-		const auto logging = root.child("logging");
-		if (logging)
-		{
-			const auto log_stderr = logging.child("log_stderr");
-			m_log_stderr = log_stderr.child_value();
-
-			const auto syslog = logging.child("syslog");
-			if (syslog)
-			{
-				load_stream_config(m_logs[SYSLOG], &syslog);
-			}
-
-			const auto errlog = logging.child("errlog");
-			if (errlog)
-			{
-				load_stream_config(m_logs[ERRLOG], &errlog);
-			}
-
-			const auto imlog = logging.child("imlog");
-			if (imlog)
-			{
-				load_stream_config(m_logs[IMLOG], &imlog);
-			}
-
-			const auto msdplog = logging.child("msdplog");
-			if (msdplog)
-			{
-				load_stream_config(m_logs[MSDP_LOG], &msdplog);
-			}
-		}
+		load_logging_configuration(&root);
+		load_features_configuration(&root);
 	}
 	catch (const std::exception& e)
 	{
@@ -680,5 +775,7 @@ bool CLogInfo::open()
 
 	return false;
 }
+
+RuntimeConfiguration runtime_config;
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

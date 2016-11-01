@@ -429,7 +429,7 @@ void vlog(const char *format, va_list args)
 	time_s[strlen(time_s) - 1] = '\0';
 	fprintf(logfile, "%-15.15s :: ", time_s + 4);
 
-	if (!runtime_config::log_stderr().empty())
+	if (!runtime_config.log_stderr().empty())
 	{
 		fprintf(stderr, "%-15.15s :: ", time_s + 4);
 		const size_t BUFFER_SIZE = 4096;
@@ -447,6 +447,7 @@ void vlog(const char *format, va_list args)
 			p[BUFFER_SIZE - 1] = '\0';
 		}
 
+		const auto syslog_converter = runtime_config.syslog_converter();
 		if (syslog_converter)
 		{
 			syslog_converter(buffer, static_cast<int>(length));
@@ -458,7 +459,7 @@ void vlog(const char *format, va_list args)
 	vfprintf(logfile, format, args);
 	fprintf(logfile, "\n");
 
-	if (!runtime_config::log_stderr().empty())
+	if (!runtime_config.log_stderr().empty())
 	{
 		fprintf(stderr, "\n");
 	}
@@ -478,7 +479,7 @@ void vlog(const EOutputStream steam, const char* format, va_list rargs)
 	va_copy(args, rargs);
 
 	const auto prev = logfile;
-	logfile = runtime_config::logs(steam).handle();
+	logfile = runtime_config.logs(steam).handle();
 	vlog(format, args);
 	logfile = prev;
 
@@ -706,9 +707,9 @@ void mudlog(const char *str, int type, int level, EOutputStream channel, int fil
 	}
 	if (file)
 	{
-		logfile = runtime_config::logs(channel).handle();
+		logfile = runtime_config.logs(channel).handle();
 		log("%s", str);
-		logfile = runtime_config::logs(SYSLOG).handle();
+		logfile = runtime_config.logs(SYSLOG).handle();
 	}
 	if (level < 0)
 	{
@@ -3675,23 +3676,6 @@ const char *print_obj_state(int tm_pct)
 	else return "нерушимо";
 }
 
-void setup_converters()
-{
-	if (!runtime_config::log_stderr().empty())
-	{
-		// set up converter
-		const auto& encoding = runtime_config::log_stderr();
-		if ("cp1251" == encoding)
-		{
-			syslog_converter = koi_to_win;
-		}
-		else if ("alt" == encoding)
-		{
-			syslog_converter = koi_to_alt;
-		}
-	}
-}
-
 void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = nullptr*/)
 {
 	unsigned char *buf = (unsigned char*)ptr;
@@ -3923,8 +3907,6 @@ std::string ParseFilter::print() const
 
 	return buffer;
 }
-
-converter_t syslog_converter = NULL;
 
 const char a_lcc_table[] = {
 	'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',

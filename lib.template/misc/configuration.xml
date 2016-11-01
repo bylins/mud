@@ -52,4 +52,17 @@
 			<buffered>FULL</buffered>
 		</imlog>
 	</logging>
+
+	<features>
+		<msdp>
+			<!--
+			Allows to turn off MSDP support. Enabled (disabled == false) by default.
+			<disabled>true</disabled>
+			-->
+			<!--
+			Enables MSDP debug. By default debug is disabled.
+			<debug>true</debug>
+			-->
+		</msdp>
+	</features>
 </configuration>
