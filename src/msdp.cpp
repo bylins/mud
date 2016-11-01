@@ -501,6 +501,12 @@ namespace msdp
 			return;
 		}
 
+		if (!reporter)
+		{
+			log("SYSERR: MSDP reporter was not set at send() function.");
+			return;
+		}
+
 		Variable::shared_ptr response;
 		reporter->get(response);
 		if (!response)
@@ -532,7 +538,7 @@ namespace msdp
 		ReportSender sender(d);
 
 		const auto reporter = ReporterFactory::create(d, name);
-		if (reporter)
+		if (!reporter)
 		{
 			return;
 		}
