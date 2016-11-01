@@ -3703,7 +3703,7 @@ void do_syslog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		GET_LOGS(ch)[subcmd] = tp;
 	}
-	sprintf(buf, "Тип вашего лога (%s) сейчас %s.\r\n", runtime_config::logs(static_cast<EOutputStream>(subcmd)).title().c_str(), logtypes[tp]);
+	sprintf(buf, "Тип вашего лога (%s) сейчас %s.\r\n", runtime_config.logs(static_cast<EOutputStream>(subcmd)).title().c_str(), logtypes[tp]);
 	send_to_char(buf, ch);
 	return;
 }

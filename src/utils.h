@@ -1589,11 +1589,6 @@ int get_virtual_race(CHAR_DATA *mob);
 #define _QUOTE(x) # x
 #define QUOTE(x) _QUOTE(x)
 
-typedef void(*converter_t)(char*, int);
-extern converter_t syslog_converter;
-
-void setup_converters();
-
 #ifdef WIN32
 class CCheckTable
 {
@@ -1632,7 +1627,7 @@ inline void graceful_exit(int retcode)
 void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title = nullptr);
 inline void hexdump(const EOutputStream stream, const char *ptr, size_t buflen, const char* title = nullptr)
 {
-	hexdump(runtime_config::logs(stream).handle(), ptr, buflen, title);
+	hexdump(runtime_config.logs(stream).handle(), ptr, buflen, title);
 }
 
 bool isname(const char *str, const char *namelist);

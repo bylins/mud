@@ -93,6 +93,7 @@ namespace craft
 		// ::log("%s", buffer);
 		// instead of output just onto console:
 		// FROM HERE...
+		const auto syslog_converter = runtime_config.syslog_converter();
 		if (syslog_converter)
 		{
 			syslog_converter(buffer, static_cast<int>(length));
