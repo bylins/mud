@@ -1296,7 +1296,7 @@ void core_dump_real(const char *who, int line)
 	fflush(stderr);
 	for (int i = 0; i < 1 + LAST_LOG; ++i)
 	{
-		fflush(runtime_config::logs(static_cast<EOutputStream>(i)).handle());
+		fflush(runtime_config.logs(static_cast<EOutputStream>(i)).handle());
 	}
 
 	/*
