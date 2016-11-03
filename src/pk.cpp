@@ -455,7 +455,7 @@ bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то!", CMP, LVL_GOD, SYSLOG, TRUE);
+		mudlog("Противник исчез при ПК куда-то! функция pk_agro_action", CMP, LVL_GOD, SYSLOG, TRUE);
 		return false;
 	}
 	if (!IS_NPC(victim) || IS_CHARMICE(victim))
@@ -495,11 +495,6 @@ int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&agressor, &victim);
-	if (victim == NULL)
-	{
-		mudlog("Противник исчез при ПК куда-то!", CMP, LVL_GOD, SYSLOG, TRUE);
-		return false;
-	}
 	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
 			IS_NPC(agressor) || IS_NPC(victim))
 		return PK_ACTION_NO;
@@ -544,11 +539,6 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&thief, &victim);
-	if (victim == NULL)
-	{
-		mudlog("Противник исчез при ПК куда-то!", CMP, LVL_GOD, SYSLOG, TRUE);
-		return;
-	}
 	switch (pk_action_type(thief, victim))
 	{
 	case PK_ACTION_NO:
@@ -587,11 +577,6 @@ void pk_revenge_action(CHAR_DATA * killer, CHAR_DATA * victim)
 	if (killer)
 	{
 		pk_translate_pair(&killer, NULL);
-	if (victim == NULL)
-	{
-		mudlog("Противник исчез при ПК куда-то!", CMP, LVL_GOD, SYSLOG, TRUE);
-		return;
-	}
 
 		if (!IS_NPC(killer) && !IS_NPC(victim))
 		{
@@ -616,11 +601,6 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&agressor, &victim);
-	if (victim == NULL)
-	{
-		mudlog("Противник исчез при ПК куда-то!", CMP, LVL_GOD, SYSLOG, TRUE);
-		return false;
-	}
 	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
 			IS_NPC(agressor) || IS_NPC(victim) || (agressor != victim && (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE)
 	 			|| ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))))
@@ -1250,11 +1230,6 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 	CHAR_DATA* initial_victim = victim;
 	if (!obj || (ch && IS_GOD(ch))) return true;
 	pk_translate_pair(&ch, &victim);
-	if (victim == NULL)
-	{
-		mudlog("Противник исчез при ПК куда-то!", CMP, LVL_GOD, SYSLOG, TRUE);
-		return false;
-	}
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
 	if (!obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)
@@ -1312,11 +1287,6 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 {
 	pk_translate_pair(&ch, &killer);
-	if (killer == NULL)
-	{
-		mudlog("Противник исчез при ПК куда-то!", CMP, LVL_GOD, SYSLOG, TRUE);
-		return;
-	}
 	//Если игрок убил игрока, который не был в агро бд и убитый не душегуб,
 	// то с него выпадает окровавленный стаф
 	if (ch && killer

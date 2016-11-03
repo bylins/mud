@@ -3028,8 +3028,10 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 {
  // подготовка контейнера для создания заклинания ментальная тень
  // все предложения пишем мад почтой
+
 	send_to_char("Временно отключена!\r\n", ch);
 	return;
+
 	mob_vnum mob_num = MOB_MENTAL_SHADOW;
 
 	CHAR_DATA *mob = NULL;
