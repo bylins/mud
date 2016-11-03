@@ -3472,7 +3472,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		dl_load_obj(obj, mob, ch, DL_SKIN);
 
 		std::vector<OBJ_DATA*> entrails;
-		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,1000) == 1)) // артефакт
+		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,500) == 1)) // артефакт
 		{
 			tobj = read_object(meat_mapping.get_artefact_key(), VIRTUAL);
 		}
