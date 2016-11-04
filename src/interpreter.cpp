@@ -4167,11 +4167,11 @@ void login_change_invoice(CHAR_DATA* ch)
 	}
 	if (mail::has_mail(ch->get_uid()))
 	{
-		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
+		send_to_char("&RВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}
 	if (Parcel::has_parcel(ch))
 	{
-		send_to_char("&R\r\nВас ожидает посылка. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
+		send_to_char("&RВас ожидает посылка. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}
 	Depot::show_purged_message(ch);
 	if (CLAN(ch))

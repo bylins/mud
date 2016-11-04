@@ -25,6 +25,7 @@
 #include "pk.h"
 #include "dg_scripts.h"
 #include "mail.h"
+#include "parcel.hpp"
 #include "features.hpp"
 #include "im.h"
 #include "house.h"
@@ -3604,6 +3605,11 @@ void print_do_score_all(CHAR_DATA *ch)
 				" || %sВас ожидает новое письмо, зайдите на почту.                                     %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
+	if (Parcel::has_parcel(ch))
+		sprintf(buf + strlen(buf),
+				" || %sВас ожидает посылка, зайдите на почту.                                          %s||\r\n",
+				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+
 	if (ch->get_protecting())
 		sprintf(buf + strlen(buf),
 				" || %sВы прикрываете %-65s%s||\r\n",
@@ -3939,6 +3945,12 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (mail::has_mail(ch->get_uid()))
 	{
 		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+
+	if (Parcel::has_parcel(ch))
+	{
+		sprintf(buf, "%sВас ожидает посылка, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 
