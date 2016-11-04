@@ -628,7 +628,8 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 				}
 				else
 				{
-					sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
+					if (GET_OBJ_VAL(object, 3) < 1) // есть ключ для открытия, пустоту не показываем2
+						sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
 				}
 			}
 		}
