@@ -628,7 +628,8 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 				}
 				else
 				{
-					sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
+					if (GET_OBJ_VAL(object, 3) < 1) // есть ключ для открытия, пустоту не показываем2
+						sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
 				}
 			}
 		}
@@ -2418,13 +2419,13 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 				switch (bits)
 				{
 				case FIND_OBJ_INV:
-					send_to_char(" (в руках)\r\n", ch);
+					send_to_char("(в руках)\r\n", ch);
 					break;
 				case FIND_OBJ_ROOM:
-					send_to_char(" (на земле)\r\n", ch);
+					send_to_char("(на земле)\r\n", ch);
 					break;
 				case FIND_OBJ_EQUIP:
-					send_to_char(" (в амуниции)\r\n", ch);
+					send_to_char("(в амуниции)\r\n", ch);
 					break;
 				}
 				if (!obj->get_contains())
