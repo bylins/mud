@@ -2418,13 +2418,13 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 				switch (bits)
 				{
 				case FIND_OBJ_INV:
-					send_to_char("(в руках)\r\n", ch);
+					send_to_char(" (в руках)\r\n", ch);
 					break;
 				case FIND_OBJ_ROOM:
-					send_to_char("(на земле)\r\n", ch);
+					send_to_char(" (на земле)\r\n", ch);
 					break;
 				case FIND_OBJ_EQUIP:
-					send_to_char("(в амуниции)\r\n", ch);
+					send_to_char(" (в амуниции)\r\n", ch);
 					break;
 				}
 				if (!obj->get_contains())
