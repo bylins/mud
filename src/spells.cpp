@@ -3029,9 +3029,6 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
  // подготовка контейнера для создания заклинания ментальная тень
  // все предложения пишем мад почтой
 
-	send_to_char("Временно отключена!\r\n", ch);
-	return;
-
 	mob_vnum mob_num = MOB_MENTAL_SHADOW;
 
 	CHAR_DATA *mob = NULL;
@@ -3067,6 +3064,8 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 
 	char_to_room(mob, IN_ROOM(ch));
 	mob->set_protecting(ch);
+	MOB_FLAGS(mob).set(MOB_CORPSE);
+	MOB_FLAGS(mob).set(MOB_GHOST);
 
 	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
