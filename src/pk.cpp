@@ -620,7 +620,8 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то! функция 5", CMP, LVL_GOD, SYSLOG, TRUE);
+		sprintf(buf,"Противник исчез при ПК куда-то! функция 5 имя агрессора %s", GET_NAME(agressor));
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 	}
 
 	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
