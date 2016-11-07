@@ -620,7 +620,7 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-		sprintf(buf,"Противник исчез при ПК куда-то! функция 5 имя агрессора %s", GET_NAME(agressor));
+		sprintf(buf,"Противник исчез при ПК куда-то! функция 5 имя агрессора %s внум: %d", GET_NAME(agressor), GET_MOB_VNUM(agressor));
 		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 	}
 
