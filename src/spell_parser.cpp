@@ -3157,12 +3157,12 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	spellnum = find_spell_num(s);
 	spell_subst = spellnum;
 
-	if (!Privilege::check_spells(ch, spellnum))
+/*	if (!Privilege::check_spells(ch, spellnum))
 	{
 		send_to_char("Не положено...\r\n", ch);
 		return;
 	}
-
+*/
 	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
