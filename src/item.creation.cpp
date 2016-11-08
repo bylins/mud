@@ -2244,7 +2244,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 				{
 					ingrs[i]->set_weight(0);
 					send_to_char(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(3).c_str());
-					extract_obj(ingrs[i]);
+					//extract_obj(ingrs[i]);
 					break;
 				}
 				//Если вес ингра меньше, чем требуется, то вычтем этот вес из того, сколько требуется.
