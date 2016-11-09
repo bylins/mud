@@ -620,7 +620,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 					sprintf(buf2, " %s", diag_obj_to_char(ch, object, 1));
 				}
 			}
-			if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_CONTAINER)
+			if ((GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_CONTAINER) && !OBJVAL_FLAGGED(object, CONT_CLOSED)) // если закрыто, содержимое не показываем
 			{
 				if (object->get_contains())
 				{

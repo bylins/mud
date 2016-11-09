@@ -620,8 +620,8 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то! функция 5", CMP, LVL_GOD, SYSLOG, TRUE);
-		return false;
+		sprintf(buf,"Противник исчез при ПК куда-то! функция 5 имя агрессора %s внум: %d", GET_NAME(agressor), GET_MOB_VNUM(agressor));
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 	}
 
 	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
@@ -1310,12 +1310,6 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 {
 	pk_translate_pair(&ch, &killer);
-	if (killer == NULL)
-	{
-		mudlog("Противник исчез при ПК куда-то! функция 7", CMP, LVL_GOD, SYSLOG, TRUE);
-		return;
-	}
-
 	//Если игрок убил игрока, который не был в агро бд и убитый не душегуб,
 	// то с него выпадает окровавленный стаф
 	if (ch && killer

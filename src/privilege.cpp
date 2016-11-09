@@ -391,7 +391,8 @@ bool check_spells(const CHAR_DATA *ch, int spellnum)
 */
 bool check_skills(const CHAR_DATA *ch)
 {
-	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
+	if ((GET_LEVEL(ch) > LVL_GOD) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
+//	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	return false;
 }

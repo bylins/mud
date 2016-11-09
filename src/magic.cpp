@@ -669,7 +669,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
 		{
 			to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
-			to_room = "$n начертил$g на земле несколько рун, знаки вспыхунли, но ничего не произошло.";
+			to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
 			lag = 2;
 			break;
 		}
@@ -5158,7 +5158,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 				to_char = "Какая ж тяжкая заставила меня делать работу Богов.";
 				return 0;
 			}
-			to_char = "$o осветил$G на миг внутренним светом и тут же потух$Q.";
+			to_char = "$o осветил$U на миг внутренним светом и тут же потух$Q.";
 		}
 		break;
 

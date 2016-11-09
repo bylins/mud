@@ -2226,6 +2226,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			int state = craft_weight;
 			// Обсчет веса ингров в цикле, если не хватило веса берем следующий ингр в инве, если не хватает, делаем фэйл (make_fail) и брекаем внешний цикл, смысл дальше ингры смотреть?
 			//send_to_char(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
+			int obj_vnum_tmp = GET_OBJ_VNUM(ingrs[i]);
 			while (state > 0)
 			{
 
@@ -2234,7 +2235,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 				if (GET_OBJ_WEIGHT(ingrs[i]) > state)
 				{
 					ingrs[i]->sub_weight(state);
-					send_to_char(ch, "Вы потратили %s(%d) вес стал %d.\r\n", ingrs[i]->get_PName(3).c_str(), state, GET_OBJ_WEIGHT(ingrs[i]));
+					send_to_char(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(3).c_str());
 					IS_CARRYING_W(ch) -= state;
 					break;
 				}
@@ -2242,15 +2243,15 @@ int MakeRecept::make(CHAR_DATA * ch)
 				else if (GET_OBJ_WEIGHT(ingrs[i]) == state)
 				{
 					ingrs[i]->set_weight(0);
-					send_to_char(ch, "Вы потратили %s(%d) вес стал %d.\r\n", ingrs[i]->get_PName(3).c_str(), state, GET_OBJ_WEIGHT(ingrs[i]));
-					extract_obj(ingrs[i]);
+					send_to_char(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(3).c_str());
+					//extract_obj(ingrs[i]);
 					break;
 				}
 				//Если вес ингра меньше, чем требуется, то вычтем этот вес из того, сколько требуется.
 				else
 				{
 					state = state - GET_OBJ_WEIGHT(ingrs[i]);
-					send_to_char(ch, "Вы потратили %s(%d) вес стал %d.\r\n", ingrs[i]->get_PName(3).c_str(), GET_OBJ_WEIGHT(ingrs[i]), 0);
+					send_to_char(ch, "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n", ingrs[i]->get_PName(3).c_str());
 
 					std::string tmpname = std::string(ingrs[i]->get_PName(2).c_str());
 
@@ -2258,16 +2259,16 @@ int MakeRecept::make(CHAR_DATA * ch)
 					extract_obj(ingrs[i]);
 
 					//Если некст ингра в инве нет, то сообщаем об этом и идем в фэйл. Некст ингры все равно проверяем
-					if (!get_obj_in_list_ingr(parts[i].proto, ch->carrying))
+					if (!get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying))
 					{
-						send_to_char(ch, "У вас больше нет %s.\r\n", tmpname.c_str());
+						send_to_char(ch, "У вас в инвентаре больше нет %s.\r\n", tmpname.c_str());
 						make_fail = true;
 						break;
 					}
 					//Подцепляем некст ингр и идем в нашу проверку заново
 					else
 					{
-						ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
+						ingrs[i] = get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying);
 					}
 				}
 			}
