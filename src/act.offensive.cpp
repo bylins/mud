@@ -257,7 +257,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 			}
 			else
 			{
-				if (!pk_agro_action(ch, victim))
+				if (!pk_agro_action(vict, ch))
 					return victim; // по аналогии с реском прикрывая кого-то можно пофлагаться
 				act("Вы героически прикрыли $N3, приняв удар на себя.", FALSE,
 					vict, 0, victim, TO_CHAR);
