@@ -2647,11 +2647,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		if (PRF_FLAGGED(victim, PRF_TESTER))
 		{
-            int ResultDam = dam - (dam * GET_PR(victim) / 100);
-            sprintf(buf, "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
-            send_to_char(buf, victim);
-            dam = ResultDam;
-        } else
+        		int ResultDam = dam - (dam * GET_PR(victim) / 100);
+        		sprintf(buf, "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
+        		send_to_char(buf, victim);
+        		dam = ResultDam;
+    		} 
+	else
         {
             dam = dam - (dam * GET_PR(victim) / 100);
         }
