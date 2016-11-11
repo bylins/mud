@@ -2140,15 +2140,19 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 			AFFECT_DATA<EApplyLocation> af;
 			af.type = SPELL_EXPEDIENT;
 			//af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
-			af.location = EApplyLocation::APPLY_PR;
+			af.location = EApplyLocation::APPLY_PR; // физдамагрезисты
 			af.modifier = 50;
 			af.duration = 2; //два раунда, потому что подножка идет в конце раунда
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
-            sprintf(buf, "%sВы покатились по земле, пытаясь избежать атак $N1.%s", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-            act(buf,FALSE,ch,0,vict,TO_CHAR);
-            act("$n покатил$u по земле, пытаясь избежать ваших атак.", FALSE, ch, 0, vict, TO_VICT);
-            act("$n покатил$u по земле, пытаясь избежать атак $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+			af.location = EApplyLocation::APPLY_AR; // магорезисты
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			af.location = EApplyLocation::APPLY_MR; //магдамагрезисты
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			sprintf(buf, "%sВы покатились по земле, пытаясь избежать атак $N1.%s", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+			act(buf,FALSE,ch,0,vict,TO_CHAR);
+			act("$n покатил$u по земле, пытаясь избежать ваших атак.", FALSE, ch, 0, vict, TO_VICT);
+			act("$n покатил$u по земле, пытаясь избежать атак $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		}
 	}
 	else
