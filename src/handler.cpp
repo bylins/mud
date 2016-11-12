@@ -401,7 +401,7 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 	case APPLY_HIT_GLORY: //вкачка +хп за славу
 		GET_HIT_ADD(ch) += mod * GloryConst::HP_FACTOR;
 	case APPLY_PR:
-		GET_PR(ch) += mod;
+		GET_PR(ch) += mod; //скиллрезист
 		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);

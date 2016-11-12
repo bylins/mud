@@ -5231,7 +5231,7 @@ void set_god_skills(CHAR_DATA *ch)
 {
 	for (const auto i : AVAILABLE_SKILLS)
 	{
-		ch->set_skill(i, 150);
+		ch->set_skill(i, 200);
 	}
 }
 
@@ -5438,7 +5438,7 @@ void init_char(CHAR_DATA * ch)
 		log("SYSERR: init_char: Character '%s' not found in player table.", GET_NAME(ch));
 	}
 
-	if (GET_LEVEL(ch) == LVL_IMPL)
+	if (GET_LEVEL(ch) > LVL_GOD)
 	{
 		set_god_skills(ch);
 		set_god_morphs(ch);
