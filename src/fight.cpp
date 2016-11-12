@@ -1518,7 +1518,7 @@ void using_mob_skills(CHAR_DATA *ch)
 		////////////////////////////////////////////////////////////////////////
 		// проверим на всякий случай, является ли моб ангелом,
 		// хотя вроде бы этого делать не надо
-		if (!(MOB_FLAGGED(ch, MOB_ANGEL) && ch->master)
+		if (!(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST)) && ch->master
 			&& (sk_num == SKILL_RESCUE || sk_num == SKILL_PROTECT))
 		{
 			CHAR_DATA *caster = 0, *damager = 0;

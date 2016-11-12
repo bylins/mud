@@ -1112,7 +1112,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		// Mob attemp rest if it is not an angel
 		if (!max && !MOB_FLAGGED(ch, MOB_NOREST) &&
-				GET_HIT(ch) < GET_REAL_MAX_HIT(ch) && !MOB_FLAGGED(ch, MOB_ANGEL) && GET_POS(ch) > POS_RESTING)
+				GET_HIT(ch) < GET_REAL_MAX_HIT(ch) && !MOB_FLAGGED(ch, MOB_ANGEL) && !MOB_FLAGGED(ch, MOB_GHOST) && GET_POS(ch) > POS_RESTING)
 		{
 			act("$n присел$g отдохнуть.", FALSE, ch, 0, 0, TO_ROOM);
 			GET_POS(ch) = POS_RESTING;
@@ -1120,7 +1120,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		// Mob return to default pos if full rested or if it is an angel
 		if ((GET_HIT(ch) >= GET_REAL_MAX_HIT(ch) &&
-				GET_POS(ch) != GET_DEFAULT_POS(ch)) || (MOB_FLAGGED(ch, MOB_ANGEL)
+				GET_POS(ch) != GET_DEFAULT_POS(ch)) || ((MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
 														&& GET_POS(ch) != GET_DEFAULT_POS(ch)))
 			switch (GET_DEFAULT_POS(ch))
 			{
@@ -1143,7 +1143,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			}
 		// continue, if the mob is an angel
 		// если моб ментальная тень или ангел он не должен проявлять активность
-		if ((MOB_FLAGGED(ch, MOB_ANGEL))||(MOB_FLAGGED(ch, MOB_ANGEL)))
+		if ((MOB_FLAGGED(ch, MOB_ANGEL))||(MOB_FLAGGED(ch, MOB_GHOST)))
 			continue;
 
 		// look at room before moving
