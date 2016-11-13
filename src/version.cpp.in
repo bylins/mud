@@ -8,7 +8,7 @@
 #include "comm.h"
 #include "utils.h"
 
-const char* revision = "${REVISION}";
+const char* revision = "${REVISION} (${BRANCH})";
 
 volatile const char* REVISION = "$ Build revision: ${REVISION} $";
 volatile const char* ROOT_DIRECTORY = "$ Build directory: ${CMAKE_BINARY_DIR} $";

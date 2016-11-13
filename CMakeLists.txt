@@ -341,14 +341,14 @@ set(MSDP_FILES
 list(APPEND SOURCES ${MSDP_FILES})
 
 # Versioning
-# Try to find hg executable, retrive revision if found and generate version.cpp from template
+# Try to find git executable, retrive revision if found and generate version.cpp from template
 set(VERSIONING_FILES src/versioning.cmake src/version.cpp.in)
-find_program(HG hg DOC "Mercurial executable file")
+find_program(GIT git DOC "Git executable file")
 # invalidate template
 add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp.in
 	SOURCES ${VERSIONING_FILES})
 add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
-	COMMAND ${CMAKE_COMMAND} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DHG=${HG} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake
+	COMMAND ${CMAKE_COMMAND} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DGIT=${GIT} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 
@@ -497,7 +497,7 @@ if (CMAKE_HOST_UNIX)
 	# On Unix systems will make changelog file.
 	add_custom_target(changelog ALL)
 	add_custom_command(TARGET changelog
-		COMMAND LANGUAGE=en_US.UTF-8 HGENCODING=utf-8 hg log -v -M > changelog)
+		COMMAND ${GIT} log > changelog)
 elseif (CMAKE_HOST_WIN32)
 	add_definitions("-D_SCL_SECURE_NO_WARNINGS")
 	set(CMAKE_CXX_FLAGS_RELEASE  "-DBOOST_ENABLE_ASSERT_HANDLER")
