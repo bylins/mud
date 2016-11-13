@@ -1,0 +1,15 @@
+generate:
+        script:
+                - mkdir build
+                - cd build
+                - cmake ..
+
+build:
+        script:
+                - cd build
+                - camke --build .
+
+check:
+        script:
+                - cd build
+                - cmake --build . --target checks
