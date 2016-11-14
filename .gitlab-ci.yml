@@ -1,15 +1,23 @@
+stages:
+        - generate
+        - build
+        - checks
+
 generate:
         script:
                 - mkdir build
                 - cd build
                 - cmake ..
+        stage: generate
 
 build:
         script:
                 - cd build
                 - camke --build .
+        stage: build
 
 check:
         script:
                 - cd build
                 - cmake --build . --target checks
+        stage: checks
