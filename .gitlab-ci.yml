@@ -3,8 +3,15 @@ stages:
         - build
         - checks
 
+cache:
+        key: ${CI_BUILD_REF}
+        untracked: true
+        paths:
+                - build/
+
 generate:
         script:
+                - git branch
                 - mkdir build
                 - cd build
                 - cmake ..
@@ -12,12 +19,10 @@ generate:
 
 build:
         script:
-                - cd build
-                - camke --build .
+                - cmake --build build
         stage: build
 
 check:
         script:
-                - cd build
-                - cmake --build . --target checks
+                - cmake --build build --target checks
         stage: checks
