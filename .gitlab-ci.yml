@@ -18,7 +18,7 @@ build:
         script:
                 - pwd
                 - cd build
-                - camke --build .
+                - cmake --build .
         stage: build
 
 check:
