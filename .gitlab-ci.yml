@@ -23,6 +23,6 @@ build:
 
 check:
         script:
-                git branch
+                - git branch
                 - cmake --build build --target checks
         stage: checks
