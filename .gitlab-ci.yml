@@ -3,6 +3,10 @@ stages:
         - build
         - checks
 
+cache:
+        paths:
+                - build/
+
 generate:
         script:
                 - mkdir build
