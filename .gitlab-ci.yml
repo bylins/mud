@@ -4,7 +4,6 @@ stages:
         - checks
 
 cache:
-        key: ${CI_BUILD_REF}
         untracked: true
         paths:
                 - build/
