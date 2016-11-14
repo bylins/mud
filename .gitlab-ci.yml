@@ -12,12 +12,14 @@ generate:
 
 build:
         script:
+                - pwd
                 - cd build
                 - camke --build .
         stage: build
 
 check:
         script:
+                - pwd
                 - cd build
                 - cmake --build . --target checks
         stage: checks
