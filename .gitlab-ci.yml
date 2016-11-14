@@ -4,8 +4,8 @@ stages:
         - checks
 
 cache:
-        paths:
-                - build/
+        key: ${CI_BUILD_REF}
+        untracked: true
 
 generate:
         script:
