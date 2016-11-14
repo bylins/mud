@@ -1,0 +1,27 @@
+stages:
+        - generate
+        - build
+        - checks
+
+cache:
+        untracked: true
+        paths:
+                - build/
+
+generate:
+        script:
+                - git branch
+                - mkdir build
+                - cd build
+                - cmake ..
+        stage: generate
+
+build:
+        script:
+                - cmake --build build
+        stage: build
+
+check:
+        script:
+                - cmake --build build --target checks
+        stage: checks

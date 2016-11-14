@@ -1,7 +1,5 @@
 if (GIT)
-    execute_process(COMMAND ${GIT} show --format=%h OUTPUT_VARIABLE REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${GIT} branch OUTPUT_VARIABLE BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REGEX REPLACE "\\* " "" BRANCH ${BRANCH})
+    execute_process(COMMAND ${GIT} show -s --format=%h OUTPUT_VARIABLE REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
 else ()
     set(REVISION "<undefined>")
 endif ()
