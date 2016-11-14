@@ -11,6 +11,7 @@ cache:
 
 generate:
         script:
+                - git branch
                 - mkdir build
                 - cd build
                 - cmake ..
@@ -23,6 +24,5 @@ build:
 
 check:
         script:
-                - git branch
                 - cmake --build build --target checks
         stage: checks
