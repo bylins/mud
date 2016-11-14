@@ -55,7 +55,7 @@ void LackyAffectHandler::Handle(BattleRoundParameters& params)
 	damToMe_=false;
 	damFromMe_=false;
 }
-
+// тест
 void LackyAffectHandler::Handle(StopFightParameters& params)
 {
 	auto af = find_affect(params.ch, SPELL_LACKY);
