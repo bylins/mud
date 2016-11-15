@@ -12,7 +12,7 @@ cache:
 generate:
         script:
                 - git branch
-                - mkdir build
+                - mkdir build || true
                 - cd build
                 - cmake ..
         stage: generate
