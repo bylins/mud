@@ -5944,7 +5944,6 @@ void make_who2html(void)
 
 	if ((opf = fopen(WHOLIST_FILE, "w")) == 0)
 		return;		// or log it ? *shrug*
-
 	fprintf(opf, "<HTML><HEAD><TITLE>Кто сейчас в Былинах?</TITLE></HEAD>\n");
 	fprintf(opf, "<BODY><H1>Кто сейчас живет в Былинах?</H1><HR>\n");
 
