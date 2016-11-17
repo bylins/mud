@@ -5983,9 +5983,7 @@ void make_who2html(void)
 			buffer = str_add(buffer, imms);
 		if (morts_num > 0)
 			buffer = str_add(buffer, morts);
-
 		buffer = str_add(buffer, " <BR> \r\n Всего :");
-
 		if (imms_num)
 		{
 			// sprintf(buf+strlen(buf)," бессмертных %d",imms_num);
