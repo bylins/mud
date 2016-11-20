@@ -620,7 +620,8 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-		sprintf(buf,"Противник исчез при ПК куда-то! функция 5 имя агрессора %s внум: %d", GET_NAME(agressor), GET_MOB_VNUM(agressor));
+		sprintf(buf,"Противник исчез при ПК куда-то! функция 5 имя агрессора %s внум: %d, номер клетки %d, мирная? %s", GET_NAME(agressor), GET_MOB_VNUM(agressor), GET_ROOM_VNUM(agressor->in_room), 
+			    ROOM_FLAGGED(agressor->in_room, ROOM_PEACEFUL)?"ДА":"НЕТ");
 		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 	}
 
