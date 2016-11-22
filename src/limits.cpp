@@ -1348,16 +1348,15 @@ void clan_chest_invoice(OBJ_DATA *j)
 		}
 	}
 
-	for (ClanListType::iterator i = Clan::ClanList.begin(),
-		iend = Clan::ClanList.end(); i != iend; ++i)
+	for (const auto& i : Clan::ClanList)
 	{
-		if ((*i)->GetRent() == room)
+		if (i->GetRent() == room)
 		{
 			std::string log_text = boost::str(boost::format("%s%s рассыпал%s в прах\r\n")
 				% j->get_short_description()
-				% clan_get_custom_label(j, *i)
+				% clan_get_custom_label(j, i)
 				% GET_OBJ_SUF_2(j));
-			(*i)->chest_log.add(log_text);
+			i->chest_log.add(log_text);
 			return;
 		}
 	}
@@ -1373,6 +1372,7 @@ void clan_chest_point_update(OBJ_DATA *j)
 		if (!SetSystem::find_set_item(j->get_in_obj()) && j->get_timer() > 0)
 			j->dec_timer();
 	}
+
 	if (j->get_timer() > 0)
 	{
 		j->dec_timer();
@@ -1466,8 +1466,8 @@ void obj_point_update()
 		{
 			int zone = world[j->get_in_obj()->get_in_room()]->zone;
 			bool find = 0;
-			ClanListType::const_iterator clan = Clan::IsClanRoom(j->get_in_obj()->get_in_room());
-			if (clan == Clan::ClanList.end())   // внутри замков даже и смотреть не будем
+			const auto clan = Clan::GetClanByRoom(j->get_in_obj()->get_in_room());
+			if (!clan)   // внутри замков даже и смотреть не будем
 			{
 				for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no)
 				{

@@ -140,28 +140,11 @@ struct ClanStuffName
 	std::vector<std::string> PNames;
 };
 
-typedef std::shared_ptr<Clan> ClanPtr;
-typedef std::vector<ClanPtr> ClanListType;
 typedef boost::shared_ptr<ClanPk> ClanPkPtr;
 typedef std::map<long, ClanPkPtr> ClanPkList;
 typedef std::vector<std::bitset<ClanSystem::CLAN_PRIVILEGES_NUM> > ClanPrivileges;
 typedef std::map<int, int> ClanPolitics;
 typedef std::vector<ClanStuffName> ClanStuffList;
-
-struct ClanOLC
-{
-	int mode;                  // для контроля состояния олц
-	ClanPtr clan;              // клан, который правим
-	ClanPrivileges privileges; // свой список привилегий на случай не сохранения при выходе
-	int rank;                  // редактируемый в данный момент ранг
-	std::bitset<ClanSystem::CLAN_PRIVILEGES_NUM> all_ranks; // буфер для удаления/добавления всем рангам
-};
-
-struct ClanInvite
-{
-	ClanPtr clan; // приглашающий клан
-	int rank;     // номер приписываемого ранга
-};
 
 class ClanMembersList: private std::unordered_map<long, ClanMember::shared_ptr>
 {
@@ -187,6 +170,9 @@ public:
 class Clan
 {
 public:
+	using shared_ptr = std::shared_ptr<Clan>;
+	using ClanListType = std::vector<Clan::shared_ptr>;
+
 	Clan();
 	~Clan();
 
@@ -206,7 +192,7 @@ public:
 	static void ChestInvoice();
 	static bool BankManage(CHAR_DATA * ch, char *arg);
 	static room_rnum CloseRent(room_rnum to_room);
-	static ClanListType::const_iterator IsClanRoom(room_rnum room);
+	static shared_ptr GetClanByRoom(room_rnum room);
 	static void CheckPkList(CHAR_DATA * ch);
 	static void SyncTopExp();
 	static bool ChestShow(OBJ_DATA * list, CHAR_DATA * ch);
@@ -359,6 +345,7 @@ private:
 
 	static void HcontrolBuild(CHAR_DATA * ch, std::string & buffer);
 	static void HcontrolDestroy(CHAR_DATA * ch, std::string & buffer);
+	static void DestroyClan(Clan::shared_ptr& clan);
 	static void hcontrol_title(CHAR_DATA *ch, std::string &text);
 	static void hcontrol_rank(CHAR_DATA *ch, std::string &text);
 	static void hcontrol_exphistory(CHAR_DATA *ch, std::string &text);
@@ -385,9 +372,24 @@ private:
 	};
 };
 
+struct ClanOLC
+{
+	int mode;                  // для контроля состояния олц
+	Clan::shared_ptr clan;              // клан, который правим
+	ClanPrivileges privileges; // свой список привилегий на случай не сохранения при выходе
+	int rank;                  // редактируемый в данный момент ранг
+	std::bitset<ClanSystem::CLAN_PRIVILEGES_NUM> all_ranks; // буфер для удаления/добавления всем рангам
+};
+
+struct ClanInvite
+{
+	Clan::shared_ptr clan; // приглашающий клан
+	int rank;     // номер приписываемого ранга
+};
+
 void SetChestMode(CHAR_DATA *ch, std::string &buffer);
 std::string GetChestMode(CHAR_DATA *ch);
-std::string clan_get_custom_label(OBJ_DATA *obj, ClanPtr clan);
+std::string clan_get_custom_label(OBJ_DATA *obj, Clan::shared_ptr clan);
 
 inline bool CHECK_CUSTOM_LABEL_CORE(const OBJ_DATA* obj, const CHAR_DATA* ch)
 {

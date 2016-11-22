@@ -59,12 +59,11 @@ void write_file(int uid, int type)
 	}
 	else if (type == CLAN_SAVE)
 	{
-		for (ClanListType::const_iterator i = Clan::ClanList.begin(),
-			iend = Clan::ClanList.end(); i != iend; ++i)
+		for (const auto& i : Clan::ClanList)
 		{
-			if ((*i)->GetRent() == uid)
+			if (i->GetRent() == uid)
 			{
-				(*i)->save_chest();
+				i->save_chest();
 				return;
 			}
 		}

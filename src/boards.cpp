@@ -354,16 +354,16 @@ void Board::ClanInit()
 			|| boost::bind(&Board::type_, _1) == CLANNEWS_BOARD),
 		board_list.end());
 
-	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	for (const auto& clan : Clan::ClanList)
 	{
-		std::string name = (*clan)->GetAbbrev();
+		std::string name = clan->GetAbbrev();
 		CreateFileName(name);
 		// делаем клановую доску
 		boost::shared_ptr<Board> board = boost::make_shared<Board>(CLAN_BOARD);
 		board->name_ = "ДрВече";
 		board->desc_ = "Основной раздел Дружины ";
-		board->desc_ += (*clan)->GetAbbrev();
-		board->clan_rent_ = (*clan)->GetRent();
+		board->desc_ += clan->GetAbbrev();
+		board->clan_rent_ = clan->GetRent();
 		board->file_ = LIB_HOUSE + name + "/" + name + ".board";
 		board->Load();
 		board_list.push_back(board);
@@ -371,8 +371,8 @@ void Board::ClanInit()
 		board = boost::make_shared<Board>(CLANNEWS_BOARD);
 		board->name_ = "ДрНовости";
 		board->desc_ = "Новости Дружины ";
-		board->desc_ += (*clan)->GetAbbrev();
-		board->clan_rent_ = (*clan)->GetRent();
+		board->desc_ += clan->GetAbbrev();
+		board->clan_rent_ = clan->GetRent();
 		board->file_ = LIB_HOUSE + name + "/" + name + "-news.board";
 		board->Load();
 		board_list.push_back(board);
