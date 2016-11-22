@@ -461,10 +461,9 @@ void init_mob_name_list()
 	std::set<int> bad_zones;
 
 	// клан-замки
-	for (ClanListType::const_iterator clan = Clan::ClanList.begin();
-		clan != Clan::ClanList.end(); ++clan)
+	for (const auto& clan : Clan::ClanList)
 	{
-		bad_zones.insert((*clan)->GetRent()/100);
+		bad_zones.insert(clan->GetRent()/100);
 	}
 
 	// города

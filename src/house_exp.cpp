@@ -106,19 +106,19 @@ void ClanExp::update_total_exp()
 // * Добавление ноды (раз в час).
 void update_clan_exp()
 {
-	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	for (const auto& clan : Clan::ClanList)
 	{
-		(*clan)->last_exp.add_chunk();
+		clan->last_exp.add_chunk();
 	}
 }
 
 // * Сохранение списков (раз в час и на ребуте).
 void save_clan_exp()
 {
-	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	for (const auto& clan : Clan::ClanList)
 	{
-		(*clan)->last_exp.save((*clan)->get_file_abbrev());
-		(*clan)->exp_history.save((*clan)->get_file_abbrev());
+		clan->last_exp.save(clan->get_file_abbrev());
+		clan->exp_history.save(clan->get_file_abbrev());
 	}
 }
 

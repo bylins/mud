@@ -1958,8 +1958,9 @@ void town_shop_keepers()
 
 	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
 	{
-		if (IS_RENTKEEPER(ch) && ch->in_room > 0
-			&& Clan::IsClanRoom(ch->in_room) == Clan::ClanList.end()
+		if (IS_RENTKEEPER(ch)
+			&& ch->in_room > 0
+			&& !Clan::GetClanByRoom(ch->in_room)
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
 			&& GET_ROOM_VNUM(ch->in_room) % 100 != 99
 			&& zone_list.find(world[ch->in_room]->zone) == zone_list.end())
