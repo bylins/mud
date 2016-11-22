@@ -81,7 +81,7 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch); 
+		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);  
 		return;
 	}
 
