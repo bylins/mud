@@ -566,7 +566,7 @@ void Clan::ClanLoad()
 		tempClan->exp_history.load(tempClan->get_file_abbrev());
 		// иним на случай полной неактивности по итогам месяца, чтобы не было пропусков в списке
 		tempClan->exp_history.add_exp(0);
-		if (tempClan->exp_history.need_destroy())
+		if (tempClan->exp_history.need_destroy() && !tempClan->test_clan)
 		{
 			// клан-банк на воеводу
 			if (tempClan->bank > 0)
@@ -712,9 +712,9 @@ void Clan::ClanLoad()
 void Clan::HconShow(CHAR_DATA * ch)
 {
 	std::ostringstream buffer;
-	buffer << "Abbrev|  Rent|OutRent| Chest|iChest|  Guard|CreateDate|      StoredExp|      Bank|Items| Ing |DayTax|Lvl|Test\r\n";
+	buffer << "Abbrev|  Rent|OutRent| Chest|iChest|  Guard|CreateDate|      StoredExp|      Bank|Items| Ing |DayTax|Lvl|Test|Распущена\r\n";
+//	boost::format show("%6d|%6d|%7d|%6d|%6d|%7d|%10s|%15d|%10d|%5d|%5d|%6d|%3s|%4s|%9s\r\n");
 	boost::format show("%6d|%6d|%7d|%6d|%6d|%7d|%10s|%15d|%10d|%5d|%5d|%6d|%3s|%4s\r\n");
-
 	int total_day_tax = 0;
 
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
@@ -731,6 +731,7 @@ void Clan::HconShow(CHAR_DATA * ch)
 				% (*clan)->clan_exp % (*clan)->bank % (*clan)->chest_objcount
 				% (*clan)->ingr_chest_objcount_ % cost % (*clan)->clan_level
 				% ((*clan)->test_clan ? "y" : "n");
+//				% (((*clan)->members.size > 0)  ? "Нет" : "Да");
 	}
 
 	buffer << "Total day tax: " << total_day_tax << "\r\n";
@@ -1864,6 +1865,8 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		int count = 1;
 		for (std::multimap<long long, Clan::shared_ptr>::reverse_iterator it = sort_clan.rbegin(); it != sort_clan.rend(); ++it, ++count)
 		{
+			if (it->second->m_members.size() == 0)
+				continue;
 			out << clanTopFormat % count % it->second->abbrev % it->second->name % ExpFormat(it->second->exp)
 				% ExpFormat(it->second->last_exp.get_exp()) % it->second->m_members.size();
 		}
