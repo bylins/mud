@@ -57,6 +57,7 @@ set(SOURCES
 	src/ext_money.cpp
 	src/features.cpp
 	src/fight.cpp
+	src/fight.penalties.cpp
 	src/fight_hit.cpp
 	src/fight_stuff.cpp
 	src/file_crc.cpp
@@ -169,6 +170,7 @@ set(HEADERS
 	src/ext_money.hpp
 	src/features.hpp
 	src/fight.h
+	src/fight.penalties.hpp
 	src/fight_constants.hpp
 	src/fight_hit.hpp
 	src/file_crc.hpp

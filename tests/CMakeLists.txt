@@ -13,8 +13,12 @@ set(TESTS
 	char.affects.cpp
 	obj.copy.cpp
 	act.makefood.cpp
-	utils.editor.cpp)
-add_executable(tests main.cpp ${TESTS})
+	utils.editor.cpp
+	fight.penalties.cpp)
+set(UTILITIES
+	char.utilities.hpp
+	char.utilities.cpp)
+add_executable(tests main.cpp ${TESTS} ${UTILITIES})
 set_property(TARGET tests PROPERTY CXX_STANDARD 14)
 target_link_libraries(tests circle.library ${GTEST_LIB})
 if (NOT WIN32)
