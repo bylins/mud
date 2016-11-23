@@ -3,14 +3,16 @@
 #include <char.hpp>
 #include <handler.h>
 
-CHAR_DATA::shared_ptr create_character()
+namespace test_utils
+{
+auto create_character()
 {
 	const auto result = std::make_shared<CHAR_DATA>();
 	CREATE(result->player_specials, 1);
 	return result;
 }
 
-CHAR_DATA::shared_ptr add_poison(const CHAR_DATA::shared_ptr& character)
+auto add_poison(const CHAR_DATA::shared_ptr& character)
 {
 	AFFECT_DATA<EApplyLocation> poison;
 	poison.type = SPELL_POISON;
@@ -23,7 +25,7 @@ CHAR_DATA::shared_ptr add_poison(const CHAR_DATA::shared_ptr& character)
 	return character;
 }
 
-CHAR_DATA::shared_ptr add_sleep(const CHAR_DATA::shared_ptr& character)
+auto add_sleep(const CHAR_DATA::shared_ptr& character)
 {
 	AFFECT_DATA<EApplyLocation> sleep;
 	sleep.type = SPELL_SLEEP;
@@ -36,7 +38,7 @@ CHAR_DATA::shared_ptr add_sleep(const CHAR_DATA::shared_ptr& character)
 	return character;
 }
 
-CHAR_DATA::shared_ptr add_detect_invis(const CHAR_DATA::shared_ptr& character)
+auto add_detect_invis(const CHAR_DATA::shared_ptr& character)
 {
 	AFFECT_DATA<EApplyLocation> detect_invis;
 	detect_invis.type = SPELL_DETECT_INVIS;
@@ -49,7 +51,7 @@ CHAR_DATA::shared_ptr add_detect_invis(const CHAR_DATA::shared_ptr& character)
 	return character;
 }
 
-CHAR_DATA::shared_ptr add_detect_align(const CHAR_DATA::shared_ptr& character)
+auto add_detect_align(const CHAR_DATA::shared_ptr& character)
 {
 	AFFECT_DATA<EApplyLocation> detect_align;
 	detect_align.type = SPELL_DETECT_ALIGN;
@@ -62,21 +64,34 @@ CHAR_DATA::shared_ptr add_detect_align(const CHAR_DATA::shared_ptr& character)
 	return character;
 }
 
-CHAR_DATA::shared_ptr create_character_with_one_removable_affect()
+auto create_character_with_one_removable_affect()
 {
 	auto character = create_character();
 	return add_poison(character);
 }
 
-CHAR_DATA::shared_ptr create_character_with_two_removable_affects()
+auto create_character_with_two_removable_affects()
 {
 	auto character = create_character_with_one_removable_affect();
 	return add_sleep(character);
 }
 
-CHAR_DATA::shared_ptr create_character_with_two_removable_and_two_not_removable_affects()
+auto create_character_with_two_removable_and_two_not_removable_affects()
 {
 	auto character = create_character_with_two_removable_affects();
 	add_detect_invis(character);
 	return add_detect_align(character);
 }
+
+void CharacterBuilder::create_new() { m_result = create_character(); }
+void CharacterBuilder::create_character_with_one_removable_affect() { m_result = test_utils::create_character_with_one_removable_affect(); }
+void CharacterBuilder::create_character_with_two_removable_affects() { m_result = test_utils::create_character_with_two_removable_affects(); }
+void CharacterBuilder::create_character_with_two_removable_and_two_not_removable_affects() { m_result = test_utils::create_character_with_two_removable_and_two_not_removable_affects(); }
+
+void CharacterBuilder::add_poison() { test_utils::add_poison(m_result); }
+void CharacterBuilder::add_sleep() { test_utils::add_sleep(m_result); }
+void CharacterBuilder::add_detect_invis() { test_utils::add_detect_invis(m_result); }
+void CharacterBuilder::add_detect_align() { test_utils::add_detect_align(m_result); }
+}
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
