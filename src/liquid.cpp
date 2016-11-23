@@ -383,6 +383,26 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			temp->set_skill(SKILL_INVALID);
 			reset_potion_values(temp);
 		}
+		if ((GET_OBJ_VAL(temp, 3) == 1) && !IS_GOD(ch))  	// The shit was poisoned ! //
+		{
+			send_to_char("Что-то вкус какой-то странный!\r\n", ch);
+			act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
+			AFFECT_DATA<EApplyLocation> af;
+			af.type = SPELL_POISON;
+			af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
+			af.modifier = -2;
+			af.location = APPLY_STR;
+			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+			af.battleflag = AF_SAME_TIME;
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			af.type = SPELL_POISON;
+			af.modifier = GET_LEVEL(ch) * 3;
+			af.location = APPLY_POISON;
+			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+			af.battleflag = AF_SAME_TIME;
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			ch->Poisoner = 0;
+		}
 		return;
 	}
 	else if (ch->get_fighting())
