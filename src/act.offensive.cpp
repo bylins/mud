@@ -3420,7 +3420,7 @@ void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim)
 
     if (!ch->get_fighting())
     {
-        act("Ваши клинки свистнули, когда вы бросились на $N3, применив \"порез\".", FALSE, ch, 0, victim, TO_CHAR);
+        act("Ваше оружие свистнуло, когда вы бросились на $N3, применив \"порез\".", FALSE, ch, 0, victim, TO_CHAR);
         set_fighting(ch, victim);
         ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
     } else {
@@ -3550,12 +3550,11 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
     case SKILL_SHORTS:
         SetExtraAttackCutShorts(ch, vict);
     break;
-    case SKILL_PICK:
+    case SKILL_SPADES:
         SetExtraAttackCutShorts(ch, vict);
     break;
     case SKILL_LONGS:
     case SKILL_BOTHHANDS:
-    case SKILL_SPADES:
         send_to_char("Порез мечом (а тем более двуручником или копьем) - это сурьезно. Но пока невозможно.\r\n", ch);
     break;
     default:

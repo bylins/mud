@@ -1672,8 +1672,8 @@ bool is_rent(room_rnum room)
 	// комната с флагом замок, но клан мертвый
 	if (ROOM_FLAGGED(room, ROOM_HOUSE))
 	{
-		ClanListType::const_iterator it = Clan::IsClanRoom(room);
-		if (Clan::ClanList.end() == it)
+		const auto clan = Clan::GetClanByRoom(room);
+		if (!clan)
 		{
 			return false;
 		}

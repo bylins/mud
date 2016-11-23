@@ -303,8 +303,8 @@ struct player_special_data
 
 	char *clanStatus; // строка для отображения приписки по кто
 	// TODO: однозначно переписать
-	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
-	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
+	std::shared_ptr<class Clan> clan; // собсна клан, если он есть
+	std::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 };
 
 enum

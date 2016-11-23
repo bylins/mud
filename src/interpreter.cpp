@@ -1751,8 +1751,8 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 {
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
 	{
-		ClanListType::const_iterator it = Clan::IsClanRoom(ch->in_room);
-		if (Clan::ClanList.end() == it)
+		const auto clan = Clan::GetClanByRoom(ch->in_room);
+		if (!clan)
 		{
 			return 0;
 		}
