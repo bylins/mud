@@ -554,7 +554,7 @@ void Clan::ClanLoad()
 		// тут нужно проверить наличие критичных для клана полей
 		// т.к. загрузка без привязки к положению в файле - что-то может не проинициализироваться
 		if (tempClan->abbrev.empty() || tempClan->name.empty()
-				|| tempClan->title.empty() || tempClan->owner.empty()
+				|| tempClan->title.empty() 
 				|| tempClan->rent == 0 || tempClan->guard == 0 || tempClan->out_rent == 0
 				|| tempClan->ranks.empty() || tempClan->privileges.empty())
 		{
@@ -713,8 +713,7 @@ void Clan::HconShow(CHAR_DATA * ch)
 {
 	std::ostringstream buffer;
 	buffer << "Abbrev|  Rent|OutRent| Chest|iChest|  Guard|CreateDate|      StoredExp|      Bank|Items| Ing |DayTax|Lvl|Test|Распущена\r\n";
-//	boost::format show("%6d|%6d|%7d|%6d|%6d|%7d|%10s|%15d|%10d|%5d|%5d|%6d|%3s|%4s|%9s\r\n");
-	boost::format show("%6d|%6d|%7d|%6d|%6d|%7d|%10s|%15d|%10d|%5d|%5d|%6d|%3s|%4s\r\n");
+	boost::format show("%6d|%6d|%7d|%6d|%6d|%7d|%10s|%15d|%10d|%5d|%5d|%6d|%3s|%4s|%9s\r\n");
 	int total_day_tax = 0;
 
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
@@ -730,8 +729,8 @@ void Clan::HconShow(CHAR_DATA * ch)
 				% GET_ROOM_VNUM((*clan)->get_ingr_chest_room_rnum()) % (*clan)->guard % timeBuf
 				% (*clan)->clan_exp % (*clan)->bank % (*clan)->chest_objcount
 				% (*clan)->ingr_chest_objcount_ % cost % (*clan)->clan_level
-				% ((*clan)->test_clan ? "y" : "n");
-//				% (((*clan)->members.size > 0)  ? "Нет" : "Да");
+				% ((*clan)->test_clan ? "y" : "n")
+				% (((*clan)->m_members.size() > 0)  ? "Нет" : "Да");
 	}
 
 	buffer << "Total day tax: " << total_day_tax << "\r\n";
