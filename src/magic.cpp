@@ -4650,8 +4650,8 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		MOB_FLAGS(mob).unset(MOB_MOUNTING);
 	}
 	act(mag_summon_msgs[msg], FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN);
-//   load_mtrigger(mob);
-	add_follower(mob, ch);
+
+	ch->add_follower(mob);
 	if (spellnum == SPELL_CLONE)
 	{
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано

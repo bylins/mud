@@ -107,7 +107,6 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 int roundup(float fl);
 int valid_email(const char *address);
 void skip_dots(char **string);
-void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence = 0);
 const char * str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 bool die_follower(CHAR_DATA * ch);

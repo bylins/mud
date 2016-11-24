@@ -2373,6 +2373,7 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		act("Вы уже следуете за $N4.", FALSE, ch, 0, leader, TO_CHAR);
 		return;
 	}
+
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->master))
 	{
 		act("Но вы можете следовать только за $N4!", FALSE, ch, 0, ch->master, TO_CHAR);
@@ -2395,18 +2396,19 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				send_to_char("Так у вас целый хоровод получится.\r\n", ch);
 				return;
 			}
-			//log("[Follow] Stop last follow...");
+
 			if (ch->master)
+			{
 				stop_follower(ch, SF_EMPTY);
+			}
 			AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 			//also removing AFF_GROUP flag from all followers
 			for (f = ch->followers; f; f = f->next)
 			{
 				AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
 			}
-			//log("[Follow] Start new follow...");
-			add_follower(ch, leader);
-			//log("[Follow] Stop function...");
+
+			leader->add_follower(ch);
 		}
 	}
 }

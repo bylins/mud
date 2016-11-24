@@ -903,23 +903,23 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 // временно вернул старый код
     if (maxlevel - GET_LEVEL(leader) > grouping[(int)GET_CLASS(leader)][(int)GET_REMORT(leader)] && leader_inroom)
     {
-	koef -= 50 + (maxlevel - GET_LEVEL(leader) - grouping[(int)GET_CLASS(leader)][(int)GET_REMORT(leader)]) * 2;
+		koef -= 50 + (maxlevel - GET_LEVEL(leader) - grouping[(int)GET_CLASS(leader)][(int)GET_REMORT(leader)]) * 2;
     }
     else	// если с лидером все ок либо он не тут, смотрим по группе
     {
-	for (f = leader->followers; f; f = f->next)
-	{
-	    if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) && f->follower->in_room == killer->in_room)
-	    {
-		if (maxlevel - GET_LEVEL(f->follower) >
-			grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)])
+		for (f = leader->followers; f; f = f->next)
 		{
-		    koef -= 50 + (maxlevel - GET_LEVEL(f->follower)
-			- grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)]) * 2;
-		    break;
+			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) && f->follower->in_room == killer->in_room)
+			{
+				if (maxlevel - GET_LEVEL(f->follower) >
+					grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)])
+				{
+					koef -= 50 + (maxlevel - GET_LEVEL(f->follower)
+						- grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)]) * 2;
+					break;
+				}
+			}
 		}
-	    }
-	}
     }
 // конец врезки
 

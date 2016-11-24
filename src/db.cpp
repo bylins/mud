@@ -4443,7 +4443,7 @@ void reset_zone(zone_rnum zone)
 						{
 							if (ch->master)
 								stop_follower(ch, SF_EMPTY);
-							add_follower(ch, leader);
+							leader->add_follower(ch);
 							curr_state = 1;
 						}
 				}

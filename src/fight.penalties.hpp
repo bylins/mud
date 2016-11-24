@@ -26,7 +26,7 @@ private:
 	const int m_max_level;
 	const decltype(grouping)& m_grouping;
 
-	int get_penalty(const CHAR_DATA* player) const;
+	bool penalty_by_leader(const CHAR_DATA* player, int& penalty) const;
 };
 
 #endif // __FIGHT_PENALTIES_HPP__

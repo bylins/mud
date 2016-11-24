@@ -412,6 +412,11 @@ void write_test_time(FILE *file)
  */
 void vlog(const char *format, va_list args)
 {
+	if (!runtime_config.logging_enabled())
+	{
+		return;
+	}
+
 	if (logfile == NULL)
 	{
 		puts("SYSERR: Using log() before stream was initialized!");
@@ -840,7 +845,7 @@ bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 void make_horse(CHAR_DATA * horse, CHAR_DATA * ch)
 {
 	AFF_FLAGS(horse).set(EAffectFlag::AFF_HORSE);
-	add_follower(horse, ch);
+	ch->add_follower(horse);
 	MOB_FLAGS(horse).unset(MOB_WIMPY);
 	MOB_FLAGS(horse).unset(MOB_SENTINEL);
 	MOB_FLAGS(horse).unset(MOB_HELPER);
@@ -1086,44 +1091,6 @@ bool die_follower(CHAR_DATA * ch)
 		stop_follower(k->follower, SF_MASTERDIE);
 	}
 	return false;
-}
-
-
-
-/** Do NOT call this before having checked if a circle of followers
-* will arise. CH will follow leader
-* \param silence - для смены лидера группы без лишнего спама (по дефолту 0)
-*/
-void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence)
-{
-	struct follow_type *k;
-
-	if (ch->master)
-	{
-		log("SYSERR: add_follower(%s->%s) when master existing(%s)...",
-			GET_NAME(ch), leader ? GET_NAME(leader) : "", GET_NAME(ch->master));
-		// core_dump();
-		return;
-	}
-
-	if (ch == leader)
-		return;
-
-	ch->master = leader;
-
-	CREATE(k, 1);
-
-	k->follower = ch;
-	k->next = leader->followers;
-	leader->followers = k;
-
-	if (!IS_HORSE(ch) && !silence)
-	{
-		act("Вы начали следовать за $N4.", FALSE, ch, 0, leader, TO_CHAR);
-		//if (CAN_SEE(leader, ch))
-		act("$n начал$g следовать за вами.", TRUE, ch, 0, leader, TO_VICT);
-		act("$n начал$g следовать за $N4.", TRUE, ch, 0, leader, TO_NOTVICT | TO_ARENA_LISTEN);
-	}
 }
 
 /*

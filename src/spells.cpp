@@ -1254,7 +1254,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 //    // --------
 
 		affect_from_char(victim, SPELL_CHARM);
-		add_follower(victim, ch);
+		ch->add_follower(victim);
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_CHARM;
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch))
@@ -1486,7 +1486,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		AFFECT_DATA<EApplyLocation> af;
 		if (!(k && k->follower == helpee))
 		{
-			add_follower(helpee, ch);
+			ch->add_follower(helpee);
 			af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
 		}
 		else
@@ -3008,15 +3008,13 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 
 	if (IS_FEMALE(mob))
 	{
-//   act("Небесная защитница шагнула к вам из сгустка света!", FALSE, ch, 0, 0, TO_CHAR);
 		act("Небесная защитница появилась в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 	else
 	{
-//   act("Небесный защитник шагнул к вам из сгустка света!", FALSE, ch, 0, 0, TO_CHAR);
 		act("Небесный защитник появился в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM);
 	}
-	add_follower(mob, ch);
+	ch->add_follower(mob);
 	return;
 }
 
@@ -3069,7 +3067,7 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 
 	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
-	add_follower(mob, ch);
+	ch->add_follower(mob);
 	return;
 }
 

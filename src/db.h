@@ -295,7 +295,11 @@ extern CHAR_DATA *combat_list;
 #include <vector>
 #include <deque>
 
-using CRooms = std::deque<ROOM_DATA*>;
+class CRooms: public std::deque<ROOM_DATA*>
+{
+public:
+	static constexpr int UNDEFINED_ROOM_VNUM = -1;
+};
 
 extern CRooms world;
 extern CHAR_DATA *character_list;

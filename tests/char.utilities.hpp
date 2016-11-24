@@ -11,6 +11,7 @@ class CharacterBuilder
 		using result_t = CHAR_DATA::shared_ptr;
 
 		void create_new();
+		void create_new_with_class(const short player_class);
 		void create_character_with_one_removable_affect();
 		void create_character_with_two_removable_affects();
 		void create_character_with_two_removable_and_two_not_removable_affects();
@@ -19,11 +20,17 @@ class CharacterBuilder
 		void add_sleep();
 		void add_detect_invis();
 		void add_detect_align();
+		void set_level(const int level);
+		void set_class(const short player_class);
+
+		void make_group(CharacterBuilder& character_builder);
 
 		result_t get() const { return m_result; }
 
 	private:
 		void check_character_existance() const;
+
+		static void check_character_existance(CHAR_DATA::shared_ptr character);
 
 		result_t m_result;
 };

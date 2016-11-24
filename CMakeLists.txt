@@ -134,6 +134,7 @@ set(SOURCES
 
 set(HEADERS
 	src/AffectHandler.hpp
+	src/act.other.hpp
 	src/auction.h
 	src/ban.hpp
 	src/birth_places.hpp

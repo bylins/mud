@@ -2,6 +2,7 @@
 
 #include <char.hpp>
 #include <handler.h>
+#include <act.other.hpp>
 
 namespace test_utils
 {
@@ -9,7 +10,15 @@ void CharacterBuilder::create_new()
 {
 	const auto result = std::make_shared<CHAR_DATA>();
 	CREATE(result->player_specials, 1);
+	result->set_class(CLASS_DRUID);
+	result->set_level(1);
 	m_result = result;
+}
+
+void CharacterBuilder::create_new_with_class(const short player_class)
+{
+	create_new();
+	set_class(player_class);
 }
 
 void CharacterBuilder::create_character_with_one_removable_affect()
@@ -87,9 +96,37 @@ void CharacterBuilder::add_detect_align()
 	affect_join(m_result.get(), detect_align, false, false, false, false);
 }
 
+void CharacterBuilder::set_level(const int level)
+{
+	m_result->set_level(level);
+}
+
+void CharacterBuilder::set_class(const short player_class)
+{
+	m_result->set_class(player_class);
+}
+
+void CharacterBuilder::make_group(CharacterBuilder& character_builder)
+{
+	check_character_existance();
+	check_character_existance(character_builder.get());
+
+	auto character = character_builder.get();
+
+	m_result->add_follower_silently(character.get());
+
+	perform_group(m_result.get(), m_result.get());
+	perform_group(m_result.get(), character.get());
+}
+
 void CharacterBuilder::check_character_existance() const
 {
-	if (!m_result)
+	check_character_existance(m_result);
+}
+
+void CharacterBuilder::check_character_existance(CHAR_DATA::shared_ptr character)
+{
+	if (!character)
 	{
 		throw std::runtime_error("Character wasn't created.");
 	}

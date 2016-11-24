@@ -2762,15 +2762,16 @@ void npc_group(CHAR_DATA * ch)
 			continue;
 		}
 		if (!vict->master)
-			add_follower(vict, leader);
+		{
+			leader->add_follower(vict);
+		}
 		else if (vict->master != leader)
 		{
 			stop_follower(vict, SF_EMPTY);
-			add_follower(vict, leader);
+			leader->add_follower(vict);
 		}
 		AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 	}
-
 }
 
 void npc_groupbattle(CHAR_DATA * ch)
@@ -3238,7 +3239,7 @@ int pet_shops(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 			pet->player_data.description = str_dup(buf);
 		}
 		char_to_room(pet, ch->in_room);
-		add_follower(pet, ch);
+		ch->add_follower(pet);
 		load_mtrigger(pet);
 
 		// Be certain that pets can't get/carry/use/wield/wear items
