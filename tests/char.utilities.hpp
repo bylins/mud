@@ -23,6 +23,8 @@ class CharacterBuilder
 		result_t get() const { return m_result; }
 
 	private:
+		void check_character_existance() const;
+
 		result_t m_result;
 };
 }
