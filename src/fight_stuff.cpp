@@ -996,6 +996,8 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 //	koef -= group_penalty.get();
 
 // временно вернул старый код
+    if (!IS_NPC(leader))
+    {
     if (maxlevel - GET_LEVEL(leader) > grouping[(int)GET_CLASS(leader)][(int)GET_REMORT(leader)] && leader_inroom)
     {
 	koef -= 50 + (maxlevel - GET_LEVEL(leader) - grouping[(int)GET_CLASS(leader)][(int)GET_REMORT(leader)]) * 2;
@@ -1015,6 +1017,7 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 		}
 	    }
 	}
+    }
     }
 // конец врезки
 
