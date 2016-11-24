@@ -918,6 +918,16 @@ int GroupPenalty::get_penalty(const CHAR_DATA* player) const
 	return penalty;
 }
 
+
+int grouping_koef(int player_class, int player_remort)
+{
+	if ((player_class >= NUM_PLAYER_CLASSES) || (player_class < 0))
+		return 1;
+	return grouping[player_class][player_remort];
+
+}
+
+
 /*++
    Функция расчитывает всякие бонусы для группы при получении опыта,
  после чего вызывает функцию получения опыта для всех членов группы
@@ -996,11 +1006,9 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 //	koef -= group_penalty.get();
 
 // временно вернул старый код
-    if (!IS_NPC(leader))
+    if (maxlevel - GET_LEVEL(leader) > grouping_koef((int)GET_CLASS(leader), (int)GET_REMORT(leader)) && leader_inroom)
     {
-    if (maxlevel - GET_LEVEL(leader) > grouping[(int)GET_CLASS(leader)][(int)GET_REMORT(leader)] && leader_inroom)
-    {
-	koef -= 50 + (maxlevel - GET_LEVEL(leader) - grouping[(int)GET_CLASS(leader)][(int)GET_REMORT(leader)]) * 2;
+	koef -= 50 + (maxlevel - GET_LEVEL(leader) - grouping_koef((int)GET_CLASS(leader), (int)GET_REMORT(leader))) * 2;
     }
     else	// если с лидером все ок либо он не тут, смотрим по группе
     {
@@ -1009,15 +1017,14 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 	    if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) && f->follower->in_room == killer->in_room)
 	    {
 		if (maxlevel - GET_LEVEL(f->follower) >
-			grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)])
+			grouping_koef((int)GET_CLASS(f->follower), (int)GET_REMORT(f->follower)))
 		{
 		    koef -= 50 + (maxlevel - GET_LEVEL(f->follower)
-			- grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)]) * 2;
+			- grouping_koef((int)GET_CLASS(f->follower), (int)GET_REMORT(f->follower))) * 2;
 		    break;
 		}
 	    }
 	}
-    }
     }
 // конец врезки
 
