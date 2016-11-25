@@ -823,6 +823,16 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	TopPlayer::Refresh(ch);
 }
 
+
+int grouping_koef(int player_class, int player_remort)
+{
+	if ((player_class >= NUM_PLAYER_CLASSES) || (player_class < 0))
+		return 1;
+	return grouping[player_class][player_remort];
+
+}
+
+
 /*++
    Функция расчитывает всякие бонусы для группы при получении опыта,
  после чего вызывает функцию получения опыта для всех членов группы
