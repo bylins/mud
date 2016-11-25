@@ -103,6 +103,23 @@ class RuntimeConfiguration
 public:
 	using logs_t = std::array<CLogInfo, 1 + LAST_LOG>;
 
+	RuntimeConfiguration();
+
+	void load(const char* filename = CONFIGURATION_FILE_NAME) { load_from_file(filename); }
+	bool open_log(const EOutputStream stream);
+	const CLogInfo& logs(EOutputStream id) { return m_logs[static_cast<size_t>(id)]; }
+	void handle(const EOutputStream stream, FILE * handle);
+	const std::string& log_stderr() { return m_log_stderr; }
+	void setup_logs(void);
+	const auto syslog_converter() const { return m_syslog_converter; }
+
+	void enable_logging() { m_logging_enabled = true; }
+	void disable_logging() { m_logging_enabled = false; }
+	bool logging_enabled() const { return m_logging_enabled; }
+
+	auto msdp_disabled() const { return m_msdp_disabled; }
+	auto msdp_debug() const { return m_msdp_debug; }
+
 private:
 	static const char* CONFIGURATION_FILE_NAME;
 
@@ -121,21 +138,9 @@ private:
 	logs_t m_logs;
 	std::string m_log_stderr;
 	converter_t m_syslog_converter;
+	bool m_logging_enabled;
 	bool m_msdp_disabled;
 	bool m_msdp_debug;
-
-public:
-	RuntimeConfiguration();
-
-	void load(const char* filename = CONFIGURATION_FILE_NAME) { load_from_file(filename); }
-	bool open_log(const EOutputStream stream);
-	const CLogInfo& logs(EOutputStream id) { return m_logs[static_cast<size_t>(id)]; }
-	void handle(const EOutputStream stream, FILE * handle);
-	const std::string& log_stderr() { return m_log_stderr; }
-	void setup_logs(void);
-	const auto syslog_converter() const { return m_syslog_converter; }
-	auto msdp_disabled() const { return m_msdp_disabled; }
-	auto msdp_debug() const { return m_msdp_debug; }
 };
 
 extern RuntimeConfiguration runtime_config;

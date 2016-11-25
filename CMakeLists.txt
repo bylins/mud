@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 2.8)
-
-set(CMAKE_LEGACY_CYGWIN_WIN32 0) # Remove when CMake >= 2.8.4 is required
+cmake_minimum_required(VERSION 3.0)
 
 project(bylins CXX)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
 	src/act.comm.cpp
@@ -57,6 +57,7 @@ set(SOURCES
 	src/ext_money.cpp
 	src/features.cpp
 	src/fight.cpp
+	src/fight.penalties.cpp
 	src/fight_hit.cpp
 	src/fight_stuff.cpp
 	src/file_crc.cpp
@@ -133,6 +134,7 @@ set(SOURCES
 
 set(HEADERS
 	src/AffectHandler.hpp
+	src/act.other.hpp
 	src/auction.h
 	src/ban.hpp
 	src/birth_places.hpp
@@ -146,6 +148,7 @@ set(HEADERS
 	src/char.hpp
 	src/char_obj_utils.inl
 	src/char_player.hpp
+	src/class.hpp
 	src/comm.h
 	src/conf.h
 	src/config.hpp
@@ -169,6 +172,7 @@ set(HEADERS
 	src/ext_money.hpp
 	src/features.hpp
 	src/fight.h
+	src/fight.penalties.hpp
 	src/fight_constants.hpp
 	src/fight_hit.hpp
 	src/file_crc.hpp
@@ -351,6 +355,7 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
 	COMMAND ${CMAKE_COMMAND} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DGIT=${GIT} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
+set_target_properties(versioning PROPERTIES FOLDER "Utility targets")
 
 set(CRAFT_TAILORING_FILES
 	lib.template/misc/craft/tailoring/index.xml)
@@ -388,7 +393,8 @@ list(SORT CIRCLE_FILES)
 
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
-set_property(TARGET circle.library PROPERTY CXX_STANDARD 14)
+set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
+set_target_properties(circle.library PROPERTIES FOLDER "Utility targets")
 add_dependencies(circle.library versioning)
 
 # Boost

@@ -2920,7 +2920,7 @@ void change_npc_leader(CHAR_DATA *ch)
 		}
 		else
 		{
-			add_follower(*i, leader, true);
+			leader->add_follower_silently(*i);
 		}
 	}
 }

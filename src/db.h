@@ -295,7 +295,11 @@ extern CHAR_DATA *combat_list;
 #include <vector>
 #include <deque>
 
-using CRooms = std::deque<ROOM_DATA*>;
+class CRooms: public std::deque<ROOM_DATA *>
+{
+public:
+	static constexpr int UNDEFINED_ROOM_VNUM = -1;
+};
 
 extern CRooms world;
 extern CHAR_DATA *character_list;
@@ -448,10 +452,8 @@ void check_room_flags(int rnum);
 
 namespace OfftopSystem
 {
-
-void init();
-void set_flag(CHAR_DATA *ch);
-
+	void init();
+	void set_flag(CHAR_DATA *ch);
 } // namespace OfftopSystem
 
 extern int now_entrycount;
@@ -471,6 +473,7 @@ class GameLoader
 {
 public:
 	GameLoader();
+
 	void boot_world();
 	void index_boot(const EBootType mode);
 

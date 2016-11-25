@@ -1,0 +1,3 @@
+# git ignore file
+src/version.cpp
+build

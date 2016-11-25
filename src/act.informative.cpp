@@ -49,6 +49,7 @@
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
 #include "char_obj_utils.inl"
+#include "class.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -3514,36 +3515,7 @@ void print_do_score_all(CHAR_DATA *ch)
 		sprintf(buf + strlen(buf),
 			" || Вы самоотверженно отдаете весь получаемый опыт своей дружине.                   ||\r\n");
 	}
-/*
-	////////////////////////////////////////////////////////////////////////////
-	std::stringstream tmp_out;
 
-	// обнуление дневного лимита, если уже сменились сутки
-	ch->add_today_torc(0);
-	tmp_out << "Наградные гривны: "
-		<< CCIYEL(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_GOLD) << "з "
-		<< CCWHT(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_SILVER) << "с "
-		<< CCYEL(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_BRONZE) << "б"
-		<< CCCYN(ch, C_NRM) << " " << ExtMoney::draw_daily_limit(ch);
-
-	if (COLOR_LEV(ch) < C_NRM)
-	{
-		sprintf(buf + strlen(buf),
-			" %s|| %-24s %54s %s||\r\n",
-			CCCYN(ch, C_NRM),
-			(PRF_FLAGGED(ch, PRF_SUMMONABLE) ? "Вы можете быть призваны." : "Вы защищены от призыва."),
-			tmp_out.str().c_str(), CCCYN(ch, C_NRM));
-	}
-	else
-	{
-		sprintf(buf + strlen(buf),
-			" %s|| %-24s %82s %s||\r\n",
-			CCCYN(ch, C_NRM),
-			(PRF_FLAGGED(ch, PRF_SUMMONABLE) ? "Вы можете быть призваны." : "Вы защищены от призыва."),
-			tmp_out.str().c_str(), CCCYN(ch, C_NRM));
-	}
-	////////////////////////////////////////////////////////////////////////////
-*/
 	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
 		sprintf(buf + strlen(buf),
 				" || Вы можете быть призваны.                                                        ||\r\n");

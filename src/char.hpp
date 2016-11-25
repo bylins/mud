@@ -597,12 +597,21 @@ public:
 	void set_role(const role_t& new_role) { role_ = new_role; }
 	void msdp_report(const std::string& name);
 
+	void add_follower(CHAR_DATA* ch) { add_follower_implementation(ch, false); }
+	void add_follower_silently(CHAR_DATA* ch) { add_follower_implementation(ch, true); }
+
 private:
 	std::string clan_for_title();
 	std::string only_title_noclan();
 	void check_fighting_list();
 	void zero_init();
 	void restore_mob();
+
+	/** Do NOT call this before having checked if a circle of followers
+	* will arise. CH will follow leader
+	* \param silent - для смены лидера группы без лишнего спама (по дефолту 0)
+	*/
+	void add_follower_implementation(CHAR_DATA* ch, const bool silent);
 
 	CharSkillsType skills;  // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////

@@ -700,7 +700,12 @@ const RuntimeConfiguration::logs_t LOGS({
 	CLogInfo("log/msdp.txt", "лог MSDP пакетов")
 });
 
-RuntimeConfiguration::RuntimeConfiguration(): m_logs(LOGS), m_syslog_converter(nullptr), m_msdp_disabled(false), m_msdp_debug(false)
+RuntimeConfiguration::RuntimeConfiguration():
+	m_logs(LOGS),
+	m_syslog_converter(nullptr),
+	m_logging_enabled(true),
+	m_msdp_disabled(false),
+	m_msdp_debug(false)
 {
 }
 

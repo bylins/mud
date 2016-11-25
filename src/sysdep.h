@@ -240,12 +240,6 @@ struct in_addr
 # include <sys/uio.h>
 #endif
 #endif				// __COMM_C__ && CIRCLE_UNIX
-// Header files that are only used in act.other.cpp
-#ifdef __ACT_OTHER_C__
-#ifdef HAVE_SYS_STAT_H
-# include <sys/stat.h>
-#endif
-#endif				// __ACT_OTHER_C__ //
 // Basic system dependencies ******************************************
 #if !defined(__GNUC__)
 #define __attribute__(x)	// nothing //

@@ -12,7 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#define __ACT_OTHER_C__
+#include "act.other.hpp"
 
 #include "obj.hpp"
 #include "comm.h"
@@ -76,8 +76,6 @@ void write_aliases(CHAR_DATA * ch);
 void perform_immort_vis(CHAR_DATA * ch);
 int have_mind(CHAR_DATA * ch);
 void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-int Crash_delete_file(char *name, int mask);
-int HaveMind(CHAR_DATA * ch);
 extern char *color_value(CHAR_DATA * ch, int real, int max);
 int posi_value(int real, int max);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -95,7 +93,6 @@ void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-int perform_group(CHAR_DATA * ch, CHAR_DATA * vict);
 void print_group(CHAR_DATA * ch);
 void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -994,6 +991,27 @@ bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict)
 		return true;
 }
 
+int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
+{
+	if (AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
+		|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+		|| MOB_FLAGGED(vict, MOB_ANGEL)
+		|| MOB_FLAGGED(vict, MOB_GHOST)
+		|| IS_HORSE(vict))
+	{
+		return (FALSE);
+	}
+
+	AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
+	if (ch != vict)
+	{
+		act("$N принят$A в члены вашего кружка (тьфу-ты, группы :).", FALSE, ch, 0, vict, TO_CHAR);
+		act("Вы приняты в группу $n1.", FALSE, ch, 0, vict, TO_VICT);
+		act("$N принят$A в группу $n1.", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+	}
+	return (TRUE);
+}
+
 /**
 * Смена лидера группы на персонажа с макс лидеркой.
 * Сам лидер при этом остается в группе, если он живой.
@@ -1042,15 +1060,19 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	// вся эта фигня только для того, чтобы при реследовании пройтись по списку в обратном
 	// направлении и сохранить относительный порядок следования в группе
 	if (!temp_list.empty())
+	{
 		for (std::vector<CHAR_DATA *>::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it)
-			add_follower(*it, leader, true);
+		{
+			leader->add_follower_silently(*it);
+		}
+	}
 
 	// бывшего лидера последним закидываем обратно в группу, если он живой
 	if (vict)
 	{
 		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-		add_follower(ch, leader, true);
+		leader->add_follower_silently(ch);
 	}
 
 	if (!leader->followers)
@@ -1074,22 +1096,6 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 			return;
 		}
 	}
-}
-
-int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
-{
-	if (AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP) ||
-			AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || IS_HORSE(vict))
-		return (FALSE);
-
-	AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
-	if (ch != vict)
-	{
-		act("$N принят$A в члены вашего кружка (тьфу-ты, группы :).", FALSE, ch, 0, vict, TO_CHAR);
-		act("Вы приняты в группу $n1.", FALSE, ch, 0, vict, TO_VICT);
-		act("$N принят$A в группу $n1.", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-	}
-	return (TRUE);
 }
 
 int low_charm(CHAR_DATA * ch)
@@ -1439,7 +1445,9 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			found += perform_group(ch, f->follower);
 		}
 		if (!found)
+		{
 			send_to_char("Все, кто за вами следуют, уже включены в вашу группу.\r\n", ch);
+		}
 		return;
 	}
 	else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер"))
@@ -4066,96 +4074,4 @@ bool is_dark(room_rnum room)
 		
 }
 
-
-/*
-
-
-
-// активен ли ивент, 0 - не активен, 0 < время в тиках до конца ивента
-int time_event = 0;
-// тип евента
-int type_event = 0;
-// список левелов для первого типа ивента (убить n-количество мобов)
-const int rand_level_mob_for_event[10] = {2, 25, 21};
-int event_level_mob = 0;
-// для хранения лидерборда <имя, количество очков>
-std::map <string,int> event_leaderboard = {};
-
-
-const char *EventStartMsg[] =
-{
-	"&WНачинается событие! Убей, как можно больше мобов определенного уровня&n",
-	"блаблабла",
-	"блаблабла",
-	"блабла",
-};
-const char *EventMessageCommon = "&WПоздравляем, Вы стали чуть-чуть ближе к победе&n\r\n";
-// количество типов евента
-#define COUNT_EVENT 1
-#define EVENT_KILL_MOBS 0
-// активен ли event
-#define ACTIVE_EVENT ((time_event > 0) ? true : false)
-
-// для старта ивентов
-void start_event()
-{
-	// если ивент уже идет, то не начинаем его
-	if (time_event > 0)
-		return;
-	// начинаем евент
-	type_event = number(0, COUNT_EVENT-1);
-	time_event = 10;	
-	if (time_event == EVENT_KILL_MOBS)
-	{
-		event_level_mob = 2;
-		// здесь отправляем всем сообщение
-		sprintf(buf, EventStartMsg[EVENT_KILL_MOBS]);
-		send_to_all(buf);
-	}
-	
-	
-}
-void do_event(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
-{
-	start_event();
-}
-
-
-
-// Вывод лидерборда
-void do_leaderboard_event(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
-{
-	send_to_char("Список лидеров текущего события:\r\n", ch);
-	if (event_leaderboard.size() <= 0)
-	{
-		send_to_char("Текущий список пуст :(", ch);
-		return;
-	}
-	// итератор
-	std::map<std::string, int>::iterator it;
-	for (it = event_leaderboard.begin(); it != event_leaderboard.end(); it++)
-	{
-		//sprintf(buf, "%d. %s : %s\r\n", i, (*it).first, (*it).second);
-		send_to_char(buf, ch);
-	}
-	
-}
-
-
-// Для проверки ивента
-void check_event()
-{
-	if (time_event < 0)
-		return;
-	time_event--;
-	if (time_event <= 0)
-	{
-		send_to_all("Событие закончилось :(");
-		return;
-	}
-	sprintf(buf, "До конца события осталось: %d часов", time_event);
-	send_to_all(buf);
-	
-	
-}*/
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

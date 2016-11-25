@@ -90,7 +90,14 @@ namespace CharacterSystem
 
 ////////////////////////////////////////////////////////////////////////////////
 //extern MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
-CHAR_DATA::CHAR_DATA(): role_(MOB_ROLE_TOTAL_NUM), next_(NULL), m_wait(~0u), proto_script(new OBJ_DATA::triggers_list_t())
+CHAR_DATA::CHAR_DATA() :
+	chclass_(CLASS_UNDEFINED),
+	role_(MOB_ROLE_TOTAL_NUM),
+	next_(NULL),
+	m_wait(~0u),
+	in_room(CRooms::UNDEFINED_ROOM_VNUM),
+	proto_script(new OBJ_DATA::triggers_list_t()),
+	followers(nullptr)
 {
 	this->zero_init();
 	current_morph_ = GetNormalMorphNew(this);
@@ -1917,6 +1924,40 @@ void CHAR_DATA::msdp_report(const std::string& name)
 	if (nullptr != desc)
 	{
 		desc->msdp_report(name);
+	}
+}
+
+void CHAR_DATA::add_follower_implementation(CHAR_DATA* ch, const bool silent)
+{
+	struct follow_type *k;
+
+	if (ch->master)
+	{
+		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
+			GET_NAME(ch), get_name().c_str(), GET_NAME(ch->master));
+		// core_dump();
+		return;
+	}
+
+	if (ch == this)
+	{
+		return;
+	}
+
+	ch->master = this;
+
+	CREATE(k, 1);
+
+	k->follower = ch;
+	k->next = followers;
+	followers = k;
+
+	if (!IS_HORSE(ch) && !silent)
+	{
+		act("Вы начали следовать за $N4.", FALSE, ch, 0, this, TO_CHAR);
+		//if (CAN_SEE(leader, ch))
+		act("$n начал$g следовать за вами.", TRUE, ch, 0, this, TO_VICT);
+		act("$n начал$g следовать за $N4.", TRUE, ch, 0, this, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 }
 
