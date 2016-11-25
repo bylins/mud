@@ -444,7 +444,15 @@ void Clan::ClanLoad()
 					break;
 				}
 			}
-
+			else if (buffer == "Bank:")
+			{
+				file >> tempClan->bank;
+				log("Clans in bank, file (%s) банк %f.", filename.c_str(), tempClan->bank);
+				if (tempClan->bank <= 0)
+					{
+					log("Clan has 0 in bank, file (%s) возможно будет удален.", filename.c_str());
+				        }
+			}
 			else if (buffer == "GoldTax:")
 			{
 				file >> tempClan->gold_tax_pct_;
@@ -540,17 +548,7 @@ void Clan::ClanLoad()
 					tempClan->m_members.set(unique, tempMember);
 				}
 			}
-			else if (buffer == "Bank:")
-			{
-				file >> tempClan->bank;
-				if ((tempClan->bank <= 0) && (tempClan->m_members.size() > 0))
-				{
-					log("Clan has 0 in bank, remove from list (%s).", filename.c_str());
-					Boards::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
-					DestroyClan(tempClan);
-					log("Clan deleted bank 0: %s", filename.c_str());
-				}
-			}
+
 		}
 		file.close();
 
@@ -684,7 +682,12 @@ void Clan::ClanLoad()
 		tempClan->last_exp.load(tempClan->get_file_abbrev());
 		tempClan->init_ingr_chest();
 		tempClan->chest_log.load(tempClan->get_file_abbrev());
-
+		if ((tempClan->bank <= 0) && (tempClan->m_members.size() > 0))
+		{
+			Boards::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
+			DestroyClan(tempClan);
+			log("Clan deleted bank 0: %s", filename.c_str());
+		}
 		Clan::ClanList.push_back(tempClan);
 	}
 
