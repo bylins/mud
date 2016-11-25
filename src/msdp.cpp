@@ -129,7 +129,7 @@ namespace msdp
 		gold->add(std::make_shared<Variable>("BANK",
 			std::make_shared<StringValue>(bank_money)));
 
-		response = std::make_shared<Variable>("GOLD", gold);
+		response = std::make_shared<Variable>(constants::GOLD, gold);
 	}
 
 	class MaxHitReporter : public DescriptorBasedReporter
@@ -145,7 +145,7 @@ namespace msdp
 	void MaxHitReporter::get(Variable::shared_ptr& response)
 	{
 		const auto value = std::to_string(GET_REAL_MAX_HIT(descriptor()->character));
-		response = std::make_shared<Variable>("MAXHIT",
+		response = std::make_shared<Variable>(constants::MAX_HIT,
 			std::make_shared<StringValue>(value));
 	}
 
@@ -162,7 +162,7 @@ namespace msdp
 	void MaxMoveReporter::get(Variable::shared_ptr& response)
 	{
 		const auto value = std::to_string(GET_REAL_MAX_MOVE(descriptor()->character));
-		response = std::make_shared<Variable>("MAX_MOVE",
+		response = std::make_shared<Variable>(constants::MAX_MOVE,
 			std::make_shared<StringValue>(value));
 	}
 
@@ -196,7 +196,7 @@ namespace msdp
 	void LevelReporter::get(Variable::shared_ptr& response)
 	{
 		const auto level = std::to_string(GET_LEVEL(descriptor()->character));
-		response = std::make_shared<Variable>("LEVEL",
+		response = std::make_shared<Variable>(constants::LEVEL,
 			std::make_shared<StringValue>(level));
 	}
 
@@ -213,7 +213,7 @@ namespace msdp
 	void ExperienceReporter::get(Variable::shared_ptr& response)
 	{
 		const auto experience = std::to_string(GET_LEVEL(descriptor()->character));
-		response = std::make_shared<Variable>("EXP",
+		response = std::make_shared<Variable>(constants::EXPERIENCE,
 			std::make_shared<StringValue>(experience));
 	}
 
@@ -245,7 +245,7 @@ namespace msdp
 				std::make_shared<StringValue>(current_mana)));
 		}
 
-		response = std::make_shared<Variable>("STATE", state);
+		response = std::make_shared<Variable>(constants::STATE, state);
 	}
 
 	class ReporterFactory
@@ -355,6 +355,7 @@ namespace msdp
 	const ArrayValue::array_t ConversationHandler::SUPPORTED_COMMANDS_LIST = {
 		std::make_shared<StringValue>("LIST"),
 		std::make_shared<StringValue>("REPORT"),
+		std::make_shared<StringValue>("UNREPORT"),
 		std::make_shared<StringValue>("SEND")
 	};
 	const Value::shared_ptr ConversationHandler::SUPPORTED_COMMANDS_ARRAY = std::make_shared<ArrayValue>(ConversationHandler::SUPPORTED_COMMANDS_LIST);
