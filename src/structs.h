@@ -2113,8 +2113,6 @@ struct set_struct
 	const char type;
 };
 
-extern int grouping[NUM_PLAYER_CLASSES][MAX_REMORT+1];
-
 //Polos.insert_wanted_gem
 struct int3
 {

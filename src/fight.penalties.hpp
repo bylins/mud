@@ -1,16 +1,16 @@
 #ifndef __FIGHT_PENALTIES_HPP__
 #define __FIGHT_PENALTIES_HPP__
 
-#include "structs.h"
+#include "class.hpp"
 
 class CHAR_DATA;	// to avoid inclusion of "char.hpp"
 
-class GroupPenalty
+class GroupPenaltyCalculator
 {
 public:
 	constexpr static int DEFAULT_PENALTY = 100;
 
-	GroupPenalty(const CHAR_DATA* killer, const CHAR_DATA* leader, const int max_level, const decltype(grouping)& grouping):
+	GroupPenaltyCalculator(const CHAR_DATA* killer, const CHAR_DATA* leader, const int max_level, const GroupPenalties& grouping):
 		m_killer(killer),
 		m_leader(leader),
 		m_max_level(max_level),
@@ -24,7 +24,7 @@ private:
 	const CHAR_DATA* m_killer;
 	const CHAR_DATA* m_leader;
 	const int m_max_level;
-	const decltype(grouping)& m_grouping;
+	const GroupPenalties& m_grouping;
 
 	bool penalty_by_leader(const CHAR_DATA* player, int& penalty) const;
 };

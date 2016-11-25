@@ -2,7 +2,7 @@
 
 #include "char.hpp"
 
-int GroupPenalty::get() const
+int GroupPenaltyCalculator::get() const
 {
 	const bool leader_is_npc = IS_NPC(m_leader);
 	const bool leader_in_group = AFF_FLAGGED(m_leader, EAffectFlag::AFF_GROUP);
@@ -43,7 +43,7 @@ int GroupPenalty::get() const
 	return 0;
 }
 
-bool GroupPenalty::penalty_by_leader(const CHAR_DATA* player, int& penalty) const
+bool GroupPenaltyCalculator::penalty_by_leader(const CHAR_DATA* player, int& penalty) const
 {
 	const int player_remorts = static_cast<int>(GET_REMORT(player));
 	const int player_class = static_cast<int>(GET_CLASS(player));
@@ -79,9 +79,9 @@ bool GroupPenalty::penalty_by_leader(const CHAR_DATA* player, int& penalty) cons
 	}
 
 	bool result = false;
-	if (m_max_level - player_level > grouping[player_class][player_remorts])
+	if (m_max_level - player_level > m_grouping[player_class][player_remorts])
 	{
-		penalty = 50 + 2 * (m_max_level - player_level - grouping[player_class][player_remorts]);
+		penalty = 50 + 2 * (m_max_level - player_level - m_grouping[player_class][player_remorts]);
 		result = true;
 	}
 

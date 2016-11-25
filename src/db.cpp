@@ -54,6 +54,7 @@
 #include "time_utils.hpp"
 #include "title.hpp"
 #include "top.h"
+#include "class.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -183,7 +184,6 @@ void renum_mob_zone(void);
 int get_zone_rooms(int, int *, int *);
 void init_guilds(void);
 void init_basic_values(void);
-int init_grouping(void);
 void init_portals(void);
 void init_im(void);
 void init_zone_types();
@@ -2431,8 +2431,10 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading grouping parameters");
 	log("Booting grouping parameters");
-	if (init_grouping())
+	if (grouping.init())
+	{
 		exit(1);
+	}
 
 	boot_profiler.next_step("Loading special assignments");
 	log("Booting special assignment");

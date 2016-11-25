@@ -19,7 +19,8 @@ set(UTILITIES
 	char.utilities.hpp
 	char.utilities.cpp)
 add_executable(tests main.cpp ${TESTS} ${UTILITIES})
-set_property(TARGET tests PROPERTY CXX_STANDARD 14)
+set_target_properties(tests PROPERTIES FOLDER "Utility targets")
+set_target_properties(tests PROPERTIES CXX_STANDARD 14)
 target_link_libraries(tests circle.library ${GTEST_LIB})
 if (NOT WIN32)
 	target_link_libraries(tests pthread)
@@ -28,5 +29,13 @@ endif ()
 add_test(all tests)
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
+
+add_custom_target(tests.file.grouping
+	DEPENDS ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping
+	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_CURRENT_BINARY_DIR}/misc/grouping
+	COMMENT "Copy lib/misc/grouping for tests.")
+set_target_properties(tests.file.grouping PROPERTIES FOLDER "Utility targets")
+
+add_dependencies(checks tests tests.file.grouping)
 
 # vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
