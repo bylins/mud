@@ -130,7 +130,8 @@ TEST_F(FightPenalties, MobLeaderClass_SameLevels)
 	EXPECT_EQ(penalty.get(), 100);
 }
 
-TEST_F(FightPenalties, NoPenaltyWithing5Levels)
+template <typename HeaderHandler, typename NewRowHandler, typename EndOfRowHandler, typename ItemHandler>
+void iterate_over_group_penalties_ext(HeaderHandler header_handler, NewRowHandler new_row_handler, EndOfRowHandler end_of_row_handler, ItemHandler item_handler)
 {
 	for (int killer_class = CLASS_CLERIC; killer_class < NUM_PLAYER_CLASSES; ++killer_class)
 	{
@@ -144,9 +145,11 @@ TEST_F(FightPenalties, NoPenaltyWithing5Levels)
 
 			leader_builder.make_group(killer_builder);
 
+			header_handler(killer_class, leader_class);
 			for (int killer_level = 1; killer_level < LVL_IMMORT; ++killer_level)
 			{
 				killer_builder.set_level(killer_level);
+				new_row_handler(killer_level);
 				for (int leader_level = 1; leader_level < LVL_IMMORT; ++leader_level)
 				{
 					leader_builder.set_level(leader_level);
@@ -154,105 +157,92 @@ TEST_F(FightPenalties, NoPenaltyWithing5Levels)
 					auto killer = killer_builder.get();
 					auto leader = leader_builder.get();
 
-					const auto max_level = std::max(killer->get_level(), leader->get_level());
-					GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
-
-					if (5 >= std::abs(killer_level - leader_level))
-					{
-						EXPECT_EQ(penalty.get(), 0);
-					}
+					item_handler(killer, leader);
 				}
+				end_of_row_handler();
 			}
 		}
 	}
 }
 
-TEST_F(FightPenalties, HasPenaltyWithingMoreThan5Levels)
+template <typename ItemHandler>
+void iterate_over_group_penalties(ItemHandler item_handler)
 {
-	for (int killer_class = CLASS_CLERIC; killer_class < NUM_PLAYER_CLASSES; ++killer_class)
-	{
-		for (int leader_class = CLASS_CLERIC; leader_class < NUM_PLAYER_CLASSES; ++leader_class)
+	iterate_over_group_penalties_ext(
+		[](const auto killer_class, const auto leader_class) {},
+		[](const auto killer_level) {},
+		[] {},
+		item_handler
+	);
+}
+
+TEST_F(FightPenalties, NoPenaltyWithing5Levels)
+{
+	iterate_over_group_penalties(
+		[](const auto killer, const auto leader)
 		{
-			test_utils::CharacterBuilder killer_builder;
-			killer_builder.create_new_with_class(killer_class);
+			const auto killer_level = killer->get_level();
+			const auto leader_level = leader->get_level();
+			const auto max_level = std::max(killer_level, leader_level);
+			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
 
-			test_utils::CharacterBuilder leader_builder;
-			leader_builder.create_new_with_class(leader_class);
-
-			leader_builder.make_group(killer_builder);
-
-			for (int killer_level = 1; killer_level < LVL_IMMORT; ++killer_level)
+			if (5 >= std::abs(killer_level - leader_level))
 			{
-				killer_builder.set_level(killer_level);
-				for (int leader_level = 1; leader_level < LVL_IMMORT; ++leader_level)
-				{
-					leader_builder.set_level(leader_level);
-
-					auto killer = killer_builder.get();
-					auto leader = leader_builder.get();
-
-					const auto max_level = std::max(killer->get_level(), leader->get_level());
-					GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
-
-					if (5 < std::abs(killer_level - leader_level))
-					{
-						EXPECT_GT(penalty.get(), 0);
-					}
-				}
+				EXPECT_EQ(penalty.get(), 0);
 			}
 		}
-	}
+	);
+}
+
+TEST_F(FightPenalties, HasPenaltyWithingMoreThan5Levels)
+{
+	iterate_over_group_penalties(
+		[](const auto killer, const auto leader)
+		{
+			const auto killer_level = killer->get_level();
+			const auto leader_level = leader->get_level();
+			const auto max_level = std::max(killer_level, leader_level);
+			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
+
+			if (5 < std::abs(killer_level - leader_level))
+			{
+				EXPECT_GT(penalty.get(), 0);
+			}
+		}
+	);
 }
 
 TEST_F(FightPenalties, DISABLED_PrintTable)
 {
 	constexpr int PLACEHOLDER_LENGTH = 4;
-	for (int killer_class = CLASS_CLERIC; killer_class < NUM_PLAYER_CLASSES; ++killer_class)
-	{
-		for (int leader_class = CLASS_CLERIC; leader_class < NUM_PLAYER_CLASSES; ++leader_class)
+
+	iterate_over_group_penalties_ext(
+		[&](const auto killer_class, const auto leader_class)
 		{
-			test_utils::CharacterBuilder killer_builder;
-			killer_builder.create_new_with_class(killer_class);
-
-			test_utils::CharacterBuilder leader_builder;
-			leader_builder.create_new_with_class(leader_class);
-
-			leader_builder.make_group(killer_builder);
-
-			std::cerr << "Combination: " << killer_class << "/" << leader_class << std::endl
+			std::cout << "Combination: " << killer_class << "/" << leader_class << std::endl
 				<< "===================" << std::endl << std::setw(1 + PLACEHOLDER_LENGTH) << "|";
 			for (int leader_level = 1; leader_level < LVL_IMMORT; ++leader_level)
 			{
-				std::cerr << std::setw(PLACEHOLDER_LENGTH) << leader_level;
+				std::cout << std::setw(PLACEHOLDER_LENGTH) << leader_level;
 			}
-			std::cerr << std::endl << "----+";
+			std::cout << std::endl << "----+";
 			for (int i = 1; i < LVL_IMMORT; ++i)
 			{
-				std::cerr << "----";
+				std::cout << "----";
 			}
-			std::cerr << std::endl;
-
-			for (int killer_level = 1; killer_level < LVL_IMMORT; ++killer_level)
-			{
-				std::cerr << std::setw(PLACEHOLDER_LENGTH) << killer_level << "| ";
-
-				killer_builder.set_level(killer_level);
-				for (int leader_level = 1; leader_level < LVL_IMMORT; ++leader_level)
-				{
-					leader_builder.set_level(leader_level);
-
-					auto killer = killer_builder.get();
-					auto leader = leader_builder.get();
-
-					const auto max_level = std::max(killer->get_level(), leader->get_level());
-					GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
-
-					std::cerr << std::setw(PLACEHOLDER_LENGTH) << penalty.get();
-				}
-				std::cerr << std::endl;
-			}
+			std::cout << std::endl;
+		},
+		[&](const auto killer_level) { std::cout << std::setw(PLACEHOLDER_LENGTH) << killer_level << "| "; },
+		[&] { std::cout << std::endl; },
+		[&](const auto killer, const auto leader)
+		{
+			const auto killer_level = killer->get_level();
+			const auto leader_level = leader->get_level();
+			const auto max_level = std::max(killer_level, leader_level);
+			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
+			std::cout << std::setw(PLACEHOLDER_LENGTH) << penalty.get();
 		}
-	}
+	);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
