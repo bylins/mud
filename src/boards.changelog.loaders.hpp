@@ -24,8 +24,8 @@ namespace Boards
 	{
 		namespace loader_formats
 		{
-			const extern std::string MERCURIAL;
-			const extern std::string GIT;
+			const extern char* MERCURIAL;
+			const extern char* GIT;
 		}
 	}
 }

@@ -20,8 +20,8 @@ namespace Boards
 	// максимальное кол-во сообщений на спец.досках
 	constexpr unsigned int MAX_REPORT_MESSAGES = 999;
 
-	extern const char *OVERFLOW_MESSAGE;
-	extern const std::string CHANGELOG_FILE;
+	extern const char* OVERFLOW_MESSAGE;
+	extern const char* CHANGELOG_FILE;
 }
 
 #endif // __BOARDS_CONSTANTS_HPP__

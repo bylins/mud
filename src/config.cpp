@@ -582,7 +582,7 @@ void RuntimeConfiguration::load_boards_configuration(const pugi::xml_node* board
 	if (changelog_format)
 	{
 		m_changelog_format = changelog_format.child_value();
-		std::transform(m_changelog_format.begin(), m_changelog_format.end(), m_changelog_format.begin(), std::tolower);
+		std::transform(m_changelog_format.begin(), m_changelog_format.end(), m_changelog_format.begin(), ::tolower);
 	}
 }
 

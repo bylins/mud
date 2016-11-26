@@ -5,6 +5,10 @@
 
 #include <boost/algorithm/string/trim.hpp>
 
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
 #include <functional>
 
 namespace Boards
@@ -202,7 +206,7 @@ namespace Boards
 		static shared_ptr create(const Board::shared_ptr board) { return std::make_shared<GitChangeLogLoader>(board); }
 	};
 
-	bool GitChangeLogLoader::load(std::istream& is)
+	bool GitChangeLogLoader::load(std::istream& /*is*/)
 	{
 		return true;
 	}
@@ -211,8 +215,8 @@ namespace Boards
 	{
 		namespace loader_formats
 		{
-			const std::string MERCURIAL = "mercurial";
-			const std::string GIT = "git";
+			const char* MERCURIAL = "mercurial";
+			const char* GIT = "git";
 		}
 	}
 
