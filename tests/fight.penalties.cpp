@@ -169,8 +169,8 @@ template <typename ItemHandler>
 void iterate_over_group_penalties(ItemHandler item_handler)
 {
 	iterate_over_group_penalties_ext(
-		[](const auto killer_class, const auto leader_class) {},
-		[](const auto killer_level) {},
+		[](const auto, const auto) {},
+		[](const auto) {},
 		[] {},
 		item_handler
 	);
@@ -214,10 +214,11 @@ TEST_F(FightPenalties, HasPenaltyWithingMoreThan5Levels)
 
 TEST_F(FightPenalties, DISABLED_PrintTable)
 {
-	constexpr int PLACEHOLDER_LENGTH = 4;
+	// Anton Gorev(2016-11-25): seems like I stepped on a bug in compiler (g++ (Ubuntu 4.9.4-2ubuntu1~14.04.1) 4.9.4):
+	// it does not capture constexpr/const constants. To workaround that bug I removed constexpr keyword.
+	int PLACEHOLDER_LENGTH = 4;
 
-	iterate_over_group_penalties_ext(
-		[&](const auto killer_class, const auto leader_class)
+	const auto header_handler = [&](const auto killer_class, const auto leader_class)
 		{
 			std::cout << "Combination: " << killer_class << "/" << leader_class << std::endl
 				<< "===================" << std::endl << std::setw(1 + PLACEHOLDER_LENGTH) << "|";
@@ -231,17 +232,23 @@ TEST_F(FightPenalties, DISABLED_PrintTable)
 				std::cout << "----";
 			}
 			std::cout << std::endl;
-		},
-		[&](const auto killer_level) { std::cout << std::setw(PLACEHOLDER_LENGTH) << killer_level << "| "; },
-		[&] { std::cout << std::endl; },
-		[&](const auto killer, const auto leader)
-		{
-			const auto killer_level = killer->get_level();
-			const auto leader_level = leader->get_level();
-			const auto max_level = std::max(killer_level, leader_level);
-			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
-			std::cout << std::setw(PLACEHOLDER_LENGTH) << penalty.get();
-		}
+		};
+	const auto new_row_handler = [&](const auto killer_level) { std::cout << std::setw(PLACEHOLDER_LENGTH) << killer_level << "| "; };
+	const auto end_of_row_handler = [] { std::cout << std::endl; };
+	const auto item_handler = [&](const auto killer, const auto leader)
+	{
+		const auto killer_level = killer->get_level();
+		const auto leader_level = leader->get_level();
+		const auto max_level = std::max(killer_level, leader_level);
+		GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
+		std::cout << std::setw(PLACEHOLDER_LENGTH) << penalty.get();
+	};
+
+	iterate_over_group_penalties_ext(
+		header_handler,
+		new_row_handler,
+		end_of_row_handler,
+		item_handler
 	);
 }
 
