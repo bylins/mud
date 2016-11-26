@@ -889,9 +889,10 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				if (board->get_type() == Boards::NEWS_BOARD
 					|| board->get_type() == Boards::GODNEWS_BOARD)
 				{
-					Boards::format_news_message(d->message->text);
+					format_news_message(d->message->text);
 				}
 				board->add_message(d->message);
+				Boards::Loader::new_message_notify(board);
 				SEND_TO_Q("Спасибо за ваши излияния души, послание сохранено.\r\n", d);
 			}
 			else
@@ -933,7 +934,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 							("Сообщение дружины (автор %1%):\r\n")
 							% GET_NAME(d->character));
 						// отступ (копи-паст из CON_WRITEBOARD выше)
-						Boards::format_news_message(body);
+						format_news_message(body);
 						head += body;
 
 						CLAN(d->character)->write_mod(head);
@@ -1443,7 +1444,7 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 }
 
 // TODO типа временно для стрингов
-void page_string(DESCRIPTOR_DATA * d, std::string buf)
+void page_string(DESCRIPTOR_DATA * d, const std::string& buf)
 {
 	// TODO: при keep_internal == true (а в 99% случаев так оно есть)
 	// получаем дальше в page_string повторный str_dup.

@@ -1634,7 +1634,12 @@ inline bool isname(const std::string &str, const char *namelist) { return isname
 inline bool isname(const char* str, const std::string& namelist) { return isname(str, namelist.c_str()); }
 inline bool isname(const std::string &str, const std::string& namelist) { return isname(str.c_str(), namelist.c_str()); }
 
-extern const char* one_word(const char* argument, char *first_arg);
+const char* one_word(const char* argument, char *first_arg);
+
+void ReadEndString(std::ifstream &file);
+// замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
+void StringReplace(std::string& buffer, char s, const std::string& d);
+std::string& format_news_message(std::string &text);
 
 #endif // _UTILS_H_
 

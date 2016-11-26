@@ -65,4 +65,16 @@
 			-->
 		</msdp>
 	</features>
+
+	<boards>
+		<!--
+		Позволяет задать формат файла changelog (доска coders). По умолчанию имеет формат лога git.
+		TODO: Добавить конкретное описание формата лога git'а по умолчанию.
+		
+		Вы также можете указать формат "mercurial", но gtthl 'nbv убедитесь, что вы действительно
+		сменили формат своего файла changelog на формат лога Mercurial'а.
+		
+		<changelog_format>git</changelog_format>
+		-->
+	</boards>
 </configuration>

@@ -15,6 +15,7 @@
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
 
+#include "boards.types.hpp"
 #include "sysdep.h"
 
 #include <boost/shared_ptr.hpp>
@@ -48,17 +49,6 @@ const unsigned TOTAL_TYPES = 3;
 
 #define MAX_ALIAS_LENGTH 100
 //-Polos.insert_wanted_gem
-
-/*
- * Intended use of this macro is to allow external packages to work with
- * a variety of CircleMUD versions without modifications.  For instance,
- * an IS_CORPSE() macro was introduced in pl13.  Any future code add-ons
- * could take into account the CircleMUD version and supply their own
- * definition for the macro if used on an older version of CircleMUD.
- * You are supposed to compare this with the macro CIRCLEMUD_VERSION()
- * in utils.h.  See there for usage.
- */
-#define _CIRCLEMUD   0x030010	// Major/Minor/Patchlevel - MMmmPP
 
 /*
  * If you want equipment to be automatically equipped to the same place
@@ -1614,7 +1604,6 @@ namespace obj_sets_olc
 	class sedit;
 }
 
-class Board;
 #ifndef HAVE_ZLIB
 struct z_stream;
 #endif
@@ -1750,8 +1739,8 @@ struct DESCRIPTOR_DATA
 	z_stream *deflate;	// compression engine        //
 	int mccp_version;
 	unsigned long ip; // ип адрес в виде числа для внутреннего пользования
-	boost::weak_ptr<Board> board; // редактируемая доска
-	boost::shared_ptr<struct Message> message; // редактируемое сообщение
+	std::weak_ptr<Boards::Board> board; // редактируемая доска
+	Message::shared_ptr message; // редактируемое сообщение
 	boost::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
 	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
 	bool registered_email; // чтобы не шарить каждую секунду по списку мыл

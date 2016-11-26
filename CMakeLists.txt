@@ -19,6 +19,10 @@ set(SOURCES
 	src/ban.cpp
 	src/birth_places.cpp
 	src/boards.cpp
+	src/boards.constants.cpp
+	src/boards.changelog.loaders.cpp
+	src/boards.formatters.cpp
+	src/boards.types.cpp
 	src/bonus.cpp
 	src/boot.constants.cpp
 	src/boot.index.cpp
@@ -139,6 +143,11 @@ set(HEADERS
 	src/ban.hpp
 	src/birth_places.hpp
 	src/boards.h
+	src/boards.constants.hpp
+	src/boards.changelog.loaders.hpp
+	src/boards.formatters.hpp
+	src/boards.message.hpp
+	src/boards.types.hpp
 	src/bonus.h
 	src/boot.constants.hpp
 	src/boot.index.hpp
