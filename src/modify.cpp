@@ -892,7 +892,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 					format_news_message(d->message->text);
 				}
 				board->add_message(d->message);
-				Boards::Loader::new_message_notify(board);
+				Boards::Static::new_message_notify(board);
 				SEND_TO_Q("Спасибо за ваши излияния души, послание сохранено.\r\n", d);
 			}
 			else

@@ -23,7 +23,7 @@ namespace Boards
 {
 extern std::string dg_script_text;
 
-class Loader
+class Static
 {
 public:
 	static void LoginInfo(CHAR_DATA * ch);

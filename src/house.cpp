@@ -582,7 +582,7 @@ void Clan::ClanLoad()
 				victim->add_bank(tempClan->bank);
 				victim->save_char();
 			}
-			Boards::Loader::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
+			Boards::Static::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
 			DestroyClan(tempClan);
 			log("Clan deleted: %s", filename.c_str());
 		}
@@ -684,7 +684,7 @@ void Clan::ClanLoad()
 		tempClan->chest_log.load(tempClan->get_file_abbrev());
 		if ((tempClan->bank <= 0) && (tempClan->m_members.size() > 0))
 		{
-			Boards::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
+			Boards::Static::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
 			DestroyClan(tempClan);
 			log("Clan deleted bank 0: %s", filename.c_str());
 		}
@@ -695,7 +695,7 @@ void Clan::ClanLoad()
 	Clan::ChestUpdate();
 	Clan::SaveChestAll();
 	Clan::ClanSave();
-	Boards::Loader::ClanInit();
+	Boards::Static::ClanInit();
 	save_ingr_chests();
 
 	if (reload)
@@ -2608,7 +2608,7 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 
 	Clan::ClanList.push_back(tempClan);
 	Clan::ClanSave();
-	Boards::Loader::ClanInit();
+	Boards::Static::ClanInit();
 
 	// уведомляем счастливых воеводу и имма
 	DESCRIPTOR_DATA *d;

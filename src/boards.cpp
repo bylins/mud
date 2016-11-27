@@ -186,7 +186,7 @@ namespace Boards
 		for (const auto& board_i : board_list)
 		{
 			if (board_i->get_type() == subcmd
-				&& Loader::can_see(ch, board_i))
+				&& Static::can_see(ch, board_i))
 			{
 				board_ptr = board_i;
 				break;
@@ -207,7 +207,7 @@ namespace Boards
 
 		if (CompareParam(buffer, "список") || CompareParam(buffer, "list"))
 		{
-			Loader::do_list(ch, board_ptr);
+			Static::do_list(ch, board_ptr);
 		}
 		else if (buffer.empty()
 			|| (buffer2.empty()
@@ -216,7 +216,7 @@ namespace Boards
 		{
 			// при пустой команде или 'читать' без цифры - показываем первое
 			// непрочитанное сообщение, если такое есть
-			if (!Loader::can_read(ch, board_ptr))
+			if (!Static::can_read(ch, board_ptr))
 			{
 				message_no_read(ch, board);
 				return;
@@ -265,7 +265,7 @@ namespace Boards
 			// если после команды стоит цифра или 'читать цифра' - пытаемся
 			// показать эту мессагу, два сравнения - чтобы не загребать 'писать число...' как чтение
 			size_t num = 0;
-			if (!Loader::can_read(ch, board_ptr))
+			if (!Static::can_read(ch, board_ptr))
 			{
 				message_no_read(ch, board);
 				return;
@@ -294,7 +294,7 @@ namespace Boards
 		else if (CompareParam(buffer, "писать")
 			|| CompareParam(buffer, "write"))
 		{
-			if (!Loader::can_write(ch, board_ptr))
+			if (!Static::can_write(ch, board_ptr))
 			{
 				message_no_write(ch);
 				return;
@@ -380,7 +380,7 @@ namespace Boards
 			num = board.messages.size() - num;
 			set_last_read(ch, board.get_type(), board.messages[num]->date);
 			// или он может делетить любые мессаги (по левелу/рангу), или только свои
-			if (!Loader::full_access(ch, board_ptr))
+			if (!Static::full_access(ch, board_ptr))
 			{
 				if (board.messages[num]->unique != GET_UNIQUE(ch))
 				{
@@ -481,7 +481,7 @@ namespace Boards
 		return access;
 	}
 	// чтобы не травмировать народ спешиалы вешаем на старые доски с новым содержимым
-	int Loader::Special(CHAR_DATA* ch, void* me, int cmd, char* argument)
+	int Static::Special(CHAR_DATA* ch, void* me, int cmd, char* argument)
 	{
 		OBJ_DATA *board = (OBJ_DATA *)me;
 		if (!ch->desc)
@@ -562,7 +562,7 @@ namespace Boards
 	}
 
 	// выводит при заходе в игру инфу о новых сообщениях на досках
-	void Loader::LoginInfo(CHAR_DATA* ch)
+	void Static::LoginInfo(CHAR_DATA* ch)
 	{
 		std::ostringstream buffer, news;
 		bool has_message = 0;
@@ -604,7 +604,7 @@ namespace Boards
 		}
 	}
 
-	void Loader::create_board(BoardTypes type, const std::string &name, const std::string &desc, const std::string &file)
+	void Static::create_board(BoardTypes type, const std::string &name, const std::string &desc, const std::string &file)
 	{
 		const auto board = std::make_shared<Board>(type);
 		board->set_name(name);
@@ -641,7 +641,7 @@ namespace Boards
 		board_list.push_back(board);
 	}
 
-	void Loader::do_list(CHAR_DATA* ch, const Board::shared_ptr board_ptr)
+	void Static::do_list(CHAR_DATA* ch, const Board::shared_ptr board_ptr)
 	{
 		if (!can_read(ch, board_ptr))
 		{
@@ -670,31 +670,31 @@ namespace Boards
 		page_string(ch->desc, body.str());
 	}
 
-	bool Loader::can_see(CHAR_DATA *ch, const Board::shared_ptr board)
+	bool Static::can_see(CHAR_DATA *ch, const Board::shared_ptr board)
 	{
 		auto access_ = get_access(ch, board);
 		return access_.test(ACCESS_CAN_SEE);
 	}
 
-	bool Loader::can_read(CHAR_DATA *ch, const Board::shared_ptr board)
+	bool Static::can_read(CHAR_DATA *ch, const Board::shared_ptr board)
 	{
 		auto access_ = get_access(ch, board);
 		return access_.test(ACCESS_CAN_READ);
 	}
 
-	bool Loader::can_write(CHAR_DATA *ch, const Board::shared_ptr board)
+	bool Static::can_write(CHAR_DATA *ch, const Board::shared_ptr board)
 	{
 		auto access_ = get_access(ch, board);
 		return access_.test(ACCESS_CAN_WRITE);
 	}
 
-	bool Loader::full_access(CHAR_DATA *ch, const Board::shared_ptr board)
+	bool Static::full_access(CHAR_DATA *ch, const Board::shared_ptr board)
 	{
 		auto access_ = get_access(ch, board);
 		return access_.test(ACCESS_FULL);
 	}
 
-	void Loader::clan_delete_message(const std::string &name, int vnum)
+	void Static::clan_delete_message(const std::string &name, int vnum)
 	{
 		const std::string subj = "неактивная дружина";
 		const std::string text = boost::str(boost::format(
@@ -703,7 +703,7 @@ namespace Boards
 		add_server_message(subj, text);
 	}
 
-	void Loader::new_message_notify(const Board::shared_ptr board)
+	void Static::new_message_notify(const Board::shared_ptr board)
 	{
 		if (board->get_type() != PERS_BOARD
 			&& board->get_type() != CODER_BOARD
@@ -732,7 +732,7 @@ namespace Boards
 	}
 
 	// создание всех досок, кроме клановых и персональных
-	void Loader::BoardInit()
+	void Static::BoardInit()
 	{
 		board_list.clear();
 
@@ -754,7 +754,7 @@ namespace Boards
 	}
 
 	// лоад/релоад клановых досок
-	void Loader::ClanInit()
+	void Static::ClanInit()
 	{
 		const auto erase_predicate = [](const auto& board)
 		{
@@ -800,7 +800,7 @@ namespace Boards
 	}
 
 	// чистим для релоада
-	void Loader::clear_god_boards()
+	void Static::clear_god_boards()
 	{
 		const auto erase_predicate = [](const auto& board) { return board->get_type() == PERS_BOARD; };
 		board_list.erase(
@@ -809,7 +809,7 @@ namespace Boards
 	}
 
 	// втыкаем блокнот имму
-	void Loader::init_god_board(long uid, std::string name)
+	void Static::init_god_board(long uid, std::string name)
 	{
 		const auto board = std::make_shared<Board>(PERS_BOARD);
 		board->set_name("Блокнот");
@@ -825,14 +825,14 @@ namespace Boards
 	}
 
 	// * Релоад всех досок разом.
-	void Loader::reload_all()
+	void Static::reload_all()
 	{
 		BoardInit();
 		Privilege::load_god_boards();
 		ClanInit();
 	}
 
-std::string Loader::print_stats(CHAR_DATA* ch, const Board::shared_ptr board, int num)
+std::string Static::print_stats(CHAR_DATA* ch, const Board::shared_ptr board, int num)
 {
 	const std::string access = print_access(get_access(ch, board));
 	if (access.empty())
@@ -864,7 +864,7 @@ std::string Loader::print_stats(CHAR_DATA* ch, const Board::shared_ptr board, in
 	return out;
 }
 
-std::bitset<ACCESS_NUM> Loader::get_access(CHAR_DATA *ch, const Board::shared_ptr board)
+std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_ptr board)
 {
 	std::bitset<ACCESS_NUM> access;
 
@@ -1060,7 +1060,7 @@ void DoBoardList(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!board->get_blind())
 		{
-			out += Loader::print_stats(ch, board, num++);
+			out += Static::print_stats(ch, board, num++);
 		}
 	}
 	// два цикла для сквозной нумерации без заморочек
@@ -1069,7 +1069,7 @@ void DoBoardList(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	{
 		if (board->get_blind())
 		{
-			out += Loader::print_stats(ch, board, num++);
+			out += Static::print_stats(ch, board, num++);
 		}
 	}
 
@@ -1096,7 +1096,7 @@ void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Доска тупо не найдена... :/\r\n", ch);
 		return;
 	}
-	if (!Loader::can_write(ch, *board))
+	if (!Static::can_write(ch, *board))
 	{
 		message_no_write(ch);
 		return;

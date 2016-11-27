@@ -4140,7 +4140,7 @@ void god_work_invoice()
 // * Вывод оповещений о новых сообщениях на досках, письмах, (неодобренных имен и титулов для иммов) при логине и релогине
 void login_change_invoice(CHAR_DATA* ch)
 {
-	Boards::Loader::LoginInfo(ch);
+	Boards::Static::LoginInfo(ch);
 
 	if (IS_IMMORTAL(ch))
 	{

@@ -1067,7 +1067,7 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!str_cmp(arg, "proxy"))
 		LoadProxyList();
 	else if (!str_cmp(arg, "boards"))
-		Boards::Loader::reload_all();
+		Boards::Static::reload_all();
 	else if (!str_cmp(arg, "titles"))
 		TitleSystem::load_title_list();
 	else if (!str_cmp(arg, "emails"))
@@ -2415,7 +2415,7 @@ void boot_db(void)
 	// последовательность лоада кланов/досок не менять
 	boot_profiler.next_step("Loading boards");
 	log("Booting boards");
-	Boards::Loader::BoardInit();
+	Boards::Static::BoardInit();
 
 	boot_profiler.next_step("loading clans");
 	log("Booting clans");

@@ -142,7 +142,7 @@ void assign_mobiles(void)
 // assign special procedures to objects //
 void assign_objects(void)
 {
-	special_f* const function = Boards::Loader::Special;
+	special_f* const function = Boards::Static::Special;
 	ASSIGNOBJ(Boards::GODGENERAL_BOARD_OBJ, function);
 	ASSIGNOBJ(Boards::GENERAL_BOARD_OBJ, function);
 	ASSIGNOBJ(Boards::GODCODE_BOARD_OBJ, function);
