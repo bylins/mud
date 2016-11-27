@@ -591,7 +591,7 @@ void RuntimeConfiguration::load_boards_configuration(const pugi::xml_node* root)
 	if (format)
 	{
 		m_changelog_format = format.child_value();
-		std::transform(m_changelog_format.begin(), m_changelog_format.end(), m_changelog_format.begin(), std::tolower);
+		std::transform(m_changelog_format.begin(), m_changelog_format.end(), m_changelog_format.begin(), ::tolower);
 	}
 	const auto filename = changelog.child("filename");
 	if (filename)

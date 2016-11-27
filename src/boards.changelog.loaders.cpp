@@ -6,6 +6,10 @@
 
 #include <boost/algorithm/string/trim.hpp>
 
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
 #include <functional>
 #include <sstream>
 #include <iomanip>

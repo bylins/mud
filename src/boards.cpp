@@ -19,10 +19,6 @@
 #include "parse.hpp"
 #include "conf.h"
 
-#ifdef HAVE_ICONV
-#include <iconv.h>
-#endif
-
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>

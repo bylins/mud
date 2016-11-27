@@ -94,8 +94,8 @@ CHAR_DATA::CHAR_DATA() :
 	chclass_(CLASS_UNDEFINED),
 	role_(MOB_ROLE_TOTAL_NUM),
 	next_(NULL),
-	m_wait(~0u),
 	in_room(CRooms::UNDEFINED_ROOM_VNUM),
+	m_wait(~0u),
 	proto_script(new OBJ_DATA::triggers_list_t()),
 	followers(nullptr)
 {
