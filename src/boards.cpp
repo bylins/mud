@@ -126,7 +126,7 @@ namespace Boards
 
 	void changelog_message()
 	{
-		std::ifstream file(CHANGELOG_FILE);
+		std::ifstream file(runtime_config.changelog_file_name());
 		if (!file.is_open())
 		{
 			log("SYSERROR: can't open changelog file (%s:%d)", __FILE__, __LINE__);
@@ -144,7 +144,8 @@ namespace Boards
 			return;
 		}
 
-		ChangeLogLoader::create(runtime_config.changelog_format(), *coder_board);
+		const auto loader = ChangeLogLoader::create(runtime_config.changelog_format(), *coder_board);
+		loader->load(file);
 	}
 
 	bool is_spamer(CHAR_DATA *ch, const Board& board)
@@ -256,7 +257,10 @@ namespace Boards
 			board.format_board(formatter);
 			set_last_read(ch, board.get_type(), last_date);
 			page_string(ch->desc, body.str());
-			send_to_char("У вас нет непрочитанных сообщений.\r\n", ch);
+			if (last_date == date)
+			{
+				send_to_char("У вас нет непрочитанных сообщений.\r\n", ch);
+			}
 		}
 		else if (is_number(buffer.c_str())
 			|| ((CompareParam(buffer, "читать") || CompareParam(buffer, "read"))
@@ -306,7 +310,7 @@ namespace Boards
 			}
 			if (board.is_special() && board.messages.size() >= MAX_REPORT_MESSAGES)
 			{
-				send_to_char(OVERFLOW_MESSAGE, ch);
+				send_to_char(constants::OVERFLOW_MESSAGE, ch);
 				return;
 			}
 			/// написание новостей от другого имени
@@ -1104,7 +1108,7 @@ void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if ((*board)->is_special()
 		&& (*board)->messages.size() >= MAX_REPORT_MESSAGES)
 	{
-		send_to_char(OVERFLOW_MESSAGE, ch);
+		send_to_char(constants::OVERFLOW_MESSAGE, ch);
 		return;
 	}
 	// генерим мессагу (TODO: копипаст с написания на доску, надо бы вынести)

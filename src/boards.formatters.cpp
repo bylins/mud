@@ -40,7 +40,8 @@ namespace Boards
 	void StreamBoardFormatter::print_title(const Message::shared_ptr message)
 	{
 		char timeBuf[17];
-		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&message->date));
+		const std::tm* tm = std::localtime(&message->date);
+		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", tm);
 		if (message->date > date())
 		{
 			out() << CCWHT(character(), C_NRM); // новые подсветим
@@ -128,7 +129,7 @@ namespace Boards
 		{
 			special_message_format(out(), message);
 
-			m_last_date = date();
+			m_last_date = message->date;
 
 			return false;
 		}

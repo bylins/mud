@@ -19,15 +19,6 @@ namespace Boards
 
 		static shared_ptr create(const std::string& kind, const Board::shared_ptr board);
 	};
-
-	namespace constants
-	{
-		namespace loader_formats
-		{
-			const extern std::string MERCURIAL;
-			const extern std::string GIT;
-		}
-	}
 }
 
 #endif // __BOARDS_CHANGELOG_LOADERS_HPP__

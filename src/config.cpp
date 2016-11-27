@@ -17,6 +17,7 @@
 #include "config.hpp"
 
 #include "boards.changelog.loaders.hpp"
+#include "boards.constants.hpp"
 #include "interpreter.h"	// alias_data definition for structs.h
 #include "utils.h"
 #include "constants.h"
@@ -572,17 +573,30 @@ void RuntimeConfiguration::load_msdp_configuration(const pugi::xml_node* msdp)
 	}
 }
 
-void RuntimeConfiguration::load_boards_configuration(const pugi::xml_node* boards)
+void RuntimeConfiguration::load_boards_configuration(const pugi::xml_node* root)
 {
+	const auto boards = root->child("boards");
 	if (!boards)
 	{
 		return;
 	}
-	const auto changelog_format = boards->child("changelog_format");
-	if (changelog_format)
+
+	const auto changelog = boards.child("changelog");
+	if (!changelog)
 	{
-		m_changelog_format = changelog_format.child_value();
+		return;
+	}
+
+	const auto format = changelog.child("format");
+	if (format)
+	{
+		m_changelog_format = format.child_value();
 		std::transform(m_changelog_format.begin(), m_changelog_format.end(), m_changelog_format.begin(), std::tolower);
+	}
+	const auto filename = changelog.child("filename");
+	if (filename)
+	{
+		m_changelog_file_name = filename.child_value();
 	}
 }
 
@@ -721,6 +735,7 @@ RuntimeConfiguration::RuntimeConfiguration():
 	m_logging_enabled(true),
 	m_msdp_disabled(false),
 	m_msdp_debug(false),
+	m_changelog_file_name(Boards::constants::CHANGELOG_FILE_NAME),
 	m_changelog_format(Boards::constants::loader_formats::GIT)
 {
 }

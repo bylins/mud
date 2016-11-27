@@ -400,11 +400,17 @@ set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown ${CRAFT_FILES} ${MISC_FIL
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
 
+# Create changelog file
+add_custom_target(changelog ALL
+	COMMAND ${GIT} log --date=local -999 > changelog
+	COMMENT "Writing changelog...")
+set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
+
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
 set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
 set_target_properties(circle.library PROPERTIES FOLDER "Utility targets")
-add_dependencies(circle.library versioning)
+add_dependencies(circle.library versioning changelog)
 
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)
@@ -508,11 +514,6 @@ if (CMAKE_HOST_UNIX)
 		# EPOLL>>> ... if it is not Cygwin ... EPOLL>>>
 		option(HAS_EPOLL "Does system support epoll call?" OFF)
 	endif ()
-
-	# On Unix systems will make changelog file.
-	add_custom_target(changelog ALL)
-	add_custom_command(TARGET changelog
-		COMMAND ${GIT} log > changelog)
 elseif (CMAKE_HOST_WIN32)
 	add_definitions("-D_SCL_SECURE_NO_WARNINGS")
 	set(CMAKE_CXX_FLAGS_RELEASE  "-DBOOST_ENABLE_ASSERT_HANDLER")

@@ -86,7 +86,7 @@ namespace Boards
 					continue;
 				}
 
-				messages.push_back(message);
+				messages.push_front(message);
 			}
 			else if (buffer == "Type:")
 			{
@@ -116,9 +116,9 @@ namespace Boards
 
 	void Board::format_board(Formatter::shared_ptr formatter) const
 	{
-		for (MessageListType::const_reverse_iterator message_i = messages.crbegin(); message_i != messages.crend(); ++message_i)
+		for (const auto& message : messages)
 		{
-			if (!formatter->format(*message_i))
+			if (!formatter->format(message))
 			{
 				break;
 			}
@@ -138,18 +138,24 @@ namespace Boards
 
 	void Board::add_message_implementation(Message::shared_ptr msg, const bool to_front)
 	{
-		if ((get_type() == CODER_BOARD)
-			&& messages.size() >= MAX_REPORT_MESSAGES)
-		{
-			messages.erase(messages.begin());
-		}
-		if (!is_special()
+		const bool coder_overflow = get_type() == CODER_BOARD
+			&& messages.size() >= MAX_REPORT_MESSAGES;
+		const bool board_overflow = !is_special()
 			&& get_type() != NEWS_BOARD
 			&& get_type() != GODNEWS_BOARD
 			&& get_type() != CODER_BOARD
-			&& messages.size() >= MAX_BOARD_MESSAGES)
+			&& messages.size() >= MAX_BOARD_MESSAGES;
+		if (coder_overflow
+			|| board_overflow)
 		{
-			messages.erase(messages.begin());
+			if (to_front)
+			{
+				messages.erase(--messages.end());
+			}
+			else
+			{
+				messages.erase(messages.begin());
+			}
 		}
 
 		// чтобы время написания разделялось
