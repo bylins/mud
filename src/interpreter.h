@@ -43,8 +43,6 @@ DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing = 1);
 long GetUniqueByName(const std::string & name, bool god = 0);
 std::string GetNameByUnique(long unique, bool god = 0);
 void CreateFileName(std::string &name);
-void ReadEndString(std::ifstream &file);
-void StringReplace(std::string & buffer, char s, std::string d);
 std::string ExpFormat(long long exp);
 void lower_convert(std::string& text);
 void lower_convert(char* text);

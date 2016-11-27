@@ -4,14 +4,13 @@
 #ifndef PLAYER_I_HPP_INCLUDED
 #define PLAYER_I_HPP_INCLUDED
 
-#include <string>
+#include "reset_stats.hpp"
+#include "boards.types.hpp"
+#include "structs.h"
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
-// GCC 4.4
-#include "reset_stats.hpp"
-#include "boards.h"
-// GCC 4.4
+
+#include <string>
 
 namespace DpsSystem
 {
@@ -22,20 +21,6 @@ namespace MapSystem
 {
 	struct Options;
 }
-
-// GCC 4.4
-/*
-namespace ResetStats
-{
-	enum Type : int;
-}
-
-namespace Boards
-{
-	enum BoardTypes: int;
-}
-*/
-// GCC 4.4
 
 extern room_rnum r_helled_start_room;
 

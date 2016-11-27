@@ -25,7 +25,6 @@
 #include "im.h"
 #include "dg_scripts.h"
 #include "features.hpp"
-#include "boards.h"
 #include "privilege.hpp"
 #include "char.hpp"
 #include "room.hpp"
@@ -48,6 +47,7 @@
 #endif
 
 #include <boost/bind.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 #include <vector>
 #include <string>
@@ -2196,6 +2196,36 @@ void cut_one_word(std::string &str, std::string &word)
 
 	str.clear();
 	word.clear();
+}
+
+void ReadEndString(std::ifstream &file)
+{
+	char c;
+	while (file.get(c))
+	{
+		if (c == '\n')
+		{
+			return;
+		}
+	}
+}
+
+void StringReplace(std::string & buffer, char s, const std::string& d)
+{
+	for (size_t index = 0; index = buffer.find(s, index), index != std::string::npos;)
+	{
+		buffer.replace(index, 1, d);
+		index += d.length();
+	}
+}
+
+std::string& format_news_message(std::string &text)
+{
+	StringReplace(text, '\n', "\n   ");
+	boost::trim(text);
+	text.insert(0, "   ");
+	text += '\n';
+	return text;
 }
 
 /**

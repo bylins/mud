@@ -23,7 +23,7 @@
 #include "morph.hpp"
 #include "map.hpp"
 #include "reset_stats.hpp"
-#include "boards.h"
+#include "boards.types.hpp"
 #include "quest.hpp"
 
 // кол-во сохраняемых стартовых статов в файле

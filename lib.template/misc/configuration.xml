@@ -65,4 +65,22 @@
 			-->
 		</msdp>
 	</features>
+
+	<boards>
+		<changelog>
+			<!--
+			Имя файла с историей изменений. Относительный путь отсчитывается от директории lib.
+
+			<filename>../bin/changelog</filename>
+			-->
+			<!--
+			Позволяет задать формат файла changelog (доска coders). По умолчанию имеет формат лога git.
+		
+			Вы также можете указать формат "mercurial", но gtthl 'nbv убедитесь, что вы действительно
+			сменили формат своего файла changelog на формат лога Mercurial'а.
+		
+			<format>git</format>
+			-->
+		</changelog>
+	</boards>
 </configuration>

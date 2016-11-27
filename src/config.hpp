@@ -120,6 +120,9 @@ public:
 	auto msdp_disabled() const { return m_msdp_disabled; }
 	auto msdp_debug() const { return m_msdp_debug; }
 
+	const auto& changelog_file_name() const { return m_changelog_file_name; }
+	const auto& changelog_format() const { return m_changelog_format; }
+
 private:
 	static const char* CONFIGURATION_FILE_NAME;
 
@@ -134,6 +137,7 @@ private:
 	void load_logging_configuration(const  pugi::xml_node* root);
 	void load_features_configuration(const  pugi::xml_node* root);
 	void load_msdp_configuration(const  pugi::xml_node* msdp);
+	void load_boards_configuration(const  pugi::xml_node* root);
 
 	logs_t m_logs;
 	std::string m_log_stderr;
@@ -141,6 +145,8 @@ private:
 	bool m_logging_enabled;
 	bool m_msdp_disabled;
 	bool m_msdp_debug;
+	std::string m_changelog_file_name;
+	std::string m_changelog_format;
 };
 
 extern RuntimeConfiguration runtime_config;

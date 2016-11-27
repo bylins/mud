@@ -20,6 +20,7 @@
 #include "interpreter.h"
 #include "utils.h"
 #include "house.h"
+#include "boards.constants.hpp"
 #include "boards.h"
 #include "char.hpp"
 #include "room.hpp"
@@ -138,19 +139,16 @@ void assign_mobiles(void)
 	ASSIGNMOB(4023, horse_keeper);
 }
 
-
-
 // assign special procedures to objects //
 void assign_objects(void)
 {
-	ASSIGNOBJ(Boards::GODGENERAL_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(Boards::GENERAL_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(Boards::GODCODE_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(Boards::GODPUNISH_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(Boards::GODBUILD_BOARD_OBJ, Board::Special);
+	special_f* const function = Boards::Static::Special;
+	ASSIGNOBJ(Boards::GODGENERAL_BOARD_OBJ, function);
+	ASSIGNOBJ(Boards::GENERAL_BOARD_OBJ, function);
+	ASSIGNOBJ(Boards::GODCODE_BOARD_OBJ, function);
+	ASSIGNOBJ(Boards::GODPUNISH_BOARD_OBJ, function);
+	ASSIGNOBJ(Boards::GODBUILD_BOARD_OBJ, function);
 }
-
-
 
 // assign special procedures to rooms //
 void assign_rooms(void)
