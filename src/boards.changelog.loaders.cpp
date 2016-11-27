@@ -364,7 +364,7 @@ namespace Boards
 				if (!commit.parse_revision(buffer))
 				{
 					log("SYSERR: could not read commit revision from changelog file at line %d. Wrong string: %s",
-						line, buffer);
+						line, buffer.c_str());
 					return false;
 				}
 				parser_state = AUTHOR;
@@ -374,7 +374,7 @@ namespace Boards
 				if (!commit.parse_author(buffer, is, line))
 				{
 					log("SYSERR: could not read commit author from changelog file at line %d. Wrong string: %s",
-						line, buffer);
+						line, buffer.c_str());
 					return false;
 				}
 				parser_state = DATE;
@@ -384,7 +384,7 @@ namespace Boards
 				if (!commit.parse_date(buffer))
 				{
 					log("SYSERR: could not read commit date from changelog file at line %d. Wrong string: %s",
-						line, buffer);
+						line, buffer.c_str());
 					return false;
 				}
 				parser_state = COMMENT;
@@ -394,7 +394,7 @@ namespace Boards
 				if (!commit.parse_comment(buffer, is, line))
 				{
 					log("SYSERR: could not read commit comment from changelog file at line %d. Wrong string: %s",
-						line, buffer);
+						line, buffer.c_str());
 					return false;
 				}
 				parser_state = REVISION;
