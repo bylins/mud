@@ -1,4 +1,4 @@
-/* ****************************************************************************
+/*****************************************************************************
 * File: house.cpp                                              Part of Bylins *
 * Usage: Handling of clan system                                              *
 * (c) 2005 Krodo                                                              *
@@ -447,11 +447,11 @@ void Clan::ClanLoad()
 			else if (buffer == "Bank:")
 			{
 				file >> tempClan->bank;
+				log("Clans in bank, file (%s) банк %f.", filename.c_str(), tempClan->bank);
 				if (tempClan->bank <= 0)
-				{
-					log("Clan has 0 in bank, remove from list (%s).", filename.c_str());
-					break;
-				}
+					{
+					log("Clan has 0 in bank, file (%s) возможно будет удален.", filename.c_str());
+				        }
 			}
 			else if (buffer == "GoldTax:")
 			{
@@ -548,6 +548,7 @@ void Clan::ClanLoad()
 					tempClan->m_members.set(unique, tempMember);
 				}
 			}
+
 		}
 		file.close();
 
@@ -561,7 +562,6 @@ void Clan::ClanLoad()
 			log("Clan read fail: %s", filename.c_str());
 			continue;
 		}
-
 		// удаление неактивных кланов
 		tempClan->exp_history.load(tempClan->get_file_abbrev());
 		// иним на случай полной неактивности по итогам месяца, чтобы не было пропусков в списке
@@ -581,8 +581,6 @@ void Clan::ClanLoad()
 				}
 				victim->add_bank(tempClan->bank);
 				victim->save_char();
-				tempClan->bank = 0;
-				tempClan->save_clan_file(filename);
 			}
 			Boards::Loader::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
 			DestroyClan(tempClan);
@@ -684,7 +682,12 @@ void Clan::ClanLoad()
 		tempClan->last_exp.load(tempClan->get_file_abbrev());
 		tempClan->init_ingr_chest();
 		tempClan->chest_log.load(tempClan->get_file_abbrev());
-
+		if ((tempClan->bank <= 0) && (tempClan->m_members.size() > 0))
+		{
+			Boards::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
+			DestroyClan(tempClan);
+			log("Clan deleted bank 0: %s", filename.c_str());
+		}
 		Clan::ClanList.push_back(tempClan);
 	}
 
@@ -1862,12 +1865,13 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		out << "В игре зарегистрированы следующие дружины:\r\n"
 		<< "     #           Название                          Всего опыта    За 30 дней   Человек\r\n\r\n";
 		int count = 1;
-		for (std::multimap<long long, Clan::shared_ptr>::reverse_iterator it = sort_clan.rbegin(); it != sort_clan.rend(); ++it, ++count)
+		for (std::multimap<long long, Clan::shared_ptr>::reverse_iterator it = sort_clan.rbegin(); it != sort_clan.rend(); ++it)
 		{
 			if (it->second->m_members.size() == 0)
 				continue;
 			out << clanTopFormat % count % it->second->abbrev % it->second->name % ExpFormat(it->second->exp)
 				% ExpFormat(it->second->last_exp.get_exp()) % it->second->m_members.size();
+			++count;
 		}
 		send_to_char(out.str(), ch);
 		return;
@@ -1879,7 +1883,7 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	Clan::ClanListType::const_iterator clan;
 	for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 	{
-		if (CompareParam(buffer, (*clan)->abbrev))
+		if (CompareParam(buffer, (*clan)->abbrev) && !((*clan)->m_members.size() == 0))
 		{
 			break;
 		}
@@ -1945,8 +1949,10 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		int count = 1;
-		for (auto clan_i = Clan::ClanList.begin(); clan_i != Clan::ClanList.end(); ++clan_i, ++count)
+		for (auto clan_i = Clan::ClanList.begin(); clan_i != Clan::ClanList.end(); ++clan_i)
 		{
+			if ((*clan_i)->m_members.size() == 0)
+				continue;
 			buffer2 << clanFormat % count % (*clan_i)->abbrev % (*clan_i)->owner % (*clan_i)->name;
 			for (std::vector < CHAR_DATA * >::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
 				if (CLAN(*it) == *clan_i)
@@ -1955,6 +1961,7 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
 					% (PLR_FLAGGED(*it, PLR_KILLER) ? "(ДУШЕГУБ)" : "")
 					% CCNRM(ch, C_NRM);
+			++count;
 		}
 	}
 	buffer2 << "\r\nВсего игроков - " << temp_list.size() << "\r\n";
@@ -2577,6 +2584,7 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	tempClan->m_members.set(unique, tempMember);
 	// названия
 	tempClan->name = name;
+	tempClan->builtOn = time(0);
 	tempClan->title_female = tempClan->title = tempClan->abbrev = abbrev;
 	// ранги
 	const char *ranks[] = { "воевода", "боярин", "десятник", "храбр", "кметь", "гридень", "муж", "вой", "отрок", "гость" };
@@ -2642,6 +2650,35 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 {
 	const auto members = clan->m_members;	// copy members
 	clan->m_members.clear();					// remove all members from clan
+	clan->set_rep(0);
+	clan->builtOn = 0; // при приписке нового лидера присваиваю time(0) а дата все равно не текущая
+	clan->exp = 0;
+	clan->clan_exp = 0;
+	clan->clan_level = 0;
+	clan->politics.clear();
+	clan->bank = 0;
+	clan->gold_tax_pct_ = 0;
+	clan->ingr_chest_room_rnum_ = 0;
+	clan->storehouse = 0;
+	clan->pkList.clear(); // не чистится
+	clan->frList.clear(); // не чистится
+	OBJ_DATA *temp, *chest, *obj_next;
+	for (chest = world[real_room(clan->chest_room)]->contents; chest; chest = chest->get_next_content())
+	{
+		if (Clan::is_clan_chest(chest))
+		{
+		    for (temp = chest->get_contains(); temp; temp = obj_next)
+		    {
+			obj_next = temp->get_next_content();
+			obj_from_obj(temp);
+			extract_obj(temp);
+		    }
+		    break;
+		}
+	}
+	// пуржим ингры, если есть
+	clan->purge_ingr_chest();
+	clan->exp_history.fulldelete(); // не полностью чистится
 	Clan::ClanSave();
 
 	// TODO: по идее можно сундук и его содержимое пуржить, но не факт, что это хорошо
@@ -4347,16 +4384,20 @@ void Clan::hcon_owner(CHAR_DATA *ch, std::string &text)
 		send_to_char(d->character, "%sВы стали новым воеводой дружины %s. Желаем удачи!%s\r\n",
 				CCIGRN(d->character, C_NRM), (*clan)->get_abbrev().c_str(), CCNRM(d->character, C_NRM));
 	}
-	// оповещение
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+	if ((*clan)->m_members.size() > 0)
 	{
-		if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == (*clan)->GetRent())
+		// оповещение
+		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 		{
-			send_to_char(d->character, "%sОсуществлена принудительная смена воеводы вашей дружины: %s -> %s.%s\r\n",
+			if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == (*clan)->GetRent())
+			{
+				send_to_char(d->character, "%sОсуществлена принудительная смена воеводы вашей дружины: %s -> %s.%s\r\n",
 					CCIGRN(d->character, C_NRM), (*clan)->owner.c_str(), name.c_str(), CCNRM(d->character, C_NRM));
+			}
 		}
 	}
-
+	else
+		(*clan)->builtOn = time(0);  //не ставит текущую дату
 	(*clan)->owner = name;
 	Clan::ClanSave();
 	send_to_char("Сделано.\r\n", ch);
