@@ -9,7 +9,7 @@ build-release:
                 - mkdir build || true
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=${CIRCLE_BUILD_TYPE} ..
-                - cmake --build build
+                - cmake --build .
         stage: build
         cache:
                 key: "$CI_BUILD_ID/Release"
@@ -41,7 +41,7 @@ build-debug:
                 - mkdir build || true
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=Debug ..
-                - cmake --build build
+                - cmake --build .
         stage: build
         cache:
                 key: "$CI_BUILD_ID/Debug"
