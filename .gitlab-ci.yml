@@ -2,66 +2,46 @@ stages:
         - build
         - checks
 
-release:build:
+release:
         only:
-            - master
+                - master
         script:
                 - mkdir build
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=Release ..
                 - cmake --build .
+                - cmake --build . --target checks
         stage: build
         cache:
-                key: "$CI_BUILD_ID/$CI_PIPELINE_ID"
+                key: "$CI_BUILD_REF_NAME/Release"
                 untracked: true
                 paths:
                         - build/
         artifacts:
-            name: "circle-release"
-            paths:
-                - build/circle
-            when: on_success
-            expire_in: 1 week
-
-
-release:checks:
-        script:
-                - cmake --build build --target checks
-        stage: checks
-        cache:
-                key: "$CI_BUILD_ID/$CI_PIPELINE_ID"
-                untracked: true
+                name: "circle-release"
                 paths:
-                        - build/
-        only:
-            - master
+                        - build/circle
+                when: on_success
+                expire_in: 1 week
 
-debug:build:
+
+debug:
         script:
                 - mkdir build
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=Debug ..
                 - cmake --build .
+                - cmake --build . --target checks
         stage: build
         cache:
-                key: "$CI_BUILD_ID/$CI_PIPELINE_ID"
+                key: "$CI_BUILD_REF_NAME/Debug"
                 untracked: true
                 paths:
                         - build/
 
         artifacts:
-            name: "circle-debug"
-            paths:
-                - build/circle
-            when: on_success
-            expire_in: 1 week
-
-debug:checks:
-        script:
-                - cmake --build build --target checks
-        stage: checks
-        cache:
-                key: "$CI_BUILD_ID/$CI_PIPELINE_ID"
-                untracked: true
+                name: "circle-debug"
                 paths:
-                        - build/
+                        - build/circle
+                when: on_success
+                expire_in: 1 week
