@@ -2,7 +2,7 @@ release:
         only:
                 - master
         script:
-                - mkdir build
+                - mkdir build || true
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=Release ..
                 - cmake --build .
@@ -22,7 +22,7 @@ release:
 
 debug:
         script:
-                - mkdir build
+                - mkdir build || true
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=Debug ..
                 - cmake --build .
