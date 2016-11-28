@@ -1,7 +1,3 @@
-stages:
-        - build
-        - checks
-
 release:
         only:
                 - master
@@ -11,17 +7,16 @@ release:
                 - cmake -DCMAKE_BUILD_TYPE=Release ..
                 - cmake --build .
                 - cmake --build . --target checks
-        stage: build
+                - gzip -c circle > circle-release.gz
         cache:
                 key: "$CI_BUILD_REF_NAME/Release"
                 untracked: true
                 paths:
                         - build/
         artifacts:
-                name: "circle-release"
+                name: "circle-release.gz"
                 paths:
                         - build/circle
-                when: on_success
                 expire_in: 1 week
 
 
@@ -32,7 +27,7 @@ debug:
                 - cmake -DCMAKE_BUILD_TYPE=Debug ..
                 - cmake --build .
                 - cmake --build . --target checks
-        stage: build
+                - gzip -c circle > circle-debug.gz
         cache:
                 key: "$CI_BUILD_REF_NAME/Debug"
                 untracked: true
@@ -40,8 +35,7 @@ debug:
                         - build/
 
         artifacts:
-                name: "circle-debug"
+                name: "circle-debug.gz"
                 paths:
                         - build/circle
-                when: on_success
                 expire_in: 1 week

@@ -339,22 +339,6 @@ int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED)
 	return (mortal_start_room);
 }
 
-#if defined(BOOST_ENABLE_ASSERT_HANDLER)
-void boost::assertion_failed(char const * expr, char const * function, char const * file, long line)
-{
-	log("Assert: expr='%s', funct='%s', file='%s', line=%ld",
-		expr, function, file, line);
-}
-
-#if BOOST_VERSION >= 104600
-void boost::assertion_failed_msg(char const * expr, char const * msg, char const * function, char const * file, long line)
-{
-	log("Assert: expr='%s', msg='%s', funct='%s', file='%s', line=%ld",
-		expr, msg, function, file, line);
-}
-#endif
-#endif
-
 bool RuntimeConfiguration::open_log(const EOutputStream stream)
 {
 	return m_logs[stream].open();
