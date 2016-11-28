@@ -2,17 +2,17 @@ stages:
         - build
         - checks
 
-build-release:
+release:build:
         only:
             - master
         script:
-                - mkdir build || true
+                - mkdir build
                 - cd build
-                - cmake -DCMAKE_BUILD_TYPE=${CIRCLE_BUILD_TYPE} ..
+                - cmake -DCMAKE_BUILD_TYPE=Release ..
                 - cmake --build .
         stage: build
         cache:
-                key: "$CI_BUILD_ID/Release"
+                key: "$CI_BUILD_ID/$CI_PIPELINE_ID"
                 untracked: true
                 paths:
                         - build/
@@ -24,27 +24,27 @@ build-release:
             expire_in: 1 week
 
 
-checks-release:
+release:checks:
         script:
                 - cmake --build build --target checks
         stage: checks
         cache:
-                key: "$CI_BUILD_ID/Release"
+                key: "$CI_BUILD_ID/$CI_PIPELINE_ID"
                 untracked: true
                 paths:
                         - build/
         only:
             - master
 
-build-debug:
+debug:build:
         script:
-                - mkdir build || true
+                - mkdir build
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=Debug ..
                 - cmake --build .
         stage: build
         cache:
-                key: "$CI_BUILD_ID/Debug"
+                key: "$CI_BUILD_ID/$CI_PIPELINE_ID"
                 untracked: true
                 paths:
                         - build/
@@ -56,12 +56,12 @@ build-debug:
             when: on_success
             expire_in: 1 week
 
-checks-debug:
+debug:checks:
         script:
                 - cmake --build build --target checks
         stage: checks
         cache:
-                key: "$CI_BUILD_ID/Debug"
+                key: "$CI_BUILD_ID/$CI_PIPELINE_ID"
                 untracked: true
                 paths:
                         - build/
