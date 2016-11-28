@@ -14,9 +14,8 @@ release:
                 paths:
                         - build/
         artifacts:
-                name: "circle-release.gz"
                 paths:
-                        - build/circle
+                        - build/circle-release.gz
                 expire_in: 1 week
 
 
@@ -35,7 +34,6 @@ debug:
                         - build/
 
         artifacts:
-                name: "circle-debug.gz"
                 paths:
-                        - build/circle
+                        - build/circle-debug.gz
                 expire_in: 1 week
