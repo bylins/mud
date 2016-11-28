@@ -408,7 +408,11 @@ set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
 
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
-set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
+if (UNIX)
+	add_definitions("--std=gnu++14")
+else ()
+	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
+endif ()
 set_target_properties(circle.library PROPERTIES FOLDER "Utility targets")
 add_dependencies(circle.library versioning changelog)
 
@@ -548,7 +552,9 @@ endif ()
 set(MAIN_EXECUTABLE src/main.cpp)
 
 add_executable(circle ${MAIN_EXECUTABLE})
-set_target_properties(circle PROPERTIES CXX_STANDARD 14)
+if (NOT UNIX)
+	set_target_properties(circle PROPERTIES CXX_STANDARD 14)
+endif ()
 target_link_libraries(circle circle.library)
 
 # Testing part
