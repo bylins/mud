@@ -22,7 +22,8 @@ build:
         stage: build
         artifacts:
             name: "circle"
-            paths: build/circle
+            pathы:
+                - build/circle
             when: on_success
             expire_in: 1 week
 
