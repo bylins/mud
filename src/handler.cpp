@@ -2255,14 +2255,19 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 
 	int j, skip_total = IS_SET(pos, 0x80), show_msg = IS_SET(pos, 0x40);
 
-	OBJ_DATA *obj;
-
 	REMOVE_BIT(pos, (0x80 | 0x40));
 
-	if ((pos < 0 || pos >= NUM_WEARS) || (obj = GET_EQ(ch, pos)) == NULL)
+	if (pos < 0 || pos >= NUM_WEARS)
 	{
-		log("SYSERR: unequip_char(%s,%d) - unused pos or no equip...", GET_NAME(ch), pos);
-		return (NULL);
+		log("SYSERR: unequip_char(%s,%d) - unused pos...", GET_NAME(ch), pos);
+		return nullptr;
+	}
+
+	OBJ_DATA* obj = GET_EQ(ch, pos);
+	if (nullptr == obj)
+	{
+		log("SYSERR: unequip_char(%s,%d) - no equip...", GET_NAME(ch), pos);
+		return nullptr;
 	}
 
 //	if (GET_EQ(ch, WEAR_LIGHT) &&
