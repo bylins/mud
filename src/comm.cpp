@@ -4039,7 +4039,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		fclose(d->pers_log); // не забываем закрыть персональный лог
 	}
 
-	free(d);
+	delete d;
 }
 
 
