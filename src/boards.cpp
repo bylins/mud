@@ -285,9 +285,8 @@ namespace Boards
 				send_to_char("Это сообщение может вам только присниться.\r\n", ch);
 				return;
 			}
-			num = board.messages.size() - num;
 			std::ostringstream out;
-			special_message_format(out, board.get_message(num));
+			special_message_format(out, board.get_message(num - 1));
 			page_string(ch->desc, out.str());
 			set_last_read(ch, board.get_type(), board.messages[num]->date);
 		}
