@@ -1,28 +1,41 @@
-stages:
-        - generate
-        - build
-        - checks
-
-cache:
-        key: $CI_BUILD_REF_NAME
-        untracked: true
-        paths:
-                - build/
-
-generate:
+release:
+        only:
+                - master
         script:
-                - git branch
                 - mkdir build || true
                 - cd build
-                - cmake ..
-        stage: generate
+                - cmake -DCMAKE_BUILD_TYPE=Release ..
+                - cmake --build .
+                - cmake --build . --target checks
+                - mv circle ..
+        cache:
+                key: "$CI_BUILD_REF_NAME/Release"
+                untracked: true
+                paths:
+                        - build/
+        artifacts:
+                name: "circle-release"
+                paths:
+                        - circle
+                expire_in: 1 week
 
-build:
-        script:
-                - cmake --build build
-        stage: build
 
-check:
+debug:
         script:
-                - cmake --build build --target checks
-        stage: checks
+                - mkdir build || true
+                - cd build
+                - cmake -DCMAKE_BUILD_TYPE=Debug ..
+                - cmake --build .
+                - cmake --build . --target checks
+                - mv circle ..
+        cache:
+                key: "$CI_BUILD_REF_NAME/Debug"
+                untracked: true
+                paths:
+                        - build/
+
+        artifacts:
+                name: "circle-debug"
+                paths:
+                        - circle
+                expire_in: 1 week

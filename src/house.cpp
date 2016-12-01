@@ -447,7 +447,7 @@ void Clan::ClanLoad()
 			else if (buffer == "Bank:")
 			{
 				file >> tempClan->bank;
-				log("Clans in bank, file (%s) банк %f.", filename.c_str(), tempClan->bank);
+				log("Clans in bank, file (%s) банк %ld.", filename.c_str(), tempClan->bank);
 				if (tempClan->bank <= 0)
 					{
 					log("Clan has 0 in bank, file (%s) возможно будет удален.", filename.c_str());

@@ -81,6 +81,7 @@ namespace Boards
 
 		std::string desc_copy = desc;
 		boost::trim(desc_copy);
+		message->text = desc_copy;
 
 		// из текста первая строка в заголовок
 		std::string subj(message->text.begin(), std::find(message->text.begin(), message->text.end(), '\n'));
@@ -317,7 +318,7 @@ namespace Boards
 				return false;
 			}
 
-			comment << buffer;
+			comment << (4 + buffer.c_str());
 
 			if (!next_line(buffer, is, line))
 			{

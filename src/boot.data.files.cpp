@@ -584,7 +584,7 @@ void WorldFile::setup_dir(int room, unsigned dir)
 	sprintf(buf2, "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
 
 	world[room]->dir_option[dir].reset(new EXIT_DATA());
-	const std::shared_ptr<char> general_description(fread_string());
+	const std::shared_ptr<char> general_description(fread_string(), free);
 	world[room]->dir_option[dir]->general_description = general_description.get();
 
 	// парс строки алиаса двери на имя;вининельный падеж, если он есть
