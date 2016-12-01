@@ -574,7 +574,7 @@ void load()
 		StuffNodePtr tmp_node(new stuff_node);
 		try
 		{
-			long vnum = boost::lexical_cast<long>(node.attribute("vnum").value());
+			long vnum = std::stol(node.attribute("vnum").value(), nullptr, 10);
 			std::string name;
 			if (stuff_list.find(vnum) != stuff_list.end())
 			{
@@ -589,7 +589,7 @@ void load()
 				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			if(node.attribute("uid")) {
-				tmp_node->uid = boost::lexical_cast<long>(node.attribute("uid").value());
+				tmp_node->uid = std::stol(node.attribute("uid").value(), nullptr, 10);
 				name = GetNameByUnique(tmp_node->uid, false);// Ищем персонажа с указанным уид(богов игнорируем)
 				if (name.empty())
 				{
@@ -627,11 +627,11 @@ void load()
 				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			if(node.attribute("can_clan"))
-				tmp_node->can_clan = boost::lexical_cast<int>(node.attribute("can_clan").value());
+				tmp_node->can_clan = std::stoi(node.attribute("can_clan").value(), nullptr, 10);
 			else
 				tmp_node->can_clan = 0;
 			if(node.attribute("can_alli"))
-				tmp_node->can_alli = boost::lexical_cast<int>(node.attribute("can_alli").value());
+				tmp_node->can_alli = std::stoi(node.attribute("can_alli").value(), nullptr, 10);
 			else
 				tmp_node->can_alli = 0;
 			stuff_list[vnum] = tmp_node;

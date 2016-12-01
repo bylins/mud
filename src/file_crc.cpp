@@ -110,11 +110,11 @@ void load()
 		tmp_crc->name = name;
 		try
 		{
-			tmp_crc->player = boost::lexical_cast<boost::uint32_t>(buffer);
-			tmp_crc->textobjs = boost::lexical_cast<boost::uint32_t>(textobjs_buf);
-			tmp_crc->timeobjs = boost::lexical_cast<boost::uint32_t>(timeobjs_buf);
+			tmp_crc->player = std::stoul(buffer, nullptr, 10);
+			tmp_crc->textobjs = std::stoul(textobjs_buf, nullptr, 10);
+			tmp_crc->timeobjs = std::stoul(timeobjs_buf, nullptr, 10);
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
 		{
 			add_message("FileCrc: ошибка чтения crc (%s, %s), uid: %ld", buffer.c_str(), textobjs_buf.c_str(), uid);
 			break;
@@ -128,9 +128,9 @@ void load()
 		boost::uint32_t prev_crc;
 		try
 		{
-			prev_crc = boost::lexical_cast<boost::uint32_t>(buffer);
+			prev_crc = std::stoul(buffer, nullptr, 10);
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
 		{
 			add_message("SYSERROR: ошибка чтения total crc (%s)", buffer.c_str());
 			return;

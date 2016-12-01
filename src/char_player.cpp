@@ -1212,9 +1212,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		lnum = atol(line1);
 		try
 		{
-			llnum = boost::lexical_cast<unsigned long long>(line1);
+			llnum = std::stoull(line1, nullptr, 10);
 		}
-		catch(boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
         {
 			llnum = 0;
 		}
