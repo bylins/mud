@@ -1,0 +1,41 @@
+commit 1720dd2e2302f6d895df4207814191687390815f
+Author: Last <devnull@localhost>
+Date:   Fri Apr 8 10:19:24 2005
+
+    Initial revision
+
+commit ff1b0f7c5748d3977c2ceabdae22ae9d8221101a
+Author: alez <devnull@localhost>
+Date:   Sat Apr 9 03:33:27 2005
+
+    Add default page height for new character
+
+commit 6460449abdd12ef07ae2405ca0e46955e1378d87
+Author: mud <devnull@localhost>
+Date:   Mon Apr 11 13:15:17 2005
+
+    Add create skin, spell relocate fix
+
+commit 7c9ec36d345c77a6f599af5d45cd5e585f1548c3
+Author: mud <devnull@localhost>
+Date:   Mon Apr 11 14:45:59 2005
+
+    Now norent items can be sold and repaired
+
+commit 0bda3321d02cdec067521a5bcc0fa95139511381
+Author: mud <devnull@localhost>
+Date:   Tue Apr 12 07:34:54 2005
+
+    do_makefood fix, edit mob weight fix
+
+commit aa24c8195c3169c90160e75490a1388d30800687
+Author: alez <devnull@localhost>
+Date:   Tue Apr 12 16:53:40 2005
+
+    Big punishment changes
+
+commit d56045ecc60548250fae8a8ff95cc0a2e8e333a5
+Author: First <devnull@localhost>
+Date:   Tue Apr 12 17:01:23 2005
+
+    Little warning in set_punish fix

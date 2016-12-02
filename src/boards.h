@@ -43,10 +43,10 @@ public:
 	static void clan_delete_message(const std::string &name, int vnum);
 	static void new_message_notify(const Board::shared_ptr board);
 
-private:
-	static void create_board(BoardTypes type, const std::string &name,
+	static Board::shared_ptr create_board(BoardTypes type, const std::string &name,
 		const std::string &desc, const std::string &file);
 
+private:
 	static std::bitset<ACCESS_NUM> get_access(CHAR_DATA *ch, const Board::shared_ptr board);
 };
 

@@ -16,41 +16,6 @@
 
 namespace Boards
 {
-	std::string iconv_convert(const char *from, const char *to, std::string text)
-	{
-#ifdef HAVE_ICONV
-		iconv_t cnv = iconv_open(to, from);
-		if (cnv == (iconv_t)-1)
-		{
-			iconv_close(cnv);
-			return "";
-		}
-		char *outbuf;
-		if ((outbuf = (char *)malloc(text.length() * 2 + 1)) == NULL)
-		{
-			iconv_close(cnv);
-			return "";
-		}
-		char *ip = (char *)text.c_str(), *op = outbuf;
-		size_t icount = text.length(), ocount = text.length() * 2;
-
-		if (iconv(cnv, &ip, &icount, &op, &ocount) != (size_t)-1)
-		{
-			outbuf[text.length() * 2 - ocount] = '\0';
-			text = outbuf;
-		}
-		else
-		{
-			text = "";
-		}
-
-		free(outbuf);
-		iconv_close(cnv);
-#endif
-
-		return text;
-	}
-
 	class ChangeLogLoaderImplementation : public ChangeLogLoader
 	{
 	public:
@@ -59,6 +24,7 @@ namespace Boards
 
 	protected:
 		void add_message(const std::string &author, const std::string &desc, time_t parsed_time);
+		void renumerate_messages() { m_board->renumerate_messages(); }
 
 	private:
 		Board::shared_ptr m_board;
@@ -136,73 +102,6 @@ namespace Boards
 			time = std::mktime(&tm_time);
 		}
 		return time;
-	}
-
-	class HgChangeLogLoader : public ChangeLogLoaderImplementation
-	{
-	public:
-		HgChangeLogLoader(const Board::shared_ptr board) : ChangeLogLoaderImplementation(board) {}
-
-		virtual bool load(std::istream& is) override;
-
-		static shared_ptr create(const Board::shared_ptr board) { return std::make_shared<HgChangeLogLoader>(board); }
-	};
-
-	bool HgChangeLogLoader::load(std::istream& is)
-	{
-		std::string buf_str, author, date, desc;
-		bool description = false;
-
-		while (std::getline(is, buf_str))
-		{
-			const std::size_t pos = buf_str.find(' ');
-			if (pos != std::string::npos)
-			{
-				std::string tmp_str = buf_str.substr(0, pos);
-				if (tmp_str == "changeset:")
-				{
-					const time_t parsed_time = parse_asctime(date);
-					if (parsed_time >= 1326121851 // переход на меркуриал
-						&& !author.empty() && !date.empty() && !desc.empty())
-					{
-						add_message(author, desc, parsed_time);
-					}
-					description = false;
-					author.clear();
-					date.clear();
-					desc.clear();
-					continue;
-				}
-				if (description)
-				{
-					desc += buf_str + "\r\n";
-					continue;
-				}
-				else
-				{
-					if (tmp_str == "user:")
-					{
-						author = buf_str.substr(pos);
-						boost::trim(author);
-					}
-					else if (tmp_str == "date:")
-					{
-						date = buf_str.substr(pos);
-						boost::trim(date);
-					}
-				}
-			}
-			else if (buf_str == "description:")
-			{
-				description = true;
-			}
-			else
-			{
-				desc += buf_str + "\r\n";
-			}
-		}
-
-		return true;
 	}
 
 	class GitChangeLogLoader : public ChangeLogLoaderImplementation
@@ -410,6 +309,7 @@ namespace Boards
 			}
 		}
 
+		renumerate_messages();
 		return true;
 	}
 
@@ -446,7 +346,6 @@ namespace Boards
 		if (!s_loaders)
 		{
 			loaders_map_t map = {
-				{ std::string(constants::loader_formats::MERCURIAL), std::bind(HgChangeLogLoader::create, std::placeholders::_1) },
 				{ std::string(constants::loader_formats::GIT), std::bind(GitChangeLogLoader::create, std::placeholders::_1) }
 			};
 			s_loaders = std::make_shared<loaders_map_t>(map);
@@ -460,6 +359,5 @@ namespace Boards
 		return Loaders::get(kind, board);
 	}
 }
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

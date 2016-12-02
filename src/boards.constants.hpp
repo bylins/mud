@@ -27,7 +27,6 @@ namespace Boards
 
 		namespace loader_formats
 		{
-			extern const char* MERCURIAL;
 			extern const char* GIT;
 		}
 	}

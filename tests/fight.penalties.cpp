@@ -7,33 +7,20 @@
 class FightPenalties : public ::testing::Test
 {
 public:
-	static const GroupPenalties& penalties()
-	{
-		if (!m_grouping)
-		{
-			throw std::runtime_error("Penalty tables was not initialized.");
-		}
-
-		return *m_grouping;
-	}
+	const GroupPenalties& penalties() const { return m_grouping; }
 
 protected:
-	virtual void SetUp();
+	virtual void SetUp() override;
 
 private:
-	static std::shared_ptr<GroupPenalties> m_grouping;
+	GroupPenalties m_grouping;
 };
 
 void FightPenalties::SetUp()
 {
-	m_grouping.reset(new GroupPenalties());
-	if (m_grouping->init())
-	{
-		throw std::runtime_error("Couldn't initialize group penalties table.");
-	}
+	EXPECT_EQ(0, m_grouping.init())
+		<< "Couldn't initialize group penalties table.";
 }
-
-std::shared_ptr<GroupPenalties> FightPenalties::m_grouping;
 
 TEST_F(FightPenalties, TheSameLevels)
 {
@@ -179,12 +166,12 @@ void iterate_over_group_penalties(ItemHandler item_handler)
 TEST_F(FightPenalties, NoPenaltyWithing5Levels)
 {
 	iterate_over_group_penalties(
-		[](const auto killer, const auto leader)
+		[&](const auto killer, const auto leader)
 		{
 			const auto killer_level = killer->get_level();
 			const auto leader_level = leader->get_level();
 			const auto max_level = std::max(killer_level, leader_level);
-			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
+			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, penalties());
 
 			if (5 >= std::abs(killer_level - leader_level))
 			{
@@ -197,12 +184,12 @@ TEST_F(FightPenalties, NoPenaltyWithing5Levels)
 TEST_F(FightPenalties, HasPenaltyWithingMoreThan5Levels)
 {
 	iterate_over_group_penalties(
-		[](const auto killer, const auto leader)
+		[&](const auto killer, const auto leader)
 		{
 			const auto killer_level = killer->get_level();
 			const auto leader_level = leader->get_level();
 			const auto max_level = std::max(killer_level, leader_level);
-			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
+			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, penalties());
 
 			if (5 < std::abs(killer_level - leader_level))
 			{
