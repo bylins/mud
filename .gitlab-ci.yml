@@ -33,9 +33,15 @@ debug:
                 untracked: true
                 paths:
                         - build/
-
         artifacts:
                 name: "circle-debug"
                 paths:
                         - circle
                 expire_in: 1 week
+
+deploy-to-mirror:
+        script:
+                - echo "Deploying into mirror"
+        tags:
+                - mirror
+        when: manual
