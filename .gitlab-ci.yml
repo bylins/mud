@@ -40,6 +40,7 @@ debug:
                 expire_in: 1 week
 
 deploy-to-mirror:
+        stage: deploy
         script:
                 - echo "Deploying into mirror"
         tags:
