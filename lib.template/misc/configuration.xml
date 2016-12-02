@@ -74,11 +74,7 @@
 			<filename>../bin/changelog</filename>
 			-->
 			<!--
-			Позволяет задать формат файла changelog (доска coders). По умолчанию имеет формат лога git.
-		
-			Вы также можете указать формат "mercurial", но gtthl 'nbv убедитесь, что вы действительно
-			сменили формат своего файла changelog на формат лога Mercurial'а.
-		
+			Позволяет задать формат файла changelog (доска coders). Единственное верное значение - "git".
 			<format>git</format>
 			-->
 		</changelog>

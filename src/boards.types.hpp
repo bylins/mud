@@ -67,11 +67,12 @@ namespace Boards
 		void set_name(const std::string& new_name) { name_ = new_name; }
 
 		auto get_lastwrite() const { return last_write_; }
-		void set_lastwrite(long unique) { last_write_ = unique; }
+		void set_lastwrite_uid(long unique) { last_write_ = unique; }
 
 		void Save();
-		void add_message(Message::shared_ptr message) { add_message_implementation(message, false); }
-		void add_message_to_front(Message::shared_ptr message) { add_message_implementation(message, true); }
+		void renumerate_messages();
+		void write_message(Message::shared_ptr message);
+		void add_message(Message::shared_ptr message);
 
 		bool is_special() const;
 		time_t last_message_date() const;

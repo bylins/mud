@@ -1089,12 +1089,11 @@ bool load_drop_table()
 	{
 		try
 		{
-			next_reset_time = boost::lexical_cast<time_t>(timer);
+			next_reset_time = std::stoull(timer, nullptr, 10);
 		}
 		catch(...)
 		{
-			snprintf(buf, MAX_STRING_LENGTH,
-				"...timer (%s) lexical_cast fail", timer.c_str());
+			snprintf(buf, MAX_STRING_LENGTH, "...timer (%s) lexical_cast fail", timer.c_str());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return false;
 		}

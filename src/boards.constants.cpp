@@ -9,7 +9,6 @@ namespace Boards
 
 		namespace loader_formats
 		{
-			const char* MERCURIAL = "mercurial";
 			const char* GIT = "git";
 		}
 	}

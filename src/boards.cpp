@@ -412,7 +412,7 @@ namespace Boards
 			board_ptr->erase_message(num);
 			if (board.get_lastwrite() == GET_UNIQUE(ch))
 			{
-				board_ptr->set_lastwrite(0);
+				board_ptr->set_lastwrite_uid(0);
 			}
 			board_ptr->Save();
 			send_to_char("Сообщение удалено.\r\n", ch);
@@ -603,7 +603,7 @@ namespace Boards
 		}
 	}
 
-	void Static::create_board(BoardTypes type, const std::string &name, const std::string &desc, const std::string &file)
+	Boards::Board::shared_ptr Static::create_board(BoardTypes type, const std::string &name, const std::string &desc, const std::string &file)
 	{
 		const auto board = std::make_shared<Board>(type);
 		board->set_name(name);
@@ -638,6 +638,7 @@ namespace Boards
 		}
 
 		board_list.push_back(board);
+		return board;
 	}
 
 	void Static::do_list(CHAR_DATA* ch, const Board::shared_ptr board_ptr)

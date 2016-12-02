@@ -391,7 +391,8 @@ set(CRAFT_FILES ${CRAFT_GENERAL_FILES} ${CRAFT_TAILORING_FILES} ${CRAFT_MATERIAL
 
 set(MISC_FILES
 	lib.template/misc/noob_help.xml
-	lib.template/misc/configuration.xml)
+	lib.template/misc/configuration.xml
+	lib.template/misc/grouping)
 
 source_group("Misc" FILES ${MISC_FILES})
 
@@ -402,7 +403,7 @@ list(SORT CIRCLE_FILES)
 
 # Create changelog file
 add_custom_target(changelog ALL
-	COMMAND ${GIT} log --date=local -999 > changelog
+	COMMAND ${GIT} log --date=local --reverse > changelog
 	COMMENT "Writing changelog...")
 set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
 

@@ -56,9 +56,9 @@ void load_log()
 		time_t time = 0;
 		try
 		{
-			time = boost::lexical_cast<int>(buffer2);
+			time = std::stoi(buffer2, nullptr, 10);
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
 		{
 			log("GloryLog: ошибка чтения time, buffer2: %s", buffer2.c_str());
 			return;
@@ -67,9 +67,9 @@ void load_log()
 		int type = 0;
 		try
 		{
-			type = boost::lexical_cast<int>(buffer2);
+			type = std::stoi(buffer2, nullptr, 10);
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
 		{
 			log("GloryLog: ошибка чтения type, buffer2: %s", buffer2.c_str());
 			return;
@@ -78,9 +78,9 @@ void load_log()
 		int num = 0;
 		try
 		{
-			num = boost::lexical_cast<int>(buffer2);
+			num = std::stoi(buffer2, nullptr, 10);
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
 		{
 			log("GloryLog: ошибка чтения num, buffer2: %s", buffer2.c_str());
 			return;
@@ -159,9 +159,9 @@ void show_log(CHAR_DATA *ch , char const * const value)
 	{
 		try
 		{
-			num = boost::lexical_cast<int>(buffer);
+			num = std::stoi(buffer, nullptr, 10);
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
 		{
 			type = 0;
 			num = 0;

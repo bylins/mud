@@ -157,12 +157,11 @@ int cast_to_int(const char *text)
 
 	try
 	{
-		result = boost::lexical_cast<int>(text);
+		result = std::stoi(text, nullptr, 10);
 	}
 	catch(...)
 	{
-		snprintf(buf, MAX_STRING_LENGTH,
-			"...lexical_cast<int> fail (value='%s')", text);
+		snprintf(buf, MAX_STRING_LENGTH, "...lexical_cast<int> fail (value='%s')", text);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 	}
 

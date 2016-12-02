@@ -55,7 +55,7 @@ namespace Boards
 		std::ifstream file(file_.c_str());
 		if (!file.is_open())
 		{
-			this->Save();
+			this->Save();	// case for missing file???
 			return;
 		}
 
@@ -110,8 +110,6 @@ namespace Boards
 				file >> pers_name_;
 		}
 		file.close();
-
-		this->Save();
 	}
 
 	void Board::format_board(Formatter::shared_ptr formatter) const
@@ -136,7 +134,7 @@ namespace Boards
 		return false;
 	}
 
-	void Board::add_message_implementation(Message::shared_ptr msg, const bool to_front)
+	void Board::add_message(Message::shared_ptr msg)
 	{
 		const bool coder_overflow = get_type() == CODER_BOARD
 			&& messages.size() >= MAX_REPORT_MESSAGES;
@@ -148,14 +146,7 @@ namespace Boards
 		if (coder_overflow
 			|| board_overflow)
 		{
-			if (to_front)
-			{
-				messages.erase(--messages.end());
-			}
-			else
-			{
-				messages.erase(messages.begin());
-			}
+			messages.erase(--messages.end());
 		}
 
 		// чтобы время написания разделялось
@@ -164,22 +155,7 @@ namespace Boards
 			msg->date = last_message_date() + 1;
 		}
 
-		if (to_front)
-		{
-			messages.push_front(msg);
-		}
-		else
-		{
-			messages.push_back(msg);
-		}
-
-		int count = 0;
-		for (auto it = messages.rbegin(); it != messages.rend(); ++it)
-		{
-			(*it)->num = count++;
-		}
-		set_lastwrite(msg->unique);
-		Save();
+		messages.push_front(msg);
 	}
 
 	time_t Board::last_message_date() const
@@ -221,6 +197,23 @@ namespace Boards
 				<< (*message)->text << "~\n";
 		}
 		file.close();
+	}
+
+	void Board::renumerate_messages()
+	{
+		int count = 0;
+		for (auto& message : messages)
+		{
+			message->num = count++;
+		}
+	}
+
+	void Board::write_message(Message::shared_ptr message)
+	{
+		add_message(message);
+		renumerate_messages();
+		set_lastwrite_uid(message->unique);
+		Save();
 	}
 }
 
