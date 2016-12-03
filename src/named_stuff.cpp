@@ -79,23 +79,39 @@ bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple)
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
 	if (it != stuff_list.end())
 	{
-		if(!ch)// если нету персонажа то вещь недоступна, это чтобы чистились клан храны
-			return true;
-		if(IS_CHARMICE(ch)) // Чармисы тоже могут работать с именными вещами
+		if (!ch)// если нету персонажа то вещь недоступна, это чтобы чистились клан храны
 		{
-			CHAR_DATA *master = ch->master;
-			if(WAITLESS(master)) // Чармис имма
+			return true;
+		}
+
+		if (IS_CHARMICE(ch)) // Чармисы тоже могут работать с именными вещами
+		{
+			CHAR_DATA *master = ch->get_master();
+			if (WAITLESS(master)) // Чармис имма
+			{
 				return false;
-			if(it->second->uid==GET_UNIQUE(master)) // Чармис владельца предмета
+			}
+
+			if (it->second->uid == GET_UNIQUE(master)) // Чармис владельца предмета
+			{
 				return false;
-			else if(!strcmp(GET_EMAIL(master), it->second->mail.c_str()))  // Чармис владельца предмета судя по мылу
+			}
+			else if (!strcmp(GET_EMAIL(master), it->second->mail.c_str()))  // Чармис владельца предмета судя по мылу
+			{
 				return false;
+			}
+
 			if(!simple && CLAN(master))
 			{
-				if((it->second->can_clan) && (CLAN(master)->is_clan_member(it->second->uid)))//Это чармис соклановца и предмет доступен соклановцам
+				if ((it->second->can_clan) && (CLAN(master)->is_clan_member(it->second->uid)))//Это чармис соклановца и предмет доступен соклановцам
+				{
 					return false;
-				if((it->second->can_alli) && (CLAN(master)->is_alli_member(it->second->uid)))//Предмет доступен альянсу и это чармис чара из альянса
+				}
+
+				if ((it->second->can_alli) && (CLAN(master)->is_alli_member(it->second->uid)))//Предмет доступен альянсу и это чармис чара из альянса
+				{
 					return false;
+				}
 			}
 		}
 		if(IS_NPC(ch))

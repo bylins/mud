@@ -4438,17 +4438,27 @@ void reset_zone(zone_rnum zone)
 				if (ZCMD.arg1 >= FIRST_ROOM && ZCMD.arg1 <= top_of_world)
 				{
 					for (ch = world[ZCMD.arg1]->people; ch && !leader; ch = ch->next_in_room)
+					{
 						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg2)
-							leader = ch;
-					for (ch = world[ZCMD.arg1]->people; ch && leader; ch = ch->next_in_room)
-						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg3
-								&& leader != ch && ch->master != leader)
 						{
-							if (ch->master)
+							leader = ch;
+						}
+					}
+
+					for (ch = world[ZCMD.arg1]->people; ch && leader; ch = ch->next_in_room)
+					{
+						if (IS_NPC(ch)
+							&& GET_MOB_RNUM(ch) == ZCMD.arg3
+							&& leader != ch && ch->get_master() != leader)
+						{
+							if (ch->has_master())
+							{
 								stop_follower(ch, SF_EMPTY);
+							}
 							leader->add_follower(ch);
 							curr_state = 1;
 						}
+					}
 				}
 				break;
 

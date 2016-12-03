@@ -1783,15 +1783,18 @@ namespace SetSystem
 		{
 			return false;
 		}
+
 		// чармисы
 		if (ch->followers)
 		{
 			for (struct follow_type *k = ch->followers; k; k = k->next)
 			{
-				if (!IS_CHARMICE(k->follower) || !k->follower->master)
+				if (!IS_CHARMICE(k->follower)
+					|| !k->follower->has_master())
 				{
 					continue;
 				}
+
 				for (int j = 0; j < NUM_WEARS; j++)
 				{
 					if (find_set_item(GET_EQ(k->follower, j)))
@@ -1799,12 +1802,14 @@ namespace SetSystem
 						return false;
 					}
 				}
+
 				if (find_set_item(k->follower->carrying))
 				{
 					return false;
 				}
 			}
 		}
+
 		// перс. хранилище
 		if (Depot::find_set_item(ch, vnum_list))
 		{

@@ -651,7 +651,7 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 int other_pc_in_group(CHAR_DATA *ch)
 {
 	int num = 0;
-	CHAR_DATA *k = (ch->master ? ch->master : ch);
+	CHAR_DATA *k = ch->has_master() ? ch->get_master() : ch;
 	for (follow_type *f = k->followers; f; f = f->next)
 	{
 		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
@@ -1720,7 +1720,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if (subcmd == SCMD_DEVOUR)
 	{
 		if (MOB_FLAGGED(ch, MOB_RESURRECTED)
-			&& can_use_feat(ch->master, ZOMBIE_DROVER_FEAT))
+			&& can_use_feat(ch->get_master(), ZOMBIE_DROVER_FEAT))
 		{
 			feed_charmice(ch, arg);
 			return;
@@ -3520,23 +3520,23 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 
 	obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
 
-	if (!obj || !IS_CORPSE(obj) || !ch->master)
+	if (!obj || !IS_CORPSE(obj) || !ch->has_master())
 	{
 		return;
 	}
 
-	for (k = ch->master->followers; k; k = k->next)
+	for (k = ch->get_master()->followers; k; k = k->next)
 	{
 		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
-				&& k->follower->master == ch->master)
+			&& k->follower->get_master() == ch->get_master())
 		{
-			reformed_hp_summ += get_reformed_charmice_hp(ch->master, k->follower, SPELL_ANIMATE_DEAD);
+			reformed_hp_summ += get_reformed_charmice_hp(ch->get_master(), k->follower, SPELL_ANIMATE_DEAD);
 		}
 	}
 
-	if (reformed_hp_summ >= get_player_charms(ch->master, SPELL_ANIMATE_DEAD))
+	if (reformed_hp_summ >= get_player_charms(ch->get_master(), SPELL_ANIMATE_DEAD))
 	{
-		send_to_char("Вы не можете управлять столькими последователями.\r\n", ch->master);
+		send_to_char("Вы не можете управлять столькими последователями.\r\n", ch->get_master());
 		extract_char(ch, FALSE);
 		return;
 	}
@@ -3550,7 +3550,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
 	//Added by Ann
-	if (affected_by_spell(ch->master, SPELL_FASCINATION))
+	if (affected_by_spell(ch->get_master(), SPELL_FASCINATION))
 	{
 		chance_to_eat -= 30;
 	}
@@ -3570,11 +3570,11 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	}
 	if (weather_info.moon_day < 14)
 	{
-		max_charm_duration = pc_duration(ch, GET_REAL_WIS(ch->master) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
+		max_charm_duration = pc_duration(ch, GET_REAL_WIS(ch->get_master()) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
 	}
 	else
 	{
-		max_charm_duration = pc_duration(ch, GET_REAL_WIS(ch->master) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
+		max_charm_duration = pc_duration(ch, GET_REAL_WIS(ch->get_master()) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
 	}
 
 	AFFECT_DATA<EApplyLocation> af;
@@ -3588,8 +3588,8 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	affect_join_fspell(ch, af);
 
 	act("Громко чавкая, $N сожрал$G труп.", TRUE, ch, obj, ch, TO_ROOM | TO_ARENA_LISTEN);
-	act("Похоже, лакомство пришлось по вкусу.", TRUE, ch, NULL, ch->master, TO_VICT);
-	act("От омерзительного зрелища вас едва не вывернуло.", TRUE, ch, NULL, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
+	act("Похоже, лакомство пришлось по вкусу.", TRUE, ch, NULL, ch->get_master(), TO_VICT);
+	act("От омерзительного зрелища вас едва не вывернуло.", TRUE, ch, NULL, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
 
 	if (GET_HIT(ch) < GET_MAX_HIT(ch))
 	{
@@ -3598,8 +3598,8 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 
 	if (GET_HIT(ch) >= GET_MAX_HIT(ch))
 	{
-		act("$n сыто рыгнул$g и благодарно посмотрел$g на вас.", TRUE, ch, NULL, ch->master, TO_VICT);
-		act("$n сыто рыгнул$g и благодарно посмотрел$g на $N3.", TRUE, ch, NULL, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("$n сыто рыгнул$g и благодарно посмотрел$g на вас.", TRUE, ch, NULL, ch->get_master(), TO_VICT);
+		act("$n сыто рыгнул$g и благодарно посмотрел$g на $N3.", TRUE, ch, NULL, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 
 	extract_obj(obj);

@@ -344,6 +344,7 @@ class CHAR_DATA : public PlayerI
 {
 // новое
 public:
+	using ptr_t = CHAR_DATA*;
 	using shared_ptr = std::shared_ptr<CHAR_DATA>;
 	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
@@ -598,8 +599,12 @@ public:
 	void set_role(const role_t& new_role) { role_ = new_role; }
 	void msdp_report(const std::string& name);
 
-	void add_follower(CHAR_DATA* ch) { add_follower_implementation(ch, false); }
-	void add_follower_silently(CHAR_DATA* ch) { add_follower_implementation(ch, true); }
+	void add_follower(CHAR_DATA* ch);
+	/** Do NOT call this before having checked if a circle of followers
+	* will arise. CH will follow leader
+	* \param silent - для смены лидера группы без лишнего спама (по дефолту 0)
+	*/
+	void add_follower_silently(CHAR_DATA* ch);
 	followers_list_t get_followers_list() const;
 
 private:
@@ -608,12 +613,6 @@ private:
 	void check_fighting_list();
 	void zero_init();
 	void restore_mob();
-
-	/** Do NOT call this before having checked if a circle of followers
-	* will arise. CH will follow leader
-	* \param silent - для смены лидера группы без лишнего спама (по дефолту 0)
-	*/
-	void add_follower_implementation(CHAR_DATA* ch, const bool silent);
 
 	CharSkillsType skills;  // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
@@ -707,7 +706,12 @@ public:
 	room_rnum in_room;	// Location (real room number)
 
 private:
+	bool makes_loop(const CHAR_DATA::ptr_t master) const;
+	void report_loop_error(const CHAR_DATA::ptr_t master) const;
+	void print_leaders_chain(std::ostream& ss) const;
+
 	unsigned m_wait;			// wait for how many loops
+	CHAR_DATA* m_master;	// Who is char following?
 
 public:
 	int punctual_wait;		// wait for how many loops (punctual style)
@@ -738,7 +742,10 @@ public:
 	CHAR_DATA *next_fighting;	// For fighting list
 
 	struct follow_type *followers;	// List of chars followers
-	CHAR_DATA *master;	// Who is char following?
+
+	const CHAR_DATA::ptr_t get_master() const { return m_master; }
+	void set_master(CHAR_DATA::ptr_t master);
+	bool has_master() const { return nullptr != m_master; }
 
 	struct spell_mem_queue MemQueue;		// очередь изучаемых заклинаний
 
@@ -884,14 +891,14 @@ inline bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* 
 inline bool IS_HORSE(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
-		&& ch->master
+		&& ch->has_master()
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
 }
 
 inline bool IS_MORTIFIER(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
-		&& ch->master
+		&& ch->has_master()
 		&& MOB_FLAGGED(ch, MOB_CORPSE);
 }
 

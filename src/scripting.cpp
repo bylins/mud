@@ -758,12 +758,12 @@ CharacterWrapper get_mob_proto(const mob_rnum rnum)
 
 CHAR_DATA* character_get_master(CHAR_DATA* ch)
 {
-	return ch->master;
+	return ch->get_master();
 }
 
 void character_set_master(CHAR_DATA* ch, CHAR_DATA* master)
 {
-	ch->master = master;
+	ch->set_master(master);
 }
 
 std::string get_spell_type_str(const AFFECT_DATA<EApplyLocation>& af)

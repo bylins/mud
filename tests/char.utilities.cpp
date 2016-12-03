@@ -8,7 +8,7 @@ namespace test_utils
 {
 void CharacterBuilder::create_new()
 {
-	const auto result = std::make_shared<CHAR_DATA>();
+	const auto result = std::make_shared<character_t>();
 	CREATE(result->player_specials, 1);
 	result->set_class(CLASS_DRUID);
 	result->set_level(1);
@@ -124,7 +124,7 @@ void CharacterBuilder::check_character_existance() const
 	check_character_existance(m_result);
 }
 
-void CharacterBuilder::check_character_existance(CHAR_DATA::shared_ptr character)
+void CharacterBuilder::check_character_existance(result_t character)
 {
 	if (!character)
 	{

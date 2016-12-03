@@ -72,12 +72,14 @@ void go_autoassist(CHAR_DATA * ch)
 	struct follow_type *k;
 	struct follow_type *d;
 	CHAR_DATA *ch_lider = 0;
-	if (ch->master)
+	if (ch->has_master())
 	{
-		ch_lider = ch->master;
+		ch_lider = ch->get_master();
 	}
 	else
+	{
 		ch_lider = ch;	// Создаем ссылку на лидера
+	}
 
 	buf2[0] = '\0';
 	for (k = ch_lider->followers; k; k = k->next)
@@ -129,8 +131,12 @@ void update_pos(CHAR_DATA * victim)
 	if (on_horse(victim) && GET_POS(victim) < POS_FIGHTING)
 		horse_drop(get_horse(victim));
 
-	if (IS_HORSE(victim) && GET_POS(victim) < POS_FIGHTING && on_horse(victim->master))
+	if (IS_HORSE(victim)
+		&& GET_POS(victim) < POS_FIGHTING
+		&& on_horse(victim->get_master()))
+	{
 		horse_drop(victim);
+	}
 }
 
 void set_battle_pos(CHAR_DATA * ch)
@@ -390,8 +396,8 @@ int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 	if (AFF_FLAGGED(pc, EAffectFlag::AFF_HORSE) || AFF_FLAGGED(pc, EAffectFlag::AFF_CHARM))
 		return (opponent);
 
-	npc_master = npc->master ? npc->master : npc;
-	pc_master = pc->master ? pc->master : pc;
+	npc_master = npc->has_master() ? npc->get_master() : npc;
+	pc_master = pc->has_master() ? pc->get_master() : pc;
 
 	for (ch = world[IN_ROOM(npc)]->people; ch; ch = ch->get_next())
 	{
@@ -399,7 +405,7 @@ int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 		{
 			continue;
 		}
-		ch_master = ch->master ? ch->master : ch;
+		ch_master = ch->has_master() ? ch->get_master() : ch;
 		ch_friend_npc = (ch_master == npc_master) ||
 						(IS_NPC(ch) && IS_NPC(npc) &&
 						 !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(npc, EAffectFlag::AFF_CHARM) &&
@@ -417,7 +423,7 @@ int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 		if (ch->get_fighting() == npc && ch_friend_pc)	// Friend PC fight NPC - opponent
 			return (opponent);
 		vict = ch->get_fighting();
-		vict_master = vict->master ? vict->master : vict;
+		vict_master = vict->has_master() ? vict->get_master() : vict;
 		vict_friend_npc = (vict_master == npc_master) ||
 						  (IS_NPC(vict) && IS_NPC(npc) &&
 						   !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(npc, EAffectFlag::AFF_CHARM) &&
@@ -461,33 +467,48 @@ CHAR_DATA *find_friend_cure(CHAR_DATA * caster, int spellnum)
 			&& AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER))
 	{
 		if (GET_HP_PERC(caster) < AFF_USED)
-			return (caster);
-		else if (caster->master &&
-//         !IS_NPC(caster->master)                    &&
-				 CAN_SEE(caster, caster->master) &&
-				 IN_ROOM(caster->master) == IN_ROOM(caster) &&
-				 caster->master->get_fighting() && GET_HP_PERC(caster->master) < AFF_USED)
-			return (caster->master);
-		return (NULL);
+		{
+			return caster;
+		}
+		else if (caster->has_master()
+			&& CAN_SEE(caster, caster->get_master())
+			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
+			&& caster->get_master()->get_fighting()
+			&& GET_HP_PERC(caster->get_master()) < AFF_USED)
+		{
+			return caster->get_master();
+		}
+		return nullptr;
 	}
 
 	for (vict = world[IN_ROOM(caster)]->people; AFF_USED && vict; vict = vict->next_in_room)
 	{
-		if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || ((MOB_FLAGGED(vict, MOB_ANGEL)||MOB_FLAGGED(vict, MOB_GHOST))
-				&& (vict->master && !IS_NPC(vict->master)))
-				|| !CAN_SEE(caster, vict))
+		if (!IS_NPC(vict)
+			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			|| ((MOB_FLAGGED(vict, MOB_ANGEL) ||MOB_FLAGGED(vict, MOB_GHOST))
+				&& vict->has_master()
+				&& !IS_NPC(vict->get_master()))
+			|| !CAN_SEE(caster, vict))
+		{
 			continue;
+		}
+
 		if (!vict->get_fighting() && !MOB_FLAGGED(vict, MOB_HELPER))
+		{
 			continue;
+		}
+
 		if (GET_HP_PERC(vict) < AFF_USED && (!victim || vict_val > GET_HP_PERC(vict)))
 		{
 			victim = vict;
 			vict_val = GET_HP_PERC(vict);
 			if (GET_REAL_INT(caster) < number(10, 20))
+			{
 				break;
+			}
 		}
 	}
-	return (victim);
+	return victim;
 }
 
 CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
@@ -533,13 +554,13 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 		{
 			return caster;
 		}
-		else if (caster->master
-			&& CAN_SEE(caster, caster->master)
-			&& IN_ROOM(caster->master) == IN_ROOM(caster)
-			&& (caster->master->has_any_affect(AFF_USED)
-				|| affected_by_spell(caster->master, spellreal)))
+		else if (caster->has_master()
+			&& CAN_SEE(caster, caster->get_master())
+			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
+			&& (caster->get_master()->has_any_affect(AFF_USED)
+				|| affected_by_spell(caster->get_master(), spellreal)))
 		{
-			return caster->master;
+			return caster->get_master();
 		}
 
 		return NULL;
@@ -547,22 +568,35 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 
 	for (vict = world[IN_ROOM(caster)]->people; !AFF_USED.empty() && vict; vict = vict->next_in_room)
 	{
-		if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
-				&& (vict->master && !IS_NPC(vict->master)))
-				|| !CAN_SEE(caster, vict))
+		if (!IS_NPC(vict)
+			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+				&& vict->get_master()
+				&& !IS_NPC(vict->get_master()))
+			|| !CAN_SEE(caster, vict))
+		{
 			continue;
+		}
+
 		if (!vict->has_any_affect(AFF_USED))
 		{
 			continue;
 		}
-		if (!vict->get_fighting() && !MOB_FLAGGED(vict, MOB_HELPER))
+
+		if (!vict->get_fighting()
+			&& !MOB_FLAGGED(vict, MOB_HELPER))
+		{
 			continue;
+		}
+
 		if (!victim || vict_val < GET_MAXDAMAGE(vict))
 		{
 			victim = vict;
 			vict_val = GET_MAXDAMAGE(vict);
 			if (GET_REAL_INT(caster) < number(10, 20))
+			{
 				break;
+			}
 		}
 	}
 	return victim;
@@ -607,13 +641,13 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 		{
 			return caster;
 		}
-		else if (caster->master
-			&& CAN_SEE(caster, caster->master)
-			&& IN_ROOM(caster->master) == IN_ROOM(caster)
-			&& (caster->master->has_any_affect(AFF_USED)
-				|| affected_by_spell(caster->master, spellreal)))
+		else if (caster->has_master()
+			&& CAN_SEE(caster, caster->get_master())
+			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
+			&& (caster->get_master()->has_any_affect(AFF_USED)
+				|| affected_by_spell(caster->get_master(), spellreal)))
 		{
-			return caster->master;
+			return caster->get_master();
 		}
 
 		return NULL;
@@ -624,20 +658,23 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 		if (!IS_NPC(vict)
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 			|| ((MOB_FLAGGED(vict, MOB_ANGEL)|| MOB_FLAGGED(vict, MOB_GHOST))
-				&& (vict->master && !IS_NPC(vict->master)))
+				&& (vict->get_master() && !IS_NPC(vict->get_master())))
 			|| !CAN_SEE(caster, vict))
 		{
 			continue;
 		}
+
 		if (!vict->has_any_affect(AFF_USED))
 		{
 			continue;
 		}
+
 		if (!vict->get_fighting()
 			&& !MOB_FLAGGED(vict, MOB_HELPER))
 		{
 			continue;
 		}
+
 		if (!victim
 			|| vict_val < GET_MAXCASTER(vict))
 		{
@@ -674,36 +711,56 @@ CHAR_DATA *find_affectee(CHAR_DATA * caster, int spellnum)
 	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)|| MOB_FLAGGED(caster, MOB_GHOST)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER))
 	{
 		if (!affected_by_spell(caster, spellreal))
-			return (caster);
-		else if (caster->master &&
-//         !IS_NPC(caster->master)                    &&
-				 CAN_SEE(caster, caster->master) &&
-				 IN_ROOM(caster->master) == IN_ROOM(caster) &&
-				 caster->master->get_fighting() && !affected_by_spell(caster->master, spellreal))
-			return (caster->master);
-		return (NULL);
+		{
+			return caster;
+		}
+		else if (caster->has_master()
+			&& CAN_SEE(caster, caster->get_master())
+			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
+			&& caster->get_master()->get_fighting() && !affected_by_spell(caster->get_master(), spellreal))
+		{
+			return caster->get_master();
+		}
+
+		return nullptr;
 	}
 
 	if (GET_REAL_INT(caster) > number(5, 15))
+	{
 		for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
 		{
-			if (!IS_NPC(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
-					&& (vict->master
-						&& !IS_NPC(vict->master)))
-					|| !CAN_SEE(caster, vict))
+			if (!IS_NPC(vict)
+				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+					&& vict->has_master()
+					&& !IS_NPC(vict->get_master()))
+				|| !CAN_SEE(caster, vict))
+			{
 				continue;
-			if (!vict->get_fighting() || AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD) || affected_by_spell(vict, spellreal))
+			}
+
+			if (!vict->get_fighting()
+				|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
+				|| affected_by_spell(vict, spellreal))
+			{
 				continue;
+			}
+
 			if (!victim || vict_val < GET_MAXDAMAGE(vict))
 			{
 				victim = vict;
 				vict_val = GET_MAXDAMAGE(vict);
 			}
 		}
-	if (!victim && !affected_by_spell(caster, spellreal))
-		victim = caster;
+	}
 
-	return (victim);
+	if (!victim
+		&& !affected_by_spell(caster, spellreal))
+	{
+		victim = caster;
+	}
+
+	return victim;
 }
 
 CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
@@ -723,30 +780,42 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 		spellreal = SPELL_SLOW;
 
 	if (GET_REAL_INT(caster) > number(10, 20))
+	{
 		for (vict = world[caster->in_room]->people; vict; vict = vict->next_in_room)
 		{
-			if ((IS_NPC(vict) && !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST)
-									|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)) && (vict->master
-																		 && !IS_NPC(vict->master))))
-					|| !CAN_SEE(caster, vict))
+			if ((IS_NPC(vict)
+				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
+					&& vict->has_master()
+					&& !IS_NPC(vict->get_master())))
+				|| !CAN_SEE(caster, vict))
+			{
 				continue;
+			}
+
 			if ((!vict->get_fighting()
-					&& (GET_REAL_INT(caster) < number(20, 27)
-						|| !in_same_battle(caster, vict, TRUE)))
-					|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
-					|| affected_by_spell(vict, spellreal))
+				&& (GET_REAL_INT(caster) < number(20, 27)
+					|| !in_same_battle(caster, vict, TRUE)))
+				|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
+				|| affected_by_spell(vict, spellreal))
+			{
 				continue;
+			}
 			if (!victim || vict_val < GET_MAXDAMAGE(vict))
 			{
 				victim = vict;
 				vict_val = GET_MAXDAMAGE(vict);
 			}
 		}
+	}
 
-	if (!victim && caster->get_fighting()
-			&& !affected_by_spell(caster->get_fighting(), spellreal))
+	if (!victim
+		&& caster->get_fighting()
+		&& !affected_by_spell(caster->get_fighting(), spellreal))
+	{
 		victim = caster->get_fighting();
-	return (victim);
+	}
+
+	return victim;
 }
 
 CHAR_DATA *find_opp_caster(CHAR_DATA * caster)
@@ -756,11 +825,13 @@ CHAR_DATA *find_opp_caster(CHAR_DATA * caster)
 
 	for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
 	{
-		if (IS_NPC(vict) &&
-//         !AFF_FLAGGED(vict,AFF_CHARM) &&
-				!((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
-				  && (vict->master && !IS_NPC(vict->master))))
+		if (IS_NPC(vict)
+			&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+				&& vict->has_master()
+				&& !IS_NPC(vict->get_master())))
+		{
 			continue;
+		}
 		if ((!vict->get_fighting()
 				&& (GET_REAL_INT(caster) < number(15, 25)
 					|| !in_same_battle(caster, vict, TRUE)))
@@ -782,18 +853,26 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 	int vict_val = 0;
 
 	if (GET_REAL_INT(caster) > number(10, 20))
+	{
 		for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
 		{
-			if ((IS_NPC(vict) && !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST)
-									|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)) && (vict->master
-																		 && !IS_NPC(vict->master))))
-					|| !CAN_SEE(caster, vict))
+			if ((IS_NPC(vict)
+				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
+					&& vict->has_master()
+					&& !IS_NPC(vict->get_master())))
+				|| !CAN_SEE(caster, vict))
+			{
 				continue;
+			}
+
 			if ((!vict->get_fighting()
-					&& (GET_REAL_INT(caster) < number(20, 27)
-						|| !in_same_battle(caster, vict, TRUE)))
-					|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD))
+				&& (GET_REAL_INT(caster) < number(20, 27)
+					|| !in_same_battle(caster, vict, TRUE)))
+				|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD))
+			{
 				continue;
+			}
+
 			if (GET_REAL_INT(caster) >= number(25, 30))
 			{
 				if (!victim || vict_val < GET_MAXCASTER(vict))
@@ -808,10 +887,14 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 				vict_val = GET_MAXDAMAGE(vict);
 			}
 		}
-	if (!victim)
-		victim = caster->get_fighting();
+	}
 
-	return (victim);
+	if (!victim)
+	{
+		victim = caster->get_fighting();
+	}
+
+	return victim;
 }
 
 extern bool find_master_charmice(CHAR_DATA *charmise);
@@ -947,26 +1030,39 @@ CHAR_DATA *find_minhp(CHAR_DATA * caster)
 	int vict_val = 0;
 
 	if (GET_REAL_INT(caster) > number(10, 20))
+	{
 		for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
 		{
-			if ((IS_NPC(vict) && !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST)
-									|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)) && (vict->master
-																		 && !IS_NPC(vict->master))))
-					|| !CAN_SEE(caster, vict))
+			if ((IS_NPC(vict)
+				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
+					&& vict->has_master()
+					&& !IS_NPC(vict->get_master())))
+				|| !CAN_SEE(caster, vict))
+			{
 				continue;
-			if (!vict->get_fighting() && (GET_REAL_INT(caster) < number(20, 27)
-									|| !in_same_battle(caster, vict, TRUE)))
+			}
+
+			if (!vict->get_fighting()
+				&& (GET_REAL_INT(caster) < number(20, 27)
+					|| !in_same_battle(caster, vict, TRUE)))
+			{
 				continue;
+			}
+
 			if (!victim || vict_val > GET_HIT(vict))
 			{
 				victim = vict;
 				vict_val = GET_HIT(vict);
 			}
 		}
-	if (!victim)
-		victim = caster->get_fighting();
+	}
 
-	return (victim);
+	if (!victim)
+	{
+		victim = caster->get_fighting();
+	}
+
+	return victim;
 }
 
 CHAR_DATA *find_cure(CHAR_DATA * caster, CHAR_DATA * patient, int *spellnum)
@@ -1518,7 +1614,8 @@ void using_mob_skills(CHAR_DATA *ch)
 		////////////////////////////////////////////////////////////////////////
 		// проверим на всякий случай, является ли моб ангелом,
 		// хотя вроде бы этого делать не надо
-		if (!(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST)) && ch->master
+		if (!(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
+			&& ch->has_master()
 			&& (sk_num == SKILL_RESCUE || sk_num == SKILL_PROTECT))
 		{
 			CHAR_DATA *caster = 0, *damager = 0;
@@ -1534,17 +1631,14 @@ void using_mob_skills(CHAR_DATA *ch)
 						|| AFF_FLAGGED(vict, EAffectFlag::AFF_HELPER))
 					|| (IS_NPC(attacker)
 						&& !(AFF_FLAGGED(attacker, EAffectFlag::AFF_CHARM)
-							&& attacker->master
-							&& !IS_NPC(attacker->master))
+							&& attacker->has_master()
+							&& !IS_NPC(attacker->get_master()))
 						&& !(MOB_FLAGGED(attacker, MOB_GHOST)
-							&& attacker->master
-							&& !IS_NPC(attacker->master))
+							&& attacker->has_master()
+							&& !IS_NPC(attacker->get_master()))
 						&& !(MOB_FLAGGED(attacker, MOB_ANGEL)
-							&& attacker->master
-							&& !IS_NPC(attacker->master)))
-							// не совсем понятно, зачем это было
-							// && !AFF_FLAGGED(attacker,AFF_HELPER)
-							// свои атакуют (мобы)
+							&& attacker->has_master()
+							&& !IS_NPC(attacker->get_master())))
 					|| !CAN_SEE(ch, vict) // не видно, кого нужно спасать
 					|| ch == vict) // себя спасать не нужно
 				{
@@ -1563,11 +1657,13 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 			}
+
 			if (sk_num == SKILL_RESCUE && caster && damager)
 			{
 				sk_use = 0;
 				go_rescue(ch, caster, damager);
 			}
+
 			if (sk_num == SKILL_PROTECT && caster)
 			{
 				sk_use = 0;
@@ -1845,10 +1941,10 @@ void process_npc_attack(CHAR_DATA *ch)
 
 	if ((AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL))
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
-		&& ch->master
+		&& ch->has_master()
 		// && !IS_NPC(ch->master)
-		&& CAN_SEE(ch, ch->master)
-		&& ch->in_room == IN_ROOM(ch->master)
+		&& CAN_SEE(ch, ch->get_master())
+		&& ch->in_room == IN_ROOM(ch->get_master())
 		&& AWAKE(ch)
 		&& MAY_ACT(ch)
 		&& GET_POS(ch) >= POS_FIGHTING)
@@ -1857,20 +1953,21 @@ void process_npc_attack(CHAR_DATA *ch)
 		for (vict = world[ch->in_room]->people;
 			vict; vict = vict->next_in_room)
 		{
-			if (vict->get_fighting() == ch->master
+			if (vict->get_fighting() == ch->get_master()
 				&& vict != ch
-				&& vict != ch->master)
+				&& vict != ch->get_master())
 			{
 				break;
 			}
 		}
+
 		if (vict && (ch->get_skill(SKILL_RESCUE)))
 		{
-			go_rescue(ch, ch->master, vict);
+			go_rescue(ch, ch->get_master(), vict);
 		}
 		else if (vict && ch->get_skill(SKILL_PROTECT))
 		{
-			go_protect(ch, ch->master);
+			go_protect(ch, ch->get_master());
 		}
 	}
 	else if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -1879,8 +1976,11 @@ void process_npc_attack(CHAR_DATA *ch)
 		using_mob_skills(ch);
 	}
 
-	if (!ch->get_fighting() || ch->in_room != IN_ROOM(ch->get_fighting()))
+	if (!ch->get_fighting()
+		|| ch->in_room != IN_ROOM(ch->get_fighting()))
+	{
 		return;
+	}
 
 	//**** удар основным оружием или рукой
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT))
@@ -2180,15 +2280,29 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (ch == victim)
 		return return_value;
 // translating pointers from charimces to their leaders
-	if (IS_NPC(ch) && ch->master && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST) || IS_HORSE(ch)))
-		ch = ch->master;
-	if (IS_NPC(victim) && victim->master &&
-			(AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(victim, MOB_ANGEL) || MOB_FLAGGED(victim, MOB_GHOST) || IS_HORSE(victim)))
-		victim = victim->master;
+	if (IS_NPC(ch)
+		&& ch->has_master()
+		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(ch, MOB_ANGEL)
+			|| MOB_FLAGGED(ch, MOB_GHOST)
+			|| IS_HORSE(ch)))
+	{
+		ch = ch->get_master();
+	}
+
+	if (IS_NPC(victim)
+		&& victim->has_master()
+		&& (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(victim, MOB_ANGEL)
+			|| MOB_FLAGGED(victim, MOB_GHOST)
+			|| IS_HORSE(victim)))
+	{
+		victim = victim->get_master();
+	}
 	cleader = ch;
 	vleader = victim;
 // finding leaders
-	while (cleader->master)
+	while (cleader->has_master())
 	{
 		if (IS_NPC(cleader)
 			&& !AFF_FLAGGED(cleader, EAffectFlag::AFF_CHARM)
@@ -2197,9 +2311,10 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 		{
 			break;
 		}
-		cleader = cleader->master;
+		cleader = cleader->get_master();
 	}
-	while (vleader->master)
+
+	while (vleader->has_master())
 	{
 		if (IS_NPC(vleader)
 			&& !AFF_FLAGGED(vleader, EAffectFlag::AFF_CHARM)
@@ -2208,7 +2323,7 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 		{
 			break;
 		}
-		vleader = vleader->master;
+		vleader = vleader->get_master();
 	}
 
 	if (cleader != vleader)
@@ -2218,21 +2333,21 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 
 // finding closest to the leader nongrouped agressor
 // it cannot be a charmice
-	while (ch->master
-		&& ch->master->master)
+	while (ch->has_master()
+		&& ch->get_master()->has_master())
 	{
-		if (!AFF_FLAGGED(ch->master, EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(ch->master))
+		if (!AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP)
+			&& !IS_NPC(ch->get_master()))
 		{
-			ch = ch->master;
+			ch = ch->get_master();
 			continue;
 		}
-		else if (IS_NPC(ch->master)
-			&& !AFF_FLAGGED(ch->master->master, EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(ch->master->master)
-			&& ch->master->master->master)
+		else if (IS_NPC(ch->get_master())
+			&& !AFF_FLAGGED(ch->get_master()->get_master(), EAffectFlag::AFF_GROUP)
+			&& !IS_NPC(ch->get_master()->get_master())
+			&& ch->get_master()->get_master()->get_master())
 		{
-			ch = ch->master->master;
+			ch = ch->get_master()->get_master();
 			continue;
 		}
 		else
@@ -2243,20 +2358,21 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 
 // finding closest to the leader nongrouped victim
 // it cannot be a charmice
-	while (victim->master && victim->master->master)
+	while (victim->has_master()
+		&& victim->get_master()->has_master())
 	{
-		if (!AFF_FLAGGED(victim->master, EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(victim->master))
+		if (!AFF_FLAGGED(victim->get_master(), EAffectFlag::AFF_GROUP)
+			&& !IS_NPC(victim->get_master()))
 		{
-			victim = victim->master;
+			victim = victim->get_master();
 			continue;
 		}
-		else if (IS_NPC(victim->master)
-			&& !AFF_FLAGGED(victim->master->master, EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(victim->master->master)
-			&& victim->master->master->master)
+		else if (IS_NPC(victim->get_master())
+			&& !AFF_FLAGGED(victim->get_master()->get_master(), EAffectFlag::AFF_GROUP)
+			&& !IS_NPC(victim->get_master()->get_master())
+			&& victim->get_master()->get_master()->has_master())
 		{
-			victim = victim->master->master;
+			victim = victim->get_master()->get_master();
 			continue;
 		}
 		else
@@ -2284,27 +2400,42 @@ int calc_leadership(CHAR_DATA * ch)
 	int prob, percent;
 	CHAR_DATA *leader = 0;
 
-	if (IS_NPC(ch) || !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) || (!ch->master && !ch->followers))
-		return (FALSE);
-
-	if (ch->master)
+	if (IS_NPC(ch)
+		|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
+		|| (!ch->has_master()
+			&& !ch->followers))
 	{
-		if (IN_ROOM(ch) != IN_ROOM(ch->master))
-			return (FALSE);
-		leader = ch->master;
+		return FALSE;
+	}
+
+	if (ch->has_master())
+	{
+		if (IN_ROOM(ch) != IN_ROOM(ch->get_master()))
+		{
+			return FALSE;
+		}
+		leader = ch->get_master();
 	}
 	else
+	{
 		leader = ch;
+	}
 
 	if (!leader->get_skill(SKILL_LEADERSHIP))
+	{
 		return (FALSE);
+	}
 
 	percent = number(1, 101);
 	prob = calculate_skill(leader, SKILL_LEADERSHIP, 0);
 	if (percent > prob)
+	{
 		return (FALSE);
+	}
 	else
+	{
 		return (TRUE);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

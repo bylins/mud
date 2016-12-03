@@ -214,9 +214,10 @@ void ClanPkLog::check(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	CHAR_DATA *killer = ch;
 	if (IS_NPC(killer)
-		&& killer->master && !IS_NPC(killer->master))
+		&& killer->has_master()
+		&& !IS_NPC(killer->get_master()))
 	{
-		killer = killer->master;
+		killer = killer->get_master();
 	}
 	if (!IS_NPC(killer) && CLAN(killer) != CLAN(victim))
 	{

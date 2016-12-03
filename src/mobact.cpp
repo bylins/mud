@@ -419,22 +419,21 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 	return best;
 }
 
-
 bool find_master_charmice(CHAR_DATA *charmice)
 {
 	// проверяем на спелл чарма, ищем хозяина и сравниваем румы
 	if (!IS_CHARMICE(charmice))
-		return true;
-
-	if (charmice->in_room == charmice->master->in_room)
 	{
 		return true;
 	}
+
+	if (charmice->in_room == charmice->get_master()->in_room)
+	{
+		return true;
+	}
+
 	return false;
-
 }
-
-
 
 // пока тестово
 CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
@@ -1049,18 +1048,21 @@ void mobile_activity(int activity_level, int missed_pulses)
 		// Extract free horses
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
 			&& MOB_FLAGGED(ch, MOB_MOUNTING)
-			&& !ch->master) // если скакун, под седлом но нет хозяина
+			&& !ch->has_master()) // если скакун, под седлом но нет хозяина
 		{
 			act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
 				FALSE, ch, 0, 0, TO_ROOM);
 			extract_char(ch, FALSE);
 			continue;
 		}
+
 		// Extract uncharmed mobs
 		if (EXTRACT_TIMER(ch) > 0)
 		{
-			if (ch->master)
+			if (ch->has_master())
+			{
 				EXTRACT_TIMER(ch) = 0;
+			}
 			else
 			{
 				EXTRACT_TIMER(ch)--;
@@ -1071,6 +1073,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 				}
 			}
 		}
+
 		// If the mob has no specproc, do the default actions
 		if (ch->get_fighting() ||
 				GET_POS(ch) <= POS_STUNNED ||
@@ -1078,7 +1081,9 @@ void mobile_activity(int activity_level, int missed_pulses)
 				AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ||
 				AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT) ||
 				AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
+		{
 			continue;
+		}
 
 		if (IS_HORSE(ch))
 		{
@@ -1233,13 +1238,13 @@ void mobile_activity(int activity_level, int missed_pulses)
 			&& MOB_FLAGGED(ch, MOB_HELPER)
 			&& !MOB_FLAGGED(ch, MOB_SENTINEL)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
-			&& !ch->master && GET_POS(ch) == POS_STANDING)
+			&& !ch->has_master()
+			&& GET_POS(ch) == POS_STANDING)
 		{
 			for (found = FALSE, door = 0; door < NUM_OF_DIRS; door++)
 			{
 				ROOM_DATA::exit_data_ptr rdata;
-				for (rdata = EXIT(ch, door), max =
-							MAX(1, GET_REAL_INT(ch) / 10); max > 0 && !found; max--)
+				for (rdata = EXIT(ch, door), max = MAX(1, GET_REAL_INT(ch) / 10); max > 0 && !found; max--)
 				{
 					if (!rdata ||
 							rdata->to_room == NOWHERE ||

@@ -5,10 +5,11 @@
 
 namespace test_utils
 {
-class CharacterBuilder
-{
+	class CharacterBuilder
+	{
 	public:
-		using result_t = CHAR_DATA::shared_ptr;
+		using character_t = CHAR_DATA;
+		using result_t = character_t::shared_ptr;
 
 		void create_new();
 		void create_new_with_class(const short player_class);
@@ -30,10 +31,10 @@ class CharacterBuilder
 	private:
 		void check_character_existance() const;
 
-		static void check_character_existance(CHAR_DATA::shared_ptr character);
+		static void check_character_existance(result_t character);
 
 		result_t m_result;
-};
+	};
 }
 
 #endif // __CHAR__UTILITIES_HPP__

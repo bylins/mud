@@ -137,3 +137,5 @@ TEST(CHAR_Affects, RandomlyRemove_TwoRemovableTwoNotRemovableAffect_Remove100500
 	EXPECT_EQ(2u, character->remove_random_affects(100500));
 	EXPECT_EQ(2u, character->affected.size());
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

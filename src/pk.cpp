@@ -157,25 +157,28 @@ void pk_translate_pair(CHAR_DATA * *pkiller, CHAR_DATA * *pvictim)
 {
 	if (pkiller != NULL && pkiller[0] != NULL)
 	{
-		if (IS_NPC(pkiller[0]) && pkiller[0]->master
+		if (IS_NPC(pkiller[0])
+			&& pkiller[0]->has_master()
 			&& AFF_FLAGGED(pkiller[0], EAffectFlag::AFF_CHARM)
-			&& IN_ROOM(pkiller[0]) == IN_ROOM(pkiller[0]->master))
+			&& IN_ROOM(pkiller[0]) == IN_ROOM(pkiller[0]->get_master()))
 		{
-			pkiller[0] = pkiller[0]->master;
+			pkiller[0] = pkiller[0]->get_master();
 		}
 	}
 
 	if (pvictim != NULL && pvictim[0] != NULL)
 	{
-		if (IS_NPC(pvictim[0]) && pvictim[0]->master
+		if (IS_NPC(pvictim[0])
+			&& pvictim[0]->has_master()
 			&& (AFF_FLAGGED(pvictim[0], EAffectFlag::AFF_CHARM)
 				|| IS_HORSE(pvictim[0])))
 		{
-			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->master))
+			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->get_master()))
 			{
-				pvictim[0] = pvictim[0]->master;
+				pvictim[0] = pvictim[0]->get_master();
 			}
 		}
+
 		if (!HERE(pvictim[0]))
 		{
 			pvictim[0] = NULL;
@@ -195,6 +198,7 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 		if (pk->unique == GET_UNIQUE(victim))
 			break;
 	}
+
 	if (!pk && (!IS_GOD(victim)))
 	{
 		CREATE(pk, 1);
@@ -202,6 +206,7 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 		pk->next = agressor->pk_list;
 		agressor->pk_list = pk;
 	}
+
 	if (victim->desc && (!IS_GOD(victim)))
 	{
 		if (pk->clan_exp > time(NULL))
@@ -433,19 +438,28 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 		bool has_clanmember = false;
 		if (!IS_GOD(victim))
+		{
 			has_clanmember = has_clan_members_in_group(victim);
+		}
 
-		leader = victim->master ? victim->master : victim;
+		leader = victim->has_master() ? victim->get_master() : victim;
 
-		if (AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP) &&
-				IN_ROOM(leader) == IN_ROOM(victim) && pk_action_type(agressor, leader) > PK_ACTION_FIGHT)
+		if (AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP)
+			&& IN_ROOM(leader) == IN_ROOM(victim)
+			&& pk_action_type(agressor, leader) > PK_ACTION_FIGHT)
+		{
 			pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
+		}
 
 		for (f = leader->followers; f; f = f->next)
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) &&
-					IN_ROOM(f->follower) == IN_ROOM(victim) &&
-					pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT)
+		{
+			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+				&& IN_ROOM(f->follower) == IN_ROOM(victim)
+				&& pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT)
+			{
 				pk_increment_kill(agressor, f->follower, f->follower == victim, has_clanmember);
+			}
+		}
 	}
 }
 
@@ -1057,13 +1071,20 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent)
 {
 	// Потенциальная жертва приведет к ПК?
-	if (IS_NPC(opponent) && (!opponent->master || IS_NPC(opponent->master)
-							 || opponent->master == ch))
+	if (IS_NPC(opponent)
+		&& (!opponent->has_master()
+			|| IS_NPC(opponent->get_master())
+			|| opponent->get_master() == ch))
+	{
 		return false;
+	}
 
 	// Уже воюю?
-	if (ch->get_fighting() == opponent || opponent->get_fighting() == ch)
+	if (ch->get_fighting() == opponent
+		|| opponent->get_fighting() == ch)
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -1077,7 +1098,9 @@ int name_cmp(CHAR_DATA * ch, const char *arg)
 	{
 		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
 		if (!str_cmp(arg, opp_name_part))
+		{
 			return TRUE;
+		}
 	}
 	return FALSE;
 }
@@ -1146,7 +1169,7 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 {
 	CHAR_DATA *leader;
 	struct follow_type *f;
-	leader = ch->master ? ch->master : ch;
+	leader = ch->has_master() ? ch->get_master() : ch;
 
 	// проверяем, был ли в группе клановый чар
 	if (CLAN(leader))
@@ -1173,7 +1196,6 @@ void pkPortal(CHAR_DATA* ch)
 	AGRO(ch) = MAX(AGRO(ch), time(NULL) + PENTAGRAM_TIME * 60);
 	RENTABLE(ch) = MAX(RENTABLE(ch), time(NULL) + PENTAGRAM_TIME * 60);
 }
-
 
 //Структура для хранения информации о кровавом стафе
 //Чтобы не добавлять новых полей в OBJ_DATA, объект просто помечается экстрафлагом ITEM_BLOODY и добавляется запись в bloody_map

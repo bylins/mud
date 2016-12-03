@@ -45,17 +45,22 @@ extern const unsigned RECALL_SPELLS_INTERVAL;
 const unsigned RECALL_SPELLS_INTERVAL = 28;
 void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 {
-	CHAR_DATA *master = 0;
 	bool leader_partner = false;
 	int partner_feat = 0;
+
+	CHAR_DATA *master = nullptr;
 	if (IS_NPC(killer)
-		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL) || MOB_FLAGGED(killer, MOB_GHOST))
-		&& killer->master)
+		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(killer, MOB_ANGEL)
+			|| MOB_FLAGGED(killer, MOB_GHOST))
+		&& killer->has_master())
 	{
-		master = killer->master;
+		master = killer->get_master();
 	}
 	else if (!IS_NPC(killer))
+	{
 		master = killer;
+	}
 
 	// На этот момент master - PC
 	if (master)
@@ -65,16 +70,20 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 			int cnt = 0;
 
 			// master - член группы, переходим на лидера группы
-			if (master->master)
-				master = master->master;
+			if (master->has_master())
+			{
+				master = master->get_master();
+			}
 
 			if (IN_ROOM(master) == IN_ROOM(killer))
 			{
 				// лидер группы в тойже комнате, что и убивец
 				cnt = 1;
-				if (can_use_feat(master, PARTNER_FEAT) && (GET_LEVEL(master) < 25))
+				if (can_use_feat(master, PARTNER_FEAT)
+					&& (GET_LEVEL(master) < 25))
+				{
 					leader_partner = true;
-
+				}
 			}
 
 			for (struct follow_type *f = master->followers; f; f = f->next)
@@ -88,14 +97,22 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 					}
 					++cnt;
 					if (leader_partner)
+					{
 						if (!IS_NPC(f->follower))
+						{
 							partner_feat++;
+						}
+					}
 				}
 			}
 		}
+
 		// 2x замакс, если способность напарник работает
-		if (leader_partner && partner_feat == 1)
+		if (leader_partner
+			&& partner_feat == 1)
+		{
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+		}
 		master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 	}
 }
@@ -118,9 +135,9 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 			|| MOB_FLAGGED(killer, MOB_ANGEL)
 			|| MOB_FLAGGED(killer, MOB_GHOST)))
 	{
-		if(rkiller->master)
+		if(rkiller->has_master())
 		{
-			rkiller = rkiller->master;
+			rkiller = rkiller->get_master();
 		}
 		else
 		{
@@ -131,6 +148,7 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 			rkiller = NULL;
 		}
 	}
+
 	if (!IS_NPC(ch))
 	{
 		if (rkiller && rkiller != ch)
@@ -204,23 +222,23 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 	{
 		if (!IS_NPC(killer) // Убил загрупленный чар
 			&& AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP)
-			&& killer->master
-			&& killer->master->get_skill(SKILL_LEADERSHIP) > 0
-			&& IN_ROOM(killer) == IN_ROOM(killer->master))
+			&& killer->has_master()
+			&& killer->get_master()->get_skill(SKILL_LEADERSHIP) > 0
+			&& IN_ROOM(killer) == IN_ROOM(killer->get_master()))
 		{
-			improove_skill(killer->master, SKILL_LEADERSHIP, number(0, 1), ch);
+			improove_skill(killer->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
 		}
 		else if (IS_NPC(killer) // Убил чармис загрупленного чара
 			&& IS_CHARMICE(killer)
-			&& killer->master
-			&& AFF_FLAGGED(killer->master, EAffectFlag::AFF_GROUP))
+			&& killer->has_master()
+			&& AFF_FLAGGED(killer->get_master(), EAffectFlag::AFF_GROUP))
 		{
-			if (killer->master->master // Владелец чармиса НЕ лидер
-				&& killer->master->master->get_skill(SKILL_LEADERSHIP) > 0
-				&& IN_ROOM(killer) == IN_ROOM(killer->master)
-				&& IN_ROOM(killer) == IN_ROOM(killer->master->master))
+			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
+				&& killer->get_master()->get_master()->get_skill(SKILL_LEADERSHIP) > 0
+				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
+				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master()))
 			{
-				improove_skill(killer->master->master, SKILL_LEADERSHIP, number(0, 1), ch);
+				improove_skill(killer->get_master()->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
 			}
 		}
 	}
@@ -230,12 +248,12 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 		&& killer
 		&& IS_NPC(killer)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
-		&& ch->master
-		&& ch->in_room == IN_ROOM(ch->master)
-		&& ch->master->get_inborn_skill(SKILL_LEADERSHIP) > 1)
+		&& ch->has_master()
+		&& ch->in_room == IN_ROOM(ch->get_master())
+		&& ch->get_master()->get_inborn_skill(SKILL_LEADERSHIP) > 1)
 	{
-		ch->master->set_skill(SKILL_LEADERSHIP,
-			ch->master->get_trained_skill(SKILL_LEADERSHIP) - 1);
+		const auto current_skill = ch->get_master()->get_trained_skill(SKILL_LEADERSHIP);
+		ch->get_master()->set_skill(SKILL_LEADERSHIP, current_skill - 1);
 	}
 }
 
@@ -396,14 +414,16 @@ void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 	if (killer)
 	{
 		if (IS_CHARMICE(killer))
+		{
 			act("Кровушка стынет в жилах от предсмертного крика $N1.",
-				FALSE, killer->master, 0, ch, TO_ROOM | CHECK_DEAF);
+				FALSE, killer->get_master(), 0, ch, TO_ROOM | CHECK_DEAF);
+		}
 		else
+		{
 			act("Кровушка стынет в жилах от предсмертного крика $N1.",
 				FALSE, killer, 0, ch, TO_ROOM | CHECK_DEAF);
+		}
 	}
-//	act("Кровушка стынет в жилах от предсмертного крика $n1.",
-//		FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
 
 	for (door = 0; door < NUM_OF_DIRS; door++)
 	{
@@ -459,8 +479,8 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 		&& !can_use_feat(killer, DARK_READING_FEAT)
 		&& !(IS_NPC(killer)
 			&& AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-			&& (killer->master
-				&& can_use_feat(killer->master, DARK_READING_FEAT))))
+			&& killer->has_master()
+			&& can_use_feat(killer->get_master(), DARK_READING_FEAT)))
 	{
 		return;
 	}
@@ -490,13 +510,13 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 			|| MOB_FLAGGED(killer, MOB_ANGEL)
 			|| MOB_FLAGGED(killer, MOB_GHOST))
 		&& (corpse != NULL)
-		&& killer->master
-		&& killer->in_room == killer->master->in_room
-		&& PRF_FLAGGED(killer->master, PRF_AUTOLOOT)
-		&& can_loot(killer->master))
+		&& killer->has_master()
+		&& killer->in_room == killer->get_master()->in_room
+		&& PRF_FLAGGED(killer->get_master(), PRF_AUTOLOOT)
+		&& can_loot(killer->get_master()))
 	{
 		sprintf(obj, "all");
-		get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1, true);
+		get_from_container(killer->get_master(), corpse, obj, FIND_OBJ_INV, 1, true);
 	}
 	else if (IS_NPC(ch)
 		&& IS_NPC(killer)
@@ -505,13 +525,13 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 			|| MOB_FLAGGED(killer, MOB_ANGEL)
 			|| MOB_FLAGGED(killer, MOB_GHOST))
 		&& (corpse != NULL)
-		&& killer->master
-		&& killer->in_room == killer->master->in_room
-		&& PRF_FLAGGED(killer->master, PRF_AUTOMONEY)
-		&& can_loot(killer->master))
+		&& killer->has_master()
+		&& killer->in_room == killer->get_master()->in_room
+		&& PRF_FLAGGED(killer->get_master(), PRF_AUTOMONEY)
+		&& can_loot(killer->get_master()))
 	{
 		sprintf(obj, "all.coin");
-		get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1, false);
+		get_from_container(killer->get_master(), corpse, obj, FIND_OBJ_INV, 1, false);
 	}
 }
 
@@ -521,7 +541,7 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
 		&& killer
 		&& killer != ch
 		&& MOB_FLAGGED(ch, MOB_CLONE)
-		&& ch->master
+		&& ch->has_master()
 		&& affected_by_spell(ch, SPELL_CAPABLE))
 	{
 		affect_from_char(ch, SPELL_CAPABLE);
@@ -529,8 +549,7 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
 			FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		int pos = GET_POS(ch);
 		GET_POS(ch) = POS_STANDING;
-		call_magic(ch, killer, NULL, world[ch->in_room], ch->mob_specials.capable_spell,
-			GET_LEVEL(ch), CAST_SPELL);
+		call_magic(ch, killer, NULL, world[ch->in_room], ch->mob_specials.capable_spell, GET_LEVEL(ch), CAST_SPELL);
 		GET_POS(ch) = pos;
 	}
 }
@@ -862,7 +881,7 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 		maxlevel = GET_LEVEL(killer);
 	}
 
-	auto leader = killer->master;
+	auto leader = killer->get_master();
 	if (nullptr == leader)
 	{
 		leader = killer;

@@ -13,6 +13,7 @@ set(TESTS
 	boards.news.cpp
 	msdp.parser.cpp
 	char.affects.cpp
+	char.leaders.cpp
 	obj.copy.cpp
 	act.makefood.cpp
 	utils.editor.cpp

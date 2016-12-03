@@ -2148,11 +2148,18 @@ int npc_move(CHAR_DATA * ch, int dir, int/* need_specials_check*/)
 	int retval = FALSE;
 
 	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
+	{
 		return (FALSE);
+	}
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
+	{
 		return (FALSE);
-	else if (ch->master && ch->in_room == IN_ROOM(ch->master))
+	}
+	else if (ch->has_master()
+		&& ch->in_room == IN_ROOM(ch->get_master()))
+	{
 		return (FALSE);
+	}
 	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED))
 	{
 		if (!EXIT_FLAGGED(EXIT(ch, dir), EX_ISDOOR))
@@ -2713,14 +2720,23 @@ void npc_group(CHAR_DATA * ch)
 	if (GET_DEST(ch) == NOWHERE || ch->in_room == NOWHERE)
 		return;
 
-	if (ch->master && ch->in_room == IN_ROOM(ch->master))
-		leader = ch->master;
+	if (ch->has_master()
+		&& ch->in_room == IN_ROOM(ch->get_master()))
+	{
+		leader = ch->get_master();
+	}
 
-	if (!ch->master)
+	if (!ch->has_master())
+	{
 		leader = ch;
+	}
 
-	if (leader && (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM) || GET_POS(leader) < POS_SLEEPING))
+	if (leader
+		&& (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM)
+			|| GET_POS(leader) < POS_SLEEPING))
+	{
 		leader = NULL;
+	}
 
 	// Find leader
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
@@ -2729,9 +2745,13 @@ void npc_group(CHAR_DATA * ch)
 				GET_DEST(vict) != GET_DEST(ch) ||
 				zone != ZONE(vict) ||
 				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
+		{
 			continue;
+		}
 		members++;
-		if (!leader || GET_REAL_INT(vict) > GET_REAL_INT(leader))
+
+		if (!leader
+			|| GET_REAL_INT(vict) > GET_REAL_INT(leader))
 		{
 			leader = vict;
 		}
@@ -2739,15 +2759,18 @@ void npc_group(CHAR_DATA * ch)
 
 	if (members <= 1)
 	{
-		if (ch->master)
+		if (ch->has_master())
+		{
 			stop_follower(ch, SF_EMPTY);
+		}
 		return;
 	}
 
-	if (leader->master)
+	if (leader->has_master())
 	{
 		stop_follower(leader, SF_EMPTY);
 	}
+
 	// Assign leader
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
@@ -2755,17 +2778,21 @@ void npc_group(CHAR_DATA * ch)
 				GET_DEST(vict) != GET_DEST(ch) ||
 				zone != ZONE(vict) ||
 				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
+		{
 			continue;
+		}
+
 		if (vict == leader)
 		{
 			AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 			continue;
 		}
-		if (!vict->master)
+
+		if (!vict->has_master())
 		{
 			leader->add_follower(vict);
 		}
-		else if (vict->master != leader)
+		else if (vict->get_master() != leader)
 		{
 			stop_follower(vict, SF_EMPTY);
 			leader->add_follower(vict);
@@ -2779,17 +2806,25 @@ void npc_groupbattle(CHAR_DATA * ch)
 	struct follow_type *k;
 	CHAR_DATA *tch, *helper;
 
-	if (!IS_NPC(ch) ||
-			!ch->get_fighting() || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || !ch->master || ch->in_room == NOWHERE || !ch->followers)
+	if (!IS_NPC(ch)
+		|| !ch->get_fighting()
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		|| !ch->has_master()
+		|| ch->in_room == NOWHERE
+		|| !ch->followers)
+	{
 		return;
+	}
 
-	k = ch->master ? ch->master->followers : ch->followers;
-	tch = ch->master ? ch->master : ch;
+	k = ch->has_master() ? ch->get_master()->followers : ch->followers;
+	tch = ch->has_master() ? ch->get_master() : ch;
 	for (; k; (k = tch ? k : k->next), tch = NULL)
 	{
 		helper = tch ? tch : k->follower;
-		if (ch->in_room == IN_ROOM(helper) &&
-				!helper->get_fighting() && !IS_NPC(helper) && GET_POS(helper) > POS_STUNNED)
+		if (ch->in_room == IN_ROOM(helper)
+			&& !helper->get_fighting()
+			&& !IS_NPC(helper)
+			&& GET_POS(helper) > POS_STUNNED)
 		{
 			GET_POS(helper) = POS_STANDING;
 			set_fighting(helper, ch->get_fighting());
