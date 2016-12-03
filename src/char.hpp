@@ -743,7 +743,7 @@ public:
 
 	struct follow_type *followers;	// List of chars followers
 
-	const CHAR_DATA::ptr_t get_master() const { return m_master; }
+	CHAR_DATA::ptr_t get_master() const { return m_master; }
 	void set_master(CHAR_DATA::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }
 

@@ -39,7 +39,7 @@ TEST_F(FightPenalties, TheSameLevels)
 		auto killer = killer_builder.get();
 		auto leader = leader_builder.get();
 
-		GroupPenaltyCalculator penalty(killer.get(), leader.get(), level, FightPenalties::penalties());
+		GroupPenaltyCalculator penalty(killer.get(), leader.get(), level, penalties());
 
 		EXPECT_EQ(penalty.get(), 0);
 	}
@@ -58,7 +58,7 @@ TEST_F(FightPenalties, UndefinedKillerClass_SameLevels)
 	auto killer = killer_builder.get();
 	auto leader = leader_builder.get();
 	const auto max_level = std::max(killer->get_level(), leader->get_level());
-	GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
+	GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, penalties());
 
 	EXPECT_EQ(penalty.get(), 100);
 }
@@ -171,7 +171,7 @@ TEST_F(FightPenalties, NoPenaltyWithing5Levels)
 			const auto killer_level = killer->get_level();
 			const auto leader_level = leader->get_level();
 			const auto max_level = std::max(killer_level, leader_level);
-			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, penalties());
+			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, this->penalties());
 
 			if (5 >= std::abs(killer_level - leader_level))
 			{
@@ -189,7 +189,7 @@ TEST_F(FightPenalties, HasPenaltyWithingMoreThan5Levels)
 			const auto killer_level = killer->get_level();
 			const auto leader_level = leader->get_level();
 			const auto max_level = std::max(killer_level, leader_level);
-			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, penalties());
+			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, this->penalties());
 
 			if (5 < std::abs(killer_level - leader_level))
 			{
@@ -227,7 +227,7 @@ TEST_F(FightPenalties, DISABLED_PrintTable)
 		const auto killer_level = killer->get_level();
 		const auto leader_level = leader->get_level();
 		const auto max_level = std::max(killer_level, leader_level);
-		GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
+		GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, this->penalties());
 		std::cout << std::setw(PLACEHOLDER_LENGTH) << penalty.get();
 	};
 

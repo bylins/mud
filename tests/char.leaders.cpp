@@ -1,7 +1,6 @@
 #include "char.utilities.hpp"
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 TEST(CHAR_Leaders, Initialization)
 {
