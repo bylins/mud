@@ -348,6 +348,7 @@ public:
 	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
 	using role_t = boost::dynamic_bitset<>;
+	using followers_list_t = std::list<CHAR_DATA*>;
 
 	CHAR_DATA();
 	virtual ~CHAR_DATA();
@@ -599,6 +600,7 @@ public:
 
 	void add_follower(CHAR_DATA* ch) { add_follower_implementation(ch, false); }
 	void add_follower_silently(CHAR_DATA* ch) { add_follower_implementation(ch, true); }
+	followers_list_t get_followers_list() const;
 
 private:
 	std::string clan_for_title();

@@ -1927,6 +1927,21 @@ void CHAR_DATA::msdp_report(const std::string& name)
 	}
 }
 
+CHAR_DATA::followers_list_t CHAR_DATA::get_followers_list() const
+{
+	CHAR_DATA::followers_list_t result;
+
+	auto pos = followers;
+	while (pos)
+	{
+		const auto follower = pos->follower;
+		result.push_back(follower);
+		pos = pos->next;
+	}
+
+	return result;
+}
+
 void CHAR_DATA::add_follower_implementation(CHAR_DATA* ch, const bool silent)
 {
 	struct follow_type *k;
