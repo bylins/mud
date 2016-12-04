@@ -2254,7 +2254,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 			if(!IS_NPC(c))
 			{
-				k = (c->master ? c->master : c);
+				k = (c->has_master() ? c->get_master() : c);
 				if (GET_CLASS(c) == 8)//чернок может дрыниться
 				{
 					can_use = 2;
@@ -2998,18 +2998,24 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		*/
 		else if (!str_cmp(field, "leader"))
 		{
-			if (c->master)
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->master));
+			if (c->has_master())
+			{
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_master()));
+			}
 		}
 		else if (!str_cmp(field, "group"))
 		{
 			CHAR_DATA *l;
 			struct follow_type *f;
 			if (!AFF_FLAGGED(c, EAffectFlag::AFF_GROUP))
+			{
 				return;
-			l = c->master;
+			}
+			l = c->get_master();
 			if (!l)
+			{
 				l = c;
+			}
 			// l - лидер группы
 			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(l));
 			for (f = l->followers; f; f = f->next)
@@ -3027,7 +3033,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			for (t = combat_list; t; t = t->next_fighting)
 			{
 				if (t->get_fighting() != c)
+				{
 					continue;
+				}
 				sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(t));
 			}
 		}

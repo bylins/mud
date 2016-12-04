@@ -1401,8 +1401,10 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 	char buf[MAX_STRING_LENGTH];
 	char buf1[128]; // ну не лепить же сюда malloc
 
-	if (!charmee->master)
+	if (!charmee->has_master())
+	{
 		return;
+	}
 
 	if (where == 0)
 	{
@@ -1435,7 +1437,7 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 		cap.c_str(),
 		GET_OBJ_SUF_2(obj),
 		buf1);
-	send_to_char(charmee->master, "%s%s%s\r\n", CCICYN(charmee->master, C_NRM), CAP(buf), CCNRM(charmee->master, C_NRM));
+	send_to_char(charmee->get_master(), "%s%s%s\r\n", CCICYN(charmee->get_master(), C_NRM), CAP(buf), CCNRM(charmee->get_master(), C_NRM));
 }
 
 void obj_point_update()
@@ -1858,8 +1860,12 @@ void point_update(void)
 					default:
 						mana = 10;
 					}
-					if (on_horse(i->master))
+
+					if (on_horse(i->get_master()))
+					{
 						mana /= 2;
+					}
+
 					GET_HORSESTATE(i) = MIN(800, GET_HORSESTATE(i) + mana);
 				}
 				// Forget PC's

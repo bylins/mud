@@ -411,7 +411,9 @@ inline bool CHECK_CUSTOM_LABEL(const char* arg, const OBJ_DATA* obj, const CHAR_
 	return  obj->get_custom_label()
 		&& obj->get_custom_label()->label_text
 		&& (IS_NPC(ch)
-			? ((IS_CHARMICE(ch) && ch->master) ? CHECK_CUSTOM_LABEL_CORE(obj, ch->master) : 0)
+			? ((IS_CHARMICE(ch) && ch->has_master())
+				? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
+				: 0)
 			: CHECK_CUSTOM_LABEL_CORE(obj, ch))
 		&& isname(arg, obj->get_custom_label()->label_text);
 }
@@ -427,8 +429,8 @@ inline bool AUTH_CUSTOM_LABEL(const OBJ_DATA* obj, const CHAR_DATA* ch)
 	return obj->get_custom_label()
 		&& obj->get_custom_label()->label_text
 		&& (IS_NPC(ch)
-			? ((IS_CHARMICE(ch) && ch->master)
-				? CHECK_CUSTOM_LABEL_CORE(obj, ch->master)
+			? ((IS_CHARMICE(ch) && ch->has_master())
+				? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
 				: 0)
 			: CHECK_CUSTOM_LABEL_CORE(obj, ch));
 }

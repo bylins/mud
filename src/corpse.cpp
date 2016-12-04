@@ -367,10 +367,14 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i)
 	{ int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
 		if (GET_LEVEL(mob) >= i->mob_lvl 				   
-		    && (!i->max_mob_lvl || GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
-		    && ((i->race_mob < 0) || (GET_RACE(mob) == i->race_mob) || (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
-		    && ((i->day_start <= day) && (i->day_end >= day))			// временной промежуток
-		    && (!mob->master || IS_NPC(mob->master))) // не чармис	
+		    && (!i->max_mob_lvl
+				|| GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
+		    && ((i->race_mob < 0)
+				|| (GET_RACE(mob) == i->race_mob)
+				|| (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
+		    && (i->day_start <= day && i->day_end >= day)			// временной промежуток
+		    && (!mob->has_master()
+				|| IS_NPC(mob->get_master()))) // не чармис	
 
 		{
 			++(i->mobs);
@@ -584,10 +588,15 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	//	dl_load_obj (corpse, ch);
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
-	if(IS_CHARMICE(ch) && !MOB_FLAGGED(ch, MOB_CORPSE) && ch->master && ((killer && PRF_FLAGGED(killer, PRF_EXECUTOR))
-		|| (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !RENTABLE(ch->master))))
+	if(IS_CHARMICE(ch)
+		&& !MOB_FLAGGED(ch, MOB_CORPSE)
+		&& ch->has_master()
+		&& ((killer
+				&& PRF_FLAGGED(killer, PRF_EXECUTOR))
+			|| (ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+				&& !RENTABLE(ch->get_master()))))
 	{
-		obj_to_char(corpse, ch->master);
+		obj_to_char(corpse, ch->get_master());
 		return NULL;
 	}
 	else

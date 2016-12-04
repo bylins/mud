@@ -175,7 +175,8 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (IS_AFFECTED(ch, AFF_CHARM) && ch->master == victim)
+	if (IS_AFFECTED(ch, AFF_CHARM)
+		&& ch->get_master() == victim)
 	{
 		mob_log(ch, "mkill: charmed mob attacking master");
 		return;
@@ -528,10 +529,15 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (victim == ch)
+	{
 		dg_owner_purged = 1;
+	}
 
-	if (victim->followers || victim->master)
+	if (victim->followers
+		|| victim->has_master())
+	{
 		die_follower(victim);
+	}
 	extract_char(victim, FALSE);
 }
 
@@ -713,18 +719,27 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		for (charmee = world[IN_ROOM(vict)]->people; charmee; charmee = ncharmee)
 		{
 			ncharmee = charmee->next_in_room;
-			if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
-									|| MOB_FLAGGED(charmee, MOB_ANGEL)|| MOB_FLAGGED(charmee, MOB_GHOST))
-					&& charmee->master == vict)
+			if (IS_NPC(charmee)
+				&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
+					|| MOB_FLAGGED(charmee, MOB_ANGEL)
+					|| MOB_FLAGGED(charmee, MOB_GHOST))
+				&& charmee->get_master() == vict)
 			{
 				char_from_room(charmee);
 				char_to_room(charmee, target);
 			}
 		}
-		if (on_horse(vict) || has_horse(vict, TRUE))
+
+		if (on_horse(vict)
+			|| has_horse(vict, TRUE))
+		{
 			horse = get_horse(vict);
+		}
 		else
+		{
 			horse = NULL;
+		}
+
 		from_room = vict->in_room;
 
 		char_from_room(vict);
@@ -739,11 +754,13 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			follow_type *ft;
 			for (ft = vict->followers; ft; ft = ft->next)
+			{
 				if (IN_ROOM(ft->follower) == from_room && IS_NPC(ft->follower))
 				{
 					char_from_room(ft->follower);
 					char_to_room(ft->follower, target);
 				}
+			}
 		}
 //-Polud
 		check_horse(vict);
@@ -1140,11 +1157,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		*m = *ch;
 		*ch = tmpmob;
 		ch->set_normal_morph();
-		/*
-				memcpy(&tmpmob, m, sizeof(CHAR_DATA));	// m  ==> tmpmob
-				memcpy(m, ch, sizeof(CHAR_DATA));	// ch ==> m
-				memcpy(ch, &tmpmob, sizeof(CHAR_DATA));	// tmpmob ==> ch
-		*/
+
 // Имею:
 //  ch -> старый указатель, новое наполнение из моба m
 //  m -> новый указатель, старое наполнение из моба ch
@@ -1169,14 +1182,17 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		m->next_fighting = tmpmob.next_fighting;
 		ch->followers = m->followers;
 		m->followers = tmpmob.followers;
-		ch->master = m->master;
-		m->master = tmpmob.master;
+
+		ch->set_master(m->get_master());
+		m->set_master(tmpmob.get_master());
+
 		if (keep_hp)
 		{
 			GET_HIT(ch) = GET_HIT(m);
 			GET_MAX_HIT(ch) = GET_MAX_HIT(m);
 			ch->set_exp(m->get_exp());
 		}
+
 		ch->set_gold(m->get_gold());
 		GET_POS(ch) = GET_POS(m);
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
@@ -1190,8 +1206,6 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		// для name_list
 		ch->set_serial_num(m->get_serial_num());
 		m->set_serial_num(tmpmob.get_serial_num());
-//		CharacterAlias::remove(ch);
-//		CharacterAlias::add(ch);
 
 		for (pos = 0; pos < NUM_WEARS; pos++)
 		{

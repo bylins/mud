@@ -1025,7 +1025,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 		act("\r\nНичего необычного в $n5 вы не заметили.", FALSE, i, 0, ch, TO_VICT);
 
 	if (AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
-		&& i->master == ch)
+		&& i->get_master() == ch)
 	{
 		if (low_charm(i))
 		{
@@ -1045,7 +1045,8 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 		}
 	}
 
-	if (IS_HORSE(i) && i->master == ch)
+	if (IS_HORSE(i)
+		&& i->get_master() == ch)
 	{
 		strcpy(buf, "\r\nЭто ваш скакун. Он ");
 		if (GET_HORSESTATE(i) <= 0)
@@ -1080,14 +1081,21 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 			send_to_char("\r\n", ch);
 			act("$n одет$a :", FALSE, i, 0, ch, TO_VICT);
 			for (j = 0; j < NUM_WEARS; j++)
+			{
 				if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
 				{
 					send_to_char(where[j], ch);
-					if (i->master && IS_NPC(i))
-						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->master, 1);
+					if (i->has_master()
+						&& IS_NPC(i))
+					{
+						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->get_master(), 1);
+					}
 					else
+					{
 						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i, 1);
+					}
 				}
+			}
 		}
 	}
 
@@ -1156,15 +1164,20 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		"стоят здесь. "
 	};
 
-	if (IS_HORSE(i) && on_horse(i->master))
+	if (IS_HORSE(i) && on_horse(i->get_master()))
 	{
-		if (ch == i->master)
+		if (ch == i->get_master())
 		{
 			if (!IS_POLY(i))
+			{
 				act("$N несет вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
+			}
 			else
+			{
 				act("$N несут вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
+			}
 		}
+
 		return;
 	}
 

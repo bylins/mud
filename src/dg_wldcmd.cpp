@@ -366,15 +366,22 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		if ((ch = get_char_by_room(room, arg1)))
 		{
 			if (on_horse(ch) || has_horse(ch, TRUE))
+			{
 				horse = get_horse(ch);
+			}
 			else
+			{
 				horse = NULL;
+			}
+
 			for (charmee = world[ch->in_room]->people; charmee; charmee = ncharmee)
 			{
 				ncharmee = charmee->next_in_room;
-				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
-										|| MOB_FLAGGED(charmee, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST))
-						&& charmee->master == ch)
+				if (IS_NPC(charmee)
+					&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
+						|| MOB_FLAGGED(charmee, MOB_ANGEL)
+						|| MOB_FLAGGED(ch, MOB_GHOST))
+					&& charmee->get_master() == ch)
 				{
 					char_from_room(charmee);
 					char_to_room(charmee, target);
@@ -391,7 +398,9 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			look_at_room(ch, TRUE);
 		}
 		else
+		{
 			wld_log(room, "wteleport: no target found");
+		}
 	}
 }
 
@@ -517,7 +526,8 @@ void do_wpurge(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ch->followers || ch->master)
+	if (ch->followers
+		|| ch->get_master())
     {
         die_follower(ch);
     }

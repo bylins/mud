@@ -2893,22 +2893,28 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		}
 		return (0);
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->master == tch))
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		&& ch->get_master() == tch)
 	{
 		send_to_char("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
 		return (0);
 	}
-	if (tch != ch && !IS_IMMORTAL(ch)
-			&& IS_SET(SpINFO.targets, TAR_SELF_ONLY))
+
+	if (tch != ch
+		&& !IS_IMMORTAL(ch)
+		&& IS_SET(SpINFO.targets, TAR_SELF_ONLY))
 	{
 		send_to_char("Вы можете колдовать это только на себя!\r\n", ch);
 		return (0);
 	}
+
 	if (tch == ch && IS_SET(SpINFO.targets, TAR_NOT_SELF))
 	{
 		send_to_char("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
 		return (0);
 	}
+
 	if ((!tch || IN_ROOM(tch) == NOWHERE) && !tobj && !troom &&
 			IS_SET(SpINFO.targets,
 				   TAR_CHAR_ROOM | TAR_CHAR_WORLD | TAR_FIGHT_SELF | TAR_FIGHT_VICT

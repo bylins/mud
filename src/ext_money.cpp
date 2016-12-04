@@ -492,14 +492,14 @@ bool has_connected_bosses(CHAR_DATA *ch)
 		if (i->follower != ch
 			&& IS_NPC(i->follower)
 			&& !IS_CHARMICE(i->follower)
-			&& i->follower->master == ch
+			&& i->follower->get_master() == ch
 			&& i->follower->get_role(MOB_ROLE_BOSS))
 		{
 			return true;
 		}
 	}
 	// если он сам следует за каким-то боссом
-	if (ch->master && ch->master->get_role(MOB_ROLE_BOSS))
+	if (ch->has_master() && ch->get_master()->get_role(MOB_ROLE_BOSS))
 	{
 		return true;
 	}
@@ -688,8 +688,8 @@ void drop_torc(CHAR_DATA *mob)
 		return;
 	}
 
-	CHAR_DATA *leader = (d->character->master && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
-		? d->character->master
+	CHAR_DATA *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
+		? d->character->get_master()
 		: d->character;
 
 	int members = 1;

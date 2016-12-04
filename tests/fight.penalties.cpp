@@ -39,7 +39,7 @@ TEST_F(FightPenalties, TheSameLevels)
 		auto killer = killer_builder.get();
 		auto leader = leader_builder.get();
 
-		GroupPenaltyCalculator penalty(killer.get(), leader.get(), level, FightPenalties::penalties());
+		GroupPenaltyCalculator penalty(killer.get(), leader.get(), level, penalties());
 
 		EXPECT_EQ(penalty.get(), 0);
 	}
@@ -58,7 +58,7 @@ TEST_F(FightPenalties, UndefinedKillerClass_SameLevels)
 	auto killer = killer_builder.get();
 	auto leader = leader_builder.get();
 	const auto max_level = std::max(killer->get_level(), leader->get_level());
-	GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
+	GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, penalties());
 
 	EXPECT_EQ(penalty.get(), 100);
 }

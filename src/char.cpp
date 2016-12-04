@@ -96,6 +96,7 @@ CHAR_DATA::CHAR_DATA() :
 	next_(NULL),
 	in_room(CRooms::UNDEFINED_ROOM_VNUM),
 	m_wait(~0u),
+	m_master(nullptr),
 	proto_script(new OBJ_DATA::triggers_list_t()),
 	followers(nullptr)
 {
@@ -143,7 +144,7 @@ void CHAR_DATA::reset()
 	memset((void *)&add_abils, 0, sizeof(add_abils));
 
 	followers = NULL;
-	master = NULL;
+	m_master = nullptr;
 	in_room = NOWHERE;
 	carrying = NULL;
 	next_ = NULL;
@@ -365,7 +366,7 @@ void CHAR_DATA::zero_init()
 	next_in_room = 0;
 	next_fighting = 0;
 	followers = 0;
-	master = 0;
+	m_master = nullptr;
 	CasterLevel = 0;
 	DamageLevel = 0;
 	pk_list = 0;
@@ -1927,6 +1928,18 @@ void CHAR_DATA::msdp_report(const std::string& name)
 	}
 }
 
+void CHAR_DATA::add_follower(CHAR_DATA* ch)
+{
+	add_follower_silently(ch);
+
+	if (!IS_HORSE(ch))
+	{
+		act("Вы начали следовать за $N4.", FALSE, ch, 0, this, TO_CHAR);
+		act("$n начал$g следовать за вами.", TRUE, ch, 0, this, TO_VICT);
+		act("$n начал$g следовать за $N4.", TRUE, ch, 0, this, TO_NOTVICT | TO_ARENA_LISTEN);
+	}
+}
+
 CHAR_DATA::followers_list_t CHAR_DATA::get_followers_list() const
 {
 	CHAR_DATA::followers_list_t result;
@@ -1942,15 +1955,14 @@ CHAR_DATA::followers_list_t CHAR_DATA::get_followers_list() const
 	return result;
 }
 
-void CHAR_DATA::add_follower_implementation(CHAR_DATA* ch, const bool silent)
+void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)
 {
 	struct follow_type *k;
 
-	if (ch->master)
+	if (ch->has_master())
 	{
 		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
-			GET_NAME(ch), get_name().c_str(), GET_NAME(ch->master));
-		// core_dump();
+			GET_NAME(ch), get_name().c_str(), GET_NAME(ch->get_master()));
 		return;
 	}
 
@@ -1959,21 +1971,13 @@ void CHAR_DATA::add_follower_implementation(CHAR_DATA* ch, const bool silent)
 		return;
 	}
 
-	ch->master = this;
+	ch->set_master(this);
 
 	CREATE(k, 1);
 
 	k->follower = ch;
 	k->next = followers;
 	followers = k;
-
-	if (!IS_HORSE(ch) && !silent)
-	{
-		act("Вы начали следовать за $N4.", FALSE, ch, 0, this, TO_CHAR);
-		//if (CAN_SEE(leader, ch))
-		act("$n начал$g следовать за вами.", TRUE, ch, 0, this, TO_VICT);
-		act("$n начал$g следовать за $N4.", TRUE, ch, 0, this, TO_NOTVICT | TO_ARENA_LISTEN);
-	}
 }
 
 const boost::dynamic_bitset<>& CHAR_DATA::get_role_bits() const
@@ -1991,9 +1995,9 @@ void CHAR_DATA::add_attacker(CHAR_DATA *ch, unsigned type, int num)
 	}
 
 	int uid = ch->get_uid();
-	if (IS_CHARMICE(ch) && ch->master)
+	if (IS_CHARMICE(ch) && ch->has_master())
 	{
-		uid = ch->master->get_uid();
+		uid = ch->get_master()->get_uid();
 	}
 
 	auto i = attackers_.find(uid);
@@ -2095,6 +2099,55 @@ void CHAR_DATA::restore_mob()
 		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], i);
 	}
 	GET_CASTER(this) = GET_CASTER(&mob_proto[GET_MOB_RNUM(this)]);
+}
+
+bool CHAR_DATA::makes_loop(CHAR_DATA::ptr_t master) const
+{
+	while (master)
+	{
+		if (master == this)
+		{
+			return true;
+		}
+		master = master->get_master();
+	}
+
+	return false;
+}
+
+void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const
+{
+	std::stringstream ss;
+	ss << "Обнаружена ошибка логики: попытка сделать цикл в цепочке последователей.\nТекущая цепочка лидеров: ";
+	print_leaders_chain(ss);
+	ss << "\nПопытка сделать персонажа " << master->get_name() << " лидером персонажа %s." << get_name();
+	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, true);
+}
+
+void CHAR_DATA::print_leaders_chain(std::ostream& ss) const
+{
+	if (!has_master())
+	{
+		ss << "<пуста>";
+		return;
+	}
+
+	bool first = true;
+	for (auto master = get_master(); master; master = master->get_master())
+	{
+		ss << (first ? "" : " -> ") << "[" << master->get_name() << "]";
+		first = false;
+	}
+}
+
+void CHAR_DATA::set_master(CHAR_DATA::ptr_t master)
+{
+	if (makes_loop(master))
+	{
+		report_loop_error(master);
+		return;
+	}
+	m_master = master;
 }
 
 // инкремент и проверка таймера на рестор босса,

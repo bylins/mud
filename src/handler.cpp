@@ -1169,8 +1169,8 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
 			&& (number(1,100) <= 30)) // 30% шанс что враг уснет
 		{
-			if (ch->master
-				&& !IS_NPC(ch->master)
+			if (ch->has_master()
+				&& !IS_NPC(ch->get_master())
 				&& IS_NPC(ch))
 			{
 				return;
@@ -1432,7 +1432,9 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			return;
 		}
 
-		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+		if (!IS_NPC(ch)
+			|| (ch->has_master()
+				&& !IS_NPC(ch->get_master())))
 		{
 			// Контроль уникальности предметов
 			if (object && // Объект существует
@@ -1470,7 +1472,9 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			}
 		}
 
-		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+		if (!IS_NPC(ch)
+			|| (ch->has_master()
+				&& !IS_NPC(ch->get_master())))
 		{
 			object->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);	// start timer unconditionally when character picks item up.
 			insert_obj_and_group(object, &ch->carrying);
@@ -1481,7 +1485,6 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			object->set_next_content(ch->carrying);
 			ch->carrying = object;
 		}
-
 
 		object->set_carried_by(ch);
 		object->set_in_room(NOWHERE);
@@ -1943,7 +1946,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	if (!IS_NPC(ch) || IS_CHARMICE(ch))
 	{
-		CHAR_DATA *master = IS_CHARMICE(ch) && ch->master ? ch->master : ch;
+		CHAR_DATA *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
 		if ((obj->get_manual_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
 		{
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
@@ -2901,7 +2904,7 @@ void change_npc_leader(CHAR_DATA *ch)
 	{
 		if (IS_NPC(i->follower)
 			&& !IS_CHARMICE(i->follower)
-			&& i->follower->master == ch)
+			&& i->follower->get_master() == ch)
 		{
 			tmp_list.push_back(i->follower);
 		}
@@ -3016,19 +3019,26 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		ExtMoney::drop_torc(ch);
 	}
 
-	if (!IS_NPC(ch) && !ch->master && ch->followers && AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
+	if (!IS_NPC(ch)
+		&& !ch->has_master()
+		&& ch->followers
+		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		log("[Extract char] Change group leader");
 		change_leader(ch, 0);
 	}
-	else if (IS_NPC(ch) && !IS_CHARMICE(ch) && !ch->master && ch->followers)
+	else if (IS_NPC(ch)
+		&& !IS_CHARMICE(ch)
+		&& !ch->has_master()
+		&& ch->followers)
 	{
 		log("[Extract char] Changing NPC leader");
 		change_npc_leader(ch);
 	}
 
 	log("[Extract char] Die followers");
-	if ((ch->followers || ch->master) && die_follower(ch))
+	if ((ch->followers || ch->has_master())
+		&& die_follower(ch))
 	{
 		// TODO: странно все это с пуржем в stop_follower
 		// extract_mob тоже самое
@@ -3037,11 +3047,12 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 
 	log("[Extract char] Stop fighting self");
 	if (ch->get_fighting())
+	{
 		stop_fighting(ch, TRUE);
+	}
 
 	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, TRUE);
-
 
 	log("[Extract char] Remove char from room");
 	char_from_room(ch);
@@ -3054,7 +3065,9 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	ch->remove_from_list(character_list);
 
 	if (ch->desc && ch->desc->original)
+	{
 		do_return(ch, NULL, 0, 0);
+	}
 
     // на плееров сейчас тоже триги вешают
 	free_script(SCRIPT(ch));	// без комментариев
@@ -3074,8 +3087,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		ch->save_char();
 		//удаляются рент-файлы, если только персонаж не ушел в ренту
 		Crash_delete_crashfile(ch);
-//      if (clear_objs)
-//         Crash_delete_files(GET_NAME(ch), CRASH_DELETE_OLD | CRASH_DELETE_NEW);
 	}
 	else
 	{
@@ -3086,7 +3097,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 
 		MOB_FLAGS(ch).set(MOB_FREE);
 		ch->purge();
-		// delete ch;
 		freed = 1;
 	}
 
@@ -3108,12 +3118,10 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		{
 			MOB_FLAGS(ch).set(MOB_FREE);
 			ch->purge();
-			// delete ch;
 		}
 	}
 	log("[Extract char] Stop function for char %s", name.c_str());
 }
-
 
 // Extract a MOB completely from the world, and destroy his stuff
 void extract_mob(CHAR_DATA * ch)
@@ -3136,7 +3144,8 @@ void extract_mob(CHAR_DATA * ch)
 		exit(1);
 	}
 
-	if ((ch->followers || ch->master) && die_follower(ch))
+	if ((ch->followers || ch->has_master())
+		&& die_follower(ch))
 	{
 		// TODO: странно все это с пуржем в stop_follower
 		// extract_char тоже самое
@@ -3161,7 +3170,9 @@ void extract_mob(CHAR_DATA * ch)
 
 	// extract objects, if any
 	while (ch->carrying)
+	{
 		extract_obj(ch->carrying);
+	}
 
 	// transfer equipment to room, if any
 	for (i = 0; i < NUM_WEARS; i++)

@@ -705,21 +705,27 @@ void mudlog(const char *str, int type, int level, EOutputStream channel, int fil
 	DESCRIPTOR_DATA *i;
 
 	if (str == NULL)
+	{
 		return;		// eh, oh well.
+	}
+
 	if (channel < 0 || channel > LAST_LOG)
 	{
 		return;
 	}
+
 	if (file)
 	{
 		logfile = runtime_config.logs(channel).handle();
 		log("%s", str);
 		logfile = runtime_config.logs(SYSLOG).handle();
 	}
+
 	if (level < 0)
 	{
 		return;
 	}
+
 	char time_buf[20];
 	time_t ct = time(0);
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
@@ -821,25 +827,25 @@ TIME_INFO_DATA *age(CHAR_DATA * ch)
 	return (&player_age);
 }
 
-
 // Check if making CH follow VICTIM will create an illegal //
 // Follow "Loop/circle"                                    //
 bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	CHAR_DATA *k;
-
-	for (k = victim; k; k = k->master)
+	for (auto k = victim; k; k = k->get_master())
 	{
-		if (k->master == k)
+		if (k->get_master() == k)
 		{
-			k->master = NULL;
-			return (FALSE);
+			k->set_master(nullptr);
+			return false;
 		}
+
 		if (k == ch)
-			return (TRUE);
+		{
+			return true;
+		}
 	}
 
-	return (FALSE);
+	return false;
 }
 
 void make_horse(CHAR_DATA * horse, CHAR_DATA * ch)
@@ -899,14 +905,15 @@ CHAR_DATA *get_horse(CHAR_DATA * ch)
 
 void horse_drop(CHAR_DATA * ch)
 {
-	if (ch->master)
+	if (ch->has_master())
 	{
-		act("$N сбросил$G вас со своей спины.", FALSE, ch->master, 0, ch, TO_CHAR);
-		AFF_FLAGS(ch->master).unset(EAffectFlag::AFF_HORSE);
-		WAIT_STATE(ch->master, 3 * PULSE_VIOLENCE);
-		if (GET_POS(ch->master) > POS_SITTING)
+		act("$N сбросил$G вас со своей спины.", FALSE, ch->get_master(), 0, ch, TO_CHAR);
+		AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_HORSE);
+		WAIT_STATE(ch->get_master(), 3 * PULSE_VIOLENCE);
+
+		if (GET_POS(ch->get_master()) > POS_SITTING)
 		{
-			GET_POS(ch->master) = POS_SITTING;
+			GET_POS(ch->get_master()) = POS_SITTING;
 		}
 	}
 }
@@ -919,7 +926,6 @@ void check_horse(CHAR_DATA * ch)
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 	}
 }
-
 
 // Called when stop following persons, or stopping charm //
 // This will NOT do if a character quits/dies!!          //
@@ -935,53 +941,52 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	//log("[Stop follower] Start function(%s->%s)",ch ? GET_NAME(ch) : "none",
 	//      ch->master ? GET_NAME(ch->master) : "none");
 
-	if (!ch->master)
+	if (!ch->has_master())
 	{
 		log("SYSERR: stop_follower(%s) without master", GET_NAME(ch));
-		// core_dump();
 		return (FALSE);
 	}
 
 	// для смены лидера без лишнего спама
 	if (!IS_SET(mode, SF_SILENCE))
 	{
-		act("Вы прекратили следовать за $N4.", FALSE, ch, 0, ch->master, TO_CHAR);
-		act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("Вы прекратили следовать за $N4.", FALSE, ch, 0, ch->get_master(), TO_CHAR);
+		act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 
 	//log("[Stop follower] Stop horse");
-	if (get_horse(ch->master) == ch
-		&& on_horse(ch->master))
+	if (get_horse(ch->get_master()) == ch
+		&& on_horse(ch->get_master()))
 	{
 		horse_drop(ch);
 	}
 	else
 	{
-		act("$n прекратил$g следовать за вами.", TRUE, ch, 0, ch->master, TO_VICT);
+		act("$n прекратил$g следовать за вами.", TRUE, ch, 0, ch->get_master(), TO_VICT);
 	}
 
 	//log("[Stop follower] Remove from followers list");
-	if (!ch->master->followers)
+	if (!ch->get_master()->followers)
 	{
-		log("[Stop follower] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->master));
+		log("[Stop follower] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->get_master()));
 	}
-	else if (ch->master->followers->follower == ch)  	// Head of follower-list?
+	else if (ch->get_master()->followers->follower == ch)  	// Head of follower-list?
 	{
-		k = ch->master->followers;
-		ch->master->followers = k->next;
-		if (!ch->master->followers
-			&& !ch->master->master)
+		k = ch->get_master()->followers;
+		ch->get_master()->followers = k->next;
+		if (!ch->get_master()->followers
+			&& !ch->get_master()->has_master())
 		{
-			AFF_FLAGS(ch->master).unset(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
 		}
 		free(k);
 	}
 	else  		// locate follower who is not head of list
 	{
-		for (k = ch->master->followers; k->next && k->next->follower != ch; k = k->next);
+		for (k = ch->get_master()->followers; k->next && k->next->follower != ch; k = k->next);
 		if (!k->next)
 		{
-			log("[Stop follower] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->master));
+			log("[Stop follower] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->get_master()));
 		}
 		else
 		{
@@ -990,12 +995,11 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			free(j);
 		}
 	}
-	master = ch->master;
-	ch->master = NULL;
+	master = ch->get_master();
+	ch->set_master(nullptr);
 
 	AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 
-	//log("[Stop follower] Free charmee");
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
 		|| IS_SET(mode, SF_CHARMLOST))
@@ -1074,7 +1078,7 @@ bool die_follower(CHAR_DATA * ch)
 {
 	struct follow_type *j, *k = ch->followers;
 
-	if (ch->master && stop_follower(ch, SF_FOLLOWERDIE))
+	if (ch->has_master() && stop_follower(ch, SF_FOLLOWERDIE))
 	{
 		//  чармиса спуржили в stop_follower
 		return true;
@@ -1613,22 +1617,48 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 		return false;
 
 	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
-	if (IS_NPC(ch) && ch->master && !IS_NPC(ch->master)
-		&& (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST)))
-		ch = ch->master;
-	if (IS_NPC(tch) && tch->master && !IS_NPC(tch->master)
-		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)|| MOB_FLAGGED(tch, MOB_GHOST)))
-		tch = tch->master;
+	if (IS_NPC(ch)
+		&& ch->has_master()
+		&& !IS_NPC(ch->get_master())
+		&& (IS_HORSE(ch)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(ch, MOB_ANGEL)
+			|| MOB_FLAGGED(ch, MOB_GHOST)))
+	{
+		ch = ch->get_master();
+	}
+
+	if (IS_NPC(tch)
+		&& tch->has_master()
+		&& !IS_NPC(tch->get_master())
+		&& (IS_HORSE(tch)
+			|| AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(tch, MOB_ANGEL)
+			|| MOB_FLAGGED(tch, MOB_GHOST)))
+	{
+		tch = tch->get_master();
+	}
 
 	// NPC's always in same group
-	if ((IS_NPC(ch) && IS_NPC(tch)) || ch == tch)
+	if ((IS_NPC(ch) && IS_NPC(tch))
+		|| ch == tch)
+	{
 		return true;
+	}
 
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) || !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP))
+	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
+		|| !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP))
+	{
 		return false;
+	}
 
-	if (ch->master == tch || tch->master == ch || (ch->master && ch->master == tch->master))
+	if (ch->get_master() == tch
+		|| tch->get_master() == ch
+		|| (ch->has_master()
+			&& ch->get_master() == tch->get_master()))
+	{
 		return true;
+	}
 
 	return false;
 }
@@ -1983,17 +2013,25 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 
 // имморталов не игнорит никто
 	if (IS_IMMORTAL(whom))
+	{
 		return FALSE;
+	}
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
-	if (IS_NPC(whom) && AFF_FLAGGED(whom, EAffectFlag::AFF_CHARM))
-		return ignores(who, whom->master, flag);
+	if (IS_NPC(whom)
+		&& AFF_FLAGGED(whom, EAffectFlag::AFF_CHARM))
+	{
+		return ignores(who, whom->get_master(), flag);
+	}
 
 	ign_id = GET_IDNUM(whom);
 	for (; ignore; ignore = ignore->next)
 	{
-		if ((ignore->id == ign_id || ignore->id == -1) && IS_SET(ignore->mode, flag))
+		if ((ignore->id == ign_id || ignore->id == -1)
+			&& IS_SET(ignore->mode, flag))
+		{
 			return TRUE;
+		}
 	}
 	return FALSE;
 }

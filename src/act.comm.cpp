@@ -145,22 +145,32 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы не являетесь членом группы!\r\n", ch);
 		return;
 	}
+
 	if (!*argument)
+	{
 		send_to_char("О чем вы хотите сообщить своей группе?\r\n", ch);
+	}
 	else
 	{
-		if (ch->master)
-			k = ch->master;
+		if (ch->has_master())
+		{
+			k = ch->get_master();
+		}
 		else
+		{
 			k = ch;
+		}
 
 		sprintf(buf, "$n сообщил$g группе : '%s'", argument);
 
-		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && (k != ch) && !ignores(k, ch, IGNORE_GROUP))
+		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
+			&& k != ch
+			&& !ignores(k, ch, IGNORE_GROUP))
 		{
 			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
 			// added by WorM  групптелы 2010.10.13
-			if(!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS) && GET_POS(k) > POS_DEAD)
+			if(!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)
+				&& GET_POS(k) > POS_DEAD)
 			{
 				sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, k) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, k), argument);
 				k->remember_add(buf1, Remember::ALL);

@@ -292,14 +292,24 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 
 	if (victim != ch)
 	{
-		if (WAITLESS(ch) && !WAITLESS(victim))
+		if (WAITLESS(ch)
+			&& !WAITLESS(victim))
+		{
 			modi += 100;	// always success
+		}
 		else if (same_group(ch, victim))
+		{
 			modi += 75;	// 75% chance to success
-		else if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+		}
+		else if (!IS_NPC(ch)
+			|| (ch->has_master()
+				&& !IS_NPC(ch->get_master())))
+		{
 			modi = -100;	// always fail
+		}
 
-		if (modi == -100 || general_savingthrow(ch, victim, SAVING_WILL, modi))
+		if (modi == -100
+			|| general_savingthrow(ch, victim, SAVING_WILL, modi))
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -1135,16 +1145,20 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	for (k = ch->followers; k; k = k->next)
 	{
 		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
-			&& k->follower->master == ch)
+			&& k->follower->get_master() == ch)
 		{
 			cha_summ++;
 			//hp_summ += GET_REAL_MAX_HIT(k->follower);
 			reformed_hp_summ += get_reformed_charmice_hp(ch, k->follower, spellnum);
 // Проверка на тип последователей -- некрасиво, зато эффективно
 			if (MOB_FLAGGED(k->follower, MOB_CORPSE))
+			{
 				undead_in_group = TRUE;
+			}
 			else
+			{
 				living_in_group = TRUE;
+			}
 		}
 	}
 
@@ -1233,43 +1247,45 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else
 	{
-//    Проверяем - можем ли мы зачармить моба с уровнем victim
-//    if (charm_points(ch) < used_charm_points(ch)
-//                            + on_charm_points(victim)) {
-//       send_to_char("Вам не под силу управлять такой боевой мощью.\r\n", ch);
 		if (!check_charmee(ch, victim, SPELL_CHARM))
+		{
 			return;
-//    }
+		}
+
 		// Левая проверка
-		if (victim->master)
+		if (victim->has_master())
 		{
 			if (stop_follower(victim, SF_MASTERDIE))
+			{
 				return;
+			}
 		}
-//    Загружаем моба CHARM_MOB_VNUM+уровень victim
-//    if (!(victim = charm_mob(victim))) {
-//      send_to_char("ОШИБКА! Запомните какого моба вы хотели зачармить и сообщите богам.\r\n",ch);
-//      return;
-//    }
-//    // --------
 
 		affect_from_char(victim, SPELL_CHARM);
 		ch->add_follower(victim);
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_CHARM;
+
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch))
+		{
 			af.duration = pc_duration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
+		}
 		else
+		{
 			af.duration = pc_duration(victim, GET_REAL_CHA(ch) + number(1, 10) + GET_REMORT(ch) * 2, 0, 0, 0, 0);
+		}
+
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(victim, af);
+
 		if (GET_HELPER(victim))
 		{
 			GET_HELPER(victim) = NULL;
 		}
+
 		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.", FALSE, ch, 0, victim, TO_VICT);
 		if (IS_NPC(victim))
 		{
@@ -1282,6 +1298,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 					{
 						continue;
 					}
+
 					act("Вы прекратили использовать $o3.", FALSE, victim, GET_EQ(victim, i), 0, TO_CHAR);
 					act("$n прекратил$g использовать $o3.", TRUE, victim, GET_EQ(victim, i), 0, TO_ROOM);
 					obj_to_char(unequip_char(victim, i | 0x40), victim);
@@ -1472,15 +1489,14 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 			return;
 		}
-		/*    if (GET_LEVEL(ch) < GET_LEVEL(helpee))
-				 {sprintf(buf,"$n сказал$g вам : \" Вы слишком малы для того, чтоб я служил вам.\"");
-				  act(buf,FALSE,helpee,0,ch,TO_VICT|CHECK_DEAF);
-				  return;
-				 }	 */
-		if (helpee->master && helpee->master != ch)
+
+		if (helpee->has_master()
+			&& helpee->get_master() != ch)
 		{
 			if (stop_follower(helpee, SF_MASTERDIE))
+			{
 				return;
+			}
 		}
 
 		AFFECT_DATA<EApplyLocation> af;
@@ -2537,12 +2553,18 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 	send_to_char(CCIBLU(ch, C_NRM), ch);
 	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
 	sprintf(buf, "%s\r\n", buf2);
+
 	if (victim->followers)
+	{
 		sprintf(buf + strlen(buf), "Имеет последователей.\r\n");
-	else if (victim->master)
-		sprintf(buf + strlen(buf), "Следует за %s.\r\n", GET_PAD(victim->master, 4));
+	}
+	else if (victim->has_master())
+	{
+		sprintf(buf + strlen(buf), "Следует за %s.\r\n", GET_PAD(victim->get_master(), 4));
+	}
+
 	sprintf(buf + strlen(buf),
-			"Уровень повреждений %d, уровень заклинаний %d.\r\n", GET_DAMAGE(victim), GET_CASTER(victim));
+		"Уровень повреждений %d, уровень заклинаний %d.\r\n", GET_DAMAGE(victim), GET_CASTER(victim));
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }
@@ -2760,17 +2782,18 @@ void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* 
 
 void spell_eviless(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
-	CHAR_DATA *tch;
-
-	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
-		if (IS_NPC(tch) && tch->master == ch && MOB_FLAGGED(tch, MOB_CORPSE))
+	for (auto tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+	{
+		if (IS_NPC(tch)
+			&& tch->get_master() == ch
+			&& MOB_FLAGGED(tch, MOB_CORPSE))
 		{
 			if (mag_affects(GET_LEVEL(ch), ch, tch, SPELL_EVILESS, SAVING_STABILITY))
 			{
 				GET_HIT(tch) = MAX(GET_HIT(tch), GET_REAL_MAX_HIT(tch));
 			}
 		}
-	return;
+	}
 }
 
 void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)

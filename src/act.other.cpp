@@ -985,10 +985,16 @@ int max_group_size(CHAR_DATA *ch)
 
 bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict)
 {
-	if (IS_NPC(vict) || !AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP) || vict->master != ch)
+	if (IS_NPC(vict)
+		|| !AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
+		|| vict->get_master() != ch)
+	{
 		return false;
+	}
 	else
+	{
 		return true;
+	}
 }
 
 int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
@@ -1021,8 +1027,12 @@ int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 */
 void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 {
-	if (IS_NPC(ch) || ch->master || !ch->followers)
+	if (IS_NPC(ch)
+		|| ch->has_master()
+		|| !ch->followers)
+	{
 		return;
+	}
 
 	CHAR_DATA *leader = vict;
 	if (!leader)
@@ -1038,7 +1048,11 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 				leader = l->follower;
 		}
 	}
-	if (!leader) return;
+
+	if (!leader)
+	{
+		return;
+	}
 
 	// для реследования используем стандартные функции
 	std::vector<CHAR_DATA *> temp_list;
@@ -1046,14 +1060,22 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	{
 		n = l->next;
 		if (!is_group_member(ch, l->follower))
+		{
 			continue;
+		}
 		else
 		{
 			CHAR_DATA *temp_vict = l->follower;
-			if (temp_vict->master && stop_follower(temp_vict, SF_SILENCE))
+			if (temp_vict->has_master()
+				&& stop_follower(temp_vict, SF_SILENCE))
+			{
 				continue;
+			}
+
 			if (temp_vict != leader)
+			{
 				temp_list.push_back(temp_vict);
+			}
 		}
 	}
 
@@ -1269,7 +1291,7 @@ void print_list_group(CHAR_DATA *ch)
 	CHAR_DATA *k;
 	struct follow_type *f;
 	int count = 1;
-	k = (ch->master ? ch->master : ch);
+	k = (ch->has_master() ? ch->get_master() : ch);
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		send_to_char("Ваша группа состоит из:\r\n", ch);
@@ -1278,10 +1300,13 @@ void print_list_group(CHAR_DATA *ch)
 			sprintf(buf1, "Лидер: %s\r\n", GET_NAME(k));
 			send_to_char(buf1, ch);
 		}
+
 		for (f = k->followers; f; f = f->next)
 		{
 			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
-				continue;	
+			{
+				continue;
+			}
 			sprintf(buf1, "%d. Согруппник: %s\r\n", count, GET_NAME(f->follower));
 			send_to_char(buf1, ch);
 			count++;
@@ -1299,7 +1324,7 @@ void print_group(CHAR_DATA * ch)
 	CHAR_DATA *k;
 	struct follow_type *f, *g;
 
-	k = (ch->master ? ch->master : ch);
+	k = ch->has_master() ? ch->get_master() : ch;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		send_to_char("Ваша группа состоит из:\r\n", ch);
@@ -1307,6 +1332,7 @@ void print_group(CHAR_DATA * ch)
 		{
 			print_one_line(ch, k, TRUE, gfound++);
 		}
+
 		for (f = k->followers; f; f = f->next)
 		{
 			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
@@ -1316,6 +1342,7 @@ void print_group(CHAR_DATA * ch)
 			print_one_line(ch, f->follower, FALSE, gfound++);
 		}
 	}
+
 	for (f = ch->followers; f; f = f->next)
 	{
 		if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
@@ -1333,22 +1360,25 @@ void print_group(CHAR_DATA * ch)
 		return;
 	}
 	if (PRF_FLAGGED(ch, PRF_SHOWGROUP))
+	{
 		for (g = k->followers, cfound = 0; g; g = g->next)
 		{
 			for (f = g->follower->followers; f; f = f->next)
 			{
 				if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST))
+					|| MOB_FLAGGED(f->follower, MOB_ANGEL) || MOB_FLAGGED(f->follower, MOB_GHOST))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 				{
 					continue;
 				}
-				if (f->follower->master == ch
-					|| !AFF_FLAGGED(f->follower->master, EAffectFlag::AFF_GROUP))
+
+				if (f->follower->get_master() == ch
+					|| !AFF_FLAGGED(f->follower->get_master(), EAffectFlag::AFF_GROUP))
 				{
 					continue;
 				}
-// shapirus: при включенном режиме не показываем клонов и хранителей
+
+				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, PRF_NOCLONES)
 					&& IS_NPC(f->follower)
 					&& (MOB_FLAGGED(f->follower, MOB_CLONE)
@@ -1356,19 +1386,24 @@ void print_group(CHAR_DATA * ch)
 				{
 					continue;
 				}
+
 				if (!cfound)
+				{
 					send_to_char("Последователи членов вашей группы:\r\n", ch);
+				}
 				print_one_line(ch, f->follower, FALSE, cfound++);
 			}
-			if (ch->master)
+
+			if (ch->has_master())
 			{
 				if (!(AFF_FLAGGED(g->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(g->follower, MOB_ANGEL)|| MOB_FLAGGED(g->follower, MOB_GHOST))
+					|| MOB_FLAGGED(g->follower, MOB_ANGEL) || MOB_FLAGGED(g->follower, MOB_GHOST))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 				{
 					continue;
 				}
-// shapirus: при включенном режиме не показываем клонов и хранителей
+
+				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, PRF_NOCLONES)
 					&& IS_NPC(g->follower)
 					&& (MOB_FLAGGED(g->follower, MOB_CLONE)
@@ -1376,11 +1411,15 @@ void print_group(CHAR_DATA * ch)
 				{
 					continue;
 				}
+
 				if (!cfound)
+				{
 					send_to_char("Последователи членов вашей группы:\r\n", ch);
+				}
 				print_one_line(ch, g->follower, FALSE, cfound++);
 			}
 		}
+	}
 }
 
 void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1409,7 +1448,7 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ch->master)
+	if (ch->has_master())
 	{
 		act("Вы не можете управлять группой. Вы еще не ведущий.", FALSE, ch, 0, 0, TO_CHAR);
 		return;
@@ -1432,7 +1471,8 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 
-	if (!str_cmp(buf, "all") || !str_cmp(buf, "все"))
+	if (!str_cmp(buf, "all")
+		|| !str_cmp(buf, "все"))
 	{
 		perform_group(ch, ch);
 		for (found = 0, f = ch->followers; f; f = f->next)
@@ -1444,10 +1484,12 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			found += perform_group(ch, f->follower);
 		}
+
 		if (!found)
 		{
 			send_to_char("Все, кто за вами следуют, уже включены в вашу группу.\r\n", ch);
 		}
+
 		return;
 	}
 	else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер"))
@@ -1455,17 +1497,23 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		vict = get_player_vis(ch, argument, FIND_CHAR_WORLD);
 		// added by WorM (Видолюб) Если найден клон и его хозяин персонаж
 		// а то чото как-то глючно Двойник %1 не является членом вашей группы.
-		if (vict && IS_NPC(vict) && MOB_FLAGGED(vict, MOB_CLONE) && AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) && vict->master && !IS_NPC(vict->master))
+		if (vict
+			&& IS_NPC(vict)
+			&& MOB_FLAGGED(vict, MOB_CLONE)
+			&& AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			&& vict->has_master()
+			&& !IS_NPC(vict->get_master()))
 		{
-			if (CAN_SEE(ch, vict->master))
+			if (CAN_SEE(ch, vict->get_master()))
 			{
-				vict = vict->master;
+				vict = vict->get_master();
 			}
 			else
 			{
 				vict = NULL;
 			}
 		}
+
 		// end by WorM
 		if (!vict)
 		{
@@ -1477,7 +1525,8 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("Вы и так лидер группы...\r\n", ch);
 			return;
 		}
-		else if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP) || vict->master != ch)
+		else if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
+			|| vict->get_master() != ch)
 		{
 			send_to_char(ch, "%s не является членом вашей группы.\r\n", GET_NAME(vict));
 			return;
@@ -1487,9 +1536,13 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
+	{
 		send_to_char(NOPERSON, ch);
-	else if ((vict->master != ch) && (vict != ch))
+	}
+	else if ((vict->get_master() != ch) && (vict != ch))
+	{
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
+	}
 	else
 	{
 		if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP))
@@ -1524,7 +1577,8 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, buf);
 
-	if (ch->master || !(AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)))
+	if (ch->has_master()
+		|| !(AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)))
 	{
 		send_to_char("Вы же не лидер группы!\r\n", ch);
 		return;
@@ -1615,7 +1669,7 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch));
 	}
 	CAP(buf);
-	k = (ch->master ? ch->master : ch);
+	k = ch->has_master() ? ch->get_master() : ch;
 	for (f = k->followers; f; f = f->next)
 	{
 		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
@@ -1625,6 +1679,7 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			send_to_char(buf, f->follower);
 		}
 	}
+
 	if (k != ch && !AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS))
 	{
 		send_to_char(buf, k);
@@ -1657,12 +1712,17 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		k = (ch->master ? ch->master : ch);
+		k = ch->has_master() ? ch->get_master() : ch;
 
-		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && (k->in_room == ch->in_room))
+		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
+			&& (k->in_room == ch->in_room))
+		{
 			num = 1;
+		}
 		else
+		{
 			num = 0;
+		}
 
 		for (f = k->followers; f; f = f->next)
 		{

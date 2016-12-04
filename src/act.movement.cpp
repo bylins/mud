@@ -388,12 +388,14 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	}
 
 	// charmed
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->master && ch->in_room == ch->master->in_room)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		&& ch->has_master()
+		&& ch->in_room == ch->get_master()->in_room)
 	{
 		if (show_msg)
 		{
 			send_to_char("Вы не можете покинуть свой идеал.\r\n", ch);
-			act("$N попытал$U покинуть вас.", FALSE, ch->master, 0, ch, TO_CHAR);
+			act("$N попытал$U покинуть вас.", FALSE, ch->get_master(), 0, ch, TO_CHAR);
 		}
 		return (FALSE);
 	}
@@ -402,16 +404,20 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	if (IS_NPC(ch))
 	{
 		if (GET_DEST(ch) != NOWHERE)
+		{
 			return (TRUE);
+		}
 		//  if this room or the one we're going to needs a boat, check for one */
-		if (!MOB_FLAGGED(ch, MOB_SWIMMING) &&
-				!MOB_FLAGGED(ch, MOB_FLYING) &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY) &&
-				(real_sector(ch->in_room) == SECT_WATER_NOSWIM ||
-				 real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM))
+		if (!MOB_FLAGGED(ch, MOB_SWIMMING)
+			&& !MOB_FLAGGED(ch, MOB_FLYING)
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY)
+			&& (real_sector(ch->in_room) == SECT_WATER_NOSWIM
+				|| real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM))
 		{
 			if (!has_boat(ch))
+			{
 				return (FALSE);
+			}
 		}
 
 		// Добавляем проверку на то что моб может вскрыть дверь
@@ -522,15 +528,20 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 
 		if (GET_MOVE(ch) < need_movement)
 		{
-			if (need_specials_check && ch->master)
+			if (need_specials_check
+				&& ch->has_master())
 			{
 				if (show_msg)
+				{
 					send_to_char("Вы слишком устали, чтобы следовать туда.\r\n", ch);
+				}
 			}
 			else
 			{
 				if (show_msg)
+				{
 					send_to_char("Вы слишком устали.\r\n", ch);
+				}
 			}
 			return (FALSE);
 		}
@@ -736,10 +747,10 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		&& (IN_ROOM(get_horse(ch)) == was_in
 			|| IN_ROOM(get_horse(ch)) == go_to);
 	is_horse = IS_HORSE(ch)
-		&& (ch->master)
-		&& !AFF_FLAGGED(ch->master, EAffectFlag::AFF_INVISIBLE)
-		&& (IN_ROOM(ch->master) == was_in
-			|| IN_ROOM(ch->master) == go_to);
+		&& ch->has_master()
+		&& !AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_INVISIBLE)
+		&& (IN_ROOM(ch->get_master()) == was_in
+			|| IN_ROOM(ch->get_master()) == go_to);
 
 	if (!invis && !is_horse)
 	{
@@ -1063,7 +1074,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 			if (!(dir = do_simple_move(ch, dir, need_specials_check, master)))
 				return (FALSE);
 			dir--;
-			for (k = ch->followers; k && k->follower->master; k = next)
+			for (k = ch->followers; k && k->follower->get_master(); k = next)
 			{
 				next = k->next;
 				if (k->follower->in_room == was_in
@@ -1079,17 +1090,18 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 				{
 					if (GET_POS(k->follower) < POS_STANDING)
 					{
-						if (IS_NPC(k->follower) &&
-								IS_NPC(k->follower->master) &&
-								GET_POS(k->follower) > POS_SLEEPING
-								&& !GET_WAIT(k->follower)
-							)
+						if (IS_NPC(k->follower)
+							&& IS_NPC(k->follower->get_master())
+							&& GET_POS(k->follower) > POS_SLEEPING
+							&& !GET_WAIT(k->follower))
 						{
 							act("$n поднял$u.", FALSE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 							GET_POS(k->follower) = POS_STANDING;
 						}
 						else
+						{
 							continue;
+						}
 					}
 //                   act("Вы поплелись следом за $N4.",FALSE,k->follower,0,ch,TO_CHAR);
 					perform_move(k->follower, dir, 1, FALSE, ch);
@@ -1992,7 +2004,7 @@ void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
-	else if (horse->master != ch)
+	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (GET_POS(horse) < POS_FIGHTING)
 		act("$N не сможет вас нести в таком состоянии.", FALSE, ch, 0, horse, TO_CHAR);
@@ -2068,7 +2080,7 @@ void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
-	else if (horse->master != ch)
+	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (!AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
 		act("А $N и не привязан$A.", FALSE, ch, 0, horse, TO_CHAR);
@@ -2109,7 +2121,7 @@ void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
-	else if (horse->master != ch)
+	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
 		act("А $N уже и так привязан$A.", FALSE, ch, 0, horse, TO_CHAR);
@@ -2155,7 +2167,10 @@ void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	// Исправил ошибку не дававшую воровать коняжек. -- Четырь (13.10.10)
-	else if (!IS_GOD(ch) && !MOB_FLAGGED(horse, MOB_MOUNTING) && !((horse->master) && AFF_FLAGGED(horse, EAffectFlag::AFF_HORSE)))
+	else if (!IS_GOD(ch)
+		&& !MOB_FLAGGED(horse, MOB_MOUNTING)
+		&& !(horse->has_master()
+			&& AFF_FLAGGED(horse, EAffectFlag::AFF_HORSE)))
 	{
 		act("Вы не сможете оседлать $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		return;
@@ -2350,10 +2365,14 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!str_cmp(buf, "я") || !str_cmp(buf, "self") || !str_cmp(buf, "me"))
 		{
-			if (!ch->master)
+			if (!ch->has_master())
+			{
 				send_to_char("Но вы ведь ни за кем не следуете...\r\n", ch);
+			}
 			else
+			{
 				stop_follower(ch, SF_EMPTY);
+			}
 			return;
 		}
 		if (!(leader = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
@@ -2368,28 +2387,29 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ch->master == leader)
+	if (ch->get_master() == leader)
 	{
 		act("Вы уже следуете за $N4.", FALSE, ch, 0, leader, TO_CHAR);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->master))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		&& ch->has_master())
 	{
-		act("Но вы можете следовать только за $N4!", FALSE, ch, 0, ch->master, TO_CHAR);
+		act("Но вы можете следовать только за $N4!", FALSE, ch, 0, ch->get_master(), TO_CHAR);
 	}
 	else  		// Not Charmed follow person
 	{
 		if (leader == ch)
 		{
-			if (!ch->master)
+			if (!ch->has_master())
 			{
 				send_to_char("Вы уже следуете за собой.\r\n", ch);
 				return;
 			}
 			stop_follower(ch, SF_EMPTY);
 		}
-		else  	//log("[Follow] Check circle...");
+		else
 		{
 			if (circle_follow(ch, leader))
 			{
@@ -2397,7 +2417,7 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				return;
 			}
 
-			if (ch->master)
+			if (ch->has_master())
 			{
 				stop_follower(ch, SF_EMPTY);
 			}

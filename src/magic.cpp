@@ -4658,7 +4658,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		for (k = ch->followers; k; k = k->next)
 		{
 			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
-				&& k->follower->master == ch)
+				&& k->follower->get_master() == ch)
 			{
 				cha_num++;
 			}

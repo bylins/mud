@@ -1168,7 +1168,9 @@ void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	skip_spaces(&argument);
 
 	if (!*argument)
+	{
 		send_to_char("И что вы хотите выразить столь красочно?\r\n", ch);
+	}
 	else
 	{
 		if (subcmd == SCMD_EMOTE)
@@ -1176,29 +1178,40 @@ void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			// added by Pereplut
 			if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 			{
-				if PLR_FLAGGED(ch->master, PLR_DUMB)
+				if PLR_FLAGGED(ch->get_master(), PLR_DUMB)
 				{
 // shapirus: правильно пишется не "так-же", а "так же".
 // и запятая пропущена была :-P.
-					send_to_char("Ваши последователи так же немы, как и вы!\r\n", ch->master);
+					send_to_char("Ваши последователи так же немы, как и вы!\r\n", ch->get_master());
 					return;
 				}
 			}
 			sprintf(buf, "&K$n %s.&n", argument);
 		}
 		else
+		{
 			strcpy(buf, argument);
+		}
+
 		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
 		{
 			if (to == ch || ignores(to, ch, IGNORE_EMOTE))
+			{
 				continue;
+			}
+
 			act(buf, FALSE, ch, 0, to, TO_VICT | CHECK_DEAF);
 			act(deaf_social, FALSE, ch, 0, to, TO_VICT | CHECK_NODEAF);
 		}
+
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+		{
 			send_to_char(OK, ch);
+		}
 		else
+		{
 			act(buf, FALSE, ch, 0, 0, TO_CHAR);
+		}
 	}
 }
 
@@ -2470,7 +2483,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 
 	if (god_level >= LVL_GRGOD)
 	{
-		sprintf(buf, "Ведущий: %s, Ведомые:", ((k->master) ? GET_NAME(k->master) : "<нет>"));
+		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 
 		for (fol = k->followers; fol; fol = fol->next)
 		{
@@ -3237,10 +3250,12 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			// TODO: честно говоря дублирование куска из экстракта не ясно
 			// смену лидера пока сюду не сую, над вникнуть будет...
-			if (vict->followers || vict->master)
+			if (vict->followers
+				|| vict->has_master())
 			{
 				die_follower(vict);
 			}
+
 			if (!vict->purged())
 			{
 				extract_char(vict, FALSE);
@@ -3268,10 +3283,12 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			next_v = vict->next_in_room;
 			if (IS_NPC(vict))
 			{
-				if (vict->followers || vict->master)
+				if (vict->followers
+					|| vict->has_master())
 				{
 					die_follower(vict);
 				}
+
 				if (!vict->purged())
 				{
 					extract_char(vict, FALSE);

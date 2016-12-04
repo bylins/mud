@@ -166,13 +166,17 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 			remember(ch, victim);
 		}
 		else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-			&& victim->master
-			&& !IS_NPC(victim->master))
+			&& victim->has_master()
+			&& !IS_NPC(victim->get_master()))
 		{
 			if (MOB_FLAGGED(victim, MOB_CLONE))
-				remember(ch, victim->master);
-			else if (IN_ROOM(victim->master) == ch->in_room && CAN_SEE(ch, victim->master))
-				remember(ch, victim->master);
+			{
+				remember(ch, victim->get_master());
+			}
+			else if (IN_ROOM(victim->get_master()) == ch->in_room && CAN_SEE(ch, victim->get_master()))
+			{
+				remember(ch, victim->get_master());
+			}
 		}
 		return (FALSE);
 	}
@@ -347,10 +351,17 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!*arg)
 	{
 		for (helpee = world[ch->in_room]->people; helpee; helpee = helpee->next_in_room)
-			if (helpee->get_fighting() && helpee->get_fighting() != ch && ((ch->master && ch->master == helpee->master)
-					|| ch->master == helpee
-					|| helpee->master == ch))
+		{
+			if (helpee->get_fighting()
+				&& helpee->get_fighting() != ch
+				&& ((ch->has_master() && ch->get_master() == helpee->get_master())
+					|| ch->get_master() == helpee
+					|| helpee->get_master() == ch))
+			{
 				break;
+			}
+		}
+
 		if (!helpee)
 		{
 			send_to_char("Кому вы хотите помочь?\r\n", ch);
@@ -411,13 +422,21 @@ void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		act("$n ударил$g себя", FALSE, ch, 0, vict, TO_ROOM | CHECK_NODEAF | TO_ARENA_LISTEN);
 	}
 	else if (!may_kill_here(ch, vict))
+	{
 		return;
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->master == vict))
+	}
+	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		&& (ch->get_master() == vict))
+	{
 		act("$N слишком дорог для вас, чтобы бить $S.", FALSE, ch, 0, vict, TO_CHAR);
+	}
 	else
 	{
 		if (subcmd != SCMD_MURDER && !check_pkill(ch, vict, arg))
+		{
 			return;
+		}
+
 		if (ch->get_fighting())
 		{
 			if (vict == ch->get_fighting())
@@ -425,11 +444,13 @@ void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				act("Вы уже сражаетесь с $N4.", FALSE, ch, 0, vict, TO_CHAR);
 				return;
 			}
+
 			if (ch != vict->get_fighting())
 			{
 				act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, vict, TO_CHAR);
 				return;
 			}
+
 			vict = try_protect(vict, ch);
 			stop_fighting(ch, 2); //просто переключаемся
 			set_fighting(ch, vict);
@@ -440,7 +461,9 @@ void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			set_hit(ch, vict);
 		}
 		else
+		{
 			send_to_char("Вам явно не до боя!\r\n", ch);
+		}
 	}
 }
 
@@ -618,7 +641,6 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	bool found = FALSE;
 	room_rnum org_room;
 	CHAR_DATA *vict;
-	struct follow_type *k, *k_next;
 
 	half_chop(argument, name, message);
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE))
@@ -645,34 +667,48 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char(ch, "Игрокам приказывать могут только Боги!\r\n");
 			return;
 		}
+
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		{
 			send_to_char("В таком состоянии вы не можете сами отдавать приказы.\r\n", ch);
 			return;
 		}
-		if (vict && !is_abbrev(name, "все") && !is_abbrev(name, "всем")
-				&& !is_abbrev(name, "followers"))
+
+		if (vict
+			&& !is_abbrev(name, "все")
+			&& !is_abbrev(name, "всем")
+			&& !is_abbrev(name, "followers"))
 		{
 			sprintf(buf, "$N приказал$g вам '%s'", message);
 			act(buf, FALSE, vict, 0, ch, TO_CHAR | CHECK_DEAF);
 			act("$n отдал$g приказ $N2.", FALSE, ch, 0, vict, TO_ROOM | CHECK_DEAF);
 
-			if ((vict->master != ch) || !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
+			if (vict->get_master() != ch
+				|| !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+				|| AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
 			{
 				if (!IS_POLY(vict))
+				{
 					act("$n безразлично смотрит по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
+				}
 				else
+				{
 					act("$n безразлично смотрят по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
+				}
 			}
 			else
 			{
 				send_to_char(OK, ch);
 				if (vict->get_wait() <= 0)
+				{
 					command_interpreter(vict, message);
+				}
 				else if (vict->get_fighting())
 				{
 					if (vict->last_comm != NULL)
+					{
 						free(vict->last_comm);
+					}
 					vict->last_comm = str_dup(message);
 				}
 			}
@@ -904,8 +940,12 @@ void drop_from_horse(CHAR_DATA *victim)
 		act("Вы упали с $N1.", FALSE, victim, 0, get_horse(victim), TO_CHAR);
 		AFF_FLAGS(victim).unset(EAffectFlag::AFF_HORSE);
 	}
-	if (IS_HORSE(victim) && on_horse(victim->master))
+
+	if (IS_HORSE(victim)
+		&& on_horse(victim->get_master()))
+	{
 		horse_drop(victim);
+	}
 }
 
 // ************************* BASH PROCEDURES
@@ -1327,10 +1367,16 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (IS_NPC(vict) && tmp_ch && (!IS_NPC(tmp_ch) || (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_CHARM)
-								   && tmp_ch->master && !IS_NPC(tmp_ch->master))) &&
-			(!IS_NPC(ch)
-			 || (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->master && !IS_NPC(ch->master))))
+	if (IS_NPC(vict)
+		&& tmp_ch
+		&& (!IS_NPC(tmp_ch)
+			|| (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_CHARM)
+				&& tmp_ch->has_master()
+				&& !IS_NPC(tmp_ch->get_master())))
+		&& (!IS_NPC(ch)
+			|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+				&& ch->has_master()
+				&& !IS_NPC(ch->get_master()))))
 	{
 		send_to_char("Вы пытаетесь спасти чужого противника.\r\n", ch);
 		return;
@@ -1338,20 +1384,26 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	// Двойники и прочие очарки не в группе с тем, кого собираются спасать:
 	// Если тот, кто собирается спасать - "чармис" и у него существует хозяин
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->master != NULL)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		&& ch->has_master())
 	{
 		// Если спасаем "чармиса", то проверять надо на нахождение в одной
 		// группе хозянина спасющего и спасаемого.
-		if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) && (vict->master != NULL) && !same_group(vict->master, ch->master))
+		if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			&& vict->has_master()
+			&& !same_group(vict->get_master(), ch->get_master()))
 		{
 			act("Спасали бы вы лучше другов своих.", FALSE, ch, 0, vict, TO_CHAR);
-			act("Вы не можете спасти весь мир.", FALSE, ch->master, 0, vict, TO_CHAR);
+			act("Вы не можете спасти весь мир.", FALSE, ch->get_master(), 0, vict, TO_CHAR);
+
 			return;
 		}
 	}
 
 	if (!may_kill_here(ch, tmp_ch))
+	{
 		return;
+	}
 
 	go_rescue(ch, vict, tmp_ch);
 }
@@ -1788,19 +1840,23 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+	{
 		if (tch->get_fighting() == vict)
+		{
 			break;
+		}
+	}
 
 	if (IS_NPC(vict)
 		&& tch
 		&& (!IS_NPC(tch)
 			|| (AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
-				&& tch->master
-				&& !IS_NPC(tch->master)))
+				&& tch->has_master()
+				&& !IS_NPC(tch->get_master())))
 		&& (!IS_NPC(ch)
 			|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-				&& ch->master
-				&& !IS_NPC(ch->master))))
+				&& ch->has_master()
+				&& !IS_NPC(ch->get_master()))))
 	{
 		send_to_char("Вы пытаетесь прикрыть чужого противника.\r\n", ch);
 		return;
@@ -1808,8 +1864,11 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 	{
-		if (tch->get_fighting() == vict && !may_kill_here(ch, tch))
+		if (tch->get_fighting() == vict
+			&& !may_kill_here(ch, tch))
+		{
 			return;
+		}
 	}
 	go_protect(ch, vict);
 }
@@ -2007,7 +2066,9 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		//+Полель
         // для арены, игроков и чармисов оружие в инвентарь. во всех остальных случаях на землю
         // профсаюз мобов может писать жалабу на Полазника. :)
-		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA) || (!IS_MOB(vict)) || (vict->master))
+		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA)
+			|| (!IS_MOB(vict))
+			|| vict->has_master())
 		{
             obj_to_char(wielded, vict);
         }
@@ -2174,18 +2235,28 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		act("$n ловко подсек$q вас, усадив на попу.", FALSE, ch, 0, vict, TO_VICT);
 		act("$n ловко подсек$q $N3, уронив $S на землю.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_wait(vict, 3, FALSE);
+
 		if (ch->in_room == IN_ROOM(vict))
+		{
 			GET_POS(vict) = POS_SITTING;
-		if (IS_HORSE(vict) && on_horse(vict->master))
+		}
+
+		if (IS_HORSE(vict)
+			&& on_horse(vict->get_master()))
+		{
 			horse_drop(vict);
+		}
 		prob = 1;
 	}
 
-	
-
 	appear(ch);
-	if (IS_NPC(vict) && CAN_SEE(vict, ch) && have_mind(vict) && vict->get_wait() <= 0)
+	if (IS_NPC(vict)
+		&& CAN_SEE(vict, ch)
+		&& have_mind(vict)
+		&& vict->get_wait() <= 0)
+	{
 		set_hit(vict, ch);
+	}
 
 	set_wait(ch, prob, FALSE);
 }
