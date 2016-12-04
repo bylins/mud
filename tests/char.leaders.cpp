@@ -53,7 +53,7 @@ TEST(CHAR_Leaders, TripleChain)
 	EXPECT_EQ(nullptr, character3->get_master());
 }
 
-TEST(CHAR_Leader, LoopCheck)
+TEST(CHAR_Leaders, LoopCheck)
 {
 }
 
