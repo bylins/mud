@@ -682,30 +682,42 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			org_room = ch->in_room;
 			act("$n отдал$g приказ.", FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
 
-			for (k = ch->followers; k; k = k_next)
+			CHAR_DATA::followers_list_t followers = ch->get_followers_list();
+
+			for (const auto follower : followers)
 			{
-				k_next = k->next;
-				if (org_room == k->follower->in_room)
-					if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
-						&& !AFF_FLAGGED(k->follower, EAffectFlag::AFF_DEAFNESS))
+				if (org_room != follower->in_room)
+				{
+					continue;
+				}
+
+				if (AFF_FLAGGED(follower, EAffectFlag::AFF_CHARM)
+					&& !AFF_FLAGGED(follower, EAffectFlag::AFF_DEAFNESS))
+				{
+					found = TRUE;
+					if (follower->get_wait() <= 0)
 					{
-						found = TRUE;
-						if (k->follower->get_wait() <= 0)
-						{
-							command_interpreter(k->follower, message);
-						}
-						else if (k->follower->get_fighting())
-						{
-							if (k->follower->last_comm != NULL)
-								free(k->follower->last_comm);
-							k->follower->last_comm = str_dup(message);
-						}
+						command_interpreter(follower, message);
 					}
+					else if (follower->get_fighting())
+					{
+						if (follower->last_comm != NULL)
+						{
+							free(follower->last_comm);
+						}
+						follower->last_comm = str_dup(message);
+					}
+				}
 			}
+
 			if (found)
+			{
 				send_to_char(OK, ch);
+			}
 			else
+			{
 				send_to_char("Вы страдаете манией величия!\r\n", ch);
+			}
 		}
 	}
 }
