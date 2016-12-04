@@ -45,6 +45,7 @@ TEST_F(Boards_Changelog, GettingByIndex_0)
 	EXPECT_EQ(true, bool(message0)) << "Could not get message with index 0.";
 	EXPECT_EQ(EXPECTED_NUMBER_OF_THE_FIRST_COMMIT, message0->num);
 	EXPECT_EQ(std::string(EXPECTED_AUTHOR_OF_THE_LAST_COMMIT), message0->author);
+//	EXPECT_EQ(EXPECTED_DATE_OF_THE_FIRST_COMMIT, message0->date); TODO: fix date comparing. Now it considers dates as dates in current time zone. So, test tesults are hard predictable.
 }
 
 TEST_F(Boards_Changelog, CheckIndexes)
