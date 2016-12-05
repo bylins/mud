@@ -39,10 +39,24 @@ debug:
                         - circle
                 expire_in: 1 week
 
-deploy-to-mirror:
+deploy-debug:
         stage: deploy
         script:
-                - echo "Deploying into mirror"
-        tags:
-                - mirror
+                - echo "Deploying debug build..."
+        dependencies:
+                - debug
+        script:
+                - mv circle ${BYLINS_DEBUG_HOME}
+                - touch ${BYLINS_DEBUG_HOME}/touch.me.for.reboot
+        when: manual
+
+deploy-release:
+        stage: deploy
+        script:
+                - echo "Deploying release build..."
+        dependencies:
+                - release
+        script:
+                - mv circle ${BYLINS_RELEASE_HOME}
+                - touch ${BYLINS_RELEASE_HOME}/touch.me.for.reboot
         when: manual
