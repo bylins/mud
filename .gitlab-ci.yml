@@ -2,7 +2,7 @@ release:
         only:
                 - master
         script:
-                - mkdir build || true
+                - if [ -d build ]; then echo "Build directory already exists"; else mkdir -p build; fi
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=Release ..
                 - cmake --build .
@@ -24,7 +24,7 @@ release:
 
 debug:
         script:
-                - mkdir build || true
+                - if [ -d build ]; then echo "Build directory already exists"; else mkdir -p build; fi
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=Debug ..
                 - cmake --build .
@@ -50,8 +50,8 @@ deploy-debug:
         dependencies:
                 - debug
         script:
-                - pwd
-                - cp -a circle ${BYLINS_DEBUG_HOME}
+                - rm -rf ${BYLINS_DEBUG_HOME}/circle || true
+                - cp -af circle ${BYLINS_DEBUG_HOME}
                 - touch ${BYLINS_DEBUG_HOME}/touch.me.for.reboot
         when: manual
         tags:
@@ -66,7 +66,8 @@ deploy-release:
         dependencies:
                 - release
         script:
-                - cp -a circle ${BYLINS_RELEASE_HOME}
+                - rm -rf ${BYLINS_DEBUG_HOME}/circle || true
+                - cp -af circle ${BYLINS_RELEASE_HOME}
                 - touch ${BYLINS_RELEASE_HOME}/touch.me.for.reboot
         when: manual
         tags:
