@@ -2120,7 +2120,7 @@ void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const
 	std::stringstream ss;
 	ss << "Обнаружена ошибка логики: попытка сделать цикл в цепочке последователей.\nТекущая цепочка лидеров: ";
 	print_leaders_chain(ss);
-	ss << "\nПопытка сделать персонажа " << master->get_name() << " лидером персонажа %s." << get_name();
+	ss << "\nПопытка сделать персонажа [" << master->get_name() << "] лидером персонажа [" << get_name() << "]";
 	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, true);
 }
 
