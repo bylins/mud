@@ -51,6 +51,8 @@ deploy-debug:
         when: manual
 
 deploy-release:
+        only:
+                - master
         stage: deploy
         script:
                 - echo "Deploying release build..."
