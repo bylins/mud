@@ -18,6 +18,8 @@ release:
                 paths:
                         - circle
                 expire_in: 1 week
+        tags:
+                - builder
 
 
 debug:
@@ -38,6 +40,8 @@ debug:
                 paths:
                         - circle
                 expire_in: 1 week
+        tags:
+                - builder
 
 deploy-debug:
         stage: deploy
@@ -50,6 +54,8 @@ deploy-debug:
                 - cp -a circle ${BYLINS_DEBUG_HOME}
                 - touch ${BYLINS_DEBUG_HOME}/touch.me.for.reboot
         when: manual
+        tags:
+                - mirror
 
 deploy-release:
         only:
@@ -63,3 +69,5 @@ deploy-release:
                 - cp -a circle ${BYLINS_RELEASE_HOME}
                 - touch ${BYLINS_RELEASE_HOME}/touch.me.for.reboot
         when: manual
+        tags:
+                - mirror
