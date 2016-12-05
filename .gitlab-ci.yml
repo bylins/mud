@@ -46,7 +46,8 @@ deploy-debug:
         dependencies:
                 - debug
         script:
-                - mv circle ${BYLINS_DEBUG_HOME}
+                - pwd
+                - cp -a circle ${BYLINS_DEBUG_HOME}
                 - touch ${BYLINS_DEBUG_HOME}/touch.me.for.reboot
         when: manual
 
@@ -59,6 +60,6 @@ deploy-release:
         dependencies:
                 - release
         script:
-                - mv circle ${BYLINS_RELEASE_HOME}
+                - cp -a circle ${BYLINS_RELEASE_HOME}
                 - touch ${BYLINS_RELEASE_HOME}/touch.me.for.reboot
         when: manual
