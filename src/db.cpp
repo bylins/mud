@@ -56,7 +56,6 @@
 #include "title.hpp"
 #include "top.h"
 #include "class.hpp"
-#include "debug.helper.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -1287,7 +1286,6 @@ void convert_obj_values()
 
 void GameLoader::boot_world()
 {
-	debug::backtrace(stderr);
 	utils::CSteppedProfiler boot_profiler("World booting");
 
 	boot_profiler.next_step("Loading zone table");

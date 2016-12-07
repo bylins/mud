@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <climits>
 
 #ifdef _WIN32
 
@@ -12,15 +13,19 @@
 #include <DbgHelp.h>
 #pragma warning(pop)
 
-#else
+#else	// _WIN32
+
+#include <execinfo.h>
+
 #endif
 
 namespace debug
 {
+	constexpr unsigned short MAX_STACK_SIZE = USHRT_MAX;
+
 #ifdef _WIN32
 	void win32_backtrace(FILE* file)
 	{
-		constexpr unsigned short MAX_STACK_SIZE = USHRT_MAX;
 		constexpr size_t MAX_NAME_LENGTH = 1024u;
 
 		const auto process = GetCurrentProcess();
@@ -36,10 +41,14 @@ namespace debug
 			fprintf(file, "%02d: %s at 0x%08llx\n",
 				frames - i - 1, symbol->Name, static_cast<unsigned long long>(symbol->Address));
 		}
+		free(symbol);
 	}
 #else
 	void linux_backtrace(FILE* file)
 	{
+		void* stack[MAX_STACK_SIZE];
+		const auto frames = ::backtrace(stack, MAX_STACK_SIZE);
+		backtrace_symbols_fd(stack, frames, fileno(file));
 	}
 #endif
 
