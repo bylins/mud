@@ -1,0 +1,56 @@
+#include "debug.helper.hpp"
+
+#include <iostream>
+#include <cstdlib>
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+#pragma warning(push)
+#pragma warning(disable:4091)
+#include <DbgHelp.h>
+#pragma warning(pop)
+
+#else
+#endif
+
+namespace debug
+{
+#ifdef _WIN32
+	void win32_backtrace(FILE* file)
+	{
+		constexpr unsigned short MAX_STACK_SIZE = USHRT_MAX;
+		constexpr size_t MAX_NAME_LENGTH = 1024u;
+
+		const auto process = GetCurrentProcess();
+		SymInitialize(process, nullptr, TRUE);
+		void* stack[MAX_STACK_SIZE];
+		const auto frames = CaptureStackBackTrace(0, MAX_STACK_SIZE, stack, nullptr);
+		SYMBOL_INFO* symbol = (SYMBOL_INFO *) calloc(sizeof(SYMBOL_INFO) + MAX_NAME_LENGTH*sizeof(char), 1);
+		symbol->MaxNameLen = MAX_NAME_LENGTH - 1;
+		symbol->SizeOfStruct = sizeof(*symbol);
+		for (auto i = 0; i < frames; ++i)
+		{
+			SymFromAddr(process, reinterpret_cast<DWORD64>(stack[i]), 0, symbol);
+			fprintf(file, "%02d: %s at 0x%08llx\n",
+				frames - i - 1, symbol->Name, static_cast<unsigned long long>(symbol->Address));
+		}
+	}
+#else
+	void linux_backtrace(FILE* file)
+	{
+	}
+#endif
+
+	void backtrace(FILE* file)
+	{
+#ifdef _WIN32
+		win32_backtrace(file);
+#else
+		linux_backtrace(file);
+#endif
+	}
+}
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

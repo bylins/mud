@@ -41,6 +41,7 @@ set(SOURCES
 	src/craft_commands.cpp
 	src/db.cpp
 	src/deathtrap.cpp
+	src/debug.helper.cpp
 	src/depot.cpp
 	src/description.cpp
 	src/dg_comm.cpp
@@ -167,6 +168,7 @@ set(HEADERS
 	src/craft_commands.hpp
 	src/db.h
 	src/deathtrap.hpp
+	src/debug.helper.hpp
 	src/depot.hpp
 	src/description.h
 	src/dg_db_scripts.hpp
@@ -530,6 +532,7 @@ elseif (CMAKE_HOST_WIN32)
 
 	# EPOLL>>> ...and suppose that Windows does not
 	option(HAS_EPOLL "Does system support epoll call?" OFF)
+	target_link_libraries(circle.library DbgHelp)
 endif ()
 
 if (HAS_EPOLL)
