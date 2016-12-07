@@ -16,17 +16,18 @@ set(SOURCES
 	src/AffectHandler.cpp
 	src/alias.cpp
 	src/auction.cpp
+	src/backtrace.cpp
 	src/ban.cpp
 	src/birth_places.cpp
-	src/boards.cpp
-	src/boards.constants.cpp
 	src/boards.changelog.loaders.cpp
+	src/boards.constants.cpp
+	src/boards.cpp
 	src/boards.formatters.cpp
 	src/boards.types.cpp
 	src/bonus.cpp
 	src/boot.constants.cpp
-	src/boot.index.cpp
 	src/boot.data.files.cpp
+	src/boot.index.cpp
 	src/cache.cpp
 	src/celebrates.cpp
 	src/char.cpp
@@ -37,11 +38,10 @@ set(SOURCES
 	src/config.cpp
 	src/constants.cpp
 	src/corpse.cpp
-	src/craft.cpp
 	src/craft_commands.cpp
+	src/craft.cpp
 	src/db.cpp
 	src/deathtrap.cpp
-	src/debug.helper.cpp
 	src/depot.cpp
 	src/description.cpp
 	src/dg_comm.cpp
@@ -62,8 +62,8 @@ set(SOURCES
 	src/ext_money.cpp
 	src/features.cpp
 	src/fight.cpp
-	src/fight.penalties.cpp
 	src/fight_hit.cpp
+	src/fight.penalties.cpp
 	src/fight_stuff.cpp
 	src/file_crc.cpp
 	src/genchar.cpp
@@ -127,8 +127,8 @@ set(SOURCES
 	src/spell_parser.cpp
 	src/spells.cpp
 	src/structs.cpp
-	src/stuff.cpp
 	src/structs.cpp
+	src/stuff.cpp
 	src/time_utils.cpp
 	src/title.cpp
 	src/top.cpp
@@ -138,21 +138,22 @@ set(SOURCES
 	src/zedit.cpp)
 
 set(HEADERS
-	src/AffectHandler.hpp
 	src/act.other.hpp
+	src/AffectHandler.hpp
 	src/auction.h
+	src/backtrace.hpp
 	src/ban.hpp
 	src/birth_places.hpp
-	src/boards.h
-	src/boards.constants.hpp
 	src/boards.changelog.loaders.hpp
+	src/boards.constants.hpp
 	src/boards.formatters.hpp
+	src/boards.h
 	src/boards.message.hpp
 	src/boards.types.hpp
 	src/bonus.h
 	src/boot.constants.hpp
-	src/boot.index.hpp
 	src/boot.data.files.hpp
+	src/boot.index.hpp
 	src/cache.hpp
 	src/celebrates.hpp
 	src/char.hpp
@@ -164,11 +165,10 @@ set(HEADERS
 	src/config.hpp
 	src/constants.h
 	src/corpse.hpp
-	src/craft.hpp
 	src/craft_commands.hpp
+	src/craft.hpp
 	src/db.h
 	src/deathtrap.hpp
-	src/debug.helper.hpp
 	src/depot.hpp
 	src/description.h
 	src/dg_db_scripts.hpp
@@ -182,10 +182,10 @@ set(HEADERS
 	src/exchange.h
 	src/ext_money.hpp
 	src/features.hpp
-	src/fight.h
-	src/fight.penalties.hpp
 	src/fight_constants.hpp
+	src/fight.h
 	src/fight_hit.hpp
+	src/fight.penalties.hpp
 	src/file_crc.hpp
 	src/genchar.h
 	src/glory_const.hpp
@@ -246,8 +246,8 @@ set(HEADERS
 	src/time_utils.hpp
 	src/title.hpp
 	src/top.h
-	src/xml_loading_helper.hpp
-	src/utils.h)
+	src/utils.h
+	src/xml_loading_helper.hpp)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 
