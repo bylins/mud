@@ -26,6 +26,7 @@
 #include "help.hpp"
 #include "utils.h"
 #include "msdp.constants.hpp"
+#include "backtrace.hpp"
 
 #include <boost/format.hpp>
 
@@ -2120,7 +2121,9 @@ void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const
 	std::stringstream ss;
 	ss << "Обнаружена ошибка логики: попытка сделать цикл в цепочке последователей.\nТекущая цепочка лидеров: ";
 	print_leaders_chain(ss);
-	ss << "\nПопытка сделать персонажа [" << master->get_name() << "] лидером персонажа [" << get_name() << "]";
+	ss << "\nПопытка сделать персонажа [" << master->get_name() << "] лидером персонажа [" << get_name() << "]\n"
+		<< "Текущий стек будет распечатан в ERRLOG.";
+	debug::backtrace(runtime_config.logs(ERRLOG).handle());
 	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, true);
 }
 
