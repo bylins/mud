@@ -2,7 +2,7 @@ release:
         only:
                 - master
         script:
-                - mkdir build || true
+                - if [ -d build ]; then echo "Build directory already exists"; else mkdir -p build; fi
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=Release ..
                 - cmake --build .
@@ -18,11 +18,13 @@ release:
                 paths:
                         - circle
                 expire_in: 1 week
+        tags:
+                - builder
 
 
 debug:
         script:
-                - mkdir build || true
+                - if [ -d build ]; then echo "Build directory already exists"; else mkdir -p build; fi
                 - cd build
                 - cmake -DCMAKE_BUILD_TYPE=Debug ..
                 - cmake --build .
@@ -33,9 +35,40 @@ debug:
                 untracked: true
                 paths:
                         - build/
-
         artifacts:
                 name: "circle-debug"
                 paths:
                         - circle
                 expire_in: 1 week
+        tags:
+                - builder
+
+deploy-debug:
+        stage: deploy
+        script:
+                - echo "Deploying debug build..."
+        dependencies:
+                - debug
+        script:
+                - rm -rf ${BYLINS_DEBUG_HOME}/circle || true
+                - cp -af circle ${BYLINS_DEBUG_HOME}
+                - touch ${BYLINS_DEBUG_HOME}/touch.me.for.reboot
+        when: manual
+        tags:
+                - mirror
+
+deploy-release:
+        only:
+                - master
+        stage: deploy
+        script:
+                - echo "Deploying release build..."
+        dependencies:
+                - release
+        script:
+                - rm -rf ${BYLINS_DEBUG_HOME}/circle || true
+                - cp -af circle ${BYLINS_RELEASE_HOME}
+                - touch ${BYLINS_RELEASE_HOME}/touch.me.for.reboot
+        when: manual
+        tags:
+                - mirror
