@@ -2121,10 +2121,37 @@ void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const
 	std::stringstream ss;
 	ss << "Обнаружена ошибка логики: попытка сделать цикл в цепочке последователей.\nТекущая цепочка лидеров: ";
 	print_leaders_chain(ss);
-	ss << "\nПопытка сделать персонажа [" << master->get_name() << "] лидером персонажа [" << get_name() << "]\n"
-		<< "Текущий стек будет распечатан в ERRLOG.";
+	ss << "\nПопытка сделать персонажа [" << master->get_name() << "] лидером персонажа [" << get_name() << "]\n";
+	mudlog(ss.str().c_str(), DEF, -1, ERRLOG, true);
+
+	std::stringstream additional_info;
+	additional_info << "Потенциальный лидер: name=[" << master->get_name() << "]"
+		<< "; адрес структуры: " << master << "; текущий лидер: ";
+	if (master->has_master())
+	{
+		additional_info << "name=[" << master->get_master()->get_name() << "]"
+			<< "; адрес структуры: " << master->get_master() << "";
+	}
+	else
+	{
+		additional_info << "<отсутствует>";
+	}
+	additional_info << "Последователь: name=[" << get_name() << "]"
+		<< "; адрес структуры: " << this << "; текущий лидер: ";
+	if (has_master())
+	{
+		additional_info << "name=[" << get_master()->get_name() << "]"
+			<< "; адрес структуры: " << get_master() << "";
+	}
+	else
+	{
+		additional_info << "<отсутствует>";
+	}
+	mudlog(additional_info.str().c_str(), DEF, -1, ERRLOG, true);
+
+	ss << "Текущий стек будет распечатан в ERRLOG.";
 	debug::backtrace(runtime_config.logs(ERRLOG).handle());
-	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, true);
+	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, false);
 }
 
 void CHAR_DATA::print_leaders_chain(std::ostream& ss) const
