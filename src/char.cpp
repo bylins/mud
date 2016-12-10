@@ -2200,24 +2200,4 @@ obj_sets::activ_sum& CHAR_DATA::obj_bonus()
 	return obj_bonus_;
 }
 
-/*
-int Character::get_event_score()
-{
-	return score_event;
-}
-
-void Character::inc_event_score(int score)
-{
-	score_event++;
-}
-
-void Character::set_event_score(int score)
-{
-	score_event = score;
-}
-*/
-
-
-
-
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

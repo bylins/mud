@@ -54,6 +54,11 @@ namespace debug
 
 	void backtrace(FILE* file)
 	{
+		if (nullptr == file)
+		{
+			return;
+		}
+
 #ifdef _WIN32
 		win32_backtrace(file);
 #else
