@@ -7,7 +7,7 @@ release:
                 - cmake -DCMAKE_BUILD_TYPE=Release ..
                 - cmake --build .
                 - cmake --build . --target checks
-                - mv circle ..
+                - mv circle changelog ..
         cache:
                 key: "$CI_BUILD_REF_NAME/Release"
                 untracked: true
@@ -17,6 +17,7 @@ release:
                 name: "circle-release"
                 paths:
                         - circle
+                        - changelog
                 expire_in: 1 week
 
 
@@ -27,7 +28,7 @@ debug:
                 - cmake -DCMAKE_BUILD_TYPE=Debug ..
                 - cmake --build .
                 - cmake --build . --target checks
-                - mv circle ..
+                - mv circle changelog ..
         cache:
                 key: "$CI_BUILD_REF_NAME/Debug"
                 untracked: true
@@ -38,4 +39,5 @@ debug:
                 name: "circle-debug"
                 paths:
                         - circle
+                        - changelog
                 expire_in: 1 week
