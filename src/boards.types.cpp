@@ -31,7 +31,7 @@ namespace Boards
 	int Board::count_unread(time_t last_read) const
 	{
 		int unread = 0;
-		for (auto i = messages.rbegin(); i != messages.rend(); ++i)
+		for (auto i = messages.begin(); i != messages.end(); ++i)
 		{
 			if ((*i)->date > last_read)
 			{
