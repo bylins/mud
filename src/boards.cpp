@@ -371,7 +371,7 @@ namespace Boards
 				return;
 			}
 			size_t num = atoi(buffer2.c_str()) - 1;
-			if (num < 0 || num >= board.messages.size())
+			if (num >= board.messages.size())
 			{
 				send_to_char("Это сообщение может вам только присниться.\r\n", ch);
 				return;
