@@ -21,19 +21,15 @@ namespace Boards
 	void Board::erase_message(const size_t index)
 	{
 		messages.erase(messages.begin() + index);
-		int count = 0;
-		for (auto it = messages.rbegin(); it != messages.rend(); ++it)
-		{
-			(*it)->num = count++;
-		}
+		renumerate_messages();
 	}
 
 	int Board::count_unread(time_t last_read) const
 	{
 		int unread = 0;
-		for (auto i = messages.rbegin(); i != messages.rend(); ++i)
+		for (const auto& message : messages)
 		{
-			if ((*i)->date > last_read)
+			if (message->date > last_read)
 			{
 				++unread;
 			}
