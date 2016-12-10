@@ -370,13 +370,12 @@ namespace Boards
 				send_to_char("Укажите корректный номер сообщения.\r\n", ch);
 				return;
 			}
-			size_t num = atoi(buffer2.c_str());
-			if (num <= 0 || num > board.messages.size())
+			size_t num = atoi(buffer2.c_str()) - 1;
+			if (num < 0 || num >= board.messages.size())
 			{
 				send_to_char("Это сообщение может вам только присниться.\r\n", ch);
 				return;
 			}
-			num = board.messages.size() - num;
 			set_last_read(ch, board.get_type(), board.messages[num]->date);
 			// или он может делетить любые мессаги (по левелу/рангу), или только свои
 			if (!Static::full_access(ch, board_ptr))
