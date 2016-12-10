@@ -8,7 +8,7 @@ release:
                 - cmake --build .
                 - cmake --build . --target checks
                 - mv circle ..
-                - iconv -f utf8 -t koi8-r changelog > ../changelog
+                - iconv -c -f utf8 -t koi8-r changelog > ../changelog
         cache:
                 key: "$CI_BUILD_REF_NAME/Release"
                 untracked: true
@@ -29,7 +29,7 @@ debug:
                 - cmake --build .
                 - cmake --build . --target checks
                 - mv circle ..
-                - iconv -f utf8 -t koi8-r changelog > ../changelog
+                - iconv -c -f utf8 -t koi8-r changelog > ../changelog
         cache:
                 key: "$CI_BUILD_REF_NAME/Debug"
                 untracked: true
